@@ -10867,25 +10867,45 @@ LISPFUN(shell_execute,seclass_default,0,4,norest,nokey,0,NIL) {
 
 #if defined(UNIX) || defined(RISCOS)
 
+/* /dev/null handle. */
+local int nullfile () {
+  var Handle result = (Handle)-1;
+  begin_system_call();
+  result = open("/dev/null",O_RDWR);
+  end_system_call();
+  return result;
+}
+
 LISPFUN(launch,seclass_default,1,0,norest,key,6,
         (kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority))) {
   STACK_6 = check_string(STACK_6); /* command_arg */
-  var long priority = (integerp(STACK_0) ? I_to_L(STACK_0)
-                       : (fehler_posfixnum(STACK_0), 0));
+  var long priority = boundp(STACK_0) ? (integerp(STACK_0) ? I_to_L(STACK_0)
+                       : (fehler_posfixnum(STACK_0), 0)) : 0;
   var bool wait_p = !nullp(STACK_4); /* default: do wait! */
   var int handletype;
+  var Handle hnull = 0;
   var Handle hinput = /* STACK_3 == input_stream_arg */
-    handle_dup1((boundp(STACK_3) && !eq(STACK_3,S(Kterminal)))
-                ? stream_lend_handle(STACK_3,true,&handletype)
-                : stdin_handle);
+    handle_dup1(boundp(STACK_3) && eq(STACK_3,S(Kterminal)) || !boundp(STACK_3)
+                ? stdin_handle
+                : nullp(STACK_3)
+                  ? (hnull ? hnull : (hnull = nullfile()))
+                  : stream_lend_handle(STACK_3,true,&handletype));
+  if (hinput==-1) OS_error();
   var Handle houtput = /* STACK_2 == output_stream_arg */
-    handle_dup1((boundp(STACK_2) && !eq(STACK_2,S(Kterminal)))
-                ? stream_lend_handle(STACK_2,false,&handletype)
-                : stdout_handle);
+    handle_dup1(boundp(STACK_2) && eq(STACK_2,S(Kterminal)) || !boundp(STACK_2)
+                ? stdout_handle
+                : nullp(STACK_2)
+                  ? (hnull ? hnull : (hnull = nullfile()))
+                  : stream_lend_handle(STACK_2,false,&handletype));
+  if (houtput==-1) OS_error();
   var Handle herror = /* STACK_1 == error_stream_arg */
-    handle_dup1((boundp(STACK_1) && !eq(STACK_1,S(Kterminal)))
-                ? stream_lend_handle(STACK_1,false,&handletype)
-                : stderr_handle);
+    handle_dup1(boundp(STACK_1) && eq(STACK_1,S(Kterminal)) || !boundp(STACK_1)
+                ? stderr_handle
+                : nullp(STACK_1)
+                  ? (hnull ? hnull : (hnull = nullfile()))
+                  : stream_lend_handle(STACK_1,false,&handletype));
+  if (herror==-1) OS_error();
+  if (hnull) close(hnull);
   var int exit_code = 0;
   pushSTACK(allocate_cons());
   Car(STACK_0) = string_to_asciz(STACK_(6+1)/*command_arg*/,
