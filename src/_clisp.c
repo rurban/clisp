@@ -243,7 +243,11 @@ int main (int argc, char* argv[])
       strcat(linkingsetdir, argv_linkingset);
     }
     { /* Compute executable's name. */
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+      char* execname = "lisp.exe";
+#else
       char* execname = "lisp.run";
+#endif
       executable = (char*)malloc(strlen(linkingsetdir)+1+strlen(execname)+1);
       if (!executable) goto oom;
       strcpy(executable, linkingsetdir);

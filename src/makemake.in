@@ -2829,7 +2829,7 @@ if [ $CROSS = false ] ; then
 
   echol "# check the sources: subr.d, fsubr.d, subrkw.d and"
   echol "# all the LISPFUNs must add up"
-  echol "check-sources : # lisp.run lispinit.mem"
+  echol "check-sources : # lisp${LEXE} lispinit.mem"
   echotab "\$(RUN) -M lispinit.mem -C -i ${SRCDIR}check-lispfun.lisp -x '(check-lisp-defs \"${SRCDIR}\")'"
   echol
 
@@ -2963,12 +2963,12 @@ echol
 for f in clisp-link ; do
   echol "${f} : ${SRCDIR}${f}.in"
   XCC_CREATESHARED_=`echo "$XCC_CREATESHARED" | sed -e 's,\\$,$$,g'`
-  echotab "sed -e 's%@with_dynamic_modules@%$with_dynamic_modules%' -e 's%@createsharedlib@%$XCC_CREATESHARED_%' < ${SRCDIR}${f}.in > ${f}"
+  echotab "sed -e 's%@with_dynamic_modules@%$with_dynamic_modules%' -e 's%@createsharedlib@%$XCC_CREATESHARED_%' -e 's%@LEXE@%${LEXE}%' < ${SRCDIR}${f}.in > ${f}"
   echotab "chmod a+x ${f}"
   echol
 done
 echol "base : modular lispinit.mem"
-echotab "test -d base || (mkdir base && cd base && for f in ${FILES} modules.h modules.o makevars lisp.run lispinit.mem; do \$(LN_S) ${PARENT_}\$\$f \$\$f; done) || (\$(RMRF) base ; exit 1)"
+echotab "test -d base || (mkdir base && cd base && for f in ${FILES} modules.h modules.o makevars lisp${LEXE} lispinit.mem; do \$(LN_S) ${PARENT_}\$\$f \$\$f; done) || (\$(RMRF) base ; exit 1)"
 echol
 # Some "make"s don't support empty target lists. Hence the "anymodule".
 echol "anymodule \$(MODULES) : lisp${LEXE} lispinit.mem force"
@@ -3372,18 +3372,18 @@ echotab "${HLN} ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.
 echotab "mkdir \$(TOPDIR)/base"
 echotab "${HLN} ${FILES} modules.h modules.o makevars lispinit.mem \$(TOPDIR)/base"
 if test -n "$BINARY_DISTRIB"; then
-  echotab "cp lisp.run \$(TOPDIR)/base/lisp.run"
+  echotab "cp lisp${LEXE} \$(TOPDIR)/base/lisp${LEXE}"
   # Don't strip the executable, otherwise (disassemble #'cons) won't work.
-  # echotab "strip \$(TOPDIR)/base/lisp.run"
-  echotab "chmod a+x \$(TOPDIR)/base/lisp.run"
+  # echotab "strip \$(TOPDIR)/base/lisp${LEXE}"
+  echotab "chmod a+x \$(TOPDIR)/base/lisp${LEXE}"
 fi
 echotab "mkdir \$(TOPDIR)/full"
 echotab "${HLN} "'`'". full/makevars ; for f in \$\$FILES modules.h modules.o makevars lispinit.mem ; do echo full/\$\$f ; done"'`'" \$(TOPDIR)/full"
 if test -n "$BINARY_DISTRIB"; then
-  echotab "cp full/lisp.run \$(TOPDIR)/full/lisp.run"
+  echotab "cp full/lisp${LEXE} \$(TOPDIR)/full/lisp${LEXE}"
   # Don't strip the executable, otherwise (disassemble #'cons) won't work.
-  # echotab "strip \$(TOPDIR)/full/lisp.run"
-  echotab "chmod a+x \$(TOPDIR)/full/lisp.run"
+  # echotab "strip \$(TOPDIR)/full/lisp${LEXE}"
+  echotab "chmod a+x \$(TOPDIR)/full/lisp${LEXE}"
 fi
 # The Makefile, generated from distmakefile.
 if test -z "$BINARY_DISTRIB"; then

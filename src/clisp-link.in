@@ -5,6 +5,7 @@
 # For more usage information, see <doc/impnotes.html#modules>.
 # Or <http://clisp.cons.org/impnotes.html#modules>.
 # Bruno Haible 19.10.1994
+# Sam Steingold 2002-08-11
 
 # This could as well be written in Lisp, for portability. But I don't like
 # the idea to have one Lisp process running while the next one is built.
@@ -58,6 +59,7 @@ if [ -n "$CLISP_LINKKIT" ] ; then
 else
   linkkitdir=./linkkit
 fi
+LISPRUN="lisp@LEXE@";
 if [ ! -r "$linkkitdir"/modules.d -o ! -r "$linkkitdir"/modules.c -o ! -r "$linkkitdir"/clisp.h ] ; then
   echo "$0: No link kit found in $CLISP_LINKKIT" 1>&2
   exit 1
@@ -77,14 +79,14 @@ case "$1" in
     fi
     dir="$2"
     # What to do if we abort.
-    trap 'rm -f "$dir"/lisp.run "$dir"/wlisp.run' 1 2 15
+    trap 'rm -f "$dir"/${LISPRUN} "$dir"/w${LISPRUN}' 1 2 15
     # Read the variables CC, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
     . "$dir"/makevars
     vecho "$0: Entering directory \`$dir'"
     # Generate new modules.o, compiled from modules.c, includes modules.h
     (cd "$dir" ; link "$absolute_linkkitdir"/modules.c modules.c ; verbose ${CC} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c ; rm -f modules.c)
-    # Generate new lisp.run
-    (cd "$dir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o lisp.run)
+    # Generate new ${LISPRUN}
+    (cd "$dir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o ${LISPRUN})
     vecho "$0: Leaving directory \`$dir'"
     # Done.
     trap '' 1 2 15
@@ -221,7 +223,7 @@ case "$1" in
       echo "$0: directories $sourcedir and $destinationdir may not be the same" 1>&2
       exit 1
     fi
-    if [ ! -r "$sourcedir"/lisp.a -o ! -x "$sourcedir"/lisp.run -o ! -r "$sourcedir"/lispinit.mem -o ! -r "$sourcedir"/modules.h -o ! -r "$sourcedir"/modules.o -o ! -r "$sourcedir"/makevars ] ; then
+    if [ ! -r "$sourcedir"/lisp.a -o ! -x "$sourcedir"/${LISPRUN} -o ! -r "$sourcedir"/lispinit.mem -o ! -r "$sourcedir"/modules.h -o ! -r "$sourcedir"/modules.o -o ! -r "$sourcedir"/makevars ] ; then
       echo "$0: directory $sourcedir does not contain a clisp linking set" 1>&2
       exit 1
     fi
@@ -259,15 +261,15 @@ case "$1" in
     FILES=${FILES}' '${NEW_FILES}
     # Generate new modules.o, compiled from modules.c, includes new modules.h
     (cd "$destinationdir" ; link "$absolute_linkkitdir"/modules.c modules.c ; verbose ${CC} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c ; rm -f modules.c)
-    # Generate new lisp.run
-    (cd "$destinationdir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o lisp.run)
+    # Generate new ${LISPRUN}
+    (cd "$destinationdir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o ${LISPRUN})
     if [ -n "$TO_PRELOAD" ] ; then
       # Generate new preliminary lispinit.mem
       to_preload=''
       for f in $TO_PRELOAD; do
         to_preload="$to_preload $moduledir/$f"
       done
-      verbose "$sourcedir"/lisp.run -B "$installbasedir" -M "$sourcedir"/lispinit.mem -norc -q -i $to_preload -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
+      verbose "$sourcedir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem -norc -q -i $to_preload -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
       lispinitdir="$destinationdir"
     else
       lispinitdir="$sourcedir"
@@ -277,7 +279,7 @@ case "$1" in
     for f in $TO_LOAD; do
       to_load="$to_load $moduledir/$f"
     done
-    verbose "$destinationdir"/lisp.run -B "$installbasedir" -M "$lispinitdir"/lispinit.mem -norc -q -i $to_load -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
+    verbose "$destinationdir"/${LISPRUN} -B "$installbasedir" -M "$lispinitdir"/lispinit.mem -norc -q -i $to_load -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
     # Generate new makevars
     LIBS=`echo $LIBS | sed s/','/'\\,'/g`
     sed -e "s,^LIBS=.*\$,LIBS='${LIBS}'," -e "s,^FILES=.*\$,FILES='${FILES}'," < "$sourcedir"/makevars > "$destinationdir"/makevars
@@ -329,7 +331,7 @@ case "$1" in
       echo "$0: directories $sourcedir and $destinationdir may not be the same" 1>&2
       exit 1
     fi
-    if [ ! -r "$sourcedir"/lisp.a -o ! -x "$sourcedir"/lisp.run -o ! -r "$sourcedir"/lispinit.mem -o ! -r "$sourcedir"/modules.h -o ! -r "$sourcedir"/modules.o -o ! -r "$sourcedir"/makevars ] ; then
+    if [ ! -r "$sourcedir"/lisp.a -o ! -x "$sourcedir"/${LISPRUN} -o ! -r "$sourcedir"/lispinit.mem -o ! -r "$sourcedir"/modules.h -o ! -r "$sourcedir"/modules.o -o ! -r "$sourcedir"/makevars ] ; then
       echo "$0: directory $sourcedir does not contain a clisp linking set" 1>&2
       exit 1
     fi
@@ -343,7 +345,7 @@ case "$1" in
     . "$sourcedir"/makevars
     if [ -z "$moduledirs" ] ; then
       # Just make links from $destinationdir to $sourcedir
-      for f in lisp.run lispinit.mem modules.h modules.o makevars ${FILES}; do
+      for f in ${LISPRUN} lispinit.mem modules.h modules.o makevars ${FILES}; do
         link "$sourcedir"/$f "$destinationdir"/$f
       done
     else
@@ -405,17 +407,17 @@ case "$1" in
       done
       # Generate new modules.o, compiled from modules.c, includes new modules.h
       (cd "$destinationdir" ; link "$absolute_linkkitdir"/modules.c modules.c ; verbose ${CC} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c ; rm -f modules.c)
-      # Generate new lisp.run
-      (cd "$destinationdir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o lisp.run)
+      # Generate new ${LISPRUN}
+      (cd "$destinationdir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o ${LISPRUN})
       if [ -n "$PRELOAD" ] ; then
         # Generate new preliminary lispinit.mem
-        verbose "$sourcedir"/lisp.run -B "$installbasedir" -M "$sourcedir"/lispinit.mem -norc -q -i ${PRELOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
+        verbose "$sourcedir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem -norc -q -i ${PRELOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
       fi
       # Generate new lispinit.mem
       if [ -n "$PRELOAD" ] ; then
-        verbose "$destinationdir"/lisp.run -B "$installbasedir" -M "$destinationdir"/lispinit.mem -norc -q -i ${LOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
+        verbose "$destinationdir"/${LISPRUN} -B "$installbasedir" -M "$destinationdir"/lispinit.mem -norc -q -i ${LOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
       else
-        verbose "$destinationdir"/lisp.run -B "$installbasedir" -M "$sourcedir"/lispinit.mem -norc -q -i ${LOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
+        verbose "$destinationdir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem -norc -q -i ${LOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
       fi
       # Generate new makevars
       LIBS=`echo $LIBS | sed s/','/'\\,'/g`
@@ -451,7 +453,7 @@ case "$1" in
         fi
       done
       absolute_currentdir=`/bin/pwd`
-      if [ ! -r "$sourcedir"/lisp.a -o ! -x "$sourcedir"/lisp.run -o ! -r "$sourcedir"/lispinit.mem -o ! -r "$sourcedir"/modules.h -o ! -r "$sourcedir"/modules.o -o ! -r "$sourcedir"/makevars ] ; then
+      if [ ! -r "$sourcedir"/lisp.a -o ! -x "$sourcedir"/${LISPRUN} -o ! -r "$sourcedir"/lispinit.mem -o ! -r "$sourcedir"/modules.h -o ! -r "$sourcedir"/modules.o -o ! -r "$sourcedir"/makevars ] ; then
         echo "$0: directory $sourcedir does not contain a clisp linking set" 1>&2
         exit 1
       fi
@@ -464,7 +466,7 @@ case "$1" in
       # Read the variables CC, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
       . "$sourcedir"/makevars
       if [ -z "$moduledirs" ] ; then
-        "$sourcedir"/lisp.run -B "$installbasedir" -M "$sourcedir"/lispinit.mem
+        "$sourcedir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem
       else
         # Prepare the module directories and read their variables
         allmodulevars=''
@@ -527,7 +529,7 @@ case "$1" in
         # Create a shared library.
         lib="$tmpsharedlib"; libs="$LINKLIBS"; verbose @createsharedlib@
         # Run clisp, attach the shared library and load the Lisp stuff.
-        "$sourcedir"/lisp.run -B "$installbasedir" -M "$sourcedir"/lispinit.mem -i "$tmpinitlisp"
+        "$sourcedir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem -i "$tmpinitlisp"
         rm -f "$tmpsharedlib" "$tmpinitlisp"
         trap '' 0 1 2 15
       fi
@@ -535,7 +537,7 @@ case "$1" in
       destinationdir="${TMPDIR-/tmp}/clisplink$$"
       # What to do if we abort.
       trap 'rm -rf "$destinationdir"' 0 1 2 15
-      "$0" add-module-sets "$sourcedir" "$destinationdir" "$@" && "$destinationdir"/lisp.run -B "$installbasedir" -M "$destinationdir"/lispinit.mem
+      "$0" add-module-sets "$sourcedir" "$destinationdir" "$@" && "$destinationdir"/${LISPRUN} -B "$installbasedir" -M "$destinationdir"/lispinit.mem
       rm -rf "$destinationdir"
       trap '' 0 1 2 15
     fi
