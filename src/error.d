@@ -901,7 +901,7 @@ global object check_pos_integer (object obj) {
     pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(S(integer)); pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a non-negatve ~"));
+    check_value(type_error,GETTEXT("~: ~ is not a non-negative ~"));
     obj = value1;
   }
   return obj;
