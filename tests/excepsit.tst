@@ -741,7 +741,10 @@ type-error
 (oddp 3.5)
 type-error
 
-(progn (open "/etc/mtab" :direction :input :if-exists :error) (/ 0))
+(progn (open "/etc/passwd" :direction :input :if-exists :error) (/ 0))
+file-error
+
+(progn (open "/etc/nonexistent" :direction :input :if-exists :error) (/ 0))
 division-by-zero
 
 (open "/tmp/foo44nonexistent" :direction :input :if-does-not-exist :error)
