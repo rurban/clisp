@@ -4787,7 +4787,7 @@ global object iconv_range(encoding,start,end)
       var uintL digitcount = ceiling(count,(intDsize/8));
       # Da bitsize < intDsize*uintWC_max, ist
       # digitcount <= ceiling(bitsize/intDsize) <= uintWC_max .
-      var object big = allocate_bignum(digitcount,sign); # neues Bignum
+      var object big = allocate_bignum(digitcount,(sintB)sign);
       TheBignum(big)->data[0] = sign; # höchstes Word auf sign setzen
       # restliche Digits von rechts füllen, dabei Folge von Bytes in
       # Folge von uintD übersetzen:
@@ -6039,7 +6039,7 @@ global object iconv_range(encoding,start,end)
         fehler_wr_integer(stream,obj);
       if (!(posfixnump(obj) && (posfixnum_to_L(obj) < bit(8))))
         fehler_bad_integer(stream,obj);
-      UnbufferedStreamLow_write(stream)(stream,posfixnum_to_L(obj));
+      UnbufferedStreamLow_write(stream)(stream,(uintB)posfixnum_to_L(obj));
     }
 
 # WRITE-BYTE-ARRAY - Pseudofunktion für Handle-Streams, Art au, bitsize = 8 :
@@ -7893,7 +7893,7 @@ typedef struct strm_i_buffered_extrafields_struct {
       # count > 0 -- the number of bits to get
       ptr = buffered_nextbyte(stream);
       if (ptr == (uintB*)NULL) # EOF ?
-        bit_akku = buffered_eofbyte(stream);
+        bit_akku = *buffered_eofbyte(stream);
       *bitbufferptr = (uint8)(bit_akku & (uint8)(bit(count)-1));
       BufferedStream_bitindex(stream) = count;
       BufferedStream_position(stream) += 1; # increment position:
@@ -8168,7 +8168,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         fehler_wr_integer(stream,obj);
       if (!(posfixnump(obj) && (posfixnum_to_L(obj) < bit(8))))
         fehler_bad_integer(stream,obj);
-      write_byte_buffered(stream,posfixnum_to_L(obj));
+      write_byte_buffered(stream,(uintB)posfixnum_to_L(obj));
     }
 
 # WRITE-BYTE-SEQUENCE für File-Streams für Integers, Art au, bitsize = 8 :
@@ -12220,7 +12220,7 @@ LISPFUNN(set_window_cursor_position,3)
     var uintL line = posfixnum_to_L(STACK_1);
     var uintL column = posfixnum_to_L(STACK_0);
     if ((line < (uintL)console_size.Y) && (column < (uintL)console_size.X))
-      v_move(line,column);
+      v_move((uintW)line,(uintW)column);
     value1 = STACK_1; value2 = STACK_0; mv_count=2; skipSTACK(3);
   }
 
@@ -18525,7 +18525,7 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
             var uintL digitcount = ceiling(count,(intDsize/8));
             # Da bitsize < intDsize*uintWC_max, ist
             # digitcount <= ceiling(bitsize/intDsize) <= uintWC_max .
-            var object big = allocate_bignum(digitcount,sign); # neues Bignum
+            var object big = allocate_bignum(digitcount,(sintB)sign);
             TheBignum(big)->data[0] = sign; # höchstes Word auf sign setzen
             # restliche Digits von rechts füllen, dabei Folge von Bytes in
             # Folge von uintD übersetzen:
