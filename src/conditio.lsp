@@ -347,6 +347,7 @@ muffle-cerrors appease-cerrors exit-on-error
       ; unexpected end of stream
       (define-condition end-of-file (stream-error) ())
 
+      ; parsing/tokenization error during READ
       (define-condition reader-error (parse-error stream-error) ())
 
     ; errors with pathnames, OS level errors with streams
@@ -425,6 +426,7 @@ muffle-cerrors appease-cerrors exit-on-error
 (define-condition simple-parse-error (simple-error parse-error) ())
 (define-condition simple-stream-error (simple-error stream-error) ())
 (define-condition simple-end-of-file (simple-error end-of-file) ())
+(define-condition simple-reader-error (simple-error reader-error) ())
 (define-condition simple-file-error (simple-error file-error) ())
 (define-condition simple-storage-condition (simple-condition storage-condition) ())
 
@@ -452,6 +454,7 @@ muffle-cerrors appease-cerrors exit-on-error
      (parse-error              . simple-parse-error)
      (stream-error             . simple-stream-error)
      (end-of-file              . simple-end-of-file)
+     (reader-error             . simple-reader-error)
      (file-error               . simple-file-error)
      (storage-condition        . simple-storage-condition)
      (warning                  . simple-warning)
