@@ -1,3 +1,6 @@
+2005-01-17  John Hinsdale  <hin@alma.com>
+	* modules/oracle/orafns.c, oracle.lisp: Support RowId data type
+
 2005-01-17  Sam Steingold  <sds@gnu.org>
 
 	DEFCHECKER now accepts new "PREFIX" argument
