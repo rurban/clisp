@@ -1,5 +1,5 @@
 # Special-Forms, Kontrollstrukturen, Evaluator-Nahes für CLISP
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 
 #include "lispbibl.c"
 
@@ -2107,12 +2107,6 @@ LISPFUN(macro_function,1,1,norest,nokey,0,NIL)
       value1 = NIL;
     }
     mv_count=1;
-  }
-
-LISPFUNN(old_macro_function,1)
-# (SYS::OLD-MACRO-FUNCTION symbol), for backward compatibility
-  {
-    pushSTACK(unbound); C_macro_function();
   }
 
 LISPFUN(macroexpand,1,1,norest,nokey,0,NIL)

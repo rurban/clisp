@@ -881,7 +881,7 @@ for-value   NIL oder T
        substring
        symbol-value #| symbol-function |# boundp fboundp special-operator-p system::set-symbol-value makunbound
        fmakunbound #| values-list |# system::driver system::unwind-to-driver
-       system::old-macro-function macroexpand macroexpand-1 proclaim eval evalhook applyhook
+       macro-function macroexpand macroexpand-1 proclaim eval evalhook applyhook
        constantp system::parse-body system::keyword-test
        invoke-debugger
        make-hash-table gethash system::puthash remhash maphash clrhash
@@ -920,7 +920,7 @@ for-value   NIL oder T
        pathname-directory pathname-name pathname-type pathname-version
        file-namestring directory-namestring host-namestring merge-pathnames
        enough-namestring make-pathname namestring truename probe-file
-       delete-file rename-file system::old-open directory cd make-dir delete-dir
+       delete-file rename-file open directory cd make-dir delete-dir
        file-write-date file-author savemem
        #| eq |# eql equal equalp consp atom symbolp stringp numberp
        compiled-function-p #| null not |# system::closurep listp integerp
@@ -935,10 +935,10 @@ for-value   NIL oder T
        system::%structure-ref system::%structure-store system::%make-structure
        copy-structure system::%structure-type-p system::closure-name
        system::closure-codevec system::closure-consts system::make-code-vector
-       system::%make-closure system::make-load-time-eval
-       clos::structure-object-p clos::std-instance-p
-       clos::old-%allocate-instance clos:slot-value clos::set-slot-value
-       clos:slot-boundp clos:slot-makunbound clos:slot-exists-p
+       system::%make-closure system::%copy-generic-function
+       system::make-load-time-eval clos::structure-object-p clos::std-instance-p
+       clos:slot-value clos::set-slot-value clos:slot-boundp
+       clos:slot-makunbound clos:slot-exists-p
        system::sequencep elt system::%setelt subseq copy-seq length reverse
        nreverse make-sequence reduce fill replace remove remove-if remove-if-not
        delete delete-if delete-if-not remove-duplicates delete-duplicates
@@ -970,15 +970,14 @@ for-value   NIL oder T
        ldb ldb-test mask-field dpb deposit-field random make-random-state !
        exquo long-float-digits system::%set-long-float-digits system::log2
        system::log10
-       system::%copy-generic-function
        vector aref system::store array-in-bounds-p array-row-major-index bit
        sbit char= char/= char< char> char<= char>= char-equal char-not-equal
        char-lessp char-greaterp char-not-greaterp char-not-lessp string-concat
        apply system::%funcall funcall mapcar maplist mapc mapl mapcan mapcon
        values error system::error-of-type clos::class-tuple-gethash list list*
-       append nconc concatenate map some every notany notevery
-       make-broadcast-stream make-concatenated-stream = /= < > <= >= max min
-       + - * / gcd lcm logior logxor logand logeqv
+       append nconc clos::%allocate-instance concatenate map some every notany
+       notevery make-broadcast-stream make-concatenated-stream = /= < > <= >=
+       max min + - * / gcd lcm logior logxor logand logeqv
   )   )
   (defun %funtabref (index)
     (if (and (<= 0 index) (< index (length funtab))) (svref funtab index) nil)
@@ -3711,7 +3710,7 @@ der Docstring (oder NIL).
                  SYSTEM::%RECORD-REF SYSTEM::%RECORD-LENGTH SYSTEM::%STRUCTURE-REF SYSTEM::%MAKE-STRUCTURE
                  COPY-STRUCTURE SYSTEM::%STRUCTURE-TYPE-P SYSTEM::CLOSURE-NAME
                  SYSTEM::CLOSURE-CODEVEC SYSTEM::CLOSURE-CONSTS SYSTEM::MAKE-CODE-VECTOR
-                 SYSTEM::%MAKE-CLOSURE CLOS::OLD-%ALLOCATE-INSTANCE CLOS:SLOT-EXISTS-P
+                 SYSTEM::%MAKE-CLOSURE CLOS:SLOT-EXISTS-P
                  SYSTEM::SEQUENCEP ELT SUBSEQ COPY-SEQ LENGTH REVERSE CONCATENATE
                  MAKE-SYNONYM-STREAM SYNONYM-STREAM-SYMBOL MAKE-BROADCAST-STREAM
                  BROADCAST-STREAM-STREAMS MAKE-CONCATENATED-STREAM
@@ -3730,6 +3729,7 @@ der Docstring (oder NIL).
                  EXP EXPT LOG SQRT ABS PHASE SIGNUM SIN COS TAN CIS ASIN ACOS ATAN
                  SINH COSH TANH ASINH ACOSH ATANH FLOAT BYTE BYTE-SIZE BYTE-POSITION
                  SYSTEM::LOG2 SYSTEM::LOG10
+                 CLOS::%ALLOCATE-INSTANCE
                 )
                 '(T . NIL)
                )

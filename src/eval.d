@@ -41,7 +41,7 @@
     # CONTROL : 21-2 SUBRs
     _(symbol_value), /* _(symbol_function), */ _(boundp), _(fboundp),
     _(special_operator_p), _(set), _(makunbound), _(fmakunbound), /* _(values_list), */
-    _(driver), _(unwind_to_driver), _(old_macro_function), _(macroexpand),
+    _(driver), _(unwind_to_driver), _(macro_function), _(macroexpand),
     _(macroexpand_1), _(proclaim), _(eval), _(evalhook), _(applyhook),
     _(constantp), _(parse_body), _(keyword_test),
     # DEBUG : 0 SUBRs
@@ -95,7 +95,7 @@
     _(pathnameversion), _(file_namestring), _(directory_namestring),
     _(host_namestring), _(merge_pathnames), _(enough_namestring),
     _(make_pathname), _(namestring), _(truename), _(probe_file),
-    _(delete_file), _(rename_file), _(old_open), _(directory), _(cd),
+    _(delete_file), _(rename_file), _(open), _(directory), _(cd),
     _(make_dir), _(delete_dir), _(file_write_date), _(file_author),
     _(savemem),
     # PREDTYPE : 46-3 SUBRs
@@ -114,8 +114,8 @@
     _(structure_store), _(make_structure), _(copy_structure),
     _(structure_type_p), _(closure_name), _(closure_codevec),
     _(closure_consts), _(make_code_vector), _(make_closure),
-    _(make_load_time_eval), _(structure_object_p), _(std_instance_p),
-    _(old_pallocate_instance), _(slot_value), _(set_slot_value), _(slot_boundp),
+    _(copy_generic_function), _(make_load_time_eval), _(structure_object_p),
+    _(std_instance_p), _(slot_value), _(set_slot_value), _(slot_boundp),
     _(slot_makunbound), _(slot_exists_p),
     # SEQUENCE : 40 SUBRs
     _(sequencep), _(elt), _(setelt), _(subseq), _(copy_seq), _(length),
@@ -159,9 +159,8 @@
     _(make_random_state), _(fakultaet), _(exquo), _(long_float_digits),
     _(set_long_float_digits), _(log2), _(log10),
     # sonstige:
-    _(copy_generic_function),
     };
-  # Das waren 525-43+1 SUBRs.
+  # Das waren 525-43 SUBRs.
   # Nun FUNTABR :
   local const Subr FUNTABR[] = {
     # SPVW : 0 SUBRs
@@ -189,7 +188,8 @@
     # PACKAGE : 0 SUBRs
     # PATHNAME : 0 SUBRs
     # PREDTYPE : 0 SUBRs
-    # RECORD : 0 SUBRs
+    # RECORD : 1 SUBR
+    _(pallocate_instance),
     # SEQUENCE : 6 SUBRs
     _(concatenate), _(map), _(some), _(every), _(notany), _(notevery),
     # STREAM : 2 SUBRs
@@ -200,7 +200,7 @@
     _(grgleich), _(max), _(min), _(plus), _(minus), _(mal), _(durch), _(gcd),
     _(lcm), _(logior), _(logxor), _(logand), _(logeqv),
     };
-  # Das waren 63 SUBRs.
+  # Das waren 64 SUBRs.
   #undef _
   #define FUNTAB1  (&FUNTAB[0])
   #define FUNTAB2  (&FUNTAB[256])
