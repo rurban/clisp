@@ -4679,348 +4679,327 @@ global object iconv_range(encoding,start,end)
 # UP für READ-BYTE auf File-Streams für Integers, Art u :
 # Liefert die im Bitbuffer enthaltenen bytesize Bytes als Integer >=0.
 # can trigger GC
-  local object rd_by_iu_I (object stream, uintL bitsize, uintL bytesize);
-  local object rd_by_iu_I(stream,bitsize,bytesize)
-    var object stream;
-    var uintL bitsize;
-    var uintL bytesize;
+local object rd_by_iu_I (object stream, uintL bitsize, uintL bytesize) {
+  var object bitbuffer = TheStream(stream)->strm_bitbuffer;
+  # Zahl im bitbuffer normalisieren:
+  var uintB* bitbufferptr = &TheSbvector(bitbuffer)->data[bytesize-1];
+  *bitbufferptr &= (bit(((bitsize-1)%8)+1)-1); # High byte maskieren
+  var uintL count = bytesize;
+  while ((!(count==0)) && (*bitbufferptr==0)) { count--; bitbufferptr--; }
+    # Zahl bilden:
+  if # höchstens oint_data_len Bits ?
+    ((count <= floor(oint_data_len,8))
+     || ((count == floor(oint_data_len,8)+1)
+         && (*bitbufferptr < bit(oint_data_len%8)))) {
+    # ja -> Fixnum >=0 bilden:
+    var uintL wert = 0;
+    until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
+    return fixnum(wert);
+  } else {
+    # nein -> Bignum >0 bilden:
+    pushSTACK(bitbuffer);
+    var uintL digitcount = floor(count,(intDsize/8));
+    if (((count%(intDsize/8)) > 0) || (*bitbufferptr & bit(7)))
+      digitcount++;
+    # Da bitsize < intDsize*uintWC_max, ist
+    # digitcount <= ceiling((bitsize+1)/intDsize) <= uintWC_max .
+    var object big = allocate_bignum(digitcount,0); # neues Bignum >0
+    TheBignum(big)->data[0] = 0; # höchstes Digit auf 0 setzen
+    # restliche Digits von rechts füllen, dabei Folge von Bytes in
+    # Folge von uintD übersetzen:
+    bitbuffer = popSTACK();
+    bitbufferptr = &TheSbvector(bitbuffer)->data[0];
+    #if BIG_ENDIAN_P
     {
-      var object bitbuffer = TheStream(stream)->strm_bitbuffer;
-      # Zahl im bitbuffer normalisieren:
-      var uintB* bitbufferptr = &TheSbvector(bitbuffer)->data[bytesize-1];
-      *bitbufferptr &= (bit(((bitsize-1)%8)+1)-1); # High byte maskieren
-      var uintL count = bytesize;
-      while ((!(count==0)) && (*bitbufferptr==0)) { count--; bitbufferptr--; }
-      # Zahl bilden:
-      if # höchstens oint_data_len Bits ?
-         ((count <= floor(oint_data_len,8))
-          || ((count == floor(oint_data_len,8)+1)
-              && (*bitbufferptr < bit(oint_data_len%8)))) {
-        # ja -> Fixnum >=0 bilden:
-        var uintL wert = 0;
-        until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
-        return fixnum(wert);
-      } else {
-        # nein -> Bignum >0 bilden:
-        pushSTACK(bitbuffer);
-        var uintL digitcount = floor(count,(intDsize/8));
-        if (((count%(intDsize/8)) > 0) || (*bitbufferptr & bit(7)))
-          digitcount++;
-        # Da bitsize < intDsize*uintWC_max, ist
-        # digitcount <= ceiling((bitsize+1)/intDsize) <= uintWC_max .
-        var object big = allocate_bignum(digitcount,0); # neues Bignum >0
-        TheBignum(big)->data[0] = 0; # höchstes Digit auf 0 setzen
-        # restliche Digits von rechts füllen, dabei Folge von Bytes in
-        # Folge von uintD übersetzen:
-        bitbuffer = popSTACK();
-        bitbufferptr = &TheSbvector(bitbuffer)->data[0];
-        #if BIG_ENDIAN_P
-        {
-          var uintB* bigptr = (uintB*)(&TheBignum(big)->data[digitcount]);
-          dotimespL(count,count, { *--bigptr = *bitbufferptr++; } );
-        }
-        #else
-        {
-          var uintD* bigptr = &TheBignum(big)->data[digitcount];
-          var uintL count2;
-          #define GET_NEXT_BYTE(i)  \
-            digit |= ((uintD)(*bitbufferptr++) << (8*i));
-          dotimespL(count2,floor(count,intDsize/8), {
-            var uintD digit = 0;
-            DOCONSTTIMES(intDsize/8,GET_NEXT_BYTE); # GET_NEXT_BYTE(0..intDsize/8-1)
-            *--bigptr = digit;
-          });
-          #undef GET_NEXT_BYTE
-          count2 = count % (intDsize/8);
-          if (count2>0) {
-            var uintL shiftcount = 0;
-            var uintD digit = (uintD)(*bitbufferptr++);
-            dotimesL(count2,count2-1, {
-              shiftcount += 8;
-              digit |= ((uintD)(*bitbufferptr++) << shiftcount);
-            });
-            *--bigptr = digit;
-          }
-        }
-        #endif
-        # Wegen (intDsize/8)*(digitcount-1) <= count <= (intDsize/8)*digitcount
-        # ist alles gefüllt.
-        return big;
+      var uintB* bigptr = (uintB*)(&TheBignum(big)->data[digitcount]);
+      dotimespL(count,count, { *--bigptr = *bitbufferptr++; } );
+    }
+    #else
+    {
+      var uintD* bigptr = &TheBignum(big)->data[digitcount];
+      var uintL count2;
+#define GET_NEXT_BYTE(i)  digit |= ((uintD)(*bitbufferptr++) << (8*i));
+      dotimespL(count2,floor(count,intDsize/8), {
+        var uintD digit = 0;
+        DOCONSTTIMES(intDsize/8,GET_NEXT_BYTE); # GET_NEXT_BYTE(0..intDsize/8-1)
+        *--bigptr = digit;
+      });
+#undef GET_NEXT_BYTE
+      count2 = count % (intDsize/8);
+      if (count2>0) {
+        var uintL shiftcount = 0;
+        var uintD digit = (uintD)(*bitbufferptr++);
+        dotimesL(count2,count2-1, {
+          shiftcount += 8;
+          digit |= ((uintD)(*bitbufferptr++) << shiftcount);
+        });
+        *--bigptr = digit;
       }
     }
+    #endif
+    # Wegen (intDsize/8)*(digitcount-1) <= count <= (intDsize/8)*digitcount
+    # ist alles gefüllt.
+    return big;
+  }
+}
 
 # UP für READ-BYTE auf File-Streams für Integers, Art s :
 # Liefert die im Bitbuffer enthaltenen bytesize Bytes als Integer.
 # can trigger GC
-  local object rd_by_is_I (object stream, uintL bitsize, uintL bytesize);
-  local object rd_by_is_I(stream,bitsize,bytesize)
-    var object stream;
-    var uintL bitsize;
-    var uintL bytesize;
-    {
-      var object bitbuffer = TheStream(stream)->strm_bitbuffer;
-      # Zahl im bitbuffer normalisieren:
-      var uintB* bitbufferptr = &TheSbvector(bitbuffer)->data[bytesize-1];
-      var sintD sign;
-      var uintL signbitnr = (bitsize-1)%8;
-      var uintL count = bytesize;
-      if (!(*bitbufferptr & bit(signbitnr))) {
-        sign = 0;
-        *bitbufferptr &= (bitm(signbitnr+1)-1); # High byte sign-extenden
-        # normalisieren, höchstes Bit muss 0 bleiben:
-        while ((count>=2) && (*bitbufferptr==0) &&
-               !(*(bitbufferptr-1) & bit(7))) {
-          count--; bitbufferptr--;
-        }
-        # Zahl bilden:
-        if # höchstens oint_data_len+1 Bits, Zahl <2^oint_data_len ?
-           ((count <= floor(oint_data_len,8))
-            || ((count == floor(oint_data_len,8)+1)
-                && (*bitbufferptr < bit(oint_data_len%8)))) {
-          # ja -> Fixnum >=0 bilden:
-          var uintL wert = 0;
-          until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
-          return posfixnum(wert);
-        }
-      } else {
-        sign = -1;
-        *bitbufferptr |= minus_bitm(signbitnr+1); # High byte sign-extenden
-        # normalisieren, höchstes Bit muss 1 bleiben:
-        while ((count>=2) && (*bitbufferptr==(uintB)(-1)) &&
-               (*(bitbufferptr-1) & bit(7))) {
-          count--; bitbufferptr--;
-        }
-        # Zahl bilden:
-        if # höchstens oint_data_len+1 Bits, Zahl >=-2^oint_data_len ?
-           ((count <= floor(oint_data_len,8))
-            || ((count == floor(oint_data_len,8)+1)
-                && (*bitbufferptr >= (uintB)(-bit(oint_data_len%8))))) {
-          # ja -> Fixnum <0 bilden:
-          var uintL wert = (uintL)(-1);
-          until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
-          return negfixnum(wbitm(intLsize)+(oint)wert);
-        }
-      }
-      # Bignum bilden:
-      pushSTACK(bitbuffer);
-      var uintL digitcount = ceiling(count,(intDsize/8));
-      # Da bitsize < intDsize*uintWC_max, ist
-      # digitcount <= ceiling(bitsize/intDsize) <= uintWC_max .
-      var object big = allocate_bignum(digitcount,(sintB)sign);
-      TheBignum(big)->data[0] = sign; # höchstes Word auf sign setzen
-      # restliche Digits von rechts füllen, dabei Folge von Bytes in
-      # Folge von uintD übersetzen:
-      bitbuffer = popSTACK();
-      bitbufferptr = &TheSbvector(bitbuffer)->data[0];
-      #if BIG_ENDIAN_P
-      {
-        var uintB* bigptr = (uintB*)(&TheBignum(big)->data[digitcount]);
-        dotimespL(count,count, { *--bigptr = *bitbufferptr++; } );
-      }
-      #else
-      {
-        var uintD* bigptr = &TheBignum(big)->data[digitcount];
-        var uintL count2;
-        #define GET_NEXT_BYTE(i)  \
-          digit |= ((uintD)(*bitbufferptr++) << (8*i));
-        dotimespL(count2,floor(count,intDsize/8), {
-          var uintD digit = 0;
-          DOCONSTTIMES(intDsize/8,GET_NEXT_BYTE); # GET_NEXT_BYTE(0..intDsize/8-1)
-          *--bigptr = digit;
-        });
-        #undef GET_NEXT_BYTE
-        count2 = count % (intDsize/8);
-        if (count2>0) {
-          var uintL shiftcount = 0;
-          var uintD digit = (uintD)(*bitbufferptr++);
-          dotimesL(count2,count2-1, {
-            shiftcount += 8;
-            digit |= ((uintD)(*bitbufferptr++) << shiftcount);
-          });
-          *--bigptr = digit;
-        }
-      }
-      #endif
-      # Wegen (intDsize/8)*(digitcount-1) < count <= (intDsize/8)*digitcount
-      # ist alles gefüllt.
-      return big;
+local object rd_by_is_I (object stream, uintL bitsize, uintL bytesize) {
+  var object bitbuffer = TheStream(stream)->strm_bitbuffer;
+  # Zahl im bitbuffer normalisieren:
+  var uintB* bitbufferptr = &TheSbvector(bitbuffer)->data[bytesize-1];
+  var sintD sign;
+  var uintL signbitnr = (bitsize-1)%8;
+  var uintL count = bytesize;
+  if (!(*bitbufferptr & bit(signbitnr))) {
+    sign = 0;
+    *bitbufferptr &= (bitm(signbitnr+1)-1); # High byte sign-extenden
+    # normalisieren, höchstes Bit muss 0 bleiben:
+    while ((count>=2) && (*bitbufferptr==0) &&
+           !(*(bitbufferptr-1) & bit(7))) {
+      count--; bitbufferptr--;
     }
+    # Zahl bilden:
+    if # höchstens oint_data_len+1 Bits, Zahl <2^oint_data_len ?
+      ((count <= floor(oint_data_len,8))
+       || ((count == floor(oint_data_len,8)+1)
+           && (*bitbufferptr < bit(oint_data_len%8)))) {
+      # ja -> Fixnum >=0 bilden:
+      var uintL wert = 0;
+      until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
+      return posfixnum(wert);
+    }
+  } else {
+    sign = -1;
+    *bitbufferptr |= minus_bitm(signbitnr+1); # High byte sign-extenden
+    # normalisieren, höchstes Bit muss 1 bleiben:
+    while ((count>=2) && (*bitbufferptr==(uintB)(-1)) &&
+           (*(bitbufferptr-1) & bit(7))) {
+      count--; bitbufferptr--;
+    }
+    # Zahl bilden:
+    if # höchstens oint_data_len+1 Bits, Zahl >=-2^oint_data_len ?
+      ((count <= floor(oint_data_len,8))
+       || ((count == floor(oint_data_len,8)+1)
+           && (*bitbufferptr >= (uintB)(-bit(oint_data_len%8))))) {
+      # ja -> Fixnum <0 bilden:
+      var uintL wert = (uintL)(-1);
+      until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
+      return negfixnum(wbitm(intLsize)+(oint)wert);
+    }
+  }
+  # Bignum bilden:
+  pushSTACK(bitbuffer);
+  var uintL digitcount = ceiling(count,(intDsize/8));
+  # Da bitsize < intDsize*uintWC_max, ist
+  # digitcount <= ceiling(bitsize/intDsize) <= uintWC_max .
+  var object big = allocate_bignum(digitcount,(sintB)sign);
+  TheBignum(big)->data[0] = sign; # höchstes Word auf sign setzen
+  # restliche Digits von rechts füllen, dabei Folge von Bytes in
+  # Folge von uintD übersetzen:
+  bitbuffer = popSTACK();
+  bitbufferptr = &TheSbvector(bitbuffer)->data[0];
+  #if BIG_ENDIAN_P
+  {
+    var uintB* bigptr = (uintB*)(&TheBignum(big)->data[digitcount]);
+    dotimespL(count,count, { *--bigptr = *bitbufferptr++; } );
+  }
+  #else
+  {
+    var uintD* bigptr = &TheBignum(big)->data[digitcount];
+    var uintL count2;
+#define GET_NEXT_BYTE(i) digit |= ((uintD)(*bitbufferptr++) << (8*i));
+    dotimespL(count2,floor(count,intDsize/8), {
+      var uintD digit = 0;
+      DOCONSTTIMES(intDsize/8,GET_NEXT_BYTE); # GET_NEXT_BYTE(0..intDsize/8-1)
+      *--bigptr = digit;
+    });
+#undef GET_NEXT_BYTE
+    count2 = count % (intDsize/8);
+    if (count2>0) {
+      var uintL shiftcount = 0;
+      var uintD digit = (uintD)(*bitbufferptr++);
+      dotimesL(count2,count2-1, {
+        shiftcount += 8;
+        digit |= ((uintD)(*bitbufferptr++) << shiftcount);
+      });
+      *--bigptr = digit;
+    }
+  }
+  #endif
+  # Wegen (intDsize/8)*(digitcount-1) < count <= (intDsize/8)*digitcount
+  # ist alles gefüllt.
+  return big;
+}
 
 # Typ rd_by_ix_I: eines dieser beiden Unterprogramme:
-  typedef object rd_by_ix_I (object stream, uintL bitsize, uintL bytesize);
+typedef object rd_by_ix_I (object stream, uintL bitsize, uintL bytesize);
 
 # Subroutines for the Output side
 # -------------------------------
 
 # Function type of a subroutine which writes the bitbuffer contents to the
 # stream.
-  typedef void wr_by_aux_ix (object stream, uintL bitsize, uintL bytesize);
+typedef void wr_by_aux_ix (object stream, uintL bitsize, uintL bytesize);
 
 # UP für WRITE-BYTE auf File-Streams für Integers, Art u :
 # Legt das Objekt (ein Integer >=0) als bytesize Bytes im Bitbuffer ab.
 # > stream : File-Stream für Integers, Art u
 # > obj : auszugebendes Objekt
 # > finisher : Beendigungsroutine
-  local void wr_by_ixu_sub (object stream, object obj, wr_by_aux_ix* finisher);
-  local void wr_by_ixu_sub(stream,obj,finisher)
-    var object stream;
-    var object obj;
-    var wr_by_aux_ix* finisher;
-    {
-      # obj überprüfen:
-      if (!integerp(obj))
-        fehler_wr_integer(stream,obj);
-      if (!positivep(obj))
+local void wr_by_ixu_sub (object stream, object obj, wr_by_aux_ix* finisher) {
+  # check obj:
+  if (!integerp(obj))
+    fehler_wr_integer(stream,obj);
+  if (!positivep(obj))
+    fehler_bad_integer(stream,obj);
+  # obj ist jetzt ein Integer >=0
+  var uintL bitsize = ChannelStream_bitsize(stream);
+  var uintL bytesize = ceiling(bitsize,8);
+  # obj in den Bitbuffer übertragen:
+  {
+    var uintB* bitbufferptr =
+      TheSbvector(TheStream(stream)->strm_bitbuffer)->data;
+    var uintL count = bytesize;
+    if (posfixnump(obj)) {
+      # obj ist ein Fixnum >=0
+      var uintL wert = posfixnum_to_L(obj);
+      # wert < 2^bitsize überprüfen:
+      if (!((bitsize>=oint_data_len) || (wert < bit(bitsize))))
         fehler_bad_integer(stream,obj);
-      # obj ist jetzt ein Integer >=0
-      var uintL bitsize = ChannelStream_bitsize(stream);
-      var uintL bytesize = ceiling(bitsize,8);
-      # obj in den Bitbuffer übertragen:
-      {
-        var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
-        var uintL count = bytesize;
-        if (posfixnump(obj)) {
-          # obj ist ein Fixnum >=0
-          var uintL wert = posfixnum_to_L(obj);
-          # wert < 2^bitsize überprüfen:
-          if (!((bitsize>=oint_data_len) || (wert < bit(bitsize))))
-            fehler_bad_integer(stream,obj);
-          # wert im Bitbuffer ablegen:
-          until (wert==0) {
-            *bitbufferptr++ = (uint8)wert; wert = wert>>8; count--;
-          }
-        } else {
-          # obj ist ein Bignum >0
-          var uintL len = (uintL)Bignum_length(obj);
-          # obj < 2^bitsize überprüfen:
-          if (!((floor(bitsize,intDsize) >= len)
-                || ((floor(bitsize,intDsize) == len-1)
-                    && (TheBignum(obj)->data[0] < bit(bitsize%intDsize)))))
-            fehler_bad_integer(stream,obj);
-          #if BIG_ENDIAN_P
-          {
-            var uintB* ptr = (uintB*)&TheBignum(obj)->data[len];
-            # Digit-Länge in Byte-Länge umrechnen:
-            len = (intDsize/8)*len;
-            #define CHECK_NEXT_BYTE(i)  \
-              if (!( ((uintB*)(&TheBignum(obj)->data[0]))[i] ==0)) goto len_ok; \
-              len--;
-            DOCONSTTIMES(intDsize/8,CHECK_NEXT_BYTE); # CHECK_NEXT_BYTE(0..intDsize/8-1)
-            #undef CHECK_NEXT_BYTE
-           len_ok:
-            # obj im Bitbuffer ablegen:
-            count = count - len;
-            dotimespL(len,len, { *bitbufferptr++ = *--ptr; } );
-          }
-          #else
-          {
-            var uintD* ptr = &TheBignum(obj)->data[len];
-            len--;
-            count -= (intDsize/8)*len;
-            dotimesL(len,len, {
-              var uintD digit = *--ptr;
-              doconsttimes(intDsize/8, {
-                *bitbufferptr++ = (uintB)digit; digit = digit >> 8;
-              });
-            });
-            var uintD digit = *--ptr;
-            doconsttimes(intDsize/8, {
-              if (digit==0) goto ok;
-              *bitbufferptr++ = (uintB)digit; digit = digit >> 8;
-              count--;
-            });
-           ok: ;
-          }
-          #endif
-        }
-        memset(bitbufferptr,0,count);
+      # wert im Bitbuffer ablegen:
+      until (wert==0) {
+        *bitbufferptr++ = (uint8)wert; wert = wert>>8; count--;
       }
-      (*finisher)(stream,bitsize,bytesize);
+    } else {
+      # obj ist ein Bignum >0
+      var uintL len = (uintL)Bignum_length(obj);
+      # obj < 2^bitsize überprüfen:
+      if (!((floor(bitsize,intDsize) >= len)
+            || ((floor(bitsize,intDsize) == len-1)
+                && (TheBignum(obj)->data[0] < bit(bitsize%intDsize)))))
+        fehler_bad_integer(stream,obj);
+      #if BIG_ENDIAN_P
+      {
+        var uintB* ptr = (uintB*)&TheBignum(obj)->data[len];
+        # Digit-Länge in Byte-Länge umrechnen:
+        len = (intDsize/8)*len;
+#define CHECK_NEXT_BYTE(i)  \
+   if (((uintB*)(&TheBignum(obj)->data[0]))[i] != 0) goto len_ok; len--;
+        DOCONSTTIMES(intDsize/8,CHECK_NEXT_BYTE); # CHECK_NEXT_BYTE(0..intDsize/8-1)
+#undef CHECK_NEXT_BYTE
+      len_ok:
+        # obj im Bitbuffer ablegen:
+        count = count - len;
+        dotimespL(len,len, { *bitbufferptr++ = *--ptr; } );
+      }
+      #else
+      {
+        var uintD* ptr = &TheBignum(obj)->data[len];
+        len--;
+        count -= (intDsize/8)*len;
+        dotimesL(len,len, {
+          var uintD digit = *--ptr;
+          doconsttimes(intDsize/8, {
+            *bitbufferptr++ = (uintB)digit; digit = digit >> 8;
+          });
+        });
+        var uintD digit = *--ptr;
+        doconsttimes(intDsize/8, {
+          if (digit==0) goto ok;
+          *bitbufferptr++ = (uintB)digit; digit = digit >> 8;
+          count--;
+        });
+      ok: ;
+      }
+    #endif
     }
+    memset(bitbufferptr,0,count);
+  }
+  (*finisher)(stream,bitsize,bytesize);
+}
 
 # UP für WRITE-BYTE auf File-Streams für Integers, Art s :
 # Legt das Objekt (ein Integer) als bytesize Bytes im Bitbuffer ab.
 # > stream : File-Stream für Integers, Art s
 # > obj : auszugebendes Objekt
 # > finisher : Beendigungsroutine
-  local void wr_by_ixs_sub (object stream, object obj, wr_by_aux_ix* finisher);
-  local void wr_by_ixs_sub(stream,obj,finisher)
-    var object stream;
-    var object obj;
-    var wr_by_aux_ix* finisher;
-    {
-      # obj überprüfen:
-      if (!integerp(obj))
-        fehler_wr_integer(stream,obj);
-      # obj ist jetzt ein Integer
-      var uintL bitsize = ChannelStream_bitsize(stream);
-      var uintL bytesize = ceiling(bitsize,8);
-      # obj in den Bitbuffer übertragen:
-      {
-        var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
-        var uintL count = bytesize;
-        var uintL sign = (sintL)R_sign(obj);
-        if (fixnump(obj)) {
-          # obj ist ein Fixnum
-          var uintL wert = fixnum_to_L(obj); # >=0 oder <0, je nach sign
-          # 0 <= wert < 2^(bitsize-1) bzw. -2^(bitsize-1) <= wert < 0 überprüfen:
-          wert = wert^sign;
-          if (!((bitsize>oint_data_len) || (wert < bit(bitsize-1))))
-            fehler_bad_integer(stream,obj);
-          # wert^sign im Bitbuffer ablegen:
-          until (wert == 0) {
-            *bitbufferptr++ = (uint8)(wert^sign); wert = wert>>8; count--;
-          }
-          memset(bitbufferptr,(uint8)sign,count);
-        } else {
-          # obj ist ein Bignum
-          var uintL len = (uintL)Bignum_length(obj);
-          # -2^(bitsize-1) <= obj < 2^(bitsize-1) überprüfen:
-          if (!((floor(bitsize,intDsize) >= len)
-                || ((bitsize > intDsize*(len-1))
-                    && ((TheBignum(obj)->data[0] ^ (uintD)sign) <
-                        bit((bitsize%intDsize)-1)))))
-            fehler_bad_integer(stream,obj);
-          #if BIG_ENDIAN_P
-          {
-            var uintB* ptr = (uintB*)&TheBignum(obj)->data[len];
-            # Digit-Länge in Byte-Länge umrechnen:
-            len = (intDsize/8)*len;
-            #define CHECK_NEXT_BYTE(i)  \
-              if (!( ((uintB*)(&TheBignum(obj)->data[0]))[i] == (uintB)sign)) goto len_ok; \
-              len--;
-            DOCONSTTIMES(intDsize/8,CHECK_NEXT_BYTE); # CHECK_NEXT_BYTE(0..intDsize/8-1)
-            #undef CHECK_NEXT_BYTE
-           len_ok:
-            # obj im Bitbuffer ablegen:
-            count = count - len;
-            dotimespL(len,len, { *bitbufferptr++ = *--ptr; } );
-          }
-          #else
-          {
-            var uintD* ptr = &TheBignum(obj)->data[len];
-            len--;
-            count -= (intDsize/8)*len;
-            dotimesL(len,len, {
-              var uintD digit = *--ptr;
-              doconsttimes(intDsize/8, {
-                *bitbufferptr++ = (uintB)digit; digit = digit >> 8;
-              });
-            });
-            var sintD digit = *--ptr;
-            doconsttimes(intDsize/8, {
-              if (digit == (sintD)sign) goto ok;
-              *bitbufferptr++ = (uintB)digit; digit = digit >> 8;
-              count--;
-            });
-           ok: ;
-          }
-          #endif
-          memset(bitbufferptr,(uintB)sign,count);
-        }
+local void wr_by_ixs_sub (object stream, object obj, wr_by_aux_ix* finisher) {
+  # check obj:
+  if (!integerp(obj))
+    fehler_wr_integer(stream,obj);
+  # obj ist jetzt ein Integer
+  var uintL bitsize = ChannelStream_bitsize(stream);
+  var uintL bytesize = ceiling(bitsize,8);
+  # obj in den Bitbuffer übertragen:
+  {
+    var uintB* bitbufferptr =
+      TheSbvector(TheStream(stream)->strm_bitbuffer)->data;
+    var uintL count = bytesize;
+    var uintL sign = (sintL)R_sign(obj);
+    if (fixnump(obj)) {
+      # obj ist ein Fixnum
+      var uintL wert = fixnum_to_L(obj); # >=0 oder <0, je nach sign
+      # 0 <= wert < 2^(bitsize-1) bzw. -2^(bitsize-1) <= wert < 0 überprüfen:
+      wert = wert^sign;
+      if (!((bitsize>oint_data_len) || (wert < bit(bitsize-1))))
+        fehler_bad_integer(stream,obj);
+      # wert^sign im Bitbuffer ablegen:
+      until (wert == 0) {
+        *bitbufferptr++ = (uint8)(wert^sign); wert = wert>>8; count--;
       }
-      (*finisher)(stream,bitsize,bytesize);
+      memset(bitbufferptr,(uint8)sign,count);
+    } else {
+      # obj ist ein Bignum
+      var uintL len = (uintL)Bignum_length(obj);
+      # -2^(bitsize-1) <= obj < 2^(bitsize-1) überprüfen:
+      if (!((floor(bitsize,intDsize) >= len)
+            || ((bitsize > intDsize*(len-1))
+                && ((TheBignum(obj)->data[0] ^ (uintD)sign) <
+                    bit((bitsize%intDsize)-1)))))
+        fehler_bad_integer(stream,obj);
+      #if BIG_ENDIAN_P
+      {
+        var uintB* ptr = (uintB*)&TheBignum(obj)->data[len];
+        # Digit-Länge in Byte-Länge umrechnen:
+        len = (intDsize/8)*len;
+#define CHECK_NEXT_BYTE(i)  \
+   if (((uintB*)(&TheBignum(obj)->data[0]))[i] != (uintB)sign) goto len_ok; \
+   len--;
+        DOCONSTTIMES(intDsize/8,CHECK_NEXT_BYTE); # CHECK_NEXT_BYTE(0..intDsize/8-1)
+#undef CHECK_NEXT_BYTE
+      len_ok:
+        # obj im Bitbuffer ablegen:
+        count = count - len;
+        dotimespL(len,len, { *bitbufferptr++ = *--ptr; } );
+      }
+      #else
+      {
+        var uintD* ptr = &TheBignum(obj)->data[len];
+        len--;
+        count -= (intDsize/8)*len;
+        dotimesL(len,len, {
+          var uintD digit = *--ptr;
+          doconsttimes(intDsize/8, {
+            *bitbufferptr++ = (uintB)digit; digit = digit >> 8;
+          });
+        });
+        var sintD digit = *--ptr;
+        doconsttimes(intDsize/8, {
+          if (digit == (sintD)sign) goto ok;
+          *bitbufferptr++ = (uintB)digit; digit = digit >> 8;
+          count--;
+        });
+      ok: ;
+      }
+      #endif
+      memset(bitbufferptr,(uintB)sign,count);
     }
+  }
+  (*finisher)(stream,bitsize,bytesize);
+}
 
 # Handle-Streams, Input side
 # ==========================
@@ -7738,33 +7717,29 @@ typedef struct strm_i_buffered_extrafields_struct {
 # > stream : (offener) Byte-basierter File-Stream.
 # > position : neue (logische) Position
 # verändert in stream: index, eofindex, buffstart, bitindex
-  local void position_file_i_buffered (object stream, uintL position);
-  local void position_file_i_buffered(stream,position)
-    var object stream;
-    var uintL position;
-    {
-      var uintL bitsize = ChannelStream_bitsize(stream);
-      var uintL position_bits = position * bitsize;
-      if (bitsize < 8)
-        position_bits += sizeof(uintL)*8; # Header berücksichtigen
-      # An Bit Nummer position_bits positionieren.
-      position_file_buffered(stream,floor(position_bits,8)); # Aufs Byte positionieren
-      if ((bitsize % 8) == 0) # Bei Art a war's das.
-        return;
-      if (# Is the addressed position situated in the first byte after EOF ?
-          ((!((position_bits%8)==0))
-           && (buffered_nextbyte(stream) == (uintB*)NULL)) ||
-          # Is the addressed position situated in the last byte too far?
-          ((bitsize < 8)
-           && (position > BufferedStream_eofposition(stream)))) {
-        # Fehler. Aber erst an die alte Position zurückpositionieren:
-        var uintL oldposition = BufferedStream_position(stream);
-        check_SP();
-        position_file_i_buffered(stream,oldposition); # zurückpositionieren
-        fehler_position_beyond_EOF(stream);
-      }
-      BufferedStream_bitindex(stream) = position_bits%8;
-    }
+local void position_file_i_buffered (object stream, uintL position) {
+  var uintL bitsize = ChannelStream_bitsize(stream);
+  var uintL position_bits = position * bitsize;
+  if (bitsize < 8)
+    position_bits += sizeof(uintL)*8; # Header berücksichtigen
+  # An Bit Nummer position_bits positionieren.
+  position_file_buffered(stream,floor(position_bits,8)); # Aufs Byte positionieren
+  if ((bitsize % 8) == 0) # Bei Art a war's das.
+    return;
+  if (# Is the addressed position situated in the first byte after EOF ?
+      ((!((position_bits%8)==0))
+       && (buffered_nextbyte(stream) == (uintB*)NULL)) ||
+       # Is the addressed position situated in the last byte too far?
+      ((bitsize < 8)
+       && (position > BufferedStream_eofposition(stream)))) {
+    # Fehler. Aber erst an die alte Position zurückpositionieren:
+    var uintL oldposition = BufferedStream_position(stream);
+    check_SP();
+    position_file_i_buffered(stream,oldposition); # zurückpositionieren
+    fehler_position_beyond_EOF(stream);
+  }
+  BufferedStream_bitindex(stream) = position_bits%8;
+}
 
 # Input side
 # ----------
@@ -7774,230 +7749,192 @@ typedef struct strm_i_buffered_extrafields_struct {
 # > stream : File-Stream für Integers, Art a
 # > finisher : Beendigungsroutine
 # < ergebnis : gelesener Integer oder eof_value
-  local object rd_by_aux_iax_buffered (object stream, rd_by_ix_I* finisher);
-  local object rd_by_aux_iax_buffered(stream,finisher)
-    var object stream;
-    var rd_by_ix_I* finisher;
-    {
-      var uintL bitsize = ChannelStream_bitsize(stream);
-      var uintL bytesize = bitsize/8;
-      # transfer sufficiently many bytes into the bitbuffer
-      var uintB* bitbufferptr =
-        &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
-      #if 0 # equivalent, but slower
-      var uintL count;
-      dotimespL(count,bytesize, {
-        var uintB* ptr = buffered_nextbyte(stream);
-        if (ptr == (uintB*)NULL)
-          goto eof;
-        # nächstes Byte holen:
-        *bitbufferptr++ = *ptr;
-        # index incrementieren:
-        BufferedStream_index(stream) += 1;
-      });
-      #else
-      if (read_byte_array_buffered(stream,bitbufferptr,bytesize)
-          != bitbufferptr+bytesize)
-        goto eof;
-      #endif
-      # position incrementieren:
-      BufferedStream_position(stream) += 1;
-      # in Zahl umwandeln:
-      return (*finisher)(stream,bitsize,bytesize);
-     eof: # EOF erreicht
-      position_file_buffered(stream,BufferedStream_position(stream)*bytesize);
-      return eof_value;
-    }
+local object rd_by_aux_iax_buffered (object stream, rd_by_ix_I* finisher) {
+  var uintL bitsize = ChannelStream_bitsize(stream);
+  var uintL bytesize = bitsize/8;
+  # transfer sufficiently many bytes into the bitbuffer
+  var uintB* bitbufferptr =
+    &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
+  #if 0 # equivalent, but slower
+  var uintL count;
+  dotimespL(count,bytesize, {
+    var uintB* ptr = buffered_nextbyte(stream);
+    if (ptr == (uintB*)NULL)
+      goto eof;
+    # nächstes Byte holen:
+    *bitbufferptr++ = *ptr;
+    # index incrementieren:
+    BufferedStream_index(stream) += 1;
+  });
+  #else
+  if (read_byte_array_buffered(stream,bitbufferptr,bytesize)
+      != bitbufferptr+bytesize)
+    goto eof;
+  #endif
+  # position incrementieren:
+  BufferedStream_position(stream) += 1;
+  # in Zahl umwandeln:
+  return (*finisher)(stream,bitsize,bytesize);
+  eof: # EOF erreicht
+  position_file_buffered(stream,BufferedStream_position(stream)*bytesize);
+  return eof_value;
+}
 
 # UP für READ-BYTE auf File-Streams für Integers, Art b :
 # Füllt den Bitbuffer mit den nächsten bitsize Bits.
 # > stream : File-Stream für Integers, Art b
 # > finisher : Beendigungsroutine
 # < ergebnis : gelesener Integer oder eof_value
-  local object rd_by_aux_ibx_buffered (object stream, rd_by_ix_I* finisher);
-  local object rd_by_aux_ibx_buffered(stream,finisher)
-    var object stream;
-    var rd_by_ix_I* finisher;
-    {
-      # Nur bei position < eofposition gibt's was zu lesen:
-      if (BufferedStream_position(stream) ==
-          BufferedStream_eofposition(stream))
-        goto eof;
-      {
-        var uintL bitsize = ChannelStream_bitsize(stream); # bitsize (>0, <8)
-        # transfer sufficient many bits into the bitbuffer
-        var uintL bitindex = BufferedStream_bitindex(stream);
-        var uintL count = bitindex + bitsize;
-        var uint8 bit_akku;
-        var uintB* ptr = buffered_nextbyte(stream);
-        if (ptr == (uintB*)NULL)
-          goto eof;
-        # start getting bytes:
-        bit_akku = (*ptr)>>bitindex;
-        # bitshift := 8-bitindex
-        # Von bit_akku sind die Bits (bitshift-1)..0 gültig.
-        if (count > 8) {
-          # index incrementieren, da gerade *ptr verarbeitet:
-          BufferedStream_index(stream) += 1;
-          count -= 8; # Noch count (>0) Bits zu holen.
-          var uintB* ptr = buffered_nextbyte(stream);
-          if (ptr == (uintB*)NULL)
-            goto eof1;
-          # nächstes Byte holen:
-          # (8-bitindex < 8, da sonst count = 0+bitsize < 8 gewesen wäre!)
-          bit_akku |= (*ptr)<<(8-bitindex);
-        }
-        # Von bit_akku sind alle 8 Bits gültig.
-        # 8 Bit abspeichern:
-        TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0] = bit_akku;
-        BufferedStream_bitindex(stream) = count;
-        # position incrementieren:
-        BufferedStream_position(stream) += 1;
-        # in Zahl umwandeln:
-        return (*finisher)(stream,bitsize,1);
-       eof1:
-        # Wieder zurückpositionieren:
-        position_file_i_buffered(stream,BufferedStream_position(stream));
-      }
-     eof: # EOF erreicht gewesen
-      return eof_value;
+local object rd_by_aux_ibx_buffered (object stream, rd_by_ix_I* finisher) {
+  # Nur bei position < eofposition gibt's was zu lesen:
+  if (BufferedStream_position(stream) == BufferedStream_eofposition(stream))
+    goto eof;
+  {
+    var uintL bitsize = ChannelStream_bitsize(stream); # bitsize (>0, <8)
+    # transfer sufficient many bits into the bitbuffer
+    var uintL bitindex = BufferedStream_bitindex(stream);
+    var uintL count = bitindex + bitsize;
+    var uint8 bit_akku;
+    var uintB* ptr = buffered_nextbyte(stream);
+    if (ptr == (uintB*)NULL)
+      goto eof;
+    # start getting bytes:
+    bit_akku = (*ptr)>>bitindex;
+    # bitshift := 8-bitindex
+    # Von bit_akku sind die Bits (bitshift-1)..0 gültig.
+    if (count > 8) {
+      # index incrementieren, da gerade *ptr verarbeitet:
+      BufferedStream_index(stream) += 1;
+      count -= 8; # Noch count (>0) Bits zu holen.
+      var uintB* ptr = buffered_nextbyte(stream);
+      if (ptr == (uintB*)NULL)
+        goto eof1;
+      # nächstes Byte holen:
+      # (8-bitindex < 8, da sonst count = 0+bitsize < 8 gewesen wäre!)
+      bit_akku |= (*ptr)<<(8-bitindex);
     }
+    # Von bit_akku sind alle 8 Bits gültig.
+    # 8 Bit abspeichern:
+    TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0] = bit_akku;
+    BufferedStream_bitindex(stream) = count;
+    # position incrementieren:
+    BufferedStream_position(stream) += 1;
+    # in Zahl umwandeln:
+    return (*finisher)(stream,bitsize,1);
+  eof1:
+    # Wieder zurückpositionieren:
+    position_file_i_buffered(stream,BufferedStream_position(stream));
+  }
+ eof: # EOF erreicht gewesen
+  return eof_value;
+}
 
 # UP für READ-BYTE auf File-Streams für Integers, Art c :
 # Füllt den Bitbuffer mit den nächsten bitsize Bits.
 # > stream : File-Stream für Integers, Art c
 # > finisher : Beendigungsroutine
 # < ergebnis : gelesener Integer oder eof_value
-  local object rd_by_aux_icx_buffered (object stream, rd_by_ix_I* finisher);
-  local object rd_by_aux_icx_buffered(stream,finisher)
-    var object stream;
-    var rd_by_ix_I* finisher;
+local object rd_by_aux_icx_buffered (object stream, rd_by_ix_I* finisher) {
+  var uintL bitsize = ChannelStream_bitsize(stream);
+  var uintL bytesize = ceiling(bitsize,8);
+  # transfer sufficiently many bits into the bitbuffer
+  var uintB* bitbufferptr =
+    &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
+  var uintL count = bitsize;
+  var uintL bitshift = BufferedStream_bitindex(stream);
+  var uintB* ptr = buffered_nextbyte(stream);
+  if (ptr == (uintB*)NULL)
+    goto eof;
+  # start getting bytes:
+  var uint16 bit_akku = (*ptr)>>bitshift;
+  bitshift = 8-bitshift; # bitshift := 8-bitindex
+  count -= bitshift;
+  loop {
+    BufferedStream_index(stream) += 1;
+    # bit_akku: bits (bitshift-1)..0 are valid.
+    # have to get count (>0) bits.
     {
-      var uintL bitsize = ChannelStream_bitsize(stream);
-      var uintL bytesize = ceiling(bitsize,8);
-      # transfer sufficient many bits into the bitbuffer
-      var uintB* bitbufferptr =
-        &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
-      var uintL count = bitsize;
-      var uintL bitshift = BufferedStream_bitindex(stream);
       var uintB* ptr = buffered_nextbyte(stream);
       if (ptr == (uintB*)NULL)
         goto eof;
-      # start getting bytes:
-      var uint16 bit_akku = (*ptr)>>bitshift;
-      bitshift = 8-bitshift; # bitshift := 8-bitindex
-      count -= bitshift;
-      loop {
-        BufferedStream_index(stream) += 1;
-        # bit_akku: bits (bitshift-1)..0 are valid.
-        # have to get count (>0) bits.
-        {
-          var uintB* ptr = buffered_nextbyte(stream);
-          if (ptr == (uintB*)NULL)
-            goto eof;
-          # get next byte:
-          bit_akku |= (uint16)(*ptr)<<bitshift;
-        }
-        # bit_akku: bits (7+bitshift)..0 are valid.
-        *bitbufferptr++ = (uint8)bit_akku; # store 8 Bit
-        bit_akku >>= 8;
-        if (count<=8) # are count bits finished?
-          break;
-        count -= 8;
-      }
-      # count > 0 -- the number of bits to get
-      ptr = buffered_nextbyte(stream);
-      if (ptr == (uintB*)NULL) # EOF ?
-        bit_akku = *buffered_eofbyte(stream);
-      *bitbufferptr = (uint8)(bit_akku & (uint8)(bit(count)-1));
-      BufferedStream_bitindex(stream) = count;
-      BufferedStream_position(stream) += 1; # increment position
-      return (*finisher)(stream,bitsize,bytesize); # convert to a number
-     eof:
-      position_file_i_buffered(stream,BufferedStream_position(stream));
-      return eof_value;
+      # get next byte:
+      bit_akku |= (uint16)(*ptr)<<bitshift;
     }
+    # bit_akku: bits (7+bitshift)..0 are valid.
+    *bitbufferptr++ = (uint8)bit_akku; # store 8 Bit
+    bit_akku >>= 8;
+    if (count<=8) # are count bits finished?
+      break;
+    count -= 8;
+  }
+  # count > 0 -- the number of bits to get
+  ptr = buffered_nextbyte(stream);
+  if (ptr == (uintB*)NULL) # EOF ?
+    bit_akku = *buffered_eofbyte(stream);
+  *bitbufferptr = (uint8)(bit_akku & (uint8)(bit(count)-1));
+  BufferedStream_bitindex(stream) = count;
+  BufferedStream_position(stream) += 1; # increment position
+  return (*finisher)(stream,bitsize,bytesize); # convert to a number
+ eof:
+  position_file_i_buffered(stream,BufferedStream_position(stream));
+  return eof_value;
+}
 
 # READ-BYTE - Pseudofunktion für File-Streams für Integers, Art au :
-  local object rd_by_iau_buffered (object stream);
-  local object rd_by_iau_buffered(stream)
-    var object stream;
-    {
-      return rd_by_aux_iax_buffered(stream,&rd_by_iu_I);
-    }
+local object rd_by_iau_buffered (object stream) {
+  return rd_by_aux_iax_buffered(stream,&rd_by_iu_I);
+}
 
 # READ-BYTE - Pseudofunktion für File-Streams für Integers, Art as :
-  local object rd_by_ias_buffered (object stream);
-  local object rd_by_ias_buffered(stream)
-    var object stream;
-    {
-      return rd_by_aux_iax_buffered(stream,&rd_by_is_I);
-    }
+local object rd_by_ias_buffered (object stream) {
+  return rd_by_aux_iax_buffered(stream,&rd_by_is_I);
+}
 
 # READ-BYTE - Pseudofunktion für File-Streams für Integers, Art bu :
-  local object rd_by_ibu_buffered (object stream);
-  local object rd_by_ibu_buffered(stream)
-    var object stream;
-    {
-      return rd_by_aux_ibx_buffered(stream,&rd_by_iu_I);
-    }
+local object rd_by_ibu_buffered (object stream) {
+  return rd_by_aux_ibx_buffered(stream,&rd_by_iu_I);
+}
 
 # READ-BYTE - Pseudofunktion für File-Streams für Integers, Art bs :
-  local object rd_by_ibs_buffered (object stream);
-  local object rd_by_ibs_buffered(stream)
-    var object stream;
-    {
-      return rd_by_aux_ibx_buffered(stream,&rd_by_is_I);
-    }
+local object rd_by_ibs_buffered (object stream) {
+  return rd_by_aux_ibx_buffered(stream,&rd_by_is_I);
+}
 
 # READ-BYTE - Pseudofunktion für File-Streams für Integers, Art cu :
-  local object rd_by_icu_buffered (object stream);
-  local object rd_by_icu_buffered(stream)
-    var object stream;
-    {
-      return rd_by_aux_icx_buffered(stream,&rd_by_iu_I);
-    }
+local object rd_by_icu_buffered (object stream) {
+  return rd_by_aux_icx_buffered(stream,&rd_by_iu_I);
+}
 
 # READ-BYTE - Pseudofunktion für File-Streams für Integers, Art cs :
-  local object rd_by_ics_buffered (object stream);
-  local object rd_by_ics_buffered(stream)
-    var object stream;
-    {
-      return rd_by_aux_icx_buffered(stream,&rd_by_is_I);
-    }
+local object rd_by_ics_buffered (object stream) {
+  return rd_by_aux_icx_buffered(stream,&rd_by_is_I);
+}
 
 # READ-BYTE - Pseudofunktion für File-Streams für Integers, Art au, bitsize = 8 :
-  local object rd_by_iau8_buffered (object stream);
-  local object rd_by_iau8_buffered(stream)
-    var object stream;
-    {
-      var uintB* ptr = buffered_nextbyte(stream);
-      if (!(ptr == (uintB*)NULL)) {
-        var object obj = fixnum(*ptr);
-        # index und position incrementieren:
-        BufferedStream_index(stream) += 1;
-        BufferedStream_position(stream) += 1;
-        return obj;
-      } else {
-        return eof_value;
-      }
-    }
+local object rd_by_iau8_buffered (object stream) {
+  var uintB* ptr = buffered_nextbyte(stream);
+  if (!(ptr == (uintB*)NULL)) {
+    var object obj = fixnum(*ptr);
+    # increment index and position:
+    BufferedStream_index(stream) += 1;
+    BufferedStream_position(stream) += 1;
+    return obj;
+  } else {
+    return eof_value;
+  }
+}
 
 # READ-BYTE-SEQUENCE für File-Streams für Integers, Art au, bitsize = 8 :
-  local uintL rd_by_array_iau8_buffered (const object* stream_, const object* bytearray_, uintL start, uintL len);
-  local uintL rd_by_array_iau8_buffered(stream_,bytearray_,start,len)
-    var const object* stream_;
-    var const object* bytearray_;
-    var uintL start;
-    var uintL len;
-    {
-      var uintB* startptr = &TheSbvector(*bytearray_)->data[start];
-      var uintB* endptr = read_byte_array_buffered(*stream_,startptr,len);
-      var uintL result = endptr-startptr;
-      # position incrementieren:
-      BufferedStream_position(*stream_) += result;
-      return result;
-    }
+local uintL rd_by_array_iau8_buffered (const object* stream_,
+                                       const object* bytearray_,
+                                       uintL start, uintL len) {
+  var uintB* startptr = &TheSbvector(*bytearray_)->data[start];
+  var uintB* endptr = read_byte_array_buffered(*stream_,startptr,len);
+  var uintL result = endptr-startptr;
+  # increment position:
+  BufferedStream_position(*stream_) += result;
+  return result;
+}
 
 # Stellt fest, ob ein File-Stream ein Byte verfügbar hat.
 # listen_byte_ia8_buffered(stream)
@@ -8005,38 +7942,30 @@ typedef struct strm_i_buffered_extrafields_struct {
 # < ergebnis: ls_avail if a byte is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no byte is available, but not because of EOF
-  local signean listen_byte_ia8_buffered (object stream);
-  local signean listen_byte_ia8_buffered(stream)
-    var object stream;
-    {
-      if (buffered_nextbyte(stream) == (uintB*)NULL)
-        return ls_eof; # EOF
-      return ls_avail;
-    }
+local signean listen_byte_ia8_buffered (object stream) {
+  if (buffered_nextbyte(stream) == (uintB*)NULL)
+    return ls_eof; # EOF
+  return ls_avail;
+}
 
 # Output side
 # -----------
 
 # UP für WRITE-BYTE auf File-Streams für Integers, Art a :
 # Schreibt den Bitbuffer-Inhalt aufs File.
-  local void wr_by_aux_ia_buffered (object stream, uintL bitsize, uintL bytesize);
-  local void wr_by_aux_ia_buffered(stream,bitsize,bytesize)
-    var object stream;
-    var uintL bitsize;
-    var uintL bytesize;
-    {
-      var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
-      #if 0 # equivalent, but slow
-      var uintL count;
-      dotimespL(count,bytesize, {
-        buffered_writebyte(stream,*bitbufferptr++);
-      });
-      #else
-      write_byte_array_buffered(stream,bitbufferptr,bytesize);
-      #endif
-      # position incrementieren:
-      BufferedStream_position(stream) += 1;
-    }
+local void wr_by_aux_ia_buffered (object stream,uintL bitsize,uintL bytesize) {
+  var uintB* bitbufferptr=TheSbvector(TheStream(stream)->strm_bitbuffer)->data;
+  #if 0 # equivalent, but slow
+  var uintL count;
+  dotimespL(count,bytesize, {
+    buffered_writebyte(stream,*bitbufferptr++);
+  });
+  #else
+  write_byte_array_buffered(stream,bitbufferptr,bytesize);
+  #endif
+  # increment position:
+  BufferedStream_position(stream) += 1;
+}
 
 # write last byte (count bits):
 #define WRITE_LAST_BYTE                                                 \
@@ -8057,147 +7986,105 @@ typedef struct strm_i_buffered_extrafields_struct {
 
 # UP für WRITE-BYTE auf File-Streams für Integers, Art b :
 # Schreibt den Bitbuffer-Inhalt aufs File.
-  local void wr_by_aux_ib_buffered (object stream, uintL bitsize, uintL bytesize);
-  local void wr_by_aux_ib_buffered(stream,bitsize,bytesize)
-    var object stream;
-    var uintL bitsize;
-    var uintL bytesize;
-    {
-      var uintL bitshift = BufferedStream_bitindex(stream);
-      var uint16 bit_akku = (uint16)(TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0])<<bitshift;
-      var uintL count = bitsize;
-      var uintB* ptr = buffered_nextbyte(stream);
-      # start getting bytes:
-      if (!(ptr == (uintB*)NULL))
-        bit_akku |= (*ptr)&(bit(bitshift)-1);
-      count += bitshift;
-      # evtl. einzelnes Byte schreiben:
-      if (count>=8) {
-        buffered_writebyte(stream,(uint8)bit_akku);
-        bit_akku = bit_akku>>8;
-        count -= 8;
-      }
-      WRITE_LAST_BYTE;
-      BufferedStream_bitindex(stream) = count;
-      # position und evtl. eofposition incrementieren:
-      if (BufferedStream_eofposition(stream) == BufferedStream_position(stream))
-        BufferedStream_eofposition(stream) += 1;
-      BufferedStream_position(stream) += 1;
-    }
+local void wr_by_aux_ib_buffered (object stream,uintL bitsize,uintL bytesize) {
+  var uintL bitshift = BufferedStream_bitindex(stream);
+  var uint16 bit_akku = (uint16)(TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0])<<bitshift;
+  var uintL count = bitsize;
+  var uintB* ptr = buffered_nextbyte(stream);
+  # start getting bytes:
+  if (!(ptr == (uintB*)NULL))
+    bit_akku |= (*ptr)&(bit(bitshift)-1);
+  count += bitshift;
+  # evtl. einzelnes Byte schreiben:
+  if (count>=8) {
+    buffered_writebyte(stream,(uint8)bit_akku);
+    bit_akku = bit_akku>>8;
+    count -= 8;
+  }
+  WRITE_LAST_BYTE;
+  BufferedStream_bitindex(stream) = count;
+  # position und evtl. eofposition incrementieren:
+  if (BufferedStream_eofposition(stream) == BufferedStream_position(stream))
+    BufferedStream_eofposition(stream) += 1;
+  BufferedStream_position(stream) += 1;
+}
 
 # UP für WRITE-BYTE auf File-Streams für Integers, Art c :
 # Schreibt den Bitbuffer-Inhalt aufs File.
-  local void wr_by_aux_ic_buffered (object stream, uintL bitsize, uintL bytesize);
-  local void wr_by_aux_ic_buffered(stream,bitsize,bytesize)
-    var object stream;
-    var uintL bitsize;
-    var uintL bytesize;
-    {
-      var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
-      var uintL bitshift = BufferedStream_bitindex(stream);
-      var uintL count = bitsize;
-      var uint16 bit_akku;
-      var uintB* ptr = buffered_nextbyte(stream);
-      # start getting bytes:
-      bit_akku = (ptr==(uintB*)NULL ? 0 : (*ptr)&(bit(bitshift)-1) );
-      count += bitshift;
-      # write individual bytes:
-      loop {
-        bit_akku |= (uint16)(*bitbufferptr++)<<bitshift;
-        if (count<8)
-          break;
-        buffered_writebyte(stream,(uint8)bit_akku);
-        bit_akku = bit_akku>>8;
-        count -= 8;
-        if (count<=bitshift)
-          break;
-      }
-      WRITE_LAST_BYTE;
-      BufferedStream_bitindex(stream) = count;
-      BufferedStream_position(stream) += 1;
-    }
+local void wr_by_aux_ic_buffered (object stream,uintL bitsize,uintL bytesize) {
+  var uintB* bitbufferptr=TheSbvector(TheStream(stream)->strm_bitbuffer)->data;
+  var uintL bitshift = BufferedStream_bitindex(stream);
+  var uintL count = bitsize;
+  var uint16 bit_akku;
+  var uintB* ptr = buffered_nextbyte(stream);
+  # start getting bytes:
+  bit_akku = (ptr==(uintB*)NULL ? 0 : (*ptr)&(bit(bitshift)-1) );
+  count += bitshift;
+  # write individual bytes:
+  loop {
+    bit_akku |= (uint16)(*bitbufferptr++)<<bitshift;
+    if (count<8)
+      break;
+    buffered_writebyte(stream,(uint8)bit_akku);
+    bit_akku = bit_akku>>8;
+    count -= 8;
+    if (count<=bitshift)
+      break;
+  }
+  WRITE_LAST_BYTE;
+  BufferedStream_bitindex(stream) = count;
+  BufferedStream_position(stream) += 1;
+}
 #undef WRITE_LAST_BYTE
 
 # WRITE-BYTE - Pseudofunktion für File-Streams für Integers, Art au :
-  local void wr_by_iau_buffered (object stream, object obj);
-  local void wr_by_iau_buffered(stream,obj)
-    var object stream;
-    var object obj;
-    {
-      wr_by_ixu_sub(stream,obj,&wr_by_aux_ia_buffered);
-    }
+local void wr_by_iau_buffered (object stream, object obj) {
+  wr_by_ixu_sub(stream,obj,&wr_by_aux_ia_buffered);
+}
 
 # WRITE-BYTE - Pseudofunktion für File-Streams für Integers, Art as :
-  local void wr_by_ias_buffered (object stream, object obj);
-  local void wr_by_ias_buffered(stream,obj)
-    var object stream;
-    var object obj;
-    {
-      wr_by_ixs_sub(stream,obj,&wr_by_aux_ia_buffered);
-    }
+local void wr_by_ias_buffered (object stream, object obj) {
+  wr_by_ixs_sub(stream,obj,&wr_by_aux_ia_buffered);
+}
 
 # WRITE-BYTE - Pseudofunktion für File-Streams für Integers, Art bu :
-  local void wr_by_ibu_buffered (object stream, object obj);
-  local void wr_by_ibu_buffered(stream,obj)
-    var object stream;
-    var object obj;
-    {
-      wr_by_ixu_sub(stream,obj,&wr_by_aux_ib_buffered);
-    }
+local void wr_by_ibu_buffered (object stream, object obj) {
+  wr_by_ixu_sub(stream,obj,&wr_by_aux_ib_buffered);
+}
 
 # WRITE-BYTE - Pseudofunktion für File-Streams für Integers, Art bs :
-  local void wr_by_ibs_buffered (object stream, object obj);
-  local void wr_by_ibs_buffered(stream,obj)
-    var object stream;
-    var object obj;
-    {
-      wr_by_ixs_sub(stream,obj,&wr_by_aux_ib_buffered);
-    }
+local void wr_by_ibs_buffered (object stream, object obj) {
+  wr_by_ixs_sub(stream,obj,&wr_by_aux_ib_buffered);
+}
 
 # WRITE-BYTE - Pseudofunktion für File-Streams für Integers, Art cu :
-  local void wr_by_icu_buffered (object stream, object obj);
-  local void wr_by_icu_buffered(stream,obj)
-    var object stream;
-    var object obj;
-    {
-      wr_by_ixu_sub(stream,obj,&wr_by_aux_ic_buffered);
-    }
+local void wr_by_icu_buffered (object stream, object obj) {
+  wr_by_ixu_sub(stream,obj,&wr_by_aux_ic_buffered);
+}
 
 # WRITE-BYTE - Pseudofunktion für File-Streams für Integers, Art cs :
-  local void wr_by_ics_buffered (object stream, object obj);
-  local void wr_by_ics_buffered(stream,obj)
-    var object stream;
-    var object obj;
-    {
-      wr_by_ixs_sub(stream,obj,&wr_by_aux_ic_buffered);
-    }
+local void wr_by_ics_buffered (object stream, object obj) {
+  wr_by_ixs_sub(stream,obj,&wr_by_aux_ic_buffered);
+}
 
 # WRITE-BYTE - Pseudofunktion für File-Streams für Integers, Art au, bitsize = 8 :
-  local void wr_by_iau8_buffered (object stream, object obj);
-  local void wr_by_iau8_buffered(stream,obj)
-    var object stream;
-    var object obj;
-    {
-      # obj überprüfen:
-      if (!integerp(obj))
-        fehler_wr_integer(stream,obj);
-      if (!(posfixnump(obj) && (posfixnum_to_L(obj) < bit(8))))
-        fehler_bad_integer(stream,obj);
-      write_byte_buffered(stream,(uintB)posfixnum_to_L(obj));
-    }
+local void wr_by_iau8_buffered (object stream, object obj) {
+  # check obj:
+  if (!integerp(obj))
+    fehler_wr_integer(stream,obj);
+  if (!(posfixnump(obj) && (posfixnum_to_L(obj) < bit(8))))
+    fehler_bad_integer(stream,obj);
+  write_byte_buffered(stream,(uintB)posfixnum_to_L(obj));
+}
 
 # WRITE-BYTE-SEQUENCE für File-Streams für Integers, Art au, bitsize = 8 :
-  local void wr_by_array_iau8_buffered (const object* stream_, const object* bytearray_, uintL start, uintL len);
-  local void wr_by_array_iau8_buffered(stream_,bytearray_,start,len)
-    var const object* stream_;
-    var const object* bytearray_;
-    var uintL start;
-    var uintL len;
-    {
-      write_byte_array_buffered(*stream_,&TheSbvector(*bytearray_)->data[start],len);
-      # position incrementieren:
-      BufferedStream_position(*stream_) += len;
-    }
+local void wr_by_array_iau8_buffered (const object* stream_,
+                                      const object* bytearray_,
+                                      uintL start, uintL len) {
+  write_byte_array_buffered(*stream_,TheSbvector(*bytearray_)->data+start,len);
+  # increment position:
+  BufferedStream_position(*stream_) += len;
+}
 
 # File-Stream allgemein
 # =====================
@@ -8206,230 +8093,201 @@ typedef struct strm_i_buffered_extrafields_struct {
 # logical_position_file_start(stream);
 # > stream : (offener) File-Stream.
 # verändert in stream: index, eofindex, buffstart, ..., position, rd_ch_last
-  local void logical_position_file_start (object stream);
-  local void logical_position_file_start(stream)
-    var object stream;
-    {
-      var uintL bitsize = ChannelStream_bitsize(stream);
-      position_file_buffered(stream,
-                             bitsize > 0 && bitsize < 8 # Integer-Stream vom Typ b ?
-                             ? sizeof(uintL) : 0 # ja -> Position 4, sonst Position 0
-                            );
-      if (!((bitsize % 8) == 0))
-        # Integer-Stream der Art b,c
-        BufferedStream_bitindex(stream) = 0; # bitindex := 0
-      BufferedStream_position(stream) = 0; # position := 0
-      TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
-      TheStream(stream)->strmflags &= ~strmflags_unread_B;
-    }
+local void logical_position_file_start (object stream) {
+  var uintL bitsize = ChannelStream_bitsize(stream);
+  position_file_buffered
+    (stream,
+     bitsize > 0 && bitsize < 8 # Integer-Stream vom Typ b ?
+     ? sizeof(uintL) : 0); # ja -> Position 4, sonst Position 0
+  if (!((bitsize % 8) == 0))
+    # Integer-Stream der Art b,c
+    BufferedStream_bitindex(stream) = 0; # bitindex := 0
+  BufferedStream_position(stream) = 0; # position := 0
+  TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
+  TheStream(stream)->strmflags &= ~strmflags_unread_B;
+}
 
 # UP: Positioniert einen (offenen) File-Stream an eine gegebene Position.
 # logical_position_file(stream,position);
 # > stream : (offener) File-Stream.
 # > position : neue (logische) Position
 # verändert in stream: index, eofindex, buffstart, ..., position, rd_ch_last
-  local void logical_position_file (object stream, uintL position);
-  local void logical_position_file(stream,position)
-    var object stream;
-    var uintL position;
-    {
-      var uintL bitsize = ChannelStream_bitsize(stream);
-      if (bitsize > 0) { # Integer-Stream ?
-        if ((bitsize % 8) == 0) {
-          # Art a
-          position_file_buffered(stream,position*(bitsize/8));
-        } else {
-          # Art b,c
-          position_file_i_buffered(stream,position);
-        }
-      } else {
-        # Character-Stream
-        position_file_buffered(stream,position);
-        TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
-        TheStream(stream)->strmflags &= ~strmflags_unread_B;
-      }
-      BufferedStream_position(stream) = position;
+local void logical_position_file (object stream, uintL position) {
+  var uintL bitsize = ChannelStream_bitsize(stream);
+  if (bitsize > 0) { # Integer-Stream ?
+    if ((bitsize % 8) == 0) { # Art a
+      position_file_buffered(stream,position*(bitsize/8));
+    } else { # Art b,c
+      position_file_i_buffered(stream,position);
     }
+  } else { # Character-Stream
+    position_file_buffered(stream,position);
+    TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
+    TheStream(stream)->strmflags &= ~strmflags_unread_B;
+  }
+  BufferedStream_position(stream) = position;
+}
 
 # UP: Positioniert einen (offenen) File-Stream ans Ende.
 # logical_position_file_end(stream);
 # > stream : (offener) File-Stream.
 # verändert in stream: index, eofindex, buffstart, ..., position, rd_ch_last
-  local void logical_position_file_end (object stream);
-  local void logical_position_file_end(stream)
-    var object stream;
+local void logical_position_file_end (object stream) {
+  # evtl. Buffer hinausschreiben:
+  if (BufferedStream_modified(stream))
+    buffered_flush(stream);
+  var uintL eofbytes; # EOF-Position, gemessen in Bytes
+  # ans Ende positionieren:
+  begin_system_call();
+  handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
+               0,SEEK_END,eofbytes=);
+  end_system_call();
+  # logische Position berechnen und eofbytes korrigieren:
+  var uintL position; # logische Position
+  var uintL eofbits = 0; # Bit-Ergänzung zu eofbytes
+  var uintL bitsize = ChannelStream_bitsize(stream);
+  if (bitsize > 0) { # Integer-Stream ?
+    if ((bitsize % 8) == 0) { # Art a
+      var uintL bytesize = bitsize/8;
+      position = floor(eofbytes,bytesize);
+      eofbytes = position*bytesize;
+    } else if (bitsize < 8) { # Art b
+      eofbytes -= sizeof(uintL); # Header berücksichtigen
+      # Ist die gemerkte EOF-Position plausibel?
+      position = BufferedStream_eofposition(stream);
+      if (!(ceiling(position*bitsize,8)==eofbytes)) # ja -> verwende sie
+        position = floor(eofbytes*8,bitsize); # nein -> rechne sie neu aus
+      # Rechne eofbytes und eofbits neu aus:
+      eofbytes = floor(position*bitsize,8);
+      eofbits = (position*bitsize)%8;
+      eofbytes += sizeof(uintL); # Header berücksichtigen
+    } else { # Art c
+      position = floor(eofbytes*8,bitsize);
+      eofbytes = floor(position*bitsize,8);
+      eofbits = (position*bitsize)%8;
+    }
+  } else { # Character-Stream
+    position = eofbytes;
+  }
+  if (!BufferedStream_blockpositioning(stream)) {
+    # Jetzt am Ende positioniert:
+    BufferedStream_buffstart(stream) = eofbytes;
+    BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+    BufferedStream_index(stream) = 0; # index := 0
+    BufferedStream_modified(stream) = false; # unmodifiziert
+  } else { # auf den Anfang des letzten Sectors positionieren:
     {
-      # evtl. Buffer hinausschreiben:
-      if (BufferedStream_modified(stream))
-        buffered_flush(stream);
-      var uintL eofbytes; # EOF-Position, gemessen in Bytes
-      # ans Ende positionieren:
+      var uintL buffstart;
       begin_system_call();
       handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
-                   0,SEEK_END,eofbytes=);
+                   floor(eofbytes,strm_buffered_bufflen)*strm_buffered_bufflen,
+                   SEEK_SET,buffstart=);
       end_system_call();
-      # logische Position berechnen und eofbytes korrigieren:
-      var uintL position; # logische Position
-      var uintL eofbits = 0; # Bit-Ergänzung zu eofbytes
-      var uintL bitsize = ChannelStream_bitsize(stream);
-      if (bitsize > 0) { # Integer-Stream ?
-        if ((bitsize % 8) == 0) {
-          # Art a
-          var uintL bytesize = bitsize/8;
-          position = floor(eofbytes,bytesize);
-          eofbytes = position*bytesize;
-        } elif (bitsize < 8) {
-          # Art b
-          eofbytes -= sizeof(uintL); # Header berücksichtigen
-          # Ist die gemerkte EOF-Position plausibel?
-          position = BufferedStream_eofposition(stream);
-          if (!(ceiling(position*bitsize,8)==eofbytes)) # ja -> verwende sie
-            position = floor(eofbytes*8,bitsize); # nein -> rechne sie neu aus
-          # Rechne eofbytes und eofbits neu aus:
-          eofbytes = floor(position*bitsize,8);
-          eofbits = (position*bitsize)%8;
-          eofbytes += sizeof(uintL); # Header berücksichtigen
-        } else {
-          # Art c
-          position = floor(eofbytes*8,bitsize);
-          eofbytes = floor(position*bitsize,8);
-          eofbits = (position*bitsize)%8;
-        }
-      } else {
-        # Character-Stream
-        position = eofbytes;
-      }
-      if (!BufferedStream_blockpositioning(stream)) {
-        # Jetzt am Ende positioniert:
-        BufferedStream_buffstart(stream) = eofbytes;
-        BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
-        BufferedStream_index(stream) = 0; # index := 0
-        BufferedStream_modified(stream) = false; # unmodifiziert
-      } else {
-        # auf den Anfang des letzten Sectors positionieren:
-        {
-          var uintL buffstart;
-          begin_system_call();
-          handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
-                       floor(eofbytes,strm_buffered_bufflen)*strm_buffered_bufflen,SEEK_SET,buffstart=);
-          end_system_call();
-          BufferedStream_buffstart(stream) = buffstart;
-        }
-        # Sector lesen:
-        BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
-        BufferedStream_index(stream) = 0; # index := 0
-        BufferedStream_modified(stream) = false; # unmodifiziert
-        var uintL eofindex = eofbytes % strm_buffered_bufflen;
-        if (!((eofindex==0) && (eofbits==0))) { # EOF am Sectorende -> brauche nichts zu lesen
-          buffered_nextbyte(stream);
-          # Jetzt ist index=0. index und eofindex setzen:
-          BufferedStream_index(stream) = eofindex;
-          if (!(eofbits==0))
-            eofindex += 1;
-          BufferedStream_eofindex(stream) = eofindex;
-        }
-      }
-      if (!((bitsize % 8) == 0)) {
-        # Integer-Stream der Art b,c
-        BufferedStream_bitindex(stream) = eofbits;
-      }
-      # position setzen:
-      BufferedStream_position(stream) = position;
-      TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
-      TheStream(stream)->strmflags &= ~strmflags_unread_B;
+      BufferedStream_buffstart(stream) = buffstart;
     }
+    # Sector lesen:
+    BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+    BufferedStream_index(stream) = 0; # index := 0
+    BufferedStream_modified(stream) = false; # unmodifiziert
+    var uintL eofindex = eofbytes % strm_buffered_bufflen;
+    if (!((eofindex==0) && (eofbits==0))) { # EOF am Sectorende -> brauche nichts zu lesen
+      buffered_nextbyte(stream);
+      # Jetzt ist index=0. index und eofindex setzen:
+      BufferedStream_index(stream) = eofindex;
+      if (!(eofbits==0))
+        eofindex += 1;
+      BufferedStream_eofindex(stream) = eofindex;
+    }
+  }
+  if (!((bitsize % 8) == 0)) { # Integer-Stream der Art b,c
+    BufferedStream_bitindex(stream) = eofbits;
+  }
+  # position setzen:
+  BufferedStream_position(stream) = position;
+  TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
+  TheStream(stream)->strmflags &= ~strmflags_unread_B;
+}
 
 # UP: Fills in the pseudofunctions for a buffered stream.
 # fill_pseudofuns_buffered(stream,&eltype);
 # > stream: stream being built up, with correct strmflags and encoding
 # > eltype: Element-Type in decoded form
-  local void fill_pseudofuns_buffered (object stream, const decoded_eltype* eltype);
-  local void fill_pseudofuns_buffered(stream,eltype)
-    var object stream;
-    var const decoded_eltype* eltype;
-    {
-      var uintB flags = TheStream(stream)->strmflags;
-      switch (eltype->kind) {
-        case eltype_ch:
-          TheStream(stream)->strm_rd_ch = P(rd_ch_buffered);
-          TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-          TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_buffered);
-          {
-            var object eol = TheEncoding(TheStream(stream)->strm_encoding)->enc_eol;
-            if (eq(eol,S(Kunix))) {
-              TheStream(stream)->strm_wr_ch = P(wr_ch_buffered_unix);
-              TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_buffered_unix);
-            } elif (eq(eol,S(Kmac))) {
-              TheStream(stream)->strm_wr_ch = P(wr_ch_buffered_mac);
-              TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_buffered_mac);
-            } elif (eq(eol,S(Kdos))) {
-              TheStream(stream)->strm_wr_ch = P(wr_ch_buffered_dos);
-              TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_buffered_dos);
-            } else {
-              NOTREACHED;
-            }
-          }
-          break;
-        case eltype_iu:
-          TheStream(stream)->strm_rd_by =
-            ((eltype->size % 8) == 0
-             ? (eltype->size == 8 ? P(rd_by_iau8_buffered) : P(rd_by_iau_buffered))
-             : eltype->size < 8 ? P(rd_by_ibu_buffered) : P(rd_by_icu_buffered)
-            );
-          TheStream(stream)->strm_rd_by_array =
-            (eltype->size == 8
-             ? P(rd_by_array_iau8_buffered)
-             : P(rd_by_array_dummy)
-            );
-          TheStream(stream)->strm_wr_by =
-            ((eltype->size % 8) == 0
-             ? (eltype->size == 8 ? P(wr_by_iau8_buffered) : P(wr_by_iau_buffered))
-             : eltype->size < 8 ? P(wr_by_ibu_buffered) : P(wr_by_icu_buffered)
-            );
-          TheStream(stream)->strm_wr_by_array =
-            (eltype->size == 8
-             ? P(wr_by_array_iau8_buffered)
-             : P(wr_by_array_dummy)
-            );
-          break;
-        case eltype_is:
-          TheStream(stream)->strm_rd_by =
-            ((eltype->size % 8) == 0 ? P(rd_by_ias_buffered) :
-             eltype->size < 8 ? P(rd_by_ibs_buffered) :
-                                P(rd_by_ics_buffered)
-            );
-          TheStream(stream)->strm_rd_by_array = P(rd_by_array_dummy);
-          TheStream(stream)->strm_wr_by =
-            ((eltype->size % 8) == 0 ? P(wr_by_ias_buffered) :
-             eltype->size < 8 ? P(wr_by_ibs_buffered) :
-                                P(wr_by_ics_buffered)
-            );
-          TheStream(stream)->strm_wr_by_array = P(wr_by_array_dummy);
-          break;
-        default: NOTREACHED
+local void fill_pseudofuns_buffered (object stream,
+                                     const decoded_eltype* eltype) {
+  var uintB flags = TheStream(stream)->strmflags;
+  switch (eltype->kind) {
+    case eltype_ch:
+      TheStream(stream)->strm_rd_ch = P(rd_ch_buffered);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_buffered);
+      {
+        var object eol=TheEncoding(TheStream(stream)->strm_encoding)->enc_eol;
+        if (eq(eol,S(Kunix))) {
+          TheStream(stream)->strm_wr_ch = P(wr_ch_buffered_unix);
+          TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_buffered_unix);
+        } else if (eq(eol,S(Kmac))) {
+          TheStream(stream)->strm_wr_ch = P(wr_ch_buffered_mac);
+          TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_buffered_mac);
+        } else if (eq(eol,S(Kdos))) {
+          TheStream(stream)->strm_wr_ch = P(wr_ch_buffered_dos);
+          TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_buffered_dos);
+        } else {
+          NOTREACHED;
+        }
       }
-      # Default für READ-BYTE-Pseudofunktion:
-      if ((flags & strmflags_rd_by_B)==0) {
-        TheStream(stream)->strm_rd_by = P(rd_by_error);
-        TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
-      }
-      # Default für WRITE-BYTE-Pseudofunktion:
-      if ((flags & strmflags_wr_by_B)==0) {
-        TheStream(stream)->strm_wr_by = P(wr_by_error);
-        TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
-      }
-      # Default für READ-CHAR-Pseudofunktion:
-      if ((flags & strmflags_rd_ch_B)==0) {
-        TheStream(stream)->strm_rd_ch = P(rd_ch_error);
-        TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-        TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
-      }
-      # Default für WRITE-CHAR-Pseudofunktion:
-      if ((flags & strmflags_wr_ch_B)==0) {
-        TheStream(stream)->strm_wr_ch = P(wr_ch_error);
-        TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
-      }
-    }
+      break;
+    case eltype_iu:
+      TheStream(stream)->strm_rd_by =
+        ((eltype->size % 8) == 0
+         ? (eltype->size == 8 ? P(rd_by_iau8_buffered) : P(rd_by_iau_buffered))
+         : eltype->size < 8 ? P(rd_by_ibu_buffered) : P(rd_by_icu_buffered));
+      TheStream(stream)->strm_rd_by_array =
+        (eltype->size == 8
+         ? P(rd_by_array_iau8_buffered)
+         : P(rd_by_array_dummy));
+      TheStream(stream)->strm_wr_by =
+        ((eltype->size % 8) == 0
+         ? (eltype->size == 8 ? P(wr_by_iau8_buffered) : P(wr_by_iau_buffered))
+         : eltype->size < 8 ? P(wr_by_ibu_buffered) : P(wr_by_icu_buffered));
+      TheStream(stream)->strm_wr_by_array =
+        (eltype->size == 8
+         ? P(wr_by_array_iau8_buffered)
+         : P(wr_by_array_dummy));
+      break;
+    case eltype_is:
+      TheStream(stream)->strm_rd_by =
+        ((eltype->size % 8) == 0 ? P(rd_by_ias_buffered) :
+         eltype->size < 8 ? P(rd_by_ibs_buffered) : P(rd_by_ics_buffered));
+      TheStream(stream)->strm_rd_by_array = P(rd_by_array_dummy);
+      TheStream(stream)->strm_wr_by =
+        ((eltype->size % 8) == 0 ? P(wr_by_ias_buffered) :
+         eltype->size < 8 ? P(wr_by_ibs_buffered) : P(wr_by_ics_buffered));
+      TheStream(stream)->strm_wr_by_array = P(wr_by_array_dummy);
+      break;
+    default: NOTREACHED
+  }
+  # Default für READ-BYTE-Pseudofunktion:
+  if ((flags & strmflags_rd_by_B)==0) {
+    TheStream(stream)->strm_rd_by = P(rd_by_error);
+    TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+  }
+  # Default für WRITE-BYTE-Pseudofunktion:
+  if ((flags & strmflags_wr_by_B)==0) {
+    TheStream(stream)->strm_wr_by = P(wr_by_error);
+    TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
+  }
+  # Default für READ-CHAR-Pseudofunktion:
+  if ((flags & strmflags_rd_ch_B)==0) {
+    TheStream(stream)->strm_rd_ch = P(rd_ch_error);
+    TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+    TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
+  }
+  # Default für WRITE-CHAR-Pseudofunktion:
+  if ((flags & strmflags_wr_ch_B)==0) {
+    TheStream(stream)->strm_wr_ch = P(wr_ch_error);
+    TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
+  }
+}
 
 # UP: creates a buffered file stream
 # make_buffered_stream(type,direction,&eltype,handle_regular,handle_blockpositioning)
@@ -8451,69 +8309,68 @@ local object make_buffered_stream (uintB type,direction_t direction,
                                    const decoded_eltype* eltype,
                                    bool handle_regular,
                                    bool handle_blockpositioning) {
-      var uintB flags = DIRECTION_FLAGS(direction);
-      var uintC xlen = sizeof(strm_buffered_extrafields_struct); # Das haben alle File-Streams
-      if (eltype->kind == eltype_ch) {
-        flags &= strmflags_ch_B | strmflags_immut_B;
-      } else {
-        flags &= strmflags_by_B | strmflags_immut_B;
-        if ((eltype->size % 8) == 0) {
-          # Art a
-        } else {
-          xlen = sizeof(strm_i_buffered_extrafields_struct); # Das haben die File-Streams für Integers maximal
-        }
-      }
-      # Stream allozieren:
-      var object stream = allocate_stream(flags,type,strm_channel_len,xlen);
-      # und füllen:
-      TheStream(stream)->strm_encoding = STACK_2;
-      fill_pseudofuns_buffered(stream,eltype);
-      TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
-      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
-      # Komponenten von File-Streams:
-      {
-        var object handle = popSTACK(); # Handle zurück
-        TheStream(stream)->strm_eltype = popSTACK(); # Element-Type eintragen
-        ChannelStream_buffered(stream) = true;
-        ChannelStream_init(stream);
-        if (!nullp(handle)) { # Handle=NIL -> Rest bereits mit NIL initialisiert, fertig
-          TheStream(stream)->strm_buffered_channel = handle; # Handle eintragen
-          BufferedStream_regular(stream) = handle_regular;
-          BufferedStream_blockpositioning(stream) = handle_blockpositioning;
-          BufferedStream_buffstart(stream) = 0; # buffstart := 0
-          # Buffer allozieren:
-          pushSTACK(stream);
-          {
-            var object buffer = allocate_bit_vector(Atype_8Bit,strm_buffered_bufflen);
-            stream = popSTACK();
-            TheStream(stream)->strm_buffered_buffer = buffer;
-          }
-          BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
-          BufferedStream_index(stream) = 0; # index := 0
-          BufferedStream_modified(stream) = false; # Buffer unmodifiziert
-          BufferedStream_position(stream) = 0; # position := 0
-          ChannelStream_bitsize(stream) = eltype->size;
-          ChannelStream_lineno(stream) = 1; # initialize always (cf. set-stream-element-type)
-          if (!(eltype->kind == eltype_ch)) {
-            # File-Stream für Integers
-            # Bitbuffer allozieren:
-            pushSTACK(stream);
-            {
-              var object bitbuffer =
-                     allocate_bit_vector(Atype_Bit,ceiling(eltype->size,8)*8);
-              stream = popSTACK();
-              TheStream(stream)->strm_bitbuffer = bitbuffer;
-            }
-            if (!((eltype->size % 8) == 0)) {
-              # Arten b,c
-              BufferedStream_bitindex(stream) = 0; # bitindex := 0
-            }
-          }
-        }
-      }
-      skipSTACK(1);
-      return stream;
+  var uintB flags = DIRECTION_FLAGS(direction);
+  var uintC xlen = sizeof(strm_buffered_extrafields_struct); # Das haben alle File-Streams
+  if (eltype->kind == eltype_ch) {
+    flags &= strmflags_ch_B | strmflags_immut_B;
+  } else {
+    flags &= strmflags_by_B | strmflags_immut_B;
+    if ((eltype->size % 8) == 0) { # Art a
+    } else {
+      xlen = sizeof(strm_i_buffered_extrafields_struct); # Das haben die File-Streams für Integers maximal
     }
+  }
+  # Stream allozieren:
+  var object stream = allocate_stream(flags,type,strm_channel_len,xlen);
+  # und füllen:
+  TheStream(stream)->strm_encoding = STACK_2;
+  fill_pseudofuns_buffered(stream,eltype);
+  TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
+  TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
+  # Komponenten von File-Streams:
+  {
+    var object handle = popSTACK(); # Handle zurück
+    TheStream(stream)->strm_eltype = popSTACK(); # Element-Type eintragen
+    ChannelStream_buffered(stream) = true;
+    ChannelStream_init(stream);
+    if (!nullp(handle)) { # Handle=NIL -> Rest bereits mit NIL initialisiert, fertig
+      TheStream(stream)->strm_buffered_channel = handle; # Handle eintragen
+      BufferedStream_regular(stream) = handle_regular;
+      BufferedStream_blockpositioning(stream) = handle_blockpositioning;
+      BufferedStream_buffstart(stream) = 0; # buffstart := 0
+      # Buffer allozieren:
+      pushSTACK(stream);
+      {
+        var object buffer =
+          allocate_bit_vector(Atype_8Bit,strm_buffered_bufflen);
+        stream = popSTACK();
+        TheStream(stream)->strm_buffered_buffer = buffer;
+      }
+      BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+      BufferedStream_index(stream) = 0; # index := 0
+      BufferedStream_modified(stream) = false; # Buffer unmodifiziert
+      BufferedStream_position(stream) = 0; # position := 0
+      ChannelStream_bitsize(stream) = eltype->size;
+      ChannelStream_lineno(stream) = 1; # initialize always (cf. set-stream-element-type)
+      if (!(eltype->kind == eltype_ch)) {
+        # File-Stream für Integers
+        # Bitbuffer allozieren:
+        pushSTACK(stream);
+        {
+          var object bitbuffer =
+            allocate_bit_vector(Atype_Bit,ceiling(eltype->size,8)*8);
+          stream = popSTACK();
+          TheStream(stream)->strm_bitbuffer = bitbuffer;
+        }
+        if (!((eltype->size % 8) == 0)) { # Arten b,c
+          BufferedStream_bitindex(stream) = 0; # bitindex := 0
+        }
+      }
+    }
+  }
+  skipSTACK(1);
+  return stream;
+}
 
 # UP: erzeugt ein File-Stream
 # make_file_stream(direction,append_flag,handle_fresh)
