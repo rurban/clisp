@@ -259,15 +259,14 @@ FOO(bar,baz,zot) ==> FOO; (bar baz zot); end-position"
       (setq start (next-non-blank line (1+ comma))
             comma (position #\, line :end last :start (1+ comma))))
     (values name (nreverse (map-into args #'split-option args)) (1+ end))))
-(defun argument-string (arg)
-  "check whether the argument (returned by SPLIT-COMMAND) is a string,
-and, if yes, return the string"
-  (let ((len (1- (length arg))))
-    (and (char= #\" (aref arg 0))
-         (char= #\" (aref arg len))
-         (subseq arg 1 len))))
-(defun ensure-argument-string (arg)
-  (or (argument-string arg)
+(defun string-object-p (obj)
+  "check whether the object is a string"
+  (let ((len (1- (length obj))))
+    (and (char= #\" (aref obj 0))
+         (char= #\" (aref obj len)))))
+(defun extract-argument-string (arg)
+  (if (string-object-p arg)
+      (subseq arg 1 (1- (length arg)))
       (error "expected a string, got ~A" arg)))
 
 (defun defmodule-p (line)
@@ -282,7 +281,7 @@ and, if yes, return the string"
                                 *module-name*)
           *fini-name* (format nil "module__~A__fini_function"
                               *module-name*)
-          *module-package* (ensure-argument-string (second args))
+          *module-package* (extract-argument-string (second args))
           *module-all-packages* (list *module-package*))
     (values *module-name* *module-package*)))
 
@@ -321,7 +320,8 @@ and, if yes, return the string"
     base))
 
 (defun string-upcase-verbose (string)
-  (unless (every (lambda (cc) (char= cc (char-upcase cc))) string)
+  (when (and (some #'lower-case-p string)    ; upcasing will modify
+             (not (string-object-p string))) ; this is not a string object
     (warn "~S:~D: fixed object case ~S" *input-file* *lineno* string)
     (setq string (string-upcase string)))
   string)
