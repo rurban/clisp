@@ -109,10 +109,10 @@
 
 (cl:defun export-accessories (name)
   (export name)
-  (export (or (clos::class-kconstructor name) '(NIL)))
+  (export (clos::class-kconstructor name))
   (export (clos::class-boa-constructors name))
-  (export (or (clos::class-copier name) '(NIL)))
-  (export (or (clos::class-predicate name) '(NIL)))
+  (export (clos::class-copier name))
+  (export (clos::class-predicate name))
   (export (class-accessor-symbols name)))
 
 (cl:defmacro defstruct (name+options &rest slots)
