@@ -1,7 +1,7 @@
 # Main include-file for CLISP
-# Bruno Haible 1990-2002
+# Bruno Haible 1990-2003
 # Marcus Daniels 11.11.1994
-# Sam Steingold 1998-2002
+# Sam Steingold 1998-2003
 # German comments translated into English: Stefan Kain 2001-09-24
 
 # Flags intended to be set through CFLAGS:
@@ -2182,7 +2182,6 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 
 # ############### List of implemented CLtL2-features ################ #
 
-#undef  X3J13_003
 #define X3J13_005  # 18.5.1993
 #define X3J13_014  # 22.1.1995
 #define X3J13_149  # 22.7.1993

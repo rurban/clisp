@@ -12,7 +12,7 @@
  <varlistentry id="iss002"><term><ulink url="&clhs;/Issues/iss002.html">ACCESS-ERROR-NAME</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss003"><term><ulink url="&clhs;/Issues/iss003.html">ADJUST-ARRAY-DISPLACEMENT</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss004"><term><ulink url="&clhs;/Issues/iss004.html">ADJUST-ARRAY-FILL-POINTER</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss005"><term><ulink url="&clhs;/Issues/iss005.html">ADJUST-ARRAY-NOT-ADJUSTABLE:IMPLICIT-COPY</ulink></term>&no;</varlistentry>
+ <varlistentry id="iss005"><term><ulink url="&clhs;/Issues/iss005.html">ADJUST-ARRAY-NOT-ADJUSTABLE:IMPLICIT-COPY</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss006"><term><ulink url="&clhs;/Issues/iss006.html">ALLOCATE-INSTANCE:ADD</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss007"><term><ulink url="&clhs;/Issues/iss007.html">ALLOW-LOCAL-INLINE:INLINE-NOTINLINE</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss008"><term><ulink url="&clhs;/Issues/iss008.html">ALLOW-OTHER-KEYS-NIL:PERMIT</ulink></term>&yes;</varlistentry>

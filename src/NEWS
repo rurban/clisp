@@ -91,7 +91,8 @@ User visible changes
     <DEBUGGER-HOOK-VS-BREAK:CLARIFY>, <DOCUMENTATION-FUNCTION-BUGS:FIX>,
     <EXTERNAL-FORMAT-FOR-EVERY-FILE-CONNECTION:MINIMUM>,
     <IMPORT-SETF-SYMBOL-PACKAGE>, <SETF-FIND-CLASS:ALLOW-NIL>,
-    <SUBTYPEP-ENVIRONMENT:ADD-ARG>;
+    <SUBTYPEP-ENVIRONMENT:ADD-ARG>,
+    <ADJUST-ARRAY-NOT-ADJUSTABLE:IMPLICIT-COPY>;
   + EQUALP on HASH-TABLEs now correctly descends the structure;
   + a character is now accepted as a package designator.
   Thanks to Paul F. Dietz <dietz@dls.net> and his ANSI compliance

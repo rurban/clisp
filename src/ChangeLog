@@ -1,3 +1,12 @@
+2003-04-22  Sam Steingold  <sds@gnu.org>
+
+	implemented adjusting of non-adjustable arrays (Issue 5)
+	* lispbibl.d (X3J13_003): removed undef
+	* array.d (array_atype): new function
+	(array_element_type, test_displaced): use it
+	(ADJUST-ARRAY): when the argument is not adjustable,
+	return a fresh array
+
 2003-04-21  Sam Steingold  <sds@gnu.org>
 
 	* io.d (ANSI-PATHNAME-READER): understand Allegro CL #P(...)

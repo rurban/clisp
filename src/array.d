@@ -754,56 +754,57 @@ LISPFUNN(row_major_store,3)
 /* ======================================================================== */
 /* Information about an array */
 
+/* return Atype for the given array */
+local uintBWL array_atype (object array)
+{
+  switch (Array_type(array)) {
+    case Array_type_mdarray: /* general array -> look at Arrayflags */
+      return Iarray_flags(array) & arrayflags_atype_mask;
+    case Array_type_sbvector:
+    case Array_type_sb2vector:
+    case Array_type_sb4vector:
+    case Array_type_sb8vector:
+    case Array_type_sb16vector:
+    case Array_type_sb32vector:
+      return sbNvector_atype(array);
+    case Array_type_bvector:
+    case Array_type_b2vector:
+    case Array_type_b4vector:
+    case Array_type_b8vector:
+    case Array_type_b16vector:
+    case Array_type_b32vector:
+      return bNvector_atype(array);
+    case Array_type_string:
+    case Array_type_sstring:
+      return Atype_Char;
+    case Array_type_vector:
+    case Array_type_svector:
+      return Atype_T;
+    case Array_type_nilvector:
+    case Array_type_snilvector:
+      return Atype_NIL;
+    default: NOTREACHED;
+  }
+}
+
 /* Function: Returns the element-type of an array.
  array_element_type(array)
  > array: an array
  < result: element-type, one of the symbols T, BIT, CHARACTER, or a list
  can trigger GC */
 global object array_element_type (object array) {
-  var uintBWL atype;
-  switch (Array_type(array)) {
-    case Array_type_sstring:
-    case Array_type_string: /* String -> CHARACTER */
-      return S(character);
-    case Array_type_sbvector: /* Simple-Bit-Vector -> BIT */
-    case Array_type_bvector: /* Bit-Vector -> BIT */
-      return S(bit);
-    case Array_type_sb2vector: /* Simple-2Bit-Vector -> (UNSIGNED-BYTE 2) */
-    case Array_type_sb4vector: /* Simple-4Bit-Vector -> (UNSIGNED-BYTE 4) */
-    case Array_type_sb8vector: /* Simple-8Bit-Vector -> (UNSIGNED-BYTE 8) */
-    case Array_type_sb16vector: /* Simple-16Bit-Vector -> (UNSIGNED-BYTE 16) */
-    case Array_type_sb32vector: /* Simple-32Bit-Vector -> (UNSIGNED-BYTE 32) */
-      atype = sbNvector_atype(array);
+  var uintBWL atype = array_atype(array);
+  switch (atype) {
+    case Atype_T:           return S(t);         /* T */
+    case Atype_Bit:         return S(bit);       /* BIT */
+    case Atype_Char:        return S(character); /* CHARACTER */
+    case Atype_2Bit:        /* (UNSIGNED-BYTE 2) */
+    case Atype_4Bit:        /* (UNSIGNED-BYTE 4) */
+    case Atype_8Bit:        /* (UNSIGNED-BYTE 8) */
+    case Atype_16Bit:       /* (UNSIGNED-BYTE 16) */
+    case Atype_32Bit:       /* (UNSIGNED-BYTE 32) */
       break;
-    case Array_type_b2vector: /* 2Bit-Vector -> (UNSIGNED-BYTE 2) */
-    case Array_type_b4vector: /* 4Bit-Vector -> (UNSIGNED-BYTE 4) */
-    case Array_type_b8vector: /* 8Bit-Vector -> (UNSIGNED-BYTE 8) */
-    case Array_type_b16vector: /* 16Bit-Vector -> (UNSIGNED-BYTE 16) */
-    case Array_type_b32vector: /* 32Bit-Vector -> (UNSIGNED-BYTE 32) */
-      atype = bNvector_atype(array);
-      break;
-    case Array_type_svector:
-    case Array_type_vector: /* common Vector -> T */
-      return S(t);
-    case Array_type_snilvector:
-    case Array_type_nilvector: /* (VECTOR NIL) -> NIL */
-      return S(nil);
-    case Array_type_mdarray: /* common Array */
-      atype = Iarray_flags(array) & arrayflags_atype_mask;
-      switch (atype) {
-        case Atype_T:           return S(t);         /* T */
-        case Atype_Bit:         return S(bit);       /* BIT */
-        case Atype_Char:        return S(character); /* CHARACTER */
-        case Atype_2Bit:        /* (UNSIGNED-BYTE 2) */
-        case Atype_4Bit:        /* (UNSIGNED-BYTE 4) */
-        case Atype_8Bit:        /* (UNSIGNED-BYTE 8) */
-        case Atype_16Bit:       /* (UNSIGNED-BYTE 16) */
-        case Atype_32Bit:       /* (UNSIGNED-BYTE 32) */
-          break;
-        case Atype_NIL:         return S(nil); /* (VECTOR NIL) -> NIL */
-        default: NOTREACHED;
-      }
-      break;
+    case Atype_NIL:         return S(nil); /* (VECTOR NIL) -> NIL */
     default: NOTREACHED;
   }
   pushSTACK(S(unsigned_byte));
@@ -4274,37 +4275,7 @@ local uintL test_displaced (uintB eltype, uintL totalsize) {
     fehler(type_error,GETTEXT("~: ~-argument ~ is not an array"));
   }
   { /* determine element type of displaced_to: */
-    var uintB displaced_eltype;
-    switch (Array_type(STACK_1)) {
-      case Array_type_mdarray: /* general array -> look at Arrayflags */
-        displaced_eltype = Iarray_flags(displaced_to) & arrayflags_atype_mask;
-        break;
-        /* assignment  vector-typeinfo -> ATYPE-byte : */
-      case Array_type_sbvector:
-      case Array_type_sb2vector:
-      case Array_type_sb4vector:
-      case Array_type_sb8vector:
-      case Array_type_sb16vector:
-      case Array_type_sb32vector:
-        displaced_eltype = sbNvector_atype(STACK_1); break;
-      case Array_type_bvector:
-      case Array_type_b2vector:
-      case Array_type_b4vector:
-      case Array_type_b8vector:
-      case Array_type_b16vector:
-      case Array_type_b32vector:
-        displaced_eltype = bNvector_atype(STACK_1); break;
-      case Array_type_string:
-      case Array_type_sstring:
-        displaced_eltype = Atype_Char; break;
-      case Array_type_vector:
-      case Array_type_svector:
-        displaced_eltype = Atype_T; break;
-      case Array_type_nilvector:
-      case Array_type_snilvector:
-        displaced_eltype = Atype_NIL; break;
-      default: NOTREACHED;
-    }
+    var uintB displaced_eltype = array_atype(STACK_1);
     /* displaced_eltype is the ATYPE of the :displaced-to argument. */
     /* compare given element type with it: */
     if (!(eltype == displaced_eltype)) {
@@ -4629,53 +4600,80 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
          kw(initial_contents),kw(fill_pointer),
          kw(displaced_to),kw(displaced_index_offset)) )
 {
+  var uintL totalsize, rank;
   { /* check the array : */
     var object array = test_array(STACK_7);
-    if (array_simplep(array)
-        || ((Iarray_flags(array) & bit(arrayflags_adjustable_bit)) == 0)) {
-        /* not an adjustable array */
-     #ifndef X3J13_003
-      pushSTACK(array);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~: array ~ is not adjustable"));
-     #else
-      ??
-     #endif
+    STACK_7 = STACK_6; STACK_6 = array; /* for test_dims() */
+    /* check dimensions and rank and compute total-size: */
+    rank = test_dims(&totalsize);
+    { /* check rank, must be == (array-rank array): */
+      var uintL oldrank = array_simplep(STACK_6) ? 1
+        : (uintL)Iarray_rank(STACK_6);
+      if (rank != oldrank) {
+        pushSTACK(STACK_7); /* dims */
+        pushSTACK(STACK_(6+1)); /* array */
+        pushSTACK(fixnum(oldrank));
+        pushSTACK(TheSubr(subr_self)->name);
+        fehler(error,GETTEXT("~: rank ~ of array ~ cannot be altered: ~"));
+      }
     }
-    STACK_7 = STACK_6; STACK_6 = array; /* reorganize stack a little */
   }
   /* stack layout:
      dims, array, element-type, initial-element, initial-contents,
      fill-pointer, displaced-to, displaced-index-offset. */
-  /* check dimensions and rank and compute total-size: */
-  var uintL totalsize;
-  var uintL rank = test_dims(&totalsize);
-  { /* check rank, must be == (array-rank array): */
-    var uintL oldrank = (uintL)Iarray_rank(STACK_6);
-    if (rank != oldrank) {
-      pushSTACK(STACK_7); /* dims */
-      pushSTACK(STACK_(6+1)); /* array */
-      pushSTACK(fixnum(oldrank));
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~: rank ~ of array ~ cannot be altered: ~"));
-    }
-  }
   /* check element-type and convert it into code: */
   var uintB eltype;
   if (boundp(STACK_5)) {
     eltype = eltype_code(STACK_5);
     /* compare with the element-type of the array argument */
-    if (eltype != (Iarray_flags(STACK_6) & arrayflags_atype_mask)) {
+    if (eltype != array_atype(STACK_6)) {
       pushSTACK(STACK_6); /* TYPE-ERROR slot DATUM */
-      pushSTACK(S(array)); pushSTACK(STACK_(5+2)); pushSTACK(listof(2)); /* TYPE-ERROR slot EXPECTED-TYPE */
+      pushSTACK(S(array)); pushSTACK(STACK_(5+2));
+      pushSTACK(listof(2)); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(STACK_(5+2)); /* element-type */
       pushSTACK(STACK_(6+3)); /* array */
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,GETTEXT("~: array ~ does not have element-type ~"));
     }
   } else { /* default is the element-type of the array-argument */
-    eltype = (Iarray_flags(STACK_6) & arrayflags_atype_mask);
+    eltype = array_atype(STACK_6);
     STACK_5 = array_element_type(STACK_6);
+  }
+  if (array_simplep(STACK_6)
+      || ((Iarray_flags(STACK_6) & bit(arrayflags_adjustable_bit)) == 0)) {
+    /* not an adjustable array ==> new array
+       if no :initial-contents and no :displaced-to, copy contents */
+    var bool copy_p = !boundp(STACK_3) && missingp(STACK_1);
+    var object array = STACK_6;
+    pushSTACK(STACK_1); pushSTACK(STACK_1); STACK_2 = STACK_4;
+    STACK_3 = STACK_5; STACK_4 = STACK_6; STACK_5 = STACK_7;
+    STACK_6 = NIL; /* :ADJUSTABLE NIL */
+    STACK_7 = STACK_9; /* dims */
+    STACK_8 = array; /* save array */
+    C_make_array(); /* MAKE-ARRAY with all the args but first */
+    /* stack layout: dims, array */
+    if (copy_p) {
+      var uintL offset1 = 0;
+      var object dv1 = /* original: may be simple! */
+        array_displace_check(STACK_0,array_total_size(STACK_0),&offset1);
+      var uintL offset2 = 0;
+      var object dv2 = /* new: may be simple! */
+        array_displace_check(value1,totalsize,&offset2);
+      var uintL* dimptr;
+      if (array_simplep(STACK_0)) {
+        offset2 = Sarray_length(STACK_0);
+        dimptr = &offset2;
+      } else {
+        dimptr = &TheIarray(STACK_0)->dims[0];
+        if (Iarray_flags(array) & bit(arrayflags_dispoffset_bit))
+          dimptr++;
+        if (Iarray_flags(array) & bit(arrayflags_fillp_bit))
+          dimptr++;
+      }
+      reshape(dv2,STACK_1,dv1,dimptr,offset1,rank,eltype);
+    }
+    skipSTACK(2); /* drop array & new dimensions */
+    return;
   }
   test_otherkeys(); /* do some other checks */
   var uintB flags = Iarray_flags(STACK_6);
