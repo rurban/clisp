@@ -354,7 +354,7 @@
   #endif
   #ifdef __GNUC__
     #if (__GNUC__ >= 2) # GCC 2 hat inzwischen funktionierenden `long long' Typ
-      #if !(defined(__m68k__) && (__GNUC_MINOR__ <= 7)) # außer auf MC680X0
+      #if !(defined(__m68k__) && (__GNUC__ == 2) && (__GNUC_MINOR__ <= 7)) # außer auf MC680X0
         #define HAVE_LONGLONG
         #define long_long_bitsize 64
       #endif
@@ -940,7 +940,7 @@
 # Deklaration einer Funktion, die nie zurückkommt:
 # nonreturning_function(extern,abort,(void)); == extern void abort (void);
   #ifdef GNU
-    #if (__GNUC__ == 2) && (__GNUC_MINOR__ >= 90)
+    #if (__GNUC__ >= 3) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 90))
       #define nonreturning_function(storclass,funname,arguments)  \
         storclass void funname arguments __attribute__((__noreturn__))
     #else
@@ -12713,8 +12713,9 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
       ({ var aint __SP; __asm__ ASM_get_SP_register(__SP); __SP; })
   #else
     #define roughly_SP()  (aint)__builtin_frame_address(0)
-    # Note: If (__GNUC__ >= 2) && (__GNUC_MINOR__ >= 8) one can write
-    # #define roughly_SP()  (aint)__builtin_sp()
+    # Note: If (__GNUC__ >= 3) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 8))
+    # one can write
+    #   #define roughly_SP()  (aint)__builtin_sp()
     # but this isn't efficient because gcc somehow knows that the stack pointer
     # varies across the function (maybe because of our register declaration?).
   #endif

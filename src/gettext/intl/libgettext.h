@@ -134,7 +134,7 @@ extern char *bindtextdomain__ PARAMS ((const char *__domainname,
 #  define dgettext(Domainname, Msgid)					      \
      dcgettext (Domainname, Msgid, LC_MESSAGES)
 
-#  if defined __GNUC__ && __GNUC__ == 2 && __GNUC_MINOR__ >= 7
+#  if defined __GNUC__ && (__GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7))
 /* This global variable is defined in loadmsgcat.c.  We need a sign,
    whether a new catalog was loaded, which can be associated with all
    translations.  */
