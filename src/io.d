@@ -444,19 +444,19 @@ local void fehler_bad_readtable() {
          GETTEXT("The value of ~ was not a readtable. It has been reset."));
 }
 
-# Macro: fetches the current readtable. argument 'zuweisung' means 'assignment'
+# Macro: fetches the current readtable.
 # get_readtable(readtable =);
 # < readtable : the current readtable
   #if 0
-    #define get_readtable(zuweisung)  \
+    #define get_readtable(assignment)  \
       { if (!readtablep(Symbol_value(S(readtablestern)))) { fehler_bad_readtable(); }  \
-        zuweisung Symbol_value(S(readtablestern));                                     \
+        assignment Symbol_value(S(readtablestern));                                    \
       }
   #else # oder (optimized):
-    #define get_readtable(zuweisung)  \
-      { if (!(orecordp(Symbol_value(S(readtablestern)))                                          \
-              && (Record_type( zuweisung Symbol_value(S(readtablestern)) ) == Rectype_Readtable))) \
-          { fehler_bad_readtable(); }                                                            \
+    #define get_readtable(assignment)  \
+      { if (!(orecordp(Symbol_value(S(readtablestern)))                                             \
+              && (Record_type( assignment Symbol_value(S(readtablestern)) ) == Rectype_Readtable))) \
+          { fehler_bad_readtable(); }                                                               \
       }
   #endif
 
@@ -932,19 +932,18 @@ local void fehler_charread (object ch, const object* stream_) {
 # < stream: Stream
 # < object ch: Character or eof_value
 # < uintWL scode: Syntaxcode (from the current readtable) respectively syntax_eof
-# "zuweisung" = "assignment"
 # can trigger GC
-  #define read_char_syntax(ch_zuweisung,scode_zuweisung,stream_)  \
+  #define read_char_syntax(ch_assignment,scode_assignment,stream_)  \
     { var object ch0 = read_char(stream_); # read character            \
-      ch_zuweisung ch0;                                                \
+      ch_assignment ch0;                                               \
       if (eq(ch0,eof_value)) # EOF ?                                   \
-        { scode_zuweisung syntax_eof; }                                \
+        { scode_assignment syntax_eof; }                               \
         else                                                           \
-        { # check for character:                            \
+        { # check for character:                                       \
           if (!charp(ch0)) { fehler_charread(ch0,stream_); }           \
          {var object readtable;                                        \
           get_readtable(readtable = );                                 \
-          scode_zuweisung # fetch syntaxcode from table                \
+          scode_assignment # fetch syntaxcode from table               \
             syntax_table_get(TheReadtable(readtable)->readtable_syntax_table,char_code(ch0)); \
         }}                                                             \
     }
@@ -998,7 +997,7 @@ local void fehler_eof (const object* stream_) {
 # < object ch: next character
 # < uintWL scode: its syntaxcode
 # can trigger GC
-#define wpeek_char_syntax(ch_zuweisung,scode_zuweisung,stream_)  \
+#define wpeek_char_syntax(ch_assignment,scode_assignment,stream_)  \
     { loop                                                                 \
         { var object ch0 = read_char(stream_); # read Character            \
           if (eq(ch0,eof_value)) { fehler_eof(stream_); } # EOF -> Error   \
@@ -1006,11 +1005,11 @@ local void fehler_eof (const object* stream_) {
           if (!charp(ch0)) { fehler_charread(ch0,stream_); }               \
           {var object readtable;                                           \
            get_readtable(readtable = );                                    \
-           if (!((scode_zuweisung # fetch Syntaxcode from table            \
+           if (!((scode_assignment # fetch Syntaxcode from table           \
                     syntax_table_get(TheReadtable(readtable)->readtable_syntax_table,char_code(ch0))) \
                  == syntax_whitespace))                                    \
              # no Whitespace -> push back last read character              \
-             { unread_char(stream_,ch0); ch_zuweisung ch0; break; }        \
+             { unread_char(stream_,ch0); ch_assignment ch0; break; }       \
         } }                                                                \
     }
 
