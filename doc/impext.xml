@@ -2944,8 +2944,9 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
     (&ret-type-k; <replaceable>r-c-type</replaceable> [&allocation;])
     (&lang-k; &lang-r;))</literal></term>
  <listitem><simpara>This type designates a &c-lang; function that can be
-  called according to the given prototype <code>(<replaceable>r-c-type</replaceable> (*)
-  (<replaceable>a-c-type&sub-1;</replaceable>, ...))</code>.
+  called according to the given prototype
+   <code>(<replaceable>r-c-type</replaceable> (*)
+    (<replaceable>a-c-type&sub-1;</replaceable>, ...))</code>.
   Conversion between &c-lang; functions and Lisp functions
   is transparent, and &c-NULL;/&nil; is recognized and
   accepted.</simpara></listitem></varlistentry>
@@ -2988,8 +2989,11 @@ compiled by a K&amp;R &c-lang; compiler or by an ANSI &c-lang; compiler,
 and possibly the calling convention.</para>
 
 <para>The default language is set using the macro
- <function>FFI:DEFAULT-FOREIGN-LANGUAGE</function>.
-If this macro has not been called in the current &comp-unit;
+ <firstterm><function>FFI:DEFAULT-FOREIGN-LANGUAGE</function>
+  <indexterm id="dflt-ffi-lang" significance="preferred">
+   <primary id="dflt-ffi-lang-i"><function>DEFAULT-FOREIGN-LANGUAGE</function>
+ </primary></indexterm></firstterm>.
+ If this macro has not been called in the current &comp-unit;
  (usually a file), a warning is issued and
 &stdc-k; is used for the rest of the unit.</para></section>
 
@@ -4683,7 +4687,7 @@ bash$
 
 <para>The macro
  <firstterm>&with-print;<indexterm id="with-print" significance="preferred">
-   <primary id="with-print-i">WITH-OUTPUT-TO-PRINTER<function></function>
+   <primary id="with-print-i"><function>WITH-OUTPUT-TO-PRINTER</function>
  </primary></indexterm></firstterm>:
 <programlisting language="lisp">
 (&with-print; (&var-r; [&extfmt;])
