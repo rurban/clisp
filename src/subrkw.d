@@ -160,7 +160,7 @@ s(directory)
 v(2, (kw(element_type),kw(line_position)) )
 s(make_string_output_stream)
 #ifdef EXPORT_SYSCALLS
-v(4, (kw(link),kw(preserve),kw(if_exists),kw(if_does_not_exist)) )
+v(4, (kw(method),kw(preserve),kw(if_exists),kw(if_does_not_exist)) )
 s(copy_file)
 #endif
 #ifdef PIPES
