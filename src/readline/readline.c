@@ -48,6 +48,7 @@
 #endif
 
 #include <stdio.h>
+#include <errno.h>
 #include "posixjmp.h"
 
 /* System-specific feature definitions and include files. */
@@ -148,7 +149,7 @@ int readline_echoing_p = 1;
 
 /* Current prompt. */
 char *rl_prompt;
-int rl_visible_prompt_length = 0;
+int rl_visible_prompt_length = 0;	/* in characters */
 
 /* Set to non-zero by calling application if it has already printed rl_prompt
    and does not want readline to do it the first time. */
@@ -181,6 +182,9 @@ char *rl_terminal_name = (char *)NULL;
 
 /* Non-zero means to always use horizontal scrolling in line display. */
 int _rl_horizontal_scroll_mode = 0;
+
+/* Non-zero when in UTF-8 mode */
+int rl_utf8_mode = 0;
 
 /* Non-zero means to display an asterisk at the starts of history lines
    which have been modified. */
@@ -258,6 +262,14 @@ readline (prompt)
 
   rl_initialize ();
   (*rl_prep_term_function) (_rl_meta_flag);
+
+  rl_utf8_mode = is_in_UTF8_mode ();
+  if (rl_utf8_mode == -1)
+    {
+      /* Ignore any error, assume 8-bit mode */
+      errno = 0;
+      rl_utf8_mode = 0;
+    }
 
 #if defined (HANDLE_SIGNALS)
   rl_set_signals ();
@@ -904,8 +916,8 @@ rl_insert_text (string)
   return l;
 }
 
-/* Delete the string between FROM and TO.  FROM is
-   inclusive, TO is not. */
+/* Delete the string between raw character positions FROM and TO.
+   FROM is inclusive, TO is not. */
 int
 rl_delete_text (from, to)
      int from, to;
@@ -922,7 +934,7 @@ rl_delete_text (from, to)
     {
       to = rl_end;
       if (from > to)
-        from = to;
+	from = to;
     }
 
   text = rl_copy_text (from, to);
@@ -1019,20 +1031,46 @@ rl_forward (count, key)
     rl_backward (-count, key);
   else if (count > 0)
     {
-      int end = rl_point + count;
 #if defined (VI_MODE)
-      int lend = rl_end - (rl_editing_mode == vi_mode);
+      int lend = rl_end;
+      if (rl_editing_mode == vi_mode && lend)
+	do
+	  lend--;
+	while (lend > 0 && !ADVANCES_CURSOR (the_line[lend]));
 #else
       int lend = rl_end;
 #endif
 
-      if (end > lend)
+      if (rl_utf8_mode)
 	{
-	  rl_point = lend;
-	  ding ();
+	  /* The behavior can be confusing with invalid UTF-8 data.
+	     The cursor simply skips over characters 0x80..0xBF, which
+	     normally forms the tail of an UTF-8 sequence. This applies
+	     also to some other editing commands. */
+	  for(;;)
+	    {
+	      count -= ADVANCES_CURSOR (the_line[rl_point]);
+	      if (count < 0) break;
+	      if (rl_point >= lend)
+		{
+		  ding ();
+		  break;
+		}
+	      rl_point++;
+	    }
 	}
       else
-	rl_point = end;
+	{
+	  int end = rl_point + count;
+
+	  if (end > lend)
+	    {
+	      rl_point = lend;
+	      ding ();
+	    }
+	  else
+	    rl_point = end;
+	}
     }
 
   if (rl_end < 0)
@@ -1048,16 +1086,33 @@ rl_backward (count, key)
 {
   if (count < 0)
     rl_forward (-count, key);
-  else if (count > 0)
-    {
-      if (rl_point < count)
-	{
-	  rl_point = 0;
-	  ding ();
-	}
-      else
-        rl_point -= count;
-    }
+  else
+    if (count > 0)
+      {
+	if (rl_utf8_mode)
+	  {
+	    while (count)
+	      {
+		if (rl_point == 0)
+		  {
+		    ding ();
+		    break;
+		  }
+		rl_point--;
+		count -= ADVANCES_CURSOR (the_line[rl_point]);
+	      }
+	  }
+	else
+	  {
+	    if (rl_point < count)
+	      {
+		rl_point = 0;
+		ding ();
+	      }
+	    else
+	      rl_point -= count;
+	  }
+      }
   return 0;
 }
 
@@ -1246,7 +1301,7 @@ rl_arrow_keys (count, c)
 /*								    */
 /* **************************************************************** */
 
-/* Insert the character C at the current location, moving point forward. */
+/* Insert the raw character C at the current location, moving point forward. */
 int
 rl_insert (count, c)
      int count, c;
@@ -1398,17 +1453,40 @@ rl_rubout (count, key)
       rl_kill_text (orig_point, rl_point);
     }
   else
-    {
-      int c = the_line[--rl_point];
-      rl_delete_text (rl_point, rl_point + 1);
+    if (rl_utf8_mode)
+      {
+	int orig_point = rl_point;
+	int l = 0;
+	do {
+	  rl_point--;
+	  l += rl_character_len (the_line[rl_point], 0);
+	} while (rl_point > 0 && !ADVANCES_CURSOR (the_line[rl_point]));
+	rl_delete_text (rl_point, orig_point);
 
-      if (rl_point == rl_end && isprint (c) && _rl_last_c_pos)
-	{
-	  int l;
-	  l = rl_character_len (c, rl_point);
+	/* We can't easily erase a tab, because we don't know the physical
+	   cursor position */
+	if (rl_point == rl_end &&
+#if defined (DISPLAY_TABS)
+	    the_line[rl_point] != '\t' &&
+#endif /* DISPLAY_TABS */
+	    _rl_last_c_pos >= l)
 	  _rl_erase_at_end_of_line (l);
-	}
-    }
+      }
+    else
+      {
+	int c = the_line[--rl_point];
+	int l = rl_character_len (c, 0);
+	rl_delete_text (rl_point, rl_point + 1);
+
+	/* We can't easily erase a tab, because we don't know the physical
+	   cursor position */
+	if (rl_point == rl_end &&
+#if defined (DISPLAY_TABS)
+	    c != '\t' &&
+#endif /* DISPLAY_TABS */
+	    _rl_last_c_pos >= l)
+	  _rl_erase_at_end_of_line (l);
+      }
   return 0;
 }
 
@@ -1436,7 +1514,16 @@ rl_delete (count, key)
       return 0;
     }
   else
-    return (rl_delete_text (rl_point, rl_point + 1));
+    if (rl_utf8_mode)
+      {
+	int new_point = rl_point;
+	do
+	  new_point++;
+	while (new_point < rl_end && !ADVANCES_CURSOR (the_line[new_point]));
+	return (rl_delete_text (rl_point, new_point));
+      }
+    else
+      return (rl_delete_text (rl_point, rl_point + 1));
 }
 
 /* Delete the character under the cursor, unless the insertion
@@ -1663,33 +1750,64 @@ int
 rl_transpose_chars (count, key)
      int count, key;
 {
-  char dummy[2];
+  char dummy[7];
+  int i;
 
   if (!count)
     return 0;
 
-  if (!rl_point || rl_end < 2)
+  if (rl_point > 0 && rl_point == rl_end)
+    {
+      if (rl_utf8_mode)
+	do
+	  rl_point--;
+	while (rl_point > 0 && !ADVANCES_CURSOR (the_line[rl_point]));
+      else
+	rl_point--;
+      count = 1;
+    }
+
+  if (!rl_point)
     {
       ding ();
       return -1;
     }
 
-  rl_begin_undo_group ();
-
-  if (rl_point == rl_end)
+  if (rl_utf8_mode)
     {
-      --rl_point;
-      count = 1;
+      do
+	rl_point--;
+      while (rl_point > 0 && !ADVANCES_CURSOR (the_line[rl_point]));
+
+      i = 0;
+      do {
+	dummy[i] = the_line[rl_point + i];
+	i++;
+      } while (i < 6 && !ADVANCES_CURSOR (the_line[rl_point + i]));
+      dummy[i] = '\0';
+
+      rl_begin_undo_group ();
+
+      rl_delete_text (rl_point, rl_point + i);
+
+      while (the_line[rl_point] && count--)
+	do rl_point++; while (!ADVANCES_CURSOR (the_line[rl_point]));
     }
-  rl_point--;
+  else
+    {
+      rl_point--;
 
-  dummy[0] = the_line[rl_point];
-  dummy[1] = '\0';
+      dummy[0] = the_line[rl_point];
+      dummy[1] = '\0';
 
-  rl_delete_text (rl_point, rl_point + 1);
+      rl_begin_undo_group ();
 
-  rl_point += count;
-  _rl_fix_point (0);
+      rl_delete_text (rl_point, rl_point + 1);
+
+      rl_point += count;
+      _rl_fix_point (0);
+    }
+
   rl_insert_text (dummy);
 
   rl_end_undo_group ();

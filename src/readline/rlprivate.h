@@ -202,6 +202,9 @@ extern void _rl_vi_set_last _PROTO((int key, int repeat, int sign));
 extern int _rl_vi_textmod_command _PROTO((int c));
 extern void _rl_vi_done_inserting _PROTO((void));
 
+/* testUTF8.c */
+extern int is_in_UTF8_mode __P((void));
+
 /*************************************************************************
  * Undocumented private variables					 *
  *************************************************************************/
@@ -267,5 +270,7 @@ extern int _rl_term_autowrap;
 /* undo.c */
 extern int _rl_doing_an_undo;
 extern int _rl_undo_group_level;
+
+extern int rl_utf8_mode;
 
 #endif /* _RL_PRIVATE_H_ */
