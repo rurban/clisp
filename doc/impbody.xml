@@ -3773,6 +3773,9 @@ functions are provided:
  on the stream is &fresh-line;, &finish-output;, &force-output; or
  &close;.</para>
 
+<para>The functionality of &elastic-newline; is also available through
+ &format;, see <xref linkend="format-dot"/>.</para>
+
 <para>A technique for avoiding unnecessary blank lines in output is to
  begin each chunk of output with a call to &fresh-line; and to terminate it
  with a call to &elastic-newline;.</para>
@@ -4036,13 +4039,8 @@ functions are provided:
 
 </section>
 
-<section id="print-dict"><title>The Printer Dictionary
-   <ulink url="&clhs;/Body/sec_the_printer_dictionary.html">[CLHS-22.4]</ulink></title>
-
-<formalpara><title>Functions &write; &amp; &write-to-string;</title>
-<para>The functions &write; and &write-to-string; have an additional
- keyword argument <constant>:closure</constant> which is used to bind
- &pr-closure;.</para></formalpara>
+<section id="print-formatted"><title>Formatted Output</title>
+   <ulink url="&clhs;/Body/sec_22-3.html">[CLHS-22.3]</ulink></title>
 
 <section id="format"><title>Function &format;</title>
 
@@ -4058,6 +4056,16 @@ functions are provided:
   <replaceable>colon-modifier-p</replaceable>
   <replaceable>atsign-modifier-p</replaceable>
   <replaceable>args</replaceable>)</code>.</para>
+
+<para>The additional &format; instruction
+ <firstterm>~.<indexterm id="format-dot" significance="preferred">
+   <primary>&format;</primary>
+   <secondary id="format-dot-i">~.</secondary></indexterm></firstterm>
+ is a kind of opposite to <code>~&amp;</code>: It outputs a conditional
+ newline, by calling the function &elastic-newline;.
+ <code>~<replaceable>n</replaceable>.</code> outputs
+ <replaceable>n-1</replaceable> newlines followed by an &elastic-newline;.
+ <code>~0.</code> does nothing.</para>
 
 <para>&format; &format-r; and &format; &format-rs; can output only
  integers in the range <varname>|n| &lt;
@@ -4078,6 +4086,16 @@ functions are provided:
  built-in stream.</para>
 
 </section>
+
+</section>
+
+<section id="print-dict"><title>The Printer Dictionary
+   <ulink url="&clhs;/Body/sec_the_printer_dictionary.html">[CLHS-22.4]</ulink></title>
+
+<formalpara><title>Functions &write; &amp; &write-to-string;</title>
+<para>The functions &write; and &write-to-string; have an additional
+ keyword argument <constant>:closure</constant> which is used to bind
+ &pr-closure;.</para></formalpara>
 
 <!-- //Commented out from the source code.
 <section id="print-object"><title>Generic Function &print-object;</title>
