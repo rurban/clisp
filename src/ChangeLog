@@ -1,5 +1,9 @@
 2004-05-28  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (symbol_): Check the size only if LINUX_NOEXEC_HEAPCODES.
+
+2004-05-28  Bruno Haible  <bruno@clisp.org>
+
 	* makemake.in: Treat GCC 4 like GCC 3.4.
 
 2004-05-28  Sam Steingold  <sds@gnu.org>
