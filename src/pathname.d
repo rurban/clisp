@@ -664,7 +664,7 @@ local bool legal_hostchar (chart ch) {
  < result: valid host-component
  can trigger GC */
 local maygc object test_optional_host (object host, bool convert) {
-  if (!boundp(host))
+  if (!boundp(host) || eq(host,S(Kunspecific)))
     return NIL;
   if (nullp(host))
     goto OK; /* NIL is OK */
@@ -707,7 +707,7 @@ local maygc object test_optional_host (object host, bool convert) {
  < result: valid host-component
  can trigger GC */
 local maygc object test_optional_host (object host) {
-  if (!boundp(host))
+  if (!boundp(host) || eq(host,S(Kunspecific)))
     return NIL; /* not specified -> NIL */
   if (nullp(host))
     goto OK; /* NIL is OK */
@@ -748,14 +748,14 @@ local maygc object test_optional_host (object host) {
  > host: Host-Argument
  < result: valid host-component */
 local object test_optional_host (object host) {
-  if (boundp(host)) { /* not specified -> OK */
-    if (!nullp(host)) { /* specified -> should be =NIL */
-      pushSTACK(host);    /* TYPE-ERROR slot DATUM */
-      pushSTACK(S(null)); /* TYPE-ERROR slot EXPECTED-TYPE */
-      pushSTACK(host);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,GETTEXT("~S: host should be NIL, not ~S"));
-    }
+  if (boundp(host)       /* not specified -> OK */
+      && !nullp(host)    /* specified -> should be NIL or :UNSPECIFIC */
+      && !eq(host,S(Kunspecific))) {
+    pushSTACK(host);     /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(null));  /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(host);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,GETTEXT("~S: host should be NIL, not ~S"));
   }
   return NIL;
 }
