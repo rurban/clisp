@@ -178,8 +178,8 @@ A1
         '(I (A) A)
         :TEST #'(LAMBDA (X Y) (IF (LISTP Y) (EQL X (CAR Y)))))
 #+(or XCL AKCL ECL LUCID ALLEGRO) (I II . II) ; X aus der Aliste, Y ein Blatt des Baumes
-#+(or CLISP CMU SBCL)             (I (UU) UU) ; X ein Blatt, Y aus der Aliste
-#-(or XCL CLISP AKCL ECL CMU SBCL LUCID ALLEGRO) UNKNOWN
+#+(or CLISP CMU SBCL OpenMCL)     (I (UU) UU) ; X ein Blatt, Y aus der Aliste
+#-(or XCL CLISP AKCL ECL CMU SBCL LUCID ALLEGRO OpenMCL) UNKNOWN
 
 (NSUBLIS '(((A) . UU) (A . II))
          '(I (A) A)
@@ -199,9 +199,9 @@ A1
 (NSUBLIS '(((A) . UU) (A . II))
          '(I (A) A)
          :TEST #'(LAMBDA (X Y) (IF (LISTP Y) (EQL X (CAR Y)))))
-#+(or XCL AKCL ECL ALLEGRO) (I II . II) ; X aus der Aliste, Y ein Blatt des Baumes
-#+(or CLISP CMU SBCL LUCID) (I (UU) UU) ; X ein Blatt, Y aus der Aliste
-#-(or XCL CLISP AKCL ECL CMU SBCL LUCID ALLEGRO) UNKNOWN
+#+(or XCL AKCL ECL ALLEGRO)         (I II . II) ; X aus der Aliste, Y ein Blatt des Baumes
+#+(or CLISP CMU SBCL LUCID OpenMCL) (I (UU) UU) ; X ein Blatt, Y aus der Aliste
+#-(or XCL CLISP AKCL ECL CMU SBCL LUCID ALLEGRO OpenMCL) UNKNOWN
 
 ;; <http://www.lisp.org/HyperSpec/Body/fun_subliscm_nsublis.html>
 (sublis '((x . 100) (z . zprime))

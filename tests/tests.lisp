@@ -166,7 +166,7 @@
                                     "backquot"
                   #+CLISP           "bin-io"
                   #-AKCL            "characters"
-                  #+(or CLISP ALLEGRO CMU) "clos"
+                  #+(or CLISP ALLEGRO CMU OpenMCL) "clos"
                   #+CLISP ,@(unless disable-risky '("defhash"))
                   #+(and CLISP UNICODE) "encoding"
                                     "eval20"
@@ -188,7 +188,7 @@
                   #+(or CLISP ALLEGRO CMU) "loop"
                                     "macro8"
                                     "map"
-                  #+(or CLISP ALLEGRO CMU) "mop"
+                  #+(or CLISP ALLEGRO CMU OpenMCL) "mop"
                                     "number"
                   #+CLISP           "number2"
                   #-(or AKCL ALLEGRO CMU) "pack11"

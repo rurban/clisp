@@ -240,8 +240,10 @@ ERROR
 ((lambda (x) (block foo (list x))) nil foo)
 #+SBCL
 (NIL T FOO)
-#-(or CLISP CMU SBCL)
-NIL
+#+OpenMCL
+(NIL NIL FOO)
+#-(or CLISP CMU SBCL OpenMCL)
+UNKNOWN
 
 (compile 'foo) foo
 
@@ -252,8 +254,10 @@ NIL
 ((lambda (x) (block foo (list x))) nil foo)
 #+SBCL
 (NIL T FOO)
-#-(or CLISP CMU SBCL)
-NIL
+#+OpenMCL
+(NIL NIL FOO)
+#-(or CLISP CMU SBCL OpenMCL)
+UNKNOWN
 
 (fmakunbound 'foo) foo
 
