@@ -1044,6 +1044,7 @@ LISPSYM(Ktoken,"TOKEN",keyword)
 #endif
 
 # sonstige Symbole:
+LISPSYM(ansi,"*ANSI*",lisp) # als Variable
 LISPSYM(string_char,"STRING-CHAR",lisp) # als Typ in ARRAY
 LISPSYM(array_rank_limit,"ARRAY-RANK-LIMIT",lisp) # als Konstante in ARRAY
 LISPSYM(array_dimension_limit,"ARRAY-DIMENSION-LIMIT",lisp) # als Konstante in ARRAY
