@@ -406,7 +406,8 @@
 (def-c-call-out __errno_location (:arguments)
                                  (:return-type (c-ptr int))
 )
-(define-symbol-macro errno (deref (foreign-value (__errno_location))))
+;; (define-symbol-macro errno (deref (foreign-value (__errno_location))))
+(def-c-var errno (:type ffi:int))
 
 ; ------------------------------ <errno.h> ------------------------------------
 
@@ -862,8 +863,8 @@
 
 (def-c-call-out realpath
     (:arguments (name c-string)
-                (resolved (c-ptr (c-array char #.PATH_MAX)) :out :alloca))
-  (:return-type (c-ptr (c-array char #.PATH_MAX))))
+                (resolved (c-ptr (c-array-max char #.PATH_MAX)) :out :alloca))
+  (:return-type (c-ptr (c-array-max char #.PATH_MAX))))
 
 (def-c-type comparison_fn_t (c-function (:arguments (p1 c-pointer) (p2 c-pointer))
                                         (:return-type int)
