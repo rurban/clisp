@@ -985,7 +985,7 @@ N. Gray to X3J13.</para>
    &fu-st-bin; and &fu-st-out;.</simpara></listitem></varlistentry>
 </variablelist>
 
-<variablelist><title>general generic functions defined on streams</title>
+<variablelist><title>General generic functions defined on streams</title>
  <varlistentry><term><literal role="sexp">(&stream-element-type;
     &stream-r;)</literal></term>
   <listitem><simpara>Returns the stream's element type, normally a
@@ -1011,6 +1011,12 @@ N. Gray to X3J13.</para>
     &nil; after the stream has been closed.</simpara>
    <simpara>You do not need to add methods to this function.</simpara>
    </listitem></varlistentry>
+ <varlistentry><term><literal
+    role="sexp">(<function>GRAY:STREAM-POSITION</function>
+    &stream-r; <replaceable>position</replaceable>)</literal></term>
+  <listitem><simpara>Just like &file-position;, but &nil;
+    <replaceable>position</replaceable> means inquire.</simpara>
+   &need-defmethod;</listitem></varlistentry>
 </variablelist>
 
 <variablelist><title>generic functions for character input</title>

@@ -16,6 +16,10 @@ User visible changes
 * New function EXT:ARGV returns the command line arguments passed to runtime.
   See <http://clisp.cons.org/impnotes.html#argv> for details.
 
+* New generic function GRAY:STREAM-POSITION extends FILE-POSITION to
+  Gray streams; FILE-POSITION now works with streams other than FILE-STREAMs.
+  See <http://clisp.cons.org/impnotes.html#gray> for details.
+
 * DEFINE-METHOD-COMBINATION and friends are now implemented.
   Thanks to James Anderson <james.anderson@setf.de>.
 

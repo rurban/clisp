@@ -12,6 +12,8 @@
    fundamental-character-output-stream
    fundamental-binary-input-stream
    fundamental-binary-output-stream
+   ;; general generic functions:
+   stream-position
    ;; Generic functions for character input:
    stream-read-char
    stream-unread-char
@@ -138,6 +140,14 @@
     (clos:no-applicable-method #'(setf stream-element-type) new-element-type stream)
   )
 )
+
+(clos:defgeneric stream-position (stream position)
+  (:method ((stream stream) position)
+    (if position
+        (cl:file-position stream position)
+        (cl:file-position stream)))
+  (:method ((stream fundamental-stream) position)
+    (clos:no-applicable-method #'stream-position stream position)))
 
 ;; Generic functions for character input
 
