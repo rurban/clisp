@@ -1,4 +1,4 @@
-;;; PostgreSQL demo
+;;; PostgreSQL higher level functions and demo
 ;;; Based on the examples distributed with PostgreSQL (man libpq)
 ;;;
 ;;; Copyright (C) 1999-2005 by Sam Steingold
@@ -8,14 +8,11 @@
 
 ;; for your cut&paste convenience:
 ;; (load "postgresql/sql.lisp")
-;; (sql-demo::sql-test-1)
+;; (sql::sql-test-1)
 
 (require "postgresql")
 
-(defpackage "SQL-DEMO"
-  (:use "CL" "EXT" "FFI" "SQL"))
-
-(in-package "SQL-DEMO")
+(in-package "SQL")
 
 ;;;
 ;;; Helper Functions
@@ -29,79 +26,102 @@
   (:report (lambda (cc stream)
              (format stream "[~a] ~a" (sql-type cc) (sql-mesg cc)))))
 
-(defun sql-error (conn res &rest mesgs)
-  ;; if you do `PQfinish' twice on the same object, you will get segfault!
-  (when conn (sql::PQfinish conn))
-  ;; if you do `PQclear' twice on the same object, you will get segfault!
-  (when res (sql::PQclear res))
-  (error 'sql-error :mesg (apply #'concatenate 'string mesgs)
-                    :type (if res :request :connection)))
+(defun pq-finish (conn)
+  "if you do `PQfinish' twice on the same object, you will get segfault!"
+  (when (and conn (validp conn))
+    (PQfinish conn)
+    (setf (validp conn) nil)))
 
-(defun sql-connect (host port opts tty name login passwd)
-  (let ((conn (sql::PQsetdbLogin host port opts tty name login passwd)))
-    (if (= (sql::PQstatus conn) sql::CONNECTION_OK)
-        (format *sql-log* "~&Connection OK:~% db name: `~a'
- host:port[tty]: ~a:~a[~a]~% options: `~a'~%"
-                (sql::PQdb conn) (sql::PQhost conn) (sql::PQport conn)
-                (sql::PQtty conn) (sql::PQoptions conn))
-        (sql-error conn nil "PQconnectdb/template1: "
-                   (sql::PQerrorMessage conn)))
+(defun pq-clear (res)
+  "if you do `PQclear' twice on the same object, you will get segfault!"
+  (when (and res (validp res))
+    (PQclear res)
+    (setf (validp res) nil)))
+
+(defun sql-error (conn res format-string &rest args)
+  (pq-clear res) (pq-finish conn)
+  (error 'sql-error :mesg (apply #'format nil format-string args)
+         :type (if res :request :connection)))
+
+(defun sql-connect (&key host port options tty name
+                    (login "postgres") (password "postgres"))
+  (let ((conn (PQsetdbLogin host port options tty name login password)))
+    (when conn (set-foreign-pointer conn :copy))
+    (unless (and conn (= (PQstatus conn) CONNECTION_OK))
+      (sql-error conn nil "~S(~S,~S,~S,~S,~S,~S,~S): ~S"
+                 'sql-connect host port options tty name login password
+                 (PQerrorMessage conn)))
+    (when *sql-log*
+      (format *sql-log* "~&Connection(~S) OK:~% db name: ~S
+ host:port[tty]: ~S:~S[~S]~% options: ~S~%"
+              conn (PQdb conn) (PQhost conn) (PQport conn)
+              (PQtty conn) (PQoptions conn)))
     conn))
 
-(defmacro with-sql-connection ((conn host port opts tty name login passwd)
-                               &body body)
-  `(let ((,conn (sql-connect ,host ,port ,opts ,tty ,name ,login ,passwd)))
+(defmacro with-sql-connection ((conn &rest options) &body body)
+  `(let ((,conn (sql-connect ,@options)))
     (unwind-protect (progn ,@body)
       ;; close the connection to the database and cleanup
-      (when ,conn (sql::PQfinish ,conn)))))
+      (pq-finish ,conn))))
 
-(defun sql-transaction (conn command status &optional clear-p)
-  (let ((res (sql::PQexec conn command)))
-    (unless (= status (sql::PQresultStatus res))
-      (sql-error conn res command ": " (sql::PQresultErrorMessage res)))
-    (when clear-p (sql::PQclear res))
-    (format *sql-log* " * OK: ~a~%" command)
+(defun sql-transaction (conn command status &optional (clear-p t))
+  (let ((res (PQexec conn command)))
+    (when res (set-foreign-pointer res :copy))
+    (unless (and res (= status (PQresultStatus res)))
+      (sql-error conn res command "~S(~S,~S): ~S" 'sql-transaction
+                 conn command (PQresultErrorMessage res)))
+    (when *sql-log*
+      (format *sql-log* " * OK: ~a~%" command))
+    (when clear-p (pq-clear res))
     res))
 
 (defmacro with-sql-transaction ((res conn command status) &body body)
-  `(let ((,res (sql-transaction ,conn ,command ,status)))
+  `(let ((,res (sql-transaction ,conn ,command ,status nil)))
     (unwind-protect (progn ,@body)
       ;; avoid memory leaks
-      (when ,res (sql::PQclear ,res)))))
+      (pq-clear ,res))))
+
+(pushnew "SQL" custom:*system-package-list* :test #'string=)
+
+;;; file sql.lisp ends here
+
+;;; tests follow
+#+(or) (progn
 
 ;;;
 ;;; Simple Test
 ;;;
 
 (defun sql-test-1 ()
-  (with-sql-connection (conn nil nil nil nil "template1" nil nil)
-    (sql-transaction conn "BEGIN" sql::PGRES_COMMAND_OK t)
+  (with-sql-connection (conn :name "template1")
+    (sql-transaction conn "BEGIN" PGRES_COMMAND_OK)
     ;; fetch instances from the pg_database, the system catalog of databases
     (sql-transaction conn
                      "DECLARE mycursor CURSOR FOR select * from pg_database"
-                     sql::PGRES_COMMAND_OK t)
+                     PGRES_COMMAND_OK)
 
     ;; FETCH ALL
-    (with-sql-transaction (res conn "FETCH ALL in mycursor"
-                               sql::PGRES_TUPLES_OK)
-      (let ((nfields (sql::PQnfields res))
-            (ntuples (sql::PQntuples res)))
-        (format t " + ~d fields; ~d ntuples~%" nfields ntuples)
+    (with-sql-transaction (res conn "FETCH ALL in mycursor" PGRES_TUPLES_OK)
+      (let* ((nfields (PQnfields res)) (ntuples (PQntuples res))
+             (names (make-array nfields)))
+        (format t " + ~D field~:P; ~D ntuple~:P~%" nfields ntuples)
 
         ;; first, print out the attribute names
-        (dotimes (ii nfields (format t "~2%"))
-          (format t "~15s" (sql::PQfname res ii)))
+        (dotimes (ii nfields)
+          (format t "~3:D: ~S~%" ii (setf (aref names ii) (PQfname res ii))))
 
         ;; next, print out the instances
-        (dotimes (ii (sql::PQntuples res))
+        (dotimes (ii ntuples)
+          (format t "~%<<~D>>~%" ii)
           (dotimes (jj nfields (terpri))
-            (format t "~15s" (sql::PQgetvalue res ii jj))))))
+            (format t "~3:D ~15@S = ~S~%"
+                    jj (aref names jj) (PQgetvalue res ii jj))))))
 
     ;; close the cursor
-    (sql-transaction conn "CLOSE mycursor" sql::PGRES_COMMAND_OK t)
+    (sql-transaction conn "CLOSE mycursor" PGRES_COMMAND_OK)
 
     ;; commit the transaction
-    (sql-transaction conn "COMMIT" sql::PGRES_COMMAND_OK t)))
+    (sql-transaction conn "COMMIT" PGRES_COMMAND_OK)))
 
 ;;;
 ;;; asynchronous notification interface
@@ -120,20 +140,14 @@
 ;;; INSERT INTO TBL1 values (10);
 
 (defun sql-test-2 ()
-  (with-sql-connection (conn nil nil nil nil (ext:getenv "USER") nil nil)
-    (sql-transaction conn "LISTEN TBL2" sql::PGRES_COMMAND_OK t)
+  (with-sql-connection (conn)
+    (sql-transaction conn "LISTEN TBL2" PGRES_COMMAND_OK)
 
-    (loop (sql::PQconsumeInput conn)
-          (loop :for notify = (sql::PQnotifies conn)
-                :while (ffi:validp notify) :do
-                ;; unfortunately, (FFI:VALIDP #<FOREIGN-ADDRESS #x00000000>)
-                ;; ==> T, so this won't work!
-                ;;(lisp:finalize notify ; will `notify' be GCed?! YES!!!
-                ;;               (lambda (obj)
-                ;;                 (format t "~s is being collected~%" obj)))
-                (format t "ASYNC NOTIFY: ~a~%" notify)
-                (break))
-          (sleep 1))))
+    (loop (PQconsumeInput conn)
+      (loop :for notify = (PQnotifies conn)
+        :while notify :do (format t "ASYNC NOTIFY: ~a~%" notify)
+        (break))
+      (sleep 1))))
 
 ;;;
 ;;; test the binary cursor interface
@@ -162,32 +176,31 @@
 ;;;
 
 (defun sql-test-3 ()
-  (with-sql-connection (conn nil nil nil nil (ext:getenv "USER") nil nil)
-    (sql-transaction conn "BEGIN" sql::PGRES_COMMAND_OK t)
+  (with-sql-connection (conn)
+    (sql-transaction conn "BEGIN" PGRES_COMMAND_OK)
 
     (sql-transaction conn
                      "DECLARE mycursor BINARY CURSOR FOR select * from test1"
-                     sql::PGRES_COMMAND_OK t)
+                     PGRES_COMMAND_OK)
 
-    (with-sql-transaction (res conn "FETCH ALL in mycursor"
-                               sql::PGRES_TUPLES_OK)
-      (let ((i-fnum (sql::PQfnumber res "i"))
-            (d-fnum (sql::PQfnumber res "d"))
-            (p-fnum (sql::PQfnumber res "p"))
-            (nfields (sql::PQnfields res))
-            (ntuples (sql::PQntuples res)))
+    (with-sql-transaction (res conn "FETCH ALL in mycursor" PGRES_TUPLES_OK)
+      (let ((i-fnum (PQfnumber res "i"))
+            (d-fnum (PQfnumber res "d"))
+            (p-fnum (PQfnumber res "p"))
+            (nfields (PQnfields res))
+            (ntuples (PQntuples res)))
         (format t " + ~d fields; ~d ntuples; i: ~d; d: ~d; p: ~d~%"
                 nfields ntuples i-fnum d-fnum p-fnum)
         (dotimes (ii 3)
           (format t "type[~d] = ~d, size[~d] = ~d~%"
-                  ii (sql::PQftype res ii) ii (sql::PQfsize res ii)))
+                  ii (PQftype res ii) ii (PQfsize res ii)))
         (dotimes (ii ntuples)
-          (let ((plen (sql::PQgetlength res ii p-fnum))
-                (ival (sql::PQgetvalue res ii i-fnum))
-                (dval (sql::PQgetvalue res ii d-fnum)))
+          (let ((plen (PQgetlength res ii p-fnum))
+                (ival (PQgetvalue res ii i-fnum))
+                (dval (PQgetvalue res ii d-fnum)))
             (format t " ++ plen: ~d; ival: ~d; dval: ~f~%" plen ival dval)))))
 
-    (sql-transaction conn "CLOSE mycursor" sql::PGRES_COMMAND_OK t)
-    (sql-transaction conn "COMMIT" sql::PGRES_COMMAND_OK t)))
+    (sql-transaction conn "CLOSE mycursor" PGRES_COMMAND_OK)
+    (sql-transaction conn "COMMIT" PGRES_COMMAND_OK)))
 
-;;; file sql.lisp ends here
+)

@@ -5,5 +5,4 @@ make clisp-module \
 NEW_FILES=''
 for f in ${NEW_MODULES}; do NEW_FILES=${NEW_FILES}" ${f}.o"; done
 NEW_LIBS="${NEW_FILES} @LIBS@"
-NEW_MODULES="postgresql"
-TO_LOAD='postgresql'
+TO_LOAD='postgresql sql'

@@ -16,7 +16,53 @@
 <simpara>When this module is present, &features-var;
  contains the symbol <constant>:POSTGRESQL</constant>.</simpara>
 
-<para>See <filename>modules/postgresql/sql.lisp</filename> for a sample
+<para>See <filename>modules/postgresql/sql.lisp</filename> for sample
  usage.</para>
 
+<para>Additionally, some higher level functionality is available:</para>
+
+<variablelist>
+<varlistentry><term><code>(sql:pq-finish &conn-r;)</code></term>
+ <listitem><simpara><function>PQfinish</function> the &conn-r; and mark
+   it as invalid</simpara></listitem></varlistentry>
+<varlistentry><term><code>(sql:pq-clear &res-r;)</code></term>
+ <listitem><simpara><function>PQclear</function> the &res-r; and mark
+   it as invalid</simpara></listitem></varlistentry>
+<varlistentry><term><code>(sql:sql-error &conn-r; &res-r; &fmt-r;
+   &rest-amp; &args-r;)</code></term>
+ <listitem><simpara>finalize &conn-r; and &res-r; and &signal; an
+   appropriate &error-t;</simpara></listitem></varlistentry>
+<varlistentry><term><code>(sql:sql-connect &key-amp; host port options
+   tty name login password)</code></term>
+ <listitem><simpara>call <function>PQsetdbLogin</function> and return
+   the &conn-r;</simpara></listitem></varlistentry>
+<varlistentry><term><code>(sql:with-sql-connection (var &rest-amp;
+   &option-r;s) &body-amp; &body-r;)</code></term>
+ <listitem><simpara>call <function>sql:sql-connect</function>, execute
+   &body-r;, call <function>sql:pq-finish</function>
+</simpara></listitem></varlistentry>
+<varlistentry><term><code>(sql:sql-transaction &conn-r; &command-r;
+   status &optional-amp; (clear-p &t;))</code></term>
+ <listitem><simpara>execute the &command-r; via &conn-r;;
+   if the status does not match <replaceable>status</replaceable>, &err-sig;;
+   if <replaceable>clear-p</replaceable> is
+   non-&nil; <function>sql:pq-clear</function> the &res-r;;
+   otherwise return it</simpara></listitem></varlistentry>
+<varlistentry><term><code>(sql:with-sql-transaction (&res-r; &conn-r;
+   &command-r; status) &body-amp; &body-r;)</code></term>
+ <listitem><simpara>execure the &body-r; on the &res-r; of &command-r;,
+   then <function>sql:pq-clear</function> the &res-r;
+</simpara></listitem></varlistentry>
+<varlistentry><term><code>sql:*sql-log*</code></term>
+ <listitem><simpara>when non-&nil;, should be a &stream-t;;
+   <function>sql:sql-connect</function>
+   and <function>sql:sql-transaction</function> will write to it
+   (initially set to &standard-output-var;)
+</simpara></listitem></varlistentry></variablelist>
+
+<warning><para>Since <code>PQfinish</code> and <code>PQclear</code>
+  cannot be called on the same pointer twice, one needs to track their
+  validity (<function>sql:sql-connect</function>
+  and <function>sql:sql-transaction</function> take care of that).
+  See <xref linkend="ex-dffi-validity"/>.</para></warning>
 </section>
