@@ -16923,12 +16923,19 @@ LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL)
         var object string = TheStream(stream)->strm_str_push_string;
         switch (pos_type) {
           case POS_SET_END:     /* :END */
+            /* Pretend that the "end" of the stream corresponds to the current
+               fill-pointer. The array-dimension 0 wouldn't be the right choice
+               because it depends on how the implementation increases the size
+               during vector-push-extend. A slightly better choice would be
+               the maximum value of the fill-pointer during the lifetime of the
+               stream, but since the user can modify the fill-pointer directly,
+               this is hairy to implement correctly. */
             value1 = fixnum(vector_length(string));
-            break;                   /* do nothing */
+            /* No need to call set-fill-pointer because it would be a nop. */
+            break;
           case POS_SET_START:        /* :START, pos_off==0 already */
           case POS_SET_OFF:          /* OFFSET */
-            pushSTACK(string); pushSTACK(fixnum(pos_off));
-            funcall(L(set_fill_pointer),2);
+            pushSTACK(string); pushSTACK(fixnum(pos_off)); C_set_fill_pointer();
             break;
           case POS_QUERY:
             pos_off = vector_length(string);
