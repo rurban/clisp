@@ -741,12 +741,14 @@
           ; functions would have the same name FOO-X.
           (when (find (symbol-name slotname) slotlist
                       :key #'(lambda (slot) (symbol-name (ds-slot-name slot)))
-                      :test #'string=
-                )
+                      :test #'string=)
             (error-of-type 'source-program-error
               (ENGLISH "~S ~S: There may be only one slot with the name ~S.")
-              'defstruct name slotname
-          ) )
+              'defstruct name slotname))
+          (when (string= "P" slotname)
+            (warn
+             (ENGLISH "~S ~S: Slot ~S accessor will shadow the predicate.")
+             'defstruct name slotname))
           (let ((type t) (read-only nil))
             (when (consp slotarg)
               (do ((slot-arglistr (cddr slotarg) (cddr slot-arglistr)))
