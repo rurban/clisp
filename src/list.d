@@ -538,7 +538,7 @@ local bool endp (object obj) {
   else if (nullp(obj))
     return true;
   else
-    fehler_proper_list(obj,TheSubr(subr_self)->name);
+    fehler_proper_list(TheSubr(subr_self)->name,obj);
 }
 
 LISPFUNN(endp,1)
@@ -1615,7 +1615,7 @@ local inline object memq1 (const object obj, const object lis, bool strictp) {
     l = Cdr(l);
   }
   if (strictp && !nullp(l))
-    fehler_proper_list(l,TheSubr(subr_self)->name);
+    fehler_proper_list(TheSubr(subr_self)->name,l);
   return NIL;
 }
 global object memq (const object obj, const object lis) {

@@ -9292,7 +9292,7 @@ re-enters the corresponding top-level loop.
        } while (consp(l));                                              \
      }                                                                  \
      mv_fertig:                                                         \
-     if (!nullp(l)) fehler_proper_list(l,S(values_list));               \
+     if (!nullp(l)) fehler_proper_list(S(values_list),l);               \
      mv_count = count;                                                  \
     } while(0)
 #else
@@ -9309,7 +9309,7 @@ re-enters the corresponding top-level loop.
         } while (consp(l));                                             \
      }}                                                                 \
      mv_fertig:                                                         \
-     if (!nullp(l)) fehler_proper_list(l,S(values_list));               \
+     if (!nullp(l)) fehler_proper_list(S(values_list),l);               \
      mv_count = count;                                                  \
     } while(0)
 #endif
@@ -11569,7 +11569,7 @@ nonreturning_function(extern, fehler_list, (object obj));
 # is used by LIST, EVAL
 
 # Error message, if an object isn't a proper list.
-# fehler_proper_list(obj);
+# fehler_proper_list(caller,obj);
 # > caller: caller (a symbol)
 # > obj: End of list, non-list
 nonreturning_function(extern, fehler_proper_list, (object caller, object obj));
