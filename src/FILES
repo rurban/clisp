@@ -61,7 +61,7 @@ FFIILLEESS
 
 
 
-                         13 February 1998                       1
+                        19 September 1998                       1
 
 
 
@@ -71,6 +71,8 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
                               versions
+
+               xxtthhrreeaadd..dd      include file for thread support
 
                mmoodduulleess..hh      list of foreign modules
 
@@ -123,11 +125,9 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
                hhaasshhttaabbll..dd     Functions dealing with hash tables.
 
-               lliisstt..dd         Functions dealing with lists.
 
 
-
-                         13 February 1998                       2
+                        19 September 1998                       2
 
 
 
@@ -135,6 +135,8 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
+
+               lliisstt..dd         Functions dealing with lists.
 
                ppaacckkaaggee..dd      Functions dealing with packages.
 
@@ -188,12 +190,10 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
                ffoorreeiiggnn..dd      Foreign function interface support.
 
                lliissppaarriitt..dd     Functions   dealing   with  numbers
-                              (arithmetic), see below.
 
 
 
-
-                         13 February 1998                       3
+                        19 September 1998                       3
 
 
 
@@ -201,6 +201,8 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
+
+                              (arithmetic), see below.
 
                nnoorreeaaddlliinnee..dd   Replacement   for   GNU    readline
                               library.
@@ -254,12 +256,10 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
                rraattiioonnaall..dd     rational numbers
 
-               ssffllooaatt..dd       elementary   operations  for  short
-                              floats
 
 
 
-                         13 February 1998                       4
+                        19 September 1998                       4
 
 
 
@@ -267,6 +267,9 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
+
+               ssffllooaatt..dd       elementary   operations  for  short
+                              floats
 
                ffffllooaatt..dd       elementary  operations  for  single
                               floats
@@ -319,13 +322,10 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
                aarriiaarrmm..dd            written in ARM assembler
 
 
-           External  routines  for  accessing the stack, written
-               in assembly language:
 
 
 
-
-                         13 February 1998                       5
+                        19 September 1998                       5
 
 
 
@@ -333,6 +333,9 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
+
+           External  routines  for  accessing the stack, written
+               in assembly language:
 
                sspp6688000000..dd           written  in  68000  assembler,
                                    MIT syntax
@@ -385,13 +388,10 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
            ddeeffss11..llsspp
                   miscellaneous definitions
 
-           ttiimmeezzoonnee..llsspp
-                  site-dependent  definition of time zone, except
-                  for Unix
 
 
 
-                         13 February 1998                       6
+                        19 September 1998                       6
 
 
 
@@ -399,6 +399,10 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
+
+           ttiimmeezzoonnee..llsspp
+                  site-dependent  definition of time zone, except
+                  for Unix
 
            ppllaacceess..llsspp
                   macros using places, definitions of most places
@@ -450,14 +454,10 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
            ddiissaasssseemm..llsspp
                   disassembles machine code
 
-           ddeeffss22..llsspp
-                  miscellaneous CLtL2 compatible definitions
 
 
 
-
-
-                         13 February 1998                       7
+                        19 September 1998                       7
 
 
 
@@ -465,6 +465,9 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
+
+           ddeeffss22..llsspp
+                  miscellaneous CLtL2 compatible definitions
 
            lloooopp..llsspp
                   implements a CLtL2/dpANS compatible LOOP macro
@@ -506,6 +509,9 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
            FFIILLEESS..11
                   nroff master for _F_I_L_E_S
 
+           bbyytteeccooddee..hhttmmll
+                  documents the bytecode instruction set
+
            CCHHAANNGGEESS..LLOOGG
                   lists the changes to the source
 
@@ -514,16 +520,10 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
            __RREEAADDMMEE
                   master for the distribution's README
 
-           __RREEAADDMMEE..eenn, __RREEAADDMMEE..ddee, __RREEAADDMMEE..eess
-                  translations of ___R_E_A_D_M_E
-
-           __cclliisspp..11
-                  master for the distribution's manual page
 
 
 
-
-                         13 February 1998                       8
+                        19 September 1998                       8
 
 
 
@@ -531,6 +531,12 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
+
+           __RREEAADDMMEE..eenn, __RREEAADDMMEE..ddee, __RREEAADDMMEE..eess
+                  translations of ___R_E_A_D_M_E
+
+           __cclliisspp..11
+                  master for the distribution's manual page
 
            __cclliisspp..hhttmmll
                   master  for  the  distribution's manual page in
@@ -579,17 +585,11 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
            ccoonnffiigguurree..iinn
                   lists the features to be checked
 
-           aauuttooccoonnff//aauuttooccoonnff
-                  the main program of GNU autoconf-2.12
-
-           aauuttooccoonnff//aauuttooccoonnff..mm44
-                  _a_u_t_o_c_o_n_f's driver macros.  Part  of  GNU  auto-
-                  conf-2.12
 
 
 
 
-                         13 February 1998                       9
+                        19 September 1998                       9
 
 
 
@@ -597,6 +597,13 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
+
+           aauuttooccoonnff//aauuttooccoonnff
+                  the main program of GNU autoconf-2.12
+
+           aauuttooccoonnff//aauuttooccoonnff..mm44
+                  _a_u_t_o_c_o_n_f's driver macros.  Part  of  GNU  auto-
+                  conf-2.12
 
            aauuttooccoonnff//aaccggeenneerraall..mm44
                   _a_u_t_o_c_o_n_f's   general  feature  testing  macros.
@@ -648,13 +655,6 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
 
-
-
-
-
-
-
-
-                         13 February 1998                      10
+                        19 September 1998                      10
 
 
