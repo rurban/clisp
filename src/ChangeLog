@@ -1,3 +1,10 @@
+2002-12-11  Sam Steingold  <sds@gnu.org>
+
+	DRIBBLE now works by redefining *TERMINAL-IO* instead of a host
+	of i/o variables; new type DRIBBLE-STREAM
+	* dribble.lisp: full rewrite
+	* savemem.lisp (saveinitmem): DRIBBLE-RESET is no longer needed
+
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (object) [WIDE_STRUCT]: Wrap the union in struct.
