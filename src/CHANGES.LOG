@@ -15,6 +15,9 @@ User visible changes
 
 * Fixed handling of circular structs and pointers to functions in the FFI.
 
+* Fixed binary I/O for streams with element type longer than one byte,
+  but not a whole number of bytes.
+
 2.26 (2001-05-23)
 =================
 
