@@ -1,5 +1,10 @@
 2004-12-13  Sam Steingold  <sds@gnu.org>
 
+	* .gdbinit (ansi_tests): wrap setting of an internal variable in
+	WITHOUT-PACKAGE-LOCK
+
+2004-12-13  Sam Steingold  <sds@gnu.org>
+
 	* io.d (space_available): mark as "maygc"
 	(string_fit_line_p): ditto + fix a GC-safety bug
 	(pr_enter_1): updated for string_fit_line_p() changes
