@@ -94,6 +94,14 @@ The point should be on the prototype and the definition should follow."
       (replace-match " ") (forward-line 1))
     (forward-char -1) (insert " */")))
 
+(defun d-mode-convert-next-comment ()
+  "Convert the next comment appropriately"
+  (interactive)
+  (search-forward "# ")
+  (if (looking-at "UP")
+      (d-mode-convert-block-comment)
+      (d-mode-convert-comment)))
+
 (defun d-mode-wrap-do-while ()
   "Wrap this block in do/while(0) [for CPP macros]."
   (interactive)
