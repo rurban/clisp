@@ -614,9 +614,42 @@ EOF (Ctrl-\e)
 <a href="http://www.gnu.org/software/emacs/"><code>emacs</code></a>(1),
 <a href="http://www.xemacs.org"><code>xemacs</code></a>(1).</p>
 
+<h2 id="bugs">Bugs</h2>
 
-<h2 id="Bugs">Bugs</h2>
+<p>When you encounter a bug in CLISP, please report it to the
+  <a href="http://lists.sourceforge.net/lists/listinfo/clisp-list">CLISP
+  mailing list</a> or the
+  <a href="http://sourceforge.net/tracker/?func=add&amp;group_id=1355&amp;atid=101355">SourceForge bug tracker</a>.</p>
 
+<p>When submitting a bug report, please specify the
+following information:</p>
+
+<ol>
+ <li>What is your platform?
+   (<code>"uname -a"</code> on a Unix system)
+   compiler version?  libc (on Linux)?</li>
+ <li>Where did you get the sources?  When?
+   (Absolute dates are preferred over the relative ones)</li>
+ <li>How did you build CLISP? (What command, options etc.)
+   Please do a clean build (remove your build directory and
+   build CLISP with <code>"./configure --build build"</code> or at
+   least do a <code>"make distclean"</code> before <code>"make"</code>).
+   If you are reporting a crash (segmentation fault, bus error, core
+   dump etc), please do
+   <code>"./configure --with-debug --build build-g"</code>
+   and report the backtrace.</li>
+ <li>If you are using pre-built binaries, the problem is likely
+   to be in the incompatibilities between the platform on which
+   the binary was built and yours;
+   please try compiling the sources.</li>
+ <li>What is the output of <code>(lisp-implementation-version)</code>?
+   What is the value of <code>*features*</code>?
+   Try <a href="#opt-version"><code>"clisp --version"</code></a>.</li>
+ <li>Please supply the full output (copy and paste)
+   of all the error messages.</li>
+</ol>
+
+<p>Known bugs, some of which are platform-dependent, include</p>
 <ul>
 #ifdef SPVW_MIXED_BLOCKS
 <li>The memory management scheme is not very flexible.</li>
@@ -649,6 +682,10 @@ EOF (Ctrl-\e)
 <h2 id="authors">Authors</h2>
 
 <p>Bruno Haible and Michael Stoll.</p>
+
+<p>See <a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/clisp/clisp/COPYRIGHT?rev=HEAD&amp;content-type=text/plain">COPYRIGHT</a>
+for the list of other contributors.</p>
+
 
 <hr/>
 
