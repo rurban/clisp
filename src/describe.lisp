@@ -556,6 +556,7 @@ to print the corresponding values, or T for all of them.")
 ;; auxiliary functions for DESCRIBE of FUNCTION
 
 (defun arglist (func)
+  (setq func (coerce func 'function))
   (if (typep func 'generic-function)
     ; Generic functions store the lambda-list. It has meaningful variable names.
     (clos:generic-function-lambda-list func)
