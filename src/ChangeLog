@@ -1,3 +1,11 @@
+2003-12-26  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 864479 ]: GO from deep nesting does not work
+	* compiler.lisp (note-far-used-tagbody): propagate tagbody+tag
+	along the stack, just link in the 2002-05-03 patch (bug 550864),
+	and use PUSHNEW instead of PUSH to avoid duplication
+	(c-TAGBODY): check that the index in tagbody+tag is valid
+
 2003-12-23  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 864845 ]: pathname parsing error: "//"

@@ -650,3 +650,33 @@ nil
 ;;<https://sourceforge.net/tracker/?func=detail&aid=864220&group_id=1355&atid=101355>
 (funcall (compile nil (lambda () (tagbody (flet ((f6 () (go 18))) (f6)) 18))))
 nil
+
+;; <https://sourceforge.net/tracker/index.php?func=detail&aid=864479&group_id=1355&atid=101355>
+(funcall
+ (compile
+  nil
+  (lambda ()
+    (tagbody (flet ((%f1 (f1-1)
+                      (flet ((%f9 (&optional (f9-1 b) (f9-2 (go tag2))
+                                             (f9-3 0)) 0))
+                        (%f9 0 0 0))))
+               (%f1 0))
+     tag2))))
+nil
+
+(funcall
+ (compile nil
+  (lambda (x)
+    (tagbody
+      (flet ((foo-1 ()
+               (flet ((foo-2 ()
+                        (flet ((foo-3 ()
+                                 (incf x)
+                                 (go foo-tag)))
+                          (foo-3))))
+                 (foo-2))))
+        (foo-1))
+     foo-tag)
+    x))
+ 12)
+13
