@@ -942,10 +942,11 @@ static const unsigned char nopage[256] = {
 #include "nls_cp1258.c"
 #include "nls_hp_roman8.c"
 #include "nls_nextstep.c"
+#include "nls_jisx0201.c"
 
 #define nls_first_sym  S(ascii)
-#define nls_last_sym  S(nextstep)
-#define nls_num_encodings  (&symbol_tab_data.S_nextstep - &symbol_tab_data.S_ascii + 1)
+#define nls_last_sym  S(jisx0201)
+#define nls_num_encodings  (&symbol_tab_data.S_jisx0201 - &symbol_tab_data.S_ascii + 1)
 
 static const nls_table * const nls_tables[] = {
   &nls_ascii_table,
@@ -1013,7 +1014,8 @@ static const nls_table * const nls_tables[] = {
   &nls_cp1257_table,
   &nls_cp1258_table,
   &nls_hp_roman8_table,
-  &nls_nextstep_table
+  &nls_nextstep_table,
+  &nls_jisx0201_table
 };
 
 global uintL nls_mblen (object encoding, const uintB* src, const uintB* srcend);
