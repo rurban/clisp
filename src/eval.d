@@ -269,7 +269,7 @@
   # local Values interpret_bytecode (object closure, object codevec, uintL index);
   local Values interpret_bytecode_ (object closure, Sbvector codeptr, const uintB* byteptr);
   #define interpret_bytecode(closure,codevec,index)  \
-    interpret_bytecode_(closure,TheSbvector(codevec),&TheSbvector(codevec)->data[index])
+    with_saved_back_trace(closure,-1,interpret_bytecode_(closure,TheSbvector(codevec),&TheSbvector(codevec)->data[index]))
 
 # GCC2 can jump directly to labels. This results in faster code than switch().
   #ifdef GNU
@@ -3902,7 +3902,7 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
           if (((uintL)~(uintL)0 > ca_limit_1) && (args_on_stack > ca_limit_1))
             goto fehler_zuviel;
         }
-        funcall_iclosure(*closure_,args_pointer,args_on_stack);
+        with_saved_back_trace(*closure_,args_on_stack,funcall_iclosure(*closure_,args_pointer,args_on_stack));
         skipSTACK(1); # discard Closure
         unwind(); # unwind EVAL-Frame
         return; # finished
@@ -4856,7 +4856,7 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
           if (((uintL)~(uintL)0 > ca_limit_1) && (args_on_stack > ca_limit_1))
             goto fehler_zuviel;
         }
-        funcall_iclosure(closure,args_end_pointer STACKop args_on_stack,args_on_stack);
+        with_saved_back_trace(closure,args_on_stack,funcall_iclosure(closure,args_end_pointer STACKop args_on_stack,args_on_stack));
       }
     }
 
@@ -5742,10 +5742,8 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           goto fehler_zuviel; # too many arguments
        fehler_zuwenig: fehler_closure_zuwenig(closure);
        fehler_zuviel: fehler_closure_zuviel(closure);
-      } else {
-        # closure is an interpreted Closure
-        funcall_iclosure(closure,args_end_pointer STACKop args_on_stack,args_on_stack);
-      }
+      } else /* closure is an interpreted Closure */
+        with_saved_back_trace(closure,args_on_stack,funcall_iclosure(closure,args_end_pointer STACKop args_on_stack,args_on_stack));
     }
 
 
@@ -5831,9 +5829,6 @@ local Values funcall_closure (object fun, uintC args_on_stack);
     var Sbvector codeptr;
     var const uintB* byteptr_in;
     {
-      var struct backtrace_t *bt_save=back_trace;
-      var struct backtrace_t bt_here = {back_trace, closure_in, STACK , -1};
-      back_trace = &bt_here;
       # situate argument closure in register:
       #ifdef closure_register
       var object closure __asm__(closure_register);
@@ -6763,9 +6758,9 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           check_STACK(); check_SP();                              \
           { var const uintB* label_byteptr;                       \
             L_operand(label_byteptr);                             \
-            with_saved_context(                                   \
+            with_saved_back_trace(closure,-1,with_saved_context(  \
               interpret_bytecode_(closure,codeptr,label_byteptr); \
-            );                                                    \
+            ));                                                   \
           }
         CASE cod_jsr:                    # (JSR label)
           JSR();
@@ -8463,10 +8458,6 @@ local Values funcall_closure (object fun, uintC args_on_stack);
       #ifndef FAST_SP
       FREE_DYNAMIC_ARRAY(private_SP_space);
       #endif
-      #ifdef DEBUG_SPVW
-      if (back_trace->next != bt_save) abort();
-      #endif
-      back_trace = back_trace->next;
       return;
     }
 
