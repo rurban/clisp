@@ -7,21 +7,23 @@ RM = rm -f
 SED = sed
 ROFF_MAN = groff -Tascii -mandoc
 
-all : avcall-i386.S avcall-i386-msvc.c avcall.h.msvc avcall-m68k.mit.s avcall-m68k.mot.s avcall-m68k-amiga.s avcall-mips.s avcall-mipsn32.s avcall-mips64.s avcall-sparc.S avcall-alpha.s avcall-hppa.s avcall-arm.s avcall-rs6000-aix.old.s avcall-rs6000-aix.new.s avcall-rs6000-sysv4.s avcall-m88k.s avcall-convex.s avcall.man
+all : avcall-i386.S avcall-i386-msvc.c avcall.h.msvc avcall-m68k.mit.S avcall-m68k.mot.s avcall-m68k-amiga.s avcall-mips.S avcall-mipsn32.S avcall-mips64.S avcall-sparc.S avcall-alpha.s avcall-hppa.s avcall-arm.S avcall-rs6000-aix.old.s avcall-rs6000-aix.new.s avcall-rs6000-sysv4.s avcall-m88k.s avcall-convex.s avcall.man
 
-avcall-i386.S : avcall-i386.c avcall.h.in
+avcall-i386.S : avcall-i386.c avcall.h.in asmi386.sh
 	$(GCC) -V 2.7.2 -b i486-linuxaout $(GCCFLAGS) -D__i386__ -fno-omit-frame-pointer -S avcall-i386.c -o avcall-i386.s
-	(echo '#include "asmi386.h"' ; sed -e 's/_\(_[A-Za-z_:]*\)/C(\1)/' -e '/\.align.*,0x90$$/d' avcall-i386.s) > avcall-i386.S
+	(echo '#include "asmi386.h"' ; sed -e '/\.align.*,0x90$$/d' < avcall-i386.s | ./asmi386.sh) > avcall-i386.S
 	$(RM) avcall-i386.s
 
-avcall-i386-msvc.c : avcall-i386.S asmi386.sh
-	./asmi386.sh < avcall-i386.S > avcall-i386-msvc.c
+avcall-i386-msvc.c : avcall-i386.S
+	cp -p avcall-i386.S avcall-i386-msvc.c
 
 avcall.h.msvc : avcall.h.in
 	sed -e 's,^#undef __i386__$$,#define __i386__ 1,' -e 's,^#undef __SMALL_STRUCT_RETURN__$$,#define __SMALL_STRUCT_RETURN__ 1,' < avcall.h.in > avcall.h.msvc
 
-avcall-m68k.mit.s : avcall-m68k.c avcall.h.in
+avcall-m68k.mit.S : avcall-m68k.c avcall.h.in asmm68k.sh
 	$(GCC) -V egcs-2.91.57 -b m68k-sun $(GCCFLAGS) -D__m68k__ -S avcall-m68k.c -o avcall-m68k.mit.s
+	(echo '#include "asmm68k.h"' ; ./asmm68k.sh < avcall-m68k.mit.s) > avcall-m68k.mit.S
+	$(RM) avcall-m68k.mit.s
 
 avcall-m68k.mot.s : avcall-m68k.c avcall.h.in
 	$(GCC) -V egcs-2.91.57 -b m68k-linux $(GCCFLAGS) -D__m68k__ -S avcall-m68k.c -o avcall-m68k.mot.s
@@ -29,20 +31,24 @@ avcall-m68k.mot.s : avcall-m68k.c avcall.h.in
 avcall-m68k-amiga.s : avcall-m68k-amiga.c avcall.h.in
 	$(GCC) -V egcs-2.91.57 -b m68k-sun -m68000 $(GCCFLAGS) -D__m68k__ -DAMIGA -S avcall-m68k-amiga.c -o avcall-m68k-amiga.s
 
-avcall-mips.s : avcall-mips.c avcall.h.in
+avcall-mips.S : avcall-mips.c avcall.h.in asmmips.sh
 	$(GCC) -V 2.6.3 -b mips-sgi $(GCCFLAGS) -D__mips__ -fno-omit-frame-pointer -S avcall-mips.c -o avcall-mips.s
+	(echo '#include "asmmips.h"' ; ./asmmips.sh < avcall-mips.s) > avcall-mips.S
+	$(RM) avcall-mips.s
 
-avcall-mipsn32.s : avcall-mipsn32.c avcall.h.in
+avcall-mipsn32.S : avcall-mipsn32.c avcall.h.in asmmips.sh
 	$(GCC) -V egcs-2.91.57 -b mips-sgi-irix6 $(GCCFLAGS) -D__mipsn32__ -fno-omit-frame-pointer -S avcall-mipsn32.c -o avcall-mipsn32.s
+	(echo '#include "asmmips.h"' ; ./asmmips.sh < avcall-mipsn32.s) > avcall-mipsn32.S
+	$(RM) avcall-mipsn32.s
 
-avcall-mips64.s : avcall-mips64.c avcall.h.in
-	$(GCC) -V 2.6.3 -b mips-sgi -mips3 -mlong64 $(GCCFLAGS) -U__mips__ -D__mips64__ -fno-omit-frame-pointer -S avcall-mips64.c -o avcall-mips64-temp.s
-	grep -v '_compiled' < avcall-mips64-temp.s > avcall-mips64.s
-	$(RM) avcall-mips64-temp.s
+avcall-mips64.S : avcall-mips64.c avcall.h.in asmmips.sh
+	$(GCC) -V 2.6.3 -b mips-sgi -mips3 -mlong64 $(GCCFLAGS) -U__mips__ -D__mips64__ -fno-omit-frame-pointer -S avcall-mips64.c -o avcall-mips64.s
+	(echo '#include "asmmips.h"' ; ./asmmips.sh < avcall-mips64.s) > avcall-mips64.S
+	$(RM) avcall-mips64.s
 
-avcall-sparc.S : avcall-sparc.c avcall.h.in
+avcall-sparc.S : avcall-sparc.c avcall.h.in asmsparc.sh
 	$(GCC) -V 2.6.3 -b sparc-sun $(GCCFLAGS) -D__sparc__ -S avcall-sparc.c -o avcall-sparc.s
-	(cat underscore.h ; sed -e 's/_\(_[A-Za-z_:]*\)/C(\1)/' avcall-sparc.s) > avcall-sparc.S
+	(echo '#include "asmsparc.h"' ; ./asmsparc.sh < avcall-sparc.s) > avcall-sparc.S
 	$(RM) avcall-sparc.s
 
 # Patrick Bridges says that on Linux/Alpha, avcall-alpha.s compiled with "-O"
@@ -57,8 +63,10 @@ avcall-hppa.s : avcall-hppa.c avcall.h.in
 	$(SED) -e 's/120/1060/g' < avcall-hppa-temp.s > avcall-hppa.s
 	$(RM) avcall-hppa-temp.s
 
-avcall-arm.s : avcall-arm.c avcall.h.in
+avcall-arm.S : avcall-arm.c avcall.h.in asmarm.sh
 	$(GCC) -V 2.6.3 -b arm-acorn-riscix $(GCCFLAGS) -D__arm__ -S avcall-arm.c -o avcall-arm.s
+	(echo '#include "asmarm.h"' ; ./asmarm.sh < avcall-arm.s) > avcall-arm.S
+	$(RM) avcall-arm.s
 
 avcall-rs6000-aix.old.s : avcall-rs6000.c avcall.h.in
 	$(GCC) -V egcs-2.91.57 -b rs6000 -mno-power -mno-power2 -mno-powerpc -mold-mnemonics $(GCCFLAGS) -D__rs6000__ -S avcall-rs6000.c -o avcall-rs6000-aix.old.s
