@@ -8,11 +8,11 @@
 # Directories used by "make install":
 prefix = 
 exec_prefix = $(prefix)
-bindir = $(exec_prefix)\bin
-mandir = $(exec_prefix)\man
+bindir  = $(exec_prefix)\bin
+mandir  = $(exec_prefix)\share\man
 htmldir = $(exec_prefix)\share\html
-dvidir = $(exec_prefix)\share\dvi
-docdir = $(exec_prefix)\doc
+dvidir  = $(exec_prefix)\share\dvi
+docdir  = $(exec_prefix)\share\doc
 lispdocdir = $(docdir)\clisp
 libdir = $(exec_prefix)\lib
 lisplibdir = $(libdir)\clisp
@@ -419,6 +419,7 @@ german.lisp \
 french.lisp \
 spanish.lisp \
 dutch.lisp \
+deprecated.lisp \
 config.lisp
 
 FASFILES = \
@@ -469,6 +470,7 @@ german.fas \
 french.fas \
 spanish.fas \
 dutch.fas \
+deprecated.fas \
 config.fas
 
 TXTFILES = \
@@ -524,6 +526,7 @@ stage\german.lisp \
 stage\french.lisp \
 stage\spanish.lisp \
 stage\dutch.lisp \
+stage\deprecated.lisp \
 stage\config.lisp
 
 TESTFASFILES = \
@@ -574,6 +577,7 @@ stage\german.fas \
 stage\french.fas \
 stage\spanish.fas \
 stage\dutch.fas \
+stage\deprecated.fas \
 stage\config.fas
 
 
@@ -1233,6 +1237,15 @@ locale :
 	$(LN_S) gettext\po\nl.gmo locale\nl\LC_MESSAGES\clisp.mo
 
 
+iconv.h libiconv.a :
+	builddir="`pwd`"; cd libiconv && $(MAKE) && $(MAKE) install-lib libdir="$$builddir" includedir="$$builddir"
+
+libcharset.h :
+	builddir="`pwd`"; cd libiconv/libcharset && $(MAKE) && $(MAKE) install-lib libdir="$$builddir" includedir="$$builddir"
+
+sigsegv.h libsigsegv.a :
+	builddir="`pwd`"; cd sigsegv && $(MAKE) && $(MAKE) check && $(MAKE) install-lib libdir="$$builddir" includedir="$$builddir"
+
 UnicodeData.txt :
 	$(LN_S) ..\utils\unicode\ftp.unicode.org\UnicodeData.txt UnicodeData.txt
 
@@ -1397,6 +1410,9 @@ spanish.fas : spanish.lisp lisp.exe halfcompiled.mem
 dutch.fas : dutch.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c dutch.lisp
 
+deprecated.fas : deprecated.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1000KW -M halfcompiled.mem -q -c deprecated.lisp
+
 config.fas : config.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c config.lisp
 
@@ -1412,7 +1428,7 @@ lispinit.mem : lisp.exe $(FASFILES)
 
 
 # Perform self-tests.
-check : test
+check : test testsuite
 
 # Test: recompile $(LISPFILES) and compare their contents.
 test : lispinit.mem stage $(TESTLISPFILES) $(TESTFASFILES)
@@ -1563,6 +1579,9 @@ stage\spanish.lisp : spanish.lisp
 stage\dutch.lisp : dutch.lisp
 	$(LN_S) dutch.lisp stage
 
+stage\deprecated.lisp : deprecated.lisp
+	$(LN_S) deprecated.lisp stage
+
 stage\config.lisp : config.lisp
 	$(LN_S) config.lisp stage
 
@@ -1710,6 +1729,9 @@ stage\spanish.fas : stage\spanish.lisp lisp.exe stage\testinit.mem
 stage\dutch.fas : stage\dutch.lisp lisp.exe stage\testinit.mem
 	$(RUN) -M stage\testinit.mem -q -c stage/dutch.lisp
 
+stage\deprecated.fas : stage\deprecated.lisp lisp.exe stage\testinit.mem
+	$(RUN) -M stage\testinit.mem -q -c stage/deprecated.lisp
+
 stage\config.fas : stage\config.lisp lisp.exe stage\testinit.mem
 	$(RUN) -M stage\testinit.mem -q -c stage/config.lisp
 
@@ -1719,11 +1741,24 @@ lispinit2.mem : lisp.exe $(TESTFASFILES)
 	$(MV) lispimag.mem lispinit2.mem
 
 
+testsuite : suite lisp.exe lispinit.mem
+	LISP="`pwd`/lisp.exe -M `pwd`/lispinit.mem -B `pwd` -N `pwd`/locale -Efile UTF-8 -norc"; export LISP; cd suite; $(MAKE) LISP="$$LISP"
+
+suite :
+	-mkdir suite
+	cd suite && $(LN_S) ../../tests/Makefile .
+	cd suite && $(LN_S) ../../tests/*.lisp .
+	cd suite && $(LN_S) ../../tests/*.tst .
+
+
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
-MANUALS = clisp.1 clisp.html $(TXTFILES) impnotes.html clisp.gif clreadline.3 clreadline.html clreadline.dvi readline.dvi
+MANUALS = clisp.1 clisp.html $(TXTFILES) impnotes.html clisp.png clreadline.3 clreadline.html clreadline.dvi readline.dvi
 
 impnotes.html : ..\doc\impnotes.html
 	$(CP) ..\doc\impnotes.html impnotes.html
+
+clisp.png : ..\doc\clisp.png
+	$(CP) ..\doc\clisp.png clisp.png
 
 manual : $(READMES) $(MANUALS)
 
@@ -1876,7 +1911,7 @@ clean4 : clean3
 clean5 : clean4
 	-$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY
 	-$(RM) config.lisp
-	-$(RM) comment5.exe ansidecl.exe ccpaux.exe deema.exe txt2c.exe ccmp2c.exe modprep.exe
+	-$(RM) comment5.exe ansidecl.exe varbrace.exe ccpaux.exe deema.exe txt2c.exe ccmp2c.exe modprep.exe
 
 # clean6 lets us go back to "makemake > Makefile".
 clean6 : clean5

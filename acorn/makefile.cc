@@ -8,11 +8,11 @@
 # Directories used by "make install":
 prefix = 
 exec_prefix = $(prefix)
-bindir = $(exec_prefix).bin
-mandir = $(exec_prefix).man
+bindir  = $(exec_prefix).bin
+mandir  = $(exec_prefix).man.share
 htmldir = $(exec_prefix).html.share
-dvidir = $(exec_prefix).dvi.share
-docdir = $(exec_prefix).doc
+dvidir  = $(exec_prefix).dvi.share
+docdir  = $(exec_prefix).share.doc
 lispdocdir = $(docdir).clisp
 libdir = $(exec_prefix).lib
 lisplibdir = $(libdir).clisp
@@ -422,6 +422,7 @@ lisp.german \
 lisp.french \
 lisp.spanish \
 lisp.dutch \
+lisp.deprecated \
 lisp.config
 
 FASFILES = \
@@ -472,6 +473,7 @@ fas.german \
 fas.french \
 fas.spanish \
 fas.dutch \
+fas.deprecated \
 fas.config
 
 TXTFILES = \
@@ -527,6 +529,7 @@ stage.lisp.german \
 stage.lisp.french \
 stage.lisp.spanish \
 stage.lisp.dutch \
+stage.lisp.deprecated \
 stage.lisp.config
 
 TESTFASFILES = \
@@ -577,6 +580,7 @@ stage.fas.german \
 stage.fas.french \
 stage.fas.spanish \
 stage.fas.dutch \
+stage.fas.deprecated \
 stage.fas.config
 
 
@@ -1674,6 +1678,15 @@ o.noreadline : c.noreadline c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.c
 o.ariarm : s.ariarm
 	objasm -Stamp -Quit -CloseExec -from s.ariarm -o o.ariarm
 
+h.iconv libiconv.a :
+	builddir="`pwd`"; cd libiconv && $(MAKE) && $(MAKE) install-lib libdir="$$builddir" includedir="$$builddir"
+
+h.libcharset :
+	builddir="`pwd`"; cd libiconv/libcharset && $(MAKE) && $(MAKE) install-lib libdir="$$builddir" includedir="$$builddir"
+
+h.sigsegv libsigsegv.a :
+	builddir="`pwd`"; cd sigsegv && $(MAKE) && $(MAKE) check && $(MAKE) install-lib libdir="$$builddir" includedir="$$builddir"
+
 txt.UnicodeData :
 	$(LN_S) ^.utils.unicode.ftp.unicode.org.txt.UnicodeData txt.UnicodeData
 
@@ -1835,6 +1848,9 @@ fas.spanish : lisp.spanish lisp mem.halfcomp
 fas.dutch : lisp.dutch lisp mem.halfcomp
 	$(RUN) -m 1000KW -M mem.halfcomp -q -c dutch.lisp
 
+fas.deprecated : lisp.deprecated lisp mem.halfcomp
+	$(RUN) -m 1000KW -M mem.halfcomp -q -c deprecated.lisp
+
 fas.config : lisp.config lisp mem.halfcomp
 	$(RUN) -m 1000KW -M mem.halfcomp -q -c config.lisp
 
@@ -1850,7 +1866,7 @@ mem.lispinit : lisp $(FASFILES)
 
 
 # Perform self-tests.
-check : test
+check : test testsuite
 	$(TOUCH) check
 
 # Test: recompile $(LISPFILES) and compare their contents.
@@ -2001,6 +2017,9 @@ stage.lisp.spanish : lisp.spanish
 stage.lisp.dutch : lisp.dutch
 	$(LN_S) lisp.dutch stage
 
+stage.lisp.deprecated : lisp.deprecated
+	$(LN_S) lisp.deprecated stage
+
 stage.lisp.config : lisp.config
 	$(LN_S) lisp.config stage
 
@@ -2148,6 +2167,9 @@ stage.fas.spanish : stage.lisp.spanish lisp stage.mem.testinit
 stage.fas.dutch : stage.lisp.dutch lisp stage.mem.testinit
 	$(RUN) -M stage.mem.testinit -q -c stage.dutch.lisp
 
+stage.fas.deprecated : stage.lisp.deprecated lisp stage.mem.testinit
+	$(RUN) -M stage.mem.testinit -q -c stage.deprecated.lisp
+
 stage.fas.config : stage.lisp.config lisp stage.mem.testinit
 	$(RUN) -M stage.mem.testinit -q -c stage.config.lisp
 
@@ -2157,11 +2179,24 @@ mem.lispinit2 : lisp $(TESTFASFILES)
 	$(MV) mem.lispimag mem.lispinit2
 
 
+testsuite : suite lisp mem.lispinit
+	LISP="`pwd`/lisp -M `pwd`/mem.lispinit -B `pwd` -Efile UTF-8 -norc"; export LISP; cd suite; $(MAKE) LISP="$$LISP"
+
+suite :
+	-mkdir suite
+	cd suite && $(LN_S) ^.^.tests/Makefile .
+	cd suite && $(LN_S) ^.^.tests/*.lisp .
+	cd suite && $(LN_S) ^.^.tests/*.tst .
+
+
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README_de README_es
-MANUALS = 1.clisp html.clisp $(TXTFILES) html.impnotes clisp.gif
+MANUALS = 1.clisp html.clisp $(TXTFILES) html.impnotes clisp.png
 
 html.impnotes : ^.doc.html.impnotes
 	$(CP) ^.doc.html.impnotes html.impnotes
+
+clisp.png : ^.doc.clisp.png
+	$(CP) ^.doc.clisp.png clisp.png
 
 manual : $(READMES) $(MANUALS)
 	$(TOUCH) manual
@@ -2305,7 +2340,7 @@ clean4 : clean3
 clean5 : clean4
 	-$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY
 	-$(RM) lisp.config
-	-$(RM) comment5 ansidecl ccpaux deema txt2c ccmp2c modprep
+	-$(RM) comment5 ansidecl varbrace ccpaux deema txt2c ccmp2c modprep
 
 # clean6 lets us go back to "makemake > Makefile".
 clean6 : clean5
