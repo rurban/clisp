@@ -2377,6 +2377,20 @@ for-value   NIL or T
 ;; 6. keyword-list
 ;; 7. allow-other-keys-p
 (defun function-signature (obj &optional no-error)
+  ;; what if the function has been redefined in this file already?
+  ;; if it has been redefined above, we must use the signature
+  ;; from the above definition!
+  (let ((kf (assoc obj *known-functions* :test #'equal)) known-sig)
+    (when kf        ; use the signature from the above definition!
+      (setq known-sig (third kf))
+      (return-from function-signature
+        (values (first kf)
+                (sig-req-num  known-sig)
+                (sig-opt-num  known-sig)
+                (sig-rest-p   known-sig)
+                (sig-keys-p   known-sig)
+                (sig-keywords known-sig)
+                (sig-allow-p  known-sig)))))
   (when (and (function-name-p obj) (fboundp obj))
     (setq obj (fdefinition obj)))
   (if (closurep obj)
@@ -6246,23 +6260,23 @@ for-value   NIL or T
     (when (simple-function-form-p funform) ; #'symbol
       (let ((fun (second funform)))
         (test-list funform 2 2)
-        (multiple-value-bind (name req opt rest-p key-p keylist allow-p)
-            (function-signature fun t) ; global functions only
-          (unless name          ; fun is either local or undefined
-            (multiple-value-bind (a m f1 f2 f3) (fenv-search fun)
-              (declare (ignore m f1 f2))
-              (when a           ; fun is local
-                (setq name fun
-                      req (fnode-req-anz (car f3))
-                      opt (fnode-opt-anz (car f3))
-                      rest-p (fnode-rest-flag (car f3))
-                      key-p (fnode-keyword-flag (car f3))
-                      keylist (fnode-keywords (car f3))
-                      allow-p (fnode-allow-other-keys-flag (car f3))))))
-          (if (and name (eq fun name))
+        (let (name req opt rest-p key-p keylist allow-p)
+          (multiple-value-bind (a m f1 f2 f3) (fenv-search fun)
+            (declare (ignore m f1 f2))
+            (if a           ; fun is local
+              (setq name fun
+                    req (fnode-req-anz (car f3))
+                    opt (fnode-opt-anz (car f3))
+                    rest-p (fnode-rest-flag (car f3))
+                    key-p (fnode-keyword-flag (car f3))
+                    keylist (fnode-keywords (car f3))
+                    allow-p (fnode-allow-other-keys-flag (car f3)))
+              (multiple-value-setq (name req opt rest-p key-p keylist allow-p)
+                (function-signature fun t))) ; global functions only
+            (if (and name (eq fun name))
               (test-argument-syntax args apply-args fun req opt rest-p
                                     key-p keylist allow-p)
-              (note-function-used fun args apply-args)))
+              (note-function-used fun args apply-args))))
         (unless (declared-notinline fun) ; can fun be taken INLINE?
           (flet ((c-LOCAL-APPLY (fdescr)
                    (multiple-value-bind
