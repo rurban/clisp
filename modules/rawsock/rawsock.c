@@ -51,6 +51,18 @@
 #if defined(HAVE_POLL_H)
 # include <poll.h>
 #endif
+#if defined(HAVE_WINSOCK2_H)
+# include <winsock2.h>
+# define SHUT_RD   SD_RECEIVE
+# define SHUT_WR   SD_SEND
+# define SHUT_RDWR SD_BOTH
+  typedef SOCKET rawsock_t;
+#else
+  typedef int rawsock_t;
+#endif
+#if defined(HAVE_WS2TCPIP_H)
+# include <ws2tcpip.h>
+#endif
 
 DEFMODULE(rawsock,"RAWSOCK")
 
@@ -133,7 +145,7 @@ DEFUN(RAWSOCK:MAKE-SOCKADDR,family data) {
 /* invoke system call C, place return value in R, report error on socket S */
 #define SYSCALL(r,s,c)                                  \
   do { begin_system_call(); r = c; end_system_call();   \
-    if (r<0) {                                          \
+    if (r == -1) {                                      \
       if (s<=0) OS_error();                             \
       else OS_file_error(fixnum(s));                    \
     }                                                   \
@@ -159,7 +171,7 @@ DEFCHECKER(check_socket_protocol, ETH_P_LOOP ETH_P_PUP ETH_P_PUPAT ETH_P_IP \
            ETH_P_IRDA ETH_P_ECONET)
 
 DEFUN(RAWSOCK:SOCKET,domain type protocol) {
-  int sock;
+  rawsock_t sock;
   int protocol = check_socket_protocol(popSTACK());
   int type = check_socket_type(popSTACK());
   int domain = check_socket_domain(popSTACK());
@@ -167,14 +179,17 @@ DEFUN(RAWSOCK:SOCKET,domain type protocol) {
   VALUES1(fixnum(sock));
 }
 
+#if defined(HAVE_SOCKETPAIR)    /* not on win32 */
 DEFUN(RAWSOCK:SOCKETPAIR,domain type protocol) {
-  int sock[2], retval;
+  rawsock_t sock[2];
+  int retval;
   int protocol = check_socket_protocol(popSTACK());
   int type = check_socket_type(popSTACK());
   int domain = check_socket_domain(popSTACK());
   SYSCALL(retval,-1,socketpair(domain,type,protocol,sock));
   VALUES2(fixnum(sock[0]),fixnum(sock[1]));
 }
+#endif
 
 /* process optional (struct sockaddr*) argument:
    NIL: return NULL
@@ -192,7 +207,8 @@ void optional_sockaddr_argument (gcv_object_t *arg, struct sockaddr**sa,
 }
 
 DEFUN(RAWSOCK:ACCEPT,socket sockaddr) {
-  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  rawsock_t sock = posfixnum_to_L(check_posfixnum(STACK_1));
+  int retval;
   struct sockaddr *sa = NULL;
   socklen_t sa_size;
   optional_sockaddr_argument(&STACK_0,&sa,&sa_size);
@@ -202,7 +218,8 @@ DEFUN(RAWSOCK:ACCEPT,socket sockaddr) {
 }
 
 DEFUN(RAWSOCK:BIND,socket sockaddr) {
-  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  rawsock_t sock = posfixnum_to_L(check_posfixnum(STACK_1));
+  int retval;
   size_t size;
   struct sockaddr *sa =
     (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,STACK_0,&size);
@@ -212,7 +229,8 @@ DEFUN(RAWSOCK:BIND,socket sockaddr) {
 }
 
 DEFUN(RAWSOCK:CONNECT,socket sockaddr) {
-  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  rawsock_t sock = posfixnum_to_L(check_posfixnum(STACK_1));
+  int retval;
   size_t size;
   struct sockaddr *sa =
     (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,STACK_0,&size);
@@ -222,7 +240,8 @@ DEFUN(RAWSOCK:CONNECT,socket sockaddr) {
 }
 
 DEFUN(RAWSOCK:GETPEERNAME,socket sockaddr) {
-  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  rawsock_t sock = posfixnum_to_L(check_posfixnum(STACK_1));
+  int retval;
   struct sockaddr *sa = NULL;
   socklen_t sa_size;
   optional_sockaddr_argument(&STACK_0,&sa,&sa_size);
@@ -232,7 +251,8 @@ DEFUN(RAWSOCK:GETPEERNAME,socket sockaddr) {
 }
 
 DEFUN(RAWSOCK:GETSOCKNAME,socket sockaddr) {
-  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  rawsock_t sock = posfixnum_to_L(check_posfixnum(STACK_1));
+  int retval;
   struct sockaddr *sa = NULL;
   socklen_t sa_size;
   optional_sockaddr_argument(&STACK_0,&sa,&sa_size);
@@ -243,7 +263,8 @@ DEFUN(RAWSOCK:GETSOCKNAME,socket sockaddr) {
 
 DEFUN(RAWSOCK:LISTEN,socket backlog) {
   int backlog = posfixnum_to_L(check_posfixnum(popSTACK()));
-  int sock = posfixnum_to_L(check_posfixnum(popSTACK())), retval;
+  rawsock_t sock = posfixnum_to_L(check_posfixnum(popSTACK()));
+  int retval;
   SYSCALL(retval,sock,listen(sock,backlog));
   VALUES0;
 }
@@ -262,7 +283,8 @@ DEFUN(RAWSOCK:POLL,sockets) {
 DEFFLAGSET(recv_flags,MSG_PEEK MSG_OOB MSG_WAITALL)
 DEFUN(RAWSOCK:RECV,socket buffer &key MSG_PEEK MSG_OOB MSG_WAITALL) {
   int flags = recv_flags();
-  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  rawsock_t sock = posfixnum_to_L(check_posfixnum(STACK_1));
+  int retval;
   size_t buffer_len;
   void *buffer = parse_buffer_arg(&STACK_0,&buffer_len);
   SYSCALL(retval,sock,recv(sock,buffer,buffer_len,flags));
@@ -272,7 +294,8 @@ DEFUN(RAWSOCK:RECV,socket buffer &key MSG_PEEK MSG_OOB MSG_WAITALL) {
 DEFUN(RAWSOCK:RECVFROM, socket buffer address \
       &key MSG_PEEK MSG_OOB MSG_WAITALL) {
   int flags = recv_flags();
-  int sock = posfixnum_to_L(check_posfixnum(STACK_2)), retval;
+  rawsock_t sock = posfixnum_to_L(check_posfixnum(STACK_2));
+  int retval;
   struct sockaddr *sa = NULL;
   void *buffer;
   size_t buffer_len;
@@ -286,18 +309,22 @@ DEFUN(RAWSOCK:RECVFROM, socket buffer address \
   VALUES3(fixnum(retval),fixnum(sa_size),STACK_0); skipSTACK(3);
 }
 
+#if defined(HAVE_RECVMSG)       /* not on win32 */
 DEFUN(RAWSOCK:RECVMSG,socket message &key MSG_PEEK MSG_OOB MSG_WAITALL) {
   int flags = recv_flags();
-  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  rawsock_t sock = posfixnum_to_L(check_posfixnum(STACK_1));
+  int retval;
   size_t size;
   struct msghdr *message =
     (struct msghdr*)check_struct_data(`RAWSOCK::MSGHDR`,STACK_0,&size);
   SYSCALL(retval,sock,recvmsg(sock,message,flags));
   VALUES1(fixnum(retval)); skipSTACK(2);
 }
+#endif
 
 DEFUN(RAWSOCK:SOCK-READ,socket buffer) {
-  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  rawsock_t sock = posfixnum_to_L(check_posfixnum(STACK_1));
+  int retval;
   size_t buffer_len;
   void *buffer = parse_buffer_arg(&STACK_0,&buffer_len);
   SYSCALL(retval,sock,read(sock,buffer,buffer_len));
@@ -311,26 +338,31 @@ DEFUN(RAWSOCK:SOCK-READ,socket buffer) {
 DEFFLAGSET(send_flags, MSG_OOB MSG_EOR)
 DEFUN(RAWSOCK:SEND,socket buffer &key MSG_OOB MSG_EOR) {
   int flags = send_flags();
-  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  rawsock_t sock = posfixnum_to_L(check_posfixnum(STACK_1));
+  int retval;
   size_t buffer_len;
   void *buffer = parse_buffer_arg(&STACK_0,&buffer_len);
   SYSCALL(retval,sock,send(sock,buffer,buffer_len,flags));
   VALUES1(fixnum(retval)); skipSTACK(2);
 }
 
+#if defined(HAVE_SENDMSG)       /* not on win32 */
 DEFUN(RAWSOCK:SENDMSG,socket message &key MSG_OOB MSG_EOR) {
   int flags = send_flags();
-  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  rawsock_t sock = posfixnum_to_L(check_posfixnum(STACK_1));
+  int retval;
   size_t size;
   struct msghdr *message =
     (struct msghdr*)check_struct_data(`RAWSOCK::MSGHDR`,STACK_0,&size);
   SYSCALL(retval,sock,sendmsg(sock,message,flags));
   VALUES1(fixnum(retval)); skipSTACK(2);
 }
+#endif
 
 DEFUN(RAWSOCK:SENDTO, socket buffer address &key MSG_OOB MSG_EOR) {
   int flags = send_flags();
-  int sock = posfixnum_to_L(check_posfixnum(STACK_2)), retval;
+  rawsock_t sock = posfixnum_to_L(check_posfixnum(STACK_2));
+  int retval;
   struct sockaddr *sa;
   void *buffer;
   size_t buffer_len, size;
@@ -345,7 +377,8 @@ DEFUN(RAWSOCK:SENDTO, socket buffer address &key MSG_OOB MSG_EOR) {
 }
 
 DEFUN(RAWSOCK:SOCK-WRITE,socket buffer) {
-  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  rawsock_t sock = posfixnum_to_L(check_posfixnum(STACK_1));
+  int retval;
   size_t buffer_len;
   void *buffer = parse_buffer_arg(&STACK_0,&buffer_len);
   SYSCALL(retval,sock,write(sock,buffer,buffer_len));
@@ -353,14 +386,19 @@ DEFUN(RAWSOCK:SOCK-WRITE,socket buffer) {
 }
 
 DEFUN(RAWSOCK:SOCK-CLOSE, socket) {
-  int sock = posfixnum_to_L(check_posfixnum(popSTACK())), retval;
+  rawsock_t sock = posfixnum_to_L(check_posfixnum(popSTACK()));
+  int retval;
+#if defined(HAVE_WINSOCK2_H)
+  SYSCALL(retval,sock,closesocket(sock));
+#else
   SYSCALL(retval,sock,close(sock));
+#endif
   VALUES1(fixnum(retval));
 }
 
 DEFUN(RAWSOCK:SHUTDOWN, socket direction) {
   direction_t direction = check_direction(popSTACK());
-  int sock = posfixnum_to_L(check_posfixnum(popSTACK()));
+  rawsock_t sock = posfixnum_to_L(check_posfixnum(popSTACK()));
   int how, retval;
   switch (direction) {
     case DIRECTION_PROBE: case DIRECTION_IO: how = SHUT_RDWR; break;
@@ -372,8 +410,9 @@ DEFUN(RAWSOCK:SHUTDOWN, socket direction) {
   VALUES1(fixnum(retval));
 }
 
+#if defined(HAVE_NET_IF_H)
 /* STACK_1 = name, for error reporting */
-static void configdev (int sock, char* name, int ipaddress, int flags) {
+static void configdev (rawsock_t sock, char* name, int ipaddress, int flags) {
   struct ifreq ifrequest;
 #if defined(SIOCGIFFLAGS) && defined(SIOCSIFFLAGS)
   memset(&ifrequest, 0, sizeof(struct ifreq));
@@ -407,7 +446,7 @@ DEFFLAGSET(configdev_flags,IFF_PROMISC IFF_NOARP)
 DEFUN(RAWSOCK:CONFIGDEV, socket name ipaddress &key PROMISC NOARP) {
   int flags = configdev_flags();
   uint32_t ipaddress = I_to_UL(check_uint32(STACK_0));
-  int sock = posfixnum_to_L(check_posfixnum(STACK_2));
+  rawsock_t sock = posfixnum_to_L(check_posfixnum(STACK_2));
   with_string_0(check_string(STACK_1),Symbol_value(S(utf_8)),name, {
       begin_system_call();
       configdev(sock, name, ipaddress, flags);
@@ -415,6 +454,7 @@ DEFUN(RAWSOCK:CONFIGDEV, socket name ipaddress &key PROMISC NOARP) {
     });
   VALUES0; skipSTACK(3);
 }
+#endif  /* HAVE_NET_IF_H */
 
 /* ================== CHECKSUM from Fred Cohen ================== */
 
