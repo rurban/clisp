@@ -1,6 +1,6 @@
 # Foreign language interface for CLISP
 # Marcus Daniels 8.4.1994
-# Bruno Haible 21.1.1995, 23.6.1995
+# Bruno Haible 1995-1999
 
 #include "lispbibl.c"
 #include "arilev0.c" # für mulu32_unchecked

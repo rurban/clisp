@@ -1,5 +1,5 @@
 # Include-File für UNIX-Version von CLISP
-# Bruno Haible 22.9.1997
+# Bruno Haible 1990-1999
 
 
 # Konstanten für Steuerzeichen:

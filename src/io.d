@@ -1,5 +1,5 @@
 # Ein-/Ausgabe für CLISP
-# Bruno Haible 16.9.1997
+# Bruno Haible 1990-1999
 # Marcus Daniels 11.3.1997
 
 #include "lispbibl.c"

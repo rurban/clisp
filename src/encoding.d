@@ -1,5 +1,5 @@
 # Encodings (character sets and conversions) for CLISP
-# Bruno Haible 8.11.1998
+# Bruno Haible 1998-1999
 
 #include "lispbibl.c"
 

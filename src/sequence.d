@@ -1,5 +1,5 @@
 # Sequences für CLISP
-# Bruno Haible 28.3.1997
+# Bruno Haible 1987-1999
 
 #include "lispbibl.c"
 

@@ -1,5 +1,5 @@
 # n log(n) - Sortierroutine für CLISP
-# Bruno Haible 9.6.1992
+# Bruno Haible 1992-1999
 
 # Ziel: Eine feste Anzahl n von Elementen zu sortieren,
 # mit maximalem Zeitaufwand von O(n log(n)),

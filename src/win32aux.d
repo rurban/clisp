@@ -1,5 +1,5 @@
 # Auxiliary functions for CLISP on Win32
-# Bruno Haible 11.9.1997
+# Bruno Haible 1997-1999
 
 #include "lispbibl.c"
 

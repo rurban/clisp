@@ -1,5 +1,5 @@
 # List of all relocatable machine pointers
-# Bruno Haible 4.4.1999
+# Bruno Haible 1990-1999
 
 # There are three kinds of relocatable pointers:
 #   LPSEUDOCODE(fun)                    local C function defined in stream.d

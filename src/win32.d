@@ -1,5 +1,5 @@
 # Include file for WIN32_NATIVE version of CLISP
-# Bruno Haible 13.9.1997
+# Bruno Haible 1997-1999
 
 
 # Konstanten für Steuerzeichen:
