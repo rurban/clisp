@@ -3156,8 +3156,16 @@ local uintC directory_namestring_parts (object pathname) {
       var object string = wild2string(device);
       pushSTACK(string);
       stringcount++; # and count
+      pushSTACK(O(colon_string)); 
+      stringcount++; # ":"
     }
   }
+ #endif
+ #if defined(PATHNAME_WIN32) || defined(PATHNAME_UNIX)
+   if (stringcount == 0)   /* only if there's no device already
+                              FIXME: no error when both host and device are
+                              present */
+     stringcount += host_namestring_parts(pathname);
  #endif
  #ifdef PATHNAME_AMIGAOS
   { # Device:
@@ -3190,12 +3198,6 @@ local uintC directory_namestring_parts (object pathname) {
     } else
    #endif
    {
-   #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-    # poss. colon :
-    if (stringcount != 0) { # only if we have something on the STACK already
-      pushSTACK(O(colon_string)); stringcount++; # ":"
-    }
-   #endif
     if (!mconsp(directory)) return stringcount; # just in case
     # is the first subdir = :ABSOLUTE or = :RELATIVE ?
     if (eq(Car(directory),S(Kabsolute))) {
@@ -3325,7 +3327,11 @@ local uintC file_namestring_parts (object pathname) {
 # < result: Normal-Simple-String
 # can trigger GC
 local object whole_namestring (object pathname) {
-  var uintC stringcount = host_namestring_parts(pathname);
+  var uintC stringcount = 0;
+#if !defined(PATHNAME_WIN32) && !defined(PATHNAME_UNIX)
+/* though it seems to make sense only on RISCOS */
+  stringcount += host_namestring_parts(pathname);
+#endif
   stringcount += directory_namestring_parts(pathname);
   stringcount += file_namestring_parts(pathname);
   return string_concat(stringcount);
@@ -6595,36 +6601,45 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
       if (TrueName(path,resolved))
         substitute = true;
       else { # A file doesn't exist. Maybe dir does ?
-	error = true; # let's be pessimistic
-	if (!nullp(Cdr(ThePathname(STACK_0)->pathname_directory))) {
-	  var uintL len = Sstring_length(directory_namestring(STACK_0));
-	  ASSERT((len > 0) && (path[len-1] == '\\'));
-	  path[len - 1] = '\0'; # replace '\' at the end with nullbyte
-	  if (TrueName(path,resolved)) {
-            # substitute only directory part
-            var DWORD fileattr = GetFileAttributes(resolved);
-	    # resolved to a file ? Only directories allowed - nonmaskable error
-	    if (fileattr == 0xFFFFFFFF || !(fileattr & FILE_ATTRIBUTE_DIRECTORY)) {
-	      SetLastError(ERROR_DIRECTORY);
-	      end_system_call(); OS_file_error(STACK_0);
-	    }
-	    # have to add '\' to avoid last component loss
-	    strcat(resolved,"\\");
-	    var object resolved_string = asciz_to_string(resolved,O(pathname_encoding));
-	    # substitute immediately - w/o substitute flag
-	    # turn it into a pathname and use its Directory:
-	    var object resolved_pathname = coerce_pathname(resolved_string);
-	    ThePathname(STACK_0)->pathname_directory
-	      = ThePathname(resolved_pathname)->pathname_directory;
-	    error = false;
-	  }
-	}
+        error = true; # let's be pessimistic
+        if (!nnullp) {
+          var uintL lastslashpos = strlen(path) - 1;
+          while (lastslashpos > 0 && path[lastslashpos]!=slash) lastslashpos--;
+          if (path[lastslashpos]==slash) {
+            path[lastslashpos + 1] = '\0'; /* leave only path without name */
+            if (TrueName(path,resolved)) {
+              # substitute only directory part
+              var DWORD fileattr = GetFileAttributes(resolved);
+              # resolved to a file ? Only directories allowed - nonmaskable error
+              if (fileattr == 0xFFFFFFFF
+                  || !(fileattr & FILE_ATTRIBUTE_DIRECTORY)) {
+                SetLastError(ERROR_DIRECTORY);
+                end_system_call(); OS_file_error(STACK_0);
+              }
+              pushSTACK(asciz_to_string(resolved,O(pathname_encoding)));
+              # substitute immediately - w/o substitute flag
+              # turn it into a pathname and use it with old name:
+              pushSTACK(coerce_pathname(STACK_0));
+              /* save old pathname name and type components */
+              pushSTACK(ThePathname(STACK_2)->pathname_name);
+              pushSTACK(ThePathname(STACK_3)->pathname_type);
+              STACK_4 = STACK_2;
+              ThePathname(STACK_4)->pathname_name = STACK_1;
+              ThePathname(STACK_4)->pathname_type = STACK_0;
+              skipSTACK(4);
+              error = false;
+            }
+          }
+        }
       }
     }
     end_system_call();
     if (error) {
       if (tolerantp) return nullobj;
-      fehler_dir_not_exists(directory_namestring(STACK_0));
+      pushSTACK(copy_pathname(STACK_0));
+      ThePathname(STACK_0)->pathname_name = NIL;
+      ThePathname(STACK_0)->pathname_type = NIL;
+      fehler_dir_not_exists(popSTACK());
     }
     if (substitute) {
       var object resolved_string = asciz_to_string(resolved,O(pathname_encoding));
@@ -7030,11 +7045,11 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
       var char path_buffer[MAXPATHLEN]; # cf. REALPATH(3)
       {
         var object pathname = STACK_0;
-        var uintC stringcount = host_namestring_parts(pathname); # host strings
-        stringcount += directory_namestring_parts(pathname); # directory strings
+        var uintC stringcount = 
+          directory_namestring_parts(pathname); /* host and directory strings */
         pushSTACK(O(dot_string)); # and "."
         var object string = string_concat(stringcount+1); # concatenate
-        # resolve symbolic links therein:
+        /* resolve symbolic links therein: */
         with_sstring_0(string,O(pathname_encoding),string_asciz, {
           begin_system_call();
           if ( realpath(string_asciz,&path_buffer[0]) ==NULL) {
@@ -7049,57 +7064,57 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
           end_system_call();
         });
       }
-      # new Directory-Path must start with '/' :
+      /* new Directory-Path must start with '/' : */
       if (!(path_buffer[0] == '/')) {
-        # STACK_0 = FILE-ERROR slot PATHNAME
+        /* STACK_0 = FILE-ERROR slot PATHNAME */
         pushSTACK(asciz_to_string(&path_buffer[0],O(pathname_encoding)));
         fehler(file_error,GETTEXT("UNIX REALPATH returned ~"));
       }
-      # possibly add a '/' at the end:
+      /* possibly add a '/' at the end: */
       var char* pathptr = &path_buffer[0];
       var uintL len = 0; # string-length
       until (*pathptr == 0) { pathptr++; len++; } # search ASCIZ-string-end
       if (!((len>0) && (pathptr[-1]=='/'))) {
         *pathptr = '/'; len++; # add a '/'
       }
-      # and convert to a string:
+      /* and convert to a string: */
       var object new_string = n_char_to_string(&path_buffer[0],len,O(pathname_encoding));
-      # turn it into a pathname and use its Directory:
+      /* turn it into a pathname and use its Directory: */
       var object new_pathname = coerce_pathname(new_string);
       ThePathname(STACK_0)->pathname_directory
         = ThePathname(new_pathname)->pathname_directory;
     }
   dir_exists:
-    # get information for the addressed file:
+    /* get information for the addressed file: */
     if (namenullp(STACK_0)) # no file addressed?
       return directory_namestring(STACK_0); # yes -> finished
     var object namestring = whole_namestring(STACK_0); # concatenate
-    # get information:
+    /* get information: */
     var local struct stat status;
     with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
       begin_system_call();
       if (!( lstat(namestring_asciz,&status) ==0)) {
         if (!(errno==ENOENT))
           { end_system_call(); OS_file_error(STACK_0); }
-        # file does not exist.
+        /* file does not exist. */
         end_system_call();
         FREE_DYNAMIC_ARRAY(namestring_asciz);
         filestatus = (struct stat *)NULL; return namestring;
       }
       end_system_call();
-      # file exists.
+      /* file exists. */
       if (S_ISDIR(status.st_mode)) { # is it a directory?
-        # STACK_0 = FILE-ERROR slot PATHNAME
+        /* STACK_0 = FILE-ERROR slot PATHNAME */
         pushSTACK(whole_namestring(STACK_0));
         pushSTACK(TheSubr(subr_self)->name);
         fehler(file_error,GETTEXT("~: ~ names a directory, not a file"));
       }
      if_HAVE_LSTAT(
       else if (possible_symlink(namestring_asciz) && S_ISLNK(status.st_mode)) {
-        # is it a symbolic link?
-        # yes -> continue resolving:
+        /* is it a symbolic link?
+           yes -> continue resolving: */
         if (allowed_links==0) { # no more links allowed?
-          # yes -> simulate UNIX-Error ELOOP
+          /* yes -> simulate UNIX-Error ELOOP */
           begin_system_call();
           errno = ELOOP_VALUE;
           end_system_call();
@@ -7110,7 +7125,7 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
       retry_readlink:
         {
           var DYNAMIC_ARRAY(linkbuf,char,linklen+1); # buffer for the Link-content
-          # read link-content:
+          /* read link-content: */
           begin_system_call();
           {
             var int result = readlink(namestring_asciz,linkbuf,linklen);
@@ -7121,8 +7136,8 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
               FREE_DYNAMIC_ARRAY(linkbuf); linklen = result; goto retry_readlink;
             }
           }
-          # turn it into a pathname:
-          # (MERGE-PATHNAMES (PARSE-NAMESTRING linkbuf) pathname-without-name&type)
+          /* turn it into a pathname:
+             (MERGE-PATHNAMES (PARSE-NAMESTRING linkbuf) pathname-without-name&type) */
           pushSTACK(n_char_to_string(linkbuf,linklen,O(pathname_encoding)));
           FREE_DYNAMIC_ARRAY(linkbuf);
         }
@@ -7143,9 +7158,9 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
   }
 }
 
-# the same under the assumption, that the directory already exists.
-# (only a little simplification, as the file can be a symbolic link into a
-# different directory, and this must be tested to exist.)
+/* the same under the assumption, that the directory already exists.
+   (only a little simplification, as the file can be a symbolic link into a
+   different directory, and this must be tested to exist.) */
 global object assume_dir_exists (void) {
   var object ret;
   with_saved_back_trace(L(open),-1,ret=assure_dir_exists(true,false));
@@ -10903,13 +10918,14 @@ local int shell_quote (char * dest, const char * source) {
   return dcp - dest;
 }
 
-/* (LAUNCH executable [:arguments] [:wait] [:input] [:output] [:error])
+/* (LAUNCH executable [:arguments] [:wait] [:input] [:output] [:error] [:priority])
  Launches a program.
  :arguments : a list of strings
  :wait - nullp/not nullp - whether to wait for process to finish (default T)
  :input, :output, :error - i/o/e streams for process. basically file-streams
    or terminal-streams. see stream_lend_handle() in stream.d for full list
    of supported streams
+ :priority : on windows : HIGH/LOW/NORMAL on UNIX : fixnum - see nice(2)
  returns: if wait exit code, child PID otherwise */
 LISPFUN(launch,seclass_default,1,0,norest,key,6,
         (kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority))) {
