@@ -14427,7 +14427,19 @@ LISPFUN(make_stream,seclass_default,1,0,norest,key,4,
     STACK_4 = value1;
     goto restart_make_stream;
   }
-  VALUES1(handle_to_stream(fd,STACK_3,STACK_0,STACK_1,STACK_2));
+  var Handle new_handle;
+  begin_system_call();
+#if defined(UNIX)
+  new_handle = dup(fd);
+#elif defined(WIN32_NATIVE)
+  if (!DuplicateHandle(GetCurrentProcess(),fd,
+                       GetCurrentProcess(),new_handle,
+                       0, true, DUPLICATE_SAME_ACCESS))
+    { OS_error(); }
+#else
+  #error "how do you duplicate handles on your OS?"
+#endif
+  VALUES1(handle_to_stream(new_handle,STACK_3,STACK_0,STACK_1,STACK_2));
   skipSTACK(5);
 }
 

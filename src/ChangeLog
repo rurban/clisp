@@ -1,3 +1,8 @@
+2004-10-22  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (MAKE-STREAM): really duplicate the handle, as per the spec
+	Reported by Pascal J.Bourguignon <pjb@informatimago.com>
+
 2004-10-15  Bruno Haible  <bruno@clisp.org>
 
 	* defstruct.lisp (defstruct): Take the slots list and instance size
