@@ -1,7 +1,7 @@
 # Pathnames für CLISP
 # Bruno Haible 1990-2001
 # Logical Pathnames: Marcus Daniels 16.9.1994
-# ANSI compliance: Sam Steingold 1999-2000
+# ANSI compliance, bugs: Sam Steingold 1999-2001
 
 #include "lispbibl.c"
 
@@ -5174,12 +5174,14 @@ LISPFUNN(pathname_match_p,2)
 
   # Hier wünscht man sich nicht Lisp oder C, sondern PROLOG als Sprache!
 
+  # (PUSH previous solutions)
   #define push_solution()  \
     { var object new_cons = allocate_cons(); \
       Car(new_cons) = *previous;             \
       Cdr(new_cons) = *solutions;            \
       *solutions = new_cons;                 \
     }
+  # (PUSH (CONS new_piece previous) solutions)
   #define push_solution_with(new_piece)  \
     { pushSTACK(new_piece);                                   \
      {var object new_cons = allocate_cons();                  \
@@ -5308,7 +5310,11 @@ LISPFUNN(pathname_match_p,2)
         if (!equal(muster,beispiel)) return;
         #endif
       }
+      #if HAS_HOST
+      push_solution_with(S(Khost));
+      #else
       push_solution();
+      #endif
     }
   local void device_diff(muster,beispiel,logical,previous,solutions)
     var object muster;
@@ -5317,11 +5323,11 @@ LISPFUNN(pathname_match_p,2)
     var const object* previous;
     var object* solutions;
     {
-      #if HAS_DEVICE
       #ifdef LOGICAL_PATHNAMES
       if (logical) {
         push_solution(); return;
       }
+      #if HAS_DEVICE
       #endif
       #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
       if (nullp(muster) || eq(muster,S(Kwild))) {
@@ -5348,8 +5354,10 @@ LISPFUNN(pathname_match_p,2)
       #else
       if (!equal(muster,beispiel)) return;
       #endif
-      #endif
+      push_solution_with(S(Kdevice));
+      #else # if HAS_DEVICE
       push_solution();
+      #endif
     }
   local void nametype_diff_aux (object muster, object beispiel, bool logical, const object* previous, object* solutions);
   local void nametype_diff_aux(muster,beispiel,logical,previous,solutions)
@@ -5673,7 +5681,8 @@ LISPFUNN(pathname_match_p,2)
 
 #endif
 
-# UP: Eine Substitution auf ein Muster anwenden.
+#define RET_POP(var) { object ret=Car(*var); *var=Cdr(*var); return ret; }
+# apply substitution SUBST to the MUSTER.
 # translate_pathname(&subst,muster)
   local object translate_pathname (object* subst, object muster);
 # translate_host(&subst,muster,logical) etc. liefert den host etc. mit Ersetzungen
@@ -5689,29 +5698,30 @@ LISPFUNN(pathname_match_p,2)
     var object muster;
     var bool logical;
     {
+#define TRAN_HOST(subst,muster)                                         \
+        if (nullp(muster) && mconsp(*subst)) {                          \
+          if (simple_string_p(Car(*subst)) || nullp(Car(*subst))) {     \
+            RET_POP(subst);                                             \
+          } else if (eq(Car(*subst),S(Khost))) {                        \
+            *subst = Cdr(*subst);                                       \
+            return muster;                                              \
+          } else                                                        \
+            return nullobj;                                             \
+        }
       #ifdef LOGICAL_PATHNAMES
       if (logical) {
-        if (nullp(muster) && mconsp(*subst)) {
-          if (simple_string_p(Car(*subst)) || nullp(Car(*subst))) {
-            var object erg = Car(*subst); *subst = Cdr(*subst);
-            return erg;
-          } else
-            return nullobj;
-        }
+        TRAN_HOST(subst,muster);
       } else
       #endif
       {
         #if HAS_HOST
-        if (nullp(muster) && mconsp(*subst)) {
-          if (simple_string_p(Car(*subst)) || nullp(Car(*subst))) {
-            var object erg = Car(*subst); *subst = Cdr(*subst);
-            return erg;
-          } else
-            return nullobj;
-        }
+        TRAN_HOST(subst,muster);
+        if (eq(Car(*subst),S(Khost)))
+          *subst = Cdr(*subst);
         #endif
       }
       return muster;
+#undef TRAN_HOST
     }
   local object translate_device(subst,muster,logical)
     var object* subst;
@@ -5730,11 +5740,15 @@ LISPFUNN(pathname_match_p,2)
       #endif
         {
           if (simple_string_p(Car(*subst)) || nullp(Car(*subst))) {
-            var object erg = Car(*subst); *subst = Cdr(*subst);
-            return erg;
+            RET_POP(subst);
+          } else if (eq(Car(*subst),S(Kdevice))) {
+            *subst = Cdr(*subst);
+            return muster;
           } else
             return nullobj;
         }
+      if (eq(Car(*subst),S(Kdevice)))
+        *subst = Cdr(*subst);
       #endif
       return muster;
     }
@@ -5859,8 +5873,7 @@ LISPFUNN(pathname_match_p,2)
     {
       if (nullp(muster) && mconsp(*subst)) {
         if (simple_string_p(Car(*subst)) || nullp(Car(*subst))) {
-          var object erg = Car(*subst); *subst = Cdr(*subst);
-          return erg;
+          RET_POP(subst);
         } else
           return nullobj;
       }
@@ -5908,6 +5921,7 @@ LISPFUNN(pathname_match_p,2)
       return NIL;
       #endif
     }
+#undef RET_POP
   local object translate_pathname(subst,muster)
     var object* subst;
     var object muster;
