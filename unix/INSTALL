@@ -156,6 +156,15 @@ some platforms can be found in file unix/PLATFORMS.
 
          make check
 
+   If you build with some modules, you can test those of them that come
+   with a test suite with:
+
+         make full-check
+
+   Note that the modules may use external libraries, and test failures
+   may indicate bugs in those libraries rather than in CLISP.
+   See the specific test suite for detail.
+
 9. Edit the `prefix' variable in the makefile (you could also have specified
    it as command line option --prefix=... to `configure' in step 3), then type
 
