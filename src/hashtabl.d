@@ -80,7 +80,7 @@
  ht_kvtable             key-value-vector, vector of length 2*MAXCOUNT
  ht_freelist            start-index of the free-list in next-vector
  ht_count               number of entries in the table, Fixnum >=0, <=MAXCOUNT
- ht_rehash_size         groth-rate on reorganization. Float >1.1
+ ht_rehash_size         growth-rate on reorganization. Float >1.1
  ht_mincount_threshold  ratio MINCOUNT/MAXCOUNT = 1/rehash-size^2
  ht_mincount            Fixnum>=0, lower bound for COUNT
  ht_test                hash-table-test - for define-hash-table-test
@@ -94,6 +94,18 @@
 # Rotates a hashcode x by n bits to the left (0<n<32).
 # rotate_left(n,x)
   #define rotate_left(n,x)  (((x) << (n)) | ((x) >> (32-(n))))
+
+#define HT_GOOD_P(ht)                                   \
+  (posfixnump(TheHashtable(ht)->ht_size) &&             \
+   posfixnump(TheHashtable(ht)->ht_maxcount) &&         \
+   posfixnump(TheHashtable(ht)->ht_count) &&            \
+   posfixnump(TheHashtable(ht)->ht_mincount) &&         \
+   simple_vector_p(TheHashtable(ht)->ht_itable) &&      \
+   (vector_length(TheHashtable(ht)->ht_itable) ==       \
+    posfixnum_to_L(TheHashtable(ht)->ht_size)) &&       \
+   simple_vector_p(TheHashtable(ht)->ht_ntable) &&      \
+   (vector_length(TheHashtable(ht)->ht_ntable) ==       \
+    posfixnum_to_L(TheHashtable(ht)->ht_maxcount)))
 
 # mixes two hashcodes.
 # one is rotated by 5 bits, then the other one is XOR-ed to it.
@@ -883,12 +895,12 @@ local object rehash (object ht) {
   var object count = Fixnum_0;
   var bool user_defined_p = (ht_test_code(record_flags(TheHashtable(ht)))==0);
   while (!eq(index,Fixnum_0)) { /* index=0 -> loop finished */
-    # traverse the key-value-vector and the next-vector.
-    # index = MAXCOUNT,...,0 (Fixnum),
-    # Nptr = &TheSvector(Nptr)->data[index],
-    # KVptr = &TheSvector(KVptr)->data[index],
-    # freelist = freelist up to now,
-    # count = pair-coutner as fixnum.
+    /* traverse the key-value-vector and the next-vector.
+       index = MAXCOUNT,...,0 (Fixnum),
+       Nptr = &TheSvector(Nvektor)->data[index],
+       KVptr = &TheSvector(kvtable)->data[index],
+       freelist = freelist up to now,
+       count = pair-coutner as fixnum. */
     index = fixnum_inc(index,-1); # decrement index
     KVptr -= 2;
     var object key = KVptr[0]; # next key
@@ -898,7 +910,7 @@ local object rehash (object ht) {
       if (user_defined_p) { /* restore - don't have to restore fixnums! */
         /* this implementation favors built-in ht-tests at the expense
            of the user-defined ones */
-        var uintL idx = posfixnum_to_L(index);
+        var uintL idx = posfixnum_to_L(index)+1;
         ht = popSTACK();
         Ivektor = TheHashtable(ht)->ht_itable;
         Nvektor = TheHashtable(ht)->ht_ntable;
@@ -937,25 +949,28 @@ local object rehash (object ht) {
 local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
                         gcv_object_t** Nptr_, gcv_object_t** Iptr_) {
   var uintB flags = record_flags(TheHashtable(ht));
-  if (!ht_validp(TheHashtable(ht))) /* hash-table must still be reorganized */
-    ht = rehash(ht);
   var bool user_defined_p = (ht_test_code(flags)==0);
-  if (user_defined_p) { pushSTACK(ht); pushSTACK(obj); }
-  var uintL hashindex = hashcode(ht,obj); # calculate hashcode
-  if (user_defined_p) { obj = popSTACK(); ht = popSTACK(); }
+  var uintL hashindex;
+  if (user_defined_p) { /* guard for GC */
+    pushSTACK(ht); pushSTACK(obj);
+    if (!ht_validp(TheHashtable(ht))) /* hash-table must be reorganized */
+      ht = rehash(ht);
+    obj = STACK_0; /* rehash could trigger GC */
+    hashindex = hashcode(ht,obj); /* calculate hashcode */
+    obj = popSTACK(); ht = popSTACK();
+  } else { /* no GC possible */
+    if (!ht_validp(TheHashtable(ht))) /* hash-table must be reorganized */
+      ht = rehash(ht);
+    hashindex = hashcode(ht,obj); /* calculate hashcode */
+  }
   var gcv_object_t* Nptr = # pointer to the current entry
     &TheSvector(TheHashtable(ht)->ht_itable)->data[hashindex];
   var gcv_object_t* kvt_data = ht_kvt_data(ht);
   var uintL i_n; /* Iptr-Nptr */
   var uintL size = posfixnum_to_L(TheHashtable(ht)->ht_size);
-  if (!ht_test_code(flags))
-    fprintf(stderr,"\n size=%d",size);
   while (!eq(*Nptr,nix)) { /* track "list" : "list" finished -> not found */
     var int index = posfixnum_to_L(*Nptr); # next index
     var gcv_object_t* Iptr = Nptr;
-    if (!ht_test_code(flags))
-      fprintf(stderr,"\nindex=%d",index);
-    if (index>size) abort();
     Nptr = # pointer to entry in next-vector
       TheSvector(TheHashtable(ht)->ht_ntable)->data + index;
     var gcv_object_t* KVptr = # pointer to entries in key-value-vector

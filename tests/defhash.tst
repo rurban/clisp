@@ -43,9 +43,9 @@ string
 nil
 
 (let ((h (make-hash-table
-          :test `(,(lambda (a b) (print (list '= a b)) (= a b)) .
+          :test `(,(lambda (a b) (list (list '= a b)) (= a b)) .
                   ,(lambda (x) (let ((z (sxhash (coerce x 'double-float))))
-                                 (print `((hash ,x) => ,z)) z))))))
+                                 (list `((hash ,x) => ,z)) z))))))
   (loop :for i :from 0 :to 1000
     :do (setf (gethash i h) (format nil "~r" i)))
   (loop :for i :from 0 :to 1000
