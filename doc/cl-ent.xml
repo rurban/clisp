@@ -135,7 +135,7 @@
 <!-- *** CLHS - Common Lisp HyperSpec *** -->
 
 <!-- *** misc *** -->
-<!ENTITY lambda-expr "<ulink url='&clhs;/Body/glo_l.html#lambda_expression'>lambda expression</ulink>">
+<!ENTITY lambda-expr "<ulink url='&clhs;/Body/sec_3-1-3.html'>lambda expression</ulink>">
 <!ENTITY repl "<ulink url='&clhs;/Body/sec_25-1-1.html'>read-eval-print loop</ulink>">
 <!ENTITY iter-form "<ulink url='&clhs;/Body/glo_i.html#iteration_form'>iteration form</ulink>">
 <!ENTITY alist "<ulink url='&clhs;/Body/glo_a.html#association_list'>alist</ulink>">
@@ -157,7 +157,6 @@
 <!ENTITY funname "<ulink url='&clhs;/Body/glo_f.html#function_name'>function name</ulink>">
 <!ENTITY ext-obj "<ulink url='&clhs;/Body/sec_3-2-4-1.html'>externalizable object</ulink>">
 <!ENTITY spelalist "<ulink url='&clhs;/Body/sec_3-4-3.html'>specialized lambda list</ulink>">
-<!ENTITY laexpr "<ulink url='&clhs;/Body/sec_3-1-3.html'>lambda expression</ulink>">
 <!ENTITY comp-unit "<ulink url='&clhs;/Body/glo_c.html#compilation_unit'>compilation unit</ulink>">
 <!ENTITY declaration-specifier-glo "<ulink url='&clhs;/Body/glo_d.html#declaration_specifier'>declaration specifier</ulink>">
 <!ENTITY proper-list-glo "<ulink url='&clhs;/Body/glo_p.html#proper_list'>proper list</ulink>">
