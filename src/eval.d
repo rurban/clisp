@@ -2603,7 +2603,7 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
     {
       /* halve argcount --> the number of pairs Key.Value: */
       if (argcount%2) /* number was odd -> not paired: */
-        fehler_key_odd(argcount,fun);
+        fehler_key_odd(argcount,TheSubr(fun)->name);
       if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
         fehler_too_many_args(unbound,fun,argcount,ca_limit_1);
       # Due to argcount <= ca_limit_1, all count's fit in a uintC.
@@ -2680,7 +2680,7 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
     {
       /* halve argcount --> the number of pairs Key.Value: */
       if (argcount%2) /* number was odd -> not paired: */
-        fehler_key_odd(argcount,closure);
+        fehler_key_odd(argcount,TheClosure(closure)->clos_name);
       if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
         fehler_too_many_args(unbound,closure,argcount,ca_limit_1);
       # Due to argcount <= ca_limit_1, all count's fit in a uintC.
