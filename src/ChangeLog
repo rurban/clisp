@@ -1,5 +1,9 @@
 2004-10-18  Sam Steingold  <sds@gnu.org>
 
+	* clos-print.lisp (compute-effective-method): avoid a compiler warning
+
+2004-10-18  Sam Steingold  <sds@gnu.org>
+
 	* fill-out.lisp (right-margin, fill-stream-text-indent): new functions
 	(fill-stream, fill-stream-flush-buffer): use them
 	(fill-stream-line-position): renamed from LINE-POS
