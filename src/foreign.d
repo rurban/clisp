@@ -4173,7 +4173,6 @@ LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
 LISPFUNN(close_foreign_library,1) {
   var object lib_cons = find_library(popSTACK());
   if (consp(lib_cons)) {
-    /* FIXME: Many missing type checks! */
     var object library = Car(Cdr(lib_cons));
     if (fp_validp(TheFpointer(library)))
       close_library(library);
