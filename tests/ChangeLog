@@ -1,6 +1,7 @@
 2004-06-01  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (run-test): bind *PRINT-CIRCLE* to T
+	* iofkts.tst (*PRINT-CIRCLE*): updated
 
 2004-06-01  Sam Steingold  <sds@gnu.org>
 

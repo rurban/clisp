@@ -276,8 +276,9 @@ T
 *PRINT-PRETTY*
 NIL
 
+;; bound to T by RUN-TEST
 *PRINT-CIRCLE*
-NIL
+T ; NIL
 
 *PRINT-BASE*
 10
