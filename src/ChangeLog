@@ -1,3 +1,10 @@
+2004-04-22  Bruno Haible  <bruno@clisp.org>
+
+	Make it compile with g++ 3.4.
+	* lispbibl.d (offsetofa): Define differently for C++.
+	(restartf_t): Define with nonreturning for C, without nonreturning
+	for C++.
+
 2004-04-21  Bruno Haible  <bruno@clisp.org>
 
 	* stream.d (handle_to_stream): Fix begin/end_system_call() calls.
