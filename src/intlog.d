@@ -885,7 +885,7 @@
       __asm__("bsch/1 %1,%0" : "=g" (zero_counter) : "g" ((uint32)(digit)) ); \
       size_zuweisung (32-zero_counter);                                       \
     }
-#elif defined(GNU) && defined(RS6000) && !defined(UNIX_LINUX) && !defined(NO_ASM)
+#elif defined(GNU) && defined(RS6000) && !defined(UNIX_LINUX) && !defined(UNIX_RHAPSODY) && !defined(NO_ASM)
   #define integerlength32(digit,size_zuweisung)  \
     { var uintL zero_counter; # zählt die führenden Nullbits in digit        \
       __asm__("cntlz %0,%1" : "=r" (zero_counter) : "r" ((uint32)(digit)) ); \

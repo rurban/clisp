@@ -54,6 +54,15 @@
     #undef MMAP_SIZE_T
     #undef RETMMAPTYPE
   #endif
+  #ifdef UNIX_RHAPSODY
+    # Ignore mmap and friends, because the configure test says no working mmap.
+    #undef HAVE_MMAP
+    #undef HAVE_MUNMAP
+    #undef MMAP_ADDR_T
+    #undef MMAP_SIZE_T
+    #undef RETMMAPTYPE
+    #undef HAVE_WORKING_MPROTECT
+  #endif
   #if defined(HAVE_MMAP) || defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_ANONYMOUS) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MMAP_DEVZERO_SUN4_29)
     #include <sys/types.h>
     #include <sys/mman.h>
@@ -106,10 +115,11 @@
   #endif
   #ifdef HAVE_MACH_VM # Funktionen vm_allocate(), task_self(), ... vorhanden
     # Die Header-Files von UNIX_NEXTSTEP müssen ja unbeschreiblich aussehen...
+    #include <sys/time.h> /* needed for <sys/resource.h> on UNIX_RHAPSODY */
     #include <sys/resource.h>
     #undef local
     #include <mach/mach_interface.h>
-    #ifdef UNIX_NEXTSTEP
+    #if defined(UNIX_NEXTSTEP) || defined(UNIX_RHAPSODY)
       #include <mach/mach_init.h>
     #endif
     #ifdef UNIX_OSF

@@ -1940,6 +1940,7 @@ CL_PROTO_TRY([
 #include <unistd.h>
 #endif
 #include <sys/types.h>
+#include <sys/time.h>
 #include <sys/resource.h>
 ],
 [int getrlimit (enum __rlimit_resource resource, struct rlimit * rlim);],
@@ -1957,6 +1958,7 @@ CL_PROTO_CONST([
 #include <unistd.h>
 #endif
 #include <sys/types.h>
+#include <sys/time.h>
 #include <sys/resource.h>
 ], [int setrlimit (RLIMIT_RESOURCE_T resource, struct rlimit * rlim);],
 [int setrlimit();],

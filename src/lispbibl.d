@@ -52,6 +52,7 @@
 # Apple MacII  Apple              A/UX (UNIX SYS V 2)           GNU           [__]unix, [__]AUX, [__]macII, [__]m68k, mc68020, mc68881, __GNUC__
 # NeXT         NeXT               NeXTstep 3.1 (UNIX)           cc            NeXT, m68k; NEXTAPP für NeXTstep-Applikation
 # PowerPC      Apple              Mach 3.0 + MkLinux            GNU           unix, __powerpc__, __PPC__, _ARCH_PPC, _CALL_SYSV, __ELF__, __linux__
+# PowerPC      Apple              Mach + Rhapsody               cc            __MACH__, __APPLE__, __ppc[__], __GNUC__, __APPLE_CC__
 # Sequent      Sequent            PTX 3.2.0 V2.1.0 i386 (SYS V) GNU           unix, i386, _SEQUENT_, __GNUC__
 # Sequent      Sequent            PTX V4.1.3                    GNU           unix, i386, _SEQUENT_, __svr4__, __GNUC__
 # Convex C2    Convex             ConvexOS 10.1                 GNU           __convex__, __GNUC__
@@ -78,7 +79,7 @@
 
 
 # diese Maschine: AMIGA oder ACORN oder DOSPC oder WIN32 oder GENERIC_UNIX
-#if (defined(__unix) || defined(__unix__) || defined(_AIX) || defined(sinix) || defined(__POSIX__)) && !defined(unix)
+#if (defined(__unix) || defined(__unix__) || defined(_AIX) || defined(sinix) || defined(__MACH__) || defined(__POSIX__)) && !defined(unix)
   #define unix
 #endif
 #if (defined(amiga) || defined(AMIGA))
@@ -138,7 +139,7 @@
 # HPPA == alle Prozessoren der HP-Precision-Architecture
 # MIPS == der Mips-Prozessor
 # M88000 == alle Prozessoren der Motorola-88000-Serie
-# RS6000 == der IBM-RS/6000-Prozessor
+# RS6000 == der IBM-RS/6000-Prozessor oder die PowerPC-Variante
 # I80386 == alle Prozessoren der Intel-8086-Serie ab 80386
 # VAX == der VAX-Prozessor
 # CONVEX == der Convex-Prozessor
@@ -193,7 +194,7 @@
   #ifdef m88000
     #define M88000
   #endif
-  #if defined(_IBMR2) || defined(__powerpc)
+  #if defined(_IBMR2) || defined(__powerpc) || defined(__ppc)
     #define RS6000
   #endif
   #ifdef __convex__
@@ -298,6 +299,9 @@
                            # zu bekommen.
     #define MAYBE_NEXTAPP  # kleiner Hack, damit die .mem Files zwischen
                            # clisp mit NEXTAPP und ohne NEXTAPP kompatibel sind
+  #endif
+  #if defined(__APPLE__) && defined(__MACH__)
+    #define UNIX_RHAPSODY  # MacOS X Server, a.k.a. Rhapsody
   #endif
   #ifdef AMIX
     #define UNIX_AMIX  # Amiga UNIX
@@ -524,7 +528,10 @@
   #if defined(GNU) && (__GNUC__ == 2) && (__GNUC_MINOR__ == 7)
     #undef const
     #define const
-    #define __const
+    #define __const const
+    # We define __const to const, not to empty, to avoid warnings on
+    # UNIX_RHAPSODY, which unconditionally defines __const to const when
+    # <sys/cdefs.h> is included via <setjmp.h> below.
     #ifdef MULTITHREAD
       #warning "Multithreading will not be efficient because of a workaround to a gcc bug."
       #warning "Get a newer version of gcc."

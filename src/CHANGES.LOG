@@ -153,6 +153,8 @@ Portability
 
 * Added support for SPARC running Linux.
 
+* Added support for Apple PowerPC running MacOS X Server (a.k.a. Rhapsody).
+
 * Improved support for m68k running Linux.
 
 * Added build instructions for Win32 using MSVC 6.0.
