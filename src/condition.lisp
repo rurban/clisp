@@ -1173,13 +1173,13 @@ abort continue muffle-warning store-value use-value
 (defun prompt-for-new-value (place)
   (let ((nn (length (nth-value 2 (get-setf-expansion place)))))
     (cond ((= nn 1)
-           (format *query-io* (prompt-for-new-value-string) place)
-           (list (read *query-io*)))
+           (format *debug-io* (prompt-for-new-value-string) place)
+           (list (read *debug-io*)))
           ((do ((ii 1 (1+ ii)) res)
                ((> ii nn) (nreverse res))
-             (format *query-io* (TEXT "~%New ~S [value ~D of ~D]: ")
+             (format *debug-io* (TEXT "~%New ~S [value ~D of ~D]: ")
                      place ii nn)
-             (push (read *query-io*) res))))))
+             (push (read *debug-io*) res))))))
 
 ;; CHECK-TYPE, CLtL2 p. 889
 (defmacro check-type (place typespec &optional (string nil))
@@ -1538,10 +1538,10 @@ Todo:
         (case (and res-int (closure-name res-int))
           ((assert-restart-no-prompts)
            (if (interactive-stream-p *debug-io*)
-               (invoke-debugger condition)
-               (exitunconditionally condition)))
+             (invoke-debugger condition)
+             (exitunconditionally condition)))
           ((assert-restart-prompt) ; prompt for new values
-           (if (interactive-stream-p *query-io*)
+           (if (interactive-stream-p *debug-io*)
              (progn
                (write-string "** - Continuable Error" *error-output*)
                (terpri *error-output*)

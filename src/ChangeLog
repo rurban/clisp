@@ -21,6 +21,7 @@
 	new functions
 	(muffle-cerrors): use MUFFLE-CERROR
 	(appease-cerror): use MAYBE-CONTINUE
+	(prompt-for-new-value): interact via *DEBUG-IO*, not *QUERY-IO*
 
 2002-04-22  Sam Steingold  <sds@gnu.org>
 
