@@ -1,3 +1,9 @@
+2004-08-20  Sam Steingold  <sds@gnu.org>
+
+	* conditions.tst (use-value-read): renamed from
+	use-value-string->symbol, use READ instead of INTERN,
+	handle SOURCE-PROGRAM-ERROR; added 2 tests that use it
+
 2004-08-11  Sam Steingold  <sds@gnu.org>
 
 	* conditions.tst: disable tests that rely on lambda list errors
