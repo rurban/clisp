@@ -4243,6 +4243,12 @@ typedef iarray_ *  Iarray;
     #define Array_type_svector     svector_type      # Svector
     # Array_type_simple_bit_vector(atype)
     # maps Atype_[n]Bit to Array_type_sb[n]vector. Depends on TB0, TB1, TB2.
+    # The formula works because there are only 4 possible cases:
+    #  (TB0,TB1,TB2)   formula
+    #    (0, 1, 2)      atype
+    #    (0, 1, 3)      atype + (atype & -4)
+    #    (0, 2, 3)      atype + (atype & -2)
+    #    (1, 2, 3)      atype + (atype & -1) = atype << 1
     #define Array_type_simple_bit_vector(atype)  \
       (Array_type_sbvector + ((atype)<<TB0) + ((atype)&(bit(TB0+1)-bit(TB1))) + ((atype)&(bit(TB1+1)-bit(TB2))))
   #else
@@ -4264,6 +4270,27 @@ typedef iarray_ *  Iarray;
     #define Array_type_sb32vector  Rectype_Sb32vector  # Sbvector
     #define Array_type_sstring     Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring   # Sstring, SmallSstring
     #define Array_type_svector     Rectype_Svector     # Svector
+  #endif
+# Determining the atype of a [simple-]bit-array:
+  #define sbNvector_atype(obj)  \
+    type_bits_to_atype(Array_type(obj) - Array_type_sbvector)
+  #define bNvector_atype(obj)  \
+    type_bits_to_atype(Array_type(obj) - Array_type_bvector)
+  #ifdef TYPECODES
+    # There are only 4 cases:
+    #  (TB0,TB1,TB2)   formula
+    #    (0, 1, 2)      type
+    #    (0, 1, 3)      (type + (type & 3)) >> 1 = type - ((type & -8) >> 1)
+    #    (0, 2, 3)      (type + (type & 1)) >> 1 = type - ((type & -4) >> 1)
+    #    (1, 2, 3)      type >> 1                = type - ((type & -2) >> 1)
+    #if TB2 > 2
+      #define type_bits_to_atype(type)  \
+        (((type) + ((type)&(bit(6-TB0-TB1-TB2)-1))) >> 1)
+    #else
+      #define type_bits_to_atype(type)  (type)
+    #endif
+  #else
+    #define type_bits_to_atype(type)  (type)
   #endif
 
 # Packages

@@ -1,3 +1,12 @@
+2000-02-29  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * lispbibl.d (sbNvector_atype, bNvector_atype, type_bits_to_atype):
+          New macros.
+        * array.d (copy_sbvector, array_element_type, test_displaced): Use
+          sbNvector_atype and bNvector_atype.
+        * hashtabl.d (hashcode_bvector): Use sbNvector_atype.
+        * sequence.d (get_seq_type): Use sbNvector_atype and bNvector_atype.
+
 2000-02-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * makemake.in: Don't install emacs/*.el any more.

@@ -311,7 +311,7 @@
       var uintL index = 0;
       var object sbv = array_displace_check(obj,len,&index);
       # sbv der Datenvektor, index ist der Index in den Datenvektor.
-      len = len << (Array_type(sbv) - Array_type_sbvector);
+      len = len << sbNvector_atype(sbv);
       #if BIG_ENDIAN_P && (varobject_alignment%2 == 0)
         # Bei Big-Endian-Maschinen kann man gleich mit 16 Bit auf einmal arbeiten
         # (sofern varobject_alignment durch 2 Byte teilbar ist):

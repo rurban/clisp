@@ -40,7 +40,7 @@
   global object copy_sbvector(vector)
     var object vector;
     {
-      var uintB atype = Array_type(vector) - Array_type_sbvector;
+      var uintB atype = sbNvector_atype(vector);
       var uintL length = Sbvector_length(vector);
       pushSTACK(vector);
       var object newvector = allocate_bit_vector(atype,length); # vector of same length
@@ -827,14 +827,14 @@ LISPFUNN(row_major_store,3)
         case Array_type_sb8vector: # Simple-8Bit-Vector -> (UNSIGNED-BYTE 8)
         case Array_type_sb16vector: # Simple-16Bit-Vector -> (UNSIGNED-BYTE 16)
         case Array_type_sb32vector: # Simple-32Bit-Vector -> (UNSIGNED-BYTE 32)
-          atype = Array_type(array) - Array_type_sbvector;
+          atype = sbNvector_atype(array);
           break;
         case Array_type_b2vector: # 2Bit-Vector -> (UNSIGNED-BYTE 2)
         case Array_type_b4vector: # 4Bit-Vector -> (UNSIGNED-BYTE 4)
         case Array_type_b8vector: # 8Bit-Vector -> (UNSIGNED-BYTE 8)
         case Array_type_b16vector: # 16Bit-Vector -> (UNSIGNED-BYTE 16)
         case Array_type_b32vector: # 32Bit-Vector -> (UNSIGNED-BYTE 32)
-          atype = Array_type(array) - Array_type_bvector;
+          atype = bNvector_atype(array);
           break;
         case Array_type_svector:
         case Array_type_vector: # allg. Vector -> T
@@ -4756,14 +4756,14 @@ local void initial_contents_aux(arg,obj)
           case Array_type_sb8vector:
           case Array_type_sb16vector:
           case Array_type_sb32vector:
-            displaced_eltype = Array_type(STACK_1) - Array_type_sbvector; break;
+            displaced_eltype = sbNvector_atype(STACK_1); break;
           case Array_type_bvector:
           case Array_type_b2vector:
           case Array_type_b4vector:
           case Array_type_b8vector:
           case Array_type_b16vector:
           case Array_type_b32vector:
-            displaced_eltype = Array_type(STACK_1) - Array_type_bvector; break;
+            displaced_eltype = bNvector_atype(STACK_1); break;
           case Array_type_string:
           case Array_type_sstring:
             displaced_eltype = Atype_Char; break;
