@@ -5,9 +5,9 @@ CC = gcc -O
 CFLAGS = -Wall -fomit-frame-pointer -O2
 INCLUDES=.
 CPP = gcc -O -E -w
-CLFLAGS = 
+CLFLAGS =
 
-MODPREP = ../modprep
+MODPREP = ../clisp -q -norc ../modprep
 
 CLISP =
 
@@ -26,7 +26,7 @@ queens.o : queens.c
 	$(CC) $(CFLAGS) -c queens.c
 
 callqueens.m.c : callqueens.c
-	$(MODPREP) callqueens.c > callqueens.m.c
+	$(MODPREP) callqueens.c
 
 callqueens.o : callqueens.m.c
 	$(CC) $(CFLAGS) -I$(INCLUDES) -c callqueens.m.c -o callqueens.o

@@ -2102,13 +2102,14 @@ if [ $XCC_NEED_DEEMA = true -a $HOS != unix ] ; then
 fi
 UTILS=$UTILS' txt2c'
 UTILS=$UTILS' ccmp2c' # needed by clx module
-UTILS=$UTILS' modprep'
 if [ "$CHSCONVERT" = "./cv_lt_at" ] ; then
   UTILS=$UTILS' cv_lt_at'
 fi
 if [ "$CHSCONVERT" = "./cv_lt_pc" ] ; then
   UTILS=$UTILS' cv_lt_pc'
 fi
+LUTILS=''
+LUTILS=$LUTILS' modprep'
 
 PARAMS="intparam floatparam";
 PARAMS_H="";
@@ -2125,9 +2126,8 @@ fi
 if [ $CROSS = true ] ; then
   line=$line" unixconf.h"
 fi
-for util in $UTILS ; do
-  line=$line" ${util}${HEXE}"
-done
+for util in ${UTILS} ;  do line=$line" ${util}${HEXE}"; done
+for util in ${LUTILS} ; do line=$line" ${util}.fas"; done
 line=$line" \$(DFILES) modules.h"
 if [ -n "${SRCDIR}" ] ; then
   for f in $UNICODE_INCLUDES $NLS_INCLUDES ; do
@@ -2167,61 +2167,56 @@ if [ $CROSS = true ] ; then
   echotab "if [ ! -f unixconf.h ] ; then \$(TOUCH) unixconf.h ; fi"
   echol
 fi
-for util in $UTILS ; do
-  if [ $util = ccpaux -o $util = deema -o $util = txt2c -o $util = ccmp2c -o $util = modprep ] ; then
-    flags=''
-    if [ $util = ccmp2c ] ; then
-      flags=' -I.'
-    fi
-    echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
-    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS) ${flags}" "${UTILDIR_CC}${util}.c" "${util}"
-    echol
-  fi
-  if [ $util = cv_lt_pc ] ; then
-    # Only used when $CROSS = true
-    echol "${util}${HEXE} : ${SRCTOPDIR}os2/${util}.c"
-    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${SRCTOPDIR}os2/${util}.c" "${util}"
-    echol
-  fi
-  if [ $util = comment5 ] ; then
-    if [ $CC_NEED_CCPAUX = true ] ; then
-      echol "${util}${HEXE} : ${UTILDIR_M}${util}.c ${CCPAUX}"
-      echotab "${HERE}ccpaux${HEXE} < ${UTILDIR_}${util}.c > ${util}.c"
+for util in ${UTILS} ; do
+  case ${util} in
+    ccpaux | deema | txt2c | ccmp2c )
+      flags=''
+      if [ $util = ccmp2c ] ; then flags=' -I.'; fi
+      echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
+      echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS) ${flags}" "${UTILDIR_CC}${util}.c" "${util}"
+      echol ;;
+    cv_lt_pc )  # Only used when $CROSS = true
+      echol "${util}${HEXE} : ${SRCTOPDIR}os2/${util}.c"
+      echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${SRCTOPDIR}os2/${util}.c" "${util}"
+      echol ;;
+    comment5 )
+      if [ $CC_NEED_CCPAUX = true ] ; then
+        echol "${util}${HEXE} : ${UTILDIR_M}${util}.c ${CCPAUX}"
+        echotab "${HERE}ccpaux${HEXE} < ${UTILDIR_}${util}.c > ${util}.c"
+        echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${util}.c" "${util}"
+        echotab "\$(RM) ${util}.c"
+        echol
+        OBSOLETE=$OBSOLETE" ${util}.c"
+      else
+        echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
+        if [ ${HSYS} = "win32gcc" ]; then
+          # **HACK**: avoid -mno-cygwin so that comment5.exe
+          #           understands symbolic links
+          echotab_to_HEXE "gcc \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}${util}.c" "${util}"
+        else
+          echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}${util}.c" "${util}"
+        fi
+        echol
+      fi
+      ;;
+    ansidecl )
+      flags="${ANSIDECLFLAGS}"
+      echol "${util}${HEXE} : ${UTILDIR_M}${util}.d comment5${HEXE}"
+      echotab "\$(LN_S) ${UTILDIR_}${util}.d ${util}.d"
+      echotab "\$(COMMENT5) ${util}.d ${util}.c"
+      echotab "\$(RM) ${util}.d"
+      echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)${flags}" "${util}.c" "${util}"
+      echotab "\$(RM) ${util}.c"
+      echol
+      OBSOLETE=$OBSOLETE" ${util}.c" ;;
+    varbrace )
+      echol "${util}${HEXE} : ${UTILDIR_M}${util}.d comment5${HEXE} ansidecl${HEXE}"
+      echotabpipe "\$(COMMENT5) ${UTILDIR_CC}${util}.d | \$(ANSIDECL) > ${util}.c"
       echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${util}.c" "${util}"
       echotab "\$(RM) ${util}.c"
       echol
-      OBSOLETE=$OBSOLETE" ${util}.c"
-    else
-      echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
-      if [ ${HSYS} = "win32gcc" ]; then
-        # **HACK**: avoid -mno-cygwin so that comment5.exe
-        #           understands symbolic links
-        echotab_to_HEXE "gcc \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}${util}.c" "${util}"
-      else
-        echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}${util}.c" "${util}"
-      fi
-      echol
-    fi
-  fi
-  if [ $util = ansidecl ] ; then
-    flags="${ANSIDECLFLAGS}"
-    echol "${util}${HEXE} : ${UTILDIR_M}${util}.d comment5${HEXE}"
-    echotab "\$(LN_S) ${UTILDIR_}${util}.d ${util}.d"
-    echotab "\$(COMMENT5) ${util}.d ${util}.c"
-    echotab "\$(RM) ${util}.d"
-    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)${flags}" "${util}.c" "${util}"
-    echotab "\$(RM) ${util}.c"
-    echol
-    OBSOLETE=$OBSOLETE" ${util}.c"
-  fi
-  if [ $util = varbrace ] ; then
-    echol "${util}${HEXE} : ${UTILDIR_M}${util}.d comment5${HEXE} ansidecl${HEXE}"
-    echotabpipe "\$(COMMENT5) ${UTILDIR_CC}${util}.d | \$(ANSIDECL) > ${util}.c"
-    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${util}.c" "${util}"
-    echotab "\$(RM) ${util}.c"
-    echol
-    OBSOLETE=$OBSOLETE" ${util}.c"
-  fi
+      OBSOLETE=$OBSOLETE" ${util}.c" ;;
+  esac
 done
 
 echol
@@ -2748,6 +2743,12 @@ encflags='-Efile UTF-8 -Eterminal UTF-8'
 echol "RUN= ${HERE}lisp${LEXE} ${localeflags} ${encflags} -norc";
 echol;
 
+for f in ${LUTILS} ; do
+  echol "${f}.fas : ${UTILDIR_M}${f}.lisp lisp${LEXE} lispinit.mem"
+  echotab "\$(RUN) -M lispinit.mem -q -c ${UTILDIR_M}${f}.lisp -o ${f}.fas"
+  echol
+done
+
 if [ $CROSS = false ] ; then
 
   echol "$interpreted.mem : lisp${LEXE} \$(LISPFILES)"
@@ -2982,10 +2983,10 @@ echotab "cd linkkit && \$(LN_S) ${PARENT_}modules.d modules.d"
 echotab "cd linkkit && \$(LN_S) ${PARENT_}modules.c modules.c"
 echotab "cd linkkit && \$(LN_S) ${PARENT_}clisp.h clisp.h"
 echol
-echol "exporting.fas : exporting.lisp # lisp${LEXE} lispinit.mem"
+echol "exporting.fas : exporting.lisp lisp${LEXE} lispinit.mem"
 echotab "\$(RUN) -M lispinit.mem -q -c exporting.lisp"
 echol
-echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars exporting.fas"
+echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars exporting.fas modprep.fas"
 echodummyrule modular
 echol
 echol "makevars :"
@@ -3651,7 +3652,10 @@ if [ $TOS = unix ] ; then
   echotab "-\$(RM) MAGIC.add"
 fi
 echotab "-\$(RMRF) data"
-echotab "-\$(RM) comment5${HEXE} ansidecl${HEXE} varbrace${HEXE} ccpaux${HEXE} deema${HEXE} txt2c${HEXE} ccmp2c${HEXE} modprep${HEXE} clisp${HEXE} clisp.rc"
+line="clisp${HEXE} clisp.rc"
+for f in ${UTILS}; do line=$line" ${f}${HEXE}"; done
+for f in ${LUTILS}; do line=$line" ${f}.fas ${f}.lib"; done
+echotab "-\$(RM) ${line}"
 echol
 cat <<!!
 # clean6 lets us go back to "makemake > Makefile".
