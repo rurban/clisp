@@ -1,5 +1,15 @@
 2005-04-01  Sam Steingold  <sds@gnu.org>
 
+	* modules/matlab/matlab.lisp ("MATLAB"): exporting DEFVAR too
+	(mx-aref): fixed DEFSETF
+	* modules/matlab/wrap.lisp (*command*, *engine*): new variables
+	(with-engine, with-MATfile): new macros
+	(engine, copy-lisp-to-matlab, copy-matlab-to-lisp, invert-matrix):
+	new functions
+	* modules/matlab/link.sh (PATH): set
+
+2005-04-01  Sam Steingold  <sds@gnu.org>
+
 	* package.d (intern): when STRING comes from READ, it points to a
 	re-usable buffer that will be overwritten during the CERROR i/o
 	therefore we must copy and save it before CERROR
