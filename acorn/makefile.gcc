@@ -615,7 +615,7 @@ VERSION : h.version
 configure : in.configure
 	cd ^. && $(MAKE) -f Makefile.devel src.configure
 
-init : h.intparam h.floatparam comment5 ansidecl varbrace txt2c ccmp2c modprep $(DFILES) h.modules
+init : h.intparam h.floatparam comment5 ansidecl varbrace txt2c ccmp2c fas.modprep $(DFILES) h.modules
 	$(TOUCH) init
 
 h.intparam : c.intparam h.unixconf
@@ -654,9 +654,6 @@ txt2c : ^.utils.c.txt2c
 
 ccmp2c : ^.utils.c.ccmp2c
 	$(CC) $(CFLAGS) $(CLFLAGS)  -I. ^.utils.c.ccmp2c -o ccmp2c
-
-modprep : ^.utils.c.modprep
-	$(CC) $(CFLAGS) $(CLFLAGS)  ^.utils.c.modprep -o modprep
 
 
 h.stdbool : stdbool.in.h
@@ -1724,6 +1721,9 @@ lisp.config : lisp.cfgacorn
 
 RUN= /@.lisp -B . -Efile UTF-8 -Eterminal UTF-8 -norc
 
+fas.modprep : ^.utils.lisp.modprep lisp mem.lispinit
+	$(RUN) -M mem.lispinit -q -c ^.utils.lisp.modprep -o fas.modprep
+
 mem.interpre : lisp $(LISPFILES)
 	-$(RM) mem.interpre
 	$(RUN) -m 750KW -x "(and (load \"init.lisp\") (sys::%saveinitmem) (ext::exit))"
@@ -2216,6 +2216,14 @@ suite :
 	cd suite && $(LN_S) ^.^.tests.*.lisp .
 	cd suite && $(LN_S) ^.^.tests.*.tst .
 
+bench : benchmarks
+	CLISP="`pwd`.lisp -M `pwd`.mem.lispinit -B `pwd` -Efile UTF-8 -Eterminal UTF-8 -norc"; export CLISP; cd benchmarks; $(MAKE) CLISP="$$CLISP" clisp
+
+benchmarks :
+	-mkdir benchmarks
+	cd benchmarks && $(LN_S) ^.^.benchmarks.Makefile .
+	cd benchmarks && $(LN_S) ^.^.benchmarks.*.lisp .
+
 
 h.lispbibl : c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool h.stdint
 	(($(CPP) $(CFLAGS) -P c.lispbibl | $(GREP) -v "^ *$$") ; ($(CPP) $(CFLAGS) -P -dM c.lispbibl | sort) ) > h.lispbibl
@@ -2239,10 +2247,10 @@ linkkit : d.modules c.modules h.clisp
 	cd linkkit && $(LN_S) ^.c.modules c.modules
 	cd linkkit && $(LN_S) ^.h.clisp h.clisp
 
-fas.exporting : lisp.exporting # lisp mem.lispinit
-	$(RUN) -M mem.lispinit -q -c exporting.lisp
+fas.exporting : ^.modules.lisp.exporting lisp mem.lispinit
+	$(RUN) -M mem.lispinit -q -c ^.modules.lisp.exporting -o fas.exporting
 
-modular : lisp.a  clisp-link linkkit h.modules o.modules makevars fas.exporting
+modular : lisp.a  clisp-link linkkit h.modules o.modules makevars
 	$(TOUCH) modular
 
 makevars :
@@ -2255,7 +2263,7 @@ clisp-link : in.clisp-link
 base : modular mem.lispinit
 	test -d base || (mkdir base && cd base && for f in lisp.a  h.modules o.modules makevars lisp lispinit.mem; do $(LN_S) ^.$$f $$f; done) || ($(RMRF) base ; exit 1)
 
-anymodule $(MODULES) : lisp mem.lispinit force
+anymodule $(MODULES) : lisp mem.lispinit force fas.modprep fas.exporting h.clisp
 	test -d $@ || /@.lndir ^.modules/$@ $@
 	if test -f $@/configure -a '!' -f $@/config.status ; then cd $@ ; ./configure --cache-file=`echo $@/ | sed -e 's,[^/][^/]*//*,^.,g'`config.cache ; fi
 	CLISP="`pwd`.lisp -M `pwd`.mem.lispinit -B `pwd` -Efile UTF-8 -Eterminal UTF-8 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,^.,g'` ; $(MAKE) clisp-module CC="$(CC)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" LISPBIBL_INCLUDES=" $${dots}c.lispbibl $${dots}c.fsubr $${dots}c.subr $${dots}c.pseudofun $${dots}c.constsym $${dots}c.constobj $${dots}c.acorn $${dots}h.stdbool $${dots}stdint.h" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
@@ -2443,7 +2451,7 @@ clean5 : clean4
 	-$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY
 	-$(RM) lisp.config
 	-$(RMRF) data
-	-$(RM) comment5 ansidecl varbrace ccpaux deema txt2c ccmp2c modprep clisp clisp.rc
+	-$(RM) clisp clisp.rc comment5 ansidecl varbrace txt2c ccmp2c fas.modprep modprep.lib
 
 # clean6 lets us go back to "makemake > Makefile".
 clean6 : clean5
