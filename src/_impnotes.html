@@ -8558,7 +8558,7 @@ lisp.
 <p>CLISP supports "application delivery" in three forms:
 <dl>
  <dt><strong>UNIX</strong>
-  <dd>CLISP can act as a script interpreter;
+  <dd>CLISP can act as a script interpreter.
  <dt><strong>Win32</strong> and compatible desktop environments (<a
      href="http://www.gnome.org">GNOME</a> and <a
      href="http://www.kde.org">KDE</a>)
@@ -8568,20 +8568,21 @@ lisp.
  <dt><strong>Linux</strong> with <code>CONFIG_BINFMT_MISC=y</code>
   <dd>associate the extensions <code>fas</code> and <code>lsp</code>
       with CLISP; then you can make the files executable and run them
-      from the command line.
+      from the command line.  Note that several <code>fas</code> files
+      can be concatenated (using <code>cat<code>(1)) into one file.
 </dl>
 
 <dl>
 <!-- #ifdef UNIX -->
 <dt><em>Platform dependent: <strong>UNIX</strong> platforms only.</em>
 
-<dd>On Unix, a text file can be made executable by adding a first line
-of the form
+<dd>On Unix, a text file (<code>fas</code> or <code>lsp</code>) can be
+made executable by adding a first line of the form
 
 <pre><code>#!<var>interpreter</var> [<var>interpreter-args</var>]</code></pre>
 
-and <code>chmod</code>ing the script to be executable.  CLISP can be
-used as a script interpreter under the following circumstances:
+and using <code>chmod</code>(1) to make the script executable.  CLISP
+can be used as a script interpreter under the following circumstances:
 <p>
 <ol>
 <li>The <var>interpreter</var> must be a full pathname of CLISP.  I
