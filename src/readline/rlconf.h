@@ -56,7 +56,7 @@
 /* #define HACK_TERMCAP_MOTION */
 
 /* The string inserted by the `insert comment' command. */
-#define RL_COMMENT_BEGIN_DEFAULT ";"
+#define RL_COMMENT_BEGIN_DEFAULT "#"
 
 /* Define this if you want code that allows readline to be used in an
    X `callback' style. */
