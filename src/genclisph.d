@@ -2179,6 +2179,12 @@ int main(int argc, char* argv[])
   printf("extern void* my_malloc (size_t size);\n");
   printf("#define unused %s\n",STRINGIFY(unused));
   printf("enum { seclass_foldable, seclass_no_se, seclass_read, seclass_write, seclass_default};\n");
+  /* avoid some stupid warnings */
+  printf("#undef PACKAGE_BUGREPORT\n");
+  printf("#undef PACKAGE_NAME\n");
+  printf("#undef PACKAGE_STRING\n");
+  printf("#undef PACKAGE_TARNAME\n");
+  printf("#undef PACKAGE_VERSION\n");
   /* Additional stuff for modules. */
   printf("#define DEFMODULE(module_name,package_name)\n");
   printf("#define DEFUN(funname,lambdalist,signature) LISPFUN signature\n");
