@@ -1,3 +1,7 @@
+2004-04-12  Bruno Haible  <bruno@clisp.org>
+
+	* intlog.d (I_I_ash_I): Fix bug when y = most-negative-fixnum = -2^32.
+
 2004-04-11  Bruno Haible  <bruno@clisp.org>
 
 	ANSI CL compliance: Optionally return floating-point results when
