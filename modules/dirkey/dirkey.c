@@ -94,7 +94,7 @@ extern object nobject_out (FILE* stream, object obj);
 # define XOUT(o,l)
 #endif
 
-DEFMODULE(dirkey,"LDAP");
+DEFMODULE(dirkey,"LDAP")
 
 enum { /* DIR-KEY slots */
   DK_TYPE=0,

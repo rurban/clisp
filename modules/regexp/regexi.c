@@ -17,7 +17,7 @@
 #error to CFLAGS make variable and rebuild CLISP before coming back here.
 #endif
 
-DEFMODULE(regexp,"REGEXP");
+DEFMODULE(regexp,"REGEXP")
 
 DEFUN(REGEXP::REGEXP-COMPILE, pattern &key EXTENDED IGNORE-CASE NEWLINE NOSUB)
 { /* compile the pattern into a regular expression */
