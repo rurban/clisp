@@ -462,7 +462,9 @@
   LISPOBJ(lisp_implementation_version_string,"NIL") # ein Cache
   LISPOBJ(memory_image_timestamp,"NIL") # the dump date of the current image
   LISPOBJ(memory_image_host,"NIL") # the host on which this image was dumped
-  LISPOBJ(version,"(20010503)") # Date of last change of bytecode interpreter
+  # The date of the last change of the bytecode interpreter
+  # or the arglist of any built-in function in FUNTAB
+  LISPOBJ(version,"(20010723)")
   #ifdef MACHINE_KNOWN
     LISPOBJ(machine_type_string,"NIL")
     LISPOBJ(machine_version_string,"NIL")
