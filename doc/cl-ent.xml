@@ -106,13 +106,13 @@
 <!ENTITY gfdl "<ulink url='http://www.gnu.org/copyleft/fdl.html'>GFDL</ulink>">
 
 <!-- *** implementations *** -->
-<!ENTITY abcl "<ulink url='http://sbcl.sourceforge.net/'><command>SBCL</command></ulink>">
+<!ENTITY abcl "<ulink url='http://armedbear-j.sourceforge.net/'><command>ABCL</command></ulink>">
 <!ENTITY ccl "<ulink url='http://corman.net/lisp'><command>CormanLisp</command></ulink>">
 <!ENTITY clisp "<ulink url='http://clisp.cons.org'><command>CLISP</command></ulink>">
 <!ENTITY cmucl "<ulink url='http://www.cons.org/cmucl/'><command>CMU CL</command></ulink>">
 <!ENTITY gcl "<ulink url='http://www.gnu.org/software/gcl/'><command>GCL</command></ulink>">
 <!ENTITY openmcl "<ulink url='http://openmcl.clozure.com/'><command>OpenMCL</command></ulink>">
-<!ENTITY sbcl "<ulink url='http://armedbear-j.sourceforge.net/'><command>ABCL</command></ulink>">
+<!ENTITY sbcl "<ulink url='http://sbcl.sourceforge.net/'><command>SBCL</command></ulink>">
 <!ENTITY acl "<ulink url='http://www.franz.com'><command>Allegro CL</command></ulink>">
 <!ENTITY lispworks "<ulink url='http://www.xanalys.com/software_tools/products/index.html'><command>LispWorks</command></ulink>">
 
