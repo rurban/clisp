@@ -1,3 +1,7 @@
+2002-02-20  Sam Steingold  <sds@gnu.org>
+
+	* eval20.tst: added an EVAL-WHEN test
+
 2002-02-12  Sam Steingold  <sds@gnu.org>
 
 	* floeps.tst: new file to test float epsilons
