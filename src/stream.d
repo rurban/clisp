@@ -15514,9 +15514,9 @@ local object handle_isset (object socket, fd_set *readfds, fd_set *writefds,
     } else {
       bool wr = WRITE_P(dir) && FD_ISSET(handle,writefds),
         rd = (READ_P(dir) && FD_ISSET(handle,readfds)
-              && ls_avail_p(stream_char_p(sock)
-              ? listen_char(sock)
-              : listen_byte(sock));
+              && (ls_avail_p(stream_char_p(sock))
+                  ? listen_char(sock)
+                  : listen_byte(sock)));
       if      ( rd && !wr) return S(Kinput);
       else if (!rd &&  wr) return S(Koutput);
       else if ( rd &&  wr) return S(Kio);
