@@ -71,11 +71,12 @@
          (cons 'append (bq-expand-list form))))))
 
 ;;; Handle vector expansion, along the lines suggested by HyperSpec.
-(defun bq-vec-expand (form)
-  (let ((expanded (bq-expand (map 'list #'identity form))))
-    (if (constantp expanded)
-      (apply #'vector (eval expanded))
-      (list 'apply '#'vector expanded))))
+(defun bq-vec-expand (vec-form)
+  (let* ((list-form (map 'list #'identity vec-form))
+         (expansion (bq-expand-list list-form)))
+    (if *backquote-optimize*
+      (bq-optimize-vec expansion)
+      (list 'apply '#'vector expansion))))
 
 ;;; Top level cases
 ;;;
@@ -215,6 +216,7 @@
       (keywordp form)
       (not (or (symbolp form)
                (consp form)))))
+
 ;;; quote if the form does not evaluate to iteself
 (defun maybe-quote (form)
   (if (eval-self-p form) form (list 'quote form)))
@@ -385,6 +387,45 @@
          ;; Zero-argument APPEND or NCONC
          (t nil)))
     (t form)))
+
+;;; BQ-OPTIMIZE-VEC generates a better translation for a backquoted
+;;; vector. The vector has been already converted to a list, which
+;;; was subject to unoptimized backquote expansion. That resulting
+;;; list of append arguments is what is passed to this function.
+;;; The expansion is optimized and then converted to a vector
+;;; form according to these rules:
+;;;
+;;; '(...)  -> #(...)
+;;; (list ...) -> (vector ...)
+;;; (append ...) -> (multiple-value-call #'vector ...)
+;;;
+;;; The (append ...) case is based on the original unoptimized
+;;; append args. The arguments are each treated as follows:
+;;;
+;;; (list ...) -> (values ...)
+;;; (splice ...) -> (values-list (append ...))
+;;; (nsplice ...) -> (values-list (nconc ...))
+;;; other -> (values-list other)
+(defun bq-optimize-vec (unoptimized)
+  (let ((optimized (bq-optimize unoptimized)))
+    (cond
+      ((constantp optimized)
+         (apply #'vector (eval optimized)))
+      ((not (consp optimized))
+         (list 'apply '#'vector optimized))
+      ((eq (first optimized) 'list)
+         (cons 'vector (rest optimized)))
+      (t (list* 'multiple-value-call '#'vector
+                (mapcar #'(lambda (apply-arg)
+                            (cond
+                              ((atom apply-arg)
+                                 (list 'values-list apply-arg))
+                              ((memq (first apply-arg) '(SPLICE NSPLICE))
+                                 (list 'values-list (list 'append apply-arg)))
+                              ((eq (first apply-arg) 'list)
+                                 (list* 'values (rest apply-arg)))
+                              (t (list 'values-list apply-arg))))
+                           unoptimized))))))
 
 ;;; Interfaces used by other modules within CLISP, and possibly
 ;;; by CLISP applications.
