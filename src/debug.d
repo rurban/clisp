@@ -1,6 +1,6 @@
 /*
  * top level loop, aux functions for the debugger, stepper for CLISP
- * Bruno Haible 1990-2004
+ * Bruno Haible 1990-2005
  * ILISP friendliness: Marcus Daniels 8.4.1994
  * Sam Steingold 2001-2004
  * German comments translated into English: Stefan Kain 2004-08-30
@@ -452,7 +452,7 @@ global void driver (void)
   var struct backtrace_t bt_here;
   bt_here.bt_next = back_trace;
   bt_here.bt_function = L(driver);
-  bt_here.bt_stack = STACK;
+  bt_here.bt_stack = STACK STACKop -1;
   bt_here.bt_num_arg = -1;
   back_trace = &bt_here;
   loop {
@@ -495,8 +495,8 @@ global maygc void break_driver (bool continuable_p) {
     var p_backtrace_t bt_save = back_trace;
     var struct backtrace_t bt_here;
     bt_here.bt_next = back_trace;
-    bt_here.bt_function = S(break_driver);
-    bt_here.bt_stack = STACK;
+    bt_here.bt_function = L(initial_break_driver);
+    bt_here.bt_stack = STACK STACKop -1;
     bt_here.bt_num_arg = -1;
     back_trace = &bt_here;
     /* Default-Driver: (CLEAR-INPUT *DEBUG-IO*), since whatever has been
@@ -1093,6 +1093,47 @@ LISPFUNN(return_from_eval_frame,2)
 /* ----------------------------------------------------------------------- */
 /* Debug aux */
 
+/* Returns the top-of-frame of a back_trace element. */
+global gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt) {
+  var gcv_object_t* stack = bt->bt_stack;
+  var object fun = bt->bt_function;
+  if (fsubrp(fun)) {
+    /* FSUBR */
+    var uintW numreq;
+    var uintW numopt;
+    var uintW body_flag;
+    switch ((uintW)posfixnum_to_L(TheFsubr(fun)->argtype)) {
+      case fsubr_argtype_1_0_nobody: numreq = 1; numopt = 0; body_flag = 0; break;
+      case fsubr_argtype_2_0_nobody: numreq = 2; numopt = 0; body_flag = 0; break;
+      case fsubr_argtype_1_1_nobody: numreq = 1; numopt = 1; body_flag = 0; break;
+      case fsubr_argtype_2_1_nobody: numreq = 2; numopt = 1; body_flag = 0; break;
+      case fsubr_argtype_0_body: numreq = 0; numopt = 0; body_flag = 1; break;
+      case fsubr_argtype_1_body: numreq = 1; numopt = 0; body_flag = 1; break;
+      case fsubr_argtype_2_body: numreq = 2; numopt = 0; body_flag = 1; break;
+      default: NOTREACHED;
+    }
+    return stack STACKop (numreq + numopt + body_flag);
+  }
+  if (subrp(fun))
+    /* SUBR */
+    return stack STACKop (TheSubr(fun)->req_anz + TheSubr(fun)->opt_anz
+                          + TheSubr(fun)->key_anz);
+  if (closurep(fun)) {
+    if (simple_bit_vector_p(Atype_8Bit,TheClosure(fun)->clos_codevec)) {
+      /* Compiled-Closure */
+      var object codevec = TheClosure(fun)->clos_codevec;
+      return stack STACKop (TheCodevec(codevec)->ccv_numreq
+                            + TheCodevec(codevec)->ccv_numopt
+                            + (TheCodevec(codevec)->ccv_flags & bit(0) ? 1 : 0)
+                            + (TheCodevec(codevec)->ccv_flags & bit(7) ? TheCodevec(codevec)->ccv_numkey : 0));
+    } else
+      /* Interpreted-Closure */
+      return stack;
+  }
+  /* Only SUBRs and functions occur as bt_function. */
+  NOTREACHED;
+}
+
 local void print_back_trace (const gcv_object_t* stream_,
                              const struct backtrace_t *bt, int index) {
   terpri(stream_);
@@ -1441,7 +1482,7 @@ LISPFUNN(describe_frame,2)
   {
     var p_backtrace_t bt = back_trace;
     unwind_back_trace(bt,FRAME);
-    if (bt->bt_stack == FRAME)
+    if (top_of_back_trace_frame(bt) == FRAME)
       print_back_trace(&STACK_0,bt,0);
   }
   print_stackitem(&STACK_0,FRAME); /* print stack-item */

@@ -1,6 +1,6 @@
 /* Foreign language interface for CLISP
  * Marcus Daniels 8.4.1994
- * Bruno Haible 1995-2004
+ * Bruno Haible 1995-2005
  * Sam Steingold 2000-2004
  */
 
@@ -421,7 +421,8 @@ local maygc object convert_function_to_foreign (object fun, object resulttype,
   /* Convert to a function: */
   if (!functionp(fun)) {
     pushSTACK(resulttype); pushSTACK(argtypes); pushSTACK(flags);
-    with_saved_back_trace(L(coerce),-1, { fun = coerce_function(fun); });
+    with_saved_back_trace_subr(L(coerce),STACK STACKop -2,-1,
+      { fun = coerce_function(fun); });
     flags = popSTACK(); argtypes = popSTACK(); resulttype = popSTACK();
   }
   /* If it is already a foreign function, return it immediately: */

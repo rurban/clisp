@@ -321,7 +321,7 @@ local void bt_out (FILE* out, const struct backtrace_t *bt, uintL bt_index) {
     fprintf(out," %d args",bt->bt_num_arg);
   if (bt->bt_next)
     fprintf(out," delta: STACK=%d; SP=%d",
-            STACK_item_count(bt->bt_stack,bt->bt_next->bt_stack),
+            STACK_item_count(top_of_back_trace_frame(bt),top_of_back_trace_frame(bt->bt_next)),
             /* SP and STACK grow in the opposite directions: */
             STACK_item_count(bt->bt_next,bt));
   fputc('\n',out);

@@ -1,6 +1,6 @@
 /*
  * Main include-file for CLISP
- * Bruno Haible 1990-2004
+ * Bruno Haible 1990-2005
  * Marcus Daniels 11.11.1994
  * Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2001-09-24
@@ -5858,7 +5858,7 @@ typedef struct {
 #         argtype          short for the argument type     fsubr_argtype_t
 #         req_anz          number of required parameters   uintW
 #         opt_anz          number of optional parameters   uintW
-#         body_flag        Body-Flag                        fsubr_body_t
+#         body_flag        Body-Flag                       fsubr_body_t
 # The component body_flag contains one uintW, but we mean:
   typedef enum {
     fsubr_nobody,
@@ -8130,10 +8130,10 @@ extern void* SP_anchor;
 /* A singly-linked list of all currently active function calls.
    Resides in the C stack. */
 struct backtrace_t {
-  const struct backtrace_t* bt_next;
-  gcv_object_t bt_function;
-  gcv_object_t *bt_stack;
-  int bt_num_arg;
+  const struct backtrace_t* bt_next; /* Link to the caller */
+  gcv_object_t bt_function;          /* Function or FSUBR being called */
+  gcv_object_t *bt_stack;            /* STACK value where the frame area begins */
+  int bt_num_arg;                    /* Number of arguments, if known, or -1 */
 };
 extern void back_trace_check (const struct backtrace_t *bt,
                               const char* label, const char* file, int line);
@@ -8172,8 +8172,11 @@ struct p_backtrace_t {
 typedef const struct backtrace_t* p_backtrace_t;
 #endif
 
+/* Returns the top-of-frame of a back_trace element. */
+extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
+
 #define bt_beyond_stack_p(bt,st) \
-  ((bt) != NULL && !((aint)(st) cmpSTACKop (aint)((bt)->bt_stack)))
+  ((bt) != NULL && !((aint)(st) cmpSTACKop (aint)top_of_back_trace_frame(bt)))
 /* unwind backtrace to the stack location */
 #define unwind_back_trace(bt,st)                                        \
   do { BT_CHECK(bt,"unwind_back_trace");                                \
@@ -8181,14 +8184,26 @@ typedef const struct backtrace_t* p_backtrace_t;
       bt = bt->bt_next;                                                 \
   } while(0)
 
-/* evaluate statement augmenting back_trace */
+/* Evaluate statement, augmenting back_trace with an activation record for
+   the given function.
+   stack permits to locate the top-of-frame, namely
+     - for FSUBRs:
+         stack = top-of-frame - (req + opt + (body-flag ? 1 : 0))
+     - for SUBRs:
+         stack = top-of-frame - (req + opt + length(keyword-list))
+     - for compiled closures:
+         stack = top-of-frame - (req + opt + (rest-flag ? 1 : 0) + length(keyword-list))
+     - for interpreted closures:
+         stack = top-of-frame
+ */
 #if defined(STACKCHECKS) || defined(STACKCHECKC)
-#define with_saved_back_trace(fun,num_arg,statement)           do {     \
+#define with_saved_back_trace(fun,stack,num_arg,statement)              \
+  do {                                                                  \
     p_backtrace_t bt_save = back_trace;                                 \
     struct backtrace_t bt_here;                                         \
     bt_here.bt_next = back_trace;                                       \
     bt_here.bt_function = (fun);                                        \
-    bt_here.bt_stack = STACK;                                           \
+    bt_here.bt_stack = (stack);                                         \
     bt_here.bt_num_arg = (num_arg);                                     \
     BT_CHECK1("w/s/b/t: before");                                       \
     back_trace = &bt_here;                                              \
@@ -8199,17 +8214,26 @@ typedef const struct backtrace_t* p_backtrace_t;
     back_trace = back_trace->bt_next;                                   \
   } while(0)
 #else
-#define with_saved_back_trace(fun,num_arg,statement)           do {     \
+#define with_saved_back_trace(fun,stack,num_arg,statement)              \
+  do {                                                                  \
     struct backtrace_t bt_here;                                         \
     bt_here.bt_next = back_trace;                                       \
     bt_here.bt_function = (fun);                                        \
-    bt_here.bt_stack = STACK;                                           \
+    bt_here.bt_stack = (stack);                                         \
     bt_here.bt_num_arg = (num_arg);                                     \
     back_trace = &bt_here;                                              \
     statement;                                                          \
     back_trace = back_trace->bt_next;                                   \
   } while(0)
 #endif
+#define with_saved_back_trace_fsubr(fun,statement)  \
+  with_saved_back_trace(fun,STACK,-1,statement)
+#define with_saved_back_trace_subr(fun,stack,num_arg,statement)  \
+  with_saved_back_trace(fun,stack,num_arg,statement)
+#define with_saved_back_trace_cclosure(fun,statement)  \
+  with_saved_back_trace(fun,STACK,-1,statement)
+#define with_saved_back_trace_iclosure(fun,stack,num_arg,statement)  \
+  with_saved_back_trace(fun,stack,num_arg,statement)
 
 # Every call of an external function (or a sequence of those) has to be framed
 # with

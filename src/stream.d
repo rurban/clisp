@@ -1,5 +1,5 @@
 # Streams for CLISP
-# Bruno Haible 1990-2004
+# Bruno Haible 1990-2005
 # Sam Steingold 1998-2004
 # Generic Streams: Marcus Daniels 8.4.1994
 # SCREEN package for Win32: Arseny Slobodjuck 2001-02-14
@@ -15889,7 +15889,8 @@ global maygc bool read_line (const gcv_object_t* stream_, const gcv_object_t* bu
         if (eq(subr_self,L(read_line)))
           fehler_char(ch);
         else
-          with_saved_back_trace(L(read_line),-1, fehler_char(ch));
+          with_saved_back_trace_subr(L(read_line),STACK STACKop -4,-1,
+            fehler_char(ch); );
       }
       if (eq(ch,ascii_char(NL)))
         return false;
@@ -15921,7 +15922,8 @@ global maygc bool read_line (const gcv_object_t* stream_, const gcv_object_t* bu
             if (eq(subr_self,L(read_line)))
               fehler_char(ch);
             else
-              with_saved_back_trace(L(read_line),-1, fehler_char(ch));
+              with_saved_back_trace_subr(L(read_line),STACK STACKop -4,-1,
+                fehler_char(ch); );
           }
           if (eq(ch,ascii_char(NL))) { # NL -> End of Line
             eofp = false; break;

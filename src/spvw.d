@@ -3181,7 +3181,7 @@ global int main (argc_t argc, char* argv[]) {
  {var struct backtrace_t bt;
   bt.bt_next = NULL;
   bt.bt_function = L(driver);
-  bt.bt_stack = STACK;
+  bt.bt_stack = STACK STACKop -1;
   bt.bt_num_arg = -1;
   back_trace = &bt;
   clear_break_sems(); set_break_sem_1();
