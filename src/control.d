@@ -426,8 +426,8 @@ local maygc object check_varspec (object varspec, object caller) {
  < uintC bind_count: number of "genuine" bindings.
  changes STACK
  can trigger GC */
-local /*maygc*/ void make_variable_frame (object caller, object varspecs,
-                                          gcv_object_t** bind_ptr_, uintC* bind_count_)
+local /*maygc*/ void make_variable_frame
+(object caller, object varspecs, gcv_object_t** bind_ptr_, uintC* bind_count_)
 {
   GCTRIGGER4(caller,varspecs,value1,value2);
   var object declarations = value2;
