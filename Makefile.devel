@@ -184,8 +184,8 @@ view-html :
 src/FILES : src/FILES.1
 	groff -Tascii -mandoc src/FILES.1 > src/FILES
 
-src/version.h : src/VERSION
-	(echo '/* Generated automatically from src/VERSION. */' ; sed -e 's/^/#define VERSION "/' -e 's/$$/"/' src/VERSION ; sed -e 's/^\(.*\)-\(.*\)-\(.*\)$$/#define VERSION_YYYY \1/' src/VERSION ; sed -e 's/^\(.*\)-\(.*\)-\(.*\)$$/#define VERSION_YYYY_STRING "\1"/' src/VERSION ; sed -e 's/^\(.*\)-0*\(.*\)-0*\(.*\)$$/#define VERSION_MM \2/' src/VERSION ; sed -e 's/^\(.*\)-0*\(.*\)-0*\(.*\)$$/#define VERSION_DD \3/' src/VERSION) > src/version.h
+src/VERSION : src/version.h
+	fgrep _NUMBER src/version.h | sed 's/^.*_NUMBER "\(.*\)"$$/\1/' > src/VERSION
 
 utils/comment5.c : utils/comment5.d
 	cd utils && $(COMMENT5) comment5
@@ -242,7 +242,7 @@ acorn/pathname.txt : src/pathname.d
 distrib : linux-distrib src-distrib
 
 # Before doing a "make src-distrib", don't forget
-# * update src/VERSION,
+# * update src/version.h,
 # * update src/CHANGES.LOG and src/NEWS,
 # * "make",
 # * "make check-configures",
@@ -302,12 +302,5 @@ os2--distrib : force
 	cp -p $(EMXDIR)/etc/termcap.dat $(TEMPDIR)
 	cd $(TEMPDIR) ; $(PACK) $(PACKOPT) /tmp/clisp$(PACKEXT) *
 	rm -rf $(TEMPDIR)
-
-update-version : force
-	date +%Y-%m-%d >src/VERSION
-	date "+%e %B %Y" >CHANGES.LOG
-	cat src/CHANGES.LOG >>CHANGES.LOG
-	mv CHANGES.LOG src
-	echo "Remember to fix src/CHANGES.LOG and src/NEWS"
 
 force :

@@ -3,7 +3,6 @@
 
 #include "lispbibl.c"
 
-
 # Eigenwissen:
 
 LISPFUNN(lisp_implementation_type,0)
@@ -17,13 +16,76 @@ LISPFUNN(lisp_implementation_version,0)
   {
     value1 = O(lisp_implementation_version_string);
     if (nullp(value1)) { # noch unbekannt?
+      var int count = 4;
+      pushSTACK(O(lisp_implementation_version_number_string));
+      pushSTACK(ascii_to_string(" (released "));
       pushSTACK(O(lisp_implementation_version_date_string));
-      pushSTACK(ascii_to_string(" ("));
-      pushSTACK(OLS(lisp_implementation_version_month_string));
-      pushSTACK(ascii_to_string(" "));
-      pushSTACK(O(lisp_implementation_version_year_string));
+      funcall(L(machine_instance),0);
+      if (nullp(O(memory_image_host)) || equal(value1,O(memory_image_host))) {
+        # the image was dumped on this machine - print time
+        if (!nullp(O(lisp_implementation_version_built_string))) {
+          # this is a gross and ugly hack!
+          # I have no idea about how to get the executable link time,
+          # let alone how to do this portably,
+          # so I rely on __DATE__ and __TIME__ CPP macros.
+          var uintL se,mi,ho,da,mo,ye;
+          with_string_0(O(lisp_implementation_version_built_string),
+                        O(misc_encoding),ztime,{
+            # Mmm dd yyyyhh:mm:ss
+            # 0   4  7   11 14 17
+            ztime[13] = ztime[16] = 0;
+            se = atol(ztime+17);
+            mi = atol(ztime+14);
+            ho = atol(ztime+11);
+            da = atol(ztime+4);
+            mo = (strncmp("Jan",ztime,3) == 0 ? 1 :
+                  strncmp("Feb",ztime,3) == 0 ? 2 :
+                  strncmp("Mar",ztime,3) == 0 ? 3 :
+                  strncmp("Apr",ztime,3) == 0 ? 4 :
+                  strncmp("May",ztime,3) == 0 ? 5 :
+                  strncmp("Jun",ztime,3) == 0 ? 6 :
+                  strncmp("Jul",ztime,3) == 0 ? 7 :
+                  strncmp("Aug",ztime,3) == 0 ? 8 :
+                  strncmp("Sep",ztime,3) == 0 ? 9 :
+                  strncmp("Oct",ztime,3) == 0 ? 10 :
+                  strncmp("Nov",ztime,3) == 0 ? 11 :
+                  strncmp("Dec",ztime,3) == 0 ? 12 : 0);
+            ztime[11]=0;
+            ye = atol(ztime+7);
+          });
+          # YYYY-MM-DD HH:MM:SS
+          var char build_time[4+1+2+1+2 +1+ 2+1+2+1+2+1];
+          if (eq(unbound,Symbol_function(S(encode_universal_time)))) {
+            sprintf(build_time,"%04d-%02d-%02d %02d:%02d:%02d",
+                    ye,mo,da,ho,mi,se);
+          } else {
+            pushSTACK(fixnum(se));
+            pushSTACK(fixnum(mi));
+            pushSTACK(fixnum(ho));
+            pushSTACK(fixnum(da));
+            pushSTACK(fixnum(mo));
+            pushSTACK(fixnum(ye));
+            funcall(S(encode_universal_time),6);
+            sprintf(build_time,"%u",I_to_UL(value1));
+          }
+          O(lisp_implementation_version_built_string) =
+            ascii_to_string(build_time);
+          pushSTACK(ascii_to_string(") (built "));
+          pushSTACK(O(lisp_implementation_version_built_string));
+          count += 2;
+        }
+        if (!nullp(O(memory_image_timestamp))) {
+          pushSTACK(ascii_to_string(") (memory "));
+          pushSTACK(O(memory_image_timestamp));
+          count += 2;
+        }
+      } else { # this image was built on a different machine
+        pushSTACK(ascii_to_string(") (built on "));
+        pushSTACK(O(memory_image_host));
+        count += 2;
+      }
       pushSTACK(ascii_to_string(")"));
-      value1 = O(lisp_implementation_version_string) = string_concat(6);
+      value1 = O(lisp_implementation_version_string) = string_concat(count);
     }
     mv_count=1;
   }

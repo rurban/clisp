@@ -1617,7 +1617,7 @@ case "$fsstnd" in
     ;;
   redhat)
     echol "docdir = \$(exec_prefix)${NEXT_}doc"
-    echol "lispdocdir = \$(docdir)${NEXT_}clisp-`cat ../src/VERSION | tr "-" "."`"
+    echol "lispdocdir = \$(docdir)${NEXT_}clisp-`cat ../src/VERSION`"
     ;;
   debian)
     echol "docdir = \$(exec_prefix)${NEXT_}doc"
@@ -2139,8 +2139,8 @@ echotab "-\$(LN_S) ${SRCDIR}stdbool.h.in stdbool.h"
 echol
 
 if [ $HOS = unix ] ; then
-  echol "${SRCDIR}version.h : ${SRCDIR}VERSION"
-  echotab "cd ${SRCTOPDIR} && \$(MAKE) -f Makefile.devel src/version.h"
+  echol "${SRCDIR}VERSION : ${SRCDIR}version.h"
+  echotab "cd ${SRCTOPDIR} && \$(MAKE) -f Makefile.devel src/VERSION"
   echol
 fi
 
