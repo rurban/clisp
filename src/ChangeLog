@@ -1,3 +1,8 @@
+1999-07-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * arisparc.d (compare_loop_up) [COUNTER_LOOPS]: Bug fix.
+          (shiftright_loop_up): Save 1 cycle if count==0.
+
 1999-07-15  Jörg Höhle <Joerg.Hoehle@gmd.de>
 
         * affi.d (SYSTEM::MEM-WRITE): No need to check for integerp(wert),
