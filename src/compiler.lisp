@@ -3094,7 +3094,7 @@ for-value   NIL or T
   (let ((expanded-p nil))
     (tagbody
      reexpand
-       (when (consp form)
+       (when (and (consp form) (function-name-p (car form)))
          (let* ((env (env)) (cmf (compiler-macro-function (car form) env)))
            (when cmf
              (let ((exp (mac-exp cmf form env)))
