@@ -1,5 +1,10 @@
 2001-08-20  Sam Steingold  <sds@gnu.org>
 
+	* loadform.lisp (mlf-unquote, mlf-init-function): new functions
+	(make-init-form): warn about errors in MLF-INIT-FUNCTION
+
+2001-08-20  Sam Steingold  <sds@gnu.org>
+
 	* places.lisp (setf-symbol): intern the result when the argument
 	is interned
 
