@@ -403,12 +403,16 @@ local uintL test_subscripts (object array, gcv_object_t* argptr, uintC argcount)
     var uintC count;
     dotimesC(count,argcount, {
       var object subscriptobj = NEXT(argptr); /* Subscript as object */
-      if (!(posfixnump(subscriptobj))) /* subscript must be fixnum>=0. */
+      if (!(posfixnump(subscriptobj))) { /* subscript must be fixnum>=0. */
+        Before(args_pointer) = array;
         fehler_subscript_type(argcount);
+      }
       var uintL subscript = posfixnum_to_L(subscriptobj); /* as uintL */
       var uintL dim = *dimptr++; /* corresponding dimension */
-      if (subscript>=dim) /* subscript must be smaller than dimension */
+      if (subscript>=dim) { /* subscript must be smaller than dimension */
+        Before(args_pointer) = array;
         fehler_subscript_range(argcount,subscript,dim);
+      }
       /* form row_major_index := row_major_index*dim+subscript: */
       row_major_index =
         mulu32_unchecked(row_major_index,dim)+subscript;
@@ -424,51 +428,53 @@ local uintL test_subscripts (object array, gcv_object_t* argptr, uintC argcount)
 }
 
 /* error: bad index
- > STACK_1: array (mostly a vector)
+ > array: array (usually a vector)
  > STACK_0: (erroneous) index */
-nonreturning_function(local, fehler_index_type, (void)) {
+nonreturning_function(local, fehler_index_type, (object array)) {
   pushSTACK(STACK_0); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_array_index)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(STACK_(1+2));
+  pushSTACK(array);
   pushSTACK(STACK_(0+3));
   pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,GETTEXT("~S: index ~S for ~S is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"));
 }
 
 /* error: bad index
- > STACK_1: array (mostly a vector)
+ > array: array (usually a vector)
  > STACK_0: (erroneous) index */
-nonreturning_function(global, fehler_index_range, (uintL bound)) {
+nonreturning_function(global, fehler_index_range, (object array, uintL bound)) {
   var object tmp;
   pushSTACK(STACK_0); /* TYPE-ERROR slot DATUM */
+  pushSTACK(array);
   pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(bound));
   tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-  pushSTACK(tmp); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(STACK_(1+2));
+  array = STACK_0;
+  STACK_0 = tmp; /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(array);
   pushSTACK(STACK_(0+3));
   pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,GETTEXT("~S: index ~S for ~S is out of range"));
 }
 
 /* checks an index for a AREF/STORE-access into a simple vector.
- test_index()
- > STACK_1: not-reallocated simple Vector
+ test_index(vector)
+ > vector: not-reallocated simple Vector
  > STACK_0: index
  < result: index as uintL */
-local uintL test_index (void) {
+local uintL test_index (object vector) {
   if (!posfixnump(STACK_0)) /* index must be fixnum>=0 . */
-    fehler_index_type();
+    fehler_index_type(vector);
   var uintL index = posfixnum_to_L(STACK_0); /* index as uintL */
-  var uintL length = (simple_string_p(STACK_1) ? Sstring_length(STACK_1) : Sarray_length(STACK_1));
+  var uintL length = (simple_string_p(vector) ? Sstring_length(vector) : Sarray_length(vector));
   if (index >= length) /* index must be smaller then length */
-    fehler_index_range(length);
+    fehler_index_range(vector,length);
   return index;
 }
 
 /* checks subscripts for a AREF/STORE-access, removes them from STACK
  and returns the row-major-index (>=0, <arraysize_limit) and the data vector.
  subscripts_to_index(array,argptr,argcount, &index)
- > array : non-simple array
+ > array : array
  > argptr : pointer to the subscripts
  > argcount : number of subscripts
  < index_ : index into the data vector
@@ -479,10 +485,10 @@ local object subscripts_to_index (object array, gcv_object_t* argptr,
     /* check number of subscripts: */
     if (argcount != 1) /* should be = 1 */
       fehler_subscript_anz(array,argcount);
-    sstring_un_realloc(STACK_1);
+    sstring_un_realloc(array);
     /* check subscript itself: */
-    *index_ = test_index(); /* index = row-major-index = subscript */
-    skipSTACK(1); return STACK_0;
+    *index_ = test_index(array); /* index = row-major-index = subscript */
+    skipSTACK(1); return array;
   } else { /* non-simple array */
     /* check Subscripts, calculate row-major-index, clean up STACK: */
     *index_ = test_subscripts(array,argptr,argcount);
@@ -713,7 +719,7 @@ LISPFUN(store,seclass_default,2,0,rest,nokey,0,NIL)
 { /* (SYS::STORE array {subscript} object)
    = (SETF (AREF array {subscript}) object), CLTL p. 291 */
   rest_args_pointer skipSTACKop 1; /* pointer to first Subscript */
-  var object array = check_array(Before(rest_args_pointer)); /* fetch array */
+  var object array = Before(rest_args_pointer) = check_array(Before(rest_args_pointer)); /* fetch array */
   var object element = popSTACK();
   /* process subscripts and fetch data vector and index: */
   var uintL index;
@@ -731,7 +737,7 @@ LISPFUNNR(svref,2)
   if (!simple_vector_p(STACK_1))
     fehler_kein_svector(TheSubr(subr_self)->name,STACK_1);
   /* check index: */
-  var uintL index = test_index();
+  var uintL index = test_index(STACK_1);
   /* fetch element: */
   VALUES1(TheSvector(STACK_1)->data[index]);
   skipSTACK(2);
@@ -745,7 +751,7 @@ LISPFUNN(svstore,3)
   if (!simple_vector_p(STACK_1))
     fehler_kein_svector(TheSubr(subr_self)->name,STACK_1);
   /* check index: */
-  var uintL index = test_index();
+  var uintL index = test_index(STACK_1);
   /* store element: */
   TheSvector(STACK_1)->data[index] = element;
   VALUES1(element);
@@ -759,7 +765,7 @@ LISPFUNN(psvstore,3)
   if (!simple_vector_p(STACK_1))
     fehler_kein_svector(TheSubr(subr_self)->name,STACK_1);
   /* check index: */
-  var uintL index = test_index();
+  var uintL index = test_index(STACK_1);
   /* store element: */
   VALUES1(TheSvector(STACK_1)->data[index] = STACK_2);
   skipSTACK(3);
@@ -770,10 +776,10 @@ LISPFUNNR(row_major_aref,2)
   var object array = check_array(STACK_1);
   /* check index: */
   if (!posfixnump(STACK_0))
-    fehler_index_type();
+    fehler_index_type(array);
   var uintL index = posfixnum_to_L(STACK_0);
   if (index >= array_total_size(array)) /* index must be smaller than size */
-    fehler_index_range(array_total_size(array));
+    fehler_index_range(array,array_total_size(array));
   if (array_simplep(array)) {
     sstring_un_realloc(array);
   } else {
@@ -786,14 +792,14 @@ LISPFUNNR(row_major_aref,2)
 LISPFUNN(row_major_store,3)
 { /* (SYS::ROW-MAJOR-STORE array index element)
    = (SETF (ROW-MAJOR-AREF array index) element), CLtL2 p. 450 */
-  var object array = check_array(STACK_2);
+  var object array = STACK_2 = check_array(STACK_2);
   var object element = popSTACK();
   /* check index: */
   if (!posfixnump(STACK_0))
-    fehler_index_type();
+    fehler_index_type(array);
   var uintL index = posfixnum_to_L(STACK_0);
   if (index >= array_total_size(array)) /* index must be smaller than size */
-    fehler_index_range(array_total_size(array));
+    fehler_index_range(array,array_total_size(array));
   if (array_simplep(array)) {
     sstring_un_realloc(array);
   } else {
@@ -1051,7 +1057,7 @@ LISPFUN(array_in_bounds_p,seclass_read,1,0,rest,nokey,0,NIL)
     /* check subscript itself: */
     var object subscriptobj = STACK_0; /* subscript as object */
     if (!integerp(subscriptobj)) /* must be an integer */
-      fehler_index_type();
+      fehler_index_type(array);
     /* subscript must be fixnum>=0 , */
     /* subscript as uintL must be smaller than length: */
     if (!posfixnump(subscriptobj)) goto no;
@@ -1074,8 +1080,10 @@ LISPFUN(array_in_bounds_p,seclass_read,1,0,rest,nokey,0,NIL)
       var uintC count;
       dotimespC(count,argcount, {
         var object subscriptobj = NEXT(argptr); /* subscript as object */
-        if (!integerp(subscriptobj)) /* must be an integer */
+        if (!integerp(subscriptobj)) { /* must be an integer */
+          Next(rest_args_pointer) = array;
           fehler_subscript_type(argcount);
+        }
         /* subscript must be fixnum>=0 , and subscript as uintL
            must be smaller than the corresponding dimension: */
         if (!( posfixnump(subscriptobj)
@@ -1099,9 +1107,9 @@ LISPFUN(array_row_major_index,seclass_read,1,0,rest,nokey,0,NIL)
     /* check number of subscripts: */
     if (argcount != 1) /* should be = 1 */
       fehler_subscript_anz(array,argcount);
-    sstring_un_realloc(STACK_1);
+    sstring_un_realloc(array);
     /* check subscript itself: */
-    test_index();
+    test_index(array);
     VALUES1(popSTACK()); /* Index = Row-Major-Index = Subscript */
     skipSTACK(1);
   } else { /* non-simple array */
@@ -1137,11 +1145,11 @@ LISPFUNN(array_displacement,1)
 
 /* error: not a bit array
  fehler_bit_array()
- > STACK_0: array, that is not a bit-array */
-nonreturning_function(local, fehler_bit_array, (void)) {
-  pushSTACK(STACK_0); /* TYPE-ERROR slot DATUM */
+ > array: array, that is not a bit-array */
+nonreturning_function(local, fehler_bit_array, (object array)) {
+  pushSTACK(array); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_array_bit)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(STACK_(0+2));
+  pushSTACK(array);
   pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,GETTEXT("~S: ~S is not an array of bits"));
 }
@@ -1154,7 +1162,7 @@ LISPFUN(bit,seclass_read,1,0,rest,nokey,0,NIL)
   var object datenvektor =
     subscripts_to_index(array,rest_args_pointer,argcount, &index);
   if (!simple_bit_vector_p(Atype_Bit,datenvektor))
-    fehler_bit_array();
+    fehler_bit_array(array);
   /* data vector is a simple-bit-vector. Fetch element of the data vector: */
   VALUES1(( sbvector_btst(datenvektor,index) ? Fixnum_1 : Fixnum_0 ));
   skipSTACK(1);
@@ -1168,7 +1176,7 @@ LISPFUN(sbit,seclass_read,1,0,rest,nokey,0,NIL)
   var object datenvektor =
     subscripts_to_index(array,rest_args_pointer,argcount, &index);
   if (!simple_bit_vector_p(Atype_Bit,datenvektor))
-    fehler_bit_array();
+    fehler_bit_array(array);
   /* data vector is a simple-bit-vector. Fetch element of the data vector: */
   VALUES1(( sbvector_btst(datenvektor,index) ? Fixnum_1 : Fixnum_0 ));
   skipSTACK(1);
@@ -3717,10 +3725,10 @@ LISPFUNN(set_fill_pointer,2)
    = (SETF (FILL-POINTER vector) index), CLTL p. 296 */
   var uintL* fillp = get_fill_pointer(STACK_1); /* fillpointer-address */
   if (!posfixnump(STACK_0)) /* new fill-pointer must be fixnum>=0 . */
-    fehler_index_type();
+    fehler_index_type(STACK_1);
   var uintL newfillp = posfixnum_to_L(STACK_0); /* as uintL */
   if (!(newfillp <= fillp[-1])) /* must be <= length */
-    fehler_index_range(fillp[-1]+1);
+    fehler_index_range(STACK_1,fillp[-1]+1);
   *fillp = newfillp; /* store new fill-pointer */
   VALUES1(STACK_0); /* return new fill-pointer */
   skipSTACK(2);

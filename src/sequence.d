@@ -474,9 +474,8 @@ nonreturning_function(local, fehler_posint, (object kw, object obj)) {
 # > vector: the vector
   nonreturning_function(local, fehler_vector_index_range, (object vector)) {
     var uintL len = vector_length(vector);
-    pushSTACK(vector);
     pushSTACK(UL_to_I(len));
-    fehler_index_range(len);
+    fehler_index_range(vector,len);
   }
 
 # UP: kopiert einen Teil einer Sequence in eine andere Sequence.
@@ -577,9 +576,8 @@ local void seq_check_index (object seq, object index) {
     # check index against active length (may be smaller than total size)
     var uintL len = vector_length(seq);
     if (posfixnum_to_L(index) >= len) {
-      pushSTACK(seq);
       pushSTACK(index);
-      fehler_index_range(len);
+      fehler_index_range(seq,len);
     }
   }
 }

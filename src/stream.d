@@ -16614,8 +16614,8 @@ LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL)
             if (pos_off <= TheIarray(ssstring)->dims[1]) {
               TheIarray(ssstring)->dims[1] = pos_off;
             } else {
-              pushSTACK(ssstring); pushSTACK(fixnum(pos_off));
-              fehler_index_range(TheIarray(ssstring)->dims[1]);
+              pushSTACK(fixnum(pos_off));
+              fehler_index_range(ssstring,TheIarray(ssstring)->dims[1]);
             }
             break;
           case POS_QUERY:
