@@ -3760,11 +3760,10 @@ typedef xrecord_ *  Xrecord;
 
 # Possible rectype values for records.
   enum {
-           enum_rectype_first = -5,     # Try to keep rectype_limit = 0.
+           enum_rectype_first = -4,     # Try to keep rectype_limit = 0.
          Rectype_Closure,
          Rectype_Structure,             # only used #ifndef case_structure
          Rectype_Instance,
-         Rectype_realloc_Instance,
            rectype_limit, # Here is the limit between Srecord and Xrecord.
          Rectype_Hashtable = rectype_limit,
          #ifndef TYPECODES
