@@ -50,7 +50,7 @@ typedef struct malloca_header_t {
         #else
         fprintf(stderr,GETTEXTL(NLstring "*** - " "Memory exhausted. RESET")); :
         #endif
-        reset();
+        reset(1);
       }
     }
 

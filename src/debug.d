@@ -408,7 +408,7 @@ global void break_driver (bool continuable_p) {
     pushSTACK(continuable_p ? T : NIL);
     funcall(driverfun,1); /* call with CONTINUABLE argument */
     if (!continuable_p) /* not continuable? */
-      reset(); /* -> back to the previous REPLoop */
+      reset(1); /* -> back to the previous REPLoop */
   } else {
     var p_backtrace_t bt_save = back_trace;
     var struct backtrace_t bt_here = {NULL, S(break_driver), STACK , -1};
@@ -458,7 +458,7 @@ global void break_driver (bool continuable_p) {
       }
       if (!continuable_p) { /* not continuable? */
         back_trace = bt_save;
-        unwind(); reset(); /* -> back to the previous REPLoop */
+        unwind(); reset(1); /* -> back to the previous REPLoop */
       }
       skipSTACK(1+2); /* dissolve driver frame, forget prompt */
       dynamic_unbind(S(print_readably));
