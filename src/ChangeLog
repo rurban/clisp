@@ -1,3 +1,7 @@
+1999-07-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * spvw.d (usage): Reorder command line options. Split into groups.
+
 1999-07-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d (SPARC64): New macro.

@@ -1,4 +1,4 @@
-.TH CLISP 1 "4 July 1999"
+.TH CLISP 1 "18 July 1999"
 
 
 .SH NAME
@@ -19,6 +19,20 @@ clisp \- Common Lisp language interpreter and compiler
 .B --license
 ]
 [
+.B -B
+.I lisplibdir
+]
+#ifdef UNIX
+[
+.B -K
+.I linking-set
+]
+#endif
+[
+.B -M
+.I memfile
+]
+[
 .B -m
 .I memsize
 ]
@@ -34,23 +48,6 @@ clisp \- Common Lisp language interpreter and compiler
 .I tempdir
 ]
 #endif
-[
-.B -B
-.I lisplibdir
-]
-#ifdef UNIX
-[
-.B -K
-.I linking-set
-]
-#endif
-[
-.B -M
-.I memfile
-]
-[
-.B -norc
-]
 [
 .B -L
 .I language
@@ -77,7 +74,17 @@ clisp \- Common Lisp language interpreter and compiler
 .B -I
 ]
 [
+.B -a
+]
+[
+.B -p
+.I packagename
+]
+[
 .B -C
+]
+[
+.B -norc
 ]
 [
 .B -i
@@ -93,13 +100,6 @@ clisp \- Common Lisp language interpreter and compiler
 .B -o
 .I outputfile
 ] ...
-]
-[
-.B -p
-.I packagename
-]
-[
-.B -a
 ]
 [
 .B -x
@@ -142,6 +142,37 @@ version number, as given by the function call
 .TP
 .B --license
 Displays a summary of the licensing information, the GNU GPL.
+
+.TP
+.BI "-B " lisplibdir
+Specifies the installation directory. This is the directory containing
+the linking sets and other data files.
+#ifdef UNIX
+This option is normally not necessary, because the installation directory
+is already built-in in the
+.B clisp
+executable.
+#endif
+
+#ifdef UNIX
+.TP
+.BI "-K " linking-set
+Specifies the linking set to be run. This is a directory containing at least
+a main executable and an initial memory image. Possible values are
+.BR base ", " full .
+The default is
+.BR base .
+#endif
+
+.TP
+.BI "-M " memfile
+Specifies the initial memory image.
+This must be a memory dump produced by the
+.I saveinitmem
+function.
+#ifdef UNIX
+It may have been compressed using GNU gzip.
+#endif
 
 .TP
 .BI "-m " memsize
@@ -210,67 +241,6 @@ Specifies the directory where the temporary core file is to be held.
 This option takes precedence over the environment variable
 .BR TMPDIR .
 #endif
-
-.TP
-.BI "-B " lisplibdir
-Specifies the installation directory. This is the directory containing
-the linking sets and other data files.
-#ifdef UNIX
-This option is normally not necessary, because the installation directory
-is already built-in in the
-.B clisp
-executable.
-#endif
-
-#ifdef UNIX
-.TP
-.BI "-K " linking-set
-Specifies the linking set to be run. This is a directory containing at least
-a main executable and an initial memory image. Possible values are
-.BR base ", " full .
-The default is
-.BR base .
-#endif
-
-.TP
-.BI "-M " memfile
-Specifies the initial memory image.
-This must be a memory dump produced by the
-.I saveinitmem
-function.
-#ifdef UNIX
-It may have been compressed using GNU gzip.
-#endif
-
-.TP
-.BI "-norc"
-Normally
-.B clisp
-loads a user run control (RC) file on startup (this happens after the
-.BI -C
-option is processed).  The file loaded is
-#if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
-.B _clisprc.lsp
-or
-.B _clisprc.fas
-in the home directory
-.IR "(user-homedir-pathname)" ,
-#endif
-#if defined(PATHNAME_AMIGAOS)
-.B .clisprc.lsp
-or
-.B .clisprc.fas
-in the home directory
-.IR "(user-homedir-pathname)" ,
-#endif
-#if defined(PATHNAME_UNIX)
-.B ${HOME}/.clisprc.lsp
-or
-.BR ${HOME}/.clisprc.fas ,
-#endif
-whichever is newest. This option,
-.B -norc,
-prevents loading of the RC file.
 
 .TP
 .BI "-L " language
@@ -345,6 +315,34 @@ character.
 #endif
 
 .TP
+.B -a
+ANSI CL compliant: Comply with the ANSI CL specification even on those issues
+where ANSI CL is broken. This option is provided for maximum portability of
+Lisp programs, and is not useful for actual everyday work. It sets the variable
+.I *package*
+to
+.BR COMMON-LISP-USER ,
+and the symbol macro
+.I *ansi*
+to
+.BR t .
+See impnotes.html, section "Maximum ANSI CL compliance", for details.
+
+.TP
+.BI "-p " packagename
+At startup the value of the variable
+.I *package*
+will be set to the package named
+.IR packagename .
+The default is the package which was active when the image was saved, normally
+.BR USER ,
+or
+.B COMMON-LISP-USER
+if the option
+.B -a
+was specified.
+
+.TP
 .B -C
 Compile when load: At startup the value of the variable
 .I *load-compiling*
@@ -354,6 +352,36 @@ Code being
 .IR load ed
 will then be compiled on the fly. This results in slower loading, but faster
 execution.
+
+.TP
+.BI "-norc"
+Normally
+.B clisp
+loads a user run control (RC) file on startup (this happens after the
+.BI -C
+option is processed).  The file loaded is
+#if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
+.B _clisprc.lsp
+or
+.B _clisprc.fas
+in the home directory
+.IR "(user-homedir-pathname)" ,
+#endif
+#if defined(PATHNAME_AMIGAOS)
+.B .clisprc.lsp
+or
+.B .clisprc.fas
+in the home directory
+.IR "(user-homedir-pathname)" ,
+#endif
+#if defined(PATHNAME_UNIX)
+.B ${HOME}/.clisprc.lsp
+or
+.BR ${HOME}/.clisprc.fas ,
+#endif
+whichever is newest. This option,
+.B -norc,
+prevents loading of the RC file.
 
 .TP
 .BI "-i " "initfile ..."
@@ -383,34 +411,6 @@ A bytecode listing (*.lis) of the files being compiled will be produced.
 Useful only for debugging purposes. See the documentation of
 .I "compile-file"
 for details.
-
-.TP
-.BI "-p " packagename
-At startup the value of the variable
-.I *package*
-will be set to the package named
-.IR packagename .
-The default is the package which was active when the image was saved, normally
-.BR USER ,
-or
-.B COMMON-LISP-USER
-if the option
-.B -a
-was specified.
-
-.TP
-.B -a
-ANSI CL compliant: Comply with the ANSI CL specification even on those issues
-where ANSI CL is broken. This option is provided for maximum portability of
-Lisp programs, and is not useful for actual everyday work. It sets the variable
-.I *package*
-to
-.BR COMMON-LISP-USER ,
-and the symbol macro
-.I *ansi*
-to
-.BR t .
-See impnotes.html, section "Maximum ANSI CL compliance", for details.
 
 .TP
 .BI "-x " expressions
