@@ -1199,41 +1199,63 @@
   ) ) ) ) )
 )
 
-;; Bestimmt zwei Werte low,high so, dass (subtypep type `(INTEGER ,low ,high))
-;; gilt und low möglichst groß und high möglichst klein ist.
-;; low = * bedeutet -unendlich, high = * bedeutet unendlich.
-;; Werte sind NIL,NIL falls (subtypep type 'INTEGER) falsch ist.
-;; Wir brauchen diese Funktion nur für MAKE-ARRAY, UPGRADED-ARRAY-ELEMENT-TYPE
-;; und OPEN, dürfen also oBdA  type  durch  `(OR ,type (MEMBER 0))  ersetzen.
+;; Determines two values low,high such that
+;;   (subtypep type `(INTEGER ,low ,high))
+;; holds and low is as large as possible and high is as small as possible.
+;; low = * means -infinity, high = * means infinity.
+;; When (subtypep type 'INTEGER) is false, the values NIL,NIL are returned.
+;; We need this function only for MAKE-ARRAY, UPGRADED-ARRAY-ELEMENT-TYPE and
+;; OPEN and can therefore w.l.o.g. replace
+;;   type  with  `(OR ,type (MEMBER 0))
+#| ;; The original implementation calls canonicalize-type and then applies
+   ;; a particular SUBTYPE variant:
 (defun subtype-integer (type)
   (macrolet ((yes () '(return-from subtype-integer (values low high)))
              (no () '(return-from subtype-integer nil))
              (unknown () '(return-from subtype-integer nil)))
     (setq type (canonicalize-type type))
     (if (consp type)
-      (macrolet ((min* (x y) `(if (or (eq ,x '*) (eq ,y '*)) '* (min ,x ,y)))
-                 (max* (x y) `(if (or (eq ,x '*) (eq ,y '*)) '* (max ,x ,y))))
-        (case (first type)
-          (MEMBER ;; MEMBER: alle Elemente müssen vom Typ INTEGER sein
-            (let ((low 0) (high 0)) ; oBdA!
-              (dolist (x (rest type) (yes))
-                (unless (typep x 'INTEGER) (return (no)))
-                (setq low (min low x) high (max high x))
-          ) ) )
-          (OR ;; OR: Jeder Typ muss Subtyp von INTEGER sein
-            (let ((low 0) (high 0)) ; oBdA!
-              (dolist (type1 (rest type) (yes))
-                (multiple-value-bind (low1 high1) (subtype-integer type1)
-                  (unless low1 (return (no)))
-                  (setq low (min* low low1) high (max* high high1))
-          ) ) ) )
-          (AND ;; AND: Falls ein Typ Subtyp von INTEGER ist, sonst nicht bekannt
-            ;; Hier könnte man die verschiedenen Integer-Subtypen schneiden.
-            (dolist (type1 (rest type) (unknown))
-              (multiple-value-bind (low high) (subtype-integer type1)
-                (when low (return (yes)))
-          ) ) )
-      ) )
+      (case (first type)
+        (MEMBER ; (MEMBER &rest objects)
+          ;; All elements must be of type INTEGER.
+          (let ((low 0) (high 0)) ; wlog!
+            (dolist (x (rest type) (yes))
+              (unless (typep x 'INTEGER) (return (no)))
+              (setq low (min low x) high (max high x))
+        ) ) )
+        (OR ; (OR type*)
+          ;; Every type must be subtype of INTEGER.
+          (let ((low 0) (high 0)) ; wlog!
+            (dolist (type1 (rest type) (yes))
+              (multiple-value-bind (low1 high1) (subtype-integer type1)
+                (unless low1 (return (no)))
+                (setq low (if (or (eq low '*) (eq low1 '*)) '* (min low low1))
+                      high (if (or (eq high '*) (eq high1 '*)) '* (max high high1))
+        ) ) ) ) )
+        (AND ; (AND type*)
+          ;; If one of the types is subtype of INTEGER, then yes,
+          ;; otherwise unknown.
+          (let ((low nil) (high nil))
+            (dolist (type1 (rest type))
+              (multiple-value-bind (low1 high1) (subtype-integer type1)
+                (when low1
+                  (if low
+                    (setq low (if (eq low '*) low1 (if (eq low1 '*) low (max low low1)))
+                          high (if (eq high '*) high1 (if (eq high1 '*) high (min high high1)))
+                    )
+                    (setq low low1
+                          high high1
+            ) ) ) ) )
+            (if low
+              (progn
+                (when (and (numberp low) (numberp high) (not (<= low high)))
+                  (setq low 0 high 0) ; type equivalent to NIL
+                )
+                (yes)
+              )
+              (unknown)
+        ) ) )
+      )
       (setq type (list type))
     )
     (if (eq (first type) 'INTEGER)
@@ -1253,6 +1275,148 @@
         (yes)
       )
       (unknown)
+) ) )
+|# ;; This implementation inlines the (tail-recursive) canonicalize-type
+   ;; function. Its advantage is that it doesn't cons as much.
+   ;; (For example, (subtype-integer '(UNSIGNED-BYTE 8)) doesn't cons.)
+(defun subtype-integer (type)
+  (macrolet ((yes () '(return-from subtype-integer (values low high)))
+             (no () '(return-from subtype-integer nil))
+             (unknown () '(return-from subtype-integer nil)))
+    (cond ((symbolp type)
+           (let ((f (get type 'DEFTYPE-EXPANDER)))
+             (if f
+               (return-from subtype-integer
+                 (subtype-integer (funcall f (list type)))
+               )
+               (case type
+                 (BIT
+                   (let ((low 0) (high 1)) (yes))
+                 )
+                 (FIXNUM
+                   (let ((low '#,most-negative-fixnum)
+                         (high '#,most-positive-fixnum))
+                     (yes)
+                 ) )
+                 ((INTEGER BIGNUM SIGNED-BYTE)
+                   (let ((low '*) (high '*)) (yes))
+                 )
+                 (UNSIGNED-BYTE
+                   (let ((low 0) (high '*)) (yes))
+                 )
+                 ((NIL)
+                   (let ((low 0) (high 0)) (yes)) ; w.l.o.g.
+                 )
+                 (t
+                   (no)
+          )) ) ) )
+          ((and (consp type) (symbolp (first type)))
+           (let ((f (get (first type) 'DEFTYPE-EXPANDER)))
+             (if f
+               (return-from subtype-integer
+                 (subtype-integer (funcall f type))
+               )
+               (case (first type)
+                 (MEMBER ; (MEMBER &rest objects)
+                   ;; All elements must be of type INTEGER.
+                   (let ((low 0) (high 0)) ; wlog!
+                     (dolist (x (rest type) (yes))
+                       (unless (typep x 'INTEGER) (return (no)))
+                       (setq low (min low x) high (max high x))
+                 ) ) )
+                 (EQL ; (EQL object)
+                   (let ((x (second type)))
+                     (if (typep x 'INTEGER)
+                       (let ((low (min 0 x)) (high (max 0 x))) (yes))
+                       (no)
+                 ) ) )
+                 (OR ; (OR type*)
+                   ;; Every type must be subtype of INTEGER.
+                   (let ((low 0) (high 0)) ; wlog!
+                     (dolist (type1 (rest type) (yes))
+                       (multiple-value-bind (low1 high1) (subtype-integer type1)
+                         (unless low1 (return (no)))
+                         (setq low (if (or (eq low '*) (eq low1 '*)) '* (min low low1))
+                               high (if (or (eq high '*) (eq high1 '*)) '* (max high high1))
+                 ) ) ) ) )
+                 (AND ; (AND type*)
+                   ;; If one of the types is subtype of INTEGER, then yes,
+                   ;; otherwise unknown.
+                   (let ((low nil) (high nil))
+                     (dolist (type1 (rest type))
+                       (multiple-value-bind (low1 high1) (subtype-integer type1)
+                         (when low1
+                           (if low
+                             (setq low (if (eq low '*) low1 (if (eq low1 '*) low (max low low1)))
+                                   high (if (eq high '*) high1 (if (eq high1 '*) high (min high high1)))
+                             )
+                             (setq low low1
+                                   high high1
+                     ) ) ) ) )
+                     (if low
+                       (progn
+                         (when (and (numberp low) (numberp high) (not (<= low high)))
+                           (setq low 0 high 0) ; type equivalent to NIL
+                         )
+                         (yes)
+                       )
+                       (unknown)
+                 ) ) )
+                 (INTEGER
+                   (let ((low (if (rest type) (second type) '*))
+                         (high (if (cddr type) (third type) '*)))
+                     (when (consp low)
+                       (setq low (first low))
+                       (when (numberp low) (incf low))
+                     )
+                     (when (consp high)
+                       (setq high (first high))
+                       (when (numberp high) (decf high))
+                     )
+                     (when (and (numberp low) (numberp high) (not (<= low high)))
+                       (setq low 0 high 0) ; type equivalent to NIL
+                     )
+                     (yes)
+                 ) )
+                 (MOD ; (MOD n)
+                   (let ((n (second type)))
+                     (unless (and (integerp n) (>= n 0)) (typespec-error 'subtypep type))
+                     (let ((low 0) (high (max 0 (1- n))))
+                       (yes)
+                 ) ) )
+                 (SIGNED-BYTE ; (SIGNED-BYTE &optional s)
+                   (let ((s (or (second type) '*)))
+                     (if (eq s '*)
+                       (let ((low '*) (high '*)) (yes))
+                       (progn
+                         (unless (and (integerp s) (plusp s)) (typespec-error 'subtypep type))
+                         (let ((n (expt 2 (1- s))))
+                           (let ((low (- n)) (high (1- n)))
+                             (yes)
+                 ) ) ) ) ) )
+                 (UNSIGNED-BYTE ; (UNSIGNED-BYTE &optional s)
+                   (let ((s (or (second type) '*)))
+                     (if (eq s '*)
+                       (let ((low 0) (high '*)) (yes))
+                       (progn
+                         (unless (and (integerp s) (>= s 0)) (typespec-error 'subtypep type))
+                         (let ((n (expt 2 s)))
+                           (let ((low 0) (high (1- n)))
+                             (yes)
+                 ) ) ) ) ) )
+                 (t (no))
+          )) ) )
+          ((clos::class-p type)
+           (if (and (clos::built-in-class-p type)
+                    (eq (get (clos:class-name type) 'CLOS::CLOSCLASS) type)
+               )
+             (return-from subtype-integer
+               (subtype-integer (clos:class-name type))
+             )
+             (no)
+          ))
+          ((encodingp type) (no))
+          (t (typespec-error 'subtypep type))
 ) ) )
 
 #| Zu tun:
