@@ -1,5 +1,10 @@
 2004-12-12  Sam Steingold  <sds@gnu.org>
 
+	new module PARI for interface to <http://pari.math.u-bordeaux.fr/>
+	* modules/pari: new directory
+
+2004-12-12  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (parse_options): no longer accept "-a": 3.5 years is enough
 
 2004-12-11  Bruno Haible  <bruno@clisp.org>
