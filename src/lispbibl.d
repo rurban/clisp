@@ -354,6 +354,7 @@
   #include "intparam.h"  # integer-type characteristics created by the machine
   #include "floatparam.h" # floating-point type characteristics
 #elif defined(AMIGA) || defined(ACORN) || defined(OS2) || defined(WIN32)
+  #include "version.h"          /* defines PACKAGE_* */
   #define char_bitsize 8
   #define short_bitsize 16
   #if defined(ACORN) || defined(OS2) || defined(WIN32)
@@ -913,7 +914,7 @@
 
 # ###################### Macros for C ##################### #
 
-#if !defined(UNIXCONF)
+#if !defined(return_void)
   # To return a type of value void: return_void(...);
   #ifdef GNU
     #define return_void  return # 'return void;' is admissible
@@ -927,7 +928,7 @@
   #undef return_void
   #define return_void
 #endif
-#if !defined(GNU) && !defined(UNIXCONF)
+#if !defined(GNU) && !defined(inline)
   #define inline      # inline foo() {...} --> foo() {...}
 #endif
 
