@@ -3,9 +3,12 @@
 ;;;; Texas Instruments Incorporated, but freely distributable
 ;;;; for details see image.lisp or the MIT-CLX distribution.
 
+(defpackage "XLIB"
+  ;; (:use "COMMON-LISP" "CLOS")
+  (:import-from "SYS" "STRING-CONCAT"))
+
 (provide ':clx)
 
-(use-package '(:lisp :clos) :xlib)
 (in-package :xlib)
 
 (defvar *displays* nil)
@@ -16,9 +19,9 @@
 (defconstant *version* "CLISP-CLX 1997-06-12")
 
 
-;;;; ----------------------------------------------------------------------------------------------------
+;;;; --------------------------------------------------------------------------
 ;;;;  Exports
-;;;; ----------------------------------------------------------------------------------------------------
+;;;; --------------------------------------------------------------------------
 (export
   '(*version* access-control access-error access-hosts activate-screen-saver
     add-access-host add-resource add-to-save-set alist alloc-color
@@ -168,9 +171,9 @@
 (export '(shape-version shape-combine shape-offset shape-extents shape-rectangles))
 
 
-;;;; ----------------------------------------------------------------------------------------------------
+;;;; --------------------------------------------------------------------------
 ;;;;  Types
-;;;; ----------------------------------------------------------------------------------------------------
+;;;; --------------------------------------------------------------------------
 ;;;;
 ;;;; Lots of deftypes randomly gathers from MIT-CLX implementation
 ;;;;
@@ -365,9 +368,9 @@
 
 
 
-;;;; ----------------------------------------------------------------------------------------------------
+;;;; --------------------------------------------------------------------------
 ;;;;  Setf Methods
-;;;; ----------------------------------------------------------------------------------------------------
+;;;; --------------------------------------------------------------------------
 (setf
  (fdefinition '(SETF CLOSE-DOWN-MODE))              #'CLOSE-DOWN-MODE-SETTER
  (fdefinition '(SETF DISPLAY-AFTER-FUNCTION))       #'DISPLAY-AFTER-FUNCTION-SETTER
@@ -432,9 +435,9 @@
 (defun set-selection-owner (display selection owner &optional time) (setf (selection-owner display selection time) owner))
 
 
-;;;; ----------------------------------------------------------------------------------------------------
+;;;; --------------------------------------------------------------------------
 ;;;;  Macros
-;;;; ----------------------------------------------------------------------------------------------------
+;;;; --------------------------------------------------------------------------
 
 (defmacro EVENT-COND ((display &key timeout peek-p discard-p (force-output-p t))
                       &body clauses)
@@ -537,9 +540,9 @@
          (ungrab-server ,disp)))))
 
 
-;;;; ----------------------------------------------------------------------------------------------------
+;;;; --------------------------------------------------------------------------
 ;;;;  Window Manager Property functions
-;;;; ----------------------------------------------------------------------------------------------------
+;;;; --------------------------------------------------------------------------
 
 (defun wm-name (window)
   (get-property window :WM_NAME :type :STRING :result-type 'string :transform #'card8->char))
@@ -575,11 +578,13 @@
 
 (defun set-wm-class (window resource-name resource-class)
   (set-string-property window :WM_CLASS
-                       (concatenate 'string
-                                    (string (or resource-name ""))
-                                    (load-time-value (make-string 1 :initial-element (card8->char 0)))
-                                    (string (or resource-class ""))
-                                    (load-time-value (make-string 1 :initial-element (card8->char 0)))))
+                       (string-concat
+                        (string (or resource-name ""))
+                        (load-time-value
+                         (make-string 1 :initial-element (card8->char 0)))
+                        (string (or resource-class ""))
+                        (load-time-value
+                         (make-string 1 :initial-element (card8->char 0)))))
   (values))
 
 (defun wm-command (window)
@@ -629,7 +634,8 @@
         ((eq type 'window)   `(window-id ,value))
         ((eq type 'card16)   `,value)
         ((eq type 'colormap) `(colormap-id ,value))
-        ((eq type 'rgb-val)  `(round (the rgb-val ,value) (load-time-value (/ 1.0s0 #xffff))) )
+        ((eq type 'rgb-val)  `(round (the rgb-val ,value)
+                               (load-time-value (/ 1.0s0 #xffff))))
         ((and (consp type) (eq (car type) 'member))
          `(position ,value ',(cdr type)))
         (t (error "Unknown type ~S." type)) ))
@@ -648,7 +654,8 @@
   )
 
 (defun wm-hints (window)
-  (let ((prop (get-property window :WM_HINTS :type :WM_HINTS :result-type 'vector)))
+  (let ((prop (get-property window :WM_HINTS :type :WM_HINTS
+                            :result-type 'vector)))
     (when prop
       (decode-wm-hints prop (window-display window)))))
 
@@ -670,7 +677,8 @@
           (%buffer display))
       (setf (wm-hints-flags hints) flags)
       (when (logbitp input-hint flags)
-        (setf (wm-hints-input hints) (decode-type (member :off :on) (aref vector 1))))
+        (setf (wm-hints-input hints) (decode-type (member :off :on)
+                                                  (aref vector 1))))
       (when (logbitp state-hint flags)
         (setf (wm-hints-initial-state hints)
               (decode-type (member :dont-care :normal :zoom :iconic :inactive)
@@ -1165,9 +1173,9 @@
     (change-property window property prop :RGB_COLOR_MAP 32)))
 
 
-;;;; ----------------------------------------------------------------------------------------------------
+;;;; --------------------------------------------------------------------------
 ;;;;  Cut-Buffers
-;;;; ----------------------------------------------------------------------------------------------------
+;;;; --------------------------------------------------------------------------
 
 (defun cut-buffer (display &key (buffer 0) (type :STRING) (result-type 'string)
                    (transform #'card8->char) (start 0) end)
@@ -1202,9 +1210,9 @@
     (rotate-properties root buffers delta)))
 
 
-;;;; ----------------------------------------------------------------------------------------------------
+;;;; --------------------------------------------------------------------------
 ;;;;  Printers
-;;;; ----------------------------------------------------------------------------------------------------
+;;;; --------------------------------------------------------------------------
 
 ;;; NOTE:
 ;;;   I used here a (funcall #,#'fun ..) klugde, but by clisp-1996-07-22 this now considered
@@ -1278,14 +1286,15 @@
 
 
 
-;;;; ----------------------------------------------------------------------------------------------------
+;;;; --------------------------------------------------------------------------
 ;;;;  Misc
-;;;; ----------------------------------------------------------------------------------------------------
+;;;; --------------------------------------------------------------------------
 
 
-;;;; ----------------------------------------------------------------------------------------------------
-;;;;  Stuff, which is realy some interna of CLX, but needed by some programs ...
-;;;; ----------------------------------------------------------------------------------------------------
+;;;; --------------------------------------------------------------------------
+;;;;  Stuff, which is realy some internals of CLX,
+;;;;  but needed by some programs ...
+;;;; --------------------------------------------------------------------------
 
 (defconstant *STATE-MASK-VECTOR*
   '#(:shift :lock :control :mod-1 :mod-2 :mod-3 :mod-4 :mod-5 :button-1 :button-2 :button-3 :button-4 :button-5))
