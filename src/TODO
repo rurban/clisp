@@ -9,12 +9,12 @@ Defstruct accessors are defined twice, which leads to warnings. (Bruno)
 
 Contagion warnings emitted by many floating-point operations. (Bruno)
 
-Review this TODO list and remove obsolete items (Bruno).
+Review this TODO list and remove obsolete items. (Bruno)
 
 Fix modules/exporting.lisp :
 (eval-when (load compile eval)
   (defconstant FOO 10))
-does not export FOO
+does not export FOO. (Bruno)
 
 
 MUST-FIX BEFORE RELEASE 2.35
