@@ -65,28 +65,83 @@ to print the corresponding values, or T for all of them.")
 ;;-----------------------------------------------------------------------------
 ;; DESCRIBE
 
+; Number of recursive calls since the top-level call.
 (defvar *describe-nesting*)
+
+; A stream whose purpose is
+; 1. to provide automatic indentation,
+; 2. to distinguish top-level calls from recursive calls.
+(clos:defclass describe-stream (fundamental-character-output-stream)
+  ((target-stream :initarg :stream :type stream)
+   (indent :initform 0 :type integer) ; current line's indentation
+   (pending-indent :initform nil :type (or null integer))
+) )
+(clos:defmethod stream-write-char ((stream describe-stream) ch)
+  (clos:with-slots (target-stream indent pending-indent) stream
+    (if (eql ch #\Newline)
+      (progn
+        (write-char ch target-stream)
+        (setq indent (* *describe-nesting* *print-indent-lists*))
+        (setq pending-indent indent)
+      )
+      (progn
+        (when pending-indent
+          (dotimes (i pending-indent) (write-char #\Space target-stream))
+          (setq pending-indent nil)
+        )
+        (write-char ch target-stream)
+) ) ) )
+(clos:defmethod stream-line-column ((stream describe-stream))
+  (clos:with-slots (target-stream indent) stream
+    (let ((pos (sys::line-position target-stream)))
+      (if pos (max (- pos indent) 0) nil)
+) ) )
+(clos:defmethod stream-start-line-p ((stream describe-stream))
+  (clos:with-slots (target-stream indent) stream
+    (let ((pos (sys::line-position target-stream)))
+      (if pos (<= pos indent) nil)
+) ) )
+(clos:defmethod stream-finish-output ((stream describe-stream))
+  (clos:with-slots (target-stream pending-indent) stream
+    (when pending-indent
+      (dotimes (i pending-indent) (write-char #\Space target-stream))
+      (setq pending-indent nil)
+    )
+    (finish-output target-stream)
+) )
+(clos:defmethod stream-force-output ((stream describe-stream))
+  (clos:with-slots (target-stream pending-indent) stream
+    (when pending-indent
+      (dotimes (i pending-indent) (write-char #\Space target-stream))
+      (setq pending-indent nil)
+    )
+    (force-output target-stream)
+) )
+(clos:defmethod stream-clear-output ((stream describe-stream))
+  (clos:with-slots (target-stream pending-indent) stream
+    (setq pending-indent nil)
+    (clear-output target-stream)
+) )
+
+; List of objects which have been described during the current top-level call.
 (defvar *describe-done*)
 
-(defun describe-slotted-object (object s)
+(defun describe-slotted-object (object stream)
   (let ((slotnames (mapcar #'clos::slotdef-name (clos::class-slots (clos:class-of object)))))
     (if slotnames
       (let* ((slotstrings (mapcar #'write-to-string slotnames)) more
-             (tabpos (+ 4 (reduce #'max (mapcar #'length slotstrings)))))
-        (format s (ENGLISH "~%~V,0TSlots:")
-                (* *describe-nesting* *print-indent-lists*))
+             (tabpos (+ *print-indent-lists* 4 (reduce #'max (mapcar #'length slotstrings)))))
+        (format stream (ENGLISH "~%Slots:"))
         (mapc #'(lambda (slotname slotstring)
-                  (format s "~%~V,0T  ~A~VT"
-                          (* (1+ *describe-nesting*) *print-indent-lists*)
-                          slotstring tabpos)
+                  (format stream "~%~V,0T  ~A~VT"
+                          *print-indent-lists* slotstring tabpos)
                   (cond ((clos:slot-boundp object slotname)
-                         (format s "=  ~S" (clos:slot-value object slotname))
+                         (format stream "=  ~S" (clos:slot-value object slotname))
                          (pushnew (clos:slot-value object slotname) more))
-                        ((format s (ENGLISH "unbound")))))
+                        ((format stream (ENGLISH "unbound")))))
               slotnames slotstrings)
-        (dolist (vv (nreverse more)) (describe vv)))
-      (format s (ENGLISH "~%~V,0TNo slots.")
-              (* *describe-nesting* *print-indent-lists*)))))
+        (dolist (vv (nreverse more)) (describe vv stream)))
+      (format stream (ENGLISH "~%No slots.")))))
 
 (clos:defgeneric describe-object (obj stream)
   (:method ((obj t) (stream stream))
@@ -114,7 +169,7 @@ to print the corresponding values, or T for all of them.")
            (progn
              (format stream (ENGLISH "a GC-invisible pointer to ~S.")
                      value)
-             (describe value))
+             (describe value stream))
            (format stream (ENGLISH "a GC-invisible pointer to a now defunct object.")))))
       (READ-LABEL
        (format stream (ENGLISH "a label used for resolving #~D# references during READ.")
@@ -136,8 +191,8 @@ to print the corresponding values, or T for all of them.")
             (type-of obj))
     (let ((types (butlast (cdr (sys::%record-ref obj 0)))))
       (when types
-        (format stream (ENGLISH "~%~V,0TAs such, it is also a structure of type ~{~S~^, ~}.")
-                (* *describe-nesting* *print-indent-lists*) types)))
+        (format stream (ENGLISH "~%As such, it is also a structure of type ~{~S~^, ~}.")
+                types)))
     (describe-slotted-object obj stream))
   (:method ((obj cons) (stream stream))
     (let ((len ; cf. function list-length in CLtL p. 265
@@ -233,11 +288,10 @@ to print the corresponding values, or T for all of them.")
       (dolist (ty '(compiler-macro setf structure type variable function))
         (let ((doc (documentation obj ty)))
           (when doc
-            (format stream (ENGLISH "~%~V,0TDocumentation as a ~a:~%~a")
-                    (* *describe-nesting* *print-indent-lists*) ty doc))))
+            (format stream (ENGLISH "~%Documentation as a ~a:~%~a") ty doc))))
       (when moree
-        (format stream (ENGLISH "~%~V,0TFor more information, evaluate ~{~S~^ or ~}.")
-                (* *describe-nesting* *print-indent-lists*) moree))
+        (format stream (ENGLISH "~%For more information, evaluate ~{~S~^ or ~}.")
+                moree))
       (dolist (zz (nreverse mored)) (describe zz stream))))
   (:method ((obj integer) (stream stream))
     (format stream (ENGLISH "an integer, uses ~S bit~:p, is represented as a ~(~A~).")
@@ -268,16 +322,12 @@ to print the corresponding values, or T for all of them.")
     #+UNICODE
     (let ((unicode-name (unicode-attributes obj)))
       (if unicode-name
-        (format stream (ENGLISH "~%~V,0TUnicode name: ~A")
-                (* *describe-nesting* *print-indent-lists*) unicode-name)
-        (format stream
-                (ENGLISH "~%~V,0TIt is not defined by the Unicode standard.")
-                (* *describe-nesting* *print-indent-lists*))))
-    (format stream (ENGLISH "~%~V,0TIt is a ~:[non-~;~]printable character.")
-            (* *describe-nesting* *print-indent-lists*) (graphic-char-p obj))
+        (format stream (ENGLISH "~%Unicode name: ~A") unicode-name)
+        (format stream (ENGLISH "~%It is not defined by the Unicode standard."))))
+    (format stream (ENGLISH "~%It is a ~:[non-~;~]printable character.")
+            (graphic-char-p obj))
     (unless (standard-char-p obj)
-      (format stream (ENGLISH "~%~V,0TIts use is non-portable.")
-              (* *describe-nesting* *print-indent-lists*))))
+      (format stream (ENGLISH "~%Its use is non-portable."))))
   (:method ((obj stream) (stream stream))
     (format stream (ENGLISH "a~:[~:[ closed ~;n output-~]~;~:[n input-~;n input/output-~]~]stream.")
             (and (input-stream-p obj) (open-stream-p obj))
@@ -294,8 +344,7 @@ to print the corresponding values, or T for all of them.")
         (format stream (ENGLISH "."))
         (let ((use-list (package-use-list obj))
               (used-by-list (package-used-by-list obj)))
-          (format stream (ENGLISH "~%~V,0TIt ")
-                  (* *describe-nesting* *print-indent-lists*))
+          (format stream (ENGLISH "~%It "))
           (when use-list
             (format stream (ENGLISH "imports the external symbols of the package~:[~;s~] ~{~A~^, ~} and ")
                     (cdr use-list) (mapcar #'package-name use-list)))
@@ -304,10 +353,10 @@ to print the corresponding values, or T for all of them.")
             (if (= 1 *describe-nesting*)
               (format stream (ENGLISH "exports ~:[no symbols~;the symbols~:*~{~<~%~:; ~S~>~^~}~%~]")
                       (sort L #'string< :key #'symbol-name))
-              (format stream (ENGLISH "exports ~[no symbols~:;~:*~:d symbols ~]")
+              (format stream (ENGLISH "exports ~[no symbols~:;~:*~:d symbols~]")
                       (length L))))
           (if used-by-list
-            (format stream (ENGLISH "to the package~:[~;s~] ~{~A~^, ~}")
+            (format stream (ENGLISH " to the package~:[~;s~] ~{~A~^, ~}")
                     (cdr used-by-list)
                     (mapcar #'package-name used-by-list))
             (format stream (ENGLISH ", but no package uses these exports")))
@@ -324,8 +373,7 @@ to print the corresponding values, or T for all of them.")
             (sys::logical-pathname-p obj)
             (mapcan #'(lambda (kw component)
                         (when component
-                          (list (format nil "~%~V,0T~A = ~A"
-                                        (* *describe-nesting* *print-indent-lists*)
+                          (list (format nil "~%~A = ~A"
                                         (symbol-name kw)
                                         (make-pathname kw component)))))
                     '(:host :device :directory :name :type :version)
@@ -381,39 +429,46 @@ to print the corresponding values, or T for all of them.")
              (sys::signature obj)
            (sys::describe-signature stream req opt rest-p key-p keywords
                                     other-keys-p)
-           (format stream (ENGLISH "~%~V,0TFor more information, evaluate ~{~S~^ or ~}.")
-                   (* *describe-nesting* *print-indent-lists*)
+           (format stream (ENGLISH "~%For more information, evaluate ~{~S~^ or ~}.")
                    `((DISASSEMBLE #',(sys::closure-name obj)))))
          (let ((doc (sys::%record-ref obj 2)))
-           (format stream (ENGLISH "~%~V,0Targument list: ~:S")
-                   (* *describe-nesting* *print-indent-lists*)
+           (format stream (ENGLISH "~%argument list: ~:S")
                    (car (sys::%record-ref obj 1)))
            (when doc
-             (format stream (ENGLISH "~%~V,0Tdocumentation: ~A")
-                     (* *describe-nesting* *print-indent-lists*)
-                     doc))))))))
+             (format stream (ENGLISH "~%documentation: ~A") doc))))))))
+
+(defun describe1 (obj stream)
+  (let ((objstring (sys::write-to-short-string obj (or *print-right-margin* sys::*prin-linelength*))))
+    (if (member obj *describe-done* :test #'eq)
+      (format stream (ENGLISH "~&~%~A [see above]") objstring)
+      (progn
+        (push obj *describe-done*)
+        (format stream (ENGLISH "~&~%~A is ") objstring)
+        (describe-object obj stream)
+) ) ) )
 
 (defun describe (obj &optional stream)
-  (cond ((eq stream 'nil) (setq stream *standard-output*))
-        ((eq stream 't) (setq stream *terminal-io*)))
-  (unless (boundp '*describe-nesting*)
-    (setq *describe-nesting* 0 *describe-done* nil))
-  (unwind-protect
-       (if (member obj *describe-done* :test #'eq)
-           (format stream (ENGLISH "~%~V,0T~S [see above]")
-                   (* (1+ *describe-nesting*) *print-indent-lists*) obj)
-           (let ((*print-circle* t)
-                 (*describe-nesting* (1+ *describe-nesting*)))
-             (push obj *describe-done*)
-             (format stream
-                     (ENGLISH "~%~V,0T~a is ")
-                     (* *describe-nesting* *print-indent-lists*)
-                     (sys::write-to-short-string obj (or *print-right-margin* sys::*prin-linelength*)))
-             (describe-object obj stream)))
-    (when (= 0 *describe-nesting*)
-      (makunbound '*describe-nesting*)
-      (makunbound '*describe-done*)))
-  (values))
+  (if (typep stream 'describe-stream)
+    ; Recursive call
+    (let ((*describe-nesting* (1+ *describe-nesting*))
+          (*print-right-margin*
+             (max (- (or *print-right-margin* sys::*prin-linelength*)
+                     *print-indent-lists*)
+                  1)))
+      (describe1 obj stream)
+    )
+    ; Top-level call
+    (progn
+      (cond ((eq stream 'nil) (setq stream *standard-output*))
+            ((eq stream 't) (setq stream *terminal-io*)))
+      (let ((*print-circle* t)
+            (*describe-nesting* 0)
+            (*describe-done* nil))
+        (describe1 obj (clos:make-instance 'describe-stream :stream stream))
+    ) )
+  )
+  (values)
+)
 
 ;;-----------------------------------------------------------------------------
 ;; auxiliary functions for DESCRIBE of FUNCTION
@@ -481,8 +536,7 @@ to print the corresponding values, or T for all of them.")
 (defun describe-signature (s req-anz opt-anz rest-p keyword-p keywords
                            allow-other-keys)
   (when s
-    (format s (ENGLISH "~%~V,0TArgument list: ")
-            (* *describe-nesting* *print-indent-lists*)))
+    (format s (ENGLISH "~%Argument list: ")))
   (format s "(~{~A~^ ~})"
           (signature-to-list req-anz opt-anz rest-p keyword-p keywords
                              allow-other-keys)))
