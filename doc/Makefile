@@ -33,6 +33,8 @@ CLASSPATH=$(XALAN)/bin/xerces.jar$(SEP)$(XALAN)/bin/xalan.jar$(SEP)$(SAXON)/saxo
 
 TEXI2HTML=texi2html
 
+DIST=cons:/home/ftp/pub/lisp/clisp/snapshots
+
 # this is the original DTD
 # when processing with a tool which can get the DTD from the net,
 # e.g., (open)jade, you can use this definition,
@@ -75,6 +77,7 @@ impnotes.html: impnotes.xml $(IMPNOTES) # tidy.conf
 #	cp impnotes.html impnotes-saved.html
 #	tidy -config tidy.conf -f tidy.err impnotes.html || true
 	egrep -Hn 'NAME="[A-Z0-9]*"' $@ || true
+	(test -n "$(DIST)" && scp -p impnotes.html $(DIST);) || true
 
 impnotes.pdf: impnotes.xml $(IMPNOTES)
 	time docbook2pdf $<
@@ -85,6 +88,7 @@ html: impnotes.xml $(IMPNOTES)
 	cd html && sed 's/^/ln -vfs /' .symlinks | sh -
 	time docbook2html --dsl impnotes.dsl -o $@ $<
 	egrep -Hnr 'NAME="[A-Z0-9]*"' $@ || true
+	(test -n "$(DIST)" && scp -p html/* $(DIST)/impnotes/;) || true
 
 up: impnotes.html html
 	scp impnotes.html sf:/home/groups/c/cl/clisp/www/impnotes-new.html
