@@ -1738,7 +1738,9 @@ local void gc_unmarkcheck (void) {
        #ifdef DEBUG_SPVW
         { /* the callers in back_trace must all be already marked */
           var struct backtrace_t *bt = back_trace;
-          for (; bt; bt = bt->next) if (!marked(&(bt->next))) abort();
+          for (; bt; bt = bt->next)
+            if (!subrp(bt->caller) && !marked(ThePointer(bt->caller)))
+              abort();
         }
        #endif
       # All active objects are marked now:
