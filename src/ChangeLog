@@ -1,5 +1,9 @@
 2004-06-24  Sam Steingold  <sds@gnu.org>
 
+	* utils/modprep.lisp (parse-signature): check that END is non-NIL
+
+2004-06-24  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/bdb.c (BDB:DB-GET, BDB:CURSOR-GET):
 	separate options and actions
 
