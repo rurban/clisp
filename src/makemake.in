@@ -2222,7 +2222,7 @@ done
 echol
 
 echol "stdbool.h : ${SRCDIR}stdbool.h.in"
-echotab "-\$(LN_S) ${SRCDIR}stdbool.h.in stdbool.h"
+echotab "sed -e 's/@''HAVE__BOOL''@/@HAVE__BOOL@/g' < ${SRCDIR}stdbool.h.in > stdbool.h"
 echol
 
 if [ -n "${SRCDIR}" ] ; then
