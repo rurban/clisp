@@ -1,3 +1,8 @@
+2000-12-20  Bruno Haible  <haible@clisp.cons.org>
+
+        * charstrg.d (nonspacing_table_data): Update to match glibc 2.2 width
+          definition.
+
 2000-12-19  Bruno Haible  <haible@clisp.cons.org>
 
         * time.d (SYS::DEFAULT-TIME-ZONE) [WIN32]: Don't produce time_t values
