@@ -1939,13 +1939,13 @@ space safety compilation-speed debug declaration dynamic-extent compile
 
 (LOAD "compiler")  ;; Compiler
 
-(LOAD "disassem")  ;; Disassembler
-
 (LOAD "defs2")     ;; CLtL2-definitions, optional
 
 (LOAD "loop")      ;; CLtL2/ANSI-CL-LOOP, optional
 
 (LOAD "clos")      ;; CLOS
+
+(LOAD "disassem")               ; Disassembler
 
 (LOAD "condition") ;; Conditions
 

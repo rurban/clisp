@@ -12781,54 +12781,6 @@ Die Funktion make-closure wird dazu vorausgesetzt.
     (terpri stream)
 ) )
 
-#-CROSS
-(defun disassemble (object &aux name)
-  (when (function-name-p object)
-    (unless (fboundp object)
-      (error-of-type 'undefined-function
-        :name object
-        (ENGLISH "Undefined function ~S")
-        object
-    ) )
-    (setq name object)
-    (setq object (get-funname-symbol object))
-    (setq object (or (get object 'sys::traced-definition)
-                     (symbol-function object)
-  ) )            )
-  (when (macrop object)
-    (setq object (macro-expander object))
-  )
-  #+UNIX (when (stringp object)
-           (return-from disassemble
-             (disassemble-machine-code (sys::program-name) (sys::program-id)
-                          object
-         ) ) )
-  #+UNIX (when (sys::code-address-of object)
-           (return-from disassemble
-             (disassemble-machine-code (sys::program-name) (sys::program-id)
-                          (format nil "0x~X" (sys::code-address-of object))
-         ) ) )
-  (unless (sys::closurep object)
-    (error-of-type 'error
-      (ENGLISH "Cannot disassemble ~S")
-      object
-  ) )
-  ; object ist eine Closure.
-  (unless (compiled-function-p object)
-    (setq object
-      (compile-lambda (sys::%record-ref object 0) ; name
-                      (sys::%record-ref object 1) ; lambdabody
-                      (sys::%record-ref object 4) ; venv
-                      (sys::%record-ref object 5) ; fenv
-                      (sys::%record-ref object 6) ; benv
-                      (sys::%record-ref object 7) ; genv
-                      (sys::%record-ref object 8) ; denv
-  ) ) )
-  ; object ist eine compilierte Closure.
-  (disassemble-closure object) ; Disassemblieren
-  object ; compilierte Closure als Wert
-)
-
 ; The compilation of code using symbol-macros requires venv-search in
 ; compiled form.
 #-CROSS
