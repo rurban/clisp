@@ -89,7 +89,7 @@
 	(struct argv_init_c): New type.
 	(struct argv_initparams): New type.
 	(struct argv_actions): New type.
-	(argv_verbose, argv_wait_keypress, argv_license): Remov variables.
+	(argv_verbose, argv_wait_keypress, argv_license): Remove variables.
 	(parse_options): New function, extracted from main(). Signal an error
 	when an invalid option beginning with "-r" is seen.
 	(free_argv_initparams, free_argv_actions): New functions.
