@@ -347,6 +347,8 @@ T
 (EQUALP "            fou" "            FOO")
 NIL
 
+(EQUALP '(0 1) '(#P""))   NIL
+
 (NOT 1)
 NIL
 
