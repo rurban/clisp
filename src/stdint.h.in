@@ -33,19 +33,26 @@
 #if defined(__FreeBSD__)
 # include <sys/inttypes.h>
 #endif
-#if defined(__sun) && defined(HAVE_SYS_INTTYPES_H)
-# include <sys/int_types.h>
-# define SKIP_LOCAL_DEFINITIONS
+#if defined(__sun) && HAVE_SYS_INTTYPES_H
+# include <sys/inttypes.h>
+  /* Solaris 7 <sys/inttypes.h> has the types except the *_fast*_t types, and
+     the macros except for *_FAST*_*, INTPTR_MIN, PTRDIFF_MIN, PTRDIFF_MAX.
+     But note that <sys/int_types.h> contains only the type definitions!  */
+# define HAVE_SYSTEM_INTTYPES
 #endif
 #if (defined(__hpux) || defined(_AIX)) && HAVE_INTTYPES_H
 # include <inttypes.h>
-# define SKIP_LOCAL_DEFINITIONS
+  /* HP-UX 10 <inttypes.h> has nearly everything, except UINT_LEAST8_MAX,
+     UINT_FAST8_MAX, PTRDIFF_MIN, PTRDIFF_MAX.  */
+  /* AIX 4 <inttypes.h> has nearly everything, except INTPTR_MIN, INTPTR_MAX,
+     UINTPTR_MAX, PTRDIFF_MIN, PTRDIFF_MAX.  */
+# define HAVE_SYSTEM_INTTYPES
 #endif
 #if !(defined(UNIX_CYGWIN32) && defined(__BIT_TYPES_DEFINED__))
 # define NEED_SIGNED_INT_TYPES
 #endif
 
-#if defined(SKIP_LOCAL_DEFINITIONS)
+#if !defined(HAVE_SYSTEM_INTTYPES)
 
 /* 7.18.1.1. Exact-width integer types */
 
@@ -255,6 +262,6 @@ typedef uint32_t uintmax_t;
 
 #endif
 
-#endif  /* SKIP_LOCAL_DEFINITIONS */
+#endif  /* !HAVE_SYSTEM_INTTYPES */
 
 #endif /* _STDINT_H */

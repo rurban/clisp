@@ -1,5 +1,12 @@
 2004-08-19  Bruno Haible  <bruno@clisp.org>
 
+	* configure.in: Test for sys/inttypes.h, not sys/int_types.h.
+	* stdint.h.in: Fix the reversed SKIP_LOCAL_DEFINITIONS logic.
+	Rename SKIP_LOCAL_DEFINITIONS to HAVE_SYSTEM_INTTYPES. On Solaris,
+	use <sys/inttypes.h>, not <sys/int_types.h>.
+
+2004-08-19  Bruno Haible  <bruno@clisp.org>
+
 	* sequence.d (get_seq_type): Update the code for user-defined sequence
 	types.
 	Reported by Jörg Höhle.

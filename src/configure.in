@@ -103,8 +103,8 @@ AC_MSG_NOTICE([* checks for header files])
 dnl
 dnl DEFS STDC_HEADERS if exist stdlib.h, stdarg.h, ...
 CL_STDC_HEADERS
-dnl DEFS HAVE_SYS_INTTYPES_H -- needed on __sun, see stdint.h.in
-AC_CHECK_HEADERS(sys/int_types.h)
+dnl DEFS HAVE_SYS_INTTYPES_H -- needed for stdint.h.in
+AC_CHECK_HEADERS(sys/inttypes.h)
 dnl DEFS HAVE_OFFSETOF if offsetof in stddef.h
 CL_OFFSETOF
 dnl DEFS HAVE_STDBOOL_H, sets variables STDBOOL_H, HAVE__BOOL
