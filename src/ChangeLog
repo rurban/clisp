@@ -1,5 +1,9 @@
 1999-03-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * encoding.d (init_encodings): Define some more aliases.
+
+1999-03-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * encoding.d (fehler_uni32_invalid, uni32_mblen, uni32be_mbstowcs,
            uni32le_mbstowcs, uni32_wcslen, uni32be_wcstombs, uni32le_wcstombs):
           New functions.

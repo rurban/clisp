@@ -1505,6 +1505,17 @@ LISPFUNN(charset_range,3)
       # Now some aliases.
       define_constant(S(unicode_16),Symbol_value(S(unicode_16_big_endian))); # network byte order = big endian
       define_constant(S(unicode_32),Symbol_value(S(unicode_32_big_endian))); # network byte order = big endian
+      define_constant(S(ucs_2),Symbol_value(S(unicode_16)));
+      define_constant(S(ucs_4),Symbol_value(S(unicode_32)));
+      define_constant(S(windows_1250),Symbol_value(S(cp1250)));
+      define_constant(S(windows_1251),Symbol_value(S(cp1251)));
+      define_constant(S(windows_1252),Symbol_value(S(cp1252)));
+      define_constant(S(windows_1253),Symbol_value(S(cp1253)));
+      define_constant(S(windows_1254),Symbol_value(S(cp1254)));
+      define_constant(S(windows_1255),Symbol_value(S(cp1255)));
+      define_constant(S(windows_1256),Symbol_value(S(cp1256)));
+      define_constant(S(windows_1257),Symbol_value(S(cp1257)));
+      define_constant(S(windows_1258),Symbol_value(S(cp1258)));
       #endif
       # Initialize O(default_encoding):
         #ifdef UNICODE
