@@ -184,7 +184,7 @@ check-configures : $(CONFIGURES) $(CONFIG_H_IN)
 
 
 potfiles :
-	cd src/po ; $(MAKE) -f Makefile.devel ; $(MAKE) -f Makefile.devel clean
+	cd src/po ; CLISP=clisp $(MAKE) -f Makefile.devel ; $(MAKE) -f Makefile.devel clean
 
 
 view-man :
@@ -297,7 +297,6 @@ src--distrib : force
 	ln -s . $(TOPDIR)
 	$(PACK) $(PACKOPT) $(SRC_DIST) $(EXCLUDE) $(SOURCES)
 	rm -f $(TOPDIR)
-	cd src/po && $(PACK) $(PACKOPT) /tmp/$(TOPDIR)-potfiles$(PACKEXT) *.po*
 
 linux-distrib : force
 	$(MAKE) linux--distrib
