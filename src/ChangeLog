@@ -1,5 +1,9 @@
 2004-03-07  Bruno Haible  <bruno@clisp.org>
 
+	* list.d (get_integer_truncate): Portability tweak.
+
+2004-03-07  Bruno Haible  <bruno@clisp.org>
+
 	* macros2.lisp (with-output-to-string): Declare the variable as
 	read-only in both cases.
 

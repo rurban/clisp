@@ -599,7 +599,7 @@ local uintL get_integer_truncate (object number) {
   if (posfixnump(number)) return posfixnum_to_L(number);
   number = check_pos_integer(number);
   if (uint32_p(number)) return I_to_UL(number);
-  else return (uintL)~0; /* most-positive-uint32 */
+  return ~(uintL)0; /* most-positive-uint32 */
 }
 
 LISPFUNNR(nth,2)
@@ -695,7 +695,7 @@ LISPFUN(last,seclass_read,1,1,norest,nokey,0,NIL)
      (when (>= i n) (pop r)))) */
   var object intarg = popSTACK();
   /* check optional integer argument: */
-  var uintL count = boundp(intarg) ? get_integer_truncate(intarg) : 1;
+  var uintL count = (boundp(intarg) ? get_integer_truncate(intarg) : 1);
   var object list = popSTACK();
   # Optimierung der beiden häufigsten Fälle count=1 und count=0:
   switch (count) {
@@ -962,7 +962,7 @@ LISPFUN(butlast,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (BUTLAST list [integer]), CLTL S. 271 */
   var object intarg = popSTACK();
   /* check optional integer argument: */
-  var uintL count = boundp(intarg) ? get_integer_truncate(intarg) : 1;
+  var uintL count = (boundp(intarg) ? get_integer_truncate(intarg) : 1);
   var uintL len = llength(STACK_0); /* list length */
   /* Give an error if the argument is not a list. (It's stupid to allow
      dotted lists of length > 0 but to forbid dotted lists of length 0,
@@ -990,7 +990,7 @@ LISPFUN(nbutlast,seclass_default,1,1,norest,nokey,0,NIL)
 { /* (NBUTLAST list [integer]), CLTL p. 271 */
   var object intarg = popSTACK();
   /* check optional integer argument: */
-  var uintL count = boundp(intarg) ? get_integer_truncate(intarg) : 1;
+  var uintL count = (boundp(intarg) ? get_integer_truncate(intarg) : 1);
   var uintL len = llength(STACK_0); /* list length */
   /* Give an error if the argument is not a list. (It's stupid to allow
      dotted lists of length > 0 but to forbid dotted lists of length 0,
