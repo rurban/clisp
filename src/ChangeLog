@@ -1,5 +1,9 @@
 2002-07-19  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (main): more begin/end_system_call
+
+2002-07-19  Sam Steingold  <sds@gnu.org>
+
 	* m4/termcap.m4 (CL_TERMCAP): use AC_SEARCH_LIBS
 	* m4/readline.m4 (CL_READLINE): AC_REQUIRE CL_TERMCAP;
 	check for the readline library, not just the header
