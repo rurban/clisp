@@ -84,6 +84,9 @@ User visible changes
 * Conforming with X3J13 writeup <DOTTED-LIST-ARGUMENTS:CLARIFY>, the first
   argument of LDIFF may now be a dotted list.
 
+* PATHNAME-MATCH-P and TRANSLATE-PATHNAME now treat missing pathname
+  components the same as wild ones.
+
 * Renamed function SOCKET-STREAM-PEER-HOST to SOCKET-STREAM-PEER. New
   functions SOCKET-STREAM-LOCAL and SOCKET-SERVER-HOST.
 
