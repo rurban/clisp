@@ -117,13 +117,14 @@ int main (int argc, char* argv[]) {
          goto L1;
     L3:  ; /* am File-Ende */
   }
-  /* close files: */
-  fclose(infile);
-  fclose(outfile);
+  /* error checking should work after file closing, but it does not */
   if (ferror(infile))
     { perror(infilenamebuffer); exit(__LINE__); }
   if (ferror(outfile))
     { perror(outfilenamebuffer); exit(__LINE__); }
+  /* close files: */
+  fclose(infile);
+  fclose(outfile);
   exit(0); /* OK */
 }
 
