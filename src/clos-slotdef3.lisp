@@ -21,11 +21,11 @@
   (:method ((slotdef slot-definition))
     (slot-value slotdef 'name)))
 (defun (setf slot-definition-name) (new-value slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition '(setf slot-definition-name))
   (setf (slot-value slotdef 'name) new-value))
 
 (defun slot-definition-inheritable-initer (slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition 'slot-definition-inheritable-initer)
   (slot-value slotdef 'inheritable-initer))
 
 ;; MOP p. 84
@@ -34,7 +34,7 @@
   (:method ((slotdef slot-definition))
     (inheritable-slot-definition-initform (slot-value slotdef 'inheritable-initer))))
 (defun (setf slot-definition-initform) (new-value slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition '(setf slot-definition-initform))
   (setf (inheritable-slot-definition-initform (slot-value slotdef 'inheritable-initer)) new-value))
 
 ;; MOP p. 84
@@ -43,7 +43,7 @@
   (:method ((slotdef slot-definition))
     (inheritable-slot-definition-initfunction (slot-value slotdef 'inheritable-initer))))
 (defun (setf slot-definition-initfunction) (new-value slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition '(setf slot-definition-initfunction))
   (setf (inheritable-slot-definition-initfunction (slot-value slotdef 'inheritable-initer)) new-value))
 
 ;; MOP p. 84
@@ -52,7 +52,7 @@
   (:method ((slotdef slot-definition))
     (slot-value slotdef 'initargs)))
 (defun (setf slot-definition-initargs) (new-value slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition '(setf slot-definition-initargs))
   (setf (slot-value slotdef 'initargs) new-value))
 
 ;; MOP p. 85
@@ -61,7 +61,7 @@
   (:method ((slotdef slot-definition))
     (slot-value slotdef 'type)))
 (defun (setf slot-definition-type) (new-value slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition '(setf slot-definition-type))
   (setf (slot-value slotdef 'type) new-value))
 
 ;; MOP p. 84
@@ -70,18 +70,18 @@
   (:method ((slotdef slot-definition))
     (slot-value slotdef 'allocation)))
 (defun (setf slot-definition-allocation) (new-value slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition '(setf slot-definition-allocation))
   (setf (slot-value slotdef 'allocation) new-value))
 
 (defun slot-definition-inheritable-doc (slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition 'slot-definition-inheritable-doc)
   (slot-value slotdef 'inheritable-doc))
 
 (defun slot-definition-documentation (slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition 'slot-definition-documentation)
   (inheritable-slot-definition-documentation (slot-value slotdef 'inheritable-doc)))
 (defun (setf slot-definition-documentation) (new-value slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition '(setf slot-definition-documentation))
   (setf (inheritable-slot-definition-documentation (slot-value slotdef 'inheritable-doc)) new-value))
 
 ;; MOP p. 85
@@ -90,7 +90,7 @@
   (:method ((slotdef direct-slot-definition))
     (slot-value slotdef 'readers)))
 (defun (setf slot-definition-readers) (new-value slotdef)
-  (assert (typep slotdef 'direct-slot-definition))
+  (accessor-typecheck slotdef 'direct-slot-definition '(setf slot-definition-readers))
   (setf (slot-value slotdef 'readers) new-value))
 
 ;; MOP p. 85
@@ -99,7 +99,7 @@
   (:method ((slotdef direct-slot-definition))
     (slot-value slotdef 'writers)))
 (defun (setf slot-definition-writers) (new-value slotdef)
-  (assert (typep slotdef 'direct-slot-definition))
+  (accessor-typecheck slotdef 'direct-slot-definition '(setf slot-definition-writers))
   (setf (slot-value slotdef 'writers) new-value))
 
 ;; MOP p. 86
@@ -108,7 +108,7 @@
   (:method ((slotdef effective-slot-definition))
     (slot-value slotdef 'location)))
 (defun (setf slot-definition-location) (new-value slotdef)
-  (assert (typep slotdef 'effective-slot-definition))
+  (accessor-typecheck slotdef 'effective-slot-definition '(setf slot-definition-location))
   (setf (slot-value slotdef 'location) new-value))
 
 |#
@@ -123,15 +123,15 @@
     (sys::%record-ref slotdef *<slot-definition>-name-location*)))
 ;; Not in MOP.
 (defun (setf slot-definition-name) (new-value slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition '(setf slot-definition-name))
   (setf (sys::%record-ref slotdef *<slot-definition>-name-location*) new-value))
 
 ;; Not in MOP.
 (defun slot-definition-inheritable-initer (slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition 'slot-definition-inheritable-initer)
   (sys::%record-ref slotdef *<slot-definition>-inheritable-initer-location*))
 (defun (setf slot-definition-inheritable-initer) (new-value slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition '(setf slot-definition-inheritable-initer))
   (setf (sys::%record-ref slotdef *<slot-definition>-inheritable-initer-location*) new-value))
 
 ;; MOP p. 84
@@ -141,7 +141,7 @@
     (inheritable-slot-definition-initform (sys::%record-ref slotdef *<slot-definition>-inheritable-initer-location*))))
 ;; Not in MOP.
 (defun (setf slot-definition-initform) (new-value slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition '(setf slot-definition-initform))
   (setf (inheritable-slot-definition-initform (sys::%record-ref slotdef *<slot-definition>-inheritable-initer-location*)) new-value))
 
 ;; MOP p. 84
@@ -151,7 +151,7 @@
     (inheritable-slot-definition-initfunction (sys::%record-ref slotdef *<slot-definition>-inheritable-initer-location*))))
 ;; Not in MOP.
 (defun (setf slot-definition-initfunction) (new-value slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition '(setf slot-definition-initfunction))
   (setf (inheritable-slot-definition-initfunction (sys::%record-ref slotdef *<slot-definition>-inheritable-initer-location*)) new-value))
 
 ;; MOP p. 84
@@ -161,7 +161,7 @@
     (sys::%record-ref slotdef *<slot-definition>-initargs-location*)))
 ;; Not in MOP.
 (defun (setf slot-definition-initargs) (new-value slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition '(setf slot-definition-initargs))
   (setf (sys::%record-ref slotdef *<slot-definition>-initargs-location*) new-value))
 
 ;; MOP p. 85
@@ -171,7 +171,7 @@
     (sys::%record-ref slotdef *<slot-definition>-type-location*)))
 ;; Not in MOP.
 (defun (setf slot-definition-type) (new-value slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition '(setf slot-definition-type))
   (setf (sys::%record-ref slotdef *<slot-definition>-type-location*) new-value))
 
 ;; MOP p. 84
@@ -181,23 +181,23 @@
     (sys::%record-ref slotdef *<slot-definition>-allocation-location*)))
 ;; Not in MOP.
 (defun (setf slot-definition-allocation) (new-value slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition '(setf slot-definition-allocation))
   (setf (sys::%record-ref slotdef *<slot-definition>-allocation-location*) new-value))
 
 ;; Not in MOP.
 (defun slot-definition-inheritable-doc (slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition 'slot-definition-inheritable-doc)
   (sys::%record-ref slotdef *<slot-definition>-inheritable-doc-location*))
 (defun (setf slot-definition-inheritable-doc) (new-value slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition '(setf slot-definition-inheritable-doc))
   (setf (sys::%record-ref slotdef *<slot-definition>-inheritable-doc-location*) new-value))
 
 ;; Not in MOP.
 (defun slot-definition-documentation (slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition 'slot-definition-documentation)
   (inheritable-slot-definition-documentation (sys::%record-ref slotdef *<slot-definition>-inheritable-doc-location*)))
 (defun (setf slot-definition-documentation) (new-value slotdef)
-  (assert (typep slotdef 'slot-definition))
+  (accessor-typecheck slotdef 'slot-definition '(setf slot-definition-documentation))
   (setf (inheritable-slot-definition-documentation (sys::%record-ref slotdef *<slot-definition>-inheritable-doc-location*)) new-value))
 
 ;; MOP p. 85
@@ -207,7 +207,7 @@
     (sys::%record-ref slotdef *<direct-slot-definition>-readers-location*)))
 ;; Not in MOP.
 (defun (setf slot-definition-readers) (new-value slotdef)
-  (assert (typep slotdef 'direct-slot-definition))
+  (accessor-typecheck slotdef 'direct-slot-definition '(setf slot-definition-readers))
   (setf (sys::%record-ref slotdef *<direct-slot-definition>-readers-location*) new-value))
 
 ;; MOP p. 85
@@ -217,7 +217,7 @@
     (sys::%record-ref slotdef *<direct-slot-definition>-writers-location*)))
 ;; Not in MOP.
 (defun (setf slot-definition-writers) (new-value slotdef)
-  (assert (typep slotdef 'direct-slot-definition))
+  (accessor-typecheck slotdef 'direct-slot-definition '(setf slot-definition-writers))
   (setf (sys::%record-ref slotdef *<direct-slot-definition>-writers-location*) new-value))
 
 ;; MOP p. 86
@@ -227,7 +227,7 @@
     (sys::%record-ref slotdef *<effective-slot-definition>-location-location*)))
 ;; Not in MOP.
 (defun (setf slot-definition-location) (new-value slotdef)
-  (assert (typep slotdef 'effective-slot-definition))
+  (accessor-typecheck slotdef 'effective-slot-definition '(setf slot-definition-location))
   (setf (sys::%record-ref slotdef *<effective-slot-definition>-location-location*) new-value))
 
 

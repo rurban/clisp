@@ -64,3 +64,25 @@
         (t (let ((l '()))
              (maphash #'(lambda (x y) (declare (ignore y)) (push x l)) set)
              l))))
+
+;;; ===========================================================================
+
+;; Typecheck in accessor functions that are not generic functions.
+;; (accessor-typecheck object class caller)
+;; > object: a form producing any object.
+;; > class: a form producing a class or a class name.
+;; > caller: a form producing the accessor's name, usually a quoted symbol.
+(defmacro accessor-typecheck (object class caller)
+  `(UNLESS (TYPEP ,object ,class)
+     (ERROR-ACCESSOR-TYPECHECK ,caller ,object ,class)))
+
+;; Auxiliary function for non-generic accessors.
+(defun error-accessor-typecheck (caller object class)
+  (error-of-type 'type-error
+    :datum object :expected-type class
+    "~S: The argument is not of type ~S: ~S"
+    caller
+    (if (and (class-p class) (eq (find-class (class-name class) nil) class))
+      (class-name class)
+      class)
+    object))

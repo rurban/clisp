@@ -43,10 +43,10 @@
 
 ;; Not in MOP.
 (defun class-classname (class)
-  (assert (typep class 'class))
+  (accessor-typecheck class 'class 'class-classname)
   (sys::%record-ref class *<class>-classname-location*))
 (defun (setf class-classname) (new-value class)
-  (assert (typep class 'class))
+  (accessor-typecheck class 'class '(setf class-classname))
   (setf (sys::%record-ref class *<class>-classname-location*) new-value))
 ;; MOP p. 76
 (fmakunbound 'class-name)
@@ -77,23 +77,23 @@
     (sys::%record-ref class *<class>-direct-superclasses-location*)))
 ;; Not in MOP.
 (defun (setf class-direct-superclasses) (new-value class)
-  (assert (typep class 'class))
+  (accessor-typecheck class 'class '(setf class-direct-superclasses))
   (setf (sys::%record-ref class *<class>-direct-superclasses-location*) new-value))
 
 ;; Not in MOP.
 (defun class-all-superclasses (class)
-  (assert (typep class 'class))
+  (accessor-typecheck class 'class 'class-all-superclasses)
   (sys::%record-ref class *<class>-all-superclasses-location*))
 (defun (setf class-all-superclasses) (new-value class)
-  (assert (typep class 'class))
+  (accessor-typecheck class 'class '(setf class-all-superclasses))
   (setf (sys::%record-ref class *<class>-all-superclasses-location*) new-value))
 
 ;; Not in MOP.
 (defun %class-precedence-list (class)
-  (assert (typep class 'class))
+  (accessor-typecheck class 'class '%class-precedence-list)
   (sys::%record-ref class *<class>-precedence-list-location*))
 (defun (setf class-precedence-list) (new-value class)
-  (assert (typep class 'class))
+  (accessor-typecheck class 'class '(setf class-precedence-list))
   (setf (sys::%record-ref class *<class>-precedence-list-location*) new-value))
 ;; MOP p. 76
 (fmakunbound 'class-precedence-list)
@@ -104,10 +104,10 @@
 
 ;; Not in MOP.
 (defun class-direct-subclasses-table (class)
-  (assert (typep class 'class))
+  (accessor-typecheck class 'class 'class-direct-subclasses-table)
   (sys::%record-ref class *<class>-direct-subclasses-location*))
 (defun (setf class-direct-subclasses-table) (new-value class)
-  (assert (typep class 'class))
+  (accessor-typecheck class 'class '(setf class-direct-subclasses-table))
   (setf (sys::%record-ref class *<class>-direct-subclasses-location*) new-value))
 ;; MOP p. 76
 (defgeneric class-direct-subclasses (class)
@@ -123,7 +123,7 @@
     (sys::%record-ref class *<class>-direct-slots-location*)))
 ;; Not in MOP.
 (defun (setf class-direct-slots) (new-value class)
-  (assert (typep class 'class))
+  (accessor-typecheck class 'class '(setf class-direct-slots))
   (setf (sys::%record-ref class *<class>-direct-slots-location*) new-value))
 
 ;; MOP p. 77
@@ -134,15 +134,15 @@
     (sys::%record-ref class *<class>-slots-location*)))
 ;; Not in MOP.
 (defun (setf class-slots) (new-value class)
-  (assert (typep class 'class))
+  (accessor-typecheck class 'class '(setf class-slots))
   (setf (sys::%record-ref class *<class>-slots-location*) new-value))
 
 ;; Not in MOP.
 (defun class-slot-location-table (class)
-  (assert (typep class 'class))
+  (accessor-typecheck class 'class 'class-slot-location-table)
   (sys::%record-ref class *<class>-slot-location-table-location*))
 (defun (setf class-slot-location-table) (new-value class)
-  (assert (typep class 'class))
+  (accessor-typecheck class 'class '(setf class-slot-location-table))
   (setf (sys::%record-ref class *<class>-slot-location-table-location*) new-value))
 
 ;; MOP p. 75
@@ -153,7 +153,7 @@
     (sys::%record-ref class *<class>-direct-default-initargs-location*)))
 ;; Not in MOP.
 (defun (setf class-direct-default-initargs) (new-value class)
-  (assert (typep class 'class))
+  (accessor-typecheck class 'class '(setf class-direct-default-initargs))
   (setf (sys::%record-ref class *<class>-direct-default-initargs-location*) new-value))
 
 ;; MOP p. 75
@@ -164,103 +164,103 @@
     (sys::%record-ref class *<class>-default-initargs-location*)))
 ;; Not in MOP.
 (defun (setf class-default-initargs) (new-value class)
-  (assert (typep class 'class))
+  (accessor-typecheck class 'class '(setf class-default-initargs))
   (setf (sys::%record-ref class *<class>-default-initargs-location*) new-value))
 
 ;; Not in MOP.
 (defun class-documentation (class)
-  (assert (typep class 'class))
+  (accessor-typecheck class 'class 'class-documentation)
   (sys::%record-ref class *<class>-documentation-location*))
 (defun (setf class-documentation) (new-value class)
-  (assert (typep class 'class))
+  (accessor-typecheck class 'class '(setf class-documentation))
   (setf (sys::%record-ref class *<class>-documentation-location*) new-value))
 
 ;; Not in MOP.
 (defun class-initialized (class)
-  (assert (typep class 'class))
+  (accessor-typecheck class 'class 'class-initialized)
   (sys::%record-ref class *<class>-initialized-location*))
 (defun (setf class-initialized) (new-value class)
-  (assert (typep class 'class))
+  (accessor-typecheck class 'class '(setf class-initialized))
   (setf (sys::%record-ref class *<class>-initialized-location*) new-value))
 
 ;; Not in MOP.
 (defun class-subclass-of-stablehash-p (class)
-  (assert (typep class 'slotted-class))
+  (accessor-typecheck class 'slotted-class 'class-subclass-of-stablehash-p)
   (sys::%record-ref class *<slotted-class>-subclass-of-stablehash-p-location*))
 (defun (setf class-subclass-of-stablehash-p) (new-value class)
-  (assert (typep class 'slotted-class))
+  (accessor-typecheck class 'slotted-class '(setf class-subclass-of-stablehash-p))
   (setf (sys::%record-ref class *<slotted-class>-subclass-of-stablehash-p-location*) new-value))
 
 ;; Not in MOP.
 (defun class-generic-accessors (class)
-  (assert (typep class 'slotted-class))
+  (accessor-typecheck class 'slotted-class 'class-generic-accessors)
   (sys::%record-ref class *<slotted-class>-generic-accessors-location*))
 (defun (setf class-generic-accessors) (new-value class)
-  (assert (typep class 'slotted-class))
+  (accessor-typecheck class 'slotted-class '(setf class-generic-accessors))
   (setf (sys::%record-ref class *<slotted-class>-generic-accessors-location*) new-value))
 
 ;; Not in MOP.
 (defun class-direct-accessors (class)
-  (assert (typep class 'slotted-class))
+  (accessor-typecheck class 'slotted-class 'class-direct-accessors)
   (sys::%record-ref class *<slotted-class>-direct-accessors-location*))
 (defun (setf class-direct-accessors) (new-value class)
-  (assert (typep class 'slotted-class))
+  (accessor-typecheck class 'slotted-class '(setf class-direct-accessors))
   (setf (sys::%record-ref class *<slotted-class>-direct-accessors-location*) new-value))
 
 ;; Not in MOP.
 (defun class-valid-initargs (class)
-  (assert (typep class 'slotted-class))
+  (accessor-typecheck class 'slotted-class 'class-valid-initargs)
   (sys::%record-ref class *<slotted-class>-valid-initargs-location*))
 (defun (setf class-valid-initargs) (new-value class)
-  (assert (typep class 'slotted-class))
+  (accessor-typecheck class 'slotted-class '(setf class-valid-initargs))
   (setf (sys::%record-ref class *<slotted-class>-valid-initargs-location*) new-value))
 
 ;; Not in MOP.
 (defun class-instance-size (class)
-  (assert (typep class 'slotted-class))
+  (accessor-typecheck class 'slotted-class 'class-instance-size)
   (sys::%record-ref class *<slotted-class>-instance-size-location*))
 (defun (setf class-instance-size) (new-value class)
-  (assert (typep class 'slotted-class))
+  (accessor-typecheck class 'slotted-class '(setf class-instance-size))
   (setf (sys::%record-ref class *<slotted-class>-instance-size-location*) new-value))
 
 ;; Not in MOP.
 (defun class-names (class)
-  (assert (typep class 'structure-class))
+  (accessor-typecheck class 'structure-class 'class-names)
   (sys::%record-ref class *<structure-class>-names-location*))
 (defun (setf class-names) (new-value class)
-  (assert (typep class 'structure-class))
+  (accessor-typecheck class 'structure-class '(setf class-names))
   (setf (sys::%record-ref class *<structure-class>-names-location*) new-value))
 
 ;; Not in MOP.
 (defun class-current-version (class)
-  (assert (typep class 'standard-class))
+  (accessor-typecheck class 'standard-class 'class-current-version)
   (sys::%record-ref class *<standard-class>-current-version-location*))
 (defun (setf class-current-version) (new-value class)
-  (assert (typep class 'standard-class))
+  (accessor-typecheck class 'standard-class '(setf class-current-version))
   (setf (sys::%record-ref class *<standard-class>-current-version-location*) new-value))
 
 ;; Not in MOP.
 (defun class-fixed-slot-locations (class)
-  (assert (typep class 'standard-class))
+  (accessor-typecheck class 'standard-class 'class-fixed-slot-locations)
   (sys::%record-ref class *<standard-class>-fixed-slot-locations-location*))
 (defun (setf class-fixed-slot-locations) (new-value class)
-  (assert (typep class 'standard-class))
+  (accessor-typecheck class 'standard-class '(setf class-fixed-slot-locations))
   (setf (sys::%record-ref class *<standard-class>-fixed-slot-locations-location*) new-value))
 
 ;; Not in MOP.
 (defun class-instantiated (class)
-  (assert (typep class 'standard-class))
+  (accessor-typecheck class 'standard-class 'class-instantiated)
   (sys::%record-ref class *<standard-class>-instantiated-location*))
 (defun (setf class-instantiated) (new-value class)
-  (assert (typep class 'standard-class))
+  (accessor-typecheck class 'standard-class '(setf class-instantiated))
   (setf (sys::%record-ref class *<standard-class>-instantiated-location*) new-value))
 
 ;; Not in MOP.
 (defun class-finalized-direct-subclasses-table (class)
-  (assert (typep class 'standard-class))
+  (accessor-typecheck class 'standard-class 'class-finalized-direct-subclasses-table)
   (sys::%record-ref class *<standard-class>-finalized-direct-subclasses-location*))
 (defun (setf class-finalized-direct-subclasses-table) (new-value class)
-  (assert (typep class 'standard-class))
+  (accessor-typecheck class 'standard-class '(setf class-finalized-direct-subclasses-table))
   (setf (sys::%record-ref class *<standard-class>-finalized-direct-subclasses-location*) new-value))
 
 ;; MOP p. 77
@@ -281,7 +281,7 @@
                   (setf (class-instantiated class) old-instantiated)))))))
 ;; Not in MOP.
 (defun (setf class-prototype) (new-value class)
-  (assert (typep class 'standard-class))
+  (accessor-typecheck class 'standard-class '(setf class-prototype))
   (setf (sys::%record-ref class *<standard-class>-prototype-location*) new-value))
 
 ;;; ===========================================================================
