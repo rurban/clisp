@@ -123,6 +123,9 @@ User visible changes
 * The function XGCD now really always returns coefficients of smallest
   possible absolute value.
 
+* Fixed a interpreter bug: (let (x) (declare (special x)) ...) did not change
+  the global value of x in interpreted mode.
+
 * Fixed a bug: On Win32, Ctrl-Z sometimes caused two levels of the read-eval-
   print loop to be aborted instead of just one.
 

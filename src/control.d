@@ -604,7 +604,7 @@ LISPSPECFORM(prog2, 2,0,body)
                              GETTEXT("~: ~ is a constant, cannot be bound")
                             );
                     }
-                  if (special_var_p(TheSymbol(symbol)))
+                  if (specdecled || special_var_p(TheSymbol(symbol)))
                     # dynamisch binden
                     { *(oint*)(&STACK_0) |= wbit(dynam_bit_o); }
                     else
