@@ -62,7 +62,10 @@ local void string_out (FILE* out, object str) {
 
 /* the recursive helper for nobject_out() which does all the work
  must be enclosed in begin_system_call()/end_system_call() */
-local void nobject_out1 (FILE* out, object obj) {
+local void nobject_out1 (FILE* out, object obj, int level) {
+  if (level) --level;
+  else { fputs("<...>",out); return; }
+ #define XOUT(x) nobject_out1(out,x,level)
   if (stringp(obj)) {
     fputc('"',out);
     string_out(out,obj);
@@ -89,20 +92,20 @@ local void nobject_out1 (FILE* out, object obj) {
     fputs("#(",out);
     while (idx < len) {
       if (idx) fputc(' ',out);
-      nobject_out1(out,TheSvector(obj)->data[idx++]);
+      XOUT(TheSvector(obj)->data[idx++]);
     }
     fputc(')',out);
   } else if (consp(obj)) {
     fputc('(',out);
     loop {
-      nobject_out1(out,Car(obj));
+      XOUT(Car(obj));
       obj = Cdr(obj);
       if (atomp(obj)) break;
       fputc(' ',out);
     }
     if (!nullp(obj)) {
       fputs(" . ",out);
-      nobject_out1(out,obj);
+      XOUT(obj);
     }
     fputc(')',out);
   } else if (functionp(obj)) {
@@ -131,18 +134,18 @@ local void nobject_out1 (FILE* out, object obj) {
       obj = TheIclosure(obj)->clos_name;
     }
     fputc(' ',out);
-    nobject_out1(out,obj);
+    XOUT(obj);
     fputc('>',out);
   } else if (fsubrp(obj)) {
     fputs("#<",out);
     string_out(out,O(printstring_fsubr));
     fputc(' ',out);
-    nobject_out1(out,TheFsubr(obj)->name);
+    XOUT(TheFsubr(obj)->name);
     fputc('>',out);
   } else if (pathnamep(obj)) {
-    fputs("#(",out); nobject_out1(out,S(pathname));
-   #define SLOT(s) fputc(' ',out); nobject_out1(out,S(K##s)); fputc(' ',out); \
-     nobject_out1(out,ThePathname(obj)->pathname_##s)
+    fputs("#(",out); XOUT(S(pathname));
+   #define SLOT(s) fputc(' ',out); XOUT(S(K##s)); fputc(' ',out); \
+     XOUT(ThePathname(obj)->pathname_##s)
    #if HAS_HOST
     SLOT(host);
    #endif
@@ -157,35 +160,35 @@ local void nobject_out1 (FILE* out, object obj) {
     fputs(")",out);
   } else if (logpathnamep(obj)) {
    #ifdef LOGICAL_PATHNAMES
-    fputs("#(",out); nobject_out1(out,S(logical_pathname));
-   #define SLOT(s) fputc(' ',out); nobject_out1(out,S(K##s)); fputc(' ',out); \
-     nobject_out1(out,TheLogpathname(obj)->pathname_##s)
+    fputs("#(",out); XOUT(S(logical_pathname));
+   #define SLOT(s) fputc(' ',out); XOUT(S(K##s)); fputc(' ',out); \
+     XOUT(TheLogpathname(obj)->pathname_##s)
     SLOT(host); SLOT(directory); SLOT(name); SLOT(type); SLOT(version);
    #undef SLOT
     fputc(')',out);
    #endif
   } else if (hash_table_p(obj)) {
-    fputs("#(",out); nobject_out1(out,S(hash_table));
+    fputs("#(",out); XOUT(S(hash_table));
     fprintf(out," size=%d maxcount=%d count=%d mincount=%d free=",
             posfixnum_to_L(TheHashtable(obj)->ht_size),
             posfixnum_to_L(TheHashtable(obj)->ht_maxcount),
             posfixnum_to_L(TheHashtable(obj)->ht_count),
             posfixnum_to_L(TheHashtable(obj)->ht_mincount));
-    nobject_out1(out,TheHashtable(obj)->ht_freelist);
+    XOUT(TheHashtable(obj)->ht_freelist);
     fputs("\n  test=",out);
     switch (ht_test_code(record_flags(TheHashtable(obj)))) {
-      case bit(0): nobject_out1(out,S(eq)); break;
-      case bit(1): nobject_out1(out,S(eql)); break;
-      case bit(2): nobject_out1(out,S(equal)); break;
-      case bit(3): nobject_out1(out,S(equalp)); break;
+      case bit(0): XOUT(S(eq)); break;
+      case bit(1): XOUT(S(eql)); break;
+      case bit(2): XOUT(S(equal)); break;
+      case bit(3): XOUT(S(equalp)); break;
       default:
-        nobject_out1(out,TheHashtable(obj)->ht_test); fputc('/',out);
-        nobject_out1(out,TheHashtable(obj)->ht_hash);
+        XOUT(TheHashtable(obj)->ht_test); fputc('/',out);
+        XOUT(TheHashtable(obj)->ht_hash);
         break;
     }
-    fputs("\n  I=",out); nobject_out1(out,TheHashtable(obj)->ht_itable);
-    fputs("\n  N=",out); nobject_out1(out,TheHashtable(obj)->ht_ntable);
-    fputs("\n  KV=",out); nobject_out1(out,TheHashtable(obj)->ht_kvtable);
+    fputs("\n  I=",out); XOUT(TheHashtable(obj)->ht_itable);
+    fputs("\n  N=",out); XOUT(TheHashtable(obj)->ht_ntable);
+    fputs("\n  KV=",out); XOUT(TheHashtable(obj)->ht_kvtable);
     fputc(')',out);
   } else if (packagep(obj)) {
     fputs("#<",out);
@@ -197,10 +200,10 @@ local void nobject_out1 (FILE* out, object obj) {
     fputs("#<",out);
     string_out(out,O(printstring_weakpointer));
     fputc(' ',out);
-    nobject_out1(out,TheWeakpointer(obj)->wp_value);
+    XOUT(TheWeakpointer(obj)->wp_value);
     fputc(' ',out);
     if (weakpointerp(TheWeakpointer(obj)->wp_cdr)) fputs("#<next wp>",out);
-    else nobject_out1(out,TheWeakpointer(obj)->wp_cdr);
+    else XOUT(TheWeakpointer(obj)->wp_cdr);
     fputc('>',out);
   } else if (fixnump(obj)) fprintf(out,"%d",fixnum_to_L(obj));
   else if (eq(obj,unbound))   string_out(out,O(printstring_unbound));
@@ -245,13 +248,15 @@ local void nobject_out1 (FILE* out, object obj) {
     fprintf(out,"#<varobject type=%d address=0x%X>",
             varobject_type(TheVarobject(obj)),ThePointer(obj));
   else fprintf(out,"#<huh?! address=0x%X>",ThePointer(obj));
+ #undef XOUT
 }
 
 /* non-consing, STACK non-modifying */
 global object nobject_out (FILE* out, object obj) {
+  var local int level = 5; /* for debugging */
   begin_system_call();
   if (out == NULL) out = stdout;
-  nobject_out1(out,obj);
+  nobject_out1(out,obj,level);
   fflush(out);
   end_system_call();
   return obj;
