@@ -1,5 +1,14 @@
 2004-05-15  Bruno Haible  <bruno@clisp.org>
 
+	Let DEFSTRUCT generate regular (SETF FOO-BAR) functions instead of
+	DEFSETF expanders.
+	* defstruct.lisp (ds-make-readers): Renamed from ds-make-accessors.
+	(ds-make-writers): Renamed from ds-make-defsetfs. Generate a DEFUN
+	instead of a DEFSETF. Remove EVAL-WHEN hack.
+	(defstruct): Update.
+
+2004-05-15  Bruno Haible  <bruno@clisp.org>
+
 	* clos-slotdef3.lisp: Redefine the accessor functions with added
 	type-checking.
 
