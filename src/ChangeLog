@@ -1,5 +1,27 @@
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
 
+	* lispbibl.d (pathname_to_OSdir, OSdir_to_pathname): New declarations.
+	* pathname.d (pathname_to_OSdir, OSdir_to_pathname): New functions.
+	* spvw_ctype.d (init_ctype): Call setlocale for all standard categories
+	except LC_NUMERIC.
+	* spvw_language.d (init_language): Use locale names of the form
+	"ll_CC", not "ll", needed for glibc-2.2. Call setlocale for LC_MESSAGES
+	in all cases.
+	* i18n.d: New file.
+	* misc.d (SYS::CURRENT-LANGUAGE, SYS::LANGUAGE): Move to i18n.d.
+	* international.lisp: New file.
+	* macros2.lisp (*all-languages*, assert-language, ensure-language,
+	deflanguage, ENGLISH, definternational, deflocalized, localized,
+	*localized-recursion*, definternational-default): Move to
+	international.lisp.
+	* init.lisp: Load "international".
+	* makemake.in (CPARTS): Add i18n.
+	(LPARTS): Add international.
+	* ../doc/impext.xml: Rename section "The Language" to
+	"Internationalization". Add gettext binding documentation and example.
+
+2001-08-05  Bruno Haible  <haible@clisp.cons.org>
+
 	* lispbibl.d (subr_argtype_3_2): New enum value.
 	* eval.d (eval_subr): Treat it.
 	(apply_subr): Likewise.

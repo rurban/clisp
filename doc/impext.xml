@@ -36,12 +36,195 @@
 
 </section>
 
-<section id="language"><title>Extensions-1.3. The Language</title>
+<section id="i18n"><title>Extensions-1.3. Internationalization</title>
+
+<para>Internationalization means to prepare a program so that it can
+use multiple national languages and national cultural conventions
+without requiring further source code changes.  Localization means
+providing the data - mostly textual translations - necessary for an
+internationalized program to work in a particular language and with
+particular cultural conventions.</para>
+
+<para>CLISP is internationalized, and is localized for the languages
+English, German, French, Spanish and Dutch. But CLISP also supports
+internationalized Lisp programs, through GNU gettext.</para>
+
+<section><title>GNU gettext</title>
+
+<para>GNU gettext is a set of functions, included in CLISP or the C
+library, which permit to look up translations of strings through
+message catalogs. It is also a set of tools which makes the
+translation maintenance easy for the translator and the program
+maintainer.</para>
+
+<para>The GNU gettext functions are available in CLISP in the I18N
+package, which is re-exported from the EXT package.</para>
+
+<para>(i18n:gettext msgid &optional domain category)
+returns the translation of the message msgid, in the given domain,
+depending on the given category. msgid should be an ASCII string,
+and is normally the English message.</para>
+
+<para>(i18n:ngettext msgid msgid_plural n [domain [category]])
+returns the plural form of the translation for of msgid and n in
+the given domain, depending on the given category. msgid and
+msgid_plural should be ASCII strings, and are normally the English
+singular and English plural variant of the message,
+respectively.</para>
+
+<para>The domain is a string identifier denoting the program that
+is requesting the translation. The pathname of the message
+catalog depends on the domain: usually it is located at
+TEXTDOMAINDIR/ll/LC_MESSAGES/domain.mo, where ll is the ISO 639 code
+of the language. The notion of domain allows several Lisp programs
+running in the same image to request translations independently of
+each other.</para>
+
+<para>(i18n:textdomain) is a place that returns the default domain,
+used when no domain argument is passed to the gettext and ngettext
+functions. It is setfable. (setf textdomain) is usually used
+during the startup phase of a program. Note that the default domain
+is not saved in a memory image. The use of (setf textdomain) is
+recommended only for programs that are so simple that they will never
+need more than one domain.</para>
+
+<para>(i18n:textdomaindir domain) is a place that returns the base
+directory, called TEXTDOMAINDIR above, where the message catalogs
+for the given domain are assumed to be installed. It is setfable.
+(setf textdomaindir) is usually used during the startup phase of a
+program, and should be used because only the program knows where
+its message catalogs are installed. Note that the TEXTDOMAINDIRs
+are not saved in a memory image.</para>
+
+<para>The category argument of the gettext and ngettext functions
+denotes which locale facet the result should depend on. The default
+value is :LC_MESSAGES. Other possible values are :LC_CTYPE, :LC_TIME,
+:LC_COLLATE, :LC_MONETARY. The use of these values is useful for
+users who have a character/time/collation/money handling set
+differently from the usual message handling. Note that when a
+category argument is used, the message catalog location depends on
+the category: it will be expected at
+TEXTDOMAINDIR/ll/category/domain.mo.</para>
+
+<section><title>Example</title>
+
+A non-internationalized program simulating a restaurant dialogue
+might look as follows.
+
+=============== prog.lisp ===============
+(setq n (parse-integer (first *args*)))
+
+(format t "~A~%" "'Your command, please?', asked the waiter.")
+
+(format t "~@?~%"
+          (if (= n 1) "a piece of cake" "~D pieces of cake")
+          n)
+=========================================
+
+After being internationalized, all strings are wrapped in
+gettext calls, and ngettext is used for plurals. Also,
+(textdomaindir) is assigned a value; in our case, for simplicity,
+the current directory.
+
+=============== prog.lisp ===============
+(setf (textdomain) "prog")
+(setf (textdomaindir "prog") "./")
+
+(setq n (parse-integer (first *args*)))
+
+(format t "~A~%"
+          (gettext "'Your command, please?', asked the waiter."))
+
+(format t "~@?~%"
+          (ngettext "a piece of cake" "~D pieces of cake" n)
+          n)
+=========================================
+
+For ease of reading, it is customary to define an abbreviation
+for the gettext function. An underscore is customary.
+
+=============== prog.lisp ===============
+(setf (textdomaindir "prog") "./")
+(defun _ (msgid) (gettext msgid "prog"))
+
+(setq n (parse-integer (first *args*)))
+
+(format t "~A~%"
+          (_"'Your command, please?', asked the waiter."))
+
+(format t "~@?~%"
+          (ngettext "a piece of cake" "~D pieces of cake" n "prog")
+          n)
+=========================================
+
+Now the program's maintainer creates a message catalog template
+through the command
+
+   xgettext -o prog.pot prog.lisp
+
+Note: xgettext version 0.11 or higher is required here.
+
+The message catalog template looks roughly like this.
+
+============== prog,pot ================
+msgid "'Your command, please?', asked the waiter."
+msgstr ""
+
+msgid "a piece of cake"
+msgid_plural "%d pieces of cake"
+msgstr[0] ""
+msgstr[1] ""
+========================================
+
+Then a french translator creates a french message catalog
+
+============== prog.fr.po =================
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "'Your command, please?', asked the waiter."
+msgstr "&laquo;Votre commande, s'il vous plait&raquo;, dit le gar&ccedil;on."
+
+# Les gateaux allemands sont les meilleurs du monde.
+msgid "a piece of cake"
+msgid_plural "%d pieces of cake"
+msgstr[0] "un morceau de gateau"
+msgstr[1] "%d morceaux de gateau"
+===========================================
+
+and sends it to the program's maintainer.
+
+The program's maintainer compiles the catalog as follows:
+
+    mkdir -p ./fr/LC_MESSAGES
+    msgfmt -o ./fr/LC_MESSAGES/prog.mo prog.fr.po
+
+When a user in a french locale then runs the program
+
+    clisp prog.lisp 2
+
+she will get the output
+
+    &laquo;Votre commande, s'il vous plait&raquo;, dit le gar&ccedil;on.
+    2 morceaux de gateau
+
+</section>
+
+</section>
+
+<section><title>The Language</title>
+
+<para>Warning: The facilities described in this section will work
+only for the languages for which CLISP itself is already
+localized.</para>
 
 <para>The language &clisp; uses to communicate with the user can be
  either <function>ENGLISH</function> or <function>DEUTSCH</function>
  (i.e., German) or <function>FRANCAIS</function> (i.e., French) or
- <function>ESPA&Ntilde;OL</function> (i.e., Spanish).  More languages
+ <function>ESPA&Ntilde;OL</function> (i.e., Spanish) or
+ <function>NEDERLANDS</function> (i.e. Dutch).  More languages
  can be defined through the macro <emphasis
  role="strong"><function>i18n:deflanguage</function></emphasis>:
  <literal role="sexp">(<function>i18n:deflanguage</function>
@@ -82,6 +265,8 @@
  role="sexp">(<function>i18n:localized</function>
  &symbol-r; &optional-amp;
  <replaceable>language</replaceable>)</literal></para>
+
+</section>
 
 </section>
 

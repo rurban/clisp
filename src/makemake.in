@@ -1313,7 +1313,7 @@ if [ $TSYS = master -o $TOS = unix -o $TOS = win32 ] ; then
 fi
 CPARTS=$CPARTS' io'
 CPARTS=$CPARTS' array hashtabl list package record sequence'
-CPARTS=$CPARTS' charstrg debug error misc time predtype symbol lisparit'
+CPARTS=$CPARTS' charstrg debug error misc time predtype symbol lisparit i18n'
 if [ $TSYS = master -o $TSYS = amiga ] ; then
   CPARTS=$CPARTS' rexx'
 fi
@@ -1492,7 +1492,7 @@ fi
 COMMENTS=''
 
 LPARTS='        init defseq backquote defmacro macros1 macros2 defs1'
-LPARTS=$LPARTS' timezone places floatprint type defstruct format'
+LPARTS=$LPARTS' timezone places floatprint type defstruct format international'
 LPARTS=$LPARTS' savemem trace cmacros compiler defs2 loop clos'
 LPARTS=$LPARTS' disassem condition loadform threads gstream xcharin keyboard'
 LPARTS=$LPARTS' screen beossock runprog query reploop dribble complete'

@@ -491,10 +491,12 @@
     /* ENGLISH */ "C compiler")
   #endif
  #endif
+# for I18N.D:
  #ifdef GNU_GETTEXT
   LISPOBJ_L(current_language,
     /* ENGLISH */ "I18N::ENGLISH")
   LISPOBJ(current_language_cache,"NIL")
+  LISPOBJ(type_category,"(MEMBER :LC_MESSAGES :LC_CTYPE :LC_TIME :LC_COLLATE :LC_MONETARY)")
  #endif
   LISPOBJ(ansi,"NIL")
 # zu TIME.D:
