@@ -226,7 +226,7 @@
                      slot-specs))))
     `(LET ()
        (EVAL-WHEN (COMPILE LOAD EVAL)
-         (ENSURE-CLASS
+         (APPLY #'ENSURE-CLASS
            ',name
            :DIRECT-SUPERCLASSES (LIST ,@superclass-forms)
            :DIRECT-SLOTS (LIST ,@slot-forms)
@@ -257,7 +257,7 @@
                                   :detail argument
                                   (TEXT "~S ~S, option ~S: ~S is not a symbol")
                                   'defclass name option argument))
-                              (setq metaclass `(:METACLASS (FIND-CLASS ',argument))))
+                              (setq metaclass `(FIND-CLASS ',argument)))
                             (return)))
                          (:DEFAULT-INITARGS
                           (let ((list (rest option)))
@@ -320,7 +320,7 @@
                      :detail option
                      (TEXT "~S ~S: invalid option ~S")
                      'defclass name option)))
-               `(,@metaclass
+               `(,@(if metaclass `(:METACLASS ,metaclass))
                  ;; Here we use (or ... '(... NIL)) because when a class is
                  ;; being redefined, :DOCUMENTATION NIL means to erase the
                  ;; documentation string, while nothing means to keep it!
@@ -328,7 +328,13 @@
                  ,@(or direct-default-initargs '(:DIRECT-DEFAULT-INITARGS NIL))
                  ,@(or documentation '(:DOCUMENTATION NIL))
                  :GENERIC-ACCESSORS ',generic-accessors
-                 ,@(or fixed-slot-locations '(:FIXED-SLOT-LOCATIONS NIL))))))
+                 ,@(or fixed-slot-locations '(:FIXED-SLOT-LOCATIONS NIL))
+                 ;; Pass the default initargs of the metaclass, in
+                 ;; order to erase leftovers from the previous definition.
+                 ,(if metaclass
+                    `(MAPCAP #'(LAMBDA (X) (LIST (FIRST X) (FUNCALL (THIRD X))))
+                             (CLASS-DEFAULT-INITARGS ,metaclass))
+                    `NIL)))))
        ,@(if generic-accessors
            (nreverse accessor-method-decl-forms) ; the DECLAIM-METHODs
            (nreverse accessor-function-decl-forms)) ; the C-DEFUNs

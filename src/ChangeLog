@@ -1,3 +1,11 @@
+2004-09-13  Bruno Haible  <bruno@clisp.org>
+
+	* clos-class3.lisp (defclass): Pass the metaclass' default-initargs to
+	ensure-class.
+	* clos-genfun3.lisp (defgeneric): Pass the generic-function class'
+	default-initargs to ensure-generic-function.
+	Reported by Pascal Costanza.
+
 2004-08-01  Bruno Haible  <bruno@clisp.org>
 
 	* clos-slotdef1.lisp (<effective-slot-definition>): New variable.
