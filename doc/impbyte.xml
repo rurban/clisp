@@ -13,7 +13,8 @@
 
 <para>Knowing that most &malloc; implementations are buggy and/or slow,
 and because &clisp; needs to perform garbage collection, &clisp; has its
-own memory management subsystem in files <filename>spvw*.d</filename>.</para>
+own memory management subsystem in
+files <filename>#P"spvw*.d"</filename>.</para>
 
 </section>
 
@@ -300,23 +301,23 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
  <itemizedlist><listitem><simpara>add the <function>LISPFUN</function>
     form and the implementation there;</simpara></listitem>
   <listitem><simpara>add the <function>LISPFUN</function> header to
-    file <filename>subr.d</filename>;</simpara></listitem>
+    file <filename>#P"subr.d"</filename>;</simpara></listitem>
   <listitem><simpara>declare the function name in file
-    <filename>constsym.d</filename> in the appropriate package
+    <filename>#P"constsym.d"</filename> in the appropriate package
     (probably &ext-pac;, if there is no specific package);
   </simpara></listitem>
   <listitem><simpara>if your function accepts keyword arguments,
     then an appropriate pair of forms must be added
-    to <filename>subrkw.d</filename> and you must make sure that the
-    keyword symbols are declared in <filename>constsym.d</filename>;
+    to <filename>#P"subrkw.d"</filename> and you must make sure that the
+    keyword symbols are declared in <filename>#P"constsym.d"</filename>;
   </simpara></listitem>
   <listitem><simpara>export your function name from the appropriate
-    package in file <filename>init.lisp</filename>;</simpara></listitem>
+    package in file <filename>#P"init.lisp"</filename>;</simpara></listitem>
   <listitem><simpara>when you are done, you should run <command>make
      check-sources</command> in your build directory: this will check
     that the definitions (source files) and the declarations
-    (<filename>subr.d</filename>, <filename>subrkw.d</filename>
-    and <filename>fsubr.d</filename>) are in sync.</simpara></listitem>
+    (<filename>#P"subr.d"</filename>, <filename>#P"subrkw.d"</filename>
+    and <filename>#P"fsubr.d"</filename>) are in sync.</simpara></listitem>
 </itemizedlist></para>
 
 <warning><para>Be very careful with the <emphasis>GC-unsafe</emphasis>
@@ -332,15 +333,43 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
 <para>If you must be able to access the variable in the &c-lang; code,
  follow these steps:
  <itemizedlist><listitem><simpara>declare the variable name
-    in <filename>constsym.d</filename> in the appropriate package
+    in <filename>#P"constsym.d"</filename> in the appropriate package
     (probably &custom-pac;, if there is no specific package);
   </simpara></listitem>
   <listitem><simpara>add a <function>define_variable()</function> call
     in function <function>init_symbol_values()</function>
-    in file <filename>spvw.d</filename>;</simpara></listitem>
+    in file <filename>#P"spvw.d"</filename>;</simpara></listitem>
   <listitem><simpara>export your variable name from the appropriate
-    package in file <filename>init.lisp</filename>;
+    package in file <filename>#P"init.lisp"</filename>;
 </simpara></listitem></itemizedlist></para>
+</section>
+
+<section id="recompile"><title>Recompilation.</title>
+
+<para><emphasis>Any</emphasis> that makes <command>make</command>
+ remake <filename>#P"lisp.run"</filename>, will make it recompile all
+ &lisp-file; files and re-dump &lispinit;, which may be time-consuming.
+ This is not always necessary, depending on what kind of change you
+ introduced.</para>
+
+<para>On the other hand, if you change any of the following files:
+ <simplelist>
+  <member><filename>#P"constobj.d"</filename></member>
+  <member><filename>#P"constsym.d"</filename></member>
+  <member><filename>#P"fsubr.d"</filename></member>
+  <member><filename>#P"subr.d"</filename></member>
+  <member><filename>#P"subrkw.d"</filename></member></simplelist>
+ your &lispinit; will <emphasis>have</emphasis> to be re-dumped.</para>
+
+<para>If you change the signature of any system function in the FUNTAB
+ array in file <filename>#P"eval.d"</filename>, all the &fasl-file; files
+ will become obsolete and will need to be recompiled.
+ You will need to add a note to that effect to
+ the <filename>#P"NEWS"</filename> file
+ and augment the object <literal>version</literal> in
+ file <filename>#P"constsym.d"</filename>.
+ Then you will need to remove all the &fasl-file; files in your build
+ directory with <command>make clean</command>.</para>
 </section>
 
 </chapter>
@@ -614,7 +643,7 @@ some number of operands.</para>
 
 <para>The conversion from a byte (in the range 0..255) to the opcode is
 performed by lookup in the table contained in the file
-<filename>bytecode.d</filename>.</para>
+<filename>#P"bytecode.d"</filename>.</para>
 
 <para>There are the following types of operands, denoted by different
 letters:
