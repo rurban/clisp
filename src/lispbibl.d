@@ -536,6 +536,27 @@
     #error "Bogus BIG_ENDIAN_P -- BIG_ENDIAN_P neu einstellen!"
   #endif
 
+# A property of the processor (and C compiler): The alignment of C functions.
+# (See gcc's machine descriptions, macro FUNCTION_BOUNDARY, for information.)
+  #if defined(DECALPHA)
+    #define C_CODE_ALIGNMENT  8
+    #define log2_C_CODE_ALIGNMENT  3
+  #endif
+  #if (defined(I80386) && defined(GNU)) || defined(SPARC) || defined(MIPS) || defined(HPPA) || defined(M88000) || defined(RS6000) || defined(ARM)
+    # When using gcc on i386, this assumes that -malign-functions has not been
+    # used to specify an alignment smaller than 4 bytes.
+    #define C_CODE_ALIGNMENT  4
+    #define log2_C_CODE_ALIGNMENT  2
+  #endif
+  #if defined(MC680X0) || defined(CONVEX)
+    #define C_CODE_ALIGNMENT  2
+    #define log2_C_CODE_ALIGNMENT  1
+  #endif
+  #if !defined(C_CODE_ALIGNMENT) # e.g. (defined(I80386) && defined(MICROSOFT))
+    #define C_CODE_ALIGNMENT  1
+    #define log2_C_CODE_ALIGNMENT  0
+  #endif
+
 
 # Width of object representation:
 # WIDE means than an object (pointer) occupies 64 bits (instead of 32 bits).
@@ -1538,17 +1559,6 @@
 #   more memory accesses on average. But this model is portable even to
 #   systems whose memory map looks like Swiss Cheese.
 
-# NO_TYPECODES requires that C functions have an alignment of 4 or more. This is
-# fulfilled on SPARC, MIPS, HPPA, M88000, RS6000, ARM, and also
-# - on MC680Y0 if -malign-functions=2 is given (it is *not* the default!),
-# - on I80386 if -malign-functions=2 or =4 is given (this is the default).
-# (See gcc's machine descriptions, macro FUNCTION_BOUNDARY, for information.)
-#if defined(NO_TYPECODES) && !(defined(MC680Y0) || defined(I80386) || defined(SPARC) || defined(MIPS) || defined(HPPA) || defined(M88000) || defined(RS6000) || defined(ARM))
-  #error "NO_TYPECODES model not defined for this CPU (insufficient function alignment)!"
-#endif
-#if defined(NO_TYPECODES) && defined(MC680Y0)
-  #error "Define -malign-functions=2 in the CFLAGS, then remove this error message!"
-#endif
 #if defined(WIDE_SOFT) && defined(NO_TYPECODES)
   #error "WIDE and NO_TYPECODES make no sense together, no need for WIDE"
 #endif
@@ -5662,6 +5672,14 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     #define make_machine(ptr)  as_object((oint)(ptr)+machine_bias)
   #endif
 
+# Pointer to machine code
+# make_machine_code(ptr)
+  #if defined(TYPECODES) || (log2_C_CODE_ALIGNMENT >= 2)
+    #define make_machine_code(ptr)  make_machine(ptr)
+  #else
+    #define make_machine_code(ptr)  make_machine((uintP)(ptr)<<(2-log2_C_CODE_ALIGNMENT))
+  #endif
+
 # System-Pointer
   #define make_system(data)  \
     type_data_object(system_type, bit(oint_data_len-1) | bit(0) | ((bitm(oint_data_len)-1) & (data)))
@@ -5791,7 +5809,8 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #define TheSubr(obj)  ((Subr)(type_pointable(subr_type,obj)))
   #define TheFramepointer(obj)  ((object*)(type_pointable(system_type,obj)))
   #define TheMachine(obj)  ((void*)(type_pointable(machine_type,obj)))
-  #define ThePseudofun(obj)  ((Pseudofun)TheMachine(obj))
+  #define TheMachineCode(obj)  TheMachine(obj)
+  #define ThePseudofun(obj)  ((Pseudofun)TheMachineCode(obj))
   #ifdef FOREIGN_HANDLE
   # Handle in Sbvector verpackt
   #define TheHandle(obj)  (*(Handle*)(&TheSbvector(obj)->data[0]))
@@ -5899,7 +5918,12 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #define TheSubr(obj)  ((Subr)(as_oint(obj)-subr_bias))
   #define TheFramepointer(obj)  ((object*)(as_oint(obj)-machine_bias))
   #define TheMachine(obj)  ((void*)(as_oint(obj)-machine_bias))
-  #define ThePseudofun(obj)  ((Pseudofun)TheMachine(obj))
+  #if (log2_C_CODE_ALIGNMENT >= 2)
+    #define TheMachineCode(obj)  TheMachine(obj)
+  #else
+    #define TheMachineCode(obj)  ((void*)((uintP)TheMachine(obj)>>(2-log2_C_CODE_ALIGNMENT)))
+  #endif
+  #define ThePseudofun(obj)  ((Pseudofun)TheMachineCode(obj))
   #ifdef FOREIGN_HANDLE
   # Handle in Sbvector verpackt
   #define TheHandle(obj)  (*(Handle*)(&TheSbvector(obj)->data[0]))

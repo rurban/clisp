@@ -1300,7 +1300,7 @@ LISPFUN(nsubst_if_not,3,0,norest,key,1, (kw(key)) )
               # *(stackptr-3) (eine Adresse!), angewandt auf u und das
               # vorher in *(stackptr-2) abgelegte Argument, erfüllt ist:
              {var boolean erg =
-                (*(up2_function)TheMachine(*(stackptr STACKop -3))) # zweiargumentige Testfunktion, wurde abgelegt
+                (*(up2_function)TheMachineCode(*(stackptr STACKop -3))) # zweiargumentige Testfunktion, wurde abgelegt
                   ( stackptr, *(stackptr STACKop -2), Car(Car(alist)) ); # auf (KEY x) und u anwenden
               alist = popSTACK();
               if (erg)
@@ -1373,7 +1373,7 @@ LISPFUN(sublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
       }
       else
       { pushSTACK(NIL); # Dummy
-        pushSTACK(make_machine(up2_fun)); # Testfunktion, wegen Typinfo=machine_type GC-sicher!
+        pushSTACK(make_machine_code(up2_fun)); # Testfunktion, wegen Typinfo=machine_type GC-sicher!
         # Stackaufbau: alist, tree, test, test_not, key, dummy, up2_fun.
         value1 = sublis(STACK_5,stackptr); # Ersetzung durchführen
         mv_count=1;
@@ -1436,7 +1436,7 @@ LISPFUN(nsublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
       }
       else
       { pushSTACK(NIL); # Dummy
-        pushSTACK(make_machine(up2_fun)); # Testfunktion, wegen Typinfo=machine_type GC-sicher!
+        pushSTACK(make_machine_code(up2_fun)); # Testfunktion, wegen Typinfo=machine_type GC-sicher!
         # Stackaufbau: alist, tree, test, test_not, key, dummy, up2_fun.
         value1 = nsublis(STACK_5,stackptr); # Ersetzung durchführen
         mv_count=1;
