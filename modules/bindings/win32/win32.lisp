@@ -3,8 +3,8 @@
 
 (defpackage "WIN32"
   (:nicknames "WOE32" "W32")
-  (:case-sensitive t) (:case-inverted t)
-  (:use "CS-COMMON-LISP" "FFI")
+  (:modern t)
+  (:use "COMMON-LISP" "FFI")
   (:shadowing-import-from "EXPORTING"
            #:defconstant #:defun #:defmacro
            #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var #:def-call-out))
