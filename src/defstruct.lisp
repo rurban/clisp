@@ -970,6 +970,7 @@
             (let ((initer (cons initform initfunction))
                   (initargs (list (intern (symbol-name slotname) *keyword-package*)))
                   (accessorname (ds-accessor-name slotname conc-name-option)))
+              (declare (ignore accessorname))
               (push (cons
                       (clos::make-instance-<structure-direct-slot-definition>
                         clos::<structure-direct-slot-definition>
@@ -979,8 +980,17 @@
                         :initargs initargs
                         :type type
                         'clos::inheritable-initer initer
-                        :readers (list accessorname)
-                        :writers (if read-only '() (list `(SETF ,accessorname))))
+                        ;; Here we tell initialize-instance-<structure-class> to
+                        ;; not install its readers and writers functions,
+                        ;; because defstruct defines them itself, with additional
+                        ;; features: 1) inline declaration,
+                        ;; 2) in interpreted code, as interpreted functions with
+                        ;; value type checking through THE.
+                        ;; The readers and writers argument doesn't matter for
+                        ;; type /= T.
+                        :readers '() ; not (list accessorname)
+                        :writers '() ; not (if read-only '() (list `(SETF ,accessorname)))
+                      )
                       initfunctionform)
                     directslotlist)
               (push (cons
