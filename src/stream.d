@@ -4050,9 +4050,6 @@ typedef struct strm_unbuffered_extrafields_struct {
         #endif
         run_time_stop(); # Run-Time-Stoppuhr anhalten
         begin_system_call();
-        #ifdef GRAPHICS_SWITCH
-        if (handle == stdin_handle) switch_text_mode();
-        #endif
        {var int result = read(handle,&b,1); # Zeichen lesen versuchen
         end_system_call();
         run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
@@ -4206,9 +4203,6 @@ typedef struct strm_unbuffered_extrafields_struct {
            #endif
          }
       }
-      #endif
-      #ifdef GRAPHICS_SWITCH
-      if (handle == stdin_handle) switch_text_mode();
       #endif
       #ifndef HAVE_SELECT
       if (!nullp(TheStream(stream)->strm_isatty))
@@ -4438,9 +4432,6 @@ typedef struct strm_unbuffered_extrafields_struct {
       { var Handle handle = TheHandle(TheStream(stream)->strm_ichannel);
         run_time_stop(); # Run-Time-Stoppuhr anhalten
         begin_system_call();
-        #ifdef GRAPHICS_SWITCH
-        if (handle == stdin_handle) switch_text_mode();
-        #endif
        {var sintL result = full_read(handle,byteptr,len);
         end_system_call();
         run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
@@ -4786,9 +4777,6 @@ typedef struct strm_unbuffered_extrafields_struct {
     { var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
      restart_it:
       begin_system_call();
-      #ifdef GRAPHICS_SWITCH
-      if (handle == stdout_handle) switch_text_mode();
-      #endif
       # Try to output the byte.
      {
       #if !defined(AMIGAOS)
@@ -4822,9 +4810,6 @@ typedef struct strm_unbuffered_extrafields_struct {
     var uintL len;
     { var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
       begin_system_call();
-      #ifdef GRAPHICS_SWITCH
-      if (handle == stdout_handle) switch_text_mode();
-      #endif
      {var sintL result = full_write(handle,byteptr,len);
       if (result<0) { OS_error(); } # Error melden
       end_system_call();
@@ -9214,9 +9199,6 @@ LISPFUNN(make_keyboard_stream,0)
       {var uintB c;
        run_time_stop(); # Run-Time-Stoppuhr anhalten
        begin_system_call();
-       #ifdef GRAPHICS_SWITCH
-       switch_text_mode();
-       #endif
        {var int ergebnis = read(stdin_handle,&c,1); # Zeichen lesen versuchen
         end_system_call();
         run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
@@ -9413,9 +9395,6 @@ LISPFUNN(make_keyboard_stream,0)
        rl_completer_quote_characters = "\\|";
        run_time_stop(); # Run-Time-Stoppuhr anhalten
        begin_call();
-       #ifdef GRAPHICS_SWITCH
-       switch_text_mode();
-       #endif
        rl_already_prompted = TRUE;
        {var uintB* line = (uintB*)readline(prompt==NULL ? "" : prompt); # Zeile lesen
         end_call();
@@ -10989,11 +10968,7 @@ LISPFUNN(window_cursor_off,1)
   local void out_char (uintB c);
   local void out_char(c)
     var uintB c;
-    {
-      #ifdef GRAPHICS_SWITCH
-      switch_text_mode();
-      #endif
-      restart_it:
+    { restart_it:
      {var int ergebnis = write(stdout_handle,&c,1); # Zeichen auszugeben versuchen
       if (ergebnis<0)
         { if (errno==EINTR) goto restart_it;

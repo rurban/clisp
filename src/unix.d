@@ -343,10 +343,6 @@
   extern_C struct passwd * getpwuid (GETPWUID_UID_T uid); # siehe GETPWENT(3V)
   extern_C uid_t getuid (void); # siehe GETUID(2V)
   extern uid_t user_uid; # Real User ID des laufenden Prozesses
-  #ifdef UNIX_LINUX # für GRAPHICS_SWITCH
-    extern_C uid_t geteuid (void); # siehe GETUID(2V)
-    extern_C int setreuid (uid_t uid, uid_t euid); # siehe SETREUID(2)
-  #endif
   extern_C char* getlogin (void); # siehe GETLOGIN(3V)
 # wird verwendet von PATHNAME, SPVW
 

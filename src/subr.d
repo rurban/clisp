@@ -1046,17 +1046,6 @@ LISPFUNN(rexx_wait_input,0)
 LISPFUNN(rexx_get,0)
 LISPFUNN(rexx_reply,3)
 #endif
-# ---------- GRAPH ----------
-#ifdef GRAPHICS
-LISPFUN(gr_init,0,3,norest,nokey,0,NIL)
-LISPFUNN(gr_show,0)
-LISPFUN(gr_clear,0,1,norest,nokey,0,NIL)
-LISPFUNN(gr_dims,0)
-LISPFUN(gr_dot,2,1,norest,nokey,0,NIL)
-LISPFUNN(gr_box,5)
-LISPFUNN(gr_line,5)
-LISPFUNN(gr_text,5)
-#endif
 # ---------- FOREIGN ----------
 #ifdef DYNAMIC_FFI
 LISPFUNN(validp,1)

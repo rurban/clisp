@@ -1858,15 +1858,6 @@ local void print_banner ()
       #endif
       #ifdef UNIX
       user_uid = getuid();
-      #ifdef GRAPHICS_SWITCH
-      # Programm muss mit "setuid root"-Privileg installiert werden:
-      # (chown root, chmod 4755). Vom root-Privileg befreien wir uns so schnell
-      # wie möglich - sicherheitshalber.
-      { extern uid_t root_uid;
-        root_uid = geteuid();
-        setreuid(root_uid,user_uid);
-      }
-      #endif
       find_executable(argv[0]);
       #endif
      {var uintL argv_memneed = 0;
@@ -3014,9 +3005,6 @@ local void print_banner ()
       #endif
       FREE_DYNAMIC_ARRAY(argv_compile_files); }
       FREE_DYNAMIC_ARRAY(argv_init_files); }
-      #ifdef GRAPHICS_SWITCH
-      switch_text_mode(); # Rückkehr zum normalen Text-Modus
-      #endif
       #if (defined(UNIX) && !defined(NEXTAPP)) || defined(AMIGAOS) || defined(RISCOS)
       terminal_sane(); # Terminal wieder in Normalzustand schalten
       #endif
