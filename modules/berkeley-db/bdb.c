@@ -139,12 +139,12 @@ static void* object_handle (object obj, object type, object_handle_t oh) {
 }
 
 /* allocate a wrapper for the pointer and add a finalizer to it
+ closer must be GC-invariant (a Subr)
  can trigger GC */
-static void wrap_finalize (void* pointer, gcv_object_t* maker,
-                           gcv_object_t* closer) {
+static void wrap_finalize (void* pointer, gcv_object_t* maker, object closer) {
   pushSTACK(allocate_fpointer(pointer)); funcall(*maker,1);
   pushSTACK(value1);            /* save for VALUES */
-  pushSTACK(value1); pushSTACK(*closer); funcall(L(finalize),2);
+  pushSTACK(value1); pushSTACK(closer); funcall(L(finalize),2);
   VALUES1(popSTACK());
 }
 
@@ -212,7 +212,7 @@ DEFUN(BDB:ENV-CREATE,&key :PASSWORD :ENCRYPT    \
   skipSTACK(5);
   /* set error callback */
   begin_system_call(); dbe->set_errcall(dbe,&error_callback); end_system_call();
-  wrap_finalize(dbe,&`BDB::MKENV`,&``BDB::ENV-CLOSE``);
+  wrap_finalize(dbe,&`BDB::MKENV`,``BDB::ENV-CLOSE``);
 }
 
 DEFUN(BDB:ENV-CLOSE, dbe)
@@ -359,7 +359,7 @@ static void set_verbose (DB_ENV *dbe, object arg, u_int32_t flag) {
 }
 
 DEFUN(BDB:ENV-SET-OPTIONS, dbe &key                                     \
-      :ERRFILE :PASSWORD :ENCRYPT :LOCK_TIMEOUT :TXN_TIMEOUT            \
+      :ERRFILE :PASSWORD :ENCRYPT :LOCK_TIMEOUT :TXN_TIMEOUT :TIMEOUT   \
       :SHM_KEY :TAS_SPINS :TX_TIMESTAMP :TX_MAX :DATA_DIR :TMP_DIR      \
       :AUTO_COMMIT :CDB_ALLDB :DIRECT_DB :DIRECT_LOG :NOLOCKING         \
       :NOMMAP :NOPANIC :OVERWRITE :PANIC_ENVIRONMENT :REGION_INIT       \
@@ -367,7 +367,7 @@ DEFUN(BDB:ENV-SET-OPTIONS, dbe &key                                     \
       :VERB_CHKPOINT :VERB_DEADLOCK :VERB_RECOVERY :VERB_REPLICATION    \
       :VERB_WAITSFOR :VERBOSE)
 { /* set many options */
-  DB_ENV *dbe = object_handle(STACK_(30),`BDB::ENV`,OH_VALID);
+  DB_ENV *dbe = object_handle(STACK_(31),`BDB::ENV`,OH_VALID);
   { /* verbose */
     object verbosep = popSTACK(); /* :VERBOSE - all */
     set_verbose(dbe,verbosep,DB_VERB_WAITSFOR);
@@ -434,6 +434,20 @@ DEFUN(BDB:ENV-SET-OPTIONS, dbe &key                                     \
   if (!missingp(STACK_0)) {     /* SHM_KEY */
     long shm_key = posfixnum_to_L(check_posfixnum(STACK_0));
     SYSCALL(dbe->set_shm_key,(dbe,shm_key));
+  }
+  skipSTACK(1);
+  if (!missingp(STACK_0)) {     /* TXN_TIMEOUT & LOCK_TIMEOUT */
+    STACK_0 = check_list(STACK_0);
+    if (consp(STACK_0)) {
+      db_timeout_t txn_timeout = posfixnum_to_L(check_posfixnum(Car(STACK_0)));
+      SYSCALL(dbe->set_timeout,(dbe,txn_timeout,DB_SET_TXN_TIMEOUT));
+      STACK_0 = check_list(Cdr(STACK_0));
+      if (consp(STACK_0)) {
+        db_timeout_t lock_timeout =
+          posfixnum_to_L(check_posfixnum(Car(STACK_0)));
+        SYSCALL(dbe->set_timeout,(dbe,lock_timeout,DB_SET_LOCK_TIMEOUT));
+      }
+    }
   }
   skipSTACK(1);
   if (!missingp(STACK_0)) {     /* TXN_TIMEOUT */
@@ -736,7 +750,7 @@ DEFUN(BDB:DB-CREATE, dbe &key :XA)
     end_system_call();
   }
   skipSTACK(2);
-  wrap_finalize(db,&`BDB::MKDB`,&``BDB::DB-CLOSE``);
+  wrap_finalize(db,&`BDB::MKDB`,``BDB::DB-CLOSE``);
 }
 
 DEFUN(BDB:DB-CLOSE, db &key :NOSYNC)
@@ -1157,7 +1171,7 @@ DEFUN(BDB:DB-JOIN, db cursors &key :JOIN_NOSORT)
     }
   }
   SYSCALL(db->join,(db,curslist,&dbc,flags));
-  wrap_finalize(dbc,&`BDB::MKCURSOR`,&``BDB::CURSOR-CLOSE``);
+  wrap_finalize(dbc,&`BDB::MKCURSOR`,``BDB::CURSOR-CLOSE``);
 }
 
 DEFUN(BDB:DB-KEY-RANGE, db key &key :TRANSACTION)
@@ -1366,7 +1380,7 @@ static object db_get_re_len (DB* db, int errorp) {
 }
 ERRFILE_FD_EXTRACTOR(db_get_errfile,DB*)
 FLAG_EXTRACTOR(db_get_flags_num,DB*)
-DEFUN(BDB:DB-GET-OPTIONS, db &optional what)
+DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
 { /* retrieve database options */
   DB *db = object_handle(STACK_1,`BDB::DB`,OH_VALID);
   object what = STACK_0; skipSTACK(2);
@@ -1439,7 +1453,7 @@ DEFUN(BDB:MAKE-CURSOR,db &key :DIRTY_READ :WRITECURSOR :TRANSACTION)
   DB *db = object_handle(popSTACK(),`BDB::DB`,OH_VALID);
   DBC *cursor;
   SYSCALL(db->cursor,(db,txn,&cursor,flags));
-  wrap_finalize(cursor,&`BDB::MKCURSOR`,&``BDB::CURSOR-CLOSE``);
+  wrap_finalize(cursor,&`BDB::MKCURSOR`,``BDB::CURSOR-CLOSE``);
 }
 
 DEFUN(BDB:CURSOR-CLOSE, cursor)
@@ -1475,7 +1489,7 @@ DEFUN(BDB:CURSOR-DUP, cursor &key :POSITION)
   DBC *cursor = object_handle(popSTACK(),`BDB::CURSOR`,OH_VALID);
   DBC *new_cursor;
   SYSCALL(cursor->c_dup,(cursor,&new_cursor,flags));
-  wrap_finalize(cursor,&`BDB::MKCURSOR`,&``BDB::CURSOR-CLOSE``);
+  wrap_finalize(cursor,&`BDB::MKCURSOR`,``BDB::CURSOR-CLOSE``);
 }
 
 DEFCHECKER(cursor_get_action, DB_CURRENT DB_FIRST DB_GET_BOTH          \
@@ -1546,7 +1560,7 @@ DEFUN(BDB:TXN-BEGIN, dbe &key :PARENT :DIRTY_READ :NOSYNC :NOWAIT :SYNC)
   DB_TXN *parent = object_handle(popSTACK(),`BDB::TXN`,OH_NIL_IS_NULL), *ret;
   DB_ENV *dbe = object_handle(popSTACK(),`BDB::ENV`,OH_VALID);
   SYSCALL(dbe->txn_begin,(dbe,parent,&ret,flags));
-  wrap_finalize(ret,&`BDB::MKTXN`,&``BDB::TXN-DISCARD``); /* ?? ABORT ?? */
+  wrap_finalize(ret,&`BDB::MKTXN`,``BDB::TXN-DISCARD``); /* ?? ABORT ?? */
 }
 
 DEFUN(BDB:TXN-ABORT, txn)

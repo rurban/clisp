@@ -1,5 +1,13 @@
 2004-07-12  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/bdb.c (wrap_finalize): third argument is an
+	object, not gcv_object_t, because "&``" does not work with -O
+	(BDB:ENV-SET-OPTIONS): accept :TIMEOUT for compatibility
+	with BDB:ENV-GET-OPTIONS
+	* genclisph.d (check_list): export
+
+2004-07-12  Sam Steingold  <sds@gnu.org>
+
 	* init.lisp (defun): when *DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST*
 	is non-nil, convert specialized lambda lists to type declarations
 	* misc.d (SYS::SET-ANSI): set *DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST*
