@@ -41,6 +41,9 @@ options:
        --with-dynamic-modules  dynamic loading of foreign language modules
        --with-export-syscalls  export some POSIX functionality to Lisp
        --with-dir-key          dir-key access (win32 registry, LDAP, Gnome)
+       --with-threads=FLAVOR   MT [_experimental_!]
+                               FLAVOR: POSIX_THREADS POSIXOLD_THREADS
+                                       SOLARIS_THREADS C_THREADS WIN32_THREADS
        --with-module=wildcard
        --with-module=regexp
        --with-module=postgresql632
@@ -184,11 +187,14 @@ while test -z "$endofargs"; do
       ;;
     -with-* | --with-*)
       package=`echol "$1"|sed 's/-*with-//'`
+      packopt=`echol "${package}"|sed 's/.*=//'`
+      if test -z "${packopt}"; then packopt=1; fi
+      package=`echol "${package}"|sed 's/=.*//'`
       # Delete all the valid chars; see if any are left.
       if test -n "`echol $package|sed 's/[-a-zA-Z0-9_]*//g'`"; then
         echol "makemake: $package: invalid package name" >&2; exit 1
       fi
-      eval "with_`echol $package|sed s/-/_/g`=1"
+      eval "with_`echol $package|sed s/-/_/g`=${packopt}"
       shift
       ;;
     -without-* | --without-*)
@@ -893,6 +899,10 @@ if [ $XCC_GCC = true ] ; then
   # Override any "-x c++" options which may be present in $XCC or $XCFLAGS.
   XCLFLAGS=$XCLFLAGS' -x none'
   XCC_NOOPTFLAGS=' -O0'
+
+  if [ "${with_threads}" = "POSIX_THREADS" ]; then
+    XCFLAGS=${XCFLAGS}" -pthread";
+  fi
 
 else
 
