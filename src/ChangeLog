@@ -1,5 +1,11 @@
 2004-03-12  Bruno Haible  <bruno@clisp.org>
 
+	* makemake.in (testsuite, testsuite-all): Set CLISP_LANGUAGE to empty
+	while running the tests. Needed to avoid a testsuite failure when the
+	user has set CLISP_LANGUAGE=francais but *terminal-encoding* is ASCII.
+
+2004-03-12  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (<libintl.h>, array_total_size, instanceof, schar,
 	seclass_object): Omit these when COMPILE_STANDALONE is defined.
 	* makemake.in (txt, genclisph.o, clisp-test-lispbibl): Define
