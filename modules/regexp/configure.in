@@ -21,13 +21,10 @@ AC_CHECK_HEADERS(string.h sys/types.h)
 if test "$ac_cv_use_sysre" = no; then
 AC_MSG_NOTICE([not checking for system-wide regexp])
 else
-AC_CHECK_HEADERS(regex.h)
-AC_CHECK_FUNCS(regcomp regexec regfree regerror)
+CL_REGEXP
 fi
 # can we use the system-wide regex implementation?
-if test "$ac_cv_use_sysre" = yes    -a "$ac_cv_header_regex_h" = yes -a  \
-        "$ac_cv_func_regcomp" = yes -a "$ac_cv_func_regexec"   = yes -a \
-        "$ac_cv_func_regfree" = yes -a "$ac_cv_func_regerror"  = yes ; then
+if test "$ac_cv_use_sysre" = yes -a "$cl_cv_regexp" = yes; then
   REGEX_H=""
   REGEX_O=""
 else
