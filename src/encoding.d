@@ -1450,8 +1450,8 @@ LISPFUN(make_encoding,0,0,norest,key,4,
     #endif
     #endif
     else {
-      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(encoding)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(arg); # TYPE-ERROR slot DATUM
+      pushSTACK(S(encoding)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(arg); pushSTACK(S(make_encoding));
       fehler(type_error,
              GETTEXT("~: illegal :CHARSET argument ~")
@@ -1463,8 +1463,8 @@ LISPFUN(make_encoding,0,0,norest,key,4,
     if (!(eq(arg,unbound)
           || eq(arg,S(Kunix)) || eq(arg,S(Kmac)) || eq(arg,S(Kdos))
        ) ) {
-      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_line_terminator)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(arg); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_line_terminator)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(arg); pushSTACK(S(make_encoding));
       fehler(type_error,
              GETTEXT("~: illegal :LINE-TERMINATOR argument ~")
@@ -1475,8 +1475,8 @@ LISPFUN(make_encoding,0,0,norest,key,4,
     if (!(eq(arg,unbound)
           || eq(arg,S(Kerror)) || eq(arg,S(Kignore)) || charp(arg)
        ) ) {
-      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_input_error_action)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(arg); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_input_error_action)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(arg); pushSTACK(S(make_encoding));
       fehler(type_error,
              GETTEXT("~: illegal :INPUT-ERROR-ACTION argument ~")
@@ -1487,8 +1487,8 @@ LISPFUN(make_encoding,0,0,norest,key,4,
     if (!(eq(arg,unbound)
           || eq(arg,S(Kerror)) || eq(arg,S(Kignore)) || charp(arg) || uint8_p(arg)
        ) ) {
-      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_output_error_action)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(arg); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_output_error_action)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(arg); pushSTACK(S(make_encoding));
       fehler(type_error,
              GETTEXT("~: illegal :OUTPUT-ERROR-ACTION argument ~")
@@ -1536,8 +1536,8 @@ LISPFUNN(encodingp,1)
   local void fehler_encoding(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(encoding)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(S(encoding)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ is not a character set")
@@ -1955,9 +1955,9 @@ LISPFUNN(charset_range,3)
       elif (name && asciz_equal(name,"ISO-8859-14"))
         pushSTACK(Symbol_value(S(iso8859_14)));
       elif (name && asciz_equal(name,"ISO-8859-15"))
-        pushSTACK(Symbol_value(S(iso8859_15))); 
+        pushSTACK(Symbol_value(S(iso8859_15)));
       elif (name && asciz_equal(name,"ISO-8859-16"))
-        pushSTACK(Symbol_value(S(iso8859_16))); 
+        pushSTACK(Symbol_value(S(iso8859_16)));
       elif (name && asciz_equal(name,"KOI8-R"))
         pushSTACK(Symbol_value(S(koi8_r)));
       elif (name && asciz_equal(name,"KOI8-U"))

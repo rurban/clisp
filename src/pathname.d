@@ -8909,7 +8909,7 @@ LISPFUN(open,1,0,norest,key,6,\
   # > STACK_0: neue Subdir-Komponente, ein Simple-String
   # < ergebnis: neuer Pathname mit um subdir verlängertem Directory
   # Erhöht STACK um 2
-  # kann GC auslösen
+  # can trigger GC
   local object pathname_add_subdir (void);
   local object pathname_add_subdir()
     {
@@ -9053,7 +9053,7 @@ LISPFUN(open,1,0,norest,key,6,\
   # > namestring: the namestring (for the OS)
   # < STACK_0: replaced
   # < STACK_(3+1): augmented
-  # kann GC auslösen
+  # can trigger GC
   local void directory_search_1subdir (object subdir, object namestring);
   local void directory_search_1subdir(subdir,namestring)
     var object subdir;
@@ -9087,7 +9087,7 @@ LISPFUN(open,1,0,norest,key,6,\
   # STACK_0 = dir_namestring
   # STACK_1 = pathname
   # < result: a hash code, or nullobj if the directory does not exist
-  # kann GC auslösen
+  # can trigger GC
   local object directory_search_hashcode (void);
   local object directory_search_hashcode()
     {

@@ -2154,8 +2154,8 @@ LISPFUNN(unwind_to_driver,0)
          ) {
         STACK_0 = allocate_vector(2); # Vektor #(nil nil) als Default
       } elif (!(simple_vector_p(arg) && (Svector_length(arg) == 2))) {
-        pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_svector2)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(arg); # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_svector2)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(arg);
         fehler(type_error,
                GETTEXT("Argument ~ is not a macroexpansion environment")
@@ -2366,8 +2366,8 @@ LISPSPECFORM(load_time_value, 1,1,nobody)
         env5->go_env    = TheSvector(env)->data[3];
         env5->decl_env  = TheSvector(env)->data[4];
       } else {
-        pushSTACK(env); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_svector5)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(env); # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_svector5)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(env);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,

@@ -7282,13 +7282,13 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
     # localized_string(obj)
     # > obj: String
     # < ergebnis: String
-    # kann GC auslösen
+    # can trigger GC
       extern object localized_string (object obj);
     #
     # Fetch the "translation" of a Lisp object.
     # localized_object(obj)
     # > obj: String
-    # kann GC auslösen
+    # can trigger GC
       extern object localized_object (object obj);
   #endif
 #endif
@@ -7787,7 +7787,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # < ergebnis: LISP-Objekt, das handle enthält
 # can trigger GC
   #ifdef FOREIGN_HANDLE
-    # kann GC auslösen
+    # can trigger GC
     extern object allocate_handle (Handle handle);
   #else
     #define allocate_handle(handle)  fixnum((uintL)(handle))
@@ -9596,7 +9596,7 @@ typedef struct {
 #              restliche Argumentliste in other_args
 # < STACK: aufgeräumt (d.h. STACK wird um args_on_stack erhöht)
 # < mv_count/mv_space: Werte
-# verändert STACK, kann GC auslösen
+# changes STACK, can trigger GC
   extern Values apply (object fun, uintC args_on_stack, object other_args);
 # wird verwendet von EVAL, CONTROL, IO, PATHNAME, ERROR
 
@@ -9606,7 +9606,7 @@ typedef struct {
 # > Argumente: argcount Argumente auf dem STACK
 # < STACK: aufgeräumt (d.h. STACK wird um argcount erhöht)
 # < mv_count/mv_space: Werte
-# verändert STACK, kann GC auslösen
+# changes STACK, can trigger GC
   extern Values funcall (object fun, uintC argcount);
 # wird verwendet von allen Modulen
 
@@ -9790,7 +9790,7 @@ typedef struct {
 # nest_env(env)
 # > environment* env: Pointer auf fünf einzelne Environments
 # < environment* ergebnis: Pointer auf die Environments im STACK
-# verändert STACK, kann GC auslösen
+# changes STACK, can trigger GC
   extern environment* nest_env (environment* env);
 # wird verwendet von Macro nest_aktenv
 
@@ -9801,7 +9801,7 @@ typedef struct {
 # Veränderung von VAR_ENV aktiviert werden können müssen.)
 # nest_aktenv()
 # < environment* ergebnis: Pointer auf die Environments im STACK
-# verändert STACK, kann GC auslösen
+# changes STACK, can trigger GC
   # extern environment* nest_aktenv (void);
   #define nest_aktenv()  nest_env(&aktenv)
 # wird verwendet von CONTROL
@@ -10598,7 +10598,7 @@ typedef struct {
 # > auf STACK: len Characters, erstes zuoberst
 # < ergebnis: Simple-String mit diesen Objekten
 # Erhöht STACK
-# verändert STACK, kann GC auslösen
+# changes STACK, can trigger GC
   extern object stringof (uintL len);
 # wird verwendet von ENCODING, STREAM
 #endif
@@ -10973,7 +10973,7 @@ typedef struct {
 # > auf STACK: len Objekte, erstes zuoberst
 # < ergebnis: Liste dieser Objekte
 # Erhöht STACK
-# verändert STACK, kann GC auslösen
+# changes STACK, can trigger GC
   extern object listof (uintC len);
 # wird verwendet von STREAM, PATHNAME, PACKAGE, ARRAY, EVAL, PREDTYPE, REXX, ERROR, SPVW
 
@@ -11107,7 +11107,7 @@ extern int clisp_setenv (const char * name, const char * value);
 
 # UP: Führt eine Break-Schleife wegen Tastaturunterbrechung aus.
 # > -(STACK) : aufrufende Funktion
-# verändert STACK, kann GC auslösen
+# changes STACK, can trigger GC
   extern void tast_break (void);
 # wird verwendet von EVAL, IO, SPVW, STREAM
 

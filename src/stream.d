@@ -82,7 +82,7 @@
   # fun(stream)
   # > stream: Stream
   # < ergebnis: gelesener Integer (eof_value bei EOF)
-  # kann GC auslösen
+  # can trigger GC
     typedef object (* rd_by_Pseudofun) (object stream);
   #
   # Spezifikation für READ-BYTE-ARRAY - Pseudofunktion:
@@ -99,7 +99,7 @@
   # fun(stream,obj)
   # > stream: Stream
   # > obj: auszugebender Integer
-  # kann GC auslösen
+  # can trigger GC
     typedef void (* wr_by_Pseudofun) (object stream, object obj);
   #
   # Spezifikation für WRITE-BYTE-ARRAY - Pseudofunktion:
@@ -116,7 +116,7 @@
   # > stream: Stream
   # < stream: Stream
   # < ergebnis: gelesenes Character (eof_value bei EOF)
-  # kann GC auslösen
+  # can trigger GC
     typedef object (* rd_ch_Pseudofun) (const object* stream_);
   #
   # Spezifikation für PEEK-CHAR - Pseudofunktion:
@@ -126,7 +126,7 @@
   # > stream: Stream (mit strmflags_unread_bit_B gelöscht)
   # < stream: Stream
   # < ergebnis: gelesenes Character (eof_value bei EOF)
-  # kann GC auslösen
+  # can trigger GC
     typedef object (* pk_ch_Pseudofun) (const object* stream_);
   #
   # Spezifikation für READ-CHAR-ARRAY - Pseudofunktion:
@@ -144,7 +144,7 @@
   # > stream: Stream
   # < stream: Stream
   # > obj: auszugebendes Character
-  # kann GC auslösen
+  # can trigger GC
     typedef void (* wr_ch_Pseudofun) (const object* stream_, object obj);
   #
   # Spezifikation für WRITE-CHAR-ARRAY - Pseudofunktion:
@@ -9926,7 +9926,7 @@ local object make_key_event(event)
     }
 
   # UP: Erweitert die Liste STACK_0 um eine Tastenzuordnung.
-  # kann GC auslösen
+  # can trigger GC
     local void add_keybinding (const char* cap, const key_event* event);
     local void add_keybinding(cap,event)
       var const char* cap;

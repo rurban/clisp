@@ -848,7 +848,7 @@ global chart* unpack_string_rw (object string, uintL* len) {
 # > auf STACK: len Characters, erstes zuoberst
 # < ergebnis: Simple-String mit diesen Objekten
 # Erhöht STACK
-# verändert STACK, kann GC auslösen
+# changes STACK, can trigger GC
   global object stringof (uintL len);
   global object stringof(len)
     var uintL len;
@@ -920,8 +920,8 @@ global chart* unpack_string_rw (object string, uintL* len) {
             # sonstiger String, kopieren
             return copy_string(obj);
           default:
-            pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-            pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+            pushSTACK(obj); # TYPE-ERROR slot DATUM
+            pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
             pushSTACK(obj);
             fehler(type_error,
                    GETTEXT("This is not a string: ~")
@@ -1002,8 +1002,8 @@ global chart* unpack_string_rw (object string, uintL* len) {
           default:
             break;
         }
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj);
       fehler(type_error,
              GETTEXT("This is not a string: ~")
@@ -1034,8 +1034,8 @@ global chart* unpack_string_rw (object string, uintL* len) {
           default:
             break;
         }
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj);
       fehler(type_error,
              GETTEXT("This is not a string: ~")
@@ -1081,8 +1081,8 @@ global chart* unpack_string_rw (object string, uintL* len) {
           default:
             break;
         }
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj);
       fehler(type_error,
              GETTEXT("This is not a string: ~")
@@ -1734,8 +1734,8 @@ LISPFUNN(both_case_p,1) # (BOTH-CASE-P char), CLTL S. 235
           return radix;
       }
       # Fehler.
-      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_radix)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(arg); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_radix)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: the radix must be an integer between 2 and 36, not ~")
@@ -2108,8 +2108,8 @@ LISPFUNN(code_char,1)
     var object codeobj = popSTACK(); # code-Argument
     if (!integerp(codeobj)) {
       # code-Argument ist kein Integer.
-      pushSTACK(codeobj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(codeobj); # TYPE-ERROR slot DATUM
+      pushSTACK(S(integer)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(codeobj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: the code argument should be an integer, not ~")
@@ -2129,8 +2129,8 @@ LISPFUNN(character,1) # (CHARACTER object), CLTL S. 241
   {
     var object trial = coerce_char(STACK_0); # Argument in Character umwandeln
     if (nullp(trial)) { # erfolglos?
-      # Argument noch in STACK_0, Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_designator_character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      # Argument still in STACK_0, TYPE-ERROR slot DATUM
+      pushSTACK(O(type_designator_character)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(STACK_1);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -2171,8 +2171,8 @@ LISPFUN(digit_char,1,1,norest,nokey,0,NIL)
     var object weightobj = popSTACK(); # weight-Argument
     if (!integerp(weightobj)) {
       # weight-Argument ist kein Integer.
-      pushSTACK(weightobj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(weightobj); # TYPE-ERROR slot DATUM
+      pushSTACK(S(integer)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(weightobj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: the weight argument should be an integer, not ~")
@@ -2213,8 +2213,8 @@ LISPFUNN(int_char,1) # (INT-CHAR integer), CLTL S. 242
       }
     } else {
       # arg kein Integer -> Fehler:
-      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(arg); # TYPE-ERROR slot DATUM
+      pushSTACK(S(integer)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument should be an integer, not ~")
@@ -2238,8 +2238,8 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
     var object kw;
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(S(integer)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj);
       if (eq(kw,nullobj)) {
         pushSTACK(TheSubr(subr_self)->name);
@@ -2260,8 +2260,8 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
     var object kw;
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_end_index)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_end_index)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj);
       if (eq(kw,nullobj)) {
         pushSTACK(TheSubr(subr_self)->name);
@@ -2282,8 +2282,8 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
     var object kw;
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj);
       if (eq(kw,nullobj)) {
         pushSTACK(TheSubr(subr_self)->name);
@@ -2305,14 +2305,14 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
     var object obj;
     var uintL grenze;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
       pushSTACK(NIL);
       pushSTACK(obj);
       {
         var object tmp;
         pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(grenze));
         tmp = listof(3);
-        STACK_1 = tmp; # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        STACK_1 = tmp; # TYPE-ERROR slot EXPECTED-TYPE
       }
       if (eq(kw,nullobj)) {
         pushSTACK(TheSubr(subr_self)->name);
@@ -2334,14 +2334,14 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
     var object obj;
     var uintL grenze;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
       pushSTACK(NIL);
       pushSTACK(obj);
       {
         var object tmp;
         pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(grenze));
         tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-        STACK_1 = tmp; # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        STACK_1 = tmp; # TYPE-ERROR slot EXPECTED-TYPE
       }
       if (eq(kw,nullobj)) {
         pushSTACK(TheSubr(subr_self)->name);
@@ -2453,8 +2453,8 @@ LISPFUNN(schar,2) # (SCHAR string integer), CLTL S. 300
       if (charp(arg)) {
         return arg;
       } else {
-        pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(S(character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(arg); # TYPE-ERROR slot DATUM
+        pushSTACK(S(character)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
                GETTEXT("~: argument should be a character, not ~")
@@ -2583,8 +2583,8 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
         TheSstring(new_string)->data[0] = char_code(obj);
         return new_string;
       }
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_stringsymchar)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_stringsymchar)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ should be a string, a symbol or a character")
@@ -3285,8 +3285,8 @@ LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
     var uintL size;
     # size überprüfen:
     if (!posfixnump(STACK_2)) { # size muss Fixnum >= 0 sein
-      pushSTACK(STACK_2); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_2); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(STACK_(2+2)); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: the string length ~ should be nonnegative fixnum")
@@ -3317,8 +3317,8 @@ LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
       # nicht angegeben -> nichts zu tun
     } else {
       if (!charp(initial_element)) { # sonst: muss ein Character sein
-        pushSTACK(initial_element); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(S(character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(initial_element); # TYPE-ERROR slot DATUM
+        pushSTACK(S(character)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(initial_element); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
                GETTEXT("~: :initial-element ~ should be of type character")

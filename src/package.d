@@ -92,7 +92,7 @@
   # new_cons()
   # < ergebnis: neues Cons.
   # Stackaufbau: free-conses, newtable, listr, symbol, entry.
-  # kann GC auslösen
+  # can trigger GC
     local object new_cons (void);
     local object new_cons()
       {
@@ -109,7 +109,7 @@
   # newinsert(sym,size);
   # > sym: Symbol
   # Stackaufbau: tab, oldtable, free-conses, newtable, listr.
-  # kann GC auslösen
+  # can trigger GC
     local void newinsert (object sym, uintWL size);
     local void newinsert(sym,size)
       var object sym;
@@ -1915,8 +1915,8 @@ local void use_package_aux(data,sym)
       } else {
         var object newpack =
           Symbol_value(S(packagestern)) = O(default_package); # *PACKAGE* zurücksetzen
-        pushSTACK(pack); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(S(package)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(pack); # TYPE-ERROR slot DATUM
+        pushSTACK(S(package)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(newpack); pushSTACK(pack);
         fehler(type_error,
                GETTEXT("The value of *PACKAGE* was not a package. Old value ~. New value ~.")
@@ -1958,8 +1958,8 @@ local void use_package_aux(data,sym)
       if (symbolp(obj)) { # Symbol ->
         obj = Symbol_name(obj); goto string; # Printnamen verwenden
       }
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_packname)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_packname)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument should be a package or a package name, not ~")
@@ -1970,8 +1970,8 @@ LISPFUNN(make_symbol,1) # (MAKE-SYMBOL printname), CLTL S. 168
   {
     var object arg = popSTACK();
     if (!stringp(arg)) {
-      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(arg); # TYPE-ERROR slot DATUM
+      pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument should be a string, not ~")
@@ -1993,8 +1993,8 @@ LISPFUNN(make_symbol,1) # (MAKE-SYMBOL printname), CLTL S. 168
         return obj;
       if (symbolp(obj)) # Symbol: Printnamen verwenden
         return TheSymbol(obj)->pname;
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_stringsym)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_stringsym)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ should be a string or a symbol")
@@ -2239,8 +2239,8 @@ LISPFUN(unintern,1,1,norest,nokey,0,NIL)
   {
     # Symbol überprüfen:
     if (!symbolp(STACK_1)) {
-      pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(symbol)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_1); # TYPE-ERROR slot DATUM
+      pushSTACK(S(symbol)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(STACK_(1+2)); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ is not a symbol")
@@ -2263,7 +2263,7 @@ LISPFUN(unintern,1,1,norest,nokey,0,NIL)
 #   > sym: Symbol (im STACK)
 #   > pack: Package (im STACK)
 #   < pack: Package, EQ zur alten
-#   kann GC auslösen
+#   can trigger GC
 # < STACK: aufgeräumt
 # can trigger GC
   typedef void sym_pack_function (const object* sym_, const object* pack_);

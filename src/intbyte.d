@@ -8,15 +8,15 @@
     var object position;
     {
       if (!(I_fixnump(size) && !R_minusp(size))) {
-        pushSTACK(size); # Wert für Slot DATUM von TYPE-ERROR
+        pushSTACK(size); # TYPE-ERROR slot DATUM
        bad_args:
-        pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(position); pushSTACK(size);
         fehler(type_error,
                GETTEXT("The arguments to BYTE must be fixnums >=0: ~, ~")
               );
       } elif (!(I_fixnump(position) && !R_minusp(position))) {
-        pushSTACK(position); # Wert für Slot DATUM von TYPE-ERROR
+        pushSTACK(position); # TYPE-ERROR slot DATUM
         goto bad_args;
       } else {
         # size, position sind Fixnums >=0, brauchen nicht gerettet zu werden
@@ -33,8 +33,8 @@
   local void fehler_byte(bad)
     var object bad;
     {
-      pushSTACK(bad); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(byte)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(bad); # TYPE-ERROR slot DATUM
+      pushSTACK(S(byte)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(bad);
       fehler(type_error,
              GETTEXT("~ is not a BYTE specifier")

@@ -21,12 +21,12 @@
   local void fehler_index(limit)
     var uintL limit;
     {
-      pushSTACK(STACK_0); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
       {
         var object tmp;
         pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(limit));
         tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-        pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(tmp); # TYPE-ERROR slot EXPECTED-TYPE
       }
       pushSTACK(STACK_(1+2)); # Record
       pushSTACK(STACK_(0+3)); # Index
@@ -105,8 +105,8 @@ LISPFUNN(record_length,1)
   nonreturning_function(local, fehler_record_length, (void));
   local void fehler_record_length()
     {
-      # STACK_0 = length, Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_posint16)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      # STACK_0 = length, TYPE-ERROR slot DATUM
+      pushSTACK(O(type_posint16)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(STACK_1); # length
       pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(type_error,
@@ -142,8 +142,8 @@ LISPFUNN(record_length,1)
       # structure muss vom Typ Structure sein:
       if (!structurep(STACK_1)) {
         fehler_bad_structure: # STACK_2 = type, STACK_1 = structure
-        pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(STACK_(2+1)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(STACK_1); # TYPE-ERROR slot DATUM
+        pushSTACK(STACK_(2+1)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(STACK_(2+2));
         pushSTACK(STACK_(1+3));
         pushSTACK(TheSubr(subr_self)->name); # Funktionsname
@@ -235,8 +235,8 @@ LISPFUNN(copy_structure,1)
 #   vom selben Typ.
   {
     if (!structurep(STACK_0)) {
-      # STACK_0 = Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(structure_object)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      # STACK_0 = TYPE-ERROR slot DATUM
+      pushSTACK(S(structure_object)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(STACK_1); # structure
       pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(type_error,
@@ -394,8 +394,8 @@ LISPFUNN(make_code_vector,1)
     }
     value1 = bv; mv_count=1; return; # bv als Wert
    bad_byte:
-    pushSTACK(Car(listr)); # Wert für Slot DATUM von TYPE-ERROR
-    pushSTACK(O(type_uint8)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+    pushSTACK(Car(listr)); # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_uint8)); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(STACK_1);
     fehler(type_error,
            GETTEXT("~ is not a valid code-vector byte")
@@ -410,8 +410,8 @@ LISPFUNN(make_closure,3)
     # codevec muss ein Simple-Bit-Vector sein:
     if (!simple_bit_vector_p(Atype_8Bit,STACK_1)) {
       # STACK_1 = codevec
-      pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(simple_bit_vector)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_1); # TYPE-ERROR slot DATUM
+      pushSTACK(S(simple_bit_vector)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(STACK_(1+2));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -451,8 +451,8 @@ LISPFUNN(copy_generic_function,2)
     # with the passed venv.
     var object oldclos = STACK_0;
     if (!genericfunctionp(oldclos)) {
-      pushSTACK(oldclos); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(standard_generic_function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(oldclos); # TYPE-ERROR slot DATUM
+      pushSTACK(S(standard_generic_function)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(oldclos);
       pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(type_error,
@@ -494,8 +494,8 @@ LISPFUNN(generic_function_effective_method_function,1)
     var object oldclos = STACK_0;
     var object newclos;
     if (!genericfunctionp(oldclos)) {
-      pushSTACK(oldclos); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(standard_generic_function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(oldclos); # TYPE-ERROR slot DATUM
+      pushSTACK(S(standard_generic_function)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(oldclos);
       pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(type_error,
@@ -718,8 +718,8 @@ LISPFUNN(weak_pointer_value,1)
   {
     var object wp = popSTACK();
     if (!weakpointerp(wp)) {
-      pushSTACK(wp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-      pushSTACK(S(weak_pointer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(wp); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(S(weak_pointer)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(wp);
       pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(type_error,
@@ -786,8 +786,8 @@ LISPFUNN(std_instance_p,1)
   local void fehler_keine_klasse(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(class)); # CLOS:CLASS, Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(S(class)); # CLOS:CLASS, TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(type_error,

@@ -204,8 +204,8 @@
           }
         default:
         bad: # unpassendes Objekt
-          pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_uint32)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(obj); # TYPE-ERROR slot DATUM
+          pushSTACK(O(type_uint32)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(obj);
           fehler(type_error,
                  GETTEXT("not a 32-bit integer: ~")
@@ -302,8 +302,8 @@
           }
         default:
         bad: # unpassendes Objekt
-          pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_sint32)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(obj); # TYPE-ERROR slot DATUM
+          pushSTACK(O(type_sint32)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(obj);
           fehler(type_error,
                  GETTEXT("not a 32-bit integer: ~")
@@ -392,8 +392,8 @@
           }
         default:
         bad: # unpassendes Objekt
-          pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_uint64)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(obj); # TYPE-ERROR slot DATUM
+          pushSTACK(O(type_uint64)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(obj);
           fehler(type_error,
                  GETTEXT("not a 64-bit integer: ~")
@@ -538,8 +538,8 @@
           }
         default:
         bad: # unpassendes Objekt
-          pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_sint64)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(obj); # TYPE-ERROR slot DATUM
+          pushSTACK(O(type_sint64)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(obj);
           fehler(type_error,
                  GETTEXT("not a 64-bit integer: ~")

@@ -351,8 +351,8 @@
   local void fehler_not_N(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(number)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(S(number)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -367,8 +367,8 @@
   local void fehler_not_R(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(real)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(S(real)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -383,8 +383,8 @@
   local void fehler_not_F(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(float)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(S(float)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -399,8 +399,8 @@
   local void fehler_not_RA(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(rational)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(S(rational)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -415,8 +415,8 @@
   local void fehler_not_I(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(S(integer)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -431,8 +431,8 @@
   local void fehler_digits(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_posfixnum1)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_posfixnum1)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -1838,8 +1838,8 @@ LISPFUNN(deposit_field,3)
         if (random_state_p(obj)) {
           return obj;
         } else {
-          pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(S(random_state)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(obj); # TYPE-ERROR slot DATUM
+          pushSTACK(S(random_state)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(obj);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
@@ -1852,8 +1852,8 @@ LISPFUNN(deposit_field,3)
         if (random_state_p(obj)) {
           return obj;
         } else {
-          pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(S(random_state)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(obj); # TYPE-ERROR slot DATUM
+          pushSTACK(S(random_state)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(obj);
           pushSTACK(S(random_state_stern));
           pushSTACK(TheSubr(subr_self)->name);
@@ -1878,8 +1878,8 @@ LISPFUN(random,1,1,norest,nokey,0,NIL)
         value1 = I_random_I(r,x); mv_count=1; return;
       }
     }
-    pushSTACK(x); # Wert für Slot DATUM von TYPE-ERROR
-    pushSTACK(O(type_random_arg)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+    pushSTACK(x); # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_random_arg)); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(x); pushSTACK(S(random));
     fehler(type_error,
            GETTEXT("~: argument should be positive and an integer or float, not ~")
@@ -1963,8 +1963,8 @@ LISPFUNN(fakultaet,1)
     var object x = popSTACK();
     check_integer(x);
     if (!posfixnump(x)) {
-      pushSTACK(x); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(x); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(x); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~ : argument should be a fixnum >=0, not ~")

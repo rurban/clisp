@@ -156,7 +156,7 @@
 # symbol sollte ein S(..)-Symbol sein. Dessen Wert sollte SHORT-FLOAT oder
 # SINGLE-FLOAT oder DOUBLE-FLOAT oder LONG-FLOAT sein. Sollte es das nicht
 # sein, wird der Wert auf SINGLE-FLOAT gesetzt und eine Warnung ausgegeben.
-# kann GC auslösen, aber nur zwischen save_statement und restore_statement.
+# can trigger GC, but only between save_statement and restore_statement.
   #define defaultfloatcase(symbol, SF_statement,FF_statement,DF_statement,LF_statement, save_statement,restore_statement) \
     {var object def = Symbol_value(symbol); # Wert holen            \
      if (eq(def,S(short_float))) { SF_statement }                   \
@@ -232,7 +232,7 @@
     # < STACK_1: Quotient q, ein Integer                              \
     # < STACK_0: Rest r, eine reelle Zahl                             \
     # Erniedrigt STACK um 2                                           \
-    # kann GC auslösen                                                \
+    # can trigger GC                                                \
     # Methode:                                          \
     # x rational -> RA_rounding_I_RA(x)                 \
     # x Float -> F_rounding_I_F(x)                      \
@@ -244,25 +244,25 @@
       }
 
 # R_floor_I_R(x) liefert (floor x), wo x eine reelle Zahl ist.
-# Beide Werte in den Stack.
+# Both values into the stack.
 # can trigger GC
   local void R_floor_I_R (object x);
   GEN_R_round(floor)
 
 # R_ceiling_I_R(x) liefert (ceiling x), wo x eine reelle Zahl ist.
-# Beide Werte in den Stack.
+# Both values into the stack.
 # can trigger GC
   local void R_ceiling_I_R (object x);
   GEN_R_round(ceiling)
 
 # R_truncate_I_R(x) liefert (truncate x), wo x eine reelle Zahl ist.
-# Beide Werte in den Stack.
+# Both values into the stack.
 # can trigger GC
   local void R_truncate_I_R (object x);
   GEN_R_round(truncate)
 
 # R_round_I_R(x) liefert (round x), wo x eine reelle Zahl ist.
-# Beide Werte in den Stack.
+# Both values into the stack.
 # can trigger GC
   local void R_round_I_R (object x);
   GEN_R_round(round)
@@ -276,7 +276,7 @@
     # < STACK_1: Quotient q, ein integer-wertiges Float               \
     # < STACK_0: Rest r, eine reelle Zahl                             \
     # Erniedrigt STACK um 2                                           \
-    # kann GC auslösen                                                \
+    # can trigger GC                                                \
     # Methode:                                                          \
     # x rational -> RA_rounding_I_RA(x), Quotienten in Float umwandeln. \
     # x Float -> F_frounding_F_F(x).                                    \
@@ -290,25 +290,25 @@
       }
 
 # R_ffloor_F_R(x) liefert (ffloor x), wo x eine reelle Zahl ist.
-# Beide Werte in den Stack.
+# Both values into the stack.
 # can trigger GC
   local void R_ffloor_F_R (object x);
   GEN_R_fround(floor)
 
 # R_fceiling_F_R(x) liefert (fceiling x), wo x eine reelle Zahl ist.
-# Beide Werte in den Stack.
+# Both values into the stack.
 # can trigger GC
   local void R_fceiling_F_R (object x);
   GEN_R_fround(ceiling)
 
 # R_ftruncate_F_R(x) liefert (ftruncate x), wo x eine reelle Zahl ist.
-# Beide Werte in den Stack.
+# Both values into the stack.
 # can trigger GC
   local void R_ftruncate_F_R (object x);
   GEN_R_fround(truncate)
 
 # R_fround_F_R(x) liefert (fround x), wo x eine reelle Zahl ist.
-# Beide Werte in den Stack.
+# Both values into the stack.
 # can trigger GC
   local void R_fround_F_R (object x);
   GEN_R_fround(round)
@@ -424,7 +424,7 @@
     # < STACK_1: Quotient q, ein Integer       \
     # < STACK_0: Rest r, eine reelle Zahl      \
     # Erniedrigt STACK um 2                    \
-    # kann GC auslösen                         \
+    # can trigger GC                         \
     # Methode:                                                      \
     # Beides Integers -> I_I_rounding_I_I(x,y).                     \
     # Sonst: R_rounding_I_R(x/y) -> (q,r). Liefere q und x-y*q=y*r. \
@@ -440,25 +440,25 @@
       }   }
 
 # R_R_floor_I_R(x,y) liefert (floor x y), wo x und y reelle Zahlen sind.
-# Beide Werte in den Stack.
+# Both values into the stack.
 # can trigger GC
   local void R_R_floor_I_R (object x, object y);
   GEN_R_R_round(floor)
 
 # R_R_ceiling_I_R(x,y) liefert (ceiling x y), wo x und y reelle Zahlen sind.
-# Beide Werte in den Stack.
+# Both values into the stack.
 # can trigger GC
   local void R_R_ceiling_I_R (object x, object y);
   GEN_R_R_round(ceiling)
 
 # R_R_truncate_I_R(x,y) liefert (truncate x y), wo x und y reelle Zahlen sind.
-# Beide Werte in den Stack.
+# Both values into the stack.
 # can trigger GC
   local void R_R_truncate_I_R (object x, object y);
   GEN_R_R_round(truncate)
 
 # R_R_round_I_R(x,y) liefert (round x y), wo x und y reelle Zahlen sind.
-# Beide Werte in den Stack.
+# Both values into the stack.
 # can trigger GC
   local void R_R_round_I_R (object x, object y);
   GEN_R_R_round(round)
@@ -471,7 +471,7 @@
     # R_R_remainder_R(x,y)                                 \
     # > x,y: reelle Zahlen                                 \
     # < ergebnis: Rest r, eine reelle Zahl                 \
-    # kann GC auslösen                                     \
+    # can trigger GC                                       \
     # Methode:                                                \
     # Beides Integers -> I_I_remainder_I(x,y).                \
     # Sonst: R_rounding_I_R(x/y) -> (q,r). Liefere x-y*q=y*r. \
@@ -505,7 +505,7 @@
     # < STACK_1: Quotient q, ein integer-wertiges Float    \
     # < STACK_0: Rest r, eine reelle Zahl                  \
     # Erniedrigt STACK um 2                                \
-    # kann GC auslösen                                     \
+    # can trigger GC                                       \
     # Methode:                                                            \
     # x,y beide rational:                                                 \
     #   R_R_rounding_I_R(x,y), Quotienten in Float umwandeln.             \
@@ -525,25 +525,25 @@
       }   }
 
 # R_R_ffloor_F_R(x,y) liefert (ffloor x y), wo x und y reelle Zahlen sind.
-# Beide Werte in den Stack.
+# Both values into the stack.
 # can trigger GC
   local void R_R_ffloor_F_R (object x, object y);
   GEN_R_R_fround(floor)
 
 # R_R_fceiling_F_R(x,y) liefert (fceiling x y), wo x und y reelle Zahlen sind.
-# Beide Werte in den Stack.
+# Both values into the stack.
 # can trigger GC
   local void R_R_fceiling_F_R (object x, object y);
   GEN_R_R_fround(ceiling)
 
 # R_R_ftruncate_F_R(x,y) liefert (ftruncate x y), wo x und y reelle Zahlen sind.
-# Beide Werte in den Stack.
+# Both values into the stack.
 # can trigger GC
   local void R_R_ftruncate_F_R (object x, object y);
   GEN_R_R_fround(truncate)
 
 # R_R_fround_F_R(x,y) liefert (fround x y), wo x und y reelle Zahlen sind.
-# Beide Werte in den Stack.
+# Both values into the stack.
 # can trigger GC
   local void R_R_fround_F_R (object x, object y);
   GEN_R_R_fround(round)

@@ -366,7 +366,7 @@
 # Traverse the object recursively, noting in a hash set (a multi-level bit map)
 # the sub-objects traversed. While doing this, push the circularities onto the
 # STACK. Then release the bitmap.
-# Allocate a vector for the circularities (this kann GC auslösen!), move the
+# Allocate a vector for the circularities (this can trigger GC!), move the
 # circularities from the STACK into the vector.
 
 # Global variables during get_circularities.
@@ -614,7 +614,7 @@
 # Methode:
 # Markiere rekursiv das Objekt, lege dabei die Zirkularitäten auf den STACK,
 # demarkiere rekursiv das Objekt,
-# alloziere Vektor für die Zirkularitäten (kann GC auslösen!),
+# allocate a vector for the circularities (can trigger GC!),
 # fülle die Zirkularitäten vom STACK in den Vektor um.
   typedef struct {
     bool pr_array;

@@ -426,7 +426,7 @@
 
   local void gc_markphase (void);
   local void gc_markphase()
-    { 
+    {
       # Mark all the STACKs
       for_all_STACKs(gc_mark_stack(objptr));
       #ifdef GENERATIONAL_GC
@@ -2037,7 +2037,7 @@
     }
 
 # Ende einer Garbage Collection.
-# kann GC auslösen!
+# can trigger GC!
   local void gar_col_done (void);
   local void gar_col_done()
     { # Finalisierer-Funktionen abarbeiten:
