@@ -302,25 +302,24 @@ and is supported by most &cl; implementations currently in use.</para>
  </simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>GRAY:STREAM-READ-BYTE-SEQUENCE</function>
-                 &stream-r; &sequence-r; &optional-amp;
-                 [&start-r; [&end-r; [&no-hang; [&interactive-r;]]]])</literal></term>
+     &stream-r; &sequence-r; &optional-amp;
+      [&start-r; [&end-r; [&no-hang; [&interactive-r;]]]])</literal></term>
   <listitem><simpara>Fills the subsequence of &sequence-r; specified by
-   &start-k; and &end-k; with integers consecutively read from &stream-r;.
-   Returns the index of the first element of &sequence-r; that was not
-   updated (&areq; &end-r;, or &lst; &end-r; if the stream reached its end).
-   </simpara>
-  <simpara>&sequence-r; is an &array-t; of &integer-t;s.
-   &start-r; is a nonnegative &integer-t; and defaults to 0.
-   &end-r; is a nonnegative &integer-t; or &nil; and defaults to &nil;,
-   which stands for <literal role="sexp">(&length; &sequence-r;)</literal>.
-   If &no-hang; is true, the function should avoid blocking and instead fill
-   only as many elements as are immediately available. If &no-hang; is false
-   and &interactive-r; is true, the function can block for reading the first
-   byte but should avoid blocking for any further bytes.</simpara>
-  <simpara>The default method repeatedly calls &st-rb;; this
-   is always sufficient if speed does not matter.</simpara>
-  <simpara>This function is a &clisp; extension (see
-   &rd-by-seq;).</simpara></listitem></varlistentry>
+    &start-k; and &end-k; with integers consecutively read from &stream-r;.
+    Returns the index of the first element of &sequence-r; that was not
+    updated (&areq; &end-r;, or &lst; &end-r; if the stream reached its end).
+   </simpara><simpara>&sequence-r; is an &array-t; of &integer-t;s.
+    &start-r; is a nonnegative &integer-t; and defaults to 0.
+    &end-r; is a nonnegative &integer-t; or &nil; and defaults to &nil;,
+    which stands for <literal role="sexp">(&length; &sequence-r;)</literal>.
+    If &no-hang; is true, the function should avoid blocking and instead fill
+    only as many elements as are immediately available. If &no-hang; is false
+    and &interactive-r; is true, the function can block for reading the first
+    byte but should avoid blocking for any further bytes.</simpara>
+   <simpara>The default method repeatedly calls &st-rb;; this
+    is always sufficient if speed does not matter.</simpara>
+   <simpara>This function is a &clisp; extension (see
+    &rd-by-seq;).</simpara></listitem></varlistentry>
 </variablelist>
 
 <variablelist><title>generic functions for binary output</title>
@@ -331,23 +330,23 @@ and is supported by most &cl; implementations currently in use.</para>
    &need-defmethod;</listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>GRAY:STREAM-WRITE-BYTE-SEQUENCE</function>
-                 &stream-r; &sequence-r; &optional-amp;
-                 [&start-r; [&end-r; [&no-hang;]]])</literal></term>
+     &stream-r; &sequence-r; &optional-amp;
+      [&start-r; [&end-r; [&no-hang;]]])</literal></term>
   <listitem><simpara>Outputs the subsequence of &sequence-r; specified
-   by &start-k; and &end-k; to &stream-r;</simpara>
-  <simpara>&sequence-r; is an &array-t; of &integer-t;s.
-   &start-r; is a nonnegative &integer-t; and defaults to 0.
-   &end-r; is a nonnegative &integer-t; or &nil; and defaults to &nil;,
-   which stands for <literal role="sexp">(&length; &sequence-r;)</literal>.
-   If &no-hang; is true, the function should avoid blocking and instead output
-   only as many elements as it can immediately proceed. If &no-hang; is false
-   and &interactive-r; is true, the function can block for writing the first
-   byte but should avoid blocking for any further bytes.</simpara>
-  <simpara>The default method repeatedly calls
-   <function>GRAY:STREAM-WRITE-BYTE</function>; this is always
-   sufficient if speed does not matter.</simpara>
-  <simpara>This function is a &clisp; extension (see
-   &wr-by-seq;).</simpara></listitem></varlistentry>
+    by &start-k; and &end-k; to &stream-r;</simpara>
+   <simpara>&sequence-r; is an &array-t; of &integer-t;s.
+    &start-r; is a nonnegative &integer-t; and defaults to 0.
+    &end-r; is a nonnegative &integer-t; or &nil; and defaults to &nil;,
+    which stands for <literal role="sexp">(&length; &sequence-r;)</literal>.
+    If &no-hang; is true, the function should avoid blocking and instead output
+    only as many elements as it can immediately proceed. If &no-hang; is false
+    and &interactive-r; is true, the function can block for writing the first
+    byte but should avoid blocking for any further bytes.</simpara>
+   <simpara>The default method repeatedly calls
+    <function>GRAY:STREAM-WRITE-BYTE</function>; this is always
+    sufficient if speed does not matter.</simpara>
+   <simpara>This function is a &clisp; extension (see
+    &wr-by-seq;).</simpara></listitem></varlistentry>
 </variablelist>
 
 <section id="fill-stream"><title>Class &fill-stream;.</title>
