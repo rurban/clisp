@@ -1503,7 +1503,9 @@
                       (bad last-p stream (TEXT "~S: compiled file ~A has a corrupt version marker ~S")))
                   (or (equal (system::version) (eval (second obj)))
                       (bad last-p stream (TEXT "~S: compiled file ~A was created by an older CLISP version and needs to be recompiled"))))))
-    (setq filename (pathname filename) path filename stream (my-open path))
+    (setq filename (pathname filename) path filename)
+    (unless (probe-directory (pathname (string-concat (namestring path) "/")))
+      (setq stream (my-open path)))
     (tagbody proceed
       (when (and stream
                  (if (compiledp stream)
