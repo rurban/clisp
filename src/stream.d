@@ -16467,9 +16467,11 @@ LISPFUNN(stream_element_type_eq,2)
   if (eq(t0,t1) ||
       (consp(t0) && consp(t1) && eq(Car(t0),Car(t1)) &&
        (eq(Car(t0),S(unsigned_byte)) || eq(Car(t0),S(signed_byte))) &&
-       (eql(Car(Cdr(t0)),Car(Cdr(t1))))))
-    { value1 = T; mv_count = 1; }
-  else { value1 = NIL; mv_count = 1; }
+       consp(Cdr(t0)) && consp(Cdr(t1)) && eql(Car(Cdr(t0)),Car(Cdr(t1))))) {
+    value1 = T; mv_count = 1;
+  } else {
+    value1 = NIL; mv_count = 1;
+  }
 }
 
 LISPFUNN(built_in_stream_element_type,1)
