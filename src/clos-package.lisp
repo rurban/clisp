@@ -36,10 +36,10 @@
     ;; clos:slot-boundp clos:slot-makunbound ; defined in record.d
     ;; clos:slot-exists-p ; defined in record.d
     ;; clos::class-gethash clos::class-tuple-gethash ; defined in hashtabl.d
-    compiler::*keyword-package* ; defined in compiler.lisp
+    sys::*keyword-package*      ; defined in init.lisp, compiler.lisp
     compiler::%generic-function-lambda ; defined in compiler.lisp
     compiler::%optimize-function-lambda ; defined in compiler.lisp
-    compiler::analyze-lambdalist              ; ditto
+    compiler::analyze-lambdalist ; FIXME: shouldn't be used
     ;; clos:generic-flet clos:generic-labels ; treated in compiler.lisp
     ;; Export:
     ;; clos::closclass ; property in predtype.d, type.lisp, compiler.lisp
