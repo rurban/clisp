@@ -120,11 +120,6 @@
   ; TYPE-OF.1
 ))
 
-;; A few tests in misc.lsp want a CONDITIONS package.
-(cl:make-package "CONDITIONS")
-(import '(cl:handler-bind cl:handler-case) "CONDITIONS")
-(export '(cl:handler-bind cl:handler-case) "CONDITIONS")
-
 ;; A few tests call DISASSEMBLE. Make it work without user intervention.
 (setf (ext:getenv "PAGER") "cat")
 
