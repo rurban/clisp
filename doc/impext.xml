@@ -2352,7 +2352,7 @@ classes.</para>
   </simpara></listitem></varlistentry>
 
 <varlistentry id="c-function"><term><literal
-   role="sexp">(&c-function; (<constant>:arguments</constant>
+   role="sexp">(&c-function; (&arguments-k;
       {(<replaceable>arg-name</replaceable> <replaceable>a-c-type</replaceable>
         [&param-mode; [&allocation;]])}*)
     (<constant>:return-type</constant> <replaceable>r-c-type</replaceable>
@@ -3097,7 +3097,7 @@ the output side.</para>
   <tgroup cols="3" colsep="1" rowsep="1" align="left"><tbody>
   <row><entry/><entry><literal role="sexp">(:offset
     <replaceable>library-offset</replaceable>)</literal></entry></row>
-  <row><entry>|</entry><entry><literal role="sexp">(:arguments
+  <row><entry>|</entry><entry><literal role="sexp">(&arguments-k;
     {(<replaceable>arg-name</replaceable>
     <replaceable>&affi-pac;-type</replaceable>
     <replaceable>register</replaceable>)}*)</literal></entry></row>
@@ -3857,13 +3857,12 @@ bash$
 <!-- #if defined(UNIX) || defined(MSDOS) || defined(RISCOS) -->
 <varlistentry><term>Platform dependent: &unix;, &acorn;, &dos;, &os2;,
    platforms only.</term>
- <listitem><simpara><literal role="sexp">(&exec;
-       <replaceable>programfile</replaceable>
+ <listitem><simpara><literal role="sexp">(&exec; &program-r;
        <replaceable>arg&sub-1;</replaceable>
        <replaceable>arg&sub-2;</replaceable> ...)</literal>
-   executes an external program.  Its name is
-   <replaceable>programfile</replaceable>.  It is
-   given the strings <replaceable>arg&sub-1;</replaceable>,
+   executes an external program.
+   Its name is &program-r; (a full pathname).
+   It is given the strings <replaceable>arg&sub-1;</replaceable>,
    <replaceable>arg&sub-2;</replaceable>, ... as arguments.
  </simpara></listitem></varlistentry>
 <!-- #endif -->
@@ -3886,20 +3885,18 @@ bash$
 <!-- #endif -->
 
 <!-- #ifdef PIPES2 -->
-<varlistentry><term>Platform dependent: &unix;, &os2;, &win32;
+<varlistentry id="run-prog"><term>Platform dependent: &unix;, &os2;, &win32;
    platforms only.</term>
  <listitem><simpara>The functions <function>EXT:RUN-SHELL-COMMAND</function>
-   and <function>EXT:RUN-PROGRAM</function> are the
-   general interface to &shell; and the above:</simpara>
+   and &run-prog; are the general interface to &shell; and the above:</simpara>
 
    <simpara><literal role="sexp">(<function>EXT:RUN-SHELL-COMMAND</function>
-   &command-r; &key-amp; &input-k; &output-k; &if-output-exists;)</literal>
-   runs a shell command.</simpara>
+   &command-r; &key-amp; &input-k; &output-k; &if-output-exists;
+   &wait-k;)</literal> runs a shell command.</simpara>
 
-   <simpara><literal role="sexp">(<function>EXT:RUN-PROGRAM</function>
-   <replaceable>program</replaceable> &key-amp; <constant>:arguments</constant>
-   &input-k; &output-k; &if-output-exists;)</literal> runs an external
-   program.</simpara>
+   <simpara><literal role="sexp">(&run-prog; &program-r; &key-amp;
+   &arguments-k; &input-k; &output-k; &if-output-exists; &wait-k;)</literal>
+   runs an external program.</simpara>
 
   <variablelist>
    <varlistentry><term>&command-r;</term>
@@ -3909,18 +3906,19 @@ bash$
       <varlistentry><term>Platform dependent: &unix; platforms only.</term>
       <listitem><simpara>The shell the command is passed to is the value
        of the environment variable <envar>SHELL</envar>, which normally
-       is <filename>/bin/sh</filename>.  The command should be a
-       ``simple command''; a ``command list'' should be enclosed in "{
+       is <filename>/bin/sh</filename>.
+       The command should be a <quote>simple command</quote>;
+       a <quote>command list</quote> should be enclosed in "{
        ... ; }" (for <filename>/bin/sh</filename>) or "( ... )" (for
        <filename>/bin/csh</filename>).
      </simpara></listitem></varlistentry></variablelist>
 <!-- #endif -->
     </listitem></varlistentry>
-   <varlistentry><term><replaceable>program</replaceable></term>
+   <varlistentry><term>&program-r;</term>
     <listitem><simpara>the program.  The directories listed in the
      <envar>PATH</envar> environment variable will be searched for it.
     </simpara></listitem></varlistentry>
-   <varlistentry><term><constant>:arguments</constant></term>
+   <varlistentry><term>&arguments-k;</term>
     <listitem><simpara>a list of arguments (strings) that are given to the
      program.</simpara></listitem></varlistentry>
    <varlistentry><term>&input-k;</term>
@@ -3938,13 +3936,17 @@ bash$
      exists.  The possible values are &overwrite-k;, &append-k;,
      &error-k;, with the same meaning as for &open;.
     </simpara></listitem></varlistentry>
+   <varlistentry><term>&wait-k;</term>
+    <listitem><simpara>wether to wait for program termination or not
+     (this is useful when no i/o to the process is needed).
+    </simpara></listitem></varlistentry>
   </variablelist>
 
 <para>If &stream-k; was specified for &input-k; or &output-k;, a Lisp
  stream is returned.  If &stream-k; was specified for &input-k; and
  &output-k;, three Lisp streams are returned, as for the function
- &mk-pipe-io;.  This use of <function>ext:run-program</function> can
- cause deadlocks, see &mk-pipe-io;.</para>
+ &mk-pipe-io;.  This use of &run-prog; can cause deadlocks, see
+ &mk-pipe-io;.</para>
 </listitem></varlistentry>
 <!-- #endif -->
  </variablelist>

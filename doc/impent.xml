@@ -69,6 +69,7 @@
 <!ENTITY super-k "<constant>:SUPER</constant>">
 <!ENTITY use-k "<constant>:USE</constant>">
 <!ENTITY verbose-k "<constant>:VERBOSE</constant>">
+<!ENTITY wait-k "<constant>:WAIT</constant>">
 <!ENTITY warnings-k "<constant>:WARNINGS</constant>">
 <!ENTITY wild-inferiors-k "<constant>:WILD-INFERIORS</constant>">
 <!ENTITY wild-k "<constant>:WILD</constant>">
@@ -184,6 +185,7 @@
 <!ENTITY mk-pipe-io "<link linkend='pipe'><function>EXT:MAKE-PIPE-IO-STREAM</function></link>">
 <!ENTITY mk-pipe-in "<link linkend='pipe'><function>EXT:MAKE-PIPE-INPUT-STREAM</function></link>">
 <!ENTITY mk-pipe-out "<link linkend='pipe'><function>EXT:MAKE-PIPE-OUTPUT-STREAM</function></link>">
+<!ENTITY run-prog "<link linkend='run-prog'><function>EXT:RUN-PROGRAM</function></link>">
 <!ENTITY sose "<link linkend='sose'><function>SOCKET:SOCKET-SERVER</function></link>">
 <!ENTITY sose-close "<link linkend='sose-close'><function>SOCKET:SOCKET-SERVER-CLOSE</function></link>">
 <!ENTITY sose-port "<link linkend='sose-port'><function>SOCKET:SOCKET-SERVER-PORT</function></link>">
@@ -195,8 +197,6 @@
 <!ENTITY service-port "<link linkend='service-port'><function>SOCKET:SOCKET-SERVICE-PORT</function></link>">
 <!ENTITY sost-peer "<link linkend='sost-peer'><function>SOCKET:SOCKET-STREAM-PEER</function></link>">
 <!ENTITY sost-local "<link linkend='sost-local'><function>SOCKET:SOCKET-STREAM-LOCAL</function></link>">
-<!ENTITY so "<link linkend='so'><function>SOCKET:SOCKET-</function></link>">
-<!ENTITY so "<link linkend='so'><function>SOCKET:SOCKET-</function></link>">
 <!ENTITY so-accept "<link linkend='so-accept'><function>SOCKET:SOCKET-ACCEPT</function></link>">
 <!ENTITY so-connect "<link linkend='so-connect'><function>SOCKET:SOCKET-CONNECT</function></link>">
 <!ENTITY socket-server "<link linkend='socket'><classname>SOCKET:SOCKET-SERVER</classname></link>">
@@ -351,6 +351,7 @@
 <!ENTITY pattern-r "<replaceable>pattern</replaceable>">
 <!ENTITY place-r "<replaceable>place</replaceable>">
 <!ENTITY pred-r "<replaceable>predicate</replaceable>">
+<!ENTITY program-r "<replaceable>program</replaceable>">
 <!ENTITY real-r "<replaceable>real</replaceable>">
 <!ENTITY sequence-r "<replaceable>sequence</replaceable>">
 <!ENTITY size-r "<replaceable>size</replaceable>">
