@@ -13517,13 +13517,14 @@ static inline object check_stream (object obj) {
  can trigger GC */
 extern struct timeval * sec_usec (object sec, object usec, struct timeval *tv);
 
-# UP: Initializes the stream-variables.
-# init_streamvars(unixyp);
-# > unixyp: Flag, whether *error-output* should be initialized Unix-style
-#           (deviates from the standard)
-# can trigger GC
-extern void init_streamvars (bool unixyp);
-# is used by SPVW
+/* UP: Initializes the stream variables.
+ init_streamvars(batch_p);
+ > batch_p: Flag, whether *standard-input*, *standard-output*, *error-output*
+            should be initialized to the C stdio handle-streams
+            (deviates from the standard)
+ can trigger GC */
+extern void init_streamvars (bool batch_p);
+/* used by SPVW */
 
 # Error-message, if a stream-operation is not permitted on a stream.
 # fehler_illegal_streamop(caller,stream);
