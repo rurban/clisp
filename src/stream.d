@@ -4193,18 +4193,22 @@ typedef struct strm_file_extrafields_struct {
 } strm_file_extrafields_struct;
 
 # For file streams with element type INTEGER ("byte files") every integer
-# uses the same amount of bits.
+# uses the same amount of bits. The bits and bytes are stored in little-endian
+# order, because big-endian order would lead to madness. So the bit number i
+# of element number j is = bit number (i+j*bitsize) of the entire bit stream
+# = bit number ((i+j*bitsize) mod 8) in byte number floor((i+j*bitsize)/8).
 typedef struct strm_i_file_extrafields_struct {
   strm_file_extrafields_struct _parent;
   uintL bitsize;                # number of bits, >0, <intDsize*uintWC_max
   #define strm_file_bitbuffer   strm_field3   # buffer, a simple-bit-vector
-                                              # with ceiling(bitsize/8)*8 bits
+                                              # with ceiling(bitsize/8)*8 bits,
+                                              # filled in little-endian order
   # If bitsize is not a multiple of 8:
   uintL bitindex;               # index in the current byte, >=0, <=8
   # The buffer contains 8*index+bitindex bits. The bits are ordered in the
   # order bit0,....,bit7. If bitsize<8, the length of the file (measured in
-  # bits) is stored in the first 4 bytes of the files when the file is closed.
-  # The actual data then begins in the 5th byte.
+  # bits) is stored in the first 4 bytes of the files [in little-endian order]
+  # when the file is closed. The actual data then begins in the 5th byte.
   uintL eofposition;            # position of logical EOF
 } strm_i_file_extrafields_struct;
 
@@ -4594,9 +4598,11 @@ typedef struct strm_i_file_extrafields_struct {
 # File-Stream.
 # read_byte_array_b_file(stream,byteptr,len)
 # > stream : (offener) Byte-basierter File-Stream.
-# < byteptr[0..len-1] : eingelesene Bytes.
-# < result: &byteptr[len]
-# verändert in stream: index, eofindex, buffstart, position
+# > byteptr[0..len-1] : Platz
+# > len : > 0
+# < byteptr[0..count-1] : eingelesene Bytes.
+# < result: &byteptr[count] (with count = len, or count < len if EOF reached)
+# verändert in stream: index, eofindex, buffstart
   local uintB* read_byte_array_b_file (object stream, uintB* byteptr, uintL len);
   local uintB* read_byte_array_b_file(stream,byteptr,len)
     var object stream;
@@ -4613,9 +4619,8 @@ typedef struct strm_i_file_extrafields_struct {
            { var uintL count;
              dotimespL(count,available, { *byteptr++ = *ptr++; } );
            }
-           # index und position incrementieren:
+           # index incrementieren:
            FileStream_index(stream) += available;
-           FileStream_position(stream) += available;
            len -= available;
          }}
          while (len > 0);
@@ -4627,8 +4632,9 @@ typedef struct strm_i_file_extrafields_struct {
 # write_byte_array_b_file(stream,byteptr,len)
 # > stream : (offener) Byte-basierter File-Stream.
 # > byteptr[0..len-1] : auszugebende Bytes.
+# > len : > 0
 # < result: &byteptr[len]
-# verändert in stream: index, eofindex, buffstart, position
+# verändert in stream: index, eofindex, buffstart
   local const uintB* write_byte_array_b_file (object stream, const uintB* byteptr, uintL len);
   local const uintB* write_byte_array_b_file(stream,byteptr,len)
     var object stream;
@@ -4686,8 +4692,6 @@ typedef struct strm_i_file_extrafields_struct {
             FileStream_eofindex(stream) += next;
           }
           until (remaining == 0);
-      # position incrementieren:
-      FileStream_position(stream) += len;
       return byteptr;
     }
 
@@ -4842,6 +4846,8 @@ typedef struct strm_i_file_extrafields_struct {
     {
       #if 1 # FIXME: doesn't work with chart any more
       write_byte_array_b_file(stream,strptr,len);
+      # position incrementieren:
+      FileStream_position(stream) += len;
       strptr += len;
       #else
       var uintL remaining = len;
@@ -4928,10 +4934,10 @@ typedef struct strm_i_file_extrafields_struct {
     var uintL bytesize;
     { var object bitbuffer = TheStream(stream)->strm_file_bitbuffer;
       # Zahl im bitbuffer normalisieren:
-      var uintB* bitbufferptr = &TheSbvector(bitbuffer)->data[0];
+      var uintB* bitbufferptr = &TheSbvector(bitbuffer)->data[bytesize-1];
       *bitbufferptr &= (bit(((bitsize-1)%8)+1)-1); # High byte maskieren
      {var uintL count = bytesize;
-      while ((!(count==0)) && (*bitbufferptr==0)) { count--; bitbufferptr++; }
+      while ((!(count==0)) && (*bitbufferptr==0)) { count--; bitbufferptr--; }
       # Zahl bilden:
       if # höchstens oint_data_len Bits ?
          ((count <= floor(oint_data_len,8))
@@ -4940,7 +4946,7 @@ typedef struct strm_i_file_extrafields_struct {
          )   )
         # ja -> Fixnum >=0 bilden:
         { var uintL wert = 0;
-          until (count==0) { wert = (wert<<8) | *bitbufferptr++; count--; }
+          until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
           return fixnum(wert);
         }
         else
@@ -4956,16 +4962,16 @@ typedef struct strm_i_file_extrafields_struct {
             # restliche Digits von rechts füllen, dabei Folge von Bytes in
             # Folge von uintD übersetzen:
             bitbuffer = popSTACK();
-            bitbufferptr = &TheSbvector(bitbuffer)->data[bytesize];
+            bitbufferptr = &TheSbvector(bitbuffer)->data[0];
             #if BIG_ENDIAN_P
             {var uintB* bigptr = (uintB*)(&TheBignum(big)->data[digitcount]);
-             dotimespL(count,count, { *--bigptr = *--bitbufferptr; } );
+             dotimespL(count,count, { *--bigptr = *bitbufferptr++; } );
             }
             #else
             {var uintD* bigptr = &TheBignum(big)->data[digitcount];
              var uintL count2;
              #define GET_NEXT_BYTE(i)  \
-               digit |= ((uintD)(*--bitbufferptr) << (8*i));
+               digit |= ((uintD)(*bitbufferptr++) << (8*i));
              dotimespL(count2,floor(count,intDsize/8),
                { var uintD digit = 0;
                  DOCONSTTIMES(intDsize/8,GET_NEXT_BYTE); # GET_NEXT_BYTE(0..intDsize/8-1)
@@ -4975,10 +4981,10 @@ typedef struct strm_i_file_extrafields_struct {
              count2 = count % (intDsize/8);
              if (count2>0)
                { var uintL shiftcount = 0;
-                 var uintD digit = (uintD)(*--bitbufferptr);
+                 var uintD digit = (uintD)(*bitbufferptr++);
                  dotimesL(count2,count2-1,
                    { shiftcount += 8;
-                     digit |= ((uintD)(*--bitbufferptr) << shiftcount);
+                     digit |= ((uintD)(*bitbufferptr++) << shiftcount);
                    });
                  *--bigptr = digit;
                }
@@ -5000,7 +5006,7 @@ typedef struct strm_i_file_extrafields_struct {
     var uintL bytesize;
     { var object bitbuffer = TheStream(stream)->strm_file_bitbuffer;
       # Zahl im bitbuffer normalisieren:
-      var uintB* bitbufferptr = &TheSbvector(bitbuffer)->data[0];
+      var uintB* bitbufferptr = &TheSbvector(bitbuffer)->data[bytesize-1];
       var sintD sign;
       var uintL signbitnr = (bitsize-1)%8;
       var uintL count = bytesize;
@@ -5008,8 +5014,8 @@ typedef struct strm_i_file_extrafields_struct {
         { sign = 0;
           *bitbufferptr &= (bitm(signbitnr+1)-1); # High byte sign-extenden
           # normalisieren, höchstes Bit muss 0 bleiben:
-          while ((count>=2) && (*bitbufferptr==0) && !(*(bitbufferptr+1) & bit(7)))
-            { count--; bitbufferptr++; }
+          while ((count>=2) && (*bitbufferptr==0) && !(*(bitbufferptr-1) & bit(7)))
+            { count--; bitbufferptr--; }
           # Zahl bilden:
           if # höchstens oint_data_len+1 Bits, Zahl <2^oint_data_len ?
              ((count <= floor(oint_data_len,8))
@@ -5018,7 +5024,7 @@ typedef struct strm_i_file_extrafields_struct {
              )   )
             # ja -> Fixnum >=0 bilden:
             { var uintL wert = 0;
-              until (count==0) { wert = (wert<<8) | *bitbufferptr++; count--; }
+              until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
               return posfixnum(wert);
             }
         }
@@ -5026,8 +5032,8 @@ typedef struct strm_i_file_extrafields_struct {
         { sign = -1;
           *bitbufferptr |= minus_bitm(signbitnr+1); # High byte sign-extenden
           # normalisieren, höchstes Bit muss 1 bleiben:
-          while ((count>=2) && (*bitbufferptr==(uintB)(-1)) && (*(bitbufferptr+1) & bit(7)))
-            { count--; bitbufferptr++; }
+          while ((count>=2) && (*bitbufferptr==(uintB)(-1)) && (*(bitbufferptr-1) & bit(7)))
+            { count--; bitbufferptr--; }
           # Zahl bilden:
           if # höchstens oint_data_len+1 Bits, Zahl >=-2^oint_data_len ?
              ((count <= floor(oint_data_len,8))
@@ -5036,7 +5042,7 @@ typedef struct strm_i_file_extrafields_struct {
              )   )
             # ja -> Fixnum <0 bilden:
             { var uintL wert = (uintL)(-1);
-              until (count==0) { wert = (wert<<8) | *bitbufferptr++; count--; }
+              until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
               return negfixnum(wbitm(intLsize)+(oint)wert);
             }
         }
@@ -5050,16 +5056,16 @@ typedef struct strm_i_file_extrafields_struct {
         # restliche Digits von rechts füllen, dabei Folge von Bytes in
         # Folge von uintD übersetzen:
         bitbuffer = popSTACK();
-        bitbufferptr = &TheSbvector(bitbuffer)->data[bytesize];
+        bitbufferptr = &TheSbvector(bitbuffer)->data[0];
         #if BIG_ENDIAN_P
         {var uintB* bigptr = (uintB*)(&TheBignum(big)->data[digitcount]);
-         dotimespL(count,count, { *--bigptr = *--bitbufferptr; } );
+         dotimespL(count,count, { *--bigptr = *bitbufferptr++; } );
         }
         #else
         {var uintD* bigptr = &TheBignum(big)->data[digitcount];
          var uintL count2;
          #define GET_NEXT_BYTE(i)  \
-           digit |= ((uintD)(*--bitbufferptr) << (8*i));
+           digit |= ((uintD)(*bitbufferptr++) << (8*i));
          dotimespL(count2,floor(count,intDsize/8),
            { var uintD digit = 0;
              DOCONSTTIMES(intDsize/8,GET_NEXT_BYTE); # GET_NEXT_BYTE(0..intDsize/8-1)
@@ -5069,10 +5075,10 @@ typedef struct strm_i_file_extrafields_struct {
          count2 = count % (intDsize/8);
          if (count2>0)
            { var uintL shiftcount = 0;
-             var uintD digit = (uintD)(*--bitbufferptr);
+             var uintD digit = (uintD)(*bitbufferptr++);
              dotimesL(count2,count2-1,
                { shiftcount += 8;
-                 digit |= ((uintD)(*--bitbufferptr) << shiftcount);
+                 digit |= ((uintD)(*bitbufferptr++) << shiftcount);
                });
              *--bigptr = digit;
            }
@@ -5099,16 +5105,21 @@ typedef struct strm_i_file_extrafields_struct {
     { var uintL bitsize = FileStream_bitsize(stream);
       var uintL bytesize = bitsize/8;
       # genügend viele Bytes in den Bitbuffer übertragen:
-     {var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_file_bitbuffer)->data[bytesize];
+     {var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_file_bitbuffer)->data[0];
+      #if 0 # equivalent, but slower
       var uintL count;
       dotimespL(count,bytesize,
         { var uintB* ptr = b_file_nextbyte(stream);
           if (ptr == (uintB*)NULL) goto eof;
           # nächstes Byte holen:
-          *--bitbufferptr = *ptr;
+          *bitbufferptr++ = *ptr;
           # index incrementieren:
           FileStream_index(stream) += 1;
         });
+      #else
+      if (!(read_byte_array_b_file(stream,bitbufferptr,bytesize) == bitbufferptr+bytesize))
+        goto eof;
+      #endif
       # position incrementieren:
       FileStream_position(stream) += 1;
       # in Zahl umwandeln:
@@ -5178,14 +5189,14 @@ typedef struct strm_i_file_extrafields_struct {
     { var uintL bitsize = FileStream_bitsize(stream);
       var uintL bytesize = ceiling(bitsize,8);
       # genügend viele Bits in den Bitbuffer übertragen:
-      var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_file_bitbuffer)->data[bytesize];
+      var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_file_bitbuffer)->data[0];
       var uintL count = bitsize;
       var uintL bitshift = FileStream_bitindex(stream);
       var uintB* ptr = b_file_nextbyte(stream);
       if (ptr == (uintB*)NULL) goto eof;
       if (bitshift==0)
         { loop
-            { *--bitbufferptr = *ptr; # 8 Bits holen und abspeichern
+            { *bitbufferptr++ = *ptr; # 8 Bits holen und abspeichern
               # index incrementieren, da gerade *ptr verarbeitet:
               FileStream_index(stream) += 1;
               count -= 8;
@@ -5195,7 +5206,7 @@ typedef struct strm_i_file_extrafields_struct {
               if (count<=8) break; # Sind damit count Bits fertig?
             }
           # Noch count = bitsize mod 8 (>0,<8) Bits zu holen.
-          *--bitbufferptr = *ptr; # count Bits holen und abspeichern
+          *bitbufferptr++ = *ptr; # count Bits holen und abspeichern
         }
         else # 0<bitindex<8
         { var uint16 bit_akku;
@@ -5213,7 +5224,7 @@ typedef struct strm_i_file_extrafields_struct {
               # nächstes Byte holen:
               bit_akku |= (uint16)(*ptr)<<bitshift;
              }# Von bit_akku sind die Bits (7+bitshift)..0 gültig.
-              *--bitbufferptr = (uint8)bit_akku; # 8 Bit abspeichern
+              *bitbufferptr++ = (uint8)bit_akku; # 8 Bit abspeichern
               if (count<=8) break; # Sind damit count Bits fertig?
               count -= 8;
               bit_akku = bit_akku>>8;
@@ -5236,9 +5247,13 @@ typedef struct strm_i_file_extrafields_struct {
     var object stream;
     var uintL bitsize;
     var uintL bytesize;
-    { var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_file_bitbuffer)->data[bytesize];
+    { var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_file_bitbuffer)->data[0];
+      #if 0 # equivalent, but slow
       var uintL count;
-      dotimespL(count,bytesize, { b_file_writebyte(stream,*--bitbufferptr); } );
+      dotimespL(count,bytesize, { b_file_writebyte(stream,*bitbufferptr++); } );
+      #else
+      write_byte_array_b_file(stream,bitbufferptr,bytesize);
+      #endif
       # position incrementieren:
       FileStream_position(stream) += 1;
     }
@@ -5293,7 +5308,7 @@ typedef struct strm_i_file_extrafields_struct {
     var object stream;
     var uintL bitsize;
     var uintL bytesize;
-    { var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_file_bitbuffer)->data[bytesize];
+    { var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_file_bitbuffer)->data[0];
       var uintL bitshift = FileStream_bitindex(stream);
       var uintL count = bitsize;
       var uint16 bit_akku;
@@ -5303,7 +5318,7 @@ typedef struct strm_i_file_extrafields_struct {
       count += bitshift;
       # einzelne Bytes schreiben:
       loop
-        { bit_akku |= (uint16)(*--bitbufferptr)<<bitshift;
+        { bit_akku |= (uint16)(*bitbufferptr++)<<bitshift;
           if (count<8) break;
           b_file_writebyte(stream,(uint8)bit_akku);
           bit_akku = bit_akku>>8;
@@ -5351,7 +5366,7 @@ typedef struct strm_i_file_extrafields_struct {
      {var uintL bitsize = FileStream_bitsize(stream);
       var uintL bytesize = ceiling(bitsize,8);
       # obj in den Bitbuffer übertragen:
-      { var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_file_bitbuffer)->data[bytesize];
+      { var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_file_bitbuffer)->data[0];
         var uintL count = bytesize;
         if (posfixnump(obj))
           # obj ist ein Fixnum >=0
@@ -5361,7 +5376,7 @@ typedef struct strm_i_file_extrafields_struct {
               { fehler_bad_integer(stream,obj); }
             # wert im Bitbuffer ablegen:
             until (wert==0)
-              { *--bitbufferptr = (uint8)wert; wert = wert>>8; count--; }
+              { *bitbufferptr++ = (uint8)wert; wert = wert>>8; count--; }
           }
           else
           # obj ist ein Bignum >0
@@ -5384,7 +5399,7 @@ typedef struct strm_i_file_extrafields_struct {
              len_ok:
              # obj im Bitbuffer ablegen:
              count = count - len;
-             dotimespL(len,len, { *--bitbufferptr = *--ptr; } );
+             dotimespL(len,len, { *bitbufferptr++ = *--ptr; } );
             }
             #else
             {var uintD* ptr = &TheBignum(obj)->data[len];
@@ -5393,20 +5408,20 @@ typedef struct strm_i_file_extrafields_struct {
              dotimesL(len,len,
                { var uintD digit = *--ptr;
                  doconsttimes(intDsize/8,
-                   { *--bitbufferptr = (uintB)digit; digit = digit >> 8; }
+                   { *bitbufferptr++ = (uintB)digit; digit = digit >> 8; }
                    );
                });
              {var uintD digit = *--ptr;
               doconsttimes(intDsize/8,
                 { if (digit==0) goto ok;
-                  *--bitbufferptr = (uintB)digit; digit = digit >> 8;
+                  *bitbufferptr++ = (uintB)digit; digit = digit >> 8;
                   count--;
                 });
               ok: ;
             }}
             #endif
           }
-        dotimesL(count,count, { *--bitbufferptr = 0; } );
+        dotimesL(count,count, { *bitbufferptr++ = 0; } );
       }
       (*finisher)(stream,bitsize,bytesize);
     }}
@@ -5427,7 +5442,7 @@ typedef struct strm_i_file_extrafields_struct {
      {var uintL bitsize = FileStream_bitsize(stream);
       var uintL bytesize = ceiling(bitsize,8);
       # obj in den Bitbuffer übertragen:
-      { var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_file_bitbuffer)->data[bytesize];
+      { var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_file_bitbuffer)->data[0];
         var uintL count = bytesize;
         var uintL sign = (sintL)R_sign(obj);
         if (fixnump(obj))
@@ -5439,8 +5454,8 @@ typedef struct strm_i_file_extrafields_struct {
               { fehler_bad_integer(stream,obj); }
             # wert^sign im Bitbuffer ablegen:
             until (wert == 0)
-              { *--bitbufferptr = (uint8)(wert^sign); wert = wert>>8; count--; }
-            dotimesL(count,count, { *--bitbufferptr = (uint8)sign; } );
+              { *bitbufferptr++ = (uint8)(wert^sign); wert = wert>>8; count--; }
+            dotimesL(count,count, { *bitbufferptr++ = (uint8)sign; } );
           }
           else
           # obj ist ein Bignum
@@ -5463,7 +5478,7 @@ typedef struct strm_i_file_extrafields_struct {
              len_ok:
              # obj im Bitbuffer ablegen:
              count = count - len;
-             dotimespL(len,len, { *--bitbufferptr = *--ptr; } );
+             dotimespL(len,len, { *bitbufferptr++ = *--ptr; } );
             }
             #else
             {var uintD* ptr = &TheBignum(obj)->data[len];
@@ -5472,19 +5487,19 @@ typedef struct strm_i_file_extrafields_struct {
              dotimesL(len,len,
                { var uintD digit = *--ptr;
                  doconsttimes(intDsize/8,
-                   { *--bitbufferptr = (uintB)digit; digit = digit >> 8; }
+                   { *bitbufferptr++ = (uintB)digit; digit = digit >> 8; }
                    );
                });
              {var sintD digit = *--ptr;
               doconsttimes(intDsize/8,
                 { if (digit == (sintD)sign) goto ok;
-                  *--bitbufferptr = (uintB)digit; digit = digit >> 8;
+                  *bitbufferptr++ = (uintB)digit; digit = digit >> 8;
                   count--;
                 });
               ok: ;
             }}
             #endif
-            dotimesL(count,count, { *--bitbufferptr = (uintB)sign; } );
+            dotimesL(count,count, { *bitbufferptr++ = (uintB)sign; } );
           }
       }
       (*finisher)(stream,bitsize,bytesize);
@@ -5570,11 +5585,28 @@ typedef struct strm_i_file_extrafields_struct {
 
 # READ-BYTE-SEQUENCE für File-Streams für Integers, Art au, bitsize = 8 :
   local uintB* read_byte_array_iau8_file (object stream, uintB* byteptr, uintL len);
-  #define read_byte_array_iau8_file  read_byte_array_b_file
+  local uintB* read_byte_array_iau8_file(stream,byteptr,len)
+    var object stream;
+    var uintB* byteptr;
+    var uintL len;
+    { var uintB* endptr = read_byte_array_b_file(stream,byteptr,len);
+      # position incrementieren:
+      FileStream_position(stream) += (endptr-byteptr);
+      return endptr;
+    }
 
 # WRITE-BYTE-SEQUENCE für File-Streams für Integers, Art au, bitsize = 8 :
   local const uintB* write_byte_array_iau8_file (object stream, const uintB* byteptr, uintL len);
-  #define write_byte_array_iau8_file  write_byte_array_b_file
+  local const uintB* write_byte_array_iau8_file(stream,byteptr,len)
+    var object stream;
+    var const uintB* byteptr;
+    var uintL len;
+    { var const uintB* endptr = write_byte_array_b_file(stream,byteptr,len);
+      # Now endptr == byteptr+len.
+      # position incrementieren:
+      FileStream_position(stream) += len;
+      return endptr;
+    }
 
 # File-Stream allgemein
 # =====================
