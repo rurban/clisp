@@ -733,7 +733,7 @@ LISPFUNNR(reverse,1) # (REVERSE sequence), CLTL S. 248
           var uintL index1 = 0;
           var object dv1 = array_displace_check(STACK_3,count,&index1);
           var uintL index2 = 0;
-          var object dv2 = array_displace_check(STACK_0,count,&index1); # = STACK_0
+          var object dv2 = array_displace_check(STACK_0,count,&index2); # = STACK_0
           elt_reverse(dv1,index1,dv2,index2,count);
         }
       } else {

@@ -225,6 +225,8 @@ User visible changes
   + Fixes to internationalized error messages.
   + Passing a package as second argument of RENAME-PACKAGE led to an
     unjustified error.
+  + Passing a displaced vector as argument to REVERSE could lead to an
+    unjustified error.
   + Fixed ATANH on complex numbers.
   + Fixed a crash of (COPY-READTABLE NIL some-readtable).
   + Fixed a crash when using a hash-table as hash-table key.
