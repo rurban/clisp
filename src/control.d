@@ -2226,7 +2226,8 @@ LISPFUNNR(function_side_effect,1)
  this function is called at compile time, so the argument does not have to
  be a function, it may be a variable name whose value will be some function
  at run time, therefore we never signal errors, just return *SECLASS-DIRTY* */
-  var object fdef = popSTACK(), name=unbound;
+  var object fdef = popSTACK();
+  var object name = unbound;
   if (consp(fdef) && (eq(S(quote),Car(fdef)) || eq(S(function),Car(fdef))))
     fdef = Car(Cdr(fdef));
   if (funnamep(fdef)) fdef = funname_to_symbol(name=fdef);  /* won't cons! */
