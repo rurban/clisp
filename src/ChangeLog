@@ -1,3 +1,9 @@
+2005-02-04  Bruno Haible  <bruno@clisp.org>
+
+	* init.lisp: Export clos:standard-accessor-method.
+	* clos-package.lisp: Likewise.
+	Reported by Pascal Costanza <pc@p-cos.net>.
+
 2005-01-27  Bruno Haible  <bruno@clisp.org>
 
 	* clos-class1.lisp (built-in-class): Add slot $prototype.
