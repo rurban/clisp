@@ -1,3 +1,7 @@
+2004-09-20  Bruno Haible  <bruno@clisp.org>
+
+	* clos.tst: Update for changed syntax of :fixed-slot-locations option.
+
 2004-09-22  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: Add a few more defclass tests.

@@ -16,7 +16,7 @@
      (($direct-methods          ; weak-list or weak-hash-table of methods that
                                 ; use this specializer
         :initform nil))
-     (:fixed-slot-locations)))
+     (:fixed-slot-locations t)))
 
 ;; Fixed slot locations.
 (defconstant *<specializer>-direct-methods-location* 2)
@@ -45,7 +45,7 @@
 (defvar *<eql-specializer>-defclass*
   '(defclass eql-specializer (specializer)
      (($singleton :initarg singleton))
-     (:fixed-slot-locations)))
+     (:fixed-slot-locations t)))
 (defvar *<eql-specializer>-class-version* (make-class-version))
 
 ;; Fixed slot locations.
