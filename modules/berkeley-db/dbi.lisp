@@ -7,7 +7,7 @@
   (:nicknames "BERKELEY-DB" "BERKDB")
   (:export "DB-VERSION"
            "BDB-HANDLE" "BDB-HANDLE-PARENTS" "BDB-HANDLE-DEPENDENTS"
-           "DBE" "DB" "TXN" "DBC" "LOGC" "MPOOLFILE" "DBLOCK"
+           "DBE" "DB" "TXN" "DBC" "LOGC" "MPOOLFILE" "DBLOCK" "LSN"
            "DBE-CREATE" "DBE-CLOSE" "DBE-DBREMOVE" "DBE-DBRENAME" "DBE-OPEN"
            "DBE-REMOVE" "DBE-SET-OPTIONS" "DBE-GET-OPTIONS"
            "DB-CREATE" "DB-CLOSE" "DB-DEL" "DB-FD" "DB-GET" "DB-STAT"
@@ -18,6 +18,8 @@
            "DBC-DUP" "DBC-GET" "DBC-PUT"
            "LOCK-DETECT" "LOCK-GET" "LOCK-ID" "LOCK-ID-FREE" "LOCK-PUT"
            "LOCK-CLOSE" "LOCK-STAT"
+           "LOG-ARCHIVE" "LOG-FILE" "LOG-FLUSH" "LOG-PUT" "LOG-STAT"
+           "LOG-COMPARE" "LOG-CURSOR" "LOGC-CLOSE" "LOGC-GET"
            "TXN-BEGIN" "TXN-ABORT" "TXN-COMMIT" "TXN-DISCARD" "TXN-ID"
            "TXN-CHECKPOINT" "TXN-PREPARE" "TXN-RECOVER" "TXN-SET-TIMEOUT"
            "TXN-STAT"
@@ -132,65 +134,118 @@
 
 (defstruct (db-lock-stat (:constructor
                           mklockstat
-                          (st_id st_cur_maxid st_nmodes st_maxlocks
-                           st_maxlockers st_maxobjects st_nlocks st_maxnlocks
-                           st_nlockers st_maxnlockers st_nobjects st_maxnobjects
-                           st_nrequests st_nreleases st_nnowaits st_nconflicts
-                           st_ndeadlocks st_locktimeout st_nlocktimeouts
-                           st_txntimeout st_ntxntimeouts st_regsize
-                           st_region_wait st_region_nowait)))
+                          (id cur_maxid nmodes maxlocks
+                           maxlockers maxobjects nlocks maxnlocks
+                           nlockers maxnlockers nobjects maxnobjects
+                           nrequests nreleases nnowaits nconflicts
+                           ndeadlocks locktimeout nlocktimeouts
+                           txntimeout ntxntimeouts regsize
+                           region_wait region_nowait)))
   ;; The last allocated locker ID.
-  (st_id 0 :type (unsigned-byte 32) :read-only t)
+  (id 0 :type (unsigned-byte 32) :read-only t)
   ;; The current maximum unused locker ID.
-  (st_cur_maxid 0 :type (unsigned-byte 32) :read-only t)
+  (cur_maxid 0 :type (unsigned-byte 32) :read-only t)
   ;; The number of lock modes.
-  (st_nmodes 0 :type (unsigned-byte 32) :read-only t)
+  (nmodes 0 :type (unsigned-byte 32) :read-only t)
   ;; The maximum number of locks possible.
-  (st_maxlocks 0 :type (unsigned-byte 32) :read-only t)
+  (maxlocks 0 :type (unsigned-byte 32) :read-only t)
   ;; The maximum number of lockers possible.
-  (st_maxlockers 0 :type (unsigned-byte 32) :read-only t)
+  (maxlockers 0 :type (unsigned-byte 32) :read-only t)
   ;; The maximum number of lock objects possible.
-  (st_maxobjects 0 :type (unsigned-byte 32) :read-only t)
+  (maxobjects 0 :type (unsigned-byte 32) :read-only t)
   ;; The number of current locks.
-  (st_nlocks 0 :type (unsigned-byte 32) :read-only t)
+  (nlocks 0 :type (unsigned-byte 32) :read-only t)
   ;; The maximum number of locks at any one time.
-  (st_maxnlocks 0 :type (unsigned-byte 32) :read-only t)
+  (maxnlocks 0 :type (unsigned-byte 32) :read-only t)
   ;; The number of current lockers.
-  (st_nlockers 0 :type (unsigned-byte 32) :read-only t)
+  (nlockers 0 :type (unsigned-byte 32) :read-only t)
   ;; The maximum number of lockers at any one time.
-  (st_maxnlockers 0 :type (unsigned-byte 32) :read-only t)
+  (maxnlockers 0 :type (unsigned-byte 32) :read-only t)
   ;; The number of current lock objects.
-  (st_nobjects 0 :type (unsigned-byte 32) :read-only t)
+  (nobjects 0 :type (unsigned-byte 32) :read-only t)
   ;; The maximum number of lock objects at any one time.
-  (st_maxnobjects 0 :type (unsigned-byte 32) :read-only t)
+  (maxnobjects 0 :type (unsigned-byte 32) :read-only t)
   ;; The total number of locks requested.
-  (st_nrequests 0 :type (unsigned-byte 32) :read-only t)
+  (nrequests 0 :type (unsigned-byte 32) :read-only t)
   ;; The total number of locks released.
-  (st_nreleases 0 :type (unsigned-byte 32) :read-only t)
+  (nreleases 0 :type (unsigned-byte 32) :read-only t)
   ;; The total number of lock requests failing because DB_LOCK_NOWAIT was set.
-  (st_nnowaits 0 :type (unsigned-byte 32) :read-only t)
+  (nnowaits 0 :type (unsigned-byte 32) :read-only t)
   ;; The total number of locks not immediately available due to conflicts.
-  (st_nconflicts 0 :type (unsigned-byte 32) :read-only t)
+  (nconflicts 0 :type (unsigned-byte 32) :read-only t)
   ;; The number of deadlocks.
-  (st_ndeadlocks 0 :type (unsigned-byte 32) :read-only t)
+  (ndeadlocks 0 :type (unsigned-byte 32) :read-only t)
   ;; Lock timeout value.
-  (st_locktimeout 0 :type (unsigned-byte 32) :read-only t)
+  (locktimeout 0 :type (unsigned-byte 32) :read-only t)
   ;; The number of lock requests that have timed out.
-  (st_nlocktimeouts 0 :type (unsigned-byte 32) :read-only t)
+  (nlocktimeouts 0 :type (unsigned-byte 32) :read-only t)
   ;; Transaction timeout value.
-  (st_txntimeout 0 :type (unsigned-byte 32) :read-only t)
+  (txntimeout 0 :type (unsigned-byte 32) :read-only t)
   ;; The number of transactions that have timed out. This value is also
-  ;; a component of st_ndeadlocks, the total number of deadlocks detected.
-  (st_ntxntimeouts 0 :type (unsigned-byte 32) :read-only t)
+  ;; a component of ndeadlocks, the total number of deadlocks detected.
+  (ntxntimeouts 0 :type (unsigned-byte 32) :read-only t)
   ;; The size of the lock region.
-  (st_regsize 0 :type (unsigned-byte 32) :read-only t)
+  (regsize 0 :type (unsigned-byte 32) :read-only t)
   ;; The number of times that a thread of control was forced to wait
   ;; before obtaining the region lock.
-  (st_region_wait 0 :type (unsigned-byte 32) :read-only t)
+  (region_wait 0 :type (unsigned-byte 32) :read-only t)
   ;; The number of times that a thread of control was able to obtain the
   ;; region lock without waiting.
-  (st_region_nowait 0 :type (unsigned-byte 32) :read-only t))
+  (region_nowait 0 :type (unsigned-byte 32) :read-only t))
 
+(defstruct (db-log-stat (:constructor
+                         mklogstat
+                         (magic version mode lg_bsize lg_size w_mbytes w_bytes
+                          wc_mbytes wc_bytes wcount wcount_fill scount cur_file
+                          cur_offset disk_file disk_offset maxcommitperflush
+                          mincommitperflush regsize region_wait region_nowait)))
+  ;; The magic number that identifies a file as a log file.
+  (magic 0 :type (unsigned-byte 32) :read-only t)
+  ;; The version of the log file type.
+  (version 0 :type (unsigned-byte 32) :read-only t)
+  ;; The mode of any created log files.
+  (mode 0 :type int :read-only t)
+  ;; The in-memory log record cache size.
+  (lg_bsize 0 :type (unsigned-byte 32) :read-only t)
+  ;; The current log file size.
+  (lg_size 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of megabytes written to this log.
+  (w_mbytes 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of bytes over and above w_mbytes written to this log.
+  (w_bytes 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of megabytes written to this log since the last checkpoint.
+  (wc_mbytes 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of bytes over and above wc_mbytes written to this log
+  ;; since the last checkpoint.
+  (wc_bytes 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of times the log has been written to disk.
+  (wcount 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of times the log has been written to disk because the
+  ;; in-memory log record cache filled up.
+  (wcount_fill 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of times the log has been flushed to disk.
+  (scount 0 :type (unsigned-byte 32) :read-only t)
+  ;; The current log file number.
+  (cur_file 0 :type (unsigned-byte 32) :read-only t)
+  ;; The byte offset in the current log file.
+  (cur_offset 0 :type (unsigned-byte 32) :read-only t)
+  ;; The log file number of the last record known to be on disk.
+  (disk_file 0 :type (unsigned-byte 32) :read-only t)
+  ;; The byte offset of the last record known to be on disk.
+  (disk_offset 0 :type (unsigned-byte 32) :read-only t)
+  ;; The maximum number of commits contained in a single log flush.
+  (maxcommitperflush 0 :type (unsigned-byte 32) :read-only t)
+  ;; The minimum number of commits contained in a single log flush that
+  ;; contained a commit.
+  (mincommitperflush 0 :type (unsigned-byte 32) :read-only t)
+  ;; The size of the region.
+  (regsize 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of times that a thread of control was forced to wait
+  ;; before obtaining the region lock.
+  (region_wait 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of times that a thread of control was able to obtain the
+  ;; region lock without waiting.
+  (region_nowait 0 :type (unsigned-byte 32) :read-only t))
 
 (defstruct (db-txn-active (:constructor mktxnactive
                                         (txnid parentid lsn xa_status xid)))
@@ -275,6 +330,9 @@
 (defmethod close ((lock dblock) &key abort)
   (declare (ignore abort))
   (lock-close lock))
+(defmethod close ((lc logc) &key abort)
+  (declare (ignore abort))
+  (logc-close lc))
 (defmethod close ((tx txn) &key abort)
   (if abort (txn-abort tx) (txn-commit tx)))
 )

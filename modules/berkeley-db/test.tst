@@ -32,6 +32,13 @@ prepare-dir
                  (bdb:db-get-options db))))
   nil)
 show-db
+(defun show-dbe (dbe)
+  (let ((*print-pretty* t))
+    (print (list dbe :archive (bdb:log-archive dbe)
+                 (bdb:txn-stat dbe) (bdb:lock-stat dbe) (bdb:log-stat dbe)
+                 (bdb:dbe-get-options dbe))))
+  nil)
+show-dbe
 (defun finish-file (file)
   (when (probe-file file)
     (with-open-file (st file :direction :input)
@@ -66,11 +73,11 @@ nil
                      :data_dir "bdb-data/")
 NIL
 
-(let ((*print-pretty* t)) (print (bdb:dbe-get-options *dbe*)) nil) NIL
+(bdb:dbe-open *dbe* :home "bdb-home/" :create t
+              :init_mpool t :init_txn t :init_lock t :init_log t)
+NIL
 
-(bdb:dbe-open *dbe* :home "bdb-home/" :create t :init_mpool t :init_lock t) NIL
-
-(let ((*print-pretty* t)) (print (bdb:dbe-get-options *dbe*)) nil) NIL
+(show-dbe *dbe*) NIL
 
 (defvar *db* (let ((*print-pretty* t)) (print (bdb:db-create *dbe*)))) *db*
 
@@ -190,11 +197,11 @@ NIL
   (equalp arr (bdb:dbe-get-options *dbe* :lk_conflicts)))
 T
 
-(bdb:dbe-open *dbe* :home "bdb-home/" :create t :init_mpool t :init_txn t
-              :init_lock t)
+(bdb:dbe-open *dbe* :home "bdb-home/" :create t
+              :init_mpool t :init_txn t :init_lock t :init_log t)
 NIL
 
-(let ((*print-pretty* t)) (print (bdb:dbe-get-options *dbe*)) nil) NIL
+(show-dbe *dbe*) NIL
 
 (let ((*print-pretty* t)) (setq *db* (print (bdb:db-create *dbe*))) nil) NIL
 
@@ -269,7 +276,8 @@ nil
 (bdb:lock-put *dbe* (print *lock*)) NIL
 (bdb:lock-id-free *dbe* *locker*) NIL
 
-(close *dbe*)       T
+(show-dbe *dbe*) NIL
+(close *dbe*)    T
 
 (finish-file "bdb-errors") T    ; no errors, bdb-errors does not exist
 (rmrf "bdb-home/") T
