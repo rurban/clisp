@@ -10,7 +10,8 @@ User visible changes
 * ANSI CL functions MAKE-LOAD-FORM and MAKE-LOAD-FORM-SAVING-SLOTS
   are implemented.
 
-* ANSI CL pretty printer (chapter 22.2) is implemented.
+* ANSI CL pretty printer <http://www.lisp.org/HyperSpec/Body/sec_22-2.html>
+  is implemented.
   In particular,
     variables     *PRINT-LINES*, *PRINT-MISER-WIDTH*, *PRINT-PPRINT-DISPATCH*,
     macro         PPRINT-LOGICAL-BLOCK,
@@ -19,7 +20,7 @@ User visible changes
                   PPRINT-FILL, PPRINT-LINEAR, PPRINT-TABULAR, PPRINT-TAB,
                   PPRINT-NEWLINE, PPRINT-INDENT
   are implemented.
-  See the impnotes <http://clisp.cons.org/impnotes.html#xp> for details.
+  See the impnotes <http://clisp.cons.org/impnotes.html#clpp> for details.
 
 * The functions WRITE and WRITE-TO-STRING now accept :LINES, :MISER-WIDTH
   and :PRINT-PPRINT-DISPATCH keyword arguments.
