@@ -1,6 +1,9 @@
 2003-05-25  Sam Steingold  <sds@gnu.org>
 
 	* constobj.d (type_packname): include CHARACTER, as per ANSI spec
+	* charstrg.d (test_radix_arg, test_char_args)
+	(test_char_args_upcase, test_stringsymchar_arg): recoverable
+	avoid dotimes*() macro throughout the file
 
 2003-05-24  Sam Steingold  <sds@gnu.org>
 
