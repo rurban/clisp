@@ -243,3 +243,6 @@ tree2
          tree1
          :key #'(lambda (x) (or (atom x) (< (list-length x) 3))))
 ((QUOTE TEMP) (QUOTE TEMP) QUOTE TEMP)
+
+(nthcdr (1+ most-positive-fixnum) '(1 2 3))
+NIL
