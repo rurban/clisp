@@ -3233,7 +3233,7 @@ global Values eval_no_hooks (object form) {
             pushSTACK(form);
             pushSTACK(Car(form));
             fehler(source_program_error,
-                   GETTEXT("EVAL: too few parameters for special-form ~: ~"));
+                   GETTEXT("EVAL: too few parameters for special operator ~: ~"));
           }
         fehler_zuviel: # argument-list args is not NIL at the tail
           if (atomp(args)) goto fehler_dotted;
@@ -3246,7 +3246,7 @@ global Values eval_no_hooks (object form) {
             pushSTACK(form);
             pushSTACK(Car(form));
             fehler(source_program_error,
-                   GETTEXT("EVAL: too many parameters for special-form ~: ~"));
+                   GETTEXT("EVAL: too many parameters for special operator ~: ~"));
           }
         fehler_dotted: # argument-list args ends with Atom /= NIL
           # clean up STACK up to the calling EVAL-Frame:
