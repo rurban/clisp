@@ -23,14 +23,13 @@
                                      function
                                      documentation
                                      ((fast-function fast-function) nil)
-                                     ((initfunction initfunction) nil)
                                      ((wants-next-method-p wants-next-method-p) nil)
                                      ((signature signature) nil)
                                      ((gf gf) nil)
                                      ((from-defgeneric from-defgeneric) nil)
                                 &allow-other-keys)
   (declare (ignore qualifiers lambda-list specializers function documentation
-                   fast-function initfunction wants-next-method-p signature gf
+                   fast-function wants-next-method-p signature gf
                    from-defgeneric))
   (apply #'initialize-instance-<standard-method> method args))
 

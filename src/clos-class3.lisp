@@ -1482,14 +1482,6 @@
                              (let* ((args
                                       (list
                                         :specializers (list class)
-                                        'initfunction
-                                          (eval
-                                            `#'(LAMBDA (#:SELF)
-                                                 (DECLARE (COMPILE))
-                                                 (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION OBJECT)
-                                                   (DECLARE (COMPILE))
-                                                   ,access-place)))
-                                        'wants-next-method-p t
                                         :qualifiers nil
                                         :lambda-list '(OBJECT)
                                         'signature (sys::memoized (make-signature :req-num 1))
@@ -1500,7 +1492,17 @@
                                             (subclassp method-class <standard-reader-method>))
                                  (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
                                         'reader-method-class (class-name class) 'standard-reader-method method-class))
-                               (apply #'make-instance method-class args)))
+                               (let ((method (apply #'allocate-instance method-class args)))
+                                 (apply #'initialize-instance method
+                                        (nconc (method-function-initargs method
+                                                 (eval
+                                                   `(LOCALLY
+                                                      (DECLARE (COMPILE))
+                                                      (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION OBJECT)
+                                                        (DECLARE (COMPILE))
+                                                        ,access-place))))
+                                               args))
+                                 method)))
                            (class-direct-accessors class)))
               (setf (fdefinition funname)
                     (eval `(FUNCTION ,funname
@@ -1517,14 +1519,6 @@
                              (let* ((args
                                       (list
                                         :specializers (list <t> class)
-                                        'initfunction
-                                          (eval
-                                            `#'(LAMBDA (#:SELF)
-                                                 (DECLARE (COMPILE))
-                                                 (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION NEW-VALUE OBJECT)
-                                                   (DECLARE (COMPILE))
-                                                   (SETF ,access-place NEW-VALUE))))
-                                        'wants-next-method-p t
                                         :qualifiers nil
                                         :lambda-list '(NEW-VALUE OBJECT)
                                         'signature (sys::memoized (make-signature :req-num 2))
@@ -1535,7 +1529,17 @@
                                             (subclassp method-class <standard-writer-method>))
                                  (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
                                         'writer-method-class (class-name class) 'standard-writer-method method-class))
-                               (apply #'make-instance method-class args)))
+                               (let ((method (apply #'allocate-instance method-class args)))
+                                 (apply #'initialize-instance method
+                                        (nconc (method-function-initargs method
+                                                 (eval
+                                                   `(LOCALLY
+                                                      (DECLARE (COMPILE))
+                                                      (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION NEW-VALUE OBJECT)
+                                                        (DECLARE (COMPILE))
+                                                        (SETF ,access-place NEW-VALUE)))))
+                                               args))
+                                 method)))
                            (class-direct-accessors class)))
               (setf (fdefinition funname)
                     (eval `(FUNCTION ,funname

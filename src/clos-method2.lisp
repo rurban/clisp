@@ -66,7 +66,12 @@
 ;; whole-form: whole source form
 ;; funname: function name, symbol or (SETF symbol)
 ;; description: (qualifier* spec-lambda-list {declaration|docstring}* form*)
-;; ==> method-initargs-forms, signature
+;; ==>
+;; 1. a function lambda, to be applied to the method object, that returns a
+;;    cons h with (car h) = fast-function, (cadr h) = true if the compiler
+;;    could optimize away the ",cont" variable.
+;; 2. method-initargs-forms,
+;; 3. signature
 (defun analyze-method-description (caller whole-form funname description)
   ;; Collect the qualifiers:
   (let ((qualifiers nil))
@@ -180,12 +185,10 @@
                                           :rest-p restp :keys-p keyp
                                           :keywords keywords :allow-p allowp)))
                 (values
-                  `('INITFUNCTION
-                      #'(LAMBDA (,self)
-                          ,@(if compile '((DECLARE (COMPILE))))
-                          (%OPTIMIZE-FUNCTION-LAMBDA (T) ,@lambdabody))
-                    'WANTS-NEXT-METHOD-P T
-                    :QUALIFIERS ',qualifiers
+                  `(LAMBDA (,self)
+                     ,@(if compile '((DECLARE (COMPILE))))
+                     (%OPTIMIZE-FUNCTION-LAMBDA (T) ,@lambdabody))
+                  `(:QUALIFIERS ',qualifiers
                     :LAMBDA-LIST ',lambda-list
                     'SIGNATURE ,sig
                     :SPECIALIZERS (LIST ,@req-specializer-forms)

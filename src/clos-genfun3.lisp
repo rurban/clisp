@@ -185,14 +185,18 @@
 (defmacro defmethod (&whole whole-form
                      funname &rest method-description)
   (setq funname (sys::check-function-name funname 'defmethod))
-  (multiple-value-bind (method-initargs-forms signature)
+  (multiple-value-bind (fast-function-factory-lambda method-initargs-forms signature)
       (analyze-method-description 'defmethod whole-form funname method-description)
     `(LET ()
        (COMPILER::EVAL-WHEN-COMPILE
          (COMPILER::C-DEFUN ',funname ,signature nil 'DEFMETHOD))
-       (DO-DEFMETHOD ',funname (LIST ,@method-initargs-forms)))))
+       (DO-DEFMETHOD ',funname (FUNCTION ,fast-function-factory-lambda)
+                     (LIST ,@method-initargs-forms)))))
 
-(defun do-defmethod (funname method-or-initargs)
+;; Installs a method. Can be called in two ways:
+;; (do-defmethod funname method)
+;; (do-defmethod funname fast-function-factory method-initargs)
+(defun do-defmethod (funname arg1 &optional (arg2 nil must-build-method))
   (let* ((gf
            (if (fboundp funname)
              (let ((gf (fdefinition funname)))
@@ -204,11 +208,11 @@
              (setf (fdefinition funname)
                    ;; Create a GF compatible with the given method signature.
                    (multiple-value-bind (m-lambdalist m-signature)
-                       (if (listp method-or-initargs)
-                         (values (getf method-or-initargs ':lambda-list)
-                                 (getf method-or-initargs 'signature))
-                         (values (method-lambda-list method-or-initargs)
-                                 (method-signature method-or-initargs)))
+                       (if must-build-method
+                         (values (getf arg2 ':lambda-list)
+                                 (getf arg2 'signature))
+                         (values (method-lambda-list arg1)
+                                 (method-signature arg1)))
                      (let ((gf-lambdalist
                              (gf-lambdalist-from-first-method m-lambdalist m-signature)))
                        (make-generic-function-instance <standard-generic-function>
@@ -216,13 +220,15 @@
                          :lambda-list gf-lambdalist
                          :method-class <standard-method>))))))
          (method
-           (if (listp method-or-initargs)
-             ;; Here we don't pass the initargs to allocate-instance since the
-             ;; final initargs contain a pointer to the method instance.
-             (let ((method (allocate-method-instance (std-gf-default-method-class gf))))
-               (apply #'initialize-method-instance method method-or-initargs)
+           (if must-build-method
+             ;; Here we cannot pass the full initargs to allocate-instance since
+             ;; the final initargs contain a pointer to the method instance.
+             (let* ((initargs arg2)
+                    (method (apply #'allocate-method-instance (std-gf-default-method-class gf) initargs)))
+               (apply #'initialize-method-instance method
+                      (nconc (method-function-initargs method (funcall arg1 method)) initargs))
                method)
-             method-or-initargs)))
+             arg1)))
     (std-add-method gf method)
     method))
 
@@ -233,9 +239,9 @@
 (defmacro declaim-method (&whole whole-form
                           funname &rest method-description)
   (setq funname (sys::check-function-name funname 'declaim-method))
-  (multiple-value-bind (method-initargs-forms signature)
+  (multiple-value-bind (fast-function-factory-lambda method-initargs-forms signature)
       (analyze-method-description 'defmethod whole-form funname method-description)
-    (declare (ignore method-initargs-forms))
+    (declare (ignore fast-function-factory-lambda method-initargs-forms))
     `(COMPILER::EVAL-WHEN-COMPILE
        (COMPILER::C-DEFUN ',funname ,signature nil 'DEFMETHOD))))
 
@@ -381,8 +387,10 @@
              caller funname ':method-class))
          (setq method-classes (rest option)))
         (:METHOD
-         (push (analyze-method-description caller whole-form funname (rest option))
-               method-forms))
+         (multiple-value-bind (fast-function-factory-lambda method-initargs-forms)
+             (analyze-method-description caller whole-form funname (rest option))
+           (push (cons fast-function-factory-lambda method-initargs-forms)
+                 method-forms)))
         ((:LAMBDA-LIST :DECLARATIONS)
          (error-of-type 'ext:source-program-error
            :form whole-form
@@ -447,12 +455,17 @@
                 (car docstrings)
                 (nreverse user-defined-args)
                 ;; list of the method-forms
-                (mapcar #'(lambda (method-initargs-forms)
-                            ;; Here we don't pass the initargs to allocate-instance since the
-                            ;; final initargs contain a pointer to the method instance.
-                            `(LET ((METH (ALLOCATE-METHOD-INSTANCE ,method-class-form)))
-                               (INITIALIZE-METHOD-INSTANCE METH ,@method-initargs-forms)
-                               METH))
+                (mapcar #'(lambda (method-cons)
+                            (let ((fast-function-factory-lambda (car method-cons))
+                                  (method-initargs-forms (cdr method-cons)))
+                              ;; Here we cannot pass the full initargs to allocate-instance since
+                              ;; the final initargs contain a pointer to the method instance.
+                              `(LET* ((INITARGS (LIST ,@method-initargs-forms))
+                                      (METH (APPLY #'ALLOCATE-METHOD-INSTANCE ,method-class-form INITARGS)))
+                                 (APPLY #'INITIALIZE-METHOD-INSTANCE METH
+                                        (NCONC (METHOD-FUNCTION-INITARGS METH (,fast-function-factory-lambda METH))
+                                               INITARGS))
+                                 METH)))
                   (nreverse method-forms)))))))
 
 ;; Parse a DEFGENERIC lambdalist:
