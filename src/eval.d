@@ -2325,11 +2325,9 @@ LISPFUNN(subr_info,1)
             case Rectype_Macro:
               fehler_macro(TheSubr(subr_self)->name,obj);
             default:
-              fehler_undefined(TheSubr(subr_self)->name,obj);
+              NOTREACHED
           }
-        } elif (consp(fdef)) # Macro-Cons -> Fehler
-          fehler_macro(TheSubr(subr_self)->name,obj);
-        else
+        } else
           fehler_undefined(TheSubr(subr_self)->name,obj);
       } elif (funnamep(obj)) {
         var object symbol = get(Car(Cdr(obj)),S(setf_function)); # (get ... 'SYS::SETF-FUNCTION)
@@ -4229,12 +4227,10 @@ LISPFUNN(subr_info,1)
             case Rectype_Macro:
               fehler_macro(S(apply),fun);
             default:
-              goto undef;
+              NOTREACHED
           }
-        } elif (consp(fdef)) # Macro-Cons -> Fehler
-          fehler_macro(S(apply),fun);
-        else
-          # wenn kein SUBR, keine Closure, kein FSUBR, kein Cons:
+        } else
+          # wenn kein SUBR, keine Closure, kein FSUBR, kein Macro:
           # Symbol_function(fun) muss #<UNBOUND> sein.
           undef:
           fehler_undefined(S(apply),fun);
@@ -5163,12 +5159,10 @@ LISPFUNN(subr_info,1)
             case Rectype_Macro:
               fehler_macro(S(funcall),fun);
             default:
-              goto undef;
+              NOTREACHED
           }
-        } elif (consp(fdef)) # Macro-Cons -> Fehler
-          fehler_macro(S(funcall),fun);
-        else
-          # wenn kein SUBR, keine Closure, kein FSUBR, kein Cons:
+        } else
+          # wenn kein SUBR, keine Closure, kein FSUBR, kein Macro:
           # Symbol_function(fun) muss #<UNBOUND> sein.
           undef:
           fehler_undefined(S(funcall),fun);
