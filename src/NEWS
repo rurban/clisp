@@ -219,6 +219,7 @@ User visible changes
 
 * LOAD :OBSOLETE-ACTION can now also be :COMPILE to automatically
   recompile the obsolete *.fas file.
+  LOAD can now ignore erroneous forms using SKIP and STOP restarts.
   See <http://clisp.cons.org/impnotes.html#loadfile> for details.
 
 * The FFI recognizes the c-type declaration (C-POINTER <c-type>) to
