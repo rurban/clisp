@@ -14054,7 +14054,7 @@ local void sock_opt_time (SOCKET handle, int option, object value)
 
 
 /* (SOCKET-OPTIONS socket-stream &rest options)
-   queries and setf socket options.
+   queries and sets socket options.
    returns the old value for each option:
    (SOCKET-OPTIONS s :so-keepalive :so-rcvlowat 10)
    will set :so-rcvlowat to 10 and return the current
@@ -14075,15 +14075,33 @@ LISPFUN(socket_options,seclass_default,1,0,rest,nokey,0,NIL) {
     begin_system_call();
     if (false)
       ;
+   #ifdef SO_DEBUG
+    else if (eq(kwd,S(Kso_debug)))
+      sock_opt_bool(handle,SO_DEBUG,arg);
+   #endif
+   #ifdef SO_ACCEPTCONN
+    else if (eq(kwd,S(Kso_acceptconn)))
+      sock_opt_bool(handle,SO_ACCEPTCONN,arg);
+   #endif
+   #ifdef SO_BROADCAST
+    else if (eq(kwd,S(Kso_broadcast)))
+      sock_opt_bool(handle,SO_BROADCAST,arg);
+   #endif
+   #ifdef SO_REUSEADDR
+    else if (eq(kwd,S(Kso_reuseaddr)))
+      sock_opt_bool(handle,SO_REUSEADDR,arg);
+   #endif
+   #ifdef SO_DONTROUTE
+    else if (eq(kwd,S(Kso_dontroute)))
+      sock_opt_bool(handle,SO_DONTROUTE,arg);
+   #endif
    #ifdef SO_KEEPALIVE
-    else if (eq(kwd,S(Kso_keepalive))) {
+    else if (eq(kwd,S(Kso_keepalive)))
       sock_opt_bool(handle,SO_KEEPALIVE,arg);
-    }
    #endif
    #ifdef SO_ERROR
-    else if (eq(kwd,S(Kso_error))) {
+    else if (eq(kwd,S(Kso_error)))
       sock_opt_bool(handle,SO_ERROR,arg);
-    }
    #endif
    #ifdef SO_LINGER
     else if (eq(kwd,S(Kso_linger))) {

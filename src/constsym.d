@@ -1226,6 +1226,11 @@ LISPSYM(Klc_monetary,"LC_MONETARY",keyword)
 #endif
 #ifdef SOCKET_STREAMS
 LISPSYM(Ktimeout,"TIMEOUT",keyword)
+LISPSYM(Kso_debug,"SO-DEBUG",keyword)
+LISPSYM(Kso_acceptconn,"SO-ACCEPTCONN",keyword)
+LISPSYM(Kso_broadcast,"SO-BROADCAST",keyword)
+LISPSYM(Kso_reuseaddr,"SO-REUSEADDR",keyword)
+LISPSYM(Kso_dontroute,"SO-DONTROUTE",keyword)
 LISPSYM(Kso_keepalive,"SO-KEEPALIVE",keyword)
 LISPSYM(Kso_error,"SO-ERROR",keyword)
 LISPSYM(Kso_linger,"SO-LINGER",keyword)

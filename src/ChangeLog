@@ -1,5 +1,13 @@
 2004-04-22  Sam Steingold  <sds@gnu.org>
 
+	SOCKET-OPTIONS now handles all 16 POSIX options
+	* stream.d (SOCKET-OPTIONS): accept SO_DEBUG, SO_ACCEPTCONN,
+	SO_BROADCAST, SO_REUSEADDR, SO_DONTROUTE
+	* constobj.d (type_socket_option): added the above 5 options
+	* constsym.d: ditto
+
+2004-04-22  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (stream_handles): accept fixnums as pointing to
 	themselves as FDs, this allows RAWSOCK sockets to be used with
 	SOCKET-STATUS and SOCKET-OPTIONS
