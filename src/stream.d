@@ -103,12 +103,13 @@
     typedef void (* wr_by_Pseudofun) (object stream, object obj);
   #
   # Spezifikation für WRITE-BYTE-ARRAY - Pseudofunktion:
-  # fun(stream,byteptr,len)
-  # > stream: Stream
-  # > uintB* byteptr: Adresse der zu schreibenden Bytefolge
-  # > uintL len: Länge der zu schreibenden Bytefolge, >0
-  # < uintB* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
-    typedef const uintB* (* wr_by_array_Pseudofun) (object stream, const uintB* byteptr, uintL len);
+  # fun(&stream,&bytearray,start,len)
+  # > stream: stream
+  # > object bytearray: simple-bit-vector
+  # > uintL start: start index of byte sequence to be written
+  # > uintL len: length of byte sequence to be written, >0
+  # can trigger GC
+    typedef void (* wr_by_array_Pseudofun) (const object* stream_, const object* bytearray_, uintL start, uintL len);
   #
   # Spezifikation für READ-CHAR - Pseudofunktion:
   # fun(&stream)
@@ -266,18 +267,27 @@
     var object stream;
     var object obj;
     { fehler_illegal_streamop(S(write_byte),stream); }
-  local const uintB* wr_by_array_error (object stream, const uintB* byteptr, uintL len);
-  local const uintB* wr_by_array_error(stream,byteptr,len)
-    var object stream;
-    var const uintB* byteptr;
+  local void wr_by_array_error (const object* stream_, const object* bytearray_, uintL start, uintL len);
+  local void wr_by_array_error(stream_,bytearray_,start,len)
+    var const object* stream_;
+    var const object* bytearray_;
+    var uintL start;
     var uintL len;
-    { fehler_illegal_streamop(S(write_byte),stream); }
-  local const uintB* wr_by_array_dummy (object stream, const uintB* byteptr, uintL len);
-  local const uintB* wr_by_array_dummy(stream,byteptr,len)
-    var object stream;
-    var const uintB* byteptr;
+    { fehler_illegal_streamop(S(write_byte),*stream_); }
+  local void wr_by_array_dummy (const object* stream_, const object* bytearray_, uintL start, uintL len);
+  local void wr_by_array_dummy(stream_,bytearray_,start,len)
+    var const object* stream_;
+    var const object* bytearray_;
+    var uintL start;
     var uintL len;
-    { return NULL; }
+    { var uintL end = start + len;
+      var uintL index = start;
+      do {
+        var object stream = *stream_;
+        wr_by(stream)(stream,fixnum(TheSbvector(*bytearray_)->data[index]));
+        index++;
+      } while (index < end);
+    }
   local object rd_ch_error (const object* stream_);
   local object rd_ch_error(stream_)
     var const object* stream_;
@@ -446,19 +456,20 @@
     var object byte;
     { wr_by(stream)(stream,byte); }
 
-# UP: Schreibt mehrere Bytes auf einen Stream.
-# write_byte_array(stream,byteptr,len)
-# > stream: Stream
-# > uintB* byteptr: Adresse der zu schreibenden Bytefolge
-# > uintL len: Länge der zu schreibenden Bytefolge
-# < uintB* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
-  global const uintB* write_byte_array (object stream, const uintB* byteptr, uintL len);
-  global const uintB* write_byte_array(stream,byteptr,len)
-    var object stream;
-    var const uintB* byteptr;
+# Function: Writes several bytes to a stream.
+# write_byte_array(&stream,&bytearray,start,len)
+# > stream: Stream (on the STACK)
+# > object bytearray: simple-bit-vector (on the STACK)
+# > uintL start: start index of byte sequence to be written
+# > uintL len: length of byte sequence to be written
+  global void write_byte_array (const object* stream_, const object* bytearray_, uintL start, uintL len);
+  global void write_byte_array(stream_,bytearray_,start,len)
+    var const object* stream_;
+    var const object* bytearray_;
+    var uintL start;
     var uintL len;
-    { if (len==0) { return byteptr; }
-      return wr_by_array(stream)(stream,byteptr,len);
+    { if (len==0) { return; }
+      wr_by_array(*stream_)(stream_,bytearray_,start,len);
     }
 
 # Liest ein Character von einem Stream.
@@ -886,15 +897,17 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     }}
 
 # WRITE-BYTE-ARRAY - Pseudofunktion für Synonym-Streams:
-  local const uintB* wr_by_array_synonym (object stream, const uintB* byteptr, uintL len);
-  local const uintB* wr_by_array_synonym(stream,byteptr,len)
-    var object stream;
-    var const uintB* byteptr;
+  local void wr_by_array_synonym (const object* stream_, const object* bytearray_, uintL start, uintL len);
+  local void wr_by_array_synonym(stream_,bytearray_,start,len)
+    var const object* stream_;
+    var const object* bytearray_;
+    var uintL start;
     var uintL len;
-    { check_SP();
-     {var object symbol = TheStream(stream)->strm_synonym_symbol;
-      return write_byte_array(get_synonym_stream(symbol),byteptr,len);
-    }}
+    { check_SP(); check_STACK();
+      pushSTACK(get_synonym_stream(TheStream(*stream_)->strm_synonym_symbol));
+      write_byte_array(&STACK_0,bytearray_,start,len);
+      skipSTACK(1);
+    }
 
 # READ-CHAR - Pseudofunktion für Synonym-Streams:
   local object rd_ch_synonym (const object* stream_);
@@ -1139,19 +1152,22 @@ LISPFUNN(synonym_stream_symbol,1)
     }
 
 # WRITE-BYTE-ARRAY - Pseudofunktion für Broadcast-Streams:
-  local const uintB* wr_by_array_broad0 (object stream, const uintB* byteptr, uintL len);
-  local const uintB* wr_by_array_broad0(stream,byteptr,len)
-    var object stream;
-    var const uintB* byteptr;
+  local void wr_by_array_broad (const object* stream_, const object* bytearray_, uintL start, uintL len);
+  local void wr_by_array_broad(stream_,bytearray_,start,len)
+    var const object* stream_;
+    var const object* bytearray_;
+    var uintL start;
     var uintL len;
-    { return byteptr+len; }
-  local const uintB* wr_by_array_broad1 (object stream, const uintB* byteptr, uintL len);
-  local const uintB* wr_by_array_broad1(stream,byteptr,len)
-    var object stream;
-    var const uintB* byteptr;
-    var uintL len;
-    { check_SP();
-      return write_byte_array(Car(TheStream(stream)->strm_broad_list),byteptr,len);
+    { var object streamlist;
+      check_SP(); check_STACK();
+      pushSTACK(TheStream(*stream_)->strm_broad_list); # list of streams
+      while (streamlist = STACK_0, consp(streamlist))
+        { STACK_0 = Cdr(streamlist);
+          pushSTACK(Car(streamlist));
+          write_byte_array(&STACK_0,bytearray_,start,len);
+          skipSTACK(1);
+        }
+      skipSTACK(1);
     }
 
 # WRITE-CHAR - Pseudofunktion für Broadcast-Streams:
@@ -1279,14 +1295,7 @@ LISPFUNN(synonym_stream_symbol,1)
       TheStream(stream)->strm_rd_by = P(rd_by_error);
       TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
       TheStream(stream)->strm_wr_by = P(wr_by_broad);
-      TheStream(stream)->strm_wr_by_array =
-        (consp(list)
-         ? (consp(Cdr(list))
-            ? P(wr_by_array_dummy) # >= 2 streams, too complicated
-            : P(wr_by_array_broad1) # just 1 stream
-           )
-         : P(wr_by_array_broad0) # no streams
-        );
+      TheStream(stream)->strm_wr_by_array = P(wr_by_array_broad);
       TheStream(stream)->strm_rd_ch = P(rd_ch_error);
       TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
       TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
@@ -1608,13 +1617,16 @@ LISPFUNN(concatenated_stream_streams,1)
     }
 
 # WRITE-BYTE-ARRAY - Pseudofunktion für Two-Way- und Echo-Streams:
-  local const uintB* wr_by_array_twoway (object stream, const uintB* byteptr, uintL len);
-  local const uintB* wr_by_array_twoway(stream,byteptr,len)
-    var object stream;
-    var const uintB* byteptr;
+  local void wr_by_array_twoway (const object* stream_, const object* bytearray_, uintL start, uintL len);
+  local void wr_by_array_twoway(stream_,bytearray_,start,len)
+    var const object* stream_;
+    var const object* bytearray_;
+    var uintL start;
     var uintL len;
-    { check_SP();
-      return write_byte_array(TheStream(stream)->strm_twoway_output,byteptr,len);
+    { check_SP(); check_STACK();
+      pushSTACK(TheStream(*stream_)->strm_twoway_output);
+      write_byte_array(&STACK_0,bytearray_,start,len);
+      skipSTACK(1);
     }
 
 # WRITE-CHAR - Pseudofunktion für Two-Way- und Echo-Streams:
@@ -1874,8 +1886,9 @@ LISPFUNN(two_way_stream_output_stream,1)
     { check_SP(); check_STACK();
       pushSTACK(TheStream(*stream_)->strm_twoway_input);
      {var uintL result = read_byte_array(&STACK_0,bytearray_,start,len);
+      STACK_0 = TheStream(*stream_)->strm_twoway_output;
+      write_byte_array(&STACK_0,bytearray_,start,result);
       skipSTACK(1);
-      write_byte_array(TheStream(*stream_)->strm_twoway_output,&TheSbvector(*bytearray_)->data[start],result);
       return result;
     }}
 
@@ -5218,12 +5231,15 @@ global object iconv_range(encoding,start,end)
     }
 
 # WRITE-BYTE-ARRAY - Pseudofunktion für Handle-Streams, Art au, bitsize = 8 :
-  local const uintB* wr_by_array_iau8_unbuffered (object stream, const uintB* byteptr, uintL len);
-  local const uintB* wr_by_array_iau8_unbuffered(stream,byteptr,len)
-    var object stream;
-    var const uintB* byteptr;
+  local void wr_by_array_iau8_unbuffered (const object* stream_, const object* bytearray_, uintL start, uintL len);
+  local void wr_by_array_iau8_unbuffered(stream_,bytearray_,start,len)
+    var const object* stream_;
+    var const object* bytearray_;
+    var uintL start;
     var uintL len;
-    { return UnbufferedStreamLow_write_array(stream)(stream,byteptr,len); }
+    { var object stream = *stream_;
+      UnbufferedStreamLow_write_array(stream)(stream,&TheSbvector(*bytearray_)->data[start],len);
+    }
 
 # Character streams
 # -----------------
@@ -7203,16 +7219,15 @@ typedef struct strm_i_buffered_extrafields_struct {
     }
 
 # WRITE-BYTE-SEQUENCE für File-Streams für Integers, Art au, bitsize = 8 :
-  local const uintB* wr_by_array_iau8_buffered (object stream, const uintB* byteptr, uintL len);
-  local const uintB* wr_by_array_iau8_buffered(stream,byteptr,len)
-    var object stream;
-    var const uintB* byteptr;
+  local void wr_by_array_iau8_buffered (const object* stream_, const object* bytearray_, uintL start, uintL len);
+  local void wr_by_array_iau8_buffered(stream_,bytearray_,start,len)
+    var const object* stream_;
+    var const object* bytearray_;
+    var uintL start;
     var uintL len;
-    { var const uintB* endptr = write_byte_array_buffered(stream,byteptr,len);
-      # Now endptr == byteptr+len.
+    { write_byte_array_buffered(*stream_,&TheSbvector(*bytearray_)->data[start],len);
       # position incrementieren:
-      BufferedStream_position(stream) += len;
-      return endptr;
+      BufferedStream_position(*stream_) += len;
     }
 
 # File-Stream allgemein
@@ -14595,9 +14610,8 @@ LISPFUNN(write_n_bytes,4)
     var uintL totalcount;
     test_n_bytes_args(&startindex,&totalcount);
     if (!(totalcount==0))
-      { var const uintB* ptr = &TheSbvector(TheIarray(STACK_0)->data)->data[startindex];
-        if (!(write_byte_array(STACK_1,ptr,totalcount) == ptr+totalcount))
-          { fehler_unwritable(S(write_n_bytes),STACK_1); }
+      { STACK_0 = TheIarray(STACK_0)->data;
+        write_byte_array(&STACK_1,&STACK_0,startindex,totalcount);
       }
     skipSTACK(2);
     value1 = T; mv_count=1; # Wert T
@@ -16653,32 +16667,34 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL)
    {  var decoded_eltype eltype;
       test_eltype_arg(&STACK_1,&eltype);
       check_multiple8_eltype(&eltype);
-      stream = STACK_2;
       # Endianness überprüfen:
     { var boolean endianness = test_endianness_arg(STACK_0);
       # Integer überprüfen:
       var object obj = STACK_3;
-      if (!integerp(obj)) { fehler_wr_integer(stream,obj); }
+      if (!integerp(obj)) { fehler_wr_integer(STACK_2,obj); }
      {var uintL bitsize = eltype.size;
       var uintL bytesize = bitsize/8;
-      var DYNAMIC_ARRAY(bitbuffer,uintB,bytesize);
+      var DYNAMIC_BIT_VECTOR(bitbuffer,bitsize);
+      pushSTACK(bitbuffer);
+      # Stack layout: obj, stream, element-type, endianness, bitbuffer.
+      obj = STACK_4;
       # Copy the integer's data into the buffer.
       switch (eltype.kind)
         { case eltype_iu:
             # cf. wr_by_ixu_sub
             { # obj überprüfen:
-              if (!integerp(obj)) { fehler_wr_integer(stream,obj); }
-              if (!positivep(obj)) { fehler_bad_integer(stream,obj); }
+              if (!integerp(obj)) { fehler_wr_integer(STACK_3,obj); }
+              if (!positivep(obj)) { fehler_bad_integer(STACK_3,obj); }
               # obj ist jetzt ein Integer >=0
               # obj in den Bitbuffer übertragen:
-              { var uintB* bitbufferptr = &bitbuffer[0];
+              { var uintB* bitbufferptr = &TheSbvector(bitbuffer)->data[0];
                 var uintL count = bytesize;
                 if (posfixnump(obj))
                   # obj ist ein Fixnum >=0
                   { var uintL wert = posfixnum_to_L(obj);
                     # wert < 2^bitsize überprüfen:
                     if (!((bitsize>=oint_data_len) || (wert < bit(bitsize))))
-                      { fehler_bad_integer(stream,obj); }
+                      { fehler_bad_integer(STACK_3,obj); }
                     # wert im Bitbuffer ablegen:
                     until (wert==0)
                       { *bitbufferptr++ = (uint8)wert; wert = wert>>8; count--; }
@@ -16691,7 +16707,7 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL)
                           || ((floor(bitsize,intDsize) == len-1)
                               && (TheBignum(obj)->data[0] < bit(bitsize%intDsize))
                        ) )   )
-                      { fehler_bad_integer(stream,obj); }
+                      { fehler_bad_integer(STACK_3,obj); }
                     #if BIG_ENDIAN_P
                     {var uintB* ptr = (uintB*)&TheBignum(obj)->data[len];
                      # Digit-Länge in Byte-Länge umrechnen:
@@ -16732,10 +16748,10 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL)
           case eltype_is:
             # cf. wr_by_ixs_sub
             { # obj überprüfen:
-              if (!integerp(obj)) { fehler_wr_integer(stream,obj); }
+              if (!integerp(obj)) { fehler_wr_integer(STACK_3,obj); }
               # obj ist jetzt ein Integer
               # obj in den Bitbuffer übertragen:
-              { var uintB* bitbufferptr = &bitbuffer[0];
+              { var uintB* bitbufferptr = &TheSbvector(bitbuffer)->data[0];
                 var uintL count = bytesize;
                 var uintL sign = (sintL)R_sign(obj);
                 if (fixnump(obj))
@@ -16744,7 +16760,7 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL)
                     # 0 <= wert < 2^(bitsize-1) bzw. -2^(bitsize-1) <= wert < 0 überprüfen:
                     wert = wert^sign;
                     if (!((bitsize>oint_data_len) || (wert < bit(bitsize-1))))
-                      { fehler_bad_integer(stream,obj); }
+                      { fehler_bad_integer(STACK_3,obj); }
                     # wert^sign im Bitbuffer ablegen:
                     until (wert == 0)
                       { *bitbufferptr++ = (uint8)(wert^sign); wert = wert>>8; count--; }
@@ -16758,7 +16774,7 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL)
                           || ((bitsize > intDsize*(len-1))
                               && ((TheBignum(obj)->data[0] ^ (uintD)sign) < bit((bitsize%intDsize)-1))
                        ) )   )
-                      { fehler_bad_integer(stream,obj); }
+                      { fehler_bad_integer(STACK_3,obj); }
                     #if BIG_ENDIAN_P
                     {var uintB* ptr = (uintB*)&TheBignum(obj)->data[len];
                      # Digit-Länge in Byte-Länge umrechnen:
@@ -16803,8 +16819,8 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL)
         # Byte-Swap the data.
         { var uintL count = floor(bytesize,2);
           if (count > 0)
-            { var uintB* ptr1 = &bitbuffer[0];
-              var uintB* ptr2 = &bitbuffer[bytesize-1];
+            { var uintB* ptr1 = &TheSbvector(bitbuffer)->data[0];
+              var uintB* ptr2 = &TheSbvector(bitbuffer)->data[bytesize-1];
               dotimespL(count,count,
                 { var uintB x1 = *ptr1;
                   var uintB x2 = *ptr2;
@@ -16813,18 +16829,10 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL)
                 });
         }   }
       # Write the data.
-      { var const uintB* ptr = write_byte_array(stream,&bitbuffer[0],bytesize);
-        if (!(ptr == NULL))
-          { ASSERT(ptr == &bitbuffer[bytesize]); }
-          else
-          { var uintL count;
-            ptr = &bitbuffer[0];
-            dotimespL(count,bytesize,
-              { write_byte(STACK_2,posfixnum(*ptr++)); }
-              );
-      }   }
-      value1 = STACK_3; mv_count=1; # obj als Wert
-      skipSTACK(4);
+      write_byte_array(&STACK_3,&STACK_0,0,bytesize);
+      FREE_DYNAMIC_BIT_VECTOR(STACK_0);
+      value1 = STACK_4; mv_count=1; # obj als Wert
+      skipSTACK(5);
   }}}}
 
 # UP: Überprüft, ob ein Argument ein offener File-Stream ist.
