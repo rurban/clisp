@@ -1,6 +1,8 @@
 2004-06-23  Sam Steingold  <sds@gnu.org>
 
 	* genclisph.d (main): undef PACKAGE_* to avoid some warnings
+	* modules/rawsock/rawsock.c: include "config.h" after "clisp.h"
+	to avoid some warnings
 
 2004-06-06  Bruno Haible  <bruno@clisp.org>
 

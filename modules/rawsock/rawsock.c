@@ -6,9 +6,9 @@
  * <http://www.opengroup.org/onlinepubs/007908799/xns/syssocket.h.html>
  */
 
-#include "config.h"
-
 #include "clisp.h"
+
+#include "config.h"
 
 #if defined(HAVE_SYS_TYPES_H)
 # include <sys/types.h>
