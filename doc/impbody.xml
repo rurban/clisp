@@ -441,14 +441,14 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
  interpreted code.</para>
 
 <para>There is a generic function <emphasis
- role="strong"><function>CLOS:NO-PRIMARY-METHOD</function></emphasis>
+ role="first"><function>CLOS:NO-PRIMARY-METHOD</function></emphasis>
  (similar to &no-applicable-method;) which is called when a generic
  function of the class &standard-generic-function-t; is invoked and
  no primary method on that generic function is applicable.</para>
 
 <para><emphasis
-  role="strong"><function>CLOS:GENERIC-FLET</function></emphasis> and
- <emphasis role="strong"><function>CLOS:GENERIC-LABELS</function></emphasis>
+  role="first"><function>CLOS:GENERIC-FLET</function></emphasis> and
+ <emphasis role="first"><function>CLOS:GENERIC-LABELS</function></emphasis>
  are implemented as macros, not as special operators (as permitted by
  <ulink url="&clhs;/Body/sec_3-1-2-1-2-2.html">Section 3.1.2.1.2.2</ulink>).
  They are not imported into the packages &clu-pac; and &cl-pac; because
@@ -508,10 +508,10 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
 <para>It is &not-e; required that the superclasses of a class are
  defined before the &defclass; form for the class is evaluated.
  Use &amop; generic functions <emphasis
- role="strong"><function>CLOS:CLASS-FINALIZED-P</function></emphasis> to
+ role="first"><function>CLOS:CLASS-FINALIZED-P</function></emphasis> to
  check whether the class has been finalized and thus its instances can
  be created, and <emphasis
- role="strong"><function>CLOS:FINALIZE-INHERITANCE</function></emphasis>
+ role="first"><function>CLOS:FINALIZE-INHERITANCE</function></emphasis>
  to force class finalization.</para>
 
 </section>
@@ -746,7 +746,7 @@ is the same as
  <replaceable>expansion</replaceable>)</literal>.</para>
 
 <para>The function <emphasis
- role="strong"><function>EXT:SYMBOL-MACRO-EXPAND</function></emphasis>
+ role="first"><function>EXT:SYMBOL-MACRO-EXPAND</function></emphasis>
  tests for a &symbol-macro;: If &symbol-r; is defined as
  a &symbol-macro;, <literal role="sexp">(EXT:SYMBOL-MACRO-EXPAND
  &symbol-r;)</literal> returns two values, &t; and the
@@ -2573,7 +2573,7 @@ printed readably.</para>
 <varlistentry id="device-prefix"><term>Platform dependent: &win32; and
   &cygwin; platforms only.</term>
  <listitem><simpara>User variable
-   <emphasis role="strong">&dev-prefix;</emphasis>
+   <emphasis role="first">&dev-prefix;</emphasis>
   controls translation between &cygwin; pathnames
   (e.g., <filename>#P"/cygdrive/c/gnu/clisp/"</filename>) and native
   &win32; pathnames (e.g., <filename>#P"C:\\gnu\\clisp\\"</filename>)
@@ -2888,7 +2888,7 @@ printed readably.</para>
    before and &type-r; the part after the last dot.</simpara></listitem>
   <listitem><para>if the only &file-dot; is the first character, then
    the behavior depends on the value of the user variable
-    <emphasis role="strong">&parsedot;</emphasis>
+    <emphasis role="first">&parsedot;</emphasis>
    which can be either
    <variablelist><varlistentry><term>&type-k;</term>
     <listitem><simpara>&nil; &name-r;, everything after the &file-dot;
@@ -3819,7 +3819,7 @@ pointing to non-existent files and can take the following values:
 <listitem><para>&terminal-io-var; is not the only stream that
  communicates directly with the user: During execution of the body of a
  <literal role="sexp">(&with-kbd; . &body-r;)</literal> form, <emphasis
- role="strong">&kbd-in;</emphasis> is the stream that reads the
+ role="first">&kbd-in;</emphasis> is the stream that reads the
  keystrokes from the keyboard.
  It returns every keystroke in detail, as &character-t; or
  &input-char; with the following bits:
@@ -4448,7 +4448,7 @@ functions are provided:
  &stream-r;)</literal>.</para>
 
 <para>The &format; instruction <emphasis
- role="strong"><literal>~!</literal></emphasis> is similar to
+ role="first"><literal>~!</literal></emphasis> is similar to
  &format-slash;, but avoids putting a function name into a string.
  Thus, even if the function is not interned in the &clu-pac; package,
  you might not need to specify the package.</para>
@@ -4506,7 +4506,7 @@ functions are provided:
  objects.</para>
 
 <para>In the absence of <emphasis
- role="strong"><function>SYS::WRITE-FLOAT-DECIMAL</function></emphasis>,
+ role="first"><function>SYS::WRITE-FLOAT-DECIMAL</function></emphasis>,
  floating point numbers are output in radix 2.  This function is defined
  in <filename>"floatpri.lisp"</filename> and is not available if you run
  &clisp; without a &mem-image; (which you should never do anyway!)</para>
@@ -4713,7 +4713,7 @@ compiles a file to platform-independent bytecode.</para>
 </simpara></listitem></varlistentry>
 </variablelist>
 
-<para>The variables <emphasis role="strong">&compile-warn;</emphasis>,
+<para>The variables <emphasis role="first">&compile-warn;</emphasis>,
  &compile-verbose-var;, &compile-print-var; provide defaults for the
  &warnings-k;, &verbose-k;, &print-k; keyword arguments, respectively,
  and are bound by &compile-file; to the values of the arguments, i.e.,
@@ -4823,20 +4823,20 @@ effects when being loaded, this is important as well.
   <listitem><simpara>causes the input from the file to be echoed to
   &standard-output-var; (normally to the screen).  Should
   there be an error in the file, you can see at one glance where it is.
-  The default is <emphasis role="strong">&load-echo;</emphasis>, which is
+  The default is <emphasis role="first">&load-echo;</emphasis>, which is
   initially &nil;.</simpara></listitem></varlistentry>
  <varlistentry><term>&compiling-k; &t;</term>
   <listitem><simpara>causes each form read to be compiled on the fly.
   The compiled code is executed at once and - in contrast to <link
   linkend="compilefile"><function>COMPILE-FILE</function></link> - not
   written to a file.
-  The default is <emphasis role="strong">&load-comp;</emphasis>,
+  The default is <emphasis role="first">&load-comp;</emphasis>,
   which is initially &nil;.</simpara></listitem></varlistentry>
  <varlistentry><term>&extra-file-types-k; &list-t;</term>
   <listitem><simpara>Specifies the additional file types considered for
-  loading, in addition to <emphasis role="strong">&source-types;</emphasis>
+  loading, in addition to <emphasis role="first">&source-types;</emphasis>
   (which is initially <literal role="sexp">("lisp" "lsp" "cl")</literal>)
-  and <emphasis role="strong">&compiled-types;</emphasis>
+  and <emphasis role="first">&compiled-types;</emphasis>
   (which is initially <literal role="sexp">("fas")</literal>).
   </simpara><simpara>When &filename-r; does not spefify a unique file
   (e.g., &filename-r; is &foo-f; and both &foolisp-f;
@@ -4853,7 +4853,7 @@ effects when being loaded, this is important as well.
    for another matching file</link>.
    If no file can be loaded and &if-does-not-exist; is non-&nil;,
    an &error-t; is &signal;ed.
-   The default is <emphasis role="strong">&load-obs;</emphasis>,
+   The default is <emphasis role="first">&load-obs;</emphasis>,
    which is initially &nil;.</simpara></listitem></varlistentry>
 </variablelist>
 
@@ -5310,7 +5310,7 @@ exhaust the available line length.</para></formalpara>
  allocated before the next regular &gc;ion occurs.</para>
 
 <para>The function <emphasis
- role="strong"><function>EXT:GC</function></emphasis> starts a
+ role="first"><function>EXT:GC</function></emphasis> starts a
  global &gc;ion and its return value has the same meaning as the
  second value of &room;.</para>
 
@@ -5337,7 +5337,7 @@ exhaust the available line length.</para></formalpara>
 <section id="ed"><title>Function &ed;</title>
 
 <para>The function &ed; calls the external editor specified by the
- variable <emphasis role="strong">&editor;</emphasis> (see
+ variable <emphasis role="first">&editor;</emphasis> (see
  &config-file;).  If the argument is a function name which was defined
  in the current session (not loaded from a file), the program text to be
  edited is a pretty-printed version (without comments) of the text which
@@ -5352,7 +5352,7 @@ exhaust the available line length.</para></formalpara>
 <varlistentry><term>Platform dependent: &amiga;, &acorn;, &dos;, &os2;
   platforms only.</term>
  <listitem><simpara>The variable
-   <emphasis role="strong">&default-tz;</emphasis> contains the default
+   <emphasis role="first">&default-tz;</emphasis> contains the default
    time zone used by &encode-universal-time; and &decode-universal-time;.
    It is initially set to -1
    (which means 1 hour east of Greenwich, i.e., Mid European Time).

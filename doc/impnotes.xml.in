@@ -27,6 +27,7 @@
  * lambda-key (&amp;)  == literal
  * declaration (ftype) == literal
  * package (CL-USER)   == quote
+ a first mention of an object should be marked with <emphasis role="first">
  -->
 
 <book id="impnotes-top"><title>Implementation Notes for &gnu; &clisp;.</title>
