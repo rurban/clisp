@@ -1,3 +1,30 @@
+2001-01-27  Marcin 'Qrczak' Kowalczyk, Ricardas Cepas, Bruno Haible
+
+	* Makefile.in (CSOURCES): Add testUTF8.c.
+	(OBJECTS): Add testUTF8.o.
+	(testUTF8.o): Add dependencies.
+	* chardefs.h (ADVANCES_CURSOR): New macro.
+	* complete.c: Include chardefs.h.
+	(PUTX): Call ADVANCES_CURSOR.
+	(compute_lcd_of_matches): Likewise.
+	(display_matches): Call rl_count_chars.
+	* display.c (rl_count_chars): New function.
+	(rl_count_raw_chars): New function.
+	(expand_prompt): Call rl_count_chars and ADVANCES_CURSOR.
+	(rl_redisplay): New local variables out_utf8_start, out_utf8_stop,
+	out_utf8. Lots of changes.
+	(update_line): Lots of changes.
+	(_rl_move_cursor_relative): Use rl_count_raw_chars.
+	(rl_character_len): Call ADVANCES_CURSOR.
+	(insert_some_chars): Add count_raw argument.
+	(_rl_update_final): Call rl_count_chars and rl_count_raw_chars.
+	* readline.c (rl_utf8_mode): New variable.
+	(readline): Set rl_utf8_mode.
+	(rl_forward, rl_backward, rl_rubout, rl_delete, rl_transpose_chars):
+	Respect rl_utf8_mode.
+	* rlprivate.h (is_in_UTF8_mode, rl_utf8_mode): New declarations.
+	* testUTF8.c: New file.
+
 2000-03-25  Bruno Haible  <linuix.math.u-bordeaux.fr>
 
         Upgrade to readline-4.1.

@@ -70,6 +70,7 @@ extern struct passwd *getpwent ();
 
 /* Some standard library routines. */
 #include "readline.h"
+#include "chardefs.h"
 #include "xmalloc.h"
 #include "rlprivate.h"
 
@@ -87,6 +88,10 @@ typedef int QSFUNC ();
    number of strings in that array, and MAX_LENGTH is the length of the
    longest string in that array. */
 VFunction *rl_completion_display_matches_hook = (VFunction *)NULL;
+
+extern int rl_utf8_mode;
+extern int rl_count_chars ();
+extern int rl_count_raw_chars ();
 
 /* Forward declarations for functions defined and used in this file. */
 char *filename_completion_function _PROTO((char *text, int state));
@@ -441,7 +446,7 @@ printable_part (pathname)
       else \
 	{ \
 	  putc (c, rl_outstream); \
-	  printed_len++; \
+	  printed_len += ADVANCES_CURSOR (c); \
 	} \
     } while (0)
 
@@ -811,6 +816,9 @@ compute_lcd_of_matches (match_list, matches, text)
 	      break;
 	}
 
+      while (si && !ADVANCES_CURSOR (match_list[i][si]))
+	si--;
+
       if (low > si)
 	low = si;
     }
@@ -1007,7 +1015,7 @@ display_matches (matches)
   for (max = 0, i = 1; matches[i]; i++)
     {
       temp = printable_part (matches[i]);
-      len = strlen (temp);
+      len = rl_count_chars (temp, strlen (temp));
 
       if (len > max)
 	max = len;
