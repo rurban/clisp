@@ -1,3 +1,10 @@
+2002-12-15  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (DYNAMIC_BIT_VECTOR): make an 8bit vector, not 1bit
+	vector, because READ-FLOAT, WRITE-FLOAT, WRITE-INTEGER and
+	WRITE-FLOAT will pass this bit vector to STREAM-READ-BYTE-SEQUENCE
+	and STREAM-WRITE-BYTE-SEQUENCE
+
 2002-12-13  Sam Steingold  <sds@gnu.org>
 
 	CLUE and CLIO now compile with MIT-CLX
