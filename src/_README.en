@@ -119,7 +119,7 @@ or
 #ifdef MSDOS
       clisp.dvi          manual page in dvi format
 #endif
-      impnotes.html      implementation notes in HTML format
+      impnotes.html      implementation notes
       cltl2.txt          notes about the relation of CLISP to CLtL2
 #ifdef GNU_READLINE
       clreadline.3       line editing manual page in Unix man format
