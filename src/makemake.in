@@ -1304,7 +1304,7 @@ if [ "${with_dynamic_modules}" != no ]; then
     freebsd2* | netbsd* | openbsd*)
       XCC_CREATESHARED='ld -Bshareable -o $lib $libs'
       ;;
-    freebsd3* | gnu* | linux* | cygwin* )
+    freebsd3* | gnu* | linux* )
       XCC_CREATESHARED='$CC $CFLAGS $CLFLAGS -shared -o $lib $libs'
       ;;
     hpux9* | hpux10*)
@@ -3240,7 +3240,7 @@ echol
 # Some "make"s don't support empty target lists. Hence the "anymodule".
 echol "anymodule \$(BASE_MODULES) \$(MODULES) : lisp${LEXE} lispinit.mem force modprep.fas clisp.h"
 echotab "test -d \$@ || ${SRCDIR:-${HERE}}lndir ${SRCTOPDIR_}modules/\$@ \$@"
-echotab "if test -f \$@/configure -a '!' -f \$@/config.status ; then cd \$@ ; ( cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; if test -f \$\${cache} ; then . \$\${cache}; if test \"\$\${ac_cv_env_CC_set}\" != set; then CC=\"\$\${ac_cv_env_CC_value}\" ./configure --cache-file=\$\${cache} \$(MODULE_CONFIGURE_FLAGS); else ./configure --cache-file=\$\${cache} \$(MODULE_CONFIGURE_FLAGS); fi; else ./configure \$(MODULE_CONFIGURE_FLAGS); fi ) ; fi"
+echotab "if test -f \$@/configure -a '!' -f \$@/config.status ; then cd \$@ ; ( cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; if test -f \$\${cache} ; then . \$\${cache}; if test \"\$\${ac_cv_env_CC_set}\" = set; then CC=\"\$\${ac_cv_env_CC_value}\"; export CC; fi; ./configure --cache-file=\$\${cache} \$(MODULE_CONFIGURE_FLAGS); else ./configure \$(MODULE_CONFIGURE_FLAGS); fi ) ; fi"
 EVERY_INCLUDES_DOTS_C=''
 for f in $EVERY_INCLUDES_C $EVERY_INCLUDES_H ; do
   EVERY_INCLUDES_DOTS_C=$EVERY_INCLUDES_DOTS_C' $${dots}'$f
