@@ -1468,6 +1468,7 @@ LPARTS=$LPARTS' pprint describe room edit macros3 clhs inspect gray'
 if [ "${with_threads}" != no ]; then
   LPARTS=$LPARTS' threads'
 fi
+LPARTS=$LPARTS' case-sensitive'
 if [ $TSYS = master -o "${with_dynamic_ffi}" != no ] ; then
   LPARTS=$LPARTS' foreign1'
 fi

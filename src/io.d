@@ -2079,7 +2079,7 @@ local maygc object read_internal (const gcv_object_t* stream_) {
         case_convert_token(0,len,direction);
       # intern Symbol (and copy String, if the Symbol must be created freshly):
       var object sym;
-      intern(O(token_buff_1),pack,&sym);
+      intern(O(token_buff_1),pack_caseinvertedp(pack),pack,&sym);
       return sym;
     }
   ex_in_ternal: # build external/internal Symbol
@@ -2127,12 +2127,12 @@ local maygc object read_internal (const gcv_object_t* stream_) {
         # intern Symbol (and copy String,
         # if Symbol must be created newly):
         var object sym;
-        intern(hstring,pack,&sym);
+        intern(hstring,pack_caseinvertedp(pack),pack,&sym);
         return sym;
       } else { # external
         # search external Symbol with this Printnamen:
         var object sym;
-        if (find_external_symbol(hstring,pack,&sym)) {
+        if (find_external_symbol(hstring,pack_caseinvertedp(pack),pack,&sym)) {
           return sym; # found sym
         } else {
           pushSTACK(pack); # PACKAGE-ERROR slot PACKAGE
@@ -5067,235 +5067,302 @@ global maygc void write_string (const gcv_object_t* stream_, object string) {
   }
 }
 
-# UP: prints simple-string according to (READTABLE-CASE *READTABLE*) and
-# *PRINT-CASE* to stream.
+# UP: prints simple-string in opposite case
+# write_sstring_invert(&stream,string);
+# > string: Simple-String
+# > stream: Stream
+# < stream: Stream
+# can trigger GC
+local maygc void write_sstring_invert(const gcv_object_t* stream_, object string) {
+  sstring_un_realloc(string);
+  var uintL len = Sstring_length(string);
+  if (len > 0) {
+    pushSTACK(string); # save string
+    SstringDispatch(string,X, {
+      var uintL index = 0;
+      do {
+        var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); # the next character
+        write_code_char(stream_,invert_case(c)); # print inverted character
+        index++;
+      } while (index < len);
+    });
+    skipSTACK(1);
+  }
+}
+
+# UP: prints simple-string according to case_sensitive, case_inverted,
+# (READTABLE-CASE *READTABLE*) and *PRINT-CASE* to stream.
+# write_sstring_case_ext(&stream,string,case_sensitive,case_inverted);
+# > string: Simple-String
+# > case_sensitive: Flag, whether to assume a case-sensitive reader
+# > case_inverted: Flag, whether to implicitly case-invert the string
+# > stream: Stream
+# < stream: Stream
+# can trigger GC
+local maygc void write_sstring_case_ext (const gcv_object_t* stream_, object string,
+                                         bool case_sensitive, bool case_inverted) {
+  if (case_sensitive) {
+    if (case_inverted)
+      write_sstring_invert(stream_,string);
+    else
+      write_sstring(stream_,string);
+  } else {
+    # If (READTABLE-CASE *READTABLE*) is :UPCASE or :DOWNCASE, the reader will
+    # act case-insensitively; this gives freedom to the printer, and the variable
+    # *PRINT-CASE* customizes the printer's behaviour.
+    # If (READTABLE-CASE *READTABLE*) is :PRESERVE or :INVERT, the reader will
+    # be case-sensitive, therefore the output is already determined without
+    # looking at *PRINT-CASE*.
+    # Retrieve (READTABLE-CASE *READTABLE*):
+    sstring_un_realloc(string);
+    var object readtable;
+    get_readtable(readtable = ); # current readtable
+    switch (RTCase(readtable)) {
+      do_downcase:
+        {
+          var uintL count = Sstring_length(string);
+          if (count > 0) {
+            var uintL index = 0;
+            pushSTACK(string); # save simple-string
+            SstringDispatch(string,X, {
+              dotimespL(count,count, {
+                write_code_char(stream_,down_case(as_chart(((SstringX)TheVarobject(STACK_0))->data[index])));
+                index++;
+              });
+            });
+            skipSTACK(1);
+          }
+        }
+        break;
+      do_upcase:
+        {
+          var uintL count = Sstring_length(string);
+          if (count > 0) {
+            var uintL index = 0;
+            pushSTACK(string); # save simple-string
+            SstringDispatch(string,X, {
+              dotimespL(count,count, {
+                write_code_char(stream_,up_case(as_chart(((SstringX)TheVarobject(STACK_0))->data[index])));
+                index++;
+              });
+            });
+            skipSTACK(1);
+          }
+        }
+        break;
+      case case_upcase:
+        # retrieve *PRINT-CASE* - determines how the upper case characters
+        # are printed; lower case characters are always printed lower case.
+        switch_print_case(
+        # :UPCASE -> print upper case characters in Upcase:
+        {
+          if (case_inverted)
+            write_sstring_invert(stream_,string);
+          else
+            write_sstring(stream_,string);
+        },
+        # :DOWNCASE -> print upper case characters in Downcase:
+        {
+          goto do_downcase;
+        },
+        # :CAPITALIZE -> print the first uppercase letter of word
+        # as upper case letter, all other letters as lower case.
+        # (cf. NSTRING_CAPITALIZE in CHARSTRG.D)
+        # First Version:
+        #   (lambda (s &aux (l (length s)))
+        #     (prog ((i 0) c)
+        #       1 ; search from here the next beginning of a word
+        #         (if (= i l) (return))
+        #         (setq c (char s i))
+        #         (unless (alphanumericp c) (write-char c) (incf i) (go 1))
+        #       ; found beginning of word
+        #       (write-char c) (incf i) ; upper case --> upper case
+        #       2 ; within a word
+        #         (if (= i l) (return))
+        #         (setq c (char s i))
+        #         (unless (alphanumericp c) (write-char c) (incf i) (go 1))
+        #         (write-char (char-downcase c)) ; upper case --> lower case
+        #         (incf i) (go 2)
+        #   ) )
+        # Exactly those characters are printed with char-downcase, which
+        # were preceded by an alphanumeric character and which are
+        # alphanumeric themselves.
+        # [As all Uppercase-Characters (according to CLTL p. 236 top) are
+        #  alphabetic and thus also alphanumeric and char-downcase does not
+        #  change anything on the other characters:
+        #  Exactly those characters  are printed with char-downcase,
+        #  which were preceded by an alphanumeric character.
+        #  We don't use this.]
+        # Second version:
+        #   (lambda (s &aux (l (length s)))
+        #     (prog ((i 0) c (flag nil))
+        #       1 (if (= i l) (return))
+        #         (setq c (char s i))
+        #         (let ((newflag (alphanumericp c)))
+        #           (when (and flag newflag) (setq c (char-downcase c)))
+        #           (setq flag newflag)
+        #         )
+        #         (write-char c) (incf i) (go 1)
+        #   ) )
+        # Third Version:
+        #   (lambda (s &aux (l (length s)))
+        #     (prog ((i 0) c (flag nil))
+        #       1 (if (= i l) (return))
+        #         (setq c (char s i))
+        #         (when (and (shiftf flag (alphanumericp c)) flag)
+        #           (setq c (char-downcase c))
+        #         )
+        #         (write-char c) (incf i) (go 1)
+        #   ) )
+        {
+          var uintL count = Sstring_length(string);
+          if (count > 0) {
+            var bool flag = false;
+            var uintL index = 0;
+            pushSTACK(string); # save simple-string
+            SstringDispatch(string,X, {
+              dotimespL(count,count, {
+                # flag indicates whether within a word
+                var bool oldflag = flag;
+                var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); # next character
+                if ((flag = alphanumericp(c)) && oldflag)
+                  # alphanumeric character in word:
+                  c = down_case(c); # upper case --> lower case
+                write_code_char(stream_,c); # and print
+                index++;
+              });
+            });
+            skipSTACK(1);
+          }
+        });
+        break;
+      case case_downcase:
+        # retrieve *PRINT-CASE* - determines how the lower case characters
+        # are printed; upper case characters are always printed upper case.
+        switch_print_case(
+        # :UPCASE -> print lower case letters in Upcase:
+        {
+          goto do_upcase;
+        },
+        # :DOWNCASE -> print lower case letters in Downcase:
+        {
+          if (case_inverted)
+            write_sstring_invert(stream_,string);
+          else
+            write_sstring(stream_,string);
+        },
+        # :CAPITALIZE -> print the first lower case letter of word
+        # as upper case letter, all other letters as lower case.
+        # (ref. NSTRING_CAPITALIZE in CHARSTRG.D)
+        # first Version:
+        #   (lambda (s &aux (l (length s)))
+        #     (prog ((i 0) c)
+        #       1 ; search from here the next beginning of a word
+        #         (if (= i l) (return))
+        #         (setq c (char s i))
+        #         (unless (alphanumericp c) (write-char c) (incf i) (go 1))
+        #       ; found beginning of word
+        #       (write-char (char-upcase c)) ; lower case --> upper case
+        #       (incf i)
+        #       2 ; within a word
+        #         (if (= i l) (return))
+        #         (setq c (char s i))
+        #         (unless (alphanumericp c) (write-char c) (incf i) (go 1))
+        #         (write-char c) ; lower case --> lower case
+        #         (incf i) (go 2)
+        #   ) )
+        # Exactly those characters are printed with char-upcase,
+        # which were not preceded by an alphanumeric character but
+        # which are alphanumeric themselves.
+        # Second version:
+        #   (lambda (s &aux (l (length s)))
+        #     (prog ((i 0) c (flag nil))
+        #       1 (if (= i l) (return))
+        #         (setq c (char s i))
+        #         (when (and (not (shiftf flag (alphanumericp c))) flag)
+        #           (setq c (char-upcase c))
+        #         )
+        #         (write-char c) (incf i) (go 1)
+        #   ) )
+        {
+          var uintL count = Sstring_length(string);
+          if (count > 0) {
+            var bool flag = false;
+            var uintL index = 0;
+            pushSTACK(string); # save simple-string
+            SstringDispatch(string,X, {
+              dotimespL(count,count, {
+                # flag indicates whether within a word
+                var bool oldflag = flag;
+                var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); # next character
+                if ((flag = alphanumericp(c)) && !oldflag)
+                  # alphanumeric character at the beginning of word:
+                  c = up_case(c); # lower case --> upper case
+                write_code_char(stream_,c); # and print
+                index++;
+              });
+            });
+            skipSTACK(1);
+          }
+        });
+        break;
+      case case_preserve:
+        # ignore *PRINT-CASE*.
+        if (case_inverted)
+          write_sstring_invert(stream_,string);
+        else
+          write_sstring(stream_,string);
+        break;
+      case case_invert:
+        # ignore *PRINT-CASE*.
+        {
+          var bool seen_uppercase = false;
+          var bool seen_lowercase = false;
+          var uintL count = Sstring_length(string);
+          if (count > 0) {
+            SstringDispatch(string,X, {
+              var const cintX* cptr = &((SstringX)TheVarobject(string))->data[0];
+              dotimespL(count,count, {
+                var chart c = as_chart(*cptr++);
+                if (case_inverted)
+                  c = invert_case(c);
+                if (!chareq(c,up_case(c)))
+                  seen_lowercase = true;
+                if (!chareq(c,down_case(c)))
+                  seen_uppercase = true;
+              });
+            });
+          }
+          if (seen_uppercase) {
+            if (!seen_lowercase)
+              goto do_downcase;
+          } else {
+            if (seen_lowercase)
+              goto do_upcase;
+          }
+          if (case_inverted)
+            write_sstring_invert(stream_,string);
+          else
+            write_sstring(stream_,string);
+        }
+        break;
+      default: NOTREACHED;
+    }
+  }
+}
+
+# UP: prints simple-string according to the current package,
+# (READTABLE-CASE *READTABLE*) and *PRINT-CASE* to stream.
 # write_sstring_case(&stream,string);
 # > string: Simple-String
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
 local maygc void write_sstring_case (const gcv_object_t* stream_, object string) {
-  # retrieve (READTABLE-CASE *READTABLE*):
-  sstring_un_realloc(string);
-  var object readtable;
-  get_readtable(readtable = ); # current readtable
-  switch (RTCase(readtable)) {
-    do_downcase:
-      {
-        var uintL count = Sstring_length(string);
-        if (count > 0) {
-          var uintL index = 0;
-          pushSTACK(string); # save simple-string
-          SstringDispatch(string,X, {
-            dotimespL(count,count, {
-              write_code_char(stream_,down_case(as_chart(((SstringX)TheVarobject(STACK_0))->data[index])));
-              index++;
-            });
-          });
-          skipSTACK(1);
-        }
-      }
-      break;
-    do_upcase:
-      {
-        var uintL count = Sstring_length(string);
-        if (count > 0) {
-          var uintL index = 0;
-          pushSTACK(string); # save simple-string
-          SstringDispatch(string,X, {
-            dotimespL(count,count, {
-              write_code_char(stream_,up_case(as_chart(((SstringX)TheVarobject(STACK_0))->data[index])));
-              index++;
-            });
-          });
-          skipSTACK(1);
-        }
-      }
-      break;
-    case case_upcase:
-      # retrieve *PRINT-CASE* - determines how the upper case characters
-      # are printed; lower case characters are always printed lower case.
-      switch_print_case(
-      # :UPCASE -> print upper case characters in Upcase:
-      {
-        write_sstring(stream_,string);
-      },
-      # :DOWNCASE -> print upper case characters in Downcase:
-      {
-        goto do_downcase;
-      },
-      # :CAPITALIZE -> print the first uppercase letter of word
-      # as upper case letter, all other letters as lower case.
-      # (cf. NSTRING_CAPITALIZE in CHARSTRG.D)
-      # First Version:
-      #   (lambda (s &aux (l (length s)))
-      #     (prog ((i 0) c)
-      #       1 ; search from here the next beginning of a word
-      #         (if (= i l) (return))
-      #         (setq c (char s i))
-      #         (unless (alphanumericp c) (write-char c) (incf i) (go 1))
-      #       ; found beginning of word
-      #       (write-char c) (incf i) ; upper case --> upper case
-      #       2 ; within a word
-      #         (if (= i l) (return))
-      #         (setq c (char s i))
-      #         (unless (alphanumericp c) (write-char c) (incf i) (go 1))
-      #         (write-char (char-downcase c)) ; upper case --> lower case
-      #         (incf i) (go 2)
-      #   ) )
-      # Exactly those characters are printed with char-downcase, which
-      # were preceded by an alphanumeric character and which are
-      # alphanumeric themselves.
-      # [As all Uppercase-Characters (according to CLTL p. 236 top) are
-      #  alphabetic and thus also alphanumeric and char-downcase does not
-      #  change anything on the other characters:
-      #  Exactly those characters  are printed with char-downcase,
-      #  which were preceded by an alphanumeric character.
-      #  We don't use this.]
-      # Second version:
-      #   (lambda (s &aux (l (length s)))
-      #     (prog ((i 0) c (flag nil))
-      #       1 (if (= i l) (return))
-      #         (setq c (char s i))
-      #         (let ((newflag (alphanumericp c)))
-      #           (when (and flag newflag) (setq c (char-downcase c)))
-      #           (setq flag newflag)
-      #         )
-      #         (write-char c) (incf i) (go 1)
-      #   ) )
-      # Third Version:
-      #   (lambda (s &aux (l (length s)))
-      #     (prog ((i 0) c (flag nil))
-      #       1 (if (= i l) (return))
-      #         (setq c (char s i))
-      #         (when (and (shiftf flag (alphanumericp c)) flag)
-      #           (setq c (char-downcase c))
-      #         )
-      #         (write-char c) (incf i) (go 1)
-      #   ) )
-      {
-        var uintL count = Sstring_length(string);
-        if (count > 0) {
-          var bool flag = false;
-          var uintL index = 0;
-          pushSTACK(string); # save simple-string
-          SstringDispatch(string,X, {
-            dotimespL(count,count, {
-              # flag indicates whether within a word
-              var bool oldflag = flag;
-              var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); # next character
-              if ((flag = alphanumericp(c)) && oldflag)
-                # alphanumeric character in word:
-                c = down_case(c); # upper case --> lower case
-              write_code_char(stream_,c); # and print
-              index++;
-            });
-          });
-          skipSTACK(1);
-        }
-      });
-      break;
-    case case_downcase:
-      # retrieve *PRINT-CASE* - determines how the lower case characters
-      # are printed; upper case characters are always printed upper case.
-      switch_print_case(
-      # :UPCASE -> print lower case letters in Upcase:
-      {
-        goto do_upcase;
-      },
-      # :DOWNCASE -> print lower case letters in Downcase:
-      {
-        write_sstring(stream_,string);
-      },
-      # :CAPITALIZE -> print the first lower case letter of word
-      # as upper case letter, all other letters as lower case.
-      # (ref. NSTRING_CAPITALIZE in CHARSTRG.D)
-      # first Version:
-      #   (lambda (s &aux (l (length s)))
-      #     (prog ((i 0) c)
-      #       1 ; search from here the next beginning of a word
-      #         (if (= i l) (return))
-      #         (setq c (char s i))
-      #         (unless (alphanumericp c) (write-char c) (incf i) (go 1))
-      #       ; found beginning of word
-      #       (write-char (char-upcase c)) ; lower case --> upper case
-      #       (incf i)
-      #       2 ; within a word
-      #         (if (= i l) (return))
-      #         (setq c (char s i))
-      #         (unless (alphanumericp c) (write-char c) (incf i) (go 1))
-      #         (write-char c) ; lower case --> lower case
-      #         (incf i) (go 2)
-      #   ) )
-      # Exactly those characters are printed with char-upcase,
-      # which were not preceded by an alphanumeric character but
-      # which are alphanumeric themselves.
-      # Second version:
-      #   (lambda (s &aux (l (length s)))
-      #     (prog ((i 0) c (flag nil))
-      #       1 (if (= i l) (return))
-      #         (setq c (char s i))
-      #         (when (and (not (shiftf flag (alphanumericp c))) flag)
-      #           (setq c (char-upcase c))
-      #         )
-      #         (write-char c) (incf i) (go 1)
-      #   ) )
-      {
-        var uintL count = Sstring_length(string);
-        if (count > 0) {
-          var bool flag = false;
-          var uintL index = 0;
-          pushSTACK(string); # save simple-string
-          SstringDispatch(string,X, {
-            dotimespL(count,count, {
-              # flag indicates whether within a word
-              var bool oldflag = flag;
-              var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); # next character
-              if ((flag = alphanumericp(c)) && !oldflag)
-                # alphanumeric character at the beginning of word:
-                c = up_case(c); # lower case --> upper case
-              write_code_char(stream_,c); # and print
-              index++;
-            });
-          });
-          skipSTACK(1);
-        }
-      });
-      break;
-    case case_preserve:
-      # ignore *PRINT-CASE*.
-      write_sstring(stream_,string);
-      break;
-    case case_invert:
-      # ignore *PRINT-CASE*.
-      {
-        var bool seen_uppercase = false;
-        var bool seen_lowercase = false;
-        var uintL count = Sstring_length(string);
-        if (count > 0) {
-          SstringDispatch(string,X, {
-            var const cintX* cptr = &((SstringX)TheVarobject(string))->data[0];
-            dotimespL(count,count, {
-              var chart c = as_chart(*cptr++);
-              if (!chareq(c,up_case(c)))
-                seen_lowercase = true;
-              if (!chareq(c,down_case(c)))
-                seen_uppercase = true;
-            });
-          });
-        }
-        if (seen_uppercase) {
-          if (!seen_lowercase)
-            goto do_downcase;
-        } else {
-          if (seen_lowercase)
-            goto do_upcase;
-        }
-        write_sstring(stream_,string);
-      }
-      break;
-    default: NOTREACHED;
-  }
+  var object curr_pack = get_current_package();
+  write_sstring_case_ext(stream_,string,
+                         pack_casesensitivep(curr_pack),
+                         pack_caseinvertedp(curr_pack));
 }
 
 # UP: prints a number of Spaces to stream.
@@ -6681,7 +6748,7 @@ local pr_routine_t prin_object;
 local pr_routine_t prin_object_dispatch;
 local pr_routine_t pr_symbol;
 local void pr_symbol_part (const gcv_object_t* stream_, object string,
-                           bool case_sensitive);
+                           bool case_sensitive, bool case_inverted);
 local pr_routine_t pr_like_symbol;
 local pr_routine_t pr_character;
 local pr_routine_t pr_string;
@@ -6829,8 +6896,9 @@ local void prin_object_dispatch (const gcv_object_t* stream_, object obj) {
 local maygc void pr_symbol (const gcv_object_t* stream_, object sym) {
   # query *PRINT-ESCAPE*:
   if (!nullpSv(print_escape) || !nullpSv(print_readably)) {
-    # with escape-character and maybe package-name:
+    # with escape-characters and maybe package-name:
     var bool case_sensitive = false;
+    var bool case_inverted = false;
     var object curr_pack = get_current_package();
     if (keywordp(sym)) { # Keyword ?
       pushSTACK(sym); # save symbol
@@ -6855,6 +6923,7 @@ local maygc void pr_symbol (const gcv_object_t* stream_, object sym) {
           # if symbol is accessible and not shadowed,
           # print no package-name and no package-markers.
           case_sensitive = pack_casesensitivep(curr_pack);
+          case_inverted = pack_caseinvertedp(curr_pack);
         } else {
           # print symbol with package-name and 1 or 2 package-markers
           pushSTACK(home); # save home-package
@@ -6863,9 +6932,10 @@ local maygc void pr_symbol (const gcv_object_t* stream_, object sym) {
                            || !nullpSv(print_readably))
                           ? ThePackage(home)->pack_name
                           : ThePackage(home)->pack_shortest_name),
-                         false);
+                         false,false);
           home = popSTACK(); # move home-package back
           case_sensitive = pack_casesensitivep(home);
+          case_inverted = pack_caseinvertedp(home);
           if (externalp(STACK_0,home)
               # When *PRINT-READABLY*, print PACK::SYMBOL even when the symbol is
               # external. It may not be external when the output is read later.
@@ -6878,22 +6948,24 @@ local maygc void pr_symbol (const gcv_object_t* stream_, object sym) {
       }
       sym = popSTACK(); # move sym back
     }
-    pr_symbol_part(stream_,Symbol_name(sym),case_sensitive); # print symbol-name
-  } else { # print symbol without Escape-Character:
+    pr_symbol_part(stream_,Symbol_name(sym),case_sensitive,case_inverted); # print symbol-name
+  } else {
+    # Print symbol without escape-characters:
     # print only the symbol-name under control of *PRINT-CASE*
     write_sstring_case(stream_,Symbol_name(sym));
   }
 }
 
 # UP: prints part of a symbol (package-name or symbol-name) with Escape-Character
-# pr_symbol_part(&stream,string,case_sensitive);
+# pr_symbol_part(&stream,string,case_sensitive,case_inverted);
 # > string: Simple-String
 # > stream: stream
 # > case_sensitive: Flag, if re-reading would be case-sensitive
+# > case_inverted: Flag, whether to implicitly case-invert the string
 # < stream: stream
 # can trigger GC
 local maygc void pr_symbol_part (const gcv_object_t* stream_, object string,
-                                 bool case_sensitive) {
+                                 bool case_sensitive, bool case_inverted) {
   # find out, if the name can be printed without |...| surrounding it:
   # This can be done if it:
   # 1. is not empty and
@@ -6993,10 +7065,8 @@ local maygc void pr_symbol_part (const gcv_object_t* stream_, object string,
     }
   }
   # Name can be printed without Escape-Characters.
-  if (case_sensitive)
-    write_sstring(stream_,string);
-  else # But obey *PRINT-CASE* along the way:
-    write_sstring_case(stream_,string);
+  # But obey *PRINT-CASE* along the way:
+  write_sstring_case_ext(stream_,string,case_sensitive,case_inverted);
   return;
  surround: # print Names utilizing the Escape-Characters |...|:
   { # fetch syntax code table:
@@ -7012,6 +7082,8 @@ local maygc void pr_symbol_part (const gcv_object_t* stream_, object string,
       var uintL index = 0;
       do {
         var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); # the next character
+        if (case_inverted)
+          c = invert_case(c);
         switch (syntax_table_get(STACK_1,c)) { # its Syntaxcode
           case syntax_single_esc:
           case syntax_multi_esc: # The Escape-Character c is prepended by '\':
@@ -7035,10 +7107,12 @@ local maygc void pr_symbol_part (const gcv_object_t* stream_, object string,
 # can trigger GC
 local maygc void pr_like_symbol (const gcv_object_t* stream_, object string) {
   # query *PRINT-ESCAPE*:
-  if (!nullpSv(print_escape) || !nullpSv(print_readably))
-    # print with escape-character
-    pr_symbol_part(stream_,string,pack_casesensitivep(get_current_package()));
-  else # print without escape-character
+  if (!nullpSv(print_escape) || !nullpSv(print_readably)) {
+    # print with escape-characters
+    var object pack = get_current_package();
+    pr_symbol_part(stream_,string,pack_casesensitivep(pack),pack_caseinvertedp(pack));
+  } else
+    # print without escape-characters
     write_sstring_case(stream_,string);
 }
 
