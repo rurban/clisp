@@ -4945,6 +4945,13 @@ for-value   NIL or T
                   ,label)))))
         L))))
 
+;; add 1 stack slot for closure dummy
+(defun closuredummy-add-stack-slot (closurevars closuredummy-stackz
+                                    closuredummy-venvc)
+  (when closurevars
+    (setf (first closuredummy-venvc) (cons closurevars closuredummy-stackz)
+          (first closuredummy-stackz) 1)))
+
 ;; compile (name lambdalist {declaration|docstring}* {form}*), return the FNODE
 (defun c-LAMBDABODY (name lambdabody &optional fenv-cons gf-p reqoptimflags)
   (test-list lambdabody 1)
@@ -5057,11 +5064,10 @@ for-value   NIL or T
                      :seclass '(T . T)
                      :stackz oldstackz
                      :code codelist)))
-            (when closurevars
-              (setf (first closuredummy-stackz) 1) ; 1 stack-place for Dummy
-              (setf (first closuredummy-venvc)
-                (cons closurevars closuredummy-stackz)))
-            (optimize-var-list (append req-vars opt-vars opts-vars rest-vars key-vars keys-vars aux-vars))
+            (closuredummy-add-stack-slot
+             closurevars closuredummy-stackz closuredummy-venvc)
+            (optimize-var-list (append req-vars opt-vars opts-vars rest-vars
+                                       key-vars keys-vars aux-vars))
             anode))))
     ;; this was the production of the Anode
     )))
@@ -5827,11 +5833,8 @@ for-value   NIL or T
                                       varlist)
                            :stackz oldstackz
                            :code codelist)))
-                  (when closurevars
-                    ;; 1 stack-slot for Dummy:
-                    (setf (first closuredummy-stackz) 1)
-                    (setf (first closuredummy-venvc)
-                          (cons closurevars closuredummy-stackz)))
+                  (closuredummy-add-stack-slot
+                   closurevars closuredummy-stackz closuredummy-venvc)
                   (optimize-var-list varlist)
                   anode)))))))))
 
@@ -5924,11 +5927,8 @@ for-value   NIL or T
                                         varlist)
                              :stackz oldstackz
                              :code codelist)))
-                    (when closurevars
-                      ;; 1 stack-slot for Dummy
-                      (setf (first closuredummy-stackz) 1)
-                      (setf (first closuredummy-venvc)
-                            (cons closurevars closuredummy-stackz)))
+                    (closuredummy-add-stack-slot
+                     closurevars closuredummy-stackz closuredummy-venvc)
                     (optimize-var-list varlist)
                     anode))))))))))
 
@@ -6355,10 +6355,8 @@ for-value   NIL or T
                                          anodelist)
                                ,body-anode
                                (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
-              (when closurevars
-                (setf (first closuredummy-stackz) 1) ; 1s tack-slot for Dummy
-                (setf (first closuredummy-venvc)
-                  (cons closurevars closuredummy-stackz)))
+              (closuredummy-add-stack-slot
+               closurevars closuredummy-stackz closuredummy-venvc)
               (optimize-var-list varlist)
               anode)))))))
 
@@ -6487,10 +6485,8 @@ for-value   NIL or T
                                          anodelist)
                                ,body-anode
                                (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
-              (when closurevars
-                (setf (first closuredummy-stackz) 1) ; 1 stack-slot for Dummy
-                (setf (first closuredummy-venvc)
-                  (cons closurevars closuredummy-stackz)))
+              (closuredummy-add-stack-slot
+               closurevars closuredummy-stackz closuredummy-venvc)
               (optimize-var-list varlist)
               anode)))))))
 
@@ -6586,10 +6582,8 @@ for-value   NIL or T
                                          anodelist)
                                ,body-anode
                                (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
-              (when closurevars
-                (setf (first closuredummy-stackz) 1) ; 1 stack-slot for Dummy
-                (setf (first closuredummy-venvc)
-                  (cons closurevars closuredummy-stackz)))
+              (closuredummy-add-stack-slot
+               closurevars closuredummy-stackz closuredummy-venvc)
               (optimize-var-list varlist)
               anode)))))))
 
@@ -6663,10 +6657,8 @@ for-value   NIL or T
                                        anodelist)
                              ,body-anode
                              (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
-            (when closurevars
-              (setf (first closuredummy-stackz) 1) ; 1 stack-slot for Dummy
-              (setf (first closuredummy-venvc)
-                (cons closurevars closuredummy-stackz)))
+            (closuredummy-add-stack-slot
+             closurevars closuredummy-stackz closuredummy-venvc)
             (optimize-var-list varlist)
             anode))))))
 
@@ -6747,10 +6739,8 @@ for-value   NIL or T
                                        anodelist)
                              ,body-anode
                              (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
-            (when closurevars
-              (setf (first closuredummy-stackz) 1) ; 1 stack-slot for Dummy
-              (setf (first closuredummy-venvc)
-                (cons closurevars closuredummy-stackz)))
+            (closuredummy-add-stack-slot
+             closurevars closuredummy-stackz closuredummy-venvc)
             (optimize-var-list varlist)
             anode))))))
 
@@ -7348,10 +7338,8 @@ for-value   NIL or T
                            varlist)
                        :stackz oldstackz
                        :code codelist)))
-              (when closurevars
-                (setf (first closuredummy-stackz) 1) ; 1 stack-slot for Dummy
-                (setf (first closuredummy-venvc)
-                  (cons closurevars closuredummy-stackz)))
+              (closuredummy-add-stack-slot
+               closurevars closuredummy-stackz closuredummy-venvc)
               (optimize-var-list varlist)
               anode)))))))
 
