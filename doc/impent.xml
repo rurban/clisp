@@ -196,7 +196,6 @@
 <!ENTITY dk-t "<link linkend='dir-key-type'>directory key type</link>">
 <!ENTITY dkey-close "<link linkend='dir-key-close'><function>LDAP:DIR-KEY-CLOSE</function></link>">
 <!ENTITY dkey-open "<link linkend='dir-key-open'><function>LDAP:DIR-KEY-OPEN</function></link>">
-<!ENTITY dkey-open "<link linkend='dir-key-open'><function>LDAP:DIR-KEY-OPEN</function></link>">
 <!ENTITY defhash "<link linkend='defhash'><function>EXT:DEFINE-HASH-TABLE-TEST</function></link>">
 <!ENTITY dohash "<link linkend='dohash'><function>EXT:DOHASH</function></link>">
 <!ENTITY doseq "<link linkend='doseq'><function>EXT:DOSEQ</function></link>">
