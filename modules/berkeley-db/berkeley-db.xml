@@ -246,14 +246,28 @@
  DB->set_paniccall	Set panic callback
  -->
 <variablelist>
-<varlistentry><term><literal role="sexp">(BDB:DB-SET-OPTIONS db &key-amp;
-      ERRFILE PASSWORD ENCRYPT NCACHE CACHESIZE PAGESIZE RE_DELIM RE_LEN
-      RE_PAD RE_SOURCE LORDER)
- </literal></term>
- <listitem><simpara>Call &DB_set_errfile;, &DB_set_encrypt;,
-   &DB_set_cachesize;, &DB_set_re_delim;, &DB_set_re_len;, &DB_set_re_pad;,
-   &DB_set_re_source;, &DB_set_pagesize;, &DB_set_lorder;.
-</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:DB-SET-OPTIONS db
+   &key-amp; ERRFILE PASSWORD ENCRYPTION NCACHE CACHESIZE CACHE
+   LORDER PAGESIZE BT_MINKEY H_FFACTOR H_NELEM Q_EXTENTSIZE
+   RE_DELIM RE_LEN RE_PAD RE_SOURCE
+   CHKSUM ENCRYPT TXN_NOT_DURABLE DUP DUPSORT RECNUM REVSPLITOFF
+   RENUMBER SNAPSHOT)</literal></term>
+ <listitem><para>Call <simplelist>
+    <member>&DB_set_errfile;</member>
+    <member>&DB_set_encrypt;</member>
+    <member>&DB_set_cachesize;</member>
+    <member>&DB_set_lorder;</member>
+    <member>&DB_set_pagesize;</member>
+    <member>&DB_set_bt_minkey;</member>
+    <member>&DB_set_h_ffactor;</member>
+    <member>&DB_set_h_nelem;</member>
+    <member>&DB_set_q_extentsize;</member>
+    <member>&DB_set_re_delim;</member>
+    <member>&DB_set_re_len;</member>
+    <member>&DB_set_re_pad;</member>
+    <member>&DB_set_re_source;</member>
+    <member>&DB_set_flags;</member>
+   </simplelist>.</para></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:DB-GET-OPTIONS db
    &optional-amp; what)</literal></term>
  <listitem><para>Retrieve some database options.
@@ -287,6 +301,23 @@
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:PAGESIZE</constant></term>
      <listitem><simpara>database page size (&DB_get_pagesize;).
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:BT_MINKEY</constant></term>
+     <listitem><simpara>the minimum number of key/data pairs intended to
+       be stored on any single <constant>:BTREE</constant> leaf page
+       underlying source file (&DB_get_bt_minkey;).
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:H_FFACTOR</constant></term>
+     <listitem><simpara>the desired density within
+       the <constant>:HASH</constant> table (&DB_get_h_ffactor;).
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:H_NELEM</constant></term>
+     <listitem><simpara>an estimate of the final size of
+       the <constant>:HASH</constant> table (&DB_get_h_nelem;).
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:Q_EXTENTSIZE</constant></term>
+     <listitem><simpara>the size of the extents used to hold pages in
+       a <constant>:QUEUE</constant> database (&DB_get_q_extentsize;).
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:RE_DELIM</constant></term>
      <listitem><simpara>the record delimiter
