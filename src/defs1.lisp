@@ -80,7 +80,7 @@
 (defmacro with-package-iterator ((name pack-list &rest types) &body body)
   (unless types
     (error-of-type 'source-program-error
-      :form type                ; == NIL
+      :form types               ; == NIL
       (TEXT "missing symbol types (~S/~S/~S) in ~S")
       ':internal ':external ':inherited 'with-package-iterator))
   (dolist (symboltype types)
