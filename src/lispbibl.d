@@ -8167,17 +8167,10 @@ typedef const struct backtrace_t* p_backtrace_t;
   #define end_arith_call()
 #endif
 
-#if defined(UNIX) || defined(WIN32)
-  # Under Unix the memory space for the SP is provided by the OS,
-  # thus no malloc() has to be done.
-  # The same holds for EMX (except for RSXW32 with its Mini-60KB-stack).
-  #define NO_SP_MALLOC
-#endif
-
 #if defined(HAVE_STACK_OVERFLOW_RECOVERY)
   # Detection of SP-overflow through a Guard-Page or other mechanisms.
   #define NOCOST_SP_CHECK
-#elif defined(NO_SP_MALLOC)
+#else
   # The OS is responsible for the SP.
   # From where should we get a reasonable value for SP_bound?
   #define NO_SP_CHECK

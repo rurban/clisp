@@ -60,10 +60,6 @@
    <replaceable>mem-file</replaceable></link></option></arg>
 <arg><option><link linkend="opt-memsize">-m
    <replaceable>mem-size</replaceable></link></option></arg>
-<!-- #ifndef NO_SP_MALLOC -->
-<arg><option><link linkend="opt-stack">-s
-   <replaceable>stack-size</replaceable></link></option></arg>
-<!-- #endif -->
 <!-- #ifdef MULTIMAP_MEMORY_VIA_FILE -->
 <arg><option><link linkend="opt-tempdir">-t
    <replaceable>temp-dir</replaceable></link></option></arg>
@@ -217,17 +213,6 @@ compiles the specified lisp files to a platform-independent
    (except that it determines the Lisp &STACK; size).
 <!-- #endif -->
 </simpara></listitem></varlistentry>
-
-<!-- #ifndef NO_SP_MALLOC -->
-<varlistentry id="opt-stack"><term><option>-s</option>
-  <replaceable>stack-size</replaceable></term>
- <listitem><simpara>Sets the size of the program stack (&SP;)
-   &clisp; allocates for itself.  The syntax is the same as for
-   <option><link linkend="opt-memsize">-m</link></option>.
-   Default is one eighth of <replaceable>mem-size</replaceable>.
-   The argument is constrained between 40 KB and 8 MB.
-</simpara></listitem></varlistentry>
-<!-- #endif -->
 
 <!-- #ifdef MULTIMAP_MEMORY_VIA_FILE -->
 <varlistentry id="opt-tempdir"><term><option>-t</option>

@@ -1554,9 +1554,6 @@ local void usage (void) {
  #endif
   printf(GETTEXTL(" -M memfile    - use this memory image\n"));
   printf(GETTEXTL(" -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"));
-  #ifndef NO_SP_MALLOC
-  printf(GETTEXTL(" -s size       - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"));
-  #endif
   #ifdef MULTIMAP_MEMORY_VIA_FILE
   printf(GETTEXTL(" -t tmpdir     - temporary directory for memmap\n"));
   #endif
@@ -1786,9 +1783,6 @@ struct argv_init_c {
 # Parameters needed to initialize Lisp memory.
 struct argv_initparams {
   uintL argv_memneed;
- #ifndef NO_SP_MALLOC
-  uintL argv_stackneed;
- #endif
  #ifdef MULTIMAP_MEMORY_VIA_FILE
   const char* argv_tmpdir;
  #endif
@@ -1832,9 +1826,6 @@ local inline int parse_options (int argc, const char* argv[],
   p0->argv_language = NULL;
   p0->argv_localedir = NULL;
   p1->argv_memneed = 0;
- #ifndef NO_SP_MALLOC
-  p1->argv_stackneed = 0;
- #endif
  #ifdef MULTIMAP_MEMORY_VIA_FILE
   p1->argv_tmpdir = NULL;
  #endif
@@ -1986,12 +1977,6 @@ local inline int parse_options (int argc, const char* argv[],
                       # (resp. big dummy-limit)
                       : (uintL)bit(intLsize-1)-1));
             break;
-         #ifndef NO_SP_MALLOC
-          case 's': # stack size
-            OPTION_ARG;
-            SIZE_ARG(GETTEXTL("stack size"),p1->argv_stackneed,40000,8*1024*1024);
-            break;
-         #endif
           case 't': # traditional, temporary directory
             if (asciz_equal(arg,"-traditional"))
               p2->argv_ansi = 2; # traditional
@@ -2416,15 +2401,9 @@ global int main (argc_t argc, char* argv[]) {
  #endif
   { # partitioning of the total memory:
     #define teile             16  # 16/16
-    #ifdef NO_SP_MALLOC # is SP provided by the OS?
-      #define teile_SP         0
-    #else
-      #define teile_SP         2  # 2/16 (1/16 often is not enough)
-    #endif
     #define teile_STACK      2  # 2/16
-    #define teile_stacks     (teile_SP + teile_STACK)
     #ifdef SPVW_MIXED_BLOCKS
-      #define teile_objects    (teile - teile_stacks)  # rest
+      #define teile_objects    (teile - teile_STACK)  # rest
     #else
       #define teile_objects    0
     #endif
@@ -2440,16 +2419,9 @@ global int main (argc_t argc, char* argv[]) {
     var uintL memneed = argv1.argv_memneed; # needed memory
     var aint memblock; # lower address of the provided memory block
    #if !(defined(SPVW_MIXED_BLOCKS_OPPOSITE) && !defined(TRIVIALMAP_MEMORY))
-    memneed = teile_stacks*floor(memneed,teile); # do not yet calculate memory for objects
+    memneed = teile_STACK*floor(memneed,teile); # do not yet calculate memory for objects
     #undef teile
-    #define teile  teile_stacks
-   #endif
-   #ifndef NO_SP_MALLOC
-    if (!(argv1.argv_stackneed==0)) {
-      memneed = memneed*(teile-teile_SP)/teile;
-      # the SP-size specified with option -s is not yet included in memneed.
-      memneed = memneed + argv1.argv_stackneed;
-    }
+    #define teile  teile_STACK
    #endif
    #if defined(TRIVIALMAP_MEMORY) && defined(WIN32_NATIVE)
     # Somehow the RESERVE_FOR_MALLOC limit for mallocs after prepare_zeromap()
@@ -2692,11 +2664,6 @@ global int main (argc_t argc, char* argv[]) {
    #endif
     { # divide memory block:
       var uintL free_reserved; # number of reserved bytes
-     #ifndef NO_SP_MALLOC
-      var void* initial_SP; # initial value for SP-stackpointer
-      var uintL for_SP = 0; # number of bytes for SP-stack
-      #define min_for_SP  40000 # minimal SP-stack-size
-     #endif
       var uintL for_STACK; # number of bytes for Lisp-stack
       var uintL for_objects; # number of bytes for Lisp-objects
       # the STACK needs alignment, because for frame-pointers
@@ -2704,13 +2671,6 @@ global int main (argc_t argc, char* argv[]) {
       #define STACK_alignment  bit(addr_shift+1)
       #define alignment  (varobject_alignment>STACK_alignment ? varobject_alignment : STACK_alignment)
       free_reserved = memneed;
-      #ifndef NO_SP_MALLOC
-      if (argv1.argv_stackneed != 0 && 2*argv1.argv_stackneed <= free_reserved) {
-        # do not reserve to much for the SP-stack
-        for_SP = round_down(argv1.argv_stackneed,varobject_alignment);
-        free_reserved -= argv1.argv_stackneed;
-      }
-      #endif
       # make divisible by teile*alignment, so that each 1/16 is aligned:
       free_reserved = round_down(free_reserved,teile*alignment);
       free_reserved = free_reserved - RESERVE;
@@ -2718,7 +2678,6 @@ global int main (argc_t argc, char* argv[]) {
         var uintL teil = free_reserved/teile; # a sub block, a 1/16 of the room
         var aint ptr = memblock;
         mem.MEMBOT = ptr;
-        #ifdef NO_SP_MALLOC
           #ifdef UNIX_NEXTSTEP
             # Set the stack size limit to 8 MB if possible to prevent
             # crashes from machine stack overflow.
@@ -2747,26 +2706,6 @@ global int main (argc_t argc, char* argv[]) {
               }
             }
           #endif
-        #else
-          # allocate SP:
-          if (for_SP==0) { # 2/16 for program stack
-            for_SP = teile_SP*teil;
-          } else { # room for SP is already removed.
-            # teile := teile-teile_SP; # is not possible anymore, instead:
-            teil = round_down(free_reserved/(teile-teile_SP),alignment);
-          }
-          if (for_SP < min_for_SP) { for_SP = round_up(min_for_SP,alignment); } # but not too little
-          #ifdef SP_DOWN
-            SP_bound = (void*)(ptr + 0x800); # 512 pointer safety margin
-            ptr += for_SP;
-            initial_SP = (void*)ptr;
-          #endif
-          #ifdef SP_UP
-            initial_SP = (void*)ptr;
-            ptr += for_SP;
-            SP_bound = (void*)(ptr - 0x800); # 512 pointer safety margin
-          #endif
-        #endif
         # allocate STACK:
         #ifdef SINGLEMAP_MEMORY_STACK
         for_STACK = 0; # STACK is already allocated elsewhere.
@@ -2830,14 +2769,6 @@ global int main (argc_t argc, char* argv[]) {
         mem.gctrigger_space = 0;
         #endif
         # initialize stacks:
-        #ifndef NO_SP_MALLOC
-          #ifdef GNU
-            # a little dummy-action, that prevents a delayed clean up of SP
-            # at a later date:
-            if (mem.MEMBOT) { printf(""); }
-          #endif
-          setSP(initial_SP); # set SP! All local variables get lost!
-        #endif
         #ifdef NOCOST_SP_CHECK
           install_stackoverflow_handler(0x4000); # 16 KB reserve should be enough
         #endif

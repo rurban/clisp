@@ -1,5 +1,16 @@
 2004-08-31  Bruno Haible  <bruno@clisp.org>
 
+	Assume the OS manages the C stack sufficiently well.
+	* lispbibl.d (NO_SP_MALLOC): Remove macro.
+	* spvw.d (usage): Remove documentation of option -s.
+	(struct argv_initparams): Remove argv_stackneed.
+	(parse_options): Drop support for option -s.
+	(main): Don't reserve space for SP. Don't call setSP.
+	* doc/clisp.xml.in: Remove documentation of option -s.
+	* doc/_clisp.html: Likewise.
+
+2004-08-31  Bruno Haible  <bruno@clisp.org>
+
 	Remove support for MiNT.
 	* lispbibl.d (UNIX_MINT): Remove macro.
 	* pathname.d (realpath): Remove MiNT support.
