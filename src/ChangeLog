@@ -1,3 +1,9 @@
+2003-02-01  Sam Steingold  <sds@gnu.org>
+
+	* io.d (read_delimited_list): fixed a crash introduced by the
+	2003-01-21 "multiple forms on one line" patch: need to unbind
+	*TERMINAL-READ-OPEN-OBJECT* even if *TERMINAL-READ-STREAM* changed
+
 2003-01-31  Sam Steingold  <sds@gnu.org>
 
 	* type.lisp (typep, subtypep): accept &optional environment,
