@@ -1,4 +1,6 @@
-;;;; Common Lisp Object System for CLISP: Generic Functions
+;;;; Common Lisp Object System for CLISP
+;;;; Generic Functions
+;;;; Part n-2: make/initialize-instance methods, generic functions.
 ;;;; Bruno Haible 21.8.1993 - 2004
 ;;;; Sam Steingold 1998 - 2004
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
@@ -6,145 +8,221 @@
 (in-package "CLOS")
 
 
-(defun make-generic-function (generic-function-class funname lambda-list argument-precedence-order method-combo method-class declspecs documentation
-                              &rest methods)
-  (let ((gf (make-fast-gf generic-function-class funname lambda-list argument-precedence-order method-class declspecs documentation)))
-    (setf (std-gf-method-combination gf)
-          (coerce-to-method-combination funname method-combo))
-    (dolist (method methods) (std-add-method gf method))
-    (finalize-fast-gf gf)
-    gf))
+;; ----------------------------------------------------------------------------
 
-;; When this is true, it is possible to replace a non-generic function with
-;; a generic function through DEFGENERIC.
-(defparameter *allow-making-generic* nil)
+;;; Lift the initialization protocol.
 
-(defun do-defgeneric (funname generic-function-class lambda-list signature argument-precedence-order method-combo method-class declspecs documentation &rest methods)
-  (if (fboundp funname)
-    (let ((gf (fdefinition funname)))
-      (if (typep-class gf <generic-function>)
-        ;; Redefinition of a generic function.
-        (progn
-          ;; Take into account the new generic-function-class.
-          (unless (eq (class-of gf) generic-function-class)
-            (change-class gf generic-function-class))
-          (warn-if-gf-already-called gf)
-          ;; Remove the old defgeneric-originated methods. Instead of calling
-          ;; std-remove-method on each such method, while inhibiting warnings,
-          ;; we can just as well remove the methods directly.
-          (setf (std-gf-methods gf)
-                (remove-if #'(lambda (method)
-                               (when (std-method-from-defgeneric method)
-                                 (setf (std-method-generic-function method) nil)
-                                 t))
-                           (std-gf-methods gf)))
-          (unless (equalp signature (std-gf-signature gf))
-            (dolist (method (std-gf-methods gf))
-              (check-signature-congruence gf method signature))
-            (setf (std-gf-signature gf) signature))
-          (shared-initialize-<standard-generic-function> gf nil
-            :lambda-list lambda-list
-            :argument-precedence-order argument-precedence-order
-            :method-class method-class
-            :declarations declspecs
-            :documentation documentation)
-          (let ((method-combo (coerce-to-method-combination funname method-combo)))
-            (unless (eq method-combo (std-gf-method-combination gf))
-              (dolist (method (std-gf-methods gf))
-                (check-method-qualifiers gf method method-combo))
-              (setf (std-gf-method-combination gf) method-combo)))
-          (dolist (method methods) (std-add-method gf method))
-          (finalize-fast-gf gf)
-          gf)
-        (if (not *allow-making-generic*)
-          (error-of-type 'program-error
-            (TEXT "~S: ~S does not name a generic function")
-            'defgeneric funname)
-          (setf (fdefinition funname)
-                (apply #'make-generic-function generic-function-class funname lambda-list argument-precedence-order
-                       method-combo method-class declspecs documentation methods)))))
-    (setf (fdefinition funname)
-          (apply #'make-generic-function generic-function-class funname lambda-list argument-precedence-order
-                 method-combo method-class declspecs documentation methods))))
+(defmethod shared-initialize ((gf standard-generic-function) situation &rest args
+                              &key name
+                                   lambda-list
+                                   argument-precedence-order
+                                   method-class
+                                   method-combination
+                                   documentation
+                                   declarations
+                                   &allow-other-keys)
+  (declare (ignore name lambda-list argument-precedence-order method-class
+                   method-combination documentation declarations declare))
+  (apply #'shared-initialize-<standard-generic-function> gf situation args))
 
+;; ----------------------------------------------------------------------------
 
-#||  ;; For GENERIC-FLET, GENERIC-LABELS
-;; like make-generic-function, only that the dispatch-code is
-;; installed immediately.
- (defun make-generic-function-now (generic-function-class funname lambda-list argument-precedence-order method-combo method-class declspecs documentation
-                                   &rest methods)
-  (let ((gf (make-fast-gf generic-function-class funname lambda-list argument-precedence-order method-class declspecs documentation)))
-    (setf (std-gf-method-combination gf)
-          (coerce-to-method-combination funname method-combo))
-    (dolist (method methods) (std-add-method gf method))
-    (install-dispatch gf)
-    gf))
-||#
+;; An argument is called "dispatching" if not all the corresponding parameter
+;; specializers are <t>.
+(defun dispatching-arg-p (index methods)
+  (notevery #'(lambda (method)
+                (eq (nth index (std-method-specializers method)) <t>))
+            methods))
+(defun single-dispatching-arg (reqanz methods)
+  (let ((first-dispatching-arg
+         (dotimes (i reqanz nil)
+           (when (dispatching-arg-p i methods) (return i)))))
+    (and first-dispatching-arg
+         (do ((i (1+ first-dispatching-arg) (1+ i)))
+             ((>= i reqanz) first-dispatching-arg)
+           (when (dispatching-arg-p i methods) (return nil))))))
+(defun dispatching-arg-type (index methods)
+  `(OR ,@(remove-duplicates
+           (mapcar #'(lambda (method)
+                       (nth index (std-method-specializers method)))
+                   methods)
+           :test #'same-specializers-p)))
 
+(defgeneric no-applicable-method (gf &rest args)
+  (:method ((gf t) &rest args)
+    (let* ((reqanz (sig-req-num (std-gf-signature gf)))
+           (methods (std-gf-methods gf))
+           (dispatching-arg (single-dispatching-arg reqanz methods)))
+      (sys::retry-function-call
+       (if dispatching-arg
+         (make-condition 'method-call-type-error
+           :datum (nth dispatching-arg args)
+           :expected-type (dispatching-arg-type dispatching-arg methods)
+           :generic-function gf :argument-list args
+           :format-control (TEXT "~S: When calling ~S with arguments ~S, no method is applicable.")
+           :format-arguments (list 'no-applicable-method gf args))
+         (make-condition 'method-call-error
+           :generic-function gf :argument-list args
+           :format-control (TEXT "~S: When calling ~S with arguments ~S, no method is applicable.")
+           :format-arguments (list 'no-applicable-method gf args)))
+       gf args))))
 
-;; For GENERIC-FUNCTION, GENERIC-FLET, GENERIC-LABELS
+(defgeneric missing-required-method (gf combination group-name group-filter &rest args)
+  (:method ((gf t) (combination method-combination) (group-name symbol) (group-filter function) &rest args)
+    (let* ((reqanz (sig-req-num (std-gf-signature gf)))
+           (methods (remove-if-not group-filter (std-gf-methods gf)))
+           (dispatching-arg (single-dispatching-arg reqanz methods)))
+      (if dispatching-arg
+        (error-of-type 'method-call-type-error
+          :datum (nth dispatching-arg args)
+          :expected-type (dispatching-arg-type dispatching-arg methods)
+          :generic-function gf :argument-list args
+          (TEXT "~S: When calling ~S with arguments ~S, no method of group ~S (from ~S) is applicable.")
+          'missing-required-method gf args group-name combination)
+        (error-of-type 'method-call-error
+          :generic-function gf :argument-list args
+          (TEXT "~S: When calling ~S with arguments ~S, no method of group ~S (from ~S) is applicable.")
+          'missing-required-method gf args group-name combination)))))
 
-(defun make-generic-function-form (caller whole-form funname lambda-list options)
-  (multiple-value-bind (generic-function-class-form signature argument-precedence-order method-combo method-class-form declspecs docstring method-forms)
-      (analyze-defgeneric caller whole-form funname lambda-list options)
-    (declare (ignore signature))
-    `(MAKE-GENERIC-FUNCTION ,generic-function-class-form ',funname ',lambda-list ',argument-precedence-order ',method-combo ,method-class-form ',declspecs ',docstring
-                            ,@method-forms)))
+;; Special case of missing-required-method for STANDARD method combination
+;; and the PRIMARY method group.
+(defgeneric no-primary-method (gf &rest args)
+  (:method ((gf t) &rest args)
+    (let* ((reqanz (sig-req-num (std-gf-signature gf)))
+           (methods (remove-if-not #'null (std-gf-methods gf)
+                                   :key #'std-method-qualifiers))
+           (dispatching-arg (single-dispatching-arg reqanz methods)))
+      (sys::retry-function-call
+       (if dispatching-arg
+         (make-condition 'method-call-type-error
+           :datum (nth dispatching-arg args)
+           :expected-type (dispatching-arg-type dispatching-arg methods)
+           :generic-function gf :argument-list args
+           :format-control (TEXT "~S: When calling ~S with arguments ~S, no primary method is applicable.")
+           :format-arguments (list 'no-primary-method gf args))
+         (make-condition 'method-call-error
+           :generic-function gf :argument-list args
+           :format-control (TEXT "~S: When calling ~S with arguments ~S, no primary method is applicable.")
+           :format-arguments (list 'no-primary-method gf args)))
+       gf args))))
 
-#| GENERIC-FUNCTION is a TYPE (and a COMMON-LISP symbol) in ANSI CL,
- but not a macro, so this definition violates the standard
- (defmacro generic-function (&whole whole-form
-                             lambda-list &rest options)
-  (make-generic-function-form 'generic-function whole-form 'LAMBDA
-                              lambda-list options))
-|#
+(defun %no-next-method (method &rest args)
+  (apply #'no-next-method (std-method-generic-function method) method args))
+(defgeneric no-next-method (gf method &rest args)
+  (:method ((gf standard-generic-function) (method standard-method) &rest args
+            &aux (cont-mesg (format nil (TEXT "ignore ~S") 'CALL-NEXT-METHOD)))
+    (if (let ((method-combo (std-gf-method-combination gf)))
+          (funcall (method-combination-call-next-method-allowed method-combo)
+                   gf method-combo method))
+      (cerror cont-mesg 'method-call-error
+        :generic-function gf :method method :argument-list args
+        :format-control (TEXT "~S: When calling ~S with arguments ~S, there is no next method after ~S, and ~S was called.")
+        :format-arguments (list 'no-next-method gf args method
+                                '(call-next-method)))
+      (let ((qualifiers (std-method-qualifiers method)))
+        (if qualifiers
+          (cerror cont-mesg 'program-error
+            :format-control (TEXT "~S: ~S is invalid within ~{~S~^ ~} methods")
+            :format-arguments (list gf 'CALL-NEXT-METHOD qualifiers))
+          (cerror cont-mesg 'program-error
+            :format-control (TEXT "~S: ~S is invalid within primary methods")
+            :format-arguments (list gf 'CALL-NEXT-METHOD)))))))
 
-;; For GENERIC-FLET, GENERIC-LABELS
-(defun analyze-generic-fundefs (caller whole-form fundefs)
-  (let ((names '())
-        (funforms '()))
-    (dolist (fundef fundefs)
-      (unless (and (consp fundef) (consp (cdr fundef)))
-        (error-of-type 'ext:source-program-error
-          :form whole-form
-          :detail fundef
-          (TEXT "~S: ~S is not a generic function specification")
-          caller fundef))
-      (push (first fundef) names)
-      (push (make-generic-function-form
-             caller whole-form (first fundef) (second fundef) (cddr fundef))
-            funforms))
-    (values (nreverse names) (nreverse funforms))))
+;; ----------------------------------------------------------------------------
 
+(defun check-generic-function-initialized (gf)
+  (unless (std-gf-initialized gf)
+    (error (TEXT "The generic function ~S has not yet been initialized.")
+           gf)))
 
-;;; GENERIC-FLET
+;; MOP p. 80
+(defgeneric generic-function-name (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (funcallable-name gf)))
+;; MOP p. 92
+(defgeneric (setf generic-function-name) (new-value generic-function)
+  (:method (new-value (gf standard-generic-function))
+    (unless (sys::function-name-p new-value)
+      (error-of-type 'type-error
+        :datum new-value :expected-type '(or symbol (cons (eql setf) (cons symbol null)))
+        (TEXT "~S: The name of a generic function must be a function name, not ~S")
+        '(setf generic-function-name) new-value))
+    (reinitialize-instance gf :name new-value)
+    new-value))
 
-(defmacro generic-flet (&whole whole-form
-                        fundefs &body body)
-  (multiple-value-bind (funnames funforms)
-      (analyze-generic-fundefs 'generic-flet whole-form fundefs)
-    (let ((varnames (gensym-list funnames)))
-      `(LET ,(mapcar #'list varnames funforms)
-         (FLET ,(mapcar #'(lambda (varname funname)
-                            `(,funname (&rest args) (apply ,varname args)))
-                        varnames funnames)
-           ,@body)))))
+;; MOP p. 80
+(defgeneric generic-function-methods (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (std-gf-methods gf)))
 
-;;; GENERIC-LABELS
+;; MOP p. 80
+(defgeneric generic-function-method-class (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (std-gf-default-method-class gf)))
 
-(defmacro generic-labels (&whole whole-form
-                          fundefs &body body)
-  (multiple-value-bind (funnames funforms)
-      (analyze-generic-fundefs 'generic-labels whole-form fundefs)
-    (let ((varnames (gensym-list funnames)))
-      `(LET ,varnames
-         (FLET ,(mapcar #'(lambda (varname funname)
-                            `(,funname (&rest args) (apply ,varname args)))
-                        varnames funnames)
-           ,@(mapcar #'(lambda (varname funform) `(SETQ ,varname ,funform))
-                     varnames funforms)
-           ,@body)))))
+;; MOP p. 79
+(defgeneric generic-function-lambda-list (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (std-gf-lambda-list gf)))
 
+;; MOP p. 80
+(defgeneric generic-function-method-combination (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (std-gf-method-combination gf)))
 
-;;; WITH-ADDED-METHODS
-;; is screwed up and therefore will not be implemented.
+;; MOP p. 79
+(defgeneric generic-function-argument-precedence-order (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (let ((argorder (std-gf-argorder gf))
+          (lambdalist (std-gf-lambda-list gf)))
+      (mapcar #'(lambda (i) (nth i lambdalist)) argorder))))
+
+;; MOP p. 79
+(defgeneric generic-function-declarations (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (std-gf-declspecs gf)))
+
+;; ----------------------------------------------------------------------------
+
+(defgeneric find-method (gf qualifiers specializers &optional errorp)
+  (:method ((gf standard-generic-function) qualifiers specializers &optional (errorp t))
+    (std-find-method gf qualifiers specializers errorp)))
+
+(defgeneric add-method (gf method)
+  (:method ((gf standard-generic-function) (method standard-method))
+    (std-add-method gf method)))
+
+(defgeneric remove-method (gf method)
+  (:method ((gf standard-generic-function) (method standard-method))
+    (std-remove-method gf method)))
+
+;; MOP p. 40
+(fmakunbound 'compute-discriminating-function)
+(defgeneric compute-discriminating-function (gf)
+  (:method ((gf standard-generic-function))
+    (compute-discriminating-function-<standard-generic-function> gf)))
+
+;; MOP p. 35
+(fmakunbound 'compute-applicable-methods)
+(defgeneric compute-applicable-methods (gf args)
+  (:method ((gf standard-generic-function) args)
+    (compute-applicable-methods-<standard-generic-function> gf args)))
+
+;; MOP p. 36
+(fmakunbound 'compute-applicable-methods-using-classes)
+(defgeneric compute-applicable-methods-using-classes (gf req-arg-classes)
+  (:method ((gf standard-generic-function) req-arg-classes)
+    (compute-applicable-methods-using-classes-<standard-generic-function> gf req-arg-classes)))
+
+;; MOP p. 41
+(fmakunbound 'compute-effective-method)
+(defgeneric compute-effective-method (gf combination methods)
+  (:method ((gf standard-generic-function) combination methods)
+    (compute-effective-method-<standard-generic-function> gf combination methods)))
