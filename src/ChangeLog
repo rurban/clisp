@@ -1,3 +1,8 @@
+1999-08-15  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * ansidecl.d (char_out, next_token, handle_closing_token): Turn
+          macros into inline function definitions. Speed doesn't matter here.
+
 1999-08-14  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Assume size_t, pid_t, uid_t, gid_t, off_t are defined.
