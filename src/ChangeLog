@@ -1,15 +1,15 @@
 2004-07-29  Bruno Haible  <bruno@clisp.org>
 
-	* clos-slotdef1.lisp (slot-definition, direct-slot-definition,
-	effective-slot-definition, structure-direct-slot-definition,
-	structure-effective-slot-definition): Prefix all slot names with $.
+	* clos-slotdef1.lisp (slot-definition, direct-slot-definition)
+	(effective-slot-definition, structure-direct-slot-definition)
+	(structure-effective-slot-definition): Prefix all slot names with $.
 	* clos-stablehash1.lisp (standard-stablehash): Likewise.
 	* clos-specializer1.lisp (specializer, eql-specializer): Likewise.
-	* clos-class1.lisp (class, slotted-class, structure-class,
-	standard-class): Likewise.
+	* clos-class1.lisp (class, slotted-class, structure-class)
+	(standard-class): Likewise.
 	* clos-method1.lisp (standard-method): Likewise.
-	* clos-slotdef2.lisp (structure-effective-slot-definition-initff,
-	structure-effective-slot-definition-readonly): Update.
+	* clos-slotdef2.lisp (structure-effective-slot-definition-initff)
+	(structure-effective-slot-definition-readonly): Update.
 	* clos-print.lisp (print-object@class): Update.
 
 2004-06-05  Bruno Haible  <bruno@clisp.org>
@@ -31,8 +31,8 @@
 	(initialize-instance-<standard-method>): Accept keyword clos::gf
 	instead of :gf.
 	* clos-method3.lisp (method-generic-function): New function.
-	* clos-genfun3.lisp (%call-next-method, std-add-method,
-	std-remove-method): Update.
+	* clos-genfun3.lisp (%call-next-method, std-add-method)
+	(std-remove-method): Update.
 	* clos-genfun4.lisp (do-defgeneric): Update.
 	* clos-genfun5.lisp (%no-next-method): Update.
 
@@ -96,14 +96,14 @@
 	* clos-method3.lisp (method-specializers): New function.
 	* clos-class3.lisp (install-class-direct-accessors): Pass :specializers
 	argument, instead of :parameter-specializers argument.
-	* clos-class5.lisp (note-ai-change, note-ii-change, note-ri-change,
-	note-uirc-change, note-uidc-change, note-si-change): Update.
-	(valid-make-instance-keywords,
-	valid-update-instance-for-redefined-class-keywords,
-	valid-update-instance-for-different-class-keywords): Update.
-	(shared-initialize, reinitialize-instance, initialize-instance,
-	allocate-instance, make-instance): Pass :specializers argument, instead
-	of :parameter-specializers argument.
+	* clos-class5.lisp (note-ai-change, note-ii-change, note-ri-change)
+	(note-uirc-change, note-uidc-change, note-si-change): Update.
+	(valid-make-instance-keywords)
+	(valid-update-instance-for-redefined-class-keywords)
+	(valid-update-instance-for-different-class-keywords): Update.
+	(shared-initialize, reinitialize-instance, initialize-instance)
+	(allocate-instance, make-instance): Pass :specializers argument,
+	instead of :parameter-specializers argument.
 	* clos-class6.lisp (class-name): Don't undefine temporarily.
 	* clos-methcomb2.lisp (method-applicable-p, sort-applicable-methods):
 	Update.
@@ -207,8 +207,8 @@
 	* clos-method3.lisp (initialize-instance@standard-method): New method.
 	(initialize-instance@standard-accessor-method): New method.
 	(reinitialize-instance@method): New method.
-	* clos-class5.lisp (shared-initialize, reinitialize-instance,
-	initialize-instance, allocate-instance, make-instance): Use
+	* clos-class5.lisp (shared-initialize, reinitialize-instance)
+	(initialize-instance, allocate-instance, make-instance): Use
 	make-instance-<standard-method> instead of make-standard-method.
 	* clos-method4.lisp: New file.
 	* clos-print.lisp (print-object): Update.
