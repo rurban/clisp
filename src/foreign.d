@@ -416,7 +416,11 @@ local void check_cc_match (object fun, object resulttype,
 local object convert_function_to_foreign (object fun, object resulttype,
                                           object argtypes, object flags) {
   /* Convert to a function: */
-  with_saved_back_trace(L(coerce),-1,fun = coerce_function(fun));
+  if (!functionp(fun)) {
+    pushSTACK(resulttype); pushSTACK(argtypes); pushSTACK(flags);
+    with_saved_back_trace(L(coerce),-1, { fun = coerce_function(fun); });
+    flags = popSTACK(); argtypes = popSTACK(); resulttype = popSTACK();
+  }
   /* If it is already a foreign function, return it immediately: */
   if (ffunctionp(fun)) {
     check_cc_match(fun, resulttype, argtypes, flags);
