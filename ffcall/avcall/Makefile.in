@@ -107,6 +107,9 @@ avcall-alpha.lo : $(srcdir)/avcall-alpha.s
 avcall-hppa.lo : $(srcdir)/avcall-hppa.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-hppa.s
 
+avcall-s390.lo : $(srcdir)/avcall-s390.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-s390.s
+
 avcall-arm.lo : avcall-arm.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c avcall-arm.s
 

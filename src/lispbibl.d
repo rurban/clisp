@@ -705,9 +705,11 @@
   #if defined(DECALPHA)
     #define STACK_register  "$9"    # one of the general registers $9..$14
   #endif
-  #if defined(S390)
-    #define STACK_register  "9"     # one of the general registers %r8..%r9
-  #endif
+  # global register assignment doesn't work currently on s390,
+  # probably a compiler bug.
+  # #if defined(S390)
+  #  #define STACK_register  "9"     # one of the general registers %r8..%r9
+  # #endif
   # What about NEED_temp_STACK ?? Needed if STACK is in a "used" register??
   # Register for mv_count.
   #if defined(SPARC)

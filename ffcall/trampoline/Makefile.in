@@ -54,6 +54,9 @@ trampoline.o : $(srcdir)/trampoline.c trampoline.h
 tramp-hppa.o : $(srcdir)/tramp-hppa.s
 	$(CC) @GCC_X_NONE@ -c $(srcdir)/tramp-hppa.s
 
+tramp-s390.o : $(srcdir)/tramp-s390.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/tramp-s390.s
+
 tramp-rs6000.o : tramp-rs6000.s
 	$(CC) @GCC_X_NONE@ -c tramp-rs6000.s
 

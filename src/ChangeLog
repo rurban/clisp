@@ -1,3 +1,28 @@
+2002-03-24   Gerhard Tonn  <GerhardTonn@swol.de>
+
+	FFCALL ported to IBM s/390
+	* lispbibl.d (STACK_register) [S390]: do not define -
+	broken due to a compiler bug
+	* ffcall/avcall/Makefile.in (avcall-s390.lo): new target
+	* ffcall/avcall/avcall-s390.c, ffcall/avcall/avcall-s390.s: added
+	* ffcall/avcall/avcall.h.in (__s390__): handle it
+	* ffcall/callback/trampoline_r/Makefile.in (tramp-s390.lo): new target
+	* ffcall/callback/trampoline_r/proto-s390.s: added
+	* ffcall/callback/trampoline_r/tramp-s390.s: added
+	* ffcall/callback/trampoline_r/proto.c (__s390__): handle it
+	* ffcall/callback/trampoline_r/test1.c (__s390__): ditto
+	* ffcall/callback/trampoline_r/trampoline.c (__s390__): ditto
+	* ffcall/callback/vacall_r/vacall-s390.c: added
+	* ffcall/callback/vacall_r/vacall-s390.s: added
+	* ffcall/callback/vacall_r/Makefile.in (vacall-s390.lo): new target
+	* ffcall/callback/vacall_r/vacall_r.h.in (__s390__): handle it
+	* ffcall/trampoline/Makefile.in (tramp-s390.o): new target
+	* ffcall/trampoline/proto-s390.s, ffcall/trampoline/tramp-s390.s: added
+	* ffcall/trampoline/trampoline.c (__s390__): handle it
+	* ffcall/vacall/Makefile.in (vacall-s390.o): new target
+	* ffcall/vacall/vacall-s390.c, ffcall/vacall/vacall-s390.s: added
+	* ffcall/vacall/vacall.h.in (__s390__): handle it
+
 2002-03-22  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (mandir, htmldir, dvidir, docdir):
