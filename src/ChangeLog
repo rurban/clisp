@@ -1,5 +1,11 @@
 2002-11-25  Sam Steingold  <sds@gnu.org>
 
+	* loop.lisp (expand-loop): when summing (or counting &c) into a
+	variable for which the type has been declared, make sure it is
+	initialized to that particular type
+
+2002-11-25  Sam Steingold  <sds@gnu.org>
+
 	use C standard I/O <stdio.h> instead of asciz_out() and friends
 	* acorn.d, encoding.d, error.d, genclisph.d, io.d, misc.d:
 	* msdos.d, pathname.d, socket.d, spvw.d, stream.d:

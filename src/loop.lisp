@@ -367,7 +367,7 @@
                  ((COUNT COUNTING SUM SUMMING MAXIMIZE MAXIMIZING
                    MINIMIZE MINIMIZING)
                   (pop body-rest)
-                  (let ((form (parse-form-or-it kw))
+                  (let ((form (parse-form-or-it kw)) (type 'fixnum)
                         (accuvar nil))
                     (when (parse-kw-p 'into)
                       (unless (and (consp body-rest)
@@ -380,19 +380,19 @@
                     (when (consp body-rest)
                       (let ((kw2 (loop-keywordp (first body-rest))))
                         (when (or (not kw2) (eq kw2 'of-type))
-                          (let ((type
-                                  (if (not kw2)
-                                    (pop body-rest)
-                                    (progn (pop body-rest) (parse-form 'of-type)))))
-                            (case kw
-                              ((MAXIMIZE MAXIMIZING MINIMIZE MINIMIZING)
-                               (setq type `(OR NULL ,type)))) ; wegen Startwert NIL
-                            (push `(TYPE ,type ,accuvar) accu-declarations)))))
+                          (setq type
+                                (if (not kw2) (pop body-rest)
+                                  (progn (pop body-rest)
+                                         (parse-form 'of-type))))
+                          (case kw
+                            ((MAXIMIZE MAXIMIZING MINIMIZE MINIMIZING)
+                             (setq type `(OR NULL ,type)))) ; wegen Startwert NIL
+                          (push `(TYPE ,type ,accuvar) accu-declarations))))
                     (case kw
                       ((MAXIMIZE MAXIMIZING MINIMIZE MINIMIZING)
                        (push accuvar accu-vars-nil))
                       ((COUNT COUNTING SUM SUMMING)
-                       (push accuvar accu-vars-0)))
+                       (push (list accuvar (coerce 0 type)) accu-vars-0)))
                     (case kw
                       ((COUNT COUNTING) `(WHEN ,form (INCF ,accuvar)))
                       ((SUM SUMMING) `(SETQ ,accuvar (+ ,accuvar ,form)))
@@ -990,8 +990,8 @@
             `(,@(map 'list #'(lambda (var) `(,var NIL)) *helpvars*)
                 ,@(mapcar #'(lambda (var) (check-accu-var var) `(,var NIL))
                           (delete-duplicates accu-vars-nil))
-                ,@(mapcar #'(lambda (var) (check-accu-var var) `(,var 0))
-                          (delete-duplicates accu-vars-0)))
+                ,@(mapcar #'(lambda (var) (check-accu-var (car var)) var)
+                          (delete-duplicates accu-vars-0 :key #'car)))
             :declspecs
             (nreverse accu-declarations))
            initializations1))
