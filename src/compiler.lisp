@@ -8670,13 +8670,22 @@ Optimizations that might apply after this one are retried.
 ;; Debugging hints:
  (in-package "SYSTEM")
  (setq *print-circle* t *suppress-check-redefinition* t)
+ (setf (package-lock *system-package-list*) nil)
 ;; avoid stack overflow in trace output (calls CLOS::INSTALL-DISPATCH)
 ;; by adding all needed PRINT-OBJECT methods before tracing begins:
- (print (list (make-anode :source nil :stackz nil) (make-fnode) (make-block)
+ (print (list (mk-anode #+CLISP-DEBUG nil nil #+CLISP-DEBUG nil nil nil
+                        #+CLISP-DEBUG nil)
+              (make-fnode) (make-block)
               (make-tagbody) (make-var) (make-const) (make-c-source-point)
               (make-signature) (clos::make-class) clos::<t>
               (clos::make-slotted-class) (clos::make-structure-class)
               (clos::make-standard-class) #'compile))
+ (trace (sys::optimize-label :pre-print (list *code-parts* *trace-args*
+  (let* ((label (first *trace-args*))
+         (index (or (second *trace-args*) (get label 'code-part)))
+         (code (or (third *trace-args*) (aref *code-parts* index)))
+         (lastc (or (fourth *trace-args*) (last code))))
+    (list label index code lastc)))))
  (trace compile-to-lap)
  (trace (traverse-anode :post-print *code-part*))
  (trace (traverse-anode :post-print (cons *code-part* (reverse (coerce *code-parts* 'list)))))
