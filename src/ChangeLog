@@ -1,3 +1,14 @@
+1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Change the type of FSUBRs (were COMPILED-FUNCTION, but ANSI CL
+        specifies that COMPILED-FUNCTION is a subtype of FUNCTION).
+        * predtype.d (COMPILED-FUNCTION-P): For FSUBRs, return NIL.
+          (TYPE-OF): For FSUBRs, return SPECIAL-OPERATOR.
+          (CLASS-OF): Undo 1999-03-18 patch.
+          (enum_hs_special_operator): Renamed from enum_hs_special_oper.
+          (heap_statistics_mapper): Update.
+        * defs2.lsp (function-lambda-expression): No need to call functionp.
+
 1999-04-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * conditio.lsp (export): Mention `os-error' right after `file-error'.

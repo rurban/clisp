@@ -320,7 +320,7 @@
   #endif
   LISPOBJ(hs_random_state,"RANDOM-STATE")
   LISPOBJ(hs_byte,"BYTE")
-  LISPOBJ(hs_special_oper,"SPECIAL-OPERATOR")
+  LISPOBJ(hs_special_operator,"SPECIAL-OPERATOR")
   LISPOBJ(hs_load_time_eval,"LOAD-TIME-EVAL")
   LISPOBJ(hs_symbol_macro,"SYMBOL-MACRO")
   LISPOBJ(hs_encoding,"ENCODING")

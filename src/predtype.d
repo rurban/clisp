@@ -1099,8 +1099,8 @@ LISPFUNN(numberp,1)
 LISPFUNN(compiled_function_p,1)
 # (COMPILED-FUNCTION-P object), CLTL S. 76
   { var object arg = popSTACK();
-    # Test auf SUBR oder FSUBR oder compilierte Closure oder Foreign-Function:
-    value1 = (subrp(arg) || cclosurep(arg) || fsubrp(arg) || ffunctionp(arg) ? T : NIL); mv_count=1;
+    # Test auf SUBR oder compilierte Closure oder Foreign-Function:
+    value1 = (subrp(arg) || cclosurep(arg) || ffunctionp(arg) ? T : NIL); mv_count=1;
   }
 
 LISPFUNN(null,1)
@@ -1463,8 +1463,8 @@ LISPFUNN(type_of,1)
                 value1 = S(random_state); break;
               case Rectype_Byte: # Byte
                 value1 = S(byte); break;
-              case Rectype_Fsubr: # Fsubr -> COMPILED-FUNCTION
-                value1 = S(compiled_function); break;
+              case Rectype_Fsubr: # Fsubr -> SPECIAL-OPERATOR
+                value1 = S(special_operator); break;
               case Rectype_Loadtimeeval: # Load-Time-Eval
                 value1 = S(load_time_eval); break;
               case Rectype_Symbolmacro: # Symbol-Macro
@@ -1682,12 +1682,10 @@ LISPFUNN(class_of,1)
               case Rectype_Random_State: # Random-State
                 value1 = O(class_random_state); break;
               case Rectype_Byte: # Byte -> <t>
+              case Rectype_Fsubr: # Fsubr -> <t>
               case Rectype_Loadtimeeval: # Load-Time-Eval -> <t>
               case Rectype_Symbolmacro: # Symbol-Macro -> <t>
               case Rectype_Encoding: # Encoding -> <t>
-              #ifdef YET_ANOTHER_RECORD
-              case Rectype_Yetanother: # Yetanother -> <t>
-              #endif
               #ifdef FOREIGN
               case Rectype_Fpointer: # Foreign-Pointer-Verpackung -> <t>
               #endif
@@ -1703,9 +1701,12 @@ LISPFUNN(class_of,1)
                 value1 = O(class_t); break;
               #ifdef DYNAMIC_FFI
               case Rectype_Ffunction: # Foreign-Function -> <function>
-              #endif
-              case Rectype_Fsubr: # Fsubr -> <function>
                 value1 = O(class_function); break;
+              #endif
+              #ifdef YET_ANOTHER_RECORD
+              case Rectype_Yetanother: # Yetanother -> <t>
+                value1 = O(class_t); break;
+              #endif
               default: goto unknown;
             }
           break;
@@ -2184,7 +2185,7 @@ enum { # The values of this enumeration are 0,1,2,...
   #endif
   enum_hs_random_state,
   enum_hs_byte,
-  enum_hs_special_oper,
+  enum_hs_special_operator,
   enum_hs_load_time_eval,
   enum_hs_symbol_macro,
   enum_hs_encoding,
@@ -2438,7 +2439,7 @@ local void heap_statistics_mapper(arg,obj,bytelen)
               case Rectype_Byte: # Byte
                 pighole = &locals->builtins[(int)enum_hs_byte]; break;
               case Rectype_Fsubr: # Fsubr
-                pighole = &locals->builtins[(int)enum_hs_special_oper]; break;
+                pighole = &locals->builtins[(int)enum_hs_special_operator]; break;
               case Rectype_Loadtimeeval: # Load-Time-Eval
                 pighole = &locals->builtins[(int)enum_hs_load_time_eval]; break;
               case Rectype_Symbolmacro: # Symbol-Macro
