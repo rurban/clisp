@@ -173,7 +173,7 @@ typedef struct {
 #endif
 
 /* page_alignment = Alignment for the page contents in the file. */
-#if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && (defined(HAVE_MMAP) || defined(SELFMADE_MMAP))
+#if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && defined(HAVE_MMAP)
   #define page_alignment  map_pagesize
   #define WRITE_page_alignment(position)                                \
     do {                                                                \
@@ -398,7 +398,7 @@ global void savemem (object stream)
   }
   #endif
   #if (defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))
-   #if defined(HAVE_MMAP) || defined(SELFMADE_MMAP) /* else, page_alignment is = 1, anyway */
+   #if defined(HAVE_MMAP) /* else, page_alignment is = 1, anyway */
   { /* put alignment into practice: */
     begin_system_call();
     var off_t ergebnis = lseek(handle,0,SEEK_CUR); /* fetch file-position */
@@ -412,7 +412,7 @@ global void savemem (object stream)
     var uintL heapnr;
     for (heapnr=0; heapnr<heapcount; heapnr++) {
       var uintL misaligned = 0;
-     #if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && (defined(HAVE_MMAP) || defined(SELFMADE_MMAP)) && varobjects_misaligned
+     #if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && defined(HAVE_MMAP) && varobjects_misaligned
       if (is_varobject_heap(heapnr)) {
         var uintB zeroes[varobjects_misaligned];
         var uintB* ptr = &zeroes[0];
@@ -836,7 +836,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
   var memdump_header_t header;
   {
    #if (defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))
-    #if defined(HAVE_MMAP) || defined(SELFMADE_MMAP)
+    #if defined(HAVE_MMAP)
     local var bool use_mmap = true;
     #endif
     var off_t file_offset;
@@ -871,7 +871,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         if ( lseek(handle,-(off_t)sizeof(header),SEEK_CUR) <0) goto abort1; /* in file, back to the start */
         do { READ(&c,1); } while (c!='\n');
         end_system_call();
-       #if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && (defined(HAVE_MMAP) || defined(SELFMADE_MMAP))
+       #if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && defined(HAVE_MMAP)
         use_mmap = false; /* the file-offsets have been displaced! */
        #endif
         goto begin_read;
@@ -905,7 +905,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         if (CLOSE(handles[1]) !=0) goto abort1;
         if (CLOSE(handle) != 0) goto abort1;
         end_system_call();
-       #if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && (defined(HAVE_MMAP) || defined(SELFMADE_MMAP))
+       #if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && defined(HAVE_MMAP)
         use_mmap = false; /* mmap can not be done with a pipe! */
        #endif
         loadmem_from_handle(handles[0],filename); /* now, we read from the pipe */
@@ -1079,7 +1079,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
           offset_heaps_all_zero = false;
         old_page++;
       }
-     #if defined(HAVE_MMAP) || defined(SELFMADE_MMAP)
+     #if defined(HAVE_MMAP)
       if (!offset_heaps_all_zero)
         use_mmap = false;
      #endif
@@ -1242,10 +1242,6 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     }
    #endif  /* SPVW_PAGES */
    #if defined(SPVW_PURE_BLOCKS) || defined(SPVW_MIXED_BLOCKS_STAGGERED) /* SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY && !SPVW_MIXED_BLOCKS_OPPOSITE */
-    #ifdef SELFMADE_MMAP
-    mem.memfile_handle = handle;
-    mem.memfile_still_being_read = true;
-    #endif
     /* put alignment into practice: */
     READ_page_alignment(file_offset);
     { /* read content of the blocks: */
@@ -1259,20 +1255,15 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         heapptr->heap_limit = (heapptr->heap_start-misaligned) + map_len;
         if (map_len > 0) {
           if (heapptr->heap_limit-1 > heapptr->heap_hardlimit-1) goto abort3;
-         #if defined(HAVE_MMAP) || defined(SELFMADE_MMAP)
+         #if defined(HAVE_MMAP)
           /* if possible, we put the initialization file into memory.
              This should accelerate the start and delay unnecessary
              loading until the first GC.
              the page_alignment is necessary for this purpose! */
           if (use_mmap) {
-           #ifdef HAVE_MMAP
             if (filemap((void*)(heapptr->heap_start-misaligned),map_len,
                         handle,file_offset)
                 != (void*)(-1))
-           #endif
-           #ifdef SELFMADE_MMAP
-            if ( selfmade_mmap(heapptr,map_len,file_offset) >=0)
-           #endif
               {
                #if 0
                 /* unnecessary, because mmap() needs no lseek()
@@ -1283,18 +1274,14 @@ local void loadmem_from_handle (Handle handle, const char* filename)
                 goto block_done;
               } else {
                 fprintf(stderr,GETTEXTL("%s: Cannot map the initialization file `%s' into memory."),program_name,filename);
-               #ifdef HAVE_MMAP
                 errno_out(errno);
-               #else
-                fputs("\n",stderr);
-               #endif
                 use_mmap = false;
                 /* before continuing with READ(handle),
                    an lseek() is poss. necessary. */
                 if ( lseek(handle,file_offset,SEEK_SET) <0) goto abort1;
             }
           }
-         #endif  /* HAVE_MMAP || SELFMADE_MMAP */
+         #endif  /* HAVE_MMAP */
           if (zeromap((void*)(heapptr->heap_start-misaligned),map_len) <0) goto abort3;
          #if varobjects_misaligned
           if (is_varobject_heap(heapnr)) {
@@ -1308,7 +1295,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         }
       }
     }
-    #if defined(HAVE_MMAP) || defined(SELFMADE_MMAP)
+    #if defined(HAVE_MMAP)
     if (use_mmap) { /* check the length of the mmap-ed files: */
      #ifdef UNIX
       var struct stat statbuf;
@@ -1321,7 +1308,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       if (fsize < file_offset) goto abort2;
      #endif
     }
-    #endif  /* HAVE_MMAP || SELFMADE_MMAP */
+    #endif  /* HAVE_MMAP */
    #endif  /* SPVW_PURE_BLOCKS || SPVW_MIXED_BLOCKS_STAGGERED */
    #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
     { /* read objects of variable length: */
@@ -1355,10 +1342,6 @@ local void loadmem_from_handle (Handle handle, const char* filename)
        #endif
       }
     }
-   #endif
-   #ifdef SELFMADE_MMAP
-    /* Now we need the SIGSEGV-handler. */
-    install_segv_handler();
    #endif
     /* traverse all LISP-objects and update: */
     #define update  loadmem_update
@@ -1405,7 +1388,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       { /* update the pointers in the cons-cells and objects of variable
            length. There are only few of those pointers, and
            they were listed when the memimage was stored. */
-       #if defined(HAVE_MMAP) || defined(SELFMADE_MMAP)
+       #if defined(HAVE_MMAP)
         if (use_mmap) {
           if ( lseek(handle,file_offset,SEEK_SET) <0) goto abort1;
         }
@@ -1455,9 +1438,6 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     #undef update
     /* close file: */
     #undef READ
-   #ifdef SELFMADE_MMAP
-    mem.memfile_still_being_read = false;
-   #else
     begin_system_call();
     #ifdef UNIX
     if ( CLOSE(handle) <0) goto abort1;
@@ -1465,7 +1445,6 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     if (!CloseHandle(handle)) { handle = INVALID_HANDLE_VALUE; goto abort1; }
     #endif
     end_system_call();
-   #endif
    #ifdef SPVW_PAGES
     begin_system_call(); free(offset_pages); end_system_call();
     recalc_space(false);
@@ -1503,10 +1482,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
     if (mem.varobjects.heap_end > mem.conses.heap_start) goto abort3;
     #endif
-    #ifndef SELFMADE_MMAP
     /* now wee need the SIGSEGV-handler. */
     install_segv_handler();
-    #endif
     #endif  /* GENERATIONAL_GC */
     {
       var uintL space = used_space();

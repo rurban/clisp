@@ -377,19 +377,6 @@ local uintC generation;
         # this last page boundary doesn't really exist).
         heap->physpages = (physpage_state_t*) xrealloc(heap->physpages,(physpage_count+(gen0_end==gen0_end_pa))*sizeof(physpage_state_t));
         if (!(heap->physpages==NULL)) {
-          #if defined(SELFMADE_MMAP) && !defined(SPVW_PURE_BLOCKS)
-          # now at the latest the memory content has to be fetched from the mem-file.
-          # (the conses could be delayed still further, but does that pay off?)
-          {
-            var uintL pageno;
-            for (pageno = 0; pageno < heap->memfile_numpages; pageno++)
-              if (handle_mmap_fault(heap->memfile_offset+(pageno<<physpageshift),
-                                    gen0_start+(pageno<<physpageshift),
-                                    &heap->memfile_pages[pageno])
-                  <0)
-                abort();
-          }
-          #endif
           # When we are finished, both the cache and the memory content
           # will be valid:
           xmmprotect(heap, gen0_start_pa, gen0_end_pa-gen0_start_pa, PROT_READ);
@@ -1008,21 +995,11 @@ local uintC generation;
             #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
             ptr = (gcv_object_t*) heap->heap_gen1_end;
             count = (heap->heap_gen0_start - heap->heap_gen1_end)/sizeof(gcv_object_t);
-            dotimesL(count,count, { *ptr++ = nullobj; } );
             #else # SPVW_PURE_BLOCKS || SPVW_MIXED_BLOCKS_STAGGERED
             ptr = (gcv_object_t*) heap->heap_gen0_end;
             count = (heap->heap_gen1_start - heap->heap_gen0_end)/sizeof(gcv_object_t);
-            #ifndef SELFMADE_MMAP
+            #endif
             dotimesL(count,count, { *ptr++ = nullobj; } );
-            #else
-            if (count > 0) {
-              var aint gen0_end = heap->heap_gen0_end;
-              heap->heap_gen0_end = heap->heap_gen1_start; # temporary - for handle_fault() if SELFMADE_MMAP
-              dotimespL(count,count, { *ptr++ = nullobj; } );
-              heap->heap_gen0_end = gen0_end; # temporary - end
-            }
-            #endif
-            #endif
           }
         }
       }
