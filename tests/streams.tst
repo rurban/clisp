@@ -733,6 +733,18 @@ T)   T
 (progn (mapc #'delete-file (directory "*.plc")) t)
 T
 
+#+clisp (progn
+(setq s1 (make-instance 'sys::describe-stream :stream *standard-output* )
+      s2 (make-synonym-stream 's1)
+      s3 (make-broadcast-stream s1 s2))
+(list (stream-element-type s1)
+      (stream-element-type s2)
+      (stream-element-type s3)))
+#+clisp
+(CHARACTER CHARACTER CHARACTER)
+
+(stream-element-type (make-broadcast-stream))  t
+
 (progn
 (makunbound 's)
 (makunbound 's1)

@@ -1,3 +1,11 @@
+2003-04-18  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (broadcast_stream_last): new function
+	(BUILT-IN-STREAM-ELEMENT-TYPE): fixed a crash with SYNONYM-STREAM
+	pointing to a non-built-in stream;
+	handle BROADCAST-STREAM as per Issue 21
+	(STREAM-EXTERNAL-FORMAT): ditto
+
 2003-04-16  Sam Steingold  <sds@gnu.org>
 
 	* loadform.lisp (mlf-unquote): removed
