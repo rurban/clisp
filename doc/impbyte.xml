@@ -364,14 +364,14 @@
  <listitem><simpara>miscellaneous definitions
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename>timezone.lisp</filename></term>
- <listitem><simpara>site-dependent definition of time zone, except for &unix;
-</simpara></listitem></varlistentry>
+ <listitem><simpara>site-dependent definition of time zone, except for
+   &unix; and &win32;.</simpara></listitem></varlistentry>
 <varlistentry><term><filename>places.lisp</filename></term>
  <listitem><simpara>macros using &place;s, definitions of most standard
    and extensiion &place;s</simpara></listitem></varlistentry>
 <varlistentry id="floatprint-lisp"><term>&floatprint-lisp;</term>
  <listitem><simpara>defines <link linkend="write-float-decimal"><function>SYS::WRITE-FLOAT-DECIMAL</function></link>
-   for printing floating point numbers in base 10;
+   for printing floating point numbers in base 10
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename>type.lisp</filename></term>
  <listitem><simpara>functions working with type specifiers: &typep;,
@@ -577,6 +577,9 @@
 <varlistentry id="inspect-lisp"><term>&inspect-lisp;</term>
  <listitem><simpara>implements &inspect; (tty and &http; frontends)
 </simpara></listitem></varlistentry>
+<varlistentry id="exporting-lisp"><term>&exporting-lisp;</term>
+ <listitem><simpara>Macros that export their definienda,
+   see <xref linkend="exporting"/>.</simpara></listitem></varlistentry>
 <varlistentry><term><filename>threads.lisp</filename></term>
  <listitem><simpara>MT interface</simpara></listitem></varlistentry>
 <varlistentry><term><filename>spanish.lisp</filename></term>
