@@ -127,8 +127,9 @@
                               win32:IMAGE_ICON 0 0  win32:LR_LOADFROMFILE))
 |#
 
-(defconstant BUFSIZ 4096)       ; <stdio.h>
-(defconstant MAX_PATH 260)      ; <windef.h>
+(eval-when (compile eval load)
+  (defconstant BUFSIZ 4096)     ; <stdio.h>
+  (defconstant MAX_PATH 260))   ; <windef.h>
 
 (def-call-out GetModuleFileNameA (:library "kernel32.dll")
   (:arguments (application-instance-handle handle)
@@ -168,7 +169,8 @@
   (:arguments) (:return-type dword))
 
 ;; user name
-(defconstant UNLEN 256)         ; <lmcons.h>
+(eval-when (compile eval load)
+  (defconstant UNLEN 256)) ; <lmcons.h>
 (def-call-out GetUserNameA (:library "advapi32.dll")
   (:arguments (buffer (c-ptr (c-array-max character #.UNLEN)) :out :alloca)
               (size (c-ptr dword) :in-out)) ; pass UNLEN
@@ -197,7 +199,8 @@
   (:return-type boolean))
 
 ;; computer name
-(defconstant MAX_COMPUTERNAME_LENGTH 16) ; <winbase.h>
+(eval-when (compile eval load)
+  (defconstant MAX_COMPUTERNAME_LENGTH 16)) ; <winbase.h>
 
 (def-call-out GetComputerNameA (:library "kernel32.dll")
   (:arguments (buffer (c-ptr (c-array-max character #.MAX_COMPUTERNAME_LENGTH))

@@ -80,8 +80,13 @@
 (def-c-type __swblk_t long)
 
 (def-c-type __fd_mask ulong)
-(defconstant __FD_SETSIZE 1024)
-(defconstant __NFDBITS (* 8 (sizeof '__fd_mask)))
+(eval-when (load compile eval)
+  (defconstant __FD_SETSIZE 1024)
+)
+
+(eval-when (load compile eval)
+  (defconstant __NFDBITS (* 8 (sizeof '__fd_mask)))
+)
 (defmacro __FDELT (d) `(floor ,d __NFDBITS))
 (defmacro __FDMASK (d) `(ash 1 (mod ,d __NFDBITS)))
 
@@ -1428,7 +1433,8 @@
 (def-c-var optarg (:type c-string))
 
 ;; defined in <asm/param.h>
-(defconstant MAXHOSTNAMELEN 64)
+(eval-when (load compile eval)
+  (defconstant MAXHOSTNAMELEN 64))
 (def-call-out gethostname
     (:arguments (name (c-ptr (c-array-max character #.MAXHOSTNAMELEN))
                       :out :alloca)
@@ -2023,14 +2029,19 @@
 
 (c-lines "#include <sys/utsname.h>~%")
 
+
 ;;; ---------------------------- <utsnamelen.h> ------------------------------
 
-(defconstant _UTSNAME_LENGTH 65)
-(defconstant _UTSNAME_DOMAIN_LENGTH _UTSNAME_LENGTH)
+(eval-when (load compile eval)
+  (defconstant _UTSNAME_LENGTH 65)
+  (defconstant _UTSNAME_DOMAIN_LENGTH _UTSNAME_LENGTH)
+)
 
 ;;; ---------------------------- <sys/utsname.h> -----------------------------
 
-(defconstant _UTSNAME_NODENAME_LENGTH _UTSNAME_LENGTH)
+(eval-when (load compile eval)
+  (defconstant _UTSNAME_NODENAME_LENGTH _UTSNAME_LENGTH)
+)
 
 (def-c-struct utsname
   (sysname (c-array-max character #._UTSNAME_LENGTH))
@@ -2055,7 +2066,9 @@
 (def-c-type speed_t uint)
 (def-c-type tcflag_t uint)
 
-(defconstant NCCS 32)
+(eval-when (load compile eval)
+  (defconstant NCCS 32)
+)
 (def-c-struct termios
   (c_iflag tcflag_t)
   (c_oflag tcflag_t)
@@ -2272,7 +2285,9 @@
   (ws_ypixel ushort)
 )
 
-(defconstant NCC 8)
+(eval-when (load compile eval)
+  (defconstant NCC 8)
+)
 (def-c-struct termio
   (c_iflag ushort)
   (c_oflag ushort)
@@ -2371,15 +2386,16 @@ I don't know how to do these...
 But it's not the end of the world, since its easy to accomplish what SIG_DFL
 and SIG_IGN do anyway, by other means ... They are just sugar, really.
 
+
 |#
 ;;; --------------------------------- <bits/sigset.h> -----------------------
-(defconstant SIGSET_NWORDS
-  ;; #.(cl:/ 1024 #.(cl:* 8 (ffi:sizeof 'ffi:uint)))
-  32)
+(eval-when (load compile eval)
+  (defconstant SIGSET_NWORDS
+    ;; #.(cl:/ 1024 #.(cl:* 8 (ffi:sizeof 'ffi:uint)))
+    32))
 
 (def-c-struct sigset_t
   (val (c-array-max uint #.SIGSET_NWORDS)))
-
 ;;; --------------------------------- <bits/sigaction.h> ---------------------
 
 (def-c-type sighandler_t (c-function (:arguments (sig int)) ;from signal.h
