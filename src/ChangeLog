@@ -6,7 +6,6 @@
 
 2003-11-04  Sam Steingold  <sds@gnu.org>
 
-	* array.d, eval.d, sequence.d, spvw_debug.d: do not shadow index(3)
 	* spvw_memfile.d: do not shadow local variables
 	* encoding.d (java_wcstombs): do not shadow hex_table
 	* foreign.d: do not shadow global index(3) and many local variables
