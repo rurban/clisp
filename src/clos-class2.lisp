@@ -980,6 +980,8 @@
                 :size (if all-slots
                         (1+ (sys::ds-slot-offset (car (last all-slots))))
                         1)))))))
+(defun undefine-structure-class (name)
+  (setf (find-class name) nil))
 
 ;; ---------------------------------------------------------------------------
 
