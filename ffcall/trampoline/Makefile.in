@@ -61,7 +61,11 @@ tramp-rs6000.o : tramp-rs6000.s
 	$(CC) @GCC_X_NONE@ -c tramp-rs6000.s
 
 tramp-rs6000.s : $(srcdir)/tramp-rs6000.old.S $(srcdir)/tramp-rs6000.new.S
-	case "$(OS)" in aix3*) syntax=old;; *) syntax=new;; esac; $(CPP) $(srcdir)/tramp-rs6000.$${syntax}.S > tramp-rs6000.s
+	case "$(OS)" in \
+	  aix3*) syntax=old;; \
+	  *) syntax=new;; \
+	esac; \
+	$(CPP) $(srcdir)/tramp-rs6000.$${syntax}.S > tramp-rs6000.s
 
 tramp-ia64.o : $(srcdir)/tramp-ia64.s
 	$(CC) @GCC_X_NONE@ -c $(srcdir)/tramp-ia64.s
@@ -84,8 +88,12 @@ cache-alpha.o : $(srcdir)/cache-alpha.s
 cache-hppa.o : $(srcdir)/cache-hppa.s
 	$(CC) @GCC_X_NONE@ -c $(srcdir)/cache-hppa.s
 
-cache-rs6000.o : $(srcdir)/cache-rs6000-sysv4.s
-	$(CC) @GCC_X_NONE@ -c $(srcdir)/cache-rs6000-sysv4.s ; mv cache-rs6000-sysv4.o cache-rs6000.o
+cache-rs6000.o : $(srcdir)/cache-rs6000-sysv4.s $(srcdir)/cache-rs6000-macos.s
+	case "$(OS)" in \
+	  macos* | darwin*) syntax=macos;; \
+	  *) syntax=sysv4;; \
+	esac; \
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/cache-rs6000-$${syntax}.s ; mv cache-rs6000-$${syntax}.o cache-rs6000.o
 
 cache-convex.o : $(srcdir)/cache-convex.s
 	$(CC) @GCC_X_NONE@ -c $(srcdir)/cache-convex.s

@@ -69,7 +69,11 @@ tramp-rs6000.lo : tramp-rs6000.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c tramp-rs6000.s
 
 tramp-rs6000.s : $(srcdir)/tramp-rs6000.old.S $(srcdir)/tramp-rs6000.new.S
-	case "$(OS)" in aix3*) syntax=old;; *) syntax=new;; esac; $(CPP) $(srcdir)/tramp-rs6000.$${syntax}.S > tramp-rs6000.s
+	case "$(OS)" in \
+	  aix3*) syntax=old;; \
+	  *) syntax=new;; \
+	esac; \
+	$(CPP) $(srcdir)/tramp-rs6000.$${syntax}.S > tramp-rs6000.s
 
 tramp-ia64.lo : $(srcdir)/tramp-ia64.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/tramp-ia64.s
@@ -92,8 +96,12 @@ cache-alpha.lo : $(srcdir)/cache-alpha.s
 cache-hppa.lo : $(srcdir)/cache-hppa.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/cache-hppa.s
 
-cache-rs6000.lo : $(srcdir)/cache-rs6000-sysv4.s
-	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/cache-rs6000-sysv4.s ; mv -f cache-rs6000-sysv4.o cache-rs6000.o ; mv -f cache-rs6000-sysv4.lo cache-rs6000.lo
+cache-rs6000.lo : $(srcdir)/cache-rs6000-sysv4.s $(srcdir)/cache-rs6000-macos.s
+	case "$(OS)" in \
+	  macos* | darwin*) syntax=macos;; \
+	  *) syntax=sysv4;; \
+	esac; \
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/cache-rs6000-$${syntax}.s ; mv -f cache-rs6000-$${syntax}.o cache-rs6000.o ; mv -f cache-rs6000-$${syntax}.lo cache-rs6000.lo
 
 cache-convex.lo : $(srcdir)/cache-convex.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/cache-convex.s
