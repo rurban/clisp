@@ -549,8 +549,8 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
 { /* Lisp interface to stat(2), lstat(2) and fstat(2)
  the first arg can be: file stream, pathname, string, symbol, number.
  the return value is the FILE-STAT structure */
-  bool link_p = missingp(STACK_0); skipSTACK(1);
-  object file = popSTACK();
+  bool link_p = missingp(STACK_0);
+  object file = (skipSTACK(1), popSTACK());
   struct stat buf;
 
   if (builtin_stream_p(file)) {
@@ -747,7 +747,7 @@ static void copy_file_low (object source, object dest,
     Handle fd_in = stream_lend_handle(STACK_1,true,NULL);
     Handle fd_ou = stream_lend_handle(STACK_0,false,NULL);
     while ((bytes_read = read_helper(fd_in,buffer,strm_buffered_bufflen,
-                                     true))) {
+                                     false))) {
       total_count += bytes_read;
       write_helper(fd_ou,buffer,bytes_read,false);
     }
@@ -801,7 +801,7 @@ static inline object copy_method_object (copy_method_t method) {
   }
 }
 
-/* copy just one file: source --> dest (both strings)
+/* copy just one file: source --> dest (both STRINGs, NIL or PATHNAME)
    can trigger GC */
 static void copy_one_file (object source, object src_path,
                            object dest, object dest_path,
@@ -826,20 +826,17 @@ static void copy_one_file (object source, object src_path,
   }
 
   pushSTACK(STACK_0); funcall(L(probe_file),1);
-  if (!nullp(value1)) { /* destination exists */
-    pushSTACK(value1); funcall(L(truename),1);
-    pushSTACK(value1); dest = value1; STACK_2 = dest;
+  if (!nullp(value1)) { /* destination exists; value1 == truename */
+    pushSTACK(value1); STACK_2 = dest = value1;
     /* STACK: 0=dest_true; 1=dest_path; 2=dest; 3=src_path; 4=src */
     switch (if_exists) {
       case IF_EXISTS_NIL: skipSTACK(5); return;
       case IF_EXISTS_APPEND:
-        if (method != COPY_METHOD_COPY) {
-          pushSTACK(`:APPEND`);
-          pushSTACK(copy_method_object(method));
-          pushSTACK(`POSIX::COPY-FILE`);
-          fehler(error,GETTEXT("~: ~ forbids ~"));
-        }
-        break;
+        /* we know that method != COPY_METHOD_COPY - handled above! */
+        pushSTACK(`:APPEND`);
+        pushSTACK(copy_method_object(method));
+        pushSTACK(`POSIX::COPY-FILE`);
+        fehler(error,GETTEXT("~: ~ forbids ~"));
       case IF_EXISTS_OVERWRITE:
       case IF_EXISTS_SUPERSEDE:
       case IF_EXISTS_RENAME_AND_DELETE:
@@ -856,7 +853,7 @@ static void copy_one_file (object source, object src_path,
         break;
       default: NOTREACHED;
     }
-  } else pushSTACK(NIL); /* destination does not exist */
+  } else pushSTACK(STACK_0); /* destination does not exist, use dest_path */
 
   pushSTACK(STACK_3); funcall(L(probe_file),1);
   if (nullp(value1)) { /* source does not exist */
@@ -877,7 +874,6 @@ static void copy_one_file (object source, object src_path,
   }
 
   /* stack layout: 0=src_true; 1=dest_true ... */
-  dest = STACK_3; /* restore true namestring */
   switch (method) {
     case COPY_METHOD_RENAME:
       pushSTACK(STACK_0); pushSTACK(STACK_2); funcall(L(rename_file),2);
@@ -885,6 +881,7 @@ static void copy_one_file (object source, object src_path,
       break;
     case COPY_METHOD_SYMLINK:
 #    if defined(HAVE_SYMLINK)
+      dest = whole_namestring(STACK_1);
       /* use the original argument, not the truename here,
          so that the user can create relative symlinks */
       source = stringp(STACK_5) ? (object)STACK_5 : whole_namestring(STACK_4);
@@ -897,6 +894,8 @@ static void copy_one_file (object source, object src_path,
       /* FALLTHROUGH if no symlinks */
     case COPY_METHOD_HARDLINK:
 #    if defined(HAVE_LINK)
+      dest = whole_namestring(STACK_1);
+      source = whole_namestring(STACK_0);
       with_string_0(source, GLO(pathname_encoding), source_asciz, {
         with_string_0(dest, GLO(pathname_encoding), dest_asciz,
                       { hardlink_file(source_asciz,dest_asciz); });
