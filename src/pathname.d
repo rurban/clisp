@@ -2,7 +2,7 @@
  * Pathnames for CLISP
  * Bruno Haible 1990-2005
  * Logical Pathnames: Marcus Daniels 16.9.1994
- * ANSI compliance, bugs: Sam Steingold 1998-2004
+ * ANSI compliance, bugs: Sam Steingold 1998-2005
  * German comments translated into English: Stefan Kain 2002-01-03
  */
 
