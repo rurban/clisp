@@ -445,6 +445,10 @@ static int get_cols(struct db_conn * db)
 
   do {
 
+	/* Oracle requires a sb2, not an ub1, to receive the OCI_ATTR_PRECISION for implicit describes,
+	   even though in the data dictionary it is a one-byte unsigned value.  Got that?  I didn't.  */
+	sb2 tmp_precision = 0;
+
     ncol++;
     param_status = OCIParamGet(db->stmt, OCI_HTYPE_STMT, db->err, (dvoid **) &param, ncol);
 
@@ -496,11 +500,12 @@ static int get_cols(struct db_conn * db)
     col = &db->columns[ncol-1];
 
     /* Get param attributes */
+	/* Note for OCI_ATTR_PRECISION we receive the value in an (sb2 *) rather than (ub1 *) for our "implicit describe" */
     success = 1;
     success = success && get_param_attr(param, ncol, db, &colnamep,       &colname_len, "name",      OCI_ATTR_NAME);
     success = success && get_param_attr(param, ncol, db, &col->dtype,     0,            "data type", OCI_ATTR_DATA_TYPE);
     success = success && get_param_attr(param, ncol, db, &col->dsize,     0,            "size",      OCI_ATTR_DATA_SIZE);
-    success = success && get_param_attr(param, ncol, db, &col->precision, 0,            "precision", OCI_ATTR_PRECISION);
+    success = success && get_param_attr(param, ncol, db, &tmp_precision,  0,            "precision", OCI_ATTR_PRECISION);
     success = success && get_param_attr(param, ncol, db, &col->scale,     0,            "scale",     OCI_ATTR_SCALE);
     success = success && get_param_attr(param, ncol, db, &col->null_ok,   0,            "is-null",   OCI_ATTR_IS_NULL);
     if ( ! success )
@@ -511,6 +516,13 @@ static int get_cols(struct db_conn * db)
     colname[colname_len] = '\0';
     col->name = (char *) strdup(colname);
 
+	/* Copy precision.  For grins, check that it will fit in an ub1 */
+	if ( tmp_precision < 0 || tmp_precision > 127 ) {
+	  sprintf(db->errmsg, "Precision [%d] out of bounds for column '%s'", col->name);
+	  return db->success = 0;
+	}
+	col->precision = tmp_precision;
+	
     /*
       printf("Col %2d: type is %-10s name = %-20s size = %4d precision = %2d scale = %2d null-ok=%d\n",
              ncol, decode_data_type(col->dtype), col->name, col->dsize, col->precision, col->scale, col->null_ok);

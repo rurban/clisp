@@ -1,3 +1,9 @@
+2004-07-14  John Hinsdale <hin@alma.com>
+
+	* modules/oracle/orafns.c: Handle obscure Oracle requirement that
+	implicit describes fetch column precision in two-byte destination.
+	Allows Oracle module to work under Solaris (Oracle 8.1.7).
+
 2004-07-13  Sam Steingold  <sds@gnu.org>
 
 	* genclisph.d (main): renamed floor() to ifloor() to avoid
