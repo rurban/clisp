@@ -1708,9 +1708,9 @@ cl_cv_host="$host"
 fi
 echo "$ac_t""$cl_cv_host" 1>&6
 host="$cl_cv_host"
-host_cpu=`echo $host | sed 's/^\(^-*\)-\(^-*\)-\(.*\)$/\1/'`
-host_vendor=`echo $host | sed 's/^\(^-*\)-\(^-*\)-\(.*\)$/\2/'`
-host_os=`echo $host | sed 's/^\(^-*\)-\(^-*\)-\(.*\)$/\3/'`
+host_cpu=`echo $host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\1/'`
+host_vendor=`echo $host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\2/'`
+host_os=`echo $host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
 
 
 case "$host_cpu" in
