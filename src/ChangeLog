@@ -1,3 +1,10 @@
+2003-02-09  Sam Steingold  <sds@gnu.org>
+
+	fixed EXT:MAPLAP, EXT:MAPCAP, MAPCAN and MAPCON in compiled code
+	* compiler.lisp (copy-list-lax): new inline function
+	(c-MAP-on-CARs, c-MAP-on-LISTs): use forward consing for
+	EXT:MAPLAP, EXT:MAPCAP, MAPCAN and MAPCON
+
 2003-02-08  Sam Steingold  <sds@gnu.org>
 
 	brought EXT:MAPLAP and EXT:MAPCAP in line with MAPCAN and MAPCON
