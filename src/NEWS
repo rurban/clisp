@@ -5,6 +5,10 @@ User visible changes
   METHOD-CALL-ERROR or METHOD-CALL-TYPE-ERROR.
   See <http://clisp.cons.org/impnotes.html#meth-call-err> for details.
 
+* New use variables CUSTOM:*APROPOS-MATCHER* and CUSTOM::*APROPOS-DO-MORE*
+  make APROPOS more flexible in search and output.
+  See <http://clisp.cons.org/impnotes.html#apropos> for details.
+
 
 2.32 (2003-12-29)
 =================

@@ -99,10 +99,15 @@ such as your local &regex-h; manual and &emacs; info pages.</para>
     role="sexp">(&re-regexp-exec; &pattern-r; &string-r; &key-amp;
      (&start-k; 0) &end-k; &re-eflags-opts;)</literal></term>
  <listitem><simpara>Execute the &pattern-r;, which must be a compiled
-  regular expression returned by &re-regexp-compile;, against the
-  appropriate portion of the &string-r;.</simpara>
+   regular expression returned by &re-regexp-compile;, against the
+   appropriate portion of the &string-r;.</simpara>
   <simpara>Negative &end-r; means <literal role="sexp">(&plus; (&length;
-  &string-r;) &end-r;)</literal></simpara></listitem></varlistentry>
+    &string-r;) &end-r;)</literal></simpara>
+  <simpara>Returns &match-t; structures as multiple values (one for each
+   subexpression which successfully matched and one for the whole pattern),
+   unless <literal>:BOOLEAN</literal> was non-&nil;, in which case
+   return &t; as an indicator of success, but do not allocate anything.
+</simpara></listitem></varlistentry>
 
 <varlistentry id="re-regexp-split"><term><literal
     role="sexp">(&re-regexp-split;  &pattern-r; &string-r; &key-amp;
@@ -136,6 +141,10 @@ such as your local &regex-h; manual and &emacs; info pages.</para>
    combining <constant>REGEXP::REG_NOTBOL</constant>, and
    <constant>REGEXP::REG_NOTEOL</constant>.
    See &regex-h; for their meaning.
+</simpara></listitem></varlistentry>
+
+<varlistentry id="re-matcher"><term>&re-matcher;</term>
+ <listitem><simpara>A valid value for &apropos-matcher;.
 </simpara></listitem></varlistentry>
 
 </variablelist>
