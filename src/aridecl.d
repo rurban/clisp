@@ -138,11 +138,14 @@
 #             Die Zahl 0.0 wird durch s=0, e=0, m=0 repräsentiert.
   #define FF_exp_len    8  # Anzahl der Bits des Exponenten
   #define FF_mant_len  23  # Anzahl der Bits der Mantisse
-  #ifdef FAST_FLOAT # Müssen wir uns die Parameter vom Standard diktieren lassen?
+  # On platforms with FAST_FLOAT we obey the IEEE 754 values. Choose the same
+  # values on other platforms as well, so that most-positive-single-float etc.
+  # will be platform independent.
+  #if defined(FAST_FLOAT) || 1
     #define FF_exp_low  1
     #define FF_exp_mid  126  # Warum das die "Mitte" sein soll, ist mir unklar...
     #define FF_exp_high 254  # Exponent 255 wird als NaN/Inf interpretiert!
-  #else # Ich wähle die Parameter liefer schön symmetrisch
+  #else # Ich wählte die Parameter damals schön symmetrisch
     #define FF_exp_low  1
     #define FF_exp_mid  128
     #define FF_exp_high 255
@@ -184,7 +187,10 @@
 #             Die Zahl 0.0 wird durch s=0, e=0, m=0 repräsentiert.
   #define DF_exp_len   11  # Anzahl der Bits des Exponenten
   #define DF_mant_len  52  # Anzahl der Bits der Mantisse
-  #ifdef FAST_DOUBLE # Müssen wir uns die Parameter vom Standard diktieren lassen?
+  # On platforms with FAST_FLOAT we obey the IEEE 754 values. Choose the same
+  # values on other platforms as well, so that most-positive-double-float etc.
+  # will be platform independent.
+  #if defined(FAST_DOUBLE) || 1
     #define DF_exp_low  1
     #define DF_exp_mid  1022 # Warum das die "Mitte" sein soll, ist mir unklar...
     #define DF_exp_high 2046 # Exponent 2047 wird als NaN/Inf interpretiert!
