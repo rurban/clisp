@@ -874,7 +874,7 @@ local inline void check_initialization_argument_list (uintL argcount, object cal
       if (!symbolp(Next(argptr))) {
         pushSTACK(Next(argptr)); pushSTACK(caller);
         /* ANSI CL 3.5.1.5. wants a PROGRAM-ERROR here. */
-        fehler(program_error,"~S: invalid initialization argument ~S");
+        fehler(program_error,GETTEXT("~S: invalid initialization argument ~S"));
       }
       argptr skipSTACKop -2;
       argcount -= 2;
