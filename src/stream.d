@@ -9761,7 +9761,7 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
             || !boundp(Symbol_value(S(terminal_read_open_object)))) {
           var int pos = history_search_prefix(line,-1);
           if (pos == -1) pos = history_search_prefix(line,1);
-          HIST_ENTRY *curr = current_history();
+          var HIST_ENTRY *curr = current_history();
           if (pos == -1 || (curr && !asciz_equal(line,curr->line))) {
             /* brand new line - save it! */
             add_history(line);
