@@ -1,5 +1,11 @@
 2005-01-28  Bruno Haible  <bruno@clisp.org>
 
+	* socket.d (host_fn_t, with_host, string_to_addr1, string_to_addr,
+	resolve_host1): Use const where appropriate.
+	* genclisph.d (main): Update.
+
+2005-01-28  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (udigits_to_I): Remove declaration.
 	* intelem.d (udigits_to_I): Remove function.
 	* socket.d (string_to_addr1): Call LEbytes_to_UI instead of
