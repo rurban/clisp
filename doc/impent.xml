@@ -198,6 +198,7 @@
 <!ENTITY service-port "<link linkend='service-port'><function>SOCKET:SOCKET-SERVICE-PORT</function></link>">
 <!ENTITY sost-peer "<link linkend='sost-peer'><function>SOCKET:SOCKET-STREAM-PEER</function></link>">
 <!ENTITY sost-local "<link linkend='sost-local'><function>SOCKET:SOCKET-STREAM-LOCAL</function></link>">
+<!ENTITY sost-shut "<link linkend='sost-shut'><function>SOCKET:SOCKET-STREAM-SHUTDOWN</function></link>">
 <!ENTITY so-accept "<link linkend='so-accept'><function>SOCKET:SOCKET-ACCEPT</function></link>">
 <!ENTITY so-connect "<link linkend='so-connect'><function>SOCKET:SOCKET-CONNECT</function></link>">
 <!ENTITY socket-server "<link linkend='socket'><classname>SOCKET:SOCKET-SERVER</classname></link>">
