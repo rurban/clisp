@@ -1,5 +1,13 @@
 1999-02-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * package.d (correct_packname): Convert the package name to an
+          immutable string.
+          (init_packages): Use immutables strings as package names and
+          nicknames.
+        * symbol.d (GENSYM): Make the symbol name immutable.
+
+1999-02-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Bug fix for NEXTAPP model.
         * stream.d (lisp_completion): Call begin_error here.
           (lisp_completion_matches): Not here.
