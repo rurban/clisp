@@ -1,5 +1,16 @@
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d: Reorder some definitions, so that 'object' and
+	'gcv_object_t' get defined earlier.
+
+	* hashtabl.d (sxhash_atom): Really mask out all non-type bits.
+
+	* io.d (fehler_read_eval_forbidden): Use const.
+
+	* package.d (import): Remove unused macros CONFLICT1, CONFLICT2.
+
+	* pathname.d (directory_diff_ab): Remove extra declaration.
+
 	* amigaaux.d: Use WIDE_SOFT instead of WIDE.
 	* spvw_allocate.d (mymalloc): Likewise.
 
