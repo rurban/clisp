@@ -825,6 +825,7 @@ is the same as
 <para>When <firstterm>&suppress-check-redef;</firstterm> is &nil;,
  &clisp; issues a &warning-t; when a function (macro, variable, class,
  etc) is redefined in a different file than its original definition.
+ It is &not-e; a good idea to set this variable to &t;.
 </para></formalpara>
 
 </section>
@@ -1051,8 +1052,10 @@ is the same as
  </primary></indexterm>
  Packages can be <quote>locked</quote>.
 When a package is locked, attempts to change its symbol table or
-redefine functions which its symbols name result in a continuable error
-(continuing overrides locking for this operation).
+redefine functions which its symbols name result in a continuable
+&error-t; (continuing overrides locking for this operation).
+When &suppress-check-redef; is &t; (&not-e; a good idea!), the &error-t;
+is not &signal;ed for redefine operations.
 Function <literal role="sexp" >(&package-lock; &pack-r;)</literal>
 returns the generalized boolean indicating whether the &pack-r; is locked.
 A package (or a list thereof) can be locked using <literal role="sexp"
