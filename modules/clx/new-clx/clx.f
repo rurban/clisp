@@ -1392,7 +1392,7 @@ static sint32 get_angle (object ang)
 static object make_key_vector (char key_vector[32])
 {
   value1= allocate_bit_vector (Atype_Bit, 256);
-  memcpy (TheSbvector(value1)->data, key_vector, 32); /* may be wrong, may be right?! */
+  X_CALL(memcpy (TheSbvector(value1)->data, key_vector, 32));
   return value1;
 }
 
@@ -3239,7 +3239,7 @@ DEFUN(XLIB:%RESTORE-GCONTEXT-COMPONENTS, gcontext values)
   Display *dpy;
   GC gcontext = get_gcontext_and_display (STACK_1, &dpy);
 
-  memcpy (&values, TheSbvector (STACK_0)->data, sizeof (values));
+  X_CALL(memcpy (&values, TheSbvector (STACK_0)->data, sizeof (values)));
 
   /* do not attempt to restore invalid resource ids
    Probably we want to reinvalidate them, but that seems not to be possible. */
@@ -6642,7 +6642,7 @@ DEFUN(XLIB:KEYBOARD-CONTROL, display)
 
   pushSTACK(make_uint32 (coffee.led_mask));
   value7 = allocate_bit_vector (Atype_Bit, 256);
-  memcpy (TheSbvector(value7)->data, coffee.auto_repeats, 32); /* may be wrong, may be right?! */
+  X_CALL(memcpy (TheSbvector(value7)->data, coffee.auto_repeats, 32));
   value1 = make_uint8 (coffee.key_click_percent);
   value2 = make_uint8 (coffee.bell_percent);
   value3 = make_uint16 (coffee.bell_pitch);
