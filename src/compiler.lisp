@@ -772,11 +772,11 @@ Zwischensprache nach dem 1. Pass:
 
 (GO const l)                     Springe im Tagbody, dessen Tagbody-Cons
                                  angegeben ist, an Tag (svref (car const) l)
-(GO tagbody l)                   Springe im angegebenen Tagbody an Tag Nummer l
-                                 in (tagbody-used-far tagbody)
-(GO tagbody l stackz)            Springe im angegebenen Tagbody an Tag Nummer l
-                                 in (tagbody-used-far tagbody), sein Tagbody-
-                                 Cons liegt im Stack
+(GO tagbody l)                   Springe im angegebenen Tagbody an Tag Nummer
+                                 (cdr l) in (tagbody-used-far tagbody)
+(GO tagbody l stackz)            Springe im angegebenen Tagbody an Tag Nummer
+                                 (cdr l) in (tagbody-used-far tagbody), sein
+                                 Tagbody-Cons liegt im Stack
 
 12. CATCH und THROW:
 
@@ -2340,6 +2340,7 @@ der Docstring (oder NIL).
   (venvc nil :read-only t)    ; falls lexikalisch und in der Closure:
                               ;   das *venvc*, in dessen erstem Item diese
                               ;   Variable vorkommt.
+  (fnode nil :read-only t)    ; function containing this variable, an FNODE
 )
 #+CLISP (remprop 'var 'sys::defstruct-description)
 
@@ -2601,6 +2602,7 @@ der Docstring (oder NIL).
   name            ; Name, ein Symbol oder (SETF symbol)
   code            ; Code dieser Funktion (zuerst nichts, dann ein ANODE,
                   ; dann eine Closure)
+  enclosing       ; function lexically containing this one, or NIL
   ; Ab hier Beschreibungen für die kommende Closure:
   venvconst       ; Flag, ob das Venv dieser Funktion explizit beim Aufbau
                   ; mitgegeben werden muss (oder immer NIL ist)
@@ -2610,6 +2612,8 @@ der Docstring (oder NIL).
   (Blocks nil)    ; Liste der Block-Konstrukte, die dieser Funktion beim Aufbau
                   ; mitgegeben werden müssen
   Tagbodys-Offset ; Anzahl der Konstanten bis hierher
+  (Tags nil)      ; list of (tagbody . tag) defined in enclosing functions but
+                  ; used by this function
   (Tagbodys nil)  ; Liste der Tagbody-Konstrukte, die dieser Funktion beim
                   ; Aufbau mitgegeben werden müssen
   Keyword-Offset  ; Anzahl der lokalen Konstanten bis hierher
@@ -2625,9 +2629,17 @@ der Docstring (oder NIL).
   (consts nil)    ; Liste der sonstigen Konstanten dieser Funktion
                   ; Diese Liste wird erst im 2. Pass aufgebaut.
   (consts-forms nil) ; Liste der evtl. Formen, die diese Konstanten ergeben
-  enclosing       ; lexikalisch nächste darüberliegende Funktion (oder NIL)
   gf-p            ; Flag, ob eine generische Funktion produziert wird
                   ; (impliziert Blocks-Offset = Tagbodys-Offset = Keyword-Offset = 0 oder 1)
+  ; Notification of changes needed to be done in the enclosing function.
+  far-used-vars     ; list of variables defined in enclosing functions but
+                    ; used by this function
+  far-assigned-vars ; list of variables defined in enclosing functions but
+                    ; assigned by this function
+  far-used-blocks   ; list of blocks defined in enclosing functions but
+                    ; used by this function
+  far-used-tagbodys ; list of (tagbody . tag) defined in enclosing functions but
+                    ; used by this function
 )
 #+CLISP (remprop 'fnode 'sys::defstruct-description)
 
@@ -2644,6 +2656,53 @@ der Docstring (oder NIL).
 (defvar *no-code*)
 ; Dies verhindert, dass Variablen unnötigerweise in die Closure gesteckt oder
 ; Optimierungen unnötigerweise unterlassen werden.
+
+; Note that a variable is used by an inner fnode.
+(defun note-far-used-var (var)
+  (if (eq (var-fnode var) *func*)
+    (progn
+      (setf (var-closurep var) t)
+      (setf (var-really-usedp var) t)
+    )
+    (pushnew var (fnode-far-used-vars *func*))
+) )
+
+; Note that a variable is assigned by an inner fnode.
+(defun note-far-assigned-var (var)
+  (if (eq (var-fnode var) *func*)
+    (setf (var-closurep var) t)
+    (pushnew var (fnode-far-assigned-vars *func*))
+) )
+
+; Note that a block is used by an inner fnode.
+(defun note-far-used-block (block)
+  (if (eq (block-fnode block) *func*)
+    (setf (block-used-far block) t)
+    (pushnew block (fnode-Blocks *func*))
+) )
+
+; Note that a tag of a tagbody is used by an inner fnode.
+(defun note-far-used-tagbody (tagbody+tag)
+  (let ((tagbody (car tagbody+tag)))
+    (if (eq (tagbody-fnode tagbody) *func*)
+      (push tagbody+tag (tagbody-used-far tagbody))
+      (progn
+        (push tagbody+tag (fnode-Tags *func*))
+        (pushnew tagbody (fnode-Tagbodys *func*))
+) ) ) )
+
+(defun propagate-far-used (fnode)
+  ; Propagate dependencies of fnode to the enclosing *func*.
+  (mapc #'note-far-used-var (fnode-far-used-vars fnode))
+  (mapc #'note-far-assigned-var (fnode-far-assigned-vars fnode))
+  (mapc #'note-far-used-block (fnode-far-used-blocks fnode))
+  (mapc #'note-far-used-tagbody (fnode-far-used-tagbodys fnode))
+  ; Nothing more to propagate, if propagate-far-used is called again.
+  (setf (fnode-far-used-vars fnode) nil)
+  (setf (fnode-far-assigned-vars fnode) nil)
+  (setf (fnode-far-used-blocks fnode) nil)
+  (setf (fnode-far-used-tagbodys fnode) nil)
+)
 
 
 ;                 F O R M E N - V E R W A L T U N G
@@ -3386,18 +3445,14 @@ der Docstring (oder NIL).
           (when *for-value*
             (setf (var-for-value-usedp var) t)
             (unless *no-code*
-              (setf (var-really-usedp var) t)
-              (unless (eq (stackz-fun (var-stackz var)) *func*)
-                (setf (var-closurep var) t)
+              (unless (eq (stackz-fun (var-stackz var)) (var-fnode var))
+                (compiler-error 'c-VAR "VAR-FNODE")
               )
-              (when (var-closurep var)
-                ; aktiviere Venvconst in allen dazwischenliegenden Funktionen
-                (do ((venvc *venvc* (cdr venvc)))
-                    ((null venvc) (compiler-error 'c-VAR "INVISIBLE"))
-                  (when (eq venvc (var-venvc var)) (return))
-                  (when (fnode-p (car venvc))
-                    (setf (fnode-Venvconst (car venvc)) t)
-          ) ) ) ) )
+              (if (eq (var-fnode var) *func*)
+                (setf (var-really-usedp var) t)
+                (note-far-used-var var)
+              )
+          ) )
           get-anode
       ) )
       (t (compiler-error 'c-VAR 'venv-search))
@@ -3456,15 +3511,12 @@ der Docstring (oder NIL).
           (unless *no-code*
             (setf (var-constantp var) nil) ; nicht mehr konstant wegen Zuweisung
             (push (list* value-anode set-anode for-value) (var-modified-list var))
-            (unless (eq (stackz-fun (var-stackz var)) *func*)
-              (setf (var-closurep var) t)
-              ; aktiviere Venvconst in allen dazwischenliegenden Funktionen
-              (do ((venvc *venvc* (cdr venvc)))
-                  ((null venvc) (compiler-error 'c-VARSET "INVISIBLE"))
-                (when (eq venvc (var-venvc var)) (return))
-                (when (fnode-p (car venvc))
-                  (setf (fnode-Venvconst (car venvc)) t)
-            ) ) )
+            (unless (eq (stackz-fun (var-stackz var)) (var-fnode var))
+              (compiler-error 'c-VARSET "VAR-FNODE")
+            )
+            (unless (eq (var-fnode var) *func*)
+              (note-far-assigned-var var)
+            )
             ; Das Ersetzen einer Variablen innervar durch var ist dann
             ; nicht erlaubt, wenn während der Existenzdauer von innervar
             ; an var ein Wert zugewiesen wird.
@@ -4940,7 +4992,7 @@ der Docstring (oder NIL).
     (make-var :name symbol :specialp nil :constantp nil
               :usedp nil :for-value-usedp nil :really-usedp nil
               :closurep nil
-              :stackz *stackz* :venvc *venvc*
+              :stackz *stackz* :venvc *venvc* :fnode *func*
     )
 ) )
 
@@ -4980,7 +5032,7 @@ der Docstring (oder NIL).
     ; (mit constantp=nil und really-usedp=t, um eine Wegoptimierung zu vermeiden)
     (push (make-var :name (gensym) :specialp nil :constantp nil
                     :usedp nil :for-value-usedp nil :really-usedp (null (car optimflagsr))
-                    :closurep nil :stackz *stackz* :venvc *venvc*
+                    :closurep nil :stackz *stackz* :venvc *venvc* :fnode *func*
           )
           stackvarlist
     )
@@ -5085,7 +5137,7 @@ der Docstring (oder NIL).
                 :constant (if (anode-constantp form-anode) (anode-constant form-anode))
                 :usedp nil :for-value-usedp nil :really-usedp nil
                 :closurep nil ; wird evtl. auf T gesetzt
-                :stackz *stackz* :venvc *venvc*
+                :stackz *stackz* :venvc *venvc* :fnode *func*
          )) ) )
       (let ((outervar (bound-to-var-p var form-anode)))
         (when outervar ; Wird var an eine Variable outervar gebunden, so
@@ -5304,7 +5356,7 @@ der Docstring (oder NIL).
     ) )
 ) )
 
-; compiliere (name lambdalist {declaration|docstring}* {form}*), liefere FNODE
+; compile (name lambdalist {declaration|docstring}* {form}*), return the FNODE
 (defun c-LAMBDABODY (name lambdabody &optional fenv-cons gf-p reqoptimflags)
   (test-list lambdabody 1)
   (let* ((*func* (make-fnode :name name :enclosing *func* :venvc *venvc*))
@@ -5449,6 +5501,10 @@ der Docstring (oder NIL).
             (anode-code (fnode-code *func*)) `((NIL) (SKIP 2) (RET))
     ) )
     (setf (fnode-gf-p *func*) gf-p)
+    (setf (fnode-venvconst *func*)
+          (not (and (null (fnode-far-used-vars *func*))
+                    (null (fnode-far-assigned-vars *func*))
+    )     )    )
     (setf (fnode-Consts-Offset *func*)
       (+ (setf (fnode-Keyword-Offset *func*)
            (+ (setf (fnode-Tagbodys-Offset *func*)
@@ -5470,6 +5526,16 @@ der Docstring (oder NIL).
       ; Nun ist (fnode-Keyword-Offset *func*) = (fnode-Tagbodys-Offset *func*) =
       ;       = (fnode-Blocks-Offset *func*) = (if (fnode-venvconst *func*) 1 0)
     )
+    ; Set list of outer blocks that are needed by *func*.
+    (setf (fnode-far-used-blocks *func*)
+          (remove-if #'(lambda (block) (eq (block-fnode block) *func*))
+                     (fnode-Blocks *func*)
+    )     )
+    ; Set list of outer tagbodys and tags that are needed by *func*.
+    (setf (fnode-far-used-tagbodys *func*)
+          (remove-if #'(lambda (tagbody+tag) (eq (tagbody-fnode (car tagbody+tag)) *func*))
+                     (fnode-Tags *func*)
+    )     )
     *func*
 ) )
 (defun bind-req-vars (req-vars)
@@ -6515,12 +6581,7 @@ der Docstring (oder NIL).
                  ; verschiedene Funktionen oder unbekannte Frames auf dem Stack
                  (progn
                    (unless *no-code*
-                     ; in alle dazwischenliegenden Funktionen diesen Block eintragen:
-                     (do ((fnode *func* (fnode-enclosing fnode)))
-                         ((eq fnode (block-fnode a)))
-                       (pushnew a (fnode-blocks fnode))
-                     )
-                     (setf (block-used-far a) t)
+                     (note-far-used-block a)
                    )
                    (make-anode
                      :type 'RETURN-FROM
@@ -6574,8 +6635,7 @@ der Docstring (oder NIL).
                       :consvar (make-var :name (gensym) :specialp nil
                                          :closurep nil :stackz *stackz*
                                )
-                      :stackz *stackz*
-                      :used-far (make-array (length taglist) :fill-pointer 0)
+                      :stackz *stackz* :used-far nil
            )        )
            (*genv* (cons (cons (apply #'vector taglist) tagbody) *genv*))
              ; Tagbody aktivieren
@@ -6602,28 +6662,36 @@ der Docstring (oder NIL).
               (push anodei codelist)
       ) ) ) )
       (if (> (length (tagbody-used-far tagbody)) 0)
-        (let* ((used-tags (tagbody-used-far tagbody))
-               (l (length used-tags))
-               (used-label-list
-                 (do ((i 0 (1+ i))
-                      (l1 '()))
-                     ((= i l) (nreverse l1))
-                   (push
-                     (elt labellist (position (aref used-tags i) taglist :test #'eql))
-                     l1
-              )) ) )
-          (setf (first *stackz*) `(TAGBODY ,l))
-          (setq codelist
-            `((TAGBODY-OPEN
-                ,(new-const (map 'simple-vector
-                                 #'(lambda (tag) (and (symbol-package tag) tag)) ; (gensym)s zu nil machen
-                                 used-tags
-                 )          )
-                ,@used-label-list
-              )
-              ,@codelist
-              (TAGBODY-CLOSE-NIL)
-        ) )  )
+        (let ((used-tags (make-array (length taglist) :fill-pointer 0)))
+          ; Collect the used tags and assign indices.
+          (dolist (tagbody+tag (tagbody-used-far tagbody))
+            (let* ((tag (cdr tagbody+tag))
+                   (index (or (position tag used-tags :test #'eql)
+                              (vector-push tag used-tags))))
+              (setf (cdr tagbody+tag) index)
+          ) )
+          (setf (tagbody-used-far tagbody) nil)
+          (let* ((l (length used-tags))
+                 (used-label-list
+                   (do ((i 0 (1+ i))
+                        (l1 '()))
+                       ((= i l) (nreverse l1))
+                     (push
+                       (elt labellist (position (aref used-tags i) taglist :test #'eql))
+                       l1
+                )) ) )
+            (setf (first *stackz*) `(TAGBODY ,l))
+            (setq codelist
+              `((TAGBODY-OPEN
+                  ,(new-const (map 'simple-vector
+                                   #'(lambda (tag) (and (symbol-package tag) tag)) ; (gensym)s zu nil machen
+                                   used-tags
+                   )          )
+                  ,@used-label-list
+                )
+                ,@codelist
+                (TAGBODY-CLOSE-NIL)
+        ) ) )  )
         (when *for-value* (setq codelist `(,@codelist (NIL))))
       )
       (make-anode :type 'TAGBODY
@@ -6658,27 +6726,16 @@ der Docstring (oder NIL).
                          (JMP ,(nth b (tagbody-labellist a)))
                )        )
                ; verschiedene Funktionen oder unbekannte Frames auf dem Stack
-               (let ((index 0))
+               (let ((tagbody+tag (cons a tag)))
                  (unless *no-code*
-                   (setq index
-                     (do* ((v (tagbody-used-far a))
-                           (l (length v))
-                           (i 0 (1+ i)))
-                          ((= i l) (vector-push tag v) l)
-                       (if (eql (aref v i) tag) (return i))
-                   ) )
-                   ; (aref (tagbody-used-far a) index) = tag
-                   ; in alle dazwischenliegenden Funktionen diesen Tagbody eintragen:
-                   (do ((fnode *func* (fnode-enclosing fnode)))
-                       ((eq fnode (tagbody-fnode a)))
-                     (pushnew a (fnode-tagbodys fnode))
-                 ) )
+                   (note-far-used-tagbody tagbody+tag)
+                 )
                  (make-anode
                    :type 'GO
                    :sub-anodes '()
                    :seclass '(T . T)
                    :code `((VALUES0)
-                           (GO ,a ,index
+                           (GO ,a ,tagbody+tag
                             ,@(if (eq (tagbody-fnode a) *func*) `(,*stackz*) '())
                           ))
                  )
@@ -6749,15 +6806,18 @@ der Docstring (oder NIL).
       ) ) ) )  )
       (let ((funname (car (last *form*))))
         (if (and (consp funname) (eq (car funname) 'LAMBDA) (consp (cdr funname)))
-          (let ((*no-code* (or *no-code* (null *for-value*))))
-            (c-fnode-function
-              (c-lambdabody
-                (if (and longp (function-name-p name))
-                  name ; angegebener Funktionsname
-                  (symbol-suffix (fnode-name *func*) (incf *anonymous-count*))
-                )
-                (cdr funname)
-          ) ) )
+          (let* ((*no-code* (or *no-code* (null *for-value*)))
+                 (fnode
+                   (c-lambdabody
+                     (if (and longp (function-name-p name))
+                       name ; angegebener Funktionsname
+                       (symbol-suffix (fnode-name *func*) (incf *anonymous-count*))
+                     )
+                     (cdr funname)
+                )) )
+            (unless *no-code* (propagate-far-used fnode))
+            (c-fnode-function fnode)
+          )
           (c-error (ENGLISH "Only symbols and lambda expressions are function names, not ~S")
                    funname
 ) ) ) ) ) )
@@ -6765,14 +6825,17 @@ der Docstring (oder NIL).
 ; compiliere (%GENERIC-FUNCTION-LAMBDA . lambdabody)
 (defun c-%GENERIC-FUNCTION-LAMBDA ()
   (test-list *form* 1)
-  (let ((*no-code* (or *no-code* (null *for-value*))))
-    (c-fnode-function
-      (c-lambdabody
-        (symbol-suffix (fnode-name *func*) (incf *anonymous-count*))
-        (cdr *form*)
-        nil
-        t ; gf-p = T, Code für generische Funktion bauen
-) ) ) )
+  (let* ((*no-code* (or *no-code* (null *for-value*)))
+         (fnode
+           (c-lambdabody
+             (symbol-suffix (fnode-name *func*) (incf *anonymous-count*))
+             (cdr *form*)
+             nil
+             t ; gf-p = T, Code für generische Funktion bauen
+        )) )
+    (unless *no-code* (propagate-far-used fnode))
+    (c-fnode-function fnode)
+) )
 
 ; compiliere (%OPTIMIZE-FUNCTION-LAMBDA reqoptimflags . lambdabody)
 ; reqoptimflags ist eine Liste von Flags, welche Required-Parameter des
@@ -6787,15 +6850,16 @@ der Docstring (oder NIL).
 )
 (defun c-%OPTIMIZE-FUNCTION-LAMBDA ()
   (test-list *form* 2)
-  (let ((*no-code* (or *no-code* (null *for-value*))))
-    (let* ((reqoptimflags (copy-list (second *form*)))
-           (anode1
-             (c-fnode-function
-               (c-lambdabody
-                 (symbol-suffix (fnode-name *func*) (incf *anonymous-count*))
-                 (cddr *form*)
-                 nil nil reqoptimflags
-           ) ) )
+  (let* ((*no-code* (or *no-code* (null *for-value*)))
+         (reqoptimflags (copy-list (second *form*)))
+         (fnode
+           (c-lambdabody
+             (symbol-suffix (fnode-name *func*) (incf *anonymous-count*))
+             (cddr *form*)
+             nil nil reqoptimflags
+        )) )
+    (unless *no-code* (propagate-far-used fnode))
+    (let* ((anode1 (c-fnode-function fnode))
            (resultflags (mapcar #'(lambda (x) (eq x 'GONE)) reqoptimflags))
            (anode2 (let ((*stackz* (cons 1 *stackz*))
                          (*form* `(QUOTE ,resultflags)))
@@ -6849,14 +6913,15 @@ der Docstring (oder NIL).
       (push 0 *stackz*) (push nil *venvc*) ; Platz für Closure-Dummyvar
       (let ((closuredummy-stackz *stackz*)
             (closuredummy-venvc *venvc*))
-        (multiple-value-bind (varlist anodelist *fenv*)
+        (multiple-value-bind (vfnodelist varlist anodelist *fenv*)
             (do ((namelistr namelist (cdr namelistr))
                  (fnodelistr fnodelist (cdr fnodelistr))
+                 (vfnodelist '())
                  (varlist '())
                  (anodelist '())
                  (fenv '()))
                 ((null namelistr)
-                 (values (nreverse varlist) (nreverse anodelist)
+                 (values (nreverse vfnodelist) (nreverse varlist) (nreverse anodelist)
                          (apply #'vector (nreverse (cons *fenv* fenv)))
                 ))
               (push (car namelistr) fenv)
@@ -6865,43 +6930,52 @@ der Docstring (oder NIL).
                   ; Funktionsdefinition ist autonom
                   (push (cons (list fnode) (make-const :horizont ':value :value fnode)) fenv)
                   (progn
+                    (push fnode vfnodelist)
                     (push (c-fnode-function fnode) anodelist)
                     (push 1 *stackz*)
                     (let ((var (make-var :name (gensym) :specialp nil
                                  :constantp nil
                                  :usedp t :for-value-usedp t :really-usedp nil
                                  :closurep nil ; später evtl. auf T gesetzt
-                                 :stackz *stackz* :venvc *venvc*
+                                 :stackz *stackz* :venvc *venvc* :fnode *func*
                          ))    )
                       (push (cons (list fnode) var) fenv)
                       (push var varlist)
             ) ) ) ) )
           (apply #'push-*venv* varlist) ; Hilfsvariablen aktivieren
-          (let* ((body-anode ; restliche Formen compilieren
-                   (c-form `(PROGN ,@(skip-declarations (cddr *form*)))))
-                 (closurevars (checking-movable-var-list varlist anodelist))
-                 (anode
-                   (make-anode
-                     :type 'FLET
-                     :sub-anodes `(,@anodelist ,body-anode)
-                     :seclass (seclass-without
-                                (anodelist-seclass-or `(,@anodelist ,body-anode))
-                                varlist
-                              )
-                     :code `(,@(c-make-closure closurevars closuredummy-venvc closuredummy-stackz)
-                             ,@(mapcap #'c-bind-movable-var-anode varlist anodelist)
-                             ,body-anode
-                             (UNWIND ,*stackz* ,oldstackz ,*for-value*)
-                   )        )
-                ))
-            (when closurevars
-              (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
-              (setf (first closuredummy-venvc)
-                (cons closurevars closuredummy-stackz)
+          (let ((body-anode ; restliche Formen compilieren
+                  (c-form `(PROGN ,@(skip-declarations (cddr *form*))))
+               ))
+            (unless *no-code*
+              (mapc #'(lambda (var fnode)
+                        (when (var-really-usedp var)
+                          (propagate-far-used fnode)
+                      ) )
+                    varlist vfnodelist
             ) )
-            (optimize-var-list varlist)
-            anode
-) ) ) ) ) )
+            (let* ((closurevars (checking-movable-var-list varlist anodelist))
+                   (anode
+                     (make-anode
+                       :type 'FLET
+                       :sub-anodes `(,@anodelist ,body-anode)
+                       :seclass (seclass-without
+                                  (anodelist-seclass-or `(,@anodelist ,body-anode))
+                                  varlist
+                                )
+                       :code `(,@(c-make-closure closurevars closuredummy-venvc closuredummy-stackz)
+                               ,@(mapcap #'c-bind-movable-var-anode varlist anodelist)
+                               ,body-anode
+                               (UNWIND ,*stackz* ,oldstackz ,*for-value*)
+                     )        )
+                  ))
+              (when closurevars
+                (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+                (setf (first closuredummy-venvc)
+                  (cons closurevars closuredummy-stackz)
+              ) )
+              (optimize-var-list varlist)
+              anode
+) ) ) ) ) ) )
 
 ; compiliere (LABELS ({fundef}*) {form}*)
 (defun c-LABELS ()
@@ -6933,7 +7007,7 @@ der Docstring (oder NIL).
                                   :constantp nil
                                   :usedp t :for-value-usedp t :really-usedp nil
                                   :closurep nil ; später evtl. auf T gesetzt
-                                  :stackz *stackz* :venvc *venvc*
+                                  :stackz *stackz* :venvc *venvc* :fnode *func*
                         )
                         L2
                   )
@@ -6991,7 +7065,7 @@ der Docstring (oder NIL).
                  (body-anode ; restliche Formen compilieren
                    (c-form `(PROGN ,@(skip-declarations (cddr *form*))))
                 ))
-            ; die Variablen, zu denen die Funktion autonom war, werden nach-
+            ; Die Variablen, zu denen die Funktion autonom war, werden nach-
             ; träglich zu Konstanten erklärt:
             (do ((varlistr varlist (cdr varlistr))
                  (fnodelistr fnodelist (cdr fnodelistr)))
@@ -7002,6 +7076,28 @@ der Docstring (oder NIL).
                   ; Funktionsdefinition ist autonom
                   (setf (var-constantp var) t)
                   (setf (var-constant var) (new-const fnode))
+            ) ) )
+            ; Determine the functions which are really used.
+            ; Functions with closure variables can pull in other functions.
+            (unless *no-code*
+              (let ((last-count 0))
+                (loop
+                  ; Iterate as long as at least one function has been pulled in.
+                  (when (eql last-count
+                             (setq last-count (count-if #'var-really-usedp varlist))
+                        )
+                    (return)
+                  )
+                  (do ((varlistr varlist (cdr varlistr))
+                       (fnodelistr fnodelist (cdr fnodelistr)))
+                      ((null varlistr))
+                    (let ((var (car varlistr))
+                          (fnode (car fnodelistr)))
+                      (unless (zerop (fnode-keyword-offset fnode))
+                        ; function with closure variables
+                        (when (var-really-usedp var)
+                          (propagate-far-used fnode)
+                  ) ) ) )
             ) ) )
             (let* ((closurevars (checking-movable-var-list varlist anodelist))
                    (anode
@@ -7065,15 +7161,16 @@ der Docstring (oder NIL).
       (push 0 *stackz*) (push nil *venvc*) ; Platz für Closure-Dummyvar
       (let ((closuredummy-stackz *stackz*)
             (closuredummy-venvc *venvc*))
-        (multiple-value-bind (varlist anodelist *fenv*)
+        (multiple-value-bind (vfnodelist varlist anodelist *fenv*)
             (do ((namelistr namelist (cdr namelistr))
                  (fnodelistr fnodelist (cdr fnodelistr))
                  (macrolistr macrolist (cdr macrolistr))
+                 (vfnodelist '())
                  (varlist '())
                  (anodelist '())
                  (fenv '()))
                 ((null namelistr)
-                 (values (nreverse varlist) (nreverse anodelist)
+                 (values (nreverse vfnodelist) (nreverse varlist) (nreverse anodelist)
                          (apply #'vector (nreverse (cons *fenv* fenv)))
                 ))
               (push (car namelistr) fenv)
@@ -7083,44 +7180,52 @@ der Docstring (oder NIL).
                   ; Funktionsdefinition ist autonom
                   (push (cons macro (cons (list fnode) (make-const :horizont ':value :value fnode))) fenv)
                   (progn
+                    (push fnode vfnodelist)
                     (push (c-fnode-function fnode) anodelist)
                     (push 1 *stackz*)
                     (let ((var (make-var :name (gensym) :specialp nil
                                  :constantp nil
                                  :usedp t :for-value-usedp t :really-usedp nil
                                  :closurep nil ; später evtl. auf T gesetzt
-                                 :stackz *stackz* :venvc *venvc*
+                                 :stackz *stackz* :venvc *venvc* :fnode *func*
                          ))    )
                       (push (cons macro (cons (list fnode) var)) fenv)
                       (push var varlist)
             ) ) ) ) )
           (apply #'push-*venv* varlist) ; Hilfsvariablen aktivieren
-          (let* ((body-anode ; restliche Formen compilieren
-                   (c-form `(PROGN ,@(cddr *form*)))
-                 )
-                 (closurevars (checking-movable-var-list varlist anodelist))
-                 (anode
-                   (make-anode
-                     :type 'FUNCTION-MACRO-LET
-                     :sub-anodes `(,@anodelist ,body-anode)
-                     :seclass (seclass-without
-                                (anodelist-seclass-or `(,@anodelist ,body-anode))
-                                varlist
-                              )
-                     :code `(,@(c-make-closure closurevars closuredummy-venvc closuredummy-stackz)
-                             ,@(mapcap #'c-bind-movable-var-anode varlist anodelist)
-                             ,body-anode
-                             (UNWIND ,*stackz* ,oldstackz ,*for-value*)
-                   )        )
-                ))
-            (when closurevars
-              (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
-              (setf (first closuredummy-venvc)
-                (cons closurevars closuredummy-stackz)
+          (let ((body-anode ; restliche Formen compilieren
+                  (c-form `(PROGN ,@(cddr *form*)))
+               ))
+            (unless *no-code*
+              (mapc #'(lambda (var fnode)
+                        (when (var-really-usedp var)
+                          (propagate-far-used fnode)
+                      ) )
+                    varlist vfnodelist
             ) )
-            (optimize-var-list varlist)
-            anode
-) ) ) ) ) )
+            (let* ((closurevars (checking-movable-var-list varlist anodelist))
+                   (anode
+                     (make-anode
+                       :type 'FUNCTION-MACRO-LET
+                       :sub-anodes `(,@anodelist ,body-anode)
+                       :seclass (seclass-without
+                                  (anodelist-seclass-or `(,@anodelist ,body-anode))
+                                  varlist
+                                )
+                       :code `(,@(c-make-closure closurevars closuredummy-venvc closuredummy-stackz)
+                               ,@(mapcap #'c-bind-movable-var-anode varlist anodelist)
+                               ,body-anode
+                               (UNWIND ,*stackz* ,oldstackz ,*for-value*)
+                     )        )
+                  ))
+              (when closurevars
+                (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+                (setf (first closuredummy-venvc)
+                  (cons closurevars closuredummy-stackz)
+              ) )
+              (optimize-var-list varlist)
+              anode
+) ) ) ) ) ) )
 
 ; compiliere (CLOS:GENERIC-FLET ({genfundefs}*) {form}*)
 (defun c-GENERIC-FLET ()
@@ -7174,7 +7279,7 @@ der Docstring (oder NIL).
                            :constantp nil
                            :usedp t :for-value-usedp t :really-usedp nil
                            :closurep nil ; später evtl. auf T gesetzt
-                           :stackz *stackz* :venvc *venvc*
+                           :stackz *stackz* :venvc *venvc* :fnode *func*
                    ))    )
                 (push (cons (list* nil 'GENERIC (car signlistr)) var) fenv)
                 (push var varlist)
@@ -7236,7 +7341,7 @@ der Docstring (oder NIL).
                                   :constantp nil
                                   :usedp t :for-value-usedp t :really-usedp nil
                                   :closurep nil ; später evtl. auf T gesetzt
-                                  :stackz *stackz* :venvc *venvc*
+                                  :stackz *stackz* :venvc *venvc* :fnode *func*
                         )
                         L2
                   )
@@ -8871,8 +8976,8 @@ vorher                           nachher
 (TAGBODY-OPEN const label1 ... labelm)
                                  (TAGBODY-OPEN n label1 ... labelm)
 (GO const l)                     (GO n l)
-(GO tagbody l)                   (GO n l)
-(GO tagbody l stackz)            (GO-I k1 k2 n l)
+(GO tagbody (x . l))             (GO n l)
+(GO tagbody (x . l) stackz)      (GO-I k1 k2 n l)
 (HANDLER-OPEN const stackz label1 ... labelm)
                                  (HANDLER-OPEN n v k label1 ... labelm)
 
@@ -9435,10 +9540,10 @@ Neue Operationen:
               (if (cdddr item)
                 (multiple-value-bind (k n)
                     (zugriff-in-stack (fourth item) (tagbody-stackz (second item)))
-                  `(GO-I ,(car k) ,(cdr k) ,n ,(third item))
+                  `(GO-I ,(car k) ,(cdr k) ,n ,(cdr (third item)))
                 )
                 (if (tagbody-p (second item))
-                  `(GO ,(gconst-index (second item)) ,(third item))
+                  `(GO ,(gconst-index (second item)) ,(cdr (third item)))
                   `(GO ,(const-index (second item)) ,(third item))
               ) )
               *code-part*
@@ -12014,6 +12119,10 @@ Die Funktion make-closure wird dazu vorausgesetzt.
 ;;; compile a lambdabody and return its code.
 (defun compile-lambdabody (name lambdabody)
   (let ((fnode (c-lambdabody name lambdabody)))
+    (assert (null (fnode-far-used-vars fnode)))
+    (assert (null (fnode-far-assigned-vars fnode)))
+    (assert (null (fnode-far-used-blocks fnode)))
+    (assert (null (fnode-far-used-tagbodys fnode)))
     (unless *no-code*
       (let ((*fnode-fixup-table* '()))
         (pass2 fnode)

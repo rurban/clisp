@@ -1,5 +1,39 @@
 2001-06-25  Bruno Haible  <haible@clisp.cons.org>
 
+	Optimize away local functions that are not used.
+	* compiler.lisp (var): New slot 'fnode'.
+	(fnode): New slots 'Tags', 'far-used-vars', 'far-assigned-vars',
+	'far-used-blocks', 'far-used-tagbodys'.
+	(note-far-used-var, note-far-assigned-var, note-far-used-block,
+	note-far-used-tagbody, propagate-far-used): New functions.
+	(c-VAR): If variable is defined in different fnode, store var
+	for later propagation, instead of setting (var-closurep var).
+	(c-VARSET): Likewise.
+	(bind-fixed-var-1, process-fixed-var-list, bind-movable-var): Let the
+	variable point to *func*.
+	(c-LAMBDABODY): Set fnode-venvconst, fnode-far-used-blocks,
+	fnode-far-used-tagbodys for use by the caller.
+	(c-RETURN-FROM): If block is defined in different fnode, store it
+	for later propagation, instead of setting (block-used-far block).
+	(c-TAGBODY): Initialize tagbody-used-far differently. Compute
+	tagbody-used-far only at the end.
+	(c-GO): If tag is defined in different fnode, store it for later
+	propagation, instead of augmenting (tagbody-used-far tagbody).
+	(c-FUNCTION): After c-lambdabody, call propagate-far-used.
+	(c-%GENERIC-FUNCTION-LAMBDA): Likewise.
+	(c-%OPTIMIZE-FUNCTION-LAMBDA): Likewise.
+	(c-FLET): After compiling the body and before deciding about the
+	closurevars, call propagate-far-used.
+	(c-LABELS): Likewise.
+	(c-FUNCTION-MACRO-LET): Likewise.
+	(c-GENERIC-FLET): Let the variable point to *func*.
+	(c-GENERIC-LABELS): Likewise.
+	(traverse-anode): For GO instructions, extract tag index that was
+	computed at the end of the first pass.
+	(compile-lambdabody): Make sure there are no lost closure variables.
+
+2001-06-25  Bruno Haible  <haible@clisp.cons.org>
+
 	* condition.lisp (handler-case): After signalling a warning for
 	duplicated :NO-ERROR clause, don't treat it like a regular clause.
 
