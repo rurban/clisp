@@ -1377,6 +1377,26 @@ ERROR
 ERROR
 
 
+;;; Check that changing an object's class clears the effective-methods or
+;;; discriminating-function cache of all affected generic functions.
+(progn
+  (defclass testclass31a () ())
+  (defclass testclass31b (testclass31a) ())
+  (defclass testclass31c (testclass31b) ())
+  (let ((*p* (make-instance 'testclass31c)))
+    (defgeneric testgf37 (x))
+    (defmethod testgf37 ((x testclass31a)) (list 'a))
+    (defmethod testgf37 ((x testclass31b)) (cons 'b (call-next-method)))
+    (defmethod testgf37 ((x testclass31c)) (cons 'c (call-next-method)))
+    (defmethod testgf37 ((x (eql *p*))) (cons '*p* (call-next-method)))
+    (list
+      (testgf37 *p*)
+      (progn
+        (change-class *p* 'testclass31b)
+        (testgf37 *p*)))))
+((*P* C B A) (*P* B A))
+
+
 ;;; ensure-generic-function
 ;;; <http://www.lisp.org/HyperSpec/Body/fun_ensure-ge_ric-function.html>
 (ensure-generic-function 'car) error
