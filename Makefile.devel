@@ -194,10 +194,10 @@ potfiles :
 
 
 view-man :
-	grep -v '^#[ie]' src/_clisp.1 | $(GROFF) -Tascii | less
+	grep -v '^#[ie]' doc/_clisp.1 | $(GROFF) -Tascii | less
 
 view-html :
-	grep -v '^#[ie]' src/_clisp.html > /tmp/clisp.html
+	grep -v '^#[ie]' doc/_clisp.html > /tmp/clisp.html
 	netscape /tmp/clisp.html &
 	lynx /tmp/clisp.html
 
