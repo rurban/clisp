@@ -9493,24 +9493,26 @@ local void pr_stream (const gcv_object_t* stream_, object obj) {
       prin_object(stream_,TheStream(*obj_)->strm_controller_object); # Controller
       break;
      #endif
-    case strmtype_file: # File-Stream
+    case strmtype_file: { /* File-Stream */
+      var bool fname_p = !nullp(TheStream(*obj_)->strm_file_name);
+      var bool lineno_p = (eq(TheStream(*obj_)->strm_eltype,S(character)) &&
+                           TheStream(*obj_)->strmflags & strmflags_rd_B != 0);
       JUSTIFY_SPACE;
-      JUSTIFY_LAST(nullp(TheStream(*obj_)->strm_file_name) &&
-                   !eq(TheStream(*obj_)->strm_eltype,S(character)));
+      JUSTIFY_LAST(!fname_p && !lineno_p);
       prin_object(stream_,TheStream(*obj_)->strm_eltype); # Stream-Element-Type
-      if (!nullp(TheStream(*obj_)->strm_file_name)) {
+      if (fname_p) {
         JUSTIFY_SPACE;
-        JUSTIFY_LAST(!eq(TheStream(*obj_)->strm_eltype,S(character)));
+        JUSTIFY_LAST(!lineno_p);
         prin_object(stream_,TheStream(*obj_)->strm_file_name); # Filename
       }
-      if (eq(TheStream(*obj_)->strm_eltype,S(character))) {
+      if (lineno_p) {
         JUSTIFY_SPACE;
         JUSTIFY_LAST(true);
         # print line-number, in which stream currently is:
         write_ascii_char(stream_,'@');
         pr_number(stream_,stream_line_number(*obj_));
       }
-      break;
+    } break;
    #ifdef PIPES
     case strmtype_pipe_in: case strmtype_pipe_out: # Pipe-In/Out-Stream
       JUSTIFY_SPACE;
