@@ -734,7 +734,7 @@ T)   T
 T
 
 #+clisp (progn
-(setq s1 (make-instance 'sys::describe-stream :stream *standard-output* )
+(setq s1 (make-instance 'sys::fill-stream :stream *standard-output* )
       s2 (make-synonym-stream 's1)
       s3 (make-broadcast-stream s1 s2))
 (list (stream-element-type s1)
