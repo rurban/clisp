@@ -1,8 +1,108 @@
+
 User visible changes
 --------------------
 
+* Parts of the CLOS MetaObject Protocol are supported:
+  + Slot-Definitions:
+    New classes
+      SLOT-DEFINITION,
+      DIRECT-SLOT-DEFINITION, STANDARD-DIRECT-SLOT-DEFINITION,
+      EFFECTIVE-SLOT-DEFINITION, STANDARD-EFFECTIVE-SLOT-DEFINITION.
+    New generic functions
+      SLOT-DEFINITION-NAME, SLOT-DEFINITION-INITFORM,
+      SLOT-DEFINITION-INITFUNCTION, SLOT-DEFINITION-TYPE,
+      SLOT-DEFINITION-ALLOCATION, SLOT-DEFINITION-INITARGS,
+      SLOT-DEFINITION-READERS, SLOT-DEFINITION-WRITERS,
+      SLOT-DEFINITION-LOCATION.
+    New customizable generic functions
+      DIRECT-SLOT-DEFINITION-CLASS, EFFECTIVE-SLOT-DEFINITION-CLASS.
+
+* Several new datatypes that manage weak references:
+    WEAK-LIST, WEAK-AND-RELATION, WEAK-OR-RELATION,
+    WEAK-MAPPING, WEAK-AND-MAPPING, WEAK-OR-MAPPING, WEAK-ALIST.
+  New functions
+    - for WEAK-LIST:
+      MAKE-WEAK-LIST, WEAK-LIST-P, WEAK-LIST-LIST, (SETF WEAK-LIST-LIST),
+    - for WEAK-AND-RELATION:
+      MAKE-WEAK-AND-RELATION, WEAK-AND-RELATION-P, WEAK-AND-RELATION-LIST,
+    - for WEAK-OR-RELATION:
+      MAKE-WEAK-OR-RELATION, WEAK-OR-RELATION-P, WEAK-OR-RELATION-LIST,
+    - for WEAK-MAPPING:
+      MAKE-WEAK-MAPPING, WEAK-MAPPING-P, WEAK-MAPPING-PAIR, WEAK-MAPPING-VALUE,
+      (SETF WEAK-MAPPING-VALUE),
+    - for WEAK-AND-MAPPING:
+      MAKE-WEAK-AND-MAPPING, WEAK-AND-MAPPING-P, WEAK-AND-MAPPING-PAIR,
+      WEAK-AND-MAPPING-VALUE, (SETF WEAK-AND-MAPPING-VALUE),
+    - for WEAK-OR-MAPPING:
+      MAKE-WEAK-OR-MAPPING, WEAK-OR-MAPPING-P, WEAK-OR-MAPPING-PAIR,
+      WEAK-OR-MAPPING-VALUE, (SETF WEAK-OR-MAPPING-VALUE),
+    - for WEAK-ALIST:
+      MAKE-WEAK-ALIST, WEAK-ALIST-P, WEAK-ALIST-TYPE, WEAK-ALIST-CONTENTS,
+      (SETF WEAK-ALIST-CONTENTS), WEAK-ALIST-ASSOC, WEAK-ALIST-RASSOC,
+      WEAK-ALIST-VALUE, (SETF WEAK-ALIST-VALUE).
+
 * You can create formatting streams of class EXT:FILL-STREAM.
   See <http://clisp.cons.org/impnotes.html#fill-stream> for details.
+
+* SUBTYPEP can determine subtype relationship and type equivalence much better
+  than it could before.
+
+* When *PRINT-READABLY* is true, symbols are now printed with package marker
+  and vertical bars.
+
+* ANSI CL compliance issues:
+  + Vectors of element type NIL are now strings in all aspects. But the type
+    BASE-STRING does _not_ include vectors of element type NIL.
+  + TYPE-OF now returns STANDARD-CHAR instead of CHARACTER when possible.
+  + The type COMPILED-FUNCTION no longer encompasses generic functions.
+  + TYPE-OF now returns COMPILED-FUNCTION or STANDARD-GENERIC-FUNCTION instead
+    of FUNCTION when possible.
+  + The space character is printed as "#\ " if CUSTOM:*PRINT-SPACE-CHAR-ANSI*
+    is true.
+  + The #<PACKAGE KEYWORD> no longer has the nickname "". The syntax :FOO for
+    keywords still works, but is now special cased in the reader.
+  + Class redefinition with DEFCLASS no longer modifies the previous class if
+    it doesn't have a "proper name".
+  + Generic function redefinition with DEFGENERIC removes methods that have
+    been installed through the previous DEFGENERIC definition of the same
+    function.
+  + The set of qualifiers allowed for methods that are combined with a method
+    combination defined through the short form of DEFINE-METHOD-COMBINATION
+    now includes the name of the method combination instead of the operator.
+  + FIND-METHOD now gives an error if the list of specializers has a wrong
+    length.
+  + ARRAY-TOTAL-SIZE-LIMIT, ARRAY-DIMENSION-LIMIT, ARRAY-RANK-LIMIT are now
+    fixnums.
+  + SHORT-FLOATs whose absolute value is an integer in the range between 10^5
+    and 10^7 are now printed with full precision.
+  + Operations combining rational and floating-point numbers now return a
+    floating-point result if CUSTOM:*FLOATING-POINT-RATIONAL-CONTAGION-ANSI*
+    is true. When the mathematical result in a situation is rational, a
+    warning is issued if CUSTOM:*WARN-ON-FLOATING-POINT-RATIONAL-CONTAGION* is
+    true.
+  + Class redefinition with DEFCLASS now updates existing instances as
+    specified.
+  + An ABORT restart is now installed.
+  + UPDATE-INSTANCE-FOR-DIFFERENT-CLASS does the required argument checking.
+  + Passing invalid initialization arguments to MAKE-INSTANCE and similar
+    now generates a PROGRAM-ERROR instead of just an ERROR.
+  + Documentation strings are now attached to class objects, not just to
+    their name.
+
+* The interpreter no longer executes the body of (EVAL-WHEN (COMPILE) ...)
+  forms.
+
+* In non-interactive batch mode, *ERROR-OUTPUT* now uses the system's standard
+  error stream, instead of the standard output stream.
+
+* Fixes to internationalized error messages.
+
+* The return value of NSTRING-UPCASE, NSTRING-DOWNCASE, NSTRING-CAPITALIZE,
+  WRITE-STRING, WRITE-LINE, when called with a displaced string as argument,
+  was wrong.
+
+Modules
+-------
 
 * New module matlab interfaces to <http://www.mathworks.com/products/matlab/>
   and allows complicated matrix computations.
@@ -16,6 +116,16 @@ User visible changes
   POSIX:SETKEY, POSIX:SET-FILE-STAT, POSIX:CONVERT-MODE, POSIX:UMASK,
   POSIX:MKNOD.
   See <http://clisp.cons.org/impnotes.html#syscalls> for details.
+
+Portability
+-----------
+
+* Weak pointers now also work on platforms without mmap().
+
+* Fixed a bug in (ASH x MOST-NEGATIVE-FIXNUM) on some platforms.
+
+* Fixed a bug in (LOGAND fixnum bignum), (LOGNAND fixnum bignum),
+  (LOGANDC2 fixnum bignum), (LOGANDC1 bignum fixnum) on some rare platforms.
 
 
 2.33 (2004-03-17)
