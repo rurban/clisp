@@ -1,3 +1,7 @@
+1999-04-22  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * lispbibl.d: Port to m68k-linux with ELF.
+
 1999-04-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * defs2.lsp (defpackage): Allow duplicates in each of the
