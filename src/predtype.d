@@ -2146,7 +2146,12 @@ LISPFUNN(coerce,2)
         }
       }
       # result-type is some other symbol
-      coerce_sequence(STACK_1,result_type); # (coerce-sequence object result-type)
+      coerce_sequence(STACK_1,STACK_0); # (coerce-sequence object result-type)
+      if (eq(value1,nullobj)) { # failed!
+        pushSTACK(STACK_1);     # TYPE-ERROR slot DATUM (object)
+        pushSTACK(STACK_(0+1)); # TYPE-ERROR slot EXPECTED-TYPE (result-type)
+        goto fehler_object;
+      }
       skipSTACK(2); return;
     } else {
       # result-type is a cons
