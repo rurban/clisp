@@ -1,5 +1,10 @@
 2003-04-20  Sam Steingold  <sds@gnu.org>
 
+	* m4/rusage.m4 (CL_RUSAGE): use time(2) instead of a constant
+	loop: the Moore's law has caught up with this constant already
+
+2003-04-20  Sam Steingold  <sds@gnu.org>
+
 	* package.d (make_present): if symbol is homeless, set its home
 	this takes care of the Issue 194
 	* clos.lisp (setf find-class): allow nil as the new-value
