@@ -125,7 +125,7 @@ o
 #ifdef MSDOS
       clisp.dvi          manual en formato DVI
 #endif
-      impnotes.html      notas de la implementación en format HTML
+      impnotes.html      notas de la implementación
       cltl2.txt          notas a propósito de la relación entre CLISP y CLtL2
 #ifdef GNU_READLINE
       clreadline.3       manual de edición de línea en formato `man' de Unix
