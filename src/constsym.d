@@ -469,8 +469,6 @@ LISPSYM(list_fe_init_end,"LIST-FE-INIT-END",system)
 LISPSYM(lisp_implementation_type,"LISP-IMPLEMENTATION-TYPE",lisp)
 LISPSYM(lisp_implementation_version,"LISP-IMPLEMENTATION-VERSION",lisp)
 LISPSYM(version,"VERSION",system)
-LISPSYM(ansi,"ANSI",system)
-LISPSYM(set_ansi,"SET-ANSI",system)
 #ifdef MACHINE_KNOWN
 LISPSYM(machinetype,"MACHINE-TYPE",lisp)
 LISPSYM(machine_version,"MACHINE-VERSION",lisp)
@@ -491,6 +489,8 @@ LISPSYM(address_of,"ADDRESS-OF",system)
 LISPSYM(code_address_of,"CODE-ADDRESS-OF",system)
 LISPSYM(program_id,"PROGRAM-ID",system)
 #endif
+LISPSYM(ansi,"ANSI",system)
+LISPSYM(set_ansi,"SET-ANSI",system)
 # ---------- SOCKET ----------
 #ifdef MACHINE_KNOWN
 LISPSYM(machine_instance,"MACHINE-INSTANCE",lisp)
@@ -1011,7 +1011,6 @@ LISPSYM(foreign_library_function,"FOREIGN-LIBRARY-FUNCTION",ffi)
 #endif
 
 # Keywords:
-LISPSYM(Kansi_cl,"ANSI-CL",keyword)
 LISPSYM(Kallow_other_keys,"ALLOW-OTHER-KEYS",keyword)
 LISPSYM(Kadjustable,"ADJUSTABLE",keyword)
 LISPSYM(Kelement_type,"ELEMENT-TYPE",keyword)
@@ -1087,6 +1086,7 @@ LISPSYM(Kline_terminator,"LINE-TERMINATOR",keyword)
 LISPSYM(Kunix,"UNIX",keyword)
 LISPSYM(Kmac,"MAC",keyword)
 LISPSYM(Kdos,"DOS",keyword)
+LISPSYM(Kansi_cl,"ANSI-CL",keyword)
 #ifdef REXX
 LISPSYM(Kresult,"RESULT",keyword)
 LISPSYM(Kstring,"STRING",keyword)
