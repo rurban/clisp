@@ -8996,7 +8996,7 @@ local object rd_ch_terminal2 (const gcv_object_t* stream_) {
     posfixnum_to_L(TheStream(stream)->strm_terminal_index); # Index
   TheStream(stream)->strm_terminal_index =
     fixnum_inc(TheStream(stream)->strm_terminal_index,1); # increase Index
-  return code_char(TheS32string(TheIarray(TheStream(stream)->strm_terminal_inbuff)->data)->data[index]); # next Character
+  return code_char(as_chart(TheS32string(TheIarray(TheStream(stream)->strm_terminal_inbuff)->data)->data[index])); /* next Character */
 }
 
 # Determines, if a character is available on a Terminal-Stream.
@@ -9196,7 +9196,7 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
         ssstring_extend(inbuff,TheIarray(inbuff)->dims[1]+clen);
         inbuff = TheStream(*stream_)->strm_terminal_inbuff;
         encoding = TheStream(*stream_)->strm_encoding;
-        var chart* cptr = &TheS32string(TheIarray(inbuff)->data)->data[TheIarray(inbuff)->dims[1]];
+        var chart* cptr = (chart*)&TheS32string(TheIarray(inbuff)->data)->data[TheIarray(inbuff)->dims[1]];
         var chart* cendptr = cptr+clen;
         Encoding_mbstowcs(encoding)(encoding,nullobj,&bptr,bendptr,&cptr,cendptr);
         ASSERT(cptr == cendptr);
@@ -9250,7 +9250,7 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
     posfixnum_to_L(TheStream(stream)->strm_terminal_index); # Index
   TheStream(stream)->strm_terminal_index =
     fixnum_inc(TheStream(stream)->strm_terminal_index,1); # increase Index
-  return code_char(TheS32string(TheIarray(TheStream(stream)->strm_terminal_inbuff)->data)->data[index]); # next Character
+  return code_char(as_chart(TheS32string(TheIarray(TheStream(stream)->strm_terminal_inbuff)->data)->data[index])); /* next Character */
 }
 
 # Determines, if a character is available on a Terminal-Stream.
@@ -9355,7 +9355,7 @@ local void wr_ch_array_terminal3 (const gcv_object_t* stream_,
         var uintL index = start + len - pos;
         dotimespL(count,pos, {
           ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,
-                               TheS32string(*chararray_)->data[index]);
+                               as_chart(TheS32string(*chararray_)->data[index]));
           index++;
         });
       },{

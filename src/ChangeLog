@@ -1,5 +1,10 @@
 2004-03-24  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (rd_ch_terminal2, rd_ch_terminal3, wr_ch_array_terminal3)
+	[CHART_STRUCT]: fixed compilation
+
+2004-03-24  Sam Steingold  <sds@gnu.org>
+
 	* eval.d (GOTO_ERROR): depend on DEBUG_BYTECODE, not DEBUG_SPVW
 	(DEBUG_CHECK_BYTEPTR) [DEBUG_BYTECODE]: new macro
 	(interpret_bytecode_): use it before a jump
