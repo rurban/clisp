@@ -48,15 +48,15 @@
 ;   --> (LET ((A (MULTIPLE-VALUE-LIST form))) ...)
 
 (defmacro LETF* (&whole whole-form
-                 bindlist &body body)
+                 bindlist &body body &environment env)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     (let ((declare (if declarations `((DECLARE ,@declarations)) '())))
-      (values (expand-LETF* bindlist declare body-rest whole-form)))))
+      (values (expand-LETF* bindlist declare body-rest whole-form env)))))
 
 ; expandiert ein LETF*, liefert die Expansion und
 ; T, falls diese Expansion mit einem LET* anfängt, dessen Bindungsliste
 ; erweitert werden darf.
-(defun expand-LETF* (bindlist declare body whole-form)
+(defun expand-LETF* (bindlist declare body whole-form env)
   (if (atom bindlist)
     (if bindlist
       (error-of-type 'source-program-error
@@ -88,9 +88,9 @@
             bind
       ) ) )
       (multiple-value-bind (rest-expanded flag)
-          (expand-LETF* (cdr bindlist) declare body whole-form)
+          (expand-LETF* (cdr bindlist) declare body whole-form env)
         (if (and (atom place)
-                 (not (and (symbolp place) (ext:symbol-macro-expand place)))
+                 (not (and (symbolp place) (nth-value 1 (macroexpand-1 place))))
             )
           (values
             (if flag
@@ -104,7 +104,7 @@
           (if (and (consp place) (eq (car place) 'VALUES))
             (if (every #'(lambda (subplace)
                            (and (symbolp subplace)
-                                (not (ext:symbol-macro-expand subplace))
+                                (not (nth-value 1 (macroexpand-1 subplace)))
                          ) )
                        place)
               (values
@@ -156,12 +156,12 @@
 ) ) ) ) ) )
 
 (defmacro LETF (&whole whole-form
-                bindlist &body body)
+                bindlist &body body &environment env)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     (let ((declare (if declarations `((DECLARE ,@declarations)) '()))
           (let-list nil))
       (multiple-value-bind (let*-list let/let*-list uwp-store1 uwp-store2)
-          (expand-LETF bindlist whole-form)
+          (expand-LETF bindlist whole-form env)
         ; mehrfach folgendes anwenden:
         ; endet let*-list mit (#:G form) und kommt in let/let*-list (var #:G)
         ; vor, so dürfen beide gestrichen werden, und dafür kommt (var form)
@@ -226,11 +226,12 @@
 ) ) ) ) ) )
 
 ; expandiert ein LETF, liefert:
-; eine Bindungsliste für LETF*,
-; eine Bindungsliste für LET/LET* (Reihenfolge der Bindung darin beliebig),
-; eine Liste von Bindungsanweisungen, eine Liste von Entbindungsanweisungen
+; 1. eine Bindungsliste für LETF*,
+; 2. eine Bindungsliste für LET/LET* (Reihenfolge der Bindung darin beliebig),
+; 3. eine Liste von Bindungsanweisungen,
+; 4. eine Liste von Entbindungsanweisungen
 ; (beide gleich lang).
-(defun expand-LETF (bindlist whole-form)
+(defun expand-LETF (bindlist whole-form env)
   (if (atom bindlist)
     (if bindlist
       (error-of-type 'source-program-error
@@ -261,9 +262,9 @@
             (TEXT "illegal syntax in LETF binding: ~S")
             bind
       ) ) )
-      (multiple-value-bind (L1 L2 L3 L4) (expand-LETF (cdr bindlist) whole-form)
+      (multiple-value-bind (L1 L2 L3 L4) (expand-LETF (cdr bindlist) whole-form env)
         (if (and (atom place)
-                 (not (and (symbolp place) (ext:symbol-macro-expand place)))
+                 (not (and (symbolp place) (nth-value 1 (macroexpand-1 place))))
             )
           (let ((g (gensym)))
             (values (cons (list g form) L1) (cons (list place g) L2) L3 L4)
@@ -271,7 +272,7 @@
           (if (and (consp place) (eq (car place) 'VALUES))
             (if (every #'(lambda (subplace)
                            (and (symbolp subplace)
-                                (not (ext:symbol-macro-expand subplace))
+                                (not (nth-value 1 (macroexpand-1 subplace)))
                          ) )
                        place)
               (let ((gs (mapcar #'(lambda (subplace)
