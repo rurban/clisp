@@ -1,5 +1,5 @@
 dnl  -*- Autoconf -*- configuration for CLISP
-dnl  Bruno Haible 1992-2004
+dnl  Bruno Haible 1992-2005
 dnl  Sam Steingold 2002-2004
 dnl
 dnl  configure.in ---<autoconf>--->> configure
@@ -44,6 +44,8 @@ dnl sets variable HLN
 CL_PROG_HLN
 dnl sets variable GROFF
 AC_CHECK_PROG(GROFF,groff,groff)
+dnl sets variable DVIPDF
+AC_CHECK_PROG(DVIPDF,dvipdf,dvipdf)
 dnl
 AC_MSG_NOTICE([* checks for UNIX variants that set DEFS])
 dnl
