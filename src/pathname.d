@@ -10118,6 +10118,45 @@ LISPFUN(ensure_directories_exist,1,0,norest,key,1,(kw(verbose)))
     value1 = popSTACK(); mv_count=2;
   }
 
+#ifdef UNIX
+# Wir ziehen uns das Home-Directory und die benutzbare Shell aus dem
+# Environment. Es enthält (fast) immer mindestens folgende Variablen:
+#   LOGNAME = Username beim ersten Einloggen ("wahre" Identität des Benutzers)
+#   USER    = aktueller Username
+#   HOME    = aktuelles Home-Directory, aus /etc/passwd geholt
+#   SHELL   = aktuelle Standard-Shell, aus /etc/passwd geholt
+#   PATH    = Suchpfad bei Programmaufruf
+#   TERM    = Terminalemulation
+# Wir holen uns HOME (für "~" - Übersetzung) und SHELL (für EXECUTE).
+# Bei "~username" müssen wir das /etc/passwd - File absuchen.
+local struct passwd * unix_user_pwd (void);
+local struct passwd * unix_user_pwd()
+{
+  var const char* username;
+  var struct passwd * userpasswd = NULL;
+  begin_system_call();
+  # 1. getpwnam(getenv("USER"))
+  username = getenv("USER");
+  if (NULL != username) {
+    errno = 0; userpasswd = getpwnam(username);
+    if (NULL != userpasswd) goto unix_user_pwd_done;
+    if (errno !=0) { OS_error(); }
+  }
+  # 2. getpwnam(getlogin())
+  username = getlogin();
+  if (NULL != username) {
+    errno = 0; userpasswd = getpwnam(username);
+    if (NULL != userpasswd) goto unix_user_pwd_done;
+    if (0 != errno) { OS_error(); }
+  }
+  # 3. getpwuid(getuid())
+  errno = 0; userpasswd = getpwuid(user_uid);
+ unix_user_pwd_done:
+  end_system_call();
+  return userpasswd;
+}
+#endif
+
 # UP: Initialisiert das Pathname-System.
 # init_pathnames();
 # kann GC auslösen
@@ -10134,56 +10173,20 @@ LISPFUN(ensure_directories_exist,1,0,norest,key,1,(kw(verbose)))
       recalc_defaults_pathname();
       #ifdef USER_HOMEDIR
       #ifdef UNIX
-      # Wir ziehen uns das Home-Directory und die benutzbare Shell aus dem
-      # Environment. Es enthält (fast) immer mindestens folgende Variablen:
-      #   LOGNAME = Username beim ersten Einloggen ("wahre" Identität des Benutzers)
-      #   USER    = aktueller Username
-      #   HOME    = aktuelles Home-Directory, aus /etc/passwd geholt
-      #   SHELL   = aktuelle Standard-Shell, aus /etc/passwd geholt
-      #   PATH    = Suchpfad bei Programmaufruf
-      #   TERM    = Terminalemulation
-      # Wir holen uns HOME (für "~" - Übersetzung) und SHELL (für EXECUTE).
-      # Bei "~username" müssen wir das /etc/passwd - File absuchen.
-      { # Im Environment nach Variable HOME suchen:
-        begin_system_call();
-       {var const char* homedir = getenv("HOME");
-        end_system_call();
-        if (!(homedir==NULL)) # gefunden?
-          { O(user_homedir) = asciz_dir_to_pathname(homedir,O(misc_encoding)); } # ja -> eintragen
-          else
-          # nein -> Home-Directory aus dem Passwort-File holen:
-          { # empfohlene Methode (siehe GETLOGIN(3V)): erst
-            # getpwnam(getlogin()), dann getpwuid(getuid()) probieren.
-            var const char* username;
-            var struct passwd * userpasswd;
-            begin_system_call();
-            # 1. Versuch: getpwnam(getenv("USER"))
-            username = getenv("USER"); # Username aus dem Environment holen
-            if (!(username==NULL))
-              { errno = 0; userpasswd = getpwnam(username); # passwd-Eintrag dazu
-                if (!(userpasswd==NULL)) goto userpasswd_ok; # gefunden -> ok
-                if (!(errno==0)) { OS_error(); } # Error melden
-              }
-            # 2. Versuch: getpwnam(getlogin())
-            username = getlogin(); # Username aus /etc/utmp holen
-            if (!(username==NULL))
-              { errno = 0; userpasswd = getpwnam(username); # passwd-Eintrag dazu
-                if (!(userpasswd==NULL)) goto userpasswd_ok; # gefunden -> ok
-                if (!(errno==0)) { OS_error(); } # Error melden
-              }
-            # 3. Versuch: getpwuid(getuid())
-            errno = 0; userpasswd = getpwuid(user_uid);
-            if (!(userpasswd==NULL)) # gefunden?
-              { userpasswd_ok:
-                end_system_call();
-                O(user_homedir) = asciz_dir_to_pathname(userpasswd->pw_dir,O(misc_encoding)); # ja -> Homedir als Pathname eintragen
-              }
-              else
-              { if (!(errno==0)) { OS_error(); } # Error melden
-                end_system_call();
-                # nein -> aktuelles Directory nehmen:
-                O(user_homedir) = default_directory();
-      }}  }   }
+      { begin_system_call();
+        { var const char* homedir = getenv("HOME");
+          end_system_call();
+          if (NULL != homedir) {
+            O(user_homedir) = asciz_dir_to_pathname(homedir,O(misc_encoding));
+          } else {
+            var struct passwd * userpasswd = unix_user_pwd();
+            if (NULL != userpasswd) {
+              O(user_homedir) = asciz_dir_to_pathname(userpasswd->pw_dir,
+                                                      O(misc_encoding));
+            } else O(user_homedir) = default_directory();
+          }
+        }
+      }
       #endif
       #ifdef WIN32
       # WinNT defines HOMEDRIVE and HOMEPATH. Win95 (which is actually not a
@@ -11243,3 +11246,57 @@ global int my_spawnv(pmode,path,argv)
 
 # ============================================================================
 
+
+#ifdef EXPORT_SYSCALLS
+#ifdef UNIX
+
+#define PASSWD_TO_STACK(pwd)                                   \
+  pushSTACK(asciz_to_string(pwd->pw_name,O(misc_encoding)));   \
+  pushSTACK(asciz_to_string(pwd->pw_passwd,O(misc_encoding))); \
+  pushSTACK(UL_to_I(pwd->pw_uid));                             \
+  pushSTACK(UL_to_I(pwd->pw_gid));                             \
+  pushSTACK(asciz_to_string(pwd->pw_gecos,O(misc_encoding)));  \
+  pushSTACK(asciz_to_string(pwd->pw_dir,O(misc_encoding)));    \
+  pushSTACK(asciz_to_string(pwd->pw_shell,O(misc_encoding)))
+
+# return the data for the user as 7 values (slots of struct passwd)
+# or a list of simple vectors of length 7 is no argument was given.
+LISPFUN(user_data,0,1,norest,nokey,0,NIL)
+# (LISP::USER-DATA &optional user)
+{
+  var object user = popSTACK();
+  struct passwd *pwd = NULL;
+
+  if (nullp(user))  { # all users as a list
+    int count = 0;
+    begin_system_call();
+    for (; (pwd = getpwent()); count++) {
+      PASSWD_TO_STACK(pwd);
+      funcall(L(vector),7);
+      pushSTACK(value1);
+    }
+    endpwent();
+    end_system_call();
+    value1 = listof(count); mv_count = 1;
+    return;
+  }
+
+  begin_system_call();
+  if (posfixnump(user)) pwd = getpwuid(posfixnum_to_L(user));
+  else if (eq(user,unbound) || eq(user,S(Kdefault)))
+    pwd = unix_user_pwd();
+  else if (symbolp(user))
+    pwd = getpwnam(TheAsciz(string_to_asciz(Symbol_name(user),
+                                            O(misc_encoding))));
+  else if (stringp(user))
+    pwd = getpwnam(TheAsciz(string_to_asciz(user,O(misc_encoding))));
+  else { end_system_call(); fehler_string_int(user); }
+  end_system_call();
+
+  if (NULL == pwd) { OS_error(); }
+  PASSWD_TO_STACK(pwd);
+  funcall(L(values),7);
+}
+
+#endif # UNIX
+#endif # EXPORT_SYSCALLS

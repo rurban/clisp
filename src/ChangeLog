@@ -2,6 +2,9 @@
 
 	* pathname.d (merge-pathnames): be ANSI CL compliant when
 	lisp:*ansi* is non-nil.
+	(unix_user_pwd): extracted from init_pathnames().
+	(init_pathnames): use unix_user_pwd().
+	(user_data): moved here from stream.d; use unix_user_pwd().
 
 1999-03-20  Sam Steingold  <sds@gnu.org>
 
