@@ -7096,7 +7096,12 @@ foreign language: control flow temporary enters Lisp.
 </table>
 defines a named call-out function. Any Lisp function call to
 <code>#'<var>name</var></code> is redirected to call the C function
-<var>c-name</var>.
+<var>c-name</var>. The <var>language</var> is either <code>:C</code>
+(denotes K&amp;R C) or <code>:STDC</code> (denotes ANSI C) or
+<code>:STDC-STDCALL</code> (denotes ANSI C with <em>stdcall</em>
+calling convention). It specifies whether the C function has been
+compiled by a K&amp;R C compiler or by an ANSI C compiler, and possibly
+the calling convention.
 
 <p><code><strong>def-c-call-out</strong></code> is equivalent to
 <code>def-call-out</code> with <code>:language :c</code>.
@@ -7116,9 +7121,14 @@ defines a named call-out function. Any Lisp function call to
 </table>
 defines a named call-in function. Any C function call to the C function
 <var>c-name</var> is redirected to call the Lisp function
-<code>#'<var>name</var></code>.
-<p>
-<code><strong>def-c-call-in</strong></code> is equivalent to
+<code>#'<var>name</var></code>. The <var>language</var> is either
+<code>:C</code> (denotes K&amp;R C) or <code>:STDC</code> (denotes ANSI C)
+or <code>:STDC-STDCALL</code> (denotes ANSI C with <em>stdcall</em>
+calling convention). It specifies whether the calling code has been
+compiled by a K&amp;R C compiler or by an ANSI C compiler, and possibly
+the calling convention.
+
+<p><code><strong>def-c-call-in</strong></code> is equivalent to
 <code>def-call-in</code> with <code>:language :c</code>.
 
 <h4>Argument and result passing conventions</h4>
