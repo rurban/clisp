@@ -134,6 +134,7 @@ and
  <bibliodiv id="ref-books"><title>Books</title>
   &cltl1-bib;
   &cltl2-bib;
+  &amop-bib;
  </bibliodiv>
  <bibliodiv id="ref-ansi"><title>ANSI standard documents</title>
   &ansi-cl-bib;

@@ -81,6 +81,8 @@
    standard-class structure-class built-in-class
    standard-object structure-object
    generic-function standard-generic-function method standard-method
+   ;; MOP -- _NOT_ in init.lisp!
+   class-prototype
    ;; other symbols:
    standard)) ; method combination
 
@@ -437,7 +439,8 @@
 (defstruct (standard-class (:inherit slotted-class) (:conc-name "CLASS-"))
   shared-slots             ; simple-vector with the values of all shared slots, or nil
   direct-slots             ; list of all freshly added slots (as plists)
-  direct-default-initargs) ; freshly added default-initargs (as plist)
+  direct-default-initargs  ; freshly added default-initargs (as plist)
+  proto)                   ; class prototype - an instance
 
 ;; access to slots of instances of the class <class> by means of the
 ;; defstruct-accessors, hence no bootstrapping-problems here.
@@ -3592,6 +3595,14 @@
                                    (class-slots (class-of previous))
                                    :test #'eq :key #'slotdef-name))
            initargs)))
+
+;;; classs prototype (MOP)
+(defgeneric class-prototype (class)
+  (:method ((class standard-class))
+    (or (class-proto class)
+        (setf (class-proto class) (clos::%allocate-instance class))))
+  (:method ((name symbol))
+    (class-prototype (find-class name))))
 
 ;;; Utility functions
 

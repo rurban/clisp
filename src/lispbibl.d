@@ -5238,6 +5238,7 @@ typedef struct {
   gcv_object_t shared_slots;
   gcv_object_t direct_slots;
   gcv_object_t direct_default_initargs;
+  gcv_object_t prototype;
   gcv_object_t other[unspecified];
 } *  Class;
 

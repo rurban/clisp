@@ -249,10 +249,11 @@
 <!ENTITY st-uc "<link linkend='st-uc'><function>GRAY:STREAM-UNREAD-CHAR</function></link>">
 <!ENTITY need-defmethod "<simpara>You must define a method for this function.</simpara>">
 <!ENTITY weak-pointer "<link linkend='weak'><classname>EXT:WEAK-POINTER</classname></link>">
-<!ENTITY muffle-cerrors "<link linkend='muffle-cerrors'>EXT:MUFFLE-CERRORS</link>">
-<!ENTITY appease-cerrors "<link linkend='appease-cerrors'>EXT:APPEASE-CERRORS</link>">
-<!ENTITY exit-on-error "<link linkend='exit-on-error'>EXT:EXIT-ON-ERROR</link>">
-<!ENTITY with-restarts "<link linkend='with-restarts'>EXT:WITH-RESTARTS</link>">
+<!ENTITY muffle-cerrors "<link linkend='muffle-cerrors'><function>EXT:MUFFLE-CERRORS</function></link>">
+<!ENTITY appease-cerrors "<link linkend='appease-cerrors'><function>EXT:APPEASE-CERRORS</function></link>">
+<!ENTITY exit-on-error "<link linkend='exit-on-error'><function>EXT:EXIT-ON-ERROR</function></link>">
+<!ENTITY with-restarts "<link linkend='with-restarts'><function>EXT:WITH-RESTARTS</function></link>">
+<!ENTITY class-proto "<link linkend='class-proto'><function>CLOS:CLASS-PROTOTYPE</function></link>">
 
 <!-- *** gettext *** -->
 <!ENTITY ggettext "&gnu; <ulink url='http://www.gnu.org/software/gettext/gettext.html'>gettext</ulink>">
