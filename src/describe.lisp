@@ -549,7 +549,7 @@ to print the corresponding values, or T for all of them.")
                (*describe-done* nil))
            (describe1 obj (clos:make-instance
                            'fill-stream :stream stream
-                           :indent '*describe-nesting*)))))
+                           :text-indent '*describe-nesting*)))))
   (values))
 
 ;;-----------------------------------------------------------------------------

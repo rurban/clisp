@@ -14,17 +14,7 @@ Fix modules/exporting.lisp :
   (defconstant FOO 10))
 does not export FOO. (Bruno)
 
-Introduce a custom:*...* variable that allows the indentation of format ~S
-arguments to respect the indentation given by WARN, to get the output
-WARNING: Methode
-         #<STANDARD-METHOD
-            (#<STANDARD-CLASS CLASS> (EQL #<BUILT-IN-CLASS STREAM>))>
-         in #<STANDARD-GENERIC-FUNCTION VALIDATE-SUPERCLASS> wird ersetzt.
-instead of
-WARNING: Methode
-#<STANDARD-METHOD (#<STANDARD-CLASS CLASS> (EQL #<BUILT-IN-CLASS STREAM>))>
-         in #<STANDARD-GENERIC-FUNCTION VALIDATE-SUPERCLASS> wird ersetzt.
-(Sam)
+Follow the "English Only" rule for additions - here and everywhere. (Bruno)
 
 
 MUST-FIX BEFORE RELEASE 2.35

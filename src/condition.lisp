@@ -75,8 +75,8 @@
   (let ((*print-escape* nil)
         (*print-readably* nil))
     (print-object condition stream)))
-(defun pretty-print-condition (condition stream &key (indent 6))
-  (with-fill-stream (out stream :indent indent)
+(defun pretty-print-condition (condition stream &key (text-indent 6))
+  (with-fill-stream (out stream :text-indent text-indent)
     (print-condition condition out)))
 
 ;;; 29.4.5. Defining Conditions
@@ -1503,8 +1503,9 @@
         (terpri *error-output*)
         (let ((first-line-prefix (TEXT "WARNING: ")))
           (write-string first-line-prefix *error-output*)
-          (pretty-print-condition condition *error-output*
-                                  :indent (string-width first-line-prefix)))
+          (pretty-print-condition
+           condition *error-output*
+           :text-indent (string-width first-line-prefix)))
         (when *break-on-warnings*
           (with-restarts
               ((CONTINUE
@@ -1553,7 +1554,7 @@ Todo:
              (progn
                (write-string "** - Continuable Error" *error-output*)
                (terpri *error-output*)
-               (pretty-print-condition condition *error-output* :indent 5)
+               (pretty-print-condition condition *error-output* :text-indent 5)
                (invoke-restart-interactively restart))
              (exitunconditionally condition)))
           (otherwise            ; general automatic error handling
