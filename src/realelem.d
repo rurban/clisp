@@ -269,19 +269,22 @@ local object R_R_float_F (object x, object y)
   if (floatp(x)) return F_R_float_F(x,y);
   return RA_R_float_F(x,y);
 }
-local object C_R_float_C (object *c, object y)
+local object C_R_float_C (object c, object y)
 {
-  TheComplex(*c)->c_real = R_R_float_F(TheComplex(*c)->c_real,y);
-  TheComplex(*c)->c_imag = R_R_float_F(TheComplex(*c)->c_imag,y);
-  return *c;
+  pushSTACK(c); pushSTACK(y);
+  { var object ret =
+      make_complex(R_R_float_F(TheComplex(STACK_1)->c_real,STACK_0),
+                   R_R_float_F(TheComplex(STACK_1)->c_imag,STACK_0));
+    skipSTACK(2); return ret;
+  }
 }
-local object N_N_float_N (object *n, object y)
+local object N_N_float_N (object n, object y)
 {
   var object contagion = !complexp(y) ? y
     : R_R_contagion_R(TheComplex(y)->c_real,TheComplex(y)->c_imag);
-  if (complexp(*n))
+  if (complexp(n))
     return C_R_float_C(n,contagion);
-  return R_R_float_F(*n,contagion);
+  return R_R_float_F(n,contagion);
 }
 
 # Generiert eine Funktion wie R_floor_I_R
