@@ -2674,19 +2674,6 @@ global int main (argc_t argc, char* argv[]) {
     default: # use the settings from the memory image
       break;
   }
-  if (argv_package != NULL) { # (IN-PACKAGE packagename)
-    var object packname = asciz_to_string(argv_package,O(misc_encoding));
-    var object package = find_package(packname);
-    if (!nullp(package)) {
-      Symbol_value(S(packagestern)) = package;
-    } else {
-      pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
-      write_sstring(&STACK_0,CLSTEXT(NLstring "WARNING: no such package: "));
-      write_sstring(&STACK_0,packname);
-      terpri(&STACK_0);
-      skipSTACK(1);
-    }
-  }
   if (argv_load_compiling) # (SETQ *LOAD-COMPILING* T) :
     { Symbol_value(S(load_compiling)) = T; }
   if (argv_developer) { /* developer mode */
@@ -2794,6 +2781,19 @@ global int main (argc_t argc, char* argv[]) {
       });
     }
     quit();
+  }
+  if (argv_package != NULL) { # (IN-PACKAGE packagename)
+    var object packname = asciz_to_string(argv_package,O(misc_encoding));
+    var object package = find_package(packname);
+    if (!nullp(package)) {
+      Symbol_value(S(packagestern)) = package;
+    } else {
+      pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
+      write_sstring(&STACK_0,CLSTEXT(NLstring "WARNING: no such package: "));
+      write_sstring(&STACK_0,packname);
+      terpri(&STACK_0);
+      skipSTACK(1);
+    }
   }
   if (!(argv_execute_file == NULL)) {
     # execute:
