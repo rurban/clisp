@@ -9,7 +9,7 @@ MODPREP = ../../modprep.fas
 LN = ln
 SHELL = /bin/sh
 
-DISTRIBFILES = link.sh Makefile clx-preload.lisp clx.lisp clx.fas image.lisp image.fas clx.o
+DISTRIBFILES = link.sh Makefile clx-preload.lisp clx.lisp image.lisp resource.lisp clx.o
 distribdir =
 
 ### Custom defs.
@@ -18,13 +18,16 @@ RM = rm -f
 WANTS = @WANTS@
 X_CFLAGS = @X_CFLAGS@
 
-all : clx.fas image.fas clx.o
+all : clx.fas image.fas resource.fas clx.o
 
 clx.fas clx.lib: clx.lisp clx-preload.lisp
 	$(CLISP) -i clx-preload.lisp -c clx.lisp
 
 image.fas: image.lisp clx.lib
 	$(CLISP) -i clx-preload.lisp -c image.lisp
+
+resource.fas: resource.lisp clx.lib
+	$(CLISP) -i clx-preload.lisp -c resource.lisp
 
 clx.e: clx.f
 	$(CCMP2C) clx.f > genclx.c
@@ -41,7 +44,7 @@ clx.o: clx.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS) -I$(INCLUDES) -c clx.c
 
 # Make a module
-clisp-module : clx.fas image.fas clx.o
+clisp-module : clx.fas image.fas resource.fas clx.o
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
@@ -49,7 +52,7 @@ clisp-module-distrib : clisp-module force
 
 
 clean : force
-	$(RM) genclx.c genclx clx.temp *.lib *.fas clx.e clx.d clx.c clx.o
+	$(RM) genclx.c genclx *.lib *.fas clx.e clx.d clx.c clx.o
 
 force:
 
