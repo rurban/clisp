@@ -5,9 +5,10 @@
 	(load): swap `*compiled-file-types*' and
 	`*source-file-types*' accordingly.
 
-2000-04-04  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
+2000-04-05  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
         * io.d (eof_handling): eof-value defaults to NIL.
+        * stream.d (READ-BYTE, READ-INTEGER, READ-FLOAT): Likewise.
 
 2000-04-04  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
