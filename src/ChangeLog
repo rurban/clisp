@@ -1,3 +1,10 @@
+2004-02-09  Sam Steingold  <sds@gnu.org>
+
+	* misc.d (ARGV): return the vector of command-line args to runtime
+	* constsym.d, subr.d, constobj.d (argv): added
+	* spvw.d (main): init O(argv)
+	* init.lisp (ARGV): export
+
 2004-02-08  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 890138 ]: 0 distance jump as 2 bytes => segfault

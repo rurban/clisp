@@ -590,6 +590,7 @@ LISPFUNN(program_id,0)
 LISPFUNNF(ansi,0)
 LISPFUNN(set_ansi,1)
 LISPFUN(module_info,seclass_no_se,0,2,norest,nokey,0,NIL)
+LISPFUN(argv,seclass_no_se,0,0,norest,nokey,0,NIL)
 /* ---------- I18N ---------- */
 LISPFUNNR(current_language,0)
 LISPFUNN(set_current_language,1)

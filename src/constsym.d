@@ -520,6 +520,7 @@ LISPSYM(program_id,"PROGRAM-ID",system)
 LISPSYM(ansi,"ANSI",system)
 LISPSYM(set_ansi,"SET-ANSI",system)
 LISPSYM(module_info,"MODULE-INFO",ext)
+LISPSYM(argv,"ARGV",ext)
 /* ---------- I18N ---------- */
 LISPSYM(current_language,"CURRENT-LANGUAGE",system)
 LISPSYM(set_current_language,"SET-CURRENT-LANGUAGE",system)
