@@ -1,5 +1,10 @@
 2003-06-24  Sam Steingold  <sds@gnu.org>
 
+	* spvw_circ.d (get_circ_unmark, get_circ_mark): handle
+	Rectype_Weakpointer separately
+
+2003-06-24  Sam Steingold  <sds@gnu.org>
+
 	* spvw_debug.d (nobject_out1): new function, extracted from
 	nobject_out() to do all the recursive work
 	(nobject_out): call it; now nobject_out() does fflush() and
