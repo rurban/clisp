@@ -496,8 +496,8 @@
           ((or (subtypep seltype 'INTEGER) (subtypep veltype 'INTEGER))
            (apply #'read-byte-sequence sequence stream rest))
           (t
-           (error (TEXT "~S: ~S of ~S is ambiguous. Please use ~S or ~S.")
-                  'read-sequence 'stream-element-type stream
+           (error (TEXT "~S: element types of ~S and ~S are ambiguous. Please use ~S or ~S.")
+                  'read-sequence sequence stream
                   'read-char-sequence 'read-byte-sequence)))))
 
 (defun write-sequence (sequence stream &rest rest &key (start 0) (end nil))
@@ -510,8 +510,8 @@
           ((or (subtypep seltype 'INTEGER) (subtypep veltype 'INTEGER))
            (apply #'write-byte-sequence sequence stream rest))
           (t
-           (error (TEXT "~S: ~S of ~S is ambiguous. Please use ~S or ~S.")
-                  'write-sequence 'stream-element-type stream
+           (error (TEXT "~S: element types of ~S and ~S are ambiguous. Please use ~S or ~S.")
+                  'write-sequence sequence stream
                   'write-char-sequence 'write-byte-sequence)))))
 
 ;; ----------------------------------------------------------------------------
