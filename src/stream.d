@@ -14979,8 +14979,6 @@ local object handle_isset (object socket, fd_set *readfds, fd_set *writefds,
   if (place) *place = ret;
   return ret;
 }
-#undef READ_P
-#undef WRITE_P
 
 /* (SOCKET-STATUS socket-or-list [seconds [microseconds]])
  socket-or-list should be either
@@ -15327,6 +15325,52 @@ LISPFUNN(socket_stream_shutdown,2) {
 # Streams in general
 # ==================
 
+/* Create a stream based on a handle
+ can trigger GC */
+local object handle_to_stream (Handle fd, object direction, object buff_p,
+                               object ext_fmt, object eltype) {
+  var direction_t dir;
+  pushSTACK(NIL); /* Filename */
+  pushSTACK(NIL); /* Truename */
+  pushSTACK(buff_p);
+  pushSTACK(ext_fmt);
+  pushSTACK(eltype);
+  pushSTACK(allocate_handle(handle_dup1(fd)));
+  dir = check_direction(direction);
+ #ifdef UNIX
+  { /* set Filename to /dev/fd/<fd> */
+    var char buf[20];
+    begin_system_call();
+    sprintf(buf,"/dev/fd/%d",fd);
+    pushSTACK(ascii_to_string(buf)); funcall(L(pathname),1);
+    STACK_5 = value1;
+  }
+  { /* check that direction is compatible with the handle */
+    var int fcntl_flags = fcntl(fd,F_GETFL,0);
+    if (fcntl_flags < 0)
+      OS_error();
+    if (   (READ_P(dir)  && ((fcntl_flags & O_ACCMODE) == O_WRONLY))
+        || (WRITE_P(dir) && ((fcntl_flags & O_ACCMODE) == O_RDONLY))) {
+      pushSTACK(STACK_5); /* FILE-ERROR slot PATHNAME */
+      pushSTACK(direction); pushSTACK(STACK_1); /* handle */
+      fehler(file_error,GETTEXT("Invalid direction ~ for handle ~"));
+    }
+  }
+ #endif
+  return make_file_stream(dir,false,dir == DIRECTION_IO);
+}
+
+#undef READ_P
+#undef WRITE_P
+
+/* file ==> :external-format :default, not O(terminal-encoding) */
+#define make_standard_input()                           \
+  handle_to_stream(stdin_handle,S(Kinput),S(Kdefault),  \
+                   S(Kdefault),S(character))
+#define make_standard_output()                           \
+  handle_to_stream(stdout_handle,S(Koutput),S(Kdefault), \
+                   S(Kdefault),S(character))
+
 # UP: Return the default value for *terminal-io*.
 # can trigger GC
 local object make_terminal_io (void) {
@@ -15336,43 +15380,12 @@ local object make_terminal_io (void) {
   var bool stdin_file = regular_handle_p(stdin_handle);
   var bool stdout_file = regular_handle_p(stdout_handle);
   if (stdin_file || stdout_file) {
-    var object stream;
-    # Allocate stream for stdin:
-    if (stdin_file) {
-     #ifdef UNIX
-      pushSTACK(ascii_to_string("/dev/fd/0")); funcall(L(pathname),1);
-      pushSTACK(value1);
-     #else
-      pushSTACK(NIL);
-     #endif
-      pushSTACK(NIL);
-      pushSTACK(S(Kdefault));
-      pushSTACK(S(Kdefault)); # not O(terminal-encoding), since it's a file
-      pushSTACK(S(character));
-      pushSTACK(allocate_handle(stdin_handle));
-      stream = make_file_stream(DIRECTION_INPUT,false,false);
-    } else {
-      stream = make_terminal_stream();
-    }
+    var object stream = stdin_file /* input */
+      ? make_standard_input() : make_terminal_stream();
     pushSTACK(stream);
-    # Allocate stream for stdout:
-    if (stdout_file) {
-     #ifdef UNIX
-      pushSTACK(ascii_to_string("/dev/fd/1")); funcall(L(pathname),1);
-      pushSTACK(value1);
-     #else
-      pushSTACK(NIL);
-     #endif
-      pushSTACK(NIL);
-      pushSTACK(S(Kdefault));
-      pushSTACK(S(Kdefault)); # not O(terminal-encoding), since it's a file
-      pushSTACK(S(character));
-      pushSTACK(allocate_handle(stdout_handle));
-      stream = make_file_stream(DIRECTION_OUTPUT,false,false);
-    } else {
-      stream = make_terminal_stream();
-    }
-    # Build a two-way-stream:
+    stream = stdout_file        /* output */
+      ? make_standard_output() : make_terminal_stream();
+    /* Build a two-way-stream: */
     return make_twoway_stream(popSTACK(),stream);
   }
   return make_terminal_stream();
@@ -15421,14 +15434,13 @@ local int previous_line_virtual (int count, int key) {
 #define init_standard_io(direction)                                     \
   local object init_standard_##direction (object syn_str) {             \
     var object tio_s = Symbol_value(S(terminal_io));                    \
-    define_variable(S(standard_##direction),                            \
-                    (stream_twoway_p(tio_s)                             \
-                     && !terminal_stream_p                              \
-                           (TheStream(tio_s)->strm_twoway_##direction)) \
-                    ? (object)TheStream(tio_s)->strm_twoway_##direction \
-                    : !nullp(syn_str) ? syn_str                         \
-                    : make_synonym_stream(S(terminal_io)));             \
-    return Symbol_value(S(standard_##direction));                       \
+    return                                                              \
+      ((stream_twoway_p(tio_s)                                          \
+        && !terminal_stream_p(TheStream(tio_s)->strm_twoway_##direction)) \
+       ? (nullp(syn_str) ? make_standard_##direction()                  \
+          : (object)TheStream(tio_s)->strm_twoway_##direction)          \
+       : (!nullp(syn_str) ? syn_str                                     \
+          : make_synonym_stream(S(terminal_io))));                      \
   }
 
 init_standard_io(input)
@@ -15467,27 +15479,13 @@ global void init_streamvars (bool unixyp) {
     define_variable(S(query_io),stream);         # *QUERY-IO*
     define_variable(S(debug_io),stream);         # *DEBUG-IO*
     define_variable(S(trace_output),stream);     # *TRACE-OUTPUT*
-    init_standard_input(stream);                 # *STANDARD-INPUT*
-    init_standard_output(stream);                # *STANDARD-OUTPUT*
-    #ifdef UNIX
-    if (unixyp) {
-      # Use another Stream for *ERROR-OUTPUT* . The file-name
-      # does not matter, /dev/fd/2 does not exist everywhere, either.
-      pushSTACK(ascii_to_string("/dev/fd/2")); funcall(L(pathname),1);
-      pushSTACK(value1);
-      pushSTACK(test_external_format_arg(S(Kunix)));
-      pushSTACK(S(character));
-      pushSTACK(allocate_handle(2));
-      var decoded_el_t eltype = { eltype_ch, 0 };
-      stream = make_unbuffered_stream(strmtype_file,DIRECTION_OUTPUT,
-                                      &eltype,false);
-      UnbufferedHandleStream_output_init(stream);
-      ChannelStreamLow_close(stream) = &low_close_handle;
-      TheStream(stream)->strm_file_name =
-        TheStream(stream)->strm_file_truename = popSTACK();
-    } else
-    #endif
-      stream = Symbol_value(S(standard_output));
+    /* *STANDARD-INPUT* and *STANDARD-OUTPUT* */
+    define_variable(S(standard_input),init_standard_input(stream));
+    define_variable(S(standard_output),init_standard_output(stream));
+    stream = unixyp
+      ? handle_to_stream(stderr_handle,S(Koutput),NIL,
+                         S(Kdefault),S(character))
+      : (object)Symbol_value(S(standard_output));
     define_variable(S(error_output),stream);     # *ERROR-OUTPUT*
   }
   #ifdef KEYBOARD
@@ -15555,7 +15553,7 @@ local void fehler_value_stream (object sym) {
   pushSTACK(stream); # new variable value
   pushSTACK(oldvalue); # old variable value
   pushSTACK(sym); # Variable
-  fehler(type_error,GETTEXT("The value of ~ was not an open stream: ~. It has been changed to ~."));
+  fehler(type_error,GETTEXT("The value of ~ was not an appropriate stream: ~. It has been changed to ~."));
 }
 
 #ifdef GNU_READLINE
