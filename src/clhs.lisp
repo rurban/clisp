@@ -12,8 +12,10 @@
 
 (defvar *browsers*              ; alist of browsers & commands
   '((:netscape "netscape" "-remote" "openURL(~a,new-window)")
+    (:mozilla "mozilla" "-remote" "openURL(~a,new-window)")
     (:konqueror "kfmclient" "openURL" "~a")
     (:lynx "xterm" "-e" "lynx" "~a")
+    (:links "xterm" "-e" "links" "~a")
     (:w3m "xterm" "-e" "w3m" "~a")
     (:mmm "mmm" "-external" "~a")
     (:mosaic "xmosaic" "~a")
