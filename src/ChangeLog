@@ -1,29 +1,35 @@
 2000-11-16  Bruno Haible  <haible@clisp.cons.org>
 
-        * array.d (elt_move_T): Use eq instead of ==.
-          (elt_move_Char, elt_move_Bit, elt_move_2Bit, elt_move_4Bit,
-           elt_move_8Bit, elt_move_16Bit, elt_move_32Bit): Likewise.
-        * sequence.d (copy_seqpart_into): Likewise.
+	* array.d (elt_move_T): Use eq instead of ==.
+	(elt_move_Char, elt_move_Bit, elt_move_2Bit, elt_move_4Bit,
+	 elt_move_8Bit, elt_move_16Bit, elt_move_32Bit): Likewise.
+	* sequence.d (copy_seqpart_into): Likewise.
 
 2000-11-15  Bruno Haible  <haible@clisp.cons.org>
 
-        * makemake.in: If TSYS=win32msvc, introduce a Makefile variable MFLAGS.
-          (lisp.exe): Don't use /MD flag; use MFLAGS instead.
+	* makemake.in: If TSYS=win32msvc, introduce a Makefile variable MFLAGS.
+	(lisp.exe): Don't use /MD flag; use MFLAGS instead.
 
 2000-11-14  Bruno Haible  <haible@clisp.cons.org>
 
-        * Makefile.devel (PERL): New macro.
-          (acorn/makefile.cc, acorn/makefile.gcc): Use it.
+	* Makefile.devel (PERL): New macro.
+	(acorn/makefile.cc, acorn/makefile.gcc): Use it.
+
+2000-11-14  Sam Steingold  <sds@gnu.org>
+
+	* win32msvc/makefile.msvc4, win32msvc/makefile.msvc5:
+	libinconv/iconv.h and libinconv/iconv.lib are now
+	in include and src respectively.
 
 2000-11-13  Bruno Haible  <haible@clisp.cons.org>
 
-        * lispbibl.d (UNIX_MACOSX): Renamed from UNIX_RHAPSODY.
-          (UNIX_RHAPSODY, UNIX_DARWIN): New macros.
+	* lispbibl.d (UNIX_MACOSX): Renamed from UNIX_RHAPSODY.
+	(UNIX_RHAPSODY, UNIX_DARWIN): New macros.
 
 2000-11-12  Bruno Haible  <haible@clisp.cons.org>
 
-        * lispbibl.d: Undefine TIME_ABSOLUTE and TIME_RELATIVE first.
-        * autoconf/config.guess, autoconf/config.sub: Upgrade to newest
+	* lispbibl.d: Undefine TIME_ABSOLUTE and TIME_RELATIVE first.
+	* autoconf/config.guess, autoconf/config.sub: Upgrade to newest
           version from GNU CVS.
 
 2000-11-10  Sam Steingold  <sds@gnu.org>
