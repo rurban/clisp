@@ -87,16 +87,16 @@ global object reverse (object list) {
 }
 #endif
 
-# UP: Bestimmt die Länge einer Liste
-# llength(obj)
-# > obj: Objekt
-# < uintL ergebnis: Länge von obj, als Liste aufgefasst
-# Testet nicht auf zyklische Listen.
-global uintL llength (object list) {
+/* UP: get the list length and the last atom
+ > obj: object
+ < len: list length
+ < last: the last atom */
+global uintL llength1 (object list, object* last) {
   var uintL count = 0;
   while (consp(list)) {
     count++; list=Cdr(list);
   }
+  if (last) *last = list;
   return count;
 }
 
@@ -1939,9 +1939,9 @@ LISPFUNN(list_upd,2)
   }
 
 LISPFUNN(list_endtest,2)
-  # #'(lambda (seq pointer) (atom pointer))
+  # #'(lambda (seq pointer) (endp pointer))
   {
-    VALUES_IF(matomp(STACK_0)); skipSTACK(2);
+    VALUES_IF(endp(STACK_0)); skipSTACK(2);
   }
 
 LISPFUNN(list_fe_init,1)
@@ -1973,10 +1973,12 @@ LISPFUNN(list_access_set,3)
   }
 
 LISPFUNN(list_llength,1)
-  # #'(lambda (seq) (do ((L seq (cdr L)) (N 0 (1+ N))) ((atom L) N)))
-  {
-    VALUES1(fixnum(llength(popSTACK())));
-  }
+{ /* #'(lambda (seq) (do ((L seq (cdr L)) (N 0 (1+ N))) ((endp L) N))) */
+  var object last;
+  var uintL len = llength1(popSTACK(),&last);
+  if (!nullp(last)) fehler_proper_list(last);
+  VALUES1(fixnum(len));
+}
 
 # UP: Läuft bis zum Element index in einer Liste.
 # elt_up(seq,index)

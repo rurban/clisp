@@ -11396,13 +11396,16 @@ extern object copy_list (object list);
 extern object reverse (object list);
 # is used by SEQUENCE, PACKAGE, PATHNAME
 
-# UP: Determines the length of a list
-# llength(obj)
-# > obj: object
-# < uintL result: length of obj, interpreted as list
-# Does not test for circular lists.
-extern uintL llength (object obj);
-# is used by CONTROL, EVAL, SEQUENCE, RECORD, IO, PACKAGE, HASHTABL, STREAM
+/* UP: get the length of a list and the last atom
+ llength1(obj,last)
+ > obj: object
+ < uintL result: length of obj, interpreted as list
+ < last: the last atom
+ Does not test for circular lists. */
+extern uintL llength1 (object obj, object* last);
+/* used in SEQUENCE */
+#define llength(obj)  llength1(obj,NULL)
+/* used by CONTROL, EVAL, RECORD, IO, PACKAGE, HASHTABL, STREAM */
 
 # UP: Makes a list with exactly len elements
 # make_list(len)

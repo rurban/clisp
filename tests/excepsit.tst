@@ -696,6 +696,15 @@ type-error
 (max 3 #c(4 0.0))
 type-error
 
+(map 'list #'identity '(a b . c))
+type-error
+
+(length '(a b . c))
+type-error
+
+(reduce #'+ '(1 2 . 3))
+type-error
+
 (merge '(vector * 5) '(3 1) '(2 4) #'<)
 type-error
 
