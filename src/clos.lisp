@@ -1518,8 +1518,7 @@
 ;; funname: function name, symbol or (SETF symbol)
 ;; description: (qualifier* spec-lambda-list {declaration|docstring}* form*)
 ;; ==> method-building-form
-(defun analyze-method-description (caller funname description env)
-  (declare (ignore env))
+(defun analyze-method-description (caller funname description)
   (let ((qualifiers nil))
     (loop
       (when (atom description)
@@ -2657,13 +2656,13 @@
 
 ;;; DEFMETHOD
 
-(defmacro defmethod (funname &rest method-description &environment env)
+(defmacro defmethod (funname &rest method-description)
   (unless (function-name-p funname)
     (error-of-type 'sys::source-program-error
       (TEXT "~S: the name of a function must be a symbol, not ~S")
       'defmethod funname))
   (multiple-value-bind (method sig)
-      (analyze-method-description 'defmethod funname method-description env)
+      (analyze-method-description 'defmethod funname method-description)
     `(LET ()
       (COMPILER::EVAL-WHEN-COMPILE
        (COMPILER::C-DEFUN ',funname ,sig nil 'defmethod))
@@ -2705,7 +2704,7 @@
 ;; lambdalist: lambdalist of the generic function
 ;; options: (option*)
 ;; --> signature, argorder, method-forms, docstring
-(defun analyze-defgeneric (caller funname lambdalist options env)
+(defun analyze-defgeneric (caller funname lambdalist options)
   (unless (function-name-p funname)
     (error-of-type 'sys::source-program-error
       (TEXT "~S: the name of a function must be a symbol, not ~S")
@@ -2766,7 +2765,7 @@
                (TEXT "~S ~S: The only valid method class name is ~S : ~S")
                caller funname 'standard-method option)))
           (:METHOD
-           (push (analyze-method-description caller funname (rest option) env)
+           (push (analyze-method-description caller funname (rest option))
             method-forms))
           (t (error-of-type 'sys::source-program-error
                (TEXT "~S ~S: invalid syntax in ~S option: ~S")
@@ -2881,9 +2880,9 @@
 
 ;;; DEFGENERIC
 
-(defmacro defgeneric (funname lambda-list &rest options &environment env)
+(defmacro defgeneric (funname lambda-list &rest options)
   (multiple-value-bind (signature argorder method-forms docstring)
-      (analyze-defgeneric 'defgeneric funname lambda-list options env)
+      (analyze-defgeneric 'defgeneric funname lambda-list options)
     `(LET ()
        (COMPILER::EVAL-WHEN-COMPILE
         (COMPILER::C-DEFUN ',funname ',signature nil 'defgeneric))
@@ -2902,6 +2901,7 @@
                                 declare documentation environment
                                 generic-function-class lambda-list
                                 method-class method-combination)
+  (declare (ignore environment))
   (multiple-value-bind (signature argorder)
       (analyze-defgeneric
        'defgeneric function-name lambda-list
@@ -2915,8 +2915,7 @@
                       (class-name generic-function-class)
                       generic-function-class)))
          ,@(if method-combination `(:method-combination ,method-combination))
-         ,@(if method-class `(:method-class ,method-class)))
-       environment)
+         ,@(if method-class `(:method-class ,method-class))))
     (do-defgeneric function-name signature argorder)))
 
 (defun make-generic-function (funname signature argorder &rest methods)
@@ -2960,9 +2959,9 @@
 
 ;; For GENERIC-FUNCTION, GENERIC-FLET, GENERIC-LABELS
 
-(defun make-generic-function-form (caller funname lambda-list options env)
+(defun make-generic-function-form (caller funname lambda-list options)
   (multiple-value-bind (signature argorder method-forms docstring)
-      (analyze-defgeneric caller funname lambda-list options env)
+      (analyze-defgeneric caller funname lambda-list options)
     (declare (ignore docstring))
     `(MAKE-GENERIC-FUNCTION ',funname ',signature ',argorder ,@method-forms)))
 
@@ -2970,11 +2969,11 @@
  but not a macro, so this definition violates the standard
  (defmacro generic-function (lambda-list &rest options &environment env)
   (make-generic-function-form 'generic-function 'LAMBDA
-                              lambda-list options env))
+                              lambda-list options))
 |#
 
 ;; For GENERIC-FLET, GENERIC-LABELS
-(defun analyze-generic-fundefs (caller fundefs env)
+(defun analyze-generic-fundefs (caller fundefs)
   (let ((names '())
         (funforms '()))
     (dolist (fundef fundefs)
@@ -2983,15 +2982,15 @@
           (TEXT "~S: ~S is not a generic function specification")
           caller fundef))
       (push (first fundef) names)
-      (push (make-generic-function-form caller (first fundef) (second fundef) (cddr fundef) env) funforms))
+      (push (make-generic-function-form caller (first fundef) (second fundef) (cddr fundef)) funforms))
     (values (nreverse names) (nreverse funforms))))
 
 
 ;;; GENERIC-FLET
 
-(defmacro generic-flet (fundefs &body body &environment env)
+(defmacro generic-flet (fundefs &body body)
   (multiple-value-bind (funnames funforms)
-      (analyze-generic-fundefs 'generic-flet fundefs env)
+      (analyze-generic-fundefs 'generic-flet fundefs)
     (let ((varnames (gensym-list funnames)))
       `(LET ,(mapcar #'list varnames funforms)
          (FLET ,(mapcar #'(lambda (varname funname)
@@ -3001,9 +3000,9 @@
 
 ;;; GENERIC-LABELS
 
-(defmacro generic-labels (fundefs &body body &environment env)
+(defmacro generic-labels (fundefs &body body)
   (multiple-value-bind (funnames funforms)
-      (analyze-generic-fundefs 'generic-labels fundefs env)
+      (analyze-generic-fundefs 'generic-labels fundefs)
     (let ((varnames (gensym-list funnames)))
       `(LET ,varnames
          (FLET ,(mapcar #'(lambda (varname funname)
