@@ -21,7 +21,9 @@
       local uintD D_D_mal2adic_D(a,b)
         var uintD a;
         var uintD b;
-        { muluD(a,b, _EMA_,return); }
+        {
+          muluD(a,b, _EMA_,return);
+        }
     #endif
   #endif
 #endif
@@ -50,14 +52,18 @@
   local uintD D_UL_expt_D(a,b)
     var uintD a;
     var uintL b;
-    { while ((b & bit(0)) ==0) { a = D_D_mal2adic_D(a,a); b = b>>1; }
-     {var uintD c = a;
-      until ((b = b>>1) == 0)
-        { a = D_D_mal2adic_D(a,a);
-          if (b & bit(0)) { c = D_D_mal2adic_D(a,c); }
-        }
+    {
+      while ((b & bit(0)) ==0) {
+        a = D_D_mal2adic_D(a,a); b = b>>1;
+      }
+      var uintD c = a;
+      until ((b = b>>1) == 0) {
+        a = D_D_mal2adic_D(a,a);
+        if (b & bit(0))
+          c = D_D_mal2adic_D(a,c);
+      }
       return c;
-    }}
+    }
 
 # Dividiert zwei Zahlen mod 2^intDsize.
 # D_D_durch2adic_D(a,b)
@@ -76,31 +82,38 @@
   local uintD D_D_durch2adic_D(a,b)
     var uintD a;
     var uintD b;
-    { ASSERT(!((b % 2) ==0))
-     {var uintD c = 0;
+    {
+      ASSERT(!((b % 2) ==0))
+      var uintD c = 0;
       var uintD bit_j = 1; # 2^j
-      loop # Verwende a als Variable d
-        { if (a & bit(0)) { c = c+bit_j; a = a-b; }
-          a = a>>1;
-          bit_j = bit_j << 1;
-          if (bit_j == 0) break; # j=intDsize -> fertig
+      loop { # Verwende a als Variable d
+        if (a & bit(0)) {
+          c = c+bit_j; a = a-b;
         }
+        a = a>>1;
+        bit_j = bit_j << 1;
+        if (bit_j == 0) # j=intDsize -> fertig
+          break;
+      }
       return c;
-    }}
+    }
 #else
   local uintD D_D_durch2adic_D(a,b)
     var uintD a;
     var uintD b;
-    { ASSERT(!((b % 2) ==0))
-     {var uintD bit_j = 1; # 2^j
+    {
+      ASSERT(!((b % 2) ==0))
+      var uintD bit_j = 1; # 2^j
       var uintD b_j = b-1; # (b-1)*2^j
-      loop # Verwende a als Variable d*2^j+c
-        { if (a & bit_j) { a = a - b_j; }
-          b_j = b_j << 1; bit_j = bit_j << 1;
-          if (bit_j == 0) break; # j=intDsize -> fertig
-        }
+      loop { # Verwende a als Variable d*2^j+c
+        if (a & bit_j)
+          a = a - b_j;
+        b_j = b_j << 1; bit_j = bit_j << 1;
+        if (bit_j == 0) # j=intDsize -> fertig
+          break;
+      }
       return a;
-    }}
+    }
 #endif
 
 # UDS_UDS_durch2adic_UDS(len,a_LSDptr,b_LSDptr,dest_LSDptr);
@@ -122,19 +135,20 @@
     var const uintD* a_LSDptr;
     var uintD* b_LSDptr;
     var uintD* dest_LSDptr;
-    { var uintD b0inv = D_D_durch2adic_D(1,b_LSDptr[-1]); # b'
+    {
+      var uintD b0inv = D_D_durch2adic_D(1,b_LSDptr[-1]); # b'
       copy_loop_down(a_LSDptr,dest_LSDptr,len); # d := a
-      do { var uintD digit = dest_LSDptr[-1]; # nächstes d[j]
-           #if HAVE_DD
-             digit = lowD(muluD(b0inv,digit));
-           #else
-             muluD(b0inv,digit, _EMA_,digit=);
-           #endif
-           # digit = nächstes c[j]
-           mulusub_loop_down(digit,b_LSDptr,dest_LSDptr,len); # d := d - b * c[j] * beta^j
-           # Nun ist dest_LSDptr[-1] = 0.
-           *--dest_LSDptr = digit; len--; # c[j] ablegen, nächstes j
-         }
-         until (len==0);
+      do {
+        var uintD digit = dest_LSDptr[-1]; # nächstes d[j]
+        #if HAVE_DD
+          digit = lowD(muluD(b0inv,digit));
+        #else
+          muluD(b0inv,digit, _EMA_,digit=);
+        #endif
+        # digit = nächstes c[j]
+        mulusub_loop_down(digit,b_LSDptr,dest_LSDptr,len); # d := d - b * c[j] * beta^j
+        # Nun ist dest_LSDptr[-1] = 0.
+        *--dest_LSDptr = digit; len--; # c[j] ablegen, nächstes j
+      } until (len==0);
     }
 

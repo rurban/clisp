@@ -6,29 +6,34 @@
 # x sollte eine Variable sein.
   #ifdef TYPECODES
     #define floatcase(obj, SF_statement,FF_statement,DF_statement,LF_statement) \
-      { if (!number_wbit_test(as_oint(obj),float1_bit_o))   \
-          if (!number_wbit_test(as_oint(obj),float2_bit_o)) \
-            { SF_statement }                                \
-            else                                            \
-            { FF_statement }                                \
-          else                                              \
-          if (!number_wbit_test(as_oint(obj),float2_bit_o)) \
-            { DF_statement }                                \
-            else                                            \
-            { LF_statement }                                \
+      {                                                       \
+        if (!number_wbit_test(as_oint(obj),float1_bit_o)) {   \
+          if (!number_wbit_test(as_oint(obj),float2_bit_o)) { \
+            SF_statement                                      \
+          } else {                                            \
+            FF_statement                                      \
+          }                                                   \
+        } else {                                              \
+          if (!number_wbit_test(as_oint(obj),float2_bit_o)) { \
+            DF_statement                                      \
+          } else {                                            \
+            LF_statement                                      \
+          }                                                   \
+        }                                                     \
       }
   #else
     #define floatcase(obj, SF_statement,FF_statement,DF_statement,LF_statement) \
-      if (as_oint(obj) & wbit(1))                   \
-        { SF_statement }                            \
-      else                                          \
-        { if (Record_type(obj) > Rectype_Dfloat)    \
-            { FF_statement }                        \
-          elif (Record_type(obj) == Rectype_Dfloat) \
-            { DF_statement }                        \
-          else                                      \
-            { LF_statement }                        \
-        }
+      if (as_oint(obj) & wbit(1)) {                   \
+        SF_statement                                  \
+      } else {                                        \
+        if (Record_type(obj) > Rectype_Dfloat) {      \
+          FF_statement                                \
+        } elif (Record_type(obj) == Rectype_Dfloat) { \
+          DF_statement                                \
+        } else {                                      \
+          LF_statement                                \
+        }                                             \
+      }
   #endif
 # DF_statement darf kein #if enthalten. Daher:
   #ifdef intQsize
@@ -42,7 +47,8 @@
 # can trigger GC
   local void warn_floating_point_contagion (void);
   local void warn_floating_point_contagion()
-    { # (WARN "Floating point operation combines numbers of different precision.~%See ANSI CL 12.1.4.4 and the CLISP impnotes for details.~%The result's actual precision is controlled by~%~S.~%To shut off this warning, set ~S to ~S." '*FLOATING-POINT-CONTAGION-ANSI* '*WARN-ON-FLOATING-POINT-CONTAGION* 'NIL) :
+    {
+      # (WARN "Floating point operation combines numbers of different precision.~%See ANSI CL 12.1.4.4 and the CLISP impnotes for details.~%The result's actual precision is controlled by~%~S.~%To shut off this warning, set ~S to ~S." '*FLOATING-POINT-CONTAGION-ANSI* '*WARN-ON-FLOATING-POINT-CONTAGION* 'NIL) :
       pushSTACK(OLS(fpcontagion_warn_string));
       pushSTACK(S(floating_point_contagion_ansi));
       pushSTACK(S(warn_on_floating_point_contagion));
@@ -54,7 +60,8 @@
 # Generiert eine Float-Operation F_op_F wie F_minus_F oder F_durch_F
   #define GEN_F_op1(op)  \
     local object CONCAT3(F_,op,_F) (var object x)      \
-      { floatcase(x,                                   \
+      {                                                \
+        floatcase(x,                                   \
                   { return CONCAT3(SF_,op,_SF) (x); }, \
                   { return CONCAT3(FF_,op,_FF) (x); }, \
                   { return CONCAT3(DF_,op,_DF) (x); }, \
@@ -72,7 +79,9 @@
   local object F_abs_F (object x);
   local object F_abs_F(x)
     var object x;
-    { return (R_minusp(x) ? F_minus_F(x) : x); } # x<0 -> (- x), x>=0 -> x
+    {
+      return (R_minusp(x) ? F_minus_F(x) : x); # x<0 -> (- x), x>=0 -> x
+    }
 
 # SF_square_SF(x) liefert (* x x), wo x ein SF ist.
   #define SF_square_SF(x)  SF_SF_mal_SF(x,x)
@@ -106,7 +115,8 @@
   local object LF_durch_LF (object x);
   local object LF_durch_LF(x)
     var object x;
-    { pushSTACK(x);
+    {
+      pushSTACK(x);
       encode_LF1(Lfloat_length(x), x=);
       return LF_LF_durch_LF(x,popSTACK());
     }
@@ -131,157 +141,210 @@
 # braucht bei s=1 ein SF, FF oder DF nur zu einem LF der Länge LF_minlen
 # gemacht zu werden.
   #define GEN_F_op2(arg1,arg2,SF_op,FF_op,DF_op,LF_op,r,s,RETURN)  \
-    { floatcase(arg1,                                                                                                  \
-      /* arg1 SF */ { floatcase(arg2,                                                                                  \
-                      /* arg2 SF */ { RETURN SF_op(arg1,arg2); },                                                      \
-                      /* arg2 FF */ { pushSTACK(arg2);                                                                 \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion))))            \
-                                        { pushSTACK(arg1); warn_floating_point_contagion(); arg1 = popSTACK(); }       \
-                                      arg1 = SF_to_FF(arg1); arg2 = popSTACK();                                        \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi))))                       \
-                                        { RETURN CONCAT(TO_F_,r) (FF_op(arg1,arg2),FF_to_SF); }                        \
-                                        else { RETURN FF_op(arg1,arg2); }                                              \
-                                    },                                                                                 \
-                      /* arg2 DF */ { pushSTACK(arg2);                                                                 \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion))))            \
-                                        { pushSTACK(arg1); warn_floating_point_contagion(); arg1 = popSTACK(); }       \
-                                      arg1 = SF_to_DF(arg1); arg2 = popSTACK();                                        \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi))))                       \
-                                        { RETURN CONCAT(TO_F_,r) (DF_op(arg1,arg2),DF_to_SF); }                        \
-                                        else { RETURN DF_op(arg1,arg2); }                                              \
-                                    },                                                                                 \
-                      /* arg2 LF */ { pushSTACK(arg2);                                                                 \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion))))            \
-                                        { pushSTACK(arg1); warn_floating_point_contagion(); arg1 = popSTACK();         \
-                                          if (s==0) { arg2 = STACK_0; }                                                \
-                                        }                                                                              \
-                                      arg1 = SF_to_LF(arg1,CONCAT(LFlen,s)(arg2)); arg2 = popSTACK();                  \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi))))                       \
-                                        { RETURN CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_to_SF); }                        \
-                                        else { RETURN LF_op(arg1,arg2); }                                              \
-                                    }                                                                                  \
-                               );                                                                                      \
-                    },                                                                                                 \
-      /* arg1 FF */ { floatcase(arg2,                                                                                  \
-                      /* arg2 SF */ { pushSTACK(arg1);                                                                 \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion))))            \
-                                        { pushSTACK(arg2); warn_floating_point_contagion(); arg2 = popSTACK(); }       \
-                                      arg2 = SF_to_FF(arg2); arg1 = popSTACK();                                        \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi))))                       \
-                                        { RETURN CONCAT(TO_F_,r) (FF_op(arg1,arg2),FF_to_SF); }                        \
-                                        else { RETURN FF_op(arg1,arg2); }                                              \
-                                    },                                                                                 \
-                      /* arg2 FF */ { RETURN FF_op(arg1,arg2); },                                                      \
-                      /* arg2 DF */ { pushSTACK(arg2);                                                                 \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion))))            \
-                                        { pushSTACK(arg1); warn_floating_point_contagion(); arg1 = popSTACK(); }       \
-                                      arg1 = FF_to_DF(arg1); arg2 = popSTACK();                                        \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi))))                       \
-                                        { RETURN CONCAT(TO_F_,r) (DF_op(arg1,arg2),DF_to_FF); }                        \
-                                        else { RETURN DF_op(arg1,arg2); }                                              \
-                                    },                                                                                 \
-                      /* arg2 LF */ { pushSTACK(arg2);                                                                 \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion))))            \
-                                        { pushSTACK(arg1); warn_floating_point_contagion(); arg1 = popSTACK();         \
-                                          if (s==0) { arg2 = STACK_0; }                                                \
-                                        }                                                                              \
-                                      arg1 = FF_to_LF(arg1,CONCAT(LFlen,s)(arg2)); arg2 = popSTACK();                  \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi))))                       \
-                                        { RETURN CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_to_FF); }                        \
-                                        else { RETURN LF_op(arg1,arg2); }                                              \
-                                    }                                                                                  \
-                               );                                                                                      \
-                    },                                                                                                 \
-      /* arg1 DF */ { floatcase(arg2,                                                                                  \
-                      /* arg2 SF */ { pushSTACK(arg1);                                                                 \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion))))            \
-                                        { pushSTACK(arg2); warn_floating_point_contagion(); arg2 = popSTACK(); }       \
-                                      arg2 = SF_to_DF(arg2); arg1 = popSTACK();                                        \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi))))                       \
-                                        { RETURN CONCAT(TO_F_,r) (DF_op(arg1,arg2),DF_to_SF); }                        \
-                                        else { RETURN DF_op(arg1,arg2); }                                              \
-                                    },                                                                                 \
-                      /* arg2 FF */ { pushSTACK(arg1);                                                                 \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion))))            \
-                                        { pushSTACK(arg2); warn_floating_point_contagion(); arg2 = popSTACK(); }       \
-                                      arg2 = FF_to_DF(arg2); arg1 = popSTACK();                                        \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi))))                       \
-                                        { RETURN CONCAT(TO_F_,r) (DF_op(arg1,arg2),DF_to_FF); }                        \
-                                        else { RETURN DF_op(arg1,arg2); }                                              \
-                                    },                                                                                 \
-                      /* arg2 DF */ { RETURN DF_op(arg1,arg2); },                                                      \
-                      /* arg2 LF */ { pushSTACK(arg2);                                                                 \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion))))            \
-                                        { pushSTACK(arg1); warn_floating_point_contagion(); arg1 = popSTACK();         \
-                                          if (s==0) { arg2 = STACK_0; }                                                \
-                                        }                                                                              \
-                                      arg1 = DF_to_LF(arg1,CONCAT(LFlen,s)(arg2)); arg2 = popSTACK();                  \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi))))                       \
-                                        { RETURN CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_to_DF); }                        \
-                                        else { RETURN LF_op(arg1,arg2); }                                              \
-                                    }                                                                                  \
-                               );                                                                                      \
-                    },                                                                                                 \
-      /* arg1 LF */ { floatcase(arg2,                                                                                  \
-                      /* arg2 SF */ { pushSTACK(arg1);                                                                 \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion))))            \
-                                        { pushSTACK(arg2); warn_floating_point_contagion(); arg2 = popSTACK();         \
-                                          if (s==0) { arg1 = STACK_0; }                                                \
-                                        }                                                                              \
-                                      arg2 = SF_to_LF(arg2,CONCAT(LFlen,s)(arg1)); arg1 = popSTACK();                  \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi))))                       \
-                                        { RETURN CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_to_SF); }                        \
-                                        else { RETURN LF_op(arg1,arg2); }                                              \
-                                    },                                                                                 \
-                      /* arg2 FF */ { pushSTACK(arg1);                                                                 \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion))))            \
-                                        { pushSTACK(arg2); warn_floating_point_contagion(); arg2 = popSTACK();         \
-                                          if (s==0) { arg1 = STACK_0; }                                                \
-                                        }                                                                              \
-                                      arg2 = FF_to_LF(arg2,CONCAT(LFlen,s)(arg1)); arg1 = popSTACK();                  \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi))))                       \
-                                        { RETURN CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_to_FF); }                        \
-                                        else { RETURN LF_op(arg1,arg2); }                                              \
-                                    },                                                                                 \
-                      /* arg2 DF */ { pushSTACK(arg1);                                                                 \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion))))            \
-                                        { pushSTACK(arg2); warn_floating_point_contagion(); arg2 = popSTACK();         \
-                                          if (s==0) { arg1 = STACK_0; }                                                \
-                                        }                                                                              \
-                                      arg2 = DF_to_LF(arg2,CONCAT(LFlen,s)(arg1)); arg1 = popSTACK();                  \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi))))                       \
-                                        { RETURN CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_to_DF); }                        \
-                                        else { RETURN LF_op(arg1,arg2); }                                              \
-                                    },                                                                                 \
-                      /* arg2 LF */ { if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion))))            \
-                                        if (Lfloat_length(arg1) != Lfloat_length(arg2))                                \
-                                          { pushSTACK(arg1); pushSTACK(arg2);                                          \
-                                            warn_floating_point_contagion();                                           \
-                                            arg2 = popSTACK(); arg1 = popSTACK();                                      \
-                                          }                                                                            \
-                                      CONCAT(GEN_LF_op2_,s)(arg1,arg2,LF_op,r,_EMA_ RETURN); }                         \
-                               );                                                                                      \
-                    }                                                                                                  \
-               );                                                                                                      \
+    {                                                                                                         \
+      floatcase(arg1,                                                                                         \
+      /* arg1 SF */ {                                                                                         \
+                      floatcase(arg2,                                                                         \
+                      /* arg2 SF */ { RETURN SF_op(arg1,arg2); },                                             \
+                      /* arg2 FF */ {                                                                         \
+                                      pushSTACK(arg2);                                                        \
+                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                        pushSTACK(arg1); warn_floating_point_contagion(); arg1 = popSTACK();  \
+                                      }                                                                       \
+                                      arg1 = SF_to_FF(arg1); arg2 = popSTACK();                               \
+                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                        RETURN CONCAT(TO_F_,r) (FF_op(arg1,arg2),FF_to_SF);                   \
+                                      } else {                                                                \
+                                        RETURN FF_op(arg1,arg2);                                              \
+                                      }                                                                       \
+                                    },                                                                        \
+                      /* arg2 DF */ {                                                                         \
+                                      pushSTACK(arg2);                                                        \
+                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                        pushSTACK(arg1); warn_floating_point_contagion(); arg1 = popSTACK();  \
+                                      }                                                                       \
+                                      arg1 = SF_to_DF(arg1); arg2 = popSTACK();                               \
+                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                        RETURN CONCAT(TO_F_,r) (DF_op(arg1,arg2),DF_to_SF);                   \
+                                      } else {                                                                \
+                                        RETURN DF_op(arg1,arg2);                                              \
+                                      }                                                                       \
+                                    },                                                                        \
+                      /* arg2 LF */ {                                                                         \
+                                      pushSTACK(arg2);                                                        \
+                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                        pushSTACK(arg1); warn_floating_point_contagion(); arg1 = popSTACK();  \
+                                        if (s==0) { arg2 = STACK_0; }                                         \
+                                      }                                                                       \
+                                      arg1 = SF_to_LF(arg1,CONCAT(LFlen,s)(arg2)); arg2 = popSTACK();         \
+                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                        RETURN CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_to_SF);                   \
+                                      } else {                                                                \
+                                        RETURN LF_op(arg1,arg2);                                              \
+                                      }                                                                       \
+                                    }                                                                         \
+                               );                                                                             \
+                    },                                                                                        \
+      /* arg1 FF */ {                                                                                         \
+                      floatcase(arg2,                                                                         \
+                      /* arg2 SF */ {                                                                         \
+                                      pushSTACK(arg1);                                                        \
+                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                        pushSTACK(arg2); warn_floating_point_contagion(); arg2 = popSTACK();  \
+                                      }                                                                       \
+                                      arg2 = SF_to_FF(arg2); arg1 = popSTACK();                               \
+                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                        RETURN CONCAT(TO_F_,r) (FF_op(arg1,arg2),FF_to_SF);                   \
+                                      } else {                                                                \
+                                        RETURN FF_op(arg1,arg2);                                              \
+                                      }                                                                       \
+                                    },                                                                        \
+                      /* arg2 FF */ { RETURN FF_op(arg1,arg2); },                                             \
+                      /* arg2 DF */ {                                                                         \
+                                      pushSTACK(arg2);                                                        \
+                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                        pushSTACK(arg1); warn_floating_point_contagion(); arg1 = popSTACK();  \
+                                      }                                                                       \
+                                      arg1 = FF_to_DF(arg1); arg2 = popSTACK();                               \
+                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                        RETURN CONCAT(TO_F_,r) (DF_op(arg1,arg2),DF_to_FF);                   \
+                                      } else {                                                                \
+                                        RETURN DF_op(arg1,arg2);                                              \
+                                      }                                                                       \
+                                    },                                                                        \
+                      /* arg2 LF */ {                                                                         \
+                                      pushSTACK(arg2);                                                        \
+                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                        pushSTACK(arg1); warn_floating_point_contagion(); arg1 = popSTACK();  \
+                                        if (s==0) { arg2 = STACK_0; }                                         \
+                                      }                                                                       \
+                                      arg1 = FF_to_LF(arg1,CONCAT(LFlen,s)(arg2)); arg2 = popSTACK();         \
+                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                        RETURN CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_to_FF);                   \
+                                      } else {                                                                \
+                                        RETURN LF_op(arg1,arg2);                                              \
+                                      }                                                                       \
+                                    }                                                                         \
+                               );                                                                             \
+                    },                                                                                        \
+      /* arg1 DF */ {                                                                                         \
+                      floatcase(arg2,                                                                         \
+                      /* arg2 SF */ {                                                                         \
+                                      pushSTACK(arg1);                                                        \
+                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                        pushSTACK(arg2); warn_floating_point_contagion(); arg2 = popSTACK();  \
+                                      }                                                                       \
+                                      arg2 = SF_to_DF(arg2); arg1 = popSTACK();                               \
+                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                        RETURN CONCAT(TO_F_,r) (DF_op(arg1,arg2),DF_to_SF);                   \
+                                      } else {                                                                \
+                                         RETURN DF_op(arg1,arg2);                                             \
+                                      }                                                                       \
+                                    },                                                                        \
+                      /* arg2 FF */ {                                                                         \
+                                      pushSTACK(arg1);                                                        \
+                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                        pushSTACK(arg2); warn_floating_point_contagion(); arg2 = popSTACK();  \
+                                      }                                                                       \
+                                      arg2 = FF_to_DF(arg2); arg1 = popSTACK();                               \
+                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                        RETURN CONCAT(TO_F_,r) (DF_op(arg1,arg2),DF_to_FF);                   \
+                                      } else {                                                                \
+                                        RETURN DF_op(arg1,arg2);                                              \
+                                      }                                                                       \
+                                    },                                                                        \
+                      /* arg2 DF */ { RETURN DF_op(arg1,arg2); },                                             \
+                      /* arg2 LF */ {                                                                         \
+                                      pushSTACK(arg2);                                                        \
+                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                        pushSTACK(arg1); warn_floating_point_contagion(); arg1 = popSTACK();  \
+                                        if (s==0) { arg2 = STACK_0; }                                         \
+                                      }                                                                       \
+                                      arg1 = DF_to_LF(arg1,CONCAT(LFlen,s)(arg2)); arg2 = popSTACK();         \
+                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                        RETURN CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_to_DF);                   \
+                                      } else {                                                                \
+                                        RETURN LF_op(arg1,arg2);                                              \
+                                      }                                                                       \
+                                    }                                                                         \
+                               );                                                                             \
+                    },                                                                                        \
+      /* arg1 LF */ {                                                                                         \
+                      floatcase(arg2,                                                                         \
+                      /* arg2 SF */ {                                                                         \
+                                      pushSTACK(arg1);                                                        \
+                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                        pushSTACK(arg2); warn_floating_point_contagion(); arg2 = popSTACK();  \
+                                        if (s==0) { arg1 = STACK_0; }                                         \
+                                      }                                                                       \
+                                      arg2 = SF_to_LF(arg2,CONCAT(LFlen,s)(arg1)); arg1 = popSTACK();         \
+                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                        RETURN CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_to_SF);                   \
+                                      } else {                                                                \
+                                        RETURN LF_op(arg1,arg2);                                              \
+                                      }                                                                       \
+                                    },                                                                        \
+                      /* arg2 FF */ {                                                                         \
+                                      pushSTACK(arg1);                                                        \
+                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                        pushSTACK(arg2); warn_floating_point_contagion(); arg2 = popSTACK();  \
+                                        if (s==0) { arg1 = STACK_0; }                                         \
+                                      }                                                                       \
+                                      arg2 = FF_to_LF(arg2,CONCAT(LFlen,s)(arg1)); arg1 = popSTACK();         \
+                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                        RETURN CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_to_FF);                   \
+                                      } else {                                                                \
+                                        RETURN LF_op(arg1,arg2);                                              \
+                                      }                                                                       \
+                                    },                                                                        \
+                      /* arg2 DF */ {                                                                         \
+                                      pushSTACK(arg1);                                                        \
+                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                        pushSTACK(arg2); warn_floating_point_contagion(); arg2 = popSTACK();  \
+                                        if (s==0) { arg1 = STACK_0; }                                         \
+                                      }                                                                       \
+                                      arg2 = DF_to_LF(arg2,CONCAT(LFlen,s)(arg1)); arg1 = popSTACK();         \
+                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                        RETURN CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_to_DF);                   \
+                                      } else {                                                                \
+                                        RETURN LF_op(arg1,arg2);                                              \
+                                      }                                                                       \
+                                    },                                                                        \
+                      /* arg2 LF */ {                                                                         \
+                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion))))   \
+                                        if (Lfloat_length(arg1) != Lfloat_length(arg2)) {                     \
+                                          pushSTACK(arg1); pushSTACK(arg2);                                   \
+                                          warn_floating_point_contagion();                                    \
+                                          arg2 = popSTACK(); arg1 = popSTACK();                               \
+                                        }                                                                     \
+                                      CONCAT(GEN_LF_op2_,s)(arg1,arg2,LF_op,r,_EMA_ RETURN);                  \
+                                    }                                                                         \
+                               );                                                                             \
+                    }                                                                                         \
+               );                                                                                             \
     }
   # Hilfmacro, wenn arg1 und arg2 beide LF sind:
   #define GEN_LF_op2_0(arg1,arg2,LF_op,r,ergebnis_zuweisung)  \
-    { var uintC len1 = Lfloat_length(arg1);                                      \
+    {                                                                            \
+      var uintC len1 = Lfloat_length(arg1);                                      \
       var uintC len2 = Lfloat_length(arg2);                                      \
-      if (len1==len2) # gleich -> direkt ausführen                               \
-        { ergebnis_zuweisung LF_op(arg1,arg2); }                                 \
-      elif (len1>len2) # -> arg2 auf die Länge von arg1 bringen                  \
-        { pushSTACK(arg1); arg2 = LF_extend_LF(arg2,len1); arg1 = popSTACK();    \
-           if (nullp(Symbol_value(S(floating_point_contagion_ansi))))            \
-             { ergebnis_zuweisung CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_shorten_LF_2); } \
-             else { ergebnis_zuweisung LF_op(arg1,arg2); }                       \
+      if (len1==len2) { # gleich -> direkt ausführen                             \
+        ergebnis_zuweisung LF_op(arg1,arg2);                                     \
+      } elif (len1>len2) { # -> arg2 auf die Länge von arg1 bringen              \
+        pushSTACK(arg1); arg2 = LF_extend_LF(arg2,len1); arg1 = popSTACK();      \
+        if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {             \
+          ergebnis_zuweisung CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_shorten_LF_2); \
+        } else {                                                                 \
+          ergebnis_zuweisung LF_op(arg1,arg2);                                   \
         }                                                                        \
-      else # (len1<len2) -> arg1 auf die Länge von arg2 bringen                  \
-        { pushSTACK(arg2); arg1 = LF_extend_LF(arg1,len2); arg2 = popSTACK();    \
-           if (nullp(Symbol_value(S(floating_point_contagion_ansi))))            \
-             { ergebnis_zuweisung CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_shorten_LF_1); } \
-             else { ergebnis_zuweisung LF_op(arg1,arg2); }                       \
+      } else { # (len1<len2) -> arg1 auf die Länge von arg2 bringen              \
+        pushSTACK(arg2); arg1 = LF_extend_LF(arg1,len2); arg2 = popSTACK();      \
+        if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {             \
+          ergebnis_zuweisung CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_shorten_LF_1); \
+        } else {                                                                 \
+          ergebnis_zuweisung LF_op(arg1,arg2);                                   \
         }                                                                        \
+      }                                                                          \
     }
   #define GEN_LF_op2_1(arg1,arg2,LF_op,r,ergebnis_zuweisung)  \
     ergebnis_zuweisung LF_op(arg1,arg2);
@@ -295,7 +358,8 @@
   #define TO_F_1(erg,to)  to(erg)
   #define TO_F_2(erg,to)  \
     erg; # Operation durchführen                 \
-    { STACK_1 = to(STACK_1); # 1. Wert umwandeln \
+    {                                            \
+      STACK_1 = to(STACK_1); # 1. Wert umwandeln \
       STACK_0 = to(STACK_0); # 2. Wert umwandeln \
     }
 
@@ -305,7 +369,9 @@
   local object F_F_plus_F(x,y)
     var object x;
     var object y;
-    { GEN_F_op2(x,y,SF_SF_plus_SF,FF_FF_plus_FF,DF_DF_plus_DF,LF_LF_plus_LF,1,0,return) }
+    {
+      GEN_F_op2(x,y,SF_SF_plus_SF,FF_FF_plus_FF,DF_DF_plus_DF,LF_LF_plus_LF,1,0,return)
+    }
 
 # F_F_minus_F(x,y) liefert (- x y), wo x und y Floats sind.
 # can trigger GC
@@ -313,7 +379,9 @@
   local object F_F_minus_F(x,y)
     var object x;
     var object y;
-    { GEN_F_op2(x,y,SF_SF_minus_SF,FF_FF_minus_FF,DF_DF_minus_DF,LF_LF_minus_LF,1,0,return) }
+    {
+      GEN_F_op2(x,y,SF_SF_minus_SF,FF_FF_minus_FF,DF_DF_minus_DF,LF_LF_minus_LF,1,0,return)
+    }
 
 # F_F_mal_F(x,y) liefert (* x y), wo x und y Floats sind.
 # can trigger GC
@@ -321,7 +389,9 @@
   local object F_F_mal_F(x,y)
     var object x;
     var object y;
-    { GEN_F_op2(x,y,SF_SF_mal_SF,FF_FF_mal_FF,DF_DF_mal_DF,LF_LF_mal_LF,1,0,return) }
+    {
+      GEN_F_op2(x,y,SF_SF_mal_SF,FF_FF_mal_FF,DF_DF_mal_DF,LF_LF_mal_LF,1,0,return)
+    }
 
 # F_F_durch_F(x,y) liefert (/ x y), wo x und y Floats sind.
 # can trigger GC
@@ -329,7 +399,9 @@
   local object F_F_durch_F(x,y)
     var object x;
     var object y;
-    { GEN_F_op2(x,y,SF_SF_durch_SF,FF_FF_durch_FF,DF_DF_durch_DF,LF_LF_durch_LF,1,0,return) }
+    {
+      GEN_F_op2(x,y,SF_SF_durch_SF,FF_FF_durch_FF,DF_DF_durch_DF,LF_LF_durch_LF,1,0,return)
+    }
 
 # F_F_comp(x,y) vergleicht zwei Floats x und y.
 # Ergebnis: 0 falls x=y, +1 falls x>y, -1 falls x<y.
@@ -338,14 +410,17 @@
   local signean F_F_comp(x,y)
     var object x;
     var object y;
-    { GEN_F_op2(x,y,SF_SF_comp,FF_FF_comp,DF_DF_comp,LF_LF_comp,0,1,return) }
+    {
+      GEN_F_op2(x,y,SF_SF_comp,FF_FF_comp,DF_DF_comp,LF_LF_comp,0,1,return)
+    }
 
 
 # Generiert eine Funktion wie SF_ffloor_SF
 # Methode: x<0 -> von der 0 wegrunden, sonst zur 0 hinrunden.
   #define GEN_ffloor(F)  \
     local object CONCAT3(F,_ffloor_,F) (var object x) \
-      { return (R_minusp(x)                           \
+      {                                               \
+        return (R_minusp(x)                           \
                 ? CONCAT3(F,_futruncate_,F) (x)       \
                 : CONCAT3(F,_ftruncate_,F) (x)        \
                );                                     \
@@ -374,7 +449,8 @@
 # Methode: x<0 -> zur 0 hinrunden, sonst von der 0 wegrunden.
   #define GEN_fceiling(F)  \
     local object CONCAT3(F,_fceiling_,F) (var object x) \
-      { return (R_minusp(x)                             \
+      {                                                 \
+        return (R_minusp(x)                             \
                 ? CONCAT3(F,_ftruncate_,F) (x)          \
                 : CONCAT3(F,_futruncate_,F) (x)         \
                );                                       \
@@ -403,7 +479,8 @@
 # Generiert eine Funktion wie SF_fround_SF_SF
   #define GEN_fround(F,rounding)  \
     local void CONCAT7(F,_f,rounding,_,F,_,F) (var object x)                          \
-      { pushSTACK(x);                                                                 \
+      {                                                                               \
+        pushSTACK(x);                                                                 \
        {var object y = CONCAT5(F,_f,rounding,_,F) (x); # ganzer Anteil von x          \
         x = STACK_0; STACK_0 = y;                                                     \
         pushSTACK( CONCAT5(F,_,F,_minus_,F) (x,y) ); # x-y = gebrochener Anteil von x \
@@ -505,7 +582,8 @@
 # Generiert eine Funktion wie SF_round_I_SF
   #define GEN_round(F,rounding)  \
     local void CONCAT7(F,_,rounding,_,I,_,F) (var object x)                \
-      { CONCAT7(F,_f,rounding,_,F,_,F) (x);                                \
+      {                                                                    \
+        CONCAT7(F,_f,rounding,_,F,_,F) (x);                                \
         STACK_1 = CONCAT3(F,_to_,I) (STACK_1); # ganzer Anteil als Integer \
       }
 
@@ -605,7 +683,8 @@
 # Generiert eine Funktion wie F_fround_F_F
   #define GEN_F_fround(rounding)  \
     local void CONCAT3(F_f,rounding,_F_F) (var object x)          \
-      { floatcase(x,                                              \
+      {                                                           \
+        floatcase(x,                                              \
                   { CONCAT3(SF_f,rounding,_SF_SF) (x); return; }, \
                   { CONCAT3(FF_f,rounding,_FF_FF) (x); return; }, \
                   { CONCAT3(DF_f,rounding,_DF_DF) (x); return; }, \
@@ -641,7 +720,8 @@
 # Generiert eine Funktion wie F_round_I_F
   #define GEN_F_round(rounding)  \
     local void CONCAT3(F_,rounding,_I_F) (var object x)         \
-      { floatcase(x,                                            \
+      {                                                         \
+        floatcase(x,                                            \
                   { CONCAT3(SF_,rounding,_I_SF) (x); return; }, \
                   { CONCAT3(FF_,rounding,_I_FF) (x); return; }, \
                   { CONCAT3(DF_,rounding,_I_DF) (x); return; }, \
@@ -688,7 +768,8 @@
     # Methode:                                               \
     # F_rounding_I_F(x/y) -> (q,r). Liefere q und x-y*q=y*r. \
     local void CONCAT3(F_F_,rounding,_I_F) (var object x, var object y) \
-      { pushSTACK(y);                                        \
+      {                                                      \
+        pushSTACK(y);                                        \
         CONCAT3(F_,rounding,_I_F) (F_F_durch_F(x,y)); # ganzzahligen Anteil des Quotienten bilden \
         y = STACK_2; STACK_2 = STACK_1;                      \
         STACK_1 = F_F_mal_F(y,STACK_0); # Nachkommateil mit y multiplizieren \
@@ -728,7 +809,8 @@
   local object F_to_SF (object x);
   local object F_to_SF(x)
     var object x;
-    { floatcase(x,
+    {
+      floatcase(x,
                 { return x; },
                 { return FF_to_SF(x); },
                 { return DF_to_SF(x); },
@@ -741,7 +823,8 @@
   local object F_to_FF (object x);
   local object F_to_FF(x)
     var object x;
-    { floatcase(x,
+    {
+      floatcase(x,
                 { return SF_to_FF(x); },
                 { return x; },
                 { return DF_to_FF(x); },
@@ -754,7 +837,8 @@
   local object F_to_DF (object x);
   local object F_to_DF(x)
     var object x;
-    { floatcase(x,
+    {
+      floatcase(x,
                 { return SF_to_DF(x); },
                 { return FF_to_DF(x); },
                 { return x; },
@@ -770,7 +854,8 @@
   local object F_to_LF(x,len)
     var object x;
     var uintC len;
-    { floatcase(x,
+    {
+      floatcase(x,
                 { return SF_to_LF(x,len); },
                 { return FF_to_LF(x,len); },
                 { return DF_to_LF(x,len); },
@@ -787,7 +872,8 @@
   local object F_F_float_F(x,y)
     var object x;
     var object y;
-    { floatcase(y,
+    {
+      floatcase(y,
                 { return F_to_SF(x); },
                 { return F_to_FF(x); },
                 { return F_to_DF(x); },
@@ -814,7 +900,8 @@
   local uintC lf_len_extend (uintC n);
   local uintC lf_len_extend(n)
     var uintC n;
-    { var uintC inc =
+    {
+      var uintC inc =
         #define FITS(n,k)  ((n) <= (uintL)((intDsize*(k)-4)*(k)))
         #define n_max  (uintL)(bitm(intWCsize)-1)
         #define TEST(i)  FITS(n_max,1UL<<i) || FITS(n,1UL<<i) ? 1UL<<i :
@@ -824,7 +911,8 @@
         #undef TEST
         #undef n_max
         #undef FITS
-      if ((uintWC)(n = n+inc) < (uintWC)inc) { fehler_LF_toolong(); }
+      if ((uintWC)(n = n+inc) < (uintWC)inc)
+        fehler_LF_toolong();
       return n;
     }
 
@@ -846,7 +934,8 @@
   local object F_extend_F (object x);
   local object F_extend_F(x)
     var object x;
-    { floatcase(x,
+    {
+      floatcase(x,
                 { return (SF_mant_len+1<=17 ? SF_to_FF(x) # 17+sqrt(17)+2 = 23.2 < 24
                                             : SF_to_DF(x) # 24+sqrt(24)+2 = 30.9 < 53
                          );
@@ -866,8 +955,10 @@
   local void F_decode_float_F_I_F (object x);
   local void F_decode_float_F_I_F(x)
     var object x;
-    { floatcase(x,
-      /* x SF */ { # x entpacken:
+    {
+      floatcase(x,
+      /* x SF */ {
+                   # x entpacken:
                    var signean sign;
                    var sintWL exp;
                    var uint32 mant;
@@ -879,7 +970,8 @@
                    encode_SF(sign,1,bit(SF_mant_len), x=); pushSTACK(x); # (-1)^s erzeugen
                    return;
                  },
-      /* x FF */ { # x entpacken:
+      /* x FF */ {
+                   # x entpacken:
                    var signean sign;
                    var sintWL exp;
                    var uint32 mant;
@@ -891,11 +983,13 @@
                    encode_FF(sign,1,bit(FF_mant_len), x=); pushSTACK(x); # (-1)^s erzeugen
                    return;
                  },
-      /* x DF */ { # x entpacken:
+      /* x DF */ {
+                   # x entpacken:
                    var signean sign;
                    var sintWL exp;
                    ifdef_intQsize(
-                     { var uint64 mant;
+                     {
+                       var uint64 mant;
                        DF_decode(x, { pushSTACK(DF_0); pushSTACK(Fixnum_0); pushSTACK(DF_1); return; },
                                     sign=,exp=,mant=
                                 );
@@ -903,7 +997,8 @@
                        pushSTACK(L_to_FN((sintL)exp)); # e als Fixnum
                        encode_DF(sign,1,bit(DF_mant_len), x=); pushSTACK(x); # (-1)^s erzeugen
                      },
-                     { var uint32 manthi;
+                     {
+                       var uint32 manthi;
                        var uint32 mantlo;
                        DF_decode2(x, { pushSTACK(DF_0); pushSTACK(Fixnum_0); pushSTACK(DF_1); return; },
                                      sign=,exp=,manthi=,mantlo=
@@ -914,7 +1009,8 @@
                      });
                    return;
                  },
-      /* x LF */ { # x entpacken:
+      /* x LF */ {
+                   # x entpacken:
                    var signean sign;
                    var sintL exp;
                    var uintC mantlen;
@@ -942,20 +1038,25 @@
   local sintL F_exponent_L (object x);
   local sintL F_exponent_L(x)
     var object x;
-    { floatcase(x,
-      /* x SF */ { var uintBWL uexp = SF_uexp(x);
+    {
+      floatcase(x,
+      /* x SF */ {
+                   var uintBWL uexp = SF_uexp(x);
                    if (uexp==0) { return 0; }
                    return (sintL)(sintWL)((uintWL)uexp - SF_exp_mid);
                  },
-      /* x FF */ { var uintBWL uexp = FF_uexp(ffloat_value(x));
+      /* x FF */ {
+                   var uintBWL uexp = FF_uexp(ffloat_value(x));
                    if (uexp==0) { return 0; }
                    return (sintL)(sintWL)((uintWL)uexp - FF_exp_mid);
                  },
-      /* x DF */ { var uintWL uexp = DF_uexp(TheDfloat(x)->float_value_semhi);
+      /* x DF */ {
+                   var uintWL uexp = DF_uexp(TheDfloat(x)->float_value_semhi);
                    if (uexp==0) { return 0; }
                    return (sintL)(sintWL)(uexp - DF_exp_mid);
                  },
-      /* x LF */ { var uintL uexp = TheLfloat(x)->expo;
+      /* x LF */ {
+                   var uintL uexp = TheLfloat(x)->expo;
                    if (uexp==0) { return 0; }
                    return (sintL)(uexp - LF_exp_mid);
                  }
@@ -971,39 +1072,39 @@
   local object SF_I_scale_float_SF(x,delta)
     var object x;
     var object delta;
-    { # x entpacken:
+    {
+      # x entpacken:
       var signean sign;
       var sintWL exp;
       var uint32 mant;
       SF_decode(x, { return x; }, sign=,exp=,mant=);
-      if (!R_minusp(delta))
+      if (!R_minusp(delta)) {
         # delta>=0
-        { var uintL udelta;
-          if (I_fixnump(delta)
-              && ((udelta = posfixnum_to_L(delta)) <= (uintL)(SF_exp_high-SF_exp_low))
-             )
-            { exp = exp+udelta;
-              encode_SF(sign,exp,mant, return);
-            }
-            else
-            { fehler_overflow(); }
+        var uintL udelta;
+        if (I_fixnump(delta)
+            && ((udelta = posfixnum_to_L(delta)) <= (uintL)(SF_exp_high-SF_exp_low))
+           ) {
+          exp = exp+udelta;
+          encode_SF(sign,exp,mant, return);
+        } else {
+          fehler_overflow();
         }
-        else
+      } else {
         # delta<0
-        { var uintL udelta;
-          if (I_fixnump(delta)
-              && ((udelta = negfixnum_abs_L(delta)) <= (uintL)(SF_exp_high-SF_exp_low))
-              && ((oint_data_len<intLsize) || !(udelta==0))
-             )
-            { exp = exp-udelta;
-              encode_SF(sign,exp,mant, return);
-            }
-            else
-            if (underflow_allowed())
-              { fehler_underflow(); }
-              else
-              { return SF_0; }
+        var uintL udelta;
+        if (I_fixnump(delta)
+            && ((udelta = negfixnum_abs_L(delta)) <= (uintL)(SF_exp_high-SF_exp_low))
+            && ((oint_data_len<intLsize) || !(udelta==0))
+           ) {
+          exp = exp-udelta;
+          encode_SF(sign,exp,mant, return);
+        } else {
+          if (underflow_allowed())
+            fehler_underflow();
+          else
+            return SF_0;
         }
+      }
     }
 
 # FF_I_scale_float_FF(x,delta) liefert x*2^delta, wo x ein FF ist.
@@ -1016,39 +1117,39 @@
   local object FF_I_scale_float_FF(x,delta)
     var object x;
     var object delta;
-    { # x entpacken:
+    {
+      # x entpacken:
       var signean sign;
       var sintWL exp;
       var uint32 mant;
       FF_decode(x, { return x; }, sign=,exp=,mant=);
-      if (!R_minusp(delta))
+      if (!R_minusp(delta)) {
         # delta>=0
-        { var uintL udelta;
-          if (I_fixnump(delta)
-              && ((udelta = posfixnum_to_L(delta)) <= (uintL)(FF_exp_high-FF_exp_low))
-             )
-            { exp = exp+udelta;
-              encode_FF(sign,exp,mant, return);
-            }
-            else
-            { fehler_overflow(); }
+        var uintL udelta;
+        if (I_fixnump(delta)
+            && ((udelta = posfixnum_to_L(delta)) <= (uintL)(FF_exp_high-FF_exp_low))
+           ) {
+          exp = exp+udelta;
+          encode_FF(sign,exp,mant, return);
+        } else {
+          fehler_overflow();
         }
-        else
+      } else {
         # delta<0
-        { var uintL udelta;
-          if (I_fixnump(delta)
-              && ((udelta = negfixnum_abs_L(delta)) <= (uintL)(FF_exp_high-FF_exp_low))
-              && ((oint_data_len<intLsize) || !(udelta==0))
-             )
-            { exp = exp-udelta;
-              encode_FF(sign,exp,mant, return);
-            }
-            else
-            if (underflow_allowed())
-              { fehler_underflow(); }
-              else
-              { return FF_0; }
+        var uintL udelta;
+        if (I_fixnump(delta)
+            && ((udelta = negfixnum_abs_L(delta)) <= (uintL)(FF_exp_high-FF_exp_low))
+            && ((oint_data_len<intLsize) || !(udelta==0))
+           ) {
+          exp = exp-udelta;
+          encode_FF(sign,exp,mant, return);
+        } else {
+          if (underflow_allowed())
+            fehler_underflow();
+          else
+            return FF_0;
         }
+      }
     }
 
 # DF_I_scale_float_DF(x,delta) liefert x*2^delta, wo x ein DF ist.
@@ -1061,7 +1162,8 @@
   local object DF_I_scale_float_DF(x,delta)
     var object x;
     var object delta;
-    { # x entpacken:
+    {
+      # x entpacken:
       var signean sign;
       var sintWL exp;
       #ifdef intQsize
@@ -1072,42 +1174,41 @@
       var uint32 mantlo;
       DF_decode2(x, { return x; }, sign=,exp=,manthi=,mantlo=);
       #endif
-      if (!R_minusp(delta))
+      if (!R_minusp(delta)) {
         # delta>=0
-        { var uintL udelta;
-          if (I_fixnump(delta)
-              && ((udelta = posfixnum_to_L(delta)) <= (uintL)(DF_exp_high-DF_exp_low))
-             )
-            { exp = exp+udelta;
-              #ifdef intQsize
-              encode_DF(sign,exp,mant, return);
-              #else
-              encode2_DF(sign,exp,manthi,mantlo, return);
-              #endif
-            }
-            else
-            { fehler_overflow(); }
+        var uintL udelta;
+        if (I_fixnump(delta)
+            && ((udelta = posfixnum_to_L(delta)) <= (uintL)(DF_exp_high-DF_exp_low))
+           ) {
+          exp = exp+udelta;
+          #ifdef intQsize
+          encode_DF(sign,exp,mant, return);
+          #else
+          encode2_DF(sign,exp,manthi,mantlo, return);
+          #endif
+        } else {
+          fehler_overflow();
         }
-        else
+      } else {
         # delta<0
-        { var uintL udelta;
-          if (I_fixnump(delta)
-              && ((udelta = negfixnum_abs_L(delta)) <= (uintL)(DF_exp_high-DF_exp_low))
-              && ((oint_data_len<intLsize) || !(udelta==0))
-             )
-            { exp = exp-udelta;
-              #ifdef intQsize
-              encode_DF(sign,exp,mant, return);
-              #else
-              encode2_DF(sign,exp,manthi,mantlo, return);
-              #endif
-            }
-            else
-            if (underflow_allowed())
-              { fehler_underflow(); }
-              else
-              { return DF_0; }
+        var uintL udelta;
+        if (I_fixnump(delta)
+            && ((udelta = negfixnum_abs_L(delta)) <= (uintL)(DF_exp_high-DF_exp_low))
+            && ((oint_data_len<intLsize) || !(udelta==0))
+           ) {
+          exp = exp-udelta;
+          #ifdef intQsize
+          encode_DF(sign,exp,mant, return);
+          #else
+          encode2_DF(sign,exp,manthi,mantlo, return);
+          #endif
+        } else {
+          if (underflow_allowed())
+            fehler_underflow();
+          else
+            return DF_0;
         }
+      }
     }
 
 # LF_I_scale_float_LF(x,delta) liefert x*2^delta, wo x ein LF ist.
@@ -1121,106 +1222,113 @@
   local object LF_I_scale_float_LF(x,delta)
     var object x;
     var object delta;
-    { if (eq(delta,Fixnum_0)) { return x; } # delta=0 -> x als Ergebnis
-     {var uintL uexp = TheLfloat(x)->expo;
-      if (uexp==0) { return x; }
-      pushSTACK(x); # x retten
-      { var uintL udelta;
-        # |delta| muss <= LF_exp_high-LF_exp_low < 2^32 sein. Wie bei I_to_UL:
-        #ifdef TYPECODES
-        switch (typecode(delta))
-        #else
-        if (fixnump(delta))
-          { if (FN_positivep(delta)) goto case_posfixnum; else goto case_negfixnum; }
-        elif (bignump(delta))
-          { if (BN_positivep(delta)) goto case_posbignum; else goto case_negbignum; }
-        else switch (0)
-        #endif
-          { case_posfixnum: # Fixnum >=0
-              udelta = posfixnum_to_L(delta); goto pos;
-            case_posbignum: # Bignum >0
-              { var Bignum bn = TheBignum(delta);
-                #define IF_LENGTH(i)  \
-                  if (bn_minlength <= i) # genau i Digits überhaupt möglich?       \
-                    if (bignum_length(bn) == i) # genau i Digits?                  \
-                      # 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1)             \
-                      if ( (i*intDsize-1 > 32)                                     \
-                           && ( ((i-1)*intDsize-1 >= 32)                           \
-                                || (bn->data[0] >= (uintD)bitc(32-(i-1)*intDsize)) \
-                         )    )                                                    \
-                        goto overflow;                                             \
-                        else
-                IF_LENGTH(1)
-                  { udelta = get_uint1D_Dptr(bn->data); goto pos; }
-                IF_LENGTH(2)
-                  { udelta = get_uint2D_Dptr(bn->data); goto pos; }
-                IF_LENGTH(3)
-                  { udelta = get_uint3D_Dptr(bn->data); goto pos; }
-                IF_LENGTH(4)
-                  { udelta = get_uint4D_Dptr(bn->data); goto pos; }
-                IF_LENGTH(5)
-                  { udelta = get_uint4D_Dptr(&bn->data[1]); goto pos; }
-                #undef IF_LENGTH
-              }
-              goto overflow; # delta zu groß
-            case_negfixnum: # Fixnum <0
-              udelta = negfixnum_to_L(delta); goto neg;
-            case_negbignum: # Bignum <0
-              { var Bignum bn = TheBignum(delta);
-                #define IF_LENGTH(i)  \
-                  if (bn_minlength <= i) # genau i Digits überhaupt möglich?         \
-                    if (bignum_length(bn) == i) # genau i Digits?                    \
-                      # - 2^((i-1)*intDsize-1) > obj >= - 2^(i*intDsize-1)           \
-                      if ( (i*intDsize-1 > 32)                                       \
-                           && ( ((i-1)*intDsize-1 >= 32)                             \
-                                || (bn->data[0] < (uintD)(-bitc(32-(i-1)*intDsize))) \
-                         )    )                                                      \
-                        goto underflow;                                              \
-                        else
-                IF_LENGTH(1)
-                  { udelta = get_sint1D_Dptr(bn->data); goto neg; }
-                IF_LENGTH(2)
-                  { udelta = get_sint2D_Dptr(bn->data); goto neg; }
-                IF_LENGTH(3)
-                  { udelta = get_sint3D_Dptr(bn->data); goto neg; }
-                IF_LENGTH(4)
-                  { udelta = get_sint4D_Dptr(bn->data); goto neg; }
-                IF_LENGTH(5)
-                  { udelta = get_sint4D_Dptr(&bn->data[1]); goto neg; }
-                #undef IF_LENGTH
-              }
-              goto underflow; # delta zu klein
-            pos: # udelta = delta >=0
-              if (   ((uexp = uexp+udelta) < udelta) # Exponent-Überlauf?
-                  #ifndef UNIX_DEC_ULTRIX_GCCBUG
-                  || (uexp > LF_exp_high) # oder Exponent zu groß?
-                  #endif
-                 )
-                { fehler_overflow(); } # ja -> Überlauf
-              break; # sonst OK
-            neg: # delta <0, udelta = 2^32+delta
-              if (   ((uexp = uexp+udelta) >= udelta) # oder Exponent-Unterlauf?
-                  || (uexp < LF_exp_low) # oder Exponent zu klein?
-                 )
-                goto underflow; # ja -> Unterlauf
-              break; # sonst OK
-            default: # unpassender Integer
-              if (!R_minusp(delta))
-                { overflow: fehler_overflow(); } # delta zu groß
-                else
-                { underflow: # delta zu klein
-                  if (underflow_allowed())
-                    { fehler_underflow(); }
-                    else
-                    { skipSTACK(1);
-                      encode_LF0(Lfloat_length(x),return);
-                }   }
-          }
-       {var uintC mantlen = Lfloat_length(x);
-        x = allocate_lfloat(mantlen,uexp,LF_sign(x)); # neues Long-Float
-        copy_loop_up(&TheLfloat(popSTACK())->data[0],&TheLfloat(x)->data[0],mantlen); # füllen
+    {
+      if (eq(delta,Fixnum_0)) # delta=0 -> x als Ergebnis
         return x;
-    }}}}
+      var uintL uexp = TheLfloat(x)->expo;
+      if (uexp==0)
+        return x;
+      pushSTACK(x); # x retten
+      var uintL udelta;
+      # |delta| muss <= LF_exp_high-LF_exp_low < 2^32 sein. Wie bei I_to_UL:
+      #ifdef TYPECODES
+      switch (typecode(delta))
+      #else
+      if (fixnump(delta)) {
+        if (FN_positivep(delta)) goto case_posfixnum; else goto case_negfixnum;
+      } elif (bignump(delta)) {
+        if (BN_positivep(delta)) goto case_posbignum; else goto case_negbignum;
+      } else switch (0)
+      #endif
+        {
+          case_posfixnum: # Fixnum >=0
+            udelta = posfixnum_to_L(delta); goto pos;
+          case_posbignum: # Bignum >0
+            {
+              var Bignum bn = TheBignum(delta);
+              #define IF_LENGTH(i)  \
+                if (bn_minlength <= i) # genau i Digits überhaupt möglich?       \
+                  if (bignum_length(bn) == i) # genau i Digits?                  \
+                    # 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1)             \
+                    if ( (i*intDsize-1 > 32)                                     \
+                         && ( ((i-1)*intDsize-1 >= 32)                           \
+                              || (bn->data[0] >= (uintD)bitc(32-(i-1)*intDsize)) \
+                       )    )                                                    \
+                      goto overflow;                                             \
+                    else
+              IF_LENGTH(1)
+                { udelta = get_uint1D_Dptr(bn->data); goto pos; }
+              IF_LENGTH(2)
+                { udelta = get_uint2D_Dptr(bn->data); goto pos; }
+              IF_LENGTH(3)
+                { udelta = get_uint3D_Dptr(bn->data); goto pos; }
+              IF_LENGTH(4)
+                { udelta = get_uint4D_Dptr(bn->data); goto pos; }
+              IF_LENGTH(5)
+                { udelta = get_uint4D_Dptr(&bn->data[1]); goto pos; }
+              #undef IF_LENGTH
+            }
+            goto overflow; # delta zu groß
+          case_negfixnum: # Fixnum <0
+            udelta = negfixnum_to_L(delta); goto neg;
+          case_negbignum: # Bignum <0
+            {
+              var Bignum bn = TheBignum(delta);
+              #define IF_LENGTH(i)  \
+                if (bn_minlength <= i) # genau i Digits überhaupt möglich?         \
+                  if (bignum_length(bn) == i) # genau i Digits?                    \
+                    # - 2^((i-1)*intDsize-1) > obj >= - 2^(i*intDsize-1)           \
+                    if ( (i*intDsize-1 > 32)                                       \
+                         && ( ((i-1)*intDsize-1 >= 32)                             \
+                              || (bn->data[0] < (uintD)(-bitc(32-(i-1)*intDsize))) \
+                       )    )                                                      \
+                      goto underflow;                                              \
+                    else
+              IF_LENGTH(1)
+                { udelta = get_sint1D_Dptr(bn->data); goto neg; }
+              IF_LENGTH(2)
+                { udelta = get_sint2D_Dptr(bn->data); goto neg; }
+              IF_LENGTH(3)
+                { udelta = get_sint3D_Dptr(bn->data); goto neg; }
+              IF_LENGTH(4)
+                { udelta = get_sint4D_Dptr(bn->data); goto neg; }
+              IF_LENGTH(5)
+                { udelta = get_sint4D_Dptr(&bn->data[1]); goto neg; }
+              #undef IF_LENGTH
+            }
+            goto underflow; # delta zu klein
+          pos: # udelta = delta >=0
+            if (   ((uexp = uexp+udelta) < udelta) # Exponent-Überlauf?
+                #ifndef UNIX_DEC_ULTRIX_GCCBUG
+                || (uexp > LF_exp_high) # oder Exponent zu groß?
+                #endif
+               )
+              fehler_overflow(); # ja -> Überlauf
+            break; # sonst OK
+          neg: # delta <0, udelta = 2^32+delta
+            if (   ((uexp = uexp+udelta) >= udelta) # oder Exponent-Unterlauf?
+                || (uexp < LF_exp_low) # oder Exponent zu klein?
+               )
+              goto underflow; # ja -> Unterlauf
+            break; # sonst OK
+          default: # unpassender Integer
+            if (!R_minusp(delta)) {
+              overflow: fehler_overflow(); # delta zu groß
+            } else {
+              underflow: # delta zu klein
+              if (underflow_allowed()) {
+                fehler_underflow();
+              } else {
+                skipSTACK(1);
+                encode_LF0(Lfloat_length(x),return);
+              }
+            }
+        }
+      var uintC mantlen = Lfloat_length(x);
+      x = allocate_lfloat(mantlen,uexp,LF_sign(x)); # neues Long-Float
+      copy_loop_up(&TheLfloat(popSTACK())->data[0],&TheLfloat(x)->data[0],mantlen); # füllen
+      return x;
+    }
 
 # F_I_scale_float_F(x,delta) liefert x*2^delta, wo x ein Float ist.
 # can trigger GC
@@ -1228,7 +1336,8 @@
   local object F_I_scale_float_F(x,delta)
     var object x;
     var object delta;
-    { floatcase(x,
+    {
+      floatcase(x,
                 { return SF_I_scale_float_SF(x,delta); },
                 { return FF_I_scale_float_FF(x,delta); },
                 { return DF_I_scale_float_DF(x,delta); },
@@ -1241,7 +1350,9 @@
 #if 0
   local object F_float_radix_I(x)
     var object x;
-    { return fixnum(2); } # stets 2 als Ergebnis
+    {
+      return fixnum(2); # stets 2 als Ergebnis
+    }
 #else # Macro spart Code
   #define F_float_radix_I(obj)  (unused (obj), fixnum(2)) # stets 2 als Ergebnis
 #endif
@@ -1252,7 +1363,8 @@
   # Methode: x>=0 -> Ergebnis 1.0; x<0 -> Ergebnis -1.0
   local object F_float_sign_F(x)
     var object x;
-    { floatcase(x,
+    {
+      floatcase(x,
       /* x SF */ { encode_SF(SF_sign(x),1,bit(SF_mant_len), return); },
       /* x FF */ # { encode_FF(FF_sign(x),1,bit(FF_mant_len), return); }, # besser:
                  { return (!R_minusp(x) ? FF_1 : FF_minus1); },
@@ -1274,14 +1386,17 @@
   local object F_F_float_sign_F(x,y)
     var object x;
     var object y;
-    { return (!same_sign_p(x,y) ? F_minus_F(y) : y); }
+    {
+      return (!same_sign_p(x,y) ? F_minus_F(y) : y);
+    }
 
 # F_float_digits(x) liefert (float-digits x), wo x ein Float ist.
 # < ergebnis: ein uintL >0
   local uintL F_float_digits (object x);
   local uintL F_float_digits(x)
     var object x;
-    { floatcase(x,
+    {
+      floatcase(x,
                 { return SF_mant_len+1; }, # 17
                 { return FF_mant_len+1; }, # 24
                 { return DF_mant_len+1; }, # 53
@@ -1295,11 +1410,13 @@
   local object F_float_digits_I (object x);
   local object F_float_digits_I(x)
     var object x;
-    { floatcase(x,
+    {
+      floatcase(x,
                 { return fixnum(SF_mant_len+1); }, # Fixnum 17
                 { return fixnum(FF_mant_len+1); }, # Fixnum 24
                 { return fixnum(DF_mant_len+1); }, # Fixnum 53
-                { var uintL bitcount = intDsize*(uintL)Lfloat_length(x); # 16n
+                {
+                  var uintL bitcount = intDsize*(uintL)Lfloat_length(x); # 16n
                   return (log2_intDsize+intWCsize<=oint_data_len # intDsize*2^intWCsize <= 2^oint_data_len ?
                           ? fixnum(bitcount)
                           : UL_to_I(bitcount)
@@ -1315,23 +1432,32 @@
   # Methode: Falls x=0.0, Ergebnis 0, sonst (float-digits x).
   local object F_float_precision_I(x)
     var object x;
-    { floatcase(x,
-                { if (SF_zerop(x)) { return Fixnum_0; }
+    {
+      floatcase(x,
+                {
+                  if (SF_zerop(x))
+                    return Fixnum_0;
                   return fixnum(SF_mant_len+1); # Fixnum 17
                 },
-                { if (FF_zerop(x)) { return Fixnum_0; }
+                {
+                  if (FF_zerop(x))
+                    return Fixnum_0;
                   return fixnum(FF_mant_len+1); # Fixnum 24
                 },
-                { if (DF_zerop(x)) { return Fixnum_0; }
+                {
+                  if (DF_zerop(x))
+                    return Fixnum_0;
                   return fixnum(DF_mant_len+1); # Fixnum 53
                 },
-                { if (LF_zerop(x)) { return Fixnum_0; }
-                 {var uintL bitcount = intDsize*(uintL)Lfloat_length(x); # 16n
-                  return (log2_intDsize+intWCsize<=oint_data_len # intDsize*2^intWCsize <= 2^oint_data_len ?
-                          ? fixnum(bitcount)
-                          : UL_to_I(bitcount)
-                         );
-                }}
+                {
+                 if (LF_zerop(x))
+                   return Fixnum_0;
+                 var uintL bitcount = intDsize*(uintL)Lfloat_length(x); # 16n
+                 return (log2_intDsize+intWCsize<=oint_data_len # intDsize*2^intWCsize <= 2^oint_data_len ?
+                         ? fixnum(bitcount)
+                         : UL_to_I(bitcount)
+                        );
+                }
                );
     }
 
@@ -1344,16 +1470,19 @@
   local void F_integer_decode_float_I_I_I (object x);
   local void F_integer_decode_float_I_I_I(x)
     var object x;
-    { var object x_sign = (!R_minusp(x) ? Fixnum_1 : Fixnum_minus1); # Vorzeichen von x (nicht GC-gefährdet!)
+    {
+      var object x_sign = (!R_minusp(x) ? Fixnum_1 : Fixnum_minus1); # Vorzeichen von x (nicht GC-gefährdet!)
       floatcase(x,
-      /* x SF */ { # x entpacken:
+      /* x SF */ {
+                   # x entpacken:
                    var sintWL exp;
                    var uint32 mant;
                    SF_decode(x, { goto zero; }, _EMA_,exp=,mant=);
                    pushSTACK(fixnum(mant)); # Mantisse als Fixnum (>0, <2^17)
                    pushSTACK(L_to_FN((sintL)(exp-(SF_mant_len+1)))); # e-17 als Fixnum
                  },
-      /* x FF */ { # x entpacken:
+      /* x FF */ {
+                   # x entpacken:
                    var sintWL exp;
                    var uint32 mant;
                    FF_decode(x, { goto zero; }, _EMA_,exp=,mant=);
@@ -1364,40 +1493,49 @@
                             ) );
                    pushSTACK(L_to_FN((sintL)(exp-(FF_mant_len+1)))); # e-24 als Fixnum
                  },
-      /* x DF */ { # x entpacken:
+      /* x DF */ {
+                   # x entpacken:
                    var sintWL exp;
                    ifdef_intQsize(
-                     { var uint64 mant;
+                     {
+                       var uint64 mant;
                        DF_decode(x, { goto zero; }, _EMA_,exp=,mant=);
                        pushSTACK(Q_to_I(mant)); # Mantisse (>0, <2^53) als Bignum
                      },
-                     { var uint32 manthi;
+                     {
+                       var uint32 manthi;
                        var uint32 mantlo;
                        DF_decode2(x, { goto zero; }, _EMA_,exp=,manthi=,mantlo=);
                        pushSTACK(L2_to_I(manthi,mantlo)); # Mantisse (>0, <2^53) als Bignum
                      });
                    pushSTACK(L_to_FN((sintL)(exp-(DF_mant_len+1)))); # e-53 als Fixnum
                  },
-      /* x LF */ { var uintL uexp = TheLfloat(x)->expo;
-                   if (uexp == 0) goto zero;
+      /* x LF */ {
+                   var uintL uexp = TheLfloat(x)->expo;
+                   if (uexp == 0)
+                     goto zero;
                    pushSTACK(x); # x retten
-                  {var uintC len = Lfloat_length(x); # Anzahl Mantissendigits
+                   var uintC len = Lfloat_length(x); # Anzahl Mantissendigits
                    var uintC len1 = len+1; # brauche 1 Digit mehr
                    if (uintWCoverflow(len1)) { fehler_LF_toolong(); }
                    # intDsize*len >= 53 >= 33 >= oint_data_len+1, also len >= bn_minlength.
-                   {var object mant = allocate_bignum(len1,0); # Integer für Mantisse
-                    var uintD* mantptr = &TheBignum(mant)->data[0];
-                    *mantptr++ = 0; # vorne 1 Nulldigit, damit es eine NDS wird
-                    copy_loop_up(&TheLfloat(STACK_0)->data[0],mantptr,len); # NUDS kopieren
-                    STACK_0 = mant; # 1. Wert fertig
+                   {
+                     var object mant = allocate_bignum(len1,0); # Integer für Mantisse
+                     var uintD* mantptr = &TheBignum(mant)->data[0];
+                     *mantptr++ = 0; # vorne 1 Nulldigit, damit es eine NDS wird
+                     copy_loop_up(&TheLfloat(STACK_0)->data[0],mantptr,len); # NUDS kopieren
+                     STACK_0 = mant; # 1. Wert fertig
                    }
                    # e-16n = uexp-LF_exp_mid-16n als Integer bilden:
-                   {var uintL sub = LF_exp_mid + intDsize*(uintL)len;
-                    pushSTACK(UL_UL_minus_I(uexp,sub));
-                 }}}
+                   {
+                     var uintL sub = LF_exp_mid + intDsize*(uintL)len;
+                     pushSTACK(UL_UL_minus_I(uexp,sub));
+                   }
+                 }
                );
       pushSTACK(x_sign);
       return;
-      zero: pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); pushSTACK(Fixnum_1); return;
+     zero:
+      pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); pushSTACK(Fixnum_1); return;
     }
 
