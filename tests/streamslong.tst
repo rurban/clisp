@@ -44,3 +44,73 @@ nil
 
 (loop for size from 2 to 40 do (bin-stream-test :size size :type 'signed-byte))
 nil
+
+;; <http://www.lisp.org/HyperSpec/Body/fun_file-position.html>
+(let ((noticed '()) file-written)
+  (flet ((notice (x) (push x noticed) x))
+    (unwind-protect (progn
+         (with-open-file (s "test.bin"
+                            :element-type '(unsigned-byte 8)
+                            :direction :output
+                            :if-exists :error)
+           (notice (file-position s)) ;1
+           (write-byte 5 s)
+           (write-byte 6 s)
+           (let ((p (file-position s)))
+             (notice p) ;2
+             (notice (when p (file-position s (1- p))))) ;3
+           (write-byte 7 s)
+           (notice (file-position s)) ;4
+           (setq file-written (truename s)))
+         (with-open-file (s file-written
+                            :element-type '(unsigned-byte 8)
+                            :direction :input)
+           (notice (file-position s)) ;5
+           (let ((length (file-length s)))
+             (notice length) ;6
+             (when length
+               (dotimes (i length)
+                 (notice (read-byte s)))))) ;7,...
+         (nreverse noticed))
+      (delete-file file-written))))
+(0 2 1 2 0 2 5 7)
+
+(let ((s (make-string-input-stream
+          (make-array 10 :element-type 'character
+                      :displaced-to "abcdefghijklmnopqrst"
+                      :displaced-index-offset 5))))
+  (prog1
+      (list (read-char s) (read-char s) (file-position s)
+            (file-position s 4) (read-char s)
+            (file-position s :start) (read-char s)
+            (file-position s :end) (file-position s))
+    (close s)))
+(#\f #\g 2 4 #\j 0 #\f 10 10)
+
+(let ((s (make-string-output-stream)))
+  (prog1
+      (list (write-char #\a s) (write-char #\b s) (file-position s)
+            (get-output-stream-string s)
+            (write-string "foo" s) (file-position s 1) (write-char #\z s)
+            (get-output-stream-string s)
+            (file-position s :start) (write-char #\u s)
+            (file-position s :end) (write-char #\w s)
+            (get-output-stream-string s))
+    (close s)))
+(#\a #\b 2 "ab" "foo" 1 #\z "fz" 0 #\u 1 #\w "uw")
+
+(let ((v (make-array 3 :adjustable t :fill-pointer 0
+                     :element-type 'character)))
+  (with-output-to-string (s v)
+    (list (write-string "foo" s) (cons (file-position s) (copy-seq v))
+          (file-position s 2) (write-string "bar" s)
+          (cons (file-position s) (copy-seq v))
+          (file-position s :start) (write-string "zot" s)
+          (cons (file-position s) (copy-seq v))
+          (file-position s :end) (write-string "plonk" s)
+          (cons (file-position s) (copy-seq v)) v)))
+("foo" (3 . "foo")
+ 2 "bar" (5 . "fobar")
+ 0 "zot" (3 . "zot")
+ 3 "plonk" (8 . "zotplonk")
+ "zotplonk")

@@ -1,5 +1,17 @@
 2004-02-15  Sam Steingold  <sds@gnu.org>
 
+	FILE-POSITION does not require its 1st argument to be a FILE-STREAM
+	* stream.d (String-Input-Stream): new slot strm_str_in_begindex
+	(MAKE-STRING-INPUT-STREAM): init it (and allocate space for it!)
+	(logical_position_file_start, logical_position_file)
+	(logical_position_file_end): return the new offset
+	(FILE-POSITION): handle i/o STRING-STREAMs and STRING-PUSH-STREAM
+	call GRAY:STREAM-POSITION for all other objects
+	* gray.lisp (stream-position): new generic function
+	* constsym.d (stream_position): added
+
+2004-02-15  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (GET-OUTPUT-STREAM-STRING, STRING-INPUT-STREAM-INDEX):
 	signal TYPE-ERROR instead of ERROR
 
