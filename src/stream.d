@@ -13791,7 +13791,7 @@ local inline void create_output_pipe (const char* command) {
     var PROCESS_INFORMATION pinfo;
     stdoutput = GetStdHandle(STD_OUTPUT_HANDLE);
     if (stdoutput == INVALID_HANDLE_VALUE) { OS_error(); }
-    stdoutput = GetStdHandle(STD_ERROR_HANDLE);
+    stderror = GetStdHandle(STD_ERROR_HANDLE);
     if (stderror == INVALID_HANDLE_VALUE) { OS_error(); }
     if (!MyCreateProcess(command,child_read_handle,stdoutput,stderror,&pinfo)) {
       OS_error();
