@@ -1,3 +1,18 @@
+2004-02-29  Bruno Haible  <bruno@clisp.org>
+
+	Split clos.lisp.
+	* clos.lisp: Split into pieces.
+	* clos-class1.lisp, clos-class2.lisp, clos-class3.lisp,
+	* clos-class4.lisp, clos-class5.lisp, clos-genfun1.lisp,
+	* clos-genfun2.lisp, clos-genfun3.lisp, clos-genfun4.lisp,
+	* clos-genfun5.lisp, clos-methcomb1.lisp, clos-methcomb2.lisp,
+	* clos-methcomb3.lisp, clos-methcomb4.lisp, clos-methcomb5.lisp,
+	* clos-method1.lisp, clos-method2.lisp, clos-method3.lisp,
+	* clos-slots1.lisp, clos-slots2.lisp, documentation.lisp: New files,
+	extracted from clos.lisp.
+	* makemake.in (LPARTS): Add the new files.
+	* po/Makefile.devel (LISPSOURCES): Likewise.
+
 2004-03-27  Bruno Haible  <bruno@clisp.org>
 
 	* floatprint.lisp (decode-float-decimal): Add argument
