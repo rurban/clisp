@@ -1,3 +1,11 @@
+2002-12-30  Sam Steingold  <sds@gnu.org>
+
+	reversed the 2002-12-12 patch, reinstating the 2001-11-27 patch:
+	elt_nreverse() can now be used because bitbuffer is 8bit now
+	* stream.d (byte_swap): removed
+	(READ-INTEGER, READ-FLOAT, WRITE-INTEGER, WRITE-FLOAT):
+	use elt_nreverse() instead of byte_swap()
+
 2002-12-20  Sam Steingold  <sds@gnu.org>
 
 	* realtran.d (R_sin_R, R_cos_R, R_sinh_R, R_cosh_R):
