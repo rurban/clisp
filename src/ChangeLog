@@ -1,5 +1,16 @@
 2004-06-08  Bruno Haible  <bruno@clisp.org>
 
+	* clos-methcomb1.lisp (get-method-combination): Renamed from
+	find-method-combination. Make argument required. i18n.
+	((setf get-method-combination)): Renamed from
+	(setf find-method-combination).
+	* clos-methcomb2.lisp (define-method-combination,
+	coerce-to-method-combination): Update.
+	* clos-genfun2.lisp (%make-gf): Update.
+	* documentation.lisp (documentation, (setf documentation)): Update.
+
+2004-06-08  Bruno Haible  <bruno@clisp.org>
+
 	* clos-methcomb1.lisp (print-object-<method-combination>): Renamed from
 	print-method-combination.
 	* clos-print.lisp (print-object): Update.

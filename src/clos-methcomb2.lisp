@@ -499,7 +499,7 @@ and with the next-method support."
   (let ((qualifiers (std-method-qualifiers method)))
     (or (equal qualifiers '()) (equal qualifiers '(:around)))))
 
-(setf (find-method-combination 'standard)
+(setf (get-method-combination 'standard)
       (make-method-combination
         :name 'standard
         :documentation "the STANDARD METHOD-COMBINATION object"
@@ -584,7 +584,7 @@ and with the next-method support."
 
 ;;; Predefined method combinations.
 (dolist (name '(+ and append list max min nconc or progn))
-  (setf (find-method-combination name)
+  (setf (get-method-combination name)
         (make-method-combination
           :name name :operator name
           :qualifiers (list name ':around)
@@ -824,7 +824,7 @@ Long-form options are a list of method-group specifiers,
       'define-method-combination name))
   (sys::check-redefinition
     name 'define-method-combination
-    (and (find-method-combination name :if-does-not-exist nil)
+    (and (get-method-combination name nil)
          "method combination"))
   (cond ;; "The short form syntax ... is recognized when the second subform is
         ;;  a non-nil symbol or is not present."
@@ -1011,7 +1011,7 @@ Long-form options are a list of method-group specifiers,
 which performs the instantiation and registration and returns NAME."
   (let ((method-combination
           (apply #'make-method-combination :name name initargs)))
-    (setf (find-method-combination name) method-combination)
+    (setf (get-method-combination name) method-combination)
     name))
 
 ;;; ---------------------------------- Misc ----------------------------------
@@ -1022,7 +1022,7 @@ which performs the instantiation and registration and returns NAME."
 (defun coerce-to-method-combination (gf-name method-combo)
   (flet ((mc (designator)
            (typecase designator
-             (symbol (find-method-combination designator))
+             (symbol (get-method-combination designator 'defgeneric))
              (method-combination designator)
              (t (error-of-type 'program-error
                   (TEXT "~S is not a valid a ~S designator")
