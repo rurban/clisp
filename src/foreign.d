@@ -23,52 +23,98 @@ nonreturning_function(local, fehler_fpointer_invalid, (object obj)) {
   fehler(error,GETTEXT("~ comes from a previous Lisp session and is invalid"));
 }
 
-# (FFI::VALIDP foreign-entity) tests whether a foreign entity is still valid
-# or refers to an invalid foreign pointer.
-LISPFUNN(validp,1)
-  {
-    var object obj = popSTACK();
-    var bool valid = true; # default: non-foreign objects are valid
-    if (orecordp(obj)) {
-      switch (Record_type(obj)) {
-        case Rectype_Fpointer:
-          valid = fp_validp(TheFpointer(obj));
-          break;
-        case Rectype_Faddress:
-          obj = TheFaddress(obj)->fa_base;
-          valid = fp_validp(TheFpointer(obj));
-          break;
-        case Rectype_Fvariable:
-          obj = TheFvariable(obj)->fv_address;
-          obj = TheFaddress(obj)->fa_base;
-          valid = fp_validp(TheFpointer(obj));
-          break;
-        case Rectype_Ffunction:
-          obj = TheFfunction(obj)->ff_address;
-          obj = TheFaddress(obj)->fa_base;
-          valid = fp_validp(TheFpointer(obj));
-          break;
-      }
-    }
-    VALUES_IF(valid);
-  }
+/* complain about non-foreign object */
+nonreturning_function(local, fehler_foreign_object, (object arg)) {
+  pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,GETTEXT("~: argument is not a foreign object: ~"));
+}
 
-# Allocate a foreign address.
-# make_faddress(base,offset)
-# > base: base address
-# > offset: offset relative to the base address
-# < result: Lisp object
-  local object make_faddress (object base, uintP offset);
-  local object make_faddress(base,offset)
-    var object base;
-    var uintP offset;
-    {
-      pushSTACK(base);
-      var object result = allocate_faddress();
-      TheFaddress(result)->fa_base = popSTACK(); # base
-      TheFaddress(result)->fa_offset = offset;
-      return result;
+/* Allocate a foreign address.
+ make_faddress(base,offset)
+ > base: base address
+ > offset: offset relative to the base address
+ < result: Lisp object */
+local object make_faddress (object base, uintP offset)
+{
+  pushSTACK(base);
+  var object result = allocate_faddress();
+  TheFaddress(result)->fa_base = popSTACK(); /* base */
+  TheFaddress(result)->fa_offset = offset;
+  return result;
+}
+
+local object foreign_address (object obj)
+{ /* return the foreign address of the foreign object */
+  if (orecordp(obj)) {
+    switch (Record_type(obj)) {
+      case Rectype_Fpointer:
+        /* unused, but fits the "constructor" idiom */
+        return make_faddress(obj,0);
+      case Rectype_Faddress:
+        return obj;
+      case Rectype_Fvariable:
+        return TheFvariable(obj)->fv_address;
+      case Rectype_Ffunction:
+        return TheFfunction(obj)->ff_address;
     }
+  }
+  return nullobj; /* non-foreign object */
+}
+
+local object foreign_pointer (object obj)
+{ /* return the foreign pointer of the foreign object */
+  if (orecordp(obj)) {
+    switch (Record_type(obj)) {
+      case Rectype_Fpointer:
+        return obj;
+      case Rectype_Fvariable:
+        obj = TheFvariable(obj)->fv_address;
+        goto foreign_address;
+      case Rectype_Ffunction:
+        obj = TheFfunction(obj)->ff_address;
+      case Rectype_Faddress: foreign_address:
+        return TheFaddress(obj)->fa_base;
+    }
+  }
+  return nullobj; /* non-foreign object */
+}
+
+/* (FFI::VALIDP foreign-entity) tests whether a foreign entity
+ is still valid or refers to an invalid foreign pointer. */
+LISPFUNNR(validp,1)
+{
+  var object fp = foreign_pointer(popSTACK());
+  VALUES_IF(eq(fp,nullobj) || fp_validp(TheFpointer(fp)));
+}
+
+/* (FFI:UNSIGNED-FOREIGN-ADDRESS integer)
+ makes a FOREIGN-ADDRESS object out of an unsigned integer */
+LISPFUNNR(unsigned_foreign_address,1) {
+  VALUES1(make_faddress(O(fp_zero),I_to_UL(popSTACK())));
+}
+
+/* (FFI:FOREIGN-ADDRESS-UNSIGNED foreign-address)
+ returns the unsigned integer value of the FOREIGN-ADDRESS */
+LISPFUNNR(foreign_address_unsigned,1) {
+  var object arg = popSTACK();
+  /* arg --> address */
+  if (fvariablep(arg)) arg = TheFvariable(arg)->fv_address;
+  else if (ffunctionp(arg)) arg = TheFfunction(arg)->ff_address;
+  /* address --> integer */
+  if (faddressp(arg)) value1 = UL_to_I((uintP)Faddress_value(arg));
+  else if (fpointerp(arg)) value1 = UL_to_I((uintP)Fpointer_value(arg));
+  else fehler_foreign_object(arg);
+  mv_count = 1;
+}
+
+/* (FFI:FOREIGN-ADDRESS foreign-entity) creates or extracts FOREIGN-ADDRESS
+ out of a FOREIGN-* object. Useful with C-POINTER type declaration. */
+LISPFUNNR(foreign_address,1) {
+  var object arg = popSTACK();
+  var object fa = foreign_address(arg);
+  if (eq(fa,nullobj)) fehler_foreign_object(arg);
+  VALUES1(fa);
+}
 
 # Registers a foreign variable.
 # register_foreign_variable(address,name,flags,size);
@@ -2124,45 +2170,20 @@ LISPFUNN(lookup_foreign_variable,2)
     VALUES1(fvar);
   }
 
-# (FFI:UNSIGNED-FOREIGN-ADDRESS integer)
-# makes a FOREIGN-ADDRESS object out of an unsigned integer
-LISPFUNN(unsigned_foreign_address,1) {
-  value1 = make_faddress(O(fp_zero),I_to_UL(popSTACK()));
-  mv_count = 1;
-}
-
-# (FFI::FOREIGN-ADDRESS-UNSIGNED foreign-address)
-# returns the unsigned integer value of the FOREIGN-ADDRESS
-LISPFUNN(foreign_address_unsigned,1) {
-  var object arg = popSTACK();
-  # arg --> address
-  if (fvariablep(arg)) arg = TheFvariable(arg)->fv_address;
-  else if (ffunctionp(arg)) arg = TheFfunction(arg)->ff_address;
-  # address --> integer
-  if (faddressp(arg)) value1 = UL_to_I((uintP)Faddress_value(arg));
-  else if (fpointerp(arg)) value1 = UL_to_I((uintP)Fpointer_value(arg));
-  else {
-    pushSTACK(arg);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~: argument is not a foreign object: ~"));
-  }
-  mv_count = 1;
-}
-
 # (FFI::FOREIGN-VALUE foreign-variable)
 # returns the value of the foreign variable as a Lisp data structure.
 LISPFUNN(foreign_value,1)
-  {
-    var object fvar = popSTACK();
-    if (!fvariablep(fvar))
-      fehler_foreign_variable(fvar);
-    var void* address = Faddress_value(TheFvariable(fvar)->fv_address);
-    var object fvd = TheFvariable(fvar)->fv_type;
-    if (nullp(fvd))
-      fehler_variable_no_fvd(fvar);
-    value1 = convert_from_foreign(fvd,address);
-    mv_count=1;
-  }
+{
+  var object fvar = popSTACK();
+  if (!fvariablep(fvar))
+    fehler_foreign_variable(fvar);
+  var void* address = Faddress_value(TheFvariable(fvar)->fv_address);
+  var object fvd = TheFvariable(fvar)->fv_type;
+  if (nullp(fvd))
+    fehler_variable_no_fvd(fvar);
+  value1 = convert_from_foreign(fvd,address);
+  mv_count=1;
+}
 
 # (FFI::SET-FOREIGN-VALUE foreign-variable new-value)
 # sets the value of the foreign variable.
@@ -2632,19 +2653,20 @@ LISPFUN(foreign_free,seclass_default,1,0,norest,key,1,(kw(full)))
   if (orecordp(obj)) {
     var void* address;
     switch (Record_type(obj)) {
-      case Rectype_Ffunction:
-        /* Free callback object */
+      case Rectype_Ffunction: { /* Free callback object */
         var object addr_obj = TheFfunction(obj)->ff_address;
         address = Faddress_value(addr_obj);
         free_foreign_callin(address);
         VALUES1(NIL);
         return;
-      case Rectype_Fvariable:
+      }
+      case Rectype_Fvariable: {
         var object addr_obj = TheFvariable(obj)->fv_address;
         address = Faddress_value(addr_obj);
         if (full_recurse)
           free_foreign(TheFvariable(obj)->fv_type,address);
         goto free_address;
+      }
       case Rectype_Faddress:
         address = Faddress_value(obj);
         if (full_recurse) {
@@ -2660,9 +2682,7 @@ LISPFUN(foreign_free,seclass_default,1,0,norest,key,1,(kw(full)))
         return;
     }
   }
-  pushSTACK(obj);
-  pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~: argument is not a foreign object: ~"));
+  fehler_foreign_object(obj);
 }
 
 # Error messages.
