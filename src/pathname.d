@@ -4390,11 +4390,7 @@ local void version_diff (object pattern, object sample, bool logical,
   SAMPLE_UNBOUND_CHECK;
  #if defined(LOGICAL_PATHNAMES) || HAS_VERSION
   if (nullp(pattern) || eq(pattern,S(Kwild))) {
-    var object string =
-      (eq(sample,S(Kwild)) ? (object)O(wild_string) :
-       /* (SYS::DECIMAL-STRING sample) : */
-       integerp(sample) ? decimal_string(sample) : NIL);
-    push_solution_with(string);
+    push_solution_with(sample);
     return;
   }
   if (eq(sample,S(Kwild))) return;
@@ -4674,19 +4670,20 @@ local object translate_version (gcv_object_t* subst, object pattern,
   DEBUG_TRAN(translate_version);
  #if defined(LOGICAL_PATHNAMES) || HAS_VERSION
   if ((nullp(pattern) || eq(pattern,S(Kwild))) && mconsp(*subst)) {
-    if (SIMPLE_P(Car(*subst))) {
-      var object erg = Car(*subst); *subst = Cdr(*subst);
-      if (nullp(erg))
-        return erg;
-      pushSTACK(erg); funcall(L(parse_integer),1);
-      return value1;
+    var object erg = Car(*subst);
+    if (nullp(erg) || integerp(erg)
+        || eq(erg,S(Kwild)) || eq(erg,S(Knewest))) {
+      *subst = Cdr(*subst);
+      return erg;
     } else
       return nullobj;
   }
   return pattern;
  #else
   if (mconsp(*subst)) {
-    if (SIMPLE_P(Car(*subst))) {
+    var object erg = Car(*subst);
+    if (nullp(erg) || integerp(erg)
+        || eq(erg,S(Kwild)) || eq(erg,S(Knewest))) {
       *subst = Cdr(*subst); return NIL;
     } else
       return nullobj;
