@@ -7234,7 +7234,7 @@ nonreturning_function(local, fehler_noname, (object pathname)) {
   fehler(file_error,GETTEXT("no file name given: ~"));
 }
 #define check_noname(pathname)                                          \
-  do { if (namenullp(pathname)) { fehler_noname(pathname); } while(0)
+  do { if (namenullp(pathname)) { fehler_noname(pathname); } } while(0)
 
 # error-message because of illegal Name/Type-specification
 # fehler_notdir(pathname);
