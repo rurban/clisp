@@ -298,7 +298,7 @@
            (PROGN ,element-type ,@(or body-rest '(NIL)))
            (CLOSE ,var)))
       `(LET ((,var (MAKE-STRING-OUTPUT-STREAM :ELEMENT-TYPE ,element-type)))
-         ,@declarations
+         (DECLARE ,@declarations)
          (UNWIND-PROTECT
            (PROGN ,@body-rest (GET-OUTPUT-STREAM-STRING ,var))
            (CLOSE ,var))))))

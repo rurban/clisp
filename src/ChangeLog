@@ -6,6 +6,7 @@
 	* stream.d (input_stream_p, output_stream_p): for
 	SYNONYM-STREAMs, return the value for the underlying stream
 	(STREAM-EXTERNAL-FORMAT): handle empty BROADCAST-STREAMs
+	* macros2.lisp (with-output-to-string): wrap declarations properly
 
 2004-02-11  Sam Steingold  <sds@gnu.org>
 
