@@ -1,5 +1,12 @@
 2005-03-21  Sam Steingold  <sds@gnu.org>
 
+	* modules/wildcard/wildcard.lisp: include <config.h>
+	because it defines fnmatch as an alias to posix_fnmatch
+	when the included fnmatch implementation is used
+	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
+
+2005-03-21  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/rawsock.c (HTONL, NTOHL, HTONS, NTOHS): define
 	even when the OS lacks the C functions; in that case, return the
 	argument on the assumption that the host order is the same as the
