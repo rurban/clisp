@@ -900,6 +900,15 @@ LISPFUNN(socket_stream_local,1)
 LISPFUNN(socket_stream_handle,1)
 #endif
 #endif
+#ifdef EXPORT_SYSCALLS
+#ifdef HAVE_GETHOSTBYNAME
+LISPFUNN(resolve_host_ipaddr,1)
+#endif # HAVE_GETHOSTBYNAME
+#ifdef UNIX
+LISPFUN(file_stat,1,1,norest,nokey,0,NIL)
+LISPFUN(user_data,0,1,norest,nokey,0,NIL)
+#endif # UNIX
+#endif # EXPORT_SYSCALLS
 LISPFUNN(open_stream_p,1)
 LISPFUNN(input_stream_p,1)
 LISPFUNN(output_stream_p,1)

@@ -37,6 +37,7 @@ options:
        --with-dynamic-modules  dynamic loading of foreign language modules
        --with-module=wildcard
        --with-module=regexp
+       --export-syscalls       export some UNIX system calls to Lisp
 debug: Specify this if you expect that you will need to debug the sources.
 Example:
        ./makemake --with-readline --with-dynamic-ffi > Makefile
@@ -194,6 +195,10 @@ while test -z "$endofargs"; do
       eval "with_no`echol $package|sed s/-/_/g`=1"
       shift
       ;;
+    -export-syscalls | --export-syscalls)
+     export_syscalls="yes";
+     shift
+     ;;
     -srcdir* | --srcdir*)
       srcdir=`echol "$1" | sed 's/-*srcdir=*//'`
       shift
@@ -1135,6 +1140,10 @@ FILES='lisp.a'
 
 if test -n "$with_unicode"; then
   XCFLAGS="$XCFLAGS -DUNICODE"
+fi
+
+if test -n "$export_syscalls"; then
+  XCFLAGS="$XCFLAGS -DEXPORT_SYSCALLS";
 fi
 
 if test -n "$with_dynamic_ffi"; then
