@@ -7,8 +7,8 @@
 
 ;;; ===========================================================================
 
-(defmethod initialize-instance ((specializer specializer) &rest args)
-  (apply #'initialize-instance-<specializer> specializer args))
+(defmethod shared-initialize ((specializer specializer) situation &rest args)
+  (apply #'shared-initialize-<specializer> specializer situation args))
 
 (defmethod reinitialize-instance ((instance specializer) &rest initargs)
   (declare (ignore initargs))
@@ -24,10 +24,10 @@
 (replace-class-version (find-class 'eql-specializer)
                        *<eql-specializer>-class-version*)
 
-(defmethod initialize-instance ((specializer eql-specializer) &rest args
-                                &key ((singleton singleton) nil)
-                                &allow-other-keys)
+(defmethod shared-initialize ((specializer eql-specializer) situation &rest args
+                              &key ((singleton singleton) nil)
+                              &allow-other-keys)
   (declare (ignore singleton))
-  (apply #'initialize-instance-<eql-specializer> specializer args))
+  (apply #'shared-initialize-<eql-specializer> specializer situation args))
 
 ;;; ===========================================================================

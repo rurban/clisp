@@ -170,73 +170,92 @@
        (null (cdddr x))))
 
 ;; Initialization of a <class> instance.
-(defun initialize-instance-<class> (class &rest args
-                                    &key (name nil)
-                                         (direct-superclasses nil)
-                                         ((:direct-slots direct-slots-as-lists) '())
-                                         ((direct-slots direct-slots-as-metaobjects) '())
-                                         (direct-default-initargs nil)
-                                         (documentation nil)
-                                    &allow-other-keys
-                                    &aux old-direct-superclasses)
+(defun shared-initialize-<class> (class situation &rest args
+                                  &key (name nil name-p)
+                                       (direct-superclasses nil direct-superclasses-p)
+                                       ((:direct-slots direct-slots-as-lists) '() direct-slots-as-lists-p)
+                                       ((direct-slots direct-slots-as-metaobjects) '() direct-slots-as-metaobjects-p)
+                                       (direct-default-initargs nil direct-default-initargs-p)
+                                       (documentation nil documentation-p)
+                                  &allow-other-keys
+                                  &aux old-direct-superclasses)
   (setq old-direct-superclasses
-        (if (eq (sys::%record-ref class *<class>-direct-superclasses-location*)
-                (sys::%unbound))
+        (if (eq situation 't) ; called from initialize-instance?
           '()
           (sys::%record-ref class *<class>-direct-superclasses-location*)))
-  (apply #'initialize-instance-<specializer> class args)
+  (apply #'shared-initialize-<specializer> class situation args)
   (unless *classes-finished*
-    ; Bootstrapping: Simulate the effect of #'%initialize-instance.
-    (setf (class-direct-subclasses-table class) nil)
-    (setf (class-slot-location-table class) empty-ht)
-    (setf (class-initialized class) nil))
-  ; No need to check the name: any name is valid.
-  (setf (class-classname class) name)
-  ; Check the direct-superclasses.
-  (unless (proper-list-p direct-superclasses)
-    (error (TEXT "(~S ~S) for class ~S: The ~S argument should be a proper list, not ~S")
-           'initialize-instance 'class name ':direct-superclasses direct-superclasses))
-  (unless (every #'(lambda (x) (or (class-p x) (symbolp x))) direct-superclasses)
-    (error (TEXT "(~S ~S) for class ~S: The direct-superclasses list should consist of classes and symbols, not ~S")
-           'initialize-instance 'class name direct-superclasses))
-  (when (and (> (length direct-superclasses) 1)
-             (typep class <structure-class>))
-    (error (TEXT "(~S ~S) for class ~S: The metaclass ~S forbids more than one direct superclass: It does not support multiple inheritance.")
-           'initialize-instance 'class name (class-of class)))
-  (dolist (sc direct-superclasses)
-    (unless (symbolp sc)
-      (check-allowed-superclass class sc)))
-  (when (null direct-superclasses)
-    (setq direct-superclasses (default-direct-superclasses class)))
-  ; Check the direct-slots.
-  (unless (proper-list-p direct-slots-as-lists)
-    (error (TEXT "(~S ~S) for class ~S: The ~S argument should be a proper list, not ~S")
-           'initialize-instance 'class name ':direct-slots direct-slots-as-lists))
-  (dolist (sl direct-slots-as-lists)
-    (unless (canonicalized-slot-p sl)
-      (error (TEXT "(~S ~S) for class ~S: The direct slot specification ~S is not in the canonicalized form (slot-name initform initfunction).")
-             'initialize-instance 'class name sl)))
-  ; Check the direct-default-initargs.
-  (unless (proper-list-p direct-default-initargs)
-    (error (TEXT "(~S ~S) for class ~S: The ~S argument should be a proper list, not ~S")
-           'initialize-instance 'class name ':direct-default-initargs direct-default-initargs))
-  (dolist (definitarg direct-default-initargs)
-    (unless (canonicalized-default-initarg-p definitarg)
-      (error (TEXT "(~S ~S) for class ~S: The direct default initarg ~S is not in canonicalized form (a property list).")
-             'initialize-instance 'class name definitarg)))
-  ; Check the documentation.
-  (unless (or (null documentation) (stringp documentation))
-    (error (TEXT "(~S ~S) for class ~S: The ~S argument should be a string or NIL, not ~S")
-           'initialize-instance 'class name :documentation documentation))
+    ; Bootstrapping: Simulate the effect of #'%shared-initialize.
+    (when (eq situation 't) ; called from initialize-instance?
+      (setf (class-direct-subclasses-table class) nil)
+      (setf (class-slot-location-table class) empty-ht)
+      (setf (class-initialized class) nil)))
+  (if (or (eq situation 't) name-p)
+    ; No need to check the name: any name is valid.
+    (setf (class-classname class) name)
+    ; Get the name, for error message purposes.
+    (setq name (class-classname class)))
+  (when (or (eq situation 't) direct-superclasses-p)
+    ; Check the direct-superclasses.
+    (unless (proper-list-p direct-superclasses)
+      (error (TEXT "(~S ~S) for class ~S: The ~S argument should be a proper list, not ~S")
+             (if (eq situation 't) 'initialize-instance 'shared-initialize)
+             'class name ':direct-superclasses direct-superclasses))
+    (unless (every #'(lambda (x) (or (class-p x) (symbolp x))) direct-superclasses)
+      (error (TEXT "(~S ~S) for class ~S: The direct-superclasses list should consist of classes and symbols, not ~S")
+             (if (eq situation 't) 'initialize-instance 'shared-initialize)
+             'class name direct-superclasses))
+    (when (and (> (length direct-superclasses) 1)
+               (typep class <structure-class>))
+      (error (TEXT "(~S ~S) for class ~S: The metaclass ~S forbids more than one direct superclass: It does not support multiple inheritance.")
+             (if (eq situation 't) 'initialize-instance 'shared-initialize)
+             'class name (class-of class)))
+    (dolist (sc direct-superclasses)
+      (unless (symbolp sc)
+        (check-allowed-superclass class sc)))
+    (when (null direct-superclasses)
+      (setq direct-superclasses (default-direct-superclasses class))))
+  (when (or (eq situation 't) direct-slots-as-lists-p)
+    ; Check the direct-slots.
+    (unless (proper-list-p direct-slots-as-lists)
+      (error (TEXT "(~S ~S) for class ~S: The ~S argument should be a proper list, not ~S")
+             (if (eq situation 't) 'initialize-instance 'shared-initialize)
+             'class name ':direct-slots direct-slots-as-lists))
+    (dolist (sl direct-slots-as-lists)
+      (unless (canonicalized-slot-p sl)
+        (error (TEXT "(~S ~S) for class ~S: The direct slot specification ~S is not in the canonicalized form (slot-name initform initfunction).")
+               (if (eq situation 't) 'initialize-instance 'shared-initialize)
+               'class name sl))))
+  (when (or (eq situation 't) direct-default-initargs-p)
+    ; Check the direct-default-initargs.
+    (unless (proper-list-p direct-default-initargs)
+      (error (TEXT "(~S ~S) for class ~S: The ~S argument should be a proper list, not ~S")
+             (if (eq situation 't) 'initialize-instance 'shared-initialize)
+             'class name ':direct-default-initargs direct-default-initargs))
+    (dolist (definitarg direct-default-initargs)
+      (unless (canonicalized-default-initarg-p definitarg)
+        (error (TEXT "(~S ~S) for class ~S: The direct default initarg ~S is not in canonicalized form (a property list).")
+               (if (eq situation 't) 'initialize-instance 'shared-initialize)
+               'class name definitarg))))
+  (when (or (eq situation 't) documentation-p)
+    ; Check the documentation.
+    (unless (or (null documentation) (stringp documentation))
+      (error (TEXT "(~S ~S) for class ~S: The ~S argument should be a string or NIL, not ~S")
+             (if (eq situation 't) 'initialize-instance 'shared-initialize)
+             'class name :documentation documentation)))
   ; Fill the slots.
-  (setf (class-direct-superclasses class) (copy-list direct-superclasses))
-  (update-subclasses-sets class old-direct-superclasses direct-superclasses)
-  (setf (class-direct-slots class)
-        (append direct-slots-as-metaobjects
-                (convert-direct-slots class direct-slots-as-lists)))
-  (setf (class-direct-default-initargs class) direct-default-initargs)
-  (setf (class-documentation class) documentation)
-  ; The following slots are initialized by the subclass' initialize-instance:
+  (when (or (eq situation 't) direct-superclasses-p)
+    (setf (class-direct-superclasses class) (copy-list direct-superclasses))
+    (update-subclasses-sets class old-direct-superclasses direct-superclasses))
+  (when (or (eq situation 't) direct-slots-as-lists-p direct-slots-as-metaobjects-p)
+    (setf (class-direct-slots class)
+          (append direct-slots-as-metaobjects
+                  (convert-direct-slots class direct-slots-as-lists))))
+  (when (or (eq situation 't) direct-default-initargs-p)
+    (setf (class-direct-default-initargs class) direct-default-initargs))
+  (when (or (eq situation 't) documentation-p)
+    (setf (class-documentation class) documentation))
+  ; The following slots are initialized by the subclass' shared-initialize:
   ;   all-superclasses
   ;   precedence-list
   ;   slots
@@ -297,10 +316,10 @@
   (setf (sys::%record-ref object *<slotted-class>-instance-size-location*) new-value))
 
 ;; Initialization of a <slotted-class> instance.
-(defun initialize-instance-<slotted-class> (class &rest args
-                                            &key &allow-other-keys)
-  (apply #'initialize-instance-<class> class args)
-  ; The following slots are initialized by the subclass' initialize-instance:
+(defun shared-initialize-<slotted-class> (class situation &rest args
+                                          &key &allow-other-keys)
+  (apply #'shared-initialize-<class> class situation args)
+  ; The following slots are initialized by the subclass' shared-initialize:
   ;   subclass-of-stablehash-p
   ;   valid-initargs
   ;   instance-size
