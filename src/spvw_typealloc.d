@@ -93,9 +93,10 @@
       #endif
       allocate(svector_type,TRUE,need,Svector,ptr,
                { SETTFL
-                 { var object* p = &ptr->data[0];
-                   dotimesL(len,len, { *p++ = NIL; } ); # Elemente mit NIL vollschreiben
-               } }
+                 if (len > 0)
+                   { var object* p = &ptr->data[0];
+                     dotimespL(len,len, { *p++ = NIL; } ); # Elemente mit NIL vollschreiben
+               }   }
               )
       #undef SETTFL
     }

@@ -2879,18 +2879,19 @@ LISPFUN(make_array,1,0,norest,key,7,\
             else
             { # Schleife über alle gemeinsamen Indizes:
               ptr->oldindex = oldindex; ptr->newindex = newindex;
-              depth--;
-              dotimesL(ptr->subscript,ptr->mindim,
-                { oldindex = ptr->oldindex; newindex = ptr->newindex;
-                  ptr = ptr STACKop -1;
-                  goto entry;
-                  reentry:
-                  ptr = ptr STACKop 1;
-                  ptr->oldindex += ptr->olddelta;
-                  ptr->newindex += ptr->newdelta;
-                });
-              depth++;
-            }
+              if (ptr->mindim > 0)
+                { depth--;
+                  dotimespL(ptr->subscript,ptr->mindim,
+                    { oldindex = ptr->oldindex; newindex = ptr->newindex;
+                      ptr = ptr STACKop -1;
+                      goto entry;
+                      reentry:
+                      ptr = ptr STACKop 1;
+                      ptr->oldindex += ptr->olddelta;
+                      ptr->newindex += ptr->newdelta;
+                    });
+                  depth++;
+            }   }
           # Rekursionsaustritt:
           if (depth<rank) goto reentry;
     }}}

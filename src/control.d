@@ -327,24 +327,25 @@ LISPSPECFORM(psetq, 0,0,body)
       else
       { var object body = popSTACK();
         var uintL body_length = llength(body)/2; # Anzahl der Paare (var form)
-        get_space_on_STACK(body_length*2*sizeof(object)); # Platz im STACK belegen
-        { var uintL count;
-          dotimesL(count,body_length,
-            { pushSTACK(Car(body)); # Variable auf den Stack
-              body = Cdr(body);
-              pushSTACK(Cdr(body)); # Restliche Liste auf den Stack
-              eval(Car(body)); # nächste Form auswerten
-              body = STACK_0;
-              STACK_0 = value1; # ihr Ergebnis in den Stack
-            });
-        }
-        { var uintL count;
-          dotimesL(count,body_length,
-            { var object val = popSTACK(); # Wert
-              var object sym = popSTACK(); # Symbol
-              setq(sym,val); # Zuweisung durchführen
-            });
-        }
+        if (body_length > 0)
+          { get_space_on_STACK(body_length*2*sizeof(object)); # Platz im STACK belegen
+            { var uintL count;
+              dotimespL(count,body_length,
+                { pushSTACK(Car(body)); # Variable auf den Stack
+                  body = Cdr(body);
+                  pushSTACK(Cdr(body)); # Restliche Liste auf den Stack
+                  eval(Car(body)); # nächste Form auswerten
+                  body = STACK_0;
+                  STACK_0 = value1; # ihr Ergebnis in den Stack
+                });
+            }
+            { var uintL count;
+              dotimespL(count,body_length,
+                { var object val = popSTACK(); # Wert
+                  var object sym = popSTACK(); # Symbol
+                  setq(sym,val); # Zuweisung durchführen
+                });
+          } }
         value1 = NIL; mv_count=1; # Wert NIL
   }   }
 

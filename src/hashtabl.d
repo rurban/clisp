@@ -1152,12 +1152,13 @@
   local void clrhash(ht)
     var object ht;
     { set_break_sem_2(); # Vor Unterbrechungen schützen
-      {var object* KVptr = &TheSvector(TheHashtable(ht)->ht_kvtable)->data[0];
-       var uintL count = posfixnum_to_L(TheHashtable(ht)->ht_maxcount);
-       dotimesL(count,count, # in jedem Eintrag
-         { *KVptr++ = leer; *KVptr++ = leer; # Key und Value leeren
-         });
-      }
+      {var uintL count = posfixnum_to_L(TheHashtable(ht)->ht_maxcount);
+       if (count > 0)
+         { var object* KVptr = &TheSvector(TheHashtable(ht)->ht_kvtable)->data[0];
+           dotimespL(count,count, # in jedem Eintrag
+             { *KVptr++ = leer; *KVptr++ = leer; # Key und Value leeren
+             });
+      }  }
       TheHashtable(ht)->ht_count = Fixnum_0; # COUNT := 0
       mark_ht_invalid(TheHashtable(ht)); # Hashtabelle später noch reorganisieren
       clr_break_sem_2(); # Unterbrechungen wieder zulassen

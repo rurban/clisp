@@ -9490,15 +9490,17 @@ LISPFUNN(make_keyboard_stream,0)
           { ptr++;
             TheIarray(TheStream(*stream_)->strm_terminal_outbuff)->dims[1] = 0; # Fill-Pointer := 0
           }
-       pushSTACK(string);
-       {var uintL index = start + len - pos;
-        dotimesL(count,pos,
-          { ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,
-                                 TheSstring(STACK_0)->data[index]);
-            index++;
-          });
-        string = popSTACK();
-      }}
+        if (pos > 0)
+          { var uintL index = start + len - pos;
+            pushSTACK(string);
+            dotimespL(count,pos,
+              { ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,
+                                     TheSstring(STACK_0)->data[index]);
+                index++;
+              });
+            string = popSTACK();
+          }
+      }
       #endif
     }}
 

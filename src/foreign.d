@@ -862,52 +862,59 @@ global object convert_from_foreign (object fvd, const void* data);
     var object array;
     var const void* data;
     { if (eq(eltype,S(character)))
-        { var const uintB* ptr1 = (const uintB*)data;
-          var chart* ptr2 = &TheSstring(array)->data[0];
-          #ifdef UNICODE
-          var object encoding = O(foreign_encoding);
-          ASSERT(Encoding_mblen(encoding)(encoding,ptr1,ptr1+size) == size);
-          Encoding_mbstowcs(encoding)(encoding,&ptr1,ptr1+size,&ptr2,ptr2+size);
-          ASSERT(ptr1 == (const uintB*)data+size);
-          #else
-          dotimesL(size,size, { *ptr2++ = as_chart(*ptr1++); } );
-          #endif
-        }
+        { if (size > 0)
+            { var const uintB* ptr1 = (const uintB*)data;
+              var chart* ptr2 = &TheSstring(array)->data[0];
+              #ifdef UNICODE
+              var object encoding = O(foreign_encoding);
+              ASSERT(Encoding_mblen(encoding)(encoding,ptr1,ptr1+size) == size);
+              Encoding_mbstowcs(encoding)(encoding,&ptr1,ptr1+size,&ptr2,ptr2+size);
+              ASSERT(ptr1 == (const uintB*)data+size);
+              #else
+              dotimespL(size,size, { *ptr2++ = as_chart(*ptr1++); } );
+              #endif
+        }   }
       elif (eq(eltype,S(uint8)))
-        { var const uint8* ptr1 = (const uint8*)data;
-          var uint8* ptr2 = (uint8*)&TheSbvector(TheIarray(array)->data)->data[0];
-          dotimesL(size,size, { *ptr2++ = *ptr1++; } );
-        }
+        { if (size > 0)
+            { var const uint8* ptr1 = (const uint8*)data;
+              var uint8* ptr2 = (uint8*)&TheSbvector(TheIarray(array)->data)->data[0];
+              dotimespL(size,size, { *ptr2++ = *ptr1++; } );
+        }   }
       #if 0
       elif (eq(eltype,S(sint8)))
-        { var const sint8* ptr1 = (const sint8*)data;
-          var sint8* ptr2 = (sint8*)&TheSbvector(TheIarray(array)->data)->data[0];
-          dotimesL(size,size, { *ptr2++ = *ptr1++; } );
-        }
+        { if (size > 0)
+            { var const sint8* ptr1 = (const sint8*)data;
+              var sint8* ptr2 = (sint8*)&TheSbvector(TheIarray(array)->data)->data[0];
+              dotimespL(size,size, { *ptr2++ = *ptr1++; } );
+        }   }
       #endif
       elif (eq(eltype,S(uint16)))
-        { var const uint16* ptr1 = (const uint16*)data;
-          var uint16* ptr2 = (uint16*)&TheSbvector(TheIarray(array)->data)->data[0];
-          dotimesL(size,size, { *ptr2++ = *ptr1++; } );
-        }
+        { if (size > 0)
+            { var const uint16* ptr1 = (const uint16*)data;
+              var uint16* ptr2 = (uint16*)&TheSbvector(TheIarray(array)->data)->data[0];
+              dotimespL(size,size, { *ptr2++ = *ptr1++; } );
+        }   }
       #if 0
       elif (eq(eltype,S(sint16)))
-        { var const sint16* ptr1 = (const sint16*)data;
-          var sint16* ptr2 = (sint16*)&TheSbvector(TheIarray(array)->data)->data[0];
-          dotimesL(size,size, { *ptr2++ = *ptr1++; } );
-        }
+        { if (size > 0)
+            { var const sint16* ptr1 = (const sint16*)data;
+              var sint16* ptr2 = (sint16*)&TheSbvector(TheIarray(array)->data)->data[0];
+              dotimespL(size,size, { *ptr2++ = *ptr1++; } );
+        }   }
       #endif
       elif (eq(eltype,S(uint32)))
-        { var const uint32* ptr1 = (const uint32*)data;
-          var uint32* ptr2 = (uint32*)&TheSbvector(TheIarray(array)->data)->data[0];
-          dotimesL(size,size, { *ptr2++ = *ptr1++; } );
-        }
+        { if (size > 0)
+            { var const uint32* ptr1 = (const uint32*)data;
+              var uint32* ptr2 = (uint32*)&TheSbvector(TheIarray(array)->data)->data[0];
+              dotimespL(size,size, { *ptr2++ = *ptr1++; } );
+        }   }
       #if 0
       elif (eq(eltype,S(sint32)))
-        { var const sint32* ptr1 = (const sint32*)data;
-          var sint32* ptr2 = (sint32*)&TheSbvector(TheIarray(array)->data)->data[0];
-          dotimesL(size,size, { *ptr2++ = *ptr1++; } );
-        }
+        { if (size > 0)
+            { var const sint32* ptr1 = (const sint32*)data;
+              var sint32* ptr2 = (sint32*)&TheSbvector(TheIarray(array)->data)->data[0];
+              dotimespL(size,size, { *ptr2++ = *ptr1++; } );
+        }   }
       #endif
       else
         { NOTREACHED }
@@ -1845,35 +1852,38 @@ local void convert_to_foreign(fvd,obj,data)
                       && general_byte_vector_p(obj)
                       && ((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_8Bit)
                      )
-                  { var uintL index = 0;
-                    obj = array_displace_check(obj,size,&index);
-                   {var uint8* ptr1 = &TheSbvector(TheIarray(obj)->data)->data[index];
-                    var uint8* ptr2 = (uint8*)data;
-                    var uintL count;
-                    dotimesL(count,size, { *ptr2++ = *ptr1++; } );
-                  }}
+                  { if (size > 0)
+                      { var uintL index = 0;
+                        obj = array_displace_check(obj,size,&index);
+                       {var const uint8* ptr1 = &TheSbvector(TheIarray(obj)->data)->data[index];
+                        var uint8* ptr2 = (uint8*)data;
+                        var uintL count;
+                        dotimespL(count,size, { *ptr2++ = *ptr1++; } );
+                  }   }}
                 elif (eq(eltype,S(uint16))
                       && general_byte_vector_p(obj)
                       && ((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_16Bit)
                      )
-                  { var uintL index = 0;
-                    obj = array_displace_check(obj,size,&index);
-                   {var uint16* ptr1 = (uint16*)&TheSbvector(TheIarray(obj)->data)->data[2*index];
-                    var uint16* ptr2 = (uint16*)data;
-                    var uintL count;
-                    dotimesL(count,size, { *ptr2++ = *ptr1++; } );
-                  }}
+                  { if (size > 0)
+                      { var uintL index = 0;
+                        obj = array_displace_check(obj,size,&index);
+                       {var const uint16* ptr1 = (uint16*)&TheSbvector(TheIarray(obj)->data)->data[2*index];
+                        var uint16* ptr2 = (uint16*)data;
+                        var uintL count;
+                        dotimespL(count,size, { *ptr2++ = *ptr1++; } );
+                  }   }}
                 elif (eq(eltype,S(uint32))
                       && general_byte_vector_p(obj)
                       && ((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_32Bit)
                      )
-                  { var uintL index = 0;
-                    obj = array_displace_check(obj,size,&index);
-                   {var uint32* ptr1 = (uint32*)&TheSbvector(TheIarray(obj)->data)->data[4*index];
-                    var uint32* ptr2 = (uint32*)data;
-                    var uintL count;
-                    dotimesL(count,size, { *ptr2++ = *ptr1++; } );
-                  }}
+                  { if (size > 0)
+                      { var uintL index = 0;
+                        obj = array_displace_check(obj,size,&index);
+                       {var const uint32* ptr1 = (uint32*)&TheSbvector(TheIarray(obj)->data)->data[4*index];
+                        var uint32* ptr2 = (uint32*)data;
+                        var uintL count;
+                        dotimespL(count,size, { *ptr2++ = *ptr1++; } );
+                  }   }}
                 else
                   { pushSTACK(eltype);
                     pushSTACK(obj);
@@ -1908,38 +1918,44 @@ local void convert_to_foreign(fvd,obj,data)
                       && general_byte_vector_p(obj)
                       && ((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_8Bit)
                      )
-                  { var uintL index = 0;
-                    obj = array_displace_check(obj,len,&index);
-                   {var uint8* ptr1 = &TheSbvector(TheIarray(obj)->data)->data[index];
-                    var uint8* ptr2 = (uint8*)data;
-                    var uintL count;
-                    dotimesL(count,len, { *ptr2++ = *ptr1++; } );
+                  { var uint8* ptr2 = (uint8*)data;
+                    if (len > 0)
+                      { var uintL index = 0;
+                        obj = array_displace_check(obj,len,&index);
+                       {var const uint8* ptr1 = &TheSbvector(TheIarray(obj)->data)->data[index];
+                        var uintL count;
+                        dotimespL(count,len, { *ptr2++ = *ptr1++; } );
+                      }}
                     if (len < maxdim) { *ptr2 = 0; }
-                  }}
+                  }
                 elif (eq(eltype,S(uint16))
                       && general_byte_vector_p(obj)
                       && ((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_16Bit)
                      )
-                  { var uintL index = 0;
-                    obj = array_displace_check(obj,len,&index);
-                   {var uint16* ptr1 = (uint16*)&TheSbvector(TheIarray(obj)->data)->data[2*index];
-                    var uint16* ptr2 = (uint16*)data;
-                    var uintL count;
-                    dotimesL(count,len, { *ptr2++ = *ptr1++; } );
+                  { var uint16* ptr2 = (uint16*)data;
+                    if (len > 0)
+                      { var uintL index = 0;
+                        obj = array_displace_check(obj,len,&index);
+                       {var const uint16* ptr1 = (uint16*)&TheSbvector(TheIarray(obj)->data)->data[2*index];
+                        var uintL count;
+                        dotimespL(count,len, { *ptr2++ = *ptr1++; } );
+                      }}
                     if (len < maxdim) { *ptr2 = 0; }
-                  }}
+                  }
                 elif (eq(eltype,S(uint32))
                       && general_byte_vector_p(obj)
                       && ((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_32Bit)
                      )
-                  { var uintL index = 0;
-                    obj = array_displace_check(obj,len,&index);
-                   {var uint32* ptr1 = (uint32*)&TheSbvector(TheIarray(obj)->data)->data[4*index];
-                    var uint32* ptr2 = (uint32*)data;
-                    var uintL count;
-                    dotimesL(count,len, { *ptr2++ = *ptr1++; } );
+                  { var uint32* ptr2 = (uint32*)data;
+                    if (len > 0)
+                      { var uintL index = 0;
+                        obj = array_displace_check(obj,len,&index);
+                       {var const uint32* ptr1 = (uint32*)&TheSbvector(TheIarray(obj)->data)->data[4*index];
+                        var uintL count;
+                        dotimespL(count,len, { *ptr2++ = *ptr1++; } );
+                      }}
                     if (len < maxdim) { *ptr2 = 0; }
-                  }}
+                  }
                 else
                   { pushSTACK(eltype);
                     pushSTACK(obj);

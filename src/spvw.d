@@ -2868,13 +2868,14 @@ local void print_banner ()
          funcall(S(load),3);
       }
       # für jedes initfile (LOAD initfile) ausführen:
-      { var char** fileptr = &argv_init_files[0];
-        var uintL count;
-        dotimesL(count,argv_init_filecount,
-          { var object filename = asciz_to_string(*fileptr++,O(misc_encoding));
-            pushSTACK(filename); funcall(S(load),1);
-          });
-      }
+      if (argv_init_filecount > 0)
+        { var char** fileptr = &argv_init_files[0];
+          var uintL count;
+          dotimespL(count,argv_init_filecount,
+            { var object filename = asciz_to_string(*fileptr++,O(misc_encoding));
+              pushSTACK(filename); funcall(S(load),1);
+            });
+        }
       if (argv_compile)
         # für jedes File
         #   (EXIT-ON-ERROR
@@ -2884,58 +2885,60 @@ local void print_banner ()
         #                     [:LISTING (MERGE-PATHNAMES '#".lis" (or output-file file))]
         #   ) ) )
         # durchführen:
-        { var argv_compile_file* fileptr = &argv_compile_files[0];
-          var uintL count;
-          dotimesL(count,argv_compile_filecount,
-            { var uintC argcount = 1;
-              var object filename = asciz_to_string(fileptr->input_file,O(misc_encoding));
-              pushSTACK(S(compile_file));
-              pushSTACK(filename);
-              pushSTACK(O(source_file_type)); # #".lsp"
-              funcall(L(cd),0); pushSTACK(value1); # (CD)
-              funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES '#".lsp" (CD))
-              pushSTACK(value1);
-              funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES file ...)
-              pushSTACK(value1);
-              if (fileptr->output_file)
-                { filename = asciz_to_string(fileptr->output_file,O(misc_encoding));
-                  pushSTACK(S(Koutput_file));
+        { if (argv_compile_filecount > 0)
+            { var argv_compile_file* fileptr = &argv_compile_files[0];
+              var uintL count;
+              dotimespL(count,argv_compile_filecount,
+                { var uintC argcount = 1;
+                  var object filename = asciz_to_string(fileptr->input_file,O(misc_encoding));
+                  pushSTACK(S(compile_file));
                   pushSTACK(filename);
-                  pushSTACK(O(compiled_file_type)); # #".fas"
+                  pushSTACK(O(source_file_type)); # #".lsp"
                   funcall(L(cd),0); pushSTACK(value1); # (CD)
-                  funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES '#".fas" (CD))
+                  funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES '#".lsp" (CD))
                   pushSTACK(value1);
-                  funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES output-file ...)
+                  funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES file ...)
                   pushSTACK(value1);
-                  pushSTACK(STACK_2); # file
-                  funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES ... file)
-                  pushSTACK(value1);
-                  argcount += 2;
-                }
-              if (argv_compile_listing)
-                { pushSTACK(S(Klisting));
-                  pushSTACK(O(listing_file_type)); # #".lis"
-                  pushSTACK(STACK_2); # (or output-file file)
-                  funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES '#".lis" ...)
-                  pushSTACK(value1);
-                  argcount += 2;
-                }
-              # Alle Argumente quotieren:
-              if (argcount > 0)
-                { var object* ptr = args_end_pointer;
-                  var uintC c;
-                  dotimespC(c,argcount,
-                    { pushSTACK(S(quote)); pushSTACK(Before(ptr));
-                      BEFORE(ptr) = listof(2);
-                    });
-                }
-             {var object form = listof(1+argcount); # `(COMPILE-FILE ',...)
-              pushSTACK(S(batchmode_errors));
-              pushSTACK(form);
-              form = listof(2); # `(SYS::BATCHMODE-ERRORS (COMPILE-FILE ',...))
-              eval_noenv(form); # ausführen
-              fileptr++;
-            }});
+                  if (fileptr->output_file)
+                    { filename = asciz_to_string(fileptr->output_file,O(misc_encoding));
+                      pushSTACK(S(Koutput_file));
+                      pushSTACK(filename);
+                      pushSTACK(O(compiled_file_type)); # #".fas"
+                      funcall(L(cd),0); pushSTACK(value1); # (CD)
+                      funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES '#".fas" (CD))
+                      pushSTACK(value1);
+                      funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES output-file ...)
+                      pushSTACK(value1);
+                      pushSTACK(STACK_2); # file
+                      funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES ... file)
+                      pushSTACK(value1);
+                      argcount += 2;
+                    }
+                  if (argv_compile_listing)
+                    { pushSTACK(S(Klisting));
+                      pushSTACK(O(listing_file_type)); # #".lis"
+                      pushSTACK(STACK_2); # (or output-file file)
+                      funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES '#".lis" ...)
+                      pushSTACK(value1);
+                      argcount += 2;
+                    }
+                  # Alle Argumente quotieren:
+                  if (argcount > 0)
+                    { var object* ptr = args_end_pointer;
+                      var uintC c;
+                      dotimespC(c,argcount,
+                        { pushSTACK(S(quote)); pushSTACK(Before(ptr));
+                          BEFORE(ptr) = listof(2);
+                        });
+                    }
+                 {var object form = listof(1+argcount); # `(COMPILE-FILE ',...)
+                  pushSTACK(S(batchmode_errors));
+                  pushSTACK(form);
+                  form = listof(2); # `(SYS::BATCHMODE-ERRORS (COMPILE-FILE ',...))
+                  eval_noenv(form); # ausführen
+                  fileptr++;
+                }});
+            }
           quit();
         }
       if (!(argv_execute_file == NULL))
@@ -2956,10 +2959,12 @@ local void print_banner ()
           funcall(L(set_dispatch_macro_character),3);
           #endif
           Symbol_value(S(load_verbose)) = NIL;
-          { var char** argsptr = argv_execute_args;
-            var uintL count;
-            dotimesL(count,argv_execute_arg_count,
-              { pushSTACK(asciz_to_string(*argsptr++,O(misc_encoding))); });
+          { if (argv_execute_arg_count > 0)
+              { var char** argsptr = argv_execute_args;
+                var uintL count;
+                dotimespL(count,argv_execute_arg_count,
+                  { pushSTACK(asciz_to_string(*argsptr++,O(misc_encoding))); });
+              }
             define_variable(S(args),listof(argv_execute_arg_count));
           }
           { var object form;

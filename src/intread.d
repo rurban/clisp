@@ -62,27 +62,29 @@
       if ((intWCsize < 32) && (need > (uintL)(bitc(intWCsize)-1))) { BN_ueberlauf(); }
       num_stack_need(need,_EMA_,erg_LSDptr=);
       erg_MSDptr = erg_LSDptr; erg_len = 0;
-      begin_arith_call();
-      # Ziffern einzeln draufaddieren:
-      dotimesL(len,len,
-        { # erg_MSDptr/erg_len/erg_LSDptr ist eine NUDS, erg_len < need.
-          var chart ch = *MSBptr++; # nächstes Character
-          var cint c = as_cint(ch);
-          if (!(c=='.')) # Punkt überlesen
-            { # Wert von c ('0'-'9','A'-'Z','a'-'z') bilden:
-              c = c - '0';
-              if (c > '9'-'0') # keine Ziffer?
-                { c = c+'0'-'A'+10;
-                  if (c > 'Z'-'A'+10) # kein Großbuchstabe?
-                    { c = c+'A'-'a'; } # dann ein Kleinbuchstabe
-                }
-              # multipliziere erg mit base und addiere ch:
-             {var uintD carry = mulusmall_loop_down(base,erg_LSDptr,erg_len,c);
-              if (!(carry==0))
-                # muss NUDS vergrößern:
-                { *--erg_MSDptr = carry; erg_len++; }
-        }   }});
-      end_arith_call();
+      if (len > 0)
+        { begin_arith_call();
+          # Ziffern einzeln draufaddieren:
+          dotimespL(len,len,
+            { # erg_MSDptr/erg_len/erg_LSDptr ist eine NUDS, erg_len < need.
+              var chart ch = *MSBptr++; # nächstes Character
+              var cint c = as_cint(ch);
+              if (!(c=='.')) # Punkt überlesen
+                { # Wert von c ('0'-'9','A'-'Z','a'-'z') bilden:
+                  c = c - '0';
+                  if (c > '9'-'0') # keine Ziffer?
+                    { c = c+'0'-'A'+10;
+                      if (c > 'Z'-'A'+10) # kein Großbuchstabe?
+                        { c = c+'A'-'a'; } # dann ein Kleinbuchstabe
+                    }
+                  # multipliziere erg mit base und addiere ch:
+                 {var uintD carry = mulusmall_loop_down(base,erg_LSDptr,erg_len,c);
+                  if (!(carry==0))
+                    # muss NUDS vergrößern:
+                    { *--erg_MSDptr = carry; erg_len++; }
+            }   }});
+          end_arith_call();
+        }
       RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
       return NUDS_to_I(erg_MSDptr,erg_len);
     }

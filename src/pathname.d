@@ -918,15 +918,16 @@
       # Suche, ob Groß- oder Kleinbuchstaben (oder beides) vorkommen:
       var boolean all_upper = TRUE;
       var boolean all_lower = TRUE;
-      { var const chart* ptr = &TheSstring(string)->data[0];
-        var uintL count;
-        dotimesL(count,len,
-          { var chart ch = *ptr++;
-            if (!chareq(ch,up_case(ch))) { all_upper = FALSE; }
-            if (!chareq(ch,down_case(ch))) { all_lower = FALSE; }
-            if (!all_upper && !all_lower) break;
-          });
-      }
+      if (len > 0)
+        { var const chart* ptr = &TheSstring(string)->data[0];
+          var uintL count;
+          dotimespL(count,len,
+            { var chart ch = *ptr++;
+              if (!chareq(ch,up_case(ch))) { all_upper = FALSE; }
+              if (!chareq(ch,down_case(ch))) { all_lower = FALSE; }
+              if (!all_upper && !all_lower) break;
+            });
+        }
       if (all_upper == all_lower)
         # all_upper = all_lower = TRUE: Nichts zu konvertieren.
         # all_upper = all_lower = FALSE: "Mixed case represents itself."
@@ -1034,12 +1035,13 @@ local boolean legal_logical_word_char(ch)
       host = coerce_ss(host); # als Simple-String
       if (convert) { host = common_case(host); }
       { var uintL len = Sstring_length(host);
-        var const chart* charptr = &TheSstring(host)->data[0];
-        dotimesL(len,len,
-          { var chart ch = *charptr++;
-            if (!legal_hostchar(ch)) goto badhost;
-          });
-      }
+        if (len > 0)
+          { var const chart* charptr = &TheSstring(host)->data[0];
+            dotimespL(len,len,
+              { var chart ch = *charptr++;
+                if (!legal_hostchar(ch)) goto badhost;
+              });
+      }   }
       OK: return host;
       badhost:
         { pushSTACK(host);
@@ -1083,12 +1085,13 @@ local boolean legal_logical_word_char(ch)
         }
       host = coerce_ss(host); # als Simple-String
       { var uintL len = Sstring_length(host);
-        var const chart* charptr = &TheSstring(host)->data[0];
-        dotimesL(len,len,
-          { var chart ch = *charptr++;
-            if (!legal_logical_word_char(ch)) goto badhost;
-          });
-      }
+        if (len > 0)
+          { var const chart* charptr = &TheSstring(host)->data[0];
+            dotimespL(len,len,
+              { var chart ch = *charptr++;
+                if (!legal_logical_word_char(ch)) goto badhost;
+              });
+      }   }
       OK: return host;
       badhost:
         { pushSTACK(host);
@@ -1415,13 +1418,15 @@ local object parse_logical_word(z,subdirp)
 local boolean all_digits (object string);
 local boolean all_digits(string)
   var object string;
-  { var const chart* charptr = &TheSstring(string)->data[0];
-    var uintL len = Sstring_length(string);
-    dotimesL(len,len,
-      { var chart ch = *charptr++;
-        var cint c = as_cint(ch);
-        if (!((c >= '0') && (c <= '9'))) return FALSE;
-      });
+  { var uintL len = Sstring_length(string);
+    if (len > 0)
+      { var const chart* charptr = &TheSstring(string)->data[0];
+        dotimespL(len,len,
+          { var chart ch = *charptr++;
+            var cint c = as_cint(ch);
+            if (!((c >= '0') && (c <= '9'))) return FALSE;
+          });
+      }
     return TRUE;
   }
 
@@ -1444,10 +1449,11 @@ local uintL parse_logical_pathnamestring(z)
        { var uintL len = z.index - startz.index;
          host = allocate_string(len);
          # und füllen:
-        {var const chart* ptr1 = &TheSstring(STACK_1)->data[startz.index];
-         var chart* ptr2 = &TheSstring(host)->data[0];
-         dotimesL(len,len, { *ptr2++ = up_case(*ptr1++); });
-       }}
+         if (len > 0)
+           { var const chart* ptr1 = &TheSstring(STACK_1)->data[startz.index];
+             var chart* ptr2 = &TheSstring(host)->data[0];
+             dotimespL(len,len, { *ptr2++ = up_case(*ptr1++); });
+       }   }
        # Character ':' übergehen:
        z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
        goto hostspec_ok;
@@ -2015,9 +2021,9 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                   z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                  {var object userhomedir; # Pathname des User-Homedir
                   # nächsten '/' suchen:
-                  var const chart* charptr = &TheSstring(STACK_2)->data[z.index];
                   var uintL charcount = 0;
-                  { var uintL count;
+                  { var const chart* charptr = &TheSstring(STACK_2)->data[z.index];
+                    var uintL count;
                     dotimesL(count,z.count,
                       { if (chareq(*charptr++,ascii('/'))) break;
                         charcount++;
@@ -2077,9 +2083,9 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                   z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                  {var object envval_dir;
                   # nächsten '/' suchen:
-                  var const chart* charptr = &TheSstring(STACK_2)->data[z.index];
                   var uintL charcount = 0;
-                  { var uintL count;
+                  { var const chart* charptr = &TheSstring(STACK_2)->data[z.index];
+                    var uintL count;
                     dotimesL(count,z.count,
                       { if (chareq(*charptr++,ascii('/'))) break;
                         charcount++;
@@ -3795,15 +3801,16 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
       if (!(len <= stdlen)) { return FALSE; } # und Länge <=stdlen ?
       #endif
       # Jedes einzelne Zeichen überprüfen:
-      {var const chart* ptr = &TheSstring(obj)->data[0];
-       dotimesL(len,len,
-         { var chart ch = *ptr++;
-           if (!(legal_namechar(ch) # zulässiges Zeichen ?
-                 && chareq(up_case(ch),ch) # und Großbuchstabe ?
-              ) )
-             { return FALSE; }
-         });
-      }
+      if (len > 0)
+        { var const chart* ptr = &TheSstring(obj)->data[0];
+          dotimespL(len,len,
+            { var chart ch = *ptr++;
+              if (!(legal_namechar(ch) # zulässiges Zeichen ?
+                    && chareq(up_case(ch),ch) # und Großbuchstabe ?
+                 ) )
+                { return FALSE; }
+            });
+        }
       return TRUE;
     }}
 
@@ -3829,8 +3836,10 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
     var object obj;
     { if (!simple_string_p(obj)) { return FALSE; }
      {var uintL len = Sstring_length(obj);
-      var const chart* charptr = &TheSstring(obj)->data[0];
-      dotimesL(len,len, { if (!legal_namechar(*charptr++)) { return FALSE; } } );
+      if (len > 0)
+        { var const chart* charptr = &TheSstring(obj)->data[0];
+          dotimespL(len,len, { if (!legal_namechar(*charptr++)) { return FALSE; } } );
+        }
       return TRUE;
     }}
 
@@ -3843,11 +3852,13 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
     var object obj;
     { if (!simple_string_p(obj)) { return FALSE; }
      {var uintL len = Sstring_length(obj);
-      var const chart* charptr = &TheSstring(obj)->data[0];
-      dotimesL(len,len,
-        { var chart ch = *charptr++;
-          if (chareq(ch,ascii('.')) || !legal_namechar(ch)) { return FALSE; }
-        });
+      if (len > 0)
+        { var const chart* charptr = &TheSstring(obj)->data[0];
+          dotimespL(len,len,
+            { var chart ch = *charptr++;
+              if (chareq(ch,ascii('.')) || !legal_namechar(ch)) { return FALSE; }
+            });
+        }
       return TRUE;
     }}
 #endif
@@ -3907,24 +3918,28 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
           #endif
           #ifdef PATHNAME_AMIGAOS
           elif (simple_string_p(device)) # Simple-String ?
-            { var const chart* ptr = &TheSstring(device)->data[0];
-              var uintL count;
-              dotimesL(count,Sstring_length(device),
-                { if (!legal_namechar(*ptr++)) goto device_not_ok; }
-                );
+            { var uintL count = Sstring_length(device);
+              if (count > 0)
+                { var const chart* ptr = &TheSstring(device)->data[0];
+                  dotimespL(count,count,
+                    { if (!legal_namechar(*ptr++)) goto device_not_ok; }
+                    );
+                }
               goto device_ok;
               device_not_ok: ;
             }
           #endif
           #ifdef PATHNAME_RISCOS
           elif (simple_string_p(device)) # Simple-String ?
-            { var const chart* ptr = &TheSstring(device)->data[0];
-              var uintL count;
-              dotimesL(count,Sstring_length(device),
-                { var chart ch = *ptr++;
-                  if (!(legal_namechar(ch) && !chareq(ch,ascii('*')) && !singlewild_char_p(ch)))
-                    goto device_not_ok;
-                });
+            { var uintL count = Sstring_length(device);
+              if (count > 0)
+                { var const chart* ptr = &TheSstring(device)->data[0];
+                  dotimespL(count,count,
+                    { var chart ch = *ptr++;
+                      if (!(legal_namechar(ch) && !chareq(ch,ascii('*')) && !singlewild_char_p(ch)))
+                        goto device_not_ok;
+                    });
+                }
               goto device_ok;
               device_not_ok: ;
             }
@@ -4264,14 +4279,16 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
   local boolean has_wildcards(string)
     var object string;
     { var uintL len = Sstring_length(string);
-      var const chart* charptr = &TheSstring(string)->data[0];
-      dotimesL(len,len,
-        { var chart ch = *charptr++;
-          if (chareq(ch,ascii('*')) # Wildcard für beliebig viele Zeichen
-              || singlewild_char_p(ch) # Wildcard für genau ein Zeichen
-             )
-            { return TRUE; }
-        });
+      if (len > 0)
+        { var const chart* charptr = &TheSstring(string)->data[0];
+          dotimespL(len,len,
+            { var chart ch = *charptr++;
+              if (chareq(ch,ascii('*')) # Wildcard für beliebig viele Zeichen
+                  || singlewild_char_p(ch) # Wildcard für genau ein Zeichen
+                 )
+                { return TRUE; }
+            });
+        }
       return FALSE;
     }
 #endif
@@ -4285,8 +4302,10 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
   local boolean has_word_wildcards(string)
     var object string;
     { var uintL len = Sstring_length(string);
-      var const chart* charptr = &TheSstring(string)->data[0];
-      dotimesL(len,len, { if (chareq(*charptr++,ascii('*'))) { return TRUE; } } );
+      if (len > 0)
+        { var const chart* charptr = &TheSstring(string)->data[0];
+          dotimespL(len,len, { if (chareq(*charptr++,ascii('*'))) { return TRUE; } } );
+        }
       return FALSE;
     }
 #endif
@@ -10833,11 +10852,12 @@ LISPFUNN(dynload_modules,2)
     }
     { var const char * libpath = TheAsciz(string_to_asciz(*(arg_ STACKop 1),O(pathname_encoding)));
       var DYNAMIC_ARRAY(modnames,const char *,stringcount);
-      { var uintL count;
-        var object* ptr1 = STACK STACKop stringcount;
-        var const char * * ptr2 = modnames;
-        dotimesL(count,stringcount, { *ptr2++ = TheAsciz(NEXT(ptr1)); });
-      }
+      if (stringcount > 0)
+        { var uintL count;
+          var object* ptr1 = STACK STACKop stringcount;
+          var const char * * ptr2 = modnames;
+          dotimespL(count,stringcount, { *ptr2++ = TheAsciz(NEXT(ptr1)); });
+        }
       dynload_modules(libpath,stringcount,modnames);
       FREE_DYNAMIC_ARRAY(modnames);
     }
