@@ -1093,8 +1093,8 @@
                          (let ((killid (aref prop 9)))
                            (if (= killid 1)
                                :release-by-freeing-colormap
-                               ;; FIXME function lookup-resource-id not defined
-                               (lookup-resource-id (window-display window) killid)))))))))
+                               (lookup-resource-id (window-display window)
+                                                   killid)))))))))
 
 (defsetf rgb-colormaps set-rgb-colormaps)
 (defun set-rgb-colormaps (window property maps)
