@@ -5734,14 +5734,15 @@ global Values funcall (object fun, uintC args_on_stack)
         fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__); \
         goto label;                                     \
       } while(0)
-    #define DEBUG_CHECK_BYTEPTR(nb) do {                \
-      var const uintB* b = nb;                          \
-      if ((b < byteptr_min) || (b > byteptr_max)) {     \
-        fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__); \
-        byteptr_bad_jump = b - byteptr;                 \
-        nobject_out(stderr,closure);                    \
-        fprintf(stderr," jump by %d takes %d outside [0;%d]",byteptr_bad_jump,byteptr - byteptr_min,byteptr_max - byteptr_min); \
-        /*goto fehler_byteptr;*/                        \
+    #define DEBUG_CHECK_BYTEPTR(nb) do {                                \
+      var const uintL b = nb - codeptr->data;                           \
+      if ((b < byteptr_min) || (b > byteptr_max)) {                     \
+        var uintL bp = byteptr - codeptr->data;                         \
+        fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__);                 \
+        byteptr_bad_jump = b - bp;                                      \
+        /*nobject_out(stderr,closure);*/                                \
+        /*fprintf(stderr," jump by %d takes %d outside [%d;%d]",byteptr_bad_jump,bp,byteptr_min,byteptr_max);*/ \
+        goto fehler_byteptr;                                            \
       }} while(0)
   #else
     #define GOTO_ERROR(label)  goto label
@@ -5750,10 +5751,11 @@ global Values funcall (object fun, uintC args_on_stack)
   local Values interpret_bytecode_ (object closure_in, Sbvector codeptr, const uintB* byteptr_in)
   {
    #if defined(STACKCHECKC) || defined(DEBUG_BYTECODE)
-    var const uintB* byteptr_min = &codeptr->data[codeptr->ccv_flags & bit(7) ? CCV_START_KEY : CCV_START_NONKEY];
+    var const uintL byteptr_min = ((Codevec)codeptr)->ccv_flags & bit(7)
+      ? CCV_START_KEY : CCV_START_NONKEY;
    #endif
    #ifdef DEBUG_BYTECODE
-    var const uintB* byteptr_max = &codeptr->data[sbvector_length(codeptr)-1];
+    var const uintL byteptr_max = sbvector_length(codeptr)-1;
     var sintL byteptr_bad_jump;
    #endif
     # situate argument closure in register:
@@ -8390,18 +8392,19 @@ global Values funcall (object fun, uintC args_on_stack)
     }
    #if DEBUG_BYTECODE
    fehler_byteptr:
-    pushSTACK(fixnum(byteptr_max - byteptr_min));
-    pushSTACK(fixnum(byteptr - byteptr_min));
+    pushSTACK(fixnum(byteptr_max));
+    pushSTACK(fixnum(byteptr_min));
+    pushSTACK(fixnum(byteptr - codeptr->data));
     pushSTACK(sfixnum(byteptr_bad_jump));
     pushSTACK(closure);
-    fehler(error,GETTEXT("~: jump by ~ takes ~ outside [0;~]"));
+    fehler(error,GETTEXT("~: jump by ~ takes ~ outside [~;~]"));
    #endif
    fehler_zuviele_werte:
     pushSTACK(closure);
     fehler(error,GETTEXT("~: too many return values"));
    #if STACKCHECKC
    fehler_STACK_putt:
-    pushSTACK(fixnum(byteptr - byteptr_min)); /* PC */
+    pushSTACK(fixnum(byteptr - codeptr->data - byteptr_min)); /* PC */
     pushSTACK(closure);                       /* FUNC */
     fehler(serious_condition,GETTEXT("Corrupted STACK in ~ at byte ~"));
    #endif
