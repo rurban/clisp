@@ -14276,6 +14276,7 @@ LISPFUNN(socket_stream_shutdown,2) {
       }
       break;
     case DIRECTION_IO: funcall(L(built_in_stream_close),1); return;
+    default: NOTREACHED;
   }
   # still open in both directions
   switch (TheStream(STACK_0)->strmtype) {
