@@ -1,5 +1,9 @@
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
+	* fill-out.lisp (with-fill-stream): Simplify a no-op.
+
+2005-01-23  Bruno Haible  <bruno@clisp.org>
+
 	* compiler.lisp (*declaration-types*): Add cs-cl:string.
 
 2005-01-22  Bruno Haible  <bruno@clisp.org>
