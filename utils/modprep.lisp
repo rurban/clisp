@@ -214,6 +214,7 @@ The vector is freshly constructed, but the strings are shared"
 (defvar *module-line*)
 (defvar *module-package*)
 (defvar *module-all-packages*)
+(defvar *init-1-name* nil "Did the module define its own init1?")
 (defvar *init-2-name* nil "Did the module define its own init2?")
 (defvar *exit-name* nil "Did the module define its own exit function?")
 
@@ -226,6 +227,8 @@ The vector is freshly constructed, but the strings are shared"
       (setq *module-name*
             (subseq line (next-non-blank line (1+ pos))
                     (prev-non-blank line (setq pos (position #\, line))))
+            *init-1-name* (format nil "module__~A__init_function_1"
+                                  *module-name*)
             *init-2-name* (format nil "module__~A__init_function_2"
                                   *module-name*)
             *exit-name* (format nil "module__~A__exit_function"
@@ -796,6 +799,11 @@ commas and parentheses."
       (when (and *must-close-next-defun* *in-defun* (= *brace-depth* 0))
         (setq line (ext:string-concat line "}")
               *must-close-next-defun* nil *in-defun* nil))
+      (when (and *init-1-name* (search *init-1-name* line)
+                 (not (search "__modprep" *init-1-name*)))
+        ;; module defines its own init1
+        ;; the user is expected to call our init1 from his
+        (setq *init-1-name* (ext:string-concat *init-1-name* "__modprep")))
       (when (and *init-2-name* (search *init-2-name* line))
         (setq *init-2-name* nil)) ; module defines its own init2
       (when (and *exit-name* (search *exit-name* line))
@@ -1008,8 +1016,7 @@ commas and parentheses."
             (format out "  { ~S, ~S }," (fundef-pack fd) (fundef-name fd))))
     (write-string "  0" out) (newline out)
     (write-string "};" out) (newline out) (newline out)
-    (format out "void module__~A__init_function_1 (module_t* module)"
-            *module-name*)
+    (format out "void ~A (module_t* module)" *init-1-name*)
     (newline out) (write-string "{" out) (newline out)
     (loop :for fd :across *fundefs* :for tag = (fundef-tag fd) :do
       (loop :for sig :in (fundef-signatures fd) :do
