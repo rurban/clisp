@@ -681,7 +681,7 @@ local object test_optional_host (object host, bool convert) {
   {
     var uintL len = Sstring_length(host);
     if (len > 0) {
-      var const chart* charptr = &TheSstring(host)->data[0];
+      var const chart* charptr = &TheSnstring(host)->data[0];
       dotimespL(len,len, {
         var chart ch = *charptr++;
         if (!legal_hostchar(ch))
@@ -1548,15 +1548,15 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
        #if defined(PATHNAME_WIN32)
         /* Look for two slashes, then a sequence of characters. */
         if (z.count==0) goto no_hostspec;
-        ch = TheSstring(STACK_1)->data[z.index];
+        ch = TheSnstring(STACK_1)->data[z.index];
         if (!pslashp(ch)) goto no_hostspec;
         Z_SHIFT(z,1);
         if (z.count==0) goto no_hostspec;
-        ch = TheSstring(STACK_1)->data[z.index];
+        ch = TheSnstring(STACK_1)->data[z.index];
         if (!pslashp(ch)) goto no_hostspec;
         Z_SHIFT(z,1);
         while (z.count) {
-          ch = TheSstring(STACK_1)->data[z.index];
+          ch = TheSnstring(STACK_1)->data[z.index];
           if (!legal_hostchar(ch))
             break;
           /* Skip past valid host char. */
@@ -1607,7 +1607,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
         var chart ch;
         if (z.count==0)
           goto no_drivespec; /* string already through ? */
-        ch = TheSstring(STACK_1)->data[z.index]; /* next character */
+        ch = TheSnstring(STACK_1)->data[z.index]; /* next character */
         ch = up_case(ch); /* as capital letter */
         if (starp(ch)) {
           /* ch = '*' -> Device := :WILD */
@@ -1615,7 +1615,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
         } else if ((as_cint(ch) >= 'A') && (as_cint(ch) <= 'Z')) {
           /* 'A' <= ch <= 'Z' -> Device := "ch" */
           var object string = allocate_string(1); /* String of length 1 */
-          TheSstring(string)->data[0] = ch; /* with ch as sole letter */
+          TheSnstring(string)->data[0] = ch; /* with ch as sole letter */
           device = string;
         } else
           goto no_device;
@@ -1623,7 +1623,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
         Z_SHIFT(z,1);
         if (z.count==0)
           goto no_drivespec; /* string already through ? */
-        ch = TheSstring(STACK_1)->data[z.index]; /* next character */
+        ch = TheSnstring(STACK_1)->data[z.index]; /* next character */
         ch = up_case(ch); /* as capital letter */
       no_device:
         /* concluded with colon? */
@@ -3307,7 +3307,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
         goto device_ok;
       else if (simple_string_p(device)) { /* Simple-String ? */
         if (Sstring_length(device) == 1) { /* of length 1 ? */
-          var chart ch = TheSstring(device)->data[0];
+          var chart ch = schar(device,0);
           if ((as_cint(ch) >= 'A') && (as_cint(ch) <= 'Z')) /* with letters >='A' and <='Z' ? */
             goto device_ok;
         }
@@ -5106,7 +5106,7 @@ local object use_default_dir (object pathname) {
      #endif
       { /* drive does not have to be present if we start on a network path */
         var object drive = ThePathname(pathname)->pathname_device;
-        var uintB dr = nullp(drive) ? 0 : as_cint(TheSstring(drive)->data[0]);
+        var uintB dr = nullp(drive) ? 0 : as_cint(TheSnstring(drive)->data[0]);
         var object default_dir = default_directory_of(dr,pathname);
        #if HAS_HOST /* PATHNAME_WIN32 */
         ThePathname(STACK_1)->pathname_host = /* replace NIL in pathname ... */
