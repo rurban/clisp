@@ -1319,7 +1319,9 @@ int main(int argc, char* argv[])
  #else
   printf("#define positivep(obj)  (!wbit_test(as_oint(obj),%d))\n",sign_bit_o);
  #endif
+  printf("#define R_minusp(obj)  (wbit_test(as_oint(obj),%d))\n",vorz_bit_o);
 #else
+  printf("#define R_minusp(obj)  (!positivep(obj))\n");
  #if defined(STANDARD_HEAPCODES)
   printf1("#define number_immediatep(obj)  ((as_oint(obj) & %d) != 0)\n",wbit(1));
  #elif defined(LINUX_NOEXEC_HEAPCODES)
@@ -1495,6 +1497,10 @@ int main(int argc, char* argv[])
   printf("#define GETTEXT(english) english\n");
   printf("#define CLSTEXT ascii_to_string\n");
  #else
+  printf("#define GNU_GETTEXT\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
+  printf("#include <libintl.h>\n");
+  printf("#endif\n");
   printf("extern const char * clgettext (const char * msgid);\n");
   printf("#define GETTEXT clgettext\n");
   printf("extern object CLSTEXT (const char* asciz);\n");
@@ -1931,6 +1937,14 @@ int main(int argc, char* argv[])
          "}\n");
   printf("#endif\n");
   printf("#define posfixnum_default(obj) posfixnum_default2(obj,0)\n");
+  printf("extern object check_pos_integer_replacement (object obj);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
+  printf("static inline object check_pos_integer (object obj) {"
+          " if (!(integerp(obj) && !R_minusp(obj)))"
+            " obj = check_posfixnum_replacement(obj);"
+          " return obj;"
+        " }\n");
+  printf("#endif\n");
 #if notused
   printf("extern object check_char_replacement (object obj);\n");
   printf("static inline object check_char (object obj) {"
@@ -2187,6 +2201,8 @@ int main(int argc, char* argv[])
   printf("extern void FF_to_c_float (object obj, ffloatjanus* val_);\n");
   printf("extern object c_double_to_DF (const dfloatjanus* val_);\n");
   printf("extern void DF_to_c_double (object obj, dfloatjanus* val_);\n");
+  printf("extern object pathname_to_OSdir (object pathname, bool use_default);\n");
+  printf("extern object OSdir_to_pathname (const char* path);\n");
   #ifdef DYNAMIC_FFI
     printf("extern void register_foreign_variable (void* address, const char * name, uintBWL flags, uintL size);\n");
     printf("extern void register_foreign_function (void* address, const char * name, uintWL flags);\n");

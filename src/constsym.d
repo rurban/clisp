@@ -547,12 +547,6 @@ LISPSYM(argv,"ARGV",ext)
 LISPSYM(current_language,"CURRENT-LANGUAGE",system) /* ABI */
 LISPSYM(set_current_language,"SET-CURRENT-LANGUAGE",system) /* ABI */
 LISPSYM(text,"TEXT",system)
-LISPSYM(i18n_gettext,"GETTEXT",i18n)
-LISPSYM(i18n_ngettext,"NGETTEXT",i18n)
-LISPSYM(i18n_textdomain,"TEXTDOMAIN",i18n)
-LISPSYM(i18n_set_textdomain,"SET-TEXTDOMAIN",i18n)
-LISPSYM(i18n_textdomaindir,"TEXTDOMAINDIR",i18n)
-LISPSYM(i18n_set_textdomaindir,"SET-TEXTDOMAINDIR",i18n)
 /* ---------- SOCKET ---------- */
 #ifdef MACHINE_KNOWN
 LISPSYM(machine_instance,"MACHINE-INSTANCE",lisp)
@@ -1289,13 +1283,6 @@ LISPSYM(Kpriority,"PRIORITY",keyword)
 LISPSYM(Khigh,"HIGH",keyword)
 LISPSYM(Knormal,"NORMAL",keyword)
 LISPSYM(Klow,"LOW",keyword)
-#endif
-#ifdef GNU_GETTEXT
-LISPSYM(Klc_messages,"LC_MESSAGES",keyword)
-LISPSYM(Klc_ctype,"LC_CTYPE",keyword)
-LISPSYM(Klc_time,"LC_TIME",keyword)
-LISPSYM(Klc_collate,"LC_COLLATE",keyword)
-LISPSYM(Klc_monetary,"LC_MONETARY",keyword)
 #endif
 #ifdef SOCKET_STREAMS
 LISPSYM(Ktimeout,"TIMEOUT",keyword)

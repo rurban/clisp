@@ -1,3 +1,19 @@
+2004-10-23  Sam Steingold  <sds@gnu.org>
+
+	new module I18N for user program internationalization
+	* module/i18n: new directory
+	* subr.d, constsym.d (i18n_gettext, i18n_ngettext, i18n_textdomain)
+	(i18n_set_textdomain, i18n_textdomaindir, i18n_set_textdomaindir):
+	removed
+	* constsym.d (Klc_messages, Klc_ctype, Klc_time, Klc_collate)
+	(Klc_monetary): removed
+	* constobj.d (type_category): removed
+	* genclisph.d (R_minusp, check_pos_integer, pathname_to_OSdir)
+	(OSdir_to_pathname): export
+	include <libintl.h>
+	* i18n.d: removed "General internationalization, for Lisp programs too"
+	* international.d: removed "Interface to GNU gettext"
+
 2004-10-22  Sam Steingold  <sds@gnu.org>
 
 	* modules/bindings/glibc/linux.lisp (write-helper, read-helper):
@@ -19,8 +35,10 @@
 
 2004-10-13  Bruno Haible  <bruno@clisp.org>
 
-	* clos-genfun2b.lisp (compute-discriminating-function-<generic-function>):
-	Renamed from compute-discriminating-function-<standard-generic-function>.
+	* clos-genfun2b.lisp
+	(compute-discriminating-function-<generic-function>):
+	Renamed from
+	compute-discriminating-function-<standard-generic-function>.
 	* clos-genfun4.lisp (compute-discriminating-function): Generalize
 	method from <standard-generic-function> to <generic-function>.
 
@@ -42,8 +60,8 @@
 
 	* clos-genfun2.lisp (compute-applicable-methods-<generic-function>):
 	Renamed from compute-applicable-methods-<standard-generic-function>.
-	(compute-applicable-methods-using-classes-<generic-function>): Renamed
-	from
+	(compute-applicable-methods-using-classes-<generic-function>):
+	Renamed from
 	compute-applicable-methods-using-classes-<standard-generic-function>.
 	* clos-genfun4.lisp (compute-applicable-methods,
 	compute-applicable-methods-using-classes): Generalize the method from

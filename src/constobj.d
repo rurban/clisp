@@ -338,9 +338,6 @@
   LISPOBJ(argv,"NIL")
 # for I18N.D:
   LISPOBJ(current_language,".")
- #ifdef GNU_GETTEXT
-  LISPOBJ(type_category,"(MEMBER :LC_MESSAGES :LC_CTYPE :LC_TIME :LC_COLLATE :LC_MONETARY)")
- #endif
   LISPOBJ(ansi,"NIL")
 # for TIME.D:
  #ifdef TIME_RELATIVE
