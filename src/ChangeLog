@@ -1,5 +1,16 @@
 2005-03-13  Bruno Haible  <bruno@clisp.org>
 
+	Make DEBUG_GCSAFETY work with modules.
+	* lispbibl.d (gcv_nullobj): New macro.
+	* subr.d (LISPFUN_F): Use gcv_nullobj instead of nullobj.
+	* genclisph.d (main): Add definitions of gcinvariant_oint_p,
+	gcinvariant_type_p, gcinvariant_type_sum, gcinvariant_type_aux,
+	gcinvariant_object_p, nonimmsubrp, gcv_nullobj. Update definitions of
+	gcv_object_t::operator object, gcv_object_t::gcv_object_t,
+	pgci_pointable, ngci_pointable, LISPFUN_F.
+
+2005-03-13  Bruno Haible  <bruno@clisp.org>
+
 	* genclisph.d (main): Reorder, to match the order of lispbibl.d.
 
 2005-03-15  Sam Steingold  <sds@gnu.org>
