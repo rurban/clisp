@@ -121,6 +121,7 @@ vacall-rs6000.lo : $(srcdir)/vacall-rs6000-aix.old.s $(srcdir)/vacall-rs6000-aix
 	  aix3*) syntax=aix.old;; \
 	  aix*) syntax=aix.new;; \
 	  linux*) syntax=linux;; \
+	  netbsd*) syntax=netbsd;; \
 	  *) syntax=sysv4;; \
 	esac; \
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-rs6000-$${syntax}.s ; \
