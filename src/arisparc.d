@@ -1197,7 +1197,8 @@ C(compare_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
          __ ld [%o0+%o2],%o3    # nächstes Digit holen
 2:      retl
        _ mov 0,%o0
-3:      blu 4f
+3:      subcc %o3,%o4,%g0       # nochmals vergleichen
+        blu 4f
        _ nop
         retl
        _ mov 1,%o0
@@ -1885,10 +1886,10 @@ C(shift1right_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
 
 # extern uintD shiftright_loop_up (uintD* ptr, uintC count, uintC i);
 C(shiftright_loop_up:) # Input in %o0,%o1,%o2, verändert %g1, Output in %o0
-        sub %g0,%o2,%g1         # 32-i (mod 32)
         andcc %o1,%o1,%g0
         be 2f
        _ or %g0,%g0,%o3         # Carry := 0
+        sub %g0,%o2,%g1         # 32-i (mod 32)
 1:        ld [%o0],%o4          # Digit
           subcc %o1,1,%o1
           srl %o4,%o2,%o5       # shiften
