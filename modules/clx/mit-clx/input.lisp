@@ -167,7 +167,7 @@
 (defmacro extension-opcode (display name)
   ;; Returns the major opcode for extension NAME.
   ;; This is a macro to enable NAME to be interned for fast run-time
-  ;; retrieval. 
+  ;; retrieval.
   ;; Note: The case of NAME is important.
   (let ((name-symbol (kintern name))) ;; Intern name in the keyword package
     `(or (second (assoc ',name-symbol (display-extension-alist ,display)))
@@ -290,7 +290,7 @@
   (tagbody
     start
        (with-event-queue-internal (display)
-	 (let ((command 
+	 (let ((command
 		 ;; Find any pending command with this sequence number.
 		 (threaded-dolist (pending-command (display-pending-commands display)
 						   pending-command-next pending-command)
@@ -321,7 +321,7 @@
 	   (type (or null reply-buffer) reply-buffer)
 	   (type card16 sequence)
 	   (type array-index length))
-  (unwind-protect 
+  (unwind-protect
       (progn
 	(when (index< *replysize* length)
 	  (let ((repbuf nil))
@@ -339,13 +339,13 @@
 	  (setf (reply-data-size reply-buffer) length))
 	(with-event-queue-internal (display)
 	  ;; Find any pending command with this sequence number.
-	  (let ((command 
+	  (let ((command
 		  (threaded-dolist (pending-command (display-pending-commands display)
 						    pending-command-next pending-command)
 		    (when (= (pending-command-sequence pending-command) sequence)
 		      (return pending-command)))))
 	    (declare (type (or null pending-command) command))
-	    (when command 
+	    (when command
 	      ;; Give this reply to the pending command
 	      (threaded-nconc (shiftf reply-buffer nil)
 			      (pending-command-reply-buffer command)
@@ -394,7 +394,7 @@
   (let ((reply-buffer nil)
 	(token (or (current-process) (cons nil nil))))
     (declare (type (or null reply-buffer) reply-buffer))
-    (unwind-protect 
+    (unwind-protect
 	(tagbody
 	  loop
 	     (when (display-dead display)
@@ -464,7 +464,7 @@
 		   (read-event-input
 		     display (read-card8 0) (shiftf reply-buffer nil)))))
 	     (go loop)
-	  force-output 
+	  force-output
 	     (note-input-complete display token)
 	     (display-force-output display)
 	     (setq force-output-p nil)
@@ -477,7 +477,7 @@
   (when (and (display-asynchronous-errors display)
 	     (member mode (display-report-asynchronous-errors display)))
     (let ((aborted t))
-      (unwind-protect 
+      (unwind-protect
 	  (loop
 	    (let ((error
 		    (with-event-queue-internal (display)
@@ -491,7 +491,7 @@
 		(return (setq aborted nil)))))
 	;; If we get aborted out of this, deallocate all outstanding asynchronous
 	;; errors.
-	(when aborted 
+	(when aborted
 	  (with-event-queue-internal (display)
 	    (loop
 	      (let ((reply-buffer
@@ -513,7 +513,7 @@
 	  (when event-process-p
 	    (conditional-store (display-event-process display) nil (current-process)))
 	  (let ((eof (read-input
-		       display timeout force-output-p 
+		       display timeout force-output-p
 		       #'(lambda (display)
 			   (declare (type display display))
 			   (or (not (null (display-new-events display)))
@@ -581,7 +581,7 @@
 	(let ((eof-or-timeout (wait-for-event display timeout nil)))
 	  (if eof-or-timeout
 	      (values nil eof-or-timeout)
-	    (values 
+	    (values
 	      (with-event-queue-internal (display :timeout timeout)
 		(threaded-length (display-new-events display)
 				 reply-next reply-buffer))
@@ -779,7 +779,7 @@
 	     (with-buffer-output (display :sizes ,put-sizes
 					  :index (index+ (buffer-boffset display) 12))
 	       ,@put-code))
-       
+
 	   ,@(mapcar #'(lambda (name)
 			 (allocate-extension-event-code name)
 			 `(let ((event-code (or (get ',name 'event-code)
@@ -915,7 +915,7 @@
   (boolean override-redirect-p))
 
 (declare-event :configure-request
-  ((data (member :above :below :top-if :bottom-if :opposite)) stack-mode)
+  ((data (member8 :above :below :top-if :bottom-if :opposite)) stack-mode)
   (card16 sequence)
   (window (parent event-window) window)
   ((or null window) above-sibling)
@@ -953,7 +953,7 @@
 (declare-event :selection-clear
   (card16 sequence)
   ((or null card32) time)
-  (window (window event-window)) 
+  (window (window event-window))
   (keyword selection) ;; keyword
   )
 
@@ -1007,7 +1007,7 @@
     (declare (type list progv-vars)
 	     (type symbol current-event-symbol current-event-discarded-p-symbol))
     (values
-      progv-vars 
+      progv-vars
       (list (if (boundp current-event-symbol)
 		;; The current event is already bound, so bind it to the next
 		;; event.
@@ -1112,7 +1112,7 @@
 	       (declare (type (or null reply-buffer) .event.))
 	       (when (null .event.) (return (values nil .eof-or-timeout.)))
 	       (let ((.aborted. t))
-		 (unwind-protect 
+		 (unwind-protect
 		     (progn
 		       (let ((,event .event.))
 			 (declare (type reply-buffer ,event))
@@ -1168,7 +1168,7 @@
   ;;
   ;; T for peek-p means the event (for which the handler returns non-nil) is not removed
   ;; from the queue (it is left in place), NIL means the event is removed.
-  
+
   (declare (type display display)
 	   (type (or null number) timeout)
 	   (type boolean peek-p discard-p force-output-p))
@@ -1208,7 +1208,7 @@
 	   (values sequence))			;Default handler for initial content
   ;; Makes a handler sequence suitable for process-event
   (make-sequence type *max-events* :initial-element default))
-   
+
 (defun event-handler (handlers event-key)
   (declare (type sequence handlers)
 	   (type event-key event-key)
@@ -1227,7 +1227,7 @@
 
 ;;
 ;; EVENT-CASE
-;; 
+;;
 
 (defmacro event-case ((&rest args) &body clauses)
   ;; If force-output-p is true, first invokes display-force-output.  Executes the
@@ -1258,7 +1258,7 @@
 
 ;;
 ;; EVENT-COND
-;; 
+;;
 
 (defmacro event-cond ((display &key timeout peek-p discard-p (force-output-p t))
 		      &body clauses)
@@ -1546,7 +1546,7 @@
 	(major (request-error-major condition))
 	(minor (request-error-minor condition))
 	(sequence (request-error-sequence condition))
-	(current-sequence (request-error-current-sequence condition)))		   
+	(current-sequence (request-error-current-sequence condition)))
     (format stream "~:[~;Asynchronous ~]~a in ~:[request ~d (last request was ~d) ~;current request~2* ~] Code ~d.~d [~a]"
 	    asynchronous error-key (= sequence current-sequence)
 	    sequence current-sequence major minor
@@ -1570,7 +1570,7 @@
   (:report
     (lambda (condition stream)
       (report-request-error condition stream)
-      (format stream " ID #x~x" (resource-error-resource-id condition)))))  
+      (format stream " ID #x~x" (resource-error-resource-id condition)))))
 
 (define-condition unknown-error (request-error)
   ((error-code :reader unknown-error-error-code :initarg :error-code))
@@ -1653,7 +1653,7 @@
 	      (lookup-error-id condition)
 	      (lookup-error-display condition)
 	      (lookup-error-type condition)
-	      (lookup-error-object condition)))))  
+	      (lookup-error-object condition)))))
 
 (define-condition connection-failure (x-error)
   ((major-version :reader connection-failure-major-version :initarg :major-version)
@@ -1669,7 +1669,7 @@
 	      (connection-failure-host condition)
 	      (connection-failure-display condition)
 	      (connection-failure-reason condition)))))
-  
+
 (define-condition reply-length-error (x-error)
   ((reply-length :reader reply-length-error-reply-length :initarg :reply-length)
    (expected-length :reader reply-length-error-expected-length :initarg :expected-length)
@@ -1679,7 +1679,7 @@
       (format stream "Reply length was ~d when ~d words were expected for display ~s"
 	      (reply-length-error-reply-length condition)
 	      (reply-length-error-expected-length condition)
-	      (reply-length-error-display condition)))))  
+	      (reply-length-error-display condition)))))
 
 (define-condition reply-timeout (x-error)
   ((timeout :reader reply-timeout-timeout :initarg :timeout)
@@ -1688,7 +1688,7 @@
     (lambda (condition stream)
       (format stream "Timeout after waiting ~d seconds for a reply for display ~s"
 	      (reply-timeout-timeout condition)
-	      (reply-timeout-display condition)))))  
+	      (reply-timeout-display condition)))))
 
 (define-condition sequence-error (x-error)
   ((display :reader sequence-error-display :initarg :display)
@@ -1699,7 +1699,7 @@
       (format stream "Reply out of sequence for display ~s.~%  Expected ~d, Got ~d"
 	      (sequence-error-display condition)
 	      (sequence-error-req-sequence condition)
-	      (sequence-error-msg-sequence condition)))))  
+	      (sequence-error-msg-sequence condition)))))
 
 (define-condition unexpected-reply (x-error)
   ((display :reader unexpected-reply-display :initarg :display)
