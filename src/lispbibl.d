@@ -949,18 +949,18 @@
   #else
     #define extern_C  extern
   #endif
-  #ifdef GNU
-    #define nonreturning  __volatile__
-  #else
-    #define nonreturning
-  #endif
 
 # Deklaration einer Funktion, die nie zurückkommt:
 # nonreturning_function(extern,abort,(void)); == extern void abort (void);
   #ifdef GNU
-    #define nonreturning_function(storclass,funname,arguments)  \
-      typedef void CONCAT3(funname,_function_,__LINE__) arguments; \
-      storclass nonreturning CONCAT3(funname,_function_,__LINE__) funname
+    #if (__GNUC__ == 2) && (__GNUC_MINOR__ >= 90)
+      #define nonreturning_function(storclass,funname,arguments)  \
+        storclass void funname arguments __attribute__((__noreturn__))
+    #else
+      #define nonreturning_function(storclass,funname,arguments)  \
+        typedef void CONCAT3(funname,_function_,__LINE__) arguments; \
+        storclass __volatile__ CONCAT3(funname,_function_,__LINE__) funname
+    #endif
   #else
     #define nonreturning_function(storclass,funname,arguments)  \
       storclass void funname arguments

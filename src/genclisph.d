@@ -215,14 +215,14 @@ global int main()
   printf("#define global\n");
 # printf("#define local  static\n");
   #ifdef GNU
-    printf("#define nonreturning  __volatile__\n");
-  #else
-    printf("#define nonreturning\n");
-  #endif
-  #ifdef GNU
-    printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
-    printf("  typedef void CONCAT3(funname,_function_,__LINE__) arguments; \\\n");
-    printf("  storclass nonreturning CONCAT3(funname,_function_,__LINE__) funname\n");
+    #if (__GNUC__ == 2) && (__GNUC_MINOR__ >= 90)
+      printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
+      printf("  storclass void funname arguments __attribute__((__noreturn__))\n");
+    #else
+      printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
+      printf("  typedef void CONCAT3(funname,_function_,__LINE__) arguments; \\\n");
+      printf("  storclass __volatile__ CONCAT3(funname,_function_,__LINE__) funname\n");
+    #endif
   #else
     printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
     printf("  storclass void funname arguments\n");
