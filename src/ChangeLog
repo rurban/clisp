@@ -1,3 +1,15 @@
+2004-12-14  Sam Steingold  <sds@gnu.org>
+
+	case-sensitive/case-inverted package properties are now mutable
+	* lispbibl.d (mark_pack_caseinsensitive, mark_pack_casepreserved): added
+	* package.d ((SETF EXT:PACKAGE-CASE-SENSITIVE-P))
+	((SETF EXT:PACKAGE-CASE-INVERTED-P)): implemented
+	(SYSTEM::%IN-PACKAGE): reset case-sensitive/case-inverted
+	properties and issue a warning
+	* constsym.d, subr.d (set_package_case_sensitive_p)
+	(set_package_case_inverted_p): added
+	* places.lisp (package-case-inverted-p, package-case-sensitive-p): added
+
 2004-12-12  Bruno Haible  <bruno@clisp.org>
 
 	Command-line option -modern.

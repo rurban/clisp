@@ -267,6 +267,8 @@
 <!ENTITY opt-M "<option><olink targetdoc='man' targetptr='opt-memfile'>-M</olink></option>">
 <!ENTITY opt-v "<option><olink targetdoc='man' targetptr='opt-verbose'>-v</olink></option>">
 <!ENTITY opt-modern "<option><olink targetdoc='man' targetptr='opt-modern'>-modern</olink></option>">
+<!ENTITY pack-inverted "<link linkend='pack-inverted'><function>EXT:PACKAGE-CASE-INVERTED-P</function></link>">
+<!ENTITY pack-sensitive "<link linkend='pack-sensitive'><function>EXT:PACKAGE-CASE-SENSITIVE-P</function></link>">
 <!ENTITY package-lock "<link linkend='pack-lock'><function>EXT:PACKAGE-LOCK</function></link>">
 <!ENTITY without-package-lock "<link linkend='without-pack-lock'><function>EXT:WITHOUT-PACKAGE-LOCK</function></link>">
 <!ENTITY parsedot "<link linkend='name-type-split'><varname>CUSTOM:*PARSE-NAMESTRING-DOT-FILE*</varname></link>">

@@ -1903,17 +1903,33 @@ LISPFUNNR(package_shadowing_symbols,1)
 }
 
 /* (EXT:PACKAGE-CASE-SENSITIVE-P package) */
-LISPFUNNR(package_case_sensitive_p,1)
-{
+LISPFUNNR(package_case_sensitive_p,1) {
   var object pack = test_package_arg(popSTACK());
   VALUES_IF(pack_casesensitivep(pack));
 }
 
+/* ((SETF EXT:PACKAGE-CASE-SENSITIVE-P) value package) */
+LISPFUNN(set_package_case_sensitive_p,2) {
+  var object pack = test_package_arg(popSTACK());
+  var bool value = !nullp(popSTACK());
+  if (value) mark_pack_casesensitive(pack);
+  else mark_pack_caseinsensitive(pack);
+  VALUES_IF(value);
+}
+
 /* (EXT:PACKAGE-CASE-INVERTED-P package) */
-LISPFUNNR(package_case_inverted_p,1)
-{
+LISPFUNNR(package_case_inverted_p,1) {
   var object pack = test_package_arg(popSTACK());
   VALUES_IF(pack_caseinvertedp(pack));
+}
+
+/* ((SETF EXT:PACKAGE-CASE-INVERTED-P) value package) */
+LISPFUNN(set_package_case_inverted_p,2) {
+  var object pack = test_package_arg(popSTACK());
+  var bool value = !nullp(popSTACK());
+  if (value) mark_pack_caseinverted(pack);
+  else mark_pack_casepreserved(pack);
+  VALUES_IF(value);
 }
 
 /* (SYS::PACKAGE-DOCUMENTATION package) */
@@ -2372,23 +2388,25 @@ LISPFUN(pin_package,seclass_default,1,0,norest,key,4,
   } else { /* package found */
     STACK_4 = pack; /* save pack */
     /* stack-layout: pack, nicknames, uselist, case-sensitive, case-inverted. */
-    /* check the case-sensitivity: */
-    if (boundp(STACK_1)) {
-      if (!(!pack_casesensitivep(pack) == nullp(STACK_1))) {
-        pushSTACK(pack); /* PACKAGE-ERROR slot PACKAGE */
+    if (boundp(STACK_1)) { /* check the case-sensitivity: */
+      var bool value = !nullp(STACK_1);
+      if (pack_casesensitivep(pack) != value) {
         pushSTACK(pack);
-        fehler(package_error,
-               GETTEXT("Cannot change the case sensitiveness of ~S."));
+        pushSTACK(CLSTEXT("One should not change the case sensitiveness of ~S."));
+        funcall(S(warn),2);
       }
+      if (value) mark_pack_casesensitive(pack);
+      else mark_pack_caseinsensitive(pack);
     }
-    /* check the case-inverted: */
-    if (boundp(STACK_0)) {
-      if (!(!pack_caseinvertedp(pack) == nullp(STACK_0))) {
-        pushSTACK(pack); /* PACKAGE-ERROR slot PACKAGE */
+    if (boundp(STACK_0)) { /* check the case-inverted: */
+      var bool value = !nullp(STACK_0);
+      if (pack_caseinvertedp(pack) != value) {
         pushSTACK(pack);
-        fehler(package_error,
-               GETTEXT("Cannot change the case inversion of ~S."));
+        pushSTACK(CLSTEXT("One should not change the case inversion of ~S."));
+        funcall(S(warn),2);
       }
+      if (value) mark_pack_caseinverted(pack);
+      else mark_pack_casepreserved(pack);
     }
     /* adjust the nicknames: */
     if (boundp(STACK_3)) {
