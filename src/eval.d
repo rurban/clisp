@@ -2171,46 +2171,50 @@ global object coerce_function (object obj)
 }
 
 #ifdef DEBUG_EVAL
-
-# Emit some trace output for a function call, to *funcall-trace-output*.
-# trace_call(fun,type_of_call,caller_type);
-# > object fun: function being called, a SUBR/FSUBR/Closure
-# > uintB type_of_call: 'A' for apply, 'F' for funcall, 'B' for bytecode
-# > uintB caller_type: 'F' for fsubr, 'S' for subr,
-#                      'C' for cclosure, 'I' for iclosure
-# can trigger GC
-  local void trace_call (object fun, uintB type_of_call, uintB caller_type)
-  {
-    var object stream = Symbol_value(S(funcall_trace_output)); # SYS::*FUNCALL-TRACE-OUTPUT*
-    # No output until *funcall-trace-output* has been initialized:
-    if (!streamp(stream))
-      return;
-    pushSTACK(stream);
-    if (cclosurep(fun)) {
-      pushSTACK(TheCclosure(fun)->clos_name);
-      write_ascii_char(&STACK_1,'c');
-    } elif (closurep(fun)) {
-      pushSTACK(TheClosure(fun)->clos_name);
-      write_ascii_char(&STACK_1,'C');
-    } elif (subrp(fun)) {
-      pushSTACK(TheSubr(fun)->name);
-      write_ascii_char(&STACK_1,'S');
-    } elif (fsubrp(fun)) {
-      pushSTACK(TheFsubr(fun)->name);
-      write_ascii_char(&STACK_1,'F');
-    } else {
-      pushSTACK(NIL);
-      write_ascii_char(&STACK_1,'?');
-    }
-    write_ascii_char(&STACK_1,type_of_call); # output type of call
-    write_ascii_char(&STACK_1,caller_type);  # output caller
-    write_ascii_char(&STACK_1,'[');
-    prin1(&STACK_1,STACK_0);            # output function name
-    write_ascii_char(&STACK_1,']');
-    terpri(&STACK_1);
-    skipSTACK(2);
+/* Emit some trace output for a function call, to *funcall-trace-output*.
+ trace_call(fun,type_of_call,caller_type);
+ > object fun: function being called, a SUBR/FSUBR/Closure
+ > uintB type_of_call: 'A' for apply, 'F' for funcall, 'B' for bytecode
+ > uintB caller_type: 'F' for fsubr, 'S' for subr,
+                      'C' for cclosure, 'I' for iclosure
+ can trigger GC */
+local void trace_call (object fun, uintB type_of_call, uintB caller_type)
+{
+  var object stream = Symbol_value(S(funcall_trace_output)); /* SYS::*FUNCALL-TRACE-OUTPUT* */
+  /* No output until *funcall-trace-output* has been initialized: */
+  if (!streamp(stream))
+    return;
+  pushSTACK(stream);
+  if (cclosurep(fun)) {
+    pushSTACK(TheCclosure(fun)->clos_name);
+    write_ascii_char(&STACK_1,'c');
+  } else if (closurep(fun)) {
+    pushSTACK(TheClosure(fun)->clos_name);
+    write_ascii_char(&STACK_1,'C');
+  } else if (subrp(fun)) {
+    pushSTACK(TheSubr(fun)->name);
+    write_ascii_char(&STACK_1,'S');
+  } else if (fsubrp(fun)) {
+    pushSTACK(TheFsubr(fun)->name);
+    write_ascii_char(&STACK_1,'F');
+  } else {
+    pushSTACK(NIL);
+    write_ascii_char(&STACK_1,'?');
   }
-
+  write_ascii_char(&STACK_1,type_of_call); /* output type of call */
+  write_ascii_char(&STACK_1,caller_type);  /* output caller */
+  write_ascii_char(&STACK_1,'[');
+  prin1(&STACK_1,STACK_0);    /* output function name */
+  write_ascii_char(&STACK_1,']');
+  terpri(&STACK_1);
+  skipSTACK(2);
+}
+#define TRACE_CALL(fu,tc,ct)                                            \
+  if (streamp(Symbol_value(S(funcall_trace_output)))) {                 \
+    pushSTACK(fu); trace_call(fu,tc,ct); fu = popSTACK();               \
+  }
+#else
+#define TRACE_CALL(fu,tc,ct)
 #endif
 
 # Test for illegal keywords
@@ -2302,11 +2306,7 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
 {
   /* 1st step: finish building of APPLY-frame: */
   var sp_jmp_buf my_jmp_buf;
- #ifdef DEBUG_EVAL
-  if (streamp(Symbol_value(S(funcall_trace_output)))) {
-    pushSTACK(closure); trace_call(closure,'F','I'); closure = popSTACK();
-  }
- #endif
+  TRACE_CALL(closure,'F','I');
   {
     var gcv_object_t* top_of_frame = args_pointer; /* Pointer to frame */
     pushSTACK(closure);
@@ -4026,11 +4026,7 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
     var gcv_object_t* key_args_pointer; # Pointer to the Keyword-Arguments
     var gcv_object_t* rest_args_pointer; # Pointer to the remaining Arguments
     var uintL argcount; # number of remaining Arguments
-    #ifdef DEBUG_EVAL
-    if (streamp(Symbol_value(S(funcall_trace_output)))) {
-      pushSTACK(fun); trace_call(fun,'A','S'); fun = popSTACK();
-    }
-    #endif
+    TRACE_CALL(fun,'A','S');
     # push Arguments on STACK:
     # first a Dispatch for the most important cases:
     switch (TheSubr(fun)->argtype) {
@@ -4373,11 +4369,7 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
 # changes STACK, can trigger GC
   local Values apply_closure (object closure, uintC args_on_stack, object args)
   {
-    #ifdef DEBUG_EVAL
-    if (streamp(Symbol_value(S(funcall_trace_output)))) {
-      pushSTACK(closure); trace_call(closure,'A','C'); closure = popSTACK();
-    }
-    #endif
+    TRACE_CALL(closure,'A','C');
     if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
       # closure is a compiled Closure
       #if STACKCHECKC
@@ -4895,11 +4887,7 @@ global Values funcall (object fun, uintC args_on_stack)
     var gcv_object_t* key_args_pointer; # Pointer to the Keyword-arguments
     var gcv_object_t* rest_args_pointer; # Pointer to the remaining arguments
     var uintL argcount; # number of remaining arguments
-    #ifdef DEBUG_EVAL
-    if (streamp(Symbol_value(S(funcall_trace_output)))) {
-      pushSTACK(fun); trace_call(fun,'F','S'); fun = popSTACK();
-    }
-    #endif
+    TRACE_CALL(fun,'F','S');
     # store arguments in STACK:
     # First a Dispatch for the most important cases:
     switch (TheSubr(fun)->argtype) {
@@ -5234,11 +5222,7 @@ global Values funcall (object fun, uintC args_on_stack)
 # changes STACK, can trigger GC
   local Values funcall_closure (object closure, uintC args_on_stack)
   {
-    #ifdef DEBUG_EVAL
-    if (streamp(Symbol_value(S(funcall_trace_output)))) {
-      pushSTACK(closure); trace_call(closure,'F','C'); closure = popSTACK();
-    }
-    #endif
+    TRACE_CALL(closure,'F','C');
     if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
       # closure is a compiled Closure
       #if STACKCHECKC
@@ -5748,6 +5732,11 @@ global Values funcall (object fun, uintC args_on_stack)
   #ifndef byteptr_register
     #define byteptr_in  byteptr
   #endif
+#ifdef DEBUG_SPVW
+#define ERROR(label) do{ fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__); goto label; }while(0)
+#else
+#define ERROR(label) goto label
+#endif
   local Values interpret_bytecode_ (object closure_in, Sbvector codeptr, const uintB* byteptr_in)
   {
     # situate argument closure in register:
@@ -5760,11 +5749,7 @@ global Values funcall (object fun, uintC args_on_stack)
     var const uintB* byteptr __asm__(byteptr_register);
     byteptr = byteptr_in;
     #endif
-    #ifdef DEBUG_EVAL
-    if (streamp(Symbol_value(S(funcall_trace_output)))) {
-      pushSTACK(closure); trace_call(closure,'B','C'); closure = popSTACK();
-    }
-    #endif
+    TRACE_CALL(closure,'B','C');
     # situate closure in STACK, below the arguments:
     var gcv_object_t* closureptr = (pushSTACK(closure), &STACK_0);
     #ifndef FAST_SP
@@ -6483,7 +6468,7 @@ global Values funcall (object fun, uintC args_on_stack)
       CASE cod_unbind1:                # (UNBIND1)
         #if STACKCHECKC
         if (!(framecode(STACK_0) == DYNBIND_frame_info))
-          goto fehler_STACK_putt;
+          ERROR(fehler_STACK_putt);
         #endif
         # unwind variable-binding-frame:
         {
@@ -6508,7 +6493,7 @@ global Values funcall (object fun, uintC args_on_stack)
           do {
             #if STACKCHECKC
             if (!(framecode(FRAME_(0)) == DYNBIND_frame_info))
-              goto fehler_STACK_putt;
+              ERROR(fehler_STACK_putt);
             #endif
             # unwind variable-binding-frame:
             var gcv_object_t* new_FRAME = topofframe(FRAME_(0)); # pointer above frame
@@ -7033,7 +7018,7 @@ global Values funcall (object fun, uintC args_on_stack)
         {
           var uintL n;
           U_operand(n);
-          if (n >= mv_limit) goto fehler_zuviele_werte;
+          if (n >= mv_limit) ERROR(fehler_zuviele_werte);
           STACK_to_mv(n);
         }
         goto next_byte;
@@ -7076,7 +7061,7 @@ global Values funcall (object fun, uintC args_on_stack)
         VALUES1(popSTACK());
         goto next_byte;
       CASE cod_list_to_mv:             # (LIST-TO-MV)
-        list_to_mv(value1, { goto fehler_zuviele_werte; } );
+        list_to_mv(value1, ERROR(fehler_zuviele_werte));
         goto next_byte;
       CASE cod_mvcallp:                # (MVCALLP)
         pushSP((aint)STACK); # save STACK
@@ -7148,7 +7133,7 @@ global Values funcall (object fun, uintC args_on_stack)
         # unwind CBLOCK-Frame:
         #if STACKCHECKC
         if (!(framecode(STACK_0) == CBLOCK_frame_info))
-          goto fehler_STACK_putt;
+          ERROR(fehler_STACK_putt);
         #endif
         {
           FREE_JMPBUF_on_SP();
@@ -7246,7 +7231,7 @@ global Values funcall (object fun, uintC args_on_stack)
         # unwind CTAGBODY-Frame:
         #if STACKCHECKC
         if (!(framecode(STACK_0) == CTAGBODY_frame_info))
-          goto fehler_STACK_putt;
+          ERROR(fehler_STACK_putt);
         #endif
         {
           FREE_JMPBUF_on_SP();
@@ -7351,12 +7336,12 @@ global Values funcall (object fun, uintC args_on_stack)
         # a CATCH-Frame has to come:
         #if STACKCHECKC
         if (!(framecode(STACK_0) == CATCH_frame_info))
-          goto fehler_STACK_putt;
+          ERROR(fehler_STACK_putt);
         #endif
         FREE_JMPBUF_on_SP();
         #if STACKCHECKC
         if (!(closureptr == (gcv_object_t*)SP_(0))) # that Closureptr must be the current one
-          goto fehler_STACK_putt;
+          ERROR(fehler_STACK_putt);
         #endif
         skipSP(2); skipSTACK(3); # unwind CATCH-Frame
         goto next_byte;
@@ -7416,9 +7401,9 @@ global Values funcall (object fun, uintC args_on_stack)
       CASE cod_uwp_normal_exit:        # (UNWIND-PROTECT-NORMAL-EXIT)
         #if STACKCHECKC
         if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info))
-          goto fehler_STACK_putt;
+          ERROR(fehler_STACK_putt);
         if (!(closureptr == (gcv_object_t*)SP_(jmpbufsize+0))) # that Closureptr must be the current one
-          goto fehler_STACK_putt;
+          ERROR(fehler_STACK_putt);
         #endif
         # unwind Frame:
         # nothing to do, because closure and byteptr stay unmodified.
@@ -7438,7 +7423,7 @@ global Values funcall (object fun, uintC args_on_stack)
           popSP( oldSTACK = (gcv_object_t*) );
           var uintL mvcount = # number of saved values on Stack
             STACK_item_count(STACK,oldSTACK);
-          if (mvcount >= mv_limit) goto fehler_zuviele_werte;
+          if (mvcount >= mv_limit) ERROR(fehler_zuviele_werte);
           STACK_to_mv(mvcount);
         }
         { /* return to the saved unwind_protect_to_save.fun : */
@@ -7469,9 +7454,9 @@ global Values funcall (object fun, uintC args_on_stack)
         # of the Cleanup-Code is necessary.
         #if STACKCHECKC
         if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info))
-          goto fehler_STACK_putt;
+          ERROR(fehler_STACK_putt);
         if (!(closureptr == (gcv_object_t*)SP_(jmpbufsize+0))) # that Closureptr must be the current one
-          goto fehler_STACK_putt;
+          ERROR(fehler_STACK_putt);
         #endif
         # closure remains, byteptr:=label_byteptr :
         {
