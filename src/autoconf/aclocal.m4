@@ -1207,6 +1207,19 @@ fi
 ]
 )dnl
 dnl
+AC_DEFUN(CL_SOCKLEN_T,
+[AC_CACHE_CHECK(for socklen_t in sys/socket.h, cl_cv_type_socklen_t, [
+AC_EGREP_HEADER(socklen_t, sys/socket.h,
+cl_cv_type_socklen_t=yes, cl_cv_type_socklen_t=no)
+])
+if test $cl_cv_type_socklen_t = yes; then
+  AC_DEFINE(SOCKLEN_T, socklen_t)
+else
+  AC_DEFINE(SOCKLEN_T, int)
+fi
+]
+)dnl
+dnl
 AC_DEFUN(CL_DIRENT_WITHOUT_NAMLEN,
 [CL_COMPILE_CHECK([d_namlen in struct dirent], cl_cv_struct_dirent_d_namlen,
 [#include <dirent.h>], [struct dirent d; d.d_namlen;],

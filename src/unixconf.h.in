@@ -1,4 +1,4 @@
-/* Bruno Haible 16.7.1997 */
+/* Bruno Haible 1992-2000 */
 
 #define UNIXCONF
 
@@ -111,6 +111,9 @@
 
 /* CL_CADDR_T */
 #undef CADDR_T
+
+/* CL_SOCKLEN_T */
+#undef SOCKLEN_T
 
 
 /* structures and structure members */

@@ -1,3 +1,16 @@
+2000-09-28  Bruno Haible  <haible@clisp.cons.org>
+
+        * autoconf/aclocal.m4 (CL_SOCKLEN_T): New macro.
+        * configure.in: Call it.
+        * unixconf.h.in (SOCKLEN_T): New macro.
+        * win32.d (SOCKLEN_T): Define as int.
+        * socket.d (socket_getlocalname_aux, socket_getpeername,
+           create_server_socket, accept_connection): Use the SOCKLEN_T type.
+
+        * stream.d (iconv_mblen): Cast to avoid warning.
+          (iconv_wcstombs): Likewise.
+          (rd_ch_terminal3): Likewise.
+
 2000-09-25  Bruno Haible  <haible@clisp.cons.org>
 
         * lispbibl.d (I80386): Define if __i386__ is defined. On OpenBSD,

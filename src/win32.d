@@ -196,6 +196,7 @@
   # extern int WSAGetLastError (void);
   # extern void WSASetLastError (int Error);
   # extern int WSACancelBlockingCall (void);
+  #define SOCKLEN_T  int
   # extern SOCKET socket (int af, int type, int protocol);
   # extern int bind (SOCKET s, const struct sockaddr * addr, int addrlen);
   # extern int listen (SOCKET s, int backlog);
