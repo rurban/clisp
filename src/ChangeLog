@@ -1,3 +1,8 @@
+2002-05-29  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (UNICODE_EXTRA): new variable (fixed the build
+	broken by addition of streq.h cjk.h uniwidth.h width.c)
+
 2002-05-28  Sam Steingold  <sds@gnu.org>
 
 	* socket.d (connect_via_ip): when 0 timeout is given return
