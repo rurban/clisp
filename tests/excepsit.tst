@@ -1177,3 +1177,9 @@ program-error
 
 (loop for (x . x) in '((1 2) (3 4) (5 6)) collect x)
 program-error
+
+(loop for e across (vector '(x . y) '(u . v)) for e from 1 to 5 collect e)
+program-error
+
+(loop for x = '(nil nil nil) for x = 1 count x until t)
+program-error

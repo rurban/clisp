@@ -469,6 +469,11 @@
              (setf (li-requires-stepbefore initialization) t))
            (when (li-endtest-forms initialization)
              (setq seen-endtest t))
+           (dolist (var (li-vars initialization))
+             (when (memq var var-list)
+               (error-of-type 'source-program-error
+                 (TEXT "~S: duplicate iteration variable ~S") 'loop var))
+             (push var var-list))
            (push initialization initializations)))
        (make-endtest (endtest-form)
          (make-loop-init
@@ -584,12 +589,6 @@
                                ;; Calls to note-initialization must temporarily be suspended.
                                (when (li-endtest-forms initialization)
                                  (setq seen-endtest t))
-                               (dolist (var (li-vars initialization))
-                                 (when (memq var var-list)
-                                   (error-of-type 'source-program-error
-                                     (TEXT "~S: duplicate iteration variable ~S")
-                                     'loop var))
-                                 (push var var-list))
                                (push initialization initializations)))
                         (loop
                           (multiple-value-bind (pattern new-declspecs) (parse-var-typespec)
