@@ -204,11 +204,11 @@ only object carried by its pages.
 There are no small objects in pages belonging to a big object.</para>
 
 <para>The following combinations of memory model and &mmap; tricks are
-possible:</para>
+possible (the number indicates the order in which the respective models
+have been developed):</para>
 
 <table id="mem-models-comb-typecodes" frame="all">
- <title>With TYPECODES (the number indicates the order
-  in which the respective models have been developed:</title>
+ <title>Memory models with TYPECODES</title>
 <tgroup cols="6" colsep="1" rowsep="1" align="center">
 <thead><row><entry/><entry>no MAP_MEMORY</entry>
  <entry>TRIVIALMAP_MEMORY</entry><entry>SINGLEMAP_MEMORY</entry>
@@ -226,7 +226,7 @@ possible:</para>
 </tbody></tgroup></table>
 
 <table id="mem-models-comb-no-typecodes" frame="all">
- <title>With no TYPECODES</title>
+ <title>Memory models with no TYPECODES</title>
 <tgroup cols="4" colsep="1" rowsep="1" align="center">
 <thead><row><entry/><entry>no MAP_MEMORY</entry>
  <entry>TRIVIALMAP_MEMORY</entry><entry>GENERATIONAL_GC</entry></row></thead>
