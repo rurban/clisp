@@ -102,10 +102,10 @@ AUTOCONF_FILES = src/autoconf/aclocal.m4 src/autoconf/acgeneral.m4 src/autoconf/
 src/configure : src/configure.in $(AUTOCONF_FILES)
 	cd src ; autoconf/autoconf -m autoconf
 
-src/gettext/configure : src/gettext/configure.in src/gettext/aclocal.m4
+src/gettext/configure : src/gettext/configure.in src/gettext/aclocal.m4 src/gettext/autoconf/acgeneral.m4 src/gettext/autoconf/acspecific.m4
 	cd src/gettext ; $(MAKE) -f Makefile.devel configure
 
-src/gettext/config.h.in : src/gettext/configure.in src/gettext/aclocal.m4 src/gettext/acconfig.h
+src/gettext/config.h.in : src/gettext/configure.in src/gettext/aclocal.m4 src/gettext/autoconf/acgeneral.m4 src/gettext/autoconf/acspecific.m4 src/gettext/acconfig.h
 	cd src/gettext ; $(MAKE) -f Makefile.devel config.h.in
 
 modules/wildcard/configure : modules/wildcard/configure.in $(AUTOCONF_FILES)

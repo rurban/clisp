@@ -1,6 +1,6 @@
 dnl local autoconf macros
-dnl Bruno Haible 21.9.1997
-dnl Marcus Daniels 10.4.1997
+dnl Bruno Haible 2000-04-02
+dnl Marcus Daniels 1997-04-10
 dnl
 AC_PREREQ(2.12)dnl
 dnl
@@ -335,7 +335,7 @@ fi
 AC_SUBST(INSTALL_DATA)dnl
 ])dnl
 dnl
-AC_DEFUN(CL_CP,
+AC_DEFUN(CL_PROG_CP,
 [AC_CACHE_CHECK(how to copy files, cl_cv_prog_cp, [
 echo "blabla" > conftest.x
 err=`/bin/sh -c "cp -p conftest.x conftest.y 2>&1"`
@@ -351,31 +351,70 @@ AC_SUBST(CP)dnl
 ])dnl
 dnl
 AC_DEFUN(CL_PROG_LN,
-[AC_REQUIRE([AC_PROG_LN_S])dnl
+[AC_REQUIRE([CL_PROG_CP])dnl
+AC_CACHE_CHECK(how to make hard links, cl_cv_prog_LN, [
+rm -f conftestdata conftestfile
+echo data > conftestfile
+if ln conftestfile conftestdata 2>/dev/null; then
+  cl_cv_prog_LN=ln
+else
+  cl_cv_prog_LN="$cl_cv_prog_cp"
+fi
+rm -f conftestdata conftestfile
+])
+LN="$cl_cv_prog_LN"
+AC_SUBST(LN)dnl
+])dnl
+dnl
+AC_DEFUN(CL_PROG_LN_S,
+[AC_REQUIRE([CL_PROG_LN])dnl
+dnl Make a symlink if possible; otherwise try a hard link. On filesystems
+dnl which support neither symlink nor hard link, use a plain copy.
+AC_MSG_CHECKING(whether ln -s works)
+AC_CACHE_VAL(cl_cv_prog_LN_S, [
+rm -f conftestdata
+if ln -s X conftestdata 2>/dev/null; then
+  cl_cv_prog_LN_S="ln -s"
+else
+  cl_cv_prog_LN_S="$cl_cv_prog_LN"
+fi
+rm -f conftestdata
+])dnl
+if test "$cl_cv_prog_LN_S" = "ln -s"; then
+  AC_MSG_RESULT(yes)
+else
+  AC_MSG_RESULT(no)
+fi
+LN_S="$cl_cv_prog_LN_S"
+AC_SUBST(LN_S)dnl
+])dnl
+dnl
+AC_DEFUN(CL_PROG_HLN,
+[AC_REQUIRE([CL_PROG_LN_S])dnl
 dnl SVR4 "ln" makes hard links to symbolic links, instead of resolving the
 dnl symbolic link. To avoid this, use the "hln" program.
-AC_CACHE_CHECK(how to make hard links, cl_cv_prog_ln, [
-cl_cv_prog_ln="ln"
-if test "$ac_cv_prog_LN_S" = "ln -s"; then
+AC_CACHE_CHECK(how to make hard links to symlinks, cl_cv_prog_hln, [
+cl_cv_prog_hln="ln"
+if test "$cl_cv_prog_LN_S" = "ln -s"; then
 echo "blabla" > conftest.x
 ln -s conftest.x conftest.y
 ln conftest.y conftest.z
 rm -f conftest.x
 if cat conftest.z > /dev/null 2>&1 ; then
   # ln is usable.
-  cl_cv_prog_ln="ln"
+  cl_cv_prog_hln="ln"
 else
   # conftest.z is a symbolic link to the non-existent conftest.x
-  cl_cv_prog_ln="hln"
+  cl_cv_prog_hln="hln"
 fi
 else
 # If there are no symbolic links, the problem cannot occur.
-cl_cv_prog_ln="ln"
+cl_cv_prog_hln="ln"
 fi
 rm -f conftest*
 ])
-LN="$cl_cv_prog_ln"
-AC_SUBST(LN)dnl
+HLN="$cl_cv_prog_hln"
+AC_SUBST(HLN)dnl
 ])dnl
 dnl
 AC_DEFUN(CL_FIND_X,

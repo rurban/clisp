@@ -34,7 +34,7 @@ AR = ar
 AR_FLAGS = rc
 RANLIB = @RANLIB@
 MV = mv
-LN = ln
+LN = @LN@
 RM = rm -f
 @SET_MAKE@
 

@@ -1,7 +1,37 @@
 2000-04-02  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
+        Allow building on filesystems lacking symlinks and hard links.
+        * autoconf/acgeneral.m4 (AC_OUTPUT_LINKS): If "ln" fails, try "cp -p".
+        * autoconf/aclocal.m4 (CL_PROG_CP): Renamed from CL_CP.
+          (CL_PROG_LN, CL_PROG_LN_S): New macros.
+          (CL_PROG_HLN): Renamed from CL_PROG_LN. Rename cache variable to
+          cl_cv_prog_hln. AC_SUBST HLN instead of LN.
+        * configure.in: Update.
+        * lndir (link): If "ln" fails, try "cp -p".
+        * makemake.in (HLN): Renamed from LN. Use @HLN@ instead of @LN@.
+          (LN_S): Renamed from LN.
+          (init): Don't create linkkit.
+          (linkkit): New rule.
+          (modular): Depend on linkkit.
+          (UnicodeData.txt): cd into directory before linking.
+          (clhs.txt): Likewise. Simplify the symlink. Omit if building
+          in-place.
+        * clisp-link.in (link): If "ln" fails, try "cp -p". Redirect stderr
+          to /dev/null.
+          (create-module-set): If "ln" fails, try "cp -p".
+        * Makefile.devel (src/gettext/configure, src/gettext/config.h.in):
+          Update dependencies.
+
+2000-04-02  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
+
+        * Makefile.devel (src--distrib): Create a single tar.gz file.
+          (SOURCES): Add clisp.spec, modules, readline, sigsegv, libiconv,
+          all of doc.
+
+2000-04-02  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
+
         * autoconf/aclocal.m4 (CL_TERMCAP): When both libtermcap and
-        libncurses exist, prefer the latter.
+          libncurses exist, prefer the latter.
 
 2000-03-12  Bruno Haible  <haible@clisp.cons.org>
 
