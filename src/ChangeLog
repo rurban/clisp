@@ -15,7 +15,7 @@
 	(parse_as_logical): new helper function
 	(logical_pathname, merge_pathnames): use it
 	(merge_pathnames): new macros SPECIFIED, NAMETYPE_MATCH, and
-	 VERSION_MATCH; chenaged the previous patch: re-parse pathname
+	 VERSION_MATCH; changed the previous patch: re-parse pathname
 	 as logical when the default is logical
 	(make_pathname): do not translate :name :wild to :name "*"
 	(has_wildcards): replaced with wild_p() which handles :WILD
@@ -86,7 +86,7 @@
 
 2001-05-06  Sam Steingold  <sds@gnu.org>
 
-	* eval.d (check_for_illegal_keywords): look ony at the first
+	* eval.d (check_for_illegal_keywords): look only at the first
 	:allow-other-keys keyword
 
 2001-05-05  Sam Steingold  <sds@gnu.org>
@@ -147,7 +147,7 @@
 	(inline-callable-function-p): use INLINE-CALLABLE-LAMBDABODY-P
 	(c-FUNCTION): always call NOTE-FUNCTION-USED
 	(c-report-problems): use MATCH-KNOWN-UNKNOWN-FUNCTIONS
-	(compile-file): call C-REPORT-PROBLEMS before reporing
+	(compile-file): call C-REPORT-PROBLEMS before reporting
 	 *ERROR-COUNT* and *WARNING-COUNT*
 	(c-form): use IN-DEFUN-P
 	* clos.lisp: import SIGNATURE structure from COMPILER and use
@@ -156,7 +156,7 @@
 	 instead of lists to store their signatures)
 	* describe.lisp (function-signature, signature-to-list):
 	 moved to compiler.lisp
-	(arglist): use SIG-TO-LIST and GET-SIGNATURE to accomodate
+	(arglist): use SIG-TO-LIST and GET-SIGNATURE to accommodate
 	 possible future modifications
 	* foreign1.lisp (DEF-CALL-OUT, DEF-LIB-CALL-OUT):
 	 pass signature to C-DEFUN
