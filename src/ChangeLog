@@ -1,5 +1,11 @@
 2002-08-01  Sam Steingold  <sds@gnu.org>
 
+	* m4/ln.m4 (CL_PROG_HLN): fixed the "hard links to symlinks" check
+	* makemake.in (TEXE, LEXE) [cygwin32]: exe/run
+	(distrib): rmrf TOPDIR before making the distribution
+
+2002-08-01  Sam Steingold  <sds@gnu.org>
+
 	* type.lisp (COMPLEX): use UPGRADED-COMPLEX-PART-TYPE,
 	just like VECTOR uses UPGRADED-ARRAY-ELEMENT-TYPE
 

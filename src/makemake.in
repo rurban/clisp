@@ -755,17 +755,18 @@ fi
 
 # TEXE = extension for executable files on target
 # LEXE = extension for executable file LISP on target
-if [ $TOS = os2 -o $TOS = win32 ] ; then
+if [ ${TOS} = os2 -o ${TOS} = win32 ] ; then
   TEXE='.exe'
   LEXE='.exe'
-else
-if [ $TOS = acorn ] ; then
+elif [ $TOS = acorn ] ; then
   TEXE=''
   LEXE=''
+elif [ ${HSYSOS} = cygwin32 ] ; then
+  TEXE='.exe'
+  LEXE='.run'
 else
   TEXE=''
   LEXE='.run'
-fi
 fi
 
 # TOBJ = extension for compiled modules on target
@@ -3333,13 +3334,13 @@ needs='all'
 if test "$HLN" != ln; then
   needs=$needs' hln'
   echol "hln :"
-  echotab "mkdir buildhln"
+  echotab "mkdir -p buildhln"
   echotab "cd buildhln && ${PARENT_SRCTOPDIR}utils/hln/configure --srcdir=${PARENT_SRCTOPDIR}utils/hln && \$(MAKE)"
   echotab "ln buildhln/hln${TEXE} hln${TEXE}"
   echol
 fi
 echol "distrib : force $needs modular manualx clisp.c distmakefile"
-echotab "\$(RM) \$(DISTFILE) clisp\$(PACKEXT)"
+echotab "\$(RMRF) \$(TOPDIR) \$(DISTFILE) clisp\$(PACKEXT)"
 echotab "mkdir \$(TOPDIR)"
 # General documentation files.
 echotab "${HLN} ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es MAGIC.add \$(TOPDIR)"
