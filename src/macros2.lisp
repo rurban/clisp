@@ -306,7 +306,7 @@
        (UNWIND-PROTECT
          (PROGN ,@body-rest)
          ,@(if sindex
-               `((SETF ,index (SYSTEM::STRING-INPUT-STREAM-INDEX ,var))) '())
+             `((SETF ,index (SYSTEM::STRING-INPUT-STREAM-INDEX ,var))) '())
          (CLOSE ,var)))))
 ;; ----------------------------------------------------------------------------
 (defmacro with-open-file ((stream &rest options) &body body)
