@@ -515,7 +515,7 @@ local /*maygc*/ void make_variable_frame
             do {
               NEXT(ptr);
               if (eq(NEXT(ptr),symbol)) {
-                if (eq(NEXT(ptr),fixnum(bit(active_bit)))) {
+                if (eq(NEXT(ptr),Fixnum_0)) {
                   specdecled = true; break;
                 }
               } else {
@@ -523,7 +523,7 @@ local /*maygc*/ void make_variable_frame
               }
             } while (--count);
            #else
-            var object to_compare = SET_BIT(symbol,active_bit_o);
+            var object to_compare = SET_BIT(symbol,0);
             var gcv_object_t* ptr = spec_pointer;
             var uintL count = spec_anz;
             do {
