@@ -1,3 +1,6 @@
+2.28 (2002-03-03)
+=================
+
 Important notes
 ---------------
 
@@ -73,7 +76,7 @@ User visible changes
 * Optimize away local functions that are not used
   (much less consing in CLOS).
 
-* When build with readline, CLISP allows multi-line form editing.
+* When built with readline, CLISP allows multi-line form editing.
   Use M-p and M-n to move between virtual lines.
 
 * Fixed handling of circular structs and pointers to functions in the FFI.

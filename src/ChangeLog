@@ -1,5 +1,9 @@
 2002-03-03  Sam Steingold  <sds@gnu.org>
 
+	* version.h: 2.28 is released
+
+2002-03-03  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (data, clean1, ${TESTDIR}): use the appropriate slashes
 	(RM) [win32]: set to 'del /q' (~ rm -f)
 
