@@ -84,7 +84,7 @@
  IBM-PC/386   any                Mingw32 on WinNT/Win95        GNU           _WIN32, __WINNT__, __MINGW32__, _X86_, i386, __GNUC__
  IBM-PC/386   any                WinNT/Win95                   MSVC4.0,5.0   _WIN32, _M_IX86, _MSC_VER
  IBM-PC/386   any                WinNT/Win95                   Borland 5.0   __WIN32__, _M_IX86, __TURBOC__, __BORLANDC__
- IBM-PC/386   any           WinNT/Win95 and Cygwin32      GNU           _WIN32, __WINNT__, __CYGWIN32__, __POSIX__, __i386__, _X86_, __GNUC__
+ IBM-PC/386   any                WinNT/Win95 and Cygwin32      GNU           _WIN32, __WINNT__, __CYGWIN32__, __POSIX__, __i386__, _X86_, __GNUC__
  IBM-PC/586   any                BeOS 5                        GNU           __BEOS__, __INTEL__, __i386__, _X86_, __GNUC__
  IBM-PC/586   any                HP NUE/ski, Linux             GNU           unix, linux, __ia64[__], __GNUC__, __LP64__
  RM400        Siemens-Nixdorf    SINIX-N 5.42                  c89           unix, mips, MIPSEB, host_mips, sinix, SNI, _XPG_IV
@@ -121,7 +121,7 @@
   #if (defined(sun) && defined(unix) && defined(sun386))
     #define SUN386
   #endif
-  #if (defined(unix) && defined(linux) && defined(i386))
+  #if (defined(unix) && (defined(linux) || defined(__CYGWIN32__)) && (defined(i386) || defined(__i386__)))
     #define PC386
   #endif
   #if (defined(sun) && defined(unix) && defined(mc68020))
