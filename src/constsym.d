@@ -1868,8 +1868,10 @@ LISPSYM(cp1129,"CP1129",charset)
 LISPSYM(utf_16,"UTF-16",charset) /*                     | */
 LISPSYM(utf_7,"UTF-7",charset) /* ----------------------+ */
 /* Aliases. */
+#if defined(GNU_LIBICONV) || (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2))
 LISPSYM(windows_1255,"WINDOWS-1255",charset)
 LISPSYM(windows_1258,"WINDOWS-1258",charset)
+#endif
 #endif
 #endif
 LISPSYM(english,"ENGLISH",i18n) /* a language for MISC */

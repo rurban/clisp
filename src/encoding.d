@@ -2214,11 +2214,11 @@ global void init_encodings_2 (void) {
       symbol = objectplus(symbol,(soint)sizeof(*TheSymbol(symbol))<<(oint_addr_shift-addr_shift));
     });
   }
-  /* Now some aliases. */
-  if (!boundp(Symbol_value(S(cp1255)))) { /* remove */
+  /* Now some aliases, to be defined only if their targets still exit. */
+  if (!boundp(Symbol_value(S(cp1255)))) {
     pushSTACK(S(windows_1255)); pushSTACK(O(charset_package)); C_unintern();
   } else define_constant(S(windows_1255),Symbol_value(S(cp1255)));
-  if (!boundp(Symbol_value(S(cp1258)))) { /* remove */
+  if (!boundp(Symbol_value(S(cp1258)))) {
     pushSTACK(S(windows_1258)); pushSTACK(O(charset_package)); C_unintern();
   } else define_constant(S(windows_1258),Symbol_value(S(cp1258)));
  #endif
