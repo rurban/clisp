@@ -1,3 +1,7 @@
+1998-08-09  Bruno Haible  <haible@ilog.fr>
+
+        * spvw.d (copyright_notice): Bump date to 1998.
+
 1998-08-08  Jörg Höhle  <hoehle@tzd.telekom.de>
 
         * lispbibl.d (define) TYPECODES is default for MC68000.
