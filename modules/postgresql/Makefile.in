@@ -5,7 +5,7 @@ CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 INCLUDES= ../
 
-CLISP =
+CLISP = clisp -q -norc
 
 LN = ln
 
