@@ -59,8 +59,8 @@
 	(allocate_lrecord, allocate_lrecord_): New functions.
 	(allocate_srecord_, allocate_xrecord_, make_ratio, make_complex):
 	Update.
-	* spvw_circ.d (get_circ_mark, get_circ_unmark, subst_circ_mark, subst,
-	subst_circ_unmark): Handle lrecords as well.
+	* spvw_circ.d (get_circ_mark, get_circ_unmark, subst_circ_mark, subst)
+	(subst_circ_unmark): Handle lrecords as well.
 	* io.d (prin_object_dispatch): Handle lrecords as well.
 	* predtype.d (equalp): Compare lrecords like with EQ.
 	(TYPE-OF): Handle lrecords as well. For weakkvt, return a symbol, not
@@ -79,17 +79,17 @@
 
 	Add keyword argument checking to UPDATE-INSTANCE-FOR-REDEFINED-CLASS
 	and UPDATE-INSTANCE-FOR-DIFFERENT-CLASS.
-	* clos-class5.lisp (*update-instance-for-redefined-class-table*,
-	*update-instance-for-different-class-table*): New variables.
+	* clos-class5.lisp (*update-instance-for-redefined-class-table*)
+	(*update-instance-for-different-class-table*): New variables.
 	(note-uirc-change, note-uidc-change): New functions.
 	(defun note-si-change): Update also
 	*update-instance-for-redefined-class-table* and
 	*update-instance-for-different-class-table*.
 	(valid-reinitialize-instance-keywords): New function, extracted from
 	initial-reinitialize-instance.
-	(valid-update-instance-for-redefined-class-keywords,
-	valid-update-instance-for-different-class-keywords,
-	check-initialization-argument-list): New functions.
+	(valid-update-instance-for-redefined-class-keywords)
+	(valid-update-instance-for-different-class-keywords)
+	(check-initialization-argument-list): New functions.
 	(initial-reinitialize-instance): Call
 	valid-reinitialize-instance-keywords.
 	(update-instance-for-different-class): Call
@@ -98,8 +98,8 @@
 	(update-instance-for-redefined-class): Call
 	valid-update-instance-for-redefined-class-keywords and check the
 	initargs.
-	* clos-genfun3.lisp (|#'update-instance-for-redefined-class|,
-	|#'update-instance-for-different-class|): New variables.
+	* clos-genfun3.lisp (|#'update-instance-for-redefined-class|)
+	(|#'update-instance-for-different-class|): New variables.
 	(std-add-method, std-remove-method): Conditionally call
 	note-uirc-change, note-uidc-change.
 
