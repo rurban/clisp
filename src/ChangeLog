@@ -768,7 +768,7 @@
 
 2001-08-27  Sam Steingold  <sds@gnu.org>
 
-	win32gcc names libraries libFOO.a and not FOO.LISP
+	win32gcc names libraries libFOO.a and not FOO.LIB
 	* makemake.in (LIB_TYPE): new variable, used instead of $HOS
 	in creating library dependecies
 
