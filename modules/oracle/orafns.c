@@ -40,9 +40,11 @@
 #define DEFAULT_PREFETCH_BYTES  65536
 /* Size of per-connection error buffer */
 #define ERRBUF_BYTES            100000
+/* Default size of LONG fetch */
+#define DEFAULT_LONG_LEN		500000
 
 /* Local routines, w/ wrappers passed to external interface */
-static struct db_conn * connect(char *, char *, char *, char *, int, int);
+static struct db_conn * connect(char *, char *, char *, char *, int, int, int, int);
 static int              disconnect(struct db_conn *);
 static int              exec_sql(struct db_conn *, char *, struct sqlparam **, int);
 static int              fetch_row(struct db_conn *);
@@ -62,7 +64,7 @@ static int       init_session(struct db_conn *, char *, char *, char *, char*, i
 static int       get_cols(struct db_conn *);
 static int       get_param_attr(CONST dvoid *, int, struct db_conn *, dvoid *, ub4 *, char *, ub4);
 static char *    decode_data_type(int);
-static int       fetch_data_len(int, int);
+static int       fetch_data_len(int, int, int);
 static void      free_columns(struct db_conn *);
 static void      free_column(struct column *);
 static void      free_if_non_null(void *);
@@ -102,8 +104,11 @@ int main(int argc, char **argv) {
 
   /* Connect to server */
   db = connect(argv[1], argv[2], argv[3], argv[4],
-                      -1,   /* Prefetch bytes */
-                      1);   /* Auto-commit? */
+			   -1,   /* Prefetch bytes */
+			   1,    /* Auto-commit? */
+			   0,    /* Long read len */
+			   0);   /* Truncate OK? */
+			          
   if ( ! db ) {
     /* Should never really get this */
     printf("Error initting connection\n");
@@ -175,7 +180,7 @@ int main(int argc, char **argv) {
 
 /* Init a new connection, given user, schema, password and SID */
 
-static struct db_conn * connect(char * user, char * schema, char * password, char * sid, int prefetch_bytes, int auto_commit)
+static struct db_conn * connect(char * user, char * schema, char * password, char * sid, int prefetch_bytes, int auto_commit, int long_len, int truncate_ok)
 {
   sb4       status  = OCI_SUCCESS;
 
@@ -197,9 +202,11 @@ static struct db_conn * connect(char * user, char * schema, char * password, cha
   if ( ! db->success )
     return db;
 
-  /* Copy buffer size and auto-commit */
+  /* Other params: fetch buffer size, auto-commit, LONG fetch size, truncate-allowed */
   db->prefetch_bytes = prefetch_bytes;
   db->auto_commit = auto_commit;
+  db->long_len = long_len >= 0 ? long_len : DEFAULT_LONG_LEN;
+  db->truncate_ok = truncate_ok;
 
   /* Success */
   db->success = 1;
@@ -313,6 +320,15 @@ static int fetch_row(struct db_conn * db)
       append_oci_error(db->errmsg, db->err);
       return db->success = 0;
     }
+  }
+
+  /* If data was truncated and that is not allowed, raise an error */
+  if ( truncated && ! db->truncate_ok ) {
+	char * defind = db->long_len == DEFAULT_LONG_LEN ? "default" : "specified";
+	sprintf(db->errmsg,
+			"Size of LONG column exceeds %s maximum of %d.\nYou must either increase size of LONG fetch buffer or set flag allowing truncation.\n", defind, db->long_len);
+	append_oci_error(db->errmsg, db->err);
+	return db->success = 0;
   }
   
   /* Copy is-null indicator status to external structures.  */
@@ -455,7 +471,7 @@ static int get_cols(struct db_conn * db)
     /* Set up a define variable for this col to get its fetched value.
        Note that we ask Oracle to convert everything to
        null-terminated string, SQLT_STR. */
-    fetch_buflen = fetch_data_len(col->dtype, col->dsize);
+    fetch_buflen = fetch_data_len(col->dtype, col->dsize, db->long_len);
     col->data = malloc(fetch_buflen);
     *((char *) col->data) = '\0';
     col->indicator = 0;
@@ -965,7 +981,7 @@ static char * decode_data_type(int dtype)
 }
 
 /* Get appropriate length for fetch into on output define variable */
-static int fetch_data_len(int dtype, int dlen)
+static int fetch_data_len(int dtype, int dlen, int long_len)
 {
   static char buf[100];
 
@@ -973,11 +989,13 @@ static int fetch_data_len(int dtype, int dlen)
      the largest buffer that would ever be used by an Oracle number,
      for dates a reasonable limit for formatted dates (e.g.,
      "Wednesday, November 23, 2005") and for chars, just that length,
-     plus one for the null terminator.
+     plus one for the null terminator.  For LONG, use configured length,
+	 after which Oracle will truncate.  For RAW, use double length so
+	 hex conversion will fit.
 
      With all this, we should not be getting Oracle truncation due to
      deficiencies in our buffer size (i.e., our buffer should always
-     accomodate the Oracle data).  */
+     accomodate the Oracle data), with the exception of LONG. */
 
   switch (dtype) {
   case 1:   /* VARCHAR2 */
@@ -990,12 +1008,18 @@ static int fetch_data_len(int dtype, int dlen)
     return 50;
     
   case 8:   /* LONG */
-    return 70000;
+    return long_len + 1;
+
+  case 24:  /* LONG RAW*/
+    return 2 * long_len + 1;
+
+  case 23:  /* RAW (returned in hex) */
+	return 2 * dlen + 1;
     
   case 12:  /* DATE */
     return 50;
   }
-  return SQLT_STR;
+  return 0;
 }
 
 /* ------------------------------------------------------------------------------------------------------------- */
@@ -1241,8 +1265,8 @@ static char * valid_string(char * s) { return s ? s : ""; }
    implemented in the interface module.
 */
 
-void * oracle_connect(char * user, char * schema, char * password, char * sid, int prefetch_bytes, int auto_commit)
-{ return (void *) connect(user, schema, password, sid, prefetch_bytes, auto_commit); }
+void * oracle_connect(char * user, char * schema, char * password, char * sid, int prefetch_bytes, int auto_commit, int long_len, int truncate_ok)
+{ return (void *) connect(user, schema, password, sid, prefetch_bytes, auto_commit, long_len, truncate_ok); }
 
 int oracle_disconnect(void * db)
 { return disconnect((struct db_conn *) db); }
