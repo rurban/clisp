@@ -6,6 +6,8 @@
 	(c-LAMBDABODY, c-LET/LET*, c-MULTIPLE-VALUE-BIND, c-FLET)
 	(c-LABELS, c-FUNCTION-MACRO-LET, c-GENERIC-FLET, c-GENERIC-LABELS)
 	(c-FUNCALL-INLINE): use it
+	(lambda-form-p): new function
+	(c-form, inline-callable-function-lambda-p, c-FUNCTION): use it
 
 2001-12-20  Sam Steingold  <sds@gnu.org>
 
