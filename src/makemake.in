@@ -37,7 +37,7 @@ options:
        --without-unicode       no Unicode character set, only 8-bit characters
        --with-dynamic-ffi      a foreign language interface
        --with-dynamic-modules  dynamic loading of foreign language modules
-       --with-export-syscalls  export some UNIX system calls to Lisp
+       --with-export-syscalls  export some POSIX functionality to Lisp
        --with-module=wildcard
        --with-module=regexp
        --with-module=postgresql632
@@ -1173,7 +1173,8 @@ if test -z "$with_nounicode"; then
 fi
 
 if test -n "$with_export_syscalls"; then
-  XCFLAGS="$XCFLAGS -DEXPORT_SYSCALLS";
+  XCFLAGS="$XCFLAGS -DEXPORT_SYSCALLS"
+  LIBS=$LIBS' -lm'
 fi
 
 if test -n "$with_dynamic_ffi"; then
@@ -1404,6 +1405,9 @@ fi
 
 LISPARIT_SUBFILES=' aridecl arilev0 arilev1 intelem intlog intplus intcomp intbyte intmal intdiv intgcd int2adic intsqrt intprint intread rational'
 LISPARIT_SUBFILES=$LISPARIT_SUBFILES' sfloat ffloat dfloat lfloat flo_konv flo_rest realelem realrand realtran compelem comptran'
+if test -n "$with_export_syscalls"; then
+  LISPARIT_SUBFILES=$LISPARIT_SUBFILES' posixmath';
+fi
 LISPARIT_INCLUDES=$LISPARIT_SUBFILES' arilev1c arilev1e arilev1i'
 
 EXTRA_CPARTS='noreadline'

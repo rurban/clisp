@@ -501,7 +501,7 @@ LISPSYM(machine_instance,"MACHINE-INSTANCE",lisp)
 #ifdef HAVE_GETHOSTBYNAME
 LISPSYM(socket_service_port,"SOCKET-SERVICE-PORT",lisp)
 #ifdef EXPORT_SYSCALLS
-LISPSYM(resolve_host_ipaddr,"RESOLVE-HOST-IPADDR",lisp)
+LISPSYM(resolve_host_ipaddr,"RESOLVE-HOST-IPADDR",posix)
 #endif
 #endif
 # ---------- TIME ----------
@@ -606,8 +606,8 @@ LISPSYM(program_name,"PROGRAM-NAME",system)
 LISPSYM(lib_directory,"LIB-DIRECTORY",system)
 #ifdef EXPORT_SYSCALLS
 #ifdef UNIX
-LISPSYM(user_data,"USER-DATA",lisp)
-LISPSYM(file_stat,"FILE-STAT",lisp)
+LISPSYM(user_data,"USER-DATA",posix)
+LISPSYM(file_stat,"FILE-STAT",posix)
 #endif
 #endif
 # ---------- PREDTYPE ----------
@@ -987,6 +987,18 @@ LISPSYM(long_float_digits,"LONG-FLOAT-DIGITS",lisp)
 LISPSYM(set_long_float_digits,"%SET-LONG-FLOAT-DIGITS",system)
 LISPSYM(log2,"LOG2",system)
 LISPSYM(log10,"LOG10",system)
+#ifdef EXPORT_SYSCALLS
+LISPSYM(erf,"ERF",posix)
+LISPSYM(erfc,"ERFC",posix)
+LISPSYM(j0,"J0",posix)
+LISPSYM(j1,"J1",posix)
+LISPSYM(jn,"JN",posix)
+LISPSYM(y0,"Y0",posix)
+LISPSYM(y1,"Y1",posix)
+LISPSYM(yn,"YN",posix)
+LISPSYM(gamma,"GAMMA",posix)
+LISPSYM(lgamma,"LGAMMA",posix)
+#endif # EXPORT_SYSCALLS
 # ---------- REXX ----------
 #ifdef REXX
 LISPSYM(rexx_put,"%REXX-PUT",system)
@@ -1632,4 +1644,3 @@ LISPSYM(mem_write,"MEM-WRITE",system)
 LISPSYM(mem_write_vector,"MEM-WRITE-VECTOR",system)
 LISPSYM(affi_nonzerop,"NZERO-POINTER-P",system)
 #endif
-

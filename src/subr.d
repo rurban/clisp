@@ -1081,6 +1081,18 @@ LISPFUNN(long_float_digits,0)
 LISPFUNN(set_long_float_digits,1)
 LISPFUNN(log2,1)
 LISPFUNN(log10,1)
+#ifdef EXPORT_SYSCALLS
+LISPFUNN(erf,1)
+LISPFUNN(erfc,1)
+LISPFUNN(j0,1)
+LISPFUNN(j1,1)
+LISPFUNN(jn,2)
+LISPFUNN(y0,1)
+LISPFUNN(y1,1)
+LISPFUNN(yn,2)
+LISPFUNN(gamma,1)
+LISPFUNN(lgamma,1)
+#endif # EXPORT_SYSCALLS
 # ---------- REXX ----------
 #ifdef REXX
 LISPFUN(rexx_put,1,0,norest,key,5,
@@ -1119,4 +1131,3 @@ LISPFUN(mem_write,3,1,norest,nokey,0,NIL)
 LISPFUN(mem_write_vector,2,1,norest,nokey,0,NIL)
 LISPFUN(affi_nonzerop,1,0,norest,nokey,0,NIL)
 #endif
-

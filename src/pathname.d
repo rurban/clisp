@@ -11708,7 +11708,7 @@ LISPFUNN(lib_directory,0)
 # return the data for the user as 7 values (slots of struct passwd)
 # or a list of simple vectors of length 7 is no argument was given.
 LISPFUN(user_data,0,1,norest,nokey,0,NIL)
-# (LISP::USER-DATA &optional user)
+# (POSIX:USER-DATA &optional user)
   {
     var object user = popSTACK();
     struct passwd *pwd = NULL;
@@ -11752,7 +11752,7 @@ LISPFUN(user_data,0,1,norest,nokey,0,NIL)
 # (string) on which the appropriate stat function was called,
 # as well as the 13 slots of the struct stat.
 LISPFUN(file_stat,1,1,norest,nokey,0,NIL)
-# (LISP:FILE-STAT file &optional link-p)
+# (POSIX:FILE-STAT file &optional link-p)
   {
     var object link = popSTACK();
     var object file = popSTACK();
@@ -11927,7 +11927,7 @@ global int my___findfirst(path,attrib,ffblk)
   var const char* path;
   var int attrib;
   var struct ffblk * ffblk;
-  { 
+  {
     var int erg = __findfirst(path,attrib,ffblk);
     if ((erg<0) && (errno==ENAMETOOLONG)) {
       var char* shorter_path = alloca(asciz_length(path)+1);

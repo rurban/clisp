@@ -3629,6 +3629,10 @@ der Docstring (oder NIL).
                  COMPLEX REALPART IMAGPART LOGIOR LOGXOR LOGAND LOGEQV LOGNAND LOGNOR
                  LOGANDC1 LOGANDC2 LOGORC1 LOGORC2 BOOLE LOGNOT LOGTEST LOGBITP ASH LOGCOUNT
                  INTEGER-LENGTH LDB LDB-TEST MASK-FIELD DPB DEPOSIT-FIELD ! EXQUO
+                 #+syscalls posix::gamma #+syscalls posix::lgamma
+                 #+syscalls posix::erf #+syscalls posix::erfc
+                 #+syscalls posix::j0 #+syscalls posix::j1 #+syscalls posix::jn
+                 #+syscalls posix::y0 #+syscalls posix::y1 #+syscalls posix::yn
                 ) ; alle diese sind SUBRs ohne Keyword-Parameter
                 (setq foldable t)
                 '(NIL . NIL)
@@ -4276,7 +4280,7 @@ der Docstring (oder NIL).
 ) ) )
 
 (defvar *deprecated-functions-list*
-  '(GENTEMP SET SPECIAL-FORM-P RESOLVE-HOST-IPADDR FILE-STAT USER-DATA))
+  '(GENTEMP SET SPECIAL-FORM-P))
 
 ; Hilfsfunktion: Notiere, dass eine globale Funktionsdefinition benutzt wird.
 (defun note-function-used (name)
