@@ -1,5 +1,9 @@
 2004-02-27  Bruno Haible  <bruno@clisp.org>
 
+	* unix.d: Include <sys/statfs.h>. Needed for MULTIMAP_MEMORY_VIA_FILE.
+
+2004-02-27  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (_GNU_SOURCE): Define. Needed for MULTIMAP_MEMORY_VIA_SHM
 	on Linux: glibc defines IPC_INFO in <sys/ipc.h> only if _GNU_SOURCE
 	is defined.
