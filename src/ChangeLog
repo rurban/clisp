@@ -1,3 +1,8 @@
+2005-02-02  Sam Steingold  <sds@gnu.org>
+
+	* genclisph.d (perseverance_t): ensure the constants have the
+	right values (like with all the other enums)
+
 2005-02-01  Sam Steingold  <sds@gnu.org>
 
 	* foreign.d (close_library): new function
@@ -3727,11 +3732,11 @@
 	(wr_ch_buffered_mac, wr_ch_array_buffered_mac): Update.
 	(wr_ch_buffered_dos, wr_ch_array_buffered_dos): Update.
 	(oconv_unshift_output_buffered_): Update.
-	(position_file_i_buffered, rd_by_aux_iax_buffered,
-	rd_by_aux_ibx_buffered, rd_by_aux_icx_buffered, rd_by_iau8_buffered,
-	rd_by_array_iau8_buffered, listen_byte_ia8_buffered): Update.
-	(wr_by_aux_ia_buffered, WRITE_LAST_BYTE, wr_by_aux_ib_buffered,
-	wr_by_aux_ic_buffered, wr_by_array_iau8_buffered): Update.
+	(position_file_i_buffered, rd_by_aux_iax_buffered)
+	(rd_by_aux_ibx_buffered, rd_by_aux_icx_buffered, rd_by_iau8_buffered)
+	(rd_by_array_iau8_buffered, listen_byte_ia8_buffered): Update.
+	(wr_by_aux_ia_buffered, WRITE_LAST_BYTE, wr_by_aux_ib_buffered)
+	(wr_by_aux_ic_buffered, wr_by_array_iau8_buffered): Update.
 	(logical_position_file_end): Update.
 	(make_file_stream): Update.
 	(low_write_array_unbuffered_pipe): Update.
