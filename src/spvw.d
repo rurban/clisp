@@ -2801,11 +2801,19 @@ global int main (argc_t argc, char* argv[]) {
   # execute (LOAD initfile) for each initfile:
   if (argv_init_filecount > 0) {
     var char** fileptr = &argv_selection_array[0];
-    var uintL count;
-    dotimespL(count,argv_init_filecount,{
-      var object filename = asciz_to_string(*fileptr++,O(misc_encoding));
-      pushSTACK(filename); funcall(S(load),1);
-    });
+    var uintL count = argv_init_filecount;
+    if (interactive_stream_p(Symbol_value(S(debug_io))))
+      do { pushSTACK(asciz_to_string(*fileptr++,O(misc_encoding)));
+        funcall(S(load),1);
+      } while (--count);
+    else { /* non-interactive - guard with SYS::BATCHMODE-ERRORS */
+      pushSTACK(S(batchmode_errors));
+      do { pushSTACK(S(load));
+        pushSTACK(asciz_to_string(*fileptr++,O(misc_encoding)));
+        { object tmp = listof(2); pushSTACK(tmp); }
+      } while (--count);
+      eval_noenv(listof(argv_init_filecount+1));
+    }
   }
   if (argv_compile) {
     # execute
