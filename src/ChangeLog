@@ -1,5 +1,18 @@
 1999-01-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (make_buffered_stream): Renamed from make_unbuffered_stream.
+          Change the calling convention. Don't call isatty. Don't store the
+          strm_field1/strm_field2 values. Don't call HandleStream_input_init,
+          HandleStream_output_init here. Don't add the stream to O(open_files).
+          (make_file_stream): Update. Call isatty only for :INPUT or :IO
+          streams. Store the strm_field1/strm_field2 values here. Call
+          HandleStream_input_init, HandleStream_output_init here. Add the
+          stream to O(open_files).
+          (init_streamvars): Update. Store the strm_field1/strm_field2 values
+          here. Call HandleStream_output_init here.
+
+1999-01-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Simplify the element-type handling.
         * stream.d (eltype_kind, decoded_eltype): New types.
           (test_eltype_arg): Moved. Changed signature.
