@@ -1,8 +1,12 @@
+2003-05-12  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (MERGE-PATHNAMES): fixed a crash: the address
+	of the LHS may be computed before a GC in merge_dirs()
+	[this is a GC-safety bug not detected by DEBUG_GCSAFETY]
+
 2003-05-12  Jörg Höhle  <hoehle@users.sourceforge.net>
 
-	* doc/impe[xn]t.xml: document SYS::DYNLOAD-MODULES.
-	May want to re-export from package EXT at a later time.
-	* pathname.d (SYS::DYNLOAD-MODULES): more error checking
+	* pathname.d (DYNLOAD-MODULES): more error checking
 
 2003-05-12  Jörg Höhle  <hoehle@users.sourceforge.net>
 
