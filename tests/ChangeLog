@@ -1,3 +1,7 @@
+2004-10-31  Bruno Haible  <bruno@clisp.org>
+
+	* socket.tst: New file.
+
 2004-10-24  Bruno Haible  <bruno@clisp.org>
 
 	* mop.tst: Update for changed compute-effective-method-as-function
