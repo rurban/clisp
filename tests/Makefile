@@ -12,7 +12,6 @@ tests : force
 compare : force
 	(echo *.erg | grep '\*') >/dev/null || (echo "Test failed." ; echo "To see which tests failed, type" ; echo "    cat *.erg" ; exit 1)
 	echo "Test passed."
-	$(RM) /tmp/foo52.txt /tmp/foo53.txt /tmp/foo51.bin /tmp/foo35.tmp
 
 force :
 
