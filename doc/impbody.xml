@@ -3785,7 +3785,7 @@ functions are provided:
  &close;.</para>
 
 <para>The functionality of &elastic-newline; is also available through
- <link linkend="format-dot">~.</link>.</para>
+ the &format; directive <link linkend="format-dot">~.</link>.</para>
 
 <para>A technique for avoiding unnecessary blank lines in output is to
  begin each chunk of output with a call to &fresh-line; and to terminate it
