@@ -1,3 +1,7 @@
+2005-01-24  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (clisp.rc) [win32]: depend on clisp.ico
+
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
 	* utils/clispload.lisp (*expected-failures*): Update.
@@ -5,9 +9,9 @@
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
 	Move long strings out of macroexpansions.
-	* pprint.lisp (pprint-logical-block-both-error,
-	pprint-logical-block-prefix-not-string-error,
-	pprint-logical-block-suffix-not-string-error): New functions,
+	* pprint.lisp (pprint-logical-block-both-error)
+	(pprint-logical-block-prefix-not-string-error)
+	(pprint-logical-block-suffix-not-string-error): New functions,
 	extracted from pprint-logical-block.
 	(pprint-logical-block): Use them.
 
