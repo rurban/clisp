@@ -1,5 +1,11 @@
 2004-03-26  Bruno Haible  <bruno@clisp.org>
 
+	* init.lisp (%expand-form EVAL-WHEN): Don't look whether COMPILE is
+	among the situations. Ignore the forms if EVAL/:EXECUTE is not among
+	the situations.
+
+2004-03-26  Bruno Haible  <bruno@clisp.org>
+
 	* stream.d (wr_ch_array_str_out, wr_ch_array_pphelp): Use TheSnstring
 	instead of a cast to chart*.
 

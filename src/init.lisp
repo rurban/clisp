@@ -664,23 +664,15 @@
                        (%expand-lambda (third form))
                        (cdddr form) nil)))))
               ((EVAL-WHEN)
-               ;; if situation COMPILE is given, execute the body
-               ;; as PROGN, return a form, that returns without side-effects
-               ;; the same values.
-               ;; Else expand all arguments from the second one as forms.
-               (if (member 'COMPILE (second form)) ; not :COMPILE-TOPLEVEL !
-                 (let ((compiler::*compiling-from-file* nil))
-                   (values
-                    (list 'values-list
-                          (list 'quote
-                                (multiple-value-list
-                                 (eval (cons 'PROGN (cddr form))))))
-                    t))
-                 (multiple-value-call #'%expand-cons form
-                   (first form) nil
-                   (multiple-value-call #'%expand-cons (rest form)
-                     (second form) nil
-                     (%expand-list (cddr form))))))
+               (let ((situations (second form)))
+                 (if (or (member 'EVAL situations)
+                         (member ':EXECUTE situations))
+                   (multiple-value-call #'%expand-cons form
+                     (first form) nil
+                     (multiple-value-call #'%expand-cons (rest form)
+                       (second form) nil
+                       (%expand-list (cddr form))))
+                   (values 'NIL t))))
               ((LET)            ; expand variable-list and body
                (let ((*venv* *venv*))
                  (%expand-special-declarations (cddr form))
