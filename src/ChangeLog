@@ -1,7 +1,7 @@
 2002-06-15  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
-	Bug #[ 542902 ] fixed more: not only socket-wait is
-	interruptible on windows, but also namely socket-accept.
+	more fixes for bug #[ 542902 ]: not only socket-wait is
+	interruptible on windows, but also socket-accept is
 	* socket.d (accept_connection) [WIN32_NATIVE]: interruptible
 	check socket for readability (infinitely long) before calling
 	accept.
@@ -19,8 +19,11 @@
 	array_dim_size --> array_dim_size_t
 	environment --> environment_t
 	gc_function --> gc_function_t
+	host_data --> host_data_t
+	host_data_fetcher --> host_data_fetcher_t
 	map_sequence_function --> map_sequence_function_t
 	module_ --> module_t
+	sockaddr_max --> sockaddr_max_t
 	stack_range --> stack_range_t
 	thread_ --> thread_t
 	unwind_protect_caller --> unwind_protect_caller_t
