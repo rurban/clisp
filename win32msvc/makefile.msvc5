@@ -1987,8 +1987,6 @@ distrib : force
 	for f in clisp.1 clisp.man clisp.html $(TXTFILES) impnotes.html clisp.gif ; do \
 	  if test -f $$f ; then cp -p $$f $$distdir/doc/$$f ; else cp -p `echo $$f | tr '[A-Z]' '[a-z]'` $$distdir/doc/$$f ; fi ; \
 	done ; \
-	mkdir $$distdir/emacs ; \
-	cp -p ../emacs/*.el $$distdir/emacs/ ; \
 	mkdir $$distdir/src ; \
 	cp -p $(LSPFILES) $$distdir/src/ ; \
 	chmod 755 $$distdir/. $$distdir/*/. ; \

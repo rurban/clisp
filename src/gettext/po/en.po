@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 2000-01-25\n"
-"POT-Creation-Date: 2000-01-27 14:22:53 CET\n"
-"PO-Revision-Date: 2000-01-27 14:31:44 CET\n"
+"Project-Id-Version: clisp 2000-03-06\n"
+"POT-Creation-Date: 2000-03-02 13:37:42 CET\n"
+"PO-Revision-Date: 2000-03-02 13:46:40 CET\n"
 "Last-Translator: Automatically generated <haible@laplace.ilog.fr>\n"
 "Language-Team: English <en@li.org>\n"
 "MIME-Version: 1.0\n"

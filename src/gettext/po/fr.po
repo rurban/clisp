@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 1999-07-19\n"
-"POT-Creation-Date: 2000-01-27 14:30:02 CET\n"
+"POT-Creation-Date: 2000-03-02 13:44:53 CET\n"
 "PO-Revision-Date: 1999-07-20 02:15:56 MEST\n"
 "Last-Translator: Bruno Haible <haible@clisp.cons.org>\n"
 "Language-Team: French <fr@li.org>\n"
