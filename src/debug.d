@@ -110,7 +110,7 @@ local maygc Values read_form(void)
    (loop
      (let ((raw (terminal-raw istream nil)))
        (when (interactive-stream-p istream)
-         (terpri ostream)
+         (fresh-line ostream)
          (write-string prompt ostream)
          (force-output ostream))
        (let* ((eof-value "EOF")
@@ -141,7 +141,7 @@ local maygc Values read_form(void)
   if (ilisp_mode || interactive_stream_p(STACK_4)) {
     /* interactive input-stream -> prompt output: */
    #if 0
-    terpri(&STACK_5); /* (TERPRI ostream) */
+    fresh_line(&STACK_5); /* (FRESH-LINE ostream) */
    #else
     /* the same, but avoiding infinite recursion
      (let ((*recurse-count-standard-output*
@@ -155,7 +155,7 @@ local maygc Values read_form(void)
              (makunbound (quote *debug-io*))
              (symbol-stream (quote *debug-io*) :io))
            (symbol-stream (quote *standard-output*) :output)))
-       (terpri *standard-output*)) */
+       (fresh-line *standard-output*)) */
     /* (incf sys::*recurse-count-standard-output*) */
     dynamic_bind(S(recurse_count_standard_output),
                  fixnum_inc(Symbol_value(S(recurse_count_standard_output)),1));
@@ -181,7 +181,7 @@ local maygc Values read_form(void)
       STACK_(5+3+3) = var_stream(S(standard_output),strmflags_wr_ch_B); /* ostream := *STANDARD-OUTPUT* */
       dynamic_unbind(S(recurse_count_debug_io));
     }
-    terpri(&STACK_(5+3)); /* (TERPRI ostream) */
+    fresh_line(&STACK_(5+3)); /* (FRESH-LINE ostream) */
     dynamic_unbind(S(recurse_count_standard_output));
    #endif
     write_string(&STACK_5,STACK_3); /* (WRITE-STRING prompt ostream) */
@@ -379,7 +379,8 @@ LISPFUN(read_eval_print,seclass_default,1,1,norest,nokey,0,NIL)
                    ((atom L))
                  (write-string " ;" ostream)
                  (terpri ostream)
-                 (write (car L) ostream)))))
+                 (write (car L) ostream)))
+             (elastic-newline ostream)))
          nil)))) */
 {
   read_form();                /* read form */
@@ -440,6 +441,7 @@ LISPFUN(read_eval_print,seclass_default,1,1,norest,nokey,0,NIL)
     }
   }
  #endif
+  elastic_newline(&STACK_(1+2));
   skipSTACK(4);
   VALUES1(NIL);
 }

@@ -795,7 +795,7 @@ T
     (loop :with *print-pretty* = t :with *print-right-margin* = 60
       :for *fill-indent-sexp*
       :in (list 3 20 nil t #'1+ #'1- (lambda (x) (* x 2)))
-      :do (format *error-output* "~3%~S~%" *fill-indent-sexp*)
+      :do (format *error-output* "~3%~S~2%" *fill-indent-sexp*)
       (loop :for i :from 1 :to 12 :by 5 :do (warn "This form contains an error, a mistake, a bug, a blunder, a bungle, a blooper: ~S and can therefore not be correctly interpreted, neither today nor tomorrow nor next week nor next month nor next year" (make-list i))))))
 #+clisp "
 
@@ -946,7 +946,8 @@ WARNING: This form contains an error, a mistake, a bug, a
                    NIL)
          and can therefore not be correctly interpreted,
          neither today nor tomorrow nor next week nor next
-         month nor next year"
+         month nor next year
+"
 
 
 (let ((f "foo.bar") fwd1)

@@ -1117,18 +1117,18 @@
     (cond ((= nn 1)
            (format *debug-io*
                    (if instead-p
-                       (concatenate 'string "~%"
-                         (TEXT "Use instead~@[ of ~S~]: "))
-                       (prompt-for-new-value-string))
+                     (concatenate 'string "~&"
+                       (TEXT "Use instead~@[ of ~S~]: "))
+                     (prompt-for-new-value-string))
                    place)
            (list (read *debug-io*)))
           ((do ((ii 1 (1+ ii)) res)
                ((> ii nn) (nreverse res))
-             (terpri *debug-io*)
+             (fresh-line *debug-io*)
              (format *debug-io*
                      (if instead-p
-                         (TEXT "Use instead of ~S [value ~D of ~D]: ")
-                         (TEXT "New ~S [value ~D of ~D]: "))
+                       (TEXT "Use instead of ~S [value ~D of ~D]: ")
+                       (TEXT "New ~S [value ~D of ~D]: "))
                      place ii nn)
              (push (read *debug-io*) res))))))
 
@@ -1431,10 +1431,11 @@
 (defun break (&optional (format-string "Break") &rest args)
   (if (not *use-clcs*)
     (progn
-      (terpri *error-output*)
+      (fresh-line *error-output*)
       (apply #'format *error-output*
                       (concatenate 'string "*** - " format-string)
                       args)
+      (elastic-newline *error-output*)
       (funcall *break-driver* t))
     (let ((condition
            (make-condition 'simple-condition
@@ -1461,9 +1462,10 @@
       (if *error-handler*
         (apply *error-handler* nil errorstring args)
         (progn
-          (terpri *error-output*)
+          (fresh-line *error-output*)
           (write-string "*** - " *error-output*)
-          (apply #'format *error-output* errorstring args)))
+          (apply #'format *error-output* errorstring args)
+          (elastic-newline *error-output*)))
       (funcall *break-driver* nil))
     (let ((condition (coerce-to-condition errorstring args 'error 'simple-error)))
       (signal condition)
@@ -1477,19 +1479,23 @@
            (or continue-format-string t) error-format-string args)
     (if (not *use-clcs*)
       (progn
-        (terpri *error-output*)
+        (fresh-line *error-output*)
         (write-string "** - " *error-output*)
         (write-string (TEXT "Continuable Error") *error-output*)
         (terpri *error-output*)
         (apply #'format *error-output* error-format-string args)
-        (terpri *debug-io*)
+        (elastic-newline *error-output*)
+        (fresh-line *debug-io*)
         (if (interactive-stream-p *debug-io*)
           (progn
             (write-string (TEXT "If you continue (by typing 'continue'): ")
                           *debug-io*)
             (apply #'format *debug-io* continue-format-string args)
+            (elastic-newline *debug-io*)
             (funcall *break-driver* t))
-          (apply #'format *debug-io* continue-format-string args)))
+          (progn
+            (apply #'format *debug-io* continue-format-string args)
+            (elastic-newline *debug-io*))))
       (let ((condition (coerce-to-condition error-format-string args
                                             'cerror 'simple-error)))
         (with-restarts
@@ -1511,10 +1517,11 @@
 (defun warn (format-string &rest args)
   (if (not *use-clcs*)
     (progn
-      (terpri *error-output*)
+      (fresh-line *error-output*)
       (write-string (TEXT "WARNING:") *error-output*)
       (terpri *error-output*)
       (apply #'format *error-output* format-string args)
+      (elastic-newline *error-output*)
       (when *break-on-warnings* (funcall *break-driver* t)))
     (block warn
       (let ((condition (coerce-to-condition format-string args 'warn 'simple-warning)))
@@ -1526,12 +1533,13 @@
         (with-restarts ((MUFFLE-WARNING () (return-from warn)))
           (with-condition-restarts condition (list (find-restart 'MUFFLE-WARNING))
             (signal condition)))
-        (terpri *error-output*)
+        (fresh-line *error-output*)
         (let ((first-line-prefix (TEXT "WARNING: ")))
           (write-string first-line-prefix *error-output*)
           (pretty-print-condition
            condition *error-output*
            :text-indent (string-width first-line-prefix)))
+        (elastic-newline *error-output*)
         (when *break-on-warnings*
           (with-restarts
               ((CONTINUE
@@ -1578,10 +1586,12 @@ Todo:
           ((assert-restart-prompt) ; prompt for new values
            (if (interactive-stream-p *debug-io*)
              (progn
+               (fresh-line *error-output*)
                (write-string "** - " *error-output*)
                (write-string (TEXT "Continuable Error") *error-output*)
                (terpri *error-output*)
                (pretty-print-condition condition *error-output* :text-indent 5)
+               (elastic-newline *error-output*)
                (invoke-restart-interactively restart))
              (exitunconditionally condition)))
           (otherwise            ; general automatic error handling
@@ -1590,8 +1600,8 @@ Todo:
                           (print-condition condition stream)
                           (let ((report-function (restart-report restart)))
                             (when report-function
-                           (terpri stream)
-                           (funcall report-function stream))))))
+                              (terpri stream)
+                              (funcall report-function stream))))))
            (if (restart-interactive restart)
              (invoke-restart-interactively restart)
              (invoke-restart restart))))))))
@@ -1623,9 +1633,10 @@ its CONTINUE restart is invoked."
      ,@body))
 
 (defun exitunconditionally (condition) ; ABI
-  (terpri *error-output*)
+  (fresh-line *error-output*)
   (write-string "*** - " *error-output*)
   (print-condition condition *error-output*)
+  (elastic-newline *error-output*)
   (exit t))                     ; exit Lisp with error
 (defun exitonerror (condition) ; ABI
   (unless (find-restart 'CONTINUE condition)
