@@ -634,9 +634,11 @@ LISPSYM(execute,"EXECUTE",ext)
 #ifdef HAVE_SHELL
 #ifdef WIN32_NATIVE
 LISPSYM(shell_name,"SHELL-NAME",system)
-LISPSYM(launch,"LAUNCH",ext)
 #endif
 LISPSYM(shell,"SHELL",ext)
+#endif
+#if defined(UNIX) || defined(WIN32_NATIVE) || defined(RISCOS)
+LISPSYM(launch,"LAUNCH",ext)
 #endif
 LISPSYM(savemem,"SAVEMEM",system)
 #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
