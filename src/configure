@@ -5062,7 +5062,7 @@ EOF
 esac
 
                       case "$signalblocks" in
-  *BSD*)
+  *POSIX* | *BSD*)
 echo $ac_n "checking whether signals are blocked when signal handlers are entered""... $ac_c" 1>&6
 echo "configure:5068: checking whether signals are blocked when signal handlers are entered" >&5
 if eval "test \"`echo '$''{'cl_cv_func_signal_blocked'+set}'`\" = set"; then
@@ -5158,7 +5158,7 @@ esac
 esac
 
                       case "$signalblocks" in
-  *BSD*)
+  *POSIX* | *BSD*)
 echo $ac_n "checking whether other signals are blocked when signal handlers are entered""... $ac_c" 1>&6
 echo "configure:5164: checking whether other signals are blocked when signal handlers are entered" >&5
 if eval "test \"`echo '$''{'cl_cv_func_signal_blocked_others'+set}'`\" = set"; then
@@ -5414,7 +5414,7 @@ fi
 
                       if test -n "$have_sigaction"; then
 case "$signalblocks" in
-  *BSD*)
+  *POSIX* | *BSD*)
 echo $ac_n "checking whether signals are blocked when sigaction handlers are entered""... $ac_c" 1>&6
 echo "configure:5420: checking whether signals are blocked when sigaction handlers are entered" >&5
 if eval "test \"`echo '$''{'cl_cv_func_sigaction_blocked'+set}'`\" = set"; then
