@@ -270,7 +270,7 @@ global void init_language (const char* argv_language,
 # given by the "Content-Type:" line in the meta information.
 # in anticipation of this fix, CLSTEXT is a function, not a macro
 
-global object CLSTEXT (const char* asciz) {
+global maygc object CLSTEXT (const char* asciz) {
  #ifdef GNU_GETTEXT
   return asciz_to_string(clgettext(asciz),Symbol_value(S(utf_8)));
  #else
@@ -278,7 +278,7 @@ global object CLSTEXT (const char* asciz) {
  #endif
 }
 
-global object CLOTEXT (const char* asciz) {
+global maygc object CLOTEXT (const char* asciz) {
   dynamic_bind(S(packagestern),O(default_package)); # bind *PACKAGE*
   pushSTACK(CLSTEXT(asciz)); funcall(L(read_from_string),1);
   dynamic_unbind(S(packagestern));

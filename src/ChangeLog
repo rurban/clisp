@@ -12,6 +12,7 @@
 	* spvw.d: Likewise.
 	* spvw_circ.d: Likewise.
 	* spvw_debug.d: Likewise.
+	* spvw_language.d: Likewise.
 	* spvw_garcol.d: Likewise.
 	* spvw_memfile.d: Likewise.
 	* spvw_module.d: Likewise.
