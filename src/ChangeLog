@@ -1,5 +1,20 @@
 2003-05-12  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (check_uint8, check_sint8, check_uint16, check_sint16)
+	(check_uint32, check_sint32, check_uint64, check_sint64, check_uint)
+	(check_sint, check_ulong, check_slong, check_ffloat, check_dfloat):
+	always define, return the argument on success
+	(fehler_uint8, fehler_sint8, fehler_uint16, fehler_sint16)
+	(fehler_uint32, fehler_sint32, fehler_uint64, fehler_sint64)
+	(fehler_uint, fehler_sint, fehler_ulong, fehler_slong)
+	(fehler_ffloat, fehler_dfloat): always declare
+	* error.d (fehler_uint8, fehler_sint8, fehler_uint16, fehler_sint16)
+	(fehler_uint32, fehler_sint32, fehler_uint64, fehler_sint64)
+	(fehler_uint, fehler_sint, fehler_ulong, fehler_slong)
+	(fehler_ffloat, fehler_dfloat): always define
+
+2003-05-12  Sam Steingold  <sds@gnu.org>
+
 	* type.lisp (built-in-class-p): eval only when loading source
 	* clos.lisp (built-in-class-p): do not proclaim notinline
 
