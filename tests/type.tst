@@ -423,3 +423,12 @@ t
 
 (coerce 1.0 'complex)
 #C(1.0 0.0)
+
+(deftype otherwise () nil)
+otherwise
+
+(typecase 'foo (otherwise :wrong) (t :right))
+:right
+
+(typecase 'foo (otherwise :wrong) (symbol :right) (t :wrong2))
+:right
