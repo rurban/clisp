@@ -375,7 +375,7 @@
            name)))
 
 (defmacro DEF-C-TYPE (&whole whole name typespec)
-  (check-symbol (first whole) name)
+  (check-symbol name (first whole))
   `(EVAL-WHEN (LOAD COMPILE EVAL)
      (PARSE-C-TYPE ',typespec ',name)
      ',name))
@@ -723,7 +723,7 @@
     (to-c-name lisp-name)))
 
 (defmacro DEF-C-VAR (&whole whole name &rest options)
-  (check-symbol (first whole) name)
+  (check-symbol name (first whole))
   (let* ((alist (parse-options options '(:name :type :read-only
                                          :alloc :library)
                                whole))
@@ -854,7 +854,7 @@
   `(DEF-CALL-OUT ,name ,@options (:LANGUAGE :STDC)))
 
 (defmacro DEF-CALL-OUT (&whole whole name &rest options)
-  (check-symbol (first whole) name)
+  (check-symbol name (first whole))
   (let* ((alist (parse-options options '(:name :arguments :return-type
                                          :language :built-in :library)
                                whole))
@@ -887,7 +887,7 @@
 
 #+AFFI
 (defmacro DEF-LIB-CALL-OUT (&whole whole name library &rest options)
-  (check-symbol (first whole) name)
+  (check-symbol name (first whole))
   (let* ((alist (parse-options options '(:name :offset :arguments :return-type) whole))
          (parsed-function
           (parse-c-function (remove (assoc ':name alist) alist) whole))
@@ -910,7 +910,7 @@
   `(DEF-CALL-IN ,name ,@options (:LANGUAGE :STDC)))
 
 (defmacro DEF-CALL-IN (&whole whole name &rest options)
-  (check-symbol (first whole) name)
+  (check-symbol name (first whole))
   (let* ((alist (parse-options
                  options '(:name :arguments :return-type :language) whole))
          (c-name (foreign-name name (assoc ':name alist))))
@@ -1028,7 +1028,7 @@
   (count-inarguments (sys::%record-ref obj 3)))
 
 (defmacro def-c-enum (&whole whole name &rest items)
-  (check-symbol (first whole) name)
+  (check-symbol name (first whole))
   (let ((forms '()) (ht (make-hash-table :key-type 'fixnum :value-type 'symbol))
         (next-value 0) (this-val 0))
     (dolist (item items)

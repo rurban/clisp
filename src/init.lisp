@@ -1528,16 +1528,16 @@
  (sys::make-macro
   (function check-symbol (lambda (form env)
     (declare (ignore env))
-    (let ((caller (second form)) (name (third form)))
+    (let ((name (second form)) (caller (third form)))
       (list 'unless (list 'symbolp name)
-            (list 'setq name (list '%check-symbol caller name))))))))
+            (list 'setq name (list '%check-symbol name caller))))))))
 (sys::%putd 'check-function-name
  (sys::make-macro
   (function check-function-name (lambda (form env)
     (declare (ignore env))
-    (let ((caller (second form)) (name (third form)))
+    (let ((name (second form)) (caller (third form)))
       (list 'unless (list 'function-name-p name)
-            (list 'setq name (list '%check-function-name caller name))))))))
+            (list 'setq name (list '%check-function-name name caller))))))))
 
 (sys::%putd 'defun              ; preliminary:
   (sys::make-macro
@@ -1551,7 +1551,7 @@
       (let ((name (cadr form))
             (lambdalist (caddr form))
             (body (cdddr form)))
-        (check-symbol 'defun name)
+        (check-symbol name 'defun)
         (when (special-operator-p name)
           (error-of-type 'source-program-error
             :form name
