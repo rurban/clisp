@@ -1,5 +1,13 @@
 2005-02-16  Bruno Haible  <bruno@clisp.org>
 
+	* configure: Accept --enable and --disable options and pass them down.
+	* makemake.in: Accept --enable and --disable options.
+	(module_configure_flags): New variable.
+	(MODULE_CONFIGURE_FLAGS): New variable.
+	(anymodule): Pass MODULE_CONFIGURE_FLAGS to subordinate configure.
+
+2005-02-16  Bruno Haible  <bruno@clisp.org>
+
 	Make it possible again to use Makefile.devel without having clisp
 	installed.
 	* Makefile.devel (GCC_INSTALL_DIR): Define as a macro, not as a
