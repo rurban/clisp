@@ -4,6 +4,8 @@
 	* genclisph.d (convert_time_from_universal): declare
 	* modules/syscalls/calls.c (LispToPropVariant): use it
 	(PropVariantToLisp): use convert_time_to_universal()
+	(kwtopropid, PropSpecSetStr, propspeclistp, PropSpecSet):
+	do not change STACK
 
 2005-01-06  Sam Steingold  <sds@gnu.org>
 
