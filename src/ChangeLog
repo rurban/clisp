@@ -1,3 +1,15 @@
+2004-06-28  Sam Steingold  <sds@gnu.org>
+
+	* modules/berkeley-db/bdb.c (object_handle_t): new deftype
+	(object_handle): third argument is an object_handle_t, not bool
+	(object_handle_): removed
+	updated all calls to object_handle_() and object_handle()
+	(env_get_home_dir, env_get_open_flags, db_get_cache):
+	accept second argument errorp
+	(BDB:DB-STAT): added missing slot bt_over_pg
+	(BDB:CURSOR-CLOSE): fixed STACK handling
+	(BDB:CURSOR-GET): fixed keyword list
+
 2004-06-27  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/dbi.lisp (bdb-error): new condition
