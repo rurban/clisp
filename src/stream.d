@@ -2820,6 +2820,7 @@ local object make_key_event(event)
                 not_xterm:
                 { end_system_call(); }
      }  }   }
+     pushSTACK(allocate_handle(stdin_handle));
      #endif
      #ifdef WIN32_NATIVE
      # Console-Handle bilden:
@@ -2849,7 +2850,7 @@ local object make_key_event(event)
         begin_system_call();
         s->strm_keyboard_isatty = (isatty(stdin_handle) ? T : NIL);
         end_system_call();
-        s->strm_keyboard_handle = allocate_handle(stdin_handle);
+        s->strm_keyboard_handle = popSTACK();
         s->strm_keyboard_buffer = NIL;
         s->strm_keyboard_keytab = popSTACK();
         #endif
@@ -3771,6 +3772,8 @@ LISPFUNN(make_keyboard_stream,0)
           # Baue einen TERMINAL3-Stream:
           { pushSTACK(make_ssstring(80)); # Zeilenbuffer allozieren
             pushSTACK(make_ssstring(80)); # Zeilenbuffer allozieren
+            pushSTACK(allocate_handle(stdout_handle));
+            pushSTACK(allocate_handle(stdin_handle));
             # neuen Stream allozieren:
            {var object stream =
               allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal3_len,0);
@@ -3786,8 +3789,8 @@ LISPFUNN(make_keyboard_stream,0)
               s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
               s->strm_wr_ss = P(wr_ss_terminal3);
               s->strm_terminal_isatty = S(equal); # stdout=stdin
-              s->strm_terminal_ihandle = allocate_handle(stdin_handle); # Handle für listen_handle()
-              s->strm_terminal_ohandle = allocate_handle(stdout_handle); # Handle für Output
+              s->strm_terminal_ihandle = popSTACK(); # Handle für listen_handle()
+              s->strm_terminal_ohandle = popSTACK(); # Handle für Output
               #if 1 # TERMINAL_LINEBUFFERED
               s->strm_terminal_inbuff = popSTACK(); # Zeilenbuffer eintragen, count := 0
               s->strm_terminal_index = Fixnum_0; # index := 0
@@ -3802,6 +3805,8 @@ LISPFUNN(make_keyboard_stream,0)
         if (stdin_tty)
           # Baue einen TERMINAL2-Stream:
           { pushSTACK(make_ssstring(80)); # Zeilenbuffer allozieren
+            pushSTACK(allocate_handle(stdout_handle));
+            pushSTACK(allocate_handle(stdin_handle));
             # neuen Stream allozieren:
            {var object stream =
               allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal2_len,0);
@@ -3817,8 +3822,8 @@ LISPFUNN(make_keyboard_stream,0)
               s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
               s->strm_wr_ss = P(wr_ss_terminal2);
               s->strm_terminal_isatty = (stdin_tty ? (same_tty ? S(equal) : T) : NIL);
-              s->strm_terminal_ihandle = allocate_handle(stdin_handle); # Handle für listen_handle()
-              s->strm_terminal_ohandle = allocate_handle(stdout_handle); # Handle für Output
+              s->strm_terminal_ihandle = popSTACK(); # Handle für listen_handle()
+              s->strm_terminal_ohandle = popSTACK(); # Handle für Output
               #if 1 # TERMINAL_LINEBUFFERED
               s->strm_terminal_inbuff = popSTACK(); # Zeilenbuffer eintragen, count := 0
               s->strm_terminal_index = Fixnum_0; # index := 0
@@ -3827,8 +3832,10 @@ LISPFUNN(make_keyboard_stream,0)
           }}
         #endif
         # Baue einen TERMINAL1-Stream:
-        { # neuen Stream allozieren:
-          var object stream =
+        { pushSTACK(allocate_handle(stdout_handle));
+          pushSTACK(allocate_handle(stdin_handle));
+          # neuen Stream allozieren:
+         {var object stream =
             allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal1_len,0);
             # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
           # und füllen:
@@ -3842,10 +3849,10 @@ LISPFUNN(make_keyboard_stream,0)
             s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
             s->strm_wr_ss = P(wr_ss_terminal1);
             s->strm_terminal_isatty = (stdin_tty ? (same_tty ? S(equal) : T) : NIL);
-            s->strm_terminal_ihandle = allocate_handle(stdin_handle); # Handle für listen_handle()
-            s->strm_terminal_ohandle = allocate_handle(stdout_handle); # Handle für Output
+            s->strm_terminal_ihandle = popSTACK(); # Handle für listen_handle()
+            s->strm_terminal_ohandle = popSTACK(); # Handle für Output
           return stream;
-        }
+        }}
       }
      #endif
     }
@@ -9050,11 +9057,12 @@ typedef struct strm_i_file_extrafields_struct {
               #endif
               end_system_call();
               # Nun enthält handle das Handle des geöffneten Files.
-              skipSTACK(1);
-              stream = popSTACK(); # stream zurück
-              # neues Handle eintragen:
-              TheStream(stream)->strm_file_handle = allocate_handle(handle);
-             }
+              {var object handlobj = allocate_handle(handle);
+               skipSTACK(1);
+               stream = popSTACK(); # stream zurück
+               # neues Handle eintragen:
+               TheStream(stream)->strm_file_handle = handlobj;
+             }}
             #endif
             #ifdef AMIGAOS
               #if 0 # Manche Devices vertragen es nicht, wenn man geöffnete Dateien
