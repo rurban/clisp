@@ -9,10 +9,17 @@
 ;; Set *package*.
 (in-package :cl-test)
 
-;; for ENSURE-DIRECTORIES-EXIST.8
-(when (ext:probe-directory "scratch/")
-  (mapc #'delete-file (directory "scratch/*"))
-  (ext:delete-dir "scratch/"))
+;; Some expected failures, by category. (See notes.lsp.)
+(progn
+
+  ;; Paul Dietz assumes a particular implementation for sequence functions
+  ;; (MAKE-SEQUENCE, CONCATENATE, MAP, ...) that rejects result types like
+  ;; (OR (VECTOR BIT) (VECTOR T)) because the element type is ambiguous.
+  ;; CLISP handles these ambiguous cases by computing the union type of the
+  ;; possible element types and therefore does not need to give an error.
+  (rt:disable-note :result-type-element-type-by-subtype)
+
+)
 
 ;; The expected failures.
 (setq regression-test::*expected-failures* '(
@@ -20,6 +27,7 @@
   ;; ANSI CL 11.1.2. says that the only nickname of the COMMON-LISP package
   ;; is "CL". In CLISP it also has the nickname "LISP", for backward
   ;; compatibility with older programs.
+  ;; Cf. notes.lsp :standardized-package-nicknames.
   COMMON-LISP-PACKAGE-NICKNAMES
 
   ;; ANSI CL 11.1.2. says that the only nickname of the COMMON-LISP-USER
@@ -235,7 +243,20 @@
   FORMAT.B.20 FORMAT.B.21 FORMAT.O.18 FORMAT.O.19 FORMAT.O.20 FORMAT.O.21
   FORMAT.X.18 FORMAT.X.19 FORMAT.X.20 FORMAT.X.21
   PARSE-NAMESTRING.4
+  INCF.ORDER.4 DECF.ORDER.4 FORMATTER.*.5 FORMATTER.*.9 |FORMATTER.:*.7|
+  |FORMATTER.:*.13| FORMATTER.@*.5 FORMATTER.@*.10 FORMATTER.COND.13
+  FORMATTER.COND.14 |FORMATTER.COND:.6| |FORMATTER.COND:.7| FORMATTER.{.33
+  |FORMATTER.:{.12| |FORMATTER.:{.17| FORMATTER.@{.8 |FORMATTER.:@.9|
+  FORMAT.{.ERROR.1 FORMAT.{.ERROR.2 FORMAT.{.ERROR.3 FORMAT.{.ERROR.4
+  FORMAT.{.ERROR.5 |FORMAT.:{.ERROR.1| |FORMAT.:{.ERROR.2| |FORMAT.:{.ERROR.4|
+  |FORMAT.:{.ERROR.5| |FORMAT.:@.ERROR.1| |FORMAT.:@.ERROR.2|
+  |FORMAT.:@.ERROR.3| |FORMAT.:@.ERROR.4| |FORMAT.:@.ERROR.5|
 ))
+
+;; For ENSURE-DIRECTORIES-EXIST.8
+(when (ext:probe-directory "scratch/")
+  (mapc #'delete-file (directory "scratch/*"))
+  (ext:delete-dir "scratch/"))
 
 ;; A few tests call DISASSEMBLE. Make it work without user intervention.
 (setf (ext:getenv "PAGER") "cat")
