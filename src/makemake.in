@@ -1621,8 +1621,12 @@ if [ "${with_dynamic_ffi}" != no ]; then
   echol   "# fastcgi              FastCGI (http://www.fastcgi.com/) interface"
   echol   "# oracle               Oracle (http://www.oracle.com/) interface"
   echol   "# netica               Netica (http://norsys.com/netica_c_api.htm)"
+  echol   "# zlib                 ZLIB (http://www.zlib.org)"
   if [ "$cpu" = i386 -a "$TSYSOS" = linux ] ; then
     echol "# bindings/glibc       Linux glibc bindings (GNU libc version 2)"
+  fi
+  if [ "$cpu" = i386 -a \( "$TSYSOS" = win32gcc -o "$TSYSOS" = cygwin \) ] ;then
+    echol "# bindings/win32       win32 bindings"
   fi
 fi
 if [ $TOS = unix -o $TOS = win32 ] ; then
