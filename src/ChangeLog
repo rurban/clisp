@@ -1,3 +1,11 @@
+2004-06-05  Bruno Haible  <bruno@clisp.org>
+
+	All specializers must be types.
+	* type.lisp (typep, subtype-integer): Treat EQL-specializers like
+	EQL forms.
+	* subtypep.lisp (canonicalize-type): Likewise.
+	* compiler.lisp (c-TYPEP): Likewise.
+
 2004-06-04  Bruno Haible  <bruno@clisp.org>
 
 	* defs1.lisp (memoized): New macro.
