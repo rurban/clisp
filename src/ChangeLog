@@ -1,3 +1,7 @@
+2001-04-20  Sam Steingold  <sds@gnu.org>
+
+	* constobj.d (version): bump the bytecode version due to repackaging
+
 2001-04-19  Sam Steingold  <sds@gnu.org>
 
 	* clhs.lisp (clhs): BROWSER defaults to *BROWSER*, not :netscape
