@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 2004 Sam Steingold
+dnl Copyright (C) 2004-2005 Sam Steingold
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -9,6 +9,13 @@ dnl the same distribution terms as the rest of that program.
 AC_PREREQ(2.57)
 
 AC_DEFUN([CL_REGEXP],[
+AC_ARG_WITH([included-regexp],
+AC_HELP_STRING([--without-included-regexp],
+[use the system-wide regexp library (default is YES, if present)]),
+[ac_cv_use_included_regexp=$withval], [ac_cv_use_included_regexp=no])
+if test "$ac_cv_use_included_regexp" = yes; then
+AC_MSG_NOTICE([not checking for system-wide regexp])
+else
 AC_CHECK_HEADERS(regex.h)
 if test "$ac_cv_header_regex_h" = yes; then
 AC_CHECK_TYPES(regoff_t,,,[#include <regex.h>])
@@ -19,7 +26,8 @@ if test "$ac_cv_func_regcomp" = yes -a "$ac_cv_func_regexec"   = yes -a \
 AC_CACHE_CHECK([for a working regexp implementation],[cl_cv_regexp],
 AC_RUN_IFELSE([[AC_LANG_PROGRAM([[#include <regex.h>
 #include <stdio.h>
-int check_re (char* pat, char* str, int count, regoff_t* beg, regoff_t* end) {
+int check_re (char* pat, char* str, int matchp,
+              int count, regoff_t* beg, regoff_t* end) {
   regex_t re;
   regmatch_t *matches;
   int num, ii, status = regcomp(&re,pat,0);
@@ -36,28 +44,41 @@ int check_re (char* pat, char* str, int count, regoff_t* beg, regoff_t* end) {
   status = regexec(&re,str,num,matches,0);
   regfree(&re);
   if (status) {
-    fprintf(stderr,"regexec(%s): %d\n",str,status);
-    return 1;
-  }
-  for (ii=0; ii < num; ii++)
-    if ((beg[ii] != matches[ii].rm_so) || (end[ii] != matches[ii].rm_eo)) {
-      /* regoff_t may be 64-bit! */
-      fprintf(stderr,"matches(%d): [%d/%d] != [%d/%d]\n",ii,
-              (int)matches[ii].rm_so,(int)matches[ii].rm_eo,
-              (int)beg[ii],(int)end[ii]);
+    if (matchp) {
+      fprintf(stderr,"regexec(%s): %d\n",str,status);
       free(matches); return 1;
     }
+  } else
+    for (ii=0; ii < num; ii++)
+      if ((beg[ii] != matches[ii].rm_so) || (end[ii] != matches[ii].rm_eo)) {
+        /* regoff_t may be 64-bit! */
+        fprintf(stderr,"matches(%d): [%d/%d] != [%d/%d]\n",ii,
+                (int)matches[ii].rm_so,(int)matches[ii].rm_eo,
+                (int)beg[ii],(int)end[ii]);
+        free(matches); return 1;
+      }
   free(matches);
   return 0;
 }
 ]],[[
   regoff_t beg[3] = { 4, 0, 0 };
   regoff_t end[3] = { 9, 0, 0 };
-  if (check_re("quick","The quick brown fox jumped quickly.",1,beg,end))
+  if (check_re("quick","The quick brown fox jumped quickly.",1,1,beg,end))
     return 1;
+  beg[0] = 1; end[0] = 3;
+  if (check_re("{1","2{1}",1,1,beg,end)) return 1;
+  beg[0] = 0; end[0] = 2;
+  if (check_re("[[an\371]]*n","an",1,1,beg,end)) return 1;
+  beg[0] = end[0] = 0;
+  if (check_re("","",1,1,beg,end)) return 1;
+  if (check_re("ab{1,1}c","abbc",0,1,beg,end)) return 1;
+  if (check_re("b{2,7}","b",0,1,beg,end)) return 1;
+  beg[0] = 0; end[0] = 9;
+  if (check_re("ab{3,7}c","abbbbbbbc",1,1,beg,end)) return 1;
 ]])]],cl_cv_regexp=yes,cl_cv_regexp=no,cl_cv_regexp="guessing no"))
 if test "$cl_cv_regexp" = yes; then
 AC_DEFINE([HAVE_WORKING_REGEXP],1,[Define if the OS regexp works properly.])
+fi
 fi
 fi
 fi
