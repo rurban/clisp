@@ -134,7 +134,21 @@
         { return as_object # bitweise als Fixnum zurück
                  (as_oint(x) & as_oint(y));
         }
-        else
+      elif (posfixnump(x))
+        # PosFixnum AND Bignum -> PosFixnum
+        { var uintD* yLSDptr;
+          BN_to_NDS_nocopy(y, ,,yLSDptr=);
+         {var uint32 y_low = get_max32_Dptr(pFN_maxlength*intDsize,yLSDptr-pFN_maxlength);
+          return as_object(as_oint(x) & as_oint(posfixnum(y_low)));
+        }}
+      elif (posfixnump(y))
+        # Bignum AND PosFixnum -> PosFixnum
+        { var uintD* xLSDptr;
+          BN_to_NDS_nocopy(x, ,,xLSDptr=);
+         {var uint32 x_low = get_max32_Dptr(pFN_maxlength*intDsize,xLSDptr-pFN_maxlength);
+          return as_object(as_oint(posfixnum(x_low)) & as_oint(y));
+        }}
+      else
         { SAVE_NUM_STACK # num_stack retten
           var uintC n; # Anzahl der Digits
          {var uintC nx = I_to_DS_need(x);
@@ -188,7 +202,21 @@
         { return as_object # bitweise als Fixnum zurück
                  ((as_oint(x) & as_oint(y)) ^ FN_value_vz_mask);
         }
-        else
+      elif (posfixnump(x))
+        # PosFixnum AND Bignum -> PosFixnum
+        { var uintD* yLSDptr;
+          BN_to_NDS_nocopy(y, ,,yLSDptr=);
+         {var uint32 y_low = get_max32_Dptr(pFN_maxlength*intDsize,yLSDptr-pFN_maxlength);
+          return as_object((as_oint(x) & ((oint)y_low << oint_data_shift)) ^ as_oint(Fixnum_minus1));
+        }}
+      elif (posfixnump(y))
+        # Bignum AND PosFixnum -> PosFixnum
+        { var uintD* xLSDptr;
+          BN_to_NDS_nocopy(x, ,,xLSDptr=);
+         {var uint32 x_low = get_max32_Dptr(pFN_maxlength*intDsize,xLSDptr-pFN_maxlength);
+          return as_object((((oint)x_low << oint_data_shift) & as_oint(y)) ^ as_oint(Fixnum_minus1));
+        }}
+      else
         { SAVE_NUM_STACK # num_stack retten
           var uintC n; # Anzahl der Digits
          {var uintC nx = I_to_DS_need(x);
@@ -240,7 +268,14 @@
         { return as_object # bitweise als Fixnum zurück
                  ((as_oint(x) & ~as_oint(y)) | ((oint)fixnum_type << oint_type_shift));
         }
-        else
+      elif (posfixnump(x))
+        # PosFixnum AND Bignum -> PosFixnum
+        { var uintD* yLSDptr;
+          BN_to_NDS_nocopy(y, ,,yLSDptr=);
+         {var uint32 y_low = get_max32_Dptr(pFN_maxlength*intDsize,yLSDptr-pFN_maxlength);
+          return as_object(as_oint(x) & ~((oint)y_low << oint_data_shift));
+        }}
+      else
         { SAVE_NUM_STACK # num_stack retten
           var uintC n; # Anzahl der Digits
          {var uintC nx = I_to_DS_need(x);

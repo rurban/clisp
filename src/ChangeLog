@@ -1,5 +1,12 @@
 1999-04-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * intlog.d (I_I_logand_I): Optimize the case when either operand is a
+          positive fixnum, O(1) instead of O(N).
+          (I_I_lognand_I): Likewise.
+          (I_I_logandc2_I): Likewise for the first operand.
+
+1999-04-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (make_HANDLER_frame): Fix compilation problem.
 
 1999-04-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
