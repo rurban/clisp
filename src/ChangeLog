@@ -1,5 +1,14 @@
 2005-04-06  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.f (set_resource_id, delete_resource_id): added
+	(make_xid_obj_2): use set_resource_id()
+	(XLIB::SAVE-ID, XLIB::DEALLOCATE-RESOURCE-ID, XLIB:KEYSYM)
+	(XLIB::SET-GCONTEXT-DISPLAY): for CLUE
+	(XLIB:KEYSYM->CHARACTER): use int_char()
+	* modules/clx/new-clx/clx.lisp (GCONTEXT-DISPLAY): defsetf for CLUE
+
+2005-04-06  Sam Steingold  <sds@gnu.org>
+
 	* .gdbinit (full): added commented-out module debugging infrastructure
 
 2005-04-06  Sam Steingold  <sds@gnu.org>

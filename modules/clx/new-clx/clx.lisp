@@ -435,6 +435,9 @@
   `(SET-WINDOW-PRIORITY ,mode ,window ,sibling))
 (defsetf WINDOW-SAVE-UNDER            SET-WINDOW-SAVE-UNDER)
 
+;; for CLUE
+(defsetf GCONTEXT-DISPLAY SET-GCONTEXT-DISPLAY)
+
 
 ;;;; --------------------------------------------------------------------------
 ;;;;  Macros
