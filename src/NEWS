@@ -113,6 +113,8 @@ User visible changes
   + Fixes to internationalized error messages.
   + Passing a package as second argument of RENAME-PACKAGE led to an
     unjustified error.
+  + Fixed ATANH on complex numbers.
+
 
 Modules
 -------
