@@ -1,5 +1,17 @@
 2003-12-18  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (appease_form): new function
+	(main): use it
+	(-repl): do not concatenate the string input stream from -x with
+	the stdin - this causes a missing prompt problem; bind
+	*standard-input* to the string input stream instead and run two
+	separate REPLs for -x and for the user interaction via stdio
+	* reploop.lisp (main-loop): exit only when EOF happened on an
+	interactive stream; otherwise (e.g., the -x string input stream),
+	just return for the next REPL to take over
+
+2003-12-18  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 842913 ]: Compiler bug involving optional parameters
 	* compiler.lisp (note-references, remove-references):
 	handle JMPIFBOUNDP properly (label is 3rd, not 2nd!)

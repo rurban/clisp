@@ -1508,7 +1508,7 @@ local void init_other_modules_2 (void) {
 
 # print usage and exit
 nonreturning_function (local, usage, (int exit_code)) {
-  printf(PACKAGE_NAME "(" PACKAGE_BUGREPORT ") ");
+  printf(PACKAGE_NAME " (" PACKAGE_BUGREPORT ") ");
   printf(GETTEXTL("is an ANSI Common Lisp." NLstring "Usage:  "));
   printf(program_name);
   printf(GETTEXTL(" [options] [lispfile [argument ...]]" NLstring
@@ -1633,6 +1633,15 @@ local void print_banner ()
   #endif
   write_sstring(&STACK_0,asciz_to_string(&banner3[offset],O(internal_encoding)));
   skipSTACK(1);
+}
+
+/* can trigger GC */
+local object appease_form (bool interactive_debug, object form)
+{ /* return `(BATCHMODE-ERRORS ,form) */
+  if (interactive_debug) pushSTACK(S(appease_cerrors));
+  else pushSTACK(S(batchmode_errors));
+  pushSTACK(form);
+  return listof(2);
 }
 
 # main program stores the name 'main'.
@@ -2875,12 +2884,7 @@ global int main (argc_t argc, char* argv[]) {
           });
         }
         var object form = listof(1+argcount); # `(COMPILE-FILE ',...)
-        if (!argv_repl) {
-          if (argv_interactive_debug) pushSTACK(S(appease_cerrors));
-          else pushSTACK(S(batchmode_errors));
-          pushSTACK(form);
-          form = listof(2); # `(SYS::BATCHMODE-ERRORS (COMPILE-FILE ',...))
-        }
+        if (!argv_repl) form = appease_form(argv_interactive_debug,form);
         eval_noenv(form); # execute
         fileptr++;
       });
@@ -2934,33 +2938,25 @@ global int main (argc_t argc, char* argv[]) {
     pushSTACK(NIL);
    #endif
     form = listof(4);
-    if (!argv_repl) {
-      if (argv_interactive_debug) pushSTACK(S(appease_cerrors));
-      else pushSTACK(S(batchmode_errors));
-      pushSTACK(form);
-      form = listof(2); # `(SYS::BATCHMODE-ERRORS (LOAD "..."))
-    }
+    if (!argv_repl) form = appease_form(argv_interactive_debug,form);
     eval_noenv(form); # execute
     if (!argv_repl) quit();
   }
   if (argv_expr_count) {
     # set *STANDARD-INPUT* to a stream, that produces argv_exprs:
-    var uintL count = argv_expr_count;
     var char** exprs = &argv_selection_array[argc-1];
-    do { pushSTACK(asciz_to_string(*exprs--,O(misc_encoding))); }
-    while (--count);
-    pushSTACK(O(newline_string)); /* separate -x from REPL */
-    var object total = string_concat(argv_expr_count+1);
-    pushSTACK(total);
+    if (argv_expr_count > 1) {
+      var uintL count = argv_expr_count;
+      do { pushSTACK(asciz_to_string(*exprs--,O(misc_encoding))); }
+      while (--count);
+      var object total = string_concat(argv_expr_count);
+      pushSTACK(total);
+    } else pushSTACK(asciz_to_string(*exprs--,O(misc_encoding)));
     funcall(L(make_string_input_stream),1);
-    if (argv_repl) {
-      pushSTACK(value1); pushSTACK(Symbol_value(S(standard_input)));
-      funcall(L(make_concatenated_stream),2);
-    }
-    Symbol_value(S(standard_input)) = value1;
     # During bootstrapping, *DRIVER* has no value and SYS::BATCHMODE-ERRORS
     # is undefined. Do not set an error handler in that case.
-    if (!nullpSv(driverstern) && !argv_repl) {
+    if (!nullpSv(driverstern)) {
+      dynamic_bind(S(standard_input),value1);
       # (PROGN
       #   (EXIT-ON-ERROR (APPEASE-CERRORS (FUNCALL *DRIVER*)))
       #   ; Normally this will exit by itself once the string has reached EOF,
@@ -2968,12 +2964,12 @@ global int main (argc_t argc, char* argv[]) {
       #   (UNLESS argv_repl (EXIT)))
       var object form;
       pushSTACK(S(funcall)); pushSTACK(S(driverstern)); form = listof(2);
-      if (argv_interactive_debug) pushSTACK(S(appease_cerrors));
-      else pushSTACK(S(batchmode_errors));
-      pushSTACK(form); form = listof(2);
+      if (!argv_repl) form = appease_form(argv_interactive_debug,form);
       eval_noenv(form);
       if (!argv_repl) quit();
-    }
+      else dynamic_unbind(S(standard_input));
+    } else /* no *DRIVER* => bootstrap, no -repl */
+      Symbol_value(S(standard_input)) = value1;
   }
   # call read-eval-print-loop:
   driver();
