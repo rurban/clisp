@@ -1633,12 +1633,13 @@ error occurs, the CONTINUE restart is silently invoked."
 (defun appease-cerror (condition) ; ABI
   (let ((restart (find-noninteractively-invokable-continue-restart condition)))
     (when restart
-      (warn "~A" (with-output-to-string (stream)
-                   (print-condition condition stream)
-                   (let ((report-function (restart-report restart)))
-                     (when report-function
-                       (terpri stream)
-                       (funcall report-function stream)))))
+      (warn #'(lambda (stream &rest arguments)
+                (print-condition condition stream)
+                (let ((report-function (restart-report restart)))
+                  (when report-function
+                    (terpri stream)
+                    (funcall report-function stream)))
+                arguments))
       (invoke-restart restart))))
 (defmacro appease-cerrors (&body body)
   "(APPEASE-CERRORS {form}*) executes the forms, but turns continuable errors
