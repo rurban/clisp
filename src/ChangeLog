@@ -1,3 +1,9 @@
+2004-01-08  Stanislav Tsekhmistroh  <tcss@kometa.dp.ua>
+	    Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	Support (run-program ... :wait nil) on win32 by means of "start"
+	* runprog.lisp (run-shell-command) [WIN32]: support :wait.
+
 2004-01-07  Bruno Haible  <bruno@clisp.org>
 
 	* misc.d (clisp_setenv) [WIN32_NATIVE]: Call SetEnvironmentVariable.
