@@ -11470,6 +11470,13 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   extern object make_pphelp_stream (void);
 # wird verwendet von IO
 
+# UP: Returns the line current number of a stream.
+# stream_line_number(stream)
+# > stream: a stream
+# < result: an integer or NIL
+  extern object stream_line_number (object stream);
+# wird verwendet von IO
+
 #if (defined(UNIX) && !defined(NEXTAPP)) || defined(AMIGAOS) || defined(RISCOS)
 # UP: Terminal wieder in Normalzustand schalten
 # terminal_sane();
