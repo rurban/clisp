@@ -1,5 +1,10 @@
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
+	* charstrg.d (test_string_limits_rw): Mark as "can trigger GC". Fixes
+	leftover from 2003-05-01.
+
+2004-12-05  Bruno Haible  <bruno@clisp.org>
+
 	* foreign.d (convert_to_foreign_*): Mark as "can trigger GC".
 	(FFI::EXEC-ON-STACK): Fix GC-safety bug introduced on 2002-04-23.
 	(FFI::FOREIGN-CALL-OUT): Fix several long-standing GC-safety bugs.
