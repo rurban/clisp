@@ -107,6 +107,9 @@ User visible changes
   modules that comprise the running image.
   See <http://clisp.cons.org/impnotes.html#modinfo> for details.
 
+* New generic function CLOS:CLASS-PROTOTYPE from MOP.
+  See <http://clisp.cons.org/impnotes.html#class-proto> for details.
+
 * New FFI functionality:
   + functions FFI:FOREIGN-ALLOCATE and FFI:FOREIGN-FREE and macros
     FFI:ALLOCATE-DEEP and FFI:ALLOCATE-SHALLOW permit heap allocation;
