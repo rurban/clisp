@@ -1,3 +1,9 @@
+1999-03-26  Sam Steingold  <sds@goems.com>
+
+	* stream.d (make_pipe_stream): new function: merged
+	make_pipe_input_stream and make_pipe_output_stream.
+	(make_pipe_output_stream, make_pipe_input_stream): use it.
+
 1999-03-22  Sam Steingold  <sds@goems.com>
 
 	* pathname.d (merge-pathnames): be ANSI CL compliant when
