@@ -1,3 +1,19 @@
+2001-05-10  Sam Steingold  <sds@gnu.org>
+
+	Fixed a crash, reported by Christophe Rhodes <csr21@cam.ac.uk>
+	ANSI CL compliance: (merge-pathnames lp) --> lp
+	* pathname.d: more debugging instrumentation
+	(string2wild, wild2string): new macros
+	(split_name_type): use them; "*.*" ==> :name :wild :device :wild
+	(directory_namestring_parts): :name and :type maybe :wild
+	(merge-pathnames): as per ANSI CL, return a logical pathname when
+	the first argument is one.
+	(directory_match, nametype_match, version_match):
+	 unbound matches everything
+	(directory_diff, nametype_diff, version_diff):
+	 treat unbound appropriately too
+	(translate_device, translate_nametype_aux): :WILD is the same as NIL
+
 2001-05-09  Sam Steingold  <sds@gnu.org>
 
 	Implemented the ANSI CL issue CONSTANTP-ENVIRONMENT:ADD-ARG
