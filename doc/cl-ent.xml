@@ -73,7 +73,7 @@
 <!ENTITY gfdl "<ulink url='http://www.gnu.org/copyleft/fdl.html'>GFDL</ulink>">
 
 <!-- *** implementations *** -->
-<!ENTITY ccl "<ulink url='http://corman.net/lisp><command>CormanLisp</command></ulink>">
+<!ENTITY ccl "<ulink url='http://corman.net/lisp'><command>CormanLisp</command></ulink>">
 <!ENTITY clisp "<ulink url='http://clisp.cons.org'><command>CLISP</command></ulink>">
 <!ENTITY cmucl "<ulink url='http://www.cons.org/cmucl'><command>CMU CL</command></ulink>">
 <!ENTITY gcl "<ulink url='ftp://ftp.ma.utexas.edu/pub/gcl'><command>GCL</command></ulink>">
