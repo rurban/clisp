@@ -1,3 +1,9 @@
+2004-01-07  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (with-ignored-errors) [CLISP]: return the error
+	message on error as the second argument
+	(do-test): print the error messge into the log file
+
 2004-01-04  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (run-files, run-some-tests): new functions
