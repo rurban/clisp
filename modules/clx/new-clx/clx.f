@@ -387,10 +387,10 @@ For further for grepability I use the following tags in comments:
                   before next release.
  TODO           - something, which should be done and is already
                   considered useful.
- FUTURE         - something, which is just an idea and it is not yet
-                  decided, if I implement it ever; It may also later
-                  been considered silly.
-                  I invite for discussion about those items.
+ FUTURE         - something which is just an idea and it is not yet
+                  decided, if I ever implement it; It may also later
+                  be considered silly.
+                  I welcome discussion about those items.
  OK             - the opposite of XXX. Functions which are
                   considered to be totally finished and
                   had undergone a test are marked with this.
@@ -407,6 +407,7 @@ For further for grepability I use the following tags in comments:
 #include <X11/Xutil.h>          /* XGetVisualInfo */
 #include <X11/Xcms.h>   /* forXcmsCCCOfColormap() & XcmsVisualOfCCC() */
 #include <stdio.h>              /* sprintf() */
+#include <string.h>             /* memcpy(), strchr(), strcpy() */
 #include "config.h"
 #if defined(TIME_WITH_SYS_TIME)
 # include <sys/time.h>
@@ -4968,8 +4969,8 @@ DEFUN(XLIB:ALLOC-COLOR, arg1 arg2)
     if (XAllocColor (dpy, cm, &color)) {
       end_x_call();
 
-      pushSTACK(make_pixel (color.pixel)); /* pixel */
-      value2 = make_color (&color);         /* screen color */
+      pushSTACK(make_pixel(color.pixel)); /* pixel */
+      value2 = make_color(&color);        /* screen color */
       value3 = STACK_1;         /* exact color (what the luser gave) */
       value1 = popSTACK();
       mv_count = 3;
@@ -4984,14 +4985,14 @@ DEFUN(XLIB:ALLOC-COLOR, arg1 arg2)
 
  failed: {
     /* I have to see what the MIT-CLX implementation does here ... */
-    pushSTACK(get_display_obj (STACK_1)); /* display argument */
-    pushSTACK(STACK_1);                 /* color argument */
+    pushSTACK(get_display_obj(STACK_1)); /* display argument */
+    pushSTACK(STACK_1);                  /* color argument */
     fehler (error, ("Color ~ is unknown to display ~."));
   }
 }
 
-/*  XLIB:ALLOC-COLOR-CELLS colormap colors &key (:planes 0) :contiguous_p
-                        (:result-type 'list)
+/* XLIB:ALLOC-COLOR-CELLS colormap colors &key (:planes 0) :contiguous_p
+                          (:result-type 'list)
  returns
    pixels, masks -- Type sequence of pixels */
 DEFUN(XLIB:ALLOC-COLOR-CELLS, colormap colors \
