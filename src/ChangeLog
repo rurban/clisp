@@ -1,3 +1,11 @@
+2004-03-13  Bruno Haible  <bruno@clisp.org>
+
+	* po/de.po: Update translations.
+
+2004-03-13  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	* po/ru.po: Update translations.
+
 2004-03-14  Bruno Haible  <bruno@clisp.org>
 
 	* po/Makefile.devel (LISPSOURCES): Add loadform.
