@@ -1,5 +1,10 @@
 2005-01-10  Bruno Haible  <bruno@clisp.org>
 
+	* foreign1.lisp (to-c-name): For symbols from a case-sensitive package,
+	use function cs-cl:string.
+
+2005-01-10  Bruno Haible  <bruno@clisp.org>
+
 	* stream.d (fresh_line): Add special code to care for the case that
 	*standard-output* and *error-output* are aliased.
 
