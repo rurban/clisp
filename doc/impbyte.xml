@@ -362,15 +362,13 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
  your &lispinit; will <emphasis>have</emphasis> to be re-dumped.</para>
 
 <para>If you change the signature of any system function mentioned in
- the <varname>FUNTAB</varname> array in
+ the <varname>FUNTAB</varname> arrays in
  file <filename>#P"eval.d"</filename>, all the &fasl-file; files will
  become obsolete and will need to be recompiled.
  You will need to add a note to that effect to
  the <filename>#P"NEWS"</filename> file
  and augment the object <literal>version</literal> in
- file <filename>#P"constsym.d"</filename>.
- Then you will need to remove all the &fasl-file; files in your build
- directory with <command>make clean</command>.</para>
+ file <filename>#P"constsym.d"</filename>.</para>
 </section>
 
 </chapter>

@@ -385,7 +385,7 @@ executes a compiled version of form.</para>
   <classname>LOAD-TIME-EVAL</classname>, &symbol-macro;, &encoding;,
   &foreign-pointer;, <classname>FOREIGN-ADDRESS</classname>,
   <classname>FOREIGN-VARIABLE</classname>,
-  <classname>FOREIGN-FUNCTION</classname></simpara></listitem>
+  &foreign-function;</simpara></listitem>
  <listitem><simpara>&weak-pointer;,
           <link linkend="reader"><classname>READ-LABEL</classname></link>,
           <link linkend="reader"><classname>FRAME-POINTER</classname></link>,
@@ -556,6 +556,12 @@ executes a compiled version of form.</para>
 <section id="flow-dict"><title>The Data and Control Flow Dictionary
    <ulink url="&clhs;/Body/sec_the_data__w_dictionary.html"
           >[CLHS-5.3]</ulink></title>
+
+<formalpara id="fle"><title>Function &function-lambda-expression;</title>
+<para>The name of a &foreign-function; is a <emphasis>string</emphasis>
+(the name of the underlying &c-lang; function), not a lisp
+<ulink url="&clhs;/Body/glo_f.html#function_name">function name</ulink>.
+</para></formalpara>
 
 <formalpara><title>Macro &destructuring-bind;</title>
 <para>This macro does not perform full error checking.</para></formalpara>
@@ -4451,7 +4457,7 @@ functions are provided:
     <entry>foreign variable
      <emphasis>(Platform dependent: &unix;, &win32; platforms only.)</emphasis>
     </entry></row>
- <row><entry><literal>#&lt;FOREIGN-FUNCTION
+ <row><entry><literal>#&lt;&foreign-function;
        &name-r; #x...&gt;</literal></entry>
     <entry>foreign function
      <emphasis>(Platform dependent: &unix;, &win32; platforms only.)</emphasis>
@@ -5038,7 +5044,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <listitem><simpara>&disassemble; can disassemble to machine code,
  provided that &gnu; gdb is present.  In that case the argument may be a
  <classname>SYSTEM-FUNCTION</classname>, a
- <classname>FOREIGN-FUNCTION</classname>, a special operator indicator,
+ &foreign-function;, a special operator indicator,
  a symbol denoting one of these, a number, or a string.
  </simpara></listitem></varlistentry>
 </variablelist>

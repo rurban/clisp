@@ -1,3 +1,8 @@
+2002-10-27  Sam Steingold  <sds@gnu.org>
+
+	* defs2.lisp (function-lambda-expression): always return a name,
+	return the lambda expression for some compiled functions too
+
 2002-10-25  Sam Steingold  <sds@gnu.org>
 
 	* eval.d (coerce_function): use fehler_function()

@@ -38,6 +38,9 @@ User visible changes
     sequence functions (MAP, LENGTH and such) no longer accept dotted lists;
     a character is now accepted as a package designator.
 
+* FUNCTION-LAMBDA-EXPRESSION now always returns the correct function name.
+  See <http://clisp.cons.org/impnotes.html#fle> for details.
+
 * Fixed a bug in PEEK-CHAR with non-NIL peek-type on ECHO-STREAMS.
 
 

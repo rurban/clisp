@@ -1,3 +1,4 @@
+;; -*-Lisp -*-
 (makunbound 'b) B
 (makunbound 'e) E
 
@@ -26,12 +27,10 @@
 ((LAMBDA (&OPTIONAL (A 2 B) (C 3 D) &REST X) (LIST A B C D X)) 6 3)
 (6 T 3 T NIL)
 
-((LAMBDA (&OPTIONAL (A 2 B) (C 3 D) &REST X) (LIST A B C D X)) 6 3
-8)
+((LAMBDA (&OPTIONAL (A 2 B) (C 3 D) &REST X) (LIST A B C D X)) 6 3 8)
 (6 T 3 T (8))
 
-((LAMBDA (&OPTIONAL (A 2 B) (C 3 D) &REST X) (LIST A B C D X)) 6 3
-8 9 10 11)
+((LAMBDA (&OPTIONAL (A 2 B) (C 3 D) &REST X) (LIST A B C D X)) 6 3 8 9 10 11)
 (6 T 3 T (8 9 10 11))
 
 ((LAMBDA (A B &KEY C D) (LIST A B C D)) 1 2)
@@ -55,37 +54,31 @@
 ((LAMBDA (A B &KEY C D) (LIST A B C D)) :A :B :C :D)
 (:A :B :D NIL)
 
-((LAMBDA (A &OPTIONAL (B 3) &REST X &KEY C (D A)) (LIST A B C D X))
-1)
+((LAMBDA (A &OPTIONAL (B 3) &REST X &KEY C (D A)) (LIST A B C D X)) 1)
 (1 3 NIL 1 NIL)
 
-((LAMBDA (A &OPTIONAL (B 3) &REST X &KEY C (D A)) (LIST A B C D X))
-1 2)
+((LAMBDA (A &OPTIONAL (B 3) &REST X &KEY C (D A)) (LIST A B C D X)) 1 2)
 (1 2 NIL 1 NIL)
 
-((LAMBDA (A &OPTIONAL (B 3) &REST X &KEY C (D A)) (LIST A B C D X))
-:C 7)
+((LAMBDA (A &OPTIONAL (B 3) &REST X &KEY C (D A)) (LIST A B C D X)) :C 7)
 (:C 7 NIL :C NIL)
 
-((LAMBDA (A &OPTIONAL (B 3) &REST X &KEY C (D A)) (LIST A B C D X))
-1 6 :C 7)
+((LAMBDA (A &OPTIONAL (B 3) &REST X &KEY C (D A)) (LIST A B C D X)) 1 6 :C 7)
 (1 6 7 1 (:C 7))
 
-((LAMBDA (A &OPTIONAL (B 3) &REST X &KEY C (D A)) (LIST A B C D X))
-1 6 :D 8)
+((LAMBDA (A &OPTIONAL (B 3) &REST X &KEY C (D A)) (LIST A B C D X)) 1 6 :D 8)
 (1 6 NIL 8 (:D 8))
 
 ((LAMBDA (A &OPTIONAL (B 3) &REST X &KEY C (D A)) (LIST A B C D X))
-1 6 :D 8 :C
-9 :D 10)
+ 1 6 :D 8 :C 9 :D 10)
 (1 6 9 8 (:D 8 :C 9 :D 10))
 
 ((LAMBDA (X &AUX (A 3) (B 4)) (+ X (* A B))) 2)
 14
 
 ((LAMBDA (X Y &OPTIONAL A B &REST Z &KEY C (D Y) &AUX (U 3) (V 4))
-
-(+ X Y A (* B (CAR Z)) C (* D U) V)) 3 4 5 2 7 :C 6 :D 8)
+   (+ X Y A (* B (CAR Z)) C (* D U) V))
+  3 4 5 2 7 :C 6 :D 8)
 ERROR
 
 ((LAMBDA (X Y &OPTIONAL A B &REST Z &KEY C (D Y) &AUX (U 3) (V 4))
@@ -221,10 +214,12 @@ ERROR
 ((LAMBDA (&KEY X &ALLOW-OTHER-KEYS) X) :X 1 :Y 2)
 1
 
-((LAMBDA (&KEY X &ALLOW-OTHER-KEYS) X) :X 1 :Y 2 :ALLOW-OTHER-KEYS T :ALLOW-OTHER-KEYS NIL)
+((LAMBDA (&KEY X &ALLOW-OTHER-KEYS) X)
+ :X 1 :Y 2 :ALLOW-OTHER-KEYS T :ALLOW-OTHER-KEYS NIL)
 1
 
-((LAMBDA (&KEY X &ALLOW-OTHER-KEYS) X) :X 1 :Y 2 :ALLOW-OTHER-KEYS NIL :ALLOW-OTHER-KEYS T)
+((LAMBDA (&KEY X &ALLOW-OTHER-KEYS) X)
+ :X 1 :Y 2 :ALLOW-OTHER-KEYS NIL :ALLOW-OTHER-KEYS T)
 1
 
 ((LAMBDA (&KEY X) X) :X 1 :ALLOW-OTHER-KEYS NIL)
@@ -232,3 +227,18 @@ ERROR
 
 ((LAMBDA (&KEY X) X) :X 1 :ALLOW-OTHER-KEYS NIL :ALLOW-OTHER-KEYS NIL)
 1
+
+;; function-lambda-expression:
+(defun foo (x) (list x))  foo
+
+(multiple-value-list (function-lambda-expression 'foo))
+((LAMBDA (X) (DECLARE (SYSTEM::IN-DEFUN FOO)) (BLOCK FOO (LIST X)))
+ #(NIL NIL NIL NIL ((DECLARATION OPTIMIZE DECLARATION)))
+ foo)
+
+(compile 'foo) foo
+
+(multiple-value-list (function-lambda-expression 'foo))
+((lambda (x) (list x)) t foo)
+
+(fmakunbound 'foo) foo
