@@ -1,3 +1,7 @@
+2005-02-06  Sam Steingold  <sds@gnu.org>
+
+	* configure: accept --with-dynamic-modules
+
 2005-02-05  Sam Steingold  <sds@gnu.org>
 
 	* control.d (SYMBOL-MACROLET, LET*, MULTIPLE-VALUE-BIND):
@@ -21503,7 +21507,7 @@
 
 2002-04-10  Sam Steingold  <sds@gnu.org>
 
-	* configure: handle --with-no-dynamic-modules
+	* configure: handle --with-no-dynamic-ffi
 	* makemake.in: uniform handling of --with* arguments
 
 2002-04-05  Jörg-Cyril Höhle  <hoehle@users.sourceforge.net>
