@@ -1,5 +1,11 @@
 2003-05-12  Jörg Höhle  <hoehle@users.sourceforge.net>
 
+	* doc/impe[xn]t.xml: document SYS::DYNLOAD-MODULES.
+	May want to re-export from package EXT at a later time.
+	* pathname.d (SYS::DYNLOAD-MODULES): more error checking
+
+2003-05-12  Jörg Höhle  <hoehle@users.sourceforge.net>
+
 	* foreign1.lisp (exec-with-foreign-string): new internal function
 	to let FFI:WITH-FOREIGN-STRING to expand the same with or without
 	unicode.
