@@ -3488,10 +3488,15 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Sam Steingold.
 
-AC_PREREQ(2.13)
+AC_PREREQ(2.57)
 
 AC_DEFUN([CL_LDAP],
-[AC_CHECK_HEADERS(ldap.h)]
+[AC_CHECK_HEADERS(lber.h ldap.h,,,
+dnl Solaris/cc requires <lber.h> to be included before <ldap.h>
+[[#if HAVE_LBER_H
+# include <lber.h>
+#endif
+]])]
 )
 
 dnl -*- Autoconf -*-
@@ -5552,7 +5557,7 @@ AC_SUBST(LIBTERMCAP)
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 2002-2003 Sam Steingold
+dnl Copyright (C) 2002-2004 Sam Steingold, Bruno Haible
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -5565,14 +5570,21 @@ AC_DEFUN([CL_READLINE],[dnl
 AC_REQUIRE([CL_TERMCAP])dnl
 if test $ac_cv_search_tgetent != no ; then
   AC_LIB_LINKFLAGS_BODY(readline)
-  AC_CHECK_HEADERS(readline/readline.h)
-  if test $ac_cv_header_readline_readline_h = yes ; then
-    AC_SEARCH_LIBS(readline, readline)
+  am_save_LIBS="$LIBS"
+  LIBS="$LIBREADLINE $LIBS"
+  AC_TRY_LINK([#include <stdio.h>
+#include <readline/readline.h>], [readline((char*)0);],
+    cl_have_libreadline=yes)
+  LIBS="$am_save_LIBS"
+  if test "$cl_have_libreadline" = yes ; then
+    LIBS="$LIBREADLINE $LIBS"
     # newer versions of readline prepend "rl_"
     AC_CHECK_FUNCS(rl_filename_completion_function)
-    if [ test $ac_cv_func_rl_filename_completion_function = no ];
-    then RL_FCF=filename_completion_function;
-    else RL_FCF=rl_filename_completion_function; fi
+    if [ test $ac_cv_func_rl_filename_completion_function = no ]; then
+      RL_FCF=filename_completion_function
+    else
+      RL_FCF=rl_filename_completion_function
+    fi
     dnl READLINE_CONST is necessary for C++ compilation of stream.d
     CL_PROTO([rl_filename_completion_function], [
       CL_PROTO_CONST([
@@ -5587,8 +5599,10 @@ if test $ac_cv_search_tgetent != no ; then
 #include <readline/readline.h>])
     if test "$ac_cv_have_decl_rl_already_prompted" = yes; then
       AC_DEFINE(HAVE_READLINE,,[have a working modern GNU readline])
+      dnl LIBREADLINE has been added to LIBS.
     else
       AC_MSG_RESULT([readline is too old and will not be used])
+      LIBS="$am_save_LIBS"
     fi
   fi
 fi
