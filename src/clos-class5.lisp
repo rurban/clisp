@@ -538,12 +538,15 @@
 
 (defgeneric make-instances-obsolete (class)
   (:method ((class standard-class))
-    (let ((name (class-name class)))
-      (warn (TEXT "~S: Class ~S (or one of its ancestors) is being redefined, instances are obsolete")
-            'defclass name)
+    (when (class-precedence-list class) ; nothing to do if not yet finalized
+      (let ((name (class-name class)))
+        (warn (TEXT "~S: Class ~S (or one of its ancestors) is being redefined, instances are obsolete")
+              'defclass name))
       (mapc #'make-instances-obsolete (class-direct-subclasses class)))
     class)
-  (:method ((class symbol)) (make-instances-obsolete (find-class class))))
+  (:method ((class symbol))
+    (make-instances-obsolete (find-class class))
+    class))
 
 (defgeneric update-instance-for-redefined-class
     (instance added-slots discarded-slots property-list &rest initargs

@@ -18,7 +18,7 @@
   (:method ((class t) instance slot-name)
     (declare (ignore class))
     (multiple-value-bind (new-value store-p)
-        (sys::check-value `(slot-value ,instance ,slot-name)
+        (sys::check-value `(slot-value ,instance ',slot-name)
                           (make-condition 'unbound-slot :name slot-name
                                           :instance instance))
       (when store-p

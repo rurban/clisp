@@ -77,18 +77,18 @@
       (TEXT "~S: class name ~S should be a symbol")
       'defclass name))
   (let* ((superclass-forms
-          (progn
-            (unless (listp superclass-specs)
-              (error-of-type 'sys::source-program-error
-                (TEXT "~S ~S: expecting list of superclasses instead of ~S")
-                'defclass name superclass-specs))
-            (mapcar (lambda (superclass)
-                      (unless (symbolp superclass)
-                        (error-of-type 'sys::source-program-error
-                          (TEXT "~S ~S: superclass name ~S should be a symbol")
-                          'defclass name superclass))
-                      `(or (FIND-CLASS ',superclass nil) ',superclass))
-                    superclass-specs)))
+           (progn
+             (unless (listp superclass-specs)
+               (error-of-type 'sys::source-program-error
+                 (TEXT "~S ~S: expecting list of superclasses instead of ~S")
+                 'defclass name superclass-specs))
+             (mapcar (lambda (superclass)
+                       (unless (symbolp superclass)
+                         (error-of-type 'sys::source-program-error
+                           (TEXT "~S ~S: superclass name ~S should be a symbol")
+                           'defclass name superclass))
+                       `',superclass)
+                     superclass-specs)))
          (accessor-def-forms '())
          (slot-forms
            (let ((slot-names '()))
@@ -317,54 +317,65 @@
   (make-standard-slot-definition name allocation initargs location initer))
 
 #||
-;; defstruct.lisp essentially contains the following.
-;; In record.d and here we exploit that the first four attributes match!
+ ;; defstruct.lisp essentially contains the following.
+ ;; In record.d and here we exploit that the first four attributes match!
  (defstruct (structure-slot-definition
              (:include slot-definition) (:conc-name "DS-SLOT-")
              (:type vector) (:predicate nil)
              (:constructor make-ds-slot (name offset location initer
                                          default type readonly)))
-  ;;(name nil :type symbol)         ; ds-slot-name = slotdef-name !!
-  ;;(initargs '() :type list)       ; ds-slot-initargs = slotdef-initargs !!
-  ;;(offset nil :type (or null integer)) ; ds-slot-offset = slotdef-location !!
-  ;;(initer nil :type (or null cons))    ; ds-slot-initer = slotdef-initer !!
-  (default nil)                         ; ds-slot-default
-  (type nil)                            ; ds-slot-type
-  (readonly nil))                       ; ds-slot-readonly
+   ;(name nil :type symbol)              ; ds-slot-name = slotdef-name !!
+   ;(initargs '() :type list)            ; ds-slot-initargs = slotdef-initargs !!
+   ;(offset nil :type (or null integer)) ; ds-slot-offset = slotdef-location !!
+   ;(initer nil :type (or null cons))    ; ds-slot-initer = slotdef-initer !!
+   (default nil)                         ; ds-slot-default
+   (type nil)                            ; ds-slot-type
+   (readonly nil))                       ; ds-slot-readonly
 ||#
 
-;; compute the difference between the set of slot of two classes
+;; Compute the difference between the set of slots of two classes.
 (defun slot-difference (new-class old-class)
   (mapcar #'slotdef-name
           (set-difference (class-slots new-class)
                           (class-slots old-class)
                           :test #'eq :key #'slotdef-name)))
 
-;; try to finalize the class, return the finalized class object on success
-;; or nil when the class could not yet be finalized;
-;; when force-p is non-nil, signal an error when finalization is impossible
-(defvar *finalizing-now* nil) ; the stack of classes being finalized now
-(defun class-finalize (class &optional force-p)
+;; Try to finalize a given class, given as a class name or class object.
+;; Return the finalized class object on success, or nil when the class could
+;; not yet be finalized.
+;; When force-p is non-nil, signal an error when finalization is impossible.
+;; As a side effect of finalization, symbols in (class-direct-superclasses) are
+;; replaced with class objects, and the (class-precedence-list class) is
+;; computed.
+(defun class-finalize (class
+                       &optional force-p
+                                 ; The stack of classes being finalized now:
+                                 (finalizing-now nil))
   (when (or (class-p class) (setq class (find-class class force-p)))
-    (if (class-precedence-list class)
+    (if (class-precedence-list class) ; already finalized?
       class
-      (do ((*finalizing-now*
-            (if (memq class *finalizing-now*)
-              (error-of-type 'sys::source-program-error
-                (TEXT "~S: class definition circularity: ~S depends on itself")
-                'defclass class)
-              (cons class *finalizing-now*)))
-           (cds (class-direct-superclasses class) (cdr cds))
-           (ready t))
-          ((or (not ready) (endp cds))
-           ;; If FORCE-P was non-NIL, then READY is T, otherwise
-           ;; an error has been signaled already.
-           (when ready
-             ;; Instances of BUILT-IN-CLASS and STRUCTURE-CLASS are already
-             ;; finalized when they are constructed.
-             (finalize-instance-standard-class class)))
-        (let ((fin (class-finalize (car cds) force-p)))
-          (if fin (setf (car cds) fin) (setq ready nil)))))))
+      (progn
+        ;; Here we get only for instances of STANDARD-CLASS, since instances
+        ;; of BUILT-IN-CLASS and STRUCTURE-CLASS are already finalized when
+        ;; they are constructed.
+        (when (memq class finalizing-now)
+          (error-of-type 'sys::source-program-error
+            (TEXT "~S: class definition circularity: ~S depends on itself")
+            'defclass class))
+        (let ((finalizing-now (cons class finalizing-now)))
+          (do ((superclassesr (class-direct-superclasses class) (cdr superclassesr)))
+              ((endp superclassesr))
+            (let ((finalized-superclass
+                    (class-finalize (car superclassesr) force-p finalizing-now)))
+              (unless finalized-superclass
+                ;; Finalization of a superclass was impossible. force-p must
+                ;; be nil here, otherwise an error was signaled already. So we
+                ;; have to return nil as well.
+                (return-from class-finalize nil))
+              (setf (car superclassesr) finalized-superclass))))
+        ;; Now compute the class-precedence-list.
+        (finalize-instance-standard-class class)
+        class))))
 
 (defun ensure-class (name &rest all-keys
                           &key (metaclass <standard-class>)
@@ -387,58 +398,76 @@
       ;; DEFSTRUCT -> (DEFCLASS ... (:METACLASS STRUCTURE-CLASS))
       ;; ==> no warning, just discard the old definition, like with DEFSTRUCT
       (setq class nil))
-    (if (and class (class-precedence-list class))
-      ;; trivial changes (that can occur when doubly loading the same code)
-      ;; do not require updating the instances:
-      ;; changed slot-options :initform, :documentation,
-      ;; changed class-options :default-initargs, :documentation.
-      (if (and (equal direct-superclasses (class-direct-superclasses class))
-               (equal-slots direct-slots (class-direct-slots class))
-               (equal-default-initargs direct-default-initargs
-                                       (class-direct-default-initargs class)))
-        (progn
-          ;; store new slot-inits:
-          (do ((l-old (class-direct-slots class) (cdr l-old))
-               (l-new direct-slots (cdr l-new)))
-              ((null l-new))
-            (let ((old (getf (car l-old) ':initer))
-                  (new (getf (car l-new) ':initer)))
-              (when old
-                ;; move slot-initer new destructively into the slot-initer old:
+    ;; See which direct superclasses are already defined.
+    (setq direct-superclasses
+          (mapcar #'(lambda (c)
+                      (if (class-p c) c (or (find-class c nil) c)))
+                  direct-superclasses))
+    (if class
+      (progn
+        ;; Normalize the (class-direct-superclasses class) in the same way as
+        ;; the direct-superclasses argument, so that we can compare the two
+        ;; lists using EQUAL.
+        (do ((l (class-direct-superclasses class) (cdr l)))
+            ((atom l))
+          (let ((c (car l)))
+            (unless (class-p c)
+              (setf (car l) (or (find-class c nil) c)))))
+        ;; Trivial changes (that can occur when loading the same code twice)
+        ;; do not require updating the instances:
+        ;; changed slot-options :initform, :documentation,
+        ;; changed class-options :default-initargs, :documentation.
+        (if (and (equal direct-superclasses (class-direct-superclasses class))
+                 (equal-slots direct-slots (class-direct-slots class))
+                 (equal-default-initargs direct-default-initargs
+                                         (class-direct-default-initargs class)))
+          (progn
+            ;; Store new slot-inits:
+            (do ((l-old (class-direct-slots class) (cdr l-old))
+                 (l-new direct-slots (cdr l-new)))
+                ((null l-new))
+              (let ((old (getf (car l-old) ':initer))
+                    (new (getf (car l-new) ':initer)))
+                (when old
+                  ;; Move slot-initer new destructively into the slot-initer old:
+                  (setf (car old) (car new))
+                  (setf (cdr old) (cdr new)))))
+            ;; Store new default-initargs:
+            (do ((l-old (class-direct-default-initargs class) (cddr l-old))
+                 (l-new direct-default-initargs (cddr l-new)))
+                ((null l-new))
+              (let ((old (second l-old))
+                    (new (second l-new)))
+                ;; Move initer new destructively into the initer old:
                 (setf (car old) (car new))
-                (setf (cdr old) (cdr new)))))
-          ;; store new default-initargs:
-          (do ((l-old (class-direct-default-initargs class) (cddr l-old))
-               (l-new direct-default-initargs (cddr l-new)))
-              ((null l-new))
-            (let ((old (second l-old))
-                  (new (second l-new)))
-              ;; move initer new destructively into the initer old:
-              (setf (car old) (car new))
-              (setf (cdr old) (cdr new))))
-          ;; NB: These modifications are automatically inherited by the
-          ;; subclasses of class!
-          ;; modified class as value:
-          class)
-        ;; instances have to be updated
-        (let ((copy (copy-standard-class class)))
-          (setf (class-previous-definition class) copy)
-          (incf (class-id class))
-          (apply (cond ((eq metaclass <standard-class>)
-                        #'initialize-instance-standard-class)
-                       ((eq metaclass <built-in-class>)
-                        #'initialize-instance-built-in-class)
-                       ((eq metaclass <structure-class>)
-                        #'initialize-instance-structure-class)
-                       (t #'initialize-instance))
-                 class :name name all-keys)
-          ;; precompute added/discarded slot lists for all previous definitions
-          (do ((oc copy (class-previous-definition oc)))
-              ((null oc))
-            (setf (class-proto oc)
-                  (cons (slot-difference class oc)
-                        (slot-difference oc class))))
-          (make-instances-obsolete class)))
+                (setf (cdr old) (cdr new))))
+            ;; NB: These modifications are automatically inherited by the
+            ;; subclasses of class!
+          )
+          ;; Instances have to be updated:
+          (let ((copy (copy-standard-class class)))
+            (setf (class-previous-definition class) copy)
+            (incf (class-id class))
+            (apply (cond ((eq metaclass <standard-class>)
+                          #'initialize-instance-standard-class)
+                         ((eq metaclass <built-in-class>)
+                          #'initialize-instance-built-in-class)
+                         ((eq metaclass <structure-class>)
+                          #'initialize-instance-structure-class)
+                         (t #'initialize-instance))
+                   class
+                   :name name
+                   :direct-superclasses direct-superclasses
+                   all-keys)
+            ;; Precompute added/discarded slot lists for all previous definitions:
+            (do ((oc copy (class-previous-definition oc)))
+                ((null oc))
+              (setf (class-proto oc)
+                    (cons (slot-difference class oc)
+                          (slot-difference oc class))))
+            (make-instances-obsolete class)))
+        ;; Modified class as value:
+        class)
       (setf (find-class name)
             (apply (cond ((eq metaclass <standard-class>)
                           #'make-instance-standard-class)
@@ -449,6 +478,7 @@
                          (t #'make-instance))
                    metaclass
                    :name name
+                   :direct-superclasses direct-superclasses
                    all-keys)))))
 (defun equal-slots (slots1 slots2)
   (or (and (null slots1) (null slots2))
@@ -551,11 +581,10 @@
           :from-end t))
   (setf (class-valid-initargs class)
         (remove-duplicates (mapcap #'slotdef-initargs (class-slots class))))
-  (system::note-new-standard-class)
-  class)
+  (system::note-new-standard-class))
 ) ; let
 
-;;; 28.1.5. Determining the Class Precedence List
+;;; CLtL2 28.1.5., ANSI CL 4.3.5. Determining the Class Precedence List
 
 ;; The set of all classes forms a directed graph: Class C is located
 ;; below the direct superclasses of C. This graph is acyclic, because
