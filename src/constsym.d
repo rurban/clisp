@@ -1008,7 +1008,7 @@ LISPSYM(proclaim_constant,"%PROCLAIM-CONSTANT",system) /* ABI */
 LISPSYM(get,"GET",lisp)
 LISPSYM(getf,"GETF",lisp)
 LISPSYM(putf,"%PUTF",system) /* ABI */
-LISPSYM(remf,"%REMF",system)
+LISPSYM(remf,"%REMF",system) /* ABI */
 LISPSYM(get_properties,"GET-PROPERTIES",lisp)
 LISPSYM(putplist,"%PUTPLIST",system) /* ABI */
 LISPSYM(put,"%PUT",system) /* ABI */
