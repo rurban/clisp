@@ -348,9 +348,13 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
 <itemizedlist><title>The possible results of &type-of;</title>
  <listitem><simpara>&cons-t;</simpara></listitem>
  <listitem><simpara>&symbol-t;, &null-t;, &boolean-t;</simpara></listitem>
- <listitem><simpara>&fixnum-t;, &bignum-t;, &rational-t;,
-  &short-float-t;, &single-float-t;, &double-float-t;,
-  &long-float-t;, &complex-t;</simpara></listitem>
+ <listitem><simpara><literal role="type">(&integer-t; 0
+  #.&most-positive-fixnum;)</literal>, <literal role="type">(&integer-t;
+  #.&most-negative-fixnum; (0))</literal>, <literal role="type">(&integer-t;
+  (#.&most-positive-fixnum;))</literal>, <literal role="type">(&integer-t; *
+  (#.&most-negative-fixnum;))</literal></simpara></listitem>
+ <listitem><simpara>&rational-t;, &short-float-t;, &single-float-t;,
+  &double-float-t;, &long-float-t;, &complex-t;</simpara></listitem>
  <listitem><simpara>&character-t;, &base-char-t;</simpara></listitem>
  <listitem><simpara><literal role="type">(&array-t; &eltype-r;
   &dimensions-r;)</literal>, <literal role="type">(&simple-array-t;
