@@ -1228,9 +1228,6 @@ fi
 if [ $TSYS = master -o -n "$with_dynamic_ffi" ] ; then
   CPARTS=$CPARTS' foreign'
 fi
-if [ $TSYS = master -o $TSYS = sun4 -a "$DEBUGGING" = debug ] ; then
-  CPARTS=$CPARTS' dbxtypes'
-fi
 if [ $TSYS = master -o $TOS = unix -o $TSYS = dos -o $TSYS = os2 -o $TSYS = acorn ] ; then
   CPARTS=$CPARTS' unixaux'
 fi
