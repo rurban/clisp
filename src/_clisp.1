@@ -731,12 +731,8 @@ specifies the directory where the temporary core file is to be held.
 
 impnotes.html,
 .IR cmucl (1),
-#ifdef UNIX
+.IR emacs (1),
 .IR xemacs (1).
-#else
-.IR emacs (1).
-#endif
-
 
 .SH BUGS
 
@@ -781,7 +777,7 @@ does not recognize Ctrl-S and Ctrl-Q.
 Writing on-line documentation.
 
 .PP
-Enhance the compiler such that it can inline local functions.
+Enhance the compiler so that it can inline local functions.
 
 .PP
 Specify a portable set of window and graphics operations.
