@@ -145,34 +145,34 @@ install-lib : all force
 	$(INSTALL_DATA) avcall.h $(includedir)/avcall.h
 
 install : all force
-	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
-	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
-	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
-	$(LIBTOOL_INSTALL) $(INSTALL_DATA) libavcall.la $(libdir)/libavcall.la
-	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
-	$(INSTALL_DATA) avcall.h $(includedir)/avcall.h
-	if [ ! -d $(mandir) ] ; then mkdir $(mandir) ; fi
-	if [ ! -d $(mandir)/man3 ] ; then mkdir $(mandir)/man3 ; fi
-	$(INSTALL_DATA) $(srcdir)/avcall.3 $(mandir)/man3/avcall.3
-	if [ ! -d $(datadir) ] ; then mkdir $(datadir) ; fi
-	if [ ! -d $(htmldir) ] ; then mkdir $(htmldir) ; fi
-	$(INSTALL_DATA) $(srcdir)/avcall.html $(htmldir)/avcall.html
+	if [ ! -d $(DESTDIR)$(prefix) ] ; then mkdir $(DESTDIR)$(prefix) ; fi
+	if [ ! -d $(DESTDIR)$(exec_prefix) ] ; then mkdir $(DESTDIR)$(exec_prefix) ; fi
+	if [ ! -d $(DESTDIR)$(libdir) ] ; then mkdir $(DESTDIR)$(libdir) ; fi
+	$(LIBTOOL_INSTALL) $(INSTALL_DATA) libavcall.la $(DESTDIR)$(libdir)/libavcall.la
+	if [ ! -d $(DESTDIR)$(includedir) ] ; then mkdir $(DESTDIR)$(includedir) ; fi
+	$(INSTALL_DATA) avcall.h $(DESTDIR)$(includedir)/avcall.h
+	if [ ! -d $(DESTDIR)$(mandir) ] ; then mkdir $(DESTDIR)$(mandir) ; fi
+	if [ ! -d $(DESTDIR)$(mandir)/man3 ] ; then mkdir $(DESTDIR)$(mandir)/man3 ; fi
+	$(INSTALL_DATA) $(srcdir)/avcall.3 $(DESTDIR)$(mandir)/man3/avcall.3
+	if [ ! -d $(DESTDIR)$(datadir) ] ; then mkdir $(DESTDIR)$(datadir) ; fi
+	if [ ! -d $(DESTDIR)$(htmldir) ] ; then mkdir $(DESTDIR)$(htmldir) ; fi
+	$(INSTALL_DATA) $(srcdir)/avcall.html $(DESTDIR)$(htmldir)/avcall.html
 
 installdirs : force
-	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
-	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
-	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
-	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
-	if [ ! -d $(mandir) ] ; then mkdir $(mandir) ; fi
-	if [ ! -d $(mandir)/man3 ] ; then mkdir $(mandir)/man3 ; fi
-	if [ ! -d $(datadir) ] ; then mkdir $(datadir) ; fi
-	if [ ! -d $(htmldir) ] ; then mkdir $(htmldir) ; fi
+	if [ ! -d $(DESTDIR)$(prefix) ] ; then mkdir $(DESTDIR)$(prefix) ; fi
+	if [ ! -d $(DESTDIR)$(exec_prefix) ] ; then mkdir $(DESTDIR)$(exec_prefix) ; fi
+	if [ ! -d $(DESTDIR)$(libdir) ] ; then mkdir $(DESTDIR)$(libdir) ; fi
+	if [ ! -d $(DESTDIR)$(includedir) ] ; then mkdir $(DESTDIR)$(includedir) ; fi
+	if [ ! -d $(DESTDIR)$(mandir) ] ; then mkdir $(DESTDIR)$(mandir) ; fi
+	if [ ! -d $(DESTDIR)$(mandir)/man3 ] ; then mkdir $(DESTDIR)$(mandir)/man3 ; fi
+	if [ ! -d $(DESTDIR)$(datadir) ] ; then mkdir $(DESTDIR)$(datadir) ; fi
+	if [ ! -d $(DESTDIR)$(htmldir) ] ; then mkdir $(DESTDIR)$(htmldir) ; fi
 
 uninstall : force
-	$(LIBTOOL_UNINSTALL) $(RM) $(libdir)/libavcall.la
-	$(RM) $(includedir)/avcall.h
-	$(RM) $(mandir)/man3/avcall.3
-	$(RM) $(htmldir)/avcall.html
+	$(LIBTOOL_UNINSTALL) $(RM) $(DESTDIR)$(libdir)/libavcall.la
+	$(RM) $(DESTDIR)$(includedir)/avcall.h
+	$(RM) $(DESTDIR)$(mandir)/man3/avcall.3
+	$(RM) $(DESTDIR)$(htmldir)/avcall.html
 
 minitests.o : $(srcdir)/minitests.c $(srcdir)/tests.c avcall.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/minitests.c

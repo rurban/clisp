@@ -132,34 +132,34 @@ libvacall.a : $(OBJECTS)
 	$(RANLIB) libvacall.a
 
 install : all force
-	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
-	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
-	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
-	$(INSTALL_DATA) libvacall.a $(libdir)/libvacall.a
-	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
-	$(INSTALL_DATA) vacall.h $(includedir)/vacall.h
-	if [ ! -d $(mandir) ] ; then mkdir $(mandir) ; fi
-	if [ ! -d $(mandir)/man3 ] ; then mkdir $(mandir)/man3 ; fi
-	$(INSTALL_DATA) $(srcdir)/vacall.3 $(mandir)/man3/vacall.3
-	if [ ! -d $(datadir) ] ; then mkdir $(datadir) ; fi
-	if [ ! -d $(htmldir) ] ; then mkdir $(htmldir) ; fi
-	$(INSTALL_DATA) $(srcdir)/vacall.html $(htmldir)/vacall.html
+	if [ ! -d $(DESTDIR)$(prefix) ] ; then mkdir $(DESTDIR)$(prefix) ; fi
+	if [ ! -d $(DESTDIR)$(exec_prefix) ] ; then mkdir $(DESTDIR)$(exec_prefix) ; fi
+	if [ ! -d $(DESTDIR)$(libdir) ] ; then mkdir $(DESTDIR)$(libdir) ; fi
+	$(INSTALL_DATA) libvacall.a $(DESTDIR)$(libdir)/libvacall.a
+	if [ ! -d $(DESTDIR)$(includedir) ] ; then mkdir $(DESTDIR)$(includedir) ; fi
+	$(INSTALL_DATA) vacall.h $(DESTDIR)$(includedir)/vacall.h
+	if [ ! -d $(DESTDIR)$(mandir) ] ; then mkdir $(DESTDIR)$(mandir) ; fi
+	if [ ! -d $(DESTDIR)$(mandir)/man3 ] ; then mkdir $(DESTDIR)$(mandir)/man3 ; fi
+	$(INSTALL_DATA) $(srcdir)/vacall.3 $(DESTDIR)$(mandir)/man3/vacall.3
+	if [ ! -d $(DESTDIR)$(datadir) ] ; then mkdir $(DESTDIR)$(datadir) ; fi
+	if [ ! -d $(DESTDIR)$(htmldir) ] ; then mkdir $(DESTDIR)$(htmldir) ; fi
+	$(INSTALL_DATA) $(srcdir)/vacall.html $(DESTDIR)$(htmldir)/vacall.html
 
 installdirs : force
-	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
-	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
-	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
-	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
-	if [ ! -d $(mandir) ] ; then mkdir $(mandir) ; fi
-	if [ ! -d $(mandir)/man3 ] ; then mkdir $(mandir)/man3 ; fi
-	if [ ! -d $(datadir) ] ; then mkdir $(datadir) ; fi
-	if [ ! -d $(htmldir) ] ; then mkdir $(htmldir) ; fi
+	if [ ! -d $(DESTDIR)$(prefix) ] ; then mkdir $(DESTDIR)$(prefix) ; fi
+	if [ ! -d $(DESTDIR)$(exec_prefix) ] ; then mkdir $(DESTDIR)$(exec_prefix) ; fi
+	if [ ! -d $(DESTDIR)$(libdir) ] ; then mkdir $(DESTDIR)$(libdir) ; fi
+	if [ ! -d $(DESTDIR)$(includedir) ] ; then mkdir $(DESTDIR)$(includedir) ; fi
+	if [ ! -d $(DESTDIR)$(mandir) ] ; then mkdir $(DESTDIR)$(mandir) ; fi
+	if [ ! -d $(DESTDIR)$(mandir)/man3 ] ; then mkdir $(DESTDIR)$(mandir)/man3 ; fi
+	if [ ! -d $(DESTDIR)$(datadir) ] ; then mkdir $(DESTDIR)$(datadir) ; fi
+	if [ ! -d $(DESTDIR)$(htmldir) ] ; then mkdir $(DESTDIR)$(htmldir) ; fi
 
 uninstall : force
-	$(RM) $(libdir)/libvacall.a
-	$(RM) $(includedir)/vacall.h
-	$(RM) $(mandir)/man3/vacall.3
-	$(RM) $(htmldir)/vacall.html
+	$(RM) $(DESTDIR)$(libdir)/libvacall.a
+	$(RM) $(DESTDIR)$(includedir)/vacall.h
+	$(RM) $(DESTDIR)$(mandir)/man3/vacall.3
+	$(RM) $(DESTDIR)$(htmldir)/vacall.html
 
 minitests.o : $(srcdir)/minitests.c $(srcdir)/tests.c vacall.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/minitests.c

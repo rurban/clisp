@@ -74,36 +74,36 @@ install-lib : all force
 
 install : force
 	cd @subdir@; $(MAKE) install
-	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
-	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
-	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
-	$(LIBTOOL_INSTALL) $(INSTALL_DATA) libcallback.la $(libdir)/libcallback.la
-	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
-	$(INSTALL_DATA) callback.h $(includedir)/callback.h
-	if [ ! -d $(mandir) ] ; then mkdir $(mandir) ; fi
-	if [ ! -d $(mandir)/man3 ] ; then mkdir $(mandir)/man3 ; fi
-	$(INSTALL_DATA) $(srcdir)/callback.3 $(mandir)/man3/callback.3
-	if [ ! -d $(datadir) ] ; then mkdir $(datadir) ; fi
-	if [ ! -d $(htmldir) ] ; then mkdir $(htmldir) ; fi
-	$(INSTALL_DATA) $(srcdir)/callback.html $(htmldir)/callback.html
+	if [ ! -d $(DESTDIR)$(prefix) ] ; then mkdir $(DESTDIR)$(prefix) ; fi
+	if [ ! -d $(DESTDIR)$(exec_prefix) ] ; then mkdir $(DESTDIR)$(exec_prefix) ; fi
+	if [ ! -d $(DESTDIR)$(libdir) ] ; then mkdir $(DESTDIR)$(libdir) ; fi
+	$(LIBTOOL_INSTALL) $(INSTALL_DATA) libcallback.la $(DESTDIR)$(libdir)/libcallback.la
+	if [ ! -d $(DESTDIR)$(includedir) ] ; then mkdir $(DESTDIR)$(includedir) ; fi
+	$(INSTALL_DATA) callback.h $(DESTDIR)$(includedir)/callback.h
+	if [ ! -d $(DESTDIR)$(mandir) ] ; then mkdir $(DESTDIR)$(mandir) ; fi
+	if [ ! -d $(DESTDIR)$(mandir)/man3 ] ; then mkdir $(DESTDIR)$(mandir)/man3 ; fi
+	$(INSTALL_DATA) $(srcdir)/callback.3 $(DESTDIR)$(mandir)/man3/callback.3
+	if [ ! -d $(DESTDIR)$(datadir) ] ; then mkdir $(DESTDIR)$(datadir) ; fi
+	if [ ! -d $(DESTDIR)$(htmldir) ] ; then mkdir $(DESTDIR)$(htmldir) ; fi
+	$(INSTALL_DATA) $(srcdir)/callback.html $(DESTDIR)$(htmldir)/callback.html
 
 installdirs : force
 	cd @subdir@; $(MAKE) installdirs
-	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
-	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
-	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
-	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
-	if [ ! -d $(mandir) ] ; then mkdir $(mandir) ; fi
-	if [ ! -d $(mandir)/man3 ] ; then mkdir $(mandir)/man3 ; fi
-	if [ ! -d $(datadir) ] ; then mkdir $(datadir) ; fi
-	if [ ! -d $(htmldir) ] ; then mkdir $(htmldir) ; fi
+	if [ ! -d $(DESTDIR)$(prefix) ] ; then mkdir $(DESTDIR)$(prefix) ; fi
+	if [ ! -d $(DESTDIR)$(exec_prefix) ] ; then mkdir $(DESTDIR)$(exec_prefix) ; fi
+	if [ ! -d $(DESTDIR)$(libdir) ] ; then mkdir $(DESTDIR)$(libdir) ; fi
+	if [ ! -d $(DESTDIR)$(includedir) ] ; then mkdir $(DESTDIR)$(includedir) ; fi
+	if [ ! -d $(DESTDIR)$(mandir) ] ; then mkdir $(DESTDIR)$(mandir) ; fi
+	if [ ! -d $(DESTDIR)$(mandir)/man3 ] ; then mkdir $(DESTDIR)$(mandir)/man3 ; fi
+	if [ ! -d $(DESTDIR)$(datadir) ] ; then mkdir $(DESTDIR)$(datadir) ; fi
+	if [ ! -d $(DESTDIR)$(htmldir) ] ; then mkdir $(DESTDIR)$(htmldir) ; fi
 
 uninstall : force
 	cd @subdir@; $(MAKE) uninstall
-	$(LIBTOOL_UNINSTALL) $(RM) $(libdir)/libcallback.la
-	$(RM) $(includedir)/callback.h
-	$(RM) $(mandir)/man3/callback.3
-	$(RM) $(htmldir)/callback.html
+	$(LIBTOOL_UNINSTALL) $(RM) $(DESTDIR)$(libdir)/libcallback.la
+	$(RM) $(DESTDIR)$(includedir)/callback.h
+	$(RM) $(DESTDIR)$(mandir)/man3/callback.3
+	$(RM) $(DESTDIR)$(htmldir)/callback.html
 
 minitests.o : $(srcdir)/minitests.c $(srcdir)/tests.c callback.h vacall_r.h trampoline_r.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/minitests.c

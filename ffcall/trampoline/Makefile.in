@@ -90,34 +90,34 @@ libtrampoline.a : $(OBJECTS)
 	$(RANLIB) libtrampoline.a
 
 install : all force
-	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
-	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
-	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
-	$(INSTALL_DATA) libtrampoline.a $(libdir)/libtrampoline.a
-	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
-	$(INSTALL_DATA) trampoline.h $(includedir)/trampoline.h
-	if [ ! -d $(mandir) ] ; then mkdir $(mandir) ; fi
-	if [ ! -d $(mandir)/man3 ] ; then mkdir $(mandir)/man3 ; fi
-	$(INSTALL_DATA) $(srcdir)/trampoline.3 $(mandir)/man3/trampoline.3
-	if [ ! -d $(datadir) ] ; then mkdir $(datadir) ; fi
-	if [ ! -d $(htmldir) ] ; then mkdir $(htmldir) ; fi
-	$(INSTALL_DATA) $(srcdir)/trampoline.html $(htmldir)/trampoline.html
+	if [ ! -d $(DESTDIR)$(prefix) ] ; then mkdir $(DESTDIR)$(prefix) ; fi
+	if [ ! -d $(DESTDIR)$(exec_prefix) ] ; then mkdir $(DESTDIR)$(exec_prefix) ; fi
+	if [ ! -d $(DESTDIR)$(libdir) ] ; then mkdir $(DESTDIR)$(libdir) ; fi
+	$(INSTALL_DATA) libtrampoline.a $(DESTDIR)$(libdir)/libtrampoline.a
+	if [ ! -d $(DESTDIR)$(includedir) ] ; then mkdir $(DESTDIR)$(includedir) ; fi
+	$(INSTALL_DATA) trampoline.h $(DESTDIR)$(includedir)/trampoline.h
+	if [ ! -d $(DESTDIR)$(mandir) ] ; then mkdir $(DESTDIR)$(mandir) ; fi
+	if [ ! -d $(DESTDIR)$(mandir)/man3 ] ; then mkdir $(DESTDIR)$(mandir)/man3 ; fi
+	$(INSTALL_DATA) $(srcdir)/trampoline.3 $(DESTDIR)$(mandir)/man3/trampoline.3
+	if [ ! -d $(DESTDIR)$(datadir) ] ; then mkdir $(DESTDIR)$(datadir) ; fi
+	if [ ! -d $(DESTDIR)$(htmldir) ] ; then mkdir $(DESTDIR)$(htmldir) ; fi
+	$(INSTALL_DATA) $(srcdir)/trampoline.html $(DESTDIR)$(htmldir)/trampoline.html
 
 installdirs : force
-	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
-	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
-	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
-	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
-	if [ ! -d $(mandir) ] ; then mkdir $(mandir) ; fi
-	if [ ! -d $(mandir)/man3 ] ; then mkdir $(mandir)/man3 ; fi
-	if [ ! -d $(datadir) ] ; then mkdir $(datadir) ; fi
-	if [ ! -d $(htmldir) ] ; then mkdir $(htmldir) ; fi
+	if [ ! -d $(DESTDIR)$(prefix) ] ; then mkdir $(DESTDIR)$(prefix) ; fi
+	if [ ! -d $(DESTDIR)$(exec_prefix) ] ; then mkdir $(DESTDIR)$(exec_prefix) ; fi
+	if [ ! -d $(DESTDIR)$(libdir) ] ; then mkdir $(DESTDIR)$(libdir) ; fi
+	if [ ! -d $(DESTDIR)$(includedir) ] ; then mkdir $(DESTDIR)$(includedir) ; fi
+	if [ ! -d $(DESTDIR)$(mandir) ] ; then mkdir $(DESTDIR)$(mandir) ; fi
+	if [ ! -d $(DESTDIR)$(mandir)/man3 ] ; then mkdir $(DESTDIR)$(mandir)/man3 ; fi
+	if [ ! -d $(DESTDIR)$(datadir) ] ; then mkdir $(DESTDIR)$(datadir) ; fi
+	if [ ! -d $(DESTDIR)$(htmldir) ] ; then mkdir $(DESTDIR)$(htmldir) ; fi
 
 uninstall : force
-	$(RM) $(libdir)/libtrampoline.a
-	$(RM) $(includedir)/trampoline.h
-	$(RM) $(mandir)/man3/trampoline.3
-	$(RM) $(htmldir)/trampoline.html
+	$(RM) $(DESTDIR)$(libdir)/libtrampoline.a
+	$(RM) $(DESTDIR)$(includedir)/trampoline.h
+	$(RM) $(DESTDIR)$(mandir)/man3/trampoline.3
+	$(RM) $(DESTDIR)$(htmldir)/trampoline.html
 
 test1.o : $(srcdir)/test1.c trampoline.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/test1.c
