@@ -2069,3 +2069,4 @@ space safety compilation-speed debug declaration dynamic-extent compile
 (LOAD "config")    ;; configuration parameters to be adjusted by the user
 
 (in-package "CL-USER") ;; make the default package the current one
+(setq sys::*home-package* nil)
