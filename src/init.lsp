@@ -357,6 +357,7 @@ interpreter compiler
       ; Property sys::definition wird nicht entfernt, da sie sowieso
       ; bald neu gesetzt wird.
       (remprop symbol 'sys::macro) ; Macro-Definition streichen
+      (remprop symbol 'sys::defstruct-reader) ; DEFSTRUCT-Information streichen
       (when (get symbol 'sys::documentation-strings) ; Dokumentation streichen
         (sys::%set-documentation symbol 'FUNCTION nil)
       )
