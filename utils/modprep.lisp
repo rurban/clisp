@@ -60,7 +60,6 @@ The input file is normal C code, modified like this:
     unsigned int index;
    restart_c_name:
     if (posfixnump(arg)) return posfixnum_to_L(arg);
-    else if (missingp(arg)) return 0;
     else {
       for (index = 0; index < c_name_table_size; index++)
         if (eq(a,*c_name_table[index].l_const))
@@ -79,7 +78,6 @@ The input file is normal C code, modified like this:
     for (index = 0; index < c_name_table_size; index++)
       if (a == c_name_table[index].c_const)
         return *c_name_table[index].l_const;
-    if (a == 0) return NIL;
     NOTREACHED;
   }
 
@@ -1000,9 +998,8 @@ commas and parentheses."
             (format out "static ~A ~A (object a) {" (or c-type "int") c-name)
             (newline out) (format out "  unsigned int index;") (newline out)
             (format out " restart_~A:" c-name) (newline out)
-            (format out "  if (missingp(a)) return 0;") (newline out)
-            (format out "  else if (integerp(a)) return I_to_L(a);")
-            (newline out) (format out "  else {") (newline out)
+            (format out "  if (integerp(a)) return I_to_L(a);") (newline out)
+            (format out "  else {") (newline out)
             (format out "    for (index = 0; index < ~A_table_size; index++)"
                     c-name) (newline out)
             (format out "      if (eq(a,*~A_table[index].l_const))" c-name)
@@ -1026,7 +1023,6 @@ commas and parentheses."
             (newline out)
             (format out "      return *~A_table[index].l_const;" c-name)
             (newline out)
-            (format out "  if (a == 0) return NIL;") (newline out)
             (format out "  NOTREACHED;") (newline out)
             (format out "}") (newline out)))
     (newline out)))
