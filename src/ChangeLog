@@ -1,5 +1,9 @@
 2002-03-14  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (config.lisp): chmod +w before appending
+
+2002-03-14  Sam Steingold  <sds@gnu.org>
+
 	* defs1.lisp (require): fixed a deadly typo in the 2002-02-28 patch
 
 2002-03-13  Sam Steingold  <sds@gnu.org>
