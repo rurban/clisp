@@ -226,7 +226,7 @@
              ;; Here we cannot pass the full initargs to allocate-instance since
              ;; the final initargs contain a pointer to the method instance.
              (let* ((initargs arg2)
-                    (method (apply #'allocate-method-instance (std-gf-default-method-class gf) initargs)))
+                    (method (apply #'allocate-method-instance (safe-gf-default-method-class gf) initargs)))
                (apply #'initialize-method-instance method
                       (nconc (method-function-initargs method (funcall arg1 method)) initargs))
                method)

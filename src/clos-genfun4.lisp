@@ -368,10 +368,12 @@
 (initialize-extended-method-check #'generic-function-methods)
 
 ;; MOP p. 80
-(defgeneric generic-function-method-class (generic-function)
-  (:method ((gf standard-generic-function))
-    (check-generic-function-initialized gf)
-    (std-gf-default-method-class gf)))
+(let ((*allow-making-generic* t))
+  (defgeneric generic-function-method-class (generic-function)
+    (:method ((gf standard-generic-function))
+      (check-generic-function-initialized gf)
+      (std-gf-default-method-class gf))))
+(setq |#'generic-function-method-class| #'generic-function-method-class)
 (initialize-extended-method-check #'generic-function-method-class)
 
 ;; MOP p. 79
