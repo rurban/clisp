@@ -11,7 +11,7 @@
   #if defined(GNU) || defined(INTEL)
     #define D_D_mal2adic_D(a,b)  \
       ({ var uintD __erg;              \
-         muluD((a),(b), _EMA_,__erg=); \
+         muluD((a),(b), (void),__erg=);   \
          __erg;                        \
        })
   #else
@@ -22,7 +22,7 @@
         var uintD a;
         var uintD b;
         {
-          muluD(a,b, _EMA_,return);
+          muluD(a,b, (void),return);
         }
     #endif
   #endif
@@ -143,7 +143,7 @@
         #if HAVE_DD
           digit = lowD(muluD(b0inv,digit));
         #else
-          muluD(b0inv,digit, _EMA_,digit=);
+          muluD(b0inv,digit, (void),digit=);
         #endif
         # digit = nächstes c[j]
         mulusub_loop_down(digit,b_LSDptr,dest_LSDptr,len); # d := d - b * c[j] * beta^j
