@@ -1489,8 +1489,8 @@ global maygc bool parse_dd (object formlist)
       pushSTACK(body_rest); /* save body_rest */
       pushSTACK(Cdr(form)); /* list of the new decl-specs */
       while (mconsp(STACK_0)) {
+        var object declspec = Car(STACK_0); /* next decl-spec */
         { /* check for (COMPILE) */
-          var object declspec = Car(STACK_0); /* next decl-spec */
           /* Test: (EQUAL d '(COMPILE)) =
                (and (consp d) (eq (car d) 'COMPILE) (null (cdr d))) */
           if (consp(declspec)
@@ -1499,12 +1499,16 @@ global maygc bool parse_dd (object formlist)
             compile_decl = true;
           else if (consp(declspec) && eq(Car(declspec),S(optimize))) {
             pushSTACK(Cdr(declspec)); funcall(S(note_optimize),1);
-            Cdr(Car(STACK_0)) = value1;
+            pushSTACK(value1);
+            declspec = allocate_cons();
+            Car(declspec) = S(optimize);
+            Cdr(declspec) = popSTACK(); /* value1 */
           }
         }
         { /* push this declaration onto STACK_(0+2) : */
+          pushSTACK(declspec);
           var object new_cons = allocate_cons();
-          Car(new_cons) = Car(STACK_0);
+          Car(new_cons) = popSTACK(); /* declspec */
           Cdr(new_cons) = STACK_(0+2);
           STACK_(0+2) = new_cons;
         }
