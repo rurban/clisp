@@ -218,9 +218,9 @@ local uintL objsize (void* addr) {
         var uintL size;
         size = (uintL)iarray_rank((Iarray)addr);
         if (iarray_flags((Iarray)addr) & bit(arrayflags_fillp_bit))
-          size += 1;
+          size++;
         if (iarray_flags((Iarray)addr) & bit(arrayflags_dispoffset_bit))
-          size += 1;
+          size++;
         # size = dimension number + (1 if fill-pointer) +
         #        (1 if displaced-offset)
         return size_iarray(size);
@@ -271,9 +271,9 @@ inline local uintL objsize_iarray (void* addr) { # non-simple array
   var uintL size;
   size = (uintL)iarray_rank((Iarray)addr);
   if (iarray_flags((Iarray)addr) & bit(arrayflags_fillp_bit))
-    size += 1;
+    size++;
   if (iarray_flags((Iarray)addr) & bit(arrayflags_dispoffset_bit))
-        size += 1;
+    size++;
   # size = dimension number + (1 if fill-pointer) + (1 if displaced-offset)
   return size_iarray(size);
 }
