@@ -3369,6 +3369,7 @@ if [ ${HSYSOS} = cygwin ]; then
   echol
   echol "setup.hint : full/lisp.exe"
   echotab "echo 'sdesc: an ANSI Common Lisp implementation' > setup.hint"
+  echotab "echo 'category: devel interpreters math shells' >> setup.hint"
   echotab 'REQ=''; for f in `cygcheck full/lisp.exe`; do echo "* "$$f; f=`cygpath -u $$f`; REQ=$${REQ}" "`cygcheck -f $$f|sed "s/-.*//"`; done; echo "="$${REQ}; echo "requires:"$${REQ} >> setup.hint'
   echotab "echo 'ldesc: \"' >> setup.hint"
   echotab "cat SUMMARY >> setup.hint"
