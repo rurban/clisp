@@ -96,42 +96,7 @@ Emacs Lisp, the second subform of 'if' is the 'true' case, whereas the third
 and subsequent subforms together make up the 'else' case. Common Lisp does
 not have this irregularity.)
 
-To get Common Lisp indentation, add the following to your $HOME/.emacs file:
-
-         ;; Common Lisp indentation.
-         (load-library "cl-indent")
-         (add-hook 'lisp-mode-hook
-           (lambda ()
-             (setq lisp-indent-function 'common-lisp-indent-function)
-         ) )
-         ;; Additional definitions by Pierpaolo Bernardi.
-         (defun cl-indent (sym indent)
-           (put sym 'common-lisp-indent-function
-             (if (symbolp indent)
-               (get indent 'common-lisp-indent-function)
-               indent
-         ) ) )
-         (cl-indent 'if '1)
-         (cl-indent 'defclass '((&whole 4 &rest (&whole 2 &rest 1))
-                                &rest (&whole 2 &rest 1)))
-         (cl-indent 'defgeneric 'defun)
-         (cl-indent 'defmethod '(4 4 (&whole 4 &rest 1) &body))
-         (cl-indent 'generic-flet 'flet)
-         (cl-indent 'generic-labels 'labels)
-         (cl-indent 'symbol-macrolet 'multiple-value-bind)
-         (cl-indent 'with-accessors 'multiple-value-bind)
-         (cl-indent 'with-added-methods '((1 4 ((&whole 1))) (2 &body)))
-         (cl-indent 'with-slots 'multiple-value-bind)
-         (cl-indent 'handler-bind '((&whole 4 &rest 1) 2 &body))
-         (cl-indent 'handler-case '((1 4) (&whole 2 ((0 1) (1 3) (2 &body)))))
-         (cl-indent 'define-condition '((1 6)
-                                        (2 6 ((&whole 1)))
-                                        (3 4 ((&whole 1)))
-                                        (4 &body)))
-         (cl-indent 'restart-bind '(((&whole 2 (0 1) (&whole 1))) (2 &body)))
-         (cl-indent 'restart-case '((1 4) (&whole 2 ((0 1) (&whole 1)))))
-         (cl-indent 'with-condition-restarts '((1 4 ((&whole 1))) (2 &body)))
-         (cl-indent 'with-simple-restart '((1 4 ((&whole 1))) (2 &body)))
+To get the Common Lisp indentation, load the file `emacs/clisp-indent.el'.
 
 More special rules for macros may be needed; watch out responsibly yourself.
 
@@ -178,9 +143,7 @@ is what the GNU standards recommend:
                 && string_equal(line,Car(Car(alist)))
                ) {
 
-You can't use Emacs to indent .d files, because the Emacs indenter interprets
-'# ' as the start of a preprocessor command, with disastrous effects. Use
-Emacs 'text-mode' instead.
+Use `emacs/clisp-indent.el' to make Emacs indent your *.d files.
 
                             German comments
                             ---------------
