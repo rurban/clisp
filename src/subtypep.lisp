@@ -1076,7 +1076,7 @@
 ;; Conversion of an encoding to a list of intervals.
 #+UNICODE
 (let ((table (make-hash-table :key-type '(or string symbol) :value-type 'simple-string
-                              :test #'equal)))
+                              :test 'stablehash-equal :warn-if-needs-rehash-after-gc t)))
   ;; cache: charset name -> list of intervals #(start1 end1 ... startm endm)
   #| ; Now in C and much more efficient.
   (defun charset-range (encoding start end)
