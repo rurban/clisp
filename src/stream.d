@@ -9284,7 +9284,7 @@ local object make_key_event(event)
      #ifdef WIN32_NATIVE
      # Console-Handle bilden:
      # Maybe use CREATE_ALWAYS ?? Maybe use AllocConsole() ??
-     { var Handle handle = CreateFile("CONIN$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+     { var Handle handle = CreateFile(WLITERAL("CONIN$"), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
        if (handle==INVALID_HANDLE_VALUE) { OS_error(); }
        end_system_call();
        pushSTACK(allocate_handle(handle));
@@ -13827,9 +13827,9 @@ LISPFUNN(make_printer_stream,0)
 
   #define UnbufferedPipeStream_input_init(stream)  UnbufferedHandleStream_input_init(stream)
 
-local inline void create_input_pipe (const char* command);
+local inline void create_input_pipe (const wchar* command);
 local inline void create_input_pipe(command)
-  var const char* command;
+  var const wchar* command;
   { var int child;
     #ifdef EMUNIX
     var int handles[2];
@@ -13955,7 +13955,7 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
     # Check and canonicalize the :EXTERNAL-FORMAT argument:
     STACK_1 = test_external_format_arg(STACK_1);
     # Now create the pipe.
-    with_string_0(STACK_3,O(misc_encoding),command_asciz,
+    with_string_w0(STACK_3,O(misc_encoding),command_asciz,
       { create_input_pipe(command_asciz); }
       );
     # Stream allozieren:
@@ -14055,9 +14055,9 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
       UnbufferedStreamLow_clear_output(stream) = &low_clear_output_unbuffered_pipe;   \
     }
 
-local inline void create_output_pipe (const char* command);
+local inline void create_output_pipe (const wchar* command);
 local inline void create_output_pipe(command)
-  var const char* command;
+  var const wchar* command;
   { var int child;
     #ifdef EMUNIX
     var int handles[2];
@@ -14182,7 +14182,7 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
     # Check and canonicalize the :EXTERNAL-FORMAT argument:
     STACK_1 = test_external_format_arg(STACK_1);
     # Now create the pipe.
-    with_string_0(STACK_3,O(misc_encoding),command_asciz,
+    with_string_w0(STACK_3,O(misc_encoding),command_asciz,
       { create_output_pipe(command_asciz); }
       );
     # Stream allozieren:
@@ -14206,9 +14206,9 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
 # Bidirektionale Pipes
 # ====================
 
-local inline void create_io_pipe (const char* command);
+local inline void create_io_pipe (const wchar* command);
 local inline void create_io_pipe(command)
-  var const char* command;
+  var const wchar* command;
   { var int child;
     #ifdef EMUNIX
     var int in_handles[2];
@@ -14371,7 +14371,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
     # Check and canonicalize the :EXTERNAL-FORMAT argument:
     STACK_1 = test_external_format_arg(STACK_1);
     # Now create the pipe.
-    with_string_0(STACK_3,O(misc_encoding),command_asciz,
+    with_string_w0(STACK_3,O(misc_encoding),command_asciz,
       { create_io_pipe(command_asciz); }
       );
     # Input-Stream allozieren:

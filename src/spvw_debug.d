@@ -6,6 +6,9 @@
 # asciz_out(string);
 # > char* asciz: ASCIZ-String
   global void asciz_out (const char * asciz);
+  #if defined(WIN32_NATIVE) && defined(UNICODE)
+  global void wasciz_out (const wchar * asciz);
+  #endif
 
 # Output an uintL in decimal notation, directly by the operating system.
 # dez_out(zahl);
@@ -84,6 +87,21 @@
         FREE_DYNAMIC_ARRAY(buffer);
       #endif
     }
+  #if defined(WIN32_NATIVE) && defined(UNICODE)
+  global void wasciz_out(asciz)
+    var const wchar * asciz;
+    { var uintL bufsize = wasciz_length(asciz);
+      var DYNAMIC_ARRAY(buffer,uintB,bufsize+1);
+      { var const wchar* ptr1 = asciz;
+        var uintB* ptr2 = buffer;
+        while (*ptr1 != (wchar)'\0') {
+          *ptr2++ = (uintB)*ptr1++; # Assume ISOLATIN1_CHS
+        }
+        *ptr2 = '\0';
+      }
+      asciz_out((char*)buffer);
+    }
+  #endif
 
   global void dez_out_(zahl)
     var uintL zahl;

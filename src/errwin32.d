@@ -1,14 +1,15 @@
-  # Returns information about a Win32 error code.
-  # get_OS_error_info(errcode,&errinfo);
+  # Calls a function, passing it information about a Win32 error code.
+  # get_OS_error_info(errcode,func);
   # > errcode: error code
-  # < errinfo: name and msg, if available
-    typedef struct { const char * name; const char * msg; } OS_error_info;
-    local void get_OS_error_info (DWORD errcode, OS_error_info * errinfo);
-    local void get_OS_error_info(errcode,errinfo)
+  # > func: will be called with name and msg (if available) as arguments
+    typedef void OS_error_info_callback (const char* name, const char* msg, const wchar* wmsg);
+    local void get_OS_error_info (DWORD errcode, OS_error_info_callback* func);
+    local void get_OS_error_info(errcode,func)
       var DWORD errcode;
-      var OS_error_info * errinfo;
+      var OS_error_info_callback* func;
       { var const char* errorname = NULL;
         var const char* errormsg = NULL;
+        var const wchar* errorwmsg = NULL;
         switch (errcode)
           {
             #ifdef ERROR_SUCCESS
@@ -3840,16 +3841,15 @@
               break;
             #endif
             default:
-              { var char* buf = (char*)alloca(1000);
+              { var wchar* buf = (wchar*)alloca(1000*sizeof(wchar));
                 begin_system_call();
                 if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, errcode, 0, buf, 1000, NULL))
-                  errormsg = buf;
+                  errorwmsg = buf;
                 end_system_call();
               }
               break;
           }
-        errinfo->name = errorname;
-        errinfo->msg = errormsg;
+        func(errorname,errormsg,errorwmsg);
       }
 
   # Behandlung von Win32-Fehlern
@@ -3858,6 +3858,22 @@
     nonreturning_function(global, OS_error, (void));
     nonreturning_function(global, OS_file_error, (object pathname));
     local void OS_error_internal (DWORD errcode);
+    local void OS_error_internal_body (const char* name, const char* msg, const wchar* wmsg);
+    local void OS_error_internal_body(name,msg,wmsg)
+      var const char* name;
+      var const char* msg;
+      var const wchar* wmsg;
+      { if (!(name == NULL)) # bekannter Name?
+          { write_errorasciz(" (");
+            write_errorasciz(errinfo.name);
+            write_errorasciz(")");
+          }
+        if (!(msg == NULL) || !(wmsg == NULL)) # Meldung vorhanden?
+          { write_errorasciz(": ");
+            if (wmsg) write_errorwasciz(wmsg);
+            elif (msg) write_errorasciz(msg);
+          }
+      }
     local void OS_error_internal(errcode)
       var DWORD errcode;
       { # Meldungbeginn ausgeben:
@@ -3865,18 +3881,8 @@
         # Fehlernummer ausgeben:
         write_errorobject(UL_to_I(errcode));
         # nach Möglichkeit noch ausführlicher:
-       {var OS_error_info errinfo;
-        get_OS_error_info(errcode,&errinfo);
-        if (!(errinfo.name == NULL)) # bekannter Name?
-          { write_errorstring(" (");
-            write_errorstring(errinfo.name);
-            write_errorstring(")");
-          }
-        if (!(errinfo.msg == NULL)) # Meldung vorhanden?
-          { write_errorstring(": ");
-            write_errorstring(errinfo.msg);
-          }
-      }}
+        get_OS_error_info(errcode,&OS_error_internal_body);
+      }
     global void OS_error()
       { var DWORD errcode;
         end_system_call(); # just in case
@@ -4117,13 +4123,13 @@
               break;
           }
         if (!(errorname == NULL)) # bekannter Name?
-          { write_errorstring(" (");
-            write_errorstring(errorname);
-            write_errorstring(")");
+          { write_errorasciz(" (");
+            write_errorasciz(errorname);
+            write_errorasciz(")");
           }
         if (!(errormsg == NULL)) # Meldung vorhanden?
-          { write_errorstring(": ");
-            write_errorstring(errormsg);
+          { write_errorasciz(": ");
+            write_errorasciz(errormsg);
           }
         end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
       }}
@@ -4132,17 +4138,25 @@
   # errno_out(errorcode);
   # > DWORD errorcode: Fehlercode
     global void errno_out (DWORD errorcode);
+    local void errno_out_body (const char* name, const char* msg, const wchar* wmsg);
+    local void errno_out_body(name,msg,wmsg)
+      var const char* name;
+      var const char* msg;
+      var const wchar* wmsg;
+      { if (!(name == NULL))
+          { asciz_out_s(" (%s)",name); }
+        if (!(msg == NULL) || !(wmsg == NULL))
+          { asciz_out(": ");
+            if (wmsg) wasciz_out(wmsg);
+            elif (msg) asciz_out(msg);
+          }
+          else
+          { asciz_out("."); }
+      }
     global void errno_out(errorcode)
       var DWORD errorcode;
       { asciz_out(" GetLastError() = 0x"); hex_out(errorcode);
-       {var OS_error_info errinfo;
-        get_OS_error_info(errorcode,&errinfo);
-        if (!(errinfo.name == NULL))
-          { asciz_out_s(" (%s)",errinfo.name); }
-        if (!(errinfo.msg == NULL))
-          { asciz_out_s(": %s",errinfo.msg); }
-          else
-          { asciz_out("."); }
+        get_OS_error_info(errorcode,&errno_out_body);
         asciz_out(NLstring);
-      }}
+      }
 

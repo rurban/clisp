@@ -181,13 +181,13 @@
               errormsg = translate(error300_msg_table[index*(1+langcount)+1+language]);
             }
           if (!(errorname[0] == 0)) # bekannter Name?
-            { write_errorstring(" (");
-              write_errorstring(errorname);
-              write_errorstring(")");
+            { write_errorasciz(" (");
+              write_errorasciz(errorname);
+              write_errorasciz(")");
             }
           if (!(errormsg[0] == 0)) # nichtleere Meldung?
-            { write_errorstring(": ");
-              write_errorstring(errormsg);
+            { write_errorasciz(": ");
+              write_errorasciz(errormsg);
             }
         }
         SetIoErr(0L); # Fehlercode löschen (fürs nächste Mal)

@@ -643,8 +643,8 @@
         { # Fehlermeldung des Betriebssystems ausgeben:
           if (errcode < sys_nerr)
             { var const char* errormsg = translate(sys_errlist[errcode]);
-              write_errorstring(": ");
-              write_errorstring(errormsg);
+              write_errorasciz(": ");
+              write_errorasciz(errormsg);
         }   }
         #else # nach Möglichkeit noch ausführlicher:
         { # eigene Fehlermeldung ausgeben:
@@ -653,13 +653,13 @@
             { var const char* errorname = errormsg_table[errcode].name;
               var const char* errormsg = translate(errormsg_table[errcode].msg);
               if (!(errorname[0] == 0)) # bekannter Name?
-                { write_errorstring(" (");
-                  write_errorstring(errorname);
-                  write_errorstring(")");
+                { write_errorasciz(" (");
+                  write_errorasciz(errorname);
+                  write_errorasciz(")");
                 }
               if (!(errormsg[0] == 0)) # nichtleere Meldung?
-                { write_errorstring(": ");
-                  write_errorstring(errormsg);
+                { write_errorasciz(": ");
+                  write_errorasciz(errormsg);
                 }
         }   }
         #endif

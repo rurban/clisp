@@ -106,6 +106,45 @@
           write_ascii_char(&STACK_0,'~'); write_ascii_char(&STACK_0,'A');
     }   }
 
+# UP: Gibt einen Errorstring unverändert aus.
+# write_errorasciz(asciz);
+  local void write_errorasciz (const char* asciz);
+  local void write_errorasciz(asciz)
+    var const char* asciz;
+    { 
+      #ifdef UNICODE
+      var object encoding = O(internal_encoding);
+      var const uintB* bptr = (const uintB*)asciz;
+      var const uintB* bendptr = bptr + asciz_length(asciz);
+      var uintL clen = Encoding_mblen(encoding)(encoding,bptr,bendptr);
+      if (clen > 0)
+        { var DYNAMIC_ARRAY(charbuf,chart,clen);
+          { var chart* cptr = &charbuf[0];
+            var chart* cendptr = cptr+clen;
+            Encoding_mbstowcs(encoding)(encoding,nullobj,&bptr,bendptr,&cptr,cendptr);
+            ASSERT(cptr == cendptr);
+          }
+          { var const chart* cptr = &charbuf[0];
+            dotimespL(clen,clen, { write_code_char(&STACK_0,*cptr); cptr++; });
+          }
+          FREE_DYNAMIC_ARRAY(charbuf);
+        }
+      #else
+      var const uintB* bptr = (const uintB*)asciz;
+      while (*bptr != '\0') { write_code_char(&STACK_0,as_chart(*bptr)); bptr++; }
+      #endif
+    }
+#if defined(WIN32_NATIVE) && defined(UNICODE)
+  local void write_errorwasciz (const wchar* asciz);
+  local void write_errorwasciz(asciz)
+    var const wchar* asciz;
+    { while (*asciz != (wchar)'\0')
+        { write_code_char(&STACK_0,as_chart(*asciz)); asciz++; }
+    }
+#else
+  #define write_errorwasciz  write_errorasciz
+#endif
+
 # UP: Gibt einen Errorstring aus. Bei jeder Tilde '~' wird ein Objekt aus dem
 # Stack ausgegeben, bei jedem '$' wird ein Character aus dem Stack ausgegeben.
 # write_errorstring(errorstring)
