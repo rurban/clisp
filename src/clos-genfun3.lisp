@@ -240,10 +240,7 @@
                          (make-fast-gf funname gf-lambdalist (subseq m-lambdalist 0 req-num) <standard-method>))))))
          (method
            (if (listp method-or-initargs)
-             ;; During bootstrap, the only used method-class is <standard-method>.
-             ;; After bootstrap, make-instance-<standard-method> is the same
-             ;; as the general make-instance.
-             (apply #'make-instance-<standard-method> (std-gf-default-method-class gf)
+             (apply #'make-method-instance (std-gf-default-method-class gf)
                     method-or-initargs)
              method-or-initargs)))
     (std-add-method gf method)
@@ -383,10 +380,7 @@
                 method-class-form
                 ;; list of the method-forms
                 (mapcar #'(lambda (method-initargs-forms)
-                            ;; During bootstrap, the only used method-class is <standard-method>.
-                            ;; After bootstrap, make-instance-<standard-method> is the same
-                            ;; as the general make-instance.
-                            `(MAKE-INSTANCE-<STANDARD-METHOD> ,method-class-form
+                            `(MAKE-METHOD-INSTANCE ,method-class-form
                                ,@method-initargs-forms))
                   (nreverse method-forms))
                 ;; docstring or nil
