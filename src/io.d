@@ -5740,12 +5740,15 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     if (nullp(prm)) return Symbol_value(S(prin_linelength));
     else if (posfixnump(prm)) return prm;
     else if (posbignump(prm)) return fixnum(bit(oint_data_len)-1);
-    else { pushSTACK(prm); pushSTACK(S(print_right_margin));
-           fehler(error,
-                  DEUTSCH ? "~: ~" :
-                  ENGLISH ? "~: must be a positive integer or NIL, not ~" :
-                  FRANCAIS ? "~: ~" : "");
-  }}
+    else
+      { pushSTACK(prm); pushSTACK(S(print_right_margin));
+        fehler(error,
+               DEUTSCH ? "~: muss eine positive ganze Zahl oder NIL sein, nicht ~" :
+               ENGLISH ? "~: must be a positive integer or NIL, not ~" :
+               FRANCAIS ? "~ : doit être un entier positif ou NIL, et non ~" :
+               ""
+              );
+  }   }
 
 # UP: Fängt in PPHELP-Stream A5 eine neue Zeile an.
 # pphelp_newline(&stream);
