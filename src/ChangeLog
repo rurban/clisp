@@ -1,10 +1,18 @@
+2004-08-18  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (SSHUP): replaced gnudist and cons with podval
+	(src/autoconf/aclocal.m4): use egrep instead of grep and filter
+	out also _CANONICAL_ and AC_PREREQ; also pass full path to aclocal
+	to create a stand-alone aclocal.m4 instead of the one full of
+	include statements
+
 2004-06-19  Bruno Haible  <bruno@clisp.org>
 
 	* init.lisp: Export compute-applicable-methods.
 	* clos-package.lisp: Likewise.
-	* clos-genfun2.lisp (compute-applicable-methods,
-	compute-applicable-methods-<standard-generic-function>,
-	check-method-only-standard-specializers): New functions.
+	* clos-genfun2.lisp (compute-applicable-methods)
+	(compute-applicable-methods-<standard-generic-function>)
+	(check-method-only-standard-specializers): New functions.
 	(compute-applicable-methods-effective-method): Use
 	compute-applicable-methods.
 	* clos-genfun5.lisp (compute-applicable-methods@standard-generic-function):
