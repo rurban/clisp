@@ -347,9 +347,11 @@
 <!ENTITY foreign-pointer "<link linkend='fptr'><function>FFI:FOREIGN-POINTER</function></link>">
 <!ENTITY foreign-pointer-t "<link linkend='fptr'><classname>FFI:FOREIGN-POINTER</classname></link>">
 <!ENTITY foreign-variable "<link linkend='dffi-variables'><classname>FFI:FOREIGN-VARIABLE</classname></link>">
-<!ENTITY linkset "<link linkend='modules'>linking set</link>">
+<!ENTITY linkset "<link linkend='linkset'>linking set</link>">
+<!ENTITY modset "<link linkend='modset'>module set</link>">
 <!ENTITY mod-dynload "<link linkend='mod-dynload'><function>SYS::DYNLOAD-MODULES</function></link>">
 <!ENTITY modinfo "<link linkend='modinfo'><function>EXT:MODULE-INFO</function></link>">
+<!ENTITY module "<link linkend='modules'>module</link>">
 <!ENTITY offset "<link linkend='offset'><function>FFI:OFFSET</function></link>">
 <!ENTITY param-mode "<link linkend='param-mode'><replaceable>PARAM-MODE</replaceable></link>">
 <!ENTITY parse-c-type "<link linkend='c-type-parse'><function>FFI:PARSE-C-TYPE</function></link>">
