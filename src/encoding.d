@@ -1339,7 +1339,10 @@ LISPFUN(make_encoding,0,0,norest,key,4,
   else if (symbolp(arg) && constantp(TheSymbol(arg))
            && encodingp(Symbol_value(arg))) {
     arg = Symbol_value(arg);
-  } else if (stringp(arg) && find_external_symbol(arg,O(charset_package),&sym)
+  } else if (stringp(arg)
+             && (find_external_symbol(arg,O(charset_package),&sym)
+                 || find_external_symbol(arg=string_upcase(arg),
+                                         O(charset_package),&sym))
              && constantp(TheSymbol(sym)) && encodingp(Symbol_value(sym))) {
     arg = Symbol_value(sym);
   }
