@@ -1867,7 +1867,7 @@ cat <<\!!
 #   1. The module must be located in a subdirectory of clisp's source
 #      directory.
 #      Examples: clisp/src/ wildcard/
-#                clisp/src/ bindings/linuxlibc5/
+#                clisp/src/ bindings/linuxlibc6/
 #
 #   2. If the module contains a file called "configure", it is assumed
 #      to be a GNU autoconf generated configuration file, and is called
