@@ -6295,7 +6295,8 @@ local void pretty_print_call (const object* stream_,object obj,
 # < stream: stream
 # can trigger GC
   # first of all only treatment of *PRINT-PRETTY*:
-local void pr_enter_1 (const object* stream_, object obj, pr_routine_t* pr_xxx) {
+local void pr_enter_1 (const object* stream_, object obj,
+                       pr_routine_t* pr_xxx) {
   # Streamtype (PPHELP-stream or not) must fit to *PRINT-PRETTY* .
   if (test_value(S(print_pretty))) {
     # *PRINT-PRETTY* /= NIL.
@@ -6316,9 +6317,6 @@ local void pr_enter_1 (const object* stream_, object obj, pr_routine_t* pr_xxx) 
         TheStream(STACK_0)->strmflags |= bit(strmflags_reval_bit_B); # adopt READ-EVAL-Bit
       # print object to the new stream:
       pretty_print_call(&STACK_0,STACK_1,pr_xxx);
-      # check out line prefix, if any
-      var object line_prefix = Symbol_value(S(prin_line_prefix));
-      if (!stringp(line_prefix)) line_prefix = NIL;
       { # print content of the new stream to the old stream:
         var object ppstream = popSTACK(); # the new stream
         STACK_0 = nreverse(TheStream(ppstream)->strm_pphelp_strings); # list of output-lines
@@ -6339,7 +6337,9 @@ local void pr_enter_1 (const object* stream_, object obj, pr_routine_t* pr_xxx) 
       }
       do {
         write_ascii_char(stream_,NL); # #\Newline as separating character between the lines
-        if (!nullp(line_prefix)) write_string(stream_,line_prefix);
+        # check out line prefix, if any
+        var object line_prefix = Symbol_value(S(prin_line_prefix));
+        if (stringp(line_prefix)) write_string(stream_,line_prefix);
       skip_first_NL:
         # print non-empty string list STACK_0 to the stream:
         var object list = STACK_0;
@@ -9398,7 +9398,7 @@ LISPFUN(pprint_indent,2,1,norest,nokey,0,NIL)
   } else fehler_not_R(STACK_1);
   # check the relative-to arg
   if (eq(S(Kblock),STACK_2)) {
-    # which value should be used here, *PRIN-L1* or *PRIN-LM*?
+    # FIXME: which value should be used here, *PRIN-L1* or *PRIN-LM*?
     if (posfixnump(Symbol_value(S(prin_lm))))
       offset += posfixnum_to_L(Symbol_value(S(prin_lm)));
   } else if (eq(S(Kcurrent),STACK_2)) {
