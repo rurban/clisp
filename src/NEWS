@@ -234,6 +234,9 @@ User visible changes
   handle references without conversion to/from Lisp structures.
   See <http://clisp.cons.org/impnotes.html#c-pointer> for details.
 
+* The FFI variable *FOREIGN-ENCODING* can now be a multibyte encoding.
+  The warning "*FOREIGN-ENCODING*: reset to ASCII" at startup is gone.
+
 * New FFI constructor functions FOREIGN-VARIABLE and FOREIGN-FUNCTION,
   more operators are now exported (FOREIGN-VALUE, PARSE-C-TYPE).
   See <http://clisp.cons.org/impnotes.html#dffi-make-var>

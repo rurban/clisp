@@ -916,7 +916,7 @@ local object convert_from_foreign_array_fill (object eltype, uintL size,
       var const uintB* ptr1 = (const uintB*)data;
      #ifdef UNICODE
       pushSTACK(array);
-      var object encoding = O(foreign_encoding);
+      var object encoding = O(foreign_8bit_encoding);
       ASSERT(Encoding_mblen(encoding)(encoding,ptr1,ptr1+size) == size);
       var DYNAMIC_ARRAY(tmpbuf,chart,size);
       var chart* ptr2 = &tmpbuf[0];
@@ -1006,7 +1006,7 @@ global maygc object convert_from_foreign (object fvd, const void* data)
       var const uintB* pdata = (const unsigned char *)data;
       var chart ch;
      #ifdef UNICODE
-      var object encoding = O(foreign_encoding);
+      var object encoding = O(foreign_8bit_encoding);
       var chart chbuf[1];
       var const uintB* ptr1 = pdata;
       var chart* ptr2 = &chbuf[0];
@@ -1122,6 +1122,34 @@ global maygc object convert_from_foreign (object fvd, const void* data)
         /* Use the union's first component. */
         return convert_from_foreign(fvdlen > 2 ? (object)TheSvector(fvd)->data[2] : NIL, data);
       } else if (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
+        if (fvdlen == 3 && eq(TheSvector(fvd)->data[1],S(character))) {
+          /* 1-dimensional array of CHARACTER. */
+          var uintL dim1 = I_to_UL(TheSvector(fvd)->data[2]);
+         #ifdef UNICODE
+          var object encoding = O(foreign_encoding);
+          var uintL clen =
+            Encoding_mblen(encoding)(encoding,
+                                     (const uintB*)data,(const uintB*)data+dim1);
+         #else
+          var uintL clen = dim1;
+         #endif
+          check_stringsize(clen);
+          var object string = allocate_string(clen);
+          if (clen > 0) {
+            var chart* cptr = &TheSnstring(string)->data[0];
+            var const uintB* bptr = (const uintB*)data;
+           #ifdef UNICODE
+            var const uintB* bendptr = bptr+dim1;
+            encoding = O(foreign_encoding);
+            var chart* cendptr = cptr+clen;
+            Encoding_mbstowcs(encoding)(encoding,nullobj,&bptr,bendptr,&cptr,cendptr);
+            ASSERT(cptr == cendptr);
+           #else
+            dotimespL(clen,clen, { *cptr++ = as_chart(*bptr++); } );
+           #endif
+          }
+          return string;
+        }
         pushSTACK(fvd);
         /* Allocate the resulting array: (MAKE-ARRAY dims :element-type ...) */
         var object dims = Cdr(Cdr((coerce_sequence(fvd,S(list),true),value1)));
@@ -1178,6 +1206,33 @@ global maygc object convert_from_foreign (object fvd, const void* data)
             ptr = (const void*)((uintP)ptr + eltype_size);
             len++;
           }
+        }
+        if (eq(eltype,S(character))) {
+          /* 1-dimensional array of CHARACTER. */
+         #ifdef UNICODE
+          var object encoding = O(foreign_encoding);
+          var uintL clen =
+            Encoding_mblen(encoding)(encoding,
+                                     (const uintB*)data,(const uintB*)data+len);
+         #else
+          var uintL clen = len;
+         #endif
+          check_stringsize(clen);
+          var object string = allocate_string(clen);
+          if (clen > 0) {
+            var chart* cptr = &TheSnstring(string)->data[0];
+            var const uintB* bptr = (const uintB*)data;
+           #ifdef UNICODE
+            var const uintB* bendptr = bptr+len;
+            encoding = O(foreign_encoding);
+            var chart* cendptr = cptr+clen;
+            Encoding_mbstowcs(encoding)(encoding,nullobj,&bptr,bendptr,&cptr,cendptr);
+            ASSERT(cptr == cendptr);
+           #else
+            dotimespL(clen,clen, { *cptr++ = as_chart(*bptr++); } );
+           #endif
+          }
+          return string;
         }
         pushSTACK(eltype);
         /* Allocate the resulting array: */
@@ -1248,6 +1303,33 @@ global maygc object convert_from_foreign (object fvd, const void* data)
               ptr = (const void*)((uintP)ptr + eltype_size);
               len++;
             }
+          }
+          if (eq(eltype,S(character))) {
+            /* 1-dimensional array of CHARACTER. */
+           #ifdef UNICODE
+            var object encoding = O(foreign_encoding);
+            var uintL clen =
+              Encoding_mblen(encoding)(encoding,
+                                       *(const uintB**)data,*(const uintB**)data+len);
+           #else
+            var uintL clen = len;
+           #endif
+            check_stringsize(clen);
+            var object string = allocate_string(clen);
+            if (clen > 0) {
+              var chart* cptr = &TheSnstring(string)->data[0];
+              var const uintB* bptr = *(const uintB**)data;
+             #ifdef UNICODE
+              var const uintB* bendptr = bptr+len;
+              encoding = O(foreign_encoding);
+              var chart* cendptr = cptr+clen;
+              Encoding_mbstowcs(encoding)(encoding,nullobj,&bptr,bendptr,&cptr,cendptr);
+              ASSERT(cptr == cendptr);
+             #else
+              dotimespL(clen,clen, { *cptr++ = as_chart(*bptr++); } );
+             #endif
+            }
+            return string;
           }
           pushSTACK(eltype);
           /* Allocate Lisp array: */
@@ -1664,14 +1746,38 @@ local void count_walk_pre (object fvd, object obj)
   var uintL size;
   var uintL alignment;
   if (eq(fvd,S(c_string))) {
-    size = (nullp(obj) ? 0 : vector_length(obj)+1);
+    if (nullp(obj))
+      size = 0;
+    else {
+      ASSERT(stringp(obj));
+      var uintL len;
+      var uintL offset;
+      var object string = unpack_string_ro(obj,&len,&offset);
+      var const chart* ptr1;
+      unpack_sstring_alloca(string,len,offset, ptr1=);
+      var uintL bytelen = cslen(O(foreign_encoding),ptr1,len);
+      size = bytelen + 1;
+    }
     alignment = 1;
-  } else { /* fvd = #(c-ptr ...), #(c-ptr-null ...), #(c-array-ptr ...) */
-    foreign_layout(TheSvector(fvd)->data[1]);
+  } else {
+    /* fvd = #(c-ptr ...), #(c-ptr-null ...), #(c-array-ptr ...) */
+    var object eltype = TheSvector(fvd)->data[1];
+    foreign_layout(eltype);
     size = data_size;
     alignment = data_alignment;
-    if (eq(TheSvector(fvd)->data[0],S(c_array_ptr)))
-      size *= vector_length(obj) + 1;
+    if (eq(TheSvector(fvd)->data[0],S(c_array_ptr))) {
+      if (eq(eltype,S(character)) && stringp(obj)) {
+        var uintL clen;
+        var uintL offset;
+        var object string = unpack_string_ro(obj,&clen,&offset);
+        var const chart* ptr1;
+        unpack_sstring_alloca(string,clen,offset, ptr1=);
+        var uintL blen = cslen(O(foreign_encoding),ptr1,clen);
+        size = blen + 1;
+      } else {
+        size *= vector_length(obj) + 1;
+      }
+    }
   }
   walk_counter = ((walk_counter + alignment-1) & -alignment) + size;
   /* walk_alignment = lcm(walk_alignment,alignment); */
@@ -1721,6 +1827,7 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
       var const chart* ptr1;
       unpack_sstring_alloca(string,len,offset, ptr1=);
       var uintL bytelen = cslen(O(foreign_encoding),ptr1,len);
+      /* bytelen is the same as computed earlier in count_walk_pre. */
       var char* asciz = (char*)converter_malloc(*(char**)data,bytelen+1,1);
       cstombs(O(foreign_encoding),ptr1,len,(uintB*)asciz,bytelen);
       asciz[bytelen] = '\0';
@@ -1828,8 +1935,8 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
       if (!charp(obj)) goto bad_obj;
       var chart ch = char_code(obj);
      #ifdef UNICODE
-      ASSERT(cslen(O(foreign_encoding),&ch,1) == 1);
-      cstombs(O(foreign_encoding),&ch,1,pdata,1);
+      ASSERT(cslen(O(foreign_8bit_encoding),&ch,1) == 1);
+      cstombs(O(foreign_8bit_encoding),&ch,1,pdata,1);
      #else
       *pdata = as_cint(ch);
      #endif
@@ -1899,6 +2006,21 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
         return;
       } else if (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
         var object eltype = TheSvector(fvd)->data[1];
+        if (fvdlen == 3 && eq(eltype,S(character))) {
+          /* 1-dimensional array of CHARACTER. */
+          if (!stringp(obj))
+            goto bad_obj;
+          var uintL clen;
+          var uintL offset;
+          var object string = unpack_string_ro(obj,&clen,&offset);
+          var const chart* ptr1;
+          unpack_sstring_alloca(string,clen,offset, ptr1=);
+          var uintL blen = cslen(O(foreign_encoding),ptr1,clen);
+          if (blen != I_to_UL(TheSvector(fvd)->data[2]))
+            goto bad_obj;
+          cstombs(O(foreign_encoding),ptr1,clen,(uintB*)data,blen);
+          return;
+        }
         var uintL eltype_size = (foreign_layout(eltype), data_size);
         var uintL size = 1;
         {
@@ -1918,8 +2040,8 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
           var object string = unpack_string_ro(obj,&len,&offset);
           var const chart* ptr1;
           unpack_sstring_alloca(string,len,offset, ptr1=);
-          ASSERT(cslen(O(foreign_encoding),ptr1,len) == len);
-          cstombs(O(foreign_encoding),ptr1,len,(uintB*)data,len);
+          ASSERT(cslen(O(foreign_8bit_encoding),ptr1,len) == len);
+          cstombs(O(foreign_8bit_encoding),ptr1,len,(uintB*)data,len);
         } else if (eq(eltype,S(uint8)) && bit_vector_p(Atype_8Bit,obj)) {
           if (size > 0) {
             var uintL offset = 0;
@@ -1967,24 +2089,38 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
         return;
       } else if (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
         var object eltype = TheSvector(fvd)->data[1];
-        var uintL eltype_size = (foreign_layout(eltype), data_size);
         var uintL maxdim = I_to_UL(TheSvector(fvd)->data[2]);
+        if (eq(eltype,S(character))) {
+          /* 1-dimensional array of CHARACTER. */
+          if (!stringp(obj))
+            goto bad_obj;
+          var uintL clen;
+          var uintL offset;
+          var object string = unpack_string_ro(obj,&clen,&offset);
+          var const chart* ptr1;
+          unpack_sstring_alloca(string,clen,offset, ptr1=);
+          var uintL blen = cslen(O(foreign_encoding),ptr1,clen);
+          if (blen > maxdim)
+            blen = maxdim;
+          var uintB* ptr2 = (uintB*)data;
+         #ifdef UNICODE
+          var object encoding = O(foreign_encoding);
+          Encoding_wcstombs(encoding)(encoding,nullobj,&ptr1,ptr1+clen,&ptr2,ptr2+blen);
+         #else
+          begin_system_call(); memcpy(ptr2,ptr1,blen); end_system_call();
+          ptr2 += blen;
+         #endif
+          if (ptr2 < (uintB*)data+maxdim)
+            *ptr2 = '\0';
+          return;
+        }
+        var uintL eltype_size = (foreign_layout(eltype), data_size);
         if (!vectorp(obj))
           goto bad_obj;
         var uintL len = vector_length(obj);
         if (len > maxdim)
           len = maxdim;
-        if (eq(eltype,S(character)) && stringp(obj)) {
-          var uintL dummy_len;
-          var uintL offset;
-          var object string = unpack_string_ro(obj,&dummy_len,&offset);
-          var const chart* ptr1;
-          unpack_sstring_alloca(string,len,offset, ptr1=);
-          ASSERT(cslen(O(foreign_encoding),ptr1,len) == len);
-          cstombs(O(foreign_encoding),ptr1,len,(uintB*)data,len);
-          if (len < maxdim)
-            ((uintB*)data)[len] = '\0';
-        } else if (eq(eltype,S(uint8)) && bit_vector_p(Atype_8Bit,obj)) {
+        if (eq(eltype,S(uint8)) && bit_vector_p(Atype_8Bit,obj)) {
           var uint8* ptr2 = (uint8*)data;
           if (len > 0) {
             var uintL offset = 0;
@@ -2079,15 +2215,31 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
           *(void**)data = NULL;
           return;
         }
+        var object eltype = TheSvector(fvd)->data[1];
+        if (eq(eltype,S(character))) {
+          /* 1-dimensional array of CHARACTER. */
+          if (!stringp(obj))
+            goto bad_obj;
+          var uintL clen;
+          var uintL offset;
+          var object string = unpack_string_ro(obj,&clen,&offset);
+          var const chart* ptr1;
+          unpack_sstring_alloca(string,clen,offset, ptr1=);
+          var uintL blen = cslen(O(foreign_encoding),ptr1,clen);
+          var void* p = converter_malloc(*(void**)data,blen+1,1);
+          *(void**)data = p;
+          cstombs(O(foreign_encoding),ptr1,clen,(uintB*)p,blen);
+          ((uintB*)p)[blen] = '\0';
+          return;
+        }
         if (!vectorp(obj)) goto bad_obj;
         var uintL len = vector_length(obj);
-        fvd = TheSvector(fvd)->data[1];
-        foreign_layout(fvd);
+        foreign_layout(eltype);
         var uintL eltype_size = data_size;
         var void* p = converter_malloc(*(void**)data,(len+1)*eltype_size,
                                        data_alignment);
         *(void**)data = p;
-        pushSTACK(fvd);
+        pushSTACK(eltype);
         pushSTACK(obj);
         {
           var uintL i;
