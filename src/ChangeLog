@@ -7,6 +7,7 @@
 
 	* realelem.d (F_R_float_F, RA_R_float_F): use Lfloat_length(y)
 	instead of O(LF_digits), when y is actually a long float
+	* realtran.d (R_cosh_sinh_R_R): handle start_p/end_p for x=0 too
 	* comptran.d (N_N_log_N): fixed a typo in the last patch
 	(N_cis_N): (sin a) may be 0
 	(N_exp_N): handle contagion properly
