@@ -282,7 +282,8 @@
 
 (defmacro default-foreign-language (lang)
   (language-to-flag lang)       ; error checking
-  `(eval-when (load compile eval) (setq *foreign-language* ',lang)))
+  `(eval-when (load compile eval)
+     (without-package-lock ("FFI") (setq *foreign-language* ',lang))))
 
 ;; get the even (start=0) or odd (start=1) elements of the simple vector
 (defun split-c-fun-arglist (args start)
