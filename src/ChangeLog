@@ -1,6 +1,7 @@
 2005-01-04  Sam Steingold  <sds@gnu.org>
 
 	* foreign1.lisp: import SYS:SYMBOL-KEYWORD
+	* defstruct.lisp (*defstruct-description-type-location*): fixed value
 
 2005-01-04  Sam Steingold  <sds@gnu.org>
 

@@ -66,7 +66,7 @@
    ALLOCATE-INSTANCE, without need for corresponding effective-slot-definition.
 |#
 
-(defconstant *defstruct-description-type-location* 1)
+(defconstant *defstruct-description-type-location* 0)
 (defconstant *defstruct-description-size-location* 1)
 (defconstant *defstruct-description-kconstructor-location* 2)
 (defconstant *defstruct-description-slots-location* 3)
