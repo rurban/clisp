@@ -47,6 +47,7 @@ options: The following options are recognized:
          --hyperspec=URL       the path to the Common Lisp HyperSpec
            (the default is http://www.lisp.org/HyperSpec/
             or the value of the environment variable CLHSROOT, if set).
+         --with-debug          pass "debug" to makemake (CFLAGS+=g &c)
 Example:
          configure --build built-with-gcc
          su bin
@@ -79,6 +80,7 @@ argcount=0
 prev=''
 passnext=''
 passnextm=''
+debug=''
 for arg # in "$@"
 do
   # If the previous option needs an argument, assign it.
@@ -169,6 +171,9 @@ do
 
       --with-dir-key)
         makemake_args="$makemake_args $arg" ;;
+
+      --with-debug)
+        debug="debug" ;;
 
       --with-* | --without-*)
         subdir_configure_args="$subdir_configure_args $arg"
@@ -507,6 +512,10 @@ if test -d $ABS_DIRNAME/avcall -a -d $ABS_DIRNAME/callback; then
   (cd $ABS_DIRNAME/avcall && make check) &&
   (cd $ABS_DIRNAME/callback && make check) &&
   makemake_args="$makemake_args --with-dynamic-ffi"
+fi
+
+if test -n "$debug"; then
+  makemake_args="$makemake_args $debug";
 fi
 
 if test -z "$do_build"; then
