@@ -1,3 +1,9 @@
+2005-02-22  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (config.status): remove config.cache
+	* configure: do not remove config.cache (this undoes the
+	2002-07-21 change)
+
 2005-02-22  Bruno Haible  <bruno@clisp.org>
 
 	* m4/mprotect.m4 (CL_MPROTECT): Actually invoke GL_NOCRASH.
