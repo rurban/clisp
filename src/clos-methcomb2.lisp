@@ -977,7 +977,6 @@ Long-form options are a list of method-group specifiers,
                         `(:DECLARATIONS '((DECLARE ,@declarations))))
                     ,@(when arguments-lambda-list
                         `(:ARGUMENTS-LAMBDA-LIST ',arguments-lambda-list))
-                    :IDENTITY-WITH-ONE-ARGUMENT T ; really??
                     :CHECK-OPTIONS
                       #'(LAMBDA (,gf-name-variable ,combination-variable
                                  ,options-variable)
