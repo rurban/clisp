@@ -31,7 +31,7 @@
 # include <string.h>
 
 /* Declare malloc(). */
-#ifdef STDC_HEADERS
+#if defined(STDC_HEADERS)
 # include <stdlib.h>
 #endif
 /* Declare exec() */
@@ -45,39 +45,13 @@
 /* Declare stderr. */
 # include <stdio.h>
 
-#ifdef WIN32_NATIVE
+#if defined(WIN32_NATIVE)
 # undef UNICODE
 # include <windows.h>
-/* shell_quote -- see pathname.d
- surrounds dangerous strings with double quotes. quotes quotes.
- dest should be twice as large as source
-  + 2 (for quotes) + 1 for zero byte + 1 for poss endslash */
-int shell_quote (char * dest, const char * source) {
-  const char * characters = " &<>|^\t";
-  /* Chars other than command separators are actual only when command
-     interpreter is used */
-  BOOL ech, quote = !(*source); /* quote empty arguments */
-  int escaped = 0;
-  char * dcp = dest;
-  *dcp++ = ' ';
-  while (*source) {
-    quote = quote || strchr(characters,*source);
-    ech = *source == '\\';
-    if (!escaped && *source == '"') *dcp++ = '\\';
-    *dcp++ = *source++;
-    escaped = !escaped && ech;
-  }
-  if (quote) {
-    if (escaped) *dcp++ = '\\'; /* double ending slash */
-    *dcp++ = '"'; *dest = '"'; }
-  *dcp = 0;
-  /* shift string left if no quote was inserted */
-  if (!quote) for (dcp = dest;;dcp++) if (!(*dcp = dcp[1])) break;
-  return dcp - dest;
-}
+# include "w32shell.c"
 #endif
 
-#ifndef HAVE_PERROR_DECL
+#if !defined(HAVE_PERROR_DECL)
 /* Both <errno.h> and <stdio.h> failed to declare perror(). Declare it now. */
 # if defined(__cplusplus)
 extern "C" void perror (const char *);
@@ -86,7 +60,7 @@ extern void perror (const char *);
 # endif
 #endif
 
-#ifdef UNIX_BINARY_DISTRIB
+#if defined(UNIX_BINARY_DISTRIB)
 
 char room_for_lisplibdir[10240] = "%MAGIC%LISPLIBDIR=" LISPLIBDIR;
 # undef LISPLIBDIR
@@ -103,11 +77,7 @@ int main (int argc, char* argv[])
   char* lisplibdir = LISPLIBDIR;
   char* localedir = LOCALEDIR;
   char* argv_lisplibdir = NULL;
-#ifdef WIN32_NATIVE
-  char* argv_linkingset = NULL;
-#else
   char* argv_linkingset = "base";
-#endif
   char* argv_memfile = NULL;
   char* argv_localedir = NULL;
   char* program_name;
@@ -326,13 +296,15 @@ int main (int argc, char* argv[])
       *new_argptr = NULL;
     }
     /* Launch the executable. */
-#ifdef WIN32_NATIVE
+#if defined(WIN32_NATIVE)
     {
       PROCESS_INFORMATION pinfo;
       char * command_line = NULL;
       int cmd_len = 0, cmd_pos = 0;
       DWORD exitcode = 0;
       STARTUPINFO sinfo;
+      char resolved[MAX_PATH];
+      BOOL com_initialized = (CoInitialize(NULL) == S_OK);
       sinfo.cb = sizeof(STARTUPINFO);
       sinfo.lpReserved = NULL;
       sinfo.lpDesktop = NULL;
@@ -356,7 +328,9 @@ int main (int argc, char* argv[])
         cmd_pos += shell_quote(command_line+cmd_pos,*argv);
         if (cmd_pos > cmd_len) abort();
       }
-      if (!CreateProcess(NULL, command_line, NULL, NULL, 1, 0,
+      if (!CreateProcess((real_path(executable,resolved)
+                          ? resolved : executable),
+                         command_line, NULL, NULL, 1, 0,
                          NULL, NULL, &sinfo, &pinfo))
         goto w32err;
       /* there is no reason to wait for CLISP to terminate, except that
@@ -365,10 +339,11 @@ int main (int argc, char* argv[])
         goto w32err;
       if (!GetExitCodeProcess(pinfo.hProcess,&exitcode)) goto w32err;
       if (!CloseHandle(pinfo.hProcess)) goto w32err;
+      if (com_initialized) CoUninitialize();
       return exitcode;
      w32err:
-      fprintf(stderr,"%s [%s]: %s\n",program_name,command_line,
-              strerror(GetLastError()));
+      fprintf(stderr,"%s:\n * %s\n * %s\n * [%s]\n = %s\n",program_name,
+              executable,resolved,command_line,strerror(GetLastError()));
       return 1;
     }
 #else

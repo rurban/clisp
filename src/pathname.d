@@ -7,7 +7,9 @@
  */
 
 #include "lispbibl.c"
-
+#ifdef WIN32_NATIVE
+#include "w32shell.c"
+#endif
 #ifdef HAVE_DISASSEMBLER
   #include <string.h> /* declares strlen() */
   #ifdef RETSTRLENTYPE /* unless strlen() is a macro */
@@ -6278,251 +6280,6 @@ bool FullName (LPCSTR shortname, LPSTR fullname) {
   return true;
 }
 
-
-/* UP: extracts a filename field from windows shortcut
- > filename: name the shortcut file
- < resolved: buffer not less than MAX_PATH
- < result:   true if link was successfully resolved */
-bool resolve_shell_shortcut (LPCSTR filename, LPSTR resolved) {
-  var DWORD fileattr;
-  var HRESULT hres;
-  var IShellLink* psl;
-  var WIN32_FIND_DATA wfd;
-  var bool result = false;
-  var IPersistFile* ppf;
-
-  fileattr = GetFileAttributes(filename);
-  if (fileattr == 0xFFFFFFFF) return false;
-  /* Get a pointer to the IShellLink interface. */
-  hres = CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
-                          &IID_IShellLink, (LPVOID *) &psl);
-  if (FAILED(hres)) return false;
-  /* Get a pointer to the IPersistFile interface. */
-  hres = psl->lpVtbl->QueryInterface(psl, &IID_IPersistFile,(LPVOID *) &ppf);
-  if (SUCCEEDED(hres)) {
-    var WCHAR wsz[MAX_PATH];
-    /* Ensure that the string is Unicode. */
-    MultiByteToWideChar(CP_ACP, 0, filename, -1, wsz,MAX_PATH);
-    /* Load the shortcut. */
-    hres = ppf->lpVtbl->Load(ppf, wsz, STGM_READ);
-    if (SUCCEEDED(hres)) {
-      /* Get the path to the link target. */
-      hres = psl->lpVtbl->GetPath(psl, resolved, MAX_PATH,
-                                  (WIN32_FIND_DATA *)&wfd,
-                                  4 /* SLGP_RAWPATH */);
-      if (SUCCEEDED(hres)) result = true;
-      if (!*resolved) {
-        /* empty string. maybe broken link. try to get description
-           as cygwin stores filenames there */
-        hres = psl->lpVtbl->GetDescription(psl, resolved, MAX_PATH);
-        if (FAILED(hres)) *resolved = 0;
-      }
-    }
-    /* Release the pointer to the IPersistFile interface. */
-    ppf->lpVtbl->Release(ppf);
-  }
-  /* Release the pointer to the IShellLink interface. */
-  psl->lpVtbl->Release(psl);
-  return result;
-}
-
-typedef enum {
-  shell_shortcut_notresolved = 0,
-  shell_shortcut_notexists,
-  shell_shortcut_file,
-  shell_shortcut_directory
-} shell_shortcut_target_t;
-
-/* UP: resolves shortcuts to shortcuts
- > filename : name of link file to resolve
- < resolved : buffer to receive resolved name
- < result : status of resolving and target file attributes */
-shell_shortcut_target_t
-resolve_shell_shortcut_more (LPCSTR filename, LPSTR resolved)
-{
-  var char pathname[_MAX_PATH];
-  var int dirp = 0;
-  var int exists = 0;
-  var int try_counter = 33;
-  var int l,
-
-  resolvedp = resolve_shell_shortcut(filename,pathname);
-  /* handle links to links. cygwin can do such */
-  while (resolvedp
-         && try_counter--
-         && (l=strlen(pathname))>4
-         && stricmp(pathname+l-4,".lnk") == 0
-         && (resolvedp = resolve_shell_shortcut(pathname,pathname)));
-  if (resolvedp) { /* additional checks */
-    DWORD fileattr = GetFileAttributes(pathname);
-    exists = fileattr != 0xFFFFFFFF;
-    dirp = exists && fileattr&FILE_ATTRIBUTE_DIRECTORY;
-    if (resolved) {
-      strcpy(resolved,pathname);
-      if (dirp) strcat(resolved,"\\");
-    }
-    if (dirp) return shell_shortcut_directory;
-    if (exists && !dirp) return shell_shortcut_file;
-    return shell_shortcut_notexists;
-  } else return shell_shortcut_notresolved;
-}
-
-/* UP: ultimate shortcut megaresolver
-   style inspired by directory_search_scandir
- > namein: filename pointing to file or directory
-            wildcards (only asterisk) may appear only as filename
- < nameout: filename with directory and file shortcuts resolved
-             on failure holds filename resolved so far
- < result:  true if resolving succeeded */
-global bool TrueName (LPCSTR namein, LPSTR nameout) {
-  var WIN32_FIND_DATA wfd;
-  var HANDLE h = NULL;
-  var char * nametocheck;
-  var char * nametocheck_end;
-  /* drive|dir1|dir2|name
-           ^nametocheck
-               ^nametocheck_end */
-  var char saved_char;
-  var bool next_name = 0;/* if we found an lnk and need to start over */
-  var int try_counter = 33;
-  strcpy(nameout,namein);
-  do { /* whole file names */
-    next_name = false;
-    if (!*nameout) return false;
-    /* skip drive or host or first slash */
-    nametocheck = nameout;
-    if ((*nametocheck >= 'a' && *nametocheck <= 'z'
-         || *nametocheck >= 'A' && *nametocheck <= 'Z')
-        && nametocheck[1] == ':' && cpslashp(nametocheck[2]))
-      /* drive */
-      nametocheck += 3;
-    else if (cpslashp(*nametocheck)) {
-      int i;
-      /* host */
-      nametocheck+=2;
-      for (i=0;i<2;i++) {/* skip host and sharename */
-        while (*nametocheck && !cpslashp(*nametocheck))
-          nametocheck++;
-        if (*nametocheck) nametocheck++; else return false;
-      }
-    } else if (cpslashp(*nametocheck)) nametocheck++;
-    /* prefix skipped; start checking */
-    do {/* each component after just skipped */
-      var int dots_only = 0;
-      var int have_stars = 0;
-      /* separate a component */
-      for (nametocheck_end = nametocheck;
-           *nametocheck_end && !cpslashp(*nametocheck_end);
-           nametocheck_end++);
-      if (*nametocheck_end && nametocheck_end == nametocheck)
-        return false;/* two slashes one after another */
-      /* save slash or zero */
-      saved_char = *nametocheck_end;
-      *nametocheck_end = 0;
-      /* Is it . or .. ? FF handles this strange way */
-      { char * cp = nametocheck;
-        for (;*cp=='.';cp++);
-        dots_only = !(*cp) && cp > nametocheck; }
-      /* Stars in the middle of filename: error
-         Stars as pathname: success */
-      { char * cp = nametocheck;
-        for (;*cp && *cp!='*';cp++);
-        have_stars = *cp == '*'; }
-      if (have_stars && saved_char) return false;
-      if (!have_stars) {
-        if (dots_only || !*nametocheck) {
-          /* treat 'start/./end' and 'drive|host|slash/' specially */
-          /* search for ....\.\* */
-          char saved[2];
-          if (nametocheck_end - nameout + 2 > MAX_PATH) return false;
-          strncpy(saved,nametocheck_end+1,2);
-          strncpy(nametocheck_end,"\\*",3);
-          h = FindFirstFile(nameout,&wfd);
-          strncpy(nametocheck_end+1,saved,2);
-          *nametocheck_end = 0;
-          if (h != INVALID_HANDLE_VALUE) {
-            FindClose(h); /* don't substitute */
-          } else return false; /* don't try lnk */
-        } else {/* not only dots */
-          h = FindFirstFile(nameout,&wfd);
-          if (h != INVALID_HANDLE_VALUE) {
-            /* make space for full (non 8.3) name component */
-            int l = strlen(wfd.cFileName);
-            FindClose(h);
-            if (l != (nametocheck_end - nametocheck)) {
-              int restlen =
-                saved_char?(strlen(nametocheck_end+1)
-                            +1/*saved_char*/+1/*zero byte*/)
-                :0;
-              if (nametocheck - nameout + restlen + l + 2 > MAX_PATH)
-                return false;
-              if (restlen) memmove(nametocheck+l,nametocheck_end,restlen);
-            }
-            strncpy(nametocheck,wfd.cFileName,l);
-            nametocheck_end = nametocheck + l;
-          } else {/* try shortcut */
-            char saved[4];
-            char resolved[MAX_PATH];
-            shell_shortcut_target_t rresult;
-            int l = 0;
-            if (nametocheck_end - nameout + 4 > MAX_PATH) return false;
-            strncpy(saved,nametocheck_end+1,4);
-            strncpy(nametocheck_end,".lnk",5);
-            rresult = resolve_shell_shortcut_more(nameout,resolved);
-            strncpy(nametocheck_end+1,saved,4);
-            *nametocheck_end = 0;
-            /* use saved_char as directory indicator */
-            if (rresult == shell_shortcut_notresolved
-                || rresult == shell_shortcut_notexists
-                || !saved_char && rresult == shell_shortcut_directory
-                || saved_char && rresult == shell_shortcut_file)
-              return false;
-            if (saved_char) {
-              /*need to subst nameout..nametocheck-1 with resolved path */
-              int l1 = strlen(resolved);
-              int l2 = strlen(nametocheck_end + 1);
-              if (l1 + l2 + 2 > MAX_PATH) return false;
-              strncat(resolved,nametocheck_end + 1,l2+1);
-            }
-            strcpy(nameout,resolved);
-            next_name = true;
-          }
-        }
-      }
-      if (!next_name) {
-        *nametocheck_end = saved_char;
-        nametocheck = nametocheck_end;
-        if (*nametocheck) nametocheck++;
-      }
-    } while (!next_name && *nametocheck);
-    if (!(--try_counter)) return false;
-  } while (next_name);
-  return true;
-}
-
-/* UP: see if a file is normal file or it is a "shell symlink"
- If directory+filename exists do nothing return false
- If it doesn't but direstory+filename+".lnk" exists then
- try to read it. On reading success return true with lnk
- filename value as resolved. See resolve_shell_shortcut also.
- > filename: resolving file name
- < resolved: buffer for resolved path and filename.
- < result: shell_shortcut_notresolved if file exists or link is invalid.
-           otherwise - shortcut target status */
-shell_shortcut_target_t resolve_shell_symlink (LPCSTR filename, LPSTR resolved)
-{
-  var char pathname[_MAX_PATH];
-  var DWORD fileattr;
-
-  strcpy(pathname,filename);
-  fileattr = GetFileAttributes(pathname);
-  if (fileattr != 0xFFFFFFFF) return shell_shortcut_notresolved;
-  strcat(pathname,".lnk");
-  fileattr = GetFileAttributes(pathname);
-  if (fileattr == 0xFFFFFFFF) return shell_shortcut_notresolved;
-  return resolve_shell_shortcut_more(pathname,resolved);
-}
-
 #endif
 
 /* UP: guarantees that the Directory of the Pathname exists
@@ -6598,7 +6355,7 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
           substitute = true;
       }
     } else {
-      if (TrueName(path,resolved))
+      if (real_path(path,resolved))
         substitute = true;
       else { # A file doesn't exist. Maybe dir does ?
         error = true; # let's be pessimistic
@@ -6607,7 +6364,7 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
           while (lastslashpos > 0 && path[lastslashpos]!=slash) lastslashpos--;
           if (path[lastslashpos]==slash) {
             path[lastslashpos + 1] = '\0'; /* leave only path without name */
-            if (TrueName(path,resolved)) {
+            if (real_path(path,resolved)) {
               # substitute only directory part
               var DWORD fileattr = GetFileAttributes(resolved);
               # resolved to a file ? Only directories allowed - nonmaskable error
@@ -9010,7 +8767,7 @@ local void directory_search_1subdir (object subdir, object namestring) {
 local void directory_search_1subdir (object subdir, object namestring) {
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
     char resolved[MAX_PATH];
-    if (TrueName(namestring_asciz,resolved)) {
+    if (real_path(namestring_asciz,resolved)) {
       # copy pathname and lengthen its directory by subdir:
       pushSTACK(subdir);
       {
@@ -10887,37 +10644,6 @@ local int stringlist_to_asciizlist (object stringlist,
 
 #ifdef WIN32_NATIVE
 
-/* shell_quote
- surrounds dangerous strings with double quotes. quotes quotes.
- dest should be twice as large as source
-  + 2 (for quotes) + 1 for zero byte + 1 for poss endslash */
-local int shell_quote (char * dest, const char * source) {
-  var const char * characters = " &<>|^\t";
-  /* Chars other than command separators are actual only when command
-     interpreter is used */
-  var bool quote = !(*source); # quote empty arguments
-  var int escaped = 0;
-  var char * dcp = dest;
-  *dcp++ = ' ';
-  var bool ech;
-  begin_system_call();
-  while (*source) {
-    quote = quote || strchr(characters,*source);
-    ech = *source == '\\';
-    if (!escaped && *source == '"') *dcp++ = '\\';
-    *dcp++ = *source++;
-    escaped = !escaped && ech;
-  }
-  end_system_call();
-  if (quote) {
-    if (escaped) *dcp++ = '\\'; # double ending slash
-    *dcp++ = '"'; *dest = '"'; }
-  *dcp = 0;
-  /* shift string left if no quote was inserted */
-  if (!quote) for (dcp = dest;;dcp++) if (!(*dcp = dcp[1])) break;
-  return dcp - dest;
-}
-
 /* (LAUNCH executable [:arguments] [:wait] [:input] [:output] [:error] [:priority])
  Launches a program.
  :arguments : a list of strings
@@ -11033,7 +10759,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
     { end_system_call(); OS_error(); }
 
   end_system_call();
-  if (wait_p) VALUES1(sfixnum(exitcode));
+  if (wait_p) VALUES1(fixnum(exitcode));
   else VALUES1(sfixnum(prochandle));
   skipSTACK(7);
 }
