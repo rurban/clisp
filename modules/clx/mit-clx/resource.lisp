@@ -145,7 +145,7 @@
 ;;; Add/delete resource
 
 (defun add-resource (database name-list value)
-  ;; name-list is a list of either strings or symbols. If a symbol, 
+  ;; name-list is a list of either strings or symbols. If a symbol,
   ;; case-insensitive comparisons will be used, if a string,
   ;; case-sensitive comparisons will be used.  The symbol '* or
   ;; string "*" are used as wildcards, matching anything or nothing.
@@ -200,7 +200,7 @@
     (if (stringable-equal string "*")
 	(setq loose-p t)
       ;; find the entry associated with name
-      (progn 
+      (progn
 	(do* ((first-entry (if loose-p
 			       (resource-database-loose node)
 			     (resource-database-tight node)))
@@ -272,7 +272,7 @@
 		(get-entry-lookup tight class names classes)))
 	  ((and loose
 		(not (stringable-equal name class))
-		(get-entry-lookup loose class names classes)))	
+		(get-entry-lookup loose class names classes)))
 	  (loose
 	   (loop
 	     (pop names) (pop classes)
@@ -292,9 +292,9 @@
 ;;; Get-resource with search-table
 
 (defun get-search-resource (table name class)
-  ;; (get-search-resource (get-search-table database full-name full-class) 
+  ;; (get-search-resource (get-search-table database full-name full-class)
   ;;                      value-name value-class)
-  ;; is equivalent to 
+  ;; is equivalent to
   ;; (get-resource database value-name value-class full-name full-class)
   ;; But since most of the work is done by get-search-table,
   ;; get-search-resource is MUCH faster when getting several resources with
@@ -419,7 +419,7 @@
 		      #+clx-ansi-common-lisp
 		      (dynamic-extent function)
 		      #+(and lispm (not clx-ansi-common-lisp))
-		      (sys:downward-funarg function))		      
+		      (sys:downward-funarg function))
 	     (let ((tight (resource-database-tight database))
 		   (loose (resource-database-loose database)))
 	       (declare (type list tight loose))
@@ -503,7 +503,7 @@
 	      (#\#       ;; Include
 	       (setq term (position '(#\tab #\space) string :test #'char-memq
 				    :start i :end end))
-	       (when (string-equal string "#INCLUDE" :start1 i :end1 term) 
+	       (when (string-equal string "#INCLUDE" :start1 i :end1 term)
 		 (let ((path (merge-pathnames
 			       (subseq string (1+ term)) (truename stream))))
 		   (read-resources database path
@@ -511,7 +511,7 @@
 	      (otherwise
 	       (multiple-value-bind (name-list value)
 		   (parse-resource string i end)
-		 (when name-list 
+		 (when name-list
 		   (when key (setq value (funcall key value)))
 		   (when
 		     (cond (test (funcall test name-list value))
@@ -654,7 +654,7 @@
 
 (defun set-root-resources (screen &key test test-not (write #'princ) database)
   "Changes the contents of the root window RESOURCE_MANAGER property for the
-   given SCREEN. If SCREEN is a display, then its default screen is used. 
+   given SCREEN. If SCREEN is a display, then its default screen is used.
 
    TEST and TEST-NOT are predicates for selecting which resources from the
    DATABASE are written.  Arguments are a resource name list and a resource
@@ -685,11 +685,11 @@
     ;; First read the server defaults if present, otherwise from the default
     ;; resource file
     (if (get-property rootwin :RESOURCE_MANAGER)
-	(xlib:wm-resources rdb rootwin)
+	(wm-resources rdb rootwin)
       (let ((path (default-resources-pathname)))
 	(when (and path (probe-file path))
 	  (read-resources rdb path))))
-    ;; Next read from the resources file 
+    ;; Next read from the resources file
     (let ((path (resources-pathname)))
       (when (and path (probe-file path))
 	(read-resources rdb path)))
