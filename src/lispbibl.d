@@ -1807,6 +1807,14 @@
   #endif
 # Bei Erweiterung: CONSTOBJ, CHARSTRG, FORMAT.LSP erweitern.
 
+# Whether to link with GNU libiconv, for character set conversion.
+  #if 1
+    # When glibc-2.2 comes out, we can use glibc's iconv(). Until then, prefer
+    # libiconv.
+    #define GNU_LIBICONV
+  #endif
+# When changed: nothing to do.
+
 # Ob wir die GNU gettext-Library für Internationalisierung benutzen:
   #if !defined(LANGUAGE_STATIC) && !defined(__cplusplus) && (defined(ISOLATIN_CHS) || defined(IBMPC_CHS)) && !defined(NO_GETTEXT)
     # Wenn nur eine Sprache gewünscht ist, brauchen wir kein gettext.
@@ -2113,6 +2121,13 @@
     #define INIT_OBJECT_TAB
   #endif
 # Bei Veränderung: Nichts weiter zu tun.
+
+
+# Feature dependent include files.
+
+#ifdef GNU_LIBICONV
+  #include "iconv.h"
+#endif
 
 
 # ############### Liste von implementierten CLtL2-Features ################ #
@@ -9785,7 +9800,7 @@ typedef struct {
 # Maximum number of bytes needed to form a character, over all encodings.
 # max_bytes_per_chart
   #ifdef UNICODE
-    #define max_bytes_per_chart  6  # reached by the java encoding
+    #define max_bytes_per_chart  8  # 6 for JAVA, 7 for ISO-2022-KR, 8 for ISO-2022-CN[-EXT]
   #else
     #define max_bytes_per_chart  1
   #endif

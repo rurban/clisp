@@ -16,7 +16,12 @@ User visible changes
   as well as those libm.so functions which do not have a better
   counterpart in ANSI CL are available.
 
-* New supported character sets CHARSET:KOI8-U, CHARSET:ISO-8859-16.
+* New supported character sets in package CHARSET: ISO-8859-16, KOI8-U,
+  KOI8-RU, EUC-JP, SHIFT-JIS, CP932, ISO-2022-JP, ISO-2022-JP-2, ISO-2022-JP-1,
+  EUC-CN, HZ, GBK, CP936, EUC-TW, BIG5, CP950, ISO-2022-CN, ISO-2022-CN-EXT,
+  EUC-KR, CP949, ISO-2022-KR, ARMSCII-8, GEORGIAN-ACADEMY, GEORGIAN-PS,
+  TIS-620, MULELAO-1, CP1133, VISCII, TCVN, UTF-16, UTF-7, MACINTOSH (as an
+  alias for MAC-ROMAN).
 
 Other modifications
 -------------------

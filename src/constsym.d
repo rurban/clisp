@@ -1507,6 +1507,7 @@ LISPSYM(unicode_32_big_endian,"UNICODE-32-BIG-ENDIAN",charset)
 LISPSYM(unicode_32_little_endian,"UNICODE-32-LITTLE-ENDIAN",charset)
 LISPSYM(utf_8,"UTF-8",charset)
 LISPSYM(java,"JAVA",charset)
+# Natively supported 8-bit encodings.
 LISPSYM(ascii,"ASCII",charset) # ---------------------------+ These must be
 LISPSYM(iso8859_1,"ISO-8859-1",charset) #                   | in the same order
 LISPSYM(iso8859_2,"ISO-8859-2",charset) #                   | as in encoding.d
@@ -1576,8 +1577,10 @@ LISPSYM(cp1258,"CP1258",charset)
 LISPSYM(hp_roman8,"HP-ROMAN8",charset) #                    |
 LISPSYM(nextstep,"NEXTSTEP",charset) #                      |
 LISPSYM(jisx0201,"JIS_X0201",charset) # --------------------+
+# Aliases.
 LISPSYM(ucs_2,"UCS-2",charset)
 LISPSYM(ucs_4,"UCS-4",charset)
+LISPSYM(macintosh,"MACINTOSH",charset)
 LISPSYM(windows_1250,"WINDOWS-1250",charset)
 LISPSYM(windows_1251,"WINDOWS-1251",charset)
 LISPSYM(windows_1252,"WINDOWS-1252",charset)
@@ -1587,6 +1590,39 @@ LISPSYM(windows_1255,"WINDOWS-1255",charset)
 LISPSYM(windows_1256,"WINDOWS-1256",charset)
 LISPSYM(windows_1257,"WINDOWS-1257",charset)
 LISPSYM(windows_1258,"WINDOWS-1258",charset)
+#ifdef GNU_LIBICONV
+# All documented encodings of libiconv, except those which are already builtin
+# without libiconv.
+LISPSYM(koi8_ru,"KOI8-RU",charset) # -----------------------+ These block is
+LISPSYM(euc_jp,"EUC-JP",charset) #                          | referenced in
+LISPSYM(shift_jis,"SHIFT-JIS",charset) #                    | encoding.d
+LISPSYM(cp932,"CP932",charset)
+LISPSYM(iso_2022_jp,"ISO-2022-JP",charset)
+LISPSYM(iso_2022_jp_2,"ISO-2022-JP-2",charset)
+LISPSYM(iso_2022_jp_1,"ISO-2022-JP-1",charset)
+LISPSYM(euc_cn,"EUC-CN",charset)
+LISPSYM(hz,"HZ",charset)
+LISPSYM(gbk,"GBK",charset)
+LISPSYM(cp936,"CP936",charset)
+LISPSYM(euc_tw,"EUC-TW",charset)
+LISPSYM(big5,"BIG5",charset)
+LISPSYM(cp950,"CP950",charset)
+LISPSYM(iso_2022_cn,"ISO-2022-CN",charset)
+LISPSYM(iso_2022_cn_ext,"ISO-2022-CN-EXT",charset)
+LISPSYM(euc_kr,"EUC-KR",charset)
+LISPSYM(cp949,"CP949",charset)
+LISPSYM(iso_2022_kr,"ISO-2022-KR",charset)
+LISPSYM(armscii_8,"ARMSCII-8",charset)
+LISPSYM(georgian_academy,"GEORGIAN-ACADEMY",charset)
+LISPSYM(georgian_ps,"GEORGIAN-PS",charset)
+LISPSYM(tis_620,"TIS-620",charset)
+LISPSYM(mulelao_1,"MULELAO-1",charset)
+LISPSYM(cp1133,"CP1133",charset)
+LISPSYM(viscii,"VISCII",charset)
+LISPSYM(tcvn,"TCVN",charset) #                              |
+LISPSYM(utf_16,"UTF-16",charset) #                          |
+LISPSYM(utf_7,"UTF-7",charset) # ---------------------------+
+#endif
 #endif
 LISPSYM(english,"ENGLISH",lisp) # als Language für MISC
 LISPSYM(init_hooks,"*INIT-HOOKS*",system) # als Variable für SPVW
