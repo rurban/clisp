@@ -1,13 +1,14 @@
 # Makefile for doing various steps of .d -> .c conversion.
 # Probably only works with GNU make.
 
-here           := $(shell pwd)
-comment5       := $(here)/comment5
-ansidecl       := $(here)/ansidecl
-join-comment   := perl $(here)/join-c-comments.pl
-utf8-to-latin  := perl $(here)/utf8-to-latin.pl
-latin-to-ascii := perl $(here)/latin-to-ascii.pl
-conversions    := src utils
+here                   := $(shell pwd)
+comment5               := $(here)/comment5
+ansidecl               := $(here)/ansidecl
+join-comments          := perl $(here)/join-c-comments.pl
+fix-cpp-indent         := perl $(here)/fix-cpp-indent.pl
+split-doubled-comments := perl $(here)/split-doubled-comments.pl
+align-comments         := perl $(here)/align-comments.pl
+conversions            := src utils
 
 all:
 	@echo "Pick a phase."
@@ -40,7 +41,7 @@ convert-%: comment5 apply-patch-1
 	cd ../../$*; \
 	for f in *.d; do \
 	  cp $$f $$f.ORIG; \
-	  $(comment5) $$f | $(join-comment) | $(utf8-to-latin) | $(latin-to-ascii) > $$f.TMP; \
+	  $(comment5) $$f | $(join-comments) | $(fix-cpp-indent) > $$f.TMP; \
 	  mv $$f.TMP $$f; \
 	done
 
@@ -58,9 +59,9 @@ undo-phase-1:
 phase-2: $(addprefix elif-until-and-loop-,$(conversions))
 
 elif-until-and-loop-%:
-	cd ../../$*; \
-	for f in *.d; do \
-	  cp $$f $$f.PHASE-1; \
+	cd ../../$*;					    \
+	for f in *.d; do				    \
+	  cp $$f $$f.PHASE-1;				    \
 	  perl $(here)/fix-elif-until.pl $$f.PHASE-1 > $$f; \
 	done
 
@@ -78,9 +79,9 @@ apply-patch-3:
 	cd ../..; patch -p1 < $(here)/phase-3-patch
 
 var-global-and-local-%: apply-patch-3
-	cd ../../$*; \
-	for f in *.d; do \
-	  cp $$f $$f.PHASE-2; \
+	cd ../../$*;						  \
+	for f in *.d; do					  \
+	  cp $$f $$f.PHASE-2;					  \
 	  perl $(here)/fix-var-global-local.pl $$f.PHASE-2 > $$f; \
 	done
 
@@ -93,11 +94,11 @@ undo-phase-3:
 # Phase Four: run ansidecl to finally make .c files.
 
 phase-4: ansidecl apply-patch-4
-	cd ../../src; \
-	for f in *.d; do \
-	  cp $$f $$f.PHASE-3; \
+	cd ../../src;					       \
+	for f in *.d; do				       \
+	  cp $$f $$f.PHASE-3;				       \
 	  cat $$f.PHASE-3 | $(ansidecl) > `basename $$f .d`.c; \
-	  rm -f $$f; \
+	  rm -f $$f;					       \
 	done
 
 apply-patch-4:
@@ -107,7 +108,7 @@ ansidecl: ansidecl.c
 	gcc -o $@ $<
 
 ansidecl.c: ../ansidecl.d
-	$(comment5) $< | $(join-comment) > $@
+	$(comment5) $< > $@
 
 
 
@@ -134,24 +135,36 @@ empty   :=
 space   := $(empty) # don't delete this comment
 to-skip := $(subst $(space), | ,$(assembly))
 
+# Okay, this phase looks pretty silly. But it seems to be the recipe
+# to get all the comments on the right lines relative to braces, etc.
 phase-5:
-	cd ../../src; \
-	for f in *.d.ORIG; do \
-	  name=`basename $$f .d.ORIG`; \
-	  case $$name.c in \
-	    $(to-skip) ) \
-	      echo "Skipping $$name.c"; \
-	      ;; \
-	    *) \
-	      cp $$name.c $$name.UNINDENTED; \
-	      indent -kr -i2 -ppi2 $$name.c 2>$$name.indent-errors; \
-	      ;; \
-	  esac; \
-	done; \
-	find . -name '*.indent-errors' -a -size 0b -exec rm {} \; ; \
-	for f in *.indent-errors; do \
-	  name=`basename $$f .indent-errors`; \
-	  mv $$name.UNINDENTED $$name.c; \
+	cd ../../src;						      \
+	for f in *.d.ORIG; do					      \
+	  name=`basename $$f .d.ORIG`;				      \
+	  case $$name.c in					      \
+	    $(to-skip) )					      \
+	      echo "Skipping $$name.c";				      \
+	      ;;						      \
+	    *)							      \
+	      cp $$name.c $$name.UNINDENTED-1;			      \
+	      indent -gnu -i2 -lps $$name.c 2>$$name.indent-errors-1; \
+	      cp $$name.c $$name.UNINDENTED-2;			      \
+	      indent -kr -i2 -lps $$name.c 2>$$name.indent-errors-2;  \
+	      cp $$name.c $$name.UNSPLIT;			      \
+	      $(split-doubled-comments) $$name.UNSPLIT > $$name.c;    \
+	      cp $$name.c $$name.UNINDENTED-3;			      \
+	      indent -kr -i2 -lps $$name.c 2>$$name.indent-errors-3;  \
+	      cp $$name.c $$name.UNALIGNED;			      \
+	      $(align-comments) $$name.UNALIGNED > $$name.c;	      \
+	      ;;						      \
+	  esac;							      \
+	done;							      \
+	find . -name '*.indent-errors-*' -a -size 0b -exec rm {} \; ; \
+	for n in 3 2 1; do					      \
+	  for f in *.indent-errors-$$n; do			      \
+	    name=`basename $$f .indent-errors-$$n`;		      \
+	    mv $$name.UNINDENTED-$$n $$name.c;			      \
+	  done							      \
 	done
 
 # Eventually we need to convert the generated makefiles. But we don't
@@ -164,11 +177,13 @@ convert-makefiles:
 	cd ../..; $(MAKE) -f Makefile.devel makefiles
 
 clean-up:
-	cd ../../src; \
-	rm -f *.c~; \
-	rm *.d.ORIG; \
-	rm *.d.PHASE-1; \
-	rm *.d.PHASE-2; \
-	rm *.d.PHASE-3; \
-	rm *.UNINDENTED; \
-	rm *.indent-errors
+	cd ../../src;				\
+	rm -f *.c~;				\
+	rm *.d.ORIG;				\
+	rm *.d.PHASE-1;				\
+	rm *.d.PHASE-2;				\
+	rm *.d.PHASE-3;				\
+	rm *.UNINDENTED-*;			\
+	rm *.indent-errors-*;			\
+	rm *.UNSPLIT				\
+	rm *.UNALIGNED
