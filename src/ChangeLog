@@ -26,18 +26,18 @@
 	(global-in-fenv-p, warn, eval-when-compile): Define as preliminary.
 	(sys::predefmacro, sys::predefun): New macros.
 	* macros1.lisp (loop): Define using predefmacro.
-	* macros2.lisp (check-type, assert, etypecase, ctypecase, ecase,
-	ccase): Define using predefmacro.
+	* macros2.lisp (check-type, assert, etypecase, ctypecase, ecase)
+	(ccase): Define using predefmacro.
 	* places.lisp (system::closure-name): Add setf definition.
 	* clos-package.lisp: Import sys::predefun.
 	* clos-class0.lisp (print-object): Define using predefun.
-	* clos-slotdef1.lisp (slot-definition-*,
-	structure-effective-slot-definition-readonly,
-	direct-slot-definition-class, equal-direct-slot,
-	effective-slot-definition-class): Define using predefun.
-	* clos-specializer1.lisp (specializer-direct-methods-table,
-	eql-specializer-singleton, specializer-direct-generic-functions,
-	add-direct-method, remove-direct-method, specializer-direct-methods):
+	* clos-slotdef1.lisp (slot-definition-*)
+	(structure-effective-slot-definition-readonly)
+	(direct-slot-definition-class, equal-direct-slot)
+	(effective-slot-definition-class): Define using predefun.
+	* clos-specializer1.lisp (specializer-direct-methods-table)
+	(eql-specializer-singleton, specializer-direct-generic-functions)
+	(add-direct-method, remove-direct-method, specializer-direct-methods):
 	Define using predefun.
 	* clos-class1.lisp (class-*, print-object): Define using predefun.
 	* defstruct.lisp (clos::defstruct-remove-print-object-method): Define
