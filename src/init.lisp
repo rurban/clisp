@@ -456,7 +456,7 @@
           class-direct-subclasses class-direct-slots class-slots
           class-direct-default-initargs class-default-initargs class-prototype
           class-finalized-p finalize-inheritance
-          validate-superclass
+          validate-superclass add-direct-subclass remove-direct-subclass
           ;; MOP for specializers
           specializer-direct-generic-functions specializer-direct-methods
           eql-specializer-object intern-eql-specializer
