@@ -1,5 +1,27 @@
 1999-05-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Libtoolify.
+        * autoconf/ltconfig, autoconf/ltmain.sh: New files, from libtool-1.2.
+        * Makefile.devel (OTHERMACROS): New macro.
+          (autoconf/aclocal.m4): Add the contents of $(OTHERMACROS).
+        * configure.in: Call CL_CANONICAL_HOST and AM_PROG_LIBTOOL.
+        * Makefile.in (LIBTOOL, LIBTOOL_COMPILE, LIBTOOL_LINK,
+           LIBTOOL_INSTALL, LIBTOOL_UNINSTALL): New macros.
+          (top_builddir): New macro.
+          (OBJECTS): Change .o to .lo.
+          (all): Change .a to .la.
+          (handler.lo): Renamed from handler.o. Use $(LIBTOOL_COMPILE).
+          (dispatcher.lo): Renamed from dispatcher.o. Use $(LIBTOOL_COMPILE).
+          (libsigsegv.la): Renamed from libsigsegv.a. Use $(LIBTOOL_LINK).
+          (install): Use $(LIBTOOL_INSTALL). Copy ./sigsegv.h not
+          $(srcdir)/sigsegv.h.
+          (uninstall): Use $(LIBTOOL_UNINSTALL).
+          (test1, test2, test3): Change .a to .la. Use $(LIBTOOL_LINK).
+          (clean): Also remove *.lo *.la .libs _libs.
+          (distclean): Also remove libtool.
+
+1999-05-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         For Linux 2.0.x with glibc2.0.
         * aclocal.m4 (CL_SIGALTSTACK): Define HAVE_SIGALTSTACK only if the
           sigaction flags macro SA_ONSTACK is also defined.
