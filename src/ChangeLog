@@ -1,5 +1,9 @@
 2004-08-10  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (MAKE-STREAM): use an intelligent DIRECTION default
+
+2004-08-10  Sam Steingold  <sds@gnu.org>
+
 	* configure.in: avoid identical repeated messages
 
 2004-08-09  Sam Steingold  <sds@gnu.org>
