@@ -8091,6 +8091,8 @@ All other long words on the LISP-Stack are LISP-objects.
 #define longjmpspl(x,y)  longjmpl(sp_jmp_buf_to_jmp_buf(x),y)
 #define jmpbufsize  ceiling(sizeof(jmp_buf)+sp_jmp_buf_incr,sizeof(SPint))
 typedef SPint sp_jmp_buf[jmpbufsize];
+# The initial value of SP() during main().
+extern void* SP_anchor;
 
 # LISP-Stack: STACK
 #if !defined(STACK_register)

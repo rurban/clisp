@@ -626,6 +626,9 @@ global void* SP (void) {
 }
 #endif
 
+# The initial value of SP() during main().
+global void* SP_anchor;
+
 # error-message when a location of the program is reached that is (should be)
 # unreachable. Does not return.
 # fehler_notreached(file,line);
@@ -3161,6 +3164,7 @@ global int main (argc_t argc, char* argv[]) {
  #ifndef LANGUAGE_STATIC
   init_language(argv0.argv_language,argv0.argv_localedir);
  #endif
+  SP_anchor = (void*)SP();
   if (!(setjmp(original_context) == 0)) goto end_of_main;
   # Initialize memory and load a memory image (if specified).
   if (init_memory(&argv1) < 0) goto no_mem;

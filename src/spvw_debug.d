@@ -1,5 +1,12 @@
 /* Debugging utilities. */
 
+/* DEBUG_SPVW_ASSERT(expression) is an assertion used to debug SPVW. */
+#ifdef DEBUG_SPVW
+  #define DEBUG_SPVW_ASSERT(expression)  if (!(expression)) abort(); else (void)0/*;*/
+#else
+  #define DEBUG_SPVW_ASSERT(expression)  (void)0/*;*/
+#endif
+
 /* Output a memory range in hexadecimal notation */
 local const char hex_table[] = "0123456789ABCDEF";
 local void mem_hex_out (const void* buf, uintL count) {
