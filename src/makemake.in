@@ -2310,7 +2310,7 @@ for f in $ARI_ASMS $SP_ASMS ; do
       # Only the native as groks the .SHORTDATA statements in arihppa.d
       echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -c ${f}.s || /usr/ccs/bin/as ${f}.s -o ${f}${TOBJ} || /bin/as ${f}.s -o ${f}${TOBJ}"
     else
-      if [ $f = arimips ] ; then
+      if [ $f = arimips -a "$TSYSOS" != linux ] ; then
         # Avoid problem during incremental linking of lisp.o.
         echotab "/bin/as -KPIC ${f}.s -o ${f}${TOBJ} || /usr/ccs/bin/as -KPIC ${f}.s -o ${f}${TOBJ}"
       else
