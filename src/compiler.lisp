@@ -3561,7 +3561,7 @@ der Docstring (oder NIL).
                   (if (not (numberp clos_keywords)) (copy-list clos_keywords))
                   (sys::%record-ref obj 18)))) ; allow_flag
     (cond #+FFI
-          ((eq (type-of obj) 'FOREIGN-FUNCTION)
+          ((eq (type-of obj) 'FFI::FOREIGN-FUNCTION)
            (values obj (foreign-function-in-arg-count obj) 0 nil nil nil nil))
           (t
            (multiple-value-bind (name req-num opt-num rest-p keywords allow-p)

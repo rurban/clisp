@@ -159,36 +159,36 @@ to print the corresponding values, or T for all of them.")
   (:method ((obj t) (stream stream))
     (ecase (type-of obj)
       #+(or AMIGA FFI)
-      (FOREIGN-POINTER
+      (EXT::FOREIGN-POINTER
        (format stream (ENGLISH "a foreign pointer")))
       #+FFI
-      (FOREIGN-ADDRESS
+      (FFI::FOREIGN-ADDRESS
        (format stream (ENGLISH "a foreign address")))
       #+FFI
-      (FOREIGN-VARIABLE
+      (FFI::FOREIGN-VARIABLE
        (format stream (ENGLISH "a foreign variable of foreign type ~S.")
                (deparse-c-type (sys::%record-ref obj 3))))
       #+FFI
-      (FOREIGN-FUNCTION
+      (FFI::FOREIGN-FUNCTION
        (format stream (ENGLISH "a foreign function taking foreign types ~:S and returning foreign type ~S.")
                (map 'list #'deparse-c-type (sys::%record-ref obj 3))
                (deparse-c-type (sys::%record-ref obj 2))))
       (BYTE
        (format stream (ENGLISH "a byte specifier, denoting the ~S bits starting at bit position ~S of an integer.")
                (byte-size obj) (byte-position obj)))
-      (SPECIAL-OPERATOR
+      (EXT:SPECIAL-OPERATOR
        (format stream (ENGLISH "a special form handler.")))
-      (LOAD-TIME-EVAL
+      (EXT:LOAD-TIME-EVAL
        (format stream (ENGLISH "a load-time evaluation promise.")))
-      (SYMBOL-MACRO
+      (EXT:SYMBOL-MACRO
        (format stream (ENGLISH "a symbol macro handler.")))
-      (MACRO
+      (EXT:MACRO
        (format stream (ENGLISH "a macro expander.")))
-      (FUNCTION-MACRO
+      (EXT:FUNCTION-MACRO
        (format stream (ENGLISH "a function with alternative macro expander.")))
-      (ENCODING
+      (EXT:ENCODING
        (format stream (ENGLISH "an encoding.")))
-      (WEAK-POINTER
+      (EXT:WEAK-POINTER
        (multiple-value-bind (value validp) (weak-pointer-value obj)
          (if validp
            (progn
@@ -196,7 +196,7 @@ to print the corresponding values, or T for all of them.")
                      value)
              (describe value stream))
            (format stream (ENGLISH "a GC-invisible pointer to a now defunct object.")))))
-      (READ-LABEL
+      (SYS::READ-LABEL
        (format stream (ENGLISH "a label used for resolving #~D# references during READ.")
                (logand (sys::address-of obj)
                        (load-time-value (ash most-positive-fixnum -1)))))
@@ -426,7 +426,7 @@ to print the corresponding values, or T for all of them.")
   (:method ((obj function) (stream stream))
     (ecase (type-of obj)
       #+FFI
-      (FOREIGN-FUNCTION
+      (FFI::FOREIGN-FUNCTION
        (format stream (ENGLISH "a foreign function."))
        (multiple-value-bind (name req opt rest-p key-p keywords other-keys-p)
            (sys::function-signature obj)

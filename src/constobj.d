@@ -276,9 +276,9 @@
   LISPOBJ(class_symbol,"SYMBOL")           #    |
   LISPOBJ(class_t,"T")                     #    |
   LISPOBJ(class_vector,"VECTOR")           # ---+
-  LISPOBJ(type_designator_character,"(DESIGNATOR CHARACTER)")
+  LISPOBJ(type_designator_character,"(EXT::DESIGNATOR CHARACTER)")
   #if (base_char_code_limit < char_code_limit)
-  LISPOBJ(type_designator_base_char,"(DESIGNATOR BASE-CHAR)")
+  LISPOBJ(type_designator_base_char,"(EXT::DESIGNATOR BASE-CHAR)")
   #endif
   LISPOBJ(type_designator_function,"(OR FUNCTION SYMBOL (CONS (EQL SETF) (CONS SYMBOL NULL)) (CONS (EQL LAMBDA)))")
   # Upper bound for the number of structure classes present in the system:
@@ -291,19 +291,19 @@
   LISPOBJ(hs_null,"NULL")                           #    |  mit enum_hs_...
   LISPOBJ(hs_symbol,"SYMBOL")                       #    |  in predtype.d
   LISPOBJ(hs_simple_bit_vector,"SIMPLE-BIT-VECTOR") #    |  abgestimmt!
-  LISPOBJ(hs_simple_2bit_vector,"SIMPLE-2BIT-VECTOR")
-  LISPOBJ(hs_simple_4bit_vector,"SIMPLE-4BIT-VECTOR")
-  LISPOBJ(hs_simple_8bit_vector,"SIMPLE-8BIT-VECTOR")
-  LISPOBJ(hs_simple_16bit_vector,"SIMPLE-16BIT-VECTOR")
-  LISPOBJ(hs_simple_32bit_vector,"SIMPLE-32BIT-VECTOR")
+  LISPOBJ(hs_simple_2bit_vector,"EXT::SIMPLE-2BIT-VECTOR")
+  LISPOBJ(hs_simple_4bit_vector,"EXT::SIMPLE-4BIT-VECTOR")
+  LISPOBJ(hs_simple_8bit_vector,"EXT::SIMPLE-8BIT-VECTOR")
+  LISPOBJ(hs_simple_16bit_vector,"EXT::SIMPLE-16BIT-VECTOR")
+  LISPOBJ(hs_simple_32bit_vector,"EXT::SIMPLE-32BIT-VECTOR")
   LISPOBJ(hs_simple_string,"SIMPLE-STRING")
   LISPOBJ(hs_simple_vector,"SIMPLE-VECTOR")
   LISPOBJ(hs_bit_vector,"BIT-VECTOR")
-  LISPOBJ(hs_2bit_vector,"2BIT-VECTOR")
-  LISPOBJ(hs_4bit_vector,"4BIT-VECTOR")
-  LISPOBJ(hs_8bit_vector,"8BIT-VECTOR")
-  LISPOBJ(hs_16bit_vector,"16BIT-VECTOR")
-  LISPOBJ(hs_32bit_vector,"32BIT-VECTOR")
+  LISPOBJ(hs_2bit_vector,"EXT::2BIT-VECTOR")
+  LISPOBJ(hs_4bit_vector,"EXT::4BIT-VECTOR")
+  LISPOBJ(hs_8bit_vector,"EXT::8BIT-VECTOR")
+  LISPOBJ(hs_16bit_vector,"EXT::16BIT-VECTOR")
+  LISPOBJ(hs_32bit_vector,"EXT::32BIT-VECTOR")
   LISPOBJ(hs_string,"STRING")
   LISPOBJ(hs_vector,"VECTOR")
   LISPOBJ(hs_simple_array,"SIMPLE-ARRAY")
@@ -327,32 +327,32 @@
   #endif
   LISPOBJ(hs_random_state,"RANDOM-STATE")
   LISPOBJ(hs_byte,"BYTE")
-  LISPOBJ(hs_special_operator,"SPECIAL-OPERATOR")
-  LISPOBJ(hs_load_time_eval,"LOAD-TIME-EVAL")
-  LISPOBJ(hs_symbol_macro,"SYMBOL-MACRO")
-  LISPOBJ(hs_macro,"MACRO")
-  LISPOBJ(hs_function_macro,"FUNCTION-MACRO")
-  LISPOBJ(hs_encoding,"ENCODING")
+  LISPOBJ(hs_special_operator,"EXT::SPECIAL-OPERATOR")
+  LISPOBJ(hs_load_time_eval,"EXT::LOAD-TIME-EVAL")
+  LISPOBJ(hs_symbol_macro,"EXT::SYMBOL-MACRO")
+  LISPOBJ(hs_macro,"EXT::MACRO")
+  LISPOBJ(hs_function_macro,"EXT::FUNCTION-MACRO")
+  LISPOBJ(hs_encoding,"EXT::ENCODING")
   #ifdef FOREIGN
-  LISPOBJ(hs_foreign_pointer,"FOREIGN-POINTER")
+  LISPOBJ(hs_foreign_pointer,"EXT::FOREIGN-POINTER")
   #endif
   #ifdef DYNAMIC_FFI
-  LISPOBJ(hs_foreign_address,"FOREIGN-ADDRESS")
-  LISPOBJ(hs_foreign_variable,"FOREIGN-VARIABLE")
-  LISPOBJ(hs_foreign_function,"FOREIGN-FUNCTION")
+  LISPOBJ(hs_foreign_address,"FFI::FOREIGN-ADDRESS")
+  LISPOBJ(hs_foreign_variable,"FFI::FOREIGN-VARIABLE")
+  LISPOBJ(hs_foreign_function,"FFI::FOREIGN-FUNCTION")
   #endif
-  LISPOBJ(hs_weakpointer,"WEAK-POINTER")
-  LISPOBJ(hs_finalizer,"FINALIZER")
+  LISPOBJ(hs_weakpointer,"EXT::WEAK-POINTER")
+  LISPOBJ(hs_finalizer,"EXT::FINALIZER")
   #ifdef SOCKET_STREAMS
-  LISPOBJ(hs_socket_server,"SOCKET-SERVER")
+  LISPOBJ(hs_socket_server,"SOCKET::SOCKET-SERVER")
   #endif
   #ifdef DIR_KEY
-  LISPOBJ(hs_dir_key,"DIR-KEY")
+  LISPOBJ(hs_dir_key,"LDAP::DIR-KEY")
   #endif
   #ifdef YET_ANOTHER_RECORD
-  LISPOBJ(hs_yetanother,"YETANOTHER")
+  LISPOBJ(hs_yetanother,"SYS::YETANOTHER")
   #endif
-  LISPOBJ(hs_system_function,"SYSTEM-FUNCTION")
+  LISPOBJ(hs_system_function,"EXT::SYSTEM-FUNCTION")
   LISPOBJ(hs_bignum,"BIGNUM")
   LISPOBJ(hs_ratio,"RATIO")
   #ifndef WIDE
@@ -558,7 +558,7 @@
   LISPOBJ(type_direction,"(MEMBER :INPUT :INPUT-IMMUTABLE :OUTPUT :IO :PROBE)")
   LISPOBJ(type_if_exists,"(MEMBER :ERROR :NEW-VERSION :RENAME :RENAME-AND-DELETE :OVERWRITE :APPEND :SUPERSEDE NIL)")
   LISPOBJ(type_if_does_not_exist,"(MEMBER :ERROR :CREATE NIL)")
-  LISPOBJ(type_external_format,"(OR (MEMBER :DEFAULT) ENCODING (MEMBER :UNIX :MAC :DOS))")
+  LISPOBJ(type_external_format,"(OR (MEMBER :DEFAULT) EXT::ENCODING (MEMBER :UNIX :MAC :DOS))")
   LISPOBJ(type_pathname_field_key,"(MEMBER :HOST :DEVICE :DIRECTORY :NAME :TYPE :VERSION NIL)")
  #ifdef LOGICAL_PATHNAMES
   LISPOBJ(type_logical_pathname,"(OR LOGICAL-PATHNAME STRING STREAM SYMBOL)")

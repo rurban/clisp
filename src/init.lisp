@@ -289,7 +289,7 @@ space safety compilation-speed debug declaration dynamic-extent compile
    ;; pseudo-types:
    simple-2bit-vector 2bit-vector simple-4bit-vector 4bit-vector
    simple-8bit-vector 8bit-vector simple-16bit-vector 16bit-vector
-   simple-32bit-vector 32bit-vector special-form system-function
+   simple-32bit-vector 32bit-vector special-form system-function macro
    function-macro foreign-pointer symbol-macro symbol-macro-expand designator
    address special-operator finalize finalizer
    weak-pointer make-weak-pointer weak-pointer-p weak-pointer-value
@@ -314,7 +314,7 @@ space safety compilation-speed debug declaration dynamic-extent compile
    *load-echo* *applyhook* *evalhook* *load-compiling* *compile-warnings*
    *ansi* *default-file-encoding* ; places.lisp
    #+UNICODE *misc-encoding*
-   #+UNICODE *terminal-encoding*
+   #+UNICODE *t*germinal-encoding*
    #+UNICODE *pathname-encoding*
    *source-file-types* *compiled-file-types*)
  "CUSTOM")
@@ -324,7 +324,7 @@ space safety compilation-speed debug declaration dynamic-extent compile
 
 (in-package "COMMON-LISP")
 (proclaim
-  '(constant-notinline
+  '(ext::constant-notinline
     ;; These constants are platform dependent and therefore shouldn't be
     ;; inlined in compiled bytecode files.
     lambda-parameters-limit call-arguments-limit

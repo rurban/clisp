@@ -1420,7 +1420,7 @@ LISPSYM(LLallow_other_keys,"&ALLOW-OTHER-KEYS",lisp) # als Lambdalisten-Marker i
 LISPSYM(LLrest,"&REST",lisp) # als Lambdalisten-Marker in EVAL
 LISPSYM(LLaux,"&AUX",lisp) # als Lambdalisten-Marker in EVAL
 LISPSYM(LLbody,"&BODY",lisp) # als Lambdalisten-Marker in EVAL
-LISPSYM(macro,"MACRO",system) # als Marker in EVAL, als Typ in PREDTYPE
+LISPSYM(macro,"MACRO",ext) # als Marker in EVAL, als Typ in PREDTYPE
 LISPSYM(special,"SPECIAL",lisp) # als Declaration-Specifier in EVAL
 LISPSYM(source,"SOURCE",system) # als Declaration-Specifier in EVAL
 LISPSYM(optimize,"OPTIMIZE",lisp) # als Declaration-Specifier in EVAL
