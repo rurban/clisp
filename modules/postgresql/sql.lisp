@@ -120,7 +120,7 @@
 ;;; INSERT INTO TBL1 values (10);
 
 (defun sql-test-2 ()
-  (with-sql-connection (conn nil nil nil nil (sys::getenv "USER") nil nil)
+  (with-sql-connection (conn nil nil nil nil (ext:getenv "USER") nil nil)
     (sql-transaction conn "LISTEN TBL2" sql::PGRES_COMMAND_OK t)
 
     (loop (sql::PQconsumeInput conn)
@@ -162,7 +162,7 @@
 ;;;
 
 (defun sql-test-3 ()
-  (with-sql-connection (conn nil nil nil nil (sys::getenv "USER") nil nil)
+  (with-sql-connection (conn nil nil nil nil (ext:getenv "USER") nil nil)
     (sql-transaction conn "BEGIN" sql::PGRES_COMMAND_OK t)
 
     (sql-transaction conn

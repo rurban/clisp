@@ -1,6 +1,7 @@
 2005-03-02  Sam Steingold  <sds@gnu.org>
 
 	* modules/postgresql/postgresql.lisp (PQprepare, PQsendPrepare): added
+	* modules/postgresql/sql.lisp: GETENV is in EXT, not SYS
 
 2005-03-02  Sam Steingold  <sds@gnu.org>
 
