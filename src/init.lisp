@@ -308,7 +308,7 @@
 (common-lisp:export
  '(*load-paths* *editor* *clhs-root-default* *browsers* *browser*
    *load-echo* *applyhook* *evalhook* *load-compiling* *compile-warnings*
-   *load-obsolete-action*
+   *load-obsolete-action* *suppress-check-redefinition*
    ;; places.lisp
    *ansi* *current-language* *lib-directory* *default-file-encoding*
    #+UNICODE *misc-encoding*
@@ -408,8 +408,8 @@
                 ((atom rec) (sys::puthash symbol *documentation* rec))))))
     value)))
 
-(proclaim '(special *load-truename*))
-(setq *load-truename* nil)
+(proclaim '(special *load-truename* custom:*suppress-check-redefinition*))
+(setq *load-truename* nil custom:*suppress-check-redefinition* nil)
 
 (sys::%putd 'sys::check-redefinition
   (function sys::check-redefinition (lambda (symbol caller what)
@@ -419,7 +419,8 @@
                         *load-truename*))
           ;; distinguish between undefined and defined at top-level
           (old-file (getf (gethash symbol *documentation*) 'sys::file)))
-      (unless (or (equalp old-file cur-file)
+      (unless (or custom:*suppress-check-redefinition*
+                  (equalp old-file cur-file)
                   (and (pathnamep old-file) (pathnamep cur-file)
                        (equal (pathname-name old-file)
                               (pathname-name cur-file))))
