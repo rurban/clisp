@@ -64,7 +64,7 @@ RSXDIR = /c:/rsx
 TEMPDIR = /tmp/clispdos
 
 
-all : makefiles configures potfiles src/FILES src/version.h utils/comment5.c src/intparam.c src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c ffcall/avcall/avcall.h.msvc ffcall/avcall/avcall-i386-msvc.c ffcall/vacall/config.h.msvc ffcall/vacall/vacall.h.msvc ffcall/vacall/vacall-i386-msvc.c ffcall/trampoline/config.h.msvc acorn/pathname.txt
+all : makefiles configures potfiles src/FILES src/version.h utils/comment5.c src/intparam.c src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c ffcall/avcall/avcall.h.msvc ffcall/avcall/avcall-i386-msvc.c ffcall/vacall/config.h.msvc ffcall/vacall/vacall.h.msvc ffcall/vacall/vacall-i386-msvc.c ffcall/trampoline/config.h.msvc ffcall/callback/vacall_r/config.h.msvc ffcall/callback/vacall_r/vacall_r.h.msvc ffcall/callback/vacall_r/vacall-i386-msvc.c acorn/pathname.txt
 
 makefiles : dos/makefile dosdjgpp/makefile doswatcom/makefile os2/makefile win32gcc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc5 win32bc/makefile acorn/makefile.cc acorn/makefile.gcc src/oldoldreadline/Makefile.dos src/oldoldreadline/Makefile.os2 src/oldoldreadline/Makefile.go32 src/oldreadline/Makefile.dos src/oldreadline/Makefile.os2 src/oldreadline/Makefile.go32
 
@@ -238,6 +238,15 @@ ffcall/vacall/vacall-i386-msvc.c : ffcall/vacall/vacall-i386.S ffcall/vacall/asm
 
 ffcall/trampoline/config.h.msvc : ffcall/trampoline/config.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel trampoline/config.h.msvc
+
+ffcall/callback/vacall_r/config.h.msvc : ffcall/callback/vacall_r/config.h.in
+	cd ffcall ; $(MAKE) -f Makefile.devel callback/vacall_r/config.h.msvc
+
+ffcall/callback/vacall_r/vacall_r.h.msvc : ffcall/callback/vacall_r/vacall_r.h.in
+	cd ffcall ; $(MAKE) -f Makefile.devel callback/vacall_r/vacall_r.h.msvc
+
+ffcall/callback/vacall_r/vacall-i386-msvc.c : ffcall/callback/vacall_r/vacall-i386.S ffcall/callback/vacall_r/asmi386.sh
+	cd ffcall ; $(MAKE) -f Makefile.devel callback/vacall_r/vacall-i386-msvc.c
 
 acorn/pathname.txt : src/pathname.d
 	cat src/pathname.d | sed -e '1,/Burwood/d' | sed -e '/Komponenten/,$$d' | sed -e 's/^# //g' -e 's/^#$$//g' > acorn/pathname.txt
