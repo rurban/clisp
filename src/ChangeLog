@@ -1,5 +1,12 @@
 2005-01-13  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (c-comment): call FRESH-LINE & ELASTIC-NEWLINE here
+	(c-warn, c-error, match-known-unknown-functions, c-report-problems):
+	do not prepend "~&" nor append "~." to the format string
+	This fixes a bug when C-WARN did not terminate with an ELASTIC-NEWLINE
+
+2005-01-13  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (stream_handles): handle SYNONYM-STREAMs
 	Reported by <ayan@ayan.net>
 
