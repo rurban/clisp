@@ -403,8 +403,11 @@
 ; ------------------------------ <errnos.h> -----------------------------------
 
 (def-call-out __errno_location (:arguments) (:return-type (c-ptr int)))
+;; both are broken:
 ;; (define-symbol-macro errno (deref (foreign-value (__errno_location))))
-(def-c-var errno (:type ffi:int))
+;; *** - FFI::%DEREF: argument is not a foreign variable: 22
+;; (def-c-var errno (:type ffi:int))
+;; link error: "undefined reference to `errno'"
 
 ; ------------------------------ <errno.h> ------------------------------------
 
@@ -623,7 +626,7 @@
 (defconstant EXIT_FAILURE 1)
 (defconstant EXIT_SUCCESS 0)
 
-(def-call-out __ctype_get_mb_cur_max (:arguments) (:return-type int))
+(def-call-out __ctype_get_mb_cur_max (:arguments) (:return-type size_t))
 (define-symbol-macro MB_CUR_MAX (__ctype_get_mb_cur_max))
 
 (def-call-out atof (:arguments (nptr c-string)) (:return-type double-float))
@@ -660,10 +663,10 @@
 (def-call-out random (:arguments) (:return-type int32_t))
 (def-call-out srandom (:arguments (seed uint)) (:return-type nil))
 (def-call-out initstate
-    (:arguments (seed uint) (statebuf c-pointer) (statelen size_t))
-  (:return-type c-pointer))
-(def-call-out setstate (:arguments (statebuf c-pointer))
-  (:return-type c-pointer))
+    (:arguments (seed uint) (statebuf c-string) (statelen size_t))
+  (:return-type c-string))
+(def-call-out setstate (:arguments (statebuf c-string))
+  (:return-type c-string))
 
 ;; (def-c-struct random_data ...)
 (def-call-out random_r
@@ -694,8 +697,8 @@
   (:return-type long))
 (def-call-out srand48 (:arguments (seedval long))
   (:return-type nil))
-(def-call-out seed48 (:arguments (seed16v (c-ptr (c-array ushort 3))))
-  (:return-type (c-ptr (c-array ushort 3)) :none))
+(def-call-out seed48 (:arguments (seed16v (c-array ushort 3)))
+  (:return-type (c-ptr ushort) :none))
 (def-call-out lcong48 (:arguments (param (c-ptr (c-array ushort 7))))
   (:return-type nil))
 
@@ -758,7 +761,7 @@
 (def-call-out setenv
     (:arguments (name c-string) (value c-string) (replace boolean))
   (:return-type int))
-(def-call-out unsetenv (:arguments (name c-string)) (:return-type nil))
+(def-call-out unsetenv (:arguments (name c-string)) (:return-type int))
 
 (def-call-out clearenv (:arguments) (:return-type int))
 
@@ -781,7 +784,7 @@
     (:arguments (name c-string)
                 (resolved (c-ptr (c-array-max character #.PATH_MAX))
                           :out :alloca))
-  (:return-type (c-ptr (c-array-max character #.PATH_MAX))))
+  (:return-type c-string))
 
 (def-c-type comparison_fn_t
     (c-function (:arguments (p1 c-pointer) (p2 c-pointer))
@@ -1172,14 +1175,19 @@
 
 (def-c-var environ (:type (c-array-ptr c-string)) (:read-only t))
 
-;(def-call-out execve
-;    (:arguments (path c-string) (argv c-pointer) (envp c-pointer)) ; ??
-;  (:return-type int))
-;(def-call-out fexecve
-;    (:arguments (fd int) (argv c-pointer) (envp c-pointer)) ; ??
-;  (:return-type int)) ; is a stub (see <gnu/stubs.h>)
-;(def-call-out execv (:arguments (path c-string) (argv c-pointer)) ; ??
-;  (:return-type int))
+(def-call-out execv
+    (:arguments (path c-string) (argv (c-array-ptr c-string)))
+  (:return-type int)
+  (:name "execv"))
+(def-call-out execve
+    (:arguments (path c-string) (argv (c-array-ptr c-string))
+                (envp (c-array-ptr c-string)))
+  (:return-type int)
+  (:name "execv"))
+(def-call-out execvp
+    (:arguments (file c-string) (argv (c-array-ptr c-string)))
+  (:return-type int)
+  (:name "execvp"))
 
 (def-call-out execle0
     (:arguments (path c-string) (argv0 c-string) (null c-string)

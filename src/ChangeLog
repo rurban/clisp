@@ -1,5 +1,17 @@
 2003-02-09  Sam Steingold  <sds@gnu.org>
 
+	* modules/bindings/linuxlibc6/linux.lisp (__ctype_get_mb_cur_max):
+	returns size_t
+	(errno): commented out (neither method works)
+	(initstate, setstate): statebuf is a C-STRING, not a C-POINTER
+	(seed48): seed16v is a C-ARRAY, not a (C-PTR (C-ARRAY ...))
+	(unsetenv): return int
+	(realpath): return C-STRING
+	(execv, execve, execvp): added
+	Thanks to Dan Knapp, John K. Hinsdale, and Joerg Hoehle
+
+2003-02-09  Sam Steingold  <sds@gnu.org>
+
 	fixed EXT:MAPLAP, EXT:MAPCAP, MAPCAN and MAPCON in compiled code
 	* compiler.lisp (copy-list-lax): new inline function
 	(c-MAP-on-CARs, c-MAP-on-LISTs): use forward consing for
