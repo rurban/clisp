@@ -490,12 +490,13 @@ int main(int argc, char* argv[])
   #else
   strcat(buf,"  struct { /*aint*/ uintL addr; /*tint*/ uintL type; } both;\n");
   #endif
-  strcat(buf,"  oint one");
+  strcat(buf,"  oint one_u");
   strcat(buf,attribute_aligned_object);
   strcat(buf,"; } u");
   strcat(buf,attribute_aligned_object);
   strcat(buf,"; }");
   emit_typedef(buf,"gcv_object_t");
+  printf("#define one_o  u.one_u\n");
  #else
   emit_typedef("oint","gcv_object_t");
  #endif
