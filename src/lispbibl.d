@@ -4992,7 +4992,7 @@ typedef iarray_ *  Iarray;
   #define type_bits_to_atype(type)  (type)
 #endif
 
-# Packages
+/* Packages */
 typedef struct {
   XRECORD_HEADER
   gcv_object_t pack_external_symbols  _attribute_aligned_object_;
@@ -5006,19 +5006,19 @@ typedef struct {
   gcv_object_t pack_shortest_name     _attribute_aligned_object_;
 } *  Package;
 #define package_length  ((sizeof(*(Package)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
-# Some packages are case-sensitive.
+/* Some packages are case-sensitive. */
 #define mark_pack_casesensitive(obj)  record_flags_set(ThePackage(obj),bit(0))
 #define mark_pack_caseinsensitive(obj) record_flags_clr(ThePackage(obj),bit(0))
 #define pack_casesensitivep(obj)      (record_flags(ThePackage(obj)) & bit(0))
-# Some packages are case-inverted.
+/* Some packages are case-inverted. */
 #define mark_pack_caseinverted(obj)  record_flags_set(ThePackage(obj),bit(1))
 #define mark_pack_casepreserved(obj) record_flags_clr(ThePackage(obj),bit(1))
 #define pack_caseinvertedp(obj)      (record_flags(ThePackage(obj)) & bit(1))
-# Some packages, such as COMMON-LISP, are locked.
+/* Some packages, such as COMMON-LISP, are locked. */
 #define mark_pack_locked(obj)    record_flags_set(ThePackage(obj),bit(2))
 #define mark_pack_unlocked(obj)  record_flags_clr(ThePackage(obj),bit(2))
 #define pack_locked_p(obj)       (record_flags(ThePackage(obj)) & bit(2))
-# Do not do anything with deleted packages.
+/* Do not do anything with deleted packages. */
 #define mark_pack_deleted(obj)  record_flags_set(ThePackage(obj),bit(7))
 #define pack_deletedp(obj)      (record_flags(ThePackage(obj)) & bit(7))
 
