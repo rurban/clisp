@@ -204,8 +204,14 @@
    are less than, equal to, and greater than the specified key
    (&DB_key_range;).  The underlying database must be of type Btree.
 </simpara></listitem></varlistentry>
-</variablelist>
-</section>
+<varlistentry><term><literal role="sexp">(BDB:DB-VERIFY db file &key-amp;
+   DATABASE SALVAGE AGGRESSIVE PRINTABLE NOORDERCHK)</literal></term>
+ <listitem><simpara>Verify/salvage a database (&DB_verify;).
+   <constant>:SALVAGE</constant>, if supplied, should be the output
+   file name.  <constant>:DATABASE</constant>, if supplied,
+   will force <constant>DB_ORDERCHKONLY</constant>.
+</simpara></listitem></varlistentry>
+</variablelist></section>
 
 
 <section id="bdb-db-config"><title>Database Configuration</title>
@@ -225,9 +231,7 @@
 <variablelist>
 <varlistentry><term><literal role="sexp">()</literal></term>
  <listitem><simpara></simpara></listitem></varlistentry>
-</variablelist>
-</section>
-
+</variablelist></section>
 
 
 <section id="bdb-bt-rn-config"><title>Btree/Recno Configuration</title>
