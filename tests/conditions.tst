@@ -481,6 +481,22 @@ check-use-value
 (check-use-value fdefinition cons "CONS") t
 (check-use-value string "123" 123) t
 
+(check-use-value (lambda (a) (aref a 2)) #(a b c d) 1) t
+(check-use-value (lambda (a) (setf (aref a 2) 'x)) #(a b c d) 1) t
+(check-use-value (lambda (a) (row-major-aref a 3)) #2A((a b) (c d)) 1) t
+(check-use-value (lambda (a) (setf (row-major-aref a 3) 'x)) #2A((a b) (c d)) 1) t
+(check-use-value array-element-type #*1001 1) t
+(check-use-value array-rank #(a b c d) 1) t
+(check-use-value (lambda (a) (array-dimension a 1)) #2A((a b) (c d)) 1) t
+(check-use-value array-dimensions #2A((a b) (c d)) 1 :test equal) t
+(check-use-value (lambda (a) (array-in-bounds-p a 1 2)) #2A((a b) (c d)) 1) t
+(check-use-value (lambda (a) (array-row-major-index a 2)) #(a b c d) 1) t
+(check-use-value (lambda (a) (array-row-major-index a 1 1)) #2A((a b) (c d)) 1) t
+(check-use-value adjustable-array-p #2A((a b) (c d)) 1) t
+(check-use-value (lambda (a) (bit a 2)) #*1011 1) t
+(check-use-value (lambda (a) (sbit a 2)) #*1011 1) t
+(check-use-value array-has-fill-pointer-p #2A((a b) (c d)) 1) t
+
 (let ((bs (make-broadcast-stream)))
   (handler-bind ((type-error (lambda (c) (princ c) (terpri) (use-value bs))))
     (broadcast-stream-streams 10)))
