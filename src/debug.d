@@ -109,11 +109,9 @@
         dynamic_bind(S(key_bindings),list); # SYS::*KEY-BINDINGS* binden
       }
       #else
-      # statt        (nreconc command-list *key-bindings*)
-      # doch lieber  (nreverse command-list)
       {
-        var object list = (!boundp(STACK_2) ? NIL : nreverse(STACK_2));
-        dynamic_bind(S(key_bindings),list); # SYS::*KEY-BINDINGS* binden
+        var object list = (!boundp(STACK_2) ? NIL : STACK_2);
+        dynamic_bind(S(key_bindings),list); /* bind SYS::*KEY-BINDINGS* */
       }
       #endif
       #if !defined(TERMINAL_USES_KEYBOARD) # auf dem Atari ging's über Funktionstasten
