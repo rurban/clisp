@@ -1,5 +1,13 @@
 2002-11-23  Sam Steingold  <sds@gnu.org>
 
+	* eval.d (interpret_bytecode, eval_closure, apply_closure)
+	(funcall_closure, interpret_bytecode_): wrap calls to
+	funcall_iclosure() and interpret_bytecode_() with a
+	with_saved_back_trace()
+	(interpret_bytecode_): do not augment back_trace
+
+2002-11-23  Sam Steingold  <sds@gnu.org>
+
 	* spvw_garcol.d (gar_col_normal) [DEBUG_SPVW]: check that all
 	callers in back_trace have been already marked
 
