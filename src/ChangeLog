@@ -1,5 +1,10 @@
 2004-08-11  Sam Steingold  <sds@gnu.org>
 
+	* reploop.lisp (make-xterm-io-stream): use :DIRECTION :IO
+	instead of a TWO-WAY-STREAM
+
+2004-08-11  Sam Steingold  <sds@gnu.org>
+
 	finished the *DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST* patch
 	* init.lisp (specialized-lambda-list-to-ordinary): new function
 	(*defun-accept-specialized-lambda-list*): enable just before the end
