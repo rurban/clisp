@@ -68,13 +68,26 @@
 <chapter id="syntax"><title>Syntax
    <ulink url="&clhs;/Body/chap-2.html">[CLHS-2]</ulink></title>
 
+<section id="reader-alg"><title>Reader Algorithm
+   <ulink url="&clhs;/Body/sec_2-2.html">[CLHS-2.2]</ulink></title>
+
+<para>The requirement of step 4 that a
+ <quote><ulink url="&clhs;/Body/glo_r.html#reader_macro_function">reader
+  macro function</ulink> may return zero values or one value</quote>
+ <emphasis>is</emphasis> enforced.
+ You can use the function &values; to control the number of values
+ returned.</para>
+
+</section>
+
 <section id="tokens"><title>Symbols as Tokens
   <ulink url="&clhs;/Body/sec_2-3-4.html">[CLHS-2.3.4]</ulink></title>
 
-<para>A "reserved token", i.e., a <ulink
- url="&clhs;/Body/glo_t.html#token">token</ulink> that has potential number
- syntax but cannot be interpreted as a number, is interpreted as symbol
- when being read.</para>
+<para>A "reserved token", i.e., a
+ <ulink url="&clhs;/Body/glo_t.html#token">token</ulink> that has
+ <ulink url="&clhs;/Body/glo_p.html#potential_number">potential number</ulink>
+ syntax but cannot be interpreted as a &number-t;, is interpreted as
+ &symbol-t; when being read.</para>
 
 <para>When creating a symbol from a token, no character attributes are
  removed.</para>
