@@ -1341,8 +1341,9 @@ if [ "$DEBUGGING" = debug ] ; then
 fi
 
 if [ ${HSYSOS} = win32gcc -o ${HSYSOS} = cygwin ]; then
-  # this is necessary for g++ to handle w32shell
-  # <http://article.gmane.org/gmane.comp.gnu.mingw.user/8213>
+  # This is necessary for g++ to handle w32shell.c: The member lpVtbl is not
+  # defined by the w32api include files if
+  #   defined(__cplusplus) && !defined(CINTERFACE)
   case "$CC" in *"g++"* ) XCFLAGS=$XCFLAGS' -DCINTERFACE'; ;; esac
 fi
 
@@ -1376,13 +1377,26 @@ if [ $TSYS = sun4 -a $CROSS = false ] ; then
     XCFLAGS=$XCFLAGS' -DSUN4_29'
   fi
 fi
-# <http://article.gmane.org/gmane.lisp.clisp.devel:10411>
-#  IF platform frequently comes without compiler and linker
-#    THEN use BINARY_DISTRIB
-#    ELSE
-#      IF platform has strict libc version checking
-#        THEN use static library distribution
-#        ELSE use BINARY_DISTRIB
+# When to define BINARY_DISTRIB?
+# There is no general pro or cons of distributing an executable versus a
+# static library, except for the unavailability of the compiler and linker
+# on some platforms.
+# Other than that, it mostly depends on whether the host you are building
+# on has a recent or an old set of system shared libraries. Old is better
+# here, since vendors usually only add functions to libc and rarely remove
+# some functions. If the host you use for the build is not the oldest OS
+# version, then distributing the static library is better: when you distribute
+# a Unix executable, it is _certain_ to not run on older versions of the OS
+# (thanks to the shared library versioning check), whereas when you distribute
+# a static library, it has good chances to link and work fine on older versions
+# of the OS.
+# So the general rule is:
+#   IF platform frequently comes without compiler and linker
+#     THEN use BINARY_DISTRIB
+#     ELSE
+#       IF platform has strict libc version checking
+#         THEN use static library distribution
+#         ELSE use BINARY_DISTRIB
 if [ $CROSS = false ] ; then
   case "$host_os" in
     solaris*)
@@ -2254,10 +2268,10 @@ for x in CC CFLAGS CPP CPPLAGS CLFLAGS LIBS X_LIBS; do
   echotab "echo $ARGQ#define $x \"\$($x)\"$ARGQ >> cflags.h.new"
 done
 if [ $TSYS = win32msvc ] ; then
-echotab '$(RM) cflags.h'
-echotab '$(CP) cflags.h.new cflags.h'
+  echotab '$(RM) cflags.h'
+  echotab '$(MV) cflags.h.new cflags.h'
 else
-echotab 'if cmp cflags.h.new cflags.h > /dev/null 2>&1; then ${RM} cflags.h.new; else ${MV} cflags.h.new cflags.h; fi'
+  echotab 'if cmp cflags.h.new cflags.h > /dev/null 2>&1; then ${RM} cflags.h.new; else ${MV} cflags.h.new cflags.h; fi'
 fi 
 echotab '$(TOUCH) cflags.h.stamp'
 echol
