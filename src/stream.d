@@ -1351,7 +1351,9 @@ LISPFUNN(synonym_stream_symbol,1)
 # (SYNONYM-STREAM-SYMBOL stream), CLtL2 S. 507
   {
     var object stream = popSTACK();
-    if (!(builtin_stream_p(stream) && (TheStream(stream)->strmtype == strmtype_synonym))) {
+    if (!(builtin_stream_p(stream)
+          && (TheStream(stream)->strmtype == strmtype_synonym)
+       ) ) {
       if (!streamp(stream))
         fehler_stream(stream);
       else
@@ -1578,7 +1580,9 @@ LISPFUNN(broadcast_stream_streams,1)
 # (BROADCAST-STREAM-STREAMS stream), CLtL2 S. 507
   {
     var object stream = popSTACK();
-    if (!(builtin_stream_p(stream) && (TheStream(stream)->strmtype == strmtype_broad))) {
+    if (!(builtin_stream_p(stream)
+          && (TheStream(stream)->strmtype == strmtype_broad)
+       ) ) {
       if (!streamp(stream))
         fehler_stream(stream);
       else
@@ -1832,7 +1836,9 @@ LISPFUNN(concatenated_stream_streams,1)
 # (CONCATENATED-STREAM-STREAMS stream), CLtL2 S. 507
   {
     var object stream = popSTACK();
-    if (!(TheStream(stream)->strmtype == strmtype_concat)) {
+    if (!(builtin_stream_p(stream)
+          && (TheStream(stream)->strmtype == strmtype_concat)
+       ) ) {
       if (!streamp(stream))
         fehler_stream(stream);
       else
@@ -2114,7 +2120,9 @@ LISPFUNN(two_way_stream_input_stream,1)
 # (TWO-WAY-STREAM-INPUT-STREAM stream), CLtL2 S. 507
   {
     var object stream = popSTACK();
-    if (!(TheStream(stream)->strmtype == strmtype_twoway)) {
+    if (!(builtin_stream_p(stream)
+          && (TheStream(stream)->strmtype == strmtype_twoway)
+       ) ) {
       if (!streamp(stream))
         fehler_stream(stream);
       else
@@ -2127,7 +2135,9 @@ LISPFUNN(two_way_stream_output_stream,1)
 # (TWO-WAY-STREAM-OUTPUT-STREAM stream), CLtL2 S. 507
   {
     var object stream = popSTACK();
-    if (!(TheStream(stream)->strmtype == strmtype_twoway)) {
+    if (!(builtin_stream_p(stream)
+          && (TheStream(stream)->strmtype == strmtype_twoway)
+       ) ) {
       if (!streamp(stream))
         fehler_stream(stream);
       else
@@ -2271,7 +2281,9 @@ LISPFUNN(echo_stream_input_stream,1)
 # (ECHO-STREAM-INPUT-STREAM stream), CLtL2 S. 507
   {
     var object stream = popSTACK();
-    if (!(TheStream(stream)->strmtype == strmtype_echo)) {
+    if (!(builtin_stream_p(stream)
+          && (TheStream(stream)->strmtype == strmtype_echo)
+       ) ) {
       if (!streamp(stream))
         fehler_stream(stream);
       else
@@ -2284,7 +2296,9 @@ LISPFUNN(echo_stream_output_stream,1)
 # (ECHO-STREAM-OUTPUT-STREAM stream), CLtL2 S. 507
   {
     var object stream = popSTACK();
-    if (!(TheStream(stream)->strmtype == strmtype_echo)) {
+    if (!(builtin_stream_p(stream)
+          && (TheStream(stream)->strmtype == strmtype_echo)
+       ) ) {
       if (!streamp(stream))
         fehler_stream(stream);
       else
@@ -16918,8 +16932,15 @@ LISPFUNN(built_in_stream_set_element_type,2)
         {
           var object symbol = TheStream(stream)->strm_synonym_symbol;
           stream = get_synonym_stream(symbol);
-          goto start;
+          if (builtin_stream_p(stream))
+            goto start;
+          else {
+            # Call ((SETF STREAM-ELEMENT-TYPE) element-type stream):
+            pushSTACK(STACK_1); pushSTACK(stream);
+            funcall(O(setf_stream_element_type),2);
+          }
         }
+        break;
       case strmtype_file:
       #ifdef PIPES
       case strmtype_pipe_in:
