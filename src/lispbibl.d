@@ -14442,7 +14442,6 @@ extern sintL I_to_L (object obj);
  there must be room for 1 digit below of MSDptr.
  can trigger GC */
 extern maygc object UDS_to_I (uintD* MSDptr, uintC len);
-extern maygc object udigits_to_I (void* digits, uintC len);
 /* is used by modules */
 
 /* Digit Sequence to Integer
