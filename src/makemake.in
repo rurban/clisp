@@ -2518,14 +2518,8 @@ fi
 
 for f in sigsegv; do
   if [ $HOS = unix ] ; then
-    echol "$f/$f.h $f/lib$f.a :"
-    echotab "cd $f && \$(MAKE) && \$(MAKE) check"
-    echol
-    echol "$f.h : $f/$f.h"
-    echotab "-\$(LN) $f/$f.h $f.h"
-    echol
-    echol "lib$f.a : $f/lib$f.a"
-    echotab "-\$(LN) $f/lib$f.a lib$f.a"
+    echol "$f.h lib$f.a :"
+    echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) check && \$(MAKE) install libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
     echol
   fi
   if [ $HOS = win32 ] ; then
