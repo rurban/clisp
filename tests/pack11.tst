@@ -421,6 +421,8 @@ t
 (delete-package pg1)             t
 (delete-package pg2)             t
 (delete-package pg3)             t
+(delete-package "TEST2")         t
+(delete-package "TEST1")         t
 
 ; use-package | unuse-package
 
@@ -509,6 +511,13 @@ c
 
 (cl:and (cl:in-package "CL-USER") cl:T)
 CL:T
+
+(delete-package "EDITOR")      T
+(delete-package "SHADOW-TEST") T
+(delete-package "USE-TEST")    T
+(delete-package "INHERIT2")    T
+(delete-package "INHERIT1")    T
+(delete-package "INHERIT")     T
 
 ; find-all-symbols fehlerhaft
 (and (member 'cl-user::x (setf s (find-all-symbols 'x)))T)
@@ -701,5 +710,5 @@ t)t
 (with-package-iterator-inherited (list (find-package "COMMON-LISP"))) t
 (with-package-iterator-all (list (find-package "COMMON-LISP"))) t
 
-(format t "End of file")
+(map nil #'print (list-all-packages))
 nil
