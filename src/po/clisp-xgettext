@@ -74,9 +74,19 @@
                                 (string= line "*/" :start1 pos :end1 (+ pos 2)))
                            (incf pos 2))
                           ((eql (char line pos) #\")
-                           (let (string)
-                             (multiple-value-setq (string pos)
-                               (read-from-string line t nil :start pos))
+                           (let ((string (make-array 0 :element-type 'character
+                                                       :fill-pointer t
+                                                       :adjustable t)))
+                             (loop
+                               (incf pos)
+                               (case (char line pos)
+                                 (#\" (incf pos) (return))
+                                 (#\\
+                                    (incf pos)
+                                    (let ((c (char line pos)))
+                                      (cond ((eq c #\n) (setq c #\Newline)))
+                                      (vector-push-extend c string)))
+                                 (t (vector-push-extend (char line pos) string))))
                              (setq accu (concatenate 'string accu string))
                           ))
                           ((and (<= (+ pos 8) (length line))
