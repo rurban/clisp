@@ -1,5 +1,27 @@
 2001-09-17  Sam Steingold  <sds@gnu.org>
 
+	finished the Pretty-Printer
+	* constsym.d, subr.d (FORMAT-TABULATE): added
+	* format.lisp (format-tabulate): commented out
+	* lispbibl.d (cons_ssstring): take args
+	(PUSH_CONS, PPHELP_PUSH, PPHELP_NEW_STRING): removed
+	* stream.d (make_pphelp_stream): call cons_ssstring() with args
+	(wr_ch_pphelp): use cons_ssstring() instead of PPHELP_NEW_STRING()
+	* io.d (strm_pphelp_strings): contains NL/indent/tab too
+	(cons_ssstring): take 2 agrs - stream pointer and NL type
+	(format_tab): new function
+	(pprint_prefix): take an additional `prefix' arg
+	(pphelp_newline): use cons_ssstring() instead of PPHELP_NEW_STRING()
+	(klammer_zu): drop the newline / indentation / tab
+	(mutli_line_sub_block_out): new function
+	(justify_end_eng, justify_end_weit): use it
+	(space_available, pphelp_length, string_fit_line_p): new functions
+	(pr_enter_1): accomodate the new strm_pphelp_strings format
+	(PPRINT-NEWLINE): implemented non-mandatory newlines
+	(FORMAT-TABULATE): moved here from format.lisp
+
+2001-09-17  Sam Steingold  <sds@gnu.org>
+
 	* io.d (syntax_readtable_get, syntax_readtable_put): new macros
 	(SET-SYNTAX-FROM-CHAR, GET-MACRO-CHARACTER, read_char_syntax,
 	wpeek_char_syntax, wpeek_char_eof): use them
