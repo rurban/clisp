@@ -934,8 +934,6 @@ DEFUN(POSIX::STAT-VFS, file)
 
 #endif /* UNIX */
 
-/* COPY-FILE related functions. */
-
 #if defined(WIN32_NATIVE)
 
 /* Pointers to functions unavailable on windows 95, 98, ME */
@@ -951,8 +949,35 @@ typedef BOOL (WINAPI * BackupWriteFuncType)
    LPVOID *lpContext);
 static BackupWriteFuncType BackupWriteFunc = NULL;
 
-static HMODULE kernel32 = NULL;
+typedef HRESULT (WINAPI * StgOpenStorageExFuncType) (const WCHAR* pwcsName,
+            DWORD grfMode, DWORD stgfmt, DWORD grfAttrs, void * reserved1,
+            void * reserved2, REFIID riid, void ** ppObjectOpen);
+static StgOpenStorageExFuncType StgOpenStorageExFunc = NULL;
 
+static HMODULE kernel32 = NULL;
+static HMODULE ole32 = NULL;
+
+#endif
+
+void module__syscalls__init_function_2 (module_t* module) {
+#if defined(WIN32_NATIVE)
+  kernel32 = LoadLibrary ("kernel32.dll");
+  if (kernel32 != NULL) {
+    CreateHardLinkFunc = (CreateHardLinkFuncType)
+      GetProcAddress (kernel32, "CreateHardLinkA");
+    BackupWriteFunc = (BackupWriteFuncType)
+      GetProcAddress (kernel32, "BackupWrite");
+  }
+  ole32 =  LoadLibrary ("ole32.dll");
+  if (ole32 != NULL)
+    StgOpenStorageExFunc = (StgOpenStorageExFuncType)
+      GetProcAddress (ole32, "StgOpenStorageEx");
+#endif
+}
+
+/* COPY-FILE related functions. */
+
+#if defined(WIN32_NATIVE)
 /* Checks if it's safe to call OldHardLink */
 static BOOL OldHardLinkGuard () {
   OSVERSIONINFO vi;
@@ -1028,21 +1053,7 @@ static BOOL OldHardLink( LPCTSTR source, LPCTSTR dest ) {
    CloseHandle( hFileSource );
    return bSuccess;
 }
-#endif
 
-void module__syscalls__init_function_2 (module_t* module) {
-#if defined(WIN32_NATIVE)
-  kernel32 = LoadLibrary ("kernel32.dll");
-  if (kernel32 != NULL) {
-    CreateHardLinkFunc = (CreateHardLinkFuncType)
-      GetProcAddress (kernel32, "CreateHardLinkA");
-    BackupWriteFunc = (BackupWriteFuncType)
-      GetProcAddress (kernel32, "BackupWrite");
-  }
-#endif
-}
-
-#if defined(WIN32_NATIVE)
 static inline int MkHardLink (char* old_pathstring, char* new_pathstring) {
   if (CreateHardLinkFunc != NULL)
     return CreateHardLinkFunc(new_pathstring,old_pathstring,NULL);
@@ -1850,6 +1861,681 @@ DEFUN(POSIX::MEMORY-STATUS,)
   pushSTACK(UL_to_I(ms.dwAvailVirtual));
 #endif
   funcall(`POSIX::MKMEMSTAT`,6);
+}
+
+/* FILE-PROPERTIES */
+
+#ifndef PIDSI_TITLE
+#define PIDSI_TITLE               0x00000002L
+#define PIDSI_SUBJECT             0x00000003L
+#define PIDSI_AUTHOR              0x00000004L
+#define PIDSI_KEYWORDS            0x00000005L
+#define PIDSI_COMMENTS            0x00000006L
+#define PIDSI_TEMPLATE            0x00000007L
+#define PIDSI_LASTAUTHOR          0x00000008L
+#define PIDSI_REVNUMBER           0x00000009L
+#define PIDSI_EDITTIME            0x0000000aL
+#define PIDSI_LASTPRINTED         0x0000000bL
+#define PIDSI_CREATE_DTM          0x0000000cL
+#define PIDSI_LASTSAVE_DTM        0x0000000dL
+#define PIDSI_PAGECOUNT           0x0000000eL
+#define PIDSI_WORDCOUNT           0x0000000fL
+#define PIDSI_CHARCOUNT           0x00000010L
+#define PIDSI_THUMBNAIL           0x00000011L
+#define PIDSI_APPNAME             0x00000012L
+#define PIDSI_DOC_SECURITY        0x00000013L
+#define PID_CODEPAGE	0x1
+#define PID_LOCALE	0x80000000
+#define PRSPEC_LPWSTR	( 0 )
+#define PRSPEC_PROPID	( 1 )
+#define STG_E_PROPSETMISMATCHED   0x800300F0L
+#endif 
+
+/* Pushes corresponding value to STACK */
+static int PropVariantToLisp (PROPVARIANT *pvar) {
+  if(pvar->vt & VT_ARRAY) {
+    pushSTACK(`:ARRAY`);
+    return 1;
+  }
+  if(pvar->vt & VT_BYREF) {
+    pushSTACK(`:BYREF`);
+    return 1;
+  }
+  switch(pvar->vt) {
+    case VT_EMPTY: pushSTACK(`:EMPTY`); break;
+    case VT_NULL:  pushSTACK(`:NULL`);  break;
+    case VT_BLOB:  pushSTACK(`:BLOB`);  break;
+    case VT_BOOL:  pushSTACK(pvar->boolVal ? T : NIL);
+      break;
+    case VT_I1:
+      pushSTACK(sfixnum(pvar->cVal));  break;
+    case VT_UI1:
+      pushSTACK(fixnum(pvar->bVal));  break;
+    case VT_I2: 
+      pushSTACK(sfixnum(pvar->iVal));  break;
+    case VT_UI2:
+      pushSTACK(fixnum(pvar->uiVal));  break;
+    case VT_I4:
+    case VT_INT:
+      pushSTACK(L_to_I(pvar->lVal));  break;
+    case VT_UI4:
+    case VT_UINT:
+      pushSTACK(UL_to_I(pvar->ulVal));  break;
+    case VT_ERROR:
+      pushSTACK(UL_to_I(pvar->scode));  break;
+    case VT_I8:
+      pushSTACK(sint64_to_I(*((sint64 *)&pvar->hVal)));  break;
+    case VT_CY: {
+      double dbl = (*((sint64 *)&pvar->cyVal))/10000.0;
+      pushSTACK(c_double_to_DF((dfloatjanus *)&dbl));  break; }
+    case VT_UI8:
+      pushSTACK(uint64_to_I(*((uint64 *)&pvar->uhVal)));  break;
+    case VT_R4:
+      pushSTACK(c_float_to_FF((ffloatjanus *)&pvar->fltVal));
+      break;
+    case VT_R8: 
+      pushSTACK(c_double_to_DF((dfloatjanus *)&pvar->dblVal));
+      break;
+    case VT_DATE:
+      pushSTACK(c_double_to_DF((dfloatjanus *)&pvar->date));
+      break;
+    case VT_BSTR:
+      pushSTACK(n_char_to_string((const char *)pvar->bstrVal,
+        *((DWORD *)(((const char *)pvar->bstrVal)-4)),
+        Symbol_value(S(unicode_16_little_endian))));
+      break;
+    case VT_LPSTR: 
+      pushSTACK(asciz_to_string(pvar->pszVal,GLO(misc_encoding)));
+      break;
+    case VT_LPWSTR: 
+      pushSTACK(n_char_to_string((const char *)pvar->pwszVal,
+        wcslen(pvar->pwszVal)*2,
+        Symbol_value(S(unicode_16_little_endian))));
+      break;
+    case VT_FILETIME:
+      {
+        /* The FILETIME data structure is a 64-bit value representing
+           the number of 100-nanosecond intervals since January 1, 1601. */
+        /* It represents UTC time usually. */
+        /* divide it by 10 000 000 and subtract 109207*24*3600 - the number of
+           seconds between 1.1.1601 and 1.1.1900 (doesn't fit to ulong)
+           to obtain the time in universal time format */
+        __int64 ft64 = pvar->filetime.dwHighDateTime;
+        ft64 <<= 32;
+        ft64 += pvar->filetime.dwLowDateTime;
+        ft64 /= 10000000; ft64 -= ((__int64)109207)*86400;
+        pushSTACK(UL_to_I((unsigned long) (ft64 & 0xFFFFFFFF)));
+      }
+      break;
+    case VT_CF:
+      pushSTACK(`:CLIPBOARD-FORMAT`);
+      break;
+    default: 
+      pushSTACK(`:NOTIMPL`);
+      break;
+  }
+  return 1;
+}
+
+/* popSTACK -> pvar  */
+static int LispToPropVariant (PROPVARIANT * pvar) {
+  int rv = 0;int sfp = 0;
+  VARTYPE typehint = VT_EMPTY;
+  if (consp(STACK_0)) {
+    /* (KW VALUE) OR (KW NIL) ? */
+    if (!nullp(Cdr(STACK_0)) && !nullp(Car(STACK_0))
+      && consp(Cdr(STACK_0)) && nullp(Cdr(Cdr(STACK_0)))
+      && symbolp(Car(STACK_0)))
+    {
+      if (eq(Car(STACK_0),`:I1`)) typehint = VT_I1; else
+      if (eq(Car(STACK_0),`:UI1`)) typehint = VT_UI1; else
+      if (eq(Car(STACK_0),`:I2`)) typehint = VT_I2; else
+      if (eq(Car(STACK_0),`:UI2`)) typehint = VT_UI2; else
+      if (eq(Car(STACK_0),`:I4`)) typehint = VT_I4; else
+      if (eq(Car(STACK_0),`:INT`)) typehint = VT_INT; else
+      if (eq(Car(STACK_0),`:UI4`)) typehint = VT_UI4; else
+      if (eq(Car(STACK_0),`:UINT`)) typehint = VT_UINT; else
+      if (eq(Car(STACK_0),`:I8`)) typehint = VT_I8; else
+      if (eq(Car(STACK_0),`:UI8`)) typehint = VT_UI8; else
+      if (eq(Car(STACK_0),`:R4`)) typehint = VT_R4; else
+      if (eq(Car(STACK_0),`:R8`)) typehint = VT_R8; else
+      if (eq(Car(STACK_0),`:CY`)) typehint = VT_CY; else
+      if (eq(Car(STACK_0),`:DATE`)) typehint = VT_DATE; else
+      if (eq(Car(STACK_0),`:BSTR`)) typehint = VT_BSTR; else
+      if (eq(Car(STACK_0),`:BOOL`)) typehint = VT_BOOL; else
+      if (eq(Car(STACK_0),`:ERROR`)) typehint = VT_ERROR; else
+      if (eq(Car(STACK_0),`:FILETIME`)) typehint = VT_FILETIME; else
+      if (eq(Car(STACK_0),`:LPSTR`)) typehint = VT_LPSTR; else
+      if (eq(Car(STACK_0),`:LPWSTR`)) typehint = VT_LPWSTR; else {
+        skipSTACK(1); return 0;
+      }
+      STACK_0 = Car(Cdr(STACK_0)); /* VALUE */
+    } else { skipSTACK(1); return 0; }
+  }
+  if (stringp(STACK_0) && (typehint == VT_EMPTY
+    || typehint == VT_BSTR || typehint == VT_LPSTR
+    || typehint == VT_LPWSTR))
+  {
+    if (typehint == VT_EMPTY)
+#define STG_STRINGS_NONUNICODE
+#ifdef STG_STRINGS_UNICODE
+      typehint = VT_LPWSTR;
+#else
+      typehint = VT_LPSTR;
+#endif
+    do {
+      uintL str_len;
+      uintL str_offset;
+      object str_string = unpack_string_ro(STACK_0,&str_len,&str_offset);
+      const chart* ptr1;
+      unpack_sstring_alloca(str_string,str_len,str_offset, ptr1=);
+      if (typehint == VT_LPWSTR || typehint == VT_BSTR) {
+        uintL str_bytelen =
+          cslen_f(Symbol_value(S(unicode_16_little_endian)),ptr1,str_len);
+        LPWSTR str = SysAllocStringByteLen(NULL,str_bytelen+4);
+        if (typehint == VT_BSTR) {
+          /* it's ok, SysAllocStringByteLen returns pointer after DWORD */
+          *(((DWORD *)str)-1) = (DWORD)str_bytelen;
+        }
+        cstombs_f(Symbol_value(S(unicode_16_little_endian)),ptr1,
+            str_len,(uintB *)str,str_bytelen);
+        ((uintB *)str)[str_bytelen] = '\0';
+        ((uintB *)str)[str_bytelen+1] = '\0';
+        pvar->pwszVal = str;
+        pvar->vt = typehint;
+      } else {
+/* Win XP explorer seems to create ANSI strings. So do we. */
+        uintL str_bytelen =
+          cslen_f(GLO(misc_encoding),ptr1,str_len);
+        char * str = (char *) SysAllocStringByteLen(NULL, str_bytelen+2);
+        cstombs_f(GLO(misc_encoding),ptr1,
+            str_len,(uintB *)str,str_bytelen);
+        str[str_bytelen] = '\0';
+        pvar->pszVal = str;
+        pvar->vt = VT_LPSTR;
+      }
+      rv = 1;
+    } while(0);
+  } else if (integerp(STACK_0)) {
+    /* ASSUME FILETIME */
+    if (typehint == VT_EMPTY) typehint = VT_FILETIME;
+    if (typehint == VT_FILETIME) {
+      /* doesn't always fit in fixnum */
+      /* see filetime read handling in PropVariantToLisp */
+      unsigned long int utf = I_to_UL(STACK_0);
+      __int64 i64 = utf;
+      i64 += ((__int64)109207)*86400;
+      i64 *= 10000000;
+      pvar->filetime.dwHighDateTime = (unsigned long) (i64>>32 & 0xFFFFFFFFul);
+      pvar->filetime.dwLowDateTime  = (unsigned long) (i64 & 0xFFFFFFFFul);
+      pvar->vt = VT_FILETIME;
+      rv = 1;
+    } else if (typehint == VT_I1) {
+      pvar->vt = typehint; pvar->cVal = I_to_sint8(STACK_0); rv = 1;
+    } else if (typehint == VT_UI1) {
+      pvar->vt = typehint; pvar->bVal = I_to_uint8(STACK_0); rv = 1;
+    } else if (typehint == VT_I2) {
+      pvar->vt = typehint; pvar->iVal = I_to_sint16(STACK_0); rv = 1;
+    } else if (typehint == VT_UI2) {
+      pvar->vt = typehint; pvar->uiVal = I_to_uint16(STACK_0); rv = 1;
+    } else if (typehint == VT_I4 || typehint == VT_INT) {
+      /* VT_I4 != VT_INT */
+      pvar->vt = typehint; pvar->lVal = I_to_sint32(STACK_0); rv = 1;
+    } else if (typehint == VT_UI4 || typehint == VT_UINT) {
+      pvar->vt = typehint; pvar->ulVal = I_to_uint32(STACK_0); rv = 1;
+    } else if (typehint == VT_ERROR) {
+      pvar->vt = typehint; pvar->scode = I_to_uint32(STACK_0); rv = 1;
+    } else if (typehint == VT_I8) {
+      pvar->vt = typehint;
+      *((sint64 *)&pvar->hVal) = I_to_sint64(STACK_0);rv = 1;
+    } else if (typehint == VT_UI8) {
+      pvar->vt = typehint;
+      *((uint64 *)&pvar->uhVal) = I_to_uint64(STACK_0);rv = 1;
+    } else if (typehint == VT_CY) {
+      sint64 i64 = I_to_uint64(STACK_0);
+      pvar->vt = typehint;
+      *((uint64 *)&pvar->cyVal) = i64*10000;rv = 1;
+    }
+  } else if ((sfp = single_float_p(STACK_0)) || double_float_p(STACK_0)) {
+    if (typehint == VT_EMPTY) typehint = (sfp?VT_R4:VT_R8);
+    if (typehint == VT_R4) {
+      if (sfp) {
+        pvar->vt = VT_R4;
+        pvar->fltVal = 0;
+        FF_to_c_float(STACK_0,(ffloatjanus *)&pvar->fltVal);
+        rv = 1;
+      }
+    } else if (typehint == VT_R8) {
+      pvar->vt = VT_R8;
+      if (sfp) {
+        float v = 0;
+        FF_to_c_float(STACK_0,(ffloatjanus *)&v);
+        pvar->dblVal = v;
+      } else {
+        pvar->dblVal = 0; /* DF_to_c_double takes only clean doubles */
+        DF_to_c_double(STACK_0,(dfloatjanus *)&pvar->dblVal);
+      }
+      rv = 1;
+    } else if (typehint == VT_DATE && double_float_p(STACK_0)) {
+    /* A 64-bit floating point number representing the number of days
+       (not seconds) since December 31, 1899. For example, January 1, 1900,
+       is 2.0, January 2, 1900, is 3.0, and so on). This is stored in the
+       same representation as VT_R8. */
+      pvar->vt = VT_DATE;
+      pvar->date = 0;
+      DF_to_c_double(STACK_0,(dfloatjanus *)&pvar->date);
+      rv = 1;
+    } else if (typehint == VT_CY) {
+      double dbl = 0; float v = 0;
+      pvar->vt = typehint;
+      if (sfp) {
+        FF_to_c_float(STACK_0,(ffloatjanus *)&v);
+        dbl = v;
+      } else {
+        DF_to_c_double(STACK_0,(dfloatjanus *)&dbl);
+      }
+      *((uint64 *)&pvar->cyVal) = (uint64) (dbl*10000 + 0.5);rv = 1;
+    }
+  } else if (symbolp(STACK_0)) {
+    if (typehint == VT_EMPTY && eq(STACK_0,`:EMPTY`)) {
+      pvar->vt = VT_EMPTY; rv = 1; } else
+    if (typehint == VT_EMPTY && eq(STACK_0,`:NULL`)) {
+      pvar->vt = VT_NULL;  rv = 1; } else
+    if (typehint == VT_BOOL && eq(STACK_0,NIL)) {
+      pvar->vt = VT_BOOL; pvar->boolVal = FALSE;  rv = 1; } else
+    if (typehint == VT_BOOL && eq(STACK_0,T)) {
+      pvar->vt = VT_BOOL; pvar->boolVal = TRUE;  rv = 1; }
+  }
+  skipSTACK(1);
+  return rv;
+}
+
+WINOLEAPI PropVariantClear(
+  PROPVARIANT* pvar
+);
+
+static PROPID kwtopropid () {
+  PROPID rv = (PROPID)-1;
+  if (eq(STACK_0,`:CODEPAGE`)) rv = PID_CODEPAGE; else
+  if (eq(STACK_0,`:LOCALE`)) rv = PID_LOCALE; else
+  if (eq(STACK_0,`:TITLE`)) rv = PIDSI_TITLE; else
+  if (eq(STACK_0,`:SUBJECT`)) rv = PIDSI_SUBJECT; else
+  if (eq(STACK_0,`:AUTHOR`)) rv = PIDSI_AUTHOR; else
+  if (eq(STACK_0,`:KEYWORDS`)) rv = PIDSI_KEYWORDS; else
+  if (eq(STACK_0,`:COMMENTS`)) rv = PIDSI_COMMENTS; else
+  if (eq(STACK_0,`:TEMPLATE`)) rv = PIDSI_TEMPLATE; else
+  if (eq(STACK_0,`:LASTAUTHOR`)) rv = PIDSI_LASTAUTHOR; else
+  if (eq(STACK_0,`:REVNUMBER`)) rv = PIDSI_REVNUMBER; else
+  if (eq(STACK_0,`:EDITTIME`)) rv = PIDSI_EDITTIME; else
+  if (eq(STACK_0,`:LASTPRINTED`)) rv = PIDSI_LASTPRINTED; else
+  if (eq(STACK_0,`:CREATE-DTM`)) rv = PIDSI_CREATE_DTM; else
+  if (eq(STACK_0,`:LASTSAVE-DTM`)) rv = PIDSI_LASTSAVE_DTM; else
+  if (eq(STACK_0,`:PAGECOUNT`)) rv = PIDSI_PAGECOUNT; else
+  if (eq(STACK_0,`:WORDCOUNT`)) rv = PIDSI_WORDCOUNT; else
+  if (eq(STACK_0,`:CHARCOUNT`)) rv = PIDSI_CHARCOUNT; else
+  if (eq(STACK_0,`:THUMBNAIL`)) rv = PIDSI_THUMBNAIL; else
+  if (eq(STACK_0,`:APPNAME`)) rv = PIDSI_APPNAME; else
+  if (eq(STACK_0,`:DOC-SECURITY`)) rv = PIDSI_DOC_SECURITY; 
+  skipSTACK(1);
+  return rv;
+}
+
+/* popSTACK string -> PROPSPEC */
+static void PropSpecSetStr (PROPSPEC * pspec) {
+  pspec->ulKind = PRSPEC_LPWSTR;
+  do {
+    uintL str_len;
+    uintL str_offset;
+    object str_string = unpack_string_ro(STACK_0,&str_len,&str_offset);
+    const chart* ptr1;
+    unpack_sstring_alloca(str_string,str_len,str_offset, ptr1=);
+    { uintL str_bytelen =
+        cslen_f(Symbol_value(S(unicode_16_little_endian)),ptr1,str_len);
+      pspec->lpwstr = (LPOLESTR) malloc(str_bytelen+2);
+      cstombs_f(Symbol_value(S(unicode_16_little_endian)),ptr1,
+        str_len,(uintB *)pspec->lpwstr,str_bytelen);
+    ((uintB *)pspec->lpwstr)[str_bytelen] = '\0';
+    ((uintB *)pspec->lpwstr)[str_bytelen+1] = '\0';
+  }} while(0);
+  skipSTACK(1);
+}
+
+/* popSTACK list (ID STRING) -> PROPSPEC(ID), PROPSPEC(STR)
+   STACK may don't match the pattern (then function returns false)
+   any of pspec1, pspec2 can be NULL */
+static int propspeclistp (PROPSPEC * pspec1,PROPSPEC * pspec2) {
+  /* check if it is (INT STRING) */
+  if (consp(STACK_0) && !nullp(Cdr(STACK_0)) && !nullp(Car(STACK_0))
+    && consp(Cdr(STACK_0)) && nullp(Cdr(Cdr(STACK_0)))
+    && !nullp(Car(Cdr(STACK_0)))
+    && (integerp(Car(STACK_0)) || symbolp(Car(STACK_0)))
+    && stringp(Car(Cdr(STACK_0))))
+  {
+    /* set pspec1 to ID and pspec2 to STRING */
+    if (pspec1) {
+      pspec1->ulKind =  PRSPEC_PROPID;
+      if (integerp(Car(STACK_0)))
+        pspec1->propid = I_to_UL(Car(STACK_0));
+      else {
+        pushSTACK(Car(STACK_0));
+        pspec1->propid = kwtopropid();
+        if (pspec1->propid == (PROPID) -1) {
+          skipSTACK(1);
+          return 0;
+        }
+      }
+    }
+    if (pspec2) {
+      pushSTACK(Car(Cdr(STACK_0)));
+      PropSpecSetStr(pspec2);
+    }
+    skipSTACK(1);
+    return 1;
+  }
+  skipSTACK(1);
+  return 0;
+}
+
+/* popSTACK (keyword, int, list (ID STRING) or string) -> PROPSPEC
+   uses malloc to allocate memory for string specifiers
+     (when ulKind == PRSPEC_LPWSTR)
+   pspec2 can be NULL */
+static int PropSpecSet (PROPSPEC * pspec1, PROPSPEC * pspec2) {
+  ZeroMemory(pspec1, sizeof(PROPSPEC));
+  if (pspec2) ZeroMemory(pspec2, sizeof(PROPSPEC));
+  if (symbolp(STACK_0)) {
+    pspec1->ulKind = PRSPEC_PROPID;
+    pspec1->propid = kwtopropid();
+    if (pspec1->propid == (PROPID) -1) return 0;
+    return 1;
+  } else if (stringp(STACK_0)) {
+    PropSpecSetStr(pspec1);
+    return 1;
+  } else if (integerp(STACK_0)) {
+    pspec1->ulKind = PRSPEC_PROPID;
+    pspec1->propid = I_to_UL(popSTACK());
+    return 1;
+  } else if (propspeclistp(pspec1,pspec2)) return 2;
+  skipSTACK(1);
+  return 0;
+}
+
+static const char * DecodeHRESULT (HRESULT hres) {
+  static char buf[128];
+  char * msg = NULL;
+#define msgcase(x) case x: return #x; break;
+  switch (hres) {
+  msgcase(E_UNEXPECTED)
+  msgcase(STG_E_FILENOTFOUND)
+  msgcase(STG_E_ACCESSDENIED)
+  msgcase(STG_E_INSUFFICIENTMEMORY)
+  msgcase(STG_E_INVALIDFUNCTION)
+  msgcase(STG_E_REVERTED)
+  msgcase(STG_E_INVALIDPARAMETER)
+  msgcase(STG_E_INVALIDNAME)
+  msgcase(S_FALSE)
+  msgcase(STG_E_INVALIDPOINTER)
+  msgcase(HRESULT_FROM_WIN32(ERROR_NO_UNICODE_TRANSLATION))
+  msgcase(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED))
+  msgcase(STG_E_WRITEFAULT)
+  msgcase(STG_E_MEDIUMFULL)
+  msgcase(STG_E_PROPSETMISMATCHED)
+  }
+#undef msgcase
+  sprintf(buf,"0x%x",hres);
+  return buf;
+}
+
+#define with_string_0w(string,wcvar,statement) \
+  do { var uintL wcvar##_len;                  \
+    var uintL wcvar##_offset;                  \
+    var object wcvar##_string = unpack_string_ro(string,&wcvar##_len,&wcvar##_offset); \
+    var const chart* ptr1;                     \
+    unpack_sstring_alloca(wcvar##_string,wcvar##_len,wcvar##_offset, ptr1=); \
+   {var uintL wcvar##_bytelen =                \
+     cslen_f(Symbol_value(S(unicode_16_little_endian)),ptr1,wcvar##_len); \
+    var DYNAMIC_ARRAY(wcvar##_data,uintB,wcvar##_bytelen+2); \
+    cstombs_f(Symbol_value(S(unicode_16_little_endian)),ptr1,\
+      wcvar##_len,&wcvar##_data[0],wcvar##_bytelen); \
+    wcvar##_data[wcvar##_bytelen] = '\0';            \
+    wcvar##_data[wcvar##_bytelen+1] = '\0';          \
+    {var WCHAR* wcvar = (WCHAR*) &wcvar##_data[0];   \
+     statement                                       \
+    }                                                \
+    FREE_DYNAMIC_ARRAY(wcvar##_data);                \
+  }} while(0)
+
+/* there's no PropVariantInit in my cygwin headers */
+#define MyPropVariantInit(ppv) ZeroMemory(ppv,sizeof(PROPVARIANT))
+
+/* (POSIX::FILE-PROPERTIES filename set [specifier value|:INITID init-id]*)
+     Wrapper for Win32 IPropertyStorage functionality
+     filename - a compound file name or (on NTFS) name of any file
+     set      - :BUILT-IN or :USER-DEFINED property set
+     specifier - property specifier: integer, keyword, string or
+       list of integer or keyword and string.
+       Integer specifier - a property identifier
+       Keyword:  :CODEPAGE, :LOCALE,   :TITLE, :SUBJECT, :AUTHOR,
+                 :KEYWORDS, :COMMENTS, :TEMPLATE, :LASTAUTHOR,
+                 :REVNUMBER, :EDITTIME, :LASTPRINTED,:CREATE-DTM,
+                 :LASTSAVE-DTM, :PAGECOUNT, :WORDCOUNT, :CHARCOUNT,
+                 :THUMBNAIL, :APPNAME, :DOC-SECURITY - predefined IDs.
+       String: string property specifier. If no match is found, first
+         ID >= init-id (which defaults to 2) is associated with the
+         string and it's value is replaced with new value.
+       (int|keyword string) - first element is used as specifier, 
+         string is associated with this ID.
+     value - new value of the property, suitable lisp object, nil or list of
+       keyword and value itself. If value is NIL, no assignment is done. 
+       :EMPTY and :NULL correspond VT_EMPTY and VT_NULL datatypes.
+       Keyword in the list specifies the desired type of property being set.
+       Supported types are :I1, :UI1, :I2, :UI2, :I4, :UI4, :UINT, :I8,
+         :UI8, :R4, :R8, :DATE, :BSTR, :BOOL, :ERROR, :FILETIME, 
+         :LPSTR, :LPWSTR. FILETIMEs are converted to/from universal time format,
+         while DATEs are not.
+
+     returns multiple values - property contents before assignment.
+ */
+
+
+DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
+{
+  /* TODO: close interfaces even on errors;
+           support more datatypes
+           use IPropertySetStorage::Create when it doesn't exist */
+  IPropertyStorage * ppropstg = NULL;
+  IPropertySetStorage * ppropsetstg = NULL;
+  HRESULT hres;
+  REFFMTID  fmtid = NULL;
+  PROPSPEC * pspecrd = NULL;
+  PROPSPEC * pspecwr = NULL;
+  PROPVARIANT * pvarrd = NULL;
+  PROPVARIANT * pvarwr = NULL;
+  PROPID * propidwpnvec = NULL; /* args for WritePropertyNames */
+  LPWSTR * lpwstrwpnvec = NULL;
+  int ifile = argcount + 1;
+  int iset = argcount;
+  int i;
+  unsigned int initid = 2;
+  int use_wpn = 0; /* should WritePropertyNames be used ? */
+  int nproprd = 0, npropwr = 0; /* npropd >= npropwr */
+  int cproprd = 0, cpropwr = 0;
+  int cwpnpar = 0;
+  /* argcount is (length pairs), not the total arg count */
+  /* no &rest ? no sense. */
+  if (argcount == 0) {
+    skipSTACK(2);
+    VALUES0;
+    return;          }
+  /* count the number of r/rw props, checking arglist sanity */
+  if (argcount % 2) {
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(program_error,
+      GETTEXT("~S: bad argument list - it must have even number of elements"));
+  }
+  for(i=argcount-1;i>=0;i--) {
+    if (i % 2) { /* specifier */
+      if (!symbolp(STACK_(i)) && !stringp(STACK_(i))
+        && !posfixnump(STACK_(i)))
+      {
+        pushSTACK(STACK_(i));
+        if (!propspeclistp(NULL,NULL)) {
+          pushSTACK(TheSubr(subr_self)->name);
+          fehler(program_error,
+            GETTEXT("~S: bad property specifier - it must be string, "
+            "positive number, list or keyword"));
+        } else { use_wpn++; nproprd++; }
+      } else if (symbolp(STACK_(i)) && eq(STACK_(i),`:INITID`)) initid = 0;
+      else nproprd++;
+    } else { /* value */
+      if (!initid) {
+        if (integerp(STACK_(i))) initid = I_to_UL(STACK_(i));
+        else {
+          pushSTACK(STACK_(i));
+          pushSTACK(TheSubr(subr_self)->name);
+          fehler(program_error,GETTEXT("~S: bad INITID specifier: ~S"));
+        }
+      } else if (!nullp(STACK_(i))) npropwr++;
+    }
+  }
+  if (!StgOpenStorageExFunc) {
+    SetLastError(ERROR_INVALID_FUNCTION);
+    OS_error();
+  }
+  STACK_(ifile) = physical_namestring(STACK_(ifile));
+  with_string_0w(STACK_(ifile), filename, {
+    hres = StgOpenStorageExFunc(filename,
+      ((npropwr||use_wpn)?STGM_READWRITE:STGM_READ) | STGM_SHARE_EXCLUSIVE,
+      4 /* STGFMT_ANY */, 0, NULL /*&stgOp*/, 0, &IID_IPropertySetStorage,
+      (void **)&ppropsetstg);
+  });
+  if (FAILED(hres)) {
+    pushSTACK(STACK_(ifile));
+    pushSTACK(TheSubr(subr_self)->name);
+    switch(hres) {
+      case STG_E_FILENOTFOUND:
+        fehler(file_error,GETTEXT("~S: file ~S does not exist"));
+      case STG_E_FILEALREADYEXISTS:
+        fehler(file_error,GETTEXT(
+          "~S: file ~S is not a compound file nor it is on the NTFS file system"));
+      default:
+        fehler(file_error,GETTEXT(
+          "~S: StgOpenStorageEx() failed on file ~S"));
+    }
+  }
+  if (eq(STACK_(iset),`:USER-DEFINED`))
+    fmtid = (REFFMTID)&FMTID_UserDefinedProperties;
+  else if (eq(STACK_(iset),`:BUILT-IN`))
+    fmtid = (REFFMTID)&FMTID_SummaryInformation;
+  else {
+    pushSTACK(STACK_(iset));
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(file_error,GETTEXT("~S: invalid property set specifier ~S"));
+  }
+  hres = ppropsetstg->lpVtbl->Open(ppropsetstg, fmtid,
+         ((npropwr||use_wpn)?STGM_READWRITE:STGM_READ)
+         | STGM_SHARE_EXCLUSIVE, &ppropstg);
+  if (FAILED(hres)) {
+    pushSTACK(asciz_to_string(DecodeHRESULT(hres),GLO(misc_encoding)));
+    pushSTACK(STACK_(ifile+1));
+    pushSTACK(STACK_(iset+2));
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(file_error,GETTEXT("~S: unable to open ~S IPropertySetStorage of ~S: error ~S"));
+  }
+  /* fill the specifiers, init the variables */
+  pspecrd = (PROPSPEC *)malloc(sizeof(PROPSPEC) * nproprd);
+  pvarrd = (PROPVARIANT *)malloc(sizeof(PROPVARIANT) * nproprd);
+  pspecwr = (PROPSPEC *)malloc(sizeof(PROPSPEC) * npropwr);
+  pvarwr = (PROPVARIANT *)malloc(sizeof(PROPVARIANT) * npropwr);
+  if (use_wpn) {
+    propidwpnvec = (PROPID *)malloc(sizeof(PROPID)*use_wpn);
+    lpwstrwpnvec = (LPWSTR *)malloc(sizeof(LPWSTR)*use_wpn);
+  }
+  if (pspecrd == NULL || pvarrd == NULL
+    || pspecwr == NULL || pvarwr == NULL
+    || use_wpn && (propidwpnvec == NULL || lpwstrwpnvec == NULL)) {
+    free(pspecrd); free(pvarrd);
+    free(pspecwr); free(pvarwr);
+    free(propidwpnvec);free(lpwstrwpnvec);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(storage_condition,GETTEXT("~S: no memory"));
+  }
+  for(i=0;i<argcount;i+=2) {
+    /* i+1 - specifier, i - value */
+    PROPSPEC second;
+    int pssresult;
+    if (symbolp(STACK_(i+1)) && eq(STACK_(i+1),`:INITID`)) continue;
+    pushSTACK(STACK_(i+1));
+    pssresult = PropSpecSet(pspecrd+nproprd-cproprd-1,&second);
+    MyPropVariantInit(pvarrd+nproprd-cproprd-1);
+    if (!nullp(STACK_(i))) {
+      pushSTACK(STACK_(i+1));
+      PropSpecSet(pspecwr+npropwr-cpropwr-1,NULL);
+      MyPropVariantInit(pvarwr+npropwr-cpropwr-1);
+      pushSTACK(STACK_(i));
+      if (!LispToPropVariant(pvarwr+npropwr-cpropwr-1)) {
+        pushSTACK(STACK_(i));
+        pushSTACK(TheSubr(subr_self)->name);
+        fehler(program_error,GETTEXT("~S: cannot convert ~S to PROPVARIANT"));
+      }
+      cpropwr++;
+    }
+    if (use_wpn && pssresult == 2) {
+      propidwpnvec[cwpnpar] = pspecrd[nproprd-cproprd-1].propid;
+      lpwstrwpnvec[cwpnpar] = second.lpwstr;
+      cwpnpar++;
+    }
+    cproprd++;
+  }
+  hres = ppropstg->lpVtbl->ReadMultiple(ppropstg,nproprd, pspecrd, pvarrd);
+  if(FAILED(hres)) {
+    pushSTACK(asciz_to_string(DecodeHRESULT(hres),GLO(misc_encoding)));
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(program_error,GETTEXT("~S: ReadMultiple error: ~S"));
+  }
+  if (npropwr > 0) {
+    hres = ppropstg->lpVtbl->WriteMultiple(ppropstg,npropwr,pspecwr,pvarwr,initid);
+    if(FAILED(hres)) {
+      pushSTACK(asciz_to_string(DecodeHRESULT(hres),GLO(misc_encoding)));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(program_error,GETTEXT("~S: WriteMultiple error: ~S"));
+    }
+  }
+  for (i=0;i<nproprd;i++)
+    if (!PropVariantToLisp(pvarrd+i)) {
+      pushSTACK(fixnum(i));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(program_error,GETTEXT("~S: cannot convert value ~S to Lisp datatype"));
+    }
+  if (use_wpn) {
+    hres = ppropstg->lpVtbl->WritePropertyNames(ppropstg,use_wpn,propidwpnvec,lpwstrwpnvec);
+    if(FAILED(hres)) {
+      pushSTACK(asciz_to_string(DecodeHRESULT(hres),GLO(misc_encoding)));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(program_error,GETTEXT("~S: WritePropertyNames: ~S"));
+    }
+  }
+  if (sizeof(mv_space)/sizeof(mv_space[0]) < nproprd) {
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(program_error,GETTEXT("~S: multiple value count limit reached"));
+  }
+  mv_count = nproprd;
+  for (i=0;i<nproprd;i++) mv_space[nproprd-i-1] = popSTACK();
+  skipSTACK(argcount+2); /* two first args */
+  for (i=0;i<nproprd;i++) {
+    PropVariantClear(pvarrd+i);
+    if (pspecrd[i].ulKind == PRSPEC_LPWSTR) free(pspecrd[i].lpwstr); }
+  for (i=0;i<npropwr;i++) {
+    if (pvarwr[i].vt == VT_LPWSTR || pvarwr[i].vt == VT_BSTR)
+      SysFreeString(pvarwr[i].pwszVal);
+    if (pvarwr[i].vt == VT_LPSTR)
+      SysFreeString((BSTR)pvarwr[i].pszVal);
+    if (pspecwr[i].ulKind == PRSPEC_LPWSTR) free(pspecwr[i].lpwstr); }
+  for (i=0;i<use_wpn;i++) free(lpwstrwpnvec[i]);
+  free(pspecrd); free(pvarrd); free(pspecwr); free(pvarwr);
+  free(propidwpnvec); free(lpwstrwpnvec);
+  ppropstg->lpVtbl->Release(ppropstg);
+  ppropsetstg->lpVtbl->Release(ppropsetstg);
 }
 
 #endif
