@@ -1868,7 +1868,7 @@ LISPSPECFORM(multiple_value_setq, 2,0,nobody)
     });
   }
   /* Return the first among the multiple values as the only value: */
-  value1 = (valcount > 0 ? STACK_(valcount-1) : NIL); mv_count=1;
+  VALUES1(valcount > 0 ? (object)STACK_(valcount-1) : NIL);
   set_args_end_pointer(firstvarptr STACKop 2); /* clean up STACK */
 }
 

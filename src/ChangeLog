@@ -1,3 +1,7 @@
+2004-10-27  Sam Steingold  <sds@gnu.org>
+
+	* control.d (MULTIPLE-VALUE-SETQ): fixed G++ compilation
+
 2004-10-27  Bruno Haible  <bruno@clisp.org>
 
 	* spvw.d (fehler_code_alignment, init_memory): Use %lx to print
