@@ -1,25 +1,26 @@
-# Arithmetik, Level 1
-# operiert auf Digit Sequences (DS) und Unsigned Digit Sequences (UDS).
+# Arithmetic, Level 1
+# operates on Digit Sequences (DS) and Unsigned Digit Sequences (UDS).
 
 
-# Aus LISPBIBL.D importiere:
-# intDsize        Anzahl Bits in einem Digit
-# uintD, sintD    Integer-Typen für ein Digit
+# From LISPBIBL.D this file imports:
+# intDsize        number of bits in a digit
+# uintD, sintD    integer types for a digit
 # log2_intDsize   log2(intDsize)
-# HAVE_DD         Flag, das anzeigt, ob ein Integertyp für Doppel-Digits da ist
-# intDDsize       Anzahl Bits in einem Doppel-Digit
-# uintDD,sintDD   Integer-Typen für ein Doppel-Digit
+# HAVE_DD         flag signalling whether an integer type for double-digit is
+#                 available
+# intDDsize       number of bits in a double-digit
+# uintDD,sintDD   integer types for a double-digit
 
 #if !((32%intDsize)==0)
-  #error "intDsize sollte ein Teiler von 32 sein!"
+  #error "intDsize should be a divisor of 32!"
 #endif
 
 
-# Vorzeichen eines Digit bestimmen
-# sign_of_sintD(wert)
-# > wert: ein Digit
-# < sintD ergebnis: 0 falls wert>=0, -1 falls wert<0.
-  global sint32 sign_of_sintD (sintD wert);
+# Determine the sign of a digit:
+# sign_of_sintD(value)
+# > value: a digit
+# < sintD result: 0 if value>=0, -1 if value<0.
+  global sint32 sign_of_sintD (sintD value);
 #if (intDsize==8)
   #define sign_of_sintD(x)  (sintD)(sign_of_sint16((sint16)(sint8)(x)))
 #endif
@@ -30,8 +31,8 @@
   #define sign_of_sintD(x)  (sintD)(sign_of_sint32(x))
 #endif
 
-# High-Digit eines Doppel-Digit bestimmen
-# highD(wert)
+# Determine the high digit of a double-digit:
+# highD(value)
 #if HAVE_DD
   #if (!(intDsize==16))
     #define highD(x)  ((uintD)((uintDD)(x)>>intDsize))
@@ -40,13 +41,13 @@
   #endif
 #endif
 
-# Low-Digit eines Doppel-Digit bestimmen
-# lowD(wert)
+# Determine the low digit of a double-digit:
+# lowD(value)
 #if HAVE_DD
   #define lowD(x)  ((uintD)(uintDD)(x))
 #endif
 
-# Ein Doppel-Digit aus ihrem High-Digit und ihrem Low-Digit bestimmen:
+# Determine a double-digit from its high digit and its low digit parts:
 # highlowDD(uintD high, uintD low)
 #if HAVE_DD
   #if (!(intDsize==16))
@@ -56,7 +57,7 @@
   #endif
 #endif
 
-# Ein Doppel-Digit aus ihrem High-Digit und ihrem Low-Digit 0 bestimmen:
+# Determine a double-digit from its high digit and its low digit given as 0:
 # highlowDD_0(uintD high)
 #if HAVE_DD
   #if (!(intDsize==16))
@@ -66,7 +67,7 @@
   #endif
 #endif
 
-# Zwei Digits multiplizieren:
+# Multiply two digits:
 # (uintDD)hilo = muluD(uintD arg1, uintD arg2)
 # bzw.
 # muluD(uintD arg1, uintD arg2, uintD hi =, uintD lo =);
@@ -90,9 +91,9 @@
   #endif
 #endif
 
-# Zwei Digits multiplizieren, mit einem Digit als Ergebnis.
+# Multiply two digits, when the result is a single digit.
 # (uintD)lo = muluD_unchecked(uintD arg1, uintD arg2)
-# Es wird vorausgesetzt, dass arg1*arg2 < 2^intDsize.
+# The caller guarantees that arg1*arg2 < 2^intDsize.
   #if (intDsize==8) || (intDsize==16)
     #define muluD_unchecked(arg1,arg2)  ((uintD)((uintD)(arg1)*(uintD)(arg2)))
   #endif
@@ -100,12 +101,12 @@
     #define muluD_unchecked(arg1,arg2)  mulu32_unchecked(arg1,arg2)
   #endif
 
-# Durch ein Digit dividieren:
+# Divide by a digit:
 # divuD(uintDD x, uintD y, uintD q =, uintD r =);
-# bzw.
+# or
 # divuD(uintD xhi, uintD xlo, uintD y, uintD q =, uintD r =);
-# dividiert x/y und liefert q = floor(x/y) und r = (x mod y). x = q*y+r.
-# Es wird vorausgesetzt, dass 0 <= x < 2^intDsize*y.
+# divides x/y and returns q = floor(x/y) and r = (x mod y). x = q*y+r.
+# The caller guarantees that 0 <= x < 2^intDsize*y.
 #if HAVE_DD
   #if (intDsize==8)
     #define divuD  divu_1616_1616
@@ -127,10 +128,10 @@
   #endif
 #endif
 
-# Durch ein Digit dividieren:
+# Divide by a digit:
 # floorD(uintD x, uintD y)
-# dividiert x/y und liefert q = floor(x/y).
-# Es wird vorausgesetzt, dass y > 0.
+# divides x/y and returns q = floor(x/y).
+# The caller guarantees that y > 0.
   #if (intDsize==8) || (intDsize==16)
     #define floorD(arg1,arg2)  (floor((uintD)(arg1),(uintD)(arg2)))
   #endif
@@ -138,36 +139,44 @@
     #define floorD  divu_3232_3232_
   #endif
 
-# Digit sequence (DS) - nur intern verwendet -
-# Zusammenhängender Speicherbereich mit n (ein uintC) Digits,
-# zwischen zwei Pointer MSDptr und LSDptr.
+# Digit Sequence (DS) - only used internally -
+# A consecutive piece of memory, with n digits (n being an uintC),
+# located between two pointers MSDptr and LSDptr.
 #  MSDptr                  LSDptr
-# | MSD ............. LSW |
-# [abgekürzt: MSDptr/n/LSDptr ]
-# In 68000-Manier (vgl. ADDX, SUBX) ist das Most significant Digit an der
-# untersten Adresse, nämlich MSDptr. LSDptr = MSDptr + n zeigt hinter die DS.
-# Falls n = 0, wird die Zahl 0 dargestellt.
-# Falls n > 0, ist das höchstwertige Bit (nämlich  Bit (intDsize-1) von
-#              *MSDptr) das Vorzeichenbit. Schreibt man es noch unendlich
-#              oft an, so erhält man die "unendliche Bitfolge".
-# Normalisierte Digit sequence (NDS) ist eine solche, bei der das MSD nötig
-# ist, also n = 0 oder (n > 0 und nicht alle höchstwertigen intDsize+1 Bits
-# sind gleich).
+# | MSD ............. LSD |
+# [abbreviation: MSDptr/n/LSDptr ]
+# Memory range: MSDptr[0..n-1].
+# LSDptr is = &MSDptr[n].
+# In Big-Endian convention, the most significant digit is located at the lowest
+# address, namely at MSDptr. LSDptr = MSDptr + n points to the memory beyond
+# the DS.
+# If n = 0, the represented number is 0.
+# If n > 0, the most significant bit (namely bit (intDsize-1) of *MSDptr) is
+#           the sign bit. After repeating it infinitely often, one obtains an
+#           "infinite bit sequence".
+#
+# Normalisierte Digit Sequence (NDS)
+# is a digit sequence for which the MSD is necessary, i.e. cannot be optimized
+# away. I.e. either n = 0 or (n > 0 and the intDsize+1 most significant bits
+# are not all the same).
 # In C:
-#   uintD* MSWptr und uintC len.
-#   MSWptr[0] ... MSWptr[(uintL)len-1] sind die Digits.
+#   uintD* MSDptr and uintC len.
+#   MSDptr[0] ... MSDptr[len-1] are the digits.
 
-# Unsigned Digit sequence (UDS) - nur intern verwendet -
-# wie DS (MSD unten, LSD oben), nur ohne Vorzeichen.
-# Normalized Unsigned Digit sequence (NUDS):
-# wie UDS, nur ist entweder n=0 (Zahl 0) oder bei n>0 : *MSDptr >0.
-# (d.h. die Zahl >=0 kann nicht mit weniger Digits als UDS dargestellt werden).
+# Unsigned Digit Sequence (UDS) - only used internally -
+# is like DS (MSD at low addresses, LSD at high addresses), except without a
+# sign.
+#
+# Normalized Unsigned Digit Sequence (NUDS):
+# like UDS, for which the number cannot be represented as an UDS with fewer
+# digits: either n = 0 (represents the number 0) or if n > 0: *MSDptr >0.
 # In C:
-#   uintD* MSWptr und uintC len.
-#   MSWptr[0] ... MSWptr[(uintL)len-1] sind die Digits.
+#   uintD* MSDptr und uintC len.
+#   MSDptr[0] ... MSDptr[len-1] are the digits.
 
-# Zur Konstruktion konstanter DS: D(byte0,byte1,byte2,byte3,) liefert
-# die 32 Bits von {byte0,byte1,byte2,byte3} als 32/intDsize Digits.
+# For constructing compile-time constant DS:
+# D(byte0,byte1,byte2,byte3,) returns the 32 bits of {byte0,byte1,byte2,byte3}
+# as 32/intDsize digits.
   #if (intDsize==8)
     #define D(byte0,byte1,byte2,byte3,dummy)  byte0,byte1,byte2,byte3,
   #endif
@@ -182,17 +191,17 @@
 typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
 
 
-# Es gibt für die innersten Schleifen vier Möglichkeiten:
-# LOOP_EXTERN_C     Alle Schleifen als externe C-compilierte Routinen.
-#                   Portabel, aber evtl. ineffizient.
-# LOOP_INLINE_C     Schleifen ohne Wert (mit GNU-Compiler: alle Schleifen)
-#                   als Macros.
-#                   Portabel, aber evtl. ineffizient.
-# LOOP_EXTERN_ASM   Alle Schleifen als externe Assembler-Routinen.
-#                   Effizienter, aber immer noch Function-Call-Overhead.
-# LOOP_INLINE_ASM   Schleifen ohne Wert (mit GNU-Compiler: alle Schleifen)
-#                   als macroexpandierte Assembler-Routinen inline.
-#                   Ganz effizient.
+# For the innermost loops there are four possible implementations:
+# LOOP_EXTERN_C     All loops as extern C compiled functions.
+#                   Portable, but possibly inefficient.
+# LOOP_INLINE_C     Loops that don't return a value (or with GNU C: all loops)
+#                   as C macros.
+#                   Portable, but possibly inefficient.
+# LOOP_EXTERN_ASM   All loops as external assembler functions.
+#                   More efficient, but still a function call overhead.
+# LOOP_INLINE_ASM   Loops that don't return a value (or with GNU C: all loops)
+#                   as macroexpanded inline assembler routines.
+#                   Very efficient.
 
 #if (defined(MC680X0) || defined(SPARC) || (defined(I80386) && !defined(BORLAND)) || defined(MIPS) || defined(VAX) || defined(ARM)) && !defined(NO_ARI_ASM)
   # diese Assembler beherrsche ich
