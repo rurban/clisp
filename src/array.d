@@ -863,7 +863,7 @@ global object array_dimensions (object array) {
       var uintL* dimptr = &TheIarray(array)->dims[0];
       if (Iarray_flags(array) & bit(arrayflags_dispoffset_bit))
         dimptr++; /* poss. skip displaced-offset */
-      get_space_on_STACK(sizeof(object)*(uintL)rank); /* check STACK */
+      get_space_on_STACK(sizeof(gcv_object_t)*(uintL)rank); /* check STACK */
       {
         var uintC count;
         dotimespC(count,rank, { /* next dimension as fixnum into the stack: */
@@ -4148,7 +4148,7 @@ local map_sequence_function_t initial_contents_aux;
 local object initial_contents (object datenvektor, object dims, uintL rank,
                                object contents) {
   /* put all dimensions on the stack: */
-  get_space_on_STACK(rank*sizeof(object));
+  get_space_on_STACK(rank*sizeof(gcv_object_t));
   if (listp(dims)) {
     while (consp(dims)) {
       pushSTACK(Car(dims)); dims = Cdr(dims);

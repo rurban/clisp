@@ -82,9 +82,9 @@
        # update all pointers in the (new) CONS-region start <= address < end: \
        while (objptr != objptrend) {                                          \
          update((gcv_object_t*)objptr);                                       \
-         objptr += sizeof(object);                                            \
+         objptr += sizeof(gcv_object_t);                                      \
          update((gcv_object_t*)objptr);                                       \
-         objptr += sizeof(object);                                            \
+         objptr += sizeof(gcv_object_t);                                      \
   }} while(0)
 #define update_conses() for_each_cons_page(page, update_conspage(page) )
 
@@ -101,7 +101,7 @@
 #define do_update_symbol()                                                          \
   do { var gcv_object_t* p = (gcv_object_t*)pointerplus(ptr,symbol_objects_offset); \
     var uintC count;                                                                \
-    dotimespC(count,((sizeof(symbol_)-symbol_objects_offset)/sizeof(object)),       \
+    dotimespC(count,((sizeof(symbol_)-symbol_objects_offset)/sizeof(gcv_object_t)), \
       { update(p); p++; } );                                                        \
   } while(0)
 #define do_update_svector()                              \
@@ -258,7 +258,7 @@
 # update weak-pointer-list:
 #define update_weakpointer(ww)                                            \
   do { var gcv_object_t* p = &TheRecord(ww)->recdata[weakpointer_length]; \
-       var uintC count = weakpointer_xlength/sizeof(object);              \
+       var uintC count = weakpointer_xlength/sizeof(gcv_object_t);        \
        dotimespC(count,count,{ update(p); p++; });                        \
   } while(0)
 #define update_weakpointers()                     \

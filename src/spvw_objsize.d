@@ -90,7 +90,7 @@
 #endif
 #define size_svector(length)  # simple-vector                   \
   Varobject_aligned_size(offsetofa(svector_,data),              \
-                         sizeof(object),(uintL)(length))
+                         sizeof(gcv_object_t),(uintL)(length))
 #ifndef TYPECODES
 #define size_siarray(xlength)  # simple indirect array          \
   size_xrecord(1,xlength)
@@ -100,10 +100,10 @@
   Varobject_aligned_size(offsetofa(iarray_,dims),sizeof(uintL),(uintL)(size))
 #define size_srecord(length)  # Simple-Record                   \
   Varobject_aligned_size(offsetofa(record_,recdata),            \
-                         sizeof(object),(uintL)(length))
+                         sizeof(gcv_object_t),(uintL)(length))
 #define size_xrecord(length,xlength)  # Extended-Record                 \
   Varobject_aligned_size(offsetofa(record_,recdata),sizeof(uintB),      \
-                         (sizeof(object)/sizeof(uintB))                 \
+                         (sizeof(gcv_object_t)/sizeof(uintB))                 \
                          *(uintL)(length)+(uintL)(xlength))
 #define size_bignum(length)  # Bignum \
   Varobject_aligned_size(offsetofa(bignum_,data),sizeof(uintD),(uintL)(length))
