@@ -36,7 +36,6 @@ NIL
 (pcre:match-string v "date" s d)
 "2003-12-15"
 
-
 (setq p (pcre:pcre-compile "(a|(z))(bc)")
       r (pcre:pcre-exec p "abc"))
 #(#S(PCRE::MATCH :START 0 :END 3) #S(PCRE::MATCH :START 0 :END 1) NIL
@@ -60,3 +59,6 @@ NIL
        (gc)
        nil)
 NIL
+
+(let ((*apropos-matcher* #'pcre:pcre-matcher)) (apropos-list "pcre.*r$"))
+(PCRE:PCRE-MATCHER)
