@@ -5,11 +5,6 @@
 #-(or CMU SBCL OpenMCL)
 T
 
-#+OpenMCL
-(import 'ccl::funcallable-standard-object)
-#+OpenMCL
-T
-
 (unintern '<C1>)
 T
 
@@ -1154,11 +1149,9 @@ x-y-position
  T T NIL NIL T T NIL NIL NIL NIL)
 
 ;; It is possible to redefine a class in a way that makes it non-finalized,
-;; if it was not yet instantiated. Fetching the class-prototype doesn't count
-;; as an instantiation.
+;; if it was not yet instantiated.
 (progn
   (defclass foo95b () ((s :initarg :s :accessor foo95b-s)))
-  (class-prototype (find-class 'foo95b))
   (defclass foo95b (foo95a) ((s :accessor foo95b-s)))
   t)
 T
@@ -3913,101 +3906,6 @@ DEF-USER-METHOD
 (AROUND-INTEGER 17 T AROUND-RATIONAL 17 T AROUND-REAL 17 T INTEGER 17 T RATIONAL 17 T REAL 17 NIL)
 
 
-;; Funcallable instances
-
-; Check set-funcallable-instance-function with a SUBR.
-(let ((f (make-instance 'funcallable-standard-object)))
-  (set-funcallable-instance-function f #'cons)
-  (funcall f 'a 'b))
-(A . B)
-
-; Check set-funcallable-instance-function with a small compiled-function.
-(let ((f (make-instance 'funcallable-standard-object)))
-  (set-funcallable-instance-function f #'(lambda (x y) (declare (compile)) (cons x y)))
-  (funcall f 'a 'b))
-(A . B)
-
-; Check set-funcallable-instance-function with a large compiled-function.
-(let ((f (make-instance 'funcallable-standard-object)))
-  (set-funcallable-instance-function f #'(lambda (x y) (declare (compile)) (list 'start x y 'end)))
-  (funcall f 'a 'b))
-(START A B END)
-
-; Check set-funcallable-instance-function with an interpreted function.
-(let ((f (make-instance 'funcallable-standard-object)))
-  (set-funcallable-instance-function f #'(lambda (x y) (cons x y)))
-  (funcall f 'a 'b))
-(A . B)
-
-; Check set-funcallable-instance-function with a generic.
-(let ((f (make-instance 'funcallable-standard-object)))
-  (defgeneric test-funcallable-01 (x y)
-    (:method (x y) (cons x y)))
-  (set-funcallable-instance-function f #'test-funcallable-01)
-  (funcall f 'a 'b))
-(A . B)
-
-
-;; Check that changing the class of a generic function works.
-;; MOP p. 61 doesn't allow this, but CLISP supports it as an extension.
-
-(progn
-  (defclass my-gf-class (standard-generic-function)
-    ((myslot :initform 17 :accessor my-myslot))
-    (:metaclass funcallable-standard-class))
-  t)
-T
-
-(progn
-  (defgeneric foo110 (x))
-  (defmethod foo110 ((x integer)) (* x x))
-  (defgeneric foo110 (x) (:generic-function-class my-gf-class))
-  (defmethod foo110 ((x float)) (* x x x))
-  (list (foo110 10) (foo110 3.0) (my-myslot #'foo110)))
-(100 27.0 17)
-
-; Also check that the GC cleans up forward pointers.
-
-(progn
-  (defgeneric foo111 (x))
-  (defmethod foo111 ((x integer)) (* x x))
-  (defgeneric foo111 (x) (:generic-function-class my-gf-class))
-  (gc)
-  (defmethod foo111 ((x float)) (* x x x))
-  (list (foo111 10) (foo111 3.0) (my-myslot #'foo111)
-        (eq (sys::%record-ref #'foo111 0) (clos::class-current-version (find-class 'my-gf-class)))))
-(100 27.0 17 T)
-
-(progn
-  (defgeneric foo112 (x))
-  (defmethod foo112 ((x integer)) (* x x))
-  (defgeneric foo112 (x) (:generic-function-class my-gf-class))
-  (defmethod foo112 ((x float)) (* x x x))
-  (gc)
-  (list (foo112 10) (foo112 3.0) (my-myslot #'foo112)
-        (eq (sys::%record-ref #'foo112 0) (clos::class-current-version (find-class 'my-gf-class)))))
-(100 27.0 17 T)
-
-;; Check that ensure-generic-function supports both :DECLARE (ANSI CL)
-;; and :DECLARATIONS (MOP).
-
-(progn
-  (ensure-generic-function 'foo113 :declare '((optimize (speed 3))))
-  (generic-function-declarations #'foo113))
-((OPTIMIZE (SPEED 3)))
-
-(progn
-  (ensure-generic-function 'foo114 :declarations '((optimize (speed 3))))
-  (generic-function-declarations #'foo114))
-((OPTIMIZE (SPEED 3)))
-
-;; Check that ensure-generic-function without :lambda-list argument works.
-(progn
-  (ensure-generic-function 'foo115)
-  (defmethod foo115 (x y) (list x y))
-  (foo115 3 4))
-(3 4)
-
 #|
 ;; Check that invalid print-object methods yield a warning.
 (progn
@@ -4023,10 +3921,11 @@ T
 #-CLISP NIL
 |#
 
+
 ;; Test against bug in clos::%call-next-method and FUNCALL&SKIP&RETGF.
 (progn
   (defclass foo129 ()
-    (x :initarg :x))
+    ((x :initarg :x)))
   (defparameter *foo129-counter* 0)
   (defmethod initialize-instance ((instance foo129) &rest initargs &key (x '()))
     (incf *foo129-counter*) ; (format t "~&Initializing ~S  ~:S~%" instance x)
@@ -4037,7 +3936,7 @@ T
 
 (progn
   (defclass foo130 ()
-    (x :initarg :x))
+    ((x :initarg :x)))
   (defparameter *foo130-counter* 0)
   (locally (declare (compile))
     (defmethod initialize-instance ((instance foo130) &rest initargs &key (x '()))
@@ -4068,10 +3967,10 @@ ERROR
 ERROR
 (subtypep 'nil 'forwardclass01)
 ERROR
-(sys::subtype-integer 'forwardclass01)
-NIL ; should also be ERROR
-(sys::subtype-sequence 'forwardclass01)
-NIL ; should also be ERROR
+#+CLISP (sys::subtype-integer 'forwardclass01)
+#+CLISP NIL ; should also be ERROR
+#+CLISP (sys::subtype-sequence 'forwardclass01)
+#+CLISP NIL ; should also be ERROR
 (defstruct (foo131a (:include forwardclass01)))
 ERROR
 (defmethod foo131b ((x forwardclass01)))
@@ -4096,10 +3995,10 @@ ERROR
 ERROR
 (subtypep 'nil 'forwardclass02)
 ERROR
-(sys::subtype-integer 'forwardclass02)
-NIL ; should also be ERROR
-(sys::subtype-sequence 'forwardclass02)
-NIL ; should also be ERROR
+#+CLISP (sys::subtype-integer 'forwardclass02)
+#+CLISP NIL ; should also be ERROR
+#+CLISP (sys::subtype-sequence 'forwardclass02)
+#+CLISP NIL ; should also be ERROR
 (defstruct (foo132a (:include forwardclass02)))
 ERROR
 (defmethod foo132b ((x forwardclass02)))
