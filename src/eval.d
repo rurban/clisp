@@ -1417,13 +1417,7 @@ global Values eval_noenv (object form) {
       var bool compile_decl = false; # Flag, if a (COMPILE)-declaration occurred
       var object body = formlist; # rest of the form-list
       while (consp(body)) {
-        pushSTACK(body); # save body
         var object form = Car(body); # next form
-        # poss. macroexpand (without expanding FSUBRs, Symbols, FunctionMacros):
-        do {
-          macroexp(form,STACK_(3+1),STACK_(2+1)); form = value1;
-        } until (nullp(value2));
-         body = popSTACK();
         var object body_rest = Cdr(body); # shorten body
         if (stringp(form)) { # found Doc-String?
           if (atomp(body_rest)) # at the last position of the form list?
