@@ -600,7 +600,7 @@ msgstr "Impossible de savoir où se termine la pile SP!\n"
 #: spvw.d:2624
 msgid ""
 "\n"
-"WARNING: No initialisation file specified.\n"
+"WARNING: No initialization file specified.\n"
 msgstr ""
 "\n"
 "AVERTISSEMENT : Pas de fichier d'initialisation.\n"
@@ -785,23 +785,23 @@ msgid "disk full"
 msgstr "Disque plein."
 
 #: spvw_memfile.d:763
-msgid "operating system error during load of initialisation file `%s'\n"
+msgid "operating system error during load of initialization file `%s'\n"
 msgstr "Erreur système pendant le chargement du fichier d'initialisation `%s'.\n"
 
 #: spvw_memfile.d:1235
-msgid "Cannot map the initialisation file into memory."
+msgid "Cannot map the initialization file into memory."
 msgstr "Ne peux placer le fichier d'initialisation en mémoire."
 
 #: spvw_memfile.d:1514
-msgid "operating system error during load of initialisation file\n"
+msgid "operating system error during load of initialization file\n"
 msgstr "Erreur système pendant le chargement du fichier d'initialisation.\n"
 
 #: spvw_memfile.d:1520
-msgid "initialisation file was not created by this version of LISP\n"
+msgid "initialization file was not created by this version of LISP\n"
 msgstr "Le fichier d'initialisation ne provient pas de cette version de LISP.\n"
 
 #: spvw_memfile.d:1524
-msgid "not enough memory for initialisation\n"
+msgid "not enough memory for initialization\n"
 msgstr "Il n'y a pas assez de mémoire pour l'initialisation.\n"
 
 #: eval.d:554
@@ -2029,7 +2029,7 @@ msgid "~: dimensions ~ produce too large total-size"
 msgstr "~: Les dimensions ~ donnent une taille totale trop grande."
 
 #: array.d:4570
-msgid "~: ambiguous, more than one initialisation specified"
+msgid "~: ambiguous, more than one initialization specified"
 msgstr "~: Il fut indiqué plus d'une initialisation, c'est ambigu."
 
 #: array.d:4582
