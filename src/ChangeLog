@@ -1,5 +1,11 @@
 1999-08-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * aridecl.d (FF_exp_low, FF_exp_mid, FF_exp_high): Always choose the
+          IEEE values.
+          (DF_exp_low, DF_exp_mid, DF_exp_high): Likewise.
+
+1999-08-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * modules/clx/new-clx/demos/qix.lsp (draw-qix): Don't ignore nlines.
           Improve herald message.
 
