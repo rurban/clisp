@@ -4,17 +4,38 @@ See also <https://sourceforge.net/tracker/?group_id=1355&atid=351355>
 MUST-FIX BEFORE NEXT RELEASE
 ============================
 
+:modern declaration in DEFPACKAGE
+
 Contagion warnings emitted by many floating-point operations.
 Even though the warnings are off by default now,
 the user who enables them will report bug
 <http://sourceforge.net/tracker/index.php?func=detail&aid=945469&group_id=1355&atid=101355>
+Examples:
+(LOG -3/4)
+(cosh #c(1d0 2d0))
+(expt 0.7877386934673366d0 0.4131787330316742d0)
 
 Passing --with-...-prefix=... configure argument to modules/.../configure
 <http://article.gmane.org/gmane.lisp.clisp.devel:13286>
+how do I add options like "--with-libpari-prefix" to configure?
+I tried putting 
+AC_LIB_LINKFLAGS_BODY([pari])
+into pari/configure.in
+and it would have worked if pari/configure were passed
+--with-libpari-prefix which was gived to the top-level configure.
 
 Modules on 64-bit platforms:
 <http://article.gmane.org/gmane.lisp.clisp.devel:13255>
+with debug, modules do not build:
+calls.c:1866: incompatible types in initialization
+calls.c:1866: initializer element is not constant
+calls.c:1866: (near initialization for `module__syscalls__subr_tab._subr_posix_bogomips.GCself.one_o')
 <http://sourceforge.net/tracker/index.php?func=detail&aid=981623&group_id=1355&atid=101355>
+It it crucial to extend DEBUG_GCSAFETY functionality to
+modules because they are often written by less careful
+prople (like myself) than the core developers (like you).
+Right now, genclisph.d produces clisp.h which is
+inconsistent with lispbibl.d when DEBUG_GCSAFETY is enabled.
 
 
 MUST-FIX BEFORE RELEASE 2.35
@@ -30,6 +51,19 @@ change wr_by_array_iau8_buffered to use persev instead of persev_full
 
 binary stdio
 <http://article.gmane.org/gmane.lisp.clisp.devel:12268>
+one of the common issues with CLISP is
+*** - (SETF STREAM-ELEMENT-TYPE) on #<IO TERMINAL-STREAM> is illegal
+i.e., inability to use binary IO in stdio.
+it all boils down to regular_handle_p(FD):
+when the handle is found to be "regular", the appropriate
+*STANDARD-*PUT* stream becomes a handle stream whose element type can be
+changed, otherwise a TERMINAL-STREAM is used.
+Right now, `regular' means "file on disk", as in
+[unix] (S_ISREG(statbuf.st_mode) || S_ISBLK(statbuf.st_mode))
+[win32] (filetype == FILE_TYPE_DISK)
+what about pipes?
+while MAKE-STREAM should provide a universal solution to these issues,
+it still might make sense to change regular_handle_p().
 
 
 URGENT PROBLEMS
@@ -52,6 +86,11 @@ Review all macros and tighten the runtime interface of the macros.
 Cannot remove symbolic links to directories
 with either DELETE-FILE or DELETE-DIR.
 <http://article.gmane.org/gmane.lisp.clisp.devel:13452>
+the case of symlinks to directories, there is absolutely no way out.
+you cannot get the name of the link,
+you cannot delete it (with either delete-file or delete-dir),
+and you cannot even probe it! (with either probe-file or probe-directory)
+(note BTW a naming inconsistency between probe-directory and delete-dir).
 
 
 CLISP_LANGUAGE=german LC_ALL=C clisp -q
@@ -100,6 +139,18 @@ LET* mit x: bound: ab der nächsten initform, bind after corresponding initform
 LAMBDA: erst alle Argumente auswerten, dann erst die vorhandenen Parameter
 binden, dann jeweils initform und binden.
 <http://groups-beta.google.com/group/comp.lang.lisp/browse_thread/thread/6a9841771d95feb2?tvc=2>
+(setf (symbol-value 'x) 6)
+(defun foo (x)                         ;a lexical binding of x
+ (print x)
+  (let ((x (1+ x)))                    ;a special binding of x
+    (declare (special x))              ;and a lexical reference
+    (bar))
+ (1+ x))
+(defun bar ()
+ (print (locally (declare (special x)) x)))
+(foo 10)
+>>                      10 11 =>  11
+in clisp 2.33.1 it is   10 7 => 11
 Another example is:
 (let ((x 5)) (let ((x (1+ x))) (declare (special x)) (print x)))
 should print 6.
@@ -167,6 +218,8 @@ A documented API should be provided for the trace wrapper, so that profilers
 etc. can do the same as TRACE without needing to hack clisp's TRACE, COMPILE,
 DISASSEMBLE, DEFUN, DEFGENERIC.
 <http://article.gmane.org/gmane.lisp.clisp.devel:12837>
+Such a def-fwrapper is what we need, so that profilers
+etc. that are ported to ACL can be ported to clisp with minimal effort.
 <http://www.franz.com/support/documentation/6.2/doc/fwrappers-and-advice.htm>
 
 
@@ -175,14 +228,27 @@ clean up and modularize spvw.d
 
 larger fixnums on 64-bit platforms
 <https://sourceforge.net/tracker/index.php?func=detail&aid=999750&group_id=1355&atid=351355>
+should be able to get 48-bit fixnums
 
 
 error recovery
 <https://sourceforge.net/tracker/index.php?func=detail&aid=946463&group_id=1355&atid=351355>
+The ability not to lose the computation on error is
+crucial for any serious task.
+Therefore, we need to be able to recover from ALL errors.
+There are two independent issues here:
+1. "retry" restart on i/o, see
+<https://sourceforge.net/mailarchive/message.php?msg_id=7607066>
+2. "return-from" restart that will return the specified
+values from the given function on the stack. we
+already have that in interpreted functions, but we must
+also have it in compiled functions. 
+<http://thread.gmane.org/gmane.lisp.clisp.devel/11448>
 
 
 GENERATIONAL_GC on Cygwin
 <http://sourceforge.net/tracker/index.php?func=detail&aid=1104677&group_id=1355&atid=101355>
+the mmap() autoconf test fails but maybe one can work around it?
 
 
 local function (LABEL/FLET) calls waste heap (COPY-CLOSURE).
