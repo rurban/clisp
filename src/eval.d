@@ -3477,14 +3477,25 @@ LISPFUNN(subr_info,1)
             OPT_ARG(1);
             if (!nullp(args)) goto fehler_zuviel;
             goto apply_subr_norest;
+          case (uintW)subr_argtype_2_3:
+            # SUBR mit 2 required-Argumenten und 3 optional-Argumenten
+            REQ_ARG();
+          case (uintW)subr_argtype_1_3:
+            # SUBR mit 1 required-Argument und 3 optional-Argumenten
+            REQ_ARG();
+          case (uintW)subr_argtype_0_3:
+            # SUBR mit 3 optional-Argumenten
+            OPT_ARG(3);
+            OPT_ARG(2);
+            OPT_ARG(1);
+            if (!nullp(args)) goto fehler_zuviel;
+            goto apply_subr_norest;
           case (uintW)subr_argtype_0_5:
             # SUBR mit 5 optional-Argumenten
             OPT_ARG(5);
           case (uintW)subr_argtype_0_4:
             # SUBR mit 4 optional-Argumenten
             OPT_ARG(4);
-          case (uintW)subr_argtype_0_3:
-            # SUBR mit 3 optional-Argumenten
             OPT_ARG(3);
             OPT_ARG(2);
             OPT_ARG(1);
@@ -4341,14 +4352,25 @@ LISPFUNN(subr_info,1)
             OPT_ARG(1);
             if ((args_on_stack>0) || consp(args)) goto fehler_zuviel;
             goto apply_subr_norest;
+          case (uintW)subr_argtype_2_3:
+            # SUBR mit 2 required-Argumenten und 3 optional-Argumenten
+            REQ_ARG();
+          case (uintW)subr_argtype_1_3:
+            # SUBR mit 1 required-Argument und 3 optional-Argumenten
+            REQ_ARG();
+          case (uintW)subr_argtype_0_3:
+            # SUBR mit 3 optional-Argumenten
+            OPT_ARG(3);
+            OPT_ARG(2);
+            OPT_ARG(1);
+            if ((args_on_stack>0) || consp(args)) goto fehler_zuviel;
+            goto apply_subr_norest;
           case (uintW)subr_argtype_0_5:
             # SUBR mit 5 optional-Argumenten
             OPT_ARG(5);
           case (uintW)subr_argtype_0_4:
             # SUBR mit 4 optional-Argumenten
             OPT_ARG(4);
-          case (uintW)subr_argtype_0_3:
-            # SUBR mit 3 optional-Argumenten
             OPT_ARG(3);
             OPT_ARG(2);
             OPT_ARG(1);
@@ -5224,6 +5246,27 @@ LISPFUNN(subr_info,1)
                 case 1: pushSTACK(unbound);
                 case 2: pushSTACK(unbound);
                 case 3: goto apply_subr_norest;
+                default: goto fehler_zuviel;
+              }
+          case (uintW)subr_argtype_1_3:
+            # SUBR mit 1 required-Argument und 3 optional-Argumenten
+            switch (args_on_stack)
+              { case 0: goto fehler_zuwenig;
+                case 1: pushSTACK(unbound);
+                case 2: pushSTACK(unbound);
+                case 3: pushSTACK(unbound);
+                case 4: goto apply_subr_norest;
+                default: goto fehler_zuviel;
+              }
+          case (uintW)subr_argtype_2_3:
+            # SUBR mit 2 required-Argumenten und 3 optional-Argumenten
+            switch (args_on_stack)
+              { case 0: goto fehler_zuwenig;
+                case 1: goto fehler_zuwenig;
+                case 2: pushSTACK(unbound);
+                case 3: pushSTACK(unbound);
+                case 4: pushSTACK(unbound);
+                case 5: goto apply_subr_norest;
                 default: goto fehler_zuviel;
               }
           case (uintW)subr_argtype_0_4:
