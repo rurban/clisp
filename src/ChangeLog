@@ -1,5 +1,16 @@
 2002-09-20  Sam Steingold  <sds@gnu.org>
 
+	* control.d (UNWIND-TO-DRIVER): accept a TOP-P argument
+	(UNWIND-TO-TOP): removed
+	* subr.d, constsym.d (UNWIND-TO-TOP): removed
+	* subr.d, compiler.lisp (UNWIND-TO-DRIVER): changed the signature
+	* eval.d (FUNTAB): added MEMQ
+	* constobj.d (version): bumped because of UNWIND-TO-DRIVER and MEMQ
+	* reploop.lisp (break-loop, step-hook-fn): do not use
+	UNWIND-TO-TOP but pass an argument to UNWIND-TO-DRIVER
+
+2002-09-20  Sam Steingold  <sds@gnu.org>
+
 	fix the OBSOLETE-ACTION patch
 	* init.lisp (warn): the preliminary definition must return NIL
 	(open-for-load): use SYS::BUILT-IN-STREAM-CLOSE instead of CLOSE

@@ -518,8 +518,8 @@ Continue       :c       switch off single step mode, continue evaluation
                   (invoke-restart-interactively may-continue)))
               (t )                        ; other cases, especially continue
               ))))
-    unwind (unwind-to-driver)
-    abort-to-top (unwind-to-top)
+    unwind (unwind-to-driver nil)
+    abort-to-top (unwind-to-driver t)
     quit))
 
 (setq *break-driver* #'break-loop)
@@ -625,8 +625,8 @@ Continue       :c       switch off single step mode, continue evaluation
               (over (go over))
               (over-this-level (go over-this-level))
               (continue (go continue))))))
-      unwind (unwind-to-driver)
-      abort-to-top (unwind-to-top)
+      unwind (unwind-to-driver nil)
+      abort-to-top (unwind-to-driver t)
       into
         (return-from step-hook-fn
           (step-values
