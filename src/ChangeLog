@@ -1,5 +1,12 @@
 2004-06-06  Bruno Haible  <bruno@clisp.org>
 
+	* clos-methcomb1.lisp (method-combination): Remove order slot.
+	* clos-methcomb2.lisp (compute-short-form-effective-method-form): Take
+	the order from the options, not from the method-combination. Improve
+	error checking.
+
+2004-06-06  Bruno Haible  <bruno@clisp.org>
+
 	* clos-methcomb2.lisp (qualifiers-match-p): Remove function.
 	(compute-method-partition-lambdas): Use LDIFF and EQUAL to match the
 	qualifiers list against the pattern.
