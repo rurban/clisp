@@ -1,5 +1,13 @@
 2002-01-01  Sam Steingold  <sds@gnu.org>
 
+	unified some error messages
+	* pathname.d (fehler_file_exists): no args: get caller from
+	subr_self and pathname from STACK_0 (a la fehler_file_not_exists)
+	(rename_file): modified accordingly
+	(open_file): use fehler_file_not_exists() and fehler_file_exists()
+
+2002-01-01  Sam Steingold  <sds@gnu.org>
+
 	* init.lisp (sys::remove-old-definitions): CERROR for exported CL
 	symbols even when there is no definition
 
