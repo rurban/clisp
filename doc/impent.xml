@@ -530,3 +530,6 @@
                                  platforms with &glibc; or &libiconv;.">
 <!ENTITY charset-libiconv "This character set is only available on
                            platforms with &libiconv;.">
+<!ENTITY charset-ascii "<link linkend='charset-ASCII'>ASCII character set</link>">
+<!ENTITY ascii-pl-ext "a platform specific extension of the &charset-ascii;">
+<!ENTITY ascii-iso-ext "an extension of the &charset-ascii;, suitable for the">
