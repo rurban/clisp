@@ -551,6 +551,31 @@
     (dotimes (i n) (setf (sys::%record-ref copy i) (sys::%record-ref class i)))
     copy))
 
+(defun print-object-<class> (object stream)
+  (if *print-readably*
+    (write (sys::make-load-time-eval `(FIND-CLASS ',(class-classname object)))
+           :stream stream)
+    (print-unreadable-object (object stream :type t)
+      (write (class-classname object) :stream stream)
+      (when (semi-standard-class-p object)
+        (if (and (slot-boundp object '$current-version)
+                 (class-version-p (class-current-version object))
+                 (slot-boundp object '$precedence-list))
+          (progn
+            (when (< (class-initialized object) 3) ; not yet finalized?
+              (write-string " " stream)
+              (write :incomplete :stream stream))
+            ;; FIXME: Overhaul this questionable and confusing feature.
+            (let ((serial (cv-serial (class-current-version object))))
+              (unless (eql serial 0)
+                (write-string " " stream)
+                (write :version :stream stream)
+                (write-string " " stream)
+                (write serial :stream stream))))
+          (progn
+            (write-string " " stream)
+            (write :uninitialized :stream stream)))))))
+
 ;; Preliminary.
 ;; Now we can at least print classes.
 (defun print-object (object stream)
