@@ -12021,9 +12021,9 @@ LISPFUN(socket_server,0,1,norest,nokey,0,NIL)
 
     if (posfixnump(STACK_0) || eq(STACK_0,unbound) ||
         socket_stream_p(STACK_0)) {
-    begin_system_call();
+      begin_system_call();
       sk = create_server_socket(&myname, sock);
-    end_system_call();
+      end_system_call();
       if (sk == INVALID_SOCKET) { SOCK_error(); }
     } else {
       pushSTACK(STACK_0);
