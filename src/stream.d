@@ -627,6 +627,78 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
         });
     }
 
+# UP: Überprüft einen Input-Stream.
+# test_input_stream(stream);
+# > stream: Stream
+# > subr_self: Aufrufer (ein SUBR)
+  #define test_input_stream(stream)  \
+    if ((TheStream(stream)->strmflags & strmflags_rd_B) == 0) \
+      fehler_input_stream(stream);
+  nonreturning_function(local, fehler_input_stream, (object stream));
+  local void fehler_input_stream(stream)
+    var object stream;
+    { pushSTACK(stream); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_input_stream)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             DEUTSCH ? "~: Argument muß ein Input-Stream sein, nicht ~" :
+             ENGLISH ? "~: argument ~ should be an input stream" :
+             FRANCAIS ? "~ : L'argument doit être un «stream» d'entrée et non pas ~." :
+             ""
+            );
+    }
+
+# UP: Überprüft einen Output-Stream.
+# test_output_stream(stream);
+# > stream: Stream
+# > subr_self: Aufrufer (ein SUBR)
+  #define test_output_stream(stream)  \
+    if ((TheStream(stream)->strmflags & strmflags_wr_B) == 0) \
+      fehler_output_stream(stream);
+  nonreturning_function(local, fehler_output_stream, (object stream));
+  local void fehler_output_stream(stream)
+    var object stream;
+    { pushSTACK(stream); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_output_stream)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             DEUTSCH ? "~: Argument muß ein Output-Stream sein, nicht ~" :
+             ENGLISH ? "~: argument ~ should be an output stream" :
+             FRANCAIS ? "~ : L'argument doit être un «stream» de sortie et non pas ~." :
+             ""
+            );
+    }
+
+# UP: Überprüft Argumente, ob sie Input-Streams sind.
+# test_input_stream_args(args_pointer,argcount);
+# > args_pointer: Pointer über die Argumente
+# > argcount: Anzahl der Argumente
+# > subr_self: Aufrufer (ein SUBR)
+  #define test_input_stream_args(args_pointer,argcount)  \
+    { var object* pointer = (args_pointer);          \
+      var uintC count;                               \
+      dotimesC(count,argcount,                       \
+        { var object arg = NEXT(pointer);            \
+          if (!streamp(arg)) { fehler_stream(arg); } \
+          test_input_stream(arg);                    \
+        });                                          \
+    }
+
+# UP: Überprüft Argumente, ob sie Output-Streams sind.
+# test_output_stream_args(args_pointer,argcount);
+# > args_pointer: Pointer über die Argumente
+# > argcount: Anzahl der Argumente
+# > subr_self: Aufrufer (ein SUBR)
+  #define test_output_stream_args(args_pointer,argcount)  \
+    { var object* pointer = (args_pointer);          \
+      var uintC count;                               \
+      dotimesC(count,argcount,                       \
+        { var object arg = NEXT(pointer);            \
+          if (!streamp(arg)) { fehler_stream(arg); } \
+          test_output_stream(arg);                   \
+        });                                          \
+    }
+
 
 #if defined(UNIX) || defined(EMUNIX) || defined(DJUNIX) || defined(WATCOM) || defined(RISCOS)
 
@@ -9478,7 +9550,7 @@ LISPFUNN(synonym_stream_symbol,1)
 LISPFUN(make_broadcast_stream,0,0,rest,nokey,0,NIL)
 # (MAKE-BROADCAST-STREAM {stream}), CLTL S. 329
   { # Überprüfen, ob alle Argumente Streams sind:
-    test_stream_args(rest_args_pointer,argcount);
+    test_output_stream_args(rest_args_pointer,argcount);
     # zu einer Liste zusammenfassen:
    {var object list = listof(argcount);
     # Stream bauen:
@@ -9645,7 +9717,7 @@ LISPFUNN(broadcast_stream_streams,1)
 LISPFUN(make_concatenated_stream,0,0,rest,nokey,0,NIL)
 # (MAKE-CONCATENATED-STREAM {stream}), CLTL S. 329
   { # Überprüfen, ob alle Argumente Streams sind:
-    test_stream_args(rest_args_pointer,argcount);
+    test_input_stream_args(rest_args_pointer,argcount);
     # zu einer Liste zusammenfassen:
    {var object list = listof(argcount);
     # Stream bauen:
@@ -9836,6 +9908,8 @@ LISPFUNN(make_two_way_stream,2)
     test_stream_args(args_end_pointer STACKop 2, 2);
    {var object output_stream = popSTACK();
     var object input_stream = popSTACK();
+    test_input_stream(input_stream);
+    test_output_stream(output_stream);
     # Stream bauen:
     value1 = make_twoway_stream(input_stream,output_stream); mv_count=1;
   }}
@@ -9944,6 +10018,8 @@ LISPFUNN(make_echo_stream,2)
     test_stream_args(args_end_pointer STACKop 2, 2);
    {var object output_stream = popSTACK();
     var object input_stream = popSTACK();
+    test_input_stream(input_stream);
+    test_output_stream(output_stream);
     # Stream bauen:
     value1 = make_echo_stream(input_stream,output_stream); mv_count=1;
   }}
