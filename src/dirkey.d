@@ -1,5 +1,5 @@
 # CLISP: directory key: win32 registry, LDAP, Gnome-config
-# Copyright (C) 2000-2001 by Sam Steingold
+# Copyright (C) 2000-2002 by Sam Steingold
 
 #ifdef DIR_KEY
 
@@ -56,32 +56,26 @@
 #endif
 
 # check whether the OBJ is a DIR-KEY
-local object test_dir_key (object obj, bool check_open)
-{
+local object test_dir_key (object obj, bool check_open) {
   if (!dir_key_p(obj)) {
     pushSTACK(obj);        # slot DATUM         of TYPE-ERROR
     pushSTACK(S(dir_key)); # slot EXPECTED-TYPE of TYPE-ERROR
     pushSTACK(S(dir_key));
     pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
-           GETTEXT("~: ~ is not a ~")
-           );
+    fehler(type_error,GETTEXT("~: ~ is not a ~"));
   }
   if (check_open && TheDirKey(obj)->closed_p) {
     pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,
-           GETTEXT("~ on ~ is illegal")
-           );
+    fehler(error,GETTEXT("~ on ~ is illegal"));
   }
   return obj;
 }
 
 # convert an array of char to a (VECTOR (UNSIGNED-BYTE 8))
 # can trigger GC
-local object reg_val_to_vector (uintL size, const char* buffer)
-{
+local object reg_val_to_vector (uintL size, const char* buffer) {
   var object vec = allocate_bit_vector(Atype_8Bit,size);
   var uintB* dat = TheSbvector(vec)->data;
   while(size--) *dat++ = *buffer++;
@@ -92,8 +86,7 @@ local object reg_val_to_vector (uintL size, const char* buffer)
 # convert a registry value [type;size;buffer] to the appropriate Lisp object
 # can trigger GC
 local object registry_value_to_object (DWORD type, DWORD size,
-                                       const char* buffer)
-{
+                                       const char* buffer) {
   switch (type) {
     case REG_NONE: return NIL;
     case REG_SZ:
@@ -144,42 +137,37 @@ local object registry_value_to_object (DWORD type, DWORD size,
 
 #endif
 
-LISPFUNN(dir_key_type,1)
 # (LDAP:DIR-KEY-TYPE dkey)
 # return the type of the key (:win32 or :gnome-config or :ldap)
-{
+LISPFUNN(dir_key_type,1) {
   var object dkey = test_dir_key(popSTACK(),false);
   value1 = TheDirKey(dkey)->type; mv_count = 1;
 }
 
-LISPFUNN(dir_key_path,1)
 # (LDAP:DIR-KEY-PATH dkey)
 # return the path of the key (a string)
-{
+LISPFUNN(dir_key_path,1) {
   var object dkey = test_dir_key(popSTACK(),false);
   value1 = TheDirKey(dkey)->path; mv_count = 1;
 }
 
-LISPFUNN(dir_key_direction,1)
 # (LDAP:DIR-KEY-DIRECTION dkey)
 # return the direction of this key - :input :output or :io
-{
+LISPFUNN(dir_key_direction,1) {
   var object dkey = test_dir_key(popSTACK(),true);
   value1 = TheDirKey(dkey)->direction; mv_count = 1;
 }
 
-LISPFUNN(dir_key_open_p,1)
 # (LDAP:DIR-KEY-OPEN-P dkey)
 # return T if the key is open
-{
+LISPFUNN(dir_key_open_p,1) {
   var object dkey = test_dir_key(popSTACK(),false);
   value1 = (TheDirKey(dkey)->closed_p ? NIL : T); mv_count = 1;
 }
 
-LISPFUNN(dir_key_close,1)
 # (LDAP:DIR-KEY-CLOSE dkey)
 # close the supplied DIR-KEY
-{
+LISPFUNN(dir_key_close,1) {
   var object dkey = popSTACK();
   #ifdef WIN32_NATIVE
   if (fpointerp(dkey)) { # an HKEY in an iterator_state
@@ -223,32 +211,31 @@ struct root {
 };
 #define MKKEY(key)  { #key, sizeof(#key)-1, key }
 static struct root roots[] = {
-#ifdef  HKEY_CLASSES_ROOT
+ #ifdef  HKEY_CLASSES_ROOT
   MKKEY(HKEY_CLASSES_ROOT),
-#endif
-#ifdef  HKEY_CURRENT_USER
+ #endif
+ #ifdef  HKEY_CURRENT_USER
   MKKEY(HKEY_CURRENT_USER),
-#endif
-#ifdef  HKEY_LOCAL_MACHINE
+ #endif
+ #ifdef  HKEY_LOCAL_MACHINE
   MKKEY(HKEY_LOCAL_MACHINE),
-#endif
-#ifdef  HKEY_USERS
+ #endif
+ #ifdef  HKEY_USERS
   MKKEY(HKEY_USERS),
-#endif
-#ifdef  HKEY_PERFORMANCE_DATA
+ #endif
+ #ifdef  HKEY_PERFORMANCE_DATA
   MKKEY(HKEY_PERFORMANCE_DATA),
-#endif
-#ifdef  HKEY_CURRENT_CONFIG
+ #endif
+ #ifdef  HKEY_CURRENT_CONFIG
   MKKEY(HKEY_CURRENT_CONFIG),
-#endif
-#ifdef  HKEY_DYN_DATA
+ #endif
+ #ifdef  HKEY_DYN_DATA
   MKKEY(HKEY_DYN_DATA),
-#endif
+ #endif
 };
 #undef MKKEY
 
-local HKEY parse_registry_path (const char* path, const char** base_ret)
-{
+local HKEY parse_registry_path (const char* path, const char** base_ret) {
   var unsigned int ii;
   var unsigned int len;
   var HKEY hkey = NULL;
@@ -319,14 +306,13 @@ local void open_reg_key (HKEY hkey, char* path, direction_t dir,
 }
 #endif
 
-LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
 # (LDAP:DIR-KEY-OPEN key path [:direction] [:if-does-not-exist])
 # return the DIR-KEY object corresponding to the PATH under KEY
 # PATH should be a string, like "HKEY_LOCAL_MACHINE\\Something"
 # KEY can be either a DIR-KEY or a (MEMBER :win32 :gnome :ldap),
 # in which case PATH must be absolute.
 # :direction and :if-does-not-exist has the same meaning as for OPEN.
-{
+LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist))) {
   var object if_not_exists_arg = STACK_0;
   var object direction_arg = STACK_1;
   var object path = STACK_2;
@@ -382,7 +368,7 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
   } else
   #endif
   #ifdef GNOME
-  if (eq(root,S(Kgnome))) {
+  if (eq(type,S(Kgnome))) {
     # do nothing - gnome-conf is stateless
   } else
   #endif
@@ -392,9 +378,7 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
     pushSTACK(S(dir_key));
     pushSTACK(type);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
-           GETTEXT("~: ~ is not a ~")
-           );
+    fehler(type_error,GETTEXT("~: ~ is not a ~"));
   }
   # create the DIR-KEY
   pushSTACK(ret_handle);
@@ -412,8 +396,9 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
     pushSTACK(totalpath);
   } else
     pushSTACK(path);
+  pushSTACK(type);
   var object dkey = allocate_dir_key();
-  TheDirKey(dkey)->type = S(Kwin32);
+  TheDirKey(dkey)->type = popSTACK();
   TheDirKey(dkey)->closed_p = false;
   TheDirKey(dkey)->path = popSTACK();
   TheDirKey(dkey)->direction = popSTACK();
@@ -461,10 +446,9 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
     value1 = NIL;                                                          \
   mv_count = 1
 
-LISPFUNN(dir_key_subkeys,1)
 # (LDAP:DIR-KEY-SUBKEYS key)
 # return the list of subkey names of the given KEY
-{
+LISPFUNN(dir_key_subkeys,1) {
   if (eq(STACK_0,S(Kwin32))) { # top-level keys
     skipSTACK(1);
     var int ii;
@@ -480,10 +464,9 @@ LISPFUNN(dir_key_subkeys,1)
   }
 }
 
-LISPFUNN(dir_key_attributes,1)
 # (LDAP:DIR-KEY-ATTRIBUTES key)
 # return the list of attribute names of the given KEY
-{
+LISPFUNN(dir_key_attributes,1) {
   MAKE_OBJECT_LIST(RegQueryInfoKey(hkey,NULL,NULL,NULL,NULL,NULL,NULL,
                                    &n_obj,&maxlen,NULL,NULL,NULL),
                    RegEnumValue(hkey,ii,buf,&len,NULL,NULL,NULL,NULL));
@@ -506,10 +489,9 @@ LISPFUNN(dir_key_attributes,1)
 #define NODE_DAT_S(node)   TheSvector(node)->data[5]
 #define NODE_NAME(node)    TheSvector(node)->data[6]
 
-local object itst_current (object state)
 # return the current path - concatenate the NAMEs of the NODEs of the STACK
 # can trigger GC
-{
+local object itst_current (object state) {
   var object stack = ITST_STACK(state);
   var uintL depth = 0;
   for (stack = nreverse(stack); !eq(stack,NIL); stack = Cdr(stack)) {
@@ -536,19 +518,15 @@ local int parse_scope (object scope) {
   pushSTACK(S(Kscope));
   pushSTACK(scope);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,
-         GETTEXT("~: ~ is not a ~")
-         );
+  fehler(type_error,GETTEXT("~: ~ is not a ~"));
   return -1; # just to pacify the MSVC compiler
 }
 
-LISPFUNN(dkey_search_iterator,3)
 # (LDAP::DKEY-SEARCH-ITERATOR key path scope)
 # return a simple vector with the iteration state
 # < dkey path scope
 # > #(dkey init-path scope (node ...))
-# can trigger GC
-{
+LISPFUNN(dkey_search_iterator,3) {
   if (!stringp(STACK_1)) fehler_string(STACK_1);
   parse_scope(STACK_0);
   value1 = allocate_vector(4);
@@ -560,14 +538,13 @@ LISPFUNN(dkey_search_iterator,3)
   skipSTACK(3);
 }
 
-local void init_iteration_node (object state, object subkey,
-                                object *new_path, object *failed_p)
 # open HANDLE to point to DKEY\\PATH
 # compute KEY_S, ATT_S and DAT_S
 # return the full current path (itst_current)
 # and T/NIL indicating whether OPEN was successful
 # can trigger GC
-{
+local void init_iteration_node (object state, object subkey,
+                                object *new_path, object *failed_p) {
   pushSTACK(state);
   pushSTACK(subkey);
   pushSTACK(allocate_cons());         # stack
@@ -622,11 +599,10 @@ local void init_iteration_node (object state, object subkey,
   skipSTACK(5);
 }
 
-local object state_next_key (object state)
 # return the next key of the current state or NIL
 # if the key is NIL, the HKEY is closed and the stack is popped
 # can trigger GC
-{
+local object state_next_key (object state) {
   var object stack = ITST_STACK(state);
   if (!eq(stack,NIL)) {
     var object node = ITST_NODE(state);
@@ -654,12 +630,10 @@ local object state_next_key (object state)
     return NIL;
 }
 
-LISPFUNN(dkey_search_next_key,1)
 # (LDAP::DKEY-SEARCH-NEXT-KEY state)
 # return the next key of this iteration
 # and T if open failed
-# can trigger GC
-{
+LISPFUNN(dkey_search_next_key,1) {
   var object state = STACK_0;
   var object dkey  = test_dir_key(ITST_DKEY(state),TRUE);
   var int scope = parse_scope(ITST_SCOPE(state));
@@ -699,20 +673,16 @@ LISPFUNN(dkey_search_next_key,1)
   mv_count = 2;
 }
 
-LISPFUNN(dkey_search_next_att,1)
 # (LDAP::DKEY-SEARCH-NEXT-ATT state)
 # return the next attribute and its value of this iteration
-# can trigger GC
-{
+LISPFUNN(dkey_search_next_att,1) {
   var object state = STACK_0;
   var object stack = ITST_STACK(state);
   if (!consp(stack)) {
     pushSTACK(S(dkey_search_next_key));
     pushSTACK(state);
     pushSTACK(S(dkey_search_next_att));
-    fehler(error,
-           GETTEXT("~ from ~ without ~ before it")
-           );
+    fehler(error,GETTEXT("~ from ~ without ~ before it"));
   }
   var object node = Car(stack);
   var Fpointer fp = TheFpointer(NODE_HANDLE(node));
@@ -753,14 +723,12 @@ LISPFUNN(dkey_search_next_att,1)
 #undef NODE_DAT_S
 #undef NODE_HANDLE
 
-LISPFUN(dir_key_value,2,1,norest,nokey,0,NILL)
 # (LDAP:DIR-KEY-VALUE key name [default])
 # return the value of the given NAME in the KEY
 # KEY must be an open DIR-KEY, NAME - a string
 # if the name does not exists, return the DEFAULT (or signal an error)
 # setf-able
-# can trigger GC
-{
+LISPFUN(dir_key_value,2,1,norest,nokey,0,NILL) {
   var object default_value = popSTACK();
   var object name = popSTACK();
   var object dkey = test_dir_key(popSTACK(),true);
@@ -792,10 +760,9 @@ LISPFUN(dir_key_value,2,1,norest,nokey,0,NILL)
   mv_count = 1;
 }
 
-LISPFUNN(set_dkey_value,3)
 # (LDAP::SET-DKEY-VALUE key name value)
 # set the given NAME in the KEY to the VALUE
-{
+LISPFUNN(set_dkey_value,3) {
   var object value = popSTACK();
   var object name = popSTACK();
   var object dkey = test_dir_key(popSTACK(),true);
@@ -821,9 +788,7 @@ LISPFUNN(set_dkey_value,3)
     } else {
       pushSTACK(value);
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,
-             GETTEXT("~ on ~ is illegal")
-             );
+      fehler(error,GETTEXT("~ on ~ is illegal"));
     }
   });
   value1 = value;
@@ -840,21 +805,18 @@ LISPFUNN(set_dkey_value,3)
   value1 = NIL;                                                         \
   mv_count = 1
 
-LISPFUNN(dir_key_subkey_delete,2)
 # (LDAP:DIR-KEY-SUBKEY-DELETE key name)
 # delete the specified subkey (and all its subkeys)
-{
+LISPFUNN(dir_key_subkey_delete,2) {
   REG_KEY_DEL(RegDeleteKey);
 }
-LISPFUNN(dir_key_value_delete,2)
 # (LDAP:DIR-KEY-VALUE-DELETE key name)
 # delete the specified value
-{
+LISPFUNN(dir_key_value_delete,2) {
   REG_KEY_DEL(RegDeleteValue);
 }
 #undef REG_KEY_DEL
 
-LISPFUNN(dkey_info,1)
 # (LDAP::DKEY-INFO key)
 # return all the info about the key, as 10 values:
 # class; class_length;
@@ -862,8 +824,8 @@ LISPFUNN(dkey_info,1)
 # num_values; max_value_name_length; max_value_length;
 # security_descriptor; write_time
 # can trigger GC
-{
-  object dkey = test_dir_key(popSTACK(),TRUE);
+LISPFUNN(dkey_info,1) {
+  var object dkey = test_dir_key(popSTACK(),TRUE);
   var HKEY hkey = (HKEY)(TheDirKey(dkey)->handle);
   var char* class_name = NULL;
   var DWORD class_length;
