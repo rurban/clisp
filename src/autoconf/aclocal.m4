@@ -1792,10 +1792,10 @@ AC_DEFUN(CL_FPU_CONTROL,
 dnl glibc versions since October 1998 define fpu_control_t. Earlier versions
 dnl define and declare __setfpucw(). Very early Linux libc versions have none,
 dnl and __fpu_control is of type `unsigned short'.
-CL_COMPILE_CHECK([for fpu_control_t], cl_cv_type_fpu_control_t,
+CL_COMPILE_CHECK([fpu_control_t], cl_cv_type_fpu_control_t,
 [#include <fpu_control.h>], [fpu_control_t x;],
 AC_DEFINE(HAVE_FPU_CONTROL_T))
-CL_COMPILE_CHECK([for __setfpucw], cl_cv_func_setfpucw,
+CL_COMPILE_CHECK([__setfpucw], cl_cv_func_setfpucw,
 [#include <fpu_control.h>], [__setfpucw(_FPU_IEEE);],
 AC_DEFINE(HAVE_SETFPUCW))
 ])dnl
