@@ -362,7 +362,7 @@ local uint32 hashcode_bvector (object obj) {
 }
 /* EQUALP-hashcode of a pathname-component. */
 #ifdef PATHNAME_WIN32
-local uint32 hashcode4 (object obj);
+global uint32 hashcode4 (object obj);
 #define hashcode_pathcomp(obj)  hashcode4(obj)
 #else
 #define hashcode_pathcomp(obj)  hashcode3(obj)
@@ -1168,7 +1168,7 @@ global object hash_table_weak_type (object ht) {
  allocate_kvt(weak,maxcount)
  > weak: NIL or :KEY or :VALUE or :EITHER or :BOTH
  > maxcount: number of key/value pairs to make room for
- < result: a key-value-table 
+ < result: a key-value-table
  can trigger GC */
 local inline object allocate_kvt (object weak, uintL maxcount) {
   if (nullp(weak))

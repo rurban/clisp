@@ -1,3 +1,7 @@
+2004-06-01  Sam Steingold  <sds@gnu.org>
+
+	* hashtabl.d (hashcode4) [PATHNAME_WIN32]: declare global
+
 2004-05-31  Bruno Haible  <bruno@clisp.org>
 
 	* compiler.lisp (c-TYPEP): Generate CLOS::TYPEP-CLASS call also when
