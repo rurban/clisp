@@ -9764,7 +9764,7 @@ LISPFUN(open,1,0,norest,key,6,\
                   }
                 directory_search_scandir(recursively,next_task);
               }
-              skipSTACK(2); # pathname und dir-namestring vergessen
+              skipSTACK(2); # pathname und dir_namestring vergessen
               next_pathname: ;
              }# Stackaufbau: ..., new-pathname-list, ht, pathname-list-rest, pathnames-to-insert.
               # Vor dem Weiterrücken mit pathname-list-rest :
