@@ -5,6 +5,7 @@
 <!-- *** general *** -->
 <!ENTITY c-lang "<ulink url='http://www.eskimo.com/~scs/C-faq/top.html'><command>C</command></ulink>">
 <!ENTITY perl "<ulink url='http://www.perl.com'><command>Perl</command></ulink>">
+<!ENTITY ieee-bfp "<ulink url='http://grouper.ieee.org/groups/754/'>IEEE 754</ulink>">
 
 <!-- *** platforms *** -->
 <!ENTITY noreadline "<emphasis role='strong'><option>NO_READLINE</option></emphasis>">
@@ -507,8 +508,8 @@
   <filename>...</filename>, all subdirectories </entry></row>
  <row><entry>&subdir-r;</entry><entry>&simple-string-t;,
    &maybe-wild;</entry><entry/></row>">
-<!ENTITY foo-f "<filename>&quot;foo&quot;</filename>">
-<!ENTITY bar-f "<filename>&quot;bar&quot;</filename>">
+<!ENTITY foo-f "<filename>#P&quot;foo&quot;</filename>">
+<!ENTITY bar-f "<filename>#P&quot;bar&quot;</filename>">
 <!ENTITY foolisp-f "<filename>#P&quot;foo.lisp&quot;</filename>">
 
 

@@ -1136,18 +1136,19 @@ and allow enforcing modularity.
 <tbody><row><entry>&short-float-t;</entry><entry>1 bit</entry>
  <entry>16+1 bits</entry><entry>8 bits</entry><entry>immediate</entry></row>
        <row><entry>&single-float-t;</entry><entry>1 bit</entry>
- <entry>23+1 bits</entry><entry>8 bits</entry><entry>IEEE format</entry></row>
+ <entry>23+1 bits</entry><entry>8 bits</entry><entry>&ieee-bfp;</entry></row>
        <row><entry>&double-float-t;</entry><entry>1 bit</entry>
- <entry>52+1 bits</entry><entry>11 bits</entry><entry>IEEE format</entry></row>
+ <entry>52+1 bits</entry><entry>11 bits</entry><entry>&ieee-bfp;</entry></row>
        <row><entry>&long-float-t;</entry><entry>1 bit</entry>
  <entry>&gt;=64 bits</entry><entry>32 bits</entry><entry>variable
  length</entry></row></tbody></tgroup></table>
 
-<para>The single and double float formats are those of the IEEE standard
- (1981), except that &clisp; does not support features like
- <literal>+0</literal>, <literal>-0</literal>, <literal>+inf</literal>,
- <literal>-inf</literal>, gradual underflow, <literal>NaN</literal>,
- etc. (&cl; does not make use of these features.)
+<para>The single and double float formats are those of the &ieee-bfp;
+ <quote>Standard for Binary Floating-Point Arithmetic</quote>,
+ except that &clisp; does not support features like
+ <literal>&plusmn;0</literal>, <literal>&plusmn;inf</literal>,
+ <literal>NaN</literal>, gradual underflow, etc.
+ (&cl; does not make use of these features.)
  This is why &features-var; does not contain the
  <constant>:IEEE-FLOATING-POINT</constant> keyword.</para>
 
@@ -1180,16 +1181,16 @@ and allow enforcing modularity.
   (programmer) knows what it is in each case.
  </simpara></listitem></varlistentry>
 <varlistentry><term>Detailed:</term>
- <listitem><simpara>A float is an approximation of a real number.  One
-  can think of it as a random variable with the mean equal to itself and
-  standard deviation equal to half the last significant digit.  E.g.,
-  <literal>1.5</literal> is actually <literal>1.5+-0.05</literal>.
+ <listitem><simpara>A computer float is an approximation of a real number.
+  One can think of it as a random variable with the mean equal to
+  itself and standard deviation equal to half the last significant digit.
+  E.g., <literal>1.5</literal> is actually <literal>1.5&plusmn;0.05</literal>.
   Consider adding <literal>1.5</literal> and <literal>1.75</literal>.
   &ansi-cl; requires that <literal role="sexp">(+ 1.5 1.75)</literal>
-  return <literal>3.25</literal>, while traditional &clisp; would return
+  returns <literal>3.25</literal>, while traditional &clisp; would return
   <literal>3.3</literal>.  The implied random variables are:
-  <literal>3.25+-0.005</literal> and <literal>3.3+-0.05</literal>.  Note
-  that the traditional &clisp; way <emphasis role="strong">does</emphasis>
+  <literal>3.25&plusmn;0.005</literal> and <literal>3.3&plusmn;0.05</literal>.
+  Note that the traditional &clisp; way <emphasis role="strong">does</emphasis>
   lie about the mean: the mean <emphasis role="strong">is</emphasis>
   <literal>3.25</literal> and nothing else, while the standard way
   <emphasis role="strong">could</emphasis> be lying about the deviation
@@ -1204,12 +1205,12 @@ and allow enforcing modularity.
 <varlistentry><term>Experience:</term>
   <listitem><simpara> Rounding errors accumulate, and if a computation
   is conducted with insufficient precision, an outright incorrect
-  result can be returned.  (E.g.,
-  <literal>E(x<superscript>2</superscript>) -
-  E(x)<superscript>2</superscript></literal> can be negative!)  The user
-  should not mix floats of different precision (that's what &warn-fpc; is
-  for), but one should not be penalized for this too harshly.
-  </simpara></listitem></varlistentry>
+  result can be returned.
+  (E.g., <literal>E(x<superscript>2</superscript>) -
+  E(x)<superscript>2</superscript></literal> can be negative!)
+  The user should not mix floats of different precision (that's what
+  &warn-fpc; is for), but one should not be penalized for this too
+  harshly.</simpara></listitem></varlistentry>
 </variablelist>
 
 <para>When &flocont; is &nil;, the traditional &clisp; method is used,
@@ -3828,7 +3829,8 @@ value of &terminal-io-var;).</para>
 
 <para>The function <literal role="sexp">(&rd-float; &stream-r;
     &eltype-r; &optional-amp; &endianness; &eof-ep; &eof-v;)</literal>
- reads a floating-point number in IEEE binary representation from &stream-r;.
+ reads a floating-point number in &ieee-bfp;
+ binary representation from &stream-r;.
  &stream-r; should be a &stream-t; with &stream-element-type;
  &unsigned-byte-8;.
  &eltype-r; should be &type-eq; to
@@ -3867,7 +3869,8 @@ value of &terminal-io-var;).</para>
 <para>The function <literal role="sexp">(&wr-float;
     <replaceable>float</replaceable> &stream-r;
     &eltype-r; &optional-amp; &endianness;)</literal>
- writes a floating-point number in IEEE binary representation to &stream-r;.
+ writes a floating-point number in &ieee-bfp;
+ binary representation to &stream-r;.
  &stream-r; should be a &stream-t; with &stream-element-type;
  &unsigned-byte-8;.
  &eltype-r; should be &type-eq; to
