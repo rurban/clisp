@@ -2633,7 +2633,8 @@ if [ "${with_unicode}" != no ] ; then
 else
   encflags=''
 fi
-echol "RUN= ${HERE}lisp${LEXE} ${localeflags}${encflags} -norc"
+someflags=${encflags}' -norc'
+echol "RUN= ${HERE}lisp${LEXE} ${localeflags}${someflags}"
 echol
 
 for f in ${LUTILS} ; do
@@ -2684,7 +2685,7 @@ else
 
   for f in $LPARTS ; do
     echol "${f}.fas : ${f}.lisp"
-    echotab 'clisp -M cross.mem ${localeflags}${encflags} -norc -q -x "(cross:compile-file \"'"${f}.lisp"'\")"'
+    echotab 'clisp -M cross.mem ${localeflags}${someflags} -q -x "(cross:compile-file \"'"${f}.lisp"'\")"'
     echol
   done
 
@@ -2726,7 +2727,7 @@ if [ -n "$USE_GETTEXT" ] ; then
 else
   localeflags='-B `pwd`'
 fi
-CLISP_="${HERE_}lisp${LEXE} -M ${HERE_}lispinit.mem ${localeflags}${encflags} -norc"
+CLISP_="${HERE_}lisp${LEXE} -M ${HERE_}lispinit.mem ${localeflags}${someflags}"
 
 if [ $CROSS = false ] ; then
 
@@ -2833,7 +2834,7 @@ if [ $CROSS = false ] ; then
   done
   echol
 
-  SACLA_CLISP="../lisp${LEXE} -B .. -M ../lispinit.mem -N ../locale -E UTF-8 -norc -i tests.lisp"
+  SACLA_CLISP="../lisp${LEXE} -B .. -M ../lispinit.mem -N ../locale ${someflags} -i tests.lisp"
   echol "check-sacla-tests : ${SACLATESTSDIR} lisp${LEXE} lispinit.mem"
   echotab "cd ${SACLATESTSDIR} && ${SACLA_CLISP} -x '(ext:exit (> (nth-value 1 (run-all-tests)) 0))'"
   echol
@@ -2845,7 +2846,7 @@ if [ $CROSS = false ] ; then
   done
   echol
 
-  ANSI_CLISP="../lisp${LEXE} -B .. -M ../lispinit.mem -N ../locale -E UTF-8 -m 30000KW -norc -ansi -i clispload.lsp"
+  ANSI_CLISP="../lisp${LEXE} -B .. -M ../lispinit.mem -N ../locale ${someflags} -m 30000KW -ansi -i clispload.lsp"
   echol "check-ansi-tests : ${ANSITESTSDIR} lisp${LEXE} lispinit.mem"
   echotab "cd ${ANSITESTSDIR} && ${ANSI_CLISP} -x '(in-package \"CL-TEST\") (time (regression-test:do-tests)) (ext:exit (regression-test:pending-tests))' 2>&1 | tee ../ansi-tests-log"
   echol
@@ -2950,7 +2951,7 @@ echotab "CLISP_LINKKIT=. ${HERE}clisp-link add-module-sets base full \$(MODULES)
 echol
 echol "full-check : full clisp"
 echotab 'for m in $(MODULES); do $(RM) $$m/*.erg; done'
-echotab 'z=""; for m in $(MODULES); do z=$$z" \""$$m/\"; done; ./clisp -norc -K full -E utf-8 -C -i '${TESTSDIR}/tests' -x "(run-some-tests '"'"'($$z))"'
+echotab 'z=""; for m in $(MODULES); do z=$$z" \""$$m/\"; done; ./clisp -K full ${someflags} -C -i '${TESTSDIR}/tests' -x "(run-some-tests '"'"'($$z))"'
 echol
 OBSOLETE=$OBSOLETE" genclisph${HEXE}"
 
@@ -3225,7 +3226,7 @@ if [ $CROSS = false ] ; then
     echol
     echol
     echol "installcheck : ${TESTSDIR} force"
-    echotab "cd ${TESTSDIR} && \$(MAKE) LISP=\"\$(bindir)/clisp -E utf-8 -norc\""
+    echotab "cd ${TESTSDIR} && \$(MAKE) LISP=\"\$(bindir)/clisp ${someflags}\""
     echol
     echol
     echol "uninstall : uninstall-bin uninstall-man"

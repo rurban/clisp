@@ -1,5 +1,11 @@
 2004-09-08  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 1024332 ]: file system traversing problems
+	* makemake.in (someflags): new variable: encflags + -norc
+	use it uniformly everywhere
+
+2004-09-08  Sam Steingold  <sds@gnu.org>
+
 	* init.lisp (load): use the input-stream as the unique EOF object
 
 2004-07-12  Bruno Haible  <bruno@clisp.org>
