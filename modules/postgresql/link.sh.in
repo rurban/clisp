@@ -5,7 +5,8 @@ if test -f postgresql.c; then
   mod_list="$mod_list"' postgresql'
 fi
 make clisp-module CC="${CC}" CFLAGS="${CFLAGS}" INCLUDES="$absolute_linkkitdir"
+
 NEW_FILES="$file_list"
-NEW_LIBS="$file_list -lpq"
+NEW_LIBS="$file_list @LIBS@"
 NEW_MODULES="$mod_list"
 TO_LOAD='postgresql'

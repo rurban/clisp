@@ -1,33 +1,28 @@
 ;; Foreign functions provided by PostgreSQL
-;; File: <postgresql.lisp - 2002-03-10 Sun 19:46:10 EST sds@gnu.org>
 
 (defpackage "SQL"
   (:case-sensitive t)
   (:nicknames "POSTGRES" "POSTGRESQL")
   (:use))
 
-;; This requires linking with NEW_LIBS='postgresql.o -lpq'.
-
-(in-package "LISP")
-
-(ffi:default-foreign-language :stdc)
-
 (eval-when (compile eval)
   ;; A temporary package, case-insensitive, so that we don't need to prefix
   ;; everything with "lisp:" or "ffi:".
-  (defpackage "SQL-AUX" (:use "LISP" "FFI"))
-  (in-package "SQL-AUX")
+  (defpackage "SQL-AUX" (:use "CL" "FFI")))
+
+(eval-when (compile eval) (in-package "SQL-AUX"))
+
+(eval-when (compile eval)
   ;; Symbols to be substituted
   (defconstant substitution
     '((sql::compile . lisp:compile)
       (sql::eval . lisp:eval)
-      (sql::gensym . lisp:gensym)
-      (sql::let . lisp:let)
       (sql::load . lisp:load)
       (sql::load-time-value . lisp:load-time-value)
       (sql::progn . lisp:progn)
       (sql::setf . lisp:setf)
       (sql::t . lisp:t)
+      (sql::defconstant . lisp:defconstant)
       (sql::bitsizeof . ffi:bitsizeof)
       (sql::boolean . ffi:boolean)
       (sql::char . ffi:char)
@@ -97,12 +92,9 @@
 
 (in-package "SQL")
 
-;;; The include files are found in /usr/include/pgsql/
-;;;                             or /usr/lib/pgsql/include/
+(ffi:default-foreign-language :stdc)
 
-;;; ================= <libpq-fe.h> =================
-
-;;; ----------------- <postgres_ext.h> -----------------
+(c-lines "#include <postgres_ext.h>~%")
 
 (def-c-type Oid uint)
 
@@ -110,10 +102,7 @@
   (defconstant NAMEDATALEN 32)
   (defconstant OIDNAMELEN 36))
 
-;;; ----------------- <libpq/pqcomm.h> -----------------
-;;; contains only uninteresting low-level stuff
-
-;;; ----------------- <pgsql/libpq-fe.h> -----------------
+(c-lines "#include <libpq-fe.h>~%")
 
 (def-c-enum ConnStatusType CONNECTION_OK CONNECTION_BAD)
 
@@ -121,7 +110,9 @@
     PGRES_EMPTY_QUERY PGRES_COMMAND_OK PGRES_TUPLES_OK PGRES_COPY_OUT
     PGRES_COPY_IN PGRES_BAD_RESPONSE PGRES_NONFATAL_ERROR PGRES_FATAL_ERROR)
 
-(def-c-var pgresStatus (:type (c-array-ptr c-string)) (:read-only t))
+(def-call-out PQresStatus
+    (:arguments (status ExecStatusType))
+  (:return-type c-string))
 
 ;;(def-c-type PGconn (c-struct vector)) ; components unknown
 ;;(def-c-type PGresult (c-struct vector)) ; components unknown
@@ -131,11 +122,11 @@
 (def-c-type PGresult c-pointer) ; components unknown
 
 #|
-(def-c-struct PGresAttDesc
+ (def-c-struct PGresAttDesc
   (name c-string)
   (adtid Oid)
   (adtsize short))
-(def-c-struct PGresAttValue
+ (def-c-struct PGresAttValue
   (len int)
   (value c-pointer))
 |#
@@ -351,7 +342,7 @@
 ;; PGRES_INV_READ
 ;; PGRES_InvalidOid
 
-(lisp:in-package "LISP")
 
+(cl:in-package "CL-USER")
 (eval-when (compile eval) (delete-package "SQL-AUX"))
-
+(provide "postgresql")
