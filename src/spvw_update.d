@@ -53,7 +53,8 @@
 # Some possible implementation of update_stackobj.
 #   update_stackobj_normal
 
-/* update back_trace's: update_back_traces() */
+/* Update the C stacks.
+   update_back_traces(); */
 
 # ------------------------------ Implementation -------------------------------
 
@@ -390,7 +391,8 @@
    }                                                                          \
   })
 
-/* update back_traces */
-#define update_back_traces()                                            \
-  for_all_back_traces(for (;bt; bt=bt->bt_next)                         \
-                        update((gcv_object_t*)&(bt->bt_caller)))
+/* Update C stacks: */
+#define update_back_traces()    \
+  for_all_back_traces(          \
+    for (;bt; bt = bt->bt_next) \
+      update(&bt->bt_caller))

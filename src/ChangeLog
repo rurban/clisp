@@ -1,3 +1,11 @@
+2004-03-13  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (back_trace_check): Change argument type to 'const char*'.
+	* spvw_debug.d (back_trace_check): Likewise.
+	* spvw_garcol.d (gc_markphase): Mark the backtraces here...
+	(gar_col_normal): ... not here.
+	* spvw_update.d (update_back_traces): Remove unneeded cast.
+
 2004-03-24  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (rd_ch_terminal2, rd_ch_terminal3, wr_ch_array_terminal3)

@@ -7417,6 +7417,8 @@ typedef SPint sp_jmp_buf[jmpbufsize];
   #error "Unknown STACK direction -- readjust STACK_DOWN/STACK_UP!"
 #endif
 
+/* A singly-linked list of all currently active function calls.
+   Resides in the C stack. */
 struct backtrace_t {
   const struct backtrace_t* bt_next;
   gcv_object_t bt_caller;
@@ -7424,7 +7426,7 @@ struct backtrace_t {
   int bt_num_arg;
 };
 extern void back_trace_check (const struct backtrace_t *bt,
-                              char* label,char* file,int line);
+                              const char* label, const char* file, int line);
 #ifdef DEBUG_SPVW
 #define BT_CHECK(b,l) back_trace_check(b,l,__FILE__,__LINE__)
 #else

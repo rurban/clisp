@@ -522,6 +522,14 @@ local void gc_markphase (void)
  #endif
   for_all_constobjs( gc_mark(*objptr); ); /* object_tab */
   for_all_threadobjs( gc_mark(*objptr); ); /* threads */
+  /* The callers in back_trace must all be already marked:
+     they refer to subrs and closures that are curently being
+     called and therefore cannot possibly be garbage-collected.
+     But better safe than sorry, so we mark them here again: */
+  for_all_back_traces({
+    for (; bt; bt = bt->bt_next)
+      gc_mark(bt->bt_caller);
+  });
 }
 
 # UP: Determine, if an object is still "live".
@@ -2027,13 +2035,6 @@ local void gc_unmarkcheck (void) {
         gc_mark(L); L = TheWeakKVT(L)->wkvt_cdr;
       }
     }
-    { /* the callers in back_trace must all be already marked:
-         they refer to subrs and closures that are curently being
-         called and therefore cannot possibly be garbage-collected.
-         But better safe than sorry, so we mark them here again: */
-      var p_backtrace_t bt = back_trace;
-      for (; bt; bt = bt->bt_next) gc_mark(bt->bt_caller);
-    }
     # All active objects are marked now:
     # active objects of variable length and active two-pointer-objects carry
     # in their first byte a set mark bit, active SUBRs carry
@@ -2131,14 +2132,14 @@ local void gc_unmarkcheck (void) {
       # peruse all LISP-objects and update:
         # Update pointers in all LISP-stacks:
           update_STACKs();
+        # Update pointers in all C stacks:
+          update_back_traces();
         # Update weak-pointers:
           update_weakpointers_mod();
         # Update weak kvtables:
           update_weakkvtables_mod();
         # Update program constants:
           update_tables();
-        /* update back_trace's */
-          update_back_traces();
         #ifndef MORRIS_GC
         # update pointers in the Cons-cells:
           #define update_conspage  update_conspage_normal
@@ -2681,16 +2682,16 @@ local void gc_unmarkcheck (void) {
       # The entire LISP-memory is perused and old addresses
       # are replaced with new ones.
       # peruse all LISP-objects and update:
-        # Update pointers in the LISP-stack:
+        # Update pointers in the LISP-stacks:
           update_STACKs();
+        # Update pointers in the C stacks:
+          update_back_traces();
         # Update weak-pointers:
           update_weakpointers_mod();
         # Update weak kvtables:
           update_weakkvtables_mod();
         # Update program constants:
           update_tables();
-        /* update back_trace's */
-          update_back_traces();
         # Update pointers in the cons-cells:
           #define update_conspage  update_conspage_normal
           update_conses();
@@ -2900,14 +2901,14 @@ local void gc_unmarkcheck (void) {
           #define update_stackobj  update_stackobj_normal
           update_STACKs();
           #undef update_stackobj
+        # Update pointers in all C stacks:
+          update_back_traces();
         # Update weak-pointers:
           update_weakpointers_mod();
         # Update weak kvtables:
           update_weakkvtables_mod();
         # Update program constants:
           update_tables();
-        /* update back_trace's */
-          update_back_traces();
         # update pointers in the Cons-cells:
           #define update_conspage  update_conspage_normal
           update_conses();
