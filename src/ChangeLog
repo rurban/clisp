@@ -1411,9 +1411,9 @@
 	* condition.lisp (handler-bind): ditto
 	* format.lisp (formatter-main-1): ditto
 	* places.lisp (get-setf-expansion, push, pushnew): ditto
-	* clos.lisp (analyze-method-description, prototype-table,
-	compute-dispatch, compute-effective-method, generic-flet,
-	generic-labels): ditto
+	* clos.lisp (analyze-method-description, prototype-table)
+	(compute-dispatch, compute-effective-method, generic-flet)
+	(generic-labels): ditto
 	(n-gensyms): removed
 
 2001-09-10  Sam Steingold  <sds@gnu.org>
@@ -1428,7 +1428,7 @@
 
 2001-09-09  Sam Steingold  <sds@gnu.org>
 
-	* lispbibl.d (offsetof): [MSVC] defined in <stddef.h>
+	* lispbibl.d (offsetof) [MSVC]: defined in <stddef.h>
 
 2001-09-09  Sam Steingold  <sds@gnu.org>
 
@@ -2286,6 +2286,8 @@
 2001-06-25  Bruno Haible  <haible@clisp.cons.org>
 
 	Optimize away local functions that are not used.
+	This fixed the CLOS consing introduced on 2000-06-11 when
+	CALL-NEXT-METHOD was defined with SYSTEM::FUNCTION-MACRO-LET.
 	* compiler.lisp (var): New slot 'fnode'.
 	(fnode): New slots 'Tags', 'far-used-vars', 'far-assigned-vars',
 	'far-used-blocks', 'far-used-tagbodys'.
@@ -2381,8 +2383,8 @@
 	 allow request specialization (just :INPUT or just :OUTPUT)
 	* io.d (pr_stream): print stream direction
 	* constobj.d (printstring_(input|output|io)): new constants
-	* dirkey.d (DIR_KEY_*, IDNE_*, parse_if_not_exists,
-	parse_direction): removed
+	* dirkey.d (DIR_KEY_*, IDNE_*, parse_if_not_exists)
+	(parse_direction): removed
 	(open_reg_key): convert from direction_t to REGSAM
 
 2001-06-19  Sam Steingold  <sds@gnu.org>
@@ -2457,15 +2459,15 @@
 	* threads.lisp: new file
 	* init.lisp: load it when #+MT
 	* makemake.in (LPARTS): add it
-	* xthread.d (xthread_init): [win32]: noop
-	(xmutex_init, xmutex_destroy, xmutex_lock, xmutex_unlock):
+	* xthread.d (xthread_init) [win32]: noop
+	(xmutex_init, xmutex_destroy, xmutex_lock, xmutex_unlock)
 	[win32]: use GetLastError() to get the error status
 
 2001-06-09  Sam Steingold  <sds@gnu.org>
 
 	some MT compilation errors fixed
-	* lispbibl.d (OS_error): [macro]: use asciz_out_1()
-	(SP_bound): [MULTITHREAD]: no semicolon
+	* lispbibl.d (OS_error) [macro]: use asciz_out_1()
+	(SP_bound) [MULTITHREAD]: no semicolon
 	* spvw_circ.d: varbrace does not work with #if,
 	so expand var manually
 
@@ -2615,7 +2617,8 @@
 2001-05-21  Bruno Haible  <haible@clisp.cons.org>
 
 	* lispbibl.d (dfloat): ARM saves the doubles as two little-endian
-	words, in big-endian order. Reported by Richard Kreckel.
+	words, in big-endian order.
+	Reported by Richard Kreckel.
 
 2001-05-21  Bruno Haible  <haible@clisp.cons.org>
 
