@@ -80,6 +80,7 @@ impnotes.pdf: impnotes.xml $(IMPNOTES)
 
 html: impnotes.xml $(IMPNOTES)
 	if [ ! -h $@ ]; then $(RM) -r $@; ln -s ../../gnu/clisp/impnotes $@; fi
+	cd html && sed 's/^/ln -vfs /' .symlinks | sh -
 	time docbook2html --dsl impnotes.dsl -o $@ $<
 
 regexp.html: ../modules/regexp/regexp.texinfo $(TEXI2HTML)
