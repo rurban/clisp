@@ -1,3 +1,11 @@
+2002-02-01  Sam Steingold  <sds@gnu.org>
+
+	* io.d (pr_array_nil): print array address too
+	(pr_hex6_obj): save the object
+	(pr_orecord): print HASH-TABLE with TEST and COUNT
+	even when *PRINT-ARRAY* is NIL
+	* constobj.d (printstring_hash_table): removed
+
 2002-01-31  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (hashtable_test): new macro

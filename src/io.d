@@ -7655,19 +7655,18 @@ local void pr_array_nil (const object* stream_, object obj) {
   UNREADABLE_START;
   JUSTIFY_LAST(false);
   write_sstring_case(stream_,O(printstring_array)); # print "ARRAY"
-  JUSTIFY_SPACE;
-  JUSTIFY_LAST(false);
+  JUSTIFY_SPACE; JUSTIFY_LAST(false);
   prin_object_dispatch(stream_,array_element_type(*obj_)); # print elementtype (symbol or list)
-  JUSTIFY_SPACE;
-  JUSTIFY_LAST(!array_has_fill_pointer_p(*obj_));
+  JUSTIFY_SPACE; JUSTIFY_LAST(false);
   pr_list(stream_,array_dimensions(*obj_)); # print dimension-list
   if (array_has_fill_pointer_p(*obj_)) {
     # Array with fill-pointer -> also print the fill-pointer:
-    JUSTIFY_SPACE;
-    JUSTIFY_LAST(true);
+    JUSTIFY_SPACE; JUSTIFY_LAST(false);
     write_sstring_case(stream_,O(printstring_fill_pointer)); # print "FILL-POINTER="
     pr_uint(stream_,vector_length(*obj_)); # print length (=fill-pointer)
   }
+  JUSTIFY_SPACE; JUSTIFY_LAST(true);
+  pr_hex6(stream_,*obj_);
   JUSTIFY_END_ENG;
   UNREADABLE_END;
   skipSTACK(1);
@@ -8335,6 +8334,8 @@ LISPFUNN(print_structure,2) {
 # < stream: stream
 # can trigger GC
 local void pr_hex6_obj (const object* stream_, object obj, object string) {
+  pushSTACK(obj); # save object
+  var object* obj_ = &STACK_0; # and memorize, where it is
   pushSTACK(string); # save string
   var object* string_ = &STACK_0; # and memorize, where it is
   UNREADABLE_START;
@@ -8342,10 +8343,10 @@ local void pr_hex6_obj (const object* stream_, object obj, object string) {
   write_sstring_case(stream_,*string_); # print string
   JUSTIFY_SPACE;
   JUSTIFY_LAST(true);
-  pr_hex6(stream_,obj); # print obj as an address
+  pr_hex6(stream_,*obj_); # print obj as an address
   JUSTIFY_END_ENG;
   UNREADABLE_END;
-  skipSTACK(1);
+  skipSTACK(2);
 }
 
 # UP: prints machine-pointer to stream.
@@ -8665,7 +8666,21 @@ local void pr_orecord (const object* stream_, object obj) {
         }
         LEVEL_END;
       } else {
-        pr_hex6_obj(stream_,obj,O(printstring_hash_table));
+        var uintL count = posfixnum_to_L(TheHashtable(obj)->ht_count);
+        var uintB flags = record_flags(TheHashtable(obj));
+        pushSTACK(obj);
+        var object* obj_ = &STACK_0;
+        UNREADABLE_START; JUSTIFY_LAST(false);
+        prin_object(stream_,S(hash_table)); # print symbol HASH-TABLE
+        JUSTIFY_SPACE; JUSTIFY_LAST(false);
+        prin_object(stream_,hashtable_test(flags)); # print HASH-TABLE-TEST:
+        JUSTIFY_SPACE; JUSTIFY_LAST(false);
+        pr_uint(stream_,count); # print HASH-TABLE-COUNT
+        JUSTIFY_SPACE; JUSTIFY_LAST(true);
+        pr_hex6(stream_,*obj_);
+        JUSTIFY_END_ENG;
+        UNREADABLE_END;
+        skipSTACK(1);
       }
       break;
     case Rectype_Package:
