@@ -2026,6 +2026,7 @@ int main(int argc, char* argv[])
 #if defined(UNIX)
   printf("#include <time.h>\n");
   printf("extern object convert_time_to_universal (const time_t* time);\n");
+  printf("extern void convert_time_from_universal (object universal, time_t* time);\n");
 #endif
 #if defined(UNIX_CYGWIN32)
   printf("#include <windows.h>\n");
