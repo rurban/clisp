@@ -261,7 +261,7 @@
   local uint32 hashcode_string(obj)
     var object obj;
     { var uintL len;
-      var const chart* ptr = unpack_string(obj,&len); # ab ptr kommen len Zeichen
+      var const chart* ptr = unpack_string_ro(obj,&len); # ab ptr kommen len Zeichen
       var uint32 bish_code = 0x33DAE11FUL + len; # Länge verwerten
       if (len > 0)
         { bish_code ^= (uint32)as_cint(ptr[len-1]); # letztes Zeichen dazu
@@ -405,7 +405,7 @@
           { case_Rectype_number_above;
             case Rectype_Sbvector: case Rectype_bvector:
               return hashcode_bvector(obj);
-            case Rectype_Sstring: case Rectype_string:
+            case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_string:
               return hashcode_string(obj);
             case Rectype_Pathname:
             #ifdef LOGICAL_PATHNAMES

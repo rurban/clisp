@@ -183,7 +183,7 @@
                     # Simple-vector: alle Pointer aktualisieren                 \
                     do_update_svector();                                        \
                     break;                                                      \
-                  case Rectype_Sbvector: case Rectype_Sstring:                  \
+                  case Rectype_Sbvector: case Rectype_Sstring: case Rectype_Imm_Sstring: \
                   case Rectype_Bignum: case Rectype_Ffloat:                     \
                   case Rectype_Dfloat: case Rectype_Lfloat:                     \
                     # enthalten keine zu aktualisierenden Pointer -> nichts tun \

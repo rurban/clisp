@@ -160,14 +160,14 @@ LISPFUN(make_encoding,0,0,norest,key,2,
       var object obj;
       var object encoding;
       { var uintL len;
-        var const chart* srcptr = unpack_string(obj,&len);
+        var const chart* srcptr = unpack_string_ro(obj,&len);
         var uintL bytelen = cslen(encoding,srcptr,len);
         pushSTACK(encoding);
         pushSTACK(obj);
        {var object newasciz = allocate_bit_vector((bytelen+1)*8);
         obj = popSTACK();
         encoding = popSTACK();
-        { var const chart* srcptr = unpack_string(obj,&len);
+        { var const chart* srcptr = unpack_string_ro(obj,&len);
           cstombs(encoding,srcptr,len,&TheSbvector(newasciz)->data[0],bytelen);
           TheSbvector(newasciz)->data[bytelen] = '\0';
         }
@@ -181,7 +181,7 @@ LISPFUN(make_encoding,0,0,norest,key,2,
        {var object newasciz = allocate_bit_vector((vector_length(obj)+1)*8);
         obj = popSTACK(); # String zurück
         { var uintL len;
-          var const chart* sourceptr = unpack_string(obj,&len);
+          var const chart* sourceptr = unpack_string_ro(obj,&len);
           # Source-String: Länge in len, Bytes ab sourceptr
           var uintB* destptr = &TheSbvector(newasciz)->data[0];
           # Destination-String: Bytes ab destptr

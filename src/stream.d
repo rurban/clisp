@@ -19,6 +19,7 @@
 # Nochmals zum Aufbau von Streams:
 # strmflags = Flags
   # Bits in den Flags:
+  # define strmflags_immut_bit_B 1  # set if read literals are immutable
   # define strmflags_reval_bit_B 2  # gesetzt, falls Read-Eval erlaubt ist
   #define strmflags_unread_bit_B 3  # gesetzt, während strm_rd_ch_last zurück ist
   #define strmflags_rd_by_bit_B  4  # gesetzt, falls READ-BYTE möglich ist
@@ -26,8 +27,9 @@
   # define strmflags_rd_ch_bit_B 6  # gesetzt, falls READ-CHAR möglich ist
   # define strmflags_wr_ch_bit_B 7  # gesetzt, falls WRITE-CHAR möglich ist
   # Bitmasken in den Flags:
-  #define strmflags_unread_B bit(strmflags_unread_bit_B)
+  #define strmflags_immut_B  bit(strmflags_immut_bit_B)
   #define strmflags_reval_B  bit(strmflags_reval_bit_B)
+  #define strmflags_unread_B bit(strmflags_unread_bit_B)
   #define strmflags_rd_by_B  bit(strmflags_rd_by_bit_B)
   #define strmflags_wr_by_B  bit(strmflags_wr_by_bit_B)
   # define strmflags_rd_ch_B bit(strmflags_rd_ch_bit_B)
@@ -1772,8 +1774,10 @@ LISPFUNN(concatenated_stream_streams,1)
     var object input_stream;
     var object output_stream;
     { pushSTACK(input_stream); pushSTACK(output_stream); # Streams retten
-     {var object stream = # neuer Stream, alle Operationen erlaubt
-        allocate_stream(strmflags_open_B,strmtype_twoway,strm_len+2,0);
+     {var uintB flags =
+        strmflags_open_B | (TheStream(input_stream)->strmflags & strmflags_immut_B);
+      var object stream = # neuer Stream, alle Operationen erlaubt
+        allocate_stream(flags,strmtype_twoway,strm_len+2,0);
       TheStream(stream)->strm_rd_by = P(rd_by_twoway);
       TheStream(stream)->strm_rd_by_array = P(rd_by_array_twoway);
       TheStream(stream)->strm_wr_by = P(wr_by_twoway);
@@ -1880,7 +1884,8 @@ LISPFUNN(two_way_stream_output_stream,1)
     var object input_stream;
     var object output_stream;
     { pushSTACK(input_stream); pushSTACK(output_stream); # Streams retten
-     {var uintB flags = strmflags_open_B;
+     {var uintB flags =
+        strmflags_open_B | (TheStream(input_stream)->strmflags & strmflags_immut_B);
       var object stream = # neuer Stream, alle Operationen erlaubt
         allocate_stream(flags,strmtype_echo,strm_len+2,0);
       TheStream(stream)->strm_rd_by = P(rd_by_echo);
@@ -1979,7 +1984,7 @@ LISPFUNN(echo_stream_output_stream,1)
         else
         # index < eofindex
         { var uintL len;
-          var const chart* charptr = unpack_string(TheStream(stream)->strm_str_in_string,&len);
+          var const chart* charptr = unpack_string_ro(TheStream(stream)->strm_str_in_string,&len);
           # Ab charptr kommen len Zeichen.
           if (index >= len) # Index zu groß ?
             { fehler_str_in_adjusted(stream); }
@@ -2000,7 +2005,7 @@ LISPFUNN(echo_stream_output_stream,1)
       var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
       if (index < endindex)
         { var uintL srclen;
-          var const chart* srcptr = unpack_string(TheStream(stream)->strm_str_in_string,&srclen);
+          var const chart* srcptr = unpack_string_ro(TheStream(stream)->strm_str_in_string,&srclen);
           # Ab srcptr kommen srclen Zeichen.
           if (srclen < endindex) { fehler_str_in_adjusted(stream); }
           srcptr += index;
@@ -2046,7 +2051,7 @@ LISPFUN(make_string_input_stream,1,2,norest,nokey,0,NIL)
     var object string;
     var uintL start;
     var uintL len;
-    test_string_limits(&string,&start,&len);
+    test_string_limits_ro(&string,&start,&len);
    {var object start_arg = fixnum(start); # start-Argument (Fixnum >=0)
     var object end_arg = fixnum_inc(start_arg,len); # end-Argument (Fixnum >=0)
     pushSTACK(string); # String retten
@@ -2442,7 +2447,7 @@ LISPFUNN(string_stream_p,1)
           var uintL start;
           var uintL len;
           subr_self = L(read_char);
-          test_string_limits(&string,&start,&len);
+          test_string_limits_ro(&string,&start,&len);
           stream = *stream_;
           index = start;
           endindex = index+len;
@@ -2452,7 +2457,7 @@ LISPFUNN(string_stream_p,1)
         }}
       # index < eofindex
       { var uintL len;
-        var const chart* charptr = unpack_string(TheStream(stream)->strm_buff_in_string,&len);
+        var const chart* charptr = unpack_string_ro(TheStream(stream)->strm_buff_in_string,&len);
         # Ab charptr kommen len Zeichen.
         if (index >= len) # Index zu groß ?
           { pushSTACK(stream); # Wert für Slot STREAM von STREAM-ERROR
@@ -5268,11 +5273,12 @@ typedef struct strm_unbuffered_extrafields_struct {
       var uintB flags =
           ((direction & bit(0)) ? strmflags_rd_B : 0) # evtl. READ-CHAR, READ-BYTE erlaubt
         | ((direction & bit(2)) ? strmflags_wr_B : 0) # evtl. WRITE-CHAR, WRITE-BYTE erlaubt
+        | ((direction & bit(1)) ? strmflags_immut_B : 0) # evtl. immutable Objekte
         ;
       if (eltype->kind == eltype_ch)
-        { flags &= strmflags_ch_B; }
+        { flags &= strmflags_ch_B | strmflags_immut_B; }
         else
-        { flags &= strmflags_by_B; }
+        { flags &= strmflags_by_B | strmflags_immut_B; }
      {# Stream allozieren:
       var object stream = allocate_stream(flags,type,strm_channel_len,sizeof(strm_unbuffered_extrafields_struct));
       # und füllen:
@@ -7092,12 +7098,13 @@ typedef struct strm_i_buffered_extrafields_struct {
     { var uintB flags =
           ((direction & bit(0)) ? strmflags_rd_B : 0) # evtl. READ-CHAR, READ-BYTE erlaubt
         | ((direction & bit(2)) ? strmflags_wr_B : 0) # evtl. WRITE-CHAR, WRITE-BYTE erlaubt
+        | ((direction & bit(1)) ? strmflags_immut_B : 0) # evtl. immutable Objekte
         ;
       var uintC xlen = sizeof(strm_buffered_extrafields_struct); # Das haben alle File-Streams
       if (eltype->kind == eltype_ch)
-        { flags &= strmflags_ch_B; }
+        { flags &= strmflags_ch_B | strmflags_immut_B; }
         else
-        { flags &= strmflags_by_B;
+        { flags &= strmflags_by_B | strmflags_immut_B;
           if ((eltype->size % 8) == 0)
             {} # Art a
             else
@@ -16032,7 +16039,7 @@ LISPFUNN(file_string_length,2)
       { # Take into account the NL -> CR/LF translation.
         if (stringp(obj))
           { var uintL len;
-            var chart* charptr = unpack_string(obj,&len);
+            var const chart* charptr = unpack_string_ro(obj,&len);
             var uintL result = len;
             var uintL count;
             dotimesL(count,len, { if (chareq(*charptr++,ascii(NL))) result++; } );
