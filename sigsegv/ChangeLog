@@ -3,6 +3,7 @@
         * Makefile.in (libdir, includedir): Use the autoconf determined value,
           in order to respect the configure arguments.
           (mandir): Remove unused variable.
+        * Makefile.msvc (mandir): LIkewise.
 
 	* Makefile.in (install, installdirs, uninstall): Support DESTDIR.
 
