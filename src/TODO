@@ -6,14 +6,35 @@ URGENT PROBLEMS
 Should handle these soon.
 
 
-IMMUTABLE & WIDE_SOFT: With or without MORRIS_GC, the immutable bit of
-objects gets lost during GC.
+print-readably for interpreted closures and #<specdecl> and #<unbound> ?
+
+
+parse_namestring: split_name_type(1), und bei make_pathname
+Klein->Großschreibung umwandeln, so dass (make-pathname :type "fas") immer geht.
+
+
+clean up and modularize spvw.d
 
 
 MAYBE
 =====
 
 Still have to think about these, whether they are good ideas or not.
+
+
+Add highlight/underline/etc. capability to the output side of *terminal-io*.
+
+
+Optimize REPLACE so that (replace v v :start1 10 :end1 30 :start2 0 :end2 20)
+doesn't cons. (vectors only, not lists)
+
+
+RUN-PROGRAM should have an optional argument :wait (default value T).
+:wait nil tells to start the process in the background. (How about error
+feedback?)
+
+
+CLOSE :ABORT T maybe do something on file streams.
 
 
 CR/LF -> NL conversion in pipe streams and socket streams (Unix and Win32)?
@@ -79,29 +100,21 @@ Shift F9 --> F9
 Shift F10 --> F10
 Shift F11 --> F11
 Shift F12 --> F12
-Home -> Escape [ 7
-End -> Escape [ 8
 
 Under console:
-Home -> Escape [ 1
-End -> Escape [ 4
-F6, F7, F8 -> Escape [ 1
-F9 -> Escape [ 2 0
-F10 -> Escape [ 2 1
-F11, Sh-F11 -> Escape [ 2 3
-F12, Sh-F12 -> Escape [ 2 4
-Shift F1 --> Escape [ 2 3
-Shift F2 --> Escape [ 2 4
-Shift F3 --> Escape [ 2 5
-Shift F4 --> Escape [ 2 6
-Shift F5 --> Escape [ 2 8
-Shift F6 --> Escape [ 2 9
-Shift F7 --> Escape [ 3 1
-Shift F8 --> Escape [ 3 2
-Shift F9 --> Escape [ 3 3
-Shift F10 --> Escape [ 3 4
+Shift F1 --> F11
+Shift F2 --> F12
+Shift F3 --> Escape [ 2 5 ~
+Shift F4 --> Escape [ 2 6 ~
+Shift F5 --> Escape [ 2 8 ~
+Shift F6 --> Escape [ 2 9 ~
+Shift F7 --> Escape [ 3 1 ~
+Shift F8 --> Escape [ 3 2 ~
+Shift F9 --> Escape [ 3 3 ~
+Shift F10 --> Escape [ 3 4 ~
+Shift F11 --> F11
+Shift F12 --> F12
 Ctrl-Alt-Q --> nothing at all
-NumLock doesn't work
 
 
 Browse in dpANS to see which situations require the following conditions:
