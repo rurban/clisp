@@ -1359,17 +1359,17 @@ global maygc object UDS_to_I (uintD* MSDptr, uintC len)
 
 /* bit sequence --> integer */
 global maygc object udigits_to_I (void* digits, uintC len) {
-  uintL bn_size = ceiling(len,sizeof(uintD));
-  uintD total = bn_size * sizeof(uintD);
-  void *data = (len == total ? digits :
-                total<=1024 ? alloca(total) : my_malloc(total));
+  var uintL bn_size = ceiling(len,sizeof(uintD));
+  var uintD total = bn_size * sizeof(uintD);
+  var void *data = (len == total ? digits :
+                    total<=1024 ? alloca(total) : my_malloc(total));
   if (data != digits) {      /* len is not divisible by sizeof(uintD) */
     begin_system_call();
     memset(data,0,total);
     memcpy((char*)data + total - len,digits,len);
     end_system_call();
   }
-  object ret = UDS_to_I(data,bn_size);
+  var object ret = UDS_to_I(data,bn_size);
   if (data != digits && total>1024) {
     begin_system_call();
     free(data);

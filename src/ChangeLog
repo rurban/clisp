@@ -1,5 +1,10 @@
 2005-01-24  Bruno Haible  <bruno@clisp.org>
 
+	* intelem.d (udigits_to_I): Use 'var'.
+	* utils/gctrigger.d (convert): Likewise.
+
+2005-01-24  Bruno Haible  <bruno@clisp.org>
+
 	* configure.in: Add check for dvipdf.
 	* makemake.in: Generate and install clisp.pdf only if DVIPDF is
 	nonempty.
