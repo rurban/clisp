@@ -12310,6 +12310,23 @@ Die Funktion make-closure wird dazu vorausgesetzt.
          (c-report-problems)
          (c-reset-globals)))))
 
+(defun compile-file-pathname-helper
+    (file output-file
+     &aux (true-file (or (first (search-file file *source-file-types*))
+                         (merge-pathnames file (merge-pathnames
+                                                (car *source-file-types*))))))
+  (cond ((eq output-file t)
+         (values (merge-pathnames (car *compiled-file-types*) true-file)
+                 true-file))
+        ((null output-file)
+         (values nil true-file))
+        ((streamp output-file)
+         (values output-file true-file))
+        (t (values (merge-pathnames output-file
+                      (merge-pathnames (car *compiled-file-types*)
+                         (merge-pathnames file)))
+                   true-file))))
+
 ; Common-Lisp-Funktion COMPILE-FILE
 ; file          sollte ein Pathname/String/Symbol sein.
 ; :output-file  sollte nil oder t oder ein Pathname/String/Symbol oder
@@ -12327,15 +12344,9 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                           &aux liboutput-file (*coutput-file* nil)
                                (new-output-stream nil) (new-listing-stream nil)
                     )
-  (setq file (or (first (search-file file *source-file-types*))
-                 (merge-pathnames file (merge-pathnames '#".lisp"))
-  )          )
+  (multiple-value-setq (output-file file)
+    (compile-file-pathname-helper file output-file))
   (when (and output-file (not (streamp output-file)))
-    (setq output-file
-      (if (eq output-file 'T)
-        (merge-pathnames '#".fas" file)
-        (merge-pathnames output-file (merge-pathnames '#".fas" file))
-    ) )
     (setq liboutput-file (merge-pathnames '#".lib" output-file))
     (setq *coutput-file* (merge-pathnames '#".c" output-file))
     (setq new-output-stream t)
@@ -12490,18 +12501,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
 
 ; Das muss mit compile-file (s.o.) konsistent sein!
 (defun compile-file-pathname (file &key (output-file 'T) &allow-other-keys)
-  (setq file (or (first (search-file file *source-file-types*))
-                 (merge-pathnames file (merge-pathnames '#".lisp"))
-  )          )
-  (when (and output-file (not (streamp output-file)))
-    (setq output-file
-      (if (eq output-file 'T)
-        (merge-pathnames '#".fas" file)
-        (merge-pathnames output-file (merge-pathnames '#".fas" file))
-    ) )
-  )
-  output-file
-)
+  (values (compile-file-pathname-helper file output-file)))
 
 (defun disassemble-closures (closure stream)
   (let ((closures '()))
