@@ -263,29 +263,29 @@ when it is inconvenient of impossible to alias the column with
   ; Generate a map of the bound vars to gensyms which contain the index of that
   ; var into the fetched array.
   (let ((fetch-result (gensym))
-	(saved-oracle-connection (gensym))
-	(index-vars (make-hash-table)))
+        (saved-oracle-connection (gensym))
+        (index-vars (make-hash-table)))
     (dolist (v vars)
-	    (setf (gethash (to-string (do-rows-var v)) index-vars) (gensym)))
+            (setf (gethash (to-string (do-rows-var v)) index-vars) (gensym)))
     (list 'let
-	  ; Declare saved Oracle connection and calculated array indices OUTSIDE fetch loop
-	  (append `((,saved-oracle-connection *oracle-connection*))
-			(map 'list
-			     #'(lambda (v) (list (gethash (to-string (do-rows-var v)) index-vars)
-						 (list 'do-rows-index-of (list 'quote v))))
-			     vars))
-	  ; Emit the DO loop itself
-	  (append (list 
-		   'do*
-		   (append (list `(,fetch-result (fetch 'array) (fetch 'array)))
-			     (map 'list 
-				  #'(lambda (k)
-				      (let ((iter (list 'aref-null fetch-result (gethash (to-string (do-rows-var k)) index-vars))))
-					(list (do-rows-var k) iter iter)))
-				  vars))
-		   (list `(null ,fetch-result) '(row-count)))
-		  (if (atom body) (list body) body)
-		  (list `(setf *oracle-connection* ,saved-oracle-connection))))))
+          ; Declare saved Oracle connection and calculated array indices OUTSIDE fetch loop
+          (append `((,saved-oracle-connection *oracle-connection*))
+                        (map 'list
+                             #'(lambda (v) (list (gethash (to-string (do-rows-var v)) index-vars)
+                                                 (list 'do-rows-index-of (list 'quote v))))
+                             vars))
+          ; Emit the DO loop itself
+          (append (list 
+                   'do*
+                   (append (list `(,fetch-result (fetch 'array) (fetch 'array)))
+                             (map 'list 
+                                  #'(lambda (k)
+                                      (let ((iter (list 'aref-null fetch-result (gethash (to-string (do-rows-var k)) index-vars))))
+                                        (list (do-rows-var k) iter iter)))
+                                  vars))
+                   (list `(null ,fetch-result) '(row-count)))
+                  (if (atom body) (list body) body)
+                  (list `(setf *oracle-connection* ,saved-oracle-connection))))))
 
 ;----------------------------------------------
 
@@ -648,13 +648,13 @@ Argument: none
 (defun do-rows-col (v) (if (atom v) v (cadr v)))
 (defun do-rows-index-of (v)
   (let ((i (position (to-string (do-rows-col v))
-		     (map 'array
-			  #'(lambda (x) (to-string (sqlcol-name x)))
-			  (columns))
-		     :test #'equal)))
+                     (map 'array
+                          #'(lambda (x) (to-string (sqlcol-name x)))
+                          (columns))
+                     :test #'equal)))
     (when (null i)
-	  (error (cat "DO-ROWS: Column '" (do-rows-col v)
-		      "' does not occur in query.  Allowed columns are:~%" (column-names))))
+          (error (cat "DO-ROWS: Column '" (do-rows-col v)
+                      "' does not occur in query.  Allowed columns are:~%" (column-names))))
     i))
 ; COLUMN-NAMES
 ; Get list of column names, one per line.
@@ -821,11 +821,11 @@ Argument: none
 
 ; CONNECT
 (def-call-out oracle_connect (:arguments (user           c-string)
-					 (schema         c-string)
-					 (password       c-string)
-					 (server         c-string)
-					 (prefetch_bytes int)
-					 (auto_commit    int))
+                                         (schema         c-string)
+                                         (password       c-string)
+                                         (server         c-string)
+                                         (prefetch_bytes int)
+                                         (auto_commit    int))
                              (:return-type c-pointer))
 
 ; DISCONNECT
@@ -834,9 +834,9 @@ Argument: none
 
 ; RUN SQL
 (def-call-out oracle_exec_sql (:arguments (db         c-pointer)
-					  (sql        c-string)
-					  (params     (c-array-ptr (c-ptr sqlparam)))
-					  (is_command int))
+                                          (sql        c-string)
+                                          (params     (c-array-ptr (c-ptr sqlparam)))
+                                          (is_command int))
                               (:return-type int))
 
 ; NO. OF COLUMNS
@@ -875,7 +875,7 @@ Argument: none
                               (:return-type int))
 
 (def-call-out oracle_set_auto_commit (:arguments (db c-pointer)
-						 (auto_commit int))
+                                                 (auto_commit int))
                                      (:return-type int))
 
 ; ERROR
@@ -939,12 +939,12 @@ Argument: none
 (defun check-unique-elements (l)
   (let ((h (make-hash-table :test #'equal)))
     (dolist (elt l)
-	    (when (null elt)
-		  (error "Null element in column/variable list"))
-	    (when (not (null (gethash (to-string elt) h)))
-		  (error (cat "DO-ROWS: Parameter/column '" elt "' occurs more than once in bound columns/variables:~%"
-			      (join "~%" l))))
-	    (setf (gethash (to-string elt) h) t))
+            (when (null elt)
+                  (error "Null element in column/variable list"))
+            (when (not (null (gethash (to-string elt) h)))
+                  (error (cat "DO-ROWS: Parameter/column '" elt "' occurs more than once in bound columns/variables:~%"
+                              (join "~%" l))))
+            (setf (gethash (to-string elt) h) t))
     t))
 
 ; JOIN
