@@ -15,6 +15,8 @@
 %define version %(cat src/VERSION)
 %define builddir build-rpm
 %define mysrc %{src}/%{name}/%{name}-%{version}
+# do not strip CLISP binaries, otherwise (disassemble #'cons) won't work
+%define debug_package %{nil}
 
 # don't you just love that you have to fit the macro into one line?
 # this automatically upgrades `release' with each build.
@@ -22,7 +24,7 @@
 #%define release %(test -f .release || echo 0 >> .release; echo "1 + " `cat .release` | bc > .,release; mv -fv .,release .release; cat .release)
 #%define release %(cat .release)
 %define release 1
-%define modules syscalls berkeley-db pcre regexp bindings/glibc clx/new-clx
+%define modules rawsock syscalls berkeley-db pcre regexp bindings/glibc clx/new-clx
 
 Summary:      Common Lisp (ANSI CL) implementation
 Name:         %{name}
