@@ -875,7 +875,7 @@ if [ $XCC_GCC = true ] ; then
   fi
   if [ $TSYS = win32gcc ] ; then
     # Avoid a declaration of sleep() in stdlib.h which clashes with ours.
-    XCFLAGS=$XCFLAGS' -D_NO_OLDNAMES -D_WIN32 -D__MINGW32__';
+    XCFLAGS=$XCFLAGS' -mno-cygwin -D_NO_OLDNAMES -D_WIN32';
 
   fi
   if [ $TSYS = sun4 -o $TSYS = acorn ] ; then
