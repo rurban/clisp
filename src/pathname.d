@@ -5839,7 +5839,8 @@ nonreturning_function(local, fehler_file_not_exists, (void)) {
    pushes pathname on the stack and
    returns the truename (filename for the operating system) or nullobj
    can trigger GC */
-local maygc object true_namestring (object pathname, bool noname_p, bool tolerantp) {
+local maygc object true_namestring (object pathname, bool noname_p,
+                                    bool tolerantp) {
   check_no_wildcards(pathname); /* with wildcards -> error */
   pathname = use_default_dir(pathname); /* insert default-directory */
   if (noname_p) check_noname(pathname);
