@@ -736,6 +736,7 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
   funcall(`POSIX::MAKE-FILE-STAT`,14);
 }
 #endif  /* fstat lstat fstat */
+
 #if defined(HAVE_CHMOD) && defined(HAVE_CHOWN) && defined(HAVE_UTIME)
 DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
 { /* interface to chmod(2), chown(2), utime(2)
@@ -977,6 +978,222 @@ DEFUN(POSIX::STAT-VFS, file)
 #endif  /* fstatvfs statvfs */
 
 #endif /* UNIX */
+
+
+/* FILE-OWNER */
+
+#if defined(UNIX)
+
+static const char *
+get_owner (const char *filename)
+{
+  struct stat statbuf;
+  if (lstat(filename, &statbuf) >= 0) {
+    struct passwd *pwd = getpwuid(statbuf.st_uid);
+    if (pwd)
+      return pwd->pw_name;
+  }
+  return "";
+}
+
+#endif
+
+#if defined(WIN32_NATIVE)
+
+#include <windows.h>
+#include <aclapi.h>
+
+/* Some functions missing in Windows95/98/ME. */
+
+/* Added in Windows NT 4.0 */
+static DWORD WINAPI (*GetSecurityInfoFunc) (HANDLE handle, SE_OBJECT_TYPE ObjectType, SECURITY_INFORMATION SecurityInfo, PSID* ppsidOwner, PSID* ppsidGroup, PACL* ppDacl, PACL* ppSacl, PSECURITY_DESCRIPTOR* ppSecurityDescriptor);
+#undef GetSecurityInfo
+#define GetSecurityInfo (*GetSecurityInfoFunc)
+
+/* Added in Windows NT Workstation */
+static BOOL WINAPI (*LookupAccountSidFunc) (LPCTSTR lpSystemName, PSID lpSid, LPTSTR lpName, LPDWORD cchName, LPTSTR lpReferencedDomainName, LPDWORD cchReferencedDomainName, PSID_NAME_USE peUse);
+#undef LookupAccountSid
+#define LookupAccountSid (*LookupAccountSidFunc)
+
+/* Added in Windows NT Workstation */
+static DWORD WINAPI (*GetLengthSidFunc) (PSID pSid);
+#undef GetLengthSid
+#define GetLengthSid (*GetLengthSidFunc)
+
+/* Added in Windows NT Workstation */
+static BOOL WINAPI (*CopySidFunc) (DWORD nDestinationSidLength, PSID pDestinationSid, PSID pSourceSid);
+#undef CopySid
+#define CopySid (*CopySidFunc)
+
+/* Added in Windows NT Workstation */
+static BOOL WINAPI (*EqualSidFunc) (PSID pSid1, PSID pSid2);
+#undef EqualSid
+#define EqualSid (*EqualSidFunc)
+
+/* Added in Windows 2000 Professional */
+static BOOL WINAPI (*ConvertSidToStringSidFunc) (IN PSID Sid, OUT LPTSTR *StringSid);
+#undef ConvertSidToStringSid
+#define ConvertSidToStringSid (*ConvertSidToStringSidFunc)
+
+static BOOL initialized_sid_apis = FALSE;
+
+static void
+initialize_sid_apis ()
+{
+  HMODULE advapi32 = LoadLibrary("advapi32.dll");
+  if (advapi32 != NULL) {
+    GetSecurityInfoFunc =
+      (DWORD WINAPI (*) (HANDLE, SE_OBJECT_TYPE, SECURITY_INFORMATION, PSID*, PSID*, PACL*, PACL*, PSECURITY_DESCRIPTOR*))
+      GetProcAddress(advapi32, "GetSecurityInfo");
+    LookupAccountSidFunc =
+      (BOOL WINAPI (*) (LPCTSTR, PSID, LPTSTR, LPDWORD, LPTSTR, LPDWORD, PSID_NAME_USE))
+      GetProcAddress(advapi32, "LookupAccountSidA");
+    GetLengthSidFunc =
+      (DWORD WINAPI (*) (PSID)) GetProcAddress(advapi32, "GetLengthSid");
+    CopySidFunc =
+      (BOOL WINAPI (*) (DWORD, PSID, PSID)) GetProcAddress(advapi32, "CopySid");
+    EqualSidFunc =
+      (BOOL WINAPI (*) (PSID, PSID)) GetProcAddress(advapi32, "EqualSid");
+    ConvertSidToStringSidFunc =
+      (BOOL WINAPI (*) (PSID, LPTSTR*))
+      GetProcAddress(advapi32, "ConvertSidToStringSidA");
+  }
+  initialized_sid_apis = TRUE;
+}
+
+/* A cache mapping SID -> owner. */
+struct sid_cache_entry {
+  PSID psid;
+  char *name;
+};
+static struct sid_cache_entry *sid_cache = NULL;
+static size_t sid_cache_count = 0;
+static size_t sid_cache_allocated = 0;
+
+static const char *
+sid_cache_get (PSID psid)
+{
+  size_t i;
+  for (i = 0; i < sid_cache_count; i++)
+    if (EqualSid(psid, sid_cache[i].psid))
+      return sid_cache[i].name;
+  return NULL;
+}
+
+static void
+sid_cache_put (PSID psid, const char *name)
+{
+  if (sid_cache_count == sid_cache_allocated) {
+    size_t new_allocated = 2 * sid_cache_allocated + 5;
+    sid_cache =
+      (sid_cache != NULL
+       ? realloc(sid_cache, new_allocated * sizeof(struct sid_cache_entry))
+       : malloc(new_allocated * sizeof(struct sid_cache_entry)));
+    sid_cache_allocated = (sid_cache == NULL)?0:new_allocated;
+  }
+  if (sid_cache != NULL) {
+    DWORD psid_len = GetLengthSid(psid);
+    size_t name_len = strlen(name) + 1;
+    char *memory = malloc(psid_len+name_len);
+    if (memory == NULL)
+      return;
+    if (!CopySid(psid_len, memory, psid)) return;
+    memcpy(memory+psid_len, name, name_len);
+    sid_cache[sid_cache_count].psid = memory;
+    sid_cache[sid_cache_count].name = memory + psid_len;
+    sid_cache_count++;
+  }
+}
+
+static const char *
+get_owner (const char *filename)
+{
+  const char *owner;
+
+  if (!initialized_sid_apis)
+    initialize_sid_apis();
+  owner = "";
+  if (GetSecurityInfoFunc != NULL
+      && LookupAccountSidFunc != NULL
+      && GetLengthSidFunc != NULL
+      && CopySidFunc != NULL
+      && EqualSidFunc != NULL) {
+    /* On Windows, directories don't have an owner. */
+    WIN32_FIND_DATA entry;
+    HANDLE searchhandle = FindFirstFile(filename, &entry);
+    if (searchhandle != INVALID_HANDLE_VALUE) {
+      if (!(entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+        /* It's a file. */
+        HANDLE filehandle =
+         CreateFile(filename, GENERIC_READ,
+                    FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                    OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (filehandle != INVALID_HANDLE_VALUE) {
+          /* Get the owner. */
+          PSID psid;
+          PSECURITY_DESCRIPTOR psd;
+          DWORD err =
+            GetSecurityInfo(filehandle, SE_FILE_OBJECT,
+                            OWNER_SECURITY_INFORMATION,
+                            &psid, NULL, NULL, NULL, &psd);
+          if (err == 0) {
+            owner = sid_cache_get(psid);
+            if (owner == NULL) {
+              static char buf1[4000];
+              DWORD buf1size = sizeof(buf1);
+              static char buf2[4000];
+              DWORD buf2size = sizeof(buf2);
+              SID_NAME_USE role;
+              if (!LookupAccountSid(NULL, psid, buf1, &buf1size, buf2, &buf2size, &role)) {
+                if (ConvertSidToStringSidFunc != NULL) {
+                  /* Fallback: Use S-R-I-S-S... notation.  */
+                  char *s;
+                  if (!ConvertSidToStringSid(psid, &s)) owner = "";
+                  else {
+                    strcpy(buf1, s);
+                    LocalFree(s);
+                    owner = buf1;
+                  }
+                } else {
+                  strcpy(buf1, "");
+                  owner = buf1;
+                }
+              } else { /* DOMAIN\Account */
+                int len = strlen(buf2);
+                buf2[len] = '\\';
+                strcpy(buf2+len+1,buf1);
+                owner = buf2;
+              }
+              sid_cache_put(psid, owner);
+            }
+            LocalFree(psd);
+          }
+          CloseHandle(filehandle);
+        }
+      }
+      FindClose(searchhandle);
+    }
+  }
+  return owner;
+}
+
+#endif /* WIN32_NATIVE */
+
+DEFUN(OS::FILE-OWNER, file)
+{
+  object file;
+  const char *result;
+  file = physical_namestring(STACK_0);
+  with_string_0(file,GLO(misc_encoding),filename, {
+    begin_system_call();
+    result = get_owner(filename);
+    end_system_call();
+  });
+  VALUES1(asciz_to_string(result,GLO(misc_encoding)));
+  skipSTACK(1);
+}
+
+/* end of FILE-OWNER */
 
 #if defined(WIN32_NATIVE)
 
