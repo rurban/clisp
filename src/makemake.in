@@ -80,7 +80,7 @@ EOP
 #        os2       (PC or compatible running OS/2 2.0)
 #  and COMPILER is one of
 #        gcc       (GNU C under the name gcc)
-#        ansi      (any other ANSI compliant cc)
+#        cc        (any other ANSI C compliant cc)
 
 # Examples:
 #   makemake > Makefile
@@ -90,7 +90,7 @@ EOP
 #   makemake i486 gcc > make.gcc/makefile
 #   makemake sun4 gcc > make.gcc/makefile
 #   makemake amiga gcc > make.amiga/makefile
-#   makemake acorn ansi > make.acorn.cc/makefile
+#   makemake acorn cc > make.acorn.cc/makefile
 #   makemake acorn gcc > make.acorn.gcc/makefile
 #   makemake os2 gcc > make.os2/makefile
 #   makemake win32gcc gcc > make.win32gcc/makefile
@@ -324,7 +324,6 @@ case $# in
      CPP="@CPP@"                         # either $CC' -E' or '/lib/cpp'
      CPPFLAGS='@CPPFLAGS@'               # additional options for $CC and $CPP
      CC_GCC='@CC_GCC@'                   # either true or false
-     CC_ANSI='@CC_ANSI@'                 # either true or false
      CC_NEED_CCPAUX='@CC_NEED_CCPAUX@'   # either true or false
      CC_NEED_DEEMA='@CC_NEED_DEEMA@'     # either true or false
      AS_UNDERSCORE='@AS_UNDERSCORE@'     # either true or false
@@ -362,7 +361,7 @@ case $# in
      TSYS=$1
      COMPILER=$2
      # TSYS should be master or sun3 or sun4 or i[3456]86 or mips or vax or amiga or acorn or os2 or win32gcc or win32msvc or win32bc.
-     # COMPILER should be gcc or ansi or cc
+     # COMPILER should be gcc or cc
      if [ $TSYS = amiga -o $TSYS = acorn -o $TSYS = os2 ] ; then
        TOS=$TSYS
      else
@@ -398,7 +397,6 @@ case $# in
            CFLAGS=$CFLAGS' -G5 -O1'
          fi
          CLFLAGS=''
-         CC_ANSI=true
          CC_NEED_CCPAUX=false
          AS_UNDERSCORE=false
          CC_NEED_DEEMA=false
@@ -412,7 +410,6 @@ case $# in
          CFLAGS='-O2 -g0 -w-rch'
          CLFLAGS=''
          CPP='cpp32 -P-' # buggy!
-         CC_ANSI=true
          CC_NEED_CCPAUX=false
          AS_UNDERSCORE=true
          CC_NEED_DEEMA=false
@@ -429,13 +426,7 @@ case $# in
        CLFLAGS=''
        CPP="${CC} -E"
        CPPFLAGS=''
-       if [ $COMPILER = gcc -o $COMPILER = ansi ] ; then
-         CC_ANSI=true
-         CC_NEED_CCPAUX=false
-       else
-         CC_ANSI=false
-         CC_NEED_CCPAUX=false
-       fi
+       CC_NEED_CCPAUX=false
        if [ $COMPILER = gcc ] ; then
          # guess that if cross-compiling using gcc, then as preprends underscore
          AS_UNDERSCORE=true
@@ -465,7 +456,6 @@ if [ $CROSS = true ] ; then
   XCPP="${XCC} -E"
   XCPPFLAGS=''
   XCC_GCC=true
-  XCC_ANSI=true
   XCC_NEED_CCPAUX=false
   XCC_NEED_DEEMA=false
 else
@@ -475,7 +465,6 @@ else
   XCPP="${CPP}"
   XCPPFLAGS="${CPPFLAGS}"
   XCC_GCC="${CC_GCC}"
-  XCC_ANSI="${CC_ANSI}"
   XCC_NEED_CCPAUX="${CC_NEED_CCPAUX}"
   XCC_NEED_DEEMA="${CC_NEED_DEEMA}"
 fi
@@ -1969,10 +1958,6 @@ if [ $CC_NEED_CCPAUX = true -o $XCC_NEED_CCPAUX = true -o $XASM_NEED_CCPAUX = tr
   NEED_CCPAUX=true
 else
   NEED_CCPAUX=false
-fi
-if [ $XCC_ANSI = false ] ; then
-  echo "Pre-ANSI-C compilers are not supported." 1>&2
-  exit 1
 fi
 XDECL_FILTER="| \$(ANSIDECL) | \$(VARBRACE)"
 XDECL_DEPENDENCIES=" ansidecl${HEXE} varbrace${HEXE}"

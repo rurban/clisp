@@ -32,8 +32,6 @@ dnl sets variables CC_GCC, GCC_X_NONE
 CL_CC_GCC
 dnl sets variable CC_CPLUSPLUS
 CL_CC_CPLUSPLUS
-dnl sets variable CC_ANSI
-CL_CC_ANSI
 dnl sets variable CC_NEED_CCPAUX
 CL_CC_NEED_CCPAUX
 dnl sets variable CC_NEED_DEEMA
