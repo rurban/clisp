@@ -60,10 +60,6 @@
    <stdlib.h>, <stdarg.h>, <string.h>, <float.h>, <limits.h>. */
 #undef STDC_HEADERS
 
-/* CL_STDLIB_H */
-/* Define if you have <stdlib.h>. */
-#undef HAVE_STDLIB_H
-
 /* CL_OFFSETOF */
 /* Define if <stddef.h> defines the offsetof macro. */
 #undef HAVE_OFFSETOF
