@@ -268,9 +268,9 @@ case "$1" in
       # Generate new preliminary lispinit.mem
       to_preload=''
       for f in $TO_PRELOAD; do
-        to_preload="$to_preload $moduledir/$f"
+        to_preload="$to_preload -i $moduledir/$f"
       done
-      verbose "$sourcedir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem -norc -q -i $to_preload -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
+      verbose "$sourcedir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem -norc -q $to_preload -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
       lispinitdir="$destinationdir"
     else
       lispinitdir="$sourcedir"
@@ -278,9 +278,9 @@ case "$1" in
     # Generate new lispinit.mem
     to_load=''
     for f in $TO_LOAD; do
-      to_load="$to_load $moduledir/$f"
+      to_load="$to_load -i $moduledir/$f"
     done
-    verbose "$destinationdir"/${LISPRUN} -B "$installbasedir" -M "$lispinitdir"/lispinit.mem -norc -q -i $to_load -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
+    verbose "$destinationdir"/${LISPRUN} -B "$installbasedir" -M "$lispinitdir"/lispinit.mem -norc -q $to_load -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
     # Generate new makevars
     sed_escape_commas='s/,/\\,/g'
     LIBS_escaped=`echo "$LIBS" | sed -e "$sed_escape_commas"`
@@ -401,10 +401,10 @@ case "$1" in
         LIBS=${NEW_LIBS}' '${LIBS}
         FILES=${FILES}' '${NEW_FILES}
         for f in $TO_PRELOAD; do
-          PRELOAD=${PRELOAD}' '"$moduledir/$f"
+          PRELOAD=${PRELOAD}' -i '"$moduledir/$f"
         done
         for f in $TO_LOAD; do
-          LOAD=${LOAD}' '"$moduledir/$f"
+          LOAD=${LOAD}' -i '"$moduledir/$f"
         done
       done
       # Generate new modules.o, compiled from modules.c, includes new modules.h
@@ -413,13 +413,13 @@ case "$1" in
       (cd "$destinationdir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o ${LISPRUN})
       if [ -n "$PRELOAD" ] ; then
         # Generate new preliminary lispinit.mem
-        verbose "$sourcedir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem -norc -q -i ${PRELOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
+        verbose "$sourcedir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem -norc -q ${PRELOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
       fi
       # Generate new lispinit.mem
       if [ -n "$PRELOAD" ] ; then
-        verbose "$destinationdir"/${LISPRUN} -B "$installbasedir" -M "$destinationdir"/lispinit.mem -norc -q -i ${LOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
+        verbose "$destinationdir"/${LISPRUN} -B "$installbasedir" -M "$destinationdir"/lispinit.mem -norc -q ${LOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
       else
-        verbose "$destinationdir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem -norc -q -i ${LOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
+        verbose "$destinationdir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem -norc -q ${LOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
       fi
       # Generate new makevars
       sed_escape_commas='s/,/\\,/g'
