@@ -1,3 +1,12 @@
+2003-08-14  Sam Steingold  <sds@gnu.org>
+
+	* modules/netica/wrap.lisp (adjust-number-of-states): new function
+	(GetNodeLevels): new wrapper
+	(error-message, node-info): use ENUM-FROM-VALUE
+	(net-info): call GetNetNodes and print all nodes
+	(make-node): allow setting levels and creating continuous nodes
+	(save-net): call TRANSLATE-LOGICAL-PATHNAME before NAMESTRING
+
 2003-08-13  Sam Steingold  <sds@gnu.org>
 
 	You can now map between numeric and symbolic C enum values using
