@@ -114,142 +114,6 @@ done<<>>dnl>>)
 changequote([,]))])
 
 
-# serial 9 AM_PROG_LIBTOOL
-AC_DEFUN(AM_PROG_LIBTOOL,
-[AC_REQUIRE([AC_CANONICAL_HOST])
-AC_REQUIRE([AC_PROG_CC])
-AC_REQUIRE([AC_PROG_RANLIB])
-AC_REQUIRE([AM_PROG_LD])
-AC_REQUIRE([AC_PROG_LN_S])
-
-# Always use our own libtool.
-LIBTOOL='$(top_builddir)/libtool'
-AC_SUBST(LIBTOOL)
-
-dnl Allow the --disable-shared flag to stop us from building shared libs.
-AC_ARG_ENABLE(shared,
-[  --enable-shared         build shared libraries [default=yes]],
-test "$enableval" = no && libtool_shared=" --disable-shared",
-libtool_shared=)
-
-dnl Allow the --disable-static flag to stop us from building static libs.
-AC_ARG_ENABLE(static,
-[  --enable-static         build static libraries [default=yes]],
-test "$enableval" = no && libtool_static=" --disable-static",
-libtool_static=)
-
-libtool_flags="$libtool_shared$libtool_static"
-test "$silent" = yes && libtool_flags="$libtool_flags --silent"
-test "$ac_cv_prog_gcc" = yes && libtool_flags="$libtool_flags --with-gcc"
-test "$ac_cv_prog_gnu_ld" = yes && libtool_flags="$libtool_flags --with-gnu-ld"
-
-# Some flags need to be propagated to the compiler or linker for good
-# libtool support.
-[case "$host" in
-*-*-irix6*)
-  for f in '-32' '-64' '-cckr' '-n32' '-mips1' '-mips2' '-mips3' '-mips4'; do
-    if echo " $CC $CFLAGS " | egrep -e "[ 	]$f[	 ]" > /dev/null; then
-      LD="${LD-ld} $f"
-    fi
-  done
-  ;;
-
-*-*-sco3.2v5*)
-  # On SCO OpenServer 5, we need -belf to get full-featured binaries.
-  CFLAGS="$CFLAGS -belf"
-  ;;
-esac]
-
-# Actually configure libtool.  ac_aux_dir is where install-sh is found.
-CC="$CC" CFLAGS="$CFLAGS" CPPFLAGS="$CPPFLAGS" \
-LD="$LD" RANLIB="$RANLIB" LN_S="$LN_S" \
-${CONFIG_SHELL-/bin/sh} $ac_aux_dir/ltconfig \
-$libtool_flags --no-verify $ac_aux_dir/ltmain.sh $host \
-|| AC_MSG_ERROR([libtool configure failed])
-])
-
-# AM_PROG_LD - find the path to the GNU or non-GNU linker
-AC_DEFUN(AM_PROG_LD,
-[AC_ARG_WITH(gnu-ld,
-[  --with-gnu-ld           assume the C compiler uses GNU ld [default=no]],
-test "$withval" = no || with_gnu_ld=yes, with_gnu_ld=no)
-if test "$with_gnu_ld" = yes; then
-  AC_MSG_CHECKING([for GNU ld])
-else
-  AC_MSG_CHECKING([for non-GNU ld])
-fi
-AC_CACHE_VAL(ac_cv_path_LD,
-[case "$LD" in
-  /*)
-  ac_cv_path_LD="$LD" # Let the user override the test with a path.
-  ;;
-  *)
-  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}:"
-  for ac_dir in $PATH; do
-    test -z "$ac_dir" && ac_dir=.
-    if test -f "$ac_dir/ld"; then
-      ac_cv_path_LD="$ac_dir/ld"
-      # Check to see if the program is GNU ld.  I'd rather use --version,
-      # but apparently some GNU ld's only accept -v.
-      # Break only if it was the GNU/non-GNU ld that we prefer.
-      if "$ac_cv_path_LD" -v 2>&1 < /dev/null | egrep '(GNU ld|with BFD)' > /dev/null; then
-	test "$with_gnu_ld" = yes && break
-      else
-        test "$with_gnu_ld" != yes && break
-      fi
-    fi
-  done
-  IFS="$ac_save_ifs"
-  ;;
-esac])
-LD="$ac_cv_path_LD"
-if test -n "$LD"; then
-  AC_MSG_RESULT($LD)
-else
-  AC_MSG_RESULT(no)
-fi
-test -z "$LD" && AC_MSG_ERROR([no acceptable ld found in \$PATH])
-AC_SUBST(LD)
-AM_PROG_LD_GNU
-])
-
-AC_DEFUN(AM_PROG_LD_GNU,
-[AC_CACHE_CHECK([whether we are using GNU ld], ac_cv_prog_gnu_ld,
-[# I'd rather use --version here, but apparently some GNU ld's only accept -v.
-if $LD -v 2>&1 </dev/null | egrep '(GNU ld|with BFD)' > /dev/null; then
-  ac_cv_prog_gnu_ld=yes
-else
-  ac_cv_prog_gnu_ld=no
-fi])
-])
-
-# From Ulrich Drepper.
-
-# serial 1
-
-AC_DEFUN(AM_TYPE_PTRDIFF_T,
-  [AC_CACHE_CHECK([for ptrdiff_t], am_cv_type_ptrdiff_t,
-     [AC_TRY_COMPILE([#include <stddef.h>], [ptrdiff_t p],
-		     am_cv_type_ptrdiff_t=yes, am_cv_type_ptrdiff_t=no)])
-   if test $am_cv_type_ptrdiff_t = yes; then
-     AC_DEFINE(HAVE_PTRDIFF_T)
-   fi
-])
-
-dnl From Jim Meyering.  Use this if you use the GNU error.[ch].
-dnl FIXME: Migrate into libit
-
-AC_DEFUN(AM_FUNC_ERROR_AT_LINE,
-[AC_CACHE_CHECK([for error_at_line], am_cv_lib_error_at_line,
- [AC_TRY_LINK([],[error_at_line(0, 0, "", 0, "");],
-              am_cv_lib_error_at_line=yes,
-	      am_cv_lib_error_at_line=no)])
- if test $am_cv_lib_error_at_line = no; then
-   LIBOBJS="$LIBOBJS error.o"
- fi
- AC_SUBST(LIBOBJS)dnl
-])
-
 # Macro to add for using GNU gettext.
 # Ulrich Drepper <drepper@cygnus.com>, 1995.
 #
@@ -260,12 +124,15 @@ AC_DEFUN(AM_FUNC_ERROR_AT_LINE,
 
 # serial 8
 
-dnl Usage: AM_WITH_NLS([SYMBOL], [LIBDIR]).
-dnl If SYMBOL is specified and is 'use-libtool', then a libtool library
+dnl Usage: AM_WITH_NLS([TOOLSYMBOL], [NEEDSYMBOL], [LIBDIR]).
+dnl If TOOLSYMBOL is specified and is 'use-libtool', then a libtool library
 dnl    $(top_builddir)/intl/libintl.la will be created (shared and/or static,
 dnl    depending on --{enable,disable}-{shared,static} and on the presence of
 dnl    AM_DISABLE_SHARED). Otherwise, a static library
 dnl    $(top_builddir)/intl/libintl.a will be created.
+dnl If NEEDSYMBOL is specified and is 'need-ngettext', then GNU gettext
+dnl    implementations (in libc or libintl) without the ngettext() function
+dnl    will be ignored.
 dnl LIBDIR is used to find the intl libraries.  If empty,
 dnl    the value `$(top_builddir)/intl/' is used.
 dnl
@@ -285,7 +152,7 @@ dnl GNU format catalogs when building on a platform with an X/Open gettext),
 dnl but we keep it in order not to force irrelevant filename changes on the
 dnl maintainers.
 dnl
-AC_DEFUN(AM_WITH_NLS,
+AC_DEFUN([AM_WITH_NLS],
   [AC_MSG_CHECKING([whether NLS is requested])
     dnl Default is enabled NLS
     AC_ARG_ENABLE(nls,
@@ -316,12 +183,16 @@ AC_DEFUN(AM_WITH_NLS,
         dnl to fall back to GNU NLS library.
 	CATOBJEXT=NONE
 
+        dnl Add a version number to the cache macros.
+        define(gt_cv_func_gnugettext_libc, [gt_cv_func_gnugettext]ifelse([$2], need-ngettext, 2, 1)[_libc])
+        define(gt_cv_func_gnugettext_libintl, [gt_cv_func_gnugettext]ifelse([$2], need-ngettext, 2, 1)[_libintl])
+
 	AC_CHECK_HEADER(libintl.h,
 	  [AC_CACHE_CHECK([for GNU gettext in libc], gt_cv_func_gnugettext_libc,
 	    [AC_TRY_LINK([#include <libintl.h>
 extern int _nl_msg_cat_cntr;],
 	       [bindtextdomain ("", "");
-return (int) gettext ("") + _nl_msg_cat_cntr],
+return (int) gettext ("")]ifelse([$2], need-ngettext, [ + (int) ngettext ("", "", 0)], [])[ + _nl_msg_cat_cntr],
 	       gt_cv_func_gnugettext_libc=yes,
 	       gt_cv_func_gnugettext_libc=no)])
 
@@ -333,7 +204,7 @@ return (int) gettext ("") + _nl_msg_cat_cntr],
 		AC_TRY_LINK([#include <libintl.h>
 extern int _nl_msg_cat_cntr;],
 		  [bindtextdomain ("", "");
-return (int) gettext ("") + _nl_msg_cat_cntr],
+return (int) gettext ("")]ifelse([$2], need-ngettext, [ + (int) ngettext ("", "", 0)], [])[ + _nl_msg_cat_cntr],
 		  gt_cv_func_gnugettext_libintl=yes,
 		  gt_cv_func_gnugettext_libintl=no)
 		LIBS="$gt_save_LIBS"])
@@ -377,8 +248,14 @@ return (int) gettext ("") + _nl_msg_cat_cntr],
 	BUILD_INCLUDED_LIBINTL=yes
 	USE_INCLUDED_LIBINTL=yes
         CATOBJEXT=.gmo
-	INTLLIBS='ifelse([$2],[],$(top_builddir)/intl,[$2])/libintl.ifelse([$1], use-libtool, [l], [])a'
+	INTLLIBS='ifelse([$3],[],$(top_builddir)/intl,[$3])/libintl.ifelse([$1], use-libtool, [l], [])a'
 	LIBS=`echo " $LIBS " | sed -e 's/ -lintl / /' -e 's/^ //' -e 's/ $//'`
+      fi
+
+      dnl If iconv() is in a separate libiconv library, then anyone linking
+      dnl with libintl{.a,.so} also needs to link with libiconv.
+      if test -n "$LIBICONV" && test -n "$INTLLIBS"; then
+        INTLLIBS="$INTLLIBS $LIBICONV"
       fi
 
       dnl Test whether we really found GNU xgettext.
@@ -394,19 +271,50 @@ return (int) gettext ("") + _nl_msg_cat_cntr],
 	fi
       fi
 
-      # We need to process the po/ directory.
+      dnl We need to process the po/ directory.
       POSUB=po
     fi
     AC_OUTPUT_COMMANDS(
-     [case " $CONFIG_FILES " in *" po/Makefile.in "*)
+     [case " $CONFIG_FILES " in *" po/Makefile.in "* | *" po/Makefile.in:"*)
         sed -e "/POTFILES =/r po/POTFILES" po/Makefile.in > po/Makefile
       esac])
 
 
-    # If this is used in GNU gettext we have to set BUILD_INCLUDED_LIBINTL
-    # to 'yes' because some of the testsuite requires it.
+    dnl If this is used in GNU gettext we have to set BUILD_INCLUDED_LIBINTL
+    dnl to 'yes' because some of the testsuite requires it.
     if test "$PACKAGE" = gettext; then
       BUILD_INCLUDED_LIBINTL=yes
+    fi
+
+    dnl intl/plural.c is generated from intl/plural.y. It requires bison,
+    dnl because plural.y uses bison specific features. It requires at least
+    dnl bison-1.26 because earlier versions generate a plural.c that doesn't
+    dnl compile.
+    dnl bison is only needed for the maintainer (who touches plural.y). But in
+    dnl order to avoid separate Makefiles or --enable-maintainer-mode, we put
+    dnl the rule in general Makefile. Now, some people carelessly touch the
+    dnl files or have a broken "make" program, hence the plural.c rule will
+    dnl sometimes fire. To avoid an error, defines BISON to ":" if it is not
+    dnl present or too old.
+    AC_CHECK_PROGS([INTLBISON], [bison])
+    if test -z "$INTLBISON"; then
+      ac_verc_fail=yes
+    else
+      dnl Found it, now check the version.
+      AC_MSG_CHECKING([version of bison])
+changequote(<<,>>)dnl
+      ac_prog_version=`$INTLBISON --version 2>&1 | sed -n 's/^.*GNU Bison .* \([0-9]*\.[0-9.]*\).*$/\1/p'`
+      case $ac_prog_version in
+        '') ac_prog_version="v. ?.??, bad"; ac_verc_fail=yes;;
+        1.2[6-9]* | 1.[3-9][0-9]* | [2-9].*)
+changequote([,])dnl
+           ac_prog_version="$ac_prog_version, ok"; ac_verc_fail=no;;
+        *) ac_prog_version="$ac_prog_version, bad"; ac_verc_fail=yes;;
+      esac
+      AC_MSG_RESULT([$ac_prog_version])
+    fi
+    if test $ac_verc_fail = yes; then
+      INTLBISON=:
     fi
 
     dnl These rules are solely for the distribution goal.  While doing this
@@ -438,7 +346,7 @@ return (int) gettext ("") + _nl_msg_cat_cntr],
   ])
 
 dnl Usage: Just like AM_WITH_NLS, which see.
-AC_DEFUN(AM_GNU_GETTEXT,
+AC_DEFUN([AM_GNU_GETTEXT],
   [AC_REQUIRE([AC_PROG_MAKE_SET])dnl
    AC_REQUIRE([AC_PROG_CC])dnl
    AC_REQUIRE([AC_CANONICAL_HOST])dnl
@@ -511,6 +419,24 @@ __argz_count __argz_stringify __argz_next])
    INTL_LIBTOOL_SUFFIX_PREFIX=ifelse([$1], use-libtool, [l], [])
    AC_SUBST(INTL_LIBTOOL_SUFFIX_PREFIX)
 
+   dnl Generate list of files to be processed by xgettext which will
+   dnl be included in po/Makefile.  But only do this if the po directory
+   dnl exists in srcdir.
+   if test -d $srcdir/po; then
+      test -d po || mkdir po
+      if test "x$srcdir" != "x."; then
+	if test "x`echo $srcdir | sed 's@/.*@@'`" = "x"; then
+	  posrcprefix="$srcdir/"
+   	else
+      	  posrcprefix="../$srcdir/"
+      	fi
+      else
+      	posrcprefix="../"
+      fi
+      rm -f po/POTFILES
+      sed -e "/^#/d" -e "/^\$/d" -e "s,.*,     $posrcprefix& \\\\," -e "\$s/\(.*\) \\\\/\1/" \
+       	< $srcdir/po/POTFILES.in > po/POTFILES
+   fi
   ])
 
 # Search path for a program which passes the given test.
@@ -525,7 +451,7 @@ __argz_count __argz_stringify __argz_next])
 
 dnl AM_PATH_PROG_WITH_TEST(VARIABLE, PROG-TO-CHECK-FOR,
 dnl   TEST-PERFORMED-ON-FOUND_PROGRAM [, VALUE-IF-NOT-FOUND [, PATH]])
-AC_DEFUN(AM_PATH_PROG_WITH_TEST,
+AC_DEFUN([AM_PATH_PROG_WITH_TEST],
 [# Extract the first word of "$2", so it can be a program name with args.
 set dummy $2; ac_word=[$]2
 AC_MSG_CHECKING([for $ac_word])
@@ -571,7 +497,7 @@ AC_SUBST($1)dnl
 
 # serial 2
 
-AC_DEFUN(AM_LC_MESSAGES,
+AC_DEFUN([AM_LC_MESSAGES],
   [if test $ac_cv_header_locale_h = yes; then
     AC_CACHE_CHECK([for LC_MESSAGES], am_cv_val_LC_MESSAGES,
       [AC_TRY_LINK([#include <locale.h>], [return LC_MESSAGES],
@@ -586,12 +512,12 @@ AC_DEFUN(AM_LC_MESSAGES,
 
 dnl From Bruno Haible.
 
-AC_DEFUN(AM_ICONV,
+AC_DEFUN([AM_ICONV],
 [
   dnl Some systems have iconv in libc, some have it in libiconv (OSF/1 and
-  dnl those with the standalone portable libiconv installed).
+  dnl those with the standalone portable GNU libiconv installed).
   AC_CACHE_CHECK(for iconv, am_cv_func_iconv, [
-    am_cv_func_iconv="no, consider installing libiconv"
+    am_cv_func_iconv="no, consider installing GNU libiconv"
     am_cv_lib_iconv=no
     AC_TRY_LINK([#include <stdlib.h>
 #include <iconv.h>],
@@ -624,12 +550,12 @@ extern
 "C"
 #endif
 #if defined(__STDC__) || defined(__cplusplus)
-size_t iconv (iconv_t cd, char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t* outbytesleft);
+size_t iconv (iconv_t cd, char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t *outbytesleft);
 #else
 size_t iconv();
 #endif
 ], [], am_cv_proto_iconv_arg1="", am_cv_proto_iconv_arg1="const")
-      am_cv_proto_iconv="extern size_t iconv (iconv_t cd, $am_cv_proto_iconv_arg1 char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t* outbytesleft);"])
+      am_cv_proto_iconv="extern size_t iconv (iconv_t cd, $am_cv_proto_iconv_arg1 char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t *outbytesleft);"])
     am_cv_proto_iconv=`echo "[$]am_cv_proto_iconv" | tr -s ' ' | sed -e 's/( /(/'`
     AC_MSG_RESULT([$]{ac_t:-
          }[$]am_cv_proto_iconv)
@@ -647,7 +573,7 @@ size_t iconv();
 
 dnl From Bruno Haible.
 
-AC_DEFUN(AM_LANGINFO_CODESET,
+AC_DEFUN([AM_LANGINFO_CODESET],
 [
   AC_CACHE_CHECK([for nl_langinfo and CODESET], am_cv_langinfo_codeset,
     [AC_TRY_LINK([#include <langinfo.h>],
