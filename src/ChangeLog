@@ -1,3 +1,17 @@
+2004-05-25  Bruno Haible  <bruno@clisp.org>
+
+	Move the direct-default-initargs and default-initargs slots up to
+	class CLASS.
+	* lispbibl.d (Class): Move direct_default_initargs, default_initargs
+	fields.
+	* clos-class3.lisp (class): Add direct-default-initargs,
+	default-initargs slots.
+	(slotted-class): Remove default-initargs slot.
+	(standard-class): Remove direct-default-initargs slot.
+	(finalize-instance-standard-class, initialize-instance-structure-class):
+	Use the default-initargs of all superclasses, regardless of the
+	metaclass.
+
 2004-06-23  Bruno Haible  <bruno@clisp.org>
 
 	* hashtabl.d ((SETF HASH-TABLE-WEAK-P)): Fix GC-safety bug introduced

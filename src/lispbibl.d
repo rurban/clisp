@@ -5525,15 +5525,15 @@ typedef struct {
   gcv_object_t direct_slots            _attribute_aligned_object_;
   gcv_object_t slots                   _attribute_aligned_object_;
   gcv_object_t slot_location_table     _attribute_aligned_object_; # hashtable slotname -> where the slot is located
+  gcv_object_t direct_default_initargs _attribute_aligned_object_;
+  gcv_object_t default_initargs        _attribute_aligned_object_;
   gcv_object_t documentation           _attribute_aligned_object_; # string or NIL
   # from here on only for metaclass = <standard-class> or metaclass = <structure-class>
   gcv_object_t subclass_of_stablehash_p _attribute_aligned_object_; /* true if <standard-stablehash> or <structure-stablehash> is among the superclasses */
-  gcv_object_t default_initargs        _attribute_aligned_object_;
   gcv_object_t valid_initargs          _attribute_aligned_object_;
   gcv_object_t instance_size           _attribute_aligned_object_;
   # from here on only for metaclass = <standard-class>
   gcv_object_t current_version         _attribute_aligned_object_; /* most recent class-version, points back to this class */
-  gcv_object_t direct_default_initargs _attribute_aligned_object_;
   gcv_object_t direct_accessors        _attribute_aligned_object_;
   gcv_object_t fixed_slot_locations    _attribute_aligned_object_;
   gcv_object_t instantiated            _attribute_aligned_object_;
