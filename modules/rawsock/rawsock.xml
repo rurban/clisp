@@ -3,36 +3,62 @@
 <section id="rawsock"><title>Raw Socket Access.</title>
 
 <para>This is the raw socket interface, as described in &socket-h;.
- This interface is very low-level, and you probably do not need it.
- If you are interested in TCP/IP (Internet) socket streams,
- you should use &socket-stream;s, &not-e; this package.</para>
+Sockets are represented by their &fixnum-t; &file-des;s.</para>
+
+<warning id="rawsock-use-sockets"><title>Use &socket-stream; instead!</title>
+ <simpara>This interface is very low-level, and you probably do not need
+ it - unless you are doing something <emphasis>very</emphasis> unusual.
+ If you are interested in TCP/IP (Internet) sockets, you should use
+ &socket-stream;s, &not-e; this package.</simpara></warning>
+
+<warning id="rawsock-not-streams"><title>Do &not-e; use &make-stream;!</title>
+ <simpara>You can turn such a raw socket into a usual lisp &stream-t;
+  using &make-stream;, but you should be <emphasis>extremely</emphasis>
+  careful with such dubious actions!  See the &clisp-devel;
+  <ulink url="http://sourceforge.net/mailarchive/message.php?msg_id=7203955"
+         >mailing list archives</ulink> for more details.</simpara></warning>
 
 <para>We implement access to
- <simplelist columns="2">
+ <simplelist columns="4">
   <member>&accept;</member><member>&bind;</member><member>&connect;</member>
   <member>&getpeername;</member><member>&getsockname;</member>
-  <member>&listen;</member><member>&shutdown;</member>
+  <member>&listen-c;</member>
   <member>&recv;</member><member>&recvfrom;</member><member>&recvmsg;</member>
   <member>&send;</member><member>&sendmsg;</member><member>&sendto;</member>
   <member>&socket;</member><member>&socketpair;</member>
-  <member>&read-c;</member><member>&write-c;</member>
- </simplelist>
- using same-named lisp functions.
- <function>RAWSOCK:CLOSESOCK</function> calls &c-close;.</para>
+  <member>&shutdown;</member></simplelist>
+ using same-named lisp functions in package
+ <quote role="package">RAWSOCK</quote>.
+ Additionally,<itemizedlist>
+  <listitem><simpara><function>RAWSOCK:SOCK-READ</function>
+    calls &read-c;;</simpara></listitem>
+  <listitem><simpara><function>RAWSOCK:SOCK-WRITE</function>
+    calls &write-c;;</simpara></listitem>
+ <listitem><simpara><function>RAWSOCK:SOCK-CLOSE</function>
+   calls &close-c;.</simpara></listitem></itemizedlist></para>
 
-<para>We do not implement &getsockopt; and &setsockopt;,
+<para>We do not interface to &getsockopt; and &setsockopt;,
  they are available through &so-opt;.</para>
 
-<para>We do not implement &select;, it is available through &so-status;.</para>
+<para>We do not interface to &select;,
+ it is available through &so-status;.</para>
 
-<para>We do not implement &poll;, patches are welcome.</para>
+<para>We do not interface to &poll; yet, patches are welcome.</para>
 
-<variablelist><title>Additional Functions</title>
+<variablelist id="rawsock-add-on"><title>Additional Functions</title>
  <varlistentry><term><literal role="sexp">(RAWSOCK:MAKE-SOCKADDR
     <replaceable>family</replaceable>
     <replaceable>data</replaceable>)</literal></term>
   <listitem><simpara>create a <type>sockaddr</type> object.
  </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(RAWSOCK:SOCKADDR-FAMILY
+    <replaceable>sockaddr</replaceable>)</literal></term>
+  <listitem><simpara>return the numeric family of a
+    <type>sockaddr</type> object.</simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(RAWSOCK:SOCKADDR-DATA
+    <replaceable>sockaddr</replaceable>)</literal></term>
+  <listitem><simpara>return a &fresh; data vector of a
+    <type>sockaddr</type> object.</simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(RAWSOCK:OPEN-UNIX-SOCKET
     &path-r; &optional-amp; &type-r;)</literal></term>
   <listitem><simpara>open a &unix; socket special file.

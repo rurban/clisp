@@ -2,6 +2,7 @@
 
 	* rawsock/rawsock.c, rawsock/sock.lisp: renamed CLOSESOCK to
 	SOCK-CLOSE for consistency with SOCK-READ and SOCK-WRITE
+	(sockaddr-family-size, sockaddr-data): added
 
 2004-04-23  Sam Steingold  <sds@gnu.org>
 
