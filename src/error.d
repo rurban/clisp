@@ -207,7 +207,7 @@ nonreturning_function(local, end_error, (object* stackptr)) {
   if (nullp(STACK_1)) {
     /* *ERROR-HANDER* = NIL, SYS::*USE-CLCS* = NIL */
     skipSTACK(4); /* error message has already been printed */
-    /* unbind binding frame for sys::*recursive-error-count*, 
+    /* unbind binding frame for sys::*recursive-error-count*,
        because no error message output is active */
     dynamic_unbind();
     set_args_end_pointer(stackptr);
@@ -217,8 +217,8 @@ nonreturning_function(local, end_error, (object* stackptr)) {
     var object arguments = nreverse(STACK_2);
     /* stack layout: type, args, handler, errorstring. */
     if (boundp(STACK_1)) {
-      /* *ERROR-HANDER* /= NIL 
-         stack layout: nil, args, handler, errorstring. 
+      /* *ERROR-HANDER* /= NIL
+         stack layout: nil, args, handler, errorstring.
          execute (apply *error-handler* nil errorstring args): */
       check_SP(); check_STACK();
       {
@@ -741,6 +741,17 @@ nonreturning_function(global, fehler_vector, (object obj)) {
   pushSTACK(S(vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,GETTEXT("~: ~ is not a vector"));
+}
+
+/* error-message, if an object is not an environment.
+ fehler_environment(obj);
+ > subr_self: caller (a SUBR)
+ > obj: non-vector */
+nonreturning_function(global, fehler_environment, (object obj)) {
+  pushSTACK(obj);              /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_svector5)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: ~ may not be used as an environment"));
 }
 
 /* error-message, if an argument is not a Fixnum >=0 :

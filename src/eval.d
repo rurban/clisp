@@ -780,7 +780,6 @@ LISPFUN(special_variable_p,1,1,norest,nokey,0,NIL)
   if (constantp(TheSymbol(symbol)) || special_var_p(TheSymbol(symbol))) {
     value1 = T;
   } else if (missingp(env)) {
-   missing:
     value1 = NIL;
   } else {
     if (eq(env,T)) env = aktenv.var_env;
@@ -789,7 +788,9 @@ LISPFUN(special_variable_p,1,1,norest,nokey,0,NIL)
       if (len == 5)
         env = TheSvector(env)->data[0]; /* venv */
       else if (len%2)           /* odd length! */
-        goto missing;
+        fehler_environment(env);
+      /* it is not at all clear that we should accept VENV directly;
+         we do, for now... */
     }
     { var object *binding = symbol_env_search(symbol,env);
       if ((binding != NULL) && eq(*binding,specdecl))
