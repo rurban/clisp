@@ -3,7 +3,7 @@
 
 #include "lispbibl.c"
 
-# ==============================================================================
+# =============================================================================
 
 #ifdef NEED_OWN_UALARM
 # Ein Ersatz für die ualarm-Funktion.
@@ -22,7 +22,7 @@
     }
 #endif
 
-# ==============================================================================
+# =============================================================================
 
 #ifdef NEED_OWN_SELECT
 # Ein Ersatz für die select-Funktion.
@@ -80,7 +80,7 @@
     }
 #endif
 
-# ==============================================================================
+# =============================================================================
 
 #ifdef NEED_OWN_GETTIMEOFDAY
 # Ein Ersatz für die gettimeofday-Funktion.
@@ -105,7 +105,7 @@
     }
 #endif
 
-# ==============================================================================
+# =============================================================================
 
 #ifdef EINTR
 
@@ -358,7 +358,7 @@
 
 #endif
 
-# ==============================================================================
+# =============================================================================
 
 #if defined(UNIX)
 
@@ -407,7 +407,7 @@
     }
 #endif
 
-# ==============================================================================
+# =============================================================================
 
 #if defined(UNIX_LINUX) && (defined(FAST_FLOAT) || defined(FAST_DOUBLE)) && (defined(HAVE_FPU_CONTROL_T) || !defined(HAVE_SETFPUCW))
 
@@ -425,7 +425,7 @@ global unsigned short __fpu_control = _FPU_IEEE;
 
 #endif
 
-# ==============================================================================
+# =============================================================================
 
 #if defined(UNIX_CYGWIN32)
 
@@ -433,7 +433,7 @@ global unsigned short __fpu_control = _FPU_IEEE;
 #define ULONG     OS_ULONG
 #undef unused
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # The library's abort() function just makes the program exit.
 # But I want to see a backtrace!
@@ -444,7 +444,7 @@ global void abort()
     abort_dummy = 1/0;
   }
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # The library's alarm() function is just a dummy.
 
@@ -551,7 +551,7 @@ global unsigned int ualarm (value, interval)
     return remaining;
   }
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # The library's sleep() function is not interruptible by Ctrl-C.
 
@@ -638,11 +638,11 @@ global unsigned int usleep (unsigned int useconds)
       return 0;
   }
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 #endif
 
-# ==============================================================================
+# =============================================================================
 
 #if defined(HAVE_MMAP) && defined(UNIX_CONVEX)
 
@@ -703,6 +703,8 @@ global int __ap$sigstack (struct sigstack *ss, struct sigstack *oss) { return 0;
 # Lisp interface to uname(2) & sysconf(3c)
 LISPFUN(sysinfo_,0,0,norest,nokey,0,NIL)
 # (POSIX:SYSINFO)
+# if you modify this function wrt it's return values,
+# you should modify POSIX:SYSINFO in posix.lsp accordingly
 {
   var long res, count=0;
   struct utsname utsname;
@@ -721,8 +723,7 @@ LISPFUN(sysinfo_,0,0,norest,nokey,0,NIL)
 
 #define SC_S(cmd) \
   begin_system_call(); res = sysconf(cmd); end_system_call(); \
-  if (-1 == res) OS_error(); \
-  pushSTACK(L_to_I(res)); count++
+  pushSTACK(res == -1 ? T : L_to_I(res)); count++
 
 #ifdef _SC_PAGESIZE
   SC_S(_SC_PAGESIZE);
@@ -746,6 +747,11 @@ LISPFUN(sysinfo_,0,0,norest,nokey,0,NIL)
 #endif
 #ifdef _SC_NPROCESSORS_ONLN
   SC_S(_SC_NPROCESSORS_ONLN);
+#else
+  pushSTACK(NIL); count++;
+#endif
+#ifdef _SC_THREAD_THREADS_MAX
+  SC_S(_SC_THREAD_THREADS_MAX);
 #else
   pushSTACK(NIL); count++;
 #endif
@@ -780,10 +786,13 @@ LISPFUN(sysinfo_,0,0,norest,nokey,0,NIL)
 
 #define RLIM(what) \
  begin_system_call(); getrlimit(what,&rl); end_system_call(); count+=2; \
- pushSTACK(UL_to_I(rl.rlim_cur)); pushSTACK(UL_to_I(rl.rlim_max))
+ pushSTACK(rl.rlim_cur == RLIM_INFINITY ? T : L_to_I(rl.rlim_cur)); \
+ pushSTACK(rl.rlim_max == RLIM_INFINITY ? T : L_to_I(rl.rlim_max))
 
 LISPFUN(resource_usage_limits_,0,0,norest,nokey,0,NIL)
 # (POSIX::RESOURCE-USAGE-LIMITS-INTERNAL)
+# if you modify this function wrt it's return values,
+# you should modify POSIX:RESOURCE-USAGE-LIMITS in posix.lsp accordingly
 {
   var long count=0;
   struct rlimit rl;
