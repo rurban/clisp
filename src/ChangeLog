@@ -1,5 +1,10 @@
 1999-09-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_module.d (main_module): Fix type of declaration. Declare extern,
+          to avoid a warning.
+
+1999-09-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * arisparc64.d: Take advantage of the brz and brnz instructions.
 
 1999-09-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
