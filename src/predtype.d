@@ -1860,7 +1860,6 @@ LISPFUNN(coerce,2)
         || eq(result_type,S(double_float)) /* DOUBLE-FLOAT ? */
         || eq(result_type,S(long_float)) /* LONG-FLOAT ? */
        ) { /* convert object to float: */
-      subr_self = L(coerce);
       VALUES1(coerce_float(STACK_1,result_type));
       skipSTACK(2); return;
     }
@@ -1961,7 +1960,6 @@ LISPFUNN(coerce,2)
         || eq(type,S(double_float)) /* DOUBLE-FLOAT ? */
         || eq(type,S(long_float)) /* LONG-FLOAT ? */
        ) { /* convert object to float */
-      subr_self = L(coerce);
       value1 = coerce_float(STACK_1,result_type);
       goto check_return; /* and check against result-type */
     }

@@ -1850,6 +1850,10 @@ local void gc_mark (object obj)
             update_weakkvtables_mod();
           # update program constants:
             update_tables();
+          { /* update back_trace */
+            var struct backtrace_t *bt = back_trace;
+            for (;bt; bt=bt->next) update(&(bt->caller));
+          }
           #ifndef MORRIS_GC
           # update pointers in the Cons-cells:
             #define update_conspage  update_conspage_normal
@@ -2478,9 +2482,7 @@ local void gc_mark (object obj)
     }
   local void gar_col_simple()
     { var uintC saved_mv_count = mv_count; # save mv_count
-      pushSTACK(subr_self); # save subr_self
       with_gc_statistics(&do_gar_col_simple); # GC and statistics
-      subr_self = popSTACK(); # restore subr_self
       mv_count = saved_mv_count; # restore mv_count
     }
 
@@ -2506,9 +2508,7 @@ local void gc_mark (object obj)
     }
   global void gar_col()
     { var uintC saved_mv_count = mv_count; # save mv_count
-      pushSTACK(subr_self); # save subr_self
       with_gc_statistics(&do_gar_col); # GC and statistics
-      subr_self = popSTACK(); # restore subr_self
       mv_count = saved_mv_count; # restore mv_count
     }
 

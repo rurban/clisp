@@ -874,7 +874,6 @@ nonreturning_function(local, fehler_bad_integer, (object stream, object obj)) {
 # test_stream_args(args_pointer,argcount);
 # > args_pointer: Pointer to the Arguments
 # > argcount: number of Arguments
-# > subr_self: caller (a SUBR)
 local void test_stream_args (object* args_pointer, uintC argcount) {
   dotimesC(argcount,argcount, {
     var object next_arg = NEXT(args_pointer);
@@ -903,7 +902,6 @@ local inline bool output_stream_p (object stream) {
 # UP: checks an Input-Stream.
 # test_input_stream(stream);
 # > stream: Stream
-# > subr_self: caller (a SUBR)
 #define test_input_stream(stream)  \
     if (!input_stream_p(stream)) fehler_input_stream(stream);
 nonreturning_function(local, fehler_input_stream, (object stream)) {
@@ -916,7 +914,6 @@ nonreturning_function(local, fehler_input_stream, (object stream)) {
 # UP: checks an Output-Stream.
 # test_output_stream(stream);
 # > stream: Stream
-# > subr_self: caller (a SUBR)
 #define test_output_stream(stream)  \
     if (!output_stream_p(stream)) fehler_output_stream(stream);
 nonreturning_function(local, fehler_output_stream, (object stream)) {
@@ -930,7 +927,6 @@ nonreturning_function(local, fehler_output_stream, (object stream)) {
 # test_input_stream_args(args_pointer,argcount);
 # > args_pointer: Pointer to the Arguments
 # > argcount: number of Arguments
-# > subr_self: caller (a SUBR)
 #define test_input_stream_args(args_pointer,argcount)   \
     if (argcount > 0) {                                 \
       var object* pointer = (args_pointer);             \
@@ -946,7 +942,6 @@ nonreturning_function(local, fehler_output_stream, (object stream)) {
 # test_output_stream_args(args_pointer,argcount);
 # > args_pointer: Pointer to the Arguments
 # > argcount: number of Arguments
-# > subr_self: caller (a SUBR)
 #define test_output_stream_args(args_pointer,argcount)  \
     if (argcount > 0) {                                 \
       var object* pointer = (args_pointer);             \
@@ -2442,7 +2437,6 @@ local object rd_ch_buff_in (const object* stream_) {
     pushSTACK(value1); # String
     pushSTACK(mv_count >= 2 ? value2 : unbound); # start
     pushSTACK(mv_count >= 3 ? value3 : unbound); # end
-    subr_self = L(read_char);
     var stringarg val;
     var object string = test_string_limits_ro(&val);
     stream = *stream_;
@@ -2883,7 +2877,6 @@ LISPFUNN(generic_stream_p,1) {
 # UP: Check a :BUFFERED argument.
 # test_buffered_arg(arg)
 # > object arg: argument
-# > subr_self: calling function
 # < signean buffered: +1 for T, -1 for NIL, 0 for :DEFAULT
 local signean test_buffered_arg (object arg) {
   if (!boundp(arg) || eq(arg,S(Kdefault)))
@@ -2915,8 +2908,6 @@ typedef struct {
 # UP: Check a :ELEMENT-TYPE argument.
 # test_eltype_arg(&eltype,&decoded);
 # > object eltype: argument (in the STACK)
-# > subr_self: calling function
-# < subr_self: unchanged
 # < decoded: decoded eltype
 # can trigger GC
 local void test_eltype_arg (object* eltype_, decoded_el_t* decoded) {
@@ -2944,11 +2935,9 @@ local void test_eltype_arg (object* eltype_, decoded_el_t* decoded) {
       if (!(integerp(h) && positivep(h) && !eq(h,Fixnum_0)))
         goto bad_eltype;
       # build eltype_size := (integer-length (1- n)) :
-      pushSTACK(subr_self); # save subr_self
       pushSTACK(h); funcall(L(einsminus),1); # (1- n)
       pushSTACK(value1); funcall(L(integer_length),1); # (integer-length (1- n))
       eltype_size = value1;
-      subr_self = popSTACK(); # restore subr_self
       goto eltype_integer;
     }
     if (eq(h,S(unsigned_byte))) { # (UNSIGNED-BYTE n)
@@ -2962,7 +2951,6 @@ local void test_eltype_arg (object* eltype_, decoded_el_t* decoded) {
       goto eltype_integer;
     }
   }
-  pushSTACK(subr_self); # save subr_self
   # First of all canonicalize a little bit (therewith the different
   # SUBTYPEP will not have to do the same three times):
   pushSTACK(arg); funcall(S(canonicalize_type),1); # (SYS::CANONICALIZE-TYPE arg)
@@ -2970,12 +2958,10 @@ local void test_eltype_arg (object* eltype_, decoded_el_t* decoded) {
   pushSTACK(STACK_0); pushSTACK(S(character)); funcall(S(subtypep),2); # (SUBTYPEP canon-arg 'CHARACTER)
   if (!nullp(value1)) {
     skipSTACK(1);
-    subr_self = popSTACK();
     decoded->kind = eltype_ch; decoded->size = 0;
     return;
   }
   funcall(S(subtype_integer),1); # (SYS::SUBTYPE-INTEGER canon-arg)
-  subr_self = popSTACK(); # restore subr_self
   if (!((mv_count>1) && integerp(value1) && integerp(value2)))
     goto bad_eltype;
   {
@@ -3041,8 +3027,6 @@ local object canon_eltype (const decoded_el_t* decoded) {
 # UP: Check an :EXTERNAL-FORMAT argument.
 # test_external_format_arg(arg)
 # > arg: argument
-# > subr_self: calling function
-# < subr_self: unchanged
 # < result: an encoding
 # can trigger GC
 local object test_external_format_arg (object arg) {
@@ -3518,7 +3502,6 @@ typedef struct strm_unbuffered_extrafields_t {
 
 # Error message after user interrupt.
 # fehler_interrupt();
-# > subr_self: calling function
 nonreturning_function(local, fehler_interrupt, (void)) {
   pushSTACK(TheSubr(subr_self)->name);
   fehler(interrupt_condition,GETTEXT("~: Ctrl-C: User break"));
@@ -7538,7 +7521,6 @@ local object add_to_open_streams (object stream) {
 #                 If the handle refers to a regular file, this together means
 #                 that it supports handle_lseek, reading/repositioning/writing
 #                 and close/reopen.
-# > subr_self: calling function
 # If direction==DIRECTION_IO(5), handle_fresh must be true.
 # < result: File-Stream (or poss. File-Handle-Stream)
 # < STACK: cleaned up
@@ -14672,10 +14654,8 @@ local struct timeval * sec_usec (object sec, object usec, struct timeval *tv) {
     pushSTACK(sec); funcall(L(floor),1);
     sec = value1;
     if (!boundp(usec)) { /* usec = round(sec*1000000) */
-      pushSTACK(subr_self); # save subr_self
       pushSTACK(value2); pushSTACK(fixnum(1000000)); funcall(L(mal),2);
       pushSTACK(value1); funcall(L(round),1);
-      subr_self = popSTACK(); # restore subr_self
       usec = value1;
     }
   }
@@ -16316,7 +16296,10 @@ global bool read_line (const object* stream_, const object* buffer_) {
       TheStream(stream)->strmflags &= ~strmflags_unread_B;
       var object ch = TheStream(stream)->strm_rd_ch_last;
       if (!charp(ch)) {
-        subr_self = L(read_line); fehler_char(ch);
+       read_line_fehler_char:
+        if (eq(subr_self,L(read_line))) fehler_char(ch);
+        else
+          with_saved_back_trace(L(read_line),-1, fehler_char(ch));
       }
       if (eq(ch,ascii_char(NL)))
         return false;
@@ -16344,9 +16327,7 @@ global bool read_line (const object* stream_, const object* buffer_) {
             eofp = true; break;
           }
           # else check for Character:
-          if (!charp(ch)) {
-            subr_self = L(read_line); fehler_char(ch);
-          }
+          if (!charp(ch)) goto read_line_fehler_char;
           if (eq(ch,ascii_char(NL))) { # NL -> End of Line
             eofp = false; break;
           }
@@ -16897,8 +16878,6 @@ local void check_multiple8_eltype (const decoded_el_t* eltype) {
 # UP: Check an element-type for READ-FLOAT/WRITE-FLOAT.
 # check_float_eltype(&eltype)
 # > object eltype: argument (in the STACK)
-# > subr_self: calling function
-# < subr_self: unchanged
 # < result: sizeof(ffloatjanus) or sizeof(dfloatjanus)
 local uintL check_float_eltype (object* eltype_) {
   var object arg = *eltype_;
@@ -16908,7 +16887,6 @@ local uintL check_float_eltype (object* eltype_) {
     return sizeof(dfloatjanus);
   var bool is_ffloat_subtype;
   var bool is_dfloat_subtype;
-  pushSTACK(subr_self); # save subr_self
   # First of all, make it a little more canonical (so then the different
   # SUBTYPEP do not have to do the same thing twice):
   pushSTACK(arg); funcall(S(canonicalize_type),1); # (SYS::CANONICALIZE-TYPE arg)
@@ -16917,7 +16895,6 @@ local uintL check_float_eltype (object* eltype_) {
   is_ffloat_subtype = !nullp(value1);
   pushSTACK(S(double_float)); funcall(S(subtypep),2); # (SUBTYPEP canon-arg 'DOUBLE-FLOAT)
   is_dfloat_subtype = !nullp(value1);
-  subr_self = popSTACK(); # restore subr_self
   if (is_ffloat_subtype) {
     if (!is_dfloat_subtype)
       return sizeof(ffloatjanus);
@@ -16933,7 +16910,6 @@ local uintL check_float_eltype (object* eltype_) {
 # UP: Check an endianness argument.
 # test_endianness_arg(arg)
 # > arg: the argument
-# > subr_self: calling function
 # < bool result: endianness (BIG = true, LITTLE = false)
 local bool test_endianness_arg (object arg) {
   if (!boundp(arg) || eq(arg,S(Klittle)) || eq(arg,S(Kdefault)))
@@ -17263,7 +17239,6 @@ LISPFUN(write_float,3,1,norest,nokey,0,NIL) {
 # UP: Checks, if an Argument is an open File-Stream.
 # check_open_file_stream(obj);
 # > obj: Argument
-# > subr_self: Caller (a SUBR)
 # < result: open File-Stream
 local object check_open_file_stream (object obj) {
   obj = resolve_synonym_stream(obj);

@@ -173,17 +173,12 @@ Enter the limit for max. frames to print or ':all' for all: ") *debug-io*)
 (defun debug-backtrace (&optional (mode *debug-mode*)
                                   (limit *debug-print-frame-limit*)
                                   (prompt-limit-p nil))
-  (let ((frame (frame-down-1 (frame-up-1 *frame-limit1* mode) mode))
-        (local-limit (or (and prompt-limit-p (get-frame-limit)) ; local limit takes precedence!
-			 limit)))
-    (do ((i 0 (1+ i)))
-        ((and local-limit (>= i local-limit)) nil)
-      (describe-frame *standard-output* frame)
-      (when (eq frame (setq frame (frame-up-1 frame mode)))
-        (format *debug-io* (TEXT "~&Printed ~D frames") i)
-        (return)))
+  (let ((frame-count
+         (show-stack mode       ; local limit takes precedence:
+                     (or (and prompt-limit-p (get-frame-limit)) limit)
+                     (frame-down-1 (frame-up-1 *frame-limit1* mode) mode))))
+    (format *debug-io* (TEXT "~&Printed ~D frames") frame-count)
     (throw 'debug 'continue)))
-
 
 (defun debug-backtrace-1 () (debug-backtrace 1))
 (defun debug-backtrace-2 () (debug-backtrace 2))

@@ -643,7 +643,7 @@
                      (i.e. caller-saved)
  save:  otherwise (i.e. call-preserved, callee-saved)
 
-               STACK    mv_count  value1   subr_self
+               STACK    mv_count  value1   back_trace
  MC680X0       used
  I80386        save
  SPARC (gcc2)  fixed    fixed     fixed    used
@@ -750,19 +750,19 @@
       #define value1_register  "s6"
     #endif
   #endif
-  # Register for subr_self.
+  # Register for back_trace.
   #if !defined(WIDE_SOFT)
     #if defined(SPARC)
-      #define subr_self_register  "%g4"  # a global register
+      #define back_trace_register  "%g4"  # a global register
       # %g4 seems to be a scratch-register as of lately with gcc 2.3
       # This causes problems with libc.so.1.6.1 (and higher) (in getwd())
-      # That's why HAVE_SAVED_subr_self has been defined above.
+      # That's why HAVE_SAVED_back_trace has been defined above.
     #endif
     #if defined(HPPA)
-      #define subr_self_register  "%r13"  # one of the general registers  %r5..%r18
+      #define back_trace_register  "%r13"  # one of the general registers  %r5..%r18
     #endif
     #if defined(CONVEX)
-      #define subr_self_register  "s7"
+      #define back_trace_register  "s7"
     #endif
   #endif
   # Declare the registers now (before any system include file which could
@@ -776,8 +776,8 @@
   #ifdef value1_register
     register long value1_reg __asm__(value1_register);
   #endif
-  #ifdef subr_self_register
-    register long subr_self_reg __asm__(subr_self_register);
+  #ifdef back_trace_register
+    register long back_trace_reg __asm__(back_trace_register);
   #endif
   # Saving "save" registers.
   #if (defined(I80386) && !defined(DYNAMIC_MODULES)) || defined(HPPA) || defined(M88000) || defined(ARM) || defined(DECALPHA) || defined(S390)
@@ -792,8 +792,8 @@
       #ifdef value1_register
         long value1_register_contents;
       #endif
-      #ifdef subr_self_register
-        long subr_self_register_contents;
+      #ifdef back_trace_register
+        long back_trace_register_contents;
       #endif
     };
     #ifndef MULTITHREAD
@@ -828,14 +828,14 @@
       #define SAVE_value1_register(registers)
       #define RESTORE_value1_register(registers)
     #endif
-    #ifdef subr_self_register
-      #define SAVE_subr_self_register(registers)     \
-              registers->subr_self_register_contents = subr_self_reg
-      #define RESTORE_subr_self_register(registers)  \
-              subr_self_reg = registers->subr_self_register_contents
+    #ifdef back_trace_register
+      #define SAVE_back_trace_register(registers)     \
+              registers->back_trace_register_contents = back_trace_reg
+      #define RESTORE_back_trace_register(registers)  \
+              back_trace_reg = registers->back_trace_register_contents
     #else
-      #define SAVE_subr_self_register(registers)
-      #define RESTORE_subr_self_register(registers)
+      #define SAVE_back_trace_register(registers)
+      #define RESTORE_back_trace_register(registers)
     #endif
     #define SAVE_REGISTERS(inner_statement)                                  \
       do {                                                                   \
@@ -843,7 +843,7 @@
         SAVE_STACK_register(registers);                                      \
         SAVE_mv_count_register(registers);                                   \
         SAVE_value1_register(registers);                                     \
-        SAVE_subr_self_register(registers);                                  \
+        SAVE_back_trace_register(registers);                                 \
         inner_statement;                                                     \
         { var object* top_of_frame = STACK;                                  \
           pushSTACK(as_object((aint)callback_saved_registers));              \
@@ -861,7 +861,7 @@
         RESTORE_STACK_register(registers);                                    \
         RESTORE_mv_count_register(registers);                                 \
         RESTORE_value1_register(registers);                                   \
-        RESTORE_subr_self_register(registers);                                \
+        RESTORE_back_trace_register(registers);                               \
       } while(0)
   #endif
   # Saving the STACK (for asynchronous interrupts).
@@ -878,8 +878,8 @@
   #if defined(value1_register) && 0
     #define HAVE_SAVED_value1
   #endif
-  #if defined(subr_self_register) && defined(SPARC)
-    #define HAVE_SAVED_subr_self
+  #if defined(back_trace_register) && defined(SPARC)
+    #define HAVE_SAVED_back_trace
   #endif
 #endif
 #ifndef HAVE_SAVED_REGISTERS
@@ -7241,20 +7241,20 @@ typedef SPint sp_jmp_buf[jmpbufsize];
   #define SAVE_value1()
   #define RESTORE_value1()
 #endif
-#ifdef HAVE_SAVED_subr_self
+#ifdef HAVE_SAVED_back_trace
   #ifndef MULTITHREAD
-    extern object saved_subr_self;
+    extern struct backtrace_t* saved_back_trace;
   #else
-    #define saved_subr_self  (current_thread()->_saved_subr_self)
+    #define saved_back_trace  (current_thread()->_saved_back_trace)
   #endif
-  #define SAVE_subr_self()     saved_subr_self = subr_self
-  #define RESTORE_subr_self()  subr_self = saved_subr_self
+  #define SAVE_back_trace()     saved_back_trace = back_trace
+  #define RESTORE_back_trace()  back_trace = saved_back_trace
 #else
-  #define SAVE_subr_self()
-  #define RESTORE_subr_self()
+  #define SAVE_back_trace()
+  #define RESTORE_back_trace()
 #endif
-#define SAVE_GLOBALS()     SAVE_mv_count(); SAVE_value1(); SAVE_subr_self();
-#define RESTORE_GLOBALS()  RESTORE_mv_count(); RESTORE_value1(); RESTORE_subr_self();
+#define SAVE_GLOBALS()     SAVE_mv_count(); SAVE_value1(); SAVE_back_trace();
+#define RESTORE_GLOBALS()  RESTORE_mv_count(); RESTORE_value1(); RESTORE_back_trace();
 #if defined(HAVE_SAVED_STACK)
   #ifndef MULTITHREAD
     extern object* saved_STACK;
@@ -8621,7 +8621,7 @@ The arguments are passed on the LISP-stack, with the first one being on the
 top. The required arguments come first, then the optional ones
 (each #UNBOUND, if not specified), then come the
 keyword-arguments (again, each #UNBOUND, if not specified).
-The SUBR-object can be found in subr_self.
+The SUBR-object can be found in back_trace.
 This is all if no &REST-argument is planned. But if a &REST-argument
 is planned, all further arguments follow (the optional ones) on the stack
 one by one, and this will be passed: the number of these arguments and a pointer
@@ -8642,7 +8642,7 @@ At first there are the required parametes, followed by the optional ones
 the whole rest of the body (most of the time a list).
 So the number of objects on the LISP-stack is always the same, namely
 numReqParameter + numOptParameter + (0 or 1 if body-flag).
-At the call, subr_self holds the FSUBR-object, and the whole form is
+At the call, back_trace holds the FSUBR-object, and the whole form is
 in the EVAL-frame, directly above the parameters.
 All parameters have to be removed from the LISP-stack at the return jump
 (ie. the stackpointer STACK has to be incemented by the number of objects),
@@ -9337,18 +9337,47 @@ re-enters the corresponding top-level loop.
 nonreturning_function(extern, fehler_mv_zuviel, (object caller));
 # is used by EVAL, CONTROL, LISPARIT
 
-# While executing a  SUBR, FSUBR: the current SUBR resp. FSUBR.
-# subr_self
-# (Only valid , until another SUBR or another Lisp-function
-# is called.)
-#if !defined(subr_self_register)
+#if !defined(back_trace_register)
   #ifndef MULTITHREAD
-    extern object subr_self;
+    extern struct backtrace_t *back_trace;
   #else
-    #define subr_self  (current_thread()->_subr_self)
+    #define back_trace  (current_thread()->_back_trace)
   #endif
 #else
-  register object subr_self __asm__(subr_self_register);
+  register object back_trace __asm__(back_trace_register);
+#endif
+#define subr_self  back_trace->caller
+struct backtrace_t {
+  struct backtrace_t* next;
+  object caller;
+  object *stack;
+  int num_arg;
+};
+#ifdef STACK_DOWN
+#define bt_beyond_stack_p(bt,st)  (bt && ((aint)(bt->stack) < (aint)st))
+#else
+#define bt_beyond_stack_p(bt,st)  (bt && ((aint)(bt->stack) > (aint)st))
+#endif
+/* unwind backtrace to the stack lockation */
+#define unwind_back_trace(bt,st) while (bt_beyond_stack_p(bt,st)) bt=bt->next
+
+/* evaluate statement augmenting back_trace */
+#if defined(STACKCHECKS) || defined(STACKCHECKC)
+#define with_saved_back_trace(fun,num_arg,statement)           do {     \
+    struct backtrace_t *bt_save=back_trace;                             \
+    struct backtrace_t bt_here = { back_trace, fun, STACK, num_arg };   \
+    back_trace = &bt_here;                                              \
+    statement;                                                          \
+    if (back_trace->next != bt_save) abort();                           \
+    back_trace = back_trace->next;                                      \
+  } while(0)
+#else
+#define with_saved_back_trace(fun,num_arg,statement)           do {     \
+    struct backtrace_t bt_here = { back_trace, fun, STACK, num_arg };   \
+    back_trace = &bt_here;                                              \
+    statement;                                                          \
+    back_trace = back_trace->next;                                      \
+  } while(0)
 #endif
 
 # Within the body of a SUBR: Access to the arguments.
@@ -9832,13 +9861,15 @@ typedef struct {
 # Never returns and cleans the SP!!
 # The multiple values are passed.
 # enter_frame_at_STACK();
-#define enter_frame_at_STACK() \
-  do { var sp_jmp_buf* returner = (sp_jmp_buf*)(aint)as_oint(STACK_(frame_SP)); # the returner of finish_entry_frame \
-    LONGJMP_SAVE_value1(); LONGJMP_SAVE_mv_count(); \
-    begin_longjmp_call(); \
-    longjmpspl(&!*returner,(aint)returner); # jump to there, pass own addess (/=0) \
-    NOTREACHED; \
-  } while(0)
+#define enter_frame_at_STACK()                                do {      \
+  /* the returner of finish_entry_frame: */                             \
+  var sp_jmp_buf* returner = (sp_jmp_buf*)(aint)as_oint(STACK_(frame_SP)); \
+  unwind_back_trace(back_trace,STACK);                                  \
+  LONGJMP_SAVE_value1(); LONGJMP_SAVE_mv_count();                       \
+  begin_longjmp_call();                                                 \
+  longjmpspl(&!*returner,(aint)returner);/* jump there, pass own addess (/=0) */\
+  NOTREACHED;                                                           \
+ } while(0)
 # is used by EVAL
 
 # Makes a HANDLER-Frame with C-Handler.
@@ -10147,7 +10178,6 @@ extern object get_closure (object lambdabody, object name, bool blockp, environm
 # UP: Converts an argument to a function.
 # coerce_function(obj)
 # > obj: Object
-# > subr_self: caller (a SUBR)
 # < result: Object as function (SUBR or Closure)
 # can trigger GC
 extern object coerce_function (object obj);
@@ -10512,7 +10542,6 @@ extern object array_displace_check (object array, uintL size, uintL* index);
 # error-message
 # > STACK_1: Array (usually a Vector)
 # > STACK_0: (erroneous) Index
-# > subr_self: Caller (a SUBR)
 nonreturning_function(extern, fehler_index_range, (uintL bound));
 # used by SEQUENCE
 
@@ -10527,7 +10556,6 @@ extern object storagevector_aref (object storagevector, uintL index);
 
 # Error when attempting to store an invalid value in an array.
 # fehler_store(array,value);
-# > subr_self: Caller (a SUBR)
 nonreturning_function(extern, fehler_store, (object array, object value));
 # used by SEQUENCE
 
@@ -11132,7 +11160,6 @@ extern object name_char (object string);
 # > STACK_2: String-Argument
 # > STACK_1: optional :start-Argument
 # > STACK_0: optional :end-Argument
-# > subr_self: caller (a SUBR)
 # < stringarg arg: description of the argument
 # < result: String-Argument
 # increases STACK by 3
@@ -11228,7 +11255,6 @@ extern object subsstring (object string, uintL start, uintL end);
 # string_concat(argcount)
 # > uintC argcount: Number of arguments
 # > on STACK: the argument (should be Strings)
-# > subr_self: caller (a SUBR) (not required, if all arguments are strings)
 # < result: newly created string
 # < STACK: cleaned
 # can trigger GC
@@ -11572,7 +11598,6 @@ extern void tast_break (void);
 # Error message, if an object isn't a list.
 # fehler_list(obj);
 # > obj: non-list
-# > subr_self: caller (a SUBR)
 nonreturning_function(extern, fehler_list, (object obj));
 # is used by LIST, EVAL
 
@@ -11592,7 +11617,6 @@ nonreturning_function(extern, fehler_kein_symbol, (object caller, object obj));
 
 # Error message, if an object isn't a symbol.
 # fehler_symbol(obj);
-# > subr_self: caller (a SUBR or FSUBR)
 # > obj: non-symbol
 nonreturning_function(extern, fehler_symbol, (object obj));
 # is used by SYMBOL, CONTROL
@@ -11614,14 +11638,12 @@ nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));
 
 # Error message, if an object isn't a vector.
 # fehler_vector(obj);
-# > subr_self: caller (a SUBR)
 # > obj: non-vector
 nonreturning_function(extern, fehler_vector, (object obj));
 # is used by ARRAY
 
 /* error-message, if an object is not an environment.
  fehler_environment(obj);
- > subr_self: caller (a SUBR)
  > obj: non-vector */
 nonreturning_function(global, fehler_environment, (object obj));
 /* used by EVAL, CONTROL */
@@ -11629,28 +11651,24 @@ nonreturning_function(global, fehler_environment, (object obj));
 # Error message, if an argument isn't a Fixnum >=0:
 # fehler_posfixnum(obj);
 # > obj: the faulty argument
-# > subr_self: caller (a SUBR)
 nonreturning_function(extern, fehler_posfixnum, (object obj));
 # is used by STREAM
 
 # Error message, if an argument isn't a Character:
 # fehler_char(obj);
 # > obj: the faulty argument
-# > subr_self: caller (a SUBR)
 nonreturning_function(extern, fehler_char, (object obj));
 # is used by CHARSTRG
 
 # Error message, if an argument isn't a string:
 # fehler_string(obj);
 # > obj: the faulty argument
-# > subr_self: caller (a SUBR)
 nonreturning_function(extern, fehler_string, (object obj));
 # is used by CHARSTRG, FOREIGN
 
 # Error message, if an argument isn't a Simple-String:
 # fehler_sstring(obj);
 # > obj: the faulty argument
-# > subr_self: caller (a SUBR)
 nonreturning_function(extern, fehler_sstring, (object obj));
 # is used by CHARSTRG
 
@@ -11680,13 +11698,11 @@ nonreturning_function(extern, fehler_sstring, (object obj));
 
 # Error message, if an argument is not of type (OR STRING INTEGER).
 # fehler_string_integer(obj);
-# > subr_self: caller (a SUBR)
 nonreturning_function(extern, fehler_string_integer, (object obj));
 
 # Error message, if an argument isn't a stream:
 # fehler_stream(obj);
 # > obj: the faulty argument
-# > subr_self: caller (a SUBR)
 nonreturning_function(extern, fehler_stream, (object obj));
 # is used by IO, STREAM, DEBUG
 
@@ -11694,14 +11710,12 @@ nonreturning_function(extern, fehler_stream, (object obj));
 # fehler_streamtype(obj,type);
 # > obj: the faulty argument
 # > type: requested stream-type
-# > subr_self: caller (a SUBR)
 nonreturning_function(extern, fehler_streamtype, (object obj, object type));
 # is used by STREAM
 
 # Error message, if an argument isn't a function:
 # fehler_function(obj);
 # obj: the faulty argument
-# > subr_self: caller (a SUBR)
 nonreturning_function(extern, fehler_function, (object obj));
 # is used by RECORD
 
@@ -11735,7 +11749,6 @@ nonreturning_function(global, fehler_too_few_args,
 # Checking of an argument
 # check_...(obj);
 # > obj: Argument
-# > subr_self: Caller (a SUBR)
 # obj should be a variable
 #ifdef HAVE_FFI
   #define check_char(obj)  \
@@ -12020,7 +12033,6 @@ extern void map_sequence (object obj, map_sequence_function_t* fun, void* arg);
 
 # Error, if both :TEST, :TEST-NOT - argumente have been given.
 # fehler_both_tests();
-# > subr_self: caller (a SUBR)
 nonreturning_function(extern, fehler_both_tests, (void));
 # is used by LIST
 
@@ -12296,7 +12308,6 @@ extern object var_stream (object sym, uintB strmflags);
 #                 If the handle refers to a regular file, this together means
 #                 that it supports file_lseek, reading/repositioning/writing
 #                 and close/reopen.
-# > subr_self: calling function
 # If direction==5, handle_fresh must be true.
 # < result: File-Stream (or evtl. File-Handle-Stream)
 # < STACK: cleaned
@@ -12729,7 +12740,6 @@ extern bool number_gleich (object x, object y);
 # > obj: Object
 # > type: one of the symbols
 #         FLOAT, SHORT-FLOAT, SINGLE-FLOAT, DOUBLE-FLOAT, LONG-FLOAT
-# > subr_self: caller (a SUBR)
 # < result: (coerce obj type)
 # can trigger GC
 extern object coerce_float (object obj, object type);
@@ -12860,8 +12870,8 @@ extern object decimal_string (object x);
       #if !defined(value1_register)
         object _value1;
       #endif
-      #if !defined(subr_self_register)
-        object _subr_self;
+      #if !defined(back_trace_register)
+        object _back_trace;
       #endif
     # Less often used:
       #ifndef NO_SP_CHECK
@@ -12884,8 +12894,8 @@ extern object decimal_string (object x);
       #ifdef HAVE_SAVED_value1
         object _saved_value1;
       #endif
-      #ifdef HAVE_SAVED_subr_self
-        object _saved_subr_self;
+      #ifdef HAVE_SAVED_back_trace
+        object _saved_back_trace;
       #endif
       #if defined(HAVE_SAVED_REGISTERS)
         struct registers * _callback_saved_registers;

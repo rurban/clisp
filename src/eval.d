@@ -569,6 +569,7 @@ global void progv (object symlist, object vallist) {
 # can trigger GC
 # then jumps to the frame, which was found.
 nonreturning_function(global, unwind_upto, (object* upto_frame)) {
+  unwind_back_trace(back_trace,upto_frame); /* _WHY_ is this necessary?!!! */
   unwind_protect_to_save.fun        = &unwind_upto;
   unwind_protect_to_save.upto_frame = upto_frame;
   until (STACK == upto_frame) { # arrived at target-frame?
@@ -2130,7 +2131,6 @@ nonreturning_function(local, fehler_undefined, (object caller, object funname)) 
 # UP: Alters argument to a function.
 # coerce_function(obj)
 # > obj: object
-# > subr_self: caller (a SUBR)
 # < result: object as function (SUBR or Closure)
 # can trigger GC
   global object coerce_function (object obj);
@@ -3141,8 +3141,7 @@ global Values eval_no_hooks (object form) {
         #undef REQ_PAR
       }
       # call FSUBR:
-      subr_self = fun;
-      (*(fsubr_function_t*)(TheFsubr(fun)->function))();
+      with_saved_back_trace(fun,-1,(*(fsubr_function_t*)(TheFsubr(fun)->function))());
       #if STACKCHECKS
        if (!(STACK == STACKbefore)) # STACK as before?
          abort(); # no -> go to Debugger
@@ -3505,13 +3504,11 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
       if (TheSubr(fun)->rest_flag == subr_norest) {
         # SUBR without &REST-Flag:
        apply_subr_norest:
-        subr_self = fun;
-        (*(subr_norest_function_t*)(TheSubr(fun)->function))();
+        with_saved_back_trace(fun,-1,(*(subr_norest_function_t*)(TheSubr(fun)->function))());
       } else {
         # SUBR with &REST-Flag:
        apply_subr_rest:
-        subr_self = fun;
-        (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer);
+        with_saved_back_trace(fun,argcount,(*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer));
       }
       #if STACKCHECKS
       if (!(args_pointer == args_end_pointer)) # Stack cleaned up?
@@ -4406,14 +4403,12 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
      apply_subr_rest:
       if (!nullp(args))
         goto fehler_dotted;
-      subr_self = fun;
-      (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer);
+      with_saved_back_trace(fun,argcount,(*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer));
       goto done;
      apply_subr_norest:
       if (!nullp(args))
         goto fehler_dotted;
-      subr_self = fun;
-      (*(subr_norest_function_t*)(TheSubr(fun)->function))();
+      with_saved_back_trace(fun,-1,(*(subr_norest_function_t*)(TheSubr(fun)->function))());
      done:
       #if STACKCHECKS
       if (!(args_pointer == args_end_pointer)) # Stack cleaned up?
@@ -5283,12 +5278,10 @@ local Values funcall_closure (object fun, uintC args_on_stack);
       argcount = args_on_stack;
       rest_args_pointer = args_end_pointer STACKop argcount;
      apply_subr_rest:
-      subr_self = fun;
-      (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer);
+      with_saved_back_trace(fun,argcount,(*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer));
       goto done;
      apply_subr_norest:
-      subr_self = fun;
-      (*(subr_norest_function_t*)(TheSubr(fun)->function))();
+      with_saved_back_trace(fun,-1,(*(subr_norest_function_t*)(TheSubr(fun)->function))());
      done:
       #if STACKCHECKS
       if (!(args_pointer == args_end_pointer)) # Stack cleaned up?
@@ -5838,6 +5831,9 @@ local Values funcall_closure (object fun, uintC args_on_stack);
     var Sbvector codeptr;
     var const uintB* byteptr_in;
     {
+      var struct backtrace_t *bt_save=back_trace;
+      var struct backtrace_t bt_here = {back_trace, closure_in, STACK , -1};
+      back_trace = &bt_here;
       # situate argument closure in register:
       #ifdef closure_register
       var object closure __asm__(closure_register);
@@ -6908,16 +6904,14 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             B_operand(n);                                             \
             # The compiler has already done the argument-check. \
            {var Subr fun = FUNTAB1[n];                                \
-            subr_self = subr_tab_ptr_as_object(fun);                  \
-            with_saved_context((*(subr_norest_function_t*)(fun->function))(););}}
+            with_saved_back_trace(subr_tab_ptr_as_object(fun),-1,with_saved_context((*(subr_norest_function_t*)(fun->function))();));}}
         # executes (CALLS2 n)-command.
         #define CALLS2()  \
           { var uintL n;                                              \
             B_operand(n);                                             \
             # The compiler has already done the argument-check. \
            {var Subr fun = FUNTAB2[n];                                \
-            subr_self = subr_tab_ptr_as_object(fun);                  \
-            with_saved_context((*(subr_norest_function_t*)(fun->function))(););}}
+            with_saved_back_trace(subr_tab_ptr_as_object(fun),-1,with_saved_context((*(subr_norest_function_t*)(fun->function))();));}}
         # executes (CALLSR m n)-command.
         #define CALLSR()  \
           { var uintL m;                                              \
@@ -6926,9 +6920,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             B_operand(n);                                             \
             # The compiler has already done the argument-check. \
            {var Subr fun = FUNTABR[n];                                \
-            subr_self = subr_tab_ptr_as_object(fun);                  \
-            with_saved_context((*(subr_rest_function_t*)(fun->function))(m,args_end_pointer STACKop m);); \
-          }}
+            with_saved_back_trace(subr_tab_ptr_as_object(fun),m,with_saved_context((*(subr_rest_function_t*)(fun->function))(m,args_end_pointer STACKop m);)); }}
         CASE cod_call:                   # (CALL k n)
           CALL();
           goto next_byte;
@@ -7610,11 +7602,10 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var object arg = value1;
             if (consp(arg)) {
               value1 = Car(arg); # CAR of a Cons
-            } elif (nullp(arg)) {
+            } else if (nullp(arg)) {
               # (CAR NIL) = NIL: value1 remains NIL
-            } else {
-              subr_self = L(car); fehler_list(arg);
-            }
+            } else
+              with_saved_back_trace(L(car),-1,fehler_list(arg));
             mv_count=1;
           }
           goto next_byte;
@@ -7623,11 +7614,10 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var object arg = value1;
             if (consp(arg)) {
               pushSTACK(Car(arg)); # CAR of a Cons
-            } elif (nullp(arg)) {
+            } else if (nullp(arg)) {
               pushSTACK(arg); # (CAR NIL) = NIL
-            } else {
-              subr_self = L(car); fehler_list(arg);
-            }
+            } else
+              with_saved_back_trace(L(car),-1,fehler_list(arg));
           }
           goto next_byte;
         CASE cod_load_car_push:          # (LOAD&CAR&PUSH n)
@@ -7637,11 +7627,10 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var object arg = STACK_(n);
             if (consp(arg)) {
               pushSTACK(Car(arg)); # CAR of a Cons
-            } elif (nullp(arg)) {
+            } else if (nullp(arg)) {
               pushSTACK(arg); # (CAR NIL) = NIL
-            } else {
-              subr_self = L(car); fehler_list(arg);
-            }
+            } else
+              with_saved_back_trace(L(car),-1,fehler_list(arg));
           }
           goto next_byte;
         CASE cod_load_car_store:         # (LOAD&CAR&STORE m n)
@@ -7653,11 +7642,10 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var object arg = STACK_(m);
             if (consp(arg)) {
               STACK_(n) = value1 = Car(arg); # CAR of a Cons
-            } elif (nullp(arg)) {
+            } else if (nullp(arg)) {
               STACK_(n) = value1 = arg; # (CAR NIL) = NIL
-            } else {
-              subr_self = L(car); fehler_list(arg);
-            }
+            } else
+              with_saved_back_trace(L(car),-1,fehler_list(arg));
             mv_count=1;
           }
           goto next_byte;
@@ -7666,11 +7654,10 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var object arg = value1;
             if (consp(arg)) {
               value1 = Cdr(arg); # CDR of a Cons
-            } elif (nullp(arg)) {
+            } else if (nullp(arg)) {
               # (CDR NIL) = NIL: value1 remains NIL
-            } else {
-              subr_self = L(cdr); fehler_list(arg);
-            }
+            } else
+              with_saved_back_trace(L(cdr),-1,fehler_list(arg));
             mv_count=1;
           }
           goto next_byte;
@@ -7679,11 +7666,10 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var object arg = value1;
             if (consp(arg)) {
               pushSTACK(Cdr(arg)); # CDR of a Cons
-            } elif (nullp(arg)) {
+            } else if (nullp(arg)) {
               pushSTACK(arg); # (CDR NIL) = NIL
-            } else {
-              subr_self = L(cdr); fehler_list(arg);
-            }
+            } else
+              with_saved_back_trace(L(cdr),-1,fehler_list(arg));
           }
           goto next_byte;
         CASE cod_load_cdr_push:          # (LOAD&CDR&PUSH n)
@@ -7693,11 +7679,10 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var object arg = STACK_(n);
             if (consp(arg)) {
               pushSTACK(Cdr(arg)); # CDR of a Cons
-            } elif (nullp(arg)) {
+            } else if (nullp(arg)) {
               pushSTACK(arg); # (CDR NIL) = NIL
-            } else {
-              subr_self = L(cdr); fehler_list(arg);
-            }
+            } else
+              with_saved_back_trace(L(cdr),-1,fehler_list(arg));
           }
           goto next_byte;
         CASE cod_load_cdr_store:         # (LOAD&CDR&STORE n)
@@ -7708,11 +7693,10 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var object arg = *arg_;
             if (consp(arg)) {
               *arg_ = value1 = Cdr(arg); # CDR of a Cons
-            } elif (nullp(arg)) {
+            } else if (nullp(arg)) {
               value1 = arg; # (CDR NIL) = NIL
-            } else {
-              subr_self = L(cdr); fehler_list(arg);
-            }
+            } else
+              with_saved_back_trace(L(cdr),-1,fehler_list(arg));
             mv_count=1;
           }
           goto next_byte;
@@ -7925,9 +7909,9 @@ local Values funcall_closure (object fun, uintC args_on_stack);
                 && !eq(arg,fixnum(bitm(oint_data_len)-1)))                 \
               { arg = fixnum_inc(arg,1); statement; }                      \
               else                                                         \
-              { with_saved_context(                                        \
-                  { pushSTACK(arg); subr_self = L(einsplus); C_einsplus(); } # funcall(L(einsplus),1); \
-                  );                                                       \
+                { with_saved_back_trace(L(einsplus),1,with_saved_context( \
+                  { pushSTACK(arg); C_einsplus(); } # funcall(L(einsplus),1); \
+                  ));                                                   \
                 arg = value1;                                              \
           }   }
         # Decrement. Optimized specifically for Fixnums >=0.
@@ -7935,9 +7919,9 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           { if (posfixnump(arg) && !eq(arg,Fixnum_0)) # Fixnum > 0 ? \
               { arg = fixnum_inc(arg,-1); statement; }               \
               else                                                   \
-              { with_saved_context(                                  \
-                  { pushSTACK(arg); subr_self = L(einsminus); C_einsminus(); } # funcall(L(einsminus),1); \
-                  );                                                 \
+                { with_saved_back_trace(L(einsminus),1,with_saved_context( \
+                  { pushSTACK(arg); C_einsminus(); } # funcall(L(einsminus),1); \
+                  ));                                                   \
                 arg = value1;                                        \
           }   }
         CASE cod_load_inc_push:          # (LOAD&INC&PUSH n)
@@ -8479,6 +8463,10 @@ local Values funcall_closure (object fun, uintC args_on_stack);
       #ifndef FAST_SP
       FREE_DYNAMIC_ARRAY(private_SP_space);
       #endif
+      #ifdef DEBUG_SPVW
+      if (back_trace->next != bt_save) abort();
+      #endif
+      back_trace = back_trace->next;
       return;
     }
 

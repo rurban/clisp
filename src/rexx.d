@@ -26,7 +26,6 @@
 
 # Fehlermeldung wenn kein Rexx möglich
 # fehler_norexx();
-# > subr_self: Aufrufer (ein SUBR)
   nonreturning_function(local, fehler_norexx, (void)) {
     fehler(error,
            GETTEXT("Communication with ARexx is not possible.")

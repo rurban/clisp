@@ -321,7 +321,7 @@ local void check_cc_match (object fun, object resulttype,
 local object convert_function_to_foreign (object fun, object resulttype,
                                           object argtypes, object flags) {
   # Convert to a function:
-  subr_self = L(coerce); fun = coerce_function(fun);
+  with_saved_back_trace(L(coerce),-1,fun = coerce_function(fun));
   # If it is already a foreign function, return it immediately:
   if (ffunctionp(fun)) {
     check_cc_match(fun, resulttype, argtypes, flags);
