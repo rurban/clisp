@@ -118,12 +118,16 @@
 ;; } entree;
 (def-c-struct entree
   (name c-string)
-  (valence long)
+  (valence ulong)
   (value c-pointer)
   (menu long)
-  (next c-pointer)              ; (c-ptr-null entree)
+  (code c-string)
+  (next (c-pointer entree))     ; (c-ptr-null entree)
   (help c-string)
   (args c-pointer))
+
+(defun next-entree (e) (foreign-value (entree-next e)))
+(export 'next-entree)
 
 ;; typedef unsigned char *byteptr;
 (def-c-type byteptr (c-ptr uchar))
@@ -131,7 +135,7 @@
 ;; typedef ulong pari_sp;
 (def-c-type pari_sp ulong)
 
-(def-c-var pari-series-precision (:name "precdl") (:type long))
+(def-c-var pari-series-precision (:name "precdl") (:type ulong))
 
 ;; there is no global prec in PARI 2
 (c-lines "ulong clisp_get_prec (void) { return /*prec*/ 64; }~%")
@@ -155,12 +159,6 @@
 ;; a scratch variable for CLISP: (defined in clisp-interface.c)
 (c-lines "extern void* clispTemp;~%")
 (def-c-var temp (:name "clispTemp") (:type c-pointer))
-
-;; extern  long    tglobal,paribuffsize,pariecho;
-;; extern  long    compact_arrays;
-;; extern  long    *ordvar,varchanged;
-;; extern  GEN     polvar;
-;; extern  GEN     RAVYZARC;
 
 ;; extern  long    lontyp[],lontyp2[];
 
@@ -188,38 +186,50 @@
 ;; extern  GEN *polun,*polx;
 (def-c-var pari-poly-1 (:name "polun") (:type (c-ptr pari-gen)) (:read-only t))
 (def-c-var pari-poly-x (:name "polx")  (:type (c-ptr pari-gen)) (:read-only t))
+;; extern  GEN primetab;
+(def-c-var primetab (:type pari-gen) (:read-only t))
+;; extern  long *ordvar;
+(def-c-var ordvar (:type (c-ptr long)) (:read-only t))
+;; extern  GEN polvar;
+(def-c-var polvar (:type pari-gen) (:read-only t))
 
 ;; extern  byteptr diffptr;
-;; extern  GEN primetab;
+(def-c-var diffptr (:type byteptr) (:read-only t))
 
-;; extern  GEN *g;
-;; extern  entree  **varentries; /* noms des inconnues actives */
-;; extern  GEN premierbloc;  /* tete de la liste de blocs */
-;; extern  long    nvar;         /* numero de la prochaine inconnue */
-;; extern  long    glbfmt[];
-;;(def-c-var pari-format (:name "glbfmt") (:type (c-array long 3)))
+(c-lines "const unsigned long maxvarn = MAXVARN;~%")
+(def-c-var maxvarn (:type ulong) (:read-only t))
+;; extern entree **varentries;
+(def-c-var varentries (:type (c-pointer (c-ptr-null entree))) (:read-only t))
+(defun varentry (i)
+  (assert (< i maxvarn) (i)
+          "~S: index ~:D is too large (max ~:D)" 'varentry i maxvarn)
+  (let ((e (offset varentries (* i #.(sizeof '(c-pointer (c-ptr-null entree))))
+                   '(c-pointer (c-ptr-null entree)))))
+    (and e (foreign-value e))))
 
-;; extern  long    **rectgraph;
-;; extern  long    pari_randseed;
-;; extern  long    DEBUGLEVEL;
+;; extern int new_galois_format;
+(def-c-var new_galois_format (:type (c-ptr int)))
+;; extern int factor_add_primes;
+(def-c-var factor_add_primes (:type (c-ptr int)))
 
-;; extern const int STACKSIZE;  /* nombre de gn possibles */
-;; extern const int TBLSZ;  /* taille de la table de hashcodes */
-;; extern const int NUMPRTBELT; /* taille table de premiers prives */
+;; extern ulong DEBUGFILES, DEBUGLEVEL, DEBUGMEM
+(def-c-var debugfiles (:name "DEBUGFILES") (:type ulong))
+(def-c-var debuglevel (:name "DEBUGLEVEL") (:type ulong))
+(def-c-var debugmem (:name "DEBUGMEM") (:type ulong))
 
 ;; entree *is_entry(char *s);
 (def-call-out is_entry (:arguments (s c-string))
   (:return-type (c-ptr-null entree)))
 
-;; this idiotic hack should not be necessary!
-(c-lines "char* hack_doc (char* s) { entree *e = is_entry(s); return e==NULL?NULL:e->help; }~%")
-(def-call-out hack_doc (:arguments (s c-string)) (:return-type c-string))
+;; this optimization is not necessary, it just saves some memory
+(c-lines "char* get_entry_doc (char* s) { entree *e = is_entry(s); return e==NULL?NULL:e->help; }~%")
+(def-call-out get_entry_doc (:arguments (s c-string)) (:return-type c-string))
 
 (defun get-pari-docstring (str name)
-  (let ((entree (hack_doc str))) ; is_entry
-    (and entree
+  (let ((doc (get_entry_doc str)))
+    (and doc
          (format nil "~A corresponds to the gp function ~A:~%~A"
-                 name str entree)))) ; (entree-help entree)
+                 name str doc))))
 
 (c-lines "char *pariversion=PARIVERSION;~%int pari_version_code=PARI_VERSION_CODE;~%int pari_version_shift=PARI_VERSION_SHIFT;~%")
 (def-c-var pariversion (:type c-string) (:read-only t))
@@ -1937,7 +1947,9 @@
   (extract1 (elt1 x)
     (ldb  pari-precision-byte elt1)))
 
-  ;; #define setprecp(x,s)     (((GEN)(x))[1]=(((GEN)(x))[1]&(~PRECPBITS))+(((long)(s))<<PRECPSHIFT))
+;; #define setprecp(x,s)     (((GEN)(x))[1]=(((GEN)(x))[1]&(~PRECPBITS))+(((long)(s))<<PRECPSHIFT))
+
+
 ;; #define varn(x)           ((long)((((GEN)(x))[1]&VARNBITS)>>VARNSHIFT))
 (defun pari-varno-raw (x)
   (extract1 (elt1 x)

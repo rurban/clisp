@@ -1,3 +1,7 @@
+2004-12-17  Sam Steingold  <sds@gnu.org>
+
+	* modules/pari/pari.lisp (entree): fixed declaration
+
 2004-12-17  Bruno Haible  <bruno@clisp.org>
 
 	* _clisp.c (main): Fix handling of option -E.
