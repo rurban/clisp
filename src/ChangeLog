@@ -1,5 +1,11 @@
 2002-05-30  Sam Steingold  <sds@gnu.org>
 
+	* genclisph.d: anticipate possible future addition of stdint.h
+	(print_file): new function
+	(main): use it to output stdbool.h
+
+2002-05-30  Sam Steingold  <sds@gnu.org>
+
 	OpenBSD build fixes
 	* lispbibl.d, uniname.c (stdbool.h): check HAVE_STDBOOL_H
 	* unitypes.h (stdint.h): check HAVE_STDINT_H
