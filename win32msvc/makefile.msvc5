@@ -1,6 +1,6 @@
 # Makefile for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host SSTEINGOLD as the output of the command:
+# This file was created on host david as the output of the command:
 # ./makemake --with-dir-key --with-export-syscalls --with-dynamic-ffi win32msvc msvc5
 
 # -------------- Start of configurable section --------------------
@@ -2109,12 +2109,12 @@ distrib : force
 	mv clisp.html.new clisp.html
 	version=`cat VERSION` ; \
 	distdir=clisp-$$version ; \
-	distfile=/tmp/clisp-win32.zip ; \
+	distfile=clisp-$$version-win32.zip ; \
 	mkdir $$distdir ; \
 	for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es ; do \
 	  if test -f $$f ; then cp -p $$f $$distdir/$$f ; else cp -p `echo $$f | tr '[A-Z]' '[a-z]'` $$distdir/$$f ; fi ; \
 	done ; \
-	for f in lisp.exe lispinit.mem ; do \
+	for f in lisp.exe lispinit.mem install.bat ; do \
 	  cp -p $$f $$distdir/$$f ; \
 	done ; \
 	mkdir $$distdir/doc ; \
@@ -2122,7 +2122,7 @@ distrib : force
 	  if test -f $$f ; then cp -p $$f $$distdir/doc/$$f ; else cp -p `echo $$f | tr '[A-Z]' '[a-z]'` $$distdir/doc/$$f ; fi ; \
 	done ; \
 	mkdir $$distdir/src ; \
-	cp -p $(LISPFILES) $$distdir/src/ ; \
+	cp -p $(LISPFILES) install.lisp $$distdir/src/ ; \
 	chmod 755 $$distdir/. $$distdir/*/. ; \
 	chmod 644 `find $$distdir -type f -print` ; \
 	rm -f $$distfile ; \
