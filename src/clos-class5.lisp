@@ -356,7 +356,8 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'standard-object) (find-class 't))
     :qualifiers '()
-    :signature #s(compiler::signature :req-num 2 :rest-p t)))
+    :lambda-list '(instance slot-names &rest initargs)
+    'signature #s(compiler::signature :req-num 2 :rest-p t)))
 (do-defmethod 'shared-initialize
   (make-instance-<standard-method> <standard-method>
     :initfunction #'(lambda (gf) (declare (ignore gf))
@@ -365,7 +366,8 @@
     :parameter-specializers
       (list (find-class 'structure-object) (find-class 't))
     :qualifiers '()
-    :signature #s(compiler::signature :req-num 2 :rest-p t)))
+    :lambda-list '(instance slot-names &rest initargs)
+    'signature #s(compiler::signature :req-num 2 :rest-p t)))
 
 ;; CLtL2 28.1.12., ANSI CL 7.3.
 (defgeneric reinitialize-instance
@@ -409,7 +411,8 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'standard-object))
     :qualifiers '()
-    :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :lambda-list '(instance &rest initargs)
+    'signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'reinitialize-instance
   (make-instance-<standard-method> <standard-method>
     :initfunction #'(lambda (gf) (declare (ignore gf))
@@ -417,7 +420,8 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'structure-object))
     :qualifiers '()
-    :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :lambda-list '(instance &rest initargs)
+    'signature #s(compiler::signature :req-num 1 :rest-p t)))
 ;; At the first call of REINITIALIZE-INSTANCE of each class
 ;; we memorize the needed information in *reinitialize-instance-table*.
 (defun initial-reinitialize-instance (instance &rest initargs)
@@ -473,7 +477,8 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'standard-object))
     :qualifiers '()
-    :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :lambda-list '(instance &rest initargs)
+    'signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'initialize-instance
   (make-instance-<standard-method> <standard-method>
     :initfunction #'(lambda (gf) (declare (ignore gf))
@@ -481,7 +486,8 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'structure-object))
     :qualifiers '()
-    :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :lambda-list '(instance &rest initargs)
+    'signature #s(compiler::signature :req-num 1 :rest-p t)))
 ;; At the first call of MAKE-INSTANCE or INITIALIZE-INSTANCE of each class
 ;; we memorize the needed information in *make-instance-table*.
 (defun initial-initialize-instance (instance &rest initargs)
@@ -529,7 +535,8 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'standard-class))
     :qualifiers '()
-    :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :lambda-list '(class &rest initargs)
+    'signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'allocate-instance
   (make-instance-<standard-method> <standard-method>
     :initfunction #'(lambda (gf) (declare (ignore gf))
@@ -537,7 +544,8 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'structure-class))
     :qualifiers '()
-    :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :lambda-list '(class &rest initargs)
+    'signature #s(compiler::signature :req-num 1 :rest-p t)))
 
 ;; CLtL2 28.1.9.7., ANSI CL 7.1.7.
 (defgeneric make-instance (class &rest initargs &key &allow-other-keys)
@@ -591,7 +599,8 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'standard-class))
     :qualifiers '()
-    :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :lambda-list '(class &rest initargs)
+    'signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'make-instance
   (make-instance-<standard-method> <standard-method>
     :initfunction #'(lambda (gf) (declare (ignore gf))
@@ -599,7 +608,8 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'structure-class))
     :qualifiers '()
-    :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :lambda-list '(class &rest initargs)
+    'signature #s(compiler::signature :req-num 1 :rest-p t)))
 ;; At the first call of MAKE-INSTANCE or INITIALIZE-INSTANCE of each class
 ;; we memorize the needed information in *make-instance-table*.
 (defun initial-make-instance (class &rest initargs)

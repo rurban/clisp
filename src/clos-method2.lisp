@@ -74,11 +74,12 @@
             (declare (ignore reqs optinits optsvars keyvars keyinits keysvars
                              auxvars auxinits))
             (let ((optanz (length optvars))
-                  (restp (or keyp (not (eql rest 0)))))
+                  (restp (or keyp (not (eql rest 0))))
+                  (weakened-lambda-list lambda-list))
               ;; Methods have an implicit &allow-other-keys (CLtL2 28.1.6.4., ANSI CL 7.6.4.):
               (when (and keyp (not allowp))
                 (let ((index (+ (position '&KEY lambda-list :test #'eq) 1 (length keywords))))
-                  (setq lambda-list
+                  (setq weakened-lambda-list
                     `(,@(subseq lambda-list 0 index) &ALLOW-OTHER-KEYS
                       ,@(subseq lambda-list index)))))
               (let* ((self (gensym))
@@ -92,7 +93,7 @@
                            (push `(IGNORABLE ,@(nreverse ignorable-req-vars))
                                  declarations))
                          (let ((lambdabody-part1
-                                `(,lambda-list
+                                `(,weakened-lambda-list
                                   ,@(if declarations `((DECLARE ,@declarations)))))
                                (lambdabody-part2
                                  (if (eq caller 'generic-function)
@@ -129,6 +130,7 @@
                      :PARAMETER-SPECIALIZERS
                        (LIST ,@(nreverse req-specializer-forms))
                      :QUALIFIERS ',qualifiers
-                     :SIGNATURE ,sig
+                     :LAMBDA-LIST ',lambda-list
+                     'SIGNATURE ,sig
                      ,@(if (eq caller 'DEFGENERIC) `(:ORIGIN T)))
                   sig)))))))))
