@@ -1564,7 +1564,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
   }
   goto abort_quit;
  abort2:
-  fprintf(stderr,GETTEXTL("%s: initialization file `%s' was not created by this version of CLISP"),program_name,filename);
+  fprintf(stderr,GETTEXTL("%s: initialization file `%s' was not created by this version of CLISP runtime"),program_name,filename);
   fputs("\n",stderr);
   goto abort_quit;
  abort3:
