@@ -23,10 +23,11 @@
 #
 #
 #
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
-"POT-Creation-Date: 2002-09-13 10:53:58 EDT\n"
+"POT-Creation-Date: 2004-03-12 14:25:28 EST\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -61,8 +62,12 @@ msgstr ""
 #
 #
 #
-msgid "Unknown signature of an FSUBR\n"
-msgstr "Tipo de argumento desconocido para FSUBR\n"
+#
+#
+#
+#, fuzzy
+msgid "Unknown FSUBR signature: %d %d %d\n"
+msgstr "Tipo de argumento desconocido para SUBR\n"
 
 #
 #
@@ -72,7 +77,8 @@ msgstr "Tipo de argumento desconocido para FSUBR\n"
 #
 #
 #
-msgid "Unknown signature of a SUBR\n"
+#, fuzzy
+msgid "Unknown SUBR signature: %d %d %d %d"
 msgstr "Tipo de argumento desconocido para SUBR\n"
 
 #
@@ -83,7 +89,7 @@ msgid "module `%s' requires package %s.\n"
 msgstr "el módulo `%s' necesita el paquete %s.\n"
 
 msgid ""
-"GNU CLISP (http://clisp.cons.org/) is an ANSI Common Lisp.\n"
+"is an ANSI Common Lisp.\n"
 "Usage:  "
 msgstr ""
 
@@ -142,10 +148,13 @@ msgstr ""
 msgid "Interoperability:\n"
 msgstr ""
 
-msgid " -q, --quiet, --silent - do not print the banner\n"
+msgid ""
+" -q, --quiet, --silent, -v, --verbose - verbosity level:\n"
+"     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
+"     and *LOAD-PRINT*/*COMPILE-PRINT*\n"
 msgstr ""
 
-msgid " -w            - wait for keypress after program termination\n"
+msgid " -w            - wait for a keypress after program termination\n"
 msgstr ""
 
 msgid " -I            - be ILISP-friendly\n"
@@ -178,7 +187,7 @@ msgstr ""
 msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
 msgstr ""
 
-msgid " -x expression - execute the expression, then exit\n"
+msgid " -x expressions - execute the expressions, then exit\n"
 msgstr ""
 
 msgid " lispfile [argument ...] - load lispfile, then exit\n"
@@ -188,6 +197,9 @@ msgid "These actions put CLISP into a batch mode, which is overridden by\n"
 msgstr ""
 
 msgid " -interactive-debug - allow interaction for failed ASSERT and friends\n"
+msgstr ""
+
+msgid " -repl              - enter the interactive read-eval-print loop when done\n"
 msgstr ""
 
 msgid "Default action is an interactive read-eval-print loop.\n"
@@ -225,7 +237,8 @@ msgstr "Sólo quedan %d bytes disponibles.\n"
 msgid "Could not determine the end of the SP stack!\n"
 msgstr "No fue posible determinar el final de la pila SP!\n"
 
-msgid "Not enough memory for Lisp.\n"
+#, fuzzy
+msgid "%s: Not enough memory for Lisp.\n"
 msgstr "No hay memoria suficiente para Lisp.\n"
 
 #
@@ -250,7 +263,8 @@ msgstr ""
 #
 #
 #
-msgid "Cannot map memory to address 0x%x ."
+#, fuzzy
+msgid "Cannot map memory to address 0x%x .\n"
 msgstr "No se puede asignar la memoria a la dirección 0x%x ."
 
 #
@@ -282,8 +296,9 @@ msgstr "VirtualFree() falló."
 msgid "VirtualProtect() failed."
 msgstr "VirtualProtect() falló."
 
-msgid "Cannot open /dev/zero ."
-msgstr "No se puede abrir /dev/zero."
+#, fuzzy
+msgid "Cannot open <%s>."
+msgstr "No se puede abrir %s."
 
 #
 #
@@ -291,30 +306,30 @@ msgstr "No se puede abrir /dev/zero."
 msgid "msync(0x%x,0x%x,MS_INVALIDATE) failed."
 msgstr "msync(0x%x,0x%x,MS_INVALIDATE) falló."
 
-msgid "Cannot open %s ."
-msgstr "No se puede abrir %s."
-
-msgid "Cannot delete %s ."
+#, fuzzy
+msgid "Cannot delete <%s>."
 msgstr "No se puede borrar %s ."
 
 #
-msgid "** WARNING: ** Too few free disk space for %s .\n"
+#, fuzzy
+msgid "** WARNING: ** Too little free disk space for <%s>.\n"
 msgstr "** ATENCIÓN: ** Hay muy poco espacio libre en disco para %s .\n"
 
-msgid "Please restart LISP with fewer memory (option -m).\n"
+#, fuzzy
+msgid "Please restart LISP with less memory (option -m).\n"
 msgstr "Por favor, vuelva a ejecutar LISP con menos memoria (opción -m).\n"
 
-msgid "Cannot make %s long enough."
+#, fuzzy
+msgid "Cannot make <%s> long enough."
 msgstr "No es posible agrandar %s lo suficiente."
 
-msgid "Cannot fill %s ."
+#, fuzzy
+msgid "Cannot fill <%s>."
 msgstr "No se puede rellenar %s ."
 
-msgid "Cannot close %s ."
+#, fuzzy
+msgid "Cannot close <%s>."
 msgstr "No se puede cerrar %s ."
-
-msgid "Cannot close /dev/zero ."
-msgstr "No se puede cerrar /dev/zero ."
 
 #
 #
@@ -325,17 +340,16 @@ msgstr "Recompile su sistema operativo con soporte para SYSV IPC.\n"
 
 #
 #
-msgid "Cannot allocate private shared memory segment."
+#, fuzzy
+msgid "Cannot allocate private shared memory segment of size %d."
 msgstr "No se puede asignar un segmento privado en la memoria compartida."
 
 msgid "Cannot map shared memory to address 0x%x."
 msgstr "No se puede asignar la memoria compartida a la direccion 0x%x."
 
-msgid "Cannot fill shared memory."
+#, fuzzy
+msgid "%s: Cannot fill shared memory."
 msgstr "No se puede rellenar la memoria compartida."
-
-msgid "Could not fill shared memory."
-msgstr "No se pudo rellenar la memoria compartida."
 
 #
 #
@@ -343,7 +357,7 @@ msgid "Cannot remove shared memory segment."
 msgstr "No se puede desechar el segmento de memoria compartida."
 
 #, fuzzy
-msgid "mprotect() failed."
+msgid "mprotect(0x%x,%d,%d) failed."
 msgstr "mprotect() falló."
 
 #
@@ -383,19 +397,29 @@ msgstr "Intentando obtener más espacio a través de un GC ...\n"
 #
 #
 #
-msgid "operating system error during load of initialization file `%s'\n"
+#, fuzzy
+msgid "%s: operating system error during load of initialization file `%s'\n"
 msgstr "error del sistema operativo durante la carga del fichero de inicialización `%s'\n"
 
-msgid "Cannot map the initialization file into memory."
+#, fuzzy
+msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "No puedo escribir el fichero de inicialización en memoria."
 
-msgid "operating system error during load of initialization file\n"
-msgstr "error del sistema operativo durante la carga del fichero de inicialización\n"
+#
+#
+#
+#
+#
+#, fuzzy
+msgid "%s: operating system error during load of initialization file `%s'"
+msgstr "error del sistema operativo durante la carga del fichero de inicialización `%s'\n"
 
-msgid "initialization file was not created by this version of LISP\n"
+#, fuzzy
+msgid "%s: initialization file `%s' was not created by this version of CLISP\n"
 msgstr "el fichero de inicialización no fue creado con esta versión de LISP\n"
 
-msgid "not enough memory for initialization\n"
+#, fuzzy
+msgid "%s: not enough memory for initialization\n"
 msgstr "no hay memoria suficiente para la inicialización\n"
 
 msgid "Invalid multibyte or wide character"
@@ -728,19 +752,10 @@ msgstr "La dirección remota ha cambiado"
 msgid "Function not implemented"
 msgstr "Función no implementada"
 
-msgid "Not supported under MS-DOS"
-msgstr "No soportado en MS-DOS"
-
-msgid "This version of CLISP runs only in low address memory.\n"
-msgstr ""
-
-#
-#
+#, fuzzy
 
 #
 #
-#, fuzzy
-
 #, fuzzy
 
 #
@@ -763,56 +778,50 @@ msgstr ""
 
 #
 #
+#
 
 
 #
 #
 #
+#, fuzzy
 
 #
 #
 #
-
+#, fuzzy
 
-#
-#
+#, fuzzy
 
+#, fuzzy
 
 #
 #
 #
+#, fuzzy
 
 #
 #
 #
-
 #, fuzzy
 
+#, fuzzy
 
-#
 #
-#
-
-
-
-
 #
 #
-
-
-
 #, fuzzy
 
-
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 #, fuzzy
 
+#, fuzzy
 
-#
-#
-#
 
 #
 #
@@ -861,7 +870,9 @@ msgstr ""
 #
 #
 #
+#, fuzzy
 
+#, fuzzy
 
 #
 #
@@ -875,30 +886,20 @@ msgstr ""
 #
 #
 #
-
-
 
 
 
 
 
 
-
-
-#
-#
-#
-#
-#
-#
-#
 
+#, fuzzy
 
 
+#, fuzzy
 
 
 #, fuzzy
-
 
 
 
@@ -909,13 +910,9 @@ msgstr ""
 
 
 
-
 #, fuzzy
 
 #, fuzzy
-
-
-
 
 
 
@@ -936,6 +933,7 @@ msgstr ""
 
 #, fuzzy
 
+
 #, fuzzy
 
 #
@@ -979,9 +977,6 @@ msgstr ""
 
 
 #, fuzzy
-
-
-
 
 
 
@@ -1004,10 +999,6 @@ msgstr ""
 
 
 #
-
-#, fuzzy
-
-#, fuzzy
 
 #
 #
@@ -1039,18 +1030,21 @@ msgstr ""
 #
 
 
-
+#, fuzzy
 
 
 #, fuzzy
 
 #, fuzzy
 
+#, fuzzy
 
 
+#, fuzzy
 
 #, fuzzy
 
+#, fuzzy
 
 #
 #
@@ -1072,9 +1066,6 @@ msgstr ""
 #, fuzzy
 
 #, fuzzy
-
-
-#
 
 
 
@@ -1100,20 +1091,31 @@ msgstr ""
 
 
 
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
 
 #, fuzzy
 
 #, fuzzy
 
+#, fuzzy
 
 #, fuzzy
 
 #, fuzzy
+
 
 
+#, fuzzy
+
 
 #, fuzzy
 
+#, fuzzy
 
 #, fuzzy
 
@@ -1124,6 +1126,7 @@ msgstr ""
 #, fuzzy
 
 
+#, fuzzy
 
 #
 #
@@ -1222,7 +1225,6 @@ msgstr ""
 
 
 
-
 #
 #
 #
@@ -1244,13 +1246,14 @@ msgstr ""
 
 #
 #
+#, fuzzy
 
+#, fuzzy
 
 
 
 #
 #
-
 
 
 
@@ -1279,6 +1282,8 @@ msgstr ""
 
 
 
+#, fuzzy
+
 
 
 
@@ -1307,7 +1312,6 @@ msgstr ""
 
 
 
-
 #
 #
 #
@@ -1326,13 +1330,16 @@ msgstr ""
 #
 #
 #
-
 
-
-
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#
+#
+#, fuzzy
 
 
 
@@ -1391,7 +1398,6 @@ msgstr ""
 
 
 
-
 #
 #
 #
@@ -1428,30 +1434,15 @@ msgstr ""
 
 
 #, fuzzy
-
-
-
 
 
 
 
 #, fuzzy
 
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
 
 
 #, fuzzy
-
-#
-#
-#
-#
-#
-
 
 
 
@@ -1465,8 +1456,6 @@ msgstr ""
 
 
 
-
-
 #
 #
 #
@@ -1487,8 +1476,8 @@ msgstr ""
 
 #, fuzzy
 
-
 #, fuzzy
+
 
 
 
@@ -1569,17 +1558,16 @@ msgstr ""
 
 #, fuzzy
 
-
-
-
-
-
-
-
+#, fuzzy
 
 
+#
+#
 #, fuzzy
 
+#
+#
+#, fuzzy
 
 
 
@@ -1587,62 +1575,28 @@ msgstr ""
 
 #, fuzzy
 
-#, fuzzy
 
 #, fuzzy
-
-
 
-
-
-
-
-
-
+#, fuzzy
 
+#, fuzzy
 
 #
 #
-
-
-
-
-
-
-
-
 #
 #
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#
 
 
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1653,8 +1607,6 @@ msgstr ""
 
 
 
-#
-#
 
 
 #
@@ -1674,7 +1626,6 @@ msgstr ""
 
 
 #, fuzzy
-
 
 
 
@@ -1684,12 +1635,7 @@ msgstr ""
 
 
 
-
-
-
-
-
-
+#, fuzzy
 
 
 
@@ -1701,7 +1647,6 @@ msgstr ""
 
 
 #
-
 
 
 
@@ -1712,41 +1657,32 @@ msgstr ""
 
 
 
-#
-
-#
-#
-
-
-
-
 
 
 
 
 
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 
 #
 #
-
 
 
 
 
 
-
 #, fuzzy
-
 
 
 
 
 
-#, fuzzy
 
 
 
@@ -1760,17 +1696,17 @@ msgstr ""
 
 
 
+#, fuzzy
 
 
 #, fuzzy
 
-#, fuzzy
 
 #, fuzzy
 
-#, fuzzy
 
 
+#, fuzzy
 
 #, fuzzy
 
@@ -1801,8 +1737,8 @@ msgstr ""
 #, fuzzy
 
 #, fuzzy
-
 
+#, fuzzy
 
 
 #, fuzzy
@@ -1818,18 +1754,24 @@ msgstr ""
 
 #
 #
+
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 #
 #
 #
+
 
 
 
 
 
+#, fuzzy
 
 
 #
@@ -1854,6 +1796,7 @@ msgstr ""
 
 
 
+#, fuzzy
 
 
 
@@ -1875,9 +1818,11 @@ msgstr ""
 
 
 
+#, fuzzy
 
 
 
+#, fuzzy
 
 
 
@@ -1901,7 +1846,7 @@ msgstr ""
 
 
 
-
+#, fuzzy
 
 
 #, fuzzy
@@ -1911,29 +1856,33 @@ msgstr ""
 #
 #
 
-
-
-
-
+#, fuzzy
 
 #, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
-#
-#
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 #
 #
-
-
+#, fuzzy
 
 
 
@@ -2003,22 +1952,22 @@ msgstr ""
 
 #, fuzzy
 
-#, fuzzy
+
+
+
 
 #, fuzzy
 
 #, fuzzy
 
+#, fuzzy
 
 #, fuzzy
 
 
+#, fuzzy
 
-#
 
-#
-#
-#
 
 
 #
@@ -2062,7 +2011,6 @@ msgstr ""
 #, fuzzy
 
 
-
 #, fuzzy
 
 
@@ -2084,7 +2032,9 @@ msgstr ""
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 #, fuzzy
@@ -2109,11 +2059,15 @@ msgstr ""
 #, fuzzy
 
 #, fuzzy
+
 
 
 
 
+
+#, fuzzy
 
+#, fuzzy
 
 #, fuzzy
 
@@ -2144,15 +2098,8 @@ msgstr ""
 
 
 #, fuzzy
-
-
-
 
 
-
-
-
-
 #, fuzzy
 
 #, fuzzy
@@ -2176,9 +2123,6 @@ msgstr ""
 
 
 
-
-
-
 #, fuzzy
 
 #
@@ -2188,10 +2132,16 @@ msgstr ""
 #
 #
 #
+
+#, fuzzy
+
+
+#, fuzzy
 
 
 #, fuzzy
 
+#, fuzzy
 
 
 #
@@ -2199,10 +2149,12 @@ msgstr ""
 
 #
 #
+
 
 
 
 
+#, fuzzy
 
 
 
@@ -2238,6 +2190,7 @@ msgstr ""
 
 
 
+#, fuzzy
 
 #, fuzzy
 
@@ -2248,11 +2201,18 @@ msgstr ""
 #, fuzzy
 
 
+
+
+#, fuzzy
+
 #, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 
+#, fuzzy
 
 #, fuzzy
 
@@ -2266,10 +2226,12 @@ msgstr ""
 
 
 #, fuzzy
+
 
 
 
 
+#, fuzzy
 
 
 
@@ -2280,6 +2242,7 @@ msgstr ""
 
 
 
+#, fuzzy
 
 
 
@@ -2287,9 +2250,12 @@ msgstr ""
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
+#, fuzzy
 
 
 
@@ -2326,9 +2292,10 @@ msgstr ""
 
 #, fuzzy
 
-#
 #, fuzzy
 
+#
+#, fuzzy
 
 #, fuzzy
 
@@ -2361,10 +2328,6 @@ msgstr ""
 #, fuzzy
 
 
-#
-#
-#
-#
 #, fuzzy
 
 
@@ -2381,10 +2344,15 @@ msgstr ""
 
 #
 #
+#, fuzzy
+
+#
+#, fuzzy
 
 #
 #, fuzzy
 
+#, fuzzy
 
 
 
@@ -2401,11 +2369,13 @@ msgstr ""
 
 #, fuzzy
 
+#, fuzzy
 
 
 
 
 
+#, fuzzy
 
 #, fuzzy
 
@@ -2459,9 +2429,7 @@ msgstr ""
 
 
 #, fuzzy
-
 
-#, fuzzy
 
 #, fuzzy
 
@@ -2497,147 +2465,55 @@ msgstr ""
 
 #
 #
-
-
-
 
 
 
 
 
-
 #, fuzzy
 
 
 
-#, fuzzy
 
 #, fuzzy
 
 #, fuzzy
-
-
-
-
-
-
 
 
 
-
-
-
-#
-
-
-
-
-#
-#
-#
-
-
-
-
 #, fuzzy
-
 
-
-
-
 #, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
 
-
 #, fuzzy
-
 
 #, fuzzy
-
-
 
-#, fuzzy
 
-#, fuzzy
 
 
-#
 
-#, fuzzy
 
 
 
 
 
 
-#, fuzzy
 
-#
-#
-#
 #
-#
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
 
-#
-#
-#, fuzzy
 
 
 
-#
 #
 #
-
-
-
-
-
-
-
-
-
-
-
-
-
 #
-
 
-
-#
-#
-#
 
-#, fuzzy
 
-#, fuzzy
 
 #, fuzzy
 
-#, fuzzy
 
 
 
@@ -2646,119 +2522,10 @@ msgstr ""
 
 
 #, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
-
-
-
-
 #, fuzzy
-
-
-
-
-
-
-
-
-
-#
-#
-
-
-
-
-
-#
-#
-#
-#
-#
-#
-
-
-
-#
-#
-#
 
-
-
-
-#
-#
-#
-#
-#
-#
-#
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#
-#
-#
-
-#
-#
-#
-
-
+#, fuzzy
 
 
 
