@@ -5,7 +5,9 @@
  * GPL2
  */
 
+#include "clisp.h"
 #include "config.h"
+
 #if defined(HAVE_PCRE_H)
 # include <pcre.h>
 #elif defined(HAVE_PCRE_PCRE_H)
@@ -13,8 +15,6 @@
 #else
 # error No PCRE headers!
 #endif
-
-#include "clisp.h"
 
 #ifndef FOREIGN
 #error FOREIGN is not defined.
