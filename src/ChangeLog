@@ -1,3 +1,9 @@
+1998-09-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * stream.d (make_keyboard_stream): Recognize the XF86-3.3.2 xterm's
+          Home/End key sequences Esc [ H and Esc [ F. Recognize the SuSE-5.3
+          kvt's Home/End key sequences Esc O H and Esc O F.
+
 1998-09-21  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * array.d (vectorof): New function.
