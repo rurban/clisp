@@ -316,6 +316,8 @@
 ;;;----------------------------------------------------------------------------
 ;;; Definition of places:
 ;;;----------------------------------------------------------------------------
+(system::%put 'system::package-documentation 'SYSTEM::SETF-FUNCTION
+              'SYSTEM::|(SETF PACKAGE-DOCUMENTATION)|)
 (defsetf package-lock SYSTEM::%SET-PACKAGE-LOCK)
 (defsetf hash-table-weak-p SYSTEM::%SET-HASH-TABLE-WEAK-P)
 (defsetf hash-table-warn-if-needs-rehash-after-gc

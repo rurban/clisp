@@ -1014,6 +1014,17 @@ global object check_char_replacement (object obj) {
   return obj;
 }
 
+/* Error message, if an argument isn't a string:
+ fehler_string(obj);
+ > obj: the possibly faulty argument
+ < a string */
+nonreturning_function(global, fehler_string, (object obj)) {
+  pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
+  pushSTACK(S(string)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~S: argument ~S is not a string"));
+}
+
 /* check_string_replacement(obj)
  > obj: not a string
  < result: a string, a replacement
