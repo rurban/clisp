@@ -6052,6 +6052,11 @@ typedef enum {
 
 # missing object (internal use only):
 #define nullobj  make_machine(0)  # = as_object((oint)0)
+#ifdef DEBUG_GCSAFETY
+  #define gcv_nullobj  (gcv_object_t)nullobj
+#else
+  #define gcv_nullobj  nullobj
+#endif
 
 
 #ifdef TYPECODES

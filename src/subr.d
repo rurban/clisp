@@ -85,10 +85,10 @@
   ptr++;
 #ifdef TYPECODES
 #define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords) \
-  { { nullobj }, /* preliminary */                                      \
+  { { gcv_nullobj }, /* preliminary */                                  \
     Rectype_Subr, 0, subr_length, subr_xlength,                         \
-    nullobj, /* preliminary */                                          \
-    nullobj, /* preliminary */                                          \
+    gcv_nullobj, /* preliminary */                                      \
+    gcv_nullobj, /* preliminary */                                      \
     (lisp_function_t)(&C_##name),                                       \
     0, /* preliminary */                                                \
     req_anz,                                                            \
@@ -100,10 +100,10 @@
   },
 #else
 #define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords) \
-  { nullobj, /* preliminary */                                          \
+  { gcv_nullobj, /* preliminary */                                      \
     xrecord_tfl(Rectype_Subr,0,subr_length,subr_xlength),               \
-    nullobj, /* preliminary */                                          \
-    nullobj, /* preliminary */                                          \
+    gcv_nullobj, /* preliminary */                                      \
+    gcv_nullobj, /* preliminary */                                      \
     (lisp_function_t)(&C_##name),                                       \
     0, /* preliminary */                                                \
     req_anz,                                                            \
