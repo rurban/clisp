@@ -1,3 +1,12 @@
+2003-10-10  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (c-EVAL-WHEN): bind *FASOUTPUT-STREAM* to NIL
+	around evaluation of COMPILE-P FORM
+	This ensures that when the compiler is called from the break loop
+	or from the EVAL-WHEN/COMPILE, it does not assume that a LOAD
+	will happen before the code it generates is executed.
+	Reported by Don Cohen <don-sourceforge@isis.cs3-inc.com>
+
 2003-10-09  Sam Steingold  <sds@gnu.org>
 
 	* amiga.d, amigaaux.d, win32.d, win32aux.d (full_write):
