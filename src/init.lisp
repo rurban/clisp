@@ -1688,6 +1688,20 @@
             (body (cdddr form)))
         (multiple-value-bind (body-rest declarations docstring)
             (sys::parse-body body t)
+          (if *defun-accept-specialized-lambda-list*
+            (let ((rest lambdalist) this)
+              (tagbody start
+                (if (null rest) (go finish))
+                (setq this (car rest))
+                (if (memq this lambda-list-keywords) (go finish))
+                (if (consp this)
+                  (let ((var (first this)))
+                    (setq declarations
+                          (cons `(TYPE ,(second this) ,var)
+                                declarations))
+                    (rplaca rest var)))
+                (setq rest (cdr rest)) (go start)
+               finish)))
           (let ((symbolform
                  (if (atom name)
                    `',name

@@ -572,6 +572,7 @@ LISPFUNNF(ansi,0)
 LISPFUNN(set_ansi,1)
 { /* (SYS::SET-ANSI ansi-p) */
   var object val = (nullp(popSTACK()) ? NIL : T);
+  var object notval = (nullp(val) ? T : NIL);
   /* (SETQ *ANSI* val) */
   O(ansi) = val;
   /* (SETQ *FLOATING-POINT-CONTAGION-ANSI* val) */
@@ -594,6 +595,8 @@ LISPFUNN(set_ansi,1)
   Symbol_value(S(coerce_fixnum_char_ansi)) = val;
   /* (SETQ *PRINT-EMPTY-ARRAYS-ANSI* val) */
   Symbol_value(S(print_empty_arrays_ansi)) = val;
+  /* (SETQ *DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST* (not val)) */
+  Symbol_value(S(defun_accept_spelalist)) = notval;
   VALUES1(val);
 }
 
