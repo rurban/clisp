@@ -64,7 +64,7 @@ User visible changes
 * Arguments passed to MAKE-PATHNAME with value NIL are not overridden by
   pathname slots in the :DEFAULTS argument any more.
 
-* STREAM-ELEMENT-TYPE of a TWO-AWY-STREAM or an ECHO-STREAM now depends on
+* STREAM-ELEMENT-TYPE of a TWO-WAY-STREAM or an ECHO-STREAM now depends on
   the stream's constituents. Previously, it was always (OR CHARACTER INTEGER).
 
 * Fixed a bug: REPLACE signalled an error if the source and destination
