@@ -834,7 +834,7 @@ but can be re-enabled by setting &defun-accept-spelalist; explicitly.
  Therefore the code which relies on the values of such variables, e.g.,
  <programlisting>(loop for x on y finally (return x))</programlisting>
  is inherently non-portable across &cl; implementations,
- and should be avoided.</para>
+ and should be avoided.</para></section>
 
 <section id="loop-ansi"><title>Backward Compatibility</title>
 <para>There have been some tightening in the &loop; syntax between
@@ -846,7 +846,6 @@ When <firstterm>&loop-ansi;</firstterm> is &nil;, such forms are still
 accepted in &clisp; but elicit a warning at macro-expansion time.
 When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
 
-</section>
 </section>
 </chapter>
 
