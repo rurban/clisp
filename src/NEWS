@@ -154,7 +154,7 @@ User visible changes
     true.
   + Class redefinition with DEFCLASS now updates existing instances as
     specified.
-  + An ABORT restart is now installed.
+  + An ABORT restart is now always installed.
   + UPDATE-INSTANCE-FOR-DIFFERENT-CLASS does the required argument checking.
   + Passing invalid initialization arguments to MAKE-INSTANCE and similar
     now generates a PROGRAM-ERROR instead of just an ERROR.
@@ -209,8 +209,8 @@ User visible changes
 * Function UPGRADED-COMPLEX-PART-TYPE is now as precise as possible.
   See <http://clisp.cons.org/impnotes.html#ucpt> for details.
 
-* In non-interactive batch mode, *ERROR-OUTPUT* now uses the system's standard
-  error stream, instead of the standard output stream.
+* In non-interactive batch mode, *ERROR-OUTPUT* now uses the system's
+  standard error stream, instead of the standard output stream.
 
 * LOAD :OBSOLETE-ACTION can now also be :COMPILE to automatically
   recompile the obsolete *.fas file.
@@ -432,6 +432,7 @@ User visible changes
 * Added a new module - "fastcgi": an interface to the FastCGI
   Web server CGI-compatible protocol (see http://www.fastcgi.com/)
   Thanks to John K. Hinsdale <hin@alma.com>.
+  See <http://clisp.cons.org/impnotes.html#fastcgi> for details.
 
 * External modules now work on win32 (when used with cygwin or mingw).
   See <http://clisp.cons.org/impnotes.html#mod-win32> for details.
