@@ -2,6 +2,7 @@
 
 	* modules/berkeley-db/bdb.c (BDB:LOG-FILE): use BUFSIZ instead of
 	non-existent MAX_PATH
+	(BDB:DB-PUT): do not discard db->put() return value
 
 2004-07-30  Sam Steingold  <sds@gnu.org>
 
