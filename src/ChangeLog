@@ -1,3 +1,7 @@
+1998-12-31  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
+
+        * loop.lsp (expand-loop): Fix bug introduced by 1998-12-21 patch.
+
 1998-12-22  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
         * intgcd.d (I_I_xgcd_I_I_I): Ensure the 2nd and 3rd value are
