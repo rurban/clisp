@@ -770,7 +770,7 @@ MY-PPRINT-LOGICAL
      (let ((cl (class-of obj)))
        (write (class-name cl) :stream out)
        (loop :for slotdef :in (clos::class-slots cl)
-         :for slot = (clos::slotdef-name slotdef)
+         :for slot = (clos:slot-definition-name slotdef)
          :when (and slot (slot-boundp obj slot))
          :do (write-char #\space out) (pprint-newline :fill out)
          (write slot :stream out)

@@ -8025,8 +8025,8 @@ local void pr_structure (const gcv_object_t* stream_, object structure) {
 local bool some_printable_slots (object slotlist) {
   while (consp(slotlist)) {
     var object slot = Car(slotlist);
-    if (simple_vector_p(slot) && (Svector_length(slot) >= 7)
-        && !nullp(TheSvector(slot)->data[0]))
+    if (instancep(slot) && (Srecord_length(slot) >= 8)
+        && !nullp(TheSlotDefinition(slot)->slotdef_initargs))
       return true;
     slotlist = Cdr(slotlist);
   }
@@ -8076,9 +8076,10 @@ local void pr_structure_default (const gcv_object_t* stream_, object structure)
         var object slot = STACK_0;
         STACK_0 = Cdr(slot); # shorten list
         slot = Car(slot); # a single slot
-        if (!(simple_vector_p(slot) && Svector_length(slot) == 7))
-          goto bad_description; /* should be a ds-slot */
-        if (!nullp(TheSvector(slot)->data[1])) { # see defstruct.lisp
+        if (!(instancep(slot) && Srecord_length(slot) >= 8))
+          goto bad_description; /* should be a <structure-effective-slot-definition> */
+        # Test for real slot: (clos:slot-definition-initargs slot)
+        if (!nullp(TheSlotDefinition(slot)->slotdef_initargs)) { # see defstruct.lisp
           pushSTACK(slot); # save slot
           JUSTIFY_SPACE; # print Space
           # check for attaining of *PRINT-LENGTH* :
@@ -8092,17 +8093,17 @@ local void pr_structure_default (const gcv_object_t* stream_, object structure)
           JUSTIFY_START(0);
           JUSTIFY_LAST(false);
           write_ascii_char(stream_,':'); # keyword-mark
-          {
-            var object obj = TheSvector(*slot_)->data[0]; # (ds-slot-name slot)
-            if (!symbolp(obj)) goto bad_description; /* STACK_0==slot */
+          { # Print (symbol-name (clos:slot-definition-name slot)):
+            var object obj = TheSlotDefinition(*slot_)->slotdef_name;
+            if (!symbolp(obj)) goto bad_description;
             pr_like_symbol(stream_,Symbol_name(obj)); # print symbolname of component
           }
           JUSTIFY_SPACE;
           JUSTIFY_LAST(true);
-          # (SYS::%%STRUCTURE-REF name Structure (ds-slot-offset slot)):
+          # (SYS::%%STRUCTURE-REF name Structure (slot-definition-location slot)):
           pushSTACK(*(structure_ STACKop -1)); # name as 1. Argument
           pushSTACK(*(structure_ STACKop 0)); # Structure as 2. Argument
-          pushSTACK(TheSvector(*slot_)->data[2]); # (ds-slot-offset slot) as 3. Argument
+          pushSTACK(TheSlotDefinition(*slot_)->slotdef_location); # (slot-definition-location slot) as 3. Argument
           funcall(L(pstructure_ref),3);
           prin_object(stream_,value1); # print component
           JUSTIFY_END_FILL;

@@ -755,6 +755,7 @@ LISPSYM(set_weak_pointer_value,"%SET-WEAK-POINTER-VALUE",system)
 LISPSYM(finalize,"FINALIZE",ext)
 LISPSYM(structure_object_p,"STRUCTURE-OBJECT-P",clos)
 LISPSYM(std_instance_p,"STD-INSTANCE-P",clos)
+LISPSYM(allocate_metaobject_instance,"ALLOCATE-METAOBJECT-INSTANCE",clos)
 LISPSYM(allocate_std_instance,"ALLOCATE-STD-INSTANCE",clos)
 LISPSYM(pallocate_instance,"%ALLOCATE-INSTANCE",clos)
 LISPSYM(slot_value,"SLOT-VALUE",clos)
@@ -1268,8 +1269,8 @@ LISPSYM(unicode_attributes_line,"UNICODE-ATTRIBUTES-LINE",system) /* function in
 #endif
 LISPSYM(designator,"DESIGNATOR",ext) /* type for CHARSTRG */
 LISPSYM(class_slots,"CLASS-SLOTS",clos) /* function for RECORD */
-LISPSYM(slotdef_location,"SLOTDEF-LOCATION",clos) /* function for RECORD */
-LISPSYM(slotdef_name,"SLOTDEF-NAME",clos) /* function for RECORD */
+LISPSYM(slot_definition_location,"SLOT-DEFINITION-LOCATION",clos) /* function for RECORD, IO */
+LISPSYM(slot_definition_name,"SLOT-DEFINITION-NAME",clos) /* function for RECORD, IO */
 LISPSYM(structure_object,"STRUCTURE-OBJECT",lisp) /* type for RECORD */
 LISPSYM(class,"CLASS",clos) /* type for RECORD */
 LISPSYM(slot_missing,"SLOT-MISSING",clos) /* function for RECORD */

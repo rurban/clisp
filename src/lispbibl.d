@@ -5194,6 +5194,7 @@ typedef struct {
   gcv_object_t cv_discarded_slots          _attribute_aligned_object_; # list of local slots that are removed or become shared in the next version
   gcv_object_t cv_discarded_slot_locations _attribute_aligned_object_; # plist of local slots and their old slot locations that are removed or become shared in the next version
 } *  ClassVersion;
+#define classversion_length  ((sizeof(*(ClassVersion)0)-offsetofa(svector_,data))/sizeof(gcv_object_t))
 
 # CLOS-instances
 typedef struct {
@@ -5209,6 +5210,20 @@ typedef struct {
   #define instflags_relocated_B    bit(2)
   #define mark_inst_clean(ptr)  \
     record_flags_clr(ptr,instflags_backpointer_B|instflags_relocated_B)
+
+# Slot definitions (= instances of <slot-definition>, see clos-slotdef1.lisp
+typedef struct {
+  SRECORD_HEADER
+  gcv_object_t inst_class_version         _attribute_aligned_object_;
+  gcv_object_t slotdef_name               _attribute_aligned_object_;
+  gcv_object_t slotdef_initargs           _attribute_aligned_object_;
+  gcv_object_t slotdef_type               _attribute_aligned_object_;
+  gcv_object_t slotdef_allocation         _attribute_aligned_object_;
+  gcv_object_t slotdef_inheritable_initer _attribute_aligned_object_;
+  gcv_object_t slotdef_inheritable_doc    _attribute_aligned_object_;
+  # from here on only for class = <effective-slot-definition>
+  gcv_object_t slotdef_location           _attribute_aligned_object_;
+} *  SlotDefinition;
 
 # Closures
 typedef struct {
@@ -5775,7 +5790,8 @@ typedef enum {
   # Object, represents a pointer into the memory:
   #define ThePointer(obj)  ((void*)(pgci_pointable(obj) & ~(aint)nonimmediate_bias_mask))
 #endif
-#define TheClassVersion(obj) ((ClassVersion)TheSvector(obj))
+#define TheClassVersion(obj)  ((ClassVersion)TheSvector(obj))
+#define TheSlotDefinition(obj)  ((SlotDefinition)TheInstance(obj))
 
 # Some acronyms
 # Access to objects that are conses:

@@ -170,19 +170,18 @@
                                &rest initargs)
   (check-initialization-argument-list initargs 'shared-initialize)
   (dolist (slot (class-slots (class-of instance)))
-    (let ((slotname (slotdef-name slot)))
+    (let ((slotname (slot-definition-name slot)))
       (multiple-value-bind (init-key init-value foundp)
-          (get-properties initargs (slotdef-initargs slot))
+          (get-properties initargs (slot-definition-initargs slot))
         (declare (ignore init-key))
         (if foundp
           (setf (slot-value instance slotname) init-value)
           (unless (slot-boundp instance slotname)
-            (let ((init (slotdef-initer slot)))
+            (let ((initfunction (slot-definition-initfunction slot)))
               (when init
                 (when (or (eq slot-names 'T) (memq slotname slot-names))
                   (setf (slot-value instance slotname)
-                        (if (car init) (funcall (car init))
-                            (cdr init)))))))))))
+                        (funcall initfunction))))))))))
   instance)
 ||#
 ;; the main work is done by a SUBR:
@@ -229,9 +228,9 @@
           ;; clos::%shared-initialize with slot-names=NIL can be simplified:
           (progn
             (dolist (slot (class-slots (class-of instance)))
-              (let ((slotname (slotdef-name slot)))
+              (let ((slotname (slot-definition-name slot)))
                 (multiple-value-bind (init-key init-value foundp)
-                    (get-properties initargs (slotdef-initargs slot))
+                    (get-properties initargs (slot-definition-initargs slot))
                   (declare (ignore init-key))
                   (if foundp
                     (setf (slot-value instance slotname) init-value)))))
@@ -309,18 +308,17 @@
         ;; clos::%shared-initialize with slot-names=T can be simplified:
         (progn
           (dolist (slot (class-slots (class-of instance)))
-            (let ((slotname (slotdef-name slot)))
+            (let ((slotname (slot-definition-name slot)))
               (multiple-value-bind (init-key init-value foundp)
-                  (get-properties initargs (slotdef-initargs slot))
+                  (get-properties initargs (slot-definition-initargs slot))
                 (declare (ignore init-key))
                 (if foundp
                   (setf (slot-value instance slotname) init-value)
                   (unless (slot-boundp instance slotname)
-                    (let ((init (slotdef-initer slot)))
-                      (when init
+                    (let ((initfunction (slot-definition-initfunction slot)))
+                      (when initfunction
                         (setf (slot-value instance slotname)
-                              (if (car init) (funcall (car init))
-                                  (cdr init))))))))))
+                              (funcall initfunction)))))))))
           instance))
       (apply #'initial-initialize-instance instance initargs))))
 ||#
@@ -514,10 +512,10 @@
       ;; instance: class is changed, slots unbound
       ;; copy identically named slots
       (dolist (slot old-slots)
-        (let ((name (slotdef-name slot)))
+        (let ((name (slot-definition-name slot)))
           (when (slot-boundp previous name)
             (let ((new-slot (find name new-slots :test #'eq
-                                  :key #'slotdef-name)))
+                                  :key #'slot-definition-name)))
               (when new-slot
                 (setf (slot-value instance name)
                       (slot-value previous name)))))))
@@ -534,8 +532,8 @@
            (added-slots
              (mapcan #'(lambda (slot)
                          ; Only local slots.
-                         (when (atom (slotdef-location slot))
-                           (let ((name (slotdef-name slot)))
+                         (when (atom (slot-definition-location slot))
+                           (let ((name (slot-definition-name slot)))
                              ; Only slots for which no slot of the same name
                              ; exists in the previous class.
                              (when (null (gethash name old-slots-table))
@@ -595,4 +593,4 @@
 ;; Returns the slot names of an instance of a slotted-class
 ;; (i.e. of a structure-object or standard-object).
 (defun slot-names (object)
-  (mapcar #'slotdef-name (class-slots (class-of object))))
+  (mapcar #'slot-definition-name (class-slots (class-of object))))

@@ -14,10 +14,10 @@
         (etypecase object
           (standard-object
            (mapcan (lambda (slot)
-                     (when (eq :instance (slotdef-allocation slot))
-                       (list (slotdef-name slot))))
+                     (when (eq (slot-definition-allocation slot) ':instance)
+                       (list (slot-definition-name slot))))
                    slots))
-          (structure-object (mapcar #'slotdef-name slots))))))
+          (structure-object (mapcar #'slot-definition-name slots))))))
   (declare (ignore environment))
   (values `(allocate-instance (find-class ',(class-name (class-of object))))
           `(progn
