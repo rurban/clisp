@@ -14570,26 +14570,6 @@ cat >>conftest.$ac_ext <<_ACEOF
 #endif
 /* Declare opendir(), closedir(). */
 #include <$ac_header_dirent>
-extern
-#ifdef __cplusplus
-"C"
-#endif
-
-#if defined(__STDC__) || defined(__cplusplus)
-DIR* opendir (OPENDIR_CONST char* dirname);
-#else
-DIR* opendir();
-#endif
-extern
-#ifdef __cplusplus
-"C"
-#endif
-
-#if defined(__STDC__) || defined(__cplusplus)
-RETCLOSEDIRTYPE closedir (DIR* dirp);
-#else
-RETCLOSEDIRTYPE closedir();
-#endif
 int main() { exit(closedir(opendir(".")) != 0); }
 _ACEOF
 rm -f conftest$ac_exeext
@@ -15526,30 +15506,10 @@ $ioctl_decl
 #ifdef NEED_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
-extern
-#ifdef __cplusplus
-"C"
-#endif
-
-#if defined(__STDC__) || defined(__cplusplus)
-int ioctl ($cl_cv_proto_ioctl_args);
-#else
-int ioctl();
-#endif
 /* Declare open(). */
 #include <fcntl.h>
 #ifdef OPEN_NEEDS_SYS_FILE_H
 #include <sys/file.h>
-#endif
-extern
-#ifdef __cplusplus
-"C"
-#endif
-
-#if defined(__STDC__) || defined(__cplusplus)
-int open ($cl_cv_proto_open_args);
-#else
-int open();
 #endif
 int main ()
 { int fd = open("conftest.c",O_RDONLY,0644);
@@ -17783,18 +17743,6 @@ cat > conftest.c <<EOF
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifndef malloc
-extern
-#ifdef __cplusplus
-"C"
-#endif
-
-#if defined(__STDC__) || defined(__cplusplus)
-RETMALLOCTYPE malloc (MALLOC_SIZE_T size);
-#else
-RETMALLOCTYPE malloc();
-#endif
-#endif
 $address_range_prog
 int main() { printf_address(chop_address(malloc(10000))); exit(0); }
 EOF
@@ -19250,44 +19198,11 @@ mprotect_prog='
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifndef malloc
-extern
-#ifdef __cplusplus
-"C"
-#endif
-
-#if defined(__STDC__) || defined(__cplusplus)
-RETMALLOCTYPE malloc (MALLOC_SIZE_T size);
-#else
-RETMALLOCTYPE malloc();
-#endif
-#endif
 /* declare getpagesize() and mprotect() */
 #include <sys/mman.h>
 #ifndef HAVE_GETPAGESIZE
 #include <sys/param.h>
 #define getpagesize() PAGESIZE
-#else
-extern
-#ifdef __cplusplus
-"C"
-#endif
-
-#if defined(__STDC__) || defined(__cplusplus)
-RETGETPAGESIZETYPE getpagesize (void);
-#else
-RETGETPAGESIZETYPE getpagesize();
-#endif
-#endif
-extern
-#ifdef __cplusplus
-"C"
-#endif
-
-#if defined(__STDC__) || defined(__cplusplus)
-int mprotect (MPROTECT_CONST MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot);
-#else
-int mprotect();
 #endif
 char foo;
 int main () {
@@ -19516,6 +19431,154 @@ fi
 fi
 
 if test "$ac_cv_header_sys_shm_h" = yes -a "$ac_cv_header_sys_ipc_h" = yes; then
+echo "$as_me:$LINENO: checking for shmat declaration" >&5
+echo $ECHO_N "checking for shmat declaration... $ECHO_C" >&6
+if test "${cl_cv_proto_shmat+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#include <stdlib.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+
+extern
+#ifdef __cplusplus
+"C"
+#endif
+
+#if defined(__STDC__) || defined(__cplusplus)
+
+#ifdef __cplusplus
+void* shmat(int, const void *, int);
+#else
+void* shmat();
+#endif
+
+#else
+void* shmat();
+#endif
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  cl_cv_proto_shmat_ret="void*"
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+cl_cv_proto_shmat_ret="char*"
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#include <stdlib.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+
+extern
+#ifdef __cplusplus
+"C"
+#endif
+
+#if defined(__STDC__) || defined(__cplusplus)
+$cl_cv_proto_shmat_ret shmat (int shmid, $cl_cv_proto_shmat_ret shmaddr, int shmflg);
+#else
+$cl_cv_proto_shmat_ret shmat();
+#endif
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  cl_cv_proto_shmat_arg2=""
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+cl_cv_proto_shmat_arg2="const"
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+
+
+
+cl_cv_proto_shmat="extern $cl_cv_proto_shmat_ret shmat (int, $cl_cv_proto_shmat_arg2 $cl_cv_proto_shmat_ret, int);"
+fi
+
+cl_cv_proto_shmat=`echo "$cl_cv_proto_shmat" | tr -s ' ' | sed -e 's/( /(/'`
+echo "$as_me:$LINENO: result: ${ac_t:-
+         }$cl_cv_proto_shmat" >&5
+echo "${ECHO_T}${ac_t:-
+         }$cl_cv_proto_shmat" >&6
+
+
+cat >>confdefs.h <<_ACEOF
+#define RETSHMATTYPE $cl_cv_proto_shmat_ret
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define SHMAT_CONST $cl_cv_proto_shmat_arg2
+_ACEOF
+
+fi
+
+if test "$ac_cv_header_sys_shm_h" = yes -a "$ac_cv_header_sys_ipc_h" = yes; then
 # This test is from Marcus Daniels
 echo "$as_me:$LINENO: checking for working shared memory" >&5
 echo $ECHO_N "checking for working shared memory... $ECHO_C" >&6
@@ -19536,46 +19599,6 @@ cat >>conftest.$ac_ext <<_ACEOF
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-extern
-#ifdef __cplusplus
-"C"
-#endif
-
-#if defined(__STDC__) || defined(__cplusplus)
-int shmget (key_t key, $cl_cv_proto_shmget_arg2 size, int shmflg);
-#else
-int shmget();
-#endif
-extern
-#ifdef __cplusplus
-"C"
-#endif
-
-#if defined(__STDC__) || defined(__cplusplus)
-$cl_cv_proto_shmat_ret shmat (int shmid, $cl_cv_proto_shmat_arg2 $cl_cv_proto_shmat_ret shmaddr, int shmflg);
-#else
-$cl_cv_proto_shmat_ret shmat();
-#endif
-extern
-#ifdef __cplusplus
-"C"
-#endif
-
-#if defined(__STDC__) || defined(__cplusplus)
-int shmdt ($cl_cv_proto_shmdt_arg1 shmaddr);
-#else
-int shmdt();
-#endif
-extern
-#ifdef __cplusplus
-"C"
-#endif
-
-#if defined(__STDC__) || defined(__cplusplus)
-int shmctl ($cl_cv_proto_shmctl_args);
-#else
-int shmctl();
-#endif
 /* try attaching a single segment to multiple addresses */
 #define segsize 0x10000
 #define attaches 128
@@ -19798,32 +19821,6 @@ cat >>conftest.$ac_ext <<_ACEOF
 #include <sys/shm.h>
 #ifdef HAVE_SYS_SYSMACROS_H
 #include <sys/sysmacros.h>
-#endif
-#if defined(__STDC__) || defined(__cplusplus)
-extern
-#ifdef __cplusplus
-"C"
-#endif
-int shmget (key_t key, SHMGET_SIZE_T size, int shmflg);
-extern
-#ifdef __cplusplus
-"C"
-#endif
-RETSHMATTYPE shmat (int shmid, SHMAT_CONST RETSHMATTYPE shmaddr, int shmflg);
-extern
-#ifdef __cplusplus
-"C"
-#endif
-
-#ifdef SHMCTL_DOTS
-int shmctl (int shmid, int cmd, ...);
-#else
-int shmctl (int shmid, int cmd, struct shmid_ds * buf);
-#endif
-#else
-extern int shmget();
-extern RETSHMATTYPE shmat();
-extern int shmctl();
 #endif
 int main ()
 { unsigned int pagesize = 8192; /* should be a multiple of SHMLBA */
@@ -21214,36 +21211,16 @@ cat > conftest.c <<EOF
 #include "confdefs.h"
 #include <sys/types.h>
 #include <stdlib.h>
+/* Declare chdir(). */
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #include <string.h>
 #include <stdio.h>
-/* Declare chdir(). */
-extern
-#ifdef __cplusplus
-"C"
-#endif
-
-#if defined(__STDC__) || defined(__cplusplus)
-int chdir (CHDIR_CONST char* path);
-#else
-int chdir();
-#endif
 /* Declare open(). */
 #include <fcntl.h>
 #ifdef OPEN_NEEDS_SYS_FILE_H
 #include <sys/file.h>
-#endif
-extern
-#ifdef __cplusplus
-"C"
-#endif
-
-#if defined(__STDC__) || defined(__cplusplus)
-int open ($cl_cv_proto_open_args);
-#else
-int open();
 #endif
 /* Declare opendir(), readdir(), closedir(). */
 #include <$ac_header_dirent>
@@ -21251,36 +21228,6 @@ int open();
 #define SDIRENT struct dirent
 #else
 #define SDIRENT struct direct
-#endif
-extern
-#ifdef __cplusplus
-"C"
-#endif
-
-#if defined(__STDC__) || defined(__cplusplus)
-DIR* opendir (OPENDIR_CONST char* dirname);
-#else
-DIR* opendir();
-#endif
-extern
-#ifdef __cplusplus
-"C"
-#endif
-
-#if defined(__STDC__) || defined(__cplusplus)
-SDIRENT* readdir (DIR* dirp);
-#else
-SDIRENT* readdir();
-#endif
-extern
-#ifdef __cplusplus
-"C"
-#endif
-
-#if defined(__STDC__) || defined(__cplusplus)
-RETCLOSEDIRTYPE closedir (DIR* dirp);
-#else
-RETCLOSEDIRTYPE closedir();
 #endif
 /* A small program which checks for each character whether or not it is
  * valid in filenames. */
@@ -21397,7 +21344,7 @@ echo "$as_me:$LINENO: result: $cl_cv_os_valid_filename_charset" >&5
 echo "${ECHO_T}$cl_cv_os_valid_filename_charset" >&6
 if test -n "$cl_cv_os_valid_filename_char"; then
 
-cat >>confdefs.h <<\_ACEOF
+cat >>confdefs.h <<_ACEOF
 #define VALID_FILENAME_CHAR $cl_cv_os_valid_filename_char
 _ACEOF
 
