@@ -1,5 +1,10 @@
 2005-01-02  Bruno Haible  <bruno@clisp.org>
 
+	* debug.d (show_stack): Call print_stack_trace with the same logic
+	in the frame_up_x != NULL case as in the frame_up_x == NULL case.
+
+2005-01-02  Bruno Haible  <bruno@clisp.org>
+
 	* spvw_debug.d (bt_out): Fix an invalid use of STACK_item_count.
 
 2005-01-01  Bruno Haible  <bruno@clisp.org>
