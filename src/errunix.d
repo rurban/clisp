@@ -1,635 +1,651 @@
-  # Behandlung von UNIX-Fehlern
+  # Handling of UNIX errors
   # OS_error();
-  # > int errno: Fehlercode
+  # > int errno: error code
     nonreturning_function(global, OS_error, (void));
     nonreturning_function(global, OS_file_error, (object pathname));
 
-  # Problem: viele verschiedene UNIX-Versionen, jede wieder mit anderen
-  # Fehlermeldungen.
-  # Abhilfe: Die Fehlernamen sind einigermaßen portabel. Die englische
-  # Fehlermeldung übernehmen wir, die Übersetzungen machen wir selbst.
-  # Französische Fehlermeldungen von Tristan <marc@david.saclay.cea.fr>.
+  # Problem: many different UNIX variants, each with its own set of error
+  # messages.
+  # Solution: The error names are quite portable. We take the english
+  # error message from the system, and provide the translations ourselves.
+  # French translations were provided by Tristan <marc@david.saclay.cea.fr>.
 
-  #if !(defined(UNIX) || defined(EMUNIX)) # Konflikt mit unix.d bzw. msdos.d bzw. <stdlib.h> vermeiden
-    extern int sys_nerr; # Anzahl der Betriebssystem-Fehlermeldungen
-    extern char* sys_errlist[]; # Betriebssystem-Fehlermeldungen
+  #ifndef HAVE_STRERROR
+    # Older systems have sys_nerr and sys_errlist instead of POSIX strerror().
+    #if !(defined(UNIX) || defined(EMUNIX)) # avoid conflict with unix.d, msdos.d, <stdlib.h>
+      extern int sys_nerr; # Number of OS error messages
+      extern char* sys_errlist[]; # Table of OS error messages
+    #endif
+    local const char* strerror (int errnum);
+    local const char* strerror(errnum)
+      var int errnum;
+      {
+        # Attention: There is no guarantee that all system error values are
+        # less than sys_nerr. On IRIX 5.2, EDQUOT >= sys_nerr.
+        if (errnum >= 0 && errnum < sys_nerr)
+          return sys_errlist[errnum];
+        else {
+          errno = EINVAL;
+          return NULL;
+        }
+      }
   #endif
 
-  # Tabelle der Fehlermeldungen und ihrer Namen:
-    typedef struct { const char* name; const char* msg; } os_error_t;
-    local os_error_t* errormsg_table;
-
   #ifdef GNU_GETTEXT
-    # Translate the messages when we access the table, not when filling it.
+    # Let the caller of get_errormsg() translate the messages.
     #define clgettext
   #endif
 
-  # Initialisierung der Tabelle:
-    global int init_errormsg_table (void);
-    global int init_errormsg_table()
+  # Returns a system error message.
+  # get_errormsg(errcode,&os_error);
+    typedef struct { const char* name; const char* msg; } os_error_t;
+    local void get_errormsg (uintC errcode, os_error_t* errormsg);
+    local void get_errormsg(errcode,errormsg)
+      var uintC errcode;
+      var os_error_t* errormsg;
       {
-        var uintC i;
-        begin_system_call();
-        errormsg_table = (os_error_t*) malloc(sys_nerr * sizeof(os_error_t));
-        end_system_call();
-        if (errormsg_table == NULL) # Speicher reicht nicht?
-          return -1;
-        # Tabelle vor-initialisieren:
-        for (i=0; i<sys_nerr; i++) {
-          errormsg_table[i].name = "";
-          errormsg_table[i].msg = sys_errlist[i];
+        errormsg->name = NULL;
+        errormsg->msg = NULL;
+        # Special case all the well-known error codes for which we have
+        # good English messages and good translations. The if cascade
+        # is not the most efficient code, but this function is not time
+        # critical.
+          # Common UNIX errors:
+          #ifdef EPERM
+          if (errcode == EPERM) {
+            errormsg->name = "EPERM";
+            errormsg->msg = GETTEXT("Operation not permitted");
+          }
+          #endif
+          #ifdef ENOENT
+          if (errcode == ENOENT) {
+            errormsg->name = "ENOENT";
+            errormsg->msg = GETTEXT("No such file or directory");
+          }
+          #endif
+          #ifdef ESRCH
+          if (errcode == ESRCH) {
+            errormsg->name = "ESRCH";
+            errormsg->msg = GETTEXT("No such process");
+          }
+          #endif
+          #ifdef EINTR
+          if (errcode == EINTR) {
+            errormsg->name = "EINTR";
+            errormsg->msg = GETTEXT("Interrupted system call");
+          }
+          #endif
+          #ifdef EIO
+          if (errcode == EIO) {
+            errormsg->name = "EIO";
+            errormsg->msg = GETTEXT("I/O error");
+          }
+          #endif
+          #ifdef ENXIO
+          if (errcode == ENXIO) {
+            errormsg->name = "ENXIO";
+            errormsg->msg = GETTEXT("No such device or address");
+          }
+          #endif
+          #ifdef E2BIG
+          if (errcode == E2BIG) {
+            errormsg->name = "E2BIG";
+            errormsg->msg = GETTEXT("Arg list too long");
+          }
+          #endif
+          #ifdef ENOEXEC
+          if (errcode == ENOEXEC) {
+            errormsg->name = "ENOEXEC";
+            errormsg->msg = GETTEXT("Exec format error");
+          }
+          #endif
+          #ifdef EBADF
+          if (errcode == EBADF) {
+            errormsg->name = "EBADF";
+            errormsg->msg = GETTEXT("Bad file number");
+          }
+          #endif
+          #ifdef ECHILD
+          if (errcode == ECHILD) {
+            errormsg->name = "ECHILD";
+            errormsg->msg = GETTEXT("No child processes");
+          }
+          #endif
+          #ifdef EAGAIN
+          if (errcode == EAGAIN) {
+            errormsg->name = "EAGAIN";
+            errormsg->msg = GETTEXT("No more processes");
+          }
+          #endif
+          #ifdef ENOMEM
+          if (errcode == ENOMEM) {
+            errormsg->name = "ENOMEM";
+            errormsg->msg = GETTEXT("Not enough memory");
+          }
+          #endif
+          #ifdef EACCES
+          if (errcode == EACCES) {
+            errormsg->name = "EACCES";
+            errormsg->msg = GETTEXT("Permission denied");
+          }
+          #endif
+          #ifdef EFAULT
+          if (errcode == EFAULT) {
+            errormsg->name = "EFAULT";
+            errormsg->msg = GETTEXT("Bad address");
+          }
+          #endif
+          #ifdef ENOTBLK
+          if (errcode == ENOTBLK) {
+            errormsg->name = "ENOTBLK";
+            errormsg->msg = GETTEXT("Block device required");
+          }
+          #endif
+          #ifdef EBUSY
+          if (errcode == EBUSY) {
+            errormsg->name = "EBUSY";
+            errormsg->msg = GETTEXT("Device busy");
+          }
+          #endif
+          #ifdef EEXIST
+          if (errcode == EEXIST) {
+            errormsg->name = "EEXIST";
+            errormsg->msg = GETTEXT("File exists");
+          }
+          #endif
+          #ifdef EXDEV
+          if (errcode == EXDEV) {
+            errormsg->name = "EXDEV";
+            errormsg->msg = GETTEXT("Cross-device link");
+          }
+          #endif
+          #ifdef ENODEV
+          if (errcode == ENODEV) {
+            errormsg->name = "ENODEV";
+            errormsg->msg = GETTEXT("No such device");
+          }
+          #endif
+          #ifdef ENOTDIR
+          if (errcode == ENOTDIR) {
+            errormsg->name = "ENOTDIR";
+            errormsg->msg = GETTEXT("Not a directory");
+          }
+          #endif
+          #ifdef EISDIR
+          if (errcode == EISDIR) {
+            errormsg->name = "EISDIR";
+            errormsg->msg = GETTEXT("Is a directory");
+          }
+          #endif
+          #ifdef EINVAL
+          if (errcode == EINVAL) {
+            errormsg->name = "EINVAL";
+            errormsg->msg = GETTEXT("Invalid argument");
+          }
+          #endif
+          #ifdef ENFILE
+          if (errcode == ENFILE) {
+            errormsg->name = "ENFILE";
+            errormsg->msg = GETTEXT("File table overflow");
+          }
+          #endif
+          #ifdef EMFILE
+          if (errcode == EMFILE) {
+            errormsg->name = "EMFILE";
+            errormsg->msg = GETTEXT("Too many open files");
+          }
+          #endif
+          #ifdef ENOTTY
+          if (errcode == ENOTTY) {
+            errormsg->name = "ENOTTY";
+            errormsg->msg = GETTEXT("Inappropriate ioctl for device");
+          }
+          #endif
+          #ifdef ETXTBSY
+          if (errcode == ETXTBSY) {
+            errormsg->name = "ETXTBSY";
+            errormsg->msg = GETTEXT("Text file busy");
+          }
+          #endif
+          #ifdef EFBIG
+          if (errcode == EFBIG) {
+            errormsg->name = "EFBIG";
+            errormsg->msg = GETTEXT("File too large");
+          }
+          #endif
+          #ifdef ENOSPC
+          if (errcode == ENOSPC) {
+            errormsg->name = "ENOSPC";
+            errormsg->msg = GETTEXT("No space left on device");
+          }
+          #endif
+          #ifdef ESPIPE
+          if (errcode == ESPIPE) {
+            errormsg->name = "ESPIPE";
+            errormsg->msg = GETTEXT("Illegal seek");
+          }
+          #endif
+          #ifdef EROFS
+          if (errcode == EROFS) {
+            errormsg->name = "EROFS";
+            errormsg->msg = GETTEXT("Read-only file system");
+          }
+          #endif
+          #ifdef EMLINK
+          if (errcode == EMLINK) {
+            errormsg->name = "EMLINK";
+            errormsg->msg = GETTEXT("Too many links");
+          }
+          #endif
+          #ifdef EPIPE
+          if (errcode == EPIPE) {
+            errormsg->name = "EPIPE";
+            errormsg->msg = GETTEXT("Broken pipe, child process terminated or socket closed");
+            # Note that these "translations" exploit that CLISP only catches
+            # SIGPIPEs from subprocesses and sockets. Other pipes lead to a
+            # deadly signal and never to this error message.
+          }
+          #endif
+          # Errors in math functions:
+          #ifdef EDOM
+          if (errcode == EDOM) {
+            errormsg->name = "EDOM";
+            errormsg->msg = GETTEXT("Argument out of domain");
+          }
+          #endif
+          #ifdef ERANGE
+          if (errcode == ERANGE) {
+            errormsg->name = "ERANGE";
+            errormsg->msg = GETTEXT("Result too large");
+          }
+          #endif
+          # Errors in multibyte functions:
+          #ifdef EILSEQ
+          if (errcode == EILSEQ && EILSEQ != EINVAL) {
+            errormsg->name = "EILSEQ";
+            errormsg->msg = GETTEXT("Invalid multibyte or wide character");
+          }
+          #endif
+          # Errors related to non-blocking I/O and interrupt I/O:
+          #ifdef EWOULDBLOCK
+          if (errcode == EWOULDBLOCK) {
+            errormsg->name = "EWOULDBLOCK";
+            errormsg->msg = GETTEXT("Operation would block");
+          }
+          #endif
+          #ifdef EINPROGRESS
+          if (errcode == EINPROGRESS) {
+            errormsg->name = "EINPROGRESS";
+            errormsg->msg = GETTEXT("Operation now in progress");
+          }
+          #endif
+          #ifdef EALREADY
+          if (errcode == EALREADY) {
+            errormsg->name = "EALREADY";
+            errormsg->msg = GETTEXT("Operation already in progress");
+          }
+          #endif
+          # Other common errors:
+          #ifdef ELOOP
+          if (errcode == ELOOP) {
+            errormsg->name = "ELOOP";
+            errormsg->msg = GETTEXT("Too many levels of symbolic links");
+          }
+          #endif
+          #ifdef ENAMETOOLONG
+          if (errcode == ENAMETOOLONG) {
+            errormsg->name = "ENAMETOOLONG";
+            errormsg->msg = GETTEXT("File name too long");
+          }
+          #endif
+          #ifdef ENOTEMPTY
+          if (errcode == ENOTEMPTY) {
+            errormsg->name = "ENOTEMPTY";
+            errormsg->msg = GETTEXT("Directory not empty");
+          }
+          #endif
+          # Errors relating to Network File System (NFS):
+          #ifdef ESTALE
+          if (errcode == ESTALE) {
+            errormsg->name = "ESTALE";
+            errormsg->msg = GETTEXT("Stale NFS file handle");
+          }
+          #endif
+          #ifdef EREMOTE
+          if (errcode == EREMOTE) {
+            errormsg->name = "EREMOTE";
+            errormsg->msg = GETTEXT("Too many levels of remote in path");
+          }
+          #endif
+          # Errors relating to sockets, IPC and networking:
+          #ifdef ENOTSOCK
+          if (errcode == ENOTSOCK) {
+            errormsg->name = "ENOTSOCK";
+            errormsg->msg = GETTEXT("Socket operation on non-socket");
+          }
+          #endif
+          #ifdef EDESTADDRREQ
+          if (errcode == EDESTADDRREQ) {
+            errormsg->name = "EDESTADDRREQ";
+            errormsg->msg = GETTEXT("Destination address required");
+          }
+          #endif
+          #ifdef EMSGSIZE
+          if (errcode == EMSGSIZE) {
+            errormsg->name = "EMSGSIZE";
+            errormsg->msg = GETTEXT("Message too long");
+          }
+          #endif
+          #ifdef EPROTOTYPE
+          if (errcode == EPROTOTYPE) {
+            errormsg->name = "EPROTOTYPE";
+            errormsg->msg = GETTEXT("Protocol wrong type for socket");
+          }
+          #endif
+          #ifdef ENOPROTOOPT
+          if (errcode == ENOPROTOOPT) {
+            errormsg->name = "ENOPROTOOPT";
+            errormsg->msg = GETTEXT("Option not supported by protocol");
+          }
+          #endif
+          #ifdef EPROTONOSUPPORT
+          if (errcode == EPROTONOSUPPORT) {
+            errormsg->name = "EPROTONOSUPPORT";
+            errormsg->msg = GETTEXT("Protocol not supported");
+          }
+          #endif
+          #ifdef ESOCKTNOSUPPORT
+          if (errcode == ESOCKTNOSUPPORT) {
+            errormsg->name = "ESOCKTNOSUPPORT";
+            errormsg->msg = GETTEXT("Socket type not supported");
+          }
+          #endif
+          #ifdef EOPNOTSUPP
+          if (errcode == EOPNOTSUPP) {
+            errormsg->name = "EOPNOTSUPP";
+            errormsg->msg = GETTEXT("Operation not supported on socket");
+          }
+          #endif
+          #ifdef EPFNOSUPPORT
+          if (errcode == EPFNOSUPPORT) {
+            errormsg->name = "EPFNOSUPPORT";
+            errormsg->msg = GETTEXT("Protocol family not supported");
+          }
+          #endif
+          #ifdef EAFNOSUPPORT
+          if (errcode == EAFNOSUPPORT) {
+            errormsg->name = "EAFNOSUPPORT";
+            errormsg->msg = GETTEXT("Address family not supported by protocol family");
+          }
+          #endif
+          #ifdef EADDRINUSE
+          if (errcode == EADDRINUSE) {
+            errormsg->name = "EADDRINUSE";
+            errormsg->msg = GETTEXT("Address already in use");
+          }
+          #endif
+          #ifdef EADDRNOTAVAIL
+          if (errcode == EADDRNOTAVAIL) {
+            errormsg->name = "EADDRNOTAVAIL";
+            errormsg->msg = GETTEXT("Can't assign requested address");
+          }
+          #endif
+          #ifdef ENETDOWN
+          if (errcode == ENETDOWN) {
+            errormsg->name = "ENETDOWN";
+            errormsg->msg = GETTEXT("Network is down");
+          }
+          #endif
+          #ifdef ENETUNREACH
+          if (errcode == ENETUNREACH) {
+            errormsg->name = "ENETUNREACH";
+            errormsg->msg = GETTEXT("Network is unreachable");
+          }
+          #endif
+          #ifdef ENETRESET
+          if (errcode == ENETRESET) {
+            errormsg->name = "ENETRESET";
+            errormsg->msg = GETTEXT("Network dropped connection on reset");
+          }
+          #endif
+          #ifdef ECONNABORTED
+          if (errcode == ECONNABORTED) {
+            errormsg->name = "ECONNABORTED";
+            errormsg->msg = GETTEXT("Software caused connection abort");
+          }
+          #endif
+          #ifdef ECONNRESET
+          if (errcode == ECONNRESET) {
+            errormsg->name = "ECONNRESET";
+            errormsg->msg = GETTEXT("Connection reset by peer");
+          }
+          #endif
+          #ifdef ENOBUFS
+          if (errcode == ENOBUFS) {
+            errormsg->name = "ENOBUFS";
+            errormsg->msg = GETTEXT("No buffer space available");
+          }
+          #endif
+          #ifdef EISCONN
+          if (errcode == EISCONN) {
+            errormsg->name = "EISCONN";
+            errormsg->msg = GETTEXT("Socket is already connected");
+          }
+          #endif
+          #ifdef ENOTCONN
+          if (errcode == ENOTCONN) {
+            errormsg->name = "ENOTCONN";
+            errormsg->msg = GETTEXT("Socket is not connected");
+          }
+          #endif
+          #ifdef ESHUTDOWN
+          if (errcode == ESHUTDOWN) {
+            errormsg->name = "ESHUTDOWN";
+            errormsg->msg = GETTEXT("Can't send after socket shutdown");
+          }
+          #endif
+          #ifdef ETOOMANYREFS
+          if (errcode == ETOOMANYREFS) {
+            errormsg->name = "ETOOMANYREFS";
+            errormsg->msg = GETTEXT("Too many references: can't splice");
+          }
+          #endif
+          #ifdef ETIMEDOUT
+          if (errcode == ETIMEDOUT) {
+            errormsg->name = "ETIMEDOUT";
+            errormsg->msg = GETTEXT("Connection timed out");
+          }
+          #endif
+          #ifdef ECONNREFUSED
+          if (errcode == ECONNREFUSED) {
+            errormsg->name = "ECONNREFUSED";
+            errormsg->msg = GETTEXT("Connection refused");
+          }
+          #endif
+          #if 0
+            errormsg->name = "";
+            errormsg->msg = GETTEXT("Remote peer released connection");
+          #endif
+          #ifdef EHOSTDOWN
+          if (errcode == EHOSTDOWN) {
+            errormsg->name = "EHOSTDOWN";
+            errormsg->msg = GETTEXT("Host is down");
+          }
+          #endif
+          #ifdef EHOSTUNREACH
+          if (errcode == EHOSTUNREACH) {
+            errormsg->name = "EHOSTUNREACH";
+            errormsg->msg = GETTEXT("Host is unreachable");
+          }
+          #endif
+          #if 0
+            errormsg->name = "";
+            errormsg->msg = GETTEXT("Networking error");
+          #endif
+          # Quotas:
+          #ifdef EPROCLIM
+          if (errcode == EPROCLIM) {
+            errormsg->name = "EPROCLIM";
+            errormsg->msg = GETTEXT("Too many processes");
+          }
+          #endif
+          #ifdef EUSERS
+          if (errcode == EUSERS) {
+            errormsg->name = "EUSERS";
+            errormsg->msg = GETTEXT("Too many users");
+          }
+          #endif
+          #ifdef EDQUOT
+          if (errcode == EDQUOT) {
+            errormsg->name = "EDQUOT";
+            errormsg->msg = GETTEXT("Disk quota exceeded");
+          }
+          #endif
+          # Errors relating to STREAMS:
+          #ifdef ENOSTR
+          if (errcode == ENOSTR) {
+            errormsg->name = "ENOSTR";
+            errormsg->msg = GETTEXT("Not a stream device");
+          }
+          #endif
+          #ifdef ETIME
+          if (errcode == ETIME) {
+            errormsg->name = "ETIME";
+            errormsg->msg = GETTEXT("Timer expired");
+          }
+          #endif
+          #ifdef ENOSR
+          if (errcode == ENOSR) {
+            errormsg->name = "ENOSR";
+            errormsg->msg = GETTEXT("Out of stream resources");
+          }
+          #endif
+          #ifdef ENOMSG
+          if (errcode == ENOMSG) {
+            errormsg->name = "ENOMSG";
+            errormsg->msg = GETTEXT("No message of desired type");
+          }
+          #endif
+          #ifdef EBADMSG
+          if (errcode == EBADMSG) {
+            errormsg->name = "EBADMSG";
+            errormsg->msg = GETTEXT("Not a data message");
+          }
+          #endif
+          # Errors relating to SystemV IPC:
+          #ifdef EIDRM
+          if (errcode == EIDRM) {
+            errormsg->name = "EIDRM";
+            errormsg->msg = GETTEXT("Identifier removed");
+          }
+          #endif
+          # Errors relating to SystemV record locking:
+          #ifdef EDEADLK
+          if (errcode == EDEADLK) {
+            errormsg->name = "EDEADLK";
+            errormsg->msg = GETTEXT("Resource deadlock would occur");
+          }
+          #endif
+          #ifdef ENOLCK
+          if (errcode == ENOLCK) {
+            errormsg->name = "ENOLCK";
+            errormsg->msg = GETTEXT("No record locks available");
+          }
+          #endif
+          # Errors for Remote File System (RFS):
+          #ifdef ENONET
+          if (errcode == ENONET) {
+            errormsg->name = "ENONET";
+            errormsg->msg = GETTEXT("Machine is not on the network");
+          }
+          #endif
+          #ifdef EREMOTE
+          if (errcode == EREMOTE) {
+            errormsg->name = "EREMOTE";
+            errormsg->msg = GETTEXT("Object is remote");
+          }
+          #endif
+          #ifdef ERREMOTE
+          if (errcode == ERREMOTE) {
+            errormsg->name = "ERREMOTE";
+            errormsg->msg = GETTEXT("Object is remote");
+          }
+          #endif
+          #ifdef ENOLINK
+          if (errcode == ENOLINK) {
+            errormsg->name = "ENOLINK";
+            errormsg->msg = GETTEXT("Link has been severed");
+          }
+          #endif
+          #ifdef EADV
+          if (errcode == EADV) {
+            errormsg->name = "EADV";
+            errormsg->msg = GETTEXT("Advertise error");
+          }
+          #endif
+          #ifdef ESRMNT
+          if (errcode == ESRMNT) {
+            errormsg->name = "ESRMNT";
+            errormsg->msg = GETTEXT("Srmount error");
+          }
+          #endif
+          #ifdef ECOMM
+          if (errcode == ECOMM) {
+            errormsg->name = "ECOMM";
+            errormsg->msg = GETTEXT("Communication error on send");
+          }
+          #endif
+          #ifdef EPROTO
+          if (errcode == EPROTO) {
+            errormsg->name = "EPROTO";
+            errormsg->msg = GETTEXT("Protocol error");
+          }
+          #endif
+          #ifdef EMULTIHOP
+          if (errcode == EMULTIHOP) {
+            errormsg->name = "EMULTIHOP";
+            errormsg->msg = GETTEXT("Multihop attempted");
+          }
+          #endif
+          #ifdef EDOTDOT
+          if (errcode == EDOTDOT) {
+            errormsg->name = "EDOTDOT";
+            errormsg->msg = "";
+          }
+          #endif
+          #ifdef EREMCHG
+          if (errcode == EREMCHG) {
+            errormsg->name = "EREMCHG";
+            errormsg->msg = GETTEXT("Remote address changed");
+          }
+          #endif
+          # POSIX errors:
+          #ifdef ENOSYS
+          if (errcode == ENOSYS) {
+            errormsg->name = "ENOSYS";
+            errormsg->msg = GETTEXT("Function not implemented");
+          }
+          #endif
+          # Other:
+          #ifdef EMSDOS # emx 0.8e - 0.8h
+          if (errcode == EMSDOS) {
+            errormsg->name = "EMSDOS";
+            errormsg->msg = GETTEXT("Not supported under MS-DOS");
+          }
+          #endif
+        # If no error message known, default to the system's one.
+        if (errormsg->name == NULL)
+          errormsg->name = "";
+        if (errormsg->msg == NULL || errormsg->msg[0] == '\0') {
+          errno = 0;
+          errormsg->msg = strerror(errcode);
+          if (errno != 0 || errormsg->msg == NULL)
+            errormsg->msg = "";
         }
-        # Tabelle initialisieren:
-        # Obacht: Auf sys_nerr ist kein Verlass. (Bei IRIX 5.2 ist EDQUOT >= sys_nerr !)
-        /* allgemein verbreitete UNIX-Errors: */
-        #ifdef EPERM
-        if (EPERM < sys_nerr) {
-        errormsg_table[EPERM].name = "EPERM";
-        errormsg_table[EPERM].msg = GETTEXT("Operation not permitted");
-        }
-        #endif
-        #ifdef ENOENT
-        if (ENOENT < sys_nerr) {
-        errormsg_table[ENOENT].name = "ENOENT";
-        errormsg_table[ENOENT].msg = GETTEXT("No such file or directory");
-        }
-        #endif
-        #ifdef ESRCH
-        if (ESRCH < sys_nerr) {
-        errormsg_table[ESRCH].name = "ESRCH";
-        errormsg_table[ESRCH].msg = GETTEXT("No such process");
-        }
-        #endif
-        #ifdef EINTR
-        if (EINTR < sys_nerr) {
-        errormsg_table[EINTR].name = "EINTR";
-        errormsg_table[EINTR].msg = GETTEXT("Interrupted system call");
-        }
-        #endif
-        #ifdef EIO
-        if (EIO < sys_nerr) {
-        errormsg_table[EIO].name = "EIO";
-        errormsg_table[EIO].msg = GETTEXT("I/O error");
-        }
-        #endif
-        #ifdef ENXIO
-        if (ENXIO < sys_nerr) {
-        errormsg_table[ENXIO].name = "ENXIO";
-        errormsg_table[ENXIO].msg = GETTEXT("No such device or address");
-        }
-        #endif
-        #ifdef E2BIG
-        if (E2BIG < sys_nerr) {
-        errormsg_table[E2BIG].name = "E2BIG";
-        errormsg_table[E2BIG].msg = GETTEXT("Arg list too long");
-        }
-        #endif
-        #ifdef ENOEXEC
-        if (ENOEXEC < sys_nerr) {
-        errormsg_table[ENOEXEC].name = "ENOEXEC";
-        errormsg_table[ENOEXEC].msg = GETTEXT("Exec format error");
-        }
-        #endif
-        #ifdef EBADF
-        if (EBADF < sys_nerr) {
-        errormsg_table[EBADF].name = "EBADF";
-        errormsg_table[EBADF].msg = GETTEXT("Bad file number");
-        }
-        #endif
-        #ifdef ECHILD
-        if (ECHILD < sys_nerr) {
-        errormsg_table[ECHILD].name = "ECHILD";
-        errormsg_table[ECHILD].msg = GETTEXT("No child processes");
-        }
-        #endif
-        #ifdef EAGAIN
-        if (EAGAIN < sys_nerr) {
-        errormsg_table[EAGAIN].name = "EAGAIN";
-        errormsg_table[EAGAIN].msg = GETTEXT("No more processes");
-        }
-        #endif
-        #ifdef ENOMEM
-        if (ENOMEM < sys_nerr) {
-        errormsg_table[ENOMEM].name = "ENOMEM";
-        errormsg_table[ENOMEM].msg = GETTEXT("Not enough memory");
-        }
-        #endif
-        #ifdef EACCES
-        if (EACCES < sys_nerr) {
-        errormsg_table[EACCES].name = "EACCES";
-        errormsg_table[EACCES].msg = GETTEXT("Permission denied");
-        }
-        #endif
-        #ifdef EFAULT
-        if (EFAULT < sys_nerr) {
-        errormsg_table[EFAULT].name = "EFAULT";
-        errormsg_table[EFAULT].msg = GETTEXT("Bad address");
-        }
-        #endif
-        #ifdef ENOTBLK
-        if (ENOTBLK < sys_nerr) {
-        errormsg_table[ENOTBLK].name = "ENOTBLK";
-        errormsg_table[ENOTBLK].msg = GETTEXT("Block device required");
-        }
-        #endif
-        #ifdef EBUSY
-        if (EBUSY < sys_nerr) {
-        errormsg_table[EBUSY].name = "EBUSY";
-        errormsg_table[EBUSY].msg = GETTEXT("Device busy");
-        }
-        #endif
-        #ifdef EEXIST
-        if (EEXIST < sys_nerr) {
-        errormsg_table[EEXIST].name = "EEXIST";
-        errormsg_table[EEXIST].msg = GETTEXT("File exists");
-        }
-        #endif
-        #ifdef EXDEV
-        if (EXDEV < sys_nerr) {
-        errormsg_table[EXDEV].name = "EXDEV";
-        errormsg_table[EXDEV].msg = GETTEXT("Cross-device link");
-        }
-        #endif
-        #ifdef ENODEV
-        if (ENODEV < sys_nerr) {
-        errormsg_table[ENODEV].name = "ENODEV";
-        errormsg_table[ENODEV].msg = GETTEXT("No such device");
-        }
-        #endif
-        #ifdef ENOTDIR
-        if (ENOTDIR < sys_nerr) {
-        errormsg_table[ENOTDIR].name = "ENOTDIR";
-        errormsg_table[ENOTDIR].msg = GETTEXT("Not a directory");
-        }
-        #endif
-        #ifdef EISDIR
-        if (EISDIR < sys_nerr) {
-        errormsg_table[EISDIR].name = "EISDIR";
-        errormsg_table[EISDIR].msg = GETTEXT("Is a directory");
-        }
-        #endif
-        #ifdef EINVAL
-        if (EINVAL < sys_nerr) {
-        errormsg_table[EINVAL].name = "EINVAL";
-        errormsg_table[EINVAL].msg = GETTEXT("Invalid argument");
-        }
-        #endif
-        #ifdef ENFILE
-        if (ENFILE < sys_nerr) {
-        errormsg_table[ENFILE].name = "ENFILE";
-        errormsg_table[ENFILE].msg = GETTEXT("File table overflow");
-        }
-        #endif
-        #ifdef EMFILE
-        if (EMFILE < sys_nerr) {
-        errormsg_table[EMFILE].name = "EMFILE";
-        errormsg_table[EMFILE].msg = GETTEXT("Too many open files");
-        }
-        #endif
-        #ifdef ENOTTY
-        if (ENOTTY < sys_nerr) {
-        errormsg_table[ENOTTY].name = "ENOTTY";
-        errormsg_table[ENOTTY].msg = GETTEXT("Inappropriate ioctl for device");
-        }
-        #endif
-        #ifdef ETXTBSY
-        if (ETXTBSY < sys_nerr) {
-        errormsg_table[ETXTBSY].name = "ETXTBSY";
-        errormsg_table[ETXTBSY].msg = GETTEXT("Text file busy");
-        }
-        #endif
-        #ifdef EFBIG
-        if (EFBIG < sys_nerr) {
-        errormsg_table[EFBIG].name = "EFBIG";
-        errormsg_table[EFBIG].msg = GETTEXT("File too large");
-        }
-        #endif
-        #ifdef ENOSPC
-        if (ENOSPC < sys_nerr) {
-        errormsg_table[ENOSPC].name = "ENOSPC";
-        errormsg_table[ENOSPC].msg = GETTEXT("No space left on device");
-        }
-        #endif
-        #ifdef ESPIPE
-        if (ESPIPE < sys_nerr) {
-        errormsg_table[ESPIPE].name = "ESPIPE";
-        errormsg_table[ESPIPE].msg = GETTEXT("Illegal seek");
-        }
-        #endif
-        #ifdef EROFS
-        if (EROFS < sys_nerr) {
-        errormsg_table[EROFS].name = "EROFS";
-        errormsg_table[EROFS].msg = GETTEXT("Read-only file system");
-        }
-        #endif
-        #ifdef EMLINK
-        if (EMLINK < sys_nerr) {
-        errormsg_table[EMLINK].name = "EMLINK";
-        errormsg_table[EMLINK].msg = GETTEXT("Too many links");
-        }
-        #endif
-        #ifdef EPIPE
-        if (EPIPE < sys_nerr) {
-        errormsg_table[EPIPE].name = "EPIPE";
-        errormsg_table[EPIPE].msg = GETTEXT("Broken pipe, child process terminated or socket closed");
-          # Note that these "translations" exploit that CLISP only catches
-          # SIGPIPEs from subprocesses and sockets. Other pipes lead to a
-          # deadly signal and never to this error message.
-        }
-        #endif
-        /* Errors bei mathematischen Funktionen: */
-        #ifdef EDOM
-        if (EDOM < sys_nerr) {
-        errormsg_table[EDOM].name = "EDOM";
-        errormsg_table[EDOM].msg = GETTEXT("Argument out of domain");
-        }
-        #endif
-        #ifdef ERANGE
-        if (ERANGE < sys_nerr) {
-        errormsg_table[ERANGE].name = "ERANGE";
-        errormsg_table[ERANGE].msg = GETTEXT("Result too large");
-        }
-        #endif
-        /* Errors bei Multibyte-Funktionen: */
-        #ifdef EILSEQ
-        if (EILSEQ < sys_nerr && EILSEQ != EINVAL) {
-        errormsg_table[EILSEQ].name = "EILSEQ";
-        errormsg_table[EILSEQ].msg = GETTEXT("Invalid multibyte or wide character");
-        }
-        #endif
-        /* Errors bei Non-Blocking I/O und Interrupt I/O: */
-        #ifdef EWOULDBLOCK
-        if (EWOULDBLOCK < sys_nerr) {
-        errormsg_table[EWOULDBLOCK].name = "EWOULDBLOCK";
-        errormsg_table[EWOULDBLOCK].msg = GETTEXT("Operation would block");
-        }
-        #endif
-        #ifdef EINPROGRESS
-        if (EINPROGRESS < sys_nerr) {
-        errormsg_table[EINPROGRESS].name = "EINPROGRESS";
-        errormsg_table[EINPROGRESS].msg = GETTEXT("Operation now in progress");
-        }
-        #endif
-        #ifdef EALREADY
-        if (EALREADY < sys_nerr) {
-        errormsg_table[EALREADY].name = "EALREADY";
-        errormsg_table[EALREADY].msg = GETTEXT("Operation already in progress");
-        }
-        #endif
-        /* weitere allgemein übliche Errors: */
-        #ifdef ELOOP
-        if (ELOOP < sys_nerr) {
-        errormsg_table[ELOOP].name = "ELOOP";
-        errormsg_table[ELOOP].msg = GETTEXT("Too many levels of symbolic links");
-        }
-        #endif
-        #ifdef ENAMETOOLONG
-        if (ENAMETOOLONG < sys_nerr) {
-        errormsg_table[ENAMETOOLONG].name = "ENAMETOOLONG";
-        errormsg_table[ENAMETOOLONG].msg = GETTEXT("File name too long");
-        }
-        #endif
-        #ifdef ENOTEMPTY
-        if (ENOTEMPTY < sys_nerr) {
-        errormsg_table[ENOTEMPTY].name = "ENOTEMPTY";
-        errormsg_table[ENOTEMPTY].msg = GETTEXT("Directory not empty");
-        }
-        #endif
-        /* Errors im Zusammenhang mit Network File System (NFS): */
-        #ifdef ESTALE
-        if (ESTALE < sys_nerr) {
-        errormsg_table[ESTALE].name = "ESTALE";
-        errormsg_table[ESTALE].msg = GETTEXT("Stale NFS file handle");
-        }
-        #endif
-        #ifdef EREMOTE
-        if (EREMOTE < sys_nerr) {
-        errormsg_table[EREMOTE].name = "EREMOTE";
-        errormsg_table[EREMOTE].msg = GETTEXT("Too many levels of remote in path");
-        }
-        #endif
-        /* Errors im Zusammenhang mit Sockets, IPC und Netzwerk: */
-        #ifdef ENOTSOCK
-        if (ENOTSOCK < sys_nerr) {
-        errormsg_table[ENOTSOCK].name = "ENOTSOCK";
-        errormsg_table[ENOTSOCK].msg = GETTEXT("Socket operation on non-socket");
-        }
-        #endif
-        #ifdef EDESTADDRREQ
-        if (EDESTADDRREQ < sys_nerr) {
-        errormsg_table[EDESTADDRREQ].name = "EDESTADDRREQ";
-        errormsg_table[EDESTADDRREQ].msg = GETTEXT("Destination address required");
-        }
-        #endif
-        #ifdef EMSGSIZE
-        if (EMSGSIZE < sys_nerr) {
-        errormsg_table[EMSGSIZE].name = "EMSGSIZE";
-        errormsg_table[EMSGSIZE].msg = GETTEXT("Message too long");
-        }
-        #endif
-        #ifdef EPROTOTYPE
-        if (EPROTOTYPE < sys_nerr) {
-        errormsg_table[EPROTOTYPE].name = "EPROTOTYPE";
-        errormsg_table[EPROTOTYPE].msg = GETTEXT("Protocol wrong type for socket");
-        }
-        #endif
-        #ifdef ENOPROTOOPT
-        if (ENOPROTOOPT < sys_nerr) {
-        errormsg_table[ENOPROTOOPT].name = "ENOPROTOOPT";
-        errormsg_table[ENOPROTOOPT].msg = GETTEXT("Option not supported by protocol");
-        }
-        #endif
-        #ifdef EPROTONOSUPPORT
-        if (EPROTONOSUPPORT < sys_nerr) {
-        errormsg_table[EPROTONOSUPPORT].name = "EPROTONOSUPPORT";
-        errormsg_table[EPROTONOSUPPORT].msg = GETTEXT("Protocol not supported");
-        }
-        #endif
-        #ifdef ESOCKTNOSUPPORT
-        if (ESOCKTNOSUPPORT < sys_nerr) {
-        errormsg_table[ESOCKTNOSUPPORT].name = "ESOCKTNOSUPPORT";
-        errormsg_table[ESOCKTNOSUPPORT].msg = GETTEXT("Socket type not supported");
-        }
-        #endif
-        #ifdef EOPNOTSUPP
-        if (EOPNOTSUPP < sys_nerr) {
-        errormsg_table[EOPNOTSUPP].name = "EOPNOTSUPP";
-        errormsg_table[EOPNOTSUPP].msg = GETTEXT("Operation not supported on socket");
-        }
-        #endif
-        #ifdef EPFNOSUPPORT
-        if (EPFNOSUPPORT < sys_nerr) {
-        errormsg_table[EPFNOSUPPORT].name = "EPFNOSUPPORT";
-        errormsg_table[EPFNOSUPPORT].msg = GETTEXT("Protocol family not supported");
-        }
-        #endif
-        #ifdef EAFNOSUPPORT
-        if (EAFNOSUPPORT < sys_nerr) {
-        errormsg_table[EAFNOSUPPORT].name = "EAFNOSUPPORT";
-        errormsg_table[EAFNOSUPPORT].msg = GETTEXT("Address family not supported by protocol family");
-        }
-        #endif
-        #ifdef EADDRINUSE
-        if (EADDRINUSE < sys_nerr) {
-        errormsg_table[EADDRINUSE].name = "EADDRINUSE";
-        errormsg_table[EADDRINUSE].msg = GETTEXT("Address already in use");
-        }
-        #endif
-        #ifdef EADDRNOTAVAIL
-        if (EADDRNOTAVAIL < sys_nerr) {
-        errormsg_table[EADDRNOTAVAIL].name = "EADDRNOTAVAIL";
-        errormsg_table[EADDRNOTAVAIL].msg = GETTEXT("Can't assign requested address");
-        }
-        #endif
-        #ifdef ENETDOWN
-        if (ENETDOWN < sys_nerr) {
-        errormsg_table[ENETDOWN].name = "ENETDOWN";
-        errormsg_table[ENETDOWN].msg = GETTEXT("Network is down");
-        }
-        #endif
-        #ifdef ENETUNREACH
-        if (ENETUNREACH < sys_nerr) {
-        errormsg_table[ENETUNREACH].name = "ENETUNREACH";
-        errormsg_table[ENETUNREACH].msg = GETTEXT("Network is unreachable");
-        }
-        #endif
-        #ifdef ENETRESET
-        if (ENETRESET < sys_nerr) {
-        errormsg_table[ENETRESET].name = "ENETRESET";
-        errormsg_table[ENETRESET].msg = GETTEXT("Network dropped connection on reset");
-        }
-        #endif
-        #ifdef ECONNABORTED
-        if (ECONNABORTED < sys_nerr) {
-        errormsg_table[ECONNABORTED].name = "ECONNABORTED";
-        errormsg_table[ECONNABORTED].msg = GETTEXT("Software caused connection abort");
-        }
-        #endif
-        #ifdef ECONNRESET
-        if (ECONNRESET < sys_nerr) {
-        errormsg_table[ECONNRESET].name = "ECONNRESET";
-        errormsg_table[ECONNRESET].msg = GETTEXT("Connection reset by peer");
-        }
-        #endif
-        #ifdef ENOBUFS
-        if (ENOBUFS < sys_nerr) {
-        errormsg_table[ENOBUFS].name = "ENOBUFS";
-        errormsg_table[ENOBUFS].msg = GETTEXT("No buffer space available");
-        }
-        #endif
-        #ifdef EISCONN
-        if (EISCONN < sys_nerr) {
-        errormsg_table[EISCONN].name = "EISCONN";
-        errormsg_table[EISCONN].msg = GETTEXT("Socket is already connected");
-        }
-        #endif
-        #ifdef ENOTCONN
-        if (ENOTCONN < sys_nerr) {
-        errormsg_table[ENOTCONN].name = "ENOTCONN";
-        errormsg_table[ENOTCONN].msg = GETTEXT("Socket is not connected");
-        }
-        #endif
-        #ifdef ESHUTDOWN
-        if (ESHUTDOWN < sys_nerr) {
-        errormsg_table[ESHUTDOWN].name = "ESHUTDOWN";
-        errormsg_table[ESHUTDOWN].msg = GETTEXT("Can't send after socket shutdown");
-        }
-        #endif
-        #ifdef ETOOMANYREFS
-        if (ETOOMANYREFS < sys_nerr) {
-        errormsg_table[ETOOMANYREFS].name = "ETOOMANYREFS";
-        errormsg_table[ETOOMANYREFS].msg = GETTEXT("Too many references: can't splice");
-        }
-        #endif
-        #ifdef ETIMEDOUT
-        if (ETIMEDOUT < sys_nerr) {
-        errormsg_table[ETIMEDOUT].name = "ETIMEDOUT";
-        errormsg_table[ETIMEDOUT].msg = GETTEXT("Connection timed out");
-        }
-        #endif
-        #ifdef ECONNREFUSED
-        if (ECONNREFUSED < sys_nerr) {
-        errormsg_table[ECONNREFUSED].name = "ECONNREFUSED";
-        errormsg_table[ECONNREFUSED].msg = GETTEXT("Connection refused");
-        }
-        #endif
-        #if 0
-        errormsg_table[].name = "";
-        errormsg_table[].msg = GETTEXT("Remote peer released connection");
-        #endif
-        #ifdef EHOSTDOWN
-        if (EHOSTDOWN < sys_nerr) {
-        errormsg_table[EHOSTDOWN].name = "EHOSTDOWN";
-        errormsg_table[EHOSTDOWN].msg = GETTEXT("Host is down");
-        }
-        #endif
-        #ifdef EHOSTUNREACH
-        if (EHOSTUNREACH < sys_nerr) {
-        errormsg_table[EHOSTUNREACH].name = "EHOSTUNREACH";
-        errormsg_table[EHOSTUNREACH].msg = GETTEXT("Host is unreachable");
-        }
-        #endif
-        #if 0
-        errormsg_table[].name = "";
-        errormsg_table[].msg = GETTEXT("Networking error");
-        #endif
-        /* Quotas: */
-        #ifdef EPROCLIM
-        if (EPROCLIM < sys_nerr) {
-        errormsg_table[EPROCLIM].name = "EPROCLIM";
-        errormsg_table[EPROCLIM].msg = GETTEXT("Too many processes");
-        }
-        #endif
-        #ifdef EUSERS
-        if (EUSERS < sys_nerr) {
-        errormsg_table[EUSERS].name = "EUSERS";
-        errormsg_table[EUSERS].msg = GETTEXT("Too many users");
-        }
-        #endif
-        #ifdef EDQUOT
-        if (EDQUOT < sys_nerr) {
-        errormsg_table[EDQUOT].name = "EDQUOT";
-        errormsg_table[EDQUOT].msg = GETTEXT("Disk quota exceeded");
-        }
-        #endif
-        /* Errors im Zusammenhang mit STREAMS: */
-        #ifdef ENOSTR
-        if (ENOSTR < sys_nerr) {
-        errormsg_table[ENOSTR].name = "ENOSTR";
-        errormsg_table[ENOSTR].msg = GETTEXT("Not a stream device");
-        }
-        #endif
-        #ifdef ETIME
-        if (ETIME < sys_nerr) {
-        errormsg_table[ETIME].name = "ETIME";
-        errormsg_table[ETIME].msg = GETTEXT("Timer expired");
-        }
-        #endif
-        #ifdef ENOSR
-        if (ENOSR < sys_nerr) {
-        errormsg_table[ENOSR].name = "ENOSR";
-        errormsg_table[ENOSR].msg = GETTEXT("Out of stream resources");
-        }
-        #endif
-        #ifdef ENOMSG
-        if (ENOMSG < sys_nerr) {
-        errormsg_table[ENOMSG].name = "ENOMSG";
-        errormsg_table[ENOMSG].msg = GETTEXT("No message of desired type");
-        }
-        #endif
-        #ifdef EBADMSG
-        if (EBADMSG < sys_nerr) {
-        errormsg_table[EBADMSG].name = "EBADMSG";
-        errormsg_table[EBADMSG].msg = GETTEXT("Not a data message");
-        }
-        #endif
-        /* Errors bei SystemV IPC: */
-        #ifdef EIDRM
-        if (EIDRM < sys_nerr) {
-        errormsg_table[EIDRM].name = "EIDRM";
-        errormsg_table[EIDRM].msg = GETTEXT("Identifier removed");
-        }
-        #endif
-        /* Errors bei SystemV Record-Locking: */
-        #ifdef EDEADLK
-        if (EDEADLK < sys_nerr) {
-        errormsg_table[EDEADLK].name = "EDEADLK";
-        errormsg_table[EDEADLK].msg = GETTEXT("Resource deadlock would occur");
-        }
-        #endif
-        #ifdef ENOLCK
-        if (ENOLCK < sys_nerr) {
-        errormsg_table[ENOLCK].name = "ENOLCK";
-        errormsg_table[ENOLCK].msg = GETTEXT("No record locks available");
-        }
-        #endif
-        /* Errors bei Remote File System (RFS): */
-        #ifdef ENONET
-        if (ENONET < sys_nerr) {
-        errormsg_table[ENONET].name = "ENONET";
-        errormsg_table[ENONET].msg = GETTEXT("Machine is not on the network");
-        }
-        #endif
-        #ifdef EREMOTE
-        if (EREMOTE < sys_nerr) {
-        errormsg_table[EREMOTE].name = "EREMOTE";
-        errormsg_table[EREMOTE].msg = GETTEXT("Object is remote");
-        }
-        #endif
-        #ifdef ERREMOTE
-        if (ERREMOTE < sys_nerr) {
-        errormsg_table[ERREMOTE].name = "ERREMOTE";
-        errormsg_table[ERREMOTE].msg = GETTEXT("Object is remote");
-        }
-        #endif
-        #ifdef ENOLINK
-        if (ENOLINK < sys_nerr) {
-        errormsg_table[ENOLINK].name = "ENOLINK";
-        errormsg_table[ENOLINK].msg = GETTEXT("Link has been severed");
-        }
-        #endif
-        #ifdef EADV
-        if (EADV < sys_nerr) {
-        errormsg_table[EADV].name = "EADV";
-        errormsg_table[EADV].msg = GETTEXT("Advertise error");
-        }
-        #endif
-        #ifdef ESRMNT
-        if (ESRMNT < sys_nerr) {
-        errormsg_table[ESRMNT].name = "ESRMNT";
-        errormsg_table[ESRMNT].msg = GETTEXT("Srmount error");
-        }
-        #endif
-        #ifdef ECOMM
-        if (ECOMM < sys_nerr) {
-        errormsg_table[ECOMM].name = "ECOMM";
-        errormsg_table[ECOMM].msg = GETTEXT("Communication error on send");
-        }
-        #endif
-        #ifdef EPROTO
-        if (EPROTO < sys_nerr) {
-        errormsg_table[EPROTO].name = "EPROTO";
-        errormsg_table[EPROTO].msg = GETTEXT("Protocol error");
-        }
-        #endif
-        #ifdef EMULTIHOP
-        if (EMULTIHOP < sys_nerr) {
-        errormsg_table[EMULTIHOP].name = "EMULTIHOP";
-        errormsg_table[EMULTIHOP].msg = GETTEXT("Multihop attempted");
-        }
-        #endif
-        #ifdef EDOTDOT
-        if (EDOTDOT < sys_nerr) {
-        errormsg_table[EDOTDOT].name = "EDOTDOT";
-        errormsg_table[EDOTDOT].msg =
-          "";
-        }
-        #endif
-        #ifdef EREMCHG
-        if (EREMCHG < sys_nerr) {
-        errormsg_table[EREMCHG].name = "EREMCHG";
-        errormsg_table[EREMCHG].msg = GETTEXT("Remote address changed");
-        }
-        #endif
-        /* Errors von POSIX: */
-        #ifdef ENOSYS
-        if (ENOSYS < sys_nerr) {
-        errormsg_table[ENOSYS].name = "ENOSYS";
-        errormsg_table[ENOSYS].msg = GETTEXT("Function not implemented");
-        }
-        #endif
-        /* Sonstige: */
-        #ifdef EMSDOS /* emx 0.8e - 0.8h */
-        if (EMSDOS < sys_nerr) {
-        errormsg_table[EMSDOS].name = "EMSDOS";
-        errormsg_table[EMSDOS].msg = GETTEXT("Not supported under MS-DOS");
-        }
-        #endif
-        return 0;
       }
 
   #ifdef GNU_GETTEXT
-    # Now translate when accessing the table.
+    # Now translate after calling get_errormsg().
     #undef clgettext
     #define translate(string)  clgettext(string)
   #else
@@ -648,34 +664,19 @@
         #endif
         # Fehlernummer ausgeben:
         write_errorobject(fixnum(errcode));
-        #if 0
-        {
-          # Fehlermeldung des Betriebssystems ausgeben:
-          if (errcode < sys_nerr) {
-            var const char* errormsg = translate(sys_errlist[errcode]);
-            write_errorasciz(": ");
-            write_errorasciz(errormsg);
-          }
+        # Eigene Fehlermeldung ausgeben:
+        var os_error_t errormsg;
+        get_errormsg(errcode,&errormsg);
+        errormsg.msg = translate(errormsg.msg);
+        if (!(errormsg.name[0] == 0)) { # bekannter Name?
+          write_errorasciz(" (");
+          write_errorasciz(errormsg.name);
+          write_errorasciz(")");
         }
-        #else # nach Möglichkeit noch ausführlicher:
-        {
-          # eigene Fehlermeldung ausgeben:
-          if (errcode < sys_nerr) {
-            # Zu dieser Fehlernummer ist ein Text da.
-            var const char* errorname = errormsg_table[errcode].name;
-            var const char* errormsg = translate(errormsg_table[errcode].msg);
-            if (!(errorname[0] == 0)) { # bekannter Name?
-              write_errorasciz(" (");
-              write_errorasciz(errorname);
-              write_errorasciz(")");
-            }
-            if (!(errormsg[0] == 0)) { # nichtleere Meldung?
-              write_errorasciz(": ");
-              write_errorasciz(errormsg);
-            }
-          }
+        if (!(errormsg.msg[0] == 0)) { # nichtleere Meldung?
+          write_errorasciz(": ");
+          write_errorasciz(errormsg.msg);
         }
-        #endif
       }
     global void OS_error()
       {
@@ -717,16 +718,17 @@
       var int errorcode;
       {
         asciz_out(" errno = ");
-        if ((uintL)errorcode < sys_nerr) {
-          var const char* errorname = errormsg_table[errorcode].name;
-          var const char* errormsg = translate(errormsg_table[errorcode].msg);
-          if (!(errorname[0] == 0)) { # bekannter Name?
-            asciz_out(errorname);
+        var os_error_t errormsg;
+        get_errormsg(errorcode,&errormsg);
+        errormsg.msg = translate(errormsg.msg);
+        if (errormsg.name[0] != 0 || errormsg.msg[0] != 0) {
+          if (errormsg.name[0] != 0) { # bekannter Name?
+            asciz_out(errormsg.name);
           } else {
             dez_out(errorcode);
           }
-          if (!(errormsg[0] == 0)) { # nichtleere Meldung?
-            asciz_out(": "); asciz_out(errormsg);
+          if (errormsg.msg[0] != 0) { # nichtleere Meldung?
+            asciz_out(": "); asciz_out(errormsg.msg);
           }
         } else {
           dez_out(errorcode);

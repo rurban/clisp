@@ -1851,6 +1851,9 @@ AC_DEFINE(HAVE_PERROR_DECL)
 fi
 ])dnl
 dnl
+AC_DEFUN(CL_STRERROR,
+[AC_CHECK_FUNCS(strerror)])dnl
+dnl
 AC_DEFUN(CL_SYS_ERRLIST,
 [changequote(,)dnl
 brackets='[]'

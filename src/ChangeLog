@@ -1,3 +1,19 @@
+2000-03-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * autoconf/aclocal.m4 (CL_STRERROR): New macro.
+        * configure.in: Call it.
+        * unixconf.h.in (HAVE_STRERROR): New macro.
+        * unix.d (strerror): New declaration.
+        * lispbibl.d (init_errormsg_table): Remove declaration.
+        * errunix.d (sys_nerr, sys_errlist): Don't declare if HAVE_STRERROR.
+          (strerror) [!HAVE_STRERROR]: New function.
+          (errormsg_table): Remove variable.
+          (init_errormsg_table): Remove function.
+          (get_errormsg): New function.
+          (OS_error_internal, errno_out): Use get_errormsg instead of
+          errormsg_table.
+        * spvw.d (main): Don't call init_errormsg_table.
+
 2000-03-14  Sam Steingold  <sds@gnu.org>
 
 	Integrated inspect
