@@ -1,3 +1,10 @@
+2002-03-10  Sam Steingold  <sds@gnu.org>
+
+	IPv6 portability suggested by Bruno
+	* socket.d (s6_addr16): define if not defined yet
+	(S6_ADDR16): accessor helper
+	(ipv6_ntop): use it - a unified definition now
+
 2002-03-09  Sam Steingold  <sds@gnu.org>
 
 	more error unification

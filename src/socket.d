@@ -130,7 +130,7 @@
 
 # Converts an AF_INET address to a printable, presentable format.
 # ipv4_ntop(buffer,addr);
-# > sockaddr_in addr: IPv4 address
+# > struct in_addr addr: IPv4 address
 # < char[] buffer: printable address
 # buffer should have at least 15+1 characters.
 #ifdef HAVE_IPV4
@@ -145,35 +145,32 @@
 
 # Converts an AF_INET6 address to a printable, presentable format.
 # ipv6_ntop(buffer,addr);
-# > sockaddr_in6 addr: IPv6 address
+# > struct in6_addr addr: IPv6 address
 # < char[] buffer: printable address
 # buffer should have at least 45+1 characters.
 #ifdef HAVE_IPV6
+  #ifndef s6_addr16
+    #define s6_addr16 in6_u.u6_addr16
+  #endif
+  #if defined(WIN32) || defined(UNIX_CYGWIN32)
+    #define S6_ADDR16(addr)   ((u_short*)((addr).s6_addr))
+  #else
+    #define S6_ADDR16(addr)   (addr).s6_addr16
+  #endif
   #ifdef HAVE_INET_NTOP
     #define ipv6_ntop(buffer,addr)  \
       inet_ntop(AF_INET6,&addr,buffer,45+1)
-  #elif defined(WIN32) || defined(UNIX_CYGWIN32)
-    #define ipv6_ntop(buffer,addr)  \
-     (sprintf(buffer,"%x:%x:%x:%x:%x:%x:%x:%x", \
-              ntohs(((u_short*)(addr).s6_addr)[0]), \
-              ntohs(((u_short*)(addr).s6_addr)[1]), \
-              ntohs(((u_short*)(addr).s6_addr)[2]), \
-              ntohs(((u_short*)(addr).s6_addr)[3]), \
-              ntohs(((u_short*)(addr).s6_addr)[4]), \
-              ntohs(((u_short*)(addr).s6_addr)[5]), \
-              ntohs(((u_short*)(addr).s6_addr)[6]), \
-              ntohs(((u_short*)(addr).s6_addr)[7])),buffer)
   #else
-    #define ipv6_ntop(buffer,addr)  \
-     (sprintf(buffer,"%x:%x:%x:%x:%x:%x:%x:%x", \
-              ntohs((addr).in6_u.u6_addr16[0]), \
-              ntohs((addr).in6_u.u6_addr16[1]), \
-              ntohs((addr).in6_u.u6_addr16[2]), \
-              ntohs((addr).in6_u.u6_addr16[3]), \
-              ntohs((addr).in6_u.u6_addr16[4]), \
-              ntohs((addr).in6_u.u6_addr16[5]), \
-              ntohs((addr).in6_u.u6_addr16[6]), \
-              ntohs((addr).in6_u.u6_addr16[7])),buffer)
+    #define ipv6_ntop(buffer,addr)                      \
+     (sprintf(buffer,"%x:%x:%x:%x:%x:%x:%x:%x",         \
+              ntohs(S6_ADDR16(addr)[0]),                \
+              ntohs(S6_ADDR16(addr)[1]),                \
+              ntohs(S6_ADDR16(addr)[2]),                \
+              ntohs(S6_ADDR16(addr)[3]),                \
+              ntohs(S6_ADDR16(addr)[4]),                \
+              ntohs(S6_ADDR16(addr)[5]),                \
+              ntohs(S6_ADDR16(addr)[6]),                \
+              ntohs(S6_ADDR16(addr)[7])),buffer)
   #endif
 #endif
 
