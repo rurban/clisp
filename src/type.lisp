@@ -730,7 +730,7 @@
            (BIGNUM '(AND INTEGER (NOT FIXNUM)))
            (BIT '(INTEGER 0 1))
            (BOOLEAN '(MEMBER NIL T))
-           (EXTENDED-CHAR #+BASE-CHAR=CHARACTER 'NIL
+           (EXTENDED-CHAR #+BASE-CHAR=CHARACTER '(OR) ; NIL
                           #-BASE-CHAR=CHARACTER '(AND CHARACTER (NOT (SATISFIES BASE-CHAR-P))))
            (FIXNUM '(INTEGER #,most-negative-fixnum #,most-positive-fixnum))
            (KEYWORD '(AND SYMBOL (SATISFIES KEYWORDP)))
