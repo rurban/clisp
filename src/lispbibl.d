@@ -11865,6 +11865,17 @@ extern object stream_fd (object stream);
   extern object peek_char (const object* stream_);
 # wird verwendet von IO
 
+# Reads a line of characters from a stream.
+# read_line(&stream,&buffer)
+# > stream: stream
+# > buffer: a semi-simple string
+# < stream: stream
+# < buffer: contains the read characters, excluding the terminating #\Newline
+# < result: TRUE is EOF was seen before newline, else FALSE
+# can trigger GC
+  extern boolean read_line (const object* stream_, const object* buffer_);
+# used by IO
+
 # Schreibt ein Character auf einen Stream.
 # write_char(&stream,ch);
 # > ch: auszugebendes Character
