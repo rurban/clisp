@@ -18,8 +18,8 @@ options: The following options are recognized:
          --help                print this message and exit
          --version             print the CLISP version and exit
          --config              unix/INSTALL step 3: configuration only
-         --build               unix/INSTALL steps 3-7: configure, build, check
-         --install             unix/INSTALL step 8: install
+         --build               unix/INSTALL steps 3-8: configure, build, check
+         --install             unix/INSTALL step 9: install
          The following options set installation parameters:
          --srcdir=SRCDIR       sets the source directory to SRCDIR
          The following options are passed to subordinate `configure' scripts:
@@ -119,6 +119,8 @@ do
         do_config=1 ;;
 
       --install | --instal | --insta | --inst | --ins | --in | --i)
+        do_config=1
+        do_build=1
         do_install=1 ;;
 
       --edit-config | --edit-confi | --edit-conf | --edit-con | --edit-co | \
