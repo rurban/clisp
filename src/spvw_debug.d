@@ -65,6 +65,7 @@ global void nobject_out (FILE* out, object obj) {
   } else if (symbolp(obj)) {
     var object pack = Symbol_package(obj);
     if (nullp(pack)) fputs("#:",out); /* uninterned symbol */
+    else if (eq(pack,O(keyword_package))) fputc(':',out);
     else {
       string_out(out,ThePackage(pack)->pack_name,O(terminal_encoding));
       fputs("::",out);
@@ -130,10 +131,42 @@ global void nobject_out (FILE* out, object obj) {
     fputc(' ',out);
     nobject_out(out,TheFsubr(obj)->name);
     fputc('>',out);
+  } else if (pathnamep(obj)) {
+    fputs("#(",out); nobject_out(out,S(pathname));
+   #define SLOT(s) fputc(' ',out); nobject_out(out,S(K##s)); fputc(' ',out); \
+     nobject_out(out,ThePathname(obj)->pathname_##s)
+   #if HAS_HOST
+    SLOT(host);
+   #endif
+   #if HAS_DEVICE
+    SLOT(device);
+   #endif
+    SLOT(directory); SLOT(name); SLOT(type);
+   #if HAS_VERSION
+    SLOT(version);
+   #endif
+   #undef SLOT
+    fputs(")",out);
+  } else if (logpathnamep(obj)) {
+   #ifdef LOGICAL_PATHNAMES
+    fputs("#(",out); nobject_out(out,S(logical_pathname));
+   #define SLOT(s) fputc(' ',out); nobject_out(out,S(K##s)); fputc(' ',out); \
+     nobject_out(out,TheLogpathname(obj)->pathname_##s)
+    SLOT(host); SLOT(directory); SLOT(name); SLOT(type); SLOT(version);
+    fputs(")",out);
+   #endif
   } else if (fixnump(obj)) fprintf(out,"%d",fixnum_to_L(obj));
+  else if (eq(obj,unbound))   fputs("#<UNBOUND>",out);
+  else if (eq(obj,nullobj))   fputs("#<NULLOBJ>",out);
+  else if (eq(obj,disabled))  fputs("#<DISABLED>",out);
+  else if (eq(obj,specdecl))  fputs("#<SPECDECL>",out);
+  else if (eq(obj,eof_value)) fputs("#<EOF>",out);
+  else if (eq(obj,dot_value)) fputs("#<DOT>",out);
   else if (varobjectp(obj))
-    fprintf(out,"#<varobject type=%d>",varobject_type(TheVarobject(obj)));
-  else NOTREACHED; /* FIXME */
+    fprintf(out,"#<varobject type=%d address=%u>",
+            varobject_type(TheVarobject(obj)),ThePointer(obj));
+  else fprintf(out,"#<huh?! address=%u>",ThePointer(obj));
+  fflush(out);
 }
 
 /* use (struct backtrace_t*) and not p_backtrace_t

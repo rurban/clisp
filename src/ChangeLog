@@ -1,3 +1,9 @@
+2003-02-02  Sam Steingold  <sds@gnu.org>
+
+	* spvw_debug.d (nobject_out): handle pathnames and some special
+	objects, like `nullobj' and `unbound'; fflush out; do not print
+	package prefix for keywords
+
 2003-02-01  Sam Steingold  <sds@gnu.org>
 
 	* io.d (read_delimited_list): fixed a crash introduced by the
