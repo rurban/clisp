@@ -1,5 +1,11 @@
 2004-03-16  Bruno Haible  <bruno@clisp.org>
 
+	* intparam.c (boolean_t): Define as a macro, not a typedef.
+	* utils/ccmp2c.c (boolean_t): Likewise.
+	Needed for AIX with xlc.
+
+2004-03-16  Bruno Haible  <bruno@clisp.org>
+
 	* makemake.in (XCC_UNUSABLE_CPP): Don't use gcc-cccp on AIX != 4.2.
 
 2004-01-20  Bruno Haible  <bruno@clisp.org>
