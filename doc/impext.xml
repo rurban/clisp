@@ -3381,7 +3381,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
                  &optional-amp; [<replaceable>seconds</replaceable>
                  [<replaceable>microseconds</replaceable>]])</literal></term>
   <listitem><simpara>Given time argument(s), waits for (possibly zero)
-   fixed duration for a connect on the socket-server.  Without an
+   fixed duration for a connect on the &socket-server;.  Without an
    argument, <function>socket:socket-wait</function> blocks indefinitely.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
@@ -3404,16 +3404,34 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
                  &optional-amp; [<replaceable>seconds</replaceable>
                  [<replaceable>microseconds</replaceable>]])</literal></term>
   <listitem><simpara>Checks whether it is possible to read from or write
-   to a &socket-stream; without blocking.  This is similar to &listen;,
-   which checks only one stream and only for input.</simpara>
-   <simpara><replaceable>socket-stream-or-list</replaceable> is an open
-   &socket-stream; (one symbol is returned) or a list of streams (a list
-   of symbols, one for each stream, is returned).</simpara>
+   to a &socket-stream; or whether a connection is available on a
+   &socket-server; without blocking.
+   This is similar to &listen;, which checks only one stream and only
+   for input, and <function>socket:socket-wait</function>, which works
+   only with &socket-server;s.</simpara>
+   <variablelist><title>Possible values of
+       <replaceable>socket-stream-or-list</replaceable></title>
+    <varlistentry><term>&socket-stream; or &socket-server;</term>
+     <listitem><simpara>Returns &t; if a connection on the
+      &socket-server; is available; or &input-k;, &output-k; or &io-k;
+      is some input/output is possible on the &socket-stream;
+     </simpara></listitem></varlistentry>
+    <varlistentry><term><literal role="sexp">(&socket-stream;
+       . <replaceable>direction</replaceable>)</literal></term>
+     <listitem><simpara>Return the appropriate keyword (&input-k;,
+      &output-k; or &io-k;) if some input/output is possible on the
+      &socket-stream; in the specified <replaceable>direction</replaceable>
+      (which should be one of &input-k;, &output-k; or &io-k;).
+     </simpara></listitem></varlistentry>
+    <varlistentry><term>a list of the above</term>
+     <listitem><simpara>Return a list of values, one for each element of the
+      argument list (a la &mapcar;)</simpara></listitem></varlistentry>
+   </variablelist>
    <simpara>The optional arguments specify the timeout. &nil; means wait
    forever, 0 means poll.  Note that this function never waits for input
    or output to arrive, only for information on input or output
    presense (so that &read-char; or &write-char; will not block) to
-   become available.</simpara>
+   become available (or a connection to become possible).</simpara>
    <simpara>For each &socket-stream; this function returns</simpara>
    <variablelist><title>Return values of
       <function>socket:socket-status</function></title>
@@ -3456,14 +3474,19 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>socket:socket-stream-peer</function>
-                 <replaceable>socket-stream</replaceable>)</literal></term>
+         <replaceable>socket-stream</replaceable>
+         [<replaceable>do-not-resolve-p</replaceable>])</literal></term>
   <listitem><simpara>Given a stream, this function returns the name of
    the host on the opposite side of the connection and its port number;
-   the server-side can use this to see who connected.
-  </simpara></listitem></varlistentry>
+   the server-side can use this to see who connected.</simpara>
+   <simpara>When the optional second argument is non-&nil;, the hostname
+   resolution is disabled and just the IP address is returned, without
+   the <acronym>FQDN</acronym> (Fully Qualified Domain Name).
+   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>socket:socket-stream-local</function>
-                 <replaceable>socket-stream</replaceable>)</literal></term>
+         <replaceable>socket-stream</replaceable>
+         [<replaceable>do-not-resolve-p</replaceable>])</literal></term>
   <listitem><simpara>The dual to
    <function>socket:socket-stream-peer</function> - same information,
    host name and port number, but for the local host.  The difference
