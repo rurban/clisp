@@ -10,46 +10,49 @@
   (set-syntax-from-char #\, #\Space rt)
   rt)
 (defvar *c-rt* (make-c-rt))
-(defun get-lisp-def (line st len)
-  (let ((*readtable* *c-rt*))
-    (read (make-concatenated-stream (make-string-input-stream line len) st))))
+(defun get-lisp-def (line st)
+  (let* ((*readtable* *c-rt*)
+         (in (make-concatenated-stream (make-string-input-stream line) st))
+         (fn (read in))
+         (li (read in)))
+    (values li fn)))
 
-(defvar *form-defs* '("subr" "fsubr"))
+(defvar *form-decls* '("subr" "fsubr"))
+(defvar *const-decls* '("constsym" "constobj" "constpack"))
 
 (defun get-lisp-defs (file)
   (with-open-file (st file :direction :input :external-format charset:utf-8)
     (format t "~&~s: file ~s~%" 'get-lisp-defs file)
     (with-collect (keep)
-      (loop (let* ((line (read-line st nil nil)) (len (length line)))
+      (loop (let ((line (read-line st nil nil)))
               (unless line (return))
-              (cond ((sys::string-beg-with "LISPSPECFORM" line len)
-                     (keep (get-lisp-def line st #.(length "LISPSPECFORM"))))
-                    ((sys::string-beg-with "LISPFUNN" line len)
-                     (keep (get-lisp-def line st #.(length "LISPFUNN"))))
-                    ((sys::string-beg-with "LISPFUN" line len)
-                     (keep (get-lisp-def line st #.(length "LISPFUN"))))))))))
+              (when (sys::string-beg-with "LISP" line)
+                (multiple-value-bind (li fn) (get-lisp-def line st)
+                  (push fn (cdr li))
+                  (keep li))))))))
 
 (defun check-lisp-defs (dir)
   (format t "~&~s: ~s~%" 'check-lisp-defs dir)
-  (let ((def-forms
-         (delete-duplicates
-          (sort (mapcan #'get-lisp-defs
-                        (delete-if (lambda (fi)
-                                     (member (pathname-name fi) *form-defs*
-                                             :test #'string-equal))
-                                   (directory (merge-pathnames "*.d" dir))))
-                #'string< :key #'car)
-          :test #'equal))
-        (dec-forms
-         (delete-duplicates
-          (sort (mapcan #'get-lisp-defs
-                        (mapcar (lambda (fi)
-                                  (make-pathname :name fi :type "d"
-                                                 :defaults dir))
-                                *form-defs*))
-                #'string< :key #'car)
-          :test #'equal))
-        kwd (error-count 0))
+  (let* ((exclude (append *const-decls* *form-decls*))
+         (def-forms
+          (delete-duplicates
+           (sort (mapcan #'get-lisp-defs
+                         (delete-if (lambda (fi)
+                                      (member (pathname-name fi) exclude
+                                              :test #'string-equal))
+                                    (directory (merge-pathnames "*.d" dir))))
+                 #'string< :key #'car)
+           :test #'equal))
+         (dec-forms
+          (delete-duplicates
+           (sort (mapcan #'get-lisp-defs
+                         (mapcar (lambda (fi)
+                                   (make-pathname :name fi :type "d"
+                                                  :defaults dir))
+                                 *form-decls*))
+                 #'string< :key #'car)
+           :test #'equal))
+         kwd (error-count 0))
     (cond ((= (length def-forms) (length dec-forms))
            (format t "~d forms~%" (length def-forms)))
           (t (cerror "proceed with checks"
@@ -73,9 +76,9 @@
       (loop (let* ((line (read-line st nil nil)) (len (length line)))
               (unless line (return))
               (cond ((sys::string-beg-with "v" line len)
-                     (setq kwd (get-lisp-def line st #.(length "v"))))
+                     (setq kwd (get-lisp-def line st)))
                     ((sys::string-beg-with "s" line len)
-                     (let ((fn (car (get-lisp-def line st #.(length "s")))))
+                     (let ((fn (car (get-lisp-def line st))))
                        (unless (equal (cdr (member 'key (assoc fn dec-forms)))
                                       kwd)
                          (cerror "proceed with checks"
@@ -84,5 +87,16 @@
                          (incf error-count))))))))
     (when (plusp error-count)
       (error "~d errors" error-count))))
+
+(defun write-subrs (file)
+  (let ((count 0) (*package* (find-package "CL-USER")))
+    (with-open-file (out file :direction :output)
+      (do-all-symbols (sy)
+        (let ((sig (multiple-value-list (sys::subr-info sy))))
+          (when sig
+            (incf count)
+            (write sig :stream out)
+            (terpri out)))))
+    count))
 
 ;;; file check-lispfun.lisp ends here
