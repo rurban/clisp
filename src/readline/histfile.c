@@ -136,6 +136,7 @@ read_history_range (filename, from, to)
   int file, current_line;
   struct stat finfo;
   size_t file_size;
+  int nread;
 
   buffer = (char *)NULL;
   input = history_filename (filename);
@@ -156,7 +157,8 @@ read_history_range (filename, from, to)
     }
 
   buffer = xmalloc (file_size + 1);
-  if (read (file, buffer, file_size) != (int) file_size)
+  nread = read (file, buffer, file_size);
+  if (nread < 0)
     {
   error_and_exit:
       if (file >= 0)
@@ -172,15 +174,15 @@ read_history_range (filename, from, to)
 
   /* Set TO to larger than end of file if negative. */
   if (to < 0)
-    to = file_size;
+    to = nread;
 
   /* Start at beginning of file, work to end. */
   line_start = line_end = current_line = 0;
 
   /* Skip lines until we are at FROM. */
-  while (line_start < file_size && current_line < from)
+  while (line_start < nread && current_line < from)
     {
-      for (line_end = line_start; line_end < file_size; line_end++)
+      for (line_end = line_start; line_end < nread; line_end++)
 	if (buffer[line_end] == '\n')
 	  {
 	    current_line++;
@@ -191,7 +193,7 @@ read_history_range (filename, from, to)
     }
 
   /* If there are lines left to gobble, then gobble them now. */
-  for (line_end = line_start; line_end < file_size; line_end++)
+  for (line_end = line_start; line_end < nread; line_end++)
     if (buffer[line_end] == '\n')
       {
 	buffer[line_end] = '\0';
