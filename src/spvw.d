@@ -1356,9 +1356,6 @@ local void init_object_tab (void) {
      #ifdef EXPORT_SYSCALLS
       " :SYSCALLS"
      #endif
-     #ifdef DIR_KEY
-      " :DIR-KEY"
-     #endif
      #ifdef AMIGA
       " :AMIGA"
      #endif

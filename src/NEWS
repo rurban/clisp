@@ -22,6 +22,10 @@ User visible changes
 * External modules now work on win32 (when used with cygwin or mingw).
   See <http://clisp.cons.org/impnotes.html#mod-win32> for details.
 
+* DIRKEY is now a standard module - use `--with-module=dirkey'
+  instead of `--with-dir-key' when configuring.
+  See <http://clisp.cons.org/impnotes.html#dirkey> for details.
+
 * READ-BYTE-ARRAY now accepts :NO-HANG keyword argument.
 
 * LOAD now takes an additional keyword argument :OBSOLETE-ACTION which

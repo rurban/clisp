@@ -1,0 +1,14 @@
+/* Sam Steingod 2003 */
+
+/* header files */
+
+/* AC_HEADER_STDC */
+/* Define if you have the ANSI C header files
+   <stdlib.h>, <stdarg.h>, <string.h>, <float.h>, and the <ctype.h> macros
+   work correctly. */
+#undef STDC_HEADERS
+
+/* AC_CHECK_HEADERS(ldap.h gnome.h)
+ define if you have <ldap.h> and <gnome.h> */
+#undef HAVE_LDAP_H
+#undef HAVE_GNOME_H

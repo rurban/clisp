@@ -9015,46 +9015,6 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
       LEVEL_END;
       break;
 #endif
-#ifdef DIR_KEY
-    case Rectype_Dir_Key: # #<DIR-KEY type path>
-      CHECK_PRINT_READABLY(obj);
-      LEVEL_CHECK;
-      {
-        pushSTACK(obj);
-        var gcv_object_t* obj_ = &STACK_0;
-        UNREADABLE_START;
-        var uintL length_limit = get_print_length();
-        JUSTIFY_LAST(length_limit==0);
-        if (TheDirKey(*obj_)->closed_p)
-          write_sstring_case(stream_,O(printstring_closed));
-        write_sstring_case(stream_,O(printstring_dir_key));
-        {
-          var uintL length = 0;
-          if (length >= length_limit) goto dir_key_end;
-          JUSTIFY_SPACE;
-          JUSTIFY_LAST(length+1 >= length_limit);
-          pr_symbol(stream_,TheDirKey(*obj_)->type);
-          length++;
-          if (length >= length_limit) goto dir_key_end;
-          JUSTIFY_SPACE;
-          JUSTIFY_LAST(TheDirKey(*obj_)->closed_p || (length+1 >= length_limit));
-          pr_string(stream_,TheDirKey(*obj_)->path);
-          if (!TheDirKey(*obj_)->closed_p) {
-            length++;
-            if (length >= length_limit) goto dir_key_end;
-            JUSTIFY_SPACE;
-            JUSTIFY_LAST(true);
-            pr_symbol(stream_,TheDirKey(*obj_)->direction);
-          }
-        }
-      dir_key_end:
-        JUSTIFY_END_ENG;
-        UNREADABLE_END;
-        skipSTACK(1);
-      }
-      LEVEL_END;
-      break;
-#endif
 #ifdef YET_ANOTHER_RECORD
     case Rectype_Yetanother: # #<YET-ANOTHER address>
       CHECK_PRINT_READABLY(obj);

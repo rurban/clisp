@@ -118,7 +118,7 @@
 (defvar *system-package-list*
   '("SYSTEM" "LISP" "EXT" "CUSTOM" "I18N" "GRAY" "CHARSET" "CLOS"
     #+sockets "SOCKET" #+generic-streams "GSTREAM" #+syscalls "POSIX"
-    #+ffi "FFI" #+amiga "AFFI" #+dir-key "LDAP" #+screen "SCREEN"))
+    #+ffi "FFI" #+amiga "AFFI" #+screen "SCREEN"))
 
 ;; Unlock the specified packages, execute the BODY, then lock them again.
 (defmacro without-package-lock (packages &body body)

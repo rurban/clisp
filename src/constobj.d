@@ -324,9 +324,6 @@
   #ifdef SOCKET_STREAMS
   LISPOBJ(hs_socket_server,"SOCKET::SOCKET-SERVER")
   #endif
-  #ifdef DIR_KEY
-  LISPOBJ(hs_dir_key,"LDAP::DIR-KEY")
-  #endif
   #ifdef YET_ANOTHER_RECORD
   LISPOBJ(hs_yetanother,"SYS::YETANOTHER")
   #endif
@@ -464,10 +461,6 @@
   LISPOBJ(type_logical_pathname,"(OR LOGICAL-PATHNAME STRING STREAM SYMBOL)")
  #endif
   LISPOBJ(type_builtin_stream,"(SATISFIES SYSTEM::BUILT-IN-STREAM-P)")
- #ifdef DIR_KEY
-  LISPOBJ(type_dir_key,"(MEMBER :WIN32 :LDAP :GNOME)")
-  LISPOBJ(type_scope,"(MEMBER :SELF :LEVEL :TREE)")
- #endif
 # for PATHNAME.D:
   LISPOBJ(lib_dir,"NIL") # must be set via a command line option
   LISPOBJ(type_designator_pathname,"(OR STRING FILE-STREAM PATHNAME)")
@@ -491,7 +484,7 @@
  #if defined(PATHNAME_WIN32)
   LISPOBJ(backslashbackslash_string,"\"\\\\\\\\\"")
  #endif
- #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) || defined(DIR_KEY)
+ #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
   LISPOBJ_S(slash_string,"/")
  #endif
   LISPOBJ_S(dot_string,".")
@@ -647,9 +640,6 @@
   LISPOBJ_S(printstring_finalizer,"#<FINALIZER>")
   #ifdef SOCKET_STREAMS
   LISPOBJ_S(printstring_socket_server,"SOCKET-SERVER")
-  #endif
-  #ifdef DIR_KEY
-  LISPOBJ_S(printstring_dir_key,"DIR-KEY")
   #endif
   #ifdef YET_ANOTHER_RECORD
   LISPOBJ_S(printstring_yetanother,"YET-ANOTHER")

@@ -39,7 +39,6 @@ options:
        --with-dynamic-ffi      a foreign language interface
        --with-dynamic-modules  dynamic loading of foreign language modules
        --with-export-syscalls  export some POSIX functionality to Lisp
-       --with-dir-key          dir-key access (win32 registry, LDAP, Gnome)
        --with-threads=FLAVOR   MT [_experimental_!]
                                FLAVOR: POSIX_THREADS POSIXOLD_THREADS
                                        SOLARIS_THREADS C_THREADS WIN32_THREADS
@@ -1384,9 +1383,6 @@ fi
 if test -n "$with_export_syscalls"; then
   CPARTS=$CPARTS' posixmisc';
 fi
-if test -n "$with_dir_key"; then
-  CPARTS=$CPARTS' dirkey';
-fi
 if [ -n "${with_threads}" -a "${with_threads}" != "0" ]; then
   CPARTS=$CPARTS' zthread';
 fi
@@ -1559,9 +1555,6 @@ if [ $TSYS = master -o -n "$with_dynamic_ffi" ] ; then
 fi
 if [ -n "$with_export_syscalls" ]; then
   LPARTS=$LPARTS' posix';
-fi
-if [ -n "$with_dir_key" ]; then
-  LPARTS=$LPARTS' dirkey1';
 fi
 LPARTS=$LPARTS' german'
 if [ "$with_unicode" != "0" ] ; then

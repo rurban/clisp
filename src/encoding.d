@@ -1731,6 +1731,13 @@ extern object iconv_range (object encoding, uintL start, uintL end,
 
 #endif
 
+/* -- for modules -- */
+uintL cslen_f (object encoding, const chart*src, uintL srclen)
+{ return cslen(encoding,src,srclen); }
+void cstombs_f (object encoding, const chart *src, uintL srclen,
+                uintB* dest, uintL destlen)
+{ cstombs(encoding,src,srclen,dest,destlen); }
+
 /* ----------------------------------------------------------------------- */
 
 #endif /* UNICODE */

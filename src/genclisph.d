@@ -1,7 +1,7 @@
 # Ausgabe aller Definitionen aus lispbibl.d, die an externe Module
 # exportiert werden.
 # Bruno Haible 1994-2002
-# Sam Steingold 1998-2002
+# Sam Steingold 1998-2003
 
 #include "lispbibl.c"
 
@@ -10,7 +10,7 @@
 # Wir vermeiden es, <stdarg.h> oder <varargs.h> vorauszusetzen.
 
 typedef struct {
-  char base; # 'd' für dezimal, 'x' für hexadezimal
+  char base; /* 'd' for decimal, 'x' for hexadecimal */
   int size;
   union {
     uint8 val8;
@@ -26,16 +26,16 @@ typedef struct {
   #define fill_printf_arg(where,expr)  \
     where.size = sizeof(expr); \
     if (sizeof(expr) == sizeof(uint8)) { where.value.val8 = (uint8)(expr); } \
-    elif (sizeof(expr) == sizeof(uint16)) { where.value.val16 = (uint16)(expr); } \
-    elif (sizeof(expr) == sizeof(uint32)) { where.value.val32 = (uint32)(expr); } \
-    elif (sizeof(expr) == sizeof(uint64)) { where.value.val64 = (uint64)(expr); } \
+    else if (sizeof(expr) == sizeof(uint16)) { where.value.val16 = (uint16)(expr); } \
+    else if (sizeof(expr) == sizeof(uint32)) { where.value.val32 = (uint32)(expr); } \
+    else if (sizeof(expr) == sizeof(uint64)) { where.value.val64 = (uint64)(expr); } \
     else abort();
 #else
   #define fill_printf_arg(where,expr)  \
     where.size = sizeof(expr); \
     if (sizeof(expr) == sizeof(uint8)) { where.value.val8 = (uint8)(expr); } \
-    elif (sizeof(expr) == sizeof(uint16)) { where.value.val16 = (uint16)(expr); } \
-    elif (sizeof(expr) == sizeof(uint32)) { where.value.val32 = (uint32)(expr); } \
+    else if (sizeof(expr) == sizeof(uint16)) { where.value.val16 = (uint16)(expr); } \
+    else if (sizeof(expr) == sizeof(uint32)) { where.value.val32 = (uint32)(expr); } \
     else abort();
 #endif
 
@@ -242,30 +242,27 @@ global int main()
     printf("  storclass void funname arguments\n");
   #endif
   printf("#define var\n");
-# printf("#define elif  else if\n");
-# printf("#define loop  while (1)\n");
-# printf("#define until(expression)  while(!(expression))\n");
-# printf("#define NOTREACHED  fehler_notreached(__FILE__,__LINE__)\n");
-# printf("#define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)\n");
-# #if defined(GNU) && !defined(RISCOS) && !defined(CONVEX)
-#   printf("#define alloca  __builtin_alloca\n");
-# #elif defined(MICROSOFT)
-#   printf("#include <malloc.h>\n");
-#   printf("#define alloca _alloca\n");
-# #elif defined(HAVE_ALLOCA_H) || defined(RISCOS)
-#   printf("#include <alloca.h>\n");
-#   #ifndef alloca
-#     #ifdef UNIX_OSF
-#       printf("extern char* alloca (int size);\n");
-#     #else
-#       printf("extern void* alloca (int size);\n");
-#     #endif
-#   #endif
-# #elif defined(_AIX)
-#   printf("#pragma alloca\n");
-# #elif !defined(NO_ALLOCA)
-#   printf("extern void* alloca (int size);\n");
-# #endif
+ printf("#define NOTREACHED  fehler_notreached(__FILE__,__LINE__)\n");
+ printf("#define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)\n");
+ #if defined(GNU) && !defined(RISCOS) && !defined(CONVEX)
+   printf("#define alloca  __builtin_alloca\n");
+ #elif defined(MICROSOFT)
+   printf("#include <malloc.h>\n");
+   printf("#define alloca _alloca\n");
+ #elif defined(HAVE_ALLOCA_H) || defined(RISCOS)
+   printf("#include <alloca.h>\n");
+   #ifndef alloca
+     #ifdef UNIX_OSF
+       printf("extern char* alloca (int size);\n");
+     #else
+       printf("extern void* alloca (int size);\n");
+     #endif
+   #endif
+ #elif defined(_AIX)
+   printf("#pragma alloca\n");
+ #elif !defined(NO_ALLOCA)
+   printf("extern void* alloca (int size);\n");
+ #endif
   #ifdef __CHAR_UNSIGNED__
     printf("typedef signed char  SBYTE;\n");
   #else
@@ -331,23 +328,23 @@ global int main()
 # printf("#define ceiling(a_from_ceiling,b_from_ceiling)  (((a_from_ceiling) + (b_from_ceiling) - 1) / (b_from_ceiling))\n");
 # printf("#define round_down(a_from_round,b_from_round)  (floor(a_from_round,b_from_round)*(b_from_round))\n");
 # printf("#define round_up(a_from_round,b_from_round)  (ceiling(a_from_round,b_from_round)*(b_from_round))\n");
-# #if defined(GNU)
-#   #ifdef DECALPHA
-#     printf("#define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  arrayeltype arrayvar[(arraysize)+1]\n");
-#   #else
-#     printf("#define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  arrayeltype arrayvar[arraysize]\n");
-#   #endif
-#   printf("#define FREE_DYNAMIC_ARRAY(arrayvar)\n");
-# #elif (defined(UNIX) && (defined(HAVE_ALLOCA_H) || defined(_AIX) || !defined(NO_ALLOCA))) || defined(MICROSOFT) || defined(RISCOS)
-#   printf("#define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  arrayeltype* arrayvar = (arrayeltype*)alloca((arraysize)*sizeof(arrayeltype))\n");
-#   printf("#define FREE_DYNAMIC_ARRAY(arrayvar)\n");
-# #else
-#   printf("#include <stdlib.h>\n");
-#   printf("extern void* malloca (size_t size);\n");
-#   printf("extern void freea (void* ptr);\n");
-#   printf("#define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  arrayeltype* arrayvar = (arrayeltype*)malloca((arraysize)*sizeof(arrayeltype))\n");
-#   printf("#define FREE_DYNAMIC_ARRAY(arrayvar)  freea(arrayvar)\n");
-# #endif
+ #if defined(GNU)
+   #ifdef DECALPHA
+     printf("#define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  arrayeltype arrayvar[(arraysize)+1]\n");
+   #else
+     printf("#define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  arrayeltype arrayvar[arraysize]\n");
+   #endif
+   printf("#define FREE_DYNAMIC_ARRAY(arrayvar)\n");
+ #elif (defined(UNIX) && (defined(HAVE_ALLOCA_H) || defined(_AIX) || !defined(NO_ALLOCA))) || defined(MICROSOFT) || defined(RISCOS)
+   printf("#define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  arrayeltype* arrayvar = (arrayeltype*)alloca((arraysize)*sizeof(arrayeltype))\n");
+   printf("#define FREE_DYNAMIC_ARRAY(arrayvar)\n");
+ #else
+   printf("#include <stdlib.h>\n");
+   printf("extern void* malloca (size_t size);\n");
+   printf("extern void freea (void* ptr);\n");
+   printf("#define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  arrayeltype* arrayvar = (arrayeltype*)malloca((arraysize)*sizeof(arrayeltype))\n");
+   printf("#define FREE_DYNAMIC_ARRAY(arrayvar)  freea(arrayvar)\n");
+ #endif
   { int i;
     for (i=1; i<=8; i++)
       { printf("typedef UBYTE   uint%d;\n",i);
@@ -502,14 +499,14 @@ global int main()
     #endif
     #ifdef WIDE_AUXI
       printf("typedef  uint64  oint;\n");
-#     printf("typedef  sint64  soint;\n");
+      printf("typedef  sint64  soint;\n");
     #else
       printf("typedef  uintL  oint;\n");
-#     printf("typedef  sintL  soint;\n");
+      printf("typedef  sintL  soint;\n");
     #endif
   #else
     printf("typedef  uint64  oint;\n");
-#   printf("typedef  sint64  soint;\n");
+    printf("typedef  sint64  soint;\n");
     #ifdef WIDE_STRUCT
       printf("typedef  struct { union {\n");
       #if BIG_ENDIAN_P==WIDE_ENDIANNESS
@@ -730,34 +727,34 @@ global int main()
     printf("#define record_flags(ptr)  (((ptr)->tfl >> 8) & 0xFF)\n");
   #endif
   printf("#define Record_flags(obj)  record_flags(TheRecord(obj))\n");
-# #ifdef TYPECODES
-#   printf("#define LRECORD_HEADER  VAROBJECT_HEADER uintL length;\n");
-# #else
-#   printf("#define LRECORD_HEADER  VAROBJECT_HEADER\n");
-# #endif
-# printf("typedef struct { LRECORD_HEADER } lrecord_;\n");
-# printf("typedef lrecord_ *  Lrecord;\n");
-# #ifdef TYPECODES
-#   printf("#define SRECORD_HEADER  VAROBJECT_HEADER uintB recflags; sintB rectype; uintW reclength;\n");
-# #else
-#   printf("#define SRECORD_HEADER  VAROBJECT_HEADER\n");
-# #endif
-# printf("typedef struct { SRECORD_HEADER object recdata[unspecified]; } srecord_;\n");
-# printf("typedef srecord_ *  Srecord;\n");
+ #ifdef TYPECODES
+   printf("#define LRECORD_HEADER  VAROBJECT_HEADER uintL length;\n");
+ #else
+   printf("#define LRECORD_HEADER  VAROBJECT_HEADER\n");
+ #endif
+ printf("typedef struct { LRECORD_HEADER } lrecord_;\n");
+ printf("typedef lrecord_ *  Lrecord;\n");
+ #ifdef TYPECODES
+   printf("#define SRECORD_HEADER  VAROBJECT_HEADER uintB recflags; sintB rectype; uintW reclength;\n");
+ #else
+   printf("#define SRECORD_HEADER  VAROBJECT_HEADER\n");
+ #endif
+   printf("typedef struct { SRECORD_HEADER object recdata[unspecified]; } srecord_;\n");
+   printf("typedef srecord_ *  Srecord;\n");
   #ifdef TYPECODES
     printf("#define srecord_length(ptr)  ((ptr)->reclength)\n");
   #else
     printf("#define srecord_length(ptr)  ((ptr)->tfl >> 16)\n");
   #endif
-# #ifdef TYPECODES
-#   printf("#define XRECORD_HEADER  VAROBJECT_HEADER uintB recflags; sintB rectype; uintB reclength; uintB recxlength;\n");
-# #else
-#   printf("#define XRECORD_HEADER  VAROBJECT_HEADER\n");
-# #endif
+ #ifdef TYPECODES
+   printf("#define XRECORD_HEADER  VAROBJECT_HEADER uintB recflags; sintB rectype; uintB reclength; uintB recxlength;\n");
+ #else
+   printf("#define XRECORD_HEADER  VAROBJECT_HEADER\n");
+ #endif
 # printf("typedef struct { XRECORD_HEADER object recdata[unspecified]; } xrecord_;\n");
 # printf("typedef xrecord_ *  Xrecord;\n");
-# printf("typedef struct { object cdr; object car; } cons_;\n");
-# printf("typedef cons_ *  Cons;\n");
+ printf("typedef struct { object cdr; object car; } cons_;\n");
+ printf("typedef cons_ *  Cons;\n");
 # #ifdef SPVW_MIXED
 #   printf("typedef struct { XRECORD_HEADER object rt_num; object rt_den; } ratio_;\n");
 # #else
@@ -795,7 +792,7 @@ global int main()
   printf("#define code_char(ch)  int_char(as_cint(ch))\n");
   printf("#define char_code(obj)  as_chart(char_int(obj))\n");
   printf1("#define fixnum(x)  type_data_object(%d,x)\n",(tint)fixnum_type);
-# printf("#define Fixnum_0  fixnum(0)\n");
+  printf("#define Fixnum_0  fixnum(0)\n");
 # printf("#define Fixnum_1  fixnum(1)\n");
 # printf2("#define Fixnum_minus1  type_data_object(%d,%x)\n",(tint)(fixnum_type | bit(sign_bit_t)),(aint)(bitm(oint_data_len)-1));
   #if !(defined(SPARC) && (oint_data_len+oint_data_shift<32))
@@ -815,7 +812,7 @@ global int main()
       printf("#define fixnum_to_L(obj)  (sintL)( ((((sintL)as_oint(obj) >> %d) << %d) >> %d) | (((uintL)as_oint(obj) << %d) >> %d) )\n",sign_bit_o,intLsize-1,intLsize-1-oint_data_len,intLsize-oint_data_len-oint_data_shift,intLsize-oint_data_len);
     #endif
   #endif
-# printf("#define fixnum_inc(obj,delta)  objectplus(obj, (soint)(delta) << %d)\n",oint_data_shift);
+ printf("#define fixnum_inc(obj,delta)  objectplus(obj, (soint)(delta) << %d)\n",oint_data_shift);
 # printf("#define posfixnum(x)  fixnum_inc(Fixnum_0,x)\n");
 # printf("#define negfixnum(x)  fixnum_inc(fixnum_inc(Fixnum_minus1,1),x)\n");
 # printf("#define sfixnum(x) ((x)>=0 ? posfixnum(x) : negfixnum(x))\n");
@@ -845,16 +842,28 @@ global int main()
   printf("typedef union { dfloat eksplicit; } dfloatjanus;\n");
 # printf("typedef struct { LRECORD_HEADER uintL  length; } sarray_;\n");
 # printf("typedef sarray_ *  Sarray;\n");
-# printf("typedef struct { LRECORD_HEADER uintL  length; uint8  data[unspecified]; } sbvector_;\n");
-# printf("typedef sbvector_ *  Sbvector;\n");
-# #ifdef UNICODE
-#   printf("typedef struct { LRECORD_HEADER uintL  length; uint32  data[unspecified]; } sstring_;\n");
-# #else
-#   printf("typedef struct { LRECORD_HEADER uintL  length; uint8  data[unspecified]; } sstring_;\n");
-# #endif
-# printf("typedef sstring_ *  Sstring;\n");
-# printf("typedef struct { LRECORD_HEADER uintL  length; object data[unspecified]; } svector_;\n");
-# printf("typedef svector_ *  Svector;\n");
+  printf("typedef struct { LRECORD_HEADER uintL  length; uint8  data[unspecified]; } sbvector_;\n");
+  printf("typedef sbvector_ *  Sbvector;\n");
+ #ifdef UNICODE
+   printf("typedef struct { LRECORD_HEADER uintL  length; uint32  data[unspecified]; } sstring_;\n");
+ #else
+   printf("typedef struct { LRECORD_HEADER uintL  length; uint8  data[unspecified]; } sstring_;\n");
+ #endif
+ printf("typedef sstring_ *  Sstring;\n");
+ printf("typedef struct { LRECORD_HEADER uintL  length; object data[unspecified]; } svector_;\n");
+ printf("typedef svector_ *  Svector;\n");
+#ifdef TYPECODES
+  printf("#define lrecord_length(ptr)  ((ptr)->length)\n");
+#else
+  printf("#define lrecord_length(ptr)  ((ptr)->tfl >> 8)\n");
+#endif
+ printf("#define sarray_length(ptr)  lrecord_length(ptr)\n");
+ printf("#define Sarray_length(obj)  sarray_length(TheSarray(obj))\n");
+ printf("#define sbvector_length(ptr)  sarray_length(ptr)\n");
+ printf("#define Sbvector_length(obj)  sbvector_length(TheSbvector(obj))\n");
+ printf("#define sstring_length(ptr)  sarray_length(ptr)\n");
+ printf("#define Sstring_length(obj)  sstring_length(TheSstring(obj))\n");
+
 # #ifdef TYPECODES
 #   printf("#define Array_type_simple_bit_vector(atype)  (%d+((atype)<<%d)",Array_type_sbvector,TB0);
 #   if (TB0+1 != TB1) printf("+((atype)&%d)",bit(TB0+1)-bit(TB1));
@@ -862,17 +871,17 @@ global int main()
 #   printf(");\n");
 # #endif
 # printf("typedef struct { XRECORD_HEADER object pack_external_symbols; object pack_internal_symbols; object pack_shadowing_symbols; object pack_use_list; object pack_used_by_list; object pack_name; object pack_nicknames; } *  Package;\n");
-# printf("typedef Srecord  Structure;\n");
-# printf("#define structure_types   recdata[0]\n");
+  printf("typedef Srecord  Structure;\n");
+  printf("#define structure_types   recdata[0]\n");
 # printf("typedef struct { SRECORD_HEADER object class; object other[unspecified]; } *  Instance;\n");
   printf("typedef void Values;\n");
   printf("typedef Values (*lisp_function_t)();\n");
-  printf("typedef struct { lisp_function_t function; gcv_object_t name; gcv_object_t keywords; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; } subr_t");
+  printf("typedef struct { lisp_function_t function; gcv_object_t name; gcv_object_t keywords; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; uintW seclass; } subr_t");
   #if defined(NO_TYPECODES) && (alignment_long < 4) && defined(GNU)
     printf(" __attribute__ ((aligned (4)))");
   #endif
   printf(";\n");
-# printf("typedef subr_t *  Subr;\n");
+  printf("typedef subr_t *  Subr;\n");
   printf("typedef enum { subr_norest, subr_rest } subr_rest_t;\n");
   printf("typedef enum { subr_nokey, subr_key, subr_key_allow } subr_key_t;\n");
   #ifdef TYPECODES
@@ -884,8 +893,8 @@ global int main()
       printf1("#define make_machine(ptr)  as_object((oint)(ptr)+%d)\n",machine_bias)
     #endif
   #endif
-# printf3("#define make_system(data)  type_data_object(%d,%x | (%x & (data)))\n",(tint)system_type,(oint)(bit(oint_data_len-1) | bit(0)),(oint)(bit(oint_data_len)-1));
-# printf1("#define unbound  make_system(%x)\n",0xFFFFFFUL);
+  printf3("#define make_system(data)  type_data_object(%d,%x | (%x & (data)))\n",(tint)system_type,(oint)(bit(oint_data_len-1) | bit(0)),(oint)(bit(oint_data_len)-1));
+  printf("#define unbound  make_system(0x%x)\n",0xFFFFFFUL);
   printf("#define nullobj  make_machine(0)\n");
   #ifdef TYPECODES
     #if !((oint_addr_shift==0) && (addr_shift==0))
@@ -924,22 +933,22 @@ global int main()
     #else
       #define printf_type_pointable(type)  printf("((void*)(aint)as_oint(obj))");
     #endif
-#   printf("#define TheCons(obj)  ((Cons)("); printf_type_pointable(cons_type); printf("))\n");
+   printf("#define TheCons(obj)  ((Cons)("); printf_type_pointable(cons_type); printf("))\n");
 #   printf("#define TheRatio(obj)  ((Ratio)("); printf_type_pointable(ratio_type|bit(sign_bit_t)); printf("))\n");
 #   printf("#define TheComplex(obj)  ((Complex)("); printf_type_pointable(complex_type); printf("))\n");
 #   printf("#define TheSymbol(obj)  ((Symbol)("); printf_type_pointable(symbol_type); printf("))\n");
     printf("#define TheBignum(obj)  ((Bignum)("); printf_type_pointable(bignum_type|bit(sign_bit_t)); printf("))\n");
 #   printf("#define TheSarray(obj)  ((Sarray)("); printf_type_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type|sstring_type|svector_type); printf("))\n");
-#   printf("#define TheSbvector(obj)  ((Sbvector)("); printf_type_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type); printf("))\n");
-#   printf("#define TheSstring(obj)  ((Sstring)("); printf_type_pointable(sstring_type); printf("))\n");
-#   printf("#define TheSvector(obj)  ((Svector)("); printf_type_pointable(svector_type); printf("))\n");
+   printf("#define TheSbvector(obj)  ((Sbvector)("); printf_type_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type); printf("))\n");
+   printf("#define TheSstring(obj)  ((Sstring)("); printf_type_pointable(sstring_type); printf("))\n");
+   printf("#define TheSvector(obj)  ((Svector)("); printf_type_pointable(svector_type); printf("))\n");
     printf("#define TheRecord(obj)  ((Record)("); printf_type_pointable(closure_type|structure_type|stream_type|orecord_type|instance_type); printf("))\n");
 #   printf("#define TheSrecord(obj)  ((Srecord)("); printf_type_pointable(closure_type|structure_type|orecord_type|instance_type); printf("))\n");
 #   printf("#define TheXrecord(obj)  ((Xrecord)("); printf_type_pointable(stream_type|orecord_type); printf("))\n");
 #   printf("#define ThePackage(obj)  ((Package)("); printf_type_pointable(orecord_type); printf("))\n");
-#   printf("#define TheStructure(obj)  ((Structure)("); printf_type_pointable(structure_type); printf("))\n");
+   printf("#define TheStructure(obj)  ((Structure)("); printf_type_pointable(structure_type); printf("))\n");
 #   printf("#define TheInstance(obj)  ((Instance)("); printf_type_pointable(instance_type); printf("))\n");
-#   printf("#define TheSubr(obj)  ((Subr)("); printf_type_pointable(subr_type); printf("))\n");
+   printf("#define TheSubr(obj)  ((Subr)("); printf_type_pointable(subr_type); printf("))\n");
 #   printf("#define TheMachine(obj)  ((void*)("); printf_type_pointable(machine_type); printf("))\n");
   #else
     #if defined(DEBUG_GCSAFETY)
@@ -958,26 +967,26 @@ global int main()
       printf("#define pgci_pointable(obj)  as_oint(obj)\n");
       printf("#define ngci_pointable(obj)  as_oint(obj)\n");
     #endif
-#   printf1("#define TheCons(obj)  ((Cons)(ngci_pointable(obj)-%d))\n",cons_bias);
+  printf1("#define TheCons(obj)  ((Cons)(ngci_pointable(obj)-%d))\n",cons_bias);
 #   printf1("#define TheRatio(obj)  ((Ratio)(ngci_pointable(obj)-%d))\n",varobject_bias);
 #   printf1("#define TheComplex(obj)  ((Complex)(ngci_pointable(obj)-%d))\n",varobject_bias);
 #   printf1("#define TheSymbol(obj)  ((Symbol)(ngci_pointable(obj)-%d))\n",varobject_bias);
     printf1("#define TheBignum(obj)  ((Bignum)(ngci_pointable(obj)-%d))\n",varobject_bias);
 #   printf1("#define TheSarray(obj)  ((Sarray)(ngci_pointable(obj)-%d))\n",varobject_bias);
-#   printf1("#define TheSbvector(obj)  ((Sbvector)(ngci_pointable(obj)-%d))\n",varobject_bias);
-#   printf1("#define TheSstring(obj)  ((Sstring)(ngci_pointable(obj)-%d))\n",varobject_bias);
-#   printf1("#define TheSvector(obj)  ((Svector)(ngci_pointable(obj)-%d))\n",varobject_bias);
+   printf1("#define TheSbvector(obj)  ((Sbvector)(ngci_pointable(obj)-%d))\n",varobject_bias);
+   printf1("#define TheSstring(obj)  ((Sstring)(ngci_pointable(obj)-%d))\n",varobject_bias);
+   printf1("#define TheSvector(obj)  ((Svector)(ngci_pointable(obj)-%d))\n",varobject_bias);
     printf1("#define TheRecord(obj)  ((Record)(ngci_pointable(obj)-%d))\n",varobject_bias);
 #   printf1("#define TheSrecord(obj)  ((Srecord)(ngci_pointable(obj)-%d))\n",varobject_bias);
 #   printf1("#define TheXrecord(obj)  ((Xrecord)(ngci_pointable(obj)-%d))\n",varobject_bias);
 #   printf1("#define ThePackage(obj)  ((Package)(ngci_pointable(obj)-%d))\n",varobject_bias);
-#   printf1("#define TheStructure(obj)  ((Structure)(ngci_pointable(obj)-%d))\n",varobject_bias);
+   printf1("#define TheStructure(obj)  ((Structure)(ngci_pointable(obj)-%d))\n",varobject_bias);
 #   printf1("#define TheInstance(obj)  ((Instance)(ngci_pointable(obj)-%d))\n",varobject_bias);
-#   printf1("#define TheSubr(obj)  ((Subr)(cgci_pointable(obj)-%d))\n",subr_bias);
+   printf1("#define TheSubr(obj)  ((Subr)(cgci_pointable(obj)-%d))\n",subr_bias);
 #   printf1("#define TheMachine(obj)  ((void*)(cgci_pointable(obj)-%d))\n",machine_bias);
   #endif
-# printf("#define Car(obj)  (TheCons(obj)->car)\n");
-# printf("#define Cdr(obj)  (TheCons(obj)->cdr)\n");
+  printf("#define Car(obj)  (TheCons(obj)->car)\n");
+  printf("#define Cdr(obj)  (TheCons(obj)->cdr)\n");
 # printf("#define Symbol_value(obj)  (TheSymbol(obj)->symvalue)\n");
 # printf("#define Symbol_function(obj)  (TheSymbol(obj)->symfunction)\n");
 # printf("#define Symbol_plist(obj)  (TheSymbol(obj)->proplist)\n");
@@ -993,40 +1002,41 @@ global int main()
     printf("#define eq(obj1,obj2)  ((obj1) == (obj2))\n");
   #endif
   printf("#define nullp(obj)  (eq(obj,NIL))\n");
-# #ifdef TYPECODES
-#   #if defined(cons_bit_o)
-#     #ifdef fast_mtypecode
-#       #ifdef WIDE_STRUCT
-#         printf("#define consp(obj)  (typecode(obj) & bit(%d))\n",cons_bit_t);
-#         printf("#define atomp(obj)  ((typecode(obj) & bit(%d))==0)\n",cons_bit_t);
-#       #else
-#         printf("#define consp(obj)  (wbit_test(as_oint(obj),%d))\n",cons_bit_o);
-#         printf("#define atomp(obj)  (!wbit_test(as_oint(obj),%d))\n",cons_bit_o);
-#       #endif
-#       printf("#define mconsp(obj)  (mtypecode(obj) & bit(%d))\n",cons_bit_t);
-#       printf("#define matomp(obj)  ((mtypecode(obj) & bit(%d))==0)\n",cons_bit_t);
-#     #else
-#       printf("#define consp(obj)  (wbit_test(as_oint(obj),%d))\n",cons_bit_o);
-#       printf("#define atomp(obj)  (!wbit_test(as_oint(obj),%d))\n",cons_bit_o);
-#       printf("#define mconsp(obj)  consp(obj)\n");
-#       printf("#define matomp(obj)  atomp(obj)\n");
-#     #endif
-#   #else
-#     printf2("#define consp(obj)  (typecode(obj) == %d)\n",(tint)cons_type);
-#     printf2("#define atomp(obj)  (!(typecode(obj) == %d))\n",(tint)cons_type);
-#     printf2("#define mconsp(obj)  (mtypecode(obj) == %d)\n",(tint)cons_type);
-#     printf2("#define matomp(obj)  (!(mtypecode(obj) == %d))\n",(tint)cons_type);
-#   #endif
-# #else
-#   printf2("#define consp(obj)  ((as_oint(obj) & %d) == %d)\n",7,cons_bias);
-#   printf("#define mconsp(obj)  consp(obj)\n");
-#   printf("#define atomp(obj)  (!consp(obj))\n");
-#   printf("#define matomp(obj)  atomp(obj)\n");
-# #endif
-# printf("#define listp(obj)  (nullp(obj) || consp(obj))\n");
-  #ifndef TYPECODES
-    printf2("#define varobjectp(obj)  ((as_oint(obj) & %d) == %d)\n",3,varobject_bias);
-  #endif
+  printf("#define boundp(obj) (! eq(obj, unbound))\n");
+ #ifdef TYPECODES
+   #if defined(cons_bit_o)
+     #ifdef fast_mtypecode
+       #ifdef WIDE_STRUCT
+         printf("#define consp(obj)  (typecode(obj) & bit(%d))\n",cons_bit_t);
+         printf("#define atomp(obj)  ((typecode(obj) & bit(%d))==0)\n",cons_bit_t);
+       #else
+         printf("#define consp(obj)  (wbit_test(as_oint(obj),%d))\n",cons_bit_o);
+         printf("#define atomp(obj)  (!wbit_test(as_oint(obj),%d))\n",cons_bit_o);
+       #endif
+       printf("#define mconsp(obj)  (mtypecode(obj) & bit(%d))\n",cons_bit_t);
+       printf("#define matomp(obj)  ((mtypecode(obj) & bit(%d))==0)\n",cons_bit_t);
+     #else
+       printf("#define consp(obj)  (wbit_test(as_oint(obj),%d))\n",cons_bit_o);
+       printf("#define atomp(obj)  (!wbit_test(as_oint(obj),%d))\n",cons_bit_o);
+       printf("#define mconsp(obj)  consp(obj)\n");
+       printf("#define matomp(obj)  atomp(obj)\n");
+     #endif
+   #else
+     printf2("#define consp(obj)  (typecode(obj) == %d)\n",(tint)cons_type);
+     printf2("#define atomp(obj)  (!(typecode(obj) == %d))\n",(tint)cons_type);
+     printf2("#define mconsp(obj)  (mtypecode(obj) == %d)\n",(tint)cons_type);
+     printf2("#define matomp(obj)  (!(mtypecode(obj) == %d))\n",(tint)cons_type);
+   #endif
+ #else
+   printf2("#define consp(obj)  ((as_oint(obj) & %d) == %d)\n",7,cons_bias);
+   printf("#define mconsp(obj)  consp(obj)\n");
+   printf("#define atomp(obj)  (!consp(obj))\n");
+   printf("#define matomp(obj)  atomp(obj)\n");
+ #endif
+ printf("#define listp(obj)  (nullp(obj) || consp(obj))\n");
+ #ifndef TYPECODES
+  printf2("#define varobjectp(obj)  ((as_oint(obj) & %d) == %d)\n",3,varobject_bias);
+ #endif
 # #ifdef TYPECODES
 #   #if defined(symbol_bit_o)
 #     #ifdef WIDE_STRUCT
@@ -1054,11 +1064,11 @@ global int main()
 # #else
 #   printf1("#define vectorp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= %d))\n",23-1);
 # #endif
-# #ifdef TYPECODES
-#   printf2("#define simple_vector_p(obj)  (typecode(obj) == %d)\n",(tint)svector_type);
-# #else
-#   printf1("#define simple_vector_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Svector);
-# #endif
+ #ifdef TYPECODES
+   printf2("#define simple_vector_p(obj)  (typecode(obj) == %d)\n",(tint)svector_type);
+ #else
+   printf1("#define simple_vector_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Svector);
+ #endif
 # #ifdef TYPECODES
 #   printf2("#define general_vector_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(notsimple_bit_t),(tint)svector_type);
 # #else
@@ -1069,52 +1079,54 @@ global int main()
 # #else
 #   printf1("#define simple_string_p(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= %d))\n",22-16);
 # #endif
-# #ifdef TYPECODES
-#   printf2("#define stringp(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(notsimple_bit_t),(tint)sstring_type);
-# #else
-#   printf1("#define stringp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) == %d))\n",23-16);
-# #endif
+ #ifdef TYPECODES
+   printf2("#define stringp(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(notsimple_bit_t),(tint)sstring_type);
+ #else
+   printf1("#define stringp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) == %d))\n",23-16);
+ #endif
 # #ifdef TYPECODES
 #   printf1("#define simple_bit_vector_p(atype,obj)  (typecode(obj) == Array_type_simple_bit_vector(atype))\n");
 # #else
 #   printf1("#define simple_bit_vector_p(atype,obj)  (varobjectp(obj) && (Record_type(obj) == %d+(atype)))\n",Rectype_Sbvector);
 # #endif
-# #ifdef TYPECODES
-#   printf2("#define bit_vector_p(atype,obj)  ((typecode(obj) & ~%d) == Array_type_simple_bit_vector(atype))\n",(tint)bit(notsimple_bit_t));
-# #else
-#   printf2("#define bit_vector_p(atype,obj)  (varobjectp(obj) && ((Record_type(obj) & ~%d) == %d+(atype)))\n",Rectype_Sbvector^Rectype_bvector,Rectype_Sbvector&Rectype_bvector);
-# #endif
+ #ifdef TYPECODES
+   printf2("#define bit_vector_p(atype,obj)  ((typecode(obj) & ~%d) == Array_type_simple_bit_vector(atype))\n",(tint)bit(notsimple_bit_t));
+ #else
+   printf2("#define bit_vector_p(atype,obj)  (varobjectp(obj) && ((Record_type(obj) & ~%d) == %d+(atype)))\n",Rectype_Sbvector^Rectype_bvector,Rectype_Sbvector&Rectype_bvector);
+ #endif
 # #ifdef TYPECODES
 #   printf2("#define arrayp(obj)  ((tint)(typecode(obj) - %d) <= (tint)%d)\n",(tint)mdarray_type,(tint)(vector_type-mdarray_type));
 # #else
 #   printf1("#define arrayp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= %d))\n",24-1);
 # #endif
+   printf("extern object iarray_displace_check (object array, uintL size, uintL* index);\n");
+   printf("extern uintL vector_length (object vector);\n");
 # #ifdef TYPECODES
 #   printf1("#define instancep(obj)  (typecode(obj)==%d)\n",(tint)instance_type);
 # #else
 #   printf1("#define instancep(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Instance);
 # #endif
-# #ifdef TYPECODES
-#   printf1("#define orecordp(obj)  (typecode(obj)==%d)\n",(tint)orecord_type);
-# #else
-#   printf("#define orecordp(obj)  varobjectp(obj)\n");
-# #endif
-# #ifdef case_structure
-#   printf1("#define structurep(obj)  (typecode(obj)==%d)\n",(tint)structure_type);
-# #else
-#   printf("#define structurep(obj)  (orecordp(obj) && (Record_type(obj) == %d))\n",Rectype_Structure);
-# #endif
+ #ifdef TYPECODES
+    printf1("#define orecordp(obj)  (typecode(obj)==%d)\n",(tint)orecord_type);
+ #else
+    printf("#define orecordp(obj)  varobjectp(obj)\n");
+ #endif
+ #ifdef case_structure
+    printf1("#define structurep(obj)  (typecode(obj)==%d)\n",(tint)structure_type);
+ #else
+    printf("#define structurep(obj)  (orecordp(obj) && (Record_type(obj) == %d))\n",Rectype_Structure);
+ #endif
 # printf("#define packagep(obj)  (orecordp(obj) && (Record_type(obj) == %d))\n",Rectype_Package);
 # #ifdef TYPECODES
 #   printf1("#define charp(obj)  (typecode(obj)==%d)\n",(tint)char_type);
 # #else
 #   printf2("#define charp(obj)  ((as_oint(obj) & %d) == %d)\n",(7 << imm_type_shift) | immediate_bias,char_type);
 # #endif
-# #ifdef TYPECODES
-#   printf2("#define integerp(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)((fixnum_type|bignum_type|bit(sign_bit_t)) & ~(fixnum_type&bignum_type)),(tint)(fixnum_type&bignum_type));
-# #else
-#   printf3("#define integerp(obj)  (((as_oint(obj) & %d) == %d) || (varobjectp(obj) && (Record_type(obj) == %d)))\n",(6 << imm_type_shift) | immediate_bias,fixnum_type,Rectype_Bignum);
-# #endif
+ #ifdef TYPECODES
+   printf2("#define integerp(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)((fixnum_type|bignum_type|bit(sign_bit_t)) & ~(fixnum_type&bignum_type)),(tint)(fixnum_type&bignum_type));
+ #else
+   printf3("#define integerp(obj)  (((as_oint(obj) & %d) == %d) || (varobjectp(obj) && (Record_type(obj) == %d)))\n",(6 << imm_type_shift) | immediate_bias,fixnum_type,Rectype_Bignum);
+ #endif
   #ifdef TYPECODES
     printf2("#define fixnump(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)fixnum_type);
   #else
@@ -1320,13 +1332,13 @@ global int main()
            printf(" }");
          #endif
          printf("\n");
-# #if defined(AMIGAOS) || defined(NO_ASYNC_INTERRUPTS)
-#   printf("#define begin_system_call()\n");
-#   printf("#define end_system_call()\n");
-# #else
-#   printf("#define begin_system_call()  begin_call()\n");
-#   printf("#define end_system_call()  end_call()\n");
-# #endif
+ #if defined(AMIGAOS) || defined(NO_ASYNC_INTERRUPTS)
+   printf("#define begin_system_call()\n");
+   printf("#define end_system_call()\n");
+ #else
+   printf("#define begin_system_call()  begin_call()\n");
+   printf("#define end_system_call()  end_call()\n");
+ #endif
 # printf("#define check_STACK()  if (STACK_overflow()) STACK_ueber()\n");
 # #ifdef STACK_DOWN
 #   printf("#define STACK_overflow()  ( (aint)STACK < (aint)STACK_bound )\n");
@@ -1337,20 +1349,20 @@ global int main()
 # #endif
 # printf("extern void* STACK_bound;\n");
 # printf("nonreturning_function(extern, STACK_ueber, (void));\n");
-# printf("nonreturning_function(extern, fehler_notreached, (const char * file, uintL line));\n");
-# #ifndef LANGUAGE_STATIC
-#   #ifndef GNU_GETTEXT
-#     printf("extern uintL language;\n");
-#     printf1("#define ENGLISH  (language==%d)\n",language_english);
-#   #else
-#     printf("extern const char * clgettext (const char * msgid);\n");
-#     printf("#define GETTEXT clgettext\n");
-#   #endif
-# #endif
-# printf("extern object allocate_cons (void);\n");
+ printf("nonreturning_function(extern, fehler_notreached, (const char * file, uintL line));\n");
+ #ifndef LANGUAGE_STATIC
+   #ifndef GNU_GETTEXT
+     printf("#define GETTEXT(english) english\n");
+   #else
+     printf("extern const char * clgettext (const char * msgid);\n");
+     printf("#define GETTEXT clgettext\n");
+   #endif
+ #endif
+  printf("extern object allocate_cons (void);\n");
 # printf("extern object make_symbol (object string);\n");
-# printf("extern object allocate_vector (uintL len);\n");
-# printf("extern object allocate_bit_vector (uintB atype, uintL len);\n");
+  printf("extern object allocate_vector (uintL len);\n");
+  printf("#define Atype_8Bit 3\n");
+  printf("extern object allocate_bit_vector (uintB atype, uintL len);\n");
 # #ifdef UNICODE
 #   printf("extern object allocate_s32string (uintL len);\n");
 #   printf("#define allocate_string(len)  allocate_s32string(len)\n");
@@ -1381,24 +1393,24 @@ global int main()
   #include "subr.c"
   #undef LISPFUN
   printf("} subr_tab_data;\n");
-# #if !defined(MAP_MEMORY_TABLES)
-#   printf("#define subr_tab  subr_tab_data\n");
-#   #ifdef TYPECODES
-#     printf1("#define subr_tab_ptr_as_object(subr_addr)  (type_constpointer_object(%d,subr_addr))\n",(tint)subr_type);
-#   #else
-#     #ifdef WIDE_AUXI
-#       printf1("#define subr_tab_ptr_as_object(subr_addr)  as_object_with_auxi((aint)(subr_addr)+%d)\n",subr_bias);
-#     #else
-#       printf1("#define subr_tab_ptr_as_object(subr_addr)  as_object((oint)(subr_addr)+%d)\n",subr_bias);
-#     #endif
-#   #endif
-#   printf("#define L(name)  subr_tab_ptr_as_object(&subr_tab.D_##name)\n");
-# #else
-#   printf1("#define subr_tab_addr  ((struct subr_tab_ *)type_zero_oint(%d))\n",(tint)subr_type);
-#   printf("#define subr_tab  (*subr_tab_addr)\n");
-#   printf("#define subr_tab_ptr_as_object(subr_addr)  (as_object((oint)(subr_addr)))\n");
-#   printf("#define L(name)  subr_tab_ptr_as_object(&subr_tab_addr->D_##name)\n");
-# #endif
+ #if !defined(MAP_MEMORY_TABLES)
+   printf("#define subr_tab  subr_tab_data\n");
+   #ifdef TYPECODES
+     printf1("#define subr_tab_ptr_as_object(subr_addr)  (type_constpointer_object(%d,subr_addr))\n",(tint)subr_type);
+   #else
+     #ifdef WIDE_AUXI
+       printf1("#define subr_tab_ptr_as_object(subr_addr)  as_object_with_auxi((aint)(subr_addr)+%d)\n",subr_bias);
+     #else
+       printf1("#define subr_tab_ptr_as_object(subr_addr)  as_object((oint)(subr_addr)+%d)\n",subr_bias);
+     #endif
+   #endif
+   printf("#define L(name)  subr_tab_ptr_as_object(&subr_tab.D_##name)\n");
+ #else
+   printf1("#define subr_tab_addr  ((struct subr_tab_ *)type_zero_oint(%d))\n",(tint)subr_type);
+   printf("#define subr_tab  (*subr_tab_addr)\n");
+   printf("#define subr_tab_ptr_as_object(subr_addr)  (as_object((oint)(subr_addr)))\n");
+   printf("#define L(name)  subr_tab_ptr_as_object(&subr_tab_addr->D_##name)\n");
+ #endif
   printf("extern struct symbol_tab_ {\n");
   #define LISPSYM(name,printname,package)  \
     printf("  symbol_ %s;\n",STRING(S_##name));
@@ -1446,6 +1458,7 @@ global int main()
     printf(" - (aint)&symbol_tab < sizeof(symbol_tab))) return true; else return false; }\n");
   #endif
   printf("extern struct object_tab_ object_tab;\n");
+  printf("#define GLO(name)  (object_tab.name)\n");
   printf("extern uintC module_count;\n");
   printf("typedef struct { const char* packname; const char* symname; } subr_initdata_t;\n");
   printf("typedef struct { const char* initstring; } object_initdata_t;\n");
@@ -1470,6 +1483,8 @@ global int main()
     printf("#define skipSTACKop  -=\n");
     printf("#define STACKop      -\n");
   #endif
+    printf("#define STACK_0  (STACK_(0))\n#define STACK_1  (STACK_(1))\n#define STACK_2  (STACK_(2))\n#define STACK_3  (STACK_(3))\n#define STACK_4  (STACK_(4))\n#define STACK_5  (STACK_(5))\n#define STACK_6  (STACK_(6))\n#define STACK_7  (STACK_(7))\n#define STACK_8  (STACK_(8))\n#define STACK_9  (STACK_(9))\n#define STACK_10  (STACK_(10))\n");
+
   #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM) && !defined(WIDE) && defined(STACK_register)
     #ifdef STACK_DOWN
       printf("#define pushSTACK(obj)  ({ __asm__ __volatile__ (\"movel %%0,%s%s@-\" : : \"g\" ((object)(obj)) : \"%s\" ); })\n",REGISTER_PREFIX,STACK_register,STACK_register);
@@ -1503,8 +1518,6 @@ global int main()
     printf("register object value1 __asm__(\"%s\");\n",value1_register);
     printf("#endif\n");
   #endif
-# printf("#define value2  mv_space[1]\n");
-# printf("#define value3  mv_space[2]\n");
 # printf("nonreturning_function(extern, fehler_mv_zuviel, (object caller));\n");
     printf("struct backtrace_t {\n  struct backtrace_t* bt_next;\n  gcv_object_t bt_caller;\n  gcv_object_t *bt_stack;\n  int bt_num_arg;\n};\n");
     printf("typedef struct backtrace_t * p_backtrace_t;\n");
@@ -1516,7 +1529,12 @@ global int main()
     printf("register p_backtrace_t back_trace __asm__(\"%s\");\n",back_trace_register);
     printf("#endif\n");
   #endif
-# printf("#define args_end_pointer  STACK\n");
+  { int i = 2;
+    for (; i <=9 ; i++)
+      printf("#define value%d  mv_space[%d]\n",i,i-1);
+  }
+  printf("#define VALUES1(A) do{ value1 = (A); mv_count = 1; }while(0)\n");
+  printf("#define args_end_pointer  STACK\n");
 # printf("#define set_args_end_pointer(new_args_end_pointer)  STACK = (new_args_end_pointer)\n");
 # #ifdef STACK_DOWN
 #   printf("#define NEXT(argpointer)  (*(--(argpointer)))\n");
@@ -1560,40 +1578,136 @@ global int main()
   printf("#define subr_rest_function_args  (uintC argcount, object* rest_args_pointer)\n");
   printf("#define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { (lisp_function_t)(&C_##name), nullobj, nullobj, 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, sec},\n");
   printf("#define LISPFUN  LISPFUN_B\n");
-# #ifdef UNICODE
-#   printf("extern object n_char_to_string (const char* charptr, uintL len, object encoding);\n");
-# #else
-#   printf("#define n_char_to_string(charptr,len,encoding)  n_char_to_string_(charptr,len)\n");
-#   printf("extern object n_char_to_string_ (const char* charptr, uintL len);\n");
-# #endif
-# #ifdef UNICODE
-#   printf("extern object asciz_to_string (const char * asciz, object encoding);\n");
-# #else
-#   printf("#define asciz_to_string(asciz,encoding)  asciz_to_string_(asciz)\n");
-#   printf("extern object asciz_to_string_ (const char * asciz);\n");
-# #endif
+ #ifdef UNICODE
+   printf("extern object n_char_to_string (const char* charptr, uintL len, object encoding);\n");
+ #else
+   printf("#define n_char_to_string(charptr,len,encoding)  n_char_to_string_(charptr,len)\n");
+   printf("extern object n_char_to_string_ (const char* charptr, uintL len);\n");
+ #endif
+ #ifdef UNICODE
+   printf("extern object asciz_to_string (const char * asciz, object encoding);\n");
+ #else
+   printf("#define asciz_to_string(asciz,encoding)  asciz_to_string_(asciz)\n");
+   printf("extern object asciz_to_string_ (const char * asciz);\n");
+ #endif
   printf("extern object ascii_to_string (const char * asciz);\n");
+  printf("extern object string_concat (uintC argcount);\n");
 # #ifdef UNICODE
 #   printf("extern object string_to_asciz (object obj, object encoding);\n");
 # #else
 #   printf("#define string_to_asciz(obj,encoding)  string_to_asciz_(obj)\n");
 #   printf("extern object string_to_asciz_ (object obj);\n");
 # #endif
+  printf("extern object unpack_string_ro (object string, uintL* len, uintL* offset);\n");
+  printf("extern uintL cslen_f (object encoding, const chart*src, uintL srclen);\n");
+  printf("extern void cstombs_f (object encoding, const chart *src, uintL srclen, uintB* dest, uintL destlen);\n");
+  printf("#define with_string_0(string,encoding,ascizvar,statement) ");
+  printf("    do { var uintL ascizvar##_len;");
+  printf("    var uintL ascizvar##_offset;");
+  printf("    var object ascizvar##_string = unpack_string_ro(string,&ascizvar##_len,&ascizvar##_offset);");
+  printf("    var const chart* ptr1;");
+  printf("    unpack_sstring_alloca(ascizvar##_string,ascizvar##_len,ascizvar##_offset, ptr1=);");
+  printf("   {var uintL ascizvar##_bytelen = cslen_f(encoding,ptr1,ascizvar##_len);");
+  printf("    var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_bytelen+1);");
+  printf("    cstombs_f(encoding,ptr1,ascizvar##_len,&ascizvar##_data[0],ascizvar##_bytelen);");
+  printf("    ascizvar##_data[ascizvar##_bytelen] = 0;");
+  printf("    {var char* ascizvar = (char*) &ascizvar##_data[0];");
+  printf("     statement");
+  printf("    }");
+  printf("    FREE_DYNAMIC_ARRAY(ascizvar##_data);");
+  printf("  }} while(0)\n");
+  printf("#define with_sstring_0(string,encoding,ascizvar,statement)");
+  printf("  do { var object ascizvar##_string = (string);");
+  printf("    simple_array_to_storage(ascizvar##_string);");
+  printf("   {var uintL ascizvar##_len = Sstring_length(ascizvar##_string);");
+  printf("    var const chart* ptr1;");
+  printf("    unpack_sstring_alloca(ascizvar##_string,ascizvar##_len,0, ptr1=);");
+  printf("   {var uintL ascizvar##_bytelen = cslen_f(encoding,ptr1,ascizvar##_len);");
+  printf("    var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_bytelen+1);");
+  printf("    cstombs_f(encoding,ptr1,ascizvar##_len,&ascizvar##_data[0],ascizvar##_bytelen);");
+  printf("    ascizvar##_data[ascizvar##_bytelen] = 0;");
+  printf("    {var char* ascizvar = (char*) &ascizvar##_data[0];");
+  printf("     statement");
+  printf("    }");
+  printf("    FREE_DYNAMIC_ARRAY(ascizvar##_data);");
+  printf("  }}} while(0)\n");
+
+#ifdef HAVE_SMALL_SSTRING
+  printf("extern void copy_8bit_16bit (const uint8* src, uint16* dest, uintL len);\n");
+  printf("extern void copy_8bit_32bit (const uint8* src, uint32* dest, uintL len);\n");
+  printf("extern void copy_16bit_8bit (const uint16* src, uint8* dest, uintL len);\n");
+  printf("extern void copy_16bit_16bit (const uint16* src, uint16* dest, uintL len);\n");
+  printf("extern void copy_16bit_32bit (const uint16* src, uint32* dest, uintL len);\n");
+  printf("extern void copy_32bit_8bit (const uint32* src, uint8* dest, uintL len);\n");
+  printf("extern void copy_32bit_16bit (const uint32* src, uint16* dest, uintL len);\n");
+ #ifdef TYPECODES
+  printf("#define TheS8string(obj) ((S8string)(types_pointable(sstring_type,obj)))\n");
+  printf("#define TheS16string(obj) ((S16string)(types_pointable(sstring_type,obj)))\n");
+  printf("#define TheS32string(obj) ((S32string)(types_pointable(sstring_type,obj)))\n");
+ #else
+  printf("#define TheS8string(obj) ((S8string)(ngci_pointable(obj)-%d))\n",varobject_bias);
+  printf("#define TheS16string(obj) ((S16string)(ngci_pointable(obj)-%d))\n",varobject_bias);
+  printf("#define TheS32string(obj) ((S32string)(ngci_pointable(obj)-%d))\n",varobject_bias);
+ #endif
+
+  printf("typedef uint8 cint8;\n");
+  printf("typedef uint16 cint16;\n");
+  printf("typedef uint32 cint32;\n");
+  printf("#define STRUCT_SSTRING(cint_type)");
+  printf("  struct {");
+  printf("    LRECORD_HEADER");
+  printf("    cint_type  data[unspecified];");
+  printf("  }\n");
+  printf("typedef STRUCT_SSTRING(cint8)  s8string_;\n");
+  printf("typedef s8string_ *  S8string;\n");
+  printf("typedef STRUCT_SSTRING(cint16)  s16string_;\n");
+  printf("typedef s16string_ *  S16string;\n");
+  printf("typedef STRUCT_SSTRING(cint32)  s32string_;\n");
+  printf("typedef s32string_ *  S32string;\n");
+
+  printf("#define unpack_sstring_alloca(string,len,offset,charptr_assignment)");
+  printf("  if (Record_type(string) == %d",Rectype_S32string);
+  printf("      || Record_type(string) == %d) {",Rectype_Imm_S32string);
+  printf("    charptr_assignment (const chart*) &TheS32string(string)->data[offset];");
+  printf("  } else {");
+  printf("    var chart* _unpacked_ = (chart*)alloca((len)*sizeof(chart));");
+  printf("    if ((len) > 0) {");
+  printf("      if (Record_type(string) == %d",Rectype_S16string);
+  printf("          || Record_type(string) == %d)",Rectype_Imm_S16string);
+  printf("        copy_16bit_32bit(&TheS16string(string)->data[offset],(cint32*)_unpacked_,len);");
+  printf("      else if (Record_type(string) == %d",Rectype_S8string);
+  printf("               || Record_type(string) == %d)",Rectype_Imm_S8string);
+  printf("        copy_8bit_32bit(&TheS8string(string)->data[offset],(cint32*)_unpacked_,len);");
+  printf("      else");
+  printf("        NOTREACHED;");
+  printf("    }");
+  printf("    charptr_assignment (const chart*) _unpacked_;");
+  printf("  }\n");
+#else
+  printf("#define unpack_sstring_alloca(string,len,offset,charptr_assignment)");
+  printf("  charptr_assignment (const chart*) &TheSstring(string)->data[offset];\n");
+#endif
+
 # printf("#define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))\n");
-# printf("extern object vectorof (uintC len);\n");
+  printf("extern object vectorof (uintC len);\n");
 # printf("extern object allocate_bit_vector_0 (uintL len);\n");
 # printf("extern chart up_case (chart ch);\n");
 # printf("extern chart down_case (chart ch);\n");
 # printf("extern chart* unpack_string (object string, uintL* len);\n");
 # printf("extern object make_list (uintL len);\n");
-# printf("extern object listof (uintC len);\n");
-# printf("typedef enum { condition, serious_condition, error, program_error, source_program_error, control_error, arithmetic_error, division_by_zero, floating_point_overflow, floating_point_underflow, cell_error, unbound_variable, undefined_function, unbound_slot, type_error, keyword_error, charset_type_error, package_error, print_not_readable, parse_error, stream_error, end_of_file, reader_error, file_error, storage_condition, interrupt_condition, warning, } condition_t;\n");
-# printf("nonreturning_function(extern, fehler, (condition_t errortype, const char * errorstring));\n");
+  printf("extern object listof (uintC len);\n");
+  printf("extern object nreverse (object list);\n");
+  printf("global object memq (const object obj, const object lis);\n");
+  printf("typedef enum { condition=%d, serious_condition=%d, error=%d, program_error=%d, source_program_error=%d, control_error=%d, arithmetic_error=%d, division_by_zero=%d, floating_point_overflow=%d, floating_point_underflow=%d, cell_error=%d, unbound_variable=%d, undefined_function=%d, unbound_slot=%d, type_error=%d, keyword_error=%d, charset_type_error=%d, package_error=%d, print_not_readable=%d, parse_error=%d, stream_error=%d, end_of_file=%d, reader_error=%d, file_error=%d, storage_condition=%d, interrupt_condition=%d, warning=%d, } condition_t;\n",condition, serious_condition, error, program_error, source_program_error, control_error, arithmetic_error, division_by_zero, floating_point_overflow, floating_point_underflow, cell_error, unbound_variable, undefined_function, unbound_slot, type_error, keyword_error, charset_type_error, package_error, print_not_readable, parse_error, stream_error, end_of_file, reader_error, file_error, storage_condition, interrupt_condition, warning);
+  printf("nonreturning_function(extern, fehler, (condition_t errortype, const char * errorstring));\n");
+  printf("nonreturning_function(extern, OS_error, (void));\n");
 # printf("nonreturning_function(extern, fehler_list, (object obj));\n");
 # printf("nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));\n");
 # printf("nonreturning_function(extern, fehler_vector, (object obj));\n");
 # printf("extern object check_char (object obj);\n");
 # printf("nonreturning_function(extern, fehler_sstring, (object obj));\n");
+  printf("extern void check_value (condition_t errortype, const char * errorstring);\n");
+  printf("extern object check_string (object obj);\n");
   printf("extern object check_uint8 (object obj);\n");
   printf("extern object check_sint8 (object obj);\n");
   printf("extern object check_uint16 (object obj);\n");
@@ -1611,6 +1725,29 @@ global int main()
 # printf("extern object find_package (object string);\n");
 # printf("extern uintBWL intern (object string, object pack, object* sym_);\n");
 # printf("extern object intern_keyword (object string);\n");
+  printf("extern object object_out (object obj);\n");
+  printf("#define OBJECT_OUT(obj,label)");
+  printf(" (printf(\"[%%s:%%d] %%s: %%s:\\n\",__FILE__,__LINE__,STRING(obj),label),");
+  printf("  obj=object_out(obj))\n");
+
+  printf("typedef enum { DIRECTION_PROBE=%d, DIRECTION_INPUT=%d, DIRECTION_INPUT_IMMUTABLE=%d, DIRECTION_OUTPUT=%d, DIRECTION_IO=%d} direction_t;\n",
+         DIRECTION_PROBE, DIRECTION_INPUT, DIRECTION_INPUT_IMMUTABLE,
+         DIRECTION_OUTPUT, DIRECTION_IO);
+  printf("extern direction_t check_direction (object dir);\n");
+  printf("typedef enum { IF_DOES_NOT_EXIST_UNBOUND, IF_DOES_NOT_EXIST_ERROR, IF_DOES_NOT_EXIST_NIL, IF_DOES_NOT_EXIST_CREATE } if_does_not_exist_t;\n");
+  printf("extern if_does_not_exist_t check_if_does_not_exist (object if_not_exist);\n");
+#ifdef AMIGAOS
+  printf("extern object convert_time_to_universal (const struct DateStamp * datestamp);\n");
+#endif
+#if defined(UNIX) || defined(MSDOS) || defined(RISCOS)
+  printf("#include <time.h>\n");
+  printf("extern object convert_time_to_universal (const time_t* time);\n");
+#endif
+#ifdef WIN32_NATIVE
+  printf("#include <windows.h>\n");
+  printf("extern object convert_time_to_universal (const FILETIME* time);\n");
+#endif
+
 # printf("extern bool eql (object obj1, object obj2);\n");
 # printf("extern bool equal (object obj1, object obj2);\n");
 # printf("extern bool equalp (object obj1, object obj2);\n");
@@ -1705,7 +1842,19 @@ global int main()
     printf("extern void convert_to_foreign_mallocing (object fvd, object obj, void* data);\n");
     printf("extern void convert_to_foreign_nomalloc (object fvd, object obj, void* data);\n");
   #endif
-# Additional stuff for modules.
+  #ifdef FOREIGN
+    printf("#define FOREIGN %s\n",STRINGIFY(FOREIGN));
+    printf("typedef struct { XRECORD_HEADER void* fp_pointer;} * Fpointer;\n");
+    printf("#define fpointerp(obj) (orecordp(obj) && (Record_type(obj) == %d))\n",Rectype_Fpointer);
+    #ifdef TYPECODES
+      printf("#define TheFpointer(obj)  ((Fpointer)(type_pointable(orecord_type,obj)))\n");
+    #else
+      printf("#define TheFpointer(obj)  ((Fpointer)(ngci_pointable(obj)-%d))\n",varobject_bias);
+    #endif
+    printf("extern object allocate_fpointer (FOREIGN foreign);\n");
+  #endif
+    printf("enum { seclass_foldable, seclass_no_se, seclass_read, seclass_write, seclass_default};\n");
+/* Additional stuff for modules. */
   printf("#define DEFMODULE(module_name,package_name)\n");
   printf("#define DEFUN(funname,lambdalist,signature) LISPFUN signature\n");
   printf("#define DEFVAR(varname)\n");
