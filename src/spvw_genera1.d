@@ -170,6 +170,7 @@ local uintC generation;
               while (objptr < physpage_end)                          \
                 walk_area_iarray(objptr,physpage_end,walkfun);       \
               break;                                                 \
+            case_weakkvt: # weak-key-value-table                     \
             case_svector: # simple-vector                            \
               while (objptr < physpage_end)                          \
                 walk_area_svector(objptr,physpage_end,walkfun);      \
@@ -198,6 +199,7 @@ local uintC generation;
                           # Arrays, die nicht simple sind:                         \
                           walk_area_iarray(objptr,physpage_end,walkfun);           \
                           break;                                                   \
+                        case_weakkvt: # weak-key-value-table                       \
                         case_svector: # simple-vector                              \
                           walk_area_svector(objptr,physpage_end,walkfun);          \
                           break;                                                   \
@@ -233,6 +235,7 @@ local uintC generation;
                           # Arrays, die nicht simple sind:                          \
                           walk_area_iarray(objptr,physpage_end,walkfun);            \
                           break;                                                    \
+                        case Rectype_WeakKVT: # weak-key-value-table                \
                         case Rectype_Svector: # simple-vector                       \
                           walk_area_svector(objptr,physpage_end,walkfun);           \
                           break;                                                    \
@@ -462,6 +465,7 @@ local uintC generation;
                   }
                   if (!(objptr == gen0_end)) abort();
                   break;
+                case_weakkvt: # weak-key-value-table
                 case_svector: # simple-vector
                   physpage->continued_addr = (object*)gen0_start; # irrelevant
                   physpage->continued_count = 0;
@@ -613,6 +617,7 @@ local uintC generation;
                       objptr = nextptr;
                     }
                     break;
+                  case_weakkvt: # weak-key-value-table
                   case_svector: # simple-vector
                     {
                       var uintL count = svector_length((Svector)objptr);
@@ -661,6 +666,7 @@ local uintC generation;
                       case_Rectype_ostring_above;
                       case_Rectype_ovector_above;
                       case_Rectype_Svector_above;
+                      case_Rectype_WeakKVT_above;
                       case Rectype_Sbvector:
                       case Rectype_Sb2vector:
                       case Rectype_Sb4vector:
