@@ -192,7 +192,7 @@ details.
    <li><a href="#rexx">ARexx</a>
    <li><a href="#socket">Socket Streams</a>
    <li><a href="#syscalls">System Calls</a>
-   <li><a href="#script">CLISP as a script interpreter</a>
+   <li><a href="#app-dev">Application delivery with CLISP</a>
    <li><a href="#shell">Shell</a>
    <li><a href="#other">Other</a>
   </ol>
@@ -254,8 +254,6 @@ The class precedence lists of the system classes
      <code>*print-miser-width*</code></a>
  <li><a href="CLHSROOT/Body/var_stprint-p_t-dispatchst.html">
      <code>*print-pprint-dispatch*</code></a>
- <li><a href="CLHSROOT/Body/stagenfun_all_ate-instance.html">
-     <code>allocate-instance</code></a>
  <li><a href="CLHSROOT/Body/locmac_call-m__make-method.html">
      <code>call-method</code></a>
  <li><a href="CLHSROOT/Body/stagenfun_change-class.html">
@@ -2553,13 +2551,12 @@ elements are compacted below the new fill pointer.
 
 <p><code>sort</code> and <code>stable-sort</code> have two additional
 keywords <code>:start</code> and <code>:end</code>:
-<pre><code>
-  (sort <var>sequence</var> <var>predicate</var> &amp;key :key :start :end)
+<pre><code>  (sort <var>sequence</var> <var>predicate</var> &amp;key :key :start :end)
   (stable-sort <var>sequence</var> <var>predicate</var> &amp;key :key :start :end)
 </code></pre>
 
 <p><code>sort</code> and <code>stable-sort</code> are identical. They
-implement the mergesort algorithm. Worst case complexity:
+implement the mergesort algorithm.  Worst case complexity:
 <var>O(n*log(n))</var> comparisons, where <var>n</var> is the length of
 the subsequence bounded by the <code>:start</code> and <code>:end</code>
 arguments.
@@ -2577,9 +2574,8 @@ arguments.
 <code>make-hash-table</code></a> has an additional keyword
 <code>:initial-contents</code>:
 
-<p><code>(make-hash-table &amp;key :test :initial-contents :size
-                          :rehash-size :rehash-threshold)</code>
-
+<pre><code>(make-hash-table &amp;key :test :initial-contents :size
+                 :rehash-size :rehash-threshold)</code></pre>
 
 <p>The <code>:initial-contents</code> argument is an alist that is used
 to initialize the new hash table.  The <code>:rehash-threshold</code>
@@ -4493,7 +4489,7 @@ the instruction how to type the character.
 <p><a href="CLHSROOT/Body/fun_format.html">
 <code>format</code></a>
 <a href="CLHSROOT/Body/sec_22-3-6-1.html"><code>~T</code></a>
-can determine the current column of any stream.
+can determine the current column of any built-in stream.
 
 <a name="pathprint"></a><h3>pathnames</h3>
 
@@ -4699,7 +4695,7 @@ alternative to the use of <code>readtable-case</code> is the use of the
 
 <dl>
   <dt> <a name="read-char-status"></a>
-    <code>(lisp:<strong>read-char-status</strong> <var>stream</var>)</code>
+    <code>(<strong>lisp:read-char-status</strong> <var>stream</var>)</code>
   <dd> <code>lisp:read-char-status</code> is a variant of the standard
     <a href="CLHSROOT/Body/fun_listen.html">
     <code>listen</code></a> function, which returns more detailed information
@@ -5334,7 +5330,7 @@ specified by the vote.
  <dt><a href="CLHSROOT/Issues/iss005.html">
      ADJUST-ARRAY-NOT-ADJUSTABLE:IMPLICIT-COPY</a> <dd>no
  <dt><a href="CLHSROOT/Issues/iss006.html">
-     ALLOCATE-INSTANCE:ADD</a>                     <dd>no
+     ALLOCATE-INSTANCE:ADD</a>                     <dd>yes
  <dt><a href="CLHSROOT/Issues/iss007.html">
      ALLOW-LOCAL-INLINE:INLINE-NOTINLINE</a>       <dd>yes
  <dt><a href="CLHSROOT/Issues/iss008.html">
@@ -6645,7 +6641,7 @@ command line options:
  <dt><strong>-C</strong>
   <dd>Set <a href="#loadfile"><code>lisp:*load-compiling*</code></a> to
   <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>.
-  Useful in <a href="#script">scripts</a>.
+  Useful in <a href="#app-dev">scripts</a>.
  <dt><a name="clisprc"><strong>-norc</strong></a>
   <dd>Do not load the user run control file on startup.  Normally, CLISP
   executes <pre><code>(load (merge-pathnames
@@ -8545,11 +8541,25 @@ lisp.
 </dl>
 
 
-<!-- #ifdef UNIX -->
-<a name="script"></a><h3>Extensions-2.8. CLISP as a script interpreter</h3>
+<a name="app-dev"></a><h3>Extensions-2.8. Application delivery with CLISP</h3>
 
-<em>Platform dependent: <strong>UNIX</strong> platforms only.</em>
-<p>On Unix, a script can be made executable by adding a first line of
+<p>CLISP supports "application delivery" in two forms:
+<dl>
+ <dt><strong>UNIX</strong>
+  <dd>CLISP can act as a script interpreter;
+ <dt><strong>Win32</strong> and compatible desktop environments (<a
+     href="http://www.gnome.org">GNOME</a> and <a
+     href="http://www.kde.org">KDE</a>)
+  <dd>files created with CLISP can be associated with the CLISP
+      executables so that clicking on them would make CLISP execute the
+      appropriate code.
+</ul>
+
+<dl>
+<!-- #ifdef UNIX -->
+<dt><em>Platform dependent: <strong>UNIX</strong> platforms only.</em>
+
+<dd>On Unix, a script can be made executable by adding a first line of
 the form
 
 <pre><code>#!<var>interpreter</var> [<var>interpreter-args</var>]</code></pre>
@@ -8625,8 +8635,33 @@ EOF
 <p>The problem with this approach is that the return values of each form
 will be printed to the standard output.  Another problem is that no user
 input will be available.
-
+<p><br>
 <!-- #endif -->
+
+<!-- #ifdef win32 -->
+<dt><em>Platform dependent: <strong>win32</strong> platforms only.</em>
+
+<dd>There are two different ways to make CLISP "executables" for
+Windows platforms.
+
+<ul>
+ <li>Associate the <code>mem</code> extension with
+     <code>"c:\clisp\lisp.exe -m 10M -M %s"</code>.
+ <li>Associate the <code>fas</code> extension with
+     <code>"c:\clisp\lisp.exe -m 10M -M c:\clisp\lispinit.mem -i %s"</code>.
+     Alternatively, you may want to have a function <code>main</code> in
+     your files and associate the <code>fas</code> extension with
+     <code>"c:\clisp\lisp.exe -m 10M -M c:\clisp\lispinit.mem -i %s
+            -x (main)"</code>.
+</ul>
+
+<p>The clicking on the compiled lisp file (with <code>fas</code>
+extension) will load the file (thus executing all the code in the file),
+while clicking on the CLISP's memory image (with <code>mem</code>
+extension) with start clisp with the given <a href="#image">memory
+image</a>.
+<!-- #endif -->
+</dl>
 
 <a name="shell"></a><h3>Extensions-2.9. Shell</h3>
 
