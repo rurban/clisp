@@ -1,5 +1,10 @@
 2005-03-14  Sam Steingold  <sds@gnu.org>
 
+	* condition.lisp (exitunconditionally): use PRETTY-PRINT-CONDITION
+	instead of PRINT-CONDITION, like in reploop.lisp:BREAK-LOOP
+
+2005-03-14  Sam Steingold  <sds@gnu.org>
+
 	* utils/modprep.lisp (string-upcase-verbose): do not upcase strings
 
 2005-03-14  Sam Steingold  <sds@gnu.org>
