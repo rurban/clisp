@@ -517,6 +517,12 @@ T
         (char-equal "ABC" "a")))
 (T T)
 
+(handler-bind ((type-error
+                (lambda (c)
+                  (princ c) (terpri)
+                  (use-value (string (type-error-datum c))))))
+  (ext:string-concat "foo-" 'bar "-baz"))
+"foo-BAR-baz"
 
 (handler-bind ((undefined-function
                 (lambda (c) (princ c) (terpri)

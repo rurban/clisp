@@ -1,3 +1,8 @@
+2004-02-05  Sam Steingold  <sds@gnu.org>
+
+	* charstrg.d (string_concat): do not modify argptr when arg is
+	not a string
+
 2004-02-03  Bruno Haible  <bruno@clisp.org>
 
 	* io.d (JUSTIFY_END_FILL): Renamed from JUSTIFY_END_ENG.
