@@ -1,13 +1,27 @@
-/* ======= General internationalization, for Lisp programs too ======= */
+/*
+ * ======= General internationalization, for Lisp programs too =======
+ * Copyright (C) 1990-2004 Bruno Haible
+ * Copyright (C) 1998-2004 Sam Steingold
+ * GPL2
+ */
+
+#if defined(_WIN32)
+/* get ASCII functions */
+# undef UNICODE
+#endif
 
 #include "clisp.h"
 #include "config.h"
 
+#include <string.h>             /* strncpy() */
 #if defined(HAVE_LOCALE_H)
 # include <locale.h>
 #endif
+#if defined(HAVE_LANGINFO_H)
+# include <langinfo.h>
+#endif
 
-#ifdef UNICODE
+#ifdef CLISP_UNICODE
 # define if_UNICODE(statement)  statement
 #else
 # define if_UNICODE(statement)  /*nothing*/
@@ -29,7 +43,7 @@ static inline object do_gettext (const char* msgid,
     translated_msg = "";  /* Don't return the catalog's header entry. */
   } else {
     begin_system_call();
-#  ifdef UNICODE
+#  ifdef CLISP_UNICODE
     if (domain != NULL)
       bind_textdomain_codeset(domain,"UTF-8");
 #  endif
@@ -44,7 +58,7 @@ static inline object do_ngettext (const char* msgid, const char* msgid_plural,
 {
   const char* translated_msg;
   begin_system_call();
-# ifdef UNICODE
+# ifdef CLISP_UNICODE
   if (domain != NULL)
     bind_textdomain_codeset(domain,"UTF-8");
 # endif
@@ -179,22 +193,158 @@ DEFUN(I18N:SET-TEXTDOMAINDIR, domain directory)
 
 
 /* ======================== locale ======================== */
-DEFUN(I18N:SET-LOCALE, category &optional locale)
+#if defined(HAVE_SETLOCALE)
+DEFUN(I18N:SET-LOCALE, &optional category locale)
 { /* call setlocale(3) */
-  int category = check_locale_category(STACK_1);
-  object locale = STACK_0;
-  char* retval;
-  if (missingp(locale)) {
-    begin_system_call();
-    retval = setlocale(category,NULL);
-    end_system_call();
-  } else {
-    with_string_0(STACK_0 = check_string(locale),Symbol_value(S(ascii)),loc_z,{
+  gcv_object_t *category = &STACK_1;
+  gcv_object_t *locale = &STACK_0;
+  char* res;
+  if (missingp(*category)) {
+    int pos = 0;
+    if (missingp(*locale)) {
+      for (; pos < check_locale_category_table_size; pos++) {
         begin_system_call();
-        retval = setlocale(category,loc_z);
+        res = setlocale(check_locale_category_table[pos].c_const,NULL);
         end_system_call();
-      });
+        pushSTACK(*check_locale_category_table[pos].l_const);
+        pushSTACK(res ? asciz_to_string(res,Symbol_value(S(utf_8))) : NIL);
+      }
+    } else {
+      *locale = check_string(*locale);
+      with_string_0(*locale,Symbol_value(S(utf_8)),loc_z,{
+          for (; pos < check_locale_category_table_size; pos++) {
+            begin_system_call();
+            res = setlocale(check_locale_category_table[pos].c_const,loc_z);
+            end_system_call();
+            pushSTACK(*check_locale_category_table[pos].l_const);
+            pushSTACK(res ? asciz_to_string(res,Symbol_value(S(utf_8))) : NIL);
+          }
+        });
+    }
+    VALUES1(listof(2*check_locale_category_table_size));
+  } else {
+    int cat_value = check_locale_category(*category);
+    if (missingp(*locale)) {
+      begin_system_call();
+      res = setlocale(cat_value,NULL);
+      end_system_call();
+    } else {
+      *locale = check_string(*locale);
+      with_string_0(*locale,Symbol_value(S(utf_8)),loc_z,{
+          begin_system_call();
+          res = setlocale(cat_value,loc_z);
+          end_system_call();
+        });
+    }
+    VALUES1(res ? asciz_to_string(res,Symbol_value(S(utf_8))) : NIL);
   }
-  VALUES1(retval ? asciz_to_string(retval,Symbol_value(S(ascii))) : NIL);
   skipSTACK(2);
 }
+#endif
+
+#if defined(HAVE_NL_LANGINFO) || defined(WIN32_NATIVE)
+DEFCHECKER(check_nl_item,CODESET                                        \
+           D_T_FMT D_FMT T_FMT T_FMT_AMPM AM_STR PM_STR                 \
+           DAY_1 DAY_2 DAY_3 DAY_4 DAY_5 DAY_6 DAY_7                    \
+           ABDAY_1 ABDAY_2 ABDAY_3 ABDAY_4 ABDAY_5 ABDAY_6 ABDAY_7      \
+           MON_1 MON_2 MON_3 MON_4 MON_5 MON_6                          \
+           MON_7 MON_8 MON_9 MON_10 MON_11 MON_12                       \
+           ABMON_1 ABMON_2 ABMON_3 ABMON_4 ABMON_5 ABMON_6              \
+           ABMON_7 ABMON_8 ABMON_9 ABMON_10 ABMON_11 ABMON_12           \
+           ERA ERA_D_FMT ERA_D_T_FMT ERA_T_FMT                          \
+           ALT_DIGITS RADIXCHAR THOUSEP                                 \
+           YESEXPR NOEXPR YESSTR NOSTR CRNCYSTR                         \
+           D_MD_ORDER                                                   \
+           LOCALE_FONTSIGNATURE LOCALE_ICALENDARTYPE LOCALE_ICENTURY    \
+           LOCALE_ICOUNTRY LOCALE_ICURRDIGITS LOCALE_ICURRENCY          \
+           LOCALE_IDATE LOCALE_IDAYLZERO                                \
+           LOCALE_IDEFAULTANSICODEPAGE LOCALE_IDEFAULTCODEPAGE          \
+           LOCALE_IDEFAULTCOUNTRY LOCALE_IDEFAULTEBCDICCODEPAGE         \
+           LOCALE_IDEFAULTLANGUAGE LOCALE_IDEFAULTMACCODEPAGE           \
+           LOCALE_IDIGITS LOCALE_IDIGITSUBSTITUTION                     \
+           LOCALE_IFIRSTDAYOFWEEK LOCALE_IFIRSTWEEKOFYEAR               \
+           LOCALE_IINTLCURRDIGITS LOCALE_ILANGUAGE                      \
+           LOCALE_ILDATE LOCALE_ILZERO LOCALE_IMEASURE LOCALE_IMONLZERO \
+           LOCALE_INEGCURR LOCALE_INEGNUMBER LOCALE_INEGSEPBYSPACE      \
+           LOCALE_INEGSIGNPOSN LOCALE_INEGSYMPRECEDES LOCALE_IOPTIONALCALENDAR \
+           LOCALE_IPAPERSIZE LOCALE_IPOSSEPBYSPACE LOCALE_IPOSSIGNPOSN  \
+           LOCALE_IPOSSYMPRECEDES LOCALE_ITIMEMARKPOSN LOCALE_ITLZERO   \
+           LOCALE_S1159 LOCALE_S2359                                    \
+           LOCALE_SABBREVCTRYNAME LOCALE_SABBREVDAYNAME1                \
+           LOCALE_SABBREVDAYNAME2 LOCALE_SABBREVDAYNAME3                \
+           LOCALE_SABBREVDAYNAME4 LOCALE_SABBREVDAYNAME5                \
+           LOCALE_SABBREVDAYNAME6 LOCALE_SABBREVDAYNAME7                \
+           LOCALE_SABBREVLANGNAME LOCALE_SABBREVMONTHNAME1              \
+           LOCALE_SABBREVMONTHNAME2 LOCALE_SABBREVMONTHNAME3            \
+           LOCALE_SABBREVMONTHNAME4 LOCALE_SABBREVMONTHNAME5            \
+           LOCALE_SABBREVMONTHNAME6 LOCALE_SABBREVMONTHNAME7            \
+           LOCALE_SABBREVMONTHNAME8 LOCALE_SABBREVMONTHNAME9            \
+           LOCALE_SABBREVMONTHNAME10 LOCALE_SABBREVMONTHNAME11          \
+           LOCALE_SABBREVMONTHNAME12 LOCALE_SABBREVMONTHNAME13          \
+           LOCALE_SCOUNTRY LOCALE_SCURRENCY                             \
+           LOCALE_SDATE LOCALE_SDAYNAME1 LOCALE_SDAYNAME2 LOCALE_SDAYNAME3 \
+           LOCALE_SDAYNAME4 LOCALE_SDAYNAME5 LOCALE_SDAYNAME6 LOCALE_SDAYNAME7 \
+           LOCALE_SDECIMAL LOCALE_SENGCOUNTRY LOCALE_SENGCURRNAME       \
+           LOCALE_SENGLANGUAGE LOCALE_SGROUPING LOCALE_SINTLSYMBOL      \
+           LOCALE_SISO3166CTRYNAME LOCALE_SISO639LANGNAME               \
+           LOCALE_SLANGUAGE LOCALE_SLIST LOCALE_SLONGDATE               \
+           LOCALE_SMONDECIMALSEP LOCALE_SMONGROUPING LOCALE_SMONTHNAME1 \
+           LOCALE_SMONTHNAME2 LOCALE_SMONTHNAME3 LOCALE_SMONTHNAME4     \
+           LOCALE_SMONTHNAME5 LOCALE_SMONTHNAME6 LOCALE_SMONTHNAME7     \
+           LOCALE_SMONTHNAME8 LOCALE_SMONTHNAME9 LOCALE_SMONTHNAME10    \
+           LOCALE_SMONTHNAME11 LOCALE_SMONTHNAME12 LOCALE_SMONTHNAME13  \
+           LOCALE_SMONTHOUSANDSEP LOCALE_SNATIVECTRYNAME                \
+           LOCALE_SNATIVECURRNAME LOCALE_SNATIVEDIGITS LOCALE_SNATIVELANGNAME \
+           LOCALE_SNEGATIVESIGN LOCALE_SPOSITIVESIGN                    \
+           LOCALE_SSHORTDATE LOCALE_SSORTNAME LOCALE_STHOUSAND          \
+           LOCALE_STIME LOCALE_STIMEFORMAT LOCALE_SYEARMONTH)
+#if defined(HAVE_NL_LANGINFO)
+# define get_lang_info(what)  res = nl_langinfo(what)
+# define res_to_obj() (res ? asciz_to_string(res,Symbol_value(S(utf_8))) : NIL)
+# define DECLARE_RES  char* res
+# define FINISH_RES
+#elif defined(WIN32_NATIVE)
+# define GET_LOC_INFO_BUF_SIZE 256
+# define get_lang_info(what)  do {                                      \
+    int val = GetLocaleInfo(LOCALE_SYSTEM_DEFAULT,what|LOCALE_USE_CP_ACP,\
+                            res,res_size);                              \
+    if (val == 0) OS_error();                                           \
+    if (val > res_size) {                                               \
+      res = realloc(res,val);                                           \
+      if (res == NULL) OS_error();                                      \
+      res_size = val;                                                   \
+      GetLocaleInfo(LOCALE_SYSTEM_DEFAULT,what|LOCALE_USE_CP_ACP,       \
+                    res,res_size);                                      \
+    }                                                                   \
+  } while(0)
+# define res_to_obj() (asciz_to_string(res,Symbol_value(S(utf_8))))
+# define DECLARE_RES  int res_size=GET_LOC_INFO_BUF_SIZE; char *res=malloc(res_size)
+# define FINISH_RES   free(res)
+#endif
+DEFUNR(I18N:LANGUAGE-INFORMATION,&optional item)
+{ /* call nl_langinfo(3) or GetLocaleInfo() */
+  gcv_object_t *what = &STACK_0;
+  if (missingp(*what)) {        /* everything */
+    int pos = 0;
+    for (; pos < check_nl_item_table_size; pos++) {
+      DECLARE_RES;
+      begin_system_call();
+      get_lang_info(check_nl_item_table[pos].c_const);
+      end_system_call();
+      pushSTACK(*check_nl_item_table[pos].l_const);
+      pushSTACK(res_to_obj());
+      FINISH_RES;
+    }
+    VALUES1(listof(2*check_nl_item_table_size));
+  } else {
+    int item = check_nl_item(*what);
+    DECLARE_RES;
+    begin_system_call();
+    get_lang_info(item);
+    end_system_call();
+    VALUES1(res_to_obj());
+    FINISH_RES;
+  }
+  skipSTACK(1);
+}
+#endif

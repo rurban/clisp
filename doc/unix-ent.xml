@@ -54,6 +54,7 @@
 <!ENTITY mbstowcs "<ulink url='&unix-f;/mbstowcs.html'><function>mbstowcs</function></ulink>">
 <!ENTITY mbtowc "<ulink url='&unix-f;/mbtowc.html'><function>mbtowc</function></ulink>">
 <!ENTITY mmap "<ulink url='&unix-f;/mmap.html'><function>mmap</function></ulink>">
+<!ENTITY nl_langinfo "<ulink url='&unix-f;/nl_langinfo.html'><function>nl_langinfo</function></ulink>">
 <!ENTITY poll "<ulink url='&unix-f;/poll.html'><function>poll</function></ulink>">
 <!ENTITY qsort "<ulink url='&unix-f;/qsort.html'><function>qsort</function></ulink>">
 <!ENTITY read-c "<ulink url='&unix-f;/read.html'><function>read</function></ulink>">
@@ -97,7 +98,7 @@
 <!ENTITY fcntl-h "<ulink url='&unix-b;/fcntl.h.html'><filename>&lt;fcntl.h&gt;</filename></ulink>">
 <!ENTITY env-var "<ulink url='&unix-b;/xbd_chap08.html'>environment variable</ulink>">
 <!ENTITY file-des "<ulink url='&unix-b;/xbd_chap03.html#tag_03_165'>file descriptor</ulink>">
-<!ENTITY locale "<ulink url='&unix-b;/xbd_chap07.html'>locale</ulink>">
+<!ENTITY locale "<replaceable><ulink url='&unix-b;/xbd_chap07.html'>locale</ulink></replaceable>">
 <!ENTITY reg-exp "<ulink url='&unix-b;/xbd_chap09.html'>regular expression</ulink>">
 
 <!-- utilities -->

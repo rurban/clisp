@@ -69,7 +69,7 @@ are not saved in a &mem-image;.</para></formalpara>
 
 <section id="category"><title>Category</title>
 <para>The &category; argument of the &gettext; and &ngettext;
-functions denotes which locale facet the result should depend on.
+functions denotes which &locale; facet the result should depend on.
 The possible values are a platform-dependent subset of
 <simplelist type="inline">
 <member><constant>:LC_ADDRESS</constant></member>
@@ -93,7 +93,7 @@ location depends on the &category;: it will be expected at
 <filename>TEXTDOMAINDIR/ll/category/domain.mo</filename>.</para>
 </section>
 
-<section id="i18n-example"><title>Internationalization Example</title>
+<example id="i18n-example"><title>Internationalization Example</title>
 
 <para>A non-internationalized program simulating a restaurant dialogue
 might look as follows.</para>
@@ -177,7 +177,7 @@ msgstr[1] ""
 msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-1\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: nplurals=2; plural=(n &gt; 1);\n"
 
 msgid "'Your command, please?', asked the waiter."
 msgstr "&laquo;Votre commande, s'il vous plait&raquo;, dit le gar&ccedil;on."
@@ -192,31 +192,42 @@ msgstr[1] "%d morceaux de gateau"
 <para>and sends it to the program's maintainer.</para>
 
 <para>The program's maintainer compiles the catalog as follows:
-
 <screen>
 bash$ mkdir -p ./fr/LC_MESSAGES
 bash$ msgfmt -o ./fr/LC_MESSAGES/prog.mo prog.fr.po
 </screen></para>
 
-<para>When a user in a french locale then runs the program
-
+<para>When a user in a french &locale; then runs the program
 <screen>
 bash$ clisp prog.lisp 2
 </screen>
-
 she will get the output
-
 <screen>
     &laquo;Votre commande, s'il vous plait&raquo;, dit le gar&ccedil;on.
     2 morceaux de gateau
 </screen>
 </para>
-</section>
+</example>
 
 </section>
 
-<section id="set-locale"><title>Function &set-locale;</title>
-<para>This is an interface to &setlocale;.</para>
-</section>
+<section id="i18n-locale"><title>Locale</title>
 
+<variablelist>
+<varlistentry id="set-locale"><term><literal role="sexp">(&set-locale;
+   &optional-amp; &category; &locale;)</literal></term>
+ <listitem><simpara>This is an interface to &setlocale;.</simpara>
+  <simpara>When &locale; is missing or &nil;, return the current one.</simpara>
+  <simpara>When &category; is missing or &nil;, return all categories
+   as a &list-t;.</simpara></listitem></varlistentry>
+
+<varlistentry id="lang-info"><term><literal role="sexp">(&lang-info;
+   &optional-amp; &item-r;)</literal></term>
+ <listitem><simpara>This is an interface to &nl_langinfo; (&unix;)
+   and <function>GetLocaleInfo</function> (&win32;).</simpara>
+  <simpara>When &item-r; is missing or &nil;,
+   return all available information as a &list-t;.</simpara>
+</listitem></varlistentry></variablelist>
+
+</section>
 </section>

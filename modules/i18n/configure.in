@@ -7,8 +7,8 @@ AC_CONFIG_SRCDIR(i18n.lisp)
 AC_CONFIG_HEADERS(config.h)
 
 AC_MSG_NOTICE([ * I18N (locale):])
-AC_CHECK_HEADERS(locale.h)
-AC_CHECK_FUNCS(setlocale)
+AC_CHECK_HEADERS(locale.h langinfo.h)
+AC_CHECK_FUNCS(setlocale nl_langinfo)
 
 AC_MSG_NOTICE([ * I18N (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
