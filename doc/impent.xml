@@ -324,6 +324,9 @@
 <!ENTITY oracle-link "<ulink url='http://www.oracle.com'>Oracle</ulink>">
 <!ENTITY oracle-oci "<ulink url='http://www.vivtek.com/oracle.html'>OCI</ulink>">
 
+<!-- *** matlab *** -->
+<!ENTITY matlab-c-api "http://www.mathworks.com/access/helpdesk/help/techdoc/apiref/">
+
 <!-- *** fastcgi *** -->
 <!ENTITY fastcgi-link "<ulink url='http://www.fastcgi.com'>FastCGI</ulink>">
 <!ENTITY mod-fastcgi "<ulink url='http://www.fastcgi.com/mod_fastcgi/docs/mod_fastcgi.html'>mod_fastcgi</ulink>">
