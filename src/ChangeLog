@@ -1,3 +1,7 @@
+2004-03-06  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (use_default_dir): fixed a GC-safety bug
+
 2004-03-04  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	Make syscalls module available on win95/98/me (dynamic DLL loading)
