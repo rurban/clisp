@@ -10526,21 +10526,37 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
    #if defined(EMUNIX_PORTABEL)
    # (Unter OS/2 scheint system() sicherer zu sein als spawnv(). Warum?)
    # Alle Argumente (nun ASCIZ-Strings) zusammenhängen, mit Spaces dazwischen:
-   {var object* argptr = args_pointer; # Pointer über die Argumente
-    var uintC count;
-    dotimesC(count,argcount, # alle Argumente außer dem letzten durchlaufen
-      { var object string = NEXT(argptr); # nächster Argumentstring
-        TheSstring(string)->data[Sstring_length(string)-1] = ' ';
-      });
-   }
-   { var object command = string_concat(1+argcount);
+   { var uintL argvdata_length = 0;
+     { var object* argptr = args_pointer;
+       var uintC count;
+       dotimespC(count,argcount+1,
+         { var object arg = NEXT(argptr); # nächstes Argument, ASCIZ-String
+           argvdata_length += Sbvector_length(arg)/8;
+         });
+     }
+    {var DYNAMIC_ARRAY(argvdata,char,argvdata_length);
+     { var object* argptr = args_pointer;
+       var char* argvdataptr = &argvdata[0];
+       var uintC count;
+       dotimespC(count,argcount+1,
+         { var object arg = NEXT(argptr); # nächstes Argument, ASCIZ-String
+           var char* ptr = TheAsciz(arg);
+           var uintL len = Sbvector_length(arg)/8;
+           dotimesL(len,len-1, { *argvdataptr++ = *ptr++; } ); # und kopieren
+           *argvdataptr++ = ' ';
+         });
+       argvdataptr[-1] = '\0';
+     }
      # Programm aufrufen:
-     begin_system_call();
-    {var int ergebnis = system(TheAsciz(command));
-     end_system_call();
-     # Rückgabewert verwerten: =0 (OK) -> T, >0 (nicht OK) -> NIL :
-     value1 = (ergebnis==0 ? T : NIL); mv_count=1;
-   }}
+      begin_system_call();
+     {var int ergebnis = system(&argvdata[0]);
+      end_system_call();
+      # Fertig.
+      set_args_end_pointer(args_pointer); # STACK aufräumen
+      # Rückgabewert verwerten: =0 (OK) -> T, >0 (nicht OK) -> NIL :
+      value1 = (ergebnis==0 ? T : NIL); mv_count=1;
+      FREE_DYNAMIC_ARRAY(argvdata);
+   }}}
    #endif
    #if defined(DJUNIX) || (defined(EMUNIX) && !defined(EMUNIX_PORTABEL)) || defined(WATCOM)
    {# argv-Array aufbauen:
@@ -10581,7 +10597,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
        var uintC count;
        dotimespC(count,argcount+1,
          { var object arg = NEXT(argptr); # nächstes Argument, ASCIZ-String
-           argvdata_length += Sstring_length(arg);
+           argvdata_length += Sbvector_length(arg)/8;
          });
      }
     {var DYNAMIC_ARRAY(argv,char*,1+(uintL)argcount+1);
@@ -10593,7 +10609,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
        dotimespC(count,argcount+1,
          { var object arg = NEXT(argptr); # nächstes Argument, ASCIZ-String
            var char* ptr = TheAsciz(arg);
-           var uintL len = Sstring_length(arg);
+           var uintL len = Sbvector_length(arg)/8;
            *argvptr++ = argvdataptr; # in argv einfüllen
            dotimespL(len,len, { *argvdataptr++ = *ptr++; } ); # und kopieren
          });

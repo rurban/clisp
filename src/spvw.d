@@ -793,29 +793,31 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
     { return make_string((const uintB*)asciz,asciz_length(asciz)); }
 
 # UP: Wandelt einen String in einen ASCIZ-String um.
-# string_to_asciz(obj)
+# string_to_asciz(obj,encoding)
 # > object obj: String
-# < ergebnis: Simple-String mit denselben Zeichen und einem Nullbyte mehr am Schluss
+# > object encoding: Encoding
+# < ergebnis: Simple-Bit-Vektor mit denselben Zeichen als Bytes und einem
+#             Nullbyte mehr am Schluss
+# < TheAsciz(ergebnis): Adresse der darin enthaltenen Bytefolge
 # kann GC auslösen
   global object string_to_asciz (object obj);
   global object string_to_asciz (obj)
     var object obj;
     { # (vgl. copy_string in CHARSTRG)
       pushSTACK(obj); # String retten
-     {var object newstring = allocate_string(vector_length(obj)+1);
-          # neuer Simple-String mit einem Byte mehr Länge
+     {var object newasciz = allocate_bit_vector((vector_length(obj)+1)*8);
       obj = popSTACK(); # String zurück
       { var uintL len;
-        var uintB* sourceptr = unpack_string(obj,&len);
+        var const uintB* sourceptr = unpack_string(obj,&len);
         # Source-String: Länge in len, Bytes ab sourceptr
-        var uintB* destptr = &TheSstring(newstring)->data[0];
+        var uintB* destptr = &TheSbvector(newasciz)->data[0];
         # Destination-String: Bytes ab destptr
         { # Kopierschleife:
           var uintL count;
           dotimesL(count,len, { *destptr++ = *sourceptr++; } );
           *destptr++ = 0; # Nullbyte anfügen
       } }
-      return newstring;
+      return newasciz;
     }}
 
 # ------------------------------------------------------------------------------
