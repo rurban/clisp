@@ -253,6 +253,34 @@
 ;     (setf (sys::%record-ref instance 1) new-value))
 
 
+;; Debugging Techniques
+
+; Some generic functions, like compute-effective-method or method-specializers,
+; are used to implement the behaviour of generic functions. We have a boot-
+; strapping problem here.
+; Since we try to call the generic function whenever possible, and the non-
+; generic particular method only if absolutely necessary, the technique is to
+; write generic code and break the metacircularity at selected points.
+; In practice this means you get a "*** - Lisp stack overflow. RESET" message
+; and have to break the endless recursion. How to detect the metacircularity
+; that causes the endless recursion?
+; 1. Start "./lisp.run -i init.lisp | tee log". You get "Lisp stack overflow".
+; 2. Find the source form which causes the endless recursion. If you are
+;    unsure, add a ":echo t" to the LOAD form loading the particular form in
+;    init.lisp or clos.lisp and go back to step 1.
+; 3. At the prompt, type  (in-package "CLOS")  and the problematic source form.
+; 4. While it is executing, eating more and more stack, interrupt it through a
+;    "kill -2 <pid>" from a nearby shell window, where <pid> is the lisp.run's
+;    process id. (Just pressing Ctrl-C would kill the lisp.run and tee
+;    processes.)
+; 5. Type  (ext:show-stack).
+; 6. Analyze the resulting log file. To find the loop in the stack trace,
+;    concentrate on the middle. You have to skip the first 500 or 1000 lines
+;    of stack trace. To get a quick overview, look at only the lines
+;    starting with "APPLY frame".
+; 7. Think about the ideal point for breaking the loop.
+
+
 ;; Extension Protocols
 
 ; The MOP specifies the following individual protocols.
