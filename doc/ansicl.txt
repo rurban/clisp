@@ -1,0 +1,422 @@
+; List of ANSI CL issues and their current status in CLISP
+; Title: from CLHS, Index of X3J13 Issues, and Allegro CL 4.3 manual.
+; Status: indicates whether CLISP supports code that makes use of this vote.
+;
+; Title                                                      Status
+;
+; ACCESS-ERROR-NAME                                          yes
+; ADJUST-ARRAY-DISPLACEMENT                                  yes
+; ADJUST-ARRAY-FILL-POINTER                                  yes
+; ADJUST-ARRAY-NOT-ADJUSTABLE:IMPLICIT-COPY                  no
+; ALLOCATE-INSTANCE:ADD                                      no
+; ALLOW-LOCAL-INLINE:INLINE-NOTINLINE                        yes
+; ALLOW-OTHER-KEYS-NIL:PERMIT                                yes
+; AREF-1D                                                    yes
+; ARGUMENT-MISMATCH-ERROR-AGAIN:CONSISTENT                   yes
+; ARGUMENT-MISMATCH-ERROR-MOON:FIX                           yes
+; ARGUMENT-MISMATCH-ERROR:MORE-CLARIFICATIONS                yes, except for argument list checking in CALL-NEXT-METHOD in compiled code (items 11,12)
+; ARGUMENTS-UNDERSPECIFIED:SPECIFY                           yes
+; ARRAY-DIMENSION-LIMIT-IMPLICATIONS:ALL-FIXNUM              no
+; ARRAY-DIMENSION-ZERO                                       yes
+; ARRAY-TYPE-ELEMENT-TYPE-SEMANTICS:UNIFY-UPGRADING          yes for arrays, no for complex numbers
+; ASSERT-ERROR-TYPE:ERROR                                    yes
+; ASSOC-RASSOC-IF-KEY:YES                                    yes
+; BOA-AUX-INITIALIZATION:ERROR-ON-READ                       yes
+; BREAK-ON-WARNINGS-OBSOLETE:REMOVE                          no
+; BROADCAST-STREAM-RETURN-VALUES:CLARIFY-MINIMALLY           no
+; BUTLAST-NEGATIVE:SHOULD-SIGNAL                             yes
+; CHANGE-CLASS-INITARGS:PERMIT                               no
+; CHAR-NAME-CASE:X3J13-MAR-91                                yes
+; CHARACTER-LOOSE-ENDS:FIX                                   no
+; CHARACTER-PROPOSAL:2                                       no
+; CHARACTER-PROPOSAL:2-1-1                                   no
+; CHARACTER-PROPOSAL:2-1-2                                   no
+; CHARACTER-PROPOSAL:2-2-1                                   no
+; CHARACTER-PROPOSAL:2-3-1                                   no
+; CHARACTER-PROPOSAL:2-3-2                                   no
+; CHARACTER-PROPOSAL:2-3-3                                   no
+; CHARACTER-PROPOSAL:2-3-4                                   no
+; CHARACTER-PROPOSAL:2-3-5                                   no
+; CHARACTER-PROPOSAL:2-3-6                                   no
+; CHARACTER-PROPOSAL:2-4-1                                   no
+; CHARACTER-PROPOSAL:2-4-2                                   no
+; CHARACTER-PROPOSAL:2-4-3                                   no
+; CHARACTER-PROPOSAL:2-5-2                                   no
+; CHARACTER-PROPOSAL:2-5-6                                   no
+; CHARACTER-PROPOSAL:2-5-7                                   no
+; CHARACTER-PROPOSAL:2-6-1                                   no
+; CHARACTER-PROPOSAL:2-6-2                                   no
+; CHARACTER-PROPOSAL:2-6-3                                   no
+; CHARACTER-PROPOSAL:2-6-5                                   no
+; CHARACTER-VS-CHAR:LESS-INCONSISTENT-SHORT                  no
+; CLASS-OBJECT-SPECIALIZER:AFFIRM                            yes
+; CLOS-CONDITIONS-AGAIN:ALLOW-SUBSET                         yes
+; CLOS-CONDITIONS:INTEGRATE                                  yes
+; CLOS-ERROR-CHECKING-ORDER:NO-APPLICABLE-METHOD-FIRST       yes
+; CLOS-MACRO-COMPILATION:MINIMAL                             yes
+; CLOSE-CONSTRUCTED-STREAM:ARGUMENT-STREAM-ONLY              yes
+; CLOSED-STREAM-OPERATIONS:ALLOW-INQUIRY                     yes
+; COERCING-SETF-NAME-TO-FUNCTION:ALL-FUNCTION-NAMES          yes, but set-macro-character must be changed to accept function names (e.g. symbols) too
+; COLON-NUMBER                                               yes
+; COMMON-FEATURES:SPECIFY                                    yes, maybe add X3J13
+; COMMON-TYPE:REMOVE                                         yes, still present in package LISP
+; COMPILE-ARGUMENT-PROBLEMS-AGAIN:FIX                        yes
+; COMPILE-FILE-HANDLING-OF-TOP-LEVEL-FORMS:CLARIFY           yes
+; COMPILE-FILE-OUTPUT-FILE-DEFAULTS:INPUT-FILE               yes
+; COMPILE-FILE-PACKAGE                                       yes
+; COMPILE-FILE-PATHNAME-ARGUMENTS:MAKE-CONSISTENT            yes
+; COMPILE-FILE-SYMBOL-HANDLING:NEW-REQUIRE-CONSISTENCY       yes
+; COMPILED-FUNCTION-REQUIREMENTS:TIGHTEN                     yes
+; COMPILER-DIAGNOSTICS:USE-HANDLER                           no
+; COMPILER-LET-CONFUSION:ELIMINATE                           yes
+; COMPILER-VERBOSITY:LIKE-LOAD                               yes
+; COMPILER-WARNING-STREAM                                    yes
+; COMPLEX-ATAN-BRANCH-CUT:TWEAK                              yes
+; COMPLEX-ATANH-BOGUS-FORMULA:TWEAK-MORE                     yes
+; COMPLEX-RATIONAL-RESULT:EXTEND                             yes
+; COMPUTE-APPLICABLE-METHODS:GENERIC                         yes
+; CONCATENATE-SEQUENCE:SIGNAL-ERROR                          yes
+; CONDITION-ACCESSORS-SETFABLE:NO                            yes
+; CONDITION-RESTARTS:BUGGY                                   yes
+; CONDITION-RESTARTS:PERMIT-ASSOCIATION                      yes, except for (6)
+; CONDITION-SLOTS:HIDDEN                                     yes
+; CONS-TYPE-SPECIFIER:ADD                                    yes
+; CONSTANT-CIRCULAR-COMPILATION:YES                          yes
+; CONSTANT-COLLAPSING:GENERALIZE                             yes
+; CONSTANT-COMPILABLE-TYPES:SPECIFY                          yes
+; CONSTANT-FUNCTION-COMPILATION:NO                           no
+; CONSTANT-MODIFICATION:DISALLOW                             yes
+; CONSTANTLY                                                 yes
+; CONSTANTP-DEFINITION:INTENTIONAL                           yes, except for arrays as self-evaluating forms
+; CONSTANTP-ENVIRONMENT:ADD-ARG                              no
+; CONTAGION-ON-NUMERICAL-COMPARISONS:TRANSITIVE              yes
+; COPY-SYMBOL-COPY-PLIST:COPY-LIST                           yes
+; COPY-SYMBOL-PRINT-NAME:EQUAL                               yes
+; DATA-IO:ADD-SUPPORT                                        yes for *print-readably* and *read-eval* and with-standard-io-syntax, no for anything else
+; DATA-TYPES-HIERARCHY-UNDERSPECIFIED                        yes
+; DEBUGGER-HOOK-VS-BREAK:CLARIFY                             no
+; DECLARATION-SCOPE:NO-HOISTING                              no
+; DECLARE-ARRAY-TYPE-ELEMENT-REFERENCES:RESTRICTIVE          yes
+; DECLARE-FUNCTION-AMBIGUITY:DELETE-FTYPE-ABBREVIATION       yes
+; DECLARE-MACROS:FLUSH                                       no
+; DECLARE-TYPE-FREE:LEXICAL                                  yes
+; DECLS-AND-DOC
+; DECODE-UNIVERSAL-TIME-DAYLIGHT:LIKE-ENCODE                 yes
+; DEFCONSTANT-SPECIAL:NO                                     yes
+; DEFGENERIC-DECLARE:ALLOW-MULTIPLE                          yes
+; DEFINE-COMPILER-MACRO:X3J13-NOV89                          no
+; DEFINE-CONDITION-SYNTAX:INCOMPATIBLY-MORE-LIKE-DEFCLASS+EMPHASIZE-READ-ONLY ??
+; DEFINE-METHOD-COMBINATION-BEHAVIOR:CLARIFY                 no
+; DEFINING-MACROS-NON-TOP-LEVEL:ALLOW                        no
+; DEFMACRO-BLOCK-SCOPE:EXCLUDES-BINDINGS                     yes
+; DEFMACRO-LAMBDA-LIST:TIGHTEN-DESCRIPTION                   yes
+; DEFMETHOD-DECLARATION-SCOPE:CORRESPONDS-TO-BINDINGS        yes
+; DEFPACKAGE:ADDITION                                        yes
+; DEFSTRUCT-CONSTRUCTOR-KEY-MIXTURE:ALLOW-KEY                yes
+; DEFSTRUCT-CONSTRUCTOR-OPTIONS:EXPLICIT                     yes
+; DEFSTRUCT-CONSTRUCTOR-SLOT-VARIABLES:NOT-BOUND             no (furthermore it gets hairy when applied to BOA constructors)
+; DEFSTRUCT-COPIER-ARGUMENT-TYPE:RESTRICT                    yes
+; DEFSTRUCT-COPIER:ARGUMENT-TYPE                             yes
+; DEFSTRUCT-DEFAULT-VALUE-EVALUATION:IFF-NEEDED              yes
+; DEFSTRUCT-INCLUDE-DEFTYPE:EXPLICITLY-UNDEFINED             yes
+; DEFSTRUCT-PRINT-FUNCTION-AGAIN:X3J13-MAR-93                yes
+; DEFSTRUCT-PRINT-FUNCTION-INHERITANCE:YES                   yes
+; DEFSTRUCT-REDEFINITION:ERROR                               yes
+; DEFSTRUCT-SLOTS-CONSTRAINTS-NAME:DUPLICATES-ERROR          yes
+; DEFSTRUCT-SLOTS-CONSTRAINTS-NUMBER                         yes
+; DEFTYPE-DESTRUCTURING:YES                                  yes
+; DEFTYPE-KEY:ALLOW                                          yes
+; DEFVAR-DOCUMENTATION:UNEVALUATED                           yes
+; DEFVAR-INIT-TIME:NOT-DELAYED                               yes
+; DEFVAR-INITIALIZATION:CONSERVATIVE                         yes
+; DEPRECATION-POSITION:LIMITED                               yes
+; DESCRIBE-INTERACTIVE:NO                                    yes
+; DESCRIBE-UNDERSPECIFIED:DESCRIBE-OBJECT                    yes
+; DESTRUCTIVE-OPERATIONS:SPECIFY                             yes
+; DESTRUCTURING-BIND:NEW-MACRO                               yes
+; DISASSEMBLE-SIDE-EFFECT:DO-NOT-INSTALL                     yes
+; DISPLACED-ARRAY-PREDICATE:ADD                              yes
+; DO-SYMBOLS-BLOCK-SCOPE:ENTIRE-FORM                         yes
+; DO-SYMBOLS-DUPLICATES                                      yes
+; DOCUMENTATION-FUNCTION-BUGS:FIX                            no
+; DOCUMENTATION-FUNCTION-TANGLED:REQUIRE-ARGUMENT            no
+; DOTIMES-IGNORE:X3J13-MAR91                                 yes
+; DOTTED-LIST-ARGUMENTS:CLARIFY                              yes
+; DOTTED-MACRO-FORMS:ALLOW                                   yes
+; DRIBBLE-TECHNIQUE                                          yes
+; DYNAMIC-EXTENT-FUNCTION:EXTEND                             yes
+; DYNAMIC-EXTENT:NEW-DECLARATION                             yes
+; &ENVIRONMENT-BINDING-ORDER:FIRST                           yes
+; ENSURE-DIRECTORIES-EXIST                                   yes
+; EQUAL-STRUCTURE:MAYBE-STATUS-QUO                           no for equalp on hashtables, yes for anything else
+; ERROR-TERMINOLOGY-WARNING:MIGHT                            yes
+; EVAL-OTHER:SELF-EVALUATE                                   yes
+; EVAL-TOP-LEVEL:LOAD-LIKE-COMPILE-FILE                      yes, except maybe if LOAD :compiling t
+; EVAL-WHEN-NON-TOP-LEVEL:GENERALIZE-EVAL-NEW-KEYWORDS       no
+; EVAL-WHEN-OBSOLETE-KEYWORDS:X3J13-MAR-1993                 no
+; EVALHOOK-STEP-CONFUSION:FIX                                yes
+; EVALHOOK-STEP-CONFUSION:X3J13-NOV-89                       yes
+; EXIT-EXTENT-AND-CONDITION-SYSTEM:LIKE-DYNAMIC-BINDINGS     yes
+; EXIT-EXTENT:MINIMAL                                        yes, actually implement MEDIUM
+; EXPT-RATIO:P.211                                           yes
+; EXTENSIONS-POSITION:DOCUMENTATION                          yes
+; EXTERNAL-FORMAT-FOR-EVERY-FILE-CONNECTION:MINIMUM          no
+; EXTRA-RETURN-VALUES:NO                                     yes
+; FILE-OPEN-ERROR:SIGNAL-FILE-ERROR                          no
+; FIXNUM-NON-PORTABLE:TIGHTEN-DEFINITION                     no
+; FLET-DECLARATIONS:ALLOW                                    yes
+; FLET-IMPLICIT-BLOCK:YES                                    yes
+; FLOAT-UNDERFLOW:ADD-VARIABLES                              yes
+; FLOATING-POINT-CONDITION-NAMES:X3J13-NOV-89                yes
+; FORMAT-ATSIGN-COLON                                        yes
+; FORMAT-COLON-UPARROW-SCOPE                                 yes
+; FORMAT-COMMA-INTERVAL                                      yes
+; FORMAT-E-EXPONENT-SIGN:FORCE-SIGN                          yes
+; FORMAT-OP-C                                                yes
+; FORMAT-PRETTY-PRINT:YES                                    yes, except that ~E, ~F, ~G, ~$ also bind *PRINT-BASE* to 10 and *PRINT-RADIX* to NIL
+; FORMAT-STRING-ARGUMENTS:SPECIFY                            yes, except for the name change format-string -> format-control
+; FUNCTION-CALL-EVALUATION-ORDER:MORE-UNSPECIFIED            yes
+; FUNCTION-COMPOSITION:JAN89-X3J13                           yes
+; FUNCTION-DEFINITION:JAN89-X3J13                            yes
+; FUNCTION-NAME:LARGE                                        yes
+; FUNCTION-TYPE-ARGUMENT-TYPE-SEMANTICS:RESTRICTIVE          yes
+; FUNCTION-TYPE-KEY-NAME:SPECIFY-KEYWORD                     yes
+; FUNCTION-TYPE-REST-LIST-ELEMENT:USE-ACTUAL-ARGUMENT-TYPE   yes
+; FUNCTION-TYPE:X3J13-MARCH-88                               yes
+; GENERALIZE-PRETTY-PRINTER:UNIFY                            no
+; GENERIC-FLET-POORLY-DESIGNED:DELETE                        no
+; GENSYM-NAME-STICKINESS:LIKE-TEFLON                         yes
+; GENTEMP-BAD-IDEA:DEPRECATE                                 yes
+; GET-MACRO-CHARACTER-READTABLE:NIL-STANDARD                 yes
+; GET-SETF-METHOD-ENVIRONMENT:ADD-ARG                        yes
+; HASH-TABLE-ACCESS:X3J13-MAR-89                             yes
+; HASH-TABLE-KEY-MODIFICATION:SPECIFY                        yes
+; HASH-TABLE-PACKAGE-GENERATORS:ADD-WITH-WRAPPER             no
+; HASH-TABLE-REHASH-SIZE-INTEGER                             yes
+; HASH-TABLE-SIZE:INTENDED-ENTRIES                           yes
+; HASH-TABLE-TESTS:ADD-EQUALP                                yes
+; IEEE-ATAN-BRANCH-CUT:SPLIT                                 yes
+; IGNORE-USE-TERMINOLOGY:VALUE-ONLY                          yes
+; IMPORT-SETF-SYMBOL-PACKAGE                                 no
+; IN-PACKAGE-FUNCTIONALITY:MAR89-X3J13                       yes
+; IN-SYNTAX:MINIMAL                                          yes
+; INITIALIZATION-FUNCTION-KEYWORD-CHECKING
+; ISO-COMPATIBILITY:ADD-SUBSTRATE                            yes
+; JUN90-TRIVIAL-ISSUES:3                                     yes
+; JUN90-TRIVIAL-ISSUES:4                                     yes
+; JUN90-TRIVIAL-ISSUES:5                                     yes
+; JUN90-TRIVIAL-ISSUES:9                                     yes
+; JUN90-TRIVIAL-ISSUES:11                                    yes
+; JUN90-TRIVIAL-ISSUES:14                                    yes
+; JUN90-TRIVIAL-ISSUES:24                                    no
+; JUN90-TRIVIAL-ISSUES:25                                    yes
+; JUN90-TRIVIAL-ISSUES:27                                    no
+; KEYWORD-ARGUMENT-NAME-PACKAGE:ANY                          no
+; LAST-N                                                     yes
+; LCM-NO-ARGUMENTS:1                                         yes
+; LEXICAL-CONSTRUCT-GLOBAL-DEFINITION:UNDEFINED              yes
+; LISP-PACKAGE-NAME:COMMON-LISP                              yes
+; LISP-SYMBOL-REDEFINITION-AGAIN:MORE-FIXES                  yes
+; LISP-SYMBOL-REDEFINITION:MAR89-X3J13                       yes
+; LOAD-OBJECTS:MAKE-LOAD-FORM                                no
+; LOAD-TIME-EVAL:R**3-NEW-SPECIAL-FORM                       yes, except for macro expansion at compile time
+; LOAD-TRUENAME:NEW-PATHNAME-VARIABLES                       yes
+; LOCALLY-TOP-LEVEL:SPECIAL-FORM                             yes
+; LOOP-AND-DISCREPANCY:NO-REITERATION                        yes
+; LOOP-FINISH-STILL-NOT-FINISHED                             yes
+; LOOP-FOR-AS-ON-TYPO:FIX-TYPO                               yes
+; LOOP-INITFORM-ENVIRONMENT:PARTIAL-INTERLEAVING-VAGUE       yes
+; LOOP-MISCELLANEOUS-REPAIRS:FIX                             yes
+; LOOP-NAMED-BLOCK-NIL:OVERRIDE                              yes
+; LOOP-PRESENT-SYMBOLS-TYPO:FLUSH-WRONG-WORDS                yes
+; LOOP-SYNTAX-OVERHAUL:REPAIR                                yes
+; MACRO-AS-FUNCTION:DISALLOW                                 yes
+; MACRO-DECLARATIONS:MAKE-EXPLICIT                           yes
+; MACRO-ENVIRONMENT-EXTENT:DYNAMIC                           yes
+; MACRO-FUNCTION-ENVIRONMENT:YES                             no
+; MACRO-SUBFORMS-TOP-LEVEL-P:ADD-CONSTRAINTS                 no
+; MACROEXPAND-HOOK-DEFAULT:EXPLICITLY-VAGUE                  yes
+; MACROEXPAND-HOOK-INITIAL-VALUE:IMPLEMENTATION-DEPENDENT    yes
+; MACROEXPAND-RETURN-VALUE:TRUE                              yes
+; MAKE-LOAD-FORM-CONFUSION:REWRITE                           no
+; MAKE-LOAD-FORM-SAVING-SLOTS:NO-INITFORMS                   no
+; MAKE-PACKAGE-USE-DEFAULT:IMPLEMENTATION-DEPENDENT          yes
+; MAP-INTO:ADD-FUNCTION                                      yes
+; MAPPING-DESTRUCTIVE-INTERACTION:EXPLICITLY-VAGUE           yes
+; METACLASS-OF-SYSTEM-CLASS:UNSPECIFIED                      yes
+; METHOD-COMBINATION-ARGUMENTS:CLARIFY                       no
+; METHOD-INITFORM:FORBID-CALL-NEXT-METHOD                    no
+; MUFFLE-WARNING-CONDITION-ARGUMENT                          yes
+; MULTIPLE-VALUE-SETQ-ORDER:LIKE-SETF-OF-VALUES              no
+; MULTIPLE-VALUES-LIMIT-ON-VARIABLES:UNDEFINED               yes
+; NINTERSECTION-DESTRUCTION:REVERT                           yes
+; NOT-AND-NULL-RETURN-VALUE:X3J13-MAR-93                     yes
+; NTH-VALUE:ADD                                              yes
+; OPTIMIZE-DEBUG-INFO:NEW-QUALITY                            yes
+; PACKAGE-CLUTTER:REDUCE                                     no
+; PACKAGE-DELETION:NEW-FUNCTION                              yes
+; PACKAGE-FUNCTION-CONSISTENCY:MORE-PERMISSIVE               no
+; PARSE-ERROR-STREAM:SPLIT-TYPES                             yes
+; PATHNAME-COMPONENT-CASE:KEYWORD-ARGUMENT                   yes
+; PATHNAME-COMPONENT-VALUE:SPECIFY                           no
+; PATHNAME-HOST-PARSING:RECOGNIZE-LOGICAL-HOST-NAMES         no, never
+; PATHNAME-LOGICAL:ADD                                       yes
+; PATHNAME-MERGING-CONFUSION                                 no for section 19.2.3
+; PATHNAME-PRINT-READ:SHARPSIGN-P                            no
+; PATHNAME-STREAM                                            yes
+; PATHNAME-STREAM:FILES-OR-SYNONYM                           yes
+; PATHNAME-SUBDIRECTORY-LIST:NEW-REPRESENTATION              no
+; PATHNAME-SYMBOL                                            no
+; PATHNAME-SYNTAX-ERROR-TIME:EXPLICITLY-VAGUE                yes
+; PATHNAME-UNSPECIFIC-COMPONENT:NEW-TOKEN                    no
+; PATHNAME-WILD:NEW-FUNCTIONS                                yes
+; PEEK-CHAR-READ-CHAR-ECHO:FIRST-READ-CHAR                   yes
+; PLIST-DUPLICATES:ALLOW                                     yes
+; PRETTY-PRINT-INTERFACE                                     no, never
+; PROCLAIM-IGNORE                                            yes
+; PRINC-READABLY:X3J13-DEC-91                                yes
+; PRINT-CASE-BEHAVIOR:CLARIFY                                yes
+; PRINT-CASE-PRINT-ESCAPE-INTERACTION:VERTICAL-BAR-RULE-NO-UPCASE  no
+; PRINT-CIRCLE-SHARED:RESPECT-PRINT-CIRCLE                   yes
+; PRINT-CIRCLE-STRUCTURE:USER-FUNCTIONS-WORK                 yes
+; PRINT-READABLY-BEHAVIOR:CLARIFY                            yes
+; PRINTER-WHITESPACE:JUST-ONE-SPACE                          yes
+; PROCLAIM-ETC-IN-COMPILE-FILE:NEW-MACRO                     yes
+; PUSH-EVALUATION-ORDER:ITEM-FIRST                           yes
+; PUSHNEW-STORE-REQUIRED:UNSPECIFIED                         yes
+; QUOTE-SEMANTICS:NO-COPYING                                 yes
+; RANGE-OF-COUNT-KEYWORD:NIL-OR-INTEGER                      no
+; RANGE-OF-START-AND-END-PARAMETERS:INTEGER-AND-INTEGER-NIL  yes
+; READ-AND-WRITE-BYTES:NEW-FUNCTIONS                         no
+; READ-CASE-SENSITIVITY:READTABLE-KEYWORDS                   yes
+; READ-MODIFY-WRITE-EVALUATION-ORDER:DELAYED-ACCESS-STORES   no
+; READ-SUPPRESS-CONFUSING:GENERALIZE                         yes, except that READ-DELIMITED-LIST still constructs a list
+; READER-ERROR:NEW-TYPE                                      yes
+; REAL-NUMBER-TYPE:X3J13-MAR-89                              yes
+; RECURSIVE-DEFTYPE:EXPLICITLY-VAGUE                         yes
+; REDUCE-ARGUMENT-EXTRACTION                                 yes
+; REMF-DESTRUCTION-UNSPECIFIED:X3J13-MAR-89                  no for NRECONC, yes for anything else
+; REQUIRE-PATHNAME-DEFAULTS-AGAIN:X3J13-DEC-91               yes
+; REQUIRE-PATHNAME-DEFAULTS-YET-AGAIN:RESTORE-ARGUMENT       yes, except that REQUIRE wants a pathname, not a list of pathnames
+; REQUIRE-PATHNAME-DEFAULTS:ELIMINATE                        superseded by REQUIRE-PATHNAME-DEFAULTS-AGAIN:X3J13-DEC-91
+; REST-LIST-ALLOCATION:MAY-SHARE                             yes
+; RESULT-LISTS-SHARED:SPECIFY                                yes
+; RETURN-VALUES-UNSPECIFIED:SPECIFY                          yes
+; ROOM-DEFAULT-ARGUMENT:NEW-VALUE                            yes
+; SELF-MODIFYING-CODE:FORBID                                 yes
+; SEQUENCE-TYPE-LENGTH:MUST-MATCH                            yes
+; SETF-APPLY-EXPANSION:IGNORE-EXPANDER                       no
+; SETF-FIND-CLASS:ALLOW-NIL                                  no
+; SETF-FUNCTIONS-AGAIN:MINIMAL-CHANGES                       yes
+; SETF-GET-DEFAULT:EVALUATED-BUT-IGNORED                     yes
+; SETF-MACRO-EXPANSION:LAST                                  yes
+; SETF-METHOD-VS-SETF-METHOD:RENAME-OLD-TERMS                no
+; SETF-MULTIPLE-STORE-VARIABLES:ALLOW                        yes for SETF, no for SHIFTF, ROTATEF, ASSERT
+; SETF-OF-APPLY:ONLY-AREF-AND-FRIENDS                        yes
+; SETF-OF-VALUES:ADD                                         no, SHIFTF etc. don't work right with it
+; SETF-SUB-METHODS:DELAYED-ACCESS-STORES                     yes
+; SHADOW-ALREADY-PRESENT:WORKS                               yes
+; SHARP-COMMA-CONFUSION:REMOVE                               no
+; SHARP-O-FOOBAR:CONSEQUENCES-UNDEFINED                      yes
+; SHARP-STAR-DELIMITER:NORMAL-DELIMITER                      yes
+; SHARPSIGN-PLUS-MINUS-PACKAGE:KEYWORD                       no
+; SLOT-MISSING-VALUES:SPECIFY                                yes
+; SLOT-VALUE-METACLASSES:LESS-MINIMAL                        yes
+; SPECIAL-FORM-P-MISNOMER:RENAME                             yes
+; SPECIAL-TYPE-SHADOWING:CLARIFY                             yes
+; STANDARD-INPUT-INITIAL-BINDING:DEFINED-CONTRACTS           yes
+; STANDARD-REPERTOIRE-GRATUITOUS:RENAME                      no
+; STEP-ENVIRONMENT:CURRENT                                   yes
+; STEP-MINIMAL:PERMIT-PROGN                                  yes
+; STREAM-ACCESS:ADD-TYPES-ACCESSORS                          yes
+; STREAM-CAPABILITIES:INTERACTIVE-STREAM-P                   yes
+; STRING-COERCION:MAKE-CONSISTENT                            yes
+; STRING-OUTPUT-STREAM-BASHING:UNDEFINED                     yes
+; STRUCTURE-READ-PRINT-SYNTAX:KEYWORDS                       yes
+; SUBSEQ-OUT-OF-BOUNDS:IS-AN-ERROR                           yes
+; SUBSETTING-POSITION:NONE                                   yes
+; SUBTYPEP-ENVIRONMENT:ADD-ARG                               no
+; SUBTYPEP-TOO-VAGUE:CLARIFY-MORE                            yes
+; SXHASH-DEFINITION:SIMILAR-FOR-SXHASH                       no
+; SYMBOL-MACROLET-DECLARE:ALLOW                              yes
+; SYMBOL-MACROLET-SEMANTICS:SPECIAL-FORM                     yes
+; SYMBOL-MACROLET-TYPE-DECLARATION:NO                        yes
+; SYMBOL-MACROS-AND-PROCLAIMED-SPECIALS:SIGNALS-AN-ERROR     yes
+; SYMBOL-PRINT-ESCAPE-BEHAVIOR:CLARIFY                       yes
+; SYNTACTIC-ENVIRONMENT-ACCESS:RETRACTED-MAR91               yes
+; TAGBODY-TAG-EXPANSION:NO                                   yes
+; TAILP-NIL:T                                                yes
+; TEST-NOT-IF-NOT:FLUSH-ALL                                  yes, but no warning
+; THE-AMBIGUITY:FOR-DECLARATION                              yes
+; THE-VALUES:RETURN-NUMBER-RECEIVED                          no
+; TIME-ZONE-NON-INTEGER:ALLOW                                yes
+; TYPE-BOOLEAN                                               yes
+; TYPE-DECLARATION-ABBREVIATION:ALLOW-ALL                    no
+; TYPE-OF-AND-PREDEFINED-CLASSES:TYPE-OF-HANDLES-FLOATS      yes
+; TYPE-OF-AND-PREDEFINED-CLASSES:UNIFY-AND-EXTEND            yes, except for class METHOD-COMBINATION
+; TYPE-OF-UNDERCONSTRAINED:ADD-CONSTRAINTS                   yes
+; TYPE-SPECIFIER-ABBREVIATION:X3J13-JUN90-GUESS              yes
+; UNDEFINED-VARIABLES-AND-FUNCTIONS:COMPROMISE               yes
+; UNINITIALIZED-ELEMENTS:CONSEQUENCES-UNDEFINED              yes, could add error checking
+; UNREAD-CHAR-AFTER-PEEK-CHAR:DONT-ALLOW                     yes
+; UNSOLICITED-MESSAGES:NOT-TO-SYSTEM-USER-STREAMS            yes
+; VARIABLE-LIST-ASYMMETRY:SYMMETRIZE                         yes
+; WITH-ADDED-METHODS:DELETE                                  yes
+; WITH-COMPILATION-UNIT:NEW-MACRO                            no
+; WITH-OPEN-FILE-DOES-NOT-EXIST:STREAM-IS-NIL                yes
+; WITH-OPEN-FILE-SETQ:EXPLICITLY-VAGUE                       yes
+; WITH-OPEN-FILE-STREAM-EXTENT:DYNAMIC-EXTENT                yes
+; WITH-OUTPUT-TO-STRING-APPEND-STYLE:VECTOR-PUSH-EXTEND      yes
+; WITH-STANDARD-IO-SYNTAX-READTABLE:X3J13-MAR-91             yes
+;
+; Symbols missing from COMMON-LISP package:
+;
+; *PRINT-LINES*
+; *PRINT-MISER-WIDTH*
+; *PRINT-PPRINT-DISPATCH*
+; *PRINT-RIGHT-MARGIN*
+; ALLOCATE-INSTANCE
+; BASE-CHAR
+; BASE-STRING
+; CALL-METHOD
+; CHANGE-CLASS
+; COMPILER-MACRO
+; COMPILER-MACRO-FUNCTION
+; COPY-PPRINT-DISPATCH
+; DEFINE-COMPILER-MACRO
+; DEFINE-METHOD-COMBINATION
+; DEFINE-SETF-EXPANDER
+; ENSURE-GENERIC-FUNCTION
+; EXTENDED-CHAR
+; FILE-STRING-LENGTH
+; GET-SETF-EXPANSION
+; INVALID-METHOD-ERROR
+; MAKE-INSTANCES-OBSOLETE
+; MAKE-LOAD-FORM
+; MAKE-LOAD-FORM-SAVING-SLOTS
+; MAKE-METHOD
+; METHOD-COMBINATION
+; METHOD-COMBINATION-ERROR
+; PPRINT-DISPATCH
+; PPRINT-EXIT-IF-LIST-EXHAUSTED
+; PPRINT-FILL
+; PPRINT-INDENT
+; PPRINT-LINEAR
+; PPRINT-LOGICAL-BLOCK
+; PPRINT-NEWLINE
+; PPRINT-POP
+; PPRINT-TAB
+; PPRINT-TABULAR
+; SET-PPRINT-DISPATCH
+; SIMPLE-BASE-STRING
+; SIMPLE-CONDITION-FORMAT-CONTROL
+; SPECIAL-OPERATOR-P
+; STREAM-EXTERNAL-FORMAT
+; STYLE-WARNING
+; UNBOUND-SLOT
+; UNBOUND-SLOT-INSTANCE
+; UPDATE-INSTANCE-FOR-DIFFERENT-CLASS
+; UPDATE-INSTANCE-FOR-REDEFINED-CLASS
+; UPGRADED-COMPLEX-PART-TYPE
+; WITH-COMPILATION-UNIT
+; WITH-PACKAGE-ITERATOR
