@@ -4028,10 +4028,10 @@ LISPFUN(read_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
          if (end-start == 0)
            { value1 = Fixnum_0; mv_count=1; skipSTACK(5); return; }
        { var uintL index = 0;
-         STACK_0 = iarray_displace_check(STACK_4,end,&index);
+         STACK_0 = array_displace_check(STACK_4,end,&index);
          check_sstring_mutable(STACK_0);
         {var uintL result = read_char_array(&STACK_3,&STACK_0,index+start,end-start);
-         value1 = fixnum(result); mv_count=1;
+         value1 = fixnum(start+result); mv_count=1;
          skipSTACK(5);
          return;
       }}}
@@ -4074,7 +4074,7 @@ LISPFUN(write_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
         var uintL len = end-start;
         if (len == 0) goto done;
        {var uintL index = 0;
-        STACK_0 = iarray_displace_check(STACK_4,end,&index);
+        STACK_0 = array_displace_check(STACK_4,end,&index);
         write_char_array(&STACK_3,&STACK_0,index+start,len);
         goto done;
       }}
@@ -4118,9 +4118,9 @@ LISPFUN(read_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
       { var uintL start = posfixnum_to_L(STACK_2);
         var uintL end = posfixnum_to_L(STACK_1);
         var uintL index = 0;
-        STACK_0 = iarray_displace_check(STACK_4,end,&index);
+        STACK_0 = TheIarray(iarray_displace_check(STACK_4,end,&index))->data;
        {var uintL result = read_byte_array(&STACK_3,&STACK_0,index+start,end-start);
-        value1 = fixnum(result); mv_count=1;
+        value1 = fixnum(start+result); mv_count=1;
         skipSTACK(5);
         return;
       }}
@@ -4161,7 +4161,7 @@ LISPFUN(write_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
       { var uintL start = posfixnum_to_L(STACK_2);
         var uintL end = posfixnum_to_L(STACK_1);
         var uintL index = 0;
-        STACK_0 = iarray_displace_check(STACK_4,end,&index);
+        STACK_0 = TheIarray(iarray_displace_check(STACK_4,end,&index))->data;
         write_byte_array(&STACK_3,&STACK_0,index+start,end-start);
         goto done;
       }
