@@ -3049,7 +3049,7 @@ AC_DEFUN(CL_CONNECT,
 [CL_PROTO([connect], [
 for x in '' 'const'; do
 for y in 'struct sockaddr *' 'void*'; do
-for z in 'int' 'size_t'; do
+for z in 'int' 'size_t' 'socklen_t'; do
 if test -z "$have_connect_decl"; then
 CL_PROTO_TRY([
 #ifdef HAVE_UNISTD_H
