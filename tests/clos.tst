@@ -549,13 +549,7 @@ FOO
 ;; From: Kaz Kylheku <kaz@ashi.footprints.net>
 ;; Date: Sat, 3 Jan 2004 14:47:25 -0800 (PST)
 ;; <http://article.gmane.org/gmane.lisp.clisp.general:7853>
-;; this is insane but necessary:
-;;   WITH-IGNORED-ERRORS in tests.lisp binds *ERROR-HANDLER* which
-;;   disables CLCS processing and thus compiled output breaks in
-;;   MAKE-INIT-FORM - NO-APPLICABLE-METHOD for MAKE-LOAD-FORM,
-;;   therefore we have to bind *ERROR-HANDLER* to NIL ourselves here
-(let* ((*ERROR-HANDLER* NIL)
-       (file "foo.lisp") c)
+(let ((file "foo.lisp") c)
   (unwind-protect
        (progn
          (makunbound '*foo*)
