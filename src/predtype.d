@@ -2150,6 +2150,7 @@ enum { /* The values of this enumeration are 0,1,2,...
   enum_hs_simple_16bit_vector,
   enum_hs_simple_32bit_vector,
   enum_hs_simple_string,
+  enum_hs_simple_nilvector,
   enum_hs_simple_vector,
   enum_hs_bit_vector,
   enum_hs_2bit_vector,
@@ -2158,6 +2159,7 @@ enum { /* The values of this enumeration are 0,1,2,...
   enum_hs_16bit_vector,
   enum_hs_32bit_vector,
   enum_hs_string,
+  enum_hs_nilvector,
   enum_hs_vector,
   enum_hs_simple_array,
   enum_hs_array,
@@ -2370,6 +2372,9 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
     case_sstring: /* Simple-String */
       pighole = &locals->builtins[(int)enum_hs_simple_string];
       break;
+    case_snilvector: /* (SIMPLE-VECTOR NIL) */
+      pighole = &locals->builtins[(int)enum_hs_simple_nilvector];
+      break;
     case_svector: /* Simple-Vector */
       pighole = &locals->builtins[(int)enum_hs_simple_vector];
       break;
@@ -2396,6 +2401,9 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
       break;
     case_ostring: /* other String */
       pighole = &locals->builtins[(int)enum_hs_string];
+      break;
+    case_nilvector: /* (VECTOR NIL) */
+      pighole = &locals->builtins[(int)enum_hs_nilvector];
       break;
     case_ovector: /* other general-vector */
       pighole = &locals->builtins[(int)enum_hs_vector];
@@ -2451,6 +2459,7 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
         case_Rectype_Sb16vector_above;
         case_Rectype_Sb32vector_above;
         case_Rectype_Sstring_above;
+        case_Rectype_Snilvector_above;
         case_Rectype_Svector_above;
         case_Rectype_WeakKVT_above;
         case_Rectype_obvector_above;
@@ -2460,6 +2469,7 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
         case_Rectype_ob16vector_above;
         case_Rectype_ob32vector_above;
         case_Rectype_ostring_above;
+        case_Rectype_nilvector_above;
         case_Rectype_ovector_above;
         case_Rectype_mdarray_above;
         case_Rectype_Closure_above;
