@@ -1,3 +1,9 @@
+2004-11-11  Bruno Haible  <bruno@clisp.org>
+
+	* m4/ioctl.m4 (CL_IOCTL): Test whether ioctl exists at all before
+	attempting to determine its prototype. Needed for mingw32.
+	* unix.d (ioctl): Declare only if HAVE_IOCTL.
+
 2004-11-11  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (main_actions) [PATHNAME_WIN32]: always try to load
