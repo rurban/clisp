@@ -3264,7 +3264,7 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
  When &path-r; points to a file which is currently open in &clisp;,
  an &err-sig;.</para></simplesect>
 
-<simplesect id="dir"><title>Function &directory;</title>
+<simplesect id="directory"><title>Function &directory;</title>
 
 <para><code>(&directory; &optional-amp; &path-r; &key-amp;
   :FULL :CIRCLE &if-does-not-exist;)</code> can run in two modes:
@@ -3324,7 +3324,7 @@ pointing to non-existent files and can take the following values:
    the &ansi-cl; specification).</simpara></listitem></varlistentry>
 </variablelist></para></simplesect>
 
-<simplesect><title>Function <function>EXT:DIR</function></title>
+<simplesect id="dir"><title>Function <function>EXT:DIR</function></title>
 <para><code>(<function>EXT:DIR</function> &optional-amp;
  &path-r;)</code> is like &directory;, but displays the pathnames
  instead of returning them. <code>(EXT:DIR)</code>
@@ -3345,19 +3345,22 @@ pointing to non-existent files and can take the following values:
 <!-- #endif -->
 </variablelist></para></simplesect>
 
-<simplesect><title>Function <function>EXT:DEFAULT-DIRECTORY</function></title>
+<simplesect id="default-dir">
+ <title>Function <function>EXT:DEFAULT-DIRECTORY</function></title>
 <para><code>(<function>EXT:DEFAULT-DIRECTORY</function>)</code> is
  equivalent to <code>(&cd;)</code>.
  <code>(&setf; (<function>EXT:DEFAULT-DIRECTORY</function>)
  &path-r;)</code> is equivalent to <code>(&cd; &path-r;)</code>,
  except for the return value.</para></simplesect>
 
-<simplesect><title>Function <function>EXT:MAKE-DIR</function></title>
+<simplesect id="make-dir">
+ <title>Function <function>EXT:MAKE-DIR</function></title>
 <para><code>(<function>EXT:MAKE-DIR</function>
  <replaceable>directory-pathname</replaceable>)</code>
  creates a new subdirectory.</para></simplesect>
 
-<simplesect><title>Function <function>EXT:DELETE-DIR</function></title>
+<simplesect id="delete-dir">
+ <title>Function <function>EXT:DELETE-DIR</function></title>
 <para><code>(<function>EXT:DELETE-DIR</function>
  <replaceable>directory-pathname</replaceable>)</code> removes an
  (empty) subdirectory.</para></simplesect>
