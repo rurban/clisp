@@ -202,7 +202,7 @@ int main (int argc, char* argv[])
           case 'w':
           case 'n': /* -norc */
           case 'r': /* -repl */
-          case 'v': /* -verbose */
+          case 'v':
           case '-':
             break;
           /* Skippable options with arguments. */
