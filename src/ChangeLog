@@ -1,3 +1,10 @@
+2004-11-11  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (main_actions) [PATHNAME_WIN32]: always try to load
+	~/.clisprc first, and try ~/_clisprc only when the former does not
+	exist; issue a warning when the latter is found.
+	This code is to be removed after the next release.
+
 2004-11-01  Bruno Haible  <bruno@clisp.org>
 
 	Change the meaning of :BUFFERED :DEFAULT to mean T on the input side.

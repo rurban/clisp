@@ -312,6 +312,11 @@ Portability
 
 * Weak hash tables now also work on platforms without mmap().
 
+* The name of the Run-Control file has changed from '_clisprc' to
+  '.clisprc' on all platforms.
+  If you are using woe32, please rename your Run-Control file.
+
+
 
 2.33.2 (2004-06-02)
 ===================
