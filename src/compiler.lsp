@@ -12663,7 +12663,9 @@ Die Funktion make-closure wird dazu vorausgesetzt.
               (instr (cdar L)))
           (terpri stream)
           (prin1 PC stream)
-          (dotimes (i (- 6 (sys::line-position stream))) (write-char #\Space stream)) ; Tab 6
+          (dotimes (i (let ((pos (sys::line-position stream))) (if pos (max 1 (- 6 pos)) 2)))
+            (write-char #\Space stream) ; Tab 6
+          )
           (princ instr stream) ; instr ausgeben, Symbole ohne Package-Marker!
           (multiple-value-bind (commentp comment)
             (when (consp instr)
@@ -12690,7 +12692,9 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                   (values 'string (nth (second instr) const-string-list))
             ) ) )
             (when commentp
-              (dotimes (i (max 1 (- 42 (sys::line-position stream)))) (write-char #\Space stream)) ; Tab 42
+              (dotimes (i (let ((pos (sys::line-position stream))) (if pos (max 1 (- 42 pos)) 2)))
+                (write-char #\Space stream) ; Tab 42
+              )
               (write-string "; " stream)
               (if (eq commentp 'string)
                 (write-string comment stream)
