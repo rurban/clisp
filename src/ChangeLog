@@ -1,5 +1,9 @@
 2005-03-18  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (EMACS_FILES): added clhs.el and clisp-ffi.el
+
+2005-03-18  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (DEEMA): permit spaces in empty macro arguments
 
 2005-03-18  Sam Steingold  <sds@gnu.org>
