@@ -741,6 +741,7 @@ int main(int argc, char* argv[])
   printf("#define type_zero_oint(type)  ((oint)(tint)(type) << %d)\n",oint_type_shift);
   printf("#define immediate_object_p(obj)  ((7 & ~as_oint(obj)) == 0)\n");
   printf("#define gcinvariant_object_p(obj)  (((as_oint(obj) & 1) == 0) || immediate_object_p(obj))\n");
+  printf("#define gcinvariant_oint_p(obj_o)  ((((obj_o) & 1) == 0) || ((7 & ~(obj_o)) == 0))\n");
   printf("#define gcinvariant_bias_p(bias)  ((((bias) & 1) == 0) || ((7 & ~(bias)) == 0))\n");
  #endif
  #ifdef LINUX_NOEXEC_HEAPCODES
@@ -748,6 +749,7 @@ int main(int argc, char* argv[])
   printf("#define type_zero_oint(type)  ((oint)(tint)(type) << %d)\n",oint_type_shift);
   printf("#define immediate_object_p(obj)  ((0xC0000003 & ~as_oint(obj)) == 0x00000003)\n");
   printf("#define gcinvariant_object_p(obj)  ((as_oint(obj) & bit(1)) == 0)\n");
+  printf("#define gcinvariant_oint_p(obj_o)  (((obj_o) & bit(1)) == 0)\n");
   printf("#define gcinvariant_bias_p(bias)  (((bias) & 2) == 0)\n");
  #endif
 #endif
@@ -758,10 +760,34 @@ int main(int argc, char* argv[])
   printf("#define VAROBJECTS_ALIGNMENT_DUMMY_DECL\n");
 #endif
   printf1("#define varobject_alignment  %d\n",varobject_alignment);
+#ifdef TYPECODES
+ #ifndef IMMEDIATE_FFLOAT
+  printf1("#define gcinvariant_type_p(type)  (((type) & ~%d) == 0)\n",BTB5|BTB1|BTB0);
+ #else
+  #if (TB1==TB0+1) && (TB2==TB0+2) && (TB3==TB0+3) && (TB4==TB0+4) && (TB5==TB0+5)
+  printf2("#define gcinvariant_type_p(type)  ((((type)>>%d)<0x14) && ((bit((type)>>%d) & 0xFFF4FFFCUL) == 0))\n",TB0+1,TB0+1);
+  #else
+  printf1("#define gcinvariant_type_p(type)  gcinvariant_type_aux((type)>>%d)\n",TB1);
+  printf2("#define gcinvariant_type_sum(type)  (((type) | ((type)>>%d)) & %d)\n",TB5-(TB2+1),((BTB2<<1)+BTB2+BTB1)>>TB1);
+  printf3("#define gcinvariant_type_aux(type)  (((type) < %d) && ((type) & ~%d) == 0 && (bit(gcinvariant_type_sum(type)) & %d) != 0)\n",(BTB5+(BTB2<<1))>>TB1,(BTB5|BTB2|BTB1)>>TB1, bit(0) | bit(1) | bit(bit(TB2+1-TB1)) | bit(bit(TB2+1-TB1) | 1) | bit(bit(TB2+1-TB1) | bit(TB2-TB1) | 1));
+  #endif
+ #endif
+  printf("#define gcinvariant_object_p(obj)  gcinvariant_type_p(typecode(obj))\n");
+  printf2("#define gcinvariant_oint_p(obj_o)  gcinvariant_type_p((tint)((obj_o) >> %d) & %d)\n",oint_type_shift,oint_type_mask >> oint_type_shift);
+#endif
+#if notused /* Here we can assume inside_gc is false. */
+  printf("extern bool inside_gc;\n");
+#endif
 #ifdef DEBUG_GCSAFETY
   printf("static inline bool gcinvariant_symbol_p (object obj);\n");
-  printf("inline gcv_object_t::operator object () const { return (object){ one_o: one_o, allocstamp: alloccount }; }\n");
-  printf("inline gcv_object_t::gcv_object_t (object obj) { if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount)) abort(); one_o = as_oint(obj); }\n");
+ #ifdef LINUX_NOEXEC_HEAPCODES
+  printf("static inline bool nonimmsubrp (object obj);\n");
+ #else
+  printf("#define nonimmsubrp(obj)  false\n");
+ #endif
+  printf4("#define nonimmprobe(obj_o)  do { if (((obj_o) & %d) == 0) if (!gcinvariant_oint_p(obj_o)) *(volatile char *)(((aint)((obj_o) >> %d) & %d) <<%d); } while (0)\n",wbit(garcol_bit_o),oint_addr_shift,(aint)(oint_addr_mask >> oint_addr_shift),addr_shift);
+  printf("inline gcv_object_t::operator object () const { nonimmprobe(one_o); return (object){ one_o: one_o, allocstamp: alloccount }; }\n");
+  printf("inline gcv_object_t::gcv_object_t (object obj) { if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); one_o = as_oint(obj); nonimmprobe(one_o); }\n");
   printf("inline gcv_object_t::gcv_object_t () {}\n");
 #endif
 #ifdef TYPECODES
@@ -1007,6 +1033,11 @@ int main(int argc, char* argv[])
   printf3("#define make_system(data)  type_data_object(%d,%x | (%x & (data)))\n",(tint)system_type,(oint)(bit(oint_data_len-1) | bit(0)),(oint)(bitm(oint_data_len)-1));
   printf("#define unbound  make_system(0x%x)\n",0xFFFFFFUL);
   printf("#define nullobj  make_machine(0)\n");
+#ifdef DEBUG_GCSAFETY
+  printf("#define gcv_nullobj  (gcv_object_t)nullobj\n");
+#else
+  printf("#define gcv_nullobj  nullobj\n");
+#endif
 #ifdef TYPECODES
  #if !((oint_addr_shift==0) && (addr_shift==0))
   printf("#define pointable(obj)  ((void*)upointer(obj))\n");
@@ -1074,10 +1105,10 @@ int main(int argc, char* argv[])
  #if defined(DEBUG_GCSAFETY)
   printf("static inline aint cgci_pointable (object obj) { return obj.one_o; }\n");
   printf("static inline aint cgci_pointable (gcv_object_t obj) { return obj.one_o; }\n");
-  printf("static inline aint pgci_pointable (object obj) { if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount)) abort(); return obj.one_o; }\n");
-  printf("static inline aint pgci_pointable (gcv_object_t obj) { return obj.one_o; }\n");
-  printf("static inline aint ngci_pointable (object obj) { if (!(gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount)) abort(); return obj.one_o; }\n");
-  printf("static inline aint ngci_pointable (gcv_object_t obj) { return obj.one_o; }\n");
+  printf("static inline aint pgci_pointable (object obj) { if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); nonimmprobe(obj.one_o); return obj.one_o; }\n");
+  printf("static inline aint pgci_pointable (gcv_object_t obj) { nonimmprobe(obj.one_o); return obj.one_o; }\n");
+  printf("static inline aint ngci_pointable (object obj) { if (!(gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); nonimmprobe(obj.one_o); return obj.one_o; }\n");
+  printf("static inline aint ngci_pointable (gcv_object_t obj) { nonimmprobe(obj.one_o); return obj.one_o; }\n");
  #elif defined(WIDE_AUXI)
   printf("#define cgci_pointable(obj)  (obj).one_o\n");
   printf("#define pgci_pointable(obj)  (obj).one_o\n");
@@ -1258,6 +1289,13 @@ int main(int argc, char* argv[])
   printf("#define charp(obj)  (typecode(obj)==%d)\n",(tint)char_type);
 #else
   printf("#define charp(obj)  ((as_oint(obj) & %d) == %d)\n",(7 << imm_type_shift) | immediate_bias,char_type);
+#endif
+#ifndef TYPECODES
+ #ifdef LINUX_NOEXEC_HEAPCODES
+  #ifdef DEBUG_GCSAFETY
+  printf2("static inline bool nonimmsubrp (object obj) { return (varobjectp(obj) && (varobject_type((Record)(cgci_pointable(obj)-%d)) == %d)); }\n",varobject_bias,Rectype_Subr);
+  #endif
+ #endif
 #endif
 #ifdef TYPECODES
   printf2("#define integerp(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)((fixnum_type|bignum_type|bit(sign_bit_t)) & ~(fixnum_type&bignum_type)),(tint)(fixnum_type&bignum_type));
@@ -1769,9 +1807,9 @@ int main(int argc, char* argv[])
   printf("#define subr_norest_function_args  (void)\n");
   printf("#define subr_rest_function_args  (uintC argcount, object* rest_args_pointer)\n");
 #ifdef TYPECODES
-  printf4("#define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { { nullobj }, %d,%d,%d,%d, nullobj, nullobj, (lisp_function_t)(&C_##name), 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, sec},\n", Rectype_Subr, 0, subr_length, subr_xlength);
+  printf4("#define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { { gcv_nullobj }, %d,%d,%d,%d, gcv_nullobj, gcv_nullobj, (lisp_function_t)(&C_##name), 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, sec},\n", Rectype_Subr, 0, subr_length, subr_xlength);
 #else
-  printf1("#define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { nullobj, %d, nullobj, nullobj, (lisp_function_t)(&C_##name), 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, sec},\n", xrecord_tfl(Rectype_Subr,0,subr_length,subr_xlength));
+  printf1("#define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { gcv_nullobj, %d, gcv_nullobj, gcv_nullobj, (lisp_function_t)(&C_##name), 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, sec},\n", xrecord_tfl(Rectype_Subr,0,subr_length,subr_xlength));
 #endif
   printf("#define LISPFUN  LISPFUN_B\n");
 #ifdef UNICODE

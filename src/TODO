@@ -20,11 +20,6 @@ calls.c:1866: incompatible types in initialization
 calls.c:1866: initializer element is not constant
 calls.c:1866: (near initialization for `module__syscalls__subr_tab._subr_posix_bogomips.GCself.one_o')
 <http://sourceforge.net/tracker/index.php?func=detail&aid=981623&group_id=1355&atid=101355>
-It it crucial to extend DEBUG_GCSAFETY functionality to
-modules because they are often written by less careful
-prople (like myself) than the core developers (like you).
-Right now, genclisph.d produces clisp.h which is
-inconsistent with lispbibl.d when DEBUG_GCSAFETY is enabled.
 
 patch 2005-02-17 "Simplify the version handling"
 broke version handling:
