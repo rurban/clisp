@@ -1,5 +1,13 @@
 2004-10-16  Bruno Haible  <bruno@clisp.org>
 
+	* clos-class3.lisp (define-structure-class): Remove redundant code.
+	* defstruct.lisp (ds-make-constructor-body, ds-make-boa-constructor,
+	ds-make-keyword-constructor, ds-make-readers, ds-make-writers,
+	defstruct): For type = T, all slots are "real"; don't call
+	ds-real-slot-p in this case.
+
+2004-10-16  Bruno Haible  <bruno@clisp.org>
+
 	* defstruct.lisp: Simplify package prefixes.
 
 2004-10-16  Bruno Haible  <bruno@clisp.org>

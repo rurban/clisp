@@ -1754,8 +1754,7 @@
           'names names
           'kconstructor keyword-constructor
           'direct-slots direct-slots
-          'slots (remove-if-not #'slot-definition-initargs ; means #'sys::ds-real-slot-p
-                                all-slots)
+          'slots all-slots
           'size (if all-slots
                   (1+ (slot-definition-location (car (last all-slots))))
                   1)
