@@ -324,14 +324,15 @@
       "~S: ~S already belongs to ~S, cannot also add it to ~S"
       'std-add-method method (method-generic-function method) gf))
   (check-method-qualifiers gf method)
-  (setf (std-method-fast-function method) nil)
-  ;; Determine function from initfunction:
-  (when (and (null (std-method-function method))
-             (null (std-method-fast-function method)))
-    (let ((h (funcall (std-method-initfunction method) method)))
-      (setf (std-method-fast-function method) (car h))
-      (when (car (cdr h)) ; could the variable ",cont" be optimized away?
-        (setf (std-method-wants-next-method-p method) nil))))
+  (when (typep method <standard-method>)
+    (setf (std-method-fast-function method) nil)
+    ;; Determine function from initfunction:
+    (when (and (null (std-method-function method))
+               (null (std-method-fast-function method)))
+      (let ((h (funcall (std-method-initfunction method) method)))
+        (setf (std-method-fast-function method) (car h))
+        (when (car (cdr h)) ; could the variable ",cont" be optimized away?
+          (setf (std-method-wants-next-method-p method) nil)))))
   ;; The method is finished. Now add it:
   (warn-if-gf-already-called gf)
   (let ((old-method (find method (std-gf-methods gf) :test #'methods-agree-p)))

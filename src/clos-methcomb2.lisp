@@ -84,7 +84,8 @@
   (if methods-list
     (let ((method (first methods-list))
           (next-methods-list (rest methods-list)))
-      (if (std-method-fast-function method)
+      (if (and (typep-class method <standard-method>)
+               (std-method-fast-function method))
         ; Fast method function calling conventions.
         (let ((fast-func (std-method-fast-function method)))
           (if (std-method-wants-next-method-p method)
@@ -403,7 +404,8 @@
                             (CDR NEXT-METHODS-LIST))))
                       'NIL)))
               (IF (TYPEP-CLASS METHOD <METHOD>)
-                (IF (STD-METHOD-FAST-FUNCTION METHOD)
+                (IF (AND (TYPEP-CLASS METHOD <STANDARD-METHOD>)
+                         (STD-METHOD-FAST-FUNCTION METHOD))
                   ; Fast method function calling conventions.
                   (IF (STD-METHOD-WANTS-NEXT-METHOD-P METHOD)
                     (LIST* ',apply-fun (LIST 'QUOTE (STD-METHOD-FAST-FUNCTION METHOD))
@@ -459,7 +461,7 @@
              (if (and (consp effective-method-form)
                       (eq (first effective-method-form) 'CALL-METHOD)
                       (consp (cdr effective-method-form))
-                      (typep-class (second effective-method-form) <method>)
+                      (typep-class (second effective-method-form) <standard-method>)
                       (std-method-fast-function (second effective-method-form))
                       (not (std-method-wants-next-method-p (second effective-method-form))))
                (std-method-fast-function (second effective-method-form))
