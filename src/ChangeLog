@@ -1,3 +1,14 @@
+2001-11-19  Sam Steingold  <sds@gnu.org>
+
+	Move all deprecated functionality to deprecated.lisp
+	* compiler.lisp (*deprecated-functions-list*): took SPECIAL-FORM-P
+	and GET-SETF-METHOD-MULTIPLE-VALUE out
+	* init.lisp (export "EXT"): ditto
+	* defs1.lisp (special-form-p): moved to deprecated.lisp
+	* places.lisp (get-setf-method-multiple-value): ditto
+	* deprecated.lisp (special-form-p, get-setf-method-multiple-value):
+	added as deprecated
+
 2001-11-11  Bruno Haible  <haible@clisp.cons.org>
 
 	Support for Intel icc on Linux/i386.

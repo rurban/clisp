@@ -289,7 +289,7 @@
    int-char char-bits char-font char-bit set-char-bit
    base-char-code-limit char-font-limit char-bits-limit char-control-bit
    char-meta-bit char-super-bit char-hyper-bit string-char-p
-   long-float-digits special-form-p
+   long-float-digits
    the-environment arglist getenv special-variable-p
    *driver* *break-driver* *args* *keyboard-input* clhs-root shell execute
    ;; declarations
@@ -311,7 +311,7 @@
    #+(or UNIX OS/2 WIN32) make-pipe-input-stream
    #+(or UNIX OS/2 WIN32) make-pipe-io-stream
    make-buffered-input-stream make-buffered-output-stream
-   define-setf-method get-setf-method get-setf-method-multiple-value
+   define-setf-method get-setf-method
    compiler-let load-time-eval)
  "EXT")
 

@@ -4450,8 +4450,8 @@ der Docstring (oder NIL).
                      (c-NORMAL-FUNCTION-CALL fun)))))))
           (c-NORMAL-FUNCTION-CALL fun))))))
 
-(defvar *deprecated-functions-list*
-  '(GENTEMP SET SPECIAL-FORM-P GET-SETF-METHOD-MULTIPLE-VALUE))
+;; deprecated by the ANSI CL spec
+(defvar *deprecated-functions-list* '(GENTEMP SET))
 
 ;; note a global function call
 ;; NAME is function name, ARGS are arguments, APPLY-ARGS are APPLY arguments
