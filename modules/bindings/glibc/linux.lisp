@@ -166,6 +166,8 @@
 
 ; ============================== <errno.h> ====================================
 
+(c-lines "#include <errno.h>~%")
+
 ; --------------------------- <linux/errno.h> ---------------------------------
 
 ; ---------------------------- <asm/errno.h> ----------------------------------
@@ -300,6 +302,8 @@
 ;; in GNU, errno is a per-thread variable, so def-c-var is not appropriate
 ;; (def-c-var errno (:type ffi:int))
 ;; link error: "undefined reference to `errno'"
+
+(c-lines "#include <bits/errno.h>~%")
 
 (def-call-out __errno_location (:arguments) (:return-type c-pointer))
 (def-call-out get-errno (:name "__errno_location")
@@ -515,6 +519,8 @@
 
 ; ============================== <stdlib.h> ===================================
 
+(c-lines "#include <stdlib.h>~%")
+
 (def-c-struct (div_t :typedef)
   (quot int)
   (rem int))
@@ -540,6 +546,9 @@
 (def-call-out strtod
     (:arguments (nptr c-string) (endptr (c-ptr c-string) :out))
   (:return-type double-float))
+
+; Explicit C declaration required because it may be compiler built-in
+(c-lines "extern float strtof(const char *, char **);~%")
 (def-call-out strtof
     (:arguments (nptr c-string) (endptr (c-ptr c-string) :out))
   (:return-type single-float))
@@ -683,8 +692,9 @@
 (def-call-out system? (:arguments (null c-string))
   (:return-type boolean) (:name "system"))
 
-(def-call-out canonicalize_file_name (:arguments (name c-string))
-  (:return-type c-string :malloc-free))
+; You can uncomment this if your compiler sets __USE_GNU
+; (def-call-out canonicalize_file_name (:arguments (name c-string))
+;  (:return-type c-string :malloc-free))
 
 (def-call-out realpath
     (:arguments (name c-string)
@@ -708,13 +718,16 @@
 
 (def-call-out abs (:arguments (x int)) (:return-type int))
 (def-call-out labs (:arguments (x long)) (:return-type long))
+
+; Explicit declaration required because it may be compiler built-in
+(c-lines "extern long long int llabs (long long int);~%")
 (def-call-out llabs (:arguments (x longlong)) (:return-type longlong))
 
 (def-call-out div (:arguments (numer int) (denom int)) (:return-type div_t))
 (def-call-out ldiv (:arguments (numer long) (denom long))
   (:return-type ldiv_t))
-(def-call-out lldiv (:arguments (numer longlong) (denom longlong))
-  (:return-type lldiv_t))
+; (def-call-out lldiv (:arguments (numer longlong) (denom longlong))
+;   (:return-type lldiv_t))
 (def-call-out ecvt
     (:arguments (value double-float) (ndigit size_t)
                 (decpt (c-ptr int) :out) (sign (c-ptr int) :out))
@@ -753,6 +766,8 @@
 
 ; ============================== <ctype.h> ====================================
 
+(c-lines "#include <ctype.h>~%")
+
 (def-call-out isalnum (:arguments (c int)) (:return-type boolean))
 (def-call-out isalpha (:arguments (c int)) (:return-type boolean))
 (def-call-out iscntrl (:arguments (c int)) (:return-type boolean))
@@ -764,7 +779,9 @@
 (def-call-out isspace (:arguments (c int)) (:return-type boolean))
 (def-call-out isupper (:arguments (c int)) (:return-type boolean))
 (def-call-out isxdigit (:arguments (c int)) (:return-type boolean))
-(def-call-out isblank (:arguments (c int)) (:return-type boolean))
+
+; Not a function but rather a #define
+; (def-call-out isblank (:arguments (c int)) (:return-type boolean))
 
 (def-call-out tolower (:arguments (c int)) (:return-type int))
 (def-call-out toupper (:arguments (c int)) (:return-type int))
@@ -955,7 +972,7 @@
   (:return-type single-float))
 
 ;;; ------------------------------- <math.h> ---------------------------------
-
+(c-lines "#include <math.h>~%")
 (def-c-var signgam (:type int))
 
 (defconstant HUGE FLT_MAX)
@@ -1000,6 +1017,8 @@
 
 ;;; ------------------------------ <unistd.h> --------------------------------
 
+(c-lines "#include <unistd.h>~%")
+
 (defconstant _POSIX_VERSION 199309)
 (defconstant _POSIX2_C_VERSION 199912)
 (defconstant _POSIX2_C_BIND t)
@@ -1027,8 +1046,9 @@
 (def-call-out access (:arguments (name c-string) (type int))
   (:return-type int))
 
-(def-call-out euidaccess (:arguments (name c-string) (type int))
-  (:return-type int))
+; You can uncomment this if your compiler sets __USE_GNU
+; (def-call-out euidaccess (:arguments (name c-string) (type int))
+;   (:return-type int))
 
 (defconstant SEEK_SET 0)
 (defconstant SEEK_CUR 1)
@@ -1073,8 +1093,9 @@
 ;(def-call-out getcwd (:arguments (buf c-string :out) (size size_t)) ; ??
 ;  (:return-type c-string))
 
-(def-call-out get_current_dir_name (:arguments)
-  (:return-type c-string :malloc-free))
+; You can uncomment this if your compiler sets __USE_GNU
+; (def-call-out get_current_dir_name (:arguments)
+;   (:return-type c-string :malloc-free))
 
 ;(def-call-out getwd (:arguments (buf c-string :out)) ; ??
 ;  (:return-type c-string))
@@ -1083,6 +1104,7 @@
 
 (def-call-out dup2 (:arguments (fd int) (fd2 int)) (:return-type int))
 
+(c-lines "extern char **environ;~%")
 (def-c-var environ (:type (c-array-ptr c-string)) (:read-only t))
 
 (def-call-out execv
@@ -1317,10 +1339,10 @@
 (def-call-out getppid (:arguments) (:return-type pid_t))
 (def-call-out getpgrp (:arguments) (:return-type pid_t))
 (def-call-out setpgid (:arguments (pid pid_t) (pgid pid_t)) (:return-type int))
-(def-call-out getpgid (:arguments (pid pid_t)) (:return-type pid_t))
-(def-call-out setpgrp (:arguments) (:return-type int))
+; Uncomment these if your compiler sets __USE_XOPEN_EXTENDED
+; (def-call-out getpgid (:arguments (pid pid_t)) (:return-type pid_t))
+; (def-call-out getsid (:arguments (pid pid_t)) (:return-type pid_t))
 (def-call-out setsid (:arguments) (:return-type pid_t))
-(def-call-out getsid (:arguments (pid pid_t)) (:return-type pid_t))
 (def-call-out getuid (:arguments) (:return-type uid_t))
 (def-call-out geteuid (:arguments) (:return-type uid_t))
 (def-call-out getgid (:arguments) (:return-type gid_t))
@@ -1330,7 +1352,8 @@
 ;    (:arguments (size int) (list (c-ptr (c-array gid_t ??)) :out)) ; ??
 ;  (:return-type int))
 
-(def-call-out group_member (:arguments (gid gid_t)) (:return-type boolean))
+; You can uncomment this if your compiler sets __USE_GNU
+; (def-call-out group_member (:arguments (gid gid_t)) (:return-type boolean))
 (def-call-out setuid (:arguments (uid uid_t)) (:return-type int))
 (def-call-out setreuid (:arguments (ruid uid_t) (euid uid_t))
   (:return-type int))
@@ -1399,6 +1422,7 @@
 ;; this is a stub (see <gnu/stubs.h>):
 ;; (def-call-out setlogin (:arguments (name c-string)) (:return-type int))
 
+(c-lines "#include <getopt.h>~%")
 ;(def-call-out getopt
 ;    (:arguments (argc int) (argv c-pointer) (opts c-string)) ; ??
 ;  (:return-type int))
@@ -1489,6 +1513,7 @@
 ;  (:return-type nil))
 
 ;;; ============================== <fcntl.h> =================================
+(c-lines "#include <fcntl.h>~%")
 
 ;;; ---------------------------- <linux/fcntl.h> -----------------------------
 
@@ -1531,6 +1556,7 @@
 (defconstant LOCK_NB    4)
 (defconstant LOCK_UN    8)
 
+(c-lines "#include <sys/file.h>~%")
 (def-c-struct flock
   (l_type short)
   (l_whence short)
@@ -1686,6 +1712,8 @@
 
 ; ------------------------------ <stdio.h> ------------------------------------
 
+(c-lines "#include <stdio.h>~%")
+
 (defconstant EOF -1)
 
 (defconstant _IOFBF 0)
@@ -1820,7 +1848,8 @@
   (:return-type c-string :malloc-free))
 (def-call-out ungetc (:arguments (c int) (fp c-pointer))
   (:return-type int))
-(def-call-out fcloseall (:arguments) (:return-type int))
+; You can uncomment this if your compiler sets __USE_GNU
+; (def-call-out fcloseall (:arguments) (:return-type int))
 (def-call-out fdopen (:arguments (fildes int) (mode c-string))
   (:return-type c-pointer))
 (def-call-out fileno (:arguments (fp c-pointer)) (:return-type int))
@@ -1830,20 +1859,22 @@
 
 (def-call-out ctermid (:arguments (null c-string)) ; ??
   (:return-type c-string))
-(def-call-out cuserid (:arguments (null c-string)) ; ??
-  (:return-type c-string))
+; Uncomment this if your compiler sets __USE_XOPEN_EXTENDED
+; (def-call-out cuserid (:arguments (null c-string)) ; ??
+;   (:return-type c-string))
 
 ; getdelim
 ; getline
 ; open_memstream
 
-(def-c-var sys_nerr (:type int) (:read-only t))
-(def-c-var sys_errlist (:type (c-array c-string 122)) (:read-only t))
+; Access to these variables is deprecated and replaced by strerror()
+; (def-c-var sys_nerr (:type int) (:read-only t))
+; (def-c-var sys_errlist (:type (c-array c-string 122)) (:read-only t))
 
 ; and lots of lock/unlock functions
 
 ;;; ============================== <dirent.h> ================================
-;; (c-lines "#include <dirent.h>~%")
+(c-lines "#include <dirent.h>~%")
 
 ;;; ----------------------------- <direntry.h> -------------------------------
 
@@ -1995,6 +2026,8 @@
 
 ;;; ============================ <sys/utsname.h> =============================
 
+(c-lines "#include <sys/utsname.h>~%")
+
 ;;; ---------------------------- <utsnamelen.h> ------------------------------
 
 (eval-when (load compile eval)
@@ -2023,6 +2056,7 @@
   (:return-type int))
 
 ;;; ============================= <termios.h> ================================
+(c-lines "#include <termios.h>~%")
 
 ;;; ----------------------------- <termbits.h> -------------------------------
 
@@ -2233,10 +2267,12 @@
 ;; lots of old stuff
 
 ;;; ============================== <string.h> ================================
+(c-lines "#include <string.h>~%")
 
 (def-call-out strerror (:arguments (errnum int)) (:return-type c-string :none))
 
 ;;; ============================= <sys/ioctl.h> ==============================
+(c-lines "#include <sys/ioctl.h>~%")
 
 ;;; --------------------------- <bits/ioctl-types.h> -------------------------
 

@@ -128,6 +128,8 @@
 
 
 ; --------------   "C" functions
+(c-lines "#include \"fastcgi.h\"~%")
+
 ; Our wrappers
 (def-call-out fcgi_getenv       (:arguments (var c-string))               (:return-type c-string))
 (def-call-out fcgi_read_stdin   (:arguments)                              (:return-type c-string))
