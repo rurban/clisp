@@ -2,6 +2,9 @@
 
 	* record.d (parse_seclass): be backward compatible (wrt 2004-01-09
 	SECLASS change)
+	* constobj.d (version): do not change now!
+	remember to remove the backward compatibility code above
+	when `version' changes!
 
 2004-01-10  Sam Steingold  <sds@gnu.org>
 
