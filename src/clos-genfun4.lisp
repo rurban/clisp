@@ -25,6 +25,38 @@
                    method-combination documentation declarations declare))
   (apply #'shared-initialize-<standard-generic-function> gf situation args))
 
+(defmethod initialize-instance ((gf generic-function) &rest args
+                                &key name
+                                     lambda-list
+                                     argument-precedence-order
+                                     method-class
+                                     method-combination
+                                     documentation
+                                     declarations
+                                     declare
+                                     ((methods methods) nil) ; from DEFGENERIC
+                                &allow-other-keys)
+  (declare (ignore name lambda-list argument-precedence-order method-class
+                   method-combination documentation declarations declare
+                   methods))
+  (apply #'initialize-instance-<generic-function> gf args))
+
+(defmethod reinitialize-instance ((gf generic-function) &rest args
+                                  &key name
+                                       lambda-list
+                                       argument-precedence-order
+                                       method-class
+                                       method-combination
+                                       documentation
+                                       declarations
+                                       declare
+                                       ((methods methods) nil) ; from DEFGENERIC
+                                  &allow-other-keys)
+  (declare (ignore name lambda-list argument-precedence-order method-class
+                   method-combination documentation declarations declare
+                   methods))
+  (apply #'reinitialize-instance-<generic-function> gf args))
+
 ;; ----------------------------------------------------------------------------
 
 ;; An argument is called "dispatching" if not all the corresponding parameter

@@ -240,21 +240,220 @@
   (finalize-fast-gf gf)
   gf)
 
-(defun initialize-instance-<standard-generic-function> (gf &rest args
-                                                        &key name
-                                                             lambda-list
-                                                             argument-precedence-order
-                                                             method-class
-                                                             method-combination
-                                                             documentation
-                                                             declarations
-                                                             declare
-                                                        &allow-other-keys)
+;; ======================== The Set of Methods of a GF ========================
+
+;; Cruel hack (CLtL2 28.1.9.2., ANSI CL 7.1.2.):
+;; - MAKE-INSTANCE must be informed about the methods of ALLOCATE-INSTANCE,
+;;   INITIALIZE-INSTANCE and SHARED-INITIALIZE.
+;; - INITIALIZE-INSTANCE must be informed about the methods of
+;;   INITIALIZE-INSTANCE and SHARED-INITIALIZE.
+;; - REINITIALIZE-INSTANCE must be informed about the methods of
+;;   REINITIALIZE-INSTANCE and SHARED-INITIALIZE.
+;; - UPDATE-INSTANCE-FOR-REDEFINED-CLASS must be informed about the methods of
+;;   UPDATE-INSTANCE-FOR-REDEFINED-CLASS and SHARED-INITIALIZE.
+;; - UPDATE-INSTANCE-FOR-DIFFERENT-CLASS must be informed about the methods of
+;;   UPDATE-INSTANCE-FOR-DIFFERENT-CLASS and SHARED-INITIALIZE.
+(defvar |#'allocate-instance| nil)
+(defvar |#'initialize-instance| nil)
+(defvar |#'reinitialize-instance| nil)
+(defvar |#'update-instance-for-redefined-class| nil)
+(defvar |#'update-instance-for-different-class| nil)
+(defvar |#'shared-initialize| nil)
+(defvar *gf-warn-on-replacing-method* t)
+
+;; CLtL2 28.1.6.3., ANSI CL 7.6.3.
+;; Agreement on Parameter Specializers and Qualifiers
+(defun methods-agree-p (method1 method2)
+  (and (equal (std-method-qualifiers method1) (std-method-qualifiers method2))
+       (specializers-agree-p (std-method-specializers method1)
+                             (std-method-specializers method2))))
+
+;; MOP p. 62 says that the lambda-list of a generic function may become
+;; determined only at the moment when the first method is added.
+(defun gf-lambdalist-from-first-method (m-lambdalist m-signature)
+  (let* ((req-num (sig-req-num m-signature))
+         (opt-num (sig-opt-num m-signature))
+         (rest-p (sig-rest-p m-signature)))
+    (values
+      ;; The inferred lambda-list:
+      (append (subseq m-lambdalist 0 req-num)
+              (if (> opt-num 0)
+                (cons '&OPTIONAL
+                      (mapcar #'(lambda (item) (if (consp item) (first item) item))
+                              (subseq m-lambdalist (+ req-num 1) (+ req-num 1 opt-num))))
+                '())
+              (if rest-p
+                (list '&REST
+                      (let ((i (position '&REST m-lambdalist)))
+                        (if i (nth (+ i 1) m-lambdalist) (gensym))))
+               '()))
+      ;; Its corresponding signature:
+      (make-signature :req-num req-num :opt-num opt-num :rest-p rest-p))))
+
+;; Add a method to a generic function.
+(defun std-add-method (gf method)
+  (if (eq (std-gf-signature gf) (sys::%unbound))
+    ;; The first added method determines the generic-function's signature.
+    (shared-initialize-<standard-generic-function> gf nil
+      :lambda-list (gf-lambdalist-from-first-method (std-method-lambda-list method)
+                                                    (std-method-signature method)))
+    (check-signature-congruence gf method))
+  (when (std-method-generic-function method)
+    (error-of-type 'error
+      "~S: ~S already belongs to ~S, cannot also add it to ~S"
+      'std-add-method method (std-method-generic-function method) gf))
+  (check-method-qualifiers gf method)
+  (setf (std-method-fast-function method) nil
+        (std-method-generic-function method) gf)
+  ;; Determine function from initfunction:
+  (when (and (null (std-method-function method))
+             (null (std-method-fast-function method)))
+    (let ((h (funcall (std-method-initfunction method) method)))
+      (setf (std-method-fast-function method) (car h))
+      (when (car (cdr h)) ; could the variable ",cont" be optimized away?
+        (setf (std-method-wants-next-method-p method) nil))))
+  ;; The method is finished. Now add it:
+  (warn-if-gf-already-called gf)
+  (let ((old-method (find method (std-gf-methods gf) :test #'methods-agree-p)))
+    (cond ((eq gf |#'allocate-instance|) (note-ai-change method))
+          ((eq gf |#'initialize-instance|) (note-ii-change method))
+          ((eq gf |#'reinitialize-instance|) (note-ri-change method))
+          ((eq gf |#'update-instance-for-redefined-class|) (note-uirc-change method))
+          ((eq gf |#'update-instance-for-different-class|) (note-uidc-change method))
+          ((eq gf |#'shared-initialize|) (note-si-change method)))
+    (setf (std-gf-methods gf)
+          (cons method
+                (if old-method
+                  (progn
+                    (when *gf-warn-on-replacing-method*
+                      (warn (TEXT "Replacing method ~S in ~S")
+                            old-method gf))
+                    (remove old-method (std-gf-methods gf)))
+                  (std-gf-methods gf))))
+    (setf (std-gf-effective-method-cache gf) '())
+    (finalize-fast-gf gf))
+  ;; It's not worth updating the seclass of a generic function, since 1. in
+  ;; most cases, it can signal a NO-APPLICABLE-METHOD error and thus has
+  ;; *seclass-dirty*, 2. the compiler must assume that the seclass doesn't
+  ;; change over time, which we cannot guarantee, since generic functions are
+  ;; not sealed.
+  gf)
+
+;; Remove a method from a generic function.
+(defun std-remove-method (gf method)
+  (let ((old-method (find (std-method-initfunction method) (std-gf-methods gf)
+                          :key #'std-method-initfunction)))
+    (when old-method
+      (warn-if-gf-already-called gf)
+      (when (need-gf-already-called-warning-p gf)
+        (warn (TEXT "Removing method ~S in ~S")
+              old-method gf))
+      (cond ((eq gf |#'allocate-instance|) (note-ai-change method))
+            ((eq gf |#'initialize-instance|) (note-ii-change method))
+            ((eq gf |#'reinitialize-instance|) (note-ri-change method))
+            ((eq gf |#'update-instance-for-redefined-class|) (note-uirc-change method))
+            ((eq gf |#'update-instance-for-different-class|) (note-uidc-change method))
+            ((eq gf |#'shared-initialize|) (note-si-change method)))
+      (setf (std-gf-methods gf) (remove old-method (std-gf-methods gf))
+            (std-method-generic-function old-method) nil
+            (std-method-from-defgeneric old-method) nil)
+      (setf (std-gf-effective-method-cache gf) '())
+      (finalize-fast-gf gf)))
+  gf)
+
+;; Find a method in a generic function.
+(defun std-find-method (gf qualifiers specializers &optional (errorp t))
+  (unless (listp specializers)
+    (error-of-type 'error
+      (TEXT "~S: the specializers argument is not a list: ~S")
+      'find-method specializers))
+  (if (eq (std-gf-signature gf) (sys::%unbound))
+    ;; Signature not known yet, hence no methods installed.
+    (assert (null (std-gf-methods gf)))
+    (progn
+      (let ((n (sig-req-num (std-gf-signature gf))))
+        (unless (eql (length specializers) n)
+          (error-of-type 'error
+            (TEXT "~S: the specializers argument has length ~D, but ~S has ~D required parameter~:P")
+            'find-method (length specializers) gf n))
+        ; Convert (EQL object) -> #<EQL-SPECIALIZER object>:
+        (setq specializers
+              (mapcar #'(lambda (specializer)
+                          (if (and (consp specializer) (eq (car specializer) 'EQL)
+                                   (consp (cdr specializer)) (null (cddr specializer)))
+                            (intern-eql-specializer (second specializer))
+                            specializer))
+                      specializers)))
+      ;; Simulate
+      ;;   (find hypothetical-method (std-gf-methods gf) :test #'methods-agree-p)
+      ;; cf. methods-agree-p
+      (dolist (method (std-gf-methods gf))
+        (when (and (equal (std-method-qualifiers method) qualifiers)
+                   (specializers-agree-p (std-method-specializers method)
+                                         specializers))
+          (return-from std-find-method method)))))
+  (if errorp
+    (error-of-type 'error
+      (TEXT "~S has no method with qualifiers ~:S and specializers ~:S")
+      gf qualifiers specializers)
+    nil))
+
+;; ===================== Generic Function Initialization =====================
+
+(defun initialize-instance-<generic-function> (gf &rest args
+                                               &key name
+                                                    lambda-list
+                                                    argument-precedence-order
+                                                    method-class
+                                                    method-combination
+                                                    documentation
+                                                    declarations
+                                                    declare
+                                                    ((methods methods) nil methods-p) ; from DEFGENERIC
+                                               &allow-other-keys)
   (declare (ignore name lambda-list argument-precedence-order method-class
                    method-combination documentation declarations declare))
-  ;; Don't add functionality here! This is a preliminary definition that is
-  ;; replaced with #'initialize-instance later.
-  (apply #'shared-initialize-<standard-generic-function> gf 't args)
+  (if *classes-finished*
+    (apply #'%initialize-instance gf args) ; == (call-next-method)
+    ;; During bootstrapping, only <standard-generic-function> instances are used.
+    (apply #'shared-initialize-<standard-generic-function> gf 't args))
+  (when methods-p
+    ;; When invoked from DEFGENERIC: Install the defgeneric-originated methods.
+    (dolist (method methods) (std-add-method gf method)))
+  gf)
+
+(defun reinitialize-instance-<generic-function> (gf &rest args
+                                                 &key name
+                                                      lambda-list
+                                                      argument-precedence-order
+                                                      method-class
+                                                      method-combination
+                                                      documentation
+                                                      declarations
+                                                      declare
+                                                      ((methods methods) nil methods-p) ; from DEFGENERIC
+                                                 &allow-other-keys)
+  (declare (ignore name lambda-list argument-precedence-order method-class
+                   method-combination documentation declarations declare))
+  (when methods-p
+    ;; When invoked from DEFGENERIC:
+    ;; Remove the old defgeneric-originated methods. Instead of calling
+    ;; std-remove-method on each such method, while inhibiting warnings,
+    ;; we can just as well remove the methods directly.
+    (setf (std-gf-methods gf)
+          (remove-if #'(lambda (method)
+                         (when (std-method-from-defgeneric method)
+                           (setf (std-method-generic-function method) nil)
+                           t))
+                     (std-gf-methods gf))))
+  (apply (cond ((eq (class-of gf) <standard-generic-function>)
+                #'shared-initialize-<standard-generic-function>)
+               (t #'shared-initialize))
+         gf nil args)
+  (when methods-p
+    ;; When invoked from DEFGENERIC: Install the defgeneric-originated
+    ;; methods.
+    (dolist (method methods) (std-add-method gf method)))
   gf)
 
 (defun make-instance-<standard-generic-function> (class &rest args
@@ -273,7 +472,7 @@
   (declare (ignore class name lambda-list argument-precedence-order method-class
                    method-combination documentation declarations declare))
   (let ((gf (%allocate-instance <standard-generic-function>)))
-    (apply #'initialize-instance-<standard-generic-function> gf args)))
+    (apply #'initialize-instance-<generic-function> gf args)))
 
 (defun make-generic-function-instance (class &rest args
                                        &key &allow-other-keys)
