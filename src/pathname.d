@@ -6414,8 +6414,8 @@ int TrueName (LPCSTR namein, LPSTR nameout) {
         have_stars = *cp == '*'; }
       if (have_stars && saved_char) return 0;
       if (!have_stars) {
-        if (dots_only) {
-          /* treat specially */
+        if (dots_only || !*nametocheck) {
+          /* treat 'start/./end' and 'drive|host|slash/' specially */
           /* search for ....\.\* */
           char saved[2];
           if (nametocheck_end - nameout + 2 > MAX_PATH) return 0;

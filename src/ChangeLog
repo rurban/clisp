@@ -1,5 +1,10 @@
 2002-12-12  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
+	* pathname.d (TrueName) [WIN32_NATIVE]: fixed a bug -
+	assure_dir_exists returned false on D:\ (D - any drive).
+
+2002-12-12  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
 	Fix MSVC compilation
 	* stream.d (sock_opt_bool, sock_opt_int)
 	(sock_opt_time, socket_options): use SOCKLEN_T instead
