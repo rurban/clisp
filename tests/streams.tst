@@ -1068,6 +1068,14 @@ T
 (clear-input *query-io*) nil
 (clear-input *standard-input*) nil
 (clear-input *terminal-io*) nil
+(finish-output *debug-io*) nil
+(finish-output *query-io*) nil
+(finish-output *standard-output*) nil
+(finish-output *terminal-io*) nil
+(force-output *debug-io*) nil
+(force-output *query-io*) nil
+(force-output *standard-output*) nil
+(force-output *terminal-io*) nil
 (clear-output *debug-io*) nil
 (clear-output *query-io*) nil
 (clear-output *standard-output*) nil
