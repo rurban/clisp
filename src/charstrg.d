@@ -1562,42 +1562,54 @@ LISPFUN(digit_char_p,1,1,norest,nokey,0,NIL)
   var cint c = as_cint(ch);
  #ifdef UNICODE
   switch (c >> 8) {
-    case 0x00:
+    case 0x00: /* ASCII */
       if ((c >= 0x0030) && (c <= 0x0039)) { c -= 0x0030; break; }
       if ((c >= 0x0041) && (c <= 0x005a)) { c -= 0x0037; break; }
       if ((c >= 0x0061) && (c <= 0x007a)) { c -= 0x0057; break; }
       goto no;
-    case 0x06:
+    case 0x06: /* (EXTENDED)?_ARABIC-INDIC_DIGIT_* */
       if ((c >= 0x0660) && (c <= 0x0669)) { c -= 0x0660; break; }
       if ((c >= 0x06f0) && (c <= 0x06f9)) { c -= 0x06f0; break; }
       goto no;
-    case 0x09:
+    case 0x09: /* DEVANAGARI_DIGIT_*, BENGALI_DIGIT_* */
       if ((c >= 0x0966) && (c <= 0x096f)) { c -= 0x0966; break; }
       if ((c >= 0x09e6) && (c <= 0x09ef)) { c -= 0x09e6; break; }
       goto no;
-    case 0x0A:
+    case 0x0A: /* GURMUKHI_DIGIT_*, GUJARATI_DIGIT_* */
       if ((c >= 0x0a66) && (c <= 0x0a6f)) { c -= 0x0a66; break; }
       if ((c >= 0x0ae6) && (c <= 0x0aef)) { c -= 0x0ae6; break; }
       goto no;
-    case 0x0B:
+    case 0x0B: /* ORIYA_DIGIT_*, TAMIL_DIGIT_* */
       if ((c >= 0x0b66) && (c <= 0x0b6f)) { c -= 0x0b66; break; }
       if ((c >= 0x0be7) && (c <= 0x0bef)) { c -= 0x0be6; break; }
       goto no;
-    case 0x0C:
+    case 0x0C: /* TELUGU_DIGIT_*, KANNADA_DIGIT_* */
       if ((c >= 0x0c66) && (c <= 0x0c6f)) { c -= 0x0c66; break; }
       if ((c >= 0x0ce6) && (c <= 0x0cef)) { c -= 0x0ce6; break; }
       goto no;
-    case 0x0D:
+    case 0x0D: /* MALAYALAM_DIGIT_* */
       if ((c >= 0x0d66) && (c <= 0x0d6f)) { c -= 0x0d66; break; }
       goto no;
-    case 0x0E:
+    case 0x0E: /* THAI_DIGIT_*, LAO_DIGIT_* */
       if ((c >= 0x0e50) && (c <= 0x0e59)) { c -= 0x0e50; break; }
       if ((c >= 0x0ed0) && (c <= 0x0ed9)) { c -= 0x0ed0; break; }
       goto no;
-    case 0x0F:
+    case 0x0F: /* TIBETAN_DIGIT_* */
       if ((c >= 0x0f20) && (c <= 0x0f29)) { c -= 0x0f20; break; }
       goto no;
-    case 0xFF:
+    case 0x10: /* MYANMAR_DIGIT_* */
+      if ((c >= 0x1040) && (c <= 0x1049)) { c -= 0x1040; break; }
+      goto no;
+    case 0x13: /* ETHIOPIC_DIGIT_* */
+      if ((c >= 0x1369) && (c <= 0x1371)) { c -= 0x1369; break; }
+      goto no;
+    case 0x17: /* KHMER_DIGIT_* */
+      if ((c >= 0x17E0) && (c <= 0x17E9)) { c -= 0x17E0; break; }
+      goto no;
+    case 0x18: /* MONGOLIAN_DIGIT_* */
+      if ((c >= 0x1810) && (c <= 0x1819)) { c -= 0x1810; break; }
+      goto no;
+    case 0xFF: /* FULLWIDTH_DIGIT_* */
       if ((c >= 0xff10) && (c <= 0xff19)) { c -= 0xff10; break; }
       goto no;
     default:
