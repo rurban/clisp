@@ -1,5 +1,0 @@
-#!/bin/sh
-# Usage: .clisp-full [args...]
-# Runs the full CLISP image within the build directory.
-# This script MUST NOT be installed. It is only for the developers.
-exec ./full/lisp.run -B . -M ./full/lispinit.mem -N locale "$@"
