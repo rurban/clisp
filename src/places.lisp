@@ -125,10 +125,8 @@
                 ))
         )) )
         (t (error-of-type 'source-program-error
-             (TEXT "Argument ~S is not a SETF place.")
-             form
-  )     )  )
-)
+             (TEXT "~S: Argument ~S is not a SETF place.")
+             'get-setf-expansion form))))
 ;;;----------------------------------------------------------------------------
 (defun get-setf-method (form &optional (env (vector nil nil)))
   (multiple-value-bind (vars vals stores store-form access-form)
@@ -276,13 +274,11 @@
                    (second args)
                    (if (cddr args)
                      (error-of-type 'source-program-error
-                       (TEXT "Too many arguments to DEFSETF: ~S")
-                       (cdr args)
-                     )
+                       (TEXT "~S: Too many arguments: ~S")
+                       'defsetf (cdr args))
                      (error-of-type 'source-program-error
-                       (TEXT "The doc string to DEFSETF must be a string: ~S")
-                       (second args)
-                 ) ) )
+                       (TEXT "~S: The documentation string must be a string: ~S")
+                       'defsetf (second args))))
               )
               ',accessfn
           ) )
@@ -290,7 +286,7 @@
         ((and (consp args) (listp (first args)) (consp (cdr args)) (listp (second args)))
          (when (null (second args))
            (error-of-type 'source-program-error
-             (TEXT "Missing store variable in DEFSETF.")))
+             (TEXT "~S: Missing store variable.") 'defsetf))
          (multiple-value-bind (body-rest declarations docstring)
              (system::parse-body (cddr args) t env)
            (let* ((storevars (second args))
@@ -331,9 +327,8 @@
               ) )
         )) )
         (t (error-of-type 'source-program-error
-             (TEXT "Illegal syntax in DEFSETF for ~S")
-             accessfn
-) )     )  )
+             (TEXT "(~S ~S): Illegal syntax.")
+             'defsetf accessfn))))
 ;;;----------------------------------------------------------------------------
 ;;; Definition of places:
 ;;;----------------------------------------------------------------------------
@@ -347,9 +342,8 @@
   (let ((pointer (nthcdr index list)))
     (if (null pointer)
       (error-of-type 'error
-        (TEXT "(SETF (NTH ...) ...) : index ~S is too large for ~S")
-        index list
-      )
+        (TEXT "~S: index ~S is too large for ~S")
+        '(setf nth) index list)
       (rplaca pointer value)
     )
     value
@@ -481,8 +475,8 @@
              ((ATOM ,var1) NIL)
            (COND ((ATOM (CDR ,var1))
                   (ERROR-OF-TYPE 'ERROR
-                    (TEXT "REMF: property list with an odd length")
-                 ))
+                    (TEXT "~S: the property list ~S has an odd length")
+                    'remf ,(first SM3)))
                  ((EQ (CAR ,var1) ,indicatorvar)
                   (IF ,var2
                     (RPLACD (CDR ,var2) (CDDR ,var1))
@@ -531,29 +525,23 @@
              (if (symbolp (second lambdalistr))
                (setq restvar (second lambdalistr))
                (error-of-type 'source-program-error
-                 (TEXT "In the definition of ~S: &REST variable ~S should be a symbol.")
-                 name (second lambdalistr)
-             ) )
+                 (TEXT "~S ~S: &REST variable ~S should be a symbol.")
+                 'define-modify-macro name (second lambdalistr)))
              (if (null (cddr lambdalistr))
                (return)
                (error-of-type 'source-program-error
-                 (TEXT "Only one variable is allowed after &REST, not ~S")
-                 lambdalistr
-            )) )
+                 (TEXT "~S(~S): Only one variable is allowed after &REST, not ~S")
+                 'define-modify-macro name lambdalistr)))
             ((or (eq next '&KEY) (eq next '&ALLOW-OTHER-KEYS) (eq next '&AUX))
              (error-of-type 'source-program-error
-               (TEXT "Illegal in a DEFINE-MODIFY-MACRO lambda list: ~S")
-               next
-            ))
+               (TEXT "Illegal in a ~S lambda list: ~S")
+               'define-modify-macro next))
             ((symbolp next) (push next varlist))
             ((and (listp next) (symbolp (first next)))
-             (push (first next) varlist)
-            )
+             (push (first next) varlist))
             (t (error-of-type 'source-program-error
-                 (TEXT "lambda list may only contain symbols and lists, not ~S")
-                 next
-            )  )
-    ) )
+                 (TEXT "~S: lambda list may only contain symbols and lists, not ~S")
+                 'define-modify-macro next))))
     (setq varlist (nreverse varlist))
     `(DEFMACRO ,name (%REFERENCE ,@lambdalist &ENVIRONMENT ENV) ,docstring
        (MULTIPLE-VALUE-BIND (DUMMIES VALS NEWVAL SETTER GETTER)
@@ -667,15 +655,12 @@
                        )
                    ))
                    (t (error-of-type 'source-program-error
-                        (TEXT "Illegal SETF place: ~S")
-                        (first args)
-             )     )  )
-          ))
+                        (TEXT "~S: Illegal place: ~S")
+                        'setf (first args))))))
           ((oddp argcount)
            (error-of-type 'source-program-error
              (TEXT "~S called with an odd number of arguments: ~S")
-             'setf form
-          ))
+             'setf form))
           (t (do* ((arglist args (cddr arglist))
                    (L nil))
                   ((null arglist) `(LET () (PROGN ,@(nreverse L))))
@@ -686,8 +671,8 @@
 (defmacro shiftf (&whole form &rest args &environment env)
   (when (< (length args) 2)
     (error-of-type 'source-program-error
-      (TEXT "SHIFTF called with too few arguments: ~S")
-      form))
+      (TEXT "~S: too few arguments: ~S")
+      'shiftf form))
   (do* ((arglist args (cdr arglist))
         (res (list 'let* nil nil)) lf ff
         (tail (cdr res)) bindlist stores lv fv)
@@ -726,8 +711,8 @@
       ((atom plistr) (list* indicator value plist))
     (when (atom (cdr plistr))
       (error-of-type 'error
-        (TEXT "(SETF (GETF ...) ...) : property list with an odd length")
-    ))
+        (TEXT "~S: the property list ~S has an odd length")
+        '(setf getf) plist))
     (when (eq (car plistr) indicator)
       (rplaca (cdr plistr) value)
       (return nil)
@@ -870,15 +855,14 @@
       )
     (setq fun (second fun))
     (error-of-type 'source-program-error
-      (TEXT "SETF APPLY is only defined for functions of the form #'symbol.")
-  ) )
+      (TEXT "~S is only defined for functions of the form #'symbol.")
+      '(setf apply)))
   (multiple-value-bind (SM1 SM2 SM3 SM4 SM5)
       (get-setf-expansion (cons fun args) env)
     (unless (eq (car (last args)) (car (last SM2)))
       (error-of-type 'source-program-error
-        (TEXT "APPLY on ~S is not a SETF place.")
-        fun
-    ) )
+        (TEXT "~S on ~S is not a SETF place.")
+        'apply fun))
     (let ((item (car (last SM1)))) ; 'item' steht für eine Argumentliste!
       (labels ((splice (arglist)
                  ; Würde man in (LIST . arglist) das 'item' nicht als 1 Element,
@@ -931,8 +915,8 @@
                (setq fun (second fun))
           )
     (error-of-type 'source-program-error
-      (TEXT "SETF FUNCALL is only defined for functions of the form #'symbol.")
-  ) )
+      (TEXT "~S is only defined for functions of the form #'symbol.")
+      '(setf funcall)))
   (get-setf-expansion (cons fun args) env)
 )
 ;;;----------------------------------------------------------------------------
@@ -978,9 +962,8 @@
           (get-setf-expansion f-form env)
         (unless (eql (length T-SM3) (length F-SM3))
           (error-of-type 'source-program-error
-            (TEXT "SETF place ~S expects different numbers of values in the true and branches (~D vs. ~D values).")
-            (list 'IF condition t-form f-form) (length T-SM3) (length F-SM3)
-        ) )
+            (TEXT "SETF place ~S expects different numbers of values in the true and false branches (~D vs. ~D values).")
+            (list 'IF condition t-form f-form) (length T-SM3) (length F-SM3)))
         (values
           `(,conditionvar
             ,@T-SM1
