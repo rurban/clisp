@@ -1,5 +1,11 @@
 2003-09-15  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.f (grab_to_object): new function
+	(GRAB-POINTER, GRAB-KEYBOARD): use it
+	(xlib_error_handler): ise ELT for sequences, not AREF
+
+2003-09-15  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (SOCKET-OPTIONS): old systems might not have
 	SO_RCVLOWAT, SO_SNDLOWAT, SO_RCVTIMEO, SO_SNDTIMEO
 
