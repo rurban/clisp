@@ -1659,7 +1659,7 @@ for-value   NIL or T
 ;; auxiliary function: mapcan, but with append instead of nconc:
 #|
 #-CLISP
-(defun mapcap (fun &rest lists &aux (L nil))
+ (defun mapcap (fun &rest lists &aux (L nil))
   (loop
     (setq L
       (nconc
@@ -1680,7 +1680,7 @@ for-value   NIL or T
 ;; auxiliary function: mapcon, but with append instead of nconc:
 #|
 #-CLISP
-(defun maplap (fun &rest lists &aux (L nil))
+ (defun maplap (fun &rest lists &aux (L nil))
   (loop
     (setq L
       (nconc
@@ -1778,7 +1778,7 @@ for-value   NIL or T
 #|
 ;; We cannot simply take the maximum of two depths, have to work with lists.
 ;; Is depth covered by some of the depths in the list?
-(defun some-spd<= (depth list-of-depths)
+ (defun some-spd<= (depth list-of-depths)
   (dolist (x list-of-depths nil)
     (when (spd<= depth x) (return t))))
 |#
@@ -1786,7 +1786,7 @@ for-value   NIL or T
 ;; (stackz-fun stackz) extracts from a Stack-State the function, that is
 ;; currently processed.
 #|
-(defun stackz-fun (stackz)
+ (defun stackz-fun (stackz)
   (loop (when (atom stackz) (return)) (setq stackz (cdr stackz)))
   stackz)
 |#
@@ -2615,16 +2615,16 @@ for-value   NIL or T
 
 ;; (seclass-or class1 ... classk) determines the total class of execution
 ;; of all classes.
-(defun seclass-or (&rest args)
+ (defun seclass-or (&rest args)
   (cond ((memq 'T args) 'T)
         ((memq 'VAL args) 'VAL)
         (t 'NIL)))
 ;; Ditto, with only 2 Arguments
-(defun seclass-or-2 (seclass1 seclass2)
+ (defun seclass-or-2 (seclass1 seclass2)
   (or (eq seclass1 'T) seclass2 seclass1))
 ;; For the List of sub-anodes does not have to be built, however
 ;; the side effect class belonging to this list can be calculated:
-(eval-when (compile eval)
+ (eval-when (compile eval)
   (defmacro anodes-seclass-or (&rest anodeforms)
     (reduce #'(lambda (form1 form2) `(SECLASS-OR-2 ,form1 ,form2))
             (mapcar #'(lambda (anodeform) `(ANODE-SECLASS ,anodeform))
@@ -2632,12 +2632,12 @@ for-value   NIL or T
   (define-modify-macro seclass-or-f (anode) seclass-or-anode)
   (defmacro seclass-or-anode (seclass anode)
     `(SECLASS-OR-2 ,seclass (ANODE-SECLASS ,anode))))
-(defun anodelist-seclass-or (anodelist)
+ (defun anodelist-seclass-or (anodelist)
   (apply #'seclass-or (mapcar #'anode-seclass anodelist)))
 
 ;; Determines, if two Anodes can be permuted in the order of
 ;; their evaluation  - provided that the stack states permit this.
-(defun anodes-commute (anode1 anode2)
+ (defun anodes-commute (anode1 anode2)
   (let ((seclass1 (anode-seclass anode1))
         (seclass2 (anode-seclass anode2)))
     (or (eq seclass1 'NIL) (eq seclass2 'NIL)
@@ -9860,7 +9860,7 @@ Optimizations that might apply after this one are retried.
            (when label
              (unless (eql index (get label 'code-part))
                (compiler-error 'optimize-check 'code-part))))))))
-(trace
+ (trace
  (optimize-part    :pre (optimize-check) :post (optimize-check) :suppress-if t)
  (optimize-label   :pre (optimize-check) :post (optimize-check) :suppress-if t)
  (optimize-short   :pre (optimize-check) :post (optimize-check) :suppress-if t)
@@ -10523,16 +10523,16 @@ This step works on the code-list and changes is destructively.
                                 7. Step:
                 Conversion of Instructions into a Byte-Sequence
 
-First sub-step: each instruction is prepended by a classification of the instruction
-and the length of the instruction (Label-Operands not counted),
+First sub-step: each instruction is prepended by a classification of the
+instruction and the length of the instruction (Label-Operands not counted),
 each Label is assigned its PC as value.
 The operand-lenghts - as far as possible - are determined, Labels occurring in
 instructions are replaced by (presumable reference-length . label) .
 Thus (BLOCK-OPEN 2 #:G7) --> (NL 2 . (67 2 (1 . #:G7))) .
 Further sub-steps:
-The code-list is looped over and over again, with lengthening the jump-references
-possibly from 1 to 2 or 6 Byte. Here the code can only be lenghtened,
-altogether.
+The code-list is looped over and over again,
+with lengthening the jump-references possibly from 1 to 2 or 6 Byte.
+Here the code can only be lenghtened, altogether.
 Last sub-step:
 The jump-references are transformed into distances, and the code-list is
 freshly rebuilt as list of bytes.
