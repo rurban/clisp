@@ -80,8 +80,12 @@
 (defvar *man-direction* 0)
 
 ;; I am afraid that I am better at compiler hacking than at pathname hacking ...
-(defvar *xpm-directory* (merge-pathnames '#"xpms/" *load-pathname*))
-(defvar *screen-directory* (merge-pathnames '#"screens/" *load-pathname*))
+(defvar *xpm-directory*
+  (make-pathname :name nil :type nil :defaults
+                 (merge-pathnames #p"xpms/" *load-truename*)))
+(defvar *screen-directory*
+  (make-pathname :name nil :type nil :defaults
+                 (merge-pathnames '#"screens/" *load-truename*)))
 
 ;; BTW - This is my personal style to write enum constants with %-prefix notation.
 (defvar %object 16)
@@ -421,7 +425,7 @@ If you quit sokoban using 'q' the current state will be saved in
 
 (defun save-state ()
   (with-open-file (o *sokoban-state-file* :direction :output)
-    (let ((*package* (find-package :sokoban)))
+    (with-standard-io-syntax
       (dolist (k *state-vars*)
         (print `(setq ,k ',(symbol-value k)) o))))
   (format T "~%;Saved state"))
@@ -429,7 +433,7 @@ If you quit sokoban using 'q' the current state will be saved in
 (defun load-state ()
   (cond ((probe-file *sokoban-state-file*)
          (format T "~%;Retrieving old state")
-         (let ((*package* (find-package :sokoban)))
+         (with-standard-io-syntax
            (load *sokoban-state-file*))
          (format T "~%;This is the ~:R level, you have made already ~R move~P."
                  *level* (length *undos*) (length *undos*))
