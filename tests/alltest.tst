@@ -1954,20 +1954,19 @@ NIL
                 #(nil (a b) (a b c . d) (a b c . d) (a b c . d) (a b c)
                   (a b c . d))))
       (tp-res #(#(t t nil nil t nil nil) #(t t nil nil nil t nil))))
-   (dotimes (i (length lists))
-     (let* ((list (aref lists i)) (l-r (aref ld-res i)) (t-r (aref tp-res i))
-            (objects (vector list (cddr list) (copy-list (cddr list))
-                             '(f g h) '() 'd 'x)))
-       (dotimes (j (length objects))
-         (let ((object (aref objects j)))
-           (unless (equal (tailp object list) (aref t-r j))
-             (error "(tailp ~s ~s): ~s; should be: ~s"
-                    object list (tailp object list) (aref t-r j)))
-            (unless (equal (ldiff list object) (aref l-r j))
-             (error "(ldiff ~s ~s): ~s; should be: ~s"
-                    list object (ldiff list object) (aref l-r j))))))))
+  (dotimes (i (length lists))
+    (let* ((list (aref lists i)) (l-r (aref ld-res i)) (t-r (aref tp-res i))
+           (objects (vector list (cddr list) (copy-list (cddr list))
+                            '(f g h) '() 'd 'x)))
+      (dotimes (j (length objects))
+        (let ((object (aref objects j)))
+          (unless (equal (tailp object list) (aref t-r j))
+            (error "(tailp ~s ~s): ~s; should be: ~s"
+                   object list (tailp object list) (aref t-r j)))
+          (unless (equal (ldiff list object) (aref l-r j))
+            (error "(ldiff ~s ~s): ~s; should be: ~s"
+                   list object (ldiff list object) (aref l-r j))))))))
 nil
-
 
 ;RPLACA, RPLACD
 
