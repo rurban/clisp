@@ -11829,7 +11829,7 @@ extern object stream_fd (object stream);
 # < ergebnis: gelesener Integer (eof_value bei EOF)
 # can trigger GC
   extern object read_byte (object stream);
-# wird verwendet von PATHNAME, SEQUENCE
+# wird verwendet von SEQUENCE
 
 # Schreibt ein Byte auf einen Stream.
 # write_byte(stream,byte);
