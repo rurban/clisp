@@ -13,6 +13,7 @@
 
 2002-03-21  Will Newton  <will@misconception.org.uk>
 
+	fixed bug #[ 501963 ]: FFCALL cannot be built with GCC 3.0
 	When compiling with -O2 or better, the configure test for pcc
 	non-reentrant struct return convention is optimized away and
 	always returns true. This causes avcall to believe it can use PCC
