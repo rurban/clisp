@@ -40,5 +40,6 @@
 
 <xsl:param name="title.margin.left" select="'1pc'"/>
 <xsl:param name="ulink.footnotes" select="1"/>
+<xsl:param name="ulink.show" select="1"/>
 
 </xsl:stylesheet>
