@@ -1,5 +1,17 @@
 2004-02-16  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (MAKE-STRING-OUTPUT-STREAM): :ELEMENT-TYPE NIL means
+	make a stream based on (VECTOR NIL)
+	(get_output_stream_string): check that string is not (VECTOR NIL)
+	(BUILT-IN-STREAM-ELEMENT-TYPE): return NIL
+	for (MAKE-STRING-OUTPUT-STREAM :ELEMENT-TYPE NIL)
+	(fehler_write): replaces fehler_wr_char() & fehler_wr_integer()
+	(wr_ch_forbidden, wr_ch_array_forbidden): for STREAM-ELEMENT-TYPE NIL
+	* macros2.lisp (with-output-to-string):
+	default :ELEMENT-TYPE to CHARACTER
+
+2004-02-16  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (combine_stream_element_types): new function
 	(BUILT-IN-STREAM-ELEMENT-TYPE): use it to handle 2way/echo & concat
 
