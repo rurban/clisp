@@ -69,10 +69,8 @@ ALL = $(DESTDIR)uni_upcase.c $(DESTDIR)uni_downcase.c $(DESTDIR)uni_attribute.c 
  $(DESTDIR)nls_cp1252.c \
  $(DESTDIR)nls_cp1253.c \
  $(DESTDIR)nls_cp1254.c \
- $(DESTDIR)nls_cp1255.c \
  $(DESTDIR)nls_cp1256.c \
  $(DESTDIR)nls_cp1257.c \
- $(DESTDIR)nls_cp1258.c \
  $(DESTDIR)nls_hp_roman8.c \
  $(DESTDIR)nls_nextstep.c \
  $(DESTDIR)nls_jisx0201.c
@@ -268,17 +266,11 @@ $(DESTDIR)nls_cp1253.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/WINDOW
 $(DESTDIR)nls_cp1254.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/WINDOWS/CP1254.TXT nls_table
 	./nls_table cp1254 nls_cp1254.c $(DESTDIR) < $<
 
-$(DESTDIR)nls_cp1255.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/WINDOWS/CP1255.TXT nls_table
-	./nls_table cp1255 nls_cp1255.c $(DESTDIR) < $<
-
 $(DESTDIR)nls_cp1256.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/WINDOWS/CP1256.TXT nls_table
 	./nls_table cp1256 nls_cp1256.c $(DESTDIR) < $<
 
 $(DESTDIR)nls_cp1257.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/WINDOWS/CP1257.TXT nls_table
 	./nls_table cp1257 nls_cp1257.c $(DESTDIR) < $<
-
-$(DESTDIR)nls_cp1258.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/WINDOWS/CP1258.TXT nls_table
-	./nls_table cp1258 nls_cp1258.c $(DESTDIR) < $<
 
 $(DESTDIR)nls_hp_roman8.c : $(TABLESDIR)/glibc-2.1-iconv/HP-ROMAN8.TXT nls_table
 	./nls_table hp-roman8 nls_hp_roman8.c $(DESTDIR) < $<

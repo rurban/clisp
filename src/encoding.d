@@ -1205,10 +1205,8 @@ static const unsigned char nopage[256] = {
 #include "nls_cp1252.c"
 #include "nls_cp1253.c"
 #include "nls_cp1254.c"
-#include "nls_cp1255.c"
 #include "nls_cp1256.c"
 #include "nls_cp1257.c"
-#include "nls_cp1258.c"
 #include "nls_hp_roman8.c"
 #include "nls_nextstep.c"
 #include "nls_jisx0201.c"
@@ -1280,10 +1278,8 @@ static const nls_table * const nls_tables[] = {
   &nls_cp1252_table,
   &nls_cp1253_table,
   &nls_cp1254_table,
-  &nls_cp1255_table,
   &nls_cp1256_table,
   &nls_cp1257_table,
-  &nls_cp1258_table,
   &nls_hp_roman8_table,
   &nls_nextstep_table,
   &nls_jisx0201_table,
@@ -1649,11 +1645,17 @@ extern object iconv_range (object encoding, uintL start, uintL end);
 
 #endif # HAVE_GOOD_ICONV
 
-#ifdef GNU_LIBICONV
+#if defined(GNU_LIBICONV) || (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2))
 
+#ifdef GNU_LIBICONV
 #define iconv_first_sym  S(koi8_ru)
 #define iconv_last_sym  S(utf_7)
 #define iconv_num_encodings  (&symbol_tab_data.S_utf_7 - &symbol_tab_data.S_koi8_ru + 1)
+#else
+#define iconv_first_sym  S(cp1255)
+#define iconv_last_sym  S(utf_7)
+#define iconv_num_encodings  (&symbol_tab_data.S_utf_7 - &symbol_tab_data.S_cp1255 + 1)
+#endif
 
 #endif
 
@@ -2120,11 +2122,9 @@ global void init_encodings_2 (void) {
   define_constant(S(windows_1252),Symbol_value(S(cp1252)));
   define_constant(S(windows_1253),Symbol_value(S(cp1253)));
   define_constant(S(windows_1254),Symbol_value(S(cp1254)));
-  define_constant(S(windows_1255),Symbol_value(S(cp1255)));
   define_constant(S(windows_1256),Symbol_value(S(cp1256)));
   define_constant(S(windows_1257),Symbol_value(S(cp1257)));
-  define_constant(S(windows_1258),Symbol_value(S(cp1258)));
- #ifdef GNU_LIBICONV
+ #if defined(GNU_LIBICONV) || (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2))
   {
     var object symbol = iconv_first_sym;
     var uintC count;
@@ -2136,6 +2136,9 @@ global void init_encodings_2 (void) {
       symbol = objectplus(symbol,(soint)sizeof(*TheSymbol(symbol))<<(oint_addr_shift-addr_shift));
     });
   }
+  # Now some aliases.
+  define_constant(S(windows_1255),Symbol_value(S(cp1255)));
+  define_constant(S(windows_1258),Symbol_value(S(cp1258)));
  #endif
   # Initialize O(internal_encoding):
   pushSTACK(Symbol_value(S(utf_8)));
@@ -2209,21 +2212,21 @@ local object encoding_from_name (const char* name) {
     pushSTACK(Symbol_value(S(windows_1253)));
   else if (name && asciz_equal(name,"CP1254"))
     pushSTACK(Symbol_value(S(windows_1254)));
-  else if (name && asciz_equal(name,"CP1255"))
-    pushSTACK(Symbol_value(S(windows_1255)));
   else if (name && asciz_equal(name,"CP1256"))
     pushSTACK(Symbol_value(S(windows_1256)));
   else if (name && asciz_equal(name,"CP1257"))
     pushSTACK(Symbol_value(S(windows_1257)));
   else if (name && asciz_equal(name,"HP-ROMAN8"))
     pushSTACK(Symbol_value(S(hp_roman8)));
-  #if defined(GNU_LIBICONV)
+  #if defined(GNU_LIBICONV) || (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2))
   else if (name && asciz_equal(name,"CP932"))
     pushSTACK(Symbol_value(S(cp932)));
   else if (name && asciz_equal(name,"CP949"))
     pushSTACK(Symbol_value(S(cp949)));
   else if (name && asciz_equal(name,"CP950"))
     pushSTACK(Symbol_value(S(cp950)));
+  else if (name && asciz_equal(name,"CP1255"))
+    pushSTACK(Symbol_value(S(windows_1255)));
   else if (name && asciz_equal(name,"GB2312"))
     pushSTACK(Symbol_value(S(euc_cn)));
   else if (name && asciz_equal(name,"EUC-JP"))
@@ -2234,8 +2237,8 @@ local object encoding_from_name (const char* name) {
     pushSTACK(Symbol_value(S(euc_tw)));
   else if (name && asciz_equal(name,"BIG5"))
     pushSTACK(Symbol_value(S(big5)));
-  else if (name && asciz_equal(name,"BIG5HKSCS"))
-    pushSTACK(Symbol_value(S(big5hkscs)));
+  else if (name && asciz_equal(name,"BIG5-HKSCS"))
+    pushSTACK(Symbol_value(S(big5_hkscs)));
   else if (name && asciz_equal(name,"GBK"))
     pushSTACK(Symbol_value(S(gbk)));
   else if (name && asciz_equal(name,"GB18030"))
@@ -2248,7 +2251,7 @@ local object encoding_from_name (const char* name) {
     pushSTACK(Symbol_value(S(tis_620)));
   else if (name && asciz_equal(name,"VISCII"))
     pushSTACK(Symbol_value(S(viscii)));
-  #ifdef UNIX_AIX
+  #if defined(GNU_LIBICONV) && defined(UNIX_AIX)
   else if (name && asciz_equal(name,"CP856"))
     pushSTACK(Symbol_value(S(cp856)));
   else if (name && asciz_equal(name,"CP922"))
@@ -2262,37 +2265,6 @@ local object encoding_from_name (const char* name) {
   else if (name && asciz_equal(name,"CP1129"))
     pushSTACK(Symbol_value(S(cp1129)));
   #endif
-  #elif (defined(UNIX_LINUX) || defined(UNIX_GNU)) && defined(HAVE_GOOD_ICONV)
-  else if (name && asciz_equal(name,"CP932"))
-    pushSTACK(ascii_to_string("CP932"));
-  else if (name && asciz_equal(name,"CP949"))
-    pushSTACK(ascii_to_string("CP949"));
-  else if (name && asciz_equal(name,"CP950"))
-    pushSTACK(ascii_to_string("CP950"));
-  else if (name && asciz_equal(name,"GB2312"))
-    pushSTACK(ascii_to_string("EUC-CN"));
-  else if (name && asciz_equal(name,"EUC-JP"))
-    pushSTACK(ascii_to_string("EUC-JP"));
-  else if (name && asciz_equal(name,"EUC-KR"))
-    pushSTACK(ascii_to_string("EUC-KR"));
-  else if (name && asciz_equal(name,"EUC-TW"))
-    pushSTACK(ascii_to_string("EUC-TW"));
-  else if (name && asciz_equal(name,"BIG5"))
-    pushSTACK(ascii_to_string("BIG5"));
-  else if (name && asciz_equal(name,"BIG5HKSCS"))
-    pushSTACK(ascii_to_string("BIG5HKSCS"));
-  else if (name && asciz_equal(name,"GBK"))
-    pushSTACK(ascii_to_string("GBK"));
-  else if (name && asciz_equal(name,"GB18030"))
-    pushSTACK(ascii_to_string("GB18030"));
-  else if (name && asciz_equal(name,"SJIS"))
-    pushSTACK(ascii_to_string("SJIS"));
-  else if (name && asciz_equal(name,"JOHAB"))
-    pushSTACK(ascii_to_string("JOHAB"));
-  else if (name && asciz_equal(name,"TIS-620"))
-    pushSTACK(ascii_to_string("TIS-620"));
-  else if (name && asciz_equal(name,"VISCII"))
-    pushSTACK(ascii_to_string("VISCII"));
   #endif
   else if (name && asciz_equal(name,"UTF-8"))
     pushSTACK(Symbol_value(S(utf_8)));
