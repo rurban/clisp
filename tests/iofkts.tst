@@ -236,7 +236,7 @@ NIL
 (GET-OUTPUT-STREAM-STRING A)
 #+XCL ""
 #-XCL "
-\"yyy\"
+\"yyy\" 
 \"zzz\" "
 
 (GET-OUTPUT-STREAM-STRING B)
@@ -310,7 +310,7 @@ ERROR
 "EOF"
 
 (PROGN (SETQ A (MAKE-STRING-INPUT-STREAM "1   2   ;32  abA"))
-(SETQ B (MAKE-STRING-INPUT-STREAM " 1 2 3 A x y z
+(SETQ B (MAKE-STRING-INPUT-STREAM " 1 2 3 A x y z 
 a b c  ")) T)
 T
 
@@ -583,6 +583,14 @@ ERROR
 (WRITE-STRING A B :START 10 :END 5)
 #+XCL "Das ist wieder einmal einer der SUUPERTESTstrings."
 #-XCL ERROR
+
+(let (result)
+  (list
+   (with-output-to-string (*standard-output*)
+     (setq result (multiple-value-list
+                   (write-string (make-array 0 :element-type nil)))))
+   result))
+("" (""))                       ; actually, ("" (#A(nil (0))))
 
 (GET-OUTPUT-STREAM-STRING B)
 #+XCL
