@@ -1,5 +1,11 @@
 2002-03-02  Sam Steingold  <sds@gnu.org>
 
+	* linux.lisp (WEXITSTATUS, WTERMSIG, WSTOPSIG, WIFEXITED)
+	(WIFSIGNALED, WIFSTOPPED, WCOREFLAG, WCOREDUMP, W_EXITCODE)
+	(W_STOPCODE): added #define's from <bits/waitstatus.h>
+
+2002-03-02  Sam Steingold  <sds@gnu.org>
+
 	* regexp.lisp (with-loop-split): fixed :START/:END
 
 2002-02-27  Sam Steingold  <sds@gnu.org>

@@ -51,9 +51,12 @@
       (linux::mod . lisp:mod)
       (linux::multiple-value-bind . lisp:multiple-value-bind)
       (linux::MULTIPLE-VALUE-BIND . lisp:multiple-value-bind)
+      (linux::not . lisp:not)
+      (linux::or . lisp:or)
       (linux::progn . lisp:progn)
       (linux::setf . lisp:setf)
       (linux::t . lisp:t)
+      (linux::zerop . lisp:zerop)
       (linux::+ . lisp:+)
       (linux::- . lisp:-)
       (linux::* . lisp:*)
@@ -93,9 +96,7 @@
       (linux::uint32 . ffi:uint32)
       (linux::uint64 . ffi:uint64)
       (linux::ulong . ffi:ulong)
-      (linux::ushort . ffi:ushort)
-  )  )
-)
+      (linux::ushort . ffi:ushort))))
 
 (eval-when (compile eval)
 ; We want to export all the symbols defined in this file.
@@ -1833,6 +1834,19 @@
                 (status (c-ptr int) :out :alloca)
                 (options int))
   (:return-type pid_t))
+
+;; --------------- <bits/waitstatus.h> ---------------
+(defun WEXITSTATUS (status) (ash (logand status #xff00) -8))
+(defun WTERMSIG (status) (logand status #x7f))
+(defun WSTOPSIG (status) (WEXITSTATUS status))
+(defun WIFEXITED (status) (zerop (WTERMSIG status)))
+(defun WIFSIGNALED (status) (not (or (WIFSTOPPED status) (WIFEXITED status))))
+(defun WIFSTOPPED (status) (= #x7f (logand status #xff)))
+(defconstant WCOREFLAG #x80)
+(defun WCOREDUMP (status) (not (zerop (logand status WCOREFLAG))))
+(defun W_EXITCODE (ret sig) (logior (ash ret 8) sig))
+(defun W_STOPCODE (sig) (logior (ash sig 8) #x7f))
+
 
 (def-c-call-out ttyname (:arguments (fd int))
                         (:return-type c-string)
