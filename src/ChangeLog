@@ -1,6 +1,7 @@
 2004-11-20  Sam Steingold  <sds@gnu.org>
 
 	* m4/regexp.m4: new file
+	* modules/regexp/configure.in: use CL_REGEXP
 
 2004-11-19  Sam Steingold  <sds@gnu.org>
 
