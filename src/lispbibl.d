@@ -4854,9 +4854,11 @@ typedef struct {
     gcv_object_t enc_range; # object (*) (object encoding, uintL start, uintL end, uintL maxintervals);
   # An auxiliary pointer.
   gcv_object_t enc_table;
-  # Minimum number of bytes needed to represent a character.
+  # Minimum number of bytes needed to represent a character
+  # caveat: correct only for some encodings, defaults to 1
   uintL min_bytes_per_char;
-  # Maximum number of bytes needed to represent a character.
+  # Maximum number of bytes needed to represent a character
+  # caveat: correct only for some encodings, defaults to 8
   uintL max_bytes_per_char;
   #endif
 } *  Encoding;
