@@ -1,3 +1,11 @@
+User visible changes
+--------------------
+
+* Fixed a bug: a single value was sometimes returned by READ-LINE.
+
+* Fixed a bug: re-exporting inherited symbols resulted in them being
+  reported as both external and inherited by WITH-PACKAGE-ITERATOR.
+
 2.25 (2001-03-15)
 =================
 
