@@ -17,16 +17,17 @@
 ;; Sorting the applicable methods by precedence order
 ;; > methods: A list of methods from the same generic function that are
 ;;            already known to be applicable for the given required-arguments.
-;; > required-arguments: The list of required arguments.
+;; > required-argument-classes: the list of classes the required arguments are
+;;                              direct instances of.
 ;; > argument-order: A list of indices in the range 0..req-num-1 that
 ;;                   determines the argument order.
-(defun sort-applicable-methods (methods required-arguments argument-order)
+(defun sort-applicable-methods (methods required-argument-classes argument-order)
   (sort (copy-list methods)
         #'(lambda (method1 method2) ; method1 < method2 ?
             (let ((specializers1 (std-method-specializers method1))
                   (specializers2 (std-method-specializers method2)))
               (dolist (arg-index argument-order nil)
-                (let ((arg (nth arg-index required-arguments))
+                (let ((arg-class (nth arg-index required-argument-classes))
                       (psp1 (nth arg-index specializers1))
                       (psp2 (nth arg-index specializers2)))
                   (if (eql-specializer-p psp1)
@@ -35,8 +36,8 @@
                       (return t)) ; (EQL x) < <class>  ==>  method1 < method2
                     (if (eql-specializer-p psp2)
                       (return nil) ; <class> > (EQL x)   ==>  method1 > method2
-                      ;; two classes: compare the position in the CPL of arg:
-                      (let* ((cpl (class-precedence-list (class-of arg)))
+                      ;; two classes: compare the position in the CPL of arg-class:
+                      (let* ((cpl (class-precedence-list arg-class))
                              (pos1 (position psp1 cpl))
                              (pos2 (position psp2 cpl)))
                         (cond ((< pos1 pos2) (return t)) ; method1 < method2
@@ -580,7 +581,7 @@
   ;; probably return just the first value, letting the second value default
   ;; to empty.)
   (multiple-value-bind (effective-method-form effective-method-options)
-      (if (eq gf #'compute-effective-method) ; for bootstrapping
+      (if (or (eq gf #'compute-effective-method) (eq gf #'compute-applicable-methods-using-classes)) ; for bootstrapping
         (compute-effective-method-<standard-generic-function> gf combination methods)
         (compute-effective-method gf combination methods))
     ;; Build a function form around the inner form:
