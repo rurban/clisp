@@ -1,5 +1,9 @@
 2002-06-12  Bruno Haible  <bruno@clisp.org>
 
+	* socket.d (CLOSESOCKET): Make macro more robust.
+
+2002-06-12  Bruno Haible  <bruno@clisp.org>
+
 	* m4/lcmessage.m4 (AM_LC_MESSAGES): Don't test ac_cv_header_locale_h
 	here.
 	* m4/gettext.m4 (AM_INTL_SUBDIR): Test it here.
