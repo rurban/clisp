@@ -1236,13 +1236,6 @@ int main(int argc, char* argv[])
 #else
   printf2("#define arrayp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj)-%d) <= %d))\n",Rectype_vector,Rectype_mdarray-Rectype_vector);
 #endif
-  printf("extern object array_displace_check (object array, uintL size, uintL* index);\n");
-  printf("extern uintL vector_length (object vector);\n");
-  printf("#define simple_nilarray_p(obj)  nullp(obj)\n");
-  printf("nonreturning_function(extern, fehler_nilarray_retrieve, (void));\n");
-  printf("extern void get_array_dimensions (object array, uintL rank, uintL* dimensions);\n");
-  printf("extern uintL array_rank (object array);\n");
-  printf("extern uintBWL array_atype (object array);\n");
 #ifdef TYPECODES
   printf2("#define instancep(obj)  (typecode(obj)==%d || (typecode(obj)==%d && Cclosure_instance_p(obj)))\n",(tint)instance_type,(tint)closure_type);
 #else
@@ -1901,7 +1894,14 @@ int main(int argc, char* argv[])
 #endif
 
   printf("#define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))\n");
+  printf("extern uintL vector_length (object vector);\n");
   printf("extern object vectorof (uintC len);\n");
+  printf("extern object array_displace_check (object array, uintL size, uintL* index);\n");
+  printf("#define simple_nilarray_p(obj)  nullp(obj)\n");
+  printf("nonreturning_function(extern, fehler_nilarray_retrieve, (void));\n");
+  printf("extern uintBWL array_atype (object array);\n");
+  printf("extern uintL array_rank (object array);\n");
+  printf("extern void get_array_dimensions (object array, uintL rank, uintL* dimensions);\n");
 #if notused
   printf("extern object allocate_bit_vector_0 (uintL len);\n");
   printf("extern chart up_case (chart ch);\n");
