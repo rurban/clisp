@@ -538,6 +538,19 @@
     #define __CHAR_UNSIGNED__
   #endif
 
+# gcc-2.7.2 has a bug: it interprets `const' as meaning `not modified by
+# other parts of the program', and thus miscompiles at least justify_empty_2
+# and pr_enter_1 in io.d.
+  #if defined(GNU) && (__GNUC__ == 2) && (__GNUC_MINOR__ == 7)
+    #undef const
+    #define const
+    #define __const
+    #ifdef MULTITHREAD
+      #warning "Multithreading will not be efficient because of a workaround to a gcc bug."
+      #warning "Get a newer version of gcc."
+    #endif
+  #endif
+
 # Eine Eigenschaft des Prozessors:
 # Die Reihenfolge, in der Worte/Langworte in Bytes abgelegt werden.
   #if defined(short_little_endian) || defined(int_little_endian) || defined(long_little_endian)
