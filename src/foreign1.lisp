@@ -799,8 +799,10 @@
 (defmacro DEF-C-VAR (&whole whole-form
                      name &rest options)
   (setq name (check-symbol name (first whole-form)))
-  (let* ((alist (parse-options options '(:name :type :read-only :alloc :library)
+  (let* ((alist (parse-options options '(:name :type :read-only :alloc
+                                         :library :documentation)
                                whole-form))
+         (doc (assoc ':documentation alist))
          (c-name (foreign-name name (assoc ':name alist)))
          (type (second (or (assoc ':type alist)
                            (sys::error-of-type 'ext:source-program-error
@@ -842,6 +844,7 @@
                 ',c-name (FFI::FOREIGN-LIBRARY ,library)
                 nil (PARSE-C-TYPE ',type))
               `(LOOKUP-FOREIGN-VARIABLE ',c-name (PARSE-C-TYPE ',type)))))
+       ,@(when doc `((SETF (DOCUMENTATION ',name 'VARIABLE) ',(second doc))))
        (DEFINE-SYMBOL-MACRO ,name
          (FOREIGN-VALUE (LOAD-TIME-VALUE (GET ',name 'FOREIGN-VARIABLE))))
        ',name)))
@@ -934,10 +937,10 @@
 (defmacro DEF-CALL-OUT (&whole whole-form name &rest options)
   (setq name (check-symbol name (first whole-form)))
   (let* ((alist
-           (parse-options
-             options
-             '(:name :arguments :return-type :language :built-in :library)
-             whole-form))
+          (parse-options options '(:name :arguments :return-type :language
+                                    :built-in :library :documentation)
+                          whole-form))
+         (doc (assoc ':documentation alist))
          (parsed-function (parse-c-function alist whole-form))
          (signature (argvector-to-signature (svref parsed-function 2)))
          (library (second (assoc :library alist)))
@@ -950,6 +953,7 @@
        (LET ()
          (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
          (COMPILER::EVAL-WHEN-COMPILE (COMPILER::C-DEFUN ',name ',signature))
+         ,@(when doc `((SETF (DOCUMENTATION ',name 'FUNCTION) ',(second doc))))
          (SYSTEM::%PUTD ',name
             ,(if library
                `(FFI::FOREIGN-LIBRARY-FUNCTION
