@@ -1,12 +1,15 @@
 2001-10-04  Sam Steingold  <sds@gnu.org>
 
 	make COERCE error message more consistent
-	* sequence.d (coerce_sequence): return nullobj when result_type is
-	not a sequence (instead of signalling an error); since all calls
-	to coerce_sequence() except for the ones in COERCE have constant
-	result_type (which is a sequence), this is compatible
-	* predtype.d (COERCE): when calling coerce_sequence() and unsure
-	of result_type being a sequence, check value1
+	* sequence.d (coerce_sequence): added a third argument error_p to
+	indicate whether to return nullobj when result_type is
+	not a sequence or to signal an error
+	* lispbibl.d (coerce_sequence): updated the prototype
+	* rexx.d (REXX-PUT): updated for the new coerce_sequence() signature
+	* eval.d (SUBR-INFO, match_subr_key): ditto
+	* foreign.d (convert_from_foreign): ditto
+	* predtype.d (coerce_sequence_check): new function
+	(COERCE): use it
 
 2001-10-04  Sam Steingold  <sds@gnu.org>
 

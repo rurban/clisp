@@ -336,7 +336,7 @@ LISPFUNN(subr_info,1)
     pushSTACK(fixnum(TheSubr(obj)->req_anz)); # req-anz (req-nr)
     pushSTACK(fixnum(TheSubr(obj)->opt_anz)); # opt-anz (opt-nr)
     pushSTACK(TheSubr(obj)->rest_flag == subr_norest ? NIL : T); # rest-p
-    coerce_sequence(TheSubr(obj)->keywords,S(list));
+    coerce_sequence(TheSubr(obj)->keywords,S(list),true);
     pushSTACK(value1); # keyword-vector as list
     pushSTACK(TheSubr(obj)->key_flag == subr_key_allow ? T : NIL); # allow-other-keys
     funcall(L(values),6); # 6 values
@@ -2795,7 +2795,7 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
           { pushSTACK(bad_keyword); # save bad Keyword
             # convert Keyword-Vector to a List:
             # (SYS::COERCE-SEQUENCE kwvec 'LIST)
-            coerce_sequence(TheSubr(fun)->keywords,S(list));
+            coerce_sequence(TheSubr(fun)->keywords,S(list),true);
            {var object kwlist = value1;
             fehler_key_badkw(fun,popSTACK(),kwlist);
           }}

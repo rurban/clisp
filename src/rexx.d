@@ -105,7 +105,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
     } else {
       functionp = true;
       # sollte (Simple-)Vector sein:
-      # evtl.: STACK_(5+1) = coerce_sequence(STACK_(5+1),S(simple_vector));
+      # evtl.: STACK_(5+1) = coerce_sequence(STACK_(5+1),S(simple_vector),true);
       if (!simple_vector_p(STACK_(5+1))) {
         pushSTACK(STACK_(5+1)); # TYPE-ERROR slot DATUM
         pushSTACK(S(simple_vector)); # TYPE-ERROR slot EXPECTED-TYPE

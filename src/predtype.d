@@ -1990,6 +1990,24 @@ LISPFUN(expand_deftype,1,1,norest,nokey,0,NIL)
   mv_count = 2;
 }
 
+# UP: coerce STACK_1 to result_type (a sequence).
+# check that the result is of type type.
+# set value1 to the result.
+# can trigger GC
+local Values coerce_sequence_check (object type, object result_type) {
+  pushSTACK(type);
+  # make new sequence:
+  var object new_seq = (coerce_sequence(STACK_2,result_type,true),value1);
+  # and re-check with TYPEP:
+  pushSTACK(new_seq); pushSTACK(STACK_(0+1)); STACK_(0+2) = new_seq;
+  funcall(S(typep),2); # (TYPEP new_seq type)
+  if (!nullp(value1)) { # yes -> new_seq is the value
+    value1 = popSTACK();
+  } else { # does not match because of SIMPLE-... -> copy new_seq:
+    funcall(L(copy_seq),1); # (COPY-SEQ new_seq)
+  }
+}
+
 LISPFUNN(coerce,2)
 # (COERCE object result-type), CLTL S. 51
 # Method:
@@ -2132,21 +2150,12 @@ LISPFUNN(coerce,2)
             result_type = S(simple_bit_vector); # -> result-type := SIMPLE-BIT-VECTOR
           # threat here byte-vectors!??
         }
-        pushSTACK(result_type);
-        # make new sequence:
-        var object new_seq = (coerce_sequence(STACK_2,result_type),value1);
-        # and re-check with TYPEP:
-        pushSTACK(new_seq); pushSTACK(STACK_(0+1)); STACK_(0+2) = new_seq;
-        funcall(S(typep),2); # (TYPEP new_seq result-type)
-        if (!nullp(value1)) { # yes -> new_seq as the value
-          value1 = STACK_0; mv_count=1; skipSTACK(2+1); return;
-        } else { # does not match because of SIMPLE-... -> copy new_seq:
-          funcall(L(copy_seq),1); # (COPY-SEQ new_seq)
-          skipSTACK(2); return;
-        }
+        coerce_sequence_check(result_type,result_type);
+        skipSTACK(2); return;
       }
       # result-type is some other symbol
-      coerce_sequence(STACK_1,STACK_0); # (coerce-sequence object result-type)
+      # (coerce-sequence object result-type)
+      coerce_sequence(STACK_1,STACK_0,false);
       if (eq(value1,nullobj)) { # failed!
         pushSTACK(STACK_1);     # TYPE-ERROR slot DATUM (object)
         pushSTACK(STACK_(0+1)); # TYPE-ERROR slot EXPECTED-TYPE (result-type)
@@ -2221,7 +2230,8 @@ LISPFUNN(coerce,2)
           || eq(type,S(bit_vector)) # BIT-VECTOR ?
           || eq(type,S(simple_bit_vector)) # SIMPLE-BIT-VECTOR ?
          ) { # adapt result-type to the type of object
-        if (eq(type,S(array)) || eq(type,S(simple_array)) || eq(type,S(vector))) { # [SIMPLE-]ARRAY or VECTOR ?
+        if (eq(type,S(array)) || eq(type,S(simple_array))
+            || eq(type,S(vector))) { # [SIMPLE-]ARRAY or VECTOR ?
           var object type2 = Cdr(result_type);
           if (nullp(type2))
             goto adjust_eltype;
@@ -2230,36 +2240,18 @@ LISPFUNN(coerce,2)
             type2 = Cdr(type2);
            adjust_eltype: # here type2 = (cddr result-type)
             # replace with a suitable element type:
-            pushSTACK(type);
             pushSTACK(type2);
+            pushSTACK(type);
             if (arrayp(STACK_(1+2)))
               pushSTACK(array_element_type(STACK_(1+2)));
             else
               pushSTACK(T);
-            {
-              var object new_cons = allocate_cons();
-              Car(new_cons) = popSTACK(); Cdr(new_cons) = popSTACK();
-              pushSTACK(new_cons);
-            }
-            {
-              var object new_cons = allocate_cons();
-              Cdr(new_cons) = popSTACK();
-              Car(new_cons) = type = popSTACK();
-              result_type = new_cons;
-            }
+            result_type = listof(2);
+            type = Car(result_type);
+            Cdr(Cdr(result_type)) = popSTACK();
           }
         }
-        pushSTACK(type);
-        # make new sequence:
-        var object new_seq = (coerce_sequence(STACK_2,result_type),value1);
-        # and re-check with TYPEP:
-        pushSTACK(new_seq); pushSTACK(STACK_(0+1)); STACK_(0+2) = new_seq;
-        funcall(S(typep),2); # (TYPEP new_seq type)
-        if (!nullp(value1)) {
-          value1 = popSTACK();
-        } else { # does not match because of SIMPLE-... -> copy new_seq:
-          funcall(L(copy_seq),1); # (COPY-SEQ new_seq)
-        }
+        coerce_sequence_check(type,result_type);
         goto check_return;
       }
       # type is some other symbol
