@@ -356,6 +356,66 @@ LISPFUNN(defclcs,1)
       return type; # nicht gefunden -> Typ unverändert lassen
     }
 
+LISPFUN(cerror_of_type,3,0,rest,nokey,0,NIL)
+# (SYSTEM::CERROR-OF-TYPE continue-format-string type {keyword value}* error-format-string {arg}*)
+# (defun cerror-of-type (continue-format-string type &rest arguments)
+#   (let ((keyword-arguments '()))
+#     (loop
+#       (unless (and (consp arguments) (keywordp (car arguments))) (return))
+#       (push (pop arguments) keyword-arguments)
+#       (push (pop arguments) keyword-arguments)
+#     )
+#     (setq keyword-arguments (nreverse keyword-arguments))
+#     (let ((error-format-string (first arguments))
+#           (args (rest arguments)))
+#       (apply #'cerror
+#         continue-format-string
+#         (if (or *error-handler* (not *use-clcs*))
+#           error-format-string
+#           (apply #'coerce-to-condition error-format-string args
+#                  'cerror (convert-simple-condition type) keyword-arguments
+#         ) )
+#         args
+# ) ) ) )
+  { var object* cfstring_ = &Next(rest_args_pointer STACKop 3);
+    var uintC keyword_argcount = 0;
+    rest_args_pointer skipSTACKop 1; # Pointer über die Argumente hinter type
+    while (argcount>=2)
+      { var object next_arg = Next(rest_args_pointer); # nächstes Argument
+        if (!(symbolp(next_arg) && keywordp(next_arg))) break; # Keyword?
+        rest_args_pointer skipSTACKop -2; argcount -= 2; keyword_argcount += 2;
+      }
+    # Nächstes Argument hoffentlich ein String.
+    if (!nullp(Symbol_value(S(error_handler))) || nullp(Symbol_value(S(use_clcs))))
+      { # Der Typ und die Keyword-Argumente werden ignoriert.
+        BEFORE(rest_args_pointer) = *cfstring_;
+        funcall(S(cerror),argcount+2);
+        skipSTACK(keyword_argcount+1);
+      }
+      else
+      { var object arguments = listof(argcount);
+        # Stackaufbau: continue-format-string, type, {keyword, value}*, errorstring.
+        # Ein wenig im Stack umordnen:
+        var object errorstring = STACK_0;
+        pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL);
+        { var object* ptr2 = args_end_pointer;
+          var object* ptr1 = ptr2 STACKop 4;
+          var uintC count;
+          dotimesC(count,keyword_argcount, { BEFORE(ptr2) = BEFORE(ptr1); } );
+          BEFORE(ptr2) = convert_simple_condition(BEFORE(ptr1));
+          BEFORE(ptr2) = S(cerror);
+          BEFORE(ptr2) = arguments;
+          BEFORE(ptr2) = errorstring;
+          BEFORE(ptr2) = arguments;
+        }
+        # Stackaufbau: continue-format-string, arguments, errorstring, args, CERROR, type, {keyword, value}*.
+        funcall(S(coerce_to_condition),4+keyword_argcount); # (SYS::COERCE-TO-CONDITION ...)
+        # Stackaufbau: continue-format-string, arguments.
+        arguments = STACK_0;
+        STACK_0 = value1;
+        apply(S(cerror),2,arguments); # (CERROR continue-format-string condition ...)
+  }   }
+
 LISPFUN(error_of_type,2,0,rest,nokey,0,NIL)
 # (SYSTEM::ERROR-OF-TYPE type {keyword value}* errorstring {expr}*)
 # Kehrt nicht zurück.

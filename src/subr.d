@@ -291,6 +291,7 @@ LISPFUNN(gc,0)
 # ---------- ERROR ----------
 LISPFUN(error,1,0,rest,nokey,0,NIL)
 LISPFUNN(defclcs,1)
+LISPFUN(cerror_of_type,3,0,rest,nokey,0,NIL)
 LISPFUN(error_of_type,2,0,rest,nokey,0,NIL)
 LISPFUNN(invoke_debugger,1)
 LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
