@@ -40,6 +40,7 @@ User visible changes
       MAKE-WEAK-ALIST, WEAK-ALIST-P, WEAK-ALIST-TYPE, WEAK-ALIST-CONTENTS,
       (SETF WEAK-ALIST-CONTENTS), WEAK-ALIST-ASSOC, WEAK-ALIST-RASSOC,
       WEAK-ALIST-VALUE, (SETF WEAK-ALIST-VALUE).
+  See <http://clisp.cons.org/impnotes.html#weak> for details.
 
 * You can create formatting streams of class EXT:FILL-STREAM.
   See <http://clisp.cons.org/impnotes.html#fill-stream> for details.
