@@ -2591,7 +2591,7 @@ checks whether the &hash-table-t; is weak.</para>
   <code>(&parse-namestring; "/cygdrive/c/gnu/clisp/")</code>
   returns <filename>#P"C:/gnu/clisp/"</filename>.
   The initial value is <literal>"cygdrive"</literal>, you should edit
-  &config-file; to change it.</simpara></listitem></varlistentry>
+  &config-lisp; to change it.</simpara></listitem></varlistentry>
 <!-- #endif -->
 </variablelist>
 
@@ -3906,7 +3906,7 @@ warning, you need to fix the source code of the incriminated method.</para>
 <variablelist>
 <varlistentry><term>&unix-w32-only;</term>
 <listitem><simpara>&print-pretty-var; is initially &nil; but set to &t;
- in &config-file;.  This makes screen output prettier.
+ in &config-lisp;.  This makes screen output prettier.
  </simpara></listitem></varlistentry>
 </variablelist>
 
@@ -4780,7 +4780,7 @@ exhaust the available line length.</para></formalpara>
 <para>The function &ed; calls the external editor specified by the value
  of <code>(&getenv; "EDITOR")</code>
  or, failing that, the value of the variable
- <firstterm>&editor;</firstterm> (see &config-file;).
+ <firstterm>&editor;</firstterm> (set in &config-lisp;).
  If the argument is a function name which was defined in the current
  session (not loaded from a file), the program text to be edited is a
  pretty-printed version (without comments) of the text which was used to
@@ -4824,20 +4824,20 @@ exhaust the available line length.</para></formalpara>
 <!-- #ifdef MACHINE_KNOWN -->
 <varlistentry><term>&unix-only;</term>
  <listitem><simpara>The functions &short-site-name;, &long-site-name;
-   should be defined in a site-specific &config-file; file.
+   should be defined in a site-specific &config-lisp; file.
    The default implementations try to read the value of the &env-var;
    <envar>ORGANIZATION</envar>, and, failing that, call &uname;.
 </simpara></listitem></varlistentry>
 <varlistentry><term>&win32-only;</term>
  <listitem><simpara>The functions &short-site-name;, &long-site-name;
-   should be defined in a site-specific &config-file; file.
+   should be defined in a site-specific &config-lisp; file.
    The default implementations try to read the registry.
 </simpara></listitem></varlistentry>
 <!-- #else -->
 <varlistentry><term>&no-platform-only;</term>
  <listitem><simpara>The functions &machine-type;, &machine-version;,
    &machine-instance; and &short-site-name;, &long-site-name; should be
-   defined by every user in his user-specific &config-file; file.
+   defined by every user in his user-specific &config-lisp; file.
 </simpara></listitem></varlistentry>
 <!-- #endif -->
 </variablelist>

@@ -1650,10 +1650,10 @@ here <function>WITH-FOO</function> does not receive the
   platform-specific.</para></note>
 
 <para>You should set these variables (and do whatever other
- customization you see fit) in the file &config-file; in the build
+ customization you see fit) in the file &config-lisp; in the build
  directory before building &clisp;.
  Alternatively, after building &clisp;, or if you are using a binary
- distribution of &clisp;, you can modify &config-file;, compile and load
+ distribution of &clisp;, you can modify &config-lisp;, compile and load
  it, and then save the &mem-image;.
  Finally, you can create an &RC-file; which is loaded whenever &clisp;
  is started.</para>
