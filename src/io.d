@@ -6589,7 +6589,7 @@ local void pr_enter_1 (const object* stream_, object obj,
         # if it has become a multi-liner that does not start with a
         # Newline, and the old line-position is >0 ,
         # print a Newline to the old stream first:
-        { var object firststring = Car(STACK_0); # first line
+        { var object firststring = Car(Cdr(STACK_0)); # first line
           if (stringp(firststring) &&
               ((TheIarray(firststring)->dims[1] == 0) # empty?
                || chareq(TheSstring(TheIarray(firststring)->data)->data[0],
@@ -6598,13 +6598,16 @@ local void pr_enter_1 (const object* stream_, object obj,
         }
         if (eq(Symbol_value(S(prin_l1)),Fixnum_0)) # or at position 0 ?
           skip_first_nl = true;
-        { # if modus is mehrzeiler, we KNOW it is so
+        if (nullp(Cdr(Cdr(STACK_0)))) { # DEFINITELY a single-liner
+          skip_first_nl = true;
+        } else { # several lines, maybe still a single-liner?
+          # if modus is mehrzeiler, we KNOW it is so
           # if it is einzeiler, it might have :LINEAR newlines
           var object pphs_len = pphelp_length(ppstream);
           var object prm = right_margin();
           var bool fit_this_line = !nullp(pphs_len);
-          if (posfixnump(pphs_len) && # maybe single-liner?
-              posfixnump(prm)) { # have right margin
+          if (posfixnump(pphs_len) # could POSSIBLY be a single-liner
+              && posfixnump(prm)) { # have right margin
             var uintL pphs_len_i = posfixnum_to_L(pphs_len);
             var uintL prm_i = posfixnum_to_L(prm);
             var uintL pos_i = posfixnum_to_L(Symbol_value(S(prin_l1)));
