@@ -49,3 +49,38 @@ Per-Thread Special Variable (by means of a SPECIAL proclamation).
 The Common Lisp standard variables are all Per-Thread, except *features* and
 *modules*, which are Global.
 
+Packages
+--------
+
+PACKAGE objects are LOCKABLE and are locked by INTERN before adding a
+symbol (if FUND-SYMBOL fails).
+This puts an unknown speed penalty on READ and therefore LOAD.
+
+CLOS
+----
+
+DEFCLASS, DEFGENERIC, DEFMETHOD, DEFSTRUCT must get a global "DEF-CLOS"
+lock because they change the global class hierarchy.
+
+Hash Tables and Sequences
+-------------------------
+
+Nothing is ever locked, so the user is required to use locks when
+sharing HASH-TABLEs and SEQUENCEs between threads.
+If two threads evaluate
+   (INCF (GETHASH x global-ht 0)),
+the results are undefined.
+Automatic locking will impose an unjustifiable penalty on HASH-TABLEs
+and SEQUENCEs local to threads.
+It is also consistent with the usual Common Lisp approach of
+   http://www.lisp.org/HyperSpec/Body/sec_3-6.html:
+        The consequences are undefined when code executed during an
+        object-traversing operation destructively modifies the object in
+        a way that might affect the ongoing traversal operation...
+
+Garbage Collector
+-----------------
+
+GC must stop all other threads while it is executing.
+CLISP has a copying GC, so anything else would require a write barrier
+during the scan phase and a read barrier during the move phase.
