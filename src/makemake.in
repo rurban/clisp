@@ -1408,8 +1408,8 @@ fi
 COMMENTS=''
 
 LPARTS='        init defseq backquote defmacro macros1 macros2 defs1'
-LPARTS=$LPARTS' timezone places floatprint type defstruct format international'
-LPARTS=$LPARTS' savemem trace cmacros compiler defs2 loop clos'
+LPARTS=$LPARTS' timezone places floatprint type subtypep defstruct format'
+LPARTS=$LPARTS' international savemem trace cmacros compiler defs2 loop clos'
 LPARTS=$LPARTS' clos-class1 clos-class2 clos-class3 clos-class4 clos-class5'
 LPARTS=$LPARTS' clos-slots1 clos-slots2'
 LPARTS=$LPARTS' clos-method1 clos-method2 clos-method3'

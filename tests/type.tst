@@ -246,8 +246,8 @@ T
 
 (SUBTYPEP (QUOTE (OR (INTEGER 1 (5) FLOAT)))
           (QUOTE (OR FLOAT (MOD 5))))
-#+(or XCL CLISP ECL) T
-#+(or ALLEGRO CMU) ERROR
+#+(or XCL ECL) T
+#+(or CLISP ALLEGRO CMU) ERROR
 #-(or XCL CLISP ALLEGRO CMU ECL) UNKNOWN
 
 (SUBTYPEP (QUOTE (OR (INTEGER 1 (5)) FLOAT)) (QUOTE (OR FLOAT (MOD 5))))
@@ -365,6 +365,8 @@ NIL
 (subtypep 'unsigned-byte 'integer) t
 (subtypep 'signed-byte 'integer) t
 
+(subtypep 'integer '*) ERROR
+
 (type-of (coerce '(1 2 3 4) '(simple-array (unsigned-byte 8))))
 (SIMPLE-ARRAY (UNSIGNED-BYTE 8) (4))
 
@@ -384,6 +386,8 @@ NIL
 (multiple-value-list (subtypep 'vector 'atom)) (t t)
 (multiple-value-list (subtypep nil nil))     (t t)
 (multiple-value-list (subtypep 'extended-char 'character))     (t t)
+;; but don't get fooled in saying "no" when there is a SATISFIES type
+(multiple-value-list (subtypep 'atom '(or cons (satisfies unknown)))) (nil nil)
 (multiple-value-list (subtypep '(vector nil) 'string)) (T T)
 #+(and CLISP FFI)
 (multiple-value-list (subtypep 'ffi:foreign-function 'function))
@@ -459,6 +463,76 @@ TYPEOF-TYPEP-SUBTYPE
 (typeof-typep-subtype (make-array 0 :element-type nil) '(vector nil))
 ((SIMPLE-ARRAY NIL (0)) T T)
 
+(subtypep '(member 0 1 2) '(mod 3)) t
+(subtypep '(mod 3) '(member 0 1 2)) t
+(subtypep '(member 0 1 2 4 8) '(mod 3)) nil
+(subtypep '(mod 3) '(member 0 1 2 4 8)) t
+(subtypep '(or (integer 0 999) (integer 1001 2000)) '(and (integer 0 2000) (not (eql 1000)))) t
+(subtypep '(and (integer 0 2000) (not (eql 1000))) '(or (integer 0 999) (integer 1001 2000))) t
+(subtypep '(or (integer 0 1000) (integer 1001 3000)) '(or (integer 0 2000) (integer 2001 3000))) t
+
+(subtypep 'complex '(complex * *)) t
+(subtypep '(complex * *) 'complex) t
+(subtypep 'complex '(complex real real)) t
+(subtypep '(complex real real) 'complex) t
+(subtypep '(complex * *) '(complex real real)) t
+(subtypep '(complex real real) '(complex * *)) t
+
+(subtypep '(complex nil nil) 'nil) t
+
+(multiple-value-list (subtypep '(not integer) '(or number (satisfies anything))))
+(nil nil)
+
+(multiple-value-list (subtypep '(and symbol number) 'nil))
+(t t)
+
+(multiple-value-list (subtypep '(array t (2 5)) '(or (array t (2 3 4)) (array t (2 4)))))
+(nil t)
+
+(multiple-value-list (subtypep '(array t (2 5)) '(not (or (array t (2 3 4)) (array t (2 5))))))
+(nil t)
+
+(multiple-value-list (subtypep '(array t (2 5)) '(not (or (array t (2 3 4)) (array t (2 4))))))
+(t t)
+
+(multiple-value-list (subtypep '(and (rational 2/3 1) ratio) '(and (rational 4/5 1) ratio)))
+(nil t)
+
+(multiple-value-list (subtypep '(rational 4/5 1) '(or (member 1) (rational 2/3 (1)))))
+(t t)
+
+(let ((l '(ARRAY BASE-CHAR BASE-STRING BIT-VECTOR BOOLEAN CHARACTER COMPLEX
+           CONS FLOAT FUNCTION CLOS:GENERIC-FUNCTION HASH-TABLE INTEGER LIST
+           NULL NUMBER PACKAGE PATHNAME #+LOGICAL-PATHNAMES LOGICAL-PATHNAME
+           RANDOM-STATE RATIONAL READTABLE REAL SEQUENCE
+           CLOS:STANDARD-GENERIC-FUNCTION STREAM STRING SYMBOL VECTOR))
+      (failures '()))
+  (dolist (a l)
+    (dolist (b l)
+      (unless (or (subtypep a b) (subtypep b a))
+        ; See whether `(AND ,a ,b) is recognized as the null type.
+        (let ((contains-NULL
+                (and (member a '(BOOLEAN LIST NULL SEQUENCE SYMBOL))
+                     (member b '(BOOLEAN LIST NULL SEQUENCE SYMBOL))))
+              (contains-VECTOR
+                (and (member a '(ARRAY VECTOR SEQUENCE))
+                     (member b '(ARRAY VECTOR SEQUENCE)))))
+          (unless (if contains-NULL
+                    (and (equal (multiple-value-list (subtypep `(AND ,a ,b) 'NIL))
+                                '(nil t))
+                         (equal (multiple-value-list (subtypep `(AND ,a ,b) 'NULL))
+                                '(t t)))
+                    (if contains-VECTOR
+                      (and (equal (multiple-value-list (subtypep `(AND ,a ,b) 'NIL))
+                                  '(nil t))
+                           (equal (multiple-value-list (subtypep `(AND ,a ,b) 'VECTOR))
+                                  '(t t)))
+                      (equal (multiple-value-list (subtypep `(AND ,a ,b) 'NIL))
+                             '(t t))))
+            (push (list a b) failures))))))
+  failures)
+NIL
+
 ;; from GCL ansi-test
 (progn
   (setq *DISJOINT-TYPES-LIST*
@@ -528,6 +602,10 @@ otherwise
 foo
 (make-foo :a 123)
 (123 NIL)
+(multiple-value-list (subtypep 'foo 'list))
+(T T)
+(multiple-value-list (subtypep 'list 'foo))
+(NIL T)
 
 (defstruct (foo (:type list) :named) a nil b)
 foo
