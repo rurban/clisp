@@ -1801,14 +1801,17 @@ LISPFUN(replace,2,0,norest,key,4,\
   local void test_count_arg()
     { var object count = STACK_1;
       if (eq(count,unbound))
-        { STACK_1 = NIL; } # Defaultwert NIL
-      else { # COUNT-Argument muss NIL oder ein Integer >= 0 sein:
-        if (!nullp(Symbol_value(S(sequence_count_ansi))) &&
-            integerp(count) && !positivep(count))
-          { STACK_1 = count = Fixnum_0; }
-        if (!(nullp(count) || (integerp(count) && positivep(count))))
-          { fehler_posint(TheSubr(subr_self)->name,S(Kcount),count); }
+        { STACK_1 = NIL; return; } # Defaultwert NIL
+      # COUNT-Argument muss NIL oder ein Integer >= 0 sein:
+      if (nullp(count)) # NIL is OK
+        return;
+      if (integerp(count)) {
+        if (positivep(count))
+          return;
+        if (!nullp(Symbol_value(S(sequence_count_ansi)))) # if *SEQUENCE-COUNT-ANSI*
+          { STACK_1 = Fixnum_0; return; } # treat negative integers as 0
       }
+      fehler_posint(TheSubr(subr_self)->name,S(Kcount),count);
     }
 
 # Fehler, wenn beide :TEST, :TEST-NOT - Argumente angegeben wurden.
