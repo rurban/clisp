@@ -2213,6 +2213,7 @@ int main(int argc, char* argv[])
   printf("#define I_to_slong  I_to_sint64\n");
 #endif
   printf("extern object UDS_to_I (uintD* MSDptr, uintC len);\n");
+  printf("extern object udigits_to_I (void* digits, uintC len);\n");
   printf("extern object DS_to_I (const uintD* MSDptr, uintC len);\n");
 #if notused
   printf("extern object I_1_plus_I (object x);\n");

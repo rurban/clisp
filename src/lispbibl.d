@@ -14397,7 +14397,8 @@ extern sintL I_to_L (object obj);
  there must be room for 1 digit below of MSDptr.
  can trigger GC */
 extern maygc object UDS_to_I (uintD* MSDptr, uintC len);
-# is used by modules
+extern maygc object udigits_to_I (void* digits, uintC len);
+/* is used by modules */
 
 /* Digit Sequence to Integer
  DS_to_I(MSDptr,len)
@@ -14405,7 +14406,7 @@ extern maygc object UDS_to_I (uintD* MSDptr, uintC len);
  MSDptr[0] is the most significant digit, MSDptr[len-1] the least significant.
  can trigger GC */
 extern maygc object DS_to_I (const uintD* MSDptr, uintC len);
-# is used by modules
+/* is used by modules */
 
 # I_I_comp(x,y) compares two Integers x and y.
 # Result: 0 if x=y, +1 if x>y, -1 if x<y.
