@@ -289,7 +289,7 @@
       #define signal_acknowledge(sig,handler)
     #endif
   #endif
-  # Das Signal, das man bekommt, wenn ein Tochterprozeﬂ beendet wird: SIGCLD
+  # Das Signal, das man bekommt, wenn ein Tochterprozess beendet wird: SIGCLD
   #if defined(SIGCHLD) && !defined(SIGCLD)
     #define SIGCLD  SIGCHLD
   #endif
@@ -307,7 +307,7 @@
   #endif
   # Zur Behebung von SIGSEGV-Signalen nach Schreibzugriff auf
   # schreibgesch¸tzte Bereiche. Siehe unix/sigsegv.c.
-  # Obacht: Hans-J. Boehm <boehm@parc.xerox.com> sagt, daﬂ Schreibzugriffe
+  # Obacht: Hans-J. Boehm <boehm@parc.xerox.com> sagt, dass Schreibzugriffe
   # aus Betriebssystem-Aufrufen heraus (z.B. read()) auf vielen Systemen
   # wider Erwarten kein Signal auslˆsen. (Unter Linux funktioniert's.)
   #ifndef SPVW_MIXED_BLOCKS
@@ -354,7 +354,7 @@
 
 # Working Directory abfragen:
   #include <sys/param.h>
-  # Maximale Pfadl‰nge (incl. Nullbyte am Schluﬂ), die von getwd geliefert wird:
+  # Maximale Pfadl‰nge (incl. Nullbyte am Schluss), die von getwd geliefert wird:
   #ifndef MAXPATHLEN
     #define MAXPATHLEN  1024  # siehe <sys/param.h>
   #endif
@@ -705,7 +705,7 @@
   #endif
 # wird verwendet von SPVW, MISC
 
-# vom Prozeﬂ verbrauchte Zeit erfragen:
+# vom Prozess verbrauchte Zeit erfragen:
   #if defined(HAVE_GETRUSAGE)
     #include <sys/types.h>
     #include <sys/time.h>
@@ -760,8 +760,8 @@
     extern_C int execlp (EXECV_CONST char* path, EXECL_CONST char* arg0, EXECL_CONST char* arg1, EXECL_CONST char* arg2, EXECL_CONST char* arg3); # siehe EXECL(3V)
   #endif
   # NB: Im Zeitraum zwischen vfork() und execv()/execl()/execlp() darf der
-  # Child-Prozeﬂ nur auf Daten im Stack und konstante Daten zugreifen.
-  # Denn der Parent-Prozeﬂ l‰uft in dieser Zeit schon weiter und kann dabei
+  # Child-Prozess nur auf Daten im Stack und konstante Daten zugreifen.
+  # Denn der Parent-Prozess l‰uft in dieser Zeit schon weiter und kann dabei
   # Daten in STACK, malloc()-Bereich, Lisp-Daten-Bereich usw. modifizieren.
   #ifdef HAVE_WAITPID
     #include <sys/wait.h>

@@ -1192,7 +1192,7 @@
       var object* last_open_ptr = &page->page_gcpriv.firstmarked;
         # In *last_open_ptr ist stets die Adresse des n‰chsten markierten
         # Objekts (als oint) einzutragen.
-        # Durch verkettete-Liste-Mechanismus: Am Schluﬂ enth‰lt
+        # Durch verkettete-Liste-Mechanismus: Am Schluss enth‰lt
         # page->page_gcpriv.firstmarked die Adresse des 1. markierten Objekts
       var aint p2 = page->page_start; # Source-Pointer
       var aint p2end = page->page_end; # obere Grenze des Source-Bereiches
@@ -1382,7 +1382,7 @@
   #else
     #error "Unbekannter Wert von 'varobject_alignment'!"
   #endif
-  #ifdef GNU # so l‰ﬂt sich's besser optimieren
+  #ifdef GNU # so l‰sst sich's besser optimieren
     #ifdef fast_dotimesL
       #define move_aligned_p1_p2(count)  \
         dotimespL(count,count/varobject_alignment, *((uintV*)p2)++ = *((uintV*)p1)++; )
@@ -1770,7 +1770,7 @@
               { update_old_generation(); }
           #endif
         #ifdef MORRIS_GC
-        # Zum Schluﬂ werden die Conses verschoben und gleichzeitig alle
+        # Zum Schluss werden die Conses verschoben und gleichzeitig alle
         # Pointer auf sie (z.Zt. in Listen gef¸hrt!) aktualisiert.
         for_each_cons_page_reversed(page, { gc_morris2(page); } );
         for_each_cons_page(page, { gc_morris3(page); } );
@@ -1873,7 +1873,7 @@
       }
       #endif
       #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
-      # make_space() erwartet, daﬂ mem.total_room <= L‰nge der groﬂen L¸cke.
+      # make_space() erwartet, dass mem.total_room <= L‰nge der groﬂen L¸cke.
       #define set_total_room(space_used_now)  \
         { set_total_room_(space_used_now);                                      \
           if (mem.total_room > mem.conses.heap_start-mem.varobjects.heap_end)   \
@@ -2170,7 +2170,7 @@
       SORT(SORTID,sort)(pages_sorted,pagecount);
       # pages_sorted = Array der Pages, sortiert nach der Anzahl der belegten Bytes.
       # In jeder Page bedeutet page_gcpriv.d die Verschiebung nach unten,
-      # die der Page in Phase 3 zuteil werden muﬂ (>=0).
+      # die der Page in Phase 3 zuteil werden muss (>=0).
       # page_gcpriv.d = -1L f¸r die zu f¸llenden Pages.
       # page_gcpriv.d = -2L f¸r die noch unbehandelten Pages.
       map_heap(*heapptr,page, { page->page_gcpriv.d = -2L; } ); # alle Pages noch unbehandelt

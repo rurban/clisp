@@ -2,7 +2,7 @@
 
 #|
 ; Re-Export von importierten Symbolen kann man nicht mit der
-; P I S E R U I - Regel erreichen. Diese Symbole muﬂ man zuerst importieren.
+; P I S E R U I - Regel erreichen. Diese Symbole muss man zuerst importieren.
 (in-package "SYSTEM")
 (import '(make-window window-size
           window-cursor-position set-window-cursor-position

@@ -121,7 +121,7 @@ mulu32_         .PROC
                 .EXPORT divu_6432_3232_
                 .IMPORT divu_32_rest,DATA
 # extern struct { uint32 q; uint32 r; } divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
-# x = 2^32*xhi+xlo = q*y+r schreiben. Sei bekannt, daß 0 <= x < 2^32*y .
+# x = 2^32*xhi+xlo = q*y+r schreiben. Sei bekannt, dass 0 <= x < 2^32*y .
 divu_6432_3232_ .PROC
                 .CALLINFO
                 .ENTER  # Input in %arg0,%arg1,%arg2, Output in %ret0,divu_32_rest
@@ -152,7 +152,7 @@ temp3           .REG    %r22
 
 # Der Algorithmus ist wie der von meinem arisparc.s:_divu_3216_1616_ :
 # Wenn man y zu Unrecht subtrahiert hat, so gleicht man dies dadurch aus,
-# daß man nach dem nächsten 1-Bit-Shift - statt y zu subtrahieren -
+# dass man nach dem nächsten 1-Bit-Shift - statt y zu subtrahieren -
 # 2*y addiert und y subtrahiert, d.h. y addiert.
 
 # 1 Divisions-Einzelschritt:
@@ -192,7 +192,7 @@ DS32            .MACRO
                 ADDC            lorem,lorem,lorem       # letzten Carry in lorem hineinshiften
                 # Nun enthält hirem den Rest r oder r-y, lorem den Quotienten q.
                 ADD,>=          0,hirem,0               # hirem < 0 (signed) ?
-                ADD             hirem,div,hirem         # ja -> muß noch y addieren
+                ADD             hirem,div,hirem         # ja -> muss noch y addieren
                 ADDIL           L'divu_32_rest-$global$,%dp
                 STW             hirem,R'divu_32_rest-$global$(%r1)
                                                         # Rest r abspeichern
@@ -242,7 +242,7 @@ L$53            # Es war y gerade, nun ist quo = floor(x / 2*y').
                                                         # kein delay-slot wegen ,N !
                 SUB             hirem,origdiv,hirem     # Rest -= y
                 ADDI            1,quo,quo               # Quotient += 1
-L$54            # Wegen y>=2^31 muß der Quotient noch höchstens 1 mal erhöht werden:
+L$54            # Wegen y>=2^31 muss der Quotient noch höchstens 1 mal erhöht werden:
                 COMB,<<,N       hirem,origdiv,L$55      # hirem < y -> Quotient erhöhen
                                                         # kein delay-slot wegen ,N !
                 SUB             hirem,origdiv,hirem     # Rest -= y

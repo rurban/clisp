@@ -81,21 +81,21 @@ muffle-cerrors appease-cerrors exit-on-error
 (defmacro define-condition (name parent-types slot-specs &rest options)
   (unless (symbolp name)
     (error-of-type 'source-program-error
-      (DEUTSCH "~S: Der Name einer Condition muß ein Symbol sein, nicht: ~S"
+      (DEUTSCH "~S: Der Name einer Condition muss ein Symbol sein, nicht: ~S"
        ENGLISH "~S: the name of a condition must be a symbol, not ~S"
        FRANCAIS "~S : Le nom d'une condition exceptionnelle doit être un symbole et non ~S")
       'define-condition name
   ) )
   (unless (and (listp parent-types) (every #'symbolp parent-types))
     (error-of-type 'source-program-error
-      (DEUTSCH "~S: Die Liste der Obertypen muß eine Liste von Symbolen sein, nicht: ~S"
+      (DEUTSCH "~S: Die Liste der Obertypen muss eine Liste von Symbolen sein, nicht: ~S"
        ENGLISH "~S: the parent-type list must be a list of symbols, not ~S"
        FRANCAIS "~S : La liste des types doit être une liste de symboles et non ~S")
       'define-condition parent-types
   ) )
   (unless (listp slot-specs)
     (error-of-type 'source-program-error
-      (DEUTSCH "~S: Die Liste der Slot-Beschreibungen muß eine Liste sein, nicht: ~S"
+      (DEUTSCH "~S: Die Liste der Slot-Beschreibungen muss eine Liste sein, nicht: ~S"
        ENGLISH "~S: the slot description list must be a list, not ~S"
        FRANCAIS "~S : La liste des descriptions de «slots» doit être une listeet non ~S")
       'define-condition slot-specs
@@ -188,7 +188,7 @@ muffle-cerrors appease-cerrors exit-on-error
     (t
       (error-of-type 'type-error
         :datum datum :expected-type '(or condition symbol string function)
-        (DEUTSCH "~S: Condition-Argument muß ein String, ein Symbol oder eine Condition sein, nicht ~S"
+        (DEUTSCH "~S: Condition-Argument muss ein String, ein Symbol oder eine Condition sein, nicht ~S"
          ENGLISH "~S: the condition argument must be a string, a symbol or a condition, not ~S"
          FRANCAIS "~S : L'argument de condition exceptionnelle doit être de type STRING, SYMBOL ou CONDITION et non ~S")
         caller-name datum
@@ -913,7 +913,7 @@ muffle-cerrors appease-cerrors exit-on-error
                                           ; CLtL2 p. 906: "It is an error if an unnamed restart is used
                                           ; and no report information is provided."
                                           (error-of-type 'source-program-error
-                                            (DEUTSCH "~S: Bei unbenannten Restarts muß ~S angegeben werden: ~S"
+                                            (DEUTSCH "~S: Bei unbenannten Restarts muss ~S angegeben werden: ~S"
                                              ENGLISH "~S: unnamed restarts require ~S to be specified: ~S"
                                              FRANCAIS "~S : Il faut spécifier ~S pour des «restarts» anonymes: ~S")
                                             'restart-bind ':REPORT-FUNCTION spec
@@ -1007,7 +1007,7 @@ muffle-cerrors appease-cerrors exit-on-error
                         ; CLtL2 p. 906: "It is an error if an unnamed restart is used
                         ; and no report information is provided."
                         (error-of-type 'source-program-error
-                          (DEUTSCH "~S: Bei unbenannten Restarts muß ~S angegeben werden: ~S"
+                          (DEUTSCH "~S: Bei unbenannten Restarts muss ~S angegeben werden: ~S"
                            ENGLISH "~S: unnamed restarts require ~S to be specified: ~S"
                            FRANCAIS "~S : Il faut spécifier ~S pour des «restarts» anonymes: ~S")
                           caller ':REPORT restart-clause

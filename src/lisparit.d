@@ -88,7 +88,7 @@
 # > string: Simple-String (enth‰lt Ziffern mit Wert <base und evtl. Punkt)
 # > index1: Index der ersten Ziffer
 # > index2: Index nach der letzten Ziffer
-#   (also index2-index1 Ziffern, incl. evtl. Dezimalpunkt am Schluﬂ)
+#   (also index2-index1 Ziffern, incl. evtl. Dezimalpunkt am Schluss)
 # < ergebnis: Integer
 # kann GC auslˆsen
   global object read_integer (uintWL base,
@@ -331,7 +331,7 @@
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "Argument zu ~ muﬂ eine Zahl sein: ~" :
+             DEUTSCH ? "Argument zu ~ muss eine Zahl sein: ~" :
              ENGLISH ? "argument to ~ should be a number: ~" :
              FRANCAIS ? "L'argument pour ~ doit Ítre un nombre et non ~." :
              ""
@@ -349,7 +349,7 @@
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "Argument zu ~ muﬂ eine reelle Zahl sein: ~" :
+             DEUTSCH ? "Argument zu ~ muss eine reelle Zahl sein: ~" :
              ENGLISH ? "argument to ~ should be a real number: ~" :
              FRANCAIS ? "L'argument pour ~ doit Ítre un nombre rÈel et non ~." :
              ""
@@ -367,7 +367,7 @@
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "Argument zu ~ muﬂ eine Floating-Point-Zahl sein: ~" :
+             DEUTSCH ? "Argument zu ~ muss eine Floating-Point-Zahl sein: ~" :
              ENGLISH ? "argument to ~ should be a floating point number: ~" :
              FRANCAIS ? "L'argument pour ~ doit Ítre un nombre ‡ virgule flottante et non ~." :
              ""
@@ -385,7 +385,7 @@
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "Argument zu ~ muﬂ eine rationale Zahl sein: ~" :
+             DEUTSCH ? "Argument zu ~ muss eine rationale Zahl sein: ~" :
              ENGLISH ? "argument to ~ should be a rational number: ~" :
              FRANCAIS ? "L'argument pour ~ doit Ítre un nombre rationnel et non ~." :
              ""
@@ -403,7 +403,7 @@
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "Argument zu ~ muﬂ eine ganze Zahl sein: ~" :
+             DEUTSCH ? "Argument zu ~ muss eine ganze Zahl sein: ~" :
              ENGLISH ? "argument to ~ should be an integer: ~" :
              FRANCAIS ? "L'argument pour ~ doit Ítre un nombre entier et non ~." :
              ""
@@ -421,7 +421,7 @@
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument muﬂ ein Fixnum >0 sein, nicht ~" :
+             DEUTSCH ? "~: Argument muss ein Fixnum >0 sein, nicht ~" :
              ENGLISH ? "~: argument should be a positive fixnum, not ~" :
              FRANCAIS ? "~ : L'argument doit Ítre de type FIXNUM positif et non ~." :
              ""
@@ -514,7 +514,7 @@ LISPFUNN(evenp,1)
     var object* args_pointer;
     { dotimespC(argcount,argcount+1,
         { var object arg = NEXT(args_pointer); # n‰chstes Argument
-          check_number(arg); # muﬂ eine Zahl sein
+          check_number(arg); # muss eine Zahl sein
         });
     }
 
@@ -529,7 +529,7 @@ LISPFUNN(evenp,1)
     var object* args_pointer;
     { dotimespC(argcount,argcount+1,
         { var object arg = NEXT(args_pointer); # n‰chstes Argument
-          check_real(arg); # muﬂ eine reelle Zahl sein
+          check_real(arg); # muss eine reelle Zahl sein
         });
     }
 
@@ -544,7 +544,7 @@ LISPFUNN(evenp,1)
     var object* args_pointer;
     { dotimespC(argcount,argcount+1,
         { var object arg = NEXT(args_pointer); # n‰chstes Argument
-          check_integer(arg); # muﬂ eine ganze Zahl sein
+          check_integer(arg); # muss eine ganze Zahl sein
         });
     }
 
@@ -1383,7 +1383,7 @@ LISPFUN(complex,1,1,norest,nokey,0,NIL)
 # (COMPLEX real [real]), CLTL S. 220
 # Abweichung von CLTL:
 # Bei uns ist f¸r reelle x stets (COMPLEX x) = x.
-# Grund: Daﬂ (COMPLEX 1) = 1 sein soll, zeigt, daﬂ (COMPLEX x) als (COMPLEX x 0)
+# Grund: Dass (COMPLEX 1) = 1 sein soll, zeigt, dass (COMPLEX x) als (COMPLEX x 0)
 # zu interpretieren ist. Bei uns kˆnnen komplexe Zahlen einen Realteil
 # und einen Imagin‰rteil verschiedenen Typs haben (vgl. CLTL, Seite 19),
 # und es ist dann (COMPLEX x 0) = x.
@@ -1656,7 +1656,7 @@ LISPFUNN(deposit_field,3)
   local object check_random_state(obj)
     var object obj;
     { if (!eq(obj,unbound))
-        # angegeben -> muﬂ Random-State sein:
+        # angegeben -> muss Random-State sein:
         { if (random_state_p(obj))
             { return obj; }
             else
@@ -1665,7 +1665,7 @@ LISPFUNN(deposit_field,3)
               pushSTACK(obj);
               pushSTACK(TheSubr(subr_self)->name);
               fehler(type_error,
-                     DEUTSCH ? "~: Argument muﬂ ein Random-State sein, nicht ~" :
+                     DEUTSCH ? "~: Argument muss ein Random-State sein, nicht ~" :
                      ENGLISH ? "~: argument should be a random-state, not ~" :
                      FRANCAIS ? "~ : L'argument doit Ítre un ´random-stateª et non ~." :
                      ""
@@ -1696,7 +1696,7 @@ LISPFUN(random,1,1,norest,nokey,0,NIL)
   { var object x = STACK_1;
     var object r = check_random_state(STACK_0);
     skipSTACK(2);
-    check_real(x); # x muﬂ eine reelle Zahl sein, >0 und Float oder Integer
+    check_real(x); # x muss eine reelle Zahl sein, >0 und Float oder Integer
     if (R_plusp(x))
       { if (R_floatp(x)) { value1 = F_random_F(r,x); mv_count=1; return; }
         elif (RA_integerp(x)) { value1 = I_random_I(r,x); mv_count=1; return; }
@@ -1705,7 +1705,7 @@ LISPFUN(random,1,1,norest,nokey,0,NIL)
     pushSTACK(O(type_random_arg)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
     pushSTACK(x); pushSTACK(S(random));
     fehler(type_error,
-           DEUTSCH ? "~: Argument muﬂ positiv und Integer oder Float sein, nicht ~" :
+           DEUTSCH ? "~: Argument muss positiv und Integer oder Float sein, nicht ~" :
            ENGLISH ? "~: argument should be positive and an integer or float, not ~" :
            FRANCAIS ? "~ : L'argument doit Ítre positif et de type entier ou flottant et non ~." :
            ""
@@ -1788,7 +1788,7 @@ LISPFUNN(fakultaet,1)
         pushSTACK(O(type_posfixnum)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(x); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~ : Argument muﬂ ein Fixnum >=0 sein, nicht ~" :
+               DEUTSCH ? "~ : Argument muss ein Fixnum >=0 sein, nicht ~" :
                ENGLISH ? "~ : argument should be a fixnum >=0, not ~" :
                FRANCAIS ? "~ : L'argument doit Ítre de type FIXNUM positif ou zÈro et non ~." :
                ""
@@ -1799,7 +1799,7 @@ LISPFUNN(fakultaet,1)
   }
 
 LISPFUNN(exquo,2)
-# (EXQUO integer integer) dividiert zwei Integers. Die Division muﬂ aufgehen.
+# (EXQUO integer integer) dividiert zwei Integers. Die Division muss aufgehen.
 # (EXQUO x y) == (THE INTEGER (/ (THE INTEGER x) (THE INTEGER y)))
   { var object x = STACK_1;
     var object y = STACK_0;
@@ -1895,7 +1895,7 @@ LISPFUNN(set_long_float_digits,1)
            {var uintC oldlen = Lfloat_length(ln_x); # vorhandene L‰nge
             if (d < oldlen) { return LF_shorten_LF(ln_x,d); }
             if (d == oldlen) { return ln_x; }
-            # gew¸nschte > vorhandene L‰nge -> muﬂ nachberechnen:
+            # gew¸nschte > vorhandene L‰nge -> muss nachberechnen:
             # Lfloat_length(ln_x) um mindestens einen konstanten Faktor
             # > 1 wachsen lassen, damit es nicht zu h‰ufig nachberechnet wird:
             oldlen += floor(oldlen,2); # oldlen * 3/2

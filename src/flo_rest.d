@@ -780,7 +780,7 @@
     }
 
 
-# Vergrößert eine Long-Float-Länge n, so daß aus d = intDsize*n
+# Vergrößert eine Long-Float-Länge n, so dass aus d = intDsize*n
 # mindestens d+sqrt(d)+2 wird.
 # Methode bei intDsize=16:
 # n -> n+1 für n<=12 wegen 16n+sqrt(16n)+2 < 16(n+1)
@@ -950,7 +950,7 @@
   local object SF_I_scale_float_SF (object x, object delta);
   # Methode:
   # x=0.0 -> x als Ergebnis
-  # delta muß ein Fixnum betragsmäßig <= SF_exp_high-SF_exp_low sein.
+  # delta muss ein Fixnum betragsmäßig <= SF_exp_high-SF_exp_low sein.
   # Neues SF mit um delta vergrößertem Exponenten bilden.
   local object SF_I_scale_float_SF(x,delta)
     var object x;
@@ -995,7 +995,7 @@
   local object FF_I_scale_float_FF (object x, object delta);
   # Methode:
   # x=0.0 -> x als Ergebnis
-  # delta muß ein Fixnum betragsmäßig <= FF_exp_high-FF_exp_low sein.
+  # delta muss ein Fixnum betragsmäßig <= FF_exp_high-FF_exp_low sein.
   # Neues FF mit um delta vergrößertem Exponenten bilden.
   local object FF_I_scale_float_FF(x,delta)
     var object x;
@@ -1040,7 +1040,7 @@
   local object DF_I_scale_float_DF (object x, object delta);
   # Methode:
   # x=0.0 -> x als Ergebnis
-  # delta muß ein Fixnum betragsmäßig <= DF_exp_high-DF_exp_low sein.
+  # delta muss ein Fixnum betragsmäßig <= DF_exp_high-DF_exp_low sein.
   # Neues DF mit um delta vergrößertem Exponenten bilden.
   local object DF_I_scale_float_DF(x,delta)
     var object x;
@@ -1100,7 +1100,7 @@
   # Methode:
   # delta=0 -> x als Ergebnis
   # x=0.0 -> x als Ergebnis
-  # delta muß ein Fixnum betragsmäßig <= LF_exp_high-LF_exp_low sein.
+  # delta muss ein Fixnum betragsmäßig <= LF_exp_high-LF_exp_low sein.
   # Neues LF mit um delta vergrößertem Exponenten bilden.
   local object LF_I_scale_float_LF(x,delta)
     var object x;
@@ -1110,7 +1110,7 @@
       if (uexp==0) { return x; }
       pushSTACK(x); # x retten
       { var uintL udelta;
-        # |delta| muß <= LF_exp_high-LF_exp_low < 2^32 sein. Wie bei I_to_UL:
+        # |delta| muss <= LF_exp_high-LF_exp_low < 2^32 sein. Wie bei I_to_UL:
         #ifdef TYPECODES
         switch (typecode(delta))
         #else

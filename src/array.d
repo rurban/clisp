@@ -228,7 +228,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
               );
     }
 
-# Fehler, wenn ein displaced Array nicht mehr in seinen Ziel-Array paßt
+# Fehler, wenn ein displaced Array nicht mehr in seinen Ziel-Array passt
   nonreturning_function(local, fehler_displaced_inconsistent, (void));
   local void fehler_displaced_inconsistent()
     { fehler(error,
@@ -448,11 +448,11 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
       { var uintC count;
         dotimesC(count,argcount,
           { var object subscriptobj = NEXT(argptr); # Subscript als Objekt
-            if (!(posfixnump(subscriptobj))) # Subscript muß Fixnum>=0 sein.
+            if (!(posfixnump(subscriptobj))) # Subscript muss Fixnum>=0 sein.
               fehler_subscript_type(argcount);
            {var uintL subscript = posfixnum_to_L(subscriptobj); # als uintL
             var uintL dim = *dimptr++; # entsprechende Dimension
-            if (!(subscript<dim)) # Subscript muß kleiner als Dimension sein
+            if (!(subscript<dim)) # Subscript muss kleiner als Dimension sein
               fehler_subscript_range(argcount,subscript,dim);
             # Bilde row_major_index := row_major_index*dim+subscript:
             row_major_index =
@@ -517,10 +517,10 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
 # < ergebnis: Index als uintL
   local uintL test_index (void);
   local uintL test_index()
-    { if (!posfixnump(STACK_0)) # Index muß Fixnum>=0 sein.
+    { if (!posfixnump(STACK_0)) # Index muss Fixnum>=0 sein.
         fehler_index_type();
      {var uintL index = posfixnum_to_L(STACK_0); # Index als uintL
-      if (!(index < Sarray_length(STACK_1))) # Index muß kleiner als Länge sein
+      if (!(index < Sarray_length(STACK_1))) # Index muss kleiner als Länge sein
         fehler_index_range(Sarray_length(STACK_1));
       return index;
     }}
@@ -742,7 +742,7 @@ LISPFUNN(row_major_aref,2)
     # index überprüfen:
     if (!posfixnump(STACK_0)) fehler_index_type();
    {var uintL index = posfixnum_to_L(STACK_0);
-    if (!(index < array_total_size(array))) # Index muß kleiner als Größe sein
+    if (!(index < array_total_size(array))) # Index muss kleiner als Größe sein
       fehler_index_range(array_total_size(array));
     if (!array_simplep(array))
       { array = notsimple_displace(array,&index); }
@@ -760,7 +760,7 @@ LISPFUNN(row_major_store,3)
     # index überprüfen:
     if (!posfixnump(STACK_0)) fehler_index_type();
    {var uintL index = posfixnum_to_L(STACK_0);
-    if (!(index < array_total_size(array))) # Index muß kleiner als Größe sein
+    if (!(index < array_total_size(array))) # Index muss kleiner als Größe sein
       fehler_index_range(array_total_size(array));
     if (!array_simplep(array))
       { array = notsimple_displace(array,&index); }
@@ -823,7 +823,7 @@ LISPFUNN(array_dimension,2) # (ARRAY-DIMENSION array axis-number), CLTL S. 292
     var object array = popSTACK();
     test_array(array);
     if (array_simplep(array))
-      # simpler Vektor: axis-number muß =0 sein, Wert ist dann die Länge.
+      # simpler Vektor: axis-number muss =0 sein, Wert ist dann die Länge.
       { if (eq(axis_number,Fixnum_0))
           { value1 = fixnum(Sarray_length(array));
             mv_count=1; return;
@@ -832,7 +832,7 @@ LISPFUNN(array_dimension,2) # (ARRAY-DIMENSION array axis-number), CLTL S. 292
       }
       else
       # nicht-simpler Array
-      { if (posfixnump(axis_number)) # axis-number muß ein Fixnum >=0,
+      { if (posfixnump(axis_number)) # axis-number muss ein Fixnum >=0,
           { var uintL axis = posfixnum_to_L(axis_number);
             if (axis < (uintL)Iarray_rank(array)) # und <rank sein
               { var uintL* dimptr = &TheIarray(array)->dims[0]; # Zeiger auf Dimensionen
@@ -951,9 +951,9 @@ LISPFUN(array_in_bounds_p,1,0,rest,nokey,0,NIL)
           fehler_subscript_anz(array,argcount);
         # Subscript selbst überprüfen:
         { var object subscriptobj = STACK_0; # Subscript als Objekt
-          if (!integerp(subscriptobj)) { fehler_index_type(); } # muß Integer sein
-          # Subscript muß Fixnum>=0 sein,
-          # Subscript als uintL muß kleiner als Länge sein:
+          if (!integerp(subscriptobj)) { fehler_index_type(); } # muss Integer sein
+          # Subscript muss Fixnum>=0 sein,
+          # Subscript als uintL muss kleiner als Länge sein:
           if (!( (posfixnump(subscriptobj))
                  && (posfixnum_to_L(subscriptobj) < Sarray_length(array)) ))
             goto no;
@@ -971,9 +971,9 @@ LISPFUN(array_in_bounds_p,1,0,rest,nokey,0,NIL)
          { var uintC count;
            dotimesC(count,argcount,
              { var object subscriptobj = NEXT(argptr); # Subscript als Objekt
-               if (!integerp(subscriptobj)) { fehler_subscript_type(argcount); } # muß Integer sein
-               # Subscript muß Fixnum>=0 sein,
-               # Subscript als uintL muß kleiner als die entsprechende Dimension sein:
+               if (!integerp(subscriptobj)) { fehler_subscript_type(argcount); } # muss Integer sein
+               # Subscript muss Fixnum>=0 sein,
+               # Subscript als uintL muss kleiner als die entsprechende Dimension sein:
                if (!( (posfixnump(subscriptobj))
                       && (posfixnum_to_L(subscriptobj) < *dimptr++) ))
                  goto no;
@@ -1378,7 +1378,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
             len = Sbvector_length(STACK_2); goto vector;
           case Array_type_bvector:
             { var Iarray array1 = TheIarray(STACK_2);
-              # bit-array1 muß den Elementtyp BIT haben:
+              # bit-array1 muss den Elementtyp BIT haben:
               if (!((iarray_flags(array1) & arrayflags_atype_mask) == Atype_Bit))
                 goto fehler2;
               len = array1->totalsize;
@@ -1386,7 +1386,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
             }
           case Array_type_mdarray:
             { var Iarray array1 = TheIarray(STACK_2);
-              # bit-array1 muß den Elementtyp BIT haben:
+              # bit-array1 muss den Elementtyp BIT haben:
               if (!((iarray_flags(array1) & arrayflags_atype_mask) == Atype_Bit))
                 goto fehler2;
               # Rang merken:
@@ -1414,7 +1414,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
               break;
             case Array_type_bvector:
               { var Iarray array2 = TheIarray(STACK_1);
-                # bit-array2 muß den Elementtyp BIT haben:
+                # bit-array2 muss den Elementtyp BIT haben:
                 if (!((iarray_flags(array2) & arrayflags_atype_mask) == Atype_Bit))
                   goto fehler2;
                 if (!(len == array2->totalsize)) goto fehler2;
@@ -1441,7 +1441,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
                      if (!(len == Sbvector_length(array3))) goto fehler3;
                      break;
                    case Array_type_bvector:
-                     # bit-array3 muß den Elementtyp BIT haben:
+                     # bit-array3 muss den Elementtyp BIT haben:
                      if (!((Iarray_flags(array3) & arrayflags_atype_mask) == Atype_Bit))
                        goto fehler3;
                      if (!(len == TheIarray(array3)->totalsize)) goto fehler3;
@@ -1460,7 +1460,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
         switch (Array_type(STACK_1))
           { case Array_type_mdarray:
               { var Iarray array2 = TheIarray(STACK_1);
-                # bit-array2 muß den Elementtyp BIT haben:
+                # bit-array2 muss den Elementtyp BIT haben:
                 if (!((iarray_flags(array2) & arrayflags_atype_mask) == Atype_Bit))
                   goto fehler2;
                 # Rang vergleichen:
@@ -1505,7 +1505,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
                switch (Array_type(STACK_0))
                  { case Array_type_mdarray:
                      { var Iarray array3 = TheIarray(STACK_0);
-                       # bit-array3 muß den Elementtyp BIT haben:
+                       # bit-array3 muss den Elementtyp BIT haben:
                        if (!((iarray_flags(array3) & arrayflags_atype_mask) == Atype_Bit))
                          goto fehler3;
                        # Rang vergleichen:
@@ -1694,11 +1694,11 @@ LISPFUNN(array_has_fill_pointer_p,1) # (ARRAY-HAS-FILL-POINTER-P array), CLTL S.
   local uintL* get_fill_pointer (object obj);
   local uintL* get_fill_pointer(obj)
     var object obj;
-    { # obj muß ein Vektor sein:
+    { # obj muss ein Vektor sein:
       if (!vectorp(obj)) { fehler_vector(obj); }
       # darf nicht simple sein:
       if (simplep(obj)) { goto fehler_fillp; }
-      # muß einen Fill-Pointer enthalten:
+      # muss einen Fill-Pointer enthalten:
       if (!(Iarray_flags(obj) & bit(arrayflags_fillp_bit))) { goto fehler_fillp; }
       # Wo steht der Fill-Pointer?
       return ((Iarray_flags(obj) & bit(arrayflags_dispoffset_bit))
@@ -1727,10 +1727,10 @@ LISPFUNN(fill_pointer,1) # (FILL-POINTER vector), CLTL S. 296
 LISPFUNN(set_fill_pointer,2) # (SYS::SET-FILL-POINTER vector index)
                              # = (SETF (FILL-POINTER vector) index), CLTL S. 296
   { var uintL* fillp = get_fill_pointer(STACK_1); # Fillpointer-Adresse
-    if (!posfixnump(STACK_0)) # neuer Fill-Pointer muß Fixnum>=0 sein.
+    if (!posfixnump(STACK_0)) # neuer Fill-Pointer muss Fixnum>=0 sein.
       fehler_index_type();
    {var uintL newfillp = posfixnum_to_L(STACK_0); # als uintL
-    if (!(newfillp <= fillp[-1])) # muß kleinergleich der Länge sein
+    if (!(newfillp <= fillp[-1])) # muss kleinergleich der Länge sein
       fehler_index_range(fillp[-1]+1);
     *fillp = newfillp; # neuen Fill-Pointer eintragen
     value1 = STACK_0; mv_count=1; # neuen Fillpointer zurück
@@ -1970,7 +1970,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       return newvec;
     }
 
-#if 0 # nur als Reserve, für den Fall, daß wir wieder auf ein GCC-Bug stoßen
+#if 0 # nur als Reserve, für den Fall, dass wir wieder auf ein GCC-Bug stoßen
 
 # UP: löscht ein Bit in einem Simple-Bit-Vector
 # sbvector_bclr(sbvector,index);
@@ -2002,7 +2002,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
 # Das sind CHARACTER-Arrays mit FILL-POINTER, die aber nicht adjustierbar
 # und nicht displaced sind und deren Datenvektor ein Simple-String ist.
 # Beim Überschreiten der Länge wird ihre Länge verdoppelt
-# (so daß der Aufwand fürs Erweitern nicht sehr ins Gewicht fällt).
+# (so dass der Aufwand fürs Erweitern nicht sehr ins Gewicht fällt).
 
 # UP: Liefert einen Semi-Simple String gegebener Länge, Fill-Pointer =0.
 # make_ssstring(len)
@@ -2068,7 +2068,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
     }
 
 #ifdef STRM_WR_SS
-# UP: Stellt sicher, daß ein Semi-Simple String eine bestimmte Länge hat
+# UP: Stellt sicher, dass ein Semi-Simple String eine bestimmte Länge hat
 # und erweitert ihn dazu eventuell.
 # ssstring_extend(ssstring,size)
 # > ssstring: Semi-Simple String
@@ -2150,8 +2150,8 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
                                    # bleibt < arraysize_limit
           while (consp(dims))
             { var object dim = Car(dims); # nächste Dimension
-              # if (!integerp(dim)) { fehler_dim_type(dim); } # muß Integer sein
-              if (!posfixnump(dim)) { fehler_dim_type(dim); } # muß Fixnum >=0 sein
+              # if (!integerp(dim)) { fehler_dim_type(dim); } # muss Integer sein
+              if (!posfixnump(dim)) { fehler_dim_type(dim); } # muss Fixnum >=0 sein
               # totalsize * dim bilden:
              {var uintL produkt_hi;
               var uintL produkt_lo;
@@ -2184,8 +2184,8 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
           return rank;
         }
       # dims ist keine Liste. Sollte eine einzelne Dimension sein:
-      # if (!integerp(dims)) { fehler_dim_type(dims); } # muß Integer sein
-      if (!posfixnump(dims)) { fehler_dim_type(dims); } # muß Fixnum >=0 sein
+      # if (!integerp(dims)) { fehler_dim_type(dims); } # muss Integer sein
+      if (!posfixnump(dims)) { fehler_dim_type(dims); } # muss Fixnum >=0 sein
       *totalsize_ = posfixnum_to_L(dims); # Totalsize = einzige Dimension
       return 1; # Rang = 1
     }
@@ -2272,7 +2272,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
           case Atype_Char: # Simple-String erzeugen
             { var object vektor = allocate_string(len);
               if (!(eq(STACK_4,unbound))) # initial-element angegeben?
-                { # ja -> überprüfen, muß Character sein:
+                { # ja -> überprüfen, muss Character sein:
                   if (!charp(STACK_4)) goto fehler_init;
                  {var uintB initial_char = char_code(STACK_4);
                   if (!(len==0)) # und Länge > 0 ?
@@ -2289,7 +2289,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
           case Atype_32Bit: # semi-simplen Byte-Vektor erzeugen
             { var object vektor = allocate_byte_vector(eltype,len);
               if (!(eq(STACK_4,unbound))) # initial-element angegeben?
-                { # ja -> überprüfen, muß passender Integer sein:
+                { # ja -> überprüfen, muss passender Integer sein:
                   var uintL wert;
                   if (eltype==Atype_32Bit)
                     { wert = I_to_UL(STACK_4); }
@@ -2419,9 +2419,9 @@ local void initial_contents_aux(arg,obj)
       # Tiefe >0 -> rekursiv aufrufen:
       { locals->depth--;
         pushSTACK(obj);
-        # obj = STACK_0 muß eine Sequence korrekter Länge sein:
+        # obj = STACK_0 muss eine Sequence korrekter Länge sein:
         pushSTACK(STACK_0); funcall(L(length),1); # Länge bestimmen
-        # muß EQL (also EQ) zur Dimension *(localptr+depth) sein:
+        # muss EQL (also EQ) zur Dimension *(localptr+depth) sein:
         if (!(eq(value1,*(localptr STACKop locals->depth))))
           { # fehlerhafte Sequence seq noch in STACK_0.
             pushSTACK(TheSubr(*(localptr STACKop -2))->name);
@@ -2450,7 +2450,7 @@ local void initial_contents_aux(arg,obj)
   local uintL test_displaced(eltype,totalsize)
     var uintB eltype;
     var uintL totalsize;
-    { # displaced-to überprüfen, muß ein Array sein:
+    { # displaced-to überprüfen, muss ein Array sein:
       var object displaced_to = STACK_1;
       if (!arrayp(displaced_to))
         { pushSTACK(displaced_to); # Wert für Slot DATUM von TYPE-ERROR
@@ -2513,7 +2513,7 @@ local void initial_contents_aux(arg,obj)
                   ""
                  );
          }
-       {# Überprüfen, ob angesprochenes Teilstück ganz in displaced-to paßt:
+       {# Überprüfen, ob angesprochenes Teilstück ganz in displaced-to passt:
         var uintL displaced_totalsize = array_total_size(displaced_to);
         if (!(displaced_index_offset+totalsize <= displaced_totalsize))
           { pushSTACK(S(Kdisplaced_to));
@@ -2646,7 +2646,7 @@ LISPFUN(make_array,1,0,norest,key,7,\
       if (!nullp(STACK_6)) # adjustable angegeben?
         { flags |= bit(arrayflags_adjustable_bit)|bit(arrayflags_dispoffset_bit); }
       if (!nullp(STACK_2)) # fill-pointer angegeben?
-        { if (!(rank==1)) # Rang muß 1 sein
+        { if (!(rank==1)) # Rang muss 1 sein
             { pushSTACK(fixnum(rank));
               pushSTACK(S(Kfill_pointer));
               pushSTACK(TheSubr(subr_self)->name);
@@ -2711,7 +2711,7 @@ LISPFUN(make_array,1,0,norest,key,7,\
 
 # Hilfsfunktion für die Umfüllaufgabe bei ADJUST-ARRAY:
 # Füllt den Datenvektor eines Arrays teilweise mit dem Inhalt eines anderen
-# Datenvektors, und zwar so, daß die Elemente zu Indextupeln, die für beide
+# Datenvektors, und zwar so, dass die Elemente zu Indextupeln, die für beide
 # Arrays gültig sind, übereinstimmen.
 # reshape(newvec,newdims,oldvec,olddims,offset,rank,eltype);
 # > newvec: (semi-)simpler Vektor, in den zu füllen ist.
@@ -2791,7 +2791,7 @@ LISPFUN(make_array,1,0,norest,key,7,\
           if (depth==0)
             { # Element kopieren:
               # (setf (aref newvec newindex) (aref oldvec oldindex))
-              # so kopieren, daß keine GC ausgelöst werden kann:
+              # so kopieren, dass keine GC ausgelöst werden kann:
               if (eltype == Atype_32Bit)
                 { ((uint32*)&TheSbvector(TheIarray(newvec)->data)->data[0])[newindex]
                     = ((uint32*)&TheSbvector(TheIarray(oldvec)->data)->data[0])[oldindex];
@@ -2853,7 +2853,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
    {# Dimensionen überprüfen und Rang und Total-Size berechnen:
     var uintL totalsize;
     var uintL rank = test_dims(&totalsize);
-    # Rang überprüfen, muß = (array-rank array) sein:
+    # Rang überprüfen, muss = (array-rank array) sein:
     {var uintL oldrank = (uintL)Iarray_rank(STACK_6);
      if (!(rank==oldrank))
        { pushSTACK(STACK_7); # dims
@@ -2955,7 +2955,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
        # Flags sind nun korrekt.
        # Modifiziere den gegebenen Array.
        if (!nullp(STACK_2)) # fill-pointer angegeben?
-         { # array muß Fill-Pointer haben:
+         { # array muss Fill-Pointer haben:
            if (!(Iarray_flags(STACK_6) & bit(arrayflags_fillp_bit)))
              { pushSTACK(STACK_6); # Wert für Slot DATUM von TYPE-ERROR
                pushSTACK(O(type_vector_with_fill_pointer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
@@ -2971,7 +2971,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
            fillpointer = test_fillpointer(totalsize); # Fill-Pointer-Wert
          }
          else
-         { # Hat array einen Fill-Pointer, so muß er <= neue Total-Size sein:
+         { # Hat array einen Fill-Pointer, so muss er <= neue Total-Size sein:
            var object array = STACK_6;
            if (Iarray_flags(array) & bit(arrayflags_fillp_bit))
              if (!(TheIarray(array)->dims[2] <= totalsize))

@@ -67,7 +67,7 @@
 # Logische Operationen auf Integers:
 # Methode: aus den Längen der beiden Argumente eine obere Schranke für
 # die Länge des Ergebnisses berechnen (das Maximum der beiden Längen und
-# FN_maxlength), so daß das MSD für unendlich viele Bits steht.
+# FN_maxlength), so dass das MSD für unendlich viele Bits steht.
 # Dann beide Argumente in gleichgroße Digit sequences umwandeln, Operation
 # mit einer einfachen Schleife durchführen.
 
@@ -580,7 +580,7 @@
             || ((log2_intDsize+intWCsize < oint_data_len) # intDsize*2^intWCsize < 2^oint_data_len ?
                 && (as_oint(y) >= as_oint(fixnum(intDsize*bitc(intWCsize)))) # ein Fixnum > Bitlänge aller Integers
            )   )
-          # y so groß, daß selbst (ASH 1 y) einen Überlauf gäbe.
+          # y so groß, dass selbst (ASH 1 y) einen Überlauf gäbe.
           goto badamount;
           else
           { var uintL y_ = (as_oint(y)-as_oint(Fixnum_0))>>oint_data_shift; # Wert von y, >=0, <intDsize*2^intWCsize
@@ -739,7 +739,7 @@
               bitcount += (uintL)(logcount_32(), x16);
             }});
           #endif
-          # 0 <= bitcount < intDsize*2^intWCsize, paßt evtl. in ein Fixnum.
+          # 0 <= bitcount < intDsize*2^intWCsize, passt evtl. in ein Fixnum.
           if (log2_intDsize+intWCsize<=oint_data_len) # intDsize*2^intWCsize <= 2^oint_data_len ?
             return fixnum(bitcount);
             else
@@ -769,16 +769,16 @@
     integerlength16((uint16)(digit),size_zuweisung)
 #else
   #define integerlength8(digit,size_zuweisung)  \
-    { var uintC bitsize = 1;                                 \
-      var uintBWL x8 = (uint8)(digit);                       \
-      # x8 hat höchstens 8 Bits.                             \
-      if (x8 >= bit(4)) { x8 = x8>>4; bitsize += 4; }        \
-      # x8 hat höchstens 4 Bits.                             \
-      if (x8 >= bit(2)) { x8 = x8>>2; bitsize += 2; }        \
-      # x8 hat höchstens 2 Bits.                             \
-      if (x8 >= bit(1)) { /* x8 = x8>>1; */ bitsize += 1; }  \
-      # x8 hat höchstens 1 Bit. Dieses Bit muß gesetzt sein. \
-      size_zuweisung bitsize;                                \
+    { var uintC bitsize = 1;                                  \
+      var uintBWL x8 = (uint8)(digit);                        \
+      # x8 hat höchstens 8 Bits.                              \
+      if (x8 >= bit(4)) { x8 = x8>>4; bitsize += 4; }         \
+      # x8 hat höchstens 4 Bits.                              \
+      if (x8 >= bit(2)) { x8 = x8>>2; bitsize += 2; }         \
+      # x8 hat höchstens 2 Bits.                              \
+      if (x8 >= bit(1)) { /* x8 = x8>>1; */ bitsize += 1; }   \
+      # x8 hat höchstens 1 Bit. Dieses Bit muss gesetzt sein. \
+      size_zuweisung bitsize;                                 \
     }
 #endif
 #if defined(GNU) && defined(MC680Y0) && !defined(NO_ASM)
@@ -805,18 +805,18 @@
     }
 #else
   #define integerlength16(digit,size_zuweisung)  \
-    { var uintC bitsize = 1;                                   \
-      var uintWL x16 = (uint16)(digit);                        \
-      # x16 hat höchstens 16 Bits.                             \
-      if (x16 >= bit(8)) { x16 = x16>>8; bitsize += 8; }       \
-      # x16 hat höchstens 8 Bits.                              \
-      if (x16 >= bit(4)) { x16 = x16>>4; bitsize += 4; }       \
-      # x16 hat höchstens 4 Bits.                              \
-      if (x16 >= bit(2)) { x16 = x16>>2; bitsize += 2; }       \
-      # x16 hat höchstens 2 Bits.                              \
-      if (x16 >= bit(1)) { /* x16 = x16>>1; */ bitsize += 1; } \
-      # x16 hat höchstens 1 Bit. Dieses Bit muß gesetzt sein.  \
-      size_zuweisung bitsize;                                  \
+    { var uintC bitsize = 1;                                    \
+      var uintWL x16 = (uint16)(digit);                         \
+      # x16 hat höchstens 16 Bits.                              \
+      if (x16 >= bit(8)) { x16 = x16>>8; bitsize += 8; }        \
+      # x16 hat höchstens 8 Bits.                               \
+      if (x16 >= bit(4)) { x16 = x16>>4; bitsize += 4; }        \
+      # x16 hat höchstens 4 Bits.                               \
+      if (x16 >= bit(2)) { x16 = x16>>2; bitsize += 2; }        \
+      # x16 hat höchstens 2 Bits.                               \
+      if (x16 >= bit(1)) { /* x16 = x16>>1; */ bitsize += 1; }  \
+      # x16 hat höchstens 1 Bit. Dieses Bit muss gesetzt sein.  \
+      size_zuweisung bitsize;                                   \
     }
 #endif
 #if defined(GNU) && defined(MC680Y0) && !defined(NO_ASM)
@@ -894,7 +894,7 @@
         if (x32 >= bit(2)) { x32 = x32>>2; bitsize += 2; }       \
         # x32 hat höchstens 2 Bits.                              \
         if (x32 >= bit(1)) { /* x32 = x32>>1; */ bitsize += 1; } \
-        # x32 hat höchstens 1 Bit. Dieses Bit muß gesetzt sein.  \
+        # x32 hat höchstens 1 Bit. Dieses Bit muss gesetzt sein. \
         size_zuweisung bitsize;                                  \
       }
   #else
@@ -912,7 +912,7 @@
         if (x16 >= bit(2)) { x16 = x16>>2; bitsize += 2; }       \
         # x16 hat höchstens 2 Bits.                              \
         if (x16 >= bit(1)) { /* x16 = x16>>1; */ bitsize += 1; } \
-        # x16 hat höchstens 1 Bit. Dieses Bit muß gesetzt sein.  \
+        # x16 hat höchstens 1 Bit. Dieses Bit muss gesetzt sein. \
         size_zuweisung bitsize;                                  \
       }
   #endif
@@ -965,7 +965,7 @@
           var uint32 x_ = FN_to_L(x); # x als 32-Bit-Zahl
           if (FN_L_minusp(x,(sint32)x_)) { x_ = ~ x_; } # falls <0, komplementieren
           if (!(x_==0)) { integerlength32(x_,bitcount=); }
-          # 0 <= bitcount < 32, paßt in ein Fixnum.
+          # 0 <= bitcount < 32, passt in ein Fixnum.
           return fixnum(bitcount);
         }
         else
@@ -980,7 +980,7 @@
           # Position des höchsten Bits in msd suchen und entsprechend bit_count
           # erhöhen (um höchstens intDsize-1):
           if (!(msd == 0)) { integerlengthD(msd, bitcount += ); }
-          # 0 <= bitcount < intDsize*2^intWCsize, paßt evtl. in ein Fixnum.
+          # 0 <= bitcount < intDsize*2^intWCsize, passt evtl. in ein Fixnum.
           if (log2_intDsize+intWCsize<=oint_data_len) # intDsize*2^intWCsize <= 2^oint_data_len ?
             return fixnum(bitcount);
             else
@@ -1034,17 +1034,17 @@
 #   Sei n = ord2(x). Dann ist lognot(logior(x,-x)) = 2^n-1.
 #   Also  (ord2 x) = (integer-length (lognot (logior x (- x)))) .
 # Methode 2:
-#   Nullbits am Schluß von x abzählen:
-#   (ord2 x) = intDsize * Anzahl der Nulldigits am Schluß
+#   Nullbits am Schluss von x abzählen:
+#   (ord2 x) = intDsize * Anzahl der Nulldigits am Schluss
 #              + Anzahl der Nullbits am Ende des letzten Digits /=0.
   #ifndef ord2_32
-    # Hier muß digit eine Variable sein. digit wird verändert!
+    # Hier muss digit eine Variable sein. digit wird verändert!
     #define ord2_32(digit,count_zuweisung)  \
       digit = digit ^ (digit - 1); # Methode 1a \
       integerlength32(digit,count_zuweisung -1 + )
   #endif
   #ifndef ord2_D
-    # Hier muß digit eine Variable sein. digit wird verändert!
+    # Hier muss digit eine Variable sein. digit wird verändert!
     #define ord2_D(digit,count_zuweisung)  \
       digit = digit ^ (digit - 1); # Methode 1a \
       integerlengthD(digit,count_zuweisung -1 + )
@@ -1093,7 +1093,7 @@
          {var uintD msd = MSDptr[0];
           if (msd==0) { MSDptr++; msd = MSDptr[0]; len--; }
           # len = Anzahl der Digits ab MSDptr, len>0, msd = erstes Digit (/=0)
-          if (!((msd & (msd-1)) == 0)) return 0; # erstes Digit muß Zweierpotenz sein
+          if (!((msd & (msd-1)) == 0)) return 0; # erstes Digit muss Zweierpotenz sein
           if (test_loop_up(&MSDptr[1],len-1)) return 0; # danach alles Nullen
           {var uintL msdlen;
            integerlengthD(msd, msdlen=);

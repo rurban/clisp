@@ -643,7 +643,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
       pushSTACK(O(type_input_stream)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument muß ein Input-Stream sein, nicht ~" :
+             DEUTSCH ? "~: Argument muss ein Input-Stream sein, nicht ~" :
              ENGLISH ? "~: argument ~ should be an input stream" :
              FRANCAIS ? "~ : L'argument doit être un «stream» d'entrée et non pas ~." :
              ""
@@ -664,7 +664,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
       pushSTACK(O(type_output_stream)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument muß ein Output-Stream sein, nicht ~" :
+             DEUTSCH ? "~: Argument muss ein Output-Stream sein, nicht ~" :
              ENGLISH ? "~: argument ~ should be an output stream" :
              FRANCAIS ? "~ : L'argument doit être un «stream» de sortie et non pas ~." :
              ""
@@ -793,7 +793,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
          { if (!(errno==ENOTTY)) { OS_error(); } }
       }
       #endif
-      #if 0 # Vorsicht: das müßte FINISH-OUTPUT und CLEAR-INPUT bewirken!
+      #if 0 # Vorsicht: das müsste FINISH-OUTPUT und CLEAR-INPUT bewirken!
       {var struct sgttyb tty_parameters;
        if (!(   ( ioctl(handle,TIOCGETP,&tty_parameters) ==0)
              && ( ioctl(handle,TIOCSETP,&tty_parameters) ==0)
@@ -970,7 +970,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 # ==============
 
 # sind ein gemeinsamer Rahmen für Streams, deren Input/Output ungebuffert
-# über ein Handle des Betriebssystems abgewickelt wird. Umfaßt:
+# über ein Handle des Betriebssystems abgewickelt wird. Umfasst:
 # Input: Terminal-Stream, File-Handle-Stream, Pipe-Input-Stream, Socket-Stream.
 # Output: File-Handle-Stream, Pipe-Output-Stream, Socket-Stream.
 
@@ -978,7 +978,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 #define strm_ihandle  strm_other[1]  # Input-Handle immer als zweite Komponente
 #define strm_ohandle  strm_other[2]  # Output-Handle immer als dritte Komponente
 
-# Daß beim Input EOF erreicht ist, erkennt man an
+# Dass beim Input EOF erreicht ist, erkennt man an
 # TheStream(stream)->strm_rd_ch_last = eof_value.
 
 # READ-CHAR - Pseudofunktion für Handle-Streams:
@@ -1025,7 +1025,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
             OS_error();
           }
         if (ergebnis==0)
-          # kein Zeichen verfügbar -> muß EOF sein
+          # kein Zeichen verfügbar -> muss EOF sein
           { return eof_value; }
           else
           {
@@ -1147,7 +1147,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
       # versuche die Zahl der verfügbaren Zeichen abzufragen:
       {var unsigned long chars_ready;
        if ( ioctl(handle,FIONREAD,&chars_ready) <0) # abfragen
-         # Abfrage mißlungen, war wohl kein File
+         # Abfrage misslungen, war wohl kein File
          { if (!((errno == ENOTTY)
                  || (errno == EINVAL)
                  #ifdef ENOSYS # for UNIX_IRIX
@@ -2567,7 +2567,7 @@ local object make_key_event(event)
           if (!( ioctl(stdin_handle,TCGETA,&oldtermio) ==0))
             { if (!(errno==ENOTTY)) { OS_error(); } }
           #endif
-          # Wir gehen nun davon aus, daß oldtermio nun mit dem newtermio aus
+          # Wir gehen nun davon aus, dass oldtermio nun mit dem newtermio aus
           # term_raw() (s.u.) identisch ist. Das ist dann gewährleistet, wenn
           # 1. (SYS::TERMINAL-RAW T) aufgerufen wurde und
           # 2. stdin_handle und stdout_handle beide dasselbe Terminal sind. ??
@@ -2607,7 +2607,7 @@ local object make_key_event(event)
         #else
         # Man könnte hier fcntl(stdin_handle,F_SETFL,...|FASYNC) verwenden
         # und auf Signal SIGIO warten. Allerdings funktioniert das auf so
-        # wenigen Systemen (siehe Emacs), daß es sich wohl nicht lohnt.
+        # wenigen Systemen (siehe Emacs), dass es sich wohl nicht lohnt.
         #endif
         #endif
         goto read_next_char;
@@ -3042,7 +3042,7 @@ LISPFUNN(make_keyboard_stream,0)
 # sich bei Standard-Input um ein Terminal handelt oder nicht.
 # Ob Standard-Output ein Terminal ist oder nicht, ist hier irrelevant.
 # Relevant ist nur, ob Standard-Input und Standard-Output dasselbe Terminal
-# sind; in diesem Falle nehmen wir an, daß nach Beendigung einer Eingabezeile
+# sind; in diesem Falle nehmen wir an, dass nach Beendigung einer Eingabezeile
 # (durch NL) von Standard-Input der Cursor von Standard-Output in Spalte 0
 # steht, und in diesem Falle können wir auch die GNU readline()-Library
 # benutzen.
@@ -3183,7 +3183,7 @@ LISPFUNN(make_keyboard_stream,0)
       #endif
       # Wenn stdin und stdout beide dasselbe Terminal sind,
       # und wir lesen ein NL, so können wir davon ausgehen,
-      # daß der Cursor danach in Spalte 0 steht.
+      # dass der Cursor danach in Spalte 0 steht.
       if (eq(ch,code_char(NL)))
         { var object stream = *stream_;
           if (eq(TheStream(stream)->strm_terminal_isatty,S(equal)))
@@ -3303,7 +3303,7 @@ LISPFUNN(make_keyboard_stream,0)
               fixnum_inc(TheStream(stream)->strm_terminal_index,1); # Index erhöhen
             return code_char(TheSstring(TheIarray(inbuff)->data)->data[index]); # nächstes Character
           }
-        # index=count -> muß eine ganze Zeile von Tastatur lesen:
+        # index=count -> muss eine ganze Zeile von Tastatur lesen:
         TheStream(stream)->strm_terminal_index = Fixnum_0; # index := 0
         TheIarray(inbuff)->dims[1] = 0; # count := 0
       }
@@ -3343,7 +3343,7 @@ LISPFUNN(make_keyboard_stream,0)
        #endif
        # Wenn stdin und stdout beide dasselbe Terminal sind,
        # und wir lesen ein NL, so können wir davon ausgehen,
-       # daß der Cursor danach in Spalte 0 steht.
+       # dass der Cursor danach in Spalte 0 steht.
        if (c==NL)
          { if (eq(TheStream(stream)->strm_terminal_isatty,S(equal)))
              { TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; }
@@ -3480,7 +3480,7 @@ LISPFUNN(make_keyboard_stream,0)
               fixnum_inc(TheStream(stream)->strm_terminal_index,1); # Index erhöhen
             return code_char(TheSstring(TheIarray(inbuff)->data)->data[index]); # nächstes Character
           }
-        # index=count -> muß eine ganze Zeile von Tastatur lesen:
+        # index=count -> muss eine ganze Zeile von Tastatur lesen:
         TheStream(stream)->strm_terminal_index = Fixnum_0; # index := 0
         TheIarray(inbuff)->dims[1] = 0; # count := 0
       }
@@ -3540,7 +3540,7 @@ LISPFUNN(make_keyboard_stream,0)
         begin_system_call(); free(line); end_system_call();
       }}
       # Wenn stdin und stdout beide dasselbe Terminal sind, können
-      # wir davon ausgehen, daß der Cursor in Spalte 0 steht.
+      # wir davon ausgehen, dass der Cursor in Spalte 0 steht.
       if (eq(TheStream(*stream_)->strm_terminal_isatty,S(equal)))
         { TheStream(*stream_)->strm_wr_ch_lpos = Fixnum_0;
           TheIarray(TheStream(*stream_)->strm_terminal_outbuff)->dims[1] = 0; # Fill-Pointer := 0
@@ -3917,7 +3917,7 @@ LISPFUNN(make_keyboard_stream,0)
 #   ;              C-S   C-Q      Del     C-U       C-W      C-R      C-O      C-V     C-Y     C-C     C-\      C-Q     C-S    C-D
 #   (shell "stty -ixon -ixoff erase ^- kill ^- werase ^- rprnt ^- flush ^- lnext ^- susp ^- intr ^- quit ^- start ^- stop ^- eof ^-")
 #   ; 1 Zeichen auf einmal verlangen (nicht 4!):
-#   (shell "stty min 1") ; das muß seltsamerweise zuletzt kommen...
+#   (shell "stty min 1") ; das muss seltsamerweise zuletzt kommen...
 # )
 # (SYS::TERMINAL-RAW *terminal-io* nil) entspricht im wesentlichen
 # (shell "stty sane")
@@ -5299,7 +5299,7 @@ typedef struct { uintB** image; # image[y][x] ist das Zeichen an Position (x,y)
           || ((old_attr & A_DI) && !(new_attr & A_DI))
           || ((old_attr & A_RV) && !(new_attr & A_RV))
          )
-        # Muß Attribute ausschalten.
+        # Muss Attribute ausschalten.
         { out_capstring(UEcap); # alle aus
           out_capstring(SEcap);
           out_capstring(MEcap);
@@ -7405,7 +7405,7 @@ LISPFUNN(window_cursor_off,1)
           #endif
           end_system_call();
           # Nicht alles geschrieben, wohl wegen voller Diskette.
-          # Um Inkonsistenzen zu vermeiden, muß man das File schließen.
+          # Um Inkonsistenzen zu vermeiden, muss man das File schließen.
           reset_modified_flag(stream); # Hierbei gehen Daten verloren!
           pushSTACK(stream);
           stream_close(&STACK_0); # File schließen
@@ -7471,7 +7471,7 @@ LISPFUNN(window_cursor_off,1)
         { b_file_half_flush(stream); }
     }
 
-# UP: Positioniert einen Byte-basierten File-Stream so, daß das nächste Byte
+# UP: Positioniert einen Byte-basierten File-Stream so, dass das nächste Byte
 # gelesen oder überschrieben werden kann.
 # b_file_nextbyte(stream)
 # > stream : (offener) Byte-basierter File-Stream.
@@ -7496,9 +7496,9 @@ LISPFUNN(window_cursor_off,1)
       if (!((uintW)posfixnum_to_L(index) == strm_file_bufflen)) # index = bufflen ?
         # nein, also 0 <= index < strm_file_bufflen -> OK
         { return &TheSstring(TheStream(stream)->strm_file_buffer)->data[(uintW)posfixnum_to_L(index)]; }
-      # Buffer muß neu gefüllt werden.
+      # Buffer muss neu gefüllt werden.
       if (modified_flag(stream))
-        # Zuvor muß der Buffer hinausgeschrieben werden:
+        # Zuvor muss der Buffer hinausgeschrieben werden:
         { b_file_full_flush(stream); }
       TheStream(stream)->strm_file_buffstart =
         fixnum_inc(TheStream(stream)->strm_file_buffstart,strm_file_bufflen);
@@ -7548,7 +7548,7 @@ LISPFUNN(window_cursor_off,1)
              fixnum(strm_file_bufflen)
          )  )
         # eofindex = strm_file_bufflen
-        { # Buffer muß neu gefüllt werden. Da nach ihm sowieso EOF kommt,
+        { # Buffer muss neu gefüllt werden. Da nach ihm sowieso EOF kommt,
           # genügt es, ihn hinauszuschreiben:
           if (modified_flag(stream)) { b_file_half_flush(stream); }
           TheStream(stream)->strm_file_buffstart =
@@ -7658,7 +7658,7 @@ LISPFUNN(window_cursor_off,1)
                 # Jetzt ist index=0.
                 # index auf (position mod bufflen) setzen, vorher überprüfen:
                {var object eofindex = TheStream(stream)->strm_file_eofindex;
-                # Es muß entweder eofindex=T oder 0<=newindex<=eofindex sein:
+                # Es muss entweder eofindex=T oder 0<=newindex<=eofindex sein:
                 if (!(eq(eofindex,T) || (newindex <= posfixnum_to_L(eofindex))))
                   # Fehler. Aber erst an die alte Position zurückpositionieren:
                   { check_SP();
@@ -7744,7 +7744,7 @@ LISPFUNN(window_cursor_off,1)
     var const object* stream_;
     var object obj;
     { var object stream = *stream_;
-      # obj muß ein Character sein:
+      # obj muss ein Character sein:
       if (!charp(obj)) { fehler_wr_char(stream,obj); }
      {var uintB ch = char_code(obj);
       #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
@@ -7792,7 +7792,7 @@ LISPFUNN(window_cursor_off,1)
         { ptr = b_file_nextbyte(stream);
           if (ptr == (uintB*)NULL) goto eof_reached;
          {var object eofindex = TheStream(stream)->strm_file_eofindex;
-          var uintL next = # so viel wie noch in den Buffer oder bis EOF paßt
+          var uintL next = # so viel wie noch in den Buffer oder bis EOF passt
             (eq(eofindex,T) ? strm_file_bufflen : posfixnum_to_L(eofindex))
             - (uintW)posfixnum_to_L(TheStream(stream)->strm_file_index); # > 0 !
           if (next > remaining) { next = remaining; }
@@ -7817,7 +7817,7 @@ LISPFUNN(window_cursor_off,1)
               strm_file_bufflen
               - (uintW)posfixnum_to_L(TheStream(stream)->strm_file_index);
             if (next==0)
-              { # Buffer muß neu gefüllt werden. Da nach ihm sowieso EOF kommt,
+              { # Buffer muss neu gefüllt werden. Da nach ihm sowieso EOF kommt,
                 # genügt es, ihn hinauszuschreiben:
                 if (modified_flag(stream)) { b_file_half_flush(stream); }
                 TheStream(stream)->strm_file_buffstart =
@@ -8003,7 +8003,7 @@ LISPFUNN(window_cursor_off,1)
       if (!(*bitbufferptr & bit(signbitnr)))
         { sign = 0;
           *bitbufferptr &= (bitm(signbitnr+1)-1); # High byte sign-extenden
-          # normalisieren, höchstes Bit muß 0 bleiben:
+          # normalisieren, höchstes Bit muss 0 bleiben:
           while ((count>=2) && (*bitbufferptr==0) && !(*(bitbufferptr+1) & bit(7)))
             { count--; bitbufferptr++; }
           # Zahl bilden:
@@ -8021,7 +8021,7 @@ LISPFUNN(window_cursor_off,1)
         else
         { sign = -1;
           *bitbufferptr |= minus_bitm(signbitnr+1); # High byte sign-extenden
-          # normalisieren, höchstes Bit muß 1 bleiben:
+          # normalisieren, höchstes Bit muss 1 bleiben:
           while ((count>=2) && (*bitbufferptr==(uintB)(-1)) && (*(bitbufferptr+1) & bit(7)))
             { count--; bitbufferptr++; }
           # Zahl bilden:
@@ -8576,7 +8576,7 @@ LISPFUNN(window_cursor_off,1)
         { ptr = b_file_nextbyte(stream);
           if (ptr == (uintB*)NULL) goto eof_reached;
          {var object eofindex = TheStream(stream)->strm_file_eofindex;
-          var uintL next = # so viel wie noch in den Buffer oder bis EOF paßt
+          var uintL next = # so viel wie noch in den Buffer oder bis EOF passt
             (eq(eofindex,T) ? strm_file_bufflen : posfixnum_to_L(eofindex))
             - (uintW)posfixnum_to_L(TheStream(stream)->strm_file_index); # > 0 !
           if (next > remaining) { next = remaining; }
@@ -8601,7 +8601,7 @@ LISPFUNN(window_cursor_off,1)
               strm_file_bufflen
               - (uintW)posfixnum_to_L(TheStream(stream)->strm_file_index);
             if (next==0)
-              { # Buffer muß neu gefüllt werden. Da nach ihm sowieso EOF kommt,
+              { # Buffer muss neu gefüllt werden. Da nach ihm sowieso EOF kommt,
                 # genügt es, ihn hinauszuschreiben:
                 if (modified_flag(stream)) { b_file_half_flush(stream); }
                 TheStream(stream)->strm_file_buffstart =
@@ -9407,7 +9407,7 @@ LISPFUNN(make_synonym_stream,1)
         pushSTACK(S(symbol)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Argument muß ein Symbol sein, nicht ~" :
+               DEUTSCH ? "~: Argument muss ein Symbol sein, nicht ~" :
                ENGLISH ? "~: argument should be a symbol, not ~" :
                FRANCAIS ? "~ : L'argument doit être un symbole et non ~":
                ""
@@ -10243,7 +10243,7 @@ LISPFUN(make_string_input_stream,1,2,norest,nokey,0,NIL)
 LISPFUNN(string_input_stream_index,1)
 # (SYSTEM::STRING-INPUT-STREAM-INDEX string-input-stream) liefert den Index
   { var object stream = popSTACK(); # Argument
-    # muß ein String-Input-Stream sein:
+    # muss ein String-Input-Stream sein:
     if (!(streamp(stream) && (TheStream(stream)->strmtype == strmtype_str_in)))
       { pushSTACK(stream);
         pushSTACK(TheSubr(subr_self)->name);
@@ -10383,7 +10383,7 @@ LISPFUN(make_string_output_stream,0,0,norest,key,2, (kw(element_type),kw(line_po
 LISPFUNN(get_output_stream_string,1)
 # (GET-OUTPUT-STREAM-STRING string-output-stream), CLTL S. 330
   { var object stream = STACK_0; # Argument
-    # muß ein String-Output-Stream sein:
+    # muss ein String-Output-Stream sein:
     if (!(streamp(stream) && (TheStream(stream)->strmtype == strmtype_str_out)))
       { # stream in STACK_0
         pushSTACK(TheSubr(subr_self)->name);
@@ -10423,13 +10423,13 @@ LISPFUNN(get_output_stream_string,1)
 # äquivalent ist.
 LISPFUNN(make_string_push_stream,1)
   { {var object arg = STACK_0; # Argument
-     # muß ein String mit Fill-Pointer sein:
+     # muss ein String mit Fill-Pointer sein:
      if (!(stringp(arg) && array_has_fill_pointer_p(arg)))
        { pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
          pushSTACK(O(type_string_with_fill_pointer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
          pushSTACK(S(with_output_to_string));
          fehler(type_error,
-                DEUTSCH ? "~: Argument muß ein String mit Fill-Pointer sein, nicht ~" :
+                DEUTSCH ? "~: Argument muss ein String mit Fill-Pointer sein, nicht ~" :
                 ENGLISH ? "~: argument ~ should be a string with fill pointer" :
                 FRANCAIS ? "~ : L'argument doit être une chaîne munie d'un pointeur de remplissage et non ~." :
                 ""
@@ -10725,7 +10725,7 @@ LISPFUNN(make_buffered_input_stream,2)
 LISPFUNN(buffered_input_stream_index,1)
 # (SYSTEM::BUFFERED-INPUT-STREAM-INDEX buffered-input-stream) liefert den Index
   { var object stream = popSTACK(); # Argument
-    # muß ein Buffered-Input-Stream sein:
+    # muss ein Buffered-Input-Stream sein:
     if (!(streamp(stream) && (TheStream(stream)->strmtype == strmtype_buff_in)))
       { pushSTACK(stream);
         pushSTACK(TheSubr(subr_self)->name);
@@ -10939,7 +10939,7 @@ LISPFUNN(make_printer_stream,0)
 # =================
 
 # Zusätzliche Komponenten:
-  # define strm_pipe_pid       strm_other[3] # Prozeß-Id, ein Fixnum >=0
+  # define strm_pipe_pid       strm_other[3] # Prozess-Id, ein Fixnum >=0
   #define strm_pipe_in_handle  strm_ihandle  # Handle für Input
   #if defined(EMUNIX) && defined(PIPES2)
   #define strm_pipe_in_other   strm_ohandle  # Pipe-Stream in Gegenrichtung
@@ -10969,7 +10969,7 @@ LISPFUNN(make_printer_stream,0)
             begin_system_call();
             if ( fclose(&_streamv[handle]) != 0) { OS_error(); }
             end_system_call();
-            # Die Pipes sind nun getrennt, so daß beim Schließen der anderen
+            # Die Pipes sind nun getrennt, so dass beim Schließen der anderen
             # Pipe das pclose() ausgeführt werden wird.
             return;
           }
@@ -11031,16 +11031,16 @@ LISPFUNN(make_pipe_input_stream,1)
       #       write            system            read
       # child  ->   handles[1]   ->   handles[0]  ->  parent
       #
-      # einen neuen Prozeß starten:
+      # einen neuen Prozess starten:
       if ((child = vfork()) ==0)
-        # Dieses Programmstück wird vom Child-Prozeß ausgeführt:
+        # Dieses Programmstück wird vom Child-Prozess ausgeführt:
         { if ( dup2(handles[1],stdout_handle) >=0) # Standard-Output umleiten
             if ( CLOSE(handles[1]) ==0) # Wir wollen nur über stdout_handle schreiben
               if ( CLOSE(handles[0]) ==0) # Wir wollen von der Pipe nicht lesen
-                # (Muß das dem Betriebssystem sagen, damit - wenn der Child
-                # die Pipe gefüllt hat - der Parent-Prozeß und nicht etwa der
-                # Child-Prozeß aufgerufen wird, um die Pipe zu leeren.)
-                { # Child-Prozeß zum Hintergrundprozeß machen:
+                # (Muss das dem Betriebssystem sagen, damit - wenn der Child
+                # die Pipe gefüllt hat - der Parent-Prozess und nicht etwa der
+                # Child-Prozess aufgerufen wird, um die Pipe zu leeren.)
+                { # Child-Prozess zum Hintergrundprozess machen:
                   SETSID(); # er bekommt eine eigene Process Group
                   execl(SHELL,            # Shell aufrufen
                         SHELL,            # =: argv[0]
@@ -11049,11 +11049,11 @@ LISPFUNN(make_pipe_input_stream,1)
                         NULL
                        );
                 }
-          _exit(-1); # sollte dies mißlingen, Child-Prozeß beenden
+          _exit(-1); # sollte dies misslingen, Child-Prozess beenden
         }
       # Dieses Programmstück wird wieder vom Aufrufer ausgeführt:
       if (child==-1)
-        # Etwas ist mißlungen, entweder beim vfork oder beim execl.
+        # Etwas ist misslungen, entweder beim vfork oder beim execl.
         # In beiden Fällen wurde errno gesetzt.
         { var int saved_errno = errno;
           CLOSE(handles[1]); CLOSE(handles[0]);
@@ -11067,9 +11067,9 @@ LISPFUNN(make_pipe_input_stream,1)
           FREE_DYNAMIC_ARRAY(command_data);
           errno = saved_errno; OS_error();
         }
-      # (Muß das dem Betriebssystem sagen, damit - wenn der Parent-Prozeß
-      # die Pipe geleert hat - der Child-Prozeß und nicht etwa der
-      # Parent-Prozeß aufgerufen wird, um die Pipe wieder zu füllen.)
+      # (Muss das dem Betriebssystem sagen, damit - wenn der Parent-Prozess
+      # die Pipe geleert hat - der Child-Prozess und nicht etwa der
+      # Parent-Prozess aufgerufen wird, um die Pipe wieder zu füllen.)
       end_system_call();
       FREE_DYNAMIC_ARRAY(command_data);
     }
@@ -11126,7 +11126,7 @@ LISPFUNN(make_pipe_input_stream,1)
 # ==================
 
 # Zusätzliche Komponenten:
-  # define strm_pipe_pid          strm_other[3] # Prozeß-Id, ein Fixnum >=0
+  # define strm_pipe_pid          strm_other[3] # Prozess-Id, ein Fixnum >=0
   #define strm_pipe_out_handle    strm_ohandle  # Handle für Output
   #if defined(EMUNIX) && defined(PIPES2)
   # define strm_pipe_out_other    strm_ihandle  # Pipe-Stream in Gegenrichtung
@@ -11160,7 +11160,7 @@ LISPFUNN(make_pipe_input_stream,1)
             begin_system_call();
             if ( fclose(&_streamv[handle]) != 0) { OS_error(); }
             end_system_call();
-            # Die Pipes sind nun getrennt, so daß beim Schließen der anderen
+            # Die Pipes sind nun getrennt, so dass beim Schließen der anderen
             # Pipe das pclose() ausgeführt werden wird.
             return;
           }
@@ -11212,16 +11212,16 @@ LISPFUNN(make_pipe_output_stream,1)
       #        write            system            read
       # parent  ->   handles[1]   ->   handles[0]  ->  child
       #
-      # einen neuen Prozeß starten:
+      # einen neuen Prozess starten:
       if ((child = vfork()) ==0)
-        # Dieses Programmstück wird vom Child-Prozeß ausgeführt:
+        # Dieses Programmstück wird vom Child-Prozess ausgeführt:
         { if ( dup2(handles[0],stdin_handle) >=0) # Standard-Input umleiten
             if ( CLOSE(handles[0]) ==0) # Wir wollen nur über stdin_handle lesen
               if ( CLOSE(handles[1]) ==0) # Wir wollen auf die Pipe nicht schreiben
-                # (Muß das dem Betriebssystem sagen, damit - wenn der Child
-                # die Pipe geleert hat - der Parent-Prozeß und nicht etwa der
-                # Child-Prozeß aufgerufen wird, um die Pipe zu wieder zu füllen.)
-                { # Child-Prozeß zum Hintergrundprozeß machen:
+                # (Muss das dem Betriebssystem sagen, damit - wenn der Child
+                # die Pipe geleert hat - der Parent-Prozess und nicht etwa der
+                # Child-Prozess aufgerufen wird, um die Pipe zu wieder zu füllen.)
+                { # Child-Prozess zum Hintergrundprozess machen:
                   SETSID(); # er bekommt eine eigene Process Group
                   execl(SHELL,            # Shell aufrufen
                         SHELL,            # =: argv[0]
@@ -11230,11 +11230,11 @@ LISPFUNN(make_pipe_output_stream,1)
                         NULL
                        );
                 }
-          _exit(-1); # sollte dies mißlingen, Child-Prozeß beenden
+          _exit(-1); # sollte dies misslingen, Child-Prozess beenden
         }
       # Dieses Programmstück wird wieder vom Aufrufer ausgeführt:
       if (child==-1)
-        # Etwas ist mißlungen, entweder beim vfork oder beim execl.
+        # Etwas ist misslungen, entweder beim vfork oder beim execl.
         # In beiden Fällen wurde errno gesetzt.
         { var int saved_errno = errno;
           CLOSE(handles[1]); CLOSE(handles[0]);
@@ -11248,9 +11248,9 @@ LISPFUNN(make_pipe_output_stream,1)
           FREE_DYNAMIC_ARRAY(command_data);
           errno = saved_errno; OS_error();
         }
-      # (Muß das dem Betriebssystem sagen, damit - wenn der Parent-Prozeß
-      # die Pipe gefüllt hat - der Child-Prozeß und nicht etwa der
-      # Parent-Prozeß aufgerufen wird, um die Pipe wieder zu leeren.)
+      # (Muss das dem Betriebssystem sagen, damit - wenn der Parent-Prozess
+      # die Pipe gefüllt hat - der Child-Prozess und nicht etwa der
+      # Parent-Prozess aufgerufen wird, um die Pipe wieder zu leeren.)
       end_system_call();
       FREE_DYNAMIC_ARRAY(command_data);
     }
@@ -11358,22 +11358,22 @@ LISPFUNN(make_pipe_io_stream,1)
       # parent  <-   in_handles[0]    <-   in_handles[1]   <-   child
       #        read                 system                write
       #
-      # einen neuen Prozeß starten:
+      # einen neuen Prozess starten:
       if ((child = vfork()) ==0)
-        # Dieses Programmstück wird vom Child-Prozeß ausgeführt:
+        # Dieses Programmstück wird vom Child-Prozess ausgeführt:
         { if ( dup2(out_handles[0],stdin_handle) >=0) # Standard-Input umleiten
             if ( dup2(in_handles[1],stdout_handle) >=0) # Standard-Output umleiten
               if ( CLOSE(out_handles[0]) ==0) # Wir wollen nur über stdin_handle lesen
                 if ( CLOSE(in_handles[1]) ==0) # Wir wollen nur über stdout_handle schreiben
                   if ( CLOSE(out_handles[1]) ==0) # Wir wollen auf die Pipe nicht schreiben
-                    # (Muß das dem Betriebssystem sagen, damit - wenn der Child
-                    # die Pipe geleert hat - der Parent-Prozeß und nicht etwa der
-                    # Child-Prozeß aufgerufen wird, um die Pipe zu wieder zu füllen.)
+                    # (Muss das dem Betriebssystem sagen, damit - wenn der Child
+                    # die Pipe geleert hat - der Parent-Prozess und nicht etwa der
+                    # Child-Prozess aufgerufen wird, um die Pipe zu wieder zu füllen.)
                     if ( CLOSE(in_handles[0]) ==0) # Wir wollen von der Pipe nicht lesen
-                      # (Muß das dem Betriebssystem sagen, damit - wenn der Child
-                      # die Pipe gefüllt hat - der Parent-Prozeß und nicht etwa der
-                      # Child-Prozeß aufgerufen wird, um die Pipe zu leeren.)
-                      { # Child-Prozeß zum Hintergrundprozeß machen:
+                      # (Muss das dem Betriebssystem sagen, damit - wenn der Child
+                      # die Pipe gefüllt hat - der Parent-Prozess und nicht etwa der
+                      # Child-Prozess aufgerufen wird, um die Pipe zu leeren.)
+                      { # Child-Prozess zum Hintergrundprozess machen:
                         SETSID(); # er bekommt eine eigene Process Group
                         execl(SHELL,            # Shell aufrufen
                               SHELL,            # =: argv[0]
@@ -11382,11 +11382,11 @@ LISPFUNN(make_pipe_io_stream,1)
                               NULL
                              );
                       }
-          _exit(-1); # sollte dies mißlingen, Child-Prozeß beenden
+          _exit(-1); # sollte dies misslingen, Child-Prozess beenden
         }
       # Dieses Programmstück wird wieder vom Aufrufer ausgeführt:
       if (child==-1)
-        # Etwas ist mißlungen, entweder beim vfork oder beim execl.
+        # Etwas ist misslungen, entweder beim vfork oder beim execl.
         # In beiden Fällen wurde errno gesetzt.
         { var int saved_errno = errno;
           CLOSE(in_handles[1]); CLOSE(in_handles[0]);
@@ -11402,9 +11402,9 @@ LISPFUNN(make_pipe_io_stream,1)
           FREE_DYNAMIC_ARRAY(command_data);
           errno = saved_errno; OS_error();
         }
-      # (Muß das dem Betriebssystem sagen, damit - wenn der Parent-Prozeß
-      # die Pipe gefüllt hat - der Child-Prozeß und nicht etwa der
-      # Parent-Prozeß aufgerufen wird, um die Pipe wieder zu leeren.)
+      # (Muss das dem Betriebssystem sagen, damit - wenn der Parent-Prozess
+      # die Pipe gefüllt hat - der Child-Prozess und nicht etwa der
+      # Parent-Prozess aufgerufen wird, um die Pipe wieder zu leeren.)
       # Wir wollen von der Pipe nur lesen, nicht schreiben:
       if (!( CLOSE(in_handles[1]) ==0))
         { var int saved_errno = errno;
@@ -11413,9 +11413,9 @@ LISPFUNN(make_pipe_io_stream,1)
           FREE_DYNAMIC_ARRAY(command_data);
           errno = saved_errno; OS_error();
         }
-      # (Muß das dem Betriebssystem sagen, damit - wenn der Parent-Prozeß
-      # die Pipe geleert hat - der Child-Prozeß und nicht etwa der
-      # Parent-Prozeß aufgerufen wird, um die Pipe wieder zu füllen.)
+      # (Muss das dem Betriebssystem sagen, damit - wenn der Parent-Prozess
+      # die Pipe geleert hat - der Child-Prozess und nicht etwa der
+      # Parent-Prozess aufgerufen wird, um die Pipe wieder zu füllen.)
       end_system_call();
       FREE_DYNAMIC_ARRAY(command_data);
     }
@@ -11534,7 +11534,7 @@ LISPFUNN(make_pipe_io_stream,1)
             }
           end_system_call();
           if (ergebnis==0)
-            # kein Zeichen verfügbar -> muß EOF sein
+            # kein Zeichen verfügbar -> muss EOF sein
             { return eof_value; }
             else
             { return code_char(c); }
@@ -11771,7 +11771,7 @@ LISPFUNN(make_x11socket_stream,2)
         pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(STACK_(1+2));
         fehler(type_error,
-               DEUTSCH ? "Host muß ein String sein, nicht ~" :
+               DEUTSCH ? "Host muss ein String sein, nicht ~" :
                ENGLISH ? "host should be string, not ~" :
                FRANCAIS ? "L'hôte devrait être un chaîne et non ~" :
                ""
@@ -11857,7 +11857,7 @@ LISPFUNN(make_x11socket_stream,2)
          { pushSTACK(stream);
            pushSTACK(TheSubr(subr_self)->name);
            fehler(error,
-                  DEUTSCH ? "~: Stream muß ein Socket-Stream sein, nicht ~" :
+                  DEUTSCH ? "~: Stream muss ein Socket-Stream sein, nicht ~" :
                   ENGLISH ? "~: stream must be a socket-stream, not ~" :
                   FRANCAIS ? "~ : Le stream doit être un «socket-stream» et non ~" :
                   ""
@@ -12404,7 +12404,7 @@ LISPFUNN(generic_stream_controller,1)
       { pushSTACK(stream);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
-               DEUTSCH ? "~: Stream muß ein Generic-Stream sein, nicht ~" :
+               DEUTSCH ? "~: Stream muss ein Generic-Stream sein, nicht ~" :
                ENGLISH ? "~: stream must be a generic-stream, not ~" :
                FRANCAIS ? "~ : Le stream doit être un «generic-stream» et non ~" :
                ""
@@ -13015,7 +13015,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
 # (CLOSE stream :abort), CLTL S. 332
   { skipSTACK(1); # :ABORT-Argument ignorieren
    {var object stream = STACK_0; # Argument
-    if (!streamp(stream)) { fehler_stream(stream); } # muß ein Stream sein
+    if (!streamp(stream)) { fehler_stream(stream); } # muss ein Stream sein
     stream_close(&STACK_0); # schließen
     skipSTACK(1);
     value1 = T; mv_count=1; # T als Ergebnis
@@ -13179,7 +13179,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
         }
       stream = popSTACK();
       if (ergebnis)
-        # Input wurde gelöscht -> auch das Lastchar muß gelöscht werden.
+        # Input wurde gelöscht -> auch das Lastchar muss gelöscht werden.
         # Dabei wird auch ein schon gesehenes EOF vergessen.
         { TheStream(stream)->strm_rd_ch_last = NIL;
           TheStream(stream)->strmflags &= ~strmflags_unread_B;
@@ -13845,7 +13845,7 @@ LISPFUNN(write_byte,2)
         pushSTACK(obj);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Argument muß ein offener File-Stream sein, nicht ~" :
+               DEUTSCH ? "~: Argument muss ein offener File-Stream sein, nicht ~" :
                ENGLISH ? "~: argument ~ is not an open file stream" :
                FRANCAIS ? "~ : L'argument ~ doit être un «stream» ouvert sur un fichier." :
                ""
@@ -13877,7 +13877,7 @@ LISPFUN(file_position,1,1,norest,nokey,0,NIL)
             pushSTACK(position); pushSTACK(S(Kend)); pushSTACK(S(Kstart));
             pushSTACK(TheSubr(subr_self)->name);
             fehler(type_error,
-                   DEUTSCH ? "~: Position-Argument muß ~ oder ~ oder ein Fixnum >=0 sein, nicht ~" :
+                   DEUTSCH ? "~: Position-Argument muss ~ oder ~ oder ein Fixnum >=0 sein, nicht ~" :
                    ENGLISH ? "~: position argument should be ~ or ~ or a nonnegative fixnum, not ~" :
                    FRANCAIS ? "~ : L'argument position doit être ~, ~ ou de type FIXNUM positif ou zéro, mais non ~." :
                    ""

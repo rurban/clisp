@@ -318,7 +318,7 @@ local handle_fault_result handle_fault(address)
 
 #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED_BLOCKS)) || defined(SELFMADE_MMAP)
 # Systemaufrufe wie read() und write() melden kein SIGSEGV, sondern EFAULT.
-# handle_fault_range(PROT_READ,start,end) macht einen Adreﬂbereich lesbar,
+# handle_fault_range(PROT_READ,start,end) macht einen Adressbereich lesbar,
 # handle_fault_range(PROT_READ_WRITE,start,end) macht ihn schreibbar.
 global boolean handle_fault_range (int prot, aint start_address, aint end_address);
 global boolean handle_fault_range(prot,start_address,end_address)
@@ -331,7 +331,7 @@ global boolean handle_fault_range(prot,start_address,end_address)
    {var Heap* heap = &mem.heaps[0]; # varobject_heap
     var boolean did_pagein = FALSE;
     if ((end_address <= heap->heap_mgen_start) || (heap->heap_mgen_end <= start_address))
-      return TRUE; # nichts zu tun, aber seltsam, daﬂ ¸berhaupt ein Fehler kam
+      return TRUE; # nichts zu tun, aber seltsam, dass ¸berhaupt ein Fehler kam
     #ifdef SELFMADE_MMAP
     if (heap->memfile_numpages > 0)
       { var aint pa_uaddress;

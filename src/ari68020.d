@@ -71,7 +71,7 @@ C(mulu32_:) ! Input in d0,d1, Output in d0,mulu32_high
 #ifndef __GNUC__ /* mit GNU-C machen wir divu_6432_3232() als Macro, der inline dividiert */
            .globl C(divu_6432_3232_)
 ! extern struct { uint32 q; uint32 r; } divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
-! x = 2^32*xhi+xlo = q*y+r schreiben. Sei bekannt, daﬂ 0 <= x < 2^32*y .
+! x = 2^32*xhi+xlo = q*y+r schreiben. Sei bekannt, dass 0 <= x < 2^32*y .
 C(divu_6432_3232_:) ! Input in d1,d0,d2, Output in d0,divu_32_rest
            movel $sp@(4),$d1
            movel $sp@(8),$d0

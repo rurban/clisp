@@ -35,10 +35,10 @@
 ; Bruno Haible, 04.12.1998:
 ;   - Optimierung generischer Funktionen durch RETGF
 ; Weitere Vorhaben:
-;   - Variablen-Environments so verändern, daß Aufruf von lokalen Funktionen
+;   - Variablen-Environments so verändern, dass Aufruf von lokalen Funktionen
 ;     mittels JSR/JMPTAIL möglich wird (d.h. nachträgliche Entscheidung, ob
 ;     Aufruf durch CALLC oder JSR)
-;   - evtl. bessere Optimierung durch Datenflußanalyse
+;   - evtl. bessere Optimierung durch Datenflussanalyse
 ;   - Inline-Compilation von Aufrufen lokaler Funktionen
 
 ; Zur Cross-Compilation (wahlweise mit #+CLISP oder #-CLISP):
@@ -395,7 +395,7 @@ Auflösung von Bezügen zwischen den einzelnen funktionalen Objekten.
      (GETVALUE N) (SETVALUE N) (BIND N) (UNBIND1 O) (UNBIND N) (PROGV O)
      ; (4) Stackoperationen
      (PUSH O) (POP O) (SKIP N) (SKIPI NNN) (SKIPSP NN)
-     ; (5) Programmfluß und Sprünge
+     ; (5) Programmfluss und Sprünge
      (SKIP&RET N) (SKIP&RETGF N)
      (JMP L) (JMPIF L) (JMPIFNOT L) (JMPIF1 L) (JMPIFNOT1 L)
      (JMPIFATOM L) (JMPIFCONSP L) (JMPIFEQ L) (JMPIFNOTEQ L)
@@ -541,7 +541,7 @@ Zwischensprache nach dem 1. Pass:
                                  stackz1 zum Stackzustand stackz2 zu kommen.
                                  STACK und die Werte A0/... bleiben unverändert.
 
-5. Programmfluß und Sprünge:
+5. Programmfluss und Sprünge:
 
 (RET)                            beendet die Funktion mit den Werten A0/...
 
@@ -652,7 +652,7 @@ Zwischensprache nach dem 1. Pass:
 (UNLIST n m)                     Liste A0 n mal verkürzen: -(STACK) := (car A0),
                                  A0 := (cdr A0). Bei den letzten m Mal darf A0
                                  schon zu Ende sein, dann -(STACK) := #<UNBOUND>
-                                 stattdessen. Am Schluß muß A0 = NIL sein,
+                                 stattdessen. Am Schluss muss A0 = NIL sein,
                                  undefinierte Werte. 0 <= m <= n.
 
 (UNLIST* n m)                    Liste A0 n mal verkürzen: -(STACK) := (car A0),
@@ -1766,26 +1766,26 @@ for-value   NIL oder T
 ;                      belegt n STACK-Einträge
 ;    (BIND n)        : einen Bindungsframe für n Variablen,
 ;                      belegt 1+2*n STACK-Einträge und 0 SP-Einträge
-;                      Muß bei Unwind explizit aufgelöst werden
+;                      Muss bei Unwind explizit aufgelöst werden
 ;    PROGV           : ein Bindungsframe für beliebig viele Variablen,
 ;                      belegt ? STACK-Einträge und 1 SP-Eintrag (Pointer über
 ;                      den Frame = alter STACK)
-;                      Muß bei Unwind explizit aufgelöst werden
+;                      Muss bei Unwind explizit aufgelöst werden
 ;    CATCH           : ein CATCH-Frame
 ;                      belegt 3 STACK-Einträge und 2+jmpbufsize SP-Einträge
 ;    UNWIND-PROTECT  : ein Unwind-Protect-Frame
 ;                      belegt 2 STACK-Einträge und 2+jmpbufsize SP-Einträge
-;                      Muß bei Unwind aufgelöst und der Cleanup ausgeführt
+;                      Muss bei Unwind aufgelöst und der Cleanup ausgeführt
 ;                      werden
 ;    CLEANUP         : während der Cleanup-Phase eines UNWIND-PROTECT
 ;                      belegt ? STACK-Einträge und 3 SP-Einträge
 ;                      (der untere ist Pointer über den Frame = alter STACK)
 ;    BLOCK           : ein BLOCK-Frame
 ;                      belegt 3 STACK-Einträge und 2+jmpbufsize SP-Einträge
-;                      Muß bei Unwind explizit aufgelöst werden
+;                      Muss bei Unwind explizit aufgelöst werden
 ;    (TAGBODY n)     : ein TAGBODY-Frame, der n Tags aufhebt
 ;                      belegt 3+n STACK-Einträge und 1+jmpbufsize SP-Einträge
-;                      Muß bei Unwind explizit aufgelöst werden
+;                      Muss bei Unwind explizit aufgelöst werden
 ;    MVCALLP         : Vorbereitung für MVCALL
 ;                      belegt 1 STACK-Eintrag und 1 SP-Eintrag (Pointer über
 ;                      FRAME = STACK)
@@ -1893,7 +1893,7 @@ for-value   NIL oder T
 
 ; (may-UNWIND stackz1 stackz2)
 ; stellt fest, ob (UNWIND stackz1 stackz2 for-value) legal ist. Dazu ist
-; notwendig, daß der Compiler über die Frames zwischen stackz1 und stackz2
+; notwendig, dass der Compiler über die Frames zwischen stackz1 und stackz2
 ; genau Bescheid weiß.
 (defun may-UNWIND (stackz1 stackz2)
   (loop
@@ -1908,7 +1908,7 @@ for-value   NIL oder T
 ; bestehend aus
 ; (SKIP n), (SKIPI k1 k2 n), (SKIPSP k1 k2), (VALUES0),
 ; (UNWIND-PROTECT-CLEANUP), (UNBIND1), (BLOCK-CLOSE), (TAGBODY-CLOSE).
-; Es muß - ausgehend von stackz1 - den Stack so bereinigen, daß danach der
+; Es muss - ausgehend von stackz1 - den Stack so bereinigen, dass danach der
 ; Stackzustand stackz2 vorliegt. Bei for-value=NIL können die Werte dabei
 ; weggeworfen werden.
 (defun expand-UNWIND (stackz1 stackz2 for-value
@@ -1999,9 +1999,9 @@ for-value   NIL oder T
 ; Gestalt.
 ; Damit ist eine Abbildung fi --> defi realisiert.
 ; defi = (SYSTEM::MACRO . expander)  bedeutet einen lokalen Macro.
-; defi = Closure                     bedeutet, daß defi die lokale
+; defi = Closure                     bedeutet, dass defi die lokale
 ;                                    Funktionsdefinition von fi ist
-; defi = NIL                         bedeutet, daß eine lokale Funktions-
+; defi = NIL                         bedeutet, dass eine lokale Funktions-
 ;                                    definition noch hineinkommt (vgl. LABELS)
 
 ; neu konstruiert:
@@ -2011,10 +2011,10 @@ for-value   NIL oder T
 ; #(f1 def1 ... fn defn NEXT-ENV), was eine Abbildung fi --> defi
 ; realisiert.
 ; defi = (SYSTEM::MACRO expander)  bedeutet einen lokalen Makro.
-; defi = (fdescr . var)            bedeutet, daß die lokale Funktionsdefinition
+; defi = (fdescr . var)            bedeutet, dass die lokale Funktionsdefinition
 ;           von fi zur Laufzeit in der lexikalischen Variablen var steckt.
 ;           fnode ist der zu fi gehörige fnode, anfangs noch NIL.
-; defi = (fdescr . const)          bedeutet, daß die lokale Funktionsdefinition
+; defi = (fdescr . const)          bedeutet, dass die lokale Funktionsdefinition
 ;           von fi autonom ist und in der Konstanten const steckt.
 ;           fnode ist der zu fi gehörige fnode, anfangs noch NIL.
 ; Dabei ist fdescr ein Cons (fnode . lambdadescr),
@@ -2235,7 +2235,7 @@ der Docstring (oder NIL).
 ;                    Diese Closure liegt im Stack; angegeben der
 ;                    Stackzustand, an der sie erreichbar ist.
 
-; Eine Variable wird beschrieben dadurch, daß sie entweder special ist oder
+; Eine Variable wird beschrieben dadurch, dass sie entweder special ist oder
 ; - falls lexikalisch - der Stackaufbau nach dem Anlegen der Variablen im Stack
 ; bzw. der Ort in der Closure festliegt.
 (defstruct (var (:copier nil))
@@ -2391,7 +2391,7 @@ der Docstring (oder NIL).
     simple-string simple-vector single-float standard-char stream string
     string-char symbol t vector
     ; zusätzliche Deklarationen:
-    compile ; Anweisung, daß die Form bzw. Funktion zu compilieren ist
+    compile ; Anweisung, dass die Form bzw. Funktion zu compilieren ist
     sys::source ; der Source-Lambdabody (unexpandiert) innerhalb eines Lambdabody
     sys::in-defun ; zeigt an, zu welcher globalen Funktion der Code gehört
     ignorable ; markiert Variablen als vielleicht ignorierbar
@@ -2544,9 +2544,9 @@ der Docstring (oder NIL).
                   ; dann eine Closure)
   ; Ab hier Beschreibungen für die kommende Closure:
   venvconst       ; Flag, ob das Venv dieser Funktion explizit beim Aufbau
-                  ; mitgegeben werden muß (oder immer NIL ist)
+                  ; mitgegeben werden muss (oder immer NIL ist)
   venvc           ; Aussehen des Venv, das dieser Funktion beim Aufbau
-                  ; mitgegeben werden muß (wenn überhaupt)
+                  ; mitgegeben werden muss (wenn überhaupt)
   Blocks-Offset   ; Anzahl der Konstanten bis hierher
   (Blocks nil)    ; Liste der Block-Konstrukte, die dieser Funktion beim Aufbau
                   ; mitgegeben werden müssen
@@ -2581,9 +2581,9 @@ der Docstring (oder NIL).
 ; Funktionen (Lambda-Ausdrücke):
 (defvar *anonymous-count*)
 
-; *no-code* = T besagt, daß kein Code produziert werden soll:
+; *no-code* = T besagt, dass kein Code produziert werden soll:
 (defvar *no-code*)
-; Dies verhindert, daß Variablen unnötigerweise in die Closure gesteckt oder
+; Dies verhindert, dass Variablen unnötigerweise in die Closure gesteckt oder
 ; Optimierungen unnötigerweise unterlassen werden.
 
 
@@ -2622,7 +2622,7 @@ der Docstring (oder NIL).
                       ; LAP-Code
 )
 #+CLISP (remprop 'anode 'sys::defstruct-description)
-; (make-anode ...) ist dasselbe wie mk-anode, nur daß dabei die Argumente
+; (make-anode ...) ist dasselbe wie mk-anode, nur dass dabei die Argumente
 ; mit Keywords markiert werden und wegen #+COMPILER-DEBUG unnötige
 ; Komponenten trotzdem dastehen dürfen.
 (eval-when (compile eval)
@@ -2646,9 +2646,9 @@ der Docstring (oder NIL).
 #|
 ; Eine Seiteneffekt-Klasse (SECLASS) ist ein Indikator:
 ; NIL : dieses ANODE produziert keine Seiteneffekte,
-;       sein Wert ist nicht von Seiteneffekten beeinflußbar.
+;       sein Wert ist nicht von Seiteneffekten beeinflussbar.
 ; VAL : dieses ANODE produziert keine Seiteneffekte,
-;       sein Wert ist aber von Seiteneffekten beeinflußbar.
+;       sein Wert ist aber von Seiteneffekten beeinflussbar.
 ; T   : dieses ANODE kann Seiteneffekte produzieren.
 ; Somit:
 ;   Falls der Wert uninteressant ist, kann ein ANODE mit SECLASS = NIL/VAL
@@ -2667,7 +2667,7 @@ der Docstring (oder NIL).
 (defun seclass-or-2 (seclass1 seclass2)
   (or (eq seclass1 'T) seclass2 seclass1)
 )
-; Damit die Liste der sub-anodes nicht gebildet werden muß, aber dennoch
+; Damit die Liste der sub-anodes nicht gebildet werden muss, aber dennoch
 ; der zu dieser Liste gehörige Seiteneffektklasse berechnet werden kann:
 (eval-when (compile eval)
   (defmacro anodes-seclass-or (&rest anodeforms)
@@ -2695,9 +2695,9 @@ der Docstring (oder NIL).
 |#
 
 ; Eine Seiteneffekt-Klasse (SECLASS) ist ein Indikator (uses . modifies):
-; uses = NIL : dieses Anode ist nicht von Seiteneffekten beeinflußbar,
+; uses = NIL : dieses Anode ist nicht von Seiteneffekten beeinflussbar,
 ;        Liste : dieses Anode ist vom Wert der Variablen in der Liste abhängig,
-;        T : dieses Anode ist möglicherweise von jedem Seiteneffekt beeinflußbar.
+;        T : dieses Anode ist möglicherweise von jedem Seiteneffekt beeinflussbar.
 ; modifies = NIL : dieses Anode produziert keine Seiteneffekte
 ;            Liste : ... produziert Seiteneffekte nur auf die Werte der
 ;                    Variablen in der Liste
@@ -2726,7 +2726,7 @@ der Docstring (oder NIL).
           (union (cdr seclass1) (cdr seclass2))
 ) )     )
 
-; Damit die Liste der sub-anodes nicht gebildet werden muß, aber dennoch
+; Damit die Liste der sub-anodes nicht gebildet werden muss, aber dennoch
 ; der zu dieser Liste gehörige Seiteneffektklasse berechnet werden kann:
 (eval-when (compile eval)
   (defmacro anodes-seclass-or (&rest anodeforms)
@@ -3120,7 +3120,7 @@ der Docstring (oder NIL).
     )  )
     hashtable
 ) )
-; Diese Tabelle muß alle Special-Forms enthalten:
+; Diese Tabelle muss alle Special-Forms enthalten:
 (do-all-symbols (sym)
   (when (and (special-operator-p sym) (not (gethash sym c-form-table)))
     (compiler-error 'c-form-table)
@@ -3223,7 +3223,7 @@ der Docstring (oder NIL).
 ; (c-form (macroexpand-form form)) == (c-form form).
 (defun macroexpand-form (form)
   ; Der Unterschied zu (values (macroexpand form (vector *venv* *fenv*)))
-  ; ist, daß wir hier Macros, die in c-form-table aufgeführt sind, nicht
+  ; ist, dass wir hier Macros, die in c-form-table aufgeführt sind, nicht
   ; als Macros expandieren.
   (tagbody
     reexpand
@@ -3606,7 +3606,7 @@ der Docstring (oder NIL).
 ;                         subr-flag call-code-producer)
 ; compiliert die Abarbeitung der Argumente für den Direktaufruf einer
 ; Funktion (d.h. ohne Argument-Check zur Laufzeit).
-; (test-argument-syntax ...) muß die Argumente bereits erfolgreich (d.h.
+; (test-argument-syntax ...) muss die Argumente bereits erfolgreich (d.h.
 ; mit Ergebnis NO-KEYS oder STATIC-KEYS) überprüft haben.
 ; args : Liste der Argumentformen,
 ; applyargs : falls angegeben, Liste einer Form für die weiteren Argumente,
@@ -3998,7 +3998,7 @@ der Docstring (oder NIL).
         )
         ; Constant-Folding: Ist fun foldable (also subr-flag = T und
         ; key-flag = NIL) und besteht codelist außer den (PUSH)s und dem
-        ; Call-Code am Schluß nur aus Anodes mit code = ((CONST ...)) ?
+        ; Call-Code am Schluss nur aus Anodes mit code = ((CONST ...)) ?
         (when (and foldable
                    (every #'(lambda (code)
                               (or (not (anode-p code)) (anode-constantp code))
@@ -4170,7 +4170,7 @@ der Docstring (oder NIL).
                              (seclass-or-f seclass anode)
                              (push anode codelist)
                            )
-                           (when args ; nicht am Schluß
+                           (when args ; nicht am Schluss
                              (push '(PUSH) codelist)
                              (push 1 *stackz*)
                          ) )
@@ -4685,14 +4685,14 @@ der Docstring (oder NIL).
 ; aufgerufen werden kann. (vorbehaltlich Syntax-Errors in der Lambdaliste)
 ; form sollte bereits macroexpandiert sein.
 (defun inline-callable-function-lambda-p (form n &optional (more nil))
-  ; muß von der Bauart (FUNCTION funname) sein
+  ; muss von der Bauart (FUNCTION funname) sein
   (and (consp form) (eq (first form) 'FUNCTION)
        (consp (cdr form)) (null (cddr form))
        (let ((funname (second form)))
-         ; funname muß von der Bauart (LAMBDA lambdalist ...) sein
+         ; funname muss von der Bauart (LAMBDA lambdalist ...) sein
          (and (consp funname) (eq (first funname) 'LAMBDA) (consp (cdr funname))
               (let ((lambdalist (second funname)))
-                ; lambdalist muß eine Liste sein, die kein &KEY enthält
+                ; lambdalist muss eine Liste sein, die kein &KEY enthält
                 ; (Funktionen mit &KEY werden nicht INLINE-expandiert, weil die
                 ; Zuordnung von den Argumenten zu den Variablen nur dynamisch,
                 ; mit GETF, möglich ist, und das kann die in Assembler
@@ -4723,7 +4723,7 @@ der Docstring (oder NIL).
       (and (consp form) (eq (first form) 'FUNCTION)
            (consp (cdr form)) (null (cddr form))
            (let ((fun (second form)))
-             ; fun muß ein Funktionsname mit Inline-Definition sein,
+             ; fun muss ein Funktionsname mit Inline-Definition sein,
              ; dann wird (FUNCALL form ...) später zu (fun ...)
              ; umgewandelt und inline compiliert werden.
              ; Siehe c-FUNCALL, c-FUNCTION-CALL, c-GLOBAL-FUNCTION-CALL.
@@ -4820,9 +4820,9 @@ der Docstring (oder NIL).
 
 ;; Es gibt zwei Arten von Variablen-Bindungs-Vorgehensweisen:
 ; 1. fixed-var: die Variable hat eine Position im Stack, darf nicht wegoptimiert
-;               werden. Ist die Variable dann doch in der Closure, so muß ihr
+;               werden. Ist die Variable dann doch in der Closure, so muss ihr
 ;               Wert dorthin übertragen werden; ist die Variable dynamisch, so
-;               muß ein Bindungsframe aufgemacht werden.
+;               muss ein Bindungsframe aufgemacht werden.
 ;               Auftreten: MULTIPLE-VALUE-BIND, Lambda-Ausdruck (required,
 ;               optional, rest, keyword - Parameter)
 ; 2. movable-var: die Variable darf wegoptimiert werden, falls sie konstant ist
@@ -4836,13 +4836,13 @@ der Docstring (oder NIL).
 
 ; Bindung einer fixed-var:
 ; symbol --> Variable
-; Läßt *stackz* unverändert.
+; Lässt *stackz* unverändert.
 (defun bind-fixed-var-1 (symbol)
   (if (or (constantp symbol)
           (proclaimed-special-p symbol)
           (member symbol *specials* :test #'eq)
       )
-    ; muß symbol dynamisch binden:
+    ; muss symbol dynamisch binden:
     (progn
       (when (l-constantp symbol)
         (catch 'c-error
@@ -4853,7 +4853,7 @@ der Docstring (oder NIL).
       ) ) )
       (make-special-var symbol)
     )
-    ; muß symbol lexikalisch binden:
+    ; muss symbol lexikalisch binden:
     (make-var :name symbol :specialp nil :constantp nil
               :usedp nil :for-value-usedp nil :really-usedp nil
               :closurep nil
@@ -4861,7 +4861,7 @@ der Docstring (oder NIL).
     )
 ) )
 
-; registriert in *stackz*, daß eine fixed-var gebunden wird
+; registriert in *stackz*, dass eine fixed-var gebunden wird
 (defun bind-fixed-var-2 (var)
   (when (and (var-specialp var) (not (var-constantp var)))
     (push '(BIND 1) *stackz*)
@@ -4945,7 +4945,7 @@ der Docstring (oder NIL).
             (unmodify-unused-var var) ; Zuweisungen auf var eliminieren
           )
           (when (var-closurep var)
-            ; Variable muß in der Closure liegen
+            ; Variable muss in der Closure liegen
             (push var closurevarlist)
       ) ) )
       (setq optimflaglist (cdr optimflaglist))
@@ -4979,7 +4979,7 @@ der Docstring (oder NIL).
           (proclaimed-special-p symbol)
           (member symbol *specials* :test #'eq)
       )
-    ; muß symbol dynamisch binden:
+    ; muss symbol dynamisch binden:
     (progn
       (if (l-constantp symbol)
         (progn
@@ -4995,7 +4995,7 @@ der Docstring (oder NIL).
       )
       (make-special-var symbol)
     )
-    ; muß symbol lexikalisch binden:
+    ; muss symbol lexikalisch binden:
     (let ((var
             (progn
               (push 1 *stackz*) ; vorläufig: 1 Platz auf dem Stack
@@ -5111,7 +5111,7 @@ der Docstring (oder NIL).
                 (unmodify-unused-var var) ; Zuweisungen auf var eliminieren
               )
               (when (var-closurep var)
-                ; Variable muß in der Closure liegen
+                ; Variable muss in der Closure liegen
                 (setf (first (var-stackz var)) 0) ; belegt 0 Stack-Einträge
                 (push var closurevarlist)
         ) ) ) )
@@ -5535,7 +5535,7 @@ der Docstring (oder NIL).
 ) ) )     )  ) )
 
 ; compiliere (PROG1 form1 {form}*)
-; bei *for-value* muß der Wert von form1 im Stack gerettet werden
+; bei *for-value* muss der Wert von form1 im Stack gerettet werden
 (defun c-PROG1 ()
   (test-list *form* 2)
   (if (or (null *for-value*) (and (eq *for-value* 'ONE) (null (cddr *form*))))
@@ -6024,7 +6024,7 @@ der Docstring (oder NIL).
                           FRANCAIS "Rien ne peut être assigné à ~S car ce n'est pas un symbole.")
                          symboli
         ) ) ) ) )
-        ; Versuche, sie so zu reorganisieren, daß möglichst wenige (PUSH)
+        ; Versuche, sie so zu reorganisieren, dass möglichst wenige (PUSH)
         ; und (POP) nötig werden:
         (let ((codelist1 '())
               (codelist2 '())
@@ -6133,7 +6133,7 @@ der Docstring (oder NIL).
 (defun c-parallel-bind-movable-var-anode (varlist anodelist stackzlist
                                           &optional (other-anodes '())
                                          )
-  ; Variable darf erst am Schluß gebunden werden, falls sie SPECIAL ist
+  ; Variable darf erst am Schluss gebunden werden, falls sie SPECIAL ist
   ; und nachfolgende Anodes von ihrem Wert abhängen können.
   (let ((bind-afterwards nil))
     (append
@@ -6158,7 +6158,7 @@ der Docstring (oder NIL).
                                    :closurep nil :stackz stackz
                       )) )
                   (push (list dummyvar var (cdr *stackz*)) bind-afterwards)
-                  (push (car stackz) (cdr *stackz*)) ; Platz für 1 Schluß-Bindung mehr
+                  (push (car stackz) (cdr *stackz*)) ; Platz für 1 Schluss-Bindung mehr
                   (setf (car stackz) 1) ; Platz für Hilfsvariable im Stack merken
                   (c-bind-movable-var-anode dummyvar anode)
                 )
@@ -6171,7 +6171,7 @@ der Docstring (oder NIL).
         #'(lambda (bind)
             (let ((dummyvar (first bind)) ; Hilfsvariable im Stack
                   (var (second bind)) ; SPECIAL-Variable
-                  (stackz (third bind))) ; Stackzustand vor Aufbau der Schluß-Bindung
+                  (stackz (third bind))) ; Stackzustand vor Aufbau der Schluss-Bindung
               `((GET ,dummyvar ,*venvc* ,stackz)
                 ,@(c-bind-movable-var var)
                )
@@ -6203,7 +6203,7 @@ der Docstring (oder NIL).
                 (closuredummy-venvc *venvc*))
             (multiple-value-bind (varlist anodelist stackzlist)
                 (process-movable-var-list symbols initforms *-flag)
-              (unless *-flag (push 0 *stackz*)) ; Platz für Schluß-Bindungen
+              (unless *-flag (push 0 *stackz*)) ; Platz für Schluss-Bindungen
               (let ((body-anode (c-form `(PROGN ,@body-rest)))) ; Body compilieren
                 ; Überprüfen der Variablen:
                 (let* ((closurevars (checking-movable-var-list varlist anodelist))
@@ -6376,7 +6376,7 @@ der Docstring (oder NIL).
 (macrolet ((check-blockname (name)
              `(unless (symbolp ,name)
                 (catch 'c-error
-                  (c-error (DEUTSCH "Blockname muß ein Symbol sein, nicht ~S"
+                  (c-error (DEUTSCH "Blockname muss ein Symbol sein, nicht ~S"
                             ENGLISH "Block name must be a symbol, not ~S"
                             FRANCAIS "Un nom de bloc doit être un symbole et non ~S")
                            ,name
@@ -6573,7 +6573,7 @@ der Docstring (oder NIL).
   (test-list *form* 2 2)
   (let ((tag (second *form*)))
     (unless (or (symbolp tag) (numberp tag))
-      (c-error (DEUTSCH "Sprungziel muß ein Symbol oder eine Zahl sein, nicht ~S"
+      (c-error (DEUTSCH "Sprungziel muss ein Symbol oder eine Zahl sein, nicht ~S"
                 ENGLISH "Tag must be a symbol or a number, not ~S"
                 FRANCAIS "Le marqueur de saut doit être un symbole ou un nombre et non ~S")
                tag
@@ -6718,7 +6718,7 @@ der Docstring (oder NIL).
 ; lambdabody wegoptimiert werden dürfen. Zu jedem Required-Parameter:
 ; NIL: normal,
 ; T: darf wegoptimiert werden, dann wird daraus GONE gemacht.
-; NILs am Schluß der Liste dürfen weggelassen werden.
+; NILs am Schluss der Liste dürfen weggelassen werden.
 ; Die Ausgabe enthält zusätzlich zur Funktion die Liste der Wegoptimierten.
 (defmacro %OPTIMIZE-FUNCTION-LAMBDA (reqoptimflags &rest lambdabody)
   (declare (ignore reqoptimflags))
@@ -7237,7 +7237,7 @@ der Docstring (oder NIL).
                  ((or (equal situation '(NOT COMPILE))
                       (equal situation '(NOT :COMPILE-TOPLEVEL)))
                   (setq load-flag t))
-                 (t (c-error (DEUTSCH "Situation bei EVAL-WHEN muß EVAL, LOAD oder COMPILE sein, nicht ~S."
+                 (t (c-error (DEUTSCH "Situation bei EVAL-WHEN muss EVAL, LOAD oder COMPILE sein, nicht ~S."
                               ENGLISH "EVAL-WHEN situation must be EVAL or LOAD or COMPILE, but not ~S"
                               FRANCAIS "EVAL-WHEN ne s'applique qu'aux situations EVAL, LOAD ou COMPILE et non ~S.")
                              situation
@@ -7296,7 +7296,7 @@ der Docstring (oder NIL).
                   (progn
                     (when clauses
                       (catch 'c-error
-                        (c-error (DEUTSCH "~S: Die ~S-Klausel muß die letzte sein: ~S"
+                        (c-error (DEUTSCH "~S: Die ~S-Klausel muss die letzte sein: ~S"
                                   ENGLISH "~S: the ~S clause must be the last one: ~S"
                                   FRANCAIS "~S : La clause ~S doit être la dernière: ~S")
                                  'case keys *form*
@@ -7451,7 +7451,7 @@ der Docstring (oder NIL).
                   (let ((body-anode
                           (c-form `(SYS::%FUNCALL ,handler ,condition-sym) 'NIL)
                        ))
-                    ; Überprüfen der Variablen (muß nicht in die Closure):
+                    ; Überprüfen der Variablen (muss nicht in die Closure):
                     (checking-movable-var-list (list condition-var) (list condition-anode))
                     (let* ((codelist
                              `(,label
@@ -7693,7 +7693,7 @@ der Docstring (oder NIL).
                 ; required-Parameter binden:
                 (do ((reqvarr reqvar (cdr reqvarr)))
                     ((null reqvarr))
-                  (if (null arglist) ; impliziert, daß apply-arg da
+                  (if (null arglist) ; impliziert, dass apply-arg da
                     (return-from main-args
                       (finish-using-applyarg reqvarr optvar optinit optsvar restvar)
                     )
@@ -8459,7 +8459,7 @@ der Docstring (oder NIL).
                     ((and (consp low) (null (rest low)) (funcall tester (first low)))
                      `((< ,(first low) ,x))
                     )
-                    (t (c-warn (DEUTSCH "~S: Argument zu ~S muß *, ~S oder eine Liste von ~S sein: ~S"
+                    (t (c-warn (DEUTSCH "~S: Argument zu ~S muss *, ~S oder eine Liste von ~S sein: ~S"
                                 ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S"
                                 FRANCAIS "~S : L'argument de ~S doit être *, ~S ou une liste de ~S: ~S")
                                'typep caller caller caller low
@@ -8471,7 +8471,7 @@ der Docstring (oder NIL).
                     ((and (consp high) (null (rest high)) (funcall tester (first high)))
                      `((> ,(first high) ,x))
                     )
-                    (t (c-warn (DEUTSCH "~S: Argument zu ~S muß *, ~S oder eine Liste von ~S sein: ~S"
+                    (t (c-warn (DEUTSCH "~S: Argument zu ~S muss *, ~S oder eine Liste von ~S sein: ~S"
                                 ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S"
                                 FRANCAIS "~S : L'argument de ~S doit être *, ~S ou une liste de ~S: ~S")
                                'typep caller caller caller high
@@ -8520,7 +8520,7 @@ der Docstring (oder NIL).
       ,#'(lambda (x &optional n &rest illegal-args)
            (declare (ignore illegal-args))
            (unless (integerp n)
-             (c-warn (DEUTSCH "~S: Argument zu MOD muß ganze Zahl sein: ~S"
+             (c-warn (DEUTSCH "~S: Argument zu MOD muss ganze Zahl sein: ~S"
                       ENGLISH "~S: argument to MOD must be an integer: ~S"
                       FRANCAIS "~S : L'argument de MOD doit être un entier: ~S")
                      'typep n
@@ -8534,7 +8534,7 @@ der Docstring (oder NIL).
       ,#'(lambda (x &optional (n '*) &rest illegal-args)
            (declare (ignore illegal-args))
            (unless (or (eq n '*) (integerp n))
-             (c-warn (DEUTSCH "~S: Argument zu SIGNED-BYTE muß ganze Zahl oder * sein: ~S"
+             (c-warn (DEUTSCH "~S: Argument zu SIGNED-BYTE muss ganze Zahl oder * sein: ~S"
                       ENGLISH "~S: argument to SIGNED-BYTE must be an integer or * : ~S"
                       FRANCAIS "~S : L'argument de SIGNED-BYTE doit être un entier ou bien * : ~S")
                      'typep n
@@ -8550,7 +8550,7 @@ der Docstring (oder NIL).
       ,#'(lambda (x &optional (n '*) &rest illegal-args)
            (declare (ignore illegal-args))
            (unless (or (eq n '*) (integerp n))
-             (c-warn (DEUTSCH "~S: Argument zu UNSIGNED-BYTE muß ganze Zahl oder * sein: ~S"
+             (c-warn (DEUTSCH "~S: Argument zu UNSIGNED-BYTE muss ganze Zahl oder * sein: ~S"
                       ENGLISH "~S: argument to UNSIGNED-BYTE must be an integer or * : ~S"
                       FRANCAIS "~S : L'argument de UNSIGNED-BYTE doit être un entier ou bien * : ~S")
                      'typep n
@@ -8647,7 +8647,7 @@ der Docstring (oder NIL).
                   (cond ((and (eq (first type) 'SATISFIES) (eql (length type) 2))
                           (let ((fun (second type)))
                             (unless (symbolp (second type))
-                              (c-warn (DEUTSCH "~S: Argument zu SATISFIES muß Symbol sein: ~S"
+                              (c-warn (DEUTSCH "~S: Argument zu SATISFIES muss Symbol sein: ~S"
                                        ENGLISH "~S: argument to SATISFIES must be a symbol: ~S"
                                        FRANCAIS "~S : L'argument de SATISFIES doit être un symbole: ~S")
                                       'typep (second type)
@@ -8783,7 +8783,7 @@ der Docstring (oder NIL).
 ;                     Z W E I T E R   P A S S
 
 ; eine Tabelle von Paaren (fnode n).
-; Jedes Paar zeigt an, daß im 3. Pass in der Konstanten Nummer n des
+; Jedes Paar zeigt an, dass im 3. Pass in der Konstanten Nummer n des
 ; funktionalen Objektes von fnode der dort stehende fnode durch das durch ihn
 ; erzeugte funktionale Objekt zu ersetzen ist.
 (defvar *fnode-fixup-table*)
@@ -9691,7 +9691,7 @@ Vereinfachungsregeln für Operationen:
 
 ; Vereinfacht ein Codestück (in umgedrehter Reihenfolge!).
 ; Obige Vereinfachungsregeln werden durchgeführt, solange es geht.
-; Ergebnis ist meist NIL, oder aber (um anzuzeigen, daß weitere Optimierungen
+; Ergebnis ist meist NIL, oder aber (um anzuzeigen, dass weitere Optimierungen
 ; möglich sind) das Anfangslabel, falls sich dessen Property for-value
 ; abgeschwächt hat.
 (defun simplify (codelist)
@@ -9787,7 +9787,7 @@ Vereinfachungsregeln für Operationen:
                       (erweitere2 '(POP) `(SKIP ,(- n 1)))
               ) ) ) )
               (when (consp rechts)
-                ; Gucklock umfaßt (car mitte) und (car rechts), evtl. auch mehr.
+                ; Gucklock umfasst (car mitte) und (car rechts), evtl. auch mehr.
                 (case (first (car mitte))
                   (VALUES1 ; Regel 1
                     (when (gethash (first (car rechts)) one-value-ops nil)
@@ -10002,7 +10002,7 @@ optimize-short   - Liegt ein Codestück vor, wo auf das Anfangslabel label1
                    (JMPCASE1-FALSE l label) vereinfacht werden.
                  - Ein kurzes Codestück wird direkt an zugehörige JMPs auf
                    sein Anfangslabel angehängt. (Ein Codestück heißt "kurz",
-                   wenn es höchstens 2 Befehle umfaßt und nicht mit einem
+                   wenn es höchstens 2 Befehle umfasst und nicht mit einem
                    JMPHASH (den man nicht duplizieren sollte) abgeschlossen
                    ist. Auch HANDLER-OPEN sollte man nicht duplizieren.)
 
@@ -10207,7 +10207,7 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
                (or (eq code lastc) (not (eq (first (cadr code)) 'HANDLER-OPEN)))
           )
       (let ((indices '())) ; Liste der Indizes der Codestücke, an die wir code anhängen
-        (setf (cdr lastc) '()) ; code vorläufig ohne das Label am Schluß
+        (setf (cdr lastc) '()) ; code vorläufig ohne das Label am Schluss
         (dolist (refindex (symbol-value label))
           (when (and (integerp refindex) (not (eql refindex index)))
             (let ((refcode (aref *code-parts* refindex)))
@@ -10429,11 +10429,11 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
             ; Wert wird benötigt
             (when (null (third item))
               ; aber er ist unbekannt.
-              ; Vielleicht läßt sich der Wert herausbekommen ?
+              ; Vielleicht lässt sich der Wert herausbekommen ?
               (let ((value (get-boolean-value (cdr code))))
                 (when value
                   (setf (car code) `(JMP ,label ,value))
-                  ; Wert jetzt bekannt, läßt sich vielleicht verwenden:
+                  ; Wert jetzt bekannt, lässt sich vielleicht verwenden:
                   (optimize-value (get label 'code-part))
 ) ) ) ) ) ) ) ) )
 
@@ -10527,7 +10527,7 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
 ) )
 
 ; Die Hauptfunktion des 3. Schritts:
-; Führt alle Optimierungen durch, und faßt dann alle Codestücke wieder zu
+; Führt alle Optimierungen durch, und fasst dann alle Codestücke wieder zu
 ; einer einzigen Codeliste zusammen und liefert diese.
 (defun optimize-all ()
   ; Optimierungen:
@@ -10672,7 +10672,7 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
                             (return) ; zum nächsten Index
           ) ) ) ) ) )     )
     ) ) )
-    ; Sicherstellen, daß das Anfangs-Stück auch an den Anfang kommt:
+    ; Sicherstellen, dass das Anfangs-Stück auch an den Anfang kommt:
     ; (Das würde auch gehen, indem bei jeder der obigen Anhängungen
     ; ein (setf (aref *code-positions* index) (aref *code-positions* jmp..-ref))
     ; gemacht würde. Wieso tun wir das nicht??)
@@ -10769,7 +10769,7 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
 #| Was ist mit den folgenden möglichen Optimierungen??
 
 10. Kommt vor einem (JMP label) ein (UNWIND-PROTECT-CLEANUP) und vor dem
-   label ein (UNWIND-PROTECT-3 cleanup-label), so muß es sich um denselben
+   label ein (UNWIND-PROTECT-3 cleanup-label), so muss es sich um denselben
    UNWIND-PROTECT-Frame handeln, und man kann (UNWIND-PROTECT-CLEANUP)
    streichen und (JMP label) durch (JMP newlabel) ersetzen, wobei newlabel
    ein neues Label ist, das vor dem (evtl. zu ergänzenden) (UNWIND-PROTECT-2)
@@ -10793,7 +10793,7 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
   (let ((*code-parts* (make-array 10 :adjustable t :fill-pointer 0))
         (*code-positions* (make-array 10 :adjustable t :fill-pointer 0)))
     ; Expandiert den Code des Fnode *func* und teilt ihn in Stücke auf.
-    ; Hinterläßt seine Werte in *code-parts* und *code-positions*.
+    ; Hinterlässt seine Werte in *code-parts* und *code-positions*.
     (let ((*code-part* (list '(START))) ; NIL als Start-"Label"
           (*code-index* 0)
           (*dead-code* nil)
@@ -10802,7 +10802,7 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
           (*current-vars* '()))
       (traverse-anode (anode-code (fnode-code *func*)))
     )
-    ; Optimiert in *code-parts* und *code-positions*, faßt dann den Code
+    ; Optimiert in *code-parts* und *code-positions*, fasst dann den Code
     ; in einer Liste zusammen und liefert diese:
     (let ((code-list (optimize-all)))
       (unless (equal (pop code-list) '(START))
@@ -10882,17 +10882,17 @@ Dieser Schritt bestimmt, wieviel SP-Einträge die Funktion maximal braucht.
   ;; This is allowed because we are only interested in the two separate maxima.
   ;; Think of two different machines computing the two maxima in parallel.
   (let ((max-depth-1 0) (max-depth-2 0) ; bisherige Maximal-Tiefe
-        (unseen-label-alist '()) ; Labels, ab denen noch verfolgt werden muß
+        (unseen-label-alist '()) ; Labels, ab denen noch verfolgt werden muss
         (seen-label-alist '()) ; Labels, die schon verfolgt wurden
           ; beides Alisten ((label . depth) ...)
-          ; Es ist durchaus möglich, daß dasselbe Codestück mit unterschied-
+          ; Es ist durchaus möglich, dass dasselbe Codestück mit unterschied-
           ; lichen SP-Tiefen durchgeführt werden kann (nämlich dann, wenn es
           ; mit einem Wegsprung THROW, RETURN-FROM, RETURN-FROM-I, GO, GO-I
           ; oder BARRIER endet)!
           ; seen-label-alist enthält zu jedem Label die maximale Tiefe, mit
           ; der ab diesem Label schon verfolgt wurde.
           ; unseen-label-alist enthält zu jedem Label die maximale bisher
-          ; notierte Tiefe, mit der ab diesem Label noch verfolgt werden muß.
+          ; notierte Tiefe, mit der ab diesem Label noch verfolgt werden muss.
         (mitte code-list) ; restliche Codeliste
         (depth (spd 0 0)) ; aktuelle Tiefe
        )
@@ -10920,7 +10920,7 @@ Dieser Schritt bestimmt, wieviel SP-Einträge die Funktion maximal braucht.
               ) )
               ; Instruktion
               (macrolet ((note-label (labelform)
-                           ; notiere, daß zu label gesprungen werden kann
+                           ; notiere, dass zu label gesprungen werden kann
                            (let ((label (gensym)))
                              `(let* ((,label ,labelform)
                                      (h (assoc ,label seen-label-alist)))
@@ -10935,7 +10935,7 @@ Dieser Schritt bestimmt, wieviel SP-Einträge die Funktion maximal braucht.
                               ) ) ) )
                          ) )
                          (note-inc (amount)
-                           ; notiere, daß depth um amount erhöht wird
+                           ; notiere, dass depth um amount erhöht wird
                            `(progn
                               (setq depth (spd+ depth ,amount))
                               (setq max-depth-1 (max max-depth-1 (car depth)))
@@ -10943,7 +10943,7 @@ Dieser Schritt bestimmt, wieviel SP-Einträge die Funktion maximal braucht.
                             )
                          )
                          (note-dec (amount)
-                           ; notiere, daß depth um amount erniedrigt wird
+                           ; notiere, dass depth um amount erniedrigt wird
                            `(progn
                               (setq depth (spd- depth ,amount))
                               (when (or (minusp (car depth)) (minusp (cdr depth)))
@@ -10951,7 +10951,7 @@ Dieser Schritt bestimmt, wieviel SP-Einträge die Funktion maximal braucht.
                             ) )
                          )
                          (note-jmp ()
-                           ; notiere, daß weggesprungen wird
+                           ; notiere, dass weggesprungen wird
                            `(return)
                         ))
                 (case (first item)
@@ -12072,7 +12072,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                      &aux (macro-flag nil) (trace-flag nil) (save-flag nil))
   (unless (function-name-p name)
     (error-of-type 'error
-      (DEUTSCH "Name einer zu compilierenden Funktion muß ein Symbol sein, nicht: ~S"
+      (DEUTSCH "Name einer zu compilierenden Funktion muss ein Symbol sein, nicht: ~S"
        ENGLISH "Name of function to be compiled must be a symbol, not ~S"
        FRANCAIS "Le nom d'une fonction à compiler doit être un symbole et non ~S")
       name
@@ -12203,7 +12203,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
 ; Top-Level-Formen müssen einzeln aufs .fas-File rausgeschrieben werden,
 ; wegen der Semantik von EVAL-WHEN und LOAD-TIME-VALUE.
 ; Da Top-Level-Formen bei EVAL-WHEN, PROGN und LOCALLY auseinandergebrochen
-; werden können, muß man LET () verwenden, wenn man dies umgehen will.
+; werden können, muss man LET () verwenden, wenn man dies umgehen will.
 
 ; Compiliert eine Top-Level-Form für COMPILE-FILE. Der *toplevel-name* wird
 ; meist unverändert durchgereicht. *toplevel-for-value* gibt an, ob der Wert
@@ -12501,7 +12501,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
         (when new-listing-stream (close listing-stream))
 ) ) ) )
 
-; Das muß mit compile-file (s.o.) konsistent sein!
+; Das muss mit compile-file (s.o.) konsistent sein!
 (defun compile-file-pathname (file &key (output-file 'T) &allow-other-keys)
   (setq file (or (first (search-file file *source-file-types*))
                  (merge-pathnames file (merge-pathnames '#".lsp"))

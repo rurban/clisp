@@ -225,7 +225,7 @@ standard
   (cond ((stringp package-name))
         ((symbolp package-name) (setq package-name (symbol-name package-name)))
         (t (error-of-type 'source-program-error
-             (DEUTSCH "~S: Argument muß ein String oder Symbol sein, nicht ~S."
+             (DEUTSCH "~S: Argument muss ein String oder Symbol sein, nicht ~S."
               ENGLISH "~S: argument ~S should be a string or a symbol"
               FRANCAIS "~S : L'argument doit être un symbole ou une chaîne et non ~S.")
              'common-lisp:in-package package-name

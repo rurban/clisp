@@ -59,7 +59,7 @@
 # < ergebnis: Adresse des angesprochenen Record-Elements
   local object* record_up (void);
   local object* record_up ()
-    { # record muﬂ vom Typ Closure/Structure/Stream/OtherRecord sein:
+    { # record muss vom Typ Closure/Structure/Stream/OtherRecord sein:
       if_recordp(STACK_1, ; , { skipSTACK(1); fehler_record(); } );
      {var object record = STACK_1;
       var uintL length = Record_length(record);
@@ -83,7 +83,7 @@ LISPFUNN(record_store,3)
 
 LISPFUNN(record_length,1)
 # (SYS::%RECORD-LENGTH record) liefert die L‰nge eines record.
-  { # record muﬂ vom Typ Closure/Structure/Stream/OtherRecord sein:
+  { # record muss vom Typ Closure/Structure/Stream/OtherRecord sein:
     if_recordp(STACK_0, ; , { fehler_record(); } );
    {var object record = popSTACK();
     var uintL length = Record_length(record);
@@ -126,7 +126,7 @@ LISPFUNN(record_length,1)
 # (COPY-STRUCTURE structure) liefert eine Kopie der Structure structure,
 #   vom selben Typ.
 # (SYS::%STRUCTURE-TYPE-P type object) ¸berpr¸ft, ob object eine
-#   Structure ist, die vom Typ type ist, was daran erkennbar ist, daﬂ in
+#   Structure ist, die vom Typ type ist, was daran erkennbar ist, dass in
 #   der Komponente 0 ein Objekt (name_1 ... name_i-1 name_i) steht, wobei
 #   einer der Namen EQ zu type ist.
 
@@ -138,7 +138,7 @@ LISPFUNN(record_length,1)
 # < ergebnis: Adresse des angesprochenen Structure-Elements
   local object* structure_up (void);
   local object* structure_up ()
-    { # structure muﬂ vom Typ Structure sein:
+    { # structure muss vom Typ Structure sein:
       if (!structurep(STACK_1))
         { fehler_bad_structure: # STACK_2 = type, STACK_1 = structure
           pushSTACK(STACK_1); # Wert f¸r Slot DATUM von TYPE-ERROR
@@ -218,7 +218,7 @@ LISPFUNN(structure_store,4)
 LISPFUNN(make_structure,2)
 # (SYS::%MAKE-STRUCTURE type length) erzeugt eine Structure mit length>=1
 #   Elementen, vom Typ type.
-  { # L‰nge ¸berpr¸fen, sollte ein Fixnum /=0 sein, das in ein uintW paﬂt:
+  { # L‰nge ¸berpr¸fen, sollte ein Fixnum /=0 sein, das in ein uintW passt:
     var uintL length;
     test_record_length(length);
     skipSTACK(1);
@@ -256,7 +256,7 @@ LISPFUNN(copy_structure,1)
 
 LISPFUNN(structure_type_p,2)
 # (SYS::%STRUCTURE-TYPE-P type object) ¸berpr¸ft, ob object eine
-#   Structure ist, die vom Typ type ist, was daran erkennbar ist, daﬂ in
+#   Structure ist, die vom Typ type ist, was daran erkennbar ist, dass in
 #   der Komponente 0 ein Objekt (name_1 ... name_i-1 name_i) steht, wobei
 #   einer der Namen EQ zu type ist.
   { # object auf Structure testen:
@@ -375,7 +375,7 @@ LISPFUNN(make_code_vector,1)
     var uintB* ptr = &TheSbvector(bv)->data[0]; # l‰uft durch den Bit-Vektor
     while (consp(listr))
       { var uintL byte;
-        # Listenelement muﬂ ein Fixnum >=0, <256 sein:
+        # Listenelement muss ein Fixnum >=0, <256 sein:
         if (!(posfixnump(Car(listr))
               && ((byte = posfixnum_to_L(Car(listr))) < (1<<intBsize))
            ) )
@@ -401,7 +401,7 @@ LISPFUNN(make_closure,3)
 # (SYS::%MAKE-CLOSURE name codevec consts) liefert eine Closure mit gegebenem
 #   Namen (einem Symbol), gegebenem Code-Vektor (einem Simple-Bit-Vector) und
 #   gegebenen weiteren Konstanten.
-  { # codevec muﬂ ein Simple-Bit-Vector sein:
+  { # codevec muss ein Simple-Bit-Vector sein:
     if (!simple_bit_vector_p(STACK_1))
       { # STACK_1 = codevec
         pushSTACK(STACK_1); # Wert f¸r Slot DATUM von TYPE-ERROR
@@ -540,7 +540,7 @@ LISPFUNN(symbol_macro_expand,1)
 
 LISPFUN(finalize,2,1,norest,nokey,0,NIL)
 # (FINALIZE object function &optional alive)
-# registiert, daﬂ, wenn object durch GC stirbt, function aufgerufen wird, mit
+# registiert, dass, wenn object durch GC stirbt, function aufgerufen wird, mit
 # object und evtl. alive als Argument. Wenn alive stirbt, bevor object stirbt,
 # wird gar nichts getan.
   { var object f = allocate_finalizer();
@@ -595,7 +595,7 @@ LISPFUNN(std_instance_p,1)
 LISPFUNN(allocate_std_instance,2)
 # (CLOS::ALLOCATE-STD-INSTANCE class n) liefert eine CLOS-Instanz der L‰nge n,
 # mit Klasse class und n-1 zus‰tzlichen Slots.
-  { # L‰nge ¸berpr¸fen, sollte ein Fixnum >0 sein, das in ein uintW paﬂt:
+  { # L‰nge ¸berpr¸fen, sollte ein Fixnum >0 sein, das in ein uintW passt:
     var uintL length;
     test_record_length(length);
     skipSTACK(1);
@@ -924,7 +924,7 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL)
 #         (if (not (eq (cdr h) #'clos::%shared-initialize))
 #           ; effektive Methode von shared-initialize anwenden:
 #           (apply (cdr h) instance 'NIL initargs)
-#           ; clos::%shared-initialize mit slot-names=NIL l‰ﬂt sich vereinfachen:
+#           ; clos::%shared-initialize mit slot-names=NIL l‰sst sich vereinfachen:
 #           (progn
 #             (dolist (slot (class-slots (class-of instance)))
 #               (let ((slotname (slotdef-name slot)))
@@ -974,7 +974,7 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL)
         return;
       }
   }}
-  # CLOS::%SHARED-INITIALIZE mit slot-names=NIL l‰ﬂt sich vereinfachen:
+  # CLOS::%SHARED-INITIALIZE mit slot-names=NIL l‰sst sich vereinfachen:
   { var object slots = TheClass(clas)->slots; # Liste aller Slots (als Slot-Definitionen)
     while (consp(slots))
       { var object slot = Car(slots);
@@ -1017,7 +1017,7 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL)
 #       (if (not (eq (cddr h) #'clos::%shared-initialize))
 #         ; effektive Methode von shared-initialize anwenden:
 #         (apply (cddr h) instance 'T initargs)
-#         ; clos::%shared-initialize mit slot-names=T l‰ﬂt sich vereinfachen:
+#         ; clos::%shared-initialize mit slot-names=T l‰sst sich vereinfachen:
 #         (progn
 #           (dolist (slot (class-slots (class-of instance)))
 #             (let ((slotname (slotdef-name slot)))
@@ -1078,7 +1078,7 @@ local Values do_initialize_instance(info,rest_args_pointer,argcount)
           return;
         }
     }
-    # CLOS::%SHARED-INITIALIZE mit slot-names=T l‰ﬂt sich vereinfachen:
+    # CLOS::%SHARED-INITIALIZE mit slot-names=T l‰sst sich vereinfachen:
     { var object instance = Before(rest_args_pointer);
       var object clas = class_of(instance); # Instanz der <standard-class> oder <structure-class>
       var object slots = TheClass(clas)->slots; # Liste aller Slots (als Slot-Definitionen)
@@ -1162,7 +1162,7 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
 #           (if (not (eq (cadr h) #'clos::%initialize-instance))
 #             ; effektive Methode von initialize-instance anwenden:
 #             (apply (cadr h) instance initargs)
-#             ; clos::%initialize-instance l‰ﬂt sich vereinfachen (man braucht
+#             ; clos::%initialize-instance l‰sst sich vereinfachen (man braucht
 #             ; nicht nochmal in *make-instance-table* nachzusehen):
 #             (if (not (eq (cddr h) #'clos::%shared-initialize))
 #               ; effektive Methode von shared-initialize anwenden:
@@ -1252,7 +1252,7 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
         if (!eq(fun,L(initialize_instance)))
           { return_Values funcall(fun,2*argcount+1); }
           else
-          # CLOS::%INITIALIZE-INSTANCE l‰ﬂt sich vereinfachen (man braucht
+          # CLOS::%INITIALIZE-INSTANCE l‰sst sich vereinfachen (man braucht
           # nicht nochmal in *make-instance-table* nachzusehen):
           { return_Values do_initialize_instance(info,rest_args_pointer,argcount); }
         # Deren Wert ist die Instanz.

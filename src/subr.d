@@ -21,7 +21,7 @@
   #define LISPFUNN(name,req_anz)  \
     LISPFUN(name,req_anz,0,norest,nokey,0,NIL)
 
-# Zusätzlich muß in einem C-File dieselbe Deklaration samt C-Body stehen.
+# Zusätzlich muss in einem C-File dieselbe Deklaration samt C-Body stehen.
 
 
 # Expander für die Konstruktion der extern-Deklarationen:
@@ -86,7 +86,7 @@
          vec                                 \
         ) : 0;
 
-# Welcher Expander benutzt wird, muß vom Hauptfile aus eingestellt werden.
+# Welcher Expander benutzt wird, muss vom Hauptfile aus eingestellt werden.
 # Default ist   #define LISPFUN LISPFUN_B
 
 

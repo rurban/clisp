@@ -3443,7 +3443,7 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL)
 # It is a list ((string . fpointer) ...)
 # although it could have been a list ((string . faddress) ...)
 # with all fa_offsets being 0.
-# G'hopft wie g'sprungen, nur konsistent muﬂ es sein.
+# G'hopft wie g'sprungen, nur konsistent muss es sein.
 
 # Open a library.
   local struct Library * open_library (object name, uintL version);

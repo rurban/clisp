@@ -19,7 +19,7 @@
 
 #ifdef HAVE_SIGNALS
 
-# Paﬂt den Wert von SYS::*PRIN-LINELENGTH* an die aktuelle Breite des
+# Passt den Wert von SYS::*PRIN-LINELENGTH* an die aktuelle Breite des
 # Terminal-Fensters an.
 # update_linelength();
   local void update_linelength (void);

@@ -21,7 +21,7 @@
       # > 1 wachsen lassen, damit es nicht zu häufig nachberechnet wird:
       oldlen += floor(oldlen,2); # oldlen * 3/2
       newlen = (f_len < oldlen ? oldlen : f_len);
-      # gewünschte > vorhandene Länge -> muß nachberechnen:
+      # gewünschte > vorhandene Länge -> muss nachberechnen:
       # Methode:
       # [Richard P. Brent: Fast multiple-precision evaluation of elementary
       #  functions. J. ACM 23(1976), 242-251.]
@@ -152,7 +152,7 @@
          var uintL sqrt_d = UL_sqrt_UW(d); # floor(sqrt(d))                          \
          # Bei e <= -1-floor(sqrt(d)) kann die Potenzreihe angewandt werden.         \
          if (e >= (sintL)(-sqrt_d))                                                  \
-           # e > -1-floor(sqrt(d)) -> muß |x| verkleinern.                           \
+           # e > -1-floor(sqrt(d)) -> muss |x| verkleinern.                          \
            { var sintL e_limit = 1+sqrt_d; # 1+floor(sqrt(d))                        \
              pushSTACK(x = F_durch_F(F_abs_F(x))); # 1/|x|                           \
              # Stackaufbau: originales x, neues x.                                   \
@@ -342,7 +342,7 @@
         {# Bei e <= -1-floor(sqrt(d)) kann die Potenzreihe angewandt werden.        \
          var sintL e_limit = -1-UL_sqrt_UW(d); # -1-floor(sqrt(d))                  \
          if (e > e_limit)                                                           \
-           # e > -1-floor(sqrt(d)) -> muß |x| verkleinern.                          \
+           # e > -1-floor(sqrt(d)) -> muss |x| verkleinern.                         \
            { x = I_I_minus_I(L_to_FN(e_limit),L_to_I(e));                           \
              STACK_0 = F_I_scale_float_F(STACK_0,x); # x := x*2^(e_limit-e)         \
            }                                                                        \
@@ -425,7 +425,7 @@
 # Methode:
 # x rational -> bei x=0 0 als Ergebnis, sonst x in Float umwandeln.
 # x Float -> Genauigkeit erhöhen,
-#   (q,r) := (round x (float pi x)), so daß |r|<=pi/2.
+#   (q,r) := (round x (float pi x)), so dass |r|<=pi/2.
 #   (sin(r)/r)^2 errechnen, Wurzel ziehen, mit r multiplizieren
 #   und - falls q ungerade - Vorzeichenwechsel.
   local object R_sin_R(x)
@@ -454,7 +454,7 @@
 # Methode:
 # x rational -> bei x=0 1 als Ergebnis, sonst x in Float umwandeln.
 # x Float -> Genauigkeit erhöhen,
-#   (q,r) := (round x (float pi x)), so daß |r|<=pi/2.
+#   (q,r) := (round x (float pi x)), so dass |r|<=pi/2.
 #   e := Exponent aus (decode-float r), d := (float-digits r)
 #   Bei r=0.0 oder e<=-d/2 liefere 1.0
 #     (denn bei e<=-d/2 ist r^2/2 < 2^(-d)/2 = 2^(-d-1), also
@@ -500,7 +500,7 @@
 # Methode:
 # x rational -> bei x=0 (1,0) als Ergebnis, sonst x in Float umwandeln.
 # x Float -> Genauigkeit erhöhen,
-#   (q,r) := (round x (float pi/2 x)), so daß |r|<=pi/4.
+#   (q,r) := (round x (float pi/2 x)), so dass |r|<=pi/4.
 #   y:=(sin(r)/r)^2 errechnen.
 #   (cos r) berechnen:
 #     e := Exponent aus (decode-float r), d := (float-digits r)
@@ -600,7 +600,7 @@
        {# Bei e <= -1-floor(sqrt(d)) kann die Potenzreihe angewandt werden.
         var sintL e_limit = -1-UL_sqrt_UW(d); # -1-floor(sqrt(d))
         while (e > e_limit)
-          # e > -1-floor(sqrt(d)) -> muß |y| verkleinern.
+          # e > -1-floor(sqrt(d)) -> muss |y| verkleinern.
           { var object x = F_sqrt_F(STACK_1); STACK_1 = x; # x := (sqrt x)
             x = R_R_minus_R(x,Fixnum_1); STACK_0 = x; # y := (- x 1) und
             e = F_exponent_L(x); # e neu berechnen
@@ -644,14 +644,14 @@
        if (f_len < len) { return LF_shorten_LF(ln2,f_len); }
        if (f_len == len) { return ln2; }
       }
-      # gewünschte > vorhandene Länge -> muß nachberechnen:
+      # gewünschte > vorhandene Länge -> muss nachberechnen:
       {var uintC len = lf_len_extend(f_len); # einige Digits mehr verlangen
        var object temp = F_lnx_F(I_to_LF(fixnum(2),len)); # (ln 2.0)
        # temp = ln(2) ist fertig.
        return O(LF_ln2) = LF_shorten_LF(temp,f_len); # wieder verkürzen, als LF_ln2 abspeichern
     }}}
 
-# Vergrößert eine Long-Float-Länge n, so daß aus d = intDsize*n
+# Vergrößert eine Long-Float-Länge n, so dass aus d = intDsize*n
 # mindestens d+sqrt(d)+2+(LF_exp_len-1) wird.
 # Allgemein: intDsize*n + sqrt(intDsize*n) + 2 + 31 < intDsize*(n+inc)
 # <==>       sqrt(intDsize*n) + 33 < intDsize*inc
@@ -704,8 +704,8 @@
 # x Float ->
 #   d := (float-digits x),
 #   Genauigkeit um sqrt(d)+max(integer-length(e)) Bits erhöhen,
-#   (m,e) := (decode-float x), so daß 1/2 <= m < 1.
-#   m<2/3 -> m:=2m, e:=e-1, so daß 2/3 <= m <= 4/3.
+#   (m,e) := (decode-float x), so dass 1/2 <= m < 1.
+#   m<2/3 -> m:=2m, e:=e-1, so dass 2/3 <= m <= 4/3.
 #   ln(m) errechnen, ln(x)=ln(m)+e*ln(2) als Ergebnis.
   local object R_ln_R(x)
     var object x;
@@ -753,10 +753,10 @@
 # Wegen a>=2^c, b>=2^d sind c,d < (integer-length a,b) < intDsize*2^intWCsize.
 # In Matrizenschreibweise:
 #   Wenn eine Folge von Divisionsschritten D und Vertauschungsschritten V
-#   ausgeführt werden muß, z.B. (a,b) V D D = (1,*), so ist
+#   ausgeführt werden muss, z.B. (a,b) V D D = (1,*), so ist
 #     ( c )           ( 0 )             ( 1 1 )           ( 0 1 )
 #     ( d )  =  V D D ( 1 )  wobei  D = ( 0 1 )  und  V = ( 1 0 ).
-#   Man baut diese Matrizen nun von links nach rechts auf, zum Schluß von
+#   Man baut diese Matrizen nun von links nach rechts auf, zum Schluss von
 #              ( 0 )
 #   rechts mit ( 1 ) multiplizieren.
 # Entrekursiviert:
@@ -935,7 +935,7 @@
        {# Bei e <= -1-floor(sqrt(d)) kann die Potenzreihe angewandt werden.
         var sintL e_limit = -1-UL_sqrt_UW(d); # -1-floor(sqrt(d))
         if (e > e_limit)
-          # e > -1-floor(sqrt(d)) -> muß |x| verkleinern.
+          # e > -1-floor(sqrt(d)) -> muss |x| verkleinern.
           { k = e - e_limit;
            {var object temp = L_to_I((sintL)(-k));
             STACK_0 = F_I_scale_float_F(STACK_0,temp); # x := x/2^k

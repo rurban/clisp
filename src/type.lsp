@@ -56,7 +56,7 @@
          ((and (eq (first y) 'SATISFIES) (eql (length y) 2))
             (unless (symbolp (second y))
               (error-of-type 'error
-                (DEUTSCH "~S: Argument zu SATISFIES muﬂ Symbol sein: ~S"
+                (DEUTSCH "~S: Argument zu SATISFIES muss Symbol sein: ~S"
                  ENGLISH "~S: argument to SATISFIES must be a symbol: ~S"
                  FRANCAIS "~S : L'argument de SATISFIES doit Ítre un symbole: ~S")
                 'typep (second y)
@@ -262,7 +262,7 @@
                 (< (first low) x)
              )
              (t (error-of-type 'error
-                  (DEUTSCH "~S: Argument zu ~S muﬂ *, ~S oder eine Liste von ~S sein: ~S"
+                  (DEUTSCH "~S: Argument zu ~S muss *, ~S oder eine Liste von ~S sein: ~S"
                    ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S"
                    FRANCAIS "~S : L'argument de ~S doit Ítre *, ~S ou une liste de ~S: ~S")
                   'typep type type type low
@@ -273,7 +273,7 @@
                 (> (first high) x)
              )
              (t (error-of-type 'error
-                  (DEUTSCH "~S: Argument zu ~S muﬂ *, ~S oder eine Liste von ~S sein: ~S"
+                  (DEUTSCH "~S: Argument zu ~S muss *, ~S oder eine Liste von ~S sein: ~S"
                    ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S"
                    FRANCAIS "~S : L'argument de ~S doit Ítre *, ~S ou une liste de ~S: ~S")
                   'typep type type type high
@@ -283,7 +283,7 @@
     (lambda (x n)
       (unless (integerp n)
         (error-of-type 'error
-          (DEUTSCH "~S: Argument zu MOD muﬂ ganze Zahl sein: ~S"
+          (DEUTSCH "~S: Argument zu MOD muss ganze Zahl sein: ~S"
            ENGLISH "~S: argument to MOD must be an integer: ~S"
            FRANCAIS "~S : L'argument de MOD doit Ítre un entier: ~S")
           'typep n
@@ -296,7 +296,7 @@
     (lambda (x &optional (n '*))
       (unless (or (eq n '*) (integerp n))
         (error-of-type 'error
-          (DEUTSCH "~S: Argument zu SIGNED-BYTE muﬂ ganze Zahl oder * sein: ~S"
+          (DEUTSCH "~S: Argument zu SIGNED-BYTE muss ganze Zahl oder * sein: ~S"
            ENGLISH "~S: argument to SIGNED-BYTE must be an integer or * : ~S"
            FRANCAIS "~S : L'argument de SIGNED-BYTE doit Ítre un entier ou bien * : ~S")
           'typep n
@@ -309,7 +309,7 @@
     (lambda (x &optional (n '*))
       (unless (or (eq n '*) (integerp n))
         (error-of-type 'error
-          (DEUTSCH "~S: Argument zu UNSIGNED-BYTE muﬂ ganze Zahl oder * sein: ~S"
+          (DEUTSCH "~S: Argument zu UNSIGNED-BYTE muss ganze Zahl oder * sein: ~S"
            ENGLISH "~S: argument to UNSIGNED-BYTE must be an integer or * : ~S"
            FRANCAIS "~S : L'argument de UNSIGNED-BYTE doit Ítre un entier ou bien * : ~S")
           'typep n
@@ -692,7 +692,7 @@
                  (subtypep (second type2) (second type1))
                  (unknown)
             )) )
-            ;; OR: Jeder Typ muﬂ Subtyp von type2 sein
+            ;; OR: Jeder Typ muss Subtyp von type2 sein
             ((eq (first type1) 'OR)
              (dolist (type (rest type1) (yes))
                (multiple-value-bind (is known) (subtypep type type2)
@@ -708,7 +708,7 @@
             ((and (eq (first type2) 'NOT) (eql (length type2) 2))
              (unknown)
             )
-            ;; AND: type1 muﬂ Subtyp jedes der Typen sein
+            ;; AND: type1 muss Subtyp jedes der Typen sein
             ((eq (first type2) 'AND)
              (dolist (type (rest type2) (yes))
                (multiple-value-bind (is known) (subtypep type1 type)
@@ -916,7 +916,7 @@
       (t (unknown))
 ) ) )
 
-;; Bestimmt zwei Werte low,high so, daﬂ (subtypep type `(INTEGER ,low ,high))
+;; Bestimmt zwei Werte low,high so, dass (subtypep type `(INTEGER ,low ,high))
 ;; gilt und low mˆglichst groﬂ und high mˆglichst klein ist.
 ;; low = * bedeutet -unendlich, high = * bedeutet unendlich.
 ;; Werte sind NIL,NIL falls (subtypep type 'INTEGER) falsch ist.
@@ -937,7 +937,7 @@
                 (unless (typep x 'INTEGER) (return (no)))
                 (setq low (min low x) high (max high x))
           ) ) )
-          (OR ;; OR: Jeder Typ muﬂ Subtyp von INTEGER sein
+          (OR ;; OR: Jeder Typ muss Subtyp von INTEGER sein
             (let ((low 0) (high 0)) ; oBdA!
               (dolist (type1 (rest type) (yes))
                 (multiple-value-bind (low1 high1) (subtype-integer type1)
@@ -973,7 +973,7 @@
 ) ) )
 
 #| Zu tun:
-SUBTYPEP so verbessern, daﬂ
+SUBTYPEP so verbessern, dass
 (let ((l '(ARRAY BIT-VECTOR BOOLEAN CHARACTER COMPLEX CONS FLOAT FUNCTION
            CLOS:GENERIC-FUNCTION HASH-TABLE INTEGER LIST NULL NUMBER PACKAGE
            PATHNAME #+LOGICAL-PATHNAMES LOGICAL-PATHNAME RANDOM-STATE RATIONAL

@@ -294,7 +294,7 @@
       pushSTACK(S(readtable)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(sym);
       fehler(type_error,
-             DEUTSCH ? "Der Wert von ~ war keine Readtable, mußte zurückgesetzt werden." :
+             DEUTSCH ? "Der Wert von ~ war keine Readtable, musste zurückgesetzt werden." :
              ENGLISH ? "The value of ~ was not a readtable. It has been reset." :
              FRANCAIS ? "La valeur de ~ n'était pas un «readtable» et fut remise à la valeur standard." :
              ""
@@ -423,9 +423,9 @@ LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
     var object from_readtable = STACK_0;
     skipSTACK(4);
     # to-char überprüfen:
-    if (!charp(to_char)) { fehler_char(to_char); } # muß ein Character sein
+    if (!charp(to_char)) { fehler_char(to_char); } # muss ein Character sein
     # from-char überprüfen:
-    if (!charp(from_char)) { fehler_char(from_char); } # muß ein Character sein
+    if (!charp(from_char)) { fehler_char(from_char); } # muss ein Character sein
     # to-readtable überprüfen:
     if (eq(to_readtable,unbound))
       { get_readtable(to_readtable=); } # Default ist die aktuelle Readtable
@@ -446,7 +446,7 @@ LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
      {var object entry =
         TheSvector(TheReadtable(from_readtable)->readtable_macro_table)->data[from_c];
       if (simple_vector_p(entry))
-        # Ist entry ein Simple-Vector, so muß er kopiert werden:
+        # Ist entry ein Simple-Vector, so muss er kopiert werden:
         { pushSTACK(to_readtable);
           entry = copy_svector(entry);
           to_readtable = popSTACK();
@@ -623,8 +623,8 @@ LISPFUN(make_dispatch_macro_character,1,2,norest,nokey,0,NIL)
     var object readtable;
     { var object sub_ch = popSTACK(); # sub-char
       var object disp_ch = popSTACK(); # disp-char
-      if (!charp(disp_ch)) { fehler_char(disp_ch); } # disp-char muß ein Character sein
-      if (!charp(sub_ch)) { fehler_char(sub_ch); } # sub-char muß ein Character sein
+      if (!charp(disp_ch)) { fehler_char(disp_ch); } # disp-char muss ein Character sein
+      if (!charp(sub_ch)) { fehler_char(sub_ch); } # sub-char muss ein Character sein
      {var uintL disp_c = char_code(disp_ch);
       var object entry = TheSvector(TheReadtable(readtable)->readtable_macro_table)->data[disp_c];
       if (!simple_vector_p(entry))
@@ -728,7 +728,7 @@ LISPFUNN(set_readtable_case,2)
 # #define test_value(sym)  (!nullp(Symbol_value(sym)))
   #define test_value(sym)  (!eq(NIL,Symbol_value(sym)))
 
-# UP: Holt den Wert eines Symbols. Muß Fixnum >=2, <=36 sein.
+# UP: Holt den Wert eines Symbols. Muss Fixnum >=2, <=36 sein.
 # get_base(symbol)
 # > symbol: Symbol
 # < ergebnis: Wert des Symbols, >=2, <=36.
@@ -965,7 +965,7 @@ LISPFUNN(set_readtable_case,2)
   #define a_expo_m  11   # 'esfdlESFDL'
   #    >= a_letter       #  'A'-'Z','a'-'z'
   #    >= a_digit        # '0123456789','A'-'Z','a'-'z'
-  #    >= a_ratio        # woraus eine potential number bestehen muß
+  #    >= a_ratio        # woraus eine potential number bestehen muss
 
 # Attributtabelle für Constituents, Erstinterpretation:
 # Anmerkung: 0-9,A-Z,a-z werden erst als a_digit oder a_expo_m interpretiert,
@@ -1318,7 +1318,7 @@ LISPFUNN(set_readtable_case,2)
         dotimesL(count,len,
           { if (*attrptr >= a_letter)
               # Attributcode >= a_letter
-              { var uintB c = *charptr; # Zeichen, muß 'A'-'Z','a'-'Z' sein
+              { var uintB c = *charptr; # Zeichen, muss 'A'-'Z','a'-'Z' sein
                 if (c >= 'a') { c -= 'a'-'A'; }
                 if ((c - 'A') + 10 < *base_) # Wert < Basis ?
                   { *attrptr = a_digit; } # in a_digit umwandeln
@@ -1383,7 +1383,7 @@ LISPFUNN(set_readtable_case,2)
 #     1 : Integer
 #         < index1: Index der ersten Ziffer
 #         < index2: Index nach der letzten Ziffer
-#         (also index2-index1 Ziffern, incl. evtl. Dezimalpunkt am Schluß)
+#         (also index2-index1 Ziffern, incl. evtl. Dezimalpunkt am Schluss)
 #     2 : Rational
 #         < index1: Index der ersten Ziffer
 #         < index3: Index von '/'
@@ -1439,7 +1439,7 @@ LISPFUNN(set_readtable_case,2)
     #    Falls kein Exponent:
     #      Falls kein Dezimalpunkt da, ist es keine Zahl (hätte schon bei
     #        Schritt 3 geliefert werden müssen, aber base hatte offenbar
-    #        nicht gepaßt).
+    #        nicht gepasst).
     #      Falls Dezimalpunkt vorhanden:
     #        Falls Nachkommastellen vorliegen, ist es ein Float (Typ wird
     #          von der Variablen *read-default-float-format* angegeben).
@@ -1537,7 +1537,7 @@ LISPFUNN(set_readtable_case,2)
                  { var uintB attr = attribute_table[c]; # dessen wahrer Attributcode
                    if (attr == a_letter) # Ist er = a_letter ?
                      { return 0; } # ja -> keine Zahl
-                   # sonst (muß a_expo_m sein) eintragen:
+                   # sonst (muss a_expo_m sein) eintragen:
                    *attrptr = attr;
                  }
                attrptr++;
@@ -1907,7 +1907,7 @@ LISPFUNN(set_readtable_case,2)
       # Token gelesen
       if (test_value(S(read_suppress))) # *READ-SUPPRESS* /= NIL ?
         { return NIL; } # ja -> Token nicht interpretieren, NIL als Wert
-      # Token muß interpretiert werden
+      # Token muss interpretiert werden
       # Der Token liegt in O(token_buff_1), O(token_buff_2), token_escape_flag.
       if ((!token_escape_flag) && test_dots())
         # Token ist eine Folge von Dots, ohne Escape-Characters gelesen.
@@ -1959,7 +1959,7 @@ LISPFUNN(set_readtable_case,2)
       # 4. Zwei Doppelpunkte, nicht am Anfang -> internes Symbol
       # In den letzten drei Fällen dürfen keine weiteren Doppelpunkte mehr
       # kommen.
-      # (Daß bei 2. der Namensteil bzw. bei 3. und 4. der Packageteil und
+      # (Dass bei 2. der Namensteil bzw. bei 3. und 4. der Packageteil und
       # der Namensteil nicht die Syntax einer Zahl haben, kann hier nicht
       # mehr überprüft werden, weil sich TOKEN_ESCAPE_FLAG auf das ganze
       # Token bezieht. Vergleiche |USER|:: und |USER|::|| )
@@ -2024,7 +2024,7 @@ LISPFUNN(set_readtable_case,2)
           if (!pack_casesensitivep(pack))
             { case_convert_token(0,len,direction); }
           # Symbol internieren (und dabei String kopieren, falls das Symbol
-          # neu erzeugt werden muß):
+          # neu erzeugt werden muss):
          {var object sym;
           intern(O(token_buff_1),pack,&sym);
           return sym;
@@ -2044,7 +2044,7 @@ LISPFUNN(set_readtable_case,2)
             TheIarray(hstring)->totalsize =
               TheIarray(hstring)->dims[1] = len - name_start_index; # Länge
             # Symbol in die Keyword-Package internieren (und dabei
-            # String kopieren, falls das Symbol neu erzeugt werden muß):
+            # String kopieren, falls das Symbol neu erzeugt werden muss):
             return intern_keyword(hstring);
           }}
         { # Packagename = (subseq O(token_buff_1) 0 pack_end_index).
@@ -2077,7 +2077,7 @@ LISPFUNN(set_readtable_case,2)
           if (external_internal_flag)
             # internal
             { # Symbol internieren (und dabei String kopieren,
-              # falls das Symbol neu erzeugt werden muß):
+              # falls das Symbol neu erzeugt werden muss):
               var object sym;
               intern(hstring,pack,&sym);
               return sym;
@@ -2185,7 +2185,7 @@ LISPFUNN(set_readtable_case,2)
         { # Überprüfen, ob SYS::*READ-REFERENCE-TABLE* eine Aliste ist:
          {var object alistr = alist; # Liste durchlaufen
           while (consp(alistr))
-            { # jedes Listenelement muß ein Cons sein:
+            { # jedes Listenelement muss ein Cons sein:
               if (!mconsp(Car(alistr))) goto fehler_badtable;
               alistr = Cdr(alistr);
             }
@@ -2413,7 +2413,7 @@ LISPFUNN(set_readtable_case,2)
                 pushSTACK(*stream_); # Stream
                 pushSTACK(S(read_delimited_list));
                 fehler(stream_error,
-                       DEUTSCH ? "~ von ~: Kein korrekter Listenabschluß einer Dotted List." :
+                       DEUTSCH ? "~ von ~: Kein korrekter Listenabschluss einer Dotted List." :
                        ENGLISH ? "~ from ~: illegal end of dotted list" :
                        FRANCAIS ? "~ de ~ : liste pointée ne se termine pas correctement." :
                        ""
@@ -2659,7 +2659,7 @@ LISPFUNN(line_comment_reader,2) # liest ;
 #       (list 'FUNCTION (read stream t nil t))
 # )   )
 LISPFUNN(function_reader,3) # liest #'
-  { var object* stream_ = test_no_infix(); # n muß NIL sein
+  { var object* stream_ = test_no_infix(); # n muss NIL sein
     STACK_0 = S(function); return_Values list2_reader(stream_);
   }
 
@@ -2687,7 +2687,7 @@ LISPFUNN(function_reader,3) # liest #'
 #       (values)
 # )   )
 LISPFUNN(comment_reader,3) # liest #|
-  { var object* stream_ = test_no_infix(); # n muß NIL sein
+  { var object* stream_ = test_no_infix(); # n muss NIL sein
     var uintL depth = 0;
     var object ch;
     loop1:
@@ -2740,7 +2740,7 @@ LISPFUNN(comment_reader,3) # liest #|
 #         (unless *read-suppress*
 #           (if n
 #             (unless (< n char-font-limit) ; sowieso n>=0
-#               (error "~ von ~: Fontnummer ~ für Zeichen ist zu groß (muß <~ sein)."
+#               (error "~ von ~: Fontnummer ~ für Zeichen ist zu groß (muss <~ sein)."
 #                       'read stream        n                 char-font-limit
 #             ) )
 #             (setq n 0)
@@ -2806,7 +2806,7 @@ LISPFUNN(char_reader,3) # liest #\
           pushSTACK(*stream_); # Stream
           pushSTACK(S(read));
           fehler(stream_error,
-                 DEUTSCH ? "~ von ~: Fontnummer ~ für Zeichen ist zu groß (muß = 0 sein)" :
+                 DEUTSCH ? "~ von ~: Fontnummer ~ für Zeichen ist zu groß (muss = 0 sein)" :
                  ENGLISH ? "~ from ~: font number ~ for character is too large, should be = 0" :
                  FRANCAIS ? "~ de ~ : Le numéro ~ de font de caractère est trop grand (devrait être = 0)." :
                  ""
@@ -2920,7 +2920,7 @@ LISPFUNN(char_reader,3) # liest #\
 #             (integer t) (decimal-integer nil) (rational t) (float nil)
 #           )
 #         (read-number token base)
-#         (error "~ von ~: Das Token ~ nach # ~ läßt sich nicht als rationale Zahl in Basis ~ interpretieren."
+#         (error "~ von ~: Das Token ~ nach # ~ lässt sich nicht als rationale Zahl in Basis ~ interpretieren."
 #                 'read stream token sub-char base
 # ) ) ) ) )
   # UP für #B #O #X #R
@@ -2965,7 +2965,7 @@ LISPFUNN(char_reader,3) # liest #\
             pushSTACK(STACK_(2+4)); # Stream
             pushSTACK(S(read));
             fehler(stream_error,
-                   DEUTSCH ? "~ von ~: Das Token ~ nach #$ läßt sich nicht als rationale Zahl in Basis ~ interpretieren." :
+                   DEUTSCH ? "~ von ~: Das Token ~ nach #$ lässt sich nicht als rationale Zahl in Basis ~ interpretieren." :
                    ENGLISH ? "~ from ~: token ~ after #$ is not a rational number in base ~" :
                    FRANCAIS ? "~ de ~ : Le lexème ~ après ne peut être interprété comme nombre rationnel en base ~." :
                    ""
@@ -3017,7 +3017,7 @@ LISPFUNN(hexadecimal_reader,3) # liest #X
 #       (if *read-suppress*
 #         (if (and n (<= 2 n 36))
 #           (radix-1 stream sub-char nil n)
-#           (error "~ von ~: Zwischen # und R muß eine Zahlsystembasis zwischen 2 und 36 angegeben werden."
+#           (error "~ von ~: Zwischen # und R muss eine Zahlsystembasis zwischen 2 und 36 angegeben werden."
 #                   'read stream
 #         ) )
 #         (progn (read-token stream) nil)
@@ -3034,14 +3034,14 @@ LISPFUNN(radix_reader,3) # liest #R
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
         fehler(stream_error,
-               DEUTSCH ? "~ von ~: Zwischen #"" und R muß die Zahlsystembasis angegeben werden." :
+               DEUTSCH ? "~ von ~: Zwischen #"" und R muss die Zahlsystembasis angegeben werden." :
                ENGLISH ? "~ from ~: the number base must be given between #"" and R" :
                FRANCAIS ? "~ de ~ : La base numérique doit être spécifiée entre #"" et R." :
                ""
               );
       }
    {var uintL base;
-    # n muß ein Fixnum zwischen 2 und 36 (inclusive) sein:
+    # n muss ein Fixnum zwischen 2 und 36 (inclusive) sein:
     if (posfixnump(STACK_0) &&
         (base = posfixnum_to_L(STACK_0), (base >= 2) && (base <= 36))
        )
@@ -3076,16 +3076,16 @@ LISPFUNN(radix_reader,3) # liest #R
 #               (error "~: Falsche Syntax für komplexe Zahl: #C~" 'read h)
 # )   ) ) ) ) )
 LISPFUNN(complex_reader,3) # liest #C
-  { var object* stream_ = test_no_infix(); # n muß NIL sein
+  { var object* stream_ = test_no_infix(); # n muss NIL sein
     var object obj = read_recursive_no_dot(stream_); # nächstes Objekt lesen
     # bei *READ-SUPPRESS* /= NIL sofort fertig:
     if (test_value(S(read_suppress)))
       { value1 = NIL; mv_count=1; skipSTACK(2); return; } # NIL als Wert
     obj = make_references(obj); # und Verweise vorzeitig entflechten
     # Überprüfen, ob dies eine zweielementige Liste von reellen Zahlen ist:
-    if (!consp(obj)) goto bad; # obj muß ein Cons sein !
+    if (!consp(obj)) goto bad; # obj muss ein Cons sein !
    {var object obj2 = Cdr(obj);
-    if (!consp(obj2)) goto bad; # obj2 muß ein Cons sein !
+    if (!consp(obj2)) goto bad; # obj2 muss ein Cons sein !
     if (!nullp(Cdr(obj2))) goto bad; # mit (cdr obj2) = nil !
     if_realp(Car(obj), ; , goto bad; ); # und (car obj) eine reelle Zahl !
     if_realp(Car(obj2), ; , goto bad; ); # und (car obj2) eine reelle Zahl !
@@ -3134,7 +3134,7 @@ LISPFUNN(uninterned_reader,3) # liest #:
          pushSTACK(*stream_); # Stream
          pushSTACK(S(read));
          fehler(stream_error,
-                DEUTSCH ? "~ von ~: Nach #: muß ein Token folgen." :
+                DEUTSCH ? "~ von ~: Nach #: muss ein Token folgen." :
                 ENGLISH ? "~ from ~: token expected after #:" :
                 FRANCAIS ? "~ de ~ : Il faut un lexème après #:" :
                 ""
@@ -3186,7 +3186,7 @@ LISPFUNN(uninterned_reader,3) # liest #:
 #                              'read stream n
 #                     ))
 #                     ((and (plusp n) (zerop l))
-#                      (error "~ von ~: Element für Bit-Vektor der Länge ~ muß spezifiziert werden."
+#                      (error "~ von ~: Element für Bit-Vektor der Länge ~ muss spezifiziert werden."
 #                              'read stream n
 #               )     ))
 #               (setq n l)
@@ -3258,7 +3258,7 @@ LISPFUNN(bit_vector_reader,3) # liest #*
              pushSTACK(*stream_); # Stream
              pushSTACK(S(read));
              fehler(stream_error,
-                    DEUTSCH ? "~ von ~: Element für Bit-Vektor der Länge ~ muß spezifiziert werden." :
+                    DEUTSCH ? "~ von ~: Element für Bit-Vektor der Länge ~ muss spezifiziert werden." :
                     ENGLISH ? "~ from ~: must specify element of bit vector of length ~" :
                     FRANCAIS ? "~ de ~ : Il faut spécifier un élément pour un vecteur de bits de longueur ~." :
                     ""
@@ -3296,7 +3296,7 @@ LISPFUNN(bit_vector_reader,3) # liest #*
 #                              'read stream n
 #                     ))
 #                     ((and (plusp n) (zerop l))
-#                      (error "~ von ~: Element für Vektor der Länge ~ muß spezifiziert werden."
+#                      (error "~ von ~: Element für Vektor der Länge ~ muss spezifiziert werden."
 #                              'read stream n
 #               )     ))
 #               (setq n l)
@@ -3347,7 +3347,7 @@ LISPFUNN(vector_reader,3) # liest #(
             pushSTACK(*stream_); # Stream
             pushSTACK(S(read));
             fehler(stream_error,
-                   DEUTSCH ? "~ von ~: Element für Vektor der Länge ~ muß spezifiziert werden." :
+                   DEUTSCH ? "~ von ~: Element für Vektor der Länge ~ muss spezifiziert werden." :
                    ENGLISH ? "~ from ~: must specify element of vector of length ~" :
                    FRANCAIS ? "~ de ~ : Il faut spécifier un élément pour un vecteur de longueur ~." :
                    ""
@@ -3587,7 +3587,7 @@ LISPFUNN(load_eval_reader,3) # liest #,
 #             ) ) ) ) )
 #             (error "~ von ~: Label #~= zu groß" 'read stream n)
 #           )
-#           (error "~ von ~: Zwischen # und = muß eine Zahl angegeben werden." 'read stream)
+#           (error "~ von ~: Zwischen # und = muss eine Zahl angegeben werden." 'read stream)
 #         )
 #         (values) ; keine Werte (Kommentar)
 # )   ) )
@@ -3606,7 +3606,7 @@ LISPFUNN(load_eval_reader,3) # liest #,
 #               )
 #             (error "~ von ~: Label #~# zu groß" 'read stream n)
 #           )
-#           (error "~ von ~: Zwischen # und # muß eine Zahl angegeben werden." 'read stream)
+#           (error "~ von ~: Zwischen # und # muss eine Zahl angegeben werden." 'read stream)
 # )   ) ) )
 
 # UP: Bildet ein internes Label und sucht es in der *READ-REFERENCE-TABLE* auf.
@@ -3622,7 +3622,7 @@ LISPFUNN(load_eval_reader,3) # liest #,
           pushSTACK(STACK_(2+2)); # Stream
           pushSTACK(S(read));
           fehler(stream_error,
-                 DEUTSCH ? "~ von ~: Zwischen #"" und $ muß eine Zahl angegeben werden." :
+                 DEUTSCH ? "~ von ~: Zwischen #"" und $ muss eine Zahl angegeben werden." :
                  ENGLISH ? "~ from ~: a number must be given between #"" and $" :
                  FRANCAIS ? "~ de ~ : Un nombre doit être spécifié entre #"" et $" :
                  ""
@@ -3649,7 +3649,7 @@ LISPFUNN(load_eval_reader,3) # liest #,
       # (assoc label alist :test #'eq) ausführen:
       while (consp(alist))
         { var object acons = Car(alist); # Listenelement
-          if (!consp(acons)) goto bad_reftab; # muß ein Cons sein !
+          if (!consp(acons)) goto bad_reftab; # muss ein Cons sein !
           if (eq(Car(acons),label)) # dessen CAR = label ?
             { return acons; } # ja -> fertig
           alist = Cdr(alist);
@@ -3881,7 +3881,7 @@ LISPFUNN(syntax_error_reader,3) # liest #) und #whitespace
   local Values feature (uintWL sollwert);
   local Values feature(sollwert)
     var uintWL sollwert;
-    { var object* stream_ = test_no_infix(); # n muß NIL sein
+    { var object* stream_ = test_no_infix(); # n muss NIL sein
       dynamic_bind(S(read_suppress),NIL); # *READ-SUPPRESS* an NIL binden
       dynamic_bind(S(packagestern),O(keyword_package)); # bind *PACKAGE* to #<PACKAGE KEYWORD>
      {var object expr = read_recursive_no_dot(stream_); # Feature-Ausdruck lesen
@@ -3960,10 +3960,10 @@ LISPFUNN(not_feature_reader,3) # liest #-
 #                       (error "~: Es ist noch keine Structure des Typs ~ definiert worden"
 #                              'read name
 #                   ) ) )
-#                   (error "~: Der Typ einer Structure muß ein Symbol sein, nicht ~"
+#                   (error "~: Der Typ einer Structure muss ein Symbol sein, nicht ~"
 #                          'read name
 #               ) ) )
-#               (error "~: Nach #S muß, in Klammern, der Typ und der Inhalt der Structure kommen, nicht ~"
+#               (error "~: Nach #S muss, in Klammern, der Typ und der Inhalt der Structure kommen, nicht ~"
 #                      'read args
 # )   ) ) ) ) ) )
 # (defun structure-arglist-expand (name args)
@@ -3978,7 +3978,7 @@ LISPFUNN(not_feature_reader,3) # liest #-
 #              (list* kw (cadr args) (structure-arglist-expand name (cddr args)))
 # ) )     )  )
 LISPFUNN(structure_reader,3) # liest #S
-  { var object* stream_ = test_no_infix(); # n muß NIL sein
+  { var object* stream_ = test_no_infix(); # n muss NIL sein
     # bei *READ-SUPPRESS* /= NIL nur ein Objekt lesen:
     if (test_value(S(read_suppress)))
       { read_recursive_no_dot(stream_); # Objekt lesen und wegwerfen,
@@ -3995,7 +3995,7 @@ LISPFUNN(structure_reader,3) # liest #S
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
         fehler(stream_error,
-               DEUTSCH ? "~ von ~: Nach #S muß, in Klammern, der Typ und der Inhalt der Structure kommen, nicht ~" :
+               DEUTSCH ? "~ von ~: Nach #S muss, in Klammern, der Typ und der Inhalt der Structure kommen, nicht ~" :
                ENGLISH ? "~ from ~: #S must be followed by the type and the contents of the structure, not ~" :
                FRANCAIS ? "~ de ~ : Après #S on s'attend au type et au contenu de la structure, entre parenthèses, et pas à ~" :
                ""
@@ -4004,13 +4004,13 @@ LISPFUNN(structure_reader,3) # liest #S
     {var object name = Car(args); # Typ der Structure
      STACK_0 = args = Cdr(args); # Restliste retten
      # Stackaufbau: Stream, restl.Args.
-     if (!symbolp(name)) # Typ muß ein Symbol sein !
+     if (!symbolp(name)) # Typ muss ein Symbol sein !
        { pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
          pushSTACK(name);
          pushSTACK(*stream_); # Stream
          pushSTACK(S(read));
          fehler(stream_error,
-                DEUTSCH ? "~ von ~: Der Typ einer Structure muß ein Symbol sein, nicht ~" :
+                DEUTSCH ? "~ von ~: Der Typ einer Structure muss ein Symbol sein, nicht ~" :
                 ENGLISH ? "~ from ~: the type of a structure should be a symbol, not ~" :
                 FRANCAIS ? "~ de ~ : Le type d'une structure doit être un symbole et non ~" :
                 ""
@@ -4021,7 +4021,7 @@ LISPFUNN(structure_reader,3) # liest #S
      if (eq(name,S(hash_table))) # Symbol HASH-TABLE ?
        # ja -> speziell behandeln, keine Structure:
        { # Hash-Tabelle
-         # Restliche Argumentliste muß ein Cons sein:
+         # Restliche Argumentliste muss ein Cons sein:
          if (!consp(args))
            { pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
              pushSTACK(*stream_); # Stream
@@ -4045,7 +4045,7 @@ LISPFUNN(structure_reader,3) # liest #S
      if (eq(name,S(random_state))) # Symbol RANDOM-STATE ?
        # ja -> speziell behandeln, keine Structure:
        { # Random-State
-         # Restliche Argumentliste muß ein Cons mit NIL als CDR und
+         # Restliche Argumentliste muss ein Cons mit NIL als CDR und
          # einem Simple-Bit-Vektor der Länge 64 als CAR sein:
          if (!(consp(args)
                && nullp(Cdr(args))
@@ -4095,7 +4095,7 @@ LISPFUNN(structure_reader,3) # liest #S
                    ""
                   );
           }
-        # description muß ein Simple-Vector der Länge >=4 sein:
+        # description muss ein Simple-Vector der Länge >=4 sein:
         if (!(simple_vector_p(description) && (Svector_length(description) >= 4)))
           { pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
             pushSTACK(name);
@@ -4124,7 +4124,7 @@ LISPFUNN(structure_reader,3) # liest #S
                     ""
                    );
            }
-    # Konstruktorfunktion mit angepaßter Argumentliste aufrufen:
+    # Konstruktorfunktion mit angepasster Argumentliste aufrufen:
          pushSTACK(constructor);
     }  }}# Stackaufbau: Stream, restl.Args, name, Konstruktor.
     {var uintC argcount = 0; # Zahl der Argumente für den Konstruktor
@@ -4302,14 +4302,14 @@ LISPFUNN(closure_reader,3) # liest #Y
         # Whitespace überlesen:
         do { read_char_syntax(ch = ,scode = ,stream_); } # Zeichen lesen
            until (!(scode == syntax_whitespace));
-        # Es muß ein '(' folgen:
+        # Es muss ein '(' folgen:
         if (!eq(ch,code_char('('))) { fehler_closure_badchar(); }
         {var uintL index = 0;
          until (index==n)
            { # Whitespace überlesen:
              do { read_char_syntax(ch = ,scode = ,stream_); } # Zeichen lesen
                 until (!(scode == syntax_whitespace));
-            {# es muß eine Hex-Ziffer folgen:
+            {# es muss eine Hex-Ziffer folgen:
              var uintB zif = hexziffer(ch,scode);
              # nächstes Character lesen:
              read_char_syntax(ch = ,scode = ,stream_);
@@ -4320,7 +4320,7 @@ LISPFUNN(closure_reader,3) # liest #Y
                  unread_char(stream_,ch);
                }
                else
-               { # es muß eine zweite Hex-Ziffer sein
+               { # es muss eine zweite Hex-Ziffer sein
                  zif = 16*zif + hexziffer(ch,scode); # zur ersten Hex-Ziffer dazu
                  # (Nach der zweiten Hex-Ziffer wird kein Whitespace verlangt.)
                }
@@ -4332,7 +4332,7 @@ LISPFUNN(closure_reader,3) # liest #Y
         # Whitespace überlesen:
         do { read_char_syntax(ch = ,scode = ,stream_); } # Zeichen lesen
            until (!(scode == syntax_whitespace));
-        # Es muß ein ')' folgen:
+        # Es muss ein ')' folgen:
         if (!eq(ch,code_char(')'))) { fehler_closure_badchar(); }
         #if BIG_ENDIAN_P
         # Header von Little-Endian nach Big-Endian konvertieren:
@@ -4363,7 +4363,7 @@ LISPFUNN(closure_reader,3) # liest #Y
 #         (unless *read-suppress* (pathname obj))
 # )   ) )
 LISPFUNN(clisp_pathname_reader,3) # liest #"
-  { test_no_infix(); # n muß NIL sein
+  { test_no_infix(); # n muss NIL sein
     # Stackaufbau: Stream, sub-char #\".
    {var object string = # String lesen, der mit " anfängt
       (funcall(L(string_reader),2),value1);
@@ -4391,13 +4391,13 @@ LISPFUNN(clisp_pathname_reader,3) # liest #"
 #                      'read stream obj
 # )   ) ) ) ) ) )
 LISPFUNN(ansi_pathname_reader,3) # liest #P
-  { var object* stream_ = test_no_infix(); # n muß NIL sein
+  { var object* stream_ = test_no_infix(); # n muss NIL sein
     var object obj = read_recursive_no_dot(stream_); # nächstes Objekt lesen
     # bei *READ-SUPPRESS* /= NIL sofort fertig:
     if (test_value(S(read_suppress)))
       { value1 = NIL; mv_count=1; skipSTACK(2); return; }
     obj = make_references(obj); # und Verweise vorzeitig entflechten (unnötig?)
-    if (!stringp(obj)) goto bad; # obj muß ein String sein!
+    if (!stringp(obj)) goto bad; # obj muss ein String sein!
     # Bilde (pathname obj) = (values (parse-namestring obj)) :
     pushSTACK(obj); funcall(L(parse_namestring),1); # (PARSE-NAMESTRING obj)
     mv_count=1; skipSTACK(2); return; # nur 1 Wert
@@ -4424,7 +4424,7 @@ LISPFUNN(ansi_pathname_reader,3) # liest #P
 #       (values)
 # )   )
 LISPFUNN(unix_executable_reader,3) # liest #!
-  { var object* stream_ = test_no_infix(); # n muß NIL sein
+  { var object* stream_ = test_no_infix(); # n muss NIL sein
     # Stackaufbau: Stream, sub-char #\!.
     loop
       { var object ch = read_char(stream_); # Zeichen lesen
@@ -4607,7 +4607,7 @@ LISPFUN(unread_char,1,1,norest,nokey,0,NIL)
     var object* stream_ = &STACK_0;
     test_istream(stream_);
    {var object ch = STACK_1; # char
-    if (!charp(ch)) # muß ein Character sein !
+    if (!charp(ch)) # muss ein Character sein !
       { pushSTACK(ch); # Wert für Slot DATUM von TYPE-ERROR
         pushSTACK(S(character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(ch);
@@ -4660,7 +4660,7 @@ LISPFUN(peek_char,0,5,norest,nokey,0,NIL)
         pushSTACK(peek_type);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Peek-Type muß NIL oder T oder ein Character sein, nicht ~" :
+               DEUTSCH ? "~: Peek-Type muss NIL oder T oder ein Character sein, nicht ~" :
                ENGLISH ? "~: peek type should be NIL or T or a character, not ~" :
                FRANCAIS ? "~ : Le mode de PEEK doit être NIL ou T ou un caractère et non ~" :
                ""
@@ -4812,7 +4812,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
              pushSTACK(S(Kradix));
              pushSTACK(TheSubr(subr_self)->name);
              fehler(type_error,
-                    DEUTSCH ? "~: ~-Argument muß ein Integer zwischen 2 und 36 sein, nicht ~" :
+                    DEUTSCH ? "~: ~-Argument muss ein Integer zwischen 2 und 36 sein, nicht ~" :
                     ENGLISH ? "~: ~ argument should be an integer between 2 and 36, not ~" :
                     FRANCAIS ? "~ : L'argument ~ doit être un entier entre 2 et 36, pas ~" :
                     ""
@@ -4885,7 +4885,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       # Ab jetzt:  end_offset = Offset nach der letzten Ziffer im Datenvektor.
       if (start_offset == end_offset) # gab es keine Ziffern?
         goto badsyntax;
-      # 4. Schritt: evtl. Whitespace am Schluß übergehen
+      # 4. Schritt: evtl. Whitespace am Schluss übergehen
       if (!junk_allowed) # (falls junk_allowed, ist nichts zu tun)
         { while (!(count==0))
             { var uintB c = *charptr; # nächstes Character
@@ -4924,7 +4924,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # Grundidee des Printers:
 # Vom Datentyp abhängig, wird die externe Repräsentation des Objekts auf den
 # Stream ausgegeben, rekursiv. Der Unterschied zwischen PRINT und PPRINT
-# besteht darin, daß an einigen Stellen statt einem Space ein Newline und
+# besteht darin, dass an einigen Stellen statt einem Space ein Newline und
 # einige Spaces ausgegeben werden. Um dies zu bewerkstelligen, wird die
 # externe Repräsentation der Teil-Objekte auf einen Pretty-Printer-Hilfs-
 # (PPHELP-)Stream ausgegeben, dann überprüft, ob man mehrere Zeilen braucht
@@ -4934,7 +4934,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > Zeilenlänge L,
 # > Linker Rand für Einzeiler L1,
 # > Linker Rand für Mehrzeiler LM,
-# > Anzahl der auf der letzten Zeile am Schluß noch zu schließenden Klammern
+# > Anzahl der auf der letzten Zeile am Schluss noch zu schließenden Klammern
 #   K (Fixnum >=0) und Flag, ob bei Mehrzeilern die letzten schließenden
 #   Klammern in einer eigenen Zeile, justiert unterhalb der entsprechenden
 #   öffnenden Klammern, erscheinen sollen.
@@ -5578,7 +5578,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             }}}
             else
             # Einzeiler.
-            { # Klammer muß wohl hinten ausgegeben werden.
+            { # Klammer muss wohl hinten ausgegeben werden.
               # Ausnahme: Wenn Line-Position = SYS::*PRIN-LINELENGTH* ist,
               #           würde über die Zeile hinausgeschrieben;
               #           stattdessen wird eine neue Zeile angefangen.
@@ -5600,7 +5600,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # jeweils 1 mal JUSTIFY_START,
 # dann beliebige Ausgaben, durch JUSTIFY_SPACE getrennt,
 # dann 1 mal entweder
-#     JUSTIFY_END_ENG (faßt auch in Mehrzeilern kurze Blöcke in eine Zeile)
+#     JUSTIFY_END_ENG (fasst auch in Mehrzeilern kurze Blöcke in eine Zeile)
 #     oder
 #     JUSTIFY_END_WEIT (in Mehrzeilern belegt jeder Block eine eigene Zeile).
   #define JUSTIFY_START     justify_start(stream_);
@@ -5763,20 +5763,20 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                   block = Car(STACK_0); # nächster Block
                   if (atomp(block)) # ein Mehrzeiler oder Einzeiler?
                     # Es ist ein Einzeiler.
-                    # Paßt er noch auf dieselbe Zeile,
+                    # Passt er noch auf dieselbe Zeile,
                     # d.h. ist  Line-Position + 1 + length(Einzeiler) <= L ?
                     { var object linelength = right_margin();
-                      if (nullp(linelength) # =NIL -> paßt
+                      if (nullp(linelength) # =NIL -> passt
                           || (posfixnum_to_L(TheStream(*stream_)->strm_pphelp_lpos) # Line-Position
                               + TheIarray(block)->dims[1] # Länge = Fill-Pointer des Einzeilers
                               < posfixnum_to_L(linelength) # < linelength ?
                          )   )
-                        # Paßt noch.
+                        # Passt noch.
                         { # Space statt Newline ausgeben:
                           write_schar(stream_,' ');
                         }
                         else
-                        # Paßt nicht mehr.
+                        # Passt nicht mehr.
                         goto new_line;
                     }
                     else
@@ -6080,7 +6080,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # ------------------ Unterprogramme für *PRINT-CIRCLE* ------------------------
 
 # UP: Stellt fest, ob ein Objekt wegen *PRINT-CIRCLE* in #n= oder #n# -
-# Schreibweise ausgegeben werden muß.
+# Schreibweise ausgegeben werden muss.
 # circle_p(obj)
 # > obj: Objekt
 # < ergebnis: NULL, falls obj normal auszugeben ist
@@ -6215,11 +6215,11 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var const object* stream_;
     var object obj;
     var pr_routine* pr_xxx;
-    { # Streamtyp (PPHELP-Stream oder nicht) muß zu *PRINT-PRETTY* passen.
+    { # Streamtyp (PPHELP-Stream oder nicht) muss zu *PRINT-PRETTY* passen.
       if (test_value(S(print_pretty)))
         # *PRINT-PRETTY* /= NIL.
         { # Falls *stream_ kein PPHELP-Stream ist,
-          # muß er durch einen PPHELP-Stream ersetzt werden:
+          # muss er durch einen PPHELP-Stream ersetzt werden:
           if (!(TheStream(*stream_)->strmtype == strmtype_pphelp))
             # noch ein normaler Stream
             { dynamic_bind(S(prin_l1),Fixnum_0); # SYS::*PRIN-L1* an 0 binden
@@ -6267,7 +6267,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         }
         else
         # *PRINT-PRETTY* = NIL.
-        { # Falls *stream_ ein PPHELP-Stream ist, muß er durch einen
+        { # Falls *stream_ ein PPHELP-Stream ist, muss er durch einen
           # einelementigen Broadcast-Stream ersetzt werden:
           if (!(TheStream(*stream_)->strmtype == strmtype_pphelp))
             # normaler Stream
@@ -6344,9 +6344,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     { # Wert von SYS::*PRIN-STREAM* = dieser Stream ?
       if (eq(Symbol_value(S(prin_stream)),*stream_))
         # ja -> rekursiver Aufruf
-        { # Falls SYS::*PRINT-CIRCLE-TABLE* = #<UNBOUND> (was bedeutet, daß
+        { # Falls SYS::*PRINT-CIRCLE-TABLE* = #<UNBOUND> (was bedeutet, dass
           # *PRINT-CIRCLE* vorher NIL war) und jetzt *PRINT-CIRCLE* /= NIL
-          # ist, muß Objekt obj nach Zirkularitäten abgesucht werden.
+          # ist, muss Objekt obj nach Zirkularitäten abgesucht werden.
           if (eq(Symbol_value(S(print_circle_table)),unbound))
             { pr_enter_2(stream_,obj,pr_xxx); }
             else
@@ -6388,8 +6388,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       # *PRINT-CIRCLE* beachten:
       if (!test_value(S(print_circle)))
         # *PRINT-CIRCLE* = NIL ->
-        # Für den Fall, daß *PRINT-CIRCLE* an T gebunden werden wird,
-        # muß SYS::*PRINT-CIRCLE-TABLE* an #<UNBOUND> gebunden werden
+        # Für den Fall, dass *PRINT-CIRCLE* an T gebunden werden wird,
+        # muss SYS::*PRINT-CIRCLE-TABLE* an #<UNBOUND> gebunden werden
         # (es sei denn, es ist bereits = #<UNBOUND>).
         if (!eq(Symbol_value(S(print_circle_table)),unbound))
           { dynamic_bind(S(print_circle_table),unbound); count++; }
@@ -6652,7 +6652,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       # 5. nicht Potential-Number Syntax (mit *PRINT-BASE* als Basis) hat.
       var uintL len = Sstring_length(string); # Länge
       # Bedingung 1 überprüfen:
-      if (len==0) goto surround; # Länge=0 -> muß |...| verwenden
+      if (len==0) goto surround; # Länge=0 -> muss |...| verwenden
       # Bedingungen 2-4 überprüfen:
       { # Brauche die Attributcodetabelle und die aktuelle Syntaxcodetabelle:
         var uintB* syntax_table; # Syntaxcodetabelle, RM_anzahl Elemente
@@ -6668,19 +6668,19 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           var uintB c = *charptr++; # erstes Character
           # sein Syntaxcode soll Constituent sein:
           if (!(syntax_table[c] == syntax_constituent))
-            goto surround; # nein -> muß |...| verwenden
+            goto surround; # nein -> muss |...| verwenden
           loop
             { if (attribute_table[c] == a_pack_m) # Attributcode Package-Marker ?
-                goto surround; # ja -> muß |...| verwenden
+                goto surround; # ja -> muss |...| verwenden
               if (!case_sensitive)
                 switch (rtcase)
                   { case case_upcase:
                       if (!(c == up_case(c))) # war c ein Kleinbuchstabe?
-                        goto surround; # ja -> muß |...| verwenden
+                        goto surround; # ja -> muss |...| verwenden
                       break;
                     case case_downcase:
                       if (!(c == down_case(c))) # war c ein Großbuchstabe?
-                        goto surround; # ja -> muß |...| verwenden
+                        goto surround; # ja -> muss |...| verwenden
                       break;
                     case case_preserve:
                       break;
@@ -6695,7 +6695,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                   case syntax_nt_macro:
                     break;
                   default: # Syntaxcode /= Constituent, Nonterminating Macro
-                    goto surround; # -> muß |...| verwenden
+                    goto surround; # -> muss |...| verwenden
                 }
             }
       } }
@@ -6713,12 +6713,12 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         O(token_buff_2) = popSTACK(); # Attributcode-Buffer
         O(token_buff_1) = popSTACK(); # Character-Buffer
         string = popSTACK(); # String zurück
-        if (test_dots()) goto surround; # nur Punkte -> muß |...| verwenden
+        if (test_dots()) goto surround; # nur Punkte -> muss |...| verwenden
         # Potential-Number-Syntax?
         { var uintWL base = get_print_base(); # Wert von *PRINT-BASE*
           var token_info info;
           if (test_potential_number_syntax(&base,&info))
-            goto surround; # ja -> muß |...| verwenden
+            goto surround; # ja -> muss |...| verwenden
       } }
       # Name kann ohne Escape-Characters ausgegeben werden.
       if (case_sensitive)
@@ -6897,7 +6897,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         { pr_xxx = &pr_list_backquote;
           # Teste noch, ob obj eine Liste der Länge 2 oder 3 ist.
           obj = Cdr(obj); # Der CDR
-          if (consp(obj) && # muß ein Cons sein,
+          if (consp(obj) && # muss ein Cons sein,
               (obj = Cdr(obj), # der CDDR
                (atomp(obj) ? nullp(obj) : nullp(Cdr(obj))) # NIL oder eine einelementige Liste
              ))
@@ -7788,7 +7788,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # Structure mit Slot-Namen ausgeben:
         { pushSTACK(description);
           # Stackaufbau: structure, name, description.
-          # description muß ein Simple-Vector der Länge >=4 sein !
+          # description muss ein Simple-Vector der Länge >=4 sein !
           if (!(simple_vector_p(description)
                 && (Svector_length(description) >= 4)
              ) )
@@ -9004,7 +9004,7 @@ LISPFUNN(print_structure,2)
             case strmtype_pipe_out:
               # Pipe-In/Out-Stream
               JUSTIFY_SPACE;
-              pr_uint(stream_,I_to_UL(TheStream(*obj_)->strm_pipe_pid)); # Prozeß-Id ausgeben
+              pr_uint(stream_,I_to_UL(TheStream(*obj_)->strm_pipe_pid)); # Prozess-Id ausgeben
               break;
             #endif
             #ifdef X11SOCKETS

@@ -733,7 +733,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(O(type_posfixnum)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument muﬂ ein Fixnum >=0 sein, nicht ~" :
+             DEUTSCH ? "~: Argument muss ein Fixnum >=0 sein, nicht ~" :
              ENGLISH ? "~: argument ~ should be a nonnegative fixnum" :
              FRANCAIS ? "~ : L'argument doit Ítre de type FIXNUM positif ou zÈro et non pas ~." :
              ""
@@ -803,7 +803,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(S(stream)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument muﬂ ein Stream sein, nicht ~" :
+             DEUTSCH ? "~: Argument muss ein Stream sein, nicht ~" :
              ENGLISH ? "~: argument ~ should be a stream" :
              FRANCAIS ? "~ : L'argument doit Ítre de type STREAM et non pas ~." :
              ""

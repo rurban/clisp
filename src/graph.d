@@ -527,7 +527,7 @@ void gr_line (sintL color, sintL x1, sintL y1, sintL x2, sintL y2)
 
 #ifdef UNIX
 
-# Um Zugriff auf I/O-Ports und den Bildschirmspeicher zu haben, muﬂ das
+# Um Zugriff auf I/O-Ports und den Bildschirmspeicher zu haben, muss das
 # Programm mit "setuid root"-Privileg installiert werden.
 
 global uid_t root_uid; # wird von SPVW initialisiert

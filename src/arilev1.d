@@ -92,7 +92,7 @@
 
 # Zwei Digits multiplizieren, mit einem Digit als Ergebnis.
 # (uintD)lo = muluD_unchecked(uintD arg1, uintD arg2)
-# Es wird vorausgesetzt, daﬂ arg1*arg2 < 2^intDsize.
+# Es wird vorausgesetzt, dass arg1*arg2 < 2^intDsize.
   #if (intDsize==8) || (intDsize==16)
     #define muluD_unchecked(arg1,arg2)  ((uintD)((uintD)(arg1)*(uintD)(arg2)))
   #endif
@@ -105,7 +105,7 @@
 # bzw.
 # divuD(uintD xhi, uintD xlo, uintD y, uintD q =, uintD r =);
 # dividiert x/y und liefert q = floor(x/y) und r = (x mod y). x = q*y+r.
-# Es wird vorausgesetzt, daﬂ 0 <= x < 2^intDsize*y.
+# Es wird vorausgesetzt, dass 0 <= x < 2^intDsize*y.
 #if HAVE_DD
   #if (intDsize==8)
     #define divuD  divu_1616_1616
@@ -130,7 +130,7 @@
 # Durch ein Digit dividieren:
 # floorD(uintD x, uintD y)
 # dividiert x/y und liefert q = floor(x/y).
-# Es wird vorausgesetzt, daﬂ y > 0.
+# Es wird vorausgesetzt, dass y > 0.
   #if (intDsize==8) || (intDsize==16)
     #define floorD(arg1,arg2)  (floor((uintD)(arg1),(uintD)(arg2)))
   #endif

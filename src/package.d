@@ -97,7 +97,7 @@
         var object entry = TheSvector(STACK_1)->data[index]; # entry in der newtable
         if ((!nullp(entry)) || nullp(sym))
           # Ist entry=NIL und sym/=NIL, so ist einfach sym einzutragen.
-          # Sonst muß entry durch Consen erweitert werden:
+          # Sonst muss entry durch Consen erweitert werden:
           { pushSTACK(sym); # Symbol retten
             pushSTACK(entry); # entry retten
             if (!listp(entry))
@@ -263,7 +263,7 @@
     { # erst der Test, ob Reorganisieren nötig ist:
       { var uintL size = posfixnum_to_L(Symtab_size(symtab));
         var uintL count = posfixnum_to_L(Symtab_count(symtab));
-        # Bei count>=2*size muß die Tabelle reorganisiert werden:
+        # Bei count>=2*size muss die Tabelle reorganisiert werden:
         if (count >= 2*size)
           { pushSTACK(sym); # Symbol retten
             symtab = rehash_symtab(symtab);
@@ -276,7 +276,7 @@
       var object entry = TheSvector(Symtab_table(symtab))->data[index]; # entry in der table
       if ((!(nullp(entry))) || (nullp(sym)))
         # Ist entry=NIL und sym/=NIL, so ist einfach sym einzutragen.
-        # Sonst muß entry durch Consen erweitert werden:
+        # Sonst muss entry durch Consen erweitert werden:
         { pushSTACK(symtab); # symtab retten
           pushSTACK(sym); # Symbol retten
           pushSTACK(entry); # entry retten
@@ -562,7 +562,7 @@
 # < ergebnis:
 #     TRUE falls sym in pack als externes Symbol accessible ist,
 #     (in diesem Falle ist sym nicht verdeckt, denn ein eventuell sym
-#      vedeckendes Symbol müßte in shadowing-symbols(pack) aufgeführt sein,
+#      vedeckendes Symbol müsste in shadowing-symbols(pack) aufgeführt sein,
 #      nach den Konsistenzregeln 5 und 7 also mit sym identisch sein),
 #     FALSE sonst
   global boolean externalp (object sym, object pack);
@@ -836,24 +836,24 @@
          )
         # ein Symbol othersym desselben Namens war schon präsent in der Package
         { if (!eq(othersym,sym)) # war es das zu importierende Symbol selbst?
-            { # Nein -> muß othersym aus den internen bzw. aus den externen
+            { # Nein -> muss othersym aus den internen bzw. aus den externen
               # Symbolen herausnehmen:
               symtab_delete(othersym,
                             i_found ? ThePackage(pack)->pack_internal_symbols
                                     : ThePackage(pack)->pack_external_symbols
                            );
               # Wurde dieses Symbol aus seiner Home-Package herausgenommen,
-              # so muß seine Home-Package auf NIL gesetzt werden:
+              # so muss seine Home-Package auf NIL gesetzt werden:
               if (eq(Symbol_package(othersym),pack))
                 { Symbol_package(othersym) = NIL; }
-              # Symbol sym muß in die Package pack neu aufgenommen werden.
+              # Symbol sym muss in die Package pack neu aufgenommen werden.
               make_present(sym,pack);
         }   }
         else
-        # Symbol sym muß in die Package pack neu aufgenommen werden.
+        # Symbol sym muss in die Package pack neu aufgenommen werden.
         make_present(sym,pack);
      }
-      # Symbol muß in die Shadowing-Liste der Package aufgenommen werden.
+      # Symbol muss in die Shadowing-Liste der Package aufgenommen werden.
       shadowing_delete(popSTACK(),*pack_); # String aus der Shadowing-Liste herausnehmen
       shadowing_insert(&(*sym_),&(*pack_)); # Symbol dafür in die Shadowing-Liste aufnehmen
       clr_break_sem_2(); # Unterbrechungen wieder zulassen
@@ -904,7 +904,7 @@
     }
 
 # UP: Entfernt ein Symbol aus der Menge der präsenten Symbole einer Package
-# und sorgt für Konfliktauflösung für den Fall, daß es in der Shadowing-List
+# und sorgt für Konfliktauflösung für den Fall, dass es in der Shadowing-List
 # dieser Package war und deswegen ein Namenskonflikt entsteht.
 # unintern(&sym,&pack)
 # > sym: Symbol (im STACK)
@@ -1021,7 +1021,7 @@
     }
 
 # UP: Importiert ein Symbol in eine Package und sorgt für Konfliktauflösung
-# für den Fall, daß ein Namenskonflikt entweder mit einem aus einer anderen
+# für den Fall, dass ein Namenskonflikt entweder mit einem aus einer anderen
 # Package vererbten Symbol oder mit einem bereits in dieser Package präsenten
 # Symbol desselben Namens entsteht.
 # import(&sym,&pack);
@@ -1046,7 +1046,7 @@
         { if (eq(othersym,sym))
             # dasselbe Symbol -> nichts tun
             { return; }
-          # nicht dasselbe Symbol war präsent -> muß othersym rauswerfen und
+          # nicht dasselbe Symbol war präsent -> muss othersym rauswerfen und
           # dafür das gegebene Symbol sym reinsetzen.
           # Zuvor feststellen, ob zusätzlich noch vererbte Symbole da sind,
           # und dann Continuable Error melden.
@@ -1063,7 +1063,7 @@
                 # Symbol gleichen Namens in usedpack suchen:
                 if (symtab_lookup(string,ThePackage(usedpack)->pack_external_symbols,&otherusedsym))
                   { inheritedp = TRUE; break; } # gefunden -> inherited-Flag := TRUE
-          }   } # sonst ist am Schluß inherited-Flag = FALSE
+          }   } # sonst ist am Schluss inherited-Flag = FALSE
           # Stackaufbau: Symbol-Name, othersym, othersymtab.
           # Continuable Error melden:
           { pushSTACK(OLS(import_string1)); # "Sie dürfen über das weitere Vorgehen entscheiden."
@@ -1248,7 +1248,7 @@
       if (symtab_find(sym,ThePackage(pack)->pack_external_symbols))
         { return; } # gefunden -> fertig
       { var boolean import_it = FALSE;
-        # import_it = Flag, ob Symbol erst noch importiert werden muß.
+        # import_it = Flag, ob Symbol erst noch importiert werden muss.
         # sym unter den internen Symbolen von pack suchen:
         if (!(symtab_find(sym,ThePackage(pack)->pack_internal_symbols)))
           # Symbol sym ist nicht präsent in Package pack
@@ -1266,7 +1266,7 @@
               pushSTACK(S(package_error)); # PACKAGE-ERROR
               pushSTACK(S(Kpackage)); # :PACKAGE
               pushSTACK(pack); # Package
-              pushSTACK(NIL); # "Symbol ~S müßte erst in ~S importiert werden, bevor es exportiert werden kann."
+              pushSTACK(NIL); # "Symbol ~S müsste erst in ~S importiert werden, bevor es exportiert werden kann."
               pushSTACK(sym); # Symbol
               pushSTACK(pack); # Package
               STACK_6 = OLS(export_string1);
@@ -1283,7 +1283,7 @@
         # Nun auf Namenskonflikte testen:
         pushSTACK(NIL); # Conflict-Resolver:=NIL
         # Stackaufbau: Conflict-Resolver (eine Liste von Paaren (sym . pack),
-        #              auf die shadowing_import angewandt werden muß).
+        #              auf die shadowing_import angewandt werden muss).
         pushSTACK(ThePackage(*pack_)->pack_used_by_list); # Used-By-List wird abgesucht
         while (mconsp(STACK_0))
           { var object usingpack = Car(STACK_0); # USEnde Package
@@ -1470,7 +1470,7 @@
       skipSTACK(1);
     }}
 
-# UP: Bewirkt, daß alle externen Symbole einer gegebenen Liste von Packages
+# UP: Bewirkt, dass alle externen Symbole einer gegebenen Liste von Packages
 # implizit accessible in einer gegebenen Package werden.
 # use_package(packlist,pack);
 # > packlist: Liste von Packages, die zu USEn sind
@@ -1505,7 +1505,7 @@
         var object packlistr = *packlistr_;
         # packlistr läuft durch packlist, packlistr = *packlistr_
         while (consp(packlistr))
-          { # Teste, ob (car packlistr) gestrichen werden muß:
+          { # Teste, ob (car packlistr) gestrichen werden muss:
             var object pack_to_test = Car(packlistr);
             if (eq(pack_to_test,pack))
               goto delete_pack_to_test;
@@ -1528,7 +1528,7 @@
       # Dabei ist ein Konflikt eine mindestens zweielementige Liste
       # von Symbolen gleichen Printnamens, zusammen mit der Package,
       # aus der dieses Symbol genommen wird:
-      # ((pack1 . sym1) ...) bedeutet, daß bei Ausführung des USE-PACKAGE
+      # ((pack1 . sym1) ...) bedeutet, dass bei Ausführung des USE-PACKAGE
       # die Symbole sym1,... (aus pack1 etc.) sich um die Sichtbarkeit in
       # Package pack streiten würden.
       # Die Konfliktliste ist die Liste aller auftretenden Konflikte.
@@ -1753,7 +1753,7 @@ local void use_package_aux(data,sym)
     ok: ;
   }
 
-# UP: Bewirkt, daß eine gegebene Package nicht mehr von einer (anderen)
+# UP: Bewirkt, dass eine gegebene Package nicht mehr von einer (anderen)
 # gegebenen Package geUSEt wird.
 # unuse_1package(pack,qpack);
 # > pack: Package
@@ -1774,7 +1774,7 @@ local void use_package_aux(data,sym)
       clr_break_sem_2();
     }
 
-# UP: Bewirkt, daß eine Liste gegebener Packages nicht mehr von einer
+# UP: Bewirkt, dass eine Liste gegebener Packages nicht mehr von einer
 # gegebenen Package geUSEt wird.
 # unuse_package(packlist,pack);
 # > packlist: Liste von Packages
@@ -1856,7 +1856,7 @@ local void use_package_aux(data,sym)
       pushSTACK(O(type_packname)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "Argument zu ~ muß eine Package oder ein Packagename sein, nicht ~" :
+             DEUTSCH ? "Argument zu ~ muss eine Package oder ein Packagename sein, nicht ~" :
              ENGLISH ? "~: argument should be a package or a package name, not ~" :
              FRANCAIS ? "L'argument de ~ doit être un paquetage ou un nom de paquetage et non ~." :
              ""
@@ -1870,7 +1870,7 @@ LISPFUNN(make_symbol,1) # (MAKE-SYMBOL printname), CLTL S. 168
         pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Argument muß ein String sein, nicht ~." :
+               DEUTSCH ? "~: Argument muss ein String sein, nicht ~." :
                ENGLISH ? "~: argument should be a string, not ~" :
                FRANCAIS ? "~ : L'argument doit être une chaîne et non ~." :
                ""
@@ -1893,7 +1893,7 @@ LISPFUNN(make_symbol,1) # (MAKE-SYMBOL printname), CLTL S. 168
       pushSTACK(O(type_stringsym)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument muß ein String oder Symbol sein, nicht ~." :
+             DEUTSCH ? "~: Argument muss ein String oder Symbol sein, nicht ~." :
              ENGLISH ? "~: argument ~ should be a string or a symbol" :
              FRANCAIS ? "~ : L'argument doit être un symbole ou une chaîne et non ~." :
              ""
@@ -2170,7 +2170,7 @@ LISPFUN(unintern,1,1,norest,nokey,0,NIL)
         not_ok:
           pushSTACK(STACK_1); pushSTACK(TheSubr(subr_self)->name);
           fehler(error,
-                 DEUTSCH ? "Argument zu ~ muß ein Symbol oder eine Symbolliste sein, nicht ~" :
+                 DEUTSCH ? "Argument zu ~ muss ein Symbol oder eine Symbolliste sein, nicht ~" :
                  ENGLISH ? "~: argument should be a symbol or a list of symbols, not ~" :
                  FRANCAIS ? "~ : L'argument de ~ doit être un symbole ou une liste de symboles et non ~." :
                  ""
@@ -2366,14 +2366,14 @@ LISPFUN(pin_package,1,0,norest,key,3, (kw(nicknames),kw(use),kw(case_sensitive))
 # (SYSTEM::%IN-PACKAGE name [:NICKNAMES nicknames] [:USE uselist]
 #                           [:CASE-SENSITIVE sensitivep])
 # ist wie (IN-PACKAGE name [:NICKNAMES nicknames] [:USE uselist]), CLTL S. 183,
-# nur daß *PACKAGE* nicht modifiziert wird.
+# nur dass *PACKAGE* nicht modifiziert wird.
   { # name überprüfen und in String umwandeln:
     var object name = test_stringsym_arg(STACK_3);
     STACK_3 = name;
     # Package mit diesem Namen suchen:
    {var object pack = find_package(name);
     if (nullp(pack))
-      # Package nicht gefunden, muß eine neue erzeugen
+      # Package nicht gefunden, muss eine neue erzeugen
       { in_make_package(); }
       else
       # Package gefunden
@@ -2428,7 +2428,7 @@ LISPFUN(pin_package,1,0,norest,key,3, (kw(nicknames),kw(use),kw(case_sensitive))
                   unuse_ok: ;
                   used_packs = Cdr(used_packs);
           } }   }
-        # Die Use-List ist korrekt angepaßt.
+        # Die Use-List ist korrekt angepasst.
         skipSTACK(3); # uselist, nicknames usw. vergessen
         value1 = popSTACK(); mv_count=1; # pack als Wert
       }
@@ -2541,7 +2541,7 @@ LISPFUNN(find_all_symbols,1)
                { if (eq(sym,Car(symlistr))) goto already_found; # gefunden -> nichts weiter zu tun
                  symlistr = Cdr(symlistr);
             }  }
-            # nicht gefunden, muß consen:
+            # nicht gefunden, muss consen:
             pushSTACK(sym);
             {var object new_cons = allocate_cons();
              Car(new_cons) = popSTACK();
@@ -2636,7 +2636,7 @@ LISPFUNN(map_all_symbols,1)
 # für das Iterieren durch die Package.
 # (SYSTEM::PACKAGE-ITERATE internal-state) iteriert durch eine Package um
 # eins weiter, verändert dabei internal-state und liefert: 3 Werte
-# T, symbol, accessibility des nächsten Symbols bzw. 1 Wert NIL am Schluß.
+# T, symbol, accessibility des nächsten Symbols bzw. 1 Wert NIL am Schluss.
 
 LISPFUNN(package_iterator,2)
   { STACK_1 = test_package_arg(STACK_1); # package-Argument überprüfen
@@ -2683,7 +2683,7 @@ LISPFUNN(package_iterate,1)
               if (FALSE)
                 { found:
                   # Ein Symbol value2 gefunden.
-                  # Stelle sicher, daß es in pack accessible und nicht verdeckt
+                  # Stelle sicher, dass es in pack accessible und nicht verdeckt
                   # ist. Ansonsten befindet sich ein davon verschiedenes Symbol
                   # desselben Namens in der Shadowing-Liste von pack.
                  {var object shadowingsym;

@@ -134,7 +134,7 @@
         (when name (setf (gethash name *c-type-table*) c-type))
         c-type
       )
-      (error (DEUTSCH "FFI-Typ muﬂ ein Symbol sein, nicht ~S."
+      (error (DEUTSCH "FFI-Typ muss ein Symbol sein, nicht ~S."
               ENGLISH "FFI type should be a symbol, not ~S"
               FRANCAIS "Un type FFi doit Ítre un symbole et non ~S")
              typespec
@@ -425,7 +425,7 @@
 
 (defun parse-foreign-name (name)
   (unless (stringp name)
-    (error (DEUTSCH "Der Name muﬂ ein String sein, nicht ~S."
+    (error (DEUTSCH "Der Name muss ein String sein, nicht ~S."
             ENGLISH "The name must be a string, not ~S"
             FRANCAIS "Le nom doit Ítre une chaÓne et non ~S.")
            name

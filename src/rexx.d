@@ -9,7 +9,7 @@
 #include "amiga2.c"
 
 # ARexx 'library base' pointer:
-# (Muß global sichtbar sein und diesen Namen tragen, damit's der Linker findet!)
+# (Muss global sichtbar sein und diesen Namen tragen, damit's der Linker findet!)
   global struct RxsLib * RexxSysBase = NULL;
 
 
@@ -111,7 +111,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
             pushSTACK(S(simple_vector)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
             pushSTACK(STACK_1);
             fehler(type_error,
-                   DEUTSCH ? "~ muß ein String für Kommandos oder ein Vektor von Strings für eine Funktion sein." :
+                   DEUTSCH ? "~ muss ein String für Kommandos oder ein Vektor von Strings für eine Funktion sein." :
                    ENGLISH ? "~ must be a string for commands or a vector of strings for a function" :
                    FRANCAIS ? "~ doit être une chaîne pour une commande ou un vecteur de chaînes pour une fonction." :
                    ""
@@ -123,7 +123,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
             pushSTACK(fixnum(MAXRMARG));
             pushSTACK(S(rexx_put));
             fehler(error,
-                   DEUTSCH ? "~: ARexx Funktion muß 0 bis ~ Argumente haben: ~" :
+                   DEUTSCH ? "~: ARexx Funktion muss 0 bis ~ Argumente haben: ~" :
                    ENGLISH ? "~: an ARexx function must have 0 to ~ arguments: ~" :
                    FRANCAIS ? "~ : Une fonction ARexx a de 0 à ~ arguments : ~" :
                    ""
@@ -140,7 +140,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
                 pushSTACK(arg);
                 pushSTACK(S(rexx_put));
                 fehler(type_error,
-                       DEUTSCH ? "~: Muß für ARexx ein String sein: ~" :
+                       DEUTSCH ? "~: Muss für ARexx ein String sein: ~" :
                        ENGLISH ? "~: must be a string for ARexx: ~" :
                        FRANCAIS ? "~ : Doit être une chaîne pour ARexx : ~" :
                        ""
@@ -385,7 +385,7 @@ LISPFUNN(rexx_wait_input,0)
                   debug_asciz_out_s(" incoming is " NLstring "%s",rexxmsg->rm_Args[0]);
                   # Eingehender Befehl
                   if (rexxShutdown)
-                    { # Schluß, nichts läuft mehr
+                    { # Schluss, nichts läuft mehr
                       rexxmsg->rm_Result1 = RXERRORIMGONE;
                       begin_system_call();
                       ReplyMsg((struct Message *)rexxmsg);

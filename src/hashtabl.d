@@ -9,7 +9,7 @@
 # Aufbau einer Hash-Tabelle:
 # Es werden Paare (Key . Value) abgelegt.
 # In einem Vektor, der durch (hashcode Key) indiziert wird.
-# Damit ein laufendes MAPHASH von einer GC unbeeinflußt bleibt, wird dieser
+# Damit ein laufendes MAPHASH von einer GC unbeeinflusst bleibt, wird dieser
 # Vektor bei GC nicht reorganisiert. Da aber bei GC jeder (hashcode Key)
 # sich ändern kann, bauen wir eine weitere Indizierungsstufe ein:
 # (hashcode Key) indiziert einen Index-Vektor; dort steht ein Index in
@@ -18,7 +18,7 @@
 # im Vektor ab, sondern einfach Key und Value hintereinander.
 # Kollisionen [mehrere Keys haben denselben (hascode Key)] möchte man durch
 # Listen beheben. Da aber der Key-Value-Vektor (wieder wegen MAPHASH) bei GC
-# unbeeinflußt bleiben soll und GC die Menge der Kollisionen verändert,
+# unbeeinflusst bleiben soll und GC die Menge der Kollisionen verändert,
 # brauchen wir einen weiteren Index-Vektor, genannt Next-Vektor, der
 # "parallel" zum Key-Value-Vektor liegt und eine "Listen"struktur enthält.
 # Skizze:
@@ -37,16 +37,16 @@
 # Wird Index-Vektor vergrößert, müssen alle Hashcodes und der Inhalt von
 # Index-Vektor und der Inhalt von Next-Vektor neu berechnet werden.
 # Werden Next-Vektor und Key-Value-Vektor vergrößert, so können die
-# restlichen Elemente mit "leer" gefüllt werden, ohne daß ein Hashcode neu
-# berechnet werden müßte.
+# restlichen Elemente mit "leer" gefüllt werden, ohne dass ein Hashcode neu
+# berechnet werden müsste.
 # Damit nach CLRHASH oder vielfachem REMHASH, wenn eine Tabelle viel
 # weniger Elemente enthält als ihre Kapazität, ein MAPHASH schnell geht,
 # könnte man die Einträge im Key-Value-Vektor "links gepackt" halten, d.h.
 # alle "leer" kommen rechts. Dann braucht man bei MAPHASH nur die Elemente
-# count-1,...,1,0 des Key-Value-Vektors abzugrasen. Aber REMHASH muß
+# count-1,...,1,0 des Key-Value-Vektors abzugrasen. Aber REMHASH muss
 # - nachdem es eine Lücke gelassen hat - das hinterste Key-Value-Paar
 # (Nummer count-1) in die Lücke umfüllen.
-# Wir behandeln solche Fälle dadurch, daß wir bei CLRHASH und REMHASH
+# Wir behandeln solche Fälle dadurch, dass wir bei CLRHASH und REMHASH
 # eventuell den Key-Value-Vektor und den Next-Vektor verkleinern.
 # Damit PUTHASH einen freien Eintrag findet, halten wir die "leer" im
 # Next-Vektor in einer Frei"liste".
@@ -68,7 +68,7 @@
 #   Bit 2 gesetzt, wenn EQUAL-Hashtabelle
 #   Bit 3 gesetzt, wenn EQUALP-Hashtabelle
 #   Bit 4-6 =0
-#   Bit 7 gesetzt, wenn Tabelle nach GC reorganisiert werden muß
+#   Bit 7 gesetzt, wenn Tabelle nach GC reorganisiert werden muss
 # ht_size                Fixnum>0 = Länge der ITABLE
 # ht_maxcount            Fixnum>0 = Länge der NTABLE
 # ht_itable              Index-Vektor der Länge SIZE, enthält Indizes
@@ -786,7 +786,7 @@
     var object** Iptr_;
     { var uintB flags = record_flags(TheHashtable(ht));
       if (!ht_validp(TheHashtable(ht)))
-        # Hash-Tabelle muß erst noch reorganisiert werden
+        # Hash-Tabelle muss erst noch reorganisiert werden
         { rehash(ht); }
      {var uintL hashindex = hashcode(ht,obj); # Hashcode berechnen
       var object* Nptr = # Pointer auf den aktuellen Eintrag
@@ -946,7 +946,7 @@
         dotimesL(count,count, { *KVptr++ = leer; *KVptr++ = leer; } );
         # Hash-Tabelle modifizieren:
         set_break_sem_2(); # Vor Unterbrechungen schützen
-        mark_ht_invalid(TheHashtable(ht)); # Tabelle muß erst noch reorganisiert werden
+        mark_ht_invalid(TheHashtable(ht)); # Tabelle muss erst noch reorganisiert werden
         TheHashtable(ht)->ht_size = size; # neues SIZE eintragen
         TheHashtable(ht)->ht_itable = Ivektor; # neuen Index-Vektor eintragen
         TheHashtable(ht)->ht_maxcount = maxcount; # neues MAXCOUNT eintragen
@@ -971,7 +971,7 @@
     { retry:                                                                    \
       freelist = TheHashtable(ht)->ht_freelist;                                 \
       if (eq(freelist,nix)) # Freiliste = leere "Liste" ?                       \
-        # ja -> muß die Hash-Tabelle vergrößern:                                \
+        # ja -> muss die Hash-Tabelle vergrößern:                               \
         { pushSTACK(ht); # Hashtable retten                                     \
           # neues maxcount ausrechnen:                                          \
           pushSTACK(TheHashtable(ht)->ht_maxcount);                             \
@@ -1015,7 +1015,7 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
     # Verhältnis MAXCOUNT : SIZE = ca. 1 : 2.
     # Wir ignorieren das rehash-threshold-Argument, da sowohl zu große als
     # auch zu kleine Werte davon schädlich wären: 0.99 bewirkt im Durchschnitt
-    # zu lange Zugriffszeiten; 0.00001 bewirkt, daß SIZE = MAXCOUNT/threshold
+    # zu lange Zugriffszeiten; 0.00001 bewirkt, dass SIZE = MAXCOUNT/threshold
     # zu schnell ein Bignum werden könnte.
     # Das zusätzliche initial-contents-Argument ist eine Aliste = Liste von
     # (Key . Value) - Paaren, mit denen die Tabelle initialisiert wird.
@@ -1141,7 +1141,7 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
     # Nun sind alle Argumente überprüft.
     # Ist das initial-contents-Argument angegeben, so wird
     # size := (max size (length initial-contents)) gesetzt, damit nachher beim
-    # Eintragen des initial-contents die Tabelle nicht vergrößert werden muß:
+    # Eintragen des initial-contents die Tabelle nicht vergrößert werden muss:
     { var object initial_contents = STACK_4;
       if (!eq(initial_contents,unbound)) # angegeben ?
         { var uintL initial_length = llength(initial_contents); # Länge der Aliste
@@ -1400,7 +1400,7 @@ LISPFUNN(clrhash,1)
     clrhash(ht); # Tabelle leeren
     # Bei MINCOUNT > 0 die Hash-Tabelle verkleinern:
     if (!eq(TheHashtable(ht)->ht_mincount,Fixnum_0))
-      { ht = resize(ht,Fixnum_1); } # auf MAXCOUNT:=1 verkleinern, so daß MINCOUNT:=0
+      { ht = resize(ht,Fixnum_1); } # auf MAXCOUNT:=1 verkleinern, so dass MINCOUNT:=0
     value1 = ht; mv_count=1; # Hash-Tabelle als Wert
   }
 
@@ -1453,7 +1453,7 @@ LISPFUNN(hash_table_test,1)
 # für das Iterieren durch eine Hash-Tabelle.
 # (SYSTEM::HASH-TABLE-ITERATE internal-state) iteriert durch eine Hash-Tabelle
 # um eins weiter, verändert dabei internal-state und liefert: 3 Werte
-# T, key, value des nächsten Hash-Tabellen-Eintrags bzw. 1 Wert NIL am Schluß.
+# T, key, value des nächsten Hash-Tabellen-Eintrags bzw. 1 Wert NIL am Schluss.
 
 LISPFUNN(hash_table_iterator,1)
   { var object ht = STACK_0; # hashtable-Argument
@@ -1607,7 +1607,7 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL)
  {var object ht = Before(rest_args_pointer); # hashtable-Argument
   if (!hash_table_p(ht)) { fehler_hashtable(ht); } # überprüfen
   if (!ht_validp(TheHashtable(ht)))
-    # Hash-Tabelle muß erst noch reorganisiert werden
+    # Hash-Tabelle muss erst noch reorganisiert werden
     { rehash(ht); }
   { var uint32 code = # Hashcode des Cons-Baumes berechnen
       hashcode_tuple(argcount,rest_args_pointer,0);
