@@ -250,8 +250,9 @@
   # Reading and writing from a socket
   extern int sock_read (SOCKET fd, void* buf, int nbyte);
   extern int sock_write (SOCKET fd, const void* buf, int nbyte);
-  # Interruptible wait
-  extern int interruptible_wait(SOCKET socket_handle,struct timeval * timeout_ptr);
+  # Interruptible wait for something on socket
+  typedef enum { socket_wait_read, socket_wait_write, socket_wait_except } socket_wait_event;
+  extern int interruptible_socket_wait (SOCKET socket_handle, socket_wait_event waitwhat, struct timeval * timeout_ptr);
   # Wrapping and unwrapping of a socket in a Lisp object
   #define allocate_socket(fd)  allocate_handle((Handle)(fd))
   #define TheSocket(obj)  (SOCKET)TheHandle(obj)

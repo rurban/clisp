@@ -675,39 +675,53 @@ global int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p) {
       }
     }
 
-# interruptible win32 wait
-local DWORD WINAPI do_wait (LPVOID arg) {
- restart_select:
-  begin_system_call();
-  {
-    var int ret;
-    var fd_set handle_set;
-    FD_ZERO(&handle_set); FD_SET(*((SOCKET *)(((void **)arg)[0])),&handle_set);
-    ret = select(FD_SETSIZE,&handle_set,NULL,NULL,
-                 (struct timeval *)(((void **)arg)[1]));
-    if (ret < 0) {
-      if (sock_errno_is(EINTR)) {
-        end_system_call(); goto restart_select;
-      }
-      SOCK_error();
-    }
-    end_system_call();
-    if (ret != SOCKET_ERROR && ret != 0) # success
-      (((void **)arg)[2]) = arg;         # not NULL
-    return 0;
-  }
-}
+  # interruptible win32 socket wait thread function 
 
-# actual interface. return true on successfull wait, false when timeout
-# expires or Ctrl-C or Ctrl-Break pressed
-global int interruptible_wait (SOCKET socket_handle,
+  struct socket_wait_params {
+    socket_wait_event  event;
+    SOCKET            handle;
+    struct timeval * timeout;
+    bool             success;
+  };
+
+  local DWORD WINAPI do_socket_wait (LPVOID arg) {
+   restart_select:
+    begin_system_call();
+    {
+      var struct socket_wait_params * params = (struct socket_wait_params *)arg;
+      var int ret;
+      var fd_set handle_set;
+      FD_ZERO(&handle_set); FD_SET(params->handle,&handle_set);
+      ret = select(FD_SETSIZE, # 1st parameter doesnt really matters in winsock
+             params->event==socket_wait_read?&handle_set:NULL,
+             params->event==socket_wait_write?&handle_set:NULL,
+             params->event==socket_wait_except?&handle_set:NULL,
+             params->timeout);
+      if (ret < 0) {
+        if (sock_errno_is(EINTR)) {
+          end_system_call(); goto restart_select;
+        }
+        SOCK_error();
+      }
+      end_system_call();
+      if (ret != SOCKET_ERROR && ret != 0) # success
+        params->success = true;
+      return 0;
+    }
+  }
+
+  # actual interface. return true on successfull wait, false when timeout
+  # expires or Ctrl-C or Ctrl-Break pressed
+  global int interruptible_socket_wait (SOCKET socket_handle,
+                               socket_wait_event waitwhat,
                                struct timeval * timeout_ptr) {
-  var void * paramp[3]; # parameters for interruptible function
-  paramp[0] = &socket_handle;
-  paramp[1] = timeout_ptr;
-  paramp[2] = NULL; # success indicator, success is when paramp[3]!=NULL
-  return DoInterruptible(&do_wait,paramp,true) && paramp[2];
-}
+    var struct socket_wait_params params;   # parameters for interruptible function
+    params.event = waitwhat;                # see select() description
+    params.handle = socket_handle;
+    params.timeout = timeout_ptr;
+    params.success = false;
+    return DoInterruptible(&do_socket_wait,&params,true) && params.success;
+  }
 
 # Testing for possibly interactive handle.
   global int isatty (HANDLE handle);
