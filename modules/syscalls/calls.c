@@ -928,28 +928,12 @@ DEFUN(POSIX::UMASK, cmask)
 #endif  /* umask */
 
 #if defined(HAVE_MKNOD)
+DEFCHECKER(mknod_type_check, S_IFIFO S_IFSOCK S_IFCHR S_IFDIR S_IFBLK S_IFREG)
 DEFUN(POSIX::MKNOD, path type mode)
 { /* lisp interface to mknod(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/mknod.html */
-  mode_t mode = posfixnum_to_L(check_posfixnum(popSTACK()));
- mknod_restart_type_check:
-  if (eq(STACK_0,`:FIFO`)) mode |= S_IFIFO;
-  else if (eq(STACK_0,`:SOCK`)) mode |= S_IFSOCK;
-  else if (eq(STACK_0,`:CHR`)) mode |= S_IFCHR;
-  else if (eq(STACK_0,`:DIR`)) mode |= S_IFDIR;
-  else if (eq(STACK_0,`:BLK`)) mode |= S_IFBLK;
-  else if (eq(STACK_0,`:REG`)) mode |= S_IFREG;
-  else {
-    pushSTACK(NIL);             /* no PLACE */
-    pushSTACK(STACK_1);         /* TYPE-ERROR slot DATUM */
-    pushSTACK(`(MEMBER :FIFO :SOCK :CHR :DIR :BLK :REG)`); /* EXPECTED-TYPE */
-    pushSTACK(STACK_0); pushSTACK(STACK_2);
-    pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
-    STACK_0 = value1;
-    goto mknod_restart_type_check;
-  }
-  skipSTACK(1);                 /* drop type from STACK */
+  mode_t mode = (posfixnum_to_L(check_posfixnum(popSTACK()))
+                 | mknod_type_check(popSTACK()));
   funcall(L(namestring),1);     /* drop path from STACK */
   with_string_0(value1,GLO(pathname_encoding),path, {
       begin_system_call();
