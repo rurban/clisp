@@ -186,16 +186,21 @@ local void gc_markphase (void)
         /*NOTREACHED*/ abort();
     }
     #else
-    switch (as_oint(obj) & nonimmediate_bias_mask) {
-      case varobject_bias:
+    switch (as_oint(obj) & nonimmediate_heapcode_mask) {
+      case varobject_bias+varobjects_misaligned:
         if (in_old_generation(obj,,0)) return true;
         if (marked(ThePointer(obj))) return true; else return false;
-      case (cons_bias & immediate_bias):
+      case cons_bias+conses_misaligned:
+        #ifdef STANDARD_HEAPCODES
+        /* NB: (immediate_bias & nonimmediate_heapcode_mask) == cons_bias. */
         if (immediate_object_p(obj)) return true;
+        #endif
         if (in_old_generation(obj,,1)) return true;
         if (marked(ThePointer(obj))) return true; else return false;
+      #ifdef STANDARD_HEAPCODES
       case subr_bias:
         if (marked(TheSubr(obj))) return true; else return false;
+      #endif
       default:
         return true;
     }

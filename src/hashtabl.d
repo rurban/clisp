@@ -1923,7 +1923,7 @@ local uint32 sxhash_atom (object obj) {
     goto case_fixnum;
   else if (short_float_p(obj))
     goto case_sfloat;
-  else if (subrp(obj))
+  else if (immsubrp(obj))
     goto case_subr;
   else if (machinep(obj))
     goto case_machine;
@@ -2002,6 +2002,7 @@ local uint32 sxhash_atom (object obj) {
         case_Rectype_Lfloat_above;
         case_Rectype_Ratio_above;
         case_Rectype_Complex_above;
+        case_Rectype_Subr_above;
         default: ;
       }
       bish_code = 0xB04D939EUL + rectype;

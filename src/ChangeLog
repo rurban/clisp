@@ -1,5 +1,54 @@
 2004-05-21  Bruno Haible  <bruno@clisp.org>
 
+	New heapcodes scheme for Linux/x86 systems.
+	* lispbibl.d: Recognize CFLAGS macros STANDARD_HEAPCODES,
+	LINUX_NOEXEC_HEAPCODES.
+	(STANDARD_HEAPCODES, LINUX_NOEXEC_HEAPCODES): New macros.
+	(LINUX_NOEXEC_HEAPCODES): Use garcol_bit_o = 0.
+	(machine_bias, varobject_bias, cons_bias, immediate_bias, subr_bias,
+	imm_type_shift, fixnum_type, sfloat_type, char_type, read_label_type,
+	system_type, sign_bit_t, sign_bit_o, bignum_bit_o, number_immediatep,
+	varobjects_misaligned, nonimmediate_bias_mask,
+	nonimmediate_heapcode_mask, type_data_object, type_zero_oint,
+	immediate_object_p, gcinvariant_object_p, gcinvariant_bias_p)
+	[LINUX_NOEXEC_HEAPCODES]: New definitions for LINUX_NOEXEC_HEAPCODES.
+	(varobject_alignment): Define to 8 for LINUX_NOEXEC_HEAPCODES.
+	(consp, varobjectp): Generalize for LINUX_NOEXEC_HEAPCODES.
+	(subrp) [LINUX_NOEXEC_HEAPCODES]: New definition for
+	LINUX_NOEXEC_HEAPCODES.
+	(immsubrp) [HEAPCODES]: New macro.
+	(machinep) [LINUX_NOEXEC_HEAPCODES]: New definition for
+	LINUX_NOEXEC_HEAPCODES.
+	(case_Rectype_Subr_above): New macro.
+	(FB5, FB4, FB3, FB2, FB1): New definitions for
+	LINUX_NOEXEC_HEAPCODES.
+	(makebottomword, framesize): New macros.
+	(framecode) [LINUX_NOEXEC_HEAPCODES]: New definition for
+	LINUX_NOEXEC_HEAPCODES.
+	(topofframe, framebottomword): Simplify by using framesize,
+	makebottomword.
+	* genclisph.d (main): Update. Emit definitions of HEAPCODES,
+	makebottomword.
+	* spvw.d (main): If TRIVIALMAP_MEMORY & SPVW_MIXED_BLOCKS_STAGGERED
+	& LINUX_NOEXEC_HEAPCODES, use 0xBF000000 as upper bound for all heaps.
+	* spvw_garcol.d (alive) [HEAPCODES]: Make it work for
+	LINUX_NOEXEC_HEAPCODES too.
+	* spvw_gcmark.d (gc_mark) [HEAPCODES]: Make it work for
+	LINUX_NOEXEC_HEAPCODES too.
+	* spvw_memfile.d (loadmem_update) [HEAPCODES]: Make it work for
+	LINUX_NOEXEC_HEAPCODES too; SUBRs are indistiguishable from Records
+	here.
+	* eval.d (eval1) [HEAPCODES]: Update for changed representation of
+	subrs.
+	* io.d (prin_object_dispatch) [HEAPCODES]: Update for changed
+	representation of subrs.
+	* hashtabl.d (sxhash_atom) [HEAPCODES]: Update for changed
+	representation of subrs.
+	* predtype.d (TYPE-OF, CLOS:CLASS-OF, heap_statistics_mapper)
+	[HEAPCODES]: Update for changed representation of subrs.
+
+2004-05-21  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (char_int): Make it work when some heapcode bits are
 	in the high bits, not only in the low bits.
 	* genclisph.d (main): Update.

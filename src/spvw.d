@@ -2452,7 +2452,12 @@ global int main (argc_t argc, char* argv[]) {
        #ifdef TYPECODES
       var aint end = bitm(oint_addr_len+addr_shift);
        #else
-      var aint end = (start | (bitm(garcol_bit_o)-1)) + 1; # keep garcol_bit zero
+        #ifdef STANDARD_HEAPCODES
+      var aint end = (start | (bit(garcol_bit_o)-1)) + 1; # keep garcol_bit zero
+        #endif
+        #ifdef LINUX_NOEXEC_HEAPCODES
+      var aint end = 0xBF000000; # virtual addresses end at 0xC0000000.
+        #endif
        #endif
       var aint part = floor(end - (start & (end-1)),5);
       #if defined(AMD64) && defined(UNIX_LINUX)
