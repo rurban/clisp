@@ -12,6 +12,7 @@
 // Revision 1.21  1999-05-30  bruno
 // - Add missing begin_callback() in `xlib_io_error_handler'.
 // - Save subr_self during some calls in xlib:change-property.
+// - Fix some obvious typos in `font_char_info'.
 //
 // Revision 1.20  1999-04-04  bruno
 // - Modifications for UNICODE.
@@ -5439,7 +5440,7 @@ XCharStruct *font_char_info (XFontStruct *fs, unsigned int index)
    *           \ = integer modulus
    */
 
-  if (fs->min_byte1 == 0 && fs->min_byte1 == 0) // ??!
+  if (fs->min_byte1 == 0 && fs->max_byte1 == 0)
     {
       // Linear indexing ...
       if (index >= fs->min_char_or_byte2 && index <= fs->max_char_or_byte2)
@@ -5453,10 +5454,10 @@ XCharStruct *font_char_info (XFontStruct *fs, unsigned int index)
       // Nonlinear indexing ..
       unsigned char byte1 = (index >> 8) &0xFF;	// Is this right?!
       unsigned char byte2 = index & 0xFF;
-      unsigned char d = fs->max_char_or_byte2 - fs->min_char_or_byte2 + 1;
+      unsigned int d = fs->max_char_or_byte2 - fs->min_char_or_byte2 + 1;
 
-      if (byte1 >= fs->min_byte1 && byte1 >= fs->max_byte1 &&
-	  byte2 >= fs->min_char_or_byte2 && byte2 >= fs->max_char_or_byte2)
+      if (byte1 >= fs->min_byte1 && byte1 <= fs->max_byte1 &&
+	  byte2 >= fs->min_char_or_byte2 && byte2 <= fs->max_char_or_byte2)
 	{
 	  index = (byte1 - fs->min_byte1)*d + (byte2 - fs->min_char_or_byte2);
 
