@@ -1909,6 +1909,8 @@ LISPFUNN(charset_range,3)
           pushSTACK(Symbol_value(S(iso8859_1)));
         elif (asciz_equal(name,"ISO-8859-2"))
           pushSTACK(Symbol_value(S(iso8859_2)));
+        elif (asciz_equal(name,"ISO-8859-3"))
+          pushSTACK(Symbol_value(S(iso8859_3)));
         elif (asciz_equal(name,"ISO-8859-5"))
           pushSTACK(Symbol_value(S(iso8859_5)));
         elif (asciz_equal(name,"ISO-8859-6"))
