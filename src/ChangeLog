@@ -1,3 +1,17 @@
+2001-05-12  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (pslashp, lslashp, Z_AT_SLASH, Z_SHIFT): new macros
+	(parse_logical_pathnamestring): bugfix: :relative & :absolute
+	 were reversed
+	(parse_as_logical): new helper function
+	(logical_pathname, merge_pathnames): use it
+	(merge_pathnames): new macros SPECIFIED, NAMETYPE_MATCH, and
+	 VERSION_MATCH; chenaged the previous patch: re-parse pathname
+	 as logical when the default is logical
+	(has_wildcards): replaced with wild_p() which handles :WILD
+	(has_word_wildcards): ditto with word_wild_p()
+	(has_*_wildcards): simplified accordingly
+
 2001-05-11  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (cpu): set to "arm" when "$host_cpu" is "arm*"
@@ -12,7 +26,7 @@
 	(split_name_type): use them; "*.*" ==> :name :wild :device :wild
 	(directory_namestring_parts): :name and :type maybe :wild
 	(merge-pathnames): as per ANSI CL, return a logical pathname when
-	the first argument is one.
+	 the first argument is one.
 	(directory_match, nametype_match, version_match):
 	 unbound matches everything
 	(directory_diff, nametype_diff, version_diff):
