@@ -1401,6 +1401,56 @@ ERROR
 ;;; clears the effective-methods or discriminating-function cache of all
 ;;; affected generic functions.
 
+;; Class specializers.
+
+; Case 1: Adding a class to a CPL.
+(progn
+  (defclass testclass40a () ())
+  (defclass testclass40b () ())
+  (defclass testclass40c (testclass40b) ())
+  (defgeneric testgf40 (x) (:method-combination list))
+  (defmethod testgf40 list ((x standard-object)) 0)
+  (defmethod testgf40 list ((x testclass40a)) 'a)
+  (let ((inst (make-instance 'testclass40c)))
+    (list
+      (testgf40 inst)
+      (progn
+        (defclass testclass40b (testclass40a) ())
+        (testgf40 inst)))))
+((0) (A 0))
+
+; Case 2: Removing a class from a CPL.
+(progn
+  (defclass testclass41a () ())
+  (defclass testclass41b (testclass41a) ())
+  (defclass testclass41c (testclass41b) ())
+  (defgeneric testgf41 (x) (:method-combination list))
+  (defmethod testgf41 list ((x standard-object)) 0)
+  (defmethod testgf41 list ((x testclass41a)) 'a)
+  (let ((inst (make-instance 'testclass41c)))
+    (list
+      (testgf41 inst)
+      (progn
+        (defclass testclass41b () ())
+        (testgf41 inst)))))
+((A 0) (0))
+
+; Case 3: Reordering a CPL.
+(progn
+  (defclass testclass42a () ())
+  (defclass testclass42b () ())
+  (defclass testclass42c (testclass42a testclass42b) ())
+  (defgeneric testgf42 (x))
+  (defmethod testgf42 ((x testclass42a)) 'a)
+  (defmethod testgf42 ((x testclass42b)) 'b)
+  (let ((inst (make-instance 'testclass42c)))
+    (list
+      (testgf42 inst)
+      (progn
+        (defclass testclass42c (testclass42b testclass42a) ())
+        (testgf42 inst)))))
+(A B)
+
 ;; EQL specializers.
 
 ; Case 1: Adding a class to a CPL.
