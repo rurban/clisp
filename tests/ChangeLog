@@ -1,5 +1,9 @@
 2004-11-21  Bruno Haible  <bruno@clisp.org>
 
+	* mop.tst: Update for CMUCL.
+
+2004-11-21  Bruno Haible  <bruno@clisp.org>
+
 	* mop.tst: Restrict the tests that require
 	compute-effective-slot-definition-initargs to CLISP, CMUCL, SBCL.
 
