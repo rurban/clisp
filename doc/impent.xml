@@ -681,7 +681,8 @@
 <!ENTITY unsigned-byte-vec "<literal role='type'>(&vector-t; (&unsigned-byte-t; 8))</literal>">
 <!ENTITY yes "<listitem><simpara>yes</simpara></listitem>">
 <!ENTITY no "<listitem><simpara>no</simpara></listitem>">
-<!ENTITY not-e "<emphasis>not</emphasis>">
+<!ENTITY not-e "<emphasis role='strong'>not</emphasis>">
+<!ENTITY is-e "<emphasis role='strong'>is</emphasis>">
 <!ENTITY charset-glibc-libiconv "This character set is only available on
                                  platforms with &glibc; or &libiconv;.">
 <!ENTITY charset-libiconv "This character set is only available on

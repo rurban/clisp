@@ -61,9 +61,8 @@
 <para>The requirement of step 4 that a
  <quote><ulink url="&clhs;/Body/glo_r.html#reader_macro_function">reader
   macro function</ulink> may return zero values or one value</quote>
- <emphasis role="strong">is</emphasis> enforced.
- You can use the function &values; to control the number of values
- returned.</para>
+  &is-e; enforced.  You can use the function &values; to control the
+  number of values returned.</para>
 
 </section>
 
@@ -672,7 +671,7 @@ is the same as
  <varlistentry><term>&lfd;:</term>
   <listitem><simpara>
    <literal role="sexp">(&setf; (&lfd;) &digits-r;)</literal> sets the
-    default mantissa length of long floats to &digits-r; bits.
+    default mantissa length of &long-float-t;s to &digits-r; bits.
    </simpara></listitem></varlistentry>
 
  <varlistentry><term>&values-list;</term>
@@ -1287,13 +1286,13 @@ performance considerations.
  <constant>:IEEE-FLOATING-POINT</constant> keyword.</para>
 
 <formalpara id="lfd"><title>Arbitrary Precision Floats</title>
-<para>Long floats have variable mantissa length, which is a
+<para>&long-float-t;s have variable mantissa length, which is a
  multiple of 16 (or 32, depending on the word size of the processor).
- The default length used when long floats are read is given by the
+ The default length used when &long-float-t;s are &read; is given by the
  &place; &lfd-l;.  It can be set by <literal role="sexp">(&setf;
- (&lfd;) &n-r;)</literal>, where &n-r; is a positive integer.
+ (&lfd;) &n-r;)</literal>, where &n-r; is a positive &integer-t;.
  E.g., <literal role="sexp">(&setf; (&lfd;) 3322)</literal> sets the
- default precision of long floats to about 1000 decimal digits.
+ default precision of &long-float-t;s to about 1000 decimal digits.
 </para></formalpara>
 
 
@@ -1326,8 +1325,8 @@ performance considerations.
   <literal>3.3</literal>.  The implied random variables are:
   <literal>3.25&plusmn;0.005</literal> and <literal>3.3&plusmn;0.05</literal>.
   Note that the traditional &clisp; way <emphasis role="strong">does</emphasis>
-  lie about the mean: the mean <emphasis role="strong">is</emphasis>
-  <literal>3.25</literal> and nothing else, while the standard way
+  lie about the mean: the mean &is-e; <literal>3.25</literal> and
+  nothing else, while the standard way
   <emphasis role="strong">could</emphasis> be lying about the deviation
   (accuracy): if the implied accuracy of <literal>1.5 (0.05)</literal>
   is its actual accuracy, then the accuracy of the result cannot be
@@ -1386,7 +1385,7 @@ performance considerations.
 </variablelist>
 
 <formalpara id="warn-fpc"><title>Variable &warn-fpc;</title>
-<para>If the variable &warn-fpc; is non-&nil;, a warning is emitted for
+<para>If the variable &warn-fpc; is non-&nil;, a &warning-t; is emitted for
  every coercion involving different floating-point types.
  As explained above, float precision contagion is not a good idea,
  this is why &warn-fpc; is set to &t; initially.
@@ -1420,17 +1419,18 @@ performance considerations.
  <literal role="sexp">(&phase; 2.718)</literal>.</para>
 
 <formalpara id="warn-fprc"><title>Variable &warn-fprc;</title>
-<para>If the variable &warn-fprc; is non-&nil;, a warning is emitted for
+<para>If the variable &warn-fprc; is non-&nil;, a &warning-t; is emitted for
  every avoidable coercion from a rational number to a floating-point number.
  &warn-fprc; is set to &t; initially. Set it to &error; to have &clisp;
  &signal; an &error-t; on avoidable coercions to a floating-point number
  when a rational number result would be possible.</para></formalpara>
 
-<para id="phasecont">A similar variable, &phasecont;, controls the return
- value of the phase function when the argument is an exact nonnegative real.
- Namely, if &phasecont; is non-&nil;, it returns a floating-point zero; if
- &phasecont; is &nil;, it returns an exact zero. Example:
- <literal role="sexp">(&phase; 2/3)</literal></para>
+<formalpara id="phasecont"><title>Variable &phasecont;</title>
+<para>A similar variable, &phasecont;, controls the return
+ value of &phase; when the argument is an exact nonnegative &real-t;.
+ Namely, if &phasecont; is non-&nil;, it returns a floating-point zero;
+ if &phasecont; is &nil;, it returns an exact zero.  Example:
+ <literal role="sexp">(&phase; 2/3)</literal></para></formalpara>
 
 </section>
 </section>
@@ -1499,18 +1499,18 @@ performance considerations.
 
 <section id="int-func-ext"><title>Additional Integer Functions</title>
 
-<formalpara><title>Function <function>EXT:!</function></title>
+<formalpara id="factorial"><title>Function <function>EXT:!</function></title>
 <para><literal role="sexp">(<function>EXT:!</function> &n-r;)</literal>
  returns the factorial of &n-r;, &n-r; being a nonnegative
  &integer-t;.</para></formalpara>
 
-<formalpara><title>Function <function>EXT:EXQUO</function></title>
+<formalpara id="exquo"><title>Function <function>EXT:EXQUO</function></title>
 <para><literal role="sexp">(<function>EXT:EXQUO</function> &x-r;
  &y-r;)</literal> returns the integer quotient <varname>x/y</varname> of
  two integers &x-r;,&y-r;, and &signal;s an &error-t; when the quotient
  is not integer.  (This is more efficient than &slash;.)</para></formalpara>
 
-<formalpara><title>Function <function>EXT:XGCD</function></title>
+<formalpara id="xgcd"><title>Function <function>EXT:XGCD</function></title>
 <para><literal role="sexp">(<function>EXT:XGCD</function>
  &x1-r; ... &xn-r;)</literal>
  returns the values &l-r;, &k1-r;, ..., &kn-r;, where &l-r; is the
@@ -1521,7 +1521,8 @@ performance considerations.
    = (+ (* &k1-r; &x1-r;) ... (* &kn-r; &xn-r;))
 </programlisting></para></formalpara>
 
-<formalpara><title>Function <function>EXT:MOD-EXPT</function></title>
+<formalpara id="mod-expt">
+ <title>Function <function>EXT:MOD-EXPT</function></title>
 <para><literal role="sexp">(<function>EXT:MOD-EXPT</function>
  &k-r; &l-r; &m-r;)</literal> is equivalent to
  <literal role="sexp">(&mod; (&expt; &k-r; &l-r;) &m-r;)</literal>
@@ -1613,7 +1614,7 @@ performance considerations.
 <section id="float-lim"><title>Float Limits
   <ulink url="&clhs;/Body/convar_most-p_d-long-float.html">[CLHS]</ulink></title>
 
- <para>Together with &pi-v;, the other long float constants
+ <para>Together with &pi-v;, the other &long-float-t; constants
   &least-negative-long-float; &least-negative-normalized-long-float;
   &least-positive-long-float; &least-positive-normalized-long-float;
   &long-float-epsilon; &long-float-negative-epsilon;
@@ -1983,8 +1984,7 @@ are simple characters.</para>
 
 <!-- #if defined(WIN32) || (defined(UNIX) && (O_BINARY != 0)) -->
 <variablelist>
-<varlistentry><term>Platform dependent: &win32;
-   platforms only.</term>
+<varlistentry><term>Platform dependent: &win32; platforms only.</term>
 <listitem><simpara>When writing to a file, &nl-s; is converted to
  &cr-c;/&lf-c;. (This is the usual convention on &dos;.)
  For example, &cr-s;+&nl-s; is written as &cr-c;/&cr-c;/&lf-c;.
@@ -2024,7 +2024,7 @@ are simple characters.</para>
   "bar")</literal>, i.e., a string with an embedded &nl-s;
  between <literal>"foo"</literal> and <literal>"bar"</literal> (because
  a single &lf-s; is not a &nl-s; in the specified &extfmt;, it will not
- make &read-line; return, but it <emphasis>is</emphasis> a CLISP &nl-s;!)
+ make &read-line; return, but it &is-e; a &clisp; &nl-s;!)
  Even though the specification for &read-line; does not explicitly
  forbids newlines inside the returned string, such behavior would be
  quite surprising, to say the least.
@@ -2980,18 +2980,14 @@ is not a defined logical host yet, we proceed as follows:
 <section id="file-dict"><title>The Files Dictionary
    <ulink url="&clhs;/Body/sec_the_files_dictionary.html">[CLHS-20.2]</ulink></title>
 
-<formalpara><title>Function &rename-file;</title>
-<para>&rename-file; always returns a non-logical pathname as
- its first value.</para></formalpara>
-
-<formalpara><title>Function &probe-file;</title>
+<formalpara id="probe-file"><title>Function &probe-file;</title>
 <para>&probe-file; cannot be used to check whether a directory exists.
  Use functions &probe-dir; or &directory; for this.</para></formalpara>
 
-<formalpara><title>Function &file-author;</title>
+<formalpara id="file-author"><title>Function &file-author;</title>
 <para>&file-author; always returns &nil;, because the operating systems
  &clisp; is ported to do not store a file's author in the file system.
- Some operating systems, such as Unix, have the notion of a file's
+ Some operating systems, such as &unix;, have the notion of a file's
  owner, and some other &cl; implementations return the user name of the
  file owner.  &clisp; does not do this, because
  <emphasis>owner</emphasis> and <emphasis>author</emphasis> are not the
@@ -3089,8 +3085,7 @@ pointing to non-existent files and can take the following values:
  <listitem><simpara><literal role="sexp">(&cd; [&path-r;])</literal>
    manages the current directory.</simpara></listitem></varlistentry>
 <!-- #else -->
-<varlistentry><term>Platform dependent: &win32;
-   platforms only.</term>
+<varlistentry><term>Platform dependent: &win32; platforms only.</term>
  <listitem><simpara><literal role="sexp">(&cd; [&path-r;])</literal>
    manages the current device and the current directory.
    </simpara></listitem></varlistentry>
@@ -3135,9 +3130,9 @@ pointing to non-existent files and can take the following values:
 
 <!-- #ifdef GNU_READLINE -->
 <variablelist id="readline"><title>&readline;</title>
- <varlistentry><term>Platform dependent: &unix; platforms
-    only, and only in &clisp; built &without; compile-time flag &noreadline;
-    (and when &readline; is installed on your machine already).</term>
+ <varlistentry><term>Platform dependent: &unix; platforms only,
+   and only in &clisp; built &without; compile-time flag &noreadline;
+   (and when &readline; is installed on your machine already).</term>
  <listitem><simpara>Input through &terminal-io-var; uses the &readline;
   library.  Arrow keys can be used to move within the input history.
   The <keysym>#\Tab</keysym> key completes the &symbol-t; name or
@@ -3521,8 +3516,7 @@ functions are provided:
 <section id="file-pos"><title>Function &file-position;</title>
 
 <variablelist>
- <varlistentry><term>Platform dependent: &win32;
-    platforms only.</term>
+ <varlistentry><term>Platform dependent: &win32; platforms only.</term>
 <listitem><simpara>&file-position; works on any &buffered; &file-stream-t;.
   When a &nl-s; is output to (respectively input from) a file stream,
   its file position is increased by 2 since &nl-s; is encoded as
@@ -3856,8 +3850,7 @@ functions are provided:
  has no influence on the way floating point numbers are printed.</para>
 
 <variablelist>
-<varlistentry><term>Platform dependent: &unix;, &win32;
-   platforms only.</term>
+<varlistentry><term>Platform dependent: &unix;, &win32; platforms only.</term>
 <listitem><simpara>&print-pretty-var; is initially &nil; but set to &t;
  in &config-file;.  This makes screen output prettier.
  </simpara></listitem></varlistentry>
@@ -3969,8 +3962,7 @@ functions are provided:
   role="sexp">(&pathname; "test.lisp")</literal></simpara>
 <variablelist>
 <!-- #if defined(WIN32) -->
-<varlistentry><term>Platform dependent: &win32;
-   platforms only.</term>
+<varlistentry><term>Platform dependent: &win32; platforms only.</term>
 <listitem><simpara>As in all strings, backslashes must be written twice
   here: <filename>#"A:\\programs\\test.lisp"</filename>
   </simpara></listitem></varlistentry>
@@ -4233,7 +4225,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <!-- #ifdef DYNAMIC_FFI -->
 <varlistentry><term><constant>:FFI</constant></term>
  <listitem><simpara>if a foreign function interface
-   (see <xref linkend="dffi"/>) is supported
+   (see <olink targetdoc="impnotes" targetptr="dffi"/>) is supported
    <emphasis>(Platform dependent: many &unix;, &win32;
     platforms only)</emphasis></simpara></listitem></varlistentry>
 <!-- #endif -->
