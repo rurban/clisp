@@ -317,9 +317,11 @@ local handle_fault_result handle_fault(address)
   }
 
 #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED_BLOCKS)) || defined(SELFMADE_MMAP)
-# Systemaufrufe wie read() und write() melden kein SIGSEGV, sondern EFAULT.
-# handle_fault_range(PROT_READ,start,end) macht einen Adressbereich lesbar,
-# handle_fault_range(PROT_READ_WRITE,start,end) macht ihn schreibbar.
+# System calls like read() and write(), when they operate on pages with
+# insufficient permissions, don't signal SIGSEGV. Instead, they return with
+# errno=EFAULT and unpredictable side effects.
+# handle_fault_range(PROT_READ,start,end) makes an address range readable.
+# handle_fault_range(PROT_READ_WRITE,start,end) makes an address range writable.
 global boolean handle_fault_range (int prot, aint start_address, aint end_address);
 global boolean handle_fault_range(prot,start_address,end_address)
   var int prot;

@@ -294,70 +294,70 @@
     var HANDLE fd;
     var void* bufarea;
     var int nbyte;
-    { var char* buf = (char*) bufarea;
-      var int done = 0;
-      until (nbyte==0)
-        { var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
-          var OVERLAPPED overlap;
-          var DWORD nchars;
-          var DWORD err;
-          overlap.Offset = 0;
-          overlap.OffsetHigh = 0;
-          overlap.Offset = SetFilePointer(fd, 0, &overlap.OffsetHigh, FILE_CURRENT);
-          ResetEvent(aux_event);
-          overlap.hEvent = aux_event;
-          if (ReadFile(fd, buf, limited_nbyte, &nchars, &overlap))
-            goto ok;
-          /* Disk files (and maybe other handle types) don't support
-             overlapped I/O on Win95. */
-          err = GetLastError();
-          if (err == ERROR_INVALID_PARAMETER)
-            { if (ReadFile(fd, buf, limited_nbyte, &nchars, NULL))
-                goto ok;
-              err = GetLastError();
-              /* On Win95, console handles need special handling. */
-              if (err == ERROR_INVALID_PARAMETER)
-                { if (ReadConsole(fd, buf, limited_nbyte, &nchars, NULL))
-                    goto ok;
-                  err = GetLastError();
-            }   }
-          if (err == ERROR_HANDLE_EOF || err == ERROR_BROKEN_PIPE)
-            break;
-          #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
-          if ((err == ERROR_NOACCESS) && handle_fault_range(PROT_READ_WRITE,(aint)buf,(aint)buf+nbyte))
-            continue;
-          #endif
-          if (err != ERROR_IO_PENDING)
-            { return -1; }
-          if (!GetOverlappedResult(fd, &overlap, &nchars, TRUE))
-            { if (GetLastError() == ERROR_HANDLE_EOF)
-                break;
-              return -1;
-            }
-        ok:
-          if (nchars == 0) break;
-          buf += nchars; done += nchars; nbyte -= nchars;
-        }
-      # Possibly translate characters.
-      if (done > 0)
-        { var int i;
-          for (i = -done; i < 0; i++)
-            { var unsigned char c = (unsigned char)buf[i];
-              if (!(c == (unsigned char)OEM2ANSI_table[c]))
-                goto maybe_translate;
-            }
-          # No character found for which translation makes a difference,
-          # hence no need to translate.
-          if (FALSE)
-            maybe_translate:
-            { var DWORD console_mode;
-              if (GetConsoleMode(fd,&console_mode))
-                # It's a console, must really translate characters!
-                { for (i = -done; i < 0; i++)
-                    buf[i] = OEM2ANSI_table[(unsigned char)buf[i]];
-        }   }   }
-      return done;
-    }
+    {
+      #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+      handle_fault_range(PROT_READ_WRITE,(aint)bufarea,(aint)bufarea+nbyte);
+      #endif
+      { var char* buf = (char*) bufarea;
+        var int done = 0;
+        until (nbyte==0)
+          { var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
+            var OVERLAPPED overlap;
+            var DWORD nchars;
+            var DWORD err;
+            overlap.Offset = 0;
+            overlap.OffsetHigh = 0;
+            overlap.Offset = SetFilePointer(fd, 0, &overlap.OffsetHigh, FILE_CURRENT);
+            ResetEvent(aux_event);
+            overlap.hEvent = aux_event;
+            if (ReadFile(fd, buf, limited_nbyte, &nchars, &overlap))
+              goto ok;
+            /* Disk files (and maybe other handle types) don't support
+               overlapped I/O on Win95. */
+            err = GetLastError();
+            if (err == ERROR_INVALID_PARAMETER)
+              { if (ReadFile(fd, buf, limited_nbyte, &nchars, NULL))
+                  goto ok;
+                err = GetLastError();
+                /* On Win95, console handles need special handling. */
+                if (err == ERROR_INVALID_PARAMETER)
+                  { if (ReadConsole(fd, buf, limited_nbyte, &nchars, NULL))
+                      goto ok;
+                    err = GetLastError();
+              }   }
+            if (err == ERROR_HANDLE_EOF || err == ERROR_BROKEN_PIPE)
+              break;
+            if (err != ERROR_IO_PENDING)
+              { return -1; }
+            if (!GetOverlappedResult(fd, &overlap, &nchars, TRUE))
+              { if (GetLastError() == ERROR_HANDLE_EOF)
+                  break;
+                return -1;
+              }
+          ok:
+            if (nchars == 0) break;
+            buf += nchars; done += nchars; nbyte -= nchars;
+          }
+        # Possibly translate characters.
+        if (done > 0)
+          { var int i;
+            for (i = -done; i < 0; i++)
+              { var unsigned char c = (unsigned char)buf[i];
+                if (!(c == (unsigned char)OEM2ANSI_table[c]))
+                  goto maybe_translate;
+              }
+            # No character found for which translation makes a difference,
+            # hence no need to translate.
+            if (FALSE)
+              maybe_translate:
+              { var DWORD console_mode;
+                if (GetConsoleMode(fd,&console_mode))
+                  # It's a console, must really translate characters!
+                  { for (i = -done; i < 0; i++)
+                      buf[i] = OEM2ANSI_table[(unsigned char)buf[i]];
+          }   }   }
+        return done;
+    } }
   # Then we make it interruptible.
   struct full_read_params
     { HANDLE fd; void* buf; int nbyte;
@@ -396,67 +396,67 @@
     var HANDLE fd;
     var const void* bufarea;
     var int nbyte;
-    { var const char* buf = (const char*) bufarea;
-      # Possibly translate characters.
-      if (nbyte > 0)
-        { var int i;
-          for (i = 0; i < nbyte; i++)
-            { var unsigned char c = (unsigned char)buf[i];
-              if (!(c == (unsigned char)ANSI2OEM_table[c]))
-                goto maybe_translate;
-            }
-          # No character found for which translation makes a difference,
-          # hence no need to translate.
-          if (FALSE)
-            maybe_translate:
-            { var DWORD console_mode;
-              if (GetConsoleMode(fd,&console_mode))
-                # It's a console, must really translate characters!
-                { var char* newbuf = alloca(nbyte);
-                  for (i = 0; i < nbyte; i++)
-                    newbuf[i] = ANSI2OEM_table[(unsigned char)buf[i]];
-                  buf = newbuf;
-        }   }   }
-     {var int done = 0;
-      until (nbyte==0)
-        { # Possibly check for Ctrl-C here ??
-          var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
-          var OVERLAPPED overlap;
-          var DWORD nchars;
-          var DWORD err;
-          overlap.Offset = 0;
-          overlap.OffsetHigh = 0;
-          overlap.Offset = SetFilePointer(fd, 0, &overlap.OffsetHigh, FILE_CURRENT);
-          ResetEvent(aux_event);
-          overlap.hEvent = aux_event;
-          if (WriteFile(fd, buf, limited_nbyte, &nchars, &overlap))
-            goto ok;
-          /* Disk files (and maybe other handle types) don't support
-             overlapped I/O on Win95. */
-          err = GetLastError();
-          if (err == ERROR_INVALID_PARAMETER)
-            { if (WriteFile(fd, buf, limited_nbyte, &nchars, NULL))
-                goto ok;
-              err = GetLastError();
-              /* On Win95, console handles need special handling. */
-              if (err == ERROR_INVALID_PARAMETER)
-                { if (WriteConsole(fd, buf, limited_nbyte, &nchars, NULL))
-                    goto ok;
-                  err = GetLastError();
-            }   }
-          #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
-          if ((err == ERROR_NOACCESS) && handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte))
-            continue;
-          #endif
-          if (err != ERROR_IO_PENDING)
-            { return -1; }
-          if (!GetOverlappedResult(fd, &overlap, &nchars, TRUE))
-            { return -1; }
-        ok:
-          buf += nchars; done += nchars; nbyte -= nchars;
-        }
-      return done;
-    }}
+    {
+      #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+      handle_fault_range(PROT_READ,(aint)bufarea,(aint)bufarea+nbyte);
+      #endif
+      { var const char* buf = (const char*) bufarea;
+        # Possibly translate characters.
+        if (nbyte > 0)
+          { var int i;
+            for (i = 0; i < nbyte; i++)
+              { var unsigned char c = (unsigned char)buf[i];
+                if (!(c == (unsigned char)ANSI2OEM_table[c]))
+                  goto maybe_translate;
+              }
+            # No character found for which translation makes a difference,
+            # hence no need to translate.
+            if (FALSE)
+              maybe_translate:
+              { var DWORD console_mode;
+                if (GetConsoleMode(fd,&console_mode))
+                  # It's a console, must really translate characters!
+                  { var char* newbuf = alloca(nbyte);
+                    for (i = 0; i < nbyte; i++)
+                      newbuf[i] = ANSI2OEM_table[(unsigned char)buf[i]];
+                    buf = newbuf;
+          }   }   }
+       {var int done = 0;
+        until (nbyte==0)
+          { # Possibly check for Ctrl-C here ??
+            var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
+            var OVERLAPPED overlap;
+            var DWORD nchars;
+            var DWORD err;
+            overlap.Offset = 0;
+            overlap.OffsetHigh = 0;
+            overlap.Offset = SetFilePointer(fd, 0, &overlap.OffsetHigh, FILE_CURRENT);
+            ResetEvent(aux_event);
+            overlap.hEvent = aux_event;
+            if (WriteFile(fd, buf, limited_nbyte, &nchars, &overlap))
+              goto ok;
+            /* Disk files (and maybe other handle types) don't support
+               overlapped I/O on Win95. */
+            err = GetLastError();
+            if (err == ERROR_INVALID_PARAMETER)
+              { if (WriteFile(fd, buf, limited_nbyte, &nchars, NULL))
+                  goto ok;
+                err = GetLastError();
+                /* On Win95, console handles need special handling. */
+                if (err == ERROR_INVALID_PARAMETER)
+                  { if (WriteConsole(fd, buf, limited_nbyte, &nchars, NULL))
+                      goto ok;
+                    err = GetLastError();
+              }   }
+            if (err != ERROR_IO_PENDING)
+              { return -1; }
+            if (!GetOverlappedResult(fd, &overlap, &nchars, TRUE))
+              { return -1; }
+          ok:
+            buf += nchars; done += nchars; nbyte -= nchars;
+          }
+        return done;
+    } }}
 
 # Reading from a socket.
   # This is the non-interruptible routine.
@@ -465,23 +465,21 @@
     var SOCKET fd;
     var void* bufarea;
     var int nbyte;
-    { var char* buf = (char*) bufarea;
+    {
+      #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+      handle_fault_range(PROT_READ_WRITE,(aint)bufarea,(aint)bufarea+nbyte);
+      #endif
+     {var char* buf = (char*) bufarea;
       var int done = 0;
       until (nbyte==0)
         { var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
           var int retval = recv(fd,buf,limited_nbyte,0);
           if (retval == 0) break;
-          elif (retval < 0)
-            {
-              #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
-              if (!((WSAGetLastError() == ERROR_NOACCESS) && handle_fault_range(PROT_READ_WRITE,(aint)buf,(aint)buf+nbyte)))
-              #endif
-                return retval;
-            }
+          elif (retval < 0) { return retval; }
           else { buf += retval; done += retval; nbyte -= retval; }
         }
       return done;
-    }
+    }}
   # Then we make it interruptible.
   struct sock_read_params
     { SOCKET fd; void* buf; int nbyte;
@@ -521,7 +519,11 @@
     var SOCKET fd;
     var const void* bufarea;
     var int nbyte;
-    { var const char* buf = (const char*) bufarea;
+    {
+      #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+      handle_fault_range(PROT_READ,(aint)bufarea,(aint)bufarea+nbyte);
+      #endif
+     {var const char* buf = (const char*) bufarea;
       var int done = 0;
       until (nbyte==0)
         { var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
@@ -529,15 +531,12 @@
           if (retval == 0) break;
           elif (retval < 0)
             {
-              #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
-              if (!((WSAGetLastError() == ERROR_NOACCESS) && handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte)))
-              #endif
                 return retval;
             }
           else { buf += retval; done += retval; nbyte -= retval; }
         }
       return done;
-    }
+    }}
   # Then we make it interruptible.
   struct sock_write_params
     { SOCKET fd; const void* buf; int nbyte;
