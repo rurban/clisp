@@ -52,9 +52,10 @@
    file-stat-size file-stat-blksize file-stat-blocks file-stat-atime
    file-stat-mtime file-stat-ctime))
 
-(defstruct (file-stat (:constructor
-                       make-file-stat (file dev ino nlink uid gid rdev size
-                                       blksize blocks atime mtime ctime)))
+(defstruct (file-stat
+             (:constructor
+              make-file-stat (file dev ino mode nlink uid gid rdev size
+                              blksize blocks atime mtime ctime)))
   (file  nil :read-only t)
   (dev     0 :type (unsigned-byte 32) :read-only t)
   (ino     0 :type (unsigned-byte 32) :read-only t)
