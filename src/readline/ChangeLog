@@ -43,6 +43,7 @@
           (read_history_range): Don't assume that the number of bytes that
           can be read from a file is the same as stat's st_size. (Not true on
           DOS because of CR/LF translation.)
+        * bind.c (_rl_read_file): Likewise.
         * rlconf.h (DEFAULT_INPUTRC): Use "/!inputrc" instead of "~/.inputrc"
           on DOS.
         * rltty.c (prepare_terminal_settings): Support for raw mode on DOS.
