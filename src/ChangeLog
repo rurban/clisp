@@ -1,5 +1,10 @@
 2001-12-20  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (unixconf.h): a separate target
+	(makemake): recreate only makemake, not the whole configuration
+
+2001-12-20  Sam Steingold  <sds@gnu.org>
+
 	* type.lisp (canonicalize-type): canonicalize EXTENDED-CHAR
 	to (OR), not to NIL
 
