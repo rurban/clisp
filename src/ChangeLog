@@ -1,3 +1,7 @@
+1999-01-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * spvw.d (usage): Tweak message.
+
 1999-01-26  Sam Steingold  <sds@goems.com>
 
 	* Makefile.devel: do not use `utils/move-if-change'.
@@ -12,8 +16,11 @@
 
 1999-01-25  Sam Steingold  <sds@goems.com>
 
-	* spvw.d: expanded --help, added --license, removed trailing
-	whitespace.
+	* spvw.d (main): expanded --help, added --license, removed trailing
+	  whitespace.
+          (banner): New function.
+          (argv_license): New variable.
+          (copyright_notice): Remove.
 
 1999-01-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
