@@ -7894,7 +7894,11 @@ All other long words on the LISP-Stack are LISP-objects.
     #define ASM_get_SP_register(resultvar)  ("movel "REGISTER_PREFIX"sp,%0" : "=g" (resultvar) : )
   #endif
   #ifdef SPARC
-    #define ASM_get_SP_register(resultvar)  ("mov %%sp,%0" : "=r" (resultvar) : )
+    #ifdef SPARC64
+      #define ASM_get_SP_register(resultvar)  ("add %%sp,2048,%0" : "=r" (resultvar) : )
+    #else
+      #define ASM_get_SP_register(resultvar)  ("mov %%sp,%0" : "=r" (resultvar) : )
+    #endif
   #endif
   #ifdef HPPA
     #define ASM_get_SP_register(resultvar)  ("copy %%r30,%0" : "=r" (resultvar) : )
@@ -7952,7 +7956,11 @@ All other long words on the LISP-Stack are LISP-objects.
   #endif
 #elif defined(GNU) && defined(SP_register)
   register __volatile__ aint __SP __asm__(SP_register);
-  #define SP()  __SP
+  #ifdef SPARC64
+    #define SP()  (__SP+2048)
+  #else
+    #define SP()  __SP
+  #endif
   #if defined(SPARC)
     # We must not do a setSP() here without taking care that
     # 1. %sp has to pay attention to an alignment of 8 Bytes,
