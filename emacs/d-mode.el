@@ -103,12 +103,15 @@ The point should be on the prototype and the definition should follow."
     (goto-char beg)
     (c-indent-region beg (progn (forward-sexp 3) (point)))))
 
+(defvar d-comment-start "# ") ; for C++: "// ?"
+(defconst d-comment-start-block (concat "[ \t]*\\(" d-comment-start "\\)"))
+
 (defun d-mode-convert-comment ()
   "Comvert the current comment line from # to /**/"
   (interactive)
   (save-excursion
     (beginning-of-line)
-    (when (search-forward "# " (line-end-position) t)
+    (when (re-search-forward d-comment-start (line-end-position) t)
       (replace-match "/* ") (end-of-line)
       (if (/= ?\\ (char-before)) (insert " */")
         (forward-char -1) (just-one-space) (insert "*/ ")))))
@@ -118,11 +121,11 @@ The point should be on the prototype and the definition should follow."
   (interactive)
   (save-excursion
     (beginning-of-line)
-    (while (looking-at "[ \t]*\\(# \\)")
+    (while (looking-at d-comment-start-block)
       (forward-line -1))
     (replace-match "/* " t t nil 1)
     (forward-line 1)
-    (while (looking-at "[ \t]*\\(# \\)")
+    (while (looking-at d-comment-start-block)
       (replace-match " " t t nil 1) (forward-line 1))
     (forward-char -1) (skip-chars-backward "\\") (just-one-space)
     (insert "*/ ")))
@@ -130,10 +133,10 @@ The point should be on the prototype and the definition should follow."
 (defun d-mode-convert-next-comment ()
   "Convert the next comment appropriately"
   (interactive)
-  (search-forward "# ")
-  (if (progn (beginning-of-line) (looking-at "[ \t]*# "))
+  (re-search-forward d-comment-start)
+  (if (progn (beginning-of-line) (looking-at d-comment-start-block))
       (d-mode-convert-block-comment)
-      (d-mode-convert-comment)))
+      (d-mode-convert-comment) (comment-indent)))
 
 (defun d-mode-wrap-do-while ()
   "Wrap this block in do/while(0) [for CPP macros]."
@@ -143,7 +146,8 @@ The point should be on the prototype and the definition should follow."
 
 (defun d-mode-indent-sharp (s-element)
   "Check whether a macro or a comment and indent accordingly."
-  (save-excursion (back-to-indentation) (if (looking-at "# ") 0 [0])))
+  (save-excursion (back-to-indentation)
+                  (if (looking-at d-comment-start) 0 [0])))
 
 (defvar d-font-lock-extra-types
   '(nconc (list "bool" "object" "chart" "[otac]int" "signean" "\\sw+_T"
