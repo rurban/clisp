@@ -1,5 +1,11 @@
 2002-10-04  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 618428 ]: LOOP: local variables shadowing globals
+	* loop.lisp (expand-loop): initialize accumulation variables
+	after iteration variables
+
+2002-10-04  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (init_object_tab) [DEBUG_SPVW]: add :COMPILER-DEBUG
 	to features
 	* compiler.lisp (make-anode) [COMPILER-DEBUG]: define when LOAD

@@ -957,17 +957,16 @@
                         (setf (cdr everytime) (revappend endtest-forms (cdr everytime))))
                       (setq stepbefore-code (revappend endtest-forms stepbefore-code))))
                   (setq initially-code (revappend endtest-forms initially-code)))))))
-        (setq initializations1 (nreverse initializations1))
         (push
-          (make-loop-init
-            :specform 'LET
-            :bindings
-              `(,@(map 'list #'(lambda (var) `(,var NIL)) *helpvars*)
-                ,@(mapcar #'(lambda (var) `(,var NIL)) (delete-duplicates accu-vars-nil))
-                ,@(mapcar #'(lambda (var) `(,var 0)) (delete-duplicates accu-vars-0)))
-            :declspecs
-              (nreverse accu-declarations))
-          initializations1)
+         (make-loop-init
+          :specform 'LET
+          :bindings
+          `(,@(map 'list #'(lambda (var) `(,var NIL)) *helpvars*)
+            ,@(mapcar #'(lambda (var) `(,var NIL)) (delete-duplicates accu-vars-nil))
+            ,@(mapcar #'(lambda (var) `(,var 0)) (delete-duplicates accu-vars-0)))
+          :declspecs
+          (nreverse accu-declarations))
+         initializations1)
         ;; Remove the NIL placeholders in stepafter-code.
         (setq stepafter-code (delete 'NIL stepafter-code))
         ;; If initially-code and stepafter-code both end in the same
@@ -990,7 +989,7 @@
         ;; Final macroexpansion.
         `(MACROLET ((LOOP-FINISH () (LOOP-FINISH-ERROR)))
            (BLOCK ,block-name
-             ,(wrap-initializations (nreverse initializations1)
+             ,(wrap-initializations initializations1
                 `(MACROLET ((LOOP-FINISH () '(GO END-LOOP)))
                    (TAGBODY
                      ,@(if initially-code `((PROGN ,@(nreverse initially-code))))

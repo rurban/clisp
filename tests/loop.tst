@@ -749,6 +749,14 @@ T
   (delete-package "LOOP-TEST-PACKAGE-1"))
 nil
 
+;; <https://sourceforge.net/tracker/?func=detail&atid=101355&aid=618428&group_id=1355>
+(let ((alist '(1 2 3 4 5 6)))
+  (loop for value in alist
+    if (oddp value) collect value into alist
+    else collect value into blist
+    finally (return (list alist blist))))
+((1 3 5) (2 4 6))
+
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)
 ;; eval: (remove-hook 'write-file-functions 'delete-trailing-whitespace t)
