@@ -1,3 +1,8 @@
+1998-10-29  Sam Steingold  <sds@goems.com>
+
+	* spvw.d (usage): new function; replace 'goto usage' with a call
+	  to it, thus the exit code for "-h" and "--help" is 0 now.
+
 1998-10-29  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * makemake.in: Keep "-norc" out of the localeflags.
