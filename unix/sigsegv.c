@@ -320,12 +320,6 @@ void do_nothing() { }
 /* CL_MMAP */
 /* Define if you have <sys/mman.h> and the mmap() function. */
 #undef HAVE_MMAP
-/* Define as the return type of mmap(). */
-#undef RETMMAPTYPE
-/* Define as the type of `addr' in mmap() declaration. */
-#undef MMAP_ADDR_T
-/* Define as the type of `len' in mmap() declaration. */
-#undef MMAP_SIZE_T
 
 #endif
 
@@ -358,8 +352,8 @@ extern RETGETPAGESIZETYPE getpagesize(/* void */);
 #ifdef HAVE_MMAP
 #include <sys/types.h>
 #include <sys/mman.h>
-extern RETMMAPTYPE mmap (/* MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot, int flags, int fd, off_t off */);
-extern int mprotect (/* MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot */);
+extern void* mmap (/* void* addr, size_t len, int prot, int flags, int fd, off_t off */);
+extern int mprotect (/* void* addr, size_t len, int prot */);
 #else
 #error "Need mprotect() for the test."
 #endif
