@@ -1,3 +1,8 @@
+2005-01-13  Sam Steingold  <sds@gnu.org>
+
+	* inspect.lisp (inspect-frontend): use (FORMAT "~&~S~%") instead
+	of PRIN1 for :M & :E; print conditions with ~A
+
 2005-01-01  Bruno Haible  <bruno@clisp.org>
 
 	Make APPEASE-CERRORS and MUFFLE-CERRORS treat conditions with a
@@ -9,7 +14,7 @@
 
 2005-01-12  Sam Steingold  <sds@gnu.org>
 
-	* .gdbinit (boot): new command (formerly know as "base")
+	* .gdbinit (boot): new command (formerly known as "base")
 	(base): new command (similar to full)
 
 2005-01-12  Sam Steingold  <sds@gnu.org>
