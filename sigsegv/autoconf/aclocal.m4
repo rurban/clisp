@@ -714,7 +714,8 @@ dnl
 AC_DEFUN(CL_SIGALTSTACK,
 [AC_REQUIRE([CL_SIGACTION])dnl
 CL_LINK_CHECK(sigaltstack, cl_cv_func_sigaltstack,
-[#include <signal.h>], [stack_t ss; sigaltstack((stack_t*)0,&ss);],
+[#include <signal.h>],
+[int x = SA_ONSTACK; stack_t ss; sigaltstack((stack_t*)0,&ss);],
 AC_DEFINE(HAVE_SIGALTSTACK))dnl
 ])dnl
 dnl
