@@ -7347,9 +7347,9 @@ All other long words on the LISP-Stack are LISP-objects.
          setSP(sp); # First decrease SP (because of a possible interrupt!) \
          sp[SPoffset] = (item); /* then insert item as top-of-SP */        \
     } while(0)
-  #define popSP(item_allocation)                                        \
+  #define popSP(item_assignment)                                        \
     do { var register SPint* sp = (SPint*)SP();                         \
-         item_allocation sp[SPoffset]; # First fetch top-of-SP       \
+         item_assignment sp[SPoffset]; # First fetch top-of-SP          \
          sp skipSPop 1;                                                 \
          setSP(sp); # then (danger of interrupt!) increase SP           \
     } while(0)
@@ -7372,10 +7372,10 @@ All other long words on the LISP-Stack are LISP-objects.
     do { var register SPint __item = (item); \
      __asm__ __volatile__ ("movel %0,"REGISTER_PREFIX"sp@-" : : "g" (__item) : "sp" ); \
     } while(0)
-  #define popSP(item_allocation)  \
+  #define popSP(item_assignment)  \
     do {  var register SPint __item; \
      __asm__ __volatile__ ("movel "REGISTER_PREFIX"sp@+,%0" : "=r" (__item) : : "sp" ); \
-     item_allocation __item;                                                 \
+     item_assignment __item;                                                 \
     } while(0)
 #endif
 # An sp_jmp_buf is exactly the same as a jmp_buf,
@@ -10129,17 +10129,17 @@ typedef struct {
 # is used by EVAL, CONTROL, DEBUG
 
 # Finishes a Frame with entry point and places jump-point here.
-# finish_entry_frame(frametype,returner,retval_allocation,reentry_statement);
+# finish_entry_frame(frametype,returner,retval_assignment,reentry_statement);
 # > gcv_object_t* top_of_frame: pointer to the top of the frame
 # > sp_jmp_buf* returner: longjmp-Buffer for re-entry
-# > retval_allocation: allocated of the setjmp()-value to a variable
+# > retval_assignment: allocated of the setjmp()-value to a variable
 # > reentry_statement: what is to be done immediately after re-entry.
 # decreases STACK by 1
-#define finish_entry_frame(frametype,returner,retval_allocation,reentry_statement)  \
+#define finish_entry_frame(frametype,returner,retval_assignment,reentry_statement)  \
   do { pushSTACK(fake_gcv_object((aint)(returner))); # SP onto the Stack      \
     pushSTACK(nullobj); # dummy onto the Stack, until re-entry is permitted   \
     begin_setjmp_call();                                                      \
-    if ((retval_allocation setjmpspl(returner))!=0) # set point for returner  \
+    if ((retval_assignment setjmpspl(returner))!=0) # set point for returner  \
       { end_longjmp_call(); LONGJMP_RESTORE_mv_count(); LONGJMP_RESTORE_value1(); reentry_statement } # after re-entry \
     else                                                                      \
       { end_setjmp_call(); STACK_0 = framebottomword(frametype##_frame_info,top_of_frame,STACK); } \

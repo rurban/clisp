@@ -1,5 +1,9 @@
 2004-04-12  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (popSP, finish_entry_frame): Rename macro parameter.
+
+2004-04-12  Bruno Haible  <bruno@clisp.org>
+
 	Make the WIDE_SOFT model work again.
 	* genclisph.d (main): Emit definition for one_o.
 
