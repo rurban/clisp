@@ -61,7 +61,7 @@
         # Allocate a new hash table.
         pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
         pushSTACK(value1);
-        # Stackaufbau: table, newht.
+        # stack layout: table, newht.
         map_hashtable(TheSvector(STACK_1)->data[small_char_code_limit],key,value,
                       { shifthash(STACK_(0+1),key,value); }
                      );
@@ -115,7 +115,8 @@
 # Syntax tables, indexed by characters.
 # allocate_syntax_table()
 # syntax_table_get(table,c)
-# syntax_table_put(table,c,value) [kann GC auslösen]
+# syntax_table_put(table,c,value)
+# can trigger GC
   #if (small_char_code_limit < char_code_limit)
     # A cons, consisting of a simple-bit-vector with small_char_code_limit
     # bytes, and a hash table mapping characters to fixnums. Characters not
@@ -388,7 +389,7 @@
           # Allocate a new hash table.
           pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
           pushSTACK(value1);
-          # Stackaufbau: to-readtable, from-readtable, newht.
+          # stack layout: to-readtable, from-readtable, newht.
           map_hashtable(Cdr(TheReadtable(STACK_1)->readtable_syntax_table),ch,entry, {
                           shifthash(STACK_(0+1),ch,entry);
                         });
@@ -434,7 +435,7 @@
           pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
           mtable1 = STACK_0;
           STACK_0 = value1;
-          # Stackaufbau: mtable2, newht.
+          # stack layout: mtable2, newht.
           map_hashtable(TheSvector(mtable1)->data[small_char_code_limit],ch,entry, {
                           if (simple_vector_p(entry))
                             entry = copy_perchar_table(entry);
@@ -477,8 +478,8 @@
       var object oldvalue = Symbol_value(sym);
       Symbol_value(sym) = O(standard_readtable); # := Standard-Readtable von Common Lisp
       # und Fehler melden:
-      pushSTACK(oldvalue); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(readtable)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(oldvalue);     # TYPE-ERROR slot DATUM
+      pushSTACK(S(readtable)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(sym);
       fehler(type_error,
              GETTEXT("The value of ~ was not a readtable. It has been reset.")
@@ -562,17 +563,18 @@ LISPFUNN(defio,2)
   local void fehler_readtable(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(readtable)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);          # TYPE-ERROR slot DATUM
+      pushSTACK(S(readtable)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ is not a readtable")
             );
     }
+#define CHECK_READTABLE(obj)  if (!readtablep(obj)) fehler_readtable(obj)
 
 LISPFUN(copy_readtable,0,2,norest,nokey,0,NIL)
-# (COPY-READTABLE [from-readtable [to-readtable]]), CLTL S. 361
+# (COPY-READTABLE [from-readtable [to-readtable]]), CLTL p. 361
   {
     var object from_readtable = STACK_1;
     if (eq(from_readtable,unbound)) {
@@ -585,8 +587,7 @@ LISPFUN(copy_readtable,0,2,norest,nokey,0,NIL)
         from_readtable = O(standard_readtable);
       } else {
         # from-readtable überprüfen:
-        if (!readtablep(from_readtable))
-          fehler_readtable(from_readtable);
+        CHECK_READTABLE(from_readtable);
       }
       # from-readtable ist OK
       var object to_readtable = STACK_0;
@@ -595,8 +596,7 @@ LISPFUN(copy_readtable,0,2,norest,nokey,0,NIL)
         value1 = copy_readtable(from_readtable);
       } else {
         # to-readtable überprüfen und umkopieren:
-        if (!readtablep(to_readtable))
-          fehler_readtable(to_readtable);
+        CHECK_READTABLE(to_readtable);
         value1 = copy_readtable_contents(from_readtable,to_readtable);
       }
     }
@@ -605,7 +605,7 @@ LISPFUN(copy_readtable,0,2,norest,nokey,0,NIL)
 
 LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
 # (SET-SYNTAX-FROM-CHAR to-char from-char [to-readtable [from-readtable]]),
-# CLTL S. 361
+# CLTL p. 361
   {
     var object to_char = STACK_3;
     var object from_char = STACK_2;
@@ -621,15 +621,13 @@ LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
     if (eq(to_readtable,unbound)) {
       get_readtable(to_readtable=); # Default ist die aktuelle Readtable
     } else {
-      if (!readtablep(to_readtable))
-        fehler_readtable(to_readtable);
+      CHECK_READTABLE(to_readtable);
     }
     # from-readtable überprüfen:
     if (eq(from_readtable,unbound) || nullp(from_readtable)) {
       from_readtable = O(standard_readtable); # Default ist die Standard-Readtable
     } else {
-      if (!readtablep(from_readtable))
-        fehler_readtable(from_readtable);
+      CHECK_READTABLE(from_readtable);
     }
     STACK_1 = to_readtable;
     STACK_0 = from_readtable;
@@ -664,8 +662,7 @@ LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
       if (eq(readtable,unbound)) {
         get_readtable(readtable=); # Default ist die aktuelle Readtable
       } else {
-        if (!readtablep(readtable)) # überprüfen
-          fehler_readtable(readtable);
+        CHECK_READTABLE(readtable);
       }
       return readtable;
     }
@@ -685,8 +682,7 @@ LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
       } elif (nullp(readtable)) {
         readtable = O(standard_readtable); # bzw. die Standard-Readtable
       } else {
-        if (!readtablep(readtable)) # überprüfen
-          fehler_readtable(readtable);
+        CHECK_READTABLE(readtable);
       }
       return readtable;
     }
@@ -709,7 +705,7 @@ LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
 
 LISPFUN(set_macro_character,2,2,norest,nokey,0,NIL)
 # (SET-MACRO-CHARACTER char function [non-terminating-p [readtable]]),
-# CLTL S. 362
+# CLTL p. 362
   {
     # char überprüfen:
     {
@@ -744,7 +740,7 @@ LISPFUN(set_macro_character,2,2,norest,nokey,0,NIL)
   }
 
 LISPFUN(get_macro_character,1,1,norest,nokey,0,NIL)
-# (GET-MACRO-CHARACTER char [readtable]), CLTL S. 362
+# (GET-MACRO-CHARACTER char [readtable]), CLTL p. 362
   {
     # char überprüfen:
     {
@@ -792,7 +788,7 @@ LISPFUN(get_macro_character,1,1,norest,nokey,0,NIL)
 
 LISPFUN(make_dispatch_macro_character,1,2,norest,nokey,0,NIL)
 # (MAKE-DISPATCH-MACRO-CHARACTER char [non-terminating-p [readtable]]),
-# CLTL S. 363
+# CLTL p. 363
   {
     var object readtable = test_readtable_arg(); # Readtable
     var uintB syntaxcode = test_nontermp_arg(); # neuer Syntaxcode
@@ -850,7 +846,7 @@ LISPFUN(make_dispatch_macro_character,1,2,norest,nokey,0,NIL)
 
 LISPFUN(set_dispatch_macro_character,3,1,norest,nokey,0,NIL)
 # (SET-DISPATCH-MACRO-CHARACTER disp-char sub-char function [readtable]),
-# CLTL S. 364
+# CLTL p. 364
   {
     # function überprüfen und in ein Objekt vom Typ FUNCTION umwandeln:
     STACK_1 = coerce_function(STACK_1);
@@ -859,8 +855,8 @@ LISPFUN(set_dispatch_macro_character,3,1,norest,nokey,0,NIL)
     var object function = popSTACK(); # function
     var object dm_table = test_disp_sub_char(readtable);
     if (eq(dm_table,nullobj)) {
-      # STACK_0 = sub-char, Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_not_digit)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      # STACK_0 = sub-char, TYPE-ERROR slot DATUM
+      pushSTACK(O(type_not_digit)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(STACK_1);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -873,7 +869,7 @@ LISPFUN(set_dispatch_macro_character,3,1,norest,nokey,0,NIL)
   }
 
 LISPFUN(get_dispatch_macro_character,2,1,norest,nokey,0,NIL)
-# (GET-DISPATCH-MACRO-CHARACTER disp-char sub-char [readtable]), CLTL S. 364
+# (GET-DISPATCH-MACRO-CHARACTER disp-char sub-char [readtable]), CLTL p. 364
   {
     var object readtable = test_readtable_null_arg(); # Readtable
     var object dm_table = test_disp_sub_char(readtable);
@@ -885,8 +881,7 @@ LISPFUNN(readtable_case,1)
 # (READTABLE-CASE readtable), CLTL2 S. 549
   {
     var object readtable = popSTACK(); # Readtable
-    if (!readtablep(readtable)) # überprüfen
-      fehler_readtable(readtable);
+    CHECK_READTABLE(readtable);
     value1 = (&O(rtcase_0))[(uintW)posfixnum_to_L(TheReadtable(readtable)->readtable_case)];
     mv_count=1;
   }
@@ -896,8 +891,7 @@ LISPFUNN(set_readtable_case,2)
   {
     var object value = popSTACK();
     var object readtable = popSTACK(); # Readtable
-    if (!readtablep(readtable)) # überprüfen
-      fehler_readtable(readtable);
+    CHECK_READTABLE(readtable);
     # Symbol value in einen Index umwandeln durch Suche in der Tabelle O(rtcase..):
     var const object* ptr = &O(rtcase_0);
     var object rtcase = Fixnum_0;
@@ -908,8 +902,8 @@ LISPFUNN(set_readtable_case,2)
       ptr++; rtcase = fixnum_inc(rtcase,1);
     });
     # kein gültiger Wert
-    pushSTACK(value); # Wert für Slot DATUM von TYPE-ERROR
-    pushSTACK(O(type_rtcase)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+    pushSTACK(value);          # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_rtcase)); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(O(rtcase_3)); pushSTACK(O(rtcase_2)); pushSTACK(O(rtcase_1)); pushSTACK(O(rtcase_0));
     pushSTACK(value);
     pushSTACK(S(set_readtable_case));
@@ -945,9 +939,9 @@ LISPFUNN(set_readtable_case,2)
          ) {
         return wert;
       } else {
-        Symbol_value(symbol) = fixnum(10); # Wert auf 10 setzen
-        pushSTACK(value); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_radix)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        Symbol_value(symbol) = fixnum(10);
+        pushSTACK(value);         # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_radix)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(value);
         pushSTACK(symbol);
         fehler(type_error,
@@ -2632,7 +2626,7 @@ LISPFUNN(set_readtable_case,2)
         pushSTACK(new_cons);
         pushSTACK(new_cons);
       }
-      # Stackaufbau: Gesamtliste, (last Gesamtliste).
+      # stack layout: Gesamtliste, (last Gesamtliste).
       loop { # Schleife über weitere Listenelemente
         var object object1; # weiteres Listenelement
         loop { # Schleife, um weiteres Listenelement zu lesen
@@ -2793,7 +2787,7 @@ LISPFUNN(rpar_reader,2) # liest )
 LISPFUNN(string_reader,2) # liest "
   {
     var object* stream_ = test_stream_arg(STACK_1);
-    # Stackaufbau: stream, char.
+    # stack layout: stream, char.
     if (test_value(S(read_suppress))) { # *READ-SUPPRESS* /= NIL ?
       # ja -> String nur überlesen:
       loop {
@@ -2816,7 +2810,7 @@ LISPFUNN(string_reader,2) # liest "
     } else {
       # nein -> String wirklich lesen
       get_buffers(); # zwei leere Buffer auf den Stack
-      # Stackaufbau: stream, char, Buffer, andererBuffer.
+      # stack layout: stream, char, Buffer, andererBuffer.
       loop {
         # nächstes Zeichen lesen:
         var object ch;
@@ -2862,9 +2856,10 @@ LISPFUNN(string_reader,2) # liest "
 
 # Liest ein Objekt und bildet eine zweielementige Liste.
 # list2_reader(stream_);
-# > Stackaufbau: stream, symbol.
+# > stack layout: stream, symbol.
 # erhöht STACK um 2
-# verändert STACK, kann GC auslösen
+# verändert STACK,
+# can trigger GC
   local Values list2_reader (const object* stream_);
   local Values list2_reader(stream_)
     var const object* stream_;
@@ -2928,7 +2923,7 @@ LISPFUNN(line_comment_reader,2) # liest ;
 
 # UP: Überprüft die Abwesenheit eines Infix-Arguments n
 # test_no_infix()
-# > Stackaufbau: Stream, sub-char, n.
+# > stack layout: Stream, sub-char, n.
 # > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: &stream
 # erhöht STACK um 1
@@ -3085,7 +3080,7 @@ LISPFUNN(comment_reader,3) # liest #|
 # )   ) ) ) )
 LISPFUNN(char_reader,3) # liest #\
   {
-    # Stackaufbau: Stream, sub-char, n.
+    # stack layout: Stream, sub-char, n.
     var object* stream_ = test_stream_arg(STACK_2);
     # Token lesen, mit Dummy-Character '\' als Token-Anfang:
     read_token_1(stream_,ascii_char('\\'),syntax_single_esc);
@@ -3226,11 +3221,11 @@ LISPFUNN(char_reader,3) # liest #\
   # UP für #B #O #X #R
   # radix_2(base)
   # > base: Basis (>=2, <=36)
-  # > Stackaufbau: Stream, sub-char, base.
+  # > stack layout: Stream, sub-char, base.
   # > O(token_buff_1), O(token_buff_2), token_escape_flag: gelesenes Token
   # < STACK: aufgeräumt
   # < mv_space/mv_count: Werte
-  # kann GC auslösen
+  # can trigger GC
   local Values radix_2 (uintWL base);
   local Values radix_2(base)
     var uintWL base;
@@ -3274,11 +3269,11 @@ LISPFUNN(char_reader,3) # liest #\
   # UP für #B #O #X
   # radix_1(base)
   # > base: Basis (>=2, <=36)
-  # > Stackaufbau: Stream, sub-char, n.
+  # > stack layout: Stream, sub-char, n.
   # > subr_self: Aufrufer (ein SUBR)
   # < STACK: aufgeräumt
   # < mv_space/mv_count: Werte
-  # kann GC auslösen
+  # can trigger GC
   local Values radix_1 (uintWL base);
   local Values radix_1(base)
     var uintWL base;
@@ -3707,7 +3702,7 @@ LISPFUNN(vector_reader,3) # liest #(
 LISPFUNN(array_reader,3) # liest #A
   {
     var object* stream_ = test_stream_arg(STACK_2);
-    # Stackaufbau: stream, sub-char, n.
+    # stack layout: stream, sub-char, n.
     if (test_value(S(read_suppress))) { # *READ-SUPPRESS* /= NIL ?
       # ja -> nächstes Objekt überlesen:
       read_recursive_no_dot(stream_);
@@ -3749,7 +3744,7 @@ LISPFUNN(array_reader,3) # liest #A
       pushSTACK(contents); pushSTACK(contents);
     }
     STACK_4 = NIL; # dims := '()
-    # Stackaufbau: dims, -, rank, subcontents, contents.
+    # stack layout: dims, -, rank, subcontents, contents.
     # Dimensionen und Elementtyp bestimmen:
     if (eq(STACK_2,Fixnum_0)) { # rank=0 ?
       STACK_2 = S(t); # ja -> eltype := 'T
@@ -3779,7 +3774,7 @@ LISPFUNN(array_reader,3) # liest #A
                  S(t)                                       # sonst (Liste): T
                 );
     }
-    # Stackaufbau: dims, -, eltype, -, contents.
+    # stack layout: dims, -, eltype, -, contents.
     # MAKE-ARRAY aufrufen:
     STACK_3 = S(Kelement_type); STACK_1 = S(Kinitial_contents);
     call_make_array:
@@ -3918,7 +3913,7 @@ LISPFUNN(load_eval_reader,3) # liest #,
 
 # UP: Bildet ein internes Label und sucht es in der *READ-REFERENCE-TABLE* auf.
 # lookup_label()
-# > Stackaufbau: Stream, sub-char, n.
+# > stack layout: Stream, sub-char, n.
 # < ergebnis: (or (assoc label sys::*read-reference-table* :test #'eq) label)
   local object lookup_label (void);
   local object lookup_label()
@@ -4165,7 +4160,7 @@ LISPFUNN(syntax_error_reader,3) # liest #) und #whitespace
 # UP für #+ und #-
 # feature(sollwert)
 # > sollwert: gewünschter Wahrheitswert des Feature-Ausdrucks
-# > Stackaufbau: Stream, sub-char, n.
+# > stack layout: Stream, sub-char, n.
 # > subr_self: Aufrufer (ein SUBR)
 # < STACK: um 3 erhöht
 # < mv_space/mv_count: Werte
@@ -4298,7 +4293,7 @@ LISPFUNN(structure_reader,3) # liest #S
     {
       var object name = Car(args); # Typ der Structure
       STACK_0 = args = Cdr(args); # Restliste retten
-      # Stackaufbau: Stream, restl.Args.
+      # stack layout: Stream, restl.Args.
       if (!symbolp(name)) { # Typ muss ein Symbol sein !
         pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
         pushSTACK(name);
@@ -4309,7 +4304,7 @@ LISPFUNN(structure_reader,3) # liest #S
               );
       }
       pushSTACK(name);
-      # Stackaufbau: Stream, restl.Args, name.
+      # stack layout: Stream, restl.Args, name.
       if (eq(name,S(hash_table))) { # Symbol HASH-TABLE ?
         # ja -> speziell behandeln, keine Structure:
         # Hash-Tabelle
@@ -4408,7 +4403,7 @@ LISPFUNN(structure_reader,3) # liest #S
         pushSTACK(constructor);
       }
     }
-    # Stackaufbau: Stream, restl.Args, name, Konstruktor.
+    # stack layout: Stream, restl.Args, name, Konstruktor.
     var uintC argcount = 0; # Zahl der Argumente für den Konstruktor
     loop { # restliche Argumentliste durchlaufen,
            # Argumente für den Konstruktor auf den STACK legen:
@@ -4505,7 +4500,7 @@ LISPFUNN(structure_reader,3) # liest #S
 
   # Fehlermeldung wegen falscher Syntax eines Code-Vektors
   # fehler_closure_badchar();
-  # > Stackaufbau: stream, sub-char, arg.
+  # > stack layout: stream, sub-char, arg.
     nonreturning_function(local, fehler_closure_badchar, (void));
     local void fehler_closure_badchar()
       {
@@ -4522,7 +4517,7 @@ LISPFUNN(structure_reader,3) # liest #S
   # Hexadezimal-Ziffer ist, und liefert ihren Wert.
   # hexziffer(ch,scode)
   # > ch, scode: Character (oder eof_value) und sein Syntaxcode
-  # > Stackaufbau: stream, sub-char, arg.
+  # > stack layout: stream, sub-char, arg.
   # < ergebnis: Wert (>=0, <16) der Hexziffer
     local uintB hexziffer (object ch, uintWL scode);
     local uintB hexziffer(ch,scode)
@@ -4591,7 +4586,7 @@ LISPFUNN(closure_reader,3) # liest #Y
         );
       # neuen Bit-Vektor mit n Bytes besorgen:
       STACK_1 = allocate_bit_vector(Atype_8Bit,n);
-      # Stackaufbau: Stream, Codevektor, n.
+      # stack layout: Stream, Codevektor, n.
       var object ch;
       var uintWL scode;
       # Whitespace überlesen:
@@ -4668,7 +4663,7 @@ LISPFUNN(closure_reader,3) # liest #Y
 LISPFUNN(clisp_pathname_reader,3) # liest #"
   {
     test_no_infix(); # n muss NIL sein
-    # Stackaufbau: Stream, sub-char #\".
+    # stack layout: Stream, sub-char #\".
     var object string = # String lesen, der mit " anfängt
       (funcall(L(string_reader),2),value1);
     # bei *READ-SUPPRESS* /= NIL sofort fertig:
@@ -4731,7 +4726,7 @@ LISPFUNN(ansi_pathname_reader,3) # liest #P
 LISPFUNN(unix_executable_reader,3) # liest #!
   {
     var object* stream_ = test_no_infix(); # n muss NIL sein
-    # Stackaufbau: Stream, sub-char #\!.
+    # stack layout: Stream, sub-char #\!.
     loop {
       var object ch = read_char(stream_); # Zeichen lesen
       if (eq(ch,eof_value) || eq(ch,ascii_char(NL)))
@@ -4797,7 +4792,7 @@ LISPFUNN(unix_executable_reader,3) # liest #!
 # UP für READ und READ-PRESERVING-WHITESPACE
 # read_w(whitespace-p)
 # > whitespace-p: gibt an, ob danach whitespace zu verbrauchen ist
-# > Stackaufbau: input-stream, eof-error-p, eof-value, recursive-p.
+# > stack layout: input-stream, eof-error-p, eof-value, recursive-p.
 # > subr_self: Aufrufer (ein SUBR) (unnötig, falls input-stream ein Stream ist)
 # < STACK: aufgeräumt
 # < mv_space/mv_count: Werte
@@ -4826,20 +4821,20 @@ LISPFUNN(unix_executable_reader,3) # liest #!
     }
 
 LISPFUN(read,0,4,norest,nokey,0,NIL)
-# (READ [input-stream [eof-error-p [eof-value [recursive-p]]]]), CLTL S. 375
+# (READ [input-stream [eof-error-p [eof-value [recursive-p]]]]), CLTL p. 375
   {
     return_Values read_w(NIL); # whitespace-p := NIL
   }
 
 LISPFUN(read_preserving_whitespace,0,4,norest,nokey,0,NIL)
 # (READ-PRESERVING-WHITESPACE [input-stream [eof-error-p [eof-value [recursive-p]]]]),
-# CLTL S. 376
+# CLTL p. 376
   {
     return_Values read_w(T); # whitespace-p := T
   }
 
 LISPFUN(read_delimited_list,1,2,norest,nokey,0,NIL)
-# (READ-DELIMITED-LIST char [input-stream [recursive-p]]), CLTL S. 377
+# (READ-DELIMITED-LIST char [input-stream [recursive-p]]), CLTL p. 377
   {
     # char überprüfen:
     var object ch = STACK_2;
@@ -4849,7 +4844,7 @@ LISPFUN(read_delimited_list,1,2,norest,nokey,0,NIL)
     test_istream(&STACK_1);
     # recursive-p-Argument abfragen:
     var object recursive_p = popSTACK();
-    # Stackaufbau: char, input-stream.
+    # stack layout: char, input-stream.
     if (eq(recursive_p,unbound) || nullp(recursive_p)) {
       # nicht-rekursiver Aufruf
       var object* stream_ = &STACK_0;
@@ -4872,7 +4867,7 @@ LISPFUN(read_delimited_list,1,2,norest,nokey,0,NIL)
 
 LISPFUN(read_line,0,4,norest,nokey,0,NIL)
 # (READ-LINE [input-stream [eof-error-p [eof-value [recursive-p]]]]),
-# CLTL S. 378
+# CLTL p. 378
   {
     # input-stream überprüfen:
     var object* stream_ = &STACK_3;
@@ -4908,7 +4903,7 @@ LISPFUN(read_line,0,4,norest,nokey,0,NIL)
 
 LISPFUN(read_char,0,4,norest,nokey,0,NIL)
 # (READ-CHAR [input-stream [eof-error-p [eof-value [recursive-p]]]]),
-# CLTL S. 379
+# CLTL p. 379
   {
     # input-stream überprüfen:
     var object* stream_ = &STACK_3;
@@ -4922,28 +4917,21 @@ LISPFUN(read_char,0,4,norest,nokey,0,NIL)
   }
 
 LISPFUN(unread_char,1,1,norest,nokey,0,NIL)
-# (UNREAD-CHAR char [input-stream]), CLTL S. 379
+# (UNREAD-CHAR char [input-stream]), CLTL p. 379
   {
     # input-stream überprüfen:
     var object* stream_ = &STACK_0;
     test_istream(stream_);
     var object ch = STACK_1; # char
-    if (!charp(ch)) { # muss ein Character sein !
-      pushSTACK(ch); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-      pushSTACK(ch);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not a character")
-            );
-    }
+    if (!charp(ch)) # must be a character
+      fehler_char(ch);
     unread_char(stream_,ch); # char auf Stream zurückschieben
     value1 = NIL; mv_count=1; skipSTACK(2); # NIL als Wert
   }
 
 LISPFUN(peek_char,0,5,norest,nokey,0,NIL)
 # (PEEK-CHAR [peek-type [input-stream [eof-error-p [eof-value [recursive-p]]]]]),
-# CLTL S. 379
+# CLTL p. 379
   {
     # input-stream überprüfen:
     var object* stream_ = &STACK_3;
@@ -4975,8 +4963,8 @@ LISPFUN(peek_char,0,5,norest,nokey,0,NIL)
       unread_char(stream_,ch); # Zeichen zurückschieben
       value1 = ch; mv_count=1; skipSTACK(5); return; # ch als Wert
     } else {
-      pushSTACK(peek_type); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_peektype)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(peek_type);        # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_peektype)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(peek_type);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -4988,7 +4976,7 @@ LISPFUN(peek_char,0,5,norest,nokey,0,NIL)
   }
 
 LISPFUN(listen,0,1,norest,nokey,0,NIL)
-# (LISTEN [input-stream]), CLTL S. 380
+# (LISTEN [input-stream]), CLTL p. 380
   {
     test_istream(&STACK_0); # input-stream überprüfen
     if (ls_avail_p(listen_char(popSTACK()))) {
@@ -5010,7 +4998,7 @@ LISPFUNN(read_char_will_hang_p,1)
 
 LISPFUN(read_char_no_hang,0,4,norest,nokey,0,NIL)
 # (READ-CHAR-NO-HANG [input-stream [eof-error-p [eof-value [recursive-p]]]]),
-# CLTL S. 380
+# CLTL p. 380
   {
     # input-stream überprüfen:
     var object* stream_ = &STACK_3;
@@ -5038,7 +5026,7 @@ LISPFUN(read_char_no_hang,0,4,norest,nokey,0,NIL)
   }
 
 LISPFUN(clear_input,0,1,norest,nokey,0,NIL)
-# (CLEAR-INPUT [input-stream]), CLTL S. 380
+# (CLEAR-INPUT [input-stream]), CLTL p. 380
   {
     test_istream(&STACK_0); # input-stream überprüfen
     clear_input(popSTACK());
@@ -5047,8 +5035,9 @@ LISPFUN(clear_input,0,1,norest,nokey,0,NIL)
 
 LISPFUN(read_from_string,1,2,norest,key,3,\
         (kw(preserve_whitespace),kw(start),kw(end)) )
-# (READ-FROM-STRING string [eof-error-p [eof-value [:preserve-whitespace] [:start] [:end]]]),
-# CLTL S. 380
+# (READ-FROM-STRING string [eof-error-p [eof-value [:preserve-whitespace]
+#                   [:start] [:end]]]),
+# CLTL p. 380
 # Methode:
 # (defun read-from-string (string &optional (eof-error-p t) (eof-value nil)
 #                          &key (start 0) (end nil) (preserve-whitespace nil)
@@ -5084,7 +5073,7 @@ LISPFUN(read_from_string,1,2,norest,key,3,\
 #       (system::string-input-stream-index stream)
 # ) ) )
   {
-    # Stackaufbau: string, eof-error-p, eof-value, preserve-whitespace, start, end.
+    # stack layout: string, eof-error-p, eof-value, preserve-whitespace, start, end.
     # :preserve-whitespace-Argument verarbeiten:
     var object preserve_whitespace = STACK_2;
     if (eq(preserve_whitespace,unbound))
@@ -5097,12 +5086,12 @@ LISPFUN(read_from_string,1,2,norest,key,3,\
       STACK_0 = NIL; # end hat Default NIL
     STACK_5 = preserve_whitespace;
     funcall(L(make_string_input_stream),3);
-    # Stackaufbau: preserve-whitespace, eof-error-p, eof-value.
+    # stack layout: preserve-whitespace, eof-error-p, eof-value.
     pushSTACK(STACK_1); pushSTACK(STACK_1);
     STACK_3 = STACK_2 = value1;
-    # Stackaufbau: preserve-whitespace, stream, stream, eof-error-p, eof-value.
+    # stack layout: preserve-whitespace, stream, stream, eof-error-p, eof-value.
     pushSTACK(NIL); read_w(STACK_5); # READ bzw. READ-PRESERVE-WHITESPACE
-    # Stackaufbau: preserve-whitespace, stream.
+    # stack layout: preserve-whitespace, stream.
     STACK_1 = value1; # gelesenes Objekt
     funcall(L(string_input_stream_index),1); # (SYS::STRING-INPUT-STREAM-INDEX stream)
     value2 = value1; value1 = popSTACK(); # Index als 2., Objekt als 1. Wert
@@ -5111,7 +5100,7 @@ LISPFUN(read_from_string,1,2,norest,key,3,\
 
 LISPFUN(parse_integer,1,0,norest,key,4,\
         (kw(start),kw(end),kw(radix),kw(junk_allowed)) )
-# (PARSE-INTEGER string [:start] [:end] [:radix] [:junk-allowed]), CLTL S. 381
+# (PARSE-INTEGER string [:start] [:end] [:radix] [:junk-allowed]), CLTL p. 381
   {
     # :junk-allowed-Argument verarbeiten:
     var bool junk_allowed;
@@ -5135,8 +5124,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
            ) {
           # OK
         } else {
-          pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_radix)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(arg);           # TYPE-ERROR slot DATUM
+          pushSTACK(O(type_radix)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(arg); # base
           pushSTACK(S(Kradix));
           pushSTACK(TheSubr(subr_self)->name);
@@ -5429,8 +5418,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     # )
     {
       var object print_case = S(print_case);
-      pushSTACK(Symbol_value(print_case)); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_printcase)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(Symbol_value(print_case)); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_printcase));        # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(S(Kupcase)); # :UPCASE
       pushSTACK(S(Kcapitalize)); # :CAPITALIZE
       pushSTACK(S(Kdowncase)); # :DOWNCASE
@@ -6537,7 +6526,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # if (level_check(&stream)) return;
 # > stream: Stream
 # < stream: Stream
-# Wenn ja: kann GC auslösen
+# Wenn ja: can trigger GC
 # Wenn nein: verändert STACK
   local bool level_check (const object* stream_);
   local bool level_check(stream_)
@@ -7362,7 +7351,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         pushSTACK(TheReadtable(readtable)->readtable_syntax_table);
       }
       pushSTACK(string);
-      # Stackaufbau: syntax_table, string.
+      # stack layout: syntax_table, string.
       write_ascii_char(stream_,'|');
       SstringDispatch(STACK_0,
         {
@@ -8565,7 +8554,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       if (!eq(description,unbound)) {
         # Structure mit Slot-Namen ausgeben:
         pushSTACK(description);
-        # Stackaufbau: structure, name, description.
+        # stack layout: structure, name, description.
         # description muss ein Simple-Vector der Länge >=4 sein !
         if (!(simple_vector_p(description)
               && (Svector_length(description) >= 4)
@@ -8691,11 +8680,11 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # Das ist die Default-Funktion, die von CLOS:PRINT-OBJECT aufgerufen wird:
 LISPFUNN(print_structure,2)
   {
-    # Stackaufbau: structure, stream.
+    # stack layout: structure, stream.
     var object structure = STACK_1;
     if (!structurep(structure)) {
-      pushSTACK(structure); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(structure_object)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(structure);           # TYPE-ERROR slot DATUM
+      pushSTACK(S(structure_object)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(structure); # structure
       pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(type_error,
@@ -8932,7 +8921,7 @@ LISPFUNN(print_structure,2)
         pushSTACK(obj);
         pushSTACK(name);
         pushSTACK(slotlist);
-        # Stackaufbau: obj, name, slotlist.
+        # stack layout: obj, name, slotlist.
         var object* obj_ = &STACK_2;
         # Es ist *(obj_ STACKop 0) = obj
         # und    *(obj_ STACKop -1) = name
@@ -10298,9 +10287,9 @@ LISPFUN(write,1,0,norest,key,14,\
 # (WRITE object [:stream] [:escape] [:radix] [:base] [:circle] [:pretty]
 #               [:level] [:length] [:case] [:gensym] [:array] [:closure]
 #               [:readably] [:right-margin]),
-# CLTL S. 382
+# CLTL p. 382
   {
-    # Stackaufbau: object, Print-Variablen-Argumente, Stream-Argument.
+    # stack layout: object, Print-Variablen-Argumente, Stream-Argument.
     test_ostream(); # Output-Stream überprüfen
     write_up(); # WRITE durchführen
     skipSTACK(print_vars_anz+1);
@@ -10329,7 +10318,7 @@ LISPFUN(write,1,0,norest,key,14,\
     }
 
 LISPFUN(prin1,1,1,norest,nokey,0,NIL)
-# (PRIN1 object [stream]), CLTL S. 383
+# (PRIN1 object [stream]), CLTL p. 383
   {
     test_ostream(); # Output-Stream überprüfen
     prin1_up(); # PRIN1 durchführen
@@ -10347,7 +10336,7 @@ LISPFUN(prin1,1,1,norest,nokey,0,NIL)
 #   object
 # )
 LISPFUN(print,1,1,norest,nokey,0,NIL)
-# (PRINT object [stream]), CLTL S. 383
+# (PRINT object [stream]), CLTL p. 383
   {
     test_ostream(); # Output-Stream überprüfen
     terpri(&STACK_0); # neue Zeile
@@ -10366,7 +10355,7 @@ LISPFUN(print,1,1,norest,nokey,0,NIL)
 #   (values)
 # )
 LISPFUN(pprint,1,1,norest,nokey,0,NIL)
-# (PPRINT object [stream]), CLTL S. 383
+# (PPRINT object [stream]), CLTL p. 383
   {
     test_ostream(); # Output-Stream überprüfen
     terpri(&STACK_0); # neue Zeile
@@ -10406,7 +10395,7 @@ LISPFUN(pprint,1,1,norest,nokey,0,NIL)
     }
 
 LISPFUN(princ,1,1,norest,nokey,0,NIL)
-# (PRINC object [stream]), CLTL S. 383
+# (PRINC object [stream]), CLTL p. 383
   {
     test_ostream(); # Output-Stream überprüfen
     princ_up(); # PRINC durchführen
@@ -10427,8 +10416,8 @@ LISPFUN(write_to_string,1,0,norest,key,13,\
          kw(right_margin)))
 # (WRITE-TO-STRING object [:escape] [:radix] [:base] [:circle] [:pretty]
 #                         [:level] [:length] [:case] [:gensym] [:array]
-#                         [:closure] [:readably] [:right_margin]),
-# CLTL S. 383
+#                         [:closure] [:readably] [:right-margin]),
+# CLTL p. 383
   {
     pushSTACK(make_string_output_stream()); # String-Output-Stream
     write_up(); # WRITE durchführen
@@ -10440,7 +10429,7 @@ LISPFUN(write_to_string,1,0,norest,key,13,\
 #   (with-output-to-string (stream) (prin1 object stream))
 # )
 LISPFUNN(prin1_to_string,1)
-# (PRIN1-TO-STRING object), CLTL S. 383
+# (PRIN1-TO-STRING object), CLTL p. 383
   {
     pushSTACK(make_string_output_stream()); # String-Output-Stream
     prin1_up(); # PRIN1 durchführen
@@ -10452,7 +10441,7 @@ LISPFUNN(prin1_to_string,1)
 #   (with-output-to-string (stream) (princ object stream))
 # )
 LISPFUNN(princ_to_string,1)
-# (PRINC-TO-STRING object), CLTL S. 383
+# (PRINC-TO-STRING object), CLTL p. 383
   {
     pushSTACK(make_string_output_stream()); # String-Output-Stream
     princ_up(); # PRINC durchführen
@@ -10461,19 +10450,12 @@ LISPFUNN(princ_to_string,1)
   }
 
 LISPFUN(write_char,1,1,norest,nokey,0,NIL)
-# (WRITE-CHAR character [stream]), CLTL S. 384
+# (WRITE-CHAR character [stream]), CLTL p. 384
   {
     test_ostream(); # Output-Stream überprüfen
     var object ch = STACK_1; # character-Argument
-    if (!charp(ch)) {
-      pushSTACK(ch); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-      pushSTACK(ch);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not a character")
-            );
-    }
+    if (!charp(ch))
+      fehler_char(ch);
     write_char(&STACK_0,ch);
     value1 = ch; mv_count=1; # ch (nicht GC-gefährdet) als Wert
     skipSTACK(2);
@@ -10482,8 +10464,8 @@ LISPFUN(write_char,1,1,norest,nokey,0,NIL)
 # UP für WRITE-STRING und WRITE-LINE:
 # Überprüft die Argumente und gibt einen String-Teil auf einen Stream aus.
 # > subr_self: Aufrufer (ein SUBR)
-# > Stackaufbau: String-Argument, Stream-Argument, :START-Argument, :END-Argument.
-# < Stackaufbau: Stream, String.
+# > stack layout: String-Argument, Stream-Argument, :START-Argument, :END-Argument.
+# < stack layout: Stream, String.
 # can trigger GC
   local void write_string_up (void);
   local void write_string_up()
@@ -10493,24 +10475,24 @@ LISPFUN(write_char,1,1,norest,nokey,0,NIL)
       STACK_(2+1) = STACK_(3+1);
       STACK_(3+1) = STACK_0;
       skipSTACK(1);
-      # Stackaufbau: stream, string, :START-Argument, :END-Argument.
+      # stack layout: stream, string, :START-Argument, :END-Argument.
       # Grenzen überprüfen:
       var stringarg arg;
       var object string = test_string_limits_ro(&arg);
       pushSTACK(string);
-      # Stackaufbau: stream, string.
+      # stack layout: stream, string.
       write_sstring_ab(&STACK_1,arg.string,arg.offset+arg.index,arg.len);
     }
 
 LISPFUN(write_string,1,1,norest,key,2, (kw(start),kw(end)) )
-# (WRITE-STRING string [stream] [:start] [:end]), CLTL S. 384
+# (WRITE-STRING string [stream] [:start] [:end]), CLTL p. 384
   {
     write_string_up(); # überprüfen und ausgeben
     value1 = popSTACK(); mv_count=1; skipSTACK(1); # string als Wert
   }
 
 LISPFUN(write_line,1,1,norest,key,2, (kw(start),kw(end)) )
-# (WRITE-LINE string [stream] [:start] [:end]), CLTL S. 384
+# (WRITE-LINE string [stream] [:start] [:end]), CLTL p. 384
   {
     write_string_up(); # überprüfen und ausgeben
     terpri(&STACK_1); # neue Zeile
@@ -10518,7 +10500,7 @@ LISPFUN(write_line,1,1,norest,key,2, (kw(start),kw(end)) )
   }
 
 LISPFUN(terpri,0,1,norest,nokey,0,NIL)
-# (TERPRI [stream]), CLTL S. 384
+# (TERPRI [stream]), CLTL p. 384
   {
     test_ostream(); # Output-Stream überprüfen
     terpri(&STACK_0); # neue Zeile
@@ -10526,7 +10508,7 @@ LISPFUN(terpri,0,1,norest,nokey,0,NIL)
   }
 
 LISPFUN(fresh_line,0,1,norest,nokey,0,NIL)
-# (FRESH-LINE [stream]), CLTL S. 384
+# (FRESH-LINE [stream]), CLTL p. 384
   {
     test_ostream(); # Output-Stream überprüfen
     if (eq(get_line_position(STACK_0),Fixnum_0)) { # Line-Position = 0 ?
@@ -10539,7 +10521,7 @@ LISPFUN(fresh_line,0,1,norest,nokey,0,NIL)
   }
 
 LISPFUN(finish_output,0,1,norest,nokey,0,NIL)
-# (FINISH-OUTPUT [stream]), CLTL S. 384
+# (FINISH-OUTPUT [stream]), CLTL p. 384
   {
     test_ostream(); # Output-Stream überprüfen
     finish_output(popSTACK()); # Output ans Ziel bringen
@@ -10547,7 +10529,7 @@ LISPFUN(finish_output,0,1,norest,nokey,0,NIL)
   }
 
 LISPFUN(force_output,0,1,norest,nokey,0,NIL)
-# (FORCE-OUTPUT [stream]), CLTL S. 384
+# (FORCE-OUTPUT [stream]), CLTL p. 384
   {
     test_ostream(); # Output-Stream überprüfen
     force_output(popSTACK()); # Output ans Ziel bringen
@@ -10555,7 +10537,7 @@ LISPFUN(force_output,0,1,norest,nokey,0,NIL)
   }
 
 LISPFUN(clear_output,0,1,norest,nokey,0,NIL)
-# (CLEAR-OUTPUT [stream]), CLTL S. 384
+# (CLEAR-OUTPUT [stream]), CLTL p. 384
   {
     test_ostream(); # Output-Stream überprüfen
     clear_output(popSTACK()); # Output löschen
