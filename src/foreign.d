@@ -1,6 +1,6 @@
 # Foreign language interface for CLISP
 # Marcus Daniels 8.4.1994
-# Bruno Haible 1995-2000
+# Bruno Haible 1995-2001
 
 #include "lispbibl.c"
 #include "arilev0.c" # für mulu32_unchecked
@@ -402,7 +402,7 @@ local void callback (void* data, va_alist args);
         # Next allocate the trampoline.
         {
           begin_system_call();
-          var void* trampoline = alloc_callback(&callback,(void*)index);
+          var void* trampoline = alloc_callback(&callback,(void*)(uintP)index);
           end_system_call();
           pushSTACK(make_faddress(O(fp_zero),(uintP)trampoline));
           # Now allocate the foreign-function.
@@ -444,7 +444,7 @@ local void callback (void* data, va_alist args);
       if (is_callback(address) # safety check
           && (callback_address(address) == &callback)
          ) {
-        var uintL index = (uintL)callback_data(address);
+        var uintL index = (uintL)(uintP)callback_data(address);
         end_system_call();
         var object dv = TheIarray(O(foreign_callin_vector))->data;
         var object* triple = &TheSvector(dv)->data[3*index-2];
@@ -504,7 +504,7 @@ local void callback (void* data, va_alist args);
       if (is_callback(address) # safety check
           && (callback_address(address) == &callback)
          ) {
-        var uintL index = (uintL)callback_data(address);
+        var uintL index = (uintL)(uintP)callback_data(address);
         end_system_call();
         var object* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*index-2];
         var object ffun = triple[1];
@@ -3419,7 +3419,7 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL)
     var void* data;
     var va_alist alist;
     {
-      var uintL index = (uintL)data;
+      var uintL index = (uintL)(uintP)data;
       begin_callback();
       var object* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*index-2];
       var object fun = triple[0];
