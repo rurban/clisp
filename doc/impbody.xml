@@ -3725,6 +3725,11 @@ functions are provided:
  used.  Otherwise, the syntax <literal role="data">#A(&eltype-r;
  &dimensions-r; &cont-r;)</literal> is used.</para>
 
+<para>As explicitly permitted by this section, specialized &bit-t; and
+ &character-t; &array-t;s are printed with the innermost lists generated
+ by the printing algorithm are instead printed using &bit-vector; and
+ &string-t; syntax, respectively.</para>
+
 <formalpara id="pr-empty-arr-ansi"><title>Variable &pr-empty-arr-ansi;</title>
 <para>Empty &array-t;s, i.e., arrays with no elements and zero
  &array-total-size; (because one of its dimensions is zero) are printed
