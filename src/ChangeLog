@@ -1,3 +1,10 @@
+2001-01-04  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (pathname_check_remote): replaced with
+	(pathname_fix_remote): reset device to NIL and make the
+	path :absolute
+	(merge-pathnames, make-pathname): use it
+
 2001-01-03  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (use_default_dir win32): do not use `default_drive'
