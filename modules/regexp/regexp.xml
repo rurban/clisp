@@ -6,8 +6,7 @@
  <ulink url="regexp.html">POSIX regular expressions</ulink>
 via an &ffi-pac; call to the standard &c-lang; system facilities.
 The syntax of these regular expressions is described in many places,
-such as your local <function>regexp(5)</function> manual and &emacs;
-info pages.</para>
+such as your local &regex-h; manual and &emacs; info pages.</para>
 
 <para>The &regexp-pac; package exports the following 9 symbols:</para>
 
@@ -37,7 +36,7 @@ info pages.</para>
   If &start-r; is non-&nil;, the search starts at that index in &string-r;.
   If &end-r; is non-&nil;, only <literal role="sexp">(&subseq;
   &string-r; &start-r; &end-r;)</literal> is considered.
-  <example><title>&re-match;</title>
+  <example id="ex-re-match"><title>&re-match;</title>
    <programlisting>
     (&re-match; "quick" "The quick brown fox jumped quickly.")
      <literal role="sexp">#S(&match-t; :RM_SO 4 :RM_EO 9)</literal>
@@ -78,7 +77,7 @@ info pages.</para>
   that matches exactly &string-r; and nothing else.
   This allows you to request an exact string match when calling a
   function that wants a regular expression.
-  <example><title>&re-regexp-quote;</title>
+  <example id="ex-re-quote"><title>&re-regexp-quote;</title>
    <programlisting>
     (regexp-quote "^The cat$")
      <returnvalue>"\\^The cat\\$"</returnvalue>
@@ -137,7 +136,7 @@ info pages.</para>
             (format t "[~d] ~s~30t== ~5:d~%" (incf n) k v)))))
 </programlisting></para>
 
-<para>The same is done by the following &perl;:
+<para>For comparison, the same can be done by the following &perl;:
 <programlisting>
 #!/usr/local/bin/perl -w
 

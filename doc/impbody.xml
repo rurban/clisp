@@ -103,7 +103,7 @@
   <ulink url="&clhs;/Body/sec_2-4-6.html">[CLHS-2.4.6]</ulink></title>
 
 <para>The backquote read macro also works when nested. Example:
-<informalexample><programlisting>
+<informalexample id="bq-nested"><programlisting>
    (&eval; ``(,#'(&lambda; () ',a) ,#'(&lambda; () ',b)))
  = (&eval; `(list #'(&lambda; () ',a) #'(&lambda; () ',b)))
  = (&eval; (list 'list (list 'function (list 'lambda nil (list 'quote a)))
@@ -2523,7 +2523,7 @@ printed readably.</para>
 <para>Case is ignored in the strings on comparison.
   No case conversions are performed.</para>
 
-<table frame="all" id="pathnames-externally-amiga">
+<table id="pathnames-externally-amiga" frame="all">
  <title>filename notations</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
  <row><entry>External notation:</entry>
@@ -2545,7 +2545,7 @@ printed readably.</para>
    <listitem><simpara>{ch}+</simpara></listitem></varlistentry>
   <varlistentry><term>device ::==</term>
    <listitem><para>[ &lt;empty&gt; | ':' | name ':' ]
-    <table frame="all"><title/>
+    <table id="amiga-dev" frame="all"><title/>
     <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
     <row><entry>empty</entry><entry>current device, relative to
      current directory</entry></row>
@@ -2556,7 +2556,7 @@ printed readably.</para>
    </tbody></tgroup></table></para></listitem></varlistentry>
   <varlistentry><term>subdir ::==</term>
    <listitem><para>[ &lt;empty&gt; | name ]
-    <table frame="all"><title/>
+    <table id="amifa-subdir" frame="all"><title/>
     <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
     <row><entry>empty</entry><entry>parent directory</entry></row>
    </tbody></tgroup></table></para></listitem></varlistentry>
@@ -2918,7 +2918,7 @@ printed readably.</para>
   file will be looked for, according to the operation being performed on
   it.</simpara>
 
-<table frame="all"><title/>
+<table id="acorn-path-vars" frame="all"><title/>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
  <thead><row><entry>name</entry><entry>purpose</entry></row></thead><tbody>
  <row><entry>File$Path</entry>
@@ -2980,7 +2980,7 @@ printed readably.</para>
   <varlistentry><term>directory ::==</term>
     <listitem><para> { '$' | '&amp;' | '@' | '%' | '\' } '.'
     { subdirectory }* | { subdirectory }+ | empty
-    <table frame="all"><title/>
+    <table id="acorn-directory" frame="all"><title/>
     <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
      <row><entry>'$' -&gt;</entry>
          <entry>&absolute-k; &root-k;</entry></row>
@@ -2996,7 +2996,7 @@ printed readably.</para>
     </tbody></tgroup></table></para></listitem></varlistentry>
   <varlistentry><term>subdirectory ::==</term>
    <listitem><para>{ '^' | { legal-wild char }+ } '.'
-   <table frame="all"><title/>
+   <table id="acorn-subdirectory" frame="all"><title/>
     <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
     <row><entry>'^' -&gt;</entry><entry>&parent-k;</entry></row>
    </tbody></tgroup></table></para></listitem></varlistentry>
@@ -3087,7 +3087,7 @@ printed readably.</para>
  <listitem><simpara>with swapping <emphasis>only</emphasis> of name/type
   components.</simpara>
 
-<table frame="all"><title/>
+<table id="acorn-name-type-swap" frame="all"><title/>
  <tgroup cols="6" colsep="1" rowsep="1" align="center">
   <thead><row><entry>Hostname</entry><entry>Device</entry>
   <entry>Directory</entry><entry>Name</entry>
@@ -3651,7 +3651,7 @@ is not a defined logical host yet, we proceed as follows:
 <!-- #ifdef MSDOS -->
        <varlistentry><term>Platform dependent: &dos;, &os2;
           platforms only.</term>
-      <listitem><table frame="all"><title/>
+      <listitem><table id="dos-kbd-keys" frame="all"><title/>
       <tgroup cols="2" colsep="1" rowsep="1" align="center">
        &key-value-header;<tbody>
        <row><entry><keycode>F1</keycode>..<keycode>F12</keycode></entry>
@@ -3678,7 +3678,7 @@ is not a defined logical host yet, we proceed as follows:
 <!-- #if defined(UNIX) || defined(WIN32) -->
       <varlistentry><term>Platform dependent: &unix;, &win32;
          platforms only.</term>
-      <listitem><table frame="all"><title/>
+      <listitem><table id="unix-kbd-keys" frame="all"><title/>
        <tgroup cols="2" colsep="1" rowsep="1" align="center">
        &key-value-header;<tbody>
        <row><entry><keycode>F1</keycode>..<keycode>F12</keycode></entry>
@@ -3706,7 +3706,7 @@ is not a defined logical host yet, we proceed as follows:
 
 <!-- #ifdef AMIGAOS -->
     <varlistentry><term>Platform dependent: &amiga; platforms only.</term>
-    <listitem><table frame="all"><title/>
+    <listitem><table id="amiga-kbd-keys" frame="all"><title/>
      <tgroup cols="2" colsep="1" rowsep="1" align="center">
       &key-value-header;<tbody>
        <row><entry><keycode>F1</keycode>..<keycode>F10</keycode></entry>
