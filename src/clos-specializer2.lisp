@@ -18,8 +18,7 @@
 ;;; ===========================================================================
 
 (defmethod shared-initialize ((specializer eql-specializer) situation &rest args
-                              &key ((singleton singleton) nil)
-                              &allow-other-keys)
+                              &key ((singleton singleton) nil))
   (declare (ignore singleton))
   (apply #'shared-initialize-<eql-specializer> specializer situation args))
 
