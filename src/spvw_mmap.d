@@ -2,7 +2,7 @@
 
 #if defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)
 
-# ------------------------------ Specification ---------------------------------
+# ------------------------------ Specification --------------------------------
 
 # This adds support for mapping private memory pages at given addresses.
 # If HAVE_MMAP is defined, it also supports private mappings of files
@@ -42,7 +42,7 @@
 # Changes the access protection for a memory range.
   global int mprotect (MPROTECT_CONST MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot);
 
-# ------------------------------ Implementation --------------------------------
+# ------------------------------ Implementation -------------------------------
 
 #if defined(HAVE_MACH_VM)
 
@@ -385,11 +385,11 @@
     var void* map_addr;
     var uintL map_len;
     {
-      if ( (void*) mmap((MMAP_ADDR_T)map_addr, # gewünschte Adresse
-                        map_len, # Länge
-                        PROT_READ_WRITE, # Zugriffsrechte
-                        map_flags | MAP_FIXED, # genau an diese Adresse!
-                        mmap_zero_fd, 0 # leere Seiten legen
+      if ( (void*) mmap((MMAP_ADDR_T)map_addr, # wished address
+                        map_len, # length
+                        PROT_READ_WRITE, # access rights
+                        map_flags | MAP_FIXED, # exactly at this address!
+                        mmap_zero_fd, 0 # put empty pages
                        )
            == (void*)(-1)
          ) {
@@ -421,6 +421,6 @@
 
 #endif
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 #endif

@@ -1,3 +1,8 @@
+2002-03-30  Stefan Kain  <stefan.kain@freenet.de>
+
+	* spvw_fault.d, spvw_global.d, spvw_mmap.d, spvw_multimap.d:
+	translated all comments
+
 2002-03-30  Sam Steingold  <sds@gnu.org>
 
 	* io.d (pr_stream): print components of TWO-WAY and ECHO streams
