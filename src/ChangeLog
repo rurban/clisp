@@ -1,3 +1,10 @@
+2003-07-10  Sam Steingold  <sds@gnu.org>
+
+	* error.d (check_fdefinition): handle :CONTINUE restart from
+	check_value()
+	* condition.lisp (check-value): permit :CONTINUE restart when the
+	place is (FDEFINITION ...)
+
 2003-07-09  Sam Steingold  <sds@gnu.org>
 
 	* errwin32.d (OS_error, OS_file_error, SOCK_error):
