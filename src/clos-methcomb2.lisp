@@ -800,6 +800,18 @@ Long-form options are a list of method-group specifiers,
              (when (and (consp body) (consp (car body))
                         (eq (caar body) ':ARGUMENTS))
                (setq arguments-lambda-list (cdar body))
+               (let ((arguments-lambda-list-without-whole
+                       (if (and (consp arguments-lambda-list)
+                                (eq (car arguments-lambda-list) '&WHOLE)
+                                (consp (cdr arguments-lambda-list)))
+                         (cddr arguments-lambda-list)
+                         arguments-lambda-list)))
+                 (analyze-lambdalist arguments-lambda-list-without-whole
+                   #'(lambda (errorstring &rest arguments)
+                       (error-of-type 'sys::source-program-error
+                         (TEXT "~S ~S: invalid ~S lambda-list: ~A")
+                         'define-method-combination name ':arguments
+                         (apply #'format nil errorstring arguments)))))
                (setq body (cdr body)))
              (when (and (consp body) (consp (car body))
                         (eq (caar body) ':GENERIC-FUNCTION))
