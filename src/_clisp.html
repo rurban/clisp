@@ -46,6 +46,7 @@
 #ifdef MULTIMAP_MEMORY_VIA_FILE
 [ <A HREF="#Option -t"><CODE>-t</CODE> <EM>tempdir</EM></A> ]
 #endif
+[ <A HREF="#Option -B"><CODE>-B</CODE> <EM>lisplibdir</EM></A> ]
 #if defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)
 [ <A HREF="#Option -K"><CODE>-K</CODE> <EM>linking-set</EM></A> ]
 #endif
@@ -135,6 +136,15 @@ This option takes precedence over the environment variable
 <CODE>TMPDIR</CODE>.
 <P>
 #endif
+
+<DT> <A NAME="Option -B"> <CODE>-B</CODE> <EM>lisplibdir</EM> </A>
+<DD> Specifies the installation directory. This is the directory containing
+the linking sets and other data files.
+#ifdef UNIX
+This option is normally not necessary, because the installation directory
+is already built-in in the <CODE>clisp</CODE> executable.
+#endif
+<P>
 
 #if defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)
 <DT> <A NAME="Option -K"> <CODE>-K</CODE> <EM>linking-set</EM> </A>
@@ -578,7 +588,7 @@ and Michael Stoll.
 Bruno Haible &lt;haible@clisp.cons.org&gt;
 </ADDRESS>
 <P>
-Last modified: 18 October 1998.
+Last modified: 11 April 1999.
 
 </BODY>
 

@@ -397,7 +397,7 @@ Y cree un fichero de ejecución por lotes que ejecute lisp:
    set TERM=ansi
    set TERMCAP=c:/emx/etc/termcap.dat
 #endif
-   d:\lib\lisp\lisp.exe -M d:\lib\lisp\lispinit.mem %1 %2 %3 %4 %5 %6 %7 %8 %9
+   d:\lib\lisp\lisp.exe -M d:\lib\lisp\lispinit.mem -B d:\lib\lisp\ %1 %2 %3 %4 %5 %6 %7 %8 %9
    [Ctrl-Z]
 #endif
 #ifdef UNIX
@@ -411,13 +411,13 @@ Y cree un `shell script' que ejecute lisp:
 #else
    #!/bin/sh
 #endif
-   exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem "$@"
+   exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem -B /usr/local/lib/lisp/ "$@"
 #else
    #!/bin/sh
    if test $# = 0; then
-     exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem
+     exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem -B /usr/local/lib/lisp/
    else
-     exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem "$@"
+     exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem -B /usr/local/lib/lisp/ "$@"
    fi
 #endif
    [Ctrl-D]EOF
@@ -466,7 +466,7 @@ CLISP también se ejecuta en una ventana de DOS bajo Microsoft Windows
 
    Programa:                c:\rsx\bin\rsx.exe
    Nombre del programa:     COMMON LISP
-   Parámetros del programa: -Ra c:\lib\lisp\lisp.exe -M c:\lib\lisp\lispinit.mem
+   Parámetros del programa: -Ra c:\lib\lisp\lisp.exe -M c:\lib\lisp\lispinit.mem -B c:\lib\lisp\
                             (tal vez después de -Ra deba añadir también -Rs1024)
    Directorio de inicio:    e:\lisp  (o donde corresponda)
    Pantalla:                Texto

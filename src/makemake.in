@@ -2651,9 +2651,9 @@ for f in $LPARTS ; do
 done
 
 if [ -n "$USE_GETTEXT" ] ; then
-  localeflags=' -N locale'
+  localeflags=' -B . -N locale'
 else
-  localeflags=''
+  localeflags=' -B .'
 fi
 
 if [ $CROSS = false ] ; then
@@ -2788,9 +2788,9 @@ if [ $CROSS = false ] ; then
   if [ $HOS = unix ] ; then
 
     if [ -n "$USE_GETTEXT" ] ; then
-      localeflags=' -N `pwd`/locale'
+      localeflags=' -B `pwd` -N `pwd`/locale'
     else
-      localeflags=''
+      localeflags=' -B `pwd`'
     fi
     echol "testsuite : ${TESTSDIR} lisp${LEXE} lispinit.mem"
     echotab "LISP=\""'`pwd`'"/lisp${LEXE} -M "'`pwd`'"/lispinit.mem$localeflags -norc\"; export LISP; cd ${TESTSDIR}; \$(MAKE) LISP=\"\$\$LISP\""
@@ -2852,9 +2852,9 @@ if [ $HOS = unix ] && [ $CROSS = false ] ; then
     EVERY_INCLUDES_DOTS_C=$EVERY_INCLUDES_DOTS_C' $${dots}'$f
   done
   if [ -n "$USE_GETTEXT" ] ; then
-    localeflags=' -N `pwd`/locale'
+    localeflags=' -B `pwd` -N `pwd`/locale'
   else
-    localeflags=''
+    localeflags=' -B `pwd`'
   fi
   echotab "CLISP=\""'`pwd`'"/lisp${LEXE} -M "'`pwd`'"/lispinit.mem$localeflags -norc\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" LISPBIBL_INCLUDES=\"$EVERY_INCLUDES_DOTS_C\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
   echol
@@ -3043,9 +3043,9 @@ if [ $CROSS = false ] ; then
     # echotab "strip \$(lisplibdir)/base/lisp${LEXE}"
     if [ -n "$USE_GETTEXT" ] ; then
       echotab "cd gettext/po && \$(MAKE) install prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
-      localeflags=" -N \$(localedir)"
+      localeflags=" -B \$(lisplibdir) -N \$(localedir)"
     else
-      localeflags=''
+      localeflags=" -B \$(lisplibdir)"
     fi
     echotab "if [ ! -d \$(bindir) ] ; then mkdir \$(bindir) ; fi"
     if false; then

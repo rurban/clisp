@@ -661,6 +661,7 @@ LISPFUNN(dynload_modules,2)
 #ifdef HAVE_DISASSEMBLER
 LISPFUNN(program_name,0)
 #endif
+LISPFUNN(lib_directory,0)
 #ifdef EXPORT_SYSCALLS
 #ifdef UNIX
 LISPFUN(user_data,0,1,norest,nokey,0,NIL)
