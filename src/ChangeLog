@@ -1,5 +1,10 @@
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (regular_handle_p) [UNIX]: Treat block devices like regular
+          files.
+
+1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d: Move the file-streams next to the handle-streams.
 
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
