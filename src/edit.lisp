@@ -74,7 +74,7 @@
                       (when (eql obj end-of-file) (return))
                       (print (evalhook obj nil nil (cdr def)))
               ) ) ) )
-              (when (compiled-function-p fun) (compile funname))
+              (when (sys::%compiled-function-p fun) (compile funname))
           ) )
           funname
         )

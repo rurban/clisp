@@ -49,7 +49,7 @@
          (values nil nil (sys::%record-ref obj 0)))
         ((sys::subr-info obj)
          (values nil nil (sys::subr-info obj)))
-        ((compiled-function-p obj) ; compiled closure?
+        ((sys::%compiled-function-p obj) ; compiled closure?
          (let* ((name (sys::%record-ref obj 0))
                 (def (get name 'sys::definition)))
            (values (when def (cons 'LAMBDA (cddar def))) t name)))

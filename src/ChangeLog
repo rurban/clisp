@@ -1,5 +1,27 @@
 2004-02-28  Bruno Haible  <bruno@clisp.org>
 
+	Exclude generic functions from the type COMPILED-FUNCTION.
+	So that (defgeneric foo (x) (:method ((x t)) x))
+	        (typep #'foo 'COMPILED-FUNCTION) ==> NIL.
+	Rationale: Due to the rule 1 in
+	<http://www.lisp.org/HyperSpec/Body/fun_type-of.html>,
+	we must have (TYPEP X Y) ==> (SUBTYPEP (TYPE-OF X) Y)
+	for all "built-in types" Y as listed in table 4-2 in
+	<http://www.lisp.org/HyperSpec/Body/sec_4-2-3.html>
+	Apply this to X = #'foo and Y = COMPILED-FUNCTION.
+	* predtype.d (COMPILED-FUNCTION-P): Exclude generic functions.
+	(SYS::%COMPILED-FUNCTION-P): New function, with the old semantics of
+	COMPILED-FUNCTION-P.
+	* compiler.lisp (function-signature, compile, disassemble-closures):
+	Use sys::%compiled-function-p instead of compiled-function-p.
+	* defs2.lisp (function-lambda-expression): Likewise.
+	* describe.lisp (describe-object): Likewise.
+	* disassem.lisp (disassemble): Likewise.
+	* edit.lisp (ed): Likewise.
+	* trace.lisp (sys::%local-set): Likewise.
+
+2004-02-28  Bruno Haible  <bruno@clisp.org>
+
 	Due to the rule 1 in
 	<http://www.lisp.org/HyperSpec/Body/fun_type-of.html>,
 	we must have (TYPEP X Y) ==> (SUBTYPEP (TYPE-OF X) Y)
