@@ -43,6 +43,8 @@
 /* Default size of LONG fetch */
 #define DEFAULT_LONG_LEN		500000
 
+#define minof(a, b) (a < b ? a : b)
+
 /* Local routines, w/ wrappers passed to external interface */
 static struct db_conn * connect(char *, char *, char *, char *, int, int, int, int);
 static int              disconnect(struct db_conn *);
@@ -65,6 +67,7 @@ static int       get_cols(struct db_conn *);
 static int       get_param_attr(CONST dvoid *, int, struct db_conn *, dvoid *, ub4 *, char *, ub4);
 static char *    decode_data_type(int);
 static int       fetch_data_len(int, int, int);
+static int       is_blob_type(int);
 static void      free_columns(struct db_conn *);
 static void      free_column(struct column *);
 static void      free_if_non_null(void *);
@@ -330,17 +333,55 @@ static int fetch_row(struct db_conn * db)
   if ( truncated && ! db->truncate_ok ) {
 	char * defind = db->long_len == DEFAULT_LONG_LEN ? "default" : "specified";
 	sprintf(db->errmsg,
-			"Size of LONG column exceeds %s maximum of %d.\nYou must either increase size of LONG fetch buffer or set flag allowing truncation.\n", defind, db->long_len);
+			"Size of a LONG column exceeds %s maximum of %d.\nYou must either increase size of LONG/BLOB fetch buffer, or set flag allowing truncation.\n", defind, db->long_len);
 	append_oci_error(db->errmsg, db->err);
 	return db->success = 0;
   }
   
-  /* Copy is-null indicator status to external structures.  */
+  /* Loop over columns, fetching propagating is-null status and fetching BLOB data */
   for ( n=0; n < db->ncol; n++ ) {
     struct sqlval * r = db->currow[n];
     col = &db->columns[n];
-    if ( col->indicator == 0 )
-      r->is_null = 0;
+
+	if ( col->indicator == 0 ) {
+
+		r->is_null = 0;
+
+		/* Fetch BLOB data using locator, checking it fits */
+		if ( is_blob_type(col->dtype) ) {
+		  sword lob_read_status = 0;
+		  OCILobLocator * lob = col->lob_locator;
+		  ub4 try_nread = db->long_len + 1;
+		  ub4 act_nread = try_nread;
+		  if ( ! lob ) {
+			sprintf(db->errmsg, "Internal error: no LobLocator for column %d\n", n);
+			return db->success = 0;
+		  }
+		  lob_read_status = OCILobRead(db->svc, db->err, lob, &act_nread, 1,
+									   col->data, try_nread, 0, 0, 0, SQLCS_IMPLICIT);
+
+		  /* If could not fit the whole thing in the buffer, will have read one beyond db->long_len,
+			 or perhaps Oracle will return OCI_NEED_DATA?  If that is the case, see if we
+			 allow truncating it.  */
+		  if ( ( act_nread >= try_nread || lob_read_status == OCI_NEED_DATA ) && ! db->truncate_ok ) {
+			char * defind = db->long_len == DEFAULT_LONG_LEN ? "default" : "specified";
+			sprintf(db->errmsg,
+					"Size of BLOB/CLOB column '%s' exceeds %s maximum of %d.\n"
+					"You must either increase size of LONG/BLOB fetch buffer, or set flag allowing truncation.\n",
+					col->name, defind, db->long_len);
+			append_oci_error(db->errmsg, db->err);
+			return db->success = 0;
+		  }
+		  else if ( lob_read_status != OCI_SUCCESS ) {
+			sprintf(db->errmsg, "Error reading LOB column '%s'\n", col->name);
+			append_oci_error(db->errmsg, db->err);
+			return db->success = 0;
+		  }
+		
+		  /* Null-terminate the data buffer */
+		  ((char *) col->data)[minof(act_nread, db->long_len)] = '\0';
+		}
+	}
     else if ( col->indicator == -1 )
       r->is_null = 1;
     else {
@@ -375,6 +416,9 @@ static int get_cols(struct db_conn * db)
   int               fetch_buflen        = 0;
   int               success             = 0;
   sb4               define_status       = OCI_SUCCESS;
+  dvoid *		    define_dest        = 0;
+  sb4               define_len          = 0;
+  ub2               define_type         = 0;
 
   /* Clear out previous results */
   free_columns(db);
@@ -481,7 +525,29 @@ static int get_cols(struct db_conn * db)
     col->indicator = 0;
     col->nfetched = 0;
     col->rcode = 0;
-    define_status = OCIDefineByPos(db->stmt, &col->def, db->err, ncol, col->data, fetch_buflen, SQLT_STR,
+	col->lob_locator = 0;
+	
+	/* Fetch LOB's as LobLocator's, everything else as SQLT_STR */
+	if ( is_blob_type(col->dtype) ) {
+	  /* Allocate LOB locator */
+	  sword dalloc_stat = OCIDescriptorAlloc(db->env, (void *) &col->lob_locator, OCI_DTYPE_LOB, 0, 0);
+	  if ( dalloc_stat != OCI_SUCCESS ) {
+		sprintf(db->errmsg, "Error creating LOB descriptor for column '%s'", col->name);
+		return db->success = 0;
+	  }
+
+	  define_dest = &col->lob_locator;
+	  define_len = 0;
+	  define_type = col->dtype;
+	}
+	else {
+	  define_dest = col->data;
+	  define_len = fetch_buflen;
+	  define_type = SQLT_STR;
+	}
+	
+	/* Do the Define */
+    define_status = OCIDefineByPos(db->stmt, &col->def, db->err, ncol, define_dest, define_len, define_type,
                                    &col->indicator, &col->nfetched, &col->rcode, OCI_DEFAULT);
     if ( define_status != OCI_SUCCESS ) {
       sprintf(db->errmsg, "Error setting up define for column '%s':\n", col->name);
@@ -1002,28 +1068,40 @@ static int fetch_data_len(int dtype, int dlen, int long_len)
      accomodate the Oracle data), with the exception of LONG. */
 
   switch (dtype) {
-  case 1:   /* VARCHAR2 */
-  case 96:  /* CHAR */
+  case 1:   /* VARCHAR2 (SQLT_CHR) */
+  case 96:  /* CHAR (SQLT_AFC) */
     return dlen + 1;
     
-  case 2:   /* NUMBER */
-  case 3:   /* INTEGER */
-  case 4:   /* FLOAT */
+  case 2:   /* NUMBER (SQLT_NUM) */
+  case 3:   /* INTEGER (SQLT_INT) */
+  case 4:   /* FLOAT (SQLT_FLT) */
     return 50;
     
-  case 8:   /* LONG */
+  case 8:   /* LONG (SQLT_LNG) */
+  case 112: /* CLOB (SQLT_CLOB) */
+  case 113: /* BLOB (SQLT_BLOB) */
+  case 114: /* BFILE (SQLT_FILE) */
     return long_len + 1;
 
-  case 24:  /* LONG RAW*/
+  case 24:  /* LONG RAW (SQLT_LBI) */
     return 2 * long_len + 1;
 
-  case 23:  /* RAW (returned in hex) */
+  case 23:  /* RAW (returned in hex) (SQLT_BIN) */
 	return 2 * dlen + 1;
     
-  case 12:  /* DATE */
+  case 12:  /* DATE (SQLT_DAT) */
     return 50;
   }
   return 0;
+}
+
+/* Is data type a blob type? */
+static int is_blob_type(int dtype)
+{
+  return    dtype == SQLT_CLOB
+	     || dtype == SQLT_BLOB
+	     || dtype == SQLT_BFILE
+	;
 }
 
 /* ------------------------------------------------------------------------------------------------------------- */
@@ -1032,6 +1110,9 @@ static void free_column(struct column * c)
 {
   free_if_non_null(c->name);
   free_if_non_null(c->data);
+
+  if ( c->lob_locator )
+	OCIDescriptorFree(c->lob_locator, OCI_DTYPE_LOB);
 
   if ( c->def )
     OCIHandleFree(c->def, OCI_HTYPE_DEFINE);
