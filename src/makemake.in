@@ -2048,9 +2048,9 @@ echodummyrule all
 echol
 
 # development targets
-echol "makemake : makemake.in"
-echotab "sh config.status --file=makemake"
-echotab "chmod +x makemake"
+echol "makemake : makemake.in config.status"
+echotab "./config.status --file=makemake"
+echotab "./config.status makemake"
 echol
 echol "unixconf.h : unixconf.h.in config.status"
 echotab "sh config.status --header=unixconf.h"
@@ -2921,7 +2921,6 @@ if [ $CROSS = false ] ; then
     for f in Makefile '*.lisp'; do
       echotab "cd ${BENCHDIR} && \$(LN_S) ${PARENT_SRCTOPDIR_}benchmarks${NEXT_}${f} ."
     done
-    echotab
     echol
   fi
   echol

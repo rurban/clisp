@@ -357,10 +357,11 @@ AC_OUTPUT([po/Makefile.in])
 dnl
 dnl           other checks for UNIX variants
 dnl
-AC_OUTPUT(makemake,
-[echo '#!/bin/sh' > makemake.tmp
-echo '# Generated automatically from makemake.in by configure.' >> makemake.tmp
-cat makemake >> makemake.tmp
-mv makemake.tmp makemake
-chmod a+x makemake
+AC_CONFIG_COMMANDS([makemake],[
+  echo "#!$SHELL" > makemake.tmp
+  echo "# Generated from makemake.in by configure." >> makemake.tmp
+  cat makemake >> makemake.tmp
+  mv makemake.tmp makemake
+  chmod a+x makemake
 ])
+AC_OUTPUT
