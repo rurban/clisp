@@ -13,7 +13,7 @@ User visible changes
   See <http://clisp.cons.org/impnotes.html#trace> for details.
 
 * You can now shutdown a socket for input or output separately
-  using SOCKET-STREAM-SHUTDOWN.
+  using SOCKET:SOCKET-STREAM-SHUTDOWN.
   See <http://clisp.cons.org/impnotes.html#sost-shut> for details.
 
 * CUSTOM:*SOURCE-FILE-TYPES* and CUSTOM:*COMPILED-FILE-TYPES*
