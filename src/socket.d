@@ -801,6 +801,10 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 #  - accepted a string containing a number, e.g. "80",
 #  - returned NIL when the port does not belong to a named service.
 # Sam has changed this. Ask him why.
+# sds: for consistency: `service-name': string ==> name; number ==> port number
+#      when there is no service associated with a name or a number, an error is
+#      signalled, so that whenever this function returns, you can be sure it
+#      returns something useful.
 {
   var object protocol = popSTACK();
   var object serv = popSTACK();
@@ -930,11 +934,9 @@ LISPFUN(resolve_host_ipaddr,0,1,norest,nokey,0,NIL)
   } else fehler_string_integer(arg);
 
   if (NULL == he) {
-    pushSTACK(arg);
     pushSTACK(ascii_to_string(H_ERRMSG));
-    fehler(os_error,
-           GETTEXT("~: ~")
-          );
+    pushSTACK(arg);
+    fehler(os_error,"~: ~");
   }
 
   HOSTENT_TO_STACK(he);
