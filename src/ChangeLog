@@ -1,5 +1,14 @@
 2002-12-12  Sam Steingold  <sds@gnu.org>
 
+	reversed the 2001-11-27 patch: elt_nreverse() reverses
+	_bits_ in the bitvector, while we need to swap _bytes_
+	* stream.d (byte_swap): new function
+	(READ-INTEGER, READ-FLOAT, WRITE-INTEGER, WRITE-FLOAT):
+	use it instead of elt_nreverse()
+	Reported by Bernard Urban <Bernard.Urban@meteo.fr>
+
+2002-12-12  Sam Steingold  <sds@gnu.org>
+
 	* init.lisp (expand-form): export the code walker
 
 2002-12-12  Sam Steingold  <sds@gnu.org>
