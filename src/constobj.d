@@ -374,9 +374,11 @@
   LISPOBJ(memory_image_host,"NIL") # the host on which this image was dumped
   # The date of the last change of the bytecode interpreter
   # or the arglist of any built-in function in FUNTAB
-  /* FIXME[2002-06-29]: when you will be modifying this the next time:
-     kill UNWIND-TO-TOP, make UNWIND-TO-DRIVER take an optional(?) argument,
-     fix reploop.lisp appropriately */
+  /* FIXME/TODO: when you will be modifying this the next time:
+     [2002-06-29]: kill UNWIND-TO-TOP, make UNWIND-TO-DRIVER take an
+      optional(?) argument, fix reploop.lisp appropriately
+     [2002-09-03]: add (memq) to FUNTAB in eval.d;
+      add :TRUNAMEP arg to DIRECTORY */
   LISPOBJ(version,"(20020129)")
   #ifdef MACHINE_KNOWN
     LISPOBJ(machine_type_string,"NIL")
