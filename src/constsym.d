@@ -247,6 +247,8 @@ LISPSYM(show_stack,"SHOW-STACK",lisp)
 LISPSYM(debug,"DEBUG",system)
 LISPSYM(proom,"%ROOM",system)
 LISPSYM(gc,"GC",lisp)
+# ---------- ENCODING ----------
+LISPSYM(make_encoding,"MAKE-ENCODING",lisp)
 # ---------- ERROR ----------
 LISPSYM(error,"ERROR",lisp)
 LISPSYM(defclcs,"%DEFCLCS",system)
@@ -806,6 +808,7 @@ LISPSYM(output_stream_p,"OUTPUT-STREAM-P",lisp)
 LISPSYM(stream_element_type,"STREAM-ELEMENT-TYPE",lisp)
 LISPSYM(set_stream_element_type,"SET-STREAM-ELEMENT-TYPE",system)
 LISPSYM(stream_external_format,"STREAM-EXTERNAL-FORMAT",lisp)
+LISPSYM(set_stream_external_format,"SET-STREAM-EXTERNAL-FORMAT",system)
 LISPSYM(interactive_stream_p,"INTERACTIVE-STREAM-P",lisp)
 LISPSYM(close,"CLOSE",lisp)
 LISPSYM(read_byte,"READ-BYTE",lisp)
@@ -1046,6 +1049,11 @@ LISPSYM(Keof,"EOF",keyword)
 LISPSYM(Kinput_available,"INPUT-AVAILABLE",keyword)
 LISPSYM(Kwait,"WAIT",keyword)
 LISPSYM(Kline_position,"LINE-POSITION",keyword)
+LISPSYM(Kcharset,"CHARSET",keyword)
+LISPSYM(Kline_terminator,"LINE-TERMINATOR",keyword)
+LISPSYM(Kunix,"UNIX",keyword)
+LISPSYM(Kmac,"MAC",keyword)
+LISPSYM(Kdos,"DOS",keyword)
 #ifdef REXX
 LISPSYM(Kresult,"RESULT",keyword)
 LISPSYM(Kstring,"STRING",keyword)
@@ -1334,6 +1342,7 @@ LISPSYM(package,"PACKAGE",lisp) # als Typ in PREDTYPE
 LISPSYM(readtable,"READTABLE",lisp) # als Typ in PREDTYPE
 LISPSYM(load_time_eval,"LOAD-TIME-EVAL",lisp) # als Typ in PREDTYPE
 LISPSYM(symbol_macro,"SYMBOL-MACRO",lisp) # als Typ in PREDTYPE
+LISPSYM(encoding,"ENCODING",lisp) # als Typ in PREDTYPE
 #ifdef FOREIGN
 LISPSYM(foreign_pointer,"FOREIGN-POINTER",lisp) # als Typ in PREDTYPE
 #endif

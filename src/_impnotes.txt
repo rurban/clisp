@@ -338,8 +338,8 @@ The possible results of TYPE-OF are:
  STREAM FILE-STREAM SYNONYM-STREAM BROADCAST-STREAM CONCATENATED-STREAM
  TWO-WAY-STREAM ECHO-STREAM STRING-STREAM
  PACKAGE HASH-TABLE READTABLE PATHNAME LOGICAL-PATHNAME RANDOM-STATE BYTE
- LOAD-TIME-EVAL SYMBOL-MACRO FOREIGN-VARIABLE FOREIGN-FUNCTION WEAK-POINTER
- READ-LABEL FRAME-POINTER SYSTEM-INTERNAL
+ LOAD-TIME-EVAL SYMBOL-MACRO ENCODING FOREIGN-VARIABLE FOREIGN-FUNCTION
+ WEAK-POINTER READ-LABEL FRAME-POINTER SYSTEM-INTERNAL
  ADDRESS (should not occur)
  any other symbol (structure types or CLOS classes)
  a class (CLOS classes without proper name)
@@ -1212,36 +1212,45 @@ The stream *KEYBOARD-INPUT* is used by *TERMINAL-IO*.
 -----
 
 The macro WITH-OUTPUT-TO-PRINTER
-       (with-output-to-printer (var) {declaration}* {form}*)
+    (with-output-to-printer (var [:external-format]) {declaration}* {form}*)
 binds the variable var to an output stream that sends its output to the
-printer.
+printer. Possible :EXTERNAL-FORMAT values are encodings and the line terminator
+keywords :UNIX, :MAC, :DOS.
 #ifdef PIPES
 
-(MAKE-PIPE-INPUT-STREAM command [:ELEMENT-TYPE] [:BUFFERED]) returns an input
-stream that will supply the output from the execution of the given operating
-system command. Possible :ELEMENT-TYPE values are types equivalent to
-CHARACTER or (UNSIGNED-BYTE n), (SIGNED-BYTE n), where n is a multiple of 8.
+(MAKE-PIPE-INPUT-STREAM command [:ELEMENT-TYPE] [:EXTERNAL-FORMAT] [:BUFFERED])
+returns an input stream that will supply the output from the execution of the
+given operating system command.
+Possible :ELEMENT-TYPE values are types equivalent to CHARACTER or
+(UNSIGNED-BYTE n), (SIGNED-BYTE n), where n is a multiple of 8.
+Possible :EXTERNAL-FORMAT values are encodings and the line terminator keywords
+:UNIX, :MAC, :DOS.
 Possible :BUFFERED values are NIL, T, or :DEFAULT; :DEFAULT is equivalent to
 NIL.
 See also (SHELL command).
 
-(MAKE-PIPE-OUTPUT-STREAM command [:ELEMENT-TYPE] [:BUFFERED]) returns an
-output stream that will pass its output as input to the execution of the given
-operating system command. Possible :ELEMENT-TYPE values are types equivalent
-to CHARACTER or (UNSIGNED-BYTE n), (SIGNED-BYTE n), where n is a multiple of
-8. Possible :BUFFERED values are NIL, T, or :DEFAULT; :DEFAULT is equivalent
-to NIL.
+(MAKE-PIPE-OUTPUT-STREAM command [:ELEMENT-TYPE] [:EXTERNAL-FORMAT] [:BUFFERED])
+returns an output stream that will pass its output as input to the execution of
+the given operating system command.
+Possible :ELEMENT-TYPE values are types equivalent to CHARACTER or
+(UNSIGNED-BYTE n), (SIGNED-BYTE n), where n is a multiple of 8.
+Possible :EXTERNAL-FORMAT values are encodings and the line terminator keywords
+:UNIX, :MAC, :DOS.
+Possible :BUFFERED values are NIL, T, or :DEFAULT; :DEFAULT is equivalent to
+NIL.
 See also (SHELL command).
 #ifdef PIPES2
 
-(MAKE-PIPE-IO-STREAM command [:ELEMENT-TYPE] [:BUFFERED]) returns three
-values. The first value is a bidirectional stream that will simultaneously
-pass its output as input to the execution of the given operating system
-command and supply the output from this command as input. The second and third
-value will be the input stream and the output stream that make up the I/O
+(MAKE-PIPE-IO-STREAM command [:ELEMENT-TYPE] [:EXTERNAL-FORMAT] [:BUFFERED])
+returns three values. The first value is a bidirectional stream that will
+simultaneously pass its output as input to the execution of the given operating
+system command and supply the output from this command as input. The second and
+third value will be the input stream and the output stream that make up the I/O
 stream, respectively. Note that they must be closed individually.
 Possible :ELEMENT-TYPE values are types equivalent to CHARACTER or
 (UNSIGNED-BYTE n), (SIGNED-BYTE n), where n is a multiple of 8.
+Possible :EXTERNAL-FORMAT values are encodings and the line terminator keywords
+:UNIX, :MAC, :DOS.
 Possible :BUFFERED values are NIL, T, or :DEFAULT; :DEFAULT is equivalent to
 NIL.
 Warning: Improper use of this function can lead to deadlocks. You use it at
@@ -1850,11 +1859,18 @@ the function LOGICAL-PATHNAME can be used.
 
 OPEN cannot handle files of size >= 4 GB.
 
+Possible values for the :EXTERNAL-FORMAT argument of the function OPEN are:
+encodings, the line terminator keywords :UNIX, :MAC, :DOS, and :DEFAULT.
+
 OPEN has an additional keyword argument :BUFFERED. It determines whether the
 file stream returned is buffered or not. Possible values for it are NIL, T,
 or :DEFAULT. If it is :DEFAULT, buffered file streams will be returned for
 regular files and (on Unix) block-devices, and unbuffered file streams for
 special files.
+
+The function (MAKE-ENCODING [:charset] [:line-terminator]) returns an encoding.
+The :CHARSET argument may be an encoding, or :DEFAULT. Possible values for the
+:LINE-TERMINATOR argument are the keywords :UNIX, :MAC, :DOS.
 
 23.3.
 -----
@@ -2684,11 +2700,11 @@ Returns the IP address of the localhost naming the server.
 Given time argument(s), waits for (possibly zero) fixed duration for a connect
 on the socket-server.  Without an argument, SOCKET-WAIT blocks indefinitely.
 
-(SOCKET-ACCEPT socket-server [:element-type] [:buffered])
+(SOCKET-ACCEPT socket-server [:element-type] [:external-format] [:buffered])
 
 Creates the server-side two-way stream for the connection.
 
-(SOCKET-CONNECT port [host] [:element-type] [:buffered])
+(SOCKET-CONNECT port [host] [:element-type] [:external-format] [:buffered])
 
 Attempts to create a client-side two-way stream.  Blocks until
 the server accepts the connections.
