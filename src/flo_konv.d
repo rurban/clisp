@@ -7,7 +7,8 @@
   local object SF_to_FF (object x);
   local object SF_to_FF(x)
     var object x;
-    { # Falls
+    {
+      # Falls
       # 1. Keine Konversion im Exponenten nötig,
       # 2. Vorzeichen/Exponent/Mantisse ist im SF (wie im FF) dicht gepackt,
       # 3. der Shift, der die Mantissen erweitert, schiebt das Vorzeichen nach
@@ -17,11 +18,10 @@
         # Dadurch auch 31-sign_bit_o = 31-SF_exp_len-SF_exp_shift
         #                            = 31-FF_exp_len-SF_mant_len-SF_mant_shift
         #                            = FF_mant_len-SF_mant_len-SF_mant_shift
-        { return
-            allocate_ffloat(
-              ((uint32)(as_oint(x) >> SF_mant_shift) << (FF_mant_len-SF_mant_len))
-                           );
-        }
+        return
+          allocate_ffloat(
+            ((uint32)(as_oint(x) >> SF_mant_shift) << (FF_mant_len-SF_mant_len))
+                         );
       #else
         # x entpacken:
         var signean sign;
@@ -38,7 +38,8 @@
   local object SF_to_DF (object x);
   local object SF_to_DF(x)
     var object x;
-    { # x entpacken:
+    {
+      # x entpacken:
       var signean sign;
       var sintWL exp;
       var uint32 mant;
@@ -58,28 +59,30 @@
   local object SF_to_LF(x,len)
     var object x;
     var uintC len;
-    { # x entpacken:
+    {
+      # x entpacken:
       var signean sign;
       var sintL exp;
       var uint32 mant;
       SF_decode(x, { encode_LF0(len, return); }, sign=,exp=(sintL),mant=);
       # Long-Float allozieren,
       # Mantisse mit intDsize*len-SF_mant_len-1 Nullbits auffüllen:
-     {var object y = allocate_lfloat(len,exp+LF_exp_mid,sign);
+      var object y = allocate_lfloat(len,exp+LF_exp_mid,sign);
       var uintD* ptr = &TheLfloat(y)->data[0];
       # erste k := ceiling(SF_mant_len+1,intDsize) Digits mit mant füllen:
       mant = mant << (ceiling(SF_mant_len+1,intDsize)*intDsize-(SF_mant_len+1));
       set_max32_Dptr(SF_mant_len+1,ptr,mant);
       clear_loop_up(&ptr[ceiling(SF_mant_len+1,intDsize)],len-ceiling(SF_mant_len+1,intDsize));
       return y;
-    }}
+    }
 
 # FF_to_DF(x) wandelt ein Single-Float x in ein Double-Float um.
 # can trigger GC
   local object FF_to_DF (object x);
   local object FF_to_DF(x)
     var object x;
-    { # x entpacken:
+    {
+      # x entpacken:
       var signean sign;
       var sintWL exp;
       var uint32 mant;
@@ -99,21 +102,22 @@
   local object FF_to_LF(x,len)
     var object x;
     var uintC len;
-    { # x entpacken:
+    {
+      # x entpacken:
       var signean sign;
       var sintL exp;
       var uint32 mant;
       FF_decode(x, { encode_LF0(len, return); }, sign=,exp=(sintL),mant=);
       # Long-Float allozieren,
       # Mantisse mit intDsize*len-FF_mant_len-1 Nullbits auffüllen:
-     {var object y = allocate_lfloat(len,exp+LF_exp_mid,sign);
+      var object y = allocate_lfloat(len,exp+LF_exp_mid,sign);
       var uintD* ptr = &TheLfloat(y)->data[0];
       # erste k := ceiling(FF_mant_len+1,intDsize) Digits mit mant füllen:
       mant = mant << (ceiling(FF_mant_len+1,intDsize)*intDsize-(FF_mant_len+1));
       set_max32_Dptr(FF_mant_len+1,ptr,mant);
       clear_loop_up(&ptr[ceiling(FF_mant_len+1,intDsize)],len-ceiling(FF_mant_len+1,intDsize));
       return y;
-    }}
+    }
 
 # DF_to_LF(x,len) wandelt ein Double-Float x in ein Long-Float mit len Digits um.
 # > uintC len: gewünschte Anzahl Digits, >=LF_minlen
@@ -122,7 +126,8 @@
   local object DF_to_LF(x,len)
     var object x;
     var uintC len;
-    { # x entpacken:
+    {
+      # x entpacken:
       var signean sign;
       var sintL exp;
       var uint32 manthi;
@@ -135,7 +140,7 @@
       #endif
       # Long-Float allozieren,
       # Mantisse mit intDsize*len-DF_mant_len-1 Nullbits auffüllen:
-     {var object y = allocate_lfloat(len,exp+LF_exp_mid,sign);
+      var object y = allocate_lfloat(len,exp+LF_exp_mid,sign);
       var uintD* ptr = &TheLfloat(y)->data[0];
       # erste k := ceiling(DF_mant_len+1,intDsize) Digits mit mant füllen:
       #define shiftcount  (ceiling(DF_mant_len+1,intDsize)*intDsize-(DF_mant_len+1))
@@ -151,7 +156,7 @@
       set_32_Dptr(&ptr[ceiling(DF_mant_len+1-32,intDsize)],mantlo);
       clear_loop_up(&ptr[ceiling(DF_mant_len+1,intDsize)],len-ceiling(DF_mant_len+1,intDsize));
       return y;
-    }}
+    }
 
 # Konversionen mit Rundung:
 
@@ -159,7 +164,8 @@
   local object FF_to_SF (object x);
   local object FF_to_SF(x)
     var object x;
-    { # x entpacken:
+    {
+      # x entpacken:
       var signean sign;
       var sintWL exp;
       var uint32 mant;
@@ -170,17 +176,18 @@
            || ( ((mant & (bit(shiftcount-1)-1)) ==0) # war 1, Bits 5..0 >0 -> aufrunden
                 # round-to-even
                 && ((mant & bit(shiftcount)) ==0)
-         )    )
+         )    ) {
         # abrunden
-        { mant = mant >> shiftcount; }
-        else
+        mant = mant >> shiftcount;
+      } else {
         # aufrunden
-        { mant = mant >> shiftcount;
-          mant = mant+1;
-          if (mant >= bit(SF_mant_len+1))
-            # Überlauf durchs Runden
-            { mant = mant>>1; exp = exp+1; } # Mantisse rechts schieben
-        }
+        mant = mant >> shiftcount;
+        mant = mant+1;
+        if (mant >= bit(SF_mant_len+1)) {
+          # Überlauf durchs Runden
+          mant = mant>>1; exp = exp+1; # Mantisse rechts schieben
+        } 
+      }
       #undef shiftcount
       encode_SF(sign,exp,mant, return);
     }
@@ -189,7 +196,8 @@
   local object DF_to_SF (object x);
   local object DF_to_SF(x)
     var object x;
-    { # x entpacken:
+    {
+      # x entpacken:
       var signean sign;
       var sintWL exp;
       #ifdef intQsize
@@ -201,17 +209,18 @@
            || ( ((mant & (bit(shiftcount-1)-1)) ==0) # war 1, Bits 34..0 >0 -> aufrunden
                 # round-to-even
                 && ((mant & bit(shiftcount)) ==0)
-         )    )
+         )    ) {
         # abrunden
-        { mant = mant >> shiftcount; }
-        else
+        mant = mant >> shiftcount;
+      } else {
         # aufrunden
-        { mant = mant >> shiftcount;
-          mant = mant+1;
-          if (mant >= bit(SF_mant_len+1))
-            # Überlauf durchs Runden
-            { mant = mant>>1; exp = exp+1; } # Mantisse rechts schieben
+        mant = mant >> shiftcount;
+        mant = mant+1;
+        if (mant >= bit(SF_mant_len+1)) {
+          # Überlauf durchs Runden
+          mant = mant>>1; exp = exp+1; # Mantisse rechts schieben
         }
+      }
       #undef shiftcount
       encode_SF(sign,exp,mant, return);
       #else
@@ -225,17 +234,18 @@
                 && (mantlo==0)
                 # round-to-even
                 && ((manthi & bit(shiftcount)) ==0)
-         )    )
+         )    ) {
         # abrunden
-        { manthi = manthi >> shiftcount; }
-        else
+        manthi = manthi >> shiftcount;
+      } else {
         # aufrunden
-        { manthi = manthi >> shiftcount;
-          manthi = manthi+1;
-          if (manthi >= bit(SF_mant_len+1))
-            # Überlauf durchs Runden
-            { manthi = manthi>>1; exp = exp+1; } # Mantisse rechts schieben
+        manthi = manthi >> shiftcount;
+        manthi = manthi+1;
+        if (manthi >= bit(SF_mant_len+1)) {
+          # Überlauf durchs Runden
+          manthi = manthi>>1; exp = exp+1; # Mantisse rechts schieben
         }
+      }
       #undef shiftcount
       encode_SF(sign,exp,manthi, return);
       #endif
@@ -245,7 +255,8 @@
   local object LF_to_SF (object x);
   local object LF_to_SF(x)
     var object x;
-    { # x entpacken:
+    {
+      # x entpacken:
       var signean sign;
       var sintL exp;
       var uintD* ptr;
@@ -262,17 +273,18 @@
                 && !test_loop_up(ptr,len-ceiling(SF_mant_len+2,intDsize)) # weitere Bits /=0 -> aufrunden
                 # round-to-even
                 && ((mant & bit(shiftcount)) ==0)
-         )    )
+         )    ) {
         # abrunden
-        { mant = mant >> shiftcount; }
-        else
+        mant = mant >> shiftcount;
+      } else {
         # aufrunden
-        { mant = mant >> shiftcount;
-          mant = mant+1;
-          if (mant >= bit(SF_mant_len+1))
-            # Überlauf durchs Runden
-            { mant = mant>>1; exp = exp+1; } # Mantisse rechts schieben
+        mant = mant >> shiftcount;
+        mant = mant+1;
+        if (mant >= bit(SF_mant_len+1)) {
+          # Überlauf durchs Runden
+          mant = mant>>1; exp = exp+1; # Mantisse rechts schieben
         }
+      }
       #undef shiftcount
       encode_SF(sign,exp,mant, return);
     }
@@ -282,7 +294,8 @@
   local object DF_to_FF (object x);
   local object DF_to_FF(x)
     var object x;
-    { # x entpacken:
+    {
+      # x entpacken:
       var signean sign;
       var sintWL exp;
       #ifdef intQsize
@@ -294,17 +307,18 @@
            || ( ((mant & (bit(shiftcount-1)-1)) ==0) # war 1, Bits 27..0 >0 -> aufrunden
                 # round-to-even
                 && ((mant & bit(shiftcount)) ==0)
-         )    )
+         )    ) {
         # abrunden
-        { mant = mant >> shiftcount; }
-        else
+        mant = mant >> shiftcount;
+      } else {
         # aufrunden
-        { mant = mant >> shiftcount;
-          mant = mant+1;
-          if (mant >= bit(FF_mant_len+1))
-            # Überlauf durchs Runden
-            { mant = mant>>1; exp = exp+1; } # Mantisse rechts schieben
+        mant = mant >> shiftcount;
+        mant = mant+1;
+        if (mant >= bit(FF_mant_len+1)) {
+          # Überlauf durchs Runden
+          mant = mant>>1; exp = exp+1; # Mantisse rechts schieben
         }
+      }
       #undef shiftcount
       encode_FF(sign,exp,mant, return);
       #else
@@ -318,16 +332,16 @@
            || ( ((mantlo & (bit(shiftcount-1)-1)) ==0) # war 1, Bits 27..0 >0 -> aufrunden
                 # round-to-even
                 && ((mantlo & bit(shiftcount)) ==0)
-         )    )
+         )    ) {
         # abrunden
-        {}
-        else
+      } else {
         # aufrunden
-        { manthi = manthi+1;
-          if (manthi >= bit(FF_mant_len+1))
-            # Überlauf durchs Runden
-            { manthi = manthi>>1; exp = exp+1; } # Mantisse rechts schieben
+        manthi = manthi+1;
+        if (manthi >= bit(FF_mant_len+1)) {
+          # Überlauf durchs Runden
+          manthi = manthi>>1; exp = exp+1; # Mantisse rechts schieben
         }
+      }
       #undef shiftcount
       encode_FF(sign,exp,manthi, return);
       #endif
@@ -338,7 +352,8 @@
   local object LF_to_FF (object x);
   local object LF_to_FF(x)
     var object x;
-    { # x entpacken:
+    {
+      # x entpacken:
       var signean sign;
       var sintL exp;
       var uintD* ptr;
@@ -355,17 +370,18 @@
                 && !test_loop_up(ptr,len-ceiling(FF_mant_len+2,intDsize)) # weitere Bits /=0 -> aufrunden
                 # round-to-even
                 && ((mant & bit(shiftcount)) ==0)
-         )    )
+         )    ) {
         # abrunden
-        { mant = mant >> shiftcount; }
-        else
+        mant = mant >> shiftcount;
+      } else {
         # aufrunden
-        { mant = mant >> shiftcount;
-          mant = mant+1;
-          if (mant >= bit(FF_mant_len+1))
-            # Überlauf durchs Runden
-            { mant = mant>>1; exp = exp+1; } # Mantisse rechts schieben
+        mant = mant >> shiftcount;
+        mant = mant+1;
+        if (mant >= bit(FF_mant_len+1)) {
+          # Überlauf durchs Runden
+          mant = mant>>1; exp = exp+1; # Mantisse rechts schieben
         }
+      }
       #undef shiftcount
       encode_FF(sign,exp,mant, return);
     }
@@ -375,7 +391,8 @@
   local object LF_to_DF (object x);
   local object LF_to_DF(x)
     var object x;
-    { # x entpacken:
+    {
+      # x entpacken:
       var signean sign;
       var sintL exp;
       var uintD* ptr;
@@ -390,47 +407,48 @@
       ptr += ceiling(DF_mant_len+2,intDsize);
       #define shiftcount  (ceiling(DF_mant_len+2,intDsize)*intDsize-(DF_mant_len+1))
       #ifdef intQsize
-      {var uint64 mant = ((uint64)manthi << 32) | (uint64)mantlo;
-       if ( ((mant & bit(shiftcount-1)) ==0) # Bit 10 war 0 -> abrunden
-            || ( ((mant & (bit(shiftcount-1)-1)) ==0) # war 1, Bits 9..0 >0 -> aufrunden
-                 && !test_loop_up(ptr,len-ceiling(DF_mant_len+2,intDsize)) # weitere Bits /=0 -> aufrunden
-                 # round-to-even
-                 && ((mant & bit(shiftcount)) ==0)
-          )    )
-         # abrunden
-         { mant = mant >> shiftcount; }
-         else
-         # aufrunden
-         { mant = mant >> shiftcount;
-           mant = mant+1;
-           if (mant >= bit(DF_mant_len+1))
-             # Überlauf durchs Runden
-             { mant = mant>>1; exp = exp+1; } # Mantisse rechts schieben
-         }
-       encode_DF(sign,exp,mant, return);
+      var uint64 mant = ((uint64)manthi << 32) | (uint64)mantlo;
+      if ( ((mant & bit(shiftcount-1)) ==0) # Bit 10 war 0 -> abrunden
+           || ( ((mant & (bit(shiftcount-1)-1)) ==0) # war 1, Bits 9..0 >0 -> aufrunden
+                && !test_loop_up(ptr,len-ceiling(DF_mant_len+2,intDsize)) # weitere Bits /=0 -> aufrunden
+                # round-to-even
+                && ((mant & bit(shiftcount)) ==0)
+         )    ) {
+        # abrunden
+        mant = mant >> shiftcount;
+      } else {
+        # aufrunden
+        mant = mant >> shiftcount;
+        mant = mant+1;
+        if (mant >= bit(DF_mant_len+1)) {
+          # Überlauf durchs Runden
+          mant = mant>>1; exp = exp+1; # Mantisse rechts schieben
+        }
       }
+      encode_DF(sign,exp,mant, return);
       #else
       if ( ((mantlo & bit(shiftcount-1)) ==0) # Bit 10 war 0 -> abrunden
            || ( ((mantlo & (bit(shiftcount-1)-1)) ==0) # war 1, Bits 9..0 >0 -> aufrunden
                 && !test_loop_up(ptr,len-ceiling(DF_mant_len+2,intDsize)) # weitere Bits /=0 -> aufrunden
                 # round-to-even
                 && ((mantlo & bit(shiftcount)) ==0)
-         )    )
+         )    ) {
         # abrunden
-        { mantlo = (manthi << (32-shiftcount)) | (mantlo >> shiftcount);
-          manthi = manthi >> shiftcount;
-        }
-        else
+        mantlo = (manthi << (32-shiftcount)) | (mantlo >> shiftcount);
+        manthi = manthi >> shiftcount;
+      } else {
         # aufrunden
-        { mantlo = (manthi << (32-shiftcount)) | (mantlo >> shiftcount);
-          manthi = manthi >> shiftcount;
-          mantlo = mantlo+1;
-          if (mantlo==0)
-            { manthi = manthi+1;
-              if (manthi >= bit(DF_mant_len+1-32))
-                # Überlauf durchs Runden
-                { manthi = manthi>>1; exp = exp+1; } # Mantisse rechts schieben
-        }   }
+        mantlo = (manthi << (32-shiftcount)) | (mantlo >> shiftcount);
+        manthi = manthi >> shiftcount;
+        mantlo = mantlo+1;
+        if (mantlo==0) {
+          manthi = manthi+1;
+          if (manthi >= bit(DF_mant_len+1-32)) {
+            # Überlauf durchs Runden
+            manthi = manthi>>1; exp = exp+1; # Mantisse rechts schieben
+          }
+        }
+      }
       encode2_DF(sign,exp,manthi,mantlo, return);
       #endif
       #undef shiftcount
@@ -442,7 +460,8 @@
 # fehler_nan();
   nonreturning_function(local, fehler_nan, (void));
   local void fehler_nan()
-    { fehler(arithmetic_error,
+    {
+      fehler(arithmetic_error,
              GETTEXT("floating point NaN occurred")
             );
     }
@@ -462,28 +481,28 @@
   global object c_float_to_FF (const ffloatjanus* val_);
   global object c_float_to_FF(val_)
     var const ffloatjanus* val_;
-    { var ffloat val = val_->eksplicit;
+    {
+      var ffloat val = val_->eksplicit;
       var uintBWL exp = (val >> FF_mant_len) & (bit(FF_exp_len)-1); # e
-      if (exp == 0) # e=0 ?
+      if (exp == 0) { # e=0 ?
         # vorzeichenbehaftete 0.0 oder subnormale Zahl
-        { if (!((val << 1) == 0) && underflow_allowed())
-            { fehler_underflow(); }
-            else
-            { return FF_0; } # +/- 0.0 -> 0.0
-        }
-      elif (exp == 255) # e=255 ?
-        { if (!((val << (32-FF_mant_len)) == 0))
-            { fehler_nan(); } # NaN
-            else
-            { fehler_overflow(); } # Infinity, Overflow
-        }
-      else
-        { # Der Exponent muss um FF_exp_mid-126 erhöht werden.
-          if ((FF_exp_mid>126) && (exp > FF_exp_high-FF_exp_mid+126))
-            { fehler_overflow(); } # Overflow
-          val += (FF_exp_mid - 126) << FF_mant_len;
-          return allocate_ffloat(val);
-    }   }
+        if (!((val << 1) == 0) && underflow_allowed())
+          fehler_underflow();
+        else
+          return FF_0; # +/- 0.0 -> 0.0
+      } elif (exp == 255) { # e=255 ?
+        if (!((val << (32-FF_mant_len)) == 0))
+          fehler_nan(); # NaN
+        else
+          fehler_overflow(); # Infinity, Overflow
+      } else {
+        # Der Exponent muss um FF_exp_mid-126 erhöht werden.
+        if ((FF_exp_mid>126) && (exp > FF_exp_high-FF_exp_mid+126))
+          fehler_overflow(); # Overflow
+        val += (FF_exp_mid - 126) << FF_mant_len;
+        return allocate_ffloat(val);
+      }
+    }
 
 # FF_to_c_float(obj,&val);
 # wandelt ein Single-Float obj in ein IEEE-Single-Float val um.
@@ -491,22 +510,24 @@
   global void FF_to_c_float(obj,val_)
     var object obj;
     var ffloatjanus* val_;
-    { var ffloat val = ffloat_value(obj);
+    {
+      var ffloat val = ffloat_value(obj);
       # Der Exponent muss um FF_exp_mid-126 erniedrigt werden.
-      if (FF_exp_mid>126)
-        { var uintBWL exp = (val >> FF_mant_len) & (bit(FF_exp_len)-1); # e
-          if (exp < FF_exp_mid-126+1)
-            { if (!(exp == 0))
-                { # produziere denormalisiertes Float
-                  val = (val & minus_bit(FF_exp_len+FF_mant_len)) # selbes Vorzeichen
-                        | (0 << FF_mant_len) # Exponent 0
-                        | (((val & (bit(FF_mant_len)-1)) | bit(FF_mant_len)) # Mantisse shiften
-                           >> (FF_exp_mid-126+1 - exp) # shiften
-                          );
-            }   }
-            else
-            { val -= (FF_exp_mid - 126) << FF_mant_len; }
+      if (FF_exp_mid>126) {
+        var uintBWL exp = (val >> FF_mant_len) & (bit(FF_exp_len)-1); # e
+        if (exp < FF_exp_mid-126+1) {
+          if (!(exp == 0)) {
+            # produziere denormalisiertes Float
+            val = (val & minus_bit(FF_exp_len+FF_mant_len)) # selbes Vorzeichen
+                  | (0 << FF_mant_len) # Exponent 0
+                  | (((val & (bit(FF_mant_len)-1)) | bit(FF_mant_len)) # Mantisse shiften
+                     >> (FF_exp_mid-126+1 - exp) # shiften
+                    );
+          }
+        } else {
+          val -= (FF_exp_mid - 126) << FF_mant_len;
         }
+      }
       val_->eksplicit = val;
     }
 
@@ -525,54 +546,50 @@
   global object c_double_to_DF (const dfloatjanus* val_);
   global object c_double_to_DF(val_)
     var const dfloatjanus* val_;
-    { var dfloat val; val = val_->eksplicit;
-     {
+    {
+      var dfloat val; val = val_->eksplicit;
       #ifdef intQsize
       var uintWL exp = (val >> DF_mant_len) & (bit(DF_exp_len)-1); # e
-      if (exp == 0) # e=0 ?
+      if (exp == 0) { # e=0 ?
         # vorzeichenbehaftete 0.0 oder subnormale Zahl
-        { if (!((val << 1) == 0) && underflow_allowed())
-            { fehler_underflow(); }
-            else
-            { return DF_0; } # +/- 0.0 -> 0.0
-        }
-      elif (exp == 2047) # e=2047 ?
-        { if (!((val << (64-DF_mant_len)) == 0))
-            { fehler_nan(); } # NaN
-            else
-            { fehler_overflow(); } # Infinity, Overflow
-        }
-      else
-        { # Der Exponent muss um DF_exp_mid-1022 erhöht werden.
-          if ((DF_exp_mid>1022) && (exp > DF_exp_high-DF_exp_mid+1022))
-            { fehler_overflow(); } # Overflow
-          val += (sint64)(DF_exp_mid - 1022) << DF_mant_len;
-          return allocate_dfloat(val);
-        }
+        if (!((val << 1) == 0) && underflow_allowed())
+          fehler_underflow();
+        else
+          return DF_0; # +/- 0.0 -> 0.0
+      } elif (exp == 2047) { # e=2047 ?
+        if (!((val << (64-DF_mant_len)) == 0))
+          fehler_nan(); # NaN
+        else
+          fehler_overflow(); # Infinity, Overflow
+      } else {
+        # Der Exponent muss um DF_exp_mid-1022 erhöht werden.
+        if ((DF_exp_mid>1022) && (exp > DF_exp_high-DF_exp_mid+1022))
+          fehler_overflow(); # Overflow
+        val += (sint64)(DF_exp_mid - 1022) << DF_mant_len;
+        return allocate_dfloat(val);
+      }
       #else
       var uintWL exp = (val.semhi >> (DF_mant_len-32)) & (bit(DF_exp_len)-1); # e
-      if (exp == 0) # e=0 ?
+      if (exp == 0) { # e=0 ?
         # vorzeichenbehaftete 0.0 oder subnormale Zahl
-        { if (!(((val.semhi << 1) == 0) && (val.mlo == 0)) && underflow_allowed())
-            { fehler_underflow(); }
-            else
-            { return DF_0; } # +/- 0.0 -> 0.0
-        }
-      elif (exp == 2047) # e=2047 ?
-        { if (!(((val.semhi << (64-DF_mant_len)) == 0) && (val.mlo == 0)))
-            { fehler_nan(); } # NaN
-            else
-            { fehler_overflow(); } # Infinity, Overflow
-        }
-      else
-        { # Der Exponent muss um DF_exp_mid-1022 erhöht werden.
-          if ((DF_exp_mid>1022) && (exp > DF_exp_high-DF_exp_mid+1022))
-            { fehler_overflow(); } # Overflow
-          val.semhi += (sint32)(DF_exp_mid - 1022) << (DF_mant_len-32);
-          return allocate_dfloat(val.semhi,val.mlo);
-        }
+        if (!(((val.semhi << 1) == 0) && (val.mlo == 0)) && underflow_allowed())
+          fehler_underflow();
+        else
+          return DF_0; # +/- 0.0 -> 0.0
+      } elif (exp == 2047) { # e=2047 ?
+        if (!(((val.semhi << (64-DF_mant_len)) == 0) && (val.mlo == 0)))
+          fehler_nan(); # NaN
+        else
+          fehler_overflow(); # Infinity, Overflow
+      } else {
+        # Der Exponent muss um DF_exp_mid-1022 erhöht werden.
+        if ((DF_exp_mid>1022) && (exp > DF_exp_high-DF_exp_mid+1022))
+          fehler_overflow(); # Overflow
+        val.semhi += (sint32)(DF_exp_mid - 1022) << (DF_mant_len-32);
+        return allocate_dfloat(val.semhi,val.mlo);
+      }
       #endif
-    }}
+    }
 
 # DF_to_c_double(obj,&val);
 # wandelt ein Double-Float obj in ein IEEE-Double-Float val um.
@@ -580,41 +597,43 @@
   global void DF_to_c_double(obj,val_)
     var object obj;
     var dfloatjanus* val_;
-    { var dfloat val; val = TheDfloat(obj)->float_value;
+    {
+      var dfloat val; val = TheDfloat(obj)->float_value;
       # Der Exponent muss um DF_exp_mid-1022 erniedrigt werden.
-      if (DF_exp_mid>1022)
+      if (DF_exp_mid>1022) {
         #ifdef intQsize
-        { var uintWL exp = (val >> DF_mant_len) & (bit(DF_exp_len)-1); # e
-          if (exp < DF_exp_mid-1022+1)
-            { if (!(exp == 0))
-                { # produziere denormalisiertes Float
-                  val = (val & -bit(DF_exp_len+DF_mant_len)) # selbes Vorzeichen
-                        | ((sint64)0 << DF_mant_len) # Exponent 0
-                        | (((val & (bit(DF_mant_len)-1)) | bit(DF_mant_len)) # Mantisse shiften
-                           >> (DF_exp_mid-1022+1 - exp) # shiften
-                          );
-            }   }
-            else
-            { val -= (sint64)(DF_exp_mid - 1022) << DF_mant_len; }
+        var uintWL exp = (val >> DF_mant_len) & (bit(DF_exp_len)-1); # e
+        if (exp < DF_exp_mid-1022+1) {
+          if (!(exp == 0)) {
+            # produziere denormalisiertes Float
+            val = (val & -bit(DF_exp_len+DF_mant_len)) # selbes Vorzeichen
+                  | ((sint64)0 << DF_mant_len) # Exponent 0
+                  | (((val & (bit(DF_mant_len)-1)) | bit(DF_mant_len)) # Mantisse shiften
+                     >> (DF_exp_mid-1022+1 - exp) # shiften
+                    );
+          }
+        } else {
+          val -= (sint64)(DF_exp_mid - 1022) << DF_mant_len;
         }
         #else
-        { var uintWL exp = (val.semhi >> (DF_mant_len-32)) & (bit(DF_exp_len)-1); # e
-          if (exp < DF_exp_mid-1022+1)
-            { if (!(exp == 0))
-                { # produziere denormalisiertes Float
-                  var uintWL shiftcount = DF_exp_mid-1022+1 - exp;
-                  val.mlo = val.mlo >> shiftcount; # Mantisse shiften
-                  val.mlo |= val.semhi << (32-shiftcount);
-                  val.semhi = (val.semhi & minus_bit(DF_exp_len+DF_mant_len-32)) # selbes Vorzeichen
-                              | ((sint32)0 << (DF_mant_len-32)) # Exponent 0
-                              | (((val.semhi & (bit(DF_mant_len-32)-1)) | bit(DF_mant_len-32)) # Mantisse shiften
-                                 >> shiftcount # shiften
-                                );
-            }   }
-            else
-            { val.semhi -= (sint32)(DF_exp_mid - 1022) << (DF_mant_len-32); }
+        var uintWL exp = (val.semhi >> (DF_mant_len-32)) & (bit(DF_exp_len)-1); # e
+        if (exp < DF_exp_mid-1022+1) {
+          if (!(exp == 0)) {
+            # produziere denormalisiertes Float
+            var uintWL shiftcount = DF_exp_mid-1022+1 - exp;
+            val.mlo = val.mlo >> shiftcount; # Mantisse shiften
+            val.mlo |= val.semhi << (32-shiftcount);
+            val.semhi = (val.semhi & minus_bit(DF_exp_len+DF_mant_len-32)) # selbes Vorzeichen
+                        | ((sint32)0 << (DF_mant_len-32)) # Exponent 0
+                        | (((val.semhi & (bit(DF_mant_len-32)-1)) | bit(DF_mant_len-32)) # Mantisse shiften
+                           >> shiftcount # shiften
+                          );
+          }
+        } else {
+            val.semhi -= (sint32)(DF_exp_mid - 1022) << (DF_mant_len-32);
         }
         #endif
+      }
       val_->eksplicit = val;
     }
 
