@@ -1,3 +1,14 @@
+2002-07-12  Sam Steingold  <sds@gnu.org>
+
+	reverted the last patch wrt bindings (it broke lots of stuff)
+	* control.d: reverted
+	* eval.d (progv): reverted
+	* compiler (bind-check-lock): removed
+	(set-check-lock): use SYMBOL-VALUE-LOCK
+	(c-LET/LET*, c-MULTIPLE-VALUE-BIND): reverted
+	* package.d (SYMBOL-VALUE-LOCK): new function
+	* subr.d, constsym.d (symbol_value_lock): ditto
+
 2002-07-11  Sam Steingold  <sds@gnu.org>
 
 	extended package locking to assignments and bindings
