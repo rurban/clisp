@@ -59,6 +59,7 @@
 <!ENTITY overwrite-k "<constant>:OVERWRITE</constant>">
 <!ENTITY out-k "<constant>:OUT</constant>">
 <!ENTITY output-k "<constant>:OUTPUT</constant>">
+<!ENTITY outfile-k "<constant>:OUTPUT-FILE</constant>">
 <!ENTITY parent-k "<constant>:PARENT</constant>">
 <!ENTITY previous-k "<constant>:PRECIOUS</constant>">
 <!ENTITY print-k "<constant>:PRINT</constant>">
@@ -141,6 +142,7 @@
 <!ENTITY enc-charset "<link linkend='enc-charset'><function>EXT:ENCODING-CHARSET</function></link>">
 <!ENTITY def-file-enc "<link linkend='def-file-enc'><varname>CUSTOM:*DEFAULT-FILE-ENCODING*</varname></link>">
 <!ENTITY path-enc "<link linkend='path-enc'><varname>CUSTOM:*PATHNAME-ENCODING*</varname></link>">
+<!ENTITY path-des "<link linkend='path-des'>pathname designator</link>">
 <!ENTITY term-enc "<link linkend='term-enc'><varname>CUSTOM:*TERMINAL-ENCODING*</varname></link>">
 <!ENTITY misc-enc "<link linkend='misc-enc'><varname>CUSTOM:*MISC-ENCODING*</varname></link>">
 <!ENTITY foreign-enc "<link linkend='foreign-enc'><varname>CUSTOM:*FOREIGN-ENCODING*</varname></link>">
