@@ -773,6 +773,7 @@
 <!ENTITY fsubr-d "<link linkend='fsubr-d'><filename>fsubr.d</filename></link>">
 <!ENTITY init-lisp "<link linkend='init-lisp'><filename>init.lisp</filename></link>">
 <!ENTITY inspect-lisp "<link linkend='inspect-lisp'><filename>inspect.lisp</filename></link>">
+<!ENTITY floatprint-lisp "<link linkend='floatprint-lisp'><filename>floatprint.lisp</filename></link>">
 <!ENTITY macros3-lisp "<link linkend='macros3-lisp'><filename>macros3.lisp</filename></link>">
 <!ENTITY news "<link linkend='src-news'><filename>src/NEWS</filename></link>">
 <!ENTITY spvw-d "<link linkend='spvw-d'><filename>spvw.d</filename></link>">
