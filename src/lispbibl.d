@@ -5312,7 +5312,7 @@ typedef struct {
   #define strm_eltype          strm_other[0] # CHARACTER or ([UN]SIGNED-BYTE n)
   #define strm_file_name       strm_other[5] # Filename, ein Pathname oder NIL
   #define strm_file_truename   strm_other[6] # Truename, ein nicht-Logical Pathname oder NIL
-  #define strm_file_handle     strm_other[4] # eingepacktes Handle
+  #define strm_buffered_channel  strm_other[4] # eingepacktes Handle
   #define strm_synonym_symbol  strm_other[0]
   #define strm_broad_list      strm_other[0] # Liste von Streams
   #define strm_concat_list     strm_other[0] # Liste von Streams
