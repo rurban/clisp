@@ -6771,7 +6771,7 @@ for-value   NIL or T
 
 ;; c-TYPEP cf. TYPEP in type.lisp
 (defun c-TYPEP () ; cf. TYPEP in type.lisp
-  (test-list *form* 3 3)
+  (test-list *form* 3 4)
   (let ((objform (second *form*))
         (typeform (macroexpand-form (third *form*))))
     (when (c-constantp typeform)
