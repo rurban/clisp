@@ -1,5 +1,9 @@
 2004-10-17  Bruno Haible  <bruno@clisp.org>
 
+	* defstruct.lisp (defstruct): Simplify directslotlist iteration.
+
+2004-10-17  Bruno Haible  <bruno@clisp.org>
+
 	* defstruct.lisp (ds-initfunction-fetcher): New function.
 	(defstruct): Use it.
 
