@@ -5,7 +5,7 @@
 ;; ============================================================================
 
 (in-package "COMMON-LISP")
-(export '(nth-value function-lambda-expression
+(export '(nth-value
           print-unreadable-object declaim destructuring-bind complement
           constantly with-standard-io-syntax with-hash-table-iterator
           read-sequence write-sequence))
@@ -36,35 +36,6 @@
     )
     `(NTH ,n (MULTIPLE-VALUE-LIST ,form))
 ) )
-
-;; ----------------------------------------------------------------------------
-
-;; X3J13 vote <88>
-
-;; function --> lambda expression, CLtL2 p. 682
-(defun function-lambda-expression (obj)
-  (setq obj (coerce obj 'function))
-  (cond #+FFI
-        ((eq (type-of obj) 'FFI::FOREIGN-FUNCTION)
-         (values nil nil (sys::%record-ref obj 0)))
-        ((sys::subr-info obj)
-         (values nil nil (sys::subr-info obj)))
-        ((sys::%compiled-function-p obj) ; compiled closure?
-         (let* ((name (sys::%record-ref obj 0))
-                (def (get name 'sys::definition)))
-           (values (when def (cons 'LAMBDA (cddar def))) t name)))
-        ((sys::closurep obj) ; interpreted closure?
-         (values (cons 'LAMBDA (sys::%record-ref obj 1)) ; lambda-expression without docstring
-                 (vector ; environment
-                         (sys::%record-ref obj 4) ; venv
-                         (sys::%record-ref obj 5) ; fenv
-                         (sys::%record-ref obj 6) ; benv
-                         (sys::%record-ref obj 7) ; genv
-                         (sys::%record-ref obj 8)); denv
-                 (sys::%record-ref obj 0))))) ; name
-
-(proclaim '(inline function-name))
-(defun function-name (obj) (nth-value 2 (function-lambda-expression obj)))
 
 ;; ----------------------------------------------------------------------------
 
