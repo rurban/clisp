@@ -51,7 +51,6 @@
     ;; clos:slot-boundp clos:slot-makunbound ; defined in record.d
     ;; clos:slot-exists-p ; defined in record.d
     ;; clos::class-gethash clos::class-tuple-gethash ; defined in hashtabl.d
-    ;; sys::*keyword-package*      ; defined in init.lisp, compiler.lisp
     compiler::%generic-function-lambda ; defined in compiler.lisp
     compiler::%optimize-function-lambda ; defined in compiler.lisp
     ;; clos:generic-flet clos:generic-labels ; treated in compiler.lisp
