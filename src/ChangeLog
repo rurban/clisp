@@ -1,3 +1,8 @@
+2004-03-09  Sam Steingold  <sds@gnu.org>
+
+	* format.lisp (format-logical-block, formatter): do not signal an
+	error on unimplemented functionality
+
 2004-03-08  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (VERSION): compute reliably
