@@ -1,5 +1,11 @@
 2003-01-23  Sam Steingold  <sds@gnu.org>
 
+	* type.lisp (upgraded-array-element-type): accept an &optional
+	environment argument, as per ANSI CL
+	(subtypep): fixed a typo (quote '(and))
+
+2003-01-23  Sam Steingold  <sds@gnu.org>
+
 	* _clisp.c (main): -B specifies where -K is looked for
 	* spvw.d (main): --help prints *CURRENT-LANGUAGE* and *LIB-DIRECTORY*
 

@@ -91,8 +91,9 @@
 
 ;; ----------------------------------------------------------------------------
 
-(defun upgraded-array-element-type (type)
-  ; siehe array.d
+(defun upgraded-array-element-type (type &optional environment)
+  (declare (ignore environment))
+  ;; see array.d
   (case type
     ((BIT) 'BIT)
     ((CHARACTER) 'CHARACTER)
@@ -108,13 +109,10 @@
                    ((<= l 8) '(UNSIGNED-BYTE 8))
                    ((<= l 16) '(UNSIGNED-BYTE 16))
                    ((<= l 32) '(UNSIGNED-BYTE 32))
-                   (t 'T)
-           ) )
+                   (t 'T)))
            (if (subtypep type 'CHARACTER)
              'CHARACTER
-             'T
-  ) )  ) ) )
-)
+             'T))))))
 
 ;; ----------------------------------------------------------------------------
 
@@ -912,7 +910,7 @@
     (setq type1 (canonicalize-type type1))
     (setq type2 (canonicalize-type type2))
     ;; canonicalize-type: T ==> (AND),  NIL ==> (OR)
-    (when (or (equal '(OR) type1) (equal (AND) type2)) (yes))
+    (when (or (equal '(OR) type1) (equal '(AND) type2)) (yes))
     (when (equal '(OR) type2) (no))
     (when (equal type1 type2) (yes)) ; (subtypep type type) always true
                                      ; equal on MEMBER and EQL is forbidden!!??
