@@ -1156,12 +1156,12 @@ letters:
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(BLOCK-OPEN &n-r; &lab-r;)</literal></entry>
-      <entry>Create a &block; frame.</entry>
-      <entry>Create a &block; frame, &STACK; -= 3, &SP; -= 2+&jbs;.
-             The topmost (third) object in the block frame is
-             &cons;(&consts;[&n-r;],frame-pointer) (its &bc-r;).
-             Upon a &return-from; to this frame,
-             execution will continue at &lab-r;.</entry></row>
+  <entry>Create a &block; frame.</entry>
+  <entry>Create a &block; frame, &STACK; -= 3, &SP; -= 2+&jbs;.
+   The topmost (third) object in the block frame is
+   &cons;(&consts;[&n-r;],frame-pointer) (its &bc-r;).
+   Upon a &return-from; to this frame, execution will continue at &lab-r;.
+   values undefined.</entry></row>
  <row><entry><literal role="sexp">(BLOCK-CLOSE)</literal></entry>
       <entry>Dissolve a &block; frame.</entry>
       <entry>Dissolve the &block; frame at &STACK;, &STACK; += 3,
