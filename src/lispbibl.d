@@ -11501,22 +11501,6 @@ nonreturning_function(extern, fehler_store, (object array, object value));
 extern object array_element_type (object array);
 # used by PREDTYPE, IO
 
-/* Returns the rank of an array.
- array_rank(array)
- > array: an array
- < uintL result: its rank = number of dimensions */
-extern uintL array_rank (object array);
-# used by modules
-
-/* Returns the dimensions of an array.
- get_array_dimensions(array,rank,&dimensions[]);
- > array: an array
- > uintL rank: = array_rank(array)
- > uintL dimensions[0..rank-1]: room for rank dimensions
- < uintL dimensions[0..rank-1]: the array's dimensions */
-extern void get_array_dimensions (object array, uintL rank, uintL* dimensions);
-# used by modules
-
 # Function: Returns the list of dimensions of an array.
 # array_dimensions(array)
 # > array: an array
