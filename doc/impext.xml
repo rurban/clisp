@@ -1645,11 +1645,10 @@ N. Gray to X3J13.</para>
  <filename>macros3.lisp</filename> into a running &clisp;, you can
  use the following macros:</para>
 
-<formalpara id="ethe"><title><function>ext:ethe</function></title>
-<para><literal role="sexp">(<function>ext:ethe</function>
- <replaceable>value-type</replaceable>
- &form-r;)</literal> enforces a type check in
- both interpreted and compiled code.</para></formalpara>
+<formalpara id="ethe"><title>&ethe;</title>
+<para><literal role="sexp">(&ethe; &val-type-r; &form-r;)</literal>
+ enforces a type check in both interpreted and compiled code.
+ </para></formalpara>
 
 <formalpara id="letf"><title><function>ext:letf</function> &amp;
                              <function>ext:letf*</function></title>
