@@ -1675,8 +1675,8 @@ echol "prefix = ${PREFIX}"
 echol "exec_prefix = ${EXEC_PREFIX}"
 echol "bindir  = \$(exec_prefix)${NEXT_}bin"
 echol "shared  = \$(prefix)${NEXT_}share"
-echol "mandir  = \$(prefix)${NEXT_}share${NEXT_}man"
-echol "docdir  = \$(prefix)${NEXT_}share${NEXT_}doc"
+echol "mandir  = \$(shared)${NEXT_}man"
+echol "docdir  = \$(shared}${NEXT_}doc"
 case "$fsstnd" in
   suse)
     echol "lispdocdir = \$(docdir)${NEXT_}packages${NEXT_}clisp"
@@ -1694,7 +1694,7 @@ echol "psdir   = \$(lispdocdir)"
 echol "libdir = \$(exec_prefix)${NEXT_}lib"
 echol "lisplibdir = \$(libdir)${NEXT_}clisp"
 if [ -n "$USE_GETTEXT" ] ; then
-  echol "datadir = \$(prefix)/share"
+  echol "datadir = \$(shared)"
   echol "localedir = \$(datadir)/locale"
 fi
 echol "# The value of following variable is prepended to all the paths for"
