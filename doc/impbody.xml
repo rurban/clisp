@@ -2294,10 +2294,6 @@ and the international alphabetic characters from the character set:
 <section><title>The Conses Dictionary
    <ulink url="&clhs;/Body/sec_the_conses_dictionary.html">[CLHS-14.2]</ulink></title>
 
-<formalpara><title>&sublis;, &nsublis;</title>
-<para>&sublis; and &nsublis; apply the &key-k; argument to the nodes of
- the cons tree and not to the keys of the &alist;.</para></formalpara>
-
 <section><title>Functions &mapcar;, &mapcan;, &maplist;, &mapcon;, ...</title>
 
 <para>The function <emphasis
