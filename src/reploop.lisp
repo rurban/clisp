@@ -264,7 +264,7 @@ Return         :rt              leave EVAL frame, prescribing the return values"
    (cons "Mode-3"       #'debug-mode-3)
    (cons ":m3"          #'debug-mode-3)
    (cons "Mode-4"       #'debug-mode-4)
-   (cons ":m-4"         #'debug-mode-4)
+   (cons ":m4"          #'debug-mode-4)
    (cons "Mode-5"       #'debug-mode-5)
    (cons ":m5"          #'debug-mode-5)
    (cons "Where"        #'debug-where )
