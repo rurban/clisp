@@ -369,7 +369,7 @@
       (setq name (first name-and-options))
       (setq options (rest name-and-options)))
     ;; otherwise, name and options are already correct.
-    (unless (and (symbolp name) (not (keywordp name)))
+    (unless (symbolp name)
       (error-of-type 'source-program-error
         (TEXT "~S: invalid syntax for name and options: ~S")
         'defstruct name-and-options))
