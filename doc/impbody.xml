@@ -4143,18 +4143,19 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <varlistentry><term><constant>:COMMON-LISP</constant></term>
  <listitem><simpara>required by &ansi-cl;</simpara></listitem></varlistentry>
 <varlistentry><term><constant>:INTERPRETER</constant></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>&eval; is implemented</simpara></listitem></varlistentry>
 <varlistentry><term><constant>:COMPILER</constant></term>
  <listitem><simpara>&compile; and &compile-file; are implemented
 </simpara></listitem></varlistentry>
 <!-- #ifdef SOCKET_STREAMS -->
 <varlistentry><term><constant>:SOCKETS</constant></term>
- <listitem><simpara>see &socket-stream;s</simpara></listitem></varlistentry>
+ <listitem><simpara>see <xref linkend="socket"/>
+</simpara></listitem></varlistentry>
 <!-- #endif -->
 <!-- #ifdef GENERIC_STREAMS -->
 <varlistentry><term><constant>:GENERIC-STREAMS</constant></term>
- <listitem><simpara>see <link linkend="clos-stream">Defining new kinds of
-    Streams</link></simpara></listitem></varlistentry>
+ <listitem><simpara>see <xref linkend="clos-stream"/>
+</simpara></listitem></varlistentry>
 <!-- #endif -->
 <!-- #ifdef LOGICAL_PATHNAMES -->
 <varlistentry><term><constant>:LOGICAL-PATHNAMES</constant></term>
@@ -4163,14 +4164,15 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <!-- #endif -->
 <!-- #ifdef DYNAMIC_FFI -->
 <varlistentry><term><constant>:FFI</constant></term>
- <listitem><simpara>if a foreign function interface (see &ffi-pac;) is
-   supported <emphasis>(Platform dependent: many &unix;, &win32;
+ <listitem><simpara>if a foreign function interface
+   (see <xref linkend="dffi"/>) is supported
+   <emphasis>(Platform dependent: many &unix;, &win32;
     platforms only)</emphasis></simpara></listitem></varlistentry>
 <!-- #endif -->
 <!-- #ifdef GNU_GETTEXT -->
 <varlistentry><term><constant>:GETTEXT</constant></term>
- <listitem><simpara>if internationalization (see &i18n-pac;) using the
-   &ggettext; package is supported
+ <listitem><simpara>if internationalization (see <xref linkend="i18n"/>)
+   using the &ggettext; package is supported
    <emphasis>(Platform dependent: most &unix; platforms
     only)</emphasis></simpara></listitem></varlistentry>
 <!-- #endif -->
