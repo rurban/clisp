@@ -9,6 +9,7 @@
 	(formatter-whole-args*): new functions
 	(formatter-bind-block): new macro
 	(formatter-main-1): handle FORMAT-LOGICAL-BLOCK
+	(formatter-main-1): fixed FORMAT-PPRINT-INDENT
 
 2003-11-05  Sam Steingold  <sds@gnu.org>
 
