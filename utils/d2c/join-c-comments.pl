@@ -1,5 +1,10 @@
 #!/usr/bin/perl -w
 
+# After comment5 replaces #-style comments with normal C comments,
+# this script finds consecutive lines of comments (each with their own
+# set of /**/) and turns each chunk of comments into a single block
+# comment.
+
 use strict;
 
 my @line_buffer = ();
