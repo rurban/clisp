@@ -5,7 +5,7 @@
 ;;  - to set the Registry appropriately
 ;;  - to create CLISP.BAT on your desktop
 
-(defvar *clisp-home* (namestring (default-directory)))
+(defvar *clisp-home* (substitute #\/ #\\ (namestring (default-directory))))
 (defvar *clisp-base-cmd*
   (concatenate 'string "\"" *clisp-home* "lisp.exe\" -B \""
                *clisp-home* "\" -M "))
