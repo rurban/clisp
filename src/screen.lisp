@@ -1,7 +1,7 @@
 ;; SCREEN is actually conditionally defined in constpack.d,
 ;; but the condition (in lispbibl.d) is too hairy
 ;; to duplicate it in makemake.in, so this file is always compiled
-;; (even when it is not subsequently loaded by ini.lisp),
+;; (even when it is not subsequently loaded by init.lisp),
 ;; thus we have to use DEFPACKAGE here just in case
 
 (defpackage "SCREEN"
