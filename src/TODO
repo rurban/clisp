@@ -136,11 +136,20 @@ Klein->Großschreibung umwandeln, so dass (make-pathname :type "fas") immer geht
 
 If you (TRACE generic-function) and then reload the file defining that
 function, you got an error saying that #<CLOSURE TRACED-xxx> is not a generic
-function. Now the function is silently untraced, which is just as bad. Need
-to untrace and then re-trace the function. This holds for both defmethod and
-defgeneric.
- -- this is how function (re)definition also works in CLISP and all other lisps
-    why should CLISP generic functions be any different?!
+function. Now the function is silently untraced, which is just as bad. For
+non-generic functions, DEFUN untraces the function, but at least gives a
+warning. The desired behaviour is:
+  1. no difference between non-generic and generic functions,
+  2. a custom:*untrace-upon-redefinition* variable, default value nil,
+  3. if custom:*untrace-upon-redefinition* is true, redefining a function
+     removes the trace wrapper but gives a warning,
+  4. if custom:*untrace-upon-redefinition* is false, redefining a function
+     keeps the trace wrapper and replaces the "inner" function inside the
+     wrapper.
+A documented API should be provided for the trace wrapper, so that profilers
+etc. can do the same as TRACE without needing to hack clisp's TRACE, COMPILE,
+DISASSEMBLE, DEFUN, DEFGENERIC.
+
 
 clean up and modularize spvw.d
 
