@@ -332,7 +332,7 @@ int main (int argc, char* argv[])
       if (!CloseHandle(pinfo.hProcess)) goto w32err;
       return exitcode;
      w32err:
-      perror(program_name);
+      fprintf(stderr,"%s (%s): %s\n",program_name,command_line,strerror(GetLastError()));
       return 1;
     }
 #else
