@@ -1,7 +1,7 @@
-2003-07-02  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+2003-08-10  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
-	* pathname.d (nullfile) [WIN32_NATIVE]: new local function.
-	(LAUNCH) [WIN32_NATIVE]: take NIL stream as /dev/nul.
+	* pathname.d (nullfile): new local function.
+	(LAUNCH): take NIL stream as /dev/nul.
 
 2003-08-07  John Hinsdale <hin@alma.com>
 	* oracle.lisp, fastcgi.lisp, fastcgi.h, linux.lisp
