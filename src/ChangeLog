@@ -1,5 +1,10 @@
 2003-04-21  Sam Steingold  <sds@gnu.org>
 
+	* control.d (KEYWORD-TEST): treat :ALLOW-OTHER-KEYS NIL correctly
+	* record.d (keyword_test): ditto
+
+2003-04-21  Sam Steingold  <sds@gnu.org>
+
 	* defmacro.lisp (analyze1): &WHOLE argument may be a pattern too
 	(analyze-key): permit patterns as &KEY arguments (broken on 2003-03-25)
 

@@ -1039,41 +1039,35 @@ local void keyword_test (object caller, gcv_object_t* rest_args_pointer,
     return;
   if (eq(valid_keywords,T))
     return;
-  { /* search if :ALLOW-OTHER-KEYS comes: */
+  { /* check whether all specified keywords occur in valid_keywords: */
+    var bool allow_seen = false; /* seen an :ALLOW-OTHER-KEYS NIL ? */
     var gcv_object_t* ptr = rest_args_pointer;
-    var uintC count;
-    dotimespC(count,argcount, {
-      if (eq(NEXT(ptr),S(Kallow_other_keys)))
-        if (!nullp(Next(ptr)))
-          return;
-      NEXT(ptr);
-    });
-  }
-  { /* search if all specified keywords occur in valid_keywords: */
-    var gcv_object_t* ptr = rest_args_pointer;
-    var uintC count;
-    dotimespC(count,argcount, {
+    var uintC count = argcount;
+    do {
       var object key = NEXT(ptr);
-      if (!nullp(memq(key,valid_keywords)))
-        goto kw_found;
-      /* not found */
-      pushSTACK(key); /* KEYWORD-ERROR slot DATUM */
-      pushSTACK(valid_keywords);
-      pushSTACK(valid_keywords);
-      pushSTACK(Next(ptr));
-      pushSTACK(key);
-      pushSTACK(caller);
-      {
-        var object type = allocate_cons();
-        Car(type) = S(member); Cdr(type) = STACK_4;
-        STACK_4 = type; /* `(MEMBER ,@valid_keywords) = KEYWORD-ERROR slot EXPECTED-TYPE */
+      var object val = NEXT(ptr);
+      if (eq(key,S(Kallow_other_keys))) {
+        if (!allow_seen) {
+          if (nullp(val)) allow_seen = true;
+          else return;
+        }
+      } else if (nullp(memq(key,valid_keywords))) { /* not found */
+        pushSTACK(key); /* KEYWORD-ERROR slot DATUM */
+        pushSTACK(valid_keywords);
+        pushSTACK(valid_keywords);
+        pushSTACK(val);
+        pushSTACK(key);
+        pushSTACK(caller);
+        { /* `(MEMBER ,@valid_keywords) = KEYWORD-ERROR slot EXPECTED-TYPE */
+          var object type = allocate_cons();
+          Car(type) = S(member); Cdr(type) = STACK_4;
+          STACK_4 = type;
+        }
+        fehler(keyword_error,
+               GETTEXT("~: illegal keyword/value pair ~, ~ in argument list."
+                       NLstring "The allowed keywords are ~"));
       }
-      fehler(keyword_error,
-             GETTEXT("~: illegal keyword/value pair ~, ~ in argument list."
-                     NLstring "The allowed keywords are ~"));
-     kw_found: /* found. continue: */
-      NEXT(ptr);
-    });
+    } while(--count);
   }
 }
 
