@@ -1,5 +1,11 @@
 2004-03-27  Bruno Haible  <bruno@clisp.org>
 
+	ANSI CL compliance.
+	* clos.lisp (std-find-method): Check the specializers argument.
+	(analyze-method-description): Update.
+
+2004-03-27  Bruno Haible  <bruno@clisp.org>
+
 	ANSI CL compliance: Fix the short-form method combination.
 	* clos.lisp (standard-method-combination-check-method-qualifiers):
 	Renamed from short-form-method-combination-check-method-qualifiers.

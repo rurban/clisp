@@ -1625,6 +1625,8 @@ in the generic function instance."
          (list* funname qualifiers spec-list) caller
          ;; do not warn about redefinition when no method was defined
          (and (fboundp 'find-method) (fboundp funname)
+              (clos::generic-function-p (fdefinition funname))
+              (eql (sig-req-num (gf-signature (fdefinition funname))) (length spec-list))
               (find-method (fdefinition funname) qualifiers spec-list nil)
               "method"))
         (let* ((reqanz (length req-vars))
@@ -2747,6 +2749,15 @@ in the generic function instance."
 
 ;; find a method in a generic function:
 (defun std-find-method (gf qualifiers specializers &optional (errorp t))
+  (let ((n (sig-req-num (gf-signature gf))))
+    (unless (listp specializers)
+      (error-of-type 'error
+        (TEXT "~S: the specializers argument is not a list: ~S")
+        'find-method specializers))
+    (unless (eql (length specializers) n)
+      (error-of-type 'error
+        (TEXT "~S: the specializers argument has length ~D, but ~S has ~D required parameter~:P")
+        'find-method (length specializers) gf n)))
   ;; so to speak
   ;;   (find hypothetical-method (gf-methods gf) :test #'methods-agree-p)
   ;; cf. methods-agree-p
