@@ -154,6 +154,7 @@
 <!ENTITY clu-pac "<link linkend='clupack'><quote role='package'>COMMON-LISP-USER</quote></link>">
 
 <!-- *** local *** -->
+<!ENTITY absolute-pathname "<link linkend='absolute-pathname'><function>EXT:ABSOLUTE-PATHNAME</function></link>">
 <!ENTITY ansi "<olink targetdoc='impnotes' targetptr='ansi'><varname>CUSTOM:*ANSI*</varname></olink>">
 <!ENTITY ansi-opt "<olink targetdoc='man' targetptr='opt-ansi'><option>-ansi</option></olink>">
 <!ENTITY apropos-do-more "<link linkend='apropos'><varname>CUSTOM:*APROPOS-DO-MORE*</varname></link>">

@@ -764,6 +764,7 @@ LISPFUN(wild_pathname_p,seclass_read,1,1,norest,nokey,0,NIL)
 LISPFUNNR(pathname_match_p,2)
 LISPFUN(translate_pathname,seclass_default,3,0,norest,key,3,
         (kw(all),kw(merge),kw(absolute)))
+LISPFUNN(absolute_pathname,1)
 LISPFUNNR(namestring,1)
 LISPFUNNR(truename,1)
 LISPFUNNR(probe_file,1)

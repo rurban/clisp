@@ -118,8 +118,8 @@
          ; conversion to a string that works for a pathname as well
          (xstring (object)
            (if (pathnamep object)
-               (namestring (translate-pathname object #p"" #p"" :absolute t))
-               (string object))))
+             (namestring (absolute-pathname object))
+             (string object))))
   #+WIN32
   (defun execute (programfile &rest arguments)
     (shell
