@@ -1168,7 +1168,9 @@ for-value   NIL or T
                (let ((val (svref venv (1+ i))))
                  (return-from venv-search
                    (if (and (var-p val) #| (eq (var-name val) v) |# )
-                     (if (var-specialp val) 'SPECIAL (values T val))
+                     (progn
+                       (assert (not (var-specialp val)))
+                       (values T val))
                      (if (eq val specdecl)
                        'SPECIAL
                        (values 'LOCAL venv (1+ i)))))))))
@@ -1196,9 +1198,11 @@ for-value   NIL or T
       (setf (svref ret len) *venv* *venv* ret)
       (dolist (var varlist *venv*)
         (setf (aref ret (incf idx)) (var-name var)
-              (aref ret (incf idx)) var))) |#
+              (aref ret (incf idx)) (if (var-specialp var) specdecl var))))
+    |#
     (let ((l (list *venv*)))
-      (dolist (var varlist) (setq l (list* (var-name var) var l)))
+      (dolist (var varlist)
+        (setq l (list* (var-name var) (if (var-specialp var) specdecl var) l)))
       (setq *venv* (apply #'vector l)))))
 
 ;; (access-in-closure var venvc stackz)
