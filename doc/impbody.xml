@@ -4773,7 +4773,7 @@ all of the values.</para></formalpara>
 <section id="argv"><title>Function <function>EXT:ARGV</function></title>
 <para>This function will return a &fresh; &simple-vector-t; of
  &string-t; command line arguments passed to the runtime, including
- those already processed by &clisp.
+ those already processed by &clisp;.
  Use &args; instead of this function to get the arguments for your program.
 </para></section>
 
