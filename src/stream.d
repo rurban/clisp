@@ -14852,6 +14852,17 @@ local maygc object get_standard_input_file_stream (void) {
 /* Returns the equivalent of the C stream stdout.
  can trigger GC */
 local maygc object get_standard_output_file_stream (void) {
+  #if (defined(UNIX) && !defined(NEXTAPP)) || defined(WIN32_NATIVE)
+  # On these systems make_terminal_stream() uses stdout_handle.
+  var object terminal_stream = Symbol_value(S(terminal_io)); # *TERMINAL-IO*
+  if (builtin_stream_p(terminal_stream)
+      && TheStream(terminal_stream)->strmtype == strmtype_terminal) {
+    # For FRESH-LINE to work correctly, we must avoid that *TERMINAL-IO* and
+    # the stream returned by this function have a different wr_ch_lpos field.
+    # Therefore we just return *TERMINAL-IO*.
+    return terminal_stream;
+  }
+  #endif
   if (nullp(O(standard_output_file_stream)))
     O(standard_output_file_stream) = make_standard_output_file_stream();
   return O(standard_output_file_stream);
@@ -14860,6 +14871,17 @@ local maygc object get_standard_output_file_stream (void) {
 /* Returns the equivalent of the C stream stderr.
  can trigger GC */
 local maygc object get_standard_error_file_stream (void) {
+  #if 0
+  # On these systems make_terminal_stream() uses stderr_handle.
+  var object terminal_stream = Symbol_value(S(terminal_io)); # *TERMINAL-IO*
+  if (builtin_stream_p(terminal_stream)
+      && TheStream(terminal_stream)->strmtype == strmtype_terminal) {
+    # For FRESH-LINE to work correctly, we must avoid that *TERMINAL-IO* and
+    # the stream returned by this function have a different wr_ch_lpos field.
+    # Therefore we just return *TERMINAL-IO*.
+    return terminal_stream;
+  }
+  #endif
   if (nullp(O(standard_error_file_stream)))
     O(standard_error_file_stream) =
       (same_handle_p(stderr_handle,stdout_handle)
