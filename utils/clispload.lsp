@@ -131,6 +131,3 @@
 
 ;; Then the tests.
 (load "gclload2.lsp")
-
-;; Run the tests.
-(time (regression-test:do-tests))
