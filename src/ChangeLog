@@ -1,3 +1,16 @@
+2002-05-23  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (strm_buffered_extrafields_t): replaced eofindex with
+	have_eof_p and endvalid
+	(BufferedStream_eofindex): removed
+	(BufferedStream_have_eof_p, BufferedStream_endvalid): added
+	(buffered_half_flush, buffered_flush, buffered_nextbyte)
+	(buffered_eofbyte, position_file_buffered, read_byte_array_buffered)
+	(write_byte_array_buffered, rd_ch_buffered, rd_ch_array_buffered)
+	(logical_position_file_end, make_buffered_stream)
+	(finish_output_buffered, closed_buffered): updated
+	Suggested by Todd Sabin <tsabin@optonline.net>
+
 2002-05-22  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (directory_search): save subr_self before calling

@@ -2061,7 +2061,7 @@ local object rd_ch_str_in (const object* stream_) {
   var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
   if (index >= endindex) {
     return eof_value; # EOF reached
-  } else { # index < eofindex
+  } else { # index < endvalid
     var uintL len;
     var uintL offset;
     var object string = unpack_string_ro(TheStream(stream)->strm_str_in_string,&len,&offset);
@@ -2480,7 +2480,7 @@ local object rd_ch_buff_in (const object* stream_) {
     TheStream(stream)->strm_buff_in_index = fixnum(index);
     TheStream(stream)->strm_buff_in_endindex = fixnum(endindex);
   }
-  # index < eofindex
+  # index < endvalid
   var uintL len;
   var uintL offset;
   var object string = unpack_string_ro(TheStream(stream)->strm_buff_in_string,&len,&offset);
@@ -5860,29 +5860,26 @@ typedef struct strm_buffered_extrafields_t {
   strm_channel_extrafields_t _parent;
   uintL (* low_fill)  (object stream);
   void  (* low_flush) (object stream, uintL bufflen);
-  uintL buffstart;              # start position of buffer
-  sintL eofindex;               # index up to which the data is valid
-                                # (for recognizing EOF)
-  #define eofindex_all_invalid  (-1)
-  #define eofindex_all_valid    (-2)
-  uintL index;                  # index into buffer (>=0, <=strm_buffered_bufflen)
-  bool modified : 8;         # true if the buffer contains modified data, else false
-  bool regular : 8;          # whether the handle refers to a regular file
+  uintL buffstart;     # start position of buffer
+  uintL endvalid;      # index up to which the data is known to be valid
+  uintL index;         # index into buffer (>=0, <=endvalid)
+  bool have_eof_p : 8; # indicates that eof is right after endvalid
+  bool modified : 8;   # true if the buffer contains modified data, else false
+  bool regular : 8;    # whether the handle refers to a regular file
   bool blockpositioning : 8; # whether the handle refers to a regular file
-                                # and permits to position the buffer at
-                                # buffstart = (sector number) * strm_buffered_bufflen
-  # Three cases:
-  #  eofindex = eofindex_all_invalid: buffer contents completely invalid,
-  #                                   index = 0.
-  #  eofindex >= 0: 0 <= index <= eofindex <= strm_buffered_bufflen.
-  #  eofindex = eofindex_all_valid: buffer contents completely valid,
-  #                                 0 <= index <= strm_buffered_bufflen.
-  # buffstart = (sector number) * strm_buffered_bufflen, if blockpositioning permitted.
-  # The position of handle, known to the OS, set via lseek, is normally (but
-  # not always!) the end of the current buffer:
-  #   if eofindex = eofindex_all_valid: buffstart + strm_buffered_bufflen,
-  #   if eofindex >= 0: buffstart + eofindex,
-  #   if eofindex = eofindex_all_invalid: buffstart.
+                        # and permits to position the buffer at
+                        # buffstart = (sector number) * strm_buffered_bufflen
+  # endvalid always indicates how much of the buffer contains data
+  # have_eof_p = true indicates that the EOF is known to be at the
+  #    endvalid position.  It could be there without have_eof_p being true,
+  #    but it will be discovered by the next buffered_nextbyte() then
+  # buffstart = (sector number) * strm_buffered_bufflen,
+  #             if blockpositioning permitted.
+  # The position of handle, known to the OS, set via lseek, is normally
+  # (but not always!) the end of the current buffer.  More importantly,
+  # before flushing the buffer to disk, the handle is lseek()ed to
+  # buffstart, which ensures data is written where it should be.  This
+  # then leaves the position at the correct point for subsequent reads.
 # Up to now a file is considered built from bytes of 8 bits.
 # Logically, it is built up from other units:
   uintL position;               # position in logical units
@@ -5915,10 +5912,12 @@ typedef struct strm_i_buffered_extrafields_t {
   ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_flush
 #define BufferedStream_buffstart(stream)  \
   ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->buffstart
-#define BufferedStream_eofindex(stream)  \
-  ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->eofindex
+#define BufferedStream_endvalid(stream)  \
+  ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->endvalid
 #define BufferedStream_index(stream)  \
   ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->index
+#define BufferedStream_have_eof_p(stream)  \
+  ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->have_eof_p
 #define BufferedStream_modified(stream)  \
   ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->modified
 #define BufferedStream_regular(stream)  \
@@ -6104,8 +6103,7 @@ local void buffered_half_flush (object stream) {
                  BufferedStream_buffstart(stream),SEEK_SET,); # positioning back
     end_system_call();
   }
-  # write eofindex Bytes:
-  BufferedStreamLow_flush(stream)(stream,BufferedStream_eofindex(stream));
+  BufferedStreamLow_flush(stream)(stream,BufferedStream_endvalid(stream));
 }
 
 # UP: Writes the modified Buffer back.
@@ -6114,7 +6112,8 @@ local void buffered_half_flush (object stream) {
 # < modified_flag of stream : deleted
 # changed in stream: index
 local void buffered_flush (object stream) {
-  if (BufferedStream_eofindex(stream) == eofindex_all_valid) # Buffer entirely valid?
+  if (BufferedStream_endvalid(stream) == strm_buffered_bufflen)
+    # Buffer entirely valid?
     buffered_full_flush(stream);
   else
     buffered_half_flush(stream);
@@ -6124,53 +6123,35 @@ local void buffered_flush (object stream) {
 # read or overwritten.
 # buffered_nextbyte(stream)
 # > stream : (open) Byte-based File-Stream.
-# < result : NULL if EOF (and then index=eofindex),
-#                 else: Pointer to the next Byte
-# changed in stream: index, eofindex, buffstart
+# < result : NULL if EOF else: Pointer to the next Byte
+# changed in stream: index, endvalid, have_eof_p, buffstart
 local uintB* buffered_nextbyte (object stream) {
-  var sintL eofindex = BufferedStream_eofindex(stream);
+  var sintL endvalid = BufferedStream_endvalid(stream);
   var uintL index = BufferedStream_index(stream);
-  if (!(eofindex == eofindex_all_valid)) { # Bufferdata only half valid
-    if (eofindex == eofindex_all_invalid) # Bufferdata entirely invalid
-      goto reread;
-    else # EOF occurs in this Sector
-      goto eofsector;
-  }
-  # Bufferdata entirely valid
-  if (index != strm_buffered_bufflen) { # index = bufflen ?
-    # no, so 0 <= index < strm_buffered_bufflen -> OK
-    return BufferedStream_buffer_address(stream,index);
-  }
-  # Buffer must be newly filled.
-  if (BufferedStream_modified(stream))
-    # Beforehand the Buffer must be flushed out:
-    buffered_full_flush(stream);
-  BufferedStream_buffstart(stream) += strm_buffered_bufflen;
- reread: { # From here, read the Buffer newly:
-    var sintL result;
+  if ((endvalid == index) && !BufferedStream_have_eof_p (stream)) {
+    # Buffer must be newly filled.
+    if (BufferedStream_modified(stream))
+      # Beforehand the Buffer must be flushed out:
+      buffered_flush(stream);
+    BufferedStream_buffstart(stream) += endvalid;
+    var uintL result;
     if (BufferedStream_blockpositioning(stream)
-        || !((TheStream(stream)->strmflags & strmflags_rd_B) == 0)) {
+        || (TheStream(stream)->strmflags & strmflags_rd_B))
       result = BufferedStreamLow_fill(stream)(stream);
-      if (result==strm_buffered_bufflen) { # the entire Buffer was filled
-        BufferedStream_index(stream) = 0; # Index := 0
-        BufferedStream_modified(stream) = false; # Buffer unmodified
-        BufferedStream_eofindex(stream) = eofindex_all_valid; # eofindex := all_valid
-        return BufferedStream_buffer_address(stream,0);
-      }
-    } else {
+    else
       result = 0;
-    }
-    # result (< strm_buffered_bufflen) Bytes were read.
-    # Not the entire Buffer was filled -> EOF is reached.
-    BufferedStream_index(stream) = index = 0; # Index := 0
-    BufferedStream_modified(stream) = false; # Buffer unmodified
-    BufferedStream_eofindex(stream) = eofindex = result; # eofindex := result
+    BufferedStream_index(stream) = index = 0;
+    BufferedStream_modified(stream) = false;
+    BufferedStream_endvalid(stream) = endvalid = result;
+    if (result == 0)
+      BufferedStream_have_eof_p(stream) = true;
   }
- eofsector: # eofindex is a Fixnum, i.e. EOF occurs in this Sector.
-  if (index == eofindex)
+  if (index < endvalid)
+    return BufferedStream_buffer_address(stream,index);
+  else if (BufferedStream_have_eof_p(stream))
     return (uintB*)NULL; # EOF reached
   else
-    return BufferedStream_buffer_address(stream,index);
+    NOTREACHED;
 }
 
 # UP: Prepares the writing of a Byte at EOF.
@@ -6178,22 +6159,22 @@ local uintB* buffered_nextbyte (object stream) {
 # > stream : (open) Byte-based File-Stream, for which
 #            currently  buffered_nextbyte(stream)==NULL  is true.
 # < result : Pointer to the next (free) Byte
-# changed in stream: index, eofindex, buffstart
+# changed in stream: index, endvalid, buffstart
 local uintB* buffered_eofbyte (object stream) {
-  # EOF.  eofindex=index.
-  if (BufferedStream_eofindex(stream) == strm_buffered_bufflen) {
-    # eofindex = strm_buffered_bufflen
+  # EOF.  endvalid=index.
+  ASSERT(BufferedStream_have_eof_p(stream));
+  if (BufferedStream_endvalid(stream) == strm_buffered_bufflen) {
     # Buffer must be filled newly. Because after that EOF will occur anyway,
     # it is sufficient, to flush the Buffer out:
     if (BufferedStream_modified(stream))
       buffered_half_flush(stream);
     BufferedStream_buffstart(stream) += strm_buffered_bufflen;
-    BufferedStream_eofindex(stream) = 0; # eofindex := 0
+    BufferedStream_endvalid(stream) = 0;
     BufferedStream_index(stream) = 0; # index := 0
     BufferedStream_modified(stream) = false; # unmodified
   }
-  # increase eofindex:
-  BufferedStream_eofindex(stream) += 1;
+  # increase endvalid:
+  BufferedStream_endvalid(stream) += 1;
   return BufferedStream_buffer_address(stream,BufferedStream_index(stream));
 }
 
@@ -6201,7 +6182,7 @@ local uintB* buffered_eofbyte (object stream) {
 # buffered_writebyte(stream,b);
 # > stream : (open) Byteblock-based File-Stream.
 # > b : Byte to be written
-# changed in stream: index, eofindex, buffstart
+# changed in stream: index, endvalid, buffstart
 local void buffered_writebyte (object stream, uintB b) {
   var uintB* ptr = buffered_nextbyte(stream);
   if (!(ptr == (uintB*)NULL)) {
@@ -6233,16 +6214,13 @@ nonreturning_function(local, fehler_position_beyond_EOF, (object stream)) {
 # position_file_buffered(stream,position);
 # > stream : (open) Byte-based File-Stream.
 # > position : new Position
-# changed in stream: index, eofindex, buffstart
+# changed in stream: index, endvalid, buffstart
 local void position_file_buffered (object stream, uintL position) {
   # Is the new Position in the same Sector?
   {
-    var sintL eofindex = BufferedStream_eofindex(stream);
+    var uintL endvalid = BufferedStream_endvalid(stream);
     var uintL newindex = position - BufferedStream_buffstart(stream);
-    if (newindex
-        <= ((eofindex == eofindex_all_valid) ? strm_buffered_bufflen :
-            (!(eofindex == eofindex_all_invalid)) ? eofindex :
-            0)) { # yes -> only index has to be changed:
+    if (newindex <= endvalid) { # yes -> only index has to be changed:
       BufferedStream_index(stream) = newindex;
       return;
     }
@@ -6256,9 +6234,10 @@ local void position_file_buffered (object stream, uintL position) {
     handle_lseek(stream,BufferedStream_channel(stream),position,SEEK_SET,);
     end_system_call();
     BufferedStream_buffstart(stream) = position;
-    BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+    BufferedStream_endvalid(stream) = 0;
     BufferedStream_index(stream) = 0; # index := 0
     BufferedStream_modified(stream) = false; # unmodified
+    BufferedStream_have_eof_p(stream) = false;
   } else {
     var uintL oldposition = BufferedStream_buffstart(stream) + BufferedStream_index(stream);
     # Positioning:
@@ -6271,17 +6250,18 @@ local void position_file_buffered (object stream, uintL position) {
       BufferedStream_buffstart(stream) = newposition;
     }
     # read Sector:
-    BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+    BufferedStream_endvalid(stream) = 0;
     BufferedStream_index(stream) = 0; # index := 0
     BufferedStream_modified(stream) = false; # unmodified
+    BufferedStream_have_eof_p(stream) = false;
     var uintL newindex = position % strm_buffered_bufflen; # desired Index in the Sector
-    if (!(newindex==0)) { # Position between Sectors -> nothing needs to be read
+    if (newindex!=0) { # Position between Sectors -> nothing needs to be read
       buffered_nextbyte(stream);
       # Now index=0.
       # set index to (position mod bufflen) , but check beforehand:
-      var sintL eofindex = BufferedStream_eofindex(stream);
-      # Either eofindex=all_valid or 0<=newindex<=eofindex must be true:
-      if (!((eofindex == eofindex_all_valid) || (newindex <= eofindex))) {
+      var uintL endvalid = BufferedStream_endvalid(stream);
+      # newindex must be in the valid range
+      if (newindex > endvalid) {
         # Error. But first position back to the old Position:
         check_SP();
         position_file_buffered(stream,oldposition); # position back
@@ -6300,17 +6280,15 @@ local void position_file_buffered (object stream, uintL position) {
 # > len : > 0
 # < byteptr[0..count-1] : read Bytes.
 # < result: &byteptr[count] (with count = len, or count < len if EOF reached)
-# changed in stream: index, eofindex, buffstart
+# changed in stream: index, endvalid, buffstart
 local uintB* read_byte_array_buffered (object stream, uintB* byteptr,
                                        uintL len) {
   do {
     var uintB* ptr = buffered_nextbyte(stream);
     if (ptr == (uintB*)NULL)
       break;
-    var sintL eofindex = BufferedStream_eofindex(stream);
-    var uintL available =
-      (eofindex == eofindex_all_valid ? strm_buffered_bufflen : eofindex)
-      - BufferedStream_index(stream);
+    var uintL endvalid = BufferedStream_endvalid(stream);
+    var uintL available = endvalid - BufferedStream_index(stream);
     if (available > len)
       available = len;
     # copy all available bytes:
@@ -6330,7 +6308,7 @@ local uintB* read_byte_array_buffered (object stream, uintB* byteptr,
 # > byteptr[0..len-1] : Bytes to be written.
 # > len : > 0
 # < result: &byteptr[len]
-# changed in stream: index, eofindex, buffstart
+# changed in stream: index, endvalid, buffstart
 local const uintB* write_byte_array_buffered (object stream,
                                               const uintB* byteptr,
                                               uintL len) {
@@ -6340,10 +6318,9 @@ local const uintB* write_byte_array_buffered (object stream,
     ptr = buffered_nextbyte(stream);
     if (ptr == (uintB*)NULL)
       goto eof_reached;
-    var sintL eofindex = BufferedStream_eofindex(stream);
+    var uintL endvalid = BufferedStream_endvalid(stream);
     var uintL next = # as many as still fit in the Buffer or until EOF
-      ((eofindex==eofindex_all_valid) ? strm_buffered_bufflen : eofindex)
-      - BufferedStream_index(stream); # > 0 !
+      endvalid - BufferedStream_index(stream); # > 0 !
     if (next > remaining)
       next = remaining;
     { # copy next Bytes in the Buffer:
@@ -6361,7 +6338,7 @@ local const uintB* write_byte_array_buffered (object stream,
     BufferedStream_index(stream) += next;
   } while (remaining != 0);
   if (false) {
-  eof_reached: # Write at EOF, eofindex = index
+  eof_reached: # Write at EOF, endvalid = index
     do { # Still remaining>0 Bytes to file.
       var uintL next = # as many as there is still room in the Buffer
         strm_buffered_bufflen - BufferedStream_index(stream);
@@ -6371,7 +6348,7 @@ local const uintB* write_byte_array_buffered (object stream,
         if (BufferedStream_modified(stream))
           buffered_half_flush(stream);
         BufferedStream_buffstart(stream) += strm_buffered_bufflen;
-        BufferedStream_eofindex(stream) = 0; # eofindex := 0
+        BufferedStream_endvalid(stream) = 0;
         BufferedStream_index(stream) = 0; # index := 0
         BufferedStream_modified(stream) = false; # unmodified
         # Then try again:
@@ -6386,9 +6363,9 @@ local const uintB* write_byte_array_buffered (object stream,
       byteptr += next;
       BufferedStream_modified(stream) = true;
       remaining = remaining - next;
-      # increment index and eofindex
+      # increment index and endvalid
       BufferedStream_index(stream) += next;
-      BufferedStream_eofindex(stream) += next;
+      BufferedStream_endvalid(stream) += next;
     } while (remaining != 0);
   }
   return byteptr;
@@ -6410,12 +6387,9 @@ local object rd_ch_buffered (const object* stream_) {
   var chart c;
   #ifdef UNICODE
   var object encoding = TheStream(stream)->strm_encoding;
-  # Does the buffer contain a complete character?
-  {
-    var sintL eofindex = BufferedStream_eofindex(stream);
-    var uintL available =
-      (eofindex == eofindex_all_valid ? strm_buffered_bufflen : eofindex)
-      - BufferedStream_index(stream);
+  { # Does the buffer contain a complete character?
+    var uintL endvalid = BufferedStream_endvalid(stream);
+    var uintL available = endvalid - BufferedStream_index(stream);
     var const uintB* bptr = bufferptr;
     var chart* cptr = &c;
     Encoding_mbstowcs(encoding)
@@ -6516,12 +6490,9 @@ local uintL rd_ch_array_buffered (const object* stream_,
     var uintB* bufferptr = buffered_nextbyte(stream);
     if (bufferptr == (uintB*)NULL) # EOF -> finished
       break;
-    # Read as many complete characters from the buffer as possible.
-    {
-      var sintL eofindex = BufferedStream_eofindex(stream);
-      var uintL available =
-        (eofindex == eofindex_all_valid ? strm_buffered_bufflen : eofindex)
-        - BufferedStream_index(stream);
+    { # Read as many complete characters from the buffer as possible.
+      var uintL endvalid = BufferedStream_endvalid(stream);
+      var uintL available = endvalid - BufferedStream_index(stream);
       var const uintB* bptr = bufferptr;
       var chart tmpbuf[tmpbufsize];
       var chart* cptr = &tmpbuf[0];
@@ -6687,7 +6658,7 @@ local uintL rd_ch_array_buffered (const object* stream_,
 # write_byte_buffered(stream,b);
 # > stream : (open) Byte-based File-Stream.
 # > b : Byte to be written
-# changed in stream: index, eofindex, buffstart, position
+# changed in stream: index, endvalid, buffstart, position
 local void write_byte_buffered (object stream, uintB b) {
   buffered_writebyte(stream,b);
   # increment position
@@ -6969,7 +6940,7 @@ local void wr_ch_array_buffered_dos (const object* stream_,
 # position_file_i_buffered(stream,position);
 # > stream : (open) Byte-based File-Stream.
 # > position : new (logical) Position
-# changed in stream: index, eofindex, buffstart, bitindex
+# changed in stream: index, endvalid, buffstart, bitindex
 local void position_file_i_buffered (object stream, uintL position) {
   var uintL bitsize = ChannelStream_bitsize(stream);
   var uintL position_bits = position * bitsize;
@@ -7343,7 +7314,7 @@ local void wr_by_array_iau8_buffered (const object* stream_,
 # UP: Positions an (open) File-Stream to the start.
 # logical_position_file_start(stream);
 # > stream : (open) File-Stream.
-# changed in stream: index, eofindex, buffstart, ..., position, rd_ch_last
+# changed in stream: index, endvalid, buffstart, ..., position, rd_ch_last
 local void logical_position_file_start (object stream) {
   var uintL bitsize = ChannelStream_bitsize(stream);
   position_file_buffered
@@ -7362,7 +7333,7 @@ local void logical_position_file_start (object stream) {
 # logical_position_file(stream,position);
 # > stream : (open) File-Stream.
 # > position : new (logical) Position
-# changed in stream: index, eofindex, buffstart, ..., position, rd_ch_last
+# changed in stream: index, endvalid, buffstart, ..., position, rd_ch_last
 local void logical_position_file (object stream, uintL position) {
   var uintL bitsize = ChannelStream_bitsize(stream);
   if (bitsize > 0) { # Integer-Stream ?
@@ -7382,7 +7353,7 @@ local void logical_position_file (object stream, uintL position) {
 # UP: Positions an (open) File-Stream to the end.
 # logical_position_file_end(stream);
 # > stream : (open) File-Stream.
-# changed in stream: index, eofindex, buffstart, ..., position, rd_ch_last
+# changed in stream: index, endvalid, buffstart, ..., position, rd_ch_last
 local void logical_position_file_end (object stream) {
   # poss. flush Buffer:
   if (BufferedStream_modified(stream))
@@ -7422,9 +7393,10 @@ local void logical_position_file_end (object stream) {
   if (!BufferedStream_blockpositioning(stream)) {
     # Now position at the End:
     BufferedStream_buffstart(stream) = eofbytes;
-    BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+    BufferedStream_endvalid(stream) = 0;
     BufferedStream_index(stream) = 0; # index := 0
     BufferedStream_modified(stream) = false; # unmodified
+    BufferedStream_have_eof_p(stream) = true;
   } else { # position to the start of the last Sector:
     {
       var uintL buffstart;
@@ -7436,17 +7408,19 @@ local void logical_position_file_end (object stream) {
       BufferedStream_buffstart(stream) = buffstart;
     }
     # read Sector:
-    BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+    BufferedStream_endvalid(stream) = 0;
     BufferedStream_index(stream) = 0; # index := 0
     BufferedStream_modified(stream) = false; # unmodified
-    var uintL eofindex = eofbytes % strm_buffered_bufflen;
-    if (!((eofindex==0) && (eofbits==0))) { # EOF at end of Sector -> nothing to read
+    BufferedStream_have_eof_p(stream) = false;
+    var uintL endvalid = eofbytes % strm_buffered_bufflen;
+    if (!((endvalid==0) && (eofbits==0))) {
+      # EOF at end of Sector -> nothing to read
       buffered_nextbyte(stream);
-      # Now index=0. set index and eofindex:
-      BufferedStream_index(stream) = eofindex;
-      if (!(eofbits==0))
-        eofindex += 1;
-      BufferedStream_eofindex(stream) = eofindex;
+      # Now index=0. set index and endvalid:
+      BufferedStream_index(stream) = endvalid;
+      if (eofbits != 0)
+        endvalid += 1;
+      BufferedStream_endvalid(stream) = endvalid;
     }
   }
   if (!((bitsize % 8) == 0)) { # Integer-Stream of type b,c
@@ -7578,9 +7552,10 @@ local object make_buffered_stream (uintB type, direction_t direction,
         stream = popSTACK();
         BufferedStream_buffer(stream) = buffer;
       }
-      BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+      BufferedStream_endvalid(stream) = 0;
       BufferedStream_index(stream) = 0; # index := 0
       BufferedStream_modified(stream) = false; # Buffer unmodified
+      BufferedStream_have_eof_p(stream) = false;
       BufferedStream_position(stream) = 0; # position := 0
       ChannelStream_bitsize(stream) = eltype->size;
       ChannelStream_lineno(stream) = 1; # initialize always (cf. set-stream-element-type)
@@ -7796,7 +7771,7 @@ global object make_file_stream (direction_t direction, bool append_flag,
 # Thereby the Buffer and poss. eofposition is flushed.
 # buffered_flush_everything(stream);
 # > stream : (open) File-Stream.
-# changed in stream: index, eofindex, buffstart, ...
+# changed in stream: index, endvalid, buffstart, ...
 local void buffered_flush_everything (object stream) {
   # For Integer-Streams (Type b) save eofposition:
   if (ChannelStream_bitsize(stream) > 0 && ChannelStream_bitsize(stream) < 8)
@@ -7818,7 +7793,7 @@ local void buffered_flush_everything (object stream) {
 # Writes the Buffer of the File-Stream (also physically) to the File.
 # finish_output_buffered(stream);
 # > stream : File-Stream.
-# changed in stream: handle, index, eofindex, buffstart, ..., rd_ch_last
+# changed in stream: handle, index, endvalid, buffstart, ..., rd_ch_last
 # can trigger GC
 local void finish_output_buffered (object stream) {
   # Handle=NIL (Stream already closed) -> finished:
@@ -7919,7 +7894,7 @@ local void finish_output_buffered (object stream) {
   # and reposition:
   var uintL position = BufferedStream_buffstart(stream) + BufferedStream_index(stream);
   BufferedStream_index(stream) = 0; # index := 0
-  BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+  BufferedStream_endvalid(stream) = 0;
   if (!BufferedStream_blockpositioning(stream)) {
     BufferedStream_buffstart(stream) = position;
   } else {
@@ -7933,7 +7908,7 @@ local void finish_output_buffered (object stream) {
 # Writes the Buffer of the File-Stream (also physically) to the File.
 # force_output_buffered(stream);
 # > stream : File-Stream.
-# changed in stream: handle, index, eofindex, buffstart, ..., rd_ch_last
+# changed in stream: handle, index, endvalid, buffstart, ..., rd_ch_last
 # can trigger GC
   #define force_output_buffered  finish_output_buffered
 
@@ -7945,10 +7920,11 @@ local void closed_buffered (object stream) {
   BufferedStream_channel(stream) = NIL; # Handle becomes invalid
   BufferedStream_buffer(stream) = NIL; # free Buffer
   BufferedStream_buffstart(stream) = 0; # delete buffstart (unnecessary)
-  BufferedStream_eofindex(stream) = eofindex_all_invalid; # delete eofindex (unnecessary)
+  BufferedStream_endvalid(stream) = 0; # delete endvalid (unnecessary)
   BufferedStream_index(stream) = 0; # delete index (unnecessary)
   BufferedStream_modified(stream) = false; # delete modified_flag (unnecessary)
   BufferedStream_position(stream) = 0; # delete position (unnecessary)
+  BufferedStream_have_eof_p(stream) = false; # delete have_eof_p (unnecessary)
   if (ChannelStream_bitsize(stream) > 0) {
     ChannelStream_bitsize(stream) = 0; # delete bitsize
     TheStream(stream)->strm_bitbuffer = NIL; # free Bitbuffer
