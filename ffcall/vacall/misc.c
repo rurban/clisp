@@ -8,6 +8,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #ifndef REENTRANT
 #include "vacall.h"
@@ -27,12 +28,6 @@ void (* vacall_function) ();
 
 /* Room for returning structs according to the pcc non-reentrant struct return convention. */
 __va_struct_buffer_t __va_struct_buffer;
-
-#ifdef __cplusplus
-extern "C" ABORT_VOLATILE RETABORTTYPE abort ();
-#else
-extern ABORT_VOLATILE RETABORTTYPE abort ();
-#endif
 
 int /* no return type, since this never returns */
 #if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
