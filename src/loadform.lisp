@@ -32,7 +32,7 @@
 ;; It's not sufficient to rely on method-call-error because a test like
 ;;    (eq (method-call-error-generic-function err) #'make-load-form)
 ;; doesn't work when make-load-form is traced.
-(define-condition missing-load-form (simple-error)
+(define-condition missing-load-form (error)
   (($object :initarg :object :reader missing-load-form-object)))
 (define-condition simple-missing-load-form (simple-error missing-load-form) ())
 
