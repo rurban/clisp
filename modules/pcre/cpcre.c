@@ -120,7 +120,8 @@ DEFUN(PCRE:PCRE-COMPILE,string &key :STUDY :IGNORE-CASE :MULTILINE :DOTALL \
       *string = value1;
       goto pcre_compile_restart;
     }
-    pushSTACK(allocate_fpointer(pe));
+    if (pe) pushSTACK(allocate_fpointer(pe));
+    else pushSTACK(NIL);
   } else pushSTACK(NIL);
   funcall(`PCRE::MAKE-PAT`,2);
   skipSTACK(14);
@@ -316,7 +317,9 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key :BOOLEAN                      \
   ovector = alloca(ovector_size);
   with_string_0(check_string(STACK_0),Symbol_value(S(utf_8)),subject, {
       begin_system_call();
-      ret = pcre_exec(c_pat,study,subject,subject_len,offset,options,
+      /* subject_bytelen is the length of subject in bytes,
+         defined in with_string_0 */
+      ret = pcre_exec(c_pat,study,subject,subject_bytelen,offset,options,
                       ovector,ovector_size);
       end_system_call();
     });
