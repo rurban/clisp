@@ -1,5 +1,12 @@
 2004-07-28  Bruno Haible  <bruno@clisp.org>
 
+	* clos-method1.lisp (standard-method): Rename slot 'function' to
+	$function.
+	(standard-accessor-method): Rename slot 'slot-definition' to
+	$slot-definition.
+
+2004-07-28  Bruno Haible  <bruno@clisp.org>
+
 	* clos-method2.lisp (analyze-method-description): Complete the test
 	whether a lambda-list entry is invalid.
 
