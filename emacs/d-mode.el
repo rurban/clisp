@@ -71,7 +71,7 @@ Beware - this will modify the original C-mode too!"
                      ((file-readable-p "makefile-msvs") "makefile-msvs")
                      ((file-readable-p "makefile-gcc")
                       (setq make "make") "makefile-gcc")
-                     (t (error "no makefile")))))
+                     (t "<makefile>"))))
          (concat make " -f " makefile " " target)))
   (when (<= 21 emacs-major-version)
     (set (make-local-variable 'font-lock-defaults)
