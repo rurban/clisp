@@ -84,13 +84,13 @@ sp      .req    r13
 lr      .req    r14
 pc      .req    r15
 
-#define C(x) _##x
-#define EXPORT(x) .global _##x
-#define GLABEL(x) _##x##:
-#define LABEL(x) x##:
+#define C(x) ##x
+#define EXPORT(x) .global x
+#define GLABEL(x)  x##:
+#define LABEL(x)  x##:
 #define RRX rrx
 #define END
-
+	.text
 #endif
 
 
@@ -137,17 +137,17 @@ ptr_divu_32_rest
 
 #ifdef MULU32_HIGH
 ptr_mulu32_high:
-        .word   _mulu32_high
+        .word   mulu32_high
         .align  0
 #endif
 #ifdef DIVU_16_REST
 ptr_divu_16_rest:
-        .word   _divu_16_rest
+        .word   divu_16_rest
         .align  0
 #endif
 #ifdef DIVU_32_REST
 ptr_divu_32_rest:
-        .word   _divu_32_rest
+        .word   divu_32_rest
         .align  0
 #endif
 

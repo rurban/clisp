@@ -1,3 +1,12 @@
+2002-09-20  Will Newton  <will@misconception.org.uk>
+
+	* ariarm.d: ARM assembler code updated to the newer gas syntax
+
+2002-09-19  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d [SPARC GCC3]: disable global register declarations
+	Suggested by Will Newton <will@misconception.org.uk>
+
 2002-09-19  Sam Steingold  <sds@gnu.org>
 
 	* lisparit.d (log_digits): fixed last patch: make sure
