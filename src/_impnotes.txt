@@ -1278,8 +1278,13 @@ take a controller and some number of arguments.
          Returns and consumes the next integer, NIL at end of file.
          Takes one argument, the controller object.
   (GENERIC-STREAM-LISTEN       controller)
+         This generic function is used to query the stream's input status.
+         The possible return values are the same as for the SYS::REAL-LISTEN
+         function.
+           :EOF                means EOF
+           :INPUT-AVAILABLE    means a character (or byte) pending
+           :WAIT               means no input available.
          Returns -1 for EOF, 0 for character pending, and 1 for none.
-         Takes one argument, the controller object.
   (GENERIC-STREAM-WRITE-CHAR   controller ch)
          First argument is the controller object.
          Second argument is the character to be written.
@@ -1426,6 +1431,17 @@ end).
 This function is especially efficient if sequence is a string and stream is
 a file stream with element type STRING-CHAR, a pipe stream or a string input
 stream.
+
+(SYSTEM::REAL-LISTEN stream)
+SYS::REAL-LISTEN is a variant of the standard LISTEN function, which returns
+more detailed information about the stream's input status. The return value
+is one of:
+  :EOF                means EOF
+  :INPUT-AVAILABLE    means a character (or byte) pending
+  :WAIT               means no input available.
+The return values are the same as for the GENERIC-STREAM-LISTEN method,
+so this function is a good fit to define some generic streams based upon
+other CLISP streams.
 
 22.2.2.
 -------
