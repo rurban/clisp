@@ -1821,6 +1821,8 @@ local void usage (int exit_code)
       #   -p package      *PACKAGE* setzen
       #   -a              ANSI CL Compliance
       #   -x expr         LISP-Expressions ausführen, dann LISP verlassen
+      #   --help	  print usage and exit (should be the only option)
+      #   --version	  print version and exit (should be the only option)
       #   file [arg ...]  LISP-File im Batch-Modus laden und ausführen,
       #                   dann LISP verlassen
       #
@@ -1996,7 +1998,7 @@ local void usage (int exit_code)
                     if (asciz_equal(&arg[2],"help"))
                       usage (0);
                     elif (asciz_equal(&arg[2],"version"))
-                      { if (!(argv_expr == NULL)) usage (0);
+                      { if (!(argv_expr == NULL)) usage (1);
                         argv_quiet = TRUE;
                         argv_expr = "(PROGN (FORMAT T \"CLISP ~A\" (LISP-IMPLEMENTATION-VERSION)) (LISP:EXIT))";
                         break;
