@@ -12460,7 +12460,7 @@ extern object test_vector_limits (stringarg* arg);
  < result: argument as string
  can trigger GC */
 extern maygc object test_stringsymchar_arg (object obj, bool invert);
-/* used by PACKAGE */
+/* used by IO, PACKAGE */
 
 # UP: tests two equally long strings for equality
 # > string1,offset1: Chars in String1 start from here
