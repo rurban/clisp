@@ -704,12 +704,10 @@ executes a compiled version of form.</para>
 
 <table frame="all"><title>Platform dependent</title>
  <tgroup cols="4" colsep="1" rowsep="1" align="center">
- <colspec colname="vars"></colspec><colspec colname="b16"></colspec>
- <colspec colname="b32"></colspec><colspec colname="b64"></colspec>
- <spanspec spanname="b32-64" namest="b32" nameend="b64"
-           align="center"></spanspec>
- <spanspec spanname="b16-64" namest="b16" nameend="b64"
-           align="center"></spanspec>
+ <colspec colname="vars"/><colspec colname="b16"/>
+ <colspec colname="b32"/><colspec colname="b64"/>
+ <spanspec spanname="b32-64" namest="b32" nameend="b64" align="center"/>
+ <spanspec spanname="b16-64" namest="b16" nameend="b64" align="center"/>
  <thead><row><entry>CPU type</entry><entry>16-bit CPU</entry>
              <entry>32-bit CPU</entry> <entry>64-bit CPU</entry></row></thead>
  <tbody>
@@ -1394,10 +1392,9 @@ executes a compiled version of form.</para>
 
 <table frame="all"><title>Platform dependent</title>
  <tgroup cols="4" colsep="1" rowsep="1" align="center">
- <colspec colname="vars"></colspec><colspec colname="b16"></colspec>
- <colspec colname="b32"></colspec><colspec colname="b64"></colspec>
- <spanspec spanname="b16-32" namest="b16" nameend="b32"
-           align="center"></spanspec>
+ <colspec colname="vars"/><colspec colname="b16"/>
+ <colspec colname="b32"/><colspec colname="b64"/>
+ <spanspec spanname="b16-32" namest="b16" nameend="b32" align="center"/>
  <thead><row><entry>CPU type</entry><entry>16-bit CPU</entry>
              <entry>32-bit CPU</entry><entry>64-bit CPU</entry></row></thead>
  <tbody>
@@ -1463,21 +1460,21 @@ encoding.</para>
  (code page 437):
 <table frame="all"><title>the IBM PC character set (code page 437)</title>
  <tgroup cols="17" colsep="1" rowsep="1" align="center">
- <thead><row><entry></entry><entry>#x0</entry><entry>#x1</entry>
+ <thead><row><entry/><entry>#x0</entry><entry>#x1</entry>
       <entry>#x2</entry><entry>#x3</entry><entry>#x4</entry><entry>#x5</entry>
       <entry>#x6</entry><entry>#x7</entry><entry>#x8</entry><entry>#x9</entry>
       <entry>#xA</entry><entry>#xB</entry><entry>#xC</entry><entry>#xD</entry>
       <entry>#xE</entry><entry>#xF</entry></row></thead>
  <tbody>
-  <row><entry>#x00</entry><entry>**</entry><entry></entry><entry></entry>
-   <entry></entry><entry></entry><entry></entry><entry></entry>
+  <row><entry>#x00</entry><entry>**</entry><entry/><entry/>
+   <entry/><entry/><entry/><entry/>
    <entry>**</entry><entry>**</entry><entry>**</entry><entry>**</entry>
    <entry>**</entry><entry>**</entry><entry>**</entry><entry>&para;</entry>
    <entry>&sect;</entry></row>
-  <row><entry>#x10</entry><entry></entry><entry></entry><entry></entry>
-   <entry></entry><entry></entry><entry></entry><entry></entry><entry></entry>
-   <entry></entry><entry></entry><entry>**</entry><entry>**</entry>
-   <entry></entry><entry></entry><entry></entry><entry></entry></row>
+  <row><entry>#x10</entry><entry/><entry/><entry/>
+   <entry/><entry/><entry/><entry/><entry/>
+   <entry/><entry/><entry>**</entry><entry>**</entry>
+   <entry/><entry/><entry/><entry/></row>
   <row><entry>#x20</entry><entry>&nbsp;</entry><entry>!</entry>
    <entry>&quot;</entry><entry>#</entry><entry>$</entry><entry>%</entry>
    <entry>&amp;</entry><entry>'</entry><entry>(</entry><entry>)</entry>
@@ -1507,7 +1504,7 @@ encoding.</para>
    <entry>s</entry><entry>t</entry><entry>u</entry><entry>v</entry>
    <entry>w</entry><entry>x</entry><entry>y</entry><entry>z</entry>
    <entry>{</entry><entry>|</entry><entry>}</entry><entry>~</entry>
-   <entry></entry></row>
+   <entry/></row>
   <row><entry>#x80</entry><entry>&Ccedil;</entry><entry>&uuml;</entry>
    <entry>&eacute;</entry><entry>&acirc;</entry><entry>&auml;</entry>
    <entry>&agrave;</entry><entry>&aring;</entry><entry>&ccedil;</entry>
@@ -1571,7 +1568,7 @@ encoding.</para>
  8859-1) character set:
 <table frame="all"><title>the ISO Latin-1 (ISO 8859-1) character set</title>
  <tgroup cols="17" colsep="1" rowsep="1" align="center">
-  <thead><row><entry></entry><entry>#x0</entry><entry>#x1</entry>
+  <thead><row><entry/><entry>#x0</entry><entry>#x1</entry>
    <entry>#x2</entry><entry>#x3</entry><entry>#x4</entry><entry>#x5</entry>
    <entry>#x6</entry><entry>#x7</entry><entry>#x8</entry><entry>#x9</entry>
    <entry>#xA</entry><entry>#xB</entry><entry>#xC</entry><entry>#xD</entry>
@@ -1616,15 +1613,15 @@ encoding.</para>
    <entry>s</entry><entry>t</entry><entry>u</entry><entry>v</entry>
    <entry>w</entry><entry>x</entry><entry>y</entry><entry>z</entry>
    <entry>{</entry><entry>|</entry><entry>}</entry><entry>~</entry>
-   <entry></entry></row>
-  <row><entry>#x80</entry><entry></entry><entry></entry><entry></entry>
-   <entry></entry><entry></entry><entry></entry><entry></entry><entry>
-   </entry><entry></entry><entry></entry><entry></entry><entry></entry>
-   <entry></entry><entry></entry><entry></entry><entry></entry></row>
-  <row><entry>#x90</entry><entry></entry><entry></entry><entry></entry>
-   <entry></entry><entry></entry><entry></entry><entry></entry><entry>
-   </entry><entry></entry><entry></entry><entry></entry><entry></entry>
-   <entry></entry><entry></entry><entry></entry><entry></entry></row>
+   <entry/></row>
+  <row><entry>#x80</entry><entry/><entry/><entry/>
+   <entry/><entry/><entry/><entry/><entry>
+   </entry><entry/><entry/><entry/><entry/>
+   <entry/><entry/><entry/><entry/></row>
+  <row><entry>#x90</entry><entry/><entry/><entry/>
+   <entry/><entry/><entry/><entry/><entry>
+   </entry><entry/><entry/><entry/><entry/>
+   <entry/><entry/><entry/><entry/></row>
   <row><entry>#xA0</entry><entry>&nbsp;</entry><entry>&iexcl;</entry>
    <entry>&cent;</entry><entry>&pound;</entry><entry>&curren;</entry>
    <entry>&yen;</entry><entry>&brvbar;</entry><entry>&sect;</entry>
@@ -1674,7 +1671,7 @@ blank here cannot be represented in this character set).
 <listitem><para>More precisely, &clisp; uses the &nextstep; character set:
 <table frame="all"><title>the &nextstep; character set</title>
  <tgroup cols="17" colsep="1" rowsep="1" align="center">
-  <thead><row><entry></entry><entry>#x0</entry><entry>#x1</entry>
+  <thead><row><entry/><entry>#x0</entry><entry>#x1</entry>
    <entry>#x2</entry><entry>#x3</entry><entry>#x4</entry><entry>#x5</entry>
    <entry>#x6</entry><entry>#x7</entry><entry>#x8</entry><entry>#x9</entry>
    <entry>#xA</entry><entry>#xB</entry><entry>#xC</entry><entry>#xD</entry>
@@ -1719,7 +1716,7 @@ blank here cannot be represented in this character set).
    <entry>s</entry><entry>t</entry><entry>u</entry><entry>v</entry>
    <entry>w</entry><entry>x</entry><entry>y</entry><entry>z</entry>
    <entry>{</entry><entry>|</entry><entry>}</entry><entry>~</entry>
-   <entry></entry></row>
+   <entry/></row>
   <row><entry>#x80</entry><entry>&nbsp;</entry><entry>&Agrave;</entry>
    <entry>&Aacute;</entry><entry>&Acirc;</entry><entry>&Atilde;</entry>
    <entry>&Auml;</entry><entry>&Aring;</entry><entry>&Ccedil;</entry>
@@ -1767,7 +1764,7 @@ blank here cannot be represented in this character set).
    <entry>&#305;</entry><entry>&uuml;</entry><entry>&yacute;</entry>
    <entry>&#322;</entry><entry>&oslash;</entry><entry>&oelig;</entry>
    <entry>&szlig;</entry><entry>&thorn;</entry><entry>&yuml;</entry>
-   <entry></entry><entry></entry></row>
+   <entry/><entry/></row>
   </tbody></tgroup></table>
 Here ** are control characters, not graphic characters. (The characters left
 blank here cannot be represented in this character set).
@@ -2399,10 +2396,9 @@ and the international alphabetic characters from the character set:
 
 <table frame="all"><title>Platform dependent</title>
  <tgroup cols="4" colsep="1" rowsep="1" align="center">
- <colspec colname="vars"></colspec><colspec colname="b16"></colspec>
- <colspec colname="b32"></colspec><colspec colname="b64"></colspec>
- <spanspec spanname="b16-32" namest="b16" nameend="b32"
-           align="center"></spanspec>
+ <colspec colname="vars"/><colspec colname="b16"/>
+ <colspec colname="b32"/><colspec colname="b64"/>
+ <spanspec spanname="b16-32" namest="b16" nameend="b32" align="center"/>
  <thead><row><entry>CPU type</entry><entry>16-bit CPU</entry>
              <entry>32-bit CPU</entry><entry>64-bit CPU</entry></row></thead>
  <tbody>
@@ -2706,6 +2702,7 @@ and &end-k;:</para>
 </variablelist>
 
 <segmentedlist><title>filename notations</title>
+ <segtitle/><segtitle/>
  <seglistitem><seg>External notation:</seg>
   <seg><filename>A:\sub1.typ\sub2.typ\name.typ</filename></seg></seglistitem>
  <seglistitem><seg>using defaults:</seg>
@@ -2714,7 +2711,7 @@ and &end-k;:</para>
   <seg><filename>                     name.typ</filename></seg></seglistitem>
  <seglistitem><seg>or</seg>
   <seg><filename>*:\sub1.typ\*.*\name.*</filename></seg></seglistitem>
- <seglistitem><seg>or similar.</seg><seg></seg></seglistitem>
+ <seglistitem><seg>or similar.</seg><seg/></seglistitem>
 </segmentedlist>
 
 <para>Instead of <filename>\</filename> one may use
@@ -2792,6 +2789,7 @@ and &end-k;:</para>
 
 <segmentedlist id="pathnames-externally-amiga">
  <title>filename notations</title>
+ <segtitle/><segtitle/>
  <seglistitem><seg>External notation:</seg>
   <seg><filename>dev:sub1.typ/sub2.typ/name.typ</filename></seg></seglistitem>
  <seglistitem><seg>using defaults:</seg>
@@ -2800,7 +2798,7 @@ and &end-k;:</para>
   <seg><filename>                      name.typ</filename></seg></seglistitem>
  <seglistitem><seg>or</seg>
   <seg><filename>    sub1.typ/**/sub3.typ/x*.lsp</filename></seg></seglistitem>
- <seglistitem><seg>or similar.</seg><seg></seg></seglistitem>
+ <seglistitem><seg>or similar.</seg><seg/></seglistitem>
 </segmentedlist>
 
 <variablelist><title>Formal specification of the external notation</title>
@@ -2812,6 +2810,7 @@ and &end-k;:</para>
   <varlistentry><term>device ::==</term>
    <listitem><para>[ &lt;empty&gt; | ':' | name ':' ]
     <segmentedlist>
+     <segtitle/><segtitle/>
     <seglistitem><seg>empty</seg><seg>current device, relative to
      current directory</seg></seglistitem>
     <seglistitem><seg>':'</seg><seg>current device, absolute (relative
@@ -2822,6 +2821,7 @@ and &end-k;:</para>
   <varlistentry><term>subdir ::==</term>
    <listitem><para>[ &lt;empty&gt; | name ]
     <segmentedlist>
+     <segtitle/><segtitle/>
     <seglistitem><seg>empty</seg><seg>parent directory</seg></seglistitem>
    </segmentedlist></para></listitem></varlistentry>
   <varlistentry><term>pathname ::==</term>
@@ -2834,37 +2834,41 @@ and &end-k;:</para>
   <segtitle>Directory</segtitle><segtitle>our pathname</segtitle>
  <seglistitem><seg><filename>'c:foo'</filename></seg><seg>'C'</seg>
    <seg><filename>device-&gt;foo</filename></seg>
-   <seg><filename>"c" (&absolute-k; "foo")</filename></seg></seglistitem>
+   <seg><filename>"c"</filename>
+        (&absolute-k; <filename>"foo"</filename>)</seg></seglistitem>
  <seglistitem><seg><filename>'c:foo/'</filename></seg><seg>'C'</seg>
    <seg><filename>device-&gt;foo</filename></seg>
-   <seg><filename>"c" (&absolute-k; "foo")</filename></seg></seglistitem>
+   <seg><filename>"c"</filename>
+        (&absolute-k; <filename>"foo"</filename>)</seg></seglistitem>
  <seglistitem><seg><filename>'c:foo/bar'</filename></seg><seg>'C'</seg>
    <seg><filename>device-&gt;foo-&gt;bar</filename></seg>
-   <seg><filename>"c" (&absolute-k; "foo" "bar")</filename></seg></seglistitem>
+   <seg><filename>"c"</filename>
+        (&absolute-k; <filename>"foo" "bar"</filename>)</seg></seglistitem>
  <seglistitem><seg><filename>'c:/foo'</filename></seg><seg>'C'</seg>
    <seg><filename>device-&gt;up-&gt;foo</filename></seg>
-   <seg><filename>"c" (&absolute-k; &parent-k; "foo")</filename>
-   </seg></seglistitem>
+   <seg><filename>"c"</filename>
+        (&absolute-k; &parent-k; <filename>"foo"</filename>)
+        </seg></seglistitem>
  <seglistitem><seg><filename>'c:'</filename></seg><seg>'C'</seg>
    <seg><filename>device</filename></seg>
-   <seg><filename>"c" (&absolute-k;)</filename></seg></seglistitem>
+   <seg><filename>"c"</filename> (&absolute-k;)</seg></seglistitem>
  <seglistitem><seg><filename>:foo</filename></seg><seg>current</seg>
    <seg><filename>device-&gt;root-&gt;foo</filename></seg>
-   <seg><filename>nil (&absolute-k; "foo")</filename></seg></seglistitem>
+   <seg>&nil; (&absolute-k; <filename>"foo"</filename>)</seg></seglistitem>
  <seglistitem><seg><filename>foo</filename></seg><seg>current</seg>
    <seg><filename>device-&gt;foo</filename></seg>
-   <seg><filename>nil (&relative-k; "foo")</filename></seg></seglistitem>
+   <seg>&nil; (&relative-k; <filename>"foo"</filename>)</seg></seglistitem>
  <seglistitem><seg><filename>'/foo'</filename></seg><seg>current</seg>
    <seg><filename>device-&gt;up-&gt;foo</filename></seg>
-   <seg><filename>nil (&relative-k; &parent-k; "foo")</filename>
+   <seg>&nil; (&relative-k; &parent-k; <filename>"foo"</filename>)
    </seg></seglistitem>
  <seglistitem><seg><filename>'//foo/bar'</filename></seg><seg>current</seg>
    <seg><filename>device-&gt;up-&gt;up-&gt;foo-&gt;bar</filename></seg>
-   <seg><filename>nil (&relative-k; &parent-k; &parent-k; "foo"
-    "bar")</filename></seg></seglistitem>
+   <seg>&nil; (&relative-k; &parent-k; &parent-k; <filename>"foo"
+               "bar"</filename>)</seg></seglistitem>
  <seglistitem><seg><filename>''</filename></seg><seg>current</seg>
    <seg><filename>device</filename></seg>
-   <seg><filename>nil (&relative-k;)</filename></seg></seglistitem>
+   <seg>&nil; (&relative-k;)</seg></seglistitem>
 </segmentedlist>
 
 <para>Appending a <filename>'/'</filename> to a path string that is
@@ -2897,18 +2901,18 @@ and &end-k;:</para>
    <segtitle>element</segtitle><segtitle>values</segtitle>
    <segtitle>meaning</segtitle>
  <seglistitem><seg><replaceable>startpoint</replaceable></seg>
-   <seg>&relative-k; | &absolute-k;</seg><seg></seg></seglistitem>
+   <seg>&relative-k; | &absolute-k;</seg><seg/></seglistitem>
  <seglistitem><seg><replaceable>subdirs</replaceable></seg>
    <seg><literal role="sexp">()</literal> | <literal
    role="sexp">(<replaceable>subdir</replaceable> .
-   <replaceable>subdirs</replaceable>)</literal></seg><seg></seg></seglistitem>
+   <replaceable>subdirs</replaceable>)</literal></seg><seg/></seglistitem>
  <seglistitem><seg><replaceable>subdir</replaceable></seg>
   <seg>&wild-inferiors-k;</seg><seg><filename>**</filename> or
    <filename>...</filename>, all subdirectories</seg></seglistitem>
  <seglistitem><seg><replaceable>subdir</replaceable></seg>
   <seg>&simple-string-type;, may contain wildcard characters
   <filename>?</filename> and <filename>*</filename></seg>
-  <seg></seg></seglistitem>
+  <seg/></seglistitem>
   </segmentedlist></listitem></varlistentry>
 <varlistentry><term><replaceable>name</replaceable></term>
  <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
@@ -2937,6 +2941,7 @@ and &end-k;:</para>
 </itemizedlist>
 
 <segmentedlist><title>filename notations</title>
+ <segtitle/><segtitle/>
  <seglistitem><seg>External notation:</seg><seg>
   <filename>server:sub1.typ/sub2.typ/name.typ</filename></seg></seglistitem>
  <seglistitem><seg>using defaults:</seg><seg>
@@ -2945,7 +2950,7 @@ and &end-k;:</para>
   <filename>                         name.typ</filename></seg></seglistitem>
  <seglistitem><seg>or</seg><seg>
   <filename>       sub1.typ/**/sub3.typ/x*.lsp</filename></seg></seglistitem>
- <seglistitem><seg>or similar.</seg><seg></seg></seglistitem>
+ <seglistitem><seg>or similar.</seg><seg/></seglistitem>
 </segmentedlist>
 </listitem></varlistentry></variablelist>
 <!-- #endif -->
@@ -2967,18 +2972,18 @@ and &end-k;:</para>
    <segtitle>element</segtitle><segtitle>values</segtitle>
    <segtitle>meaning</segtitle>
  <seglistitem><seg><replaceable>startpoint</replaceable></seg>
-  <seg>&relative-k; | &absolute-k;</seg><seg></seg></seglistitem>
+  <seg>&relative-k; | &absolute-k;</seg><seg/></seglistitem>
  <seglistitem><seg><replaceable>subdirs</replaceable></seg><seg><literal
     role="sexp">()</literal> | <literal
     role="sexp">(<replaceable>subdir</replaceable> .
-   <replaceable>subdirs</replaceable>)</literal></seg><seg></seg></seglistitem>
+   <replaceable>subdirs</replaceable>)</literal></seg><seg/></seglistitem>
  <seglistitem><seg><replaceable>subdir</replaceable></seg>
   <seg>&wild-inferiors-k;</seg><seg><filename>**</filename> or
   <filename>...</filename>, all subdirectories </seg></seglistitem>
  <seglistitem><seg><replaceable>subdir</replaceable></seg>
    <seg>&simple-string-type;, may contain wildcard characters
    <filename>?</filename> and <filename>*</filename></seg>
-   <seg></seg></seglistitem>
+   <seg/></seglistitem>
  </segmentedlist></listitem></varlistentry>
 <varlistentry><term><replaceable>name</replaceable></term>
  <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
@@ -3006,6 +3011,7 @@ and &end-k;:</para>
 </itemizedlist></para>
 
 <segmentedlist><title>filename notations</title>
+ <segtitle/><segtitle/>
  <seglistitem><seg>External notation:</seg>
   <seg><filename>A:\sub1.typ\sub2.typ\name.typ</filename></seg></seglistitem>
  <seglistitem><seg>using defaults:</seg>
@@ -3014,7 +3020,7 @@ and &end-k;:</para>
   <seg><filename>                     name.typ</filename></seg></seglistitem>
  <seglistitem><seg>or</seg>
   <seg><filename>*:\sub1.typ\**\sub3.typ\x*.lsp</filename></seg></seglistitem>
- <seglistitem><seg>or similar.</seg><seg></seg></seglistitem>
+ <seglistitem><seg>or similar.</seg><seg/></seglistitem>
 </segmentedlist>
 
 <para>Instead of <filename>'\'</filename> one may use
@@ -3188,9 +3194,10 @@ and &end-k;:</para>
   it.</simpara>
 
 <segmentedlist>
-  <seglistitem><seg>File$Path</seg>
+ <segtitle>name</segtitle><segtitle>purpose</segtitle>
+ <seglistitem><seg>File$Path</seg>
     <seg>for read operations</seg></seglistitem>
-  <seglistitem><seg>Run$Path</seg>
+ <seglistitem><seg>Run$Path</seg>
     <seg>for execute operations</seg></seglistitem>
 </segmentedlist>
 
@@ -3249,6 +3256,7 @@ and &end-k;:</para>
     <listitem><para> { '$' | '&amp;' | '@' | '%' | '\' } '.'
     { subdirectory }* | { subdirectory }+ | empty
     <segmentedlist>
+     <segtitle/><segtitle/>
      <seglistitem><seg>'$' -&gt;</seg>
          <seg>&absolute-k; &root-k;</seg></seglistitem>
      <seglistitem><seg>'&amp;' -&gt;</seg>
@@ -3264,6 +3272,7 @@ and &end-k;:</para>
   <varlistentry><term>subdirectory ::==</term>
    <listitem><para>{ '^' | { legal-wild char }+ } '.'
    <segmentedlist>
+    <segtitle/><segtitle/>
     <seglistitem><seg>'^' -&gt;</seg><seg>&parent-k;</seg></seglistitem>
    </segmentedlist></para></listitem></varlistentry>
   <varlistentry><term>filename ::==</term>
@@ -3356,10 +3365,10 @@ and &end-k;:</para>
    <seg>&nil;</seg></seglistitem>
  <seglistitem><seg><filename>foo.@.</filename></seg>
    <seg>illegal</seg>
-   <seg></seg>
-   <seg></seg>
-   <seg></seg>
-   <seg></seg></seglistitem>
+   <seg/>
+   <seg/>
+   <seg/>
+   <seg/></seglistitem>
 </segmentedlist></listitem></varlistentry>
 
 <varlistentry><term>From internal representation to RISCOS string</term>
@@ -3568,6 +3577,7 @@ and &end-k;:</para>
 <!-- #ifdef PATHNAME_MSDOS -->
 <varlistentry><term>Platform dependent: &dos; platforms only.</term>
 <listitem><segmentedlist>
+   <segtitle/><segtitle/>
   <seglistitem><seg>[ [drivespec] : ]</seg>
    <seg>a letter <filename>*</filename> |
     <filename>A</filename>|...|<filename>Z</filename>|
@@ -3596,6 +3606,7 @@ and &end-k;:</para>
 <!-- #ifdef PATHNAME_UNIX -->
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
 <listitem><segmentedlist>
+   <segtitle/><segtitle/>
   <seglistitem><seg>[ <filename>/</filename> ]</seg>
    <seg><filename>/</filename> denotes absolute
      pathnames</seg></seglistitem>
@@ -3616,6 +3627,7 @@ and &end-k;:</para>
 <!-- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) -->
 <varlistentry><term>Platform dependent: &os2;, &win32; platforms only.</term>
 <listitem><segmentedlist>
+   <segtitle/><segtitle/>
   <seglistitem><seg>[ [<replaceable>drivespec</replaceable>] : ]</seg>
    <seg>a letter <filename>*</filename>|
      <filename>a</filename>|...|<filename>z</filename>|
@@ -4888,16 +4900,16 @@ compiles a file to platform-independent bytecode.</para>
    -a"><option>-a</option></ulink> <ulink url="clisp.html">command line
    option.</ulink></seg></seglistitem>
 <seglistitem><seg><constant>:COMMON-LISP</constant></seg>
-  <seg></seg></seglistitem>
+  <seg/></seglistitem>
 <seglistitem><seg><constant>:CLTL2</constant></seg>
-  <seg></seg></seglistitem>
+  <seg/></seglistitem>
 <seglistitem><seg><constant>:INTERPRETER</constant></seg>
-  <seg></seg></seglistitem>
+  <seg/></seglistitem>
 <seglistitem><seg><constant>:COMPILER</constant></seg>
-  <seg></seg></seglistitem>
+  <seg/></seglistitem>
 <!-- #ifdef LOGICAL_PATHNAMES -->
 <seglistitem><seg><constant>:LOGICAL-PATHNAMES</constant></seg>
-  <seg></seg></seglistitem>
+  <seg/></seglistitem>
 <!-- #endif -->
 <!-- #ifdef DYNAMIC_FFI -->
 <seglistitem><seg><constant>:FFI</constant></seg>
@@ -4915,8 +4927,8 @@ compiles a file to platform-independent bytecode.</para>
 <seglistitem><seg><constant>:UNICODE</constant></seg>
    <seg>if Unicode (ISO 10646) characters are supported</seg></seglistitem>
 <!-- #endif -->
-<seglistitem><seg><constant>:LOOP</constant></seg><seg></seg></seglistitem>
-<seglistitem><seg><constant>:CLOS</constant></seg><seg></seg></seglistitem>
+<seglistitem><seg><constant>:LOOP</constant></seg><seg/></seglistitem>
+<seglistitem><seg><constant>:CLOS</constant></seg><seg/></seglistitem>
 <seglistitem><seg><constant>:AMIGA</constant></seg>
    <seg>if <replaceable>hardware</replaceable> = Amiga and
      <replaceable>operating system</replaceable> =
@@ -4963,6 +4975,8 @@ compiles a file to platform-independent bytecode.</para>
 
 <segmentedlist><title>Commands common to the main loop, the debugger and
  the stepper</title>
+  <segtitle>command</segtitle><segtitle>abbreviation</segtitle>
+  <segtitle>operation</segtitle>
  <seglistitem><seg><command>Help</command></seg>
    <seg><command>:h</command></seg>
    <seg>prints a list of available commands</seg></seglistitem>
@@ -4970,6 +4984,8 @@ compiles a file to platform-independent bytecode.</para>
 
 <segmentedlist><title>Commands common to the debugger and the
  stepper</title>
+  <segtitle>command</segtitle><segtitle>abbreviation</segtitle>
+  <segtitle>operation</segtitle>
  <seglistitem><seg><command>Abort</command></seg>
    <seg><command>:a</command></seg>
    <seg>abort to the next most recent &repl;</seg></seglistitem>
@@ -5000,6 +5016,8 @@ compiles a file to platform-independent bytecode.</para>
 
 <segmentedlist><title>Commands common to the debugger and the
  stepper</title>
+  <segtitle>command</segtitle><segtitle>abbreviation</segtitle>
+  <segtitle>operation</segtitle>
  <seglistitem><seg><command>Error</command></seg>
    <seg><command>:e</command></seg>
    <seg>print the last error message.</seg></seglistitem>
@@ -5080,6 +5098,8 @@ compiles a file to platform-independent bytecode.</para>
   following commands are available as well:</para>
 
 <segmentedlist>
+  <segtitle>command</segtitle><segtitle>abbreviation</segtitle>
+  <segtitle>operation</segtitle>
 <seglistitem><seg><command>Break+</command></seg>
    <seg><command>:br+</command></seg>
    <seg>sets a breakpoint in the current frame.  When the corresponding
@@ -5102,12 +5122,16 @@ compiles a file to platform-independent bytecode.</para>
 </segmentedlist>
 
 <segmentedlist><title>Commands specific to the debugger</title>
+  <segtitle>command</segtitle><segtitle>abbreviation</segtitle>
+  <segtitle>operation</segtitle>
 <seglistitem><seg><command>Continue</command></seg>
    <seg><command>:c</command></seg>
    <seg>continues evaluation of the program.</seg></seglistitem>
 </segmentedlist>
 
 <segmentedlist><title>Commands specific to the stepper</title>
+  <segtitle>command</segtitle><segtitle>abbreviation</segtitle>
+  <segtitle>operation</segtitle>
 <seglistitem><seg><command>Step</command></seg>
    <seg><command>:s</command></seg>
    <seg>step into a form: evaluate this form in single step mode
