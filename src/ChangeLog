@@ -1,3 +1,9 @@
+2004-03-12  Bruno Haible  <bruno@clisp.org>
+
+	* m4/install.m4 (CL_PROG_INSTALL): Use the absolute path of "cp", not
+	just "cp". Needed on HP-UX 10 because autoconf does special magic to
+	INSTALL at config.status time if its value is a relative pathnames.
+
 2004-03-11  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in (SHELL): On HP-UX, use bash instead of /bin/sh. Needed
