@@ -2038,7 +2038,7 @@ if [ $HOS = acorn ] ; then
 fi
 needs="init allc allo lisp${LEXE} $interpreted.mem $halfcompiled.mem lispinit.mem manual"
 if [ $HOS = unix -a $CROSS = false ] ; then
-  needs=".clisp .gdbinit "$needs' modular $(MODULES) full clisp.c'
+  needs=".clisp .clisp-full .gdbinit "$needs' modular $(MODULES) full clisp.c'
 fi
 echol "all : $needs"
 echodummyrule all
@@ -3081,7 +3081,7 @@ for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY ; do
   echol
 done
 
-for f in NEWS .clisp .gdbinit ; do
+for f in NEWS .clisp .clisp-full .gdbinit ; do
   if [ -n "${SRCDIR}" ] ; then
     echol "${f} : ${SRCDIR}${f}"
     echotab "-\$(LN_S) ${SRCDIR}${f} ${f}"
@@ -3687,7 +3687,7 @@ echotab "-\$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY"
 if [ -n "${SRCDIR}" ] ; then
   echotab "-\$(RM) \$(DFILES) modules.h \$(LISPFILES) version.h NEWS clisp.png"
   if [ $HOS = unix -a $CROSS = false ] ; then
-    echotab "-\$(RM) .clisp .gdbinit"
+    echotab "-\$(RM) .clisp* .gdbinit"
   fi
 else
   echotab "-\$(RM) config.lisp"
