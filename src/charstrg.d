@@ -2192,6 +2192,12 @@ global object test_stringsymchar_arg (object obj) {
     TheSstring(new_string)->data[0] = char_code(obj);
     return new_string;
   }
+  /* (VECTOR NIL) is a string, so #A(NIL (0)) is acceptable instead of "" */
+  if (vectorp(obj)
+      && (Array_type(obj) == Array_type_nilvector ||
+          Array_type(obj) == Array_type_snilvector)
+      && (vector_length(obj) == 0))
+    return O(empty_string);
   pushSTACK(NIL); /* no PLACE */
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_stringsymchar)); /* TYPE-ERROR slot EXPECTED-TYPE */
