@@ -174,8 +174,8 @@
     ) )
     #+UNIX
     (when may-exec
-      ; Wenn die ausführende Shell die "/bin/sh" ist und command eine
-      ; "simple command" im Sinne von sh(1), können wir ein wenig optimieren:
+      ; Wenn die ausfÃ¼hrende Shell die "/bin/sh" ist und command eine
+      ; "simple command" im Sinne von sh(1), kÃ¶nnen wir ein wenig optimieren:
       (setq command (string-concat "exec " command))
     )
     #+WIN32
@@ -189,7 +189,7 @@
       )
       (if (eq output ':STREAM)
         (make-pipe-input-stream command)
-        (shell command) ; unter UNIX evtl. " &" anfügen, um Hintergrund-Prozess zu bekommen
+        (shell command) ; unter UNIX evtl. " &" anfÃ¼gen, um Hintergrund-Prozess zu bekommen
     ) )
   )
   (defun run-program (program &key (arguments '())

@@ -1,5 +1,5 @@
 /* Tiny GCC Library
- * Jörg Höhle, 12-Jun-96
+ * JÃ¶rg HÃ¶hle, 12-Jun-96
  */
 
 #include <exec/types.h>

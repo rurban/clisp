@@ -3,7 +3,7 @@
 # Wandelt eine Ziffernfolge in ein Integer >=0 um.
 # DIGITS_to_I(MSBptr,len,base)
 # > base: Stellenwertsystem-Basis, >=2, <=36
-# > MSBptr/len/..: Ziffernfolge, bestehend aus Punkten (werden überlesen)
+# > MSBptr/len/..: Ziffernfolge, bestehend aus Punkten (werden Ã¼berlesen)
 #     und Ziffern/Buchstaben mit Wert < base.
 # < ergebnis: der dargestellte Integer >=0
 # can trigger GC
@@ -16,7 +16,7 @@
       var uintD* erg_MSDptr;
       var uintC erg_len;
       var uintD* erg_LSDptr;
-      # Platz fürs Ergebnis:
+      # Platz fÃ¼rs Ergebnis:
       # 1+ceiling(len*log(base)/(intDsize*log(2))) oder etwas mehr Digits
       var uintL need = 1+floor(len,intDsize*256); # > len/(intDsize*256) >=0
       switch (base) # need mit ceiling(256*log(base)/log(2)) multiplizieren:
@@ -67,26 +67,26 @@
           # Ziffern einzeln draufaddieren:
           dotimespL(len,len,
             { # erg_MSDptr/erg_len/erg_LSDptr ist eine NUDS, erg_len < need.
-              var chart ch = *MSBptr++; # nächstes Character
+              var chart ch = *MSBptr++; # nÃ¤chstes Character
               var cint c = as_cint(ch);
-              if (!(c=='.')) # Punkt überlesen
+              if (!(c=='.')) # Punkt Ã¼berlesen
                 { # Wert von c ('0'-'9','A'-'Z','a'-'z') bilden:
                   c = c - '0';
                   if (c > '9'-'0') # keine Ziffer?
                     { c = c+'0'-'A'+10;
-                      if (c > 'Z'-'A'+10) # kein Großbuchstabe?
+                      if (c > 'Z'-'A'+10) # kein GroÃŸbuchstabe?
                         { c = c+'A'-'a'; } # dann ein Kleinbuchstabe
                     }
                   # multipliziere erg mit base und addiere ch:
                  {var uintD carry = mulusmall_loop_down(base,erg_LSDptr,erg_len,c);
                   if (!(carry==0))
-                    # muss NUDS vergrößern:
+                    # muss NUDS vergrÃ¶ÃŸern:
                     { *--erg_MSDptr = carry; erg_len++; }
             }   }});
           end_arith_call();
         }
      {var object result = NUDS_to_I(erg_MSDptr,erg_len);
-      RESTORE_NUM_STACK # num_stack zurück
+      RESTORE_NUM_STACK # num_stack zurÃ¼ck
       return result;
     }}
 

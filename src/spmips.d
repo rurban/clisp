@@ -1,4 +1,4 @@
-# Kleine Routine, die den Wert des Maschinenstacks zurückliefert.
+# Kleine Routine, die den Wert des Maschinenstacks zurÃ¼ckliefert.
 
         .text
 

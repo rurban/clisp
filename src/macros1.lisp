@@ -1,4 +1,4 @@
-;;;; Definitionen für Kontrollstrukturen etc.
+;;;; Definitionen fÃ¼r Kontrollstrukturen etc.
 ;;;; 29. 4. 1988, 3. 9. 1988
 
 (in-package "LISP")
@@ -217,7 +217,7 @@
             ((ENDP ,g)
              ,(if (constantp resultform)
                ; Ist resultform konstant, so ist es /= var. Daher braucht var
-               ; während Auswertung von resultform nicht an NIL gebunden zu sein:
+               ; wÃ¤hrend Auswertung von resultform nicht an NIL gebunden zu sein:
                `,resultform
                `(LET ((,var NIL))
                   (DECLARE (IGNORABLE ,var) ,@declarations)
@@ -349,10 +349,10 @@
 ) )  ) )
 
 
-;;; Macro-Expander für COND:
+;;; Macro-Expander fÃ¼r COND:
 
 #|
-;; Dieser hier ist zwar kürzer, aber er reduziert COND auf OR,
+;; Dieser hier ist zwar kÃ¼rzer, aber er reduziert COND auf OR,
 ;; das seinerseits wieder auf COND reduziert, ...
 (defmacro-special cond (&body clauses)
   (ifify clauses)
@@ -418,7 +418,7 @@
 ) )     )  ) ) ) )
 |#
 
-;; Dieser hier reduziert COND etwas umständlicher auf IF-Folgen:
+;; Dieser hier reduziert COND etwas umstÃ¤ndlicher auf IF-Folgen:
 (defmacro-special cond (&body clauses)
   (let ((g (gensym)))
     (multiple-value-bind (ifif needed-g) (ifify clauses g)

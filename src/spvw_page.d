@@ -10,7 +10,7 @@ typedef struct {
   aint start;   # Pointer auf den belegten Platz (aligned)
   aint end;     # Pointer hinter den belegten Platz (aligned)
   union { object firstmarked; uintL l; aint d; void* next; }
-        gcpriv; # private Variable w‰hrend GC
+        gcpriv; # private Variable w√§hrend GC
 } _Page;
 
 # Page descriptor with corresponding management data:
@@ -70,14 +70,14 @@ typedef _Page Page;
 #include "avl.c"
 
 typedef struct NODE {
-  NODEDATA nodedata;        # NODE f¸r AVL-Baum-Verwaltung
+  NODEDATA nodedata;        # NODE f√ºr AVL-Baum-Verwaltung
   #define page_room  nodedata.value # freier Platz in dieser Page (in Bytes)
   _Page page;       # Page-Deskriptor, bestehend aus:
   #define page_start  page.start  # Pointer auf den belegten Platz (aligned)
   #define page_end    page.end    # Pointer auf den freien Platz (aligned)
-  #define page_gcpriv page.gcpriv # private Variable w‰hrend GC
+  #define page_gcpriv page.gcpriv # private Variable w√§hrend GC
   aint m_start;     # von malloc gelieferte Startadresse (unaligned)
-  aint m_length;    # bei malloc angegebene Page-L‰nge (in Bytes)
+  aint m_length;    # bei malloc angegebene Page-L√§nge (in Bytes)
 } NODE;
 #define HAVE_NODE
 
@@ -97,9 +97,9 @@ typedef struct NODE {
 
 typedef NODE Page;
 
-# Grˆﬂe einer normalen Page = minimale Pagegrˆﬂe. Durch sizeof(cons_) teilbar.
-  # Um offset_pages_len (s.u.) nicht zu groﬂ werden zu lassen, darf die
-  # Pagegrˆﬂe nicht zu klein sein.
+# Gr√∂√üe einer normalen Page = minimale Pagegr√∂√üe. Durch sizeof(cons_) teilbar.
+  # Um offset_pages_len (s.u.) nicht zu gro√ü werden zu lassen, darf die
+  # Pagegr√∂√üe nicht zu klein sein.
   #if (oint_addr_len<=32)
     #define oint_addr_relevant_len  oint_addr_len
   #else

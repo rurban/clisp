@@ -13,7 +13,7 @@
 (lisp:in-package "COMMON-LISP")
 
 ;;; Exportierungen:
-;; Nur in ANSI Common Lisp (CLtL2 bzw. ANSI-CL) explizit erwähnte Symbole!
+;; Nur in ANSI Common Lisp (CLtL2 bzw. ANSI-CL) explizit erwÃ¤hnte Symbole!
 (export '(
 ;; Typen:
 array atom base-char base-string bignum bit bit-vector boolean character
@@ -186,7 +186,7 @@ the load-time-value
 deftype defun defvar defparameter defconstant and or psetq setf psetf shiftf
 rotatef define-modify-macro defsetf define-setf-expander prog1 prog2
 when unless cond
-case typecase  otherwise ; otherwise als Marker für die catchall-clause
+case typecase  otherwise ; otherwise als Marker fÃ¼r die catchall-clause
 return loop do do* dolist dotimes prog prog* multiple-value-list
 multiple-value-bind multiple-value-setq nth-value defmacro destructuring-bind
 declaim remf defpackage do-symbols do-external-symbols do-all-symbols

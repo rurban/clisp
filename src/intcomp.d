@@ -22,8 +22,8 @@
       #       x > 0 -> x > y
       #    y Bignum ->
       #       falls beide gleich lang -> wortweise vergleichen
-      #       x kürzer als y -> bei x,y > 0 : x < y, bei x,y < 0 : x > y
-      #       y kürzer als x -> bei x,y > 0 : x > y, bei x,y > 0 : x < y
+      #       x kÃ¼rzer als y -> bei x,y > 0 : x < y, bei x,y < 0 : x > y
+      #       y kÃ¼rzer als x -> bei x,y > 0 : x > y, bei x,y > 0 : x < y
       var uintC xlen;
       var uintC ylen;
       if (!(R_minusp(x)))
@@ -55,7 +55,7 @@
                   ylen = Bignum_length(y);
                   if (xlen==ylen)
                     samelength:
-                    # gleiche Länge -> digitweise vergleichen
+                    # gleiche LÃ¤nge -> digitweise vergleichen
                     return compare_loop_up(&TheBignum(x)->data[0],&TheBignum(y)->data[0],xlen);
                     else
                     return (xlen > ylen ? signean_plus : signean_minus);
@@ -94,7 +94,7 @@
                 { xlen = Bignum_length(x);
                   ylen = Bignum_length(y);
                   if (xlen==ylen)
-                    # gleiche Länge -> wortweise vergleichen
+                    # gleiche LÃ¤nge -> wortweise vergleichen
                     goto samelength; # wie oben
                     else
                     return (xlen > ylen ? signean_minus : signean_plus);

@@ -7,11 +7,11 @@
 #include <stdio.h>
 
 # Ausgabe von Strings mit eingebetteten Zahlen, wie printf().
-# Nur dass die Zahlen auch vom Typ `unsigned long long' sein können.
+# Nur dass die Zahlen auch vom Typ `unsigned long long' sein kÃ¶nnen.
 # Wir vermeiden es, <stdarg.h> oder <varargs.h> vorauszusetzen.
 
 typedef struct {
-  char base; # 'd' für dezimal, 'x' für hexadezimal
+  char base; # 'd' fÃ¼r dezimal, 'x' fÃ¼r hexadezimal
   int size;
   union {
     uint8 val8;
@@ -159,7 +159,7 @@ global void printf_with_args(string,argcount,args)
 global int main()
 {
   # Was hier ausgegeben wird, kann voraussetzen, dass unixconf.h und intparam.h
-  # schon includet wurden. (intparam.h z.Zt. nicht nötig, aber was soll's.)
+  # schon includet wurden. (intparam.h z.Zt. nicht nÃ¶tig, aber was soll's.)
 # #ifdef LANGUAGE_STATIC
 #   printf1("#define ENGLISH  %d\n",ENGLISH);
 # #endif

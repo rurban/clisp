@@ -2,20 +2,20 @@
 ;; Bruno Haible 13.2.1990, 15.3.1991, 4.4.1991
 
 ; (TRACE) liefert Liste der getraceten Funktionen
-; (TRACE fun ...) tracet die Funktionen fun, ... zusätzlich.
-; Format für fun:
+; (TRACE fun ...) tracet die Funktionen fun, ... zusÃ¤tzlich.
+; Format fÃ¼r fun:
 ;   Entweder ein Symbol
 ;        symbol
 ;   oder eine Liste aus einem Symbol und einigen Keyword-Argumenten (paarig!)
 ;        (symbol
-;          [:suppress-if form]   ; kein Trace-Output, solange form erfüllt ist
-;          [:step-if form]       ; Trace geht in den Stepper, falls form erfüllt
-;          [:pre form]           ; führt vor Funktionsaufruf form aus
-;          [:post form]          ; führt nach Funktionsaufruf form aus
+;          [:suppress-if form]   ; kein Trace-Output, solange form erfÃ¼llt ist
+;          [:step-if form]       ; Trace geht in den Stepper, falls form erfÃ¼llt
+;          [:pre form]           ; fÃ¼hrt vor Funktionsaufruf form aus
+;          [:post form]          ; fÃ¼hrt nach Funktionsaufruf form aus
 ;          [:pre-break-if form]  ; Trace geht vor Funktionsaufruf in die Break-Loop,
-;                                ; falls form erfüllt
+;                                ; falls form erfÃ¼llt
 ;          [:post-break-if form] ; Trace geht nach Funktionsaufruf in die Break-Loop,
-;                                ; falls form erfüllt
+;                                ; falls form erfÃ¼llt
 ;          [:pre-print form]     ; gibt die Werte von form vor Funktionsaufruf aus
 ;          [:post-print form]    ; gibt die Werte von form nach Funktionsaufruf aus
 ;          [:print form]         ; gibt die Werte von form vor und nach Funktionsaufruf aus
@@ -41,11 +41,11 @@
 (proclaim '(special *trace-function* *trace-args* *trace-form* *trace-values*))
 (defvar *traced-functions* nil) ; Liste der momentan getraceden Funktionsnamen
   ; Solange ein Funktionsname funname [bzw. genauer: das Symbol
-  ; symbol = (get-funname-symbol funname)] getraced ist, enthält
+  ; symbol = (get-funname-symbol funname)] getraced ist, enthÃ¤lt
   ; die Property sys::traced-definition den alten Inhalt der Funktionszelle,
   ; die Property sys::tracing-definition den neuen Inhalt der Funktionszelle,
   ; und ist der Funktionsname Element der Liste *traced-functions*.
-  ; Währenddessen kann sich der Inhalt der Funktionszelle jedoch ändern!
+  ; WÃ¤hrenddessen kann sich der Inhalt der Funktionszelle jedoch Ã¤ndern!
   ; Jedenfalls gilt stets:
   ;        (and (fboundp symbol)
   ;             (eq (symbol-function symbol) (get symbol 'sys::tracing-definition))
@@ -55,10 +55,10 @@
 (defvar *trace-level* 0) ; Verschachtelungstiefe bei der Trace-Ausgabe
 
 ; Funktionen, die der Tracer zur Laufzeit aufruft und die der Benutzer
-; tracen könnte, müssen in ihrer ungetraceden Form aufgerufen werden.
+; tracen kÃ¶nnte, mÃ¼ssen in ihrer ungetraceden Form aufgerufen werden.
 ; Statt (fun arg ...) verwende daher (SYS::%FUNCALL '#,#'fun arg ...)
 ; oder (SYS::%FUNCALL (LOAD-TIME-VALUE #'fun) arg ...).
-; Dies gilt für alle hier verwendeten Funktionen von #<PACKAGE LISP> außer
+; Dies gilt fÃ¼r alle hier verwendeten Funktionen von #<PACKAGE LISP> auÃŸer
 ; CAR, CDR, CONS, APPLY, VALUES-LIST (die alle inline compiliert werden).
 
 (defmacro trace (&rest funs)
@@ -91,7 +91,7 @@
             `(load-time-value (get-setf-symbol ',(second funname)))
        )) )
     `(block nil
-       (unless (fboundp ,symbolform) ; Funktion überhaupt definiert?
+       (unless (fboundp ,symbolform) ; Funktion Ã¼berhaupt definiert?
          (warn (ENGLISH "~S: undefined function ~S")
                'trace ',funname
          )
@@ -114,7 +114,7 @@
          )
          (setf (get ,symbolform 'sys::tracing-definition)
            (setf (symbol-function ,symbolform)
-             ; neue Funktion, die die ursprüngliche ersetzt:
+             ; neue Funktion, die die ursprÃ¼ngliche ersetzt:
              ,(let ((newname (concat-pnames "TRACED-" (get-funname-symbol funname)))
                     (body
                       `((declare (compile) (inline car cdr cons apply values-list))
@@ -179,11 +179,11 @@
 ) )
 
 ;; Hilfsfunktionen:
-; Nächsthöheres Trace-Level liefern:
+; NÃ¤chsthÃ¶heres Trace-Level liefern:
 (defun trace-level-inc ()
   (%funcall '#,#'1+ *trace-level*)
 )
-; Ursprüngliche Funktionsdefinition holen:
+; UrsprÃ¼ngliche Funktionsdefinition holen:
 (defun get-traced-definition (symbol)
   (%funcall '#,#'get symbol 'sys::traced-definition)
 )
@@ -202,7 +202,7 @@
     ))
   )
 )
-; Eval-Form bauen, die einem Apply (näherungsweise) entspricht:
+; Eval-Form bauen, die einem Apply (nÃ¤herungsweise) entspricht:
 (defun make-apply-form (funname args)
   (declare (inline cons mapcar))
   (cons funname

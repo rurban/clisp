@@ -1,4 +1,4 @@
-# Grundfunktionen für Long-Floats
+# Grundfunktionen fÃ¼r Long-Floats
 
 # Fehlermeldung bei zu langen Long-FLoats
   nonreturning_function(local, fehler_LF_toolong, (void));
@@ -11,7 +11,7 @@
 # Entpacken eines Long-Float:
 # LF_decode(obj, zero_statement, sign=,exp=,mantMSDptr=,mantlen=,mantLSDptr=);
 # zerlegt ein Long-Float obj.
-# Ist obj=0.0, wird zero_statement ausgeführt.
+# Ist obj=0.0, wird zero_statement ausgefÃ¼hrt.
 # Sonst: signean sign = Vorzeichen (0 = +, -1 = -),
 #        sintL exp = Exponent (vorzeichenbehaftet),
 #        UDS mantMSDptr/mantlen/mantLSDptr = Mantisse
@@ -67,15 +67,15 @@
 # encode_LFu(sign,uexp,mantMSDptr,mantlen, erg_zuweisung) liefert ein Long-Float
 # > signean sign: Vorzeichen
 # > uintL exp: Exponent + LF_exp_mid
-# > uintD* mantMSDptr: Pointer auf eine NUDS mit gesetztem höchstem Bit
+# > uintD* mantMSDptr: Pointer auf eine NUDS mit gesetztem hÃ¶chstem Bit
 # > uintC mantlen: Anzahl der Digits, >= LF_minlen
 # < object erg: neues Long-Float mit der UDS mantMSDptr/mantlen/.. als Mantisse
-# Der Exponent wird nicht auf Überlauf/Unterlauf getestet.
+# Der Exponent wird nicht auf Ãœberlauf/Unterlauf getestet.
 # can trigger GC
   #define encode_LFu(sign,uexp,mantMSDptr,mantlen,erg_zuweisung)  \
     { var uintC _len = (mantlen);                                                      \
       var object _erg = allocate_lfloat(_len,uexp,(sign)); # Exponent                  \
-      copy_loop_up((mantMSDptr),&TheLfloat(_erg)->data[0],_len); # Mantisse übertragen \
+      copy_loop_up((mantMSDptr),&TheLfloat(_erg)->data[0],_len); # Mantisse Ã¼bertragen \
       erg_zuweisung _erg;                                                              \
     }
 
@@ -83,15 +83,15 @@
 # encode_LF(sign,exp,mantMSDptr,mantlen, erg_zuweisung) liefert ein Long-Float
 # > signean sign: Vorzeichen
 # > sintL exp: Exponent
-# > uintD* mantMSDptr: Pointer auf eine NUDS mit gesetztem höchstem Bit
+# > uintD* mantMSDptr: Pointer auf eine NUDS mit gesetztem hÃ¶chstem Bit
 # > uintC mantlen: Anzahl der Digits, >= LF_minlen
 # < object erg: neues Long-Float mit der UDS mantMSDptr/mantlen/.. als Mantisse
-# Der Exponent wird nicht auf Überlauf/Unterlauf getestet.
+# Der Exponent wird nicht auf Ãœberlauf/Unterlauf getestet.
 # can trigger GC
   #define encode_LF(sign,exp,mantMSDptr,mantlen,erg_zuweisung)  \
     encode_LFu(sign,LF_exp_mid+(uintL)(exp),mantMSDptr,mantlen,_EMA_ erg_zuweisung)
 
-# Hash-Code eines Long-Float: Mischung aus Exponent, Länge, erste 32 Bit
+# Hash-Code eines Long-Float: Mischung aus Exponent, LÃ¤nge, erste 32 Bit
   global uint32 hashcode_lfloat (object obj);
   global uint32 hashcode_lfloat(obj)
     var object obj;
@@ -104,7 +104,7 @@
 
 # Liefert zu einem Long-Float x : (ftruncate x), ein LF.
 # LF_ftruncate_LF(x)
-# x wird zur 0 hin zur nächsten ganzen Zahl gerundet.
+# x wird zur 0 hin zur nÃ¤chsten ganzen Zahl gerundet.
 # can trigger GC
   local object LF_ftruncate_LF (object x);
 # Methode:
@@ -134,11 +134,11 @@
             var uintD* ptr =
               copy_loop_up(mantMSDptr,MSDptr,count); # count ganze Digits kopieren
             *ptr++ = mantMSDptr[count] & minus_bitm(intDsize-bitcount); # dann bitcount Bits kopieren
-            clear_loop_up(ptr,mantlen-count-1); # Rest mit Nullen füllen
+            clear_loop_up(ptr,mantlen-count-1); # Rest mit Nullen fÃ¼llen
           }
           { var object result;
             encode_LF(sign,exp,MSDptr,mantlen, result =);
-            RESTORE_NUM_STACK # num_stack zurück
+            RESTORE_NUM_STACK # num_stack zurÃ¼ck
             return result;
     }   } }
 #else
@@ -164,7 +164,7 @@
         var uintD* ptr =
           copy_loop_up(x_mantMSDptr,&TheLfloat(y)->data[0],count); # count ganze Digits kopieren
         *ptr++ = x_mantMSDptr[count] & minus_bitm(intDsize-bitcount); # dann bitcount Bits kopieren
-        clear_loop_up(ptr,len-count-1); # Rest mit Nullen füllen
+        clear_loop_up(ptr,len-count-1); # Rest mit Nullen fÃ¼llen
        }
        return y;
     }}}
@@ -172,7 +172,7 @@
 
 # Liefert zu einem Long-Float x : (futruncate x), ein LF.
 # LF_futruncate_LF(x)
-# x wird von der 0 weg zur nächsten ganzen Zahl gerundet.
+# x wird von der 0 weg zur nÃ¤chsten ganzen Zahl gerundet.
 # can trigger GC
   local object LF_futruncate_LF (object x);
 # Methode:
@@ -180,11 +180,11 @@
 # e<=0 -> Ergebnis 1.0 oder -1.0, je nach Vorzeichen von x.
 # 1<=e<16n -> Greife die letzten (16n-e) Bits von x heraus.
 #             Sind sie alle =0 -> Ergebnis x.
-#             Sonst setze sie alle auf 0 und erhöhe dann die vorderen e Bits
+#             Sonst setze sie alle auf 0 und erhÃ¶he dann die vorderen e Bits
 #             um 1.
-#             Kein Überlauf -> fertig.
+#             Kein Ãœberlauf -> fertig.
 #             Sonst (Ergebnis eine Zweierpotenz): Mantisse := .1000...000,
-#               e:=e+1. (Test auf Überlauf wegen e<=16n überflüssig)
+#               e:=e+1. (Test auf Ãœberlauf wegen e<=16n Ã¼berflÃ¼ssig)
 # e>=16n -> Ergebnis x.
 #if 0
   local object LF_futruncate_LF(x)
@@ -217,13 +217,13 @@
               copy_loop_up(mantMSDptr,MSDptr,count); # count ganze Digits kopieren
             if ((ptr[0] = ((mantptr[0] & mask) - mask)) == 0) # dann bitcount Bits kopieren und incrementieren
               { if (!( inc_loop_down(ptr,count) ==0)) # evtl. weiterincrementieren
-                  { MSDptr[0] = bit(intDsize-1); exp = exp+1; } # evtl. Exponenten erhöhen
+                  { MSDptr[0] = bit(intDsize-1); exp = exp+1; } # evtl. Exponenten erhÃ¶hen
               }
-            clear_loop_up(&ptr[1],mantlen-count-1); # Rest mit Nullen füllen
+            clear_loop_up(&ptr[1],mantlen-count-1); # Rest mit Nullen fÃ¼llen
           }
           { var object result;
             encode_LF(sign,exp,MSDptr,mantlen, result =);
-            RESTORE_NUM_STACK # num_stack zurück
+            RESTORE_NUM_STACK # num_stack zurÃ¼ck
             return result;
     }   }}}
 #else
@@ -260,9 +260,9 @@
            copy_loop_up(x_mantMSDptr,y_mantMSDptr,count); # count ganze Digits kopieren
          if ((ptr[0] = ((x_mantMSDptr[count] & mask) - mask)) == 0) # dann bitcount Bits kopieren und incrementieren
            { if (!( inc_loop_down(ptr,count) ==0)) # evtl. weiterincrementieren
-               { y_mantMSDptr[0] = bit(intDsize-1); (TheLfloat(y)->expo)++; } # evtl. Exponenten erhöhen
+               { y_mantMSDptr[0] = bit(intDsize-1); (TheLfloat(y)->expo)++; } # evtl. Exponenten erhÃ¶hen
            }
-         clear_loop_up(&ptr[1],len-count-1); # Rest mit Nullen füllen
+         clear_loop_up(&ptr[1],len-count-1); # Rest mit Nullen fÃ¼llen
         }
         return y;
     }}}}
@@ -270,7 +270,7 @@
 
 # Liefert zu einem Long-Float x : (fround x), ein LF.
 # LF_fround_LF(x)
-# x wird zur nächsten ganzen Zahl gerundet.
+# x wird zur nÃ¤chsten ganzen Zahl gerundet.
 # can trigger GC
   local object LF_fround_LF (object x);
 # Methode:
@@ -314,10 +314,10 @@
            {var uintD* ptr =
               copy_loop_up(mantMSDptr,MSDptr,count); # count ganze Digits kopieren
             *ptr++ = mantMSDptr[count] & mask; # dann bitcount Bits kopieren
-            clear_loop_up(ptr,mantlen-count-1); # Rest mit Nullen füllen
+            clear_loop_up(ptr,mantlen-count-1); # Rest mit Nullen fÃ¼llen
             {var object result;
              encode_LF(sign,exp,MSDptr,mantlen, result =);
-             RESTORE_NUM_STACK # num_stack zurück
+             RESTORE_NUM_STACK # num_stack zurÃ¼ck
              return result;
           }}}
           auf: # aufrunden
@@ -328,12 +328,12 @@
               copy_loop_up(mantMSDptr,MSDptr,count); # count ganze Digits kopieren
             if ((ptr[0] = ((mantptr[0] & mask) - mask)) == 0) # dann bitcount Bits kopieren und incrementieren
               { if (!( inc_loop_down(ptr,count) ==0)) # evtl. weiterincrementieren
-                  { MSDptr[0] = bit(intDsize-1); exp = exp+1; } # evtl. Exponenten erhöhen
+                  { MSDptr[0] = bit(intDsize-1); exp = exp+1; } # evtl. Exponenten erhÃ¶hen
               }
-            clear_loop_up(&ptr[1],mantlen-count-1); # Rest mit Nullen füllen
+            clear_loop_up(&ptr[1],mantlen-count-1); # Rest mit Nullen fÃ¼llen
             {var object result;
              encode_LF(sign,exp,MSDptr,mantlen, result =);
-             RESTORE_NUM_STACK # num_stack zurück
+             RESTORE_NUM_STACK # num_stack zurÃ¼ck
              return result;
           }}}
     }   }
@@ -381,7 +381,7 @@
            var uintD* ptr =
              copy_loop_up(x_mantMSDptr,&TheLfloat(y)->data[0],count); # count ganze Digits kopieren
            *ptr++ = x_mantMSDptr[count] & mask; # dann bitcount Bits kopieren
-           clear_loop_up(ptr,len-count-1); # Rest mit Nullen füllen
+           clear_loop_up(ptr,len-count-1); # Rest mit Nullen fÃ¼llen
           }
           return y;
          }
@@ -396,9 +396,9 @@
              copy_loop_up(x_mantMSDptr,y_mantMSDptr,count); # count ganze Digits kopieren
            if ((ptr[0] = ((x_mantMSDptr[count] & mask) - mask)) == 0) # dann bitcount Bits kopieren und incrementieren
              { if (!( inc_loop_down(ptr,count) ==0)) # evtl. weiterincrementieren
-                 { y_mantMSDptr[0] = bit(intDsize-1); (TheLfloat(y)->expo)++; } # evtl. Exponenten erhöhen
+                 { y_mantMSDptr[0] = bit(intDsize-1); (TheLfloat(y)->expo)++; } # evtl. Exponenten erhÃ¶hen
              }
-           clear_loop_up(&ptr[1],len-count-1); # Rest mit Nullen füllen
+           clear_loop_up(&ptr[1],len-count-1); # Rest mit Nullen fÃ¼llen
           }
           return y;
          }
@@ -459,17 +459,17 @@
                 var signean erg =
                   compare_loop_up(&TheLfloat(x)->data[0],&TheLfloat(y)->data[0],len);
                 if (!(erg==0)) { return erg; } # verschieden -> fertig
-                # gemeinsames Teilstück war gleich
-                if (x_len == y_len) { return signean_null; } # gleiche Länge -> fertig
+                # gemeinsames TeilstÃ¼ck war gleich
+                if (x_len == y_len) { return signean_null; } # gleiche LÃ¤nge -> fertig
                 if (x_len > y_len)
-                  # x länger als y
+                  # x lÃ¤nger als y
                   { if (test_loop_up(&TheLfloat(x)->data[y_len],x_len-y_len))
                       { return signean_plus; } # x>y
                       else
                       { return signean_null; }
                   }
                   else
-                  # y länger als x
+                  # y lÃ¤nger als x
                   { if (test_loop_up(&TheLfloat(y)->data[x_len],y_len-x_len))
                       { return signean_minus; } # x<y
                       else
@@ -499,17 +499,17 @@
                 var signean erg =
                   compare_loop_up(&TheLfloat(y)->data[0],&TheLfloat(x)->data[0],len);
                 if (!(erg==0)) { return erg; } # verschieden -> fertig
-                # gemeinsames Teilstück war gleich
-                if (x_len == y_len) { return signean_null; } # gleiche Länge -> fertig
+                # gemeinsames TeilstÃ¼ck war gleich
+                if (x_len == y_len) { return signean_null; } # gleiche LÃ¤nge -> fertig
                 if (x_len > y_len)
-                  # x länger als y
+                  # x lÃ¤nger als y
                   { if (test_loop_up(&TheLfloat(x)->data[y_len],x_len-y_len))
                       { return signean_minus; } # |x|>|y| -> x<y
                       else
                       { return signean_null; }
                   }
                   else
-                  # y länger als x
+                  # y lÃ¤nger als x
                   { if (test_loop_up(&TheLfloat(y)->data[x_len],y_len-x_len))
                       { return signean_plus; } # |x|<|y| -> x>y
                       else
@@ -519,11 +519,11 @@
         }
     }
 
-# LF_shorten_LF(x,len) verkürzt ein Long-Float x auf gegebene Länge len
+# LF_shorten_LF(x,len) verkÃ¼rzt ein Long-Float x auf gegebene LÃ¤nge len
 # und rundet dabei.
 # > object x: ein Long-FLoat
-# > uintC len: gewünschte Länge (>= LF_minlen, < Lfloat_length(x))
-# < object ergebnis: verkürztes Long-Float
+# > uintC len: gewÃ¼nschte LÃ¤nge (>= LF_minlen, < Lfloat_length(x))
+# < object ergebnis: verkÃ¼rztes Long-Float
 # can trigger GC
   local object LF_shorten_LF (object x, uintC len);
   local object LF_shorten_LF(x,len)
@@ -534,12 +534,12 @@
       pushSTACK(x);
      {var object y = allocate_lfloat(len,TheLfloat(x)->expo,LF_sign(x)); # neues LF
       x = popSTACK();
-      { var uintC oldlen = Lfloat_length(x); # alte Länge, > len
+      { var uintC oldlen = Lfloat_length(x); # alte LÃ¤nge, > len
         # Mantisse von x nach y kopieren:
         copy_loop_up(&TheLfloat(x)->data[0],&TheLfloat(y)->data[0],len);
         # Entscheiden, ob auf- oder abrunden:
        {var uintD* ptr = &TheLfloat(x)->data[len];
-        if ( ((sintD)ptr[0] >= 0) # nächstes Bit eine 0 -> abrunden
+        if ( ((sintD)ptr[0] >= 0) # nÃ¤chstes Bit eine 0 -> abrunden
              || ( ((ptr[0] & ((uintD)bit(intDsize-1)-1)) ==0) # eine 1 und alles weitere Nullen?
                   && !test_loop_up(&ptr[1],oldlen-len-1)
                   # round-to-even
@@ -550,19 +550,19 @@
           else
           # aufrunden
           { if ( inc_loop_down(&TheLfloat(y)->data[len],len) )
-              # Übertrag durch Aufrunden
+              # Ãœbertrag durch Aufrunden
               { TheLfloat(y)->data[0] = bit(intDsize-1); # Mantisse := 10...0
-                # Exponent erhöhen:
+                # Exponent erhÃ¶hen:
                 if (++(TheLfloat(y)->expo) == LF_exp_high+1) { fehler_overflow(); }
           }   }
       }}
       return y;
     }}
 
-# LF_extend_LF(x,len) verlängert ein Long-Float x auf gegebene Länge len.
+# LF_extend_LF(x,len) verlÃ¤ngert ein Long-Float x auf gegebene LÃ¤nge len.
 # > object x: ein Long-FLoat
-# > uintC len: gewünschte Länge (> Lfloat_length(x))
-# < object ergebnis: verlängertes Long-Float
+# > uintC len: gewÃ¼nschte LÃ¤nge (> Lfloat_length(x))
+# < object ergebnis: verlÃ¤ngertes Long-Float
 # can trigger GC
   local object LF_extend_LF (object x, uintC len);
   local object LF_extend_LF(x,len)
@@ -571,21 +571,21 @@
     { pushSTACK(x);
      {var object y = allocate_lfloat(len,TheLfloat(x)->expo,LF_sign(x)); # neues LF
       x = popSTACK();
-      { var uintC oldlen = Lfloat_length(x); # alte Länge, < len
+      { var uintC oldlen = Lfloat_length(x); # alte LÃ¤nge, < len
         # Mantisse von x nach y kopieren:
         var uintD* ptr =
           copy_loop_up(&TheLfloat(x)->data[0],&TheLfloat(y)->data[0],oldlen);
-        # und mit Null-Digits ergänzen:
+        # und mit Null-Digits ergÃ¤nzen:
         clear_loop_up(ptr,len-oldlen);
       }
       return y;
     }}
 
-# LF_to_LF(x,len) wandelt ein Long-Float x in ein Long-Float gegebener Länge
-# len um und rundet dabei nötigenfalls.
+# LF_to_LF(x,len) wandelt ein Long-Float x in ein Long-Float gegebener LÃ¤nge
+# len um und rundet dabei nÃ¶tigenfalls.
 # > object x: ein Long-FLoat
-# > uintC len: gewünschte Länge (>= LF_minlen)
-# < object ergebnis: Long-Float gegebener Länge
+# > uintC len: gewÃ¼nschte LÃ¤nge (>= LF_minlen)
+# < object ergebnis: Long-Float gegebener LÃ¤nge
 # can trigger GC
   local object LF_to_LF (object x, uintC len);
   local object LF_to_LF(x,len)
@@ -608,9 +608,9 @@
 # Falls e2=0, also x2=0.0, Ergebnis x1.
 # Falls e1 - e2 >= 16n+2, Ergebnis x1.
 # Erweitere die Mantissen rechts um 3 Bits (Bit -1 als Schutzbit, Bits -2,-3
-#   als Rundungsbits: 00 exakt, 01 1.Hälfte, 10 exakte Mitte, 11 2.Hälfte.)
+#   als Rundungsbits: 00 exakt, 01 1.HÃ¤lfte, 10 exakte Mitte, 11 2.HÃ¤lfte.)
 # Schiebe die Mantisse von x2 um e0-e1 Bits nach rechts. (Dabei die Rundung
-# ausführen: Bit -3 ist das logische Oder der Bits -3,-4,-5,...)
+# ausfÃ¼hren: Bit -3 ist das logische Oder der Bits -3,-4,-5,...)
 # Falls x1,x2 selbes Vorzeichen haben: Addiere dieses zur Mantisse von x1.
 # Falls x1,x2 verschiedenes Vorzeichen haben: Subtrahiere dieses von der
 #   Mantisse von x1. <0 -> (Es war e1=e2) Vertausche die Vorzeichen, negiere.
@@ -627,7 +627,7 @@
         { swap(object, x1,x2); swap(uintL, uexp1,uexp2); }
       # uexp1 >= uexp2
       if (uexp2==0) { return x1; } # x2=0.0 -> x1 als Ergebnis
-     {var uintC len = Lfloat_length(x1); # Länge n von x1 und x2
+     {var uintC len = Lfloat_length(x1); # LÃ¤nge n von x1 und x2
       var uintL expdiff = uexp1-uexp2; # e1-e2
       #if !(defined(SPVW_MIXED) && defined(TYPECODES))
       if ((expdiff == 0) && !same_sign_p(x1,x2))
@@ -664,8 +664,8 @@
           else
           { rounding_bits = shiftrightcopy_loop_up(&TheLfloat(x2)->data[0],x2_MSDptr,x2_len,j,0); }
         # x2_MSDptr/x2_len/x2_LSDptr sind die essentiellen Digits von x2.
-        # rounding_bits enthält die letzten j herausgeschobenen Bits.
-        # Aus rounding_bits und den nächsten i Digits die 3 Rundungsbits
+        # rounding_bits enthÃ¤lt die letzten j herausgeschobenen Bits.
+        # Aus rounding_bits und den nÃ¤chsten i Digits die 3 Rundungsbits
         # (als Bits intDsize-1..intDsize-3 von rounding_bits) aufbauen:
         if (j>=2)
           # j>=2 -> Bits -1,-2 sind OK, Bit -3 bestimmen:
@@ -675,14 +675,14 @@
               }
               else
               { rounding_bits |= bit(intDsize-3); # Rundungsbit -3 setzen
-                rounding_bits &= bitm(intDsize)-bit(intDsize-3); # andere Bits löschen
+                rounding_bits &= bitm(intDsize)-bit(intDsize-3); # andere Bits lÃ¶schen
           }   }
           else
           # j<=3 -> Bits intDsize-4..0 von rounding_bits sind bereits Null.
-          # nächstes und weitere i-1 Digits heranziehen:
+          # nÃ¤chstes und weitere i-1 Digits heranziehen:
           { if (i > 0) # i=0 -> Bits -1,-2,-3 sind OK.
               { var uintD* ptr = &TheLfloat(x2)->data[x2_len];
-                rounding_bits |= (ptr[0] >> j); # weitere relevante Bits des nächsten Digit dazu
+                rounding_bits |= (ptr[0] >> j); # weitere relevante Bits des nÃ¤chsten Digit dazu
                 if ((rounding_bits & (bit(intDsize-3)-1)) ==0) # Alle Bits -3,-4,... =0 ?
                   { if (   (!((ptr[0] & (bit(3)-1)) ==0)) # j (<=3) untere Bits von ptr[0] alle =0 ?
                         || test_loop_up(&ptr[1],i-1)
@@ -691,7 +691,7 @@
                   }
                   else
                   { rounding_bits |= bit(intDsize-3); # Rundungsbit -3 setzen
-                    rounding_bits &= bitm(intDsize)-bit(intDsize-3); # andere Bits löschen
+                    rounding_bits &= bitm(intDsize)-bit(intDsize-3); # andere Bits lÃ¶schen
           }   }   }
         # x2 liegt in verschobener Form in der UDS x2_MSDptr/x2_len/x2_LSDptr
         # vor, mit Rundungsbits in Bit intDsize-1..intDsize-3 von rounding_bits.
@@ -707,10 +707,10 @@
              # dann linken Mantissenteil (i Digits) direkt kopieren:
              var uintD* ptr =
                copy_loop_up(&TheLfloat(x1)->data[0],y_mantMSDptr,i);
-             # dann Übertrag vom rechten zum linken Mantissenteil addieren:
+             # dann Ãœbertrag vom rechten zum linken Mantissenteil addieren:
              if (!(carry==0))
                { if ( inc_loop_down(ptr,i) )
-                   # Übertrag über das erste Digit hinaus
+                   # Ãœbertrag Ã¼ber das erste Digit hinaus
                    { # Exponent von y incrementieren:
                      if ( ++(TheLfloat(y)->expo) == LF_exp_high+1 ) { fehler_overflow(); }
                      # normalisiere durch Schieben um 1 Bit nach rechts:
@@ -732,10 +732,10 @@
               # dann linken Mantissenteil (i Digits) direkt kopieren:
               var uintD* ptr =
                 copy_loop_up(&TheLfloat(x1)->data[0],y_mantMSDptr,i);
-              # dann Übertrag des rechten vom linken Mantissenteil subtrahieren:
+              # dann Ãœbertrag des rechten vom linken Mantissenteil subtrahieren:
               if (!(carry==0))
                 { if ( dec_loop_down(ptr,i) )
-                    # Übertrag über das erste Digit hinaus, also e1=e2
+                    # Ãœbertrag Ã¼ber das erste Digit hinaus, also e1=e2
                     #if !(defined(SPVW_MIXED) && defined(TYPECODES))
                     { NOTREACHED } # diesen Fall haben wir schon behandelt
                     #else
@@ -765,7 +765,7 @@
               if (!(rounding_bits==0)) goto nonzero_found;
               # Die UDS ist ganz Null. Also war e1=e2, keine Rundungsbits.
               end_arith_call();
-              RESTORE_NUM_STACK # num_stack zurück
+              RESTORE_NUM_STACK # num_stack zurÃ¼ck
               #if !(defined(SPVW_MIXED) && defined(TYPECODES))
               { NOTREACHED } # diesen Fall haben wir schon behandelt
               #else
@@ -775,7 +775,7 @@
               nonzero_found: # Digit /=0 gefunden
               # UDS von ptr nach y_mantMSDptr um k Digits nach unten kopieren:
               if (k>0)
-                # mindestens ein führendes Nulldigit. Also war e1-e2 = 0 oder 1.
+                # mindestens ein fÃ¼hrendes Nulldigit. Also war e1-e2 = 0 oder 1.
                 { ptr = copy_loop_up(ptr,y_mantMSDptr,len-k); # len-k Digits verschieben
                   *ptr++ = rounding_bits; # Rundungsbits als weiteres Digit
                   clear_loop_up(ptr,k-1); # dann k-1 Nulldigits
@@ -789,7 +789,7 @@
                   if (uexp <= k)
                   #endif
                     { end_arith_call();
-                      RESTORE_NUM_STACK # num_stack zurück
+                      RESTORE_NUM_STACK # num_stack zurÃ¼ck
                       if (underflow_allowed())
                         { fehler_underflow(); }
                         else
@@ -801,11 +801,11 @@
              # NUDS y_mantMSDptr/len/y_mantLSDptr/rounding_bits normalisieren:
              {var uintL s;
               integerlengthD(y_mantMSDptr[0], s = intDsize - );
-              # s = Anzahl der führenden Nullbits im ersten Word (>=0, <intDsize)
+              # s = Anzahl der fÃ¼hrenden Nullbits im ersten Word (>=0, <intDsize)
               if (s > 0)
                 { # Muss die NUDS y_mantMSDptr/len/y_mantLSDptr/rounding_bits
                   # um s Bits nach links schieben.
-                  # (Bei e1-e2>1 ist dabei zwangsläufig s=1.)
+                  # (Bei e1-e2>1 ist dabei zwangslÃ¤ufig s=1.)
                   if (s==1)
                     { shift1left_loop_down(y_mantLSDptr,len);
                       if (rounding_bits & bit(intDsize-1))
@@ -824,7 +824,7 @@
                   if (uexp <= s)
                   #endif
                     { end_arith_call();
-                      RESTORE_NUM_STACK # num_stack zurück
+                      RESTORE_NUM_STACK # num_stack zurÃ¼ck
                       if (underflow_allowed())
                         { fehler_underflow(); }
                         else
@@ -833,26 +833,26 @@
                   TheLfloat(y)->expo = uexp - s;
                 }}
            } }
-         # Hier enthält rounding_bits Bit -1 als Bit intDsize-1, Bit -2 als
+         # Hier enthÃ¤lt rounding_bits Bit -1 als Bit intDsize-1, Bit -2 als
          # Bit intDsize-2, Bit -3 als Oder(Bits intDsize-3..0) !
          # Runden. Dazu rounding_bits inspizieren:
-         if ((rounding_bits & bit(intDsize-1)) ==0) goto ab; # Bit -1 gelöscht -> abrunden
+         if ((rounding_bits & bit(intDsize-1)) ==0) goto ab; # Bit -1 gelÃ¶scht -> abrunden
          rounding_bits = rounding_bits<<1; # Bits -2,-3
          if (!(rounding_bits==0)) goto auf; # Bit -2 oder Bit -3 gesetzt -> aufrunden
          # round-to-even:
          if ((y_mantLSDptr[-1] & bit(0)) ==0) goto ab;
          auf: # aufrunden
            if ( inc_loop_down(y_mantLSDptr,len) )
-             { # Übertrag durchs Aufrunden
+             { # Ãœbertrag durchs Aufrunden
                y_mantMSDptr[0] = bit(intDsize-1); # Mantisse := 10...0
-               # Exponent erhöhen:
+               # Exponent erhÃ¶hen:
                if (++(TheLfloat(y)->expo) == LF_exp_high+1) { end_arith_call(); RESTORE_NUM_STACK; fehler_overflow(); }
              }
          ab: # abrunden
            ;
         }
         end_arith_call();
-        RESTORE_NUM_STACK # num_stack zurück
+        RESTORE_NUM_STACK # num_stack zurÃ¼ck
         # y fertig.
         return y;
     }}}}
@@ -891,8 +891,8 @@
 # Sonst: Ergebnis-Vorzeichen = positiv.
 #        Ergebnis-Exponent = 2 * Exponent von x.
 #        Quadrat der Mantissen bilden (2n Digits).
-#        Falls das führende Bit =0 ist: Mantissenprodukt um 1 Bit nach links
-#          schieben (die vorderen n+1 Digits genügen)
+#        Falls das fÃ¼hrende Bit =0 ist: Mantissenprodukt um 1 Bit nach links
+#          schieben (die vorderen n+1 Digits genÃ¼gen)
 #          und Exponent decrementieren.
 #        Runden auf n Digits liefert die Ergebnis-Mantisse.
   local object LF_square_LF(x)
@@ -919,7 +919,7 @@
       # Nun ist LF_exp_low <= uexp <= LF_exp_high+1.
       # neues Long-Float allozieren:
       pushSTACK(x);
-      {var uintC len = Lfloat_length(x); # Länge n von x
+      {var uintC len = Lfloat_length(x); # LÃ¤nge n von x
        var object y = allocate_lfloat(len,uexp,0);
        SAVE_NUM_STACK # num_stack retten
        x = popSTACK();
@@ -929,13 +929,13 @@
         UDS_square_UDS(len,&TheLfloat(x)->data[(uintP)len],
                        MSDptr=,_EMA_,);
         {var uintD* midptr = &MSDptr[(uintP)len]; # Pointer in die Mitte der 2n Digits
-         if ((sintD)MSDptr[0] >= 0) # führendes Bit abtesten
+         if ((sintD)MSDptr[0] >= 0) # fÃ¼hrendes Bit abtesten
            { # erste n+1 Digits um 1 Bit nach links schieben:
              shift1left_loop_down(&midptr[1],len+1);
              # Exponenten decrementieren:
              if ((TheLfloat(y)->expo)-- == LF_exp_low-1)
                { end_arith_call();
-                 RESTORE_NUM_STACK # num_stack zurück
+                 RESTORE_NUM_STACK # num_stack zurÃ¼ck
                  if (underflow_allowed())
                    { fehler_underflow(); }
                    else
@@ -943,12 +943,12 @@
                }
            }
          end_arith_call();
-         # erste Hälfte des Mantissenprodukts übertragen:
+         # erste HÃ¤lfte des Mantissenprodukts Ã¼bertragen:
          {var uintD* y_mantMSDptr = &TheLfloat(y)->data[0];
           var uintD* y_mantLSDptr =
             copy_loop_up(MSDptr,y_mantMSDptr,len);
           # Runden:
-          if ( ((sintD)midptr[0] >= 0) # nächstes Bit =0 -> abrunden
+          if ( ((sintD)midptr[0] >= 0) # nÃ¤chstes Bit =0 -> abrunden
                || ( ((midptr[0] & ((uintD)bit(intDsize-1)-1)) ==0) # Bit =1, weitere Bits >0 -> aufrunden
                     && !test_loop_up(&midptr[1],len-1)
                     # round-to-even
@@ -959,15 +959,15 @@
             else
             # aufrunden
             { if ( inc_loop_down(y_mantLSDptr,len) )
-                { # Übertrag durchs Aufrunden (kann nur auftreten,
+                { # Ãœbertrag durchs Aufrunden (kann nur auftreten,
                   # wenn vorhin um 1 Bit nach links geschoben wurde)
                   y_mantMSDptr[0] = bit(intDsize-1); # Mantisse := 10...0
-                  (TheLfloat(y)->expo)++; # Exponent wieder zurück-erhöhen
+                  (TheLfloat(y)->expo)++; # Exponent wieder zurÃ¼ck-erhÃ¶hen
             }   }
           # LF_exp_low <= exp <= LF_exp_high sicherstellen:
           if (TheLfloat(y)->expo == LF_exp_high+1) { RESTORE_NUM_STACK; fehler_overflow(); }
        }}}
-       RESTORE_NUM_STACK # num_stack zurück
+       RESTORE_NUM_STACK # num_stack zurÃ¼ck
        return y;
     } }
 
@@ -980,8 +980,8 @@
 # Sonst: Ergebnis-Vorzeichen = VZ von x1 xor VZ von x2.
 #        Ergebnis-Exponent = Summe der Exponenten von x1 und x2.
 #        Produkt der Mantissen bilden (2n Digits).
-#        Falls das führende Bit =0 ist: Mantissenprodukt um 1 Bit nach links
-#          schieben (die vorderen n+1 Digits genügen)
+#        Falls das fÃ¼hrende Bit =0 ist: Mantissenprodukt um 1 Bit nach links
+#          schieben (die vorderen n+1 Digits genÃ¼gen)
 #          und Exponent decrementieren.
 #        Runden auf n Digits liefert die Ergebnis-Mantisse.
   local object LF_LF_mal_LF(x1,x2)
@@ -1009,7 +1009,7 @@
       # Nun ist LF_exp_low <= uexp1 <= LF_exp_high+1.
       # neues Long-Float allozieren:
       pushSTACK(x1); pushSTACK(x2);
-      {var uintC len = Lfloat_length(x1); # Länge n von x1 und x2
+      {var uintC len = Lfloat_length(x1); # LÃ¤nge n von x1 und x2
        #ifdef TYPECODES
        var signean sign = R_sign(as_object(as_oint(x1) ^ as_oint(x2))); # Vorzeichen kombinieren
        #else
@@ -1025,13 +1025,13 @@
                         len,&TheLfloat(x2)->data[(uintP)len],
                         MSDptr=,_EMA_,);
         {var uintD* midptr = &MSDptr[(uintP)len]; # Pointer in die Mitte der 2n Digits
-         if ((sintD)MSDptr[0] >= 0) # führendes Bit abtesten
+         if ((sintD)MSDptr[0] >= 0) # fÃ¼hrendes Bit abtesten
            { # erste n+1 Digits um 1 Bit nach links schieben:
              shift1left_loop_down(&midptr[1],len+1);
              # Exponenten decrementieren:
              if ((TheLfloat(y)->expo)-- == LF_exp_low-1)
                { end_arith_call();
-                 RESTORE_NUM_STACK # num_stack zurück
+                 RESTORE_NUM_STACK # num_stack zurÃ¼ck
                  if (underflow_allowed())
                    { fehler_underflow(); }
                    else
@@ -1039,12 +1039,12 @@
                }
            }
          end_arith_call();
-         # erste Hälfte des Mantissenprodukts übertragen:
+         # erste HÃ¤lfte des Mantissenprodukts Ã¼bertragen:
          {var uintD* y_mantMSDptr = &TheLfloat(y)->data[0];
           var uintD* y_mantLSDptr =
             copy_loop_up(MSDptr,y_mantMSDptr,len);
           # Runden:
-          if ( ((sintD)midptr[0] >= 0) # nächstes Bit =0 -> abrunden
+          if ( ((sintD)midptr[0] >= 0) # nÃ¤chstes Bit =0 -> abrunden
                || ( ((midptr[0] & ((uintD)bit(intDsize-1)-1)) ==0) # Bit =1, weitere Bits >0 -> aufrunden
                     && !test_loop_up(&midptr[1],len-1)
                     # round-to-even
@@ -1055,15 +1055,15 @@
             else
             # aufrunden
             { if ( inc_loop_down(y_mantLSDptr,len) )
-                { # Übertrag durchs Aufrunden (kann nur auftreten,
+                { # Ãœbertrag durchs Aufrunden (kann nur auftreten,
                   # wenn vorhin um 1 Bit nach links geschoben wurde)
                   y_mantMSDptr[0] = bit(intDsize-1); # Mantisse := 10...0
-                  (TheLfloat(y)->expo)++; # Exponent wieder zurück-erhöhen
+                  (TheLfloat(y)->expo)++; # Exponent wieder zurÃ¼ck-erhÃ¶hen
             }   }
           # LF_exp_low <= exp <= LF_exp_high sicherstellen:
           if (TheLfloat(y)->expo == LF_exp_high+1) { RESTORE_NUM_STACK; fehler_overflow(); }
        }}}
-       RESTORE_NUM_STACK # num_stack zurück
+       RESTORE_NUM_STACK # num_stack zurÃ¼ck
        return y;
     }}}
 
@@ -1082,14 +1082,14 @@
 #   nach Rundung mant1/mant2 >=1/2, <=2*mant1<2.
 #   Bei mant1/mant2 >=1 brauche 16n-1 Nachkommabits,
 #   bei mant1/mant2 <1 brauche 16n Nachkommabits.
-#   Fürs Runden: brauche ein Rundungsbit (Rest gibt an, ob exakt).
+#   FÃ¼rs Runden: brauche ein Rundungsbit (Rest gibt an, ob exakt).
 #   Brauche daher insgesamt 16n+1 Nachkommabits von mant1/mant2.
 #   Dividiere daher (als Unsigned Integers)
 #     2^16(n+1)*(2^16n*m0) durch (2^16n*m1).
 #   Falls der Quotient >=2^16(n+1) ist, schiebe ihn um 1 Bit nach rechts,
-#     erhöhe den Exponenten um 1 und runde das letzte Digit weg.
+#     erhÃ¶he den Exponenten um 1 und runde das letzte Digit weg.
 #   Falls der Quotient <2^16(n+1) ist, runde das letzte Digit weg. Bei rounding
-#     overflow schiebe um 1 Bit nach rechts und erhöhe den Exponenten um 1.
+#     overflow schiebe um 1 Bit nach rechts und erhÃ¶he den Exponenten um 1.
   # Workaround gcc-2.7.0 bug on i386.
     #if defined(__GNUC__)
       #if (__GNUC__ == 2)
@@ -1130,7 +1130,7 @@
       # Nun ist LF_exp_low-1 <= uexp1 <= LF_exp_high.
       # neues Long-Float allozieren:
       pushSTACK(x1); pushSTACK(x2);
-      {var uintC len = Lfloat_length(x1); # Länge n von x1 und x2
+      {var uintC len = Lfloat_length(x1); # LÃ¤nge n von x1 und x2
        #ifdef TYPECODES
        var signean sign = R_sign(as_object(as_oint(x1) ^ as_oint(x2))); # Vorzeichen kombinieren
        #else
@@ -1138,7 +1138,7 @@
        #endif
        var object y = allocate_lfloat(len,uexp1,sign);
        x2 = popSTACK(); x1 = popSTACK();
-       # Zähler bilden:
+       # ZÃ¤hler bilden:
        {var uintD* z_MSDptr;
         var uintL z_len;
         var uintD* z_LSDptr;
@@ -1187,7 +1187,7 @@
             { var uintD* y_mantMSDptr = &TheLfloat(y)->data[0];
               copy_loop_up(q.MSDptr,y_mantMSDptr,len);
               # Runden:
-              if ( ((sintD)(q.LSDptr[-1]) >= 0) # nächstes Bit =0 -> abrunden
+              if ( ((sintD)(q.LSDptr[-1]) >= 0) # nÃ¤chstes Bit =0 -> abrunden
                    || ( ((q.LSDptr[-1] & ((uintD)bit(intDsize-1)-1)) ==0) # =1 und weitere Bits >0 oder Rest >0 -> aufrunden
                         && (r.len==0)
                         # round-to-even
@@ -1198,7 +1198,7 @@
                 else
                 # aufrunden
                 { if ( inc_loop_down(&y_mantMSDptr[(uintP)len],len) )
-                    # Übertrag durchs Aufrunden
+                    # Ãœbertrag durchs Aufrunden
                     { y_mantMSDptr[0] = bit(intDsize-1); # Mantisse := 10...0
                       # Exponenten incrementieren:
                       if (++(TheLfloat(y)->expo) == LF_exp_high+1) { fehler_overflow(); }
@@ -1206,7 +1206,7 @@
             }
          }
          end_arith_call();
-         RESTORE_NUM_STACK # num_stack zurück
+         RESTORE_NUM_STACK # num_stack zurÃ¼ck
         }
         # LF_exp_low <= exp <= LF_exp_high sicherstellen:
         if (TheLfloat(y)->expo == LF_exp_low-1)
@@ -1232,7 +1232,7 @@
 #   Bei ungeradem e schiebe dies (oder nur die ersten n+1 Digits davon)
 #     um 1 Bit nach rechts.
 #   Bilde daraus die Ganzzahl-Wurzel, eine n+1-Digit-Zahl mit einer
-#     führenden 1.
+#     fÃ¼hrenden 1.
 #   Runde das letzte Digit weg:
 #     Bit 15 = 0 -> abrunden,
 #     Bit 15 = 1, Rest =0 und Wurzel exakt -> round-to-even,
@@ -1247,7 +1247,7 @@
       # Radikanden bilden:
       var uintD* r_MSDptr;
       var uintD* r_LSDptr;
-      var uintL r_len = 2*(uintL)len+2; # Länge des Radikanden
+      var uintL r_len = 2*(uintL)len+2; # LÃ¤nge des Radikanden
       if ((intWCsize < 32) && (r_len > (uintL)(bitc(intWCsize)-1))) { fehler_LF_toolong(); }
       {SAVE_NUM_STACK # num_stack retten
        num_stack_need(r_len, r_MSDptr=,r_LSDptr=);
@@ -1256,7 +1256,7 @@
          # Exponent gerade
          {var uintD* ptr =
             copy_loop_up(&TheLfloat(x)->data[0],r_MSDptr,len); # n Digits kopieren
-          clear_loop_up(ptr,len+2); # n+2 Nulldigits anhängen
+          clear_loop_up(ptr,len+2); # n+2 Nulldigits anhÃ¤ngen
          }
          else
          # Exponent ungerade
@@ -1264,8 +1264,8 @@
           {var uintD carry_rechts = # n Digits kopieren und um 1 Bit rechts shiften
              shiftrightcopy_loop_up(&TheLfloat(x)->data[0],r_MSDptr,len,1,0);
            var uintD* ptr = &r_MSDptr[(uintP)len];
-           *ptr++ = carry_rechts; # Übertrag und
-           clear_loop_up(ptr,len+1); # n+1 Nulldigits anhängen
+           *ptr++ = carry_rechts; # Ãœbertrag und
+           clear_loop_up(ptr,len+1); # n+1 Nulldigits anhÃ¤ngen
            end_arith_call();
          }}
        uexp = (sintL)((sintL)uexp >> 1); # Exponent halbieren
@@ -1280,7 +1280,7 @@
         # w ist die Ganzzahl-Wurzel, eine n+1-Digit-Zahl.
         copy_loop_up(w.MSDptr,y_mantMSDptr,len); # NUDS nach y kopieren
         # Runden:
-        if ( ((sintD)(w.LSDptr[-1]) >= 0) # nächstes Bit =0 -> abrunden
+        if ( ((sintD)(w.LSDptr[-1]) >= 0) # nÃ¤chstes Bit =0 -> abrunden
              || ( ((w.LSDptr[-1] & ((uintD)bit(intDsize-1)-1)) ==0) # =1 und weitere Bits >0 oder Rest >0 -> aufrunden
                   && exactp
                   # round-to-even
@@ -1291,11 +1291,11 @@
           else
           # aufrunden
           { if ( inc_loop_down(&y_mantMSDptr[(uintP)len],len) )
-              # Übertrag durchs Aufrunden
+              # Ãœbertrag durchs Aufrunden
               { y_mantMSDptr[0] = bit(intDsize-1); # Mantisse := 10...0
                 (TheLfloat(y)->expo)++; # Exponenten incrementieren
           }   }
-        RESTORE_NUM_STACK # num_stack zurück
+        RESTORE_NUM_STACK # num_stack zurÃ¼ck
         return y;
     }}}}
 
@@ -1319,18 +1319,18 @@
       {SAVE_NUM_STACK # num_stack retten
        num_stack_need(len1, MSDptr=,LSDptr=);
        copy_loop_up(&TheLfloat(x)->data[0],&MSDptr[1],len); # Mantisse kopieren
-       MSDptr[0] = 0; # und zusätzliches Nulldigit
+       MSDptr[0] = 0; # und zusÃ¤tzliches Nulldigit
        # Mantisse ist die UDS MSDptr/len1/LSDptr.
        if (R_minusp(x))
          # x<0 -> Mantisse negieren:
          { neg_loop_down(LSDptr,len1); }
        # Vorzeichen*Mantisse ist die DS MSDptr/len1/LSDptr.
        pushSTACK(DS_to_I(MSDptr,len1)); # Vorzeichen*Mantisse als Integer
-       RESTORE_NUM_STACK # num_stack zurück
+       RESTORE_NUM_STACK # num_stack zurÃ¼ck
        # e-16n = uexp-LF_exp_mid-16n als Integer bilden:
        {var uintL sub = LF_exp_mid + intDsize*(uintL)len;
         var object shiftcount = UL_UL_minus_I(uexp,sub);
-        # (ASH Vorzeichen*Mantisse (- e 16n)) durchführen:
+        # (ASH Vorzeichen*Mantisse (- e 16n)) durchfÃ¼hren:
         return I_I_ash_I(popSTACK(),shiftcount);
     }}}}
 
@@ -1343,13 +1343,13 @@
 # Merke Vorzeichen von x.
 # x:=(abs x)
 # Exponent:=(integer-length x)
-# Mantisse enthalte die höchstwertigen 16n Bits des Integers x (wobei die
-#   führenden 16-(e mod 16) Nullbits zu streichen sind).
+# Mantisse enthalte die hÃ¶chstwertigen 16n Bits des Integers x (wobei die
+#   fÃ¼hrenden 16-(e mod 16) Nullbits zu streichen sind).
 # Runde die weiteren Bits weg:
 #   Kommen keine mehr -> abrunden,
-#   nächstes Bit = 0 -> abrunden,
-#   nächstes Bit = 1 und Rest =0 -> round-to-even,
-#   nächstes Bit = 1 und Rest >0 -> aufrunden.
+#   nÃ¤chstes Bit = 0 -> abrunden,
+#   nÃ¤chstes Bit = 1 und Rest =0 -> round-to-even,
+#   nÃ¤chstes Bit = 1 und Rest >0 -> aufrunden.
 # Bei Aufrundung: rounding overflow -> Mantisse um 1 Bit nach rechts schieben
 #   und Exponent incrementieren.
   local object I_to_LF(x,len)
@@ -1374,17 +1374,17 @@
         var uintC x_len;
         I_to_NDS_nocopy(popSTACK(), x_MSDptr=,x_len=,); # NDS zu x bilden, x_len>0
         # x_MSDptr/x_len/.. um (exp mod 16) Bits nach rechts shiften und in
-        # y einfüllen (genauer: nur maximal len Digits davon):
+        # y einfÃ¼llen (genauer: nur maximal len Digits davon):
         {var uintL shiftcount = exp % intDsize;
-         # Die NDS fängt mit intDsize-shiftcount Nullbits an, dann kommt eine 1.
+         # Die NDS fÃ¤ngt mit intDsize-shiftcount Nullbits an, dann kommt eine 1.
          begin_arith_call();
          if (x_len > len)
            { x_len -= 1+len;
              if (shiftcount>0)
                { var uintD carry_rechts =
                    shiftrightcopy_loop_up(&x_MSDptr[1],y_mantMSDptr,len,shiftcount,x_MSDptr[0]);
-                 # Mantisse ist gefüllt. Runden:
-                 if ( ((sintD)carry_rechts >= 0) # nächstes Bit =0 -> abrunden
+                 # Mantisse ist gefÃ¼llt. Runden:
+                 if ( ((sintD)carry_rechts >= 0) # nÃ¤chstes Bit =0 -> abrunden
                       || ( ((carry_rechts & ((uintD)bit(intDsize-1)-1)) ==0) # =1, Rest >0 -> aufrunden
                            && !test_loop_up(&x_MSDptr[1+(uintP)len],x_len)
                            # round-to-even
@@ -1396,10 +1396,10 @@
                }
                else
                { copy_loop_up(&x_MSDptr[1],y_mantMSDptr,len);
-                 # Mantisse ist gefüllt. Runden:
+                 # Mantisse ist gefÃ¼llt. Runden:
                 {var uintD* ptr = &x_MSDptr[1+(uintP)len];
                  if ( (x_len==0) # keine Bits mehr -> abrunden
-                      || ((sintD)ptr[0] >= 0) # nächstes Bit =0 -> abrunden
+                      || ((sintD)ptr[0] >= 0) # nÃ¤chstes Bit =0 -> abrunden
                       || ( ((ptr[0] & ((uintD)bit(intDsize-1)-1)) ==0) # =1, Rest >0 -> aufrunden
                            && !test_loop_up(&ptr[1],x_len-1)
                            # round-to-even
@@ -1411,7 +1411,7 @@
                }}
              auf: # aufrunden
                if ( inc_loop_down(&y_mantMSDptr[(uintP)len],len) )
-                 # Übertrag durchs Aufrunden
+                 # Ãœbertrag durchs Aufrunden
                  { y_mantMSDptr[0] = bit(intDsize-1); # Mantisse := 10...0
                    # Exponenten incrementieren:
                    if (   (log2_intDsize+intWCsize < 32)
@@ -1434,7 +1434,7 @@
                else
                { copy_loop_up(&x_MSDptr[1],y_mantMSDptr,x_len); carry_rechts = 0; }
             {var uintD* y_ptr = &y_mantMSDptr[x_len];
-             *y_ptr++ = carry_rechts; # Carry als nächstes Digit
+             *y_ptr++ = carry_rechts; # Carry als nÃ¤chstes Digit
              clear_loop_up(y_ptr,len); # dann len-x_len Nulldigits
            }}
          end_arith_call();
@@ -1449,7 +1449,7 @@
 # Methode:
 # x ganz -> klar.
 # x = +/- a/b mit Integers a,b>0:
-#   Sei k,m so gewählt, dass
+#   Sei k,m so gewÃ¤hlt, dass
 #     2^(k-1) <= a < 2^k, 2^(m-1) <= b < 2^m.
 #   Dann ist 2^(k-m-1) < a/b < 2^(k-m+1).
 #   Ergebnis-Vorzeichen := Vorzeichen von x.
@@ -1460,7 +1460,7 @@
 #       Bei k-m>=16n+1 dividiere a durch (ash b (k-m-16n-1)),
 #       bei k-m<16n+1 dividiere (ash a (-k+m+16n+1)) durch b.
 #     Der erste Wert ist >=2^16n, <2^(16n+2).
-#     Falls er >=2^(16n+1) ist, erhöhe Exponent um 1,
+#     Falls er >=2^(16n+1) ist, erhÃ¶he Exponent um 1,
 #       runde 2 Bits weg und schiebe dabei um 2 Bits nach rechts;
 #     falls er <2^(16n+1) ist,
 #       runde 1 Bit weg und schiebe dabei um 1 Bit nach rechts.
@@ -1477,8 +1477,8 @@
       # Stackaufbau: b, a.
       {var sintL lendiff = I_integer_length(x) # (integer-length a)
                            - I_integer_length(STACK_1); # (integer-length b)
-       # |lendiff| < intDsize*2^intWCsize. Da für LF-Exponenten ein sintL zur
-       # Verfügung steht, braucht man keinen Test auf Overflow oder Underflow.
+       # |lendiff| < intDsize*2^intWCsize. Da fÃ¼r LF-Exponenten ein sintL zur
+       # VerfÃ¼gung steht, braucht man keinen Test auf Overflow oder Underflow.
        {var uintL difflimit = intDsize*(uintL)len + 1; # 16n+1
         var object zaehler;
         var object nenner;
@@ -1502,7 +1502,7 @@
             zaehler = I_I_ash_I(popSTACK(),shiftcount); # (ash a -k+m+16n+1)
             nenner = popSTACK(); # b
           }
-        # Division zaehler/nenner durchführen:
+        # Division zaehler/nenner durchfÃ¼hren:
         I_I_divide_I_I(zaehler,nenner);
        }
        # Stackaufbau: q, r.
@@ -1513,7 +1513,7 @@
         {var uintD* q_MSDptr = &TheBignum(STACK_1)->data[0];
          if (q_MSDptr[0] == 1) # erstes Digit =1 oder =2,3 ?
            # 2^16n <= q < 2^(16n+1), also 2^(k-m-1) < a/b < 2^(k-m).
-           { # Mantisse mit einer Schiebeschleife um 1 Bit nach rechts füllen:
+           { # Mantisse mit einer Schiebeschleife um 1 Bit nach rechts fÃ¼llen:
              var uintD rounding_bit =
                shiftrightcopy_loop_up(&q_MSDptr[1],y_mantMSDptr,len,1,1);
              if ( (rounding_bit == 0) # herausgeschobenes Bit =0 -> abrunden
@@ -1527,12 +1527,12 @@
            }
            else
            # 2^(16n+1) <= q < 2^(16n+2), also 2^(k-m) < a/b < 2^(k-m+1).
-           { # Mantisse mit einer Schiebeschleife um 2 Bit nach rechts füllen:
+           { # Mantisse mit einer Schiebeschleife um 2 Bit nach rechts fÃ¼llen:
              var uintD rounding_bits =
                shiftrightcopy_loop_up(&q_MSDptr[1],y_mantMSDptr,len,2,q_MSDptr[0]);
              (TheLfloat(y)->expo)++; # Exponenten incrementieren auf k-m+1
              if ( ((sintD)rounding_bits >= 0) # herausgeschobenes Bit =0 -> abrunden
-                  || ( ((rounding_bits & bit(intDsize-2)) ==0) # =1 und nächstes Bit =1 oder Rest r > 0 -> aufrunden
+                  || ( ((rounding_bits & bit(intDsize-2)) ==0) # =1 und nÃ¤chstes Bit =1 oder Rest r > 0 -> aufrunden
                        && eq(STACK_0,Fixnum_0)
                        # round-to-even
                        && ((y_mantMSDptr[(uintP)len-1] & bit(0)) ==0)
@@ -1544,7 +1544,7 @@
         }
         auf: # aufrunden
           { if ( inc_loop_down(&y_mantMSDptr[(uintP)len],len) )
-              # Übertrag durchs Aufrunden
+              # Ãœbertrag durchs Aufrunden
               { y_mantMSDptr[0] = bit(intDsize-1); # Mantisse := 10...0
                 (TheLfloat(y)->expo)++; # Exponenten incrementieren
           }   }

@@ -1,7 +1,7 @@
 (setf string "test-pathname.abc" symbol 'test-pathname.abc)
 test-pathname.abc
 
-;;pathname -mögl. Argumenttypen: pathname,string,symbol,stream
+;;pathname -mÃ¶gl. Argumenttypen: pathname,string,symbol,stream
 ;;         -resultat: pathname
 
 (SETF PATHSTRING (PATHNAME STRING))

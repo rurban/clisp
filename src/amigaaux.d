@@ -1,5 +1,5 @@
-# Hilfsfunktionen für CLISP auf AmigaOS
-# Jörg Höhle 2.9.1997
+# Hilfsfunktionen fÃ¼r CLISP auf AmigaOS
+# JÃ¶rg HÃ¶hle 2.9.1997
 
 #include "lispbibl.c"
 
@@ -55,14 +55,14 @@ global long full_write(handle,bufarea,nbyte)
   global void abort (void);
   global void abort()
     {
-      #if defined(GNU) && 0 # Jörg mag das nicht so sehr bis überhaupt nicht
+      #if defined(GNU) && 0 # JÃ¶rg mag das nicht so sehr bis Ã¼berhaupt nicht
         __asm__ __volatile__ (" .word 0x4AFC "); # illegaler Befehl
       #else
-        # Je préfère Wait(0L) car ainsi le programme se met en attente infinie
-        # et on peut essayer de savoir pourquoi en analysant la mémoire. Je ne
-        # considère pas qu'une sortie de programme soit sûre puisque la mémoire
-        # peut se trouver dans un mauvais état, il peut y avoir des fichiers
-        # non fermés, des «Lock» alloués, etc.                    Jörg 7.1.1993
+        # Je prÃ©fÃ¨re Wait(0L) car ainsi le programme se met en attente infinie
+        # et on peut essayer de savoir pourquoi en analysant la mÃ©moire. Je ne
+        # considÃ¨re pas qu'une sortie de programme soit sÃ»re puisque la mÃ©moire
+        # peut se trouver dans un mauvais Ã©tat, il peut y avoir des fichiers
+        # non fermÃ©s, des Â«LockÂ» allouÃ©s, etc.                    JÃ¶rg 7.1.1993
         asciz_out(NLstring "CLISP panic! (halting)" NLstring);
         Wait(0L);
       #endif
@@ -70,7 +70,7 @@ global long full_write(handle,bufarea,nbyte)
 
 # ==============================================================================
 
-# Eigenes malloc(), free() nötig wegen Resource Tracking.
+# Eigenes malloc(), free() nÃ¶tig wegen Resource Tracking.
 
   # Flag, das anzeigt, ob der Prozessor ein 68000 ist.
   local boolean cpu_is_68000;
@@ -82,16 +82,16 @@ global long full_write(handle,bufarea,nbyte)
     #define CPU_IS_68000  cpu_is_68000
   #endif
 
-  # Flag für AllocMem().
+  # Flag fÃ¼r AllocMem().
   global uintL default_allocmemflag = MEMF_ANY;
   global uintL retry_allocmemflag;  # wird in init_amiga() gesetzt.
   #if !(defined(WIDE) || defined(MC68000) || !defined(TYPECODES))
-    # Es kann sein, dass wir mit MEMF_ANY Speicher außerhalb des
-    # 24/26-Bit-Adressraums bekommen, den wir nicht nutzen können.
+    # Es kann sein, dass wir mit MEMF_ANY Speicher auÃŸerhalb des
+    # 24/26-Bit-Adressraums bekommen, den wir nicht nutzen kÃ¶nnen.
     # Dann versuchen wir's nochmal.
   #endif
 
-  # Doppelt verkettete Liste aller bisher belegten Speicherblöcke führen:
+  # Doppelt verkettete Liste aller bisher belegten SpeicherblÃ¶cke fÃ¼hren:
   typedef struct MemBlockHeader {
     struct MemBlockHeader * next;
     #ifdef SPVW_PAGES
@@ -101,7 +101,7 @@ global long full_write(handle,bufarea,nbyte)
     oint usable_memory[unspecified]; # "oint" erzwingt Alignment
   } MemBlockHeader;
   local MemBlockHeader* allocmemblocks = NULL;
-  # Für alle p = allocmemblocks{->next}^n (n=0,1,...) mit !(p==NULL) gilt
+  # FÃ¼r alle p = allocmemblocks{->next}^n (n=0,1,...) mit !(p==NULL) gilt
   # *(p->prev) = p.
 
   # Speicher vom Betriebssystem holen:
@@ -129,7 +129,7 @@ global long full_write(handle,bufarea,nbyte)
       return address;
     }
 
-  # Speicher dem Betriebssystem zurückgeben:
+  # Speicher dem Betriebssystem zurÃ¼ckgeben:
   global void freemem (void* address);
   global void freemem(address)
     var void* address;
@@ -163,7 +163,7 @@ global long full_write(handle,bufarea,nbyte)
 
 # ==============================================================================
 
-  # Diese beiden Variablen werden, wenn man Glück hat, vom Startup-System
+  # Diese beiden Variablen werden, wenn man GlÃ¼ck hat, vom Startup-System
   # (von dem main() aufgerufen wird) sinnvoll vorbesetzt:
   global Handle stdin_handle = Handle_NULL;    # low-level stdin Eingabekanal
   global Handle stdout_handle = Handle_NULL;   # low-level stdout Ausgabekanal
@@ -171,25 +171,25 @@ global long full_write(handle,bufarea,nbyte)
   global BPTR orig_dir_lock = BPTR_NONE; # das Current Directory beim Programmstart
   # wird verwendet von PATHNAME
 
-  # Initialisierung, ganz zuerst in main() durchzuführen:
+  # Initialisierung, ganz zuerst in main() durchzufÃ¼hren:
     global void init_amiga (void);
     global void init_amiga()
       {
         cpu_is_68000 = ((SysBase->AttnFlags & (AFF_68020|AFF_68030|AFF_68040)) == 0);
         #ifdef MC68000
-        # Diese Version benötigt einen 68000. (Wegen addressbus_mask.)
+        # Diese Version benÃ¶tigt einen 68000. (Wegen addressbus_mask.)
         if (!cpu_is_68000) {
           exit(RETURN_FAIL);
         }
         #endif
         #ifdef MC680Y0
-        # Diese Version benötigt mindestens einen 68020, läuft nicht auf 68000.
+        # Diese Version benÃ¶tigt mindestens einen 68020, lÃ¤uft nicht auf 68000.
         # (Wegen ari68020.d, einiger asm()s und wegen gcc-Option -m68020.)
         if (cpu_is_68000) {
           exit(RETURN_FAIL);
         }
         #endif
-        # Wir wollen uns nicht mehr mit OS Version 1.x beschäftigen
+        # Wir wollen uns nicht mehr mit OS Version 1.x beschÃ¤ftigen
         if (SysBase->LibNode.lib_Version < 36) {
           exit(RETURN_FAIL);
         }
@@ -206,8 +206,8 @@ global long full_write(handle,bufarea,nbyte)
         # Benutzter Speicher muss in [0..2^oint_addr_len-1] liegen:
         #if defined(TYPECODES) && !defined(WIDE_SOFT)
         #define pointable_usable_test(a)  ((void*)pointable(type_pointer_object(0,a)) == (void*)(a))
-        if (!(pointable_usable_test((aint)&init_amiga) # Code-Segment überprüfen
-              && pointable_usable_test((aint)&symbol_tab) # Daten-Segment überprüfen
+        if (!(pointable_usable_test((aint)&init_amiga) # Code-Segment Ã¼berprÃ¼fen
+              && pointable_usable_test((aint)&symbol_tab) # Daten-Segment Ã¼berprÃ¼fen
            ) ) {
           asciz_out(GETTEXT("This version of CLISP runs only in low address memory." NLstring));
           asciz_out_2("CODE: %x, DATA: %x." NLstring, (aint)&init_amiga, (aint)&symbol_tab);
@@ -218,20 +218,20 @@ global long full_write(handle,bufarea,nbyte)
         # Ein Flag, das uns hilft, Speicher mit niedrigen Adressen zu bekommen:
         retry_allocmemflag =
           (CPU_IS_68000              # der 68000 hat nur 24 Bit Adressbereich,
-           ? MEMF_ANY                # nie ein zweiter Versuch nötig
+           ? MEMF_ANY                # nie ein zweiter Versuch nÃ¶tig
            : MEMF_24BITDMA           # sonst Flag MEMF_24BITDMA
           );
       }
 
-  # Rückgabe aller Ressourcen und Programmende:
+  # RÃ¼ckgabe aller Ressourcen und Programmende:
   nonreturning_function(global, exit_amiga, (sintL code));
   global void exit_amiga(code)
     var sintL code;
     {
       begin_system_call();
-      # Zurück ins Verzeichnis, in das wir beim Programmstart waren:
+      # ZurÃ¼ck ins Verzeichnis, in das wir beim Programmstart waren:
       if (!(orig_dir_lock == BPTR_NONE)) { # haben wir das Verzeichnis je gewechselt?
-        var BPTR lock = CurrentDir(orig_dir_lock); # zurück ins alte
+        var BPTR lock = CurrentDir(orig_dir_lock); # zurÃ¼ck ins alte
         UnLock(lock); # dieses nun freigeben
       }
       # Speicher freigeben:

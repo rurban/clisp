@@ -1,9 +1,9 @@
-# Ein-/Ausgabe für CLISP
+# Ein-/Ausgabe fÃ¼r CLISP
 # Bruno Haible 1990-2000
 # Marcus Daniels 11.3.1997
 
 #include "lispbibl.c"
-#include "arilev0.c" # für Division in pr_uint
+#include "arilev0.c" # fÃ¼r Division in pr_uint
 
 
 # =============================================================================
@@ -98,24 +98,24 @@
   #define case_preserve  2
   #define case_invert    3
 
-# Bedeutung der Einträge in der syntax_table:
+# Bedeutung der EintrÃ¤ge in der syntax_table:
   #define syntax_illegal      0  # nichtdruckende, soweit nicht whitespace
   #define syntax_single_esc   1  # '\' (Single Escape)
   #define syntax_multi_esc    2  # '|' (Multiple Escape)
-  #define syntax_constituent  3  # alles übrige (Constituent)
+  #define syntax_constituent  3  # alles Ã¼brige (Constituent)
   #define syntax_whitespace   4  # TAB,LF,FF,CR,' ' (Whitespace)
   #define syntax_eof          5  # EOF
   #define syntax_t_macro      6  # '()'"' (Terminating Macro)
   #define syntax_nt_macro     7  # '#' (Non-Terminating Macro)
-# <= syntax_constituent : Wenn ein Objekt damit anfängt, ist es ein Token.
+# <= syntax_constituent : Wenn ein Objekt damit anfÃ¤ngt, ist es ein Token.
 #                         (ILL liefert dann einen einen Error.)
 # >= syntax_t_macro : Macro-Zeichen.
-#                     Wenn ein Objekt damit anfängt: Macro-Funktion aufrufen.
+#                     Wenn ein Objekt damit anfÃ¤ngt: Macro-Funktion aufrufen.
 
 # Syntax tables, indexed by characters.
 # allocate_syntax_table()
 # syntax_table_get(table,c)
-# syntax_table_put(table,c,value) [kann GC auslösen]
+# syntax_table_put(table,c,value) [kann GC auslÃ¶sen]
   #if (small_char_code_limit < char_code_limit)
     # A cons, consisting of a simple-bit-vector with small_char_code_limit
     # bytes, and a hash table mapping characters to fixnums. Characters not
@@ -170,7 +170,7 @@
     #define syntax_table_put(table,c,value)  (TheSbvector(table)->data[as_cint(c)] = (value))
   #endif
 
-# originale Syntaxtabelle für eingelesene Zeichen:
+# originale Syntaxtabelle fÃ¼r eingelesene Zeichen:
   local const uintB orig_syntax_table [small_char_code_limit] = {
     #define illg  syntax_illegal
     #define sesc  syntax_single_esc
@@ -293,7 +293,7 @@
       {
         var object s_table = allocate_syntax_table(); # neuer Bitvektor
         pushSTACK(s_table); # retten
-        # und mit dem Original füllen:
+        # und mit dem Original fÃ¼llen:
         #if (small_char_code_limit < char_code_limit)
         s_table = Car(s_table);
         #endif
@@ -342,14 +342,14 @@
       }
       # READ-Macros initialisieren:
       {
-        var object m_table = allocate_perchar_table(); # neuer Vektor, mit NIL gefüllt
+        var object m_table = allocate_perchar_table(); # neuer Vektor, mit NIL gefÃ¼llt
         # und die Macro-Characters eintragen:
         var object* table = &TheSvector(m_table)->data[0];
         table['('] = L(lpar_reader);
         table[')'] = L(rpar_reader);
         table['"'] = L(string_reader);
         table['\''] = L(quote_reader);
-        table['#'] = popSTACK(); # Dispatch-Vektor für '#'
+        table['#'] = popSTACK(); # Dispatch-Vektor fÃ¼r '#'
         table[';'] = L(line_comment_reader);
         table['`'] = S(backquote_reader); # siehe BACKQUOTE.LISP
         table[','] = S(comma_reader); # siehe BACKQUOTE.LISP
@@ -460,7 +460,7 @@
       pushSTACK(allocate_syntax_table()); # neue leere Syntaxtabelle
       pushSTACK(allocate_perchar_table()); # neue leere Macro-Tabelle
       var object to_readtable = allocate_readtable(); # neue Readtable
-      # füllen:
+      # fÃ¼llen:
       TheReadtable(to_readtable)->readtable_macro_table = popSTACK();
       TheReadtable(to_readtable)->readtable_syntax_table = popSTACK();
       # und Inhalt kopieren:
@@ -477,8 +477,8 @@
       var object oldvalue = Symbol_value(sym);
       Symbol_value(sym) = O(standard_readtable); # := Standard-Readtable von Common Lisp
       # und Fehler melden:
-      pushSTACK(oldvalue); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(readtable)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(oldvalue); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(S(readtable)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(sym);
       fehler(type_error,
              GETTEXT("The value of ~ was not a readtable. It has been reset.")
@@ -551,7 +551,7 @@ LISPFUNN(defio,2)
 
 
 # =============================================================================
-# LISP - Funktionen für Readtables
+# LISP - Funktionen fÃ¼r Readtables
 # =============================================================================
 
 # Fehler, wenn Argument keine Readtable ist.
@@ -562,8 +562,8 @@ LISPFUNN(defio,2)
   local void fehler_readtable(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(readtable)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(S(readtable)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -584,7 +584,7 @@ LISPFUN(copy_readtable,0,2,norest,nokey,0,NIL)
         # statt NIL nimm die Standard-Readtable
         from_readtable = O(standard_readtable);
       } else {
-        # from-readtable überprüfen:
+        # from-readtable Ã¼berprÃ¼fen:
         if (!readtablep(from_readtable))
           fehler_readtable(from_readtable);
       }
@@ -594,7 +594,7 @@ LISPFUN(copy_readtable,0,2,norest,nokey,0,NIL)
         # kopiere from-readtable, ohne to-readtable
         value1 = copy_readtable(from_readtable);
       } else {
-        # to-readtable überprüfen und umkopieren:
+        # to-readtable Ã¼berprÃ¼fen und umkopieren:
         if (!readtablep(to_readtable))
           fehler_readtable(to_readtable);
         value1 = copy_readtable_contents(from_readtable,to_readtable);
@@ -611,20 +611,20 @@ LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
     var object from_char = STACK_2;
     var object to_readtable = STACK_1;
     var object from_readtable = STACK_0;
-    # to-char überprüfen:
+    # to-char Ã¼berprÃ¼fen:
     if (!charp(to_char)) # muss ein Character sein
       fehler_char(to_char);
-    # from-char überprüfen:
+    # from-char Ã¼berprÃ¼fen:
     if (!charp(from_char)) # muss ein Character sein
       fehler_char(from_char);
-    # to-readtable überprüfen:
+    # to-readtable Ã¼berprÃ¼fen:
     if (eq(to_readtable,unbound)) {
       get_readtable(to_readtable=); # Default ist die aktuelle Readtable
     } else {
       if (!readtablep(to_readtable))
         fehler_readtable(to_readtable);
     }
-    # from-readtable überprüfen:
+    # from-readtable Ã¼berprÃ¼fen:
     if (eq(from_readtable,unbound) || nullp(from_readtable)) {
       from_readtable = O(standard_readtable); # Default ist die Standard-Readtable
     } else {
@@ -651,11 +651,11 @@ LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
     skipSTACK(4);
   }
 
-# UP: Überprüft ein optionales Readtable-Argument,
+# UP: ÃœberprÃ¼ft ein optionales Readtable-Argument,
 # mit Default = Current Readtable.
 # > STACK_0: Argument
 # > subr_self: Aufrufer (ein SUBR)
-# < STACK: um 1 erhöht
+# < STACK: um 1 erhÃ¶ht
 # < ergebnis: readtable
   local object test_readtable_arg (void);
   local object test_readtable_arg()
@@ -664,17 +664,17 @@ LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
       if (eq(readtable,unbound)) {
         get_readtable(readtable=); # Default ist die aktuelle Readtable
       } else {
-        if (!readtablep(readtable)) # überprüfen
+        if (!readtablep(readtable)) # Ã¼berprÃ¼fen
           fehler_readtable(readtable);
       }
       return readtable;
     }
 
-# UP: Überprüft ein optionales Readtable-Argument,
+# UP: ÃœberprÃ¼ft ein optionales Readtable-Argument,
 # mit Default = Current Readtable, NIL = Standard-Readtable.
 # > STACK_0: Argument
 # > subr_self: Aufrufer (ein SUBR)
-# < STACK: um 1 erhöht
+# < STACK: um 1 erhÃ¶ht
 # < ergebnis: readtable
   local object test_readtable_null_arg (void);
   local object test_readtable_null_arg()
@@ -685,17 +685,17 @@ LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
       } elif (nullp(readtable)) {
         readtable = O(standard_readtable); # bzw. die Standard-Readtable
       } else {
-        if (!readtablep(readtable)) # überprüfen
+        if (!readtablep(readtable)) # Ã¼berprÃ¼fen
           fehler_readtable(readtable);
       }
       return readtable;
     }
 
-# UP: Überprüft das vorletzte optionale Argument von
+# UP: ÃœberprÃ¼ft das vorletzte optionale Argument von
 # SET-MACRO-CHARACTER und MAKE-DISPATCH-MACRO-CHARACTER.
 # > STACK_0: non-terminating-p - Argument
 # > subr_self: Aufrufer (ein SUBR)
-# < STACK: um 1 erhöht
+# < STACK: um 1 erhÃ¶ht
 # < ergebnis: neuer Syntaxcode
   local uintB test_nontermp_arg (void);
   local uintB test_nontermp_arg()
@@ -711,13 +711,13 @@ LISPFUN(set_macro_character,2,2,norest,nokey,0,NIL)
 # (SET-MACRO-CHARACTER char function [non-terminating-p [readtable]]),
 # CLTL S. 362
   {
-    # char überprüfen:
+    # char Ã¼berprÃ¼fen:
     {
       var object ch = STACK_3;
       if (!charp(ch))
         fehler_char(ch);
     }
-    # function überprüfen und in ein Objekt vom Typ FUNCTION umwandeln:
+    # function Ã¼berprÃ¼fen und in ein Objekt vom Typ FUNCTION umwandeln:
     {
       var object function = coerce_function(STACK_2);
       if (cclosurep(function)
@@ -746,7 +746,7 @@ LISPFUN(set_macro_character,2,2,norest,nokey,0,NIL)
 LISPFUN(get_macro_character,1,1,norest,nokey,0,NIL)
 # (GET-MACRO-CHARACTER char [readtable]), CLTL S. 362
   {
-    # char überprüfen:
+    # char Ã¼berprÃ¼fen:
     {
       var object ch = STACK_1;
       if (!charp(ch))
@@ -796,14 +796,14 @@ LISPFUN(make_dispatch_macro_character,1,2,norest,nokey,0,NIL)
   {
     var object readtable = test_readtable_arg(); # Readtable
     var uintB syntaxcode = test_nontermp_arg(); # neuer Syntaxcode
-    # char überprüfen:
+    # char Ã¼berprÃ¼fen:
     var object ch = popSTACK();
     if (!charp(ch))
       fehler_char(ch);
     var chart c = char_code(ch);
     # neue (leere) Dispatch-Macro-Tabelle holen:
     pushSTACK(readtable);
-    pushSTACK(allocate_perchar_table()); # Vektor, mit NIL gefüllt
+    pushSTACK(allocate_perchar_table()); # Vektor, mit NIL gefÃ¼llt
     # alles in der Readtable ablegen:
     # Syntaxcode in die Syntax-Table:
     syntax_table_put(TheReadtable(STACK_1)->readtable_syntax_table,c,syntaxcode);
@@ -813,7 +813,7 @@ LISPFUN(make_dispatch_macro_character,1,2,norest,nokey,0,NIL)
     skipSTACK(2);
   }
 
-# UP: Überprüft die Argumente disp-char und sub-char.
+# UP: ÃœberprÃ¼ft die Argumente disp-char und sub-char.
 # > STACK: STACK_1 = disp-char, STACK_0 = sub-char
 # > readtable: Readtable
 # > subr_self: Aufrufer (ein SUBR)
@@ -839,12 +839,12 @@ LISPFUN(make_dispatch_macro_character,1,2,norest,nokey,0,NIL)
               );
       }
       # disp-char ist ein Dispatching-Macro-Character, entry der Vektor.
-      var cint sub_c = as_cint(up_case(char_code(sub_ch))); # sub-char in Großbuchstaben umwandeln
+      var cint sub_c = as_cint(up_case(char_code(sub_ch))); # sub-char in GroÃŸbuchstaben umwandeln
       if ((sub_c >= '0') && (sub_c <= '9'))
         # Ziffer
         return nullobj;
       else
-        # gültiges sub-char
+        # gÃ¼ltiges sub-char
         return entry;
     }
 
@@ -852,15 +852,15 @@ LISPFUN(set_dispatch_macro_character,3,1,norest,nokey,0,NIL)
 # (SET-DISPATCH-MACRO-CHARACTER disp-char sub-char function [readtable]),
 # CLTL S. 364
   {
-    # function überprüfen und in ein Objekt vom Typ FUNCTION umwandeln:
+    # function Ã¼berprÃ¼fen und in ein Objekt vom Typ FUNCTION umwandeln:
     STACK_1 = coerce_function(STACK_1);
     subr_self = L(set_dispatch_macro_character);
     var object readtable = test_readtable_arg(); # Readtable
     var object function = popSTACK(); # function
     var object dm_table = test_disp_sub_char(readtable);
     if (eq(dm_table,nullobj)) {
-      # STACK_0 = sub-char, Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_not_digit)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      # STACK_0 = sub-char, Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_not_digit)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(STACK_1);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -885,7 +885,7 @@ LISPFUNN(readtable_case,1)
 # (READTABLE-CASE readtable), CLTL2 S. 549
   {
     var object readtable = popSTACK(); # Readtable
-    if (!readtablep(readtable)) # überprüfen
+    if (!readtablep(readtable)) # Ã¼berprÃ¼fen
       fehler_readtable(readtable);
     value1 = (&O(rtcase_0))[(uintW)posfixnum_to_L(TheReadtable(readtable)->readtable_case)];
     mv_count=1;
@@ -896,7 +896,7 @@ LISPFUNN(set_readtable_case,2)
   {
     var object value = popSTACK();
     var object readtable = popSTACK(); # Readtable
-    if (!readtablep(readtable)) # überprüfen
+    if (!readtablep(readtable)) # Ã¼berprÃ¼fen
       fehler_readtable(readtable);
     # Symbol value in einen Index umwandeln durch Suche in der Tabelle O(rtcase..):
     var const object* ptr = &O(rtcase_0);
@@ -907,9 +907,9 @@ LISPFUNN(set_readtable_case,2)
         goto found;
       ptr++; rtcase = fixnum_inc(rtcase,1);
     });
-    # kein gültiger Wert
-    pushSTACK(value); # Wert für Slot DATUM von TYPE-ERROR
-    pushSTACK(O(type_rtcase)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+    # kein gÃ¼ltiger Wert
+    pushSTACK(value); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+    pushSTACK(O(type_rtcase)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
     pushSTACK(O(rtcase_3)); pushSTACK(O(rtcase_2)); pushSTACK(O(rtcase_1)); pushSTACK(O(rtcase_0));
     pushSTACK(value);
     pushSTACK(S(set_readtable_case));
@@ -922,7 +922,7 @@ LISPFUNN(set_readtable_case,2)
   }
 
 # =============================================================================
-# Einige Hilfsroutinen und Macros für READ und PRINT
+# Einige Hilfsroutinen und Macros fÃ¼r READ und PRINT
 # =============================================================================
 
 # Testet den dynamischen Wert eines Symbols auf /=NIL
@@ -946,8 +946,8 @@ LISPFUNN(set_readtable_case,2)
         return wert;
       } else {
         Symbol_value(symbol) = fixnum(10); # Wert auf 10 setzen
-        pushSTACK(value); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_radix)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(value); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_radix)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(value);
         pushSTACK(symbol);
         fehler(type_error,
@@ -979,12 +979,12 @@ LISPFUNN(set_readtable_case,2)
 # Mit Hilfe der Attributtabelle (vgl. CLTL Table 22-3) wird jedem Character
 # im Token ein Attribut a_xxxx zugeordnet.
 # O(token_buff_1) ist ein Semi-Simple-String, der die Characters des
-# gerade eingelesenen Extended-Tokens enthält.
+# gerade eingelesenen Extended-Tokens enthÃ¤lt.
 # O(token_buff_2) ist ein Semi-Simple-Byte-Vektor, der die Attribute des
-# gerade eingelesenen Extended-Tokens enthält.
-# Beide haben dieselbe Länge (in Characters bzw. Bytes).
+# gerade eingelesenen Extended-Tokens enthÃ¤lt.
+# Beide haben dieselbe LÃ¤nge (in Characters bzw. Bytes).
 
-# Spezielle Objekte, die bei READ als Ergebnis kommen können:
+# Spezielle Objekte, die bei READ als Ergebnis kommen kÃ¶nnen:
 #   eof_value: spezielles Objekt, das EOF anzeigt
 #   dot_value: Hilfswert zum Erkennen einzelner Dots
 
@@ -997,7 +997,7 @@ LISPFUNN(set_readtable_case,2)
     var object ch;
     var const object* stream_;
     {
-      pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
       pushSTACK(ch); # Character
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
@@ -1019,7 +1019,7 @@ LISPFUNN(set_readtable_case,2)
       if (eq(ch0,eof_value)) # EOF ?                                   \
         { scode_zuweisung syntax_eof; }                                \
         else                                                           \
-        { # Sonst auf Character überprüfen:                            \
+        { # Sonst auf Character Ã¼berprÃ¼fen:                            \
           if (!charp(ch0)) { fehler_charread(ch0,stream_); }           \
          {var object readtable;                                        \
           get_readtable(readtable = );                                 \
@@ -1028,14 +1028,14 @@ LISPFUNN(set_readtable_case,2)
         }}                                                             \
     }
 
-# Fehlermeldung bei EOF außerhalb von Objekten
+# Fehlermeldung bei EOF auÃŸerhalb von Objekten
 # fehler_eof_aussen(&stream);
 # > stream: Stream
   nonreturning_function(local, fehler_eof_aussen, (const object* stream_));
   local void fehler_eof_aussen(stream_)
     var const object* stream_;
     {
-      pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
       fehler(end_of_file,
@@ -1050,7 +1050,7 @@ LISPFUNN(set_readtable_case,2)
   local void fehler_eof_innen(stream_)
     var const object* stream_;
     {
-      pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
       if (posfixnump(Symbol_value(S(read_line_number)))) { # SYS::*READ-LINE-NUMBER* abfragen
         pushSTACK(Symbol_value(S(read_line_number))); # Zeilennummer
         pushSTACK(*stream_); # Stream
@@ -1080,19 +1080,19 @@ LISPFUNN(set_readtable_case,2)
         fehler_eof_aussen(stream_);
     }
 
-# UP: Liest bis zum nächsten non-whitespace-Zeichen, ohne dieses zu
+# UP: Liest bis zum nÃ¤chsten non-whitespace-Zeichen, ohne dieses zu
 # verbrauchen. Bei EOF Error.
 # wpeek_char_syntax(ch=,scode=,&stream);
 # > stream: Stream
 # < stream: Stream
-# < object ch: nächstes Character
+# < object ch: nÃ¤chstes Character
 # < uintWL scode: sein Syntaxcode
 # can trigger GC
   #define wpeek_char_syntax(ch_zuweisung,scode_zuweisung,stream_)  \
     { loop                                                                 \
         { var object ch0 = read_char(stream_); # Character lesen           \
           if (eq(ch0,eof_value)) { fehler_eof(stream_); } # EOF -> Error   \
-          # Sonst auf Character überprüfen:                                \
+          # Sonst auf Character Ã¼berprÃ¼fen:                                \
           if (!charp(ch0)) { fehler_charread(ch0,stream_); }               \
           {var object readtable;                                           \
            get_readtable(readtable = );                                    \
@@ -1101,17 +1101,17 @@ LISPFUNN(set_readtable_case,2)
                  )                                                         \
                  == syntax_whitespace                                      \
               ) )                                                          \
-             # kein Whitespace -> letztes gelesenes Zeichen zurückschieben \
+             # kein Whitespace -> letztes gelesenes Zeichen zurÃ¼ckschieben \
              { unread_char(stream_,ch0); ch_zuweisung ch0; break; }        \
         } }                                                                \
     }
 
-# UP: Liest bis zum nächsten non-whitespace-Zeichen, ohne dieses zu
+# UP: Liest bis zum nÃ¤chsten non-whitespace-Zeichen, ohne dieses zu
 # verbrauchen.
 # wpeek_char_eof(&stream)
 # > stream: Stream
 # < stream: Stream
-# < ergebnis: nächstes Character oder eof_value
+# < ergebnis: nÃ¤chstes Character oder eof_value
 # can trigger GC
   local object wpeek_char_eof (const object* stream_);
   local object wpeek_char_eof(stream_)
@@ -1121,7 +1121,7 @@ LISPFUNN(set_readtable_case,2)
         var object ch = read_char(stream_); # Character lesen
         if (eq(ch,eof_value)) # EOF ?
           return ch;
-        # Sonst auf Character überprüfen:
+        # Sonst auf Character Ã¼berprÃ¼fen:
         if (!charp(ch))
           fehler_charread(ch,stream_);
         var object readtable;
@@ -1131,7 +1131,7 @@ LISPFUNN(set_readtable_case,2)
               )
               == syntax_whitespace
            ) ) {
-          # kein Whitespace -> letztes gelesenes Zeichen zurückschieben
+          # kein Whitespace -> letztes gelesenes Zeichen zurÃ¼ckschieben
           unread_char(stream_,ch); return ch;
         }
       }
@@ -1140,11 +1140,11 @@ LISPFUNN(set_readtable_case,2)
 # ------------------------ READ auf Token-Ebene -------------------------------
 
 # Bei read_token und test_potential_number_syntax, test_number_syntax werden
-# die Attribute gemäß CLTL Table 22-3 gebraucht.
-# Während test_potential_number_syntax werden Attribute umgewandelt,
+# die Attribute gemÃ¤ÃŸ CLTL Table 22-3 gebraucht.
+# WÃ¤hrend test_potential_number_syntax werden Attribute umgewandelt,
 # a_digit teilweise in a_alpha oder a_letter oder a_expo_m.
 
-# Bedeutung der Einträge in attribute_table:
+# Bedeutung der EintrÃ¤ge in attribute_table:
   #define a_illg     0   # illegales Constituent
   #define a_pack_m   1   # ':' = Package-marker
   #define a_alpha    2   # Zeichen ohne besondere Eigenschaften (alphabetic)
@@ -1161,7 +1161,7 @@ LISPFUNN(set_readtable_case,2)
   #    >= a_digit        # '0123456789','A'-'Z','a'-'z'
   #    >= a_ratio        # woraus eine potential number bestehen muss
 
-# Attributtabelle für Constituents, Erstinterpretation:
+# Attributtabelle fÃ¼r Constituents, Erstinterpretation:
 # Anmerkung: 0-9,A-Z,a-z werden erst als a_digit oder a_expo_m interpretiert,
 # dann (falls sich kein Integer aus einem Token ergibt) wird a_digit
 # oberhalb von *READ-BASE* als a_alpha (alphabetic) interpretiert.
@@ -1276,9 +1276,9 @@ LISPFUNN(set_readtable_case,2)
   local boolean token_escape_flag;
 
 # UP: Liefert zwei Buffer.
-# Falls im Reservoir O(token_buff_1), O(token_buff_2) zwei verfügbar sind,
+# Falls im Reservoir O(token_buff_1), O(token_buff_2) zwei verfÃ¼gbar sind,
 # werden sie entnommen. Sonst werden neue alloziert.
-# Werden die Buffer nicht mehr gebraucht, so können sie in
+# Werden die Buffer nicht mehr gebraucht, so kÃ¶nnen sie in
 # O(token_buff_1) und O(token_buff_2) geschrieben werden.
 # < STACK_1: ein Semi-Simple String mit Fill-Pointer 0
 # < STACK_0: ein Semi-Simple Byte-Vektor mit Fill-Pointer 0
@@ -1290,7 +1290,7 @@ LISPFUNN(set_readtable_case,2)
       # In O(token_buff_1) und O(token_buff_2) stehen ein Semi-Simple-String
       # und ein Semi-Simple-Byte-Vektor, die bei Bedarf entnommen (und mit
       # O(token_buff_1) := NIL als entnommen markiert) und nach Gebrauch
-      # wieder hineingesetzt werden können. Reentrant!
+      # wieder hineingesetzt werden kÃ¶nnen. Reentrant!
       var object buff_1 = O(token_buff_1);
       if (!nullp(buff_1)) {
         # Buffer entnehmen und leeren:
@@ -1301,7 +1301,7 @@ LISPFUNN(set_readtable_case,2)
         pushSTACK(buff_2); # 2. Buffer fertig
         O(token_buff_1) = NIL; # Buffer als entnommen markieren
       } else {
-        # Buffer sind gerade entnommen und müssen neu alloziert werden:
+        # Buffer sind gerade entnommen und mÃ¼ssen neu alloziert werden:
         pushSTACK(make_ssstring(50)); # neuer Semi-Simple-String mit Fill-Pointer=0
         pushSTACK(make_ssbvector(50)); # neuer Semi-Simple-Byte-Vektor mit Fill-Pointer=0
       }
@@ -1348,25 +1348,25 @@ LISPFUNN(set_readtable_case,2)
       get_buffers(); # (brauche ch nicht zu retten)
       # Bis zum Ende von read_token_1 liegen die beiden Buffer im Stack.
       # (So kann read_char rekursiv read aufrufen...)
-      # Danach (während test_potential_number_syntax, test_number_syntax,
+      # Danach (wÃ¤hrend test_potential_number_syntax, test_number_syntax,
       # test_dots, read_internal bis zum Ende von read_internal) liegen
       # die Buffer in O(token_buff_1) und O(token_buff_2). Nach dem Ende von
-      # read_internal ist ihr Inhalt wertlos, und sie können für weitere
+      # read_internal ist ihr Inhalt wertlos, und sie kÃ¶nnen fÃ¼r weitere
       # read-Operationen benutzt werden.
       var boolean multiple_escape_flag = FALSE;
       var boolean escape_flag = FALSE;
       goto char_read;
       loop {
-        # Hier wird das Token in STACK_1 (Semi-Simple-String für Characters)
-        # und STACK_0 (Semi-Simple-Byte-Vektor für Attributcodes) aufgebaut.
+        # Hier wird das Token in STACK_1 (Semi-Simple-String fÃ¼r Characters)
+        # und STACK_0 (Semi-Simple-Byte-Vektor fÃ¼r Attributcodes) aufgebaut.
         # Multiple-Escape-Flag zeigt an, ob man sich zwischen |...| befindet.
         # Escape-Flag zeigt an, ob ein Escape-Character vorgekommen ist.
-        read_char_syntax(ch = ,scode = ,stream_); # nächstes Zeichen lesen
+        read_char_syntax(ch = ,scode = ,stream_); # nÃ¤chstes Zeichen lesen
        char_read:
         switch(scode) {
           case syntax_illegal:
             # illegal -> Error melden:
-            pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+            pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
             pushSTACK(ch); # Zeichen
             pushSTACK(*stream_); # Stream
             pushSTACK(S(read));
@@ -1376,11 +1376,11 @@ LISPFUNN(set_readtable_case,2)
             break;
           case syntax_single_esc:
             # Single-Escape-Zeichen ->
-            # nächstes Zeichen lesen und unverändert übernehmen
+            # nÃ¤chstes Zeichen lesen und unverÃ¤ndert Ã¼bernehmen
             escape_flag = TRUE;
-            read_char_syntax(ch = ,scode = ,stream_); # nächstes Zeichen lesen
+            read_char_syntax(ch = ,scode = ,stream_); # nÃ¤chstes Zeichen lesen
             if (scode==syntax_eof) { # EOF erreicht?
-              pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+              pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
               pushSTACK(*stream_);
               pushSTACK(S(read));
               fehler(end_of_file,
@@ -1389,7 +1389,7 @@ LISPFUNN(set_readtable_case,2)
             }
           escape:
             # nach Escape-Zeichen:
-            # Zeichen unverändert ins Token übernehmen
+            # Zeichen unverÃ¤ndert ins Token Ã¼bernehmen
             ssstring_push_extend(STACK_1,char_code(ch));
             ssbvector_push_extend(STACK_0,a_escaped);
             break;
@@ -1402,8 +1402,8 @@ LISPFUNN(set_readtable_case,2)
           case syntax_nt_macro:
             # normales Constituent
             if (multiple_escape_flag) # Zwischen Multiple-Escape-Zeichen?
-              goto escape; # ja -> Zeichen unverändert übernehmen
-            # ins Token übernehmen (Groß-/Klein-Umwandlung kommt später):
+              goto escape; # ja -> Zeichen unverÃ¤ndert Ã¼bernehmen
+            # ins Token Ã¼bernehmen (GroÃŸ-/Klein-Umwandlung kommt spÃ¤ter):
             {
               var chart c = char_code(ch);
               ssstring_push_extend(STACK_1,c);
@@ -1415,9 +1415,9 @@ LISPFUNN(set_readtable_case,2)
             # whitespace oder terminating macro ->
             # Token endet wohl vor diesem Character.
             if (multiple_escape_flag) # Zwischen Multiple-Escape-Zeichen?
-              goto escape; # ja -> Zeichen unverändert übernehmen
+              goto escape; # ja -> Zeichen unverÃ¤ndert Ã¼bernehmen
             # Token ist zu Ende.
-            # Schiebe das Character auf den Stream zurück,
+            # Schiebe das Character auf den Stream zurÃ¼ck,
             # falls es kein Whitespace ist oder
             # es ein Whitespace ist und *READ-PRESERVE-WHITESPACE* /= NIL.
             if ((!(scode == syntax_whitespace))
@@ -1428,7 +1428,7 @@ LISPFUNN(set_readtable_case,2)
           case syntax_eof:
             # EOF erreicht.
             if (multiple_escape_flag) { # zwischen Multiple-Escape-Zeichen?
-              pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+              pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
               pushSTACK(*stream_);
               pushSTACK(S(read));
               fehler(end_of_file,
@@ -1449,7 +1449,7 @@ LISPFUNN(set_readtable_case,2)
 
 # --------------- READ zwischen Token-Ebene und Objekt-Ebene ------------------
 
-# UP: Überprüft, ob der Token-Buffer eine potential-number enthält, und
+# UP: ÃœberprÃ¼ft, ob der Token-Buffer eine potential-number enthÃ¤lt, und
 # wandelt, als Vorbereitung auf Zahl-Lese-Routinen, Attributcodes um.
 # test_potential_number_syntax(&base,&token_info);
 # > O(token_buff_1): gelesene Characters
@@ -1462,7 +1462,7 @@ LISPFUNN(set_readtable_case,2)
 #   Falls nicht potential number:
 #     Unterscheidung zwischen [a_pack_m | a_dot | sonstiges] bleibt erhalten.
 # < ergebnis: TRUE, falls potential number vorliegt
-#             (und dann ist token_info mit {charptr, attrptr, len} gefüllt)
+#             (und dann ist token_info mit {charptr, attrptr, len} gefÃ¼llt)
   typedef struct {
     chart* charptr;
     uintB* attrptr;
@@ -1473,22 +1473,22 @@ LISPFUNN(set_readtable_case,2)
     var uintWL* base_;
     var token_info* info;
     # Ein Token ist potential number, wenn (CLTL, S. 341)
-    # - es ausschließlich aus Ziffern, '+','-','/','^','_','.' und
-    #   Number-Markern besteht. Die Basis für die Ziffern ist dabei vom
-    #   Kontext abhängig, jedoch immer 10, wenn ein Punkt '.' vorkommt.
+    # - es ausschlieÃŸlich aus Ziffern, '+','-','/','^','_','.' und
+    #   Number-Markern besteht. Die Basis fÃ¼r die Ziffern ist dabei vom
+    #   Kontext abhÃ¤ngig, jedoch immer 10, wenn ein Punkt '.' vorkommt.
     #   Ein Number-Marker ist ein Buchstabe, der keine Ziffer ist und
     #   nicht neben einem anderen solchen steht.
-    # - es mindestens eine Ziffer enthält,
+    # - es mindestens eine Ziffer enthÃ¤lt,
     # - es mit einer Ziffer, '+','-','.','^' oder '_' beginnt,
     # - es nicht mit '+' oder '-' endet.
-    # Überprüfung:
+    # ÃœberprÃ¼fung:
     # 1. Suche, ob ein Punkt vorkommt. Falls ja, Basis:=10.
     # 2. Alles >=a_letter (also 'A'-'Z','a'-'z'), was einen Wert <Basis hat,
     #    wird in a_digit umgewandelt.
     # (Jetzt wird a_digit als "digit" und >=a_letter als "letter" interpretiert.)
     # 3. Test, ob nur >=a_ratio vorkommen. Nein -> kein potential number.
     # 4. Test, ob ein a_digit vorkommt. Nein -> kein potential number.
-    # (Jetzt ist die Länge >0.)
+    # (Jetzt ist die LÃ¤nge >0.)
     # 5. Test, ob nebeneinanderliegende >=a_letter vorkommen.
     #    Ja -> kein potential number.
     # 6. Test, ob erstes Zeichenattribut >=a_dot,<=a_digit.
@@ -1499,11 +1499,11 @@ LISPFUNN(set_readtable_case,2)
     {
       var chart* charptr0; # Pointer auf die Characters
       var uintB* attrptr0; # Pointer auf die Attribute
-      var uintL len; # Länge des Token
+      var uintL len; # LÃ¤nge des Token
       # initialisieren:
       {
         var object buff = O(token_buff_1); # Semi-Simple String
-        len = TheIarray(buff)->dims[1]; # Länge = Fill-Pointer
+        len = TheIarray(buff)->dims[1]; # LÃ¤nge = Fill-Pointer
         charptr0 = &TheSstring(TheIarray(buff)->data)->data[0]; # ab hier kommen die Characters
         buff = O(token_buff_2); # Semi-Simple Byte-Vektor
         attrptr0 = &TheSbvector(TheIarray(buff)->data)->data[0]; # ab hier kommen die Attributcodes
@@ -1517,7 +1517,7 @@ LISPFUNN(set_readtable_case,2)
             if (*attrptr++ == a_dot) goto dot;
           });
         }
-        # kein Punkt -> base unverändert lassen
+        # kein Punkt -> base unverÃ¤ndert lassen
         goto no_dot;
         # Punkt -> base := 10
        dot: *base_ = 10;
@@ -1561,7 +1561,7 @@ LISPFUNN(set_readtable_case,2)
         return FALSE; # kein potential number
        digit_ok: ;
       }
-      # Länge len>0.
+      # LÃ¤nge len>0.
       # 5. Teste, ob hintereinander zwei Attributcodes >= a_letter kommen:
       if (len > 1) {
         var uintB* attrptr = attrptr0;
@@ -1589,9 +1589,9 @@ LISPFUNN(set_readtable_case,2)
       return TRUE;
     }
 
-# UP: Überprüft, ob der Token-Buffer eine Zahl enthält (Syntax gemäß CLTL
-# Table 22-2), und stellt gegebenenfalls die für die Umwandlung in eine Zahl
-# nötigen Parameter zur Verfügung.
+# UP: ÃœberprÃ¼ft, ob der Token-Buffer eine Zahl enthÃ¤lt (Syntax gemÃ¤ÃŸ CLTL
+# Table 22-2), und stellt gegebenenfalls die fÃ¼r die Umwandlung in eine Zahl
+# nÃ¶tigen Parameter zur VerfÃ¼gung.
 # test_number_syntax(&base,&string,&info)
 # > O(token_buff_1): gelesene Characters
 # > O(token_buff_2): ihre Attributcodes
@@ -1610,7 +1610,7 @@ LISPFUNN(set_readtable_case,2)
 #         < index1: Index der ersten Ziffer
 #         < index3: Index von '/'
 #         < index2: Index nach der letzten Ziffer
-#         (also index3-index1 Zähler-Ziffern, index2-index3-1 Nenner-Ziffern)
+#         (also index3-index1 ZÃ¤hler-Ziffern, index2-index3-1 Nenner-Ziffern)
 #     3 : Float
 #         < index1: Index vom Mantissenanfang (excl. Vorzeichen)
 #         < index4: Index nach dem Mantissenende
@@ -1644,9 +1644,9 @@ LISPFUNN(set_readtable_case,2)
     #    { a_digit < base }+ { a_ratio { a_digit < base }+ | }
     #    vorliegt.
     # 4. base:=10 setzen, und falls base vorher >10 war, den Characters
-    #    'A'-'Z','a'-'z' (waren früher a_letter oder a_expo_m, sind aber evtl.
+    #    'A'-'Z','a'-'z' (waren frÃ¼her a_letter oder a_expo_m, sind aber evtl.
     #    durch test_potential_number_syntax in a_digit umgewandelt worden)
-    #    wieder ihren Attributcode gemäß Tabelle zuordnen (a_letter -> keine
+    #    wieder ihren Attributcode gemÃ¤ÃŸ Tabelle zuordnen (a_letter -> keine
     #    Zahl oder a_expo_m).
     # 5. versuchen, das Token als Floating-Point-Zahl oder Dezimal-Integer
     #    zu interpretieren:
@@ -1655,12 +1655,12 @@ LISPFUNN(set_readtable_case,2)
     #    { a_digit }* { a_dot { a_digit }* | }
     #    { a_expo_m { a_plus | a_minus | } { a_digit }+ | }
     #    vorliegt.
-    #    Falls Exponent vorliegt, müssen Vor- oder Nachkommastellen kommen;
+    #    Falls Exponent vorliegt, mÃ¼ssen Vor- oder Nachkommastellen kommen;
     #      es ist ein Float, Typ wird vom Exponent-Marker (e,E liefern den
     #      Wert der Variablen *read-default-float-format* als Typ).
     #    Falls kein Exponent:
-    #      Falls kein Dezimalpunkt da, ist es keine Zahl (hätte schon bei
-    #        Schritt 3 geliefert werden müssen, aber base hatte offenbar
+    #      Falls kein Dezimalpunkt da, ist es keine Zahl (hÃ¤tte schon bei
+    #        Schritt 3 geliefert werden mÃ¼ssen, aber base hatte offenbar
     #        nicht gepasst).
     #      Falls Dezimalpunkt vorhanden:
     #        Falls Nachkommastellen vorliegen, ist es ein Float (Typ wird
@@ -1671,12 +1671,12 @@ LISPFUNN(set_readtable_case,2)
     {
       var chart* charptr0; # Pointer auf die Characters
       var uintB* attrptr0; # Pointer auf die Attribute
-      var uintL len; # Länge des Token
+      var uintL len; # LÃ¤nge des Token
       # 1. Auf potential number testen:
       {
         if (token_escape_flag) # Token mit Escape-Zeichen ->
           return 0; # keine potential number -> keine Zahl
-         # Escape-Flag gelöscht.
+         # Escape-Flag gelÃ¶scht.
         var token_info info;
         if (!test_potential_number_syntax(base_,&info)) # potential number ?
           return 0; # nein -> keine Zahl
@@ -1692,7 +1692,7 @@ LISPFUNN(set_readtable_case,2)
       switch (*attrptr0) {
         case a_minus: info->sign = -1; # Vorzeichen:=negativ
         case a_plus:
-          # Vorzeichen überlesen:
+          # Vorzeichen Ã¼berlesen:
           charptr0++; attrptr0++; index0++;
         default:
           break;
@@ -1700,8 +1700,8 @@ LISPFUNN(set_readtable_case,2)
       info->index1 = index0; # Startindex
       info->index2 = len; # Endindex
       # info->sign und info->index1 und info->index2 fertig.
-      # charptr0 und attrptr0 und index0 ab jetzt unverändert.
-      var uintB flags = 0; # alle Flags löschen
+      # charptr0 und attrptr0 und index0 ab jetzt unverÃ¤ndert.
+      var uintB flags = 0; # alle Flags lÃ¶schen
       # 3. Rationale Zahl
       {
         var chart* charptr = charptr0;
@@ -1712,7 +1712,7 @@ LISPFUNN(set_readtable_case,2)
         # flags & bit(1)  zeigt an, ob bereits ein a_ratio angetroffen ist
         #                 (und dann ist info->index3 dessen Position)
         loop {
-          # nächstes Zeichen
+          # nÃ¤chstes Zeichen
           if (index>=len)
             break;
           var uintB attr = *attrptr++; # dessen Attributcode
@@ -1731,7 +1731,7 @@ LISPFUNN(set_readtable_case,2)
             flags |= bit(1); # erster '/'
             if (!(flags & bit(0))) # keine Ziffern vor dem Bruchstrich?
               goto schritt4; # ja -> keine rationale Zahl
-            flags &= ~bit(0); # Bit 0 löschen, neuer Block fängt an
+            flags &= ~bit(0); # Bit 0 lÃ¶schen, neuer Block fÃ¤ngt an
             info->index3 = index; # Index des '/' merken
             charptr++; index++;
           } else
@@ -1757,7 +1757,7 @@ LISPFUNN(set_readtable_case,2)
           var chart* charptr = charptr0;
           var uintB* attrptr = attrptr0;
           dotimespL(count,count, {
-            var chart ch = *charptr++; # nächstes Character
+            var chart ch = *charptr++; # nÃ¤chstes Character
             var cint c = as_cint(ch);
             if (((c>='A') && (c<='Z')) || ((c>='a') && (c<='z'))) {
               var uintB attr = attribute_of(ch); # dessen wahrer Attributcode
@@ -1782,7 +1782,7 @@ LISPFUNN(set_readtable_case,2)
         # flags & bit(4)  zeigt an, ob a_dot vorkam und es Vorkommastellen
         #                 gab.
         loop {
-          # nächstes Zeichen
+          # nÃ¤chstes Zeichen
           if (index>=len)
             break;
           var uintB attr = *attrptr++; # dessen Attributcode
@@ -1795,7 +1795,7 @@ LISPFUNN(set_readtable_case,2)
             flags |= bit(2); # erster '.'
             if (flags & bit(3))
               flags |= bit(4); # evtl. mit Vorkommastellen
-            flags &= ~bit(3); # Flag zurücksetzen
+            flags &= ~bit(3); # Flag zurÃ¼cksetzen
             index++;
             info->index3 = index; # Index nach dem '.' merken
           } elif (attr==a_expo_m)
@@ -1813,14 +1813,14 @@ LISPFUNN(set_readtable_case,2)
         if (!(flags & bit(4))) # auch ohne Vorkommastellen?
           return 0; # ja -> nur '.' -> keine Zahl
         # Nur Vorkomma-, keine Nachkommastellen -> Dezimal-Integer.
-        # Brauche Dot ganz hinten nicht wegzuschneiden (wird überlesen).
+        # Brauche Dot ganz hinten nicht wegzuschneiden (wird Ã¼berlesen).
         return 1;
        expo:
         # Exponent erreicht.
         info->index4 = index;
-        index++; # Exponent-Marker mitzählen
+        index++; # Exponent-Marker mitzÃ¤hlen
         if (!(flags & bit(2)))
-          info->index3 = info->index4; # Default für index3
+          info->index3 = info->index4; # Default fÃ¼r index3
         if (!(flags & (bit(3)|bit(4)))) # Kamen Vor- oder Nachkommastellen vor?
           return 0; # nein -> keine Zahl
         # Exponententeil weiter abarbeiten:
@@ -1830,15 +1830,15 @@ LISPFUNN(set_readtable_case,2)
         switch (*attrptr) {
           case a_plus:
           case a_minus:
-            attrptr++; index++; # Exponenten-Vorzeichen übergehen
+            attrptr++; index++; # Exponenten-Vorzeichen Ã¼bergehen
           default:
             break;
         }
         loop {
-          # nächstes Zeichen im Exponenten:
+          # nÃ¤chstes Zeichen im Exponenten:
           if (index>=len)
             break;
-          # Es dürfen nur noch Digits kennen:
+          # Es dÃ¼rfen nur noch Digits kennen:
           if (!(*attrptr++ == a_digit))
             return 0;
           flags |= bit(5);
@@ -1865,7 +1865,7 @@ LISPFUNN(set_readtable_case,2)
       funcall(L(error_of_type),3);
     }
 
-# UP: Überprüft, ob ein Token nur aus Dots besteht.
+# UP: ÃœberprÃ¼ft, ob ein Token nur aus Dots besteht.
 # test_dots()
 # > O(token_buff_1): gelesene Characters
 # > O(token_buff_2): ihre Attributcodes
@@ -1888,7 +1888,7 @@ LISPFUNN(set_readtable_case,2)
       return TRUE;
     }
 
-# UP: Wandelt ein Zahl-Token in Großbuchstaben um.
+# UP: Wandelt ein Zahl-Token in GroÃŸbuchstaben um.
 # upcase_token();
 # > O(token_buff_1): gelesene Characters
 # > O(token_buff_2): ihre Attributcodes
@@ -1903,7 +1903,7 @@ LISPFUNN(set_readtable_case,2)
       }
     }
 
-# UP: Wandelt ein Stück des gelesenen Tokens in Groß- oder Kleinbuchstaben um.
+# UP: Wandelt ein StÃ¼ck des gelesenen Tokens in GroÃŸ- oder Kleinbuchstaben um.
 # case_convert_token(start_index,end_index,direction);
 # > O(token_buff_1): gelesene Characters
 # > O(token_buff_2): ihre Attributcodes
@@ -1923,7 +1923,7 @@ LISPFUNN(set_readtable_case,2)
         return;
       switch (direction) {
         case case_upcase:
-          # Nicht-escapte Characters in Großbuchstaben umwandeln:
+          # Nicht-escapte Characters in GroÃŸbuchstaben umwandeln:
         do_upcase:
           dotimespL(len,len, {
             if (!(*attrptr == a_escaped))
@@ -1946,8 +1946,8 @@ LISPFUNN(set_readtable_case,2)
         case case_invert:
           # Falls kein nicht-escapter Kleinbuchstabe vorkommt,
           # alle nicht-escapten Characters in Kleinbuchstaben umwandeln.
-          # Falls kein nicht-escapter Großbuchstabe vorkommt,
-          # alle nicht-escapten Characters in Großbuchstaben umwandeln.
+          # Falls kein nicht-escapter GroÃŸbuchstabe vorkommt,
+          # alle nicht-escapten Characters in GroÃŸbuchstaben umwandeln.
           # Ansonsten nichts tun.
           {
             var boolean seen_uppercase = FALSE;
@@ -1978,7 +1978,7 @@ LISPFUNN(set_readtable_case,2)
       }
     }
 
-# UP: Wandelt das gesamte gelesene Token in Groß- oder Kleinbuchstaben um.
+# UP: Wandelt das gesamte gelesene Token in GroÃŸ- oder Kleinbuchstaben um.
 # case_convert_token_1();
   local void case_convert_token_1 (void);
   local void case_convert_token_1()
@@ -1986,12 +1986,12 @@ LISPFUNN(set_readtable_case,2)
       var object readtable;
       get_readtable(readtable = );
       var uintW direction = (uintW)posfixnum_to_L(TheReadtable(readtable)->readtable_case);
-      var uintL len = TheIarray(O(token_buff_1))->dims[1]; # Länge = Fill-Pointer
+      var uintL len = TheIarray(O(token_buff_1))->dims[1]; # LÃ¤nge = Fill-Pointer
       case_convert_token(0,len,direction);
     }
 
 # UP: Behandelt ein Read-Macro-Character:
-# Ruft die zugehörige Macro-Funktion auf, bei Dispatch-Characters erst noch
+# Ruft die zugehÃ¶rige Macro-Funktion auf, bei Dispatch-Characters erst noch
 # Zahl-Argument und Subchar einlesen.
 # read_macro(ch,&stream)
 # > ch: Macro-Character, ein Character
@@ -2009,7 +2009,7 @@ LISPFUNN(set_readtable_case,2)
       var object macrodef = # Macro-Definition aus Tabelle holen
         perchar_table_get(TheReadtable(readtable)->readtable_macro_table,char_code(ch));
       if (nullp(macrodef)) { # =NIL ?
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
         pushSTACK(ch);
         pushSTACK(*stream_);
         pushSTACK(S(read));
@@ -2031,7 +2031,7 @@ LISPFUNN(set_readtable_case,2)
                  GETTEXT("~ from ~: macro character definition for ~ may not return ~ values, only one value.")
                 );
         }
-        # höchstens 1 Wert.
+        # hÃ¶chstens 1 Wert.
         return; # mv_space/mv_count belassen
       } else {
         # Dispatch-Macro-Zeichen.
@@ -2047,7 +2047,7 @@ LISPFUNN(set_readtable_case,2)
           loop {
             var object nextch = read_char(stream_); # Character lesen
             if (eq(nextch,eof_value)) {
-              pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+              pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
               pushSTACK(ch); # main char
               pushSTACK(*stream_); # Stream
               pushSTACK(S(read));
@@ -2055,7 +2055,7 @@ LISPFUNN(set_readtable_case,2)
                      GETTEXT("~: input stream ~ ends within read macro beginning to ~")
                     );
             }
-            # Sonst auf Character überprüfen.
+            # Sonst auf Character Ã¼berprÃ¼fen.
             if (!charp(nextch))
               fehler_charread(nextch,stream_);
             var chart ch = char_code(nextch);
@@ -2075,12 +2075,12 @@ LISPFUNN(set_readtable_case,2)
         }
         # Weiter geht's mit Subchar (Character subc)
         subch = code_char(subc);
-        subc = up_case(subc); # Subchar in Großbuchstaben umwandeln
-        macrodef = popSTACK(); # Vektor zurück
+        subc = up_case(subc); # Subchar in GroÃŸbuchstaben umwandeln
+        macrodef = popSTACK(); # Vektor zurÃ¼ck
         macrodef = perchar_table_get(macrodef,subc); # Subchar-Funktion oder NIL
         if (nullp(macrodef)) {
           # NIL -> undefiniert
-          pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+          pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
           pushSTACK(subch); # Subchar
           pushSTACK(ch); # Mainchar
           pushSTACK(*stream_); # Stream
@@ -2103,7 +2103,7 @@ LISPFUNN(set_readtable_case,2)
                  GETTEXT("~ from ~: dispatch macro character definition for ~ after ~ may not return ~ values, only one value.")
                 );
         }
-        # höchstens 1 Wert.
+        # hÃ¶chstens 1 Wert.
         return; # mv_space/mv_count belassen
       }
     }
@@ -2111,10 +2111,10 @@ LISPFUNN(set_readtable_case,2)
 # ------------------------ READ auf Objekt-Ebene ------------------------------
 
 # UP: Liest ein Objekt ein.
-# Überliest dabei führenden Whitespace und Kommentar.
-# Maßgeblich sind die aktuellen Werte von SYS::*READ-PRESERVE-WHITESPACE*
-# (fürs evtl. Überlesen des ersten Whitespace nach dem Objekt)
-# und SYS::*READ-RECURSIVE-P* (für EOF-Behandlung).
+# Ãœberliest dabei fÃ¼hrenden Whitespace und Kommentar.
+# MaÃŸgeblich sind die aktuellen Werte von SYS::*READ-PRESERVE-WHITESPACE*
+# (fÃ¼rs evtl. Ãœberlesen des ersten Whitespace nach dem Objekt)
+# und SYS::*READ-RECURSIVE-P* (fÃ¼r EOF-Behandlung).
 # read_internal(&stream)
 # > stream: Stream
 # < stream: Stream
@@ -2124,7 +2124,7 @@ LISPFUNN(set_readtable_case,2)
   local object read_internal(stream_)
     var const object* stream_;
     {
-     wloop: # Schleife zum Überlesen von führendem Whitespace/Kommentar:
+     wloop: # Schleife zum Ãœberlesen von fÃ¼hrendem Whitespace/Kommentar:
       {
         var object ch;
         var uintWL scode;
@@ -2136,7 +2136,7 @@ LISPFUNN(set_readtable_case,2)
           case syntax_t_macro:
           case syntax_nt_macro:
             # Macro-Zeichen am Token-Anfang
-            read_macro(ch,stream_); # Macro-Funktion ausführen
+            read_macro(ch,stream_); # Macro-Funktion ausfÃ¼hren
             if (mv_count==0)
               # 0 Werte -> weiterlesen
               goto wloop;
@@ -2155,7 +2155,7 @@ LISPFUNN(set_readtable_case,2)
           case syntax_single_esc:
           case syntax_multi_esc:
           case syntax_constituent:
-            # Token lesen: Mit dem Zeichen ch fängt ein Token an.
+            # Token lesen: Mit dem Zeichen ch fÃ¤ngt ein Token an.
             read_token_1(stream_,ch,scode); # Token zu Ende lesen
             break;
           default: NOTREACHED
@@ -2168,18 +2168,18 @@ LISPFUNN(set_readtable_case,2)
       # Der Token liegt in O(token_buff_1), O(token_buff_2), token_escape_flag.
       if ((!token_escape_flag) && test_dots()) {
         # Token ist eine Folge von Dots, ohne Escape-Characters gelesen.
-        # Länge ist damit automatisch >0.
-        var uintL len = TheIarray(O(token_buff_1))->dims[1]; # Länge des Token
+        # LÃ¤nge ist damit automatisch >0.
+        var uintL len = TheIarray(O(token_buff_1))->dims[1]; # LÃ¤nge des Token
         if (len > 1) {
-          # Länge>1 -> Fehler
-          pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+          # LÃ¤nge>1 -> Fehler
+          pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
           pushSTACK(*stream_);
           pushSTACK(S(read));
           fehler(stream_error,
                  GETTEXT("~ from ~: a token consisting only of dots cannot be meaningfully read in")
                 );
         }
-        # Länge=1 -> dot_value als Wert
+        # LÃ¤nge=1 -> dot_value als Wert
         return dot_value;
       }
       # Token ist OK
@@ -2190,7 +2190,7 @@ LISPFUNN(set_readtable_case,2)
         var zahl_info info;
         var uintWL numtype = test_number_syntax(&base,&string,&info);
         if (!(numtype==0)) { # Zahl?
-          upcase_token(); # in Großbuchstaben umwandeln
+          upcase_token(); # in GroÃŸbuchstaben umwandeln
           var object result;
           # ANSI CL 2.3.1.1 requires that we transform ARITHMETIC-ERROR into READER-ERROR
           make_HANDLER_frame(O(handler_for_arithmetic_error),&signal_reader_error,NULL);
@@ -2216,16 +2216,16 @@ LISPFUNN(set_readtable_case,2)
       # von CLTL S. 341 oben) ist).
       # Dazu erst einmal die Verteilung der Doppelpunkte (Characters mit
       # Attributcode a_pack_m) feststellen:
-      # Suche von vorne den ersten Doppelpunkt. Fälle (CLTL S. 343-344):
+      # Suche von vorne den ersten Doppelpunkt. FÃ¤lle (CLTL S. 343-344):
       # 1. Kein Doppelpunkt -> aktuelle Package
       # 2. Ein oder zwei Doppelpunkte am Anfang -> Keyword
       # 3. Ein Doppelpunkt, nicht am Anfang -> externes Symbol
       # 4. Zwei Doppelpunkte, nicht am Anfang -> internes Symbol
-      # In den letzten drei Fällen dürfen keine weiteren Doppelpunkte mehr
+      # In den letzten drei FÃ¤llen dÃ¼rfen keine weiteren Doppelpunkte mehr
       # kommen.
       # (Dass bei 2. der Namensteil bzw. bei 3. und 4. der Packageteil und
       # der Namensteil nicht die Syntax einer Zahl haben, kann hier nicht
-      # mehr überprüft werden, weil sich TOKEN_ESCAPE_FLAG auf das ganze
+      # mehr Ã¼berprÃ¼ft werden, weil sich TOKEN_ESCAPE_FLAG auf das ganze
       # Token bezieht. Vergleiche |USER|:: und |USER|::|| )
       {
         var uintW direction; # Richtung der Case-Konversion
@@ -2235,14 +2235,14 @@ LISPFUNN(set_readtable_case,2)
           direction = (uintW)posfixnum_to_L(TheReadtable(readtable)->readtable_case);
         }
         var object buff_2 = O(token_buff_2); # Attributcode-Buffer
-        var uintL len = TheIarray(buff_2)->dims[1]; # Länge = Fill-Pointer
+        var uintL len = TheIarray(buff_2)->dims[1]; # LÃ¤nge = Fill-Pointer
         var uintB* attrptr = &TheSbvector(TheIarray(buff_2)->data)->data[0];
         var uintL index = 0;
         # stets attrptr = &TheSbvector(...)->data[index].
         # Token wird in Packagenamen und Namen zerhackt:
         var uintL pack_end_index;
         var uintL name_start_index;
-        var boolean external_internal_flag = FALSE; # vorläufig external
+        var boolean external_internal_flag = FALSE; # vorlÃ¤ufig external
         loop {
           if (index>=len)
             goto current; # kein Doppelpunkt gefunden -> current package
@@ -2253,7 +2253,7 @@ LISPFUNN(set_readtable_case,2)
         # erster Doppelpunkt bei Index index gefunden
         pack_end_index = index; # Packagename endet hier
         index++;
-        name_start_index = index; # Symbolname fängt (vorläufig) hier an
+        name_start_index = index; # Symbolname fÃ¤ngt (vorlÃ¤ufig) hier an
         # Tokenende erreicht -> externes Symbol:
         if (index>=len)
           goto ex_in_ternal;
@@ -2261,13 +2261,13 @@ LISPFUNN(set_readtable_case,2)
         index++;
         if (*attrptr++ == a_pack_m) {
           # zwei Doppelpunkte nebeneinander
-          name_start_index = index; # Symbolname fängt erst hier an
+          name_start_index = index; # Symbolname fÃ¤ngt erst hier an
           external_internal_flag = TRUE; # internal
         } else {
           # erster Doppelpunkt war isoliert
           # external
         }
-        # Es dürfen keine weiteren Doppelpunkte kommen:
+        # Es dÃ¼rfen keine weiteren Doppelpunkte kommen:
         loop {
           if (index>=len)
             goto ex_in_ternal; # kein weiterer Doppelpunkt gefunden -> ok
@@ -2276,7 +2276,7 @@ LISPFUNN(set_readtable_case,2)
           index++;
         }
         # Fehlermeldung
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
         pushSTACK(copy_string(O(token_buff_1))); # Character-Buffer kopieren
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
@@ -2310,7 +2310,7 @@ LISPFUNN(set_readtable_case,2)
           TheIarray(hstring)->data = O(token_buff_1); # Datenvektor
           TheIarray(hstring)->dims[0] = name_start_index; # Displaced-Offset
           TheIarray(hstring)->totalsize =
-            TheIarray(hstring)->dims[1] = len - name_start_index; # Länge
+            TheIarray(hstring)->dims[1] = len - name_start_index; # LÃ¤nge
           # Symbol in die Keyword-Package internieren (und dabei
           # String kopieren, falls das Symbol neu erzeugt werden muss):
           return intern_keyword(hstring);
@@ -2322,11 +2322,11 @@ LISPFUNN(set_readtable_case,2)
           TheIarray(hstring)->data = O(token_buff_1); # Datenvektor
           TheIarray(hstring)->dims[0] = 0; # Displaced-Offset
           TheIarray(hstring)->totalsize =
-            TheIarray(hstring)->dims[1] = pack_end_index; # Länge
+            TheIarray(hstring)->dims[1] = pack_end_index; # LÃ¤nge
           # Package mit diesem Namen suchen:
           var object pack = find_package(hstring);
           if (nullp(pack)) { # Package nicht gefunden?
-            pushSTACK(copy_string(hstring)); # Displaced-String kopieren, Wert für Slot PACKAGE von PACKAGE-ERROR
+            pushSTACK(copy_string(hstring)); # Displaced-String kopieren, Wert fÃ¼r Slot PACKAGE von PACKAGE-ERROR
             pushSTACK(STACK_0);
             pushSTACK(*stream_); # Stream
             pushSTACK(S(read));
@@ -2339,7 +2339,7 @@ LISPFUNN(set_readtable_case,2)
           # Hilfs-String adjustieren:
           TheIarray(hstring)->dims[0] = name_start_index; # Displaced-Offset
           TheIarray(hstring)->totalsize =
-            TheIarray(hstring)->dims[1] = len - name_start_index; # Länge
+            TheIarray(hstring)->dims[1] = len - name_start_index; # LÃ¤nge
           if (external_internal_flag) {
             # internal
             # Symbol internieren (und dabei String kopieren,
@@ -2354,7 +2354,7 @@ LISPFUNN(set_readtable_case,2)
             if (find_external_symbol(hstring,pack,&sym)) {
               return sym; # sym gefunden
             } else {
-              pushSTACK(pack); # Wert für Slot PACKAGE von PACKAGE-ERROR
+              pushSTACK(pack); # Wert fÃ¼r Slot PACKAGE von PACKAGE-ERROR
               pushSTACK(copy_string(hstring)); # Displaced-String kopieren
               pushSTACK(STACK_1); # pack
               pushSTACK(*stream_); # Stream
@@ -2380,7 +2380,7 @@ LISPFUNN(set_readtable_case,2)
   local object read_recursive(stream_)
     var const object* stream_;
     {
-      check_SP(); check_STACK(); # Stacks auf Überlauf testen
+      check_SP(); check_STACK(); # Stacks auf Ãœberlauf testen
       if (test_value(S(read_recursive_p))) {
         # schon rekursiv
         return read_internal(stream_);
@@ -2404,7 +2404,7 @@ LISPFUNN(set_readtable_case,2)
   local void fehler_dot(stream)
     var object stream;
     {
-      pushSTACK(stream); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(stream); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
       pushSTACK(stream); # Stream
       pushSTACK(S(read));
       fehler(stream_error,
@@ -2448,7 +2448,7 @@ LISPFUNN(set_readtable_case,2)
       if (nullp(alist)) {
         return obj;
       } else {
-        # Überprüfen, ob SYS::*READ-REFERENCE-TABLE* eine Aliste ist:
+        # ÃœberprÃ¼fen, ob SYS::*READ-REFERENCE-TABLE* eine Aliste ist:
         {
           var object alistr = alist; # Liste durchlaufen
           while (consp(alistr)) {
@@ -2471,7 +2471,7 @@ LISPFUNN(set_readtable_case,2)
         var object bad_reference =
           subst_circ(&STACK_0,alist); # Referenzen durch Objekte substituieren
         if (!eq(bad_reference,nullobj)) {
-          pushSTACK(unbound); # "Wert" für Slot STREAM von STREAM-ERROR
+          pushSTACK(unbound); # "Wert" fÃ¼r Slot STREAM von STREAM-ERROR
           pushSTACK(Symbol_value(S(read_reference_table)));
           pushSTACK(S(read_reference_table));
           pushSTACK(obj);
@@ -2499,7 +2499,7 @@ LISPFUNN(set_readtable_case,2)
     var object whitespace_p;
     {
      #if STACKCHECKR
-      var object* STACKbefore = STACK; # STACK aufheben für später
+      var object* STACKbefore = STACK; # STACK aufheben fÃ¼r spÃ¤ter
      #endif
       # SYS::*READ-RECURSIVE-P* an NIL binden:
       dynamic_bind(S(read_recursive_p),NIL);
@@ -2518,7 +2518,7 @@ LISPFUNN(set_readtable_case,2)
       dynamic_unbind();
       dynamic_unbind();
      #if STACKCHECKR
-      # Überprüfen, ob Stack aufgeräumt:
+      # ÃœberprÃ¼fen, ob Stack aufgerÃ¤umt:
       if (!(STACK == STACKbefore))
         abort(); # wenn nicht, in den Debugger
      #endif
@@ -2570,7 +2570,7 @@ LISPFUNN(set_readtable_case,2)
     var object ifdotted;
     {
       # SYS::*READ-LINE-NUMBER* an (SYS::LINE-NUMBER stream) binden
-      # (für Fehlermeldung, damit man die Zeile der öffnenden Klammer erfährt):
+      # (fÃ¼r Fehlermeldung, damit man die Zeile der Ã¶ffnenden Klammer erfÃ¤hrt):
       var object lineno = stream_line_number(*stream_);
       dynamic_bind(S(read_line_number),lineno);
       var object ergebnis;
@@ -2599,7 +2599,7 @@ LISPFUNN(set_readtable_case,2)
       {
         var object object1; # erstes Listenelement
         loop { # Schleife, um erstes Listenelement zu lesen
-          # nächstes non-whitespace Character:
+          # nÃ¤chstes non-whitespace Character:
           var object ch;
           var uintWL scode;
           wpeek_char_syntax(ch = ,scode = ,stream_);
@@ -2613,14 +2613,14 @@ LISPFUNN(set_readtable_case,2)
             object1 = read_recursive_no_dot(stream_);
             break;
           } else {
-            # ja -> zugehöriges Zeichen lesen und Macro-Funktion ausführen:
+            # ja -> zugehÃ¶riges Zeichen lesen und Macro-Funktion ausfÃ¼hren:
             ch = read_char(stream_);
             read_macro(ch,stream_);
-            if (!(mv_count==0)) { # Wert zurück?
+            if (!(mv_count==0)) { # Wert zurÃ¼ck?
               object1 = value1; # ja -> als 1. Objekt nehmen
               break;
             }
-            # nein -> überlesen
+            # nein -> Ã¼berlesen
           }
         }
         # object1 ist das 1. Objekt
@@ -2633,10 +2633,10 @@ LISPFUNN(set_readtable_case,2)
         pushSTACK(new_cons);
       }
       # Stackaufbau: Gesamtliste, (last Gesamtliste).
-      loop { # Schleife über weitere Listenelemente
+      loop { # Schleife Ã¼ber weitere Listenelemente
         var object object1; # weiteres Listenelement
         loop { # Schleife, um weiteres Listenelement zu lesen
-          # nächstes non-whitespace Character:
+          # nÃ¤chstes non-whitespace Character:
           var object ch;
           var uintWL scode;
           wpeek_char_syntax(ch = ,scode = ,stream_);
@@ -2647,26 +2647,26 @@ LISPFUNN(set_readtable_case,2)
             skipSTACK(1); return popSTACK(); # Gesamtliste als Ergebnis
           }
           if (scode < syntax_t_macro) { # Macro-Character?
-            # nein -> nächstes Objekt lesen:
+            # nein -> nÃ¤chstes Objekt lesen:
             object1 = read_recursive(stream_);
             if (eq(object1,dot_value))
               goto dot;
             break;
           } else {
-            # ja -> zugehöriges Zeichen lesen und Macro-Funktion ausführen:
+            # ja -> zugehÃ¶riges Zeichen lesen und Macro-Funktion ausfÃ¼hren:
             ch = read_char(stream_);
             read_macro(ch,stream_);
-            if (!(mv_count==0)) { # Wert zurück?
-              object1 = value1; # ja -> als nächstes Objekt nehmen
+            if (!(mv_count==0)) { # Wert zurÃ¼ck?
+              object1 = value1; # ja -> als nÃ¤chstes Objekt nehmen
               break;
             }
-            # nein -> überlesen
+            # nein -> Ã¼berlesen
           }
         }
-        # nächstes Objekt in die Liste einhängen:
+        # nÃ¤chstes Objekt in die Liste einhÃ¤ngen:
         pushSTACK(object1);
         {
-          var object new_cons = allocate_cons(); # nächstes Listen-Cons
+          var object new_cons = allocate_cons(); # nÃ¤chstes Listen-Cons
           Car(new_cons) = popSTACK(); # (cons object1 nil)
           Cdr(STACK_0) = new_cons; # =: (cdr (last Gesamtliste))
           STACK_0 = new_cons;
@@ -2678,14 +2678,14 @@ LISPFUNN(set_readtable_case,2)
       {
         var object object1; # letztes Listenelement
         loop { # Schleife, um letztes Listenelement zu lesen
-          # nächstes non-whitespace Character:
+          # nÃ¤chstes non-whitespace Character:
           var object ch;
           var uintWL scode;
           wpeek_char_syntax(ch = ,scode = ,stream_);
           if (eq(ch,endch)) { # Ist es das erwartete Endezeichen?
             # ja -> Fehler
            fehler_dot:
-            pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+            pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
             pushSTACK(*stream_); # Stream
             pushSTACK(S(read_delimited_list));
             fehler(stream_error,
@@ -2697,42 +2697,42 @@ LISPFUNN(set_readtable_case,2)
             object1 = read_recursive_no_dot(stream_);
             break;
           } else {
-            # ja -> zugehöriges Zeichen lesen und Macro-Funktion ausführen:
+            # ja -> zugehÃ¶riges Zeichen lesen und Macro-Funktion ausfÃ¼hren:
             ch = read_char(stream_);
             read_macro(ch,stream_);
-            if (!(mv_count==0)) { # Wert zurück?
+            if (!(mv_count==0)) { # Wert zurÃ¼ck?
               object1 = value1; # ja -> als letztes Objekt nehmen
               break;
             }
-            # nein -> überlesen
+            # nein -> Ã¼berlesen
           }
         }
         # object1 ist das letzte Objekt
-        # als (cdr (last Gesamtliste)) in die Liste einhängen:
+        # als (cdr (last Gesamtliste)) in die Liste einhÃ¤ngen:
         Cdr(STACK_0) = object1;
       }
       loop { # Schleife, um Kommentar nach letztem Listenelement zu lesen
-        # nächstes non-whitespace Character:
+        # nÃ¤chstes non-whitespace Character:
         var object ch;
         var uintWL scode;
         wpeek_char_syntax(ch = ,scode = ,stream_);
         if (eq(ch,endch)) # Ist es das erwartete Endezeichen?
           goto finish_list; # ja -> Liste fertig
         if (scode < syntax_t_macro) # Macro-Character?
-          # nein -> Dot kam zu früh, Fehler
+          # nein -> Dot kam zu frÃ¼h, Fehler
           goto fehler_dot;
         else {
-          # ja -> zugehöriges Zeichen lesen und Macro-Funktion ausführen:
+          # ja -> zugehÃ¶riges Zeichen lesen und Macro-Funktion ausfÃ¼hren:
           ch = read_char(stream_);
           read_macro(ch,stream_);
-          if (!(mv_count==0)) # Wert zurück?
-            goto fehler_dot; # ja -> Dot kam zu früh, Fehler
-          # nein -> überlesen
+          if (!(mv_count==0)) # Wert zurÃ¼ck?
+            goto fehler_dot; # ja -> Dot kam zu frÃ¼h, Fehler
+          # nein -> Ã¼berlesen
         }
       }
     }
 
-# Macro: Überprüft das Stream-Argument eines SUBRs.
+# Macro: ÃœberprÃ¼ft das Stream-Argument eines SUBRs.
 # stream_ = test_stream_arg(stream);
 # > stream: Stream-Argument im STACK
 # > subr_self: Aufrufer (ein SUBR)
@@ -2760,7 +2760,7 @@ LISPFUNN(lpar_reader,2) # liest (
 LISPFUNN(rpar_reader,2) # liest )
   {
     var object* stream_ = test_stream_arg(STACK_1);
-    pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+    pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
     pushSTACK(STACK_(0+1)); # char
     pushSTACK(*stream_); # stream
     pushSTACK(S(read));
@@ -2795,9 +2795,9 @@ LISPFUNN(string_reader,2) # liest "
     var object* stream_ = test_stream_arg(STACK_1);
     # Stackaufbau: stream, char.
     if (test_value(S(read_suppress))) { # *READ-SUPPRESS* /= NIL ?
-      # ja -> String nur überlesen:
+      # ja -> String nur Ã¼berlesen:
       loop {
-        # nächstes Zeichen lesen:
+        # nÃ¤chstes Zeichen lesen:
         var object ch;
         var uintWL scode;
         read_char_syntax(ch = ,scode = ,stream_);
@@ -2818,7 +2818,7 @@ LISPFUNN(string_reader,2) # liest "
       get_buffers(); # zwei leere Buffer auf den Stack
       # Stackaufbau: stream, char, Buffer, andererBuffer.
       loop {
-        # nächstes Zeichen lesen:
+        # nÃ¤chstes Zeichen lesen:
         var object ch;
         var uintWL scode;
         read_char_syntax(ch = ,scode = ,stream_);
@@ -2852,7 +2852,7 @@ LISPFUNN(string_reader,2) # liest "
     mv_count=1; skipSTACK(2);
     return;
    fehler_eof:
-    pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+    pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
     pushSTACK(*stream_); # Stream
     pushSTACK(S(read));
     fehler(end_of_file,
@@ -2863,8 +2863,8 @@ LISPFUNN(string_reader,2) # liest "
 # Liest ein Objekt und bildet eine zweielementige Liste.
 # list2_reader(stream_);
 # > Stackaufbau: stream, symbol.
-# erhöht STACK um 2
-# verändert STACK, kann GC auslösen
+# erhÃ¶ht STACK um 2
+# verÃ¤ndert STACK, kann GC auslÃ¶sen
   local Values list2_reader (const object* stream_);
   local Values list2_reader(stream_)
     var const object* stream_;
@@ -2905,7 +2905,7 @@ LISPFUNN(line_comment_reader,2) # liest ;
       if (eq(ch,eof_value) || eq(ch,ascii_char(NL)))
         break;
     }
-    value1 = NIL; mv_count=0; skipSTACK(2); # keine Werte zurück
+    value1 = NIL; mv_count=0; skipSTACK(2); # keine Werte zurÃ¼ck
   }
 
 # ------------------------- READ-Dispatch-Macros ------------------------------
@@ -2917,7 +2917,7 @@ LISPFUNN(line_comment_reader,2) # liest ;
   nonreturning_function(local, fehler_dispatch_zahl, (void));
   local void fehler_dispatch_zahl()
     {
-      pushSTACK(STACK_1); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(STACK_1); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
       pushSTACK(STACK_(0+1)); # sub-char
       pushSTACK(STACK_(1+2)); # Stream
       pushSTACK(S(read));
@@ -2926,13 +2926,13 @@ LISPFUNN(line_comment_reader,2) # liest ;
             );
     }
 
-# UP: Überprüft die Abwesenheit eines Infix-Arguments n
+# UP: ÃœberprÃ¼ft die Abwesenheit eines Infix-Arguments n
 # test_no_infix()
 # > Stackaufbau: Stream, sub-char, n.
 # > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: &stream
-# erhöht STACK um 1
-# verändert STACK
+# erhÃ¶ht STACK um 1
+# verÃ¤ndert STACK
   local object* test_no_infix (void);
   local object* test_no_infix()
     {
@@ -2990,7 +2990,7 @@ LISPFUNN(comment_reader,3) # liest #|
       goto fehler_eof;
     elif (eq(ch,STACK_0)) {
       # sub-char gelesen
-      ch = read_char(stream_); # nächstes Zeichen
+      ch = read_char(stream_); # nÃ¤chstes Zeichen
       if (eq(ch,eof_value)) # EOF -> Error
         goto fehler_eof;
       elif (eq(ch,ascii_char('#'))) {
@@ -3003,11 +3003,11 @@ LISPFUNN(comment_reader,3) # liest #|
         goto loop2;
     } elif (eq(ch,ascii_char('#'))) {
       # '#' gelesen
-      ch = read_char(stream_); # nächstes Zeichen
+      ch = read_char(stream_); # nÃ¤chstes Zeichen
       if (eq(ch,eof_value)) # EOF -> Error
         goto fehler_eof;
       elif (eq(ch,STACK_0)) {
-        # '#' und sub-char gelesen -> depth erhöhen:
+        # '#' und sub-char gelesen -> depth erhÃ¶hen:
         depth++;
         goto loop1;
       } else
@@ -3015,7 +3015,7 @@ LISPFUNN(comment_reader,3) # liest #|
     } else
       goto loop1;
    fehler_eof:
-    pushSTACK(STACK_1); # Wert für Slot STREAM von STREAM-ERROR
+    pushSTACK(STACK_1); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
     pushSTACK(STACK_(0+1)); # sub-char
     pushSTACK(STACK_(0+2)); # sub-char
     pushSTACK(STACK_(1+3)); # Stream
@@ -3024,17 +3024,17 @@ LISPFUNN(comment_reader,3) # liest #|
            GETTEXT("~: input stream ~ ends within a comment #$ ... $#")
           );
    fertig:
-    value1 = NIL; mv_count=0; skipSTACK(2); # keine Werte zurück
+    value1 = NIL; mv_count=0; skipSTACK(2); # keine Werte zurÃ¼ck
   }
 
 # (set-dispatch-macro-character #\# #\\
 #   #'(lambda (stream sub-char n)
 #       (let ((token (read-token-1 stream #\\ 'single-escape)))
-#         ; token ist ein String der Länge >=1
+#         ; token ist ein String der LÃ¤nge >=1
 #         (unless *read-suppress*
 #           (if n
 #             (unless (< n char-font-limit) ; sowieso n>=0
-#               (error "~ von ~: Fontnummer ~ für Zeichen ist zu groß (muss <~ sein)."
+#               (error "~ von ~: Fontnummer ~ fÃ¼r Zeichen ist zu groÃŸ (muss <~ sein)."
 #                       'read stream        n                 char-font-limit
 #             ) )
 #             (setq n 0)
@@ -3098,7 +3098,7 @@ LISPFUNN(char_reader,3) # liest #\
     # Font bestimmen:
     if (!nullp(STACK_0)) # n=NIL -> Default-Font 0
       if (!eq(STACK_0,Fixnum_0)) {
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
         pushSTACK(STACK_(0+1)); # n
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
@@ -3108,12 +3108,12 @@ LISPFUNN(char_reader,3) # liest #\
       }
     # Font fertig.
     var object token = O(token_buff_1); # gelesenes Token als Semi-Simple-String
-    var uintL len = TheIarray(token)->dims[1]; # Länge = Fill-Pointer
+    var uintL len = TheIarray(token)->dims[1]; # LÃ¤nge = Fill-Pointer
     var object hstring = O(displaced_string); # Hilfsstring
     TheIarray(hstring)->data = token; # Datenvektor := O(token_buff_1)
     token = TheIarray(token)->data; # Normal-Simple-String mit Token
     var uintL pos = 0; # momentane Position im Token
-    loop { # Suche nächstes Hyphen
+    loop { # Suche nÃ¤chstes Hyphen
       if (len-pos == 1) # einbuchstabiger Charactername?
         break;
       var uintL hyphen = pos; # hyphen := pos
@@ -3128,10 +3128,10 @@ LISPFUNN(char_reader,3) # liest #\
       var uintL sub_len = hyphen-pos;
       TheIarray(hstring)->dims[0] = pos; # Displaced-Offset := pos
       TheIarray(hstring)->totalsize =
-        TheIarray(hstring)->dims[1] = sub_len; # Länge := hyphen-pos
+        TheIarray(hstring)->dims[1] = sub_len; # LÃ¤nge := hyphen-pos
       # Jetzt ist hstring = (subseq token pos hyphen)
       # Displaced-String hstring ist kein Bitname -> Error
-      pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
       pushSTACK(copy_string(hstring)); # Displaced-String kopieren
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
@@ -3140,7 +3140,7 @@ LISPFUNN(char_reader,3) # liest #\
             );
      bit_ok: # Bitname gefunden, Bit gesetzt
       # Mit diesem Bitnamen fertig.
-      pos = hyphen+1; # zum nächsten
+      pos = hyphen+1; # zum nÃ¤chsten
     }
     # einbuchstabiger Charactername
     {
@@ -3150,10 +3150,10 @@ LISPFUNN(char_reader,3) # liest #\
     }
    no_more_hyphen: # kein weiteres Hyphen gefunden.
     {
-      var uintL sub_len = len-pos; # Länge des Characternamens
+      var uintL sub_len = len-pos; # LÃ¤nge des Characternamens
       TheIarray(hstring)->dims[0] = pos; # Displaced-Offset := pos
       /* TheIarray(hstring)->totalsize =          */
-      /*   TheIarray(hstring)->dims[1] = sub_len; */ # Länge := len-pos
+      /*   TheIarray(hstring)->dims[1] = sub_len; */ # LÃ¤nge := len-pos
       # hstring = (subseq token pos hyphen) = restlicher Charactername
       # Test auf Characternamen "CODExxxx" (xxxx Dezimalzahl <256):
       if (sub_len > 4) {
@@ -3169,7 +3169,7 @@ LISPFUNN(char_reader,3) # liest #\
         loop {
           if (index == len) # Token-Ende erreicht?
             break;
-          var cint c = as_cint(*charptr++); # nächstes Character
+          var cint c = as_cint(*charptr++); # nÃ¤chstes Character
           # soll Ziffer sein:
           if (!((c>='0') && (c<='9')))
             goto not_codexxxx;
@@ -3194,11 +3194,11 @@ LISPFUNN(char_reader,3) # liest #\
       }
       # Test auf Characternamen wie NAME-CHAR:
       TheIarray(hstring)->totalsize =
-        TheIarray(hstring)->dims[1] = sub_len; # Länge := len-pos
+        TheIarray(hstring)->dims[1] = sub_len; # LÃ¤nge := len-pos
       var object ch = name_char(hstring); # Character mit diesem Namen suchen
       if (nullp(ch)) {
         # nicht gefunden -> Error
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
         pushSTACK(copy_string(hstring)); # Charactername kopieren
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
@@ -3220,23 +3220,23 @@ LISPFUNN(char_reader,3) # liest #\
 #             (integer t) (decimal-integer nil) (rational t) (float nil)
 #           )
 #         (read-number token base)
-#         (error "~ von ~: Das Token ~ nach # ~ lässt sich nicht als rationale Zahl in Basis ~ interpretieren."
+#         (error "~ von ~: Das Token ~ nach # ~ lÃ¤sst sich nicht als rationale Zahl in Basis ~ interpretieren."
 #                 'read stream token sub-char base
 # ) ) ) ) )
-  # UP für #B #O #X #R
+  # UP fÃ¼r #B #O #X #R
   # radix_2(base)
   # > base: Basis (>=2, <=36)
   # > Stackaufbau: Stream, sub-char, base.
   # > O(token_buff_1), O(token_buff_2), token_escape_flag: gelesenes Token
-  # < STACK: aufgeräumt
+  # < STACK: aufgerÃ¤umt
   # < mv_space/mv_count: Werte
-  # kann GC auslösen
+  # kann GC auslÃ¶sen
   local Values radix_2 (uintWL base);
   local Values radix_2(base)
     var uintWL base;
     {
-      # Überprüfe, ob das Token eine rationale Zahl darstellt:
-      upcase_token(); # in Großbuchstaben umwandeln
+      # ÃœberprÃ¼fe, ob das Token eine rationale Zahl darstellt:
+      upcase_token(); # in GroÃŸbuchstaben umwandeln
       var object string;
       var zahl_info info;
       switch (test_number_syntax(&base,&string,&info)) {
@@ -3246,20 +3246,20 @@ LISPFUNN(char_reader,3) # liest #\
             # ja -> Dezimal-Integer, nicht in Basis base
             goto not_rational;
           # test_number_syntax wurde bereits im Schritt 3 fertig,
-          # also ist base immer noch unverändert.
+          # also ist base immer noch unverÃ¤ndert.
           skipSTACK(3);
           value1 = read_integer(base,info.sign,string,info.index1,info.index2);
           mv_count=1; return;
         case 2: # Rational
           # test_number_syntax wurde bereits im Schritt 3 fertig,
-          # also ist base immer noch unverändert.
+          # also ist base immer noch unverÃ¤ndert.
           skipSTACK(3);
           value1 = read_rational(base,info.sign,string,info.index1,info.index3,info.index2);
           mv_count=1; return;
         case 0: # keine Zahl
         case 3: # Float
         not_rational: # keine rationale Zahl
-          pushSTACK(STACK_2); # Wert für Slot STREAM von STREAM-ERROR
+          pushSTACK(STACK_2); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
           pushSTACK(STACK_(0+1)); # base
           pushSTACK(STACK_(1+2)); # sub-char
           pushSTACK(copy_string(O(token_buff_1))); # Token
@@ -3271,14 +3271,14 @@ LISPFUNN(char_reader,3) # liest #\
         default: NOTREACHED
       }
     }
-  # UP für #B #O #X
+  # UP fÃ¼r #B #O #X
   # radix_1(base)
   # > base: Basis (>=2, <=36)
   # > Stackaufbau: Stream, sub-char, n.
   # > subr_self: Aufrufer (ein SUBR)
-  # < STACK: aufgeräumt
+  # < STACK: aufgerÃ¤umt
   # < mv_space/mv_count: Werte
-  # kann GC auslösen
+  # kann GC auslÃ¶sen
   local Values radix_1 (uintWL base);
   local Values radix_1(base)
     var uintWL base;
@@ -3339,9 +3339,9 @@ LISPFUNN(radix_reader,3) # liest #R
       value1 = NIL; mv_count=1; skipSTACK(3); # NIL als Wert
       return;
     }
-    # n überprüfen:
+    # n Ã¼berprÃ¼fen:
     if (nullp(STACK_0)) {
-      pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
       fehler(stream_error,
@@ -3355,7 +3355,7 @@ LISPFUNN(radix_reader,3) # liest #R
        ) {
       return_Values radix_2(base); # Token als rationale Zahl interpretieren
     } else {
-      pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
       pushSTACK(STACK_(0+1)); # n
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
@@ -3378,19 +3378,19 @@ LISPFUNN(radix_reader,3) # liest #R
 #                      (numberp (second h)) (not (complexp (second h)))
 #                 )
 #               (apply #'complex h)
-#               (error "~: Falsche Syntax für komplexe Zahl: #C~" 'read h)
+#               (error "~: Falsche Syntax fÃ¼r komplexe Zahl: #C~" 'read h)
 # )   ) ) ) ) )
 LISPFUNN(complex_reader,3) # liest #C
   {
     var object* stream_ = test_no_infix(); # n muss NIL sein
-    var object obj = read_recursive_no_dot(stream_); # nächstes Objekt lesen
+    var object obj = read_recursive_no_dot(stream_); # nÃ¤chstes Objekt lesen
     # bei *READ-SUPPRESS* /= NIL sofort fertig:
     if (test_value(S(read_suppress))) {
       value1 = NIL; mv_count=1; skipSTACK(2); # NIL als Wert
       return;
     }
     obj = make_references(obj); # und Verweise vorzeitig entflechten
-    # Überprüfen, ob dies eine zweielementige Liste von reellen Zahlen ist:
+    # ÃœberprÃ¼fen, ob dies eine zweielementige Liste von reellen Zahlen ist:
     if (!consp(obj)) goto bad; # obj muss ein Cons sein !
     {
       var object obj2 = Cdr(obj);
@@ -3398,12 +3398,12 @@ LISPFUNN(complex_reader,3) # liest #C
       if (!nullp(Cdr(obj2))) goto bad; # mit (cdr obj2) = nil !
       if_realp(Car(obj), ; , goto bad; ); # und (car obj) eine reelle Zahl !
       if_realp(Car(obj2), ; , goto bad; ); # und (car obj2) eine reelle Zahl !
-      # (apply #'COMPLEX obj) durchführen:
+      # (apply #'COMPLEX obj) durchfÃ¼hren:
       apply(L(complex),0,obj);
       mv_count=1; skipSTACK(2); return; # value1 als Wert
     }
    bad:
-    pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+    pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
     pushSTACK(obj); # Objekt
     pushSTACK(*stream_); # Stream
     pushSTACK(S(read));
@@ -3419,7 +3419,7 @@ LISPFUNN(complex_reader,3) # liest #C
 #         (progn (read stream t nil t) nil)
 #         (let ((name (read-token stream))) ; eine Form, die nur ein Token ist
 #           (when n (error ...))
-#           [Überprüfe, ob auch keine Package-Marker im Token vorkommen.]
+#           [ÃœberprÃ¼fe, ob auch keine Package-Marker im Token vorkommen.]
 #           (make-symbol token)
 # )   ) ) )
 LISPFUNN(uninterned_reader,3) # liest #:
@@ -3430,7 +3430,7 @@ LISPFUNN(uninterned_reader,3) # liest #:
       read_recursive(stream_);
       value1 = NIL; mv_count=1; skipSTACK(3); return;
     }
-    # nächstes Zeichen lesen:
+    # nÃ¤chstes Zeichen lesen:
     {
       var object ch;
       var uintWL scode;
@@ -3439,7 +3439,7 @@ LISPFUNN(uninterned_reader,3) # liest #:
         fehler_eof_innen(stream_);
       if (scode > syntax_constituent) {
         # kein Zeichen, das am Token-Anfang stehen kann -> Error
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
         fehler(stream_error,
@@ -3457,7 +3457,7 @@ LISPFUNN(uninterned_reader,3) # liest #:
     # Auf Package-Marker testen:
     {
       var object buff_2 = O(token_buff_2); # Attributcode-Buffer
-      var uintL len = TheIarray(buff_2)->dims[1]; # Länge = Fill-Pointer
+      var uintL len = TheIarray(buff_2)->dims[1]; # LÃ¤nge = Fill-Pointer
       if (len > 0) {
         var uintB* attrptr = &TheSbvector(TheIarray(buff_2)->data)->data[0];
         # Teste, ob einer der len Attributcodes ab attrptr ein a_pack_m ist:
@@ -3467,7 +3467,7 @@ LISPFUNN(uninterned_reader,3) # liest #:
     # uninterniertes Symbol mit diesem Namen bauen:
     value1 = make_symbol(string); mv_count=1; skipSTACK(2); return;
    fehler_dopp:
-    pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+    pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
     pushSTACK(string); # Token
     pushSTACK(*stream_); # Stream
     pushSTACK(S(read));
@@ -3483,17 +3483,17 @@ LISPFUNN(uninterned_reader,3) # liest #:
 #         (unless *read-suppress*
 #           (unless (or [Escape-Zeichen im Token verwendet]
 #                       (every #'(lambda (ch) (member ch '(#\0 #\1))) token))
-#             (error "~ von ~: Nach #* dürfen nur Nullen und Einsen kommen."
+#             (error "~ von ~: Nach #* dÃ¼rfen nur Nullen und Einsen kommen."
 #                     'read stream
 #           ) )
 #           (let ((l (length token)))
 #             (if n
 #               (cond ((< n l)
-#                      (error "~ von ~: Bit-Vektor länger als angegebene Länge ~."
+#                      (error "~ von ~: Bit-Vektor lÃ¤nger als angegebene LÃ¤nge ~."
 #                              'read stream n
 #                     ))
 #                     ((and (plusp n) (zerop l))
-#                      (error "~ von ~: Element für Bit-Vektor der Länge ~ muss spezifiziert werden."
+#                      (error "~ von ~: Element fÃ¼r Bit-Vektor der LÃ¤nge ~ muss spezifiziert werden."
 #                              'read stream n
 #               )     ))
 #               (setq n l)
@@ -3521,7 +3521,7 @@ LISPFUNN(bit_vector_reader,3) # liest #*
     # Test, ob kein Escape-Zeichen und nur Nullen und Einsen verwendet:
     if (token_escape_flag) {
      fehler_nur01:
-      pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
       fehler(stream_error,
@@ -3529,27 +3529,27 @@ LISPFUNN(bit_vector_reader,3) # liest #*
             );
     }
     var object buff_1 = O(token_buff_1); # Character-Buffer
-    var uintL len = TheIarray(buff_1)->dims[1]; # Länge = Fill-Pointer
+    var uintL len = TheIarray(buff_1)->dims[1]; # LÃ¤nge = Fill-Pointer
     if (len > 0) {
       var const chart* charptr = &TheSstring(TheIarray(buff_1)->data)->data[0];
       var uintL count;
       dotimespL(count,len, {
-        var chart c = *charptr++; # nächstes Character
+        var chart c = *charptr++; # nÃ¤chstes Character
         if (!(chareq(c,ascii('0')) || chareq(c,ascii('1')))) # nur '0' und '1' sind OK
           goto fehler_nur01;
       });
     }
-    # n überprüfen:
-    var uintL n; # Länge des Bitvektors
+    # n Ã¼berprÃ¼fen:
+    var uintL n; # LÃ¤nge des Bitvektors
     if (nullp(STACK_0)) {
-      n = len; # Defaultwert ist die Tokenlänge
+      n = len; # Defaultwert ist die TokenlÃ¤nge
     } else {
       # n angegeben, ein Integer >=0.
       n = (posfixnump(STACK_0) ? posfixnum_to_L(STACK_0) # Fixnum -> Wert
-                               : bitm(oint_data_len)-1 # Bignum -> großer Wert
+                               : bitm(oint_data_len)-1 # Bignum -> groÃŸer Wert
           );
       if (n<len) {
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
         pushSTACK(STACK_(0+1)); # n
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
@@ -3558,7 +3558,7 @@ LISPFUNN(bit_vector_reader,3) # liest #*
               );
       }
       if ((n>0) && (len==0)) {
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
         pushSTACK(STACK_(0+1)); # n
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
@@ -3567,9 +3567,9 @@ LISPFUNN(bit_vector_reader,3) # liest #*
               );
       }
     }
-    # Erzeuge neuen Bit-Vektor der Länge n:
+    # Erzeuge neuen Bit-Vektor der LÃ¤nge n:
     var object bv = allocate_bit_vector(Atype_Bit,n);
-    # und fülle die Bits ein:
+    # und fÃ¼lle die Bits ein:
     buff_1 = O(token_buff_1);
     {
       var const chart* charptr = &TheSstring(TheIarray(buff_1)->data)->data[0];
@@ -3577,9 +3577,9 @@ LISPFUNN(bit_vector_reader,3) # liest #*
       var uintL index = 0;
       while (index < n) {
         if (index < len)
-          ch = *charptr++; # evtl. nächstes Character holen
+          ch = *charptr++; # evtl. nÃ¤chstes Character holen
         if (chareq(ch,ascii('0'))) {
-          sbvector_bclr(bv,index); # Null -> Bit löschen
+          sbvector_bclr(bv,index); # Null -> Bit lÃ¶schen
         } else {
           sbvector_bset(bv,index); # Eins -> Bit setzen
         }
@@ -3597,11 +3597,11 @@ LISPFUNN(bit_vector_reader,3) # liest #*
 #           (let ((l (length elements)))
 #             (if n
 #               (cond ((< n l)
-#                      (error "~ von ~: Vektor länger als angegebene Länge ~."
+#                      (error "~ von ~: Vektor lÃ¤nger als angegebene LÃ¤nge ~."
 #                              'read stream n
 #                     ))
 #                     ((and (plusp n) (zerop l))
-#                      (error "~ von ~: Element für Vektor der Länge ~ muss spezifiziert werden."
+#                      (error "~ von ~: Element fÃ¼r Vektor der LÃ¤nge ~ muss spezifiziert werden."
 #                              'read stream n
 #               )     ))
 #               (setq n l)
@@ -3627,18 +3627,18 @@ LISPFUNN(vector_reader,3) # liest #(
       value1 = NIL; mv_count=1; skipSTACK(3); # NIL als Wert
       return;
     }
-    var uintL len = llength(elements); # Listenlänge
-    # n überprüfen:
-    var uintL n; # Länge des Vektors
+    var uintL len = llength(elements); # ListenlÃ¤nge
+    # n Ã¼berprÃ¼fen:
+    var uintL n; # LÃ¤nge des Vektors
     if (nullp(STACK_0)) {
-      n = len; # Defaultwert ist die Tokenlänge
+      n = len; # Defaultwert ist die TokenlÃ¤nge
     } else {
       # n angegeben, ein Integer >=0.
       n = (posfixnump(STACK_0) ? posfixnum_to_L(STACK_0) # Fixnum -> Wert
-                               : bitm(oint_data_len)-1 # Bignum -> großer Wert
+                               : bitm(oint_data_len)-1 # Bignum -> groÃŸer Wert
           );
       if (n<len) {
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
         pushSTACK(STACK_(0+1)); # n
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
@@ -3647,7 +3647,7 @@ LISPFUNN(vector_reader,3) # liest #(
               );
       }
       if ((n>0) && (len==0)) {
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
         pushSTACK(STACK_(0+1)); # n
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
@@ -3656,18 +3656,18 @@ LISPFUNN(vector_reader,3) # liest #(
               );
       }
     }
-    # Erzeuge neuen Vektor der Länge n:
+    # Erzeuge neuen Vektor der LÃ¤nge n:
     pushSTACK(elements); # Liste retten
     var object v = allocate_vector(n);
-    elements = popSTACK(); # Liste zurück
-    # und fülle die Elemente ein:
+    elements = popSTACK(); # Liste zurÃ¼ck
+    # und fÃ¼lle die Elemente ein:
     {
       var object* vptr = &TheSvector(v)->data[0];
       var object el; # letztes Element
       var uintL index = 0;
       while (index < n) {
         if (index < len) {
-          el = Car(elements); elements = Cdr(elements); # evtl. nächstes Element holen
+          el = Car(elements); elements = Cdr(elements); # evtl. nÃ¤chstes Element holen
         }
         *vptr++ = el;
         index++;
@@ -3685,7 +3685,7 @@ LISPFUNN(vector_reader,3) # liest #(
 #           (let ((h (read stream t nil t)))
 #             (if (and (consp h) (consp (cdr h)) (consp (cddr h)) (null (cdddr h)))
 #               (make-array (second h) :element-type (first h) :initial-contents (third h))
-#               (error "~: Falsche Syntax für Array: #A~" 'read h)
+#               (error "~: Falsche Syntax fÃ¼r Array: #A~" 'read h)
 #           ) )
 #           (let* ((rank n)
 #                  (cont (let ((*backquote-level* nil)) (read stream t nil t)))
@@ -3709,7 +3709,7 @@ LISPFUNN(array_reader,3) # liest #A
     var object* stream_ = test_stream_arg(STACK_2);
     # Stackaufbau: stream, sub-char, n.
     if (test_value(S(read_suppress))) { # *READ-SUPPRESS* /= NIL ?
-      # ja -> nächstes Objekt überlesen:
+      # ja -> nÃ¤chstes Objekt Ã¼berlesen:
       read_recursive_no_dot(stream_);
       value1 = NIL; mv_count=1; skipSTACK(3); return;
     }
@@ -3717,7 +3717,7 @@ LISPFUNN(array_reader,3) # liest #A
       # ja -> Liste (eltype dims contents) lesen:
       var object obj = read_recursive_no_dot(stream_); # Liste lesen
       obj = make_references(obj); # Verweise entflechten
-      # (Das ist ungefährlich, da wir diese #A-Syntax für Arrays mit
+      # (Das ist ungefÃ¤hrlich, da wir diese #A-Syntax fÃ¼r Arrays mit
       # Elementtyp T nicht benutzen, und Byte-Arrays enthalten keine Verweise.)
       if (!consp(obj)) goto bad;
       {
@@ -3732,7 +3732,7 @@ LISPFUNN(array_reader,3) # liest #A
         goto call_make_array;
       }
      bad:
-      pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
       pushSTACK(obj); # Objekt
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
@@ -3764,9 +3764,9 @@ LISPFUNN(array_reader,3) # liest #A
           Car(new_cons) = STACK_3; Cdr(new_cons) = STACK_4;
           STACK_4 = new_cons;
         }
-        # Tiefe erhöhen:
+        # Tiefe erhÃ¶hen:
         i = fixnum_inc(i,1); if (eql(i,STACK_2)) break;
-        # erstes Element von subcontents für die weiteren Dimensionen:
+        # erstes Element von subcontents fÃ¼r die weiteren Dimensionen:
         if (!eq(STACK_3,Fixnum_0)) { # (nur falls (length subcontents) >0)
           pushSTACK(STACK_1); pushSTACK(Fixnum_0); funcall(L(elt),2);
           STACK_1 = value1; # subcontents := (ELT subcontents 0)
@@ -3787,7 +3787,7 @@ LISPFUNN(array_reader,3) # liest #A
     mv_count=1; return;
   }
 
-# Fehlermeldung für #. und #, wegen *READ-EVAL*.
+# Fehlermeldung fÃ¼r #. und #, wegen *READ-EVAL*.
 # fehler_read_eval_forbidden(&stream,obj);
 # > stream: Stream
 # > obj: Objekt, dessen Evaluierung versucht wurde
@@ -3796,7 +3796,7 @@ LISPFUNN(array_reader,3) # liest #A
     var object* stream_;
     var object obj;
     {
-      pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
       pushSTACK(obj); # Objekt
       pushSTACK(NIL); # NIL
       pushSTACK(S(read_eval)); # *READ-EVAL*
@@ -3834,7 +3834,7 @@ LISPFUNN(read_eval_reader,3) # liest #.
     if (!(test_value(S(read_eval)) || stream_get_read_eval(*stream_)))
       fehler_read_eval_forbidden(stream_,obj);
     eval_noenv(obj); # Form auswerten
-    mv_count=1; skipSTACK(2); # nur 1 Wert zurück
+    mv_count=1; skipSTACK(2); # nur 1 Wert zurÃ¼ck
   }
 
 # (set-dispatch-macro-character #\# #\,
@@ -3873,7 +3873,7 @@ LISPFUNN(load_eval_reader,3) # liest #,
         fehler_read_eval_forbidden(stream_,obj);
       eval_noenv(obj); # Form auswerten
     }
-    mv_count=1; skipSTACK(2); # nur 1 Wert zurück
+    mv_count=1; skipSTACK(2); # nur 1 Wert zurÃ¼ck
   }
 
 # (set-dispatch-macro-character #\# #\=
@@ -3892,7 +3892,7 @@ LISPFUNN(load_eval_reader,3) # liest #,
 #                       (error "~ von ~: #~= #~# ist nicht erlaubt." 'read stream n n)
 #                       (setf (cdr h) obj)
 #             ) ) ) ) )
-#             (error "~ von ~: Label #~= zu groß" 'read stream n)
+#             (error "~ von ~: Label #~= zu groÃŸ" 'read stream n)
 #           )
 #           (error "~ von ~: Zwischen # und = muss eine Zahl angegeben werden." 'read stream)
 #         )
@@ -3907,11 +3907,11 @@ LISPFUNN(load_eval_reader,3) # liest #,
 #             (let* ((label (make-internal-label n))
 #                    (h (assoc label sys::*read-reference-table* :test #'eq)))
 #               (if (consp h)
-#                 label ; wird später entflochten
-#                 ; (man könnte auch (cdr h) zurückliefern)
+#                 label ; wird spÃ¤ter entflochten
+#                 ; (man kÃ¶nnte auch (cdr h) zurÃ¼ckliefern)
 #                 (error "~ von ~: Label #~= ist nicht definiert." 'read stream n)
 #               )
-#             (error "~ von ~: Label #~# zu groß" 'read stream n)
+#             (error "~ von ~: Label #~# zu groÃŸ" 'read stream n)
 #           )
 #           (error "~ von ~: Zwischen # und # muss eine Zahl angegeben werden." 'read stream)
 # )   ) ) )
@@ -3925,7 +3925,7 @@ LISPFUNN(load_eval_reader,3) # liest #,
     {
       var object n = STACK_0;
       if (nullp(n)) { # nicht angegeben?
-        pushSTACK(STACK_2); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(STACK_2); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
         pushSTACK(STACK_(1+1)); # sub-char
         pushSTACK(STACK_(2+2)); # Stream
         pushSTACK(S(read));
@@ -3935,8 +3935,8 @@ LISPFUNN(load_eval_reader,3) # liest #,
       }
       # n ist ein Integer >=0
       if (!read_label_integer_p(n)) {
-        # n ist zu groß
-        pushSTACK(STACK_2); # Wert für Slot STREAM von STREAM-ERROR
+        # n ist zu groÃŸ
+        pushSTACK(STACK_2); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
         pushSTACK(STACK_(1+1)); # sub-char
         pushSTACK(STACK_(0+2)); # n
         pushSTACK(STACK_(2+3)); # Stream
@@ -3948,7 +3948,7 @@ LISPFUNN(load_eval_reader,3) # liest #,
       var object label = make_read_label(posfixnum_to_L(n)); # Internal-Label mit Nummer n
       var object alist = # Wert von SYS::*READ-REFERENCE-TABLE*
         Symbol_value(S(read_reference_table));
-      # (assoc label alist :test #'eq) ausführen:
+      # (assoc label alist :test #'eq) ausfÃ¼hren:
       while (consp(alist)) {
         var object acons = Car(alist); # Listenelement
         if (!consp(acons)) goto bad_reftab; # muss ein Cons sein !
@@ -3979,7 +3979,7 @@ LISPFUNN(label_definition_reader,3) # liest #=
     var object lookup = lookup_label();
     if (consp(lookup)) {
       # gefunden -> war schon da -> Fehler:
-      pushSTACK(STACK_2); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(STACK_2); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
       pushSTACK(STACK_(0+1)); # n
       pushSTACK(STACK_(2+2)); # Stream
       pushSTACK(S(read));
@@ -3987,7 +3987,7 @@ LISPFUNN(label_definition_reader,3) # liest #=
              GETTEXT("~ from ~: label #~= may not be defined twice")
             );
     } else {
-      # lookup = label, nicht GC-gefährdet.
+      # lookup = label, nicht GC-gefÃ¤hrdet.
       # (push (setq h (cons label label)) sys::*read-reference-table*) :
       var object* stream_ = test_stream_arg(STACK_2);
       {
@@ -4005,7 +4005,7 @@ LISPFUNN(label_definition_reader,3) # liest #=
       var object h = popSTACK();
       if (eq(obj,Car(h))) { # gelesenes Objekt = (car h) = label ?
         # ja -> zyklische Definition -> Error
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
         pushSTACK(STACK_(0+1)); # n
         pushSTACK(STACK_(0+2)); # n
         pushSTACK(*stream_); # Stream
@@ -4030,11 +4030,11 @@ LISPFUNN(label_reference_reader,3) # liest ##
     # Label bilden und in der Tabelle aufsuchen:
     var object lookup = lookup_label();
     if (consp(lookup)) {
-      # gefunden -> Label als gelesenes Objekt zurück:
+      # gefunden -> Label als gelesenes Objekt zurÃ¼ck:
       value1 = Car(lookup); mv_count=1; skipSTACK(3);
     } else {
       # nicht gefunden
-      pushSTACK(STACK_2); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(STACK_2); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
       pushSTACK(STACK_(0+1)); # n
       pushSTACK(STACK_(2+2)); # Stream
       pushSTACK(S(read));
@@ -4052,7 +4052,7 @@ LISPFUNN(label_reference_reader,3) # liest ##
 LISPFUNN(not_readable_reader,3) # liest #<
   {
     var object* stream_ = test_stream_arg(STACK_2);
-    pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+    pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
     pushSTACK(*stream_); # Stream
     pushSTACK(S(read));
     fehler(stream_error,
@@ -4069,7 +4069,7 @@ LISPFUNN(not_readable_reader,3) # liest #<
 LISPFUNN(syntax_error_reader,3) # liest #) und #whitespace
   {
     var object* stream_ = test_stream_arg(STACK_2);
-    pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+    pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
     pushSTACK(S(print_level));
     pushSTACK(*stream_); # Stream
     pushSTACK(S(read));
@@ -4078,7 +4078,7 @@ LISPFUNN(syntax_error_reader,3) # liest #) und #whitespace
           );
   }
 
-# Hilfsfunktion für #+ und #- :
+# Hilfsfunktion fÃ¼r #+ und #- :
 # (defun interpret-feature (feature)
 #   (flet ((eqs (x y) (and (symbolp x) (symbolp y)
 #                          (string= (symbol-name x) (symbol-name y))
@@ -4099,11 +4099,11 @@ LISPFUNN(syntax_error_reader,3) # liest #) und #whitespace
 #           (t (error "~: Als Feature ist ~ nicht erlaubt." 'read feature))
 # ) ) )
 
-# UP: Stellt das Erfülltsein eines Feature-Ausdruckes fest.
+# UP: Stellt das ErfÃ¼lltsein eines Feature-Ausdruckes fest.
 # interpret_feature(expr)
 # > expr: ein Feature-Ausdruck
 # > STACK_1: Stream
-# < ergebnis: Wahrheitswert: 0 falls erfüllt, ~0 falls nicht erfüllt.
+# < ergebnis: Wahrheitswert: 0 falls erfÃ¼llt, ~0 falls nicht erfÃ¼llt.
   local uintWL interpret_feature (object expr);
   local uintWL interpret_feature(expr)
     var object expr;
@@ -4151,23 +4151,23 @@ LISPFUNN(syntax_error_reader,3) # liest #) und #whitespace
         # falscher (car expr) -> Fehler
       }
      bad: # Falscher Aufbau eines Feature-Ausdrucks
-      pushSTACK(STACK_1); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(STACK_1); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
       pushSTACK(expr); # Feature-Ausdruck
       pushSTACK(STACK_(1+2)); # Stream
       pushSTACK(S(read));
       fehler(stream_error,
              GETTEXT("~ from ~: illegal feature ~")
             );
-     ja: return 0; # expr ist erfüllt
-     nein: return ~0; # expr ist nicht erfüllt
+     ja: return 0; # expr ist erfÃ¼llt
+     nein: return ~0; # expr ist nicht erfÃ¼llt
     }
 
-# UP für #+ und #-
+# UP fÃ¼r #+ und #-
 # feature(sollwert)
-# > sollwert: gewünschter Wahrheitswert des Feature-Ausdrucks
+# > sollwert: gewÃ¼nschter Wahrheitswert des Feature-Ausdrucks
 # > Stackaufbau: Stream, sub-char, n.
 # > subr_self: Aufrufer (ein SUBR)
-# < STACK: um 3 erhöht
+# < STACK: um 3 erhÃ¶ht
 # < mv_space/mv_count: Werte
 # can trigger GC
   local Values feature (uintWL sollwert);
@@ -4184,7 +4184,7 @@ LISPFUNN(syntax_error_reader,3) # liest #) und #whitespace
       expr = make_references(expr); # zuvor Verweise entflechten
       if (interpret_feature(expr) == sollwert) {
         # Wahrheitswert "wahr"
-        # nächstes Objekt lesen und als Wert:
+        # nÃ¤chstes Objekt lesen und als Wert:
         value1 = read_recursive_no_dot(stream_); mv_count=1;
       } else {
         # Wahrheitswert "falsch"
@@ -4250,7 +4250,7 @@ LISPFUNN(not_feature_reader,3) # liest #-
 #                           (apply (svref desc 2) ; der Konstruktor
 #                                  (structure-arglist-expand name (cdr args))
 #                         ) )
-#                         (error "~: Structures des Typs ~ können nicht eingelesen werden (Konstruktorfunktion unbekannt)"
+#                         (error "~: Structures des Typs ~ kÃ¶nnen nicht eingelesen werden (Konstruktorfunktion unbekannt)"
 #                                'read name
 #                       ) )
 #                       (error "~: Es ist noch keine Structure des Typs ~ definiert worden"
@@ -4285,9 +4285,9 @@ LISPFUNN(structure_reader,3) # liest #S
     dynamic_bind(S(backquote_level),NIL);
     var object args = read_recursive_no_dot(stream_);
     dynamic_unbind();
-    # gelesene Liste überprüfen:
+    # gelesene Liste Ã¼berprÃ¼fen:
     if (atomp(args)) {
-      pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
       pushSTACK(args); # Argumente
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
@@ -4300,7 +4300,7 @@ LISPFUNN(structure_reader,3) # liest #S
       STACK_0 = args = Cdr(args); # Restliste retten
       # Stackaufbau: Stream, restl.Args.
       if (!symbolp(name)) { # Typ muss ein Symbol sein !
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
         pushSTACK(name);
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
@@ -4315,7 +4315,7 @@ LISPFUNN(structure_reader,3) # liest #S
         # Hash-Tabelle
         # Restliche Argumentliste muss ein Cons sein:
         if (!consp(args)) {
-          pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+          pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
           pushSTACK(*stream_); # Stream
           pushSTACK(S(read));
           fehler(stream_error,
@@ -4335,13 +4335,13 @@ LISPFUNN(structure_reader,3) # liest #S
         # ja -> speziell behandeln, keine Structure:
         # Random-State
         # Restliche Argumentliste muss ein Cons mit NIL als CDR und
-        # einem Simple-Bit-Vektor der Länge 64 als CAR sein:
+        # einem Simple-Bit-Vektor der LÃ¤nge 64 als CAR sein:
         if (!(consp(args)
               && nullp(Cdr(args))
               && simple_bit_vector_p(Atype_Bit,Car(args))
               && (Sbvector_length(Car(args)) == 64)
            ) ) {
-          pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+          pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
           pushSTACK(name);
           pushSTACK(*stream_); # Stream
           pushSTACK(S(read));
@@ -4351,7 +4351,7 @@ LISPFUNN(structure_reader,3) # liest #S
         }
         STACK_0 = Car(args); # Simple-Bit-Vektor retten
         var object ergebnis = allocate_random_state(); # neuer Random-State
-        The_Random_state(ergebnis)->random_state_seed = popSTACK(); # füllen
+        The_Random_state(ergebnis)->random_state_seed = popSTACK(); # fÃ¼llen
         value1 = ergebnis; mv_count=1; skipSTACK(2); return;
       }
       if (eq(name,S(pathname))) { # Symbol PATHNAME ?
@@ -4369,11 +4369,11 @@ LISPFUNN(structure_reader,3) # liest #S
         pushSTACK(S(make_byte));
       }
       else {
-        # (GET name 'SYS::DEFSTRUCT-DESCRIPTION) ausführen:
+        # (GET name 'SYS::DEFSTRUCT-DESCRIPTION) ausfÃ¼hren:
         var object description = get(name,S(defstruct_description));
         if (eq(description,unbound)) { # nichts gefunden?
           # Structure dieses Typs undefiniert
-          pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+          pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
           pushSTACK(name);
           pushSTACK(*stream_); # Stream
           pushSTACK(S(read));
@@ -4381,9 +4381,9 @@ LISPFUNN(structure_reader,3) # liest #S
                  GETTEXT("~ from ~: no structure of type ~ has been defined")
                 );
         }
-        # description muss ein Simple-Vector der Länge >=4 sein:
+        # description muss ein Simple-Vector der LÃ¤nge >=4 sein:
         if (!(simple_vector_p(description) && (Svector_length(description) >= 4))) {
-          pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+          pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
           pushSTACK(name);
           pushSTACK(S(defstruct_description));
           pushSTACK(*stream_); # Stream
@@ -4396,7 +4396,7 @@ LISPFUNN(structure_reader,3) # liest #S
         var object constructor = # (svref description 2)
           TheSvector(description)->data[2];
         if (nullp(constructor)) {
-          pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+          pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
           pushSTACK(name);
           pushSTACK(*stream_); # Stream
           pushSTACK(S(read));
@@ -4409,16 +4409,16 @@ LISPFUNN(structure_reader,3) # liest #S
       }
     }
     # Stackaufbau: Stream, restl.Args, name, Konstruktor.
-    var uintC argcount = 0; # Zahl der Argumente für den Konstruktor
+    var uintC argcount = 0; # Zahl der Argumente fÃ¼r den Konstruktor
     loop { # restliche Argumentliste durchlaufen,
-           # Argumente für den Konstruktor auf den STACK legen:
+           # Argumente fÃ¼r den Konstruktor auf den STACK legen:
       check_STACK();
       args = *(stream_ STACKop -1); # restliche Args
       if (nullp(args)) # keine mehr -> Argumente im STACK fertig
         break;
       if (atomp(args)) {
        dotted:
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
         pushSTACK(*(stream_ STACKop -2)); # name
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
@@ -4429,7 +4429,7 @@ LISPFUNN(structure_reader,3) # liest #S
       {
         var object slot = Car(args);
         if (!symbolp(slot)) {
-          pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+          pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
           pushSTACK(*(stream_ STACKop -2)); # name
           pushSTACK(slot);
           pushSTACK(*stream_); # Stream
@@ -4439,7 +4439,7 @@ LISPFUNN(structure_reader,3) # liest #S
                 );
         }
         if (nullp(Cdr(args))) {
-          pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+          pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
           pushSTACK(*(stream_ STACKop -2)); # name
           pushSTACK(slot);
           pushSTACK(*stream_); # Stream
@@ -4458,11 +4458,11 @@ LISPFUNN(structure_reader,3) # liest #S
       args = *(stream_ STACKop -1); # wieder dieselben restlichen Args
       args = Cdr(args);
       pushSTACK(Car(args)); # Slot-value in den STACK
-      *(stream_ STACKop -1) = Cdr(args); # Argliste verkürzen
-      argcount += 2; # und mitzählen
+      *(stream_ STACKop -1) = Cdr(args); # Argliste verkÃ¼rzen
+      argcount += 2; # und mitzÃ¤hlen
       if (argcount == 0) {
-        # Argumentezähler zu groß geworden
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        # ArgumentezÃ¤hler zu groÃŸ geworden
+        pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
         pushSTACK(*(stream_ STACKop -2)); # name
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
@@ -4493,7 +4493,7 @@ LISPFUNN(structure_reader,3) # liest #S
 #           (let ((obj (let ((*read-base* 16.)) (read stream t nil t))))
 #             (unless *read-suppress*
 #               (unless (= (length obj) arg)
-#                 (error "Falsche Länge eines Closure-Vektors: ~S" arg)
+#                 (error "Falsche LÃ¤nge eines Closure-Vektors: ~S" arg)
 #               )
 #               (make-code-vector obj) ; Simple-Bit-Vektor, Inhalt: arg Bytes
 #         ) ) )
@@ -4509,7 +4509,7 @@ LISPFUNN(structure_reader,3) # liest #S
     nonreturning_function(local, fehler_closure_badchar, (void));
     local void fehler_closure_badchar()
       {
-        pushSTACK(STACK_2); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(STACK_2); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
         pushSTACK(STACK_(0+1)); # n
         pushSTACK(STACK_(2+2)); # Stream
         pushSTACK(S(read));
@@ -4518,7 +4518,7 @@ LISPFUNN(structure_reader,3) # liest #S
               );
       }
 
-  # UP: Überprüft, ob Character ch mit Syntaxcode scode eine
+  # UP: ÃœberprÃ¼ft, ob Character ch mit Syntaxcode scode eine
   # Hexadezimal-Ziffer ist, und liefert ihren Wert.
   # hexziffer(ch,scode)
   # > ch, scode: Character (oder eof_value) und sein Syntaxcode
@@ -4563,8 +4563,8 @@ LISPFUNN(closure_reader,3) # liest #Y
     if (nullp(STACK_0)) {
       # n=NIL -> Closure lesen:
       var object obj = read_recursive_no_dot(stream_); # Objekt lesen
-      if (!(consp(obj) && mconsp(Cdr(obj)))) { # Länge >=2 ?
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+      if (!(consp(obj) && mconsp(Cdr(obj)))) { # LÃ¤nge >=2 ?
+        pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
         pushSTACK(obj);
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
@@ -4573,7 +4573,7 @@ LISPFUNN(closure_reader,3) # liest #Y
               );
       }
       skipSTACK(3);
-      # (SYS::%MAKE-CLOSURE (first obj) (second obj) (cddr obj)) ausführen:
+      # (SYS::%MAKE-CLOSURE (first obj) (second obj) (cddr obj)) ausfÃ¼hren:
       pushSTACK(Car(obj)); obj = Cdr(obj); # 1. Argument
       pushSTACK(Car(obj)); obj = Cdr(obj); # 2. Argument
       pushSTACK(obj); # 3. Argument
@@ -4587,14 +4587,14 @@ LISPFUNN(closure_reader,3) # liest #Y
       # n ist ein Integer >=0.
       var uintL n =
         (posfixnump(STACK_0) ? posfixnum_to_L(STACK_0) # Fixnum -> Wert
-                             : bitm(oint_data_len)-1 # Bignum -> großer Wert
+                             : bitm(oint_data_len)-1 # Bignum -> groÃŸer Wert
         );
       # neuen Bit-Vektor mit n Bytes besorgen:
       STACK_1 = allocate_bit_vector(Atype_8Bit,n);
       # Stackaufbau: Stream, Codevektor, n.
       var object ch;
       var uintWL scode;
-      # Whitespace überlesen:
+      # Whitespace Ã¼berlesen:
       do {
         read_char_syntax(ch = ,scode = ,stream_); # Zeichen lesen
       } until (!(scode == syntax_whitespace));
@@ -4604,19 +4604,19 @@ LISPFUNN(closure_reader,3) # liest #Y
       {
         var uintL index = 0;
         until (index==n) {
-          # Whitespace überlesen:
+          # Whitespace Ã¼berlesen:
           do {
             read_char_syntax(ch = ,scode = ,stream_); # Zeichen lesen
           } until (!(scode == syntax_whitespace));
           # es muss eine Hex-Ziffer folgen:
           var uintB zif = hexziffer(ch,scode);
-          # nächstes Character lesen:
+          # nÃ¤chstes Character lesen:
           read_char_syntax(ch = ,scode = ,stream_);
           if (scode == syntax_eof) # EOF -> Error
             fehler_eof_innen(stream_);
           if ((scode == syntax_whitespace) || eq(ch,ascii_char(')'))) {
             # Whitespace oder Klammer zu
-            # wird auf den Stream zurückgeschoben:
+            # wird auf den Stream zurÃ¼ckgeschoben:
             unread_char(stream_,ch);
           } else {
             # es muss eine zweite Hex-Ziffer sein
@@ -4628,7 +4628,7 @@ LISPFUNN(closure_reader,3) # liest #Y
           index++;
         }
       }
-      # Whitespace überlesen:
+      # Whitespace Ã¼berlesen:
       do {
         read_char_syntax(ch = ,scode = ,stream_); # Zeichen lesen
       } until (!(scode == syntax_whitespace));
@@ -4669,7 +4669,7 @@ LISPFUNN(clisp_pathname_reader,3) # liest #"
   {
     test_no_infix(); # n muss NIL sein
     # Stackaufbau: Stream, sub-char #\".
-    var object string = # String lesen, der mit " anfängt
+    var object string = # String lesen, der mit " anfÃ¤ngt
       (funcall(L(string_reader),2),value1);
     # bei *READ-SUPPRESS* /= NIL sofort fertig:
     if (test_value(S(read_suppress))) {
@@ -4692,25 +4692,25 @@ LISPFUNN(clisp_pathname_reader,3) # liest #"
 #           (let ((obj (read stream t nil t)))
 #             (if (stringp obj)
 #               (values (parse-namestring obj))
-#               (error "~ von ~: Falsche Syntax für Pathname: #P~"
+#               (error "~ von ~: Falsche Syntax fÃ¼r Pathname: #P~"
 #                      'read stream obj
 # )   ) ) ) ) ) )
 LISPFUNN(ansi_pathname_reader,3) # liest #P
   {
     var object* stream_ = test_no_infix(); # n muss NIL sein
-    var object obj = read_recursive_no_dot(stream_); # nächstes Objekt lesen
+    var object obj = read_recursive_no_dot(stream_); # nÃ¤chstes Objekt lesen
     # bei *READ-SUPPRESS* /= NIL sofort fertig:
     if (test_value(S(read_suppress))) {
       value1 = NIL; mv_count=1; skipSTACK(2); return;
     }
-    obj = make_references(obj); # und Verweise vorzeitig entflechten (unnötig?)
+    obj = make_references(obj); # und Verweise vorzeitig entflechten (unnÃ¶tig?)
     if (!stringp(obj)) # obj muss ein String sein!
       goto bad;
     # Bilde (pathname obj) = (values (parse-namestring obj)) :
     pushSTACK(obj); funcall(L(parse_namestring),1); # (PARSE-NAMESTRING obj)
     mv_count=1; skipSTACK(2); return; # nur 1 Wert
    bad:
-    pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+    pushSTACK(*stream_); # Wert fÃ¼r Slot STREAM von STREAM-ERROR
     pushSTACK(obj); # Objekt
     pushSTACK(*stream_); # Stream
     pushSTACK(S(read));
@@ -4737,14 +4737,14 @@ LISPFUNN(unix_executable_reader,3) # liest #!
       if (eq(ch,eof_value) || eq(ch,ascii_char(NL)))
         break;
     }
-    value1 = NIL; mv_count=0; skipSTACK(2); # keine Werte zurück
+    value1 = NIL; mv_count=0; skipSTACK(2); # keine Werte zurÃ¼ck
   }
 
 #endif
 
 # ------------------------ LISP-Funktionen des Readers ------------------------
 
-# UP: Überprüft ein Input-Stream-Argument.
+# UP: ÃœberprÃ¼ft ein Input-Stream-Argument.
 # Default ist der Wert von *STANDARD-INPUT*.
 # test_istream(&stream);
 # > subr_self: Aufrufer (ein SUBR)
@@ -4793,18 +4793,18 @@ LISPFUNN(unix_executable_reader,3) # liest #!
       }
     }
 
-# UP für READ und READ-PRESERVING-WHITESPACE
+# UP fÃ¼r READ und READ-PRESERVING-WHITESPACE
 # read_w(whitespace-p)
 # > whitespace-p: gibt an, ob danach whitespace zu verbrauchen ist
 # > Stackaufbau: input-stream, eof-error-p, eof-value, recursive-p.
-# > subr_self: Aufrufer (ein SUBR) (unnötig, falls input-stream ein Stream ist)
-# < STACK: aufgeräumt
+# > subr_self: Aufrufer (ein SUBR) (unnÃ¶tig, falls input-stream ein Stream ist)
+# < STACK: aufgerÃ¤umt
 # < mv_space/mv_count: Werte
   local Values read_w (object whitespace_p);
   local Values read_w(whitespace_p)
     var object whitespace_p;
     {
-      # input-stream überprüfen:
+      # input-stream Ã¼berprÃ¼fen:
       test_istream(&STACK_3);
       # recursive-p-Argument abfragen:
       var object recursive_p = STACK_0;
@@ -4840,11 +4840,11 @@ LISPFUN(read_preserving_whitespace,0,4,norest,nokey,0,NIL)
 LISPFUN(read_delimited_list,1,2,norest,nokey,0,NIL)
 # (READ-DELIMITED-LIST char [input-stream [recursive-p]]), CLTL S. 377
   {
-    # char überprüfen:
+    # char Ã¼berprÃ¼fen:
     var object ch = STACK_2;
     if (!charp(ch))
       fehler_char(ch);
-    # input-stream überprüfen:
+    # input-stream Ã¼berprÃ¼fen:
     test_istream(&STACK_1);
     # recursive-p-Argument abfragen:
     var object recursive_p = popSTACK();
@@ -4873,7 +4873,7 @@ LISPFUN(read_line,0,4,norest,nokey,0,NIL)
 # (READ-LINE [input-stream [eof-error-p [eof-value [recursive-p]]]]),
 # CLTL S. 378
   {
-    # input-stream überprüfen:
+    # input-stream Ã¼berprÃ¼fen:
     var object* stream_ = &STACK_3;
     test_istream(stream_);
     get_buffers(); # zwei leere Buffer auf den Stack
@@ -4888,7 +4888,7 @@ LISPFUN(read_line,0,4,norest,nokey,0,NIL)
     } else {
       # End of File
       # Buffer leer ?
-      if (TheIarray(STACK_1)->dims[1] == 0) { # Länge (Fill-Pointer) = 0 ?
+      if (TheIarray(STACK_1)->dims[1] == 0) { # LÃ¤nge (Fill-Pointer) = 0 ?
         # Buffer zur Wiederverwendung freigeben:
         O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
         # EOF speziell behandeln:
@@ -4908,7 +4908,7 @@ LISPFUN(read_char,0,4,norest,nokey,0,NIL)
 # (READ-CHAR [input-stream [eof-error-p [eof-value [recursive-p]]]]),
 # CLTL S. 379
   {
-    # input-stream überprüfen:
+    # input-stream Ã¼berprÃ¼fen:
     var object* stream_ = &STACK_3;
     test_istream(stream_);
     var object ch = read_char(stream_); # Character lesen
@@ -4922,20 +4922,20 @@ LISPFUN(read_char,0,4,norest,nokey,0,NIL)
 LISPFUN(unread_char,1,1,norest,nokey,0,NIL)
 # (UNREAD-CHAR char [input-stream]), CLTL S. 379
   {
-    # input-stream überprüfen:
+    # input-stream Ã¼berprÃ¼fen:
     var object* stream_ = &STACK_0;
     test_istream(stream_);
     var object ch = STACK_1; # char
     if (!charp(ch)) { # muss ein Character sein !
-      pushSTACK(ch); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(ch); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(S(character)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(ch);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a character")
             );
     }
-    unread_char(stream_,ch); # char auf Stream zurückschieben
+    unread_char(stream_,ch); # char auf Stream zurÃ¼ckschieben
     value1 = NIL; mv_count=1; skipSTACK(2); # NIL als Wert
   }
 
@@ -4943,7 +4943,7 @@ LISPFUN(peek_char,0,5,norest,nokey,0,NIL)
 # (PEEK-CHAR [peek-type [input-stream [eof-error-p [eof-value [recursive-p]]]]]),
 # CLTL S. 379
   {
-    # input-stream überprüfen:
+    # input-stream Ã¼berprÃ¼fen:
     var object* stream_ = &STACK_3;
     test_istream(stream_);
     # Fallunterscheidung nach peek-type:
@@ -4970,11 +4970,11 @@ LISPFUN(peek_char,0,5,norest,nokey,0,NIL)
         if (eq(ch,peek_type)) # das vorgegebene Ende-Zeichen?
           break;
       }
-      unread_char(stream_,ch); # Zeichen zurückschieben
+      unread_char(stream_,ch); # Zeichen zurÃ¼ckschieben
       value1 = ch; mv_count=1; skipSTACK(5); return; # ch als Wert
     } else {
-      pushSTACK(peek_type); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_peektype)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(peek_type); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_peektype)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(peek_type);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -4988,7 +4988,7 @@ LISPFUN(peek_char,0,5,norest,nokey,0,NIL)
 LISPFUN(listen,0,1,norest,nokey,0,NIL)
 # (LISTEN [input-stream]), CLTL S. 380
   {
-    test_istream(&STACK_0); # input-stream überprüfen
+    test_istream(&STACK_0); # input-stream Ã¼berprÃ¼fen
     if (ls_avail_p(listen_char(popSTACK()))) {
       value1 = T; mv_count=1; # Wert T
     } else {
@@ -5002,7 +5002,7 @@ LISPFUNN(read_char_will_hang_p,1)
 # character, but accomplishes this without actually calling READ-CHAR-NO-HANG,
 # thus avoiding the need for UNREAD-CHAR and preventing side effects.
   {
-    test_istream(&STACK_0); # input-stream überprüfen
+    test_istream(&STACK_0); # input-stream Ã¼berprÃ¼fen
     value1 = (ls_wait_p(listen_char(popSTACK())) ? T : NIL); mv_count=1;
   }
 
@@ -5010,7 +5010,7 @@ LISPFUN(read_char_no_hang,0,4,norest,nokey,0,NIL)
 # (READ-CHAR-NO-HANG [input-stream [eof-error-p [eof-value [recursive-p]]]]),
 # CLTL S. 380
   {
-    # input-stream überprüfen:
+    # input-stream Ã¼berprÃ¼fen:
     var object* stream_ = &STACK_3;
     test_istream(stream_);
     var object stream = *stream_;
@@ -5022,14 +5022,14 @@ LISPFUN(read_char_no_hang,0,4,norest,nokey,0,NIL)
     var signean status = listen_char(stream);
     if (ls_eof_p(status)) { # EOF ?
       return_Values eof_handling();
-    } elif (ls_avail_p(status)) { # Zeichen verfügbar
+    } elif (ls_avail_p(status)) { # Zeichen verfÃ¼gbar
       var object ch = read_char(stream_); # Character lesen
       if (eq(ch,eof_value)) { # sicherheitshalber nochmals auf EOF abfragen
         return_Values eof_handling();
       } else {
         value1 = ch; mv_count=1; skipSTACK(4); return; # ch als Wert
       }
-    } else { # ls_wait_p(status) # kein Zeichen verfügbar
+    } else { # ls_wait_p(status) # kein Zeichen verfÃ¼gbar
       # statt zu warten, sofort NIL als Wert:
       value1 = NIL; mv_count=1; skipSTACK(4); return;
     }
@@ -5038,7 +5038,7 @@ LISPFUN(read_char_no_hang,0,4,norest,nokey,0,NIL)
 LISPFUN(clear_input,0,1,norest,nokey,0,NIL)
 # (CLEAR-INPUT [input-stream]), CLTL S. 380
   {
-    test_istream(&STACK_0); # input-stream überprüfen
+    test_istream(&STACK_0); # input-stream Ã¼berprÃ¼fen
     clear_input(popSTACK());
     value1 = NIL; mv_count=1; # Wert NIL
   }
@@ -5133,8 +5133,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
            ) {
           # OK
         } else {
-          pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_radix)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(arg); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_radix)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(arg); # base
           pushSTACK(S(Kradix));
           pushSTACK(TheSubr(subr_self)->name);
@@ -5145,10 +5145,10 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       }
     }
     # base = Wert des :radix-Arguments.
-    # string, :start und :end überprüfen:
+    # string, :start und :end Ã¼berprÃ¼fen:
     var stringarg arg;
     var object string = test_string_limits_ro(&arg);
-    # STACK jetzt aufgeräumt.
+    # STACK jetzt aufgerÃ¤umt.
     var uintL start = arg.index; # Wert des :start-Arguments
     var uintL len = arg.len; # Anzahl der angesprochenen Characters
     var const chart* charptr;
@@ -5162,28 +5162,28 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     #   string : der String,
     #   arg.string : sein Datenvektor (ein Simple-String),
     #   start : Index des ersten Characters im String,
-    #   charptr : Pointer in den Datenvektor auf das nächste Character,
+    #   charptr : Pointer in den Datenvektor auf das nÃ¤chste Character,
     #   index : Index in den String,
     #   count : verbleibende Anzahl Characters.
     var signean sign; # Vorzeichen
     {
       var chart c; # letztes gelesenes Character
-      # 1. Schritt: Whitespace übergehen
+      # 1. Schritt: Whitespace Ã¼bergehen
       loop {
-        if (count==0) # Stringstück schon zu Ende ?
+        if (count==0) # StringstÃ¼ck schon zu Ende ?
           goto badsyntax;
-        c = *charptr; # nächstes Character
+        c = *charptr; # nÃ¤chstes Character
         if (!(orig_syntax_table_get(c) == syntax_whitespace)) # kein Whitespace?
           break;
-        charptr++; index++; count--; # Whitespacezeichen übergehen
+        charptr++; index++; count--; # Whitespacezeichen Ã¼bergehen
       }
       # 2. Schritt: Vorzeichen lesen
       sign = 0; # Vorzeichen := positiv
       switch (as_cint(c)) {
         case '-': sign = -1; # Vorzeichen := negativ
         case '+': # Vorzeichen angetroffen
-          charptr++; index++; count--; # übergehen
-          if (count==0) # Stringstück schon zu Ende ?
+          charptr++; index++; count--; # Ã¼bergehen
+          if (count==0) # StringstÃ¼ck schon zu Ende ?
             goto badsyntax;
         default: break;
       }
@@ -5193,11 +5193,11 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     # Ab jetzt:  start_offset = Offset der ersten Ziffer im Datenvektor.
     # 3. Schritt: Ziffern lesen
     loop {
-      var cint c = as_cint(*charptr); # nächstes Character
+      var cint c = as_cint(*charptr); # nÃ¤chstes Character
       # Test auf Ziffer: (digit-char-p (code-char c) base) ?
       # (vgl. DIGIT-CHAR-P in CHARSTRG.D)
-      if (c > 'z') break; # zu groß -> nein
-      if (c >= 'a') { c -= 'a'-'A'; } # Character >='a',<='z' in Großbuchstaben wandeln
+      if (c > 'z') break; # zu groÃŸ -> nein
+      if (c >= 'a') { c -= 'a'-'A'; } # Character >='a',<='z' in GroÃŸbuchstaben wandeln
       # Nun ist $00 <= c <= $60.
       if (c < '0') break;
       # $30 <= c <= $60 in Zahlwert umwandeln:
@@ -5208,10 +5208,10 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       else
         break;
       # Nun ist c der Zahlwert der Ziffer, >=0, <=41.
-      if (c >= (uintB)base) # nur gültig, falls 0 <= c < base.
+      if (c >= (uintB)base) # nur gÃ¼ltig, falls 0 <= c < base.
         break;
-      # *charptr ist eine gültige Ziffer.
-      charptr++; index++; count--; # übergehen
+      # *charptr ist eine gÃ¼ltige Ziffer.
+      charptr++; index++; count--; # Ã¼bergehen
       if (count==0)
         break;
     }
@@ -5220,13 +5220,13 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     # Ab jetzt:  end_offset = Offset nach der letzten Ziffer im Datenvektor.
     if (start_offset == end_offset) # gab es keine Ziffern?
       goto badsyntax;
-    # 4. Schritt: evtl. Whitespace am Schluss übergehen
+    # 4. Schritt: evtl. Whitespace am Schluss Ã¼bergehen
     if (!junk_allowed) { # (falls junk_allowed, ist nichts zu tun)
       while (!(count==0)) {
-        var chart c = *charptr; # nächstes Character
+        var chart c = *charptr; # nÃ¤chstes Character
         if (!(orig_syntax_table_get(c) == syntax_whitespace)) # kein Whitespace?
           goto badsyntax;
-        charptr++; index++; count--; # Whitespacezeichen übergehen
+        charptr++; index++; count--; # Whitespacezeichen Ã¼bergehen
       }
     }
     # 5. Schritt: Ziffernfolge in Zahl umwandeln
@@ -5236,7 +5236,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
    badsyntax: # Illegales Zeichen
     if (!junk_allowed) {
       # Error melden:
-      pushSTACK(unbound); # "Wert" für Slot STREAM von STREAM-ERROR
+      pushSTACK(unbound); # "Wert" fÃ¼r Slot STREAM von STREAM-ERROR
       pushSTACK(string);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(stream_error,
@@ -5254,33 +5254,33 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # =============================================================================
 
 # Grundidee des Printers:
-# Vom Datentyp abhängig, wird die externe Repräsentation des Objekts auf den
+# Vom Datentyp abhÃ¤ngig, wird die externe ReprÃ¤sentation des Objekts auf den
 # Stream ausgegeben, rekursiv. Der Unterschied zwischen PRINT und PPRINT
 # besteht darin, dass an einigen Stellen statt einem Space ein Newline und
 # einige Spaces ausgegeben werden. Um dies zu bewerkstelligen, wird die
-# externe Repräsentation der Teil-Objekte auf einen Pretty-Printer-Hilfs-
-# (PPHELP-)Stream ausgegeben, dann überprüft, ob man mehrere Zeilen braucht
-# oder eine ausreicht, und schließlich (davon abhängig) Whitespace eingefügt.
+# externe ReprÃ¤sentation der Teil-Objekte auf einen Pretty-Printer-Hilfs-
+# (PPHELP-)Stream ausgegeben, dann Ã¼berprÃ¼ft, ob man mehrere Zeilen braucht
+# oder eine ausreicht, und schlieÃŸlich (davon abhÃ¤ngig) Whitespace eingefÃ¼gt.
 # Die genauere Spezifikation der prin_object-Routine:
 # > Stream,
-# > Zeilenlänge L,
-# > Linker Rand für Einzeiler L1,
-# > Linker Rand für Mehrzeiler LM,
-# > Anzahl der auf der letzten Zeile am Schluss noch zu schließenden Klammern
-#   K (Fixnum >=0) und Flag, ob bei Mehrzeilern die letzten schließenden
+# > ZeilenlÃ¤nge L,
+# > Linker Rand fÃ¼r Einzeiler L1,
+# > Linker Rand fÃ¼r Mehrzeiler LM,
+# > Anzahl der auf der letzten Zeile am Schluss noch zu schlieÃŸenden Klammern
+#   K (Fixnum >=0) und Flag, ob bei Mehrzeilern die letzten schlieÃŸenden
 #   Klammern in einer eigenen Zeile, justiert unterhalb der entsprechenden
-#   öffnenden Klammern, erscheinen sollen.
+#   Ã¶ffnenden Klammern, erscheinen sollen.
 #   [Der Einfachheit halber ist hier stets K=0 und Flag=True, d.h. alle
-#   schließenden Klammern von Mehrzeilern erscheinen in einer eigenen Zeile.]
+#   schlieÃŸenden Klammern von Mehrzeilern erscheinen in einer eigenen Zeile.]
 # < Stream, auf den das Objekt ausgegeben wurde,
-#   entweder als Einzeiler (der Länge <=L-L1-K)
+#   entweder als Einzeiler (der LÃ¤nge <=L-L1-K)
 #   oder als Mehrzeiler (mit Newline und LM Spaces statt Space zwischen
-#   Teilobjekten), jede Zeile (wenn's geht) der Länge <=L, letzte Zeile
-#   (wenn's geht) der Länge <=L-K.
-# < Falls der Stream ein PPHELP-Stream ist, enthält er den Modus und eine
+#   Teilobjekten), jede Zeile (wenn's geht) der LÃ¤nge <=L, letzte Zeile
+#   (wenn's geht) der LÃ¤nge <=L-K.
+# < Falls der Stream ein PPHELP-Stream ist, enthÃ¤lt er den Modus und eine
 #   nichtleere Liste der ausgegebenen Zeilen (in umgekehrter Reihenfolge).
 
-# Eine pr_xxx-Routine bekommt &stream und obj übergeben:
+# Eine pr_xxx-Routine bekommt &stream und obj Ã¼bergeben:
   typedef void pr_routine (const object* stream_, object obj);
 
 # ---------------------- allgemeine Unterprogramme ----------------------------
@@ -5353,7 +5353,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var object obj;
     {
       var oint x = (as_oint(obj) >> oint_addr_shift) << addr_shift;
-      write_ascii_char(stream_,'#'); write_ascii_char(stream_,'x'); # Präfix für "Hexadezimal"
+      write_ascii_char(stream_,'#'); write_ascii_char(stream_,'x'); # PrÃ¤fix fÃ¼r "Hexadezimal"
       #define pr_hexpart(k)  # Bits k+7..k ausgeben:  \
         if (((oint_addr_mask>>oint_addr_shift)<<addr_shift) & minus_wbit(k)) \
           { pr_hex2(stream_,(uint8)(x >> k) & (((oint_addr_mask>>oint_addr_shift)<<addr_shift) >> k) & 0xFF); }
@@ -5383,7 +5383,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var const object* stream_;
     var uintP x;
     {
-      write_ascii_char(stream_,'#'); write_ascii_char(stream_,'x'); # Präfix für "Hexadezimal"
+      write_ascii_char(stream_,'#'); write_ascii_char(stream_,'x'); # PrÃ¤fix fÃ¼r "Hexadezimal"
       var sintC k = (sizeof(uintP)-1)*8;
       do {
         pr_hex2(stream_,(uint8)(x >> k));
@@ -5407,7 +5407,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     # )
     {
       dynamic_bind(S(print_readably),NIL); # *PRINT-READABLY* an NIL binden
-      pushSTACK(obj); # Wert für Slot OBJECT von PRINT-NOT-READABLE
+      pushSTACK(obj); # Wert fÃ¼r Slot OBJECT von PRINT-NOT-READABLE
       pushSTACK(obj);
       pushSTACK(S(print_readably));
       pushSTACK(S(print));
@@ -5416,7 +5416,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             );
     }
 
-# Fehlermeldung bei unzulässigem Wert von *PRINT-CASE*.
+# Fehlermeldung bei unzulÃ¤ssigem Wert von *PRINT-CASE*.
 # fehler_print_case();
   nonreturning_function(local, fehler_print_case, (void));
   local void fehler_print_case()
@@ -5427,8 +5427,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     # )
     {
       var object print_case = S(print_case);
-      pushSTACK(Symbol_value(print_case)); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_printcase)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(Symbol_value(print_case)); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_printcase)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(S(Kupcase)); # :UPCASE
       pushSTACK(S(Kcapitalize)); # :CAPITALIZE
       pushSTACK(S(Kdowncase)); # :DOWNCASE
@@ -5508,7 +5508,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         write_sstring(stream_,string);
       } else {
         # nicht-simpler String
-        var uintL len = vector_length(string); # Länge
+        var uintL len = vector_length(string); # LÃ¤nge
         var uintL offset = 0; # Offset vom String in den Datenvektor
         var object sstring = iarray_displace_check(string,len,&offset); # Datenvektor
         write_sstring_ab(stream_,sstring,offset,len);
@@ -5532,14 +5532,14 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       get_readtable(readtable = ); # aktuelle Readtable
       switch ((uintW)posfixnum_to_L(TheReadtable(readtable)->readtable_case)) {
         case case_upcase:
-          # *PRINT-CASE* abfragen. Danach richtet sich, wie Großbuchstaben
+          # *PRINT-CASE* abfragen. Danach richtet sich, wie GroÃŸbuchstaben
           # ausgegeben werden. Kleinbuchstaben werden immer klein ausgegeben.
           switch_print_case(
-            # :UPCASE -> Großbuchstaben in Upcase ausgeben:
+            # :UPCASE -> GroÃŸbuchstaben in Upcase ausgeben:
             {
               write_sstring(stream_,string);
             },
-            # :DOWNCASE -> Großbuchstaben in Downcase ausgeben:
+            # :DOWNCASE -> GroÃŸbuchstaben in Downcase ausgeben:
             do_downcase:
             {
               var uintL count = Sstring_length(string);
@@ -5561,23 +5561,23 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                 skipSTACK(1);
               }
             },
-            # :CAPITALIZE -> jeweils den ersten Großbuchstaben eines Wortes
-            # als Großbuchstaben, alle anderen als Kleinbuchstaben ausgeben.
+            # :CAPITALIZE -> jeweils den ersten GroÃŸbuchstaben eines Wortes
+            # als GroÃŸbuchstaben, alle anderen als Kleinbuchstaben ausgeben.
             # (Vgl. NSTRING_CAPITALIZE in CHARSTRG.D)
             # Erste Version:
             #   (lambda (s &aux (l (length s)))
             #     (prog ((i 0) c)
-            #       1 ; Suche ab hier den nächsten Wortanfang
+            #       1 ; Suche ab hier den nÃ¤chsten Wortanfang
             #         (if (= i l) (return))
             #         (setq c (char s i))
             #         (unless (alphanumericp c) (write-char c) (incf i) (go 1))
             #       ; Wortanfang gefunden
-            #       (write-char c) (incf i) ; Großbuchstaben als Großbuchstaben ausgeben
+            #       (write-char c) (incf i) ; GroÃŸbuchstaben als GroÃŸbuchstaben ausgeben
             #       2 ; mitten im Wort
             #         (if (= i l) (return))
             #         (setq c (char s i))
             #         (unless (alphanumericp c) (write-char c) (incf i) (go 1))
-            #         (write-char (char-downcase c)) ; Großbuchstaben klein ausgeben
+            #         (write-char (char-downcase c)) ; GroÃŸbuchstaben klein ausgeben
             #         (incf i) (go 2)
             #   ) )
             # Es werden also genau die Zeichen mit char-downcase ausgegeben, vor
@@ -5619,10 +5619,10 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                   { dotimespL(count,count, {
                       # flag zeigt an, ob gerade innerhalb eines Wortes
                       var boolean oldflag = flag;
-                      var chart c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
+                      var chart c = TheSstring(STACK_0)->data[index]; # nÃ¤chstes Zeichen
                       if ((flag = alphanumericp(c)) && oldflag)
                         # alphanumerisches Zeichen im Wort:
-                        c = down_case(c); # Groß- in Kleinbuchstaben umwandeln
+                        c = down_case(c); # GroÃŸ- in Kleinbuchstaben umwandeln
                       write_code_char(stream_,c); # und ausgeben
                       index++;
                     });
@@ -5630,10 +5630,10 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                   { dotimespL(count,count, {
                       # flag zeigt an, ob gerade innerhalb eines Wortes
                       var boolean oldflag = flag;
-                      var chart c = as_chart(TheSmallSstring(STACK_0)->data[index]); # nächstes Zeichen
+                      var chart c = as_chart(TheSmallSstring(STACK_0)->data[index]); # nÃ¤chstes Zeichen
                       if ((flag = alphanumericp(c)) && oldflag)
                         # alphanumerisches Zeichen im Wort:
-                        c = down_case(c); # Groß- in Kleinbuchstaben umwandeln
+                        c = down_case(c); # GroÃŸ- in Kleinbuchstaben umwandeln
                       write_code_char(stream_,c); # und ausgeben
                       index++;
                     });
@@ -5646,7 +5646,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           break;
         case case_downcase:
           # *PRINT-CASE* abfragen. Danach richtet sich, wie Kleinbuchstaben
-          # ausgegeben werden. Großbuchstaben werden immer groß ausgegeben.
+          # ausgegeben werden. GroÃŸbuchstaben werden immer groÃŸ ausgegeben.
           switch_print_case(
             # :UPCASE -> Kleinbuchstaben in Upcase ausgeben:
             do_upcase:
@@ -5675,17 +5675,17 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               write_sstring(stream_,string);
             },
             # :CAPITALIZE -> jeweils den ersten Kleinbuchstaben eines Wortes
-            # als Großbuchstaben, alle anderen als Kleinbuchstaben ausgeben.
+            # als GroÃŸbuchstaben, alle anderen als Kleinbuchstaben ausgeben.
             # (Vgl. NSTRING_CAPITALIZE in CHARSTRG.D)
             # Erste Version:
             #   (lambda (s &aux (l (length s)))
             #     (prog ((i 0) c)
-            #       1 ; Suche ab hier den nächsten Wortanfang
+            #       1 ; Suche ab hier den nÃ¤chsten Wortanfang
             #         (if (= i l) (return))
             #         (setq c (char s i))
             #         (unless (alphanumericp c) (write-char c) (incf i) (go 1))
             #       ; Wortanfang gefunden
-            #       (write-char (char-upcase c)) ; Kleinbuchstaben groß ausgeben
+            #       (write-char (char-upcase c)) ; Kleinbuchstaben groÃŸ ausgeben
             #       (incf i)
             #       2 ; mitten im Wort
             #         (if (= i l) (return))
@@ -5717,10 +5717,10 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                   { dotimespL(count,count, {
                       # flag zeigt an, ob gerade innerhalb eines Wortes
                       var boolean oldflag = flag;
-                      var chart c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
+                      var chart c = TheSstring(STACK_0)->data[index]; # nÃ¤chstes Zeichen
                       if ((flag = alphanumericp(c)) && !oldflag)
                         # alphanumerisches Zeichen am Wortanfang:
-                        c = up_case(c); # Klein- in Großbuchstaben umwandeln
+                        c = up_case(c); # Klein- in GroÃŸbuchstaben umwandeln
                       write_code_char(stream_,c); # und ausgeben
                       index++;
                     });
@@ -5728,10 +5728,10 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                   { dotimespL(count,count, {
                       # flag zeigt an, ob gerade innerhalb eines Wortes
                       var boolean oldflag = flag;
-                      var chart c = as_chart(TheSmallSstring(STACK_0)->data[index]); # nächstes Zeichen
+                      var chart c = as_chart(TheSmallSstring(STACK_0)->data[index]); # nÃ¤chstes Zeichen
                       if ((flag = alphanumericp(c)) && !oldflag)
                         # alphanumerisches Zeichen am Wortanfang:
-                        c = up_case(c); # Klein- in Großbuchstaben umwandeln
+                        c = up_case(c); # Klein- in GroÃŸbuchstaben umwandeln
                       write_code_char(stream_,c); # und ausgeben
                       index++;
                     });
@@ -5807,18 +5807,18 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       });
     }
 
-# ------------------- Unterprogramme für Pretty-Print -------------------------
+# ------------------- Unterprogramme fÃ¼r Pretty-Print -------------------------
 
 # Variablen:
 # ==========
 
-# Zeilenlänge L                  Wert von SYS::*PRIN-LINELENGTH*,
+# ZeilenlÃ¤nge L                  Wert von SYS::*PRIN-LINELENGTH*,
 #                                  Fixnum>=0 oder NIL
 # Zeilenposition                 im PPHELP-Stream, Fixnum>=0
-# Linker Rand L1 für Einzeiler   Wert von SYS::*PRIN-L1*, Fixnum>=0
-# Linker Rand LM für Mehrzeiler  Wert von SYS::*PRIN-LM*, Fixnum>=0
-# Modus                          im PPHELP-Stream: NIL für Einzeiler,
-#                                                  T für Mehrzeiler
+# Linker Rand L1 fÃ¼r Einzeiler   Wert von SYS::*PRIN-L1*, Fixnum>=0
+# Linker Rand LM fÃ¼r Mehrzeiler  Wert von SYS::*PRIN-LM*, Fixnum>=0
+# Modus                          im PPHELP-Stream: NIL fÃ¼r Einzeiler,
+#                                                  T fÃ¼r Mehrzeiler
   #define einzeiler NIL
   #define mehrzeiler T
 
@@ -5828,38 +5828,38 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 #                        enthalten den bisherigen Output (in umgekehrter
 #                        Reihenfolge: letzte Zeile als CAR).
 #   strm_pphelp_modus    Modus: Einzeiler, falls nur 1 String vorkommt und
-#                        dieser kein NL enthält, sonst Mehrzeiler.
+#                        dieser kein NL enthÃ¤lt, sonst Mehrzeiler.
 # WRITE-CHAR schiebt sein Character immer nur auf die letzte Zeile
 # und aktualisiert lpos und modus.
 
-# während Justify:
+# wÃ¤hrend Justify:
 # voriger Inhalt des Streams     Werte von SYS::*PRIN-JBSTRINGS*,
 #                                  SYS::*PRIN-JBMODUS*, SYS::*PRIN-JBLPOS*
-# bisherige Blöcke (Liste von Blöcken,
+# bisherige BlÃ¶cke (Liste von BlÃ¶cken,
 # mehrzeiliger Block = nichtleere Liste von Semi-Simple-Strings,
 # einzeiliger Block = Semi-Simple-String)
 #                                Wert von SYS::*PRIN-JBLOCKS*
 
-# für Einhaltung von *PRINT-LEVEL*:
+# fÃ¼r Einhaltung von *PRINT-LEVEL*:
 # SYS::*PRIN-LEVEL*              aktuelle Ausgabetiefe (Fixnum>=0)
 
-# für Wiedereinlesbarkeit von Backquote-Expressions:
+# fÃ¼r Wiedereinlesbarkeit von Backquote-Expressions:
 # SYS::*PRIN-BQLEVEL*            aktuelle Backquote-Tiefe (Fixnum>=0)
 
-# wenn der Printer nach außen verlassen wird:
+# wenn der Printer nach auÃŸen verlassen wird:
 # SYS::*PRIN-STREAM*             aktueller Stream (Default: NIL),
 # um ein rekursives PRINT oder WRITE zu erkennen.
 
-# für Einhaltung von *PRINT-LENGTH*:
-# Längenbegrenzung (uintL >=0 oder ~0)      lokal
-# bisherige Länge (uintL >=0)               lokal
+# fÃ¼r Einhaltung von *PRINT-LENGTH*:
+# LÃ¤ngenbegrenzung (uintL >=0 oder ~0)      lokal
+# bisherige LÃ¤nge (uintL >=0)               lokal
 
-# für schöne Ausgabe von Klammern:
+# fÃ¼r schÃ¶ne Ausgabe von Klammern:
 # *PRINT-RPARS* (T oder NIL) zeigt an, ob Klammern zu in einer extra Zeile
 # als "   ) ) )" ausgegeben werden sollen oder nicht.
-# SYS::*PRIN-RPAR* = Position der letzten geöffneten Klammer (Fixnum>=0,
-#                    oder NIL falls die schließende Klammer ans Zeilenende
-#                    und nicht unter die öffnende Klammer soll)
+# SYS::*PRIN-RPAR* = Position der letzten geÃ¶ffneten Klammer (Fixnum>=0,
+#                    oder NIL falls die schlieÃŸende Klammer ans Zeilenende
+#                    und nicht unter die Ã¶ffnende Klammer soll)
 
 # Unterprogramme:
 # ===============
@@ -5903,7 +5903,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       return width;
     }
 
-# UP: Fängt in PPHELP-Stream A5 eine neue Zeile an.
+# UP: FÃ¤ngt in PPHELP-Stream A5 eine neue Zeile an.
 # pphelp_newline(&stream);
 # > stream: Stream
 # < stream: Stream
@@ -5935,7 +5935,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # klammer_auf(&stream);
 # > stream: Stream
 # < stream: Stream
-# verändert STACK
+# verÃ¤ndert STACK
 # can trigger GC
   local void klammer_auf (const object* stream_);
   local void klammer_auf(stream_)
@@ -5949,7 +5949,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         write_ascii_char(stream_,'(');
       } else {
         # Pretty-Print-Hilfs-Stream
-        var object pos = # Position für die Klammer zu
+        var object pos = # Position fÃ¼r die Klammer zu
           (test_value(S(print_rpars)) # *PRINT-RPARS* /= NIL ?
             ? TheStream(stream)->strm_pphelp_lpos # ja -> aktuelle Position (Fixnum>=0)
             : NIL                                 # nein -> NIL
@@ -5964,7 +5964,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # klammer_zu(&stream);
 # > stream: Stream
 # < stream: Stream
-# verändert STACK
+# verÃ¤ndert STACK
 # can trigger GC
   local void klammer_zu (const object* stream_);
   local void klammer_zu(stream_)
@@ -5978,7 +5978,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         write_ascii_char(stream_,')');
       } else {
         # Pretty-Print-Hilfs-Stream
-        # gewünschte Position der Klammer zu holen:
+        # gewÃ¼nschte Position der Klammer zu holen:
         var object pos = Symbol_value(S(prin_rpar)); # SYS::*PRIN-RPAR*
         if (nullp(pos)) goto hinten; # keine -> Klammer hinten ausgeben
         # Klammer an Position pos ausgeben:
@@ -5986,17 +5986,17 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             && !nullp(Cdr(TheStream(stream)->strm_pphelp_strings))
            ) {
           # Mehrzeiler mit mehr als einer Zeile ("echter" Mehrzeiler)
-          # Klammer an die gewünschte Position ausgeben.
+          # Klammer an die gewÃ¼nschte Position ausgeben.
           # Dazu Test, ob die letzte Zeile im Stream
-          # 1. bis zur gewünschten Position (einschließlich) nur Spaces
+          # 1. bis zur gewÃ¼nschten Position (einschlieÃŸlich) nur Spaces
           # und
-          # 2. sonst nur Spaces und ')' enthält.
-          # Wenn ja, Klammer an die gewünschte Position setzen.
+          # 2. sonst nur Spaces und ')' enthÃ¤lt.
+          # Wenn ja, Klammer an die gewÃ¼nschte Position setzen.
           # Wenn nein, neue Zeile anfangen, Spaces und die Klammer ausgeben.
           var object lastline = # letzte Zeile
             Car(TheStream(stream)->strm_pphelp_strings);
-          var uintL len = TheIarray(lastline)->dims[1]; # Länge = Fill-Pointer der Zeile
-          var uintL need = posfixnum_to_L(pos) + 1; # nötige Anzahl Spaces
+          var uintL len = TheIarray(lastline)->dims[1]; # LÃ¤nge = Fill-Pointer der Zeile
+          var uintL need = posfixnum_to_L(pos) + 1; # nÃ¶tige Anzahl Spaces
           if (len < need) # Zeile zu kurz ?
             goto new_line; # ja -> neue Zeile anfangen
           lastline = TheIarray(lastline)->data; # letzte Zeile, Normal-Simple-String
@@ -6019,13 +6019,13 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                 goto new_line; # nein -> neue Zeile anfangen
             });
           }
-          # Klammer an die gewünschte Position pos = need-1 setzen:
+          # Klammer an die gewÃ¼nschte Position pos = need-1 setzen:
           *--charptr1 = ascii(')');
         } else {
           # Einzeiler.
           # Klammer muss wohl hinten ausgegeben werden.
           # Ausnahme: Wenn Line-Position = SYS::*PRIN-LINELENGTH* ist,
-          #           würde über die Zeile hinausgeschrieben;
+          #           wÃ¼rde Ã¼ber die Zeile hinausgeschrieben;
           #           stattdessen wird eine neue Zeile angefangen.
           # Max Right Margin == Line-Position ?
           if (eq(right_margin(),TheStream(stream)->strm_pphelp_lpos)) {
@@ -6035,7 +6035,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
          hinten: # Klammer hinten ausgeben
           write_ascii_char(stream_,')');
         }
-        # Bindung von SYS::*PRIN-RPAR* auflösen:
+        # Bindung von SYS::*PRIN-RPAR* auflÃ¶sen:
         dynamic_unbind();
       }
     }
@@ -6046,7 +6046,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # jeweils 1 mal JUSTIFY_START,
 # dann beliebige Ausgaben, durch JUSTIFY_SPACE getrennt,
 # dann 1 mal entweder
-#     JUSTIFY_END_ENG (fasst auch in Mehrzeilern kurze Blöcke in eine Zeile)
+#     JUSTIFY_END_ENG (fasst auch in Mehrzeilern kurze BlÃ¶cke in eine Zeile)
 #     oder
 #     JUSTIFY_END_WEIT (in Mehrzeilern belegt jeder Block eine eigene Zeile).
   #define JUSTIFY_START     justify_start(stream_);
@@ -6076,7 +6076,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # justify_start(&stream);
 # > stream: Stream
 # < stream: Stream
-# verändert STACK
+# verÃ¤ndert STACK
   local void justify_start (const object* stream_);
   local void justify_start(stream_)
     var const object* stream_;
@@ -6121,7 +6121,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         Car(new_cons) = TheStream(*stream_)->strm_pphelp_strings;
       } else {
         # Einzeiler.
-        # (push (first strings) SYS::*PRIN-JBLOCKS*), oder kürzer:
+        # (push (first strings) SYS::*PRIN-JBLOCKS*), oder kÃ¼rzer:
         # (setq SYS::*PRIN-JBLOCKS* (rplacd strings SYS::*PRIN-JBLOCKS*))
         new_cons = TheStream(stream)->strm_pphelp_strings;
       }
@@ -6170,7 +6170,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # Pretty-Print-Hilfs-Stream
         justify_empty_2(stream_); # Streaminhalt retten
         # Streaminhalt restaurieren, d.h. Werte von SYS::*PRIN-JBSTRINGS*,
-        # SYS::*PRIN-JBMODUS*, SYS::*PRIN-JBLPOS* in den Stream zurück:
+        # SYS::*PRIN-JBMODUS*, SYS::*PRIN-JBLPOS* in den Stream zurÃ¼ck:
         var object stream = *stream_;
         # jetzige Line-Position retten:
         pushSTACK(TheStream(stream)->strm_pphelp_lpos);
@@ -6178,15 +6178,15 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         TheStream(stream)->strm_pphelp_strings = Symbol_value(S(prin_jbstrings));
         TheStream(stream)->strm_pphelp_modus = Symbol_value(S(prin_jbmodus));
         TheStream(stream)->strm_pphelp_lpos = Symbol_value(S(prin_jblpos));
-        # (nichtleere) Liste von Blöcken auf den Stream ausgeben:
+        # (nichtleere) Liste von BlÃ¶cken auf den Stream ausgeben:
         pushSTACK(nreverse(Symbol_value(S(prin_jblocks)))); # (nreverse SYS::*PRIN-JBLOCKS*)
-        # Die Blöcke werden einzeln ausgegeben. Mehrzeiler werden
+        # Die BlÃ¶cke werden einzeln ausgegeben. Mehrzeiler werden
         # voneinander und von den Einzeilern durch Newline getrennt.
-        # Es werden jedoch möglichst viele aufeinanderfolgende Einzeiler
+        # Es werden jedoch mÃ¶glichst viele aufeinanderfolgende Einzeiler
         # (durch Space getrennt) in eine Zeile gepackt.
         loop { # Blockliste STACK_0 durchlaufen:
-          var object block = Car(STACK_0); # nächster Block
-          STACK_0 = Cdr(STACK_0); # Blockliste verkürzen
+          var object block = Car(STACK_0); # nÃ¤chster Block
+          STACK_0 = Cdr(STACK_0); # Blockliste verkÃ¼rzen
           if (consp(block)) {
             # Mehrzeiliger Teilblock
             # Zeilen in die richtige Reihenfolge bringen:
@@ -6195,14 +6195,14 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             pushSTACK(block);
             write_string(stream_,Car(block));
             block = popSTACK();
-            # restliche Zeilen an die Zeilen im Stream vorne dranhängen:
+            # restliche Zeilen an die Zeilen im Stream vorne dranhÃ¤ngen:
             stream = *stream_;
             TheStream(stream)->strm_pphelp_strings =
               nreconc(Cdr(block),TheStream(stream)->strm_pphelp_strings);
             # Modus := Mehrzeiler:
             TheStream(stream)->strm_pphelp_modus = mehrzeiler;
             if (matomp(STACK_0)) { # Restliste leer?
-              # ja -> Line-Position zurück, fertig
+              # ja -> Line-Position zurÃ¼ck, fertig
               TheStream(stream)->strm_pphelp_lpos = STACK_1;
               break;
             }
@@ -6214,8 +6214,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             write_string(stream_,block);
             if (matomp(STACK_0)) # Restliste leer?
               break; # ja -> fertig
-            # nächster Block ein Mehrzeiler?
-            block = Car(STACK_0); # nächster Block
+            # nÃ¤chster Block ein Mehrzeiler?
+            block = Car(STACK_0); # nÃ¤chster Block
             if (atomp(block)) { # ein Mehrzeiler oder Einzeiler?
               # Es ist ein Einzeiler.
               # Passt er noch auf dieselbe Zeile,
@@ -6242,7 +6242,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           }
         }
         skipSTACK(2); # leere Restliste und alte Line-Position vergessen
-        # Bindungen von JUSTIFY_START rückgängig machen:
+        # Bindungen von JUSTIFY_START rÃ¼ckgÃ¤ngig machen:
         dynamic_unbind();
         dynamic_unbind();
         dynamic_unbind();
@@ -6268,7 +6268,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # Pretty-Print-Hilfs-Stream
         justify_empty_2(stream_); # Streaminhalt retten
         # Streaminhalt restaurieren, d.h. Werte von SYS::*PRIN-JBSTRINGS*,
-        # SYS::*PRIN-JBMODUS*, SYS::*PRIN-JBLPOS* in den Stream zurück:
+        # SYS::*PRIN-JBMODUS*, SYS::*PRIN-JBLPOS* in den Stream zurÃ¼ck:
         var object stream = *stream_;
         # jetzige Line-Position retten:
         pushSTACK(TheStream(stream)->strm_pphelp_lpos);
@@ -6276,7 +6276,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         TheStream(stream)->strm_pphelp_strings = Symbol_value(S(prin_jbstrings));
         TheStream(stream)->strm_pphelp_modus = Symbol_value(S(prin_jbmodus));
         TheStream(stream)->strm_pphelp_lpos = Symbol_value(S(prin_jblpos));
-        # Prüfe, ob die Blöcke in SYS::*PRIN-JBLOCKS* alle Einzeiler sind:
+        # PrÃ¼fe, ob die BlÃ¶cke in SYS::*PRIN-JBLOCKS* alle Einzeiler sind:
         {
           var object blocks = Symbol_value(S(prin_jblocks)); # SYS::*PRIN-JBLOCKS*
           do { # (nichtleere) Blockliste durchgehen:
@@ -6285,10 +6285,10 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             blocks = Cdr(blocks);
           } while (consp(blocks));
         }
-        # Prüfe, ob die Blöcke in SYS::*PRIN-JBLOCKS*
-        # (jeder Block Einzeiler) zusammen einen Einzeiler ergeben können:
-        # Ist L=NIL (keine Randbeschränkung) oder
-        # L1 + (Gesamtbreite der Blöcke) + (Anzahl der Blöcke-1) <= L ?
+        # PrÃ¼fe, ob die BlÃ¶cke in SYS::*PRIN-JBLOCKS*
+        # (jeder Block Einzeiler) zusammen einen Einzeiler ergeben kÃ¶nnen:
+        # Ist L=NIL (keine RandbeschrÃ¤nkung) oder
+        # L1 + (Gesamtbreite der BlÃ¶cke) + (Anzahl der BlÃ¶cke-1) <= L ?
         {
           var object linelength = right_margin();
           if (nullp(linelength)) goto gesamt_einzeiler; # =NIL -> Einzeiler
@@ -6299,7 +6299,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             totalneed += pphelp_string_width(block) + 1; # dessen Breite+1 dazu
             blocks = Cdr(blocks);
           } while (consp(blocks));
-          # totalneed = L1 + (Gesamtbreite der Blöcke) + (Anzahl der Blöcke)
+          # totalneed = L1 + (Gesamtbreite der BlÃ¶cke) + (Anzahl der BlÃ¶cke)
           # Vergleiche dies mit linelength + 1 :
           if (totalneed <= posfixnum_to_L(linelength)+1)
             goto gesamt_einzeiler;
@@ -6307,12 +6307,12 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             goto gesamt_mehrzeiler;
         }
        gesamt_einzeiler: # Insgesamt ein Einzeiler.
-        # Blöcke einzeln, durch Spaces getrennt, auf den Stream ausgeben:
+        # BlÃ¶cke einzeln, durch Spaces getrennt, auf den Stream ausgeben:
         pushSTACK(nreverse(Symbol_value(S(prin_jblocks)))); # (nreverse SYS::*PRIN-JBLOCKS*)
         loop { # (nichtleere) Blockliste STACK_0 durchlaufen:
-          var object block = Car(STACK_0); # nächster Block
+          var object block = Car(STACK_0); # nÃ¤chster Block
           # (ein Einzeiler, String ohne #\Newline)
-          STACK_0 = Cdr(STACK_0); # Blockliste verkürzen
+          STACK_0 = Cdr(STACK_0); # Blockliste verkÃ¼rzen
           write_string(stream_,block); # Block auf den Stream ausgeben
           if (matomp(STACK_0)) # Restliste leer -> fertig
             break;
@@ -6320,11 +6320,11 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         }
         goto fertig;
        gesamt_mehrzeiler: # Insgesamt ein Mehrzeiler.
-        # Blöcke einzeln, durch Newline getrennt, auf den Stream ausgeben:
+        # BlÃ¶cke einzeln, durch Newline getrennt, auf den Stream ausgeben:
         pushSTACK(nreverse(Symbol_value(S(prin_jblocks)))); # (nreverse SYS::*PRIN-JBLOCKS*)
         loop { # (nichtleere) Blockliste STACK_0 durchlaufen:
-          var object block = Car(STACK_0); # nächster Block
-          STACK_0 = Cdr(STACK_0); # Blockliste verkürzen
+          var object block = Car(STACK_0); # nÃ¤chster Block
+          STACK_0 = Cdr(STACK_0); # Blockliste verkÃ¼rzen
           if (consp(block)) {
             # Mehrzeiliger Teilblock
             # Zeilen in die richtige Reihenfolge bringen:
@@ -6333,7 +6333,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             pushSTACK(block);
             write_string(stream_,Car(block));
             block = popSTACK();
-            # restliche Zeilen an die Zeilen im Stream vorne dranhängen:
+            # restliche Zeilen an die Zeilen im Stream vorne dranhÃ¤ngen:
             stream = *stream_;
             TheStream(stream)->strm_pphelp_strings =
               nreconc(Cdr(block),TheStream(stream)->strm_pphelp_strings);
@@ -6348,14 +6348,14 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           spaces(stream_,Symbol_value(S(prin_lm))); # SYS::*PRIN-LM* Spaces
         }
         stream = *stream_;
-        # Line-Position zurück:
+        # Line-Position zurÃ¼ck:
         TheStream(stream)->strm_pphelp_lpos = STACK_1;
         # GesamtModus := Mehrzeiler:
         TheStream(stream)->strm_pphelp_modus = mehrzeiler;
         goto fertig;
        fertig: # Line-Position stimmt nun.
         skipSTACK(2); # leere Restliste und alte Line-Position vergessen
-        # Bindungen von JUSTIFY_START rückgängig machen:
+        # Bindungen von JUSTIFY_START rÃ¼ckgÃ¤ngig machen:
         dynamic_unbind();
         dynamic_unbind();
         dynamic_unbind();
@@ -6369,13 +6369,13 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
   #define INDENT_START(delta)  indent_start(stream_,delta);
   #define INDENT_END           indent_end(stream_);
 
-# UP: Bindet die linken Ränder SYS::*PRIN-L1* und SYS::*PRIN-LM* an um
-# delta höhere Werte.
+# UP: Bindet die linken RÃ¤nder SYS::*PRIN-L1* und SYS::*PRIN-LM* an um
+# delta hÃ¶here Werte.
 # indent_start(&stream,delta);
-# > delta: Einrückungswert
+# > delta: EinrÃ¼ckungswert
 # > stream: Stream
 # < stream: Stream
-# verändert STACK
+# verÃ¤ndert STACK
   local void indent_start (const object* stream_, uintL delta);
   local void indent_start(stream_,delta)
     var const object* stream_;
@@ -6404,7 +6404,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # indent_end(&stream);
 # > stream: Stream
 # < stream: Stream
-# verändert STACK
+# verÃ¤ndert STACK
   local void indent_end (const object* stream_);
   local void indent_end(stream_)
     var const object* stream_;
@@ -6415,7 +6415,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # normaler Stream -> nichts zu tun
       } else {
         # Pretty-Print-Hilfs-Stream
-        # die beiden Bindungen von INDENT_START auflösen:
+        # die beiden Bindungen von INDENT_START auflÃ¶sen:
         dynamic_unbind();
         dynamic_unbind();
       }
@@ -6423,7 +6423,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 
 # Indent Preparation
 # ------------------
-# Dient dazu, um eine variable Zeichenzahl einzurücken.
+# Dient dazu, um eine variable Zeichenzahl einzurÃ¼cken.
 # Korrekt zu schachteln,
 #   erst 1 mal INDENTPREP_START,
 #   dann einige Zeichen (kein #\Newline!)
@@ -6436,7 +6436,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # indentprep_start(&stream);
 # > stream: Stream
 # < stream: Stream
-# verändert STACK
+# verÃ¤ndert STACK
   local void indentprep_start (const object* stream_);
   local void indentprep_start(stream_)
     var const object* stream_;
@@ -6453,12 +6453,12 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       }
     }
 
-# UP: Subtrahiert die Positionen, liefert die Einrückungsbreite.
+# UP: Subtrahiert die Positionen, liefert die EinrÃ¼ckungsbreite.
 # indentprep_end(&stream)
 # > stream: Stream
 # < stream: Stream
-# < ergebnis: Einrückungsbreite
-# verändert STACK
+# < ergebnis: EinrÃ¼ckungsbreite
+# verÃ¤ndert STACK
   local uintL indentprep_end (const object* stream_);
   local uintL indentprep_end(stream_)
     var const object* stream_;
@@ -6478,7 +6478,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       }
     }
 
-# ------------------ Unterprogramme für *PRINT-LEVEL* -------------------------
+# ------------------ Unterprogramme fÃ¼r *PRINT-LEVEL* -------------------------
 
 # Level
 # -----
@@ -6488,7 +6488,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
   #define LEVEL_CHECK  { if (level_check(stream_)) return; }
   #define LEVEL_END    level_end(stream_);
 
-# UP: Gibt die Darstellung eines LISP-Objektes bei Überschreitung von
+# UP: Gibt die Darstellung eines LISP-Objektes bei Ãœberschreitung von
 # *PRINT-LEVEL* aus.
 # pr_level(&stream);
 # > stream: Stream
@@ -6497,13 +6497,13 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
   #define pr_level(stream_)     write_ascii_char(stream_,'#')
 
 # UP: Testet, ob SYS::*PRIN-LEVEL* den Wert von *PRINT-LEVEL* erreicht hat.
-# Wenn ja, nur '#' ausgeben und Rücksprung aus dem aufrufenden UP (!).
+# Wenn ja, nur '#' ausgeben und RÃ¼cksprung aus dem aufrufenden UP (!).
 # Wenn nein, wird SYS::*PRIN-LEVEL* incrementiert gebunden.
 # if (level_check(&stream)) return;
 # > stream: Stream
 # < stream: Stream
-# Wenn ja: kann GC auslösen
-# Wenn nein: verändert STACK
+# Wenn ja: kann GC auslÃ¶sen
+# Wenn nein: verÃ¤ndert STACK
   local boolean level_check (const object* stream_);
   local boolean level_check(stream_)
     var const object* stream_;
@@ -6511,8 +6511,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       var object level = Symbol_value(S(prin_level)); # SYS::*PRIN-LEVEL*, ein Fixnum >=0
       var object limit = Symbol_value(S(print_level)); # *PRINT-LEVEL*
       if (!test_value(S(print_readably))
-          && posfixnump(limit) # Beschränkung vorhanden?
-          && (posfixnum_to_L(level) >= posfixnum_to_L(limit)) # und erreicht oder überschritten?
+          && posfixnump(limit) # BeschrÃ¤nkung vorhanden?
+          && (posfixnum_to_L(level) >= posfixnum_to_L(limit)) # und erreicht oder Ã¼berschritten?
          ) {
         # ja -> '#' ausgeben und herausspringen:
         pr_level(stream_); return TRUE;
@@ -6525,11 +6525,11 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       }
     }
 
-# UP: Beendet einen Block mit erhöhtem SYS::*PRIN-LEVEL*.
+# UP: Beendet einen Block mit erhÃ¶htem SYS::*PRIN-LEVEL*.
 # level_end(&stream);
 # > stream: Stream
 # < stream: Stream
-# verändert STACK
+# verÃ¤ndert STACK
   local void level_end (const object* stream_);
   local void level_end(stream_)
     var const object* stream_;
@@ -6537,14 +6537,14 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       dynamic_unbind();
     }
 
-# ------------------ Unterprogramme für *PRINT-LENGTH* ------------------------
+# ------------------ Unterprogramme fÃ¼r *PRINT-LENGTH* ------------------------
 
 # Length
 # ------
 
-# UP: Liefert die Längengrenze für strukturierte Objekte wie z.B. Listen.
+# UP: Liefert die LÃ¤ngengrenze fÃ¼r strukturierte Objekte wie z.B. Listen.
 # get_print_length()
-# < ergebnis: Längengrenze
+# < ergebnis: LÃ¤ngengrenze
   local uintL get_print_length (void);
   local uintL get_print_length()
     {
@@ -6556,7 +6556,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
              );
     }
 
-# ------------------ Unterprogramme für *PRINT-CIRCLE* ------------------------
+# ------------------ Unterprogramme fÃ¼r *PRINT-CIRCLE* ------------------------
 
 # UP: Stellt fest, ob ein Objekt wegen *PRINT-CIRCLE* in #n= oder #n# -
 # Schreibweise ausgegeben werden muss.
@@ -6595,14 +6595,14 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # Kommt obj unter den Elementen i+1,...,m vor -> bringe
         #   obj an die Stelle i+1, Fall TRUE, n:=i+1, nachher i:=i+1.
         # Sonst Fall NULL.
-        var local circle_info info; # Platz für die Rückgabe der Werte
-        var uintL m1 = Svector_length(table); # Länge m+1
+        var local circle_info info; # Platz fÃ¼r die RÃ¼ckgabe der Werte
+        var uintL m1 = Svector_length(table); # LÃ¤nge m+1
         if (m1==0) goto bad_table; # sollte >0 sein!
         var object* ptr = &TheSvector(table)->data[0]; # Pointer in den Vektor
         var uintL i = posfixnum_to_L(*ptr++); # erstes Element i
         var uintL index = 1;
         until (index == m1) { # Schleife m mal durchlaufen
-          if (eq(*ptr++,obj)) # obj mit nächstem Vektor-Element vergleichen
+          if (eq(*ptr++,obj)) # obj mit nÃ¤chstem Vektor-Element vergleichen
             goto found;
           index++;
         }
@@ -6623,7 +6623,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           }
           # obj ist als #n=... auszugeben, n=i.
           info.flag = TRUE; info.n = i;
-          info.ptr = &TheSvector(table)->data[0]; # nachher i im Vektor erhöhen
+          info.ptr = &TheSvector(table)->data[0]; # nachher i im Vektor erhÃ¶hen
           return &info;
         }
       }
@@ -6631,11 +6631,11 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       return (circle_info*)NULL;
     }
 
-# UP: Überprüft, ob ein Objekt eine Zirkularität ist, und gibt es in
-# diesem Falle als #n# oder mit #n=-Präfix (und sonst normal) aus.
+# UP: ÃœberprÃ¼ft, ob ein Objekt eine ZirkularitÃ¤t ist, und gibt es in
+# diesem Falle als #n# oder mit #n=-PrÃ¤fix (und sonst normal) aus.
 # pr_circle(&stream,obj,&pr_xxx);
 # > obj: Objekt
-# > pr_xxx: Ausgabe-Routine, die &stream und obj übergeben bekommt
+# > pr_xxx: Ausgabe-Routine, die &stream und obj Ã¼bergeben bekommt
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
@@ -6645,16 +6645,16 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var object obj;
     var pr_routine* pr_xxx;
     {
-      # Feststellen, ob Zirkularität:
+      # Feststellen, ob ZirkularitÃ¤t:
       var circle_info* info = circle_p(obj);
       if (info == (circle_info*)NULL) {
-        # keine Zirkularität, obj normal ausgeben:
+        # keine ZirkularitÃ¤t, obj normal ausgeben:
         (*pr_xxx)(stream_,obj);
       } else {
-        # Zirkularität
+        # ZirkularitÃ¤t
         if (info->flag) {
           # obj als #n=... ausgeben:
-          # erst noch für circle_p das Fixnum im Vektor incrementieren:
+          # erst noch fÃ¼r circle_p das Fixnum im Vektor incrementieren:
           {
             var object* ptr = info->ptr;
             *ptr = fixnum_inc(*ptr,1);
@@ -6662,7 +6662,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           {
             var uintL n = info->n;
             pushSTACK(obj); # obj retten
-            # Präfix ausgeben und Einrückungstiefe berechnen:
+            # PrÃ¤fix ausgeben und EinrÃ¼ckungstiefe berechnen:
             INDENTPREP_START;
             write_ascii_char(stream_,'#');
             pr_uint(stream_,n);
@@ -6670,8 +6670,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           }
           {
             var uintL indent = INDENTPREP_END;
-            obj = popSTACK(); # obj zurück
-            # obj (eingerückt) ausgeben:
+            obj = popSTACK(); # obj zurÃ¼ck
+            # obj (eingerÃ¼ckt) ausgeben:
             INDENT_START(indent);
             (*pr_xxx)(stream_,obj);
             INDENT_END;
@@ -6692,7 +6692,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # auf.
 # pr_enter(&stream,obj,&pr_xxx);
 # > obj: Objekt
-# > pr_xxx: Ausgabe-Routine, die &stream und obj übergeben bekommt
+# > pr_xxx: Ausgabe-Routine, die &stream und obj Ã¼bergeben bekommt
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
@@ -6724,7 +6724,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           }
           pushSTACK(make_pphelp_stream()); # neuer PPHELP-Stream, Line-Position = 0
           if (stream_get_read_eval(*stream_))
-            TheStream(STACK_0)->strmflags |= bit(strmflags_reval_bit_B); # READ-EVAL-Bit übernehmen
+            TheStream(STACK_0)->strmflags |= bit(strmflags_reval_bit_B); # READ-EVAL-Bit Ã¼bernehmen
           # Objekt auf den neuen Stream ausgeben:
           (*pr_xxx)(&STACK_0,STACK_1);
           # Inhalt des neuen Streams auf den alten Stream ausgeben:
@@ -6732,7 +6732,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             var object ppstream = popSTACK(); # der neue Stream
             STACK_0 = nreverse(TheStream(ppstream)->strm_pphelp_strings); # Liste von Output-Zeilen
             # Falls es ein Mehrzeiler wurde, der nicht mit einem Newline
-            # anfängt, und die alte Line-Position >0 ist,
+            # anfÃ¤ngt, und die alte Line-Position >0 ist,
             # zuerst noch ein Newline auf den alten Stream ausgeben:
             if (eq(TheStream(ppstream)->strm_pphelp_modus,einzeiler) # Einzeiler ?
                 || nullp(Symbol_value(S(pprint_first_newline))))
@@ -6787,32 +6787,32 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var object obj;
     var pr_routine* pr_xxx;
     {
-      # Falls *PRINT-CIRCLE* /= NIL, in obj nach Zirkularitäten suchen.
+      # Falls *PRINT-CIRCLE* /= NIL, in obj nach ZirkularitÃ¤ten suchen.
       if (test_value(S(print_circle)) || test_value(S(print_readably))) {
-        # Zirkularitäten suchen:
+        # ZirkularitÃ¤ten suchen:
         pushSTACK(obj);
-        var object circularities = # Zirkularitätentabelle
+        var object circularities = # ZirkularitÃ¤tentabelle
           get_circularities(obj,
                             test_value(S(print_array)) || test_value(S(print_readably)), # /= 0 genau dann wenn *PRINT-ARRAY* /= NIL
                             test_value(S(print_closure)) || test_value(S(print_readably)) # /= 0 genau dann wenn *PRINT-CLOSURE* /= NIL
                            );
         obj = popSTACK();
         if (nullp(circularities)) {
-          # Keine Zirkularitäten festgestellt.
+          # Keine ZirkularitÃ¤ten festgestellt.
           # Kann *PRINT-CIRCLE* an NIL binden.
           dynamic_bind(S(print_circle),NIL);
           pr_enter_1(stream_,obj,pr_xxx);
           dynamic_unbind();
         } elif (eq(circularities,T)) {
-          # Stacküberlauf trat auf
-          # Überlauf der GET_CIRCULARITIES-Routine behandeln:
+          # StackÃ¼berlauf trat auf
+          # Ãœberlauf der GET_CIRCULARITIES-Routine behandeln:
           dynamic_bind(S(print_circle),NIL); # *PRINT-CIRCLE* an NIL binden
           pushSTACK(S(print));
           fehler(storage_condition,
                  GETTEXT("~: not enough stack space for carrying out circularity analysis")
                 );
         } else {
-          # Zirkularitätenvektor
+          # ZirkularitÃ¤tenvektor
           # Binde SYS::*PRINT-CIRCLE-TABLE* an den Simple-Vector:
           dynamic_bind(S(print_circle_table),circularities);
           if (!test_value(S(print_circle))) {
@@ -6842,7 +6842,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # ja -> rekursiver Aufruf
         # Falls SYS::*PRINT-CIRCLE-TABLE* = #<UNBOUND> (was bedeutet, dass
         # *PRINT-CIRCLE* vorher NIL war) und jetzt *PRINT-CIRCLE* /= NIL
-        # ist, muss Objekt obj nach Zirkularitäten abgesucht werden.
+        # ist, muss Objekt obj nach ZirkularitÃ¤ten abgesucht werden.
         if (eq(Symbol_value(S(print_circle_table)),unbound)) {
           pr_enter_2(stream_,obj,pr_xxx);
         } else {
@@ -6851,19 +6851,19 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       } else {
         # nein -> nichtrekursiver Aufruf
         #if STACKCHECKP
-        var object* STACKbefore = STACK; # STACK aufheben für später
+        var object* STACKbefore = STACK; # STACK aufheben fÃ¼r spÃ¤ter
         #endif
         dynamic_bind(S(prin_level),Fixnum_0); # SYS::*PRIN-LEVEL* an 0 binden
         dynamic_bind(S(prin_bqlevel),Fixnum_0); # SYS::*PRIN-BQLEVEL* an 0 binden
-        dynamic_bind(S(prin_l1),Fixnum_0); # SYS::*PRIN-L1* an 0 binden (für Pretty-Print)
-        dynamic_bind(S(prin_lm),Fixnum_0); # SYS::*PRIN-LM* an 0 binden (für Pretty-Print)
+        dynamic_bind(S(prin_l1),Fixnum_0); # SYS::*PRIN-L1* an 0 binden (fÃ¼r Pretty-Print)
+        dynamic_bind(S(prin_lm),Fixnum_0); # SYS::*PRIN-LM* an 0 binden (fÃ¼r Pretty-Print)
         pr_enter_2(stream_,obj,pr_xxx);
         dynamic_unbind();
         dynamic_unbind();
         dynamic_unbind();
         dynamic_unbind();
         #if STACKCHECKP
-        # Überprüfen, ob Stack aufgeräumt:
+        # ÃœberprÃ¼fen, ob Stack aufgerÃ¤umt:
         if (!(STACK == STACKbefore))
           abort(); # wenn nicht, in den Debugger
         #endif
@@ -6875,7 +6875,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # Vorbereitung des Aufrufs einer externen Print-Funktion
 # pr_external_1(stream)
 # > stream: Stream
-# < ergebnis: Anzahl dynamische Bindungen, die aufzulösen sind.
+# < ergebnis: Anzahl dynamische Bindungen, die aufzulÃ¶sen sind.
   local uintC pr_external_1 (object stream);
   local uintC pr_external_1(stream)
     var object stream;
@@ -6884,7 +6884,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       # *PRINT-CIRCLE* beachten:
       if (!test_value(S(print_circle))) {
         # *PRINT-CIRCLE* = NIL ->
-        # Für den Fall, dass *PRINT-CIRCLE* an T gebunden werden wird,
+        # FÃ¼r den Fall, dass *PRINT-CIRCLE* an T gebunden werden wird,
         # muss SYS::*PRINT-CIRCLE-TABLE* an #<UNBOUND> gebunden werden
         # (es sei denn, es ist bereits = #<UNBOUND>).
         if (!eq(Symbol_value(S(print_circle_table)),unbound)) {
@@ -6940,7 +6940,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 
 # Nachbereitung des Aufrufs einer externen Print-Funktion
 # pr_external_2(count);
-# > count: Anzahl dynamische Bindungen, die aufzulösen sind.
+# > count: Anzahl dynamische Bindungen, die aufzulÃ¶sen sind.
   #define pr_external_2(countvar)  \
     dotimespC(countvar,countvar, { dynamic_unbind(); } );
 
@@ -6998,12 +6998,12 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       interruptp({
         pushSTACK(obj); # obj retten, stream ist im STACK sicher
         pushSTACK(S(print)); tast_break(); # PRINT ruft Break-Schleife auf
-        obj = popSTACK(); # obj zurück
+        obj = popSTACK(); # obj zurÃ¼ck
         goto restart_it;
       });
-      # auf Stacküberlauf testen:
+      # auf StackÃ¼berlauf testen:
       check_SP(); check_STACK();
-      # Zirkularität behandeln:
+      # ZirkularitÃ¤t behandeln:
       pr_circle(stream_,obj,&prin_object_dispatch);
     }
   local void prin_object_dispatch(stream_,obj)
@@ -7091,7 +7091,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     }
 
 
-# ------------- PRINT-Routinen für verschiedene Datentypen --------------------
+# ------------- PRINT-Routinen fÃ¼r verschiedene Datentypen --------------------
 
 #                      -------- Symbole --------
 
@@ -7128,12 +7128,12 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               # Syntax #:name verwenden
               write_ascii_char(stream_,'#'); goto one_marker;
             }
-            # sonst ohne Präfix ausgeben
+            # sonst ohne PrÃ¤fix ausgeben
           } else {
             # Symbol mit Packagenamen und 1 oder 2 Packagemarkern ausgeben
             pushSTACK(home); # Home-Package retten
             pr_symbol_part(stream_,ThePackage(home)->pack_name,FALSE); # Packagenamen ausgeben
-            home = popSTACK(); # Home-Package zurück
+            home = popSTACK(); # Home-Package zurÃ¼ck
             case_sensitive = pack_casesensitivep(home);
             if (externalp(STACK_0,home)) # Symbol extern in seiner Home-Package?
               goto one_marker; # ja -> 1 Packagemarker
@@ -7141,7 +7141,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
            one_marker:
             write_ascii_char(stream_,':');
           }
-          sym = popSTACK(); # sym zurück
+          sym = popSTACK(); # sym zurÃ¼ck
         }
         pr_symbol_part(stream_,Symbol_name(sym),case_sensitive); # Symbolnamen ausgeben
       } else {
@@ -7156,7 +7156,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # pr_symbol_part(&stream,string,case_sensitive);
 # > string: Simple-String
 # > stream: Stream
-# > case_sensitive: Flag, ob das Wiedereinlesen case-sensitiv wäre
+# > case_sensitive: Flag, ob das Wiedereinlesen case-sensitiv wÃ¤re
 # < stream: Stream
 # can trigger GC
   local void pr_symbol_part(stream_,string,case_sensitive)
@@ -7164,20 +7164,20 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var object string;
     var boolean case_sensitive;
     {
-      # Feststellen, ob der Name ohne |...| außenrum ausgegeben werden kann:
+      # Feststellen, ob der Name ohne |...| auÃŸenrum ausgegeben werden kann:
       # Dies kann er dann, wenn er:
       # 1. nicht leer ist und
-      # 2. mit einem Character mit Syntaxcode Constituent anfängt und
+      # 2. mit einem Character mit Syntaxcode Constituent anfÃ¤ngt und
       # 3. nur aus Characters mit Syntaxcode Constituent oder
       #    Nonterminating Macro besteht und
-      # 4. keine Klein-/Großbuchstaben (je nach readtable_case)
-      #    und keine Doppelpunkte enthält und
+      # 4. keine Klein-/GroÃŸbuchstaben (je nach readtable_case)
+      #    und keine Doppelpunkte enthÃ¤lt und
       # 5. nicht Potential-Number Syntax (mit *PRINT-BASE* als Basis) hat.
-      var uintL len = Sstring_length(string); # Länge
-      # Bedingung 1 überprüfen:
+      var uintL len = Sstring_length(string); # LÃ¤nge
+      # Bedingung 1 Ã¼berprÃ¼fen:
       if (len==0)
-        goto surround; # Länge=0 -> muss |...| verwenden
-      # Bedingungen 2-4 überprüfen:
+        goto surround; # LÃ¤nge=0 -> muss |...| verwenden
+      # Bedingungen 2-4 Ã¼berprÃ¼fen:
       {
         # Brauche die Attributcodetabelle und die aktuelle Syntaxcodetabelle:
         var object syntax_table; # Syntaxcodetabelle, char_code_limit Elemente
@@ -7207,7 +7207,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                       goto surround; # ja -> muss |...| verwenden
                     break;
                   case case_downcase:
-                    if (!chareq(c,down_case(c))) # war c ein Großbuchstabe?
+                    if (!chareq(c,down_case(c))) # war c ein GroÃŸbuchstabe?
                       goto surround; # ja -> muss |...| verwenden
                     break;
                   case case_preserve:
@@ -7217,7 +7217,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                   default: NOTREACHED
                 }
               count--; if (count == 0) break; # String zu Ende -> Schleifenende
-              c = *charptr++; # nächstes Character
+              c = *charptr++; # nÃ¤chstes Character
               switch (syntax_table_get(syntax_table,c)) { # sein Syntaxcode
                 case syntax_constituent:
                 case syntax_nt_macro:
@@ -7244,7 +7244,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                       goto surround; # ja -> muss |...| verwenden
                     break;
                   case case_downcase:
-                    if (!chareq(c,down_case(c))) # war c ein Großbuchstabe?
+                    if (!chareq(c,down_case(c))) # war c ein GroÃŸbuchstabe?
                       goto surround; # ja -> muss |...| verwenden
                     break;
                   case case_preserve:
@@ -7254,7 +7254,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                   default: NOTREACHED
                 }
               count--; if (count == 0) break; # String zu Ende -> Schleifenende
-              c = as_chart(*charptr++); # nächstes Character
+              c = as_chart(*charptr++); # nÃ¤chstes Character
               switch (syntax_table_get(syntax_table,c)) { # sein Syntaxcode
                 case syntax_constituent:
                 case syntax_nt_macro:
@@ -7266,16 +7266,16 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           }
           );
       }
-      # Bedingung 5 überprüfen:
+      # Bedingung 5 Ã¼berprÃ¼fen:
       {
         pushSTACK(string); # String retten
         get_buffers(); # zwei Buffer allozieren, in den STACK
-        # und füllen:
+        # und fÃ¼llen:
         SstringDispatch(STACK_2,
           {
             var uintL index = 0;
             until (index == len) {
-              var chart c = TheSstring(STACK_2)->data[index]; # nächstes Character
+              var chart c = TheSstring(STACK_2)->data[index]; # nÃ¤chstes Character
               ssstring_push_extend(STACK_1,c); # in den Character-Buffer
               ssbvector_push_extend(STACK_0,attribute_of(c)); # und in den Attributcode-Buffer
               index++;
@@ -7284,7 +7284,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           {
             var uintL index = 0;
             until (index == len) {
-              var chart c = as_chart(TheSmallSstring(STACK_2)->data[index]); # nächstes Character
+              var chart c = as_chart(TheSmallSstring(STACK_2)->data[index]); # nÃ¤chstes Character
               ssstring_push_extend(STACK_1,c); # in den Character-Buffer
               ssbvector_push_extend(STACK_0,attribute_of(c)); # und in den Attributcode-Buffer
               index++;
@@ -7293,7 +7293,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           );
         O(token_buff_2) = popSTACK(); # Attributcode-Buffer
         O(token_buff_1) = popSTACK(); # Character-Buffer
-        string = popSTACK(); # String zurück
+        string = popSTACK(); # String zurÃ¼ck
         if (test_dots()) # nur Punkte -> muss |...| verwenden
           goto surround;
         # Potential-Number-Syntax?
@@ -7325,7 +7325,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         {
           var uintL index = 0;
           until (index == len) {
-            var chart c = TheSstring(STACK_0)->data[index]; # nächstes Character
+            var chart c = TheSstring(STACK_0)->data[index]; # nÃ¤chstes Character
             switch (syntax_table_get(STACK_1,c)) { # dessen Syntaxcode
               case syntax_single_esc:
               case syntax_multi_esc:
@@ -7340,7 +7340,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         {
           var uintL index = 0;
           until (index == len) {
-            var chart c = as_chart(TheSmallSstring(STACK_0)->data[index]); # nächstes Character
+            var chart c = as_chart(TheSmallSstring(STACK_0)->data[index]); # nÃ¤chstes Character
             switch (syntax_table_get(STACK_1,c)) { # dessen Syntaxcode
               case syntax_single_esc:
               case syntax_multi_esc:
@@ -7436,12 +7436,12 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # mit Escape-Zeichen:
         var uintL index = start;
         pushSTACK(string); # Simple-String retten
-        write_ascii_char(stream_,'"'); # vorher ein Anführungszeichen
+        write_ascii_char(stream_,'"'); # vorher ein AnfÃ¼hrungszeichen
         #if 0
         SstringDispatch(string,
           {
             dotimesL(len,len, {
-              var chart c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
+              var chart c = TheSstring(STACK_0)->data[index]; # nÃ¤chstes Zeichen
               # bei c = #\" oder c = #\\ erst noch ein '\' ausgeben:
               if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
                 write_ascii_char(stream_,'\\');
@@ -7451,7 +7451,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           },
           {
             dotimesL(len,len, {
-              var chart c = as_chart(TheSmallSstring(STACK_0)->data[index]); # nächstes Zeichen
+              var chart c = as_chart(TheSmallSstring(STACK_0)->data[index]); # nÃ¤chstes Zeichen
               # bei c = #\" oder c = #\\ erst noch ein '\' ausgeben:
               if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
                 write_ascii_char(stream_,'\\');
@@ -7465,7 +7465,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           {
             var uintL index0 = index;
             loop {
-              # Suche den nächsten #\" oder #\\ :
+              # Suche den nÃ¤chsten #\" oder #\\ :
               string = STACK_0;
               while (len > 0) {
                 var chart c = TheSstring(string)->data[index];
@@ -7484,7 +7484,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           {
             var uintL index0 = index;
             loop {
-              # Suche den nächsten #\" oder #\\ :
+              # Suche den nÃ¤chsten #\" oder #\\ :
               string = STACK_0;
               while (len > 0) {
                 var chart c = as_chart(TheSmallSstring(string)->data[index]);
@@ -7502,7 +7502,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           }
           );
         #endif
-        write_ascii_char(stream_,'"'); # nachher ein Anführungszeichen
+        write_ascii_char(stream_,'"'); # nachher ein AnfÃ¼hrungszeichen
         skipSTACK(1);
       } else {
         # ohne Escape-Zeichen: nur write_sstring_ab
@@ -7520,7 +7520,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var const object* stream_;
     var object string;
     {
-      var uintL len = vector_length(string); # Länge
+      var uintL len = vector_length(string); # LÃ¤nge
       var uintL offset = 0; # Offset vom String in den Datenvektor
       var object sstring = array_displace_check(string,len,&offset); # Datenvektor
       pr_sstring_ab(stream_,sstring,offset,len);
@@ -7550,7 +7550,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         pr_xxx = &pr_list_function; goto test2;
       } elif (eq(head,S(backquote))) { # SYS::BACKQUOTE
         pr_xxx = &pr_list_backquote;
-        # Teste noch, ob obj eine Liste der Länge 2 oder 3 ist.
+        # Teste noch, ob obj eine Liste der LÃ¤nge 2 oder 3 ist.
         obj = Cdr(obj); # Der CDR
         if (consp(obj) && # muss ein Cons sein,
             (obj = Cdr(obj), # der CDDR
@@ -7568,13 +7568,13 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       } else
         return (pr_routine*)NULL;
      test2bq: # Teste noch, ob SYS::*PRIN-BQLEVEL* > 0 und
-              # obj eine Liste der Länge 2 ist.
+              # obj eine Liste der LÃ¤nge 2 ist.
       {
         var object bqlevel = Symbol_value(S(prin_bqlevel));
         if (!(posfixnump(bqlevel) && !eq(bqlevel,Fixnum_0)))
           return (pr_routine*)NULL;
       }
-     test2: # Teste noch, ob obj eine Liste der Länge 2 ist.
+     test2: # Teste noch, ob obj eine Liste der LÃ¤nge 2 ist.
       if (mconsp(Cdr(obj)) && nullp(Cdr(Cdr(obj))))
         return pr_xxx;
       else
@@ -7626,7 +7626,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var const object* stream_;
     var object list;
     {
-      # Spezialfälle abfangen:
+      # SpezialfÃ¤lle abfangen:
       {
         var pr_routine* special = special_list_p(list);
         if (!(special == (pr_routine*)NULL)) {
@@ -7637,33 +7637,33 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       LEVEL_CHECK;
       {
         var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-Begrenzung
-        var uintL length = 0; # bisherige Länge := 0
+        var uintL length = 0; # bisherige LÃ¤nge := 0
         pushSTACK(list); # Liste retten
         var object* list_ = &STACK_0; # und merken, wo sie sitzt
         KLAMMER_AUF; # '('
-        INDENT_START(get_indent_lists()); # um 1 Zeichen einrücken, wegen '('
+        INDENT_START(get_indent_lists()); # um 1 Zeichen einrÃ¼cken, wegen '('
         JUSTIFY_START;
-        # auf Erreichen von *PRINT-LENGTH* prüfen:
+        # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
         if (length_limit==0) goto dots;
         loop {
           # ab hier den CAR ausgeben
-          list = *list_; *list_ = Cdr(list); # Liste verkürzen
+          list = *list_; *list_ = Cdr(list); # Liste verkÃ¼rzen
           prin_object(stream_,Car(list)); # den CAR ausgeben
-          length++; # Länge incrementieren
+          length++; # LÃ¤nge incrementieren
           # ab hier den Listenrest ausgeben
           if (nullp(*list_)) # Listenrest=NIL -> Listenende
             goto end_of_list;
           JUSTIFY_SPACE; # ein Space ausgeben
           if (matomp(*list_)) # Dotted List ?
             goto dotted_list;
-          # auf Erreichen von *PRINT-LENGTH* prüfen:
+          # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
           if (length >= length_limit)
             goto dots;
-          # Prüfen, ob Dotted-List-Schreibweise nötig:
+          # PrÃ¼fen, ob Dotted-List-Schreibweise nÃ¶tig:
           list = *list_;
-          if (!(circle_p(list) == (circle_info*)NULL)) # wegen Zirkularität nötig?
+          if (!(circle_p(list) == (circle_info*)NULL)) # wegen ZirkularitÃ¤t nÃ¶tig?
             goto dotted_list;
-          if (!(special_list_p(list) == (pr_routine*)NULL)) # wegen QUOTE o.ä. nötig?
+          if (!(special_list_p(list) == (pr_routine*)NULL)) # wegen QUOTE o.Ã¤. nÃ¶tig?
             goto dotted_list;
         }
        dotted_list: # Listenrest in Dotted-List-Schreibweise ausgeben:
@@ -7671,7 +7671,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         JUSTIFY_SPACE;
         prin_object(stream_,*list_);
         goto end_of_list;
-       dots: # Listenrest durch '...' abkürzen:
+       dots: # Listenrest durch '...' abkÃ¼rzen:
         write_ascii_char(stream_,'.');
         write_ascii_char(stream_,'.');
         write_ascii_char(stream_,'.');
@@ -7702,7 +7702,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       pushSTACK(Car(Cdr(list))); # (second list) retten
       write_ascii_char(stream_,'\''); # "'" ausgeben
       list = popSTACK();
-      INDENT_START(1); # um 1 Zeichen einrücken wegen "'"
+      INDENT_START(1); # um 1 Zeichen einrÃ¼cken wegen "'"
       prin_object(stream_,list); # object ausgeben
       INDENT_END;
     }
@@ -7715,7 +7715,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       write_ascii_char(stream_,'#'); # "#" ausgeben
       write_ascii_char(stream_,'\''); # "'" ausgeben
       list = popSTACK();
-      INDENT_START(2); # um 2 Zeichen einrücken wegen "#'"
+      INDENT_START(2); # um 2 Zeichen einrÃ¼cken wegen "#'"
       prin_object(stream_,list); # object ausgeben
       INDENT_END;
     }
@@ -7727,14 +7727,14 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       pushSTACK(Car(Cdr(list))); # (second list) retten
       write_ascii_char(stream_,'`'); # '`' ausgeben
       list = popSTACK();
-      # SYS::*PRIN-BQLEVEL* um 1 erhöhen:
+      # SYS::*PRIN-BQLEVEL* um 1 erhÃ¶hen:
       {
         var object bqlevel = Symbol_value(S(prin_bqlevel));
         if (!posfixnump(bqlevel))
           bqlevel = Fixnum_0;
         dynamic_bind(S(prin_bqlevel),fixnum_inc(bqlevel,1));
       }
-      INDENT_START(1); # um 1 Zeichen einrücken wegen '`'
+      INDENT_START(1); # um 1 Zeichen einrÃ¼cken wegen '`'
       prin_object(stream_,list); # original-form ausgeben
       INDENT_END;
       dynamic_unbind();
@@ -7760,7 +7760,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
          ) {
         # ja -> noch die Form ausgeben:
         list = Car(Cdr(list)); # (second object)
-        INDENT_START(2); # um 2 Zeichen einrücken wegen ",@" bzw. ",."
+        INDENT_START(2); # um 2 Zeichen einrÃ¼cken wegen ",@" bzw. ",."
         prin_object(stream_,list); # Form ausgeben
         INDENT_END;
       } else {
@@ -7768,7 +7768,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         pushSTACK(list); # object retten
         write_ascii_char(stream_,'\''); # "'" ausgeben
         list = popSTACK();
-        INDENT_START(3); # um 3 Zeichen einrücken wegen ",@'" bzw. ",.'"
+        INDENT_START(3); # um 3 Zeichen einrÃ¼cken wegen ",@'" bzw. ",.'"
         prin_object(stream_,list); # object ausgeben
         INDENT_END;
       }
@@ -7798,7 +7798,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       list = popSTACK();
       # SYS::*PRIN-BQLEVEL* um 1 verringern:
       dynamic_bind(S(prin_bqlevel),fixnum_inc(Symbol_value(S(prin_bqlevel)),-1));
-      INDENT_START(1); # um 1 Zeichen einrücken wegen ','
+      INDENT_START(1); # um 1 Zeichen einrÃ¼cken wegen ','
       prin_object(stream_,list); # object ausgeben
       INDENT_END;
       dynamic_unbind();
@@ -7853,7 +7853,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         } else {
           # Ratio in Basis base ausgeben:
           pushSTACK(TheRatio(number)->rt_den); # Nenner retten
-          print_integer(TheRatio(number)->rt_num,base,stream_); # Zähler ausgeben
+          print_integer(TheRatio(number)->rt_num,base,stream_); # ZÃ¤hler ausgeben
           write_ascii_char(stream_,'/'); # Bruchstrich
           print_integer(popSTACK(),base,stream_); # Nenner ausgeben
         }
@@ -7882,11 +7882,11 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         var object* number_ = &STACK_0; # und merken, wo sie sitzt
         write_ascii_char(stream_,'#'); write_ascii_char(stream_,'C');
         KLAMMER_AUF;
-        INDENT_START(3); # um 3 Zeichen einrücken, wegen '#C('
+        INDENT_START(3); # um 3 Zeichen einrÃ¼cken, wegen '#C('
         JUSTIFY_START;
         pr_real_number(stream_,TheComplex(*number_)->c_real); # Realteil ausgeben
         JUSTIFY_SPACE;
-        pr_real_number(stream_,TheComplex(*number_)->c_imag); # Imaginärteil ausgeben
+        pr_real_number(stream_,TheComplex(*number_)->c_imag); # ImaginÃ¤rteil ausgeben
         JUSTIFY_END_ENG;
         INDENT_END;
         KLAMMER_ZU;
@@ -7909,7 +7909,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       pushSTACK(obj); # Array retten
       var object* obj_ = &STACK_0; # und merken, wo er sitzt
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-      INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+      INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
       JUSTIFY_START;
       write_sstring_case(stream_,O(printstring_array)); # "ARRAY" ausgeben
       JUSTIFY_SPACE;
@@ -7920,7 +7920,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # Array mit Fill-Pointer -> auch den Fill-Pointer ausgeben:
         JUSTIFY_SPACE;
         write_sstring_case(stream_,O(printstring_fill_pointer)); # "FILL-POINTER=" ausgeben
-        pr_uint(stream_,vector_length(*obj_)); # Länge (=Fill-Pointer) ausgeben
+        pr_uint(stream_,vector_length(*obj_)); # LÃ¤nge (=Fill-Pointer) ausgeben
       }
       JUSTIFY_END_ENG;
       INDENT_END;
@@ -7970,7 +7970,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       # *PRINT-ARRAY* abfragen:
       if (test_value(S(print_array)) || test_value(S(print_readably))) {
         # bv elementweise ausgeben:
-        var uintL len = vector_length(bv); # Länge
+        var uintL len = vector_length(bv); # LÃ¤nge
         var uintL offset = 0; # Offset vom Bit-Vektor in den Datenvektor
         var object sbv = array_displace_check(bv,len,&offset); # Datenvektor
         pr_sbvector_ab(stream_,sbv,offset,len);
@@ -7997,12 +7997,12 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # v elementweise ausgeben:
         LEVEL_CHECK;
         {
-          var boolean readable = # Flag, ob Länge und Typ mit ausgegeben werden
+          var boolean readable = # Flag, ob LÃ¤nge und Typ mit ausgegeben werden
             (test_value(S(print_readably)) && !general_vector_p(v) ? TRUE : FALSE);
           var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-Begrenzung
-          var uintL length = 0; # bisherige Länge := 0
+          var uintL length = 0; # bisherige LÃ¤nge := 0
           # Vektor elementweise abarbeiten:
-          var uintL len = vector_length(v); # Vektor-Länge
+          var uintL len = vector_length(v); # Vektor-LÃ¤nge
           var uintL offset = 0; # Offset vom Vektor in den Datenvektor
           {
             var object sv = array_displace_check(v,len,&offset); # Datenvektor
@@ -8013,28 +8013,28 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           if (readable) {
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'A');
             KLAMMER_AUF; # '(' ausgeben
-            INDENT_START(3); # um 3 Zeichen einrücken, wegen '#A('
+            INDENT_START(3); # um 3 Zeichen einrÃ¼cken, wegen '#A('
             JUSTIFY_START;
             prin_object_dispatch(stream_,array_element_type(*sv_)); # Elementtyp ausgeben
             JUSTIFY_SPACE;
             pushSTACK(fixnum(len));
-            pr_list(stream_,listof(1)); # Liste mit der Länge ausgeben
+            pr_list(stream_,listof(1)); # Liste mit der LÃ¤nge ausgeben
             JUSTIFY_SPACE;
             KLAMMER_AUF; # '('
-            INDENT_START(1); # um 1 Zeichen einrücken, wegen '('
+            INDENT_START(1); # um 1 Zeichen einrÃ¼cken, wegen '('
           } else {
             write_ascii_char(stream_,'#');
             KLAMMER_AUF; # '('
-            INDENT_START(2); # um 2 Zeichen einrücken, wegen '#('
+            INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#('
           }
           JUSTIFY_START;
           dotimesL(len,len, {
-            # (außer vorm ersten Element) Space ausgeben:
+            # (auÃŸer vorm ersten Element) Space ausgeben:
             if (!(length==0))
               JUSTIFY_SPACE;
-            # auf Erreichen von *PRINT-LENGTH* prüfen:
+            # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
             if (length >= length_limit) {
-              # Rest durch '...' abkürzen:
+              # Rest durch '...' abkÃ¼rzen:
               write_ascii_char(stream_,'.');
               write_ascii_char(stream_,'.');
               write_ascii_char(stream_,'.');
@@ -8042,8 +8042,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             }
             # Vektorelement ausgeben:
             prin_object(stream_,storagevector_aref(*sv_,index));
-            length++; # Länge incrementieren
-            index++; # dann zum nächsten Vektor-Element
+            length++; # LÃ¤nge incrementieren
+            index++; # dann zum nÃ¤chsten Vektor-Element
           });
           JUSTIFY_END_ENG;
           INDENT_END;
@@ -8082,7 +8082,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 #                  (or (eq eltype 'bit) (eq eltype 'character))
 #                  (or (null *print-length*) (>= *print-length* (array-dimension array (1- rank))))
 #             )
-#           ; kürzere Ausgabe von mehrdimensionalen Bit- und Character-Arrays
+#           ; kÃ¼rzere Ausgabe von mehrdimensionalen Bit- und Character-Arrays
 #           (let* ((lastdim (array-dimension array (1- rank)))
 #                  (offset 0)
 #                  (sub-array (make-array 0 :element-type eltype :adjustable t)))
@@ -8133,7 +8133,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > info.count: Anzahl der auszugebenden Elemente
 # > stream: Stream
 # < stream: Stream
-# < info.index: um info.count erhöht
+# < info.index: um info.count erhÃ¶ht
 # can trigger GC
   typedef struct {
     uintL index;
@@ -8186,9 +8186,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 #     locals->dims_sizes:    Adresse der Tabelle der Dimensionen des Arrays
 #                            und ihrer Teilprodukte
 #     *(locals->pr_one_elt): Funktion zur Ausgabe eines Elements/Teil-Arrays
-#     locals->info:          Parameter für diese Funktion
+#     locals->info:          Parameter fÃ¼r diese Funktion
 #     locals->info.index:    Start-Index im Datenvektor
-#     locals->length_limit:  Längenbegrenzung
+#     locals->length_limit:  LÃ¤ngenbegrenzung
 # < locals->info.index: End-Index im Datenvektor
 # can trigger GC
   typedef struct {
@@ -8212,26 +8212,26 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
            *(locals->obj_), # Datenvektor obj,
            &(locals->info) # Infopointer
           ); # als Argumenten
-        # Diese Funktion erhöht locals->info.index selbst.
+        # Diese Funktion erhÃ¶ht locals->info.index selbst.
       } else {
         depth--; # Rekursionstiefe verkleinern (noch >=0)
         var const object* stream_ = locals->stream_;
-        var uintL length = 0; # bisherige Länge := 0
+        var uintL length = 0; # bisherige LÃ¤nge := 0
         var uintL endindex = locals->info.index # Start-Index im Datenvektor
                              + locals->dims_sizes[depth].dimprod # + Dimensionenprodukt
                              ; # liefert den End-Index dieses Teil-Arrays
         var uintL count = locals->dims_sizes[depth].dim;
         KLAMMER_AUF; # '(' ausgeben
-        INDENT_START(1); # um 1 Zeichen einrücken, wegen '('
+        INDENT_START(1); # um 1 Zeichen einrÃ¼cken, wegen '('
         JUSTIFY_START;
-        # Schleife über Dimension (r-depth): jeweils einen Teil-Array ausgeben
+        # Schleife Ã¼ber Dimension (r-depth): jeweils einen Teil-Array ausgeben
         dotimesL(count,count, {
-          # (außer vorm ersten Teil-Array) Space ausgeben:
+          # (auÃŸer vorm ersten Teil-Array) Space ausgeben:
           if (!(length==0))
             JUSTIFY_SPACE;
-          # auf Erreichen von *PRINT-LENGTH* prüfen:
+          # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
           if (length >= locals->length_limit) {
-            # Rest durch '...' abkürzen:
+            # Rest durch '...' abkÃ¼rzen:
             write_ascii_char(stream_,'.');
             write_ascii_char(stream_,'.');
             write_ascii_char(stream_,'.');
@@ -8239,10 +8239,10 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           }
           # Teil-Array ausgeben:
           # (rekursiv, mit verkleinerter depth, und locals->info.index
-          # wird ohne weiteres Zutun von einem Aufruf zum nächsten
+          # wird ohne weiteres Zutun von einem Aufruf zum nÃ¤chsten
           # weitergereicht)
           pr_array_rekursion(locals,depth);
-          length++; # Länge incrementieren
+          length++; # LÃ¤nge incrementieren
           # locals->info.index ist schon incrementiert
         });
         JUSTIFY_END_WEIT;
@@ -8270,14 +8270,14 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           # Rang bestimmen und Dimensionen und Teilprodukte holen:
           var uintL r = (uintL)Iarray_rank(obj); # Rang
           var DYNAMIC_ARRAY(dims_sizes,array_dim_size,r); # dynamisch allozierter Array
-          iarray_dims_sizes(obj,dims_sizes); # füllen
+          iarray_dims_sizes(obj,dims_sizes); # fÃ¼llen
           var uintL depth = r; # Tiefe der Rekursion
           var pr_array_locals locals; # lokale Variablen
           var boolean readable = TRUE; # Flag, ob Dimensionen und Typ mit ausgegeben werden
           locals.stream_ = stream_;
           locals.dims_sizes = dims_sizes;
-          locals.length_limit = get_print_length(); # Längenbegrenzung
-          # Entscheidung über zu verwendende Routine:
+          locals.length_limit = get_print_length(); # LÃ¤ngenbegrenzung
+          # Entscheidung Ã¼ber zu verwendende Routine:
           {
             var uintB atype = Iarray_flags(obj) & arrayflags_atype_mask;
             if ((r>0) && (locals.length_limit >= dims_sizes[0].dim)) {
@@ -8292,8 +8292,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                 nicht_einzeln:
                   # Nicht einzelne Elemente, sondern eindimensionale
                   # Teil-Arrays ausgeben.
-                  depth--; # dafür depth := r-1
-                  locals.info.count = dims_sizes[0].dim; # Dim_r als "Elementarlänge"
+                  depth--; # dafÃ¼r depth := r-1
+                  locals.info.count = dims_sizes[0].dim; # Dim_r als "ElementarlÃ¤nge"
                   locals.dims_sizes++; # betrachte nur noch Dim_1, ..., Dim_(r-1)
                   readable = FALSE; # automatisch wiedereinlesbar
                   goto routine_ok;
@@ -8301,7 +8301,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               }
             }
             locals.pr_one_elt = &pr_array_elt_t;
-            locals.info.count = 1; # 1 als "Elementarlänge"
+            locals.info.count = 1; # 1 als "ElementarlÃ¤nge"
             if (atype==Atype_T)
               readable = FALSE; # automatisch wiedereinlesbar
            routine_ok:
@@ -8314,7 +8314,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           # Datenvektor holen:
           var uintL size = TheIarray(obj)->totalsize;
           if (size == 0)
-            readable = TRUE; # sonst weiß man nicht einmal die Dimensionen
+            readable = TRUE; # sonst weiÃŸ man nicht einmal die Dimensionen
           obj = iarray_displace_check(obj,size,&locals.info.index); # Datenvektor
           # locals.info.index = Offset vom Array in den Datenvektor
           pushSTACK(obj); locals.obj_ = &STACK_0; # obj im Stack unterbringen
@@ -8322,7 +8322,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           if (readable) {
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'A');
             KLAMMER_AUF; # '(' ausgeben
-            INDENT_START(3); # um 3 Zeichen einrücken, wegen '#A('
+            INDENT_START(3); # um 3 Zeichen einrÃ¼cken, wegen '#A('
             JUSTIFY_START;
             prin_object_dispatch(stream_,array_element_type(*obj_)); # Elementtyp (Symbol oder Liste) ausgeben
             JUSTIFY_SPACE;
@@ -8333,7 +8333,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             INDENT_END;
             KLAMMER_ZU; # ')' ausgeben
           } else {
-            # Erst Präfix #nA ausgeben:
+            # Erst PrÃ¤fix #nA ausgeben:
             INDENTPREP_START;
             write_ascii_char(stream_,'#');
             pr_uint(stream_,r); # Rang dezimal ausgeben
@@ -8370,9 +8370,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     {
       var object stream = *stream_;
       var uintC count = pr_external_1(stream); # Bindungen erstellen
-      # (CLOS:PRINT-OBJECT obj stream) ausführen:
+      # (CLOS:PRINT-OBJECT obj stream) ausfÃ¼hren:
       pushSTACK(obj); pushSTACK(stream); funcall(S(print_object),2);
-      pr_external_2(count); # Bindungen auflösen
+      pr_external_2(count); # Bindungen auflÃ¶sen
     }
 
 #                     -------- Structures --------
@@ -8414,11 +8414,11 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 #         (write-string ">" stream)
 # ) ) ) )
 
-# UP: Aufruf einer (externen) Print-Funktion für Structures
+# UP: Aufruf einer (externen) Print-Funktion fÃ¼r Structures
 # pr_structure_external(&stream,structure,function);
 # > stream: Stream
 # > structure: Structure
-# > function: Print-Funktion für Structures dieses Typs
+# > function: Print-Funktion fÃ¼r Structures dieses Typs
 # can trigger GC
   local void pr_structure_external (const object* stream_, object structure, object function);
   local void pr_structure_external(stream_,structure,function)
@@ -8433,7 +8433,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       pushSTACK(stream); # Stream als 2. Argument
       pushSTACK(Symbol_value(S(prin_level))); # Wert von SYS::*PRIN-LEVEL* als 3. Argument
       funcall(function,3);
-      pr_external_2(count); # Bindungen auflösen
+      pr_external_2(count); # Bindungen auflÃ¶sen
     }
 
 # UP: Gibt eine Structure auf einen Stream aus.
@@ -8451,7 +8451,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       {
         var object name = Car(TheStructure(structure)->structure_types);
         # name = (car '(name_1 ... name_i-1 name_i)) = name_1.
-        # (GET name 'SYS::STRUCTURE-PRINT) ausführen:
+        # (GET name 'SYS::STRUCTURE-PRINT) ausfÃ¼hren:
         var object fun = get(name,S(structure_print));
         if (!eq(fun,unbound)) {
           # vorgegebene Print-Funktion aufrufen:
@@ -8483,13 +8483,13 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       var object* structure_ = &STACK_1;
       # Es ist *(structure_ STACKop 0) = structure
       # und    *(structure_ STACKop -1) = name .
-      # (GET name 'SYS::DEFSTRUCT-DESCRIPTION) ausführen:
+      # (GET name 'SYS::DEFSTRUCT-DESCRIPTION) ausfÃ¼hren:
       var object description = get(name,S(defstruct_description));
       if (!eq(description,unbound)) {
         # Structure mit Slot-Namen ausgeben:
         pushSTACK(description);
         # Stackaufbau: structure, name, description.
-        # description muss ein Simple-Vector der Länge >=4 sein !
+        # description muss ein Simple-Vector der LÃ¤nge >=4 sein !
         if (!(simple_vector_p(description)
               && (Svector_length(description) >= 4)
            ) ) {
@@ -8506,13 +8506,13 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           # Structure wiedereinlesbar ausgeben:
           write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
           KLAMMER_AUF;
-          INDENT_START(3); # um 3 Zeichen einrücken, wegen '#S('
+          INDENT_START(3); # um 3 Zeichen einrÃ¼cken, wegen '#S('
         } else {
           # Structure nicht wiedereinlesbar ausgeben:
           if (test_value(S(print_readably)))
             fehler_print_readably(*structure_);
           write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-          INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+          INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
         }
         JUSTIFY_START;
         prin_object(stream_,*(structure_ STACKop -1)); # name ausgeben
@@ -8520,21 +8520,21 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # Slot-Liste STACK_0 = (svref description 3) durchlaufen:
         {
           var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-Begrenzung
-          var uintL length = 0; # bisherige Länge := 0
+          var uintL length = 0; # bisherige LÃ¤nge := 0
           while (mconsp(STACK_0)) {
             var object slot = STACK_0;
-            STACK_0 = Cdr(slot); # Liste verkürzen
+            STACK_0 = Cdr(slot); # Liste verkÃ¼rzen
             slot = Car(slot); # ein einzelner slot
             if (!(simple_vector_p(slot)
                   && (Svector_length(slot) >= 7)
                ) )
               goto bad_description; # sollte ein ds-slot sein
-            if (!nullp(TheSvector(slot)->data[0])) { # Slot #(NIL ...) übergehen
+            if (!nullp(TheSvector(slot)->data[0])) { # Slot #(NIL ...) Ã¼bergehen
               pushSTACK(slot); # Slot retten
               JUSTIFY_SPACE; # Space ausgeben
-              # auf Erreichen von *PRINT-LENGTH* prüfen:
+              # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
               if (length >= length_limit) {
-                # Rest durch '...' abkürzen:
+                # Rest durch '...' abkÃ¼rzen:
                 write_ascii_char(stream_,'.');
                 write_ascii_char(stream_,'.');
                 write_ascii_char(stream_,'.');
@@ -8550,7 +8550,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                 pr_like_symbol(stream_,Symbol_name(obj)); # Symbolnamen der Komponente ausgeben
               }
               JUSTIFY_SPACE;
-              # (SYS::%%STRUCTURE-REF name Structure (ds-slot-offset slot)) ausführen:
+              # (SYS::%%STRUCTURE-REF name Structure (ds-slot-offset slot)) ausfÃ¼hren:
               pushSTACK(*(structure_ STACKop -1)); # name als 1. Argument
               pushSTACK(*(structure_ STACKop 0)); # Structure als 2. Argument
               pushSTACK(TheSvector(*slot_)->data[2]); # (ds-slot-offset slot) als 3. Argument
@@ -8576,23 +8576,23 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         if (test_value(S(print_readably)))
           fehler_print_readably(*structure_);
         write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-        INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+        INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
         JUSTIFY_START;
         prin_object(stream_,*(structure_ STACKop -1)); # name ausgeben
-        var uintC len = Structure_length(*structure_); # Länge der Structure (>=1)
+        var uintC len = Structure_length(*structure_); # LÃ¤nge der Structure (>=1)
         var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-Begrenzung
-        var uintL length = 0; # Index = bisherige Länge := 0
+        var uintL length = 0; # Index = bisherige LÃ¤nge := 0
         dotimesC(len,len-1, {
           JUSTIFY_SPACE; # Space ausgeben
-          # auf Erreichen von *PRINT-LENGTH* prüfen:
+          # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
           if (length >= length_limit) {
-            # Rest durch '...' abkürzen:
+            # Rest durch '...' abkÃ¼rzen:
             write_ascii_char(stream_,'.');
             write_ascii_char(stream_,'.');
             write_ascii_char(stream_,'.');
             break;
           }
-          length++; # Index erhöhen
+          length++; # Index erhÃ¶hen
           # Komponente ausgeben:
           prin_object(stream_,TheStructure(*structure_)->recdata[length]);
         });
@@ -8609,8 +8609,8 @@ LISPFUNN(print_structure,2)
     # Stackaufbau: structure, stream.
     var object structure = STACK_1;
     if (!structurep(structure)) {
-      pushSTACK(structure); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(structure_object)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(structure); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(S(structure_object)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(structure); # structure
       pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(type_error,
@@ -8642,7 +8642,7 @@ LISPFUNN(print_structure,2)
       pushSTACK(string); # String retten
       var object* string_ = &STACK_0; # und merken, wo er sitzt
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-      INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+      INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
       JUSTIFY_START;
       write_sstring_case(stream_,*string_); # String ausgeben
       JUSTIFY_SPACE;
@@ -8712,7 +8712,7 @@ LISPFUNN(print_structure,2)
         fehler_print_readably(obj);
       # #<READ-LABEL ...>
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-      INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+      INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
       JUSTIFY_START;
       write_sstring_case(stream_,O(printstring_read_label)); # "READ-LABEL"
       JUSTIFY_SPACE;
@@ -8745,11 +8745,11 @@ LISPFUNN(print_structure,2)
 #                        -------- Records --------
 
 # UP: Gibt den Rest eines Record aus. Nur innerhalb eines JUSTIFY-Blocks!
-# Die Ausgabe fängt im Normalfall mit einem JUSTIFY_SPACE an.
+# Die Ausgabe fÃ¤ngt im Normalfall mit einem JUSTIFY_SPACE an.
 # pr_record_ab(&stream,&obj,start,now);
 # > obj: Record
 # > start: Startindex
-# > now: Anzahl der bereits ausgegebenen Items (für *PRINT-LENGTH*)
+# > now: Anzahl der bereits ausgegebenen Items (fÃ¼r *PRINT-LENGTH*)
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
@@ -8760,14 +8760,14 @@ LISPFUNN(print_structure,2)
     var uintL index;
     var uintL length;
     {
-      var uintL len = Record_length(*obj_); # Länge des Record
+      var uintL len = Record_length(*obj_); # LÃ¤nge des Record
       var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-Begrenzung
       loop {
-        if (index >= len) break; # Index >= Recordlänge -> fertig
+        if (index >= len) break; # Index >= RecordlÃ¤nge -> fertig
         JUSTIFY_SPACE; # Space ausgeben
-        # auf Erreichen von *PRINT-LENGTH* prüfen:
+        # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
         if (length >= length_limit) {
-          # Rest durch '...' abkürzen:
+          # Rest durch '...' abkÃ¼rzen:
           write_ascii_char(stream_,'.');
           write_ascii_char(stream_,'.');
           write_ascii_char(stream_,'.');
@@ -8775,17 +8775,17 @@ LISPFUNN(print_structure,2)
         }
         # Komponente ausgeben:
         prin_object(stream_,TheRecord(*obj_)->recdata[index]);
-        length++; # bisherige Länge erhöhen
-        index++; # zur nächsten Komponente
+        length++; # bisherige LÃ¤nge erhÃ¶hen
+        index++; # zur nÃ¤chsten Komponente
       }
     }
 
 # UP: Gibt eine Liste als Rest eines Record aus.
 # Nur innerhalb eines JUSTIFY-Blocks!
-# Die Ausgabe fängt im Normalfall mit einem JUSTIFY_SPACE an.
+# Die Ausgabe fÃ¤ngt im Normalfall mit einem JUSTIFY_SPACE an.
 # pr_record_rest(&stream,obj,now);
 # > obj: Liste
-# > now: Anzahl der bereits ausgegebenen Items (für *PRINT-LENGTH*)
+# > now: Anzahl der bereits ausgegebenen Items (fÃ¼r *PRINT-LENGTH*)
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
@@ -8799,9 +8799,9 @@ LISPFUNN(print_structure,2)
       pushSTACK(obj);
       while (mconsp(STACK_0)) {
         JUSTIFY_SPACE; # Space ausgeben
-        # auf Erreichen von *PRINT-LENGTH* prüfen:
+        # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
         if (length >= length_limit) {
-          # Rest durch '...' abkürzen:
+          # Rest durch '...' abkÃ¼rzen:
           write_ascii_char(stream_,'.');
           write_ascii_char(stream_,'.');
           write_ascii_char(stream_,'.');
@@ -8809,10 +8809,10 @@ LISPFUNN(print_structure,2)
         }
         {
           var object list = STACK_0;
-          STACK_0 = Cdr(list); # Liste verkürzen
+          STACK_0 = Cdr(list); # Liste verkÃ¼rzen
           prin_object(stream_,Car(list)); # Element der Liste ausgeben
         }
-        length++; # Länge incrementieren
+        length++; # LÃ¤nge incrementieren
       }
       skipSTACK(1);
     }
@@ -8847,13 +8847,13 @@ LISPFUNN(print_structure,2)
           # obj wiedereinlesbar ausgeben:
           write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
           KLAMMER_AUF;
-          INDENT_START(3); # um 3 Zeichen einrücken, wegen '#S('
+          INDENT_START(3); # um 3 Zeichen einrÃ¼cken, wegen '#S('
         } else {
           # obj nicht wiedereinlesbar ausgeben:
           if (test_value(S(print_readably)))
             fehler_print_readably(STACK_2);
           write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-          INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+          INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
         }
         JUSTIFY_START;
         prin_object(stream_,*(obj_ STACKop -1)); # name ausgeben
@@ -8861,17 +8861,17 @@ LISPFUNN(print_structure,2)
         # Slot-Liste STACK_0 = (svref description 3) durchlaufen:
         {
           var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-Begrenzung
-          var uintL length = 0; # bisherige Länge := 0
+          var uintL length = 0; # bisherige LÃ¤nge := 0
           while (mconsp(STACK_0)) {
             {
               var object slotlistr = STACK_0;
-              STACK_0 = Cdr(slotlistr); # Liste verkürzen
+              STACK_0 = Cdr(slotlistr); # Liste verkÃ¼rzen
               pushSTACK(Car(slotlistr)); # ein einzelner slot
             }
             JUSTIFY_SPACE; # Space ausgeben
-            # auf Erreichen von *PRINT-LENGTH* prüfen:
+            # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
             if (length >= length_limit) {
-              # Rest durch '...' abkürzen:
+              # Rest durch '...' abkÃ¼rzen:
               write_ascii_char(stream_,'.');
               write_ascii_char(stream_,'.');
               write_ascii_char(stream_,'.');
@@ -8952,7 +8952,7 @@ LISPFUNN(print_structure,2)
               var object* obj_ = &STACK_0; # und merken, wo sie sitzt
               write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
               KLAMMER_AUF;
-              INDENT_START(3); # um 3 Zeichen einrücken, wegen '#S('
+              INDENT_START(3); # um 3 Zeichen einrÃ¼cken, wegen '#S('
               JUSTIFY_START;
               prin_object(stream_,S(hash_table)); # Symbol HASH-TABLE ausgeben
               obj = *obj_;
@@ -8961,9 +8961,9 @@ LISPFUNN(print_structure,2)
                   2*posfixnum_to_L(TheHashtable(obj)->ht_maxcount);
                 pushSTACK(TheHashtable(obj)->ht_kvtable); # Key-Value-Vektor
                 var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-Begrenzung
-                var uintL length = 0; # bisherige Länge := 0
+                var uintL length = 0; # bisherige LÃ¤nge := 0
                 JUSTIFY_SPACE; # Space ausgeben
-                # auf Erreichen von *PRINT-LENGTH* prüfen:
+                # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
                 if (length >= length_limit)
                   goto dots;
                 # Hash-Test ausgeben:
@@ -8978,8 +8978,8 @@ LISPFUNN(print_structure,2)
                   prin_object(stream_,test);
                 }
                 loop {
-                  length++; # bisherige Länge erhöhen
-                  # nächstes auszugebendes Key-Value-Paar suchen:
+                  length++; # bisherige LÃ¤nge erhÃ¶hen
+                  # nÃ¤chstes auszugebendes Key-Value-Paar suchen:
                   loop {
                     if (index==0) # kvtable zu Ende?
                       goto kvtable_end;
@@ -8988,10 +8988,10 @@ LISPFUNN(print_structure,2)
                       break;
                   }
                   JUSTIFY_SPACE; # Space ausgeben
-                  # auf Erreichen von *PRINT-LENGTH* prüfen:
+                  # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
                   if (length >= length_limit) {
                    dots:
-                    # Rest durch '...' abkürzen:
+                    # Rest durch '...' abkÃ¼rzen:
                     write_ascii_char(stream_,'.');
                     write_ascii_char(stream_,'.');
                     write_ascii_char(stream_,'.');
@@ -9027,7 +9027,7 @@ LISPFUNN(print_structure,2)
             var object* obj_ = &STACK_0; # und merken, wo sie sitzt
             if (!test_value(S(print_readably))) {
               write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-              INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+              INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
               JUSTIFY_START;
               if (pack_deletedp(*obj_))
                 write_sstring_case(stream_,O(printstring_deleted)); # "DELETED "
@@ -9044,7 +9044,7 @@ LISPFUNN(print_structure,2)
                 fehler_print_readably(*obj_);
               write_ascii_char(stream_,'#'); write_ascii_char(stream_,'.');
               KLAMMER_AUF; # '('
-              INDENT_START(3); # um 3 Zeichen einrücken, wegen '#.('
+              INDENT_START(3); # um 3 Zeichen einrÃ¼cken, wegen '#.('
               JUSTIFY_START;
               pr_symbol(stream_,S(pfind_package)); # SYSTEM::%FIND-PACKAGE
               JUSTIFY_SPACE;
@@ -9109,7 +9109,7 @@ LISPFUNN(print_structure,2)
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
             KLAMMER_AUF;
-            INDENT_START(3); # um 3 Zeichen einrücken, wegen '#S('
+            INDENT_START(3); # um 3 Zeichen einrÃ¼cken, wegen '#S('
             JUSTIFY_START;
             prin_object(stream_,S(random_state)); # Symbol RANDOM-STATE ausgeben
             pr_record_ab(stream_,obj_,0,0); # Komponente ausgeben
@@ -9138,7 +9138,7 @@ LISPFUNN(print_structure,2)
             pushSTACK(obj); # Byte retten
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-            INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+            INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
             JUSTIFY_START;
             write_sstring_case(stream_,O(printstring_byte)); # "BYTE"
             pr_record_ab(stream_,obj_,0,0); # Komponenten ausgeben
@@ -9164,7 +9164,7 @@ LISPFUNN(print_structure,2)
           pushSTACK(TheLoadtimeeval(obj)->loadtimeeval_form); # form retten
           write_ascii_char(stream_,'#'); write_ascii_char(stream_,'.');
           obj = popSTACK();
-          INDENT_START(2); # um 2 Zeichen einrücken, wegen '#.'
+          INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#.'
           prin_object(stream_,obj); # form ausgeben
           INDENT_END;
           break;
@@ -9177,7 +9177,7 @@ LISPFUNN(print_structure,2)
             pushSTACK(obj); # Symbol-Macro retten
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-            INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+            INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
             JUSTIFY_START;
             write_sstring_case(stream_,O(printstring_symbolmacro)); # "SYMBOL-MACRO"
             pr_record_ab(stream_,obj_,0,0); # Komponente ausgeben
@@ -9197,7 +9197,7 @@ LISPFUNN(print_structure,2)
             pushSTACK(obj); # Macro retten
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-            INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+            INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
             JUSTIFY_START;
             write_sstring_case(stream_,O(printstring_macro)); # "MACRO"
             pr_record_ab(stream_,obj_,0,0); # Komponente ausgeben
@@ -9217,7 +9217,7 @@ LISPFUNN(print_structure,2)
             pushSTACK(obj); # FunctionMacro retten
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-            INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+            INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
             JUSTIFY_START;
             write_sstring_case(stream_,O(printstring_functionmacro)); # "FUNCTION-MACRO"
             pr_record_ab(stream_,obj_,0,0); # Komponente ausgeben
@@ -9237,26 +9237,26 @@ LISPFUNN(print_structure,2)
             pushSTACK(obj); # Encoding retten
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-            INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+            INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
             JUSTIFY_START;
             write_sstring_case(stream_,O(printstring_encoding)); # "ENCODING"
             {
               var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
-              var uintL length = 0; # bisherige Länge := 0
+              var uintL length = 0; # bisherige LÃ¤nge := 0
               #ifdef UNICODE
-              # auf Erreichen von *PRINT-LENGTH* prüfen:
+              # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
               if (length >= length_limit) goto encoding_end;
               JUSTIFY_SPACE; # Space ausgeben
               # Charset ausgeben:
               prin_object(stream_,TheEncoding(*obj_)->enc_charset);
-              length++; # bisherige Länge erhöhen
+              length++; # bisherige LÃ¤nge erhÃ¶hen
               #endif
-              # auf Erreichen von *PRINT-LENGTH* prüfen:
+              # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
               if (length >= length_limit) goto encoding_end;
               JUSTIFY_SPACE; # Space ausgeben
               # Line-Terminator ausgeben:
               prin_object(stream_,TheEncoding(*obj_)->enc_eol);
-              length++; # bisherige Länge erhöhen
+              length++; # bisherige LÃ¤nge erhÃ¶hen
             }
            encoding_end:
             JUSTIFY_END_ENG;
@@ -9276,20 +9276,20 @@ LISPFUNN(print_structure,2)
             var boolean validp = fp_validp(TheFpointer(obj));
             var uintP val = (uintP)(TheFpointer(obj)->fp_pointer); # Wert holen
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-            INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+            INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
             JUSTIFY_START;
             if (!validp)
               write_sstring_case(stream_,O(printstring_invalid)); # "INVALID "
             write_sstring_case(stream_,O(printstring_fpointer)); # "FOREIGN-POINTER"
             {
               var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
-              var uintL length = 0; # bisherige Länge := 0
-              # auf Erreichen von *PRINT-LENGTH* prüfen:
+              var uintL length = 0; # bisherige LÃ¤nge := 0
+              # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
               if (length >= length_limit) goto fpointer_end;
               JUSTIFY_SPACE; # Space ausgeben
               # Adresse ausgeben:
               pr_hex8(stream_,val);
-              length++; # bisherige Länge erhöhen
+              length++; # bisherige LÃ¤nge erhÃ¶hen
             }
            fpointer_end:
             JUSTIFY_END_ENG;
@@ -9309,22 +9309,22 @@ LISPFUNN(print_structure,2)
             pushSTACK(obj); # retten
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-            INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+            INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
             JUSTIFY_START;
             if (!fp_validp(TheFpointer(TheFaddress(*obj_)->fa_base)))
               write_sstring_case(stream_,O(printstring_invalid)); # "INVALID "
             write_sstring_case(stream_,O(printstring_faddress)); # "FOREIGN-ADDRESS"
             {
               var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
-              var uintL length = 0; # bisherige Länge := 0
-              # auf Erreichen von *PRINT-LENGTH* prüfen:
+              var uintL length = 0; # bisherige LÃ¤nge := 0
+              # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
               if (length >= length_limit) goto faddress_end;
               JUSTIFY_SPACE; # Space ausgeben
               # Adresse ausgeben, vgl. Macro Faddress_value():
               pr_hex8(stream_,(uintP)TheFpointer(TheFaddress(*obj_)->fa_base)->fp_pointer
                               +  TheFaddress(*obj_)->fa_offset
                      );
-              length++; # bisherige Länge erhöhen
+              length++; # bisherige LÃ¤nge erhÃ¶hen
             }
            faddress_end:
             JUSTIFY_END_ENG;
@@ -9343,25 +9343,25 @@ LISPFUNN(print_structure,2)
             pushSTACK(obj); # retten
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-            INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+            INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
             JUSTIFY_START;
             write_sstring_case(stream_,O(printstring_fvariable)); # "FOREIGN-VARIABLE"
             {
               var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
-              var uintL length = 0; # bisherige Länge := 0
-              # auf Erreichen von *PRINT-LENGTH* prüfen:
+              var uintL length = 0; # bisherige LÃ¤nge := 0
+              # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
               if (length >= length_limit) goto fvariable_end;
               JUSTIFY_SPACE; # Space ausgeben
               # Name ausgeben:
               if (!nullp(TheFvariable(*obj_)->fv_name)) {
                 prin_object(stream_,TheFvariable(*obj_)->fv_name);
-                length++; # bisherige Länge erhöhen
+                length++; # bisherige LÃ¤nge erhÃ¶hen
                 if (length >= length_limit) goto fvariable_end;
                 JUSTIFY_SPACE; # Space ausgeben
               }
               # Adresse ausgeben:
               pr_hex8(stream_,(uintP)Faddress_value(TheFvariable(*obj_)->fv_address));
-              length++; # bisherige Länge erhöhen
+              length++; # bisherige LÃ¤nge erhÃ¶hen
             }
            fvariable_end:
             JUSTIFY_END_ENG;
@@ -9380,25 +9380,25 @@ LISPFUNN(print_structure,2)
             pushSTACK(obj); # retten
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-            INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+            INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
             JUSTIFY_START;
             write_sstring_case(stream_,O(printstring_ffunction)); # "FOREIGN-FUNCTION"
             {
               var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
-              var uintL length = 0; # bisherige Länge := 0
-              # auf Erreichen von *PRINT-LENGTH* prüfen:
+              var uintL length = 0; # bisherige LÃ¤nge := 0
+              # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
               if (length >= length_limit) goto ffunction_end;
               JUSTIFY_SPACE; # Space ausgeben
               # Name ausgeben:
               if (!nullp(TheFfunction(*obj_)->ff_name)) {
                 prin_object(stream_,TheFfunction(*obj_)->ff_name);
-                length++; # bisherige Länge erhöhen
+                length++; # bisherige LÃ¤nge erhÃ¶hen
                 if (length >= length_limit) goto ffunction_end;
                 JUSTIFY_SPACE; # Space ausgeben
               }
               # Adresse ausgeben:
               pr_hex8(stream_,(uintP)Faddress_value(TheFfunction(*obj_)->ff_address));
-              length++; # bisherige Länge erhöhen
+              length++; # bisherige LÃ¤nge erhÃ¶hen
             }
            ffunction_end:
             JUSTIFY_END_ENG;
@@ -9419,17 +9419,17 @@ LISPFUNN(print_structure,2)
               pushSTACK(TheWeakpointer(obj)->wp_value); # value retten
               var object* value_ = &STACK_0; # und merken, wo es sitzt
               write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-              INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+              INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
               JUSTIFY_START;
               write_sstring_case(stream_,O(printstring_weakpointer)); # "WEAK-POINTER"
               {
                 var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
-                var uintL length = 0; # bisherige Länge := 0
-                # auf Erreichen von *PRINT-LENGTH* prüfen:
+                var uintL length = 0; # bisherige LÃ¤nge := 0
+                # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
                 if (length >= length_limit) goto weakpointer_end;
                 JUSTIFY_SPACE; # Space ausgeben
                 prin_object(stream_,*value_); # output value
-                length++; # bisherige Länge erhöhen
+                length++; # bisherige LÃ¤nge erhÃ¶hen
               }
              weakpointer_end:
               JUSTIFY_END_ENG;
@@ -9458,7 +9458,7 @@ LISPFUNN(print_structure,2)
             pushSTACK(obj); # retten
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-            INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+            INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
             JUSTIFY_START;
             # falls geschlossen, "CLOSED " ausgeben:
             if (nullp(TheSocketServer(*obj_)->socket_handle))
@@ -9466,15 +9466,15 @@ LISPFUNN(print_structure,2)
             write_sstring_case(stream_,O(printstring_socket_server)); # "SOCKET-SERVER"
             {
               var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
-              var uintL length = 0; # bisherige Länge := 0
-              # auf Erreichen von *PRINT-LENGTH* prüfen:
+              var uintL length = 0; # bisherige LÃ¤nge := 0
+              # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
               if (length >= length_limit) goto socket_server_end;
               JUSTIFY_SPACE; # Space ausgeben
               # output host
               write_string(stream_,TheSocketServer(*obj_)->host);
               write_ascii_char(stream_,':'); # Port ausgeben:
               pr_number(stream_,TheSocketServer(*obj_)->port);
-              length++; # bisherige Länge erhöhen
+              length++; # bisherige LÃ¤nge erhÃ¶hen
             }
            socket_server_end:
             JUSTIFY_END_ENG;
@@ -9495,18 +9495,18 @@ LISPFUNN(print_structure,2)
             pushSTACK(obj); # Yetanother retten
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-            INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+            INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
             JUSTIFY_START;
             write_sstring_case(stream_,O(printstring_yetanother)); # "YET-ANOTHER"
             {
               var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-Begrenzung
-              var uintL length = 0; # bisherige Länge := 0
-              # auf Erreichen von *PRINT-LENGTH* prüfen:
+              var uintL length = 0; # bisherige LÃ¤nge := 0
+              # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
               if (length >= length_limit) goto yetanother_end;
               JUSTIFY_SPACE; # Space ausgeben
               # x ausgeben:
               pr_hex6(stream_,TheYetanother(*obj_)->yetanother_x);
-              length++; # bisherige Länge erhöhen
+              length++; # bisherige LÃ¤nge erhÃ¶hen
             }
            yetanother_end:
             JUSTIFY_END_ENG;
@@ -9544,7 +9544,7 @@ LISPFUNN(print_structure,2)
       pushSTACK(string); # String retten
       var object* string_ = &STACK_0; # und merken, wo beides sitzt
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-      INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+      INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
       JUSTIFY_START;
       write_sstring_case(stream_,*string_); # String ausgeben
       JUSTIFY_SPACE;
@@ -9574,7 +9574,7 @@ LISPFUNN(print_structure,2)
         var object* obj_ = &STACK_0; # und merken, wo es sitzt
         write_ascii_char(stream_,'#'); write_ascii_char(stream_,'.');
         KLAMMER_AUF; # '('
-        INDENT_START(3); # um 3 Zeichen einrücken, wegen '#.('
+        INDENT_START(3); # um 3 Zeichen einrÃ¼cken, wegen '#.('
         JUSTIFY_START;
         pr_symbol(stream_,S(find_subr)); # SYSTEM::%FIND-SUBR
         JUSTIFY_SPACE;
@@ -9635,7 +9635,7 @@ LISPFUNN(print_structure,2)
           pushSTACK(obj); # Closure retten
           var object* obj_ = &STACK_0; # und merken, wo sie sitzt
           write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-          INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+          INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
           JUSTIFY_START;
           write_sstring_case(stream_,O(printstring_closure));
           if (test_value(S(print_closure))) { # *PRINT-CLOSURE* abfragen
@@ -9724,11 +9724,11 @@ LISPFUNN(print_structure,2)
         var object* obj_ = &STACK_0; # und merken, wo sie sitzt
         write_ascii_char(stream_,'#'); write_ascii_char(stream_,'Y');
         KLAMMER_AUF;
-        INDENT_START(3); # um 3 Zeichen einrücken, wegen '#Y('
+        INDENT_START(3); # um 3 Zeichen einrÃ¼cken, wegen '#Y('
         JUSTIFY_START;
         prin_object(stream_,TheClosure(*obj_)->clos_name); # Name ausgeben
         JUSTIFY_SPACE;
-        # Codevektor byteweise ausgeben, dabei Zirkularität behandeln:
+        # Codevektor byteweise ausgeben, dabei ZirkularitÃ¤t behandeln:
         pr_circle(stream_,TheClosure(*obj_)->clos_codevec,&pr_cclosure_codevector);
         pr_record_ab(stream_,obj_,2,2); # restliche Komponenten ausgeben
         JUSTIFY_END_ENG;
@@ -9754,34 +9754,34 @@ LISPFUNN(print_structure,2)
       {
         pushSTACK(codevec); # Codevektor retten
         var object* codevec_ = &STACK_0; # und merken, wo er sitzt
-        var uintL len = Sbvector_length(codevec); # Länge in Bytes
+        var uintL len = Sbvector_length(codevec); # LÃ¤nge in Bytes
         #if BIG_ENDIAN_P
         var uintL header_end_index =
           (TheSbvector(codevec)->data[CCV_FLAGS] & bit(7) ? CCV_START_KEY : CCV_START_NONKEY);
         #endif
-        # Präfix ausgeben:
+        # PrÃ¤fix ausgeben:
         INDENTPREP_START;
         write_ascii_char(stream_,'#');
-        pr_uint(stream_,len); # Länge dezimal ausgeben
+        pr_uint(stream_,len); # LÃ¤nge dezimal ausgeben
         write_ascii_char(stream_,'Y');
         {
           var uintL indent = INDENTPREP_END;
         # Hauptteil ausgeben:
-          INDENT_START(indent); # einrücken
+          INDENT_START(indent); # einrÃ¼cken
         }
         KLAMMER_AUF;
-        INDENT_START(1); # um 1 Zeichen einrücken, wegen '('
+        INDENT_START(1); # um 1 Zeichen einrÃ¼cken, wegen '('
         JUSTIFY_START;
         {
           var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-Begrenzung
-          var uintL length = 0; # Index = bisherige Länge := 0
+          var uintL length = 0; # Index = bisherige LÃ¤nge := 0
           for ( ; len > 0; len--) {
-            # (außer vorm ersten Element) Space ausgeben:
+            # (auÃŸer vorm ersten Element) Space ausgeben:
             if (!(length==0))
               JUSTIFY_SPACE;
-            # auf Erreichen von *PRINT-LENGTH* prüfen:
+            # auf Erreichen von *PRINT-LENGTH* prÃ¼fen:
             if (length >= length_limit) {
-              # Rest durch '...' abkürzen:
+              # Rest durch '...' abkÃ¼rzen:
               write_ascii_char(stream_,'.');
               write_ascii_char(stream_,'.');
               write_ascii_char(stream_,'.');
@@ -9808,7 +9808,7 @@ LISPFUNN(print_structure,2)
             #endif
             # Byte ausgeben:
             pr_hex2(stream_,TheSbvector(codevec)->data[index]);
-            length++; # Index erhöhen
+            length++; # Index erhÃ¶hen
           }
         }
         JUSTIFY_END_ENG;
@@ -9837,7 +9837,7 @@ LISPFUNN(print_structure,2)
       pushSTACK(obj); # Stream retten
       var object* obj_ = &STACK_0; # und merken, wo er sitzt
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-      INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+      INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
       JUSTIFY_START;
       # falls Stream geschlossen, "CLOSED " ausgeben:
       if ((TheStream(*obj_)->strmflags & strmflags_open_B) == 0)
@@ -10002,7 +10002,7 @@ LISPFUNN(print_structure,2)
 
 # ----------------------- LISP-Funktionen des Printers ------------------------
 
-# UP: Überprüft ein Output-Stream-Argument.
+# UP: ÃœberprÃ¼ft ein Output-Stream-Argument.
 # Default ist der Wert von *STANDARD-OUTPUT*.
 # test_ostream();
 # > subr_self: Aufrufer (ein SUBR)
@@ -10044,33 +10044,33 @@ LISPFUNN(print_structure,2)
 # Anzahl der Print-Variablen:
   #define print_vars_anz  13
 
-# UP für WRITE und WRITE-TO-STRING
+# UP fÃ¼r WRITE und WRITE-TO-STRING
 # > STACK_(print_vars_anz+1): Objekt
 # > STACK_(print_vars_anz)..STACK_(1): Argumente zu den Print-Variablen
 # > STACK_0: Stream
   local void write_up (void);
   local void write_up()
     {
-      var object* argptr = args_end_pointer STACKop (1+print_vars_anz+1); # Pointer über die Keyword-Argumente
+      var object* argptr = args_end_pointer STACKop (1+print_vars_anz+1); # Pointer Ã¼ber die Keyword-Argumente
       var object obj = NEXT(argptr); # erstes Argument = Objekt
       # die angegebenen Variablen binden:
       var uintC bindcount = 0; # Anzahl der Bindungen
       {
-        var object sym = first_print_var; # durchläuft die Symbole
+        var object sym = first_print_var; # durchlÃ¤uft die Symbole
         var uintC count;
         dotimesC(count,print_vars_anz, {
-          var object arg = NEXT(argptr); # nächstes Keyword-Argument
+          var object arg = NEXT(argptr); # nÃ¤chstes Keyword-Argument
           if (!eq(arg,unbound)) { # angegeben?
             dynamic_bind(sym,arg); bindcount++; # ja -> Variable daran binden
           }
-          sym = objectplus(sym,(soint)sizeof(*TheSymbol(sym))<<(oint_addr_shift-addr_shift)); # zum nächsten Symbol
+          sym = objectplus(sym,(soint)sizeof(*TheSymbol(sym))<<(oint_addr_shift-addr_shift)); # zum nÃ¤chsten Symbol
         });
       }
       {
-        var object* stream_ = &NEXT(argptr); # nächstes Argument ist der Stream
+        var object* stream_ = &NEXT(argptr); # nÃ¤chstes Argument ist der Stream
         prin1(stream_,obj); # Objekt ausgeben
       }
-      # Bindungen auflösen:
+      # Bindungen auflÃ¶sen:
       dotimesC(bindcount,bindcount, { dynamic_unbind(); } );
     }
 
@@ -10084,8 +10084,8 @@ LISPFUN(write,1,0,norest,key,14,\
 # CLTL S. 382
   {
     # Stackaufbau: object, Print-Variablen-Argumente, Stream-Argument.
-    test_ostream(); # Output-Stream überprüfen
-    write_up(); # WRITE durchführen
+    test_ostream(); # Output-Stream Ã¼berprÃ¼fen
+    write_up(); # WRITE durchfÃ¼hren
     skipSTACK(print_vars_anz+1);
     value1 = popSTACK(); mv_count=1; # object als Wert
   }
@@ -10098,7 +10098,7 @@ LISPFUN(write,1,0,norest,key,14,\
 #   object
 # )
 
-# UP für PRIN1 und PRINT und PRIN1-TO-STRING
+# UP fÃ¼r PRIN1 und PRINT und PRIN1-TO-STRING
 # > STACK_1: Objekt
 # > STACK_0: Stream
   local void prin1_up (void);
@@ -10114,8 +10114,8 @@ LISPFUN(write,1,0,norest,key,14,\
 LISPFUN(prin1,1,1,norest,nokey,0,NIL)
 # (PRIN1 object [stream]), CLTL S. 383
   {
-    test_ostream(); # Output-Stream überprüfen
-    prin1_up(); # PRIN1 durchführen
+    test_ostream(); # Output-Stream Ã¼berprÃ¼fen
+    prin1_up(); # PRIN1 durchfÃ¼hren
     skipSTACK(1);
     value1 = popSTACK(); mv_count=1; # object als Wert
   }
@@ -10132,9 +10132,9 @@ LISPFUN(prin1,1,1,norest,nokey,0,NIL)
 LISPFUN(print,1,1,norest,nokey,0,NIL)
 # (PRINT object [stream]), CLTL S. 383
   {
-    test_ostream(); # Output-Stream überprüfen
+    test_ostream(); # Output-Stream Ã¼berprÃ¼fen
     terpri(&STACK_0); # neue Zeile
-    prin1_up(); # PRIN1 durchführen
+    prin1_up(); # PRIN1 durchfÃ¼hren
     write_ascii_char(&STACK_0,' '); # Space danach
     skipSTACK(1);
     value1 = popSTACK(); mv_count=1; # object als Wert
@@ -10151,7 +10151,7 @@ LISPFUN(print,1,1,norest,nokey,0,NIL)
 LISPFUN(pprint,1,1,norest,nokey,0,NIL)
 # (PPRINT object [stream]), CLTL S. 383
   {
-    test_ostream(); # Output-Stream überprüfen
+    test_ostream(); # Output-Stream Ã¼berprÃ¼fen
     terpri(&STACK_0); # neue Zeile
     var object obj = STACK_1;
     var object* stream_ = &STACK_0;
@@ -10173,7 +10173,7 @@ LISPFUN(pprint,1,1,norest,nokey,0,NIL)
 #   object
 # )
 
-# UP für PRINC und PRINC-TO-STRING
+# UP fÃ¼r PRINC und PRINC-TO-STRING
 # > STACK_1: Objekt
 # > STACK_0: Stream
   local void princ_up (void);
@@ -10191,8 +10191,8 @@ LISPFUN(pprint,1,1,norest,nokey,0,NIL)
 LISPFUN(princ,1,1,norest,nokey,0,NIL)
 # (PRINC object [stream]), CLTL S. 383
   {
-    test_ostream(); # Output-Stream überprüfen
-    princ_up(); # PRINC durchführen
+    test_ostream(); # Output-Stream Ã¼berprÃ¼fen
+    princ_up(); # PRINC durchfÃ¼hren
     skipSTACK(1);
     value1 = popSTACK(); mv_count=1; # object als Wert
   }
@@ -10214,7 +10214,7 @@ LISPFUN(write_to_string,1,0,norest,key,13,\
 # CLTL S. 383
   {
     pushSTACK(make_string_output_stream()); # String-Output-Stream
-    write_up(); # WRITE durchführen
+    write_up(); # WRITE durchfÃ¼hren
     value1 = get_output_stream_string(&STACK_0); mv_count=1; # Ergebnis-String als Wert
     skipSTACK(1+print_vars_anz+1);
   }
@@ -10226,7 +10226,7 @@ LISPFUNN(prin1_to_string,1)
 # (PRIN1-TO-STRING object), CLTL S. 383
   {
     pushSTACK(make_string_output_stream()); # String-Output-Stream
-    prin1_up(); # PRIN1 durchführen
+    prin1_up(); # PRIN1 durchfÃ¼hren
     value1 = get_output_stream_string(&STACK_0); mv_count=1; # Ergebnis-String als Wert
     skipSTACK(2);
   }
@@ -10238,7 +10238,7 @@ LISPFUNN(princ_to_string,1)
 # (PRINC-TO-STRING object), CLTL S. 383
   {
     pushSTACK(make_string_output_stream()); # String-Output-Stream
-    princ_up(); # PRINC durchführen
+    princ_up(); # PRINC durchfÃ¼hren
     value1 = get_output_stream_string(&STACK_0); mv_count=1; # Ergebnis-String als Wert
     skipSTACK(2);
   }
@@ -10246,11 +10246,11 @@ LISPFUNN(princ_to_string,1)
 LISPFUN(write_char,1,1,norest,nokey,0,NIL)
 # (WRITE-CHAR character [stream]), CLTL S. 384
   {
-    test_ostream(); # Output-Stream überprüfen
+    test_ostream(); # Output-Stream Ã¼berprÃ¼fen
     var object ch = STACK_1; # character-Argument
     if (!charp(ch)) {
-      pushSTACK(ch); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(ch); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(S(character)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(ch);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -10258,12 +10258,12 @@ LISPFUN(write_char,1,1,norest,nokey,0,NIL)
             );
     }
     write_char(&STACK_0,ch);
-    value1 = ch; mv_count=1; # ch (nicht GC-gefährdet) als Wert
+    value1 = ch; mv_count=1; # ch (nicht GC-gefÃ¤hrdet) als Wert
     skipSTACK(2);
   }
 
-# UP für WRITE-STRING und WRITE-LINE:
-# Überprüft die Argumente und gibt einen String-Teil auf einen Stream aus.
+# UP fÃ¼r WRITE-STRING und WRITE-LINE:
+# ÃœberprÃ¼ft die Argumente und gibt einen String-Teil auf einen Stream aus.
 # > subr_self: Aufrufer (ein SUBR)
 # > Stackaufbau: String-Argument, Stream-Argument, :START-Argument, :END-Argument.
 # < Stackaufbau: Stream, String.
@@ -10272,12 +10272,12 @@ LISPFUN(write_char,1,1,norest,nokey,0,NIL)
   local void write_string_up()
     {
       pushSTACK(STACK_2); # Stream ans STACK-Ende
-      test_ostream(); # überprüfen
+      test_ostream(); # Ã¼berprÃ¼fen
       STACK_(2+1) = STACK_(3+1);
       STACK_(3+1) = STACK_0;
       skipSTACK(1);
       # Stackaufbau: stream, string, :START-Argument, :END-Argument.
-      # Grenzen überprüfen:
+      # Grenzen Ã¼berprÃ¼fen:
       var stringarg arg;
       var object string = test_string_limits_ro(&arg);
       pushSTACK(string);
@@ -10288,14 +10288,14 @@ LISPFUN(write_char,1,1,norest,nokey,0,NIL)
 LISPFUN(write_string,1,1,norest,key,2, (kw(start),kw(end)) )
 # (WRITE-STRING string [stream] [:start] [:end]), CLTL S. 384
   {
-    write_string_up(); # überprüfen und ausgeben
+    write_string_up(); # Ã¼berprÃ¼fen und ausgeben
     value1 = popSTACK(); mv_count=1; skipSTACK(1); # string als Wert
   }
 
 LISPFUN(write_line,1,1,norest,key,2, (kw(start),kw(end)) )
 # (WRITE-LINE string [stream] [:start] [:end]), CLTL S. 384
   {
-    write_string_up(); # überprüfen und ausgeben
+    write_string_up(); # Ã¼berprÃ¼fen und ausgeben
     terpri(&STACK_1); # neue Zeile
     value1 = popSTACK(); mv_count=1; skipSTACK(1); # string als Wert
   }
@@ -10303,7 +10303,7 @@ LISPFUN(write_line,1,1,norest,key,2, (kw(start),kw(end)) )
 LISPFUN(terpri,0,1,norest,nokey,0,NIL)
 # (TERPRI [stream]), CLTL S. 384
   {
-    test_ostream(); # Output-Stream überprüfen
+    test_ostream(); # Output-Stream Ã¼berprÃ¼fen
     terpri(&STACK_0); # neue Zeile
     value1 = NIL; mv_count=1; skipSTACK(1); # NIL als Wert
   }
@@ -10311,7 +10311,7 @@ LISPFUN(terpri,0,1,norest,nokey,0,NIL)
 LISPFUN(fresh_line,0,1,norest,nokey,0,NIL)
 # (FRESH-LINE [stream]), CLTL S. 384
   {
-    test_ostream(); # Output-Stream überprüfen
+    test_ostream(); # Output-Stream Ã¼berprÃ¼fen
     if (eq(get_line_position(STACK_0),Fixnum_0)) { # Line-Position = 0 ?
       value1 = NIL; mv_count=1; # ja -> NIL als Wert
     } else {
@@ -10324,7 +10324,7 @@ LISPFUN(fresh_line,0,1,norest,nokey,0,NIL)
 LISPFUN(finish_output,0,1,norest,nokey,0,NIL)
 # (FINISH-OUTPUT [stream]), CLTL S. 384
   {
-    test_ostream(); # Output-Stream überprüfen
+    test_ostream(); # Output-Stream Ã¼berprÃ¼fen
     finish_output(popSTACK()); # Output ans Ziel bringen
     value1 = NIL; mv_count=1; # NIL als Wert
   }
@@ -10332,7 +10332,7 @@ LISPFUN(finish_output,0,1,norest,nokey,0,NIL)
 LISPFUN(force_output,0,1,norest,nokey,0,NIL)
 # (FORCE-OUTPUT [stream]), CLTL S. 384
   {
-    test_ostream(); # Output-Stream überprüfen
+    test_ostream(); # Output-Stream Ã¼berprÃ¼fen
     force_output(popSTACK()); # Output ans Ziel bringen
     value1 = NIL; mv_count=1; # NIL als Wert
   }
@@ -10340,8 +10340,8 @@ LISPFUN(force_output,0,1,norest,nokey,0,NIL)
 LISPFUN(clear_output,0,1,norest,nokey,0,NIL)
 # (CLEAR-OUTPUT [stream]), CLTL S. 384
   {
-    test_ostream(); # Output-Stream überprüfen
-    clear_output(popSTACK()); # Output löschen
+    test_ostream(); # Output-Stream Ã¼berprÃ¼fen
+    clear_output(popSTACK()); # Output lÃ¶schen
     value1 = NIL; mv_count=1; # NIL als Wert
   }
 
@@ -10364,12 +10364,12 @@ LISPFUN(write_unreadable,3,0,norest,key,2, (kw(type),kw(identity)) )
     }
     if (!nullp(STACK_2))
       flag_fun = TRUE;
-    test_ostream(); # Output-Stream überprüfen
+    test_ostream(); # Output-Stream Ã¼berprÃ¼fen
     if (test_value(S(print_readably)))
       fehler_print_readably(STACK_1);
     var object* stream_ = &STACK_0;
     write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-    INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+    INDENT_START(2); # um 2 Zeichen einrÃ¼cken, wegen '#<'
     JUSTIFY_START;
     if (flag_type) {
       # (TYPE-OF object) ausgeben:
@@ -10394,10 +10394,10 @@ LISPFUN(write_unreadable,3,0,norest,key,2, (kw(type),kw(identity)) )
   }
 
 LISPFUN(line_position,0,1,norest,nokey,0,NIL)
-# (SYS::LINE-POSITION [stream]), Hilfsfunktion für FORMAT ~T,
+# (SYS::LINE-POSITION [stream]), Hilfsfunktion fÃ¼r FORMAT ~T,
 # liefert die Position eines (Output-)Streams in der momentanen Zeile, oder NIL.
   {
-    test_ostream(); # Output-Stream überprüfen
+    test_ostream(); # Output-Stream Ã¼berprÃ¼fen
     value1 = get_line_position(popSTACK()); mv_count=1; # Line-Position als Wert
   }
 

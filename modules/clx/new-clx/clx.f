@@ -1589,8 +1589,8 @@ local int get_enum (int n)
   pushSTACK (value1);
   funcall (L(nreverse), 1);
 
-  pushSTACK (STACK_0);				// Wert für Slot DATUM von TYPE-ERROR
-  pushSTACK (Cdr(value1));			// Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+  pushSTACK (STACK_0);				// Wert fÃ¼r Slot DATUM von TYPE-ERROR
+  pushSTACK (Cdr(value1));			// Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
   my_standard_type_error (Car(value1)); 	// Give the right subr name
   BLOEDER_COMPILER_VERDAMMT_NOCHMAL;
 }
@@ -3281,7 +3281,7 @@ defun XLIB:QUERY-TREE (1, 0, norest, key, 1, (:RESULT-TYPE))
 	  funcall (L(coerce), 2);
 	}
 
-      // value1 har børns listet
+      // value1 har bÃ¸rns listet
       pushSTACK (value1);
       pushSTACK (make_window (*dpy_objf, parent));
       pushSTACK (make_window (*dpy_objf, root));
@@ -3295,10 +3295,10 @@ defun XLIB:QUERY-TREE (1, 0, norest, key, 1, (:RESULT-TYPE))
       end_call ();
       // Wat schall wi nu tun?
       value1 = NIL;
-      mv_count = 1;		// Dår kan nu mol nichts scheif geihn.
+      mv_count = 1;		// DÃ¥r kan nu mol nichts scheif geihn.
     }
 
-  skipSTACK (3);		// Nu vi er færdig.
+  skipSTACK (3);		// Nu vi er fÃ¦rdig.
 }
 
 defun XLIB:REPARENT-WINDOW (4)
@@ -8788,7 +8788,7 @@ defun XLIB:RESET-SCREEN-SAVER (1)
 
 //
 // Lots of mixing with :on/:off, :yes/:no, why not T and NIL, the natural way?!
-// [Was that written by Pascal programmers?] @*~#&%§"
+// [Was that written by Pascal programmers?] @*~#&%Â§"
 //
 
 defun XLIB:SCREEN-SAVER (1)

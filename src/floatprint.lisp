@@ -3,36 +3,36 @@
 ;; Bruno Haible 8.9.1990 - 10.9.1990
 
 ;; Grundgedanken:
-;; Jede Real-Zahl /= 0 repräsentiert ein (offenes) Intervall. Es wird die-
-;; jenige Dezimalzahl mit möglichst wenig Stellen ausgegeben, die in diesem
+;; Jede Real-Zahl /= 0 reprÃ¤sentiert ein (offenes) Intervall. Es wird die-
+;; jenige Dezimalzahl mit mÃ¶glichst wenig Stellen ausgegeben, die in diesem
 ;; Intervall liegt.
-;; Um auch große Exponenten zu behandeln, werden Zweier- in Zehnerpotenzen
-;; erst einmal näherungsweise umgerechnet. Nötigenfalls wird die Rechen-
-;; genauigkeit erhöht. Hierbei wird von den Long-Floats beliebiger
+;; Um auch groÃŸe Exponenten zu behandeln, werden Zweier- in Zehnerpotenzen
+;; erst einmal nÃ¤herungsweise umgerechnet. NÃ¶tigenfalls wird die Rechen-
+;; genauigkeit erhÃ¶ht. Hierbei wird von den Long-Floats beliebiger
 ;; Genauigkeit Gebrauch gemacht.
 
 (in-package "SYSTEM")
 
-; Stützt sich auf:
+; StÃ¼tzt sich auf:
 ; (sys::log2 digits) liefert ln(2) mit mindestens digits Mantissenbits.
 ; (sys::log10 digits) liefert ln(10) mit mindestens digits Mantissenbits.
 ; (sys::decimal-string integer) liefert zu einem Integer >0
 ;   einen Simple-String mit seiner Dezimaldarstellung.
-; (substring string start [end]) wie subseq, jedoch für Strings schneller.
+; (substring string start [end]) wie subseq, jedoch fÃ¼r Strings schneller.
 
 ;; Hauptfunktion zur Umwandlung von Floats ins Dezimalsystem:
 ;; Zu einem Float x werden ein Simple-String as und drei Integers k,e,s
 ;; berechnet mit folgenden Eigenschaften:
 ;; s = sign(x).
 ;; Falls x/=0, betrachte |x| statt x. Also oBdA x>0.
-;;   Seien x1 und x2 die nächstkleinere bzw. die nächstgrößere Zahl zu x
-;;   vom selben Floating-Point-Format. Die Zahl x repräsentiert somit das
+;;   Seien x1 und x2 die nÃ¤chstkleinere bzw. die nÃ¤chstgrÃ¶ÃŸere Zahl zu x
+;;   vom selben Floating-Point-Format. Die Zahl x reprÃ¤sentiert somit das
 ;;   offene Intervall von (x+x1)/2 bis (x+x2)/2.
 ;;   a ist ein Integer >0, mit genau k Dezimalstellen (k>=1), und es gilt
 ;;   (x+x1)/2 < a*10^(-k+e) < (x+x2)/2 .
 ;;   Dabei ist k minimal, also a nicht durch 10 teilbar.
 ;; Falls x=0: a=0, k=1, e=0.
-;; as ist die Ziffernfolge von a, der Länge k.
+;; as ist die Ziffernfolge von a, der LÃ¤nge k.
 (defun decode-float-decimal (x)
   (declare (type float x))
   (multiple-value-bind (binmant binexpo sign) (integer-decode-float x)
@@ -61,49 +61,49 @@
         ; die ganzen a mit a1 <= a <= a2 sind und 0 <= a2-a1 < 20 gilt.
         ; Wandle dazu 2^e := 2^(binexpo-1) ins Dezimalsystem um.
         (let* ((e (- binexpo 1))
-               (e-gross (> (abs e) (ash l 1))) ; Ist |e| recht groß, >2*l ?
-               g f     ; Hilfsvariablen für den Fall, dass |e| groß ist
-               zehn-d  ; Hilfsvariable 10^|d| für den Fall, dass |e| klein ist
+               (e-gross (> (abs e) (ash l 1))) ; Ist |e| recht groÃŸ, >2*l ?
+               g f     ; Hilfsvariablen fÃ¼r den Fall, dass |e| groÃŸ ist
+               zehn-d  ; Hilfsvariable 10^|d| fÃ¼r den Fall, dass |e| klein ist
                d a1 a2 ; Ergebnisvariablen
               )
-          (if e-gross ; Ist |e| recht groß ?
-            ; Da 2^e nur näherungsweise gehen kann, braucht man Schutzbits.
+          (if e-gross ; Ist |e| recht groÃŸ ?
+            ; Da 2^e nur nÃ¤herungsweise gehen kann, braucht man Schutzbits.
             (prog ((h 16)) ; Anzahl der Schutzbits, muss >= 3 sein
               neue-schutzbits
               ; Ziel: 2^e ~= 10^d * f/2^g, wobei 1 <= f/2^g < 10.
-              (setq g (+ l h)) ; Anzahl der gültigen Bits von f
-              ; Schätze d = floor(e*lg(2))
-              ; mit Hilfe der Näherungsbrüche von lg(2):
+              (setq g (+ l h)) ; Anzahl der gÃ¼ltigen Bits von f
+              ; SchÃ¤tze d = floor(e*lg(2))
+              ; mit Hilfe der NÃ¤herungsbrÃ¼che von lg(2):
               ; (0 1/3 3/10 28/93 59/196 146/485 643/2136 4004/13301
               ;  8651/28738 12655/42039 21306/70777 76573/254370 97879/325147
               ;  1838395/6107016 1936274/6432163 13456039/44699994
               ;  15392313/51132157 44240665/146964308 59632978/198096465
               ;  103873643/345060773 475127550/1578339557 579001193/1923400330
               ; )
-              ; e>=0 : wähle lg(2) < a/b < lg(2) + 1/e,
+              ; e>=0 : wÃ¤hle lg(2) < a/b < lg(2) + 1/e,
               ;        dann ist d <= floor(e*a/b) <= d+1 .
-              ; e<0  : wähle lg(2) - 1/abs(e) < a/b < lg(2),
+              ; e<0  : wÃ¤hle lg(2) - 1/abs(e) < a/b < lg(2),
               ;        dann ist d <= floor(e*a/b) <= d+1 .
               ; Es ist bekannt, dass abs(e) <= 2^31 + 2^20 .
               ; Unser d sei := floor(e*a/b)-1.
               (setq d (1- (if (minusp e)
                             (if (>= e -970)
-                              (floor (* e 3) 10) ; Näherungsbruch 3/10
-                              (floor (* e 21306) 70777) ; Näherungsbruch 21306/70777
+                              (floor (* e 3) 10) ; NÃ¤herungsbruch 3/10
+                              (floor (* e 21306) 70777) ; NÃ¤herungsbruch 21306/70777
                             )
                             (if (<= e 22000)
-                              (floor (* e 28) 93) ; Näherungsbruch 28/93
-                              (floor (* e 12655) 42039) ; Näherungsbruch 12655/42039
+                              (floor (* e 28) 93) ; NÃ¤herungsbruch 28/93
+                              (floor (* e 12655) 42039) ; NÃ¤herungsbruch 12655/42039
               )       )   ) )
-              ; Das wahre d wird durch diese Schätzung entweder getroffen
-              ; oder um 1 unterschätzt.
-              ; Anders ausgedrückt: 0 < e*log(2)-d*log(10) < 2*log(10).
+              ; Das wahre d wird durch diese SchÃ¤tzung entweder getroffen
+              ; oder um 1 unterschÃ¤tzt.
+              ; Anders ausgedrÃ¼ckt: 0 < e*log(2)-d*log(10) < 2*log(10).
               ; Nun f/2^g als exp(e*log(2)-d*log(10)) berechnen.
               ; Da f < 100*2^g < 2^(g+7), sind g+7 Bits relative Genauigkeit
               ; des Ergebnisses, also g+7 Bits absolute Genauigkeit von
-              ; e*log(2)-d*log(10) nötig. Dazu mit l'=integerlength(e)
-              ; für log(2): g+7+l' Bits abs. Gen., g+7+l' Bits rel. Gen.,
-              ; für log(10): g+7+l' Bits abs. Gen., g+7+l'+2 Bist rel. Gen.
+              ; e*log(2)-d*log(10) nÃ¶tig. Dazu mit l'=integerlength(e)
+              ; fÃ¼r log(2): g+7+l' Bits abs. Gen., g+7+l' Bits rel. Gen.,
+              ; fÃ¼r log(10): g+7+l' Bits abs. Gen., g+7+l'+2 Bist rel. Gen.
               (let ((f/2^g (let ((gen (+ g (integer-length e) 9))) ; Genauigkeit
                              (exp (- (* e (sys::log2 gen)) (* d (sys::log10 gen))))
                    ))      )
@@ -116,7 +116,7 @@
                 (setq f (floor f 10) d (+ d 1))
               )
               ; Nun ist 2^e ~= 10^d * f/2^g, wobei 1 <= f/2^g < 10 und
-              ; f ein Integer ist, der um höchstens 1 vom wahren Wert abweicht:
+              ; f ein Integer ist, der um hÃ¶chstens 1 vom wahren Wert abweicht:
               ; 10^d * (f-1)/2^g < 2^e < 10^d * (f+1)/2^g
               ; Wir verkleinern nun das offene Intervall
               ; von (x+x1)/2 = 2^(binexpo-1-untenshift) * unten
@@ -127,7 +127,7 @@
               ; und suchen darin Zahlen der Form 10^d * a mit ganzem a.
               ; Wegen  oben - unten/2^untenshift >= 3/2
               ; und  oben + unten/2^untenshift <= 4*binmant+1 < 2^(l+2) <= 2^(g-1)
-              ; ist die Intervall-Länge
+              ; ist die Intervall-LÃ¤nge
               ; = 10^d * ((f-1)*oben - (f+1)*unten/2^untenshift) / 2^g
               ; = 10^d * ( f * (oben - unten/2^untenshift)
               ;            - (oben + unten/2^untenshift) ) / 2^g
@@ -142,7 +142,7 @@
               ; Wir haben eben gesehen, dass a1 <= a2 sein muss.
               (setq a1 (1+ (ash (1- (* (+ f 1) unten)) (- (+ g untenshift)))))
               (setq a2 (ash (* (- f 1) oben) (- g)))
-              ; Wir können auch das offene Intervall
+              ; Wir kÃ¶nnen auch das offene Intervall
               ; von (x+x1)/2 = 2^(binexpo-1-untenshift) * unten
               ; bis (x+x2)/2 = 2^(binexpo-1) * oben
               ; in das (abgeschlossene) Intervall
@@ -153,26 +153,26 @@
               ; und sich a1' und a2' analog zu a1 und a2 berechnen.
               ; Da (f-1)*oben/2^g und (f+1)*oben/2^g sich um 2*oben/2^g
               ; < 2^(l+2-g) < 1 unterscheiden, unterscheiden sich a2 und
-              ; a2' um höchstens 1.
+              ; a2' um hÃ¶chstens 1.
               ; Ebenso, wenn 'oben' durch 'unten/2^untenshift' ersetzt
-              ; wird: a1' und a1 unterscheiden sich um höchstens 1.
+              ; wird: a1' und a1 unterscheiden sich um hÃ¶chstens 1.
               ; Ist nun a1' < a1 oder a2 < a2' , so ist die Zweierpotenz-
-              ; Näherung 10^d * f/2^g für 2^e nicht genau genug gewesen,
-              ; und man hat das Ganze mit erhöhtem h zu wiederholen.
-              ; Ausnahme (da hilft auch keine höhere Genauigkeit):
+              ; NÃ¤herung 10^d * f/2^g fÃ¼r 2^e nicht genau genug gewesen,
+              ; und man hat das Ganze mit erhÃ¶htem h zu wiederholen.
+              ; Ausnahme (da hilft auch keine hÃ¶here Genauigkeit):
               ;   Wenn die obere oder untere Intervallgrenze (x+x2)/2 bzw.
               ;   (x+x1)/2 selbst die Gestalt 10^d * a mit ganzem a hat.
               ;   Dies testet man so:
               ;     (x+x2)/2 = 2^e * oben == 10^d * a  mit ganzem a, wenn
-              ;     - für e>=0, (dann 0 <= d <= e): 5^d | oben,
-              ;     - für e<0, (dann e <= d < 0): 2^(d-e) | oben, was
-              ;                nur für d-e=0 der Fall ist.
+              ;     - fÃ¼r e>=0, (dann 0 <= d <= e): 5^d | oben,
+              ;     - fÃ¼r e<0, (dann e <= d < 0): 2^(d-e) | oben, was
+              ;                nur fÃ¼r d-e=0 der Fall ist.
               ;     (x+x1)/2 = 2^(e-untenshift) * unten == 10^d * a
               ;     mit ganzem a, wenn
-              ;     - für e>0, (dann 0 <= d < e): 5^d | unten,
-              ;     - für e<=0, (dann e <= d <= 0): 2^(d-e+untenshift) | unten,
-              ;                 was nur für d-e+untenshift=0 der Fall ist.
-              ; Da wir es jedoch mit großem |e| zu tun haben, kann dieser
+              ;     - fÃ¼r e>0, (dann 0 <= d < e): 5^d | unten,
+              ;     - fÃ¼r e<=0, (dann e <= d <= 0): 2^(d-e+untenshift) | unten,
+              ;                 was nur fÃ¼r d-e+untenshift=0 der Fall ist.
+              ; Da wir es jedoch mit groÃŸem |e| zu tun haben, kann dieser
               ; Ausnahmefall hier gar nicht eintreten!
               ; Denn im Falle e>=0: Aus e>=2*l und l>=11 folgt
               ;   e >= (l+2)*ln(10)/ln(5) + ln(10)/ln(2),
@@ -196,55 +196,55 @@
                 (setq h (ash h 1)) ; h verdoppeln
                 (go neue-schutzbits) ; und alles wiederholen
               )
-              ; Jetzt ist a1 der kleinste und a2 der größte Wert, der
-              ; für a möglich ist.
+              ; Jetzt ist a1 der kleinste und a2 der grÃ¶ÃŸte Wert, der
+              ; fÃ¼r a mÃ¶glich ist.
               ; Wegen  oben - unten/2^untenshift <= 2
-              ; ist die obige Intervall-Länge
+              ; ist die obige Intervall-LÃ¤nge
               ; = 10^d * ((f-1)*oben - (f+1)*unten/2^untenshift) / 2^g
               ; < 10^d * ((f-1)*oben - (f-1)*unten/2^untenshift) / 2^g
               ; = 10^d * (f-1)/2^g * (oben - unten/2^untenshift)
               ; < 10^d * 10 * 2,
-              ; also gibt es höchstens 20 mögliche Werte für a.
+              ; also gibt es hÃ¶chstens 20 mÃ¶gliche Werte fÃ¼r a.
             )
             ; |e| ist recht klein -> man kann 2^e und 10^d exakt ausrechnen
             (if (not (minusp e))
-              ; e >= 0. Schätze d = floor(e*lg(2)) wie oben.
+              ; e >= 0. SchÃ¤tze d = floor(e*lg(2)) wie oben.
               ; Es ist e<=2*l<2^21.
               (progn
                 (setq d (if (<= e 22000)
-                          (floor (* e 28) 93) ; Näherungsbruch 28/93
-                          (floor (* e 4004) 13301) ; Näherungsbruch 4004/13301
+                          (floor (* e 28) 93) ; NÃ¤herungsbruch 28/93
+                          (floor (* e 4004) 13301) ; NÃ¤herungsbruch 4004/13301
                 )       )
-                ; Das wahre d wird durch diese Schätzung entweder getroffen
-                ; oder um 1 überschätzt, aber das können wir leicht feststellen.
+                ; Das wahre d wird durch diese SchÃ¤tzung entweder getroffen
+                ; oder um 1 Ã¼berschÃ¤tzt, aber das kÃ¶nnen wir leicht feststellen.
                 (setq zehn-d (expt 10 d)) ; zehn-d = 10^d
                 (when (< (ash 1 e) zehn-d) ; falls 2^e < 10^d,
-                  (setq d (- d 1) zehn-d (floor zehn-d 10)) ; Schätzung korrigieren
+                  (setq d (- d 1) zehn-d (floor zehn-d 10)) ; SchÃ¤tzung korrigieren
                 )
                 ; Nun ist 10^d <= 2^e < 10^(d+1) und zehn-d = 10^d.
                 ; a1 sei das kleinste ganze a > 2^(e-untenshift) * unten / 10^d,
-                ; a2 sei das größte ganze a < 2^e * oben / 10^d.
+                ; a2 sei das grÃ¶ÃŸte ganze a < 2^e * oben / 10^d.
                 ; a1 = 1+floor(unten*2^e/(2^untenshift*10^d)),
                 ; a2 = floor((oben*2^e-1)/10^d).
                 (setq a1 (1+ (floor (ash unten e) (ash zehn-d untenshift))))
                 (setq a2 (floor (1- (ash oben e)) zehn-d))
               )
-              ; e < 0. Schätze d = floor(e*lg(2)) wie oben.
+              ; e < 0. SchÃ¤tze d = floor(e*lg(2)) wie oben.
               ; Es ist |e|<=2*l<2^21.
               (progn
                 (setq d (if (>= e -970)
-                          (floor (* e 3) 10) ; Näherungsbruch 3/10
-                          (floor (* e 643) 2136) ; Näherungsbruch 643/2136
+                          (floor (* e 3) 10) ; NÃ¤herungsbruch 3/10
+                          (floor (* e 643) 2136) ; NÃ¤herungsbruch 643/2136
                 )       )
-                ; Das wahre d wird durch diese Schätzung entweder getroffen
-                ; oder um 1 überschätzt, aber das können wir leicht feststellen.
+                ; Das wahre d wird durch diese SchÃ¤tzung entweder getroffen
+                ; oder um 1 Ã¼berschÃ¤tzt, aber das kÃ¶nnen wir leicht feststellen.
                 (setq zehn-d (expt 10 (- d))) ; zehn-d = 10^(-d)
                 (when (<= (integer-length zehn-d) (- e)) ; falls 2^e < 10^d,
-                  (setq d (- d 1) zehn-d (* zehn-d 10)) ; Schätzung korrigieren
+                  (setq d (- d 1) zehn-d (* zehn-d 10)) ; SchÃ¤tzung korrigieren
                 )
                 ; Nun ist 10^d <= 2^e < 10^(d+1) und zehn-d = 10^(-d).
                 ; a1 sei das kleinste ganze a > 2^(e-untenshift) * unten / 10^d,
-                ; a2 sei das größte ganze a < 2^e * oben / 10^d.
+                ; a2 sei das grÃ¶ÃŸte ganze a < 2^e * oben / 10^d.
                 ; a1 = 1+floor(unten*10^(-d)/2^(-e+untenshift)),
                 ; a2 = floor((oben*10^(-d)-1)/2^(-e))
                 (setq a1 (1+ (ash (* unten zehn-d) (- e untenshift))))
@@ -252,19 +252,19 @@
               )
           ) )
           ; Nun sind die ganzen a mit (x+x1)/2 < 10^d * a < (x+x2)/2 genau
-          ; die ganzen a mit a1 <= a <= a2. Deren gibt es höchstens 20.
+          ; die ganzen a mit a1 <= a <= a2. Deren gibt es hÃ¶chstens 20.
           ; Diese werden in drei Schritten auf einen einzigen reduziert:
-          ; 1. Enthält der Bereich eine durch 10 teilbare Zahl a ?
+          ; 1. EnthÃ¤lt der Bereich eine durch 10 teilbare Zahl a ?
           ;    ja -> setze a1:=ceiling(a1/10), a2:=floor(a2/10), d:=d+1.
-          ; Danach enthält der Bereich a1 <= a <= a2 höchstens 10
-          ; mögliche Werte für a.
-          ; 2. Falls jetzt einer der möglichen Werte durch 10 teilbar ist
+          ; Danach enthÃ¤lt der Bereich a1 <= a <= a2 hÃ¶chstens 10
+          ; mÃ¶gliche Werte fÃ¼r a.
+          ; 2. Falls jetzt einer der mÃ¶glichen Werte durch 10 teilbar ist
           ;    (es kann nur noch einen solchen geben),
-          ;    wird er gewählt, die anderen vergessen.
-          ; 3. Sonst wird unter allen noch möglichen Werten der zu x
-          ;    nächstgelegene gewählt.
+          ;    wird er gewÃ¤hlt, die anderen vergessen.
+          ; 3. Sonst wird unter allen noch mÃ¶glichen Werten der zu x
+          ;    nÃ¤chstgelegene gewÃ¤hlt.
           (prog ((d-shift nil) ; Flag, ob im 1. Schritt d incrementiert wurde
-                 a             ; das ausgewählte a
+                 a             ; das ausgewÃ¤hlte a
                 )
             ; 1.
             (let ((b1 (ceiling a1 10))
@@ -276,12 +276,12 @@
             ; 2.
             (when (>= (* 10 (setq a (floor a2 10))) a1)
               ; Noch eine durch 10 teilbare Zahl -> durch 10 teilen.
-              (setq d (+ d 1)) ; noch d erhöhen, zehn-d wird nicht mehr gebraucht
+              (setq d (+ d 1)) ; noch d erhÃ¶hen, zehn-d wird nicht mehr gebraucht
               ; Nun a in einen Dezimalstring umwandeln
               ; und dann Nullen am Schluss streichen:
               (let* ((as (sys::decimal-string a)) ; Ziffernfolge zu a>0
-                     (las (length as)) ; Länge der Ziffernfolge
-                     (k las) ; Länge ohne die gestrichenen Nullen am Schluss
+                     (las (length as)) ; LÃ¤nge der Ziffernfolge
+                     (k las) ; LÃ¤nge ohne die gestrichenen Nullen am Schluss
                      (ee (+ k d))) ; a * 10^d = a * 10^(-k+ee)
                 (loop
                   (let ((k-1 (- k 1)))
@@ -299,10 +299,10 @@
               (if (eql a1 a2)
                 ; a1=a2 -> keine Frage der Auswahl mehr:
                 a1
-                ; a1<a2 -> zu x nächstgelegenes 10^d * a wählen:
+                ; a1<a2 -> zu x nÃ¤chstgelegenes 10^d * a wÃ¤hlen:
                 (if e-gross
                   ; a = round(f*2*binmant/2^g/(1oder10)) (beliebige Rundung)
-                  ;   = ceiling(floor(f*2*binmant/(1oder10)/2^(g-1))/2) wählen:
+                  ;   = ceiling(floor(f*2*binmant/(1oder10)/2^(g-1))/2) wÃ¤hlen:
                   (ash (1+ (ash
                              (let ((z (* f 2*binmant)))
                                (if d-shift (floor z 10) z)
@@ -333,7 +333,7 @@
               (return (values as k (+ k d) sign))
 ) ) ) ) ) ) )
 
-; Ausgabefunktion für PRINT/WRITE von Floats:
+; Ausgabefunktion fÃ¼r PRINT/WRITE von Floats:
 (defun write-float-decimal (stream arg #| &optional (plus-sign-flag nil) |# )
   (unless (floatp arg)
     (error-of-type 'type-error
@@ -344,7 +344,7 @@
   (multiple-value-bind (mantstring mantlen expo sign)
       (decode-float-decimal arg)
     ; arg in Dezimaldarstellung: +/- 0.mant * 10^expo, wobei
-    ;  mant die Mantisse: als Simple-String mantstring mit Länge mantlen,
+    ;  mant die Mantisse: als Simple-String mantstring mit LÃ¤nge mantlen,
     ;  expo der Dezimal-Exponent,
     ;  sign das Vorzeichen (-1 oder 0 oder 1).
     (if (eql sign -1) ; arg < 0 ?
@@ -358,8 +358,8 @@
       ;   0 < expo < mantlen ->
       ;     die ersten expo Ziffern, Punkt, die restlichen Ziffern
       ;   expo >= mantlen -> alle Ziffern, expo-mantlen Nullen, Punkt, Null
-      ;   Nach Möglichkeit kein Exponent; wenn nötig, Exponent 0.
-      ; flag gelöscht -> "scientific notation":
+      ;   Nach MÃ¶glichkeit kein Exponent; wenn nÃ¶tig, Exponent 0.
+      ; flag gelÃ¶scht -> "scientific notation":
       ;   erste Ziffer, Punkt, die restlichen Ziffern, bei mantlen=1 eine Null
       ;   Exponent.
       (if (and flag (not (plusp expo)))
@@ -386,7 +386,7 @@
               (write-char #\. stream)
               (write-string mantstring stream :start scale)
             )
-            ; scale>=mantlen -> es bleibt nichts für die Nachkommastellen.
+            ; scale>=mantlen -> es bleibt nichts fÃ¼r die Nachkommastellen.
             ; alle Ziffern, dann scale-mantlen Nullen, dann Punkt und Null
             (progn
               (write-string mantstring stream)

@@ -1,38 +1,38 @@
-# Package-Verwaltung für CLISP
+# Package-Verwaltung fÃ¼r CLISP
 # Bruno Haible 1990-1999
 
 #include "lispbibl.c"
-#include "arilev0.c" # für Hashcode-Berechnung
+#include "arilev0.c" # fÃ¼r Hashcode-Berechnung
 
 # Datenstruktur des Symbols: siehe LISPBIBL.D
 # Datenstruktur der Symboltabelle:
 # ein Vektor mit 3 Slots:
-#   size    Fixnum >0, <2^16, = Länge der table
-#   table   Vektor der Länge size,
-#             enthält einzelne Symbole (/= NIL) und Symbollisten
+#   size    Fixnum >0, <2^16, = LÃ¤nge der table
+#   table   Vektor der LÃ¤nge size,
+#             enthÃ¤lt einzelne Symbole (/= NIL) und Symbollisten
 #   count   Anzahl der Symbole in der Table, Fixnum >=0
   #define Symtab_size(symtab)  (TheSvector(symtab)->data[0])
   #define Symtab_table(symtab)  (TheSvector(symtab)->data[1])
   #define Symtab_count(symtab)  (TheSvector(symtab)->data[2])
 # Konsistenzregel:
-# Zu jedem String gibt es in der Tabelle höchstens ein Symbol mit diesem
+# Zu jedem String gibt es in der Tabelle hÃ¶chstens ein Symbol mit diesem
 # Printnamen.
 
 # UP: Kreiert eine neue leere Symboltabelle.
 # make_symtab(size)
-# > size: gewünschte Größe der Tabelle (ungerade, >0, <2^16)
-# < ergebnis: neue Symboltabelle dieser Größe
+# > size: gewÃ¼nschte GrÃ¶ÃŸe der Tabelle (ungerade, >0, <2^16)
+# < ergebnis: neue Symboltabelle dieser GrÃ¶ÃŸe
 # can trigger GC
   local object make_symtab (uintL size);
   local object make_symtab(size)
     var uintL size;
     {
-      var object table = allocate_vector(size); # Vektor mit size NIL-Einträgen
+      var object table = allocate_vector(size); # Vektor mit size NIL-EintrÃ¤gen
       pushSTACK(table);
-      var object symtab = allocate_vector(3); # Vektor der Länge 3
-      Symtab_table(symtab) = popSTACK(); # table einfüllen
-      Symtab_size(symtab) = fixnum(size); # size einfüllen
-      Symtab_count(symtab) = Fixnum_0; # count := 0 einfüllen
+      var object symtab = allocate_vector(3); # Vektor der LÃ¤nge 3
+      Symtab_table(symtab) = popSTACK(); # table einfÃ¼llen
+      Symtab_size(symtab) = fixnum(size); # size einfÃ¼llen
+      Symtab_count(symtab) = Fixnum_0; # count := 0 einfÃ¼llen
       return symtab;
     }
 
@@ -56,7 +56,7 @@
           dotimesC(count, (len>16 ? 16 : len), { # min(len,16) mal:
             # hashcode um 5 Bit nach links rotieren:
             hashcode = hashcode << 5; hashcode = hashcode | high16(hashcode);
-            # und nächstes Byte dazuXORen:
+            # und nÃ¤chstes Byte dazuXORen:
             hashcode = hashcode ^ (uint32)as_cint(*charptr++);
           });
           return (uint16)hashcode;
@@ -69,7 +69,7 @@
           dotimesC(count, (len>16 ? 16 : len), { # min(len,16) mal:
             # hashcode um 5 Bit nach links rotieren:
             hashcode = hashcode << 5; hashcode = hashcode | high16(hashcode);
-            # und nächstes Byte dazuXORen:
+            # und nÃ¤chstes Byte dazuXORen:
             hashcode = hashcode ^ (uint32)(cint)(*charptr++);
           });
           return (uint16)hashcode;
@@ -92,24 +92,24 @@
   # new_cons()
   # < ergebnis: neues Cons.
   # Stackaufbau: free-conses, newtable, listr, symbol, entry.
-  # kann GC auslösen
+  # kann GC auslÃ¶sen
     local object new_cons (void);
     local object new_cons()
       {
         var object free = STACK_4; # free-conses
         if (!nullp(free)) {
-          STACK_4 = Cdr(free); # free-conses verkürzen
+          STACK_4 = Cdr(free); # free-conses verkÃ¼rzen
           return free;
         } else {
           return allocate_cons(); # neues Cons aus der Speicherverwaltung anfordern
         }
       }
   #
-  # Fügt ein Symbol zusätzlich in die neue Tabelle ein.
+  # FÃ¼gt ein Symbol zusÃ¤tzlich in die neue Tabelle ein.
   # newinsert(sym,size);
   # > sym: Symbol
   # Stackaufbau: tab, oldtable, free-conses, newtable, listr.
-  # kann GC auslösen
+  # kann GC auslÃ¶sen
     local void newinsert (object sym, uintWL size);
     local void newinsert(sym,size)
       var object sym;
@@ -142,12 +142,12 @@
     var object symtab;
     {
       pushSTACK(symtab); # Symboltabelle retten
-      var uintL oldsize = posfixnum_to_L(Symtab_size(symtab)); # alte Größe
-      var uintL newsize; # neue Größe
-      var object size; # neue Größe (als Fixnum)
+      var uintL oldsize = posfixnum_to_L(Symtab_size(symtab)); # alte GrÃ¶ÃŸe
+      var uintL newsize; # neue GrÃ¶ÃŸe
+      var object size; # neue GrÃ¶ÃŸe (als Fixnum)
       pushSTACK(Symtab_table(symtab)); # oldtable = alter Tabellenvektor
       pushSTACK(NIL); # free-conses := NIL
-      # neue Größe = min(floor(oldsize*1.6),65535)
+      # neue GrÃ¶ÃŸe = min(floor(oldsize*1.6),65535)
       {
         # multipliziere oldsize (>0, <2^16) mit 1.6*2^15, dann durch 2^15 :
         var uint32 prod = mulu16(oldsize,52429UL);
@@ -157,7 +157,7 @@
       newsize = (newsize - 1) | 1 ;
       # size berechnen:
       size = fixnum(newsize);
-      # Bei newsize <= oldsize braucht die Tabelle nicht vergrößert zu werden:
+      # Bei newsize <= oldsize braucht die Tabelle nicht vergrÃ¶ÃŸert zu werden:
       if (newsize <= oldsize) {
         skipSTACK(3);
         return symtab;
@@ -166,9 +166,9 @@
         var object newtable = allocate_vector(newsize); # neuer Vektor mit size NILs
         pushSTACK(newtable); # retten
       }
-      # Hier könnte man gegen Unterbrechungen schützen.
+      # Hier kÃ¶nnte man gegen Unterbrechungen schÃ¼tzen.
       # Stackaufbau: tab, oldtable, free-conses, newtable.
-      # Symbole von oldtable nach newtable übertragen:
+      # Symbole von oldtable nach newtable Ã¼bertragen:
         # Erst die Symbole verarbeiten, die auf Listen sitzen
         # (dabei werden evtl. Conses frei):
         {
@@ -211,7 +211,7 @@
         Symtab_size(symtab) = size;
         Symtab_table(symtab) = newtable;
       }
-      # Hier könnte man Unterbrechungen wieder zulassen.
+      # Hier kÃ¶nnte man Unterbrechungen wieder zulassen.
       return symtab;
     }
 
@@ -287,7 +287,7 @@
       }
     }
 
-# UP: Fügt ein gegebenes Symbol in eine Symboltabelle ein (destruktiv).
+# UP: FÃ¼gt ein gegebenes Symbol in eine Symboltabelle ein (destruktiv).
 # symtab_insert(sym,symtab)
 # > sym: Symbol
 # > symtab: Symboltabelle
@@ -299,7 +299,7 @@
     var object sym;
     var object symtab;
     {
-      # erst der Test, ob Reorganisieren nötig ist:
+      # erst der Test, ob Reorganisieren nÃ¶tig ist:
       {
         var uintL size = posfixnum_to_L(Symtab_size(symtab));
         var uintL count = posfixnum_to_L(Symtab_count(symtab));
@@ -310,7 +310,7 @@
           sym = popSTACK();
         }
       }
-      # Dann das Symbol einfügen:
+      # Dann das Symbol einfÃ¼gen:
       var uintL index = # Index = Hashcode mod size
           (uintL)(string_hashcode(Symbol_name(sym)) % (uintW)(posfixnum_to_L(Symtab_size(symtab))));
       var object entry = TheSvector(Symtab_table(symtab))->data[index]; # entry in der table
@@ -373,12 +373,12 @@
               # -> ein Listenelement streichen:
         *entryptr = Cdr(entry); # entry durch Cdr(entry) ersetzen
       }
-      # schließlich noch den Symbolzähler um 1 erniedrigen:
+      # schlieÃŸlich noch den SymbolzÃ¤hler um 1 erniedrigen:
       Symtab_count(symtab) = fixnum_inc(Symtab_count(symtab),-1); # (decf count)
       return;
       # nicht gefunden
      notfound:
-      pushSTACK(unbound); # "Wert" für Slot PACKAGE von PACKAGE-ERROR
+      pushSTACK(unbound); # "Wert" fÃ¼r Slot PACKAGE von PACKAGE-ERROR
       pushSTACK(sym);
       fehler(package_error,
              GETTEXT("symbol ~ cannot be deleted from symbol table")
@@ -387,8 +387,8 @@
 
 # Datenstruktur der Package siehe LISPBIBL.D.
 # Komponenten:
-# pack_external_symbols   Symboltabelle der extern präsenten Symbole
-# pack_internal_symbols   Symboltabelle der intern präsenten Symbole
+# pack_external_symbols   Symboltabelle der extern prÃ¤senten Symbole
+# pack_internal_symbols   Symboltabelle der intern prÃ¤senten Symbole
 # pack_shadowing_symbols  Liste der Shadowing-Symbole
 # pack_use_list           Use-List, eine Liste von Packages
 # pack_used_by_list       Used-by-List, eine Liste von Packages
@@ -396,14 +396,14 @@
 # pack_nicknames          die Nicknames, eine Liste von immutablen Simple-Strings
 
 # Konsistenzregeln:
-# 1. Alle Packages sind genau einmal in ALL_PACKAGES aufgeführt.
-# 2. Die Vereinigung über ALL_PACKAGES von {Name} U Nicknames ist disjunkt.
-# 3. Für je zwei Packages p,q gilt:
+# 1. Alle Packages sind genau einmal in ALL_PACKAGES aufgefÃ¼hrt.
+# 2. Die Vereinigung Ã¼ber ALL_PACKAGES von {Name} U Nicknames ist disjunkt.
+# 3. FÃ¼r je zwei Packages p,q gilt:
 #    p in use_list(q) <==> q in used_by_list(q)
 # 4. p sei eine Package.
 #    accessible(p) = ISymbols(p) U ESymbols(p) U
 #                    U {ESymbols(q) | q in use_list(p)}
-# 5. Für jede Package p ist
+# 5. FÃ¼r jede Package p ist
 #    shadowing_symbols(p)  eine Teilmenge von  ISymbols(p) U ESymbols(p)
 #    und damit auch eine Teilmenge von  accessible(p).
 # 6. s sei ein String, p eine Package.
@@ -411,7 +411,7 @@
 #    mehr als einelementig,
 #    so liegt genau eines dieser Symbole in shadowing_symbols(p).
 # 7. s sei ein String, p eine Package.
-#    Es gibt höchstens ein Symbol mit dem Printnamen = s
+#    Es gibt hÃ¶chstens ein Symbol mit dem Printnamen = s
 #    in  ISymbols(p) U ESymbols(p)  .
 # 8. Ist s ein Symbol mit der Home-Package p /= NIL,
 #    so ist s in  ISymbols(p) U ESymbols(p)  enthalten.
@@ -431,13 +431,13 @@
     {
       set_break_sem_2();
       pushSTACK(nicknames); pushSTACK(name); # Nicknames und Namen retten
-      # Tabelle für externe Symbole erzeugen:
+      # Tabelle fÃ¼r externe Symbole erzeugen:
       { var object symtab = make_symtab(11); pushSTACK(symtab); }
-      # Tabelle für interne Symbole erzeugen:
+      # Tabelle fÃ¼r interne Symbole erzeugen:
       { var object symtab = make_symtab(63); pushSTACK(symtab); }
       # neue Package erzeugen:
       var object pack = allocate_package();
-      # und füllen:
+      # und fÃ¼llen:
       if (case_sensitive_p) { mark_pack_casesensitive(pack); }
       ThePackage(pack)->pack_internal_symbols = popSTACK();
       ThePackage(pack)->pack_external_symbols = popSTACK();
@@ -446,7 +446,7 @@
       ThePackage(pack)->pack_used_by_list = NIL;
       ThePackage(pack)->pack_name = popSTACK();
       ThePackage(pack)->pack_nicknames = popSTACK();
-      # und in ALL_PACKAGES einhängen:
+      # und in ALL_PACKAGES einhÃ¤ngen:
       pushSTACK(pack);
       var object new_cons = allocate_cons();
       pack = popSTACK();
@@ -505,8 +505,8 @@
       return TRUE;
     }
 
-# UP: Fügt ein Symbol zur Shadowing-Liste einer Package, die noch kein
-# Symbol desselben Namens enthält, hinzu.
+# UP: FÃ¼gt ein Symbol zur Shadowing-Liste einer Package, die noch kein
+# Symbol desselben Namens enthÃ¤lt, hinzu.
 # shadowing_insert(&sym,&pack)
 # > sym: Symbol (im STACK)
 # > pack: Package (im STACK)
@@ -518,7 +518,7 @@
     var const object* sym_;
     var const object* pack_;
     {
-      # neues Cons mit Symbol als CAR vor die Shadowing-Symbols einhängen:
+      # neues Cons mit Symbol als CAR vor die Shadowing-Symbols einhÃ¤ngen:
       var object new_cons = allocate_cons();
       var object pack = *pack_;
       Car(new_cons) = *sym_;
@@ -538,7 +538,7 @@
     {
       var object* listptr = &ThePackage(pack)->pack_shadowing_symbols;
       var object list = *listptr;
-      # list = *listptr durchläuft die Shadowing-Liste
+      # list = *listptr durchlÃ¤uft die Shadowing-Liste
       while (consp(list)) {
         if (string_gleich(string,Symbol_name(Car(list))))
           goto found;
@@ -567,11 +567,11 @@
     {
       # Methode:
       # Suche erst ein Symbol gleichen Namens in der Shadowing-Liste;
-      # falls nicht gefunden, suche das Symbol unter den präsenten und dann
+      # falls nicht gefunden, suche das Symbol unter den prÃ¤senten und dann
       # unter den vererbten Symbolen.
-      # Andere mögliche Methode (hier nicht realisiert):
-      # Ist die Home-Package von sym gleich pack, so ist sym in pack präsent,
-      # fertig. Sonst suche ein präsentes Symbol gleichen Namens.
+      # Andere mÃ¶gliche Methode (hier nicht realisiert):
+      # Ist die Home-Package von sym gleich pack, so ist sym in pack prÃ¤sent,
+      # fertig. Sonst suche ein prÃ¤sentes Symbol gleichen Namens.
       # sym gefunden -> fertig.
       # Ein anderes gefunden -> sym ist nicht auf der Shadowing-Liste und
       # daher nicht sichtbar.
@@ -612,7 +612,7 @@
 # < ergebnis:
 #     TRUE falls sym in pack als externes Symbol accessible ist,
 #     (in diesem Falle ist sym nicht verdeckt, denn ein eventuell sym
-#      vedeckendes Symbol müsste in shadowing-symbols(pack) aufgeführt sein,
+#      vedeckendes Symbol mÃ¼sste in shadowing-symbols(pack) aufgefÃ¼hrt sein,
 #      nach den Konsistenzregeln 5 und 7 also mit sym identisch sein),
 #     FALSE sonst
   global boolean externalp (object sym, object pack);
@@ -640,10 +640,10 @@
 
 # UP: Nachfragefunktion an den Benutzer.
 # query_user(ml)
-# > ml: nichtleere Liste von Möglichkeiten. Jede Möglichkeit ist dabei eine
+# > ml: nichtleere Liste von MÃ¶glichkeiten. Jede MÃ¶glichkeit ist dabei eine
 #       Liste aus einem Kurz-String (den der Benutzer eintippen soll), einem
-#       Langstring (der der Erläuterung dient) und weiteren Informationen.
-# < ergebnis: Die vom Benutzer angewählte Möglichkeit.
+#       Langstring (der der ErlÃ¤uterung dient) und weiteren Informationen.
+# < ergebnis: Die vom Benutzer angewÃ¤hlte MÃ¶glichkeit.
 # can trigger GC
   local object query_user (object ml);
   local object query_user(ml)
@@ -655,16 +655,16 @@
       pushSTACK(stream);
       stream_ = &STACK_0;
       terpri(stream_); # Neue Zeile
-      write_sstring(stream_,OLS(query_string1)); # "Wählen Sie bitte aus:"
-      # Möglichkeiten ausgeben:
+      write_sstring(stream_,OLS(query_string1)); # "WÃ¤hlen Sie bitte aus:"
+      # MÃ¶glichkeiten ausgeben:
       {
-        var object mlistr = STACK_1; # restliche Möglichkeiten
+        var object mlistr = STACK_1; # restliche MÃ¶glichkeiten
         while (consp(mlistr)) {
           pushSTACK(mlistr);
           terpri(stream_);
           write_sstring(stream_,O(query_string2)); # "          "
           {
-            var object moeglichkeit = Car(STACK_0); # nächste Möglichkeit
+            var object moeglichkeit = Car(STACK_0); # nÃ¤chste MÃ¶glichkeit
             pushSTACK(Car(Cdr(moeglichkeit))); # Langstring retten
             write_string(stream_,Car(moeglichkeit)); # Kurzstring ausgeben
             write_sstring(stream_,O(query_string3)); # "  --  "
@@ -681,41 +681,41 @@
         write_sstring(stream_,O(query_string5)); # ">> "
         pushSTACK(*stream_); funcall(L(read_line),1); # (READ-LINE stream) aufrufen
         pushSTACK(value1); # Antwort retten
-        # Stackaufbau: Möglichkeiten, Stream, Antwort
+        # Stackaufbau: MÃ¶glichkeiten, Stream, Antwort
           # Antwort mit den Kurzstrings vergleichen:
-          pushSTACK(STACK_2); # Möglichkeiten durchgehen
+          pushSTACK(STACK_2); # MÃ¶glichkeiten durchgehen
           while (mconsp(STACK_0)) {
-            pushSTACK(Car(Car(STACK_0))); # nächsten Kurzstring
+            pushSTACK(Car(Car(STACK_0))); # nÃ¤chsten Kurzstring
             pushSTACK(STACK_2); # mit Antwort vergleichen:
             funcall(L(string_gleich),2); # (STRING= Kurzstring Antwort)
             if (!nullp(value1))
               goto antwort_ok;
-            STACK_0 = Cdr(STACK_0); # Möglichkeitenliste verkürzen
+            STACK_0 = Cdr(STACK_0); # MÃ¶glichkeitenliste verkÃ¼rzen
           }
           skipSTACK(1);
           # Antwort mit den Kurzstrings vergleichen, diesmal lascher:
-          pushSTACK(STACK_2); # Möglichkeiten durchgehen
+          pushSTACK(STACK_2); # MÃ¶glichkeiten durchgehen
           while (mconsp(STACK_0)) {
-            pushSTACK(Car(Car(STACK_0))); # nächsten Kurzstring
+            pushSTACK(Car(Car(STACK_0))); # nÃ¤chsten Kurzstring
             pushSTACK(STACK_2); # mit Antwort vergleichen:
             funcall(L(string_equal),2); # (STRING-EQUAL Kurzstring Antwort)
             if (!nullp(value1))
               goto antwort_ok;
-            STACK_0 = Cdr(STACK_0); # Möglichkeitenliste verkürzen
+            STACK_0 = Cdr(STACK_0); # MÃ¶glichkeitenliste verkÃ¼rzen
           }
           skipSTACK(1);
         skipSTACK(1); # Antwort vergessen
         # bis jetzt immer noch keine korrekte Antwort
         pushSTACK(*stream_);
-        pushSTACK(OLS(query_string4)); # "Wählen Sie bitte eines von ~:{~A~:^, ~} aus."
-        pushSTACK(STACK_(1+2)); # Möglichkeiten
-        funcall(S(format),3); # (FORMAT stream ... Möglichkeitenliste)
+        pushSTACK(OLS(query_string4)); # "WÃ¤hlen Sie bitte eines von ~:{~A~:^, ~} aus."
+        pushSTACK(STACK_(1+2)); # MÃ¶glichkeiten
+        funcall(S(format),3); # (FORMAT stream ... MÃ¶glichkeitenliste)
         terpri(stream_);
       }
      antwort_ok:
-      var object mlistr = popSTACK(); # letzte Möglichkeitenliste
-      skipSTACK(3); # Antwort, Stream und Möglichkeitenliste vergessen
-      return Car(mlistr); # angewählte Möglichkeit
+      var object mlistr = popSTACK(); # letzte MÃ¶glichkeitenliste
+      skipSTACK(3); # Antwort, Stream und MÃ¶glichkeitenliste vergessen
+      return Car(mlistr); # angewÃ¤hlte MÃ¶glichkeit
     }
 
 # UP: sucht eine Package mit gegebenem Namen oder Nickname
@@ -742,7 +742,7 @@
             nicknamelistr = Cdr(nicknamelistr);
           }
         }
-        packlistr = Cdr(packlistr); # nächste Package
+        packlistr = Cdr(packlistr); # nÃ¤chste Package
       }
       # nicht gefunden
       return NIL;
@@ -757,7 +757,7 @@
 # < sym: Symbol, falls gefunden; sonst NIL
 # < ergebnis: 0, wenn nicht gefunden
 #             1, wenn als externes Symbol vorhanden
-#             2, wenn vererbt über use-list
+#             2, wenn vererbt Ã¼ber use-list
 #             3, wenn als internes Symbol vorhanden
 #         + (-4, wenn in der Shadowing-Liste vorhanden)
   local sintBWL find_symbol (object string, object pack, object* sym_);
@@ -795,7 +795,7 @@
             var object usedpack = Car(packlistr);
             if (symtab_lookup(string,ThePackage(usedpack)->pack_external_symbols,&(*sym_)))
               return 2; # unter den vererbten Symbolen gefunden
-            # (nur einmal vererbt, sonst wäre was in der
+            # (nur einmal vererbt, sonst wÃ¤re was in der
             #  Shadowing-Liste gewesen)
             packlistr = Cdr(packlistr);
           }
@@ -804,11 +804,11 @@
         *sym_ = NIL; return 0;
       }
     }
-    # Eigentlich bräuchte man in der Shadowing-Liste erst zu suchen, nachdem
-    # man die präsenten Symbole abgesucht hat, denn das Symbol in der
-    # Shadowing-Liste ist ja präsent (Konsistenzregel 5).
+    # Eigentlich brÃ¤uchte man in der Shadowing-Liste erst zu suchen, nachdem
+    # man die prÃ¤senten Symbole abgesucht hat, denn das Symbol in der
+    # Shadowing-Liste ist ja prÃ¤sent (Konsistenzregel 5).
 
-# UP: Fügt ein Symbol in eine Package ein, in der noch kein Symbol desselben
+# UP: FÃ¼gt ein Symbol in eine Package ein, in der noch kein Symbol desselben
 # Namens existiert. Achtet nicht auf Konflikte.
 # make_present(sym,pack);
 # > sym: Symbol
@@ -821,11 +821,11 @@
     var object pack;
     {
       if (!eq(pack,O(keyword_package))) {
-        # Symbol in die internen Symbole einfügen:
+        # Symbol in die internen Symbole einfÃ¼gen:
         symtab_insert(sym,ThePackage(pack)->pack_internal_symbols);
       } else {
-        # Symbol modifizieren und in die externen Symbole einfügen:
-        Symbol_value(sym) = sym; # sym erhält sich selbst als Wert
+        # Symbol modifizieren und in die externen Symbole einfÃ¼gen:
+        Symbol_value(sym) = sym; # sym erhÃ¤lt sich selbst als Wert
         # als konstant markieren:
         TheSymbol(sym)->header_flags |= bit(constant_bit_hf);
         symtab_insert(sym,ThePackage(pack)->pack_external_symbols);
@@ -839,7 +839,7 @@
 # < sym: Symbol
 # < ergebnis: 0, wenn nicht gefunden, sondern neu erzeugt
 #             1, wenn als externes Symbol vorhanden
-#             2, wenn vererbt über use-list
+#             2, wenn vererbt Ã¼ber use-list
 #             3, wenn als internes Symbol vorhanden
 # can trigger GC
   global uintBWL intern (object string, object pack, object* sym_);
@@ -855,10 +855,10 @@
       }
       pushSTACK(pack); # Package retten
       string = coerce_imm_ss(string); # String in immutablen Simple-String umwandeln
-      var object sym = make_symbol(string); # (make-symbol string) ausführen
+      var object sym = make_symbol(string); # (make-symbol string) ausfÃ¼hren
       pack = popSTACK();
       # dieses neue Symbol in die Package eintragen:
-      set_break_sem_2(); # Vor Unterbrechungen schützen
+      set_break_sem_2(); # Vor Unterbrechungen schÃ¼tzen
       Symbol_package(sym) = pack; # Home-Package eintragen
       pushSTACK(sym); # Symbol retten
       make_present(sym,pack); # und in diese internieren
@@ -882,7 +882,7 @@
     }
 
 # UP: Importiert ein Symbol in eine Package und macht es zum Shadowing-Symbol.
-# Eventuell wird dazu ein anderes in dieser Package präsentes Symbol
+# Eventuell wird dazu ein anderes in dieser Package prÃ¤sentes Symbol
 # desselben Namens uninterniert.
 # shadowing_import(&sym,&pack);
 # > sym: Symbol (im STACK)
@@ -895,7 +895,7 @@
     var const object* sym_;
     var const object* pack_;
     {
-      set_break_sem_2(); # Vor Unterbrechungen schützen
+      set_break_sem_2(); # Vor Unterbrechungen schÃ¼tzen
       {
         var object sym = *sym_;
         var object pack = *pack_;
@@ -907,7 +907,7 @@
         if ( (i_found = symtab_lookup(string,ThePackage(pack)->pack_internal_symbols,&othersym))
              || (symtab_lookup(string,ThePackage(pack)->pack_external_symbols,&othersym))
            ) {
-          # ein Symbol othersym desselben Namens war schon präsent in der Package
+          # ein Symbol othersym desselben Namens war schon prÃ¤sent in der Package
           if (!eq(othersym,sym)) { # war es das zu importierende Symbol selbst?
             # Nein -> muss othersym aus den internen bzw. aus den externen
             # Symbolen herausnehmen:
@@ -929,12 +929,12 @@
       }
       # Symbol muss in die Shadowing-Liste der Package aufgenommen werden.
       shadowing_delete(popSTACK(),*pack_); # String aus der Shadowing-Liste herausnehmen
-      shadowing_insert(&(*sym_),&(*pack_)); # Symbol dafür in die Shadowing-Liste aufnehmen
+      shadowing_insert(&(*sym_),&(*pack_)); # Symbol dafÃ¼r in die Shadowing-Liste aufnehmen
       clr_break_sem_2(); # Unterbrechungen wieder zulassen
     }
 
-# UP: Überdeckt in einer Package alle aus anderen Packages accessiblen
-# Symbole gegebenen Namens durch ein in dieser Package präsentes Symbol
+# UP: Ãœberdeckt in einer Package alle aus anderen Packages accessiblen
+# Symbole gegebenen Namens durch ein in dieser Package prÃ¤sentes Symbol
 # desselben Namens.
 # shadow(&sym,&pack)
 #ifdef X3J13_161
@@ -950,7 +950,7 @@
     var const object* sym_;
     var const object* pack_;
     {
-      set_break_sem_2(); # Vor Unterbrechungen schützen
+      set_break_sem_2(); # Vor Unterbrechungen schÃ¼tzen
       # Suche ein internes oder ein externes Symbol gleichen Namens:
       var object string = # Nur der Name des Symbols interessiert.
         #ifdef X3J13_161
@@ -959,7 +959,7 @@
         Symbol_name(*sym_);
         #endif
       var object pack = *pack_;
-      pushSTACK(NIL); # Platz für othersym machen
+      pushSTACK(NIL); # Platz fÃ¼r othersym machen
       pushSTACK(string); # String retten
       if (!(symtab_lookup(string,ThePackage(pack)->pack_internal_symbols,&STACK_1)
             || symtab_lookup(string,ThePackage(pack)->pack_external_symbols,&STACK_1)
@@ -971,22 +971,22 @@
         Symbol_package(STACK_1) = *pack_; # Home-Package des neuen Symbols sei pack
       }
       # Stackaufbau: othersym, string
-      # In der Package ist nun das Symbol othersym desselben Namens präsent.
+      # In der Package ist nun das Symbol othersym desselben Namens prÃ¤sent.
       shadowing_delete(popSTACK(),*pack_); # String aus der Shadowing-Liste herausnehmen
-      shadowing_insert(&STACK_0,&(*pack_)); # othersym dafür in die Shadowing-Liste aufnehmen
+      shadowing_insert(&STACK_0,&(*pack_)); # othersym dafÃ¼r in die Shadowing-Liste aufnehmen
       skipSTACK(1); # othersym vergessen
       clr_break_sem_2(); # Unterbrechungen wieder zulassen
     }
 
-# UP: Entfernt ein Symbol aus der Menge der präsenten Symbole einer Package
-# und sorgt für Konfliktauflösung für den Fall, dass es in der Shadowing-List
+# UP: Entfernt ein Symbol aus der Menge der prÃ¤senten Symbole einer Package
+# und sorgt fÃ¼r KonfliktauflÃ¶sung fÃ¼r den Fall, dass es in der Shadowing-List
 # dieser Package war und deswegen ein Namenskonflikt entsteht.
 # unintern(&sym,&pack)
 # > sym: Symbol (im STACK)
 # > pack: Package (im STACK)
 # < sym: Symbol, EQ zum alten
 # < pack: Package, EQ zur alten
-# < ergebnis: T wenn gefunden und gelöscht, NIL falls nichts getan.
+# < ergebnis: T wenn gefunden und gelÃ¶scht, NIL falls nichts getan.
 # can trigger GC
   local object unintern (const object* sym_, const object* pack_);
   local object unintern(sym_,pack_)
@@ -1002,9 +1002,9 @@
          ) {
         # Symbol sym in der Tabelle symtab gefunden
         if (shadowing_find(sym,pack)) { # in der Shadowing-Liste suchen
-          # möglicher Konflikt -> Auswahlliste aufbauen:
+          # mÃ¶glicher Konflikt -> Auswahlliste aufbauen:
           pushSTACK(symtab); # Symboltabelle retten
-          pushSTACK(NIL); # Möglichkeitenliste anfangen
+          pushSTACK(NIL); # MÃ¶glichkeitenliste anfangen
           pushSTACK(ThePackage(pack)->pack_use_list); # Use-List durchgehen
           # Stackaufbau: Symboltabelle, ML, Use-List-Rest
           while (mconsp(STACK_0)) {
@@ -1032,7 +1032,7 @@
               temp = allocate_cons(); Cdr(temp) = popSTACK(); Car(temp) = popSTACK();
               # temp = (list Packagename Gesamtstring othersym)
               # STACK stimmt wieder
-              # auf die Möglichkeitenliste pushen:
+              # auf die MÃ¶glichkeitenliste pushen:
               pushSTACK(temp);
               temp = allocate_cons();
               Car(temp) = popSTACK(); Cdr(temp) = STACK_1;
@@ -1040,12 +1040,12 @@
             }
           }
           skipSTACK(1);
-          # Möglichkeitenliste fertig aufgebaut.
+          # MÃ¶glichkeitenliste fertig aufgebaut.
           # Stackaufbau: Symboltabelle, ML
           # Falls (length ML) >= 2, liegt ein Konflikt vor:
           if (mconsp(STACK_0) && mconsp(Cdr(STACK_0))) {
-            # Continuable Error auslösen:
-            pushSTACK(OLS(unint_string2)); # "Sie dürfen auswählen..."
+            # Continuable Error auslÃ¶sen:
+            pushSTACK(OLS(unint_string2)); # "Sie dÃ¼rfen auswÃ¤hlen..."
             pushSTACK(S(package_error)); # PACKAGE-ERROR
             pushSTACK(S(Kpackage)); # :PACKAGE
             pushSTACK(*pack_); # Package
@@ -1075,7 +1075,7 @@
           {
             var object auswahl = popSTACK(); # Auswahl
             if (!nullp(auswahl)) {
-              # im Konfliktfalle: angewähltes Symbol importieren:
+              # im Konfliktfalle: angewÃ¤hltes Symbol importieren:
               pushSTACK(Car(Cdr(Cdr(auswahl))));
               shadowing_import(&STACK_0,&(*pack_));
               skipSTACK(1);
@@ -1087,7 +1087,7 @@
         } else {
           # kein Konflikt
           set_break_sem_2();
-          symtab_delete(sym,symtab); # Symbol löschen
+          symtab_delete(sym,symtab); # Symbol lÃ¶schen
           if (eq(Symbol_package(sym),pack))
             Symbol_package(sym) = NIL; # evtl. Home-Package auf NIL setzen
           clr_break_sem_2();
@@ -1099,9 +1099,9 @@
       }
     }
 
-# UP: Importiert ein Symbol in eine Package und sorgt für Konfliktauflösung
-# für den Fall, dass ein Namenskonflikt entweder mit einem aus einer anderen
-# Package vererbten Symbol oder mit einem bereits in dieser Package präsenten
+# UP: Importiert ein Symbol in eine Package und sorgt fÃ¼r KonfliktauflÃ¶sung
+# fÃ¼r den Fall, dass ein Namenskonflikt entweder mit einem aus einer anderen
+# Package vererbten Symbol oder mit einem bereits in dieser Package prÃ¤senten
 # Symbol desselben Namens entsteht.
 # import(&sym,&pack);
 # > sym: Symbol (im STACK)
@@ -1126,9 +1126,9 @@
         if (eq(othersym,sym))
           # dasselbe Symbol -> nichts tun
           return;
-        # nicht dasselbe Symbol war präsent -> muss othersym rauswerfen und
-        # dafür das gegebene Symbol sym reinsetzen.
-        # Zuvor feststellen, ob zusätzlich noch vererbte Symbole da sind,
+        # nicht dasselbe Symbol war prÃ¤sent -> muss othersym rauswerfen und
+        # dafÃ¼r das gegebene Symbol sym reinsetzen.
+        # Zuvor feststellen, ob zusÃ¤tzlich noch vererbte Symbole da sind,
         # und dann Continuable Error melden.
         pushSTACK(string);
         pushSTACK(othersym);
@@ -1149,7 +1149,7 @@
         }
         # Stackaufbau: Symbol-Name, othersym, othersymtab.
         # Continuable Error melden:
-          pushSTACK(OLS(import_string1)); # "Sie dürfen über das weitere Vorgehen entscheiden."
+          pushSTACK(OLS(import_string1)); # "Sie dÃ¼rfen Ã¼ber das weitere Vorgehen entscheiden."
           pushSTACK(S(package_error)); # PACKAGE-ERROR
           pushSTACK(S(Kpackage)); # :PACKAGE
           pushSTACK(*pack_); # Package
@@ -1163,10 +1163,10 @@
           funcall(L(cerror_of_type),8); # (SYS::CERROR-OF-TYPE String1 'PACKAGE-ERROR :PACKAGE pack String2/3 sym pack othersym)
         # Antwort vom Benutzer erfragen:
         {
-          var object ml = # Möglichkeitenliste (("I" ... T) ("N" ... NIL))
+          var object ml = # MÃ¶glichkeitenliste (("I" ... T) ("N" ... NIL))
             (!inheritedp ? OL(import_list1) : OL(import_list2));
           var object antwort = query_user(ml);
-          if (nullp(Car(Cdr(Cdr(antwort))))) { # NIL-Möglichkeit angewählt?
+          if (nullp(Car(Cdr(Cdr(antwort))))) { # NIL-MÃ¶glichkeit angewÃ¤hlt?
             skipSTACK(3); return; # ja -> nicht importieren, fertig
           }
         }
@@ -1180,7 +1180,7 @@
           if (eq(Symbol_package(othersym),pack))
             Symbol_package(othersym) = NIL; # evtl. Home-Package := NIL
         }
-        # sym in pack einfügen:
+        # sym in pack einfÃ¼gen:
         make_present(*sym_,pack);
         # Symbole gleichen Namens aus der Shadowing-List von pack entfernen:
         shadowing_delete(STACK_2,*pack_);
@@ -1190,9 +1190,9 @@
         clr_break_sem_2();
         skipSTACK(3); return;
       } else {
-        # Kein Symbol desselben Namens war präsent.
+        # Kein Symbol desselben Namens war prÃ¤sent.
         # Suche ein Symbol desselben Namens, das vererbt ist (es gibt
-        # nach den Konsistenzregeln 6 und 5 höchstens ein solches):
+        # nach den Konsistenzregeln 6 und 5 hÃ¶chstens ein solches):
         var object otherusedsym;
         {
           var object packlistr = ThePackage(pack)->pack_use_list; # Use-List wird abgesucht
@@ -1212,7 +1212,7 @@
         if (eq(otherusedsym,sym))
           goto import_sym; # ja -> importieren
         # nein -> Continuable Error melden und Benutzer fragen:
-          pushSTACK(NIL); # "Sie dürfen über das weitere Vorgehen entscheiden."
+          pushSTACK(NIL); # "Sie dÃ¼rfen Ã¼ber das weitere Vorgehen entscheiden."
           pushSTACK(S(package_error)); # PACKAGE-ERROR
           pushSTACK(S(Kpackage)); # :PACKAGE
           pushSTACK(pack); # Package
@@ -1225,18 +1225,18 @@
           funcall(L(cerror_of_type),8); # (SYS::CERROR-OF-TYPE String1 'PACKAGE-ERROR :PACKAGE pack String2 sym pack otherusedsym)
         {
           var object antwort = query_user(OL(import_list3));
-          if (nullp(Car(Cdr(Cdr(antwort))))) # NIL-Möglichkeit angewählt?
+          if (nullp(Car(Cdr(Cdr(antwort))))) # NIL-MÃ¶glichkeit angewÃ¤hlt?
             return; # ja -> nicht importieren, fertig
         }
         # Importieren:
         set_break_sem_2();
-        # sym in pack einfügen:
+        # sym in pack einfÃ¼gen:
         make_present(*sym_,*pack_);
         # sym in pack zum Shadowing-Symbol machen:
         shadowing_insert(&(*sym_),&(*pack_));
         clr_break_sem_2(); return;
        import_sym:
-        # sym einfach in pack einfügen:
+        # sym einfach in pack einfÃ¼gen:
         set_break_sem_2();
         make_present(sym,pack);
         clr_break_sem_2(); return;
@@ -1244,7 +1244,7 @@
     }
 
 # UP: Setzt ein Symbol vom externen auf den internen Status in einer Package
-# zurück.
+# zurÃ¼ck.
 # unexport(&sym,&pack);
 # > sym: Symbol (im STACK)
 # > pack: Package (im STACK)
@@ -1261,7 +1261,7 @@
       if (symtab_find(sym,symtab=ThePackage(pack)->pack_external_symbols)) {
         # sym ist in pack extern
         if (eq(pack,O(keyword_package))) { # auf Keyword-Package testen
-          pushSTACK(pack); # Wert für Slot PACKAGE von PACKAGE-ERROR
+          pushSTACK(pack); # Wert fÃ¼r Slot PACKAGE von PACKAGE-ERROR
           pushSTACK(pack);
           fehler(package_error,
                  GETTEXT("UNEXPORT in ~ is illegal")
@@ -1269,10 +1269,10 @@
         }
         set_break_sem_2();
         symtab_delete(sym,symtab); # sym aus den externen Symbolen entfernen
-        symtab_insert(sym,ThePackage(pack)->pack_internal_symbols); # dafür in die internen Symbole einfügen
+        symtab_insert(sym,ThePackage(pack)->pack_internal_symbols); # dafÃ¼r in die internen Symbole einfÃ¼gen
         clr_break_sem_2();
       } else {
-        # Suchen, ob das Symbol überhaupt accessible ist.
+        # Suchen, ob das Symbol Ã¼berhaupt accessible ist.
         # Suche unter den internen Symbolen:
         if (symtab_find(sym,ThePackage(pack)->pack_internal_symbols))
           goto found;
@@ -1286,7 +1286,7 @@
           }
         }
         # nicht gefunden unter den accessiblen Symbolen
-        pushSTACK(pack); # Wert für Slot PACKAGE von PACKAGE-ERROR
+        pushSTACK(pack); # Wert fÃ¼r Slot PACKAGE von PACKAGE-ERROR
         pushSTACK(pack); pushSTACK(sym);
         fehler(package_error,
                GETTEXT("UNEXPORT works only on accessible symbols, not on ~ in ~")
@@ -1296,10 +1296,10 @@
       }
     }
 
-# UP: Setzt ein präsentes Symbol auf externen Status.
+# UP: Setzt ein prÃ¤sentes Symbol auf externen Status.
 # make_external(sym,pack);
 # > sym: Symbol
-# > pack: Package, in der das Symbol präsent ist
+# > pack: Package, in der das Symbol prÃ¤sent ist
 # can trigger GC
   local void make_external (object sym, object pack);
   local void make_external(sym,pack)
@@ -1310,7 +1310,7 @@
         return; # Symbol bereits extern -> nichts zu tun
       set_break_sem_2();
       symtab_delete(sym,ThePackage(pack)->pack_internal_symbols); # sym aus den internen Symbolen entfernen
-      symtab_insert(sym,ThePackage(pack)->pack_external_symbols); # dafür in die externen Symbole einfügen
+      symtab_insert(sym,ThePackage(pack)->pack_external_symbols); # dafÃ¼r in die externen Symbole einfÃ¼gen
       clr_break_sem_2();
     }
 
@@ -1335,7 +1335,7 @@
       # import_it = Flag, ob Symbol erst noch importiert werden muss.
       # sym unter den internen Symbolen von pack suchen:
       if (!(symtab_find(sym,ThePackage(pack)->pack_internal_symbols))) {
-        # Symbol sym ist nicht präsent in Package pack
+        # Symbol sym ist nicht prÃ¤sent in Package pack
         import_it = TRUE;
         # Suche, ob es wenigstens accessible ist:
         {
@@ -1348,20 +1348,20 @@
         }
         # Symbol sym ist nicht einmal accessible in der Package pack
         # Continuable Error melden:
-          pushSTACK(NIL); # "Sie dürfen über das weitere Vorgehen entscheiden."
+          pushSTACK(NIL); # "Sie dÃ¼rfen Ã¼ber das weitere Vorgehen entscheiden."
           pushSTACK(S(package_error)); # PACKAGE-ERROR
           pushSTACK(S(Kpackage)); # :PACKAGE
           pushSTACK(pack); # Package
-          pushSTACK(NIL); # "Symbol ~S müsste erst in ~S importiert werden, bevor es exportiert werden kann."
+          pushSTACK(NIL); # "Symbol ~S mÃ¼sste erst in ~S importiert werden, bevor es exportiert werden kann."
           pushSTACK(sym); # Symbol
           pushSTACK(pack); # Package
           STACK_6 = OLS(export_string1);
           STACK_2 = OLS(export_string2);
-          funcall(L(cerror_of_type),7); # (SYS::CERROR-OF-TYPE "Sie dürfen aussuchen, ..." 'PACKAGE-ERROR :PACKAGE Package "..." Symbol Package)
+          funcall(L(cerror_of_type),7); # (SYS::CERROR-OF-TYPE "Sie dÃ¼rfen aussuchen, ..." 'PACKAGE-ERROR :PACKAGE Package "..." Symbol Package)
         # beim Benutzer nachfragen:
         {
           var object antwort = query_user(OL(export_list1));
-          if (nullp(Car(Cdr(Cdr(antwort))))) # NIL-Möglichkeit angewählt?
+          if (nullp(Car(Cdr(Cdr(antwort))))) # NIL-MÃ¶glichkeit angewÃ¤hlt?
             return; # ja -> nicht exportieren, fertig
         }
        found: ;
@@ -1383,7 +1383,7 @@
             # Stackaufbau: Conflict-Resolver, Used-by-list-Rest,
             #              anderes Symbol, USEnde Package.
             # Continuable Error melden:
-              pushSTACK(NIL); # "Sie dürfen aussuchen, welches Symbol Vorrang hat."
+              pushSTACK(NIL); # "Sie dÃ¼rfen aussuchen, welches Symbol Vorrang hat."
               pushSTACK(S(package_error)); # PACKAGE-ERROR
               pushSTACK(S(Kpackage)); # :PACKAGE
               pushSTACK(*pack_); # Package
@@ -1404,7 +1404,7 @@
               pushSTACK(STACK_2); # usingpack
               funcall(S(format),3); # (FORMAT stream "..." usingpack)
             }
-            # Möglichkeitenliste konstruieren:
+            # MÃ¶glichkeitenliste konstruieren:
             {
               var object temp;
                pushSTACK(O(export_string6)); # "1"
@@ -1432,11 +1432,11 @@
               {
                 var object antwort = query_user(temp);
                 var object solvingsym =
-                    (!nullp(Car(Cdr(Cdr(antwort)))) # NIL-Möglichkeit angewählt?
+                    (!nullp(Car(Cdr(Cdr(antwort)))) # NIL-MÃ¶glichkeit angewÃ¤hlt?
                      ? *sym_ # nein -> sym
                      : STACK_1 # ja -> othersym
                     );
-                pushSTACK(solvingsym); # ausgewähltes Symbol
+                pushSTACK(solvingsym); # ausgewÃ¤hltes Symbol
               }
             # Conflict-Resolver um (solvingsym . usingpack) erweitern:
               temp = allocate_cons();
@@ -1460,12 +1460,12 @@
         # sym in pack importieren:
         import(&(*sym_),&(*pack_));
         # Dieses Importieren kann durch einen CERROR abgebrochen werden.
-        # Ein Abbruch an dieser Stelle ist ungefährlich, denn bis jetzt
-        # ist das Symbol nur intern in der Package (außer falls es sich
+        # Ein Abbruch an dieser Stelle ist ungefÃ¤hrlich, denn bis jetzt
+        # ist das Symbol nur intern in der Package (auÃŸer falls es sich
         # um das KEYWORD-Package handelt, das nicht geUSEd werden kann).
       }
-      set_break_sem_3(); # gegen Unterbrechungen schützen
-      # Nun die Konflikte auflösen:
+      set_break_sem_3(); # gegen Unterbrechungen schÃ¼tzen
+      # Nun die Konflikte auflÃ¶sen:
       while (mconsp(STACK_0)) {
         var object cons_sym_pack = Car(STACK_0);
         STACK_0 = Cdr(STACK_0);
@@ -1493,7 +1493,7 @@
     {
       pushSTACK(fun); # Funktion
       pushSTACK(Symtab_table(symtab)); # Tabellenvektor
-      var uintL size = posfixnum_to_L(Symtab_size(symtab)); # Anzahl der Einträge
+      var uintL size = posfixnum_to_L(Symtab_size(symtab)); # Anzahl der EintrÃ¤ge
       var object* offset = 0; # offset = sizeof(object)*index
       var uintC count;
       dotimespC(count,size, {
@@ -1523,8 +1523,8 @@
 # (Diese Funktion darf im Extremfall das Symbol mittels symtab_delete
 # aus der Tabelle herausnehmen.)
 # map_symtab_c(fun,data,symtab);
-# > fun: Funktion mit zwei Argumenten, darf GC auslösen
-# > data: erstes Argument für die Funktion
+# > fun: Funktion mit zwei Argumenten, darf GC auslÃ¶sen
+# > data: erstes Argument fÃ¼r die Funktion
 # > symtab: Symboltabelle
 # can trigger GC
   typedef void one_sym_function (void* data, object sym);
@@ -1535,7 +1535,7 @@
     var object symtab;
     {
       pushSTACK(Symtab_table(symtab)); # Tabellenvektor
-      var uintL size = posfixnum_to_L(Symtab_size(symtab)); # Anzahl der Einträge
+      var uintL size = posfixnum_to_L(Symtab_size(symtab)); # Anzahl der EintrÃ¤ge
       var object* offset = 0; # offset = sizeof(object)*index
       var uintC count;
       dotimespC(count,size, {
@@ -1566,7 +1566,7 @@
 # use_package(packlist,pack);
 # > packlist: Liste von Packages, die zu USEn sind
 # > pack: Package
-# Die Liste packlist wird dabei zerstört!
+# Die Liste packlist wird dabei zerstÃ¶rt!
 # can trigger GC
   local void use_package (object packlist, object pack);
   local one_sym_function use_package_aux;
@@ -1580,14 +1580,14 @@
         while (consp(packlist1)) {
           var object to_delete = Car(packlist1);
           # Entferne to_delete destruktiv aus (cdr packlist1) :
-          var object packlist2 = packlist1; # läuft ab packlist1
+          var object packlist2 = packlist1; # lÃ¤uft ab packlist1
           var object packlist3; # stets = (cdr packlist2)
           while (consp(packlist3=Cdr(packlist2))) {
             if (eq(Car(packlist3),to_delete)) {
               # streiche (car packlist3) destruktiv aus der Liste:
               Cdr(packlist2) = Cdr(packlist3);
             } else {
-              # weiterrücken:
+              # weiterrÃ¼cken:
               packlist2 = packlist3;
             }
           }
@@ -1599,7 +1599,7 @@
       {
         var object* packlistr_ = &packlist;
         var object packlistr = *packlistr_;
-        # packlistr läuft durch packlist, packlistr = *packlistr_
+        # packlistr lÃ¤uft durch packlist, packlistr = *packlistr_
         while (consp(packlistr)) {
           # Teste, ob (car packlistr) gestrichen werden muss:
           var object pack_to_test = Car(packlistr);
@@ -1614,7 +1614,7 @@
             }
           }
           if (TRUE) {
-            # nichts streichen, weiterrücken:
+            # nichts streichen, weiterrÃ¼cken:
             packlistr_ = &Cdr(packlistr); packlistr = *packlistr_;
           } else {
             # streiche (car packlistr) :
@@ -1627,9 +1627,9 @@
       # Dabei ist ein Konflikt eine mindestens zweielementige Liste
       # von Symbolen gleichen Printnamens, zusammen mit der Package,
       # aus der dieses Symbol genommen wird:
-      # ((pack1 . sym1) ...) bedeutet, dass bei Ausführung des USE-PACKAGE
+      # ((pack1 . sym1) ...) bedeutet, dass bei AusfÃ¼hrung des USE-PACKAGE
       # die Symbole sym1,... (aus pack1 etc.) sich um die Sichtbarkeit in
-      # Package pack streiten würden.
+      # Package pack streiten wÃ¼rden.
       # Die Konfliktliste ist die Liste aller auftretenden Konflikte.
       {
         pushSTACK(pack); # Package pack retten
@@ -1656,16 +1656,16 @@
             STACK_0 = Cdr(STACK_0);
             pushSTACK(conflict); # Konflikt durchgehen
             {
-              var object counter = Fixnum_0; # Zähler := 0
+              var object counter = Fixnum_0; # ZÃ¤hler := 0
               while (mconsp(STACK_0)) {
-                counter = fixnum_inc(counter,1); # Zähler um 1 erhöhen
-                pushSTACK(counter); funcall(L(prin1_to_string),1); # (prin1-to-string Zähler)
-                pushSTACK(value1); # Zählerstring retten
+                counter = fixnum_inc(counter,1); # ZÃ¤hler um 1 erhÃ¶hen
+                pushSTACK(counter); funcall(L(prin1_to_string),1); # (prin1-to-string ZÃ¤hler)
+                pushSTACK(value1); # ZÃ¤hlerstring retten
                 var object new_cons = allocate_cons(); # neues Cons
-                Car(new_cons) = popSTACK(); # Zählerstring als CAR
+                Car(new_cons) = popSTACK(); # ZÃ¤hlerstring als CAR
                 var object old_cons = Car(STACK_0); # Cons der Form (pack . sym)
                 Car(old_cons) = ThePackage(Car(old_cons))->pack_name; # pack durch seinen Namen ersetzen
-                Cdr(new_cons) = old_cons; Car(STACK_0) = new_cons; # Zählerstring-Cons einfügen
+                Cdr(new_cons) = old_cons; Car(STACK_0) = new_cons; # ZÃ¤hlerstring-Cons einfÃ¼gen
                 STACK_0 = Cdr(STACK_0);
               }
             }
@@ -1677,9 +1677,9 @@
         pushSTACK(NIL); # Conflict-Resolver := NIL
         # Stackaufbau: pack, packlist, conflicts, conflict-resolver.
         # Konflikte durch Benutzerfragen behandeln:
-        if (!nullp(STACK_1)) { # nur bei conflicts/=NIL nötig
+        if (!nullp(STACK_1)) { # nur bei conflicts/=NIL nÃ¶tig
           # Continuable Error melden:
-            pushSTACK(OLS(usepack_string1)); # "Sie dürfen bei jedem Konflikt ..."
+            pushSTACK(OLS(usepack_string1)); # "Sie dÃ¼rfen bei jedem Konflikt ..."
             pushSTACK(S(package_error)); # PACKAGE-ERROR
             pushSTACK(S(Kpackage)); # :PACKAGE
             pushSTACK(STACK_6); # pack
@@ -1703,7 +1703,7 @@
                 funcall(S(format),4); # (FORMAT stream "..." sym1 pack)
               }
               # Beim Benutzer nachfragen,
-              # mit conflict als Möglichkeitenliste:
+              # mit conflict als MÃ¶glichkeitenliste:
               {
                 var object antwort = query_user(popSTACK());
                 # Davon das Symbol nehmen und in den conflict-resolver stecken:
@@ -1715,13 +1715,13 @@
                 Cdr(new_cons) = STACK_1; # conflict-resolver
                 STACK_1 = new_cons; # conflict-resolver := (cons sym conflict-resolver)
               }
-              STACK_0 = Cdr(STACK_0); # restliche Konfliktliste verkürzen
+              STACK_0 = Cdr(STACK_0); # restliche Konfliktliste verkÃ¼rzen
             }
             skipSTACK(1);
           }
         }
         # Stackaufbau: pack, packlist, conflicts, conflict-resolver.
-        # Konflikte auflösen:
+        # Konflikte auflÃ¶sen:
         {
           set_break_sem_3();
           # conflict-resolver durchgehen:
@@ -1762,7 +1762,7 @@
       }
     }
 
-# Hilfsfunktion für use_package:
+# Hilfsfunktion fÃ¼r use_package:
 # Teste das Argument (ein externes Symbol aus einer der Packages aus
 # packlist), ob es einen Konflikt erzeugt. Wenn ja, erweitere conflicts.
 # can trigger GC
@@ -1776,14 +1776,14 @@ local void use_package_aux(data,sym)
     #   *(localptr STACKop 2) = pack,
     #   *(localptr STACKop 1) = packlist,
     #   *(localptr STACKop 0) = conflicts.
-    var object string = Symbol_name(sym); # Printname des übergebenen Symbols
+    var object string = Symbol_name(sym); # Printname des Ã¼bergebenen Symbols
     # Gibt es einen Konflikt zwischen den Symbolen mit Printname = string ?
     # Bisherige Konfliktliste (((pack1 . sym1) ...) ...) durchgehen:
     {
       var object conflictsr = *(localptr STACKop 0);
       while (consp(conflictsr)) {
         # Konflikt schon behandelt?
-        # (car conflictsr) = nächster Konflikt,
+        # (car conflictsr) = nÃ¤chster Konflikt,
         # (car (car conflictsr)) = dessen erstes Cons,
         # (cdr (car (car conflictsr))) = darin das Symbol,
         # ist dessen Printname = string ?
@@ -1857,21 +1857,21 @@ local void use_package_aux(data,sym)
           var object to_delete = Cdr(Car(conflict1));
           # Entferne alle Elemente mit CDR=to_delete
           # destruktiv aus (cdr conflict1) :
-          var object conflict2 = conflict1; # läuft ab conflict1
+          var object conflict2 = conflict1; # lÃ¤uft ab conflict1
           var object conflict3; # stets = (cdr conflict2)
           while (consp(conflict3=Cdr(conflict2))) {
             if (eq(Cdr(Car(conflict3)),to_delete)) {
               # streiche (car conflict3) destruktiv aus der Liste:
               Cdr(conflict2) = Cdr(conflict3);
             } else {
-              # weiterrücken:
+              # weiterrÃ¼cken:
               conflict2 = conflict3;
             }
           }
           conflict1 = Cdr(conflict1);
         }
       }
-      # Falls conflict eine Länge >=2 hat, wird es zu conflicts geconst:
+      # Falls conflict eine LÃ¤nge >=2 hat, wird es zu conflicts geconst:
       if (consp(conflict) && mconsp(Cdr(conflict))) {
         pushSTACK(conflict);
         var object new_cons = allocate_cons();
@@ -1938,9 +1938,9 @@ local void use_package_aux(data,sym)
         return pack;
       } else {
         var object newpack =
-          Symbol_value(S(packagestern)) = O(default_package); # *PACKAGE* zurücksetzen
-        pushSTACK(pack); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(S(package)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          Symbol_value(S(packagestern)) = O(default_package); # *PACKAGE* zurÃ¼cksetzen
+        pushSTACK(pack); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(S(package)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(newpack); pushSTACK(pack);
         fehler(type_error,
                GETTEXT("The value of *PACKAGE* was not a package. Old value ~. New value ~.")
@@ -1948,9 +1948,9 @@ local void use_package_aux(data,sym)
       }
     }
 
-# UP: Überprüft ein Package-Argument.
+# UP: ÃœberprÃ¼ft ein Package-Argument.
 # Testet, ob es eine Package oder ein Packagename ist, und liefert es als
-# Package zurück. Sonst Fehlermeldung.
+# Package zurÃ¼ck. Sonst Fehlermeldung.
 # test_package_arg(obj)
 # > obj: Argument
 # > subr_self: Aufrufer (ein SUBR)
@@ -1962,7 +1962,7 @@ local void use_package_aux(data,sym)
       if (packagep(obj)) { # Package -> meist OK
         if (!pack_deletedp(obj))
           return obj;
-        pushSTACK(obj); # Wert für Slot PACKAGE von PACKAGE-ERROR
+        pushSTACK(obj); # Wert fÃ¼r Slot PACKAGE von PACKAGE-ERROR
         pushSTACK(obj);
         fehler(package_error,
                GETTEXT("Package ~ has been deleted.")
@@ -1973,7 +1973,7 @@ local void use_package_aux(data,sym)
         var object pack = find_package(obj);
         if (!nullp(pack))
           return pack;
-        pushSTACK(obj); # Wert für Slot PACKAGE von PACKAGE-ERROR
+        pushSTACK(obj); # Wert fÃ¼r Slot PACKAGE von PACKAGE-ERROR
         pushSTACK(obj);
         fehler(package_error,
                GETTEXT("There is no package with name ~")
@@ -1982,8 +1982,8 @@ local void use_package_aux(data,sym)
       if (symbolp(obj)) { # Symbol ->
         obj = Symbol_name(obj); goto string; # Printnamen verwenden
       }
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_packname)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_packname)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument should be a package or a package name, not ~")
@@ -1994,8 +1994,8 @@ LISPFUNN(make_symbol,1) # (MAKE-SYMBOL printname), CLTL S. 168
   {
     var object arg = popSTACK();
     if (!stringp(arg)) {
-      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(arg); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(S(string)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument should be a string, not ~")
@@ -2005,7 +2005,7 @@ LISPFUNN(make_symbol,1) # (MAKE-SYMBOL printname), CLTL S. 168
     value1 = make_symbol(coerce_imm_ss(arg)); mv_count=1;
   }
 
-# UP: Überprüft ein String/Symbol-Argument
+# UP: ÃœberprÃ¼ft ein String/Symbol-Argument
 # > obj: Argument
 # > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: Argument als String
@@ -2013,12 +2013,12 @@ LISPFUNN(make_symbol,1) # (MAKE-SYMBOL printname), CLTL S. 168
   local object test_stringsym_arg(obj)
     var object obj;
     {
-      if (stringp(obj)) # String: unverändert zurück
+      if (stringp(obj)) # String: unverÃ¤ndert zurÃ¼ck
         return obj;
       if (symbolp(obj)) # Symbol: Printnamen verwenden
         return TheSymbol(obj)->pname;
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_stringsym)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_stringsym)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ should be a string or a symbol")
@@ -2062,7 +2062,7 @@ LISPFUNN(package_nicknames,1) # (PACKAGE-NICKNAMES package), CLTL S. 184
     mv_count=1;
   }
 
-# UP: Überprüft name und nicknames - Argumente von RENAME-PACKAGE und MAKE-PACKAGE.
+# UP: ÃœberprÃ¼ft name und nicknames - Argumente von RENAME-PACKAGE und MAKE-PACKAGE.
 # Testet, ob STACK_3 ein Name ist, und macht daraus einen immutablen Simple-String.
 # Testet, ob STACK_2 ein Name oder eine Liste von Namen ist, und macht
 # daraus eine neue Liste von immutablen Simple-Strings.
@@ -2071,7 +2071,7 @@ LISPFUNN(package_nicknames,1) # (PACKAGE-NICKNAMES package), CLTL S. 184
   local void test_names_args (void);
   local void test_names_args()
     {
-      # name auf String prüfen und zu einem Simple-String machen:
+      # name auf String prÃ¼fen und zu einem Simple-String machen:
       STACK_3 = coerce_imm_ss(test_stringsym_arg(STACK_3));
       # Nickname-Argument in eine Liste umwandeln:
       {
@@ -2087,13 +2087,13 @@ LISPFUNN(package_nicknames,1) # (PACKAGE-NICKNAMES package), CLTL S. 184
           }
         }
       }
-      # Nickname(s) auf String prüfen, zu Simple-Strings machen
+      # Nickname(s) auf String prÃ¼fen, zu Simple-Strings machen
       # und daraus eine neue Nicknameliste machen:
       {
         pushSTACK(NIL); # neue Nicknameliste := NIL
         while (mconsp(STACK_3)) {
           {
-            var object nickname = Car(STACK_3); # nächster Nickname
+            var object nickname = Car(STACK_3); # nÃ¤chster Nickname
             STACK_3 = Cdr(STACK_3);
             nickname = coerce_imm_ss(test_stringsym_arg(nickname)); # als Simple-String
             # vor die neue Nicknameliste consen:
@@ -2114,7 +2114,7 @@ LISPFUN(rename_package,2,1,norest,nokey,0,NIL)
   {
     # Testen, ob pack eine Package ist:
     STACK_2 = test_package_arg(STACK_2);
-    # name und nicknames überprüfen:
+    # name und nicknames Ã¼berprÃ¼fen:
     pushSTACK(NIL); pushSTACK(NIL); # Dummies auf den Stack
     test_names_args();
     skipSTACK(2);
@@ -2123,12 +2123,12 @@ LISPFUN(rename_package,2,1,norest,nokey,0,NIL)
     {
       var object name = STACK_1;
       var object nicknamelistr = STACK_0;
-      # name durchläuft den Namen und alle Nicknames
+      # name durchlÃ¤uft den Namen und alle Nicknames
       loop {
         var object found = find_package(name); # Suche Package mit diesem Namen
         if (!(nullp(found) || eq(found,pack))) {
           # gefunden, aber eine andere als die gegebene Package:
-          pushSTACK(pack); # Wert für Slot PACKAGE von PACKAGE-ERROR
+          pushSTACK(pack); # Wert fÃ¼r Slot PACKAGE von PACKAGE-ERROR
           pushSTACK(name); pushSTACK(TheSubr(subr_self)->name);
           fehler(package_error,
                  GETTEXT("~: there is already a package named ~")
@@ -2138,8 +2138,8 @@ LISPFUN(rename_package,2,1,norest,nokey,0,NIL)
         # kein Konflikt mit diesem (Nick)name, weiter:
         if (atomp(nicknamelistr))
           break;
-        name = Car(nicknamelistr); # nächster Nickname
-        nicknamelistr = Cdr(nicknamelistr); # restliche Nicknameliste verkürzen
+        name = Car(nicknamelistr); # nÃ¤chster Nickname
+        nicknamelistr = Cdr(nicknamelistr); # restliche Nicknameliste verkÃ¼rzen
       }
     }
     # Es gibt keine Konflikte.
@@ -2179,7 +2179,7 @@ LISPFUNN(list_all_packages,0)
     mv_count=1;
   }
 
-# UP: Überprüft das letzte Argument &optional (pack *package*) einer
+# UP: ÃœberprÃ¼ft das letzte Argument &optional (pack *package*) einer
 # LISP-Funktion.
 # test_optional_package_arg()
 # > STACK_0: letztes Argument
@@ -2196,16 +2196,16 @@ LISPFUNN(list_all_packages,0)
       }
     }
 
-# UP: Überprüfung der Argumente von INTERN und FIND-SYMBOL.
+# UP: ÃœberprÃ¼fung der Argumente von INTERN und FIND-SYMBOL.
 # test_intern_args()
 # > subr_self: Aufrufer (ein SUBR)
   local void test_intern_args (void);
   local void test_intern_args()
     {
-      # String überprüfen:
+      # String Ã¼berprÃ¼fen:
       if (!stringp(STACK_1))
         fehler_string(STACK_1);
-      # Package überprüfen:
+      # Package Ã¼berprÃ¼fen:
       test_optional_package_arg();
     }
 
@@ -2229,7 +2229,7 @@ LISPFUNN(list_all_packages,0)
 LISPFUN(intern,1,1,norest,nokey,0,NIL)
 # (INTERN string [package]), CLTL S. 184
   {
-    test_intern_args(); # Argumente überprüfen
+    test_intern_args(); # Argumente Ã¼berprÃ¼fen
     var object pack = popSTACK();
     var object string = popSTACK();
     #if !defined(VALUE1_EXTRA)
@@ -2245,7 +2245,7 @@ LISPFUN(intern,1,1,norest,nokey,0,NIL)
 LISPFUN(find_symbol,1,1,norest,nokey,0,NIL)
 # (FIND-SYMBOL string [package]), CLTL S. 185
   {
-    test_intern_args(); # Argumente überprüfen
+    test_intern_args(); # Argumente Ã¼berprÃ¼fen
     var object pack = popSTACK();
     var object string = popSTACK();
     #if !defined(VALUE1_EXTRA)
@@ -2261,41 +2261,41 @@ LISPFUN(find_symbol,1,1,norest,nokey,0,NIL)
 LISPFUN(unintern,1,1,norest,nokey,0,NIL)
 # (UNINTERN symbol [package]), CLTL S. 185
   {
-    # Symbol überprüfen:
+    # Symbol Ã¼berprÃ¼fen:
     if (!symbolp(STACK_1)) {
-      pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(symbol)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_1); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(S(symbol)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(STACK_(1+2)); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ is not a symbol")
             );
     }
-    # Package überprüfen:
+    # Package Ã¼berprÃ¼fen:
     test_optional_package_arg();
     # uninternieren:
     value1 = unintern(&STACK_1,&STACK_0); mv_count=1;
     skipSTACK(2);
   }
 
-# Ausführer einer Funktion wie EXPORT, UNEXPORT, IMPORT, SHADOWING-IMPORT
-# oder SHADOW. Überprüft, ob das erste Argument eine Symbolliste ist, ob
+# AusfÃ¼hrer einer Funktion wie EXPORT, UNEXPORT, IMPORT, SHADOWING-IMPORT
+# oder SHADOW. ÃœberprÃ¼ft, ob das erste Argument eine Symbolliste ist, ob
 # das zweite Argument (Default: *PACKAGE*) eine Package ist, und wendet das
-# Unterprogramm auf jedes der Symbole an. Rücksprung mit 1 Wert T.
+# Unterprogramm auf jedes der Symbole an. RÃ¼cksprung mit 1 Wert T.
 # apply_symbols(&fun);
 # Spezifikation des Unterprogrammes fun:
 #   fun(&sym,&pack);
 #   > sym: Symbol (im STACK)
 #   > pack: Package (im STACK)
 #   < pack: Package, EQ zur alten
-#   kann GC auslösen
-# < STACK: aufgeräumt
+#   kann GC auslÃ¶sen
+# < STACK: aufgerÃ¤umt
 # can trigger GC
   typedef void sym_pack_function (const object* sym_, const object* pack_);
   local Values apply_symbols (sym_pack_function* fun);
   local Values apply_symbols(fun)
     var sym_pack_function* fun;
     {
-      # Überprüfe, ob das erste Argument eine Symbolliste oder ein Symbol ist:
+      # ÃœberprÃ¼fe, ob das erste Argument eine Symbolliste oder ein Symbol ist:
       {
         var object symarg = STACK_1;
         # auf Symbol testen:
@@ -2306,7 +2306,7 @@ LISPFUN(unintern,1,1,norest,nokey,0,NIL)
           goto ok;
         #endif
         # auf Symbolliste testen:
-        while (consp(symarg)) { # symarg durchläuft STACK_1
+        while (consp(symarg)) { # symarg durchlÃ¤uft STACK_1
           if (!(symbolp(Car(symarg))
                 #ifdef X3J13_161
                 || ((fun == &shadow) && stringp(Car(symarg)))
@@ -2325,7 +2325,7 @@ LISPFUN(unintern,1,1,norest,nokey,0,NIL)
               );
        ok: ;
       }
-      # Package überprüfen:
+      # Package Ã¼berprÃ¼fen:
       test_optional_package_arg();
       # Stackaufbau: symarg, pack.
       # fun auf alle Symbole anwenden:
@@ -2382,15 +2382,15 @@ LISPFUN(shadow,1,1,norest,nokey,0,NIL)
 
 # UP: Vorbereitung der Argumente bei USE-PACKAGE und UNUSE-PACKAGE.
 # Das 1. Argument STACK_1 wird zu einer (neu erzeugten) Liste von Packages
-# gemacht, das 2. Argument STACK_0 wird überprüft.
+# gemacht, das 2. Argument STACK_0 wird Ã¼berprÃ¼ft.
 # > subr_self: Aufrufer (ein SUBR)
 # can trigger GC
   local void prepare_use_package (void);
   local void prepare_use_package()
     {
-      # 2. Argument (Package) überprüfen:
+      # 2. Argument (Package) Ã¼berprÃ¼fen:
       test_optional_package_arg();
-      # 1. Argument (Package oder Packageliste) überprüfen:
+      # 1. Argument (Package oder Packageliste) Ã¼berprÃ¼fen:
       {
         var object packs_to_use = STACK_1;
         if (!listp(packs_to_use)) {
@@ -2405,7 +2405,7 @@ LISPFUN(shadow,1,1,norest,nokey,0,NIL)
           while (mconsp(STACK_2)) {
             var object packlistr = STACK_2;
             STACK_2 = Cdr(packlistr);
-            pushSTACK(test_package_arg(Car(packlistr))); # nächste Package
+            pushSTACK(test_package_arg(Car(packlistr))); # nÃ¤chste Package
             var object new_cons = allocate_cons();
             Car(new_cons) = popSTACK();
             Cdr(new_cons) = STACK_0;
@@ -2438,8 +2438,8 @@ LISPFUN(unuse_package,1,1,norest,nokey,0,NIL)
   }
 
 # UP: Korrigiert einen Package(nick)name.
-# > name: Gewünschter Packagename (Simple-String)
-# > STACK_1: "Sie dürfen einen neuen (Nick)Name eingeben."
+# > name: GewÃ¼nschter Packagename (Simple-String)
+# > STACK_1: "Sie dÃ¼rfen einen neuen (Nick)Name eingeben."
 # > STACK_0: "Bitte neuen Package(nick)name eingeben:"
 # < ergebnis: Noch nicht vorkommender Packagename
 # can trigger GC
@@ -2449,14 +2449,14 @@ LISPFUN(unuse_package,1,1,norest,nokey,0,NIL)
     {
       while (!nullp(find_package(name))) {
         # Package mit diesem Namen existiert schon
-          pushSTACK(STACK_1); # "Sie dürfen ... eingeben."
+          pushSTACK(STACK_1); # "Sie dÃ¼rfen ... eingeben."
           pushSTACK(S(package_error)); # PACKAGE-ERROR
           pushSTACK(S(Kpackage)); # :PACKAGE
           pushSTACK(name); # Package-Name
           pushSTACK(NIL); # "Eine Package mit dem Namen ~S gibt es schon."
           pushSTACK(name);
           STACK_1 = OLS(makepack_string3);
-          funcall(L(cerror_of_type),6); # (SYS::CERROR-OF-TYPE "Sie dürfen ..." 'PACKAGE-ERROR :PACKAGE name "Package ~S existiert" name)
+          funcall(L(cerror_of_type),6); # (SYS::CERROR-OF-TYPE "Sie dÃ¼rfen ..." 'PACKAGE-ERROR :PACKAGE name "Package ~S existiert" name)
         {
           var object stream = var_stream(S(query_io),strmflags_rd_ch_B|strmflags_wr_ch_B); # Stream *QUERY-IO*
           pushSTACK(stream);
@@ -2469,33 +2469,33 @@ LISPFUN(unuse_package,1,1,norest,nokey,0,NIL)
       return coerce_imm_ss(name);
     }
 
-# UP für MAKE-PACKAGE und IN-PACKAGE:
+# UP fÃ¼r MAKE-PACKAGE und IN-PACKAGE:
 # Bildet eine neue Package und liefert sie als Wert.
 # > STACK_3: name-Argument
 # > STACK_2: nicknames-Argument
 # > STACK_1: uselist-Argument
 # > STACK_0: case-sensitive-Argument
 # > subr_self: Aufrufer (ein SUBR)
-# erhöht STACK um 4
+# erhÃ¶ht STACK um 4
 # can trigger GC
   local void in_make_package (void);
   local void in_make_package()
     {
       # name in Simple-String und nicknames in neue Simple-String-Liste umwandeln:
       test_names_args();
-      # name überprüfen und evtl. korrigieren:
+      # name Ã¼berprÃ¼fen und evtl. korrigieren:
       {
-        pushSTACK(OLS(makepack_string1)); # "Sie dürfen einen neuen Namen eingeben."
+        pushSTACK(OLS(makepack_string1)); # "Sie dÃ¼rfen einen neuen Namen eingeben."
         pushSTACK(OLS(makepack_string4)); # "Bitte neuen Packagenamen eingeben:"
         STACK_(3+2) = correct_packname(STACK_(3+2));
         skipSTACK(2);
       }
-      # nicknames überprüfen und evtl. korrigieren:
+      # nicknames Ã¼berprÃ¼fen und evtl. korrigieren:
       {
         pushSTACK(STACK_2); # nicknames durchgehen
         while (mconsp(STACK_0)) {
           var object nickname;
-          pushSTACK(OLS(makepack_string2)); # "Sie dürfen einen neuen Nickname eingeben."
+          pushSTACK(OLS(makepack_string2)); # "Sie dÃ¼rfen einen neuen Nickname eingeben."
           pushSTACK(OLS(makepack_string5)); # "Bitte neuen Packagenickname eingeben:"
           nickname = Car(STACK_2); # nickname herausgreifen
           nickname = correct_packname(nickname); # korrigieren
@@ -2512,10 +2512,10 @@ LISPFUN(unuse_package,1,1,norest,nokey,0,NIL)
                                      );
         STACK_3 = pack; # und retten
         # Stackaufbau: pack, nicknames, uselist-Argument, case-sensitive-Argument.
-        # Defaultwert für Use-Argument verwenden:
+        # Defaultwert fÃ¼r Use-Argument verwenden:
         if (eq(STACK_1,unbound))
           STACK_1 = O(use_default);
-        # (USE-PACKAGE UseList neuePackage) ausführen:
+        # (USE-PACKAGE UseList neuePackage) ausfÃ¼hren:
           pushSTACK(STACK_1); # UseList
           pushSTACK(pack); # neue Package
           funcall(L(use_package),2);
@@ -2538,7 +2538,7 @@ LISPFUN(pin_package,1,0,norest,key,3, (kw(nicknames),kw(use),kw(case_sensitive))
 # ist wie (IN-PACKAGE name [:NICKNAMES nicknames] [:USE uselist]), CLTL S. 183,
 # nur dass *PACKAGE* nicht modifiziert wird.
   {
-    # name überprüfen und in String umwandeln:
+    # name Ã¼berprÃ¼fen und in String umwandeln:
     var object name = test_stringsym_arg(STACK_3);
     STACK_3 = name;
     # Package mit diesem Namen suchen:
@@ -2550,10 +2550,10 @@ LISPFUN(pin_package,1,0,norest,key,3, (kw(nicknames),kw(use),kw(case_sensitive))
       # Package gefunden
       STACK_3 = pack; # pack retten
       # Stackaufbau: pack, nicknames, uselist, case-sensitive.
-      # Die Case-Sensitivity überprüfen:
+      # Die Case-Sensitivity Ã¼berprÃ¼fen:
       if (!eq(STACK_0,unbound)) {
         if (!(pack_casesensitivep(pack) == !nullp(STACK_0))) {
-          pushSTACK(pack); # Wert für Slot PACKAGE von PACKAGE-ERROR
+          pushSTACK(pack); # Wert fÃ¼r Slot PACKAGE von PACKAGE-ERROR
           pushSTACK(pack);
           fehler(package_error,
                  GETTEXT("Cannot change the case sensitiveness of ~.")
@@ -2571,17 +2571,17 @@ LISPFUN(pin_package,1,0,norest,key,3, (kw(nicknames),kw(use),kw(case_sensitive))
       # Die Use-List anpassen:
       if (!eq(STACK_1,unbound)) {
         # Use-List erweitern mit USE-PACKAGE
-        # und verkürzen mit UNUSE-PACKAGE:
-        STACK_0 = STACK_3; # pack als 2. Argument für USE-PACKAGE
-        prepare_use_package(); # Argumente STACK_1, STACK_0 überprüfen
+        # und verkÃ¼rzen mit UNUSE-PACKAGE:
+        STACK_0 = STACK_3; # pack als 2. Argument fÃ¼r USE-PACKAGE
+        prepare_use_package(); # Argumente STACK_1, STACK_0 Ã¼berprÃ¼fen
         # Stackaufbau: pack, nicknames, neue Use-List, pack.
-        # USE-PACKAGE ausführen (mit kopierter Use-List):
+        # USE-PACKAGE ausfÃ¼hren (mit kopierter Use-List):
         {
           var object temp = reverse(STACK_1);
           use_package(temp,STACK_3);
         }
         # Alle Packages, die jetzt noch in der Use-List von pack
-        # aufgeführt sind, aber nicht in der in STACK_1 befindlichen
+        # aufgefÃ¼hrt sind, aber nicht in der in STACK_1 befindlichen
         # uselist vorkommen, werden mit unuse_1package entfernt:
         pack = STACK_3;
         {
@@ -2625,13 +2625,13 @@ LISPFUNN(delete_package,1)
     var object pack = popSTACK();
     if (packagep(pack)) {
       if (pack_deletedp(pack)) {
-        value1 = NIL; mv_count=1; return; # schon gelöscht -> 1 Wert NIL
+        value1 = NIL; mv_count=1; return; # schon gelÃ¶scht -> 1 Wert NIL
       }
     } elif (stringp(pack)) {
      string: # String -> Package mit diesem Namen suchen:
       var object found = find_package(pack);
       if (nullp(found)) {
-        # Continuable Error auslösen:
+        # Continuable Error auslÃ¶sen:
         pushSTACK(NIL); # "Ignorieren."
         pushSTACK(S(package_error)); # PACKAGE-ERROR
         pushSTACK(S(Kpackage)); # :PACKAGE
@@ -2653,8 +2653,8 @@ LISPFUNN(delete_package,1)
     }
     pushSTACK(pack);
     if (!nullp(ThePackage(pack)->pack_used_by_list)) {
-      # Continuable Error auslösen:
-      pushSTACK(NIL); # "~*~S wird trotzdem gelöscht."
+      # Continuable Error auslÃ¶sen:
+      pushSTACK(NIL); # "~*~S wird trotzdem gelÃ¶scht."
       pushSTACK(S(package_error)); # PACKAGE-ERROR
       pushSTACK(S(Kpackage)); # :PACKAGE
       pushSTACK(pack); # Package
@@ -2667,19 +2667,19 @@ LISPFUNN(delete_package,1)
       funcall(L(cerror_of_type),8); # (SYS::CERROR-OF-TYPE "..." 'PACKAGE-ERROR :PACKAGE pack "..." 'DELETE-PACKAGE pack used-by-list)
     }
     pack = STACK_0;
-    # (DOLIST (p used-py-list) (UNUSE-PACKAGE pack p)) ausführen:
+    # (DOLIST (p used-py-list) (UNUSE-PACKAGE pack p)) ausfÃ¼hren:
     set_break_sem_3();
     while (mconsp(ThePackage(pack)->pack_used_by_list)) {
       unuse_1package(Car(ThePackage(pack)->pack_used_by_list),pack);
     }
     clr_break_sem_3();
-    # (UNUSE-PACKAGE (package-use-list pack) pack) ausführen:
+    # (UNUSE-PACKAGE (package-use-list pack) pack) ausfÃ¼hren:
     unuse_package(ThePackage(pack)->pack_use_list,pack);
-    # delete_package_aux auf die in pack präsenten Symbole anwenden:
+    # delete_package_aux auf die in pack prÃ¤senten Symbole anwenden:
     map_symtab_c(&delete_package_aux,&STACK_0,ThePackage(STACK_0)->pack_external_symbols);
     map_symtab_c(&delete_package_aux,&STACK_0,ThePackage(STACK_0)->pack_internal_symbols);
     pack = popSTACK();
-    # pack aus der Liste aller Packages herausnehmen und als gelöscht markieren:
+    # pack aus der Liste aller Packages herausnehmen und als gelÃ¶scht markieren:
     set_break_sem_2();
     O(all_packages) = deleteq(O(all_packages),pack);
     mark_pack_deleted(pack);
@@ -2687,8 +2687,8 @@ LISPFUNN(delete_package,1)
     value1 = T; mv_count=1; # 1 Wert T
   }
 
-# Hilfsfunktion für DELETE-PACKAGE:
-# Entferne das Argument (ein präsentes Symbol) aus pack.
+# Hilfsfunktion fÃ¼r DELETE-PACKAGE:
+# Entferne das Argument (ein prÃ¤sentes Symbol) aus pack.
 # can trigger GC
 local void delete_package_aux (void* data, object sym);
 local void delete_package_aux(data,sym)
@@ -2706,13 +2706,13 @@ LISPFUNN(find_all_symbols,1)
     pushSTACK(NIL); # (bisher leere) Symbolliste
     pushSTACK(O(all_packages)); # Liste aller Packages durchgehen
     while (mconsp(STACK_0)) {
-      var object pack = Car(STACK_0); # nächste Package
+      var object pack = Car(STACK_0); # nÃ¤chste Package
       # in deren internen und externen Symbolen suchen:
       var object sym;
       if (symtab_lookup(STACK_2,ThePackage(pack)->pack_internal_symbols,&sym)
           || symtab_lookup(STACK_2,ThePackage(pack)->pack_external_symbols,&sym)
          ) {
-        # gefunden: Symbol sym ist in Package pack präsent,
+        # gefunden: Symbol sym ist in Package pack prÃ¤sent,
         # mit (pushnew sym STACK_1 :test #'eq) auf die Symbolliste consen:
         # Suche, ob das gefundene Symbol sym in STACK_1 vorkommt:
         {
@@ -2745,7 +2745,7 @@ LISPFUNN(map_symbols,2)
 # (SYSTEM::MAP-SYMBOLS fun pack)
 # wendet die Funktion fun auf alle in pack accessiblen Symbole an. Wert NIL.
   {
-    # 2. Argument überprüfen:
+    # 2. Argument Ã¼berprÃ¼fen:
     STACK_0 = test_package_arg(STACK_0);
     # fun auf alle internen Symbole loslassen:
     map_symtab(STACK_1,ThePackage(STACK_0)->pack_internal_symbols);
@@ -2754,7 +2754,7 @@ LISPFUNN(map_symbols,2)
     # fun auf alle vererbten Symbole loslassen:
     pushSTACK(ThePackage(STACK_0)->pack_use_list); # Use-List durchgehen
     while (mconsp(STACK_0)) {
-      var object usedpack = Car(STACK_0); # nächste Package aus der Use-List
+      var object usedpack = Car(STACK_0); # nÃ¤chste Package aus der Use-List
       STACK_0 = Cdr(STACK_0);
       map_symtab_c(&map_symbols_aux,&STACK_1,ThePackage(usedpack)->pack_external_symbols);
     }
@@ -2762,7 +2762,7 @@ LISPFUNN(map_symbols,2)
     value1 = NIL; mv_count=1; # NIL als Wert
   }
 
-# Hilfsfunktion für map_symbols:
+# Hilfsfunktion fÃ¼r map_symbols:
 # Teste, ob das Argument nicht in der gegebenen Package verdeckt ist, und
 # wende dann die gegebene Funktion an.
 # can trigger GC
@@ -2792,7 +2792,7 @@ LISPFUNN(map_external_symbols,2)
 # (SYSTEM::MAP-EXTERNAL-SYMBOLS fun pack)
 # wendet die Funktion fun auf alle in pack externen Symbole an. Wert NIL.
   {
-    # 2. Argument überprüfen:
+    # 2. Argument Ã¼berprÃ¼fen:
     var object pack = test_package_arg(popSTACK());
     # fun auf alle externen Symbole loslassen:
     map_symtab(popSTACK(),ThePackage(pack)->pack_external_symbols);
@@ -2801,11 +2801,11 @@ LISPFUNN(map_external_symbols,2)
 
 LISPFUNN(map_all_symbols,1)
 # (SYSTEM::MAP-ALL-SYMBOLS fun)
-# wendet die Funktion fun auf alle in irgendeiner Package präsenten Symbole an.
+# wendet die Funktion fun auf alle in irgendeiner Package prÃ¤senten Symbole an.
   {
      pushSTACK(O(all_packages)); # Package-Liste durchgehen
     while (mconsp(STACK_0)) {
-      var object pack = Car(STACK_0); # nächste Package
+      var object pack = Car(STACK_0); # nÃ¤chste Package
       STACK_0 = Cdr(STACK_0);
       pushSTACK(pack); # retten
       # fun auf alle internen Symbole loslassen:
@@ -2818,26 +2818,26 @@ LISPFUNN(map_all_symbols,1)
     value1 = NIL; mv_count=1; # NIL als Wert
   }
 
-# Hilfsfunktionen für WITH-PACKAGE-ITERATOR, CLtL2 S. 275, und LOOP:
+# Hilfsfunktionen fÃ¼r WITH-PACKAGE-ITERATOR, CLtL2 S. 275, und LOOP:
 # (SYSTEM::PACKAGE-ITERATOR package flags) liefert einen internen Zustand
-# für das Iterieren durch die Package.
+# fÃ¼r das Iterieren durch die Package.
 # (SYSTEM::PACKAGE-ITERATE internal-state) iteriert durch eine Package um
-# eins weiter, verändert dabei internal-state und liefert: 3 Werte
-# T, symbol, accessibility des nächsten Symbols bzw. 1 Wert NIL am Schluss.
+# eins weiter, verÃ¤ndert dabei internal-state und liefert: 3 Werte
+# T, symbol, accessibility des nÃ¤chsten Symbols bzw. 1 Wert NIL am Schluss.
 
 LISPFUNN(package_iterator,2)
   {
-    STACK_1 = test_package_arg(STACK_1); # package-Argument überprüfen
+    STACK_1 = test_package_arg(STACK_1); # package-Argument Ã¼berprÃ¼fen
     # Ein interner Zustand besteht aus einem Vektor
     # #(entry index symtab inh-packages package flags)
     # wobei flags eine Teilliste von (:INTERNAL :EXTERNAL :INHERITED) ist,
-    #       package die ursprüngliche Package ist,
+    #       package die ursprÃ¼ngliche Package ist,
     #       inh-packages eine Teilliste von (package-use-list package) ist,
     #       symtab eine Symboltabelle oder NIL ist,
     #       index ein Index in symtab ist,
     #       entry der Rest eines Eintrags in symtab ist.
     var object state = allocate_vector(6);
-    # TheSvector(state)->data[2] = NIL; # unnötig
+    # TheSvector(state)->data[2] = NIL; # unnÃ¶tig
     TheSvector(state)->data[3] = ThePackage(STACK_1)->pack_use_list;
     TheSvector(state)->data[4] = STACK_1;
     TheSvector(state)->data[5] = STACK_0;
@@ -2888,13 +2888,13 @@ LISPFUNN(package_iterate,1)
               goto search2;
             }
           }
-          # entry = NIL geworden -> zum nächsten Index
+          # entry = NIL geworden -> zum nÃ¤chsten Index
           {
             var uintL index = posfixnum_to_L(TheSvector(state)->data[1]);
             if (index > 0) {
               TheSvector(state)->data[1] = fixnum_inc(TheSvector(state)->data[1],-1);
               index--;
-              entry = (index < posfixnum_to_L(Symtab_size(symtab)) # index sicherheitshalber überprüfen
+              entry = (index < posfixnum_to_L(Symtab_size(symtab)) # index sicherheitshalber Ã¼berprÃ¼fen
                        ? TheSvector(Symtab_table(symtab))->data[index]
                        : NIL
                       );
@@ -2902,18 +2902,18 @@ LISPFUNN(package_iterate,1)
             }
           }
         }
-        # index = 0 geworden -> zur nächsten Tabelle
+        # index = 0 geworden -> zur nÃ¤chsten Tabelle
         if (eq(Car(TheSvector(state)->data[5]),S(Kinherited))) {
          search4:
           if (mconsp(TheSvector(state)->data[3])) {
-            # zum nächsten Element der Liste inh-packages
+            # zum nÃ¤chsten Element der Liste inh-packages
             symtab = ThePackage(Car(TheSvector(state)->data[3]))->pack_external_symbols;
             TheSvector(state)->data[3] = Cdr(TheSvector(state)->data[3]);
             goto search1;
           }
         }
        search5:
-        # zum nächsten Element von flags
+        # zum nÃ¤chsten Element von flags
         TheSvector(state)->data[5] = Cdr(TheSvector(state)->data[5]);
       }
       var object flags = TheSvector(state)->data[5];
@@ -2929,7 +2929,7 @@ LISPFUNN(package_iterate,1)
         elif (eq(flag,S(Kinherited))) { # :INHERITED
           goto search4;
         }
-        goto search5; # unzulässiges Flag übergehen
+        goto search5; # unzulÃ¤ssiges Flag Ã¼bergehen
       }
     }
     value1 = NIL; mv_count=1; return; # 1 Wert NIL
@@ -2965,7 +2965,7 @@ LISPFUNN(package_iterate,1)
       # #<PACKAGE LISP> einrichten:
       O(default_package) = # und zur Default-Package machen
       make_package(popSTACK(),NIL,FALSE); # "LISP",()
-      # Alle weiteren Packages einrichten, ans Ende der Liste ALL_PACKAGES hängen:
+      # Alle weiteren Packages einrichten, ans Ende der Liste ALL_PACKAGES hÃ¤ngen:
       nreverse(O(all_packages));
       #define LISPPACK  LISPPACK_B
       #include "constpack.c"

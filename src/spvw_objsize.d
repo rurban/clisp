@@ -43,8 +43,8 @@
 
 #endif
 
-  # Varobject_aligned_size(HS,ES,C) liefert die Länge eines Objekts variabler
-  # Länge mit HS=Header-Size, ES=Element-Size, C=Element-Count.
+  # Varobject_aligned_size(HS,ES,C) liefert die LÃ¤nge eines Objekts variabler
+  # LÃ¤nge mit HS=Header-Size, ES=Element-Size, C=Element-Count.
   # Varobject_aligned_size(HS,ES,C) = round_up(HS+ES*C,varobject_alignment) .
     #define Varobject_aligned_size(HS,ES,C)  \
       ((ES % varobject_alignment) == 0               \
@@ -53,7 +53,7 @@
        : round_up((HS)+(ES)*(C),varobject_alignment) \
       )
 
-  # Länge eines Objekts, je nach Typ:
+  # LÃ¤nge eines Objekts, je nach Typ:
     #ifdef TYPECODES
     #define size_symbol()  # Symbol \
       round_up( sizeof(symbol_), varobject_alignment)
@@ -210,7 +210,7 @@
           # Das sind direkte Objekte, keine Pointer.
         #endif
         default:
-          # Das sind keine Objekte variabler Länge.
+          # Das sind keine Objekte variabler LÃ¤nge.
           /*NOTREACHED*/ abort();
       }
     }
@@ -219,7 +219,7 @@
 
 #endif # SPVW_MIXED
 
-  # spezielle Funktionen für jeden Typ:
+  # spezielle Funktionen fÃ¼r jeden Typ:
 
   inline local uintL objsize_iarray (addr) # nicht-simpler Array
     var void* addr;
@@ -367,7 +367,7 @@
           /* case_ratio: */
           /* case_complex: */
           default:
-            # Das sind keine Objekte variabler Länge.
+            # Das sind keine Objekte variabler LÃ¤nge.
             objsize_table[heapnr] = (objsize_func_t)&abort; break;
         }
       }

@@ -9,12 +9,12 @@
   # Methode:
   # x=0 -> y=0, fertig.
   # y := 2^k als Anfangswert, wobei k>0, k<=16 mit 2^(2k-2) <= x < 2^(2k) sei.
-  # y := floor((y + floor(x/y))/2) als nächster Wert,
+  # y := floor((y + floor(x/y))/2) als nÃ¤chster Wert,
   # solange z := floor(x/y) < y, setze y := floor((y+z)/2).
   # y ist fertig.
   # (Beweis:
   #  1. Die Folge der y ist streng monoton fallend.
-  #  2. Stets gilt y >= floor(sqrt(x)) (denn für alle y>0 ist
+  #  2. Stets gilt y >= floor(sqrt(x)) (denn fÃ¼r alle y>0 ist
   #     y + x/y >= 2*sqrt(x) und daher  floor((y + floor(x/y))/2) =
   #     floor(y/2 + x/(2*y)) >= floor(sqrt(x)) ).
   #  3. Am Schluss gilt x >= y^2.
@@ -41,7 +41,7 @@
            var uintWL y = (x >> (16+1)) | bit(16-1); # stets 2^(k-1) <= y < 2^k
            loop
              { var uintWL z;
-               if (x1 >= y) break; # Division x/y ergäbe Überlauf -> z > y
+               if (x1 >= y) break; # Division x/y ergÃ¤be Ãœberlauf -> z > y
                divu_3216_1616(x,y, z=,); # Dividiere x/y
                if (z >= y) break;
                y = floor(z+y,2);
@@ -61,12 +61,12 @@
   # Methode:
   # x=0 -> y=0, fertig.
   # y := 2^k als Anfangswert, wobei k>0, k<=32 mit 2^(2k-2) <= x < 2^(2k) sei.
-  # y := floor((y + floor(x/y))/2) als nächster Wert,
+  # y := floor((y + floor(x/y))/2) als nÃ¤chster Wert,
   # solange z := floor(x/y) < y, setze y := floor((y+z)/2).
   # y ist fertig.
   # (Beweis:
   #  1. Die Folge der y ist streng monoton fallend.
-  #  2. Stets gilt y >= floor(sqrt(x)) (denn für alle y>0 ist
+  #  2. Stets gilt y >= floor(sqrt(x)) (denn fÃ¼r alle y>0 ist
   #     y + x/y >= 2*sqrt(x) und daher  floor((y + floor(x/y))/2) =
   #     floor(y/2 + x/(2*y)) >= floor(sqrt(x)) ).
   #  3. Am Schluss gilt x >= y^2.
@@ -93,7 +93,7 @@
          { var uintL y = (x1 >> 1) | bit(32-1); # stets 2^(k-1) <= y < 2^k
            loop
              { var uintL z;
-               if (x1 >= y) break; # Division x/y ergäbe Überlauf -> z > y
+               if (x1 >= y) break; # Division x/y ergÃ¤be Ãœberlauf -> z > y
                divu_6432_3232(x1,x0,y, z=,); # Dividiere x/y
                if (z >= y) break;
                y = floor(z+y,2) | bit(32-1); # y muss >= 2^(k-1) bleiben
@@ -104,16 +104,16 @@
 #endif
 
 # Bildet zu einer Unsigned Digit sequence a die Wurzel
-# (genauer: Gaußklammer aus Wurzel aus a).
+# (genauer: GauÃŸklammer aus Wurzel aus a).
 # UDS_sqrt(a_MSDptr,a_len,a_LSDptr, &b, squarep=)
 # > a_MSDptr/a_len/a_LSDptr: eine UDS
-# < NUDS b: Gaußklammer der Wurzel aus a
+# < NUDS b: GauÃŸklammer der Wurzel aus a
 # < squarep: TRUE falls a = b^2, FALSE falls b^2 < a < (b+1)^2.
 # a wird nicht modifiziert.
 # Vorzeichenerweiterung von b ist erlaubt.
 # num_stack wird erniedrigt.
   #define UDS_sqrt(a_MSDptr,a_len,a_LSDptr,b_,squarep_zuweisung)  \
-    { # ceiling(a_len,2) Digits Platz fürs Ergebnis machen:     \
+    { # ceiling(a_len,2) Digits Platz fÃ¼rs Ergebnis machen:     \
       var uintC _a_len = (a_len);                               \
       num_stack_need_1(ceiling(_a_len,2),(b_)->MSDptr=,);       \
       squarep_zuweisung UDS_sqrt_(a_MSDptr,_a_len,a_LSDptr,b_); \
@@ -121,29 +121,29 @@
   local boolean UDS_sqrt_ (uintD* a_MSDptr, uintC a_len, uintD* a_LSDptr, DS* b_);
 # Methode:
 # erst A normalisieren. A=0 --> B=0, fertig.
-# Wähle n so, dass beta^(2n-2) <= A < beta^(2n).
-# Wähle s (0<=s<16) so, dass beta^(2n)/4 <= A*2^(2s) < beta^(2n).
+# WÃ¤hle n so, dass beta^(2n-2) <= A < beta^(2n).
+# WÃ¤hle s (0<=s<16) so, dass beta^(2n)/4 <= A*2^(2s) < beta^(2n).
 # Setze A:=A*2^(2s) und kopiere dabei A. Suche B=floor(sqrt(A)).
-# Mache Platz für B=[0,b[n-1],...,b[0]], (mit einem Nulldigit Platz davor,
+# Mache Platz fÃ¼r B=[0,b[n-1],...,b[0]], (mit einem Nulldigit Platz davor,
 # da dort nicht B, sondern 2*B abgespeichert werden wird).
-# Auf den Plätzen [a[2n-1],...,a[2n-2j]] wird die Differenz
+# Auf den PlÃ¤tzen [a[2n-1],...,a[2n-2j]] wird die Differenz
 # [a[2n-1],...,a[2n-2j]] - [b[n-1],...,b[n-j]] ^ 2 abgespeichert.
 # Bestimme b[n-1] = floor(sqrt(a[2n-1]*beta+a[2n-2])) mit Heron/Newton:
 #   {x:=beta als vorheriger Anfangswert, dann:}
 #   x := floor((beta+a[2n-1])/2)
 #   wiederhole: d:=floor((a[2n-1]*beta+a[2n-2])/x).
-#               Falls d<beta (kein Überlauf) und d<x,
+#               Falls d<beta (kein Ãœberlauf) und d<x,
 #                 setze x:=floor((x+d)/2), nochmals.
 #   b[n-1]:=x. In B um ein Bit nach links verschoben abspeichern.
 # {Wegen a[2n-1]>=beta/4 ist b[n-1]>=beta/2.}
 # Erniedrige [a[2n-1],a[2n-2]] um b[n-1]^2.
-# Für j=1,...,n:
+# FÃ¼r j=1,...,n:
 #   {Hier [b[n-1],...,b[n-j]] = floor(sqrt(altes [a[2n-1],...,a[2n-2j]])),
 #     in [a[2n-1],...,a[2n-2j]] steht jetzt der Rest
 #     [a[2n-1],...,a[2n-2j]] - [b[n-1],...,b[n-j]]^2, er ist >=0 und
-#     und <= 2 * [b[n-1],...,b[n-j]], belegt daher höchstens j Digits und 1 Bit.
+#     und <= 2 * [b[n-1],...,b[n-j]], belegt daher hÃ¶chstens j Digits und 1 Bit.
 #     Daher sind nur [a[2n-j],...,a[2n-2j]] von Belang.}
-#   Für j<n: Bestimme die nächste Ziffer:
+#   FÃ¼r j<n: Bestimme die nÃ¤chste Ziffer:
 #     b* := min(beta-1,floor([a[2n-j],...,a[2n-2j-1]]/(2*[b[n-1],...,b[n-j]]))).
 #     und [a[2n-j],...,a[2n-2j-1]] :=
 #         [a[2n-j],...,a[2n-2j-1]] - b* * 2 * [b[n-1],...,b[n-j]] (>= 0).
@@ -151,19 +151,19 @@
 #       b* := min(beta-1,floor([a[2n-j],a[2n-j-1],a[2n-j-2]]/(2*b[n-1]))),
 #       [a[2n-j],...,a[2n-2j-1]] wie angegeben erniedigen.
 #       Solange die Differenz <0 ist, setze b* := b* - 1 und
-#         erhöhe [a[2n-j],...,a[2n-2j-1]] um 2 * [b[n-1],...,b[n-j]].
+#         erhÃ¶he [a[2n-j],...,a[2n-2j-1]] um 2 * [b[n-1],...,b[n-j]].
 #     Erniedrige [a[2n-j],...,a[2n-2j-2]] um b* ^ 2.
 #     Tritt dabei ein negativer Carry auf,
 #       so setze b* := b* - 1,
 #          setze b[n-j-1] := b* (im Speicher um 1 Bit nach links verschoben),
-#          erhöhe [a[2n-j],...,a[2n-2j-2]] um 2*[b[n-1],...,b[n-j-1]]+1.
+#          erhÃ¶he [a[2n-j],...,a[2n-2j-2]] um 2*[b[n-1],...,b[n-j-1]]+1.
 #       Sonst setze b[n-j-1] := b* (im Speicher um 1 Bit nach links verschoben).
-#     Nächstes j.
-#   Für j=n:
+#     NÃ¤chstes j.
+#   FÃ¼r j=n:
 #     Falls [a[n],...,a[0]] = [0,...,0], ist die Wurzel exakt, sonst nicht.
 #     Ergebnis ist [b[n-1],...,b[0]] * 2^(-s), schiebe also im Speicher
 #       [b[n],...,b[0]] um s+1 Bits nach rechts.
-#     Das Ergebnis ist eine NUDS der Länge n.
+#     Das Ergebnis ist eine NUDS der LÃ¤nge n.
   local boolean UDS_sqrt_(a_MSDptr,a_len,a_LSDptr,b_)
     var uintD* a_MSDptr;
     var uintC a_len;
@@ -201,7 +201,7 @@
           { shiftleftcopy_loop_down(a_LSDptr,new_a_LSDptr,a_len,shiftcount); }
       }}
       # Nun ist A = a_MSDptr/2n/..
-      # Platz für B belegen:
+      # Platz fÃ¼r B belegen:
       { var uintD* b_MSDptr = &(b_->MSDptr)[-1]; # ab hier n+1 Digits Platz
         var uintD b_msd;
         # B = [0,b[n-1],...,b[0]] = b_MSDptr/n+1/..
@@ -216,14 +216,14 @@
           loop # Heron-Iterationsschleife
             { var uintD d;
               # Dividiere d := floor((a[2n-1]*beta+a[2n-2])/x) :
-              if (a_msd>=x) break; # Überlauf -> d>=beta -> fertig
+              if (a_msd>=x) break; # Ãœberlauf -> d>=beta -> fertig
               #if HAVE_DD
                 divuD(a_msdd,x, d=,);
               #else
                 divuD(a_msd,a_2msd,x, d=,);
               #endif
               if (d >= x) break; # d>=x -> fertig
-              # Nächste Iteration: x := floor((x+d)/2)
+              # NÃ¤chste Iteration: x := floor((x+d)/2)
               # (Da die Folge der x bekanntlich monoton fallend ist
               # und bei b[n-1] >= beta/2 endet, muss x >= beta/2 werden,
               # d.h. x+d>=beta.)
@@ -269,19 +269,19 @@
                 var uintDD a_123dd = highlowDD(a_2d,a_3d);
                 a_123dd = a_123dd>>1; if (!(a_1d==0)) { a_123dd |= bit(2*intDsize-1); }
                 if (highD(a_123dd) >= b_msd)
-                  { b_stern = bitm(intDsize)-1; } # bei Überlauf: beta-1
+                  { b_stern = bitm(intDsize)-1; } # bei Ãœberlauf: beta-1
                   else
                   { divuD(a_123dd,b_msd, b_stern=,); }
               #else
                 a_3d = a_3d>>1; if (!((a_2d & bit(0)) ==0)) { a_3d |= bit(intDsize-1); }
                 a_2d = a_2d>>1; if (!(a_1d==0)) { a_2d |= bit(intDsize-1); }
                 if (a_2d >= b_msd)
-                  { b_stern = bitm(intDsize)-1; } # bei Überlauf: beta-1
+                  { b_stern = bitm(intDsize)-1; } # bei Ãœberlauf: beta-1
                   else
                   { divuD(a_2d,a_3d,b_msd, b_stern=,); }
               #endif
             }
-            # b_stern = b* in der ersten Schätzung.
+            # b_stern = b* in der ersten SchÃ¤tzung.
             a_lptr++; # Pointer hinter a[2n-2j-1]
             # Subtraktion [a[2n-j],...,a[2n-2j-1]] -= b* * [b[n],b[n-1],...,b[n-j]] :
             { var uintD carry = mulusub_loop_down(b_stern,b_ptr,a_lptr,j+1);
@@ -289,15 +289,15 @@
                 { a_mptr[0] -= carry; }
                 else
                 { a_mptr[0] -= carry; # a[2n-j] wird <0
-                  # negativer Übertrag -> b* nach unten korrigieren:
+                  # negativer Ãœbertrag -> b* nach unten korrigieren:
                   loop
                     { b_stern = b_stern-1; # b* := b* - 1
-                      # erhöhe [a[2n-j],...,a[2n-2j-1]] um [b[n],...,b[n-j]]:
+                      # erhÃ¶he [a[2n-j],...,a[2n-2j-1]] um [b[n],...,b[n-j]]:
                       if (!(( addto_loop_down(b_ptr,a_lptr,j+1) ==0)))
-                        if ((a_mptr[0] += 1) ==0) # Übertrag zu a[2n-j]
+                        if ((a_mptr[0] += 1) ==0) # Ãœbertrag zu a[2n-j]
                           break; # macht a[2n-j] wieder >=0 -> Subtraktionsergebnis >=0
             }   }   }
-            # b_stern = b* in der zweiten Schätzung.
+            # b_stern = b* in der zweiten SchÃ¤tzung.
             a_mptr++; # Pointer auf a[2n-j-1]
             a_lptr++; # Pointer hinter a[2n-2j-2]
             # Ziehe b* ^ 2 von [a[2n-j],...,a[2n-2j-2]] ab:
@@ -337,8 +337,8 @@
                       #endif
                     #endif
                   #endif
-                # erhöhe [a[2n-j-1],...,a[2n-2j-2]] um [b[n],...,b[n-j],0] + 2 * b* + 1
-                if ((sintD)b_stern < 0) { b_ptr[-1] |= bit(0); } # höchstes Bit von b* in b[n-j] ablegen
+                # erhÃ¶he [a[2n-j-1],...,a[2n-2j-2]] um [b[n],...,b[n-j],0] + 2 * b* + 1
+                if ((sintD)b_stern < 0) { b_ptr[-1] |= bit(0); } # hÃ¶chstes Bit von b* in b[n-j] ablegen
                 b_ptr[0] = (uintD)(b_stern<<1)+1; # niedrige Bits von b* und eine 1 als b[n-j-1] ablegen
                 addto_loop_down(&b_ptr[1],a_lptr,j+2);
                 # (a[2n-j] wird nicht mehr gebraucht.)
@@ -348,7 +348,7 @@
               else
               b_stern_ok:
               { # b* als b[n-j-1] ablegen:
-                if ((sintD)b_stern < 0) { b_ptr[-1] |= bit(0); } # höchstes Bit von b* in b[n-j] ablegen
+                if ((sintD)b_stern < 0) { b_ptr[-1] |= bit(0); } # hÃ¶chstes Bit von b* in b[n-j] ablegen
                 b_ptr[0] = (uintD)(b_stern<<1); # niedrige Bits von b* als b[n-j-1] ablegen
                 b_ptr++;
               }
@@ -365,7 +365,7 @@
         b_->MSDptr = b_MSDptr; b_->len = n; b_->LSDptr = b_ptr;
         # Teste, ob alle a[n],...,a[0]=0 sind. Ja -> Wurzel exakt
         {var boolean result = (test_loop_up(a_mptr,n+1) ? FALSE : TRUE);
-         RESTORE_NUM_STACK # num_stack zurück
+         RESTORE_NUM_STACK # num_stack zurÃ¼ck
          return result;
     }}}}}
 
@@ -380,8 +380,8 @@
   local boolean I_isqrt_I(x)
     var object x;
     { if (R_minusp(x))
-        { pushSTACK(x); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        { pushSTACK(x); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_posinteger)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(x);
           pushSTACK(S(isqrt));
           fehler(type_error,
@@ -397,7 +397,7 @@
         var boolean squarep;
         UDS_sqrt(x_MSDptr,x_len,x_LSDptr, &y, squarep=); # Wurzel ziehen
         pushSTACK(NUDS_to_I(y.MSDptr,y.len)); # als Integer
-        RESTORE_NUM_STACK # num_stack zurück
+        RESTORE_NUM_STACK # num_stack zurÃ¼ck
         return squarep;
     } }}
 
@@ -423,7 +423,7 @@
         var boolean squarep;
         UDS_sqrt(x_MSDptr,x_len,x_LSDptr, &y, squarep=); # Wurzel ziehen
         {var object result = (squarep ? NUDS_to_I(y.MSDptr,y.len) : nullobj); # als Integer
-         RESTORE_NUM_STACK # num_stack zurück
+         RESTORE_NUM_STACK # num_stack zurÃ¼ck
          return result;
     } }}}
 
@@ -437,7 +437,7 @@
 # Methode:
 # Falls x=0 oder x=1: x = x^n -> JA, x als Ergebnis.
 # Hier also x>1. Suche ein Integer y > 1 mit x=y^n.
-# Falls n >= integer_length(x): NEIN. (Da y>=2, müsste x>=2^n gelten.)
+# Falls n >= integer_length(x): NEIN. (Da y>=2, mÃ¼sste x>=2^n gelten.)
 # Hier also n>0 klein.
 # Solange n gerade ist: x := (sqrt x), n := (/ n 2). x nicht ganz -> NEIN.
 # Hier also n>0 ungerade.
@@ -451,11 +451,11 @@
 #   (-1)^((n-1)*n/2) * Res(X^n-x,n*X^(n-1)) = +- n^n * x^(n-1), und diese ist
 #   nicht durch p=2 teilbar. Daher ist das Hensel-Lemma mit p=2 anwendbar.
 #   Verwende quadratisches Hensel-Lifting, bei linearem Hensel-Lifting der
-#   der Verwaltungsaufwand vergleichsweise größer ist und die schnelle
+#   der Verwaltungsaufwand vergleichsweise grÃ¶ÃŸer ist und die schnelle
 #   Multiplikation nicht zum Zuge kommt.
 #   Sei  y0 mod beta^k  mit  y0^n == x mod beta^k  bekannt. k=m -> fertig.
 #   Setze  y == y0 + beta^k*y1 mod beta^2k  an, wobei 2k := min(2*k,m).
-#   Dabei wird y1 mod beta^(2k-k) so gewählt, dass mod beta^2k
+#   Dabei wird y1 mod beta^(2k-k) so gewÃ¤hlt, dass mod beta^2k
 #   x == y^n == y0^n + n * y0^(n-1) * beta^k*y1. Dazu wird
 #   (x - y0^n) mod beta^2k errechnet, durch beta^k dividiert (die Division
 #   muss nach Voraussetzung an y0 aufgehen) und
@@ -515,7 +515,7 @@
           {var uintD x_lsd = x_LSDptr[-1]; # letztes Digit von x
            var uintD y_lsd; # n-te Wurzel von x_lsd mod 2^intDsize
            y_lsd = 1; # Wurzel mod 2^1
-           # Für k=1,2,4,...:
+           # FÃ¼r k=1,2,4,...:
            # y_lsd := y_lsd + 2^k * (x_lsd-y_lsd^n)/2^k / (n*y_lsd^(n-1))
            #        = y_lsd + (x_lsd-y_lsd^n) / (n*y_lsd^(n-1))
            doconsttimes(log2_intDsize, # log2(intDsize) Iterationen reichen aus
@@ -528,16 +528,16 @@
            y_lsd_ok:
            ASSERT(D_UL_expt_D(y_lsd,n)==x_lsd);
            # Nun ist y_lsd^n == x_lsd mod beta=2^intDsize.
-           { var uintL m = ceiling((uintL)x_len,n); # für y nötige Länge, >0, <=x_len
+           { var uintL m = ceiling((uintL)x_len,n); # fÃ¼r y nÃ¶tige LÃ¤nge, >0, <=x_len
              var uintD* y_LSDptr;
              {var uintD* z1_LSDptr;
               var uintD* z2_LSDptr;
               var uintD* z3_LSDptr;
-              num_stack_need_1(m, _EMA_,y_LSDptr=); # Platz für y
+              num_stack_need_1(m, _EMA_,y_LSDptr=); # Platz fÃ¼r y
               {var uintL need = 2*m+(32/intDsize-1); # >= max(2*m,m+32/intDsize)
-               num_stack_need(need, _EMA_,z1_LSDptr=); # Platz für Rechenregister 1
-               num_stack_need(need, _EMA_,z2_LSDptr=); # Platz für Rechenregister 2
-               num_stack_need(need, _EMA_,z3_LSDptr=); # Platz für Rechenregister 3
+               num_stack_need(need, _EMA_,z1_LSDptr=); # Platz fÃ¼r Rechenregister 1
+               num_stack_need(need, _EMA_,z2_LSDptr=); # Platz fÃ¼r Rechenregister 2
+               num_stack_need(need, _EMA_,z3_LSDptr=); # Platz fÃ¼r Rechenregister 3
               }
               begin_arith_call();
               {var uintL k = 1; # y ist bisher mod beta^k bekannt
@@ -545,7 +545,7 @@
                until (k==m)
                  { var uintL k2 = 2*k; if (k2>m) { k2=m; } # k2 = min(2*k,m) > k
                    # bisheriges y mod beta^k2 mit n-1 potenzieren:
-                   # Methode für z := y^(n-1) :
+                   # Methode fÃ¼r z := y^(n-1) :
                    #   zz:=y, e:=n-1.
                    #   Solange e gerade, setze zz:=zz*zz, e:=e/2.
                    #   z:=zz.
@@ -565,7 +565,7 @@
                       }
                       while ((e & bit(0)) ==0); # solange e gerade
                    z_LSDptr = zz_LSDptr; # z:=zz
-                   # (zz nicht kopieren; ab der nächsten Veränderung von zz wird
+                   # (zz nicht kopieren; ab der nÃ¤chsten VerÃ¤nderung von zz wird
                    # {zz_LSDptr,z_LSDptr,free_LSDptr} = {z1_LSDptr,z2_LSDptr,z3_LSDptr}
                    # gelten.)
                    until ((e = e>>1) == 0)
@@ -593,7 +593,7 @@
              }
              # y mit y^n == x mod beta^m ist gefunden.
              {var object y = UDS_to_I(&y_LSDptr[-(uintP)m],m); # y als Integer >=0
-              RESTORE_NUM_STACK # num_stack zurück
+              RESTORE_NUM_STACK # num_stack zurÃ¼ck
               pushSTACK(y);
        # Stackaufbau: x, y.
        # y^n (mit n ungerade) bilden:
@@ -613,9 +613,9 @@
           # Die ganze Rechnung war umsonst.
           { skipSTACK(2); return nullobj; }
        }
-       # y ist tatsächlich n-te Wurzel von x.
+       # y ist tatsÃ¤chlich n-te Wurzel von x.
        # Noch mit 2^oq multiplizieren:
-       if (oq==0) # kein Shift nötig?
+       if (oq==0) # kein Shift nÃ¶tig?
          { var object temp = STACK_0;
            skipSTACK(2); return temp;
          }

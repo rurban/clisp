@@ -2,16 +2,16 @@
 ;;;; Michael Stoll, 21. 10. 1988
 ;;;; Bruno Haible, 10.6.1989
 
-;;; Datenstrukturen für TYPEP:
+;;; Datenstrukturen fÃ¼r TYPEP:
 ;;; - Ein Type-Specifier-Symbol hat auf seiner Propertyliste unter dem
 ;;;   Indikator SYS::TYPE-SYMBOL eine Funktion von einem Argument, die
 ;;;   testet, ob ein Objekt vom richtigen Typ ist.
 ;;; - Ein Symbol, das eine Type-Specifier-Liste beginnen kann, hat auf seiner
 ;;;   Propertyliste unter dem Indikator SYS::TYPE-LIST eine Funktion von
-;;;   einem Argument für das zu testende Objekt und zusätzlichen Argumenten
-;;;   für die Listenelemente.
+;;;   einem Argument fÃ¼r das zu testende Objekt und zusÃ¤tzlichen Argumenten
+;;;   fÃ¼r die Listenelemente.
 ;;; - Ein Symbol, das als Typmacro definiert wurde, hat auf seiner Property-
-;;;   liste unter dem Indikator SYSTEM::DEFTYPE-EXPANDER den zugehörigen
+;;;   liste unter dem Indikator SYSTEM::DEFTYPE-EXPANDER den zugehÃ¶rigen
 ;;;   Expander: eine Funktion, die den zu expandierenden Type-Specifier (eine
 ;;;   mindestens einelementige Liste) als Argument bekommt.
 
@@ -19,7 +19,7 @@
 (export '(type-expand-1 type-expand))
 (in-package "SYSTEM")
 
-; vorläufig, solange bis clos.lisp geladen wird:
+; vorlÃ¤ufig, solange bis clos.lisp geladen wird:
 (unless (fboundp 'clos::built-in-class-p)
   (defun clos::built-in-class-p (object) (declare (ignore object)) nil)
   (defun clos::subclassp (class1 class2) (declare (ignore class1 class2)) nil)
@@ -567,7 +567,7 @@
 
 ;-------------------------------------------------------------------------------
 
-; Typtest ohne Gefahr einer Fehlermeldung. Für SIGNAL und HANDLER-BIND.
+; Typtest ohne Gefahr einer Fehlermeldung. FÃ¼r SIGNAL und HANDLER-BIND.
 (defun safe-typep (x y)
   (let ((*error-handler*
           #'(lambda (&rest error-args)
@@ -618,7 +618,7 @@
         (t y)
 ) )
 
-; Testet eine Liste von Werten auf Erfüllen eines Type-Specifiers. Für THE.
+; Testet eine Liste von Werten auf ErfÃ¼llen eines Type-Specifiers. FÃ¼r THE.
 (defun %the (values type)
   (macrolet ((near-typep (objform typform)
                ;; near-typep ist wie typep, nur dass das Objekt auch ein
@@ -891,16 +891,16 @@
     (when (equal type1 type2) (yes)) ; (subtypep type type) stimmt immer
                                      ; equal auf MEMBER und EQL verboten!!??
     (when (consp type1)
-      (cond ;; über SATISFIES-Typen kann man nichts aussagen
+      (cond ;; Ã¼ber SATISFIES-Typen kann man nichts aussagen
             ;((and (eq (first type1) 'SATISFIES) (eql (length type1) 2))
             ; (unknown)
             ;)
-            ;; MEMBER: alle Elemente müssen vom Typ type2 sein
+            ;; MEMBER: alle Elemente mÃ¼ssen vom Typ type2 sein
             ((eq (first type1) 'MEMBER)
              (dolist (x (rest type1) (yes))
                (unless (typep x type2) (return (no)))
             ))
-            ;; NOT: (subtypep `(NOT ,type1) `(NOT ,type2)) ist äquivalent
+            ;; NOT: (subtypep `(NOT ,type1) `(NOT ,type2)) ist Ã¤quivalent
             ;; zu (subtypep type2 type1), sonst ist Entscheidung schwierig
             ((and (eq (first type1) 'NOT) (eql (length type1) 2))
              (return-from subtypep
@@ -916,7 +916,7 @@
             )) )
     ) )
     (when (consp type2)
-      (cond ;; über SATISFIES-Typen kann man nichts aussagen
+      (cond ;; Ã¼ber SATISFIES-Typen kann man nichts aussagen
             ;((and (eq (first type2) 'SATISFIES) (eql (length type2) 2))
             ; (unknown)
             ;)
@@ -936,7 +936,7 @@
                (dolist (type (rest type2) (unknown))
                  (when (subtypep type1 type) (return (yes)))
                )
-               (setq type2 'NIL) ; wird später besser behandelt
+               (setq type2 'NIL) ; wird spÃ¤ter besser behandelt
             ))
     ) )
     (when (consp type1)
@@ -1041,8 +1041,8 @@
             (setq high1 (first high1))
             (if integer-flag1 (when (numberp high1) (decf high1)) (setq efh nil))
           )
-          ; efl gibt an, ob low1 zu type1 dazugehört.
-          ; efh gibt an, ob high1 zu type1 dazugehört.
+          ; efl gibt an, ob low1 zu type1 dazugehÃ¶rt.
+          ; efh gibt an, ob high1 zu type1 dazugehÃ¶rt.
           (cond ((and (numberp low1) (numberp high1)
                       (not (or (< low1 high1) (and (= low1 high1) efl efh)))
                  ) ; type1 leer?
@@ -1065,8 +1065,8 @@
                      )
                      (setq efh nil)
                    )
-                   ; efl gibt an, ob low1 zu type1 dazugehört und low2 zu type2 nicht dazugehört.
-                   ; efh gibt an, ob high1 zu type1 dazugehört und high2 zu type2 nicht dazugehört.
+                   ; efl gibt an, ob low1 zu type1 dazugehÃ¶rt und low2 zu type2 nicht dazugehÃ¶rt.
+                   ; efh gibt an, ob high1 zu type1 dazugehÃ¶rt und high2 zu type2 nicht dazugehÃ¶rt.
                    (values
                      (and (or (eq low2 '*)
                               (and (numberp low1)
@@ -1452,7 +1452,7 @@ SUBTYPEP so verbessern, dass
                 )
           (print (list a b))
 ) ) ) ) )
-möglichst wenig ausgibt.
+mÃ¶glichst wenig ausgibt.
 
 Henry Baker:
 (defun type-null (x)

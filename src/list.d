@@ -13,7 +13,7 @@
   global object copy_list(old_list)
     var object old_list;
     {
-      # Methode: (copy-list l) = (mapcar #'identity l), mapcar vorwärts
+      # Methode: (copy-list l) = (mapcar #'identity l), mapcar vorwÃ¤rts
       if (atomp(old_list))
         return old_list;
       else { # Liste mit mindestens einem Element
@@ -22,7 +22,7 @@
         #define old_list  STACK_0
         {
           var object new_list = allocate_cons();
-          lauf = old_list; # lauf läuft durch die alte Liste durch
+          lauf = old_list; # lauf lÃ¤uft durch die alte Liste durch
           #undef old_list
           Car(new_list) = Car(lauf);
           STACK_0 = new_list;
@@ -34,8 +34,8 @@
           # es kommt noch ein Cons
           pushSTACK(lauf); # lauf retten
           var object new_cons = allocate_cons(); # neues Cons allozieren
-          lauf = popSTACK(); # lauf zurück
-          Cdr(STACK_0) = new_cons; # und als CDR des LAST einhängen
+          lauf = popSTACK(); # lauf zurÃ¼ck
+          Cdr(STACK_0) = new_cons; # und als CDR des LAST einhÃ¤ngen
           Car(new_cons) = Car(lauf); # CAR kopieren
           STACK_0 = new_cons; # das ist nun das neue LAST
         }
@@ -55,14 +55,14 @@
     {
       pushSTACK(list); pushSTACK(NIL);
       loop {
-        # Hier ist für r=0,1,...,m
+        # Hier ist fÃ¼r r=0,1,...,m
           # STACK_0 = (xr ... x1), STACK_1 = list = (xr+1 ... xm)
         if atomp(list)
           break;
-        # Hier ist für r=1,...,m:
+        # Hier ist fÃ¼r r=1,...,m:
           # STACK_0 = (xr-1 ... x1), list = (xr ... xm)
         STACK_1 = Cdr(list);
-        # Hier ist für r=1,...,m:
+        # Hier ist fÃ¼r r=1,...,m:
           # STACK_0 = (xr-1 ... x1), STACK_1 = (xr+1 ... xm)
         pushSTACK(Car(list));
         {
@@ -76,7 +76,7 @@
       list = popSTACK(); skipSTACK(1); return(list);
     }
 #if 0
-# andere Möglichkeit:
+# andere MÃ¶glichkeit:
   global object reverse(list)
     var object list;
     {
@@ -93,10 +93,10 @@
     }
 #endif
 
-# UP: Bestimmt die Länge einer Liste
+# UP: Bestimmt die LÃ¤nge einer Liste
 # llength(obj)
 # > obj: Objekt
-# < uintL ergebnis: Länge von obj, als Liste aufgefasst
+# < uintL ergebnis: LÃ¤nge von obj, als Liste aufgefasst
 # Testet nicht auf zyklische Listen.
   global uintL llength (object obj);
   global uintL llength(list)
@@ -111,8 +111,8 @@
 
 # UP: Bildet eine Liste mit genau len Elementen
 # make_list(len)
-# > (STACK): Initialisierungswert für die Elemente
-# > uintL len: gewünschte Listenlänge
+# > (STACK): Initialisierungswert fÃ¼r die Elemente
+# > uintL len: gewÃ¼nschte ListenlÃ¤nge
 # < ergebnis: Liste mit D1.L Elementen
 # can trigger GC
   global object make_list (uintL len);
@@ -245,14 +245,14 @@
             Cdr(list1) = list2 = Cdr(list2);
           }
         else {
-          # Nichts streichen, weiterrücken:
+          # Nichts streichen, weiterrÃ¼cken:
           list1 = list2; list2 = Cdr(list2);
         }
       }
       return list;
     }
 
-# UP: Liefert (car obj), mit Typprüfung
+# UP: Liefert (car obj), mit TypprÃ¼fung
 # > subr_self: Aufrufer (ein SUBR)
   local object car (object obj);
   local object car(obj)
@@ -266,7 +266,7 @@
         fehler_list(obj);
     }
 
-# UP: Liefert (cdr obj), mit Typprüfung
+# UP: Liefert (cdr obj), mit TypprÃ¼fung
 # > subr_self: Aufrufer (ein SUBR)
   local object cdr (object obj);
   local object cdr(obj)
@@ -438,11 +438,11 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
     value1 = new_cons; mv_count=1;
   }
 
-# Unterprogramm zum Ausführen des Tests :TEST
+# Unterprogramm zum AusfÃ¼hren des Tests :TEST
 # up2_test(stackptr,arg1,arg2)
 # > *(stackptr+1): die Testfunktion
 # > arg1,arg2: Argumente
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: TRUE falls der Test erfÃ¼llt ist, FALSE sonst
 # can trigger GC
   local boolean up2_test (const object* stackptr, object arg1, object arg2);
   local boolean up2_test(stackptr,arg1,arg2)
@@ -457,11 +457,11 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
         return TRUE;
     }
 
-# Unterprogramm zum Ausführen des Tests :TEST-NOT
+# Unterprogramm zum AusfÃ¼hren des Tests :TEST-NOT
 # up2_test_not(stackptr,arg1,arg2)
 # > *(stackptr+0): die Testfunktion
 # > arg1,arg2: Argumente
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: TRUE falls der Test erfÃ¼llt ist, FALSE sonst
 # can trigger GC
   local boolean up2_test_not (const object* stackptr, object arg1, object arg2);
   local boolean up2_test_not(stackptr,arg1,arg2)
@@ -476,7 +476,7 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
         return FALSE;
     }
 
-# UP: Überprüft die :TEST, :TEST-NOT - Argumente
+# UP: ÃœberprÃ¼ft die :TEST, :TEST-NOT - Argumente
 # test_test2_args(stackptr)
 # > stackptr: Pointer in den STACK
 # > *(stackptr+1): :TEST-Argument
@@ -486,7 +486,7 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
 # < *(stackptr+0): verarbeitetes :TEST-NOT-Argument
 # < up2_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
 #       > stackptr: derselbe Pointer in den Stack, arg1, arg2: Argumente
-#       < TRUE, falls der Test erfüllt ist, FALSE sonst.
+#       < TRUE, falls der Test erfÃ¼llt ist, FALSE sonst.
   # up2_function sei der Typ der Adresse einer solchen Testfunktion:
   typedef boolean (*up2_function) (const object* stackptr, object arg1, object arg2);
   local up2_function test_test2_args (object* stackptr);
@@ -504,7 +504,7 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
       if (nullp(test_not_arg)) {
         # :TEST-NOT wurde nicht angegeben
         if (nullp(test_arg))
-          *(stackptr STACKop 1) = L(eql); # #'EQL als Default für :TEST
+          *(stackptr STACKop 1) = L(eql); # #'EQL als Default fÃ¼r :TEST
         return(&up2_test);
       } else {
         # :TEST-NOT wurde angegeben
@@ -515,9 +515,9 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
       }
     }
 
-# UP: Testet, ob zwei Bäume gleich sind.
+# UP: Testet, ob zwei BÃ¤ume gleich sind.
 # tree_equal(stackptr,up2_fun,arg1,arg2)
-# > arg1,arg2: Bäume
+# > arg1,arg2: BÃ¤ume
 # > stackptr: Pointer in den Stack
 # > A5: Adresse einer Testfunktion, die arg1 und arg2 vergleicht und dabei auf
 #       die :TEST/:TEST-NOT-Argumente in *(stackptr+1).L bzw.
@@ -558,7 +558,7 @@ LISPFUN(tree_equal,2,0,norest,key,2, (kw(test),kw(test_not)) )
   # (TREE-EQUAL x y :test :test-not), CLTL S. 264
   {
     var object* stackptr = &STACK_0;
-    var up2_function up2_fun = test_test2_args(stackptr); # :TEST/:TEST-NOT-Argumente überprüfen
+    var up2_function up2_fun = test_test2_args(stackptr); # :TEST/:TEST-NOT-Argumente Ã¼berprÃ¼fen
     value1 = tree_equal(stackptr,up2_fun,STACK_3,STACK_2) ? T : NIL;
     mv_count=1;
     skipSTACK(4);
@@ -619,15 +619,15 @@ LISPFUNN(list_length,1) # (LIST-LENGTH list), CLTL S. 265
     mv_count=1;
   }
 
-# Fehlermeldung für NTH und NTHCDR
+# Fehlermeldung fÃ¼r NTH und NTHCDR
 # fehler_nth()
 # > STACK_0: fehlerhafter Index
 # > subr_self: Aufrufer (ein SUBR)
   nonreturning_function(local, fehler_nth, (void));
   local void fehler_nth()
     {
-      pushSTACK(STACK_0); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_0); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_posfixnum)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(STACK_(0+2));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -715,7 +715,7 @@ LISPFUNN(nthcdr,2) # (NTHCDR integer list), CLTL S. 267
       fehler_nth();
   }
 
-# Fehlermeldung für LAST, BUTLAST und NBUTLAST
+# Fehlermeldung fÃ¼r LAST, BUTLAST und NBUTLAST
 # fehler_butlast(badindex)
 # > badindex: fehlerhaftes 2. Argument
 # > subr_self: Aufrufer (ein SUBR)
@@ -723,8 +723,8 @@ LISPFUNN(nthcdr,2) # (NTHCDR integer list), CLTL S. 267
   local void fehler_butlast(badindex)
     var object badindex;
     {
-      pushSTACK(badindex); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(badindex); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_posinteger)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(badindex); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a nonnegative integer and therefore not a valid argument")
@@ -742,7 +742,7 @@ LISPFUN(last,1,1,norest,nokey,0,NIL) # (LAST list [n]), CLtL2 S. 416-417, dpANS 
   # ) )
   {
     var object intarg = popSTACK();
-    # optionales Integer-Argument überprüfen:
+    # optionales Integer-Argument Ã¼berprÃ¼fen:
     var uintL count; # Anzahl der zu kopierenden Elemente
     if (eq(intarg,unbound)) {
       count = 1;
@@ -752,7 +752,7 @@ LISPFUN(last,1,1,norest,nokey,0,NIL) # (LAST list [n]), CLtL2 S. 416-417, dpANS 
       count = (posfixnump(intarg) ? posfixnum_to_L(intarg) : ~(uintL)0);
     }
     var object list = popSTACK();
-    # Optimierung der beiden häufigsten Fälle count=1 und count=0:
+    # Optimierung der beiden hÃ¤ufigsten FÃ¤lle count=1 und count=0:
     switch (count) {
       case 0:
         while (consp(list)) { list = Cdr(list); }
@@ -789,11 +789,11 @@ LISPFUN(last,1,1,norest,nokey,0,NIL) # (LAST list [n]), CLtL2 S. 416-417, dpANS 
 
 # UP: Bildet eine Liste mit gegebenen Elementen.
 # listof(len)
-# > uintC len: gewünschte Listenlänge
+# > uintC len: gewÃ¼nschte ListenlÃ¤nge
 # > auf STACK: len Objekte, erstes zuoberst
 # < ergebnis: Liste dieser Objekte
-# Erhöht STACK
-# verändert STACK, kann GC auslösen
+# ErhÃ¶ht STACK
+# verÃ¤ndert STACK, kann GC auslÃ¶sen
   global object listof (uintC len);
   global object listof(len)
     var uintC len;
@@ -816,7 +816,7 @@ LISPFUN(list,0,0,rest,nokey,0,NIL)
     # die argcount Argumente vor diese Liste consen:
     dotimesC(argcount,argcount, {
       var object new_cons = allocate_cons();
-      Cdr(new_cons) = popSTACK(); # nächstes Argument davor
+      Cdr(new_cons) = popSTACK(); # nÃ¤chstes Argument davor
       Car(new_cons) = STACK_0;
       STACK_0 = new_cons;
     });
@@ -830,7 +830,7 @@ LISPFUN(liststern,1,0,rest,nokey,0,NIL)
     # die argcount restlichen Argumente vor diese Liste consen:
     dotimesC(argcount,argcount, {
       var object new_cons = allocate_cons();
-      Cdr(new_cons) = popSTACK(); # nächstes Argument davor
+      Cdr(new_cons) = popSTACK(); # nÃ¤chstes Argument davor
       Car(new_cons) = STACK_0;
       STACK_0 = new_cons;
     });
@@ -840,17 +840,17 @@ LISPFUN(liststern,1,0,rest,nokey,0,NIL)
 LISPFUN(make_list,1,0,norest,key,1, (kw(initial_element)) )
   # (MAKE-LIST size :initial-element), CLTL S. 268
   {
-    # :initial-element überprüfen:
+    # :initial-element Ã¼berprÃ¼fen:
     if (eq(STACK_0,unbound))
-      STACK_0 = NIL; # Default-Initialisierung für initial-element
-    # :size überprüfen:
+      STACK_0 = NIL; # Default-Initialisierung fÃ¼r initial-element
+    # :size Ã¼berprÃ¼fen:
     if (posfixnump(STACK_1)) {
       value1 = make_list(posfixnum_to_L(STACK_1)); mv_count=1;
       skipSTACK(2);
     } else {
       # size in STACK_1
-      pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_1); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_posfixnum)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(STACK_(1+2)); # size
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -864,14 +864,14 @@ LISPFUN(append,0,0,rest,nokey,0,NIL) # (APPEND {list}), CLTL S. 268
     if (argcount==0) {
       value1=NIL; mv_count=1; # keine Argumente -> NIL als Ergebnis
     } else {
-      # Argumente aneinanderhängen. Dazu Schleife argcount-1 mal durchlaufen:
+      # Argumente aneinanderhÃ¤ngen. Dazu Schleife argcount-1 mal durchlaufen:
       dotimesC(argcount,argcount-1, {
         # STACK_0 = bisherige Gesamtliste von rechts.
-        # STACK_1 := (append STACK_1 STACK_0), STACK um 1 erhöhen:
+        # STACK_1 := (append STACK_1 STACK_0), STACK um 1 erhÃ¶hen:
         var object list1;
         {
           var object list2 = popSTACK(); # bisherige Gesamtliste (von rechts)
-          list1 = STACK_0; # vorne anzuhängendes Argument
+          list1 = STACK_0; # vorne anzuhÃ¤ngendes Argument
           STACK_0 = list2; # bisherige Gesamtliste wieder stacken
         }
         # list1 muss Liste sein:
@@ -887,7 +887,7 @@ LISPFUN(append,0,0,rest,nokey,0,NIL) # (APPEND {list}), CLTL S. 268
           pushSTACK(list1);
           {
             var object new_list = allocate_cons();
-            lauf = STACK_0; # lauf läuft durch die alte Liste list1 durch
+            lauf = STACK_0; # lauf lÃ¤uft durch die alte Liste list1 durch
             Car(new_list) = Car(lauf);
             STACK_0 = new_list;
             pushSTACK(new_list);
@@ -898,8 +898,8 @@ LISPFUN(append,0,0,rest,nokey,0,NIL) # (APPEND {list}), CLTL S. 268
             # es kommt noch ein Cons
             pushSTACK(lauf); # lauf retten
             var object new_cons = allocate_cons(); # neues Cons allozieren
-            lauf = popSTACK(); # lauf zurück
-            Cdr(STACK_0) = new_cons; # und als CDR des LAST einhängen
+            lauf = popSTACK(); # lauf zurÃ¼ck
+            Cdr(STACK_0) = new_cons; # und als CDR des LAST einhÃ¤ngen
             Car(new_cons) = Car(lauf); # CAR kopieren
             STACK_0 = new_cons; # das ist nun das neue LAST
           }
@@ -907,7 +907,7 @@ LISPFUN(append,0,0,rest,nokey,0,NIL) # (APPEND {list}), CLTL S. 268
           # STACK_1 = Kopie von list1, STACK_0 = LAST davon.
           lauf = popSTACK(); # Ende der Kopie
           list1 = popSTACK(); # ganze Kopie
-          Cdr(lauf) = STACK_0; # bisherige Gesamtkopie einhängen
+          Cdr(lauf) = STACK_0; # bisherige Gesamtkopie einhÃ¤ngen
           STACK_0 = list1; # und die Kopie ist die neue Gesamtliste
         }
       });
@@ -941,12 +941,12 @@ LISPFUNN(copy_list,1) # (COPY-LIST list), CLTL S. 268
     {
       alist = copy_list(alist);
       pushSTACK(alist); # Gesamtliste retten
-      # alist läuft durch die Gesamtliste
+      # alist lÃ¤uft durch die Gesamtliste
       until (atomp(alist)) {
         if (mconsp(Car(alist))) {
           pushSTACK(alist); # alist retten
           var object new_cons = allocate_cons(); # neues Cons
-          alist = popSTACK(); # alist zurück
+          alist = popSTACK(); # alist zurÃ¼ck
           {
             var object old_cons = Car(alist);
             Car(new_cons) = Car(old_cons); Cdr(new_cons) = Cdr(old_cons);
@@ -967,7 +967,7 @@ LISPFUNN(copy_alist,1) # (COPY-ALIST alist), CLTL S. 268
     var object tree;
     {
       if (atomp(tree))
-        return tree; # Atome unverändert zurückgeben
+        return tree; # Atome unverÃ¤ndert zurÃ¼ckgeben
       else {
         check_STACK(); check_SP();
         pushSTACK(Cdr(tree)); # CDR retten
@@ -980,7 +980,7 @@ LISPFUNN(copy_alist,1) # (COPY-ALIST alist), CLTL S. 268
         }
         {
           var object new_cons = allocate_cons(); # neues Cons
-          Cdr(new_cons) = popSTACK(); Car(new_cons) = popSTACK(); # füllen
+          Cdr(new_cons) = popSTACK(); Car(new_cons) = popSTACK(); # fÃ¼llen
           return new_cons;
         }
       }
@@ -996,8 +996,8 @@ LISPFUNN(revappend,2) # (REVAPPEND list object), CLTL S. 269
     until (matomp(STACK_1)) {
       var object new_cons = allocate_cons(); # neues Cons
       Car(new_cons) = Car(STACK_1); Cdr(new_cons) = STACK_0; # (cons (car list) object)
-      STACK_0 = new_cons; # das ist das neue, verlängerte object
-      STACK_1 = Cdr(STACK_1); # list verkürzen
+      STACK_0 = new_cons; # das ist das neue, verlÃ¤ngerte object
+      STACK_1 = Cdr(STACK_1); # list verkÃ¼rzen
     }
     value1 = popSTACK(); mv_count=1;
     skipSTACK(1);
@@ -1008,17 +1008,17 @@ LISPFUN(nconc,0,0,rest,nokey,0,NIL) # (NCONC {list}), CLTL S. 269
     if (argcount==0) {
       value1=NIL; mv_count=1; # keine Argumente -> NIL als Ergebnis
     } else {
-      # Argumente aneinanderhängen. Dazu Schleife argcount-1 mal durchlaufen:
+      # Argumente aneinanderhÃ¤ngen. Dazu Schleife argcount-1 mal durchlaufen:
       dotimesC(argcount,argcount-1, {
         # STACK_0 = bisherige Gesamtliste von rechts.
-        # STACK_1 := (nconc STACK_1 STACK_0), STACK um 1 erhöhen:
+        # STACK_1 := (nconc STACK_1 STACK_0), STACK um 1 erhÃ¶hen:
         if (matomp(STACK_1))
           if (nullp(STACK_1)) {
             STACK_1 = STACK_0; skipSTACK(1); # Gesamtliste bleibt, Argument vergessen
           } else
             fehler_list(STACK_1);
         else {
-          # Gesamtliste in (cdr (last STACK_1)) einhängen:
+          # Gesamtliste in (cdr (last STACK_1)) einhÃ¤ngen:
           var object list1 = STACK_1;
           var object list2;
           loop {
@@ -1029,7 +1029,7 @@ LISPFUN(nconc,0,0,rest,nokey,0,NIL) # (NCONC {list}), CLTL S. 269
             list1 = list2;
           }
           # list1 ist das letzte Cons des Arguments STACK_1
-          Cdr(list1) = popSTACK(); # bisherige Gesamtliste einhängen
+          Cdr(list1) = popSTACK(); # bisherige Gesamtliste einhÃ¤ngen
           # STACK_0 = neue Gesamtliste
         }
       });
@@ -1057,7 +1057,7 @@ LISPFUN(butlast,1,1,norest,nokey,0,NIL)
   # (BUTLAST list [integer]), CLTL S. 271
   {
     var object intarg = popSTACK();
-    # optionales Integer-Argument überprüfen:
+    # optionales Integer-Argument Ã¼berprÃ¼fen:
     var uintL count; # Anzahl der zu entfernenden Elemente
     if (eq(intarg,unbound)) {
       count = 1;
@@ -1073,14 +1073,14 @@ LISPFUN(butlast,1,1,norest,nokey,0,NIL)
     if (len==0 && !nullp(STACK_0))
       fehler_list(STACK_0);
     if (len<=count) {
-      value1=NIL; mv_count=1; skipSTACK(1); # Länge(list)<=count -> NIL als Wert
+      value1=NIL; mv_count=1; skipSTACK(1); # LÃ¤nge(list)<=count -> NIL als Wert
     } else {
       var uintL new_len = len - count; # >0
       # Liefere eine Kopie der ersten new_len Conses der Liste STACK_0:
       var object new_list = make_list(new_len); # neue Liste allozieren
       # Listenelemente einzeln kopieren, bis new_list voll ist:
-      var object new_lauf = new_list; # läuft durch die neue Liste
-      var object old_lauf = popSTACK(); # läuft durch die alte Liste
+      var object new_lauf = new_list; # lÃ¤uft durch die neue Liste
+      var object old_lauf = popSTACK(); # lÃ¤uft durch die alte Liste
       do {
         Car(new_lauf) = Car(old_lauf);
         old_lauf = Cdr(old_lauf); new_lauf = Cdr(new_lauf);
@@ -1093,7 +1093,7 @@ LISPFUN(nbutlast,1,1,norest,nokey,0,NIL)
   # (NBUTLAST list [integer]), CLTL S. 271
   {
     var object intarg = popSTACK();
-    # optionales Integer-Argument überprüfen:
+    # optionales Integer-Argument Ã¼berprÃ¼fen:
     var uintL count; # Anzahl der zu entfernenden Elemente
     if (eq(intarg,unbound)) {
       count = 1;
@@ -1109,10 +1109,10 @@ LISPFUN(nbutlast,1,1,norest,nokey,0,NIL)
     if (len==0 && !nullp(STACK_0))
       fehler_list(STACK_0);
     if (len<=count) {
-      value1=NIL; mv_count=1; skipSTACK(1); # Länge(list)<=count -> NIL als Wert
+      value1=NIL; mv_count=1; skipSTACK(1); # LÃ¤nge(list)<=count -> NIL als Wert
     } else {
       var uintL new_len = len - count; # >0
-      var object lauf = STACK_0; # läuft durch die Liste
+      var object lauf = STACK_0; # lÃ¤uft durch die Liste
       # new_len-1 mal den CDR nehmen und dann den CDR auf NIL setzen:
       dotimesL(new_len,new_len-1, { lauf = Cdr(lauf); } );
       Cdr(lauf) = NIL;
@@ -1142,8 +1142,8 @@ LISPFUNN(ldiff,2) # (LDIFF list sublist), CLTL S. 272
     # Liefere eine Kopie der ersten new_len Conses der Liste STACK_0:
     var object new_list = make_list(new_len); # neue Liste allozieren
     # Listenelemente einzeln kopieren, bis new_list voll ist:
-    var object new_lauf = new_list; # läuft durch die neue Liste
-    var object old_lauf = popSTACK(); # läuft durch die alte Liste
+    var object new_lauf = new_list; # lÃ¤uft durch die neue Liste
+    var object old_lauf = popSTACK(); # lÃ¤uft durch die alte Liste
     until (atomp(new_lauf)) {
       Car(new_lauf) = Car(old_lauf);
       old_lauf = Cdr(old_lauf); new_lauf = Cdr(new_lauf);
@@ -1151,7 +1151,7 @@ LISPFUNN(ldiff,2) # (LDIFF list sublist), CLTL S. 272
     value1 = new_list; mv_count=1;
   }
 
-# Fehlermeldung für RPLACA und RPLACD u.ä.
+# Fehlermeldung fÃ¼r RPLACA und RPLACD u.Ã¤.
 # fehler_cons(badobject)
 # > badobject: Nicht-Cons
 # > subr_self: Aufrufer (ein SUBR)
@@ -1159,8 +1159,8 @@ LISPFUNN(ldiff,2) # (LDIFF list sublist), CLTL S. 272
   local void fehler_cons(badobject)
     object badobject;
     {
-      pushSTACK(badobject); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(cons)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(badobject); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(S(cons)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(badobject); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a pair")
@@ -1217,19 +1217,19 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
     }
   }
 
-# Unterprogramm zum Ausführen des Tests :TEST
+# Unterprogramm zum AusfÃ¼hren des Tests :TEST
 # up_test(stackptr,x)
 # > *(stackptr+1): die Testfunktion
 # > *(stackptr+3): das zu vergleichende Item
 # > x: Argument
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: TRUE falls der Test erfÃ¼llt ist, FALSE sonst
 # can trigger GC
   local boolean up_test (const object* stackptr, object x);
   local boolean up_test(stackptr,x)
     var const object* stackptr;
     var object x;
     {
-      # nach CLTL S. 247 ein (funcall testfun item x) ausführen:
+      # nach CLTL S. 247 ein (funcall testfun item x) ausfÃ¼hren:
       pushSTACK(*(stackptr STACKop 3)); # item
       pushSTACK(x); # x
       funcall(*(stackptr STACKop 1),2);
@@ -1239,19 +1239,19 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
         return TRUE;
     }
 
-# Unterprogramm zum Ausführen des Tests :TEST-NOT
+# Unterprogramm zum AusfÃ¼hren des Tests :TEST-NOT
 # up_test_not(stackptr,x)
 # > *(stackptr+0): die Testfunktion
 # > *(stackptr+3): das zu vergleichende Item
 # > x: Argument
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: TRUE falls der Test erfÃ¼llt ist, FALSE sonst
 # can trigger GC
   local boolean up_test_not (const object* stackptr, object x);
   local boolean up_test_not(stackptr,x)
     var const object* stackptr;
     var object x;
     {
-      # nach CLTL S. 247 ein (not (funcall testfun item x)) ausführen:
+      # nach CLTL S. 247 ein (not (funcall testfun item x)) ausfÃ¼hren:
       pushSTACK(*(stackptr STACKop 3)); # item
       pushSTACK(x); # x
       funcall(*(stackptr STACKop 0),2);
@@ -1261,18 +1261,18 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
         return FALSE;
     }
 
-# Unterprogramm zum Ausführen des Tests -IF
+# Unterprogramm zum AusfÃ¼hren des Tests -IF
 # up_if(stackptr,x)
-# > *(stackptr+1): das Testprädikat
+# > *(stackptr+1): das TestprÃ¤dikat
 # > x: Argument
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: TRUE falls der Test erfÃ¼llt ist, FALSE sonst
 # can trigger GC
   local boolean up_if (const object* stackptr, object x);
   local boolean up_if(stackptr,x)
     var const object* stackptr;
     var object x;
     {
-      # nach CLTL S. 247 ein (funcall predicate x) ausführen:
+      # nach CLTL S. 247 ein (funcall predicate x) ausfÃ¼hren:
       pushSTACK(x); funcall(*(stackptr STACKop 1),1);
       if (nullp(value1))
         return FALSE;
@@ -1280,18 +1280,18 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
         return TRUE;
     }
 
-# Unterprogramm zum Ausführen des Tests -IF-NOT
+# Unterprogramm zum AusfÃ¼hren des Tests -IF-NOT
 # up_if_not(stackptr,x)
-# > *(stackptr+1): das Testprädikat
+# > *(stackptr+1): das TestprÃ¤dikat
 # > x: Argument
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: TRUE falls der Test erfÃ¼llt ist, FALSE sonst
 # can trigger GC
   local boolean up_if_not (const object* stackptr, object x);
   local boolean up_if_not(stackptr,x)
     var const object* stackptr;
     var object x;
     {
-      # nach CLTL S. 247 ein (not (funcall predicate x)) ausführen:
+      # nach CLTL S. 247 ein (not (funcall predicate x)) ausfÃ¼hren:
       pushSTACK(x); funcall(*(stackptr STACKop 1),1);
       if (nullp(value1))
         return TRUE;
@@ -1299,7 +1299,7 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
         return FALSE;
     }
 
-# UP: Überprüft das :KEY-Argument
+# UP: ÃœberprÃ¼ft das :KEY-Argument
 # test_key_arg()
 # > STACK_0: optionales Argument
 # < STACK_0: korrekte KEY-Funktion
@@ -1308,10 +1308,10 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
     {
       var object key_arg = STACK_0;
       if (eq(key_arg,unbound) || nullp(key_arg))
-        STACK_0 = L(identity); # #'IDENTITY als Default für :KEY
+        STACK_0 = L(identity); # #'IDENTITY als Default fÃ¼r :KEY
     }
 
-# UP: Überprüft die :TEST, :TEST-NOT - Argumente
+# UP: ÃœberprÃ¼ft die :TEST, :TEST-NOT - Argumente
 # test_test_args()
 # > stackptr:=&STACK_1 : Pointer in den STACK
 # > STACK_2: :TEST-Argument
@@ -1323,7 +1323,7 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
 #       > stackptr: derselbe Pointer in den Stack, *(stackptr+3) = item,
 #         *(stackptr+1) = :test-Argument, *(stackptr+0) = :test-not-Argument,
 #       > x: Argument
-#       < TRUE, falls der Test erfüllt ist, FALSE sonst.
+#       < TRUE, falls der Test erfÃ¼llt ist, FALSE sonst.
   # up_function sei der Typ der Adresse einer solchen Testfunktion:
   typedef boolean (*up_function) (const object* stackptr, object x);
   local up_function test_test_args (void);
@@ -1340,7 +1340,7 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
       if (nullp(test_not_arg)) {
         # :TEST-NOT wurde nicht angegeben
         if (nullp(test_arg))
-          STACK_2 = L(eql); # #'EQL als Default für :TEST
+          STACK_2 = L(eql); # #'EQL als Default fÃ¼r :TEST
         return(&up_test);
       } else {
         # :TEST-NOT wurde angegeben
@@ -1351,14 +1351,14 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
       }
     }
 
-# UP: Ersetzt im Baum tree alle x, deren KEY der TESTFUNktion genügen,
+# UP: Ersetzt im Baum tree alle x, deren KEY der TESTFUNktion genÃ¼gen,
 # durch NEW. Konstruktiv.
 # subst(tree,stackptr,up_fun)
 # > tree: Baum
 # > stackptr: *(stackptr-2) = NEW, *(stackptr-1) = KEY
 # > up_fun: TESTFUN = Adresse der Testfunktion,
 #       wird selbem stackptr und mit (KEY x) als Argument angesprungen.
-#       Sie liefert TRUE, falls der Test erfüllt ist, FALSE sonst.
+#       Sie liefert TRUE, falls der Test erfÃ¼llt ist, FALSE sonst.
 # < ergebnis: (evtl. neuer) Baum
 # can trigger GC
   local object subst (object tree, object* stackptr, up_function up_fun);
@@ -1371,23 +1371,23 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
       pushSTACK(tree); # tree retten
       pushSTACK(tree); funcall(*(stackptr STACKop -1),1); # (KEY tree)
       if (up_fun(stackptr,value1)) { # TESTFUN aufrufen
-        # Test erfüllt
+        # Test erfÃ¼llt
         skipSTACK(1); return *(stackptr STACKop -2); # NEW als Wert
       } else
-        # Test nicht erfüllt
+        # Test nicht erfÃ¼llt
         if (matomp(STACK_0)) {
-          # Argument Atom -> unverändert lassen
+          # Argument Atom -> unverÃ¤ndert lassen
           return popSTACK();
         } else {
           # Argument ist ein Cons -> SUBST rekursiv aufrufen:
           check_STACK(); check_SP();
-          # rekursiv für den CDR aufrufen:
+          # rekursiv fÃ¼r den CDR aufrufen:
           var object new_cdr = subst(Cdr(STACK_0),stackptr,up_fun);
           pushSTACK(new_cdr); # CDR-Ergebnis retten
-          # rekursiv für den CAR aufrufen:
+          # rekursiv fÃ¼r den CAR aufrufen:
           var object new_car = subst(Car(STACK_1),stackptr,up_fun);
           if (eq(new_car,Car(STACK_1)) && eq(STACK_0,Cdr(STACK_1))) {
-            # beides unverändert
+            # beides unverÃ¤ndert
             skipSTACK(1); # CDR-Ergebnis vergessen
             return popSTACK();
           } else {
@@ -1406,7 +1406,7 @@ LISPFUN(subst,3,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     var up_function up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
     { var object newobj = STACK_5; pushSTACK(newobj); }
     # Stackaufbau: new, old, tree, test, test_not, key, new.
-    value1 = subst(STACK_4,&STACK_2,up_fun); # Ersetzung durchführen
+    value1 = subst(STACK_4,&STACK_2,up_fun); # Ersetzung durchfÃ¼hren
     mv_count=1;
     skipSTACK(7);
   }
@@ -1417,7 +1417,7 @@ LISPFUN(subst_if,3,0,norest,key,1, (kw(key)) )
     test_key_arg(); # :KEY-Argument in STACK_0
     { var object newobj = STACK_3; pushSTACK(newobj); }
     # Stackaufbau: new, pred, tree, key, new.
-    value1 = subst(STACK_2,&STACK_2,&up_if); # Ersetzung durchführen
+    value1 = subst(STACK_2,&STACK_2,&up_if); # Ersetzung durchfÃ¼hren
     mv_count=1;
     skipSTACK(5);
   }
@@ -1428,19 +1428,19 @@ LISPFUN(subst_if_not,3,0,norest,key,1, (kw(key)) )
     test_key_arg(); # :KEY-Argument in STACK_0
     { var object newobj = STACK_3; pushSTACK(newobj); }
     # Stackaufbau: new, pred, tree, key, new.
-    value1 = subst(STACK_2,&STACK_2,&up_if_not); # Ersetzung durchführen
+    value1 = subst(STACK_2,&STACK_2,&up_if_not); # Ersetzung durchfÃ¼hren
     mv_count=1;
     skipSTACK(5);
   }
 
-# UP: Ersetzt im Baum tree alle x, deren KEY der TESTFUNktion genügen,
+# UP: Ersetzt im Baum tree alle x, deren KEY der TESTFUNktion genÃ¼gen,
 # durch NEW. Destruktiv.
 # nsubst(tree,stackptr,up_fun)
 # > tree: Baum
 # > stackptr: *(stackptr-2) = NEW, *(stackptr-1) = KEY
 # > up_fun: TESTFUN = Adresse der Testfunktion,
 #       wird selbem stackptr und mit (KEY x) als Argument angesprungen.
-#       Sie liefert TRUE, falls der Test erfüllt ist, FALSE sonst.
+#       Sie liefert TRUE, falls der Test erfÃ¼llt ist, FALSE sonst.
 # < ergebnis: Baum
 # can trigger GC
   local object nsubst (object tree, object* stackptr, up_function up_fun);
@@ -1453,25 +1453,25 @@ LISPFUN(subst_if_not,3,0,norest,key,1, (kw(key)) )
       pushSTACK(tree); # tree retten
       pushSTACK(tree); funcall(*(stackptr STACKop -1),1); # (KEY tree)
       if (up_fun(stackptr,value1)) { # TESTFUN aufrufen
-        # Test erfüllt
+        # Test erfÃ¼llt
         skipSTACK(1); return *(stackptr STACKop -2); # NEW als Wert
       } else {
-        # Test nicht erfüllt
+        # Test nicht erfÃ¼llt
         if (mconsp(STACK_0)) {
           # Argument ist ein Cons -> NSUBST rekursiv aufrufen:
           check_STACK(); check_SP();
-          # rekursiv für den CDR aufrufen:
+          # rekursiv fÃ¼r den CDR aufrufen:
           {
             var object modified_cdr = nsubst(Cdr(STACK_0),stackptr,up_fun);
             Cdr(STACK_0) = modified_cdr;
           }
-          # rekursiv für den CAR aufrufen:
+          # rekursiv fÃ¼r den CAR aufrufen:
           {
             var object modified_car = nsubst(Car(STACK_0),stackptr,up_fun);
             Car(STACK_0) = modified_car;
           }
         }
-        return popSTACK(); # ursprünglicher Baum zurück
+        return popSTACK(); # ursprÃ¼nglicher Baum zurÃ¼ck
       }
     }
 
@@ -1482,7 +1482,7 @@ LISPFUN(nsubst,3,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     var up_function up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
     { var object newobj = STACK_5; pushSTACK(newobj); }
     # Stackaufbau: new, old, tree, test, test_not, key, new.
-    value1 = nsubst(STACK_4,&STACK_2,up_fun); # Ersetzung durchführen
+    value1 = nsubst(STACK_4,&STACK_2,up_fun); # Ersetzung durchfÃ¼hren
     mv_count=1;
     skipSTACK(7);
   }
@@ -1493,7 +1493,7 @@ LISPFUN(nsubst_if,3,0,norest,key,1, (kw(key)) )
     test_key_arg(); # :KEY-Argument in STACK_0
     { var object newobj = STACK_3; pushSTACK(newobj); }
     # Stackaufbau: new, pred, tree, key, new.
-    value1 = nsubst(STACK_2,&STACK_2,&up_if); # Ersetzung durchführen
+    value1 = nsubst(STACK_2,&STACK_2,&up_if); # Ersetzung durchfÃ¼hren
     mv_count=1;
     skipSTACK(5);
   }
@@ -1504,18 +1504,18 @@ LISPFUN(nsubst_if_not,3,0,norest,key,1, (kw(key)) )
     test_key_arg(); # :KEY-Argument in STACK_0
     { var object newobj = STACK_3; pushSTACK(newobj); }
     # Stackaufbau: new, pred, tree, key, new.
-    value1 = nsubst(STACK_2,&STACK_2,&up_if_not); # Ersetzung durchführen
+    value1 = nsubst(STACK_2,&STACK_2,&up_if_not); # Ersetzung durchfÃ¼hren
     mv_count=1;
     skipSTACK(5);
   }
 
-# UP: Liefert das erste Listenelement, dessen CAR der TESTFUNktion genügt.
+# UP: Liefert das erste Listenelement, dessen CAR der TESTFUNktion genÃ¼gt.
 # sublis_assoc(stackptr)
 # > *(stackptr+3) = alist: Aliste
 # > stackptr: *(stackptr-1) = KEY
-# > *(stackptr-3) = TESTFUN = Testfunktion, wird für alle Listenelemente
+# > *(stackptr-3) = TESTFUN = Testfunktion, wird fÃ¼r alle Listenelemente
 #       (u . v) mit selbem stackptr und mit (KEY x) und u als Argumenten angesprungen.
-#       Sie liefert TRUE, falls der Test erfüllt ist, FALSE sonst.
+#       Sie liefert TRUE, falls der Test erfÃ¼llt ist, FALSE sonst.
 # < ergebnis: Listenelement (ein Cons) oder NIL
 # can trigger GC
   local object sublis_assoc (object* stackptr);
@@ -1538,19 +1538,19 @@ LISPFUN(nsubst_if_not,3,0,norest,key,1, (kw(key)) )
         # definition of "association list" in the CLHS glossary and with
         # the general use of alists as lookup tables.
         # Therefore we implement (a).
-        if (mconsp(Car(alist))) { # atomare Listenelemente überspringen
+        if (mconsp(Car(alist))) { # atomare Listenelemente Ã¼berspringen
           pushSTACK(alist); # Listenrest ((u . v) ...) retten
           # Testen, ob die zweiargumentige Testfunktion
           # *(stackptr-3) (eine Adresse!), angewandt auf u und das
-          # vorher in *(stackptr-2) abgelegte Argument, erfüllt ist:
+          # vorher in *(stackptr-2) abgelegte Argument, erfÃ¼llt ist:
           var boolean erg =
             (*(up2_function)TheMachineCode(*(stackptr STACKop -3))) # zweiargumentige Testfunktion, wurde abgelegt
               ( stackptr, *(stackptr STACKop -2), Car(Car(alist)) ); # auf (KEY x) und u anwenden
           alist = popSTACK();
           if (erg)
-            # Test erfüllt -> x = (u . v) = (CAR alist) als Ergebnis
+            # Test erfÃ¼llt -> x = (u . v) = (CAR alist) als Ergebnis
             return Car(alist);
-          # Test nicht erfüllt
+          # Test nicht erfÃ¼llt
         }
         alist = Cdr(alist); # Tail-End-Rekursion
       }
@@ -1560,11 +1560,11 @@ LISPFUN(nsubst_if_not,3,0,norest,key,1, (kw(key)) )
 
 # UP: Ersetzt im Baum tree alle x durch ihr ALIST-Abbild (mittels ASSOC):
 # x wird durch das erste v ersetzt, so dass (u . v) in ALIST vorkommt und
-# (KEY x) und u der TESTFUNktion genügen. Konstruktiv.
+# (KEY x) und u der TESTFUNktion genÃ¼gen. Konstruktiv.
 # sublis(tree,stackptr)
 # > tree: Baum
 # > stackptr: *(stackptr-1) = KEY, *(stackptr+3) = ALIST,
-#             *(stackptr-2) ist frei für (KEY x)
+#             *(stackptr-2) ist frei fÃ¼r (KEY x)
 # < ergebnis: (evtl. neuer) Baum
 # can trigger GC
   local object sublis (object tree, object* stackptr);
@@ -1575,26 +1575,26 @@ LISPFUN(nsubst_if_not,3,0,norest,key,1, (kw(key)) )
       # erst (KEY tree) berechnen und ASSOC aufrufen:
       pushSTACK(tree); # tree retten
       pushSTACK(tree); funcall(*(stackptr STACKop -1),1); # (KEY tree)
-      *(stackptr STACKop -2) = value1; # retten für sublis_assoc
+      *(stackptr STACKop -2) = value1; # retten fÃ¼r sublis_assoc
       var object assoc_erg = sublis_assoc(stackptr);
       if (consp(assoc_erg)) {
-        # Test erfüllt
+        # Test erfÃ¼llt
         skipSTACK(1); return Cdr(assoc_erg); # (CDR (ASSOC ...)) als Wert
       } else
-        # Test nicht erfüllt
+        # Test nicht erfÃ¼llt
         if (matomp(STACK_0)) {
-          # Argument Atom -> unverändert lassen
+          # Argument Atom -> unverÃ¤ndert lassen
           return popSTACK();
         } else {
           # Argument ist ein Cons -> SUBLIS rekursiv aufrufen:
           check_STACK(); check_SP();
-          # rekursiv für den CDR aufrufen:
+          # rekursiv fÃ¼r den CDR aufrufen:
           var object new_cdr = sublis(Cdr(STACK_0),stackptr);
           pushSTACK(new_cdr); # CDR-Ergebnis retten
-          # rekursiv für den CAR aufrufen:
+          # rekursiv fÃ¼r den CAR aufrufen:
           var object new_car = sublis(Car(STACK_1),stackptr);
           if (eq(new_car,Car(STACK_1)) && eq(STACK_0,Cdr(STACK_1))) {
-            # beides unverändert
+            # beides unverÃ¤ndert
             skipSTACK(1); # CDR-Ergebnis vergessen
             return popSTACK();
           } else {
@@ -1613,7 +1613,7 @@ LISPFUN(sublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     var object* stackptr = &STACK_1;
     var up2_function up2_fun = test_test2_args(stackptr); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
     # up2_fun = Testfunktion, wird mit stackptr und (KEY x) und u als
-    # Argumenten angesprungen. Sie liefert TRUE, falls der Test erfüllt ist.
+    # Argumenten angesprungen. Sie liefert TRUE, falls der Test erfÃ¼llt ist.
     if (nullp(STACK_4)) { # shortcut: nothing to do if alist = ()
       value1 = STACK_3; mv_count=1;
       skipSTACK(5);
@@ -1621,7 +1621,7 @@ LISPFUN(sublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
       pushSTACK(NIL); # Dummy
       pushSTACK(make_machine_code(up2_fun)); # Testfunktion, wegen Typinfo=machine_type GC-sicher!
       # Stackaufbau: alist, tree, test, test_not, key, dummy, up2_fun.
-      value1 = sublis(STACK_5,stackptr); # Ersetzung durchführen
+      value1 = sublis(STACK_5,stackptr); # Ersetzung durchfÃ¼hren
       mv_count=1;
       skipSTACK(7);
     }
@@ -1629,11 +1629,11 @@ LISPFUN(sublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
 
 # UP: Ersetzt im Baum tree alle x durch ihr ALIST-Abbild (mittels ASSOC):
 # x wird durch das erste v ersetzt, so dass (u . v) in ALIST vorkommt und
-# (KEY x) und u der TESTFUNktion genügen. Destruktiv.
+# (KEY x) und u der TESTFUNktion genÃ¼gen. Destruktiv.
 # nsublis(tree,stackptr)
 # > tree: Baum
 # > stackptr: *(stackptr-1) = KEY, *(stackptr+3) = ALIST,
-#             *(stackptr-2) ist frei für (KEY x)
+#             *(stackptr-2) ist frei fÃ¼r (KEY x)
 # < ergebnis: Baum
 # can trigger GC
   local object nsublis (object tree, object* stackptr);
@@ -1644,28 +1644,28 @@ LISPFUN(sublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
       # erst (KEY tree) berechnen und ASSOC aufrufen:
       pushSTACK(tree); # tree retten
       pushSTACK(tree); funcall(*(stackptr STACKop -1),1); # (KEY tree)
-      *(stackptr STACKop -2) = value1; # retten für sublis_assoc
+      *(stackptr STACKop -2) = value1; # retten fÃ¼r sublis_assoc
       var object assoc_erg = sublis_assoc(stackptr);
       if (consp(assoc_erg)) {
-        # Test erfüllt
+        # Test erfÃ¼llt
         skipSTACK(1); return Cdr(assoc_erg); # (CDR (ASSOC ...)) als Wert
       } else {
-        # Test nicht erfüllt
+        # Test nicht erfÃ¼llt
         if (mconsp(STACK_0)) {
           # Argument ist ein Cons -> NSUBLIS rekursiv aufrufen:
           check_STACK(); check_SP();
-          # rekursiv für den CDR aufrufen:
+          # rekursiv fÃ¼r den CDR aufrufen:
           {
             var object modified_cdr = nsublis(Cdr(STACK_0),stackptr);
             Cdr(STACK_0) = modified_cdr;
           }
-          # rekursiv für den CAR aufrufen:
+          # rekursiv fÃ¼r den CAR aufrufen:
           {
             var object modified_car = nsublis(Car(STACK_0),stackptr);
             Car(STACK_0) = modified_car;
           }
         }
-        return popSTACK(); # ursprünglicher Baum zurück
+        return popSTACK(); # ursprÃ¼nglicher Baum zurÃ¼ck
       }
     }
 
@@ -1676,7 +1676,7 @@ LISPFUN(nsublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     var object* stackptr = &STACK_1;
     var up2_function up2_fun = test_test2_args(stackptr); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
     # up2_fun = Testfunktion, wird mit stackptr und (KEY x) und u als
-    # Argumenten angesprungen. Sie liefert TRUE, falls der Test erfüllt ist.
+    # Argumenten angesprungen. Sie liefert TRUE, falls der Test erfÃ¼llt ist.
     if (nullp(STACK_4)) { # shortcut: nothing to do if alist = ()
       value1 = STACK_3; mv_count=1;
       skipSTACK(5);
@@ -1684,21 +1684,21 @@ LISPFUN(nsublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
       pushSTACK(NIL); # Dummy
       pushSTACK(make_machine_code(up2_fun)); # Testfunktion, wegen Typinfo=machine_type GC-sicher!
       # Stackaufbau: alist, tree, test, test_not, key, dummy, up2_fun.
-      value1 = nsublis(STACK_5,stackptr); # Ersetzung durchführen
+      value1 = nsublis(STACK_5,stackptr); # Ersetzung durchfÃ¼hren
       mv_count=1;
       skipSTACK(7);
     }
   }
 
 # UP: Liefert den Listenrest ab dem Listenelement, das der TESTFUNktion
-# genügt.
+# genÃ¼gt.
 # member(list,stackptr,up_fun)
 # > list: Liste
 # > STACK_0: Aufrufer (ein SUBR)
 # > stackptr: *(stackptr-1) = KEY
 # > up_fun: TESTFUN = Adresse der Testfunktion,
 #       wird selbem stackptr und mit (KEY x) als Argument angesprungen.
-#       Sie liefert TRUE, falls der Test erfüllt ist, FALSE sonst.
+#       Sie liefert TRUE, falls der Test erfÃ¼llt ist, FALSE sonst.
 # < ergebnis: Listenrest
 # can trigger GC
   local object member (object list, object* stackptr, up_function up_fun);
@@ -1708,7 +1708,7 @@ LISPFUN(nsublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     var up_function up_fun;
     {
       until ((
-              subr_self = STACK_0, # Aufrufer (für Fehlermeldung bei ENDP)
+              subr_self = STACK_0, # Aufrufer (fÃ¼r Fehlermeldung bei ENDP)
               endp(list) # Listenende erreicht?
             )) {
         pushSTACK(list); # Listenrest retten
@@ -1717,9 +1717,9 @@ LISPFUN(nsublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
           var boolean erg = up_fun(stackptr,value1); # TESTFUN aufrufen
           list = popSTACK();
           if (erg)
-            return list; # Test erfüllt -> list als Ergebnis
+            return list; # Test erfÃ¼llt -> list als Ergebnis
         }
-        # Test nicht erfüllt -> (member ... (cdr list)) aufrufen:
+        # Test nicht erfÃ¼llt -> (member ... (cdr list)) aufrufen:
         list = Cdr(list); # tail-end-rekursiv
       }
       return list; # NIL als Ergebnis
@@ -1731,7 +1731,7 @@ LISPFUN(member,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     test_key_arg(); # :KEY-Argument in STACK_0
     var up_function up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
     pushSTACK(L(member)); # Aufrufer
-    value1 = member(STACK_4,&STACK_2,up_fun); # Suche durchführen
+    value1 = member(STACK_4,&STACK_2,up_fun); # Suche durchfÃ¼hren
     mv_count=1;
     skipSTACK(6);
   }
@@ -1741,7 +1741,7 @@ LISPFUN(member_if,2,0,norest,key,1, (kw(key)) )
   {
     test_key_arg(); # :KEY-Argument in STACK_0
     pushSTACK(L(member_if)); # Aufrufer
-    value1 = member(STACK_2,&STACK_2,&up_if); # Suche durchführen
+    value1 = member(STACK_2,&STACK_2,&up_if); # Suche durchfÃ¼hren
     mv_count=1;
     skipSTACK(4);
   }
@@ -1751,7 +1751,7 @@ LISPFUN(member_if_not,2,0,norest,key,1, (kw(key)) )
   {
     test_key_arg(); # :KEY-Argument in STACK_0
     pushSTACK(L(member_if_not)); # Aufrufer
-    value1 = member(STACK_2,&STACK_2,&up_if_not); # Suche durchführen
+    value1 = member(STACK_2,&STACK_2,&up_if_not); # Suche durchfÃ¼hren
     mv_count=1;
     skipSTACK(4);
   }
@@ -1811,7 +1811,7 @@ LISPFUN(adjoin,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     }
     pushSTACK(L(adjoin)); # Aufrufer
     # Stackaufbau: (key item), list, test, test-not, key, item, #'adjoin.
-    if (nullp(member(STACK_5,&STACK_3,up_fun))) { # Suche durchführen
+    if (nullp(member(STACK_5,&STACK_3,up_fun))) { # Suche durchfÃ¼hren
       # item noch nicht in list gefunden: muss consen
       var object new_cons = allocate_cons();
       Cdr(new_cons) = STACK_5; # = list
@@ -1845,7 +1845,7 @@ LISPFUN(pairlis,2,1,norest,nokey,0,NIL)
   # (PAIRLIS keys data [alist]), CLTL S. 280
   {
     if (eq(STACK_0,unbound))
-      STACK_0=NIL; # NIL als Default für alist
+      STACK_0=NIL; # NIL als Default fÃ¼r alist
    
     {
       var object keys_list = STACK_2;
@@ -1866,10 +1866,10 @@ LISPFUN(pairlis,2,1,norest,nokey,0,NIL)
           goto fehler_lengths;
         else {
           var object new_cons = allocate_cons();
-          Car(new_cons) = Car(STACK_1); # nächstes key als CAR
-          Cdr(new_cons) = Car(STACK_0); # nächstes data als CDR
-          STACK_1 = Cdr(STACK_1); # keys verkürzen
-          STACK_0 = Cdr(STACK_0); # data verkürzen
+          Car(new_cons) = Car(STACK_1); # nÃ¤chstes key als CAR
+          Cdr(new_cons) = Car(STACK_0); # nÃ¤chstes data als CDR
+          STACK_1 = Cdr(STACK_1); # keys verkÃ¼rzen
+          STACK_0 = Cdr(STACK_0); # data verkÃ¼rzen
           pushSTACK(new_cons);
           new_cons = allocate_cons(); # weiteres neues Cons
           Car(new_cons) = popSTACK(); # mit (key . data) als CAR
@@ -1891,13 +1891,13 @@ LISPFUN(pairlis,2,1,norest,nokey,0,NIL)
     value1 = STACK_2; mv_count=1; skipSTACK(5); # alist als Wert
   }
 
-# UP: Liefert das erste Listenelement, dessen CAR der TESTFUNktion genügt.
+# UP: Liefert das erste Listenelement, dessen CAR der TESTFUNktion genÃ¼gt.
 # assoc(alist,stackptr)
 # > alist: Aliste
 # > stackptr: *(stackptr-1) = KEY
-# > up_fun: TESTFUN = Adresse der Testfunktion, wird für alle Listenelemente
+# > up_fun: TESTFUN = Adresse der Testfunktion, wird fÃ¼r alle Listenelemente
 #       (u . v) mit selbem stackptr und mit (KEY u) als Argument angesprungen.
-#       Sie liefert TRUE, falls der Test erfüllt ist, FALSE sonst.
+#       Sie liefert TRUE, falls der Test erfÃ¼llt ist, FALSE sonst.
 # < ergebnis: Listenelement (ein Cons) oder NIL
 # can trigger GC
   local object assoc (object alist, object* stackptr, up_function up_fun);
@@ -1911,15 +1911,15 @@ LISPFUN(pairlis,2,1,norest,nokey,0,NIL)
         # Listenende erreicht -> ergibt Ergebnis NIL
         return NIL;
       else {
-        if (mconsp(Car(alist))) { # atomare Listenelemente überspringen
+        if (mconsp(Car(alist))) { # atomare Listenelemente Ã¼berspringen
           pushSTACK(alist); # Listenrest ((u . v) ...) retten
           pushSTACK(Car(Car(alist))); funcall(*(stackptr STACKop -1),1); # (KEY u)
           var boolean erg = up_fun(stackptr,value1); # TESTFUN aufrufen
           alist = popSTACK();
           if (erg)
-            # Test erfüllt -> x = (u . v) = (CAR alist) als Ergebnis
+            # Test erfÃ¼llt -> x = (u . v) = (CAR alist) als Ergebnis
             return Car(alist);
-          # Test nicht erfüllt
+          # Test nicht erfÃ¼llt
         }
         # tail-end-rekursiv (assoc ... (cdr alist)) aufrufen:
         alist = Cdr(alist); goto start;
@@ -1931,7 +1931,7 @@ LISPFUN(assoc,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
   {
     test_key_arg(); # :KEY-Argument in STACK_0
     var up_function up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
-    value1 = assoc(STACK_3,&STACK_1,up_fun); # Suche durchführen
+    value1 = assoc(STACK_3,&STACK_1,up_fun); # Suche durchfÃ¼hren
     mv_count=1;
     skipSTACK(5);
   }
@@ -1940,7 +1940,7 @@ LISPFUN(assoc_if,2,0,norest,key,1, (kw(key)) )
   # (ASSOC-IF pred alist :key), CLTL S. 280
   {
     test_key_arg(); # :KEY-Argument in STACK_0
-    value1 = assoc(STACK_1,&STACK_1,&up_if); # Suche durchführen
+    value1 = assoc(STACK_1,&STACK_1,&up_if); # Suche durchfÃ¼hren
     mv_count=1;
     skipSTACK(3);
   }
@@ -1949,18 +1949,18 @@ LISPFUN(assoc_if_not,2,0,norest,key,1, (kw(key)) )
   # (ASSOC-IF-NOT pred alist :key), CLTL S. 280
   {
     test_key_arg(); # :KEY-Argument in STACK_0
-    value1 = assoc(STACK_1,&STACK_1,&up_if_not); # Suche durchführen
+    value1 = assoc(STACK_1,&STACK_1,&up_if_not); # Suche durchfÃ¼hren
     mv_count=1;
     skipSTACK(3);
   }
 
-# UP: Liefert das erste Listenelement, dessen CDR der TESTFUNktion genügt.
+# UP: Liefert das erste Listenelement, dessen CDR der TESTFUNktion genÃ¼gt.
 # rassoc(alist,stackptr)
 # > alist: Aliste
 # > stackptr: *(stackptr-1) = KEY
-# > up_fun: TESTFUN = Adresse der Testfunktion, wird für alle Listenelemente
+# > up_fun: TESTFUN = Adresse der Testfunktion, wird fÃ¼r alle Listenelemente
 #       (u . v) mit selbem stackptr und mit (KEY v) als Argument angesprungen.
-#       Sie liefert TRUE, falls der Test erfüllt ist, FALSE sonst.
+#       Sie liefert TRUE, falls der Test erfÃ¼llt ist, FALSE sonst.
 # < ergebnis: Listenelement (ein Cons) oder NIL
 # can trigger GC
   local object rassoc (object alist, object* stackptr, up_function up_fun);
@@ -1974,15 +1974,15 @@ LISPFUN(assoc_if_not,2,0,norest,key,1, (kw(key)) )
         # Listenende erreicht -> ergibt Ergebnis NIL
         return NIL;
       else {
-        if (mconsp(Car(alist))) { # atomare Listenelemente überspringen
+        if (mconsp(Car(alist))) { # atomare Listenelemente Ã¼berspringen
           pushSTACK(alist); # Listenrest ((u . v) ...) retten
           pushSTACK(Cdr(Car(alist))); funcall(*(stackptr STACKop -1),1); # (KEY v)
           var boolean erg = up_fun(stackptr,value1); # TESTFUN aufrufen
           alist = popSTACK();
           if (erg)
-            # Test erfüllt -> x = (u . v) = (CAR alist) als Ergebnis
+            # Test erfÃ¼llt -> x = (u . v) = (CAR alist) als Ergebnis
             return Car(alist);
-          # Test nicht erfüllt
+          # Test nicht erfÃ¼llt
         }
         # tail-end-rekursiv (rassoc ... (cdr alist)) aufrufen:
         alist = Cdr(alist); goto start;
@@ -1994,7 +1994,7 @@ LISPFUN(rassoc,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
   {
     test_key_arg(); # :KEY-Argument in STACK_0
     var up_function up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
-    value1 = rassoc(STACK_3,&STACK_1,up_fun); # Suche durchführen
+    value1 = rassoc(STACK_3,&STACK_1,up_fun); # Suche durchfÃ¼hren
     mv_count=1;
     skipSTACK(5);
   }
@@ -2003,7 +2003,7 @@ LISPFUN(rassoc_if,2,0,norest,key,1, (kw(key)) )
   # (RASSOC-IF pred alist :key), CLTL S. 281
   {
     test_key_arg(); # :KEY-Argument in STACK_0
-    value1 = rassoc(STACK_1,&STACK_1,&up_if); # Suche durchführen
+    value1 = rassoc(STACK_1,&STACK_1,&up_if); # Suche durchfÃ¼hren
     mv_count=1;
     skipSTACK(3);
   }
@@ -2012,7 +2012,7 @@ LISPFUN(rassoc_if_not,2,0,norest,key,1, (kw(key)) )
   # (RASSOC-IF-NOT pred alist :key), CLTL S. 281
   {
     test_key_arg(); # :KEY-Argument in STACK_0
-    value1 = rassoc(STACK_1,&STACK_1,&up_if_not); # Suche durchführen
+    value1 = rassoc(STACK_1,&STACK_1,&up_if_not); # Suche durchfÃ¼hren
     mv_count=1;
     skipSTACK(3);
   }
@@ -2065,19 +2065,19 @@ LISPFUNN(list_llength,1)
     value1 = fixnum(llength(popSTACK())); mv_count=1;
   }
 
-# UP: Läuft bis zum Element index in einer Liste.
+# UP: LÃ¤uft bis zum Element index in einer Liste.
 # elt_up(seq,index)
 # > seq
 # > index
 # > subr_self: Aufrufer (ein SUBR)
-# < ergebnis: Listenendstück ab diesem Index
+# < ergebnis: ListenendstÃ¼ck ab diesem Index
   local object elt_up (object seq, object index);
   local object elt_up(seq,index)
     var object seq;
     var object index;
     # (do ((L seq (cdr L)) (N 0 (1+ N)))
     #     (nil)
-    #   (if (atom L) (error "Zu großer Index in ELT: ~S" index))
+    #   (if (atom L) (error "Zu groÃŸer Index in ELT: ~S" index))
     #   (if (= N index) (return L))
     # )
     {
@@ -2093,14 +2093,14 @@ LISPFUNN(list_llength,1)
       }
       return l;
      index_too_large:
-      pushSTACK(index); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(index); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
       pushSTACK(NIL);
       pushSTACK(seq); pushSTACK(index); pushSTACK(TheSubr(subr_self)->name);
       {
         var object tmp;
         pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(n);
         tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-        STACK_3 = tmp; # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        STACK_3 = tmp; # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       }
       fehler(type_error,
              GETTEXT("~: index ~ too large for ~")
@@ -2111,7 +2111,7 @@ LISPFUNN(list_elt,2)
   # #'(lambda (seq index)
   #     (do ((L seq (cdr L)) (N 0 (1+ N)))
   #         (nil)
-  #       (if (atom L) (error "Zu großer Index in ELT: ~S" index))
+  #       (if (atom L) (error "Zu groÃŸer Index in ELT: ~S" index))
   #       (if (= N index) (return (car L)))
   #   ) )
   {
@@ -2124,7 +2124,7 @@ LISPFUNN(list_set_elt,3)
   # #'(lambda (seq index value)
   #     (do ((L seq (cdr L)) (N 0 (1+ N)))
   #         (nil)
-  #       (if (atom L) (error "Zu großer Index in ELT: ~S" index))
+  #       (if (atom L) (error "Zu groÃŸer Index in ELT: ~S" index))
   #       (if (= N index) (return (rplaca L value)))
   #   ) )
   {
@@ -2137,7 +2137,7 @@ LISPFUNN(list_init_start,2)
   # #'(lambda (seq index)
   #     (do ((L seq (cdr L)) (N 0 (1+ N)))
   #         ((= N index) (return L))
-  #       (if (atom L) (error "Unzulässiger :START - Index : ~S" index))
+  #       (if (atom L) (error "UnzulÃ¤ssiger :START - Index : ~S" index))
   #   ) )
   {
     var object index = popSTACK();
@@ -2155,11 +2155,11 @@ LISPFUNN(list_init_start,2)
     value1 = l; mv_count=1; return;
    index_too_large:
     pushSTACK(seq);
-    pushSTACK(index); # Wert für Slot DATUM von TYPE-ERROR
+    pushSTACK(index); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
     {
       var object tmp;
       pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(n);
-      tmp = listof(3); pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      tmp = listof(3); pushSTACK(tmp); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
     }
     pushSTACK(STACK_2); # seq
     pushSTACK(STACK_2); # index
@@ -2177,9 +2177,9 @@ LISPFUNN(list_fe_init_end,2)
   #             (i index (1- i)))
   #            ((zerop i) L1)
   #         (if (atom L2)
-  #           (error "Unzulässiger :END - Index : ~S" index)
+  #           (error "UnzulÃ¤ssiger :END - Index : ~S" index)
   #       ) )
-  #       (error "Unzulässiger :END - Index : ~S" index)
+  #       (error "UnzulÃ¤ssiger :END - Index : ~S" index)
   #   ) )
   {
     # index ist sowieso ein Integer >=0.
@@ -2200,11 +2200,11 @@ LISPFUNN(list_fe_init_end,2)
       STACK_0 = fixnum_inc(STACK_0,1); # i := i+1
     }
    index_too_large:
-    pushSTACK(STACK_3); # Wert für Slot DATUM von TYPE-ERROR
+    pushSTACK(STACK_3); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
     {
       var object tmp;
       pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(STACK_(0+3));
-      tmp = listof(3); pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      tmp = listof(3); pushSTACK(tmp); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
     }
     pushSTACK(STACK_(4+2));
     pushSTACK(STACK_(3+3));

@@ -90,14 +90,14 @@
           update_conspage(page)  \
           );
 
-    # Pointer in den Objekten variabler Länge aktualisieren:
+    # Pointer in den Objekten variabler LÃ¤nge aktualisieren:
       #define update_page_normal(page,updater)  \
         { var aint ptr = page->page_start;                             \
           var aint ptrend = page->page_end;                            \
           # alle Objekte mit Adresse >=ptr, <ptrend durchgehen:        \
           until (ptr==ptrend) # solange bis ptr am Ende angekommen ist \
-            { # nächstes Objekt mit Adresse ptr (< ptrend) durchgehen: \
-              updater(typecode_at(ptr)); # und weiterrücken            \
+            { # nÃ¤chstes Objekt mit Adresse ptr (< ptrend) durchgehen: \
+              updater(typecode_at(ptr)); # und weiterrÃ¼cken            \
         }   }
       # Unterroutinen:
         #define do_update_symbol()  \
@@ -118,13 +118,13 @@
           }
         #define do_update_record()  \
           { # Beim Aktualisieren von Pointern verliert der Aufbau von              \
-            # Hash-Tables seine Gültigkeit (denn die Hashfunktion eines            \
-            # Objekts hängt von seiner Adresse ab, die sich ja jetzt               \
-            # verändert).                                                          \
+            # Hash-Tables seine GÃ¼ltigkeit (denn die Hashfunktion eines            \
+            # Objekts hÃ¤ngt von seiner Adresse ab, die sich ja jetzt               \
+            # verÃ¤ndert).                                                          \
             if (record_type((Record)ptr) == Rectype_Hashtable) # eine Hash-Table ? \
-              { update_ht_invalid((Hashtable)ptr); } # ja -> für Reorganisation vormerken \
+              { update_ht_invalid((Hashtable)ptr); } # ja -> fÃ¼r Reorganisation vormerken \
             elif (update_fpointer_invalid && (record_type((Record)ptr) == Rectype_Fpointer)) # Foreign-Pointer ? \
-              { update_fp_invalid((Record)ptr); } # ja -> evtl. ungültig machen    \
+              { update_fp_invalid((Record)ptr); } # ja -> evtl. ungÃ¼ltig machen    \
             elif (update_fsubr_function && (record_type((Record)ptr) == Rectype_Fsubr)) # Fsubr ? \
               { update_fs_function((Fsubr)ptr); } # ja -> evtl. Adresse updaten    \
            {var uintC count = (record_type((Record)ptr) < rectype_limit ? srecord_length((Srecord)ptr) : xrecord_length((Xrecord)ptr)); \
@@ -133,13 +133,13 @@
                 dotimespC(count,count, { update(p); p++; } );                      \
           }}  }
       # Aktualisiert das Objekt bei 'ptr', dessen Typcode durch 'type_expr'
-      # gegeben wird, und rückt ptr weiter:
+      # gegeben wird, und rÃ¼ckt ptr weiter:
       #ifdef SPVW_MIXED
         #ifdef TYPECODES
           #define update_varobject(type_expr)  \
             { var tint type = (type_expr); # Typinfo                                  \
-              var uintL laenge = objsize((Varobject)ptr); # Länge bestimmen           \
-              var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt              \
+              var uintL laenge = objsize((Varobject)ptr); # LÃ¤nge bestimmen           \
+              var aint newptr = ptr+laenge; # Zeiger auf nÃ¤chstes Objekt              \
               # Fallunterscheidung nach:                                              \
                 # Symbol; Simple-Vector; Nicht-simpler Array;                         \
                 # Record (insbes. Hash-Table); Rest.                                  \
@@ -164,14 +164,14 @@
                     break; # alle anderen enthalten keine zu aktualisierenden Pointer \
                            # -> nichts tun                                            \
                 }                                                                     \
-              # zum nächsten Objekt weiterrücken                                      \
+              # zum nÃ¤chsten Objekt weiterrÃ¼cken                                      \
               ptr = newptr;                                                           \
             }
         #else
           #define update_varobject(type_expr)  \
-            { var uintL laenge = objsize((Varobject)ptr); # Länge bestimmen     \
-              var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt        \
-              switch (record_type((Record)ptr)) # Typ des nächsten Objekts      \
+            { var uintL laenge = objsize((Varobject)ptr); # LÃ¤nge bestimmen     \
+              var aint newptr = ptr+laenge; # Zeiger auf nÃ¤chstes Objekt        \
+              switch (record_type((Record)ptr)) # Typ des nÃ¤chsten Objekts      \
                 { case Rectype_mdarray:                                         \
                   case Rectype_bvector:                                         \
                   case Rectype_b2vector:                                        \
@@ -205,7 +205,7 @@
                     do_update_record();                                         \
                     break;                                                      \
                 }                                                               \
-              # zum nächsten Objekt weiterrücken                                \
+              # zum nÃ¤chsten Objekt weiterrÃ¼cken                                \
               ptr = newptr;                                                     \
             }
         #endif
@@ -216,32 +216,32 @@
       #endif
       #ifdef SPVW_PURE
         #define update_symbol(type_expr)  # ignoriert type_expr \
-          { var uintL laenge = objsize_symbol((void*)ptr); # Länge bestimmen \
-            var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt       \
+          { var uintL laenge = objsize_symbol((void*)ptr); # LÃ¤nge bestimmen \
+            var aint newptr = ptr+laenge; # Zeiger auf nÃ¤chstes Objekt       \
             # Symbol: alle Pointer aktualisieren                             \
             do_update_symbol();                                              \
-            ptr = newptr; # zum nächsten Objekt weiterrücken                 \
+            ptr = newptr; # zum nÃ¤chsten Objekt weiterrÃ¼cken                 \
           }
         #define update_svector(type_expr)  # ignoriert type_expr \
-          { var uintL laenge = objsize_svector((void*)ptr); # Länge bestimmen \
-            var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt        \
+          { var uintL laenge = objsize_svector((void*)ptr); # LÃ¤nge bestimmen \
+            var aint newptr = ptr+laenge; # Zeiger auf nÃ¤chstes Objekt        \
             # Simple-vector: alle Pointer aktualisieren                       \
             do_update_svector();                                              \
-            ptr = newptr; # zum nächsten Objekt weiterrücken                  \
+            ptr = newptr; # zum nÃ¤chsten Objekt weiterrÃ¼cken                  \
           }
         #define update_iarray(type_expr)  # ignoriert type_expr \
-          { var uintL laenge = objsize_iarray((void*)ptr); # Länge bestimmen \
-            var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt       \
+          { var uintL laenge = objsize_iarray((void*)ptr); # LÃ¤nge bestimmen \
+            var aint newptr = ptr+laenge; # Zeiger auf nÃ¤chstes Objekt       \
             # nicht-simpler Array: Datenvektor aktualisieren                 \
             do_update_iarray();                                              \
-            ptr = newptr; # zum nächsten Objekt weiterrücken                 \
+            ptr = newptr; # zum nÃ¤chsten Objekt weiterrÃ¼cken                 \
           }
         #define update_record(type_expr)  # ignoriert type_expr \
-          { var uintL laenge = objsize_record((void*)ptr); # Länge bestimmen \
-            var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt       \
+          { var uintL laenge = objsize_record((void*)ptr); # LÃ¤nge bestimmen \
+            var aint newptr = ptr+laenge; # Zeiger auf nÃ¤chstes Objekt       \
             # Record: alle Pointer aktualisieren                             \
             do_update_record();                                              \
-            ptr = newptr; # zum nächsten Objekt weiterrücken                 \
+            ptr = newptr; # zum nÃ¤chsten Objekt weiterrÃ¼cken                 \
           }
         #define update_varobjects()  \
           for_each_varobject_page(page,                                               \
@@ -295,13 +295,13 @@
           until (eq(*objptr,nullobj)) # bis STACK zu Ende ist:                        \
             { if ( as_oint(*objptr) & wbit(frame_bit_o) ) # Beginnt hier ein Frame?   \
                { if (( as_oint(*objptr) & wbit(skip2_bit_o) ) == 0) # Ohne skip2-Bit? \
-                  objptr skipSTACKop 2; # ja -> um 2 weiterrücken                     \
+                  objptr skipSTACKop 2; # ja -> um 2 weiterrÃ¼cken                     \
                   else                                                                \
-                  objptr skipSTACKop 1; # nein -> um 1 weiterrücken                   \
+                  objptr skipSTACKop 1; # nein -> um 1 weiterrÃ¼cken                   \
                }                                                                      \
                else                                                                   \
                { # normales Objekt, aktualisieren:                                    \
                  update_stackobj(objptr);                                             \
-                 objptr skipSTACKop 1; # weiterrücken                                 \
+                 objptr skipSTACKop 1; # weiterrÃ¼cken                                 \
            }   }                                                                      \
          );

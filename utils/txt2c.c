@@ -3,8 +3,8 @@
    Bruno Haible 21.2.1993, 3.1.1995, 15.6.1996
 */
 
-#include <stdlib.h> /* f¸r malloc(), realloc(), exit() */
-#include <string.h> /* f¸r strcpy(), strcat() */
+#include <stdlib.h> /* f√ºr malloc(), realloc(), exit() */
+#include <string.h> /* f√ºr strcpy(), strcat() */
 
 #include <stdio.h>
 #define fopen_read_ascii  "r"
@@ -47,8 +47,8 @@ local void process_file (fp)
       { c = getc(fp); if (c==EOF) goto eof;
         if (c=='#')
           { c = getc(fp); if (c==EOF) { putchar('#'); goto eof; }
-            if ((c=='i') || (c=='e')) /* Heuristik f¸r #if, #else, #endif, #include */
-              /* Zeile unver‰ndert durchlassen, auﬂer bei #include */
+            if ((c=='i') || (c=='e')) /* Heuristik f√ºr #if, #else, #endif, #include */
+              /* Zeile unver√§ndert durchlassen, au√üer bei #include */
               { unsigned char * line = get_line(fp,c);
                 if (!line) goto eof;
                 if (line[0]=='i' && line[1]=='n' && line[2]=='c' && line[3]=='l'
@@ -79,7 +79,7 @@ local void process_file (fp)
                     fclose(ifp);
                   }}
                   else
-                  /* Zeile unver‰ndert durchlassen */
+                  /* Zeile unver√§ndert durchlassen */
                   { unsigned char * ptr = line;
                     putchar('#');
                     do { c = *ptr++; putchar(c); } while (!(c=='\n'));

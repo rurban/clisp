@@ -6,7 +6,7 @@
  *    Author:   Gilbert Baumann
  *              <unk6@rz.uni-karlsruhe.de>
  *
- *  This whole bunch of code written quick and dirty. [Mit der heiﬂen Nadel gestrickt!]
+ *  This whole bunch of code written quick and dirty. [Mit der hei√üen Nadel gestrickt!]
  */
 
 /*

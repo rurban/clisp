@@ -1,4 +1,4 @@
-# Error-Handling f¸r CLISP
+# Error-Handling f√ºr CLISP
 # Bruno Haible 1990-2000
 # Marcus Daniels 8.4.1994
 
@@ -11,13 +11,13 @@
 # begin_error()
 # < STACK_0: Stream (i.a. *ERROR-OUTPUT*)
 # < STACK_1: Wert von *error-handler*
-# < STACK_2: Argumentliste f¸r *error-handler*
+# < STACK_2: Argumentliste f√ºr *error-handler*
 # < STACK_3: Condition-Typ (i.a. SIMPLE-ERROR) oder NIL
 # erniedrigt STACK um 7
   local void begin_error (void);
   local void begin_error()
     {
-      end_system_call(); # keine Betriebssystem-Operation l‰uft mehr
+      end_system_call(); # keine Betriebssystem-Operation l√§uft mehr
       #ifdef PENDING_INTERRUPTS
         interrupt_pending = FALSE; # Ctrl-C-Wartezeit ist gleich beendet
         #ifndef WIN32_NATIVE
@@ -33,13 +33,13 @@
       #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
         writing_to_subprocess = FALSE;
       #endif
-      # Error-Count erhˆhen, bei >3 Ausgabe-Abbruch:
+      # Error-Count erh√∂hen, bei >3 Ausgabe-Abbruch:
       dynamic_bind(S(recursive_error_count),fixnum_inc(Symbol_value(S(recursive_error_count)),1));
       if (!posfixnump(Symbol_value(S(recursive_error_count)))) # sollte ein Fixnum >=0 sein
         Symbol_value(S(recursive_error_count)) = Fixnum_0; # sonst Notkorrektur
       if (posfixnum_to_L(Symbol_value(S(recursive_error_count))) > 3) {
         # Mehrfach verschachtelte Fehlermeldung.
-        Symbol_value(S(recursive_error_count)) = Fixnum_0; # Error-Count lˆschen
+        Symbol_value(S(recursive_error_count)) = Fixnum_0; # Error-Count l√∂schen
         # *PRINT-PRETTY* an NIL binden (um Speicher zu sparen):
         dynamic_bind(S(print_pretty),NIL);
         fehler(serious_condition,
@@ -107,7 +107,7 @@
       }
     }
 
-# UP: Gibt einen Errorstring unver‰ndert aus.
+# UP: Gibt einen Errorstring unver√§ndert aus.
 # write_errorasciz(asciz);
   local void write_errorasciz (const char* asciz);
   local void write_errorasciz(asciz)
@@ -146,16 +146,16 @@
 # write_errorstring(errorstring)
 # > STACK_0: Stream usw.
 # > errorstring: Errorstring (ein unverschieblicher ASCIZ-String)
-# > STACK_7, STACK_8, ...: Argumente (f¸r jedes '~' bzw. '$' eines),
+# > STACK_7, STACK_8, ...: Argumente (f√ºr jedes '~' bzw. '$' eines),
 #   in umgekehrter Reihenfolge wie bei FUNCALL !
 # < ergebnis: STACK-Wert oberhalb des Stream und der Argumente
   local object* write_errorstring (const char* errorstring);
   local object* write_errorstring(errorstring)
     var const char* errorstring;
     {
-      var object* argptr = args_end_pointer STACKop 7; # Pointer ¸bern Stream und Frame
+      var object* argptr = args_end_pointer STACKop 7; # Pointer √ºbern Stream und Frame
       loop {
-        var uintB ch = *errorstring++; # n‰chstes Zeichen
+        var uintB ch = *errorstring++; # n√§chstes Zeichen
         if (ch==0) # String zu Ende?
           break;
         if (ch=='~') # Tilde?
@@ -191,10 +191,10 @@
       if (nullp(STACK_1)) {
         # *ERROR-HANDER* = NIL, SYS::*USE-CLCS* = NIL
         skipSTACK(4); # Fehlermeldung wurde schon ausgegeben
-        dynamic_unbind(); # Bindungsframe f¸r sys::*recursive-error-count* auflˆsen,
+        dynamic_unbind(); # Bindungsframe f√ºr sys::*recursive-error-count* aufl√∂sen,
                           # da keine Fehlermeldungs-Ausgabe mehr aktiv
         set_args_end_pointer(stackptr);
-        break_driver(NIL); # Break-Driver aufrufen (kehrt nicht zur¸ck)
+        break_driver(NIL); # Break-Driver aufrufen (kehrt nicht zur√ºck)
       } else {
         STACK_0 = get_output_stream_string(&STACK_0);
         var object arguments = nreverse(STACK_2);
@@ -202,32 +202,32 @@
         if (!eq(STACK_1,unbound)) {
           # *ERROR-HANDER* /= NIL
           # Stackaufbau: nil, args, handler, errorstring.
-          # (apply *error-handler* nil errorstring args) ausf¸hren:
+          # (apply *error-handler* nil errorstring args) ausf√ºhren:
           check_SP(); check_STACK();
           {
             var object error_handler = STACK_1; STACK_1 = NIL;
             apply(error_handler,2,arguments);
             skipSTACK(2);
           }
-          dynamic_unbind(); # Bindungsframe f¸r sys::*recursive-error-count* auflˆsen,
+          dynamic_unbind(); # Bindungsframe f√ºr sys::*recursive-error-count* aufl√∂sen,
                             # da keine Fehlermeldungs-Ausgabe mehr aktiv
           set_args_end_pointer(stackptr);
-          break_driver(NIL); # Break-Driver aufrufen (kehrt nicht zur¸ck)
+          break_driver(NIL); # Break-Driver aufrufen (kehrt nicht zur√ºck)
         } else {
           # *ERROR-HANDER* = NIL, SYS::*USE-CLCS* /= NIL
           # Stackaufbau: type, args, --, errorstring.
           var object type = STACK_3;
           var object errorstring = STACK_0;
           skipSTACK(4);
-          dynamic_unbind(); # Bindungsframe f¸r sys::*recursive-error-count* auflˆsen
+          dynamic_unbind(); # Bindungsframe f√ºr sys::*recursive-error-count* aufl√∂sen
           # (APPLY #'coerce-to-condition errorstring args 'error type keyword-arguments)
-          # ausf¸hren:
+          # ausf√ºhren:
           pushSTACK(errorstring); pushSTACK(arguments); pushSTACK(S(error)); pushSTACK(type);
           var uintC argcount = 4;
           # arithmetic-error, division-by-zero, floating-point-overflow, floating-point-underflow
-          #   --> erg‰nze :operation :operands ??
+          #   --> erg√§nze :operation :operands ??
           # cell-error, uncound-variable, undefined-function, unbound-slot
-          #   --> erg‰nze :name
+          #   --> erg√§nze :name
           if (eq(type,S(simple_cell_error))
               || eq(type,S(simple_unbound_variable))
               || eq(type,S(simple_undefined_function))
@@ -236,12 +236,12 @@
             pushSTACK(S(Kname)); pushSTACK(BEFORE(stackptr)); # :name ...
             argcount += 2;
           }
-          # unbound-slot --> erg‰nze :instance
+          # unbound-slot --> erg√§nze :instance
           if (eq(type,S(simple_unbound_slot))) {
             pushSTACK(S(Kinstance)); pushSTACK(BEFORE(stackptr)); # :instance ...
             argcount += 2;
           }
-          # type-error, keyword-error --> erg‰nze :datum, :expected-type
+          # type-error, keyword-error --> erg√§nze :datum, :expected-type
           if (eq(type,S(simple_type_error))
               || eq(type,S(simple_keyword_error))
               || eq(type,S(simple_charset_type_error))
@@ -250,24 +250,24 @@
             pushSTACK(S(Kdatum)); pushSTACK(BEFORE(stackptr)); # :datum ...
             argcount += 4;
           }
-          # package-error --> erg‰nze :package
+          # package-error --> erg√§nze :package
           if (eq(type,S(simple_package_error))) {
             pushSTACK(S(Kpackage)); pushSTACK(BEFORE(stackptr)); # :package ...
             argcount += 2;
           }
-          # print-not-readable --> erg‰nze :object
+          # print-not-readable --> erg√§nze :object
           if (eq(type,S(simple_print_not_readable))) {
             pushSTACK(S(Kobject)); pushSTACK(BEFORE(stackptr)); # :object
             argcount += 2;
           }
-          # stream-error, end-of-file --> erg‰nze :stream
+          # stream-error, end-of-file --> erg√§nze :stream
           if (eq(type,S(simple_stream_error))
               || eq(type,S(simple_end_of_file))
              ) {
             pushSTACK(S(Kstream)); pushSTACK(BEFORE(stackptr)); # :stream ...
             argcount += 2;
           }
-          # file-error --> erg‰nze :pathname
+          # file-error --> erg√§nze :pathname
           if (eq(type,S(simple_file_error))) {
             pushSTACK(S(Kpathname)); pushSTACK(BEFORE(stackptr)); # :pathname ...
             argcount += 2;
@@ -284,13 +284,13 @@
       NOTREACHED
     }
 
-# Fehlermeldung mit Errorstring. Kehrt nicht zur¸ck.
+# Fehlermeldung mit Errorstring. Kehrt nicht zur√ºck.
 # fehler(errortype,errorstring);
 # > errortype: Condition-Typ
 # > errorstring: Konstanter ASCIZ-String.
 #   Bei jeder Tilde wird ein LISP-Objekt vom STACK genommen und statt der
 #   Tilde ausgegeben.
-# > auf dem STACK: Initialisierungswerte f¸r die Condition, je nach errortype
+# > auf dem STACK: Initialisierungswerte f√ºr die Condition, je nach errortype
   nonreturning_function(global, fehler, (conditiontype errortype, const char * errorstring));
   global void fehler(errortype,errorstring)
     var conditiontype errortype;
@@ -298,7 +298,7 @@
     {
       begin_error(); # Fehlermeldung anfangen
       if (!nullp(STACK_3)) { # *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ?
-        # Error-Typ-Symbol zu errortype ausw‰hlen:
+        # Error-Typ-Symbol zu errortype ausw√§hlen:
         var object sym = S(simple_condition); # erster Error-Typ
         sym = objectplus(sym,
                          (soint)(sizeof(*TheSymbol(sym))<<(oint_addr_shift-addr_shift))
@@ -344,7 +344,7 @@
 
 LISPFUN(error,1,0,rest,nokey,0,NIL)
 # (ERROR errorstring {expr})
-# Kehrt nicht zur¸ck.
+# Kehrt nicht zur√ºck.
 # (defun error (errorstring &rest args)
 #   (if (or *error-handler* (not *use-clcs*))
 #     (progn
@@ -365,7 +365,7 @@ LISPFUN(error,1,0,rest,nokey,0,NIL)
   {
     if (!nullp(Symbol_value(S(error_handler))) || nullp(Symbol_value(S(use_clcs)))) {
       begin_error(); # Fehlermeldung anfangen
-      rest_args_pointer skipSTACKop 1; # Pointer ¸ber die Argumente
+      rest_args_pointer skipSTACKop 1; # Pointer √ºber die Argumente
       {
         var object fun;
         var object arg1;
@@ -388,8 +388,8 @@ LISPFUN(error,1,0,rest,nokey,0,NIL)
       }
       # Fehlermeldung beenden, vgl. end_error():
       dynamic_unbind(); # Keine Fehlermeldungs-Ausgabe mehr aktiv
-      set_args_end_pointer(rest_args_pointer); # STACK aufr‰umen
-      break_driver(NIL); # Break-Driver aufrufen (kehrt nicht zur¸ck)
+      set_args_end_pointer(rest_args_pointer); # STACK aufr√§umen
+      break_driver(NIL); # Break-Driver aufrufen (kehrt nicht zur√ºck)
     } else {
       {
         var object arguments = listof(argcount);
@@ -409,7 +409,7 @@ LISPFUN(error,1,0,rest,nokey,0,NIL)
 
 LISPFUNN(defclcs,1)
 # (SYSTEM::%DEFCLCS error-types)
-# setzt die f¸r ERROR-OF-TYPE benˆtigten Daten.
+# setzt die f√ºr ERROR-OF-TYPE ben√∂tigten Daten.
   {
     O(error_types) = popSTACK();
     value1 = NIL; mv_count=0;
@@ -432,7 +432,7 @@ LISPFUNN(defclcs,1)
           ptr++;
         });
       }
-      return type; # nicht gefunden -> Typ unver‰ndert lassen
+      return type; # nicht gefunden -> Typ unver√§ndert lassen
     }
 
 LISPFUN(cerror_of_type,3,0,rest,nokey,0,NIL)
@@ -459,14 +459,14 @@ LISPFUN(cerror_of_type,3,0,rest,nokey,0,NIL)
   {
     var object* cfstring_ = &Next(rest_args_pointer STACKop 3);
     var uintC keyword_argcount = 0;
-    rest_args_pointer skipSTACKop 1; # Pointer ¸ber die Argumente hinter type
+    rest_args_pointer skipSTACKop 1; # Pointer √ºber die Argumente hinter type
     while (argcount>=2) {
-      var object next_arg = Next(rest_args_pointer); # n‰chstes Argument
+      var object next_arg = Next(rest_args_pointer); # n√§chstes Argument
       if (!symbolp(next_arg)) # Keyword?
         break;
       rest_args_pointer skipSTACKop -2; argcount -= 2; keyword_argcount += 2;
     }
-    # N‰chstes Argument hoffentlich ein String.
+    # N√§chstes Argument hoffentlich ein String.
     if (!nullp(Symbol_value(S(error_handler))) || nullp(Symbol_value(S(use_clcs)))) {
       # Der Typ und die Keyword-Argumente werden ignoriert.
       BEFORE(rest_args_pointer) = *cfstring_;
@@ -500,7 +500,7 @@ LISPFUN(cerror_of_type,3,0,rest,nokey,0,NIL)
 
 LISPFUN(error_of_type,2,0,rest,nokey,0,NIL)
 # (SYSTEM::ERROR-OF-TYPE type {keyword value}* errorstring {expr}*)
-# Kehrt nicht zur¸ck.
+# Kehrt nicht zur√ºck.
 # (defun error-of-type (type &rest arguments)
 #   ; Keyword-Argumente von den anderen Argumenten abspalten:
 #   (let ((keyword-arguments '()))
@@ -534,14 +534,14 @@ LISPFUN(error_of_type,2,0,rest,nokey,0,NIL)
 # ) ) ) )
   {
     var uintC keyword_argcount = 0;
-    rest_args_pointer skipSTACKop 1; # Pointer ¸ber die Argumente hinter type
+    rest_args_pointer skipSTACKop 1; # Pointer √ºber die Argumente hinter type
     while (argcount>=2) {
-      var object next_arg = Next(rest_args_pointer); # n‰chstes Argument
+      var object next_arg = Next(rest_args_pointer); # n√§chstes Argument
       if (!symbolp(next_arg)) # Keyword?
         break;
       rest_args_pointer skipSTACKop -2; argcount -= 2; keyword_argcount += 2;
     }
-    # N‰chstes Argument hoffentlich ein String.
+    # N√§chstes Argument hoffentlich ein String.
     if (!nullp(Symbol_value(S(error_handler))) || nullp(Symbol_value(S(use_clcs)))) {
       # Der Typ und die Keyword-Argumente werden ignoriert.
       begin_error(); # Fehlermeldung anfangen
@@ -567,8 +567,8 @@ LISPFUN(error_of_type,2,0,rest,nokey,0,NIL)
       }
       # Fehlermeldung beenden, vgl. end_error():
       dynamic_unbind(); # Keine Fehlermeldungs-Ausgabe mehr aktiv
-      set_args_end_pointer(rest_args_pointer); # STACK aufr‰umen
-      break_driver(NIL); # Break-Driver aufrufen (kehrt nicht zur¸ck)
+      set_args_end_pointer(rest_args_pointer); # STACK aufr√§umen
+      break_driver(NIL); # Break-Driver aufrufen (kehrt nicht zur√ºck)
     } else {
       var object arguments = listof(argcount);
       # Stackaufbau: type, {keyword, value}*, errorstring.
@@ -598,7 +598,7 @@ LISPFUN(error_of_type,2,0,rest,nokey,0,NIL)
 
 LISPFUNN(invoke_debugger,1)
 # (INVOKE-DEBUGGER condition), CLtL2 S. 915
-# Kehrt nicht zur¸ck.
+# Kehrt nicht zur√ºck.
 # (defun invoke-debugger (condition)
 #   (when *debugger-hook*
 #     (let ((debugger-hook *debugger-hook*)
@@ -618,13 +618,13 @@ LISPFUNN(invoke_debugger,1)
     # *BREAK-DRIVER* kann hier als /= NIL angenommen werden.
     pushSTACK(NIL); pushSTACK(STACK_(0+1)); pushSTACK(T);
     funcall(Symbol_value(S(break_driver)),3); # Break-Driver aufrufen
-    reset(); # kehrt wider Erwarten zur¸ck -> zur n‰chsten Schleife zur¸ck
+    reset(); # kehrt wider Erwarten zur√ºck -> zur n√§chsten Schleife zur√ºck
     NOTREACHED
   }
 
-# UP: F¸hrt eine Break-Schleife wegen Tastaturunterbrechung aus.
+# UP: F√ºhrt eine Break-Schleife wegen Tastaturunterbrechung aus.
 # > STACK_0 : aufrufende Funktion
-# ver‰ndert STACK, kann GC auslˆsen
+# ver√§ndert STACK, kann GC ausl√∂sen
   global void tast_break (void);
   global void tast_break()
     {
@@ -649,7 +649,7 @@ LISPFUNN(invoke_debugger,1)
       pushSTACK(var_stream(S(debug_io),strmflags_wr_ch_B)); # Stream *DEBUG-IO*
       terpri(&STACK_0); # neue Zeile
       write_sstring(&STACK_0,O(error_string1)); # "*** - " ausgeben
-      # String ausgeben, Aufrufernamen verbrauchen, STACK aufr‰umen:
+      # String ausgeben, Aufrufernamen verbrauchen, STACK aufr√§umen:
       set_args_end_pointer(
         write_errorstring(GETTEXT("~: User break")));
       break_driver(T); # Break-Driver aufrufen
@@ -687,7 +687,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(T); pushSTACK(STACK_(0+1)); pushSTACK(T);
       funcall(Symbol_value(S(break_driver)),3);
     }
-    var object condition = popSTACK(); # condition zur¸ck
+    var object condition = popSTACK(); # condition zur√ºck
     invoke_handlers(condition); # Handler aufrufen
     value1 = NIL; mv_count=1; # Wert NIL
   }
@@ -700,8 +700,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_list(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(S(list)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(S(list)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a list")
@@ -716,8 +716,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_proper_list(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(S(list)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(S(list)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: A true list must not end with ~")
@@ -733,8 +733,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
     var object caller;
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(S(symbol)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(S(symbol)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj);
       pushSTACK(caller);
       fehler(type_error,
@@ -764,8 +764,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
     var object caller;
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(S(simple_vector)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(S(simple_vector)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj);
       pushSTACK(caller);
       fehler(type_error,
@@ -781,8 +781,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_vector(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(S(vector)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(S(vector)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a vector")
@@ -797,8 +797,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_posfixnum(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_posfixnum)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_posfixnum)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ should be a nonnegative fixnum")
@@ -813,8 +813,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_char(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(S(character)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(S(character)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ is not a character")
@@ -828,8 +828,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_string(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(S(string)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(S(string)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ is not a string")
@@ -843,8 +843,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_sstring(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(S(simple_string)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(S(simple_string)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ is not a simple string")
@@ -873,8 +873,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_string_integer(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_string_integer)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_string_integer)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ is neither a string nor an integer")
@@ -889,8 +889,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_stream(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(S(stream)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(S(stream)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ should be a stream")
@@ -907,8 +907,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
     var object obj;
     var object type;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(type); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(type); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(type); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ should be a stream of type ~")
@@ -923,8 +923,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_function(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(S(function)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(S(function)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a function")
@@ -939,8 +939,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_lambda_expression(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(S(function)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(S(function)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ is not a function." NLstring "To get a function in the current environment, write (FUNCTION ...)." NLstring "To get a function in the global environment, write (COERCE '... 'FUNCTION).")
@@ -955,8 +955,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_uint8(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_uint8)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_uint8)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not an 8-bit number")
@@ -973,8 +973,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_sint8(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_sint8)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_sint8)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not an 8-bit number")
@@ -989,8 +989,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_uint16(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_uint16)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_uint16)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a 16-bit number")
@@ -1005,8 +1005,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_sint16(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_sint16)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_sint16)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a 16-bit number")
@@ -1021,8 +1021,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_uint32(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_uint32)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_uint32)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not an 32-bit number")
@@ -1037,8 +1037,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_sint32(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_sint32)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_sint32)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not an 32-bit number")
@@ -1053,8 +1053,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_uint64(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_uint64)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_uint64)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not an 64-bit number")
@@ -1069,8 +1069,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_sint64(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_sint64)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_sint64)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not an 64-bit number")
@@ -1085,11 +1085,11 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_uint(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
       #if (int_bitsize==16)
-      pushSTACK(O(type_uint16)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(O(type_uint16)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       #else # (int_bitsize==32)
-      pushSTACK(O(type_uint32)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(O(type_uint32)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       #endif
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -1105,11 +1105,11 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_sint(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
       #if (int_bitsize==16)
-      pushSTACK(O(type_sint16)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(O(type_sint16)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       #else # (int_bitsize==32)
-      pushSTACK(O(type_sint32)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(O(type_sint32)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       #endif
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -1125,11 +1125,11 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_ulong(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
       #if (long_bitsize==32)
-      pushSTACK(O(type_uint32)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(O(type_uint32)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       #else # (long_bitsize==64)
-      pushSTACK(O(type_uint64)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(O(type_uint64)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       #endif
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -1145,11 +1145,11 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_slong(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
       #if (long_bitsize==32)
-      pushSTACK(O(type_sint32)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(O(type_sint32)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       #else # (long_bitsize==64)
-      pushSTACK(O(type_sint64)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(O(type_sint64)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       #endif
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -1165,8 +1165,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_ffloat(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(S(single_float)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(S(single_float)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a single-float")
@@ -1181,8 +1181,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_dfloat(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(S(double_float)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(S(double_float)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a double-float")

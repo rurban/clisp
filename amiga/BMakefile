@@ -1,5 +1,5 @@
-# BMakefile für CLISP mit GNU-ANSI-C-Compiler
-# Jörg Höhle 3.8.98
+# BMakefile fÃ¼r CLISP mit GNU-ANSI-C-Compiler
+# JÃ¶rg HÃ¶hle 3.8.98
 # Optionen: ADE, C00, C20, TYPC, HIGH, WIDE, FFI, KI, KA, LMEM
 #  Versionsauswahl
 #   HIGH => C20 -high version

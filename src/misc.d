@@ -1,4 +1,4 @@
-# Diverse Funktionen für CLISP
+# Diverse Funktionen fÃ¼r CLISP
 # Bruno Haible 1990-2000
 
 #include "lispbibl.c"
@@ -30,8 +30,8 @@ LISPFUNN(lisp_implementation_version,0)
 
 LISPFUN(version,0,1,norest,nokey,0,NIL)
 # (SYSTEM::VERSION) liefert die Version des Runtime-Systems,
-# (SYSTEM::VERSION version) überprüft (am Anfang eines FAS-Files),
-# ob die Versionen des Runtime-Systems übereinstimmen.
+# (SYSTEM::VERSION version) Ã¼berprÃ¼ft (am Anfang eines FAS-Files),
+# ob die Versionen des Runtime-Systems Ã¼bereinstimmen.
   {
     var object arg = popSTACK();
     if (eq(arg,unbound)) {
@@ -62,10 +62,10 @@ LISPFUNN(machinetype,0)
           if ( uname(&utsname) <0) { OS_error(); }
           end_system_call();
           pushSTACK(asciz_to_string(&!utsname.machine,O(misc_encoding)));
-          funcall(L(nstring_upcase),1); # in Großbuchstaben umwandeln
+          funcall(L(nstring_upcase),1); # in GroÃŸbuchstaben umwandeln
           erg = value1;
         #else
-          # Betriebssystem-Kommando 'uname -m' bzw. 'arch' ausführen und
+          # Betriebssystem-Kommando 'uname -m' bzw. 'arch' ausfÃ¼hren und
           # dessen Output in einen String umleiten:
           # (string-upcase
           #   (with-open-stream (stream (make-pipe-input-stream "/bin/arch"))
@@ -83,9 +83,9 @@ LISPFUNN(machinetype,0)
           pushSTACK(value1); pushSTACK(NIL); pushSTACK(NIL);
           funcall(L(read_line),3); # (READ-LINE stream NIL NIL)
           pushSTACK(value1); # Ergebnis (kann auch NIL sein) retten
-          builtin_stream_close(&STACK_1); # Stream schließen
+          builtin_stream_close(&STACK_1); # Stream schlieÃŸen
           if (!nullp(STACK_0))
-            erg = string_upcase(STACK_0); # in Großbuchstaben umwandeln
+            erg = string_upcase(STACK_0); # in GroÃŸbuchstaben umwandeln
           else
             erg = NIL;
           skipSTACK(2);
@@ -102,7 +102,7 @@ LISPFUNN(machinetype,0)
           }
         }
       #endif
-      # Das Ergebnis merken wir uns für's nächste Mal:
+      # Das Ergebnis merken wir uns fÃ¼r's nÃ¤chste Mal:
       O(machine_type_string) = erg;
     }
     value1 = erg; mv_count=1;
@@ -121,9 +121,9 @@ LISPFUNN(machine_version,0)
           if ( uname(&utsname) <0) { OS_error(); }
           end_system_call();
           pushSTACK(asciz_to_string(&!utsname.machine,O(misc_encoding)));
-          funcall(L(nstring_upcase),1); # in Großbuchstaben umwandeln
+          funcall(L(nstring_upcase),1); # in GroÃŸbuchstaben umwandeln
         #else
-          # Betriebssystem-Kommando 'uname -m' bzw. 'arch -k' ausführen und
+          # Betriebssystem-Kommando 'uname -m' bzw. 'arch -k' ausfÃ¼hren und
           # dessen Output in einen String umleiten:
           # (string-upcase
           #   (with-open-stream (stream (make-pipe-input-stream "/bin/arch -k"))
@@ -139,8 +139,8 @@ LISPFUNN(machine_version,0)
           pushSTACK(value1); pushSTACK(NIL); pushSTACK(NIL);
           funcall(L(read_line),3); # (READ-LINE stream NIL NIL)
           pushSTACK(value1); # Ergebnis (kann auch NIL sein) retten
-          builtin_stream_close(&STACK_1); # Stream schließen
-          funcall(L(string_upcase),1); skipSTACK(1); # in Großbuchstaben umwandeln
+          builtin_stream_close(&STACK_1); # Stream schlieÃŸen
+          funcall(L(string_upcase),1); skipSTACK(1); # in GroÃŸbuchstaben umwandeln
         #endif
         erg = value1;
       #endif
@@ -170,7 +170,7 @@ LISPFUNN(machine_version,0)
           }
         }
       #endif
-      # Das Ergebnis merken wir uns für's nächste Mal:
+      # Das Ergebnis merken wir uns fÃ¼r's nÃ¤chste Mal:
       O(machine_version_string) = erg;
     }
     value1 = erg; mv_count=1;

@@ -72,7 +72,7 @@
                           (tempvars '())
                           (tempforms '())
                           (new-access-form '()))
-                      (let ((i 0)) ; Argumente-Zähler
+                      (let ((i 0)) ; Argumente-ZÃ¤hler
                         ; argcount = -1 falls keine Keyword-Argumente existieren
                         ; bzw.     = Anzahl der einzelnen Argumente vor &KEY,
                         ;          = nil nachdem diese abgearbeitet sind.
@@ -682,7 +682,7 @@
                         (get-setf-expansion place env)
                       (declare (ignore SM5))
                       ; SM4 hat die Gestalt `((SETF ,(first place)) ,@SM3 ,@SM1).
-                      ; SM3 ist überflüssig.
+                      ; SM3 ist Ã¼berflÃ¼ssig.
                       `(LET* ,(mapcar #'list SM1 SM2)
                          ,(subst value (first SM3) SM4)
                        )
@@ -902,18 +902,18 @@
         (ENGLISH "APPLY on ~S is not a SETF place.")
         fun
     ) )
-    (let ((item (car (last SM1)))) ; 'item' steht für eine Argumentliste!
+    (let ((item (car (last SM1)))) ; 'item' steht fÃ¼r eine Argumentliste!
       (labels ((splice (arglist)
-                 ; Würde man in (LIST . arglist) das 'item' nicht als 1 Element,
+                 ; WÃ¼rde man in (LIST . arglist) das 'item' nicht als 1 Element,
                  ; sondern gespliced, sozusagen als ',@item', haben wollen, so
-                 ; bräuchte man die Form, die (splice arglist) liefert.
+                 ; brÃ¤uchte man die Form, die (splice arglist) liefert.
                  (if (endp arglist)
                    'NIL
                    (let ((rest (splice (cdr arglist))))
                      (if (eql (car arglist) item)
-                       ; ein (APPEND item ...) davorhängen, wie bei Backquote
+                       ; ein (APPEND item ...) davorhÃ¤ngen, wie bei Backquote
                        (backquote-append item rest)
-                       ; ein (CONS (car arglist) ...) davorhängen, wie bei Backquote
+                       ; ein (CONS (car arglist) ...) davorhÃ¤ngen, wie bei Backquote
                        (backquote-cons (car arglist) rest)
               )) ) ) )
         (flet ((call-splicing (form)
@@ -942,7 +942,7 @@
           (values SM1 SM2 SM3 (call-splicing SM4) (call-splicing SM5))
 ) ) ) ) )
 ;;;----------------------------------------------------------------------------
-;;; Zusätzliche Definitionen von places
+;;; ZusÃ¤tzliche Definitionen von places
 ;;;----------------------------------------------------------------------------
 (define-setf-expander funcall (fun &rest args &environment env)
   (unless (and (listp fun)

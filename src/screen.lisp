@@ -40,7 +40,7 @@
 
 
 ;;;; SCREEN-Package for Amiga
-;;;; Jörg Höhle, 23.7.1996
+;;;; JÃ¶rg HÃ¶hle, 23.7.1996
 ;;;; TODO: Use Gray streams instead of old generic-streams.
 
 #+AMIGA (use-package "CLOS")

@@ -1,6 +1,6 @@
 
 #
-# (C) 1998, S.u.S.E. GmbH, Nürnberg
+# (C) 1998, S.u.S.E. GmbH, NÃ¼rnberg
 #
 
 Call of CLX
@@ -25,7 +25,7 @@ Aufruf von CLX
       Bitte rufen Sie clisp mit der Option -X auf. Clx erfordert ein
 installiertes X-Window-System.  Daher wird die entsprechende clisp-Version
 aus /usr/lib/clisp/clx/ benutzt.
-Sie finden zwei Beispiele für clx im Verzeichnis demos/
+Sie finden zwei Beispiele fÃ¼r clx im Verzeichnis demos/
 
          clisp -X -q -i sokoban
 

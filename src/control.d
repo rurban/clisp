@@ -1,11 +1,11 @@
-# Special-Forms, Kontrollstrukturen, Evaluator-Nahes für CLISP
+# Special-Forms, Kontrollstrukturen, Evaluator-Nahes fÃ¼r CLISP
 # Bruno Haible 1990-2000
 
 #include "lispbibl.c"
 
 
 LISPFUN(exit,0,1,norest,nokey,0,NIL)
-# (SYSTEM::%EXIT [errorp]) verlässt das System
+# (SYSTEM::%EXIT [errorp]) verlÃ¤sst das System
   {
     var object errorp = STACK_0;
     final_exitcode = ((eq(errorp,unbound) || nullp(errorp)) ? 0 : 1);
@@ -79,12 +79,12 @@ LISPSPECFORM(function, 1,1,nobody)
         # (FUNCTION symbol) - Syntax
         # Symbol im aktuellen Funktions-Environment suchen:
         var object fun = sym_function(funname,aktenv.fun_env);
-        # SUBR oder Closure oder Foreign-Function zurückgeben, sonst Fehler:
+        # SUBR oder Closure oder Foreign-Function zurÃ¼ckgeben, sonst Fehler:
         if (!(subrp(fun) || closurep(fun) || ffunctionp(fun))) {
           if (functionmacrop(fun))
             fun = TheFunctionMacro(fun)->functionmacro_function;
           else {
-            pushSTACK(funname); # Wert für Slot NAME von CELL-ERROR
+            pushSTACK(funname); # Wert fÃ¼r Slot NAME von CELL-ERROR
             pushSTACK(funname);
             pushSTACK(S(function));
             fehler(undefined_function,
@@ -122,7 +122,7 @@ LISPSPECFORM(function, 1,1,nobody)
   local void fehler_no_value(symbol)
     var object symbol;
     {
-      pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
+      pushSTACK(symbol); # Wert fÃ¼r Slot NAME von CELL-ERROR
       pushSTACK(symbol);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(unbound_variable,
@@ -168,7 +168,7 @@ LISPFUNN(symbol_value,1)
     var object caller;
     var object symbol;
     {
-      pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
+      pushSTACK(symbol); # Wert fÃ¼r Slot NAME von CELL-ERROR
       pushSTACK(symbol);
       pushSTACK(caller);
       fehler(undefined_function,
@@ -262,7 +262,7 @@ LISPFUNN(special_operator_p,1)
             );
     }
 
-# UP: überprüft den Body einer SETQ- oder PSETQ-Form.
+# UP: Ã¼berprÃ¼ft den Body einer SETQ- oder PSETQ-Form.
 # > caller: Aufrufer (ein Symbol)
 # > STACK_0: Body
 # < ergebnis: TRUE falls Symbol-Macros zu expandieren sind.
@@ -317,9 +317,9 @@ LISPSPECFORM(setq, 0,0,body)
           body = Cdr(body);
           pushSTACK(Cdr(body)); # Restliste retten
           pushSTACK(symbol); # Symbol retten
-          eval(Car(body)); # nächste Form auswerten
+          eval(Car(body)); # nÃ¤chste Form auswerten
           symbol = popSTACK();
-          setq(symbol,value1); # Zuweisung durchführen
+          setq(symbol,value1); # Zuweisung durchfÃ¼hren
           body = popSTACK();
         } while (consp(body));
         # value1 ist noch das letzte Auswertungs-Ergebnis.
@@ -348,7 +348,7 @@ LISPSPECFORM(psetq, 0,0,body)
             pushSTACK(Car(body)); # Variable auf den Stack
             body = Cdr(body);
             pushSTACK(Cdr(body)); # Restliche Liste auf den Stack
-            eval(Car(body)); # nächste Form auswerten
+            eval(Car(body)); # nÃ¤chste Form auswerten
             body = STACK_0;
             STACK_0 = value1; # ihr Ergebnis in den Stack
           });
@@ -358,7 +358,7 @@ LISPSPECFORM(psetq, 0,0,body)
           dotimespL(count,body_length, {
             var object val = popSTACK(); # Wert
             var object sym = popSTACK(); # Symbol
-            setq(sym,val); # Zuweisung durchführen
+            setq(sym,val); # Zuweisung durchfÃ¼hren
           });
         }
       }
@@ -462,13 +462,13 @@ LISPSPECFORM(progn, 0,0,body)
 # Macro: Wertet die Formen einer Formenliste aus.
 # implicit_prog();
 # > -(STACK): Formenliste
-# erhöht STACK um 1
+# erhÃ¶ht STACK um 1
 # can trigger GC
   #define implicit_prog()  \
     { while (mconsp(STACK_0))                         \
         { var object forms = STACK_0;                 \
           STACK_0 = Cdr(forms);                       \
-          eval(Car(forms)); # nächste Form evaluieren \
+          eval(Car(forms)); # nÃ¤chste Form evaluieren \
         }                                             \
       skipSTACK(1);                                   \
     }
@@ -478,7 +478,7 @@ LISPSPECFORM(prog1, 1,0,body)
   {
     STACK_1 = (eval(STACK_1),value1); # form1 evaluieren, Wert retten
     implicit_prog();
-    value1 = popSTACK(); mv_count=1; # geretteten Wert zurückgeben
+    value1 = popSTACK(); mv_count=1; # geretteten Wert zurÃ¼ckgeben
   }
 
 LISPSPECFORM(prog2, 2,0,body)
@@ -488,7 +488,7 @@ LISPSPECFORM(prog2, 2,0,body)
     eval(STACK_1); STACK_2 = value1; # form2 evaluieren, Wert retten
     STACK_1 = STACK_0; skipSTACK(1);
     implicit_prog();
-    value1 = popSTACK(); mv_count=1; # geretteten Wert zurückgeben
+    value1 = popSTACK(); mv_count=1; # geretteten Wert zurÃ¼ckgeben
   }
 
 # Fehlermeldung wegen nicht erlaubter Docstrings
@@ -507,8 +507,8 @@ LISPSPECFORM(prog2, 2,0,body)
             );
     }
 
-# UP für LET, LET*, LOCALLY, MULTIPLE-VALUE-BIND, SYMBOL-MACROLET:
-# Kompiliert die aktuelle Form und führt sie in kompiliertem Zustand aus.
+# UP fÃ¼r LET, LET*, LOCALLY, MULTIPLE-VALUE-BIND, SYMBOL-MACROLET:
+# Kompiliert die aktuelle Form und fÃ¼hrt sie in kompiliertem Zustand aus.
 # compile_form()
 # > im STACK: EVAL-Frame mit der Form
 # < mv_count/mv_space: Werte
@@ -516,14 +516,14 @@ LISPSPECFORM(prog2, 2,0,body)
   local Values compile_eval_form (void);
   local Values compile_eval_form()
     {
-      # (SYS::COMPILE-FORM form venv fenv benv genv denv) ausführen:
+      # (SYS::COMPILE-FORM form venv fenv benv genv denv) ausfÃ¼hren:
       # Die ganze Form aus dem EVAL-Frame im Stack holen:
       pushSTACK(STACK_(frame_form)); # als 1. Argument
       {
         var environment* stack_env = nest_aktenv(); # aktuelles Environment nesten, auf den STACK legen
         #if !defined(STACK_UP)
         var environment my_env;
-        my_env = *stack_env; # und hierher übertragen
+        my_env = *stack_env; # und hierher Ã¼bertragen
         skipSTACK(5); # und wieder vom STACK nehmen
         pushSTACK(my_env.var_env); # 2. Argument
         pushSTACK(my_env.fun_env); # 3. Argument
@@ -537,7 +537,7 @@ LISPSPECFORM(prog2, 2,0,body)
       funcall(value1,0);
     }
 
-# UP für LET, LET*, LOCALLY, MULTIPLE-VALUE-BIND, SYMBOL-MACROLET:
+# UP fÃ¼r LET, LET*, LOCALLY, MULTIPLE-VALUE-BIND, SYMBOL-MACROLET:
 # Analysiert die Variablen und Deklarationen, baut einen Variablenbindungs-
 # Frame auf und erweitert VENV und evtl. auch DENV durch einen Frame.
 # make_variable_frame(caller,varspecs,&bind_ptr,&bind_count)
@@ -546,9 +546,9 @@ LISPSPECFORM(prog2, 2,0,body)
 # > object value2: Liste von Declaration-Specifiern
 # > object value1: Liste ({form}) von Formen
 # < Stackaufbau: Variablenbindungsframe, Env-Bindungs-Frame, ({form}).
-# < object* bind_ptr: Pointer über die erste "richtige" Bindung.
+# < object* bind_ptr: Pointer Ã¼ber die erste "richtige" Bindung.
 # < uintC bind_count: Anzahl der "richtigen" Bindungen.
-# verändert STACK
+# verÃ¤ndert STACK
 # can trigger GC
   local void make_variable_frame (object caller, object varspecs, object** bind_ptr_, uintC* bind_count_);
   local void make_variable_frame(caller,varspecs,bind_ptr_,bind_count_)
@@ -560,7 +560,7 @@ LISPSPECFORM(prog2, 2,0,body)
       var object declarations = value2;
       # Variablenbindungs-Frame aufbauen:
       {
-        var object* top_of_frame = STACK; # Pointer übern Frame
+        var object* top_of_frame = STACK; # Pointer Ã¼bern Frame
         # zuerst die Special-deklarierten Variablen aus declarations
         # im Stack ablegen:
         var object* spec_pointer = args_end_pointer;
@@ -568,10 +568,10 @@ LISPSPECFORM(prog2, 2,0,body)
         {
           var object declspecs = declarations;
           while (consp(declspecs)) {
-            var object declspec = Car(declspecs); # nächste Deklaration
+            var object declspec = Car(declspecs); # nÃ¤chste Deklaration
             if (consp(declspec) && eq(Car(declspec),S(special))) { # (SPECIAL ...) ?
               while (consp( declspec = Cdr(declspec) )) {
-                var object declsym = Car(declspec); # nächstes Special-deklariertes Item
+                var object declsym = Car(declspec); # nÃ¤chstes Special-deklariertes Item
                 if (!symbolp(declsym)) { # sollte ein Symbol sein
                   pushSTACK(declsym);
                   pushSTACK(caller);
@@ -589,14 +589,14 @@ LISPSPECFORM(prog2, 2,0,body)
             declspecs = Cdr(declspecs);
           }
         }
-        *bind_ptr_ = args_end_pointer; # Pointer über erste "richtige" Bindung
+        *bind_ptr_ = args_end_pointer; # Pointer Ã¼ber erste "richtige" Bindung
         # Dann die "richtigen" Variablenbindungen (jeweils die Variable
         # und ihren unausgewerteten Init) im Stack ablegen:
         {
           var uintL var_anz = 0; # Anzahl der Variablenbindungen
           {
             while (consp(varspecs)) {
-              var object varspec = Car(varspecs); # nächstes varspec
+              var object varspec = Car(varspecs); # nÃ¤chstes varspec
               # in Symbol und Init aufspalten:
               var object symbol;
               var object init;
@@ -610,7 +610,7 @@ LISPSPECFORM(prog2, 2,0,body)
                           ( # zweielementig?
                             (consp(varspec) && nullp(Cdr(varspec))
                              && (init = Car(varspec), TRUE))
-                            || # einelementig (bei LET, LET* gemäß X3J13 vote <182> erlaubt)
+                            || # einelementig (bei LET, LET* gemÃ¤ÃŸ X3J13 vote <182> erlaubt)
                             (nullp(varspec) && !eq(caller,S(symbol_macrolet))
                              && (init = NIL, TRUE))
                      )   )) {
@@ -707,15 +707,15 @@ LISPSPECFORM(prog2, 2,0,body)
       var object* var_frame_ptr = STACK; # Pointer auf Variablenbindungs-Frame
       # VENV-Bindungsframe aufbauen:
       {
-        var object* top_of_frame = STACK; # Pointer übern Frame
-        # Zuerst DENV um die nötigen declspecs erweitern:
+        var object* top_of_frame = STACK; # Pointer Ã¼bern Frame
+        # Zuerst DENV um die nÃ¶tigen declspecs erweitern:
         var object denv = aktenv.decl_env;
         pushSTACK(value1); # ({form}) retten
         pushSTACK(declarations);
         while (mconsp(STACK_0)) {
           var object declspecs = STACK_0;
           STACK_0 = Cdr(declspecs);
-          var object declspec = Car(declspecs); # nächstes Declspec
+          var object declspec = Car(declspecs); # nÃ¤chstes Declspec
           if (consp(declspec)) { # sollte ein Cons sein
             if (!eq(Car(declspec),S(special))) # (SPECIAL ...) haben wir schon behandelt
               denv = augment_decl_env(declspec,denv); # alles andere behandeln
@@ -743,7 +743,7 @@ LISPSPECFORM(let, 1,0,body)
 # (LET ({varspec}) {decl} {form}), CLTL S. 110
   {
     # {decl} {form} trennen:
-    var boolean to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); # unvollständiges var_env??
+    var boolean to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); # unvollstÃ¤ndiges var_env??
     # bitte kein Docstring:
     if (!nullp(value3))
       fehler_docstring(S(let),STACK_0);
@@ -763,7 +763,7 @@ LISPSPECFORM(let, 1,0,body)
           var uintC count;
           dotimespC(count,bind_count, {
             var object* initptr = &NEXT(frame_pointer);
-            var object init = *initptr; # nächstes Init
+            var object init = *initptr; # nÃ¤chstes Init
             *initptr = (eq(init,unbound) ? NIL : (eval(init),value1)); # auswerten, NIL als Default
             frame_pointer skipSTACKop -(varframe_binding_size-1);
           });
@@ -789,9 +789,9 @@ LISPSPECFORM(let, 1,0,body)
       }
       # Body abinterpretieren:
       implicit_progn(popSTACK(),NIL);
-      # Frames auflösen:
-      unwind(); # VENV-Bindungsframe auflösen
-      unwind(); # Variablenbindungs-Frame auflösen
+      # Frames auflÃ¶sen:
+      unwind(); # VENV-Bindungsframe auflÃ¶sen
+      unwind(); # Variablenbindungs-Frame auflÃ¶sen
     }
   }
 
@@ -799,7 +799,7 @@ LISPSPECFORM(letstern, 1,0,body)
 # (LET* ({varspec}) {decl} {form}), CLTL S. 111
   {
     # {decl} {form} trennen:
-    var boolean to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); # unvollständiges var_env??
+    var boolean to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); # unvollstÃ¤ndiges var_env??
     # bitte kein Docstring:
     if (!nullp(value3))
       fehler_docstring(S(letstern),STACK_0);
@@ -820,7 +820,7 @@ LISPSPECFORM(letstern, 1,0,body)
           var object* initptr = &Next(frame_pointer);
           frame_pointer skipSTACKop -varframe_binding_size;
           var object* markptr = &Before(frame_pointer);
-          var object init = *initptr; # nächstes Init
+          var object init = *initptr; # nÃ¤chstes Init
           var object newval = (eq(init,unbound) ? NIL : (eval(init),value1)); # auswerten, NIL als Default
           if (as_oint(*markptr) & wbit(dynam_bit_o)) { # Bindung dynamisch?
             var object symbol = *(markptr STACKop varframe_binding_sym); # Variable
@@ -835,9 +835,9 @@ LISPSPECFORM(letstern, 1,0,body)
       }
       # Body abinterpretieren:
       implicit_progn(popSTACK(),NIL);
-      # Frames auflösen:
-      unwind(); # VENV-Bindungsframe auflösen
-      unwind(); # Variablenbindungs-Frame auflösen
+      # Frames auflÃ¶sen:
+      unwind(); # VENV-Bindungsframe auflÃ¶sen
+      unwind(); # Variablenbindungs-Frame auflÃ¶sen
     }
   }
 
@@ -845,7 +845,7 @@ LISPSPECFORM(locally, 0,0,body)
 # (LOCALLY {decl} {form}), CLTL2 S. 221
   {
     # {decl} {form} trennen:
-    var boolean to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); # unvollständiges var_env??
+    var boolean to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); # unvollstÃ¤ndiges var_env??
     # bitte kein Docstring:
     if (!nullp(value3))
       fehler_docstring(S(locally),STACK_0);
@@ -860,9 +860,9 @@ LISPSPECFORM(locally, 0,0,body)
       make_variable_frame(S(locally),NIL,&bind_ptr,&bind_count);
       # Body abinterpretieren:
       implicit_progn(popSTACK(),NIL);
-      # Frames auflösen:
-      unwind(); # VENV-Bindungsframe auflösen
-      unwind(); # Variablenbindungs-Frame auflösen
+      # Frames auflÃ¶sen:
+      unwind(); # VENV-Bindungsframe auflÃ¶sen
+      unwind(); # Variablenbindungs-Frame auflÃ¶sen
     }
   }
 
@@ -874,7 +874,7 @@ LISPSPECFORM(compiler_let, 1,0,body)
     var uintL varcount = llength(varspecs); # Anzahl der Variablen
     get_space_on_STACK(varcount*3*sizeof(object)); # Platz auf dem STACK verlangen
     # varspecs evaluieren:
-    var object* val_pointer = args_end_pointer; # Pointer über die Werte
+    var object* val_pointer = args_end_pointer; # Pointer Ã¼ber die Werte
     while (consp(varspecs)) {
       var object varspec = Car(varspecs);
       var object symbol;
@@ -923,7 +923,7 @@ LISPSPECFORM(compiler_let, 1,0,body)
     varspecs = *varspecs_;
     # Frame aufbauen:
     {
-      var object* top_of_frame = STACK; # Pointer übern Frame
+      var object* top_of_frame = STACK; # Pointer Ã¼bern Frame
       while (consp(varspecs)) {
         var object varspec = Car(varspecs);
         if (consp(varspec))
@@ -934,7 +934,7 @@ LISPSPECFORM(compiler_let, 1,0,body)
       }
       finish_frame(DYNBIND);
     }
-    # Frame fertig aufgebaut, nun die Werte der Variablen verändern:
+    # Frame fertig aufgebaut, nun die Werte der Variablen verÃ¤ndern:
     varspecs = *varspecs_;
     {
       var object* valptr = val_pointer;
@@ -948,9 +948,9 @@ LISPSPECFORM(compiler_let, 1,0,body)
     }
     # Nun die Formen evaluieren:
     implicit_progn(*(varspecs_ STACKop -1),NIL);
-    # Bindungsframe auflösen:
+    # Bindungsframe auflÃ¶sen:
     unwind();
-    # Stack aufräumen:
+    # Stack aufrÃ¤umen:
     set_args_end_pointer(val_pointer);
     skipSTACK(2);
   }
@@ -964,7 +964,7 @@ LISPSPECFORM(progv, 2,0,body)
     skipSTACK(1);
     progv(popSTACK(),valuelist); # Frame aufbauen
     implicit_progn(body,NIL); # body auswerten
-    unwind(); # Frame auflösen
+    unwind(); # Frame auflÃ¶sen
   }
 
 # Fehlermeldung bei FLET/LABELS, wenn keine Funktionsspezifikation vorliegt.
@@ -985,7 +985,7 @@ LISPSPECFORM(progv, 2,0,body)
 # UP: Beendet ein FLET/MACROLET.
 # finish_flet(top_of_frame,body);
 # > Stackaufbau: [top_of_frame] def1 name1 ... defn namen [STACK]
-# > top_of_frame: Pointer übern Frame
+# > top_of_frame: Pointer Ã¼bern Frame
 # > body: Formenliste
 # < mv_count/mv_space: Werte
 # can trigger GC
@@ -1004,7 +1004,7 @@ LISPSPECFORM(progv, 2,0,body)
       # Funktionsbindungsframe ist fertig.
       # FENV-Bindungsframe bauen:
       {
-        var object* top_of_frame = STACK; # Pointer übern Frame
+        var object* top_of_frame = STACK; # Pointer Ã¼bern Frame
         pushSTACK(aktenv.fun_env);
         finish_frame(ENV1F);
         # FENV-Bindungsframe ist fertig.
@@ -1012,10 +1012,10 @@ LISPSPECFORM(progv, 2,0,body)
         # top_of_frame = Pointer auf den Funktionsbindungsframe
         aktenv.fun_env = make_framepointer(top_of_frame);
       }
-      # Formen ausführen:
+      # Formen ausfÃ¼hren:
       implicit_progn(body,NIL);
-      unwind(); # FENV-Bindungsframe auflösen
-      unwind(); # Funktionsbindungsframe auflösen
+      unwind(); # FENV-Bindungsframe auflÃ¶sen
+      unwind(); # Funktionsbindungsframe auflÃ¶sen
     }
 
 LISPSPECFORM(flet, 1,0,body)
@@ -1024,11 +1024,11 @@ LISPSPECFORM(flet, 1,0,body)
     var object body = popSTACK(); # ({form})
     var object funspecs = popSTACK(); # ({funspec})
     # Funktionsbindungs-Frame aufbauen:
-    var object* top_of_frame = STACK; # Pointer übern Frame
+    var object* top_of_frame = STACK; # Pointer Ã¼bern Frame
     while (consp(funspecs)) {
       pushSTACK(body); # Formenliste retten
       pushSTACK(Cdr(funspecs)); # restliche funspecs
-      funspecs = Car(funspecs); # nächstes funspec = (name . lambdabody)
+      funspecs = Car(funspecs); # nÃ¤chstes funspec = (name . lambdabody)
       # sollte ein Cons sein, dessen CAR ein Symbol und dessen CDR ein Cons ist:
       if (!consp(funspecs)) {
        fehler_spec:
@@ -1058,7 +1058,7 @@ LISPSPECFORM(labels, 1,0,body)
   {
     # Auf den Aufbau eines Funktionsbindungs-Frames kann hier verzichtet werden,
     # weil bei der Bildung der ersten Closure sowieso das Environment genestet
-    # und dabei dieser Funktionsbindungs-Frame in einen Vektor geschrieben würde.
+    # und dabei dieser Funktionsbindungs-Frame in einen Vektor geschrieben wÃ¼rde.
     # aktuelles FUN_ENV nesten:
     pushSTACK(nest_fun(aktenv.fun_env));
     # Anzahl der funspecs bestimmen und Syntax abtesten:
@@ -1082,13 +1082,13 @@ LISPSPECFORM(labels, 1,0,body)
         veclength += 2;
       }
     }
-    # Vektor passender Länge allozieren und darin die Namen eintragen:
+    # Vektor passender LÃ¤nge allozieren und darin die Namen eintragen:
     var object vec = allocate_vector(veclength);
     {
       var object* ptr = &TheSvector(vec)->data[0];
       var object funspecs = STACK_(1+1);
       while (consp(funspecs)) {
-        *ptr++ = Car(Car(funspecs)); # nächster name
+        *ptr++ = Car(Car(funspecs)); # nÃ¤chster name
         ptr++; # Funktion bleibt vorerst NIL
         funspecs = Cdr(funspecs);
       }
@@ -1098,7 +1098,7 @@ LISPSPECFORM(labels, 1,0,body)
     var object funspecs = popSTACK();
     # FENV-Bindungsframe aufbauen:
     {
-      var object* top_of_frame = STACK; # Pointer übern Frame
+      var object* top_of_frame = STACK; # Pointer Ã¼bern Frame
       pushSTACK(aktenv.fun_env);
       finish_frame(ENV1F);
     }
@@ -1121,9 +1121,9 @@ LISPSPECFORM(labels, 1,0,body)
     }
     skipSTACK(1); # Vektor vergessen
     body = popSTACK();
-    # Formen ausführen:
+    # Formen ausfÃ¼hren:
     implicit_progn(body,NIL);
-    unwind(); # FENV-Bindungsframe auflösen
+    unwind(); # FENV-Bindungsframe auflÃ¶sen
   }
 
 LISPSPECFORM(macrolet, 1,0,body)
@@ -1132,11 +1132,11 @@ LISPSPECFORM(macrolet, 1,0,body)
     var object body = popSTACK(); # ({form})
     var object macrodefs = popSTACK(); # ({macrodef})
     # Macrobindungs-Frame aufbauen:
-    var object* top_of_frame = STACK; # Pointer übern Frame
+    var object* top_of_frame = STACK; # Pointer Ã¼bern Frame
     while (consp(macrodefs)) {
       pushSTACK(body); # Formenliste retten
       pushSTACK(Cdr(macrodefs)); # restliche macrodefs
-      macrodefs = Car(macrodefs); # nächstes macrodef = (name . lambdabody)
+      macrodefs = Car(macrodefs); # nÃ¤chstes macrodef = (name . lambdabody)
       # sollte ein Cons sein, dessen CAR ein Symbol und dessen CDR ein Cons ist:
       if (!consp(macrodefs)) {
        fehler_spec:
@@ -1177,12 +1177,12 @@ LISPSPECFORM(function_macro_let, 1,0,body)
     var object body = popSTACK(); # ({form})
     var object funmacspecs = popSTACK(); # {(name fun-lambdabody macro-lambdabody)}
     # FunctionMacro-Bindungs-Frame aufbauen:
-    var object* top_of_frame = STACK; # Pointer übern Frame
+    var object* top_of_frame = STACK; # Pointer Ã¼bern Frame
     while (consp(funmacspecs)) {
       pushSTACK(body); # Formenliste retten
       pushSTACK(Cdr(funmacspecs)); # restliche funmacspecs
-      funmacspecs = Car(funmacspecs); # nächstes (name fun-lambdabody macro-lambdabody)
-      # Sollte eine Liste der Länge 3 sein, dessen CAR ein Symbol und dessen
+      funmacspecs = Car(funmacspecs); # nÃ¤chstes (name fun-lambdabody macro-lambdabody)
+      # Sollte eine Liste der LÃ¤nge 3 sein, dessen CAR ein Symbol und dessen
       # weitere Listenelemente Conses sind:
       if (!consp(funmacspecs)) {
        fehler_spec:
@@ -1235,7 +1235,7 @@ LISPSPECFORM(symbol_macrolet, 1,0,body)
 # (SYMBOL-MACROLET ({(var expansion)}) {decl} {form}), CLTL2 S. 155
   {
     # {decl} {form} trennen:
-    var boolean to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); # unvollständiges var_env??
+    var boolean to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); # unvollstÃ¤ndiges var_env??
     # bitte kein Docstring:
     if (!nullp(value3))
       fehler_docstring(S(symbol_macrolet),STACK_0);
@@ -1263,9 +1263,9 @@ LISPSPECFORM(symbol_macrolet, 1,0,body)
       }
       # Body abinterpretieren:
       implicit_progn(popSTACK(),NIL);
-      # Frames auflösen:
-      unwind(); # VENV-Bindungsframe auflösen
-      unwind(); # Variablenbindungs-Frame auflösen
+      # Frames auflÃ¶sen:
+      unwind(); # VENV-Bindungsframe auflÃ¶sen
+      unwind(); # Variablenbindungs-Frame auflÃ¶sen
     }
   }
 
@@ -1319,7 +1319,7 @@ LISPSPECFORM(cond, 0,0,body)
     while (mconsp(STACK_0)) {
       var object clause = STACK_0; # Klausel-Liste
       STACK_0 = Cdr(clause); # restliche Klauseln retten
-      clause = Car(clause); # nächste Klausel
+      clause = Car(clause); # nÃ¤chste Klausel
       if (!consp(clause)) { # sollte ein Cons sein
         pushSTACK(clause);
         pushSTACK(S(cond));
@@ -1331,11 +1331,11 @@ LISPSPECFORM(cond, 0,0,body)
       eval(Car(clause)); # Bedingung auswerten
       if (!nullp(value1))
         goto eval_clause;
-      skipSTACK(1); # nächste probieren
+      skipSTACK(1); # nÃ¤chste probieren
     }
-    # keine Bedingung war erfüllt.
+    # keine Bedingung war erfÃ¼llt.
     skipSTACK(1); value1 = NIL; mv_count=1; return;
-    # erfüllte Bedingung gefunden:
+    # erfÃ¼llte Bedingung gefunden:
    eval_clause:
     var object clause_rest = popSTACK(); # Klausel-Rest
     skipSTACK(1);
@@ -1351,7 +1351,7 @@ LISPSPECFORM(case, 1,0,body)
     var object clause;
     skipSTACK(2);
     while (consp(clauses)) {
-      clause = Car(clauses); # nächste Klausel
+      clause = Car(clauses); # nÃ¤chste Klausel
       clauses = Cdr(clauses);
       if (!consp(clause)) { # sollte ein Cons sein
         pushSTACK(clause);
@@ -1382,9 +1382,9 @@ LISPSPECFORM(case, 1,0,body)
         }
       }
     }
-    # keine Bedingung war erfüllt.
+    # keine Bedingung war erfÃ¼llt.
     value1 = NIL; mv_count=1; return;
-    # erfüllte Bedingung gefunden:
+    # erfÃ¼llte Bedingung gefunden:
    eval_clause:
     var object clause_rest = Cdr(clause); # Klausel-Rest
     implicit_progn(clause_rest,NIL); # auswerten
@@ -1397,10 +1397,10 @@ LISPSPECFORM(block, 1,0,body)
     var object name = popSTACK();
     if (!symbolp(name))
       fehler_symbol(name);
-    var sp_jmp_buf returner; # Rücksprungpunkt
+    var sp_jmp_buf returner; # RÃ¼cksprungpunkt
     # Block-Frame aufbauen:
     {
-      var object* top_of_frame = STACK; # Pointer übern Frame
+      var object* top_of_frame = STACK; # Pointer Ã¼bern Frame
       pushSTACK(name); # Block-Name
       pushSTACK(aktenv.block_env); # aktuelles BLOCK_ENV als NEXT_ENV
       finish_entry_frame(IBLOCK,&!returner,, goto block_return; );
@@ -1413,12 +1413,12 @@ LISPSPECFORM(block, 1,0,body)
       # BLOCK_ENV erweitern (top_of_frame = Pointer auf den Block-Frame)
       aktenv.block_env = make_framepointer(top_of_frame);
     }
-    # Body ausführen:
+    # Body ausfÃ¼hren:
     implicit_progn(body,NIL);
-    unwind(); # BENV-Bindungsframe auflösen
+    unwind(); # BENV-Bindungsframe auflÃ¶sen
    block_return: # Hierher wird gesprungen, wenn der BLOCK-Frame einen
                  # RETURN-FROM gefangen hat.
-    unwind(); # BLOCK-Frame auflösen
+    unwind(); # BLOCK-Frame auflÃ¶sen
   }
 
 # Fehler, wenn ein Block bereits verlassen wurde.
@@ -1483,22 +1483,22 @@ LISPSPECFORM(return_from, 1,1,nobody)
     } else {
       value1 = NIL; mv_count=1;
     }
-    # Zum gefundenen Block-Frame springen und ihn auflösen:
+    # Zum gefundenen Block-Frame springen und ihn auflÃ¶sen:
     unwind_upto(FRAME);
   }
 
 # Die Funktionen MAPCAR, MAPLIST, MAPCAN, MAPCON bauen wir in zwei Versionen:
 # Die erste baut die Liste im umgekehrter Reihenfolge, muss sie dann umdrehen.
-# Die zweite arbeitet vorwärtsherum, braucht dafür aber ein Cons zuviel.
+# Die zweite arbeitet vorwÃ¤rtsherum, braucht dafÃ¼r aber ein Cons zuviel.
   #define MAP_REVERSES
 
 #ifdef MAP_REVERSES
 
-# Macro für MAPCAR und MAPLIST
+# Macro fÃ¼r MAPCAR und MAPLIST
   #define MAPCAR_MAPLIST_BODY(listaccess)  \
     { var object* args_pointer = rest_args_pointer STACKop 2;                   \
       argcount++; # argcount := Anzahl der Listen auf dem Stack                 \
-      # Platz für die Funktionsaufruf-Argumente reservieren:                    \
+      # Platz fÃ¼r die Funktionsaufruf-Argumente reservieren:                    \
       get_space_on_STACK(sizeof(object)*(uintL)argcount);                       \
       pushSTACK(NIL); # Anfang der Ergebnisliste                                \
      {var object* ergptr = &STACK_0; # Pointer darauf                           \
@@ -1512,26 +1512,26 @@ LISPSPECFORM(return_from, 1,1,nobody)
               var object next_list = *next_list_;                               \
               if (atomp(next_list)) goto fertig; # eine Liste zu Ende -> fertig \
               pushSTACK(listaccess(next_list)); # als Argument auf den Stack    \
-              *next_list_ = Cdr(next_list); # Liste verkürzen                   \
+              *next_list_ = Cdr(next_list); # Liste verkÃ¼rzen                   \
             });                                                                 \
           funcall(fun,argcount); # Funktion aufrufen                            \
           pushSTACK(value1);                                                    \
          {var object new_cons = allocate_cons(); # neues Cons                   \
           Car(new_cons) = popSTACK(); Cdr(new_cons) = STACK_0;                  \
-          STACK_0 = new_cons; # verlängert die Ergebnisliste                    \
+          STACK_0 = new_cons; # verlÃ¤ngert die Ergebnisliste                    \
         }}                                                                      \
       fertig:                                                                   \
       value1 = nreverse(*ergptr); mv_count=1; # Ergebnisliste umdrehen          \
-      set_args_end_pointer(args_pointer); # STACK aufräumen                     \
+      set_args_end_pointer(args_pointer); # STACK aufrÃ¤umen                     \
     }}
 
 #else
 
-# Macro für MAPCAR und MAPLIST
+# Macro fÃ¼r MAPCAR und MAPLIST
   #define MAPCAR_MAPLIST_BODY(listaccess)  \
     { var object* args_pointer = rest_args_pointer STACKop 2;                   \
       argcount++; # argcount := Anzahl der Listen auf dem Stack                 \
-      # Platz für die Funktionsaufruf-Argumente reservieren:                    \
+      # Platz fÃ¼r die Funktionsaufruf-Argumente reservieren:                    \
       get_space_on_STACK(sizeof(object)*(uintL)argcount);                       \
       # Gesamtliste anfangen:                                                   \
       {var object new_cons = allocate_cons(); # (CONS NIL NIL)                  \
@@ -1549,26 +1549,26 @@ LISPSPECFORM(return_from, 1,1,nobody)
               var object next_list = *next_list_;                               \
               if (atomp(next_list)) goto fertig; # eine Liste zu Ende -> fertig \
               pushSTACK(listaccess(next_list)); # als Argument auf den Stack    \
-              *next_list_ = Cdr(next_list); # Liste verkürzen                   \
+              *next_list_ = Cdr(next_list); # Liste verkÃ¼rzen                   \
             });                                                                 \
           funcall(fun,argcount); # Funktion aufrufen                            \
           pushSTACK(value1);                                                    \
          {var object new_cons = allocate_cons(); # neues Cons                   \
           Car(new_cons) = popSTACK(); # new_cons = (LIST (FUNCALL ...))         \
-          Cdr(STACK_0) = new_cons; STACK_0 = new_cons; # verlängert Gesamtliste \
+          Cdr(STACK_0) = new_cons; STACK_0 = new_cons; # verlÃ¤ngert Gesamtliste \
         }}                                                                      \
       fertig:                                                                   \
       value1 = Cdr(*ergptr); mv_count=1; # Ergebnisliste ohne Header-Cons       \
-      set_args_end_pointer(args_pointer); # STACK aufräumen                     \
+      set_args_end_pointer(args_pointer); # STACK aufrÃ¤umen                     \
     }}
 
 #endif
 
-# Macro für MAPC und MAPL
+# Macro fÃ¼r MAPC und MAPL
   #define MAPC_MAPL_BODY(listaccess)  \
     { var object* args_pointer = rest_args_pointer STACKop 2;                   \
       argcount++; # argcount := Anzahl der Listen auf dem Stack                 \
-      # Platz für die Funktionsaufruf-Argumente reservieren:                    \
+      # Platz fÃ¼r die Funktionsaufruf-Argumente reservieren:                    \
       get_space_on_STACK(sizeof(object)*(uintL)argcount);                       \
       pushSTACK(BEFORE(rest_args_pointer)); # erstes Listenargument retten      \
      {var object* ergptr = &STACK_0; # Pointer darauf                           \
@@ -1582,22 +1582,22 @@ LISPSPECFORM(return_from, 1,1,nobody)
               var object next_list = *next_list_;                               \
               if (atomp(next_list)) goto fertig; # eine Liste zu Ende -> fertig \
               pushSTACK(listaccess(next_list)); # als Argument auf den Stack    \
-              *next_list_ = Cdr(next_list); # Liste verkürzen                   \
+              *next_list_ = Cdr(next_list); # Liste verkÃ¼rzen                   \
             });                                                                 \
           funcall(fun,argcount); # Funktion aufrufen                            \
         }                                                                       \
       fertig:                                                                   \
       value1 = *ergptr; mv_count=1; # 1. Liste als Wert                         \
-      set_args_end_pointer(args_pointer); # STACK aufräumen                     \
+      set_args_end_pointer(args_pointer); # STACK aufrÃ¤umen                     \
     }}
 
 #ifdef MAP_REVERSES
 
-# Macro für MAPCAN und MAPCON
+# Macro fÃ¼r MAPCAN und MAPCON
   #define MAPCAN_MAPCON_BODY(listaccess)  \
     { var object* args_pointer = rest_args_pointer STACKop 2;                   \
       argcount++; # argcount := Anzahl der Listen auf dem Stack                 \
-      # Platz für die Funktionsaufruf-Argumente reservieren:                    \
+      # Platz fÃ¼r die Funktionsaufruf-Argumente reservieren:                    \
       get_space_on_STACK(sizeof(object)*(uintL)argcount);                       \
       pushSTACK(NIL); # Anfang der Ergebnisliste                                \
      {var object* ergptr = &STACK_0; # Pointer darauf                           \
@@ -1611,23 +1611,23 @@ LISPSPECFORM(return_from, 1,1,nobody)
               var object next_list = *next_list_;                               \
               if (atomp(next_list)) goto fertig; # eine Liste zu Ende -> fertig \
               pushSTACK(listaccess(next_list)); # als Argument auf den Stack    \
-              *next_list_ = Cdr(next_list); # Liste verkürzen                   \
+              *next_list_ = Cdr(next_list); # Liste verkÃ¼rzen                   \
             });                                                                 \
           funcall(fun,argcount); # Funktion aufrufen                            \
-          STACK_0 = nreconc(value1,STACK_0); # Ergebnis anhängen                \
+          STACK_0 = nreconc(value1,STACK_0); # Ergebnis anhÃ¤ngen                \
         }                                                                       \
       fertig:                                                                   \
       value1 = nreconc(*ergptr,NIL); mv_count=1; # Ergebnisliste umdrehen       \
-      set_args_end_pointer(args_pointer); # STACK aufräumen                     \
+      set_args_end_pointer(args_pointer); # STACK aufrÃ¤umen                     \
     }}
 
 #else
 
-# Macro für MAPCAN und MAPCON
+# Macro fÃ¼r MAPCAN und MAPCON
   #define MAPCAN_MAPCON_BODY(listaccess)  \
     { var object* args_pointer = rest_args_pointer STACKop 2;                   \
       argcount++; # argcount := Anzahl der Listen auf dem Stack                 \
-      # Platz für die Funktionsaufruf-Argumente reservieren:                    \
+      # Platz fÃ¼r die Funktionsaufruf-Argumente reservieren:                    \
       get_space_on_STACK(sizeof(object)*(uintL)argcount);                       \
       # Gesamtliste anfangen:                                                   \
       {var object new_cons = allocate_cons(); # (CONS NIL NIL)                  \
@@ -1645,18 +1645,18 @@ LISPSPECFORM(return_from, 1,1,nobody)
               var object next_list = *next_list_;                               \
               if (atomp(next_list)) goto fertig; # eine Liste zu Ende -> fertig \
               pushSTACK(listaccess(next_list)); # als Argument auf den Stack    \
-              *next_list_ = Cdr(next_list); # Liste verkürzen                   \
+              *next_list_ = Cdr(next_list); # Liste verkÃ¼rzen                   \
             });                                                                 \
           funcall(fun,argcount); # Funktion aufrufen                            \
-         {var object list = value1; # anzuhängende Liste                        \
+         {var object list = value1; # anzuhÃ¤ngende Liste                        \
           if (consp(list))                                                      \
-            { Cdr(STACK_0) = list; # als (cdr (last Gesamtliste)) einhängen     \
+            { Cdr(STACK_0) = list; # als (cdr (last Gesamtliste)) einhÃ¤ngen     \
               while (mconsp(Cdr(list))) { list = Cdr(list); }                   \
               STACK_0 = list; # und (last Gesamtliste) := (last list)           \
         }}  }                                                                   \
       fertig:                                                                   \
       value1 = Cdr(*ergptr); mv_count=1; # Ergebnisliste ohne Header-Cons       \
-      set_args_end_pointer(args_pointer); # STACK aufräumen                     \
+      set_args_end_pointer(args_pointer); # STACK aufrÃ¤umen                     \
     }}
 
 #endif
@@ -1693,12 +1693,12 @@ LISPSPECFORM(tagbody, 0,0,body)
     var object body = popSTACK();
     # GENV-Frame aufbauen:
     {
-      var object* top_of_frame = STACK; # Pointer übern Frame
+      var object* top_of_frame = STACK; # Pointer Ã¼bern Frame
       pushSTACK(aktenv.go_env);
       finish_frame(ENV1G);
     }
     # TAGBODY-Frame aufbauen:
-    var object* top_of_frame = STACK; # Pointer übern Frame
+    var object* top_of_frame = STACK; # Pointer Ã¼bern Frame
     # Body durchparsen und Tags im Stack ablegen:
     var uintL tagcount = 0;
     {
@@ -1726,7 +1726,7 @@ LISPSPECFORM(tagbody, 0,0,body)
       }
     }
     if (tagcount>0) {
-      var sp_jmp_buf returner; # Rücksprungpunkt
+      var sp_jmp_buf returner; # RÃ¼cksprungpunkt
       pushSTACK(aktenv.go_env); # aktuelles GO_ENV als NEXT_ENV
       finish_entry_frame(ITAGBODY,&!returner,, goto go_entry; );
       # GO_ENV erweitern:
@@ -1734,24 +1734,24 @@ LISPSPECFORM(tagbody, 0,0,body)
       if (FALSE) {
        go_entry: # Hierher wird gesprungen, wenn dieser Frame ein GO
                  # gefangen hat.
-        body = value1; # Die Formenliste wird als value1 übergeben.
+        body = value1; # Die Formenliste wird als value1 Ã¼bergeben.
       }
       # Statements abarbeiten:
       pushSTACK(body);
       while (mconsp(STACK_0)) {
         var object body_rest = STACK_0;
         STACK_0 = Cdr(body_rest); # restlicher Body
-        body_rest = Car(body_rest); # nächstes Item
+        body_rest = Car(body_rest); # nÃ¤chstes Item
         if (consp(body_rest)) {
           eval(body_rest); # Form -> auswerten
         }
       }
       skipSTACK(1); # Body vergessen
-      unwind(); # TAGBODY-Frame auflösen
-      unwind(); # GENV-Frame auflösen
+      unwind(); # TAGBODY-Frame auflÃ¶sen
+      unwind(); # GENV-Frame auflÃ¶sen
     } else {
       # Body ohne Tags -> nur PROGN mit Wert NIL
-      skipSTACK(2); # GENV-Frame wieder auflösen, GENV ist unverändert
+      skipSTACK(2); # GENV-Frame wieder auflÃ¶sen, GENV ist unverÃ¤ndert
       pushSTACK(body); implicit_prog();
     }
     value1 = NIL; mv_count=1; # Wert NIL
@@ -1780,7 +1780,7 @@ LISPSPECFORM(go, 1,0,nobody)
       }
       # Tags im ungenesteten ITAGBODY-Frame absuchen:
       var object* bind_ptr = &FRAME_(frame_bindings); # Pointer unter die Tagbindungen
-      var object* bindend_ptr = STACKpointable(topofframe(FRAME_(0))); # Pointer über die Tagbindungen
+      var object* bindend_ptr = STACKpointable(topofframe(FRAME_(0))); # Pointer Ã¼ber die Tagbindungen
       do {
         if (eql(*bind_ptr,tag)) { # Tag gefunden?
           value1 = *(bind_ptr STACKop 1); # Formenliste aus dem Frame holen
@@ -1822,9 +1822,9 @@ LISPSPECFORM(go, 1,0,nobody)
            GETTEXT("~: no tag named ~ is currently visible")
           );
     # Tagbody-Frame gefunden. FRAME ist ein Pointer auf ihn (ohne Typinfo),
-    # value1 die Liste der auszuführenden Formen.
+    # value1 die Liste der auszufÃ¼hrenden Formen.
    found:
-    mv_count=1; # Formenliste value1 wird übergeben
+    mv_count=1; # Formenliste value1 wird Ã¼bergeben
     # Zum gefundenen Tagbody-Frame springen und dort weitermachen:
     unwind_upto(FRAME);
   }
@@ -1873,7 +1873,7 @@ LISPSPECFORM(multiple_value_call, 1,0,body)
     var uintL argcount = 0; # Anzahl der bisherigen Argumente
     while (consp(forms)) {
       pushSTACK(Cdr(forms)); # restliche Formen
-      eval(Car(forms)); # nächste Form auswerten
+      eval(Car(forms)); # nÃ¤chste Form auswerten
       forms = popSTACK();
       # Deren Werte in den Stack:
       argcount += (uintL)mv_count;
@@ -1899,14 +1899,14 @@ LISPSPECFORM(multiple_value_prog1, 1,0,body)
     var uintC mvcount = mv_count; # Wertezahl
     mv_to_STACK(); # alle Werte in den Stack
     pushSTACK(body); implicit_prog();
-    STACK_to_mv(mvcount); # alle Werte wieder aus dem Stack zurückholen
+    STACK_to_mv(mvcount); # alle Werte wieder aus dem Stack zurÃ¼ckholen
   }
 
 LISPSPECFORM(multiple_value_bind, 2,0,body)
 # (MULTIPLE-VALUE-BIND ({var}) values-form {decl} {form}), CLTL S. 136
   {
     # {decl} {form} trennen:
-    var boolean to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); # unvollständiges var_env??
+    var boolean to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); # unvollstÃ¤ndiges var_env??
     # bitte kein Docstring:
     if (!nullp(value3))
       fehler_docstring(S(multiple_value_bind),STACK_0);
@@ -1926,7 +1926,7 @@ LISPSPECFORM(multiple_value_bind, 2,0,body)
       # Dann values-form auswerten:
       eval(*form_);
       # Macro zum Binden von Variablen im Variablenframe:
-      # Bindet die nächste Variable an value, erniedrigt frame_pointer um 2 bzw. 3.
+      # Bindet die nÃ¤chste Variable an value, erniedrigt frame_pointer um 2 bzw. 3.
       #define bind_next_var(value)  \
         { var object* valptr = &Next(frame_pointer);                        \
           frame_pointer skipSTACKop -varframe_binding_size;                 \
@@ -1946,7 +1946,7 @@ LISPSPECFORM(multiple_value_bind, 2,0,body)
         }}
       # Die r:=bind_count Variablen an die s:=mv_count Werte binden:
       # (Falls die Variablen ausgehen: restliche Werte wegwerfen;
-      #  falls die Werte ausgehen: mit NIL auffüllen.)
+      #  falls die Werte ausgehen: mit NIL auffÃ¼llen.)
       # Hier r>=0 und s>=0.
       {
         var object* frame_pointer = bind_ptr;
@@ -1978,9 +1978,9 @@ LISPSPECFORM(multiple_value_bind, 2,0,body)
       }
       # Body abinterpretieren:
       implicit_progn(popSTACK(),NIL);
-      # Frames auflösen:
-      unwind(); # VENV-Bindungsframe auflösen
-      unwind(); # Variablenbindungs-Frame auflösen
+      # Frames auflÃ¶sen:
+      unwind(); # VENV-Bindungsframe auflÃ¶sen
+      unwind(); # Variablenbindungs-Frame auflÃ¶sen
       skipSTACK(1);
     }
   }
@@ -1992,7 +1992,7 @@ LISPSPECFORM(multiple_value_setq, 2,0,nobody)
       var object varlist = STACK_1;
       # Variablenliste durchgehen:
       while (consp(varlist)) {
-        var object symbol = Car(varlist); # nächste Variable
+        var object symbol = Car(varlist); # nÃ¤chste Variable
         if (!symbolp(symbol)) # sollte ein Symbol
           fehler_kein_symbol(S(multiple_value_setq),symbol);
         if (constantp(TheSymbol(symbol))) # und keine Konstante sein
@@ -2014,18 +2014,18 @@ LISPSPECFORM(multiple_value_setq, 2,0,nobody)
       mv_to_STACK(); # Werte in den Stack schreiben (erleichtert den Zugriff)
       # Variablenliste durchgehen:
       var object* mvptr = args_end;
-      var uintC count = mv_count; # Anzahl noch verfügbarer Werte
+      var uintC count = mv_count; # Anzahl noch verfÃ¼gbarer Werte
       while (consp(varlist)) {
         var object value;
         if (count>0) {
-          value = NEXT(mvptr); count--; # nächster Wert
+          value = NEXT(mvptr); count--; # nÃ¤chster Wert
         } else {
           value = NIL; # NIL, wenn alle Werte verbraucht
         }
-        setq(Car(varlist),value); # der nächsten Variablen zuweisen
+        setq(Car(varlist),value); # der nÃ¤chsten Variablen zuweisen
         varlist = Cdr(varlist);
       }
-      set_args_end_pointer(args_end); # STACK aufräumen
+      set_args_end_pointer(args_end); # STACK aufrÃ¤umen
       mv_count=1; # letzter value1 als einziger Wert
     }
   }
@@ -2036,14 +2036,14 @@ LISPSPECFORM(catch, 1,0,body)
     STACK_1 = (eval(STACK_1),value1); # tag auswerten
     # CATCH-Frame zu Ende aufbauen:
     var object body = popSTACK(); # ({form})
-    var object* top_of_frame = STACK STACKop 1; # Pointer übern Frame
-    var sp_jmp_buf returner; # Rücksprungpunkt merken
+    var object* top_of_frame = STACK STACKop 1; # Pointer Ã¼bern Frame
+    var sp_jmp_buf returner; # RÃ¼cksprungpunkt merken
     finish_entry_frame(CATCH,&!returner,, goto catch_return; );
-    # Body ausführen:
+    # Body ausfÃ¼hren:
     implicit_progn(body,NIL);
     catch_return: # Hierher wird gesprungen, wenn der oben aufgebaute
                   # Catch-Frame einen Throw gefangen hat.
-    skipSTACK(3); # CATCH-Frame auflösen
+    skipSTACK(3); # CATCH-Frame auflÃ¶sen
   }
 
 LISPSPECFORM(unwind_protect, 1,0,body)
@@ -2054,13 +2054,13 @@ LISPSPECFORM(unwind_protect, 1,0,body)
     # UNWIND-PROTECT-Frame aufbauen:
     pushSTACK(cleanup);
     var object* top_of_frame = STACK;
-    var sp_jmp_buf returner; # Rücksprungpunkt
+    var sp_jmp_buf returner; # RÃ¼cksprungpunkt
     finish_entry_frame(UNWIND_PROTECT,&!returner,, goto throw_save; );
     # Protected form auswerten:
     eval(form);
     # Cleanup nach normaler Beendigung der Protected form:
     {
-      # UNWIND-PROTECT-Frame auflösen:
+      # UNWIND-PROTECT-Frame auflÃ¶sen:
       skipSTACK(2);
       cleanup = popSTACK();
       # Werte retten:
@@ -2068,7 +2068,7 @@ LISPSPECFORM(unwind_protect, 1,0,body)
       mv_to_STACK();
       # Cleanup-Formen abarbeiten:
       pushSTACK(cleanup); implicit_prog();
-      # Werte zurückschreiben:
+      # Werte zurÃ¼ckschreiben:
       STACK_to_mv(mvcount);
     }
     return;
@@ -2079,7 +2079,7 @@ LISPSPECFORM(unwind_protect, 1,0,body)
       var restart fun = unwind_protect_to_save.fun;
       var object* arg = unwind_protect_to_save.upto_frame;
     # Cleanup:
-      # UNWIND-PROTECT-Frame auflösen:
+      # UNWIND-PROTECT-Frame auflÃ¶sen:
       skipSTACK(2);
       cleanup = popSTACK();
       # Werte retten:
@@ -2087,7 +2087,7 @@ LISPSPECFORM(unwind_protect, 1,0,body)
       mv_to_STACK();
       # Cleanup-Formen abarbeiten:
       pushSTACK(cleanup); implicit_prog();
-      # Werte zurückschreiben:
+      # Werte zurÃ¼ckschreiben:
       STACK_to_mv(mvcount);
       # und weiterspringen:
       fun(arg);
@@ -2111,10 +2111,10 @@ LISPSPECFORM(throw, 2,0,nobody)
 
 LISPFUNN(driver,1)
 # (SYS::DRIVER fun) baut einen Driver-Frame auf, der jedesmal die Funktion
-# fun (mit 0 Argumenten) aufruft. fun wird in einer Endlosschleife ausgeführt,
+# fun (mit 0 Argumenten) aufruft. fun wird in einer Endlosschleife ausgefÃ¼hrt,
 # die mit GO oder THROW abgebrochen werden kann.
   {
-    var object* top_of_frame = STACK; # Pointer übern Frame
+    var object* top_of_frame = STACK; # Pointer Ã¼bern Frame
     var sp_jmp_buf returner; # Einsprungpunkt merken
     finish_entry_frame(DRIVER,&!returner,,;);
     # Hier ist der Einsprungpunkt.
@@ -2124,12 +2124,12 @@ LISPFUNN(driver,1)
   }
 
 LISPFUNN(unwind_to_driver,0)
-# (SYS::UNWIND-TO-DRIVER) macht ein UNWIND bis zum nächsthöheren Driver-Frame.
+# (SYS::UNWIND-TO-DRIVER) macht ein UNWIND bis zum nÃ¤chsthÃ¶heren Driver-Frame.
   {
     reset();
   }
 
-# Überprüft ein optionales Macroexpansions-Environment in STACK_0.
+# ÃœberprÃ¼ft ein optionales Macroexpansions-Environment in STACK_0.
 # > STACK_0: Argument
 # < STACK_0: Macroexpansions-Environment #(venv fenv)
 # can trigger GC
@@ -2142,8 +2142,8 @@ LISPFUNN(unwind_to_driver,0)
          ) {
         STACK_0 = allocate_vector(2); # Vektor #(nil nil) als Default
       } elif (!(simple_vector_p(arg) && (Svector_length(arg) == 2))) {
-        pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_svector2)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(arg); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_svector2)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(arg);
         fehler(type_error,
                GETTEXT("Argument ~ is not a macroexpansion environment")
@@ -2233,7 +2233,7 @@ LISPSPECFORM(the, 2,0,nobody)
              GETTEXT("~: ~ evaluated to the values ~, not of type ~")
             );
     }
-    # Typ-Check OK -> Werte zurückgeben:
+    # Typ-Check OK -> Werte zurÃ¼ckgeben:
     list_to_mv(popSTACK(), { fehler_mv_zuviel(S(the)); } );
     skipSTACK(2);
   }
@@ -2330,11 +2330,11 @@ LISPSPECFORM(load_time_value, 1,1,nobody)
     mv_count=1;
   }
 
-# UP: Überprüft ein optionales Environment-Argument für EVALHOOK und APPLYHOOK.
+# UP: ÃœberprÃ¼ft ein optionales Environment-Argument fÃ¼r EVALHOOK und APPLYHOOK.
 # test_optional_env_arg(&env5);
 # > subr_self: Aufrufer (ein SUBR)
 # < env5: 5 Komponenten des Environments
-# erhöht STACK um 1
+# erhÃ¶ht STACK um 1
   local void test_optional_env_arg (environment* env5);
   local void test_optional_env_arg(env5)
     var environment* env5;
@@ -2347,15 +2347,15 @@ LISPSPECFORM(load_time_value, 1,1,nobody)
         env5->go_env    = NIL;
         env5->decl_env  = O(top_decl_env);
       } elif (simple_vector_p(env) && (Svector_length(env) == 5)) {
-        # ein Simple-Vector der Länge 5
+        # ein Simple-Vector der LÃ¤nge 5
         env5->var_env   = TheSvector(env)->data[0];
         env5->fun_env   = TheSvector(env)->data[1];
         env5->block_env = TheSvector(env)->data[2];
         env5->go_env    = TheSvector(env)->data[3];
         env5->decl_env  = TheSvector(env)->data[4];
       } else {
-        pushSTACK(env); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_svector5)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(env); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_svector5)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(env);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
@@ -2379,8 +2379,8 @@ LISPFUN(evalhook,3,1,norest,nokey,0,NIL)
     aktenv = env5;
     # form unter Umgehung von *EVALHOOK* und *APPLYHOOK* auswerten:
     eval_no_hooks(form);
-    unwind(); # Environment-Frame auflösen
-    unwind(); # Bindungsframe für *EVALHOOK* / *APPLYHOOK* auflösen
+    unwind(); # Environment-Frame auflÃ¶sen
+    unwind(); # Bindungsframe fÃ¼r *EVALHOOK* / *APPLYHOOK* auflÃ¶sen
   }
 
 LISPFUN(applyhook,4,1,norest,nokey,0,NIL)
@@ -2405,10 +2405,10 @@ LISPFUN(applyhook,4,1,norest,nokey,0,NIL)
       var uintC argcount = 0;
       while (consp(args)) {
         pushSTACK(Cdr(args)); # restliche Argumentliste
-        eval_no_hooks(Car(args)); # nächstes arg auswerten
+        eval_no_hooks(Car(args)); # nÃ¤chstes arg auswerten
         args = STACK_0; STACK_0 = value1; # Wert im Stack ablegen
         argcount++;
-        if (argcount==0) { # Überlauf?
+        if (argcount==0) { # Ãœberlauf?
           pushSTACK(*fun_);
           pushSTACK(S(applyhook));
           fehler(program_error,
@@ -2419,8 +2419,8 @@ LISPFUN(applyhook,4,1,norest,nokey,0,NIL)
       funcall(*fun_,argcount); # Funktion anwenden
       skipSTACK(1);
     }
-    unwind(); # Environment-Frame auflösen
-    unwind(); # Bindungsframe für *EVALHOOK* / *APPLYHOOK* auflösen
+    unwind(); # Environment-Frame auflÃ¶sen
+    unwind(); # Bindungsframe fÃ¼r *EVALHOOK* / *APPLYHOOK* auflÃ¶sen
   }
 
 LISPFUNN(constantp,1)
@@ -2492,7 +2492,7 @@ LISPFUN(parse_body,1,2,norest,nokey,0,NIL)
     # Stackaufbau: body, docstring, env, declspecs.
     while (consp(body)) {
       pushSTACK(body); # body retten
-      var object form = Car(body); # nächste Form
+      var object form = Car(body); # nÃ¤chste Form
       # evtl. macroexpandieren (ohne FSUBRs, Symbole zu expandieren):
       do {
         var object env = STACK_(1+1);
@@ -2500,7 +2500,7 @@ LISPFUN(parse_body,1,2,norest,nokey,0,NIL)
         form = value1;
       } until (nullp(value2));
       body = popSTACK();
-      var object body_rest = Cdr(body); # body verkürzen
+      var object body_rest = Cdr(body); # body verkÃ¼rzen
       if (stringp(form)) { # Doc-String gefunden?
         if (atomp(body_rest)) # an letzter Stelle der Formenliste?
           goto fertig; # ja -> letzte Form kann kein Doc-String sein!
@@ -2529,7 +2529,7 @@ LISPFUN(parse_body,1,2,norest,nokey,0,NIL)
           Car(new_cons) = Car(STACK_0);
           Cdr(new_cons) = STACK_(0+2);
           STACK_(0+2) = new_cons;
-          # zum nächsten decl-spec:
+          # zum nÃ¤chsten decl-spec:
           STACK_0 = Cdr(STACK_0);
         }
         skipSTACK(1);
@@ -2566,7 +2566,7 @@ LISPFUNN(keyword_test,2)
 # Wenn nein, Error.
   {
     var object arglist = STACK_1;
-    # Argumente-Zahl überprüfen:
+    # Argumente-Zahl Ã¼berprÃ¼fen:
     {
       var uintL argcount = llength(arglist);
       if (!((argcount%2) == 0)) {
@@ -2597,7 +2597,7 @@ LISPFUNN(keyword_test,2)
           kwlistr = Cdr(kwlistr);
         }
         # nicht gefunden
-        pushSTACK(key); # Wert für Slot DATUM von KEYWORD-ERROR
+        pushSTACK(key); # Wert fÃ¼r Slot DATUM von KEYWORD-ERROR
         pushSTACK(key);
         pushSTACK(STACK_(0+2));
         pushSTACK(Car(Cdr(arglistr)));
@@ -2605,7 +2605,7 @@ LISPFUNN(keyword_test,2)
         {
           var object type = allocate_cons();
           Car(type) = S(member); Cdr(type) = STACK_(0+5);
-          STACK_3 = type; # `(MEMBER ,@kwlist) = Wert für Slot EXPECTED-TYPE von KEYWORD-ERROR
+          STACK_3 = type; # `(MEMBER ,@kwlist) = Wert fÃ¼r Slot EXPECTED-TYPE von KEYWORD-ERROR
         }
         fehler(keyword_error,
                GETTEXT("illegal keyword/value pair ~, ~ in argument list. The allowed keywords are ~")
@@ -2631,7 +2631,7 @@ LISPSPECFORM(and, 0,0,body)
         eval(Car(body)); # form auswerten
         body = popSTACK();
         if (atomp(body))
-          break; # am Schluss: Werte der letzten Form zurück
+          break; # am Schluss: Werte der letzten Form zurÃ¼ck
         if (nullp(value1)) {
           mv_count=1; break; # vorzeitig: 1 Wert NIL
         }
@@ -2651,7 +2651,7 @@ LISPSPECFORM(or, 0,0,body)
         eval(Car(body)); # form auswerten
         body = popSTACK();
         if (atomp(body))
-          break; # am Schluss: Werte der letzten Form zurück
+          break; # am Schluss: Werte der letzten Form zurÃ¼ck
         if (!nullp(value1)) {
           mv_count=1; break; # vorzeitig: 1 Wert /=NIL
         }

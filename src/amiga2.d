@@ -1,29 +1,29 @@
-# Include-File: Amiga-Spezifisches, das nur von wenigen Modulen benötigt wird
-# Jörg Höhle 12.6.1996
+# Include-File: Amiga-Spezifisches, das nur von wenigen Modulen benÃ¶tigt wird
+# JÃ¶rg HÃ¶hle 12.6.1996
 
 
 #include <proto/alib.h>
 
-# Die Inlines sind jetzt Macros, also können Funktionen nicht mehr deklariert werden
+# Die Inlines sind jetzt Macros, also kÃ¶nnen Funktionen nicht mehr deklariert werden
 #if !defined(GNU_INLINES)
 
 # Verhindert Multitasking kurzzeitig.
 # Forbid(); ... Permit();
-# Aufrufe können geschachtelt werden.
+# Aufrufe kÃ¶nnen geschachtelt werden.
   extern void Forbid (void); # siehe exec.library/Forbid
   extern void Permit (void); # siehe exec.library/Permit
 # wird verwendet von REXX
 
 
-# Öffnet eine 'shared library'.
+# Ã–ffnet eine 'shared library'.
 # OpenLibrary(name,version)
 # > name: Name als ASCIZ-String, mit .library am Schluss
-# > version: kleinste erwünschte Versionsnummer, 0 bedeutet "egal"
+# > version: kleinste erwÃ¼nschte Versionsnummer, 0 bedeutet "egal"
 # < struct Library * ergebnis: Library base Zeiger oder NULL
   extern struct Library * OpenLibrary (CONST UBYTE* name, unsigned long version); # siehe exec.library/OpenLibrary
 # wird verwendet von REXX, FOREIGN
 
-# Schließt eine geöffnete 'shared library'.
+# SchlieÃŸt eine geÃ¶ffnete 'shared library'.
 # CloseLibrary(library)
 # > library: 'library base' Zeiger
   extern void CloseLibrary (struct Library * library);
@@ -31,7 +31,7 @@
 
 
 # "Port"s sind Einheiten zum Austausch von Nachrichten ("Messages").
-# (Wir haben's hier nur mit den sogenannten "öffentlichen Ports".)
+# (Wir haben's hier nur mit den sogenannten "Ã¶ffentlichen Ports".)
 # Sie tragen einen Namen.
 
 # Sucht einen Port gegebenen Namens.
@@ -45,12 +45,12 @@
 # Alloziert einen neuen Port.
 # CreatePort(name,priority)
 # > name: Name des Ports
-# > priority: Priorität
+# > priority: PrioritÃ¤t
 # < ergebnis: Port-Pointer
   extern struct MsgPort * CreatePort (UBYTE* name, LONG priority); # siehe amiga.lib/CreatePort
 # wird verwendet von REXX
 
-# Meldet einen Port ab (vor dem Freigeben nötig).
+# Meldet einen Port ab (vor dem Freigeben nÃ¶tig).
 # RemPort(port)
 # > port: Port-Pointer
   extern void RemPort (struct MsgPort * port); # siehe exec.library/RemPort
@@ -106,36 +106,36 @@
 
 # Arexx-Messages haben ein spezielles Aussehen:
 
-# Erzeugt eine Message-Hülle für ARexx.
+# Erzeugt eine Message-HÃ¼lle fÃ¼r ARexx.
 # CreateRexxMsg(msgport,ext,host)
-# > msgport: Adresse des ARexx message Ports, der die Empfangsbestätigung bekommt
-# > ext: (ASCIZ) Extension für aufzurufende Dateien, NULL bedeutet "REXX"
+# > msgport: Adresse des ARexx message Ports, der die EmpfangsbestÃ¤tigung bekommt
+# > ext: (ASCIZ) Extension fÃ¼r aufzurufende Dateien, NULL bedeutet "REXX"
 # > host: Name des ARexx message Ports, der externe Kommandos abarbeitet
 # < ergebnis: ARexx Message oder NULL bei Fehler
   extern struct RexxMsg * CreateRexxMsg (struct MsgPort* msgport, UBYTE* extension, UBYTE* hostname); # siehe rexxsyslib/CreateRexxMsg
 # wird verwendet von REXX
 
-# Eine Message-Hülle hat Platz für 1 bis MAXRMARG Argument-Strings.
+# Eine Message-HÃ¼lle hat Platz fÃ¼r 1 bis MAXRMARG Argument-Strings.
 
-# Gibt die Argument-Strings in einer Message-Hülle wieder frei.
+# Gibt die Argument-Strings in einer Message-HÃ¼lle wieder frei.
 # ClearRexxMsg(msg,argcount);
 # > msg: ARexx Message
 # > argcount: Anzahl Argumente
   extern void ClearRexxMsg (struct RexxMsg * msg, ULONG argcount); # siehe rexxsyslib/ClearRexxMsg
 # wird verwendet von REXX
 
-# Gibt eine Message-Hülle wieder frei.
+# Gibt eine Message-HÃ¼lle wieder frei.
 # DeleteRexxMsg(msg);
 # > msg: ARexx Message
   extern void DeleteRexxMsg (struct RexxMsg * message); # siehe rexxsyslib/DeleteRexxMsg
 # wird verwendet von REXX
 
-# Außerdem müssen auch Argument-Strings speziell verpackt werden:
+# AuÃŸerdem mÃ¼ssen auch Argument-Strings speziell verpackt werden:
 
-# Erzeugt Argument-String Struktur für ARexx.
+# Erzeugt Argument-String Struktur fÃ¼r ARexx.
 # CreateArgstring(string,length)
 # > [string..string+length-1]: angesprochener Speicherbereich
-# > length: Länge, <2^16
+# > length: LÃ¤nge, <2^16
 # < ergebnis: verpackter, kopierter Argument-String
   extern UBYTE* CreateArgstring (UBYTE* string, ULONG length); # siehe rexxsyslib/CreateArgstring
 # wird verwendet von REXX
@@ -146,18 +146,18 @@
   extern void DeleteArgstring (UBYTE* argstring); # siehe rexxsyslib/DeleteArgstring
 # wird verwendet von REXX
 
-# Liefert die Länge eines verpackten Argument-Strings.
+# Liefert die LÃ¤nge eines verpackten Argument-Strings.
 # LengthArgstring(argstring)
 # > argstring: verpackter Argument-String
-# < ergebnis: Länge
+# < ergebnis: LÃ¤nge
   extern ULONG LengthArgstring (UBYTE* argstring); # siehe rexxsyslib/LengthArgstring
 # wird verwendet von REXX
 
 # Verpackt eine ganze Argumentliste.
 # FillRexxMsg(msg,argcount,mask)
-# > msg: Message-Hülle
+# > msg: Message-HÃ¼lle
 # > argcount: Anzahl Argumente (>=1, <=16)
-# > mask: Bitmaske für Argumenttyp in der Hülle (jeweils 0 = ASCIZ, 1 = LONG)
+# > mask: Bitmaske fÃ¼r Argumenttyp in der HÃ¼lle (jeweils 0 = ASCIZ, 1 = LONG)
 # < ergebnis: /=0 falls OK
   extern BOOL FillRexxMsg (struct RexxMsg * msg, ULONG argcount, ULONG mask); # siehe rexxsyslib.library/FillRexxMsg
 # wird verwendet von
@@ -165,7 +165,7 @@
 #endif # GNU_INLINES
 
 #define RXERRORIMGONE 100L
-#define RXADIR "AREXX"  # MsgPort für Asynchrone Bearbeitung
+#define RXADIR "AREXX"  # MsgPort fÃ¼r Asynchrone Bearbeitung
 
 #endif # REXX
 

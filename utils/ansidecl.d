@@ -1,5 +1,5 @@
 # Programm zum Umwandeln von Funktionsdeklarationen vom traditionellen Stil
-# in die ANSI-Syntax bei nicht allzu übel geformten C-Programmen
+# in die ANSI-Syntax bei nicht allzu Ã¼bel geformten C-Programmen
 # Bruno Haible 16.2.1993
 
 # Ziel:
@@ -12,22 +12,22 @@
 #             {
 #    umwandeln in
 #           funname ( sspec1 tspec1 vname1 , ..., sspeck tspeck vnamek ) {
-#    unter Beibehaltung aller Kommentare, Präprozessor-Kommandos usw.
+#    unter Beibehaltung aller Kommentare, PrÃ¤prozessor-Kommandos usw.
 
 # Methode:
-# Mit Kenntnis der Begriffe "Präprozessor-Kommando", "Kommentar", "Token"
-# wird nach den öffnenden geschweiften Klammern '{' des äußersten
+# Mit Kenntnis der Begriffe "PrÃ¤prozessor-Kommando", "Kommentar", "Token"
+# wird nach den Ã¶ffnenden geschweiften Klammern '{' des Ã¤uÃŸersten
 # Schachtelungslevels gesucht, denen ein Strichpunkt ';' oder
 # eine Klammer zu ')' unmittelbar vorangeht.
-# Von dort aus wird (unter Mitzählen der Strichpunkte im äußersten
-# Schachtelungslevel) die vorige Klammer zu ')' des äußersten Schachtelungs-
+# Von dort aus wird (unter MitzÃ¤hlen der Strichpunkte im Ã¤uÃŸersten
+# Schachtelungslevel) die vorige Klammer zu ')' des Ã¤uÃŸersten Schachtelungs-
 # levels gesucht. Die Strichpunkte werden in Kommata bzw. eine Klammer zu
-# umgewandelt. Bis zur vorigen Klammer auf '(' des äußersten Schachtelungs-
+# umgewandelt. Bis zur vorigen Klammer auf '(' des Ã¤uÃŸersten Schachtelungs-
 # levels wird alles durch Leerstellen ersetzt.
 
 
 #define MAXARGCOUNT  50  # maximale Anzahl Argumente einer Funktionsdefinition
-#define MAXHEADERLEN  5000  # maximale Länge eines Funktionsdefinitions-Kopfes
+#define MAXHEADERLEN  5000  # maximale LÃ¤nge eines Funktionsdefinitions-Kopfes
 
 #define local static
 #define global
@@ -98,7 +98,7 @@ local void outbuffer_off (void)
         out.mode = direct;
   }   }
 
-# Output-Bufferung ausschalten und dabei an einer Stelle einen String einfügen:
+# Output-Bufferung ausschalten und dabei an einer Stelle einen String einfÃ¼gen:
 local void outbuffer_off_insert (uintL insertpoint, char* insert)
   { if (out.mode==buffered)
       { var uintL index = 0;
@@ -134,7 +134,7 @@ local void out_char (int c)
 # lexikalische Analyse
 # ====================
 
-# Holt das nächste Character:
+# Holt das nÃ¤chste Character:
 local int next_char (void)
   { var int c = in_char();
     if (!(c==EOF))
@@ -142,7 +142,7 @@ local int next_char (void)
     return c;
   }
 
-# Für unsere Zwecke brauchen ++ -> != usw. nicht als eigene Token betrachtet
+# FÃ¼r unsere Zwecke brauchen ++ -> != usw. nicht als eigene Token betrachtet
 # zu werden, wir kennen also nur:
 #   EOF
 #   Identifier
@@ -162,33 +162,33 @@ typedef struct { enum token_type type;
         token_;
 typedef token_* Token;
 
-# globale Token-Tabelle (Inhalt nur während einer Bufferungsperiode gültig):
+# globale Token-Tabelle (Inhalt nur wÃ¤hrend einer Bufferungsperiode gÃ¼ltig):
 #define MAXTOKENS  20000
 local struct { uintL index;
                token_ data[MAXTOKENS];
              }
       tokens;
 
-# Holt das nächste Token:
-# (Innerhalb von Präprozessor-Direktiven zählt Zeilenende als eigenes Token,
-# und '#' leitet keine verschachtelte Präprozessor-Direktive ein.)
+# Holt das nÃ¤chste Token:
+# (Innerhalb von PrÃ¤prozessor-Direktiven zÃ¤hlt Zeilenende als eigenes Token,
+# und '#' leitet keine verschachtelte PrÃ¤prozessor-Direktive ein.)
 local Token nexttoken (boolean within_prep_directive)
   { if (tokens.index == MAXTOKENS)
       # kein Platz mehr in der Token-Tabelle -> nicht mehr buffern
       { outbuffer_off(); tokens.index = 0;
-        fprintf(stderr,"Token-Tabelle übergelaufen in Zeile %lu.\nFehler irgendwo nach Zeile %lu.\n",input_line,last_good_input_line);
+        fprintf(stderr,"Token-Tabelle Ã¼bergelaufen in Zeile %lu.\nFehler irgendwo nach Zeile %lu.\n",input_line,last_good_input_line);
         exit(1);
       }
     # Nun ist tokens.index < MAXTOKENS .
-   {var Token token = &tokens.data[tokens.index]; # Platz fürs nächste Token
+   {var Token token = &tokens.data[tokens.index]; # Platz fÃ¼rs nÃ¤chste Token
     tokens.index++;
     restart:
     token->startindex = out.buffindex;
     if (peek_char() == '&')
-      { in_char(); # '&' überlesen
+      { in_char(); # '&' Ã¼berlesen
         if (peek_char() == '!')
           # '&!'
-          { in_char(); goto restart; } # '!' überlesen
+          { in_char(); goto restart; } # '!' Ã¼berlesen
           else
           { out_char('&'); token->type = sep; token->ch = '&'; goto fertig; }
       }
@@ -198,17 +198,17 @@ local Token nexttoken (boolean within_prep_directive)
             # EOF
             token->type = eof; goto fertig;
           case ' ': case '\v': case '\t':
-            # Whitespace. überlesen
+            # Whitespace. Ã¼berlesen
             goto restart;
           case '\n':
             # Zeilenende
             if (within_prep_directive)
-              { token->type = eol; goto fertig; } # als Token zurück
+              { token->type = eol; goto fertig; } # als Token zurÃ¼ck
               else
-              { goto restart; } # überlesen
+              { goto restart; } # Ã¼berlesen
           case '\\':
             if (peek_char()=='\n')
-              # Zeilenende nach '\'. überlesen
+              # Zeilenende nach '\'. Ã¼berlesen
               { next_char(); goto restart; }
               else
               goto separator;
@@ -227,20 +227,20 @@ local Token nexttoken (boolean within_prep_directive)
           case '*':
             if (peek_char() == '/')
               # illegales Kommentar-Ende
-              { fprintf(stderr,"Kommentar-Ende außerhalb Kommentar in Zeile %lu\n",input_line); }
+              { fprintf(stderr,"Kommentar-Ende auÃŸerhalb Kommentar in Zeile %lu\n",input_line); }
             goto separator;
           case '#':
             if (within_prep_directive)
               { goto separator; }
               else
-              { # Präprozessor-Anweisung.
+              { # PrÃ¤prozessor-Anweisung.
                 # Bis Zeilenende oder EOF lesen.
                 loop
                   { var Token subtoken = nexttoken(TRUE);
                     if ((subtoken->type == eof) || (subtoken->type == eol))
                       break;
                   }
-                goto restart; # und überlesen
+                goto restart; # und Ã¼berlesen
               }
           case '.':
             c = peek_char();
@@ -303,7 +303,7 @@ local Token nexttoken (boolean within_prep_directive)
           case 's': case 't': case 'u': case 'v': case 'w': case 'x':
           case 'y': case 'z':
           case '_':
-            # Identifier. alles alphanumerische überlesen.
+            # Identifier. alles alphanumerische Ã¼berlesen.
             loop
               { c = peek_char();
                 if (   ((c>='0') && (c<='9'))
@@ -326,14 +326,14 @@ local Token nexttoken (boolean within_prep_directive)
 local inline Token next_token (void)
   { return nexttoken(FALSE); }
 
-# Klammern mitzählen:
+# Klammern mitzÃ¤hlen:
 #define MAXBRACES 1000 # maximale Verschachtelungstiefe von Klammern
 local struct { uintL count;
                struct { uintB brace_type; uintL input_line; } opening[MAXBRACES];
              }
       open_braces;
 
-# Mitzählen einer öffnenden Klammer:
+# MitzÃ¤hlen einer Ã¶ffnenden Klammer:
 local void handle_opening_token (Token token)
   { if (open_braces.count < MAXBRACES)
       { open_braces.opening[open_braces.count].brace_type = token->ch;
@@ -342,11 +342,11 @@ local void handle_opening_token (Token token)
     open_braces.count++;
   }
 
-# Mitzählen einer schließenden Klammer (ohne Überprüfung der Verschachtelung):
+# MitzÃ¤hlen einer schlieÃŸenden Klammer (ohne ÃœberprÃ¼fung der Verschachtelung):
 local inline void handle_closing_token (Token token)
   { open_braces.count--; }
 
-# nächste Expression mit balancierten Klammern '()', '{}', '[]' lesen:
+# nÃ¤chste Expression mit balancierten Klammern '()', '{}', '[]' lesen:
 # (Dabei ist auf das Niveau open_braces.count=0 zu kommen,
 #  evtl. ist jetzt schon open_braces.count>0.)
 local Token next_balanced_token (Token start_token)
@@ -382,14 +382,14 @@ local Token next_balanced_token (Token start_token)
                                   || ((opening_ch == '{') && (closing_ch == '}'))
                                   || ((opening_ch == '[') && (closing_ch == ']'))
                                ) )
-                              { fprintf(stderr,"Öffnende Klammer '%c' in Zeile %lu\n und schließende Klammer '%c'\n in Zeile %lu passen nicht zusammen.\n",
+                              { fprintf(stderr,"Ã–ffnende Klammer '%c' in Zeile %lu\n und schlieÃŸende Klammer '%c'\n in Zeile %lu passen nicht zusammen.\n",
                                         opening_ch,open_braces.opening[open_braces.count].input_line,
                                         closing_ch,input_line
                                        );
                           }   }
                       }
                       else
-                      { fprintf(stderr,"Nicht geöffnete '%c' in Zeile %lu\n",
+                      { fprintf(stderr,"Nicht geÃ¶ffnete '%c' in Zeile %lu\n",
                                 token->ch,input_line
                                );
                         goto fertig;
@@ -402,7 +402,7 @@ local Token next_balanced_token (Token start_token)
               # alles andere ist ausbalanciert
           }
         if (open_braces.count == open_braces_start) break; # fertig ausbalanciert?
-        token = next_token(); # nein -> nächstes Token lesen
+        token = next_token(); # nein -> nÃ¤chstes Token lesen
       }
     fertig:
     token->startindex = startindex;
@@ -417,7 +417,7 @@ local void convert (void)
     open_braces.count = 0;
     restart1: # Hier out.mode=direct, neues Token lesen:
     tokens.index = 0; # Token-Tabelle leeren
-   {var Token token = next_token(); # nächstes Token lesen
+   {var Token token = next_token(); # nÃ¤chstes Token lesen
     restart2: # Hier out.mode=direct, neues Token gelesen.
     if ((token->type == sep) && (token->ch == '(')) # Klammer auf?
       # ja -> aufpassen:
@@ -426,16 +426,16 @@ local void convert (void)
         # Es sollten nun k Identifier, getrennt durch k-1 Kommata, kommen:
         token = next_token();
         if ((token->type == sep) && (token->ch == ')')) # Klammer zu?
-          # ja -> in eine leere Parameterliste evtl. 'void' einfügen:
+          # ja -> in eine leere Parameterliste evtl. 'void' einfÃ¼gen:
           { var uintL insertpoint = token->startindex;
             handle_closing_token(token);
             token = next_token();
             if (!((token->type == sep) && (token->ch == '{'))) # geschweifte Klammer auf?
               { outbuffer_off(); goto restart2; }
             # token = '{'
-            # Umwandeln: "void" einfügen.
+            # Umwandeln: "void" einfÃ¼gen.
             outbuffer_off_insert(insertpoint,"void");
-            token = next_balanced_token(token); # Funktionsdefinition überlesen
+            token = next_balanced_token(token); # Funktionsdefinition Ã¼berlesen
           }
           else
           # nein -> nichtleere Parameterliste verarbeiten:
@@ -493,10 +493,10 @@ local void convert (void)
             if ((param_count == paramdecl_count) # gleichviele Variablen wie Deklarationen?
                 && (out.mode==buffered) # und Buffer noch da?
                )
-              # ja -> Modifikation durchführen:
+              # ja -> Modifikation durchfÃ¼hren:
               # Alle param_names und param_comma durch Leerstellen und
               # alle paramdecl_semicolons durch Komma bzw. Klammer zu
-              # überschreiben:
+              # Ã¼berschreiben:
               { do { param_count--;
                     {var Token name = param_names[param_count];
                      var uintL index = name->startindex;
@@ -515,7 +515,7 @@ local void convert (void)
               }
             outbuffer_off();
             last_good_input_line = input_line;
-            token = next_balanced_token(token); # Funktionsdefinition überlesen
+            token = next_balanced_token(token); # Funktionsdefinition Ã¼berlesen
           }}
       }
       else

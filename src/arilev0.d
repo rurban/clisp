@@ -1,5 +1,5 @@
 # Arithmetik, Level 0
-# operiert auf einzelnen 16-Bit-Wˆrtern und 32-Bit-Wˆrtern (unsigned).
+# operiert auf einzelnen 16-Bit-W√∂rtern und 32-Bit-W√∂rtern (unsigned).
 
 # Vorzeichen einer 32-Bit-Zahl bestimmen
 # sign_of_sint32(wert)
@@ -196,14 +196,14 @@
     # >=0 und < 2^48. Es belegt also 3 16-Bit-Worte.
     # In  x * y = x1*y1*2^32 + (x1*y0+x0*y1)*2^16 + x0*y0
     # bestimmen die ersten beiden Summanden und das High-Word des dritten
-    # Summanden die beiden hˆherwertigen Words des Ergebnisses (und
-    # hierbei gibt es keinen ‹berlauf, da das Produkt in 3 Words passt!),
+    # Summanden die beiden h√∂herwertigen Words des Ergebnisses (und
+    # hierbei gibt es keinen √úberlauf, da das Produkt in 3 Words passt!),
     # das Low-Word des dritten Summanden ist auch das des Ergebnisses.
     #define mulu24(x,y,hi_zuweisung,lo_zuweisung)  \
       { var uint32 _x = (x);                                       \
         var uint32 _y = (y);                                       \
-        var uint32 _erg21; # Teilresultat f¸r Words 2 und 1 des Ergebnisses \
-        var uint32 _erg10; # Teilresultat f¸r Words 1 und 0 des Ergebnisses \
+        var uint32 _erg21; # Teilresultat f√ºr Words 2 und 1 des Ergebnisses \
+        var uint32 _erg10; # Teilresultat f√ºr Words 1 und 0 des Ergebnisses \
         { var uint16 _x1 = high16(_x);                             \
           var uint16 _y1 = high16(_y);                             \
           _erg21 = highlow32_0(mulu16(_x1,_y1))                    \
@@ -225,7 +225,7 @@
 # < 2^32*hi+lo : eine 64-Bit-Zahl
   extern_C uint32 mulu32_ (uint32 arg1, uint32 arg2); # -> Low-Teil
   extern uint32 mulu32_high;                          # -> High-Teil
-# in 68000-Assembler (Input D0.L,D1.L, Output D0.L,D1.L, ver‰ndert D2-D4):
+# in 68000-Assembler (Input D0.L,D1.L, Output D0.L,D1.L, ver√§ndert D2-D4):
 #   ; D0.L = 2^16*a+b, D1.L = 2^16*c+d -> Produkt
 #   ; (2^16*a+b)*(2^16*c+d) = 2^32*a*c + 2^16*(a*d+b*c) + b*d
 #   MOVE.L D0,D2 ! SWAP D2
@@ -234,7 +234,7 @@
 #   MULU D3,D2 ; a*d
 #   MULU D0,D4 ; b*c
 #   MULU D3,D0 ; b*d
-#   CLR.L D3 ; Hilfsregister f¸r Zero-Extend
+#   CLR.L D3 ; Hilfsregister f√ºr Zero-Extend
 #   SWAP D2 ! MOVE.W D2,D3 ! ADD.L D3,D1 ; high16(a*d) zu D1.L addieren
 #   SWAP D4 ! MOVE.W D4,D3 ! ADD.L D3,D1 ; high16(b*c) zu D1.L addieren
 #   CLR.W D2 ! ADD.L D2,D0 ! BCC.S \1 ! ADDQ.L #1,D1 ! \1: ; 2^16*low16(a*d) zu D0.L addieren
@@ -332,7 +332,7 @@
     #if defined(MC680X0) || defined(SPARC) || defined(SPARC64) || defined(ARM) || (defined(I80386) && !defined(BORLAND)) || defined(MIPS) || defined(HPPA) || defined(VAX)
       # mulu32_ extern in Assembler
       #if defined(SPARC) || defined(SPARC64)
-        #define mulu32_high  (uint32)(_get_g1()) # R¸ckgabe im Register %g1
+        #define mulu32_high  (uint32)(_get_g1()) # R√ºckgabe im Register %g1
       #elif defined(LISPARIT) && !defined(HPPA) # In arihppa.d ist mulu32_high bereits definiert.
         global uint32 mulu32_high;
       #endif
@@ -378,7 +378,7 @@
       var uint32 y;
       {
         # Methode:
-        # Falls x>=2^16 und y>=2^16 w‰re, w‰re das Produkt zu groﬂ.
+        # Falls x>=2^16 und y>=2^16 w√§re, w√§re das Produkt zu gro√ü.
         # Falls x<2^16 : y = y1*2^16+y0 schreiben, (x*y1)*2^16 + (x*y0) bilden.
         # Falls y<2^16 : x = x1*2^16+x0 schreiben, (x1*y)*2^16 + (x0*y) bilden.
         # Falls sogar x<2^16 und y<2^16: nur x*y bilden.
@@ -407,14 +407,14 @@
   #elif defined(SPARC)
     extern_C uint32 mulu32_unchecked (uint32 x, uint32 y); # extern in Assembler
   #else
-    # Wir kˆnnen daf¸r auch die Bibliotheksroutine des C-Compilers nehmen:
+    # Wir k√∂nnen daf√ºr auch die Bibliotheksroutine des C-Compilers nehmen:
     #define mulu32_unchecked(x,y)  ((uint32)((uint32)(x)*(uint32)(y)))
   #endif
 
 # Dividiert eine 16-Bit-Zahl durch eine 16-Bit-Zahl und
 # liefert einen 16-Bit-Quotienten und einen 16-Bit-Rest.
 # divu_1616_1616(x,y,q=,r=);
-# > uint16 x: Z‰hler
+# > uint16 x: Z√§hler
 # > uint16 y: Nenner
 # < uint16 q: floor(x/y)
 # < uint16 r: x mod y
@@ -429,7 +429,7 @@
 # Dividiert eine 32-Bit-Zahl durch eine 16-Bit-Zahl und
 # liefert einen 16-Bit-Quotienten und einen 16-Bit-Rest.
 # divu_3216_1616(x,y,q=,r=);
-# > uint32 x: Z‰hler
+# > uint32 x: Z√§hler
 # > uint16 y: Nenner
 # > Es sei bekannt, dass 0 <= x < 2^16*y .
 # < uint16 q: floor(x/y)
@@ -543,7 +543,7 @@
 # Dividiert eine 32-Bit-Zahl durch eine 16-Bit-Zahl und
 # liefert einen 32-Bit-Quotienten und einen 16-Bit-Rest.
 # divu_3216_3216(x,y,q=,r=);
-# > uint32 x: Z‰hler
+# > uint32 x: Z√§hler
 # > uint16 y: Nenner
 # Es sei bekannt, dass y>0.
 # < uint32 q: floor(x/y)
@@ -551,7 +551,7 @@
 # < x = q*y+r
   extern_C uint32 divu_3216_3216_ (uint32 x, uint16 y); # -> Quotient q
   extern uint16 divu_16_rest;                           # -> Rest r
-# im 68000-Assembler (Input D0.L,D1.W, Output D0.L,D1.W, ver‰ndert D2,D3):
+# im 68000-Assembler (Input D0.L,D1.W, Output D0.L,D1.W, ver√§ndert D2,D3):
 #   MOVE.L D0,D2
 #   CLR.W D2
 #   SWAP D2        ; D2.L = D2.W := D0.H.W = high16(x)
@@ -564,7 +564,7 @@
 #   MOVE.W D2,D0   ; plus zweiten Quotiententeil, liefert q
 #   SWAP D2
 #   MOVE.W D2,D1   ; r = Rest der zweiten Division
-# oder (Input D0.L,D1.W, Output D0.L,D1.W, ver‰ndert D2,D3):
+# oder (Input D0.L,D1.W, Output D0.L,D1.W, ver√§ndert D2,D3):
 #   MOVE.L D0,D2   ; x retten
 #   CLR.W D0
 #   SWAP D0        ; D0.L = D0.W := high16(x)
@@ -651,7 +651,7 @@
 # Dividiert eine 32-Bit-Zahl durch eine 32-Bit-Zahl und
 # liefert einen 32-Bit-Quotienten und einen 32-Bit-Rest.
 # divu_3232_3232(x,y,q=,r=);
-# > uint32 x: Z‰hler
+# > uint32 x: Z√§hler
 # > uint32 y: Nenner
 # Es sei bekannt, dass y>0.
 # < uint32 q: floor(x/y)
@@ -687,7 +687,7 @@
     # y habe genau n+k Bits (1 <= k <= n), d.h. 2^(n+k-1) <= y < 2^(n+k).
     # Schreibe  x = 2^k*x1 + x0  mit  x1 := floor(x/2^k)
     # und       y = 2^k*y1 + y0  mit  y1 := floor(y/2^k)
-    # und bilde den N‰herungs-Quotienten floor(x1/y1)
+    # und bilde den N√§herungs-Quotienten floor(x1/y1)
     # oder (noch besser) floor(x1/(y1+1)).
     # Wegen 0 <= x1 < 2^(2n) und 0 < 2^(n-1) <= y1 < 2^n
     # und  x1/(y1+1) <= x/y < x1/(y1+1) + 2
@@ -700,7 +700,7 @@
     # gilt  floor(x1/(y1+1)) <= floor(x/y) <= floor(x1/(y1+1)) + 2  .
     # Man bildet also  q:=floor(x1/(y1+1))  (ein Shift um n Bit oder
     # eine (2n)-durch-n-Bit-Division, mit Ergebnis q <= floor(x/y) < beta)
-    # und x-q*y und muss hiervon noch hˆchstens 2 mal y abziehen und q
+    # und x-q*y und muss hiervon noch h√∂chstens 2 mal y abziehen und q
     # incrementieren, um den Quotienten  q = floor(x/y)  und den Rest
     # x-floor(x/y)*y  der Division zu bekommen.
     #define divu_3232_3232(x,y,q_zuweisung,r_zuweisung)  \
@@ -718,7 +718,7 @@
           { var uint32 _x1 = _x; # x1 := x                                      \
             var uint32 _y1 = _y; # y1 := y                                      \
             var uint16 _q;                                                      \
-            do { _x1 = floor(_x1,2); _y1 = floor(_y1,2); } # k erhˆhen          \
+            do { _x1 = floor(_x1,2); _y1 = floor(_y1,2); } # k erh√∂hen          \
                until (_y1 <= (uint32)(bit(16)-1)); # bis y1 < beta              \
             { var uint16 _y2 = low16(_y1)+1; # y1+1 bilden                      \
               if (_y2==0)                                                       \
@@ -727,12 +727,12 @@
                 { divu_3216_1616(_x1,_y2,_q=,); } # Division von x1 durch y1+1  \
             }                                                                   \
             # _q = q = floor(x1/(y1+1))                                         \
-            # x-q*y bilden (eine 16-mal-32-Bit-Multiplikation ohne ‹berlauf):   \
+            # x-q*y bilden (eine 16-mal-32-Bit-Multiplikation ohne √úberlauf):   \
             _x -= highlow32_0(mulu16(_q,high16(_y))); # q * high16(y) * beta    \
             # gefahrlos, da q*high16(y) <= q*y/beta <= x/beta < beta            \
             _x -= mulu16(_q,low16(_y)); # q * low16(y)                          \
             # gefahrlos, da q*high16(y)*beta + q*low16(y) = q*y <= x            \
-            # Noch hˆchstens 2 mal y abziehen:                                  \
+            # Noch h√∂chstens 2 mal y abziehen:                                  \
             if (_x >= _y)                                                       \
               { _q += 1; _x -= _y;                                              \
                 if (_x >= _y)                                                   \
@@ -742,8 +742,8 @@
             q_zuweisung (uint32)(_q);                                           \
       }   }
     #ifdef LISPARIT
-    # Dies dient nur noch als Hilfsfunktion f¸r arilev1.d.
-    # Die R¸ckgabe des Restes in divu_32_rest ist also hier nicht nˆtig.
+    # Dies dient nur noch als Hilfsfunktion f√ºr arilev1.d.
+    # Die R√ºckgabe des Restes in divu_32_rest ist also hier nicht n√∂tig.
     global uint32 divu_3232_3232_(x,y)
       var uint32 x;
       var uint32 y;
@@ -775,7 +775,7 @@
 # Dividiert eine 64-Bit-Zahl durch eine 32-Bit-Zahl und
 # liefert einen 32-Bit-Quotienten und einen 32-Bit-Rest.
 # divu_6432_3232(xhi,xlo,y,q=,r=);
-# > uint32 xhi,xlo: x = 2^32*xhi+xlo = Z‰hler
+# > uint32 xhi,xlo: x = 2^32*xhi+xlo = Z√§hler
 # > uint32 y: Nenner
 # > Es sei bekannt, dass 0 <= x < 2^32*y .
 # < uint32 q: floor(x/y)
@@ -864,7 +864,7 @@
     #if defined(MC680Y0) || defined(SPARC) || defined(SPARC64) || defined(ARM) || (defined(I80386) && !defined(BORLAND)) || defined(HPPA)
       # divu_6432_3232_ extern in Assembler
       #if defined(SPARC) || defined(SPARC64)
-        #define divu_32_rest  (uint32)(_get_g1()) # R¸ckgabe im Register %g1
+        #define divu_32_rest  (uint32)(_get_g1()) # R√ºckgabe im Register %g1
       #elif defined(LISPARIT)
         global uint32 divu_32_rest;
       #endif
@@ -900,12 +900,12 @@
           }
           # 64-durch-32-Bit-Division,
           # aufgebaut aus zwei 48-durch-32-Bit-Divisionen.
-          # Methode f¸r eine 48-durch-32-Bit-Division x/y mit 0 <= x < 2^16*y :
+          # Methode f√ºr eine 48-durch-32-Bit-Division x/y mit 0 <= x < 2^16*y :
           # (beta = 2^n = 2^16, n = 16)
           # Wir wissen beta^2/2 <= y < beta^2, Quotient  q = floor(x/y) < beta.
           # Schreibe  x = beta*x1 + x0  mit  x1 := floor(x/beta)
           # und       y = beta*y1 + y0  mit  y1 := floor(y/beta)
-          # und bilde den N‰herungs-Quotienten floor(x1/y1)
+          # und bilde den N√§herungs-Quotienten floor(x1/y1)
           # oder (noch besser) floor(x1/(y1+1)).
           # Wegen 0 <= x1 < 2^(2n) und 0 < 2^(n-1) <= y1 < 2^n
           # und  x1/(y1+1) <= x/y < x1/(y1+1) + 2
@@ -917,7 +917,7 @@
           # gilt  floor(x1/(y1+1)) <= floor(x/y) <= floor(x1/(y1+1)) + 2  .
           # Man bildet also  q:=floor(x1/(y1+1))  (ein Shift um n Bit oder
           # eine (2n)-durch-n-Bit-Division, mit Ergebnis q <= floor(x/y) < beta)
-          # und x-q*y und muss hiervon noch hˆchstens 2 mal y abziehen und q
+          # und x-q*y und muss hiervon noch h√∂chstens 2 mal y abziehen und q
           # incrementieren, um den Quotienten  q = floor(x/y)  und den Rest
           # x-floor(x/y)*y  der Division zu bekommen.
           var uint16 y1_1 = high16(y)+1; # y1+1
@@ -937,7 +937,7 @@
             # Bilde r := (2^16*xhi+high16(xlo)) - y*q1
             #          = 2^16*(xhi-y1*q1) + high16(xlo) - y0*q1
             #          = 2^16*r16 + 2^16*q1 + high16(xlo) - y0*q1 (>=0)
-            # Dies ist < 2^16*y1 + 2^32 <= y + 2^32 <= 3*y, kann ¸berlaufen!
+            # Dies ist < 2^16*y1 + 2^32 <= y + 2^32 <= 3*y, kann √ºberlaufen!
             r = highlow32(r16,high16(xlo)); # 2^16*r16 + high16(xlo) < 2^32
             r2 = highlow32_0(q1) - mulu16(low16(y),q1); # 2^16*q1 - y0*q1 < 2^32
             # 0 <= r+r2 < 3*y. Bei der Addition auf Carry testen!
@@ -964,7 +964,7 @@
             # Bilde r := (2^16*r+low16(xlo)) - y*q0
             #          = 2^16*(r-y1*q0) + low16(xlo) - y0*q0
             #          = 2^16*r16 + 2^16*q0 + low16(xlo) - y0*q0 (>=0)
-            # Dies ist < 2^16*y1 + 2^32 <= y + 2^32 <= 3*y, kann ¸berlaufen!
+            # Dies ist < 2^16*y1 + 2^32 <= y + 2^32 <= 3*y, kann √ºberlaufen!
             r = highlow32(r16,low16(xlo)); # 2^16*r16 + low16(xlo) < 2^32
             r2 = highlow32_0(q0) - mulu16(low16(y),q0); # 2^16*q0 - y0*q0 < 2^32
             # 0 <= r+r2 < 3*y. Bei der Addition auf Carry testen!
@@ -993,12 +993,12 @@
 # < boolean sqrtp: /=0, falls x=y^2
   # Methode:
   # y := 2^16 als Anfangswert,
-  # y := floor((y + floor(x/y))/2) als n‰chster Wert,
+  # y := floor((y + floor(x/y))/2) als n√§chster Wert,
   # solange z := floor(x/y) < y, setze y := floor((y+z)/2).
   # y ist fertig; x=y^2 genau dann, wenn z=y und die letzte Division aufging.
   # (Beweis:
   #  1. Die Folge der y ist streng monoton fallend.
-  #  2. Stets gilt y >= floor(sqrt(x)) (denn f¸r alle y>0 ist
+  #  2. Stets gilt y >= floor(sqrt(x)) (denn f√ºr alle y>0 ist
   #     y + x/y >= 2*sqrt(x) und daher  floor((y + floor(x/y))/2) =
   #     floor(y/2 + x/(2*y)) >= floor(sqrt(x)) ).
   #  3. Am Schluss gilt x >= y^2.
@@ -1010,7 +1010,7 @@
       loop                                                               \
         { var uint16 _z;                                                 \
           var uint16 _r;                                                 \
-          if (_x1 >= _y) # Division _x/_y erg‰be ‹berlauf -> _z > _y     \
+          if (_x1 >= _y) # Division _x/_y erg√§be √úberlauf -> _z > _y     \
             { unused (sqrtp_zuweisung FALSE); break; }                   \
           divu_3216_1616(_x,_y, _z=,_r=); # Dividiere _x/_y              \
           if (_z >= _y)                                                  \
@@ -1029,12 +1029,12 @@
   #if (defined(SPARC) || defined(SPARC64) || defined(MC680Y0) || defined(HPPA))
     # Methode:
     # y := 2^32 als Anfangswert,
-    # y := floor((y + floor(x/y))/2) als n‰chster Wert,
+    # y := floor((y + floor(x/y))/2) als n√§chster Wert,
     # solange z := floor(x/y) < y, setze y := floor((y+z)/2).
     # y ist fertig; x=y^2 genau dann, wenn z=y und die letzte Division aufging.
     # (Beweis:
     #  1. Die Folge der y ist streng monoton fallend.
-    #  2. Stets gilt y >= floor(sqrt(x)) (denn f¸r alle y>0 ist
+    #  2. Stets gilt y >= floor(sqrt(x)) (denn f√ºr alle y>0 ist
     #     y + x/y >= 2*sqrt(x) und daher  floor((y + floor(x/y))/2) =
     #     floor(y/2 + x/(2*y)) >= floor(sqrt(x)) ).
     #  3. Am Schluss gilt x >= y^2.
@@ -1046,7 +1046,7 @@
         loop                                                            \
           { var uint32 _z;                                              \
             var uint32 _rest;                                           \
-            if (_xhi >= _y) # Division _x/_y erg‰be ‹berlauf -> _z > _y \
+            if (_xhi >= _y) # Division _x/_y erg√§be √úberlauf -> _z > _y \
               { sqrtp_zuweisung FALSE; break; }                         \
             divu_6432_3232(_xhi,_xlo,_y, _z=,_rest=); # Dividiere _x/_y \
             if (_z >= _y)                                               \
@@ -1063,13 +1063,13 @@
     #   yhi = floor(y/2^16) = floor(floor(sqrt(x))/2^16)
     #       = floor(sqrt(x)/2^16) = floor(sqrt(x/2^32)) = isqrt(xhi)
     # sein. Es folgt yhi >= 2^15.
-    # Danach sucht man das grˆﬂte ylo >=0 mit
+    # Danach sucht man das gr√∂√üte ylo >=0 mit
     # x - 2^32*yhi^2 >= 2*2^16*yhi*ylo + ylo^2.
     # Dazu setzen wir  xhi*2^32+xlo := x - 2^32*yhi^2
     # (also xhi := xhi - yhi^2, das ist >=0, <=2*yhi).
-    # Die Sch‰tzung f¸r die zweite Ziffer
+    # Die Sch√§tzung f√ºr die zweite Ziffer
     #     ylo' := min(2^16-1,floor((xhi*2^32+xlo)/(2*2^16*yhi)))
-    # erf¸llt ylo'-1 <= ylo <= ylo', ist also um hˆchstens 1 zu groﬂ.
+    # erf√ºllt ylo'-1 <= ylo <= ylo', ist also um h√∂chstens 1 zu gro√ü.
     # (Beweis: Rechte Ungleichung klar, da  ylo < 2^16  und
     #   xhi*2^32+xlo >= 2*2^16*yhi*ylo + ylo^2 >= 2*2^16*yhi*ylo
     #   ==> (xhi*2^32+xlo)/(2*2^16*yhi) >= ylo  gelten muss.
@@ -1091,7 +1091,7 @@
         isqrt_32_16(_xhi,_yhi=,); # yhi := isqrt(xhi)                       \
         _xhi -= mulu16(_yhi,_yhi); # jetzt 0 <= xhi <= 2*yhi                \
         # x = 2^32*yhi^2 + 2^32*xhi + xlo                                   \
-        # Sch‰tzung f¸r die zweite Ziffer berechnen:                        \
+        # Sch√§tzung f√ºr die zweite Ziffer berechnen:                        \
         # ylo := min(2^16-1,floor((xhi*2^32+xlo)/(2*2^16*yhi))) bilden:     \
        {var uint32 _z = (_xhi << 15) | (_xlo >> 17); # < 2^15*(2*yhi+1)     \
         var uint32 _r = highlow32_0(_yhi);                                  \

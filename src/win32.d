@@ -2,12 +2,12 @@
 # Bruno Haible 1997-1999
 
 
-# Konstanten für Steuerzeichen:
+# Konstanten fÃ¼r Steuerzeichen:
 
 #define BEL  7              # Ton ausgeben
 # define NL  10             # New line, siehe LISPBIBL.D
 #define RUBOUT 127          # Rubout = Delete
-#define CRLFstring  "\r\n"  # C-String, der BS-Newline enthält
+#define CRLFstring  "\r\n"  # C-String, der BS-Newline enthÃ¤lt
 
 # Many Win32 API functions are declared differently when UNICODE is defined,
 # in a way which doesn't work on Win95. We don't want this, so undefine it now. 

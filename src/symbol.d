@@ -1,4 +1,4 @@
-# Funktionen betr. Symbole für CLISP
+# Funktionen betr. Symbole fÃ¼r CLISP
 # Bruno Haible 1990-2000
 
 #include "lispbibl.c"
@@ -16,7 +16,7 @@
     {
       var object fun = Symbol_function(symbol);
       if (eq(fun,unbound)) {
-        pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
+        pushSTACK(symbol); # Wert fÃ¼r Slot NAME von CELL-ERROR
         pushSTACK(symbol);
         pushSTACK(S(symbol_function));
         fehler(undefined_function,
@@ -24,7 +24,7 @@
               );
       }
       if (consp(fun)) {
-        pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
+        pushSTACK(symbol); # Wert fÃ¼r Slot NAME von CELL-ERROR
         pushSTACK(symbol);
         pushSTACK(S(function));
         fehler(undefined_function,
@@ -35,7 +35,7 @@
     }
 #endif
 
-# Fehlermeldung, wenn ein Symbol eine Property-Liste ungerader Länge hat.
+# Fehlermeldung, wenn ein Symbol eine Property-Liste ungerader LÃ¤nge hat.
 # fehler_plist_odd(symbol);
 # > symbol: Symbol
   nonreturning_function(local, fehler_plist_odd, (object symbol));
@@ -53,7 +53,7 @@
 # get(symbol,key)
 # > symbol: ein Symbol
 # > key: ein mit EQ zu vergleichender Key
-# < value: dazugehöriger Wert aus der Property-Liste von symbol, oder unbound.
+# < value: dazugehÃ¶riger Wert aus der Property-Liste von symbol, oder unbound.
   global object get (object symbol, object key);
   global object get(symbol,key)
     var object symbol;
@@ -75,7 +75,7 @@
       if (atomp(plistr))
         goto odd;
       return Car(plistr);
-     odd: # Property-Liste hat ungerade Länge
+     odd: # Property-Liste hat ungerade LÃ¤nge
       fehler_plist_odd(symbol);
      notfound: # key nicht gefunden
       return unbound;
@@ -89,7 +89,7 @@ LISPFUNN(putd,2)
       fehler_symbol(symbol);
     var object fun = STACK_0;
     # fun muss SUBR, FSUBR, Closure oder #<MACRO expander> sein,
-    # Lambda-Ausdruck ist nicht mehr gültig.
+    # Lambda-Ausdruck ist nicht mehr gÃ¼ltig.
     if (subrp(fun) || closurep(fun) || ffunctionp(fun) || fsubrp(fun))
       goto ok;
     elif (macrop(fun)) # #<MACRO expander> ist ok
@@ -97,8 +97,8 @@ LISPFUNN(putd,2)
     elif (consp(fun) && eq(Car(fun),S(lambda))) { # eine Lambda-Expression?
       fehler_lambda_expression(fun);
     }
-    pushSTACK(fun); # Wert für Slot DATUM von TYPE-ERROR
-    pushSTACK(S(function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+    pushSTACK(fun); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+    pushSTACK(S(function)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
     pushSTACK(fun);
     fehler(type_error,
            GETTEXT("SETF SYMBOL-FUNCTION: ~ is not a function")
@@ -133,7 +133,7 @@ LISPFUNN(find_subr,1)
   }
 
 LISPFUNN(proclaim_constant,2)
-# (SYS::%PROCLAIM-CONSTANT symbol value) erklärt ein Symbol zu einer Konstanten
+# (SYS::%PROCLAIM-CONSTANT symbol value) erklÃ¤rt ein Symbol zu einer Konstanten
 # und ihm einen Wert zu.
   {
     var object val = popSTACK();
@@ -181,7 +181,7 @@ LISPFUN(getf,2,1,norest,nokey,0,NIL)
     if (atomp(plistr))
       goto odd;
     value1 = Car(plistr); mv_count=1; skipSTACK(3); return;
-   odd: # Property-Liste hat ungerade Länge
+   odd: # Property-Liste hat ungerade LÃ¤nge
     pushSTACK(STACK_2);
     pushSTACK(S(getf));
     fehler(error,
@@ -222,7 +222,7 @@ LISPFUNN(get_properties,2)
       goto odd;
     value2 = Car(plistr); # Zweiter Wert = Wert zum Key
     mv_count=3; return; # Drei Werte
-   odd: # Property-Liste hat ungerade Länge
+   odd: # Property-Liste hat ungerade LÃ¤nge
     pushSTACK(plist);
     pushSTACK(S(get_properties));
     fehler(error,
@@ -267,7 +267,7 @@ LISPFUNN(put,3)
         goto odd;
       value1 = Car(plistr) = STACK_0; mv_count=1; # neues value eintragen
       skipSTACK(3); return;
-     odd: # Property-Liste hat ungerade Länge
+     odd: # Property-Liste hat ungerade LÃ¤nge
       fehler_plist_odd(symbol);
     }
    notfound: # key nicht gefunden
@@ -310,9 +310,9 @@ LISPFUNN(remprop,2)
     plistr = Cdr(plistr);
     if (atomp(plistr))
       goto odd;
-    *plistr_ = Cdr(plistr); # Property-Liste um 2 Elemente verkürzen
+    *plistr_ = Cdr(plistr); # Property-Liste um 2 Elemente verkÃ¼rzen
     value1 = T; mv_count=1; return; # Wert T
-   odd: # Property-Liste hat ungerade Länge
+   odd: # Property-Liste hat ungerade LÃ¤nge
     fehler_plist_odd(symbol);
    notfound: # key nicht gefunden
     value1 = NIL; mv_count=1; return; # Wert NIL
@@ -411,8 +411,8 @@ LISPFUN(gensym,0,1,norest,nokey,0,NIL)
         prefix = x; # prefix setzen
       } elif (integerp(x)) {
         if (R_minusp(x)) {
-          pushSTACK(x); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(x); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_posinteger)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(x);
           pushSTACK(S(gensym));
           fehler(type_error,
@@ -422,8 +422,8 @@ LISPFUN(gensym,0,1,norest,nokey,0,NIL)
         # x ist ein Integer >=0
         counter = x; # counter setzen
       } else {
-        pushSTACK(x); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_string_integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(x); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_string_integer)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(x);
         pushSTACK(S(gensym));
         fehler(type_error,
@@ -436,9 +436,9 @@ LISPFUN(gensym,0,1,norest,nokey,0,NIL)
     pushSTACK(counter); # counter
     if (!integerp(x)) {
       if (!(integerp(counter) && !R_minusp(counter))) { # sollte Integer >= 0 sein
-        var object new_value = Symbol_value(S(gensym_counter)) = Fixnum_0; # *GENSYM-COUNTER* zurücksetzen
-        pushSTACK(counter); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        var object new_value = Symbol_value(S(gensym_counter)) = Fixnum_0; # *GENSYM-COUNTER* zurÃ¼cksetzen
+        pushSTACK(counter); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_posinteger)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(new_value); pushSTACK(counter);
         fehler(type_error,
                GETTEXT("The value of *GENSYM-COUNTER* was not a nonnegative integer. Old value ~. New value ~.")
@@ -448,7 +448,7 @@ LISPFUN(gensym,0,1,norest,nokey,0,NIL)
     }
     funcall(L(decimal_string),1); # (sys::decimal-string counter)
     pushSTACK(value1); # 2. String
-    value1 = make_symbol(coerce_imm_ss(string_concat(2))); # zusammenhängen, Symbol bilden
+    value1 = make_symbol(coerce_imm_ss(string_concat(2))); # zusammenhÃ¤ngen, Symbol bilden
     mv_count=1; # als Wert
   }
 

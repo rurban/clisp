@@ -2,7 +2,7 @@
 (export '(ethe letf letf* with-collect))
 (in-package "SYSTEM")
 ;;; ---------------------------------------------------------------------------
-;;; Wie THE, nur dass auch im compilierten Code der Typtest durchgeführt wird.
+;;; Wie THE, nur dass auch im compilierten Code der Typtest durchgefÃ¼hrt wird.
 (defmacro ethe (typespec form)
   (let ((g (gensym)))
     `(THE ,typespec
@@ -55,7 +55,7 @@
 ) ) )
 
 ; expandiert ein LETF*, liefert die Expansion und
-; T, falls diese Expansion mit einem LET* anfängt, dessen Bindungsliste
+; T, falls diese Expansion mit einem LET* anfÃ¤ngt, dessen Bindungsliste
 ; erweitert werden darf.
 (defun expand-LETF* (bindlist declare body)
   (if (atom bindlist)
@@ -154,7 +154,7 @@
           (expand-LETF bindlist)
         ; mehrfach folgendes anwenden:
         ; endet let*-list mit (#:G form) und kommt in let/let*-list (var #:G)
-        ; vor, so dürfen beide gestrichen werden, und dafür kommt (var form)
+        ; vor, so dÃ¼rfen beide gestrichen werden, und dafÃ¼r kommt (var form)
         ; an den Anfang von let-list.
         (setq let*-list (nreverse let*-list))
         (loop
@@ -209,15 +209,15 @@
             (setq body `((LETF* ,let*-list ,@declare ,@body)) 1form t)
           )
           (if (and 1form (or (null declare) (not (eq (caar body) 'unwind-protect))))
-            ; eine Form, keine Deklarationen oder fängt mit letf*/let/let* an
+            ; eine Form, keine Deklarationen oder fÃ¤ngt mit letf*/let/let* an
             (car body)
             ; allgemein
             `(LET () ,@declare (PROGN ,@body))
 ) ) ) ) ) )
 
 ; expandiert ein LETF, liefert:
-; eine Bindungsliste für LETF*,
-; eine Bindungsliste für LET/LET* (Reihenfolge der Bindung darin beliebig),
+; eine Bindungsliste fÃ¼r LETF*,
+; eine Bindungsliste fÃ¼r LET/LET* (Reihenfolge der Bindung darin beliebig),
 ; eine Liste von Bindungsanweisungen, eine Liste von Entbindungsanweisungen
 ; (beide gleich lang).
 (defun expand-LETF (bindlist)

@@ -7,7 +7,7 @@
 
 # ------------------------------ Implementation --------------------------------
 
-# UP: Läuft durch den gesamten Speicher durch, und ruft dabei für jedes
+# UP: LÃ¤uft durch den gesamten Speicher durch, und ruft dabei fÃ¼r jedes
 # Objekt obj: fun(arg,obj,bytelen) auf.
 # map_heap_objects(fun,arg)
 # > fun: C-Funktion
@@ -58,7 +58,7 @@
         #endif
       #endif
       #ifdef GENERATIONAL_GC
-        # Objekte variabler Länge:
+        # Objekte variabler LÃ¤nge:
         for_each_varobject_heap(heap, {
           var_prepare_objsize;
           {
@@ -127,7 +127,7 @@
         });
         #endif
       #else
-        # Objekte variabler Länge:
+        # Objekte variabler LÃ¤nge:
         for_each_varobject_page(page, {
           var aint p = page->page_start;
           var aint p_end = page->page_end;

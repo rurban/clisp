@@ -570,7 +570,7 @@ User visible changes
 * The macro WITH-OUTPUT-TO-STRING is now ANSI compliant.
 
 * Added FFI support for NetBSD/m68k.
-  Thanks to Jörn Clausen <joern@techfak.uni-bielefeld.de>.
+  Thanks to JÃ¶rn Clausen <joern@techfak.uni-bielefeld.de>.
 
 * Use of the deprecated functions GENTEMP and SET now generates a compiler
   warning.
@@ -637,7 +637,7 @@ Portability
 
 * Added AmigaOS support for the socket functions. It's not perfect, but
   sufficient for writing socket clients.
-  Thanks to Jörg Höhle.
+  Thanks to JÃ¶rg HÃ¶hle.
 
 * Port to Win32 using msvc5. (Previously only msvc4 was supported.)
 
@@ -660,7 +660,7 @@ Other modifications
   temporary linking set.
   Suggested by Gilbert Baumann <unk6@rz.uni-karlsruhe.de>.
 
-* Compiling IFs with no else part now produce better code (Jörg Höhle).
+* Compiling IFs with no else part now produce better code (JÃ¶rg HÃ¶hle).
 
 * Speed up I/O to *STANDARD-INPUT*, *STANDARD-OUTPUT* and *TERMINAL-IO*:
   If standard input is redirected from a file, the input side of *TERMINAL-IO*
@@ -770,7 +770,7 @@ Other modifications
 
 * Reduced the number of conses allocated by calling APPLY on a function with
   both &KEY and &REST.
-  Thanks to Jörg Höhle.
+  Thanks to JÃ¶rg HÃ¶hle.
 
 * The CLX documentation can now be viewed in ghostview.
   Thanks to Karl M. Hegbloom <karlheg@inetarena.com>.
@@ -877,7 +877,7 @@ User visible changes
   and Marcus Daniels.
 
 * New user-interface language ESPANOL.
-  Thanks to Carlos Linares López <clinares@delicias.dia.fi.upm.es> who has
+  Thanks to Carlos Linares LÃ³pez <clinares@delicias.dia.fi.upm.es> who has
   translated about 55% of CLISP's messages to Spanish.
 
 * EQUALP now descends structures (but not CLOS instances!) on all platforms,
@@ -964,11 +964,11 @@ Portability
 * Support for immutable objects now works on Linux/ELF. It did already work
   on Linux/a.out.
 
-* Updated Amiga support. Thanks to Jörg Höhle <Joerg.Hoehle@gmd.de>.
+* Updated Amiga support. Thanks to JÃ¶rg HÃ¶hle <Joerg.Hoehle@gmd.de>.
 
 * Updated Acorn support. Thanks to Peter Burwood <clisp@arcangel.dircon.co.uk>.
 
-* Updated OS/2 support. Thanks to Jörg Diederich <J_Diederich@herlab.ruhr.de>.
+* Updated OS/2 support. Thanks to JÃ¶rg Diederich <J_Diederich@herlab.ruhr.de>.
 
 * Updated support for Solaris/x86. Thanks to Marty Shannon <mjs@tiaa-cref.org>.
 
@@ -997,7 +997,7 @@ Other modifications
   "#!/usr/local/bin/clisp" in the first line and doing a "chmod a+x".
 
 * The read-eval-print loop now calls FORCE-OUTPUT after outputting the prompt.
-  Thanks to Jörg Höhle <Joerg.Hoehle@gmd.de>.
+  Thanks to JÃ¶rg HÃ¶hle <Joerg.Hoehle@gmd.de>.
 
 * Support for immutable objects now also works in the WIDE tagging scheme.
 
@@ -1128,7 +1128,7 @@ Other modifications
 * The compiler now recognizes more function calls as inlinable: Cases like
   (FUNCALL (LAMBDA ...) ...), (DECLAIM (INLINE F)) (MAPCAR #'F ...)
   are now compiled as inline function calls. Previously you had to write
-  (FUNCTION (LAMBDA ...)) explicitly. Suggested by Jörg Höhle.
+  (FUNCTION (LAMBDA ...)) explicitly. Suggested by JÃ¶rg HÃ¶hle.
 
 * "makemake" now supports the --srcdir, --prefix and --exec-prefix options.
 
@@ -1308,7 +1308,7 @@ Portability
 
 * Foreign function interface: Fixed a couple of possible bugs in the low-level
   foreign function call routine for i386/486/586, m680x0, SPARC CPUs. Thanks
-  to Jörg Höhle.
+  to JÃ¶rg HÃ¶hle.
 
 * Small fixes for SCO.
 
@@ -1550,7 +1550,7 @@ User visible changes
 * X3J13 vote <132> is implemented: Synonym streams to file streams are
   allowed as pathnames.
 
-* Amiga version: SCREEN package is implemented. Thanks to Jörg Höhle.
+* Amiga version: SCREEN package is implemented. Thanks to JÃ¶rg HÃ¶hle.
 
 * The debugger emits some more messages to *DEBUG-IO*, not *ERROR-OUTPUT*.
 
@@ -1665,7 +1665,7 @@ Portability
 
 * More Sinix support. Thanks to Manfred Weichel.
 
-* Updated support for AmigaOS. Thanks to Jörg Höhle.
+* Updated support for AmigaOS. Thanks to JÃ¶rg HÃ¶hle.
 
 * Some modification for the sake of gcc-2.6.
 
@@ -1750,7 +1750,7 @@ Other modifications
 User visible changes
 --------------------
 
-* French support is now complete. Thanks to Jörg Höhle.
+* French support is now complete. Thanks to JÃ¶rg HÃ¶hle.
 
 * The user interface language (english, german or french) can now be chosen
   at startup time through a command line option. The constant *LANGUAGE* has
@@ -1863,7 +1863,7 @@ Other modifications
 * Speedup SUBLIS and NSUBLIS.
 
 * Let all known versions of gcc2 emit dbra instructions for loops. Thanks
-  to Jörg Höhle.
+  to JÃ¶rg HÃ¶hle.
 
 * Renamed condition.lsp to conditio.lsp.
 

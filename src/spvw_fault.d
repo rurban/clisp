@@ -67,7 +67,7 @@ local void xmmprotect (aint addr, uintL len, int prot);
 #ifdef SELFMADE_MMAP # impliziert SPVW_PURE_BLOCKS <==> SINGLEMAP_MEMORY
                      # oder       SPVW_MIXED_BLOCKS_STAGGERED
 
-# Unterroutine f¸rs Lesen einer Page vom mem-File.
+# Unterroutine f√ºrs Lesen einer Page vom mem-File.
 local int handle_mmap_fault (uintL offset, aint address, uintB* memfile_page);
 local int handle_mmap_fault(offset,address,memfile_page)
   var uintL offset;
@@ -135,7 +135,7 @@ local int handle_mmap_fault(offset,address,memfile_page)
                        # oder       SPVW_MIXED_BLOCKS_STAGGERED
                        # oder       SPVW_MIXED_BLOCKS_OPPOSITE
 
-# Unterroutine f¸r protection: PROT_NONE -> PROT_READ
+# Unterroutine f√ºr protection: PROT_NONE -> PROT_READ
 local int handle_read_fault (aint address, physpage_state* physpage);
 local int handle_read_fault(address,physpage)
   var aint address;
@@ -167,7 +167,7 @@ local int handle_read_fault(address,physpage)
     {
       var uintL type;
       for (type = 0; type < typecount; type++)
-        if (mem.heapnr_from_type[type] >= 0) # type in MM_TYPECASES aufgef¸hrt?
+        if (mem.heapnr_from_type[type] >= 0) # type in MM_TYPECASES aufgef√ºhrt?
           if (mprotect((MMAP_ADDR_T)combine(type,address), physpagesize, PROT_READ) < 0)
             return -1;
     }
@@ -176,7 +176,7 @@ local int handle_read_fault(address,physpage)
     return 0;
   }
 
-# Unterroutine f¸r protection: PROT_READ -> PROT_READ_WRITE
+# Unterroutine f√ºr protection: PROT_READ -> PROT_READ_WRITE
 local int handle_readwrite_fault (aint address, physpage_state* physpage);
 local int handle_readwrite_fault(address,physpage)
   var aint address;
@@ -191,7 +191,7 @@ local int handle_readwrite_fault(address,physpage)
     {
       var uintL type;
       for (type = 0; type < typecount; type++)
-        if (mem.heapnr_from_type[type] >= 0) # type in MM_TYPECASES aufgef¸hrt?
+        if (mem.heapnr_from_type[type] >= 0) # type in MM_TYPECASES aufgef√ºhrt?
           if (mprotect((MMAP_ADDR_T)combine(type,address), physpagesize, PROT_READ_WRITE) < 0)
             return -1;
     }
@@ -368,7 +368,7 @@ global boolean handle_fault_range(prot,start_address,end_address)
     var Heap* heap = &mem.heaps[0]; # varobject_heap
     var boolean did_pagein = FALSE;
     if ((end_address <= heap->heap_mgen_start) || (heap->heap_mgen_end <= start_address))
-      return TRUE; # nichts zu tun, aber seltsam, dass ¸berhaupt ein Fehler kam
+      return TRUE; # nichts zu tun, aber seltsam, dass √ºberhaupt ein Fehler kam
     #ifdef SELFMADE_MMAP
     if (heap->memfile_numpages > 0) {
       var aint pa_uaddress;
@@ -496,7 +496,7 @@ local void xmprotect(addr,len,prot)
       unused heap;
       var uintL type;
       for (type = 0; type < typecount; type++)
-        if (mem.heapnr_from_type[type] >= 0) # type in MM_TYPECASES aufgef¸hrt?
+        if (mem.heapnr_from_type[type] >= 0) # type in MM_TYPECASES aufgef√ºhrt?
           xmprotect((aint)combine(type,addr),len,prot);
     }
 #else
@@ -508,9 +508,9 @@ local void xmprotect(addr,len,prot)
       var uintL len;
       var int prot;
       {
-        # ‹berspringe die noch nicht eingeblendeten Seiten und mimimiere
-        # dabei die Anzahl der nˆtigen mprotect()-Aufrufe: Auf Halde steht
-        # ein mprotect-Aufruf f¸r das Intervall [todo_address,address-1].
+        # √úberspringe die noch nicht eingeblendeten Seiten und mimimiere
+        # dabei die Anzahl der n√∂tigen mprotect()-Aufrufe: Auf Halde steht
+        # ein mprotect-Aufruf f√ºr das Intervall [todo_address,address-1].
         var aint todo_address = 0;
         #define do_todo()  \
           { if (todo_address)                                        \

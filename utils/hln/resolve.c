@@ -71,8 +71,8 @@ char* resolve(path,resolved_path)
   int symlinkcount = 0; /* Anzahl bisher aufgetretener symbolischer Links */
 #endif
   char* resolved_limit = &resolved_path[PATH_MAX-1];
-  /* Gültige Pointer sind die mit resolved_path <= ptr <= resolved_limit. */
-  /* In *resolved_limit darf höchstens noch ein Nullbyte stehen. */
+  /* GÃ¼ltige Pointer sind die mit resolved_path <= ptr <= resolved_limit. */
+  /* In *resolved_limit darf hÃ¶chstens noch ein Nullbyte stehen. */
   /* (Analog mit mypath.) */
   {
     char* resolved_ptr = resolved_path; /* (bleibt stets <= resolved_limit) */
@@ -81,7 +81,7 @@ char* resolve(path,resolved_path)
       const char* path_ptr = path;
       while ((resolved_ptr < resolved_limit) && *path_ptr)
         { *resolved_ptr++ = *path_ptr++; }
-      /* Mit '/' und einem Nullbyte abschließen: */
+      /* Mit '/' und einem Nullbyte abschlieÃŸen: */
       if (resolved_ptr < resolved_limit)
         { *resolved_ptr++ = '/'; }
       *resolved_ptr = 0;
@@ -96,7 +96,7 @@ char* resolve(path,resolved_path)
       {
         char next = *from_ptr++; *to_ptr++ = next;
         if ((next == '/') && (to_ptr >= resolved_path+2))
-          /* to_ptr[-1]='/'  ->  Directory ...to_ptr[-2] auflösen: */
+          /* to_ptr[-1]='/'  ->  Directory ...to_ptr[-2] auflÃ¶sen: */
           {
             char* last_subdir_end = &to_ptr[-2];
             switch (*last_subdir_end)
@@ -114,7 +114,7 @@ char* resolve(path,resolved_path)
                           {
                             if ((to_ptr > resolved_path+4) && (*--last_subdir_ptr == '/'))
                               /* letztes subdir war '/../' */
-                              /* Dafür das subdir davor entfernen: */
+                              /* DafÃ¼r das subdir davor entfernen: */
                               {
                                 while ((last_subdir_ptr > resolved_path) && !(last_subdir_ptr[-1] == '/'))
                                   last_subdir_ptr--;
@@ -139,18 +139,18 @@ char* resolve(path,resolved_path)
                       {
                         if (++symlinkcount > MAXSYMLINKS)
                           { errno = ELOOP_VALUE; return NULL; }
-                        /* noch aufzulösenden path-Anteil an den Link-Inhalt anhängen: */
+                        /* noch aufzulÃ¶senden path-Anteil an den Link-Inhalt anhÃ¤ngen: */
                         {
                           char* mypath_ptr = &mypath[linklen]; /* ab hier ist Platz */
                           char* mypath_limit = &mypath[PATH_MAX-1]; /* bis hierher */
                           if (mypath_ptr < mypath_limit)
-                            { *mypath_ptr++ = '/'; } /* erst ein '/' anhängen */
+                            { *mypath_ptr++ = '/'; } /* erst ein '/' anhÃ¤ngen */
                           /* dann den Rest: */
                           while ((mypath_ptr <= mypath_limit) && (*mypath_ptr = *from_ptr++))
                             { mypath_ptr++; }
-                          *mypath_ptr = 0; /* und mit 0 abschließen */
+                          *mypath_ptr = 0; /* und mit 0 abschlieÃŸen */
                         }
-                        /* Dies ersetzt bzw. ergänzt den path: */
+                        /* Dies ersetzt bzw. ergÃ¤nzt den path: */
                         if (mypath[0] == '/')
                           /* ersetzt den path: */
                           {
@@ -159,7 +159,7 @@ char* resolve(path,resolved_path)
                             from_ptr = resolved_path;
                           }
                           else
-                          /* ergänzt den path: */
+                          /* ergÃ¤nzt den path: */
                           {
                             /* Linknamen streichen. Dazu bis zum letzten '/' suchen: */
                             {
@@ -188,10 +188,10 @@ char* resolve(path,resolved_path)
 #endif
                   break;
           }   }
-      } /* dann zum nächsten subdir */
+      } /* dann zum nÃ¤chsten subdir */
     /* ein '/' am Ende streichen: */
     if ((to_ptr[-1] == '/') && (to_ptr > resolved_path+1))
       { to_ptr--; }
-    to_ptr[0] = 0; /* durch 0 abschließen */
+    to_ptr[0] = 0; /* durch 0 abschlieÃŸen */
     return resolved_path; /* fertig */
 } }

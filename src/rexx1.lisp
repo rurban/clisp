@@ -1,5 +1,5 @@
-;;;; Rexx Funktionen für CLISP
-;;;; Jörg Höhle 15.4.1997
+;;;; Rexx Funktionen fÃ¼r CLISP
+;;;; JÃ¶rg HÃ¶hle 15.4.1997
 
 (in-package "LISP")
 (export '(rexx-run-command rexx-send-command rexx-wait-sent-command rexx-do-command
@@ -29,21 +29,21 @@
 
 ;;; Wir benutzen folgende Funktionen aus REXX.D:
 ;;; (system::%rexx-wait-input) -> boolean
-;;; (system::%rexx-get) -> (handle string) für eine neue Nachricht oder
-;;;  (handle rc [result]) für ein Reply auf eine unserer Nachrichten
+;;; (system::%rexx-get) -> (handle string) fÃ¼r eine neue Nachricht oder
+;;;  (handle rc [result]) fÃ¼r ein Reply auf eine unserer Nachrichten
 ;;; (system::%rexx-reply handle rc result) -> null
 ;;; (system::%rexx-put name :result :string :token :host :io) -> handle
 ;;; Keyword-Argumente result, string, token, io sind Flags:
 ;;;  result: Antwort merken
 ;;;  string: Argument als Befehle statt 1. Token als Dateiname verstehen
 ;;;  token: Tokens erzeugen
-;;;  io: E/A Kanäle übernehmen
-;;; host: ARexx Portname bzw. NIL für "REXX" oder T für "AREXX" (asynchrone
+;;;  io: E/A KanÃ¤le Ã¼bernehmen
+;;; host: ARexx Portname bzw. NIL fÃ¼r "REXX" oder T fÃ¼r "AREXX" (asynchrone
 ;;; Bearbeitung)
 
 ;; Wir verwalten eine Aliste  msg -> reply  aller weggeschickten und noch
 ;; unbearbeiteten Messages und ihrer Antworten (Listen (Code String);
-;; NIL für noch unbeantwortete Messages). Beim Abschicken einer Message
+;; NIL fÃ¼r noch unbeantwortete Messages). Beim Abschicken einer Message
 ;; bekommen wir ein "handle" (FOREIGN-POINTER) als Erkennungszeichen
 ;; (diese werden mit EQUALP verglichen).
 
@@ -60,7 +60,7 @@
 )
 
 ;; Startet ein REXX-Kommando, ohne jedoch jetzt auf dessen Beendigung zu warten.
-;; Liefert das Handle, damit man später noch auf seine Beendigung warten kann,
+;; Liefert das Handle, damit man spÃ¤ter noch auf seine Beendigung warten kann,
 ;; jedoch NIL, falls das Kommando nicht erfolgreich abgeschickt werden konnte.
 (defun rexx-send-command (name &rest keys &key result string token host io)
   (declare (ignore result string token host io))
@@ -71,14 +71,14 @@
       handle
 ) ) )
 
-;; Wartet auf die nächste Nachricht und liefert ihr Handle.
+;; Wartet auf die nÃ¤chste Nachricht und liefert ihr Handle.
 (defun rexx-next-event ()
-  (loop ; es fehlt derzeit die Möglichkeit, parallel *STANDARD-INPUT* zu lesen
-    ; nächste Nachricht lesen und auswerten, falls vorhanden:
+  (loop ; es fehlt derzeit die MÃ¶glichkeit, parallel *STANDARD-INPUT* zu lesen
+    ; nÃ¤chste Nachricht lesen und auswerten, falls vorhanden:
     (let ((event (%rexx-get)))
       (when event (return event))
     )
-    ; auf die nächste Nachricht warten:
+    ; auf die nÃ¤chste Nachricht warten:
     (%rexx-wait-input)
 ) )
 
@@ -89,22 +89,22 @@
 
 
 ;; "Hauptschleife": Wartet auf Nachrichten, interpretiert diese als Fragen,
-;; wertet sie aus und schickt die Antwort zurück (oder Return-Code 5 im Falle
+;; wertet sie aus und schickt die Antwort zurÃ¼ck (oder Return-Code 5 im Falle
 ;; eines Fehlers). Die Schleife wird beendet, wenn eine Antwort auf Handle
 ;; wait-for kommt.
-;; Wir möchten: dass rexx-loop in eine Endlosschleife geht und möglicherweise
-;; in den Debugger springt. unwind/abort soll dabei zurück in die Schleife
+;; Wir mÃ¶chten: dass rexx-loop in eine Endlosschleife geht und mÃ¶glicherweise
+;; in den Debugger springt. unwind/abort soll dabei zurÃ¼ck in die Schleife
 ;; springen (oder doch rexx-loop verlassen? (dann loop statt driver
 ;; benutzen)), damit falsche ARexx-Eingaben nicht zum Abbruch von rexx-loop
-;; führen.
+;; fÃ¼hren.
 ;; Ferner soll rexx-loop auch ganz normal beendet werden, z.Z. springt es
-;; über rexx:exit-loop.cl in eine Eingabeschleife, deswegen geht (progn
+;; Ã¼ber rexx:exit-loop.cl in eine Eingabeschleife, deswegen geht (progn
 ;; (rexx-loop) (print "Over")) nicht.
 (defun rexx-loop (&optional wait-for)
   "Rexx driver loop. Optional message to wait for."
   (driver ; driver oder einfaches loop ??
     #'(lambda ()
-        (let ((event (rexx-next-event))) ; nächste Nachricht
+        (let ((event (rexx-next-event))) ; nÃ¤chste Nachricht
           (cond ((numberp (second event)) ; ein Reply (handle rc [result])
                  (let ((index (rexx-find-index (first event))))
                    (when index (setf (cdr index) (rest event))) ; Antwort abspeichern

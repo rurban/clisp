@@ -1,5 +1,5 @@
 # AFFI Poor man's simple foreign function calls
-# Jörg Höhle 11.8.1996
+# JÃ¶rg HÃ¶hle 11.8.1996
 
 #include "lispbibl.c"
 # TODO? check offset against number of library vectors
@@ -111,11 +111,11 @@ local void fehler_ffi_argcount(ffinfo)
 nonreturning_function(local, fehler_ffi_argtype, (object obj, object type, object ffinfo));
 local void fehler_ffi_argtype(obj,type,ffinfo)
   var object obj;
-  var object type; # wird nur unpräzise verwendet
+  var object type; # wird nur unprÃ¤zise verwendet
   var object ffinfo;
   {
-    pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-    pushSTACK(fixnump(type) ? S(integer) : T); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+    pushSTACK(obj); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+    pushSTACK(fixnump(type) ? S(integer) : T); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
     pushSTACK(obj); pushSTACK(ffinfo); pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,
            GETTEXT("~: Bad argument for prototype ~: ~")
@@ -133,7 +133,7 @@ local void fehler_ffi_arg(obj)
           );
   }
 
-# Lese gültige Adresse inklusive Offset
+# Lese gÃ¼ltige Adresse inklusive Offset
 local aint convert_address (object obj, object offset);
 local aint convert_address(obj, offset)
   var object obj;
@@ -146,8 +146,8 @@ local aint convert_address(obj, offset)
       address = (aint)(TheFpointer(obj)->fp_pointer);
     }
     if (address == 0) {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(unsigned_byte)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(S(unsigned_byte)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a valid address")
@@ -160,18 +160,18 @@ local aint convert_address(obj, offset)
   }
 
 
-#if defined(HAVE_LONGLONG) && 1 # benötigt Funktionen aus INTELEM.D und LISPBIBL.D
+#if defined(HAVE_LONGLONG) && 1 # benÃ¶tigt Funktionen aus INTELEM.D und LISPBIBL.D
 #define uintbig  uint64
-#define uintbig_p(obj)  uint64_p(obj) # reicht für reg_num <= 16 (AmigaOS)
+#define uintbig_p(obj)  uint64_p(obj) # reicht fÃ¼r reg_num <= 16 (AmigaOS)
 #define I_to_Ubig(obj)  I_to_UQ(obj)
 #else
 #define uintbig  uintL
-#define uintbig_p(obj)  uint32_p(obj) # reicht nicht für reg_num > 8
+#define uintbig_p(obj)  uint32_p(obj) # reicht nicht fÃ¼r reg_num > 8
 #define I_to_Ubig(obj)  I_to_UL(obj)
 #endif
 
-# Führt Funktionsaufruf aus und erzeugt LISP-Ergebnis.
-# Die Argumente müssen zuvor überprüft worden sein (Typ und Zahl)
+# FÃ¼hrt Funktionsaufruf aus und erzeugt LISP-Ergebnis.
+# Die Argumente mÃ¼ssen zuvor Ã¼berprÃ¼ft worden sein (Typ und Zahl)
 # < value1, mv_count
 local void affi_callit (aint address, object ffinfo, aint* args);
 local void affi_callit(address, ffinfo, args)
@@ -189,7 +189,7 @@ local void affi_callit(address, ffinfo, args)
         offset = 0;
       } elif (consp(both)) {
         mask = Cdr(both);
-        offset = I_to_L(Car(both)); # nur fixnum_to_L() (dann mit Überprüfung) ?
+        offset = I_to_L(Car(both)); # nur fixnum_to_L() (dann mit ÃœberprÃ¼fung) ?
       } else
         goto bad_proto;
     }
@@ -229,7 +229,7 @@ local void affi_callit(address, ffinfo, args)
           }
         } else
           goto bad_proto;
-        # Regcall ausführen
+        # Regcall ausfÃ¼hren
         thing = reg_call(address+offset,&regs);
       #else
         goto bad_call;
@@ -256,7 +256,7 @@ local void affi_callit(address, ffinfo, args)
             case -1L: value1 = L_to_I((sint8)thing); break;
             case -2L: value1 = L_to_I((sint16)thing); break;
             case -4L: value1 = L_to_I(thing); break;
-            # andere Fälle wurde schon mit Fehler abgefangen
+            # andere FÃ¤lle wurde schon mit Fehler abgefangen
             default: value1 = NIL;
           }
         } elif (eq(rtype,S(string))) {   # string
@@ -266,7 +266,7 @@ local void affi_callit(address, ffinfo, args)
         } elif (eq(rtype,S(Kexternal))) { # :external
           value1 = (thing == 0 ? NIL : allocate_fpointer((FOREIGN)thing));
         } else {
-          # andere Fälle wurden schon mit Fehler abgefangen
+          # andere FÃ¤lle wurden schon mit Fehler abgefangen
           value1 = NIL;
         }
         mv_count=1;
@@ -275,10 +275,10 @@ local void affi_callit(address, ffinfo, args)
   }
 
 
-# Führt Typüberprüfungen und Aufruf aus. Ermittelt dabei und belegt
-# mittels alloca() die Größe des Bereichs für die LISP-STRING nach C
+# FÃ¼hrt TypÃ¼berprÃ¼fungen und Aufruf aus. Ermittelt dabei und belegt
+# mittels alloca() die GrÃ¶ÃŸe des Bereichs fÃ¼r die LISP-STRING nach C
 # (asciz) Umwandlung
-# Darf bis zum Aufruf keine GC auslösen.
+# Darf bis zum Aufruf keine GC auslÃ¶sen.
 # < value1, mv_count
 local void affi_call_argsa (aint address, object ffinfo, const object* args, uintC count);
 local void affi_call_argsa(address, ffinfo, args, count)
@@ -288,13 +288,13 @@ local void affi_call_argsa(address, ffinfo, args, count)
   var uintC count;
   {
     # if (!simple_vector_p(ffinfo)) goto bad_proto; # oder fehler_kein_svector();
-    # Zahl der Argumente überprüfen
+    # Zahl der Argumente Ã¼berprÃ¼fen
     {
       var uintL vlen = Svector_length(ffinfo);
       if (vlen != count+2)
         fehler_ffi_argcount(ffinfo);
     }
-    # Return-Type schon vor dem Aufruf überprüfen
+    # Return-Type schon vor dem Aufruf Ã¼berprÃ¼fen
     {
       var object rtype = TheSvector(ffinfo)->data[1];
       if (fixnump(rtype)) {
@@ -306,7 +306,7 @@ local void affi_call_argsa(address, ffinfo, args, count)
       } elif (!( nullp(rtype) || eq(rtype,S(mal)) || eq(rtype,S(Kexternal)) || eq(rtype,S(string)) ))
         goto bad_proto;
     }
-    # Typprüfung und Speicherung (auf Stack SP) der Argumente
+    # TypprÃ¼fung und Speicherung (auf Stack SP) der Argumente
     #define ACCEPT_ADDR_ARG      bit(0)
     #define ACCEPT_STRING_ARG    bit(1)
     #define ACCEPT_UBVECTOR_ARG  bit(2)
@@ -417,7 +417,7 @@ local void affi_call_argsa(address, ffinfo, args, count)
                     dotimesL(length,length, {
                       *ptr++ = as_cint(*charptr++);
                     });
-                    #error "Ich bin mir nicht sicher, ob das das Gewünschte ist."
+                    #error "Ich bin mir nicht sicher, ob das das GewÃ¼nschte ist."
                     #error "Gibt es FFI-Bindings, die versuchen, in einen String hineinzuschreiben?"
                   }
                 }
@@ -481,7 +481,7 @@ local void affi_call_argsa(address, ffinfo, args, count)
   }
 
 # (SYSTEM::%LIBCALL base ff-description &rest args)
-# kann GC auslösen (nach erfolgtem Aufruf)
+# kann GC auslÃ¶sen (nach erfolgtem Aufruf)
 LISPFUN(affi_libcall,2,0,rest,nokey,0,NIL)
   {
     var object ffinfo = Before(rest_args_pointer); # #((offset . mask) return-type . arg-types*))
@@ -528,7 +528,7 @@ LISPFUN(mem_read,2,1,norest,nokey,0,NIL)
   {
     var aint address = convert_address(STACK_2,STACK_0);
     # TODO? address could be a LISP string or vector. Better not
-    var object into = STACK_1; # Größe in Byte, '*, 'STRING, string oder vector
+    var object into = STACK_1; # GrÃ¶ÃŸe in Byte, '*, 'STRING, string oder vector
     skipSTACK(3);
     if (eq(into,S(mal))) { # pointer dereference
       value1 = UL_to_I(*(aint*)address);
@@ -617,7 +617,7 @@ LISPFUN(mem_write,3,1,norest,nokey,0,NIL)
   {
     var aint address = convert_address(STACK_3,STACK_0);
     var object wert = STACK_1;
-    var object type = STACK_2; # Größe in Byte oder *
+    var object type = STACK_2; # GrÃ¶ÃŸe in Byte oder *
     skipSTACK(4);
     if (eq(type,S(mal))) { # pointer dereference
       if (integerp(wert)) {
@@ -810,7 +810,7 @@ subr_initdata module__affi__subr_tab_initdata[subr_anz] = {
 # called once when module is initialized, not called if found in .mem file
 void module__affi__init_function_1(module)
   var module_* module;
-  { # evtl. keywords-Slot müssten wir initialisieren
+  { # evtl. keywords-Slot mÃ¼ssten wir initialisieren
   }
 
 # called for every session

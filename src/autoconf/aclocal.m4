@@ -1296,7 +1296,7 @@ AC_DEFINE_UNQUOTED(RETMEMSETTYPE,$cl_cv_proto_memset_ret)
 ])dnl
 dnl
 AC_DEFUN(CL_GMALLOC,
-[dnl Invented by François Pinard <pinard@iro.umontreal.ca>
+[dnl Invented by FranÃ§ois Pinard <pinard@iro.umontreal.ca>
 dnl (but he denies having invented it).
 AC_CACHE_CHECK([for broken HP/UX malloc], cl_cv_func_malloc_broken, [
 if test $cross_compiling = no; then

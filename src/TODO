@@ -20,7 +20,7 @@ Scope von declare-special x:
 LET ohne x:  free: only the body, bind last
 LET* ohne x: free: only the body, bind last
 LET mit x:  bound: only the body, bind last
-LET* mit x: bound: ab der n‰chsten initform, bind after corresponding initform
+LET* mit x: bound: ab der n√§chsten initform, bind after corresponding initform
 LAMBDA: erst alle Argumente auswerten, dann erst die vorhandenen Parameter
 binden, dann jeweils initform und binden.
 
@@ -60,7 +60,7 @@ print-readably for interpreted closures and #<specdecl> and #<unbound> ?
 
 
 parse_namestring: split_name_type(1), und bei make_pathname
-Klein->Groﬂschreibung umwandeln, so dass (make-pathname :type "fas") immer geht.
+Klein->Gro√üschreibung umwandeln, so dass (make-pathname :type "fas") immer geht.
 
 
 clean up and modularize spvw.d

@@ -6,10 +6,10 @@
 
 ;;-----------------------------------------------------------------------------
 
-; Speichert den momentanen Speicherinhalt unter Weglassen überflüssiger
+; Speichert den momentanen Speicherinhalt unter Weglassen Ã¼berflÃ¼ssiger
 ; Objekte ab als LISPIMAG.MEM.
 ; Diese Funktion bekommt keine Argumente und hat keine lokalen Variablen, da
-; sonst in interpretiertem Zustand die Variablenwerte mit abgespeichert würden.
+; sonst in interpretiertem Zustand die Variablenwerte mit abgespeichert wÃ¼rden.
 (defun %saveinitmem ()
   (do-all-symbols (sym) (remprop sym 'sys::definition))
   (when (fboundp 'clos::install-dispatch)
@@ -25,7 +25,7 @@
 )
 
 ; Speichert den momentanen Speicherinhalt ab.
-; Läuft nur in compiliertem Zustand!
+; LÃ¤uft nur in compiliertem Zustand!
 (defun saveinitmem (&optional (filename "lispinit.mem")
                     &key ((:quiet *quiet*) nil) init-function)
   (let ((- nil) (+ nil) (++ nil) (+++ nil)

@@ -366,7 +366,7 @@
 # Traverse the object recursively, noting in a hash set (a multi-level bit map)
 # the sub-objects traversed. While doing this, push the circularities onto the
 # STACK. Then release the bitmap.
-# Allocate a vector for the circularities (this kann GC auslösen!), move the
+# Allocate a vector for the circularities (this kann GC auslÃ¶sen!), move the
 # circularities from the STACK into the vector.
 
 # Global variables during get_circularities.
@@ -379,8 +379,8 @@
     object* abbruch_STACK;
   } get_circ_global;
 
-# UP: markiert das Objekt obj, legt auftretende Zirkularitäten auf den STACK
-# und zählt sie in env->counter mit.
+# UP: markiert das Objekt obj, legt auftretende ZirkularitÃ¤ten auf den STACK
+# und zÃ¤hlt sie in env->counter mit.
   local void get_circ_mark(obj,env)
     var object obj;
     var get_circ_global* env;
@@ -404,7 +404,7 @@
           {
             var object obj_cdr = Cdr(obj); # Komponenten
             var object obj_car = Car(obj);
-            if (SP_overflow()) # SP-Tiefe überprüfen
+            if (SP_overflow()) # SP-Tiefe Ã¼berprÃ¼fen
               longjmp(env->abbruch_context,TRUE); # Abbruch
             get_circ_mark(obj_car,env); # CAR markieren (rekursiv)
             obj = obj_cdr; goto entry; # CDR markieren (tail-end-rekursiv)
@@ -414,7 +414,7 @@
             if (eq(Symbol_package(obj),NIL)) # uninterniertes Symbol?
               goto m_schon_da; # ja -> war schon da, merken
             else
-              goto m_end; # nein -> war zwar schon da, aber unberücksichtigt lassen
+              goto m_end; # nein -> war zwar schon da, aber unberÃ¼cksichtigt lassen
           goto m_end;
         case_bvector: # Bit-Vector
         case_b2vector: # 2Bit-Vector
@@ -442,7 +442,7 @@
             if (!(count==0)) {
               # markiere count>0 Komponenten
               var object* ptr = &TheSvector(obj)->data[0];
-              if (SP_overflow()) # SP-Tiefe überprüfen
+              if (SP_overflow()) # SP-Tiefe Ã¼berprÃ¼fen
                 longjmp(env->abbruch_context,TRUE); # Abbruch
               dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); # markiere Komponenten (rekursiv)
             }
@@ -532,7 +532,7 @@
             if (!(count==0)) {
               # markiere count>0 Komponenten
               var object* ptr = &TheRecord(obj)->recdata[0];
-              if (SP_overflow()) # SP-Tiefe überprüfen
+              if (SP_overflow()) # SP-Tiefe Ã¼berprÃ¼fen
                 longjmp(env->abbruch_context,TRUE); # Abbruch
               dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); # markiere Komponenten (rekursiv)
             }
@@ -540,12 +540,12 @@
           goto m_end;
          m_schon_da:
           # Objekt wurde markiert, war aber schon markiert.
-          # Es ist eine Zirkularität.
-          if (STACK_overflow()) # STACK-Tiefe überprüfen
+          # Es ist eine ZirkularitÃ¤t.
+          if (STACK_overflow()) # STACK-Tiefe Ã¼berprÃ¼fen
             longjmp(env->abbruch_context,TRUE); # Abbruch
           # Objekt im STACK ablegen:
           pushSTACK(obj);
-          env->counter++; # und mitzählen
+          env->counter++; # und mitzÃ¤hlen
           goto m_end;
         #ifdef TYPECODES
         case_machine: # Maschinenpointer
@@ -570,28 +570,28 @@
     var boolean pr_array;
     var boolean pr_closure;
     {
-      var get_circ_global my_global; # Zähler und Kontext (incl. STACK-Wert)
-                                     # für den Fall eines Abbruchs
-      set_break_sem_1(); # Break unmöglich machen
+      var get_circ_global my_global; # ZÃ¤hler und Kontext (incl. STACK-Wert)
+                                     # fÃ¼r den Fall eines Abbruchs
+      set_break_sem_1(); # Break unmÃ¶glich machen
       if (!setjmp(my_global.abbruch_context)) { # Kontext abspeichern
         bcopy(my_global.abbruch_context,my_global.bitmap.oom_context,sizeof(jmp_buf));
         mlb_alloc(&my_global.bitmap); # Bitmap allozieren
         my_global.pr_array = pr_array;
         my_global.pr_closure = pr_closure;
-        my_global.counter = 0; # Zähler := 0
+        my_global.counter = 0; # ZÃ¤hler := 0
         my_global.abbruch_STACK = STACK;
         # Die Kontext-Konserve my_global ist jetzt fertig.
         get_circ_mark(obj,&my_global); # Objekt markieren, mehrfache
                                        # Strukturen auf dem STACK ablegen
-                                       # in my_global.counter zählen
+                                       # in my_global.counter zÃ¤hlen
         mlb_free(&my_global.bitmap); # Bitmap freigeben
-        clr_break_sem_1(); # Break wieder möglich
+        clr_break_sem_1(); # Break wieder mÃ¶glich
         var uintL n = my_global.counter; # Anzahl der Objekte auf dem STACK
         if (n==0) {
-          return NIL; # keine da -> NIL zurück und fertig
+          return NIL; # keine da -> NIL zurÃ¼ck und fertig
         } else {
           var object vector = allocate_vector(n+1); # Vektor mit n+1 Elementen
-          # füllen:
+          # fÃ¼llen:
           var object* ptr = &TheSvector(vector)->data[0];
           *ptr++ = Fixnum_0; # erstes Element = Fixnum 0
           # restliche Elemente eintragen (mindestens eins):
@@ -599,11 +599,11 @@
           return vector; # Vektor als Ergebnis
         }
       } else {
-        # nach Abbruch wegen SP- oder STACK-Überlauf
-        setSTACK(STACK = my_global.abbruch_STACK); # STACK wieder zurücksetzen
+        # nach Abbruch wegen SP- oder STACK-Ãœberlauf
+        setSTACK(STACK = my_global.abbruch_STACK); # STACK wieder zurÃ¼cksetzen
         # Der Kontext ist jetzt wiederhergestellt.
         mlb_free(&my_global.bitmap); # Bitmap freigeben
-        clr_break_sem_1(); # Break wieder möglich
+        clr_break_sem_1(); # Break wieder mÃ¶glich
         return T; # T als Ergebnis
       }
     }
@@ -612,10 +612,10 @@
 
 # get_circularities(obj,pr_array,pr_closure)
 # Methode:
-# Markiere rekursiv das Objekt, lege dabei die Zirkularitäten auf den STACK,
+# Markiere rekursiv das Objekt, lege dabei die ZirkularitÃ¤ten auf den STACK,
 # demarkiere rekursiv das Objekt,
-# alloziere Vektor für die Zirkularitäten (kann GC auslösen!),
-# fülle die Zirkularitäten vom STACK in den Vektor um.
+# alloziere Vektor fÃ¼r die ZirkularitÃ¤ten (kann GC auslÃ¶sen!),
+# fÃ¼lle die ZirkularitÃ¤ten vom STACK in den Vektor um.
   typedef struct {
     boolean pr_array;
     boolean pr_closure;
@@ -631,26 +631,26 @@
     var boolean pr_array;
     var boolean pr_closure;
     {
-      var get_circ_global my_global; # Zähler und Kontext (incl. STACK-Wert)
-                                     # für den Fall eines Abbruchs
-      set_break_sem_1(); # Break unmöglich machen
+      var get_circ_global my_global; # ZÃ¤hler und Kontext (incl. STACK-Wert)
+                                     # fÃ¼r den Fall eines Abbruchs
+      set_break_sem_1(); # Break unmÃ¶glich machen
       if (!setjmp(my_global.abbruch_context)) { # Kontext abspeichern
         my_global.pr_array = pr_array;
         my_global.pr_closure = pr_closure;
-        my_global.counter = 0; # Zähler := 0
+        my_global.counter = 0; # ZÃ¤hler := 0
         my_global.abbruch_STACK = STACK;
         # Die Kontext-Konserve my_global ist jetzt fertig.
         get_circ_mark(obj,&my_global); # Objekt markieren, mehrfache
                                        # Strukturen auf dem STACK ablegen
-                                       # in my_global.counter zählen
-        get_circ_unmark(obj,&my_global); # Markierungen wieder löschen
-        clr_break_sem_1(); # Break wieder möglich
+                                       # in my_global.counter zÃ¤hlen
+        get_circ_unmark(obj,&my_global); # Markierungen wieder lÃ¶schen
+        clr_break_sem_1(); # Break wieder mÃ¶glich
         var uintL n = my_global.counter; # Anzahl der Objekte auf dem STACK
         if (n==0) {
-          return NIL; # keine da -> NIL zurück und fertig
+          return NIL; # keine da -> NIL zurÃ¼ck und fertig
         } else {
           var object vector = allocate_vector(n+1); # Vektor mit n+1 Elementen
-          # füllen:
+          # fÃ¼llen:
           var object* ptr = &TheSvector(vector)->data[0];
           *ptr++ = Fixnum_0; # erstes Element = Fixnum 0
           # restliche Elemente eintragen (mindestens eins):
@@ -658,16 +658,16 @@
           return vector; # Vektor als Ergebnis
         }
       } else {
-        # nach Abbruch wegen SP- oder STACK-Überlauf
-        setSTACK(STACK = my_global.abbruch_STACK); # STACK wieder zurücksetzen
+        # nach Abbruch wegen SP- oder STACK-Ãœberlauf
+        setSTACK(STACK = my_global.abbruch_STACK); # STACK wieder zurÃ¼cksetzen
         # Der Kontext ist jetzt wiederhergestellt.
-        get_circ_unmark(obj,&my_global); # Markierungen wieder löschen
-        clr_break_sem_1(); # Break wieder möglich
+        get_circ_unmark(obj,&my_global); # Markierungen wieder lÃ¶schen
+        clr_break_sem_1(); # Break wieder mÃ¶glich
         return T; # T als Ergebnis
       }
     }
-# UP: markiert das Objekt obj, legt auftretende Zirkularitäten auf den STACK
-# und zählt sie in env->counter mit.
+# UP: markiert das Objekt obj, legt auftretende ZirkularitÃ¤ten auf den STACK
+# und zÃ¤hlt sie in env->counter mit.
   local void get_circ_mark(obj,env)
     var object obj;
     var get_circ_global* env;
@@ -692,7 +692,7 @@
             var object obj_cdr = Cdr(obj); # Komponenten (ohne Markierungsbit)
             var object obj_car = Car(obj);
             mark(TheCons(obj)); # markieren
-            if (SP_overflow()) # SP-Tiefe überprüfen
+            if (SP_overflow()) # SP-Tiefe Ã¼berprÃ¼fen
               longjmp(env->abbruch_context,TRUE); # Abbruch
             get_circ_mark(obj_car,env); # CAR markieren (rekursiv)
             obj = obj_cdr; goto entry; # CDR markieren (tail-end-rekursiv)
@@ -702,7 +702,7 @@
             if (eq(Symbol_package(obj),NIL)) # uninterniertes Symbol?
               goto m_schon_da; # ja -> war schon da, merken
             else
-              goto m_end; # nein -> war zwar schon da, aber unberücksichtigt lassen
+              goto m_end; # nein -> war zwar schon da, aber unberÃ¼cksichtigt lassen
           }
           # bisher unmarkiertes Symbol
           mark(TheSymbol(obj)); # markieren
@@ -737,7 +737,7 @@
             if (!(count==0)) {
               # markiere count>0 Komponenten
               var object* ptr = &TheSvector(obj)->data[0];
-              if (SP_overflow()) # SP-Tiefe überprüfen
+              if (SP_overflow()) # SP-Tiefe Ã¼berprÃ¼fen
                 longjmp(env->abbruch_context,TRUE); # Abbruch
               dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); # markiere Komponenten (rekursiv)
             }
@@ -834,7 +834,7 @@
             if (!(count==0)) {
               # markiere count>0 Komponenten
               var object* ptr = &TheRecord(obj)->recdata[0];
-              if (SP_overflow()) # SP-Tiefe überprüfen
+              if (SP_overflow()) # SP-Tiefe Ã¼berprÃ¼fen
                 longjmp(env->abbruch_context,TRUE); # Abbruch
               dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); # markiere Komponenten (rekursiv)
             }
@@ -842,12 +842,12 @@
           goto m_end;
          m_schon_da:
           # Objekt wurde markiert, war aber schon markiert.
-          # Es ist eine Zirkularität.
-          if (STACK_overflow()) # STACK-Tiefe überprüfen
+          # Es ist eine ZirkularitÃ¤t.
+          if (STACK_overflow()) # STACK-Tiefe Ã¼berprÃ¼fen
             longjmp(env->abbruch_context,TRUE); # Abbruch
-          # Objekt mit gelöschtem garcol_bit im STACK ablegen:
+          # Objekt mit gelÃ¶schtem garcol_bit im STACK ablegen:
           pushSTACK(without_mark_bit(obj));
-          env->counter++; # und mitzählen
+          env->counter++; # und mitzÃ¤hlen
           goto m_end;
         #ifdef TYPECODES
         case_machine: # Maschinenpointer
@@ -898,7 +898,7 @@
         case_b32vector: # 32Bit-Vector
         case_string: # String
         case_symbol:
-          # Symbol demarkieren. Wertzelle etc. für PRINT unwesentlich.
+          # Symbol demarkieren. Wertzelle etc. fÃ¼r PRINT unwesentlich.
         case_bignum: # Bignum
         #ifndef WIDE
         case_ffloat: # Single-Float
@@ -1052,7 +1052,7 @@
     var subst_circ_global* env;
     {
       #if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
-      if (SP_overflow()) { # SP-Tiefe überprüfen
+      if (SP_overflow()) { # SP-Tiefe Ã¼berprÃ¼fen
         env->bad = nullobj; longjmp(env->abbruch_context,TRUE); # Abbruch
       }
       #endif
@@ -1063,10 +1063,10 @@
         # Objekte ohne Teilobjekte (Maschinenpointer, Bit-Vektoren,
         # Strings, Characters, SUBRs, Integers, Floats) enthalten
         # keine Referenzen. Ebenso Symbole und rationale Zahlen (bei ihnen
-        # können die Teilobjekte nicht in #n= - Syntax eingegeben worden
-        # sein) und komplexe Zahlen (für ihre Komponenten sind nur
+        # kÃ¶nnen die Teilobjekte nicht in #n= - Syntax eingegeben worden
+        # sein) und komplexe Zahlen (fÃ¼r ihre Komponenten sind nur
         # Integers, Floats, rationale Zahlen zugelassen, also Objekte,
-        # die ihrerseits keine Referenzen enthalten können).
+        # die ihrerseits keine Referenzen enthalten kÃ¶nnen).
         #ifdef TYPECODES
         switch (typecode(obj))
         #else
@@ -1126,10 +1126,10 @@
             #endif
             if (mlb_add(&env->bitmap,obj)) return; # Objekt schon markiert?
             # Beim Ersetzen von Read-Labels in Hash-Tables verliert deren
-            # Aufbau seinen Gültigkeit (denn die Hashfunktion der in ihr
-            # gespeicherten Objekte verändert sich).
+            # Aufbau seinen GÃ¼ltigkeit (denn die Hashfunktion der in ihr
+            # gespeicherten Objekte verÃ¤ndert sich).
             if (Record_type(obj) == Rectype_Hashtable) # eine Hash-Table ?
-              mark_ht_invalid(TheHashtable(obj)); # ja -> für Reorganisation vormerken
+              mark_ht_invalid(TheHashtable(obj)); # ja -> fÃ¼r Reorganisation vormerken
             # alle Elemente durchlaufen:
             {
               var uintC len = Record_length(obj);
@@ -1159,7 +1159,7 @@
                     if (eq(Car(acons),obj)) {
                       # gefunden
                       # *ptr = obj = (car acons) durch (cdr acons) ersetzen,
-                      # dabei aber das Markierungsbit unverändert lassen:
+                      # dabei aber das Markierungsbit unverÃ¤ndert lassen:
                       *ptr = (marked(ptr) ? with_mark_bit(Cdr(acons)) : Cdr(acons));
                       return;
                     }
@@ -1188,7 +1188,7 @@
           case_subr: # SUBR
           case_number: # Zahl
           case_symbol: # Symbol
-            # Objekt enthält keine Referenzen -> nichts zu tun
+            # Objekt enthÃ¤lt keine Referenzen -> nichts zu tun
             return;
           default: NOTREACHED
         }
@@ -1201,18 +1201,18 @@
     {
       var subst_circ_global my_global;
       my_global.alist = alist;
-      set_break_sem_1(); # Break unmöglich machen
+      set_break_sem_1(); # Break unmÃ¶glich machen
       if (!setjmp(my_global.abbruch_context)) {
         bcopy(my_global.abbruch_context,my_global.bitmap.oom_context,sizeof(jmp_buf));
         mlb_alloc(&my_global.bitmap);
         subst_circ_mark(ptr,&my_global); # markieren und substituieren
         mlb_free(&my_global.bitmap);
-        clr_break_sem_1(); # Break wieder möglich
+        clr_break_sem_1(); # Break wieder mÃ¶glich
         return nullobj;
       } else {
         # Abbruch aus subst_circ_mark() heraus
         mlb_free(&my_global.bitmap);
-        clr_break_sem_1(); # Break wieder möglich
+        clr_break_sem_1(); # Break wieder mÃ¶glich
         #if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
         if (eq(my_global.bad,nullobj)) {
           SP_ueber();
@@ -1224,7 +1224,7 @@
 
 #else # !MULTITHREAD
 
-#if 0 # ohne Zirkularitätenberücksichtigung
+#if 0 # ohne ZirkularitÃ¤tenberÃ¼cksichtigung
 
   local void subst (object* ptr);
   local object subst_circ_alist;
@@ -1254,10 +1254,10 @@
         # Objekte ohne Teilobjekte (Maschinenpointer, Bit-Vektoren,
         # Strings, Characters, SUBRs, Integers, Floats) enthalten
         # keine Referenzen. Ebenso Symbole und rationale Zahlen (bei ihnen
-        # können die Teilobjekte nicht in #n= - Syntax eingegeben worden
-        # sein) und komplexe Zahlen (für ihre Komponenten sind nur
+        # kÃ¶nnen die Teilobjekte nicht in #n= - Syntax eingegeben worden
+        # sein) und komplexe Zahlen (fÃ¼r ihre Komponenten sind nur
         # Integers, Floats, rationale Zahlen zugelassen, also Objekte,
-        # die ihrerseits keine Referenzen enthalten können).
+        # die ihrerseits keine Referenzen enthalten kÃ¶nnen).
         #ifdef TYPECODES
         switch (mtypecode(*ptr))
         #else
@@ -1370,17 +1370,17 @@
           case_subr: # SUBR
           case_number: # Zahl
           case_symbol: # Symbol
-            # Objekt enthält keine Referenzen -> nichts zu tun
+            # Objekt enthÃ¤lt keine Referenzen -> nichts zu tun
             break;
           default: NOTREACHED
         }
       }
     }
 
-#else # mit Zirkularitätenberücksichtigung
+#else # mit ZirkularitÃ¤tenberÃ¼cksichtigung
 
 # Methode:
-# Markiere rekursiv die Objekte, in denen die Substitution gerade durchgeführt
+# Markiere rekursiv die Objekte, in denen die Substitution gerade durchgefÃ¼hrt
 # wird/wurde. Danach demarkiere rekursiv das Objekt.
 
   local void subst_circ_mark (object* ptr);
@@ -1393,16 +1393,16 @@
     var object alist;
     {
       subst_circ_alist = alist;
-      set_break_sem_1(); # Break unmöglich machen
+      set_break_sem_1(); # Break unmÃ¶glich machen
       if (!setjmp(subst_circ_jmpbuf)) {
         subst_circ_mark(ptr); # markieren und substituieren
-        subst_circ_unmark(ptr); # Markierungen wieder löschen
-        clr_break_sem_1(); # Break wieder möglich
+        subst_circ_unmark(ptr); # Markierungen wieder lÃ¶schen
+        clr_break_sem_1(); # Break wieder mÃ¶glich
         return nullobj;
       } else {
         # Abbruch aus subst_circ_mark() heraus
         subst_circ_unmark(ptr); # erst alles demarkieren
-        clr_break_sem_1(); # Break wieder möglich
+        clr_break_sem_1(); # Break wieder mÃ¶glich
         #if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
         if (eq(subst_circ_bad,nullobj)) {
           SP_ueber();
@@ -1415,7 +1415,7 @@
     var object* ptr;
     {
       #if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
-      if (SP_overflow()) { # SP-Tiefe überprüfen
+      if (SP_overflow()) { # SP-Tiefe Ã¼berprÃ¼fen
         subst_circ_bad = nullobj; longjmp(subst_circ_jmpbuf,TRUE); # Abbruch
       }
       #endif
@@ -1426,10 +1426,10 @@
         # Objekte ohne Teilobjekte (Maschinenpointer, Bit-Vektoren,
         # Strings, Characters, SUBRs, Integers, Floats) enthalten
         # keine Referenzen. Ebenso Symbole und rationale Zahlen (bei ihnen
-        # können die Teilobjekte nicht in #n= - Syntax eingegeben worden
-        # sein) und komplexe Zahlen (für ihre Komponenten sind nur
+        # kÃ¶nnen die Teilobjekte nicht in #n= - Syntax eingegeben worden
+        # sein) und komplexe Zahlen (fÃ¼r ihre Komponenten sind nur
         # Integers, Floats, rationale Zahlen zugelassen, also Objekte,
-        # die ihrerseits keine Referenzen enthalten können).
+        # die ihrerseits keine Referenzen enthalten kÃ¶nnen).
         #ifdef TYPECODES
         switch (typecode(obj))
         #else
@@ -1492,10 +1492,10 @@
             if (marked(TheRecord(obj))) return; # Objekt schon markiert?
             mark(TheRecord(obj)); # markieren
             # Beim Ersetzen von Read-Labels in Hash-Tables verliert deren
-            # Aufbau seinen Gültigkeit (denn die Hashfunktion der in ihr
-            # gespeicherten Objekte verändert sich).
+            # Aufbau seinen GÃ¼ltigkeit (denn die Hashfunktion der in ihr
+            # gespeicherten Objekte verÃ¤ndert sich).
             if (Record_type(obj) == Rectype_Hashtable) # eine Hash-Table ?
-              mark_ht_invalid(TheHashtable(obj)); # ja -> für Reorganisation vormerken
+              mark_ht_invalid(TheHashtable(obj)); # ja -> fÃ¼r Reorganisation vormerken
             # alle Elemente durchlaufen:
             {
               var uintC len = Record_length(obj);
@@ -1525,7 +1525,7 @@
                     if (eq(Car(acons),obj)) {
                       # gefunden
                       # *ptr = obj = (car acons) durch (cdr acons) ersetzen,
-                      # dabei aber das Markierungsbit unverändert lassen:
+                      # dabei aber das Markierungsbit unverÃ¤ndert lassen:
                       *ptr = (marked(ptr) ? with_mark_bit(Cdr(acons)) : Cdr(acons));
                       return;
                     }
@@ -1555,7 +1555,7 @@
           case_subr: # SUBR
           case_number: # Zahl
           case_symbol: # Symbol
-            # Objekt enthält keine Referenzen -> nichts zu tun
+            # Objekt enthÃ¤lt keine Referenzen -> nichts zu tun
             return;
           default: NOTREACHED
         }
@@ -1656,7 +1656,7 @@
           case_subr: # SUBR
           case_number: # Zahl
           case_symbol: # Symbol
-            # Objekt enthält keine Referenzen -> nichts zu tun
+            # Objekt enthÃ¤lt keine Referenzen -> nichts zu tun
             return;
           default: NOTREACHED
         }
