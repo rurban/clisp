@@ -1,3 +1,10 @@
+1999-03-16  Sam Steingold  <sds@gnu.org>
+
+	* socket.d (is_number): removed.
+	(resolve_host_ipaddr): return all hosts on NIL arg.
+	* stream.d (user_data): return the current user with no args.
+	* _impnotes.html: document this.
+
 1999-03-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * stream.d (rd_ch_terminal2): Restructure this function. Call

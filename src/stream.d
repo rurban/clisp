@@ -17433,9 +17433,7 @@ LISPFUN(user_data,0,1,norest,nokey,0,NIL)
   var object user = popSTACK();
   struct passwd *pwd = NULL;
 
-  if (symbolp(user)) user = Symbol_name(user);
-
-  if (eq(user,unbound)) { # all users as a list
+  if (nullp(user))  { # all users as a list
     int count = 0;
     begin_system_call();
     for (; (pwd = getpwent()); count++) {
@@ -17446,15 +17444,25 @@ LISPFUN(user_data,0,1,norest,nokey,0,NIL)
     endpwent();
     end_system_call();
     value1 = listof(count); mv_count = 1;
-  } else if ((posfixnump(user)) || stringp(user)) {
+    return;
+  }
+
     begin_system_call();
-    pwd = (fixnump(user) ? getpwuid(posfixnum_to_L(user)) :
-           getpwnam(TheAsciz(string_to_asciz(user,O(misc_encoding)))));
+  if (posfixnump(user)) pwd = getpwuid(posfixnum_to_L(user));
+  else if (eq(user,unbound) || eq(user,S(Kdefault))) {
+    var char name[L_cuserid];
+    pwd = getpwnam(cuserid(name));
+  } else if (symbolp(user))
+    pwd = getpwnam(TheAsciz(string_to_asciz(Symbol_name(user),
+                                            O(misc_encoding))));
+  else if (stringp(user))
+    pwd = getpwnam(TheAsciz(string_to_asciz(user,O(misc_encoding))));
+  else { end_system_call(); fehler_string_int(user); }
     end_system_call();
+
     if (NULL == pwd) { OS_error(); }
     PASSWD_TO_STACK(pwd);
     funcall(L(values),7);
-  } else fehler_string_int(user);
 }
 
 #endif # UNIX
