@@ -54,6 +54,7 @@ options: The following options are recognized:
          --without-PACKAGE     do not use PACKAGE
            PACKAGEs available (the default is the opposite of the following):
           --without-dynamic-ffi   do not support Foreign Function Interface
+          --with-dynamic-modules  support Dynamic Modules
           --without-unicode       no UNICODE support: character=8bit
           --with-threads=FLAVOR   support multiple threads in one CLISP image
                  via OS threads [highly experimental - use at your own risk]
@@ -331,6 +332,9 @@ do
 
       --without-dynamic-ffi | --with-dynamic-ffi=no | --with-no-dynamic-ffi)
         do_ffi="no" ;;
+
+      --with-dynamic-modules | --with-dynamic-modules=yes)
+        makemake_args="--with-dynamic-modules ${makemake_args}" ;;
 
       --with-mingw | --with-no-cygwin | --without-cygwin | --with-cygwin=no)
         CC="${CC:-gcc} -mno-cygwin"; export CC;
