@@ -234,6 +234,9 @@ error
 (coerce 'and 'function)
 error
 
+(coerce -1 '(integer 0 100))
+type-error
+
 (compile-file "./12836123.lisp")
 file-error
 

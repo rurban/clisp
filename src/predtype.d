@@ -2023,7 +2023,11 @@ LISPFUNN(coerce,2)
       coerce_sequence_check(type,result_type);
       goto check_return;
     }
-    /* type is some other symbol */
+    /* if we got here, we know that type is valid, datum is not of that type
+       and we cannot do the coersion */
+    pushSTACK(STACK_1);     /* TYPE-ERROR slot DATUM (object) */
+    pushSTACK(STACK_(0+1)); /* TYPE-ERROR slot EXPECTED-TYPE (result-type) */
+    goto fehler_object;
   }
  fehler_type:
   /* due to the TYPEP call which checks result-type this should never happen
