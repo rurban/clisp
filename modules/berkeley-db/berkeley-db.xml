@@ -347,7 +347,7 @@
   </variablelist></para>
   <warning><para>Once you call a method for one type of access method,
     the handle can only be used for that type.
-    The methods &DB_get_re_delim; and &DB_get_re_source are for
+    The methods &DB_get_re_delim; and &DB_get_re_source; are for
     a <constant>:RECNO</constant> database so
     you <emphasis>cannot</emphasis> call them
     (by passing <constant>:RE_DELIM</constant>
@@ -426,7 +426,8 @@
    action &key-amp; DIRTY_READ MULTIPLE (ERROR &t;))</literal></term>
  <listitem><para>Retrieve by cursor (&DBC_get;).
    If &error-k; is &nil; and the record is not found, no &err-sig;,
-   instead <constant>:NOTFOUND</constant> is returned.
+   <constant>:NOTFOUND</constant> or <constant>:KEYEMPTY</constant>
+   is returned instead.
    <replaceable>action</replaceable> should be one of
    <simplelist><member><constant>:DB_CURRENT</constant></member>
     <member><constant>:DB_FIRST</constant></member>
@@ -587,20 +588,20 @@ Memory Pool Files
    (&DBE_txn_checkpoint;).</simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:TXN-PREPARE txn
    id)</literal></term>
- <listitem><simpara>initiate the beginning of a two-phase commit
+ <listitem><simpara>Initiate the beginning of a two-phase commit
    (&TXN_prepare;).</simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:TXN-RECOVER dbe &key-amp;
    FIRST NEXT)</literal></term>
- <listitem><simpara>return a list of prepared but not yet resolved
-   transactions (&DBE_txn_recover;)</simpara></listitem></varlistentry>
+ <listitem><simpara>Return a list of prepared but not yet resolved
+   transactions (&DBE_txn_recover;).</simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:TXN-SET-TIMEOUT txn
    timeout which)</literal></term>
- <listitem><simpara>set timeout values for locks or transactions for the
+ <listitem><simpara>Set timeout values for locks or transactions for the
    specified transaction (&TXN_set_timeout;).
 </simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:TXN-STAT dbe &key-amp;
    STAT_CLEAR)</literal></term>
- <listitem><simpara>transaction subsystem statistics (&DBE_txn_stat;).
+ <listitem><simpara>Transaction subsystem statistics (&DBE_txn_stat;).
 </simpara></listitem></varlistentry>
 </variablelist></section>
 
