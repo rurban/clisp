@@ -1872,6 +1872,8 @@
 #+dir-key
 (load "dirkey")                 ; win32 registry, LDAP, Gnome-config
 
+(load "deprecated")             ; the deprecated functionality -- optional
+
 (LOAD "config")    ; configuration parameters to be adjusted by the user
 
 (in-package "CL-USER")        ; make the default package the current one
