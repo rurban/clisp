@@ -67,6 +67,7 @@
   [ <a href="#opt-quiet"><code>-q</code></a> |
     <a href="#opt-quiet"><code>--quiet</code></a> |
     <a href="#opt-quiet"><code>--silent</code></a> ]
+  [ <a href="#opt-interactive-debug"><code>-interactive-debug</code></a> ]
   [ <a href="#opt-w"><code>-w</code></a> ]
   [ <a href="#opt-ilisp"><code>-I</code></a> ]
   [ <a href="#opt-ansi"><code>-ansi</code></a> ]
@@ -258,6 +259,13 @@ which depends on the environment variables <code>LC_ALL</code>,
     <strong><code>--silent</code></strong></dt>
 <dd>Quiet: <code>clisp</code> displays no banner at startup and no
  good-bye message when quitting.<p/></dd>
+
+<dt id="opt-interactive-debug"><code>-interactive-debug</code></dt>
+<dd>Override the batch mode imposed by
+  <a href="#opt-compile"><code>-c</code></a>,
+  <a href="#opt-exec-expr"><code>-x</code></a>, and
+  <a href="#opt-exec-file"><var>lispfile</var></a>
+and allow interactive handling of <code>ASSERT</code> and friends.</dd>
 
 <dt id="opt-wait"><strong><code>-w</code></strong></dt>
 <dd>Wait for a keypress after program termination.<p/></dd>
