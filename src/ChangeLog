@@ -1,3 +1,7 @@
+2002-09-11  John  Hinsdale <hin@alma.com>
+	* modules/oracle/*: new add-in module for Oracle interface
+	* src/Makefile.devel: build autoconf script for modules/oracle
+
 2002-09-11  Marco Baringer  <empb@bese.it>
 	    Sam Steingold  <sds@gnu.org>
 
