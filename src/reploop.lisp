@@ -78,7 +78,7 @@ If anything else, printed.")
 (defun prompt-string3 () "> ")
 
 ;; Help-function:
-(defvar *key-bindings* nil)             ; List of Key-Bindings  und Helpstrings
+(defvar *key-bindings* nil)     ; list of key-bindings and help strings
 (defun help ()
   (dolist (s (reverse (remove-if-not #'stringp *key-bindings*)))
     (write-string s #|*debug-io*|#)))
@@ -173,8 +173,7 @@ Enter the limit for max. frames to print or ':all' for all: ") *debug-io*)
                                   (limit *debug-print-frame-limit*)
                                   (prompt-limit-p nil))
   (let ((frame (frame-down-1 (frame-up-1 *frame-limit1* mode) mode))
-        (local-limit (or (and prompt-limit-p
-			      (get-frame-limit))   ; local limit takes precedence!
+        (local-limit (or (and prompt-limit-p (get-frame-limit)) ; local limit takes precedence!
 			 limit)))
     (do ((i 0 (1+ i)))
         ((and local-limit (>= i local-limit)) nil)
@@ -225,7 +224,7 @@ Enter the limit for max. frames to print or ':all' for all: ") *debug-io*)
    (TEXT "
 Help (abbreviated :h) = this list
 Use the usual editing capabilities.
-(quit) or (exit) leaves CLISP.")
+\(quit) or (exit) leaves CLISP.")
 
    (cons "Help"         #'debug-help)
    (cons ":h"           #'debug-help)))
@@ -373,20 +372,18 @@ Continue       :c       switch off single step mode, continue evaluation
 ;; Main-Loop with additional help-command
 (defun main-loop ()
   (setq *break-count* 0)
-  (driver                               ; build driver-frame; do #'lambda "infinitely"
+  (driver                 ; build driver-frame; do #'lambda "infinitely"
    #'(lambda ()
-       (catch 'debug                    ; catch the (throw 'debug ...)
-         (if                            ; read-eval-print INPUT-line
-             (read-eval-print
-               (string-concat (prompt-string1)
-                              (prompt-string2)
-                              (prompt-string3))
-               (commands0))
-                                        ; T -> #<EOF>
-           (exit)
-                                        ; NIL -> form is already evaluated
-                                        ; result has been printed
-           )))))
+       (catch 'debug            ; catch the (throw 'debug ...)
+         (when (read-eval-print   ; read-eval-print INPUT-line
+                (string-concat (prompt-string1)
+                               (prompt-string2)
+                               (prompt-string3))
+                (commands0))
+           ;; T -> #<EOF>
+           ;; NIL -> form is already evaluated
+           ;;        result has been printed
+           (exit))))))
 
 (setq *driver* #'main-loop)
 
@@ -464,19 +461,18 @@ Continue       :c       switch off single step mode, continue evaluation
               (when interactive-p
                 (write-string helpstring *debug-io*))
               (push helpstring commandsr)
-              ;; put it into the  commandsr list.
+              ;; put it into the commandsr list.
               (push
-                (cons command
-                      (let ((restart restart))
-                        #'(lambda ()
-                            (invoke-restart-interactively restart))))
-                commandsr)))
+               (cons command
+                     (let ((restart restart))
+                       #'(lambda () (invoke-restart-interactively restart))))
+               commandsr)))
           (terpri *debug-io*)
           (setq commandsr (nreverse commandsr))))))
   (force-output *debug-io*)
 
   (tagbody
-    (clear-input *debug-io*)    ; because the user didn't expect a break loop
+    (clear-input *debug-io*) ; because the user did not expect a break loop
     (let* ((*break-count* (1+ *break-count*))
            (stream (make-synonym-stream '*debug-io*))
            (*standard-input* stream)
@@ -492,32 +488,31 @@ Continue       :c       switch off single step mode, continue evaluation
            (*frame-limit2* (frame-limit2))
            (*debug-mode* 4)
            (*debug-frame*
-             (frame-down-1 (frame-up-1 *frame-limit1* *debug-mode*) *debug-mode*)))
+            (frame-down-1 (frame-up-1 *frame-limit1* *debug-mode*)
+                          *debug-mode*)))
       (driver
-        ;; build driver frame and repeat #'lambda (infinitely; ...)
-        #'(lambda ()
-            (case
-                (catch 'debug             ; catch (throw 'debug ...) and analyse
-
-                  ;; build environment *debug-frame* that is valid/equal for/to *debug-frame*
-                  (same-env-as *debug-frame*
-                    #'(lambda ()
-                        (if    ; read-eval-print INPUT-line
-                            (read-eval-print
+       ;; build driver frame and repeat #'lambda (infinitely; ...)
+       #'(lambda ()
+           (case (catch 'debug    ; catch (throw 'debug ...) and analyse
+                   ;; build environment *debug-frame*
+                   ;; which is valid/equal for/to *debug-frame*
+                   (same-env-as *debug-frame*
+                     #'(lambda ()
+                         (if (read-eval-print ; read-eval-print INPUT-line
                               prompt (commands may-continue commandsr))
-                                        ; T -> #<EOF>
-                          (throw 'debug (if may-continue 'quit 'unwind))
-                          ;; NIL -> form is already evaluated; result has been printed
-                          ))))
-              (print-error (print-error condition)) ; print the recent error-message
-              (unwind (go unwind))
-              (abort-to-top (go abort-to-top))
-              (quit                       ; reached only, if may-continue is T
-                (if continuable
-                  (go quit)
-                  (invoke-restart-interactively may-continue)))
-              (t )                        ; other cases, especially continue
-              ))))
+                             ;; T -> #<EOF>
+                             ;; NIL -> form is already evaluated;
+                             ;;        result has been printed
+                             (throw 'debug (if may-continue 'quit 'unwind))))))
+             ((print-error)
+              (print-error condition)) ; print the recent error-message
+             ((unwind) (go unwind))
+             ((abort-to-top) (go abort-to-top))
+             ((quit)            ; reached only if may-continue is T
+              (if continuable
+                (go quit)
+                (invoke-restart-interactively may-continue)))
+             (t )))))           ; other cases, especially continue
     unwind (unwind-to-driver nil)
     abort-to-top (unwind-to-driver t)
     quit))
@@ -562,12 +557,11 @@ Continue       :c       switch off single step mode, continue evaluation
 
 (defun step-hook-fn (form &optional (env *toplevel-environment*))
   (let ((*step-level* (1+ *step-level*)))
-    (when (>= *step-level* *step-quit*) ; as long as *step-level* >= *step-quit*
+    (when (>= *step-level* *step-quit*) ; while *step-level* >= *step-quit*
       (if (and *step-watch* (funcall *step-watch*)) ; and no Breakpoint,
         (setq *step-quit* most-positive-fixnum)
         (return-from step-hook-fn	; the Stepper remains passive
-          (evalhook form nil nil env)	; (e.g. it simply evaluates the Form)
-	  )))
+          (evalhook form nil nil env)))) ; (e.g. it simply evaluates the Form)
     (tagbody
       (let* ((stream (make-synonym-stream '*debug-io*))
              (*standard-input* stream)
@@ -602,44 +596,42 @@ Continue       :c       switch off single step mode, continue evaluation
                               ;; build environment *debug-frame* that
                               ;; is valid/equal for/to *debug-frame*
                               #'(lambda ()
-                                  (if ; get/read INPUT-line
-                                      (read-eval-print
-                                        prompt (commands nil (commands4)))
-					; T -> #<EOF>
-                                    (go continue)
-					; NIL -> form is already evaluated; result has been printed
+                                  (if (read-eval-print ; get/read INPUT-line
+                                       prompt (commands nil (commands4)))
+                                      ;; T -> #<EOF>
+                                      (go continue)
+                                      ;; NIL -> form is already evaluated;
+                                      ;;        result has been printed
                                     #|(throw 'debug 'continue)|#
-                                    ))))
-                        (unwind (go unwind))
-                        (abort-to-top (go abort-to-top))
-                        (t )		; other cases, especially continue
-                        ))))
+                                      ))))
+                        ((unwind) (go unwind))
+                        ((abort-to-top) (go abort-to-top))
+                        (t ))))) ; other cases, especially continue
             (when watchp
               (let ((form (read-form (TEXT "condition when to stop: "))))
                 (setq *step-watch*
-                        ;; Funktion, that evaluates 'form' in/with *debug-frame*
-                        (eval-at *debug-frame*
-                                 `(function (lambda () ,form))))))
+                      ;; function which evaluates 'form' in/with *debug-frame*
+                      (eval-at *debug-frame* `(function (lambda () ,form))))))
             (case what
               (into (go into))
               (over (go over))
               (over-this-level (go over-this-level))
               (continue (go continue))))))
-      unwind (unwind-to-driver nil)
-      abort-to-top (unwind-to-driver t)
-      into
-        (return-from step-hook-fn
-          (step-values
-            (multiple-value-list (evalhook form #'step-hook-fn nil env))))
-      over-this-level
-        (setq *step-quit* *step-level*)	; keep the Stepper sleeping
-      over
-        (return-from step-hook-fn
-          (step-values
-            (multiple-value-list (evalhook form nil nil env))))
-      continue
-        (setq *step-quit* 0)
-        (go over))))
+     unwind (unwind-to-driver nil)
+     abort-to-top (unwind-to-driver t)
+     into
+      (return-from step-hook-fn
+        (step-values
+         (multiple-value-list (evalhook form #'step-hook-fn nil env))))
+     over-this-level
+      (setq *step-quit* *step-level*)	; keep the Stepper sleeping
+     over
+      (return-from step-hook-fn
+        (step-values
+         (multiple-value-list (evalhook form nil nil env))))
+     continue
+      (setq *step-quit* 0)
+      (go over))))
 
 ;;;--------------------------------------------------------------------------
 
