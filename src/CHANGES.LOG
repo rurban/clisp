@@ -4,6 +4,8 @@ User visible changes
 
 * New functions READ-FLOAT and WRITE-FLOAT.
 
+* Fixed a bug in TRANSLATE-PATHNAME: Substitution of "**" did not work.
+
 Other modifications
 -------------------
 
