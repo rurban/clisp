@@ -165,7 +165,8 @@
 ;;; ----------------------- General Method Combination -----------------------
 
 (defun invalid-sort-order-error (order-form order-value)
-  (error-of-type 'sys::source-program-error
+  (error-of-type 'ext:source-program-error
+    :form order-value
     (TEXT "The value of ~S is ~S, should be :MOST-SPECIFIC-FIRST or :MOST-SPECIFIC-LAST.")
     order-form order-value))
 
@@ -174,7 +175,8 @@
     (sys::%handler-bind
         ((program-error
            #'(lambda (err)
-               (error-of-type 'sys::source-program-error
+               (error-of-type 'ext:source-program-error
+                 :form options
                  (TEXT "~S ~S: Invalid method-combination options ~S for ~S: ~A")
                  'defgeneric gf-name options combination err))))
       (apply checker options))))
@@ -189,15 +191,18 @@
                           keyp keywords keyvars keyinits keysvars allowp
                           auxvars auxinits)
         (sys::analyze-method-combination-lambdalist arguments-lambda-list
-          #'(lambda (errorstring &rest arguments)
-              (error-of-type (if (eq caller 'define-method-combination)
-                               'sys::source-program-error
-                               'program-error)
-                (TEXT "~S ~S: invalid ~S lambda-list: ~A")
-                caller name ':arguments
-                (apply #'format nil errorstring arguments))))
-     (declare (ignore optinits keyp keywords keyinits allowp auxinits))
-     (values
+          #'(lambda (form errorstring &rest arguments)
+              (if (eq caller 'define-method-combination)
+                (error-of-type 'ext:source-program-error
+                  :form form (TEXT "~S ~S: invalid ~S lambda-list: ~A")
+                  caller name ':arguments
+                  (apply #'format nil errorstring arguments))
+                (error-of-type 'program-error
+                  (TEXT "~S ~S: invalid ~S lambda-list: ~A")
+                  caller name ':arguments
+                  (apply #'format nil errorstring arguments)))))
+      (declare (ignore optinits keyp keywords keyinits allowp auxinits))
+      (values
        arguments-lambda-list
        (remove 0 (append (list whole) reqvars optvars optsvars (list rest)
                          keyvars keysvars auxvars))))))
@@ -206,11 +211,13 @@
 ; Returns the generic-function variable contained therein.
 (defun check-em-generic-function-option (option caller name)
   (unless (and (consp (cdr option)) (symbolp (cadr option)) (null (cddr option)))
-    (error-of-type (if (eq caller 'define-method-combination)
-                     'sys::source-program-error
-                     'program-error)
-      (TEXT "~S ~S: Invalid syntax for ~S option: ~S")
-      caller name ':generic-function option))
+    (if (eq caller 'define-method-combination)
+      (error-of-type 'ext:source-program-error
+        :form option (TEXT "~S ~S: Invalid syntax for ~S option: ~S")
+        caller name ':generic-function option)
+      (error-of-type 'program-error
+        (TEXT "~S ~S: Invalid syntax for ~S option: ~S")
+        caller name ':generic-function option)))
   (cadr option))
 
 ; Check the effective-method option (:DUPLICATES ...).
@@ -289,18 +296,20 @@
 
 (defmacro call-method (method &optional next-methods-list)
   (declare (ignore method next-methods-list))
-  (error-of-type 'sys::source-program-error
+  (error-of-type 'ext:source-program-error
+    :form (list method next-methods-list)
     (TEXT "~S is possible only from within the context of an effective method function. See ~S.")
     'call-method 'define-method-combination))
 
 (defmacro make-method (form)
-  (declare (ignore form))
-  (error-of-type 'sys::source-program-error
+  (error-of-type 'ext:source-program-error
+    :form form
     (TEXT "~S is possible only at particular places from within the context of an effective method function. See ~S.")
     'make-method 'define-method-combination))
 
 (defun make-method-error (whole-form)
-  (error-of-type 'sys::source-program-error
+  (error-of-type 'ext:source-program-error
+    :form whole-form
     (TEXT "~S cannot be used here: ~S")
     'make-method whole-form))
 
@@ -310,17 +319,20 @@
            (consp (cdr form)) (null (cddr form)))))
 
 (defun call-method-arg1-error (whole-form)
-  (error-of-type 'sys::source-program-error
+  (error-of-type 'ext:source-program-error
+    :form whole-form
     (TEXT "~S: The first argument is neither a method nor a (MAKE-METHOD ...) form: ~S")
     'call-method whole-form))
 
 (defun call-method-arg2-error (whole-form)
-  (error-of-type 'sys::source-program-error
+  (error-of-type 'ext:source-program-error
+    :form whole-form
     (TEXT "~S: The second argument is not a list: ~S")
     'call-method whole-form))
 
 (defun call-method-arg2elements-error (whole-form)
-  (error-of-type 'sys::source-program-error
+  (error-of-type 'ext:source-program-error
+    :form whole-form
     (TEXT "~S: The second argument is not a list of methods or (MAKE-METHOD ...) forms: ~S")
     'call-method whole-form))
 
@@ -453,7 +465,7 @@
                              (error (TEXT "In ~S ~S lambda list: ~A")
                                     combination ':arguments
                                     (apply #'format nil errorstring arguments))))
-                     (declare (ignore optinits optsvars 
+                     (declare (ignore optinits optsvars
                                       keywords keyvars keyinits keysvars
                                       allowp auxvars auxinits))
                      (let ((whole-var nil)
@@ -612,7 +624,8 @@
 (defun standard-method-combination-check-options (gf-name combination options)
   (declare (ignore combination))
   (unless (null options)
-    (error-of-type 'sys::source-program-error
+    (error-of-type 'ext:source-program-error
+      :form options
       (TEXT "~S ~S: The ~S method combination permits no options: ~S")
       'defgeneric gf-name 'standard options)))
 
@@ -689,14 +702,17 @@
         (if allowed-qualifiers
           (dolist (q qualifiers)
             (unless (member q allowed-qualifiers)
-              (error-of-type 'sys::source-program-error
+              (error-of-type 'ext:source-program-error
+                :form q
                 (TEXT "~S method combination, used by ~S, allows no method qualifiers except ~S: ~S")
                 (method-combination-name method-combo) gf allowed-qualifiers method)))
-          (error-of-type 'sys::source-program-error
+          (error-of-type 'ext:source-program-error
+            :form method
             (TEXT "~S method combination, used by ~S, does not allow method qualifiers: ~S")
             (method-combination-name method-combo) gf method))
         (when (> (length qualifiers) 1)
-          (error-of-type 'sys::source-program-error
+          (error-of-type 'ext:source-program-error
+            :form qualifiers
             (TEXT "~S method combination, used by ~S, does not allow more than one method qualifier on a method: ~S")
             (method-combination-name method-combo) gf method))))))
 
@@ -755,15 +771,18 @@
                                      (,@(rest around) (make-method ,form)))))
           (values form '()))))))
 
-(defun short-form-method-combination-check-method-qualifiers (gf method-combo method)
+(defun short-form-method-combination-check-method-qualifiers
+    (gf method-combo method)
   (standard-method-combination-check-method-qualifiers gf method-combo method)
   (let ((qualifiers (std-method-qualifiers method)))
     (when (null qualifiers)
-      (error-of-type 'sys::source-program-error
+      (error-of-type 'ext:source-program-error
+        :form method
         (TEXT "~S method combination, used by ~S, does not allow less than one method qualifier on a method: ~S")
         (method-combination-name method-combo) gf method))))
 
-(defun short-form-method-combination-call-next-method-allowed (gf method-combo method)
+(defun short-form-method-combination-call-next-method-allowed
+    (gf method-combo method)
   (declare (ignore gf method-combo))
   (let ((qualifiers (std-method-qualifiers method)))
     (equal qualifiers '(:around))))
@@ -826,8 +845,9 @@
 ;;; ------------------------ DEFINE-METHOD-COMBINATION ------------------------
 
 (defun parse-method-groups (name method-groups)
-  (labels ((group-error (group message &rest message-args)
-             (error-of-type 'sys::source-program-error
+  (labels ((group-error (group form message &rest message-args)
+             (error-of-type 'ext:source-program-error
+               :form form
                (TEXT "~S ~S: invalid method group specifier ~S: ~A")
                'define-method-combination name group
                (apply #'format nil message message-args)))
@@ -838,7 +858,8 @@
            ;; non-null symbol naming a predicate.
            (normalize-group (group)
              (unless (and (consp group) (consp (cdr group)))
-               (group-error group (TEXT "Not a list of at least length 2")))
+               (group-error group group
+                            (TEXT "Not a list of at least length 2")))
              (let ((variable (car group))
                    (groupr (cdr group))
                    (patterns '())
@@ -847,7 +868,8 @@
                    (requireds '())
                    (description nil))
                (unless (symbolp variable)
-                 (group-error group (TEXT "Not a variable name: ~S") variable))
+                 (group-error group variable (TEXT "Not a variable name: ~S")
+                              variable))
                ; Parse the {qualifier-pattern+ | predicate} part:
                (do ()
                    ((atom groupr))
@@ -857,7 +879,7 @@
                                    (memq (cdr (last qp)) '(nil *))))
                           ; A qualifier pattern.
                           (when predicate
-                            (group-error group (TEXT "In method group ~S: Cannot specify both qualifier patterns and a predicate.") variable))
+                            (group-error group predicate (TEXT "In method group ~S: Cannot specify both qualifier patterns and a predicate.") variable))
                           (push qp patterns))
                          ((memq qp '(:DESCRIPTION :ORDER :REQUIRED))
                           ; End of the {qualifier-pattern+ | predicate} part.
@@ -865,39 +887,39 @@
                          ((symbolp qp)
                           ; A predicate.
                           (when predicate
-                            (group-error group (TEXT "In method group ~S: Cannot specify more than one predicate.") variable))
+                            (group-error group predicate (TEXT "In method group ~S: Cannot specify more than one predicate.") variable))
                           (when patterns
-                            (group-error group (TEXT "In method group ~S: Cannot specify both qualifier patterns and a predicate.") variable))
+                            (group-error group patterns (TEXT "In method group ~S: Cannot specify both qualifier patterns and a predicate.") variable))
                           (setq predicate qp))
                          (t
-                           (group-error group (TEXT "In method group ~S: Neither a qualifier pattern nor a predicate: ~S") variable qp))))
+                           (group-error group qp (TEXT "In method group ~S: Neither a qualifier pattern nor a predicate: ~S") variable qp))))
                  (setq groupr (cdr groupr)))
                (do ()
                    ((atom groupr))
                  (when (atom (cdr groupr))
-                   (group-error group (TEXT "In method group ~S: options must come in pairs") variable))
+                   (group-error group groupr (TEXT "In method group ~S: options must come in pairs") variable))
                  (let ((optionkey (first groupr))
                        (argument (second groupr)))
                    (case optionkey
                      (:ORDER
                       (when orderforms
-                        (group-error group (TEXT "In method group ~S: option ~S may only be given once") variable ':order))
+                        (group-error group orderforms (TEXT "In method group ~S: option ~S may only be given once") variable ':order))
                       (setq orderforms (list argument)))
                      (:REQUIRED
                       (when requireds
-                        (group-error group (TEXT "In method group ~S: option ~S may only be given once") variable ':required))
+                        (group-error group requireds (TEXT "In method group ~S: option ~S may only be given once") variable ':required))
                       (setq requireds (list (not (null argument)))))
                      (:DESCRIPTION
                       (when description
-                        (group-error group (TEXT "In method group ~S: option ~S may only be given once") variable ':description))
+                        (group-error group description (TEXT "In method group ~S: option ~S may only be given once") variable ':description))
                       (unless (stringp argument)
-                        (group-error group (TEXT "In method group ~S: ~S is not a string") variable argument))
+                        (group-error group argument (TEXT "In method group ~S: ~S is not a string") variable argument))
                       (setq description argument))
                      (t
-                      (group-error group (TEXT "In method group ~S: Invalid option ~S") variable optionkey))))
+                      (group-error group optionkey (TEXT "In method group ~S: Invalid option ~S") variable optionkey))))
                  (setq groupr (cddr groupr)))
                (unless (or patterns predicate)
-                 (group-error group (TEXT "In method group ~S: Missing pattern or predicate.") variable))
+                 (group-error group group (TEXT "In method group ~S: Missing pattern or predicate.") variable))
                (vector variable
                        (or predicate (nreverse patterns))
                        (if orderforms (first orderforms) '':MOST-SPECIFIC-FIRST)
@@ -1057,7 +1079,8 @@ Long-form options are a list of method-group specifiers,
  and optional :generic-function, and :arguments options preceeding
  the definition body."
   (unless (symbolp name)
-    (error-of-type 'sys::source-program-error
+    (error-of-type 'ext:source-program-error
+      :form name
       (TEXT "~S: method combination name ~S should be a symbol")
       'define-method-combination name))
   (sys::check-redefinition
@@ -1071,7 +1094,8 @@ Long-form options are a list of method-group specifiers,
                   (typep (first options) '(and symbol (not null)))))
          ;; Short form.
          (when (oddp (length options))
-           (error-of-type 'sys::source-program-error
+           (error-of-type 'ext:source-program-error
+             :form options
              (TEXT "~S ~S: options must come in pairs")
              'define-method-combination name))
          (let ((documentation nil)
@@ -1080,7 +1104,8 @@ Long-form options are a list of method-group specifiers,
            (do ((optionsr options (cddr optionsr)))
                ((atom optionsr))
              (when (atom (cdr optionsr))
-               (error-of-type 'sys::source-program-error
+               (error-of-type 'ext:source-program-error
+                 :form optionsr
                  (TEXT "~S ~S: options must come in pairs")
                  'define-method-combination name))
              (let ((optionkey (first optionsr))
@@ -1088,32 +1113,38 @@ Long-form options are a list of method-group specifiers,
                (case optionkey
                  (:DOCUMENTATION
                   (when documentation
-                    (error-of-type 'sys::source-program-error
+                    (error-of-type 'ext:source-program-error
+                      :form documentation
                       (TEXT "~S ~S: option ~S may only be given once")
                       'define-method-combination name ':documentation))
                   (unless (stringp argument)
-                    (error-of-type 'sys::source-program-error
+                    (error-of-type 'ext:source-program-error
+                      :form argument
                       (TEXT "~S ~S: ~S is not a string")
                       'define-method-combination name argument))
                   (setq documentation argument))
                  (:IDENTITY-WITH-ONE-ARGUMENT
                   (when identities
-                    (error-of-type 'sys::source-program-error
+                    (error-of-type 'ext:source-program-error
+                      :form identities
                       (TEXT "~S ~S: option ~S may only be given once")
                       'define-method-combination name ':identity-with-one-argument))
                   (setq identities (list (not (null argument)))))
                  (:OPERATOR
                   (when operators
-                    (error-of-type 'sys::source-program-error
+                    (error-of-type 'ext:source-program-error
+                      :form operators
                       (TEXT "~S ~S: option ~S may only be given once")
                       'define-method-combination name ':operator))
                   (unless (symbolp argument)
-                    (error-of-type 'sys::source-program-error
+                    (error-of-type 'ext:source-program-error
+                      :form argument
                       (TEXT "~S ~S, option ~S: ~S is not a symbol")
                       'define-method-combination name ':operator argument))
                   (setq operators (list argument)))
                  (t
-                   (error-of-type 'sys::source-program-error
+                   (error-of-type 'ext:source-program-error
+                     :form optionkey
                      (TEXT "~S ~S: ~S is not a valid short-form option")
                      'define-method-combination name optionkey)))))
            `(DO-DEFINE-METHOD-COMBINATION
@@ -1133,7 +1164,8 @@ Long-form options are a list of method-group specifiers,
         ((and (consp options) (listp (first options)))
          ;; Long form.
          (unless (and (>= (length options) 2) (listp (second options)))
-           (error-of-type 'sys::source-program-error
+           (error-of-type 'ext:source-program-error
+             :form options
              (TEXT "~S ~S: invalid syntax for long form: ~S")
              'define-method-combination name whole-form))
          (let ((lambda-list (first options))
@@ -1141,8 +1173,9 @@ Long-form options are a list of method-group specifiers,
                (body (cddr options)))
            ; Check the lambda-list.
            (analyze-lambdalist lambda-list
-             #'(lambda (errorstring &rest arguments)
-                 (error-of-type 'sys::source-program-error
+             #'(lambda (form errorstring &rest arguments)
+                 (error-of-type 'ext:source-program-error
+                   :form form
                    (TEXT "~S ~S: invalid lambda-list: ~A")
                    'define-method-combination name
                    (apply #'format nil errorstring arguments))))
@@ -1209,7 +1242,8 @@ Long-form options are a list of method-group specifiers,
                           (,check-lambda ,gf-variable ,method-variable))
                     :CALL-NEXT-METHOD-ALLOWED
                       #'LONG-FORM-METHOD-COMBINATION-CALL-NEXT-METHOD-ALLOWED))))))
-        (t (error-of-type 'sys::source-program-error
+        (t (error-of-type 'ext:source-program-error
+             :form whole-form
              (TEXT "~S ~S: invalid syntax, neither short form nor long form syntax: ~S")
              'define-method-combination name whole-form))))
 

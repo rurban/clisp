@@ -3234,7 +3234,8 @@ for-value   NIL or T
 ;; 13. list of init-forms of the &aux variables
 (defun c-analyze-lambdalist (lambdalist)
   (sys::analyze-lambdalist lambdalist
-    #'(lambda (errorstring &rest arguments)
+    #'(lambda (form errorstring &rest arguments)
+        (declare (ignore form))
         (catch 'c-error
           (apply #'c-error errorstring arguments)))))
 
@@ -10383,9 +10384,9 @@ The function make-closure is required.
         (*no-code* nil))
     (let ((funobj (compile-lambdabody name lambdabody)))
       (when (and error-when-failed-p (not (zerop *error-count*)))
-        (error-of-type 'source-program-error
-          (TEXT "~S cannot be compiled")
-          (cons name lambdabody)))
+        (let ((form (cons name lambdabody)))
+          (error-of-type 'source-program-error
+            :form form (TEXT "~S cannot be compiled") form)))
       funobj)))
 
 ;; is called for (lambda (...) (declare (compile)) ...) and returns a

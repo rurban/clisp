@@ -237,7 +237,8 @@ be a string, which must be the name of a known library."
   (let ((info (function-info name)))
     (if (= (length args) (- (length (cdr info)) 2))
         `(sys::%libcall ,(car info) ',(cdr info) . ,args)
-        (sys::error-of-type 'sys::source-program-error
+        (sys::error-of-type 'ext:source-program-error
+          :form args
           (TEXT "Bad number of arguments for ~S: ~S")
           name (length args)))))
 

@@ -31,6 +31,7 @@
     (flet ((record-symname (name)
              (if (member name symname-list :test #'string=)
                (error-of-type 'source-program-error
+                 :form name
                  (TEXT "~S ~A: the symbol ~A must not be specified more than once")
                  'defpackage packname name)
                (push name symname-list))))
@@ -41,12 +42,14 @@
               (:SIZE
                (if size
                  (error-of-type 'source-program-error
+                   :form size
                    (TEXT "~S ~A: the ~S option must not be given more than once")
                    'defpackage packname ':SIZE)
                  (setq size t))) ; ignored
               (:DOCUMENTATION ; ANSI-CL
                (if documentation
                  (error-of-type 'source-program-error
+                   :form documentation
                    (TEXT "~S ~A: the ~S option must not be given more than once")
                    'defpackage packname ':DOCUMENTATION)
                  (setq documentation (second option))))
@@ -94,12 +97,15 @@
                (when (not (null (second option)))
                  (setq case-sensitive t)))
               (T (error-of-type 'source-program-error
+                   :form (first option)
                    (TEXT "~S ~A: unknown option ~S")
                    'defpackage packname (first option))))
             (error-of-type 'source-program-error
+              :form option
               (TEXT "~S ~A: invalid syntax in ~S option: ~S")
               'defpackage packname 'defpackage option))
           (error-of-type 'source-program-error
+            :form option
             (TEXT "~S ~A: not a ~S option: ~S")
             'defpackage packname 'defpackage option)))
       ;; check for overlaps between intern-list and export-list:

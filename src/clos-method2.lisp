@@ -31,7 +31,7 @@
               (push (first item) req-vars)
               (push (first item) ignorable-req-vars) ; CLtL2 p. 840 top
               (push (second item) spec-list))
-            (funcall errfunc
+            (funcall errfunc item
               (TEXT "Invalid specialized parameter in method lambda list ~S: ~S")
               specialized-lambda-list item)))))
     (let ((lambda-list (nreconc req-vars remaining-lambda-list)))
@@ -40,8 +40,9 @@
 
 ;; helper
 (defmacro program-error-reporter (caller)
-  `#'(lambda (errorstring &rest arguments)
-       (error-of-type 'program-error
+  `#'(lambda (form errorstring &rest arguments)
+       (error-of-type 'ext:source-program-error
+         :form form
          (TEXT "~S: ~A") ,caller
          (apply #'format nil errorstring arguments))))
 
@@ -70,7 +71,8 @@
   (let ((qualifiers nil))
     (loop
       (when (atom description)
-        (error-of-type 'sys::source-program-error
+        (error-of-type 'ext:source-program-error
+          :form description
           (TEXT "~S ~S: missing lambda list")
           caller funname))
       (when (listp (car description)) (return))
@@ -81,8 +83,9 @@
           (body (cdr description)))
       (multiple-value-bind (lambda-list spec-list ignorable-req-vars)
           (decompose-specialized-lambda-list specialized-lambda-list
-            #'(lambda (errorstring &rest arguments)
-                (error-of-type 'sys::source-program-error
+            #'(lambda (form errorstring &rest arguments)
+                (error-of-type 'ext:source-program-error
+                  :form form
                   (TEXT "~S ~S: ~A")
                   caller funname
                   (apply #'format nil errorstring arguments))))
@@ -97,7 +100,8 @@
                                         (consp (cdr specializer-name))
                                         (null (cddr specializer-name)))
                                    `(INTERN-EQL-SPECIALIZER ,(second specializer-name)))
-                                  (t (error-of-type 'sys::source-program-error
+                                  (t (error-of-type 'ext:source-program-error
+                                       :form specializer-name
                                        (TEXT "~S ~S: Invalid specializer ~S in lambda list ~S")
                                        caller funname specializer-name specialized-lambda-list))))
                         spec-list)))
@@ -113,8 +117,9 @@
                                 keyp keywords keyvars keyinits keysvars
                                 allowp auxvars auxinits)
               (analyze-lambdalist lambda-list
-                #'(lambda (errorstring &rest arguments)
-                    (error-of-type 'sys::source-program-error
+                #'(lambda (form errorstring &rest arguments)
+                    (error-of-type 'ext:source-program-error
+                      :form form
                       (TEXT "~S ~S: ~A")
                       caller funname
                       (apply #'format nil errorstring arguments))))

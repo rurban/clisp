@@ -364,6 +364,7 @@
    #+(or UNIX WIN32) make-pipe-io-stream
    make-buffered-input-stream make-buffered-output-stream
    get-setf-method local module-info
+   source-program-error source-program-error-form
    compiler-let load-time-eval)
  "EXT")
 
@@ -591,8 +592,7 @@
 (sys::%putd '%uncompilable
   (function %uncompilable (lambda (form)
     (error-of-type 'source-program-error
-      (TEXT "~S is impossible in compiled code")
-      form))))
+      :form form (TEXT "~S is impossible in compiled code") form))))
 (sys::%putd 'the-environment
   (sys::make-macro
     (function the-environment (lambda (form env)
@@ -761,6 +761,7 @@
                               (values (rest form) nil))
                              ((macrop h)
                               (error-of-type 'source-program-error
+                                :form (second form)
                                 (TEXT "~S: ~S is illegal since ~S is a local macro")
                                 '%expand form (second form)))
                              (t (error-of-type 'error
@@ -768,6 +769,7 @@
                                   '%expand *fenv*))))
                      (if (atom (second form))
                        (error-of-type 'source-program-error
+                         :form (second form)
                          (TEXT "~S: ~S is invalid since ~S is not a symbol")
                          '%expand form (second form))
                        (multiple-value-call #'%expand-cons (rest form)
@@ -914,6 +916,7 @@
                    ((atom L1)
                     (if L1
                       (error-of-type 'source-program-error
+                        :form L1
                         (TEXT "code after MACROLET contains a dotted list, ending with ~S")
                         L1)
                       (let ((*fenv* (apply #'vector
@@ -926,6 +929,7 @@
                      (setq L2 (list* (make-macro-expander macrodef)
                                      (car macrodef) L2))
                      (error-of-type 'source-program-error
+                       :form macrodef
                        (TEXT "illegal syntax in MACROLET: ~S")
                        macrodef)))))
               ((FUNCTION-MACRO-LET)
@@ -946,6 +950,7 @@
                    ((atom L1)
                     (if L1
                       (error-of-type 'source-program-error
+                        :form L1
                         (TEXT "code after SYMBOL-MACROLET contains a dotted list, ending with ~S")
                         L1)
                       (let ((*venv* (apply #'vector
@@ -956,6 +961,7 @@
                               ((atom L3))
                             (if (memq (caar L3) specials)
                               (error-of-type 'source-program-error
+                                :form (caar L3)
                                 (TEXT "~S: symbol ~S must not be declared SPECIAL and a macro at the same time")
                                 'symbol-macrolet (caar L3)))))
                         (values (%expand-form (cons 'LOCALLY (cddr form)))
@@ -974,6 +980,7 @@
                          (setq L2 (list* (make-symbol-macro expansion)
                                          symbol L2))))
                      (error-of-type 'source-program-error
+                       :form symdef
                        (TEXT "illegal syntax in SYMBOL-MACROLET: ~S")
                        symdef)))))
               ((%HANDLER-BIND)  ; expand handler-list and body
@@ -1013,6 +1020,7 @@
             (%expand-lambda f)
             (%expand-list (rest form)))
           (error-of-type 'source-program-error
+            :form form
             (TEXT "~S: invalid form ~S")
             '%expand-form form))))))
 
@@ -1028,6 +1036,7 @@
   (if (atom l)
     (if l
       (error-of-type 'source-program-error
+        :form l
         (TEXT "code contains a dotted list, ending with ~S")
         l)
       (values nil nil))
@@ -1065,6 +1074,7 @@
 (defun %expand-lambda (l)
   (unless (eq (first l) 'lambda)
     (error-of-type 'source-program-error
+      :form l
       (TEXT "~S: ~S should be a lambda expression")
       '%expand-form l))
   (multiple-value-call #'%expand-cons l
@@ -1097,6 +1107,7 @@
   (if (atom ll)
     (if ll
       (error-of-type 'source-program-error
+        :form ll
         (TEXT "lambda list must not end with the atom ~S")
         ll)
       (values nil nil))
@@ -1124,6 +1135,7 @@
   (if (atom vs)
     (if vs
       (error-of-type 'source-program-error
+        :form vs
         (TEXT "~S: variable list ends with the atom ~S")
         'let vs)
       (progn
@@ -1139,6 +1151,7 @@
   (if (atom vs)
     (if vs
       (error-of-type 'source-program-error
+        :form vs
         (TEXT "~S: variable list ends with the atom ~S")
         'let* vs)
       (values nil nil))
@@ -1233,6 +1246,7 @@
   (if (atom fundefs)
     (if fundefs
       (error-of-type 'source-program-error
+        :form fundefs
         (TEXT "FLET/LABELS: code contains a dotted list, ending with ~S")
         fundefs)
       (list *fenv*))
@@ -1241,6 +1255,7 @@
                (consp (cdr fundef)))
         (list* (car fundef) nil (%expand-fundefs-1 (cdr fundefs)))
         (error-of-type 'source-program-error
+          :form fundef
           (TEXT "illegal syntax in FLET/LABELS: ~S")
           fundef)))))
 ;; (%expand-fundefs-2 fundefs) expands a function-definition-list,
@@ -1259,6 +1274,7 @@
   (if (atom funmacdefs)
     (if funmacdefs
       (error-of-type 'source-program-error
+        :form funmacdefs
         (TEXT "FUNCTION-MACRO-LET: code contains a dotted list, ending with ~S")
         funmacdefs)
       (list *fenv*))
@@ -1270,6 +1286,7 @@
                (null (cdddr funmacdef)))
         (list* (car funmacdef) nil (%expand-funmacdefs-1 (cdr funmacdefs)))
         (error-of-type 'source-program-error
+          :form funmacdef
           (TEXT "illegal syntax in FUNCTION-MACRO-LET: ~S")
           funmacdef)))))
 ;; (%expand-funmacdefs-2 funmacdefs) expands a function-macro-
@@ -1528,6 +1545,7 @@
       (declare (ignore env))
       (unless (and (consp (cdr form)) (consp (cddr form)))
         (error-of-type 'source-program-error
+          :form form
           (TEXT "~S: missing function name and/or parameter list")
           'defun))
       (let ((name (cadr form))
@@ -1536,6 +1554,7 @@
         (check-symbol 'defun name)
         (when (special-operator-p name)
           (error-of-type 'source-program-error
+            :form name
             (TEXT "~S: special operator ~S cannot be redefined.")
             'defun name))
         (multiple-value-bind (body-rest declarations) (sys::parse-body body t)
@@ -1568,6 +1587,7 @@
             (body (cdddr form)))
         (when (atom exitclause)
           (error-of-type 'source-program-error
+            :form exitclause
             (TEXT "exit clause in ~S must be a list")
             'do))
         (let ((bindlist nil)
@@ -1716,14 +1736,17 @@
     (function defun (lambda (form env)
       (if (atom (cdr form))
         (error-of-type 'source-program-error
+          :form (cdr form)
           (TEXT "~S: cannot define a function from that: ~S")
           'defun (cdr form)))
       (unless (function-name-p (cadr form))
         (error-of-type 'source-program-error
+          :form (cadr form)
           (TEXT "~S: the name of a function must be a symbol, not ~S")
           'defun (cadr form)))
       (if (atom (cddr form))
         (error-of-type 'source-program-error
+          :form (cddr form)
           (TEXT "~S: function ~S is missing a lambda list")
           'defun (cadr form)))
       (let ((name (cadr form))

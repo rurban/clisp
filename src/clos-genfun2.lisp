@@ -24,8 +24,8 @@
   ;; Check the lambda-list.
   (multiple-value-bind (reqvars optvars rest keyp keywords keyvars allowp)
       (sys::analyze-generic-function-lambdalist lambdalist
-        #'(lambda (errorstring &rest arguments)
-            (funcall errfunc (TEXT "Invalid generic function lambda-list: ~A")
+        #'(lambda (form errorstring &rest arguments)
+            (funcall errfunc form (TEXT "Invalid generic function lambda-list: ~A")
                      (apply #'format nil errorstring arguments))))
     (declare (ignore keyvars))
     (let ((reqnum (length reqvars))
@@ -39,12 +39,13 @@
           ;; Check the argument-precedence-order.
           (progn
             (unless (proper-list-p argument-precedence-order)
-              (funcall errfunc (TEXT "The ~S argument should be a proper list, not ~S")
+              (funcall errfunc argument-precedence-order
+                       (TEXT "The ~S argument should be a proper list, not ~S")
                        ':argument-precedence-order argument-precedence-order))
             (let ((indices
                     (mapcar #'(lambda (x)
                                 (or (position x reqvars)
-                                    (funcall errfunc (TEXT "Incorrect ~S argument: ~S is not one of the required parameters: ~S")
+                                    (funcall errfunc x (TEXT "Incorrect ~S argument: ~S is not one of the required parameters: ~S")
                                              ':argument-precedence-order x argument-precedence-order)))
                             argument-precedence-order)))
               ;; Is argument-precedence-order a permutation of reqvars?
@@ -53,27 +54,30 @@
               ;; resp.   indices                   --> {0, ..., reqnum-1}
               ;; bijective?
               (unless (or (<= (length indices) 1) (apply #'/= indices)) ; injective?
-                (funcall errfunc (TEXT "Incorrect ~S argument: Some variable occurs twice in ~S")
+                (funcall errfunc argument-precedence-order
+                         (TEXT "Incorrect ~S argument: Some variable occurs twice in ~S")
                          ':argument-precedence-order argument-precedence-order))
               (unless (eql (length indices) reqnum) ; surjective?
-                (funcall errfunc (TEXT "Incorrect ~S argument: The variables ~S are missing in ~S")
-                         ':argument-precedence-order
-                         (set-difference reqvars argument-precedence-order)
-                         argument-precedence-order))
+                (let ((missing (set-difference
+                                reqvars argument-precedence-order)))
+                  (funcall errfunc missing (TEXT "Incorrect ~S argument: The variables ~S are missing in ~S")
+                           ':argument-precedence-order
+                           missing argument-precedence-order)))
               (values signature argument-precedence-order indices)))
           (values signature reqvars (countup reqnum)))))))
 
 ;; Initialization of a <standard-generic-function> instance.
-(defun shared-initialize-<standard-generic-function> (gf situation &rest args
-                                                      &key (name nil name-p)
-                                                           (lambda-list nil lambda-list-p)
-                                                           (argument-precedence-order nil argument-precedence-order-p)
-                                                           (method-class nil method-class-p)
-                                                           (method-combination nil method-combination-p)
-                                                           (documentation nil documentation-p)
-                                                           (declarations nil declarations-p)
-                                                      &allow-other-keys
-                                                      &aux signature argorder)
+(defun shared-initialize-<standard-generic-function>
+    (gf situation &rest args
+     &key (name nil name-p)
+          (lambda-list nil lambda-list-p)
+          (argument-precedence-order nil argument-precedence-order-p)
+          (method-class nil method-class-p)
+          (method-combination nil method-combination-p)
+          (documentation nil documentation-p)
+          (declarations nil declarations-p)
+     &allow-other-keys
+     &aux signature argorder)
   (declare (ignore name name-p))
   (apply #'shared-initialize-<generic-function> gf situation args)
   (when (eq situation 't)
@@ -88,7 +92,8 @@
     (multiple-value-setq (signature argument-precedence-order argorder)
         (check-gf-lambdalist+argorder lambda-list
           argument-precedence-order argument-precedence-order-p
-          #'(lambda (errorstring &rest arguments)
+          #'(lambda (form errorstring &rest arguments)
+              (declare (ignore form))
               (error (TEXT "(~S ~S) for generic function ~S: ~A")
                      (if (eq situation 't) 'initialize-instance 'shared-initialize)
                      'standard-generic-function (funcallable-name gf)

@@ -42,6 +42,7 @@
 
 (defun macro-call-error (macro-form)
   (error-of-type 'source-program-error
+    :form macro-form
     (TEXT "The macro ~S may not be called with ~S arguments: ~S")
     (car macro-form) (1- (length macro-form)) macro-form))
 
@@ -114,6 +115,7 @@ the actual object #<MACRO expander> for the FENV.
     (cond ((symbolp (car listr)) (setq %let-list (cons `(,(car listr) nil) %let-list)))
           ((atom (car listr))
            (error-of-type 'source-program-error
+             :form (car listr)
              (TEXT "in macro ~S: ~S may not be used as &AUX variable.")
              name (car listr)))
           (t (setq %let-list
@@ -123,6 +125,7 @@ the actual object #<MACRO expander> for the FENV.
   (when (and (consp (cdr item)) (consp (cddr item)))
     (unless (symbolp (caddr item))
       (error-of-type 'source-program-error
+        :form (caddr item)
         (TEXT "~S: invalid supplied-p variable ~S")
         name (caddr item)))
     (third item)))
@@ -214,6 +217,7 @@ the actual object #<MACRO expander> for the FENV.
 (defun analyze-rest (lambdalistr restexp name)
   (if (atom lambdalistr)
       (error-of-type 'source-program-error
+        :form lambdalistr
         (TEXT "The lambda list of macro ~S is missing a variable after &REST/&BODY.")
         name))
   (let ((restvar (car lambdalistr))
@@ -223,6 +227,7 @@ the actual object #<MACRO expander> for the FENV.
            (setq %let-list (cons `(,restvar ,restexp) %let-list)))
           ((atom restvar)
            (error-of-type 'source-program-error
+             :form restvar
              (TEXT "The lambda list of macro ~S contains an illegal variable after &REST/&BODY: ~S")
              name restvar))
           (t
@@ -273,6 +278,7 @@ the actual object #<MACRO expander> for the FENV.
         %null-tests (cons
                      `(if ,g
                        (error-of-type 'source-program-error
+                         :form ,g
                          (TEXT "~S: ~S does not match lambda list element ~:S")
                          ',name ,g '()))
                      %null-tests)))
@@ -286,6 +292,7 @@ the actual object #<MACRO expander> for the FENV.
        (when listr
          (unless (symbolp listr)
            (error-of-type 'source-program-error
+             (form listr)
              (TEXT "The lambda list of macro ~S contains an illegal &REST variable: ~S")
              name listr))
          (setq %let-list (cons `(,listr ,accessexp) %let-list))
@@ -300,6 +307,7 @@ the actual object #<MACRO expander> for the FENV.
                  (setq listr (cdr listr)) ; pop &WHOLE
                  (analyze1 (car listr) wholevar name wholevar)))
              (error-of-type 'source-program-error
+               (form listr)
                (TEXT "The lambda list of macro ~S contains an invalid &WHOLE: ~S")
                name listr)))
           ((eq item '&OPTIONAL)
@@ -338,6 +346,7 @@ the actual object #<MACRO expander> for the FENV.
                  ((atom item)
                   #1=
                   (error-of-type 'source-program-error
+                    :form item
                     (TEXT "The lambda list of macro ~S contains an invalid element ~S")
                     name item))
                  ((symbolp (car item))
@@ -385,6 +394,7 @@ the actual object #<MACRO expander> for the FENV.
                     (rplaca (cdr (assoc g1 %let-list))
                             `(if ,test
                                  (error-of-type 'source-program-error
+                                   :form ,g
                                    (TEXT "~S: ~S does not match lambda list element ~:S")
                                    ',name ,g ',item)
                                  ,g)))))
@@ -404,6 +414,7 @@ the actual object #<MACRO expander> for the FENV.
                 (nreconc l2 (cddr l1))))
            (cadr listr)))
         (error-of-type 'source-program-error
+          :form lambdalist
           (TEXT "In the lambda list of macro ~S, &ENVIRONMENT must be followed by a non-NIL symbol: ~S")
           name lambdalist)))))
 
@@ -419,14 +430,17 @@ the actual object #<MACRO expander> for the FENV.
 (defun make-macro-expansion (macrodef &optional pre-process)
   (when (atom macrodef)
     (error-of-type 'source-program-error
+      :form macrodef
       (TEXT "Cannot define a macro from that: ~S")
       macrodef))
   (unless (symbolp (car macrodef))
     (error-of-type 'source-program-error
+      :form (car macrodef)
       (TEXT "The name of a macro must be a symbol, not ~S")
       (car macrodef)))
   (when (atom (cdr macrodef))
     (error-of-type 'source-program-error
+      :form (cdr macrodef)
       (TEXT "Macro ~S is missing a lambda list.")
       (car macrodef)))
   (let ((name (car macrodef))
