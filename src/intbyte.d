@@ -236,12 +236,13 @@
       # Vom letzten Digit müssen die hinteren p Bits unberücksichtigt bleiben.
       # Ein AND -2^p erreicht dies.
       if (--len==0)
-        # 1 Digit maßgeblich, wird von beiden Seiten angeschnitten:
-        # Ein AND 2^(q+1)-2^p erreicht dies.
-        if (!(((uintD)(bitm(q+1)-bit(p)) & *MSDptr) == 0))
-          return TRUE;
-          else
-          return FALSE;
+        { # 1 Digit maßgeblich, wird von beiden Seiten angeschnitten:
+          # Ein AND 2^(q+1)-2^p erreicht dies.
+          if (!(((uintD)(bitm(q+1)-bit(p)) & *MSDptr) == 0))
+            return TRUE;
+            else
+            return FALSE;
+        }
       # mindestens 2 Digits. Teste erst die Randdigits, dann die inneren:
       if (!(((*MSDptr++ & (uintD)(bitm(q+1)-1)) == 0) &&
             ((*--LSDptr & (uintD)(minus_bit(p))) == 0)

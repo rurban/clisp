@@ -1,5 +1,14 @@
 1999-01-10  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * aclocal.m4 (CL_FILECHARSET): Generate formula with &&-connected
+          terms enclosed in parentheses, to avoid gcc warning.
+        * time.d (SYS::DEFAULT-TIME-ZONE): Add parentheses, to avoid gcc
+          warning.
+        * intbyte.d (ldb_extract_test): Add braces, to avoid gcc warning.
+        * spvw_circ.d (get_circ_mark): Likewise.
+
+1999-01-10  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d: (write_schar): Remove.
           (write_code_char, write_ascii_char): New macros.
         * debug.d: Update all callers of write_schar.
