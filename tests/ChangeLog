@@ -1,3 +1,7 @@
+1998-06-15  Sam Steingold  <sds@goems.com>
+
+	* Makefile: remove /tmp/foo*.*.
+
 1998-06-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * excepsit.tst: New file.
