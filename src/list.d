@@ -169,18 +169,36 @@
 # > list: Liste
 # > obj: Objekt
 # < ergebnis: (nreconc A0 A1)
-  global object nreconc (object list, object obj);
-  global object nreconc(list,obj)
-    var object list;
-    var object obj;
-    { until (atomp(list))
-        { var object h = Cdr(list); # (cdr L) ist nächstes L
-          Cdr(list) = obj; # (setq O (rplacd L O))
-          obj = list;
-          list = h;
-        }
-      return obj;
-    }
+global object nreconc (object list, object obj);
+global object nreconc(list,obj)
+  var object list;
+  var object obj;
+{
+  if (consp(list)) { # (atom L) -> L
+    var object list3 = Cdr(list); # L3 := (cdr L)
+    if (consp(list3)) { # (atom (cdr L)) -> L
+      if (mconsp(Cdr(list3))) {
+        var object list1 = list3; # mit L1 = L3 = (cdr L)
+        var object list2 = NIL; # und L2 = NIL anfangen
+        do {
+          var object h = Cdr(list3); # (cdr L3) retten,
+          Cdr(list3) = list2; # durch L2 ersetzen,
+          list2 = list3; # L2 := altes L3
+          list3 = h; # L3 := altes (cdr L3)
+        } while (mconsp(Cdr(list3))); # (atom (cdr L3)) -> beenden
+        # L3 ist das letzte und L2 das vorletzte Listen-Cons.
+        Cdr(list) = list2; # (setf (cdr L) L2)
+        Cdr(list1) = list3; # (setf (cdr L1) L3)
+      }
+      # vertausche (car list) und (car list3):
+      { var object h = Car(list);
+        Car(list) = Car(list3);
+        Car(list3) = h; }
+      Cdr(list3) = obj; # (setf (cdr L3) O)
+    } else { Cdr(list) = obj; }
+  } else return obj;
+  return list;
+}
 
 # UP: Bilde (delete obj (the list list) :test #'EQ)
 # deleteq(list,obj)
