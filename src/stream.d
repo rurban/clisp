@@ -86,12 +86,14 @@
     typedef object (* rd_by_Pseudofun) (object stream);
   #
   # Spezifikation für READ-BYTE-ARRAY - Pseudofunktion:
-  # fun(stream,byteptr,len)
-  # > stream: Stream
-  # > uintB* byteptr: Adresse der zu füllenden Bytefolge
-  # > uintL len: Länge der zu füllenden Bytefolge, >0
-  # < uintB* ergebnis: Pointer ans Ende des gefüllten Bereiches oder NULL
-    typedef uintB* (* rd_by_array_Pseudofun) (object stream, uintB* byteptr, uintL len);
+  # fun(&stream,&bytearray,start,len)
+  # > stream: stream
+  # > object bytearray: simple-bit-vector
+  # > uintL start: start index of byte sequence to be filled
+  # > uintL len: length of byte sequence to be filled, >0
+  # < uintL result: number of bytes that have been filled
+  # can trigger GC
+    typedef uintL (* rd_by_array_Pseudofun) (const object* stream_, const object* bytearray_, uintL start, uintL len);
   #
   # Spezifikation für WRITE-BYTE - Pseudofunktion:
   # fun(stream,obj)
@@ -234,18 +236,31 @@
   local object rd_by_error(stream)
     var object stream;
     { fehler_illegal_streamop(S(read_byte),stream); }
-  local uintB* rd_by_array_error (object stream, uintB* byteptr, uintL len);
-  local uintB* rd_by_array_error(stream,byteptr,len)
-    var object stream;
-    var uintB* byteptr;
+  local uintL rd_by_array_error (const object* stream_, const object* bytearray_, uintL start, uintL len);
+  local uintL rd_by_array_error(stream_,bytearray_,start,len)
+    var const object* stream_;
+    var const object* bytearray_;
+    var uintL start;
     var uintL len;
-    { fehler_illegal_streamop(S(read_byte),stream); }
-  local uintB* rd_by_array_dummy (object stream, uintB* byteptr, uintL len);
-  local uintB* rd_by_array_dummy(stream,byteptr,len)
-    var object stream;
-    var uintB* byteptr;
+    { fehler_illegal_streamop(S(read_byte),*stream_); }
+  local uintL rd_by_array_dummy (const object* stream_, const object* bytearray_, uintL start, uintL len);
+  local uintL rd_by_array_dummy(stream_,bytearray_,start,len)
+    var const object* stream_;
+    var const object* bytearray_;
+    var uintL start;
     var uintL len;
-    { return NULL; }
+    { var uintL end = start + len;
+      var uintL index = start;
+      do {
+        var object stream = *stream_;
+        var object obj = rd_by(stream)(stream);
+        if (eq(obj,eof_value)) break;
+        if (!uint8_p(obj)) { fehler_uint8(obj); }
+        TheSbvector(*bytearray_)->data[index] = (uintB)(as_oint(obj) >> oint_data_shift);
+        index++;
+      } while (index < end);
+      return index - start;
+    }
   local void wr_by_error (object stream, object obj);
   local void wr_by_error(stream,obj)
     var object stream;
@@ -402,19 +417,22 @@
     var object stream;
     { return rd_by(stream)(stream); }
 
-# UP: Liest mehrere Bytes von einem Stream.
-# read_byte_array(stream,byteptr,len)
-# > stream: Stream
-# > uintB* byteptr: Adresse der zu füllenden Bytefolge
-# > uintL len: Länge der zu füllenden Bytefolge
-# < uintB* ergebnis: Pointer ans Ende des gefüllten Bereiches oder NULL
-  global uintB* read_byte_array (object stream, uintB* byteptr, uintL len);
-  global uintB* read_byte_array(stream,byteptr,len)
-    var object stream;
-    var uintB* byteptr;
+# Function: Reads several bytes from a stream.
+# read_byte_array(&stream,&bytearray,start,len)
+# > stream: stream (on the STACK)
+# > object bytearray: simple-bit-vector (on the STACK)
+# > uintL start: start index of byte sequence to be filled
+# > uintL len: length of byte sequence to be filled
+# < uintL result: number of bytes that have been filled
+# can trigger GC
+  global uintL read_byte_array (const object* stream_, const object* bytearray_, uintL start, uintL len);
+  global uintL read_byte_array(stream_,bytearray_,start,len)
+    var const object* stream_;
+    var const object* bytearray_;
+    var uintL start;
     var uintL len;
-    { if (len==0) { return byteptr; }
-      return rd_by_array(stream)(stream,byteptr,len);
+    { if (len==0) { return 0; }
+      return rd_by_array(*stream_)(stream_,bytearray_,start,len);
     }
 
 # Schreibt ein Byte auf einen Stream.
@@ -844,14 +862,17 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     }}
 
 # READ-BYTE-ARRAY - Pseudofunktion für Synonym-Streams:
-  local uintB* rd_by_array_synonym (object stream, uintB* byteptr, uintL len);
-  local uintB* rd_by_array_synonym(stream,byteptr,len)
-    var object stream;
-    var uintB* byteptr;
+  local uintL rd_by_array_synonym (const object* stream_, const object* bytearray_, uintL start, uintL len);
+  local uintL rd_by_array_synonym(stream_,bytearray_,start,len)
+    var const object* stream_;
+    var const object* bytearray_;
+    var uintL start;
     var uintL len;
-    { check_SP();
-     {var object symbol = TheStream(stream)->strm_synonym_symbol;
-      return read_byte_array(get_synonym_stream(symbol),byteptr,len);
+    { check_SP(); check_STACK();
+      pushSTACK(get_synonym_stream(TheStream(*stream_)->strm_synonym_symbol));
+     {var uintL result = read_byte_array(&STACK_0,bytearray_,start,len);
+      skipSTACK(1);
+      return result;
     }}
 
 # WRITE-BYTE - Pseudofunktion für Synonym-Streams:
@@ -1366,33 +1387,30 @@ LISPFUNN(broadcast_stream_streams,1)
     }}
 
 # READ-BYTE-ARRAY - Pseudofunktion für Concatenated-Streams:
-  local uintB* rd_by_array_concat (object stream, uintB* byteptr, uintL len);
-  local uintB* rd_by_array_concat(stream,byteptr,len)
-    var object stream;
-    var uintB* byteptr;
+  local uintL rd_by_array_concat (const object* stream_, const object* bytearray_, uintL start, uintL len);
+  local uintL rd_by_array_concat(stream_,bytearray_,start,len)
+    var const object* stream_;
+    var const object* bytearray_;
+    var uintL start;
     var uintL len;
-    { check_SP();
-     {var object streamlist = TheStream(stream)->strm_concat_list; # Liste von Streams
-      if (consp(streamlist))
-        { if (consp(Cdr(streamlist)))
-            # More than two streams are too complicated, because there is the
-            # possibility of a partial read (i.e. the first stream's contents
-            # is read upto EOF, and the second stream does not support
-            # read_byte_array).
-            { return NULL; }
-            else
-            # Only one stream.
-            { var uintB* endptr = read_byte_array(Car(streamlist),byteptr,len);
-              if (!(endptr==NULL))
-                if (!(endptr == byteptr+len))
-                  { # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
-                    TheStream(stream)->strm_concat_list = Cdr(streamlist);
-                  }
-              return endptr;
-            }
-        }
-        else
-        { return byteptr; }
+    { check_SP(); check_STACK();
+     {var uintL result = 0;
+      var object stream = *stream_;
+      var object streamlist = TheStream(stream)->strm_concat_list; # list of streams
+      loop
+        { if (atomp(streamlist)) break;
+          pushSTACK(Car(streamlist));
+         {var uintL count = read_byte_array(&STACK_0,bytearray_,start,len);
+          skipSTACK(1);
+          result += count;
+          start += count; len -= count;
+          if (len == 0) break;
+          # EOF reached -> remove emptied stream from the list:
+          stream = *stream_;
+          streamlist =
+          TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
+        }}
+      return result;
     }}
 
 # READ-CHAR - Pseudofunktion für Concatenated-Streams:
@@ -1708,14 +1726,18 @@ LISPFUNN(concatenated_stream_streams,1)
     }
 
 # READ-BYTE-ARRAY - Pseudofunktion für Two-Way-Streams:
-  local uintB* rd_by_array_twoway (object stream, uintB* byteptr, uintL len);
-  local uintB* rd_by_array_twoway(stream,byteptr,len)
-    var object stream;
-    var uintB* byteptr;
+  local uintL rd_by_array_twoway (const object* stream_, const object* bytearray_, uintL start, uintL len);
+  local uintL rd_by_array_twoway(stream_,bytearray_,start,len)
+    var const object* stream_;
+    var const object* bytearray_;
+    var uintL start;
     var uintL len;
-    { check_SP();
-      return read_byte_array(TheStream(stream)->strm_twoway_input,byteptr,len);
-    }
+    { check_SP(); check_STACK();
+      pushSTACK(TheStream(*stream_)->strm_twoway_input);
+     {var uintL result = read_byte_array(&STACK_0,bytearray_,start,len);
+      skipSTACK(1);
+      return result;
+    }}
 
 # READ-CHAR - Pseudofunktion für Two-Way-Streams:
   local object rd_ch_twoway (const object* stream_);
@@ -1842,6 +1864,21 @@ LISPFUNN(two_way_stream_output_stream,1)
       return obj;
     }}
 
+# READ-BYTE-ARRAY - Pseudofunktion für Echo-Streams:
+  local uintL rd_by_array_echo (const object* stream_, const object* bytearray_, uintL start, uintL len);
+  local uintL rd_by_array_echo(stream_,bytearray_,start,len)
+    var const object* stream_;
+    var const object* bytearray_;
+    var uintL start;
+    var uintL len;
+    { check_SP(); check_STACK();
+      pushSTACK(TheStream(*stream_)->strm_twoway_input);
+     {var uintL result = read_byte_array(&STACK_0,bytearray_,start,len);
+      skipSTACK(1);
+      write_byte_array(TheStream(*stream_)->strm_twoway_output,&TheSbvector(*bytearray_)->data[start],result);
+      return result;
+    }}
+
 # READ-CHAR - Pseudofunktion für Echo-Streams:
   local object rd_ch_echo (const object* stream_);
   local object rd_ch_echo(stream_)
@@ -1875,7 +1912,7 @@ LISPFUNN(two_way_stream_output_stream,1)
       var object stream = # neuer Stream, alle Operationen erlaubt
         allocate_stream(flags,strmtype_echo,strm_len+2,0);
       TheStream(stream)->strm_rd_by = P(rd_by_echo);
-      TheStream(stream)->strm_rd_by_array = P(rd_by_array_dummy);
+      TheStream(stream)->strm_rd_by_array = P(rd_by_array_echo);
       TheStream(stream)->strm_wr_by = P(wr_by_twoway);
       TheStream(stream)->strm_wr_by_array = P(wr_by_array_twoway);
       TheStream(stream)->strm_rd_ch = P(rd_ch_echo);
@@ -4800,12 +4837,17 @@ global object iconv_range(encoding,start,end)
     }
 
 # READ-BYTE-ARRAY - Pseudofunktion für Handle-Streams, Art au, bitsize = 8 :
-  local uintB* rd_by_array_iau8_unbuffered (object stream, uintB* byteptr, uintL len);
-  local uintB* rd_by_array_iau8_unbuffered(stream,byteptr,len)
-    var object stream;
-    var uintB* byteptr;
+  local uintL rd_by_array_iau8_unbuffered (const object* stream_, const object* bytearray_, uintL start, uintL len);
+  local uintL rd_by_array_iau8_unbuffered(stream_,bytearray_,start,len)
+    var const object* stream_;
+    var const object* bytearray_;
+    var uintL start;
     var uintL len;
-    { return UnbufferedStreamLow_read_array(stream)(stream,byteptr,len); }
+    { var object stream = *stream_;
+      var uintB* startptr = &TheSbvector(*bytearray_)->data[start];
+      var uintB* endptr = UnbufferedStreamLow_read_array(stream)(stream,startptr,len);
+      return endptr-startptr;
+    }
 
 # Character streams
 # -----------------
@@ -6983,15 +7025,18 @@ typedef struct strm_i_buffered_extrafields_struct {
     }
 
 # READ-BYTE-SEQUENCE für File-Streams für Integers, Art au, bitsize = 8 :
-  local uintB* rd_by_array_iau8_buffered (object stream, uintB* byteptr, uintL len);
-  local uintB* rd_by_array_iau8_buffered(stream,byteptr,len)
-    var object stream;
-    var uintB* byteptr;
+  local uintL rd_by_array_iau8_buffered (const object* stream_, const object* bytearray_, uintL start, uintL len);
+  local uintL rd_by_array_iau8_buffered(stream_,bytearray_,start,len)
+    var const object* stream_;
+    var const object* bytearray_;
+    var uintL start;
     var uintL len;
-    { var uintB* endptr = read_byte_array_buffered(stream,byteptr,len);
+    { var uintB* startptr = &TheSbvector(*bytearray_)->data[start];
+      var uintB* endptr = read_byte_array_buffered(*stream_,startptr,len);
+      var uintL result = endptr-startptr;
       # position incrementieren:
-      BufferedStream_position(stream) += (endptr-byteptr);
-      return endptr;
+      BufferedStream_position(*stream_) += result;
+      return result;
     }
 
 # Output side
@@ -14532,8 +14577,8 @@ LISPFUNN(read_n_bytes,4)
     var uintL totalcount;
     test_n_bytes_args(&startindex,&totalcount);
     if (!(totalcount==0))
-      { var uintB* ptr = &TheSbvector(TheIarray(STACK_0)->data)->data[startindex];
-        if (!(read_byte_array(STACK_1,ptr,totalcount) == ptr+totalcount))
+      { STACK_0 = TheIarray(STACK_0)->data;
+        if (!(read_byte_array(&STACK_1,&STACK_0,startindex,totalcount) == totalcount))
           { pushSTACK(STACK_1); # Wert für Slot STREAM von STREAM-ERROR
             pushSTACK(STACK_(1+1)); # Stream
             pushSTACK(S(read_n_bytes));
@@ -16391,28 +16436,18 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
     { var boolean endianness = test_endianness_arg(STACK_2);
       var uintL bitsize = eltype.size;
       var uintL bytesize = bitsize/8;
-      var DYNAMIC_ARRAY(bitbuffer,uintB,bytesize);
-      stream = STACK_4;
+      var DYNAMIC_BIT_VECTOR(bitbuffer,bitsize);
+      pushSTACK(bitbuffer);
+      # Stack layout: stream, element-type, endianness, eof-error-p, eof-value, bitbuffer.
       # Read the data.
-      { var uintB* ptr = read_byte_array(stream,&bitbuffer[0],bytesize);
-        if (!(ptr == NULL))
-          { if (!(ptr == &bitbuffer[bytesize])) goto eof; }
-          else
-          { var uintL count;
-            ptr = &bitbuffer[0];
-            dotimespL(count,bytesize,
-              { var object obj = read_byte(STACK_4);
-                if (eq(obj,eof_value)) goto eof;
-                if (!uint8_p(obj)) { fehler_uint8(obj); }
-                *ptr++ = (uintB)(as_oint(obj) >> oint_data_shift);
-              });
-      }   }
+      if (!(read_byte_array(&STACK_5,&STACK_0,0,bytesize) == bytesize)) goto eof;
+      bitbuffer = STACK_0;
       if (endianness)
         # Byte-Swap the data.
         { var uintL count = floor(bytesize,2);
           if (count > 0)
-            { var uintB* ptr1 = &bitbuffer[0];
-              var uintB* ptr2 = &bitbuffer[bytesize-1];
+            { var uintB* ptr1 = &TheSbvector(bitbuffer)->data[0];
+              var uintB* ptr2 = &TheSbvector(bitbuffer)->data[bytesize-1];
               dotimespL(count,count,
                 { var uintB x1 = *ptr1;
                   var uintB x2 = *ptr2;
@@ -16426,7 +16461,7 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
         { case eltype_iu:
             # cf. rd_by_iu_I
             { # Zahl im bitbuffer normalisieren:
-              var uintB* bitbufferptr = &bitbuffer[bytesize-1];
+              var uintB* bitbufferptr = &TheSbvector(bitbuffer)->data[bytesize-1];
               var uintL count = bytesize;
               while ((!(count==0)) && (*bitbufferptr==0)) { count--; bitbufferptr--; }
               # Zahl bilden:
@@ -16451,7 +16486,7 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
                     TheBignum(big)->data[0] = 0; # höchstes Digit auf 0 setzen
                     # restliche Digits von rechts füllen, dabei Folge von Bytes in
                     # Folge von uintD übersetzen:
-                    bitbufferptr = &bitbuffer[0];
+                    bitbufferptr = &TheSbvector(STACK_0)->data[0];
                     #if BIG_ENDIAN_P
                     {var uintB* bigptr = (uintB*)(&TheBignum(big)->data[digitcount]);
                      dotimespL(count,count, { *--bigptr = *bitbufferptr++; } );
@@ -16487,7 +16522,7 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
           case eltype_is:
             # cf. rd_by_is_I
             { # Zahl im bitbuffer normalisieren:
-              var uintB* bitbufferptr = &bitbuffer[bytesize-1];
+              var uintB* bitbufferptr = &TheSbvector(bitbuffer)->data[bytesize-1];
               var sintD sign;
               var uintL count = bytesize;
               if (!(*bitbufferptr & bit(7)))
@@ -16534,7 +16569,7 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
                 TheBignum(big)->data[0] = sign; # höchstes Word auf sign setzen
                 # restliche Digits von rechts füllen, dabei Folge von Bytes in
                 # Folge von uintD übersetzen:
-                bitbufferptr = &bitbuffer[0];
+                bitbufferptr = &TheSbvector(STACK_0)->data[0];
                 #if BIG_ENDIAN_P
                 {var uintB* bigptr = (uintB*)(&TheBignum(big)->data[digitcount]);
                  dotimespL(count,count, { *--bigptr = *bitbufferptr++; } );
@@ -16570,17 +16605,17 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
             break;
           default: NOTREACHED
         }
-      FREE_DYNAMIC_ARRAY(bitdata);
+      FREE_DYNAMIC_BIT_VECTOR(STACK_0);
       value1 = result; mv_count=1;
-      skipSTACK(5);
+      skipSTACK(6);
       return;
      }
       # EOF-Behandlung
       eof:
-      { if (!nullp(STACK_1)) # eof-error-p /= NIL (z.B. = #<UNBOUND>) ?
+      { if (!nullp(STACK_2)) # eof-error-p /= NIL (z.B. = #<UNBOUND>) ?
           # Error melden:
-          { pushSTACK(STACK_4); # Wert für Slot STREAM von STREAM-ERROR
-            pushSTACK(STACK_(4+1)); # Stream
+          { pushSTACK(STACK_5); # Wert für Slot STREAM von STREAM-ERROR
+            pushSTACK(STACK_(5+1)); # Stream
             pushSTACK(S(read_integer));
             fehler(end_of_file,
                    GETTEXT("~: input stream ~ has reached its end")
@@ -16588,9 +16623,9 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
           }
           else
           # EOF verarzten:
-          { var object eofval = STACK_0;
+          { var object eofval = STACK_1;
             if (eq(eofval,unbound)) { eofval = eof_value; } # Default ist #<EOF>
-            value1 = eofval; mv_count=1; skipSTACK(5); # eofval als Wert
+            value1 = eofval; mv_count=1; skipSTACK(6); # eofval als Wert
           }
       }
   }}}

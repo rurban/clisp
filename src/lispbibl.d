@@ -11980,13 +11980,15 @@ extern object stream_fd (object stream);
   extern object get_line_position (object stream);
 # wird verwendet von IO, DEBUG
 
-# UP: Liest mehrere Bytes von einem Stream.
-# read_byte_array(stream,byteptr,len)
-# > stream: Stream
-# > uintB* byteptr: Adresse der zu füllenden Bytefolge
-# > uintL len: Länge der zu füllenden Bytefolge
-# < uintB* ergebnis: Pointer ans Ende des gefüllten Bereiches oder NULL
-  extern uintB* read_byte_array (object stream, uintB* byteptr, uintL len);
+# Function: Reads several bytes from a stream.
+# read_byte_array(&stream,&bytearray,start,len)
+# > stream: stream (on the STACK)
+# > object bytearray: simple-bit-vector (on the STACK)
+# > uintL start: start index of byte sequence to be filled
+# > uintL len: length of byte sequence to be filled
+# < uintL result: number of bytes that have been filled
+# can trigger GC
+  extern uintL read_byte_array (const object* stream_, const object* bytearray_, uintL start, uintL len);
 # wird verwendet von SEQUENCE
 
 # UP: Schreibt mehrere Bytes auf einen Stream.
