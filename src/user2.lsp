@@ -574,12 +574,12 @@
                         FRANCAIS "une structure de type ~S.")
                        type
              )
-             (let ((type (sys::%record-ref obj 0)))
-               (when (cdr type)
+             (let ((types (butlast (cdr (sys::%record-ref obj 0)))))
+               (when types
                  (format s (DEUTSCH "~%Als solche ist sie auch eine Structure vom Typ ~{~S~^, ~}."
                             ENGLISH "~%As such, it is also a structure of type ~{~S~^, ~}."
                             FRANCAIS "~%En tant que telle, c'est aussi une structure de type ~{~S~^, ~}.")
-                           (cdr type)
+                           types
              ) ) )
              (clos:describe-object obj s)
            )
