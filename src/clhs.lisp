@@ -54,6 +54,14 @@ The keyword argument OUT specifies the output for log messages."
 
 (defun browse-url (url &key (browser *browser*) (out *standard-output*))
   "Run the browser (a keyword in `*browsers*' or a list) on the URL."
+  #+WIN32
+  (unless browser ;feed url to ShellExecute if no browser is specified
+    (when out
+      (format out "~&;; starting the default system browser with url ~s..." url)
+      (force-output (if (eq out t) *standard-output* out)))
+    (ext::shell-execute "open" url nil nil) ;to start default browser
+    (when out (format out "done~%"))
+    (return-from browse-url))
   (let* ((command
           (etypecase browser
             (list browser)
