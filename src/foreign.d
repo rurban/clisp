@@ -2343,43 +2343,42 @@ LISPFUNN(deref,1)
 # returns a foreign variable, corresponding to the specified struct slot or
 # union alternative.
 LISPFUNN(slot,2)
-  {
-    var object fvar = STACK_1;
-    var object slot = STACK_0;
-    # Check that fvar is a foreign variable:
-    if (!fvariablep(fvar))
-      fehler_foreign_variable(fvar);
-    # Check that fvar is a foreign struct or a foreign union:
-    var object fvd = TheFvariable(fvar)->fv_type;
-    var uintL fvdlen;
-    if (simple_vector_p(fvd) && ((fvdlen = Svector_length(fvd)) > 0)) {
-      if (eq(TheSvector(fvd)->data[0],S(c_struct)) && (fvdlen > 2)) {
-        var object slots = TheSvector(fvd)->data[1];
-        if (!(simple_vector_p(slots) && (Svector_length(slots)==fvdlen-3)))
-          fehler_foreign_type(fvd);
-        var uintL cumul_size = 0;
-        var uintL i;
-        for (i = 3; i < fvdlen; i++) {
-          var object fvdi = TheSvector(fvd)->data[i];
-          foreign_layout(fvdi);
-          # We assume all alignments are of the form 2^k.
-          cumul_size += (-cumul_size) & (data_alignment-1);
-          if (eq(TheSvector(slots)->data[i-3],slot)) {
-            pushSTACK(fvdi); goto found_struct_slot;
-          }
-          cumul_size += data_size;
+{
+  var object fvar = STACK_1;
+  var object slot = STACK_0;
+  /* Check that fvar is a foreign variable: */
+  if (!fvariablep(fvar))
+    fehler_foreign_variable(fvar);
+  /* Check that fvar is a foreign struct or a foreign union: */
+  var object fvd = TheFvariable(fvar)->fv_type;
+  var uintL fvdlen;
+  if (simple_vector_p(fvd) && ((fvdlen = Svector_length(fvd)) > 0)) {
+    if (eq(TheSvector(fvd)->data[0],S(c_struct)) && (fvdlen > 2)) {
+      var object slots = TheSvector(fvd)->data[1];
+      if (!(simple_vector_p(slots) && (Svector_length(slots)==fvdlen-3)))
+        fehler_foreign_type(fvd);
+      var uintL cumul_size = 0;
+      var uintL i;
+      for (i = 3; i < fvdlen; i++) {
+        var object fvdi = TheSvector(fvd)->data[i];
+        foreign_layout(fvdi);
+        /* We assume all alignments are of the form 2^k. */
+        cumul_size += (-cumul_size) & (data_alignment-1);
+        if (eq(TheSvector(slots)->data[i-3],slot)) {
+          pushSTACK(fvdi); goto found_struct_slot;
         }
-        goto bad_slot;
-       found_struct_slot:
+        cumul_size += data_size;
+      }
+      goto bad_slot;
+     found_struct_slot: {
         var uintL size = data_size;
         pushSTACK(make_faddress(TheFaddress(TheFvariable(fvar)->fv_address)->fa_base,
                                 TheFaddress(TheFvariable(fvar)->fv_address)->fa_offset
-                                + cumul_size
-                 )             );
+                                + cumul_size));
         var object new_fvar = allocate_fvariable();
         fvar = STACK_3;
         record_flags_replace(TheFvariable(new_fvar), record_flags(TheFvariable(fvar)));
-        TheFvariable(new_fvar)->fv_name    = NIL; # no name known
+        TheFvariable(new_fvar)->fv_name    = NIL; /* no name known */
         TheFvariable(new_fvar)->fv_address = popSTACK();
         TheFvariable(new_fvar)->fv_size    = fixnum(size);
         TheFvariable(new_fvar)->fv_type    = popSTACK();
@@ -2387,44 +2386,46 @@ LISPFUNN(slot,2)
         skipSTACK(2);
         return;
       }
-      if (eq(TheSvector(fvd)->data[0],S(c_union)) && (fvdlen > 1)) {
-        var object slots = TheSvector(fvd)->data[1];
-        if (!(simple_vector_p(slots) && (Svector_length(slots)==fvdlen-2)))
-          fehler_foreign_type(fvd);
-        var uintL i;
-        for (i = 2; i < fvdlen; i++) {
-          if (eq(TheSvector(slots)->data[i-2],slot))
-            goto found_union_slot;
-        }
-        goto bad_slot;
-       found_union_slot:
-        pushSTACK(TheSvector(fvd)->data[i]);
-        var object new_fvar = allocate_fvariable();
-        fvd = popSTACK(); # the alternative's type
-        fvar = STACK_1;
-        record_flags_replace(TheFvariable(new_fvar), record_flags(TheFvariable(fvar)));
-        TheFvariable(new_fvar)->fv_name    = NIL; # no name known
-        TheFvariable(new_fvar)->fv_address = TheFvariable(fvar)->fv_address;
-        TheFvariable(new_fvar)->fv_size    = (foreign_layout(fvd), fixnum(data_size));
-        TheFvariable(new_fvar)->fv_type    = fvd;
-        VALUES1(new_fvar);
-        skipSTACK(2);
-        return;
-      }
     }
-    dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
-    pushSTACK(fvd);
-    pushSTACK(fvar);
-    pushSTACK(S(slot));
-    fehler(error,GETTEXT("~: foreign variable ~ of type ~ is not a struct or union"));
-   bad_slot:
-    dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
-    pushSTACK(slot);
-    pushSTACK(fvd);
-    pushSTACK(fvar);
-    pushSTACK(S(slot));
-    fehler(error,GETTEXT("~: foreign variable ~ of type ~ has no component with name ~"));
+    if (eq(TheSvector(fvd)->data[0],S(c_union)) && (fvdlen > 1)) {
+      var object slots = TheSvector(fvd)->data[1];
+      if (!(simple_vector_p(slots) && (Svector_length(slots)==fvdlen-2)))
+        fehler_foreign_type(fvd);
+      var uintL i;
+      for (i = 2; i < fvdlen; i++) {
+        if (eq(TheSvector(slots)->data[i-2],slot))
+          goto found_union_slot;
+      }
+      goto bad_slot;
+     found_union_slot:
+      pushSTACK(TheSvector(fvd)->data[i]);
+      var object new_fvar = allocate_fvariable();
+      fvd = popSTACK(); /* the alternative's type */
+      fvar = STACK_1;
+      record_flags_replace(TheFvariable(new_fvar),
+                           record_flags(TheFvariable(fvar)));
+      TheFvariable(new_fvar)->fv_name    = NIL; /* no name known */
+      TheFvariable(new_fvar)->fv_address = TheFvariable(fvar)->fv_address;
+      TheFvariable(new_fvar)->fv_size    = (foreign_layout(fvd), fixnum(data_size));
+      TheFvariable(new_fvar)->fv_type    = fvd;
+      VALUES1(new_fvar);
+      skipSTACK(2);
+      return;
+    }
   }
+  dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
+  pushSTACK(fvd);
+  pushSTACK(fvar);
+  pushSTACK(S(slot));
+  fehler(error,GETTEXT("~: foreign variable ~ of type ~ is not a struct or union"));
+ bad_slot:
+  dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T  */
+  pushSTACK(slot);
+  pushSTACK(fvd);
+  pushSTACK(fvar);
+  pushSTACK(S(slot));
+  fehler(error,GETTEXT("~: foreign variable ~ of type ~ has no component with name ~"));
+}
 
 # (FFI::%CAST foreign-variable c-type)
 # returns a foreign variable, referring to the same memory locations, but of

@@ -37,10 +37,11 @@ LISPSPECFORM(eval_when, 1,0,body)
   VALUES1(NIL);
   skipSTACK(2);
   return;
- found: /* symbol EVAL found */
-  var object body = popSTACK();
-  skipSTACK(1);
-  implicit_progn(body,NIL); /* evaluate body */
+ found: { /* symbol EVAL found */
+    var object body = popSTACK();
+    skipSTACK(1);
+    implicit_progn(body,NIL); /* evaluate body */
+  }
 }
 
 LISPSPECFORM(quote, 1,0,nobody)
@@ -1154,13 +1155,13 @@ LISPSPECFORM(cond, 0,0,body)
       goto eval_clause;
     skipSTACK(1); /* try next */
   }
-  /* no condition was fulfilled. */
+  /* no condition was satisfied. */
   VALUES1(NIL); skipSTACK(1); return;
-  /* fulfilled condition found: */
- eval_clause:
-  var object clause_rest = popSTACK(); /* clause rest */
-  skipSTACK(1);
-  implicit_progn(clause_rest,value1); /* evaluate */
+ eval_clause: { /* found a true condition: */
+    var object clause_rest = popSTACK(); /* clause rest */
+    skipSTACK(1);
+    implicit_progn(clause_rest,value1); /* evaluate */
+  }
 }
 
 LISPSPECFORM(case, 1,0,body)
@@ -1199,12 +1200,12 @@ LISPSPECFORM(case, 1,0,body)
       }
     }
   }
-  /* no condition was fulfilled. */
+  /* no condition was satisfied. */
   VALUES1(NIL); return;
-  /* fulfilled condition found: */
- eval_clause:
-  var object clause_rest = Cdr(clause); /* clause-rest */
-  implicit_progn(clause_rest,NIL); /* evaluate */
+ eval_clause: { /* found a true condition: */
+    var object clause_rest = Cdr(clause); /* clause-rest */
+    implicit_progn(clause_rest,NIL); /* evaluate */
+  }
 }
 
 LISPSPECFORM(block, 1,0,body)

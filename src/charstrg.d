@@ -1179,8 +1179,8 @@ global object coerce_char (object obj) {
   } else if (symbolp(obj)) {
     /* obj is a symbol */
     obj = TheSymbol(obj)->pname; goto string;
-  } else if (stringp(obj)) {
-   string: /* obj is a string */
+  } else if (stringp(obj))
+  string: { /* obj is a string */
     var uintL len;
     var uintL offset;
     var object string = unpack_string_ro(obj,&len,&offset);

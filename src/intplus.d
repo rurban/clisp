@@ -154,8 +154,8 @@
         }
       } else {
         # x ist Bignum
-        if (I_fixnump(y)) {
-         xBN_yFN:
+        if (I_fixnump(y))
+        xBN_yFN: {
           # x ist Bignum, y ist Fixnum, also x länger
           var sint32 y_ = FN_to_L(y); # Wert von y
           if (FN_L_zerop(y,y_))

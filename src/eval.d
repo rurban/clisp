@@ -1084,139 +1084,132 @@ global Values eval_noenv (object form) {
       return env;
     }
 
-# UP: Nests the Environments in *env (i.e. writes all information in
-# Stack-independent structures) and pushes them onto the STACK.
-# (The values VAR_ENV, FUN_ENV, BLOCK_ENV, GO_ENV, DECL_ENV will not
-# be changed, because inactive bindings might poss. still sit in the frames.
-# It has to be feasible, to activate these bindings without change of VAR_ENV.)
-# nest_env(env)
-# > gcv_environment_t* env: Pointer to five Environments
-# < gcv_environment_t* result: Pointer to the Environments in the STACK
-# changes STACK, can trigger GC
-  global gcv_environment_t* nest_env (gcv_environment_t* env);
-  global gcv_environment_t* nest_env(env5)
-    var gcv_environment_t* env5;
-    {
-      # First copy all Environments in the STACK:
-      make_STACK_env(env5->var_env,env5->fun_env,env5->block_env,env5->go_env,env5->decl_env,
-                     env5 = );
-      # DECL_ENV: Not to be changed.
-      # GO_ENV:
-      {
-        var object env = env5->go_env;
-        var uintL depth = 0; # recursion depth := 0
-        # pseudo-recursion: nests a GO_ENV.
-        # Input: env, a GO_ENV. Output: env, with Alist.
-       nest_go_start: # start of recursion
-        var gcv_object_t* FRAME;
-        if (framepointerp(env)) {
-          # env is a pointer into the STACK to a ITAGBODY-frame.
-          check_STACK();
-          FRAME = TheFramepointer(env);
-          if (framecode(FRAME_(0)) & bit(nested_bit_t)) { # frame already nested?
-            env = FRAME_(frame_next_env); # yes -> fetch former Alist
-          } else {
-            pushSTACK(env); # save env
-            # execute nest_go(NEXT_ENV(env)) "disrecursivied":
-            env = FRAME_(frame_next_env); depth++; goto nest_go_start;
-           nest_go_reentry: depth--;
-            # NEXT_ENV is now nested.
-            {
-              var object frame = STACK_0; # next to be nested STACK-Frame
-              FRAME = uTheFramepointer(frame);
-              STACK_0 = env; # so far nested Environment
-              var gcv_object_t* tagsptr = &FRAME_(frame_bindings); # Pointer to the bottom Tag
-              var gcv_object_t* frame_end = STACKpointable(topofframe(FRAME_(0))); # Pointer to Frame
-              var uintL count = # number of tags
-                # subtract the pointers tagsptr and frame_end (both without Typinfo!):
-                STACK_item_count(tagsptr,frame_end) / 2;
-              # create vector for count tags:
-              {
+/* UP: Nests the Environments in *env (i.e. writes all information in
+ Stack-independent structures) and pushes them onto the STACK.
+ (The values VAR_ENV, FUN_ENV, BLOCK_ENV, GO_ENV, DECL_ENV will not
+ be changed, because inactive bindings might poss. still sit in the frames.
+ It has to be feasible, to activate these bindings without change of VAR_ENV.)
+ nest_env(env)
+ > gcv_environment_t* env: Pointer to five Environments
+ < gcv_environment_t* result: Pointer to the Environments in the STACK
+ changes STACK, can trigger GC */
+global gcv_environment_t* nest_env (gcv_environment_t* env5)
+{
+  /* First copy all Environments in the STACK: */
+  make_STACK_env(env5->var_env,env5->fun_env,env5->block_env,env5->go_env,
+                 env5->decl_env,env5 = );
+  /* DECL_ENV: Not to be changed. */
+  { /* GO_ENV: */
+    var object env = env5->go_env;
+    var uintL depth = 0; /* recursion depth := 0 */
+    /* pseudo-recursion: nests a GO_ENV. */
+    /* Input: env, a GO_ENV. Output: env, with Alist. */
+   nest_go_start: { /* start of recursion */
+      var gcv_object_t* FRAME;
+      if (framepointerp(env)) {
+        /* env is a pointer into the STACK to a ITAGBODY-frame. */
+        check_STACK();
+        FRAME = TheFramepointer(env);
+        if (framecode(FRAME_(0)) & bit(nested_bit_t)) { /* frame already nested? */
+          env = FRAME_(frame_next_env); /* yes -> fetch former Alist */
+        } else {
+          pushSTACK(env); /* save env */
+          /* execute nest_go(NEXT_ENV(env)) "disrecursivied": */
+          env = FRAME_(frame_next_env); depth++; goto nest_go_start;
+         nest_go_reentry: depth--;
+          { /* NEXT_ENV is now nested. */
+            var object frame = STACK_0; /* next to be nested STACK-Frame */
+            FRAME = uTheFramepointer(frame);
+            STACK_0 = env; /* so far nested Environment */
+            var gcv_object_t* tagsptr = &FRAME_(frame_bindings); /* Pointer to the bottom Tag */
+            var gcv_object_t* frame_end = STACKpointable(topofframe(FRAME_(0))); /* Pointer to Frame */
+            var uintL count = /* number of tags */
+              /* subtract the pointers tagsptr and frame_end (both without Typinfo!): */
+              STACK_item_count(tagsptr,frame_end) / 2;
+              { /* create vector for count tags: */
                 var object tagvec = allocate_vector(count);
-                # and fill:
+                /* and fill: */
                 if (count > 0) {
                   var gcv_object_t* ptr = &TheSvector(tagvec)->data[0];
-                  # put tags starting at tagsptr in the vector at ptr:
+                  /* put tags starting at tagsptr in the vector at ptr: */
                   dotimespL(count,count, {
                     *ptr++ = *(tagsptr STACKop 0);
                     tagsptr skipSTACKop 2;
                   });
                 }
-                pushSTACK(tagvec); # and save
+                pushSTACK(tagvec); /* and save */
               }
-              # create next Alist Cons (cons tag-vector frame-pointer) :
-              {
-                var object new_cons = allocate_cons();
-                Car(new_cons) = STACK_0; # tagvec
-                Cdr(new_cons) = frame;
-                STACK_0 = new_cons;
-              }
-              # and prepend to Alist:
-              env = allocate_cons();
-              Car(env) = popSTACK(); # new_cons
-              Cdr(env) = popSTACK(); # previous Alist
-              FRAME_(frame_next_env) = env; # store new NEXT_ENV
-              *(oint*)(&FRAME_(0)) |= wbit(nested_bit_o); # this frame is now nested.
+            { /* create next Alist Cons (cons tag-vector frame-pointer) : */
+              var object new_cons = allocate_cons();
+              Car(new_cons) = STACK_0; /* tagvec */
+              Cdr(new_cons) = frame;
+              STACK_0 = new_cons;
             }
+            /* and prepend to Alist: */
+            env = allocate_cons();
+            Car(env) = popSTACK(); /* new_cons */
+            Cdr(env) = popSTACK(); /* previous Alist */
+            FRAME_(frame_next_env) = env; /* store new NEXT_ENV */
+            *(oint*)(&FRAME_(0)) |= wbit(nested_bit_o); /* this frame is now nested. */
           }
         }
-        # finished with this Nest-Substep.
-        if (depth>0) # end of Recursion
-          goto nest_go_reentry;
-        env5->go_env = env; # file nested GO_ENV
       }
-      # BLOCK_ENV:
-      {
-        var object env = env5->block_env;
-        var uintL depth = 0; # recursion depth := 0
-        # Pseudo-Recursion: nests a BLOCK_ENV.
-        # Input: env, a BLOCK_ENV. Output: env, with Aliste.
-       nest_block_start: # start of recursion
-        var gcv_object_t* FRAME;
-        if (framepointerp(env)) {
-          # env is a pointer into the STACK to a IBLOCK-Frame.
-          check_STACK();
-          FRAME = TheFramepointer(env);
-          if (framecode(FRAME_(0)) & bit(nested_bit_t)) { # Frame already nested?
-            env = FRAME_(frame_next_env); # yes -> fetch previous Alist
-          } else {
-            pushSTACK(env); # save env
-            # execute nest_block(NEXT_ENV(env)) "disrecursified":
-            env = FRAME_(frame_next_env); depth++; goto nest_block_start;
-           nest_block_reentry: depth--;
-            # NEXT_ENV is now nested.
-            {
-              var object frame = STACK_0; # next to be nested STACK-Frame
-              FRAME = TheFramepointer(frame);
-              STACK_0 = env; # so far nested Environment
-              # create next Alist Cons (cons Block-Name Frame-Pointer) :
-              {
-                var object new_cons = allocate_cons();
-                Car(new_cons) = FRAME_(frame_name);
-                Cdr(new_cons) = frame;
-                pushSTACK(new_cons);
-              }
-              # and prepend to the Aliste:
-              env = allocate_cons();
-              Car(env) = popSTACK(); # new_cons
-              Cdr(env) = popSTACK(); # previous Alist
-              FRAME_(frame_next_env) = env; # store new NEXT_ENV
-              *(oint*)(&FRAME_(0)) |= wbit(nested_bit_o); # this frame is now nested.
-            }
-          }
-        }
-        # finished with this Nest-Substep.
-        if (depth>0) # end of recursion
-          goto nest_block_reentry;
-        env5->block_env = env; # file nested BLOCK_ENV
-      }
-      # FUN_ENV:
-      env5->fun_env = nest_fun(env5->fun_env);
-      # VAR_ENV:
-      env5->var_env = nest_var(env5->var_env);
-      # finished.
-      return env5;
+      /* finished with this Nest-Substep. */
+      if (depth>0) /* end of Recursion */
+        goto nest_go_reentry;
+      env5->go_env = env; /* file nested GO_ENV */
     }
+  }
+  { /* BLOCK_ENV: */
+    var object env = env5->block_env;
+    var uintL depth = 0; /* recursion depth := 0 */
+    /* Pseudo-Recursion: nests a BLOCK_ENV. */
+    /* Input: env, a BLOCK_ENV. Output: env, with Aliste. */
+   nest_block_start: { /* start of recursion */
+      var gcv_object_t* FRAME;
+      if (framepointerp(env)) {
+        /* env is a pointer into the STACK to a IBLOCK-Frame. */
+        check_STACK();
+        FRAME = TheFramepointer(env);
+        if (framecode(FRAME_(0)) & bit(nested_bit_t)) { /* Frame already nested? */
+          env = FRAME_(frame_next_env); /* yes -> fetch previous Alist */
+        } else {
+          pushSTACK(env); /* save env */
+          /* execute nest_block(NEXT_ENV(env)) "disrecursified": */
+          env = FRAME_(frame_next_env); depth++; goto nest_block_start;
+         nest_block_reentry: depth--;
+          { /* NEXT_ENV is now nested. */
+            var object frame = STACK_0; /* next to be nested STACK-Frame */
+            FRAME = TheFramepointer(frame);
+            STACK_0 = env; /* so far nested Environment */
+            { /* create next Alist Cons (cons Block-Name Frame-Pointer) : */
+              var object new_cons = allocate_cons();
+              Car(new_cons) = FRAME_(frame_name);
+              Cdr(new_cons) = frame;
+              pushSTACK(new_cons);
+            }
+            /* and prepend to the Aliste: */
+            env = allocate_cons();
+            Car(env) = popSTACK(); /* new_cons */
+            Cdr(env) = popSTACK(); /* previous Alist */
+            FRAME_(frame_next_env) = env; /* store new NEXT_ENV */
+            *(oint*)(&FRAME_(0)) |= wbit(nested_bit_o); /* this frame is now nested. */
+          }
+        }
+      }
+    }
+    /* finished with this Nest-Substep. */
+    if (depth>0) /* end of recursion */
+      goto nest_block_reentry;
+    env5->block_env = env; /* file nested BLOCK_ENV */
+  }
+  /* FUN_ENV: */
+  env5->fun_env = nest_fun(env5->fun_env);
+  /* VAR_ENV: */
+  env5->var_env = nest_var(env5->var_env);
+  /* done */
+  return env5;
+}
 
 # UP: Nests the current environments (i.e. writes all Information in
 # Stack-independent Structures) and pushes them onto the STACK.
@@ -3437,9 +3430,8 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
           if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
             goto fehler_zuviel;
         }
-      } else {
-        # SUBR with Keywords.
-       apply_subr_key:
+      } else
+      apply_subr_key: { /* SUBR with Keywords. */
         # args = remaining argument-list (not yet finished)
         # First initialize the Keyword-parameters with #<UNBOUND> , then
         # evaluate the remaining arguments and push into Stack, then
@@ -3919,93 +3911,88 @@ local Values eval_ffunction(object ffun) {
 local Values apply_subr (object fun, uintC args_on_stack, object other_args);
 local Values apply_closure(object fun, uintC args_on_stack, object other_args);
 
-# UP: Applies a function to its arguments.
-# apply(function,args_on_stack,other_args);
-# > function: function
-# > arguments: args_on_stack arguments on the STACK,
-#              remaining argument-list in other_args
-# < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
-# < mv_count/mv_space: values
-# changes STACK, can trigger GC
-  global Values apply (object fun, uintC args_on_stack, object other_args);
-  global Values apply(fun,args_on_stack,other_args)
-    var object fun;
-    var uintC args_on_stack;
-    var object other_args;
-    {
-      # fun must be a SUBR or a Closure or a Cons (LAMBDA ...) :
-      if (subrp(fun)) { # SUBR ?
-        return_Values apply_subr(fun,args_on_stack,other_args);
-      } elif (closurep(fun)) { # Closure ?
-        return_Values apply_closure(fun,args_on_stack,other_args);
-      } elif (symbolp(fun)) { # Symbol ?
-        # apply Symbol: global Definition Symbol_function(fun) applies.
-        var object fdef = Symbol_function(fun);
-        if (subrp(fdef)) { # SUBR -> apply
-          return_Values apply_subr(fdef,args_on_stack,other_args);
-        } elif (closurep(fdef)) { # Closure -> apply
-          return_Values apply_closure(fdef,args_on_stack,other_args);
-        } elif (orecordp(fdef)) {
-          #ifdef DYNAMIC_FFI
-          if (ffunctionp(fdef)) { # Foreign-Function ?
-            fun = fdef; goto call_ffunction;
-          }
-          #endif
-          switch (Record_type(fdef)) {
-            case Rectype_Fsubr:
-              fehler_specialform(S(apply),fun);
-            case Rectype_Macro:
-              fehler_macro(S(apply),fun);
-            default: NOTREACHED;
-          }
-        } else
-          # if no SUBR, no Closure, no FSUBR, no Macro:
-          # Symbol_function(fun) must be #<UNBOUND> .
-          goto undef;
-      } elif (funnamep(fun)) { # List (SETF symbol) ?
-        # global Definition (symbol-function (get-setf-symbol symbol)) applies.
-        var object symbol = get(Car(Cdr(fun)),S(setf_function)); # (get ... 'SYS::SETF-FUNCTION)
-        if (!symbolp(symbol)) # should be (uninterned) Symbol
-          goto undef; # else undefined
-        var object fdef = Symbol_function(symbol);
-        if (closurep(fdef)) { # Closure -> apply
-          return_Values apply_closure(fdef,args_on_stack,other_args);
-        } elif (subrp(fdef)) { # SUBR -> apply
-          return_Values apply_subr(fdef,args_on_stack,other_args);
-        }
-        #ifdef DYNAMIC_FFI
-        elif (ffunctionp(fdef)) { # Foreign-Function ?
-          fun = fdef; goto call_ffunction;
-        }
-        #endif
-        else
-          # Such function-names cannot denote FSUBRs or Macros.
-          # fdef is presumably #<UNBOUND> .
-          goto undef;
+/* UP: Applies a function to its arguments.
+ apply(function,args_on_stack,other_args);
+ > function: function
+ > arguments: args_on_stack arguments on the STACK,
+              remaining argument-list in other_args
+ < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
+ < mv_count/mv_space: values
+ changes STACK, can trigger GC */
+global Values apply (object fun, uintC args_on_stack, object other_args)
+{
+  /* fun must be a SUBR or a Closure or a Cons (LAMBDA ...) : */
+  if (subrp(fun)) { /* SUBR ? */
+    return_Values apply_subr(fun,args_on_stack,other_args);
+  } else if (closurep(fun)) { /* Closure ? */
+    return_Values apply_closure(fun,args_on_stack,other_args);
+  } else if (symbolp(fun)) { /* Symbol ? */
+    /* apply Symbol: global Definition Symbol_function(fun) applies. */
+    var object fdef = Symbol_function(fun);
+    if (subrp(fdef)) { /* SUBR -> apply */
+      return_Values apply_subr(fdef,args_on_stack,other_args);
+    } else if (closurep(fdef)) { /* Closure -> apply */
+      return_Values apply_closure(fdef,args_on_stack,other_args);
+    } else if (orecordp(fdef)) {
+     #ifdef DYNAMIC_FFI
+      if (ffunctionp(fdef)) { /* Foreign-Function ? */
+        fun = fdef; goto call_ffunction;
       }
-      #ifdef DYNAMIC_FFI
-      elif (ffunctionp(fun)) { # Foreign-Function ?
-        # call (SYS::FOREIGN-CALL-OUT foreign-function . args)
-       call_ffunction:
-        # Therefore first shift down the arguments in Stack by 1.
-        var uintC count;
-        var gcv_object_t* ptr = &STACK_0;
-        dotimesC(count,args_on_stack, {
-          *(ptr STACKop -1) = *ptr; ptr skipSTACKop 1;
-        });
-        *(ptr STACKop -1) = fun;
-        skipSTACK(-1);
-        return_Values apply_subr(L(foreign_call_out),args_on_stack+1,other_args);
+     #endif
+      switch (Record_type(fdef)) {
+        case Rectype_Fsubr:
+          fehler_specialform(S(apply),fun);
+        case Rectype_Macro:
+          fehler_macro(S(apply),fun);
+        default: NOTREACHED;
       }
-      #endif
-      else if (consp(fun) && eq(Car(fun),S(lambda))) /* Cons (LAMBDA ...) ? */
-        fehler_lambda_expression(S(apply),fun);
-      else
-        fehler_funname_type(S(apply),fun);
-      return;
-     undef:
-      fehler_undefined(S(apply),fun);
+    } else
+      /* if no SUBR, no Closure, no FSUBR, no Macro:
+         Symbol_function(fun) must be #<UNBOUND> . */
+      goto undef;
+  } else if (funnamep(fun)) { /* List (SETF symbol) ? */
+    /* global Definition (symbol-function (get-setf-symbol symbol)) applies. */
+    var object symbol = get(Car(Cdr(fun)),S(setf_function)); /* (get ... 'SYS::SETF-FUNCTION) */
+    if (!symbolp(symbol)) /* should be (uninterned) Symbol */
+      goto undef; /* else undefined */
+    var object fdef = Symbol_function(symbol);
+    if (closurep(fdef)) { /* Closure -> apply */
+      return_Values apply_closure(fdef,args_on_stack,other_args);
+    } else if (subrp(fdef)) { /* SUBR -> apply */
+      return_Values apply_subr(fdef,args_on_stack,other_args);
     }
+   #ifdef DYNAMIC_FFI
+    else if (ffunctionp(fdef)) { /* Foreign-Function ? */
+      fun = fdef; goto call_ffunction;
+    }
+   #endif
+    else
+      /* Such function-names cannot denote FSUBRs or Macros.
+         fdef is presumably #<UNBOUND> . */
+      goto undef;
+  }
+ #ifdef DYNAMIC_FFI
+  else if (ffunctionp(fun)) /* Foreign-Function ? */
+  call_ffunction: { /* call (SYS::FOREIGN-CALL-OUT foreign-function . args) */
+    /* Therefore first shift down the arguments in Stack by 1. */
+    var uintC count;
+    var gcv_object_t* ptr = &STACK_0;
+    dotimesC(count,args_on_stack, {
+      *(ptr STACKop -1) = *ptr; ptr skipSTACKop 1;
+    });
+    *(ptr STACKop -1) = fun;
+    skipSTACK(-1);
+    return_Values apply_subr(L(foreign_call_out),args_on_stack+1,other_args);
+  }
+ #endif
+  else if (consp(fun) && eq(Car(fun),S(lambda))) /* Cons (LAMBDA ...) ? */
+    fehler_lambda_expression(S(apply),fun);
+  else
+    fehler_funname_type(S(apply),fun);
+  return;
+ undef:
+  fehler_undefined(S(apply),fun);
+}
 
 # Error because of dotted argument-list
 # > name: name of function
@@ -4830,91 +4817,87 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
 local Values funcall_subr (object fun, uintC args_on_stack);
 local Values funcall_closure (object fun, uintC args_on_stack);
 
-# UP: Applies a function to its arguments.
-# funcall(function,argcount);
-# > function: function
-# > Argumente: argcount arguments on STACK
-# < STACK: cleaned up (i.e. STACK is increased by argcount)
-# < mv_count/mv_space: values
-# changes STACK, can trigger GC
-  global Values funcall (object fun, uintC argcount);
-  global Values funcall(fun,args_on_stack)
-    var object fun;
-    var uintC args_on_stack;
-    {
-      # fun must be a SUBR or a Closure or a Cons (LAMBDA ...) :
-      if (subrp(fun)) { # SUBR ?
-        return_Values funcall_subr(fun,args_on_stack);
-      } elif (closurep(fun)) { # Closure ?
-        return_Values funcall_closure(fun,args_on_stack);
-      } elif (symbolp(fun)) { # Symbol ?
-        # apply Symbol: global Definition Symbol_function(fun) applies.
-        var object fdef = Symbol_function(fun);
-        if (subrp(fdef)) { # SUBR -> apply
-          return_Values funcall_subr(fdef,args_on_stack);
-        } elif (closurep(fdef)) { # Closure -> apply
-          return_Values funcall_closure(fdef,args_on_stack);
-        } elif (orecordp(fdef)) {
-          #ifdef DYNAMIC_FFI
-          if (ffunctionp(fdef)) { # Foreign-Function ?
-            fun = fdef; goto call_ffunction;
-          }
-          #endif
-          switch (Record_type(fdef)) {
-            case Rectype_Fsubr:
-              fehler_specialform(S(funcall),fun);
-            case Rectype_Macro:
-              fehler_macro(S(funcall),fun);
-            default: NOTREACHED;
-          }
-        } else
-          # if no SUBR, no Closure, no FSUBR, no Macro:
-          # Symbol_function(fun) must be #<UNBOUND> .
-          goto undef;
-      } elif (funnamep(fun)) { # list (SETF symbol) ?
-        # global definition (symbol-function (get-setf-symbol symbol)) applies.
-        var object symbol = get(Car(Cdr(fun)),S(setf_function)); # (get ... 'SYS::SETF-FUNCTION)
-        if (!symbolp(symbol)) # should be (uninterned) symbol
-          goto undef; # else undefed
-        var object fdef = Symbol_function(symbol);
-        if (closurep(fdef)) { # Closure -> apply
-          return_Values funcall_closure(fdef,args_on_stack);
-        } elif (subrp(fdef)) { # SUBR -> apply
-          return_Values funcall_subr(fdef,args_on_stack);
-        }
-        #ifdef DYNAMIC_FFI
-        elif (ffunctionp(fdef)) { # Foreign-Function ?
-          fun = fdef; goto call_ffunction;
-        }
-        #endif
-        else
-          # Such function-names cannot denote FSUBRs or Macros.
-          # fdef is presumable #<UNBOUND> .
-          goto undef;
+/* UP: Applies a function to its arguments.
+ funcall(function,argcount);
+ > function: function
+ > Argumente: argcount arguments on STACK
+ < STACK: cleaned up (i.e. STACK is increased by argcount)
+ < mv_count/mv_space: values
+ changes STACK, can trigger GC */
+global Values funcall (object fun, uintC args_on_stack)
+{
+  /* fun must be a SUBR or a Closure or a Cons (LAMBDA ...) : */
+  if (subrp(fun)) { /* SUBR ? */
+    return_Values funcall_subr(fun,args_on_stack);
+  } else if (closurep(fun)) { /* Closure ? */
+    return_Values funcall_closure(fun,args_on_stack);
+  } else if (symbolp(fun)) { /* Symbol ? */
+    /* apply Symbol: global Definition Symbol_function(fun) applies. */
+    var object fdef = Symbol_function(fun);
+    if (subrp(fdef)) { /* SUBR -> apply */
+      return_Values funcall_subr(fdef,args_on_stack);
+    } else if (closurep(fdef)) { /* Closure -> apply */
+      return_Values funcall_closure(fdef,args_on_stack);
+    } else if (orecordp(fdef)) {
+     #ifdef DYNAMIC_FFI
+      if (ffunctionp(fdef)) { /* Foreign-Function ? */
+        fun = fdef; goto call_ffunction;
       }
-      #ifdef DYNAMIC_FFI
-      elif (ffunctionp(fun)) { # Foreign-Function ?
-        # call (SYS::FOREIGN-CALL-OUT foreign-function . args)
-       call_ffunction:
-        # First shift down the arguments in Stack by 1.
-        var uintC count;
-        var gcv_object_t* ptr = &STACK_0;
-        dotimesC(count,args_on_stack, {
-          *(ptr STACKop -1) = *ptr; ptr skipSTACKop 1;
-        });
-        *(ptr STACKop -1) = fun;
-        skipSTACK(-1);
-        return_Values funcall_subr(L(foreign_call_out),args_on_stack+1);
+     #endif
+      switch (Record_type(fdef)) {
+        case Rectype_Fsubr:
+          fehler_specialform(S(funcall),fun);
+        case Rectype_Macro:
+          fehler_macro(S(funcall),fun);
+        default: NOTREACHED;
       }
-      #endif
-      else if (consp(fun) && eq(Car(fun),S(lambda))) /* Cons (LAMBDA ...) ? */
-        fehler_lambda_expression(S(funcall),fun);
-      else
-        fehler_funname_type(S(funcall),fun);
-      return;
-     undef:
-      fehler_undefined(S(funcall),fun);
+    } else
+      /* if no SUBR, no Closure, no FSUBR, no Macro:
+         Symbol_function(fun) must be #<UNBOUND> . */
+      goto undef;
+  } else if (funnamep(fun)) { /* list (SETF symbol) ? */
+    /* global definition (symbol-function (get-setf-symbol symbol)) applies. */
+    var object symbol = get(Car(Cdr(fun)),S(setf_function)); /* (get ... 'SYS::SETF-FUNCTION) */
+    if (!symbolp(symbol)) /* should be (uninterned) symbol */
+      goto undef; /* else undefed */
+    var object fdef = Symbol_function(symbol);
+    if (closurep(fdef)) { /* Closure -> apply */
+      return_Values funcall_closure(fdef,args_on_stack);
+    } else if (subrp(fdef)) { /* SUBR -> apply */
+      return_Values funcall_subr(fdef,args_on_stack);
     }
+   #ifdef DYNAMIC_FFI
+    else if (ffunctionp(fdef)) { /* Foreign-Function ? */
+      fun = fdef; goto call_ffunction;
+    }
+   #endif
+    else
+      /* Such function-names cannot denote FSUBRs or Macros.
+         fdef is presumable #<UNBOUND> . */
+      goto undef;
+  }
+ #ifdef DYNAMIC_FFI
+  else if (ffunctionp(fun)) /* Foreign-Function ? */
+  call_ffunction: { /* call (SYS::FOREIGN-CALL-OUT foreign-function . args) */
+    /* First shift down the arguments in Stack by 1. */
+    var uintC count;
+    var gcv_object_t* ptr = &STACK_0;
+    dotimesC(count,args_on_stack, {
+      *(ptr STACKop -1) = *ptr; ptr skipSTACKop 1;
+    });
+    *(ptr STACKop -1) = fun;
+    skipSTACK(-1);
+    return_Values funcall_subr(L(foreign_call_out),args_on_stack+1);
+  }
+ #endif
+  else if (consp(fun) && eq(Car(fun),S(lambda))) /* Cons (LAMBDA ...) ? */
+    fehler_lambda_expression(S(funcall),fun);
+  else
+    fehler_funname_type(S(funcall),fun);
+  return;
+ undef:
+  fehler_undefined(S(funcall),fun);
+}
 
 # In FUNCALL: Applies a SUBR to arguments, cleans up STACK
 # and returns the values.
@@ -7340,7 +7323,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             }
             # value passed to Tagbody:
             # For CTAGBODY-Frames 1+l as Fixnum.
-            var gcv_object_t* FRAME = uTheFramepointer(Cdr(tagbody_cons));
+            FRAME = uTheFramepointer(Cdr(tagbody_cons));
             VALUES1(fixnum(1+l));
             # unwind upto Tagbody-Frame, then jump to its Routine,
             # which then jumps to Label l:

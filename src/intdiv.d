@@ -149,13 +149,12 @@
         # 0 <= s < intDsize.
         # Kopiere b und schiebe es dabei um s Bits nach links:
         if (!(s==0))
-         shift:
-          {
-            var uintD* old_b_LSDptr = b_LSDptr;
-            num_stack_need(b_len,b_MSDptr=,b_LSDptr=);
-            shiftleftcopy_loop_down(old_b_LSDptr,b_LSDptr,b_len,s);
-          }
-       shift_ok:
+        shift: {
+          var uintD* old_b_LSDptr = b_LSDptr;
+          num_stack_need(b_len,b_MSDptr=,b_LSDptr=);
+          shiftleftcopy_loop_down(old_b_LSDptr,b_LSDptr,b_len,s);
+        }
+       shift_ok: {
         # Wieder b = b_MSDptr/b_len/b_LSDptr.
         # Kopiere a und schiebe es dabei um s Bits nach links, erhalte r:
         var uintD* r_MSDptr = roomptr;
@@ -278,7 +277,7 @@
         r_->MSDptr = r_MSDptr; r_->len = b_len; r_->LSDptr = r_LSDptr;
         RESTORE_NUM_STACK # num_stack zurück
         return;
-      }
+      }}
     }
 
 # Dividiert zwei Integers x,y >=0 und liefert Quotient und Rest

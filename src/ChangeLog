@@ -1,3 +1,11 @@
+2003-03-03  Peter Seibel  <peter@javamonkey.com>
+	    Sam Steingold  <sds@gnu.org>
+
+	* charstrg.d, compelem.d, comptran.d, control.d, dfloat.d, eval.d:
+	* ffloat.d, foreign.d, intdiv.d, intlog.d, intplus.d, intsqrt.d:
+	* io.d, package.d, pathname.d, sfloat.d, socket.d, stream.d:
+	phase-0 of d2c conversion: put braces where C99 requires them
+
 2003-03-01  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in: fixed the 1.269 (2002-07-19) patch: check
