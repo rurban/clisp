@@ -1022,6 +1022,8 @@
 #+LOGICAL-PATHNAMES
 (defsetf logical-pathname-translations set-logical-pathname-translations)
 ;;;----------------------------------------------------------------------------
+(defsetf stream-element-type system::set-stream-element-type)
+;;;----------------------------------------------------------------------------
 ;;; Handhabung von (SETF (VALUES place1 ... placek) form)
 ;;; --> (MULTIPLE-VALUE-BIND (dummy1 ... dummyk) form
 ;;;       (SETF place1 dummy1 ... placek dummyk)

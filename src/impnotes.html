@@ -1546,6 +1546,12 @@ take a controller and some number of arguments.
 
 The CLtL2 function <CODE>open-stream-p</CODE> is implemented.
 <P>
+<CODE>stream-element-type</CODE> is <CODE>setf</CODE>able. The element type of streams created by the
+functions <CODE>make-pipe-input-stream</CODE>, <CODE>make-pipe-output-stream</CODE>, <CODE>make-pipe-io-stream</CODE>,
+<CODE>socket-accept</CODE>, <CODE>socket-connect</CODE> can be modified, if both the old and the new
+element type are equivalent to <CODE>character</CODE> or <CODE>(unsigned-byte <VAR>n</VAR>)</CODE>, <CODE>(signed-byte <VAR>n</VAR>)</CODE>,
+where <VAR>n</VAR> is a positive multiple of 8.
+<P>
 <CODE>close</CODE> ignores its <CODE>:abort</CODE> argument.
 <P>
 The CLtL2 functions <CODE>broadcast-stream-streams</CODE>, <CODE>concatenated-stream-streams</CODE>,

@@ -1314,6 +1314,12 @@ take a controller and some number of arguments.
 
 The CLtL2 function OPEN-STREAM-P is implemented.
 
+STREAM-ELEMENT-TYPE is SETFable. The element type of streams created by the
+functions MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM, MAKE-PIPE-IO-STREAM,
+SOCKET-ACCEPT, SOCKET-CONNECT can be modified, if both the old and the new
+element type are equivalent to CHARACTER or (UNSIGNED-BYTE n), (SIGNED-BYTE n),
+where n is a positive multiple of 8.
+
 CLOSE ignores its :ABORT argument.
 
 The CLtL2 functions BROADCAST-STREAM-STREAMS, CONCATENATED-STREAM-STREAMS,
