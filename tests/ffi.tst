@@ -32,6 +32,32 @@ T
 (check-type #'c-self foreign-function)
 nil
 
+(functionp (setq parse-c-type-optimizer
+		 (compiler-macro-function 'parse-c-type)))
+T
+
+(funcall parse-c-type-optimizer '(parse-c-type 'c-pointer) nil)
+'C-POINTER
+
+(funcall parse-c-type-optimizer '(parse-c-type 'c-pointer 'opaque) nil)
+(PARSE-C-TYPE 'C-POINTER 'OPAQUE)
+
+(def-c-type opaque c-pointer)
+OPAQUE
+
+(funcall parse-c-type-optimizer '(parse-c-type 'opaque) nil)
+'C-POINTER
+
+(funcall parse-c-type-optimizer '(parse-c-type '(c-ptr uint8)) nil)
+(PARSE-C-TYPE '(c-ptr uint8))
+
+(let () (declare (compile)) (with-c-var (place 'long -12345678) place))
+-12345678
+
+(let () (declare (compile))
+  (with-foreign-object (fv 'long -12345678) (foreign-value fv)))
+-12345678
+
 (with-c-var (place '(c-array sint8 (2 3))
                    #2a((-1 -2 -3) (-9 -8 -7)))
   place)
