@@ -3474,7 +3474,10 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
  <varlistentry id="sose-close"><term><literal role="sexp">(&sose-close;
                  &sose-r;)</literal></term>
   <listitem><simpara>Closes down the server socket.
-  </simpara></listitem></varlistentry>
+    <link linkend="close">Just like streams</link>,
+    &socket-server;s are closed at &gc;ion.  You should not rely on
+    this however, because &gc;ion times are not deterministic.
+ </simpara></listitem></varlistentry>
  <varlistentry id="sose-port"><term><literal role="sexp">(&sose-port;
                  &sose-r;)</literal></term>
   <listitem><simpara>Returns the port which was bound using
