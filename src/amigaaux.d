@@ -25,26 +25,25 @@ global long read_helper (Handle handle, void* bufarea, long nbyte,
 }
 
 # Ein Wrapper um die Write-Funktion.
-global long full_write (Handle handle, const void* bufarea, long nbyte);
-global long full_write(handle,bufarea,nbyte)
-  var Handle handle;
-  var const void* bufarea;
-  var long nbyte;
-  {
-    var CONST char* buf = (CONST char*) bufarea;
-    var long done = 0;
-    until (nbyte==0) {
-      var long retval = Write(handle,(CONST APTR)buf,nbyte);
-      if (retval == 0)
-        break; # Wann passiert das?? Wenn Platte voll!
-      elif (retval < 0) {
-        return retval;
-      } else {
-        buf += retval; done += retval; nbyte -= retval;
-      }
+global long write_helper (Handle handle, const void* bufarea, long nbyte,
+                          bool no_hang)
+{
+  var CONST char* buf = (CONST char*) bufarea;
+  var long done = 0;
+  while (nbyte!=0) {
+    var long retval = Write(handle,(CONST APTR)buf,nbyte);
+    if (retval == 0)
+      break; # Wann passiert das?? Wenn Platte voll!
+    else if (retval < 0) {
+      return retval;
+    } else {
+      buf += retval; done += retval; nbyte -= retval;
+      if (no_hang)
+        break;
     }
-    return done;
   }
+  return done;
+}
 
 # ==============================================================================
 

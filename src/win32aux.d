@@ -11,7 +11,7 @@ global Handle stdin_handle = INVALID_HANDLE_VALUE;
 global Handle stdout_handle = INVALID_HANDLE_VALUE;
 global Handle stderr_handle = INVALID_HANDLE_VALUE;
 
-/* Auxiliary event for full_read and full_write. */
+/* Auxiliary event for read_helper and write_helper. */
 local HANDLE aux_event;
 
 #ifndef UNICODE
@@ -488,79 +488,76 @@ global int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p) {
   }
 }
 
-# Writing to a file/pipe/console handle.
-  global int full_write (HANDLE fd, const void* buf, int nbyte);
-  global int full_write(fd,bufarea,nbyte)
-    var HANDLE fd;
-    var const void* bufarea;
-    var int nbyte;
-    {
-      #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
-      handle_fault_range(PROT_READ,(aint)bufarea,(aint)bufarea+nbyte);
-      #endif
-      var const char* buf = (const char*) bufarea;
-      #ifndef UNICODE
-      # Possibly translate characters.
-      if (nbyte > 0) {
-        var int i;
-        for (i = 0; i < nbyte; i++) {
-          var unsigned char c = (unsigned char)buf[i];
-          if (!(c == (unsigned char)ANSI2OEM_table[c]))
-            goto maybe_translate;
-        }
-        # No character found for which translation makes a difference,
-        # hence no need to translate.
-        if (false) {
-         maybe_translate:
-          var DWORD console_mode;
-          if (GetConsoleMode(fd,&console_mode)) {
-            # It's a console, must really translate characters!
-            var char* newbuf = alloca(nbyte);
-            for (i = 0; i < nbyte; i++)
-              newbuf[i] = ANSI2OEM_table[(unsigned char)buf[i]];
-            buf = newbuf;
-          }
-        }
-      }
-      #endif
-      var int done = 0;
-      until (nbyte==0) {
-        # Possibly check for Ctrl-C here ??
-        var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
-        var OVERLAPPED overlap;
-        var DWORD nchars;
-        var DWORD err;
-        overlap.Offset = 0;
-        overlap.OffsetHigh = 0;
-        overlap.Offset = SetFilePointer(fd, 0, (LONG*) &overlap.OffsetHigh,
-                                        FILE_CURRENT);
-        ResetEvent(aux_event);
-        overlap.hEvent = aux_event;
-        if (WriteFile(fd, buf, limited_nbyte, &nchars, &overlap))
-          goto ok;
-        /* Disk files (and maybe other handle types) don't support
-           overlapped I/O on Win95. */
-        err = GetLastError();
-        if (err == ERROR_INVALID_PARAMETER) {
-          if (WriteFile(fd, buf, limited_nbyte, &nchars, NULL))
-            goto ok;
-          err = GetLastError();
-          /* On Win95, console handles need special handling. */
-          if (err == ERROR_INVALID_PARAMETER) {
-            if (WriteConsole(fd, buf, limited_nbyte, &nchars, NULL))
-              goto ok;
-            err = GetLastError();
-          }
-        }
-        if (err != ERROR_IO_PENDING)
-          return -1;
-        if (!GetOverlappedResult(fd, &overlap, &nchars, true))
-          return -1;
-       ok:
-        buf += nchars; done += nchars; nbyte -= nchars;
-      }
-      return done;
+/* Writing to a file/pipe/console handle. */
+global int write_helper (HANDLE fd, const void* buf, int nbyte, bool no_hang)
+{
+#if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+  handle_fault_range(PROT_READ,(aint)bufarea,(aint)bufarea+nbyte);
+#endif
+  var const char* buf = (const char*) bufarea;
+#ifndef UNICODE
+  /* Possibly translate characters. */
+  if (nbyte > 0) {
+    var int i;
+    for (i = 0; i < nbyte; i++) {
+      var unsigned char c = (unsigned char)buf[i];
+      if (c != (unsigned char)ANSI2OEM_table[c])
+        goto maybe_translate;
     }
+    /* No character found for which translation makes a difference,
+       hence no need to translate. */
+    if (false) {
+     maybe_translate:
+      var DWORD console_mode;
+      if (GetConsoleMode(fd,&console_mode)) {
+        /* It's a console, must really translate characters! */
+        var char* newbuf = alloca(nbyte);
+        for (i = 0; i < nbyte; i++)
+          newbuf[i] = ANSI2OEM_table[(unsigned char)buf[i]];
+        buf = newbuf;
+      }
+    }
+  }
+#endif
+  var int done = 0;
+  while (nbyte) {
+    /* Possibly check for Ctrl-C here ?? */
+    var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
+    var OVERLAPPED overlap;
+    var DWORD nchars;
+    var DWORD err;
+    overlap.Offset = 0;
+    overlap.OffsetHigh = 0;
+    overlap.Offset = SetFilePointer(fd, 0, (LONG*) &overlap.OffsetHigh,
+                                    FILE_CURRENT);
+    ResetEvent(aux_event);
+    overlap.hEvent = aux_event;
+    if (WriteFile(fd, buf, limited_nbyte, &nchars, &overlap))
+      goto ok;
+    /* Disk files (and maybe other handle types) don't support
+       overlapped I/O on Win95. */
+    err = GetLastError();
+    if (err == ERROR_INVALID_PARAMETER) {
+      if (WriteFile(fd, buf, limited_nbyte, &nchars, NULL))
+        goto ok;
+      err = GetLastError();
+      /* On Win95, console handles need special handling. */
+      if (err == ERROR_INVALID_PARAMETER) {
+        if (WriteConsole(fd, buf, limited_nbyte, &nchars, NULL))
+          goto ok;
+        err = GetLastError();
+      }
+    }
+    if (err != ERROR_IO_PENDING)
+      return -1;
+    if (no_hang) return done; /* do not wait! */
+    if (!GetOverlappedResult(fd, &overlap, &nchars, true))
+      return -1;
+   ok:
+    buf += nchars; done += nchars; nbyte -= nchars;
+  }
+  return done;
+}
 
 # Reading from a socket.
   # This is the non-interruptible routine.
