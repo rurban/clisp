@@ -189,7 +189,7 @@ details. This document is indexed in parallel to CLHS.
    <li><a href="#weak">Weak Pointers</a>
    <li><a href="#final">Finalization</a>
    <li><a href="#prompt">The Prompt</a>
-   <li><a href="#options">Command Line Options</a>
+   <li><a href="#ansi">Maximum ANSI CL compliance</a>
    <li><a href="#macros3">Additional Fancy Macros</a>
   </ol>
  <li><a href="#platform"><strong>Platform-specific Extensions</strong></a>
@@ -4846,8 +4846,8 @@ the specified or current directory - by
  <tr><th align=left><code>:CLISP</code>
      <td> the name of this implementation
  <tr><th align=left><code>:ANSI-CL</code>
-     <td> if invoked with <a href="#ansi"><code>-a</code></a>
-     <a href="#options">command line option.</a>
+     <td> if invoked with <a href="clisp.html#Option -a"><code>-a</code></a>
+     <a href="clisp.html">command line option.</a>
  <tr><th align=left><code>:COMMON-LISP</code>
  <tr><th align=left><code>:CLTL2</code>
  <tr><th align=left><code>:INTERPRETER</code>
@@ -7017,93 +7017,17 @@ the current prompt number, it is your responsibility to increment it
 (this variable is bound to 0 before saving the image).
 
 
-<a name="options"></a><h3>Extensions-1.9. Command Line Options</h3>
+<a name="ansi"></a><h3>Extensions-1.9. Maximum ANSI CL compliance</h3>
 
-<p>CLISP executables (<em>lisp.run</em> and <em>clisp</em> on UNIX
-systems, <em>lisp.exe</em> on Win32, etc) accept the following
-command line options:
-
-<dl>
- <dt><strong>--help</strong>, <strong>-h</strong>
-  <dd>Print the program usage and exit.  Use this option to find out about
-  the possible platform-specific options available on your platform.
- <dt><strong>--version</strong>
-  <dd>Print <code>(<a
-  href="CLHSROOT/Body/fun_lisp-impl_tion-version.html">lisp-implementation-version</a>)</code>
-  and exit.
- <dt><strong>--license</strong>
-  <dd>Print the licensing information (GPL) and exit.
- <dt><strong>-q</strong>, <strong>--quiet</strong>, <strong>--silent</strong>
-  <dd>Do not print the banner.
- <dt><strong>-M file.mem</strong>
-  <dd>Use this memory image.
- <dt><strong>-m memsize</strong>
-  <dd>The amount of memory to grab on startup.  <em>memsize</em> is
-  xxxxxxxB or xxxxKB or xMB, but more than 100K.  CLISP is not likely to
-  use all the memory due to garbage collection.  Ignored on most
-  platforms.
- <dt><strong>-s stacksize</strong>
-  <dd>The size of the stack CLISP allocates for itself. The syntax is
-  the same as for <em>memsize</em>, between 40K and 8M, default is one
-  eighth of <EM>memsize</EM>.  Some platforms only.
- <dt><strong>-t tempdir</strong>
-  <dd>Specifies the directory where the temporary core file is to be
-  held.  This option takes precedence over the environment variable
-  <code>TMPDIR</code>.  Some platforms only.
- <dt><strong>-K linking-set</strong>
-  <dd>Specifies the linking set to be run. This is a directory
-  containing at least a main executable and an initial memory
-  image.  Possible values are <code>base</code>, <code>full</code>.
-  The default is <code>base</code>.
- <dt><strong>-B lisplibdir</strong>
-  <dd>Specifies the installation directory.  This is the directory
-  containing the linking sets and other data files.  On UNIX systems
-  this option should not be necessary, because the installation
-  directory is already built-in in the <code>clisp</code> executable.
- <dt><strong>-L language</strong>
-  <dd>Set the user interface <a href="#language">language</a>
-  (default: English).
- <dt><strong>-N nlsdir</strong>
-  <dd>NLS catalog directory.  CLISP will look for its message catalogs
-  in <code>nlsdir/language/LC_MESSAGES/clisp.mo</code>.
- <dt><strong>-I</strong>
-  <dd>Be <em>ILISP</em>-friendly.  ILISP is an alternative Emacs
-  interface to Common Lisps.  Currently the only effects of this are
-  that unnecessary prompts are not suppressed and the GNU readline
-  library treats Tab as a normal self-inserting character.
- <dt><strong>-C</strong>
-  <dd>Set <a href="#loadfile"><code>lisp:*load-compiling*</code></a> to
-  <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>.
-  Useful in <a href="#quickstart">scripts</a>.
- <dt><a name="clisprc"><strong>-norc</strong></a>
-  <dd>Do not load the user run control file on startup.  Normally, CLISP
-  executes <pre><code>(load (merge-pathnames
-       (make-pathname :name #+(or UNIX AMIGA) ".clisprc"
-                            #+(or OS/2 WIN32 ACORN-RISCOS) "_clisprc"
-                            #+DOS "_CLISPRC")
-       (user-homedir-pathname)))</code></pre>
-  before entering the <a href="CLHSROOT/Body/sec_25-1-1.html">
-  read-eval-print loop</a>.
- <dt><strong>-i file</strong>
-  <dd>Load initfile, then enter the <a href="CLHSROOT/Body/sec_25-1-1.html">
-  read-eval-print loop</a>.  This option can be repeated several times.
- <dt><strong>-c [-l] lispfile [-o outputfile]</strong>
-  <dd>Compile the <em>lispfile</em>, writing the compiled code
-  (<em>*.fas</em>) into <em>outputfile</em>.  With the <strong>-l</strong>,
-  switch generate a listing (<em>*.lis</em>) with various debugging
-  information.  See <a href="#compilefile">compile-file</a> for details.
- <dt><strong>-p package</strong>
-  <dd>Start in the package <em>package</em> (default is the package from
-   which you <a href="#image">saved the image</a> you are using or
-   <a href="#imppack"><code>USER</code></a> for the images built by
-   the CLISP build process).
- <dt><a name="ansi"><strong>-a</strong></a>
-  <dd>Stricter ANSI CL compliance, i.e., start in package <a
-   href="#clupack"><code>COMMON-LISP-USER</code></a> and set the <a
-   href="CLHSROOT/Body/mac_define-symbol-macro.html">
-   symbol-macro</a> <code><strong>lisp:*ansi*</strong></code> to
-   <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>, which
-   implies:
+A few ANSI CL features are turned off by default, because they would hurt
+in every-day use. They can be switched on, all at once by setting the
+<a href="CLHSROOT/Body/mac_define-symbol-macro.html">
+symbol-macro</a> <code><strong>lisp:*ansi*</strong></code> to
+<a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>,
+or they can be switched on individually. Setting
+<code>lisp:*ansi*</code> to
+<a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>
+implies the following:
    <ul>
     <li>Setting <a
       href="#pathprint"><code>lisp:*print-pathnames-ansi*</code></a> to
@@ -7182,9 +7106,6 @@ command line options:
     <li>Deleting <code><strong>:ansi-cl</strong></code> from
       <a href="#features"><code>*features*</code></a>.
    </ul>
- <dt><strong>-x sexp</strong>
-  <dd>Execute the <em>SEXP</em> and exit.
-</dl>
 
 
 <a name="macros3"></a><h3>Extensions-1.10. Additional Fancy Macros</h3>
@@ -9096,7 +9017,9 @@ input and output.  <a href="CLHSROOT/Body/var_stdebug-i_ace-outputst.html">
 <code>*error-output*</code></a> is bound to the Unix error output.
 Continuable errors will be turned to warnings.  Non-continuable errors
 and Ctrl-C interrupts will terminate the execution of the Lisp script
-with error status.
+with error status. If you wish the script's contents to be compiled during
+loading, add <a href="clisp.html#Option -C"><code>-C</code></a> to the
+<var>interpreter-args</var>.
 
 <p>Another, quite inferior, alternative is to put the following into a file:
 
@@ -9188,7 +9111,7 @@ files can be made "executable".
  <li>Alternatively, you may want to have a function <code>main</code> in
      your files and set the <code>ARGS</code> tooltype to
      <code>-M lisp:lispinit.mem -i * -x (main)</code>.
- <li>You might want to add more <a href="#options">command line options</a>
+ <li>You might want to add more <a href="clisp.html">command line options</a>
      to the <code>ARGS</code> tooltype.
 </ul>
 
