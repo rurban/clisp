@@ -1,3 +1,8 @@
+2003-09-09  Bruno Haible  <bruno@clisp.org>
+
+	* unix,d (nonintr_open): Add const to first argument.
+	* unixaux.d (nonintr_open): Likewise.
+
 2003-09-05  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (distrib) [cygwin]: create cygwin package
