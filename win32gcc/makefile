@@ -1,7 +1,7 @@
 # Makefile for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host honolulu as the output of the command:
-# ./makemake win32gcc gcc
+# This file was created on host SSTEINGOLD as the output of the command:
+# ./makemake --with-dir-key win32gcc gcc
 
 # -------------- Start of configurable section --------------------
 
@@ -28,7 +28,7 @@ MODULES =
 
 # Programs used by "make":
 CC = gcc
-CFLAGS = -W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type -fomit-frame-pointer -O2 -fexpensive-optimizations -D_NO_OLDNAMES -DUNICODE -DNO_GETTEXT
+CFLAGS = -W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type -fomit-frame-pointer -O2 -fexpensive-optimizations -D_NO_OLDNAMES -D_WIN32 -DUNICODE -DDIR_KEY -DNO_GETTEXT
 CPP = gcc -E
 CLFLAGS =  -x none
 LIBS = sigsegv.lib iconv.lib  -luser32 -lwsock32 -lole32
@@ -154,6 +154,7 @@ predtype.d \
 symbol.d \
 lisparit.d \
 win32aux.d \
+dirkey.d \
 lispbibl.d \
 fsubr.d \
 subr.d \
@@ -261,6 +262,7 @@ predtype.c \
 symbol.c \
 lisparit.c \
 win32aux.c \
+dirkey.c \
 lispbibl.c \
 fsubr.c \
 subr.c \
@@ -368,6 +370,7 @@ predtype.o \
 symbol.o \
 lisparit.o \
 win32aux.o \
+dirkey.o \
 ari80386.o
 
 LISPFILES = \
@@ -680,6 +683,9 @@ lisparit.c : lisparit.d comment5.exe ansidecl.exe varbrace.exe
 win32aux.c : win32aux.d comment5.exe ansidecl.exe varbrace.exe
 	$(COMMENT5) win32aux.d | $(ANSIDECL) | $(VARBRACE) > win32aux.c
 
+dirkey.c : dirkey.d comment5.exe ansidecl.exe varbrace.exe
+	$(COMMENT5) dirkey.d | $(ANSIDECL) | $(VARBRACE) > dirkey.c
+
 lispbibl.c : lispbibl.d comment5.exe ansidecl.exe varbrace.exe
 	$(COMMENT5) lispbibl.d | $(ANSIDECL) | $(VARBRACE) > lispbibl.c
 
@@ -920,12 +926,12 @@ ari80386.c : ari80386.d comment5.exe
 ari80386.s : ari80386.c
 	$(CPP) -DASM_UNDERSCORE ari80386.c > ari80386.s
 
-allo : allc spvw.o spvwtabf.o spvwtabs.o spvwtabo.o eval.o control.o encoding.o pathname.o stream.o socket.o io.o array.o hashtabl.o list.o package.o record.o sequence.o charstrg.o debug.o error.o misc.o time.o predtype.o symbol.o lisparit.o win32aux.o
+allo : allc spvw.o spvwtabf.o spvwtabs.o spvwtabo.o eval.o control.o encoding.o pathname.o stream.o socket.o io.o array.o hashtabl.o list.o package.o record.o sequence.o charstrg.o debug.o error.o misc.o time.o predtype.o symbol.o lisparit.o win32aux.o dirkey.o
 
-alls : allc spvw.s spvwtabf.s spvwtabs.s spvwtabo.s eval.s control.s encoding.s pathname.s stream.s socket.s io.s array.s hashtabl.s list.s package.s record.s sequence.s charstrg.s debug.s error.s misc.s time.s predtype.s symbol.s lisparit.s win32aux.s
+alls : allc spvw.s spvwtabf.s spvwtabs.s spvwtabo.s eval.s control.s encoding.s pathname.s stream.s socket.s io.s array.s hashtabl.s list.s package.s record.s sequence.s charstrg.s debug.s error.s misc.s time.s predtype.s symbol.s lisparit.s win32aux.s dirkey.s
 
 # Normally not used (just for debugging).
-alli : allc spvw.i spvwtabf.i spvwtabs.i spvwtabo.i eval.i control.i encoding.i pathname.i stream.i socket.i io.i array.i hashtabl.i list.i package.i record.i sequence.i charstrg.i debug.i error.i misc.i time.i predtype.i symbol.i lisparit.i win32aux.i
+alli : allc spvw.i spvwtabf.i spvwtabs.i spvwtabo.i eval.i control.i encoding.i pathname.i stream.i socket.i io.i array.i hashtabl.i list.i package.i record.i sequence.i charstrg.i debug.i error.i misc.i time.i predtype.i symbol.i lisparit.i win32aux.i dirkey.i
 
 spvw.i : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c iconv.h sigsegv.h version.h
 	$(CPP) $(CFLAGS) spvw.c > spvw.i
@@ -1160,6 +1166,15 @@ win32aux.s : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constob
 
 win32aux.o : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
 	$(CC) $(CFLAGS) -c win32aux.c
+
+dirkey.i : dirkey.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+	$(CPP) $(CFLAGS) dirkey.c > dirkey.i
+
+dirkey.s : dirkey.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+	$(CC) $(CFLAGS) -S dirkey.c
+
+dirkey.o : dirkey.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+	$(CC) $(CFLAGS) -c dirkey.c
 
 genclisph.i : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
 	$(CPP) $(CFLAGS) genclisph.c > genclisph.i
