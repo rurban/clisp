@@ -204,7 +204,7 @@
   local DWORD WINAPI do_sigintwait(arg)
     var LPVOID arg;
     {
-      var int waitstate = 0; // 0: infinite, 1: 0.5 sec, 2: 0.05 sec.
+      var int waitstate = 0; # 0: infinite, 1: 0.5 sec, 2: 0.05 sec.
       var local DWORD wait_duration[3] = { INFINITE, 500, 50 };
       var HANDLE waitfor[2];
       waitfor[0] = sigint_event;
