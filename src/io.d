@@ -4874,9 +4874,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,
     goto badsyntax;
   # step 4: skip the final whitespace
   if (!junk_allowed) { # if junk_allowed, nothing is to be done
-    while (!(count==0)) {
+    while (count!=0) {
       var chart c = *charptr; # the next character
-      if (!(orig_syntax_table_get(c) == syntax_whitespace)) # no whitespace?
+      if (orig_syntax_table_get(c) != syntax_whitespace) /* no whitespace? */
         goto badsyntax;
       charptr++; index++; count--; # skip whitespace
     }
@@ -4885,13 +4885,12 @@ LISPFUN(parse_integer,1,0,norest,key,4,
   VALUES2(read_integer(base,sign,arg.string,start_offset,end_offset),
           fixnum(index));
   return;
- badsyntax: # illegal character
-  if (!junk_allowed) { # signal an error
-    pushSTACK(unbound); # STREAM-ERROR slot STREAM
-    pushSTACK(string);
+ badsyntax: /* illegal character */
+  if (!junk_allowed) { /* signal an error */
+    pushSTACK(subsstring(arg.string,arg.offset+arg.index,
+                         arg.offset+arg.index+arg.len));
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(stream_error,
-           GETTEXT("~: string ~ does not have integer syntax"));
+    fehler(parse_error,GETTEXT("~: substring ~ does not have integer syntax"));
   }
   VALUES2(NIL,
           fixnum(index));
