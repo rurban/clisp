@@ -134,7 +134,8 @@ T
       #+(or AKCL ECL) (equal s "64") #+GCL (equal s "63")
       #+ALLEGRO (equal s "65536")
       #+(or CMU SBCL) (equal s "65529")
-      #-(or XCL CLISP AKCL ECL GCL ALLEGRO CMU SBCL) "UNKNOWN"))
+      #+OpenMCL (equal s "8192")
+      #-(or XCL CLISP AKCL ECL GCL ALLEGRO CMU SBCL OpenMCL) "UNKNOWN"))
 T
 
 (let ((s (prin1-to-string ARRAY-DIMENSION-LIMIT )))
@@ -143,7 +144,8 @@ T
       #+CLISP (equal s (prin1-to-string most-positive-fixnum))
       #+ALLEGRO (equal s "16777216")
       #+(or CMU SBCL) (equal s "536870911")
-      #-(or XCL CLISP AKCL ECL GCL ALLEGRO CMU SBCL) "UNKNOWN"))
+      #+OpenMCL (equal s "16777216")
+      #-(or XCL CLISP AKCL ECL GCL ALLEGRO CMU SBCL OpenMCL) "UNKNOWN"))
 T
 
 (let ((s (prin1-to-string ARRAY-TOTAL-SIZE-LIMIT )))
@@ -152,7 +154,8 @@ T
       #+CLISP (equal s (prin1-to-string most-positive-fixnum))
       #+ALLEGRO (equal s "16777216")
       #+(or CMU SBCL) (equal s "536870911")
-      #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL) "UNKNOWN"))
+      #+OpenMCL (equal s "16777216")
+      #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) "UNKNOWN"))
 T
 
 (FORMAT T "~%simple vectors~%")   NIL
@@ -182,8 +185,8 @@ T
 (ARRAY-ELEMENT-TYPE SV)   T
 
 (ARRAY-ELEMENT-TYPE DA1)
-#+(or XCL ALLEGRO CMU SBCL) DOUBLE-FLOAT #+CLISP T #+(or AKCL ECL) LONG-FLOAT
-#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL) UNKNOWN
+#+(or XCL ALLEGRO CMU SBCL OpenMCL) DOUBLE-FLOAT #+CLISP T #+(or AKCL ECL) LONG-FLOAT
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
 
 (FORMAT T "~%test rank~%")   NIL
 
@@ -211,8 +214,8 @@ T
 (SETF (AREF ZERO) 4)   4
 
 (SETF (AREF ZERO) 1.0)
-#+(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL) ERROR
-#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL) UNKNOWN
+#+(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) ERROR
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
 
 (FORMAT T "~%3-dim general array~%")   NIL
 
@@ -502,7 +505,7 @@ ERROR
 (MAKE-ARRAY (QUOTE (3 4 5)) :FILL-POINTER T)   ERROR
 
 (equalp (MAKE-ARRAY 5 :FILL-POINTER 5)
-        #+(or XCL CMU SBCL) '#(0 0 0 0 0) #-(or XCL CMU SBCL) '#(nil nil nil nil nil))
+        #+(or XCL CMU SBCL OpenMCL) '#(0 0 0 0 0) #-(or XCL CMU SBCL OpenMCL) '#(nil nil nil nil nil))
 T
 
 (MAKE-ARRAY 5 :FILL-POINTER -5)   ERROR
@@ -656,8 +659,8 @@ VMFAD                   #(5d0 4d0 3d0 2d0 1d0 0d0)
 (VECTOR-POP VMFAD)   5.0D0
 
 (VECTOR-PUSH-EXTEND 5.0S0 VMFAD)
-#+(or XCL GCL ALLEGRO CMU SBCL) ERROR #+(or CLISP (and AKCL (not GCL)) ECL) 0
-#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL) UNKNOWN
+#+(or XCL GCL ALLEGRO CMU SBCL OpenMCL) ERROR #+(or CLISP (and AKCL (not GCL)) ECL) 0
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
 
 ;; (VECTOR NIL)
 (upgraded-array-element-type nil)
@@ -708,17 +711,17 @@ T
 (array-dimensions ada)   (4 6)
 (aref ada 1 1)           2
 (setq beta (make-array '(2 3) :adjustable t))
-#+(or CMU SBCL)
+#+(or CMU SBCL OpenMCL)
 #2A((0 0 0) (0 0 0))
-#-(or CMU SBCL)
+#-(or CMU SBCL OpenMCL)
 #2A((NIL NIL NIL) (NIL NIL NIL))
 (adjust-array beta '(4 6) :displaced-to ada)
-#+(or CMU SBCL)
+#+(or CMU SBCL OpenMCL)
 #2A((A B C 0 0 0)
     (1 2 3 0 0 0)
     (0 0 0 0 0 0)
     (0 0 0 0 0 0))
-#-(or CMU SBCL)
+#-(or CMU SBCL OpenMCL)
 #2A((A B C NIL NIL NIL)
     (1 2 3 NIL NIL NIL)
     (NIL NIL NIL NIL NIL NIL)
@@ -738,9 +741,9 @@ T
 
 
 (adjust-array #(1 2 3 4) '(6))
-#+(or CMU SBCL)
+#+(or CMU SBCL OpenMCL)
 #(1 2 3 4 0 0)
-#-(or CMU SBCL)
+#-(or CMU SBCL OpenMCL)
 #(1 2 3 4 NIL NIL)
 
 (let* ((a1 (make-array 5 :initial-contents '(a b c d e) :fill-pointer 3))

@@ -1,8 +1,13 @@
 ;; -*- Lisp -*-
 
-#-(or CMU SBCL)
+#-(or CMU SBCL OpenMCL)
 (use-package "CLOS")
-#-(or CMU SBCL)
+#-(or CMU SBCL OpenMCL)
+T
+
+#+OpenMCL
+(import 'ccl::funcallable-standard-object)
+#+OpenMCL
 T
 
 (unintern '<C1>)
@@ -32,7 +37,7 @@ A
           (list slot-name operation new-value new-value-p)))
   (list (slot-boundp a 'abcd) cache
         (slot-value a 'abcd) cache))
-(#+CMU18 (ABCD SLOT-BOUNDP NIL NIL) #-CMU18 T
+(#+(or CMU18 OpenMCL) (ABCD SLOT-BOUNDP NIL NIL) #-(or CMU18 OpenMCL) T
  (ABCD SLOT-BOUNDP NIL NIL) (ABCD SLOT-VALUE NIL NIL) (ABCD SLOT-VALUE NIL NIL))
 
 (x-val a)
@@ -322,19 +327,19 @@ T
 (eq (class-of t)                (find-class 'symbol))
 T
 
-(eq (class-of 10)               (find-class #+(or ALLEGRO CMU SBCL) 'fixnum #-(or ALLEGRO CMU SBCL) 'integer))
+(eq (class-of 10)               (find-class #+(or ALLEGRO CMU SBCL OpenMCL) 'fixnum #-(or ALLEGRO CMU SBCL OpenMCL) 'integer))
 T
 
-(eq (class-of 10.0)             (find-class #+(or ALLEGRO CMU SBCL) 'single-float #-(or ALLEGRO CMU SBCL) 'float))
+(eq (class-of 10.0)             (find-class #+(or ALLEGRO CMU SBCL OpenMCL) 'single-float #-(or ALLEGRO CMU SBCL OpenMCL) 'float))
 T
 
 (eq (class-of '(a b))           (find-class 'cons))
 T
 
-(eq (class-of "abc")            (find-class #+CMU 'simple-string #+SBCL 'simple-base-string #-(or CMU SBCL) 'string))
+(eq (class-of "abc")            (find-class #+CMU 'simple-string #+(or SBCL OpenMCL) 'simple-base-string #-(or CMU SBCL OpenMCL) 'string))
 T
 
-(eq (class-of '#(1 2))          (find-class #+(or CMU SBCL) 'simple-vector #-(or CMU SBCL) 'vector))
+(eq (class-of '#(1 2))          (find-class #+(or CMU SBCL OpenMCL) 'simple-vector #-(or CMU SBCL OpenMCL) 'vector))
 T
 
 (eq (class-of #'car)            (find-class 'function))
@@ -389,7 +394,7 @@ T
 (typep 3 (find-class 'string))
 NIL
 
-(typep *standard-input* (find-class 'stream))
+(not (not (typep *standard-input* (find-class 'stream))))
 T
 
 #+CLISP
@@ -411,7 +416,11 @@ T
   (not (null (member (car (sb-pcl:class-precedence-list class2))
                      (sb-pcl:class-precedence-list class1)
 ) )    )     )
-#+(or CLISP ALLEGRO CMU SBCL) SUBCLASSP
+#+OpenMCL
+(defun subclassp (class1 class2)
+  (not (null (member class2 (class-precedence-list class1))))
+)
+#+(or CLISP ALLEGRO CMU SBCL OpenMCL) SUBCLASSP
 
 (subclassp (find-class 'number)           (find-class 't))
 T
@@ -467,6 +476,7 @@ mlf-kill
 (defstruct foo a)
 FOO
 
+#-OpenMCL ; Bug in OpenMCL
 (progn
   (defmethod make-load-form ((x foo) &optional env)
     (make-load-form-saving-slots x :environment env))
@@ -475,6 +485,7 @@ FOO
     (format s "(defparameter *foo* '#S(FOO :A BAR-CONST))~%"))
   (load (compile-file *tmp-file*))
   *foo*)
+#-OpenMCL
 #S(FOO :A BAR-CONST)
 
 (progn
@@ -651,8 +662,8 @@ FOO
   (list (slot-value p1 'name) (slot-value p1 'rho) (slot-value p1 'theta)
         (slot-value p2 'name) (slot-value p2 'rho) (slot-value p2 'theta)))
 #+CLISP (FOO 2 0 BAR 1.4142135 0.7853981)
-#+(or CMU SBCL) (FOO 2.0 0.0 BAR 1.4142135 0.7853982)
-#-(or CLISP CMU SBCL) UNKNOWN
+#+(or CMU SBCL OpenMCL) (FOO 2.0 0.0 BAR 1.4142135 0.7853982)
+#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
 (progn
   (defclass c0 () (a b c))
@@ -805,8 +816,10 @@ x-y-position
         new-y)))
   (list (type-of i) (position-x i) (position-y i)
         (position-rho i) (position-theta i)))
-(X-Y-POSITION 1.0000000000000002d0 1.0d0
-              1.4142135623730951d0 0.7853981633974483d0)
+#+OpenMCL (X-Y-POSITION 1.0d0 1.0000000000000002d0
+                        1.4142135623730951d0 0.7853981633974483d0)
+#-OpenMCL (X-Y-POSITION 1.0000000000000002d0 1.0d0
+                        1.4142135623730951d0 0.7853981633974483d0)
 
 
 ;; 4.3.6. Redefining Classes
@@ -1642,14 +1655,15 @@ error
   (defmethod test-mc-standard-bad-qualifiers :beffor ((x float) (y float))
     (format t "x = ~S, y = ~S~%" x y))
   t)
-#+(or CLISP CMU) ERROR #+SBCL T #-(or CLISP CMU SBCL) UNKNOWN
+#+(or CLISP CMU) ERROR #+(or SBCL OpenMCL) T #-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
 (progn
   (defgeneric test-mc-standard-bad1 (x y))
   (defmethod test-mc-standard-bad1 ((x real) (y real)) (+ x y))
   (defmethod test-mc-standard-bad1 :after :before ((x integer) (y integer))
-    (* x y)))
-#+(or CLISP CMU) ERROR #+SBCL T #-(or CLISP CMU SBCL) UNKNOWN
+    (* x y))
+  t)
+#+(or CLISP CMU) ERROR #+(or SBCL OpenMCL) T #-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
 (progn
   (defgeneric test-mc-standard-bad2 (x y))
@@ -1694,8 +1708,9 @@ ERROR
   (defgeneric test-mc-append-1 (x)
     (:method-combination append)
     (:method ((x string)) (list (length x)))
-    (:method ((x vector)) (list (array-element-type x)))))
-#+(or CLISP CMU) ERROR #+SBCL T #-(or CLISP CMU SBCL) UNKNOWN
+    (:method ((x vector)) (list (array-element-type x))))
+  t)
+#+(or CLISP CMU) ERROR #+(or SBCL OpenMCL) T #-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
 ; Test ANSI CL 7.6.6.4.
 (progn

@@ -1,11 +1,11 @@
 ;; -*- lisp -*-
 (progn (in-package "COMMON-LISP-USER") t) t
 
-#-(or AKCL ECL ALLEGRO SBCL) (PRIN1-TO-STRING (MAKE-BROADCAST-STREAM))
+#-(or AKCL ECL ALLEGRO SBCL OpenMCL) (PRIN1-TO-STRING (MAKE-BROADCAST-STREAM))
 #+XCL "#<%TYPE-STRUCTURE-STREAM NIL>"
 #+CLISP "#<OUTPUT BROADCAST-STREAM>"
 #+CMU "#<Broadcast Stream>"
-#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL) UNKNOWN
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
 
 ;; CLOSE should not delete information about
 ;; element type, direction, and external format

@@ -6,12 +6,15 @@
 (let ((packname
          #+SBCL "SB-PCL" ; or "SB-MOP"?
          #+CMU "PCL" ; or "MOP"?
-         #+OPENMCL "CCL" ; ?
+         #+OpenMCL "OPENMCL-MOP" ; or "CCL" ?
          ))
   #+SBCL (unlock-package packname)
-  (rename-package packname packname (cons "CLOS" (package-nicknames packname))))
+  (rename-package packname packname (cons "CLOS" (package-nicknames packname)))
+  t)
+#-(or CLISP ALLEGRO LISPWORKS)
+T
 
-#-CMU18
+#-(or CMU18 OpenMCL)
 (progn
   (defstruct rectangle1 (x 0.0) (y 0.0))
   (defclass counted1-class (structure-class)
@@ -22,7 +25,7 @@
   (slot-value (find-class 'counted1-rectangle) 'counter)
   (make-instance 'counted1-rectangle)
   (slot-value (find-class 'counted1-rectangle) 'counter))
-#-CMU18
+#-(or CMU18 OpenMCL)
 1
 
 #-CMU18
@@ -56,6 +59,7 @@
 (1 1 2 2)
 
 ;; Check that the slot :accessor option works also on structure-class.
+#-OpenMCL
 (progn
   (defclass structure01 () ((x :initarg :x :accessor structure01-x))
     (:metaclass structure-class))
@@ -63,4 +67,5 @@
     (list (typep #'structure01-x 'generic-function)
           (structure01-x object)
           (progn (incf (structure01-x object)) (structure01-x object)))))
+#-OpenMCL
 (t 17 18)

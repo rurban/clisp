@@ -74,7 +74,7 @@ nil
          (nreverse noticed))
       (delete-file file-written))))
 (0 2
- #+CLISP 1 #+(or CMU SBCL) T #-(or CLISP CMU SBCL) UNKNOWN
+ #+(or CLISP OpenMCL) 1 #+(or CMU SBCL) T #-(or CLISP CMU SBCL OpenMCL) UNKNOWN
  2 0 2 5 7)
 
 (let ((s (make-string-input-stream

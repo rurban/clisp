@@ -14,7 +14,7 @@
 "foo  bar  "
 
 (format nil "~10:@<foo~;bar~>")
-#+(or XCL CLISP ALLEGRO) "  foo bar " #+(or AKCL ECL CMU SBCL) " foo bar  " #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL) UNKNOWN
+#+(or XCL CLISP ALLEGRO OpenMCL) "  foo bar " #+(or AKCL ECL CMU SBCL) " foo bar  " #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
 
 (format nil "~10<foobar~>")
 "    foobar"
@@ -48,9 +48,9 @@
 "foo   bar   baz"
 
 (format nil "~12<~S~;~^~S~;~^~S~>" 'foo 'bar 'baz)
-#+(or CLISP ALLEGRO) "foo  bar baz"
+#+(or CLISP ALLEGRO OpenMCL) "foo  bar baz"
 #+(or CMU SBCL) "foo bar  baz"
-#-(or CLISP ALLEGRO CMU SBCL) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL) UNKNOWN
 
 (progn
 (setq liste '(aaaaaaa bbbbbb cccccccccccc dddddddddddddd eeee fffffffff
@@ -116,7 +116,7 @@ T
       (when start-p (format stream prefix))
       (loop
         ; Hier ist parts /= NIL
-        (let ((pos (#+CLISP sys::line-position #+ALLEGRO excl::charpos #+CMU lisp::charpos #+SBCL sb-kernel:charpos stream))
+        (let ((pos (#+CLISP sys::line-position #+ALLEGRO excl::charpos #+CMU lisp::charpos #+SBCL sb-kernel:charpos #+OpenMCL ccl::column stream))
               (parts-now '()))
           (let ((pos-now pos))
             (loop
