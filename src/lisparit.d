@@ -2067,8 +2067,8 @@ LISPFUNN(set_long_float_digits,1)
         # > 1 wachsen lassen, damit es nicht zu häufig nachberechnet wird:
         oldlen += floor(oldlen,2); # oldlen * 3/2
         var uintC newlen = (d < oldlen ? oldlen : d);
-        ln_x = *objptr = R_ln_R(I_to_LF(x,newlen),true,objptr); # (ln x) als LF mit newlen Digits berechnen
-        return (d < newlen ? LF_shorten_LF(ln_x,d) : ln_x);
+        ln_x = *objptr = R_ln_R(I_to_LF(x,newlen),true,NULL); # (ln x) als LF mit newlen Digits berechnen
+        return LF_shorten_LF(ln_x,d);
       } else {
         # ein Double-Float reicht
         if (d > FF_mant_len+1)
