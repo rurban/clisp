@@ -1237,7 +1237,7 @@ if [ $TSYS = master -o $TSYS = amiga ] ; then
   OTHER_INCLUDES=$OTHER_INCLUDES' amiga2'
 fi
 
-SPVW_INCLUDES=' spvw_module spvw_debug'
+SPVW_INCLUDES=' spvw_module spvw_debug spvw_mmap'
 
 ERROR_INCLUDES=''
 if [ $TSYS = master -o $TSYS = amiga ] ; then

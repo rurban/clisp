@@ -1,5 +1,13 @@
 1998-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_mmap.d: New file.
+        * spvw.d (getpagesize, initmap, prepare_zeromap, zeromap, filemap,
+          munmap, mprotect): Move out.
+          (main): Call mmap_init_pagesize() and use mmap_pagesize.
+        * makemake.in (SPVW_INCLUDES): Adjust.
+
+1998-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_debug.d: New file.
         * spvw.d (asciz_out, hex_out_, dez_out_, asciz_out_s, asciz_out_ss,
           asciz_out_aux_hex, asciz_out_aux_dez, asciz_out_1_, asciz_out_2_,
