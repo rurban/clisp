@@ -1,5 +1,5 @@
 # Funktionen betr. Symbole für CLISP
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 
 #include "lispbibl.c"
 
@@ -88,19 +88,15 @@ LISPFUNN(putd,2)
     if (!symbolp(symbol))
       fehler_symbol(symbol);
     var object fun = STACK_0;
-    # fun muss SUBR, FSUBR, Closure oder (SYS::MACRO . Closure) sein,
-    # Lambda-Ausdruck wird sofort in eine Closure umgewandelt:
-    if (subrp(fun) || closurep(fun) || fsubrp(fun))
+    # fun muss SUBR, FSUBR, Closure oder #<MACRO expander> sein,
+    # Lambda-Ausdruck ist nicht mehr gültig.
+    if (subrp(fun) || closurep(fun) || ffunctionp(fun) || fsubrp(fun))
       goto ok;
-    elif (consp(fun)) { # ein Cons?
-      if (eq(Car(fun),S(macro))) {
-        if (closurep(Cdr(fun))) # (SYS::MACRO . Closure) ist ok
-          goto ok;
-      } elif (eq(Car(fun),S(lambda))) {
-        fehler_lambda_expression(fun);
-      }
-    } elif (ffunctionp(fun)) # Foreign-Function ist auch ok.
+    elif (macrop(fun)) # #<MACRO expander> ist ok
       goto ok;
+    elif (consp(fun) && eq(Car(fun),S(lambda))) { # eine Lambda-Expression?
+      fehler_lambda_expression(fun);
+    }
     pushSTACK(fun); # Wert für Slot DATUM von TYPE-ERROR
     pushSTACK(S(function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
     pushSTACK(fun);

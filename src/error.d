@@ -915,6 +915,22 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
             );
     }
 
+# Fehlermeldung, wenn ein Argument keine Function ist:
+# fehler_function(obj);
+# obj: Das fehlerhafte Argument
+# > subr_self: Aufrufer (ein SUBR)
+  nonreturning_function(global, fehler_function, (object obj));
+  global void fehler_function(obj)
+    var object obj;
+    {
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: ~ is not a function")
+            );
+    }
+
 # Fehlermeldung, wenn ein Argument ein Lambda-Ausdruck statt einer Funktion ist:
 # fehler_lambda_expression(obj);
 # obj: Das fehlerhafte Argument

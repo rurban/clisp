@@ -812,7 +812,7 @@
 (defsetf MACRO-FUNCTION (symbol &optional env) (value)
   (declare (ignore env))
   `(PROGN
-     (SETF (SYMBOL-FUNCTION ,symbol) (CONS 'SYSTEM::MACRO ,value))
+     (SETF (SYMBOL-FUNCTION ,symbol) (SYSTEM::MAKE-MACRO ,value))
      (REMPROP ,symbol 'SYSTEM::MACRO)
      ,value
    )

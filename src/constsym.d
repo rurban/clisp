@@ -698,6 +698,13 @@ LISPSYM(make_load_time_eval,"MAKE-LOAD-TIME-EVAL",system)
 LISPSYM(make_symbol_macro,"MAKE-SYMBOL-MACRO",system)
 LISPSYM(symbol_macro_p,"SYMBOL-MACRO-P",system)
 LISPSYM(symbol_macro_expand,"SYMBOL-MACRO-EXPAND",lisp)
+LISPSYM(make_macro,"MAKE-MACRO",system)
+LISPSYM(macrop,"MACROP",system)
+LISPSYM(macro_expander,"MACRO-EXPANDER",system)
+LISPSYM(make_function_macro,"MAKE-FUNCTION-MACRO",system)
+LISPSYM(function_macro_p,"FUNCTION-MACRO-P",system)
+LISPSYM(function_macro_function,"FUNCTION-MACRO-FUNCTION",system)
+LISPSYM(function_macro_expander,"FUNCTION-MACRO-EXPANDER",system)
 LISPSYM(make_weak_pointer,"MAKE-WEAK-POINTER",lisp)
 LISPSYM(weak_pointer_p,"WEAK-POINTER-P",lisp)
 LISPSYM(weak_pointer_value,"WEAK-POINTER-VALUE",lisp)
@@ -1366,7 +1373,7 @@ LISPSYM(LLallow_other_keys,"&ALLOW-OTHER-KEYS",lisp) # als Lambdalisten-Marker i
 LISPSYM(LLrest,"&REST",lisp) # als Lambdalisten-Marker in EVAL
 LISPSYM(LLaux,"&AUX",lisp) # als Lambdalisten-Marker in EVAL
 LISPSYM(LLbody,"&BODY",lisp) # als Lambdalisten-Marker in EVAL
-LISPSYM(macro,"MACRO",system) # als Marker in EVAL
+LISPSYM(macro,"MACRO",system) # als Marker in EVAL, als Typ in PREDTYPE
 LISPSYM(special,"SPECIAL",lisp) # als Declaration-Specifier in EVAL
 LISPSYM(source,"SOURCE",system) # als Declaration-Specifier in EVAL
 LISPSYM(optimize,"OPTIMIZE",lisp) # als Declaration-Specifier in EVAL
@@ -1403,7 +1410,7 @@ LISPSYM(frame_limit2,"*FRAME-LIMIT2*",system) # als Variable in DEBUG
 LISPSYM(setf,"SETF",lisp) # als Marker in CONTROL
 LISPSYM(psetf,"PSETF",lisp) # als Marker in CONTROL
 LISPSYM(multiple_value_setf,"MULTIPLE-VALUE-SETF",system) # als Marker in CONTROL
-LISPSYM(make_macro_expandercons,"MAKE-MACRO-EXPANDERCONS",system) # als Funktion für CONTROL
+LISPSYM(make_macro_expander,"MAKE-MACRO-EXPANDER",system) # als Funktion für CONTROL
 LISPSYM(type_for_discrimination,"TYPE-FOR-DISCRIMINATION",system) # als Funktion für CONTROL
 LISPSYM(pthe,"%THE",system) # als Funktion für CONTROL
 LISPSYM(compile_form,"COMPILE-FORM",system) # als Funktion für CONTROL
@@ -1431,6 +1438,7 @@ LISPSYM(readtable,"READTABLE",lisp) # als Typ in PREDTYPE
 LISPSYM(special_operator,"SPECIAL-OPERATOR",lisp) # als Typ in PREDTYPE
 LISPSYM(load_time_eval,"LOAD-TIME-EVAL",lisp) # als Typ in PREDTYPE
 LISPSYM(symbol_macro,"SYMBOL-MACRO",lisp) # als Typ in PREDTYPE
+LISPSYM(function_macro,"FUNCTION-MACRO",lisp) # als Typ in PREDTYPE
 LISPSYM(encoding,"ENCODING",lisp) # als Typ in PREDTYPE
 #ifdef FOREIGN
 LISPSYM(foreign_pointer,"FOREIGN-POINTER",lisp) # als Typ in PREDTYPE

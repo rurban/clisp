@@ -81,12 +81,16 @@ LISPSPECFORM(function, 1,1,nobody)
         var object fun = sym_function(funname,aktenv.fun_env);
         # SUBR oder Closure oder Foreign-Function zurückgeben, sonst Fehler:
         if (!(subrp(fun) || closurep(fun) || ffunctionp(fun))) {
-          pushSTACK(funname); # Wert für Slot NAME von CELL-ERROR
-          pushSTACK(funname);
-          pushSTACK(S(function));
-          fehler(undefined_function,
-                 GETTEXT("~: undefined function ~")
-                );
+          if (functionmacrop(fun))
+            fun = TheFunctionMacro(fun)->functionmacro_function;
+          else {
+            pushSTACK(funname); # Wert für Slot NAME von CELL-ERROR
+            pushSTACK(funname);
+            pushSTACK(S(function));
+            fehler(undefined_function,
+                   GETTEXT("~: undefined function ~")
+                  );
+          }
         }
         value1 = fun; mv_count=1; skipSTACK(2); return;
       }
@@ -1153,8 +1157,8 @@ LISPSPECFORM(macrolet, 1,0,body)
       if (!mconsp(Cdr(macrodefs)))
         goto fehler_spec;
       pushSTACK(name); # name retten
-      # Macro-Expander bauen: (SYSTEM::MAKE-MACRO-EXPANDERCONS macrodef)
-      pushSTACK(macrodefs); funcall(S(make_macro_expandercons),1);
+      # Macro-Expander bauen: (SYSTEM::MAKE-MACRO-EXPANDER macrodef)
+      pushSTACK(macrodefs); funcall(S(make_macro_expander),1);
       name = popSTACK();
       macrodefs = popSTACK(); # restliche macrodefs
       body = popSTACK();
@@ -2100,9 +2104,9 @@ LISPFUN(macro_function,1,1,norest,nokey,0,NIL)
       if (eq(got,unbound)) # nichts gefunden?
         goto nil;
       value1 = got;
-    } elif (consp(fundef) && eq(Car(fundef),S(macro))) { # (SYS::MACRO . expander) ?
-      value1 = Cdr(fundef);
-    } else { # SUBR/Closure/#<UNBOUND> -> keine Macrodefinition
+    } elif (macrop(fundef)) { # #<MACRO expander> ?
+      value1 = TheMacro(fundef)->macro_expander;
+    } else { # SUBR/Closure/FunctionMacro/#<UNBOUND> -> keine Macrodefinition
      nil:
       value1 = NIL;
     }
