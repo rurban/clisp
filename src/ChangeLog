@@ -1,5 +1,14 @@
 2003-02-07  Sam Steingold  <sds@gnu.org>
 
+	MAPCAN and MAPCON now correctly handle functions returning ATOMs
+	* control.d (MAPCAR_MAPLIST_BODY) [!MAP_REVERSES]: do not create
+	an extra cons; this is now the default method
+	(MAPCAN_MAPCON_BODY) [MAP_REVERSES]: removed (cannot handle ATOMs)
+	[!MAP_REVERSES]: do not create an extra cons
+	see also the 2002-11-28 loop.lisp patch
+
+2003-02-07  Sam Steingold  <sds@gnu.org>
+
 	* list.d (endp): made global
 	* lispbibl.d (endp): added the prototype
 	* control.d (ENDP): removed
