@@ -274,7 +274,7 @@ distrib : linux-distrib src-distrib
 # clisp-announce@sourceforge.net
 # info-gnu@gnu.org
 # news:comp.lang.lisp
-# news:comp.os.linux.announce
+# news:comp.os.linux.announce (linux-announce@news.ornl.gov)
 # http://freshmeat.net/projects/clisp/
 # https://sourceforge.net/news/submit.php?group_id=1355
 # https://www.opensourcedirectory.org/projects/clisp/
