@@ -1,3 +1,8 @@
+1999-09-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * io.d (SET-DISPATCH-MACRO-CHARACTER): Call up_case on sub_char.
+          (GET-DISPATCH-MACRO-CHARACTER): Likewise.
+
 1999-09-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * stream.d (UnbufferedStreamLow_pushfront_byte): Increment status
