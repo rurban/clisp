@@ -16,7 +16,7 @@
 
 # Tests the mark bit at a given address.
 # marked(addr)
-# local boolean marked (void* addr);
+# local bool marked (void* addr);
 
 # Add a mark bit to an object pointer.
 # with_mark_bit(obj)

@@ -21,7 +21,7 @@
 # Tries to repair a fault spanning a range of pages.
 # handle_fault_range(PROT_READ,start,end) ensures an address range is readable.
 # handle_fault_range(PROT_READ_WRITE,start,end) makes it writable.
-  global boolean handle_fault_range (int prot, aint start_address, aint end_address);
+  global bool handle_fault_range (int prot, aint start_address, aint end_address);
 #endif
 
 #ifdef SELFMADE_MMAP
@@ -355,8 +355,8 @@ local handle_fault_result handle_fault(address,verbose)
 # errno=EFAULT and unpredictable side effects.
 # handle_fault_range(PROT_READ,start,end) makes an address range readable.
 # handle_fault_range(PROT_READ_WRITE,start,end) makes an address range writable.
-global boolean handle_fault_range (int prot, aint start_address, aint end_address);
-global boolean handle_fault_range(prot,start_address,end_address)
+global bool handle_fault_range (int prot, aint start_address, aint end_address);
+global bool handle_fault_range(prot,start_address,end_address)
   var int prot;
   var aint start_address;
   var aint end_address;
@@ -364,11 +364,11 @@ global boolean handle_fault_range(prot,start_address,end_address)
     start_address = canon(start_address);
     end_address = canon(end_address);
     if (!(start_address < end_address))
-      return TRUE;
+      return true;
     var Heap* heap = &mem.heaps[0]; # varobject_heap
-    var boolean did_pagein = FALSE;
+    var bool did_pagein = false;
     if ((end_address <= heap->heap_mgen_start) || (heap->heap_mgen_end <= start_address))
-      return TRUE; # nichts zu tun, aber seltsam, dass überhaupt ein Fehler kam
+      return true; # nichts zu tun, aber seltsam, dass überhaupt ein Fehler kam
     #ifdef SELFMADE_MMAP
     if (heap->memfile_numpages > 0) {
       var aint pa_uaddress;
@@ -380,27 +380,27 @@ global boolean handle_fault_range(prot,start_address,end_address)
                                       pa_uaddress,
                                       &heap->memfile_pages[pageno])) {
               case 1:
-                did_pagein = TRUE;
+                did_pagein = true;
                 #if defined(GENERATIONAL_GC) && defined(SPVW_PURE_BLOCKS)
                 if (!(heap->physpages == NULL))
                   switch (heap->physpages[pageno].protection) {
                     case PROT_NONE:
                       if (!(prot == PROT_READ || prot == PROT_READ_WRITE)) {
                         if (mprotect((MMAP_ADDR_T)pa_uaddress,physpagesize,PROT_NONE) < 0)
-                          return FALSE;
+                          return false;
                         break;
                       }
                       if (handle_read_fault(pa_uaddress,&heap->physpages[pageno]) < 0)
-                        return FALSE;
+                        return false;
                       /* fallthrough */
                     case PROT_READ:
                       if (!(prot == PROT_READ_WRITE)) {
                         if (mprotect((MMAP_ADDR_T)pa_uaddress,physpagesize,PROT_READ) < 0)
-                          return FALSE;
+                          return false;
                         break;
                       }
                       if (handle_readwrite_fault(pa_uaddress,&heap->physpages[pageno]) < 0)
-                        return FALSE;
+                        return false;
                       /* fallthrough */
                     case PROT_READ_WRITE:
                       break;
@@ -410,7 +410,7 @@ global boolean handle_fault_range(prot,start_address,end_address)
               case 0:
                 break;
               default:
-                return FALSE;
+                return false;
             }
         }
     }
@@ -418,8 +418,8 @@ global boolean handle_fault_range(prot,start_address,end_address)
     #ifdef GENERATIONAL_GC
     if (heap->physpages == NULL) {
       if (did_pagein)
-        return TRUE;
-      return FALSE;
+        return true;
+      return false;
     }
     {
       var aint pa_uaddress;
@@ -430,16 +430,16 @@ global boolean handle_fault_range(prot,start_address,end_address)
           if ((physpage->protection == PROT_NONE) && (prot == PROT_READ || prot == PROT_READ_WRITE)) {
             # protection: PROT_NONE -> PROT_READ
             if (handle_read_fault(pa_uaddress,physpage) < 0)
-              return FALSE;
+              return false;
           }
           if (!(physpage->protection == PROT_READ_WRITE) && (prot == PROT_READ_WRITE)) {
             # protection: PROT_READ -> PROT_READ_WRITE
             if (handle_readwrite_fault(pa_uaddress,physpage) < 0)
-              return FALSE;
+              return false;
           }
         }
     }
-    return TRUE;
+    return true;
     #else
     return did_pagein;
     #endif

@@ -1275,7 +1275,7 @@
         var uintD* y_mantMSDptr = &TheLfloat(y)->data[0];
         # Wurzel ziehen:
         var DS w;
-        var boolean exactp;
+        var bool exactp;
         UDS_sqrt(r_MSDptr,r_len,r_LSDptr, &w, exactp=);
         # w ist die Ganzzahl-Wurzel, eine n+1-Digit-Zahl.
         copy_loop_up(w.MSDptr,y_mantMSDptr,len); # NUDS nach y kopieren

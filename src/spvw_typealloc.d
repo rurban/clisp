@@ -45,7 +45,7 @@
   global object allocate_cons (void);
   global object allocate_cons()
     {
-      allocate(cons_type,FALSE,sizeof(cons_),Cons,ptr,
+      allocate(cons_type,false,sizeof(cons_),Cons,ptr,
                { ptr->cdr = NIL; ptr->car = NIL; }
               )
     }
@@ -68,11 +68,11 @@
           ptr->homepackage = NIL; # keine Home-Package       \
         }
       #ifdef TYPECODES
-        allocate(symbol_type,TRUE,size_symbol(),Symbol,ptr,
+        allocate(symbol_type,true,size_symbol(),Symbol,ptr,
                  { FILL; }
                 )
       #else
-        allocate(symbol_type,TRUE,size_xrecord(5,0),Symbol,ptr,
+        allocate(symbol_type,true,size_xrecord(5,0),Symbol,ptr,
                  { ptr->tfl = xrecord_tfl(Rectype_Symbol,0,5,0); FILL; }
                 )
       #endif
@@ -94,7 +94,7 @@
       #else
         #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Svector,len);
       #endif
-      allocate(svector_type,TRUE,need,Svector,ptr,
+      allocate(svector_type,true,need,Svector,ptr,
                { SETTFL
                  if (len > 0)
                    { var object* p = &ptr->data[0];
@@ -121,7 +121,7 @@
       #else
         #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Sbvector+atype,len);
       #endif
-      allocate(Array_type_simple_bit_vector(atype),TRUE,need,Sbvector,ptr,
+      allocate(Array_type_simple_bit_vector(atype),true,need,Sbvector,ptr,
                { SETTFL } # Keine weitere Initialisierung
               )
       #undef SETTFL
@@ -142,7 +142,7 @@
       #else
         #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Sstring,len);
       #endif
-      allocate(sstring_type,TRUE,need,Sstring,ptr,
+      allocate(sstring_type,true,need,Sstring,ptr,
                { SETTFL } # Keine weitere Initialisierung
               )
       #undef SETTFL
@@ -160,7 +160,7 @@
     {
       var uintL need = size_sstring(len); # benötigter Speicherplatz in Bytes
       #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Imm_Sstring,len);
-      allocate(sstring_type,TRUE,need,Sstring,ptr,
+      allocate(sstring_type,true,need,Sstring,ptr,
                { SETTFL } # Keine weitere Initialisierung
               )
       #undef SETTFL
@@ -179,7 +179,7 @@
     {
       var uintL need = size_small_sstring(len); # benötigter Speicherplatz in Bytes
       #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Imm_SmallSstring,len);
-      allocate(sstring_type,TRUE,need,SmallSstring,ptr,
+      allocate(sstring_type,true,need,SmallSstring,ptr,
                { SETTFL } # Keine weitere Initialisierung
               )
       #undef SETTFL
@@ -210,7 +210,7 @@
       #else
         #define SETTFL  ptr->tfl = srecord_tfl(type,flags,rank);
       #endif
-      allocate(type,TRUE,need,Iarray,ptr,
+      allocate(type,true,need,Iarray,ptr,
                { SETTFL # Flags und Rang eintragen
                  ptr->data = NIL; # Datenvektor mit NIL initialisieren
                }
@@ -234,7 +234,7 @@
     {
       ASSERT((sintB)(flags_rectype >> (BIG_ENDIAN_P ? 0 : 8)) < rectype_limit);
       var uintL need = size_srecord(reclen);
-      allocate(type,TRUE,need,Srecord,ptr,
+      allocate(type,true,need,Srecord,ptr,
                { *(uintW*)pointerplus(ptr,offsetof(record_,recflags)) = flags_rectype; # Flags, Typ eintragen
                  ptr->reclength = reclen; # Länge eintragen
                  var object* p = &ptr->recdata[0];
@@ -249,7 +249,7 @@
     var uintC reclen;
     {
       var uintL need = size_srecord(reclen);
-      allocate(type,TRUE,need,Srecord,ptr,
+      allocate(type,true,need,Srecord,ptr,
                { ptr->tfl = (uintL)flags_rectype + ((uintL)reclen << 16);
                  var object* p = &ptr->recdata[0];
                  dotimespC(reclen,reclen, { *p++ = NIL; } ); # Elemente mit NIL vollschreiben
@@ -276,7 +276,7 @@
     {
       ASSERT((sintB)(flags_rectype >> (BIG_ENDIAN_P ? 0 : 8)) >= rectype_limit);
       var uintL need = size_xrecord(reclen,recxlen);
-      allocate(type,TRUE,need,Xrecord,ptr,
+      allocate(type,true,need,Xrecord,ptr,
                { *(uintW*)pointerplus(ptr,offsetof(record_,recflags)) = flags_rectype; # Flags, Typ eintragen
                  ptr->reclength = reclen; ptr->recxlength = recxlen; # Längen eintragen
                  var object* p = &ptr->recdata[0];
@@ -296,7 +296,7 @@
     var uintC recxlen;
     {
       var uintL need = size_xrecord(reclen,recxlen);
-      allocate(type,TRUE,need,Xrecord,ptr,
+      allocate(type,true,need,Xrecord,ptr,
                { ptr->tfl = (uintL)flags_rectype + ((uintL)reclen << 16) + ((uintL)recxlen << 24); # Flags, Typ, Längen eintragen
                  var object* p = &ptr->recdata[0];
                  dotimesC(reclen,reclen, { *p++ = NIL; } ); # Elemente mit NIL vollschreiben
@@ -386,7 +386,7 @@
       #else
         #define SETTFL  ptr->tfl = srecord_tfl(Rectype_Bignum,(uintB)sign,len);
       #endif
-      allocate(bignum_type | (sign & bit(sign_bit_t)),TRUE,need,Bignum,ptr,
+      allocate(bignum_type | (sign & bit(sign_bit_t)),true,need,Bignum,ptr,
                { SETTFL } # Keine weitere Initialisierung
               )
       #undef SETTFL
@@ -408,7 +408,7 @@
         #define SETTFL  ptr->tfl = xrecord_tfl(Rectype_Ffloat,((sint32)value<0 ? 0xFF : 0),0,sizeof(ffloat));
       #endif
       allocate(ffloat_type | ((sint32)value<0 ? bit(sign_bit_t) : 0) # Vorzeichenbit aus value
-               ,TRUE,size_ffloat(),Ffloat,ptr,
+               ,true,size_ffloat(),Ffloat,ptr,
                { SETTFL; ptr->float_value = value; }
               )
       #undef SETTFL
@@ -440,7 +440,7 @@
         #define SETTFL  ptr->tfl = xrecord_tfl(Rectype_Dfloat,((sint64)value<0 ? 0xFF : 0),0,sizeof(dfloat));
       #endif
       allocate(dfloat_type | ((sint64)value<0 ? bit(sign_bit_t) : 0) # Vorzeichenbit aus value
-               ,TRUE,size_dfloat(),Dfloat,ptr,
+               ,true,size_dfloat(),Dfloat,ptr,
                { SETTFL; ptr->float_value = value; }
               )
       #undef SETTFL
@@ -461,7 +461,7 @@
         #define SETTFL  ptr->tfl = xrecord_tfl(Rectype_Dfloat,((sint32)semhi<0 ? 0xFF : 0),0,sizeof(dfloat));
       #endif
       allocate(dfloat_type | ((sint32)semhi<0 ? bit(sign_bit_t) : 0) # Vorzeichenbit aus value
-               ,TRUE,size_dfloat(),Dfloat,ptr,
+               ,true,size_dfloat(),Dfloat,ptr,
                { SETTFL; ptr->float_value.semhi = semhi; ptr->float_value.mlo = mlo; }
               )
       #undef SETTFL
@@ -489,7 +489,7 @@
         #define SETTFL  ptr->tfl = srecord_tfl(Rectype_Lfloat,(uintB)sign,len);
       #endif
       allocate(lfloat_type | ((tint)sign & bit(sign_bit_t))
-               ,TRUE,need,Lfloat,ptr,
+               ,true,need,Lfloat,ptr,
                { SETTFL; ptr->expo = expo; } # Keine weitere Initialisierung
               )
       #undef SETTFL
@@ -530,12 +530,12 @@
           #define SETTFL  \
             ptr->tfl = tfl;
         #endif
-        allocate(type,TRUE,size_xrecord(2,0),Ratio,ptr,
+        allocate(type,true,size_xrecord(2,0),Ratio,ptr,
                  { SETTFL; FILL; }
                 )
         #undef SETTFL
       #else
-        allocate(type,FALSE,sizeof(ratio_),Ratio,ptr,
+        allocate(type,false,sizeof(ratio_),Ratio,ptr,
                  { FILL; }
                 )
       #endif
@@ -567,12 +567,12 @@
           #define SETTFL  \
             ptr->tfl = xrecord_tfl(Rectype_Complex,0,2,0);
         #endif
-        allocate(complex_type,TRUE,size_xrecord(2,0),Complex,ptr,
+        allocate(complex_type,true,size_xrecord(2,0),Complex,ptr,
                  { SETTFL; FILL; }
                 )
         #undef SETTFL
       #else
-        allocate(complex_type,FALSE,sizeof(complex_),Complex,ptr,
+        allocate(complex_type,false,sizeof(complex_),Complex,ptr,
                  { FILL; }
                 )
       #endif

@@ -108,7 +108,7 @@
 # UDS_sqrt(a_MSDptr,a_len,a_LSDptr, &b, squarep=)
 # > a_MSDptr/a_len/a_LSDptr: eine UDS
 # < NUDS b: Gaußklammer der Wurzel aus a
-# < squarep: TRUE falls a = b^2, FALSE falls b^2 < a < (b+1)^2.
+# < squarep: true falls a = b^2, false falls b^2 < a < (b+1)^2.
 # a wird nicht modifiziert.
 # Vorzeichenerweiterung von b ist erlaubt.
 # num_stack wird erniedrigt.
@@ -118,7 +118,7 @@
       num_stack_need_1(ceiling(_a_len,2),(b_)->MSDptr=,);       \
       squarep_zuweisung UDS_sqrt_(a_MSDptr,_a_len,a_LSDptr,b_); \
     }
-  local boolean UDS_sqrt_ (uintD* a_MSDptr, uintC a_len, uintD* a_LSDptr, DS* b_);
+  local bool UDS_sqrt_ (uintD* a_MSDptr, uintC a_len, uintD* a_LSDptr, DS* b_);
 # Methode:
 # erst A normalisieren. A=0 --> B=0, fertig.
 # Wähle n so, dass beta^(2n-2) <= A < beta^(2n).
@@ -164,7 +164,7 @@
 #     Ergebnis ist [b[n-1],...,b[0]] * 2^(-s), schiebe also im Speicher
 #       [b[n],...,b[0]] um s+1 Bits nach rechts.
 #     Das Ergebnis ist eine NUDS der Länge n.
-  local boolean UDS_sqrt_(a_MSDptr,a_len,a_LSDptr,b_)
+  local bool UDS_sqrt_(a_MSDptr,a_len,a_LSDptr,b_)
     var uintD* a_MSDptr;
     var uintC a_len;
     var uintD* a_LSDptr;
@@ -172,7 +172,7 @@
     { # A normalisieren:
       while ((a_len>0) && (a_MSDptr[0]==0)) { a_MSDptr++; a_len--; }
       if (a_len==0) # A=0 -> B := NUDS 0
-        { b_->LSDptr = b_->MSDptr; b_->len = 0; return TRUE; }
+        { b_->LSDptr = b_->MSDptr; b_->len = 0; return true; }
      {SAVE_NUM_STACK # num_stack retten
       # n und s bestimmen:
       var uintC n = ceiling(a_len,2); # a_len = 2n oder 2n-1, n>0.
@@ -324,7 +324,7 @@
                 goto b_stern_ok;
             }}
             #endif
-            if (TRUE)
+            if (true)
               { # muss noch [a[2n-j],...,a[2n-2j]] um 1 erniedrigen:
                 if ( dec_loop_down(&a_lptr[-2],j+1) ==0) goto b_stern_ok;
                 # Subtraktion von b*^2 lieferte negativen Carry
@@ -364,7 +364,7 @@
         end_arith_call();
         b_->MSDptr = b_MSDptr; b_->len = n; b_->LSDptr = b_ptr;
         # Teste, ob alle a[n],...,a[0]=0 sind. Ja -> Wurzel exakt
-        {var boolean result = (test_loop_up(a_mptr,n+1) ? FALSE : TRUE);
+        {var bool result = (test_loop_up(a_mptr,n+1) ? false : true);
          RESTORE_NUM_STACK # num_stack zurück
          return result;
     }}}}}
@@ -373,11 +373,11 @@
 # I_isqrt_I(x)
 # > x: Integer (sollte >=0 sein)
 # < STACK_0: (isqrt x)
-# < ergebnis: TRUE falls x Quadratzahl, FALSE sonst
+# < ergebnis: true falls x Quadratzahl, false sonst
 # erniedrigt STACK um 1
 # can trigger GC
-  local boolean I_isqrt_I (object x);
-  local boolean I_isqrt_I(x)
+  local bool I_isqrt_I (object x);
+  local bool I_isqrt_I(x)
     var object x;
     { if (R_minusp(x))
         { pushSTACK(x); # Wert für Slot DATUM von TYPE-ERROR
@@ -394,7 +394,7 @@
         I_to_NDS_nocopy(x, x_MSDptr=,x_len=,x_LSDptr=); # Digit sequence >=0 zu x
        {SAVE_NUM_STACK # num_stack retten
         var DS y;
-        var boolean squarep;
+        var bool squarep;
         UDS_sqrt(x_MSDptr,x_len,x_LSDptr, &y, squarep=); # Wurzel ziehen
         pushSTACK(NUDS_to_I(y.MSDptr,y.len)); # als Integer
         RESTORE_NUM_STACK # num_stack zurück
@@ -420,7 +420,7 @@
         I_to_NDS_nocopy(x, x_MSDptr=,x_len=,x_LSDptr=); # Digit sequence >=0 zu x
        {SAVE_NUM_STACK # num_stack retten
         var DS y;
-        var boolean squarep;
+        var bool squarep;
         UDS_sqrt(x_MSDptr,x_len,x_LSDptr, &y, squarep=); # Wurzel ziehen
         {var object result = (squarep ? NUDS_to_I(y.MSDptr,y.len) : nullobj); # als Integer
          RESTORE_NUM_STACK # num_stack zurück

@@ -14,7 +14,7 @@
 # Typ AVL_ELEMENT :
 #   Typ der Elemente, die in einem AVL-Baum eingetragen werden.
 # Funktion AVL_EQUAL, mit
-#   local boolean AVL_EQUAL (AVL_ELEMENT element1, AVL_ELEMENT element2);
+#   local bool AVL_EQUAL (AVL_ELEMENT element1, AVL_ELEMENT element2);
 #   stellt fest, ob zwei Elemente als gleich gelten.
 #   In einem AVL-Baum dürfen keine zwei Elemente abgespeichert werden, die
 #   als gleich gelten. (D.h. kein Element darf doppelt abgespeichert werden.)
@@ -503,7 +503,7 @@
   #    / \        AVL_map_preorder : in Präfix-Reihenfolge  N L R
   #   L   R       AVL_map_postorder : in Postfix-Reihenfolge  L R N
   #
-  typedef struct { NODE* node; boolean rightp; } AVL(AVLID,mapstackitem);
+  typedef struct { NODE* node; bool rightp; } AVL(AVLID,mapstackitem);
   typedef AVL(AVLID,mapstackitem) AVL(AVLID,mapstack)[MAXHEIGHT];
   #define AVL_map(tree,nodevar,statement)  \
     { var NODE* nodevar = (tree);                                    \
@@ -513,7 +513,7 @@
       GENTAG(down): # rekursiv absteigen                             \
         if (nodevar == EMPTY) goto GENTAG(up);                       \
         stack_ptr->node = nodevar;                                   \
-        stack_ptr->rightp = FALSE; nodevar = nodevar->nodedata.left; \
+        stack_ptr->rightp = false; nodevar = nodevar->nodedata.left; \
         stack_ptr++; stack_count++;                                  \
         goto GENTAG(down);                                           \
       GENTAG(up): # wieder hochsteigen                               \
@@ -522,7 +522,7 @@
         if (stack_ptr->rightp) goto GENTAG(up);                      \
         nodevar = stack_ptr->node;                                   \
         statement;                                                   \
-        stack_ptr->rightp = TRUE; nodevar = nodevar->nodedata.right; \
+        stack_ptr->rightp = true; nodevar = nodevar->nodedata.right; \
         stack_ptr++; stack_count++;                                  \
         goto GENTAG(down);                                           \
       GENTAG(end): ; # fertig                                        \
@@ -535,7 +535,7 @@
       GENTAG(down): # rekursiv absteigen                             \
         if (nodevar == EMPTY) goto GENTAG(up);                       \
         stack_ptr->node = nodevar;                                   \
-        stack_ptr->rightp = TRUE; nodevar = nodevar->nodedata.right; \
+        stack_ptr->rightp = true; nodevar = nodevar->nodedata.right; \
         stack_ptr++; stack_count++;                                  \
         goto GENTAG(down);                                           \
       GENTAG(up): # wieder hochsteigen                               \
@@ -544,7 +544,7 @@
         if (!(stack_ptr->rightp)) goto GENTAG(up);                   \
         nodevar = stack_ptr->node;                                   \
         statement;                                                   \
-        stack_ptr->rightp = FALSE; nodevar = nodevar->nodedata.left; \
+        stack_ptr->rightp = false; nodevar = nodevar->nodedata.left; \
         stack_ptr++; stack_count++;                                  \
         goto GENTAG(down);                                           \
       GENTAG(end): ; # fertig                                        \
@@ -558,7 +558,7 @@
         if (nodevar == EMPTY) goto GENTAG(up);                       \
         statement;                                                   \
         stack_ptr->node = nodevar;                                   \
-        stack_ptr->rightp = FALSE; nodevar = nodevar->nodedata.left; \
+        stack_ptr->rightp = false; nodevar = nodevar->nodedata.left; \
         stack_ptr++; stack_count++;                                  \
         goto GENTAG(down);                                           \
       GENTAG(up): # wieder hochsteigen                               \
@@ -566,7 +566,7 @@
         stack_count--; stack_ptr--;                                  \
         if (stack_ptr->rightp) goto GENTAG(up);                      \
         nodevar = stack_ptr->node;                                   \
-        stack_ptr->rightp = TRUE; nodevar = nodevar->nodedata.right; \
+        stack_ptr->rightp = true; nodevar = nodevar->nodedata.right; \
         stack_ptr++; stack_count++;                                  \
         goto GENTAG(down);                                           \
       GENTAG(end): ; # fertig                                        \
@@ -579,7 +579,7 @@
       GENTAG(down): # rekursiv absteigen                             \
         if (nodevar == EMPTY) goto GENTAG(up);                       \
         stack_ptr->node = nodevar;                                   \
-        stack_ptr->rightp = FALSE; nodevar = nodevar->nodedata.left; \
+        stack_ptr->rightp = false; nodevar = nodevar->nodedata.left; \
         stack_ptr++; stack_count++;                                  \
         goto GENTAG(down);                                           \
       GENTAG(up): # wieder hochsteigen                               \
@@ -587,7 +587,7 @@
         stack_count--; stack_ptr--;                                  \
         nodevar = stack_ptr->node;                                   \
         if (stack_ptr->rightp) { statement; goto GENTAG(up); }       \
-        stack_ptr->rightp = TRUE; nodevar = nodevar->nodedata.right; \
+        stack_ptr->rightp = true; nodevar = nodevar->nodedata.right; \
         stack_ptr++; stack_count++;                                  \
         goto GENTAG(down);                                           \
       GENTAG(end): ; # fertig                                        \

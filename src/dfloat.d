@@ -608,10 +608,10 @@
     var object x1;
     var object x2;
     { double_to_DF(DF_to_double(x1) + DF_to_double(x2), return ,
-                   TRUE, TRUE, # Overflow und subnormale Zahl abfangen
-                   FALSE, # kein Underflow mit Ergebnis +/- 0.0 möglich
+                   true, true, # Overflow und subnormale Zahl abfangen
+                   false, # kein Underflow mit Ergebnis +/- 0.0 möglich
                           # (nach Definition der subnormalen Zahlen)
-                   FALSE, FALSE # keine Singularität, kein NaN als Ergebnis möglich
+                   false, false # keine Singularität, kein NaN als Ergebnis möglich
                   );
     }
 #else
@@ -847,10 +847,10 @@
     var object x1;
     var object x2;
     { double_to_DF(DF_to_double(x1) - DF_to_double(x2), return ,
-                   TRUE, TRUE, # Overflow und subnormale Zahl abfangen
-                   FALSE, # kein Underflow mit Ergebnis +/- 0.0 möglich
+                   true, true, # Overflow und subnormale Zahl abfangen
+                   false, # kein Underflow mit Ergebnis +/- 0.0 möglich
                           # (nach Definition der subnormalen Zahlen)
-                   FALSE, FALSE # keine Singularität, kein NaN als Ergebnis möglich
+                   false, false # keine Singularität, kein NaN als Ergebnis möglich
                   );
     }
 #else
@@ -906,10 +906,10 @@
     var object x1;
     var object x2;
     { double_to_DF(DF_to_double(x1) * DF_to_double(x2), return ,
-                   TRUE, TRUE, # Overflow und subnormale Zahl abfangen
+                   true, true, # Overflow und subnormale Zahl abfangen
                    !(DF_zerop(x1) || DF_zerop(x2)), # ein Ergebnis +/- 0.0
                                # ist genau dann in Wirklichkeit ein Underflow
-                   FALSE, FALSE # keine Singularität, kein NaN als Ergebnis möglich
+                   false, false # keine Singularität, kein NaN als Ergebnis möglich
                   );
     }
 #else
@@ -1094,11 +1094,11 @@
     var object x1;
     var object x2;
     { double_to_DF(DF_to_double(x1) / DF_to_double(x2), return ,
-                   TRUE, TRUE, # Overflow und subnormale Zahl abfangen
+                   true, true, # Overflow und subnormale Zahl abfangen
                    !DF_zerop(x1), # ein Ergebnis +/- 0.0
                                # ist genau dann in Wirklichkeit ein Underflow
                    DF_zerop(x2), # Division durch Null abfangen
-                   FALSE # kein NaN als Ergebnis möglich
+                   false # kein NaN als Ergebnis möglich
                   );
     }
 #else
@@ -1299,7 +1299,7 @@
          set_32_Dptr(&mant[2*32/intDsize],0); set_32_Dptr(&mant[3*32/intDsize],0);
        {SAVE_NUM_STACK # num_stack retten
         var DS wurzel;
-        var boolean exactp;
+        var bool exactp;
         UDS_sqrt(&mant[0],128/intDsize,&mant[128/intDsize], &wurzel, exactp=);
         # wurzel = isqrt(2^74_75 * mant), eine 64-Bit-Zahl.
         {var uintD* ptr = wurzel.MSDptr;
@@ -1361,7 +1361,7 @@
        #endif
        {SAVE_NUM_STACK # num_stack retten
         var DS wurzel;
-        var boolean exactp;
+        var bool exactp;
         UDS_sqrt(&mant[0],128/intDsize,&mant[128/intDsize], &wurzel, exactp=);
         # wurzel = isqrt(2^74_75 * mant), eine 64-Bit-Zahl.
         {var uintD* ptr = wurzel.MSDptr;

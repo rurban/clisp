@@ -279,16 +279,16 @@ LISPFUNN(machine_instance,0)
 # Newer RPCs specify that FQDNs can start with a digit, but can never consist
 # only of digits and dots, because of the top level domain. Use this criterion
 # to distinguish possible IP addresses from FQDNs.
-local boolean all_digits_dots (const char* host);
-local boolean all_digits_dots(host)
+local bool all_digits_dots (const char* host);
+local bool all_digits_dots(host)
   var const char* host;
   {
     until (*host == '\0') {
       var char c = *host++;
       if (!((c >= '0' && c <= '9') || (c == '.')))
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
   }
 #endif
 

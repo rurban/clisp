@@ -400,7 +400,7 @@ L(nlu1:)      notl    (%edx)           # ~= *xptr
               jnz     L(nlu1)
 L(nlu2:)    ret
 
-# extern boolean and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
+# extern bool and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
             ALIGN
 C(and_test_loop_up:)
             pushl   %esi            # %esi retten
@@ -419,7 +419,7 @@ L(atlu2:)   xorl    %eax,%eax       # Ergebnis 0
 L(atlu3:)   popl    %esi            # %esi zurück
             ret
 
-# extern boolean test_loop_up (uintD* ptr, uintC count);
+# extern bool test_loop_up (uintD* ptr, uintC count);
             ALIGN
 C(test_loop_up:)
             movl    %edi,%edx       # %edi retten

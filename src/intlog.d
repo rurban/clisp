@@ -455,8 +455,8 @@
 # (LOGTEST x y) = (NOT (ZEROP (LOGAND x y))).
 # I_I_logtest(x,y)
 # < ergebnis: /=0, falls ja; =0, falls nein.
-  local boolean I_I_logtest (object x, object y);
-  local boolean I_I_logtest(x,y)
+  local bool I_I_logtest (object x, object y);
+  local bool I_I_logtest(x,y)
     var object x;
     var object y;
     # Methode:
@@ -470,26 +470,26 @@
         if (I_fixnump(y))
           # beides Fixnums
           { if ((as_oint(x) & as_oint(y) & FN_value_vz_mask)==0)
-              return FALSE;
+              return false;
               else
-              return TRUE;
+              return true;
           }
           else
           # x Fixnum, y Bignum, also ist x echt kürzer
           { xFN_yBN:
-            if (R_minusp(x)) return TRUE; # x<0 -> ja.
+            if (R_minusp(x)) return true; # x<0 -> ja.
             # x>=0. Kombiniere x mit den pFN_maxlength letzten Digits von y.
            {var uintD* yLSDptr;
             var uintL x_ = posfixnum_to_L(x);
             BN_to_NDS_nocopy(y, _EMA_,_EMA_,yLSDptr=);
             #if (pFN_maxlength > 1)
             doconsttimes(pFN_maxlength-1,
-              if (*--yLSDptr & (uintD)x_) return TRUE;
+              if (*--yLSDptr & (uintD)x_) return true;
               x_ = x_ >> intDsize;
               );
             #endif
-            if (*--yLSDptr & (uintD)x_) return TRUE;
-            return FALSE;
+            if (*--yLSDptr & (uintD)x_) return true;
+            return false;
           }}
         else
         if (I_fixnump(y))
@@ -511,14 +511,14 @@
               { if (xlen<ylen)
                   { # x ist die echt kürzere DS.
                     if ((sintD)xMSDptr[0]<0) # der echt kürzere ist negativ?
-                      return TRUE;
+                      return true;
                     # Der echt kürzere ist positiv.
                     yMSDptr += ylen-xlen;
                   }
                   else
                   { # y ist die echt kürzere DS.
                     if ((sintD)yMSDptr[0]<0) # der echt kürzere ist negativ?
-                      return TRUE;
+                      return true;
                     # Der echt kürzere ist positiv.
                     xMSDptr += xlen-ylen;
                     xlen = ylen;
@@ -531,8 +531,8 @@
 # Prüft, ob (LOGBITP x y), wo x und y Integers sind.
 # I_I_logbitp(x,y)
 # Ergebnis: /=0, wenn ja; =0, wenn nein.
-  local boolean I_I_logbitp (object x, object y);
-  local boolean I_I_logbitp(x,y)
+  local bool I_I_logbitp (object x, object y);
+  local bool I_I_logbitp(x,y)
     var object x;
     var object y;
     # Methode:
@@ -548,15 +548,15 @@
               if (x_ < intDsize*(uintL)ylen)
                 # x ist ein Fixnum >=0, < intDsize*ylen
                 { if (yLSDptr[-(uintP)floor(x_,intDsize)-1] & bit(x_%intDsize))
-                    return TRUE;
+                    return true;
                     else
-                    return FALSE;
+                    return false;
             }   }
           # Vorzeichen von y testen
           if (R_minusp(y))
-            return TRUE;
+            return true;
             else
-            return FALSE;
+            return false;
         }
         else
         # x<0
@@ -571,23 +571,23 @@
 # Prüft, ob (ODDP x), wo x ein Integer ist.
 # I_oddp(x)
 # Ergebnis: /=0, falls ja; =0, falls nein.
-  local boolean I_oddp (object x);
-  local boolean I_oddp(x)
+  local bool I_oddp (object x);
+  local bool I_oddp(x)
     var object x;
     { if (I_fixnump(x))
         # Fixnum: Bit 0 abprüfen
         { if (as_oint(x) & wbit(0+oint_data_shift))
-            return TRUE;
+            return true;
             else
-            return FALSE;
+            return false;
         }
         else
         # Bignum: Bit 0 im letzten Digit abprüfen
         { var Bignum x_ = TheBignum(x);
           if (x_->data[(uintP)bignum_length(x_)-1] & bit(0))
-            return TRUE;
+            return true;
             else
-            return FALSE;
+            return false;
     }   }
 
 # (ASH x y), wo x und y Integers sind. Ergebnis Integer.
@@ -678,7 +678,7 @@
               }
             x = DS_to_I(MSDptr,len);
           }
-      if (FALSE)
+      if (false)
         sign: # Ergebnis ist 0, falls x>=0, und -1, falls x<0:
         { x = (R_minusp(x) ? Fixnum_minus1 : Fixnum_0 ); }
       RESTORE_NUM_STACK # num_stack zurück

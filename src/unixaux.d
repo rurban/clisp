@@ -637,10 +637,10 @@ static BOOL interrupt_handler(CtrlType)
       # Invoke signal handler.
       _raise(SIGINT);
       # Don't invoke the other handlers (in particular, the default handler)
-      return TRUE;
+      return true;
     } else {
       # Do invoke the other handlers.
-      return FALSE;
+      return false;
     }
   }
 static BOOL DoInterruptible(fn,arg)
@@ -652,16 +652,16 @@ static BOOL DoInterruptible(fn,arg)
     DWORD thread_exitcode;
     thread = CreateThread(NULL,10000,fn,arg,0,&thread_id);
     if (thread == NULL)
-      return FALSE;
+      return false;
     interruptible_thread = thread;
-    SetConsoleCtrlHandler((PHANDLER_ROUTINE)interrupt_handler,TRUE);
+    SetConsoleCtrlHandler((PHANDLER_ROUTINE)interrupt_handler,true);
     WaitForSingleObject(interruptible_thread,INFINITE);
-    SetConsoleCtrlHandler((PHANDLER_ROUTINE)interrupt_handler,FALSE);
+    SetConsoleCtrlHandler((PHANDLER_ROUTINE)interrupt_handler,false);
     GetExitCodeThread(interruptible_thread,&thread_exitcode);
     if (thread_exitcode==0)
-      return TRUE; # successful termination
+      return true; # successful termination
     else
-      return FALSE;
+      return false;
   }
 static DWORD WINAPI do_sleep(arg)
   LPVOID arg;

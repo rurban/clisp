@@ -76,7 +76,7 @@
     local uintL run_time = 0;       # total runtime up to now
     local uintL runstop_time;       # if the stop watch is running:
                                     # the time of the last run-stop change
-    local boolean run_flag = FALSE; # true if the stop watch is running
+    local bool run_flag = false; # true if the stop watch is running
 #endif
 
 
@@ -148,7 +148,7 @@
       if (!run_flag) return; # stop-watch already stopped -> OK
       # Add the now consumed runtime to the total runtime:
       run_time += get_time()-runstop_time;
-      run_flag = FALSE; # stop-watch now stopped
+      run_flag = false; # stop-watch now stopped
     }
 
 # Lets the stop-watch run again.
@@ -158,7 +158,7 @@
     {
       if (run_flag) return; # stop-watch already running -> OK
       runstop_time = get_time(); # save current time
-      run_flag = TRUE; # stop-watch now running
+      run_flag = true; # stop-watch now running
     }
 
 #endif
@@ -784,7 +784,7 @@ LISPFUNN(get_universal_time,0)
       #endif
       #ifndef HAVE_RUN_TIME
       # run_time = 0; # Noch keine Run-Time verbraucht,
-      # run_flag = FALSE; # denn System läuft noch nicht.
+      # run_flag = false; # denn System läuft noch nicht.
       run_time_restart(); # Run-Time-Stoppuhr loslaufen lassen
       #endif
       #if defined(TIME_UNIX) || defined(TIME_WIN32)
@@ -905,7 +905,7 @@ LISPFUNN(sleep,1)
   {
     var uintL delay = I_to_UL(popSTACK()); # Pausenlänge
     #ifdef EMUNIX
-    if (TRUE) {
+    if (true) {
       # Unter OS/2 (Multitasking!) nicht CPU-Zeit verbraten!
       # select erlaubt eine wunderschöne Implementation von usleep():
       loop {

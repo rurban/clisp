@@ -414,7 +414,7 @@
     #endif
   #else
     #define lstat stat
-    #define S_ISLNK(m)  FALSE
+    #define S_ISLNK(m)  false
   #endif
   #ifdef FSTAT_INLINE
     extern int fstat (int fd, struct stat * buf); # siehe STAT(2V)

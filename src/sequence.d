@@ -49,7 +49,7 @@ UPD           (lambda (seq pointer) ...) -> pointer
               liefert zu einem Pointer den Pointer eins weiter rechts.
               SEQ-UPD kann voraussetzen, dass dabei der rechte Rand von
               SEQ nicht überschritten wird.
-ENDTEST       (lambda (seq pointer) ...) -> boolean
+ENDTEST       (lambda (seq pointer) ...) -> bool
               testet, ob dieser Pointer am rechten Rand von SEQ steht.
 Dasselbe "FROM END" :
 FE-INIT       (lambda (seq) ...) -> pointer
@@ -58,7 +58,7 @@ FE-UPD        (lambda (seq pointer) ...) -> pointer
               liefert zu einem Pointer den Pointer eins weiter links.
               SEQ-FE-UPD kann voraussetzen, dass dabei der linke Rand von
               SEQ nicht überschritten wird.
-FE-ENDTEST    (lambda (seq pointer) ...) -> boolean
+FE-ENDTEST    (lambda (seq pointer) ...) -> bool
               testet, ob dieser Pointer am linken Rand von SEQ steht.
 Zugriff mit Pointer:
 ACCESS        (lambda (seq pointer) ...) -> value
@@ -162,7 +162,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
                     { name = S(string); goto expanded_maybe_constrained; }
                   if (eq(name1,S(bit_vector)) || eq(name1,S(simple_bit_vector)))
                     { name = S(bit_vector); goto expanded_maybe_constrained; }
-                  if (FALSE)
+                  if (false)
                     { expanded_maybe_constrained:
                       if (consp(name2) && integerp(Car(name2)))
                         { pushSTACK(Car(name2)); goto expanded; }
@@ -178,7 +178,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
                   if (consp(name3) && nullp(Cdr(name3)))
                     { name3 = Car(name3); goto try_vector; }
                 }
-              if (FALSE)
+              if (false)
                 { try_vector: # Hier ist name2 = (second name), name3 = (third name), Defaults: *
                   if (eq(name1,S(vector))
                       || (   (eq(name1,S(array)) || eq(name1,S(simple_array)))
@@ -768,7 +768,7 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
         skipSTACK(1);
       }
     elif (vectorp(seq)) {
-      if (TRUE) {
+      if (true) {
         var uintL count = vector_length(seq);
         if (count > 0) {
           var uintL index = 0;
@@ -1212,14 +1212,14 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
 # > Stackaufbau: [args_pointer] ... predicate sequence,
 #                [rest_args_pointer] {sequence} [STACK].
 # > fun: Routine, die das predicate-Ergebnis abtestet und
-#        TRUE liefert (und in value1 ihr Ergebnis hinterlässt),
+#        true liefert (und in value1 ihr Ergebnis hinterlässt),
 #        falls vorzeitig herausgesprungen werden soll.
 # > argcount: Anzahl der Sequence-Argumente - 1
 # > default: Defaultwert am Schluss
 # < 1 Wert: wie von fun beim Hinausspringen vorgegeben, oder default.
 # < STACK: aufgeräumt (= args_pointer beim Einsprung)
 # can trigger GC
-  typedef boolean seq_boolop_fun (object pred_ergebnis);
+  typedef bool seq_boolop_fun (object pred_ergebnis);
   local Values seq_boolop (seq_boolop_fun* boolop_fun,
                            object* args_pointer,
                            object* rest_args_pointer,
@@ -1308,10 +1308,10 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
     }}
 
 # Hilfsfunktion für MAP:
-  local boolean boolop_nothing (object pred_ergebnis);
-  local boolean boolop_nothing(pred_ergebnis)
+  local bool boolop_nothing (object pred_ergebnis);
+  local bool boolop_nothing(pred_ergebnis)
     var object pred_ergebnis;
-    { return FALSE; } # nie vorzeitig zurückkehren
+    { return false; } # nie vorzeitig zurückkehren
 
 LISPFUN(map,3,0,rest,nokey,0,NIL)
 # (MAP result-type function sequence {sequence}), CLTL S. 249
@@ -1540,14 +1540,14 @@ LISPFUN(map_into,2,0,rest,nokey,0,NIL)
   }}
 
 # Hilfsfunktion für SOME:
-  local boolean boolop_some (object pred_ergebnis);
-  local boolean boolop_some(pred_ergebnis)
+  local bool boolop_some (object pred_ergebnis);
+  local bool boolop_some(pred_ergebnis)
     var object pred_ergebnis;
     { if (nullp(pred_ergebnis)) # Funktionsergebnis abtesten
-        { return FALSE; } # =NIL -> weitersuchen
+        { return false; } # =NIL -> weitersuchen
         else
         { value1 = pred_ergebnis; # /=NIL -> dies als Wert
-          return TRUE;
+          return true;
     }   }
 
 LISPFUN(some,2,0,rest,nokey,0,NIL)
@@ -1555,14 +1555,14 @@ LISPFUN(some,2,0,rest,nokey,0,NIL)
   { return_Values seq_boolop(&boolop_some,rest_args_pointer STACKop 2,rest_args_pointer,argcount,NIL); }
 
 # Hilfsfunktion für EVERY:
-  local boolean boolop_every (object pred_ergebnis);
-  local boolean boolop_every(pred_ergebnis)
+  local bool boolop_every (object pred_ergebnis);
+  local bool boolop_every(pred_ergebnis)
     var object pred_ergebnis;
     { if (!(nullp(pred_ergebnis))) # Funktionsergebnis abtesten
-        { return FALSE; } # /=NIL -> weitersuchen
+        { return false; } # /=NIL -> weitersuchen
         else
         { value1 = pred_ergebnis; # =NIL -> dies (= NIL) als Wert
-          return TRUE;
+          return true;
     }   }
 
 LISPFUN(every,2,0,rest,nokey,0,NIL)
@@ -1570,14 +1570,14 @@ LISPFUN(every,2,0,rest,nokey,0,NIL)
   { return_Values seq_boolop(&boolop_every,rest_args_pointer STACKop 2,rest_args_pointer,argcount,T); }
 
 # Hilfsfunktion für NOTANY:
-  local boolean boolop_notany (object pred_ergebnis);
-  local boolean boolop_notany(pred_ergebnis)
+  local bool boolop_notany (object pred_ergebnis);
+  local bool boolop_notany(pred_ergebnis)
     var object pred_ergebnis;
     { if (nullp(pred_ergebnis)) # Funktionsergebnis abtesten
-        { return FALSE; } # =NIL -> weitersuchen
+        { return false; } # =NIL -> weitersuchen
         else
         { value1 = NIL; # /=NIL -> NIL als Wert
-          return TRUE;
+          return true;
     }   }
 
 LISPFUN(notany,2,0,rest,nokey,0,NIL)
@@ -1585,14 +1585,14 @@ LISPFUN(notany,2,0,rest,nokey,0,NIL)
   { return_Values seq_boolop(&boolop_notany,rest_args_pointer STACKop 2,rest_args_pointer,argcount,T); }
 
 # Hilfsfunktion für NOTEVERY:
-  local boolean boolop_notevery (object pred_ergebnis);
-  local boolean boolop_notevery(pred_ergebnis)
+  local bool boolop_notevery (object pred_ergebnis);
+  local bool boolop_notevery(pred_ergebnis)
     var object pred_ergebnis;
     { if (!(nullp(pred_ergebnis))) # Funktionsergebnis abtesten
-        { return FALSE; } # /=NIL -> weitersuchen
+        { return false; } # /=NIL -> weitersuchen
         else
         { value1 = T; # =NIL -> T als Wert
-          return TRUE;
+          return true;
     }   }
 
 LISPFUN(notevery,2,0,rest,nokey,0,NIL)
@@ -1886,17 +1886,17 @@ LISPFUN(replace,2,0,norest,key,4,\
 # > *(stackptr-5): die Testfunktion
 # > *(stackptr+1): das zu vergleichende Item
 # > x: Argument
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local boolean up_test (const object* stackptr, object x);
-  local boolean up_test(stackptr,x)
+  local bool up_test (const object* stackptr, object x);
+  local bool up_test(stackptr,x)
     var const object* stackptr;
     var object x;
     { # nach CLTL S. 247 ein (funcall testfun item x) ausführen:
       pushSTACK(*(stackptr STACKop 1)); # item
       pushSTACK(x); # x
       funcall(*(stackptr STACKop -5),2);
-      if (nullp(value1)) return FALSE; else return TRUE;
+      if (nullp(value1)) return false; else return true;
     }
 
 # Unterprogramm zum Ausführen des Tests :TEST-NOT
@@ -1904,47 +1904,47 @@ LISPFUN(replace,2,0,norest,key,4,\
 # > *(stackptr-6): die Testfunktion
 # > *(stackptr+1): das zu vergleichende Item
 # > x: Argument
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local boolean up_test_not (const object* stackptr, object x);
-  local boolean up_test_not(stackptr,x)
+  local bool up_test_not (const object* stackptr, object x);
+  local bool up_test_not(stackptr,x)
     var const object* stackptr;
     var object x;
     { # nach CLTL S. 247 ein (not (funcall testfun item x)) ausführen:
       pushSTACK(*(stackptr STACKop 1)); # item
       pushSTACK(x); # x
       funcall(*(stackptr STACKop -6),2);
-      if (nullp(value1)) return TRUE; else return FALSE;
+      if (nullp(value1)) return true; else return false;
     }
 
 # Unterprogramm zum Ausführen des Tests -IF
 # up_if(stackptr,x)
 # > *(stackptr+1): das Testprädikat
 # > x: Argument
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local boolean up_if (const object* stackptr, object x);
-  local boolean up_if(stackptr,x)
+  local bool up_if (const object* stackptr, object x);
+  local bool up_if(stackptr,x)
     var const object* stackptr;
     var object x;
     { # nach CLTL S. 247 ein (funcall predicate x) ausführen:
       pushSTACK(x); funcall(*(stackptr STACKop 1),1);
-      if (nullp(value1)) return FALSE; else return TRUE;
+      if (nullp(value1)) return false; else return true;
     }
 
 # Unterprogramm zum Ausführen des Tests -IF-NOT
 # up_if_not(stackptr,x)
 # > *(stackptr+1): das Testprädikat
 # > x: Argument
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local boolean up_if_not (const object* stackptr, object x);
-  local boolean up_if_not(stackptr,x)
+  local bool up_if_not (const object* stackptr, object x);
+  local bool up_if_not(stackptr,x)
     var const object* stackptr;
     var object x;
     { # nach CLTL S. 247 ein (not (funcall predicate x)) ausführen:
       pushSTACK(x); funcall(*(stackptr STACKop 1),1);
-      if (nullp(value1)) return TRUE; else return FALSE;
+      if (nullp(value1)) return true; else return false;
     }
 
 # UP: Überprüft das :COUNT-Argument
@@ -1991,9 +1991,9 @@ LISPFUN(replace,2,0,norest,key,4,\
 #       > stackptr: derselbe Pointer in den Stack, *(stackptr+1) = item,
 #         *(stackptr-5) = :test-Argument, *(stackptr-6) = :test-not-Argument,
 #       > x: Argument
-#       < TRUE, falls der Test erfüllt ist, FALSE sonst.
+#       < true, falls der Test erfüllt ist, false sonst.
   # up_function sei der Typ der Adresse einer solchen Testfunktion:
-  typedef boolean (*up_function) (const object* stackptr, object x);
+  typedef bool (*up_function) (const object* stackptr, object x);
   local up_function test_test_args (object* stackptr);
   local up_function test_test_args(stackptr)
     var object* stackptr;
@@ -2056,7 +2056,7 @@ LISPFUN(replace,2,0,norest,key,4,\
 # > up_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
 #           > stackptr: derselbe Pointer in den Stack,
 #           > x: Argument
-#           < TRUE, falls der Test erfüllt ist, FALSE sonst.
+#           < true, falls der Test erfüllt ist, false sonst.
 # > help_fun: Adresse einer Hilfsroutine, die den Rest erledigt.
 #   Spezifiziert durch:
 #       > stackptr: Pointer in den Stack,
@@ -2426,10 +2426,10 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
 # up2_test(stackptr,x,y)
 # > *(stackptr-5): die Testfunktion
 # > x,y: Argumente
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local boolean up2_test (const object* stackptr, object x, object y);
-  local boolean up2_test(stackptr,x,y)
+  local bool up2_test (const object* stackptr, object x, object y);
+  local bool up2_test(stackptr,x,y)
     var const object* stackptr;
     var object x;
     var object y;
@@ -2437,17 +2437,17 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
       pushSTACK(x); # x
       pushSTACK(y); # y
       funcall(*(stackptr STACKop -5),2);
-      if (nullp(value1)) return FALSE; else return TRUE;
+      if (nullp(value1)) return false; else return true;
     }
 
 # Unterprogramm zum Ausführen des Tests :TEST-NOT
 # up2_test_not(stackptr,x,y)
 # > *(stackptr-6): die Testfunktion
 # > x,y: Argumente
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local boolean up2_test_not (const object* stackptr, object x, object y);
-  local boolean up2_test_not(stackptr,x,y)
+  local bool up2_test_not (const object* stackptr, object x, object y);
+  local bool up2_test_not(stackptr,x,y)
     var const object* stackptr;
     var object x;
     var object y;
@@ -2455,7 +2455,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
       pushSTACK(x); # x
       pushSTACK(y); # y
       funcall(*(stackptr STACKop -6),2);
-      if (nullp(value1)) return TRUE; else return FALSE;
+      if (nullp(value1)) return true; else return false;
     }
 
 # UP: Überprüft die :TEST, :TEST-NOT - Argumente
@@ -2470,9 +2470,9 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
 #       > stackptr: derselbe Pointer in den Stack,
 #         *(stackptr-5) = :test-Argument, *(stackptr-6) = :test-not-Argument,
 #       > x,y: Argumente
-#       < TRUE, falls der Test erfüllt ist, FALSE sonst.
+#       < true, falls der Test erfüllt ist, false sonst.
   # up2_function sei der Typ der Adresse einer solchen Testfunktion:
-  typedef boolean (*up2_function) (const object* stackptr, object x, object y);
+  typedef bool (*up2_function) (const object* stackptr, object x, object y);
   local up2_function test_test2_args (object* stackptr);
   local up2_function test_test2_args(stackptr)
     var object* stackptr;
@@ -2585,7 +2585,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
              ) )
             goto standard;
         }
-        if (FALSE)
+        if (false)
           standard: # Standardmethode
           { if (!(nullp(STACK_(5+3)))) # from-end abfragen
               # from-end ist angegeben
@@ -3037,7 +3037,7 @@ LISPFUN(substitute_if_not,3,0,norest,key,5,\
 # > up_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
 #           > stackptr: derselbe Pointer in den Stack,
 #           > x: Argument
-#           < TRUE, falls der Test erfüllt ist, FALSE sonst.
+#           < true, falls der Test erfüllt ist, false sonst.
 # > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
 # can trigger GC
@@ -3137,7 +3137,7 @@ LISPFUN(nsubstitute_if_not,3,0,norest,key,5,\
 # > up_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
 #           > stackptr: derselbe Pointer in den Stack,
 #           > x: Argument
-#           < TRUE, falls der Test erfüllt ist, FALSE sonst.
+#           < true, falls der Test erfüllt ist, false sonst.
 # > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
 # can trigger GC
@@ -3256,7 +3256,7 @@ LISPFUN(find_if_not,2,0,norest,key,4,\
 # > up_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
 #           > stackptr: derselbe Pointer in den Stack,
 #           > x: Argument
-#           < TRUE, falls der Test erfüllt ist, FALSE sonst.
+#           < true, falls der Test erfüllt ist, false sonst.
 # > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
 # can trigger GC
@@ -3377,7 +3377,7 @@ LISPFUN(position_if_not,2,0,norest,key,4,\
 # > up_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
 #           > stackptr: derselbe Pointer in den Stack,
 #           > x: Argument
-#           < TRUE, falls der Test erfüllt ist, FALSE sonst.
+#           < true, falls der Test erfüllt ist, false sonst.
 # > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
 # can trigger GC
@@ -3593,12 +3593,12 @@ LISPFUN(mismatch,2,0,norest,key,8,\
         # Stackaufbau: seq1, seq2, start1, end1, start2, end2, from-end,
         #              key, test, test-not, typdescr1, typdescr2,
         #              pointer1, pointer2, index, endvar1, endvar2.
-        { var boolean seq1_ended; # Flag, ob seq1-Teilstück zu Ende
-          var boolean seq2_ended; # Flag, ob seq2-Teilstück zu Ende
+        { var bool seq1_ended; # Flag, ob seq1-Teilstück zu Ende
+          var bool seq2_ended; # Flag, ob seq2-Teilstück zu Ende
           loop
             { # Teste, ob seq1-Teilstück zu Ende:
               if (eq(STACK_1,Fixnum_0)) # endvar1 = 0 (und damit end1 /= nil) ?
-                { seq1_ended = TRUE; }
+                { seq1_ended = true; }
                 else
                 { pushSTACK(STACK_(6+5+5)); pushSTACK(STACK_(4+1));
                   funcall(seq_endtest(STACK_(1+5+2)),2); # (SEQ-ENDTEST seq1 pointer1)
@@ -3606,7 +3606,7 @@ LISPFUN(mismatch,2,0,norest,key,8,\
                 }
               # Teste, ob seq2-Teilstück zu Ende:
               if (eq(STACK_0,Fixnum_0)) # endvar2 = 0 (und damit end2 /= nil) ?
-                { seq2_ended = TRUE; }
+                { seq2_ended = true; }
                 else
                 { pushSTACK(STACK_(5+5+5)); pushSTACK(STACK_(3+1));
                   funcall(seq_endtest(STACK_(0+5+2)),2); # (SEQ-ENDTEST seq2 pointer2)

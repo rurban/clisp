@@ -278,7 +278,7 @@ not_loop_up:
         j $31                   # return
         .end not_loop_up
 
-# extern boolean and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
+# extern bool and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
         .align 2
         .ent and_test_loop_up # Input in $4,$5,$6
 atlu1:    lw $12,($4)           # x = *xptr
@@ -296,7 +296,7 @@ atlu3:  li $2,1                 # 1
         j $31                   # return
         .end and_test_loop_up
 
-# extern boolean test_loop_up (uintD* ptr, uintC count);
+# extern bool test_loop_up (uintD* ptr, uintC count);
         .align 2
         .ent test_loop_up # Input in $4,$5
 tlu1:     lw $12,($4)           # x = *ptr

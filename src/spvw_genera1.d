@@ -15,7 +15,7 @@ local uintC generation;
 # in_old_generation(obj,type,heapnr)
 # > obj: object, satisfying !gcinvariant_type_p(type = typecode(obj))
 # > heapnr: 0 for varobject, 1 for cons and other two-pointer objects
-# < result: TRUE if a partial GC is being run and obj belongs to the old
+# < result: true if a partial GC is being run and obj belongs to the old
 #           generation.
 # Attention! The result is undefined for any of the constsyms.
 
@@ -90,7 +90,7 @@ local uintC generation;
     #endif
   #endif
 #else
-  #define in_old_generation(obj,type,heapnr)  FALSE
+  #define in_old_generation(obj,type,heapnr)  false
 #endif
 
 #ifdef GENERATIONAL_GC
@@ -921,18 +921,18 @@ local uintC generation;
   #define CHECK_GC_GENERATIONAL()  gc_overall_check()
   local void gc_overall_check (void);
     # Kontrolle eines einzelnen Pointers:
-    local boolean gc_check_at (object* objptr);
-    local boolean gc_check_at(objptr)
+    local bool gc_check_at (object* objptr);
+    local bool gc_check_at(objptr)
       var object* objptr;
       {
         var object obj = *objptr;
         var tint type = typecode(obj);
         #ifdef SPVW_PURE
         if (is_unused_heap(type))
-          return FALSE;
+          return false;
         #else
         if (gcinvariant_type_p(type))
-          return FALSE;
+          return false;
         #endif
         var aint addr = canonaddr(obj);
         var Heap* heap;
@@ -942,22 +942,22 @@ local uintC generation;
         heap = &mem.heaps[mem.heapnr_from_type[type]];
         #endif
         if ((addr >= heap->heap_gen0_start) && (addr < heap->heap_gen0_end))
-          return FALSE;
+          return false;
         #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
         if (is_cons_heap(mem.heapnr_from_type[type])) {
           if ((addr >= heap->heap_start) && (addr < heap->heap_gen1_end))
-            return TRUE; # Pointer in die neue Generation
+            return true; # Pointer in die neue Generation
         } else
         #endif
         {
           if ((addr >= heap->heap_gen1_start) && (addr < heap->heap_end))
-            return TRUE; # Pointer in die neue Generation
+            return true; # Pointer in die neue Generation
         }
         if ((type == symbol_type)
             && (as_oint(obj) - as_oint(symbol_tab_ptr_as_object(&symbol_tab))
                 < (sizeof(symbol_tab)<<(oint_addr_shift-addr_shift))
            )   )
-          return FALSE;
+          return false;
         abort();
       }
   local void gc_overall_check()
