@@ -599,7 +599,9 @@
     #ifndef NCCS
       #define NCCS  sizeof(((struct termios *)0)->c_cc)
     #endif
-    #ifdef NEED_SYS_PTEM_H # SCO braucht das für "struct winsize"
+    #if defined(WINSIZE_NEED_SYS_IOCTL_H) # glibc2 needs this for "struct winsize"
+      #include <sys/ioctl.h>
+    #elif defined(WINSIZE_NEED_SYS_PTEM_H) # SCO needs this for "struct winsize"
       #include <sys/stream.h>
       #include <sys/ptem.h>
     #endif
