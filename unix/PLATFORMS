@@ -521,7 +521,7 @@ Remove all optimization options ("-O", "-O2") from the CC and CFLAGS variables
 in the Makefile. Apple's cc crashes when compiling eval.d with optimization.
 
 FFI does not work yet, you will have to ignore the "avcall-*.h" errors
-in ./configure.
+in ./configure or run './configure --without-dynamic-ffi'.
 
 Dec2002 Developer tools with the gcc 3.3 update work OOTB, but
 older versions of GCC might require the `--traditional-cpp' option.
