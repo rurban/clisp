@@ -1,5 +1,21 @@
 2005-04-01  Sam Steingold  <sds@gnu.org>
 
+	implemented global error handlers
+	* eval.d (invoke_handlers): call GLOBAL-HANDLER at the end
+	* constsym.d (APPEASE-CERRORS, BATCHMODE-ERRORS, ABORT-ERRORS, LOOP):
+	removed
+	(APPEASE-CERROR, EXITUNCONDITIONALLY, EXITONERROR, ABORTONERROR)
+	(INTERRUPT-CONDITION, SERIOUS-CONDITION, SET-GLOBAL-HANDLER)
+	(GLOBAL-HANDLER): added
+	* condition.lisp (set-global-handler): new exported function
+	(batchmode-errors, abort-errors): removed
+	* savemem.lisp (saveinitmem): accept :KEEP-GLOBAL-HANDLERS
+	* spvw.d (appease_form): replaced with ...
+	(install_global_handlers): new function
+	(main_actions): call it just once; do not wrap anything
+
+2005-04-01  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (POSIX:SET-FILE-STAT):
 	use I_to_UL() instead for I_to_L() for time conversion
 	Reported by Aurelio Bignoli <clisp@bignoli.it>

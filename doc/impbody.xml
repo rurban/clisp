@@ -627,7 +627,7 @@ is the same as
   </simpara></listitem></varlistentry>
 
  <varlistentry><term>&if;</term>
-  <listitem><simpara><code>(&setf; (&if; <replaceable>condition</replaceable>
+  <listitem><simpara><code>(&setf; (&if; &cond-r;
      <replaceable>place&sub-1;</replaceable>
      <replaceable>place&sub-2;</replaceable>)
      &object-r;)</code></simpara></listitem></varlistentry>
@@ -963,6 +963,15 @@ When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
  &abort-on-error; and &exit-on-error; includes the backtrace (stack).
 </para></formalpara>
 
+<formalpara id="global-handler"><title>Function &set-global-handler;</title>
+<para>The function <code>(&set-global-handler; &cond-r; handler)</code>
+ establishes a global handler for the &cond-r;.
+ When <replaceable>handler</replaceable> is &nil;, the handler
+ for &cond-r; is removed and returned.
+ When &cond-r; is also &nil;, all global handlers are removed and returned
+ as a &list-t;, which can then be passed to &set-global-handler; as the
+ first argument and the handlers re-established.</para></formalpara>
+
 <formalpara id="with-restarts"><title>Macro &with-restarts;</title>
 <para>The macro &with-restarts; is like &restart-case;, except that the
  forms are specified after the restart clauses instead of before them,
@@ -996,9 +1005,9 @@ When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
 
 <formalpara><title>Function &compute-restarts;</title>
 <para>&compute-restarts; and &find-restart; behave as specified in
- &ansi-cl;: If the optional <replaceable>condition</replaceable>
- argument is non-&nil;, only restarts associated with that condition and
- restarts associated with no condition at all are considered.
+ &ansi-cl;: If the optional &cond-r; argument is non-&nil;,
+ only restarts associated with that condition
+ and restarts associated with no condition at all are considered.
  Therefore the effect of associating a restart to a condition is not to
  activate it, but to hide it from other conditions.
  This makes the syntax-dependent implicit association performed by

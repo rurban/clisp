@@ -56,10 +56,6 @@ URGENT PROBLEMS
 Should handle these soon.
 
 
-Global error handler; command-line option that has the effect of wrapping
-an EXIT-ON-ERROR around every evaluated form.
-
-
 Embeddability: additional API in spvw.d; global error handler; example.
 <https://sourceforge.net/tracker/index.php?func=detail&aid=423264&group_id=1355&atid=351355>
 
