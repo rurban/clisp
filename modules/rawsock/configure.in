@@ -50,6 +50,7 @@ if test "$ac_cv_search_socket" = "no"; then
   AC_MSG_FAILURE([cannot find SOCKET library])
 fi
 AC_CHECK_FUNCS(socketpair recvmsg sendmsg htonl htons ntohl ntohs)
+AC_CHECK_FUNCS(inet_pton inet_ntop inet_addr inet_ntoa)
 CL_POLL
 CL_SELECT
 
