@@ -1,5 +1,11 @@
 2004-04-03  Bruno Haible  <bruno@clisp.org>
 
+	* defstruct.lisp (defstruct): When defining a structure with :TYPE
+	option, remove any previously defined class of the same name.
+	* clos-class2.lisp (undefine-structure-class): New function.
+
+2004-04-03  Bruno Haible  <bruno@clisp.org>
+
 	Store a structure's size in the DEFSTRUCT-DESCRIPTION.
 	* defstruct.lisp (defstruct): Add the instance size as third slot of
 	the DEFSTRUCT-DESCRIPTION.
