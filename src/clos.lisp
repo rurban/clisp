@@ -300,6 +300,7 @@
 ;   compute-applicable-methods-using-classes            OK      OK
 ; compute-class-precedence-list                         OK      OK
 ; compute-default-initargs                              OK      OK
+; compute-direct-slot-definition-initargs               OK      OK
 ; compute-discriminating-function                       OK      OK
 ; compute-effective-method                              --      OK
 ; compute-effective-slot-definition                     OK      OK
