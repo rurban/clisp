@@ -213,6 +213,7 @@ case "$1" in
     absolute_currentdir=`/bin/pwd`
     absolute_sourcedir=`cd "$sourcedir" ; /bin/pwd`
     absolute_destinationdir=`cd "$destinationdir" ; /bin/pwd`
+    installbasedir=`dirname "$sourcedir"`
     # What to do if we abort.
     trap 'rm -rf "$absolute_destinationdir"' 1 2 15
     if [ "$absolute_sourcedir" = "$absolute_destinationdir" ] ; then
@@ -265,7 +266,7 @@ case "$1" in
       for f in $TO_PRELOAD; do
         to_preload="$to_preload $moduledir/$f"
       done
-      verbose "$sourcedir"/lisp.run -M "$sourcedir"/lispinit.mem -norc -q -i $to_preload -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
+      verbose "$sourcedir"/lisp.run -B "$installbasedir" -M "$sourcedir"/lispinit.mem -norc -q -i $to_preload -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
       lispinitdir="$destinationdir"
     else
       lispinitdir="$sourcedir"
@@ -275,7 +276,7 @@ case "$1" in
     for f in $TO_LOAD; do
       to_load="$to_load $moduledir/$f"
     done
-    verbose "$destinationdir"/lisp.run -M "$lispinitdir"/lispinit.mem -norc -q -i $to_load -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
+    verbose "$destinationdir"/lisp.run -B "$installbasedir" -M "$lispinitdir"/lispinit.mem -norc -q -i $to_load -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
     # Generate new makevars
     sed -e "s,^LIBS=.*\$,LIBS='${LIBS}'," -e "s,^FILES=.*\$,FILES='${FILES}'," < "$sourcedir"/makevars > "$destinationdir"/makevars
     # Done.
@@ -319,6 +320,7 @@ case "$1" in
     absolute_currentdir=`/bin/pwd`
     absolute_sourcedir=`cd "$sourcedir" ; /bin/pwd`
     absolute_destinationdir=`cd "$destinationdir" ; /bin/pwd`
+    installbasedir=`dirname "$sourcedir"`
     # What to do if we abort.
     trap 'rm -rf "$absolute_destinationdir"' 1 2 15
     if [ "$absolute_sourcedir" = "$absolute_destinationdir" ] ; then
@@ -405,13 +407,13 @@ case "$1" in
       (cd "$destinationdir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o lisp.run)
       if [ -n "$PRELOAD" ] ; then
         # Generate new preliminary lispinit.mem
-        verbose "$sourcedir"/lisp.run -M "$sourcedir"/lispinit.mem -norc -q -i ${PRELOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
+        verbose "$sourcedir"/lisp.run -B "$installbasedir" -M "$sourcedir"/lispinit.mem -norc -q -i ${PRELOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
       fi
       # Generate new lispinit.mem
       if [ -n "$PRELOAD" ] ; then
-        verbose "$destinationdir"/lisp.run -M "$destinationdir"/lispinit.mem -norc -q -i ${LOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
+        verbose "$destinationdir"/lisp.run -B "$installbasedir" -M "$destinationdir"/lispinit.mem -norc -q -i ${LOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
       else
-        verbose "$destinationdir"/lisp.run -M "$sourcedir"/lispinit.mem -norc -q -i ${LOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
+        verbose "$destinationdir"/lisp.run -B "$installbasedir" -M "$sourcedir"/lispinit.mem -norc -q -i ${LOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
       fi
       # Generate new makevars
       sed -e "s,^LIBS=.*\$,LIBS='${LIBS}'," -e "s,^FILES=.*\$,FILES='${FILES}'," < "$sourcedir"/makevars > "$destinationdir"/makevars
@@ -430,6 +432,7 @@ case "$1" in
       exit 1
     fi
     sourcedir="$2"
+    installbasedir=`dirname "$sourcedir"`
     shift
     shift
     if test -n "@with_dynamic_modules@"; then
@@ -458,7 +461,7 @@ case "$1" in
       # Read the variables CC, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
       . "$sourcedir"/makevars
       if [ -z "$moduledirs" ] ; then
-        "$sourcedir"/lisp.run -M "$sourcedir"/lispinit.mem
+        "$sourcedir"/lisp.run -B "$installbasedir" -M "$sourcedir"/lispinit.mem
       else
         # Prepare the module directories and read their variables
         allmodulevars=''
@@ -521,7 +524,7 @@ case "$1" in
         # Create a shared library.
         lib="$tmpsharedlib"; libs="$LINKLIBS"; verbose @createsharedlib@
         # Run clisp, attach the shared library and load the Lisp stuff.
-        "$sourcedir"/lisp.run -M "$sourcedir"/lispinit.mem -i "$tmpinitlisp"
+        "$sourcedir"/lisp.run -B "$installbasedir" -M "$sourcedir"/lispinit.mem -i "$tmpinitlisp"
         rm -f "$tmpsharedlib" "$tmpinitlisp"
         trap '' 0 1 2 15
       fi
@@ -529,7 +532,7 @@ case "$1" in
       destinationdir="${TMPDIR-/tmp}/clisplink$$"
       # What to do if we abort.
       trap 'rm -rf "$destinationdir"' 0 1 2 15
-      "$0" add-module-sets "$sourcedir" "$destinationdir" "$@" && "$destinationdir"/lisp.run -M "$destinationdir"/lispinit.mem
+      "$0" add-module-sets "$sourcedir" "$destinationdir" "$@" && "$destinationdir"/lisp.run -B "$installbasedir" -M "$destinationdir"/lispinit.mem
       rm -rf "$destinationdir"
       trap '' 0 1 2 15
     fi
