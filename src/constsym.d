@@ -776,6 +776,8 @@ LISPSYM(set_slot_value,"SET-SLOT-VALUE",clos)
 LISPSYM(slot_boundp,"SLOT-BOUNDP",clos)
 LISPSYM(slot_makunbound,"SLOT-MAKUNBOUND",clos)
 LISPSYM(slot_exists_p,"SLOT-EXISTS-P",clos)
+LISPSYM(standard_instance_access,"STANDARD-INSTANCE-ACCESS",clos)
+LISPSYM(set_standard_instance_access,"(SETF STANDARD-INSTANCE-ACCESS)",clos)
 LISPSYM(punbound,"%UNBOUND",system)
 LISPSYM(pshared_initialize,"%SHARED-INITIALIZE",clos)
 LISPSYM(preinitialize_instance,"%REINITIALIZE-INSTANCE",clos)
@@ -1334,6 +1336,7 @@ LISPSYM(structure_object,"STRUCTURE-OBJECT",lisp) /* type for RECORD */
 LISPSYM(class,"CLASS",clos) /* type for RECORD */
 LISPSYM(slot_missing,"SLOT-MISSING",clos) /* function for RECORD */
 LISPSYM(slot_unbound,"SLOT-UNBOUND",clos) /* function for RECORD */
+LISPSYM(standard_object,"STANDARD-OBJECT",lisp) /* type for RECORD */
 LISPSYM(reinitialize_instance_table,"*REINITIALIZE-INSTANCE-TABLE*",clos) /* variable for RECORD */
 LISPSYM(make_instance_table,"*MAKE-INSTANCE-TABLE*",clos) /* variable for RECORD */
 LISPSYM(initial_reinitialize_instance,"INITIAL-REINITIALIZE-INSTANCE",clos) /* function for RECORD */

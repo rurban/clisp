@@ -1,5 +1,18 @@
 2004-06-20  Bruno Haible  <bruno@clisp.org>
 
+	* record.d (CLOS:STANDARD-INSTANCE-ACCESS,
+	(SETF CLOS:STANDARD-INSTANCE-ACCESS)): New functions.
+	* init.lisp: Export standard-instance-access.
+	* clos-package.lisp: Likewise.
+	* places.lisp (clos:standard-instance-access): Define setf function.
+	* clos-stablehash1.lisp (shared-initialize-<standard-stablehash>):
+	Use standard-instance-access instead of sys::%record-ref.
+	* clos-class3.lisp (install-class-direct-accessors): Likewise.
+	* clos-slots1.lisp (funcallable-standard-instance-access): New
+	function.
+
+2004-06-20  Bruno Haible  <bruno@clisp.org>
+
 	* clos-method1.lisp (make-method-instance): New function.
 	* clos-method4.lisp (make-method-instance): Replace with make-instance.
 	* clos-methcomb2.lisp (effective-method-code-bricks): Use

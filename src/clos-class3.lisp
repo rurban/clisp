@@ -1275,7 +1275,7 @@
                                ':instance))
                     (progn
                       (assert (typep (slot-definition-location effective-slot) 'integer))
-                      `(SYS::%RECORD-REF OBJECT ,(slot-definition-location effective-slot)))
+                      `(STANDARD-INSTANCE-ACCESS OBJECT ,(slot-definition-location effective-slot)))
                     `(SLOT-VALUE OBJECT ',slot-name)))))
           ; Generic accessors are defined as methods and listed in the
           ; direct-accessors list, so they can be removed upon class redefinition.
