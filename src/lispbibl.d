@@ -5494,7 +5494,7 @@ typedef struct {
   gcv_object_t direct_accessors        _attribute_aligned_object_;
   gcv_object_t fixed_slot_locations    _attribute_aligned_object_;
   gcv_object_t instantiated            _attribute_aligned_object_;
-  gcv_object_t direct_subclasses       _attribute_aligned_object_; /* weak-list of all finalized direct subclasses */
+  gcv_object_t direct_subclasses       _attribute_aligned_object_; /* weak-list or weak-hash-table of all finalized direct subclasses */
   gcv_object_t proto                   _attribute_aligned_object_; /* class prototype - an instance or NIL */
   gcv_object_t other[unspecified]      _attribute_aligned_object_;
 } *  Class;
