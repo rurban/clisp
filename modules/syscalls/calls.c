@@ -37,11 +37,14 @@
 #if defined(HAVE_ERRNO_H)
 # include <errno.h>
 #endif
+#if defined(HAVE_SYS_TYPES_H)
+# include <sys/types.h>
+#endif
 #if defined(HAVE_SYS_STAT_H)
 # include <sys/stat.h>
 #endif
-#if defined(HAVE_SYS_TYPES_H)
-# include <sys/types.h>
+#if defined(HAVE_SYS_RESOURCE_H)
+# include <sys/resource.h>
 #endif
 #if defined(HAVE_SYS_STATVFS_H)
 # include <sys/statvfs.h>
@@ -444,10 +447,6 @@ DEFUN(POSIX::CONFSTR, &optional what)
   }
 }
 #endif /* HAVE_CONFSTR */
-
-#if defined(HAVE_SYS_RESOURCE_H)
-# include <sys/resource.h>
-#endif
 
 #if defined(HAVE_GETRUSAGE)
 DEFUN(POSIX::USAGE,)
