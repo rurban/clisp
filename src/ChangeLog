@@ -1,3 +1,7 @@
+2005-02-09  Bruno Haible  <bruno@clisp.org>
+
+	* type.lisp (%the): Add comments about the (VALUES ...) type specifier.
+
 2005-02-10  Bruno Haible  <bruno@clisp.org>
 
 	* compiler.lisp (declared-optimize): Revert last patch: Don't use POP.

@@ -708,6 +708,37 @@
                  `(let ((,g ,objform))
                     (or (typep ,g ,typform) (eq (type-of ,g) 'READ-LABEL))))))
     (if (and (consp type) (eq (car type) 'VALUES))
+      ;; The VALUES type specifier is ill-defined in ANSI CL.
+      ;;
+      ;; There are two possibilities to define a VALUES type specifier in a
+      ;; sane way:
+      ;; - (EXACT-VALUES type1 ... [&optional ...]) describes the exact shape
+      ;;   of the values list, as received by MULTIPLE-VALUE-LIST.
+      ;;   For example, (EXACT-VALUES SYMBOL) is matched by (values 'a) but not
+      ;;   by (values 'a 'b) or (values).
+      ;; - (ASSIGNABLE-VALUES type1 ... [&optional ...]) describes the values
+      ;;   as received by a set of variables through MULTIPLE-VALUE-BIND or
+      ;;   MULTIPLE-VALUE-SETQ. For example, (ASSIGNABLE-VALUES SYMBOL) is
+      ;;   defined by whether
+      ;;     (MULTIPLE-VALUE-BIND (var1) values (DECLARE (TYPE SYMBOL var1)) ...)
+      ;;   is valid or not; therefore (ASSIGNABLE-VALUES SYMBOL) is matched by
+      ;;   (values 'a) and (values 'a 'b) and (values).
+      ;;   Note that &OPTIONAL is actually redundant here:
+      ;;     (ASSIGNABLE-VALUES type1 ... &optional otype1 ...)
+      ;;   is equivalent to
+      ;;     (ASSIGNABLE-VALUES type1 ... (OR NULL otype1) ...)
+      ;; HyperSpec/Body/typspe_values.html indicates that VALUES means
+      ;; EXACT-VALUES; however, HyperSpec/Body/speope_the.html indicates that
+      ;; VALUES means ASSIGNABLE-VALUES.
+      ;;
+      ;; SBCL interprets the VALUES type specifier to mean EXACT-VALUES when
+      ;; it contains &OPTIONAL or &REST, but ASSIGNABLE-VALUES when it has
+      ;; only a tuple of type specifiers. This is utter nonsense, in particular
+      ;; because it makes (VALUES type1 ... typek &OPTIONAL)
+      ;; different from   (VALUES type1 ... typek).
+      ;;
+      ;; Here we use the ASSIGNABLE-VALUES interpretation.
+      ;; In SUBTYPEP we just punt and don't assume any interpretation.
       (let ((vals values) (types (cdr type)))
         ;; required:
         (loop
