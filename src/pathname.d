@@ -1484,7 +1484,9 @@ local bool legal_logical_word_char(ch)
  #define pslashp(c)  chareq(c,ascii('.'))
 #endif
 #define colonp(c)    chareq(c,ascii(':'))
+#ifndef LOGICAL_PATHNAMES
 #define slashp(c)    pslashp(c)
+#endif
 
 # UP: Wandelt eine Unix-Directory-Angabe in ein Pathname um.
 # asciz_dir_to_pathname(path,encoding)
@@ -1629,6 +1631,30 @@ local bool all_digits(string)
     }
     return true;
   }
+
+# test whether the string contains semicolons,
+# thus appearing to be a logical pathname
+# > string: storage vector, a normal-simple-string
+# < result: true if the string contains semicolons
+local bool looks_logical_p (object string) {
+  var uintL len = Sstring_length(string);
+  if (len > 0) {
+    SstringDispatch(string,
+      { var const chart* charptr = TheSstring(string)->data;
+        while (len-- > 0) {
+          var chart ch = *charptr++;
+          if (semicolonp(ch))
+            return true;
+      }},
+      { var const scint* charptr = TheSmallSstring(string)->data;
+        while (len-- > 0) {
+          var scint ch = *charptr++;
+          if (semicolonp(as_chart(ch)))
+            return true;
+      }});
+  }
+  return false;
+}
 
 # Attempt to parse a logical host name string, starting at a given state.
 # parse_logical_host_prefix(&z,string)
@@ -1977,22 +2003,13 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               # an error for Win32 pathnames like "C:\\FOOBAR".
               && logical_host_p(host))
             parse_logical = true;
-          # ANSI CL specifies that we should look at the entire string, using
-          # parse_logical_pathnamestring, not only parse_logical_host_prefix.
-          else {
-            tmp = z;
-            while (tmp.count-- > 0) {
-              chart ch = TheSstring(string)->data[tmp.index++];
-              if (semicolonp(ch)) {
-                parse_logical = true;
-                break;
-              }
-            }
-          }
+          else
+            # ANSI CL specifies that we should look at the entire string, using
+            # parse_logical_pathnamestring, not only parse_logical_host_prefix.
+            parse_logical = looks_logical_p(string);
         }
       }
       #endif
-      # Coerce string to be a normal-simple-string.
       if (thing_symbol && !parse_logical) {
         #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
         # Betriebssystem mit Vorzug für Kleinbuchstaben
@@ -2005,6 +2022,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
         nstring_capitalize(&TheSstring(string)->data[0],Sstring_length(string));
         #endif
       }
+      # Coerce string to be a normal-simple-string.
       SstringDispatch(string,{},{ Z_SUB(z,string); });
       pushSTACK(string);
 #undef Z_SUB
@@ -4505,8 +4523,13 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
         value1 = pathname;
       } else {
         # (MERGE-PATHNAMES pathname defaults [nil] :wild #'make-pathname)
-        pushSTACK(pathname); pushSTACK(defaults); pushSTACK(NIL);
-        pushSTACK(S(Kwild)); pushSTACK(L(make_pathname));
+        pushSTACK(pathname); pushSTACK(defaults);
+        #ifdef LOGICAL_PATHNAMES
+        if (logpathnamep(pathname) && stringp(defaults)
+            looks_logical_p(defaults))
+          STACK_0 = parse_as_logical(STACK_0); # defaults
+        #endif
+        pushSTACK(NIL); pushSTACK(S(Kwild)); pushSTACK(L(make_pathname));
         funcall(L(merge_pathnames),5);
       }
       mv_count=1;
