@@ -2034,6 +2034,8 @@ local maygc object read_internal (const gcv_object_t* stream_) {
     loop {
       if (index>=len)
         goto current; # found no colon -> current package
+      if (*attrptr == a_illg)
+        goto found_illg;
       if (*attrptr++ == a_pack_m)
         break;
       index++;
@@ -2047,6 +2049,8 @@ local maygc object read_internal (const gcv_object_t* stream_) {
       goto ex_in_ternal;
     # is a further colon following, immediately?
     index++;
+    if (*attrptr == a_illg)
+      goto found_illg;
     if (*attrptr++ == a_pack_m) { # two colons side by side
       name_start_index = index; # Symbolname is starting but now
       external_internal_flag = true; # internal
@@ -2058,6 +2062,8 @@ local maygc object read_internal (const gcv_object_t* stream_) {
     loop {
       if (index>=len)
         goto ex_in_ternal; # no further colon found -> ok
+      if (*attrptr == a_illg)
+        goto found_illg;
       if (*attrptr++ == a_pack_m)
         break;
       index++;
@@ -2068,6 +2074,13 @@ local maygc object read_internal (const gcv_object_t* stream_) {
     pushSTACK(*stream_); # Stream
     pushSTACK(S(read));
     fehler(reader_error,GETTEXT("~S from ~S: too many colons in token ~S"));
+    # error message
+  found_illg:
+    pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+    pushSTACK(copy_string(O(token_buff_1))); # copy Character-Buffer
+    pushSTACK(*stream_); # Stream
+    pushSTACK(S(read));
+    fehler(reader_error,GETTEXT("~S from ~S: token ~S contains an invalid constituent character (see ANSI CL 2.1.4.2.)"));
     # search Symbol or create it:
   current: # search Symbol in the current package.
     # Symbolname = O(token_buff_1) = (subseq O(token_buff_1) 0 len)
