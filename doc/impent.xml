@@ -527,7 +527,6 @@
 <!ENTITY eltype-r "<replaceable>element-type</replaceable>">
 <!ENTITY encoding-r "<replaceable>encoding</replaceable>">
 <!ENTITY end-r "<replaceable>end</replaceable>">
-<!ENTITY env-r "<replaceable>environment</replaceable>">
 <!ENTITY eof-ep "<replaceable>eof-error-p</replaceable>">
 <!ENTITY eof-v "<replaceable>eof-value</replaceable>">
 <!ENTITY f-r "<replaceable>f</replaceable>">
