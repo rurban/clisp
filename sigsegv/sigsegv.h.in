@@ -49,7 +49,7 @@
 
 /* #undef HAVE_SIGSEGV_RECOVERY here if test1 crashes */
 
-#if defined(__linux__)
+#if defined(__linux__) || (defined(sun) && defined(unix) && (defined(mc68020) || defined(sparc) || (defined(i386) || defined(__i386)))) || ((defined(sgi) || defined(__sgi)) && (defined(SYSTYPE_SVR4) || defined(__SYSTYPE_SVR4))) || defined(__osf__) /* Linux, SunOS, Irix, OSF/1 */
 /* #define HAVE_STACK_OVERFLOW_RECOVERY ifdef HAVE_SIGALTSTACK in config.h */
 #endif
 
