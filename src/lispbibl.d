@@ -8437,6 +8437,11 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # wird verwendet von PATHNAME
 #endif
 
+#if defined(HAVE_SIGNALS) && defined(SIGPIPE)
+  # Set ONLY during write() calls to pipes directed to subprocesses.
+  extern boolean writing_to_subprocess;
+#endif
+
 
 # Deklaration der FSUBRs.
 # Als C-Funktionen: C_name, vom Typ fsubr_function (keine Argumente, kein Wert)

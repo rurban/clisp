@@ -701,6 +701,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 
 #include "spvw_sigsegv.c"
 #include "spvw_sigcld.c"
+#include "spvw_sigpipe.c"
 #include "spvw_sigint.c"
 #include "spvw_sigwinch.c"
 
@@ -2735,6 +2736,9 @@ local void print_banner ()
       #endif
       #ifdef HAVE_SIGNALS
         install_sigcld_handler();
+      #endif
+      #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
+        install_sigpipe_handler();
       #endif
       # Zeitvariablen initialisieren:
       init_time();
