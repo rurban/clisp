@@ -8764,6 +8764,7 @@ local char* executable_name = NULL;
  (Only used to verify that we find the correct executable.) */
 local int executable_fd = -1;
 
+#if defined(UNIX)
 /* maybe_executable(pathname)
  checks whether a given pathname may belong to the executable. */
 local bool maybe_executable (const char * filename) {
@@ -8785,6 +8786,7 @@ local bool maybe_executable (const char * filename) {
     return true;
   return false;
 }
+#endif
 
 /* find_executable(program_name)
  is to be called immediately after the program starts,
@@ -8796,24 +8798,17 @@ local bool maybe_executable (const char * filename) {
 global int find_executable (const char * program_name) {
   /* Do not need to execute this more than once. */
   if (executable_name != NULL) return 0;
- #if defined(WIN32_NATIVE)
+#if defined(WIN32_NATIVE)
   { /* try WIN32 API - this is not used because HAVE_DISASSEMBLER is UNIX-only,
        but this is an illustration that win32 API can be sometimes useful */
-    LPTSTR cmdl = GetCommandLine();
-    /* cmdl is now the full command line and the first word is the
-       full correct executable path, quoted with "" if it contains spaces */
-    if (cmdl[0] == '"') {
-      int pos_end = strchr(cmdl+1,'"') - cmdl - 1;
-      strncpy(executable_name,cmdl+1,pos_end);
-      executable_name[pos_end] = 0;
-    } else {
-      int pos_end = strchr(cmdl,' ') - cmdl;
-      strncpy(executable_name,cmdl,pos_end);
-      executable_name[pos_end] = 0;
-    }
+    char execname[MAX_PATH];
+    if (!GetModuleFileName(NULL,execname,MAX_PATH))
+      goto notfound;
+    executable_name = malloc(strlen(execname));
+    strcpy(executable_name,execname);
     return 0;
   }
- #endif
+#elif defined(UNIX)
  #ifdef UNIX_LINUX
   { /* The executable is accessible as /proc/<pid>/exe. We try this first
    because it is safer: no race condition w.r.t. the file system. It may
@@ -8885,6 +8880,9 @@ global int find_executable (const char * program_name) {
     return 0;
   }
   errno = ENOENT;
+#else
+  #error "not implemented: find_executable()"
+#endif
  notfound:
   executable_name = default_executable_name; return -1;
 }

@@ -553,14 +553,21 @@ LISPFUNN(code_address_of,1)
       VALUES1(NIL);
   }
 
-LISPFUNN(program_id,0)
-# (SYS::PROGRAM-ID) returns the pid
-  {
-    begin_system_call();
-    var int pid = getpid();
-    end_system_call();
-    VALUES1(L_to_I((sint32)pid));
-  }
+/* (SYS::PROGRAM-ID) returns the pid */
+LISPFUNN(program_id,0) {
+  begin_system_call();
+#if defined(UNIX)
+  var int pid = getpid();
+  end_system_call();
+  VALUES1(sint32_to_I(pid));
+#elif defined(WIN32_NATIVE)
+  var DWORD pid = GetCurrentProcessId();
+  end_system_call();
+  VALUES1(uint32_to_I(pid));
+#else
+  #error "What is program-ID on your system?"
+#endif
+}
 
 #endif
 
