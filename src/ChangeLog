@@ -41,7 +41,7 @@
 
 2003-01-03  Stefan Kain  <stefan.kain@freenet.de>
 
-	* lisparit.d, intelem.d, dfloat.d: translated all comments
+	* lisparit.d, intelem.d, dfloat.d, lfloat.d: translated all comments
 
 2003-01-03  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
