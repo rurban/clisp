@@ -2672,7 +2672,7 @@ only.</subtitle>
    (when the Lisp file is compiled with &compile-file;)
    <emphasis>unless</emphasis> these variables are &nil;.
    They are &nil; by default, so the <type>extern</type>
-   declarations are not &not-e; written; you are encouraged to use
+   declarations are &not-e; written; you are encouraged to use
    &c-lines; to include the appropriate &c-lang; headers.
    Set these variables to non-&nil; if the headers are not available or
    not usable.</simpara></listitem></varlistentry>
