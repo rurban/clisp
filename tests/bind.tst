@@ -1,9 +1,6 @@
 ;;; -*- Lisp -*-
 ;; test non-global special bindings
 
-(defun print-cond (c) (fresh-line) (princ c) (elastic-newline))
-print-cond
-
 ;; variable being declared special is bound
 (let ((x 5)) (let ((x (1+ x))) (declare (special x)) x))
 6
@@ -17,22 +14,22 @@ print-cond
 ;; variable being declared special is unbound
 (block foo
   (handler-bind ((unbound-variable
-                  (lambda (c) (print-cond c) (return-from foo 'good))))
+                  (lambda (c) (princ-error c) (return-from foo 'good))))
     (let ((x (1+ x))) (declare (special x)) x)))
 GOOD
 (block foo
   (handler-bind ((unbound-variable
-                  (lambda (c) (print-cond c) (return-from foo 'good))))
+                  (lambda (c) (princ-error c) (return-from foo 'good))))
     (let* ((x (1+ x))) (declare (special x)) x)))
 GOOD
 (block foo
   (handler-bind ((unbound-variable
-                  (lambda (c) (print-cond c) (return-from foo 'good))))
+                  (lambda (c) (princ-error c) (return-from foo 'good))))
     (multiple-value-bind (x) (1+ x) (declare (special x)) x)))
 GOOD
 (block foo
   (handler-bind ((unbound-variable
-                  (lambda (c) (print-cond c) (return-from foo 'good))))
+                  (lambda (c) (princ-error c) (return-from foo 'good))))
     ((lambda (x) (declare (special x)) x)  (1+ x))))
 GOOD
 

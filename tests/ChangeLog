@@ -1,5 +1,11 @@
 2005-01-13  Sam Steingold  <sds@gnu.org>
 
+	* tests.lisp (princ-error): moved here from...
+	* conditions.tst: here
+	* bind.tst: use it instead of print-cond
+
+2005-01-13  Sam Steingold  <sds@gnu.org>
+
 	allow compilation instead/in addition to evaluation of test forms
 	* tests.lisp (*eval-method*, *test-ignore-errors*): new variables
 	(my-eval): new function
