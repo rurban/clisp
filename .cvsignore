@@ -1,3 +1,4 @@
 .release
 build*
 makemake
+ansi-tests
