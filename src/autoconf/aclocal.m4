@@ -1997,10 +1997,10 @@ CL_PROTO_TRY([
 #include <sys/time.h>
 #include <sys/resource.h>
 ],
-[int getrlimit (enum __rlimit_resource resource, struct rlimit * rlim);],
+[int getrlimit (int resource, struct rlimit * rlim);],
 [int getrlimit();],
-[cl_cv_proto_getrlimit_arg1="enum __rlimit_resource"],
-[cl_cv_proto_getrlimit_arg1="int"])
+[cl_cv_proto_getrlimit_arg1="int"],
+[cl_cv_proto_getrlimit_arg1="enum __rlimit_resource"])
 ], [extern int getrlimit ($cl_cv_proto_getrlimit_arg1, struct rlimit *);])
 AC_DEFINE_UNQUOTED(RLIMIT_RESOURCE_T,$cl_cv_proto_getrlimit_arg1)
 CL_PROTO([setrlimit], [
