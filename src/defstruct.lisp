@@ -62,13 +62,12 @@
    ALLOCATE-INSTANCE, without need for corresponding effective-slot-definition.
 |#
 
-(defun make-ds-slot (name initargs offset initer initff type readonly)
+(defun make-ds-slot (name initargs offset initer type readonly)
   (clos::make-instance-<structure-effective-slot-definition>
     clos::<structure-effective-slot-definition>
     :name name
     :initargs initargs
     :initform (car initer) :initfunction (cdr initer) 'clos::inheritable-initer initer
-    'clos::initff initff
     :type type
     'clos::readonly readonly
     'clos::location offset))
@@ -78,7 +77,6 @@
     (clos:slot-definition-initargs slot)
     (clos:slot-definition-location slot)
     (clos::slot-definition-inheritable-initer slot)
-    (clos::structure-effective-slot-definition-initff slot)
     (clos:slot-definition-type slot)
     (clos::structure-effective-slot-definition-readonly slot)))
 (defmacro ds-real-slot-p (slot)
@@ -202,10 +200,11 @@
          `(%STRUCTURE-TYPE-P ',name OBJECT)
          (let ((max-offset -1)
                (max-name-offset -1))
-           (dolist (slot slotlist)
-             (setq max-offset (max max-offset (clos:slot-definition-location slot)))
-             (unless (ds-real-slot-p slot)
-               (setq max-name-offset (max max-name-offset (clos:slot-definition-location slot)))))
+           (dolist (slot+initff slotlist)
+             (let ((slot (car slot+initff)))
+               (setq max-offset (max max-offset (clos:slot-definition-location slot)))
+               (unless (ds-real-slot-p slot)
+                 (setq max-name-offset (max max-name-offset (clos:slot-definition-location slot))))))
            ; This code is only used when there is at least one named slot.
            (assert (<= 0 max-name-offset max-offset))
            (assert (< max-offset size))
@@ -214,30 +213,33 @@
                        (0 '())
                        (1 `((CONSP OBJECT)))
                        (t `((CONSES-P ,size OBJECT))))
-                   ,@(mapcan #'(lambda (slot)
-                                 (unless (ds-real-slot-p slot)
-                                   `((EQ (NTH ,(clos:slot-definition-location slot) OBJECT)
-                                         ',(ds-pseudo-slot-default slot)))))
+                   ,@(mapcan #'(lambda (slot+initff)
+                                 (let ((slot (car slot+initff)))
+                                   (unless (ds-real-slot-p slot)
+                                     `((EQ (NTH ,(clos:slot-definition-location slot) OBJECT)
+                                           ',(ds-pseudo-slot-default slot))))))
                              slotlist))
              ; This code is only used when there is at least one named slot.
              ; Therefore the vector's upgraded element type must contain
              ; SYMBOL, i.e. it must be a general vector.
              `(AND (SIMPLE-VECTOR-P OBJECT)
                    (>= (LENGTH OBJECT) ,size)
-                   ,@(mapcan #'(lambda (slot)
-                                 (unless (ds-real-slot-p slot)
-                                   `((EQ (SVREF OBJECT ,(clos:slot-definition-location slot))
-                                         ',(ds-pseudo-slot-default slot)))))
+                   ,@(mapcan #'(lambda (slot+initff)
+                                 (let ((slot (car slot+initff)))
+                                   (unless (ds-real-slot-p slot)
+                                     `((EQ (SVREF OBJECT ,(clos:slot-definition-location slot))
+                                           ',(ds-pseudo-slot-default slot))))))
                              slotlist))))))))
 
 #| auxiliary function for both constructors:
-   (ds-arg-default arg slot)
+   (ds-arg-default arg slot+initff)
    returns for an argument arg (part of the argument list) the part of
    the argument list, that binds this argument with the default for slot.
 |#
 
-(defun ds-arg-default (arg slot)
-  (let* ((initer (clos::slot-definition-inheritable-initer slot))
+(defun ds-arg-default (arg slot+initff)
+  (let* ((slot (car slot+initff))
+         (initer (clos::slot-definition-inheritable-initer slot))
          (initfunction (clos::inheritable-slot-definition-initfunction initer)))
     `(,arg
       ;; Initial value: If it is not a constant form, must funcall the
@@ -251,7 +253,7 @@
       ,(if ; equivalent to (constantp (clos::inheritable-slot-definition-initform initer))
            (or (null initfunction) (constant-initfunction-p initfunction))
          (clos::inheritable-slot-definition-initform initer)
-         `(FUNCALL ,(clos::structure-effective-slot-definition-initff slot))))))
+         `(FUNCALL ,(cdr slot+initff))))))
 
 #| auxiliary function for both constructors:
    (ds-make-constructor-body type name names size slotlist get-var)
@@ -263,13 +265,16 @@
            (do ((slotlistr slotlist (cdr slotlistr))
                 (index 0 (1+ index)))
                ((null slotlistr) (eql index size))
-             (unless (eq (clos:slot-definition-location (car slotlistr)) index)
-               (return nil))))
+             (let* ((slot+initff (car slotlistr))
+                    (slot (car slot+initff)))
+               (unless (eq (clos:slot-definition-location slot) index)
+                 (return nil)))))
     ;; optimize the simple case
-    `(,type ,@(mapcar #'(lambda (slot var)
-                          (if (ds-real-slot-p slot)
-                            `(THE ,(clos:slot-definition-type slot) ,var)
-                            `(QUOTE ,(ds-pseudo-slot-default slot))))
+    `(,type ,@(mapcar #'(lambda (slot+initff var)
+                          (let ((slot (car slot+initff)))
+                            (if (ds-real-slot-p slot)
+                              `(THE ,(clos:slot-definition-type slot) ,var)
+                              `(QUOTE ,(ds-pseudo-slot-default slot)))))
                        slotlist varlist))
     `(LET ((OBJECT
              ,(cond ((eq type 'T) `(%MAKE-STRUCTURE ,names ,size))
@@ -278,18 +283,20 @@
                      `(MAKE-ARRAY ,size :ELEMENT-TYPE ',(second type)))
                     (t `(MAKE-ARRAY ,size)))))
        ,@(mapcar
-          #'(lambda (slot var &aux (offset (clos:slot-definition-location slot)))
-              `(SETF
-                ,(cond ((eq type 'T)
-                        `(%STRUCTURE-REF ',name OBJECT ,offset) )
-                       ((eq type 'LIST)
-                        `(NTH ,offset OBJECT) )
-                       ((eq type 'VECTOR)
-                        `(SVREF OBJECT ,offset) )
-                       (t `(AREF OBJECT ,offset) ))
-                ,(if (or (eq type 'T) (ds-real-slot-p slot))
-                   `(THE ,(clos:slot-definition-type slot) ,var)
-                   `(QUOTE ,(ds-pseudo-slot-default slot)))))
+           #'(lambda (slot+initff var)
+               (let* ((slot (car slot+initff))
+                      (offset (clos:slot-definition-location slot)))
+                 `(SETF
+                    ,(cond ((eq type 'T)
+                            `(%STRUCTURE-REF ',name OBJECT ,offset))
+                           ((eq type 'LIST)
+                            `(NTH ,offset OBJECT))
+                           ((eq type 'VECTOR)
+                            `(SVREF OBJECT ,offset))
+                           (t `(AREF OBJECT ,offset)))
+                    ,(if (or (eq type 'T) (ds-real-slot-p slot))
+                       `(THE ,(clos:slot-definition-type slot) ,var)
+                       `(QUOTE ,(ds-pseudo-slot-default slot))))))
            slotlist varlist)
        OBJECT)))
 
@@ -306,11 +313,13 @@
     arg
     ;; no default value in the lambda-list
     (let* ((var (if (listp arg) (first arg) arg))
-           (slot (find (if (consp var) (second var) var) slotlist
-                       :key #'clos:slot-definition-name :test #'eq)))
-      (if slot
+           (slot+initff (find (if (consp var) (second var) var) slotlist
+                              :key #'(lambda (slot+initff)
+                                       (clos:slot-definition-name (car slot+initff)))
+                              :test #'eq)))
+      (if slot+initff
         ;; slot found -> take its default value
-        (ds-arg-default var slot)
+        (ds-arg-default var slot+initff)
         ;; slot not found, no default value
         arg))))
 
@@ -371,34 +380,39 @@
                            (cdr (memq '&aux arglist))
                            auxvars auxinits)
                  ,@(let ((slotinitlist nil))
-                     (dolist (slot slotlist)
-                       (when (or (eq type 'T) (ds-real-slot-p slot))
-                         (unless (memq (clos:slot-definition-name slot) argnames)
-                           (push (ds-arg-with-default
-                                   (clos:slot-definition-name slot) slotlist)
-                                 slotinitlist))))
+                     (dolist (slot+initff slotlist)
+                       (let ((slot (car slot+initff)))
+                         (when (or (eq type 'T) (ds-real-slot-p slot))
+                           (unless (memq (clos:slot-definition-name slot) argnames)
+                             (push (ds-arg-with-default
+                                     (clos:slot-definition-name slot) slotlist)
+                                   slotinitlist)))))
                      (nreverse slotinitlist)))))
         `(DEFUN ,constructorname ,new-arglist
            ,(ds-make-constructor-body type name names size slotlist
-                                      (mapcar #'clos:slot-definition-name slotlist)))))))
+              (mapcar #'(lambda (slot+initff)
+                          (clos:slot-definition-name (car slot+initff)))
+                      slotlist)))))))
 
 #| (ds-make-keyword-constructor descriptor type name names size slotlist)
    returns the form, that defines the keyword-constructor. |#
 (defun ds-make-keyword-constructor (descriptor type name names size slotlist)
   (let ((varlist
-          (mapcar #'(lambda (slot)
-                      (if (or (eq type 'T) (ds-real-slot-p slot))
-                        (make-symbol
-                          (symbol-name (clos:slot-definition-name slot)))
-                        nil))
+          (mapcar #'(lambda (slot+initff)
+                      (let ((slot (car slot+initff)))
+                        (if (or (eq type 'T) (ds-real-slot-p slot))
+                          (make-symbol
+                            (symbol-name (clos:slot-definition-name slot)))
+                          nil)))
                   slotlist)))
     `(DEFUN ,descriptor
        (&KEY
         ,@(mapcan
-            #'(lambda (slot var)
-                (if (or (eq type 'T) (ds-real-slot-p slot))
-                  (list (ds-arg-default var slot))
-                  '()))
+            #'(lambda (slot+initff var)
+                (let ((slot (car slot+initff)))
+                  (if (or (eq type 'T) (ds-real-slot-p slot))
+                    (list (ds-arg-default var slot+initff))
+                    '())))
             slotlist varlist))
        ,(ds-make-constructor-body type name names size slotlist varlist))))
 
@@ -427,66 +441,68 @@
 
 (defun ds-make-readers (name names type concname slotlist)
   (mapcap
-    #'(lambda (slot)
-        (if (or (eq type 'T) (ds-real-slot-p slot))
-          (let ((accessorname (ds-accessor-name (clos:slot-definition-name slot) concname))
-                (offset (clos:slot-definition-location slot))
-                (slottype (clos:slot-definition-type slot)))
-            ;; This makes the macroexpansion depend on the current state
-            ;; of the compilation environment, but it doesn't hurt because
-            ;; the included structure's definition must already be
-            ;; present in the compilation environment anyway. We don't expect
-            ;; people to re-DEFUN defstruct accessors.
-            (if (memq (get accessorname 'SYSTEM::DEFSTRUCT-READER name)
-                      (cdr names))
-              '()
-              `((PROCLAIM '(FUNCTION ,accessorname (,name) ,slottype))
-                (PROCLAIM '(INLINE ,accessorname))
-                (DEFUN ,accessorname (OBJECT)
-                  (THE ,slottype
-                    ,(cond ((eq type 'T)
-                            `(%STRUCTURE-REF ',name OBJECT ,offset))
-                           ((eq type 'LIST) `(NTH ,offset OBJECT))
-                           ((consp type) `(AREF OBJECT ,offset))
-                           (t `(SVREF OBJECT ,offset)))))
-                (SYSTEM::%PUT ',accessorname 'SYSTEM::DEFSTRUCT-READER
-                              ',name))))
-          '()))
+    #'(lambda (slot+initff)
+        (let ((slot (car slot+initff)))
+          (if (or (eq type 'T) (ds-real-slot-p slot))
+            (let ((accessorname (ds-accessor-name (clos:slot-definition-name slot) concname))
+                  (offset (clos:slot-definition-location slot))
+                  (slottype (clos:slot-definition-type slot)))
+              ;; This makes the macroexpansion depend on the current state
+              ;; of the compilation environment, but it doesn't hurt because
+              ;; the included structure's definition must already be
+              ;; present in the compilation environment anyway. We don't expect
+              ;; people to re-DEFUN defstruct accessors.
+              (if (memq (get accessorname 'SYSTEM::DEFSTRUCT-READER name)
+                        (cdr names))
+                '()
+                `((PROCLAIM '(FUNCTION ,accessorname (,name) ,slottype))
+                  (PROCLAIM '(INLINE ,accessorname))
+                  (DEFUN ,accessorname (OBJECT)
+                    (THE ,slottype
+                      ,(cond ((eq type 'T)
+                              `(%STRUCTURE-REF ',name OBJECT ,offset))
+                             ((eq type 'LIST) `(NTH ,offset OBJECT))
+                             ((consp type) `(AREF OBJECT ,offset))
+                             (t `(SVREF OBJECT ,offset)))))
+                  (SYSTEM::%PUT ',accessorname 'SYSTEM::DEFSTRUCT-READER
+                                ',name))))
+            '())))
     slotlist))
 
 (defun ds-make-writers (name names type concname slotlist)
   (mapcap
-    #'(lambda (slot)
-        (if (and (or (eq type 'T) (ds-real-slot-p slot))
-                 (not (clos::structure-effective-slot-definition-readonly slot)))
-          (let ((accessorname (ds-accessor-name (clos:slot-definition-name slot) concname))
-                (offset (clos:slot-definition-location slot))
-                (slottype (clos:slot-definition-type slot)))
-            ;; This makes the macroexpansion depend on the current state
-            ;; of the compilation environment, but it doesn't hurt because
-            ;; the included structure's definition must already be
-            ;; present in the compilation environment anyway. We don't expect
-            ;; people to re-DEFUN or re-DEFSETF defstruct accessors.
-            (if (memq (get accessorname 'SYSTEM::DEFSTRUCT-WRITER name)
-                      (cdr names))
-              '()
-              `((PROCLAIM '(FUNCTION (SETF ,accessorname) (,slottype ,name) ,slottype))
-                (PROCLAIM '(INLINE (SETF ,accessorname)))
-                (DEFUN (SETF ,accessorname) (VALUE OBJECT)
-                  ,(if (eq type 'T)
-                     `(%STRUCTURE-STORE ',name
-                        OBJECT
-                        ,offset
-                        ,(if (eq 'T slottype)
-                           `VALUE
-                           `(THE ,slottype VALUE)))
-                     (if (eq type 'LIST)
-                       `(SETF (NTH ,offset OBJECT) VALUE)
-                       (if (consp type)
-                         `(SETF (AREF OBJECT ,offset) VALUE)
-                         `(SETF (SVREF OBJECT ,offset) VALUE)))))
-                (SYSTEM::%PUT ',accessorname 'SYSTEM::DEFSTRUCT-WRITER
-                              ',name))))))
+    #'(lambda (slot+initff)
+        (let ((slot (car slot+initff)))
+          (if (and (or (eq type 'T) (ds-real-slot-p slot))
+                   (not (clos::structure-effective-slot-definition-readonly slot)))
+            (let ((accessorname (ds-accessor-name (clos:slot-definition-name slot) concname))
+                  (offset (clos:slot-definition-location slot))
+                  (slottype (clos:slot-definition-type slot)))
+              ;; This makes the macroexpansion depend on the current state
+              ;; of the compilation environment, but it doesn't hurt because
+              ;; the included structure's definition must already be
+              ;; present in the compilation environment anyway. We don't expect
+              ;; people to re-DEFUN or re-DEFSETF defstruct accessors.
+              (if (memq (get accessorname 'SYSTEM::DEFSTRUCT-WRITER name)
+                        (cdr names))
+                '()
+                `((PROCLAIM '(FUNCTION (SETF ,accessorname) (,slottype ,name) ,slottype))
+                  (PROCLAIM '(INLINE (SETF ,accessorname)))
+                  (DEFUN (SETF ,accessorname) (VALUE OBJECT)
+                    ,(if (eq type 'T)
+                       `(%STRUCTURE-STORE ',name
+                          OBJECT
+                          ,offset
+                          ,(if (eq 'T slottype)
+                             `VALUE
+                             `(THE ,slottype VALUE)))
+                       (if (eq type 'LIST)
+                         `(SETF (NTH ,offset OBJECT) VALUE)
+                         (if (consp type)
+                           `(SETF (AREF OBJECT ,offset) VALUE)
+                           `(SETF (SVREF OBJECT ,offset) VALUE)))))
+                  (SYSTEM::%PUT ',accessorname 'SYSTEM::DEFSTRUCT-WRITER
+                                ',name)))))))
     slotlist))
 
 (defun find-structure-class-slot-initfunction (classname slotname) ; ABI
@@ -556,10 +572,10 @@
          size
         (include-skip                      0)
         (inherited-slot-count              0)
-        (slotlist                          nil)
+        (slotlist                          nil) ; list of (slot . initff)
         (slotdefaultvars                   nil)
         (slotdefaultfuns                   nil)
-        (slotdefaultslots                  nil)
+        (slotdefaultslots                  nil) ; list of (slot . initff)
         (slotdefaultdirectslots            nil) ; list of (slot . initff)
          constructor-forms                      )
     ;; check name-and-options:
@@ -750,7 +766,10 @@
             'defstruct name subname type-option))
         (setq slotlist
           (nreverse
-            (mapcar #'copy-<structure-effective-slot-definition>
+            (mapcar #'(lambda (slot)
+                        (cons (copy-<structure-effective-slot-definition> slot)
+                              (ds-initfunction-fetcher subname type-option
+                                (clos:slot-definition-name slot))))
                     (if incl-class
                       (clos:class-slots incl-class)
                       (svref incl-desc 3)))))
@@ -759,100 +778,97 @@
                              (clos::class-instance-size incl-class)
                              (svref incl-desc 1)))
         (when slotlist
-          (assert (> include-skip (clos:slot-definition-location (first slotlist)))))
+          (assert (> include-skip (clos:slot-definition-location (car (first slotlist))))))
         ;; include-skip >=0 is the number of slots that are already consumend
         ;;    by the substructure, the "size" of the substructure.
-        (dolist (slot slotlist)
-          (setf (clos::structure-effective-slot-definition-initff slot)
-                (ds-initfunction-fetcher subname type-option (clos:slot-definition-name slot))))
         ;; Process further arguments of the :INCLUDE-option:
         (dolist (slotarg (rest option))
           (let* ((slotname (if (atom slotarg) slotarg (first slotarg)))
-                 (slot (find slotname slotlist :key #'clos:slot-definition-name
-                             :test #'eq)))
-            (when (null slot)
+                 (slot+initff (find slotname slotlist
+                                    :key #'(lambda (slot+initff)
+                                             (clos:slot-definition-name (car slot+initff)))
+                                    :test #'eq)))
+            (when (null slot+initff)
               (error-of-type 'source-program-error
                 :form whole-form
                 :detail slotname
                 (TEXT "~S ~S: included structure ~S has no component with name ~S.")
                 'defstruct name subname slotname))
-            (if (atom slotarg)
-              ; overwrite default to NIL
-              (progn
-                (setf (clos::slot-definition-inheritable-initer slot)
-                      (cons 'NIL (make-constant-initfunction 'NIL)))
-                (setf (clos::structure-effective-slot-definition-initff slot)
-                      `(MAKE-CONSTANT-INITFUNCTION NIL)))
-              (progn
-                (let ((initform (second slotarg)))
-                  (if (constantp initform)
-                    (progn
-                      (setf (clos::slot-definition-inheritable-initer slot)
-                            (cons initform (make-constant-initfunction (eval initform))))
-                      (setf (clos::structure-effective-slot-definition-initff slot)
-                            `(MAKE-CONSTANT-INITFUNCTION ,initform)))
-                    (progn
-                      (setf (clos::slot-definition-inheritable-initer slot)
-                            (cons initform nil)) ; FIXME
-                      (setf (clos::structure-effective-slot-definition-initff slot)
-                            `(FUNCTION ,(concat-pnames "DEFAULT-" slotname)
-                               (LAMBDA () ,initform))))))
-                ;; process the slot-options of this Slot-Specifier:
-                (do ((slot-arglistr (cddr slotarg) (cddr slot-arglistr)))
-                    ((endp slot-arglistr))
-                  (let ((slot-keyword (first slot-arglistr))
-                        (slot-key-value (second slot-arglistr)))
-                    (cond ((eq slot-keyword ':READ-ONLY)
-                           (if slot-key-value
-                             (setf (clos::structure-effective-slot-definition-readonly slot) t)
-                             (if (clos::structure-effective-slot-definition-readonly slot)
+            (let ((slot (car slot+initff)))
+              (if (atom slotarg)
+                ; overwrite default to NIL
+                (progn
+                  (setf (clos::slot-definition-inheritable-initer slot)
+                        (cons 'NIL (make-constant-initfunction 'NIL)))
+                  (setf (cdr slot+initff) `(MAKE-CONSTANT-INITFUNCTION NIL)))
+                (progn
+                  (let ((initform (second slotarg)))
+                    (if (constantp initform)
+                      (progn
+                        (setf (clos::slot-definition-inheritable-initer slot)
+                              (cons initform (make-constant-initfunction (eval initform))))
+                        (setf (cdr slot+initff) `(MAKE-CONSTANT-INITFUNCTION ,initform)))
+                      (progn
+                        (setf (clos::slot-definition-inheritable-initer slot)
+                              (cons initform nil)) ; FIXME
+                        (setf (cdr slot+initff)
+                              `(FUNCTION ,(concat-pnames "DEFAULT-" slotname)
+                                 (LAMBDA () ,initform))))))
+                  ;; Process the slot-options of this Slot-Specifier:
+                  (do ((slot-arglistr (cddr slotarg) (cddr slot-arglistr)))
+                      ((endp slot-arglistr))
+                    (let ((slot-keyword (first slot-arglistr))
+                          (slot-key-value (second slot-arglistr)))
+                      (cond ((eq slot-keyword ':READ-ONLY)
+                             (if slot-key-value
+                               (setf (clos::structure-effective-slot-definition-readonly slot) t)
+                               (if (clos::structure-effective-slot-definition-readonly slot)
+                                 (error-of-type 'source-program-error
+                                   :form whole-form
+                                   :detail subname
+                                   (TEXT "~S ~S: The READ-ONLY slot ~S of the included structure ~S must remain READ-ONLY in ~S.")
+                                   'defstruct name slotname subname name)
+                                 (setf (clos::structure-effective-slot-definition-readonly slot) nil))))
+                            ((eq slot-keyword ':TYPE)
+                             (unless
+                                 (subtypep
+                                   (type-for-discrimination slot-key-value)
+                                   (type-for-discrimination (clos:slot-definition-type slot)))
                                (error-of-type 'source-program-error
                                  :form whole-form
                                  :detail subname
-                                 (TEXT "~S ~S: The READ-ONLY slot ~S of the included structure ~S must remain READ-ONLY in ~S.")
-                                 'defstruct name slotname subname name)
-                               (setf (clos::structure-effective-slot-definition-readonly slot) nil))))
-                          ((eq slot-keyword ':TYPE)
-                           (unless
-                               (subtypep
-                                 (type-for-discrimination slot-key-value)
-                                 (type-for-discrimination (clos:slot-definition-type slot)))
-                             (error-of-type 'source-program-error
-                               :form whole-form
-                               :detail subname
-                               (TEXT "~S ~S: The type ~S of slot ~S should be a subtype of the type defined for the included strucure ~S, namely ~S.")
-                               'defstruct name slot-key-value slotname subname
-                               (clos:slot-definition-type slot)))
-                           (setf (clos:slot-definition-type slot) slot-key-value))
-                          (t (error-of-type 'source-program-error
-                               :form whole-form
-                               :detail slot-keyword
-                               (TEXT "~S ~S: ~S is not a slot option.")
-                               'defstruct name slot-keyword)))))))
-            (push (cons
-                    (clos::make-instance-<structure-direct-slot-definition>
-                      clos::<structure-direct-slot-definition>
-                      :name slotname
-                      :initform (clos:slot-definition-initform slot)
-                      :initfunction (clos:slot-definition-initfunction slot)
-                      :initargs (clos:slot-definition-initargs slot)
-                      :type (clos:slot-definition-type slot)
-                      'clos::inheritable-initer (clos::slot-definition-inheritable-initer slot)
-                      :readers '()
-                      :writers '())
-                    (clos::structure-effective-slot-definition-initff slot))
-                  directslotlist)))
-        (dolist (slot slotlist)
-          (let ((initfunction (clos:slot-definition-initfunction slot)))
+                                 (TEXT "~S ~S: The type ~S of slot ~S should be a subtype of the type defined for the included strucure ~S, namely ~S.")
+                                 'defstruct name slot-key-value slotname subname
+                                 (clos:slot-definition-type slot)))
+                             (setf (clos:slot-definition-type slot) slot-key-value))
+                            (t (error-of-type 'source-program-error
+                                 :form whole-form
+                                 :detail slot-keyword
+                                 (TEXT "~S ~S: ~S is not a slot option.")
+                                 'defstruct name slot-keyword)))))))
+              (push (cons
+                      (clos::make-instance-<structure-direct-slot-definition>
+                        clos::<structure-direct-slot-definition>
+                        :name slotname
+                        :initform (clos:slot-definition-initform slot)
+                        :initfunction (clos:slot-definition-initfunction slot)
+                        :initargs (clos:slot-definition-initargs slot)
+                        :type (clos:slot-definition-type slot)
+                        'clos::inheritable-initer (clos::slot-definition-inheritable-initer slot)
+                        :readers '()
+                        :writers '())
+                      (cdr slot+initff))
+                    directslotlist))))
+        (dolist (slot+initff slotlist)
+          (let* ((slot (car slot+initff))
+                 (initfunction (clos:slot-definition-initfunction slot)))
             (unless (or (null initfunction) (constant-initfunction-p initfunction))
               (let ((variable (gensym)))
-                (push (clos::structure-effective-slot-definition-initff slot)
-                      slotdefaultfuns)
+                (push (cdr slot+initff) slotdefaultfuns)
                 (push variable slotdefaultvars)
-                (push slot slotdefaultslots)
+                (push slot+initff slotdefaultslots)
                 (push nil slotdefaultdirectslots)
-                (setf (clos::structure-effective-slot-definition-initff slot)
-                      variable)))))
+                (setf (cdr slot+initff) variable)))))
         (when (eq (first include-option) ':INHERIT)
           (setq inherited-slot-count (length slotlist))))
       (if (eq name 'STRUCTURE-OBJECT)
@@ -886,13 +902,14 @@
       (when named-option
         (push
           ; the type recognition pseudo-slot
-          (make-ds-slot nil
-                        '()
-                        initial-offset
-                        (cons `(QUOTE ,name) (make-constant-initfunction name))
-                        `(MAKE-CONSTANT-INITFUNCTION ',name)
-                        'SYMBOL ; type = symbol
-                        T)      ; read-only
+          (cons
+            (make-ds-slot nil
+                          '()
+                          initial-offset
+                          (cons `(QUOTE ,name) (make-constant-initfunction name))
+                          'SYMBOL ; type = symbol
+                          T)      ; read-only
+            `(MAKE-CONSTANT-INITFUNCTION ',name))
           slotlist)
         (incf initial-offset)))
     ;; the slots are situated behind initial-offset.
@@ -912,9 +929,10 @@
           ;; #'eq, because if we have two slots P::X and Q::X, the two accessor
           ;; functions would have the same name FOO-X.
           (when (find (symbol-name slotname) slotlist
-                      :test #'(lambda (name slot)
-                                (and (or (eq type-option 'T) (ds-real-slot-p slot))
-                                     (string= (clos:slot-definition-name slot) name))))
+                      :test #'(lambda (name slot+initff)
+                                (let ((slot (car slot+initff)))
+                                  (and (or (eq type-option 'T) (ds-real-slot-p slot))
+                                       (string= (clos:slot-definition-name slot) name)))))
             (error-of-type 'source-program-error
               :form whole-form
               :detail slotname
@@ -965,13 +983,14 @@
                         :writers (if read-only '() (list `(SETF ,accessorname))))
                       initfunctionform)
                     directslotlist)
-              (push (make-ds-slot slotname
-                                  initargs
-                                  offset ; location
-                                  initer
-                                  initfunctionform
-                                  ;; The following are defstruct specific.
-                                  type read-only)
+              (push (cons
+                      (make-ds-slot slotname
+                                    initargs
+                                    offset ; location
+                                    initer
+                                    ;; The following are defstruct specific.
+                                    type read-only)
+                      initfunctionform)
                     slotlist)
               (unless (constantp initform)
                 (push (car slotlist) slotdefaultslots)
@@ -1000,13 +1019,13 @@
                   slotlist))))
         constructor-option-list))
     ;; constructor-forms = list of forms, that define the constructors.
-    (mapc #'(lambda (slot directslot)
-              (let ((initfunctionform
-                      (ds-initfunction-fetcher name type-option (clos:slot-definition-name slot))))
-                (setf (clos::structure-effective-slot-definition-initff slot)
-                      initfunctionform)
-                (when directslot
-                  (setf (cdr directslot) initfunctionform))))
+    (mapc #'(lambda (slot+initff directslot+initff)
+              (let* ((slot (car slot+initff))
+                     (initfunctionform
+                       (ds-initfunction-fetcher name type-option (clos:slot-definition-name slot))))
+                (setf (cdr slot+initff) initfunctionform)
+                (when directslot+initff
+                  (setf (cdr directslot+initff) initfunctionform))))
           slotdefaultslots slotdefaultdirectslots)
     ;; now, slotlist contains no more slotdefaultvars.
     `(EVAL-WHEN (LOAD COMPILE EVAL)
@@ -1018,29 +1037,32 @@
               `(%PUT ',name 'DEFSTRUCT-DESCRIPTION
                      (VECTOR ',type-option ,size ',keyword-constructor
                              (LIST
-                               ,@(mapcar #'(lambda (slot)
-                                             (clos::make-load-form-<structure-effective-slot-definition>
-                                               slot
-                                               (let ((i (position slot slotdefaultslots)))
-                                                 (if i (nth i slotdefaultvars) nil))))
+                               ,@(mapcar #'(lambda (slot+initff)
+                                             (let ((slot (car slot+initff)))
+                                               (clos::make-load-form-<structure-effective-slot-definition>
+                                                 slot
+                                                 (let ((i (position slot+initff slotdefaultslots)))
+                                                   (if i (nth i slotdefaultvars) (cdr slot+initff))))))
                                          slotlist)))))
            ,(if (eq type-option 'T)
               `(CLOS::DEFINE-STRUCTURE-CLASS ',name
                  ,namesform
                  ',keyword-constructor
                  (LIST
-                   ,@(mapcar #'(lambda (slot)
-                                 (clos::make-load-form-<structure-effective-slot-definition>
-                                   slot
-                                   (let ((i (position slot slotdefaultslots)))
-                                     (if i (nth i slotdefaultvars) nil))))
+                   ,@(mapcar #'(lambda (slot+initff)
+                                 (let ((slot (car slot+initff)))
+                                   (clos::make-load-form-<structure-effective-slot-definition>
+                                     slot
+                                     (let ((i (position slot+initff slotdefaultslots)))
+                                       (if i (nth i slotdefaultvars) (cdr slot+initff))))))
                              slotlist))
                  (LIST
-                   ,@(mapcar #'(lambda (directslot)
-                                 (clos::make-load-form-<structure-direct-slot-definition>
-                                   (car directslot)
-                                   (let ((i (position directslot slotdefaultdirectslots)))
-                                     (if i (nth i slotdefaultvars) (cdr directslot)))))
+                   ,@(mapcar #'(lambda (directslot+initff)
+                                 (let ((directslot (car directslot+initff)))
+                                   (clos::make-load-form-<structure-direct-slot-definition>
+                                     directslot
+                                     (let ((i (position directslot+initff slotdefaultdirectslots)))
+                                       (if i (nth i slotdefaultvars) (cdr directslot+initff))))))
                              directslotlist)))
               `(CLOS::UNDEFINE-STRUCTURE-CLASS ',name)))
          ,@(if (and named-option predicate-option)
