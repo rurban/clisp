@@ -191,6 +191,12 @@ of <CODE>char</CODE>, <CODE>schar</CODE>,  <CODE>uchar</CODE>,
 <CODE>va_arg_ulonglong()</CODE> work only if the C compiler has a working
 <CODE>long long</CODE> 64-bit integer type.
 <P>
+<LI> The struct types used in <CODE>va_start_struct()</CODE> and
+<CODE>va_struct()</CODE> must only contain (signed or unsigned) int,
+long, long long or pointer fields. Struct types containing
+(signed or unsigned) char, short, float, double or other
+structs are not supported.
+<P>
 </OL>
 
 <A NAME="See also">
@@ -261,6 +267,6 @@ Many ideas were cribbed from the gcc source.
 Bruno Haible &lt;haible@clisp.cons.org&gt;
 </ADDRESS>
 <P>
-Last modified: 25 October 1997.
+Last modified: 14 January 2001.
 
 </BODY>

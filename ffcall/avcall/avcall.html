@@ -159,6 +159,12 @@ and <CODE>av_<VAR>type</VAR>()</CODE> macros may be defined.
 <CODE>av_ulonglong()</CODE> work only if the C compiler has a working
 <CODE>long long</CODE> 64-bit integer type.
 <P>
+<LI> The struct types used in <CODE>av_start_struct()</CODE> and
+<CODE>av_struct()</CODE> must only contain (signed or unsigned) int,
+long, long long or pointer fields. Struct types containing
+(signed or unsigned) char, short, float, double or other
+structs are not supported.
+<P>
 </OL>
 
 <A NAME="See also">
@@ -253,7 +259,7 @@ Action SECOND.
 Bruno Haible &lt;haible@clisp.cons.org&gt;
 </ADDRESS>
 <P>
-Last modified: 25 October 1997.
+Last modified: 14 January 2001.
 
 </BODY>
 

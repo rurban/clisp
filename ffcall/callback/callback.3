@@ -1,4 +1,4 @@
-.TH CALLBACK 3 "25 October 1997"
+.TH CALLBACK 3 "14 January 2001"
 .SH NAME
 callback \- closures with variable arguments as first-class C functions
 .SH SYNOPSIS
@@ -192,6 +192,14 @@ and
 work only if the C compiler has a working
 .B long long
 64-bit integer type.
+
+The struct types used in
+.B va_start_struct(\|)
+and
+.B va_struct(\|)
+must only contain (signed or unsigned) int, long, long long or pointer fields.
+Struct types containing (signed or unsigned) char, short, float, double or
+other structs are not supported.
 
 .SH SEE ALSO
 .BR vacall (3),
