@@ -162,6 +162,14 @@ local function (LABEL/FLET) calls waste heap (COPY-CLOSURE).
 2. make it mutable via DEFPACKAGE.
 
 
+LAUNCH/RUN-PROGRAM:
+CLISP has always offered _several_ built-ins (from SHELL to
+MAKE-PIPE-IO-STREAM) for launching external executables.
+We need to have just _one_ such built-in, with many more options,
+like CMUCL's RUN-PROGRAM
+<http://common-lisp.net/project/cmucl/doc/cmu-user/extensions.html#toc46>
+We now have LAUNCH which is a good start.  More work is needed.
+
 
 MAYBE
 =====
