@@ -1,3 +1,8 @@
+1999-09-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * spvw_memfile.d (loadmem): Before quitting, close handle if needed.
+          (loadmem_from_handle): Before quitting, always close handle.
+
 1999-08-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * aclocal.m4 (CL_SIGNAL_REINSTALL, CL_SIGACTION_REINSTALL): Enable
