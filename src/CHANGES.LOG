@@ -52,6 +52,9 @@ User visible changes
   signals an error if it is invalid unless given the :IF-DOES-NOT-EXIST
   NIL argument.
 
+* New debugger command Quit (:q) aborts to the top-level read-eval-print
+  loop immediately, saving you typing :a several times.
+
 * Fixed a bug: Conversion from bytes to string did not work for the encoding
   (MAKE-ENCODING :CHARSET CHARSET:UNICODE-32-LITTLE-ENDIAN
                  :INPUT-ERROR-ACTION :IGNORE).
@@ -1978,7 +1981,7 @@ User visible changes
   another present symbol of the same name.
 
 * Fixed a bug in the debugger which caused the BACKTRACE commands to print
-  garbage if the current user interface language was not english.
+  garbage if the current user interface language was not English.
 
 Other modifications
 -------------------
