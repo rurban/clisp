@@ -792,7 +792,9 @@
   #ifndef rand # Manche definieren rand() als Macro...
     extern_C int rand (void); # siehe RAND(3V)
   #endif
-  extern_C pid_t getpid (void); # siehe GETPID(2V)
+  #if !defined(HAVE_SETPGID) # in this case, already declared above
+    extern_C pid_t getpid (void); # siehe GETPID(2V)
+  #endif
 # wird verwendet von LISPARIT
 
 # MACHINE-TYPE und MACHINE-VERSION und evtl. MACHINE-INSTANCE bestimmen:

@@ -8178,8 +8178,8 @@ local object open_file (object filename,direction_t direction,
   # stack layout: Pathname, Truename.
   # check filename and get the handle:
   var object handle;
-  var bool append_flag = false;
-  switch (direction) {
+ {var bool append_flag = false;
+ {switch (direction) {
     case DIRECTION_PROBE:
       if (!file_exists(namestring)) { # file does not exist
         # :IF-DOES-NOT-EXIST decides:
@@ -8358,7 +8358,7 @@ local object open_file (object filename,direction_t direction,
     # STACK_0 = Truename, FILE-ERROR slot PATHNAME
       pushSTACK(STACK_0);
       fehler(file_error,GETTEXT("a file named ~ already exists"));
-  }
+ }}
  handle_ok:
   # handle and append_flag are done with.
   # make the Stream:
@@ -8366,9 +8366,10 @@ local object open_file (object filename,direction_t direction,
   pushSTACK(STACK_4); # :EXTERNAL-FORMAT argument
   pushSTACK(STACK_4); # :ELEMENT-TYPE argument
   pushSTACK(handle);
-  var object stream = make_file_stream(direction,append_flag,true);
-  skipSTACK(4);
-  return stream;
+  {var object stream = make_file_stream(direction,append_flag,true);
+   skipSTACK(4);
+   return stream;
+ }}
  ergebnis_NIL: # return NIL
   skipSTACK(6); # forget both Pathnames and three arguments
   return NIL;

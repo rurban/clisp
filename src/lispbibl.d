@@ -1016,6 +1016,9 @@
     #define unused
   #endif
 
+# Ignore C++ keyword.
+  #define export export_sym
+
 # Vertauschen zweier Variableninhalte:  swap(register int, x1, x2);
   #define swap(swap_type,swap_var1,swap_var2)  \
     { var swap_type swap_temp;                                             \
@@ -4721,10 +4724,16 @@ typedef struct {
   #define strmflags_open_B   0xF0  # gibt an, ob der Stream offen ist
   #define strmflags_immut_bit_B  1  # set if read literals are immutable
   #define strmflags_reval_bit_B  2  # gesetzt, falls Read-Eval erlaubt ist
+  #define strmflags_rd_by_bit_B  4  # gesetzt, falls READ-BYTE möglich ist
+  #define strmflags_wr_by_bit_B  5  # gesetzt, falls WRITE-BYTE möglich ist
   #define strmflags_rd_ch_bit_B  6  # gesetzt, falls READ-CHAR möglich ist
   #define strmflags_wr_ch_bit_B  7  # gesetzt, falls WRITE-CHAR möglich ist
+  #define strmflags_rd_by_B  bit(strmflags_rd_by_bit_B)
+  #define strmflags_wr_by_B  bit(strmflags_wr_by_bit_B)
   #define strmflags_rd_ch_B  bit(strmflags_rd_ch_bit_B)
   #define strmflags_wr_ch_B  bit(strmflags_wr_ch_bit_B)
+  #define strmflags_rd_B  (strmflags_rd_by_B | strmflags_rd_ch_B)
+  #define strmflags_wr_B  (strmflags_wr_by_B | strmflags_wr_ch_B)
 # Nähere Typinfo:
   enum { # Die Werte dieser Aufzählung sind der Reihe nach 0,1,2,...
   # First the OS independent streams.
@@ -11860,14 +11869,8 @@ extern if_exists_t check_if_exists (const object if_exists);
 # wird verwendet von SPVW
 #endif
 
-# Function: Tests whether an object is an input-stream.
-extern inline bool input_stream_p(const object stream);
-
-# Function: Tests whether an object is an output-stream.
-extern inline bool output_stream_p(const object stream);
-
 # Function: test whether a stream is a terminal stream.
-extern bool terminal_stream_p(const object stream);
+extern bool terminal_stream_p(object stream);
 
 #ifdef EXPORT_SYSCALLS
 #ifdef UNIX
