@@ -17,6 +17,8 @@ User visible changes
 
 * New extension: directory access (win32 registry).  See impnotes for details.
 
+* Support UNC pathnames (\\host\dir\name.ext) on win32.
+
 * New functions CONVERT-STRING-FROM-BYTES and CONVERT-STRING-TO-BYTES.
 
 * Support for non-blocking binary I/O.
