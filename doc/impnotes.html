@@ -57,7 +57,7 @@ CLASS="command"
 > version 2.30.</H2
 ><SPAN
 CLASS="date"
->Last modified: 2002-09-13<BR></SPAN
+>Last modified: 2002-09-23<BR></SPAN
 ><H3
 CLASS="author"
 ><A
@@ -35257,8 +35257,19 @@ CLASS="constant"
 >, <TT
 CLASS="constant"
 >:PRINT</TT
-> keyword arguments, respectively.
- For each input file (default file type: <TT
+> keyword arguments, respectively,
+ and are bound by <A
+HREF="http://www.lisp.org/HyperSpec/Body/fun_compile-file.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>COMPILE-FILE</TT
+></A
+> to the values of the arguments, i.e.,
+ these arguments are recursive.</P
+><P
+ALIGN="justify"
+>For each input file (default file type: <TT
 CLASS="filename"
 >#P".lisp"</TT
 >)
@@ -35769,16 +35780,19 @@ TARGET="_top"
 CLASS="function"
 >LOAD</TT
 ></A
-> has three additional keywords <TT
+> has four additional keywords <TT
 CLASS="constant"
 >:ECHO</TT
 >, <TT
 CLASS="constant"
 >:COMPILING</TT
->, and
+>,
  <TT
 CLASS="constant"
 >:EXTRA-FILE-TYPES</TT
+>, and <TT
+CLASS="constant"
+>:OBSOLETE-ACTION</TT
 >.</P
 ><P
 ALIGN="justify"
@@ -35823,6 +35837,9 @@ CLASS="constant"
  <TT
 CLASS="constant"
 >:EXTRA-FILE-TYPES</TT
+> <TT
+CLASS="constant"
+>:OBSOLETE-ACTION</TT
 >)</TT
 ></P
 ><P
@@ -36065,8 +36082,171 @@ CLASS="emphasis"
 > file is loaded.
  </P
 ></DD
+><DT
+><TT
+CLASS="constant"
+>:OBSOLETE-ACTION</TT
+> <A
+HREF="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
+TARGET="_top"
+><TT
+CLASS="constant"
+>NIL</TT
+></A
+></DT
+><DD
+><P
+ALIGN="justify"
+>Specifies the action to take when loading a
+   <TT
+CLASS="filename"
+>#P".fas"</TT
+> with a different <A
+HREF="#bytecode"
+>bytecode</A
+>
+   version from the one supported by this <A
+HREF="http://clisp.cons.org"
+TARGET="_top"
+><B
+CLASS="command"
+>CLISP</B
+></A
+> version.
+   The possible actions are <TT
+CLASS="constant"
+>:DELETE</TT
+> to delete the
+   <TT
+CLASS="filename"
+>#P".fas"</TT
+> and <TT
+CLASS="constant"
+>:ERROR</TT
+> to signal and <A
+HREF="http://www.lisp.org/HyperSpec/Body/fun_error.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>ERROR</TT
+></A
+>.
+   The default action is to <A
+HREF="http://www.lisp.org/HyperSpec/Body/fun_warn.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>WARN</TT
+></A
+> and look for another matching file.
+   If no file can be loaded and <TT
+CLASS="constant"
+>:IF-DOES-NOT-EXIST</TT
+> is non-<A
+HREF="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
+TARGET="_top"
+><TT
+CLASS="constant"
+>NIL</TT
+></A
+>,
+   an <A
+HREF="http://www.lisp.org/HyperSpec/Body/fun_error.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>ERROR</TT
+></A
+> is signaled.
+   The default is <B
+CLASS="emphasis"
+><TT
+CLASS="varname"
+>CUSTOM:*LOAD-OBSOLETE-ACTION*</TT
+></B
+>,
+   which is initially <A
+HREF="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
+TARGET="_top"
+><TT
+CLASS="constant"
+>NIL</TT
+></A
+>.</P
+></DD
 ></DL
 ></DIV
+><P
+ALIGN="justify"
+>The variables <A
+HREF="http://www.lisp.org/HyperSpec/Body/var_stload-pr_ad-verbosest.html"
+TARGET="_top"
+><TT
+CLASS="varname"
+>*LOAD-VERBOSE*</TT
+></A
+>, <A
+HREF="http://www.lisp.org/HyperSpec/Body/var_stload-pr_ad-verbosest.html"
+TARGET="_top"
+><TT
+CLASS="varname"
+>*LOAD-PRINT*</TT
+></A
+>,
+<TT
+CLASS="varname"
+>CUSTOM:*LOAD-OBSOLETE-ACTION*</TT
+>,
+<TT
+CLASS="varname"
+>CUSTOM:*LOAD-COMPILING*</TT
+>, and
+<TT
+CLASS="varname"
+>CUSTOM:*LOAD-ECHO*</TT
+> are bound by <A
+HREF="http://www.lisp.org/HyperSpec/Body/fun_load.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>LOAD</TT
+></A
+> when it
+receives a corresponding keyword argument (<TT
+CLASS="constant"
+>:VERBOSE</TT
+>, <TT
+CLASS="constant"
+>:PRINT</TT
+>,
+<TT
+CLASS="constant"
+>:OBSOLETE-ACTION</TT
+>, <TT
+CLASS="constant"
+>:COMPILING</TT
+>, and <TT
+CLASS="constant"
+>:ECHO</TT
+>), i.e., these arguments
+are recursive, just like the arguments <TT
+CLASS="constant"
+>:WARNINGS</TT
+>, <TT
+CLASS="constant"
+>:VERBOSE</TT
+>, and
+<TT
+CLASS="constant"
+>:PRINT</TT
+> for <A
+HREF="http://www.lisp.org/HyperSpec/Body/fun_compile-file.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>COMPILE-FILE</TT
+></A
+>.</P
 ><DIV
 CLASS="formalpara"
 ><P
