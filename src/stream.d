@@ -16,6 +16,45 @@
   #include <string.h>  # declares strcpy(), strcat()
 #endif
 
+# off_t is a signed type, defined in <sys/types.h> and <fcntl.h>, denoting
+# the a file descriptor's position. Here we also need the unsigned equivalent.
+#if SIZEOF_OFF_T > 4
+  typedef uint64 uoff_t;
+#else
+  typedef uint32 uoff_t;
+#endif
+
+# Converts an uoff_t value into an Integer >=0.
+# uoff_t_to_I(wert)
+# > wert: value in the range of uoff_t
+# < result: Integer with that value.
+# can trigger GC
+#if SIZEOF_OFF_T > 4
+  #define uoff_t_to_I UQ_to_I
+#else
+  #define uoff_t_to_I UL_to_I
+#endif
+
+# Converts an Integer >=0 into an uoff_t value.
+# I_to_uoff_t(obj)
+# > obj: an object, should be an Integer >=0, <= ~(uoff_t)0
+# < result: the Integer's value as an uoff_t
+#if SIZEOF_OFF_T > 4
+  #define I_to_uoff_t I_to_UQ
+#else
+  #define I_to_uoff_t I_to_UL
+#endif
+
+# Test for an Integer that fits into an uoff_t.
+# uoff_t_p(obj)
+# > obj: an object
+# < result: true if it's an integer >=0, <= ~(uoff_t)0
+#if SIZEOF_OFF_T > 4
+  #define uoff_t_p uint64_p
+#else
+  #define uoff_t_p uint32_p
+#endif
+
 # once again the structure of Streams:
 # strmflags = Flags
   # Bits in the Flags:
@@ -5791,7 +5830,7 @@ typedef struct strm_buffered_extrafields_t {
   strm_channel_extrafields_t _parent;
   uintL (* low_fill)  (object stream, bool no_hang);
   void  (* low_flush) (object stream, uintL bufflen);
-  uintL buffstart;     # start position of buffer
+  uoff_t buffstart;    # start position of buffer
   uintL endvalid;      # index up to which the data is known to be valid
   uintL index;         # index into buffer (>=0, <=endvalid)
   bool have_eof_p : 8; # indicates that eof is right after endvalid
@@ -5813,7 +5852,7 @@ typedef struct strm_buffered_extrafields_t {
   # then leaves the position at the correct point for subsequent reads.
 # Up to now a file is considered built from bytes of 8 bits.
 # Logically, it is built up from other units:
-  uintL position;               # position in logical units
+  uoff_t position;              # position in logical units
 } strm_buffered_extrafields_t;
 
 # More fields in file streams with element type INTEGER, type ib or ic.
@@ -5825,7 +5864,7 @@ typedef struct strm_i_buffered_extrafields_t {
   # order bit0,....,bit7. If bitsize<8, the length of the file (measured in
   # bits) is stored in the first 4 bytes of the files [in little-endian order]
   # when the file is closed. The actual data then begins in the 5th byte.
-  uintL eofposition;            # position of logical EOF
+  uoff_t eofposition;           # position of logical EOF
 } strm_i_buffered_extrafields_t;
 
 # In closed file streams only the fields `name' and `truename' are relevant.
@@ -5903,7 +5942,7 @@ global object file_stream_truename (object s)
 # < result: new Position
 #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
   #define handle_lseek(stream,handle,offset,mode,result_assignment)     \
-    { var sintL result = lseek(TheHandle(handle),offset,mode);          \
+    { var off_t result = lseek(TheHandle(handle),offset,mode);          \
       if (result<0) /* error occurred? */                               \
         { end_system_call(); OS_filestream_error(stream); }             \
       unused (result_assignment result);                                \
@@ -5911,7 +5950,7 @@ global object file_stream_truename (object s)
 #endif
 #ifdef AMIGAOS
   #define handle_lseek(stream,handle,offset,mode,result_assignment)           \
-    { var uintL _offset = (offset);                                           \
+    { var uoff_t _offset = (offset);                                          \
       var sintL result = Seek(TheHandle(handle),_offset,mode);                \
       if (result<0) /* error occurred? */                                     \
         { end_system_call(); OS_filestream_error(stream); }                   \
@@ -5921,7 +5960,7 @@ global object file_stream_truename (object s)
         result = Seek(TheHandle(handle),0,SEEK_CUR);                          \
         if (result<0) /* error occurred? */                                   \
           { end_system_call(); OS_filestream_error(stream); }                 \
-        unused (result_assignment result);                                    \
+        unused (result_assignment (off_t)result);                                    \
     }}
   #define SEEK_SET  OFFSET_BEGINNING
   #define SEEK_CUR  OFFSET_CURRENT
@@ -5932,7 +5971,7 @@ global object file_stream_truename (object s)
     { var DWORD result = SetFilePointer(TheHandle(handle),offset, NULL,mode); \
       if (result == (DWORD)(-1))                                              \
         { end_system_call(); OS_filestream_error(stream); }                   \
-      unused (result_assignment result);                                      \
+      unused (result_assignment (off_t)result);                                      \
     }
 #endif
 
@@ -6123,11 +6162,11 @@ nonreturning_function(local, fehler_position_beyond_EOF, (object stream)) {
 # > stream : (open) Byte-based File-Stream.
 # > position : new Position
 # changed in stream: index, endvalid, buffstart
-local void position_file_buffered (object stream, uintL position) {
+local void position_file_buffered (object stream, uoff_t position) {
   # Is the new Position in the same Sector?
   {
     var uintL endvalid = BufferedStream_endvalid(stream);
-    var uintL newindex = position - BufferedStream_buffstart(stream);
+    var uoff_t newindex = position - BufferedStream_buffstart(stream);
     if (newindex <= endvalid) { # yes -> only index has to be changed:
       BufferedStream_index(stream) = newindex;
       return;
@@ -6147,10 +6186,10 @@ local void position_file_buffered (object stream, uintL position) {
     BufferedStream_modified(stream) = false; # unmodified
     BufferedStream_have_eof_p(stream) = false;
   } else {
-    var uintL oldposition = BufferedStream_buffstart(stream) + BufferedStream_index(stream);
+    var uoff_t oldposition = BufferedStream_buffstart(stream) + BufferedStream_index(stream);
     # Positioning:
     {
-      var uintL newposition;
+      var uoff_t newposition;
       begin_system_call();
       handle_lseek(stream,BufferedStream_channel(stream),
                    floor(position,strm_buffered_bufflen)*strm_buffered_bufflen,SEEK_SET,newposition=);
@@ -6186,7 +6225,7 @@ local void position_file_buffered (object stream, uintL position) {
 # > stream : (open) Byte-based File-Stream.
 # changed in stream: index, endvalid, buffstart
 local void sync_file_buffered (object stream) {
-  var uintL position = BufferedStream_buffstart(stream)+BufferedStream_index(stream);
+  var uoff_t position = BufferedStream_buffstart(stream)+BufferedStream_index(stream);
   # poss. flush Buffer:
   if (BufferedStream_modified(stream))
     buffered_flush(stream);
@@ -6840,9 +6879,9 @@ local void wr_ch_array_buffered_dos (const gcv_object_t* stream_,
 # > stream : (open) Byte-based File-Stream.
 # > position : new (logical) Position
 # changed in stream: index, endvalid, buffstart, bitindex
-local void position_file_i_buffered (object stream, uintL position) {
+local void position_file_i_buffered (object stream, uoff_t position) {
   var uintL bitsize = ChannelStream_bitsize(stream);
-  var uintL position_bits = position * bitsize;
+  var uoff_t position_bits = position * bitsize;
   if (bitsize < 8)
     position_bits += sizeof(uintL)*8; # consider Header
   # position at Bit Number position_bits.
@@ -6856,7 +6895,7 @@ local void position_file_i_buffered (object stream, uintL position) {
       || ((bitsize < 8)
           && (position > BufferedStream_eofposition(stream)))) {
     # Error. But first position back to the old Position:
-    var uintL oldposition = BufferedStream_position(stream);
+    var uoff_t oldposition = BufferedStream_position(stream);
     check_SP();
     position_file_i_buffered(stream,oldposition); # positioning back
     fehler_position_beyond_EOF(stream);
@@ -7235,7 +7274,7 @@ local void logical_position_file_start (object stream) {
 # > stream : (open) File-Stream.
 # > position : new (logical) Position
 # changed in stream: index, endvalid, buffstart, ..., position, rd_ch_last
-local void logical_position_file (object stream, uintL position) {
+local void logical_position_file (object stream, uoff_t position) {
   var uintL bitsize = ChannelStream_bitsize(stream);
   if (bitsize > 0) { # Integer-Stream ?
     if ((bitsize % 8) == 0) { # Type a
@@ -7259,13 +7298,13 @@ local void logical_position_file_end (object stream) {
   # poss. flush Buffer:
   if (BufferedStream_modified(stream))
     buffered_flush(stream);
-  var uintL eofbytes; # EOF-Position, measured in Bytes
+  var uoff_t eofbytes; # EOF-Position, measured in Bytes
   # position to the End:
   begin_system_call();
   handle_lseek(stream,BufferedStream_channel(stream),0,SEEK_END,eofbytes=);
   end_system_call();
   # calculate logical Position and correct eofbytes:
-  var uintL position; # logical Position
+  var uoff_t position; # logical Position
   var uintL eofbits = 0; # Bit-Complement for eofbytes
   var uintL bitsize = ChannelStream_bitsize(stream);
   if (bitsize > 0) { # Integer-Stream ?
@@ -7300,7 +7339,7 @@ local void logical_position_file_end (object stream) {
     BufferedStream_have_eof_p(stream) = true;
   } else { # position to the start of the last Sector:
     {
-      var uintL buffstart;
+      var uoff_t buffstart;
       begin_system_call();
       handle_lseek(stream,BufferedStream_channel(stream),
                    floor(eofbytes,strm_buffered_bufflen)*strm_buffered_bufflen,
@@ -7561,7 +7600,7 @@ global object make_file_stream (direction_t direction, bool append_flag,
         handle_tty = isatty(TheHandle(handle));
         end_system_call();
       }
-    stream=make_unbuffered_stream(strmtype_file,direction,&eltype,handle_tty);
+    stream = make_unbuffered_stream(strmtype_file,direction,&eltype,handle_tty);
     # file-handle-streams are treated for pathname purposes as file-streams
     # thus (wrt file_write_date) strm_buffered_channel == strm_ochannel,
     # and we have pathnames now:
@@ -7603,7 +7642,7 @@ global object make_file_stream (direction_t direction, bool append_flag,
     BufferedHandleStream_init(stream);
     ChannelStreamLow_close(stream) = &low_close_handle;
     if (handle_regular && !handle_fresh) {
-      var uintL position;
+      var uoff_t position;
       begin_system_call();
       handle_lseek(stream,BufferedStream_channel(stream),0,SEEK_CUR,position=);
       end_system_call();
@@ -7613,9 +7652,9 @@ global object make_file_stream (direction_t direction, bool append_flag,
         && !(eltype.kind == eltype_ch) && (eltype.size < 8)) {
       # Type b
       # read eofposition:
-      var uintL eofposition = 0;
+      var uoff_t eofposition = 0;
       var uintC count;
-      for (count=0; count < 8*sizeof(uintL); count += 8 ) {
+      for (count = 0; count < 8*sizeof(uintL); count += 8) {
         var uintB* ptr = buffered_nextbyte(stream,false);
         if (ptr == (uintB*)NULL)
           goto too_short;
@@ -7678,7 +7717,8 @@ local void buffered_flush_everything (object stream) {
   if (ChannelStream_bitsize(stream) > 0 && ChannelStream_bitsize(stream) < 8)
     if (TheStream(stream)->strmflags & strmflags_wr_by_B) { # only if not read-only
       position_file_buffered(stream,0); # move to position 0
-      var uintL eofposition = BufferedStream_eofposition(stream);
+      var uoff_t eofposition = BufferedStream_eofposition(stream);
+      # FIXME: We should give an error if eofposition > ~(uintL)0.
       var uintC count;
       dotimespC(count,sizeof(uintL), {
         buffered_writebyte(stream,(uintB)eofposition);
@@ -7793,7 +7833,7 @@ local void finish_output_buffered (object stream) {
    #endif
   }
   # and reposition:
-  var uintL position = BufferedStream_buffstart(stream) + BufferedStream_index(stream);
+  var uoff_t position = BufferedStream_buffstart(stream) + BufferedStream_index(stream);
   BufferedStream_index(stream) = 0; # index := 0
   BufferedStream_endvalid(stream) = 0;
   if (!BufferedStream_blockpositioning(stream)) {
@@ -17525,11 +17565,11 @@ LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL) {
   } else {
     if (!boundp(position)) {
       # position not specified -> Position as value:
-      VALUES1(UL_to_I(BufferedStream_position(stream) -
-                      /* if a character has been unread, decrement position
-                         so that PEEK-CHAR does not modify FILE-POSITION */
-                      (TheStream(stream)->strmflags & strmflags_unread_B
-                       ? 1 : 0)));
+      VALUES1(uoff_t_to_I(BufferedStream_position(stream)
+                          /* if a character has been unread, decrement position
+                             so that PEEK-CHAR does not modify FILE-POSITION */
+                          - (TheStream(stream)->strmflags & strmflags_unread_B
+                             ? 1 : 0)));
     } else {
       if (eq(position,S(Kstart))) {
         # :START -> set position to start:
@@ -17537,9 +17577,9 @@ LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL) {
       } else if (eq(position,S(Kend))) {
         # :END -> set position to end:
         logical_position_file_end(stream);
-      } else if (uint32_p(position)) {
+      } else if (uoff_t_p(position)) {
         # set position to specified Position:
-        logical_position_file(stream,I_to_UL(position));
+        logical_position_file(stream,I_to_uoff_t(position));
       } else {
         # illegal Position-Argument
         pushSTACK(position);         # TYPE-ERROR slot DATUM
@@ -17562,14 +17602,14 @@ LISPFUNNR(file_length,1)
     VALUES1(NIL);
   } else {
     # memorize Position:
-    var uintL position = BufferedStream_position(stream);
+    var uoff_t position = BufferedStream_position(stream);
     # set position to end:
     logical_position_file_end(stream);
     # memorize End-Position:
-    var uintL endposition = BufferedStream_position(stream);
+    var uoff_t endposition = BufferedStream_position(stream);
     # set back to old position:
     logical_position_file(stream,position);
-    VALUES1(UL_to_I(endposition)); /* return End-Position */
+    VALUES1(uoff_t_to_I(endposition)); /* return End-Position */
   }
 }
 

@@ -1,5 +1,29 @@
 2003-09-30  Bruno Haible  <bruno@clisp.org>
 
+	Support for files larger than 2 GB or 4 GB on platforms with LFS.
+	* configure.in: Invoke AC_SYS_LARGEFILE. Check size of 'off_t'.
+	* lispbibl.d (UQ_to_I, I_to_UQ): Declare also if sizeof(off_t) > 4.
+	* intelem.d (UQ_to_I, I_to_UQ): Define also if sizeof(off_t) > 4.
+	* stream.d (uoff_t): New type.
+	(uoff_t_to_I, I_to_uoff_t, uoff_t_p): New macros.
+	(struct strm_buffered_extrafields_t): Change type of buffstart and
+	position to uoff_t.
+	(struct strm_i_buffered_extrafields_t): Change type of eofposition to
+	uoff_t.
+	(handle_lseek): Change the result to off_t.
+	(position_file_buffered): Change argument type to uoff_t.
+	(sync_file_buffered): Use uoff_t where appropriate.
+	(position_file_i_buffered): Change argument type to uoff_t.
+	(logical_position_file): Likewise.
+	(logical_position_file_end, make_file_stream, buffered_flush_everything,
+	finish_output_buffered): Use uoff_t where appropriate.
+	(FILE-POSITION): Use uoff_t_to_I and I_to_uoff_t.
+	(FILE-LENGTH): Use uoff_t_to_I.
+	* spvw_memfile.d (memflags): Add a bit to denote whether file streams
+	store a 64-bit or 32-bit file position.
+
+2003-09-30  Bruno Haible  <bruno@clisp.org>
+
 	* spvw_heap.d (Heap): Change type of memfile_offset to off_t.
 	* spvw_memfile.d (savemem, loadmem_from_handle): Use off_t where
 	appropriate.

@@ -49,6 +49,8 @@ AC_MSG_NOTICE([* checks for UNIX variants that set DEFS])
 dnl
 dnl DEFS _ALL_SOURCE
 AC_AIX
+dnl DEFS _FILE_OFFSET_BITS, _LARGE_FILES
+AC_SYS_LARGEFILE
 dnl sets variables CC_GCC, GCC_X_NONE
 CL_CC_GCC
 dnl sets variable CC_CPLUSPLUS
@@ -131,6 +133,8 @@ dnl DEFS CADDR_T
 CL_CADDR_T
 dnl DEFS SOCKLEN_T
 CL_SOCKLEN_T
+dnl DEFS SIZEOF_OFF_T
+AC_CHECK_SIZEOF([off_t])
 dnl
 AC_MSG_NOTICE([* checks for structure members])
 dnl

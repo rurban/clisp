@@ -54,33 +54,36 @@ local const uint32 memflags =
  #if 1 /* defined(STRM_WR_SS) */
   bit(10) |
  #endif
-  /* coding of strmtype: */
- #if 1 /* defined(HANDLES) */
+ #if (SIZEOF_OFF_T > 4)
   bit(11) |
  #endif
- #ifdef KEYBOARD
+  /* coding of strmtype: */
+ #if 1 /* defined(HANDLES) */
   bit(12) |
  #endif
- #ifdef SCREEN
+ #ifdef KEYBOARD
   bit(13) |
  #endif
- #ifdef PRINTER
+ #ifdef SCREEN
   bit(14) |
  #endif
- #ifdef PIPES
+ #ifdef PRINTER
   bit(15) |
  #endif
- #ifdef X11SOCKETS
+ #ifdef PIPES
   bit(16) |
  #endif
- #ifdef GENERIC_STREAMS
+ #ifdef X11SOCKETS
   bit(17) |
  #endif
- #ifdef SOCKET_STREAMS
+ #ifdef GENERIC_STREAMS
   bit(18) |
  #endif
- #ifdef UNICODE
+ #ifdef SOCKET_STREAMS
   bit(19) |
+ #endif
+ #ifdef UNICODE
+  bit(20) |
  #endif
   0;
 
