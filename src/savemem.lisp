@@ -26,14 +26,14 @@
 ;; Saves the current memory contents.
 ;; This function works only when compiled!
 (defun saveinitmem (&optional (filename "lispinit.mem")
-                    &key ((:quiet *quiet*) nil) init-function
+                    &key ((:quiet *quiet*) nil) init-function verbose
                     (locked-packages *system-package-list*))
   (let* ((old-driver *driver*)
+         (fn (merge-pathnames #p".mem" filename))
          (*driver*
            #'(lambda ()
-               (declare (special *command-index* *home-package*
-                                 *active-restarts* *condition-restarts*
-               )        )
+               ;(declare (special *command-index* *home-package*
+               ;                  *active-restarts* *condition-restarts*))
                ;; Reset a few special variables. This must happen in the
                ;; fresh session, not in the old session, because that would
                ;; temporarily disable error handling in the old session.
@@ -54,13 +54,15 @@
                      *condition-restarts* nil
                      *command-index* 0
                      *home-package* nil
-               )
+                     *dribble-stream* nil)
                (setq *driver* old-driver)
                (when init-function (funcall init-function))
-               (funcall *driver*)
-             )
-        ))
+               (funcall *driver*))))
     (setf (package-lock locked-packages) t)
-    (savemem (merge-pathnames #p".mem" filename)))
-  (room nil)
-)
+    (savemem fn)
+    (when verbose
+      (fresh-line)
+      (write-string (TEXT "Wrote the memory image into "))
+      (princ fn)
+      (terpri)))
+  (room nil))
