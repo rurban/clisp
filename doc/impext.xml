@@ -314,7 +314,7 @@ localized.</para>
  between &character-class;s and raw bytes during input/output via
  &stream-class;s with &stream-element-type; &character-class;.</para>
 
-<para>An encoding is an object composed of the following facets:
+<para>An &encoding; is an object composed of the following facets:
 <itemizedlist>
   <listitem><simpara>A <link linkend="charset"><emphasis>character
    set</emphasis></link>.  This denotes both the set of characters that
@@ -322,9 +322,9 @@ localized.</para>
    these characters translate into raw bytes.  In this context, for
    example, "UTF-8" and "UCS-4" are considered different, although they
    can represent the same set of characters.</simpara></listitem>
-  <listitem><simpara>A <link linkend="newline"><emphasis>line terminator
-   mode</emphasis></link>.  This denotes the way newline characters are
-   represented.</simpara></listitem>
+  <listitem><simpara>A <emphasis>&line-term; mode</emphasis>.
+   This denotes the way newline characters are represented.
+   </simpara></listitem>
 </itemizedlist></para>
 
 </section>
@@ -342,8 +342,7 @@ localized.</para>
 <varlistentry><term>Platform dependent: Only in &clisp; built
   &with; compile-time flag &unicode;.</term>
 <listitem><para>The following character sets are supported, as values
- of the corresponding (constant) symbol in the <quote>CHARSET</quote>
- package:
+ of the corresponding (constant) symbol in the &charset-pac; package:
 <itemizedlist>
   <listitem><simpara><literal>UCS-2</literal> = <literal>UNICODE-16</literal>
       = <literal>UNICODE-16-BIG-ENDIAN</literal>,
@@ -859,7 +858,7 @@ localized.</para>
   <literal role="sexp">(<function>ext:make-encoding</function>
      &key-amp; :charset :line-terminator :input-error-action
      :output-error-action)</literal>
- returns an encoding. The <constant>:charset</constant> argument may be
+ returns an &encoding;. The <constant>:charset</constant> argument may be
  an encoding, a string, or &default-k;.  The possible
  values for the <constant>:line-terminator</constant> argument are the
  keywords <constant>:unix</constant>, <constant>:mac</constant>,
@@ -886,7 +885,7 @@ localized.</para>
  on encodings.</para>
 
 <para>Besides every &file-pipe-socket; stream containing an encoding,
- the following &symbol-macro; places contain global encodings:</para>
+ the following &symbol-macro; places contain global &encoding;s:</para>
 
 <para id="def-file-enc"><emphasis
  role="strong"><varname>custom:*default-file-encoding*</varname></emphasis>
@@ -901,8 +900,7 @@ localized.</para>
 <variablelist>
 <varlistentry><term><varname>custom:*pathname-encoding*</varname></term>
  <listitem><simpara>is the encoding used for pathnames in the file
- system. Normally, this is a 1:1 encoding.  Its <link
- linkend="newline">line terminator</link> mode is ignored.
+ system. Normally, this is a 1:1 encoding.  Its &line-term; mode is ignored.
  </simpara></listitem></varlistentry>
 <varlistentry><term><varname>custom:*terminal-encoding*</varname></term>
  <listitem><simpara>is the encoding used for communication with the
@@ -911,7 +909,7 @@ localized.</para>
 <varlistentry><term><varname>custom:*misc-encoding*</varname></term>
  <listitem><simpara>is the encoding used for access to environment
  variables, command line options, and the like.
- Its <link linkend="newline">line terminator</link> mode is ignored.
+ Its &line-term; mode is ignored.
  </simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
 </variablelist>
@@ -942,8 +940,7 @@ their corresponding byte vector representation according to that encoding.
   &string-r; <replaceable>encoding</replaceable>
   &key-amp; &start-k; &end-k;)</literal></term>
  <listitem><simpara>converts the subsequence of
-  &string-r; from &start-r;
-  to &end-r; to a vector of
+  &string-r; from &start-r; to &end-r; to a &vector-class; of
   <literal role="sexp">(&unsigned-byte-type; 8)</literal>, according to the
   given <replaceable>encoding</replaceable>, and returns the resulting byte
   vector.</simpara></listitem></varlistentry>
@@ -3167,8 +3164,7 @@ memory.</para>
 
 <para><function>nzero-pointer-p</function> tests for
 non-&c-NULL; pointers in all recognized representations
-(&null-class;, &unsigned-byte-type; and
-<function>foreign-pointer</function>).</para>
+(&null-class;, &unsigned-byte-type; and &foreign-pointer;).</para>
 
 </section>
 
@@ -3248,8 +3244,8 @@ string or unsigned byte vector. These are not &c-NULL;-terminated!
 This is useful for functions like like <function>read()</function> which
 do not need an array at a constant address longer than the dynamic
 extent of the call (it is dangerous to define callback functions with
-&io-k; (or &string-class;) type parameters). Arguments of type
-&integer-class; and <function>foreign-pointer</function> are always
+&io-k; (or &string-class;) type parameters).
+Arguments of type &integer-class; and &foreign-pointer; are always
 acceptable where a &string-class; or &io-k; type is specified.</para>
 
 <!-- #ifdef UNICODE -->
@@ -3266,9 +3262,9 @@ character is represented by one byte.
 
 <para>To meet the design goals, predefined types and objects were
 used. As such, pointers were represented as integers. Now that there is
-the <function>foreign-pointer</function> type, both representations may
-be used on input.  The pointer type should be therefore considered as
-opaque.  Use <function>nzero-pointer-p</function> for &c-NULL; tests.</para>
+the &foreign-pointer; type, both representations may be used on input.
+The pointer type should be therefore considered as opaque.
+Use <function>nzero-pointer-p</function> for &c-NULL; tests.</para>
 
 </section>
 
@@ -3295,11 +3291,11 @@ stack-based calls (unimplemented).</para>
 function result type and yields either &t; or &nil;. The difference
 between <function>*</function> and &external-k; is the following:
 <function>*</function> uses integers, &external-k; uses
-<function>foreign-pointer</function> as function result-type (except
-from &nil; for a &c-NULL; pointer) and refuses objects of type
-&string-class; or &unsigned-byte-type; &vector-class; as input.  Thus
-&external-k; provides some security on the input and the ability to use
-&finalize; for resource-tracking on the output side.</para>
+&foreign-pointer; as function result-type (except from &nil; for a
+&c-NULL; pointer) and refuses objects of type &string-class; or
+&unsigned-byte-type; &vector-class; as input.  Thus &external-k;
+provides some security on the input and the ability to use &finalize;
+for resource-tracking on the output side.</para>
 
 <para><literal role="sexp">(declare-library-function &name-r;
  <replaceable>library-name</replaceable> {&option-r;}*)</literal>
@@ -3334,7 +3330,7 @@ inlined.</para>
 
 <section><title>Memory access</title>
 
-<para><literal role="sexp">(mem-read <replaceable>address</replaceable>
+<para><literal role="sexp">(affi:mem-read <replaceable>address</replaceable>
 &type-r;
 <replaceable>offset</replaceable>)</literal> can read 8, 16 and 32 bit
 signed or unsigned integers (AFFI types <type>-4</type>,
@@ -3343,26 +3339,26 @@ signed or unsigned integers (AFFI types <type>-4</type>,
 (<type>string</type>) or, if the type argument is of type &string-class;
 or &unsigned-byte-type; &vector-class;, it can fill this vector.
 &external-k; is not an acceptable type as no object can be created by
-using <function>mem-read</function>.</para>
+using <function>affi:mem-read</function>.</para>
 
-<para><literal role="sexp">(mem-write <replaceable>address</replaceable>
-&type-r; &value-r;
+<para><literal role="sexp">(affi:mem-write
+<replaceable>address</replaceable> &type-r; &value-r;
 [<replaceable>offset</replaceable>])</literal> writes integers (AFFI
 type <type>-4</type>, <type>-2</type>, <type>-1</type>, <type>1</type>,
 <type>2</type> and <type>4</type>) or pointer values (type
 <type>*</type>), but not vectors to the specified memory address.</para>
 
-<para><literal role="sexp">(mem-write-vector
+<para><literal role="sexp">(affi:mem-write-vector
 <replaceable>address</replaceable> <replaceable>vector</replaceable>
 [<replaceable>offset</replaceable>])</literal> can write memory from the
-given vector (of type <type>string</type> or unsigned byte
-vector).</para>
+given vector (of type &string-class; or &unsigned-byte-type;
+&vector-class;).</para>
 
 </section>
 
 <section><title>Function Definition Files</title>
 
-<para><function>require-library-functions</function> will &require; a
+<para><function>affi:require-library-functions</function> will &require; a
 file of name derived from thelibrary name and with type
 <filename>affi</filename>. It may be used to import all names into the
 current package or only a given subset identified by string names, using
@@ -3370,7 +3366,7 @@ the <constant>:import</constant> keyword (recommended use). Some
 definition files for standard Amiga libraries are provided. See example
 1 below.</para>
 
-<para>As <function>require-library-functions</function> loads a global
+<para>As <function>affi:require-library-functions</function> loads a global
 file which you, the programmer, may have not defined, you may consider
 declaring every function yourself to be certain what the return and
 argument types are. See example 4 below.</para>
@@ -3393,10 +3389,11 @@ the width of integer arguments (<function>-4</function>,
 <section><title>Hints</title>
 
 <para>By using appropriate &eval-when; forms for
-<function>declare-library-base</function> and
-<function>require-library-functions</function> and not using
-<function>flibcall</function>, it is possible to write code that only loads
-library function definition files at compile-time. See example 1 below.</para>
+<function>affi:declare-library-base</function> and
+<function>affi:require-library-functions</function> and not using
+<function>affi:flibcall</function>, it is possible to write code that
+only loads library function definition files at compile-time.
+See example 1 below.</para>
 
 <para>Do not rely on &finalize; to free resources for you, as &clisp;
 does not call finalizers when it exits, use &unwind-protect;.</para>
@@ -3411,9 +3408,9 @@ the usual symbol headaches when using foreign functions calls within
 macros.  Luckily, even if the high-level interface (or its
 implementation in <filename>affi1.lisp</filename>) were to change, the
 low-level part (<filename>affi.d</filename>) should remain untouched as
-all it knows are integers and foreign-pointers, no symbols.  The
-difficulty is just to get the library base value at run-time.  Feel free
-to suggest enhancements to this facility!</para>
+all it knows are &integer-class;s and &foreign-pointer;s, no &symbol-class;s.
+The difficulty is just to get the library base value at run-time.
+Feel free to suggest enhancements to this facility!</para>
 
 </section>
 
@@ -3444,11 +3441,10 @@ have inlined the library function calls.
 </para></example>
 
 <example><title>Using flibcall</title>
-
 <programlisting>
 (use-package "AFFI")
 
-(sexp-when (compile eval load)
+(eval-when (compile eval load)
   ;; keyword avoids name conflicts
   (declare-library-base :SysBase "exec.library"))
 
@@ -3462,11 +3458,10 @@ have inlined the library function calls.
 </programlisting></example>
 
 <example><title>Be fully dynamic, defining library bases ourselves</title>
-
 <programlisting>
 (use-package "AFFI")
 
-(sexp-when (compile eval load)
+(eval-when (compile eval load)
   (defvar mylib (declare-library-base :foobase "foo.library")))
 (eval-when (eval compile load)          ;eval allows mlibcall, load flibcall
   (defflibfun 'foo1 mylib -30 '#xA '* 'string)
@@ -3479,10 +3474,9 @@ have inlined the library function calls.
 </programlisting></example>
 
 <example><title>Some sample function definitions</title>
-
 <programlisting>
 (defflibfun 'FindTask 'SysBase -294 #xA '* 'string)
-(sexp-library-function FindTask "exec.library"
+(eval-library-function FindTask "exec.library"
   (:offset -294)
   (:return-type *)
   (:arguments
