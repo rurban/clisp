@@ -1,5 +1,10 @@
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
+	* exporting.lisp (export-accessories): Also export the copier's name.
+	Fixes bug introduced on 2005-01-04.
+
+2005-01-23  Bruno Haible  <bruno@clisp.org>
+
 	* describe.lisp (apropos): Terminate the output with an elastic-newline,
 	not a fresh-line.
 

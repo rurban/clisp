@@ -109,15 +109,16 @@
 
 (cl:defun export-accessories (name)
   (export name)
-  (export (clos::class-kconstructor name))
-  (export (clos::class-predicate name))
+  (export (or (clos::class-kconstructor name) '(NIL)))
   (export (clos::class-boa-constructors name))
+  (export (or (clos::class-copier name) '(NIL)))
+  (export (or (clos::class-predicate name) '(NIL)))
   (export (class-accessor-symbols name)))
 
 (cl:defmacro defstruct (name+options &rest slots)
-  `(let ((name (CL:DEFSTRUCT ,name+options ,@slots)))
-     (EXPORT-ACCESSORIES name)
-     name))
+  `(LET ((NAME (CL:DEFSTRUCT ,name+options ,@slots)))
+     (EXPORT-ACCESSORIES NAME)
+     NAME))
 
 (cl:defmacro defclass (name superclasses slot-specs &rest options)
   `(PROGN
@@ -166,9 +167,9 @@
 
 #+FFI
 (cl:defmacro def-c-struct (name+options &rest slots)
-  `(let ((name (FFI:DEF-C-STRUCT ,name+options ,@slots)))
-     (EXPORT-ACCESSORIES name)
-     name))
+  `(LET ((NAME (FFI:DEF-C-STRUCT ,name+options ,@slots)))
+     (EXPORT-ACCESSORIES NAME)
+     NAME))
 
 #+FFI
 (cl:defmacro def-c-var (name &rest options)
