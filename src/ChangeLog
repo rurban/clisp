@@ -1,3 +1,8 @@
+2004-12-18  Bruno Haible  <bruno@clisp.org>
+
+	* places.lisp (define-modify-macro): Implement the evaluation order
+	according to ANSI CL 5.1.3.
+
 2004-12-19  Sam Steingold  <sds@gnu.org>
 
 	* describe.lisp (apropos): finish with FRESH-LINE instead of
