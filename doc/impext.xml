@@ -2017,7 +2017,8 @@ containing:</para>
 <!-- #ifdef DYNAMIC_FFI -->
 <section id="dffi">
   <title>Extensions-2.3. The Foreign Function Call Facility</title>
-<subtitle>Platform dependent: many &unix;, &win32; platforms only.</subtitle>
+<subtitle>Platform dependent: many &unix;, &win32; &amiga; platforms
+only.</subtitle>
 
 <para>A foreign function description is written as a Lisp file, and when
  compiled it produces a &c-file; file which is then compiled by the
@@ -2398,7 +2399,7 @@ containing:</para>
    and accounted for in <replaceable>byte-count</replaceable>,
    and <replaceable>char-count</replaceable> is incremented by one.</simpara>
   <simpara>The &foreign-address-t; object bound to &f-addr; is
-   invalidated upon the exit from the form. </simpara>
+   invalidated upon the exit from the form.</simpara>
   <para>A stupid example (a quite costly interface to &mblen;):
 <programlisting>(with-foreign-string (fv elems bytes string
                       :encoding charset:jis... :null-terminated-p nil
@@ -3157,7 +3158,7 @@ separate.</para>
 <para><literal role="sexp">(open-library
  <replaceable>base-symbol</replaceable>)</literal></para>
 
-<para><literal role="sexp">(clos-library
+<para><literal role="sexp">(close-library
  <replaceable>base-symbol</replaceable>)</literal></para>
 
 <para><literal role="sexp">(with-open-library
@@ -3810,7 +3811,6 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
     &sost-r; &direction-r;)</literal></term>
   <listitem><simpara>Some Internet protocols, such as &http;, provide for
    closing the connection in one &direction-r; using &shutdown;.
-   This function provides an interface to this &unix; system call.
    &direction-r; can be &input-k; or &output-k;.
    Note that you should still call &close; after you are done with your
    &sost-r;; this is best accomplished by using &with-open-stream;.</simpara>

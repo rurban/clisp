@@ -2384,7 +2384,8 @@ and the international alphabetic characters from the character set:
 <section id="string-width"><title>Functions on strings</title>
 
 <formalpara><title>Function &string-width;</title>
- <para><literal role="sexp">(&string-width; &string-r;)</literal>
+ <para><literal role="sexp">(&string-width; &string-r;
+ &key-amp; &start-r; &end-r;)</literal>
   returns the number of screen columns occupied by &string-r;.
   This is computed as the sum of all &char-width;s
   of all of the &string-r;'s characters.</para></formalpara></section>
