@@ -415,7 +415,7 @@ to print the corresponding values, or T for all of them.")
         (progn
           (format stream (TEXT "Methods:"))
           (dolist (meth (clos::std-gf-methods obj))
-            (format stream "~%  ~{~S ~}~S" (clos::std-method-qualifiers meth)
+            (format stream "~%  ~{~S ~}~S" (clos:method-qualifiers meth)
                     (mapcar #'(lambda (specializer)
                                 (setq specializer (clos::specializer-pretty specializer))
                                 (if (and (clos::class-p specializer)

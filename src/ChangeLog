@@ -1,5 +1,27 @@
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
+	Respect user-defined methods on method-qualifiers.
+	* clos-genfun1.lisp (|#'method-qualifiers|): New variable.
+	(safe-method-qualifiers): New function.
+	* clos-methcomb2.lisp (partition-method-list): Add gf argument. Call
+	safe-method-qualifiers instead of std-method-qualifiers.
+	(standard-method-combination-expander): Update.
+	(standard-method-combination-check-method-qualifiers,
+	standard-method-combination-call-next-method-allowed,
+	short-form-method-combination-expander,
+	short-form-method-combination-check-method-qualifiers,
+	short-form-method-combination-call-next-method-allowed): Call
+	method-qualifiers instead of std-method-qualifiers.
+	* clos-genfun2.lisp (invalid-method-qualifiers-error, methods-agree-p,
+	std-find-method): Call method-qualifiers instead of
+	std-method-qualifiers.
+	* clos-genfun4.lisp (no-primary-method, no-next-method): Call
+	method-qualifiers instead of std-method-qualifiers.
+	* clos-method3.lisp (method-qualifiers): Redefine without fmakunbound.
+	Initialize |#'method-qualifiers|.
+	* describe.lisp (describe-object@generic-function): Call
+	method-qualifiers instead of std-method-qualifiers.
+
 	Respect user-defined methods on method-specializers.
 	* clos-genfun1.lisp (|#'method-specializers|): New variable.
 	(safe-method-specializers): New function.

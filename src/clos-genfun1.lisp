@@ -200,7 +200,15 @@
 (defvar |#'compute-applicable-methods| nil)
 (defvar |#'compute-applicable-methods-using-classes| nil)
 (defvar |#'compute-effective-method| nil)
+(defvar |#'method-qualifiers| nil)
 (defvar |#'method-specializers| nil)
+
+(defun safe-method-qualifiers (method gf)
+  (if (or (eq gf #'method-qualifiers) ; for bootstrapping
+          (eq gf |#'method-qualifiers|)
+          (eq gf |#'compute-effective-method|))
+    (std-method-qualifiers method)
+    (method-qualifiers method)))
 
 (defun safe-method-specializers (method gf)
   (if (or (eq gf #'method-specializers) ; for bootstrapping
