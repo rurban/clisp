@@ -112,6 +112,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
 # valid_type(name)
 # > name: Sequence-Typ-Bezeichner
 # < ergebnis: dazugehöriger Typdescriptor
+# < -(STACK): durch den Typ erzwungene Länge, oder unbound.
 # kann GC auslösen
   local object valid_type (object name);
   local object valid_type(name)
@@ -130,14 +131,14 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
       # - Zusätzlich (nicht sehr schön): [SIMPLE-]ARRAY ergibt VECTOR.
       reexpand:
       if (symbolp(name))
-        { if (eq(name,S(list))) { goto expanded; }
-          if (eq(name,S(vector))) { goto expanded; }
-          if (eq(name,S(simple_vector))) { name = S(vector); goto expanded; }
-          if (eq(name,S(string))) { goto expanded; }
-          if (eq(name,S(simple_string))) { name = S(string); goto expanded; }
-          if (eq(name,S(bit_vector))) { goto expanded; }
-          if (eq(name,S(simple_bit_vector))) { name = S(bit_vector); goto expanded; }
-          if (eq(name,S(array)) || eq(name,S(simple_array))) { name = S(vector); goto expanded; }
+        { if (eq(name,S(list))) { goto expanded_unconstrained; }
+          if (eq(name,S(vector))) { goto expanded_unconstrained; }
+          if (eq(name,S(simple_vector))) { name = S(vector); goto expanded_unconstrained; }
+          if (eq(name,S(string))) { goto expanded_unconstrained; }
+          if (eq(name,S(simple_string))) { name = S(string); goto expanded_unconstrained; }
+          if (eq(name,S(bit_vector))) { goto expanded_unconstrained; }
+          if (eq(name,S(simple_bit_vector))) { name = S(bit_vector); goto expanded_unconstrained; }
+          if (eq(name,S(array)) || eq(name,S(simple_array))) { name = S(vector); goto expanded_unconstrained; }
           # evtl. (get name 'DEFTYPE-EXPANDER) mit Argument (list name) aufrufen:
           {var object expander = get(name,S(deftype_expander));
            if (!eq(expander,unbound))
@@ -147,19 +148,29 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
                funcall(expander,1); # Expander aufrufen
                name = value1; goto reexpand; # Ergebnis weiterverwenden
           } }
-          goto expanded; # sonstige Symbole können DEFSTRUCT-Typen sein
+          goto expanded_unconstrained; # sonstige Symbole können DEFSTRUCT-Typen sein
         }
       elif (consp(name))
         { var object name1 = Car(name);
           if (symbolp(name1))
-            { if (nullp(Cdr(name)) || (mconsp(Cdr(name)) && nullp(Cdr(Cdr(name)))))
-                { if (eq(name1,S(simple_vector))) { name = S(vector); goto expanded; }
-                  if (eq(name1,S(string)) || eq(name1,S(simple_string))) { name = S(string); goto expanded; }
-                  if (eq(name1,S(bit_vector)) || eq(name1,S(simple_bit_vector))) { name = S(bit_vector); goto expanded; }
+            { var object name2 = Cdr(name);
+              if (nullp(name2) || (consp(name2) && nullp(Cdr(name2))))
+                { if (eq(name1,S(simple_vector)))
+                    { name = S(vector); goto expanded_maybe_constrained; }
+                  if (eq(name1,S(string)) || eq(name1,S(simple_string)))
+                    { name = S(string); goto expanded_maybe_constrained; }
+                  if (eq(name1,S(bit_vector)) || eq(name1,S(simple_bit_vector)))
+                    { name = S(bit_vector); goto expanded_maybe_constrained; }
+                  if (FALSE)
+                    { expanded_maybe_constrained:
+                      if (consp(name2) && integerp(Car(name2)))
+                        { pushSTACK(Car(name2)); goto expanded; }
+                        else
+                        { goto expanded_unconstrained; }
+                    }
                 }
-             {var object name2;
-              var object name3;
-              if (nullp(name2=Cdr(name))) { name2 = S(mal); name3 = S(mal); goto try_vector; }
+             {var object name3;
+              if (nullp(name2)) { name2 = S(mal); name3 = S(mal); goto try_vector; }
               if (consp(name2))
                 { name3=Cdr(name2); name2 = Car(name2);
                   if (nullp(name3)) { name3 = S(mal); goto try_vector; }
@@ -172,12 +183,16 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
                       || (   (eq(name1,S(array)) || eq(name1,S(simple_array)))
                           && (eq(name3,S(mal)) || eq(name3,Fixnum_1) || (consp(name3) && nullp(Cdr(name3))))
                      )   )
-                    { var uintB atype = eltype_code(name2);
+                    { if (eq(name1,S(vector)))
+                        { if (integerp(name3)) { pushSTACK(name3); } else { pushSTACK(unbound); } }
+                      else
+                        { if (consp(name3) && integerp(Car(name3))) { pushSTACK(Car(name3)); } else { pushSTACK(unbound); } }
+                     {var uintB atype = eltype_code(name2);
                       if (atype==Atype_T) { name = S(vector); goto expanded; } # (VECTOR T)
                       elif (atype==Atype_String_Char) { name = S(string); goto expanded; } # (VECTOR STRING-CHAR)
                       elif (atype==Atype_Bit) { name = S(bit_vector); goto expanded; } # (VECTOR BIT)
                       else { name = fixnum(bit(atype)); goto expanded; } # (VECTOR (UNSIGNED-BYTE n))
-             }  }   }
+             }  }   }}
               # evtl. (get name1 'DEFTYPE-EXPANDER) mit Argument name aufrufen:
              {var object expander = get(name1,S(deftype_expander));
               if (!eq(expander,unbound))
@@ -185,7 +200,9 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
                   name = value1; goto reexpand; # Ergebnis weiterverwenden
         }   }} }
       goto bad_name;
-      expanded:
+    expanded_unconstrained:
+      pushSTACK(unbound); # no length constraint
+    expanded:
       # SEQ-TYPES-Liste durchgehen:
       { var object list = O(seq_types);
         while (consp(list))
@@ -193,7 +210,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
             if (eq(name,seq_type(typdescr))) { return typdescr; }
             list = Cdr(list);
       }   }
-      bad_name:
+    bad_name:
       pushSTACK(name);
       fehler(error,
              DEUTSCH ? "Es gibt keine Sequences vom Typ ~." :
@@ -249,6 +266,26 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
              DEUTSCH ? "Das ist keine Sequence: ~" :
              ENGLISH ? "~ is not a sequence" :
              FRANCAIS ? "~ n'est pas une séquence." :
+             ""
+            );
+    }
+
+# Fehler, wenn der Sequence-Typ eine andere Länge vorgibt als die, die
+# herauskommt.
+  nonreturning_function(local, fehler_seqtype_length, (object seqtype_length, object computed_length));
+  local void fehler_seqtype_length(seqtype_length,computed_length)
+    var object seqtype_length;
+    var object computed_length;
+    { pushSTACK(computed_length); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(NIL);
+      pushSTACK(computed_length);
+      pushSTACK(seqtype_length);
+      pushSTACK(S(eql)); pushSTACK(seqtype_length);
+      { var object type = listof(2); STACK_2 = type; } # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      fehler(type_error,
+             DEUTSCH ? "Sequence-Typ gibt Länge ~ vor, Ergebnis hat aber die Länge ~." :
+             ENGLISH ? "sequence type forces length ~, but result has length ~" :
+             FRANCAIS ? "Le type de séquence implique une longueur ~, mais le résultat est de longueur ~." :
              ""
             );
     }
@@ -832,9 +869,10 @@ LISPFUN(make_sequence,2,0,norest,key,2,\
   { # Stackaufbau: type, size, initial-element, updatefun.
     # type überprüfen:
     var object typdescr = valid_type(STACK_3);
-    STACK_3 = typdescr;
+    # Stackaufbau: type, size, initial-element, updatefun, type-len.
+    STACK_4 = typdescr;
     # size überprüfen, muß Integer >=0 sein:
-   {var object size = STACK_2;
+   {var object size = STACK_3;
     if (!(integerp(size) && positivep(size)))
       { pushSTACK(size); # Wert für Slot DATUM von TYPE-ERROR
         pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
@@ -847,8 +885,8 @@ LISPFUN(make_sequence,2,0,norest,key,2,\
               );
       }
     # initial-element bei Strings defaultmäßig ergänzen:
-    if (eq(STACK_1,unbound)) # :initial-element nicht angegeben?
-      { if (!eq(STACK_0,unbound)) # :update ohne :initial-element -> Error
+    if (eq(STACK_2,unbound)) # :initial-element nicht angegeben?
+      { if (!eq(STACK_1,unbound)) # :update ohne :initial-element -> Error
           { pushSTACK(S(make_sequence));
             fehler(error,
                    DEUTSCH ? "~: :UPDATE darf nur mit :INITIAL-ELEMENT angegeben werden." :
@@ -858,12 +896,14 @@ LISPFUN(make_sequence,2,0,norest,key,2,\
                   );
           }
         if (eq(seq_type(typdescr),S(string))) # Typname = STRING ?
-          { STACK_1 = code_char(' '); } # initial-element := ' '
+          { STACK_2 = code_char(' '); } # initial-element := ' '
         elif (posfixnump(seq_type(typdescr))) # Typname Integer? (bedeutet Byte-Vektoren)
-          { STACK_1 = Fixnum_0; } # initial-element := 0
+          { STACK_2 = Fixnum_0; } # initial-element := 0
       }
+    if (!(eq(STACK_0,unbound) || eql(STACK_0,size)))
+      { fehler_seqtype_length(STACK_0,size); }
+    STACK_0 = size; funcall(seq_make(typdescr),1); # (SEQ-MAKE size)
     # Stackaufbau: typdescr, size, initial-element, updatefun.
-    pushSTACK(size); funcall(seq_make(typdescr),1); # (SEQ-MAKE size)
    }
     if (!(eq(STACK_1,unbound))) # :initial-element angegeben?
       if (!(eq(STACK_2,Fixnum_0))) # size (ein Integer) = 0 -> nichts zu tun
@@ -906,20 +946,26 @@ LISPFUN(make_sequence,2,0,norest,key,2,\
       pushSTACK(result_type);
       { # result-type überprüfen:
         var object typdescr2 = valid_type(result_type);
-        pushSTACK(seq_type(typdescr2)); # neuer type2
         pushSTACK(typdescr2);
-        # Stackaufbau: seq1, result-type, type2, typdescr2.
+        # Stackaufbau: seq1, result-type, typdescr2-len, typdescr2.
        {var object typdescr1 = get_valid_seq_type(STACK_3); # Typ von seq1
-        if (eq(seq_type(typdescr1),STACK_1))
+        if (eq(seq_type(typdescr1),seq_type(typdescr2)))
           { # beide Typen dieselben -> nichts zu tun
+            if (!eq(STACK_1,unbound))
+              { pushSTACK(STACK_3); funcall(seq_length(typdescr1),1); # (SEQ1-LENGTH seq1)
+                if (!eql(value1,STACK_1))
+                  { fehler_seqtype_length(STACK_1,value1); }
+              }
             skipSTACK(3); value1 = popSTACK(); mv_count=1; # seq1 als Wert
           }
           else
           { STACK_2 = typdescr1;
-            # Stackaufbau: seq1, typdescr1, type2, typdescr2.
+            # Stackaufbau: seq1, typdescr1, typdescr2-len, typdescr2.
             pushSTACK(STACK_3); funcall(seq_length(typdescr1),1); # (SEQ1-LENGTH seq1)
+            if (!(eq(STACK_1,unbound) || eql(value1,STACK_1)))
+              { fehler_seqtype_length(STACK_1,value1); }
             pushSTACK(value1);
-            # Stackaufbau: seq1, typdescr1, type2, typdescr2, len.
+            # Stackaufbau: seq1, typdescr1, typdescr2-len, typdescr2, len.
             pushSTACK(STACK_0); funcall(seq_make(STACK_(1+1)),1); # (SEQ2-MAKE len)
             STACK_2 = value1;
             # Stackaufbau: seq1, typdescr1, seq2, typdescr2, len.
@@ -937,12 +983,13 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
     }
     # args_pointer = Pointer über die Argumente,
     # rest_args_pointer = Pointer über die argcount Sequence-Argumente.
-    # Stackaufbau: [args_pointer] typdescr2, [rest_args_pointer] {sequence}, [STACK].
+    # Stackaufbau: [args_pointer] typdescr2,
+    #              [rest_args_pointer] {sequence}, result-type-len, [STACK].
     # Brauche 2*argcount STACK-Einträge:
     get_space_on_STACK(sizeof(object) * 2*(uintL)argcount);
    {var object* behind_args_pointer = args_end_pointer; # Pointer unter die Argumente
     # Stackaufbau: [args_pointer] typdescr2,
-    #              [rest_args_pointer] {sequence}, [behind_args_pointer].
+    #              [rest_args_pointer] {sequence}, result-type-len, [behind_args_pointer].
     # Typdescriptoren und Längen bestimmen und im STACK ablegen:
     { var object* ptr = rest_args_pointer;
       var uintC count;
@@ -955,7 +1002,7 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
         });
     }
     # Stackaufbau: [args_pointer] typdescr2,
-    #              [rest_args_pointer] {sequence},
+    #              [rest_args_pointer] {sequence}, result-type-len,
     #              [behind_args_pointer] {typdescr, len}, [STACK].
     # Längen addieren:
     { var object total_length = Fixnum_0;
@@ -976,6 +1023,10 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
            total_length = I_I_plus_I(total_length,len); # total_length = total_length + len
          }});
       }
+      { var object result_type_len = Before(behind_args_pointer);
+        if (!(eq(result_type_len,unbound) || eql(total_length,result_type_len)))
+          { fehler_seqtype_length(result_type_len,total_length); }
+      }
       pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL); # Dummies
       # neue Sequence allozieren:
       {var object* ptr = args_pointer;
@@ -985,18 +1036,18 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
        STACK_1 = value1; # =: seq2
     } }
     # Stackaufbau: [args_pointer] typdescr2,
-    #              [rest_args_pointer] {sequence},
+    #              [rest_args_pointer] {sequence}, result-type-len,
     #              [behind_args_pointer] {typdescr, len},
     #              NIL, NIL, seq2, typdescr2, [STACK].
     pushSTACK(NIL); pushSTACK(NIL); # Dummies
     # Stackaufbau: [args_pointer] typdescr2,
-    #              [rest_args_pointer] {sequence},
+    #              [rest_args_pointer] {sequence}, result-type-len,
     #              [behind_args_pointer] {typdescr, len},
     #              NIL, NIL, seq2, typdescr2, NIL, NIL, [STACK].
     pushSTACK(STACK_(3)); funcall(seq_init(STACK_(2+1)),1); # (SEQ-INIT seq2)
     pushSTACK(value1);
     # Stackaufbau: [args_pointer] typdescr2,
-    #              [rest_args_pointer] {sequence},
+    #              [rest_args_pointer] {sequence}, result-type-len,
     #              [behind_args_pointer] {typdescr, len},
     #              NIL, NIL, seq2, typdescr2, NIL, NIL, pointer2, [STACK].
     # Schleife über die argcount Sequences: in seq2 hineinkopieren
@@ -1007,7 +1058,7 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
         pushSTACK(STACK_6); funcall(seq_init(STACK_(5+1)),1); # (SEQ1-INIT seq1)
         STACK_1 = value1; # =: pointer1
         # Stackaufbau: [args_pointer] typdescr2,
-        #              [rest_args_pointer] {sequence},
+        #              [rest_args_pointer] {sequence}, result-type-len,
         #              [behind_args_pointer] {typdescr, len},
         #              seq1, typdescr1, seq2, typdescr2, count,
         #              pointer1, pointer2, [STACK].
@@ -1177,7 +1228,7 @@ LISPFUN(map,3,0,rest,nokey,0,NIL)
         }
         # Stackaufbau:
         #         [args_pointer] *result_type_ = typdescr2, function,
-        #         [rest_args_pointer] {sequence},
+        #         [rest_args_pointer] {sequence}, result-type-len,
         #         [typdescr_pointer] {typdescr, pointer, pointer}, [STACK].
         # Minimale Länge aller Sequences bestimmen, indem jeweils mit dem
         # zweiten Pointer durchgelaufen wird:
@@ -1208,9 +1259,13 @@ LISPFUN(map,3,0,rest,nokey,0,NIL)
         # STACK_0 = minimale Länge der Sequences
         # Stackaufbau:
         #         [args_pointer] *result_type_ = typdescr2, function,
-        #         [rest_args_pointer] {sequence},
+        #         [rest_args_pointer] {sequence}, result-type-len,
         #         [typdescr_pointer] {typdescr, pointer, pointer},
         #         size [STACK].
+        { var object result_type_len = Before(typdescr_pointer);
+          if (!(eq(result_type_len,unbound) || eql(STACK_0,result_type_len)))
+            { fehler_seqtype_length(result_type_len,STACK_0); }
+        }
         # Neue Sequence der Länge size allozieren:
         pushSTACK(STACK_0); funcall(seq_make(*result_type_),1); # (SEQ2-MAKE size)
         pushSTACK(value1); # seq2 im STACK ablegen
@@ -1218,7 +1273,7 @@ LISPFUN(map,3,0,rest,nokey,0,NIL)
         pushSTACK(value1); # pointer2 im STACK ablegen
         # Stackaufbau:
         #         [args_pointer] *result_type_ = typdescr2, function,
-        #         [rest_args_pointer] {sequence},
+        #         [rest_args_pointer] {sequence}, result-type-len,
         #         [typdescr_pointer] {typdescr, pointer, pointer},
         #         size, seq2, pointer2 [STACK].
         # size mal die Funktion aufrufen, Ergebnis in seq2 eintragen:
@@ -3944,11 +3999,10 @@ LISPFUN(merge,4,0,norest,key,1, (kw(key)) )
     }
     # result-type überprüfen:
     {var object typdescr3 = valid_type(STACK_(4+4));
-     pushSTACK(NIL); # Dummy
      pushSTACK(typdescr3);
     }
     # Stackaufbau: result-type, sequence1, sequence2, predicate, key,
-    #              sequence1, typdescr1, sequence2, typdescr2, dummy, typdescr3.
+    #              sequence1, typdescr1, sequence2, typdescr2, result-type-len, typdescr3.
     # Längen von sequence1 und sequence2 bestimmen:
     { pushSTACK(STACK_5); funcall(seq_length(STACK_(4+1)),1); # (SEQ-LENGTH sequence1)
       pushSTACK(value1); # =: len1
@@ -3958,8 +4012,10 @@ LISPFUN(merge,4,0,norest,key,1, (kw(key)) )
     }
     # beide Längen addieren und neue Sequence der Gesamtlänge bilden:
     { pushSTACK(I_I_plus_I(STACK_1,STACK_0)); # (+ len1 len2)
+      if (!(eq(STACK_(1+3),unbound) || eql(STACK_0,STACK_(1+3))))
+        { fehler_seqtype_length(STACK_(1+3),STACK_0); }
       funcall(seq_make(STACK_(0+2+1)),1); # (SEQ-MAKE (+ len1 len2))
-      STACK_(1+2) = value1; # ersetzt Dummy im Stack
+      STACK_(1+2) = value1; # ersetzt result-type-len im Stack
     }
     # Stackaufbau: result-type, sequence1, sequence2, predicate, key,
     #              sequence1, typdescr1, sequence2, typdescr2, sequence3, typdescr3,

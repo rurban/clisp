@@ -12,6 +12,10 @@ User visible changes
   Assigning the variable bound by the WITH-INPUT-FROM-STRING, WITH-OPEN-FILE,
   WITH-OPEN-STREAM, WITH-OUTPUT-TO-STRING macros generates a compiler warning.
 
+* X3J13 writeup <SEQUENCE-TYPE-LENGTH:MUST-MATCH> is implemented: The
+  functions MAKE-SEQUENCE, COERCE, CONCATENATE, MAP, MERGE signal an error
+  if the result type specifies a length inconsistent with the other arguments.
+
 Portability
 -----------
 
