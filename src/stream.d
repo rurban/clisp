@@ -216,7 +216,7 @@
     var object caller;
     var object stream;
     {
-      pushSTACK(stream); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(stream); # STREAM-ERROR slot STREAM
       pushSTACK(stream);
       pushSTACK(caller);
       fehler(stream_error,
@@ -499,8 +499,7 @@
         var uintL result;
         if (!(posfixnump(value1)
               && (result = posfixnum_to_L(value1),
-                  result >= start && result <= start+len
-           ) )   ) {
+                  result >= start && result <= start+len))) {
           pushSTACK(fixnum(start+len));
           pushSTACK(fixnum(start));
           pushSTACK(S(stream_read_byte_sequence));
@@ -604,14 +603,12 @@
       var object stream = *stream_;
       if (builtin_stream_p(stream)) {
         if (eq(TheStream(stream)->strm_rd_ch_last,ch)
-            && !(TheStream(stream)->strmflags & strmflags_unread_B)
-           ) {
+            && !(TheStream(stream)->strmflags & strmflags_unread_B)) {
           TheStream(stream)->strmflags |= strmflags_unread_B; # Flagbit setzen
         } else {
           if (!nullp(TheStream(stream)->strm_rd_ch_last)
-              && !(TheStream(stream)->strmflags & strmflags_unread_B)
-             ) {
-            pushSTACK(stream); # Wert für Slot STREAM von STREAM-ERROR
+              && !(TheStream(stream)->strmflags & strmflags_unread_B)) {
+            pushSTACK(stream); # STREAM-ERROR slot STREAM
             pushSTACK(ch);
             pushSTACK(stream);
             pushSTACK(S(unread_char));
@@ -619,7 +616,7 @@
                    GETTEXT("~: the last character read from ~ was not ~")
                   );
           } else {
-            pushSTACK(stream); # Wert für Slot STREAM von STREAM-ERROR
+            pushSTACK(stream); # STREAM-ERROR slot STREAM
             pushSTACK(S(read_char));
             pushSTACK(stream);
             pushSTACK(S(unread_char));
@@ -710,8 +707,7 @@
         var uintL result;
         if (!(posfixnump(value1)
               && (result = posfixnum_to_L(value1),
-                  result >= start && result <= start+len
-           ) )   ) {
+                  result >= start && result <= start+len))) {
           pushSTACK(fixnum(start+len));
           pushSTACK(fixnum(start));
           pushSTACK(S(stream_read_char_sequence));
@@ -852,13 +848,9 @@
         # Only instances of FUNDAMENTAL-INPUT-STREAM can do input.
         # Only instances of FUNDAMENTAL-OUTPUT-STREAM can do output.
         if (((strmflags & strmflags_rd_B)
-             && !instanceof(stream,O(class_fundamental_input_stream))
-            )
-            ||
+             && !instanceof(stream,O(class_fundamental_input_stream))) ||
             ((strmflags & strmflags_wr_B)
-             && !instanceof(stream,O(class_fundamental_output_stream))
-            )
-           )
+             && !instanceof(stream,O(class_fundamental_output_stream))))
           fehler_value_stream(sym);
       } else {
         fehler_value_stream(sym);
@@ -890,7 +882,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     var object caller;
     var object stream;
     {
-      pushSTACK(stream); # Wert für Slot PATHNAME von FILE-ERROR
+      pushSTACK(stream); # FILE-ERROR slot PATHNAME
       pushSTACK(stream);
       pushSTACK(caller);
       fehler(file_error,
@@ -937,7 +929,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     var object stream;
     var object obj;
     {
-      pushSTACK(stream); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(stream); # STREAM-ERROR slot STREAM
       pushSTACK(stream);
       pushSTACK(obj);
       fehler(stream_error,
@@ -968,8 +960,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
   #define input_stream_p(stream)  \
     (builtin_stream_p(stream)                                  \
      ? !((TheStream(stream)->strmflags & strmflags_rd_B) == 0) \
-     : instanceof(stream,O(class_fundamental_input_stream))    \
-    )
+     : instanceof(stream,O(class_fundamental_input_stream)))
 
 # Macro: Tests whether an object is an output-stream.
 # output_stream_p(stream)
@@ -977,8 +968,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
   #define output_stream_p(stream)  \
     (builtin_stream_p(stream)                                  \
      ? !((TheStream(stream)->strmflags & strmflags_wr_B) == 0) \
-     : instanceof(stream,O(class_fundamental_output_stream))   \
-    )
+     : instanceof(stream,O(class_fundamental_output_stream)))
 
 # UP: Überprüft einen Input-Stream.
 # test_input_stream(stream);
@@ -1064,8 +1054,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
   #define get_synonym_stream(sym)  \
     (!streamp(Symbol_value(sym))           \
      ? (fehler_value_stream(sym), unbound) \
-     : Symbol_value(sym)                   \
-    )
+     : Symbol_value(sym))
 
 # READ-BYTE - Pseudofunktion für Synonym-Streams:
   local object rd_by_synonym (object stream);
@@ -1374,8 +1363,7 @@ LISPFUNN(synonym_stream_symbol,1)
   {
     var object stream = popSTACK();
     if (!(builtin_stream_p(stream)
-          && (TheStream(stream)->strmtype == strmtype_synonym)
-       ) ) {
+          && (TheStream(stream)->strmtype == strmtype_synonym))) {
       if (!streamp(stream))
         fehler_stream(stream);
       else
@@ -1593,8 +1581,7 @@ LISPFUNN(broadcast_stream_p,1)
     value1 = (builtin_stream_p(arg)
               && (TheStream(arg)->strmtype == strmtype_broad)
               ? T
-              : NIL
-             );
+              : NIL);
     mv_count=1;
   }
 
@@ -1603,8 +1590,7 @@ LISPFUNN(broadcast_stream_streams,1)
   {
     var object stream = popSTACK();
     if (!(builtin_stream_p(stream)
-          && (TheStream(stream)->strmtype == strmtype_broad)
-       ) ) {
+          && (TheStream(stream)->strmtype == strmtype_broad))) {
       if (!streamp(stream))
         fehler_stream(stream);
       else
@@ -1889,8 +1875,7 @@ LISPFUNN(concatenated_stream_streams,1)
   {
     var object stream = popSTACK();
     if (!(builtin_stream_p(stream)
-          && (TheStream(stream)->strmtype == strmtype_concat)
-       ) ) {
+          && (TheStream(stream)->strmtype == strmtype_concat))) {
       if (!streamp(stream))
         fehler_stream(stream);
       else
@@ -2188,8 +2173,7 @@ LISPFUNN(two_way_stream_input_stream,1)
   {
     var object stream = popSTACK();
     if (!(builtin_stream_p(stream)
-          && (TheStream(stream)->strmtype == strmtype_twoway)
-       ) ) {
+          && (TheStream(stream)->strmtype == strmtype_twoway))) {
       if (!streamp(stream))
         fehler_stream(stream);
       else
@@ -2203,8 +2187,7 @@ LISPFUNN(two_way_stream_output_stream,1)
   {
     var object stream = popSTACK();
     if (!(builtin_stream_p(stream)
-          && (TheStream(stream)->strmtype == strmtype_twoway)
-       ) ) {
+          && (TheStream(stream)->strmtype == strmtype_twoway))) {
       if (!streamp(stream))
         fehler_stream(stream);
       else
@@ -2349,8 +2332,7 @@ LISPFUNN(echo_stream_input_stream,1)
   {
     var object stream = popSTACK();
     if (!(builtin_stream_p(stream)
-          && (TheStream(stream)->strmtype == strmtype_echo)
-       ) ) {
+          && (TheStream(stream)->strmtype == strmtype_echo))) {
       if (!streamp(stream))
         fehler_stream(stream);
       else
@@ -2364,8 +2346,7 @@ LISPFUNN(echo_stream_output_stream,1)
   {
     var object stream = popSTACK();
     if (!(builtin_stream_p(stream)
-          && (TheStream(stream)->strmtype == strmtype_echo)
-       ) ) {
+          && (TheStream(stream)->strmtype == strmtype_echo))) {
       if (!streamp(stream))
         fehler_stream(stream);
       else
@@ -2390,7 +2371,7 @@ LISPFUNN(echo_stream_output_stream,1)
   local void fehler_str_in_adjusted(stream)
     var object stream;
     {
-      pushSTACK(stream); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(stream); # STREAM-ERROR slot STREAM
       pushSTACK(TheStream(stream)->strm_str_in_string);
       pushSTACK(stream);
       fehler(stream_error,
@@ -2883,7 +2864,7 @@ LISPFUNN(string_stream_p,1)
       var uintL offset;
       var object string = unpack_string_ro(TheStream(stream)->strm_buff_in_string,&len,&offset);
       if (index >= len) { # Index zu groß ?
-        pushSTACK(stream); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(stream); # STREAM-ERROR slot STREAM
         pushSTACK(TheStream(stream)->strm_buff_in_string);
         pushSTACK(stream);
         fehler(stream_error,
@@ -3524,10 +3505,11 @@ LISPFUNN(generic_stream_p,1)
      eltype_integer:
       # eltype_size überprüfen:
       if (!(posfixnump(eltype_size) && !eq(eltype_size,Fixnum_0)
-            && ((oint_data_len < log2_intDsize+intWCsize) # (Bei oint_data_len <= log2(intDsize)+intWCsize-1
-                # ist stets eltype_size < 2^oint_data_len < intDsize*(2^intWCsize-1).)
-                || (as_oint(eltype_size) < as_oint(fixnum(intDsize*(uintL)(bitm(intWCsize)-1))))
-         ) )   )
+            && ((oint_data_len < log2_intDsize+intWCsize)
+                # [when oint_data_len <= log2(intDsize)+intWCsize-1 always
+                #  eltype_size < 2^oint_data_len < intDsize*(2^intWCsize-1) ]
+                || (as_oint(eltype_size) <
+                    as_oint(fixnum(intDsize*(uintL)(bitm(intWCsize)-1)))))))
         goto bad_eltype;
       decoded->size = posfixnum_to_L(eltype_size);
       return;
@@ -3592,8 +3574,7 @@ LISPFUNN(generic_stream_p,1)
         return arg;
       #ifdef UNICODE
       if (symbolp(arg) && constantp(TheSymbol(arg))
-          && encodingp(Symbol_value(arg))
-         )
+          && encodingp(Symbol_value(arg)))
         return Symbol_value(arg);
       #if defined(GNU_LIBICONV) || defined(HAVE_ICONV)
       if (stringp(arg)) {
@@ -3715,8 +3696,7 @@ LISPFUNN(generic_stream_p,1)
       {
         var struct termios term_parameters;
         if (!(   ( ioctl(handle,TCGETS,&term_parameters) ==0)
-              && ( ioctl(handle,TCSETSW,&term_parameters) ==0)
-           ) ) {
+              && ( ioctl(handle,TCSETSW,&term_parameters) ==0))) {
           if (!((errno==ENOTTY)||(errno==EINVAL))) { OS_error(); } # kein TTY: OK, sonstigen Error melden
         }
       }
@@ -3725,8 +3705,7 @@ LISPFUNN(generic_stream_p,1)
       {
         var struct termio term_parameters;
         if (!(   ( ioctl(handle,TCGETA,&term_parameters) ==0)
-              && ( ioctl(handle,TCSETAW,&term_parameters) ==0)
-           ) ) {
+              && ( ioctl(handle,TCSETAW,&term_parameters) ==0))) {
           if (!(errno==ENOTTY)) { OS_error(); }
         }
       }
@@ -3735,8 +3714,7 @@ LISPFUNN(generic_stream_p,1)
       {
         var struct sgttyb tty_parameters;
         if (!(   ( ioctl(handle,TIOCGETP,&tty_parameters) ==0)
-              && ( ioctl(handle,TIOCSETP,&tty_parameters) ==0)
-           ) ) {
+              && ( ioctl(handle,TIOCSETP,&tty_parameters) ==0))) {
           if (!(errno==ENOTTY)) { OS_error(); }
         }
       }
@@ -4696,8 +4674,7 @@ global object iconv_range(encoding,start,end)
       if # höchstens oint_data_len Bits ?
          ((count <= floor(oint_data_len,8))
           || ((count == floor(oint_data_len,8)+1)
-              && (*bitbufferptr < bit(oint_data_len%8))
-         )   ) {
+              && (*bitbufferptr < bit(oint_data_len%8)))) {
         # ja -> Fixnum >=0 bilden:
         var uintL wert = 0;
         until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
@@ -4770,15 +4747,15 @@ global object iconv_range(encoding,start,end)
         sign = 0;
         *bitbufferptr &= (bitm(signbitnr+1)-1); # High byte sign-extenden
         # normalisieren, höchstes Bit muss 0 bleiben:
-        while ((count>=2) && (*bitbufferptr==0) && !(*(bitbufferptr-1) & bit(7))) {
+        while ((count>=2) && (*bitbufferptr==0) &&
+               !(*(bitbufferptr-1) & bit(7))) {
           count--; bitbufferptr--;
         }
         # Zahl bilden:
         if # höchstens oint_data_len+1 Bits, Zahl <2^oint_data_len ?
            ((count <= floor(oint_data_len,8))
             || ((count == floor(oint_data_len,8)+1)
-                && (*bitbufferptr < bit(oint_data_len%8))
-           )   ) {
+                && (*bitbufferptr < bit(oint_data_len%8)))) {
           # ja -> Fixnum >=0 bilden:
           var uintL wert = 0;
           until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
@@ -4788,15 +4765,15 @@ global object iconv_range(encoding,start,end)
         sign = -1;
         *bitbufferptr |= minus_bitm(signbitnr+1); # High byte sign-extenden
         # normalisieren, höchstes Bit muss 1 bleiben:
-        while ((count>=2) && (*bitbufferptr==(uintB)(-1)) && (*(bitbufferptr-1) & bit(7))) {
+        while ((count>=2) && (*bitbufferptr==(uintB)(-1)) &&
+               (*(bitbufferptr-1) & bit(7))) {
           count--; bitbufferptr--;
         }
         # Zahl bilden:
         if # höchstens oint_data_len+1 Bits, Zahl >=-2^oint_data_len ?
            ((count <= floor(oint_data_len,8))
             || ((count == floor(oint_data_len,8)+1)
-                && (*bitbufferptr >= (uintB)(-bit(oint_data_len%8)))
-           )   ) {
+                && (*bitbufferptr >= (uintB)(-bit(oint_data_len%8))))) {
           # ja -> Fixnum <0 bilden:
           var uintL wert = (uintL)(-1);
           until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
@@ -4897,8 +4874,7 @@ global object iconv_range(encoding,start,end)
           # obj < 2^bitsize überprüfen:
           if (!((floor(bitsize,intDsize) >= len)
                 || ((floor(bitsize,intDsize) == len-1)
-                    && (TheBignum(obj)->data[0] < bit(bitsize%intDsize))
-             ) )   )
+                    && (TheBignum(obj)->data[0] < bit(bitsize%intDsize)))))
             fehler_bad_integer(stream,obj);
           #if BIG_ENDIAN_P
           {
@@ -4981,8 +4957,8 @@ global object iconv_range(encoding,start,end)
           # -2^(bitsize-1) <= obj < 2^(bitsize-1) überprüfen:
           if (!((floor(bitsize,intDsize) >= len)
                 || ((bitsize > intDsize*(len-1))
-                    && ((TheBignum(obj)->data[0] ^ (uintD)sign) < bit((bitsize%intDsize)-1))
-             ) )   )
+                    && ((TheBignum(obj)->data[0] ^ (uintD)sign) <
+                        bit((bitsize%intDsize)-1)))))
             fehler_bad_integer(stream,obj);
           #if BIG_ENDIAN_P
           {
@@ -5582,9 +5558,11 @@ global object iconv_range(encoding,start,end)
     {
       var uintL bitsize = ChannelStream_bitsize(stream);
       var uintL bytesize = bitsize/8;
-      # genügend viele Bytes in den Bitbuffer übertragen:
-      var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
-      if (!(UnbufferedStreamLow_read_array(stream)(stream,bitbufferptr,bytesize) == bitbufferptr+bytesize))
+      # transfer sufficiently many bytes into the bitbuffer
+      var uintB* bitbufferptr =
+        &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
+      if (UnbufferedStreamLow_read_array(stream)(stream,bitbufferptr,bytesize)
+          != bitbufferptr+bytesize)
         goto eof;
       # in Zahl umwandeln:
       return (*finisher)(stream,bitsize,bytesize);
@@ -6430,8 +6408,7 @@ global object iconv_range(encoding,start,end)
             (eltype->kind == eltype_iu
              ? (eltype->size == 8
                 ? P(rd_by_iau8_unbuffered)
-                : P(rd_by_iau_unbuffered)
-               )
+                : P(rd_by_iau_unbuffered))
              : P(rd_by_ias_unbuffered)
             );
           TheStream(stream)->strm_rd_by_array =
@@ -6471,8 +6448,7 @@ global object iconv_range(encoding,start,end)
             (eltype->kind == eltype_iu
              ? (eltype->size == 8
                 ? P(wr_by_iau8_unbuffered)
-                : P(wr_by_iau_unbuffered)
-               )
+                : P(wr_by_iau_unbuffered))
              : P(wr_by_ias_unbuffered)
             );
           TheStream(stream)->strm_wr_by_array =
@@ -6786,14 +6762,15 @@ typedef struct strm_i_buffered_extrafields_struct {
         }
         #endif
         end_system_call();
-        # Nicht alles geschrieben, wohl wegen voller Diskette.
-        # Um Inkonsistenzen zu vermeiden, muss man das File schließen.
-        BufferedStream_modified(stream) = false; # Hierbei gehen Daten verloren!
+        # not everything was written, probably because of full diskette.
+        # in order to avoid inconsistencies, must close the file
+        BufferedStream_modified(stream) = false; # data is lost!
         pushSTACK(stream);
-        builtin_stream_close(&STACK_0); # File schließen
-        clr_break_sem_4(); # keine UNIX-Operation mehr aktiv
-        # Fehler melden.
-        pushSTACK(!nullp(TheStream(STACK_0)->strm_file_truename) ? TheStream(STACK_0)->strm_file_truename : STACK_0); # Wert für Slot PATHNAME von FILE-ERROR
+        builtin_stream_close(&STACK_0); # file close
+        clr_break_sem_4(); # no more UNIX operations are active
+        # Report the error: FILE-ERROR slot PATHNAME:
+        pushSTACK(!nullp(TheStream(STACK_0)->strm_file_truename) ?
+                  TheStream(STACK_0)->strm_file_truename : STACK_0);
         pushSTACK(STACK_(0+1)); # stream
         fehler(file_error,
                GETTEXT("Closed ~ because disk is full.")
@@ -6895,8 +6872,7 @@ typedef struct strm_i_buffered_extrafields_struct {
       {
         var sintL ergebnis;
         if (BufferedStream_blockpositioning(stream)
-            || !((TheStream(stream)->strmflags & strmflags_rd_B) == 0)
-           ) {
+            || !((TheStream(stream)->strmflags & strmflags_rd_B) == 0)) {
           ergebnis = BufferedStreamLow_fill(stream)(stream);
           if (ergebnis==strm_buffered_bufflen) {
             # der ganze Buffer wurde gefüllt
@@ -6981,7 +6957,9 @@ typedef struct strm_i_buffered_extrafields_struct {
   local void fehler_position_beyond_EOF(stream)
     var object stream;
     {
-      pushSTACK(!nullp(TheStream(stream)->strm_file_truename) ? TheStream(stream)->strm_file_truename : stream); # Wert für Slot PATHNAME von FILE-ERROR
+      pushSTACK(!nullp(TheStream(stream)->strm_file_truename) ?
+                TheStream(stream)->strm_file_truename :
+                stream); # FILE-ERROR slot PATHNAME
       pushSTACK(stream);
       fehler(file_error,
              GETTEXT("cannot position ~ beyond EOF")
@@ -7006,8 +6984,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         if (newindex
             <= ((eofindex == eofindex_all_valid) ? strm_buffered_bufflen :
                 (!(eofindex == eofindex_all_invalid)) ? eofindex :
-                0
-           )   ) {
+                0)) {
           # ja -> brauche nur index zu verändern:
           BufferedStream_index(stream) = newindex;
           return;
@@ -7162,10 +7139,10 @@ typedef struct strm_i_buffered_extrafields_struct {
             var uintL count;
             ptr = &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[BufferedStream_index(stream)];
             dotimespL(count,next, { *ptr++ = *byteptr++; } );
-            BufferedStream_modified(stream) = true;
+          BufferedStream_modified(stream) = true;
           }
           remaining = remaining - next;
-          # index und eofindex incrementieren:
+          # increment index and eofindex:
           BufferedStream_index(stream) += next;
           BufferedStream_eofindex(stream) += next;
         } until (remaining == 0);
@@ -7756,15 +7733,12 @@ typedef struct strm_i_buffered_extrafields_struct {
       position_file_buffered(stream,floor(position_bits,8)); # Aufs Byte positionieren
       if ((bitsize % 8) == 0) # Bei Art a war's das.
         return;
-      if (# Liegt die angesprochene Position im ersten Byte nach EOF ?
+      if (# Is the addressed position situated in the first byte after EOF ?
           ((!((position_bits%8)==0))
-           && (buffered_nextbyte(stream) == (uintB*)NULL)
-          )
-          ||
-          # Liegt die angesprochene Position im letzten Byte, aber zu weit?
+           && (buffered_nextbyte(stream) == (uintB*)NULL)) ||
+          # Is the addressed position situated in the last byte too far?
           ((bitsize < 8)
-           && (position > BufferedStream_eofposition(stream))
-         )) {
+           && (position > BufferedStream_eofposition(stream)))) {
         # Fehler. Aber erst an die alte Position zurückpositionieren:
         var uintL oldposition = BufferedStream_position(stream);
         check_SP();
@@ -7789,8 +7763,9 @@ typedef struct strm_i_buffered_extrafields_struct {
     {
       var uintL bitsize = ChannelStream_bitsize(stream);
       var uintL bytesize = bitsize/8;
-      # genügend viele Bytes in den Bitbuffer übertragen:
-      var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
+      # transfer sufficiently many bytes into the bitbuffer
+      var uintB* bitbufferptr =
+        &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
       #if 0 # equivalent, but slower
       var uintL count;
       dotimespL(count,bytesize, {
@@ -7803,7 +7778,8 @@ typedef struct strm_i_buffered_extrafields_struct {
         BufferedStream_index(stream) += 1;
       });
       #else
-      if (!(read_byte_array_buffered(stream,bitbufferptr,bytesize) == bitbufferptr+bytesize))
+      if (read_byte_array_buffered(stream,bitbufferptr,bytesize)
+          != bitbufferptr+bytesize)
         goto eof;
       #endif
       # position incrementieren:
@@ -7826,11 +7802,12 @@ typedef struct strm_i_buffered_extrafields_struct {
     var rd_by_ix_I* finisher;
     {
       # Nur bei position < eofposition gibt's was zu lesen:
-      if (BufferedStream_position(stream) == BufferedStream_eofposition(stream))
+      if (BufferedStream_position(stream) ==
+          BufferedStream_eofposition(stream))
         goto eof;
       {
         var uintL bitsize = ChannelStream_bitsize(stream); # bitsize (>0, <8)
-        # genügend viele Bits in den Bitbuffer übertragen:
+        # transfer sufficient many bits into the bitbuffer
         var uintL bitindex = BufferedStream_bitindex(stream);
         var uintL count = bitindex + bitsize;
         var uint8 bit_akku;
@@ -7880,8 +7857,9 @@ typedef struct strm_i_buffered_extrafields_struct {
     {
       var uintL bitsize = ChannelStream_bitsize(stream);
       var uintL bytesize = ceiling(bitsize,8);
-      # genügend viele Bits in den Bitbuffer übertragen:
-      var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
+      # transfer sufficient many bits into the bitbuffer
+      var uintB* bitbufferptr =
+        &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
       var uintL count = bitsize;
       var uintL bitshift = BufferedStream_bitindex(stream);
       var uintB* ptr = buffered_nextbyte(stream);
@@ -8540,7 +8518,8 @@ typedef struct strm_i_buffered_extrafields_struct {
             # Bitbuffer allozieren:
             pushSTACK(stream);
             {
-              var object bitbuffer = allocate_bit_vector(Atype_Bit,ceiling(eltype->size,8)*8);
+              var object bitbuffer =
+                     allocate_bit_vector(Atype_Bit,ceiling(eltype->size,8)*8);
               stream = popSTACK();
               TheStream(stream)->strm_bitbuffer = bitbuffer;
             }
@@ -8605,7 +8584,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         buffered = (handle_regular ? 1 : -1);
       if (buffered < 0) {
         if (!(eltype.kind == eltype_ch) && !((eltype.size % 8) == 0)) {
-          pushSTACK(STACK_4); # Truename, Wert für Slot PATHNAME von FILE-ERROR
+          pushSTACK(STACK_4); # Truename, FILE-ERROR slot PATHNAME
           pushSTACK(STACK_0);
           pushSTACK(STACK_(1+2));
           pushSTACK(S(Kelement_type));
@@ -8638,7 +8617,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         if (direction==5 && !handle_regular) {
           # FIXME: Instead of signalling an error, we could return some kind
           # of two-way-stream (cf. make_socket_stream).
-          pushSTACK(STACK_4); # Truename, Wert für Slot PATHNAME von FILE-ERROR
+          pushSTACK(STACK_4); # Truename, FILE-ERROR slot PATHNAME
           pushSTACK(STACK_0);
           pushSTACK(T);
           pushSTACK(S(Kbuffered));
@@ -8674,8 +8653,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         }
         if (!nullp(TheStream(stream)->strm_buffered_channel)
             && !(eltype.kind == eltype_ch)
-            && (eltype.size < 8)
-           ) {
+            && (eltype.size < 8)) {
           # Art b
           # eofposition lesen:
           var uintL eofposition = 0;
@@ -8705,8 +8683,9 @@ typedef struct strm_i_buffered_extrafields_struct {
             TheStream(stream)->strmflags &= ~strmflags_wr_by_B; # Stream Read-Only machen
             pushSTACK(stream);
             builtin_stream_close(&STACK_0);
-            # STACK_0 = Wert für Slot STREAM von STREAM-ERROR
-            pushSTACK(!nullp(TheStream(STACK_0)->strm_file_truename) ? TheStream(STACK_0)->strm_file_truename : STACK_0);
+            # STACK_0 = STREAM-ERROR slot STREAM
+            pushSTACK(!nullp(TheStream(STACK_0)->strm_file_truename) ?
+                      TheStream(STACK_0)->strm_file_truename : STACK_0);
             fehler(stream_error,
                    GETTEXT("file ~ is not an integer file")
                   );
@@ -9521,8 +9500,7 @@ local object make_key_event(event)
               }
             } else {
               if (((scancode >= 71) && (scancode < 84)) || (scancode == 55)
-                  || ((scancode == 0xE0) && (code >= 32))
-                 ) {
+                  || ((scancode == 0xE0) && (code >= 32))) {
                 # Ziffernblocktaste außer Enter (auch nicht F1 bis F12 !)
                 var key_event event;
                 event.key = NULL;
@@ -9530,8 +9508,7 @@ local object make_key_event(event)
                 event.bits = char_hyper_c;
                 c = make_key_event(&event);
               } elif ((scancode == 14) || (scancode == 28)
-                      || ((scancode == 0xE0) && (code < 32))
-                     ) {
+                      || ((scancode == 0xE0) && (code < 32))) {
                 # Backspace-Taste, Return-Taste, Enter-Taste
                 var uintB defaultcode = (scancode==14 ? BS : CR);
                 var key_event event;
@@ -10621,7 +10598,7 @@ LISPFUNN(make_keyboard_stream,0)
       # ch sollte ein Character mit höchstens Font, aber ohne Bits sein:
       #error "FIXME character fonts don't exist in this form any more"
       if (!((as_oint(ch) & ~(((oint)char_code_mask_c|(oint)char_font_mask_c)<<oint_data_shift)) == as_oint(type_data_object(char_type,0))))
-        { pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        { pushSTACK(*stream_); # STREAM-ERROR slot STREAM
           pushSTACK(*stream_);
           pushSTACK(ch);
           fehler(stream_error,
@@ -10697,8 +10674,7 @@ LISPFUNN(make_keyboard_stream,0)
       if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
         return eof_value;
       if (!(posfixnum_to_L(TheStream(stream)->strm_terminal_index)
-            < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1]
-         ) ) {
+            < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1])) {
         # index=count -> muss eine ganze Zeile von Tastatur lesen:
         TheStream(stream)->strm_terminal_index = Fixnum_0; # index := 0
         TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1] = 0; # count := 0
@@ -10747,8 +10723,7 @@ LISPFUNN(make_keyboard_stream,0)
       if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
         return ls_eof;
       if (posfixnum_to_L(TheStream(stream)->strm_terminal_index)
-          < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1]
-         )
+          < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1])
         # index<count -> Es sind noch Zeichen im Buffer
         return ls_avail;
       return listen_char_unbuffered(stream);
@@ -10818,14 +10793,11 @@ LISPFUNN(make_keyboard_stream,0)
     {
       if (((start>=2)
            && (rl_line_buffer[start-2]=='#')
-           && (rl_line_buffer[start-1]== '\"')
-          )
-          ||
+           && (rl_line_buffer[start-1]== '\"')) ||
           ((start>=3)
            && (rl_line_buffer[start-3]=='#')
            && (rl_line_buffer[start-2]=='P' || rl_line_buffer[start-2]=='p')
-           && (rl_line_buffer[start-1]== '\"')
-         )) {
+           && (rl_line_buffer[start-1]== '\"'))) {
         # Vervollständigung nach #" oder #P" bezieht sich auf Filenamen:
         want_filename_completion = true; return NULL;
       }
@@ -10875,8 +10847,7 @@ LISPFUNN(make_keyboard_stream,0)
       if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
         return eof_value;
       if (!(posfixnum_to_L(TheStream(stream)->strm_terminal_index)
-            < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1]
-         ) ) {
+            < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1])) {
         # index=count -> muss eine ganze Zeile von Tastatur lesen:
         TheStream(stream)->strm_terminal_index = Fixnum_0; # index := 0
         TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1] = 0; # count := 0
@@ -10995,8 +10966,7 @@ LISPFUNN(make_keyboard_stream,0)
       if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
         return ls_eof;
       if (posfixnum_to_L(TheStream(stream)->strm_terminal_index)
-          < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1]
-         )
+          < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1])
         # index<count -> Es sind noch Zeichen im Buffer
         return ls_avail;
       return listen_char_unbuffered(stream);
@@ -11167,12 +11137,10 @@ LISPFUNN(make_keyboard_stream,0)
           begin_system_call();
           s->strm_terminal_isatty =
             (IsInteractive(stdin_handle)
-              ? (IsInteractive(stdout_handle)
-                  ? S(equal) # Input und Output Terminals -> vermutlich dasselbe
-                  : T
-                )
-              : NIL
-            );
+             ? (IsInteractive(stdout_handle)
+                ? S(equal) # input and output terminals -> probably the same
+                : T)
+             : NIL);
           end_system_call();
           s->strm_terminal_ihandle = popSTACK();
           s->strm_terminal_ohandle = popSTACK();
@@ -11221,15 +11189,13 @@ LISPFUNN(make_keyboard_stream,0)
           #endif
           #ifdef MSDOS
             if (   ((get_handle_info(stdin_handle) & (bit(7)|bit(0))) == (bit(7)|bit(0))) # stdin == console_input ?
-                && ((get_handle_info(stdout_handle) & (bit(7)|bit(1))) == (bit(7)|bit(1))) # stdout == console_output ?
-               )
+                && ((get_handle_info(stdout_handle) & (bit(7)|bit(1))) == (bit(7)|bit(1)))) # stdout == console_output ?
               same_tty = true;
           #endif
           #ifdef WIN32_NATIVE
             var DWORD console_mode;
             if (   GetConsoleMode(stdin_handle,&console_mode)
-                && GetConsoleMode(stdout_handle,&console_mode)
-               )
+                && GetConsoleMode(stdout_handle,&console_mode))
               same_tty = true;
           #endif
         }
@@ -11659,8 +11625,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
     if (builtin_stream_p(stream)
         && ((TheStream(stream)->strmtype == strmtype_terminal) # der Terminal-Stream
             || (TheStream(stream)->strmtype == strmtype_file # ein ungebufferter File-Stream
-                && !ChannelStream_buffered(stream)
-       )   )   ) {
+                && !ChannelStream_buffered(stream)))) {
       if (!nullp(TheStream(stream)->strm_isatty)) {
         if (TheStream(stream)->strmtype == strmtype_terminal) {
           # Terminal
@@ -11790,8 +11755,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
     var object stream;
     {
       if (builtin_stream_p(stream)
-          && (TheStream(stream)->strmtype == strmtype_window)
-         )
+          && (TheStream(stream)->strmtype == strmtype_window))
         return;
       pushSTACK(stream);
       pushSTACK(TheSubr(subr_self)->name);
@@ -12449,7 +12413,7 @@ LISPFUNN(window_cursor_off,1)
         OS_error(); # Error melden
       }
       if (ergebnis==0) { # nicht erfolgreich?
-        pushSTACK(var_stream(S(terminal_io),0)); # Wert für Slot PATHNAME von FILE-ERROR
+        pushSTACK(var_stream(S(terminal_io),0)); # FILE-ERROR slot PATHNAME
         fehler(file_error,
                GETTEXT("cannot output to standard output")
               );
@@ -12678,8 +12642,7 @@ typedef struct {
           || ((old_attr & A_BL) && !(new_attr & A_BL))
           || ((old_attr & A_BD) && !(new_attr & A_BD))
           || ((old_attr & A_DI) && !(new_attr & A_DI))
-          || ((old_attr & A_RV) && !(new_attr & A_RV))
-         ) {
+          || ((old_attr & A_RV) && !(new_attr & A_RV))) {
         # Muss Attribute ausschalten.
         out_capstring(UEcap); # alle aus
         out_capstring(SEcap);
@@ -16003,8 +15966,7 @@ LISPFUNN(make_x11socket_stream,2)
         var object stream = STACK_3;
         if (!(builtin_stream_p(stream)
               && eq(TheStream(stream)->strm_rd_by,P(rd_by_iau8_unbuffered))
-              && eq(TheStream(stream)->strm_wr_by,P(wr_by_iau8_unbuffered))
-           ) ) {
+              && eq(TheStream(stream)->strm_wr_by,P(wr_by_iau8_unbuffered)))) {
           if (!streamp(stream)) {
             fehler_stream(stream);
           } else {
@@ -16044,7 +16006,7 @@ LISPFUNN(read_n_bytes,4)
     test_n_bytes_args(&startindex,&totalcount);
     if (!(totalcount==0)) {
       if (!(read_byte_array(&STACK_1,&STACK_0,startindex,totalcount) == totalcount)) {
-        pushSTACK(STACK_1); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(STACK_1); # STREAM-ERROR slot STREAM
         pushSTACK(STACK_(1+1)); # Stream
         pushSTACK(S(read_n_bytes));
         fehler(end_of_file,
@@ -16828,8 +16790,7 @@ LISPFUNN(socket_stream_handle,1)
         stream = make_terminal_stream();
       } elif (eq(sym,S(query_io)) || eq(sym,S(debug_io)) ||
               eq(sym,S(standard_input)) || eq(sym,S(standard_output)) ||
-              eq(sym,S(error_output)) || eq(sym,S(trace_output))
-             ) {
+              eq(sym,S(error_output)) || eq(sym,S(trace_output))) {
         # Synonym-Stream auf *TERMINAL-IO* als Default
         stream = make_synonym_stream(S(terminal_io));
       } else {
@@ -17171,10 +17132,9 @@ LISPFUNN(built_in_stream_set_element_type,2)
           # Reading (UNSIGNED-BYTE 8) and (UNSIGNED-BYTE 16) and
           # (UNSIGNED-BYTE 32) values from the same stream in succession
           # can be achieved through READ-INTEGER and WRITE-INTEGER.
-          if (!((ChannelStream_bitsize(stream) > 0 ? ChannelStream_bitsize(stream) : 8)
-                ==
-                (eltype.size > 0 ? eltype.size : 8)
-             ) ) {
+          if ((ChannelStream_bitsize(stream) > 0 ?
+               ChannelStream_bitsize(stream) : 8)
+              != (eltype.size > 0 ? eltype.size : 8)) {
             # canon-element-type in STACK_0.
             pushSTACK(TheStream(stream)->strm_eltype);
             pushSTACK(stream);
@@ -17192,15 +17152,13 @@ LISPFUNN(built_in_stream_set_element_type,2)
                 # Old element type was CHARACTER.
                 # Transform the lastchar back to bytes.
                 if (charp(TheStream(stream)->strm_rd_ch_last)
-                    && (TheStream(stream)->strmflags & strmflags_unread_B)
-                   ) {
+                    && (TheStream(stream)->strmflags & strmflags_unread_B)) {
                   # FIXME: This should take into account the encoding.
                   var uintB b = as_cint(char_code(TheStream(stream)->strm_rd_ch_last));
                   if (ChannelStream_buffered(stream)) {
                     if ((BufferedStream_index(stream) > 0)
                         && (BufferedStream_position(stream) > 0)
-                        && (TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[BufferedStream_index(stream)-1] == b)
-                       ) {
+                        && (TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[BufferedStream_index(stream)-1] == b)) {
                       # index und position decrementieren:
                       BufferedStream_index(stream) -= 1;
                       BufferedStream_position(stream) -= 1;
@@ -17461,8 +17419,7 @@ LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL)
     {
       if (builtin_stream_p(stream)
           && TheStream(stream)->strmtype == strmtype_terminal
-          && eq(TheStream(stream)->strm_encoding,O(terminal_encoding))
-         ) {
+          && eq(TheStream(stream)->strm_encoding,O(terminal_encoding))) {
         # This is the only place which is allowed to modify the terminal
         # stream's encoding.
         # The terminal stream's end-of-line coding is hardwired, therefore we
@@ -17968,8 +17925,7 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
           case strmtype_socket:
           #endif
             if (TheStream(stream)->strmflags & strmflags_rd_ch_B
-                && !ChannelStream_buffered(stream)
-               )
+                && !ChannelStream_buffered(stream))
               ergebnis = clear_input_unbuffered(stream);
             else
               ergebnis = false;
@@ -18446,7 +18402,7 @@ LISPFUN(read_byte,1,2,norest,nokey,0,NIL)
       # EOF-Behandlung
       if (!nullp(STACK_1)) { # eof-error-p /= NIL (z.B. = #<UNBOUND>) ?
         # Error melden:
-        pushSTACK(STACK_2); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(STACK_2); # STREAM-ERROR slot STREAM
         pushSTACK(STACK_(2+1)); # Stream
         pushSTACK(S(read_byte));
         fehler(end_of_file,
@@ -18520,7 +18476,7 @@ LISPFUN(read_byte_no_hang,1,2,norest,nokey,0,NIL)
     # EOF handling.
     if (!nullp(STACK_1)) { # eof-error-p /= NIL (z.B. = #<UNBOUND>) ?
       # Error melden:
-      pushSTACK(STACK_2); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(STACK_2); # STREAM-ERROR slot STREAM
       pushSTACK(STACK_(2+1)); # Stream
       pushSTACK(S(read_byte_no_hang));
       fehler(end_of_file,
@@ -18587,8 +18543,7 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
             if # höchstens oint_data_len Bits ?
                ((count <= floor(oint_data_len,8))
                 || ((count == floor(oint_data_len,8)+1)
-                    && (*bitbufferptr < bit(oint_data_len%8))
-               )   ) {
+                    && (*bitbufferptr < bit(oint_data_len%8)))) {
               # ja -> Fixnum >=0 bilden:
               var uintL wert = 0;
               until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
@@ -18657,8 +18612,7 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
               if # höchstens oint_data_len+1 Bits, Zahl <2^oint_data_len ?
                  ((count <= floor(oint_data_len,8))
                   || ((count == floor(oint_data_len,8)+1)
-                      && (*bitbufferptr < bit(oint_data_len%8))
-                 )   ) {
+                      && (*bitbufferptr < bit(oint_data_len%8)))) {
                 # ja -> Fixnum >=0 bilden:
                 var uintL wert = 0;
                 until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
@@ -18675,8 +18629,7 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
               if # höchstens oint_data_len+1 Bits, Zahl >=-2^oint_data_len ?
                  ((count <= floor(oint_data_len,8))
                   || ((count == floor(oint_data_len,8)+1)
-                      && (*bitbufferptr >= (uintB)(-bit(oint_data_len%8)))
-                 )   ) {
+                      && (*bitbufferptr >= (uintB)(-bit(oint_data_len%8))))) {
                 # ja -> Fixnum <0 bilden:
                 var uintL wert = (uintL)(-1);
                 until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
@@ -18738,7 +18691,7 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
    eof:
     if (!nullp(STACK_2)) { # eof-error-p /= NIL (z.B. = #<UNBOUND>) ?
       # Error melden:
-      pushSTACK(STACK_5); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(STACK_5); # STREAM-ERROR slot STREAM
       pushSTACK(STACK_(5+1)); # Stream
       pushSTACK(S(read_integer));
       fehler(end_of_file,
@@ -18818,7 +18771,7 @@ LISPFUN(read_float,2,3,norest,nokey,0,NIL)
    eof:
     if (!nullp(STACK_2)) { # eof-error-p /= NIL (z.B. = #<UNBOUND>) ?
       # Error melden:
-      pushSTACK(STACK_5); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(STACK_5); # STREAM-ERROR slot STREAM
       pushSTACK(STACK_(5+1)); # Stream
       pushSTACK(S(read_float));
       fehler(end_of_file,
@@ -18903,8 +18856,7 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL)
             # obj < 2^bitsize überprüfen:
             if (!((floor(bitsize,intDsize) >= len)
                   || ((floor(bitsize,intDsize) == len-1)
-                      && (TheBignum(obj)->data[0] < bit(bitsize%intDsize))
-               ) )   )
+                      && (TheBignum(obj)->data[0] < bit(bitsize%intDsize)))))
               fehler_bad_integer(STACK_3,obj);
             #if BIG_ENDIAN_P
             {
@@ -18975,8 +18927,8 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL)
             # -2^(bitsize-1) <= obj < 2^(bitsize-1) überprüfen:
             if (!((floor(bitsize,intDsize) >= len)
                   || ((bitsize > intDsize*(len-1))
-                      && ((TheBignum(obj)->data[0] ^ (uintD)sign) < bit((bitsize%intDsize)-1))
-               ) )   )
+                      && ((TheBignum(obj)->data[0] ^ (uintD)sign) <
+                          bit((bitsize%intDsize)-1)))))
               fehler_bad_integer(STACK_3,obj);
             #if BIG_ENDIAN_P
             {
@@ -19314,8 +19266,7 @@ LISPFUNN(file_string_length,2)
     #define bytes_per_char  1
     #endif
     if (eq(TheEncoding(encoding)->enc_eol,S(Kunix))
-        || eq(TheEncoding(encoding)->enc_eol,S(Kmac))
-       ) {
+        || eq(TheEncoding(encoding)->enc_eol,S(Kmac))) {
       if (stringp(obj)) {
         var uintL result = vector_length(obj);
         value1 = UL_to_I(result*bytes_per_char); mv_count=1; return;
