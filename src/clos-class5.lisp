@@ -718,12 +718,6 @@
     (apply #'shared-initialize instance added-slots initargs)))
 (setq |#'update-instance-for-redefined-class| #'update-instance-for-redefined-class)
 
-;;; class finalization (MOP)
-
-(defgeneric finalize-inheritance (class)
-  (:method ((class standard-class)) (finalize-class class t))
-  (:method ((name symbol)) (finalize-inheritance (find-class name))))
-
 ;;; Utility functions
 
 ;; Returns the slot names of an instance of a slotted-class
