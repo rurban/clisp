@@ -1,12 +1,12 @@
 # German messages for CLISP
-# Copyright (C) 1992-1999 Bruno Haible, Michael Stoll
-# Bruno Haible <haible@clisp.cons.org>, 1999.
+# Copyright (C) 1992-2000 Bruno Haible, Michael Stoll
+# Bruno Haible <haible@clisp.cons.org>, 2000.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 1999-07-19\n"
+"Project-Id-Version: clisp 2000-03-06\n"
 "POT-Creation-Date: 2000-03-02 13:44:53 CET\n"
-"PO-Revision-Date: 1999-07-20 02:15:56 MEST\n"
+"PO-Revision-Date: 2000-03-02 14:48:21 CET\n"
 "Last-Translator: Bruno Haible <haible@clisp.cons.org>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -1506,9 +1506,8 @@ msgid "~: illegal endianness argument ~"
 msgstr "~: Als Endianness-Argument ist ~ unzulässig."
 
 #: stream.d:18861 stream.d:18873
-#, fuzzy
 msgid "~ is not a ~, cannot be output onto ~"
-msgstr "~ ist kein Integer und kann daher nicht auf ~ ausgegeben werden."
+msgstr "~ ist kein ~ und kann daher nicht auf ~ ausgegeben werden."
 
 #: stream.d:18960
 msgid "~: argument ~ is not an open file stream"
@@ -2869,13 +2868,12 @@ msgid "Too many links"
 msgstr "Zu viele Links auf ein File"
 
 #: errunix.d:234
-#, fuzzy
 msgid "Broken pipe, child process terminated or socket closed"
-msgstr "Rohrbruch, Tochterprozess beendet"
+msgstr "Rohrbruch, Tochterprozess beendet oder Socketverbindung abgebrochen"
 
 #: errunix.d:257
 msgid "Invalid multibyte or wide character"
-msgstr ""
+msgstr "Ungültiges Multibyte-Zeichen"
 
 #: errunix.d:264
 msgid "Operation would block"
