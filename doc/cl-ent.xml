@@ -107,6 +107,8 @@
 <!ENTITY ilisp "<ulink url='http://ilisp.cons.org/'>ILISP</ulink>">
 
 <!-- *** platforms *** -->
+<!ENTITY acorn "<ulink url='http://www.acorn.com/'><emphasis role='strong'>Acorn</emphasis></ulink>">
+<!ENTITY amiga "<ulink url='http://www.amiga.org/'><emphasis role='strong'>Amiga</emphasis></ulink>">
 <!ENTITY ascii "<ulink url='http://www.cplusplus.com/doc/papers/ascii.html'><emphasis role='strong'>ASCII</emphasis></ulink>">
 <!ENTITY cygwin "<ulink url='http://cygwin.com/'><emphasis role='strong'>Cygwin</emphasis></ulink>">
 <!ENTITY dos "<ulink url='http://www.freedos.org/'><emphasis role='strong'>DOS</emphasis></ulink>">
@@ -114,6 +116,7 @@
 <!ENTITY linux "<ulink url='http://www.linux.org/'><emphasis role='strong'>Linux</emphasis></ulink>">
 <!ENTITY mingw "<ulink url='http://www.mingw.org/'><emphasis role='strong'>MinGW</emphasis></ulink>">
 <!ENTITY nextstep "<ulink url='http://www.next.com/'><emphasis role='strong'>NeXTstep</emphasis></ulink>">
+<!ENTITY os2 "<ulink url='http://www.os2.org/'><emphasis role='strong'>OS/2</emphasis></ulink>">
 <!ENTITY unicode "<ulink url='http://www.unicode.org/'><emphasis role='strong'>UNICODE</emphasis></ulink>">
 <!ENTITY win32 "<ulink url='http://www.willows.com/'><emphasis role='strong'>Win32</emphasis></ulink>">
 
@@ -123,6 +126,7 @@
 <!ENTITY gdb "<ulink url='http://sources.redhat.com/gdb/'><command>gdb</command></ulink>">
 <!ENTITY apache "<ulink url='http://www.apache.org/'>Apache</ulink>">
 <!ENTITY gzip "<ulink url='http://www.gzip.org/'><command>gzip</command></ulink>">
+
 <!-- *** CLHS - Common Lisp HyperSpec *** -->
 
 <!-- *** misc *** -->
