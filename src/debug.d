@@ -412,6 +412,7 @@ global void break_driver (bool continuable_p) {
     /* Default-Driver: (CLEAR-INPUT *DEBUG-IO*), since whatever has been
        typed so far, was not typed in anticipation of this error */
     Symbol_value(S(terminal_read_stream)) = unbound;
+    Symbol_value(S(terminal_read_open_object)) = unbound;
     clear_input(var_stream(S(debug_io),strmflags_rd_ch_B|strmflags_wr_ch_B));
     /* SYS::*BREAK-COUNT* increase: */
     dynamic_bind(S(break_count),fixnum_inc(Symbol_value(S(break_count)),1));
