@@ -119,7 +119,7 @@ check-subdirs : force
 
 check : all check-subdirs minitests
 	./minitests > minitests.out
-	uniq -u < minitests.out > minitests.output.$(HOST)
+	LC_ALL=C uniq -u < minitests.out > minitests.output.$(HOST)
 	test '!' -s minitests.output.$(HOST)
 
 tests.o : $(srcdir)/tests.c callback.h vacall_r.h trampoline_r.h
@@ -136,7 +136,7 @@ extracheck-subdirs : force
 
 extracheck : all extracheck-subdirs tests
 	./tests > tests.out
-	uniq -u < tests.out > tests.output.$(HOST)
+	LC_ALL=C uniq -u < tests.out > tests.output.$(HOST)
 	test '!' -s tests.output.$(HOST)
 
 mostlyclean : force

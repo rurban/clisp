@@ -75,7 +75,7 @@ check-subdirs : force
 
 check : all check-subdirs minitests.exe
 	minitests.exe > minitests.out
-	uniq -u < minitests.out > minitests.output.$(HOST)
+	LC_ALL=C uniq -u < minitests.out > minitests.output.$(HOST)
 
 tests.o : $(srcdir)/tests.c callback.h vacall_r.h trampoline_r.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/tests.c
@@ -92,7 +92,7 @@ extracheck-subdirs : force
 
 extracheck : all extracheck-subdirs tests.exe
 	tests.exe > tests.out
-	uniq -u < tests.out > tests.output.$(HOST)
+	LC_ALL=C uniq -u < tests.out > tests.output.$(HOST)
 
 mostlyclean : force
 	$(MAKE) -C vacall_r -f Makefile.mingw32 mostlyclean
