@@ -1,10 +1,10 @@
-# Copyright (C) 1998, 1999, 2002 by Sam Steingold
+# Copyright (C) 1998-2004 by Sam Steingold
 # Distributed under the terms of the GNU General Public License.
 # See <http://www.gnu.org/copyleft/gpl.html>.
 
 # The purpose of this file is creation of source/binary RPMs,
 # **NOT** building/installing CLISP.
-# If you read the comments below, you will learn why.
+# I work from a CVS sandbox, so unpacking and patching is irrelevant to me.
 
 # to create the source/binary RPMs, do
 #  rpmbuild -ba --sign clisp.spec
@@ -12,11 +12,9 @@
 %define src /usr/local/src
 %define prefix /usr
 %define name clisp
-# the release version is the same as the current development version,
-# at least for some time :-)
-%define version %(cat %{src}/%{name}/current/src/VERSION)
+%define version %(cat src/VERSION)
 %define builddir build-rpm
-%define mysrc %{src}/%{name}/current
+%define mysrc %{src}/%{name}/%{name}-%{version}
 
 # don't you just love that you have to fit the macro into one line?
 # this automatically upgrades `release' with each build.
@@ -34,7 +32,7 @@ Release:      %{release}
 #Icon:         clisp.png
 Copyright:    GPL
 Group:        development/languages
-Source:       ftp://ftp.gnu.org/pub/gnu/clisp/release/latest/
+Source:       ftp://ftp.gnu.org/pub/gnu/clisp/latest/
 URL:          http://clisp.cons.org/
 Packager:     Sam Steingold <sds@gnu.org>
 Provides:     clisp, ansi-cl
@@ -46,21 +44,6 @@ BuildRoot:    %{_tmppath}/%{name}-root
 This binary distribution was built with the following modules:
  %{modules}
 
-#     <The following note dates from 1998:>
-# RPM doesn't provide for comfortable operation: when I want to create a
-# package, I have to untar, build and install (--short-circuit works for
-# compilation and installation only, so if I want to build a binary RPM,
-# I am doomed to untar, compile and install!)  This is unacceptable, so
-# I disabled untar completely - I don't need it anyway, I work from a
-# CVS repository, and I comment out the build clause and `make install`.
-# If *YOU* want to build using RPM, you are welcome to it: just
-# uncomment the commands in the appropriate sections.
-# Additionally, RPM barfs on rpmrc created with `rpm --showrc > /etc/rpmrc`
-# which is an unspeakable abomination.
-# I reported all these as bugs and was told "it's a feature, not a bug".
-#     <I welcome suggestion on how to make this file useful>
-#     <to me as well as source RPM users>
-
 %prep
 cat <<EOF
 This will build RPMs for CLISP: %{name}-%{version}-%{release}.
@@ -70,19 +53,20 @@ creating the RPMs.  See 'clisp.spec' for more information.
 EOF
 %setup -T -D -n %{mysrc}
 %build
-echo "Uncomment 'configure' in 'clisp.spec' if you want to build";
-#rm -rf %{builddir}
-#MODS=''; for m in %{modules}; do MODS=${MODS}' '--with-module=$m; done
-#./configure --prefix=%{prefix} --fsstnd=redhat ${MODS} --build %{builddir}
+# build CLISP
+# this has to be done just once - comment it out if you did this already
+rm -rf %{builddir}
+MODS=''; for m in %{modules}; do MODS=${MODS}' '--with-module=$m; done
+./configure --prefix=%{prefix} --fsstnd=redhat ${MODS} --build %{builddir}
 %install
 cd %{builddir}
 make DESTDIR=$RPM_BUILD_ROOT install
 
 # create the source tar, necessary for source RPMs
-# this has to be done just once - uncomment if you want it
-#cd %{mysrc}
-#make -f Makefile.devel src-distrib
-#ln /tmp/%{name}-%{version}.tar.bz2 /usr/src/redhat/SOURCES/
+# this has to be done just once - comment it out if you did this already
+cd %{mysrc}
+make -f Makefile.devel src-distrib
+ln /tmp/%{name}-%{version}.tar.bz2 /usr/src/redhat/SOURCES/
 %clean
 rm -rf $RPM_BUILD_ROOT
 %files
