@@ -558,12 +558,12 @@ LISPFUNN(resolve_host_ipaddr_,1)
 #endif
 #endif
 # ---------- TIME ----------
+LISPFUNN(get_internal_real_time,0)
+LISPFUNN(get_internal_run_time,0)
 LISPFUNN(get_universal_time,0)
 #if defined(UNIX) || defined(WIN32)
 LISPFUN(default_time_zone,0,1,norest,nokey,0,NIL)
 #endif
-LISPFUNN(get_internal_run_time,0)
-LISPFUNN(get_internal_real_time,0)
 #ifdef SLEEP_1
 LISPFUNN(sleep,1)
 #endif
