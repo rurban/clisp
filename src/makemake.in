@@ -1610,7 +1610,7 @@ echotab "\$(TOUCH) $1"
 }
 fi
 
-echol "# Makefile for the CLISP binaries"
+echol "# -*- Makefile -*- for the CLISP binaries"
 echol "# DO NOT EDIT! GENERATED AUTOMATICALLY!"
 echol "# This file was created on host $hostname as the output of the command:"
 echol "# $0$makemake_args"
