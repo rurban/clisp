@@ -80,7 +80,7 @@ minitests.exe : minitests.o $(OBJECTS)
 
 check : all minitests.exe
 	minitests.exe > minitests.out
-	uniq -u < minitests.out > minitests.output.$(HOST)
+	LC_ALL=C uniq -u < minitests.out > minitests.output.$(HOST)
 
 tests.o : $(srcdir)/tests.c vacall.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/tests.c
@@ -93,7 +93,7 @@ tests.exe : tests.o $(OBJECTS)
 
 extracheck : all tests.exe
 	tests.exe > tests.out
-	uniq -u < tests.out > tests.output.$(HOST)
+	LC_ALL=C uniq -u < tests.out > tests.output.$(HOST)
 
 mostlyclean : clean
 
