@@ -9487,6 +9487,24 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # Das aktuelle Environment:
   extern environment aktenv;
 
+# Macro: Legt fünf einzelne Environment auf den STACK
+# und bildet daraus ein einzelnes Environment.
+# make_STACK_env(venv,fenv,benv,genv,denv, env5 = );
+# > object venv,fenv,benv,genv,denv: 5 einzelne Environments
+# < environment* env5: Pointer auf im Stack liegendes Environment
+  #ifdef STACK_UP
+    #define make_STACK_env(venv,fenv,benv,genv,denv,env5_zuweisung)  \
+      { pushSTACK(venv); pushSTACK(fenv); pushSTACK(benv); pushSTACK(genv); pushSTACK(denv); \
+        env5_zuweisung &STACKblock_(environment,0);                                           \
+      }
+  #endif
+  #ifdef STACK_DOWN
+    #define make_STACK_env(venv,fenv,benv,genv,denv,env5_zuweisung)  \
+      { pushSTACK(denv); pushSTACK(genv); pushSTACK(benv); pushSTACK(fenv); pushSTACK(venv); \
+        env5_zuweisung &STACKblock_(environment,0);                                           \
+      }
+  #endif
+
 # Frameinfobits in Frames:
 # im Frame-Info-Byte (tint):
 #if (oint_type_len>=7) && 0 # vorläufig??
