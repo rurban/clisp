@@ -29,7 +29,7 @@
 (in-package "CUSTOM")
 (common-lisp:export
  '(*inspect-frontend* *inspect-browser* *inspect-print-lines*
-   *with-html-output-doctype* *user-mail-address*
+   *with-html-output-doctype*
    *inspect-print-level* *inspect-print-length* *inspect-length*)
  "CUSTOM")
 (ext:re-export "CUSTOM" "EXT")
@@ -81,10 +81,6 @@
 (defvar *with-html-output-doctype*
   '("html" "PUBLIC" "\"-//W3C//DTD XHTML 1.0 Strict//EN\""
     "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\""))
-(defvar *user-mail-address*
-  (concatenate 'string (or (getenv "USER") (getenv "USERNAME") "nobody") "@"
-               (let ((st (machine-instance)))
-                 (subseq st 0 (position #\Space st)))))
 
 (defmacro with-html-output ((var stream
                              &key (doctype '*with-html-output-doctype*)
@@ -93,10 +89,14 @@
                                   base comment (title "untitled") (footer t)
                                   head)
                             &body body)
-  (with-gensyms ("HTML-" raw mailto)
+  (with-gensyms ("HTML-" raw user mail mailto)
     `(let* ((,raw ,stream)
             (,var (clos::make-instance 'html-stream-out :stream ,raw))
-            (,mailto (concatenate 'string "mailto:" *user-mail-address*)))
+            (,user (sys::getenv "USER"))
+            (,mail (concatenate 'string ,user "@"
+                                (let ((st (machine-instance)))
+                                  (subseq st 0 (position #\Space st)))))
+            (,mailto (concatenate 'string "mailto:" ,mail)))
       (macrolet ((with-tag ((tag &rest options) &body forms)
                    `(progn (format ,',raw "<~a~@{ ~a=~s~}>" ,tag ,@options)
                      ,@forms (format ,',raw "</~a>~%" ,tag)))
@@ -108,9 +108,9 @@
                (format ,raw "<!DOCTYPE~{ ~a~}>~%" ,doctype)
                ;; print the comment
                (format ,raw "<!--~% Created on ") (current-time ,raw)
-               (format ,raw "~% by ~a~% using `with-open-html'
+               (format ,raw "~% by ~a@~a~% using `with-open-html'
  Lisp: ~a ~a~@[~%~a~]~% -->~2%"
-                       *user-mail-address*
+                       ,user (machine-instance)
                        (lisp-implementation-type) (lisp-implementation-version)
                        ,comment)
                (when ,base
@@ -118,7 +118,7 @@
                (with-tag (:html)
                  (with-tag (:head ,@head)
                    (with-tag (:meta ,@meta))
-                   (with-tag (:link :rev "made" :href ,mailto))
+                   (with-tag (:link :rev 'made :href ,mailto))
                    (with-tag (:title) (princ ,title ,var)))
                  (with-tag (:body)
                    ,@body
@@ -127,13 +127,10 @@
                        (with-tag (:hr))
                        (with-tag (:address)
                          (with-tag (:a :href ,mailto)
-                           (princ *user-mail-address* ,var)))
+                           (princ ,mail ,var)))
                        (with-tagl (:strong) (current-time ,var)))))))
           (when ,var (close ,var))
           (when ,raw (close ,raw)))))))
-
-(defvar *http-encoding*
-  (make-encoding :charset charset:utf-8 :line-terminator :dos))
 
 (defmacro with-http-output ((var raw &rest opts &key keep-alive (debug 0)
                              (return-code 200) (return-name "OK")
@@ -141,34 +138,31 @@
                             &body body)
   "Write some HTML to an http client on socket stream RAW.
 Supplies some HTTP/1.0 headers and calls `with-html-output'."
-  (with-gensyms ("HTTP-" string vector stream sock header line dbg alive)
+  (with-gensyms ("HTTP-" string stream sock header line dbg alive)
     (remf opts :keep-alive) (remf opts :debug)
     (remf opts :return-code) (remf opts :return-name)
     `(let* ((,sock ,raw)
             (,dbg ,debug) (,alive ,keep-alive)
             (,string (with-output-to-string (,stream)
                        (with-html-output (,var ,stream ,@opts) ,@body)))
-            (,vector (ext:convert-string-to-bytes ,string *http-encoding*))
             (,header (list (format nil "HTTP/1.0 ~d ~a"
                                    ,return-code ,return-name)
-                           "Content-type: text/html; charset=utf-8"
-                           (format nil "Content-length: ~d" (length ,vector))
+                           "Content-type: text/html"
+                           (format nil "Content-length: ~d" (length ,string))
                            (format nil "Connection: ~:[close~;keep-alive~]"
                                    ,alive))))
-       (dolist (,line ,header)
-         (write-line ,line ,sock)
-         (when (and ,dbg (> ,dbg 0))
-           (format t "<- ~a~%" ,line)))
-       (terpri ,sock)
-       (setf (stream-element-type ,sock) 'unsigned-byte)
-       (write-byte-sequence ,vector ,sock)
-       (setf (stream-element-type ,sock) 'character)
-       (when (and ,dbg (> ,dbg 3))
-         (format t "<- ~s~%" ,string))
-       (unless ,alive
-         (when (and ,dbg (> ,dbg 0))
-           (format t "~s: closing ~s~%" 'with-http-output ,sock))
-         (close ,sock)))))
+      (dolist (,line ,header)
+        (write-line ,line ,sock)
+        (when (and ,dbg (> ,dbg 0))
+          (format t "<- ~a~%" ,line)))
+      (terpri ,sock)
+      (write-line ,string ,sock)
+      (when (and ,dbg (> ,dbg 3))
+        (format t "<- ~s~%" ,string))
+      (unless ,alive
+        (when (and ,dbg (> ,dbg 0))
+          (format t "~s: closing ~s~%" 'with-http-output ,sock))
+        (close ,sock)))))
 
 (defun flush-http (sock)
   "Read everything from the HTTP socket SOCK, until a blank line."
@@ -196,7 +190,8 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
 (defvar *inspect-print-length* 10) ; default for `*print-length*'
 (defvar *inspect-length* 5)     ; the number of sequence elements to print
 
-(defvar *inspect-all* nil) ; all `inspection' objects in this session
+;; all `inspection' objects in this session
+(defparameter *inspect-all* (make-array 10 :fill-pointer 0 :adjustable t))
 (defparameter *inspect-debug* 0) ; debug level
 (defvar *inspect-unbound-value*) ; the value for the unbound slots
 
@@ -420,7 +415,10 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
     (error "~s: unknown inspect front end: ~s" 'inspect-frontend frontend)))
 
 (clos:defgeneric inspect-finalize (frontend)
-  (:method ((frontend t))))
+  (:method ((frontend t))
+    (dotimes (ii (length *inspect-all*))
+      (setf (aref *inspect-all* ii) nil))
+    (setf (fill-pointer *inspect-all*) 0)))
 
 (defun inspect-read-clean-eval (insp stream)
   ;; `read' a form, destructively replace `:self' with INSP and `:slot'
@@ -545,8 +543,7 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
     (format t "~s: server: ~s; socket: ~s~%" 'http-command server socket))
   (let (response id com keep-alive)
     (loop (unless (and socket (open-stream-p socket))
-            (setq socket (socket-accept server
-                                        :external-format *http-encoding*))
+            (setq socket (socket-accept server :external-format :dos))
             (when (> debug 1)
               (format t "~s: new socket: ~s~%" 'http-command socket)))
           (setq response (flush-http socket))
@@ -563,8 +560,6 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
           (format t "~s: connection: ~s (keep-alive: ~s)~%"
                   'http-command (subseq line 12) keep-alive))
         (when keep-alive
-          ;; we override `keep-alive' because it makes it impossible to
-          ;; switch browsers in the middle of an inspection session
           (setq keep-alive nil)
           (when (> debug 0)
             (format t "~s: overriding keep-alive to NIL~%" 'http-command))))
@@ -636,21 +631,21 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
 ;;;
 
 ;;;###autoload
-(defun inspect (object &key ((:frontend *inspect-frontend*) *inspect-frontend*)
-                ((:browser *inspect-browser*) *inspect-browser*))
+(defun inspect (object &key (frontend *inspect-frontend*)
+                (browser *inspect-browser*))
   (let* ((*print-array* nil) (*print-pretty* t)
          (*print-circle* t) (*print-escape* t)
          (*print-lines* *inspect-print-lines*)
          (*print-level* *inspect-print-level*)
          (*print-length* *inspect-print-length*)
-         (*inspect-all* (make-array 10 :fill-pointer 0 :adjustable t))
-         (tmp-pack (make-package (gensym "INSPECT-TMP-PACKAGE-")))
-         (*package* tmp-pack)
-         (*inspect-unbound-value* (intern "#<unbound>" tmp-pack)))
+         (*package* (make-package (gensym "INSPECT-TMP-PACKAGE-")))
+         (*inspect-unbound-value* (intern "#<unbound>" *package*))
+         (*inspect-frontend* frontend)
+         (*inspect-browser* browser))
     (unwind-protect
-         (inspect-frontend (inspect-backend object) *inspect-frontend*)
-      (inspect-finalize *inspect-frontend*)
-      (delete-package tmp-pack))
+         (inspect-frontend (inspect-backend object) frontend)
+      (inspect-finalize frontend)
+      (delete-package *package*))
     (values)))
 
 ;;; inspect.lisp ends here

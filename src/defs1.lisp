@@ -167,7 +167,7 @@
           (*load-paths* (if (null *load-truename*) *load-paths*
                             (cons (make-pathname :name nil :type nil
                                                  :defaults *load-truename*)
-                                  *load-paths*)))
+                                  *load-truename*)))
           #-CLISP (*default-pathname-defaults* '#""))
       (if (atom pathname) (load pathname) (mapcar #'load pathname)))))
 

@@ -2547,6 +2547,7 @@ local void print_banner ()
         { loadmem(argv_memfile); }
       # init O(current_language)
       O(current_language) = current_language_o(language);
+      init_other_modules_2(); # die noch uninitialisierten Module initialisieren
       # aktuelle Evaluator-Environments auf den Toplevel-Wert setzen:
       aktenv.var_env   = NIL;
       aktenv.fun_env   = NIL;
@@ -2631,7 +2632,6 @@ local void print_banner ()
       init_ffi();
       #endif
       # Modul-Initialisierungen:
-      init_other_modules_2();
       { var module_* module; # modules durchgehen
         for_modules(all_other_modules,
           { if (module->initfunction2)

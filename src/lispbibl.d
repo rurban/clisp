@@ -705,8 +705,7 @@
   #if defined(DECALPHA)
     #define STACK_register  "$9"    # one of the general registers $9..$14
   #endif
-  #if defined(S390) && ((__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
-    # global register assignment did not work on s390 until gcc 3.1
+  #if defined(S390)
     #define STACK_register  "9"     # one of the general registers %r8..%r9
   #endif
   # What about NEED_temp_STACK ?? Needed if STACK is in a "used" register??
@@ -6964,12 +6963,9 @@ All other long words on the LISP-Stack are LISP-objects.
       __asm__ __volatile__ ("movl %%esp,%0" : "=g" (__SP) : ); \
       __SP;                                                    \
      })
-  # Doesn't work with gcc 3.1 any more.
-  #if (__GNUC__ < 3) || (__GNUC__ == 3 && __GNUC_MINOR__ < 1)
   #define setSP(adresse)  \
     ({ __asm__ __volatile__ ("movl %0,%%esp" : : "g" ((aint)(adresse)) : "sp" ); })
   #define FAST_SP
-  #endif
 #elif defined(GNU) && defined(SP_register)
   register __volatile__ aint __SP __asm__(SP_register);
   #define SP()  __SP

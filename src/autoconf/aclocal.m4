@@ -1,7 +1,6 @@
 dnl local autoconf macros
 dnl Bruno Haible 2001-02-04
 dnl Marcus Daniels 1997-04-10
-dnl Sam Steingold 2002
 dnl
 AC_PREREQ(2.52)dnl
 dnl
@@ -689,10 +688,10 @@ changequote(,)dnl
   i[4567]86 )
     host_cpu=i386
     ;;
-  alphaev[4-7] | alphaev56 | alphapca5[67] | alphaev6[78] )
+  alphaev[4-7] | alphaev56 | alphapca5[67] )
     host_cpu=alpha
     ;;
-  hppa1.0 | hppa1.1 | hppa2.0* )
+  hppa1.0 | hppa1.1 | hppa2.0 )
     host_cpu=hppa
     ;;
   powerpc )
@@ -700,9 +699,6 @@ changequote(,)dnl
     ;;
   c1 | c2 | c32 | c34 | c38 | c4 )
     host_cpu=convex
-    ;;
-  arm* )
-    host_cpu=arm
     ;;
 changequote([,])dnl
   mips )
@@ -752,10 +748,10 @@ changequote(,)dnl
   i[4567]86 )
     host_cpu=i386
     ;;
-  alphaev[4-7] | alphaev56 | alphapca5[67] | alphaev6[78] )
+  alphaev[4-7] | alphaev56 | alphapca5[67] )
     host_cpu=alpha
     ;;
-  hppa1.0 | hppa1.1 | hppa2.0* )
+  hppa1.0 | hppa1.1 | hppa2.0 )
     host_cpu=hppa
     ;;
   powerpc )
@@ -763,9 +759,6 @@ changequote(,)dnl
     ;;
   c1 | c2 | c32 | c34 | c38 | c4 )
     host_cpu=convex
-    ;;
-  arm* )
-    host_cpu=arm
     ;;
 changequote([,])dnl
   mips )
@@ -845,8 +838,6 @@ fi
 dnl
 AC_DEFUN(CL_PCC_STRUCT_RETURN,
 [AC_CACHE_CHECK([for pcc non-reentrant struct return convention], cl_cv_c_struct_return_static, [
-save_CFLAGS="$CFLAGS"
-CFLAGS=""
 AC_TRY_RUN([typedef struct { int a; int b; int c; int d; int e; } foo;
 foo foofun () { static foo foopi = {3141,5926,5358,9793,2385}; return foopi; }
 foo* (*fun) () = (foo* (*) ()) foofun;
@@ -863,7 +854,6 @@ cl_cv_c_struct_return_static=no,
 dnl When cross-compiling, don't assume anything.
 dnl There are even weirder return value passing conventions than pcc.
 cl_cv_c_struct_return_static="guessing no")
-CFLAGS="$save_CFLAGS"
 ])
 case "$cl_cv_c_struct_return_static" in
   *yes) AC_DEFINE(__PCC_STRUCT_RETURN__) ;;
@@ -919,9 +909,13 @@ AC_TRY_RUN([int main()
 /* long longs don't work right with gcc-2.7.2 on m68k */
 /* long longs don't work right with gcc-2.7.2 on rs6000: avcall/tests.c gets
    miscompiled. */
+#ifdef __GNUC__
 #if defined(__m68k__) || (defined(_IBMR2) || defined(__powerpc))
-#if defined(__GNUC__) && (__GNUC__ == 2) && (__GNUC_MINOR__ <= 7)
+#if (__GNUC__ == 2)
+#if (__GNUC_MINOR__ <= 7)
   exit(1);
+#endif
+#endif
 #endif
 #endif
   { long x = 944938507; long y = 737962842; long z = 162359677;
@@ -1935,6 +1929,9 @@ AC_DEFINE(HAVE_PERROR_DECL)
 fi
 ])dnl
 dnl
+AC_DEFUN(CL_STRERROR,
+[AC_CHECK_FUNCS(strerror)])dnl
+dnl
 AC_DEFUN(CL_SYS_ERRLIST,
 [changequote(,)dnl
 brackets='[]'
@@ -2720,6 +2717,10 @@ CL_PROTO_CONST([
 AC_DEFINE_UNQUOTED(UNLINK_CONST,$cl_cv_proto_unlink_arg1)
 ])dnl
 dnl
+AC_DEFUN(CL_FSYNC,
+[AC_CHECK_FUNCS(fsync)]
+)dnl
+dnl
 AC_DEFUN(CL_IOCTL,
 [AC_REQUIRE([CL_TERM])dnl
 AC_REQUIRE([CL_OPENFLAGS])dnl
@@ -2947,6 +2948,10 @@ AC_CHECK_FUNCS(poll)dnl
 fi
 ])dnl
 dnl
+AC_DEFUN(CL_UALARM,
+[AC_CHECK_FUNCS(ualarm)]
+)dnl
+dnl
 AC_DEFUN(CL_SETITIMER,
 [AC_CHECK_FUNCS(setitimer)dnl
 if test $ac_cv_func_setitimer = yes; then
@@ -2963,6 +2968,10 @@ CL_PROTO_CONST([
 AC_DEFINE_UNQUOTED(SETITIMER_CONST,$cl_cv_proto_setitimer_arg2)
 fi
 ])dnl
+dnl
+AC_DEFUN(CL_USLEEP,
+[AC_CHECK_FUNCS(usleep)]
+)dnl
 dnl
 AC_DEFUN(CL_LOCALTIME,
 [CL_PROTO([localtime], [
