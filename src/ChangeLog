@@ -1,5 +1,10 @@
 2001-03-21  Bruno Haible  <haible@clisp.cons.org>
 
+	Make it possible to compile gstream.lisp with interpreted.mem.
+	* compiler.lisp: Compile #'venv-search.
+
+2001-03-21  Bruno Haible  <haible@clisp.cons.org>
+
 	* misc.d: Include <stdio.h>.
 
 2001-03-21  Bruno Haible  <haible@clisp.cons.org>

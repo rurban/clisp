@@ -12749,3 +12749,10 @@ Die Funktion make-closure wird dazu vorausgesetzt.
   (disassemble-closure object) ; Disassemblieren
   object ; compilierte Closure als Wert
 )
+
+; The compilation of code using symbol-macros requires venv-search in
+; compiled form.
+#-CROSS
+(unless (compiled-function-p #'venv-search)
+  (compile 'venv-search)
+)
