@@ -101,7 +101,7 @@
   <ulink url="&clhs;/Body/sec_2-4-6.html">[CLHS-2.4.6]</ulink></title>
 
 <para>The backquote read macro also works when nested. Example:
-<informalexample id="bq-nested"><programlisting>
+<informalexample id="bq-nested"><programlisting language="lisp">
    (&eval; ``(,#'(&lambda-m; () ',a) ,#'(&lambda-m; () ',b)))
  = (&eval; `(list #'(&lambda-m; () ',a) #'(&lambda-m; () ',b)))
  = (&eval; (list 'list (list 'function (list 'lambda nil (list 'quote a)))
@@ -209,12 +209,12 @@ ignored by the interpreter.</para>
 
 <para>The declaration &compile-decl; has the effect that the current
  form is compiled prior to execution.  Examples:
-<programlisting>
+<programlisting language="lisp">
  (&locally; (&declare; (compile)) &form-r;)
 </programlisting>
 executes a compiled version of form.</para>
 
-<para><programlisting>
+<para><programlisting language="lisp">
 (&let; ((x 0))
   (&flet; ((inc () (&declare; (compile)) (&incf; x))
          (dec () (&decf; x)))
@@ -408,7 +408,7 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
  If you do not want them (for example, if you want to use the
  <ulink url="ftp://cvs2.cons.org/pub/lisp/clisp/packages/pcl.sept92f.clisp.tar.gz">PCL</ulink>
  implementation of &clos; instead of the native one), do the following:
-<programlisting>
+<programlisting language="lisp">
 (&defpackage; "CL-NO-CLOS" (:use "CL"))
 (&do-external-symbols; (&symbol-r; &cl-pac;)
   (&shadow; &symbol-r; "CL-NO-CLOS"))
@@ -570,7 +570,7 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
 <section id="fcase"><title>Macro <function>EXT:FCASE</function></title>
 
 <para>This macro allows specifying the test for &case;, e.g.,
-<programlisting>
+<programlisting language="lisp">
 (fcase string= (subseq foo 0 (position #\Space foo))
   ("first" 1)
   (("second" "two") 2)
@@ -578,7 +578,7 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
   (otherwise nil))
 </programlisting>
 is the same as
-<programlisting>
+<programlisting language="lisp">
 (let ((var (subseq foo 0 (position #\Space foo))))
   (cond ((string= var "first") 1)
         ((or (string= var "second") (string= var "two")) 2)
@@ -766,7 +766,7 @@ is the same as
 <para>&defun; and &defmacro; are allowed in non-toplevel positions. As
  an example, consider the old (&cltl1;) definition of &gensym;:</para>
 
-<programlisting>
+<programlisting language="lisp">
 (let ((gensym-prefix "G")
       (gensym-count 1))
   (defun gensym (&amp;optional (x nil s))
@@ -798,9 +798,9 @@ is the same as
 <para>When <firstterm>&defun-accept-spelalist;</firstterm> is
 non-&nil;, &defun; accepts &spelalist;s, converting type-parameter
 associations to type declarations:
-<programlisting>(defun f ((x list) (y integer)) ...)</programlisting>
+<programlisting language="lisp">(defun f ((x list) (y integer)) ...)</programlisting>
 is equivalent to
-<programlisting>(defun f (x y) (declare (type list x) (type integer y)) ...)</programlisting>
+<programlisting language="lisp">(defun f (x y) (declare (type list x) (type integer y)) ...)</programlisting>
 This extension is disabled by &ansi-opt; and by setting &ansi; to &t;,
 but can be re-enabled by setting &defun-accept-spelalist; explicitly.
 </para></formalpara>
@@ -824,14 +824,14 @@ but can be re-enabled by setting &defun-accept-spelalist; explicitly.
  still exist in the &finally; clause, but &not-e; as to what values
  these variables might have.
  Therefore the code which relies on the values of such variables, e.g.,
- <programlisting>(loop for x on y finally (return x))</programlisting>
+ <programlisting language="lisp">(loop for x on y finally (return x))</programlisting>
  is inherently non-portable across &cl; implementations,
  and should be avoided.</para></section>
 
 <section id="loop-ansi"><title>Backward Compatibility</title>
 <para>There have been some tightening in the &loop; syntax between
  &cltl2; and &ansi-cl;, e.g., the following form is legal in the
- former but not the latter:<programlisting>
+ former but not the latter:<programlisting language="lisp">
   (loop initially for i from 1 to 5 do (print i) finally return i)
 </programlisting>
 When <firstterm>&loop-ansi;</firstterm> is &nil;, such forms are still
@@ -1068,12 +1068,12 @@ A package (or a list thereof) can be locked using <literal role="sexp"
   <indexterm id="without-pack-lock" significance="preferred">
    <primary id="without-pack-lock-i"><function>WITHOUT-PACKAGE-LOCK</function>
  </primary></indexterm></firstterm>:
-<programlisting>
+<programlisting language="lisp">
 (&without-package-lock; ("LISP" "EXT" "CLOS")
   (defun restart () ...))
 </programlisting>
 or
-<programlisting>
+<programlisting language="lisp">
 (&without-package-lock; ("LISP") (trace read-line))
 </programlisting>
 <literal role="sexp" >(&without-package-lock; () ...)</literal>
@@ -1084,7 +1084,7 @@ temporarily unlocks all packages in &sys-pack-list;.</para></formalpara>
   <author><firstname>Steven M.</firstname> <surname>Haflich</surname>
    <email>haflich@pacbell.net</email></author></title>
 <para>This should prevent you from accidentally hosing yourself with
-<programlisting>
+<programlisting language="lisp">
  (&defstruct; instance ...)
 </programlisting>
 and allow enforcing modularity.
@@ -1498,7 +1498,7 @@ performance considerations.
  returns the values &l-r;, &k1-r;, ..., &kn-r;, where &l-r; is the
  greatest common divisor of the integers &x1-r;, ..., &xn-r;, and
  &k1-r;, ..., &kn-r; are the integer coefficients such that
-<programlisting>
+<programlisting language="lisp">
  &l-r; = (&gcd; &x1-r; ... &xn-r;)
    = (+ (* &k1-r; &x1-r;) ... (* &kn-r; &xn-r;))
 </programlisting></para></formalpara>
@@ -1542,7 +1542,7 @@ performance considerations.
    &digits-r;)</literal> coerces &number-r; (a &real-t; number) to a
   floating point number with at least &digits-r; mantissa digits.
   The following always evaluates to &t;:
-  <programlisting>
+  <programlisting language="lisp">
    (&geq; (&float-digits; (&float-digits; &number-r; &digits-r;)) &digits-r;)
  </programlisting></para>
 
@@ -2343,7 +2343,7 @@ and the international alphabetic characters from the character set:
 <para>For iteration through a sequence, a macro &doseq;,
  similar to &dolist;, may be used instead of &map-f;:</para>
 
-<programlisting>
+<programlisting language="lisp">
 (&doseq; (&var-r; <replaceable>seqform</replaceable> [<replaceable>resultform</replaceable>])
   {&declaration-r;}*
   {&tag-r;|&form-r;}*)
@@ -2395,7 +2395,7 @@ and the international alphabetic characters from the character set:
 <para>&sort; and &stable-sort; accept two additional keyword arguments
  &start-k; and &end-k;:</para>
 
-<programlisting>
+<programlisting language="lisp">
 (&sort; &sequence-r; &pred-r; &key-amp; &key-k; &start-k; &end-k;)
 (&stable-sort; &sequence-r; &pred-r; &key-amp; &key-k; &start-k; &end-k;)
 </programlisting>
@@ -2422,7 +2422,7 @@ and the international alphabetic characters from the character set:
 <para>&make-hash-table; accepts two additional keyword arguments
  <constant>:INITIAL-CONTENTS</constant> and <constant>:WEAK</constant>:</para>
 
-<programlisting>
+<programlisting language="lisp">
 (&make-hash-table; &key-amp; :test :initial-contents :size
                  :rehash-size :rehash-threshold
                  :warn-if-needs-rehash-after-gc :weak)
@@ -2537,7 +2537,7 @@ checks whether the &hash-table-t; is weak.</para>
  &defhash;: <literal role="sexp">(&defhash; test-name &test-f;
   &hash-f;)</literal>, after which <replaceable>test-name</replaceable>
  can be passed as the &test-k; argument to
- &make-hash-table;.  E.g.: <programlisting>
+ &make-hash-table;.  E.g.: <programlisting language="lisp">
  (&defhash; string &string-eq; &sxhash;)
  (&make-hash-table; :test 'string)
 </programlisting>
@@ -2545,16 +2545,16 @@ checks whether the &hash-table-t; is weak.</para>
 &hash-table-t; but less efficient).</para>
 
 <para>The fundamental requirement is that the &test-f; and &hash-f; are
- consistent: <programlisting>
+ consistent: <programlisting language="lisp">
   (&funcall; &test-f; &x-r; &y-r;) &rArr;
   (&areq; (&funcall; &hash-f; &x-r;) (&funcall; &hash-f; &y-r;))
  </programlisting>
- This means that the following definition: <programlisting>
+ This means that the following definition: <programlisting language="lisp">
   (&defhash; number &areq; &sxhash;) ; <emphasis role="strong">BAD!</emphasis>
  </programlisting>
  is &not-e; correct because <literal role="sexp">(&areq; 1 1d0)</literal> is
  &t; but <literal role="sexp">(&areq; (&sxhash; 1) (&sxhash; 1d0))</literal>
- is &nil;.  The correct way is, e.g.: <programlisting>
+ is &nil;.  The correct way is, e.g.: <programlisting language="lisp">
   (&defhash; number &areq; (&lambda-m; (x) (&sxhash; (&coerce; x '&short-float-t;))))
  </programlisting>
  (note that
@@ -2577,7 +2577,7 @@ checks whether the &hash-table-t; is weak.</para>
 <para>For iteration through a &hash-table-t;, a macro &dohash;,
  similar to &dolist;, can be used instead of &maphash;:</para>
 
-<programlisting>
+<programlisting language="lisp">
 (&dohash; (<replaceable>key-var</replaceable> <replaceable>value-var</replaceable> <replaceable>hash-table-form</replaceable> [<replaceable>resultform</replaceable>])
   {&declaration-r;}*
   {&tag-r;|&form-r;}*)
@@ -3345,7 +3345,7 @@ pointing to non-existent files and can take the following values:
  &stream-element-type;)</literal>.
  To test this functionality interactively,
  you will need to open the standard input in the binary mode:
-<programlisting>
+<programlisting language="lisp">
 (let ((buf (&make-array; (&parse-integer; (&getenv; "CONTENT_LENGTH"))
                        :element-type '&unsigned-byte-8;)))
   (&with-open-stream; (in (&make-stream; &input-k; &eltype; '&unsigned-byte-8;))
@@ -4179,7 +4179,7 @@ Thus it is &not-e; necessary to either enclose &require; forms in
 &eval-when; or to load the required files in the makefiles: if you have
 two files, &foolisp-f; and <filename>#P"bar.lisp"</filename>, and the
 latter requires the former, you can write in your &make-file;:
-<programlisting>
+<programlisting language="make">
 all: foo.fas bar.fas
 
 foo.fas: foo.lisp
@@ -4190,7 +4190,7 @@ bar.fas: bar.lisp foo.fas
 </programlisting>
 instead of the more cumbersome (and slower, since &lib-file;s are
 usually smaller and load faster that &fasl-file;s):
-<programlisting>
+<programlisting language="make">
 bar.fas: bar.lisp foo.fas
         clisp -i foo -c bar
 </programlisting>
