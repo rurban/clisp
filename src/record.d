@@ -935,6 +935,11 @@ LISPFUNNR(slot_exists_p,2) {
   VALUES_IF(! eq(slotinfo,nullobj)); skipSTACK(2);
 }
 
+/* (SYS::%UNBOUND) */
+LISPFUNNF(punbound,0) {
+  VALUES1(unbound);
+}
+
 /* update_instance(obj)
  updates a CLOS instance after its class or one of its superclasses has been
  redefined.
@@ -1194,7 +1199,7 @@ LISPFUN(pshared_initialize,seclass_default,2,0,rest,nokey,0,NIL) {
       /* search if the slot is initialized by the initargs: */
       if (argcount > 0) {
         var gcv_object_t* ptr = slot_in_arglist(slot,argcount,rest_args_pointer);
-        if (NULL == ptr)
+        if (ptr == NULL)
           goto initarg_not_found;
         value1 = NEXT(ptr);
         goto fill_slot;
@@ -1319,7 +1324,7 @@ LISPFUN(preinitialize_instance,seclass_default,1,0,rest,nokey,0,NIL) {
       /* search if the slot is initialized by the initargs: */
       if (argcount > 0) {
         var gcv_object_t* ptr = slot_in_arglist(slot,argcount,rest_args_pointer);
-        if (NULL != ptr) {
+        if (ptr != NULL) {
           var object value = NEXT(ptr);
           /* initialize slot with value:
              (slot-definition-location slot): */
@@ -1400,7 +1405,7 @@ local Values do_initialize_instance (object info,
       /* search if the slot is initialized by the initargs: */
       if (argcount > 0) {
         var gcv_object_t* ptr = slot_in_arglist(slot,argcount,rest_args_pointer);
-        if (NULL == ptr)
+        if (ptr == NULL)
           goto initarg_not_found;
         value1 = NEXT(ptr);
         goto fill_slot;
