@@ -1,7 +1,7 @@
 /* vacall function for rs6000 CPU */
 
 /*
- * Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1999 Bruno Haible, <bruno@clisp.org>
  * Copyright 2000 Adam Fedor, <fedor@gnu.org>
  * Copyright 2004 Paul Guyot, <pguyot@kallisys.net>
  *

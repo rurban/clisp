@@ -208,7 +208,7 @@ CALLBACK(3)                                           CALLBACK(3)
 
 
 AAUUTTHHOORR
-       Bruno Haible <haible@clisp.cons.org>
+       Bruno Haible <bruno@clisp.org>
 
 
 AACCKKNNOOWWLLEEDDGGEEMMEENNTTSS

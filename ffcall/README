@@ -48,7 +48,7 @@ Files in this package:
 
 Copyright notice:
 
-Copyright 1995-2004 Bruno Haible, <haible@clisp.cons.org>
+Copyright 1995-2004 Bruno Haible, <bruno@clisp.org>
 Copyright 2000 Adam Fedor <fedor@gnu.org>
 Copyright 2004 Paul Guyot <pguyot@kallisys.net>
 
@@ -60,8 +60,9 @@ on this software.
 
 Distribution:
 
+http://www.haible.de/bruno/gnu/ffcall-1.9.tar.gz
 ftp://ftp.santafe.edu/pub/gnu/ffcall-1.9.tar.gz
 
 Homepage:
 
-http://clisp.cons.org/~haible/packages-ffcall.html
+http://www.haible.de/bruno/packages-ffcall.html
