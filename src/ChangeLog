@@ -1,3 +1,10 @@
+1998-08-05  Jörg Höhle  <hoehle<zeus.gmd.de>
+
+        * lispbibl.d (SIXBIT_TYPECODES): Fix a collision between
+          case_symbolwithflags and other typecodes, introduced by the
+          NO_TYPECODES patches.
+        * spvw.d (speicher_laenge): Remove overlapping case values.
+
 1998-08-05  Bruno Haible  <haible@ilog.fr>
 
         * spvw.d (main): Leave more room between the executable and the heap,
