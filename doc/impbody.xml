@@ -45,15 +45,12 @@
 <section><title>Symbols in the Package &cl-pac;
   <ulink url="&clhs;/Body/sec_1-9.html">[CLHS-1.9]</ulink></title>
 
-<para>The 25 symbols missing from the &cl-pac; package
+<para>The 11 symbols missing from the &cl-pac; package
  (out of 978 specified by the &ansi-cl;):</para>
 
 <simplelist type="horiz" columns="3">
- <member>&print-miser-width-var;</member>
- <member>&print-pprint-dispatch-var;</member>
  <member>&call-method;</member>
  <member>&change-class;</member>
- <member>&copy-pprint-dispatch;</member>
  <member>&define-method-combination;</member>
  <member>&ensure-generic-function;</member>
  <member>&invalid-method-error;</member>
@@ -61,17 +58,6 @@
  <member>&make-method;</member>
  <member>&method-combination-error;</member>
  <member>&method-combination-class;</member>
- <member>&pprint-dispatch;</member>
- <member>&pprint-exit-if-list-exhausted;</member>
- <member>&pprint-fill;</member>
- <member>&pprint-indent;</member>
- <member>&pprint-linear;</member>
- <member>&pprint-logical-block;</member>
- <member>&pprint-newline;</member>
- <member>&pprint-pop;</member>
- <member>&pprint-tab;</member>
- <member>&pprint-tabular;</member>
- <member>&set-pprint-dispatch;</member>
  <member>&update-instance-for-different-class;</member>
  <member>&update-instance-for-redefined-class;</member>
 </simplelist>
@@ -2310,7 +2296,7 @@ and the international alphabetic characters from the character set:
 
 <formalpara><title>&sublis;, &nsublis;</title>
 <para>&sublis; and &nsublis; apply the &key-k; argument to the nodes of
- the cons tree and not to the keys of the alist.</para></formalpara>
+ the cons tree and not to the keys of the &alist;.</para></formalpara>
 
 <section><title>Functions &mapcar;, &mapcan;, &maplist;, &mapcon;, ...</title>
 
@@ -2518,9 +2504,9 @@ and &end-k;:</para>
                  :rehash-size :rehash-threshold)
 </programlisting>
 
-<para>The <constant>:initial-contents</constant> argument is an alist
- that is used to initialize the new hash table.  The
- <constant>:rehash-threshold</constant> argument is ignored.</para>
+<para>The <constant>:initial-contents</constant> argument is an
+ &alist; that is used to initialize the new hash table.
+ The <constant>:rehash-threshold</constant> argument is ignored.</para>
 
 </section>
 
@@ -4385,7 +4371,22 @@ functions are provided:</para>
 <section><title>The Lisp Pretty Printer
    <ulink url="&clhs;/Body/sec_22-2.html">[CLHS-22.2]</ulink></title>
 
-<para>The List Pretty Printer is not implemented yet.</para>
+<para>The List Pretty Printer implementation is
+ <emphasis>not</emphasis> perfect.</para>
+
+<section><title>Pretty Print Dispatch Table
+   <ulink url="&clhs;/Body/sec_22-2-1-4.html">[CLHS-22.2.1.4]</ulink></title>
+
+<para>A <ulink url="&clhs;/Body/glo_p.html#pprint_dispatch_table">pprint
+ dispatch table</ulink> is a cons of a symbol &print-pprint-dispatch; an
+ &alist; which maps types into priorities and print functions.
+ Their use is strongly discouraged because of the speed issues:
+ when &print-pprint-dispatch; is non-trivial and &print-pretty-var; is
+ non-&nil;, printing of every object requires a lookup in the table,
+ which entails many calles to &typep; (which cannot be make fast
+ enough).</para>
+
+</section>
 
 </section>
 
@@ -5151,7 +5152,7 @@ compiles a file to platform-independent bytecode.</para>
   <literal>:browser</literal> <replaceable>browser</replaceable>)</literal>
   function which uses your web browser.
   <replaceable>browser</replaceable> should be a valid
-  keyword in the <varname>custom:*browsers*</varname> alist.
+  keyword in the <varname>custom:*browsers*</varname> &alist;.
 </para></formalpara>
 
 </section>
