@@ -1,3 +1,10 @@
+2003-12-11  Sam Steingold  <sds@gnu.org>
+
+	* eval.lisp (ADD-IMPLICIT-BLOCK): before 2003-12-05,
+	ADD-IMPLICIT-BLOCK and add_implicit_block() accepted different
+	arguments and returned different values!
+	this is now fixed and they are truly identical.
+
 2003-12-01  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-UNWIND-PROTECT): discard side-effect free
