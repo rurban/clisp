@@ -225,6 +225,13 @@ while test -z "$endofargs"; do
     --hyperspec=*)
       arg=`echol "$1" | sed 's/-*hyperspec=//'`
       case "$arg" in
+        */FrontMatter/index.html ) arg=`echo "$arg" | sed -e 's,/FrontMatter/index.html$,,'` ;;
+        */FrontMatter/ )           arg=`echo "$arg" | sed -e 's,/FrontMatter/$,,'` ;;
+        */FrontMatter )            arg=`echo "$arg" | sed -e 's,/FrontMatter$,,'` ;;
+        */ )                       arg=`echo "$arg" | sed -e 's,/$,,'` ;;
+        * ) ;;
+      esac
+      case "$arg" in
         *://*) hyperspec="$arg" ;;
         /*) hyperspec="file:${arg}" ;;
         *)  if test -d "$arg" -a -d "$arg/FrontMatter" ; then
