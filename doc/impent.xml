@@ -703,7 +703,6 @@
 <!ENTITY mem-file "<filename>#P&quot;.mem&quot;</filename>">
 <!ENTITY c-file "<filename>#P&quot;.c&quot;</filename>">
 <!ENTITY lib-file "<link linkend='require'><filename>#P&quot;.lib&quot;</filename></link>">
-<!ENTITY config-file "<link linkend='customize'><filename>config.lisp</filename></link>">
 <!ENTITY make-file "<filename>Makefile</filename>">
 <!ENTITY lispinit "<link linkend='image'><filename>lispinit.mem</filename></link>">
 <!ENTITY lisp-run "<filename>lisp.run</filename>">
