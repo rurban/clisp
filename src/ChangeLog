@@ -1,5 +1,16 @@
 2005-02-13  Bruno Haible  <bruno@clisp.org>
 
+	Avoid core dumps during autoconfiguration.
+	* m4/nocrash.m4: New file.
+	* m4/ffcall-codeexec.m4 (CL_CODEEXEC): Use GL_NOCRASH.
+	* m4/ffcall-ireg.m4 (CL_IREG_FLOAT_RETURN): Use GL_NOCRASH.
+	* m4/ffcall-pccstruct.m4 (CL_PCC_STRUCT_RETURN): Use GL_NOCRASH.
+	* m4/ffcall-smallstruct.m4 (CL_SMALL_STRUCT_RETURN): Use GL_NOCRASH.
+	* m4/mmap.m4 (CL_MMAP): Use GL_NOCRASH.
+	* m4/mprotect.m4 (CL_MPROTECT): Use GL_NOCRASH.
+
+2005-02-13  Bruno Haible  <bruno@clisp.org>
+
 	* stream.d (finish_tty_output, clear_tty_output): On MacOS X, ignore
 	ENODEV as well. It occurs for a handle pointing to /dev/null.
 
