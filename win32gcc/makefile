@@ -1392,7 +1392,7 @@ config.fas : config.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c config.lisp
 
 halfcompiled.mem : lisp.exe $(LISPFILES) compiler.fas
-	-$(RM) interpreted.mem
+	-$(RM) halfcompiled.mem
 	$(RUN) -m 750KW -x "(load \"init.lisp\") (sys::%saveinitmem) (exit)"
 	$(MV) lispimag.mem halfcompiled.mem
 
@@ -1408,7 +1408,7 @@ check : test
 # Test: recompile $(LISPFILES) and compare their contents.
 test : lispinit.mem stage $(TESTLISPFILES) $(TESTFASFILES)
 	comp *.fas stage
-	REM The test passed if no differences were found.
+	REM The test passed if only GENSYM differences were found.
 
 stage :
 	-mkdir stage
@@ -1552,8 +1552,7 @@ stage/config.lisp : config.lisp
 	$(LN_S) config.lisp stage
 
 stage/testinit.mem: lispinit.mem
-	$(RUN) -M lispinit.mem -x "(setq *gensym-counter* (- `$(RUN) -q -M halfcompiled.mem -x '*gensym-counter*'` 16)) (sys::%saveinitmem) (exit)"
-	$(MV) lispimag.mem stage/testinit.mem
+	$(CP) lispinit.mem stage/testinit.mem
 
 stage/init.fas : stage/init.lisp lisp.exe stage/testinit.mem
 	$(RUN) -M stage/testinit.mem -q -c stage/init.lisp
