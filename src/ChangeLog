@@ -1,3 +1,11 @@
+2005-02-13  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (error_unless_invalid) [WIN32_NATIVE]: new function:
+	ignore ERROR_INVALID_PARAMETER in addition to ERROR_INVALID_HANDLE
+	and ERROR_INVALID_FUNCTION
+	(clear_tty_input, clear_tty_output) [WIN32_NATIVE]: use it
+	Found by Paul Dietz's ansi-tests test suite.
+
 2005-01-22  Bruno Haible  <bruno@clisp.org>
 
 	* compiler.lisp (c-GLOBAL-FUNCTION-CALL): Generate references to CAR,

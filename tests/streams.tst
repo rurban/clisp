@@ -1064,6 +1064,15 @@ T
         (get-output-stream-string so2)))
 (T "a" "a")
 
+(clear-input *debug-io*) nil
+(clear-input *query-io*) nil
+(clear-input *standard-input*) nil
+(clear-input *terminal-io*) nil
+(clear-output *debug-io*) nil
+(clear-output *query-io*) nil
+(clear-output *standard-output*) nil
+(clear-output *terminal-io*) nil
+
 (progn
 (makunbound 's)
 (makunbound 's1)
