@@ -1894,17 +1894,25 @@ T
      (documentation    :accessor custom-method-documentation)
      (generic-function :reader method-generic-function
                        :writer (setf custom-method-generic-function))))
-  (defmethod initialize-instance ((method custom-method) &rest args
-                                  &key qualifiers lambda-list specializers
-                                       function documentation
-                                  &allow-other-keys)
+  (defmethod shared-initialize ((method custom-method) situation &rest args
+                                  &key (qualifiers nil qualifiers-p)
+                                       (lambda-list nil lambda-list-p)
+                                       (specializers nil specializers-p)
+                                       (function nil function-p)
+                                       (documentation nil documentation-p))
     (call-next-method)
-    (setf (custom-method-qualifiers method) qualifiers)
-    (setf (custom-method-lambda-list method) lambda-list)
-    (setf (custom-method-specializers method) specializers)
-    (setf (custom-method-function method) function)
-    (setf (custom-method-documentation method) documentation)
-    (setf (custom-method-generic-function method) nil)
+    (when (or (eq situation 't) qualifiers-p)
+      (setf (custom-method-qualifiers method) qualifiers))
+    (when (or (eq situation 't) lambda-list-p)
+      (setf (custom-method-lambda-list method) lambda-list))
+    (when (or (eq situation 't) specializers-p)
+      (setf (custom-method-specializers method) specializers))
+    (when (or (eq situation 't) function-p)
+      (setf (custom-method-function method) function))
+    (when (or (eq situation 't) documentation-p)
+      (setf (custom-method-documentation method) documentation))
+    (when (eq situation 't)
+      (setf (custom-method-generic-function method) nil))
     method)
   (defmethod documentation ((x custom-method) (doc-type (eql 't)))
     (declare (ignore doc-type))
@@ -1939,6 +1947,32 @@ T
     (push (testgf30 17 2) result)
     (nreverse result)))
 (NIL 0.5 T 8.5)
+
+
+;; Check that changing a method's class clears the generic function's
+;; effective-methods or discriminating-function cache.
+(progn
+  (defgeneric testgf34 (x))
+  (defmethod testgf34 ((x integer))
+    'old-integer)
+  (defmethod testgf34 ((x real))
+    'real)
+  (list*
+    (testgf34 3) ; OLD-INTEGER
+    (testgf34 22/7) ; REAL
+    (progn
+      (let ((method (find-method #'testgf34 '() (list (find-class 'integer)))))
+        (change-class method (find-class 'custom-method)
+          :qualifiers '()
+          :lambda-list '(x)
+          :specializers (list (find-class 'rational))
+          :function #'(lambda (arguments next-methods) 'new-rational)
+          :documentation nil))
+      (list
+        (testgf34 3) ; NEW-RATIONAL
+        (testgf34 22/7) ; NEW-RATIONAL
+      ))))
+(OLD-INTEGER REAL NEW-RATIONAL NEW-RATIONAL)
 
 
 #| ;; Not implemented, because the MOP's description of
