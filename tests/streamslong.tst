@@ -123,19 +123,19 @@ nil
               (character (char-code ret))
               (t (coerce ret 'integer))))
           :eof)))
-  nil)
+  (defun list->float (list type endianness)
+    (read-float (make-instance 'list-input-stream :list list)
+                type endianness)))
 #+clisp
-nil
+list->float
 
 #+clisp
-(read-float (make-instance 'list-input-stream :list '(#x3f #xf0 0 0 0 0 0 0))
-            'double-float :big)
+(list->float '(#x3f #xf0 0 0 0 0 0 0) 'double-float :big)
 #+clisp
 1d0
 
 #+clisp
-(read-float (make-instance 'list-input-stream :list '(0 0 0 0 0 0 #xf0 #x3f))
-            'double-float :little)
+(list->float '(0 0 0 0 0 0 #xf0 #x3f) 'double-float :little)
 #+clisp
 1d0
 
@@ -150,22 +150,20 @@ nil
   (defmethod stream-write-byte ((stream list-output-stream) (byte integer))
     (with-slots (list) stream
       (push byte list)))
-  nil)
+  (defun float->list (float type endianness)
+    (let ((out (make-instance 'list-output-stream)))
+      (write-float float out type endianness)
+      (with-slots (list) out
+        (nreverse list)))))
 #+clisp
-nil
+float->list
 
 #+clisp
-(let ((out (make-instance 'list-output-stream)))
-  (write-float 1d0 out 'double-float :big)
-  (with-slots (list) out
-    (nreverse list)))
+(float->list 1d0 'double-float :big)
 #+clisp
 (#x3f #xf0 0 0 0 0 0 0)
 
 #+clisp
-(let ((out (make-instance 'list-output-stream)))
-  (write-float 1d0 out 'double-float :little)
-  (with-slots (list) out
-    (nreverse list)))
+(float->list 1d0 'double-float :little)
 #+clisp
 (0 0 0 0 0 0 #xf0 #x3f)
