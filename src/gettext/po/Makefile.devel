@@ -18,7 +18,7 @@ all : tmp pot gmo
 PREDEF_LINGUAS = en
 # Other languages must be translated by hand. They must also be added
 # to the variable ALL_LINGUAS in ../configure.in.
-OTHER_LINGUAS = de fr es nl pt_BR
+OTHER_LINGUAS = de fr es nl
 
 LINGUAS = $(PREDEF_LINGUAS) $(OTHER_LINGUAS)
 
@@ -66,7 +66,7 @@ clisp.pot : $(SOURCES_POT) ../../VERSION po_header clisp-msguniq
 
 en.po : $(SOURCES_EN) ../../VERSION po_header clisp-msguniq
 	(./po_header en ; cat $(SOURCES_EN)) > en.pox
-	$${CLISP} ./clisp-msguniq en.pox $@
+	$${CLISP} ./clisp-msguniq en.pox $@ $@
 	$(RM) en.pox
 
 
@@ -86,7 +86,7 @@ update-po : force
 $(patsubst %,%.po,$(OTHER_LINGUAS)) : %.po : $(PACKAGE).pot
 	$(MSGMERGE) $*.po $(PACKAGE).pot -o $*.pox
 	cp -p $*.pox $*.po
-	rm -f $*.pox
+	$(RM) $*.pox
 
 # A single "$(MSGMERGE) $*.po.new $(PACKAGE).pot" throws away old
 # translations. Two separate $(MSGMERGE) runs don't do this.
