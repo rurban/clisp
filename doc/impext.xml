@@ -1659,6 +1659,8 @@ here <function>WITH-FOO</function> does not receive the
  <simplelist type="horiz" columns="2">
   <member>&ansi;</member>
   <member><varname>CUSTOM:*APPLYHOOK*</varname></member>
+  <member>&apropos-do-more;</member>
+  <member>&apropos-matcher;</member>
   <member><varname>CUSTOM:*BREAK-ON-WARNINGS*</varname></member>
   <member>&browser;</member>
   <member>&browsers;</member>

@@ -37,12 +37,14 @@
   <listitem><simpara>Convert the name of the sub-pattern to an index in
     the return vector.</simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(PCRE:PCRE-EXEC &pattern-r;
-    &string-r; &key-amp; :OFFSET :ANCHORED :NOTBOL :NOTEOL :NOTEMPTY
+    &string-r; &key-amp; :BOOLEAN :OFFSET :ANCHORED :NOTBOL :NOTEOL :NOTEMPTY
     :NO-UTF8-CHECK)</literal></term>
   <listitem><simpara>Execute the compiled &pattern-r; against the
     &string-r; at the given &offset-r; with the given options.
     Returns &nil; if no matches or a &vector-t; of &length;
-    <literal>CAPTURECOUNT+1</literal> of <type>PCRE:MATCH</type> strunctures.
+    <literal>CAPTURECOUNT+1</literal> of <type>PCRE:MATCH</type> structures,
+    unless <literal>:BOOLEAN</literal> was non-&nil;, in which case
+    return &t; as an indicator of success, but do not allocate anything.
  </simpara></listitem></varlistentry>
  <varlistentry>
   <term><literal role="sexp">(PCRE:MATCH-START &match-r;)</literal></term>
@@ -55,7 +57,7 @@
  </simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(PCRE:MATCH-STRINGS
     return-vector &string-r;)</literal></term>
-  <listitem><simpara>Return all subsctrings for all matches found
+  <listitem><simpara>Return all substrings for all matches found
     by <function>PCRE:PCRE-EXEC</function>.
  </simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(PCRE:MATCH-STRING
@@ -64,6 +66,10 @@
   <listitem><simpara>Return the substring that matches the given sub-pattern.
     If <replaceable>which</replaceable> is a name of the sub-pattern (as
     opposed to its number), &pattern-r; must be supplied.
+ </simpara></listitem></varlistentry>
+ <varlistentry id="pcre-matcher"><term>
+   <literal role="sexp">(PCRE:PCRE-MATCHER &pattern-r;)</literal></term>
+  <listitem><simpara>A valid value for &apropos-matcher;.
  </simpara></listitem></varlistentry>
 </variablelist>
 </section>

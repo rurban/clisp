@@ -292,8 +292,8 @@ DEFUN(PCRE:PCRE-NAME-TO-INDEX,pattern name)
   skipSTACK(2);
 }
 
-DEFUN(PCRE:PCRE-EXEC,pattern subject &key :OFFSET :ANCHORED :NOTBOL :NOTEOL \
-      :NOTEMPTY :NO-UTF8-CHECK)
+DEFUN(PCRE:PCRE-EXEC,pattern subject &key :BOOLEAN                      \
+      :OFFSET :ANCHORED :NOTBOL :NOTEOL :NOTEMPTY :NO-UTF8-CHECK)
 { /* match the SUBJECT string against a pre-compiled PATTERN;
      return a vector of MATCH structures or NIL if no matches */
   int options =
@@ -304,11 +304,12 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key :OFFSET :ANCHORED :NOTBOL :NOTEOL \
     (missingp(STACK_0) ? 0 : PCRE_NO_UTF8_CHECK);
   int offset = missingp(STACK_5) ? 0
     : posfixnum_to_L(check_posfixnum(STACK_5));
+  bool bool_p = !missingp(STACK_6);
   int *ovector;
   int capture_count, ovector_size, ret;
   pcre *c_pat;
   pcre_extra *study;
-  skipSTACK(6); /* drop all options */
+  skipSTACK(7); /* drop all options */
   check_pattern(STACK_1,&c_pat,&study);
   begin_system_call();
   ret = pcre_fullinfo(c_pat,study,PCRE_INFO_CAPTURECOUNT,&capture_count);
@@ -324,16 +325,19 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key :OFFSET :ANCHORED :NOTBOL :NOTEOL \
     });
   if (ret == PCRE_ERROR_NOMATCH) VALUES1(NIL);
   else if (ret > 0) {
-    int pos, ov_pos;
-    pushSTACK(allocate_vector(ret)); /* return value */
-    for (pos = ov_pos = 0; pos < ret; pos++, ov_pos+=2)
-      if (ovector[ov_pos] >= 0) {
-        pushSTACK(fixnum(ovector[ov_pos]));
-        pushSTACK(fixnum(ovector[ov_pos+1]));
-        funcall(`PCRE::MAKE-MATCH-BOA`,2);
-        TheSvector(STACK_0)->data[pos] = value1;
-      }
-    VALUES1(popSTACK());
+    if (bool_p) VALUES1(T); /* success indicator */
+    else { /* return a vector */
+      int pos, ov_pos;
+      pushSTACK(allocate_vector(ret)); /* return value */
+      for (pos = ov_pos = 0; pos < ret; pos++, ov_pos+=2)
+        if (ovector[ov_pos] >= 0) {
+          pushSTACK(fixnum(ovector[ov_pos]));
+          pushSTACK(fixnum(ovector[ov_pos+1]));
+          funcall(`PCRE::MAKE-MATCH-BOA`,2);
+          TheSvector(STACK_0)->data[pos] = value1;
+        }
+      VALUES1(popSTACK());
+    }
   } else pcre_error(ret);
   skipSTACK(2);                 /* drop pattern & subject */
 }

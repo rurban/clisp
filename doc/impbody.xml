@@ -5561,6 +5561,27 @@ exhaust the available line length.</para></formalpara>
 <para>The search performed by &apropos; and &apropos-list; is
  case-insensitive.</para>
 
+<formalpara><title>Variable &apropos-do-more;</title>
+<para>You can make &apropos; print more information about the symbols it
+ found by setting &apropos-do-more; to a list containing some of
+<constant>:FUNCTION</constant>, <constant>:VARIABLE</constant>,
+&type-k;, and <constant>:CLASS</constant> or just set it to &t; to get
+all of the values.</para></formalpara>
+
+<formalpara><title>Variable &apropos-matcher;</title>
+<para>You can make &apropos; and &apropos-list; be more flexible in
+ their search by setting &apropos-matcher; to a &function-t; of one
+ argument, a pattern (a &string-t;), returning a new &function-t; of one
+ argument, a &symbol-t; name (also a &string-t;),
+ which returns non-&nil; when the symbol name matches the pattern
+ for the purposes of &apropos;.
+ When &apropos-matcher; is &nil;, &search; is used.
+ Some &module;s come with functions which can be used for
+ &apropos-matcher;, e.g., &re-matcher;,
+ <function>WILDCARD:WILDCARD-MATCHER</function>,
+ <link linkend="pcre-matcher"><function>PCRE:PCRE-MATCHER</function></link>.
+</para></formalpara>
+
 </section>
 
 <section id="dribble"><title>Function &dribble;</title>
