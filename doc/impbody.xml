@@ -1039,7 +1039,10 @@ is the same as
  <ulink url="&clhs;/Body/sec_11-1-2-1-2.html">[CLHS-11.1.2.1.2]</ulink></title>
 
 <formalpara><title>Function &package-lock;</title>
-<para>Packages can be <quote>locked</quote>.
+<para><indexterm id="pack-lock-f" significance="preferred">
+  <primary id="pack-lock-i"><function>PACKAGE-LOCK</function>
+ </primary></indexterm>
+ Packages can be <quote>locked</quote>.
 When a package is locked, attempts to change its symbol table or
 redefine functions which its symbols name result in a continuable error
 (continuing overrides locking for this operation).
@@ -1051,18 +1054,22 @@ A package (or a list thereof) can be locked using <literal role="sexp"
 &clisp; locks its system packages (specified in the variable
 &sys-pack-list;).</para></formalpara>
 
-<formalpara><title>Macro <function>EXT:WITHOUT-PACKAGE-LOCK</function></title>
+<formalpara><title>Macro &without-package-lock;</title>
 <para>If you want to evaluate some forms with certain packages unlocked,
- you can use <function>EXT:WITHOUT-PACKAGE-LOCK</function>:
+ you can use
+ <firstterm>&without-package-lock;
+  <indexterm id="without-pack-lock" significance="preferred">
+   <primary id="without-pack-lock-i"><function>WITHOUT-PACKAGE-LOCK</function>
+ </primary></indexterm></firstterm>:
 <programlisting>
-(without-package-lock ("LISP" "EXT" "CLOS")
+(&without-package-lock; ("LISP" "EXT" "CLOS")
   (defun restart () ...))
 </programlisting>
 or
 <programlisting>
-(without-package-lock ("LISP") (trace read-line))
+(&without-package-lock; ("LISP") (trace read-line))
 </programlisting>
-<literal role="sexp" >(without-package-lock () ...)</literal>
+<literal role="sexp" >(&without-package-lock; () ...)</literal>
 temporarily unlocks all packages in &sys-pack-list;.</para></formalpara>
 
 <formalpara><title>Discussion - see also
@@ -4205,7 +4212,7 @@ functions are provided:
   </simpara></listitem></varlistentry>
 </variablelist></para></formalpara>
 
-<formalpara id="builk-io-rationale"><title>Rationale</title>
+<formalpara id="bulk-io-rationale"><title>Rationale</title>
 <para>The rationale for &rd-ch-seq;, &rd-by-seq;, &wr-ch-seq; and
  &wr-by-seq; is that some &stream-t;s support both character and binary
  i/o, and when you read into a &sequence-t; that can hold both (e.g.,

@@ -206,6 +206,7 @@
 <!ENTITY need-defmethod "<simpara>You must define a method for this function.</simpara>">
 <!ENTITY no-underflow "<link linkend='no-underflow'><function>EXT:WITHOUT-FLOATING-POINT-UNDERFLOW</function></link>">
 <!ENTITY package-lock "<link linkend='pack-lock'><function>EXT:PACKAGE-LOCK</function></link>">
+<!ENTITY without-package-lock "<link linkend='without-pack-lock'><function>EXT:WITHOUT-PACKAGE-LOCK</function></link>">
 <!ENTITY parsedot "<link linkend='name-type-split'><varname>CUSTOM:*PARSE-NAMESTRING-DOT-FILE*</varname></link>">
 <!ENTITY parsename "<link linkend='parsename'><varname>CUSTOM:*PARSE-NAMESTRING-ANSI*</varname></link>">
 <!ENTITY path-des "<link linkend='path-des'>pathname designator</link>">
