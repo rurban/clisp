@@ -1,3 +1,7 @@
+2005-01-23  Bruno Haible  <bruno@clisp.org>
+
+	* io.d (SYS::SET-READTABLE-CASE): Optimize after 2004-12-18 patch.
+
 2005-01-02  Bruno Haible  <bruno@clisp.org>
 
 	* condition.lisp (appease-cerror): Don't convert the error message
