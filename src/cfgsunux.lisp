@@ -41,6 +41,7 @@
 ;; (setq *browser* :mozilla-remote)
 
 ;; Common Lisp HyperSpec access
+(defvar *clhs-root-default*)
 (defun clhs-root ()
   "This returns the root URL for the Common Lisp HyperSpec.
 You can set the environment variable `CLHSROOT' or redefine this function
