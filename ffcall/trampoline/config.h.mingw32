@@ -61,7 +61,6 @@
    <stdlib.h>, <stdarg.h>, <string.h>, <float.h>, <limits.h>. */
 #define STDC_HEADERS 1
 
-/* CL_UNISTD_H */
 /* Define if you have <unistd.h>. */
 #undef HAVE_UNISTD_H
 
@@ -75,33 +74,13 @@
 
 /* functions and declarations */
 
-/* CL_MALLOC */
-/* Define as the return type of malloc(). */
-#define RETMALLOCTYPE void*
-/* Define as the type of `size' in malloc() declaration. */
-#define MALLOC_SIZE_T size_t
-
-/* CL_FREE */
-/* Define as the return type of free(). */
-#define RETFREETYPE void
-
-/* CL_ABORT */
-/* Define as the return type of abort(). */
-#define RETABORTTYPE void
-/* Define as __volatile__ if the declaration of abort() needs it. */
-#define ABORT_VOLATILE
-
-/* CL_OPEN */
-/* Define as const if the declaration of open() needs const. */
-#define OPEN_CONST
-/* Define if the declaration of open() needs dots. */
-#undef OPEN_DOTS
-
 /* CL_GETPAGESIZE */
 /* Define if you have getpagesize(). */
 #define HAVE_GETPAGESIZE 1 /* fake */
 /* Define as the return type of getpagesize(). */
 #define RETGETPAGESIZETYPE unsigned long
+/* Define if you have <sys/param.h>. */
+#undef HAVE_SYS_PARAM_H
 
 /* CL_MACH_VM */
 /* Define if you have the vm_allocate() and task_self() functions. */
@@ -110,12 +89,6 @@
 /* CL_MMAP */
 /* Define if you have <sys/mman.h> and the mmap() function. */
 #undef HAVE_MMAP
-/* Define as the return type of mmap(). */
-#undef RETMMAPTYPE
-/* Define as the type of `addr' in mmap() declaration. */
-#undef MMAP_ADDR_T
-/* Define as the type of `len' in mmap() declaration. */
-#undef MMAP_SIZE_T
 /* Define if <sys/mman.h> defines MAP_ANON and mmaping with MAP_ANON works. */
 #undef HAVE_MMAP_ANON
 /* Define if <sys/mman.h> defines MAP_ANONYMOUS and mmaping with MAP_ANONYMOUS
@@ -132,22 +105,6 @@
 #undef HAVE_MPROTECT
 /* Define if you have a working mprotect() function. */
 #undef HAVE_WORKING_MPROTECT
-/* Define as const if the declaration of mprotect() needs const. */
-#define MPROTECT_CONST
-
-/* CL_SHMGET */
-/* Define as the type of `size' in shmget() declaration. */
-#undef SHMGET_SIZE_T
-
-/* CL_SHMAT */
-/* Define as the return type of shmat(). */
-#undef RETSHMATTYPE
-/* Define as const if the declaration of shmat() needs const. */
-#define SHMAT_CONST
-
-/* CL_SHMCTL */
-/* Define if the declaration of shmctl() needs dots. */
-#undef SHMCTL_DOTS
 
 /* CL_SHM */
 /* Define if you have <sys/shm.h> and <sys/ipc.h> and shared memory works. */
