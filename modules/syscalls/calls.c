@@ -289,7 +289,7 @@ DEFUN(POSIX::SYSCONF,)
 DEFUN(POSIX::CONFSTR,)
 { /* Lisp interface to confstr(3c) */
   size_t res;
-  char* buf[BUFSIZ];
+  char buf[BUFSIZ];
 
 #define CS_S(cmd) \
   begin_system_call(); res = confstr(cmd,buf,BUFSIZ); end_system_call(); \
