@@ -2662,15 +2662,12 @@ global void init_packages (void) {
   pushSTACK(coerce_imm_ss(ascii_to_string("COMPILER")));
   pushSTACK(coerce_imm_ss(ascii_to_string("SYS")));
   pushSTACK(coerce_imm_ss(ascii_to_string("KEYWORD")));
-  pushSTACK(coerce_imm_ss(ascii_to_string("")));
   pushSTACK(coerce_imm_ss(ascii_to_string("CHARSET")));
   O(all_packages) = NIL; /* ALL_PACKAGES := NIL */
   /* #<PACKAGE CHARSET>: */
   O(charset_package) = make_package(popSTACK(),NIL,false); /* "CHARSET",() */
-  { /* #<PACKAGE KEYWORD>: */
-    var object nicks = listof(1); /* ("") */
-    O(keyword_package) = make_package(popSTACK(),nicks,false); /* "KEYWORD" */
-  }
+  /* #<PACKAGE KEYWORD>: */
+  O(keyword_package) = make_package(popSTACK(),NIL,false); /* "KEYWORD" */
   { /* #<PACKAGE SYSTEM>: */
     var object nicks = listof(2); /* ("COMPILER" "SYS") */
     make_package(popSTACK(),nicks,false); /* "SYSTEM" */
