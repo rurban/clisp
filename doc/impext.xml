@@ -888,33 +888,44 @@ localized.</para>
 <para>Besides every &file-pipe-socket; stream containing an encoding,
  the following &symbol-macro; places contain global &encoding;s:</para>
 
-<para id="def-file-enc"><emphasis
- role="strong"><varname>custom:*default-file-encoding*</varname></emphasis>
- is the encoding used for new &file-pipe-socket; streams, when no
- &extfmt; argument was specified.</para>
+<formalpara id="def-file-enc"><title>&def-file-enc;</title>
+<para>The &symbol-macro; place &def-file-enc; is the encoding used for
+ new &file-pipe-socket; streams, when no &extfmt; argument was
+ specified.</para></formalpara>
 
 <!-- #ifdef UNICODE -->
 <variablelist>
 <varlistentry><term>Platform dependent: Only in &clisp; built
   &with; compile-time flag &unicode;.</term>
-<listitem>
+<listitem><simpara>The following are &symbol-macro; places.</simpara>
 <variablelist>
-<varlistentry><term><varname>custom:*pathname-encoding*</varname></term>
+<varlistentry id="path-enc"><term>&path-enc;</term>
  <listitem><simpara>is the encoding used for pathnames in the file
  system. Normally, this is a 1:1 encoding.  Its &line-term; mode is ignored.
  </simpara></listitem></varlistentry>
-<varlistentry><term><varname>custom:*terminal-encoding*</varname></term>
+<varlistentry id="term-enc"><term>&term-enc;</term>
  <listitem><simpara>is the encoding used for communication with the
   terminal, in particular by &terminal-io-var;.
  </simpara></listitem></varlistentry>
-<varlistentry><term><varname>custom:*misc-encoding*</varname></term>
+<varlistentry id="misc-enc"><term>&misc-enc;</term>
  <listitem><simpara>is the encoding used for access to environment
  variables, command line options, and the like.
  Its &line-term; mode is ignored.
  </simpara></listitem></varlistentry>
+<!-- #if defined(HAVE_AFFI) || defined(DYNAMIC_FFI) -->
+<varlistentry id="foreign-enc"><term>&foreign-enc;</term>
+ <listitem><simpara>is the encoding for characters and strings passed
+ through the &ffi-pac; (some plaforms only).
+ Its value must be a 1:1 encoding, i.e., an encoding in which every
+ character is represented by one byte.
+</simpara></listitem></varlistentry>
+<!-- #endif -->
 </variablelist></listitem></varlistentry>
 </variablelist>
 <!-- #endif -->
+
+<para>The default encoding objects are initialized as described in the
+ &clisp; <ulink url="clisp.html#opt-enc">manual page</ulink></para>
 
 </section>
 
@@ -2704,15 +2715,7 @@ within Lisp (using &setq; or similar).</simpara>
  &c-lang; compilers (such as gcc on hppa) have problems with this.</para>
 
 <!-- #ifdef UNICODE -->
-<variablelist>
-<varlistentry><term>Platform dependent: only in &clisp; built
-  &with; compile-time flag &unicode;.</term>
-<listitem><simpara>A &symbol-macro; place <emphasis
- role="strong"><varname>custom:*foreign-encoding*</varname></emphasis>
- contains the encoding for characters and strings passed through the
- &ffi-pac;.  Its value must be a 1:1 encoding, i.e., an encoding in
- which every character is represented by one byte.
-</simpara></listitem></varlistentry></variablelist>
+<para>See also &foreign-enc;.</para>
 <!-- #endif -->
 
 </section>
@@ -3138,7 +3141,7 @@ library by name.</para>
 <para>&clisp; will not close libraries for you at program exit.  [A
 previous version did so but now &affi-pac; is a module and there are no
 module exit functions.]  Programmers, watch
-<function>affi::*libraries-alist*</function>.</para>
+<function>AFFI::*LIBRARIES-ALIST*</function>.</para>
 
 </section>
 
@@ -3200,16 +3203,7 @@ Arguments of type &integer-class; and &foreign-pointer; are always
 acceptable where a &string-class; or &io-k; type is specified.</para>
 
 <!-- #ifdef UNICODE -->
-<variablelist>
-<varlistentry><term>Platform dependent: Only in &clisp; built
-   &with; compile-time flag &unicode;.</term>
-<listitem><simpara>A &symbol-macro; place <emphasis
-role="strong"><varname>custom:*foreign-encoding*</varname></emphasis>
-contains the encoding for characters and strings passed
-through the &ffi-pac;.
-Its value must be a 1:1 encoding, i.e., an encoding in which every
-character is represented by one byte.
-</simpara></listitem></varlistentry></variablelist>
+<para>See also &foreign-enc;.</para>
 <!-- #endif -->
 
 <para>To meet the design goals, predefined types and objects were
