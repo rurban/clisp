@@ -1,3 +1,9 @@
+2003-06-06  Sam Steingold  <sds@gnu.org>
+
+	* encoding.d (CONVERT-STRING-FROM-BYTES): fixed a bug in handling
+	of indirect byte vectors
+	Reported by Adam Warner <lists@consulting.net.nz>
+
 2003-06-06  Will Newton  <will@misconception.org.uk>
 
 	* clx.f: fix the build with gcc 3.3, which has some changes
