@@ -8652,13 +8652,7 @@ local void pr_orecord (const object* stream_, object obj) {
             JUSTIFY_LAST(count==0);
             { # print Hash-Test:
               var uintB flags = record_flags(TheHashtable(*obj_));
-              var object test = # Test-Symbol EQ/EQL/EQUAL/EQUALP
-                (flags & bit(0) ? S(eq) :
-                 flags & bit(1) ? S(eql) :
-                 flags & bit(2) ? S(equal) :
-                 flags & bit(3) ? S(equalp) :
-                 (NOTREACHED,nullobj));
-              prin_object(stream_,test);
+              prin_object(stream_,hashtable_test(flags));
             }
             pr_kvtable(stream_,&STACK_0,index,count);
           kvtable_end: # output of Key-Value-Pairs finished
