@@ -1,7 +1,7 @@
 // Assembly language support for i386 CPU.
 // Bruno Haible 21.6.1997
 
-// An assembly language file for the i386/i486/i586/i686 CPUs:
+// An assembly language file for the i386/i486/i586/i686/786 CPUs:
 // On Unix, it is preprocessed and then assembled. NB: This file requires
 // an ANSI C or C++ preprocessor which understands C++ comments.
 // On Windows, with MSVC, it is preprocessed and then compiled with
