@@ -1,3 +1,10 @@
+2004-04-14  Bruno Haible  <bruno@clisp.org>
+
+	* Makefile.devel (ANSITESTS_CVS_ROOT, ANSITESTS_CVS_REPOSITORY): New
+	variables.
+	(update-ansi-tests): New target.
+	(all): Invoke it.
+
 2004-04-09  Bruno Haible  <bruno@clisp.org>
 
 	Make REMOVE[-IF[-NOT]], REMOVE-DUPLICATES on lists cons less.
