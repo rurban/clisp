@@ -1,3 +1,19 @@
+2004-05-12  Sam Steingold  <sds@gnu.org>
+
+	* array.d (fehler_array, test_array): removed
+	(subscripts_to_index): do not call test_array()
+	(AREF, SYS::STORE, SBIT, BIT): use check_array()
+	instead of relying on subscripts_to_index()
+	(ROW-MAJOR-AREF, SYS::ROW-MAJOR-STORE, ARRAY-RANK)
+	(ARRAY-DIMENSION, ARRAY-DIMENSIONS, ARRAY-TOTAL-SIZE)
+	(ARRAY-IN-BOUNDS-P, ARRAY-ROW-MAJOR-INDEX, ADJUSTABLE-ARRAY-P)
+	(ARRAY-HAS-FILL-POINTER-P, ADJUST-ARRAY):
+	use check_array() instead of test_array()
+	* error.d (check_array_replacement): implemented
+	* lispbibl.d (check_array) [!COMPILE_STANDALONE]: implemented
+	(check_array_replacement): declared
+	* genclisph.d: ditto
+
 2004-05-12  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in (XCFLAGS) [SPARC64]: Use only -O, not -O2.
