@@ -509,7 +509,8 @@ static const cint nop_page[256] = {
     var object string;
     var uintL* len;
     var uintL* index;
-    { if (simple_string_p(string)) {
+    {
+      if (simple_string_p(string)) {
         *len = Sstring_length(string);
         *index = 0;
         return string;
