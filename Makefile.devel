@@ -259,7 +259,7 @@ ffcall/callback/trampoline_r/config.h.msvc : ffcall/callback/trampoline_r/config
 	cd ffcall ; $(MAKE) -f Makefile.devel callback/trampoline_r/config.h.msvc
 
 acorn/pathname.txt : src/pathname.d
-	cat src/pathname.d | sed -e '1,/Burwood/d' | sed -e '/Components/,$$d' | sed -e 's/^# //g' -e 's/^#$$//g' > acorn/pathname.txt
+	cat src/pathname.d | sed -e '1,/Burwood/d' | sed -e '/Components/,$$d' > acorn/pathname.txt
 
 
 distrib : linux-distrib src-distrib
