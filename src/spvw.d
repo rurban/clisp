@@ -1631,7 +1631,8 @@ local void print_banner ()
    "Copyright (c) Bruno Haible, Michael Stoll 1992, 1993\n",
    "Copyright (c) Bruno Haible, Marcus Daniels 1994-1997\n",
    "Copyright (c) Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998\n",
-   "Copyright (c) Bruno Haible, Sam Steingold 1999-2004\n",
+   "Copyright (c) Bruno Haible, Sam Steingold 1999-2000\n",
+   "Copyright (c) Sam Steingold, Bruno Haible 2001-2004\n",
   };
   var const char * banner2 = "\n";
   var int candles = 0;
