@@ -1,5 +1,15 @@
 1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_fault.d: New file.
+        * spvw.d (physpagesize, physpageshift, handle_fault_result,
+           handle_mmap_fault, handle_read_fault, handle_readwrite_fault,
+           handle_fault, handle_fault_range, selfmade_mmap, xmprotect,
+           xmmprotect): Move out.
+          (main): Call init_physpagesize().
+        * makemake.in (SPVW_INCLUDES): Adjust.
+
+1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_mark.d: New file.
         * spvw.d (mark, unmark, marked, with_mark_bit, without_mark_bit): Move
           out.
