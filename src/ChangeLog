@@ -1,3 +1,10 @@
+1999-03-15  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Make it possible again to compile with "gcc -x c++".
+        * aclocal.m4 (CL_CC_GCC): Define GCC_X_NONE.
+        * intparam.d (main7): Use %lX instead of %X for a `long'.
+          (main8): Adapt for C++.
+
 1999-03-14  Sam Steingold  <sds@gnu.org>
 
 	* stream.d: removed `stream_fd';

@@ -449,14 +449,14 @@ void main7(void) {
       if (differences1 == ~(ulong)0)                                                                   \
         printf("#error \"Casts from %s to %s work in an unknown way!!\"\n",typestr2,typestr1);         \
       else                                                                                             \
-        printf("#error \"Casts from %s to %s modify part 0x%8X of pointer!!\"\n",typestr2,typestr1,differences1); \
+        printf("#error \"Casts from %s to %s modify part 0x%8lX of pointer!!\"\n",typestr2,typestr1,differences1); \
       if (differences2==0)                                                                             \
         printf("/* Casts from %s to %s is OK (does nothing). */\n",typestr1,typestr2);                 \
       else                                                                                             \
       if (differences2 == ~(ulong)0)                                                                   \
         printf("#error \"Casts from %s to %s work in an unknown way!!\"\n",typestr1,typestr2);         \
       else                                                                                             \
-        printf("#error \"Casts from %s to %s modify part 0x%8X of pointer!!\"\n",typestr1,typestr2,differences2); \
+        printf("#error \"Casts from %s to %s modify part 0x%8lX of pointer!!\"\n",typestr1,typestr2,differences2); \
     }
   test_pointer_casts(char*,long*,"char *","long *");
   test_pointer_casts(char*,function*,"char *","function *");
@@ -464,20 +464,22 @@ void main7(void) {
 }
 
 void main8(void) {
-#if !defined(__cplusplus) /* C++ restricts the use of NULL pointers. */
+/* The following macro works only in C, not in C++, because C++ restricts the
+   use of NULL pointers and also because C++ forbids defining types within a
+   cast. */
 #define alignmentof(type)  \
   (int)(&((struct { char dummy1; type dummy2; } *)0)->dummy2)
 #define get_alignment(type,typestr)  \
-  { printf("/* Type %s has sizeof = %ld and alignment = %ld. */\n",typestr,(long)sizeof(type),(long)alignmentof(type)); \
-    if (!(typestr[0] == 'u') && !(typestr[string_length(typestr)-1] == '*'))                                            \
-      { printf("#define sizeof_"); printf_underscored(typestr); printf(" %ld\n",(long)sizeof(type));                    \
-        printf("#define alignment_"); printf_underscored(typestr); printf(" %ld\n",(long)alignmentof(type));            \
-      }                                                                                                                 \
-   {int align = alignmentof(type);                                                                                      \
-    if (!((align & (align-1)) == 0))                                                                                    \
-      printf("#error \"The alignment %ld of t%spe %s is not a power of two!!\"\n",(long)align,"y",typestr);             \
-   }                                                                                                                    \
-    printf("\n");                                                                                                       \
+  { struct { char dummy1; type dummy2; } dummy;                                                           \
+    long alignment = (char*)&dummy.dummy2 - (char*)&dummy;                                                \
+    printf("/* Type %s has sizeof = %ld and alignment = %ld. */\n",typestr,(long)sizeof(type),alignment); \
+    if (!(typestr[0] == 'u') && !(typestr[string_length(typestr)-1] == '*'))                              \
+      { printf("#define sizeof_"); printf_underscored(typestr); printf(" %ld\n",(long)sizeof(type));      \
+        printf("#define alignment_"); printf_underscored(typestr); printf(" %ld\n",alignment);            \
+      }                                                                                                   \
+    if (!((alignment & (alignment-1)) == 0))                                                              \
+      printf("#error \"The alignment %ld of t%spe %s is not a power of two!!\"\n",alignment,"y",typestr); \
+    printf("\n");                                                                                         \
   }
   get_alignment(char,"char"); get_alignment(uchar,"unsigned char");
   get_alignment(short,"short"); get_alignment(ushort,"unsigned short");
@@ -491,7 +493,6 @@ void main8(void) {
   get_alignment(char*,"char *");
   get_alignment(long*,"long *");
   get_alignment(function*,"function *");
-#endif
 }
 
 void main9(void) {
