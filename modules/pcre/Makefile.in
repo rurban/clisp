@@ -1,7 +1,7 @@
 # Makefile for CLISP module set pcre
 
 CC = @CC@
-CPPFLAGS = @CPPFLAGS@
+PCRECPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 INCLUDES= ..
 MODPREP = ../modprep.fas
@@ -23,7 +23,7 @@ pcre.fas : pcre.lisp
 	$(CLISP) -c pcre.lisp
 
 cpcre.o : cpcre.m.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c cpcre.m.c -o cpcre.o
+	$(CC) $(CPPFLAGS) $(PCRECPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c cpcre.m.c -o cpcre.o
 
 cpcre.m.c : cpcre.c $(MODPREP)
 	$(CLISP) $(MODPREP) cpcre.c
