@@ -23,8 +23,9 @@
 	* debug.d (read_form): ditto
 	* io.d (sstring_printf): ditto
 	* pathname.d (schar): removed
-	(parse_logical_word, parse_logical_host_prefix, parse_logical_pathnamestring)
-	(parse_logical_host_prefix, wildcard_diff_ab, translate_nametype_aux)
+	(parse_logical_word, parse_logical_host_prefix)
+	(parse_logical_pathnamestring, translate_nametype_aux)
+	(parse_logical_host_prefix, wildcard_diff_ab)
 	(ensure_last_slash): use direct `==' instead of chareq(as_chart)
 	* stream.d (read_char_array, rd_ch_str_in, wr_ch_array_pphelp)
 	(rd_ch_buff_in): use schar()
