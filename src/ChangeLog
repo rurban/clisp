@@ -1,5 +1,8 @@
 2004-02-12  Sam Steingold  <sds@gnu.org>
 
+	* charstrg.d (test_stringsymchar_arg): (VECTOR NIL) is a string,
+	so #A(NIL (0)) is acceptable instead of ""
+	* error.d (check_string): ditto
 	* stream.d (input_stream_p, output_stream_p): for
 	SYNONYM-STREAMs, return the value for the underlying stream
 
