@@ -90,18 +90,18 @@
      (:fixed-slot-locations)))
 
 ;; Fixed slot locations.
-(defconstant *<class>-classname-location* 4)
-(defconstant *<class>-direct-superclasses-location* 5)
-(defconstant *<class>-all-superclasses-location* 6)
-(defconstant *<class>-precedence-list-location* 7)
-(defconstant *<class>-direct-subclasses-location* 8)
-(defconstant *<class>-direct-slots-location* 9)
-(defconstant *<class>-slots-location* 10)
-(defconstant *<class>-slot-location-table-location* 11)
-(defconstant *<class>-direct-default-initargs-location* 12)
-(defconstant *<class>-default-initargs-location* 13)
-(defconstant *<class>-documentation-location* 14)
-(defconstant *<class>-initialized-location* 15)
+(defconstant *<class>-classname-location* 3)
+(defconstant *<class>-direct-superclasses-location* 4)
+(defconstant *<class>-all-superclasses-location* 5)
+(defconstant *<class>-precedence-list-location* 6)
+(defconstant *<class>-direct-subclasses-location* 7)
+(defconstant *<class>-direct-slots-location* 8)
+(defconstant *<class>-slots-location* 9)
+(defconstant *<class>-slot-location-table-location* 10)
+(defconstant *<class>-direct-default-initargs-location* 11)
+(defconstant *<class>-default-initargs-location* 12)
+(defconstant *<class>-documentation-location* 13)
+(defconstant *<class>-initialized-location* 14)
 
 ;; Preliminary accessors.
 (defun class-classname (object)
@@ -279,7 +279,7 @@
      (:fixed-slot-locations)))
 (defvar *<built-in-class>-class-version* (make-class-version))
 
-(defconstant *<built-in-class>-instance-size* 16)
+(defconstant *<built-in-class>-instance-size* 15)
 
 ;;; ===========================================================================
 
@@ -306,11 +306,11 @@
      (:fixed-slot-locations)))
 
 ;; Fixed slot locations.
-(defconstant *<slotted-class>-subclass-of-stablehash-p-location* 16)
-(defconstant *<slotted-class>-generic-accessors-location* 17)
-(defconstant *<slotted-class>-direct-accessors-location* 18)
-(defconstant *<slotted-class>-valid-initargs-location* 19)
-(defconstant *<slotted-class>-instance-size-location* 20)
+(defconstant *<slotted-class>-subclass-of-stablehash-p-location* 15)
+(defconstant *<slotted-class>-generic-accessors-location* 16)
+(defconstant *<slotted-class>-direct-accessors-location* 17)
+(defconstant *<slotted-class>-valid-initargs-location* 18)
+(defconstant *<slotted-class>-instance-size-location* 19)
 
 ;; Preliminary accessors.
 (defun class-subclass-of-stablehash-p (object)
@@ -365,7 +365,7 @@
 (defvar *<structure-class>-class-version* (make-class-version))
 
 ;; Fixed slot locations.
-(defconstant *<structure-class>-names-location* 21)
+(defconstant *<structure-class>-names-location* 20)
 
 ;; Preliminary accessors.
 (defun class-names (object)
@@ -373,7 +373,7 @@
 (defun (setf class-names) (new-value object)
   (setf (sys::%record-ref object *<structure-class>-names-location*) new-value))
 
-(defconstant *<structure-class>-instance-size* 22)
+(defconstant *<structure-class>-instance-size* 21)
 
 ;;; ===========================================================================
 
@@ -404,12 +404,12 @@
      (:fixed-slot-locations)))
 
 ;; Fixed slot locations.
-(defconstant *<semi-standard-class>-current-version-location* 21)
-(defconstant *<semi-standard-class>-funcallablep-location* 22)
-(defconstant *<semi-standard-class>-fixed-slot-locations-location* 23)
-(defconstant *<semi-standard-class>-instantiated-location* 24)
-(defconstant *<semi-standard-class>-finalized-direct-subclasses-location* 25)
-(defconstant *<semi-standard-class>-prototype-location* 26)
+(defconstant *<semi-standard-class>-current-version-location* 20)
+(defconstant *<semi-standard-class>-funcallablep-location* 21)
+(defconstant *<semi-standard-class>-fixed-slot-locations-location* 22)
+(defconstant *<semi-standard-class>-instantiated-location* 23)
+(defconstant *<semi-standard-class>-finalized-direct-subclasses-location* 24)
+(defconstant *<semi-standard-class>-prototype-location* 25)
 
 ;; Preliminary accessors.
 (defun class-current-version (object)
@@ -449,7 +449,7 @@
      (:fixed-slot-locations)))
 (defvar *<standard-class>-class-version* (make-class-version))
 
-(defconstant *<standard-class>-instance-size* 27)
+(defconstant *<standard-class>-instance-size* 26)
 
 ;;; ===========================================================================
 
