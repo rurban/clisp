@@ -72,6 +72,7 @@
 <!ENTITY setkey "<ulink url='&unix-f;/setkey.html'><function>setkey</function></ulink>">
 <!ENTITY setlocale "<ulink url='&unix-f;/setlocale.html'><function>setlocale</function></ulink>">
 <!ENTITY setpriority "<ulink url='&unix-f;/getpriority.html'><function>setpriority</function></ulink>">
+<!ENTITY setrlimit "<ulink url='&unix-f;/setrlimit.html'><function>setrlimit</function></ulink>">
 <!ENTITY setsockopt "<ulink url='&unix-f;/setsockopt.html'><function>setsockopt</function></ulink>">
 <!ENTITY shutdown "<ulink url='&unix-f;/shutdown.html'><function>shutdown</function></ulink>">
 <!ENTITY socket "<ulink url='&unix-f;/socket.html'><function>socket</function></ulink>">
