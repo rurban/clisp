@@ -19,6 +19,11 @@
 # include <config.h>
 #endif
 
+/* When using the GNU C library, tell <string.h> to declare stpcpy(). */
+#ifndef _GNU_SOURCE
+# define _GNU_SOURCE	1
+#endif
+
 #include <sys/types.h>
 
 #ifdef __GNUC__
@@ -58,9 +63,6 @@ void free ();
 #endif
 
 #if defined HAVE_STRING_H || defined _LIBC
-# ifndef _GNU_SOURCE
-#  define _GNU_SOURCE	1
-# endif
 # include <string.h>
 #else
 # include <strings.h>
