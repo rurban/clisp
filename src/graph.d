@@ -799,8 +799,8 @@ extern void vga_drawhline (int x1, int x2, int y);
 extern void vga_drawbox (int x1, int y1, int x2, int y2);
 extern void vga_drawline (int x1, int y1, int x2, int y2);
 #if 0
-extern void vga_drawscanline (int line, unsigned char* colors);
-extern void vga_drawscansegment (unsigned char* colors, int x, int y, int length);
+extern void vga_drawscanline (int line, const unsigned char* colors);
+extern void vga_drawscansegment (const unsigned char* colors, int x, int y, int length);
 #endif
 
 
@@ -2301,7 +2301,7 @@ static uchar plane1[256];
 static uchar plane2[256];
 static uchar plane3[256];
 
-void vga_drawscansegment (uchar* colors, int x, int y, int length)
+void vga_drawscansegment (const uchar* colors, int x, int y, int length)
 {
     /* both length and x must divide with 8 */
 
@@ -2443,7 +2443,7 @@ void vga_drawscansegment (uchar* colors, int x, int y, int length)
 }
 
 
-void vga_drawscanline (int line, uchar* colors)
+void vga_drawscanline (int line, const uchar* colors)
 {
     if (cur_mode == G640x480x2)
         vga_drawscansegment(colors, 0, line, cur_info.xbytes); # xbytes = xdim/8

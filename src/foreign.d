@@ -788,17 +788,17 @@ local void blockzero(ptr,size)
   }   }
 
 # Test a block of memory for zero.
-local boolean blockzerop (void* ptr, unsigned long size);
+local boolean blockzerop (const void* ptr, unsigned long size);
 local boolean blockzerop(ptr,size)
-  var void* ptr;
+  var const void* ptr;
   var unsigned long size;
   { if ((size % sizeof(long)) || ((uintP)ptr % sizeof(long)))
-      { var char* p = (char*)ptr;
+      { var const char* p = (const char*)ptr;
         do { if (!(*p++ == 0)) return FALSE; } while (--size > 0);
         return TRUE;
       }
       else
-      { var long* p = (long*)ptr;
+      { var const long* p = (const long*)ptr;
         do { if (!(*p++ == 0)) return FALSE; } while ((size -= sizeof(long)) > 0);
         return TRUE;
       }
@@ -806,7 +806,7 @@ local boolean blockzerop(ptr,size)
 
 # Convert foreign data to Lisp data.
 # kann GC auslösen
-global object convert_from_foreign (object fvd, void* data);
+global object convert_from_foreign (object fvd, const void* data);
   # Allocate an array corresponding to a foreign array.
   # kann GC auslösen
   local object convert_from_foreign_array_alloc (object dims, object eltype);
@@ -855,49 +855,49 @@ global object convert_from_foreign (object fvd, void* data);
       return value1;
     }
   # Fill a specialized Lisp array with foreign data.
-  local void convert_from_foreign_array_fill (object eltype, uintL size, object array, void* data);
+  local void convert_from_foreign_array_fill (object eltype, uintL size, object array, const void* data);
   local void convert_from_foreign_array_fill(eltype,size,array,data)
     var object eltype;
     var uintL size;
     var object array;
-    var void* data;
+    var const void* data;
     { if (eq(eltype,S(character)))
-        { var uintB* ptr1 = (uintB*)data;
+        { var const uintB* ptr1 = (const uintB*)data;
           var uintB* ptr2 = &TheSstring(array)->data[0];
           dotimesL(size,size, { *ptr2++ = *ptr1++; } );
         }
       elif (eq(eltype,S(uint8)))
-        { var uint8* ptr1 = (uint8*)data;
+        { var const uint8* ptr1 = (const uint8*)data;
           var uint8* ptr2 = (uint8*)&TheSbvector(TheIarray(array)->data)->data[0];
           dotimesL(size,size, { *ptr2++ = *ptr1++; } );
         }
       #if 0
       elif (eq(eltype,S(sint8)))
-        { var sint8* ptr1 = (sint8*)data;
+        { var const sint8* ptr1 = (const sint8*)data;
           var sint8* ptr2 = (sint8*)&TheSbvector(TheIarray(array)->data)->data[0];
           dotimesL(size,size, { *ptr2++ = *ptr1++; } );
         }
       #endif
       elif (eq(eltype,S(uint16)))
-        { var uint16* ptr1 = (uint16*)data;
+        { var const uint16* ptr1 = (const uint16*)data;
           var uint16* ptr2 = (uint16*)&TheSbvector(TheIarray(array)->data)->data[0];
           dotimesL(size,size, { *ptr2++ = *ptr1++; } );
         }
       #if 0
       elif (eq(eltype,S(sint16)))
-        { var sint16* ptr1 = (sint16*)data;
+        { var const sint16* ptr1 = (const sint16*)data;
           var sint16* ptr2 = (sint16*)&TheSbvector(TheIarray(array)->data)->data[0];
           dotimesL(size,size, { *ptr2++ = *ptr1++; } );
         }
       #endif
       elif (eq(eltype,S(uint32)))
-        { var uint32* ptr1 = (uint32*)data;
+        { var const uint32* ptr1 = (const uint32*)data;
           var uint32* ptr2 = (uint32*)&TheSbvector(TheIarray(array)->data)->data[0];
           dotimesL(size,size, { *ptr2++ = *ptr1++; } );
         }
       #if 0
       elif (eq(eltype,S(sint32)))
-        { var sint32* ptr1 = (sint32*)data;
+        { var const sint32* ptr1 = (const sint32*)data;
           var sint32* ptr2 = (sint32*)&TheSbvector(TheIarray(array)->data)->data[0];
           dotimesL(size,size, { *ptr2++ = *ptr1++; } );
         }
@@ -907,7 +907,7 @@ global object convert_from_foreign (object fvd, void* data);
     }
 global object convert_from_foreign(fvd,data)
   var object fvd;
-  var void* data;
+  var const void* data;
   { check_SP();
     check_STACK();
     if (symbolp(fvd))
@@ -916,39 +916,39 @@ global object convert_from_foreign(fvd,data)
           # and return NIL.
           { return NIL; }
         elif (eq(fvd,S(boolean)))
-          { var int* pdata = (int*)data;
+          { var const int* pdata = (const int*)data;
             return (*pdata ? T : NIL);
           }
         elif (eq(fvd,S(character)))
-          { var uintB* pdata = (unsigned char *)data;
+          { var const uintB* pdata = (const unsigned char *)data;
             return code_char(*pdata);
           }
         elif (eq(fvd,S(char)) || eq(fvd,S(sint8)))
-          { var sint8* pdata = (sint8*)data;
+          { var const sint8* pdata = (const sint8*)data;
             return sint8_to_I(*pdata);
           }
         elif (eq(fvd,S(uchar)) || eq(fvd,S(uint8)))
-          { var uint8* pdata = (uint8*)data;
+          { var const uint8* pdata = (const uint8*)data;
             return uint8_to_I(*pdata);
           }
         elif (eq(fvd,S(short)) || eq(fvd,S(sint16)))
-          { var sint16* pdata = (sint16*)data;
+          { var const sint16* pdata = (const sint16*)data;
             return sint16_to_I(*pdata);
           }
         elif (eq(fvd,S(ushort)) || eq(fvd,S(uint16)))
-          { var uint16* pdata = (uint16*)data;
+          { var const uint16* pdata = (const uint16*)data;
             return uint16_to_I(*pdata);
           }
         elif (eq(fvd,S(sint32)))
-          { var sint32* pdata = (sint32*)data;
+          { var const sint32* pdata = (const sint32*)data;
             return sint32_to_I(*pdata);
           }
         elif (eq(fvd,S(uint32)))
-          { var uint32* pdata = (uint32*)data;
+          { var const uint32* pdata = (const uint32*)data;
             return uint32_to_I(*pdata);
           }
         elif (eq(fvd,S(sint64)))
-          { var struct_sint64* pdata = (struct_sint64*)data;
+          { var const struct_sint64* pdata = (const struct_sint64*)data;
             #ifdef HAVE_LONGLONG
             var sint64 val;
             #if (long_bitsize<64)
@@ -962,7 +962,7 @@ global object convert_from_foreign(fvd,data)
             #endif
           }
         elif (eq(fvd,S(uint64)))
-          { var struct_uint64* pdata = (struct_uint64*)data;
+          { var const struct_uint64* pdata = (const struct_uint64*)data;
             #ifdef HAVE_LONGLONG
             var uint64 val;
             #if (long_bitsize<64)
@@ -976,33 +976,33 @@ global object convert_from_foreign(fvd,data)
             #endif
           }
         elif (eq(fvd,S(int)))
-          { var int* pdata = (int*)data;
+          { var const int* pdata = (const int*)data;
             return sint_to_I(*pdata);
           }
         elif (eq(fvd,S(uint)))
-          { var unsigned int * pdata = (unsigned int *)data;
+          { var const unsigned int * pdata = (const unsigned int *)data;
             return uint_to_I(*pdata);
           }
         elif (eq(fvd,S(long)))
-          { var long* pdata = (long*)data;
+          { var const long* pdata = (const long*)data;
             return slong_to_I(*pdata);
           }
         elif (eq(fvd,S(ulong)))
-          { var unsigned long * pdata = (unsigned long *)data;
+          { var const unsigned long * pdata = (const unsigned long *)data;
             return ulong_to_I(*pdata);
           }
         elif (eq(fvd,S(single_float)))
-          { var ffloatjanus* pdata = (ffloatjanus*) data;
+          { var const ffloatjanus* pdata = (const ffloatjanus*) data;
             return c_float_to_FF(pdata);
           }
         elif (eq(fvd,S(double_float)))
-          { var dfloatjanus* pdata = (dfloatjanus*) data;
+          { var const dfloatjanus* pdata = (const dfloatjanus*) data;
             return c_double_to_DF(pdata);
           }
         elif (eq(fvd,S(c_pointer)))
-          { return make_faddress(O(fp_zero),(uintP)(*(void* *) data)); }
+          { return make_faddress(O(fp_zero),(uintP)(*(void* const *) data)); }
         elif (eq(fvd,S(c_string)))
-          { var const char * asciz = *(const char * *) data;
+          { var const char * asciz = *(const char * const *) data;
             if (asciz == NULL)
               { return NIL; }
               else
@@ -1024,7 +1024,7 @@ global object convert_from_foreign(fvd,data)
                       foreign_layout(fvdi);
                       # We assume all alignments are of the form 2^k.
                       cumul_size += (-cumul_size) & (data_alignment-1);
-                     {var void* pdata = (char*)data + cumul_size;
+                     {var const void* pdata = (const char*)data + cumul_size;
                       cumul_size += data_size;
                       # cumul_alignment = lcm(cumul_alignment,data_alignment);
                       if (data_alignment > cumul_alignment)
@@ -1066,11 +1066,11 @@ global object convert_from_foreign(fvd,data)
                     # Fill general array.
                     # SYS::ROW-MAJOR-STORE is equivalent to SETF SVREF here.
                     { pushSTACK(array);
-                     {var char* pdata = (char*)data;
+                     {var const char* pdata = (const char*)data;
                       var uintL i;
                       for (i = 0; i < size; i++, pdata += eltype_size)
-                        { # pdata = (char*)data + i*eltype_size
-                          var object el = convert_from_foreign(STACK_2,(void*)pdata);
+                        { # pdata = (const char*)data + i*eltype_size
+                          var object el = convert_from_foreign(STACK_2,(const void*)pdata);
                           TheSvector(STACK_0)->data[i] = el;
                         }
                       skipSTACK(1);
@@ -1095,9 +1095,9 @@ global object convert_from_foreign(fvd,data)
                 # Determine length of array:
                {var uintL len = 0;
                 { var uintL maxdim = I_to_UL(TheSvector(fvd)->data[2]);
-                  var void* ptr = data;
+                  var const void* ptr = data;
                   until ((len == maxdim) || blockzerop(ptr,eltype_size))
-                    { ptr = (void*)((uintP)ptr + eltype_size); len++; }
+                    { ptr = (const void*)((uintP)ptr + eltype_size); len++; }
                 }
                 pushSTACK(eltype);
                 # Allocate the resulting array:
@@ -1109,13 +1109,13 @@ global object convert_from_foreign(fvd,data)
                     else
                     # Fill general array, using SYS::SVSTORE.
                     { pushSTACK(array);
-                     {var char* pdata = (char*)data;
+                     {var const char* pdata = (const char*)data;
                       var uintL i;
                       for (i = 0; i < len; i++, pdata += eltype_size)
-                        { # pdata = (char*)data + i*eltype_size
+                        { # pdata = (const char*)data + i*eltype_size
                           pushSTACK(STACK_0); # array
                           pushSTACK(fixnum(i));
-                          pushSTACK(convert_from_foreign(STACK_(1+2),(void*)pdata));
+                          pushSTACK(convert_from_foreign(STACK_(1+2),(const void*)pdata));
                           funcall(L(svstore),3);
                         }
                       array = popSTACK();
@@ -1124,23 +1124,23 @@ global object convert_from_foreign(fvd,data)
                   return array;
               }}}
             elif (eq(fvdtype,S(c_function)) && (fvdlen == 4))
-              { if (*(void**)data == NULL)
+              { if (*(void* const*)data == NULL)
                   return NIL;
                 else
-                  return convert_function_from_foreign(*(void**)data,
+                  return convert_function_from_foreign(*(void* const*)data,
                                                        TheSvector(fvd)->data[1],
                                                        TheSvector(fvd)->data[2],
                                                        TheSvector(fvd)->data[3]
                                                       );
               }
             elif ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null))) && (fvdlen == 2))
-              { if (*(void**)data == NULL)
+              { if (*(void* const*)data == NULL)
                   return NIL;
                 else
-                  return convert_from_foreign(TheSvector(fvd)->data[1], *(void**)data);
+                  return convert_from_foreign(TheSvector(fvd)->data[1], *(void* const*)data);
               }
             elif (eq(fvdtype,S(c_array_ptr)) && (fvdlen == 2))
-              { if (*(void**)data == NULL)
+              { if (*(void* const*)data == NULL)
                   return NIL;
                 else
                   { var object eltype = TheSvector(fvd)->data[1];
@@ -1156,20 +1156,20 @@ global object convert_from_foreign(fvd,data)
                       }
                     # Determine length of array:
                    {var uintL len = 0;
-                    { var void* ptr = *(void**)data;
+                    { var const void* ptr = *(const void* const*)data;
                       until (blockzerop(ptr,eltype_size))
-                        { ptr = (void*)((uintP)ptr + eltype_size); len++; }
+                        { ptr = (const void*)((uintP)ptr + eltype_size); len++; }
                     }
                     pushSTACK(eltype);
                     # Allocate Lisp array:
                     pushSTACK(allocate_vector(len));
                     # Fill Lisp array:
-                    { var void* ptr = *(void**)data;
+                    { var const void* ptr = *(const void* const*)data;
                       var uintL i;
                       for (i = 0; i < len; i++)
                         { var object obj = convert_from_foreign(STACK_1,ptr);
                           TheSvector(STACK_0)->data[i] = obj;
-                          ptr = (void*)((uintP)ptr + eltype_size);
+                          ptr = (const void*)((uintP)ptr + eltype_size);
                     }   }
                     { var object result = STACK_0;
                       skipSTACK(2);

@@ -107,7 +107,7 @@
 # dividiert die UDS a_LSDptr[-len..-1] mod 2^(intDsize*len)
 # durch die ungerade UDS b_LSDptr[-len..-1] mod 2^(intDsize*len) (len>0)
 # und liefert den Quotienten als UDS dest_LSDptr[-len..-1] mod 2^(intDsize*len).
-  local void UDS_UDS_durch2adic_UDS (uintC len, uintD* a_LSDptr, uintD* b_LSDptr, uintD* dest_LSDptr);
+  local void UDS_UDS_durch2adic_UDS (uintC len, const uintD* a_LSDptr, uintD* b_LSDptr, uintD* dest_LSDptr);
 # Methode: beta=2^intDsize. Schreibe jeweils x = x[0]*beta^0 + x[1]*beta^1 + ... .
 # Um b*c == a mod beta^m zu bestimmen:
 # Sei b' := (b mod beta)^(-1) = b[0]^(-1), d := a.
@@ -119,7 +119,7 @@
 # Schlieﬂlich dest := c.
   local void UDS_UDS_durch2adic_UDS(len,a_LSDptr,b_LSDptr,dest_LSDptr)
     var uintC len;
-    var uintD* a_LSDptr;
+    var const uintD* a_LSDptr;
     var uintD* b_LSDptr;
     var uintD* dest_LSDptr;
     { var uintD b0inv = D_D_durch2adic_D(1,b_LSDptr[-1]); # b'

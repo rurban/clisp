@@ -262,7 +262,7 @@
 # < mv_count/mv_space: Werte
 # verändert STACK, kann GC auslösen
   # local Values interpret_bytecode (object closure, object codevec, uintL index);
-  local Values interpret_bytecode_ (object closure, Sbvector codeptr, uintB* byteptr);
+  local Values interpret_bytecode_ (object closure, Sbvector codeptr, const uintB* byteptr);
   #define interpret_bytecode(closure,codevec,index)  \
     interpret_bytecode_(closure,TheSbvector(codevec),&TheSbvector(codevec)->data[index])
 
@@ -5929,7 +5929,7 @@ LISPFUNN(subr_info,1)
   local Values interpret_bytecode_(closure_in,codeptr,byteptr_in)
     var object closure_in;
     var Sbvector codeptr;
-    var uintB* byteptr_in;
+    var const uintB* byteptr_in;
     { # Argument closure im Register unterbringen:
       #ifdef closure_register
       var object closure __asm__(closure_register);
@@ -5937,7 +5937,7 @@ LISPFUNN(subr_info,1)
       #endif
      {# Argument byteptr im Register unterbringen:
       #ifdef byteptr_register
-      var uintB* byteptr __asm__(byteptr_register);
+      var const uintB* byteptr __asm__(byteptr_register);
       byteptr = byteptr_in;
       #endif
       #ifdef DEBUG_EVAL
@@ -6762,10 +6762,10 @@ LISPFUNN(subr_info,1)
                 goto finished; # Rücksprung zum Aufrufer
               }}
             #define JMP()  \
-              { var uintB* label_byteptr; \
-                L_operand(label_byteptr); \
-                byteptr = label_byteptr;  \
-                goto next_byte;           \
+              { var const uintB* label_byteptr; \
+                L_operand(label_byteptr);       \
+                byteptr = label_byteptr;        \
+                goto next_byte;                 \
               }
             #define NOTJMP()  \
               { L_operand_ignore(); goto next_byte; }
@@ -6834,7 +6834,7 @@ LISPFUNN(subr_info,1)
             # Führt einen (JSR label)-Befehl aus.
             #define JSR()  \
               check_STACK(); check_SP();                              \
-              { var uintB* label_byteptr;                             \
+              { var const uintB* label_byteptr;                       \
                 L_operand(label_byteptr);                             \
                 with_saved_context(                                   \
                   interpret_bytecode_(closure,codeptr,label_byteptr); \
@@ -7338,7 +7338,7 @@ LISPFUNN(subr_info,1)
                 # alle labeli als Fixnums auf den STACK legen:
                  {var uintL count;
                   dotimespL(count,m,
-                    { var uintB* label_byteptr;
+                    { var const uintB* label_byteptr;
                       L_operand(label_byteptr);
                       pushSTACK(fixnum(label_byteptr - CODEPTR));
                     });
@@ -7455,7 +7455,7 @@ LISPFUNN(subr_info,1)
             # ------------------- (12) CATCH und THROW -----------------------
             CASE cod_catch_open:             # (CATCH-OPEN label)
               # belegt 3 STACK-Einträge und 1 SP-jmp_buf-Eintrag und 2 SP-Einträge
-              { var uintB* label_byteptr;
+              { var const uintB* label_byteptr;
                 L_operand(label_byteptr);
                 # closureptr, label_byteptr retten:
                 pushSP(label_byteptr - CODEPTR); pushSP((aint)closureptr);
@@ -7506,7 +7506,7 @@ LISPFUNN(subr_info,1)
             # ------------------- (13) UNWIND-PROTECT -----------------------
             CASE cod_uwp_open:               # (UNWIND-PROTECT-OPEN label)
               # belegt 2 STACK-Einträge und 1 SP-jmp_buf-Eintrag und 2 SP-Einträge
-              { var uintB* label_byteptr;
+              { var const uintB* label_byteptr;
                 L_operand(label_byteptr);
                 # closureptr, label_byteptr retten:
                 pushSP(label_byteptr - CODEPTR); pushSP((aint)closureptr);

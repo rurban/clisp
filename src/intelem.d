@@ -1318,9 +1318,9 @@
 # NDS_to_I(MSDptr,len)
 # Digit Sequence MSDptr/len/.. in Integer umwandeln.
 # kann GC auslösen
-  local object NDS_to_I (uintD* MSDptr, uintC len);
+  local object NDS_to_I (const uintD* MSDptr, uintC len);
   local object NDS_to_I(MSDptr,len)
-    var uintD* MSDptr;
+    var const uintD* MSDptr;
     var uintC len;
     { # Mehr als bn_minlength Digits -> Bignum.
       # Weniger als bn_minlength Digits -> Fixnum.
@@ -1469,9 +1469,9 @@
 # DS_to_I(MSDptr,len)
 # DS MSDptr/len/.. in Integer umwandeln.
 # kann GC auslösen
-  local object DS_to_I (uintD* MSDptr, uintC len);
+  local object DS_to_I (const uintD* MSDptr, uintC len);
   local object DS_to_I(MSDptr,len)
-    var uintD* MSDptr;
+    var const uintD* MSDptr;
     var uintC len;
     { # erst normalisieren.
       # Dabei evtl. MSDptr erhöhen und len erniedrigen:

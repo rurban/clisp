@@ -794,10 +794,10 @@ LISPFUNN(set_readtable_case,2)
 
 # Fehler, wenn Zeichen kein String-Char ist:
 # fehler_charread(ch,&stream);
-  nonreturning_function(local, fehler_charread, (object ch, object* stream_));
+  nonreturning_function(local, fehler_charread, (object ch, const object* stream_));
   local void fehler_charread(ch,stream_)
     var object ch;
-    var object* stream_;
+    var const object* stream_;
     { pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
       pushSTACK(ch); # Character
       pushSTACK(*stream_); # Stream
@@ -836,9 +836,9 @@ LISPFUNN(set_readtable_case,2)
 # Fehlermeldung bei EOF außerhalb von Objekten
 # fehler_eof_aussen(&stream);
 # > stream: Stream
-  nonreturning_function(local, fehler_eof_aussen, (object* stream_));
+  nonreturning_function(local, fehler_eof_aussen, (const object* stream_));
   local void fehler_eof_aussen(stream_)
-    var object* stream_;
+    var const object* stream_;
     { pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
@@ -853,9 +853,9 @@ LISPFUNN(set_readtable_case,2)
 # Fehlermeldung bei EOF innerhalb von Objekten
 # fehler_eof_innen(&stream);
 # > stream: Stream
-  nonreturning_function(local, fehler_eof_innen, (object* stream_));
+  nonreturning_function(local, fehler_eof_innen, (const object* stream_));
   local void fehler_eof_innen(stream_)
-    var object* stream_;
+    var const object* stream_;
     { pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
       if (posfixnump(Symbol_value(S(read_line_number)))) # SYS::*READ-LINE-NUMBER* abfragen
         { pushSTACK(Symbol_value(S(read_line_number))); # Zeilennummer
@@ -882,9 +882,9 @@ LISPFUNN(set_readtable_case,2)
 # Fehlermeldung bei EOF, je nach *READ-RECURSIVE-P*
 # fehler_eof(&stream);
 # > stream: Stream
-  nonreturning_function(local, fehler_eof, (object* stream_));
+  nonreturning_function(local, fehler_eof, (const object* stream_));
   local void fehler_eof(stream_)
-    var object* stream_;
+    var const object* stream_;
     { if (test_value(S(read_recursive_p))) # *READ-RECURSIVE-P* /= NIL ?
         { fehler_eof_innen(stream_); }
         else
@@ -925,9 +925,9 @@ LISPFUNN(set_readtable_case,2)
 # < stream: Stream
 # < ergebnis: nächstes String-Char oder eof_value
 # kann GC auslösen
-  local object wpeek_char_eof (object* stream_);
+  local object wpeek_char_eof (const object* stream_);
   local object wpeek_char_eof(stream_)
-    var object* stream_;
+    var const object* stream_;
     { loop
         { var object ch = read_char(stream_); # Character lesen
           if (eq(ch,eof_value)) { return ch; } # EOF ?
@@ -1110,7 +1110,7 @@ LISPFUNN(set_readtable_case,2)
 # < O(token_buff_2): ihre Attributcodes
 # < token_escape_flag: Escape-Zeichen-Flag
 # kann GC auslösen
-  local void read_token (object* stream_);
+  local void read_token (const object* stream_);
 
 # UP: Liest ein Extended Token, erstes Zeichen bereits gelesen.
 # read_token_1(&stream,ch,scode);
@@ -1121,10 +1121,10 @@ LISPFUNN(set_readtable_case,2)
 # < O(token_buff_2): ihre Attributcodes
 # < token_escape_flag: Escape-Zeichen-Flag
 # kann GC auslösen
-  local void read_token_1 (object* stream_, object ch, uintWL scode);
+  local void read_token_1 (const object* stream_, object ch, uintWL scode);
 
   local void read_token(stream_)
-    var object* stream_;
+    var const object* stream_;
     { # erstes Zeichen lesen:
       var object ch;
       var uintWL scode;
@@ -1134,7 +1134,7 @@ LISPFUNN(set_readtable_case,2)
     }
 
   local void read_token_1(stream_,ch,scode)
-    var object* stream_;
+    var const object* stream_;
     var object ch;
     var uintWL scode;
     { # leere Token-Buffer holen, auf den STACK:
@@ -1737,10 +1737,10 @@ LISPFUNN(set_readtable_case,2)
 # < stream: Stream
 # < mv_count/mv_space: max. 1 Wert
 # kann GC auslösen
-  local Values read_macro (object ch, object* stream_);
+  local Values read_macro (object ch, const object* stream_);
   local Values read_macro(ch,stream_)
     var object ch;
-    var object* stream_;
+    var const object* stream_;
     { var object readtable;
       get_readtable(readtable = ); # aktuelle Readtable (brauche ch nicht zu retten)
      {var object macrodef = # Macro-Definition aus Tabelle holen
@@ -1869,9 +1869,9 @@ LISPFUNN(set_readtable_case,2)
 # < stream: Stream
 # < ergebnis: gelesenes Objekt (eof_value bei EOF, dot_value bei einzelnem Punkt)
 # kann GC auslösen
-  local object read_internal (object* stream_);
+  local object read_internal (const object* stream_);
   local object read_internal(stream_)
-    var object* stream_;
+    var const object* stream_;
     { wloop: # Schleife zum Überlesen von führendem Whitespace/Kommentar:
        {var object ch;
         var uintWL scode;
@@ -2115,9 +2115,9 @@ LISPFUNN(set_readtable_case,2)
 # < stream: Stream
 # < ergebnis: gelesenes Objekt (dot_value bei einzelnem Punkt)
 # kann GC auslösen
-  local object read_recursive (object* stream_);
+  local object read_recursive (const object* stream_);
   local object read_recursive(stream_)
-    var object* stream_;
+    var const object* stream_;
     { check_SP(); check_STACK(); # Stacks auf Überlauf testen
       if (test_value(S(read_recursive_p)))
         # schon rekursiv
@@ -2161,9 +2161,9 @@ LISPFUNN(set_readtable_case,2)
 # < stream: Stream
 # < ergebnis: gelesenes Objekt
 # kann GC auslösen
-  local object read_recursive_no_dot (object* stream_);
+  local object read_recursive_no_dot (const object* stream_);
   local object read_recursive_no_dot(stream_)
-    var object* stream_;
+    var const object* stream_;
     { # READ rekursiv aufrufen:
       var object ergebnis = read_recursive(stream_);
       # und bei "." einen Error melden:
@@ -2233,9 +2233,9 @@ LISPFUNN(set_readtable_case,2)
 # < stream: Stream
 # < ergebnis: gelesenes Objekt (eof_value bei EOF, dot_value bei einzelnem Punkt)
 # kann GC auslösen
-  local object read_top (object* stream_, object whitespace_p);
+  local object read_top (const object* stream_, object whitespace_p);
   local object read_top(stream_,whitespace_p)
-    var object* stream_;
+    var const object* stream_;
     var object whitespace_p;
     {
      #if STACKCHECKR
@@ -2273,9 +2273,9 @@ LISPFUNN(set_readtable_case,2)
 # < stream: Stream
 # < ergebnis: gelesenes Objekt (eof_value bei EOF, dot_value bei einzelnem Punkt)
 # kann GC auslösen
-  global object stream_read (object* stream_, object recursive_p, object whitespace_p);
+  global object stream_read (const object* stream_, object recursive_p, object whitespace_p);
   global object stream_read(stream_,recursive_p,whitespace_p)
-    var object* stream_;
+    var const object* stream_;
     var object recursive_p;
     var object whitespace_p;
     { if (nullp(recursive_p)) # recursive-p abfragen
@@ -2296,15 +2296,15 @@ LISPFUNN(set_readtable_case,2)
 # < stream: Stream
 # < ergebnis: gelesenes Objekt
 # kann GC auslösen
-  local object read_delimited_list (object* stream_, object endch, object ifdotted);
+  local object read_delimited_list (const object* stream_, object endch, object ifdotted);
 # Dito mit gesetztem SYS::*READ-RECURSIVE-P* :
-  local object read_delimited_list_recursive (object* stream_, object endch, object ifdotted);
+  local object read_delimited_list_recursive (const object* stream_, object endch, object ifdotted);
 # Erst die allgemeine Funktion:
   #ifdef RISCOS_CCBUG
     #pragma -z0
   #endif
   local object read_delimited_list(stream_,endch,ifdotted)
-    var object* stream_;
+    var const object* stream_;
     var object endch;
     var object ifdotted;
     { var object ergebnis;
@@ -2329,7 +2329,7 @@ LISPFUNN(set_readtable_case,2)
   #endif
 # Dann die speziellere Funktion:
   local object read_delimited_list_recursive(stream_,endch,ifdotted)
-    var object* stream_;
+    var const object* stream_;
     var object endch;
     var object ifdotted;
     { # Brauche endch und ifdotted nicht zu retten.
@@ -2580,9 +2580,9 @@ LISPFUNN(string_reader,2) # liest "
 # > Stackaufbau: stream, symbol.
 # erhöht STACK um 2
 # verändert STACK, kann GC auslösen
-  local Values list2_reader (object* stream_);
+  local Values list2_reader (const object* stream_);
   local Values list2_reader(stream_)
-    var object* stream_;
+    var const object* stream_;
     { var object obj = read_recursive_no_dot(stream_); # Objekt lesen
       pushSTACK(obj);
       pushSTACK(allocate_cons()); # zweites Listencons
@@ -4991,7 +4991,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 #   nichtleere Liste der ausgegebenen Zeilen (in umgekehrter Reihenfolge).
 
 # Eine pr_xxx-Routine bekommt &stream und obj übergeben:
-  typedef void pr_routine (object* stream_, object obj);
+  typedef void pr_routine (const object* stream_, object obj);
 
 # ---------------------- allgemeine Unterprogramme ----------------------------
 
@@ -5001,9 +5001,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void pr_uint (object* stream_, uintL x);
+  local void pr_uint (const object* stream_, uintL x);
   local void pr_uint(stream_,x)
-    var object* stream_;
+    var const object* stream_;
     var uintL x;
     { var uintB ziffern[10]; # max. 10 Ziffern, da 0 <= x < 2^32 <= 10^10
       var uintB* ziffptr = &ziffern[0];
@@ -5026,9 +5026,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void pr_hex1 (object* stream_, uint4 x);
+  local void pr_hex1 (const object* stream_, uint4 x);
   local void pr_hex1(stream_,x)
-    var object* stream_;
+    var const object* stream_;
     var uint4 x;
     { write_schar(stream_, ( x<10 ? '0'+(uintB)x : 'A'+(uintB)x-10 ) ); }
 
@@ -5038,9 +5038,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void pr_hex2 (object* stream_, uint8 x);
+  local void pr_hex2 (const object* stream_, uint8 x);
   local void pr_hex2(stream_,x)
-    var object* stream_;
+    var const object* stream_;
     var uint8 x;
     { pr_hex1(stream_,(uint4)(x>>4)); # Bits 7..4 ausgeben
       pr_hex1(stream_,(uint4)(x & (bit(4)-1))); # Bits 3..0 ausgeben
@@ -5053,9 +5053,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void pr_hex6 (object* stream_, object obj);
+  local void pr_hex6 (const object* stream_, object obj);
   local void pr_hex6(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { var oint x = (as_oint(obj) >> oint_addr_shift) << addr_shift;
       write_schar(stream_,'#'); write_schar(stream_,'x'); # Präfix für "Hexadezimal"
@@ -5083,9 +5083,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void pr_hex8 (object* stream_, uintP x);
+  local void pr_hex8 (const object* stream_, uintP x);
   local void pr_hex8(stream_,x)
-    var object* stream_;
+    var const object* stream_;
     var uintP x;
     { write_schar(stream_,'#'); write_schar(stream_,'x'); # Präfix für "Hexadezimal"
      {var sintC k = (sizeof(uintP)-1)*8;
@@ -5174,9 +5174,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # kann GC auslösen
   #ifndef STRM_WR_SS
-  local void write_sstring_ab (object* stream_, object string, uintL start, uintL len);
+  local void write_sstring_ab (const object* stream_, object string, uintL start, uintL len);
   local void write_sstring_ab(stream_,string,start,len)
-    var object* stream_;
+    var const object* stream_;
     var object string;
     var uintL start;
     var uintL len;
@@ -5189,7 +5189,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       skipSTACK(1);
     }
   #else
-    typedef void (* wr_ss_Pseudofun) (object* stream_, object string, uintL start, uintL len);
+    typedef void (* wr_ss_Pseudofun) (const object* stream_, object string, uintL start, uintL len);
     #define wr_ss(strm)  (*(wr_ss_Pseudofun)(ThePseudofun(TheStream(strm)->strm_wr_ss)))
     #define write_sstring_ab(stream_,string,start,len)  \
       wr_ss(*stream_)(stream_,string,start,len)
@@ -5201,9 +5201,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  global void write_sstring (object* stream_, object string);
+  global void write_sstring (const object* stream_, object string);
   global void write_sstring(stream_,string)
-    var object* stream_;
+    var const object* stream_;
     var object string;
     { write_sstring_ab(stream_,string,0,Sstring_length(string)); }
 
@@ -5213,9 +5213,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  global void write_string (object* stream_, object string);
+  global void write_string (const object* stream_, object string);
   global void write_string(stream_,string)
-    var object* stream_;
+    var const object* stream_;
     var object string;
     { if (simple_string_p(string))
         # Simple-String
@@ -5236,9 +5236,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void write_sstring_case (object* stream_, object string);
+  local void write_sstring_case (const object* stream_, object string);
   local void write_sstring_case(stream_,string)
-    var object* stream_;
+    var const object* stream_;
     var object string;
     { # (READTABLE-CASE *READTABLE*) abfragen:
       var object readtable;
@@ -5426,9 +5426,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void spaces (object* stream_, object anzahl);
+  local void spaces (const object* stream_, object anzahl);
   local void spaces(stream_,anzahl)
-    var object* stream_;
+    var const object* stream_;
     var object anzahl;
     { var uintL count;
       dotimesL(count,posfixnum_to_L(anzahl), { write_schar(stream_,' '); } );
@@ -5513,9 +5513,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void pphelp_newline (object* stream_);
+  local void pphelp_newline (const object* stream_);
   local void pphelp_newline(stream_)
-    var object* stream_;
+    var const object* stream_;
     {  # (push (make-ssstring 50) (strm-pphelp-strings stream)) :
        pushSTACK(make_ssstring(50)); # neuer Semi-Simple-String
      { var object new_cons = allocate_cons(); # neues Cons
@@ -5541,9 +5541,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # verändert STACK
 # kann GC auslösen
-  local void klammer_auf (object* stream_);
+  local void klammer_auf (const object* stream_);
   local void klammer_auf(stream_)
-    var object* stream_;
+    var const object* stream_;
     { var object stream = *stream_;
       if (!(TheStream(stream)->strmtype == strmtype_pphelp))
         # normaler Stream
@@ -5567,9 +5567,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # verändert STACK
 # kann GC auslösen
-  local void klammer_zu (object* stream_);
+  local void klammer_zu (const object* stream_);
   local void klammer_zu(stream_)
-    var object* stream_;
+    var const object* stream_;
     { var object stream = *stream_;
       if (!(TheStream(stream)->strmtype == strmtype_pphelp))
         # normaler Stream
@@ -5655,9 +5655,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void justify_empty_1 (object* stream_);
+  local void justify_empty_1 (const object* stream_);
   local void justify_empty_1(stream_)
-    var object* stream_;
+    var const object* stream_;
     {  pushSTACK(make_ssstring(50)); # neuer Semi-Simple-String
      { var object new_cons = allocate_cons(); # neues Cons
        Car(new_cons) = popSTACK();
@@ -5672,9 +5672,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # verändert STACK
-  local void justify_start (object* stream_);
+  local void justify_start (const object* stream_);
   local void justify_start(stream_)
-    var object* stream_;
+    var const object* stream_;
     { var object stream = *stream_;
       if (!(TheStream(stream)->strmtype == strmtype_pphelp))
         {} # normaler Stream -> nichts zu tun
@@ -5699,9 +5699,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void justify_empty_2 (object* stream_);
+  local void justify_empty_2 (const object* stream_);
   local void justify_empty_2(stream_)
-    var object* stream_;
+    var const object* stream_;
     { var object stream = *stream_;
       var object new_cons;
       # SYS::*PRIN-JBLOCKS* um den Inhalt des Streams erweitern:
@@ -5726,9 +5726,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void justify_space (object* stream_);
+  local void justify_space (const object* stream_);
   local void justify_space(stream_)
-    var object* stream_;
+    var const object* stream_;
     { if (!(TheStream(*stream_)->strmtype == strmtype_pphelp))
         # normaler Stream -> nur ein Space
         { write_schar(stream_,' '); }
@@ -5747,9 +5747,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void justify_end_eng (object* stream_);
+  local void justify_end_eng (const object* stream_);
   local void justify_end_eng(stream_)
-    var object* stream_;
+    var const object* stream_;
     { if (!(TheStream(*stream_)->strmtype == strmtype_pphelp))
         {} # normaler Stream -> nichts zu tun
         else
@@ -5844,9 +5844,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void justify_end_weit (object* stream_);
+  local void justify_end_weit (const object* stream_);
   local void justify_end_weit(stream_)
-    var object* stream_;
+    var const object* stream_;
     { if (!(TheStream(*stream_)->strmtype == strmtype_pphelp))
         {} # normaler Stream -> nichts zu tun
         else
@@ -5962,9 +5962,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # verändert STACK
-  local void indent_start (object* stream_, uintL delta);
+  local void indent_start (const object* stream_, uintL delta);
   local void indent_start(stream_,delta)
-    var object* stream_;
+    var const object* stream_;
     var uintL delta;
     { if (!(TheStream(*stream_)->strmtype == strmtype_pphelp))
         {} # normaler Stream -> nichts zu tun
@@ -5985,9 +5985,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # verändert STACK
-  local void indent_end (object* stream_);
+  local void indent_end (const object* stream_);
   local void indent_end(stream_)
-    var object* stream_;
+    var const object* stream_;
     { if (!(TheStream(*stream_)->strmtype == strmtype_pphelp))
         {} # normaler Stream -> nichts zu tun
         else
@@ -6013,9 +6013,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # verändert STACK
-  local void indentprep_start (object* stream_);
+  local void indentprep_start (const object* stream_);
   local void indentprep_start(stream_)
-    var object* stream_;
+    var const object* stream_;
     { var object stream = *stream_;
       if (!(TheStream(stream)->strmtype == strmtype_pphelp))
         {} # normaler Stream -> nichts zu tun
@@ -6031,9 +6031,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # < ergebnis: Einrückungsbreite
 # verändert STACK
-  local uintL indentprep_end (object* stream_);
+  local uintL indentprep_end (const object* stream_);
   local uintL indentprep_end(stream_)
-    var object* stream_;
+    var const object* stream_;
     { var object stream = *stream_;
       if (!(TheStream(stream)->strmtype == strmtype_pphelp))
         { return 0; } # normaler Stream -> nichts zu tun
@@ -6072,9 +6072,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # Wenn ja: kann GC auslösen
 # Wenn nein: verändert STACK
-  local boolean level_check (object* stream_);
+  local boolean level_check (const object* stream_);
   local boolean level_check(stream_)
-    var object* stream_;
+    var const object* stream_;
     { var object level = Symbol_value(S(prin_level)); # SYS::*PRIN-LEVEL*, ein Fixnum >=0
       var object limit = Symbol_value(S(print_level)); # *PRINT-LEVEL*
       if (!test_value(S(print_readably))
@@ -6096,9 +6096,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # verändert STACK
-  local void level_end (object* stream_);
+  local void level_end (const object* stream_);
   local void level_end(stream_)
-    var object* stream_;
+    var const object* stream_;
     { dynamic_unbind(); }
 
 # ------------------ Unterprogramme für *PRINT-LENGTH* ------------------------
@@ -6199,9 +6199,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void pr_circle (object* stream_, object obj, pr_routine* pr_xxx);
+  local void pr_circle (const object* stream_, object obj, pr_routine* pr_xxx);
   local void pr_circle(stream_,obj,pr_xxx)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     var pr_routine* pr_xxx;
     { # Feststellen, ob Zirkularität:
@@ -6252,9 +6252,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # kann GC auslösen
   # Erstmal nur Behandlung von *PRINT-PRETTY* :
-  local void pr_enter_1 (object* stream_, object obj, pr_routine* pr_xxx);
+  local void pr_enter_1 (const object* stream_, object obj, pr_routine* pr_xxx);
   local void pr_enter_1(stream_,obj,pr_xxx)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     var pr_routine* pr_xxx;
     { # Streamtyp (PPHELP-Stream oder nicht) muß zu *PRINT-PRETTY* passen.
@@ -6323,9 +6323,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         }
     }
   # Dasselbe mit Behandlung von *PRINT-CIRCLE* und *PRINT-PRETTY* :
-  local void pr_enter_2 (object* stream_, object obj, pr_routine* pr_xxx);
+  local void pr_enter_2 (const object* stream_, object obj, pr_routine* pr_xxx);
   local void pr_enter_2(stream_,obj,pr_xxx)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     var pr_routine* pr_xxx;
     { # Falls *PRINT-CIRCLE* /= NIL, in obj nach Zirkularitäten suchen.
@@ -6377,9 +6377,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     }
   # Dasselbe mit Behandlung von *PRINT-CIRCLE* und *PRINT-PRETTY*
   # und SYS::*PRIN-STREAM* :
-  local void pr_enter (object* stream_, object obj, pr_routine* pr_xxx);
+  local void pr_enter (const object* stream_, object obj, pr_routine* pr_xxx);
   local void pr_enter(stream_,obj,pr_xxx)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     var pr_routine* pr_xxx;
     { # Wert von SYS::*PRIN-STREAM* = dieser Stream ?
@@ -6484,7 +6484,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
   local pr_routine prin_object;
   local pr_routine prin_object_dispatch;
   local pr_routine pr_symbol;
-  local void pr_symbol_part (object* stream_, object string, boolean case_sensitive);
+  local void pr_symbol_part (const object* stream_, object string, boolean case_sensitive);
   local pr_routine pr_like_symbol;
   local pr_routine pr_character;
   local pr_routine pr_string;
@@ -6524,7 +6524,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # kann GC auslösen
   local void prin_object(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { restart_it:
       # Auf Tastatur-Interrupt testen:
@@ -6541,7 +6541,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       pr_circle(stream_,obj,&prin_object_dispatch);
     }
   local void prin_object_dispatch(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { # Nach der Typinfo verzweigen:
       #ifdef TYPECODES
@@ -6622,7 +6622,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # kann GC auslösen
   local void pr_symbol(stream_,sym)
-    var object* stream_;
+    var const object* stream_;
     var object sym;
     { # *PRINT-ESCAPE* abfragen:
       if (test_value(S(print_escape)) || test_value(S(print_readably)))
@@ -6679,7 +6679,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # kann GC auslösen
   local void pr_symbol_part(stream_,string,case_sensitive)
-    var object* stream_;
+    var const object* stream_;
     var object string;
     var boolean case_sensitive;
     { # Feststellen, ob der Name ohne |...| außenrum ausgegeben werden kann:
@@ -6802,7 +6802,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # kann GC auslösen
   local void pr_like_symbol(stream_,string)
-    var object* stream_;
+    var const object* stream_;
     var object string;
     { # *PRINT-ESCAPE* abfragen:
       if (test_value(S(print_escape)) || test_value(S(print_readably)))
@@ -6820,7 +6820,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # kann GC auslösen
   local void pr_character(stream_,ch)
-    var object* stream_;
+    var const object* stream_;
     var object ch;
     { # *PRINT-ESCAPE* abfragen:
       if (test_value(S(print_escape)) || test_value(S(print_readably)))
@@ -6925,9 +6925,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void pr_sstring_ab (object* stream_, object string, uintL start, uintL len);
+  local void pr_sstring_ab (const object* stream_, object string, uintL start, uintL len);
   local void pr_sstring_ab(stream_,string,start,len)
-    var object* stream_;
+    var const object* stream_;
     var object string;
     var uintL start;
     var uintL len;
@@ -6977,7 +6977,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # kann GC auslösen
   local void pr_string(stream_,string)
-    var object* stream_;
+    var const object* stream_;
     var object string;
     { var uintL len = vector_length(string); # Länge
       var uintL offset = 0; # Offset vom String in den Datenvektor
@@ -7061,7 +7061,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # kann GC auslösen
   local void pr_list(stream_,list)
-    var object* stream_;
+    var const object* stream_;
     var object list;
     { if (nullp(list))
         # NIL als () ausgeben:
@@ -7078,7 +7078,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # kann GC auslösen
   local void pr_cons(stream_,list)
-    var object* stream_;
+    var const object* stream_;
     var object list;
     { # Spezialfälle abfangen:
       { var pr_routine* special = special_list_p(list);
@@ -7144,7 +7144,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # (unquote form)                               ,form
 
   local void pr_list_quote(stream_,list) # list = (QUOTE object)
-    var object* stream_;
+    var const object* stream_;
     var object list;
     { pushSTACK(Car(Cdr(list))); # (second list) retten
       write_schar(stream_,'\''); # "'" ausgeben
@@ -7155,7 +7155,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     }
 
   local void pr_list_function(stream_,list) # list = (FUNCTION object)
-    var object* stream_;
+    var const object* stream_;
     var object list;
     { pushSTACK(Car(Cdr(list))); # (second list) retten
       write_schar(stream_,'#'); # "#" ausgeben
@@ -7167,7 +7167,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     }
 
   local void pr_list_backquote(stream_,list) # list = (BACKQUOTE original-form [expanded-form])
-    var object* stream_;
+    var const object* stream_;
     var object list;
     { pushSTACK(Car(Cdr(list))); # (second list) retten
       write_schar(stream_,'`'); # '`' ausgeben
@@ -7183,9 +7183,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       dynamic_unbind();
     }
 
-  local void pr_list_bothsplice (object* stream_, object list, object ch);
+  local void pr_list_bothsplice (const object* stream_, object list, object ch);
   local void pr_list_bothsplice(stream_,list,ch)
-    var object* stream_;
+    var const object* stream_;
     var object list;
     var object ch;
     # list = (SPLICE object), ch = '@' oder
@@ -7219,17 +7219,17 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     }
 
   local void pr_list_splice(stream_,list) # list = (SPLICE object)
-    var object* stream_;
+    var const object* stream_;
     var object list;
     { pr_list_bothsplice(stream_,list,code_char('@')); }
 
   local void pr_list_nsplice(stream_,list) # list = (NSPLICE object)
-    var object* stream_;
+    var const object* stream_;
     var object list;
     { pr_list_bothsplice(stream_,list,code_char('.')); }
 
   local void pr_list_unquote(stream_,list) # list = (UNQUOTE object)
-    var object* stream_;
+    var const object* stream_;
     var object list;
     { pushSTACK(Car(Cdr(list))); # (second list) retten
       write_schar(stream_,','); # ',' ausgeben
@@ -7251,7 +7251,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # kann GC auslösen
   local void pr_real_number(stream_,number)
-    var object* stream_;
+    var const object* stream_;
     var object number;
     { if (R_rationalp(number))
         # rationale Zahl
@@ -7307,7 +7307,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # kann GC auslösen
   local void pr_number(stream_,number)
-    var object* stream_;
+    var const object* stream_;
     var object number;
     { if (N_realp(number))
         # reelle Zahl
@@ -7339,7 +7339,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # kann GC auslösen
   local void pr_array_nil(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { pushSTACK(obj); # Array retten
      {var object* obj_ = &STACK_0; # und merken, wo er sitzt
@@ -7373,9 +7373,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void pr_sbvector_ab (object* stream_, object bv, uintL start, uintL len);
+  local void pr_sbvector_ab (const object* stream_, object bv, uintL start, uintL len);
   local void pr_sbvector_ab(stream_,bv,start,len)
-    var object* stream_;
+    var const object* stream_;
     var object bv;
     var uintL start;
     var uintL len;
@@ -7398,7 +7398,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # kann GC auslösen
   local void pr_bvector(stream_,bv)
-    var object* stream_;
+    var const object* stream_;
     var object bv;
     { # *PRINT-ARRAY* abfragen:
       if (test_value(S(print_array)) || test_value(S(print_readably)))
@@ -7422,7 +7422,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # kann GC auslösen
   local void pr_vector(stream_,v)
-    var object* stream_;
+    var const object* stream_;
     var object v;
     { # *PRINT-ARRAY* abfragen:
       if (test_value(S(print_array)) || test_value(S(print_readably)))
@@ -7566,7 +7566,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < info.index: um info.count erhöht
 # kann GC auslösen
   typedef struct { uintL index; uintL count; }  pr_array_info;
-  typedef void pr_array_elt_routine (object* stream_, object obj, pr_array_info* info);
+  typedef void pr_array_elt_routine (const object* stream_, object obj, pr_array_info* info);
 # UP zur Ausgabe eines Elements:
 # Bei ihr ist info.count = 1.
   local pr_array_elt_routine pr_array_elt_t;
@@ -7575,7 +7575,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
   local pr_array_elt_routine pr_array_elt_string; # Teilarray ist String
 
   local void pr_array_elt_t(stream_,obj,info)
-    var object* stream_;
+    var const object* stream_;
     var object obj; # Simple-Vektor
     var pr_array_info* info;
     { # Element von allgemeinem Typ holen und ausgeben:
@@ -7584,7 +7584,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     }
 
   local void pr_array_elt_bvector(stream_,obj,info)
-    var object* stream_;
+    var const object* stream_;
     var object obj; # Simple-Bit-Vektor
     var pr_array_info* info;
     { # Teil-Bit-Vektor ausgeben:
@@ -7593,7 +7593,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     }
 
   local void pr_array_elt_string(stream_,obj,info)
-    var object* stream_;
+    var const object* stream_;
     var object obj; # Simple-String
     var pr_array_info* info;
     { # Teil-String ausgeben:
@@ -7615,9 +7615,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 #     locals->length_limit:  Längenbegrenzung
 # < locals->info.index: End-Index im Datenvektor
 # kann GC auslösen
-  typedef struct { object* stream_;
-                   object* obj_;
-                   array_dim_size* dims_sizes;
+  typedef struct { const object* stream_;
+                   const object* obj_;
+                   const array_dim_size* dims_sizes;
                    pr_array_elt_routine* pr_one_elt;
                    pr_array_info info;
                    uintL length_limit;
@@ -7639,7 +7639,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         }
         else
         { depth--; # Rekursionstiefe verkleinern (noch >=0)
-         {var object* stream_ = locals->stream_;
+         {var const object* stream_ = locals->stream_;
           var uintL length = 0; # bisherige Länge := 0
           var uintL endindex = locals->info.index # Start-Index im Datenvektor
                                + locals->dims_sizes[depth].dimprod # + Dimensionenprodukt
@@ -7682,7 +7682,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # kann GC auslösen
   local void pr_array(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { # *PRINT-ARRAY* abfragen:
       if (test_value(S(print_array)) || test_value(S(print_readably)))
@@ -7783,7 +7783,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # kann GC auslösen
   local void pr_instance(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { var object stream = *stream_;
       var uintC count = pr_external_1(stream); # Bindungen erstellen
@@ -7837,9 +7837,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > structure: Structure
 # > function: Print-Funktion für Structures dieses Typs
 # kann GC auslösen
-  local void pr_structure_external (object* stream_, object structure, object function);
+  local void pr_structure_external (const object* stream_, object structure, object function);
   local void pr_structure_external(stream_,structure,function)
-    var object* stream_;
+    var const object* stream_;
     var object structure;
     var object function;
     { var object stream = *stream_;
@@ -7859,7 +7859,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # kann GC auslösen
   local void pr_structure(stream_,structure)
-    var object* stream_;
+    var const object* stream_;
     var object structure;
     { LEVEL_CHECK;
       # Typ der Structure bestimmen (vgl. TYPE-OF):
@@ -7884,9 +7884,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void pr_structure_default (object* stream_, object structure);
+  local void pr_structure_default (const object* stream_, object structure);
   local void pr_structure_default(stream_,structure)
-    var object* stream_;
+    var const object* stream_;
     var object structure;
     { var object name = Car(TheStructure(structure)->structure_types);
       # name = (car '(name_1 ... name_i-1 name_i)) = name_1.
@@ -8047,9 +8047,9 @@ LISPFUNN(print_structure,2)
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void pr_hex6_obj (object* stream_, object obj, object string);
+  local void pr_hex6_obj (const object* stream_, object obj, object string);
   local void pr_hex6_obj(stream_,obj,string)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     var object string;
     { pushSTACK(string); # String retten
@@ -8073,7 +8073,7 @@ LISPFUNN(print_structure,2)
 # < stream: Stream
 # kann GC auslösen
   local void pr_machine(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { # #<ADDRESS #x...>
       if (test_value(S(print_readably))) { fehler_print_readably(obj); }
@@ -8089,7 +8089,7 @@ LISPFUNN(print_structure,2)
 # < stream: Stream
 # kann GC auslösen
   local void pr_system(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { if (test_value(S(print_readably))) { fehler_print_readably(obj); }
       if (eq(obj,unbound)) # #<UNBOUND>
@@ -8113,7 +8113,7 @@ LISPFUNN(print_structure,2)
 # < stream: Stream
 # kann GC auslösen
   local void pr_readlabel(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { if (test_value(S(print_readably))) { fehler_print_readably(obj); }
       # #<READ-LABEL ...>
@@ -8139,7 +8139,7 @@ LISPFUNN(print_structure,2)
 # < stream: Stream
 # kann GC auslösen
   local void pr_framepointer(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { if (test_value(S(print_readably))) { fehler_print_readably(obj); }
       # #<FRAME-POINTER #x...>
@@ -8157,10 +8157,10 @@ LISPFUNN(print_structure,2)
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void pr_record_ab (object* stream_, object* obj_, uintL index, uintL length);
+  local void pr_record_ab (const object* stream_, const object* obj_, uintL index, uintL length);
   local void pr_record_ab(stream_,obj_,index,length)
-    var object* stream_;
-    var object* obj_;
+    var const object* stream_;
+    var const object* obj_;
     var uintL index;
     var uintL length;
     { var uintL len = Record_length(*obj_); # Länge des Record
@@ -8192,9 +8192,9 @@ LISPFUNN(print_structure,2)
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void pr_record_rest (object* stream_, object obj, uintL length);
+  local void pr_record_rest (const object* stream_, object obj, uintL length);
   local void pr_record_rest(stream_,obj,length)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     var uintL length;
     { var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-Begrenzung
@@ -8227,9 +8227,9 @@ LISPFUNN(print_structure,2)
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void pr_record_descr (object* stream_, object obj, object name, boolean readable, object slotlist);
+  local void pr_record_descr (const object* stream_, object obj, object name, boolean readable, object slotlist);
   local void pr_record_descr(stream_,obj,name,readable,slotlist)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     var object name;
     var boolean readable;
@@ -8309,7 +8309,7 @@ LISPFUNN(print_structure,2)
 # < stream: Stream
 # kann GC auslösen
   local void pr_orecord(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { switch (Record_type(obj))
         {
@@ -8779,9 +8779,9 @@ LISPFUNN(print_structure,2)
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void pr_other_obj (object* stream_, object other, object string);
+  local void pr_other_obj (const object* stream_, object other, object string);
   local void pr_other_obj(stream_,other,string)
-    var object* stream_;
+    var const object* stream_;
     var object other;
     var object string;
     { pushSTACK(other); # other retten
@@ -8806,7 +8806,7 @@ LISPFUNN(print_structure,2)
 # < stream: Stream
 # kann GC auslösen
   local void pr_subr(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { # #<SYSTEM-FUNCTION name> bzw. #<ADD-ON-SYSTEM-FUNCTION name>
       # bzw. #.(SYSTEM::%FIND-SUBR 'name)
@@ -8845,7 +8845,7 @@ LISPFUNN(print_structure,2)
 # < stream: Stream
 # kann GC auslösen
   local void pr_fsubr(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { # #<SPECIAL-FORM name>
       if (test_value(S(print_readably))) { fehler_print_readably(obj); }
@@ -8861,7 +8861,7 @@ LISPFUNN(print_structure,2)
 # < stream: Stream
 # kann GC auslösen
   local void pr_closure(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { if (simple_bit_vector_p(TheClosure(obj)->clos_codevec))
         # compilierte Closure
@@ -8903,7 +8903,7 @@ LISPFUNN(print_structure,2)
 # < stream: Stream
 # kann GC auslösen
   local void pr_cclosure(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { # *PRINT-CLOSURE* abfragen:
       if (test_value(S(print_closure)) || test_value(S(print_readably)))
@@ -8953,7 +8953,7 @@ LISPFUNN(print_structure,2)
 # < stream: Stream
 # kann GC auslösen
   local void pr_cclosure_lang(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { LEVEL_CHECK;
       pushSTACK(obj); # Closure retten
@@ -8982,7 +8982,7 @@ LISPFUNN(print_structure,2)
 # < stream: Stream
 # kann GC auslösen
   local void pr_cclosure_codevector(stream_,codevec)
-    var object* stream_;
+    var const object* stream_;
     var object codevec;
     { LEVEL_CHECK;
       pushSTACK(codevec); # Codevektor retten
@@ -9057,7 +9057,7 @@ LISPFUNN(print_structure,2)
 # < stream: Stream
 # kann GC auslösen
   local void pr_stream(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { if (test_value(S(print_readably))) { fehler_print_readably(obj); }
       pushSTACK(obj); # Stream retten
@@ -9173,9 +9173,9 @@ LISPFUNN(print_structure,2)
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  global void prin1 (object* stream_, object obj);
+  global void prin1 (const object* stream_, object obj);
   global void prin1(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { pr_enter(stream_,obj,&prin_object); }
 
@@ -9185,9 +9185,9 @@ LISPFUNN(print_structure,2)
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  global void print (object* stream_, object obj);
+  global void print (const object* stream_, object obj);
   global void print(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { pushSTACK(obj); # Objekt retten
       write_schar(stream_,NL); # #\Newline ausgeben

@@ -418,9 +418,9 @@
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
 #   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums
   # include "arilev0.c"  # für Division
-  global void convert_time (struct DateStamp * datestamp, decoded_time* timepoint);
+  global void convert_time (const struct DateStamp * datestamp, decoded_time* timepoint);
   global void convert_time(datestamp,timepoint)
-    var struct DateStamp * datestamp;
+    var const struct DateStamp * datestamp;
     var decoded_time* timepoint;
     { # Methode:
       # ds_Tick durch ticks_per_second dividieren, liefert Sekunden.
@@ -466,9 +466,9 @@
 # > time_t time: Zeit im System-Zeitformat
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
 #   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums
-  global void convert_time (time_t* time, decoded_time* timepoint);
+  global void convert_time (const time_t* time, decoded_time* timepoint);
   global void convert_time(time,timepoint)
-    var time_t* time;
+    var const time_t* time;
     var decoded_time* timepoint;
     { begin_system_call();
      {var struct tm * tm = localtime(time); # decodieren
@@ -500,9 +500,9 @@
 # > FILETIME time: Zeit im System-Zeitformat
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
 #   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums
-  global void convert_time (FILETIME* time, decoded_time* timepoint);
+  global void convert_time (const FILETIME* time, decoded_time* timepoint);
   global void convert_time(time,timepoint)
-    var FILETIME* time;
+    var const FILETIME* time;
     var decoded_time* timepoint;
     { var FILETIME ltime;
       var SYSTEMTIME ltm;
@@ -651,9 +651,9 @@
 # > decoded_time timepoint: Zeit beim LISP-System-Start
 # < ergebnis: Universal Time
 # kann GC auslösen
-  local object calc_start_UT (decoded_time* timepoint);
+  local object calc_start_UT (const decoded_time* timepoint);
   local object calc_start_UT(timepoint)
-    var decoded_time* timepoint;
+    var const decoded_time* timepoint;
     { # (ENCODE-UNIVERSAL-TIME Sekunden Minuten Stunden Tag Monat Jahr) ausführen:
       pushSTACK(timepoint->Sekunden);
       pushSTACK(timepoint->Minuten);
@@ -677,9 +677,9 @@
 # >   timepoint.Jahr in {1980,...,2999},
 # >   jeweils als Fixnums.
 # kann GC auslösen
-  global void set_start_time (decoded_time* timepoint);
+  global void set_start_time (const decoded_time* timepoint);
   global void set_start_time(timepoint)
-    var decoded_time* timepoint;
+    var const decoded_time* timepoint;
     { # Start-Zeit merken:
       realstart_datetime = *timepoint;
       # und, wenn möglich, gleich in Universal Time umwandeln:

@@ -464,9 +464,9 @@
 
 # c_float_to_FF(&val) wandelt ein IEEE-Single-Float val in ein Single-Float um.
 # kann GC auslösen
-  global object c_float_to_FF (ffloatjanus* val_);
+  global object c_float_to_FF (const ffloatjanus* val_);
   global object c_float_to_FF(val_)
-    var ffloatjanus* val_;
+    var const ffloatjanus* val_;
     { var ffloat val = val_->eksplicit;
       var uintBWL exp = (val >> FF_mant_len) & (bit(FF_exp_len)-1); # e
       if (exp == 0) # e=0 ?
@@ -527,9 +527,9 @@
 
 # c_double_to_DF(&val) wandelt ein IEEE-Double-Float val in ein Double-Float um.
 # kann GC auslösen
-  global object c_double_to_DF (dfloatjanus* val_);
+  global object c_double_to_DF (const dfloatjanus* val_);
   global object c_double_to_DF(val_)
-    var dfloatjanus* val_;
+    var const dfloatjanus* val_;
     { var dfloat val; val = val_->eksplicit;
      {
       #ifdef intQsize
