@@ -242,6 +242,7 @@
 (defvar *compiling-from-file*) ; NIL or T if called by COMPILE-FILE
 (defvar *compile-file-pathname* nil) ; CLtL2 p. 680
 (defvar *compile-file-truename* nil) ; CLtL2 p. 680
+(defvar *compile-file-directory* nil) ; for c-REQUIRE
 (defvar *compile-file-lineno1* nil)
 (defvar *compile-file-lineno2* nil)
 (defvar *c-listing-output*) ; Compiler-Listing-Stream or nil
@@ -4309,7 +4310,16 @@ for-value   NIL or T
                (if (and (consp present-files)
                         (string= (pathname-type newest-file) "lib"))
                  (load newest-file :verbose nil :print nil :echo nil) ; load libfile
-                 (compile-file (or newest-file file)))))) ; compile file
+                 (let ((fi (or newest-file file)))
+                   (if (null *compile-file-directory*)
+                     ;; `compile-file' was called without an explicit
+                     ;; :output-file arg, so compile `in place'
+                     (compile-file fi)
+                     ;; `compile-file' was given :output-file,
+                     ;; so put the compiled file there
+                     (compile-file fi :output-file
+                                   (merge-pathnames *compile-file-directory*
+                                                    fi))))))))
       (if (atom pathname) (load-lib pathname) (mapcar #'load-lib pathname)))))
 
 ;;; auxiliary functions for
@@ -11332,6 +11342,10 @@ The function make-closure is required.
                                ((:verbose *compile-verbose*) *compile-verbose*)
                                ((:print *compile-print*) *compile-print*)
                           &aux liboutput-file (*coutput-file* nil)
+                               (*compile-file-directory*
+                                (if (eq t output-file) nil
+                                    (make-pathname :name nil :type nil
+                                                   :defaults output-file)))
                                (new-output-stream nil)
                                (new-listing-stream nil))
   (multiple-value-setq (output-file file)
