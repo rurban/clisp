@@ -1441,23 +1441,19 @@ LISPFUN(make_encoding,0,0,norest,key,4,
     else {
       pushSTACK(arg); # TYPE-ERROR slot DATUM
       pushSTACK(S(encoding)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(arg); pushSTACK(S(make_encoding));
-      fehler(type_error,
-             GETTEXT("~: illegal :CHARSET argument ~")
-            );
+      pushSTACK(arg); pushSTACK(S(Kcharset)); pushSTACK(S(make_encoding));
+      fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
     }
     STACK_3 = arg;
     # Check the :LINE-TERMINATOR argument.
     arg = STACK_2;
     if (!(eq(arg,unbound)
-          || eq(arg,S(Kunix)) || eq(arg,S(Kmac)) || eq(arg,S(Kdos))
-       ) ) {
+          || eq(arg,S(Kunix)) || eq(arg,S(Kmac)) || eq(arg,S(Kdos)))) {
       pushSTACK(arg); # TYPE-ERROR slot DATUM
       pushSTACK(O(type_line_terminator)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(arg); pushSTACK(S(make_encoding));
-      fehler(type_error,
-             GETTEXT("~: illegal :LINE-TERMINATOR argument ~")
-            );
+      pushSTACK(arg); pushSTACK(S(Kline_terminator));
+      pushSTACK(S(make_encoding));
+      fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
     }
     # Check the :INPUT-ERROR-ACTION argument.
     arg = STACK_1;
@@ -1466,22 +1462,19 @@ LISPFUN(make_encoding,0,0,norest,key,4,
        ) ) {
       pushSTACK(arg); # TYPE-ERROR slot DATUM
       pushSTACK(O(type_input_error_action)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(arg); pushSTACK(S(make_encoding));
-      fehler(type_error,
-             GETTEXT("~: illegal :INPUT-ERROR-ACTION argument ~")
-            );
+      pushSTACK(arg); pushSTACK(S(Kinput_error_action));
+      pushSTACK(S(make_encoding));
+      fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
     }
     # Check the :OUTPUT-ERROR-ACTION argument.
     arg = STACK_0;
     if (!(eq(arg,unbound)
-          || eq(arg,S(Kerror)) || eq(arg,S(Kignore)) || charp(arg) || uint8_p(arg)
-       ) ) {
+          || eq(arg,S(Kerror)) || eq(arg,S(Kignore)) || charp(arg) || uint8_p(arg))) {
       pushSTACK(arg); # TYPE-ERROR slot DATUM
       pushSTACK(O(type_output_error_action)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(arg); pushSTACK(S(make_encoding));
-      fehler(type_error,
-             GETTEXT("~: illegal :OUTPUT-ERROR-ACTION argument ~")
-            );
+      pushSTACK(arg); pushSTACK(S(Koutput_error_action));
+      pushSTACK(S(make_encoding));
+      fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
     }
     # Create a new encoding.
     if ((eq(STACK_2,unbound) || eq(STACK_2,TheEncoding(STACK_3)->enc_eol))

@@ -3421,10 +3421,9 @@ LISPFUNN(generic_stream_p,1)
         return -1;
       if (eq(arg,T))
         return 1;
-      pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,
-             GETTEXT("~: illegal :BUFFERED argument ~")
-            );
+      pushSTACK(arg); pushSTACK(S(Kbuffered));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,GETTEXT("~: illegal ~ argument ~"));
     }
 
 # Classification of possible :ELEMENT-TYPEs.
@@ -3538,10 +3537,9 @@ LISPFUNN(generic_stream_p,1)
       decoded->size = posfixnum_to_L(eltype_size);
       return;
      bad_eltype:
-      pushSTACK(*eltype_); pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,
-             GETTEXT("~: illegal :ELEMENT-TYPE argument ~")
-            );
+      pushSTACK(*eltype_); pushSTACK(S(Kelement_type));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,GETTEXT("~: illegal ~ argument ~"));
     }
 
 # UP: Check whether the stream is binary or not
@@ -3621,10 +3619,9 @@ LISPFUNN(generic_stream_p,1)
       }
       pushSTACK(arg);                     # TYPE-ERROR slot DATUM
       pushSTACK(O(type_external_format)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: illegal :EXTERNAL-FORMAT argument ~")
-            );
+      pushSTACK(arg); pushSTACK(S(Kexternal_format));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
     }
 
 #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
@@ -18331,10 +18328,9 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
         if (is_dfloat_subtype)
           return sizeof(dfloatjanus);
       }
-      pushSTACK(*eltype_); pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,
-             GETTEXT("~: illegal :ELEMENT-TYPE argument ~")
-            );
+      pushSTACK(*eltype_); pushSTACK(S(Kelement_type));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,GETTEXT("~: illegal ~ argument ~"));
     }
 
 # UP: Check an endianness argument.
@@ -18353,9 +18349,7 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
       pushSTACK(arg);                # TYPE-ERROR slot DATUM
       pushSTACK(O(type_endianness)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: illegal endianness argument ~")
-            );
+      fehler(type_error,GETTEXT("~: illegal endianness argument ~"));
     }
 
 LISPFUN(read_byte,1,2,norest,nokey,0,NIL)
