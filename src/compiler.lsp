@@ -2172,12 +2172,12 @@ for-value   NIL oder T
           (vectorp 1 0 nil nil nil)
           (system::version 0 1 nil nil nil)
           (wild-pathname-p 1 1 nil nil nil)
-          (write 1 0 nil (:case :level :length :gensym :escape :radix :base :array :circle :pretty :closure :readably :stream) nil)
+          (write 1 0 nil (:case :level :length :gensym :escape :radix :base :array :circle :pretty :closure :readably :right-margin :stream) nil)
           (write-byte 2 0 nil nil nil)
           (write-char 1 1 nil nil nil)
           (write-line 1 1 nil (:start :end) nil)
           (write-string 1 1 nil (:start :end) nil)
-          (write-to-string 1 0 nil (:case :level :length :gensym :escape :radix :base :array :circle :pretty :closure :readably) nil)
+          (write-to-string 1 0 nil (:case :level :length :gensym :escape :radix :base :array :circle :pretty :closure :readably :right-margin) nil)
           (xgcd 0 0 t nil nil)
           (zerop 1 0 nil nil nil)
 ) ) ) )  )
@@ -3386,7 +3386,7 @@ der Docstring (oder NIL).
     ; Form auf den Liboutput-Stream schreiben:
     (terpri *liboutput-stream*)
     (write form :stream *liboutput-stream* :pretty t
-                :readably t
+                :readably t :right-margin 79
                 ; :closure t :circle t :array t :gensym t
                 ; :escape t :level nil :length nil :radix t
   ) )
@@ -12765,7 +12765,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
       (when *fasoutput-stream*
         (terpri *fasoutput-stream*)
         (write form :stream *fasoutput-stream* :pretty t
-                    :readably t
+                    :readably t :right-margin 79
                     ; :closure t :circle t :array t :gensym t
                     ; :escape t :level nil :length nil :radix t
       ) )
@@ -12906,7 +12906,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                 (when *fasoutput-stream*
                   (let ((*package* *keyword-package*))
                     (write `(SYSTEM::VERSION ',(version)) :stream *fasoutput-stream*
-                           :readably t
+                           :readably t :right-margin 79
                            ; :escape t :level nil :length nil :radix t
                 ) ) )
                 (loop
