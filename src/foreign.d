@@ -1473,7 +1473,6 @@ local void (*walk_lisp_post_hook) (object fvd, object obj);
 local void (*walk_lisp_function_hook) (object fvd, object obj);
 
 local void walk_lisp_pointers (object fvd, object obj)
-
 {
   if (!foreign_with_pointers_p(fvd))
     return;
@@ -2106,7 +2105,8 @@ local void convert_to_foreign (object fvd, object obj, void* data)
  1. convert_to_foreign_need(fvd,obj);
  2. make room according to data_size and data_alignment,
     set allocaing_room_pointer.
- 3. convert_to_foreign_allocaing(fvd,obj,data,room_pointer); */
+ 3. convert_to_foreign_allocaing(fvd,obj,data,room_pointer);
+    can trigger GC */
 local var void* allocaing_room_pointer;
 local void* allocaing (void* old_data, uintL size, uintL alignment)
 {
@@ -2125,7 +2125,8 @@ global void convert_to_foreign_allocaing (object fvd, object obj, void* data)
 /* Convert Lisp data to foreign data.
  The foreign data is allocated through malloc() and has more than dynamic
  extent. (Not exactly indefinite extent: It is deallocated the next time
- free_foreign() is called on it.) */
+ free_foreign() is called on it.)
+ can trigger GC */
 local void* mallocing (void* old_data, uintL size, uintL alignment)
 {
   return my_malloc(size);
@@ -2139,7 +2140,8 @@ global void convert_to_foreign_mallocing (object fvd, object obj, void* data)
 /* Convert Lisp data to foreign data.
  The foreign data storage is reused.
  DANGEROUS, especially for type C-STRING !!
- Also beware against NULL pointers! They are not treated specially. */
+ Also beware against NULL pointers! They are not treated specially.
+ can trigger GC */
 local void* nomalloc (void* old_data, uintL size, uintL alignment)
 {
   return old_data;
@@ -2628,6 +2630,7 @@ LISPFUN(exec_on_stack,seclass_default,2,1,norest,nokey,0,NIL) {
   if (init) {
     /* Room for pointers in argument: */
     convert_to_foreign_needs(fvd,STACK_0);
+    fvd = STACK_1;
     /* We assume all alignments are of the form 2^k. */
     cumul_size += (-cumul_size) & (data_alignment-1);
     cumul_size += data_size;
@@ -3155,7 +3158,7 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
         if (!(arg_flags & ff_out)) {
           inargcount++;
           if (inargcount > argcount)
-            fehler_too_few_args(S(foreign_call_out),ffun,argcount,inargcount);
+            fehler_too_few_args(S(foreign_call_out),Before(rest_args_pointer),argcount,inargcount);
         }
         if (arg_flags & (ff_out | ff_inout)) {
           if (!(simple_vector_p(arg_fvd) && (Svector_length(arg_fvd) == 2)
@@ -3190,7 +3193,9 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
           } else {
             /* Room for pointers in arg: */
             var object arg = Before(rest_args_pointer STACKop -inargcount);
+            pushSTACK(result_fvd); pushSTACK(argfvds); /* save */
             convert_to_foreign_needs(arg_fvd,arg);
+            argfvds = popSTACK(); result_fvd = popSTACK(); /* restore */
             /* We assume all alignments are of the form 2^k. */
             cumul_size += (-cumul_size) & (data_alignment-1);
             cumul_size += data_size;
@@ -3201,7 +3206,7 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
         }
       }
       if (argcount != inargcount)
-        fehler_too_many_args(S(foreign_call_out),ffun,argcount,inargcount);
+        fehler_too_many_args(S(foreign_call_out),Before(rest_args_pointer),argcount,inargcount);
     }
     var uintL result_count = 0;
     typedef struct { void* address; } result_descr; /* fvd is pushed onto the STACK */
@@ -3259,8 +3264,11 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
             blockzero(allocaing_room_pointer,data_size);
             allocaing_room_pointer =
               (void*)((uintP)allocaing_room_pointer + data_size);
-          } else { /* Convert argument: */
+          } else {
+            /* Convert argument: */
+            pushSTACK(arg_fvd); /* save */
             convert_to_foreign_allocaing(arg_fvd,arg,arg_address);
+            arg_fvd = popSTACK(); /* restore */
             if (arg_flags & ff_inout) {
               pushSTACK(TheSvector(arg_fvd)->data[1]);
               results[result_count].address = *(void**)arg_address;
@@ -3278,10 +3286,12 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
                                           & -(long)arg_alignment);
           if (!(arg_flags & ff_out)) {
             /* Convert argument: */
+            pushSTACK(arg_fvd); /* save */
             if (arg_flags & ff_malloc)
               convert_to_foreign_mallocing(arg_fvd,arg,arg_address);
             else
               convert_to_foreign_nomalloc(arg_fvd,arg,arg_address);
+            arg_fvd = popSTACK(); /* restore */
             if (arg_flags & ff_inout) {
               pushSTACK(TheSvector(arg_fvd)->data[1]);
               results[result_count].address = *(void**)arg_address;
@@ -3299,7 +3309,7 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
     if (av_overflown(alist))
       /* avcall has limited buffer space
        __AV_ALIST_WORDS is only an approximation in number of arguments */
-      fehler_too_many_args(S(foreign_call_out),ffun,allargcount,
+      fehler_too_many_args(S(foreign_call_out),Before(rest_args_pointer),allargcount,
                            __AV_ALIST_WORDS);
     /* Finally call the function. */
     begin_call();

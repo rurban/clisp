@@ -1,5 +1,11 @@
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
+	* foreign.d (convert_to_foreign_*): Mark as "can trigger GC".
+	(FFI::EXEC-ON-STACK): Fix GC-safety bug introduced on 2002-04-23.
+	(FFI::FOREIGN-CALL-OUT): Fix several long-standing GC-safety bugs.
+
+2004-12-05  Bruno Haible  <bruno@clisp.org>
+
 	* foreign.d (FFI::%OFFSET): Fix GC-safety bug introduced on 2003-05-12.
 
 2004-12-05  Bruno Haible  <bruno@clisp.org>
