@@ -448,32 +448,60 @@
             ;; subclasses of class!
           )
           ;; Instances have to be updated:
-          (let ((was-finalized (class-precedence-list class))
-                (old-direct-superclasses (class-direct-superclasses class)))
+          (let* ((was-finalized (class-precedence-list class))
+                 (must-be-finalized
+                   (and was-finalized
+                        (some #'class-instantiated (list-all-subclasses class))))
+                 (old-direct-superclasses (class-direct-superclasses class))
+                 (old-direct-accessors (class-direct-accessors class))
+                 old-class)
             ;; ANSI CL 4.3.6. Remove accessor methods created by old DEFCLASS.
-            (do ((l (class-direct-accessors class) (cddr l)))
+            (do ((l old-direct-accessors (cddr l)))
                 ((endp l))
               (let ((funname (car l))
                     (method (cadr l)))
                 (remove-method (fdefinition funname) method)))
             (setf (class-direct-accessors class) '())
+            ;; Clear the cached prototype.
             (setf (class-proto class) nil)
-            (let ((*make-instances-obsolete-caller* 'defclass))
-              (make-instances-obsolete class))
-            (apply (cond ((eq metaclass <standard-class>)
-                          #'initialize-instance-standard-class)
-                         ((eq metaclass <built-in-class>)
-                          #'initialize-instance-built-in-class)
-                         ((eq metaclass <structure-class>)
-                          #'initialize-instance-structure-class)
-                         (t #'initialize-instance))
-                   class
-                   :name name
-                   :direct-superclasses direct-superclasses
-                   all-keys)
-            ;; FIXME: Need to handle changes of shared slots here?
-            (update-subclasses-for-redefined-class class
-              was-finalized old-direct-superclasses)))
+            ;; Declare all instances as obsolete, and backup the class object.
+            (let ((old-version (class-current-version class))
+                  (*make-instances-obsolete-caller* 'defclass))
+              (make-instances-obsolete class)
+              (setq old-class (cv-class old-version)))
+            (locally (declare (compile))
+              (sys::%handler-bind
+                  ;; If an error occurs during the class redefinition, switch back
+                  ;; to the old definition, so that existing instances can continue
+                  ;; to be used.
+                  ((ERROR #'(lambda (condition)
+                              (declare (ignore condition))
+                              ;; Restore the class using the backup copy.
+                              (let ((new-version (class-current-version class)))
+                                (dotimes (i (sys::%record-length class))
+                                  (setf (sys::%record-ref class i) (sys::%record-ref old-class i)))
+                                (setf (class-current-version class) new-version))
+                              ;; Restore the accessor methods.
+                              (do ((l old-direct-accessors (cddr l)))
+                                  ((endp l))
+                                (let ((funname (car l))
+                                      (method (cadr l)))
+                                  (add-method (fdefinition funname) method)))
+                              (setf (class-direct-accessors class) old-direct-accessors))))
+                (apply (cond ((eq metaclass <standard-class>)
+                              #'initialize-instance-standard-class)
+                             ((eq metaclass <built-in-class>)
+                              #'initialize-instance-built-in-class)
+                             ((eq metaclass <structure-class>)
+                              #'initialize-instance-structure-class)
+                             (t #'initialize-instance))
+                       class
+                       :name name
+                       :direct-superclasses direct-superclasses
+                       all-keys)
+                ;; FIXME: Need to handle changes of shared slots here?
+                (update-subclasses-for-redefined-class class
+                  was-finalized must-be-finalized old-direct-superclasses)))))
         ;; Modified class as value:
         class)
       (setf (find-class name)
@@ -957,8 +985,7 @@
 
 ;; After a class redefinition, finalize the subclasses so that the instances
 ;; can be updated.
-;; FIXME: What should we do if this finalization fails?
-(defun update-subclasses-for-redefined-class (class was-finalized old-direct-superclasses)
+(defun update-subclasses-for-redefined-class (class was-finalized must-be-finalized old-direct-superclasses)
   (when was-finalized ; nothing to do if not finalized before the redefinition
     ;; Handle the class itself specially, because its superclasses list now is
     ;; not the same as before.
@@ -966,7 +993,7 @@
             (add-default-superclass old-direct-superclasses <standard-object>)))
       (setf (class-precedence-list class) nil) ; mark as not yet finalized
       (setf (class-all-superclasses class) nil) ; mark as not yet finalized
-      (if (class-instantiated class)
+      (if must-be-finalized
         ;; The class remains finalized.
         (progn
           (finalize-class class t)
@@ -998,7 +1025,8 @@
     (if (class-instantiated class)
       ;; The class remains finalized.
       (finalize-class class t)
-      ;; The class becomes unfinalized.
+      ;; The class becomes unfinalized. If it has an instantiated subclass, the
+      ;; subclass' finalize-class invocation will re-finalize this one.
       (let ((augmented-direct-superclasses
               (add-default-superclass (class-direct-superclasses class) <standard-object>)))
         (dolist (super augmented-direct-superclasses)

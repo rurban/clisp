@@ -1105,6 +1105,55 @@ x-y-position
 (T T T T T T T T T T
  T T NIL NIL T T NIL NIL NIL NIL)
 
+;; It is possible to redefine a class in a way that makes it non-finalized,
+;; if it was not yet instantiated.
+(progn
+  (defclass foo95b () ((s :initarg :s :accessor foo95b-s)))
+  (defclass foo95b (foo95a) ((s :accessor foo95b-s)))
+  t)
+T
+
+;; When redefining a class in a way that makes it non-finalized, and it was
+;; already instantiated, an error is signalled, and the instances survive it.
+(let ((notes '()))
+  (flet ((note (o) (setq notes (append notes (list o)))))
+    (defclass foo96b () ((s :initarg :s :accessor foo96b-s)))
+    (let ((x (make-instance 'foo96b :s 5)))
+      (note (foo96b-s x))
+      (note
+        (type-of
+          (second
+            (multiple-value-list
+              (ignore-errors
+                (defclass foo96b (foo96a) ((s :accessor foo96b-s))))))))
+      (note (foo96b-s x))
+      (note (slot-value x 's))
+      (defclass foo96a () ((r :accessor foo96b-r)))
+      (note (foo96b-s x))
+      (note (slot-value x 's))
+      (note (subtypep 'foo96b 'foo96a))
+      notes)))
+(5 SIMPLE-ERROR 5 5 5 5 NIL)
+(let ((notes '()))
+  (flet ((note (o) (setq notes (append notes (list o)))))
+    (defclass foo97b () ((s :initarg :s :accessor foo97b-s)))
+    (let ((x (make-instance 'foo97b :s 5)))
+      (note (foo97b-s x))
+      (note
+        (type-of
+          (second
+            (multiple-value-list
+              (ignore-errors
+                (defclass foo97b (foo97a) ((s :accessor foo97b-s))))))))
+      (note (foo97b-s x))
+      (note (slot-value x 's))
+      (defclass foo97a () ((r :accessor foo97b-r)))
+      (note (foo97b-s x))
+      (note (slot-value x 's))
+      (note (subtypep 'foo97b 'foo97a))
+      notes)))
+(5 SIMPLE-ERROR 5 5 5 5 NIL)
+
 ;;; ensure-generic-function
 ;;; <http://www.lisp.org/HyperSpec/Body/fun_ensure-ge_ric-function.html>
 (ensure-generic-function 'car) error
