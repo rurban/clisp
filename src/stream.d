@@ -13780,7 +13780,6 @@ local inline void create_output_pipe (const char* command) {
   pushSTACK(allocate_handle(handles[1]));
 }
 
-
 # (MAKE-PIPE-OUTPUT-STREAM command [:element-type] [:external-format] [:buffered])
 # calls a shell, that executes command, whereby our Pipe is redirected
 # into the standard-input of the command.
@@ -13819,6 +13818,75 @@ LISPFUN(make_pipe_output_stream,seclass_default,1,0,norest,key,3,
   skipSTACK(4);
   VALUES1(add_to_open_streams(stream)); /* return stream */
 }
+
+/* mkops_from_handles 
+   Make a PIPE-OUTPUT-STREAM from pipe handle and a process-id
+   > STACK_0: buffered
+   > STACK_1: element-type
+   > STACK_2: encoding
+   < STACK_0: result - a PIPE-OUTPUT-STREAM
+   Used in LAUNCH
+   Can trigger GC */
+void mkops_from_handles (Handle opipe, int process_id) {
+  var decoded_el_t eltype;
+  var signean buffered;
+  # Check and canonicalize the :BUFFERED argument:
+  buffered = test_buffered_arg(STACK_0); # default is NIL
+  # Check and canonicalize the :ELEMENT-TYPE argument:
+  test_eltype_arg(&STACK_1,&eltype);
+  STACK_1 = canon_eltype(&eltype);
+  if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
+  # Check and canonicalize the :EXTERNAL-FORMAT argument:
+  STACK_2 = test_external_format_arg(STACK_2);
+  STACK_0 = allocate_handle(opipe);
+  if (buffered > 0) {
+    pushSTACK(make_buffered_stream(strmtype_pipe_out,DIRECTION_OUTPUT,
+                                  &eltype,false,false));
+    BufferedPipeStream_init(STACK_0);
+  } else {
+    pushSTACK(make_unbuffered_stream(strmtype_pipe_out,DIRECTION_OUTPUT,
+                                    &eltype,false));
+    UnbufferedPipeStream_output_init(STACK_0);
+  }
+  ChannelStreamLow_close(STACK_0) = &low_close_pipe;
+  TheStream(STACK_0)->strm_pipe_pid = UL_to_I(process_id);
+  add_to_open_streams(STACK_0); /* return stream */
+}
+
+/* mkips_from_handles
+   Make a PIPE-INPUT-STREAM from pipe handle and a process-id
+   > STACK_0: buffered
+   > STACK_1: element-type
+   > STACK_2: encoding
+   < STACK_0: result - a PIPE-INPUT-STREAM
+   Used in LAUNCH
+   Can trigger GC */
+void mkips_from_handles (Handle ipipe, int process_id) {
+  var decoded_el_t eltype;
+  var signean buffered;
+  # Check and canonicalize the :BUFFERED argument:
+  buffered = test_buffered_arg(STACK_0); # default is NIL
+  # Check and canonicalize the :ELEMENT-TYPE argument:
+  test_eltype_arg(&STACK_1,&eltype);
+  STACK_1 = canon_eltype(&eltype);
+  if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
+  # Check and canonicalize the :EXTERNAL-FORMAT argument:
+  STACK_2 = test_external_format_arg(STACK_2);
+  STACK_0 = allocate_handle(ipipe);
+  if (buffered > 0) {
+    pushSTACK(make_buffered_stream(strmtype_pipe_in,DIRECTION_INPUT,
+                                  &eltype,false,false));
+    BufferedPipeStream_init(STACK_0);
+  } else {
+    pushSTACK(make_unbuffered_stream(strmtype_pipe_in,DIRECTION_INPUT,
+                                    &eltype,false));
+    UnbufferedPipeStream_input_init(STACK_0);
+  }
+  ChannelStreamLow_close(STACK_0) = &low_close_pipe;
+  TheStream(STACK_0)->strm_pipe_pid = UL_to_I(process_id);
+  add_to_open_streams(STACK_0); /* return stream */
+}
+
 
 #ifdef PIPES2
 
