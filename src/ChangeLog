@@ -1,3 +1,17 @@
+2003-07-25  Sam Steingold  <sds@gnu.org>
+
+	* error.d (check_posfixnum): new function
+	* io.d (PPRINT-INDENT): use check_real()
+	* lisparit.d (fehler_not_N): replaced with check_number()
+	(fehler_not_R): replaced with check_real()
+	(fehler_not_F): replaced with check_float()
+	(fehler_not_RA): replaced with check_rational()
+	(fehler_not_I): replaced with check_integer()
+	(to_double, to_int): new functions for modules
+	made these changes pervasive in the whole file
+	* lispbib.d (fehler_not_R): replaced with check_real()
+	(check_posfixnum): declared
+
 2003-07-24  Sam Steingold  <sds@gnu.org>
 
 	* genclisph.d (SAFETY): export

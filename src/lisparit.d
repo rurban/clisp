@@ -310,58 +310,6 @@ global void print_float (object z, const gcv_object_t* stream_) {
 /* ===========================================================================
  *                           Lisp-functions */
 
-/* error-message, if object is not a number.
- > obj: object, not a number */
-nonreturning_function(local, fehler_not_N, (object obj)) {
-  pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
-  pushSTACK(S(number)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj);
-  pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("argument to ~ should be a number: ~"));
-}
-
-/* error-message, if object is not a real number.
- > obj: object, not a real number */
-nonreturning_function(global, fehler_not_R, (object obj)) {
-  pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
-  pushSTACK(S(real)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj);
-  pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("argument to ~ should be a real number: ~"));
-}
-
-/* error-message, if object is not a floating-point number.
- > obj: object, not a floating-point number */
-nonreturning_function(local, fehler_not_F, (object obj)) {
-    pushSTACK(obj);      /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(float)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
-           GETTEXT("argument to ~ should be a floating point number: ~"));
-}
-
-/* error-message, if object is not a rational number.
- > obj: object, not a rational number */
-nonreturning_function(local, fehler_not_RA, (object obj)) {
-  pushSTACK(obj);         /* TYPE-ERROR slot DATUM */
-  pushSTACK(S(rational)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj);
-  pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,
-         GETTEXT("argument to ~ should be a rational number: ~"));
-}
-
-/* error-message, if object is not an integer.
- > obj: object, not an integer */
-nonreturning_function(local, fehler_not_I, (object obj)) {
-  pushSTACK(obj);        /* TYPE-ERROR slot DATUM */
-  pushSTACK(S(integer)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj);
-  pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("argument to ~ should be an integer: ~"));
-}
-
 /* error-message because of illegal digits-argument obj.
  > obj: object */
 nonreturning_function(local, fehler_digits, (object obj)) {
@@ -372,20 +320,103 @@ nonreturning_function(local, fehler_digits, (object obj)) {
   fehler(type_error,GETTEXT("~: argument should be a positive fixnum, not ~"));
 }
 
-/* check_number(obj) checks, if obj is a number. */
-#define check_number(obj)  { if (!numberp(obj)) { fehler_not_N(obj); } }
+/* check_number(obj) checks, if obj is a number.
+ < number
+ can trigger GC */
+local inline object check_number (object obj) {
+  while (!numberp(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(number)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(number)); pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    obj = value1;
+  }
+  return obj;
+}
 
-/* check_real(obj) checks, if obj is a real number. */
-#define check_real(obj)  if_realp(obj, ; , { fehler_not_R(obj); } );
+/* check_real(obj) checks, if obj is a real number.
+ < real number
+ can trigger GC */
+global inline object check_real (object obj) {
+ restart:
+  if_realp(obj, ; , {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(real)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(real)); pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    obj = value1;
+    goto restart;
+  });
+  return obj;
+}
 
-/* check_float(obj) checks, if obj is a floating-point number. */
-#define check_float(obj)  { if (!floatp(obj)) { fehler_not_F(obj); } }
+/* check_float(obj) checks, if obj is a floating-point number.
+ < floating-point number
+ can trigger GC */
+local inline object check_float (object obj) {
+  while (!floatp(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);      /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(float)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(float)); pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    obj = value1;
+  }
+  return obj;
+}
 
-/* check_rational(obj) checks, if obj is a rational number. */
-#define check_rational(obj)  if_rationalp(obj, ; , { fehler_not_RA(obj); } );
+/* check_rational(obj) checks, if obj is a rational number.
+ < rational number
+ can trigger GC */
+local inline object check_rational (object obj) {
+ restart:
+  if_rationalp(obj, ; , {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(rational)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(rational)); pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    obj = value1;
+    goto restart;
+  });
+  return obj;
+}
 
-/* check_integer(obj) checks, if obj is an integer. */
-#define check_integer(obj)  { if (!integerp(obj)) { fehler_not_I(obj); } }
+/* check_integer(obj) checks, if obj is a integer number.
+ < integer number
+ can trigger GC */
+local inline object check_integer (object obj) {
+  while (!integerp(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);      /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(integer)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(integer)); pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    obj = value1;
+  }
+  return obj;
+}
+
+/* coersions - used in modules
+ can trigger GC */
+global double to_double (object x) {
+  double ret;
+  x = check_real(x);
+  DF_to_c_double(R_rationalp(x) ? RA_to_DF(x) : F_to_DF(x),
+                 (dfloatjanus*)&ret);
+  return ret;
+}
+global int to_int (object x) {
+  x = check_integer(x);
+  return I_to_L(x);
+}
 
 /* UP: Returns the decimal string representation of an integer >= 0.
  decimal_string(x)
@@ -418,43 +449,37 @@ LISPFUN(decimal_string,seclass_no_se,1,0,norest,nokey,0,NIL)
 { /* (SYS::DECIMAL-STRING integer)
  returns for an integer >=0  (write-to-string integer :base 10 :radix nil),
  which is the sequence of digits as a simple-string. */
-  var object x = popSTACK();
-  check_integer(x);
+  var object x = check_integer(popSTACK());
   VALUES1(decimal_string(x));
 }
 
 LISPFUNNF(zerop,1)
 { /* (ZEROP number), CLTL p. 195 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES_IF(N_zerop(x));
 }
 
 LISPFUNNF(plusp,1)
 { /* (PLUSP real), CLTL p. 196 */
-  var object x = popSTACK();
-  check_real(x);
+  var object x = check_real(popSTACK());
   VALUES_IF(R_plusp(x));
 }
 
 LISPFUNNF(minusp,1)
 { /* (MINUSP real), CLTL p. 196 */
-  var object x = popSTACK();
-  check_real(x);
+  var object x = check_real(popSTACK());
   VALUES_IF(R_minusp(x));
 }
 
 LISPFUNNF(oddp,1)
 { /* (ODDP integer), CLTL p. 196 */
-  var object x = popSTACK();
-  check_integer(x);
+  var object x = check_integer(popSTACK());
   VALUES_IF(I_oddp(x));
 }
 
 LISPFUNNF(evenp,1)
 { /* (EVENP integer), CLTL p. 196 */
-  var object x = popSTACK();
-  check_integer(x);
+  var object x = check_integer(popSTACK());
   VALUES_IF(! I_oddp(x));
 }
 
@@ -463,10 +488,12 @@ LISPFUNNF(evenp,1)
  > argcount: number of arguments-1
  > args_pointer: pointer to the arguments */
 local void test_number_args (uintC argcount, gcv_object_t* args_pointer) {
-  dotimespC(argcount,argcount+1, {
-    var object arg = NEXT(args_pointer); /* next argument */
-    check_number(arg); /* must be a number */
-  });
+  do {
+    var gcv_object_t* argptr = &NEXT(args_pointer);
+    var object arg = *argptr; /* next argument */
+    if (!numberp(arg)) /* must be a number */
+      *argptr = check_number(arg);
+  } while (argcount--); /* sic: not --argcount! */
 }
 
 /* UP: tests, if all argcount+1 arguments below args_pointer
@@ -474,10 +501,11 @@ local void test_number_args (uintC argcount, gcv_object_t* args_pointer) {
  > argcount: number of arguments-1
  > args_pointer: pointer to the arguments */
 local void test_real_args (uintC argcount, gcv_object_t* args_pointer) {
-  dotimespC(argcount,argcount+1, {
-    var object arg = NEXT(args_pointer); /* next argument */
-    check_real(arg); /* must be a real number */
-  });
+  do {
+    var gcv_object_t* argptr = &NEXT(args_pointer);
+    var object arg = *argptr; /* next argument */
+    if_realp(arg, ; , { *argptr = check_real(arg); });
+  } while (argcount--); /* sic: not --argcount! */
 }
 
 /* UP: Testet, ob alle argcount+1 Argumente unterhalb von args_pointer
@@ -485,10 +513,12 @@ local void test_real_args (uintC argcount, gcv_object_t* args_pointer) {
  > argcount: number of arguments-1
  > args_pointer: pointer to the arguments */
 local void test_integer_args (uintC argcount, gcv_object_t* args_pointer) {
-  dotimespC(argcount,argcount+1, {
-    var object arg = NEXT(args_pointer); /* next argument */
-    check_integer(arg); /* must be an integer */
-  });
+  do {
+    var gcv_object_t* argptr = &NEXT(args_pointer);
+    var object arg = *argptr; /* next argument */
+    if (!integerp(arg)) /* must be a integer */
+      *argptr = check_integer(arg);
+  } while (argcount--); /* sic: not --argcount! */
 }
 
 LISPFUN(gleich,seclass_foldable,1,0,rest,nokey,0,NIL)
@@ -744,22 +774,19 @@ LISPFUN(durch,seclass_foldable,1,0,rest,nokey,0,NIL)
 
 LISPFUNNF(einsplus,1)
 { /* (1+ number), CLTL p. 200 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_1_plus_N(x));
 }
 
 LISPFUNNF(einsminus,1)
 { /* (1- number), CLTL p. 200 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_minus1_plus_N(x));
 }
 
 LISPFUNNF(conjugate,1)
 { /* (CONJUGATE number), CLTL p. 201 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_conjugate_N(x));
 }
 
@@ -880,7 +907,7 @@ LISPFUN(lcm,seclass_foldable,0,0,rest,nokey,0,NIL)
 
 LISPFUNNR(exp,1)
 { /* (EXP number), CLTL p. 203 */
-  check_number(STACK_0);
+  STACK_0 = check_number(STACK_0);
   if (complexp(STACK_0))
     pushSTACK(R_R_contagion_R(TheComplex(STACK_0)->c_real,
                               TheComplex(STACK_0)->c_imag));
@@ -891,173 +918,152 @@ LISPFUNNR(exp,1)
 
 LISPFUNNR(expt,2)
 { /* (EXPT number number), CLTL p. 203 */
-  var object x = STACK_1;
-  var object y = STACK_0;
-  check_number(x); check_number(y); skipSTACK(2);
-  VALUES1(N_N_expt_N(x,y));
+  STACK_0 = check_number(STACK_0); STACK_1 = check_number(STACK_1);
+  VALUES1(N_N_expt_N(STACK_1,STACK_0)); skipSTACK(2);
 }
 
 LISPFUN(log,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (LOG number [base-number]), CLTL p. 204 */
+  STACK_1 = check_number(STACK_1);
   var object base = STACK_0;
-  var object arg = STACK_1;
-  check_number(arg);
   if (!boundp(base)) { /* LOG with one argument */
+    var object arg = STACK_1;
     if (complexp(arg))
       STACK_0 = R_R_contagion_R(TheComplex(arg)->c_real,
                                 TheComplex(arg)->c_imag);
     else STACK_0 = STACK_1;
     VALUES1(N_log_N(arg,true,&STACK_0));
   } else { /* LOG with two arguments */
-    check_number(base);
-    VALUES1(N_N_log_N(arg,base));
+    base = check_number(base);
+    VALUES1(N_N_log_N(STACK_1,base));
   }
   skipSTACK(2);
 }
 
 LISPFUNNR(sqrt,1)
 { /* (SQRT number), CLTL p. 205 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_sqrt_N(x));
 }
 
 LISPFUNNF(isqrt,1)
 { /* (ISQRT integer), CLTL p. 205 */
-  var object x = popSTACK();
-  check_integer(x);
+  var object x = check_integer(popSTACK());
   VALUES1((I_isqrt_I(x), popSTACK()));
 }
 
 LISPFUNNR(abs,1)
 { /* (ABS number), CLTL p. 205 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_abs_R(x));
 }
 
 LISPFUNNR(phase,1)
 { /* (PHASE number), CLTL p. 206 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_phase_R(x));
 }
 
 LISPFUNNR(signum,1)
 { /* (SIGNUM number), CLTL p. 206 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_signum_N(x));
 }
 
 LISPFUNNR(sin,1)
 { /* (SIN number), CLTL p. 207 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_sin_N(x));
 }
 
 LISPFUNNR(cos,1)
 { /* (COS number), CLTL p. 207 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_cos_N(x));
 }
 
 LISPFUNNR(tan,1)
 { /* (TAN number), CLTL p. 207 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_tan_N(x));
 }
 
 LISPFUNNR(cis,1)
 { /* (CIS number), CLTL p. 207 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_cis_N(x));
 }
 
 LISPFUNNR(asin,1)
 { /* (ASIN number), CLTL p. 207 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_asin_N(x));
 }
 
 LISPFUNNR(acos,1)
 { /* (ACOS number), CLTL p. 207 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_acos_N(x));
 }
 
 LISPFUN(atan,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (ATAN number [real]), CLTL p. 207 */
-  var object arg2 = popSTACK();
-  var object arg1 = popSTACK();
-  if (!boundp(arg2)) { /* 1 argument */
-    check_number(arg1);
-    VALUES1(N_atan_N(arg1));
+  if (!boundp(STACK_0)) { /* 1 argument */
+    VALUES1(N_atan_N(check_number(STACK_1)));
   } else { /* 2 arguments */
-    check_real(arg1); check_real(arg2);
-    VALUES1(R_R_atan_R(arg2,arg1)); /* atan(X=arg2,Y=arg1) */
+    STACK_0 = check_real(STACK_0);
+    STACK_1 = check_real(STACK_1);
+    VALUES1(R_R_atan_R(STACK_0,STACK_1)); /* atan(X=arg2,Y=arg1) */
   }
+  skipSTACK(2);
 }
 
 LISPFUNNR(sinh,1)
 { /* (SINH number), CLTL p. 209 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_sinh_N(x));
 }
 
 LISPFUNNR(cosh,1)
 { /* (COSH number), CLTL p. 209 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_cosh_N(x));
 }
 
 LISPFUNNR(tanh,1)
 { /* (TANH number), CLTL p. 209 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_tanh_N(x));
 }
 
 LISPFUNNR(asinh,1)
 { /* (ASINH number), CLTL p. 209 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_asinh_N(x));
 }
 
 LISPFUNNR(acosh,1)
 { /* (ACOSH number), CLTL p. 209 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_acosh_N(x));
 }
 
 LISPFUNNR(atanh,1)
 { /* (ATANH number), CLTL p. 209 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_atanh_N(x));
 }
 
 LISPFUN(float,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (FLOAT number [float]), CLTL p. 214 */
-  var object arg2 = popSTACK();
-  var object arg1 = popSTACK();
-  check_real(arg1);
-  if (!boundp(arg2)) { /* 1 argument */
-    VALUES1(R_float_F(arg1));
+  STACK_1 = check_real(STACK_1);
+  if (!boundp(STACK_0)) { /* 1 argument */
+    VALUES1(R_float_F(STACK_1));
   } else { /* 2 arguments */
-    check_float(arg2);
-    VALUES1(R_F_float_F(arg1,arg2));
+    STACK_0 = check_float(STACK_0);
+    VALUES1(R_F_float_F(STACK_1,STACK_0));
   }
+  skipSTACK(2);
 }
 
 /* UP: Converts an object into a float of given type.
@@ -1068,7 +1074,7 @@ LISPFUN(float,seclass_read,1,1,norest,nokey,0,NIL)
  < result: (coerce obj type)
  can trigger GC */
 global object coerce_float (object obj, object type) {
-  check_real(obj);
+  pushSTACK(type); obj = check_real(obj); type = popSTACK();
   if (eq(type,S(short_float))) /* SHORT-FLOAT */
     return R_to_SF(obj);
   else if (eq(type,S(single_float))) /* SINGLE-FLOAT */
@@ -1083,246 +1089,220 @@ global object coerce_float (object obj, object type) {
 
 LISPFUNNF(rational,1)
 { /* (RATIONAL real), CLTL p. 214 */
-  var object x = popSTACK();
-  check_real(x);
+  var object x = check_real(popSTACK());
   VALUES1(R_rational_RA(x));
 }
 
 LISPFUNNF(rationalize,1)
 { /* (RATIONALIZE real), CLTL p. 214 */
-  var object x = popSTACK();
-  check_real(x);
+  var object x = check_real(popSTACK());
   VALUES1(R_rationalize_RA(x));
 }
 
 LISPFUNNF(numerator,1)
 { /* (NUMERATOR rational), CLTL p. 215 */
-  var object x = popSTACK();
-  check_rational(x);
+  var object x = check_rational(popSTACK());
   VALUES1(RA_integerp(x) ? x : (object)TheRatio(x)->rt_num);
 }
 
 LISPFUNNF(denominator,1)
 { /* (DENOMINATOR rational), CLTL p. 215 */
-  var object x = popSTACK();
-  check_rational(x);
+  var object x = check_rational(popSTACK());
   VALUES1(RA_integerp(x) ? Fixnum_1 : (object)TheRatio(x)->rt_den);
 }
 
 LISPFUN(floor,seclass_foldable,1,1,norest,nokey,0,NIL)
 { /* (FLOOR real [real]), CLTL p. 215 */
-  var object y = popSTACK();
-  var object x = popSTACK();
-  check_real(x);
-  if (!boundp(y) || eq(y,Fixnum_1)) { /* 1 argument or 2nd argument =1 */
-    R_floor_I_R(x);
+  STACK_1 = check_real(STACK_1); /* x */
+  if (!boundp(STACK_0) || eq(STACK_0,Fixnum_1)) {
+    /* 1 argument or 2nd argument =1 */
+    R_floor_I_R(STACK_1);
   } else { /* 2 arguments */
-    check_real(y);
-    R_R_floor_I_R(x,y);
+    STACK_0 = check_real(STACK_0);
+    R_R_floor_I_R(STACK_1,STACK_0);
   }
-  /* stack layout: q, r. */
-  VALUES2(STACK_1, STACK_0); skipSTACK(2);
+  /* stack layout: x, y, q, r. */
+  VALUES2(STACK_1, STACK_0); skipSTACK(4);
 }
 
 LISPFUN(ceiling,seclass_foldable,1,1,norest,nokey,0,NIL)
 { /* (CEILING real [real]), CLTL p. 215 */
-  var object y = popSTACK();
-  var object x = popSTACK();
-  check_real(x);
-  if (!boundp(y) || eq(y,Fixnum_1)) { /* 1 argument or 2nd argument =1 */
-    R_ceiling_I_R(x);
+  STACK_1 = check_real(STACK_1); /* x */
+  if (!boundp(STACK_0) || eq(STACK_0,Fixnum_1)) {
+    /* 1 argument or 2nd argument =1 */
+    R_ceiling_I_R(STACK_1);
   } else { /* 2 arguments */
-    check_real(y);
-    R_R_ceiling_I_R(x,y);
+    STACK_0 = check_real(STACK_0);
+    R_R_ceiling_I_R(STACK_1,STACK_0);
   }
-  /* stack layout: q, r. */
-  VALUES2(STACK_1, STACK_0); skipSTACK(2);
+  /* stack layout: x, y, q, r. */
+  VALUES2(STACK_1, STACK_0); skipSTACK(4);
 }
 
 LISPFUN(truncate,seclass_foldable,1,1,norest,nokey,0,NIL)
 { /* (TRUNCATE real [real]), CLTL p. 215 */
-  var object y = popSTACK();
-  var object x = popSTACK();
-  check_real(x);
-  if (!boundp(y) || eq(y,Fixnum_1)) { /* 1 argument or 2nd argument =1 */
-    R_truncate_I_R(x);
+  STACK_1 = check_real(STACK_1); /* x */
+  if (!boundp(STACK_0) || eq(STACK_0,Fixnum_1)) {
+    /* 1 argument or 2nd argument =1 */
+    R_truncate_I_R(STACK_1);
   } else { /* 2 arguments */
-    check_real(y);
-    R_R_truncate_I_R(x,y);
+    STACK_0 = check_real(STACK_0);
+    R_R_truncate_I_R(STACK_1,STACK_0);
   }
-  /* stack layout: q, r. */
-  VALUES2(STACK_1, STACK_0); skipSTACK(2);
+  /* stack layout: x, y, q, r. */
+  VALUES2(STACK_1, STACK_0); skipSTACK(4);
 }
 
 LISPFUN(round,seclass_foldable,1,1,norest,nokey,0,NIL)
 { /* (ROUND real [real]), CLTL p. 215 */
-  var object y = popSTACK();
-  var object x = popSTACK();
-  check_real(x);
-  if (!boundp(y) || eq(y,Fixnum_1)) { /* 1 argument or 2nd argument =1 */
-    R_round_I_R(x);
+  STACK_1 = check_real(STACK_1); /* x */
+  if (!boundp(STACK_0) || eq(STACK_0,Fixnum_1)) {
+    /* 1 argument or 2nd argument =1 */
+    R_round_I_R(STACK_1);
   } else { /* 2 arguments */
-    check_real(y);
-    R_R_round_I_R(x,y);
+    STACK_0 = check_real(STACK_0);
+    R_R_round_I_R(STACK_1,STACK_0);
   }
-  /* stack layout: q, r. */
-  VALUES2(STACK_1, STACK_0); skipSTACK(2);
+  /* stack layout: x, y, q, r. */
+  VALUES2(STACK_1, STACK_0); skipSTACK(4);
 }
 
 LISPFUNNF(mod,2)
 { /* (MOD real real), CLTL p. 217 */
-  var object y = popSTACK();
-  var object x = popSTACK();
-  check_real(x);
-  check_real(y);
-  VALUES1(R_R_mod_R(x,y));
+  STACK_0 = check_real(STACK_0); STACK_1 = check_real(STACK_1);
+  VALUES1(R_R_mod_R(STACK_1,STACK_0)); skipSTACK(2);
 }
 
 LISPFUNNF(rem,2)
 { /* (REM real real), CLTL p. 217 */
-  var object y = popSTACK();
-  var object x = popSTACK();
-  check_real(x);
-  check_real(y);
-  VALUES1(R_R_rem_R(x,y));
+  STACK_0 = check_real(STACK_0); STACK_1 = check_real(STACK_1);
+  VALUES1(R_R_rem_R(STACK_1,STACK_0)); skipSTACK(2);
 }
 
 LISPFUN(ffloor,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (FFLOOR real [real]), CLTL p. 217 */
-  var object y = popSTACK();
-  var object x = popSTACK();
-  check_real(x);
-  if (!boundp(y) || eq(y,Fixnum_1)) { /* 1 argument or 2nd argument =1 */
-    R_ffloor_F_R(x);
+  STACK_1 = check_real(STACK_1);
+  if (!boundp(STACK_0) || eq(STACK_0,Fixnum_1)) {
+    /* 1 argument or 2nd argument =1 */
+    R_ffloor_F_R(STACK_1);
   } else { /* 2 arguments */
-    check_real(y);
-    R_R_ffloor_F_R(x,y);
+    check_real(STACK_0);
+    R_R_ffloor_F_R(STACK_1,STACK_0);
   }
-  /* stack layout: q, r. */
-  VALUES2(STACK_1, STACK_0); skipSTACK(2);
+  /* stack layout: x, y, q, r. */
+  VALUES2(STACK_1, STACK_0); skipSTACK(4);
 }
 
 LISPFUN(fceiling,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (FCEILING real [real]), CLTL p. 217 */
-  var object y = popSTACK();
-  var object x = popSTACK();
-  check_real(x);
-  if (!boundp(y) || eq(y,Fixnum_1)) { /* 1 argument or 2nd argument =1 */
-    R_fceiling_F_R(x);
+  STACK_1 = check_real(STACK_1);
+  if (!boundp(STACK_0) || eq(STACK_0,Fixnum_1)) {
+    /* 1 argument or 2nd argument =1 */
+    R_fceiling_F_R(STACK_1);
   } else { /* 2 arguments */
-    check_real(y);
-    R_R_fceiling_F_R(x,y);
+    check_real(STACK_0);
+    R_R_fceiling_F_R(STACK_1,STACK_0);
   }
-  /* stack layout: q, r. */
-  VALUES2(STACK_1, STACK_0); skipSTACK(2);
+  /* stack layout: x, y, q, r. */
+  VALUES2(STACK_1, STACK_0); skipSTACK(4);
 }
 
 LISPFUN(ftruncate,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (FTRUNCATE real [real]), CLTL p. 217 */
-  var object y = popSTACK();
-  var object x = popSTACK();
-  check_real(x);
-  if (!boundp(y) || eq(y,Fixnum_1)) { /* 1 argument or 2nd argument =1 */
-    R_ftruncate_F_R(x);
+  STACK_1 = check_real(STACK_1);
+  if (!boundp(STACK_0) || eq(STACK_0,Fixnum_1)) {
+    /* 1 argument or 2nd argument =1 */
+    R_ftruncate_F_R(STACK_1);
   } else { /* 2 arguments */
-    check_real(y);
-    R_R_ftruncate_F_R(x,y);
+    check_real(STACK_0);
+    R_R_ftruncate_F_R(STACK_1,STACK_0);
   }
-  /* stack layout: q, r. */
-  VALUES2(STACK_1, STACK_0); skipSTACK(2);
+  /* stack layout: x, y, q, r. */
+  VALUES2(STACK_1, STACK_0); skipSTACK(4);
 }
 
 LISPFUN(fround,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (FROUND real [real]), CLTL p. 217 */
-  var object y = popSTACK();
-  var object x = popSTACK();
-  check_real(x);
-  if (!boundp(y) || eq(y,Fixnum_1)) { /* 1 argument or 2nd argument =1 */
-    R_fround_F_R(x);
+  STACK_1 = check_real(STACK_1);
+  if (!boundp(STACK_0) || eq(STACK_0,Fixnum_1)) {
+    /* 1 argument or 2nd argument =1 */
+    R_fround_F_R(STACK_1);
   } else { /* 2 arguments */
-    check_real(y);
-    R_R_fround_F_R(x,y);
+    check_real(STACK_0);
+    R_R_fround_F_R(STACK_1,STACK_0);
   }
-  /* stack layout: q, r. */
-  VALUES2(STACK_1, STACK_0); skipSTACK(2);
+  /* stack layout: x, y, q, r. */
+  VALUES2(STACK_1, STACK_0); skipSTACK(4);
 }
 
 LISPFUNNF(decode_float,1)
 { /* (DECODE-FLOAT float), CLTL p. 218 */
-  var object f = popSTACK();
-  check_float(f);
+  var object f = check_float(popSTACK());
   F_decode_float_F_I_F(f);
   VALUES3(STACK_2, STACK_1, STACK_0); skipSTACK(3);
 }
 
 LISPFUNNF(scale_float,2)
 { /* (SCALE-FLOAT float integer), CLTL p. 218 */
-  var object f = STACK_1;
-  var object i = STACK_0;
-  check_float(f); check_integer(i); skipSTACK(2);
-  VALUES1(F_I_scale_float_F(f,i));
+  STACK_1 = check_float(STACK_1); STACK_0 = check_integer(STACK_0);
+  VALUES1(F_I_scale_float_F(STACK_1,STACK_0)); skipSTACK(2);
 }
 
 LISPFUNNF(float_radix,1)
 { /* (FLOAT-RADIX float), CLTL p. 218 */
-  var object f = popSTACK();
-  check_float(f);
+  var object f = check_float(popSTACK());
   VALUES1(F_float_radix_I(f));
 }
 
 LISPFUN(float_sign,seclass_foldable,1,1,norest,nokey,0,NIL)
 { /* (FLOAT-SIGN float [float]), CLTL p. 218 */
-  var object arg2 = popSTACK();
-  var object arg1 = popSTACK();
-  check_float(arg1);
-  if (!boundp(arg2)) { /* 1 argument */
-    VALUES1(F_float_sign_F(arg1));
+  STACK_1 = check_float(STACK_1);
+  if (!boundp(STACK_0)) { /* 1 argument */
+    VALUES1(F_float_sign_F(STACK_1));
   } else { /* 2 arguments */
-    check_float(arg2);
-    VALUES1(F_F_float_sign_F(arg1,arg2));
+    STACK_0 = check_float(STACK_0);
+    VALUES1(F_F_float_sign_F(STACK_1,STACK_0));
   }
+  skipSTACK(2);
 }
 
 LISPFUN(float_digits,seclass_foldable,1,1,norest,nokey,0,NIL)
 { /* (FLOAT-DIGITS number [digits]), CLTL p. 218 */
-  var object arg2 = popSTACK();
-  var object arg1 = popSTACK();
-  if (!boundp(arg2)) { /* 1 argument: (FLOAT-DIGITS float) */
-    check_float(arg1);
-    VALUES1(F_float_digits_I(arg1));
+  if (!boundp(STACK_0)) { /* 1 argument: (FLOAT-DIGITS float) */
+    STACK_1 = check_float(STACK_1);
+    VALUES1(F_float_digits_I(STACK_1));
   } else { /* 2 arguments: (FLOAT-DIGITS number digits) */
-    if (!posfixnump(arg2)) /* not a fixnum!?? */
-      fehler_digits(arg2);
-    var uintL d = posfixnum_to_L(arg2); /* = I_to_UL(arg2); ?? */
+    if (!posfixnump(STACK_0)) /* not a fixnum!?? */
+      fehler_digits(STACK_0);
+    var uintL d = posfixnum_to_L(STACK_0); /* = I_to_UL(STACK_0); ?? */
     if (d==0) /* should be >0 */
-      fehler_digits(arg2);
-    check_real(arg1);
-    /* convert arg1 into a float with at least d bits: */
+      fehler_digits(STACK_0);
+    STACK_1 = check_real(STACK_1);
+    /* convert STACK_1 into a float with at least d bits: */
     if (d > DF_mant_len+1) { /* -> long-float */
       d = ceiling(d,intDsize);
       if ((intWCsize<32) && (d > (bitc(intWCsize)-1)))
         fehler_LF_toolong();
-      VALUES1(R_to_LF(arg1,d));
+      VALUES1(R_to_LF(STACK_1,d));
     } else if (d > FF_mant_len+1) /* a double-float is sufficient */
-      VALUES1(R_to_DF(arg1));  /* -> double-float */
+      VALUES1(R_to_DF(STACK_1));  /* -> double-float */
     else if (d > SF_mant_len+1) /* a single-float is sufficient */
-      VALUES1(R_to_FF(arg1)); /* -> single-float */
+      VALUES1(R_to_FF(STACK_1)); /* -> single-float */
     else /* a short-float is sufficient */
-      VALUES1(R_to_SF(arg1));
+      VALUES1(R_to_SF(STACK_1));
   }
+  skipSTACK(2);
 }
 
 LISPFUNNF(float_precision,1)
 { /* (FLOAT-PRECISION float), CLTL p. 218 */
-  var object f = popSTACK();
-  check_float(f);
+  var object f = check_float(popSTACK());
   VALUES1(F_float_precision_I(f));
 }
 
 LISPFUNNF(integer_decode_float,1)
 { /* (INTEGER-DECODE-FLOAT float), CLTL p. 218 */
-  var object f = popSTACK();
-  check_float(f);
+  var object f = check_float(popSTACK());
   F_integer_decode_float_I_I_I(f);
   VALUES3(STACK_2, STACK_1, STACK_0); skipSTACK(3);
 }
@@ -1335,28 +1315,25 @@ LISPFUN(complex,seclass_foldable,1,1,norest,nokey,0,NIL)
  (COMPLEX x 0) . We can have complex numbers with a real part
  and imaginary part of different types (cf. CLTL, page 19),
  and then: (COMPLEX x 0) = x. */
-  var object arg2 = popSTACK();
-  var object arg1 = popSTACK();
-  check_real(arg1);
-  if (!boundp(arg2)) { /* 1 argument */
-    VALUES1(arg1);
+  STACK_1 = check_real(STACK_1);
+  if (!boundp(STACK_0)) { /* 1 argument */
+    VALUES1(STACK_1);
   } else { /* 2 arguments */
-    check_real(arg2);
-    VALUES1(R_R_complex_N(arg1,arg2));
+    STACK_0 = check_real(STACK_0);
+    VALUES1(R_R_complex_N(STACK_1,STACK_0));
   }
+  skipSTACK(2);
 }
 
 LISPFUNNF(realpart,1)
 { /* (REALPART number), CLTL p. 220 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_realpart_R(x));
 }
 
 LISPFUNNF(imagpart,1)
 { /* (IMAGPART number), CLTL p. 220 */
-  var object x = popSTACK();
-  check_number(x);
+  var object x = check_number(popSTACK());
   VALUES1(N_imagpart_R(x));
 }
 
@@ -1438,103 +1415,71 @@ LISPFUN(logeqv,seclass_foldable,0,0,rest,nokey,0,NIL)
 
 LISPFUNNF(lognand,2)
 { /* (LOGNAND integer integer), CLTL p. 221 */
-  var object x = STACK_1;
-  var object y = STACK_0;
-  check_integer(x); check_integer(y); skipSTACK(2);
-  VALUES1(I_I_lognand_I(x,y));
-}
+  STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
+  VALUES1(I_I_lognand_I(STACK_1,STACK_0)); skipSTACK(2);}
 
 LISPFUNNF(lognor,2)
 { /* (LOGNOR integer integer), CLTL p. 221 */
-  var object x = STACK_1;
-  var object y = STACK_0;
-  check_integer(x); check_integer(y); skipSTACK(2);
-  VALUES1(I_I_lognor_I(x,y));
-}
+  STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
+  VALUES1(I_I_lognor_I(STACK_1,STACK_0)); skipSTACK(2);}
 
 LISPFUNNF(logandc1,2)
 { /* (LOGANDC1 integer integer), CLTL p. 221 */
-  var object x = STACK_1;
-  var object y = STACK_0;
-  check_integer(x); check_integer(y); skipSTACK(2);
-  VALUES1(I_I_logandc1_I(x,y));
-}
+  STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
+  VALUES1(I_I_logandc1_I(STACK_1,STACK_0)); skipSTACK(2);}
 
 LISPFUNNF(logandc2,2)
 { /* (LOGANDC2 integer integer), CLTL p. 221 */
-  var object x = STACK_1;
-  var object y = STACK_0;
-  check_integer(x); check_integer(y); skipSTACK(2);
-  VALUES1(I_I_logandc2_I(x,y));
-}
+  STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
+  VALUES1(I_I_logandc2_I(STACK_1,STACK_0)); skipSTACK(2);}
 
 LISPFUNNF(logorc1,2)
 { /* (LOGORC1 integer integer), CLTL p. 221 */
-  var object x = STACK_1;
-  var object y = STACK_0;
-  check_integer(x); check_integer(y); skipSTACK(2);
-  VALUES1(I_I_logorc1_I(x,y));
-}
+  STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
+  VALUES1(I_I_logorc1_I(STACK_1,STACK_0)); skipSTACK(2);}
 
 LISPFUNNF(logorc2,2)
 { /* (LOGORC2 integer integer), CLTL p. 221 */
-  var object x = STACK_1;
-  var object y = STACK_0;
-  check_integer(x); check_integer(y); skipSTACK(2);
-  VALUES1(I_I_logorc2_I(x,y));
-}
+  STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
+  VALUES1(I_I_logorc2_I(STACK_1,STACK_0)); skipSTACK(2);}
 
 LISPFUNNF(boole,3)
 { /* (BOOLE op integer integer), CLTL p. 222 */
   var object op = STACK_2; /* operator, not a typetest */
-  var object x = STACK_1;
-  var object y = STACK_0;
-  check_integer(x); check_integer(y); skipSTACK(3);
-  VALUES1(OP_I_I_boole_I(op,x,y));
+  STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
+  VALUES1(OP_I_I_boole_I(STACK_2,STACK_1,STACK_0)); skipSTACK(3);
 }
 
 LISPFUNNF(lognot,1)
 { /* (LOGNOT integer), CLTL p. 223 */
-  var object x = popSTACK();
-  check_integer(x);
+  var object x = check_integer(popSTACK());
   VALUES1(I_lognot_I(x));
 }
 
 LISPFUNNF(logtest,2)
 { /* (LOGTEST integer integer), CLTL p. 223 */
-  var object x = STACK_1;
-  var object y = STACK_0;
-  check_integer(x); check_integer(y); skipSTACK(2);
-  VALUES_IF(I_I_logtest(x,y));
-}
+  STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
+  VALUES_IF(I_I_logtest(STACK_1,STACK_0)); skipSTACK(2);}
 
 LISPFUNNF(logbitp,2)
 { /* (LOGBITP integer integer), CLTL p. 224 */
-  var object x = STACK_1;
-  var object y = STACK_0;
-  check_integer(x); check_integer(y); skipSTACK(2);
-  VALUES_IF(I_I_logbitp(x,y));
-}
+  STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
+  VALUES_IF(I_I_logbitp(STACK_1,STACK_0)); skipSTACK(2);}
 
 LISPFUNNF(ash,2)
 { /* (ASH integer integer), CLTL p. 224 */
-  var object x = STACK_1;
-  var object y = STACK_0;
-  check_integer(x); check_integer(y); skipSTACK(2);
-  VALUES1(I_I_ash_I(x,y));
-}
+  STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
+  VALUES1(I_I_ash_I(STACK_1,STACK_0)); skipSTACK(2);}
 
 LISPFUNNF(logcount,1)
 { /* (LOGCOUNT integer), CLTL p. 224 */
-  var object x = popSTACK();
-  check_integer(x);
+  var object x = check_integer(popSTACK());
   VALUES1(I_logcount_I(x));
 }
 
 LISPFUNNF(integer_length,1)
 { /* (INTEGER-LENGTH integer), CLTL p. 224 */
-  var object x = popSTACK();
-  check_integer(x);
+  var object x = check_integer(popSTACK());
   VALUES1(I_integer_length_I(x));
 }
 
@@ -1560,44 +1505,40 @@ LISPFUNNR(byteposition,1)
 
 LISPFUNNF(ldb,2)
 { /* (LDB bytespec integer), CLTL p. 226 */
+  var object x = check_integer(STACK_0);
   var object b = STACK_1; /* Type check will take place later */
-  var object x = STACK_0;
-  check_integer(x); skipSTACK(2);
+  skipSTACK(2);
   VALUES1(I_Byte_ldb_I(x,b));
 }
 
 LISPFUNNF(ldb_test,2)
 { /* (LDB-TEST bytespec integer), CLTL p. 226 */
+  var object x = check_integer(STACK_0);
   var object b = STACK_1; /* Type check will take place later */
-  var object x = STACK_0;
-  check_integer(x); skipSTACK(2);
+  skipSTACK(2);
   VALUES_IF(I_Byte_ldb_test(x,b));
 }
 
 LISPFUNNF(mask_field,2)
 { /* (MASK_FIELD bytespec integer), CLTL p. 226 */
+  var object x = check_integer(STACK_0);
   var object b = STACK_1; /* Type check will take place later */
-  var object x = STACK_0;
-  check_integer(x); skipSTACK(2);
+  skipSTACK(2);
   VALUES1(I_Byte_mask_field_I(x,b));
 }
 
 LISPFUNNF(dpb,3)
 { /* (DPB integer bytespec integer), CLTL p. 227 */
-  var object x = STACK_2;
-  var object b = STACK_1; /* Type check will take place later */
-  var object y = STACK_0;
-  check_integer(x); check_integer(y); skipSTACK(3);
-  VALUES1(I_I_Byte_dpb_I(x,y,b));
+  /* STACK_1 - type check will take place later */
+  STACK_2 = check_integer(STACK_2); STACK_0 = check_integer(STACK_0);
+  VALUES1(I_I_Byte_dpb_I(STACK_2,STACK_0,STACK_1)); skipSTACK(3);
 }
 
 LISPFUNNF(deposit_field,3)
 { /* (DEPOSIT-FIELD integer bytespec integer), CLTL p. 227 */
-  var object x = STACK_2;
-  var object b = STACK_1; /* Type check will take place later */
-  var object y = STACK_0;
-  check_integer(x); check_integer(y); skipSTACK(3);
-  VALUES1(I_I_Byte_deposit_field_I(x,y,b));
+  /* STACK_1 - type check will take place later */
+  STACK_2 = check_integer(STACK_2); STACK_0 = check_integer(STACK_0);
+  VALUES1(I_I_Byte_deposit_field_I(STACK_2,STACK_0,STACK_1)); skipSTACK(3);
 }
 
 /* checks an optional random-state-argument obj.
@@ -1632,10 +1573,9 @@ local object check_random_state (object obj) {
 
 LISPFUN(random,seclass_default,1,1,norest,nokey,0,NIL)
 { /* (RANDOM number [state]), CLTL p. 228 */
-  var object x = STACK_1;
+  var object x = check_real(STACK_1); /* x - real, >0, Float or Integer */
   var object r = check_random_state(STACK_0);
   skipSTACK(2);
-  check_real(x); /* x must be a real number, >0 and Float or Integer */
   if (R_plusp(x)) {
     if (R_floatp(x)) {
       VALUES1(F_random_F(r,x));
@@ -1719,10 +1659,7 @@ LISPFUN(make_random_state,seclass_default,0,1,norest,nokey,0,NIL)
 
 LISPFUNNF(fakultaet,1)
 { /* (! integer) */
-  var object x = popSTACK();
-  check_integer(x);
-  if (!posfixnump(x)) fehler_posfixnum(x);
-  /* x is a fixnum >=0. */
+  var object x = check_posfixnum(popSTACK()); /* x is a fixnum >=0. */
   VALUES1(FN_fak_I(x));
 }
 
@@ -1730,11 +1667,8 @@ LISPFUNNF(exquo,2)
 { /* (EXT:EXQUO x y) returns the quotient of x and y. The caller
   asserts that x is a multiple of y.
   (EXQUO x y) == (THE INTEGER (/ (THE INTEGER x) (THE INTEGER y))) */
-  var object x = STACK_1;
-  var object y = STACK_0;
-  check_integer(x); check_integer(y); skipSTACK(2);
-  VALUES1(I_I_exquo_I(x,y));
-}
+  STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
+  VALUES1(I_I_exquo_I(STACK_1,STACK_0)); skipSTACK(2);}
 
 LISPFUNN(long_float_digits,0)
 { /* (EXT:LONG-FLOAT-DIGITS) returns the default bitsize of long-floats */
@@ -2034,11 +1968,3 @@ global void init_arith (void)
   /* *FLOATING-POINT-CONTAGION-ANSI* := NIL */
   define_variable(S(floating_point_contagion_ansi),NIL);
 }
-
-/* ===========================================================================
- *                           C library math functions */
-
-#ifdef EXPORT_SYSCALLS
-#include "posixmath.c"
-#endif
-
