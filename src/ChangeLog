@@ -1,5 +1,11 @@
 2002-12-02  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 647015 ]: ffi:def-c-enum broken from .fas file
+	* foreign1.lisp (def-c-enum): use DEF-C-TYPE to define the enum
+	type to C `int'
+
+2002-12-02  Sam Steingold  <sds@gnu.org>
+
 	* int2adic.d (D_D_mal2adic_D, UDS_UDS_durch2adic_UDS):
 	avoid "warning: statement with no effect"
 	* hashtabl.d (hashcode, CLASS-TUPLE-GETHASH): ditto
@@ -25,8 +31,8 @@
 	* m4/strlen.m4 (CL_STRLEN): Make it work better with CC=g++.
 
 	* cjk.h (is_cjk_encoding): Convert declaration to ANSI C.
-	* uniname.c (unicode_name_word, unicode_name_word_lookup,
-	unicode_character_name, unicode_name_character): Convert declaration
+	* uniname.c (unicode_name_word, unicode_name_word_lookup)
+	(unicode_character_name, unicode_name_character): Convert declaration
 	to ANSI C.
 	* uniname.h (unicode_character_name, unicode_name_character): Convert
 	declaration to ANSI C.
@@ -67,7 +73,7 @@
 2002-11-30  Sam Steingold  <sds@gnu.org>
 
 	* places.lisp (remove-plist): new function
-	* inspect.lisp (with-http-output): use it instead of remf
+	* inspect.lisp (with-http-output): use it instead of REMF
 
 2002-11-28  Sam Steingold  <sds@gnu.org>
 
