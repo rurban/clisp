@@ -1,3 +1,14 @@
+2004-05-09  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (hash_lookup_builtin, hash_lookup_builtin_with_rehash):
+	Remove Nptr_ argument.
+	* hashtabl.d (lookup_Pseudofun): Remove Nptr_ argument.
+	(hash_lookup_builtin, hash_lookup_builtin_with_rehash,
+	hash_lookup_user, hash_lookup): Likewise.
+	(MAKE-HASH-TABLE, gethash, GETHASH, SYSTEM::PUTHASH, REMHASH,
+	CLOS::CLASS-GETHASH): Update.
+	* pseudofun.d: Update.
+
 2004-06-02  Sam Steingold  <sds@gnu.org>
 
 	more consistent macro/function naming, more error recovery
