@@ -50,16 +50,15 @@ The input file is normal C code, modified like this:
     return ret;
   }}
   it is convenient for parsing flag arguments to DEFUNs
-- DEFCHECKER(c_name, C_CONST1 C_CONST2 C_CONST3) or
-  DEFCHECKER(c_name, enum_type, C_CONST1 C_CONST2 C_CONST3) or
-  DEFCHECKER(c_name, "prefix", C_CONST1 C_CONST2 C_CONST3)
-  DEFCHECKER(c_name, enum_type, "prefix", C_CONST1 C_CONST2 C_CONST3)
+- DEFCHECKER(c_name, [enum|type]=..., prefix=..., default=...,
+             C_CONST1 C_CONST2 C_CONST3)
   is converted to
   static struct { int c_const, gcv_object_t *l_const; } c_name_table[] = ...
-  static enum_type c_name (object arg) {
+  static [enum_]type c_name (object arg) {
     unsigned int index;
    restart_c_name:
-    if (posfixnump(arg)) return posfixnum_to_L(arg);
+    if (integerp(arg)) return I_to_L(arg);
+    else if (missingp(arg)) return default;
     else {
       for (index = 0; index < c_name_table_size; index++)
         if (eq(a,*c_name_table[index].l_const))
@@ -78,8 +77,12 @@ The input file is normal C code, modified like this:
     for (index = 0; index < c_name_table_size; index++)
       if (a == c_name_table[index].c_const)
         return *c_name_table[index].l_const;
+    if (a == default) return NIL;
     NOTREACHED;
   }
+ enum means no #ifdef
+ prefix defaults to ""
+ default defaults to C_CONST1
 
 Restrictions and caveats:
 - A module should consist of a single file.
@@ -222,6 +225,16 @@ The vector is freshly constructed, but the strings are shared"
 (defconstant *commands*
   '("DEFMODULE" "DEFUN" "DEFVAR" "DEFCHECKER" "DEFFLAGSET"))
 
+(defun split-option (argument)
+  "foo=bar ==> (:foo bar)"
+  (let ((= (position #\= argument)))
+    (if =
+        (list (intern (nstring-upcase
+                       (subseq argument 0 (prev-non-blank argument =)))
+                      #.(find-package "KEYWORD"))
+              (let ((start (next-non-blank argument (1+ =))))
+                (if start (subseq argument start) T)))
+        argument)))
 (defun split-command (line &key (start 0) (end (length line)))
   "parse command line into command name and arguments:
 FOO(bar,baz,zot) ==> FOO; (bar baz zot); end-position"
@@ -245,7 +258,7 @@ FOO(bar,baz,zot) ==> FOO; (bar baz zot); end-position"
       (push (subseq line start (prev-non-blank line comma)) args)
       (setq start (next-non-blank line (1+ comma))
             comma (position #\, line :end last :start (1+ comma))))
-    (values name (nreverse args) (1+ end))))
+    (values name (nreverse (map-into args #'split-option args)) (1+ end))))
 (defun argument-string (arg)
   "check whether the argument (returned by SPLIT-COMMAND) is a string,
 and, if yes, return the string"
@@ -594,9 +607,7 @@ and turn it into DEFUN(funname,lambdalist,signature)."
 
 (defstruct (flag-set (:include cpp-helper)))
 (defvar *flag-sets* (make-array 5 :adjustable t :fill-pointer 0))
-(defun new-flag-set (name cpp-names &key type prefix
-                     (condition (current-condition)))
-  (declare (ignore type prefix))
+(defun new-flag-set (name cpp-names &key (condition (current-condition)))
   ;; must nreverse cpp-names to match the order of keywords
   (let ((fs (make-flag-set :name name :cpp-names (nreverse cpp-names))))
     (vector-push-extend fs *flag-sets*)
@@ -605,21 +616,34 @@ and turn it into DEFUN(funname,lambdalist,signature)."
 
 ;; type is the enum type name (if it is an enum typedef) and NIL otherwise
 ;; since enum constants cannot be checked by CPP, we do not ifdef them
-(defstruct (checker (:include cpp-helper)) type prefix cpp-odefs type-odef)
+(defstruct (checker (:include cpp-helper))
+  enum-p type prefix default cpp-odefs type-odef)
 (defvar *checkers* (make-array 5 :adjustable t :fill-pointer 0))
 (defun to-C-name (name prefix)
   (setq name (substitute #\_ #\- name))
   (when prefix (setq name (ext:string-concat prefix "_" name)))
   name)
-(defun new-checker (name cpp-names &key type prefix
+(defun new-checker (name cpp-names &key type prefix default enum
                     (condition (current-condition)))
-  (setq cpp-names (nreverse cpp-names))
-  (let ((ch (make-checker :type type :name name :prefix prefix
-                          :cpp-names cpp-names))
-        (type-odef "(OR NULL (INTEGER 0) (MEMBER") cpp-odefs)
+  (setq default (unless (eq default T)
+                  (if default
+                      (or (parse-integer default :junk-allowed t) default)
+                      (to-C-name (first cpp-names) prefix))))
+  (when (and type enum)
+    (error "~S(~S): cannot specify both ~A=~S and ~A=~S"
+           'new-checker name :type type :enum enum))
+  (let ((ch (make-checker :type (or type enum) :name name :prefix prefix
+                          :enum-p (not (null enum)) :cpp-names cpp-names
+                          :default default))
+        (type-odef (if default
+                       ;; note that if DEFAULT is an undefined CPP constant
+                       ;; NIL will not be a valid argument
+                       "(OR NULL INTEGER (MEMBER"
+                       "(OR INTEGER (MEMBER"))
+        cpp-odefs)
     (vector-push-extend ch *checkers*)
     (stack-push-optimize (checker-cond-stack ch) condition)
-    (cond (type
+    (cond (enum
            (dolist (name cpp-names)
              (push (init-to-objdef (ext:string-concat ":" name) condition)
                    cpp-odefs)
@@ -651,20 +675,8 @@ and turn it into DEFUN(funname,lambdalist,signature)."
   (multiple-value-bind (name args last constructor) (split-command line)
     (setq constructor (cdr (assoc name command-alist :test #'string=)))
     (unless constructor (return-from def-something-p nil))
-    (let ((word-list (car (last args))) type prefix)
-      (dolist (arg (cdr (nbutlast args)))
-        (let ((s (argument-string arg)))
-          (if s
-              (if prefix
-                  (error "~A: too many prefixes: ~S and ~S in ~S"
-                         name prefix s line)
-                  (setq prefix s))
-              (if type
-                  (error "~A: too many types: ~S and ~S in ~S"
-                         name type s line)
-                  (setq type arg)))))
-      (funcall constructor (first args) (word-list word-list)
-               :type type :prefix prefix))
+    (apply constructor (first args) (word-list (car (last args)))
+           (mapcan #'identity (cdr (nbutlast args))))
     (subseq line last)))
 
 (defstruct vardef
@@ -882,6 +894,8 @@ commas and parentheses."
 (defun condition-stack-false (cond-st) (zerop (length cond-st)))
 (defun condition-stack-true (cond-st) (every #'condition-part-true cond-st))
 (defun newline (out) (terpri out) (incf *lineno*))
+(defmacro formatln (out string &rest args)
+  `(progn (format ,out ,string ,@args) (newline ,out)))
 
 (defmacro with-conditional ((out cond-stack) &body body)
   (let ((cs (gensym "WC-")) (always-true (gensym "WC-")))
@@ -976,9 +990,10 @@ commas and parentheses."
             (format out "}") (newline out)))
     (newline out)
     (loop :for ch :across *checkers*
-      :for prefix = (checker-prefix ch)
+      :for prefix = (checker-prefix ch) :for default = (checker-default ch)
       :for type-tag = (objdef-tag (checker-type-odef ch))
       :for c-name = (checker-name ch) :for c-type = (checker-type ch)
+      :for enum-p = (checker-enum-p ch) :for need-default = (stringp default)
       :initially
       (format out "struct c_lisp_pair {int c_const; gcv_object_t *l_const;};")
       (newline out) (newline out)
@@ -988,10 +1003,12 @@ commas and parentheses."
             (loop :for name :in (checker-cpp-names ch)
               :for C-name = (to-C-name name prefix)
               :for odef :in (checker-cpp-odefs ch)
-              :do (unless c-type (format out " #ifdef ~A" C-name) (newline out))
+              :do (unless enum-p (format out " #ifdef ~A" C-name) (newline out))
               (format out "  { ~A, &(O(~A)) }," C-name (objdef-tag odef))
               (newline out)
-              (unless c-type (format out " #endif") (newline out)))
+              (when (and need-default (string= default C-name))
+                (setq need-default nil))
+              (unless enum-p (format out " #endif") (newline out)))
             (format out "  { 0, NULL }") (newline out)
             (format out "};") (newline out)
             (format out "static const uintL ~A_table_size = (sizeof(~A_table)/sizeof(struct c_lisp_pair))-1;" c-name c-name) (newline out)
@@ -999,6 +1016,10 @@ commas and parentheses."
             (newline out) (format out "  unsigned int index;") (newline out)
             (format out " restart_~A:" c-name) (newline out)
             (format out "  if (integerp(a)) return I_to_L(a);") (newline out)
+            (when default
+              (when (stringp default) (formatln out " #ifdef ~A" default))
+              (formatln out "  else if (missingp(a)) return ~A;" default)
+              (when (stringp default) (formatln out " #endif")))
             (format out "  else {") (newline out)
             (format out "    for (index = 0; index < ~A_table_size; index++)"
                     c-name) (newline out)
@@ -1023,6 +1044,8 @@ commas and parentheses."
             (newline out)
             (format out "      return *~A_table[index].l_const;" c-name)
             (newline out)
+            (when need-default
+              (format out "  if (a == ~A) return NIL;" default) (newline out))
             (format out "  NOTREACHED;") (newline out)
             (format out "}") (newline out)))
     (newline out)))
