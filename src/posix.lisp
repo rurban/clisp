@@ -3,9 +3,17 @@
 
 (in-package "POSIX" :use '("LISP" "CLOS"))
 
-(export '(resolve-host-ipaddr hostent user-data file-stat sysinfo bogomips
-          resource-usage-limits
-          erf erfc j0 j1 jn y0 y1 yn gamma lgamma))
+(export
+ '(resolve-host-ipaddr
+   hostent hostent-name hostent-aliases hostent-addr-list hostent-addrtype
+   user-data user-data-login-id user-data-passwd user-data-uid user-data-gid
+   user-data-full-name user-data-shell
+   file-stat file-stat-file file-stat-dev file-stat-ino file-stat-mode
+   file-stat-nlink file-stat-uid file-stat-gid file-stat-rdev
+   file-stat-size file-stat-blksize file-stat-blocks file-stat-atime
+   file-stat-mtime file-stat-ctime
+   bogomips
+   erf erfc j0 j1 jn y0 y1 yn gamma lgamma))
 
 ;;; ============================================================
 (defstruct hostent
@@ -89,6 +97,14 @@
 
 ;;; ============================================================
 #+unix (progn
+(export
+ '(sysinfo sysinfo-sysname sysinfo-nodename
+   sysinfo-release sysinfo-version sysinfo-machine sysinfo-page-size
+   sysinfo-physical-pages sysinfo-physical-pages-available
+   sysinfo-num-processor-conf sysinfo-num-processor-online
+   sysinfo-max-threads-per-process))
+
+
 (defstruct sysinfo
   "see uname(2) and sysconf(3c) for details"
   ;; from uname
@@ -123,6 +139,16 @@ NIL - no such key; T - sysconf(3c) returned -1."
 )
 ;;; ============================================================
 #+unix (progn
+(export
+ '(resource-usage-limits rlimit rlimit-soft rlimit-hard
+   limits limits-core limits-cpu limits-heap limits-file-size limits-num-files
+   limits-stack limits-virt-mem limits-rss limits-memlock
+   usage usage-user-fime usage-system-time usage-max-rss usage-int-rss
+   usage-minor-page-faults usage-major-page-faults usage-num-swaps
+   usage-blocks-input usage-blocks-output usage-messages-sent
+   usage-messages-received usage-signals usage-context-switches-voluntary
+   usage-context-switches-involuntary))
+
 (defstruct rlimit
   "see getrlimit(2) for details"
   (soft nil :type (or null (unsigned-byte 32)))
