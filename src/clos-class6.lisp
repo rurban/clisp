@@ -281,6 +281,12 @@
   (:method ((class class))
     (compute-class-precedence-list-<class> class)))
 
+;; MOP p. 42
+(fmakunbound 'compute-effective-slot-definition)
+(defgeneric compute-effective-slot-definition (class slotname direct-slot-definitions)
+  (:method ((class class) slotname direct-slot-definitions)
+    (compute-effective-slot-definition-<class> class slotname direct-slot-definitions)))
+
 ;;; ===========================================================================
 
 ;;; Class definition customization
