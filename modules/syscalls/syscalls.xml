@@ -22,20 +22,110 @@
  <varlistentry id="file-stat"><term><literal
       role="sexp">(<function>POSIX:FILE-STAT</function> &path-r;
       &optional-amp; <replaceable>link-p</replaceable>)</literal></term>
- <listitem><simpara>Return the <type>file-stat</type> struct.
+  <listitem><para>Return the <type>file-stat</type> struct.
    &path-r; can be a &stream-t;, a &pathname-t;, a &string-t; or a
    &number-t; (on a &unix; system, meaning &file-des;).
-   The first slot of the struct returned is the string or the number on
-   which &stat;/&fstat;/&lstat; was called.  The other 13 slots are
-   numbers, members of the stat struct: device, inode, protection,
-   number of hard links, owner's UID, owner's GID, device type, total
-   size (bytes), blocksize for filesystem I/O, number of blocks
-   allocated, atime, mtime, ctime (as the number of seconds since
-   1900-01-01).  If the system does not support a particular field
-   (e.g., Win32 does not have hard links), &nil; (or the default, like 1
-   for the number of hard links for Win32 or DOS) is returned.
+   The first slot of the structure returned is the string or the
+   number on which &stat;/&fstat;/&lstat; was called.
+   The other slots are numbers, members of the <type>struct stat</type>:
+    <variablelist>
+     <varlistentry><term>dev</term>
+      <listitem><simpara>Device ID of device containing file.
+     </simpara></listitem></varlistentry>
+     <varlistentry><term>ino</term>
+      <listitem><simpara>File serial number.
+     </simpara></listitem></varlistentry>
+     <varlistentry><term>mode</term>
+      <listitem><simpara>Mode of file.
+     </simpara></listitem></varlistentry>
+     <varlistentry><term>nlink</term>
+      <listitem><simpara>Number of hard links to the file.
+     </simpara></listitem></varlistentry>
+     <varlistentry><term>uid</term>
+      <listitem><simpara>User ID of file.
+     </simpara></listitem></varlistentry>
+     <varlistentry><term>gid</term>
+      <listitem><simpara>Group ID of file.
+     </simpara></listitem></varlistentry>
+     <varlistentry><term>rdev</term>
+      <listitem><simpara>Device ID (if file is character or block
+        special).</simpara></listitem></varlistentry>
+     <varlistentry><term>size</term>
+      <listitem><simpara>For regular files, the file size in bytes.
+        For symbolic links, the length in bytes of the pathname contained
+        in the symbolic link.
+        For a shared memory object, the length in bytes.
+        For a typed memory object, the length in bytes.
+        For other file types, the use of this field is unspecified.
+     </simpara></listitem></varlistentry>
+     <varlistentry><term>atime</term>
+      <listitem><simpara>Time of last access (as the number of seconds
+        since 1900-01-01).</simpara></listitem></varlistentry>
+     <varlistentry><term>mtime</term>
+      <listitem><simpara>Time of last data modification (as the number of
+        seconds since 1900-01-01).</simpara></listitem></varlistentry>
+     <varlistentry><term>ctime</term>
+      <listitem><simpara>Time of last status change (as the number of
+        seconds since 1900-01-01).</simpara></listitem></varlistentry>
+     <varlistentry><term>blksize</term>
+      <listitem><simpara>A file system-specific preferred I/O block size
+        for this object.  In some file system types, this may vary from
+        file to file.</simpara></listitem></varlistentry>
+     <varlistentry><term>blocks</term>
+      <listitem><simpara>Number of blocks allocated for this object.
+     </simpara></listitem></varlistentry></variablelist>
+    All slots are read-only.
+   </para><simpara>If the system does not support a particular
+    field (e.g., &win32; prior to 2000 does not have hard links), &nil;
+    (or the default, like 1 for the number of hard links for old
+    &win32;) is returned.
    </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
-  </simpara></listitem></varlistentry>
+ </simpara></listitem></varlistentry>
+ <varlistentry id="stat-vfs"><term><literal
+      role="sexp">(<function>POSIX:STAT-VFS</function>
+    &path-r;)</literal></term>
+ <listitem><para>Return the <type>stat-vfs</type> struct.
+   &path-r; can be a &stream-t;, a &pathname-t;, a &string-t; or a
+   &number-t; (on a &unix; system, meaning &file-des;).
+   The first slot of the structure returned is the string
+   or the number on which &statvfs;/&fstatvfs; was called.
+   The other slots are members of the <type>struct statvfs</type>:
+   <variablelist>
+    <varlistentry><term>bsize</term>
+     <listitem><simpara>File system block size.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>frsize</term>
+     <listitem><simpara>Fundamental file system block size.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>blocks</term>
+     <listitem><simpara>Total number of blocks on file system in units
+       of <literal>frsize</literal>.</simpara></listitem></varlistentry>
+    <varlistentry><term>bfree</term>
+     <listitem><simpara>Total number of free blocks.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>bavail</term>
+     <listitem><simpara>Number of free blocks available to
+       non-privileged processes.</simpara></listitem></varlistentry>
+    <varlistentry><term>files</term>
+     <listitem><simpara>Total number of file serial numbers.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>ffree</term>
+     <listitem><simpara>Total number of free file serial numbers.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>favail</term>
+     <listitem><simpara>Number of file serial numbers available to
+       non-privileged processes.</simpara></listitem></varlistentry>
+    <varlistentry><term>fsid</term>
+     <listitem><simpara>File system ID.</simpara></listitem></varlistentry>
+    <varlistentry><term>flag</term>
+     <listitem><simpara>List of platform-dependent values, such as &ro-k;.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>namemax</term>
+     <listitem><simpara>Maximum filename length.
+   </simpara></listitem></varlistentry></variablelist>
+   All slots are read-only.
+  </para><simpara>[&unix; systems only at this time, patches are welcome.]
+ </simpara></listitem></varlistentry>
  <varlistentry id="file-info"><term><literal
     role="sexp">(<function>POSIX:FILE-INFO</function>
     &path-r;)</literal></term>
