@@ -825,6 +825,9 @@ parse-error
 (parse-namestring "foo48:a" (logical-pathname "foo49:"))
 error
 
+(logical-pathname "sys:foo.bar.")
+parse-error
+
 (pathname-match-p 34 "*")
 type-error
 
