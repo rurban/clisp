@@ -78,8 +78,6 @@ CL_CANONICAL_HOST_CPU
 dnl
 dnl           checks for compiler characteristics
 dnl
-AC_C_CONST
-                      dnl DEFS const
 AC_C_INLINE
                       dnl DEFS inline
 CL_VOID

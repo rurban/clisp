@@ -31,10 +31,6 @@
 
 /* compiler characteristics */
 
-/* AC_C_CONST */
-/* Define this as empty if your compiler doesn't support the `const' keyword. */
-#undef const
-
 /* RL_VOID */
 /* Define this as `char' if your compiler doesn't understand the void type. */
 #undef void
