@@ -1,5 +1,10 @@
 2004-11-07  Bruno Haible  <bruno@clisp.org>
 
+	* clos-class5.lisp (update-instance-for-different-class@generic-function):
+	Update the generic function.
+
+2004-11-07  Bruno Haible  <bruno@clisp.org>
+
 	* clos-class5.lisp (update-instance-for-different-class@method):
 	Update the generic function to which the method belongs.
 
