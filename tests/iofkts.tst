@@ -783,7 +783,7 @@ T
 #+CLISP
 (write-to-string (make-instance 'c2 'b 123 'cc 42) :pretty t)
 #+CLISP
-"#[C2 CC 42 B 123]"
+"#[C2 B 123 CC 42]"
 
 #+(and CLISP :enable-risky-tests)
 (write-to-string (list (make-instance 'c2 'a 45 'bb 17 'aa 12)

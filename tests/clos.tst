@@ -1156,6 +1156,126 @@ T
       notes)))
 (5 SIMPLE-ERROR 5 5 5 5 NIL)
 
+
+;; Test the :fixed-slot-location option.
+
+; Single class.
+(progn
+  (defclass foo100 () (a b c) (:fixed-slot-locations))
+  (mapcar #'(lambda (name)
+              (let ((slot (find name (clos::class-slots (find-class 'foo100))
+                                :key #'clos::slotdef-name)))
+                (clos::slotdef-location slot)))
+          '(a b c)))
+(1 2 3)
+
+; Simple subclass.
+(progn
+  (defclass foo101a () (a b c) (:fixed-slot-locations))
+  (defclass foo101b (foo101a) (d e f) (:fixed-slot-locations))
+  (mapcar #'(lambda (name)
+              (let ((slot (find name (clos::class-slots (find-class 'foo101b))
+                                :key #'clos::slotdef-name)))
+                (clos::slotdef-location slot)))
+          '(a b c d e f)))
+(1 2 3 4 5 6)
+
+; Subclass with multiple inheritance.
+(progn
+  (defclass foo102a () (a b c) (:fixed-slot-locations))
+  (defclass foo102b () (d e f))
+  (defclass foo102c (foo102a foo102b) (g h i))
+  (mapcar #'(lambda (name)
+              (let ((slot (find name (clos::class-slots (find-class 'foo102c))
+                                :key #'clos::slotdef-name)))
+                (clos::slotdef-location slot)))
+          '(a b c d e f g h i)))
+(1 2 3 4 5 6 7 8 9)
+
+; Subclass with multiple inheritance.
+(progn
+  (defclass foo103a () (a b c))
+  (defclass foo103b () (d e f) (:fixed-slot-locations))
+  (defclass foo103c (foo103a foo103b) (g h i))
+  (mapcar #'(lambda (name)
+              (let ((slot (find name (clos::class-slots (find-class 'foo103c))
+                                :key #'clos::slotdef-name)))
+                (clos::slotdef-location slot)))
+          '(a b c d e f g h i)))
+(4 5 6 1 2 3 7 8 9)
+
+; Subclass with multiple inheritance and collision.
+(progn
+  (defclass foo104a () (a b c) (:fixed-slot-locations))
+  (defclass foo104b () (d e f) (:fixed-slot-locations))
+  (defclass foo104c (foo104a foo104b) (g h i))
+  t)
+ERROR
+
+; Subclass with multiple inheritance and no collision.
+(progn
+  (defclass foo105a () (a b c) (:fixed-slot-locations))
+  (defclass foo105b () () (:fixed-slot-locations))
+  (defclass foo105c (foo105a foo105b) (g h i))
+  (mapcar #'(lambda (name)
+              (let ((slot (find name (clos::class-slots (find-class 'foo105c))
+                                :key #'clos::slotdef-name)))
+                (clos::slotdef-location slot)))
+          '(a b c g h i)))
+(1 2 3 4 5 6)
+
+; Subclass with multiple inheritance and no collision.
+(progn
+  (defclass foo106a () () (:fixed-slot-locations))
+  (defclass foo106b () (d e f) (:fixed-slot-locations))
+  (defclass foo106c (foo106a foo106b) (g h i))
+  (mapcar #'(lambda (name)
+              (let ((slot (find name (clos::class-slots (find-class 'foo106c))
+                                :key #'clos::slotdef-name)))
+                (clos::slotdef-location slot)))
+          '(d e f g h i)))
+(1 2 3 4 5 6)
+
+; Subclass with shared slots.
+(progn
+  (defclass foo107a ()
+    ((a :allocation :instance)
+     (b :allocation :instance)
+     (c :allocation :class)
+     (d :allocation :class)
+     (e :allocation :class))
+    (:fixed-slot-locations))
+  (defclass foo107b (foo107a)
+    ((b :allocation :class)))
+  t)
+ERROR
+
+; Subclass with shared slots and no collision.
+(progn
+  (defclass foo108a ()
+    ((a :allocation :instance)
+     (b :allocation :instance)
+     (c :allocation :class)
+     (d :allocation :class)
+     (e :allocation :class))
+    (:fixed-slot-locations))
+  (defclass foo108b (foo108a)
+    (; (b :allocation :class) ; gives error, see above
+     (c :allocation :instance)
+     (d :allocation :class)
+     (f :allocation :instance)
+     (g :allocation :class)))
+  (mapcar #'(lambda (name)
+              (let ((slot (find name (clos::class-slots (find-class 'foo108b))
+                                :key #'clos::slotdef-name)))
+                (let ((location (clos::slotdef-location slot)))
+                  (if (consp location)
+                    (class-name (clos::cv-newest-class (car location)))
+                    location))))
+          '(a b c d e f g)))
+(1 2 3 foo108b foo108a 4 foo108b)
+
+
 ;;; ensure-generic-function
 ;;; <http://www.lisp.org/HyperSpec/Body/fun_ensure-ge_ric-function.html>
 (ensure-generic-function 'car) error

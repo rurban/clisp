@@ -5173,6 +5173,7 @@ typedef struct {
   gcv_object_t direct_slots            _attribute_aligned_object_;
   gcv_object_t direct_default_initargs _attribute_aligned_object_;
   gcv_object_t direct_accessors        _attribute_aligned_object_;
+  gcv_object_t fixed_slot_locations    _attribute_aligned_object_;
   gcv_object_t instantiated            _attribute_aligned_object_;
   gcv_object_t direct_subclasses       _attribute_aligned_object_; /* list of weak-pointers to all finalized direct subclasses */
   gcv_object_t proto                   _attribute_aligned_object_; /* class prototype - an instance or NIL */

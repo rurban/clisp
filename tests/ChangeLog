@@ -1,3 +1,8 @@
+2004-04-24  Bruno Haible  <bruno@clisp.org>
+
+	* clos.tst: Add tests for :fixed-slot-locations defclass option.
+	* iofkts.tst: Change expected test result.
+
 2004-04-18  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: Check that calling class-prototype doesn't declare a class
