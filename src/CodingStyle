@@ -45,7 +45,7 @@ of 8. If you are using Emacs and want to contribute to CLISP, the best way to
 ensure that you don't send us tabs by mistake is to add the following lines
 to your $HOME/.emacs file:
 
-    ; Tabs are anachronistic.
+    ;; Tabs are anachronistic.
     (setq-default indent-tabs-mode nil)
 
                Lisp indentation and parentheses placement
@@ -157,7 +157,7 @@ If not, please leave them alone and wait for someone to translate them
 to English.  Many files have been already translated by Stefan Kain;
 you may ask him (on <clisp-list>) to translate the file you need.
 
-German variable and funtion names are probably even more disturbing
+German variable and function names are probably even more disturbing
 than the comments, and much harder to handle.  Use babelfish.
 Remember: "fehler" == "error"; "zustand" == "state"
 (this is where the 'z' suffix often comes from).
@@ -215,3 +215,9 @@ Never mix functional changes with formatting/translation changes!
 If you are fixing indentation or translating comments, make a separate
 CVS commit without a ChangeLog entry, then check in your functional
 changes and add the ChangeLog entry.
+
+You are encouraged to add a test case to a file in <clisp/tests/>
+whenever you add a feature or fix a bug, the more tests, the better.
+One requirement must be satisfied after every CVS commit:
+    $ cvs up -C; ./configure --build build-dir
+must pass all tests, the old and the new alike.
