@@ -2339,6 +2339,7 @@ enum { /* The values of this enumeration are 0,1,2,...
   enum_hs_foreign_variable,
   enum_hs_foreign_function,
  #endif
+  enum_hs_realloc_instance,
   enum_hs_weakpointer,
   enum_hs_weakkvt,
   enum_hs_finalizer,
@@ -2445,6 +2446,10 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
  #endif
   {
     case_instance: { /* instance */
+      if (record_flags(TheInstance(obj)) & instflags_forwarded_B) {
+        pighole = &locals->builtins[(int)enum_hs_realloc_instance];
+        break;
+      }
       var object clas = TheInstance(obj)->inst_class;
       var NODE* found = AVL(AVLID,member0)(clas,locals->standard_classes.tree);
       if (found == (NODE*)NULL) {

@@ -1269,24 +1269,77 @@ local void gc_markphase (void)
     #if !(exact_uint_size_p(oint_type_len) && ((oint_type_shift%hfintsize)==0) && (tint_type_mask == bit(oint_type_len)-1))
       #ifdef MAP_MEMORY
         # addr contains typeinfo
-        #define set_GCself(p,type,addr)  \
-          ((Varobject)(p))->GCself = type_pointer_object((type)&(tint_type_mask),(addr)&(oint_addr_mask))
+        #define make_GCself(type,addr)  \
+          type_pointer_object((type)&(tint_type_mask),(addr)&(oint_addr_mask))
       #else
         # addr contains no typeinfo
-        #define set_GCself(p,type,addr)  \
-          ((Varobject)(p))->GCself = type_pointer_object((type)&(tint_type_mask),addr)
+        #define make_GCself(type,addr)  \
+          type_pointer_object((type)&(tint_type_mask),addr)
       #endif
-    #else # better: though two memory accesses, but less arithmetics
       #define set_GCself(p,type,addr)  \
-        ((Varobject)(p))->GCself = type_pointer_object(0,addr), \
-        ((Varobject)(p))->header_flags = (type)
+        ((Varobject)(p))->GCself = make_GCself(type,addr)
+    #else # better: though two memory accesses, but less arithmetics
+      #define make_GCself(type,addr)  \
+        type_pointer_object((type)&(tint_type_mask),(addr)&~(oint_type_mask))
+      #define set_GCself(p,type,addr)  \
+        (((Varobject)(p))->GCself = type_pointer_object(0,addr), \
+         ((Varobject)(p))->header_flags = (type))
     #endif
   #else
+    #define make_GCself(type,addr)  /* ignore type */ \
+      as_object((oint)(addr))
     #define set_GCself(p,type,addr)  /* ignore type */ \
-      ((Varobject)(p))->GCself = as_object((oint)(addr))
+      ((Varobject)(p))->GCself = make_GCself(type,addr)
   #endif
 
-# prepare objects of variable length between page->page_start and
+# Special handling of forward pointers among CLOS instances.
+  local void gc_sweep1_instance_forward (aint p2) {
+    var gcv_object_t forward = ((Instance)p2)->inst_class;
+    if (record_flags(TheInstance(forward)) & instflags_relocated_B) {
+      var gcv_object_t target = TheInstance(forward)->GCself;
+      var aint backchain = p2;
+      for (;;) {
+        var gcv_object_t backpointer = ((Varobject)backchain)->GCself;
+        ((Varobject)backchain)->GCself = target;
+        record_flags_set((Record)backchain,instflags_relocated_B);
+        if (record_flags((Record)backchain) & instflags_backpointer_B)
+          backchain = (aint)ThePointer(without_mark_bit(backpointer));
+        else
+          break;
+      }
+    } else {
+      # Leave a backpointer for later fixup.
+      # Each instance can only one forward pointer directly pointing
+      # to it. This ensures that the backchain is a singly linked list.
+      if (record_flags(TheInstance(forward)) & instflags_backpointer_B)
+        /*NOTREACHED*/ abort();
+      TheInstance(forward)->GCself = with_mark_bit(make_GCself(instance_type,p2));
+      record_flags_set(TheInstance(forward),instflags_backpointer_B);
+    }
+    # Don't reclaim the space at p2 during this GC, because
+    # 1. we need the mark bit at p2 so that update() does the
+    #    relocation, and the mark bit tells gc_sweep2_varobject_page
+    #    that the object is not yet reclaimed.
+    # 2. otherwise last_open_ptr may be set to &((Varobject)p2)->GCself
+    #    later.
+  }
+  local void gc_sweep1_instance_target (aint p2, aint p1) {
+    if (record_flags((Instance)p2) & instflags_relocated_B)
+      /*NOTREACHED*/ abort();
+    var gcv_object_t target = with_mark_bit(make_GCself(instance_type,p1));
+    var aint backchain = p2;
+    for (;;) {
+      var gcv_object_t backpointer = ((Varobject)backchain)->GCself;
+      ((Varobject)backchain)->GCself = target;
+      record_flags_set((Record)backchain,instflags_relocated_B);
+      if (record_flags((Record)backchain) & instflags_backpointer_B)
+        backchain = (aint)ThePointer(without_mark_bit(backpointer));
+      else
+        break;
+    }
+  }
+
+# Prepare objects of variable length between page->page_start and
 # page->page_end for compactification below. Therefore, in each marked
 # object the pointer in front is pointed to the location, where the
 # object will be located later (including typeinfo). If the sequencing
@@ -1332,12 +1385,33 @@ local void gc_markphase (void)
           p2 += laenge; goto sweeploop1; # yes -> goto next object
         }
         # object marked
-        *last_open_ptr = pointer_as_object(p2); # store address
-        set_GCself(p2, flags,p1); # enter new address, with old
-                       # typeinfo (the mark bit is contained within)
-        #ifndef TYPECODES
-        mark(p2);
+        # Elimination of forward pointers:
+        #ifdef SPVW_PURE
+        if (heapnr == instance_type)
+        #else
+         #ifdef TYPECODES
+          if ((flags & ~bit(garcol_bit_t)) == instance_type)
+         #else
+          if (record_type((Record)p2) == Rectype_Instance)
+         #endif
         #endif
+          {
+            if (record_flags((Instance)p2) & instflags_forwarded_B) {
+              # A forward pointer.
+              gc_sweep1_instance_forward(p2);
+            } else {
+              # Possibly the target of a forward pointer.
+              gc_sweep1_instance_target(p2,p1);
+            }
+          }
+        else {
+          set_GCself(p2, flags,p1); # enter new address, with old
+                         # typeinfo (the mark bit is contained within)
+          #ifndef TYPECODES
+          mark(p2);
+          #endif
+        }
+        *last_open_ptr = pointer_as_object(p2); # store address
         p2 += laenge; # source address for next object
         p1 += laenge; # destination address for next object
       }
@@ -1356,11 +1430,32 @@ local void gc_markphase (void)
           p2 += laenge; goto sweeploop1; # goto next object
         }
         # object marked
-        set_GCself(p2, flags,p1); # enter new address, with old
-                       # typeinfo (the mark bit is contained within)
-        #ifndef TYPECODES
-        mark(p2);
+        # Elimination of forward pointers:
+        #ifdef SPVW_PURE
+        if (heapnr == instance_type)
+        #else
+         #ifdef TYPECODES
+          if ((flags & ~bit(garcol_bit_t)) == instance_type)
+         #else
+          if (record_type((Record)p2) == Rectype_Instance)
+         #endif
         #endif
+          {
+            if (record_flags((Instance)p2) & instflags_forwarded_B) {
+              # A forward pointer.
+              gc_sweep1_instance_forward(p2);
+            } else {
+              # Possibly the target of a forward pointer.
+              gc_sweep1_instance_target(p2,p1);
+            }
+          }
+        else {
+          set_GCself(p2, flags,p1); # enter new address, with old
+                         # typeinfo (the mark bit is contained within)
+          #ifndef TYPECODES
+          mark(p2);
+          #endif
+        }
         p2 += laenge; # source address for next object
         p1 += laenge; # destination address for next object
         goto sweeploop2;
@@ -1959,13 +2054,13 @@ local void gc_unmarkcheck (void) {
           #endif
         #endif
     # Now all active objects are prepared for update:
-    # For active objects of variable length A2, (A2).L is the address,
+    # For active objects of variable length at objptr, *objptr is the address,
     # where the object will be situated after the GC (incl. Typeinfo and
     # mark bit and poss. symbol-flags).
-    # For active two-pointer-objects A2, A2 either remains
-    # (then the mark bit in (A2) is deleted), or A2 is relocated
-    # (then (A2).L is the new address, without typeinfo, but incl.
-    # mark bit).
+    # For active two-pointer-objects at objptr, objptr either stays where it is
+    # (then the mark bit in *objptr is cleared), or objptr is relocated
+    # (then *objptr is the new address, without typeinfo, but including mark
+    # bit).
     # update phase:
       # The entire LISP-memory is perused and old addresses
       # are replaced with new ones.
@@ -2005,17 +2100,21 @@ local void gc_unmarkcheck (void) {
                 }                                                          \
               }                                                            \
             }
+          #define update_instance_unrealloc  true
           #define update_fpointer_invalid  false
           #define update_fsubr_function false
           #define update_ht_invalid  mark_ht_invalid
+          #define update_in_unrealloc  mark_inst_clean
           #define update_fp_invalid  mark_fp_invalid
           #define update_fs_function(ptr)
           update_varobjects();
           #undef update_fs_function
           #undef update_fp_invalid
+          #undef update_in_unrealloc
           #undef update_ht_invalid
           #undef update_fsubr_function
           #undef update_fpointer_invalid
+          #undef update_instance_unrealloc
           #undef update_page
         #ifdef GENERATIONAL_GC
         # update pointers in the objects of the old generation:
@@ -2543,17 +2642,21 @@ local void gc_unmarkcheck (void) {
                 updater(typecode_at(ptr) & ~bit(garcol_bit_t)); # and advance \
               }                                                               \
             }
+          #define update_instance_unrealloc  false
           #define update_fpointer_invalid  false
           #define update_fsubr_function false
           #define update_ht_invalid  mark_ht_invalid
+          #define update_in_unrealloc(ptr)
           #define update_fp_invalid  mark_fp_invalid
           #define update_fs_function(ptr)
           update_varobjects();
           #undef update_fs_function
           #undef update_fp_invalid
+          #undef update_in_unrealloc
           #undef update_ht_invalid
           #undef update_fsubr_function
           #undef update_fpointer_invalid
+          #undef update_instance_unrealloc
           #undef update_page
     # execution of the relocations in the not entirely emptied pages:
       for_each_varobject_page(page, {
@@ -2746,17 +2849,21 @@ local void gc_unmarkcheck (void) {
           #undef update_conspage
         # update pointers in the objects of variable length:
           #define update_page  update_page_normal
+          #define update_instance_unrealloc  false
           #define update_fpointer_invalid  false
           #define update_fsubr_function  false
           #define update_ht_invalid  mark_ht_invalid
+          #define update_in_unrealloc(ptr)
           #define update_fp_invalid  mark_fp_invalid
           #define update_fs_function(ptr)
           update_varobjects();
           #undef update_fs_function
           #undef update_fp_invalid
+          #undef update_in_unrealloc
           #undef update_ht_invalid
           #undef update_fsubr_function
           #undef update_fpointer_invalid
+          #undef update_instance_unrealloc
           #undef update_page
       # Macro update is now unnecessary:
         #undef update

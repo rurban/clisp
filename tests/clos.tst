@@ -619,6 +619,17 @@ FOO
            (type-of (change-class c 'c1))))))
 ((C2 C1) (C1 C1))
 
+;; Check that a GC collects the forward pointer left over by change-class.
+(progn
+  (defclass c3 () (a b c))
+  (defclass c4 () (b c d e))
+  (let* ((i (make-instance 'c3))
+         (nslots-before (sys::%record-length i)))
+    (change-class i 'c4)
+    (gc)
+    (< nslots-before (sys::%record-length i))))
+T
+  
 ;; update-instance-for-redefined-class
 ;; <http://www.lisp.org/HyperSpec/Body/stagenfun_upd_efined-class.html>
 (progn

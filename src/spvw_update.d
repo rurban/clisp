@@ -17,6 +17,8 @@
 
 # Update the varobject heaps.
 #   #define update_ht_invalid ...
+#   #define update_instance_unrealloc ...
+#   #define update_in_unrealloc ...
 #   #define update_fpointer_invalid ...
 #   #define update_fp_invalid ...
 #   #define update_fsubr_function ...
@@ -28,6 +30,8 @@
 #   #undef update_fsubr_function
 #   #undef update_fp_invalid
 #   #undef update_fpointer_invalid
+#   #undef update_in_unrealloc
+#   #undef update_instance_unrealloc
 #   #undef update_ht_invalid
 # Some possible implementation of update_page.
 #   update_page_normal
@@ -131,6 +135,9 @@
     # which is now changed).                                              \
     if (record_type((Record)ptr) == Rectype_Hashtable) { # a hash-table ? \
       update_ht_invalid((Hashtable)ptr); # yes -> note for reorganisation \
+    } else if (update_instance_unrealloc &&  # Instance ?                 \
+               (record_type((Record)ptr) == Rectype_Instance)) {          \
+      update_in_unrealloc((Record)ptr); # yes -> cleanup forward ptr mark \
     } else if (update_fpointer_invalid &&  # foreign-pointer ?            \
                (record_type((Record)ptr) == Rectype_Fpointer)) {          \
       update_fp_invalid((Record)ptr); # yes -> poss. invalidate           \

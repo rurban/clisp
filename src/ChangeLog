@@ -1,3 +1,24 @@
+2004-02-16  Bruno Haible  <bruno@clisp.org>
+
+	Clean up instance forward pointers during garbage collection.
+	* lispbibl.d (instflags_backpointer_B, instflags_relocated_B,
+	mark_inst_clean): New macros.
+	* spvw_update.d (do_update_record): Obey also update_instance_unrealloc
+	and update_in_unrealloc.
+	* spvw_garcol.d (make_GCself): New macro.
+	(set_GCself): Use it.
+	(gc_sweep1_instance_forward, gc_sweep1_instance_target): New functions.
+	(gc_sweep1_varobject_page): Use them for Instance objects.
+	(gar_col_normal): Set update_instance_unrealloc to true while updating.
+	(gar_col_compact, move_conses): Set update_instance_unrealloc to false
+	while updating.
+	* spvw_memfile.d (savemem, loadmem_from_handle): Set
+	update_instance_unrealloc to false while updating.
+	* predtype.d (enum_hs_realloc_instance): New enum value.
+	(heap_statistics_mapper): Map forwarded instances to
+	EXT::FORWARD-POINTER-INSTANCE.
+	* tests/clos.tst: Add a test for it.
+
 2004-03-18  Sam Steingold  <sds@gnu.org>
 
 	* io.d (circle_p): when SYS::*PRINT-CIRCLE-TABLE* is NIL, assume

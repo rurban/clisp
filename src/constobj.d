@@ -1,6 +1,6 @@
 /*
  * list of all objects known to the C-program ("program-constants")
- * Bruno Haible 1990-2002
+ * Bruno Haible 1990-2004
  * Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2002-02-20
 
@@ -255,6 +255,7 @@
   LISPOBJ(hs_foreign_variable,"FFI::FOREIGN-VARIABLE")
   LISPOBJ(hs_foreign_function,"FFI::FOREIGN-FUNCTION")
   #endif
+  LISPOBJ(hs_realloc_instance,"EXT::FORWARD-POINTER-INSTANCE")
   LISPOBJ(hs_weakpointer,"EXT::WEAK-POINTER")
   LISPOBJ(hs_weakkvt,"EXT::WEAK-KEY-VALUE-TABLE")
   LISPOBJ(hs_finalizer,"EXT::FINALIZER")
