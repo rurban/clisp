@@ -1,5 +1,14 @@
 2002-10-13  Sam Steingold  <sds@gnu.org>
 
+	MAPC[AR|ON|AN]/MAPL[IST] require proper lists
+	* compiler.lisp (c-MAP-on-CARs-inner, c-MAP-on-LISTs, c-MAPL):
+	use ENDP, not ATOM to check for the list end
+	* control.d (MAPCAR_MAPLIST_BODY, MAPC_MAPL_BODY)
+	(MAPCAN_MAPCON_BODY): ditto
+	(ENDP): new macro
+
+2002-10-13  Sam Steingold  <sds@gnu.org>
+
 	* list.d (TAILP): use EQL to compare the sublist, not EQ
 
 2002-10-12  Sam Steingold  <sds@gnu.org>

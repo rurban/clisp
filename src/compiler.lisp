@@ -6619,11 +6619,11 @@ for-value   NIL or T
     (funcall innerst-fun (nreverse itemvars))
     (let ((restvar (car restvars))
           (itemvar (gensym)))
-      `(IF (CONSP ,restvar)
+      `(IF (ENDP ,restvar)
+         (RETURN-FROM ,blockname)
          (LET ((,itemvar (CAR ,restvar)))
            ,(c-MAP-on-CARs-inner innerst-fun blockname (cdr restvars)
-                                 (cons itemvar itemvars)))
-         (RETURN-FROM ,blockname)))))
+                                 (cons itemvar itemvars)))))))
 
 ;; make shift forms for variables: (a b c) --> (a (cdr a) b (cdr b) c (cdr c))
 (defun shift-vars (restvars)
@@ -6659,7 +6659,7 @@ for-value   NIL or T
        (BLOCK ,blockname
          (LET* ,(mapcar #'list restvars forms)
            (TAGBODY ,tag
-             (IF (OR ,@(mapcar #'(lambda (restvar) `(ATOM ,restvar)) restvars))
+             (IF (OR ,@(mapcar #'(lambda (restvar) `(ENDP ,restvar)) restvars))
                (RETURN-FROM ,blockname))
              (SETQ ,erg (,adjoin-fun (FUNCALL ,funform ,@restvars) ,erg))
              (SETQ ,@(shift-vars restvars))
@@ -6703,7 +6703,7 @@ for-value   NIL or T
              (BLOCK ,blockname
                (LET* ,(mapcar #'list restvars forms)
                  (TAGBODY ,tag
-                   (IF (OR ,@(mapcar #'(lambda (restvar) `(ATOM ,restvar))
+                   (IF (OR ,@(mapcar #'(lambda (restvar) `(ENDP ,restvar))
                                      restvars))
                      (RETURN-FROM ,blockname))
                    (FUNCALL ,funform ,@restvars)

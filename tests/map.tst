@@ -140,6 +140,16 @@ ERROR
         (QUOTE (A B C)) (QUOTE (1 2 3)) (QUOTE (U V W)))
 ((A 1 U) (B 2 V) (C 3 W))
 
+(MAPCAR #'(LAMBDA (X Y Z) (LIST X Y Z)) '(A B C) '(1 2 3) '(U V W . X))
+((A 1 U) (B 2 V) (C 3 W))
+
+(MAPCAR #'(LAMBDA (X Y Z) (LIST X Y Z)) '(A B C) '(1 2 3) '(U V . W))
+ERROR
+
+(funcall (compile nil (lambda ()
+                        (mapcar #'(LAMBDA (X Y Z) (LIST X Y Z))
+                                '(A B C) '(1 2 3) '(U V . W)))))
+ERROR
 
 ;; mapc
 (mapc #'abs '(3 -4 2 -5 -6))
