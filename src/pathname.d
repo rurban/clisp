@@ -9375,13 +9375,15 @@ local void directory_search_scandir (bool recursively, signean next_task,
       var struct FileInfoBlock * fibptr = LONGALIGN(&fib);
       if (lock==BPTR_NULL) {
         end_system_call();
-        if (dsp->if_none == DIR_IF_NONE_IGNORE) return;
-        else OS_file_error(STACK_1);
+        if (dsp->if_none == DIR_IF_NONE_IGNORE) {
+          FREE_DYNAMIC_ARRAY(namestring_asciz); return;
+        } else OS_file_error(STACK_1);
       }
       if (! Examine(lock,fibptr) ) {
         UnLock(lock); end_system_call();
-        if (dsp->if_none == DIR_IF_NONE_IGNORE) return;
-        else OS_file_error(STACK_1);
+        if (dsp->if_none == DIR_IF_NONE_IGNORE) {
+          FREE_DYNAMIC_ARRAY(namestring_asciz); return;
+        } else OS_file_error(STACK_1);
       }
       loop {
         if (! ExNext(lock,fibptr) ) # error or directory finished?
@@ -9520,8 +9522,9 @@ local void directory_search_scandir (bool recursively, signean next_task,
         # readdir in resolved directory. directory was resolved earlier
         READDIR_findfirst(namestring_asciz,{
           end_system_call();
-          if (dsp->if_none == DIR_IF_NONE_IGNORE) return;
-          else OS_file_error(STACK_1);
+          if (dsp->if_none == DIR_IF_NONE_IGNORE) {
+            FREE_DYNAMIC_ARRAY(namestring_asciz); return;
+          } else OS_file_error(STACK_1);
         }, break; );
         loop {
           end_system_call();
