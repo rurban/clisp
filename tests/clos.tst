@@ -1787,7 +1787,10 @@ REAL
   (let ((s (make-array 10 :adjustable t :fill-pointer 0)))
     (mc-test-piq 1 2 s)
     s))
-#((1 1 2) (2 1 2) (3 1 2) (4 1 2))
+;#((1 1 2) (2 1 2) (3 1 2) (4 1 2))
+; ANSI CL: "If the two methods play the same role and their order matters,
+;           an error is signaled."
+ERROR
 
 ; Example with :arguments.
 (progn

@@ -40,21 +40,12 @@
 (defvar |#'shared-initialize| nil)
 (defvar *gf-warn-on-replacing-method* t)
 
-;; CLtL2 28.1.6.3., ANSI CL 7.6.3. Agreement on Parameter Specializers and
-;;                                 Qualifiers
+;; CLtL2 28.1.6.3., ANSI CL 7.6.3.
+;; Agreement on Parameter Specializers and Qualifiers
 (defun methods-agree-p (method1 method2)
   (and (equal (std-method-qualifiers method1) (std-method-qualifiers method2))
        (specializers-agree-p (std-method-parameter-specializers method1)
                              (std-method-parameter-specializers method2))))
-(defun specializers-agree-p (specializers1 specializers2)
-  (and (eql (length specializers1) (length specializers2))
-       (every #'same-specializers-p specializers1 specializers2)))
-(defun same-specializers-p (parspec1 parspec2)
-  (or ;; two equal classes?
-      (eq parspec1 parspec2)
-      ;; two equal EQL-specializers?
-      (and (consp parspec1) (consp parspec2)
-           (eql (second parspec1) (second parspec2)))))
 
 ;; CLtL2 28.1.6.4., ANSI CL 7.6.4. Congruent Lambda-lists
 (defun check-signature-congruence (gf method &optional

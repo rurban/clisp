@@ -44,6 +44,18 @@
                               ((> pos1 pos2) (return nil)) ; method1 > method2
                               ))))))))))
 
+;; CLtL2 28.1.6.3., ANSI CL 7.6.3.
+;; Agreement on Parameter Specializers and Qualifiers
+(defun specializers-agree-p (specializers1 specializers2)
+  (and (eql (length specializers1) (length specializers2))
+       (every #'same-specializers-p specializers1 specializers2)))
+(defun same-specializers-p (parspec1 parspec2)
+  (or ;; two equal classes?
+      (eq parspec1 parspec2)
+      ;; two equal EQL-specializers?
+      (and (consp parspec1) (consp parspec2)
+           (eql (second parspec1) (second parspec2)))))
+
 
 ;;; ------------- Error Messages for Long Form Method Combination -------------
 
@@ -84,6 +96,13 @@
   (method-combination-error
     (TEXT "The value of ~S is ~S, should be :MOST-SPECIFIC-FIRST or :MOST-SPECIFIC-LAST.")
     order-form order-value))
+
+(defun call-method-duplicates-error (gf method+groupname)
+  (let ((*method-combination-generic-function* gf)
+        (*method-combination* (gf-method-combination gf)))
+    (method-combination-error
+      (TEXT "Method ~S has the same specializers and different qualifiers than other methods in method group ~S, and is actually used in the effective method.")
+            (car method+groupname) (cdr method+groupname))))
 
 ;;; ----------------------- General Method Combination -----------------------
 
@@ -196,7 +215,7 @@
 ;; 4. an application primitive to use with argument lists for the methods.
 ;; 5. a list of forms representing the arguments to pass to methods.
 ;; 6. a set of macro definitions that defines local macros.
-(defun effective-method-code-bricks (gf methods)
+(defun effective-method-code-bricks (gf methods duplicates)
   (let* ((signature (gf-signature gf))
          (req-num (sig-req-num signature))
          (req-vars (gensym-list req-num))
@@ -235,6 +254,10 @@
               (CALL-METHOD-ARG1-ERROR WHOLE))
             (UNLESS (LISTP NEXT-METHODS-LIST)
               (CALL-METHOD-ARG2-ERROR WHOLE))
+            ,@(when duplicates
+                `((LET ((METHOD+GROUPNAME (ASSOC METHOD ',duplicates :TEST #'EQ)))
+                    (WHEN METHOD+GROUPNAME
+                      (CALL-METHOD-DUPLICATES-ERROR ',gf METHOD+GROUPNAME)))))
             (LET ((NEXT-METHODS-EM-FORM
                     (IF NEXT-METHODS-LIST
                       (LIST 'FUNCTION
@@ -261,9 +284,10 @@
 ;; the next-method support.
 (defun build-effective-method-function-form (generic-function combination methods
                                              effective-method-form
-                                             combination-arguments-lambda-list)
+                                             combination-arguments-lambda-list
+                                             duplicates)
   (multiple-value-bind (lambdalist lambdalist-keypart firstforms apply-fun apply-args macrodefs)
-      (effective-method-code-bricks generic-function methods)
+      (effective-method-code-bricks generic-function methods duplicates)
     (declare (ignore lambdalist-keypart))
     (let* ((declarations (method-combination-declarations combination))
            (ef-fun
@@ -416,7 +440,8 @@
     ;; Build a function form around the inner form:
     (build-effective-method-function-form gf combination methods
       effective-method-form
-      (cdr (assoc ':ARGUMENTS effective-method-options)))))
+      (cdr (assoc ':ARGUMENTS effective-method-options))
+      (cdr (assoc ':DUPLICATES effective-method-options)))))
 
 ;;; ----------------------- Standard Method Combination -----------------------
 
@@ -597,14 +622,42 @@
 
 (defun long-form-method-combination-expander
     (*method-combination-generic-function* *method-combination* options methods)
-  (values
-    (apply (method-combination-long-expander *method-combination*)
-           *method-combination-generic-function* methods options)
-    `((:ARGUMENTS ,@(method-combination-arguments-lambda-list *method-combination*)))))
+  (multiple-value-bind (effective-method-form duplicates)
+      (apply (method-combination-long-expander *method-combination*)
+             *method-combination-generic-function* methods options)
+    (values
+      effective-method-form
+      `((:ARGUMENTS ,@(method-combination-arguments-lambda-list *method-combination*))
+        (:DUPLICATES ,@duplicates)))))
 
 (defun long-form-method-combination-call-next-method-allowed (gf method-combo method)
   (declare (ignore gf method-combo method))
   t)
+
+;; ANSI CL says that when "two methods [with identical specializers, but with
+;; different qualifiers,] play the same role and their order matters, an error
+;; is signaled".
+;; The way we implement this is that after partitioning the sorted list of
+;; applicable methods into method groups, we scan the (still sorted!) lists
+;; of each method group for duplicates. We don't signal an error on them
+;; immediately, because they could be ignored, but instead let CALL-METHOD
+;; signal an error on them.
+(defun long-form-method-combination-collect-duplicates (methods groupname)
+  (let ((duplicates '())
+        (last-was-duplicate nil))
+    (do ((l methods (cdr l)))
+        ((endp (cdr l)))
+      (let ((method1 (first l))
+            (method2 (second l)))
+        (if (specializers-agree-p (std-method-specializers method1)
+                                  (std-method-specializers method2))
+          ;; The specializers agree, so we know the qualifiers must differ.
+          (progn
+            (unless last-was-duplicate (push (cons method1 groupname) duplicates))
+            (push (cons method2 groupname) duplicates)
+            (setq last-was-duplicate t))
+          (setq last-was-duplicate nil))))
+    duplicates))
 
 ;;; ------------------------ DEFINE-METHOD-COMBINATION ------------------------
 
@@ -694,7 +747,8 @@
 ;; Given the normalized method group specifiers, computes
 ;; 1. a function without arguments, that checks the options,
 ;; 2. a function to be applied to a list of methods to produce the effective
-;;    method function's body. The group variables are bound in the body.
+;;    method function's body and the list of duplicate methods. The group
+;;    variables are bound in the body.
 ;; 3. a function to be applied to a single method to produce a qualifiers check.
 (defun compute-method-partition-lambdas (method-groups body)
   (let ((order-bindings nil))
@@ -724,11 +778,29 @@
                  (if (listp patterns)
                    `(OR ,@(mapcar #'compute-match-predicate-1 patterns))
                    `(,patterns QUALIFIERS))))
+             ;; Tests whether there is only a single list of qualifiers that
+             ;; matches the patterns.
+             (match-is-equality-p (ngroup)
+               (let ((patterns (svref ngroup 1)))
+                 ; Already checked above.
+                 (assert (and (or (listp patterns) (symbolp patterns))
+                              (not (null patterns))))
+                 (if (listp patterns)
+                   (and (= (length (remove-duplicates patterns :test #'equal)) 1)
+                        (let ((pattern (first patterns)))
+                          (and (listp pattern) (null (cdr (last pattern))))))
+                   nil)))
              ;; Returns the variable binding for the given normalized method
              ;; group description.
              (compute-variable-binding (ngroup)
                (let ((variable (svref ngroup 0)))
                  `(,variable NIL)))
+             ;; Returns a form that computes the duplicates among the contents
+             ;; of the variable for the given normalized method group description.
+             (compute-duplicates-form (ngroup)
+               (unless (match-is-equality-p ngroup)
+                 (let ((variable (svref ngroup 0)))
+                   `(LONG-FORM-METHOD-COMBINATION-COLLECT-DUPLICATES ,variable ',variable))))
              ;; Returns a form that performs the :required check for the given
              ;; normalized method group description.
              (compute-required-form (ngroup)
@@ -777,7 +849,9 @@
             (push qualifier-test-form check-forms)))
         (setq match-clauses (nreverse match-clauses))
         (setq check-forms (nreverse check-forms))
-        (let ((order-forms
+        (let ((duplicates-forms
+                (delete nil (mapcar #'compute-duplicates-form method-groups)))
+              (order-forms
                 (delete nil (mapcar #'compute-reorder-form method-groups))))
           (values
             `(LAMBDA ()
@@ -796,9 +870,12 @@
                      (DECLARE (IGNORABLE QUALIFIERS))
                      (COND ,@match-clauses
                            (T (INVALID-METHOD-QUALIFIERS-ERROR *METHOD-COMBINATION-GENERIC-FUNCTION* METHD)))))
-                 ,@order-forms
-                 ,@(delete nil (mapcar #'compute-required-form method-groups))
-                 (PROGN ,@body)))
+                 (LET ,(if duplicates-forms `((DUPLICATES (NCONC ,@duplicates-forms))) '())
+                   ,@order-forms
+                   ,@(delete nil (mapcar #'compute-required-form method-groups))
+                   (VALUES
+                     (PROGN ,@body)
+                     ,(if duplicates-forms 'DUPLICATES 'NIL)))))
             `(LAMBDA (GF METHD)
                (LET ((QUALIFIERS (METHOD-QUALIFIERS METHD)))
                  (DECLARE (IGNORABLE QUALIFIERS))
