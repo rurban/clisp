@@ -341,7 +341,7 @@
 
 2002-03-02  Sam Steingold  <sds@gnu.org>
 
-	YAICBCFA (yet another ICONV_CONST build problem fix attempt)
+	fixed bug #[ 506098 ]: ICONV_CONST-related build problems
 	* stream.d: check ICONV_CONST before using it
 	* unixconf.h.in (ICONV_CONST): reverted the 2001-12-25 patch:
 	use #undef, not #define; just like all other *_CONST macros
