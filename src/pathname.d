@@ -8107,7 +8107,7 @@ LISPFUNN(rename_file,2)
     }
 
 # check the :DIRECTION argument
-global direction_t check_direction (const object dir) {
+global direction_t check_direction (object dir) {
   if (eq(dir,unbound) || eq(dir,S(Kinput)))
     return DIRECTION_INPUT;
   else if (eq(dir,S(Kinput_immutable)))
@@ -8127,7 +8127,7 @@ global direction_t check_direction (const object dir) {
 }
 
 # check the :IF-DOES-NOT-EXIST argument
-global if_does_not_exist_t check_if_does_not_exist (const object if_not_exist)
+global if_does_not_exist_t check_if_does_not_exist (object if_not_exist)
 {
   if (eq(if_not_exist,unbound))
     return IF_DOES_NOT_EXIST_UNBOUND;
@@ -8147,7 +8147,7 @@ global if_does_not_exist_t check_if_does_not_exist (const object if_not_exist)
 }
 
 # check the :IF-EXISTS argument
-global if_exists_t check_if_exists (const object if_exists) {
+global if_exists_t check_if_exists (object if_exists) {
   if (eq(if_exists,unbound))
     return IF_EXISTS_UNBOUND;
   else if (eq(if_exists,S(Kerror)))
