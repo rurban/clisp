@@ -6228,7 +6228,7 @@ global object iconv_range(encoding,start,end)
         if (outcount > 0) {
           UnbufferedStreamLow_write_array(stream)(stream,&tmpbuf[0],outcount);
         }
-        #undef tmpbufsize;
+        #undef tmpbufsize
       }
   #else
     #define oconv_unshift_output_unbuffered(stream)
@@ -7621,7 +7621,7 @@ typedef struct strm_i_buffered_extrafields_struct {
           # position incrementieren:
           BufferedStream_position(stream) += outcount;
         }
-        #undef tmpbufsize;
+        #undef tmpbufsize
       }
   #else
     #define oconv_unshift_output_buffered(stream)
