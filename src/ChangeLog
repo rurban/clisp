@@ -1,3 +1,10 @@
+2002-08-09  Sam Steingold  <sds@gnu.org>
+
+	avoid compiler warning in (defun z () #'(lambda () (z)))
+	* compiler.lisp (defining-p): new function
+	(in-defun-p): use it
+	(note-function-used): use it instead of IN-DEFUN-P
+
 2002-08-07  Sam Steingold  <sds@gnu.org>
 
 	* charstrg.d (MAKE-STRING) [HAVE_SMALL_SSTRING]: create a string
