@@ -1,5 +1,28 @@
 1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * modules/clx/new-clx/link.sh: Add -L/usr/X11R6/lib -lX11 to
+          NEW_LIBS. Necessary since 1999-03-08 change.
+        * modules/clx/new-clx/clx.f (pathname_encoding, misc_encoding): New
+          macros.
+          (with_stringable_0): Add an encoding argument.
+          (get_font, get_xatom_general, enum_error, make_xatom,
+           XLIB:OPEN-DISPLAY): Use misc_encoding.
+          (XLIB:DISPLAY-AUTHORIZATION-DATA, XLIB:DISPLAY-AUTHORIZATION-NAME):
+          Allocate empty string via allocate_string.
+          (XLIB:DISPLAY-VENDOR, XLIB:DISPLAY-HOST): Use misc_encoding.
+          (general_draw_text): If UNICODE, use the -16 variant functions.
+          (XLIB:OPEN-FONT, XLIB:FONT-PATH, XLIB:FONT-PATH-SETTER,
+           XLIB:LIST-FONT-NAMES, XLIB:LIST-FONTS, XLIB:FONT-PROPERTIES): Use
+          misc_encoding.
+          (XLIB:TEXT-EXTENTS, XLIB:TEXT-WIDTH): If UNICODE, use the -16
+          variant functions.
+          (XLIB:ALLOC-COLOR, XLIB:LOOKUP-COLOR, XLIB:ATOM-NAME,
+           XLIB:GET-PROPERTY, XLIB:LIST-PROPERTIES, XLIB:LIST-EXTENSIONS,
+           XLIB:QUERY-EXTENSION): Use misc_encoding.
+          (XPM:READ-FILE-TO-PIXMAP): Use pathname_encoding.
+
+1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * _README: Refer to _README.en unconditionally.
         * makemake.in: Don't refer to `README.en'. `README' is enough.
 
