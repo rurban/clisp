@@ -1,3 +1,7 @@
+2004-06-23  Bruno Haible  <bruno@clisp.org>
+
+	* defpackage.lisp (defpackage): Use (SETF PACKAGE-DOCUMENTATION).
+
 2004-06-22  Sam Steingold  <sds@gnu.org>
 
 	* constsym.d (set_hash_table_weak_p, set_package_lock, setelt)
