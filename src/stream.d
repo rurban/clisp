@@ -13425,32 +13425,28 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
       elif (eq(TheStream(stream)->strm_rd_by,P(rd_by_handle))) # handle, x11socket, socket
         { var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
           begin_system_call();
-          loop
-            { var sintL ergebnis = read(handle,byteptr,len);
-              if (ergebnis<0)
-                {
-                  #if !(defined(AMIGAOS) || defined(WIN32_NATIVE))
-                  if (errno==EINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
-                    interruptp(
-                      { end_system_call();
-                        pushSTACK(S(read_byte_sequence));
-                        fehler(serious_condition,
-                               DEUTSCH ? "~: Ctrl-C: Tastatur-Interrupt" :
-                               ENGLISH ? "~: Ctrl-C: User break" :
-                               FRANCAIS ? "~ : Ctrl-C : Interruption clavier" :
-                               ""
-                              );
-                      });
-                  #endif
-                  OS_error(); # Error melden
-                }
-              if (ergebnis==0) break; # EOF -> fertig
-              byteptr += ergebnis; len -= ergebnis;
-              if (len==0) break; # fertig?
+         {var sintL ergebnis = full_read(handle,byteptr,len);
+          if (ergebnis<0)
+            {
+              #if !(defined(AMIGAOS) || defined(WIN32_NATIVE))
+              if (errno==EINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
+                interruptp(
+                  { end_system_call();
+                    pushSTACK(S(read_byte_sequence));
+                    fehler(serious_condition,
+                           DEUTSCH ? "~: Ctrl-C: Tastatur-Interrupt" :
+                           ENGLISH ? "~: Ctrl-C: User break" :
+                           FRANCAIS ? "~ : Ctrl-C : Interruption clavier" :
+                           ""
+                          );
+                  });
+              #endif
+              OS_error(); # Error melden
             }
+          byteptr += ergebnis;
           end_system_call();
           return byteptr;
-        }
+        }}
       #endif
       #if (defined(X11SOCKETS) || defined(SOCKET_STREAMS)) && defined(WIN32_NATIVE)
       elif (eq(TheStream(stream)->strm_rd_by,P(rd_by_socket))) # x11socket, socket
@@ -13607,33 +13603,29 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               #ifdef GRAPHICS_SWITCH
               if (handle == stdin_handle) switch_text_mode();
               #endif
-              loop
-                { var sintL ergebnis = read(handle,charptr,len);
-                  if (ergebnis<0)
-                    {
-                      #if !(defined(AMIGAOS) || defined(WIN32_NATIVE))
-                      if (errno==EINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
-                        interruptp(
-                          { end_system_call();
-                            run_time_restart();
-                            pushSTACK(S(read_char_sequence));
-                            fehler(serious_condition,
-                                   DEUTSCH ? "~: Ctrl-C: Tastatur-Interrupt" :
-                                   ENGLISH ? "~: Ctrl-C: User break" :
-                                   FRANCAIS ? "~ : Ctrl-C : Interruption clavier" :
-                                   ""
-                                  );
-                          });
-                      #endif
-                      OS_error(); # Error melden
-                    }
-                  if (ergebnis==0) break; # EOF -> fertig
-                  charptr += ergebnis; len -= ergebnis;
-                  if (len==0) break; # fertig?
+             {var sintL ergebnis = full_read(handle,charptr,len);
+              if (ergebnis<0)
+                {
+                  #if !(defined(AMIGAOS) || defined(WIN32_NATIVE))
+                  if (errno==EINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
+                    interruptp(
+                      { end_system_call();
+                        run_time_restart();
+                        pushSTACK(S(read_char_sequence));
+                        fehler(serious_condition,
+                               DEUTSCH ? "~: Ctrl-C: Tastatur-Interrupt" :
+                               ENGLISH ? "~: Ctrl-C: User break" :
+                               FRANCAIS ? "~ : Ctrl-C : Interruption clavier" :
+                               ""
+                              );
+                      });
+                  #endif
+                  OS_error(); # Error melden
                 }
+              charptr += ergebnis; len -= ergebnis;
               end_system_call();
               run_time_restart();
-            }
+            }}
           TheStream(stream)->strm_rd_ch_last =
             (len==0 ? code_char(charptr[-1]) : eof_value);
           TheStream(stream)->strmflags &= ~strmflags_unread_B;
