@@ -8729,6 +8729,7 @@ der Docstring (oder NIL).
                              (LOAD-TIME-VALUE (CLOS:FIND-CLASS ',(clos:class-name type)))
                            )
               ) ) )
+             ;((sys::encodingp type) ...) ; not worth optimizing
     ) ) )
     (c-GLOBAL-FUNCTION-CALL-form `(TYPEP ,objform ,typeform))
 ) )

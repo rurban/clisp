@@ -616,6 +616,29 @@ static const cint nop_page[256] = {
       no: return FALSE;
     }
 
+#ifdef UNICODE
+# UP: Bildet einen Simple-String mit gegebenen Elementen.
+# stringof(len)
+# > uintL len: gewünschte Vektorlänge
+# > auf STACK: len Characters, erstes zuoberst
+# < ergebnis: Simple-String mit diesen Objekten
+# Erhöht STACK
+# verändert STACK, kann GC auslösen
+  global object stringof (uintL len);
+  global object stringof(len)
+    var uintL len;
+    { var object new_string = allocate_string(len);
+      if (len > 0)
+        { var object* topargptr = STACK STACKop len;
+          var object* argptr = topargptr;
+          var chart* ptr = &TheSstring(new_string)->data[0];
+          dotimespC(len,len, { *ptr++ = char_code(NEXT(argptr)); } );
+          set_args_end_pointer(topargptr);
+        }
+      return new_string;
+    }
+#endif
+
 # UP: kopiert einen String und macht dabei einen Simple-String draus.
 # copy_string(string)
 # > string: String

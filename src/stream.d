@@ -3629,6 +3629,7 @@ global uintL iconv_mblen (object encoding, const uintB* src, const uintB* srcend
 global void iconv_mbstowcs (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
 global uintL iconv_wcslen (object encoding, const chart* src, const chart* srcend);
 global void iconv_wcstombs (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+global object iconv_range (object encoding, uintL start, uintL end);
 
 # fehler_iconv_invalid_charset(encoding);
   nonreturning_function(local, fehler_iconv_invalid_charset, (object encoding));
@@ -3663,23 +3664,23 @@ global uintL iconv_mblen(encoding,src,srcend)
           { if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
             OS_error();
           }
-        while (src < srcend)
-          { var const char* inptr = src;
-            var size_t insize = srcend-src;
-            var char* outptr = (char*)tmpbuf;
-            var size_t outsize = tmpbufsize*sizeof(chart);
-            var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
-            if (res == (size_t)(-1))
-              { if (errno == EINVAL) # incomplete input?
-                  break; 
-                else
-                  { var int saved_errno = errno;
-                    iconv_close(cd);
-                    errno = saved_errno;
-                    OS_error();
-              }   }
-            src = inptr; count += (outptr-(char*)tmpbuf);
-          }
+        { var const char* inptr = src;
+          var size_t insize = srcend-src;
+          while (insize > 0)
+            { var char* outptr = (char*)tmpbuf;
+              var size_t outsize = tmpbufsize*sizeof(chart);
+              var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
+              if (res == (size_t)(-1))
+                { if (errno == EINVAL) # incomplete input?
+                    break; 
+                  else
+                    { var int saved_errno = errno;
+                      iconv_close(cd);
+                      errno = saved_errno;
+                      OS_error();
+                }   }
+              count += (outptr-(char*)tmpbuf);
+        }   }
         if (iconv_close(cd) < 0) { OS_error(); }
         end_system_call();
       }});
@@ -3762,27 +3763,27 @@ global uintL iconv_wcslen(encoding,src,srcend)
             OS_error();
           }
         # I don't think we need a call iconv(cd,NULL,....) here.
-        while (src < srcend)
-          { var const char* inptr = (const char*)src;
-            var size_t insize = (char*)srcend-(char*)src;
-            var char* outptr = (char*)tmpbuf;
-            var size_t outsize = tmpbufsize;
-            var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
-            if (res == (size_t)(-1))
-              { if (errno == EILSEQ) # invalid input?
-                  { fehler_unencodable(encoding,*(const chart*)inptr); }
-                elif (errno == EINVAL) # incomplete input?
-                  { NOTREACHED }
-                elif (errno == E2BIG) # output buffer too small?
-                  { NOTREACHED }
-                else
-                  { var int saved_errno = errno;
-                    iconv_close(cd);
-                    errno = saved_errno;
-                    OS_error();
-              }   }
-            src = (const chart*)inptr; count += (outptr-(char*)tmpbuf);
-          }
+        { var const char* inptr = (const char*)src;
+          var size_t insize = (char*)srcend-(char*)src;
+          while (insize > 0)
+            { var char* outptr = (char*)tmpbuf;
+              var size_t outsize = tmpbufsize;
+              var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
+              if (res == (size_t)(-1))
+                { if (errno == EILSEQ) # invalid input?
+                    { fehler_unencodable(encoding,*(const chart*)inptr); }
+                  elif (errno == EINVAL) # incomplete input?
+                    { NOTREACHED }
+                  elif (errno == E2BIG) # output buffer too small?
+                    { NOTREACHED }
+                  else
+                    { var int saved_errno = errno;
+                      iconv_close(cd);
+                      errno = saved_errno;
+                      OS_error();
+                }   }
+              count += (outptr-(char*)tmpbuf);
+        }   }
         if (iconv_close(cd) < 0) { OS_error(); }
         end_system_call();
       }});
@@ -3811,7 +3812,7 @@ global void iconv_wcstombs(encoding,stream,srcp,srcend,destp,destend)
                 OS_error();
               }
             # I don't think we need a call iconv(cd,NULL,....) here.
-            while (insize > 0 && outsize > 0)
+            while (insize > 0)
               { var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
                 if (res == (size_t)(-1))
                   { if (errno == EILSEQ) # invalid input?
@@ -3829,7 +3830,8 @@ global void iconv_wcstombs(encoding,stream,srcp,srcend,destp,destend)
               }
             if (iconv_close(cd) < 0) { OS_error(); }
             end_system_call();
-            ASSERT(insize == 0 && outsize == 0);
+            # Now insize == 0, and if iconv_wcslen has been used to determine
+            # the destination size, then also outsize == 0.
           }});
       }
       else
@@ -3853,6 +3855,75 @@ global void iconv_wcstombs(encoding,stream,srcp,srcend,destp,destend)
       }
     *srcp = (const chart*)inptr;
     *destp = (uintB*)outptr;
+  }
+
+# Determining the range of encodable characters.
+global object iconv_range(encoding,start,end)
+  var object encoding;
+  var uintL start;
+  var uintL end;
+  { var uintL count = 0; # number of intervals already on the STACK
+    with_sstring_0(TheEncoding(encoding)->enc_charset,Symbol_value(S(ascii)),charset_asciz,
+      { begin_system_call();
+       {var iconv_t cd = iconv_open(charset_asciz,CLISP_INTERNAL_CHARSET);
+        if (cd == (iconv_t)(-1))
+          { if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
+            OS_error();
+          }
+        end_system_call();
+        { var uintL i1;
+          var uintL i2;
+          var boolean have_i1_i2 = FALSE; # [i1,i2] = interval being built
+          var uintL i;
+          for (i = start;;)
+            { var chart ch = as_chart(i);
+              var uintB buf[max_bytes_per_chart];
+              var const char* inptr = (const char*)&ch;
+              var size_t insize = sizeof(chart);
+              var char* outptr = (char*)&buf[0];
+              var size_t outsize = max_bytes_per_chart;
+              begin_system_call();
+              { var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
+                if (res == (size_t)(-1))
+                  { if (errno == EILSEQ) # invalid input?
+                      { end_system_call();
+                        # ch not encodable -> finish the interval
+                        if (have_i1_i2)
+                          { pushSTACK(code_char(as_chart(i1))); pushSTACK(code_char(as_chart(i2)));
+                            check_STACK(); count++;
+                          }
+                        have_i1_i2 = FALSE;
+                      }
+                    elif (errno == EINVAL) # incomplete input?
+                      { NOTREACHED }
+                    elif (errno == E2BIG) # output buffer too small?
+                      { NOTREACHED }
+                    else
+                      { var int saved_errno = errno;
+                        iconv_close(cd);
+                        errno = saved_errno;
+                        OS_error();
+                  }   }
+                  else
+                  { end_system_call();
+                    # ch encodable -> extend the interval
+                    if (!have_i1_i2) { have_i1_i2 = TRUE; i1 = i; }
+                    i2 = i;
+                  }
+              }
+              if (i == end) break;
+              i++;
+            }
+          if (have_i1_i2)
+            { pushSTACK(code_char(as_chart(i1))); pushSTACK(code_char(as_chart(i2)));
+              check_STACK(); count++;
+            }
+        }
+        begin_system_call();
+        if (iconv_close(cd) < 0) { OS_error(); }
+        end_system_call();
+      }});
+    return stringof(2*count);
   }
 
 #endif # UNICODE && HAVE_ICONV
