@@ -3,6 +3,10 @@
 	* modules/clx/new-clx/demos/sokoban.lisp: provide "sokoban"
 	(sokoban): check that *display* is alive
 	* modules/clx/new-clx/demos/qix.lisp: provide "qix"
+	* modules/clx/new-clx/demos/clx-demos.lisp (CLX-DEMOS): use XLIB
+	and EXT and shadow some symbols to avoid conflicts
+	(getenv): removed (there is one in EXT)
+	replaced the EVAL-WHEN kludge with REQUIRE
 
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
