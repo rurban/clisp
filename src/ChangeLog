@@ -1,5 +1,9 @@
 2003-07-25  Sam Steingold  <sds@gnu.org>
 
+	* modprep.c: DEFUN can specify side-effect-class
+
+2003-07-25  Sam Steingold  <sds@gnu.org>
+
 	* error.d (check_posfixnum): new function
 	* io.d (PPRINT-INDENT): use check_real()
 	* lisparit.d (fehler_not_N): replaced with check_number()
