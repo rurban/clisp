@@ -64,6 +64,9 @@
 # include <wchar.h>
 #endif
 #include <limits.h>
+#if !defined(NZERO)             /* should be defined in <limits.h> */
+#  define NZERO 20
+#endif
 #if defined(HAVE_SYSLOG_H)
 # include <syslog.h>
 #endif
@@ -221,9 +224,6 @@ DEFUN(POSIX:CLOSELOG,) {
 DEFCHECKER(check_priority_value,suffix=PRIORITY_CLASS,default=0,        \
            REALTIME HIGH ABOVE-NORMAL NORMAL BELOW-NORMAL LOW IDLE)
 #else
-#  if !defined(NZERO)
-#    define NZERO 20
-#  endif
 DEFCHECKER(check_priority_value,default=0,reverse=sint_to_I,                \
            REALTIME=-NZERO HIGH=(-NZERO/2) ABOVE-NORMAL=(-NZERO/4) NORMAL=0 \
            BELOW-NORMAL=(NZERO/4) LOW=(NZERO/2) IDLE=NZERO)

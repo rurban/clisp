@@ -1,5 +1,10 @@
 2005-03-14  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (NZERO) [!NZERO]: define in the
+	preamble so that it is defined before DEFCHECKER output
+
+2005-03-14  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/configure.in: added AC_LIB_LINKFLAGS([db])
 	* modules/berkeley-db/Makefile.in: pass DBCPPFLAGS to CC
 	when building bdb.o
