@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 1999-07-22\n"
-"POT-Creation-Date: 1999-07-20 16:11:34 CEST\n"
-"PO-Revision-Date: 1999-07-20 16:11:34 CEST\n"
+"POT-Creation-Date: 1999-07-21 00:46:18 CEST\n"
+"PO-Revision-Date: 1999-07-21 00:46:18 CEST\n"
 "Last-Translator: Automatically generated <haible@laplace.ilog.fr>\n"
 "Language-Team: Template <xx@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -3474,47 +3474,51 @@ msgstr ""
 msgid "Loading file "
 msgstr ""
 
-#: init.lsp:1305
+#: init.lsp:1280
+msgid " ..."
+msgstr ""
+
+#: init.lsp:1306
 msgid "Loading of file "
 msgstr ""
 
-#: init.lsp:1307
+#: init.lsp:1308
 msgid " is finished."
 msgstr ""
 
-#: init.lsp:1314
+#: init.lsp:1315
 msgid "A file with name ~A does not exist"
 msgstr ""
 
-#: init.lsp:1328
+#: init.lsp:1329
 msgid "~S: missing function name and/or parameter list"
 msgstr ""
 
-#: init.lsp:1336
+#: init.lsp:1337
 msgid "~S: ~S is not a symbol."
 msgstr ""
 
-#: init.lsp:1341
+#: init.lsp:1342
 msgid "~S: special form ~S cannot be redefined."
 msgstr ""
 
-#: init.lsp:1386 macros1.lsp:148
+#: init.lsp:1387 macros1.lsp:148
 msgid "exit clause in ~S must be a list"
 msgstr ""
 
-#: init.lsp:1537
+#: init.lsp:1538
 msgid "~S: cannot define a function from that: ~S"
 msgstr ""
 
-#: init.lsp:1542 clos.lsp:2947 clos.lsp:3004
+#: init.lsp:1543 clos.lsp:2947 clos.lsp:3004
 msgid "~S: the name of a function must be a symbol, not ~S"
 msgstr ""
 
-#: init.lsp:1547
+#: init.lsp:1548
 msgid "~S: function ~S is missing a lambda list"
 msgstr ""
 
-#: init.lsp:1777 conditio.lsp:1457 reploop.lsp:308
+#: init.lsp:1778 conditio.lsp:1457 reploop.lsp:308
 msgid "If you continue (by typing 'continue'): "
 msgstr ""
 
