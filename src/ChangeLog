@@ -1,3 +1,9 @@
+2003-05-29  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 738107 ]: line number of output streams
+	* io.d (pr_stream): do not print lineno for output streams
+	Should we keep both lineno and ch_lpos for all streams?!
+
 2003-05-25  Sam Steingold  <sds@gnu.org>
 
 	* constobj.d (type_packname): include CHARACTER, as per ANSI spec
