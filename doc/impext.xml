@@ -1096,6 +1096,48 @@ N. Gray to X3J13.</para>
    </simpara><simpara>You must define a method for this function.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
+    role="sexp">(<function>stream-read-byte-lookahead</function>
+                 <replaceable>stream</replaceable>)</literal></term>
+  <listitem><simpara>To be called only if
+   <replaceable>stream</replaceable>'s element-type is
+   <literal role="sexp">(unsigned-byte 8)</literal> or
+   <literal role="sexp">(signed-byte 8)</literal>. Returns &t; if
+   <function>lisp:stream-read-byte</function> would return immediately
+   with an integer result. Returns &eof-k; if the &eos; is already known
+   to be reached. If <function>lisp:stream-read-byte</function>'s value
+   is not available immediately, returns &nil; instead of waiting.
+   </simpara><simpara>You must define a method for this function.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term><literal
+    role="sexp">(<function>stream-read-byte-will-hang-p</function>
+                 <replaceable>stream</replaceable>)</literal></term>
+  <listitem><simpara>To be called only if
+   <replaceable>stream</replaceable>'s element-type is
+   <literal role="sexp">(unsigned-byte 8)</literal> or
+   <literal role="sexp">(signed-byte 8)</literal>. Returns &nil; if
+   <function>lisp:stream-read-byte</function> will return immediately.
+   Otherwise it returns true.
+   </simpara><simpara>The default method calls
+   <function>lisp:stream-read-byte-lookahead</function>;
+   this is always sufficient.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term><literal
+    role="sexp">(<function>stream-read-byte-no-hang</function>
+                 <replaceable>stream</replaceable>)</literal></term>
+  <listitem><simpara>To be called only if
+   <replaceable>stream</replaceable>'s element-type is
+   <literal role="sexp">(unsigned-byte 8)</literal> or
+   <literal role="sexp">(signed-byte 8)</literal>. Returns an integer or
+   &eof-k;, like <function>lisp:stream-read-byte</function>, if that
+   would return immediately.  If
+   <function>lisp:stream-read-byte</function>'s value
+   is not available immediately, returns &nil; instead of waiting.
+   </simpara><simpara>The default method calls
+   <function>lisp:stream-read-byte</function> if
+   <function>lisp:stream-read-byte-lookahead</function> returns true;
+   this is always sufficient.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term><literal
     role="sexp">(<function>lisp:stream-read-byte-sequence</function>
                  <replaceable>stream</replaceable>
                  <replaceable>sequence</replaceable> &optional-amp;
