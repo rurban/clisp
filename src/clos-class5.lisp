@@ -688,7 +688,16 @@
             ;; Clear the discriminating function.
             ;; The effective method cache does not need to be invalidated.
             #|(setf (std-gf-effective-method-cache gf) '())|#
-            (finalize-fast-gf gf)))))
+            (finalize-fast-gf gf)))
+        ;; Also, the EQL specializer is recorded in its class. But now its
+        ;; class has changed; we have to record it in the new class.
+        (let ((old-class (class-of previous))
+              (new-class (class-of instance)))
+          (when (semi-standard-class-p old-class)
+            (remove-direct-instance-specializer old-class specializer))
+          (when (and (semi-standard-class-p new-class)
+                     (specializer-direct-methods specializer))
+            (add-direct-instance-specializer new-class specializer)))))
     ;; Copy identically named slots:
     (let ((old-slots (class-slots (class-of previous)))
           (new-slots (class-slots new-class)))
@@ -793,6 +802,7 @@
      &key &allow-other-keys)
   (:method ((instance standard-object) added-slots discarded-slots
             property-list &rest initargs)
+    ;; Check initargs.
     (check-initialization-argument-list initargs 'update-instance-for-redefined-class)
     ;; CLtL2 28.1.9.2., ANSI CL 7.1.2. Validity of initialization arguments
     (let ((class (class-of instance)))

@@ -282,6 +282,14 @@
   (setf (sys::%record-ref class *<semi-standard-class>-instantiated-location*) new-value))
 
 ;; Not in MOP.
+(defun class-direct-instance-specializers-table (class)
+  (accessor-typecheck class 'semi-standard-class 'class-direct-instance-specializers-table)
+  (sys::%record-ref class *<semi-standard-class>-direct-instance-specializers-location*))
+(defun (setf class-direct-instance-specializers-table) (new-value class)
+  (accessor-typecheck class 'semi-standard-class '(setf class-direct-instance-specializers-table))
+  (setf (sys::%record-ref class *<semi-standard-class>-direct-instance-specializers-location*) new-value))
+
+;; Not in MOP.
 (defun class-finalized-direct-subclasses-table (class)
   (accessor-typecheck class 'semi-standard-class 'class-finalized-direct-subclasses-table)
   (sys::%record-ref class *<semi-standard-class>-finalized-direct-subclasses-location*))

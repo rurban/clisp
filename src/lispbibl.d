@@ -5627,6 +5627,7 @@ typedef struct {
   gcv_object_t funcallablep             _attribute_aligned_object_;
   gcv_object_t fixed_slot_locations     _attribute_aligned_object_;
   gcv_object_t instantiated             _attribute_aligned_object_;
+  gcv_object_t direct_instance_specializers _attribute_aligned_object_;
   gcv_object_t finalized_direct_subclasses _attribute_aligned_object_; /* weak-list or weak-hash-table of all finalized direct subclasses */
   gcv_object_t prototype                _attribute_aligned_object_; /* class prototype - an instance or NIL */
   # from here on only for metaclass ⊆ <standard-class>

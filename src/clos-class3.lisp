@@ -616,6 +616,7 @@
                       (some #'class-instantiated (list-all-finalized-subclasses class))))
                (old-direct-superclasses (class-direct-superclasses class))
                (old-direct-accessors (class-direct-accessors class))
+               (old-class-precedence-list (and was-finalized (class-precedence-list class)))
                old-class)
           ;; ANSI CL 4.3.6. Remove accessor methods created by old DEFCLASS.
           (remove-accessor-methods old-direct-accessors)
@@ -671,6 +672,10 @@
                 (setq must-be-finalized t))
               (update-subclasses-for-redefined-class class
                 was-finalized must-be-finalized old-direct-superclasses)))
+          (let ((new-class-precedence-list
+                  (and (>= (class-initialized class) 6) (class-precedence-list class))))
+            (unless (equal old-class-precedence-list new-class-precedence-list)
+              (update-subclass-instance-specializer-generic-functions class)))
           (install-class-direct-accessors class))
         ;; Instances don't need to be updated:
         (progn
@@ -1814,6 +1819,7 @@
     (unless *classes-finished*
       ; Bootstrapping: Simulate the effect of #'%shared-initialize.
       (setf (class-instantiated class) nil)
+      (setf (class-direct-instance-specializers-table class) '())
       (setf (class-finalized-direct-subclasses-table class) '())))
   ; Initialize the remaining <class> slots:
   (setf (class-initialized class) 2) ; mark as not yet finalized
@@ -2022,6 +2028,23 @@
         (when (semi-standard-class-p super)
           (remove-finalized-direct-subclass super class))))))
 
+;; After a class redefinition that changed the class-precedence-list,
+;; update the generic functions that use specializers whose object is a
+;; direct instance of this class or of a subclass.
+(defun update-subclass-instance-specializer-generic-functions (class)
+  (dolist (subclass (list-all-finalized-subclasses class))
+    ;; Since the CPL of the class has changed, the CPL of the subclass has
+    ;; most likely changed as well. It is not worth testing whether it has
+    ;; really changed.
+    (dolist (specializer (list-direct-instance-specializers subclass))
+      ;; specializer's location in the type hierarchy has now changed.
+      (dolist (gf (specializer-direct-generic-functions specializer))
+        (when (typep-class gf <standard-generic-function>)
+          ;; Clear the discriminating function.
+          ;; The effective method cache does not need to be invalidated.
+          #|(setf (std-gf-effective-method-cache gf) '())|#
+          (finalize-fast-gf gf))))))
+
 ;; Store the information needed by the update of obsolete instances in a
 ;; class-version object. Invoked when an instance needs to be updated.
 (defun class-version-compute-slotlists (old-version)
@@ -2060,6 +2083,25 @@
     (setf (cv-slotlists-valid-p old-version) t)))
 
 ;; -------------- Auxiliary functions for <semi-standard-class> --------------
+
+;;; Maintaining the list of eql-specializers of direct instances that are or
+;;; were used in a method. (We need this for notifying the generic functions
+;;; to which these methods belong, when the class or a superclass of it is
+;;; redefined in a way that changes the class-precedence-list.)
+
+#|
+;; Adds a class to the list of direct instance specializers.
+(defun add-direct-instance-specializer (class eql-specializer) ...)
+;; Removes a class from the list of direct instance specializers.
+(defun remove-direct-instance-specializer (class eql-specializer) ...)
+;; Returns the currently existing direct instance specializers, as a freshly
+;; consed list.
+(defun list-direct-instance-specializers (class) ...)
+|#
+(def-weak-set-accessors class-direct-instance-specializers-table eql-specializer
+  add-direct-instance-specializer
+  remove-direct-instance-specializer
+  list-direct-instance-specializers)
 
 ;;; Maintaining the weak references to the finalized direct subclasses.
 ;;; (We need only the finalized subclasses, because:

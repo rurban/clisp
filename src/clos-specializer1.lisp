@@ -130,9 +130,17 @@
   remove-direct-method-internal
   list-direct-methods)
 
+(defun add-direct-method-<specializer>-<method> (specializer method)
+  (add-direct-method-internal specializer method)
+  (when (eql-specializer-p specializer)
+    (let ((its-class (class-of (eql-specializer-singleton specializer))))
+      (when (semi-standard-class-p its-class)
+        (add-direct-instance-specializer its-class specializer)))))
+
 ;; Preliminary.
 (predefun add-direct-method (specializer method)
-  (add-direct-method-internal specializer method))
+  (add-direct-method-<specializer>-<method> specializer method))
+
 (predefun remove-direct-method (specializer method)
   (remove-direct-method-internal specializer method))
 

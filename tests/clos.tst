@@ -1397,6 +1397,116 @@ ERROR
 ((*P* C B A) (*P* B A))
 
 
+;;; Check that redefining a class with different class-precedence-list
+;;; clears the effective-methods or discriminating-function cache of all
+;;; affected generic functions.
+
+;; EQL specializers.
+
+; Case 1: Adding a class to a CPL.
+(progn
+  (defclass testclass45a () ())
+  (defclass testclass45b () ())
+  (defclass testclass45c (testclass45b) ())
+  (let ((inst (make-instance 'testclass45c)))
+    (defgeneric testgf45 (x) (:method-combination list))
+    (defmethod testgf45 list ((x testclass45a)) 'a)
+    (defmethod testgf45 list ((x (eql inst))) 'inst)
+    (list
+      (testgf45 inst)
+      (progn
+        (defclass testclass45b (testclass45a) ())
+        (testgf45 inst)))))
+((INST) (INST A))
+
+; Case 2: Removing a class from a CPL.
+(progn
+  (defclass testclass46a () ())
+  (defclass testclass46b (testclass46a) ())
+  (defclass testclass46c (testclass46b) ())
+  (let ((inst (make-instance 'testclass46c)))
+    (defgeneric testgf46 (x) (:method-combination list))
+    (defmethod testgf46 list ((x testclass46a)) 'a)
+    (defmethod testgf46 list ((x (eql inst))) 'inst)
+    (list
+      (testgf46 inst)
+      (progn
+        (defclass testclass46b () ())
+        (testgf46 inst)))))
+((INST A) (INST))
+
+; Case 3: Reordering a CPL.
+(progn
+  (defclass testclass47a () ())
+  (defclass testclass47b () ())
+  (defclass testclass47c (testclass47a testclass47b) ())
+  (let ((inst (make-instance 'testclass47c)))
+    (defgeneric testgf47 (x))
+    (defmethod testgf47 ((x testclass47a)) 'a)
+    (defmethod testgf47 ((x testclass47b)) 'b)
+    (defmethod testgf47 ((x (eql inst))) (list 'inst (call-next-method)))
+    (list
+      (testgf47 inst)
+      (progn
+        (defclass testclass47c (testclass47b testclass47a) ())
+        (testgf47 inst)))))
+((INST A) (INST B))
+
+;; EQL specializers on change-class'ed instances.
+
+; Case 1: Adding a class to a CPL.
+(progn
+  (defclass testclass48a () ())
+  (defclass testclass48b () ())
+  (defclass testclass48c (testclass48b) ())
+  (let ((inst (make-instance 'standard-object)))
+    (defgeneric testgf48 (x) (:method-combination list))
+    (defmethod testgf48 list ((x testclass48a)) 'a)
+    (defmethod testgf48 list ((x (eql inst))) 'inst)
+    (change-class inst 'testclass48c)
+    (list
+      (testgf48 inst)
+      (progn
+        (defclass testclass48b (testclass48a) ())
+        (testgf48 inst)))))
+((INST) (INST A))
+
+; Case 2: Removing a class from a CPL.
+(progn
+  (defclass testclass49a () ())
+  (defclass testclass49b (testclass49a) ())
+  (defclass testclass49c (testclass49b) ())
+  (let ((inst (make-instance 'standard-object)))
+    (defgeneric testgf49 (x) (:method-combination list))
+    (defmethod testgf49 list ((x testclass49a)) 'a)
+    (defmethod testgf49 list ((x (eql inst))) 'inst)
+    (change-class inst 'testclass49c)
+    (list
+      (testgf49 inst)
+      (progn
+        (defclass testclass49b () ())
+        (testgf49 inst)))))
+((INST A) (INST))
+
+; Case 3: Reordering a CPL.
+(progn
+  (defclass testclass50a () ())
+  (defclass testclass50b () ())
+  (defclass testclass50c (testclass50a testclass50b) ())
+  (let ((inst (make-instance 'standard-object)))
+    (defgeneric testgf50 (x))
+    (defmethod testgf50 ((x testclass50a)) 'a)
+    (defmethod testgf50 ((x testclass50b)) 'b)
+    (defmethod testgf50 ((x (eql inst))) (list 'inst (call-next-method)))
+    (change-class inst 'testclass50c)
+    (list
+      (testgf50 inst)
+      (progn
+        (defclass testclass50c (testclass50b testclass50a) ())
+        (testgf50 inst)))))
+((INST A) (INST B))
+
+
 ;;; ensure-generic-function
 ;;; <http://www.lisp.org/HyperSpec/Body/fun_ensure-ge_ric-function.html>
 (ensure-generic-function 'car) error
