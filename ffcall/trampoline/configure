@@ -3585,27 +3585,31 @@ host_vendor=`echo $host | sed 's/^\(.*\)-\(.*\)-\(.*\)$/\2/'`
 host_os=`echo $host | sed 's/^\(.*\)-\(.*\)-\(.*\)$/\3/'`
 
 
-if test "$host_cpu" = i486 -o "$host_cpu" = i586 -o "$host_cpu" = i686; then
-  host_cpu=i386
-fi
-if test "$host_cpu" = hppa1.0 -o "$host_cpu" = hppa1.1 -o "$host_cpu" = hppa2.0; then
-  host_cpu=hppa
-fi
-if test "$host_cpu" = powerpc; then
-  host_cpu=rs6000
-fi
-if test "$host_cpu" = c1 -o "$host_cpu" = c2 -o "$host_cpu" = c32 -o "$host_cpu" = c34 -o "$host_cpu" = c38 -o "$host_cpu" = c4; then
-  host_cpu=convex
-fi
-if test "$host_cpu" = mips; then
-  echo $ac_n "checking for 64-bit MIPS""... $ac_c" 1>&6
-echo "configure:3603: checking for 64-bit MIPS" >&5
+case "$host_cpu" in
+  i[4567]86 )
+    host_cpu=i386
+    ;;
+  alphaev[4-7] | alphaev56 | alphapca5[67] )
+    host_cpu=alpha
+    ;;
+  hppa1.0 | hppa1.1 | hppa2.0 )
+    host_cpu=hppa
+    ;;
+  powerpc )
+    host_cpu=rs6000
+    ;;
+  c1 | c2 | c32 | c34 | c38 | c4 )
+    host_cpu=convex
+    ;;
+  mips )
+    echo $ac_n "checking for 64-bit MIPS""... $ac_c" 1>&6
+echo "configure:3607: checking for 64-bit MIPS" >&5
 if eval "test \"`echo '$''{'cl_cv_host_mips64'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   
 cat > conftest.$ac_ext <<EOF
-#line 3609 "configure"
+#line 3613 "configure"
 #include "confdefs.h"
 #if defined(_MIPS_SZLONG)
 #if (_MIPS_SZLONG == 64)
@@ -3632,13 +3636,13 @@ if test $cl_cv_host_mips64 = yes; then
   host_cpu=mips64
 else
   echo $ac_n "checking for MIPS with n32 ABI""... $ac_c" 1>&6
-echo "configure:3636: checking for MIPS with n32 ABI" >&5
+echo "configure:3640: checking for MIPS with n32 ABI" >&5
 if eval "test \"`echo '$''{'cl_cv_host_mipsn32'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   
 cat > conftest.$ac_ext <<EOF
-#line 3642 "configure"
+#line 3646 "configure"
 #include "confdefs.h"
 #if __mips >= 3
   yes
@@ -3662,7 +3666,8 @@ if test $cl_cv_host_mipsn32 = yes; then
   host_cpu=mipsn32
 fi
 fi
-fi
+    ;;
+esac
 cat >> confdefs.h <<EOF
 #ifndef __${host_cpu}__
 #define __${host_cpu}__ 1
@@ -3670,7 +3675,7 @@ cat >> confdefs.h <<EOF
 EOF
 
 echo $ac_n "checking whether code in malloc'ed memory is executable""... $ac_c" 1>&6
-echo "configure:3674: checking whether code in malloc'ed memory is executable" >&5
+echo "configure:3679: checking whether code in malloc'ed memory is executable" >&5
 if eval "test \"`echo '$''{'cl_cv_codeexec'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -3686,7 +3691,7 @@ if test "$cross_compiling" = yes; then
   cl_cv_codeexec="guessing yes"
 else
   cat > conftest.$ac_ext <<EOF
-#line 3690 "configure"
+#line 3695 "configure"
 #include "confdefs.h"
 #ifdef __cplusplus
 extern "C" void exit(int);
@@ -3721,7 +3726,7 @@ int main ()
   exit(!((*(int(*)())funcopy)() == 31415926));
 }
 EOF
-if { (eval echo configure:3725: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:3730: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   cl_cv_codeexec=yes
 else
@@ -3783,17 +3788,17 @@ for ac_hdr in sys/cachectl.h
 do
 ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
-echo "configure:3787: checking for $ac_hdr" >&5
+echo "configure:3792: checking for $ac_hdr" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 3792 "configure"
+#line 3797 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:3797: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:3802: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -3825,17 +3830,17 @@ for ac_hdr in sys/m88kbcs.h
 do
 ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
-echo "configure:3829: checking for $ac_hdr" >&5
+echo "configure:3834: checking for $ac_hdr" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 3834 "configure"
+#line 3839 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:3839: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:3844: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
 if test -z "$ac_err"; then
   rm -rf conftest*
