@@ -1,5 +1,11 @@
 2004-05-18  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (number_immediatep): New macro.
+	(positivep, _R_sign) [!TYPECODES]: Use it.
+	* flo_rest.d (floatcase): Likewise.
+
+2004-05-18  Bruno Haible  <bruno@clisp.org>
+
 	Make the Subr objects look like XRecords, to simplify gc_mark.
 	* lispbibl.d (Rectype_Subr): New enumeration item.
 	(subr_t): Add XRECORD_HEADER and move the lispfunction after the
