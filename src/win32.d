@@ -209,6 +209,8 @@ extern_C char *setlocale (int category, const char *locale);
 #define ERROR_SIGINT ERROR_SUCCESS
 /* Like ReadConsoleInput with Length==1, but is interruptible by Ctrl-C. */
 extern BOOL ReadConsoleInput1 (HANDLE ConsoleInput, PINPUT_RECORD Buffer, LPDWORD NumberOfEventsRead);
+/* definition for ssize_t in mingw */
+#include <sys/types.h>
 /* The following functions deal with all kinds of file/pipe/console handles */
 extern int fd_read_wont_hang_p (HANDLE fd);
 extern ssize_t fd_read (HANDLE fd, void* buf, size_t nbyte, perseverance_t persev);
@@ -330,7 +332,6 @@ extern int isatty (HANDLE handle); /* see win32aux.d */
    MSVC4.0 crt/src/time.c.) Better use GetLocalTime().
    //extern void GetLocalTime (SYSTEMTIME* SystemTime);
    But GetLocalTime() ignores the TZ environment variable, so use _ftime(). */
-#include <sys/types.h>
 #include <sys/timeb.h>
 #ifdef MICROSOFT
   #define timeb _timeb
