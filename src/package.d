@@ -1866,11 +1866,10 @@ LISPFUNNR(package_documentation,1) {
 
 /* ((SETF SYS::PACKAGE-DOCUMENTATION) new-value package) */
 LISPFUNN(set_package_documentation,2) {
-  var object pack = test_package_arg(popSTACK());
-  var object value = popSTACK();
-  if (!(nullp(value) || stringp(value)))
-    fehler_string(value);
-  VALUES1(ThePackage(pack)->pack_docstring = value);
+  STACK_0 = test_package_arg(STACK_0);
+  if (!nullp(STACK_1)) STACK_1 = check_string(STACK_1);
+  VALUES1(ThePackage(STACK_0)->pack_docstring = STACK_1);
+  skipSTACK(2);
 }
 
 LISPFUNNR(package_lock,1)
