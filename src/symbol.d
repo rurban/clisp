@@ -403,7 +403,7 @@ LISPFUN(gensym,0,1,norest,nokey,0,NIL)
           }
         else
           { pushSTACK(x); # Wert für Slot DATUM von TYPE-ERROR
-            pushSTACK(O(type_gensym_arg)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+            pushSTACK(O(type_string_integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
             pushSTACK(x);
             pushSTACK(S(gensym));
             fehler(type_error,
