@@ -16,7 +16,7 @@
 
 2001-06-09  Sam Steingold  <sds@gnu.org>
 
-	some compilation errors fixed
+	some MT compilation errors fixed
 	* lispbibl.d (OS_error): [macro]: use asciz_out_1()
 	(SP_bound): [MULTITHREAD]: no semicolon
 	* spvw_circ.d: varbrace does not work with #if,
