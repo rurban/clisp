@@ -38,7 +38,7 @@ local int to_int(x)
 #define VAL_ID(func)  \
  double xx=D_S; int nn=I_S; double res=func(nn,xx); N_D(res,value1)
 
-#if !defined(_MSC_VER)
+#if !defined(WIN32_NATIVE)
 LISPFUNN(erf,1)
 { VAL_D(erf); mv_count=1; }
 
@@ -64,7 +64,7 @@ LISPFUNN(y1,1)
 LISPFUNN(yn,2)
 { VAL_ID(yn); mv_count=1; }
 
-#if !defined(_MSC_VER)
+#if !defined(WIN32_NATIVE)
 LISPFUNN(gamma,1)
 { VAL_D(gamma); mv_count=1; }
 
