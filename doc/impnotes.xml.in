@@ -62,7 +62,7 @@
  <textobject><phrase>[CLISP icon]</phrase></textobject>
 </inlinemediaobject></title>
 
-<subtitle>Last modified: 2000-05-11</subtitle>
+<subtitle>Last modified: 2000-12-02</subtitle>
 
 <para>These notes discuss the &clisp; implementation of &cl; by
 <blockquote><address>
@@ -239,6 +239,8 @@
     [Application delivery with CLISP]</tocentry>
    <tocentry><xref linkend="shell"></xref>
     [Shell, Pipes and Printing]</tocentry>
+   <tocentry><xref linkend="dir-key"></xref>
+    [Directory Access]</tocentry>
    <tocentry><xref linkend="other"></xref>
     [Other]</tocentry>
  </tocchap>
