@@ -277,7 +277,8 @@ LISPFUNN(set,2)
     /* Evaluate `(SETF ,expansion (QUOTE ,value)) */
     pushSTACK(S(setf));
     pushSTACK(TheSymbolmacro(Symbol_value(symbol))->symbolmacro_expansion);
-    pushSTACK(S(quote)); pushSTACK(STACK_(0+3)); pushSTACK(listof(2));
+    pushSTACK(S(quote)); pushSTACK(STACK_(0+3));
+    { object qv = listof(2); pushSTACK(qv); }
     eval_noenv(listof(3)); mv_count=1;
   } else {
     VALUES1(Symbol_value(symbol) = STACK_0);

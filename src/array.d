@@ -4278,9 +4278,11 @@ local uintL test_displaced (uintB eltype, uintL totalsize) {
     var uintB displaced_eltype = array_atype(STACK_1);
     /* displaced_eltype is the ATYPE of the :displaced-to argument. */
     /* compare given element type with it: */
-    if (!(eltype == displaced_eltype)) {
+    if (eltype != displaced_eltype) {
       pushSTACK(displaced_to); /* TYPE-ERROR slot DATUM */
-      pushSTACK(S(array)); pushSTACK(STACK_(5+2)); pushSTACK(listof(2)); /* TYPE-ERROR slot EXPECTED-TYPE */
+      pushSTACK(S(array)); pushSTACK(STACK_(5+2));
+      { /* TYPE-ERROR slot EXPECTED-TYPE */
+        object exp_type = listof(2); pushSTACK(exp_type); }
       pushSTACK(STACK_(5+2)); /* element-type */
       pushSTACK(STACK_2); /* displaced_to */
       pushSTACK(S(Kdisplaced_to));
@@ -4629,7 +4631,8 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
     if (eltype != array_atype(STACK_6)) {
       pushSTACK(STACK_6); /* TYPE-ERROR slot DATUM */
       pushSTACK(S(array)); pushSTACK(STACK_(5+2));
-      pushSTACK(listof(2)); /* TYPE-ERROR slot EXPECTED-TYPE */
+      { /* TYPE-ERROR slot EXPECTED-TYPE */
+        object exp_type = listof(2); pushSTACK(exp_type); }
       pushSTACK(STACK_(5+2)); /* element-type */
       pushSTACK(STACK_(6+3)); /* array */
       pushSTACK(TheSubr(subr_self)->name);

@@ -1,3 +1,14 @@
+2003-07-28  Sam Steingold  <sds@gnu.org>
+
+	pushSTACK(listof()) and STACK_1=listof() are illegal because
+	listof() (and vectorof() &c) modify the STACK,
+	so the whole expression becomes undefined!
+	* control.d (SET): avoid undefined expressions
+	* array.d (test_displaced, ADJUST-ARRAY): ditto
+	* eval.d (interpret_bytecode_): ditto
+	* pathname.d (directory_search_scandir): ditto
+	* socket.d (SOCKET-SERVICE-PORT): ditto
+
 2003-07-28  Stefan Kain  <stefan.kain@freenet.de>
 
 	* flo_rest.d: translated all comments

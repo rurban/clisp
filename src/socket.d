@@ -941,7 +941,7 @@ LISPFUN(socket_service_port,seclass_read,0,2,norest,nokey,0,NIL)
     for (; (se = getservent()); count++) {
       end_system_call();
       servent_to_stack(se);
-      pushSTACK(vectorof(4));
+      { object vec = vectorof(4); pushSTACK(vec); }
       begin_system_call();
     }
     endservent();
@@ -954,7 +954,7 @@ LISPFUN(socket_service_port,seclass_read,0,2,norest,nokey,0,NIL)
       if (!(se==NULL)) {
         end_system_call();
         servent_to_stack(se);
-        pushSTACK(vectorof(4));
+        { object vec = vectorof(4); pushSTACK(vec); }
         begin_system_call();
       }
     }
