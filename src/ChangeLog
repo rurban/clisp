@@ -1,5 +1,15 @@
 2001-05-04  Sam Steingold  <sds@gnu.org>
 
+	ANSI CL compliance: CHAR does not check for FILL-POINTER, ELT does.
+	* sequence.d (seq_check_index): new function
+	(elt, setelt): use it
+	* charstrg.d (unpack_string): new function
+	(unpack_string_rw, unpack_string_ro): use it
+	(char, store_char): call unpack_string() directly
+	instead of unpack_string_r[ow]
+
+2001-05-04  Sam Steingold  <sds@gnu.org>
+
 	Added compile-time signature checking in function calls
 	* compiler.lisp (c-source-location): 2 optional arguments
 	(c-source-point, c-source-point-location, current-function,
