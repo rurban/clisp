@@ -1,3 +1,11 @@
+2004-09-03  Sam Steingold  <sds@gnu.org>
+
+	restored support for older versions of woe32
+	* foreign.d (find_name): find EnumProcessModules dynamically
+	(fEnumProcessModules): new global static
+	* makemake.in (LIBS) [win32]: do NOT link against psapi
+	Reported by Jörg Höhle.
+
 2004-09-02  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (StablehashStructure): Rename field structure_types
