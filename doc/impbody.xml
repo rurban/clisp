@@ -3727,7 +3727,7 @@ functions are provided:
 
 <para>As explicitly permitted by this section, specialized &bit-t; and
  &character-t; &array-t;s are printed with the innermost lists generated
- by the printing algorithm are instead printed using &bit-vector; and
+ by the printing algorithm are instead printed using &bit-vector-t; and
  &string-t; syntax, respectively.</para>
 
 <formalpara id="pr-empty-arr-ansi"><title>Variable &pr-empty-arr-ansi;</title>
@@ -3735,7 +3735,7 @@ functions are provided:
  &array-total-size; (because one of its dimensions is zero) are printed
  with the readable syntax <literal role="data">#A(&eltype-r;
  &dimensions-r; &cont-r;)</literal>, unless the variable
- &pr-empty-arr-ansi; is non-&nil, in which case the arrays are printed
+ &pr-empty-arr-ansi; is non-&nil;, in which case the arrays are printed
  using the &ansi;-prescribed syntax
  <literal role="data">#<replaceable>rank</replaceable>A &cont-r;</literal>
  which often loses the dimension information.</para></formalpara>
