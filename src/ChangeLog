@@ -1,5 +1,12 @@
 2001-06-07  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/mit-clx/clx.lisp (boolean): built-in CLISP type
+	since 1998-04-08, do not redefine
+	* modules/clx/mit-clx/package.lisp (boolean): do not shadow
+	Reported by Paolo Amoroso <amoroso@mclink.it>
+
+2001-06-07  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (LPARTS): add foreign1 only when foreign is in CPARTS
 
 2001-06-02  Sam Steingold  <sds@gnu.org>
