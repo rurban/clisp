@@ -89,6 +89,3 @@
 #ifndef _ALL_SOURCE
 # undef _ALL_SOURCE
 #endif
-
-/* Define to, say, char, if your system does not support void type */
-#undef void
