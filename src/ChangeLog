@@ -1,3 +1,10 @@
+2004-03-10  Sam Steingold  <sds@gnu.org>
+
+	* eval.d (interpret_bytecode) [__APPLE_CC__]: disabled FAST_DISPATCH
+	* lispbibl.d, genclisph.d (nonreturning_function) [__APPLE_CC__]:
+	use `__dead'
+	* lispbibl.d [__APPLE_CC__]: disabled STACK_register and SP_register
+
 2004-03-10  Bruno Haible  <bruno@clisp.org>
 
 	* arisparc.d: Don't use the gas syntax for labels (1b, 1f). Needed
