@@ -2415,26 +2415,21 @@ bash$ ./build-dir/clisp &opt-K; full
    {&arg-r;}*)</code></term>
  <listitem><simpara>This form outputs the string
    <code>(&format; &nil; &fmt-r; {&arg-r;}*)</code>
-   to the &c-lang; output file.
+   to the &c-lang; output file's top level.
    This is usually used to include the relevant header files,
    see <xref linkend="def-c-struct-external"/>
-   and <xref linkend="ffi-extern-output"/>.
- </simpara></listitem></varlistentry>
-
-<varlistentry id="c-init"><term><code>(&c-init-once;
-   &fmt-r; {&arg-r;}*)</code></term>
- <term><code>(&c-init-always; &fmt-r; {&arg-r;}*)</code></term>
- <listitem><simpara>These forms add &c-lang; code
-   <code>(&format; &nil; &fmt-r; {&arg-r;}*)</code>
-   to the appropriate <link linkend="modinit">initialization function</link>.
-</simpara></listitem></varlistentry>
-
-<varlistentry id="c-fini"><term><code>(&c-fini;
-   &fmt-r; {&arg-r;}*)</code></term>
- <listitem><simpara>This form adds &c-lang; code
-   <code>(&format; &nil; &fmt-r; {&arg-r;}*)</code>
-   to the <link linkend="modfini">finalization function</link>.
-</simpara></listitem></varlistentry>
+   and <xref linkend="ffi-extern-output"/>.</simpara>
+  <para>When &fmt-r; is not a &string-t;, is should be a &symbol-t;,
+   and then then the string <code>(&format; &nil; {&arg-r;}*)</code>
+   is added to the appropriate function:<variablelist>
+    <varlistentry><term><constant>:INIT-ALWAYS</constant></term>
+     <term><constant>:INIT-ONCE</constant></term>
+     <listitem><simpara><link linkend="modinit">initialization
+        function</link></simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:FINI</constant></term>
+     <listitem><simpara><link linkend="modfini">finalization
+        function</link></simpara></listitem></varlistentry>
+</variablelist></para></listitem></varlistentry>
 
 <varlistentry id="element"><term><code>(&element;
      &cplace-r; <replaceable>index&sub-1;</replaceable> ...
