@@ -184,7 +184,7 @@ check-configures : $(CONFIGURES) $(CONFIG_H_IN)
 
 
 potfiles :
-	cd src/po ; CLISP=clisp $(MAKE) -f Makefile.devel ; $(MAKE) -f Makefile.devel clean
+	cd src/po && CLISP=clisp $(MAKE) -f Makefile.devel && $(MAKE) -f Makefile.devel clean
 
 
 view-man :
