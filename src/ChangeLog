@@ -1,3 +1,9 @@
+2002-11-03  Sam Steingold  <sds@gnu.org>
+
+	* defs2.lisp (defpackage): accept characters as symbol and
+	package designators
+	* init.lisp (in-package): accept characters as package designators
+
 2002-11-02  Sam Steingold  <sds@gnu.org>
 
 	* package.d (unintern): do not put the same symbol into the
