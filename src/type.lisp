@@ -49,7 +49,9 @@
        (cond ((setq f (get y 'TYPE-SYMBOL)) (funcall f x))
              ((setq f (get y 'TYPE-LIST)) (funcall f x))
              ((setq f (get y 'DEFSTRUCT-DESCRIPTION)) (ds-typep x y f))
-             ((setq f (clos-class y)) (clos::typep-class x f))
+             ((setq f (clos-class y))
+              ; It's not worth handling structure classes specially here.
+              (clos::typep-class x f))
              (t (typespec-error 'typep y))
     )  )
     ((and (consp y) (symbolp (first y)))
