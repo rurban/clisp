@@ -1905,9 +1905,12 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <variablelist><varlistentry><term><envar>CC</envar></term>
        <listitem><simpara>the &c-lang; compiler
    </simpara></listitem></varlistentry>
+ <varlistentry><term><envar>CPPFLAGS</envar></term>
+       <listitem><simpara>flags for the &c-lang; compiler, when preprocessing
+         or compiling</simpara></listitem></varlistentry>
  <varlistentry><term><envar>CFLAGS</envar></term>
-       <listitem><simpara>flags for the &c-lang; compiler, when compiling
-   </simpara></listitem></varlistentry>
+       <listitem><simpara>flags for the &c-lang; compiler, when compiling or
+         linking</simpara></listitem></varlistentry>
  <varlistentry><term><envar>CLFLAGS</envar></term>
        <listitem><simpara>flags for the &c-lang; compiler, when linking
    </simpara></listitem></varlistentry>
