@@ -1,5 +1,14 @@
 2005-02-14  Sam Steingold  <sds@gnu.org>
 
+	* defs1.lisp (require): search in *LIB-DIRECTORY*/dynmod too
+	* makemake.in (install): install dynmod
+	(distrib): distribute dynmod
+	* clisp-link.in (prepare_dynamic_module): new function: prepare
+	the loading infrastructure for the current dynamic module
+	(add-module-set, add-module-sets): call it
+
+2005-02-14  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (DLL): new platform-dependent variable
 	(clisp-link): substitute it
 	* clisp-link.in: use @DLL@ instead of the literal `.so'
