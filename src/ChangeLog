@@ -1,5 +1,15 @@
 1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Reader macro for switching the stream's encoding.
+        * constobj.d (O(charset_package)): New variable.
+        * package.d (init_packages): Create #<PACKAGE CHARSET> and initialize
+          O(charset_package).
+        * constpack.d: Remove #<PACKAGE CHARSET> here.
+        * spvw.d (init_symbol_tab_2): New enum item enum_charset_index.
+        * io.d (closure_reader): Accept "#0Y charset" syntax.
+
+1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * charstrg.d (char_name): Return #\Uxxxx as a name for every Unicode
           character.
           (name_char): Accept #\Uxxxx as a name for any Unicode character.

@@ -2766,8 +2766,11 @@ LISPFUNN(package_iterate,1)
       pushSTACK(coerce_imm_ss(ascii_to_string("SYS")));
       pushSTACK(coerce_imm_ss(ascii_to_string("KEYWORD")));
       pushSTACK(coerce_imm_ss(ascii_to_string("")));
-      # Stackaufbau: "LISP", "SYSTEM", "SYS", "KEYWORD", "".
+      pushSTACK(coerce_imm_ss(ascii_to_string("CHARSET")));
+      # Stackaufbau: "LISP", "SYSTEM", "SYS", "KEYWORD", "", "CHARSET".
       O(all_packages) = NIL; # ALL_PACKAGES := NIL
+      # #<PACKAGE CHARSET> einrichten:
+      O(charset_package) = make_package(popSTACK(),NIL,FALSE); # "CHARSET",()
       # #<PACKAGE KEYWORD> einrichten:
       {var object new_cons = allocate_cons();
        Car(new_cons) = popSTACK(); # ""

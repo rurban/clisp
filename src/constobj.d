@@ -355,6 +355,8 @@
   LISPOBJ(all_packages,".")
   # die Keyword-Package:
   LISPOBJ(keyword_package,".")
+  # die Charset-Package:
+  LISPOBJ(charset_package,".")
   # die Default-Package für *PACKAGE*:
   LISPOBJ(default_package,".")
   # verschiedene Strings und Listen für interaktive Konfliktbehebung:

@@ -4407,14 +4407,24 @@ LISPFUNN(structure_reader,3) # liest #S
 #   #'(lambda (stream sub-char arg)
 #       (declare (ignore sub-char))
 #       (if arg
-#         ; Codevector lesen
-#         (let ((obj (let ((*read-base* 16.)) (read stream t nil t))))
-#           (unless *read-suppress*
-#             (unless (= (length obj) arg)
-#               (error "Falsche Länge eines Closure-Vektors: ~S" arg)
-#             )
-#             (make-code-vector obj) ; Simple-Bit-Vektor, Inhalt: arg Bytes
-#         ) )
+#         (if (eql arg 0)
+#           ; Encoding lesen
+#           (let ((obj
+#                   (let ((*read-suppress* nil)
+#                         (*package* (find-package "CHARSET")))
+#                     (read stream t nil t)
+#                )) )
+#             (setf (stream-external-format stream) obj)
+#             (values)
+#           )
+#           ; Codevector lesen
+#           (let ((obj (let ((*read-base* 16.)) (read stream t nil t))))
+#             (unless *read-suppress*
+#               (unless (= (length obj) arg)
+#                 (error "Falsche Länge eines Closure-Vektors: ~S" arg)
+#               )
+#               (make-code-vector obj) ; Simple-Bit-Vektor, Inhalt: arg Bytes
+#         ) ) )
 #         ; Closure lesen
 #         (let ((obj (read stream t nil t)))
 #           (unless *read-suppress*
@@ -4456,6 +4466,18 @@ LISPFUNN(structure_reader,3) # liest #S
       }}
 LISPFUNN(closure_reader,3) # liest #Y
   { var object* stream_ = test_stream_arg(STACK_2);
+    # bei n=0 ein Encoding lesen:
+    if (eq(STACK_0,Fixnum_0))
+      { dynamic_bind(S(read_suppress),NIL); # *READ-SUPPRESS* an NIL binden
+        dynamic_bind(S(packagestern),O(charset_package)); # *PACKAGE* an #<PACKAGE CHARSET> binden
+       {var object expr = read_recursive_no_dot(stream_); # Ausdruck lesen
+        dynamic_unbind();
+        dynamic_unbind();
+        expr = make_references(expr); # Verweise entflechten
+        pushSTACK(*stream_); pushSTACK(expr);
+        funcall(L(set_stream_external_format),2); # (SYS::SET-STREAM-EXTERNAL-FORMAT stream expr)
+        value1 = NIL; mv_count=0; skipSTACK(3); return; # keine Werte
+      }}
     # bei *READ-SUPPRESS* /= NIL nur ein Objekt lesen:
     if (test_value(S(read_suppress)))
       { read_recursive_no_dot(stream_); # Objekt lesen, wegwerfen
