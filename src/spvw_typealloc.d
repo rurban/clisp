@@ -17,7 +17,7 @@
   global object allocate_xrecord_ (uintW flags_rectype, uintC reclen, uintC recxlen);
   #endif
   #ifndef case_stream
-  global object allocate_stream (uintB strmflags, uintB strmtype, uintC reclen);
+  global object allocate_stream (uintB strmflags, uintB strmtype, uintC reclen, uintC recxlen);
   #endif
   #ifdef FOREIGN
   global object allocate_fpointer (FOREIGN foreign);
@@ -258,15 +258,17 @@
 # allocate_stream(strmflags,strmtype,reclen)
 # > uintB strmflags: Flags
 # > uintB strmtype: nähere Typinfo
-# > uintC reclen: Länge
+# > uintC reclen: Länge in Objekten
+# > uintC recxlen: Extra-Länge in Bytes
 # < ergebnis: LISP-Objekt Stream (Elemente werden mit NIL initialisiert)
 # kann GC auslösen
-  global object allocate_stream (uintB strmflags, uintB strmtype, uintC reclen);
-  global object allocate_stream(strmflags,strmtype,reclen)
+  global object allocate_stream (uintB strmflags, uintB strmtype, uintC reclen, uintC recxlen);
+  global object allocate_stream(strmflags,strmtype,reclen,recxlen)
     var uintB strmflags;
     var uintB strmtype;
     var uintC reclen;
-    { var object obj = allocate_xrecord(0,Rectype_Stream,reclen,0,orecord_type);
+    var uintC recxlen;
+    { var object obj = allocate_xrecord(0,Rectype_Stream,reclen,recxlen,orecord_type);
       TheRecord(obj)->recdata[0] = Fixnum_0; # Fixnum als Platz für strmflags und strmtype
       TheStream(obj)->strmflags = strmflags; TheStream(obj)->strmtype = strmtype;
       return obj;
