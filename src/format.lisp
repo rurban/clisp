@@ -744,6 +744,8 @@
       ;; (so 2^mantprec <= significand < 2^(mantprec+1))
       ;; width : number of digits, that the number (including decimal point)
       ;;         is not to overshoot, or NIL
+      ;;   at least 2: a digit and the decimal point
+      (when width (setq width (max width 2)))
       ;; d : minimum number of digits behind the decimal point or NIL
       ;; k : scaling factor (ref. CLTL p.394)
       ;; dmin : minimum number of digits, that

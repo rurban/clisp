@@ -1,3 +1,9 @@
+2001-09-10  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #458746
+	* format.lisp (format-float-to-string): make sure width is at
+	least 2 (when given): for a digit and for the decimal point
+
 2001-09-09  Stefan Kain  <stefan.kain@freenet.de>
 
 	* format.lisp: translated all comments
