@@ -1333,15 +1333,17 @@ abort continue muffle-warning store-value use-value
               ) ) ) ) )
         )) )
     (defmacro etypecase (keyform &rest keyclauselist)
-      (simply-error 'TYPECASE keyform keyclauselist
-                    (typecase-errorstring keyform keyclauselist)
-                    (typecase-expected-type keyclauselist)
-    ) )
+      (if (assoc t keyclauselist)
+          `(typecase ,keyform ,@keyclauselist)
+          (simply-error 'TYPECASE keyform keyclauselist
+                        (typecase-errorstring keyform keyclauselist)
+                        (typecase-expected-type keyclauselist))))
     (defmacro ctypecase (keyplace &rest keyclauselist)
-      (retry-loop 'TYPECASE keyplace keyclauselist
-                  (typecase-errorstring keyplace keyclauselist)
-                  (typecase-expected-type keyclauselist)
-    ) )
+      (if (assoc t keyclauselist)
+          `(typecase ,keyplace ,@keyclauselist)
+          (retry-loop 'TYPECASE keyplace keyclauselist
+                      (typecase-errorstring keyplace keyclauselist)
+                      (typecase-expected-type keyclauselist))))
     (defmacro ecase (keyform &rest keyclauselist)
       (simply-error 'CASE keyform keyclauselist
                     (case-errorstring keyform keyclauselist)

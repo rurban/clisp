@@ -1,5 +1,10 @@
 2002-11-01  Sam Steingold  <sds@gnu.org>
 
+	* condition.lisp, macros2.lisp (etypecase, ctypecase): when
+	KEYCLAUSELIST contains T, expand to TYPECASE
+
+2002-11-01  Sam Steingold  <sds@gnu.org>
+
 	* sequence.d (valid_type1): NULL --> (LIST 0); CONS --> (LIST (0) *)
 	(fehler_seqtype_length): adjusted accordingly
 	(SEQTYPE_LENGTH_MATCH): new macro
