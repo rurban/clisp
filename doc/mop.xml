@@ -2996,7 +2996,12 @@ restrictions.</para>
 <varlistentry><term><literal role="method">(&add-method;
    (&gf-r; &standard-generic-function-t;)
    (&method-r; &standard-method-t;))</literal></term>
- <listitem>&no-extra-spec;</listitem></varlistentry></variablelist>
+ <listitem>&no-extra-spec;</listitem></varlistentry>
+<varlistentry><term><literal role="method">(&add-method;
+   (&gf-r; &standard-generic-function-t;)
+   (&method-r; &method-t;))</literal></term>
+ <listitem>This method is specified by &ansi-cl;.</listitem></varlistentry>
+</variablelist>
 </section><!-- add-method -->
 
 <section id="mop-remove-method"><title>Generic Function &remove-method;</title>
@@ -3040,7 +3045,12 @@ restrictions.</para>
 <varlistentry><term><literal role="method">(&remove-method;
    (&gf-r; &standard-generic-function-t;)
    (&method-r; &standard-method-t;))</literal></term>
- <listitem>&no-extra-spec;</listitem></varlistentry></variablelist>
+ <listitem>&no-extra-spec;</listitem></varlistentry>
+<varlistentry><term><literal role="method">(&remove-method;
+   (&gf-r; &standard-generic-function-t;)
+   (&method-r; &method-t;))</literal></term>
+ <listitem>This method is specified by &ansi-cl;.</listitem></varlistentry>
+</variablelist>
 </section><!-- mop-remove-method -->
 
 <!-- end generic-function basic customization -->
