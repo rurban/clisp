@@ -1,3 +1,6 @@
+2002-10-04  John Hinsdale <hin@alma.com>
+	* modules/oracle/oracle.lisp: More error checking throughout
+
 2002-10-03  Sam Steingold  <sds@gnu.org>
 
 	* defs2.lisp (read-sequence, write-sequence): when deciding
