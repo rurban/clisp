@@ -2967,7 +2967,7 @@ local Values eval1 (object form)
         goto closure; /* und apply it to the arguments, as above */
       } else {
         pushSTACK(Cdr(form));
-        fun = check_funname(source_program_error,S(eval),fun);
+        fun = check_funname_replacement(source_program_error,S(eval),fun);
         pushSTACK(fun);
         form = allocate_cons();
         Car(form) = popSTACK(); /* fun */
@@ -3964,7 +3964,7 @@ global Values apply (object fun, uintC args_on_stack, object other_args)
     fehler_lambda_expression(S(apply),fun);
   else {
     pushSTACK(other_args);
-    fun = check_funname(type_error,S(apply),fun);
+    fun = check_funname_replacement(type_error,S(apply),fun);
     other_args = popSTACK();
     goto apply_restart;
   }
@@ -4862,7 +4862,7 @@ global Values funcall (object fun, uintC args_on_stack)
   else if (consp(fun) && eq(Car(fun),S(lambda))) /* Cons (LAMBDA ...) ? */
     fehler_lambda_expression(S(funcall),fun);
   else {
-    fun = check_funname(type_error,S(funcall),fun);
+    fun = check_funname_replacement(type_error,S(funcall),fun);
     goto funcall_restart;
   }
   return;

@@ -730,36 +730,37 @@ LISPFUN(clcs_signal,seclass_default,1,0,rest,nokey,0,NIL)
 }
 
 #ifdef FOREIGN
-/* check that the argument is a valid foreign pointer.
- check_fpointer(obj);
- > obj: object
- > restart_p: allow entering a new value
- < a valid foreign pointer
- this is used by foreign.d and also by some modules
- that rely on fpointer but not FFI, e.g., regexp
+/* check_fpointer_replacement(obj,restart_p)
+ > obj: an object
+ > restart_p: flag whether to allow entering a replacement
+ < result: a valid foreign pointer, either the same as obj or a replacement
  can trigger GC */
-global object check_fpointer (object obj, bool restart_p) {
- check_fpointer_restart:
-  if (!fpointerp(obj)) {
-    pushSTACK(NIL);                /* no PLACE */
-    pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(foreign_pointer)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(S(foreign_pointer)); pushSTACK(obj);
-    pushSTACK(TheSubr(subr_self)->name);
-    if (restart_p)
-      check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
-    else fehler(type_error,GETTEXT("~S: ~S is not a ~S"));
-    obj = value1;
-    goto check_fpointer_restart;
-  }
-  if (!fp_validp(TheFpointer(obj))) {
-    pushSTACK(NIL);                /* no PLACE */
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    if (restart_p)
-      check_value(error,GETTEXT("~S: ~S comes from a previous Lisp session and is invalid"));
-    else fehler(error,GETTEXT("~S: ~S comes from a previous Lisp session and is invalid"));
-    obj = value1;
-    goto check_fpointer_restart;
+global object check_fpointer_replacement (object obj, bool restart_p) {
+  for (;;) {
+    if (!fpointerp(obj)) {
+      pushSTACK(NIL);                /* no PLACE */
+      pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
+      pushSTACK(S(foreign_pointer)); /* TYPE-ERROR slot EXPECTED-TYPE */
+      pushSTACK(S(foreign_pointer)); pushSTACK(obj);
+      pushSTACK(TheSubr(subr_self)->name);
+      if (restart_p)
+        check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
+      else
+        fehler(type_error,GETTEXT("~S: ~S is not a ~S"));
+      obj = value1;
+      continue;
+    }
+    if (!fp_validp(TheFpointer(obj))) {
+      pushSTACK(NIL);                /* no PLACE */
+      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+      if (restart_p)
+        check_value(error,GETTEXT("~S: ~S comes from a previous Lisp session and is invalid"));
+      else
+        fehler(error,GETTEXT("~S: ~S comes from a previous Lisp session and is invalid"));
+      obj = value1;
+      continue;
+    }
+    break;
   }
   return obj;
 }
@@ -774,17 +775,20 @@ nonreturning_function(global, fehler_list, (object obj)) {
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,GETTEXT("~S: ~S is not a list"));
 }
-/* ditto - recoverable
+
+/* check_list_replacement(obj)
+ > obj: not a list
+ < result: a list, a replacement
  can trigger GC */
-global object check_list (object obj) {
-  while (!listp(obj)) {
+global object check_list_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
     pushSTACK(S(list)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not a list"));
     obj = value1;
-  }
+  } while (!listp(obj));
   return obj;
 }
 
@@ -800,47 +804,47 @@ nonreturning_function(global, fehler_proper_list, (object caller, object obj))
   fehler(type_error,GETTEXT("~S: A true list must not end with ~S"));
 }
 
-/* UP: error, if an object is not a symbol.
- check_symbol(obj);
- > obj: maybe non-symbol
- < symbol
+/* check_symbol_replacement(obj)
+ > obj: not a symbol
+ < result: a symbol, a replacement
  can trigger GC */
-global object check_symbol (object sy) {
-  while (!symbolp(sy)) {
+global object check_symbol_replacement (object obj) {
+  do {
     var object caller = subr_self;
     caller = (subrp(caller) ? TheSubr(caller)->name : TheFsubr(caller)->name);
     pushSTACK(NIL); /* no PLACE */
-    pushSTACK(sy);        /* TYPE-ERROR slot DATUM */
+    pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
     pushSTACK(S(symbol)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(sy); pushSTACK(caller);
+    pushSTACK(obj); pushSTACK(caller);
     check_value(type_error,GETTEXT("~S: ~S is not a symbol"));
-    sy = value1;
-  }
-  return sy;
+    obj = value1;
+  } while (!symbolp(obj));
+  return obj;
 }
 
-/* UP: signal an error if OBJ is not a non-constant symbol and
- return OBJ otherwise
- > obj: a potential symbol
+/* check_symbol_non_constant_replacement(obj)
+ > obj: not a non-constant symbol
  > caller: a symbol
- < obj: a non-constant symbol
+ < result: a non-constant symbol, a replacement
  can trigger GC */
-global object check_symbol_non_constant (object obj, object caller)
+global object check_symbol_non_constant_replacement (object obj, object caller)
 {
-  while (1) {
+  for (;;) {
     obj = check_symbol(obj);
-    if (!constantp(TheSymbol(obj))) break;
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);
-    pushSTACK(caller);
-    check_value(source_program_error,
-                GETTEXT("~S: ~S is a constant, may not be used as a variable"));
-    obj = value1;
+    if (constantp(TheSymbol(obj))) {
+      pushSTACK(NIL); /* no PLACE */
+      pushSTACK(obj);
+      pushSTACK(caller);
+      check_value(source_program_error,
+                  GETTEXT("~S: ~S is a constant, may not be used as a variable"));
+      obj = value1;
+    }
+    break;
   }
   return obj;
 }
 
-/* YP: signal an error if a non-symbol was declared special
+/* UP: signal an error if a non-symbol was declared special
  returns the symbol
  can trigger GC */
 global object check_symbol_special (object obj, object caller)
@@ -898,25 +902,29 @@ nonreturning_function(global, fehler_posfixnum, (object obj)) {
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,GETTEXT("~S: argument ~S should be a nonnegative fixnum"));
 }
-/* < posfixnum
-   can trigger GC */
-global object check_posfixnum (object obj) {
-  while (!posfixnump(obj)) {
+
+/* check_posfixnum_replacement(obj)
+ > obj: not a fixnum >= 0
+ < result: a fixnum >= 0, a replacement
+ can trigger GC */
+global object check_posfixnum_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);               /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_posfixnum)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: argument ~S should be a nonnegative fixnum"));
     obj = value1;
-  }
+  } while (!posfixnump(obj));
   return obj;
 }
 
-/* check_integer(obj) checks, if obj is a integer number.
- < integer number
+/* check_integer_replacement(obj)
+ > obj: not an integer
+ < result: an integer, a replacement
  can trigger GC */
-global object check_integer (object obj) {
-  while (!integerp(obj)) {
+global object check_integer_replacement (object obj) {
+  do {
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
     pushSTACK(S(integer));      /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -924,11 +932,16 @@ global object check_integer (object obj) {
     pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not an integer"));
     obj = value1;
-  }
+  } while (!integerp(obj));
   return obj;
 }
-global object check_pos_integer (object obj) {
-  while (!integerp(obj) || R_minusp(obj)) {
+
+/* check_pos_integer_replacement(obj)
+ > obj: not an integer >= 0
+ < result: an integer >= 0, a replacement
+ can trigger GC */
+global object check_pos_integer_replacement (object obj) {
+  do {
     pushSTACK(NIL);                /* no PLACE */
     pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -936,7 +949,7 @@ global object check_pos_integer (object obj) {
     pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not a non-negative integer"));
     obj = value1;
-  }
+  } while (!(integerp(obj) && !R_minusp(obj)));
   return obj;
 }
 
@@ -950,9 +963,13 @@ nonreturning_function(global, fehler_char, (object obj)) {
   pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,GETTEXT("~S: argument ~S is not a character"));
 }
-/* can trigger GC */
-global object check_char (object obj) {
-  while (!charp(obj)) {
+
+/* check_char_replacement(obj)
+ > obj: not a character
+ < result: a character, a replacement
+ can trigger GC */
+global object check_char_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);          /* TYPE-ERROR slot DATUM */
     pushSTACK(S(character)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -960,21 +977,23 @@ global object check_char (object obj) {
     pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: argument ~S is not a character"));
     obj = value1;
-  }
+  } while (!charp(obj));
   return obj;
 }
 
-/* error-message, if an argument is not a String:
- > obj: the erroneous argument */
-global object check_string (object obj) {
-  while (!stringp(obj)) {
+/* check_string_replacement(obj)
+ > obj: not a string
+ < result: a string, a replacement
+ can trigger GC */
+global object check_string_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
     pushSTACK(S(string)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: argument ~S is not a string"));
     obj = value1;
-  }
+  } while (!stringp(obj));
   return obj;
 }
 
@@ -1043,7 +1062,7 @@ nonreturning_function(global, fehler_streamtype, (object obj, object type)) {
  > obj: the (possibly) bad argument
  > default: what to return for :DEFAULT
  > keyword_p: true if the object comes from the :EXTERNAL-FORMAT argument
- < encoding
+ < result: an encoding
  can trigger GC */
 global object check_encoding (object arg, const gcv_object_t *e_default,
                               bool keyword_p) {
@@ -1147,11 +1166,12 @@ nonreturning_function(global, fehler_key_badkw,
                  "The allowed keywords are ~S"));
 }
 
-/* error-message, if an argument is not a Function:
- check_function(obj);
- > obj: the erroneous argument */
-global object check_function (object obj) {
-  while (!functionp(obj)) {
+/* check_function_replacement(obj)
+ > obj: not a function
+ < result: a function, a replacement
+ can trigger GC */
+global object check_function_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);         /* TYPE-ERROR slot DATUM */
     pushSTACK(S(function)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -1169,14 +1189,15 @@ global object check_function (object obj) {
       funcall(L(coerce),2);
       obj = value1;
     } else obj = value1;
-  }
+  } while (!functionp(obj));
   return obj;
 }
 
 /* error if funname does not have a function definition
+ check_fdefinition(funname,caller)
  > funname: symbol or (setf symbol)
  > caller: symbol
- < a function object
+ < a function object, possibly also installed as (FDEFINITION funname)
  can trigger GC */
 global object check_fdefinition (object funname, object caller)
 {
@@ -1225,12 +1246,16 @@ global object check_fdefinition (object funname, object caller)
   return def;
 }
 
-/* signal a type-error or source-program-error
- when the argument is not a function name
+/* check_funname_replacement(obj)
+ > errtype: type of condition to signal if obj is not a function name,
+            either type_error or source_program_error
+ > caller: a symbol
+ > obj: not a function name
+ < result: a function name, either the same as obj or a replacement
  can trigger GC */
-global object check_funname (condition_t errtype, object caller, object obj) {
+global object check_funname_replacement (condition_t errtype, object caller, object obj) {
   pushSTACK(caller); /* save */
-  while (!funnamep(obj)) {
+  do {
     caller = STACK_0;
     pushSTACK(NIL); /* no PLACE */
     switch (errtype) {
@@ -1244,7 +1269,7 @@ global object check_funname (condition_t errtype, object caller, object obj) {
     pushSTACK(obj); pushSTACK(caller);
     check_value(errtype,GETTEXT("~S: ~S is not a function name"));
     obj = value1;
-  }
+  } while (!funnamep(obj));
   skipSTACK(1); /* drop caller */
   return obj;
 }
@@ -1299,149 +1324,149 @@ nonreturning_function(global, fehler_too_few_args,
   }
 }
 
-/* error, if argument is not an integer of type `uint8' .
- check_uint8(obj);
- > obj: an object
- < obj: uint8
+/* error, if argument is not an integer in the range of the C type 'uint8'.
+ check_uint8_replacement(obj)
+ > obj: not an integer in the range of uint8
+ < obj: an integer in the range of uint8
  can trigger GC */
-global object check_uint8 (object obj) {
-  while (!uint8_p(obj)) {
+global object check_uint8_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_uint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not an 8-bit number"));
     obj = value1;
-  }
+  } while (!uint8_p(obj));
   return obj;
 }
 
-/* error, if argument is not an integer of type `sint8' .
- check_sint8(obj);
- > obj: an object
- < obj: sint8
+/* error, if argument is not an integer in the range of the C type 'sint8'.
+ check_sint8_replacement(obj)
+ > obj: not an integer in the range of sint8
+ < obj: an integer in the range of sint8
  can trigger GC */
-global object check_sint8 (object obj) {
-  while (!sint8_p(obj)) {
+global object check_sint8_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_sint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not an 8-bit number"));
     obj = value1;
-  }
+  } while (!sint8_p(obj));
   return obj;
 }
 
-/* error, if argument is not an integer of type `uint16' .
- check_uint16(obj);
- > obj: an object
- < obj: uint16
+/* error, if argument is not an integer in the range of the C type 'uint16'.
+ check_uint16_replacement(obj)
+ > obj: not an integer in the range of uint16
+ < obj: an integer in the range of uint16
  can trigger GC */
-global object check_uint16 (object obj) {
-  while (!uint16_p(obj)) {
+global object check_uint16_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_uint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not a 16-bit number"));
     obj = value1;
-  }
+  } while (!uint16_p(obj));
   return obj;
 }
 
-/* error, if argument is not an integer of type `sint16' .
- check_sint16(obj);
- > obj: an object
- < obj: sint16
+/* error, if argument is not an integer in the range of the C type 'sint16'.
+ check_sint16_replacement(obj)
+ > obj: not an integer in the range of sint16
+ < obj: an integer in the range of sint16
  can trigger GC */
-global object check_sint16 (object obj) {
-  while (!sint16_p(obj)) {
+global object check_sint16_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_sint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not a 16-bit number"));
     obj = value1;
-  }
+  } while (!sint16_p(obj));
   return obj;
 }
 
-/* error, if argument is not an integer of type `uint32' .
- check_uint32(obj);
- > obj: an object
- < obj: uint32
+/* error, if argument is not an integer in the range of the C type 'uint32'.
+ check_uint32_replacement(obj)
+ > obj: not an integer in the range of uint32
+ < obj: an integer in the range of uint32
  can trigger GC */
-global object check_uint32 (object obj) {
-  while (!uint32_p(obj)) {
+global object check_uint32_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_uint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not an 32-bit number"));
     obj = value1;
-  }
+  } while (!uint32_p(obj));
   return obj;
 }
 
-/* error, if argument is not an integer of type `sint32' .
- check_sint32(obj);
- > obj: an object
- < obj: sint32
+/* error, if argument is not an integer in the range of the C type 'sint32'.
+ check_sint32_replacement(obj)
+ > obj: not an integer in the range of sint32
+ < obj: an integer in the range of sint32
  can trigger GC */
-global object check_sint32 (object obj) {
-  while (!sint32_p(obj)) {
+global object check_sint32_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_sint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not an 32-bit number"));
     obj = value1;
-  }
+  } while (!sint32_p(obj));
   return obj;
 }
 
-/* error, if argument is not an integer of type `uint64' .
- check_uint64(obj);
- > obj: an object
- < obj: uint64
+/* error, if argument is not an integer in the range of the C type 'uint64'.
+ check_uint64_replacement(obj)
+ > obj: not an integer in the range of uint64
+ < obj: an integer in the range of uint64
  can trigger GC */
-global object check_uint64 (object obj) {
-  while (!uint64_p(obj)) {
+global object check_uint64_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_uint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not an 64-bit number"));
     obj = value1;
-  }
+  } while (!uint64_p(obj));
   return obj;
 }
 
-/* error, if argument is not an integer of type `sint64' .
- check_sint64(obj);
- > obj: an object
- < obj: sint64
+/* error, if argument is not an integer in the range of the C type 'sint64'.
+ check_sint64_replacement(obj)
+ > obj: not an integer in the range of sint64
+ < obj: an integer in the range of sint64
  can trigger GC */
-global object check_sint64 (object obj) {
-  while (!sint64_p(obj)) {
+global object check_sint64_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_sint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not an 64-bit number"));
     obj = value1;
-  }
+  } while (!sint64_p(obj));
   return obj;
 }
 
-/* error, if argument is not an integer of type `uint' .
- check_uint(obj);
- > obj: an object
- < obj: uint
+/* error, if argument is not an integer in the range of the C type 'uint'.
+ check_uint_replacement(obj)
+ > obj: not an integer in the range of uint
+ < obj: an integer in the range of uint
  can trigger GC */
-global object check_uint (object obj) {
-  while (!uint_p(obj)) {
+global object check_uint_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
    #if (int_bitsize==16)
@@ -1452,17 +1477,17 @@ global object check_uint (object obj) {
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not an `unsigned int' number"));
     obj = value1;
-  }
+  } while (!uint_p(obj));
   return obj;
 }
 
-/* error, if argument is not an integer of type `sint' .
- check_sint(obj);
- > obj: an object
- < obj: sint
+/* error, if argument is not an integer in the range of the C type 'sint'.
+ check_sint_replacement(obj)
+ > obj: not an integer in the range of sint
+ < obj: an integer in the range of sint
  can trigger GC */
-global object check_sint (object obj) {
-  while (!sint_p(obj)) {
+global object check_sint_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
    #if (int_bitsize==16)
@@ -1473,17 +1498,17 @@ global object check_sint (object obj) {
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not an `int' number"));
     obj = value1;
-  }
+  } while (!sint_p(obj));
   return obj;
 }
 
-/* error, if argument is not an integer of type `ulong' .
- check_ulong(obj);
- > obj: an object
- < obj: ulong
+/* error, if argument is not an integer in the range of the C type 'ulong'.
+ check_ulong_replacement(obj)
+ > obj: not an integer in the range of ulong
+ < obj: an integer in the range of ulong
  can trigger GC */
-global object check_ulong (object obj) {
-  while (!ulong_p(obj)) {
+global object check_ulong_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
    #if (long_bitsize==32)
@@ -1494,17 +1519,17 @@ global object check_ulong (object obj) {
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not a `unsigned long' number"));
     obj = value1;
-  }
+  } while (!ulong_p(obj));
   return obj;
 }
 
-/* error, if argument is not an integer of type `slong' .
- check_slong(obj);
- > obj: an object
- < obj: slong
+/* error, if argument is not an integer in the range of the C type 'slong'.
+ check_slong_replacement(obj)
+ > obj: not an integer in the range of slong
+ < obj: an integer in the range of slong
  can trigger GC */
-global object check_slong (object obj) {
-  while (!slong_p(obj)) {
+global object check_slong_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
    #if (long_bitsize==32)
@@ -1515,40 +1540,40 @@ global object check_slong (object obj) {
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not a `long' number"));
     obj = value1;
-  }
+  } while (!slong_p(obj));
   return obj;
 }
 
 /* error, if argument is not a Single-Float.
- check_ffloat(obj);
- > obj: an object
- < obj: Single-Float
+ check_ffloat_replacement(obj)
+ > obj: not a single-float
+ < obj: a single-float
  can trigger GC */
-global object check_ffloat (object obj) {
-  while (!single_float_p(obj)) {
+global object check_ffloat_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
     pushSTACK(S(single_float)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not a single-float"));
     obj = value1;
-  }
+  } while (!single_float_p(obj));
   return obj;
 }
 
 /* error, if argument is not a Double-Float.
- check_dfloat(obj);
- > obj: an object
- < obj: Double-Float
+ check_dfloat_replacement(obj)
+ > obj: not a double-float
+ < obj: a double-float
  can trigger GC */
-global object check_dfloat (object obj) {
-  while (!double_float_p(obj)) {
+global object check_dfloat_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
     pushSTACK(S(double_float)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not a double-float"));
     obj = value1;
-  }
+  } while (!double_float_p(obj));
   return obj;
 }

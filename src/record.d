@@ -199,10 +199,12 @@ LISPFUNNR(make_structure,2) {
   VALUES1(structure); /* structure as value */
 }
 
-/* ensure that OBJ is a structure object and return it
+/* check_structure_replacement(obj)
+ > obj: not a structure object
+ < result: a structure object, a replacement
  can trigger GC */
-global object check_structure (object obj) {
-  while (!structurep(obj)) {
+global object check_structure_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* TYPE-ERROR slot DATUM */
     pushSTACK(S(structure_object)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -210,7 +212,7 @@ global object check_structure (object obj) {
     pushSTACK(TheSubr(subr_self)->name); /* function name */
     check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
     obj = value1;
-  }
+  } while (!structurep(obj));
   return obj;
 }
 

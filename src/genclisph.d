@@ -243,6 +243,9 @@ int main(int argc, char* argv[])
   printf("extern struct registers * callback_saved_registers;\n");
   printf("#endif\n");
 #endif
+  printf("#if !defined(__GNUC__) && !defined(inline)\n");
+  printf("#define inline\n");
+  printf("#endif\n");
   printf("#ifdef __cplusplus\n");
   printf("#define BEGIN_DECLS  extern \"C\" {\n");
   printf("#define END_DECLS    }\n");
@@ -1175,7 +1178,7 @@ int main(int argc, char* argv[])
    printf2("#define short_float_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)sfloat_type);
  #else
    printf2("#define short_float_p(obj)  ((as_oint(obj) & &d) == %d)\n",(6 << imm_type_shift) | immediate_bias,sfloat_type);
- #endif
+ #endif */
  #ifdef TYPECODES
    printf2("#define single_float_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)ffloat_type);
  #else
@@ -1186,7 +1189,7 @@ int main(int argc, char* argv[])
  #else
    printf1("#define double_float_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Dfloat);
  #endif
- #ifdef TYPECODES
+/* #ifdef TYPECODES
    printf2("#define long_float_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)lfloat_type);
  #else
    printf1("#define long_float_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Lfloat);
@@ -1231,7 +1234,7 @@ int main(int argc, char* argv[])
 #endif
   printf3("#define uint64_p(obj)  (posfixnump(obj) || (posbignump(obj) && (Bignum_length(obj) <= %d) && ((Bignum_length(obj) < %d) || (TheBignum(obj)->data[0] < (uintD)bit(%d)) )))\n",ceiling(65,intDsize),ceiling(65,intDsize),64%intDsize);
   printf3("#define sint64_p(obj)  (fixnump(obj) || (bignump(obj) && (Bignum_length(obj) <= %d) && ((Bignum_length(obj) < %d) || ((TheBignum(obj)->data[0] ^ (BN_positivep(obj) ? (uintD)0 : ~(uintD)0)) < (uintD)bit(%d)) )))\n",ceiling(64,intDsize),ceiling(64,intDsize),63%intDsize);
-/* #if (int_bitsize==16)
+ #if (int_bitsize==16)
    printf("#define uint_p  uint16_p\n");
    printf("#define sint_p  sint16_p\n");
  #else
@@ -1244,7 +1247,7 @@ int main(int argc, char* argv[])
  #else
    printf("#define ulong_p  uint64_p\n");
    printf("#define slong_p  sint64_p\n");
- #endif */
+ #endif
 #if (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
   printf("%s\n","#define SP()  ({var aint __SP; __asm__ __volatile__ (\"movl %%esp,%0\" : \"=g\" (__SP) : ); __SP; })");
 #endif
@@ -1737,32 +1740,107 @@ int main(int argc, char* argv[])
 /* printf("nonreturning_function(extern, fehler_list, (object obj));\n");
  printf("nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));\n");
  printf("nonreturning_function(extern, fehler_vector, (object obj));\n");
- printf("extern object check_char (object obj);\n");
+ printf("extern object check_char_replacement (object obj);\n");
+ printf("static inline object check_char (object obj) {"
+         " if (!charp(obj))"
+           " obj = check_char_replacement(obj);"
+         " return obj;"
+       " }\n");
  printf("nonreturning_function(extern, fehler_sstring, (object obj));\n"); */
   printf("nonreturning_function(extern, fehler_string_integer, (object obj));\n");
   printf("nonreturning_function(extern, fehler_proper_list, (object caller, object obj));\n");
   printf("nonreturning_function(extern, fehler_key_odd, (uintC argcount, object caller));\n");
   printf("nonreturning_function(extern, fehler_key_badkw, (object fun, object key, object val, object kwlist));\n");
   printf("extern void check_value (condition_t errortype, const char * errorstring);\n");
-  printf("extern object check_posfixnum (object obj);\n");
-  printf("extern object check_string (object obj);\n");
+  printf("extern object check_posfixnum_replacement (object obj);\n");
+  printf("extern object check_string_replacement (object obj);\n");
  #ifdef FOREIGN
-  printf("extern object check_fpointer (object obj, bool restart_p);\n");
+  printf("extern object check_fpointer_replacement (object obj, bool restart_p);\n");
  #endif
-  printf("extern object check_uint8 (object obj);\n");
-  printf("extern object check_sint8 (object obj);\n");
-  printf("extern object check_uint16 (object obj);\n");
-  printf("extern object check_sint16 (object obj);\n");
-  printf("extern object check_uint32 (object obj);\n");
-  printf("extern object check_sint32 (object obj);\n");
-  printf("extern object check_uint64 (object obj);\n");
-  printf("extern object check_sint64 (object obj);\n");
-  printf("extern object check_uint (object obj);\n");
-  printf("extern object check_sint (object obj);\n");
-  printf("extern object check_ulong (object obj);\n");
-  printf("extern object check_slong (object obj);\n");
-  printf("extern object check_sfloat (object obj);\n");
-  printf("extern object check_dfloat (object obj);\n");
+  printf("extern object check_uint8_replacement (object obj);\n");
+  printf("static inline object check_uint8 (object obj) {"
+          " if (!uint8_p(obj))"
+            " obj = check_uint8_replacement(obj);"
+          " return obj;"
+        " }\n");
+  printf("extern object check_sint8_replacement (object obj);\n");
+  printf("static inline object check_sint8 (object obj) {"
+          " if (!sint8_p(obj))"
+            " obj = check_sint8_replacement(obj);"
+          " return obj;"
+        " }\n");
+  printf("extern object check_uint16_replacement (object obj);\n");
+  printf("static inline object check_uint16 (object obj) {"
+          " if (!uint16_p(obj))"
+            " obj = check_uint16_replacement(obj);"
+          " return obj;"
+        " }\n");
+  printf("extern object check_sint16_replacement (object obj);\n");
+  printf("static inline object check_sint16 (object obj) {"
+          " if (!sint16_p(obj))"
+            " obj = check_sint16_replacement(obj);"
+          " return obj;"
+        " }\n");
+  printf("extern object check_uint32_replacement (object obj);\n");
+  printf("static inline object check_uint32 (object obj) {"
+          " if (!uint32_p(obj))"
+            " obj = check_uint32_replacement(obj);"
+          " return obj;"
+        " }\n");
+  printf("extern object check_sint32_replacement (object obj);\n");
+  printf("static inline object check_sint32 (object obj) {"
+          " if (!sint32_p(obj))"
+            " obj = check_sint32_replacement(obj);"
+          " return obj;"
+        " }\n");
+  printf("extern object check_uint64_replacement (object obj);\n");
+  printf("static inline object check_uint64 (object obj) {"
+          " if (!uint64_p(obj))"
+            " obj = check_uint64_replacement(obj);"
+          " return obj;"
+        " }\n");
+  printf("extern object check_sint64_replacement (object obj);\n");
+  printf("static inline object check_sint64 (object obj) {"
+          " if (!sint64_p(obj))"
+            " obj = check_sint64_replacement(obj);"
+          " return obj;"
+        " }\n");
+  printf("extern object check_uint_replacement (object obj);\n");
+  printf("static inline object check_uint (object obj) {"
+          " if (!uint_p(obj))"
+            " obj = check_uint_replacement(obj);"
+          " return obj;"
+        " }\n");
+  printf("extern object check_sint_replacement (object obj);\n");
+  printf("static inline object check_sint (object obj) {"
+          " if (!sint_p(obj))"
+            " obj = check_sint_replacement(obj);"
+          " return obj;"
+        " }\n");
+  printf("extern object check_ulong_replacement (object obj);\n");
+  printf("static inline object check_ulong (object obj) {"
+          " if (!ulong_p(obj))"
+            " obj = check_ulong_replacement(obj);"
+          " return obj;"
+        " }\n");
+  printf("extern object check_slong_replacement (object obj);\n");
+  printf("static inline object check_slong (object obj) {"
+          " if (!slong_p(obj))"
+            " obj = check_slong_replacement(obj);"
+          " return obj;"
+        " }\n");
+  printf("extern object check_ffloat_replacement (object obj);\n");
+  printf("static inline object check_ffloat (object obj) {"
+          " if (!single_float_p(obj))"
+            " obj = check_ffloat_replacement(obj);"
+          " return obj;"
+        " }\n");
+  printf("extern object check_dfloat_replacement (object obj);\n");
+  printf("static inline object check_dfloat (object obj) {"
+          " if (!double_float_p(obj))"
+            " obj = check_dfloat_replacement(obj);"
+          " return obj;"
+        " }\n");
   printf("extern double to_double (object obj);\n");
   printf("extern int to_int (object obj);\n");
   printf("extern object find_package (object string);\n");
