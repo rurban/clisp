@@ -866,13 +866,13 @@ int main(int argc, char* argv[])
   printf("#define sstring_eltype(ptr)  ((record_type(ptr) - %d) >> 1)\n",Rectype_S8string);
 #endif
   printf("extern bool string_equal (object string1, object string2);\n");
-  /*
   #ifdef TYPECODES
    printf("#define Array_type_simple_bit_vector(atype)  (%d+((atype)<<%d)",Array_type_sbvector,TB0);
    if (TB0+1 != TB1) printf("+((atype)&%d)",bit(TB0+1)-bit(TB1));
    if (TB1+1 != TB2) printf("+((atype)&%d)",bit(TB1+1)-bit(TB2));
    printf(");\n");
   #endif
+  /*
   sprintf(buf,"struct { XRECORD_HEADER gcv_object_t pack_external_symbols%s; gcv_object_t pack_internal_symbols%s; gcv_object_t pack_shadowing_symbols%s; gcv_object_t pack_use_list%s; gcv_object_t pack_used_by_list%s; gcv_object_t pack_name%s; gcv_object_t pack_nicknames%s; } *",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
   emit_typedef(buf,"Package");
   */
