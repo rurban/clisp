@@ -227,6 +227,8 @@
         (accunum-var nil) ; Akkumulationsvariable für count, sum etc.
         (accu-vars-nil nil) ; Akkumulationsvariablen mit Initialwert NIL
         (accu-vars-0 nil) ; Akkumulationsvariablen mit Initialwert 0
+        (accu-table (make-hash-table :warn-if-needs-rehash-after-gc t
+                                     :test 'stablehash-eq)) ; var --> clauses
         (accu-declarations nil) ; Typdeklarationen (umgedrehte Liste von declspecs)
         (initializations nil) ; Bindungen: (init ...) (umgedrehte Liste)
         (seen-for-as-= nil) ; schon eine FOR-AS-= Klausel gesehen?
@@ -245,7 +247,7 @@
              ((NCONC NCONCING APPEND APPENDING)
               (unless (eq (loop-keywordp (caddr rest)) 'INTO)
                 (return nil))))))
-        (results nil)) ; Liste von Ergebnisformen (höchstens eine!)
+        (results nil)) ; alist (value-form . (clause list))
     (labels
       ((next-kw () ; Schaut, ob als nächstes ein Keyword kommt.
                    ; Wenn ja, wird es geliefert. Wenn nein, Ergebnis NIL.
@@ -273,16 +275,43 @@
                    (CONS `(SETF ,tailvar (SETF ,accuvar ,incrementvar)))
                    (t `(SETF ,tailvar (LAST (SETF ,accuvar
                                                   ,incrementvar)))))))))
-       (acculist-var ()
+       (compatible-p (kw1 kw2)
+         ;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-3.html>
+         (let ((ht #,(make-hash-table
+                      :warn-if-needs-rehash-after-gc t
+                      :test 'stablehash-eq
+                      :initial-contents
+                      '((collect . list) (append . list) (nconc . list)
+                        (sum . sum-count) (count . sum-count)
+                        (maximize . max-min) (minimize . max-min)))))
+           (eq (gethash kw1 ht) (gethash kw2 ht))))
+       (new-accu-var (var clause)
+         (let ((others (gethash var accu-table)) bad)
+           (when (setq bad (find (first clause) others
+                                 :key #'first :test-not #'compatible-p))
+             (error-of-type 'source-program-error
+               :form *whole* :detail clause
+               (TEXT "~S: variable ~S is used in incompatible clauses~{ ~A ~S~} and~{ ~A ~S~}")
+               *whole* var clause bad))
+           (setf (gethash var accu-table) (cons clause others))))
+       (new-result (var clause)
+         (let ((pair (assoc var results)))
+           (if pair
+               (push clause (cdr pair))
+               (push (list var clause) results))
+           results))
+       (acculist-var (keyword form)
          (or acculist-var
              (progn (setq acculist-var (gensym "ACCULIST-VAR-"))
                     (push acculist-var accu-vars-nil)
-                    (unless backward-consing-p
-                      (push acculist-var results))
+                    (let ((clause (list keyword form)))
+                      (new-accu-var acculist-var clause)
+                      (unless backward-consing-p
+                        (new-result acculist-var clause)))
                     acculist-var)))
-       (cons-backward (form) ; accuvar is NIL, accufuncsym is CONS
-         (let ((accuvar (acculist-var)))
-           (push `(SYS::LIST-NREVERSE ,accuvar) results)
+       (cons-backward (keyword form) ; accuvar is NIL, accufuncsym is CONS
+         (let ((accuvar (acculist-var keyword form)))
+           (push `((SYS::LIST-NREVERSE ,accuvar) (,keyword ,form)) results)
            `(SETQ ,accuvar (CONS ,form ,accuvar))))
        (parse-kw-p (kw) ; Schaut, ob als nächstes das Keyword kw kommt.
                         ; Wenn ja, wird es übergangen. Wenn nein, Ergebnis NIL.
@@ -392,22 +421,25 @@
                            ;; REVAPPEND/NRECONC now or before
                            (when backward-consing-p
                              (error "~s: internal error: backward consing should be illegal!" *whole*))
-                           (cons-forward form (acculist-var) accufuncsym))
+                           (cons-forward form (acculist-var kw form)
+                                         accufuncsym))
                           (t ; Unnamed acc var & CONS -> cons-backward
-                           (cons-backward form)))))
+                           (cons-backward kw form)))))
                  ((COUNT COUNTING SUM SUMMING MAXIMIZE MAXIMIZING
                    MINIMIZE MINIMIZING)
                   (pop body-rest)
-                  (let ((form (parse-form-or-it kw)) (type 'fixnum)
-                        (accuvar nil))
+                  (let* ((form (parse-form-or-it kw)) (type 'fixnum)
+                         (accuvar nil) (clause (list kw form)))
                     (when (parse-kw-p 'into)
                       (unless (and (consp body-rest)
                                    (symbolp (setq accuvar (pop body-rest))))
                         (loop-syntax-error 'into)))
                     (unless accuvar
                       (setq accuvar
-                        (or accunum-var (setq accunum-var (gensym))))
-                      (push accuvar results))
+                            (or accunum-var
+                                (setq accunum-var (gensym "ACCUNUM-VAR-"))))
+                      (new-result accuvar clause))
+                    (new-accu-var accuvar clause)
                     (when (consp body-rest)
                       (let ((kw2 (loop-keywordp (first body-rest))))
                         (when (or (not kw2) (eq kw2 'of-type))
@@ -544,14 +576,14 @@
                            (WHILE `(UNLESS ,form (LOOP-FINISH)))
                            (UNTIL `(WHEN ,form (LOOP-FINISH)))
                            (ALWAYS
-                             (push 'T results)
+                             (new-result 'T (list kw form))
                              `(UNLESS ,form (RETURN-FROM ,block-name 'NIL)))
                            (NEVER
-                             (push 'T results)
+                             (new-result 'T (list kw form))
                              `(WHEN ,form (RETURN-FROM ,block-name 'NIL)))
                            (THEREIS
                              (let ((dummy (gensym)))
-                               (push 'NIL results)
+                               (new-result 'NIL (list kw form))
                                `(BLOCK ,dummy
                                   (RETURN-FROM ,block-name
                                     (OR ,form (RETURN-FROM ,dummy NIL)))))))
@@ -950,13 +982,13 @@
                      (TEXT "~S: illegal syntax near ~S in ~S")
                      'loop (first body-rest) *whole*)))))))
       ; Noch einige semantische Tests:
-      (setq results (delete-duplicates results :test #'equal))
       (when (> (length results) 1)
         (error-of-type 'source-program-error
           :form *whole* :detail *whole*
-          (TEXT "~S: ambiguous result of loop ~S") 'loop *whole*))
+          (TEXT "~S: ambiguous result:~:{~%~S from ~@{~{~A ~S~}~^, ~}~}")
+          *whole* results))
       (unless (null results)
-        (push `(RETURN-FROM ,block-name ,@results) finally-code))
+        (push `(RETURN-FROM ,block-name ,(caar results)) finally-code))
       ; Initialisierungen abarbeiten und optimieren:
       (let ((initializations1
              (unless (zerop (length *helpvars*))

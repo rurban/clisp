@@ -1,7 +1,14 @@
+2004-10-29  Sam Steingold  <sds@gnu.org>
+
+	* loop.lisp (expand-loop): check that the accumulation variables
+	are re-used compatibly, as described in
+	<http://www.lisp.org/HyperSpec/Body/sec_6-1-3.html>;
+	give a better message for ambiguous results
+
 2004-10-16  Bruno Haible  <bruno@clisp.org>
 
-	* defstruct.lisp (ds-arg-default): Handle the case of a slot without
-	initializer.
+	* defstruct.lisp (ds-arg-default): Handle the case of a slot
+	without initializer.
 	(defstruct): Likewise. Set the initff values of the inherited slots.
 
 2004-10-28  Sam Steingold  <sds@gnu.org>
