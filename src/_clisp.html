@@ -47,6 +47,7 @@
 [ <A HREF="#Option -t"><CODE>-t</CODE> <EM>tempdir</EM></A> ]
 #endif
 [ <A HREF="#Option -M"><CODE>-M</CODE> <EM>memfile</EM></A> ]
+[ <A HREF="#Option -norc"><CODE>-norc</CODE></A> ]
 [ <A HREF="#Option -L"><CODE>-L</CODE> <EM>language</EM></A> ]
 [ <A HREF="#Option -N"><CODE>-N</CODE> <EM>localedir</EM></A> ]
 [ <A HREF="#Option -q"><CODE>-q</CODE></A> ]
@@ -138,6 +139,25 @@ This must be a memory dump produced by the <EM>saveinitmem</EM> function.
 #ifdef UNIX
 It may have been compressed using GNU gzip.
 #endif
+<P>
+
+<DT> <A NAME="Option -norc"> <CODE>-norc</CODE> </A>
+<DD> Normally <CODE>clisp</CODE> loads a user run control (RC) file on
+startup (this happens after the <CODE>-C</CODE> option is processed).
+The file loaded is
+#if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
+<CODE>_clisprc.lsp</CODE> or <CODE>_clisprc.fas</CODE> in the home directory
+<CODE>(user-homedir-pathname)</CODE>,
+#endif
+#if defined(PATHNAME_AMIGAOS)
+<CODE>.clisprc.lsp</CODE> or <CODE>.clisprc.fas</CODE> in the home directory
+<CODE>(user-homedir-pathname)</CODE>,
+#endif
+#if defined(PATHNAME_UNIX)
+<CODE>${HOME}/.clisprc.lsp</CODE> or <CODE>${HOME}/.clisprc.fas</CODE>,
+#endif
+whichever is newest. This option, <CODE>-norc</CODE>, prevents loading of
+the RC file.
 <P>
 
 <DT> <A NAME="Option -L"> <CODE>-L</CODE> <EM>language</EM> </A>
@@ -233,7 +253,8 @@ thus permitting <CODE>clisp</CODE> to be used as a script interpreter.
 #endif
 If <EM>lispfile</EM> is <CODE>-</CODE>, the standard input is used instead of
 a file.
-This option must be the last one.
+This option must be the last one. No <A HREF="#Option -norc">RC file</A>
+will be executed.
 <P>
 
 #ifdef EMUNIX
