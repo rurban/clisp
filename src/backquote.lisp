@@ -1,24 +1,25 @@
-;;;; Backquote-Readmacro
-;;;; Michael Stoll
-;;;; umgeschrieben im Juli/August von Bruno Haible
-;;;; rekursives Backquote 16.-17.8.1989
-;;;; an die übliche Semantik für rekursives Backquote angepasst am 24.5.1992
+;;; backquote read-macro
+;;; Michael Stoll
+;;; Rewritten in July/August by Bruno Haible.
+;;; Recursive backquote 1989-08-16/17
+;;; Adapted to the standard semantics for recursive backquote on 1992-05-24
+;;; German comments translated by Mirian Lennox <mirian@cosmic.com> 2003-01-18
 
 (in-package "SYSTEM")
 
 (proclaim '(special *backquote-level*))
-; NIL oder Anzahl der erlaubten Kommata
-; Wird beim Top-Level-Einsprung in den Reader an NIL gebunden.
+;; Either NIL or the number of nested backquote expressions permitted.
+;; It is bound in the reader at top level.
 
 (proclaim '(special *nsplice-fun*))
-(setq *nsplice-fun* 'NCONC) ; Funktion, die ein NSPLICE ausführt
-; (Wird an 'APPEND gebunden für die Produktion der Ausgabe-Form in
-; verschachtelten Backquotes.)
+(setq *nsplice-fun* 'NCONC) ; Function which NSPLICE calls
+;; (Bound to 'APPEND for the production of the output form in
+;; nested backquotes.)
 
-; Bug: Bei verschachtelten Backquotes werden manche Teilformen mehrfach
-; ausgewertet (nämlich z.B. in der ersten Evaluation Formen, die fürs
-; Ausgeben vor der zweiten Evaluation nötig sind) und sollten deshalb
-; seiteneffektfrei sein.
+;; Bug: With nested backquotes some partial forms are evaluated several
+;; times (e.g. in the primary evaluation forms, which are needed for
+;; the interpretation of secondary evaluation forms) and should
+;; therefore be free from side-effects.
 
 (defun \`-reader (stream char)
   (declare (ignore char))
@@ -26,11 +27,9 @@
          (skel (read stream t nil t))
          (form (list 'BACKQUOTE
                      (remove-backquote-third skel)
-                     (backquote-1 (unquote-level skel))
-        ))     )
+                     (backquote-1 (unquote-level skel)))))
     (when (= *backquote-level* 1) (setq form (elim-unquote-dummy form)))
-    form
-) )
+    form))
 
 (defun \,-reader (stream char &aux (c (peek-char nil stream)))
   (declare (ignore char))
@@ -45,125 +44,109 @@
         (t (let ((*backquote-level* (1- *backquote-level*)))
              (cond ((eql c #\@)
                     (read-char stream)
-                    (list 'SPLICE (list 'UNQUOTE (read stream t nil t)))
-                   )
+                    (list 'SPLICE (list 'UNQUOTE (read stream t nil t))))
                    ((eql c #\.)
                     (read-char stream)
-                    (list 'NSPLICE (list 'UNQUOTE (read stream t nil t)))
-                   )
-                   (t (list 'UNQUOTE (read stream t nil t)))
-) )     )  ) )
+                    (list 'NSPLICE (list 'UNQUOTE (read stream t nil t))))
+                   (t (list 'UNQUOTE (read stream t nil t))))))))
 
-;(set-macro-character #\` #'\`-reader)
-;(set-macro-character #\, #'\,-reader)
+;;(set-macro-character #\` #'\`-reader)
+;;(set-macro-character #\, #'\,-reader)
 
-; Hilfsfunktionen für Macros, die in Backquote-Formen expandieren.
-; (Funktioniert nur mit einfach verschachtelten Backquote-Formen.)
+;; Helper functions for macros, which are expanded in backquote forms.
+;; (They work only with a single level of backquote nesting.)
+
 (defun add-backquote (skel)
   (list 'BACKQUOTE
         (remove-backquote-third skel)
-        (backquote-1 (unquote-level skel))
-) )
+        (backquote-1 (unquote-level skel))))
 (defun add-unquote (skel)
-  (list 'UNQUOTE skel)
-)
+  (list 'UNQUOTE skel))
 
-; Ausgabe von ...                              als ...
-; (backquote original-form [expanded-form])    `original-form
-; (splice (unquote form))                      ,@form
-; (splice form)                                ,@'form
-; (nsplice (unquote form))                     ,.form
-; (nsplice form)                               ,.'form
-; (unquote form)                               ,form
+;; Interpret ...                                as ...
+;;  (backquote original-form [expanded-form])    `original-form
+;;  (splice (unquote form))                      ,@form
+;;  (splice form)                                ,@'form
+;;  (nsplice (unquote form))                     ,.form
+;;  (nsplice form)                               ,.'form
+;;  (unquote form)                               ,form
 
-;(defmacro backquote (original-form expanded-form)
-;  (declare (ignore original-form))
-;  expanded-form
-;)
+;;(defmacro backquote (original-form expanded-form)
+;;  (declare (ignore original-form))
+;;  expanded-form)
 
 (defun remove-backquote-third (skel)
   (cond ((atom skel)
          (if (simple-vector-p skel)
            (map 'vector #'remove-backquote-third skel)
-           skel
-        ))
+           skel))
         ((and (eq (car skel) 'BACKQUOTE) (consp (cdr skel)))
-         (list 'BACKQUOTE (second skel)) ; ohne drittes Element der Liste
-        )
+         (list 'BACKQUOTE (second skel))) ; no third element in the list
         (t (cons (remove-backquote-third (car skel))
-                 (remove-backquote-third (cdr skel))
-) )     )  )
+                 (remove-backquote-third (cdr skel))))))
 
-; ersetzt UNQUOTE-DUMMY durch UNQUOTE.
+;; replace UNQUOTE-DUMMY with UNQUOTE.
 (defun elim-unquote-dummy (skel)
   (if (atom skel)
     (cond ((eq skel 'UNQUOTE-DUMMY) 'UNQUOTE)
           ((simple-vector-p skel) (map 'vector #'elim-unquote-dummy skel))
-          (t skel)
-    )
+          (t skel))
     (let* ((car (car skel)) (newcar (elim-unquote-dummy car))
            (cdr (cdr skel)) (newcdr (elim-unquote-dummy cdr)))
       (if (and (eq car newcar) (eq cdr newcdr))
         skel
-        (cons newcar newcdr)
-) ) ) )
+        (cons newcar newcdr)))))
 
-;; wandelt im "Skelett" skel alle UNQUOTEs der Stufe level+1 (d.h. innerhalb
-;; von level-fachem UNQUOTE) in UNQUOTE-VALUE um.
+;; converts all UNQUOTEs in "skeleton" skel at level "level+1"
+;; (i.e. inside each UNQUOTE at this level) in UNQUOTE-VALUE.
+
 (defun unquote-level (skel &optional (level 0))
   (if (atom skel)
     (if (simple-vector-p skel)
       (map 'vector #'(lambda (subskel) (unquote-level subskel level)) skel)
-      skel
-    )
-    ; skel ist ein Cons
+      skel)
+    ;; skel is a cons
     (cond ((and (eq (first skel) 'UNQUOTE) (consp (rest skel)))
            (if (zerop level)
              (list 'UNQUOTE-VALUE (second skel))
-             (let ((weiteres (unquote-level (second skel) (1- level))))
-               ; Vereinfache (UNQUOTE weiteres):
-               (if (and (consp weiteres) (eq (car weiteres) 'QUOTE)
-                        (consp (second weiteres))
-                        (eq (car (second weiteres)) 'UNQUOTE-VALUE)
-                   )
-                 ; (UNQUOTE (QUOTE (UNQUOTE-VALUE ...))) -> (UNQUOTE-VALUE ...)
-                 (second weiteres)
-                 (list 'UNQUOTE weiteres)
-          )) ) )
+             (let ((following (unquote-level (second skel) (1- level))))
+               ;; Simplify (UNQUOTE following):
+               (if (and (consp following) (eq (car following) 'QUOTE)
+                        (consp (second following))
+                        (eq (car (second following)) 'UNQUOTE-VALUE))
+                 ;;(UNQUOTE (QUOTE (UNQUOTE-VALUE ...))) -> (UNQUOTE-VALUE ...)
+                 (second following)
+                 (list 'UNQUOTE following)))))
           ((and (eq (first skel) 'BACKQUOTE) (consp (rest skel)))
            (list* 'BACKQUOTE
                   (unquote-level (second skel) (1+ level))
                   (if (consp (cddr skel))
                     (list (unquote-level (third skel) level))
-                    nil
-          ))      )
-          (t ; CAR-CDR-Rekursion
+                    nil)))
+          (t ; CAR-CDR recursion
             (cons (unquote-level (car skel) level)
-                  (unquote-level (cdr skel) level)
-) ) )     ) )
+                  (unquote-level (cdr skel) level))))))
 
-;; stellt fest, ob eine Form zu mehreren expandieren kann.
+;; Determines whether a form can expand to several forms.
 (defun splicing-p (skel)
   (and (consp skel)
-       (let ((h (first skel))) (or (eq h 'splice) (eq h 'nsplice)))
-) )
+       (let ((h (first skel))) (or (eq h 'splice) (eq h 'nsplice)))))
 
-;; wandelt "Skelett" skel (mit UNQUOTE-VALUEs etc.) in passenden Code um.
+;; Replaces "skeleton" skel (with UNQUOTE-VALUEs etc.) in suitable code.
 (defun backquote-1 (skel)
   (if (atom skel)
-    (cond ((or (and (symbolp skel) (constantp skel) (eq skel (symbol-value skel)))
+    (cond ((or (and (symbolp skel) (constantp skel)
+                    (eq skel (symbol-value skel)))
                (numberp skel)
                (stringp skel)
-               (bit-vector-p skel)
-           )
-           ; Konstanten, die zu sich selbst evaluieren, bleiben unverändert
-           skel
-          )
+               (bit-vector-p skel))
+           ;; Constants which evaluate to themselves remain unchanged.
+           skel)
           ((simple-vector-p skel)
-           ; Vektoren:
-           ; #(... item ...) -> (VECTOR ... item ...)
-           ; #(... ,@form ...) ->
-           ;   (MULTIPLE-VALUE-CALL #'VECTOR ... (VALUES-LIST form) ...)
+           ;; Vectors
+           ;; #(... item ...) -> (VECTOR ... item ...)
+           ;; #(... ,@form ...) ->
+           ;;   (MULTIPLE-VALUE-CALL #'VECTOR ... (VALUES-LIST form) ...)
            (if (some #'splicing-p skel)
              (list* 'MULTIPLE-VALUE-CALL
                     '(FUNCTION VECTOR)
@@ -171,142 +154,111 @@
                          #'(lambda (subskel)
                              (if (splicing-p subskel)
                                (if (and (consp (second subskel))
-                                        (eq (first (second subskel)) 'UNQUOTE-VALUE)
-                                   )
+                                        (eq (first (second subskel))
+                                            'UNQUOTE-VALUE))
                                  (list 'VALUES-LIST (backquote-1 (second subskel)))
-                                 ; SPLICE bzw. NSPLICE für später aufheben
+                                 ;; SPLICE and/or NSPLICE to return later
                                  (backquote-cons (backquote-1 (first subskel))
-                                                 (backquote-1 (rest subskel))
-                               ) )
-                               (list 'VALUES (backquote-1 subskel))
-                           ) )
-                         skel
-             )      )
+                                                 (backquote-1 (rest subskel))))
+                               (list 'VALUES (backquote-1 subskel))))
+                         skel))
              (let ((einzelne (map 'list #'backquote-1 skel)))
                (if (every #'constantp einzelne)
-                 ; alle Teile konstant -> sofort zusammensetzen
+                 ;; all components are contant -> concatenate immediately
                  (list 'QUOTE (map 'vector #'eval einzelne))
-                 (cons 'VECTOR einzelne)
-             ) )
-          ))
-          (t
-           ; sonstige Atome A in 'A umwandeln
-           (list 'QUOTE skel)
-    )     )
+                 (cons 'VECTOR einzelne)))))
+          (t                    ; convert other atoms A into 'A
+           (list 'QUOTE skel)))
     (cond ((eq (first skel) 'unquote-value)
-           ; ,form im richtigen Level wird zu form
-           (second skel)
-          )
+           ;; ,form at the correct level becomes form
+           (second skel))
           ((and (eq (first skel) 'splice) (consp (rest skel)))
-           ; ,@form ist verboten
+           ;; ,@form is forbidden
            (error-of-type 'error
              (TEXT "The syntax ,@form is valid only in lists")))
           ((and (eq (first skel) 'nsplice) (consp (rest skel)))
-           ; ,.form ist verboten
+           ;; ,.form is forbidden
            (error-of-type 'error
              (TEXT "The syntax ,.form is valid only in lists")))
           ((and (eq (first skel) 'backquote) (consp (rest skel)))
-           ; verschachtelte Backquotes
+           ;; nested backquotes
            (list* 'LIST
                   ''BACKQUOTE
                   (let ((*nsplice-fun* 'APPEND)) (backquote-1 (second skel)))
                   (if (consp (cddr skel))
                     (list (backquote-1 (third skel)))
-                    nil
-          ))      )
+                    nil)))
           ((and (consp (first skel))
-                (eq (first (first skel)) 'splice)
-           )
-           ; (  ... ,@EXPR ...  ) behandeln
+                (eq (first (first skel)) 'splice))
+           ;; (  ... ,@EXPR ...  ) handling
            (if (and (consp (second (first skel)))
-                    (eq (first (second (first skel))) 'UNQUOTE-VALUE)
-               )
+                    (eq (first (second (first skel))) 'UNQUOTE-VALUE))
              (backquote-append (backquote-1 (second (first skel)))
-                               (backquote-1 (rest skel))
-             )
-             ; SPLICE für später aufheben
+                               (backquote-1 (rest skel)))
+             ;; save SPLICE for later
              (backquote-cons
                (backquote-cons (backquote-1 (first (first skel)))
-                               (backquote-1 (rest (first skel)))
-               )
-               (backquote-1 (rest skel))
-          )) )
+                               (backquote-1 (rest (first skel))))
+               (backquote-1 (rest skel)))))
           ((and (consp (first skel))
-                (eq (first (first skel)) 'nsplice)
-           )
-           ; (  ... ,.EXPR ...  ) behandeln
+                (eq (first (first skel)) 'nsplice))
+           ;; handle (  ... ,.EXPR ...  )
            (if (and (consp (second (first skel)))
-                    (eq (first (second (first skel))) 'UNQUOTE-VALUE)
-               )
-             (let ((erstes (backquote-1 (second (first skel))))
-                   (weiteres (backquote-1 (rest skel))))
-               ; (NCONC erstes weiteres) vereinfachen
-               (cond ((null weiteres)
-                      ; (NCONC expr NIL) -> (NCONC expr) -> expr
-                      (if (splicing-p erstes)
-                        (list *nsplice-fun* erstes)
-                        erstes
-                     ))
-                     ((and (consp weiteres) (eq (first weiteres) *nsplice-fun*))
-                      ; (NCONC expr (NCONC . rest)) -> (NCONC expr . rest)
-                      (list* *nsplice-fun* erstes (rest weiteres)) )
-                     (t (list *nsplice-fun* erstes weiteres))
-             ) )
-             ; NSPLICE für später aufheben
+                    (eq (first (second (first skel))) 'UNQUOTE-VALUE))
+             (let ((first (backquote-1 (second (first skel))))
+                   (following (backquote-1 (rest skel))))
+               ;; simplify (NCONC first following)
+               (cond ((null following)
+                      ;; (NCONC expr NIL) -> (NCONC expr) -> expr
+                      (if (splicing-p first)
+                        (list *nsplice-fun* first)
+                        first))
+                     ((and (consp following)
+                           (eq (first following) *nsplice-fun*))
+                      ;; (NCONC expr (NCONC . rest)) -> (NCONC expr . rest)
+                      (list* *nsplice-fun* first (rest following)) )
+                     (t (list *nsplice-fun* first following))))
+             ;; save NSPLICE for later
              (backquote-cons
                (backquote-cons (backquote-1 (first (first skel)))
-                               (backquote-1 (rest (first skel)))
-               )
-               (backquote-1 (rest skel))
-          )) )
-          (t ; sonst CAR und CDR zusammensetzen
-             (backquote-cons (backquote-1 (first skel)) (backquote-1 (rest skel)))
-          )
-) ) )
+                               (backquote-1 (rest (first skel))))
+               (backquote-1 (rest skel)))))
+          (t ; combine CAR and CDR
+             (backquote-cons (backquote-1 (first skel))
+                             (backquote-1 (rest skel)))))))
 
-; Liefert die Form, die das Append-Ergebnis der Formen erstes und weiteres
-; ergibt.
-(defun backquote-append (erstes weiteres)
-  ; (APPEND erstes weiteres) vereinfachen
-  (cond ((null weiteres)
-         ; (APPEND expr NIL) -> (APPEND expr) -> expr
-         (if (splicing-p erstes)
-           (list 'APPEND erstes)
-           erstes
-        ))
-        ((and (consp weiteres) (eq (first weiteres) 'append))
-         ; (APPEND expr (APPEND . rest)) -> (APPEND expr . rest)
-         (list* 'APPEND erstes (rest weiteres)) )
-        (t (list 'APPEND erstes weiteres))
-) )
+;; Returns the form 'first' appended to 'following'.
+(defun backquote-append (first following)
+  ;; simplify (APPEND first following)
+  (cond ((null following)
+         ;; (APPEND expr NIL) -> (APPEND expr) -> expr
+         (if (splicing-p first)
+           (list 'APPEND first)
+           first))
+        ((and (consp following) (eq (first following) 'append))
+         ;; (APPEND expr (APPEND . rest)) -> (APPEND expr . rest)
+         (list* 'APPEND first (rest following)))
+        (t (list 'APPEND first following))))
 
-; Liefert die Form, die das Cons-Ergebnis der Formen erstes und weiteres
-; ergibt.
-(defun backquote-cons (erstes weiteres)
-  ; (CONS erstes weiteres) vereinfachen
-  (cond ((and (constantp erstes) (constantp weiteres))
-         ; beide Teile konstant -> sofort zusammensetzen
-         (setq erstes (eval erstes))
-         (setq weiteres (eval weiteres))
+;; Returns the form which is the cons of the forms 'first' and 'following'.
+(defun backquote-cons (first following)
+  ;; simplify (CONS first following)
+  (cond ((and (constantp first) (constantp following))
+         ;; both parts are constant -> combine immediately
+         (setq first (eval first))
+         (setq following (eval following))
          (list 'QUOTE
-           (cons (if (eq erstes 'UNQUOTE) 'UNQUOTE-DUMMY erstes) weiteres)
-        ))
-        ((null weiteres)
-         ; (CONS expr NIL) -> (LIST expr)
-         (list 'LIST erstes)
-        )
-        ((atom weiteres)
-         (list 'CONS erstes weiteres) ; ohne Vereinfachung
-        )
-        ((eq (first weiteres) 'LIST)
-         ; (CONS expr (LIST . rest)) -> (LIST expr . rest)
-         (list* 'LIST erstes (rest weiteres))
-        )
-        ((or (eq (first weiteres) 'LIST*) (eq (first weiteres) 'CONS))
-         ; (CONS expr (LIST* . rest)) -> (LIST* expr . rest)
-         ; (CONS expr1 (CONS expr2 expr3)) -> (LIST* expr1 expr2 expr3)
-         (list* 'LIST* erstes (rest weiteres))
-        )
-        (t (list 'CONS erstes weiteres)) ; ohne Vereinfachung
-) )
-
+           (cons (if (eq first 'UNQUOTE) 'UNQUOTE-DUMMY first) following)))
+        ((null following)
+         ;; (CONS expr NIL) -> (LIST expr)
+         (list 'LIST first))
+        ((atom following)
+         (list 'CONS first following)) ; without simplifying
+        ((eq (first following) 'LIST)
+         ;; (CONS expr (LIST . rest)) -> (LIST expr . rest)
+         (list* 'LIST first (rest following)))
+        ((or (eq (first following) 'LIST*) (eq (first following) 'CONS))
+         ;; (CONS expr (LIST* . rest)) -> (LIST* expr . rest)
+         ;; (CONS expr1 (CONS expr2 expr3)) -> (LIST* expr1 expr2 expr3)
+         (list* 'LIST* first (rest following)))
+        (t (list 'CONS first following)))) ; without simplifying
