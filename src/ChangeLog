@@ -1,5 +1,12 @@
 2004-12-07  Bruno Haible  <bruno@clisp.org>
 
+	* hashtabl.d (SYSTEM::PUTHASH, REMHASH): If the argument was not a
+	hash-table and check_hashtable provided a replacement, use the
+	replacement, not the original argument. Fixes bug introduced on
+	2003-05-13.
+
+2004-12-07  Bruno Haible  <bruno@clisp.org>
+
 	* array.d (storagevector_store): Rename local variable 'maygc'.
 
 2004-11-29  Bruno Haible  <bruno@clisp.org>
