@@ -306,7 +306,7 @@
 /* Define if you have a working <stdbool.h> header file. */
 #undef HAVE_STDBOOL_H
 
-/* Define to 1 if you have the <stdint.h> header file. */
+/* Define if you have a working <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
 /* Define to 1 if you have the <stdlib.h> header file. */
@@ -326,6 +326,9 @@
 
 /* Define to 1 if you have the <sys/file.h> header file. */
 #undef HAVE_SYS_FILE_H
+
+/* Define to 1 if you have the <sys/int_types.h> header file. */
+#undef HAVE_SYS_INT_TYPES_H
 
 /* Define to 1 if you have the <sys/ipc.h> header file. */
 #undef HAVE_SYS_IPC_H
