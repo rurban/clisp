@@ -522,6 +522,11 @@
                name slotname))
       (clos:slot-definition-initfunction slot))))
 
+(defun ds-initfunction-fetcher (name type slotname)
+  (if (eq type 'T)
+    `(FIND-STRUCTURE-CLASS-SLOT-INITFUNCTION ',name ',slotname)
+    `(FIND-STRUCTURE-SLOT-INITFUNCTION ',name ',slotname)))
+
 ;; A hook for CLOS
 (defun clos::defstruct-remove-print-object-method (name) ; preliminary
   (declare (ignore name))
@@ -759,12 +764,8 @@
         ;;    by the substructure, the "size" of the substructure.
         (dolist (slot slotlist)
           (setf (clos::structure-effective-slot-definition-initff slot)
-                (if incl-class
-                  `(FIND-STRUCTURE-CLASS-SLOT-INITFUNCTION ',subname
-                     ',(clos:slot-definition-name slot))
-                  `(FIND-STRUCTURE-SLOT-INITFUNCTION ',subname
-                     ',(clos:slot-definition-name slot)))))
-        ;; process further arguments of the :INCLUDE-option:
+                (ds-initfunction-fetcher subname type-option (clos:slot-definition-name slot))))
+        ;; Process further arguments of the :INCLUDE-option:
         (dolist (slotarg (rest option))
           (let* ((slotname (if (atom slotarg) slotarg (first slotarg)))
                  (slot (find slotname slotlist :key #'clos:slot-definition-name
@@ -999,11 +1000,7 @@
     ;; constructor-forms = list of forms, that define the constructors.
     (mapc #'(lambda (slot directslot)
               (let ((initfunctionform
-                      (if (eq type-option 'T)
-                        `(FIND-STRUCTURE-CLASS-SLOT-INITFUNCTION
-                           ',name ',(clos:slot-definition-name slot))
-                        `(FIND-STRUCTURE-SLOT-INITFUNCTION
-                           ',name ',(clos:slot-definition-name slot)))))
+                      (ds-initfunction-fetcher name type-option (clos:slot-definition-name slot))))
                 (setf (clos::structure-effective-slot-definition-initff slot)
                       initfunctionform)
                 (when directslot
