@@ -1,5 +1,10 @@
 2004-05-09  Bruno Haible  <bruno@clisp.org>
 
+	* hashtabl.d (hash_prepare_store): Fix bug introduced on 2003-05-13:
+	EQUAL and EQUALP hash codes must not be cached across a GC.
+
+2004-05-09  Bruno Haible  <bruno@clisp.org>
+
 	Unify the two hash table counts.
 	* lispbibl.d (Hashtable): Remove ht_count field.
 	(hashtable_length): Decrement.
