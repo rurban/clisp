@@ -6,6 +6,9 @@ User visible changes
 * Hostname resolution is now optional in
   EXT:SOCKET-STREAM-PEER and EXT:SOCKET-STREAM-LOCAL.
 
+* EXT:SOCKET-STATUS now accepts SOCKET-SERVERs too
+  and the direction of the checks can be specified.
+
 * Added install.bat for win32 installation.
 
 * ANSI CL compliance: more conformant pathname handling.

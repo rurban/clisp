@@ -21,20 +21,6 @@
 #define LDAP_PORT 389
 #endif
 
-#ifdef WIN32_NATIVE
-#define DIR_KEY_INPUT  KEY_READ
-#define DIR_KEY_OUTPUT KEY_WRITE
-#define DIR_KEY_IO     KEY_ALL_ACCESS
-#else
-#define DIR_KEY_INPUT  0
-#define DIR_KEY_OUTPUT 1
-#define DIR_KEY_IO     2
-#endif
-# :IF_DOES_NOT_EXIST
-#define IDNE_ERROR  0
-#define IDNE_NIL    1
-#define IDNE_CREATE 2
-#define IDNE_IGNORE 3 /* used only in `init_iteration_node' */
 # :SCOPE
 #define SCOPE_SELF  0
 #define SCOPE_KIDS  1
@@ -301,19 +287,24 @@ local HKEY parse_registry_path (const char* path, const char** base_ret)
   }
 }
 
-local void open_reg_key (HKEY hkey, char* path, REGSAM perms,
-                         int if_not_exists, HKEY* p_hkey)
-{
+local void open_reg_key (HKEY hkey, char* path, direction_t dir,
+                         int if_not_exists, HKEY* p_hkey) {
+  REGSAM perms = KEY_READ;
+  switch (dir) {
+    case DIRECTION_OUTPUT: perms = KEY_WRITE; break;
+    case DIRECTION_IO: perms = KEY_ALL_ACCESS; break;
+  }
   var DWORD status;
   begin_system_call();
   status = RegOpenKeyEx(hkey,path,0,perms,p_hkey);
   if (status != ERROR_SUCCESS) {
-    if ((if_not_exists == IDNE_IGNORE) ||
-        (status == ERROR_FILE_NOT_FOUND) && (if_not_exists != IDNE_ERROR)) {
+    if ((if_not_exists == IF_DOES_NOT_EXIST_UNBOUND /*ignore*/) ||
+        ((status == ERROR_FILE_NOT_FOUND) &&
+         (if_not_exists != IF_DOES_NOT_EXIST_ERROR))) {
       switch (if_not_exists) {
-        case IDNE_NIL: case IDNE_IGNORE:
+        case IF_DOES_NOT_EXIST_NIL: case IF_DOES_NOT_EXIST_UNBOUND:
           *p_hkey = NULL; break;
-        case IDNE_CREATE:
+        case IF_DOES_NOT_EXIST_CREATE:
           status = RegCreateKey(hkey,path,p_hkey);
           if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); }
           break;
@@ -324,53 +315,6 @@ local void open_reg_key (HKEY hkey, char* path, REGSAM perms,
   end_system_call();
 }
 #endif
-
-local uintL parse_if_not_exists (object if_not_exists_arg, uintL direction)
-{
-  var uintL res = IDNE_ERROR;
-  if ((eq(if_not_exists_arg,unbound) && (direction == DIR_KEY_INPUT))
-      || eq(if_not_exists_arg,S(Kerror))) {
-    res = IDNE_ERROR;
-  } else if (eq(if_not_exists_arg,NIL)) {
-    res = IDNE_NIL;
-  } else if (eq(if_not_exists_arg,S(Kcreate))
-             || eq(if_not_exists_arg,unbound)) {
-    res = IDNE_CREATE;
-  } else {
-    pushSTACK(if_not_exists_arg);         # slot DATUM of         TYPE-ERROR
-    pushSTACK(O(type_if_does_not_exist)); # slot EXPECTED-TYPE of TYPE-ERROR
-    pushSTACK(if_not_exists_arg);
-    pushSTACK(S(Kif_does_not_exist));
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
-           GETTEXT("~: illegal ~ argument ~")
-           );
-  }
-  return res;
-}
-
-local uintL parse_direction (object* direction_arg)
-{
-  var uintL res = DIR_KEY_INPUT;
-  if (eq(*direction_arg,unbound) || eq(*direction_arg,S(Kinput))) {
-    res = DIR_KEY_INPUT;
-    *direction_arg = S(Kinput);
-  } else if (eq(*direction_arg,S(Koutput))) {
-    res = DIR_KEY_OUTPUT;
-  } else if (eq(*direction_arg,S(Kio))) {
-    res = DIR_KEY_IO;
-  } else {
-    pushSTACK(*direction_arg);    # slot DATUM         of TYPE-ERROR
-    pushSTACK(O(type_direction)); # slot EXPECTED-TYPE of TYPE-ERROR
-    pushSTACK(*direction_arg);
-    pushSTACK(S(Kdirection));
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
-           GETTEXT("~: illegal ~ argument ~")
-           );
-  }
-  return res;
-}
 
 LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
 # (LDAP:DIR-KEY-OPEN key path [:direction] [:if-does-not-exist])
@@ -386,8 +330,13 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
   var object root = STACK_3;
   var void* ret_handle;
   var uintL status;
-  var uintL direction = parse_direction(&direction_arg);
-  var uintL if_not_exists = parse_if_not_exists(if_not_exists_arg,direction);
+  if (eq(unbound,direction_arg)) direction_arg=S(Kinput);
+  var direction_t direction = check_direction(direction_arg);
+  var if_does_not_exist_t if_not_exists =
+    check_if_does_not_exist(if_not_exists_arg);
+  if (if_not_exists == IF_DOES_NOT_EXIST_UNBOUND)
+    if_not_exists = (direction == DIRECTION_INPUT ?
+                     IF_DOES_NOT_EXIST_ERROR : IF_DOES_NOT_EXIST_CREATE);
   if (!stringp(path)) fehler_string(path);
   # create the key handle
   var object type = (dir_key_p(root) ? TheDirKey(root)->type : root);
@@ -647,8 +596,8 @@ local void init_iteration_node (object state,object subkey,
   var Dir_Key dk = TheDirKey(test_dir_key(ITST_DKEY(STACK_4),TRUE)); # state
   var Fpointer fp = TheFpointer(STACK_0); # handle
   with_string_0(*new_path,O(misc_encoding),pathz,{
-    open_reg_key((HKEY)(dk->handle),pathz,parse_direction(&(dk->direction)),
-                 IDNE_IGNORE,(HKEY*)&(fp->fp_pointer));
+    open_reg_key((HKEY)(dk->handle),pathz,check_direction(dk->direction),
+                 IF_DOES_NOT_EXIST_UNBOUND/*ignore*/,(HKEY*)&(fp->fp_pointer));
   });
   if (fp->fp_pointer) {
     var DWORD k_size;

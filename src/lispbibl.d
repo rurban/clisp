@@ -11400,6 +11400,42 @@ extern int clisp_setenv (const char * name, const char * value);
   extern int find_executable (const char * program_name);
 # wird verwendet von SPVW
 
+# check the :DIRECTION argument
+# return one of the following:
+typedef enum {
+  DIRECTION_PROBE,  # 0
+  DIRECTION_INPUT,  # 1
+  DIRECTION_DUMMY,  # 2 -- never used -- just to shift the values
+  DIRECTION_INPUT_IMMUTABLE, # 3
+  DIRECTION_OUTPUT, # 4
+  DIRECTION_IO      # 5
+} direction_t;
+extern direction_t check_direction (const object dir);
+
+# check the :IF-DOES-NOT-EXIST argument
+# return one of the following:
+typedef enum {
+  IF_DOES_NOT_EXIST_UNBOUND,
+  IF_DOES_NOT_EXIST_ERROR,
+  IF_DOES_NOT_EXIST_NIL,
+  IF_DOES_NOT_EXIST_CREATE
+} if_does_not_exist_t;
+extern if_does_not_exist_t check_if_does_not_exist (const object if_not_exist);
+
+# check the :IF-EXISTS argument
+# return one of the following:
+typedef enum {
+  IF_EXISTS_UNBOUND,
+  IF_EXISTS_ERROR,
+  IF_EXISTS_NIL,
+  IF_EXISTS_RENAME,
+  IF_EXISTS_RENAME_AND_DELETE,
+  IF_EXISTS_SUPERSEDE,
+  IF_EXISTS_APPEND,
+  IF_EXISTS_OVERWRITE
+} if_exists_t;
+extern if_exists_t check_if_exists (const object if_exists);
+
 # ##################### PREDBIBL zu PREDTYPE.D ############################ #
 
 # UP: testet auf Atomgleichheit EQL
@@ -11807,6 +11843,12 @@ extern int clisp_setenv (const char * name, const char * value);
   extern void terminal_sane (void);
 # wird verwendet von SPVW
 #endif
+
+# Function: Tests whether an object is an input-stream.
+extern inline bool input_stream_p(stream);
+
+# Function: Tests whether an object is an output-stream.
+extern inline bool output_stream_p(stream);
 
 #ifdef EXPORT_SYSCALLS
 #ifdef UNIX
