@@ -1,5 +1,13 @@
 2002-09-02  Arseny Slobodjuck <ampy@ich.dvo.ru>
 
+	Fixing makemake.in for mingw.
+	* makemake.in: fixed 2002-08-10 patch: double quotes now
+	used on TSYS=win32msvc.
+	(LIBS) [win32gcc]: added libuuid to library list (need it on mingw
+	to handle shell objects)
+
+2002-09-02  Arseny Slobodjuck <ampy@ich.dvo.ru>
+
 	Implemented shorcut symlink ersatz on win32 (read-only,
 	for CYGWIN compatibility).
 	* win32aux.d (com_initialized): new global variable.
