@@ -660,6 +660,9 @@ FIXME
     (string= x (pathname-type path))))
 foo
 
+(namestring (logical-pathname "foo:bar;baz"))
+"FOO:BAR;BAZ"
+
 (foo "c")
 t
 
