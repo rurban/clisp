@@ -14,8 +14,12 @@ GNU CLISP includes an interpreter, a compiler, a debugger, a large
 subset of CLOS, a foreign language interface and a socket interface.
 An X11 interface is available through CLX and Garnet.
 
-More information at <http://clisp.cons.org/>, <http://www.clisp.org>,
-<http://www.gnu.org/software/clisp/> and <http://clisp.sourceforge.net>.
+More information at
+  <http://clisp.cons.org/>,
+  <http://www.clisp.org/>,
+  <http://www.gnu.org/software/clisp/> and
+  <http://clisp.sourceforge.net/>.
 Sources and selected binaries are available by anonymous ftp from
-<ftp://clisp.cons.org/pub/lisp/clisp/>,
-<ftp://ftp.gnu.org/pub/gnu/clisp/> and their mirrors.
+  <ftp://cvs2.cons.org/pub/lisp/clisp/>,
+  <ftp://ftp.gnu.org/pub/gnu/clisp/>
+and their mirrors.
