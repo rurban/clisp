@@ -120,7 +120,7 @@ typedef pthread_key_t     xthread_key_t;
   pthread_create(thread,pthread_attr_default,startroutine,arg)
 #endif
 #define xthread_exit(v)  pthread_exit(v)
-#define xthread_yield()  { if (sched_yield() < 0) OS_error(); }
+#define xthread_yield()  do { if (sched_yield() < 0) OS_error(); } while(0)
 #define xthread_equal(t1,t2)  pthread_equal(t1,t2)
 
 #ifdef POSIX_THREADS
@@ -252,12 +252,12 @@ typedef DWORD              xthread_key_t;
 #define xthread_yield()  Sleep(0)??
 #define xthread_equal(t1,t2)  ((t1)==(t2))
 
-#define xcondition_init(c)  \
-  { InitializeCriticalSection(&(c)->cs); (c)->waiters = NULL; }
-#define xcondition_destroy(c)  \
+#define xcondition_init(c)                                              \
+  do { InitializeCriticalSection(&(c)->cs); (c)->waiters = NULL; } while(0)
+#define xcondition_destroy(c)                   \
   DeleteCriticalSection(&(c)->cs);
-#define xcondition_wait(c,m)  \
-  { struct _xthread_waiter self_waiting;                            \
+#define xcondition_wait(c,m)                                        \
+  do { struct _xthread_waiter self_waiting;                         \
     InitializeSemaphore(self_waiting.sem,??);                       \
     EnterCriticalSection(&(c)->cs);                                 \
     self_waiting.next = (c)->waiters; (c)->waiters = &self_waiting; \
@@ -266,23 +266,23 @@ typedef DWORD              xthread_key_t;
     WaitForSingleObject(self_waiting.sem,INFINITE);                 \
     EnterCriticalSection(m);                                        \
     DeleteSemaphore(self_waiting.sem,??);                           \
-  }
-#define xcondition_signal(c)  \
-  { EnterCriticalSection(&(c)->cs);                                 \
-    if ((c)->waiters != NULL)                                       \
-      { ReleaseSemaphore((c)->waiters->sem,1,NULL);                 \
-        (c)->waiters = (c)->waiters->next;                          \
-      }                                                             \
-    LeaveCriticalSection(&(c)->cs);                                 \
-  }
-#define xcondition_broadcast(c)  \
-  { EnterCriticalSection(&(c)->cs);                                 \
-    while ((c)->waiters != NULL)                                    \
-      { ReleaseSemaphore((c)->waiters->sem,1,NULL);                 \
-        (c)->waiters = (c)->waiters->next;                          \
-      }                                                             \
-    LeaveCriticalSection(&(c)->cs);                                 \
-  }
+  } while(0)
+#define xcondition_signal(c)                                           \
+  do { EnterCriticalSection(&(c)->cs);                                 \
+    if ((c)->waiters != NULL) {                                        \
+      ReleaseSemaphore((c)->waiters->sem,1,NULL);                      \
+      (c)->waiters = (c)->waiters->next;                               \
+    }                                                                  \
+    LeaveCriticalSection(&(c)->cs);                                    \
+  } while(0)
+#define xcondition_broadcast(c)                                        \
+  do { EnterCriticalSection(&(c)->cs);                                 \
+    while ((c)->waiters != NULL) {                                     \
+      ReleaseSemaphore((c)->waiters->sem,1,NULL);                      \
+      (c)->waiters = (c)->waiters->next;                               \
+    }                                                                  \
+    LeaveCriticalSection(&(c)->cs);                                    \
+  } while(0)
 
 #define xmutex_init(m) (InitializeCriticalSection(m),GetLastError())
 #define xmutex_destroy(m)  (DeleteCriticalSection(m),GetLastError())
