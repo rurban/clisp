@@ -38,7 +38,8 @@
 
 2004-03-10  Bruno Haible  <bruno@clisp.org>
 
-	Don't use features unique to GCC. Needed for Solaris cc and HP-UX cc.
+	Don't use features unique to GCC. Needed for Solaris cc, HP-UX cc and
+	IRIX cc.
 	* stream.d (key_ascii, key_special): Use portable initializer syntax.
 	(add_keybinding): Renamed from keybinding. Change argument type from
 	key_event_t to 'const key_event_t *'.
