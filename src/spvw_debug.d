@@ -257,9 +257,9 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     }
     fprintf(out," 0x%X>",as_oint(obj));
   } else if (builtin_stream_p(obj)) {
-    fputs("#<built-in stream",out);
+    fputs("#<built-in-stream",out);
     switch (TheStream(obj)->strmtype) {
-      case strmtype_pphelp:
+      case strmtype_pphelp: fputs(" pretty-print-help",out);
         fputs(" modus=",out); XOUT(TheStream(obj)->strm_pphelp_modus);
         fputs(" lpos=",out); XOUT(TheStream(obj)->strm_pphelp_lpos);
         fputs(" strings=",out); XOUT(TheStream(obj)->strm_pphelp_strings);
