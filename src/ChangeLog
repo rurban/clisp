@@ -1,5 +1,9 @@
 2000-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * encoding.d (encoding_from_name): Recognize ISO-8859-3.
+
+2000-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * configure: Create a libiconv subdirectory, link over the configure
           script, and run it with --enable-static --disable-shared.
         * win32msvc/INSTALL: Must pre-build libiconv.
