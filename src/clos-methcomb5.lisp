@@ -58,7 +58,7 @@ Where order specifications are present consolidate them bind them.??
 2. a function to be applied to a single method to produce a qualifiers check.
 Performs static tests for conflicting patterns components and
 generates dynamic tests for unmatched methods and required groups."
-  (let ((order-bindings nil) (*-group-variable nil) (order-forms nil))
+  (let ((order-bindings nil) (*-group-variable nil))
     (labels ((group-error (group message)
                (error "invalid group: ~s: ~a." group message))
              (normalize-group (group &aux (g group))
@@ -323,6 +323,7 @@ which pertains to the parameter list and extends it for the next-method
 support.  In constrast to the original, this is used to post-process the
 effective method form, in which case the applicable-method computation
 has already transpired."
+  (declare (ignore methods))
   (let* ((signature (gf-signature generic-function))
          (req-anz (sig-req-num signature))
          (req-vars (gensym-list req-anz))
@@ -337,111 +338,109 @@ has already transpired."
          (whole-var (when (eq (first combination-arguments) '&whole)
                       (second combination-arguments)))
          (destructuring-lambda-list nil))
-    (multiple-value-bind (opt-vars key-vars lambdalist-keypart)
-        (gf-keyword-arguments restp signature methods)
-      ;; Reconcile the required parameters between the effective method
-      ;; and an internal destructuring lambda list if the combination
-      ;; specified an argument list. The interface rest parameter comprises
-      ;; optional, rest, and key arguments, and is destructured for
-      ;; internal bindings, and/or coalesced with the required arguments
-      ;; to fabricate a whole binding.
-      (when whole-var
-        ;; Pick off the initial whole parameter.
-        (setf combination-arguments (nthcdr 2 combination-arguments)))
-      (multiple-value-bind (positional opt opt-i opt-p rest num-req)
-          (analyze-lambdalist combination-arguments)
-        (declare (ignore opt opt-i opt-p rest))
-        (when (> (setq num-req (length positional)) (length req-vars))
-          (method-combination-error "invalid combination arguments: ~s."
-                                    combination-arguments))
-        (setf req-vars (append positional (nthcdr num-req req-vars)))
-        ;; Construct analogous interface parameter and application
-        ;; argument lists.
-        (setf lambdalist `(,@req-vars ,@(when restp `(&rest ,rest-var)))
-              apply-args `(,@req-vars ,@(if restp `(,rest-var) '())))
-        ;; If a method combination argument list is present, the required
-        ;; arguments have already been accommodated, but it remains to
-        ;; deconstruct the everything else from the rest arguments.
-        (when combination-arguments
-          (setf destructuring-lambda-list
-                `(,@(nthcdr num-req combination-arguments)
+    ;; Reconcile the required parameters between the effective method
+    ;; and an internal destructuring lambda list if the combination
+    ;; specified an argument list. The interface rest parameter comprises
+    ;; optional, rest, and key arguments, and is destructured for
+    ;; internal bindings, and/or coalesced with the required arguments
+    ;; to fabricate a whole binding.
+    (when whole-var
+      ;; Pick off the initial whole parameter.
+      (setf combination-arguments (nthcdr 2 combination-arguments)))
+    (multiple-value-bind (positional opt opt-i opt-p rest num-req)
+        (analyze-lambdalist combination-arguments)
+      (declare (ignore opt opt-i opt-p rest))
+      (when (> (setq num-req (length positional)) (length req-vars))
+        (method-combination-error "invalid combination arguments: ~s."
+                                  combination-arguments))
+      (setf req-vars (append positional (nthcdr num-req req-vars)))
+      ;; Construct analogous interface parameter and application
+      ;; argument lists.
+      (setf lambdalist `(,@req-vars ,@(when restp `(&rest ,rest-var)))
+            apply-args `(,@req-vars ,@(if restp `(,rest-var) '())))
+      ;; If a method combination argument list is present, the required
+      ;; arguments have already been accommodated, but it remains to
+      ;; deconstruct the everything else from the rest arguments.
+      (when combination-arguments
+        (setf destructuring-lambda-list
+              `(,@(nthcdr num-req combination-arguments)
                   ,@(when whole-var
-                      `(,@(unless (find '&aux combination-arguments) '(&aux))
-                          (,whole-var (list* ,@req-vars ,rest-var))))))))
-      ;; Combine the generated lambda list with the effective method form
-      ;; to create the method function.
-      (let ((ef-fun
-              (if (and (eq (first effective-method-form) 'call-method)
-                       (= (length effective-method-form) 2)
-                       (method-combination-identity-with-one-argument combination))
-                (let ((method (second effective-method-form)))
-                  `(lambda ,lambdalist
-                     (DECLARE (INLINE FUNCALL APPLY))
-                     ,(if (or (consp method)
-                              (std-method-wants-next-method-p method))
-                        `(,apply-fun ,(std-method-function method) nil
-                                     ,@apply-args)
-                        `(,apply-fun ,(std-method-function method)
-                                     ,@apply-args))))
-                `(lambda ,lambdalist
-                   (DECLARE (INLINE FUNCALL APPLY))
-                   (macrolet ((call-method (method &optional next-methods
-                                                   &aux (m-function (list 'std-method-function method)))
-                              ;; If the method expects a next-method
-                              ;; operator, construct a function from
-                              ;; successor methods or pass NIL as function
-                              ;; (NEXT-METHOD-P reacts on it) and precede
-                              ;; the arguments proper with this function.
-                              ;; If no next methods are expected, then pass
-                              ;; the arguments only.  NB, even though this
-                              ;; file changes method generation to _always_
-                              ;; expect a next-method context, preexisting
-                              ;; methods are not that way.??
-                              (if (or (consp method)
-                                      (std-method-wants-next-method-p method))
-                                (if next-methods
-                                  (list* ',apply-fun m-function
-                                         (list 'function
-                                               (list 'lambda ',lambdalist
-                                                     (list 'call-method
-                                                           (first next-methods)
-                                                           (rest next-methods))))
-                                         ',apply-args)
-                                  (list* ',apply-fun m-function nil ',apply-args))
-                                (list* ',apply-fun m-function ',apply-args)))
-                            (make-method (body)
-                              ;; make a temporary method
-                              (let* ((next-method-parm (gensym "NM-"))
-                                     (method-lambda
-                                      (list 'function
-                                            (list 'lambda
-                                                  (cons next-method-parm
-                                                        ',lambdalist)
-                                                  (list 'declare
-                                                        (list 'ignore
-                                                              next-method-parm))
-                                                  body))))
-                                (list 'make-standard-method
-                                      :function method-lambda
-                                      :wants-next-method-p t
-                                      :parameter-specializers nil
-                                      :qualifiers nil
-                                      :signature ,signature
-                                      :gf ,*method-combination-generic-function*
-                                      ;; It's never going to be added to a
-                                      ;; generic function.
-                                      :initfunction nil))))
-                     ,@declarations
-                     ;; If the combination specified an internal argument list,
-                     ;; extract the variable parameters from the rest binding.
-                     ,(if destructuring-lambda-list
-                        `(destructuring-bind ,destructuring-lambda-list ,rest-var
-                           ,effective-method-form)
-                        effective-method-form))))))
+                    `(,@(unless (find '&aux combination-arguments) '(&aux))
+                      (,whole-var (list* ,@req-vars ,rest-var))))))))
+    ;; Combine the generated lambda list with the effective method form
+    ;; to create the method function.
+    (let ((ef-fun
+           (if (and (eq (first effective-method-form) 'call-method)
+                    (= (length effective-method-form) 2)
+                    (method-combination-identity-with-one-argument combination))
+             (let ((method (second effective-method-form)))
+               `(lambda ,lambdalist
+                  (DECLARE (INLINE FUNCALL APPLY))
+                  ,(if (or (consp method)
+                           (std-method-wants-next-method-p method))
+                     `(,apply-fun ,(std-method-function method) nil
+                                  ,@apply-args)
+                     `(,apply-fun ,(std-method-function method)
+                                  ,@apply-args))))
+             `(lambda ,lambdalist
+                (DECLARE (INLINE FUNCALL APPLY))
+                (macrolet ((call-method (method &optional next-methods
+                                                &aux (m-function (list 'std-method-function method)))
+                             ;; If the method expects a next-method
+                             ;; operator, construct a function from
+                             ;; successor methods or pass NIL as function
+                             ;; (NEXT-METHOD-P reacts on it) and precede
+                             ;; the arguments proper with this function.
+                             ;; If no next methods are expected, then pass
+                             ;; the arguments only.  NB, even though this
+                             ;; file changes method generation to _always_
+                             ;; expect a next-method context, preexisting
+                             ;; methods are not that way.??
+                             (if (or (consp method)
+                                     (std-method-wants-next-method-p method))
+                               (if next-methods
+                                 (list* ',apply-fun m-function
+                                        (list 'function
+                                              (list 'lambda ',lambdalist
+                                                    (list 'call-method
+                                                          (first next-methods)
+                                                          (rest next-methods))))
+                                        ',apply-args)
+                                 (list* ',apply-fun m-function nil ',apply-args))
+                               (list* ',apply-fun m-function ',apply-args)))
+                           (make-method (body)
+                             ;; make a temporary method
+                             (let* ((next-method-parm (gensym "NM-"))
+                                    (method-lambda
+                                     (list 'function
+                                           (list 'lambda
+                                                 (cons next-method-parm
+                                                       ',lambdalist)
+                                                 (list 'declare
+                                                       (list 'ignore
+                                                             next-method-parm))
+                                                 body))))
+                               (list 'make-standard-method
+                                     :function method-lambda
+                                     :wants-next-method-p t
+                                     :parameter-specializers nil
+                                     :qualifiers nil
+                                     :signature ,signature
+                                     :gf ,*method-combination-generic-function*
+                                     ;; It's never going to be added to a
+                                     ;; generic function.
+                                     :initfunction nil))))
+                  ,@declarations
+                  ;; If the combination specified an internal argument list,
+                  ;; extract the variable parameters from the rest binding.
+                  ,(if destructuring-lambda-list
+                     `(destructuring-bind ,destructuring-lambda-list ,rest-var
+                        ,effective-method-form)
+                     effective-method-form))))))
       ;; (pprint ef-fun)
       ;; (eval ef-fun)           ; interpreted
       (compile nil ; (gensym (string (method-combination-name combination)))
-               ef-fun)))))
+               ef-fun))))
 
 (defun compute-short-form-effective-method-form (combination options methods)
   (flet ((partition-short-form-method-list (combination methods order)
