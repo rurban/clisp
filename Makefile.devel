@@ -143,6 +143,9 @@ modules/regexp/configure : modules/regexp/configure.in $(AUTOCONF_FILES)
 modules/clx/new-clx/configure : modules/clx/new-clx/configure.in $(AUTOCONF_FILES)
 	cd modules/clx/new-clx ; $(AUTOCONF) --include ../../../src/autoconf
 
+modules/oracle/configure : modules/oracle/configure.ac $(AUTOCONF_FILES)
+	cd modules/oracle ; $(AUTOCONF) --include ../../../src/autoconf
+
 ffcall/autoconf/aclocal.m4 : src/autoconf/aclocal.m4
 	cd ffcall ; $(MAKE) -f Makefile.devel autoconf/aclocal.m4
 
