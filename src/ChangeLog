@@ -1,5 +1,12 @@
 2004-12-02  Bruno Haible  <bruno@clisp.org>
 
+	Fix compilation errors with DEBUG_GCSAFETY.
+	* foreign.d (FFI:FOREIGN-VARIABLE): Add cast in conditional expression.
+	(open_library): Expect the name argument to be on the STACK.
+	(update_library): Fix GC-safety bugs.
+
+2004-12-02  Bruno Haible  <bruno@clisp.org>
+
 	Make it possible again to do "make install" with a different user id
 	even when Makefile is newer than cflags.h.
 	* makemake.in (cflags.h.stamp): Renamed from cflags.h.
