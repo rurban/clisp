@@ -1,8 +1,0 @@
-#!/bin/sh
-# Usage: to-atari <isolatin-file> <atari-file>
-if test $# != 2; then
-  echo "Usage: ${CHARSETBINDIR}to-atari <isolatin-file> <atari-file>"
-  exit 1
-fi
-cat "$1" | ${CHARSETBINDIR}cv-to-atari | ${CHARSETBINDIR}nl-to-crlf > "$2"
-${CHARSETBINDIR}touchr "$1" "$2"
