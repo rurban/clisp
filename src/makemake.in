@@ -3330,6 +3330,11 @@ cat <<!!
 	cd termcap && \$(MAKE) distclean
 !!
 fi
+if [ $HOS = unix ] && [ $CROSS = false ] ; then
+cat <<!!
+	-\$(RM) -r \`ls -d ${SRCTOPDIR}modules/*/. | sed -e 's,/\.\$\$,,' -e 's,^.*/,,' | grep -v '^CVS\$\$'\`
+!!
+fi
 cat <<!!
 
 # clean8 moreover cleans up the SRCDIR.
