@@ -1,4 +1,12 @@
-2003-11-17  Sam Steingold  <sds@gnu.org>
+2003-12-16  Sam Steingold  <sds@gnu.org>
+
+	use system-wide wildcard(fnmatch) implementation when it is available
+	* modules/wildcard/link.sh.in: renamed from link.sh
+	* modules/wildcard/configure.in: AC_SUBST FNMATCH_O&FNMATCH_H
+	* modules/wildcard/Makefile.in: use FNMATCH_O&FNMATCH_H
+	do not define _LIBC - forbidden in user (application) code
+
+2003-12-17  Sam Steingold  <sds@gnu.org>
 
 	new module: Perl Compatible Regular Expressions <http://www.pcre.org/>
 	* modules/pcre: new directory

@@ -12,9 +12,20 @@ AC_PROG_CC
 AC_PROG_CPP
 AC_AIX
 AC_HEADER_STDC
-
+AC_CHECK_HEADERS(fnmatch.h)
+AC_CHECK_FUNCS(fnmatch)
+# can we use the system-wide fnmatch implementation?
+if test "$ac_cv_header_fnmatch_h" = yes -a "$ac_cv_func_fnmatch" = yes ; then
+  FNMATCH_H=""
+  FNMATCH_O=""
+else
+  FNMATCH_H="fnmatch.h"
+  FNMATCH_O="fnmatch.o"
+fi
+AC_SUBST(FNMATCH_O)
+AC_SUBST(FNMATCH_H)
 AC_MSG_NOTICE([ * Wildcard (Output)])
-AC_CONFIG_FILES(Makefile)
+AC_CONFIG_FILES(Makefile link.sh)
 AC_OUTPUT
 
 AC_MSG_NOTICE([ * Wildcard (Done)])

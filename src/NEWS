@@ -19,6 +19,10 @@ User visible changes
 * Module syscalls now exports function POSIX:STAT-VFS.
   See <http://clisp.cons.org/impnotes.html#syscalls> for details.
 
+* When the system C library provides a wildcard (fnmatch) implementation,
+  it is used instead of the GNU wildcard distributed with CLISP
+  when the CLISP wildcard module is built.
+
 * Prompt is now fully customizable by the user.
   CUSTOM:*PROMPT* is replaced with 5 variables.
   See <http://clisp.cons.org/impnotes.html#prompt> for details.
