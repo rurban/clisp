@@ -1,5 +1,10 @@
 2004-04-24  Bruno Haible  <bruno@clisp.org>
 
+	* clos.tst: Use new slot-definition-* accessors.
+	* iofkts.tst: Likewise.
+
+2004-04-24  Bruno Haible  <bruno@clisp.org>
+
 	* clos.tst: Add tests for :fixed-slot-locations defclass option.
 	* iofkts.tst: Change expected test result.
 

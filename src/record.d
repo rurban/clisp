@@ -162,13 +162,14 @@ LISPFUNNR(structure_ref,3) {
        or after incomplete INITIALIZE-INSTANCE */
     dynamic_bind(S(print_length),Fixnum_0); /* bind *PRINT-LENGTH* to 0 */
     pushSTACK(STACK_(1+3)); /* UNBOUND-SLOT slot INSTANCE */
-    /* (clos::slotdef-name (find index (clos::class-slots (find-class type))
-                           :key #'clos::slotdef-location)) */
+    /* (clos:slot-definition-name
+         (find index (clos::class-slots (find-class type))
+                     :key #'clos:slot-definition-location)) */
     pushSTACK(STACK_(2+3+1)); funcall(L(find_class),1);
     pushSTACK(value1); funcall(S(class_slots),1);
     pushSTACK(STACK_(0+3+1)); pushSTACK(value1); pushSTACK(S(Kkey));
-    pushSTACK(Symbol_function(S(slotdef_location))); funcall(L(find),4);
-    pushSTACK(value1); funcall(S(slotdef_name),1);
+    pushSTACK(Symbol_function(S(slot_definition_location))); funcall(L(find),4);
+    value1 = TheSlotDefinition(value1)->slotdef_name;
     pushSTACK(value1); /* UNBOUND-SLOT slot NAME */
     pushSTACK(STACK_(1+3+2));
     pushSTACK(value1);
@@ -821,6 +822,35 @@ local inline object class_of (object obj) {
   }
 }
 
+/* (CLOS::ALLOCATE-METAOBJECT-INSTANCE class-version n) returns a CLOS-instance
+ of length n, with ClassVersion class-version and n-1 additional slots. It does
+ this without marking the class as being instantiated and is therefore suitable
+ only for classes that are never redefined, such as CLASS, SLOT-DEFINITION. */
+LISPFUNN(allocate_metaobject_instance,2) {
+  /* check length, should be a fixnum >0 that fits into a uintW: */
+  var uintL length;
+  test_record_length(length);
+  skipSTACK(1);
+  {
+    var object cv = STACK_0;
+    if (!(simple_vector_p(cv) && Svector_length(cv) == classversion_length)) {
+      pushSTACK(cv);
+      pushSTACK(TheSubr(subr_self)->name); /* function name */
+      fehler(error,GETTEXT("~S: ~S is not a CLOS class-version"));
+    }
+  }
+  var object instance =
+    allocate_srecord(0,Rectype_Instance,length,instance_type);
+  TheInstance(instance)->inst_class_version = popSTACK();
+  /* fill the slots of the instance with #<UNBOUND> : */
+  length--;
+  if (length > 0) {
+    var gcv_object_t* ptr = &TheInstance(instance)->other[0];
+    dotimespL(length,length, { *ptr++ = unbound; } );
+  }
+  VALUES1(instance); /* instance as value */
+}
+
 /* (CLOS::ALLOCATE-STD-INSTANCE class n) returns a CLOS-instance of length n,
  with Class class and n-1 additional slots. */
 LISPFUNN(allocate_std_instance,2) {
@@ -1248,7 +1278,7 @@ local void keyword_test (object caller, gcv_object_t* rest_args_pointer,
 /* UP: find initarg of the slot in the arglist */
 local inline gcv_object_t* slot_in_arglist (const object slot, uintC argcount,
                                             gcv_object_t* rest_args_pointer) {
-  var object l = TheSvector(slot)->data[1]; /* (slotdef-initargs slot) */
+  var object l = TheSlotDefinition(slot)->slotdef_initargs;
   var gcv_object_t* ptr = rest_args_pointer;
   var uintC count;
   dotimespC(count,argcount, {
@@ -1268,20 +1298,19 @@ local inline gcv_object_t* slot_in_arglist (const object slot, uintC argcount,
  (defmethod shared-initialize ((instance standard-object) slot-names &rest initargs)
    (check-initialization-argument-list initargs 'shared-initialize)
    (dolist (slot (class-slots (class-of instance)))
-     (let ((slotname (slotdef-name slot)))
+     (let ((slotname (slot-definition-name slot)))
        (multiple-value-bind (init-key init-value foundp)
-           (get-properties initargs (slotdef-initargs slot))
+           (get-properties initargs (slot-definition-initargs slot))
          (declare (ignore init-key))
          (if foundp
            (setf (slot-value instance slotname) init-value)
            (unless (slot-boundp instance slotname)
-             (let ((init (slotdef-initer slot)))
-               (when init
+             (let ((initfunction (slot-definition-initfunction slot)))
+               (when initfunction
                  (when (or (eq slot-names 'T)
                            (member slotname slot-names :test #'eq))
                    (setf (slot-value instance slotname)
-                         (if (car init) (funcall (car init))
-                             (cdr init)))))))))))
+                         (funcall initfunction))))))))))
    instance) */
 LISPFUN(pshared_initialize,seclass_default,2,0,rest,nokey,0,NIL) {
   check_initialization_argument_list(argcount,S(shared_initialize));
@@ -1304,39 +1333,40 @@ LISPFUN(pshared_initialize,seclass_default,2,0,rest,nokey,0,NIL) {
         goto fill_slot;
       }
      initarg_not_found:
-      { /* not found -> test for (slot-boundp instance slotname) first:
-           (slotdef-location slot): */
-        var object slotinfo = TheSvector(slot)->data[2];
+      { /* not found -> test for (slot-boundp instance slotname) first: */
+        var object slotinfo = TheSlotDefinition(slot)->slotdef_location;
         if (!eq(*ptr_to_slot(Before(rest_args_pointer STACKop 1),slotinfo),
                 unbound))
           goto slot_done;
       }
       { /* slot does not have a value yet. Poss. evaluate the initform: */
-        var object init = TheSvector(slot)->data[3]; /* (slotdef-initer slot) */
-        if (atomp(init))
+        var object init = Cdr(TheSlotDefinition(slot)->slotdef_inheritable_initer); /* (slot-definition-initfunction slot) */
+        if (nullp(init))
           goto slot_done;
         { /* search slot in slot-names: */
           var object slotnames = Before(rest_args_pointer);
           if (eq(slotnames,T))
             goto eval_init;
-          var object slotname = TheSvector(slot)->data[0]; /* (slotdef-name slot) */
+          var object slotname = TheSlotDefinition(slot)->slotdef_name;
           if (!nullp(memq(slotname,slotnames)))
             goto eval_init;
           goto slot_done;
         }
        eval_init:
         /* evaluate the initform: */
-        if (!nullp(Car(init))) {
-          pushSTACK(slots); pushSTACK(slot);
-          funcall(Car(init),0);
-          slot = popSTACK(); slots = popSTACK();
+        if (closurep(init)
+            && eq(TheClosure(init)->clos_name,S(constant_initfunction))
+            && eq(TheClosure(init)->clos_codevec,O(constant_initfunction_code))) {
+          value1 = TheClosure(init)->other[0];
         } else {
-          value1 = Cdr(init);
+          pushSTACK(slots); pushSTACK(slot);
+          funcall(init,0);
+          slot = popSTACK(); slots = popSTACK();
         }
       }
-     fill_slot: { /* initialize slot with value1: */
-        /* (slotdef-location slot) */
-        var object slotinfo = TheSvector(slot)->data[2];
+     fill_slot: {
+        /* initialize slot with value1: */
+        var object slotinfo = TheSlotDefinition(slot)->slotdef_location;
         *ptr_to_slot(Before(rest_args_pointer STACKop 1),slotinfo) = value1;
       }
      slot_done: ;
@@ -1383,9 +1413,9 @@ local inline void call_init_fun (object fun, object last,
            ; clos::%shared-initialize with slot-names=NIL can be simplified:
            (progn
              (dolist (slot (class-slots (class-of instance)))
-               (let ((slotname (slotdef-name slot)))
+               (let ((slotname (slot-definition-name slot)))
                  (multiple-value-bind (init-key init-value foundp)
-                     (get-properties initargs (slotdef-initargs slot))
+                     (get-properties initargs (slot-definition-initargs slot))
                    (declare (ignore init-key))
                    (if foundp
                      (setf (slot-value instance slotname) init-value)))))
@@ -1425,8 +1455,8 @@ LISPFUN(preinitialize_instance,seclass_default,1,0,rest,nokey,0,NIL) {
         if (NULL != ptr) {
           var object value = NEXT(ptr);
           /* initialize slot with value:
-             (slotdef-location slot): */
-          var object slotinfo = TheSvector(slot)->data[2];
+             (slot-definition-location slot): */
+          var object slotinfo = TheSlotDefinition(slot)->slotdef_location;
           *ptr_to_slot(Before(rest_args_pointer),slotinfo) = value;
         }
       }
@@ -1452,18 +1482,17 @@ LISPFUN(preinitialize_instance,seclass_default,1,0,rest,nokey,0,NIL) {
          ; clos::%shared-initialize with slot-names=T can be simplified:
          (progn
            (dolist (slot (class-slots (class-of instance)))
-             (let ((slotname (slotdef-name slot)))
+             (let ((slotname (slot-definition-name slot)))
                (multiple-value-bind (init-key init-value foundp)
-                   (get-properties initargs (slotdef-initargs slot))
+                   (get-properties initargs (slot-definition-initargs slot))
                  (declare (ignore init-key))
                  (if foundp
                    (setf (slot-value instance slotname) init-value)
                    (unless (slot-boundp instance slotname)
-                     (let ((init (slotdef-initer slot)))
-                       (when init
+                     (let ((initfunction (slot-definition-initfunction slot)))
+                       (when initfunction
                          (setf (slot-value instance slotname)
-                               (if (car init) (funcall (car init))
-                                   (cdr init))))))))))
+                               (funcall initfunction)))))))))
            instance))
        (apply #'initial-initialize-instance instance initargs)))) */
 local Values do_initialize_instance (object info,
@@ -1511,24 +1540,27 @@ local Values do_initialize_instance (object info,
       }
      initarg_not_found:
       { /* not found -> first test for (slot-boundp instance slotname): */
-        var object slotinfo = TheSvector(slot)->data[2]; /* (slotdef-location slot) */
+        var object slotinfo = TheSlotDefinition(slot)->slotdef_location;
         if (boundp(*ptr_to_slot(Before(rest_args_pointer),slotinfo)))
           goto slot_done;
       }
       { /* Slot has no value yet. Evaluate the initform: */
-        var object init = TheSvector(slot)->data[3]; /* (slotdef-initer slot) */
-        if (atomp(init))
+        var object init = Cdr(TheSlotDefinition(slot)->slotdef_inheritable_initer); /* (slot-definition-initfunction slot) */
+        if (nullp(init))
           goto slot_done;
-        if (!nullp(Car(init))) {
-          pushSTACK(slots); pushSTACK(slot);
-          funcall(Car(init),0);
-          slot = popSTACK(); slots = popSTACK();
+        if (closurep(init)
+            && eq(TheClosure(init)->clos_name,S(constant_initfunction))
+            && eq(TheClosure(init)->clos_codevec,O(constant_initfunction_code))) {
+          value1 = TheClosure(init)->other[0];
         } else {
-          value1 = Cdr(init);
+          pushSTACK(slots); pushSTACK(slot);
+          funcall(init,0);
+          slot = popSTACK(); slots = popSTACK();
         }
       }
-     fill_slot: { /* initialize slot with value1: */
-        var object slotinfo = TheSvector(slot)->data[2]; /* (slotdef-location slot) */
+     fill_slot: {
+        /* initialize slot with value1: */
+        var object slotinfo = TheSlotDefinition(slot)->slotdef_location;
         *ptr_to_slot(Before(rest_args_pointer),slotinfo) = value1;
       }
      slot_done: ;
@@ -1599,14 +1631,17 @@ LISPFUN(pmake_instance,seclass_default,1,0,rest,nokey,0,NIL) {
       /* not found */
       pushSTACK(key); /* Initarg in the stack */
       {
-        var object init = Cdr(default_initarg);
-        if (!nullp(Car(init))) {
-          pushSTACK(l);
-          funcall(Car(init),0); /* evaluate the default */
-          l = STACK_0;
-          STACK_0 = value1; /* value in the stack */
+        var object initer = Cdr(default_initarg);
+        var object init = Cdr(initer);
+        if (closurep(init)
+            && eq(TheClosure(init)->clos_name,S(constant_initfunction))
+            && eq(TheClosure(init)->clos_codevec,O(constant_initfunction_code))) {
+          pushSTACK(TheClosure(init)->other[0]); /* default in the stack */
         } else {
-          pushSTACK(Cdr(init)); /* default in the stack */
+          pushSTACK(l);
+          funcall(init,0);
+          l = STACK_0;
+          STACK_0 = value1; /* default in the stack */
         }
       }
       argcount++;
