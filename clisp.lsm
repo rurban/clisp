@@ -1,4 +1,4 @@
-Begin3
+Begin4
 Title:          GNU CLISP - and ANSI Common Lisp
 Version:        2.27
 Entered-date:   2001-07-17
@@ -7,14 +7,17 @@ Description:    GNU CLISP is an ANSI Common Lisp implementation.
                 implementation, a foreign language interface, fast bignums.
                 Packages running in CLISP include Maxima, CLX and Garnet.
 Keywords:       Lisp, Common Lisp, CLISP, computer algebra.
-Author:         Bruno Haible <haible@clisp.cons.org>,
-                Michael Stoll <michael@rhein.iam.uni-bonn.de>,
-                Marcus Daniels <marcus@sysc.pdx.edu>,
-                Sam Steingold <sds@gnu.org>
-Maintained-by:  Sam Steingold <sds@gnu.org>
-Primary-site:   sunsite.unc.edu /pub/Linux/devel/lang/lisp/
-Alternate-site: clisp.cons.org /pub/lisp/clisp
+Author:         haible@clisp.cons.org (Bruno Haible),
+                michael@rhein.iam.uni-bonn.de (Michael Stoll),
+                marcus@sysc.pdx.edu (Marcus Daniels),
+                sds@gnu.org (Sam Steingold)
+Maintained-by:  sds@gnu.org (Sam Steingold)
+Primary-site:   ftp://sunsite.unc.edu:/pub/Linux/devel/lang/lisp/
+                clisp-2.27-i686-unknown-Linux-2.2.19.tar.gz
+                clisp-2.27.tar.bz2
+                clisp-2.27.tar.gz
+Alternate-site: ftp://clisp.sf.net/pub/clisp/
 Original-site:  http://clisp.cons.org
-Platforms:      Unix, OS/2, Win32, Amiga, Acorn.
-Copying-policy: GPL
+Platforms:      C/C++ compiler on Unix, OS/2, Win32, Amiga, Acorn.
+Copying-policy: GNU GPL
 End
