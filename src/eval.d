@@ -3165,8 +3165,8 @@ nonreturning_function(local, fehler_eval_zuwenig, (object fun)) {
 # In EVAL: error, if too many arguments
 nonreturning_function(local, fehler_eval_zuviel, (object fun)) {
   var object form = STACK_(frame_form); # Form
-  pushSTACK(form);
-  pushSTACK(fun);
+  pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot FORM */
+  pushSTACK(form); pushSTACK(fun);
   /* ANSI CL 3.5.1.3. wants a PROGRAM-ERROR here. */
   fehler(source_program_error,
          GETTEXT("EVAL: too many arguments given to ~S: ~S"));
