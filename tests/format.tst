@@ -262,10 +262,10 @@ FOO
 ;; ANSI CL is not clear here whether the width is ignored or not,
 ;; but it makes more sense to print non-numeric arguments properly aligned.
 (FORMAT NIL "~5D" (QUOTE A))
-#-SBCL "    A" #+SBCL "A"
+#-(or CMU SBCL) "    A" #+(or CMU SBCL) "A"
 
 (FORMAT NIL "~5,3F" (QUOTE A))
-#-SBCL "    A" #+SBCL "A    "
+#-(or CMU SBCL) "    A" #+(or CMU SBCL) "A    "
 
 (FORMAT NIL "~5,3F" #C(1.2 0.3))
 "#C(1.2 0.3)"

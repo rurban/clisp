@@ -32,8 +32,8 @@ A
           (list slot-name operation new-value new-value-p)))
   (list (slot-boundp a 'abcd) cache
         (slot-value a 'abcd) cache))
-(T (ABCD SLOT-BOUNDP NIL NIL)
- (ABCD SLOT-VALUE NIL NIL) (ABCD SLOT-VALUE NIL NIL))
+(#+CMU (ABCD SLOT-BOUNDP NIL NIL) #-CMU T
+ (ABCD SLOT-BOUNDP NIL NIL) (ABCD SLOT-VALUE NIL NIL) (ABCD SLOT-VALUE NIL NIL))
 
 (x-val a)
 10
@@ -348,9 +348,9 @@ T
 (eq (class-of (find-class 't)) (find-class 'built-in-class))
 T
 
-(eq (class-of (make-array nil)) (find-class #+SBCL 'simple-array #-SBCL 'array))  T
-(eq (class-of (make-array nil :element-type nil)) (find-class #+SBCL 'simple-array #-SBCL 'array)) T
-(eq (class-of (make-array 10 :element-type nil)) (find-class #+SBCL 'sb-kernel::simple-array-nil #-SBCL 'string)) T
+(eq (class-of (make-array nil)) (find-class #+(or CMU SBCL) 'simple-array #-(or CMU SBCL) 'array))  T
+(eq (class-of (make-array nil :element-type nil)) (find-class #+(or CMU SBCL) 'simple-array #-(or CMU SBCL) 'array)) T
+(eq (class-of (make-array 10 :element-type nil)) (find-class #+CMU 'simple-string #+SBCL 'sb-kernel::simple-array-nil #-(or CMU SBCL) 'string)) T
 
 (typep "abc" (find-class 't))
 T
@@ -577,8 +577,8 @@ FOO
     (delete-file c)
     #+clisp (delete-file (make-pathname :type "lib" :defaults file))))
 #+CLISP #S(FOO :SLOT NIL)
-#+SBCL ERROR
-#-(or CLISP SBCL) UNKNOWN
+#+(or CMU SBCL) ERROR
+#-(or CLISP CMU SBCL) UNKNOWN
 
 ;; change-class
 ;; <http://www.lisp.org/HyperSpec/Body/stagenfun_change-class.html>
@@ -607,8 +607,8 @@ FOO
   (list (slot-value p1 'name) (slot-value p1 'rho) (slot-value p1 'theta)
         (slot-value p2 'name) (slot-value p2 'rho) (slot-value p2 'theta)))
 #+CLISP (FOO 2 0 BAR 1.4142135 0.7853981)
-#+SBCL (FOO 2.0 0.0 BAR 1.4142135 0.7853982)
-#-(or CLISP SBCL) UNKNOWN
+#+(or CMU SBCL) (FOO 2.0 0.0 BAR 1.4142135 0.7853982)
+#-(or CLISP CMU SBCL) UNKNOWN
 
 (progn
   (defclass c0 () (a b c))
@@ -1238,7 +1238,7 @@ error
   (defmethod test-mc-standard-bad-qualifiers :beffor ((x float) (y float))
     (format t "x = ~S, y = ~S~%" x y))
   t)
-#+CLISP ERROR #+SBCL T #-(or CLISP SBCL) UNKNOWN
+#+(or CLISP CMU) ERROR #+SBCL T #-(or CLISP CMU SBCL) UNKNOWN
 
 (progn
   (defgeneric test-mc-progn (x s)

@@ -239,13 +239,7 @@
             (push s lst))
           lst))
        (known-missing nil)
-       (known-extra
-        #+CMU
-        '(define-setf-method with-added-methods compiler-macroexpand-1
-          logical-pathname-p compiler-macroexpand hash-table-weak-p
-          generic-flet get-setf-method-multiple-value generic-labels
-          simple-condition-format-string get-setf-method)
-        #-CMU nil)
+       (known-extra nil)
        (missing (set-difference cl-symbols-required cl-symbols-actual))
        (extra   (set-difference cl-symbols-actual cl-symbols-required)))
   (format t "~:[~;~&~d missing symbol~:p: ~s~%~]"
