@@ -1,3 +1,8 @@
+2005-03-18  Bruno Haible  <bruno@clisp.org>
+
+	* configure.in (AC_INIT): Use esyscmd to retrieve the version number.
+	Suggested by Alexandre Duret-Lutz and Sam Steingold.
+
 2005-03-17  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (distrib) [cygwin]: remove the target before ln
