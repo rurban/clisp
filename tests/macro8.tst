@@ -617,8 +617,8 @@ nil
     (delete-file (compile-file-pathname file))
     #+clisp (delete-file (make-pathname :type "lib" :defaults file)))
   (ltv1))
-#+CLISP T #+(or CMUCL SBCL) NIL
-#-(or CLISP CMUCL SBCL) UNKNOWN
+#+CLISP T #+(or CMU SBCL) NIL
+#-(or CLISP CMU SBCL) UNKNOWN
 
 ;; compile-file is not allowed to collapse different LOAD-TIME-VALUE forms
 ;; even if the inner form is the same.

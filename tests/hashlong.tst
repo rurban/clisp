@@ -10,7 +10,7 @@
                        (symbol-function 'excl::%puthash)) t)
 #+allegro t
 #+cmu (progn (setf (symbol-function 'setf-gethash)
-                   (symbol-function 'cl::%puthash)) t)
+                   (symbol-function 'lisp::%puthash)) t)
 #+cmu t
 #+SBCL (progn (setf (symbol-function 'setf-gethash)
                     (symbol-function 'sb-kernel:%puthash)) t)
