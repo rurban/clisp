@@ -2536,11 +2536,15 @@ checks whether the &hash-table-t; is weak.</para>
 
 <para>While <constant>:WARN-IF-NEEDS-REHASH-AFTER-GC</constant> can help
  checking the efficiency of a particular hash table, the variable
- <constant>CUSTOM:*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*</constant>
- achieves the same effect for all hash table in the system at once: When
- <constant>CUSTOM:*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*</constant>
- is true and a hash table needs to be rehashed after a &gc;ion, a warning
- is issued that shows the inefficient hash table.</para>
+<firstterm>&warn-on-hashtable-needing-rehash-after-gc;
+ <indexterm id="hashtable-gc-rehash-warn" significance="preferred">
+  <primary id="hashtable-gc-rehash-warn-i">
+   <varname>*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*</varname>
+</primary></indexterm></firstterm>
+ achieves the same effect for all hash tables in the system at once:
+ when &warn-on-hashtable-needing-rehash-after-gc; is true and a hash
+ table needs to be rehashed after a &gc;ion, a warning is issued that
+ shows the inefficient hash table.</para>
 
 </section>
 

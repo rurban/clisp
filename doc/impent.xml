@@ -346,6 +346,7 @@
 <!ENTITY stablehash-eq "<link linkend='make-hash'><constant>EXT:STABLEHASH-EQ</constant></link>">
 <!ENTITY standard-stablehash "<link linkend='make-hash'><classname>EXT:STANDARD-STABLEHASH</classname></link>">
 <!ENTITY structure-stablehash "<link linkend='make-hash'><classname>EXT:STRUCTURE-STABLEHASH</classname></link>">
+<!ENTITY warn-on-hashtable-needing-rehash-after-gc "<link linkend='hashtable-gc-rehash-warn'><varname>CUSTOM:*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*</varname></link>">
 
 <!-- *** netica *** -->
 <!ENTITY netica-c-api "http://norsys.com/onLineAPIManual/functions/">
