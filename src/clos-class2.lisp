@@ -46,6 +46,7 @@
   current-version          ; most recent class-version, points back to this class
   direct-slots             ; list of all freshly added slots (as plists)
   direct-default-initargs  ; freshly added default-initargs (as plist)
+  direct-accessors         ; automatically generated accessor methods (as plist)
   instantiated             ; true if an instance has already been created
   direct-subclasses        ; list of weak-pointers to all finalized direct subclasses
   proto)                   ; class prototype - an instance or NIL
@@ -120,6 +121,7 @@
                            'defclass name superclass))
                        `',superclass)
                      superclass-specs)))
+         (classvar (gensym))
          (accessor-def-forms '())
          (slot-forms
            (let ((slot-names '()))
@@ -220,14 +222,20 @@
                              (setq readers (nreverse readers))
                              (setq writers (nreverse writers))
                              (dolist (funname readers)
-                               (push `(DEFMETHOD ,funname ((OBJECT ,name))
-                                        (DECLARE (COMPILE))
-                                        (SLOT-VALUE OBJECT ',slot-name))
+                               (push `(SETF (CLASS-DIRECT-ACCESSORS ,classvar)
+                                            (LIST* ',funname
+                                                   (DEFMETHOD ,funname ((OBJECT ,name))
+                                                     (DECLARE (COMPILE))
+                                                     (SLOT-VALUE OBJECT ',slot-name))
+                                                   (CLASS-DIRECT-ACCESSORS ,classvar)))
                                      accessor-def-forms))
                              (dolist (funname writers)
-                               (push `(DEFMETHOD ,funname (NEW-VALUE (OBJECT ,name))
-                                        (DECLARE (COMPILE))
-                                        (SETF (SLOT-VALUE OBJECT ',slot-name) NEW-VALUE))
+                               (push `(SETF (CLASS-DIRECT-ACCESSORS ,classvar)
+                                            (LIST* ',funname
+                                                   (DEFMETHOD ,funname (NEW-VALUE (OBJECT ,name))
+                                                     (DECLARE (COMPILE))
+                                                     (SETF (SLOT-VALUE OBJECT ',slot-name) NEW-VALUE))
+                                                   (CLASS-DIRECT-ACCESSORS ,classvar)))
                                      accessor-def-forms))
                              `(LIST
                                 :NAME ',slot-name
@@ -314,8 +322,9 @@
                      (TEXT "~S ~S: invalid option ~S")
                      'defclass name option)))
                `(,@metaclass ,@direct-default-initargs ,@documentation))))
-       ,@(nreverse accessor-def-forms) ; the DEFMETHODs
-       (FIND-CLASS ',name))))
+       (LET ((,classvar (FIND-CLASS ',name)))
+         ,@(nreverse accessor-def-forms) ; the DEFMETHODs
+         ,classvar))))
 ;; At runtime, an initer is - in order to save function calls -
 ;; in general a cons (init-function . nil),
 ;; for constants it is (nil . init-value).
@@ -441,6 +450,13 @@
           ;; Instances have to be updated:
           (let ((was-finalized (class-precedence-list class))
                 (old-direct-superclasses (class-direct-superclasses class)))
+            ;; ANSI CL 4.3.6. Remove accessor methods created by old DEFCLASS.
+            (do ((l (class-direct-accessors class) (cddr l)))
+                ((endp l))
+              (let ((funname (car l))
+                    (method (cadr l)))
+                (remove-method (fdefinition funname) method)))
+            (setf (class-direct-accessors class) '())
             (setf (class-proto class) nil)
             (let ((*make-instances-obsolete-caller* 'defclass))
               (make-instances-obsolete class))

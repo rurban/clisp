@@ -1,3 +1,11 @@
+2004-04-18  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (Class): Add direct_accessors field.
+	* clos-class2.lisp (standard-class): Add direct-accessors field.
+	(defclass): Store DEFMETHOD results in the class' direct-accessors.
+	(ensure-class): Remove accessor methods installed by previous version
+	of the class.
+
 2004-04-22  Bruno Haible  <bruno@clisp.org>
 
 	Special representation of slot initfunctions for constants.
