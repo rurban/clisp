@@ -145,7 +145,7 @@ extern int errno;
 #ifdef HAVE_IPV6
   #ifdef HAVE_INET_NTOP
     #define ipv6_ntop(buffer,addr)  \
-      inet_ntop(AF_INET6,&addr,buffer,45+1);
+      inet_ntop(AF_INET6,&addr,buffer,45+1)
   #else
     #define ipv6_ntop(buffer,addr)  \
       sprintf(buffer,"%x:%x:%x:%x:%x:%x:%x:%x", \
@@ -156,8 +156,7 @@ extern int errno;
               ntohs((addr).in6_u.u6_addr16[4]), \
               ntohs((addr).in6_u.u6_addr16[5]), \
               ntohs((addr).in6_u.u6_addr16[6]), \
-              ntohs((addr).in6_u.u6_addr16[7])  \
-             );
+              ntohs((addr).in6_u.u6_addr16[7]))
   #endif
 #endif
 
