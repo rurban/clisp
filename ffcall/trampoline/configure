@@ -309,7 +309,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP CC_GCC GCC_X_NONE AS_UNDERSCORE RANLIB SET_MAKE INSTALL INSTALL_PROGRAM INSTALL_DATA CP LN LN_S build build_cpu build_vendor build_os host host_cpu host_vendor host_os CPU_OBJECTS LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP CC_GCC GCC_X_NONE AS_UNDERSCORE RANLIB SET_MAKE INSTALL INSTALL_PROGRAM INSTALL_DATA CP LN LN_S build build_cpu build_vendor build_os host host_cpu host_vendor host_os host_cpu_abi CPU_OBJECTS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -6108,22 +6108,22 @@ host_os=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
 
 case "$host_cpu" in
   i[4567]86 )
-    host_cpu=i386
+    host_cpu_abi=i386
     ;;
   alphaev[4-8] | alphaev56 | alphapca5[67] | alphaev6[78] )
-    host_cpu=alpha
+    host_cpu_abi=alpha
     ;;
   hppa1.0 | hppa1.1 | hppa2.0* | hppa64 )
-    host_cpu=hppa
+    host_cpu_abi=hppa
     ;;
   powerpc )
-    host_cpu=rs6000
+    host_cpu_abi=rs6000
     ;;
   c1 | c2 | c32 | c34 | c38 | c4 )
-    host_cpu=convex
+    host_cpu_abi=convex
     ;;
   arm* )
-    host_cpu=arm
+    host_cpu_abi=arm
     ;;
   mips )
     echo "$as_me:$LINENO: checking for 64-bit MIPS" >&5
@@ -6159,7 +6159,7 @@ fi
 echo "$as_me:$LINENO: result: $cl_cv_host_mips64" >&5
 echo "${ECHO_T}$cl_cv_host_mips64" >&6
 if test $cl_cv_host_mips64 = yes; then
-  host_cpu=mips64
+  host_cpu_abi=mips64
 else
   echo "$as_me:$LINENO: checking for MIPS with n32 ABI" >&5
 echo $ECHO_N "checking for MIPS with n32 ABI... $ECHO_C" >&6
@@ -6191,7 +6191,7 @@ fi
 echo "$as_me:$LINENO: result: $cl_cv_host_mipsn32" >&5
 echo "${ECHO_T}$cl_cv_host_mipsn32" >&6
 if test $cl_cv_host_mipsn32 = yes; then
-  host_cpu=mipsn32
+  host_cpu_abi=mipsn32
 fi
 fi
     ;;
@@ -6226,15 +6226,19 @@ fi
 echo "$as_me:$LINENO: result: $cl_cv_host_sparc64" >&5
 echo "${ECHO_T}$cl_cv_host_sparc64" >&6
 if test $cl_cv_host_sparc64 = yes; then
-  host_cpu=sparc64
+  host_cpu_abi=sparc64
 else
-  host_cpu=sparc
+  host_cpu_abi=sparc
 fi
     ;;
+  *)
+    host_cpu_abi=$host_cpu
+    ;;
 esac
+
 cat >> confdefs.h <<EOF
-#ifndef __${host_cpu}__
-#define __${host_cpu}__ 1
+#ifndef __${host_cpu_abi}__
+#define __${host_cpu_abi}__ 1
 #endif
 EOF
 
@@ -6247,7 +6251,7 @@ else
 case "$host_os" in
   hpux*) cl_cv_codeexec="guessing yes" ;;
   *)
-case "$host_cpu"-"$host_os" in
+case "$host_cpu_abi"-"$host_os" in
   # On host=rs6000-*-aix3.2.5 malloc'ed memory is indeed not executable.
   rs6000-aix*) cl_cv_codeexec="guessing no" ;;
   *)
@@ -6397,26 +6401,26 @@ _ACEOF
 esac
 
 CPU_OBJECTS=''
-if test ${host_cpu} = hppa -o ${host_cpu} = ia64; then
+if test ${host_cpu_abi} = hppa -o ${host_cpu_abi} = ia64; then
   CPU_OBJECTS="$CPU_OBJECTS "'tramp-$(CPU).o'
 fi
-if test ${host_cpu} = rs6000; then
+if test ${host_cpu_abi} = rs6000; then
   case "${host_os}" in
     aix*) CPU_OBJECTS="$CPU_OBJECTS "'tramp-$(CPU).o' ;;
     *) ;;
   esac
 fi
-if test ${host_cpu} = sparc -o ${host_cpu} = sparc64 -o ${host_cpu} = alpha -o ${host_cpu} = hppa -o ${host_cpu} = convex; then
+if test ${host_cpu_abi} = sparc -o ${host_cpu_abi} = sparc64 -o ${host_cpu_abi} = alpha -o ${host_cpu_abi} = hppa -o ${host_cpu_abi} = convex; then
   CPU_OBJECTS="$CPU_OBJECTS "'cache-$(CPU).o'
 fi
-if test ${host_cpu} = rs6000; then
+if test ${host_cpu_abi} = rs6000; then
   case "${host_os}" in
     aix*) ;;
     *) CPU_OBJECTS="$CPU_OBJECTS "'cache-$(CPU).o' ;;
   esac
 fi
 
-if test ${host_cpu} = mips -o ${host_cpu} = mipsn32 -o ${host_cpu} = mips64; then
+if test ${host_cpu_abi} = mips -o ${host_cpu_abi} = mipsn32 -o ${host_cpu_abi} = mips64; then
 
 for ac_header in sys/cachectl.h
 do
@@ -6568,7 +6572,7 @@ fi
 done
 
 fi
-if test ${host_cpu} = m88k; then
+if test ${host_cpu_abi} = m88k; then
 
 for ac_header in sys/m88kbcs.h
 do
@@ -7359,6 +7363,7 @@ s,@host@,$host,;t t
 s,@host_cpu@,$host_cpu,;t t
 s,@host_vendor@,$host_vendor,;t t
 s,@host_os@,$host_os,;t t
+s,@host_cpu_abi@,$host_cpu_abi,;t t
 s,@CPU_OBJECTS@,$CPU_OBJECTS,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t

@@ -18,7 +18,7 @@ dnl function pointers are actually pointers to a three-pointer struct.
 case "$host_os" in
   hpux*) cl_cv_codeexec="guessing yes" ;;
   *)
-case "$host_cpu"-"$host_os" in
+case "$host_cpu_abi"-"$host_os" in
   # On host=rs6000-*-aix3.2.5 malloc'ed memory is indeed not executable.
   rs6000-aix*) cl_cv_codeexec="guessing no" ;;
   *)
