@@ -72,7 +72,7 @@ If anything else, printed.")
 (defun prompt-string2 ()
   (princ-to-string
     (if (functionp *prompt*)
-      (lisp::ignore-errors (funcall *prompt*))
+      (ignore-errors (funcall *prompt*))
       *prompt*)))
 ;; Prompt: last part
 (defun prompt-string3 () "> ")
