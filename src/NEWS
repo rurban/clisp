@@ -17,6 +17,7 @@ User visible changes
 
 * Unicode support: The pretty-printer and FORMAT ~T now handle non-spacing and
   double-width Unicode characters correctly. Pretty-printer slows down by 30%.
+  New functions CHAR-WIDTH, STRING-WIDTH.
 
 * Fixed two bugs in TRANSLATE-PATHNAME: Substitution of "**" did not work.
   Substitutions without version into non-logical pathnames crashed.
@@ -130,7 +131,7 @@ User visible changes
     WITH-OUTPUT-TO-PRINTER
   accept a keyword argument :EXTERNAL-FORMAT. Possible values are encodings,
   such as returned by the function MAKE-ENCODING, the line terminator keywords
-  :UNIX, :MAC, :DOS, and :DEFAULT.
+  :UNIX, :MAC, :DOS, and :DEFAULT. New function STREAM-EXTERNAL-FORMAT.
 
 * STREAM-EXTERNAL-FORMAT is SETFable. The external format of streams created
   by the functions OPEN, MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM,
