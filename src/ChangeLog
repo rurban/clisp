@@ -1,3 +1,15 @@
+2001-04-11  Sam Steingold  <sds@gnu.org>
+
+	Merged FLET with SYS::%FLET (same for LABELS & MACROLET)
+	* init.lisp (flet, labels, macrolet): removed
+	(%expand-form): removed flet, labels and macrolet
+	do not load "defs3"
+	* defs3.lisp: removed
+	* compiler.lisp (skip-declarations): new function
+	(c-flet, c-labels, c-macrolet): use it
+	* constsym.d (pflet, plabels, pmacrolet): removed
+	* control.d (skip_declarations): new function
+
 2001-04-10  Bruno Haible  <haible@clisp.cons.org>
 
 	Support for MacOS X.

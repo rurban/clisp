@@ -252,25 +252,6 @@ space safety compilation-speed debug declaration dynamic-extent compile
           (list 'EVAL-WHEN '(COMPILE LOAD EVAL)
                 (list 'SETQ 'COMMON-LISP::*PACKAGE*
                       (list 'SYS::%FIND-PACKAGE package-name))))))))
-;; temporary definitions, until defs3.lisp
-(sys::%putd 'flet
-  (sys::make-macro
-    (function flet
-      (lambda (form env)
-        (declare (ignore env))
-        (cons 'sys::%flet (cdr form))))))
-(sys::%putd 'labels
-  (sys::make-macro
-    (function labels
-      (lambda (form env)
-        (declare (ignore env))
-        (cons 'sys::%labels (cdr form))))))
-(sys::%putd 'macrolet
-  (sys::make-macro
-    (function macrolet
-      (lambda (form env)
-        (declare (ignore env))
-        (cons 'sys::%macrolet (cdr form))))))
 
 ;; this is yet another temporary definition
 (sys::%putd 'cerror
@@ -843,8 +824,7 @@ space safety compilation-speed debug declaration dynamic-extent compile
                       (first form) nil
                       (%expand-list (rest form))
               ) ) ) )
-              (SYS::%FLET ; expand function definitions
-                    ; Body im erweiterten Environment expandieren
+              (FLET ; expand function definitions
                 (if (null (second form))
                   (values (%expand-form (cons 'PROGN (cddr form))) t)
                   (let ((newfenv (%expand-fundefs-1 (second form))))
@@ -855,7 +835,7 @@ space safety compilation-speed debug declaration dynamic-extent compile
                         (let ((*fenv* (apply #'vector newfenv)))
                           (%expand-list (cddr form))
               ) ) ) ) ) )
-              (SYS::%LABELS ; expand function definitions and body in the extended environment
+              (LABELS ; expand function definitions and body in the extended environment
                 (if (null (second form))
                   (values (%expand-form (cons 'PROGN (cddr form))) t)
                   (let ((newfenv (%expand-fundefs-1 (second form))))
@@ -866,7 +846,7 @@ space safety compilation-speed debug declaration dynamic-extent compile
                           (%expand-fundefs-2 (second form))
                           (%expand-list (cddr form))
               ) ) ) ) ) )
-              (SYS::%MACROLET ; expand the body in the extended environment
+              (MACROLET ; expand the body in the extended environment
                 (do ((L1 (second form) (cdr L1))
                      (L2 nil))
                     ((atom L1)
@@ -2056,8 +2036,6 @@ space safety compilation-speed debug declaration dynamic-extent compile
 ;; POSIX/SUSV2 system calls and library functions, optional
 ;; http://www.UNIX-systems.org/online.html
 #+syscalls (load "posix")
-
-(LOAD "defs3")                  ; flet, labels, macrolet
 
 #+GETTEXT (LOAD "german") ;; Deutsche Meldungen
 #+GETTEXT (LOAD "french") ;; Französische Meldungen

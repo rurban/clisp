@@ -3104,11 +3104,8 @@ der Docstring (oder NIL).
           (MULTIPLE-VALUE-LIST . c-MULTIPLE-VALUE-LIST)
           (MULTIPLE-VALUE-PROG1 . c-MULTIPLE-VALUE-PROG1)
           (FLET . c-FLET)
-          (SYS::%FLET . c-FLET)
           (LABELS . c-LABELS)
-          (SYS::%LABELS . c-LABELS)
           (MACROLET . c-MACROLET)
-          (SYS::%MACROLET . c-MACROLET)
           (SYSTEM::FUNCTION-MACRO-LET . c-FUNCTION-MACRO-LET)
           (SYMBOL-MACROLET . c-SYMBOL-MACROLET)
           (COMPILER-LET . c-COMPILER-LET)
@@ -6741,12 +6738,17 @@ der Docstring (oder NIL).
                   :code `(,anode1 (PUSH) ,anode2 (CONS))
 ) ) ) )
 
-(%macrolet ((err-syntax (specform fdef)
+;; skip (ignore) all declarations in the beginning of BODY
+(defun skip-declarations (body)
+  (do ((bo body (cdr bo)))
+      ((not (and (consp bo) (consp (car bo)) (eq (caar bo) 'declare)))
+       bo)))
+
+(macrolet ((err-syntax (specform fdef)
              `(catch 'c-error
-                (c-error (ENGLISH "Illegal function definition syntax in ~S: ~S")
-                         ,specform ,fdef
-              ) )
-          ))
+               (c-error
+                (ENGLISH "Illegal function definition syntax in ~S: ~S")
+                ,specform ,fdef))))
 
 ; compiliere (FLET ({fundef}*) {form}*)
 (defun c-FLET ()
@@ -6807,8 +6809,7 @@ der Docstring (oder NIL).
             ) ) ) ) )
           (apply #'push-*venv* varlist) ; Hilfsvariablen aktivieren
           (let* ((body-anode ; restliche Formen compilieren
-                   (c-form `(PROGN ,@(cddr *form*)))
-                 )
+                   (c-form `(PROGN ,@(skip-declarations (cddr *form*)))))
                  (closurevars (checking-movable-var-list varlist anodelist))
                  (anode
                    (make-anode
@@ -6919,7 +6920,7 @@ der Docstring (oder NIL).
                            fnodelist varlist
                  ) )
                  (body-anode ; restliche Formen compilieren
-                   (c-form `(PROGN ,@(cddr *form*)))
+                   (c-form `(PROGN ,@(skip-declarations (cddr *form*))))
                 ))
             ; die Variablen, zu denen die Funktion autonom war, werden nach-
             ; träglich zu Konstanten erklärt:
@@ -7243,8 +7244,8 @@ der Docstring (oder NIL).
       ((null L1)
        (push *fenv* L2)
        (let ((*fenv* (apply #'vector (nreverse L2)))) ; *fenv* erweitern
-         (funcall c `(PROGN ,@(cddr *form*))) ; restliche Formen compilieren
-      ))
+         ;; compile the remaining forms:
+         (funcall c `(PROGN ,@(skip-declarations (cddr *form*))))))
     (let* ((macrodef (car L1))
            (name (car macrodef)))
       (push name L2)
