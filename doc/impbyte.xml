@@ -1233,7 +1233,7 @@ letters:
       <entry>&value1; := &svref;(*&STACK;++,&value1;),
              &mv-count; := 1.</entry></row>
  <row><entry><literal role="sexp">(SVSET)</literal></entry>
-      <entry>Inlined call to SYSTEM::SVSTORE.</entry>
+      <entry>Inlined call to <function>SYSTEM::SVSTORE</function>.</entry>
       <entry><replaceable>arg1</replaceable> := *(&STACK;+1),
              <replaceable>arg2</replaceable> := *(&STACK;+0), &STACK; += 2.
              &svref;(<replaceable>arg2</replaceable>,&value1;) :=
