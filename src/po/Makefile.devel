@@ -46,7 +46,7 @@ DSOURCES = \
 # Keep this in the same order as the LPARTS variable in makemake.in !
 LISPSOURCES = init defseq backquote defmacro macros1 macros2 defs1 \
               timezone places floatprint defpackage type subtypep \
-              defstruct format \
+              clos-package defstruct format \
               international savemem functions trace cmacros compiler \
               defs2 loop clos \
               clos-class1 clos-class2 clos-class3 clos-class4 clos-class5 \

@@ -420,11 +420,22 @@
 
 (use-package '("CLOS") "COMMON-LISP")
 (ext:re-export "CLOS" "COMMON-LISP")
-(let ((clos-extra '(generic-flet generic-labels no-primary-method
-                    method-call-error method-call-type-error
-                    method-call-error-generic-function
-                    method-call-error-method method-call-error-argument-list
-                    class-prototype class-finalized-p finalize-inheritance)))
+(let ((clos-extra
+        '(;; MOP for dependents
+          ;; MOP for slot definitions
+          ;; MOP for slot access
+          ;; MOP for classes
+          class-prototype class-finalized-p finalize-inheritance
+          ;; MOP for specializers
+          ;; MOP for methods
+          ;; MOP for method combinations
+          ;; MOP for generic functions
+          ;; CLISP specific symbols
+          generic-flet generic-labels no-primary-method
+          method-call-error method-call-type-error
+          method-call-error-generic-function
+          method-call-error-method method-call-error-argument-list
+     ))  )
   ;; not in ANSI - export separately, after `re-export' above
   (export clos-extra "CLOS")
   ;; so that they are available in CL-USER even though it does not use CLOS
@@ -1726,6 +1737,8 @@
 (LOAD "defpackage")             ; DEFPACKAGE
 
 (LOAD "type")                   ; TYPEP
+
+(LOAD "clos-package")           ; Early CLOS
 
 (LOAD "defstruct")              ; DEFSTRUCT-macro
 
