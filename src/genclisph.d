@@ -958,6 +958,13 @@ int main(int argc, char* argv[])
   printf("#define structure_types   recdata[0]\n");
   sprintf(buf,"struct { SRECORD_HEADER gcv_object_t inst_class_version%s; gcv_object_t other[unspecified]%s; } *",attribute_aligned_object,attribute_aligned_object);
   emit_typedef(buf,"Instance");
+#ifdef TYPECODES
+  printf("#define closure_flags(ptr)  ((ptr)->recflags)\n");
+#else
+  printf("#define closure_flags(ptr)  record_flags(ptr)\n");
+#endif
+  printf1("#define closure_instancep(ptr)  (closure_flags(ptr) & %d)\n",closflags_instance_B);
+  printf("#define Closure_instancep(obj)  closure_instancep(TheClosure(obj))\n");
   printf("typedef void Values;\n"); /* emit_typedef useless: no sizeof(void) */
   emit_typedef_f("Values (*%s)()","lisp_function_t");
   sprintf(buf,"struct { XRECORD_HEADER gcv_object_t name%s; gcv_object_t keywords%s; lisp_function_t function; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; uintW seclass; } %%s",attribute_aligned_object,attribute_aligned_object);
@@ -1037,7 +1044,8 @@ int main(int argc, char* argv[])
   printf("#define ThePackage(obj)  ((Package)("); printf_type_pointable(orecord_type); printf("))\n");
 #endif
   printf("#define TheStructure(obj)  ((Structure)("); printf_type_pointable(structure_type); printf("))\n");
-  printf("#define TheInstance(obj)  ((Instance)("); printf_type_pointable(instance_type); printf("))\n");
+  printf("#define TheClosure(obj)  ((Closure)("); printf_type_pointable(closure_type); printf("))\n");
+  printf("#define TheInstance(obj)  ((Instance)("); printf_type_pointable(instance_type|closure_type); printf("))\n");
   printf("#define TheSubr(obj)  ((Subr)("); printf_type_pointable(subr_type); printf("))\n");
 #if notused
   printf("#define TheMachine(obj)  ((void*)("); printf_type_pointable(machine_type); printf("))\n");
@@ -1079,6 +1087,7 @@ int main(int argc, char* argv[])
   printf1("#define ThePackage(obj)  ((Package)(ngci_pointable(obj)-%d))\n",varobject_bias);
 #endif
   printf1("#define TheStructure(obj)  ((Structure)(ngci_pointable(obj)-%d))\n",varobject_bias);
+  printf1("#define TheClosure(obj)  ((Closure)(ngci_pointable(obj)-%d))\n",varobject_bias);
   printf1("#define TheInstance(obj)  ((Instance)(ngci_pointable(obj)-%d))\n",varobject_bias);
   printf1("#define TheSubr(obj)  ((Subr)(cgci_pointable(obj)-%d))\n",subr_bias);
 #if notused
@@ -1215,9 +1224,9 @@ int main(int argc, char* argv[])
   printf("extern uintL array_rank (object array);\n");
   printf("extern uintBWL array_atype (object array);\n");
 #ifdef TYPECODES
-  printf1("#define instancep(obj)  (typecode(obj)==%d)\n",(tint)instance_type);
+  printf2("#define instancep(obj)  (typecode(obj)==%d || (typecode(obj)==%d && Cclosure_instance_p(obj)))\n",(tint)instance_type,(tint)closure_type);
 #else
-  printf1("#define instancep(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Instance);
+  printf2("#define instancep(obj)  (varobjectp(obj) && (Record_type(obj) == %d || (Record_type(obj) == %d && Cclosure_instance_p(obj))))\n",Rectype_Instance,Rectype_Closure);
 #endif
 #ifdef TYPECODES
   printf1("#define orecordp(obj)  (typecode(obj)==%d)\n",(tint)orecord_type);

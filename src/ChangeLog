@@ -1,3 +1,113 @@
+2004-06-12  Bruno Haible  <bruno@clisp.org>
+
+	Implement funcallable instances.
+	* lispbibl.d (Class): New field funcallablep.
+	(closure_flags): Renamed from cclosure_flags.
+	(Closure_flags): Renamed from Cclosure_flags.
+	(Cclosure_seclass): Shift by 4 bits.
+	(Cclosure_set_seclass): Likewise. Don't replace the entire
+	record_flags.
+	(closflags_instance_B, closure_instancep, Closure_instancep): New
+	macros.
+	(Closure_name): Add a conditional for the case of funcallable
+	instances.
+	(TheInstance): Can be closure_type as well.
+	(regular_instance_p): Renamed from instancep.
+	(instancep, funcallable_instance_p): New macros.
+	(allocate_cclosure_copy): Update.
+	* genclisph.d (main): Emit definitions for closure_flags,
+	closure_instancep, Closure_instancep, TheClosure. Update TheInstance,
+	instancep.
+	* eval.d (get_closure): Update.
+	(init_cclosures): Construct O(endless_loop_code).
+	* io.d (pr_closure): Treat the case of funcallable instances.
+	* predtype.d (TYPE-OF, CLOS:CLASS-OF): Treat the case of funcallable
+	instances.
+	(heap_statistics_mapper): Likewise.
+	* hashtabl.d (sxhash_atom): Likewise.
+	* record.d (SYS::%MAKE-CLOSURE): Update.
+	(CLOS:SET-FUNCALLABLE-INSTANCE-FUNCTION): New function.
+	(CLOS::FUNCALLABLE-INSTANCE-P): New function.
+	(CLOS::ALLOCATE-FUNCALLABLE-INSTANCE): New function.
+	(do_allocate_instance, update_instance): Use
+	ALLOCATE-FUNCALLABLE-INSTANCE if the instances have to be funcallable.
+	* init.lisp: Export funcallable-standard-class,
+	funcallable-standard-object, set-funcallable-instance-function.
+	* clos-package.lisp: Likewise.
+	* clos-class1.lisp (semi-standard-class): New class.
+	(<semi-standard-class>, *<semi-standard-class>-defclass*): New
+	variables.
+	(standard-class): Inherit from semi-standard-class.
+	(class-current-version, class-fixed-slot-locations, class-instantiated,
+	class-finalized-direct-subclasses-table, class-prototype): Generalize
+	to work on semi-standard-class.
+	(class-funcallablep): New accessor.
+	(*<standard-class>-instance-size*): Update.
+	(<funcallable-standard-class>,
+	*<funcallable-standard-class>-class-version*,
+	<funcallable-standard-object>): New variables.
+	(semi-standard-class-p): New function.
+	* clos-class2.lisp (<funcallable-standard-class>,
+	<funcallable-standard-object>): New variables.
+	* clos-class3.lisp (ensure-class-using-class-<t>): Add a special case
+	for <funcallable-standard-class>.
+	(default-direct-superclasses): Special case for
+	<funcallable-standard-class>.
+	(validate-superclass): Add special support for
+	<funcallable-standard-object>.
+	(compute-effective-slot-definition-<class>): Use semi-standard-class-p
+	instead of standard-class-p.
+	(compute-slots-<slotted-class>-around): Likewise.
+	(install-class-direct-accessors): Likewise.
+	(shared-initialize-<semi-standard-class>): Renamed from
+	shared-initialize-<standard-class>.
+	(shared-initialize-<standard-class>): New function.
+	(finalize-instance-semi-standard-class): Renamed from
+	finalize-instance-standard-class. Use semi-standard-class-p instead of
+	standard-class-p. Initialize the funcallablep slot. Initialize the
+	instance-size differently for funcallable objects.
+	(make-instances-obsolete-<semi-standard-class>): Renamed from
+	make-instances-obsolete-standard-class.
+	(make-instances-obsolete-<semi-standard-class>-nonrecursive): Renamed
+	from make-instances-obsolete-standard-class-nonrecursive.
+	(update-subclasses-for-redefined-class): Use semi-standard-class-p
+	instead of standard-class-p.
+	(update-subclasses-for-redefined-class-nonrecursive): Likewise.
+	Initialize <semi-standard-class>.
+	* clos-class4.lisp (shared-initialize@funcallable-standard-class):
+	New method.
+	* clos-class5.lisp (allocate-instance, make-instance): Generalize
+	the fallback method to class semi-standard-class.
+	(do-change-class): New function.
+	(change-class): Add more methods.
+	(make-instances-obsolete): Update.
+	* clos-class6.lisp (initialize-instance-<funcallable-standard-class>,
+	make-instance-<funcallable-standard-class>): Replace.
+	(class-funcallablep, (setf class-funcallablep)): New functions.
+	(class-current-version, class-fixed-slot-locations, class-instantiated,
+	class-finalized-direct-subclasses-table, class-prototype): Generalize
+	to class semi-standard-class.
+	(finalize-inheritance, compute-slots): Likewise.
+	(validate-superclass): Add special support for
+	<funcallable-standard-object>.
+	* compiler.lisp (make-trampoline): New function.
+	* clos-genfun1.lisp (funcallable-standard-class): New class.
+	(<funcallable-standard-class>,
+	*<funcallable-standard-class>-class-version*,
+	*<funcallable-standard-class>-instance-size*): New variables.
+	(make-instance-<funcallable-standard-class>,
+	initialize-instance-<funcallable-standard-class>,
+	shared-initialize-<funcallable-standard-class>): New functions.
+	(funcallable-standard-object): New class.
+	(<funcallable-standard-object>): New variable.
+	* clos-slotdef1.lisp (convert-direct-slots): Use semi-standard-class-p
+	instead of standard-class-p.
+	* clos-slotdef3.lisp (direct-slot-definition-class,
+	effective-slot-definition-class): Generalize to class
+	semi-standard-class.
+	* clos-print.lisp (print-object@class): Use semi-standard-class-p
+	instead of standard-class-p.
+
 2004-08-03  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/bdb.c (CLOSE_ERRFILE): new macro

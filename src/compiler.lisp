@@ -11016,6 +11016,34 @@ The function make-closure is required.
                 (prin1 comment stream)))))))
     (terpri stream)))
 
+;; Creates a trampoline bytecode vector for jumping to a given function.
+;; Used by set-funcallable-instance-function.
+(defun make-trampoline (function)
+  (multiple-value-bind (name req-num opt-num rest-p key-p)
+      (function-signature function)
+    (declare (ignore name))
+    ; Don't use optional parameters, since the RETGF instruction doesn't
+    ; support them.
+    (when (> opt-num 0)
+      (setq opt-num 0 rest-p t))
+    (let ((fnode
+            (make-fnode :name 'trampoline
+                        :req-anz req-num
+                        :opt-anz opt-num
+                        :rest-flag (or rest-p key-p)
+                        :code (make-anode :seclass *seclass-dirty*)
+                        :Blocks-Offset 0
+                        :Tagbodys-Offset 0
+                        :Keyword-Offset 0
+                        :Consts-Offset 0)))
+      (create-fun-obj fnode
+                      (assemble-LAP
+                        (list (list 'VENV)
+                              (list 'SKIP&RETGF (+ 1 req-num (if (or rest-p key-p) 1 0)))))
+                      '(0 . 0))
+      (let ((trampoline (fnode-code fnode)))
+        (sys::%record-ref trampoline 1)))))
+
 ;; The compilation of code using symbol-macros requires venv-search in
 ;; compiled form.
 (unless (compiled-function-p #'venv-search)

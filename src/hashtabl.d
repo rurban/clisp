@@ -2939,6 +2939,7 @@ local uint32 sxhash_atom (object obj) {
       return TheStream(obj)->strmtype + 0x3DAEAE55UL;
    {var uint32 bish_code;
     case_closure:               /* closure */
+      if (Closure_instancep(obj)) goto instance_only_class;
       /* utilize all elements ?? */
       bish_code = 0xB0DD939EUL; goto record_all;
     case_orecord: {             /* OtherRecord */
@@ -3008,6 +3009,7 @@ local uint32 sxhash_atom (object obj) {
         return bish_code;
       }
    }
+    instance_only_class:
     case_instance: {            /* instance */
       /* utilize only the class */
       var object obj_forwarded = obj;

@@ -514,7 +514,7 @@
 (setq |#'allocate-instance| #'allocate-instance)
 #||
  (defgeneric allocate-instance (class)
-  (:method ((class standard-class))
+  (:method ((class semi-standard-class))
     (unless (%class-precedence-list class) (finalize-class class t))
     (allocate-std-instance class (class-instance-size class)))
   (:method ((class structure-class))
@@ -527,19 +527,22 @@
   ;; No need to check the validity of the initargs, because ANSI CL says
   ;; "The caller of allocate-instance is expected to have already checked
   ;;  the initialization arguments."
-  ;; Quick and dirty dispatch among <standard-class> and <structure-class>.
-  ;; (class-current-version class) is a simple-vector, (class-names class) a cons.
+  ;; Quick and dirty dispatch among <semi-standard-class> and <structure-class>.
+  ;; (class-current-version class) is an atom, (class-names class) a cons.
   (if (atom (class-current-version class))
     (progn
       (unless (%class-precedence-list class) (finalize-class class t))
-      (allocate-std-instance class (class-instance-size class)))
+      ;; Dispatch among <standard-class> and <funcallable-standard-class>.
+      (if (not (class-funcallablep class))
+        (allocate-std-instance class (class-instance-size class))
+        (allocate-funcallable-instance class (class-instance-size class))))
     (sys::%make-structure (class-names class) (class-instance-size class)
                           :initial-element unbound)))
 ||#
 ; the main work is done by a SUBR:
 (do-defmethod 'allocate-instance
   (make-instance-<standard-method> <standard-method>
-    :specializers (list (find-class 'standard-class))
+    :specializers (list (find-class 'semi-standard-class))
     'initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%allocate-instance '(T)))
     'wants-next-method-p nil
@@ -561,7 +564,7 @@
   (:method ((class symbol) &rest initargs)
     (apply #'make-instance (find-class class) initargs)))
 #||
- (defmethod make-instance ((class standard-class) &rest initargs)
+ (defmethod make-instance ((class semi-standard-class) &rest initargs)
   (check-initialization-argument-list initargs 'make-instance)
   ;; CLtL2 28.1.9.3., 28.1.9.4., ANSI CL 7.1.3., 7.1.4.: Take note of
   ;; default-initargs:
@@ -603,7 +606,7 @@
 ;; the main work is done by a SUBR:
 (do-defmethod 'make-instance
   (make-instance-<standard-method> <standard-method>
-    :specializers (list (find-class 'standard-class))
+    :specializers (list (find-class 'semi-standard-class))
     'initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%make-instance '(T)))
     'wants-next-method-p nil
@@ -643,30 +646,45 @@
       instance)))
 
 ;;; change-class
+
 (defgeneric change-class (instance new-class &key &allow-other-keys)
   (:method ((instance standard-object) (new-class standard-class)
             &rest initargs)
-    ;; ANSI CL 7.2.1. Modifying the Structure of the Instance.
-    (let ((previous (%change-class instance new-class)))
-      ;; previous = a copy of instance
-      ;; instance = mutated instance, with new class, slots unbound
-      ;; Copy identically named slots:
-      (let ((old-slots (class-slots (class-of previous)))
-            (new-slots (class-slots new-class)))
-        (dolist (slot old-slots)
-          (let ((name (slot-definition-name slot)))
-            (when (slot-boundp previous name)
-              ;; Retain the slot's value if it is a local slot in new-class.
-              (let ((new-slot (find name new-slots :test #'eq
-                                    :key #'slot-definition-name)))
-                (when (and new-slot (atom (slot-definition-location new-slot)))
-                  (setf (slot-value instance name)
-                        (slot-value previous name))))))))
-      ;; ANSI CL 7.2.2. Initializing Newly Added Local Slots.
-      (apply #'update-instance-for-different-class
-             previous instance initargs)))
+    (apply #'do-change-class instance new-class initargs))
+  (:method ((instance funcallable-standard-object) (new-class standard-class)
+            &rest initargs)
+    (error (TEXT "~S cannot change a funcallable object to a non-funcallable object: ~S")
+           'change-class instance))
+  (:method ((instance funcallable-standard-object) (new-class funcallable-standard-class)
+            &rest initargs)
+    (apply #'do-change-class instance new-class initargs))
+  (:method ((instance standard-object) (new-class funcallable-standard-class)
+            &rest initargs)
+    (error (TEXT "~S cannot change a non-funcallable object to a funcallable object: ~S")
+           'change-class instance))
   (:method ((instance t) (new-class symbol) &rest initargs)
     (apply #'change-class instance (find-class new-class) initargs)))
+
+(defun do-change-class (instance new-class &rest initargs)
+  ;; ANSI CL 7.2.1. Modifying the Structure of the Instance.
+  (let ((previous (%change-class instance new-class)))
+    ;; previous = a copy of instance
+    ;; instance = mutated instance, with new class, slots unbound
+    ;; Copy identically named slots:
+    (let ((old-slots (class-slots (class-of previous)))
+          (new-slots (class-slots new-class)))
+      (dolist (slot old-slots)
+        (let ((name (slot-definition-name slot)))
+          (when (slot-boundp previous name)
+            ;; Retain the slot's value if it is a local slot in new-class.
+            (let ((new-slot (find name new-slots :test #'eq
+                                  :key #'slot-definition-name)))
+              (when (and new-slot (atom (slot-definition-location new-slot)))
+                (setf (slot-value instance name)
+                      (slot-value previous name))))))))
+    ;; ANSI CL 7.2.2. Initializing Newly Added Local Slots.
+    (apply #'update-instance-for-different-class
+           previous instance initargs)))
 
 (defgeneric update-instance-for-different-class (previous current
                                                  &key &allow-other-keys)
@@ -706,8 +724,8 @@
 ;; MAKE-INSTANCES-OBSOLETE as a generic function.
 (fmakunbound 'make-instances-obsolete)
 (defgeneric make-instances-obsolete (class)
-  (:method ((class standard-class))
-    (make-instances-obsolete-standard-class class)
+  (:method ((class semi-standard-class))
+    (make-instances-obsolete-<semi-standard-class> class)
     class)
   (:method ((class symbol))
     (make-instances-obsolete (find-class class))

@@ -1697,7 +1697,7 @@ global object get_closure (object lambdabody, object name, bool blockp,
   pushSTACK(value3); /* Doc-String or NIL */
   var gcv_object_t* closure_; /* Pointer to the Closure in the STACK */
   { /* create Closure (filled with NIL): */
-    var object closure = allocate_closure(iclos_length,seclass_default);
+    var object closure = allocate_closure(iclos_length,seclass_default<<4);
     /* and fill partially: */
     TheIclosure(closure)->clos_docstring = popSTACK(); /* Doc-String */
     var object declarations              = popSTACK(); /* Declarations */
@@ -8446,6 +8446,19 @@ global void init_cclosures (void) {
     TheSbvector(codevec)->data[CCV_START_NONKEY+1] = cod_skip_ret;
     TheSbvector(codevec)->data[CCV_START_NONKEY+2] = 1;
     O(constant_initfunction_code) = codevec;
+  }
+  # Build #12Y(00 00 00 00 00 00 00 00 11 16 1B 7E) ; L0 (JMP L0)
+  {
+    var object codevec = allocate_bit_vector(Atype_8Bit,CCV_START_NONKEY+2);
+    TheCodevec(codevec)->ccv_spdepth_1 = 0;
+    TheCodevec(codevec)->ccv_spdepth_jmpbufsize = 0;
+    TheCodevec(codevec)->ccv_numreq = 0;
+    TheCodevec(codevec)->ccv_numopt = 0;
+    TheCodevec(codevec)->ccv_flags = bit(4)|bit(0);
+    TheCodevec(codevec)->ccv_signature = cclos_argtype_0_0_rest;
+    TheSbvector(codevec)->data[CCV_START_NONKEY+0] = cod_jmp;
+    TheSbvector(codevec)->data[CCV_START_NONKEY+1] = 128 - 2;
+    O(endless_loop_code) = codevec;
   }
 }
 

@@ -9444,7 +9444,10 @@ local void pr_fsubr (const gcv_object_t* stream_, object obj) {
 # < stream: Stream
 # can trigger GC
 local void pr_closure (const gcv_object_t* stream_, object obj) {
-  if (simple_bit_vector_p(Atype_8Bit,TheClosure(obj)->clos_codevec)) {
+  if (Closure_instancep(obj)) {
+    # funcallable instance
+    pr_instance(stream_,obj);
+  } else if (simple_bit_vector_p(Atype_8Bit,TheClosure(obj)->clos_codevec)) {
     # compiled Closure
     pr_cclosure(stream_,obj);
   } else {
