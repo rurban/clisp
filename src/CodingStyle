@@ -73,9 +73,9 @@ paren, or on extra lines containing only closing parentheses:
     (get-setf-symbol (second funname))
 ) )
 
-This one is less mainstream, but it permits to "see" the structure of a large
-expression more easily. And it also requires fewer editor operations in order
-to swap the two legs of the 'if' expression.
+This one is less mainstream, but it permits me to "see" the structure of a
+large expression more easily. And it also requires fewer editor operations
+in order to swap the two legs of the 'if' expression.
 
 'multiple-value-bind' expressions are indented specially: If the values-
 producing form doesn't fit on the same line, it is indented by 4 spaces,
