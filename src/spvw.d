@@ -1667,17 +1667,18 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 nonreturning_function (local, usage, (int exit_code));
 local void usage (int exit_code)
 {
-  asciz_out("Usage:  ");
+  asciz_out("CLISP (http://clisp.cons.org) is an ANSI Common Lisp."
+            NLstring "Usage:  ");
   asciz_out(program_name);
   asciz_out(" [options] [lispfile [argument ...]]" NLstring
             " When `lispfile' is given, it is loaded and `*ARGS*' is set"
             NLstring " to the list of argument strings." NLstring
             "Options:" NLstring);
   asciz_out(" -h, --help  - print this help and exit" NLstring
-            " -m size     - memory size (size = xxxxxxxB oder xxxxKB oder xMB)"
+            " -m size     - memory size (size = xxxxxxxB or xxxxKB or xMB)"
             NLstring);
   #ifndef NO_SP_MALLOC
-  asciz_out(" -s size     - stack size (size = xxxxxxxB oder xxxxKB oder xMB)"
+  asciz_out(" -s size     - stack size (size = xxxxxxxB or xxxxKB or xMB)"
             NLstring);
   #endif
   #ifdef MULTIMAP_MEMORY_VIA_FILE
