@@ -2440,7 +2440,7 @@ local void print_banner ()
            mem.heaps[0].heap_limit = start + round_down(1*part,map_pagesize);
            mem.heaps[1].heap_limit = start + round_down(4*part,map_pagesize);
            #endif
-           if ( prepare_zeromap(&mem.heaps[0].heap_limit,&mem.heaps[1].heap_limit,FALSE) <0) goto no_mem;
+           if ( prepare_zeromap(&mem.heaps[0].heap_limit,&mem.heaps[1].heap_limit,TRUE) <0) goto no_mem;
           #else # SPVW_MIXED_BLOCKS_STAGGERED
            #if defined(SUN4_29)
            var aint end = bitm(oint_addr_len+addr_shift < 29 ? oint_addr_len+addr_shift : 29);
@@ -2465,7 +2465,7 @@ local void print_banner ()
            mem.heaps[1].heap_limit = start + round_down(2*part,map_pagesize);
            mem.heaps[1].heap_hardlimit = start + round_down(3*part,map_pagesize);
            #endif
-           if ( prepare_zeromap(&mem.heaps[0].heap_limit,&mem.heaps[1].heap_hardlimit,FALSE) <0) goto no_mem;
+           if ( prepare_zeromap(&mem.heaps[0].heap_limit,&mem.heaps[1].heap_hardlimit,TRUE) <0) goto no_mem;
           #endif
           free(malloc_addr);
         }
