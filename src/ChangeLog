@@ -1,5 +1,9 @@
 2003-10-26  Bruno Haible  <bruno@clisp.org>
 
+	* time.d (SYS::DELTA4): Avoid gcc warning.
+
+2003-10-26  Bruno Haible  <bruno@clisp.org>
+
 	* utils/ansidecl.d: Remove file.
 	* makemake.in: Remove all uses of ansidecl and ANSIDECL.
 

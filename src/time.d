@@ -1091,7 +1091,7 @@ LISPFUNNF(delta4,5) {
  #ifdef intQsize
   VALUES1(UQ_to_I((del << shift) + n2 - o2));
  #else
-  VALUES1(UL2_to_I(del >> 32-shift,(del << shift) + n2 - o2));
+  VALUES1(UL2_to_I(del >> (32-shift), (del << shift) + n2 - o2));
  #endif
   skipSTACK(5);
 }
