@@ -537,6 +537,9 @@ ERROR
 (VALUES (SETQ L (FOO)))
 |#
 
+(macroexpand-1 '(setf (values-list l) (foo)))
+(VALUES-LIST (SETF L (MULTIPLE-VALUE-LIST (FOO))))
+
 ;; Check that the PUSH macroexpander doesn't blindly call subst or sublis.
 
 (define-setf-expander bothvars (x y)

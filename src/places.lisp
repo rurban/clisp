@@ -795,56 +795,57 @@
                (when (and (consp place) (symbolp (car place)))
                  (when (global-in-fenv-p (car place) (svref env 1))
                    ; Operator nicht lokal definiert
-                   (let ((plist-info (get (first place) 'SYSTEM::SETF-EXPANDER)))
-                     (when plist-info
-                       (return-from setf
-                         (cond ((symbolp plist-info) ; Symbol kommt von kurzem DEFSETF
-                                `(,plist-info ,@(cdr place) ,value)
-                               )
-                               ((and (eq (first place) 'THE) (eql (length place) 3))
-                                `(SETF ,(third place) (THE ,(second place) ,value))
-                               )
-                               ((and (eq (first place) 'VALUES-LIST) (eql (length place) 2))
-                                `(VALUES-LIST
-                                   (SETF ,(second place)
-                                         (MULTIPLE-VALUE-LIST ,value)
-                               ) ) )
-                               (t
-                                (multiple-value-bind (temps subforms stores setterform getterform)
-                                    (get-setf-expansion place env)
-                                  (declare (ignore getterform))
-                                  (let ((bindlist (mapcar #'list temps subforms)))
-                                    (if (= (length stores) 1)
-                                      ;; 1 store variable
-                                      (wrap-let* (nconc bindlist
-                                                   (list `(,(first stores) ,value))
-                                                 )
-                                        setterform
-                                      )
-                                      ;; mehrere Store-Variable
-                                      (if ;; Hat setterform die Gestalt
-                                          ;; (VALUES (SETQ v1 store1) ...) ?
-                                        (and (consp setterform)
-                                             (eq (car setterform) 'VALUES)
-                                             (do ((str stores (cdr str))
-                                                  (sqr (cdr setterform) (cdr sqr)))
-                                                 ((or (null str) (null sqr))
-                                                  (and (null str) (null sqr)))
-                                               (unless (simple-assignment-p env (car sqr) (list (car str)))
-                                                 (return nil)
-                                        )    ) )
-                                        (let ((vlist (mapcar #'second (rest setterform))))
-                                          `(LET* ,bindlist
-                                             (MULTIPLE-VALUE-SETQ ,vlist ,value)
-                                             (VALUES ,@vlist)
-                                           )
+                   (if (and (eq (first place) 'VALUES-LIST) (eql (length place) 2))
+                     (return-from setf
+                       `(VALUES-LIST
+                          (SETF ,(second place) (MULTIPLE-VALUE-LIST ,value))
+                        )
+                     )
+                     (let ((plist-info (get (first place) 'SYSTEM::SETF-EXPANDER)))
+                       (when plist-info
+                         (return-from setf
+                           (cond ((symbolp plist-info) ; Symbol kommt von kurzem DEFSETF
+                                  `(,plist-info ,@(cdr place) ,value)
+                                 )
+                                 ((and (eq (first place) 'THE) (eql (length place) 3))
+                                  `(SETF ,(third place) (THE ,(second place) ,value))
+                                 )
+                                 (t
+                                  (multiple-value-bind (temps subforms stores setterform getterform)
+                                      (get-setf-expansion place env)
+                                    (declare (ignore getterform))
+                                    (let ((bindlist (mapcar #'list temps subforms)))
+                                      (if (= (length stores) 1)
+                                        ;; 1 store variable
+                                        (wrap-let* (nconc bindlist
+                                                     (list `(,(first stores) ,value))
+                                                   )
+                                          setterform
                                         )
-                                        (wrap-let* bindlist
-                                          `(MULTIPLE-VALUE-BIND ,stores ,value
-                                             ,setterform
-                                        )  )
-                               )) ) ) )
-               ) ) ) ) ) )
+                                        ;; mehrere Store-Variable
+                                        (if ;; Hat setterform die Gestalt
+                                            ;; (VALUES (SETQ v1 store1) ...) ?
+                                          (and (consp setterform)
+                                               (eq (car setterform) 'VALUES)
+                                               (do ((str stores (cdr str))
+                                                    (sqr (cdr setterform) (cdr sqr)))
+                                                   ((or (null str) (null sqr))
+                                                    (and (null str) (null sqr)))
+                                                 (unless (simple-assignment-p env (car sqr) (list (car str)))
+                                                   (return nil)
+                                          )    ) )
+                                          (let ((vlist (mapcar #'second (rest setterform))))
+                                            `(LET* ,bindlist
+                                               (MULTIPLE-VALUE-SETQ ,vlist ,value)
+                                               (VALUES ,@vlist)
+                                             )
+                                          )
+                                          (wrap-let* bindlist
+                                            `(MULTIPLE-VALUE-BIND ,stores ,value
+                                               ,setterform
+                                          )  )
+                                 )) ) ) )
+               ) ) ) ) ) ) )
                ;; 2. Schritt: macroexpandieren
                (when (eq place (setq place (macroexpand-1 place env)))
                  (return)
