@@ -1,3 +1,8 @@
+1999-04-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * reploop.lsp: Set *use-clcs* to t here.
+        * conditio.lsp: Not here.
+
 1999-04-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * stream.d (listen_generic): Make an error message

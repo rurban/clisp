@@ -533,3 +533,9 @@ Step-until, Next-until, Over-until, Continue-until:
         (setq *step-quit* 0)
         (go over)
 ) ) )
+
+;;;--------------------------------------------------------------------------
+
+;; Now that conditio.lsp is loaded and *break-driver* has a value:
+;; Activate the Condition System.
+(setq *use-clcs* t)

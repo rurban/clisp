@@ -1535,10 +1535,6 @@ muffle-cerrors appease-cerrors exit-on-error
 )
 
 
-;; Bootstrapping done. Activate the Condition System.
-(setq *use-clcs* t)
-
-
 #|
 Todo:
 29.3.6 29.3.7 29.3.8 29.3.9 29.3.10
