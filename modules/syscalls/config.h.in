@@ -151,8 +151,14 @@
 /* Define to 1 if you have the `setlogmask' function. */
 #undef HAVE_SETLOGMASK
 
+/* Define to 1 if you have the `setpgid' function. */
+#undef HAVE_SETPGID
+
 /* Define to 1 if you have the `setpgrp' function. */
 #undef HAVE_SETPGRP
+
+/* Define to 1 if setpgrp() does not accept arguments */
+#undef HAVE_SETPGRP_POSIX
 
 /* Define to 1 if you have the `setpriority' function. */
 #undef HAVE_SETPRIORITY
