@@ -863,8 +863,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         if (child==-1) {
           CLOSE(handles[1]); CLOSE(handles[0]); goto abort1;
         }
-        if (!( CLOSE(handles[1]) ==0)) goto abort1;
-        if (!( CLOSE(handle) ==0)) goto abort1;
+        if (CLOSE(handles[1]) !=0) goto abort1;
+        if (CLOSE(handle) != 0) goto abort1;
         end_system_call();
        #if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && (defined(HAVE_MMAP) || defined(SELFMADE_MMAP))
         use_mmap = false; /* mmap can not be done with a pipe! */
@@ -878,25 +878,25 @@ local void loadmem_from_handle (Handle handle, const char* filename)
      #endif  /* UNIX */
       goto abort2;
     }
-    if (!(header._memflags == memflags)) goto abort2;
-    if (!(header._oint_type_mask == oint_type_mask)) goto abort2;
-    if (!(header._oint_addr_mask == oint_addr_mask)) goto abort2;
+    if (header._memflags != memflags) goto abort2;
+    if (header._oint_type_mask != oint_type_mask) goto abort2;
+    if (header._oint_addr_mask != oint_addr_mask) goto abort2;
    #ifdef TYPECODES
-    if (!(header._cons_type == cons_type)) goto abort2;
-    if (!(header._complex_type == complex_type)) goto abort2;
-    if (!(header._symbol_type == symbol_type)) goto abort2;
-    if (!(header._system_type == system_type)) goto abort2;
+    if (header._cons_type != cons_type) goto abort2;
+    if (header._complex_type != complex_type) goto abort2;
+    if (header._symbol_type != symbol_type) goto abort2;
+    if (header._system_type != system_type) goto abort2;
    #endif
-    if (!(header._varobject_alignment == varobject_alignment)) goto abort2;
-    if (!(header._hashtable_length == hashtable_length)) goto abort2;
-    if (!(header._pathname_length == pathname_length)) goto abort2;
-    if (!(header._intDsize == intDsize)) goto abort2;
-    if (!(header._fsubr_anz == fsubr_anz)) goto abort2;
-    if (!(header._pseudofun_anz == pseudofun_anz)) goto abort2;
-    if (!(header._symbol_anz == symbol_anz)) goto abort2;
-    if (!(header._page_alignment == page_alignment)) goto abort2;
+    if (header._varobject_alignment != varobject_alignment) goto abort2;
+    if (header._hashtable_length != hashtable_length) goto abort2;
+    if (header._pathname_length != pathname_length) goto abort2;
+    if (header._intDsize != intDsize) goto abort2;
+    if (header._fsubr_anz != fsubr_anz) goto abort2;
+    if (header._pseudofun_anz != pseudofun_anz) goto abort2;
+    if (header._symbol_anz != symbol_anz) goto abort2;
+    if (header._page_alignment != page_alignment) goto abort2;
    #ifndef SPVW_MIXED_BLOCKS_OPPOSITE
-    if (!(header._heapcount == heapcount)) goto abort2;
+    if (header._heapcount != heapcount) goto abort2;
    #endif
    #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
     { /* calculate offsets (offset = new address - old address): */
@@ -918,19 +918,20 @@ local void loadmem_from_handle (Handle handle, const char* filename)
          <= header._mem_conses_start
          + mem.conses.heap_end-header._mem_conses_end  <==>
          mem.varobjects.heap_end <= mem.conses.heap_start */
-      if (!( (saint)(mem.varobjects.heap_end) <= (saint)(mem.conses.heap_start) )) goto abort3;
+      if ((saint)(mem.varobjects.heap_end) > (saint)(mem.conses.heap_start))
+        goto abort3;
       /* prepare update: */
       offset_varobjects_o = (oint)offset_varobjects << (oint_addr_shift-addr_shift);
       offset_conses_o = (oint)offset_conses << (oint_addr_shift-addr_shift);
     }
    #endif  /* SPVW_MIXED_BLOCKS_OPPOSITE */
    #ifdef SPVW_PURE_BLOCKS /* SINGLEMAP_MEMORY */
-    if (!((aint)(&subr_tab) == header._subr_tab_addr)) goto abort2;
-    if (!((aint)(&symbol_tab) == header._symbol_tab_addr)) goto abort2;
+    if ((aint)(&subr_tab) != header._subr_tab_addr) goto abort2;
+    if ((aint)(&symbol_tab) != header._symbol_tab_addr) goto abort2;
    #else
     offset_symbols_o = ((oint)(aint)(&symbol_tab) - (oint)header._symbol_tab_addr) << (oint_addr_shift-addr_shift);
     #ifdef MULTIMAP_MEMORY_SYMBOL_TAB
-    if (!(offset_symbols_o == 0)) goto abort2;
+    if (offset_symbols_o != 0) goto abort2;
     #else
      #ifdef TYPECODES
     old_symbol_tab_o = as_oint(type_pointer_object(symbol_type,header._symbol_tab_addr));
@@ -987,8 +988,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         READ(&old_subr_addr,sizeof(subr_t*));
         READ(&old_subr_anz,sizeof(uintC));
         READ(&old_object_anz,sizeof(uintC));
-        if (!(old_subr_anz == *(*old_module)->stab_size)) goto abort2;
-        if (!(old_object_anz == *(*old_module)->otab_size)) goto abort2;
+        if (old_subr_anz != *(*old_module)->stab_size) goto abort2;
+        if (old_object_anz != *(*old_module)->otab_size) goto abort2;
         offset_subrs_ptr->low_o = as_oint(subr_tab_ptr_as_object(old_subr_addr));
         offset_subrs_ptr->high_o = as_oint(subr_tab_ptr_as_object(old_subr_addr+old_subr_anz));
         offset_subrs_ptr->offset_o = as_oint(subr_tab_ptr_as_object((*old_module)->stab)) - offset_subrs_ptr->low_o;
@@ -1029,11 +1030,13 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       old_page = &old_pages[0];
       for (heapnr=0; heapnr<heapcount; heapnr++) {
         var Heap* heapptr = &mem.heaps[heapnr];
-        if (!(old_page->_page_end - old_page->_page_start <= heapptr->heap_hardlimit - heapptr->heap_limit)) goto abort3;
+        if (old_page->_page_end - old_page->_page_start
+            > heapptr->heap_hardlimit - heapptr->heap_limit)
+          goto abort3;
         heapptr->heap_start = heapptr->heap_limit;
         heapptr->heap_end = heapptr->heap_limit + (old_page->_page_end - old_page->_page_start);
         offset_heaps_o[heapnr] = (oint)heapptr->heap_start - (oint)old_page->_page_start;
-        if (!(offset_heaps_o[heapnr] == 0))
+        if (offset_heaps_o[heapnr] != 0)
           offset_heaps_all_zero = false;
         old_page++;
       }
@@ -1089,7 +1092,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
           var physpage_state* physpages;
           READ(_physpages,count*sizeof(memdump_physpage_state));
           physpages = (physpage_state*) malloc(count*sizeof(physpage_state));
-          if (!(physpages==NULL)) {
+          if (physpages != NULL) {
             var uintL i;
             for (i=0; i<count; i++) {
               physpages[i].continued_addr  = _physpages[i].continued_addr;
@@ -1173,7 +1176,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
               var oint offset_page_o = ((oint)page->page_start - (oint)old_page_start) << (oint_addr_shift-addr_shift);
               var uintL pagenr = pagenr_of(old_page_start & addr_mask);
               do {
-                if (!(offset_pages[pagenr].old_page_start == ~0L)) { abort(); }
+                if (offset_pages[pagenr].old_page_start != ~0L) { abort(); }
                 offset_pages[pagenr].old_page_start = old_page_start;
                 offset_pages[pagenr].offset_page_o = offset_page_o;
                       pagenr++;
@@ -1262,12 +1265,12 @@ local void loadmem_from_handle (Handle handle, const char* filename)
      #ifdef UNIX
       var struct stat statbuf;
       if (fstat(handle,&statbuf) < 0) goto abort1;
-      if (!((uintL)statbuf.st_size >= file_offset)) goto abort2;
+      if ((uintL)statbuf.st_size < file_offset) goto abort2;
      #endif
      #ifdef WIN32_NATIVE
       var DWORD fsize = GetFileSize(handle,NULL);
       if (fsize == 0xFFFFFFFF) goto abort1;
-      if (!(fsize >= file_offset)) goto abort2;
+      if (fsize < file_offset) goto abort2;
      #endif
     }
     #endif  /* HAVE_MMAP) || SELFMADE_MMAP */
@@ -1448,7 +1451,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       }
     }
     #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
-    if (!(mem.varobjects.heap_end <= mem.conses.heap_start)) goto abort3;
+    if (mem.varobjects.heap_end > mem.conses.heap_start) goto abort3;
     #endif
     #ifndef SELFMADE_MMAP
     /* now wee need the SIGSEGV-handler. */
