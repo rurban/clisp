@@ -4066,112 +4066,6 @@ and &end-k;:</para>
 
 </section>
 
-<section><title>Printing and OS interface.</title>
-
-<para>See also <link linkend="shell"><literal
-   role="sexp">(<function>shell</function>
-   <replaceable>command</replaceable>)</literal></link>.</para>
-
-<para>The macro <emphasis
- role="strong"><function>lisp:with-output-to-printer</function></emphasis>:
-<programlisting>
-(lisp:with-output-to-printer (<replaceable>var</replaceable> [&extfmt;])
-  {<replaceable>declaration</replaceable>}*
-  {<replaceable>form</replaceable>}*)
-</programlisting>
- binds the variable <replaceable>var</replaceable> to an output stream
- that sends its output to the printer.</para>
-
-<!-- #ifdef PIPES -->
-<variablelist id="pipe">
-<varlistentry><term>Platform dependent: &unix;, &os2;, &win32;
-    platforms only.</term>
-<listitem><variablelist>
- <varlistentry><term><literal
-    role="sexp">(<function>lisp:make-pipe-input-stream</function>
-    <replaceable>command</replaceable> &key-amp; &eltype; &extfmt;
-    &buffered;)</literal></term>
-<listitem><simpara>returns an input stream that will supply the output
-  from the execution of the given operating system command.
-  </simpara></listitem></varlistentry>
-
-<varlistentry><term><literal
-   role="sexp">(<function>lisp:make-pipe-output-stream</function>
-   <replaceable>command</replaceable> &key-amp; &eltype; &extfmt;
-   &buffered;)</literal></term>
-<listitem><simpara>returns an output stream that will pass its output as
-   input to the execution of the given operating system command.
-  </simpara></listitem></varlistentry>
-
-<!-- #ifdef PIPES2 -->
-<varlistentry><term><literal
-   role="sexp">(<function>lisp:make-pipe-io-stream</function>
-   <replaceable>command</replaceable> &key-amp; &eltype; &extfmt;
-   &buffered;)</literal></term>
-<listitem><simpara>returns three values.  The first value is a
-  bidirectional stream that will simultaneously pass its output as input
-  to the execution of the given operating system command and supply the
-  output from this command as input. The second and third value will be
-  the input stream and the output stream that make up the I/O stream,
-  respectively.  Note that they must be closed individually.</simpara>
-
-  <simpara>Warning: Improper use of this function can lead to
-  deadlocks.  Use it at your own risk!</simpara>
-
-  <simpara>A deadlock occurs if the command and your program either both
-  try to read from each other at the same time or both try to write to
-  each other at the same time. To avoid deadlocks, it is recommended
-  that you fix a protocol between the command and your program and avoid
-  any hidden buffering: use &read-char;, &read-char-no-hang;, &listen;
-  instead of &read-line; and &read; on the input side, and complete
-  every output operation by a &finish-output;. The same cautions must
-  apply to the called command as well.</simpara></listitem></varlistentry>
-<!-- #endif -->
-</variablelist></listitem></varlistentry>
-</variablelist>
-
-<para>For all functions that accept these keywords, the acceptable values are:
-<variablelist>
- <varlistentry id="eltype"><term><constant>:element-type</constant></term>
-  <listitem><simpara>types equivalent to &character-class; or
-   <literal role="sexp">(&unsigned-byte-type;
-   <replaceable>n</replaceable>)</literal>,
-   <literal role="sexp">(&signed-byte-type;
-   <replaceable>n</replaceable>)</literal>; if the stream is to be
-   unbuffered, <replaceable>n</replaceable> must be a multiple of 8.
-   </simpara></listitem></varlistentry>
- <varlistentry id="extfmt"><term><constant>:external-format</constant></term>
-  <listitem><simpara>encodings, (constant) symbols in the <link
-   linkend="encoding"><function>CHARSET</function></link> package,
-   strings (denoting <link linkend="iconv">iconv()</link> based
-   encodings), the symbol <constant>:default</constant>, and the <link
-   linkend="newline">line terminator</link> keywords
-   <constant>:unix</constant>, <constant>:mac</constant>,
-   <constant>:dos</constant>.  The default encoding is
-   <link
- linkend="def-file-enc"><varname>lisp:*default-file-encoding*</varname></link>.
-  </simpara></listitem></varlistentry>
- <varlistentry id="buffered"><term><constant>:buffered</constant></term>
-  <listitem><para>&nil;, &t;, or <constant>:default</constant>.
-  <itemizedlist>
-   <listitem><simpara>for functions that create <link
-    linkend="socket">sockets</link> and <link
-    linkend="pipe">pipes</link>, <constant>:default</constant> is
-    equivalent to &nil;;</simpara></listitem>
-   <listitem><simpara>for functions that <link
-    linkend="open">open</link> files, <constant>:default</constant>
-    means that buffered file streams will be returned for regular files
-    and (on Unix) block-devices, and unbuffered file streams for special
-    files.</simpara></listitem>
-  </itemizedlist>
-</para></listitem></varlistentry>
-</variablelist></para>
-
-
-<!-- #endif -->
-
-</section>
-
 <section><title><ulink url="&clhs;/Body/sec_the_streams_dictionary.html">
     21.2. The Streams Dictionary</ulink></title>
 
@@ -4417,6 +4311,42 @@ functions are provided:</para>
 
 <para>&open; accepts three additional keywords: &eltype;, &extfmt;,
    &buffered;.</para>
+
+<variablelist><title>The acceptable values for the
+   &file-pipe-socket; functions</title>
+ <varlistentry id="eltype"><term><constant>:element-type</constant></term>
+  <listitem><simpara>types equivalent to &character-class; or
+   <literal role="sexp">(&unsigned-byte-type;
+   <replaceable>n</replaceable>)</literal>,
+   <literal role="sexp">(&signed-byte-type;
+   <replaceable>n</replaceable>)</literal>; if the stream is to be
+   unbuffered, <replaceable>n</replaceable> must be a multiple of 8.
+   </simpara></listitem></varlistentry>
+ <varlistentry id="extfmt"><term><constant>:external-format</constant></term>
+  <listitem><simpara>encodings, (constant) symbols in the <link
+   linkend="encoding"><function>CHARSET</function></link> package,
+   strings (denoting <link linkend="iconv">iconv()</link> based
+   encodings), the symbol <constant>:default</constant>, and the <link
+   linkend="newline">line terminator</link> keywords
+   <constant>:unix</constant>, <constant>:mac</constant>,
+   <constant>:dos</constant>.  The default encoding is
+   <link
+ linkend="def-file-enc"><varname>lisp:*default-file-encoding*</varname></link>.
+  </simpara></listitem></varlistentry>
+ <varlistentry id="buffered"><term><constant>:buffered</constant></term>
+  <listitem><para>&nil;, &t;, or <constant>:default</constant>.
+  <itemizedlist>
+   <listitem><simpara>for functions that create &socket-stream;s and
+    <link linkend="pipe">pipes</link>, <constant>:default</constant> is
+    equivalent to &nil;;</simpara></listitem>
+   <listitem><simpara>for functions that <link
+    linkend="open">open</link> files, <constant>:default</constant>
+    means that buffered file streams will be returned for regular files
+    and (on Unix) block-devices, and unbuffered file streams for special
+    files.</simpara></listitem>
+  </itemizedlist>
+</para></listitem></varlistentry>
+</variablelist>
 
 </section>
 
@@ -5306,7 +5236,7 @@ and you can leave the function call with specified values by using
  <varlistentry><term><constant>:http</constant></term>
   <listitem><simpara>A window in your Web browser (specified by the
    &browser; keyword argument) is opened and it is controlled by
-   &clisp; via a socket, using the HTTP protocol.  You should be
+   &clisp; via a &socket-stream;, using the HTTP protocol.  You should be
    able to use all the standard browser features.</simpara>
    <simpara>Since &clisp; is not multitasking at this time, you will not
    be able to do anything else during an &inspect; session.  Please click on
