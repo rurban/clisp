@@ -1,5 +1,13 @@
 2005-01-31  Sam Steingold  <sds@gnu.org>
 
+	* exporting.lisp (export-structure-accessories): reverted the
+	2005-01-27 patch: export accessors for direct slots, not effective
+	slots: first, the indirect slots may be "private" - defined
+	elsewhere and not under exporting.lisp; second, there is no way to
+	get accessors names from an EFFECTIVE-SLOT-DEFINITION
+
+2005-01-31  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (rd_ch_keyboard) [WIN32_NATIVE]: recognize many more keys
 
 2005-01-31  Sam Steingold  <sds@gnu.org>
