@@ -120,7 +120,7 @@
   #if (defined(sun) && defined(unix) && defined(sparc))
     #define SUN4
   #endif
-  #if defined(sparc)
+  #if defined(sparc) || defined(__sparc__)
     # evtl. SUN4_29 falls nur Adressen <2^29 unterstützt werden.
     #ifdef SUN4_29
       #define SUN4_29_1  # handling using PACKED_TYPECODES
@@ -176,7 +176,7 @@
   #if defined(i386) || defined(__i386) || defined(_I386)
     #define I80386
   #endif
-  #ifdef sparc
+  #if defined(sparc) || defined(__sparc__)
     #define SPARC
   #endif
   #if defined(mips) || defined(__mips)
