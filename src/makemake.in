@@ -1491,7 +1491,11 @@ LPARTS=$LPARTS' places floatprint type defstruct format savemem trace compiler'
 LPARTS=$LPARTS' disassem defs2 loop clos condition gstream xcharin keyboard'
 LPARTS=$LPARTS' screen beossock runprog query reploop dribble complete describe'
 LPARTS=$LPARTS' room edit macros3 posix foreign1 defs3 clhs inspect'
-LPARTS=$LPARTS' german french spanish dutch config'
+LPARTS=$LPARTS' german french'
+if [ -z "$with_nounicode" ] ; then
+  LPARTS=$LPARTS' spanish'
+fi
+LPARTS=$LPARTS' dutch config'
 
 DOC='LISP-tutorial CLOS-guide editors'
 
