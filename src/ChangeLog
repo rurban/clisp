@@ -1,3 +1,7 @@
+2001-11-14  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d: envelop all {} macros in "do{}while(0)"
+
 2001-11-09  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (CD): append a slash when the string does not end
