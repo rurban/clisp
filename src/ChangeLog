@@ -1,3 +1,9 @@
+2000-03-29  Sam Steingold  <sds@gnu.org>
+
+	concatenated-stream-streams compiles with ANSI now
+	* stream.d (concatenated_stream_streams): return
+	`strm_concat_list', not `strm_concat_totallist'
+
 2000-03-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d: Change distribution of *_frame_info values: merge
