@@ -1,5 +1,10 @@
 Version  Date            New features
 
+2.30     2002-09-15      no libiconv, gettext, readline, libsigsegv
+                         UCS-4, *PARSE-NAMESTRING-DOT-FILE*, Oracle,
+                         SOCKET-STREAM-SHUTDOWN, STREAM-LOCK, COPY-FILE,
+                         DUPLICATE-HANDLE
+
 2.29     2002-07-25      bug-fix/portability: gcc 3.1 &c
 
 2.28     2002-03-03      ANSI CL Pretty-Printer
