@@ -5,7 +5,7 @@
 # Some important programs:
 SHELL = /bin/sh
 MAKE = make
-COMMENT5 = ~haible/arch/i386-linux/bin/comment5
+COMMENT5 = comment5
 
 # Choose one of the packers:
 
