@@ -1,5 +1,18 @@
 1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (make_ssbvector, ssbvector_push_extend): New
+          declarations.
+        * array.d (make_ssbvector, ssbvector_push_extend): New functions.
+        * io.d (get_buffers): The second buffer is a ssbvector.
+          (read_token_1, test_potential_number_syntax, test_dots,
+           case_convert_token, read_internal): Likewise.
+          (string_reader): Use the first buffer, not the second.
+          (uninterned_reader): The second buffer is a ssbvector.
+          (READ-LINE): Use the first buffer, not the second.
+          (pr_symbol_part): The second buffer is a ssbvector.
+
+1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * pathname.d (make_directory): Move function, make inline.
           (delete_directory, change_current_directory, delete_existing_file,
            delete_file_if_exists, delete_file_before_rename,
