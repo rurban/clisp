@@ -58,8 +58,9 @@ local maygc object foreign_address (object obj, bool allocate_p)
   fehler_foreign_object(obj);
 }
 
+/* return the foreign pointer of the foreign object */
 local object foreign_pointer (object obj)
-{ /* return the foreign pointer of the foreign object */
+{
   if (orecordp(obj)) {
     switch (Record_type(obj)) {
       case Rectype_Fpointer:
@@ -75,6 +76,8 @@ local object foreign_pointer (object obj)
   }
   return nullobj; /* non-foreign object */
 }
+
+/* FIXME: COMMENT! */
 local object foreign_pointer_strict (object obj)
 {
   var object fp = foreign_pointer(obj);
@@ -3754,16 +3757,19 @@ local void callback (void* data, va_alist alist)
  with all fa_offsets being 0. */
 
 #if defined(HAVE_DLERROR)
+/* return the string object for dlerror() value */
 local object dlerror_string (void)
-{ /* return the string object for dlerror() value */
+{
   var char* error;
   begin_system_call(); error = dlerror(); end_system_call();
   return error == NULL ? NIL : asciz_to_string(error,O(misc_encoding));
 }
 #endif
 
+/* FIXME: COMMENT! */
+/* open the library == dlopen() */
 local inline void * libopen (char* libname, uintL version)
-{ /* open the library == dlopen() */
+{
  #if defined(WIN32_NATIVE)
   return (void*)LoadLibrary(libname);
  #else
@@ -3772,6 +3778,7 @@ local inline void * libopen (char* libname, uintL version)
  #endif
 }
 
+/* FIXME: COMMENT! */
 /* Open a library.
  can trigger GC */
 local maygc void * open_library (gcv_object_t* name, uintL version)
@@ -3839,8 +3846,10 @@ typedef BOOL (WINAPI * EnumProcessModules_t)
 static EnumProcessModules_t fEnumProcessModules = (EnumProcessModules_t)1;
 #endif
 
+/* FIXME: BETTER COMMENT! */
+/* find the name in the library handle  ==  dlsym()*/
 local inline void* find_name (void *handle, char *name)
-{ /* find the name in the library handle  ==  dlsym()*/
+{
   var void *ret = NULL;
   begin_system_call();
  #if defined(UNIX_FREEBSD) && !defined(RTLD_DEFAULT)
@@ -3887,6 +3896,7 @@ local inline void* find_name (void *handle, char *name)
   return ret;
 }
 
+/* FIXME: BETTER COMMENT! */
 /* return the handle of the object (string) in the library (name fpointer ...)
  can trigger GC */
 local maygc void* object_handle (object library, gcv_object_t *name, bool retry_p)
@@ -3910,6 +3920,7 @@ local maygc void* object_handle (object library, gcv_object_t *name, bool retry_
   return address;
 }
 
+/* FIXME: BETTER COMMENT! */
 /* update the DLL pointer and all related objects
  acons = (library fpointer object1 object2 ...)
  can trigger GC */
@@ -3999,6 +4010,7 @@ global void validate_fpointer (object obj)
   check_fpointer(obj,false);
 }
 
+/* FIXME: BETTER COMMENT! */
 /* Check for a library argument.
    Return (lib addr obj ...).
    can trigger GC */
@@ -4020,7 +4032,9 @@ local maygc object check_library (object obj)
   goto restart;
 }
 
-/* can trigger GC */
+/* FIXME: BETTER COMMENT! */
+/* return the foreign address of the foreign object named 'name'
+ can trigger GC */
 local maygc object object_address (object library, gcv_object_t *name, object offset)
 { /* return the foreign address of the foreign object named `name' */
   var object lib_addr = Car(Cdr(library));
