@@ -1725,7 +1725,7 @@ _rl_update_final ()
     }
   _rl_move_vert (_rl_vis_botlin);
   /* If we've wrapped lines, remove the final xterm line-wrap flag. */
-  if (full_lines && _rl_term_autowrap && (rl_count_chars (VIS_LLEN(_rl_vis_botlin), VIS_LLEN(_rl_vis_botlin)) == _rl_screenwidth))
+  if (full_lines && _rl_term_autowrap && (rl_count_chars (VIS_LINE(_rl_vis_botlin), VIS_LLEN(_rl_vis_botlin)) == _rl_screenwidth))
     {
       char *last_line;
 #if 0
