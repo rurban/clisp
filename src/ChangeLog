@@ -2,6 +2,8 @@
 
 	* modules/clx/new-clx/clx.f (XPM:READ-FILE-TO-PIXMAP): use
 	physical_namestring() instead of TRUENAME+NAMESTRING
+	(xlib_rgb): new DEFFLAGSET
+	(XLIB:STORE-COLOR, XLIB:STORE-COLORS): use it
 
 2005-03-15  Bruno Haible  <bruno@clisp.org>
 

@@ -5048,41 +5048,38 @@ DEFUN(XLIB:QUERY-COLORS, colormap pixels &key RESULT-TYPE)
   skipSTACK(3);                 /* all done */
 }
 
+DEFFLAGSET(xlib_rgb, DoRed DoGreen DoBlue)
+
 /*  XLIB:STORE-COLOR colormap pixel color
          &key (:red-p t) (:green-p t) (:blue-p t)  */
 DEFUN(XLIB:STORE-COLOR, colormap pixel color &key RED-P GREEN-P BLUE-P)
 {
+  char flags = xlib_rgb();
   Display *dpy;
-  Colormap cm = get_colormap_and_display (STACK_5, &dpy);
+  Colormap cm = get_colormap_and_display (STACK_2, &dpy);
   XColor color;
 
-  get_color (dpy, STACK_3, &color);
-  color.pixel = get_uint32 (STACK_4);
-  color.flags =
-    (!nullp (STACK_2) ? DoRed : 0) |
-    (!nullp (STACK_1) ? DoGreen : 0) |
-    (!nullp (STACK_0) ? DoBlue : 0);
+  get_color (dpy, STACK_0, &color);
+  color.pixel = get_uint32 (STACK_1);
+  color.flags = flags;
 
   X_CALL(XStoreColor (dpy, cm, &color));
 
   VALUES0;
-  skipSTACK(6);
+  skipSTACK(3);
 }
 
 /*  XLIB:STORE-COLORS colormap pixel-colors
          &key (:red-p t) (:green-p t) (:blue-p t) */
 DEFUN(XLIB:STORE-COLORS, colormap pixel-colors &key RED-P GREEN-P BLUE-P)
 {
+  char flags = xlib_rgb();
   Display *dpy;
-  Colormap cm = get_colormap_and_display (STACK_4, &dpy);
-  int ncolors = get_uint32(funcall1(L(length),STACK_3));
-  char flags =
-    (!nullp (STACK_2) ? DoRed : 0)   |
-    (!nullp (STACK_1) ? DoGreen : 0) |
-    (!nullp (STACK_0) ? DoBlue : 0);
+  Colormap cm = get_colormap_and_display (STACK_1, &dpy);
+  int ncolors = get_uint32(funcall1(L(length),STACK_0));
 
   if (ncolors%2) {
-    pushSTACK(STACK_3);
+    pushSTACK(STACK_0);
     pushSTACK(TheSubr(subr_self)->name); /* function name */
     fehler (error, ("~S: Argument PIXEL-COLORS (~S) should an even number of elements"));
   }
@@ -5095,12 +5092,12 @@ DEFUN(XLIB:STORE-COLORS, colormap pixel-colors &key RED-P GREEN-P BLUE-P)
     int i;
     for (i = 0; i < ncolors; i++) {
       /* FIXME: Argument should be a list, so we should rather cdr it down. */
-      pushSTACK(STACK_3);       /* the pixel-colors arguments */
+      pushSTACK(STACK_0);       /* the pixel-colors arguments */
       pushSTACK(fixnum(i*2+1));                 /* the index */
       funcall (L(elt), 2);                      /* fetch it */
       get_color (dpy, value1, &(colors[i]));
 
-      pushSTACK(STACK_3);              /* the pixel-colors arguments */
+      pushSTACK(STACK_0);              /* the pixel-colors arguments */
       pushSTACK(fixnum(i*2));          /* the index */
       funcall (L(elt), 2);             /* fetch it */
       colors[i].pixel = get_uint32 (value1);
@@ -5112,7 +5109,7 @@ DEFUN(XLIB:STORE-COLORS, colormap pixel-colors &key RED-P GREEN-P BLUE-P)
     FREE_DYNAMIC_ARRAY (colors);
   }
   VALUES1(NIL);
-  skipSTACK(5);
+  skipSTACK(2);
 }
 
 
