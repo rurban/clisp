@@ -6,7 +6,7 @@ MAKE = make
 
 ROFF_MAN = groff -Tascii -mandoc
 
-all : callback.man vacall_r/config.h.msvc vacall_r/vacall_r.h.msvc vacall_r/vacall-i386-msvc.c
+all : callback.man vacall_r/config.h.msvc vacall_r/vacall_r.h.msvc vacall_r/vacall-i386-msvc.c trampoline_r/config.h.msvc
 
 callback.man : callback.3
 	$(ROFF_MAN) callback.3 > callback.man
@@ -19,4 +19,7 @@ vacall_r/vacall_r.h.msvc : vacall_r/vacall_r.h.in
 
 vacall_r/vacall-i386-msvc.c : vacall_r/vacall-i386.S vacall_r/asmi386.sh
 	cd vacall_r ; $(MAKE) -f Makefile.devel vacall-i386-msvc.c
+
+trampoline_r/config.h.msvc : trampoline_r/config.h.in
+	cd trampoline_r ; $(MAKE) -f Makefile.devel config.h.msvc
 
