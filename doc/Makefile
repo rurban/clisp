@@ -1,9 +1,10 @@
 # CLISP Implementation Notes generation
-# (c) 2000-2002 Sam Steingold
+# (c) 2000-2003 Sam Steingold
 
 DTDVER=4.2
-IMPNOTES=impnotes.dsl cl-ent.xml clhs-ent.xml impbody.xml impent.xml \
-	impext.xml impissue.xml impbyte.xml unix-ent.xml \
+IMPNOTES=impnotes.dsl cl-ent.xml clhs-ent.xml impbody.xml impent.xml	\
+	impext.xml impissue.xml impbyte.xml unix-ent.xml		\
+	../modules/dirkey/dirkey.xml ../modules/syscalls/syscalls.xml	\
 	../modules/regexp/regexp.xml
 RM=/bin/rm -f
 # DOC=$(shell pwd)
