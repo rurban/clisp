@@ -1,6 +1,8 @@
 2000-10-22  Bruno Haible  <haible@clisp.cons.org>
 
         * spvw.d (print_banner): Don't use non-ASCII argument of gettext.
+        * spvw_global.d (check_gc_consistency): Don't use non-ASCII error
+          message.
 
 2000-10-09  Bruno Haible  <haible@clisp.cons.org>
 
