@@ -1,5 +1,11 @@
 2002-02-20  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (distrib): include the Emacs-Lisp files in the
+	binary distribution: indentation and coding are included,
+	but d-mode is excluded
+
+2002-02-20  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #515604: (EVAL-WHEN (COMPILE)) no longer automatically
 	writes to *.lib; you need EVAL-WHEN-COMPILE or both LOAD and COMPILE
 	* compiler.lisp (c-write-lib): new function
