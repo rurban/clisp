@@ -42,15 +42,16 @@
     STACK_3 = var_stream(S(standard_output),strmflags_wr_ch_B); # ostream := Wert von *STANDARD-OUTPUT*
     STACK_2 = var_stream(S(standard_input),strmflags_rd_ch_B); # istream := Wert von *STANDARD-INPUT*
     # Stackaufbau: ostream, istream, prompt, command-list.
-    pushSTACK(STACK_2); pushSTACK(NIL); funcall(L(terminal_raw),2); pushSTACK(value1);
-    # Stackaufbau: ostream, istream, prompt, command-list, raw.
-   {var signean status = stream_listen(STACK_3); # horchen
+    pushSTACK(STACK_2);
+    pushSTACK(STACK_3); pushSTACK(NIL); funcall(L(terminal_raw),2); pushSTACK(value1);
+    # Stackaufbau: ostream, istream, prompt, command-list, inputstream, raw.
+   {var signean status = stream_listen(STACK_4); # horchen
     if (status<0) goto eof;
     # bereits Zeichen verfügbar (und nicht im ilisp_mode) -> kein Prompt
-    if (ilisp_mode || interactive_stream_p(STACK_3))
+    if (ilisp_mode || interactive_stream_p(STACK_4))
       { # interaktiver Input-Stream -> Prompt ausgeben:
         #if 0
-          terpri(&STACK_4); # (TERPRI ostream)
+          terpri(&STACK_5); # (TERPRI ostream)
         #else
           # Dasselbe mit Abfangen von Endlosrekursion:
           # (let ((*recurse-count-standard-output* (1+ *recurse-count-standard-output*)))
@@ -83,29 +84,29 @@
                   Symbol_value(S(debug_io)) = unbound;
                   var_stream(S(debug_io),strmflags_rd_ch_B|strmflags_wr_ch_B);
                 }
-              STACK_(4+3+3) = var_stream(S(standard_output),strmflags_wr_ch_B); # ostream := Wert von *STANDARD-OUTPUT*
+              STACK_(5+3+3) = var_stream(S(standard_output),strmflags_wr_ch_B); # ostream := Wert von *STANDARD-OUTPUT*
               dynamic_unbind();
             }
-          terpri(&STACK_(4+3)); # (TERPRI ostream)
+          terpri(&STACK_(5+3)); # (TERPRI ostream)
           dynamic_unbind();
         #endif
-        write_string(&STACK_4,STACK_2); # (WRITE-STRING prompt ostream)
-        force_output(STACK_4);
+        write_string(&STACK_5,STACK_3); # (WRITE-STRING prompt ostream)
+        force_output(STACK_5);
       }
     # Prompt OK
-    { var object* istream_ = &STACK_3;
+    { var object* inputstream_ = &STACK_1;
       #if 0 # Das erweist sich doch als ungeschickt: Drückt man Ctrl-C während
             # der Eingabe, so hat man dann in der Break-Schleife manche Kommandos
             # doppelt in der Liste!
       {var object list = Symbol_value(S(key_bindings)); # bisherige Key-Bindings
-       if (!eq(STACK_1,unbound)) # command-list angegeben?
-         { list = nreconc(STACK_1,list); } # ja -> davorhängen
+       if (!eq(STACK_2,unbound)) # command-list angegeben?
+         { list = nreconc(STACK_2,list); } # ja -> davorhängen
        dynamic_bind(S(key_bindings),list); # SYS::*KEY-BINDINGS* binden
       }
       #else
       # statt        (nreconc command-list *key-bindings*)
       # doch lieber  (nreverse command-list)
-      {var object list = (eq(STACK_1,unbound) ? NIL : nreverse(STACK_1));
+      {var object list = (eq(STACK_2,unbound) ? NIL : nreverse(STACK_2));
        dynamic_bind(S(key_bindings),list); # SYS::*KEY-BINDINGS* binden
       }
       #endif
@@ -123,7 +124,7 @@
           #       )
           #       istream
           # ) ) )
-          pushSTACK(*istream_); pushSTACK(NIL); pushSTACK(NIL);
+          pushSTACK(*inputstream_); pushSTACK(NIL); pushSTACK(NIL);
           funcall(L(read_line),3); # (READ-LINE istream nil nil)
          {var object line = value1;
           if (nullp(line)) { dynamic_unbind(); goto eof; } # EOF am Zeilenanfang?
@@ -144,40 +145,40 @@
             }
           pushSTACK(line); funcall(L(make_string_input_stream),1);
           # Concatenated-Stream basteln:
-          pushSTACK(value1); pushSTACK(*istream_);
+          pushSTACK(value1); pushSTACK(*inputstream_);
           funcall(L(make_concatenated_stream),2);
-          *istream_ = value1; # und an istream zuweisen
+          *inputstream_ = value1; # und an inputstream zuweisen
         }}
       #endif
      {var object obj;
       dynamic_bind(S(read_suppress),NIL); # *READ-SUPPRESS* = NIL
-      obj = stream_read(istream_,NIL,NIL); # Objekt lesen (recursive-p=NIL, whitespace-p=NIL)
+      obj = stream_read(inputstream_,NIL,NIL); # Objekt lesen (recursive-p=NIL, whitespace-p=NIL)
       dynamic_unbind();
       dynamic_unbind();
       if (!eq(obj,eof_value)) # EOF (nach Whitespace) abfragen
         { pushSTACK(obj);
-          pushSTACK(STACK_(3+1)); pushSTACK(STACK_(0+1+1)); funcall(L(terminal_raw),2);
+          pushSTACK(STACK_(4+1)); pushSTACK(STACK_(0+1+1)); funcall(L(terminal_raw),2);
           # wartenden Input bis Zeilenende löschen
-          if (interactive_stream_p(STACK_(3+1)))
-            { while (stream_listen(STACK_(3+1)) == 0)
-                { var object ch = peek_char(&STACK_(3+1));
+          if (interactive_stream_p(STACK_(4+1)))
+            { while (stream_listen(STACK_(4+1)) == 0)
+                { var object ch = peek_char(&STACK_(4+1));
                   if (eq(ch,eof_value))
                     break;
-                  read_char(&STACK_(3+1));
+                  read_char(&STACK_(4+1));
                   if (eq(ch,ascii_char(NL)))
                     break;
             }   }
           value1 = popSTACK(); value2 = NIL; mv_count=2; # obj, NIL als Werte
-          skipSTACK(3); return;
+          skipSTACK(4); return;
         }
     }}
     eof: # bei EOF angelangt
-    pushSTACK(STACK_3); pushSTACK(STACK_(0+1)); funcall(L(terminal_raw),2);
+    pushSTACK(STACK_4); pushSTACK(STACK_(0+1)); funcall(L(terminal_raw),2);
     # (clear-input istream) ausführen (um bei interaktivem Stream das EOF zu
     # schlucken: das fortzusetzende Programm könnte das EOF missverstehen):
-    clear_input(STACK_3);
+    clear_input(STACK_4);
     value1 = value2 = T; mv_count=2; # T, T als Werte
-    skipSTACK(3); return;
+    skipSTACK(4); return;
   }}
 
 # (SYS::READ-FORM prompt [commandlist])
