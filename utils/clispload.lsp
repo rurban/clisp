@@ -115,11 +115,6 @@
   ;; subclasses.
   USER-CLASS-DISJOINTNESS-2 TAC-3.16
 
-  ;; Paul Dietz assumes that (PARSE-NAMESTRING "") returns a pathname with
-  ;; directory NIL.
-  ;; In CLISP the resulting directory is (:RELATIVE).
-  PARSE-NAMESTRING.1 PARSE-NAMESTRING.2 PARSE-NAMESTRING.3 PARSE-NAMESTRING.4
-
   ;; Paul Dietz assumes that binding *PRINT-READABLY* to T has no effect on
   ;; how integers are printed.
   ;; In CLISP *PRINT-READABLY* = T implies the effects of *PRINT-RADIX* = T.
@@ -135,7 +130,8 @@
   ;;   S2 = "((common-lisp:most-positive-fixnum . #\\=) #<array common-lisp:t (11) #x208A67EE> . #<array common-lisp:t (11) #x208A68FE>)"
   PRINT.1 PPRINT.1 PRIN1.1 PRINC-TO-STRING.1 WRITE-TO-STRING.1
 
-  ;; Paul Dietz assumes that structure objects are printed like atoms.
+  ;; Paul Dietz assumes that structure objects without slots are printed like
+  ;; atoms.
   ;; CLISP prints them as objects with components, like vectors.
   PRINT-LEVEL.8 PRINT-LEVEL.9
 
@@ -174,6 +170,12 @@
 
   ; To be fixed:
   PATHNAME-MATCH-P.4
+
+  ; ANSI CL says that (PARSE-NAMESTRING "") returns a pathname with
+  ; directory NIL.
+  ; In CLISP the resulting directory is (:RELATIVE).
+  ; We have to revise the representation of pathnames on all platforms.
+  PARSE-NAMESTRING.1 PARSE-NAMESTRING.2 PARSE-NAMESTRING.3 PARSE-NAMESTRING.4
 
   ; Requires a rewrite of parts of the pretty-printer.
   PPRINT-TABULAR.6
