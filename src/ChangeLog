@@ -1,3 +1,8 @@
+2003-08-30  John Hinsdale  <hin@alma.com>
+
+	* intelem.d: Fix bug #726433: Floating point numbers
+	printed incorrectly - gcc -O/-g bug?
+
 2003-08-30  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	* stream.d (wr_ch_window) [WIN32_NATIVE]: explicit typecast.
