@@ -139,9 +139,10 @@
   (apply #'clos:make-instance type slot-initializations))
 
 ;; canonicalize a condition argument, CLtL2 p. 888
-(defun coerce-to-condition (datum arguments
-                            caller-name
-                            default-type &rest more-initargs)
+
+(defun try-coerce-to-condition (datum arguments
+                                caller-name
+                                default-type &rest more-initargs)
   (typecase datum
     (condition
       (when arguments
@@ -163,6 +164,27 @@
         :datum datum :expected-type '(or condition symbol string function)
         (TEXT "~S: the condition argument must be a string, a symbol or a condition, not ~S")
         caller-name datum))))
+
+(defun valid-condition-designator-p (datum+arguments)
+  (handler-case
+      (try-coerce-to-condition (car datum+arguments) (cdr datum+arguments)
+                               'coerce-to-condition 'simple-error) ; hmmpf
+    (ERROR () nil)
+    (:NO-ERROR (&rest values) (declare (ignore values)) t)))
+
+(defun coerce-to-condition (datum arguments
+                            caller-name
+                            default-type &rest more-initargs)
+  (handler-case
+      (apply #'try-coerce-to-condition datum arguments
+             caller-name default-type more-initargs)
+    (TYPE-ERROR (error) (signal error))
+    (ERROR (error)
+      ;; ANSI CL wants a type error here.
+      (error-of-type 'type-error
+        :datum (cons datum arguments)
+        :expected-type '(satisfies valid-condition-designator-p)
+        "~A" error))))
 
 ;;; 29.5. Predefined Condition Types
 
