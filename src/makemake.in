@@ -3082,7 +3082,10 @@ done
 for f in NEWS .gdbinit ; do
   if [ -n "${SRCDIR}" ] ; then
     echol "${f} : ${SRCDIR}${f}"
-    echotab "-\$(LN_S) ${SRCDIR}${f} ${f}"
+    if [ $f = .gdbinit -a $LEXE != ".run" ]; then
+      echotab "sed 's/lisp.run/lisp$LEXE/g' ${SRCDIR}${f} > ${f}"
+    else echotab "-\$(LN_S) ${SRCDIR}${f} ${f}"
+    fi
     echol
   fi
 done
