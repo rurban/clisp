@@ -1,5 +1,10 @@
 2004-04-22  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d: Disable the use of global register variables for
+	gcc >= 3.4.
+
+2004-04-22  Bruno Haible  <bruno@clisp.org>
+
 	Make it compile with g++ 3.4.
 	* lispbibl.d (offsetofa): Define differently for C++.
 	(restartf_t): Define without nonreturning for C++.
