@@ -138,6 +138,15 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
       return NULL;
     }
 
+#ifdef DEBUG_GCSAFETY
+  # A counter that is incremented each time an allocation occurs that could
+  # trigger GC.
+  global uintL alloccount = 1;
+  #define inc_alloccount()  (void)(alloccount++)
+#else
+  #define inc_alloccount()  (void)0
+#endif
+
 #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && !defined(TRIVIALMAP_MEMORY)
 
 # make room for a new object.
@@ -149,7 +158,9 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
   #define make_space_true(need)  make_space(need)
   #define make_space_false(need)  make_space(need)
   #define make_space(need)  \
-    { if (not_enough_room_p(need)) make_space_gc(need); }
+    { if (not_enough_room_p(need)) make_space_gc(need); \
+      inc_alloccount();                                 \
+    }
   #if !defined(GENERATIONAL_GC)
     #define not_enough_room_p(need)  (mem.conses.heap_start-mem.varobjects.heap_end < (uintP)(need))
   #else
@@ -213,12 +224,14 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
           || (mem.varobjects.heap_limit - mem.varobjects.heap_end < (uintP)(need)) \
          )                                                                      \
         make_space_gc_true(need,&mem.varobjects);                               \
+      inc_alloccount();                                                         \
     }
   #define make_space_false(need)  \
     { if ((mem.total_room < (uintL)(need))                                   \
           || (mem.conses.heap_start - mem.conses.heap_limit < (uintP)(need)) \
          )                                                                   \
         make_space_gc_false(need,&mem.conses);                               \
+      inc_alloccount();                                                      \
     }
   local void make_space_gc_true (uintL need, Heap* heapptr);
   local void make_space_gc_true(need,heapptr)
@@ -365,6 +378,7 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
           || ((heapptr)->heap_limit - (heapptr)->heap_end < (uintP)(need)) \
          )                                                                 \
         make_space_gc(need,heapptr);                                       \
+      inc_alloccount();                                                    \
     }
   local void make_space_gc (uintL need, Heap* heapptr);
   local void make_space_gc(need,heapptr)
@@ -447,6 +461,7 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
     { pagevar = AVL(AVLID,least)(need,&(heap_ptr)->inuse,stack_ptr);    \
       if (pagevar==EMPTY)                                               \
         { pagevar = make_space_gc(need,&(heap_ptr)->inuse,stack_ptr); } \
+      inc_alloccount();                                                 \
     }
   local Pages make_space_gc (uintL need, Pages* pages_ptr, AVL(AVLID,stack) * stack_ptr);
   local Pages make_space_gc(need,pages_ptr,stack_ptr)

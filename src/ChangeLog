@@ -1,9 +1,40 @@
+2002-12-04  Bruno Haible  <bruno@clisp.org>
+
+	GC-safety checker.
+	* lispbibl.d: Recognize DEBUG_GCSAFETY.
+	(INNARDS_OF_GCV_OBJECT): New macro.
+	(TYPEDEF_OBJECT): Remove.
+	(gcv_object_t): Define instead of object.
+	(as_object): Fix for OBJECT_STRUCT case. Add optional allocstamp
+	initializer.
+	(gcv_object_t) [DEBUG_GCSAFETY]: Define as a C++ class.
+	(object): Define after gcv_object_t.
+	(alloccount): New declaration.
+	(INIT_ALLOCSTAMP): New macro.
+	(fake_gcv_object) [DEBUG_GCSAFETY]: Define as a C++ class.
+	(gcunsafe_object_t): Likewise.
+	(type_untype_object, type_data_object): Add optional allocstamp
+	initializer.
+	(gcinvariant_bias_p): New macro.
+	(pointable) [DEBUG_GCSAFETY]: Verify pointer integrity.
+	(type_pointable): Update.
+	(cgci_pointable, pgci_pointable, ngci_pointable) [DEBUG_GCSAFETY]:
+	Verify pointer integrity when the argument is an object.
+	(eq) [DEBUG_GCSAFETY]: Verify pointer integrity.
+	(gcinvariant_symbol_p): New function.
+	* genclisph.d (main): Update.
+	* spvw_allocate.d (alloccount): New variable.
+	(inc_alloccount): New macro.
+	(make_space, make_space_true, make_space_false): Call inc_alloccount.
+	* spvw_page.d (_Page): In DEBUG_GCSAFETY mode, use 'struct' instead
+	of 'union', to avoid compilation erro.
+
 2002-12-19  Sam Steingold  <sds@gnu.org>
 
 	* charstrg.d (DIGIT-CHAR-P): correctly identify MATHEMATICAL_*
 	digits (* = SANS-SERIF/BOLD DOUBLE-STRUCK MONOSPACE)
 
-2002-12-18  Bruno Haible  <bruno@clisp.org>
+2002-12-19  Bruno Haible  <bruno@clisp.org>
 
 	* uni_attribute.c: Regenerated for Unicode 3.2.0 by gen-ctype.c.
 	* uni_upcase.c: Likewise.

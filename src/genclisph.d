@@ -462,6 +462,7 @@ global int main()
 # #endif
 # printf("typedef sint%d sintD;\n",intDsize);
   printf("typedef uint%d uintD;\n",intDsize);
+  printf("#include <stdlib.h>\n");
 # #ifdef WIDE_HARD
 #   printf("#define WIDE_HARD\n");
 # #endif
@@ -486,13 +487,18 @@ global int main()
       #ifdef GENERATIONAL_GC
         printf(" __attribute__ ((aligned(8)))");
       #endif
-      printf("; } u; } object;\n");
+      printf("; } u; } gcv_object_t;\n");
       printf("#define one_o  u.both.one_ob\n");
       printf("#define auxi_o  u.both.auxi_ob\n");
     #elif defined(OBJECT_STRUCT)
-      printf("typedef struct { uintL one; } object;\n");
+      #ifdef DEBUG_GCSAFETY
+        printf("struct object { uintP one_o; uintL allocstamp; };\n");
+        printf("struct gcv_object_t { uintP one_o; operator object () const; gcv_object_t (object obj); gcv_object_t (struct fake_gcv_object obj); gcv_object_t (); };\n");
+      #else
+        printf("typedef struct { uintP one_o; } gcv_object_t;\n");
+      #endif
     #else
-      printf("typedef  void *  object;\n");
+      printf("typedef  void *  gcv_object_t;\n");
     #endif
     #ifdef WIDE_AUXI
       printf("typedef  uint64  oint;\n");
@@ -516,25 +522,41 @@ global int main()
         printf(" __attribute__ ((aligned(8)))");
       #endif
       printf("; } u; }\n");
-      printf("  object;\n");
+      printf("  gcv_object_t;\n");
     #else
-      printf("typedef  oint  object;\n");
+      printf("typedef  oint  gcv_object_t;\n");
     #endif
   #endif
   #if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
-    printf("#define as_oint(expr)  ((expr).one)\n");
+    printf("#define as_oint(expr)  ((expr).one_o)\n");
     #if defined(WIDE_STRUCT)
-      printf("#define as_object(o)  ((object){u:{one_u:(o)}})\n");
+      printf("#define as_object(o)  ((object){u:{one_u:(o)}");
+      #ifdef DEBUG_GCSAFETY
+        printf(",allocstamp:alloccount");
+      #endif
+      printf("})\n");
     #elif defined(OBJECT_STRUCT)
-      printf("#define as_object(o)  ((object){one_o:(o)})\n");
+      printf("#define as_object(o)  ((object){one_o:(o)");
+      #ifdef DEBUG_GCSAFETY
+        printf(",allocstamp:alloccount");
+      #endif
+      printf("})\n");
     #endif
   #elif defined(WIDE_AUXI)
     printf("#define as_oint(expr)  ((expr).u.align_o)\n");
-    printf("#define as_object_with_auxi(o)  ((object){u:{both:{ one_ob: (o), auxi_ob: 0 }}})\n");
-    printf("#define as_object(o)  ((object){u:{align_o:(o)}})\n");
+    printf("#define as_object_with_auxi(o)  ((object){u:{both:{ one_ob: (o), auxi_ob: 0 }}");
+    #ifdef DEBUG_GCSAFETY
+      printf(",allocstamp:alloccount");
+    #endif
+    printf("})\n");
+    printf("#define as_object(o)  ((object){u:{align_o:(o)}");
+    #ifdef DEBUG_GCSAFETY
+      printf(",allocstamp:alloccount");
+    #endif
+    printf("})\n");
   #else
     printf("#define as_oint(expr)  (oint)(expr)\n");
-    printf("#define as_object(o)  (object)(o)\n");
+    printf("#define as_object(o)  (gcv_object_t)(o)\n");
   #endif
 # printf1("#define addressbus_mask  %x\n",(oint)addressbus_mask);
 # printf("#define oint_type_shift  %d\n",oint_type_shift);
@@ -550,7 +572,11 @@ global int main()
   printf("typedef uint%d tint;\n",oint_type_len);
   printf("typedef uint%d aint;\n",oint_addr_len);
 # printf("typedef sint%d saint;\n",oint_addr_len);
-  printf("typedef object gcv_object_t;\n");
+  #ifdef DEBUG_GCSAFETY
+    printf("extern uintL alloccount;\n");
+  #else
+    printf("typedef gcv_object_t object;\n");
+  #endif
 # printf1("#define tint_type_mask  %x\n",(tint)tint_type_mask);
   #if !(defined(WIDE_SOFT) || defined(WIDE_AUXI) || defined(OBJECT_STRUCT))
     printf("#define objectplus(obj,offset)  ((object)pointerplus(obj,offset))\n");
@@ -610,10 +636,14 @@ global int main()
 #   #endif
     #if defined(WIDE) && defined(WIDE_STRUCT)
       #if BIG_ENDIAN_P==WIDE_ENDIANNESS
-        printf("#define type_untype_object(type,address)  ((object){{(tint)(type),(aint)(address)}})\n");
+        printf("#define type_untype_object(type,address)  ((object){{(tint)(type),(aint)(address)}");
       #else
-        printf("#define type_untype_object(type,address)  ((object){{(aint)(address),(tint)(type)}})\n");
+        printf("#define type_untype_object(type,address)  ((object){{(aint)(address),(tint)(type)}");
       #endif
+      #ifdef DEBUG_GCSAFETY
+        printf(",allocstamp:alloccount");
+      #endif
+      printf("})\n");
     #elif !(oint_addr_shift==0)
       printf("#define type_untype_object(type,address)  (as_object(((oint)(tint)(type) << %d) + ((oint)(aint)(address) << %d)))\n",oint_type_shift,oint_addr_shift);
     #else
@@ -629,10 +659,14 @@ global int main()
     #endif
     #if defined(WIDE) && defined(WIDE_STRUCT)
       #if BIG_ENDIAN_P==WIDE_ENDIANNESS
-        printf("#define type_data_object(type,address)  ((object){{(tint)(type),(aint)(address)}})\n");
+        printf("#define type_data_object(type,address)  ((object){{(tint)(type),(aint)(address)}");
       #else
-        printf("#define type_data_object(type,address)  ((object){{(aint)(address),(tint)(type)}})\n");
+        printf("#define type_data_object(type,address)  ((object){{(aint)(address),(tint)(type)}");
       #endif
+      #ifdef DEBUG_GCSAFETY
+        printf(",allocstamp:alloccount");
+      #endif
+      printf("})\n");
     #elif !(oint_addr_shift==0)
       printf("#define type_data_object(type,data)  (as_object(((oint)(tint)(type) << %d) + ((oint)(aint)(data) << %d)))\n",oint_type_shift,oint_addr_shift);
     #else
@@ -660,6 +694,15 @@ global int main()
   #else
     printf("#define type_data_object(type,data)  (as_object(((oint)(tint)(type) << %d) + ((oint)(aint)(data) << %d)))\n",oint_type_shift,oint_addr_shift);
     printf("#define type_zero_oint(type)  ((oint)(tint)(type) << %d)\n",oint_type_shift);
+    printf("#define immediate_object_p(obj)  ((7 & ~as_oint(obj)) == 0)\n");
+    printf("#define gcinvariant_object_p(obj)  (((as_oint(obj) & 1) == 0) || immediate_object_p(obj))\n");
+    printf("#define gcinvariant_bias_p(bias)  ((((bias) & 1) == 0) || ((7 & ~(bias)) == 0))\n");
+  #endif
+  #ifdef DEBUG_GCSAFETY
+    printf("static inline bool gcinvariant_symbol_p (object obj);\n");
+    printf("inline gcv_object_t::operator object () const { return (object){ one_o: one_o, allocstamp: alloccount }; }\n");
+    printf("inline gcv_object_t::gcv_object_t (object obj) { if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount)) abort(); one_o = as_oint(obj); }\n");
+    printf("inline gcv_object_t::gcv_object_t () {}\n");
   #endif
   #ifdef TYPECODES
     printf("#define VAROBJECT_HEADER  object GCself;\n");
@@ -854,7 +897,15 @@ global int main()
         printf("#define pointable(obj)  ((void*)as_oint(obj))\n");
       #endif
     #endif
-    #if defined(WIDE_STRUCT)
+    #ifdef DEBUG_GCSAFETY
+      printf("static inline void* gcsafety_pointable (gcv_object_t obj) { return pointable(obj); }\n");
+      printf("static inline void* gcsafety_pointable (object obj) { return pointable((gcv_object_t)obj); }\n");
+      printf("#undef pointable\n");
+      printf("#define pointable gcsafety_pointable\n");
+    #endif
+    #if defined(DEBUG_GCSAFETY)
+      #define printf_type_pointable(type)  printf("pointable(obj)");
+    #elif defined(WIDE_STRUCT)
       #define printf_type_pointable(type)  printf("((void*)((obj).u.both.addr))");
     #elif !((oint_addr_shift==0) && (addr_shift==0) && (((tint_type_mask<<oint_type_shift) & addressbus_mask) == 0))
       #if (addr_shift==0)
@@ -891,7 +942,14 @@ global int main()
 #   printf("#define TheSubr(obj)  ((Subr)("); printf_type_pointable(subr_type); printf("))\n");
 #   printf("#define TheMachine(obj)  ((void*)("); printf_type_pointable(machine_type); printf("))\n");
   #else
-    #if defined(WIDE_AUXI)
+    #if defined(DEBUG_GCSAFETY)
+      printf("static inline aint cgci_pointable (object obj) { return obj.one_o; }\n");
+      printf("static inline aint cgci_pointable (gcv_object_t obj) { return obj.one_o; }\n");
+      printf("static inline aint pgci_pointable (object obj) { if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount)) abort(); return obj.one_o; }\n");
+      printf("static inline aint pgci_pointable (gcv_object_t obj) { return obj.one_o; }\n");
+      printf("static inline aint ngci_pointable (object obj) { if (!(gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount)) abort(); return obj.one_o; }\n");
+      printf("static inline aint ngci_pointable (gcv_object_t obj) { return obj.one_o; }\n");
+    #elif defined(WIDE_AUXI)
       printf("#define cgci_pointable(obj)  (obj).one_o\n");
       printf("#define pgci_pointable(obj)  (obj).one_o\n");
       printf("#define ngci_pointable(obj)  (obj).one_o\n");
@@ -925,7 +983,9 @@ global int main()
 # printf("#define Symbol_plist(obj)  (TheSymbol(obj)->proplist)\n");
 # printf("#define Symbol_name(obj)  (TheSymbol(obj)->pname)\n");
 # printf("#define Symbol_package(obj)  (TheSymbol(obj)->homepackage)\n");
-  #if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
+  #if defined(DEBUG_GCSAFETY)
+    printf("#define eq(obj1,obj2)  (pgci_pointable(obj1) == pgci_pointable(obj2))\n");
+  #elif defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
     printf("#define eq(obj1,obj2)  (as_oint(obj1) == as_oint(obj2))\n");
   #elif defined(WIDE_AUXI)
     printf("#define eq(obj1,obj2)  ((obj1).one_o == (obj2).one_o)\n");
@@ -1366,6 +1426,25 @@ global int main()
   #endif
   printf("#define NIL  S(nil)\n");
   printf("#define T    S(t)\n");
+  #if defined(DEBUG_GCSAFETY)
+    printf("static inline bool gcinvariant_symbol_p (object obj) { if (");
+    #ifdef TYPECODES
+      printf("symbolp(obj)");
+    #else
+      printf("varobjectp(obj)");
+    #endif
+    printf(" && (");
+    #if !defined(MAP_MEMORY_TABLES)
+      #ifdef TYPECODES
+        printf2("(as_oint(obj) >> %d) - %d", oint_addr_shift-addr_shift, (aint)(tint)symbol_type<<oint_type_shift);
+      #else
+        printf1("as_oint(obj) - %d", varobject_bias);
+      #endif
+    #else
+      printf("as_oint(obj)");
+    #endif
+    printf(" - (aint)&symbol_tab < sizeof(symbol_tab))) return true; else return false; }\n");
+  #endif
   printf("extern struct object_tab_ object_tab;\n");
   printf("extern uintC module_count;\n");
   printf("typedef struct { const char* packname; const char* symname; } subr_initdata_t;\n");
