@@ -96,6 +96,10 @@
   #                    strmflags_unread_bit_B is set.
   # strm_wr_ch         pseudofunction for WRITE-CHAR
   # strm_wr_ch_array   pseudofunction for WRITE-CHAR-SEQUENCE
+  # strm_wr_ch_npnl        pseudofunction for WRITE-CHAR, when
+  #                        no pending newline
+  # strm_wr_ch_array_npnl  pseudofunction for WRITE-CHAR-SEQUENCE, when
+  #                        no pending newline
   # strm_wr_ch_lpos    line-position in the current line after last WRITE-CHAR,
   #                    a fixnum >=0
 # further (type-specific) components:
@@ -791,6 +795,19 @@ global maygc uintL read_char_array (const gcv_object_t* stream_,
   }
 }
 
+# Function that handles the pending newline before doing the real job.
+local maygc void wr_ch_pending_newline (const gcv_object_t* stream_, object obj) {
+  var object stream = *stream_;
+  TheStream(stream)->strm_wr_ch = TheStream(stream)->strm_wr_ch_npnl;
+  TheStream(stream)->strm_wr_ch_array = TheStream(stream)->strm_wr_ch_array_npnl;
+  if (!eq(obj,ascii_char(NL))) {
+    pushSTACK(obj);
+    write_char(stream_,ascii_char(NL));
+    obj = popSTACK();
+  }
+  write_char(stream_,obj);
+}
+
 # writes a Character to a Stream.
 # write_char(&stream,ch);
 # > ch: Character to be written
@@ -830,9 +847,41 @@ global maygc void write_char (const gcv_object_t* stream_, object ch) {
      #endif
     }
   } else {
+    pushSTACK(stream); pushSTACK(ch);
+    # Test (SLOT-VALUE stream '$penl):
+    var object stream_forwarded = stream;
+    instance_un_realloc(stream_forwarded);
+    instance_update(stream,stream_forwarded);
+    var object cv = TheInstance(stream_forwarded)->inst_class_version;
+    var object clas = TheClassVersion(cv)->cv_class;
+    var object slotinfo = gethash(S(penl),TheClass(clas)->slot_location_table,false);
+    if (!nullp(TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)])) {
+      TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)] = NIL;
+      if (!eq(STACK_0,ascii_char(NL))) {
+        # Call the generic function (STREAM-WRITE-CHAR stream #\Newline):
+        pushSTACK(STACK_1); pushSTACK(ascii_char(NL));
+        funcall(S(stream_write_char),2);
+      }
+    }
     # Call the generic function (STREAM-WRITE-CHAR stream ch):
-    pushSTACK(stream); pushSTACK(ch); funcall(S(stream_write_char),2);
+    funcall(S(stream_write_char),2);
   }
+}
+
+# Function that handles the pending newline before doing the real job.
+local maygc void wr_ch_array_pending_newline (const gcv_object_t* stream_,
+                                              const gcv_object_t* chararray_,
+                                              uintL start, uintL len) {
+  var object stream = *stream_;
+  TheStream(stream)->strm_wr_ch = TheStream(stream)->strm_wr_ch_npnl;
+  TheStream(stream)->strm_wr_ch_array = TheStream(stream)->strm_wr_ch_array_npnl;
+  var bool next_is_NL;
+  SstringDispatch(*chararray_,X, {
+    next_is_NL = chareq(as_chart(((SstringX)TheVarobject(*chararray_))->data[start]),ascii(NL));
+  });
+  if (!next_is_NL)
+    write_char(stream_,ascii_char(NL));
+  write_char_array(stream_,chararray_,start,len);
 }
 
 # Function: Writes several characters to a stream.
@@ -851,11 +900,59 @@ global maygc void write_char_array (const gcv_object_t* stream_,
   if (builtin_stream_p(stream)) {
     wr_ch_array(stream)(stream_,chararray_,start,len);
   } else {
+    # Test (SLOT-VALUE stream '$penl):
+    var object stream_forwarded = stream;
+    instance_un_realloc(stream_forwarded);
+    instance_update(stream,stream_forwarded);
+    var object cv = TheInstance(stream_forwarded)->inst_class_version;
+    var object clas = TheClassVersion(cv)->cv_class;
+    var object slotinfo = gethash(S(penl),TheClass(clas)->slot_location_table,false);
+    if (!nullp(TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)])) {
+      TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)] = NIL;
+      var bool next_is_NL;
+      SstringDispatch(*chararray_,X, {
+        next_is_NL = chareq(as_chart(((SstringX)TheVarobject(*chararray_))->data[start]),ascii(NL));
+      });
+      if (!next_is_NL) {
+        # Call the generic function (STREAM-WRITE-CHAR stream #\Newline):
+        pushSTACK(*stream_); pushSTACK(ascii_char(NL));
+        funcall(S(stream_write_char),2);
+      }
+    }
     # Call the generic function
     # (STREAM-WRITE-CHAR-SEQUENCE stream chararray start start+len):
-    pushSTACK(stream); pushSTACK(*chararray_);
+    pushSTACK(*stream_); pushSTACK(*chararray_);
     pushSTACK(fixnum(start)); pushSTACK(fixnum(start+len));
     funcall(S(stream_write_char_sequence),4);
+  }
+}
+
+# Outputs a real newline if an elastic newline is pending on the stream.
+# harden_elastic_newline(&stream);
+# > stream: Stream
+# < stream: Stream
+# can trigger GC
+local maygc void harden_elastic_newline (const gcv_object_t* stream_) {
+  var object stream = *stream_;
+  if (builtin_stream_p(stream)) {
+    if (eq(TheStream(stream)->strm_wr_ch,P(wr_ch_pending_newline))) {
+      TheStream(stream)->strm_wr_ch = TheStream(stream)->strm_wr_ch_npnl;
+      TheStream(stream)->strm_wr_ch_array = TheStream(stream)->strm_wr_ch_array_npnl;
+      write_char(stream_,ascii_char(NL));
+    }
+  } else {
+    # Test (SLOT-VALUE stream '$penl):
+    var object stream_forwarded = stream;
+    instance_un_realloc(stream_forwarded);
+    instance_update(stream,stream_forwarded);
+    var object cv = TheInstance(stream_forwarded)->inst_class_version;
+    var object clas = TheClassVersion(cv)->cv_class;
+    var object slotinfo = gethash(S(penl),TheClass(clas)->slot_location_table,false);
+    if (!nullp(TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)])) {
+      # (SETF (SLOT-VALUE stream '$penl) NIL):
+      TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)] = NIL;
+      write_char(stream_,ascii_char(NL));
+    }
   }
 }
 
@@ -880,8 +977,8 @@ local void stream_dummy_fill (object stream) {
   s->strm_rd_ch_array = P(rd_ch_array_error);
   s->strm_rd_ch_last = NIL; # Lastchar := NIL
   s->strm_wr_ch_lpos = Fixnum_0;
-  s->strm_wr_ch = P(wr_ch_error);
-  s->strm_wr_ch_array = P(wr_ch_array_error);
+  s->strm_wr_ch = s->strm_wr_ch_npnl = P(wr_ch_error);
+  s->strm_wr_ch_array = s->strm_wr_ch_array_npnl = P(wr_ch_array_error);
 }
 
 # returns error-message, if the value of the Symbol sym is not a Stream.
@@ -1331,8 +1428,10 @@ local maygc object make_synonym_stream (object symbol) {
   TheStream(stream)->strm_pk_ch = P(pk_ch_synonym);
   TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_synonym);
   TheStream(stream)->strm_rd_ch_last = NIL;
-  TheStream(stream)->strm_wr_ch = P(wr_ch_synonym);
-  TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_synonym);
+  TheStream(stream)->strm_wr_ch =
+    TheStream(stream)->strm_wr_ch_npnl = P(wr_ch_synonym);
+  TheStream(stream)->strm_wr_ch_array =
+    TheStream(stream)->strm_wr_ch_array_npnl = P(wr_ch_array_synonym);
   TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
   TheStream(stream)->strm_synonym_symbol = popSTACK();
   return stream;
@@ -1501,8 +1600,10 @@ local maygc object make_broadcast_stream (object list) {
   stream_dummy_fill(stream);
   TheStream(stream)->strm_wr_by = P(wr_by_broad);
   TheStream(stream)->strm_wr_by_array = P(wr_by_array_broad);
-  TheStream(stream)->strm_wr_ch = P(wr_ch_broad);
-  TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_broad);
+  TheStream(stream)->strm_wr_ch =
+    TheStream(stream)->strm_wr_ch_npnl = P(wr_ch_broad);
+  TheStream(stream)->strm_wr_ch_array =
+    TheStream(stream)->strm_wr_ch_array_npnl = P(wr_ch_array_broad);
   TheStream(stream)->strm_broad_list = list;
   return stream;
 }
@@ -1993,8 +2094,10 @@ global maygc object make_twoway_stream (object input_stream, object output_strea
   TheStream(stream)->strm_pk_ch = P(pk_ch_twoway);
   TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_twoway);
   TheStream(stream)->strm_rd_ch_last = NIL;
-  TheStream(stream)->strm_wr_ch = P(wr_ch_twoway);
-  TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_twoway);
+  TheStream(stream)->strm_wr_ch =
+    TheStream(stream)->strm_wr_ch_npnl = P(wr_ch_twoway);
+  TheStream(stream)->strm_wr_ch_array =
+    TheStream(stream)->strm_wr_ch_array_npnl = P(wr_ch_array_twoway);
   output_stream = popSTACK(); input_stream = popSTACK(); # put back Streams
   TheStream(stream)->strm_wr_ch_lpos =
     TheStream(output_stream)->strm_wr_ch_lpos;
@@ -2118,8 +2221,10 @@ local maygc object make_echo_stream (object input_stream, object output_stream) 
   TheStream(stream)->strm_pk_ch = P(pk_ch_twoway);
   TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_echo);
   TheStream(stream)->strm_rd_ch_last = NIL;
-  TheStream(stream)->strm_wr_ch = P(wr_ch_twoway);
-  TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_twoway);
+  TheStream(stream)->strm_wr_ch =
+    TheStream(stream)->strm_wr_ch_npnl = P(wr_ch_twoway);
+  TheStream(stream)->strm_wr_ch_array =
+    TheStream(stream)->strm_wr_ch_array_npnl = P(wr_ch_array_twoway);
   output_stream = popSTACK(); input_stream = popSTACK(); # put back Streams
   TheStream(stream)->strm_wr_ch_lpos =
     TheStream(output_stream)->strm_wr_ch_lpos;
@@ -2329,8 +2434,10 @@ global maygc object make_string_output_stream (void) {
   var object stream = # new Stream, only WRITE-CHAR allowed
     allocate_stream(strmflags_wr_ch_B,strmtype_str_out,strm_len+1,0);
   stream_dummy_fill(stream);
-  TheStream(stream)->strm_wr_ch = P(wr_ch_str_out);
-  TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_str_out);
+  TheStream(stream)->strm_wr_ch =
+    TheStream(stream)->strm_wr_ch_npnl = P(wr_ch_str_out);
+  TheStream(stream)->strm_wr_ch_array =
+    TheStream(stream)->strm_wr_ch_array_npnl = P(wr_ch_array_str_out);
   TheStream(stream)->strm_str_out_string = popSTACK(); # enter the String
   return stream;
 }
@@ -2374,8 +2481,10 @@ LISPFUN(make_string_output_stream,seclass_read,0,0,norest,key,2,
     funcall(L(make_array),5); pushSTACK(value1);
     stream = allocate_stream(strmflags_wr_ch_B,strmtype_str_out,strm_len+1,0);
     stream_dummy_fill(stream);
-    TheStream(stream)->strm_wr_ch = P(wr_ch_forbidden);
-    TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_forbidden);
+    TheStream(stream)->strm_wr_ch =
+      TheStream(stream)->strm_wr_ch_npnl = P(wr_ch_forbidden);
+    TheStream(stream)->strm_wr_ch_array =
+      TheStream(stream)->strm_wr_ch_array_npnl = P(wr_ch_array_forbidden);
     TheStream(stream)->strm_str_out_string = popSTACK();
   } else
     stream = make_string_output_stream(); /* normal String-Output-Stream */
@@ -2391,6 +2500,7 @@ LISPFUN(make_string_output_stream,seclass_read,0,0,norest,key,2,
  < result: collected stuff, a Simple-String
  can trigger GC */
 global maygc object get_output_stream_string (const gcv_object_t* stream_) {
+  harden_elastic_newline(stream_);
   var object string = TheStream(*stream_)->strm_str_out_string; # old String
   if ((Iarray_flags(string) & arrayflags_atype_mask) == Atype_NIL) {
     /* Return the encapsulated (VECTOR NIL). It is an immutable object, since
@@ -2455,8 +2565,10 @@ LISPFUNNR(make_string_push_stream,1) {
   var object stream = # new Stream, only WRITE-CHAR allowed
     allocate_stream(strmflags_wr_ch_B,strmtype_str_push,strm_len+1,0);
   stream_dummy_fill(stream);
-  TheStream(stream)->strm_wr_ch = P(wr_ch_str_push);
-  TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_dummy);
+  TheStream(stream)->strm_wr_ch =
+    TheStream(stream)->strm_wr_ch_npnl = P(wr_ch_str_push);
+  TheStream(stream)->strm_wr_ch_array =
+    TheStream(stream)->strm_wr_ch_array_npnl = P(wr_ch_array_dummy);
   TheStream(stream)->strm_str_push_string = popSTACK(); # enter String
   VALUES1(stream); /* return stream */
 }
@@ -2563,8 +2675,10 @@ global maygc object make_pphelp_stream (void) {
   var object stream = # new Stream, only WRITE-CHAR allowed
     allocate_stream(strmflags_wr_ch_B,strmtype_pphelp,strm_len+2,0);
   stream_dummy_fill(stream);
-  TheStream(stream)->strm_wr_ch = P(wr_ch_pphelp);
-  TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_pphelp);
+  TheStream(stream)->strm_wr_ch =
+    TheStream(stream)->strm_wr_ch_npnl = P(wr_ch_pphelp);
+  TheStream(stream)->strm_wr_ch_array =
+    TheStream(stream)->strm_wr_ch_array_npnl = P(wr_ch_array_pphelp);
   TheStream(stream)->strm_pphelp_strings = popSTACK(); # enter String-List
   TheStream(stream)->strm_pphelp_modus = NIL; # Mode := single-liner
   return stream;
@@ -2821,8 +2935,10 @@ LISPFUN(make_buffered_output_stream,seclass_read,1,1,norest,nokey,0,NIL) {
   var object stream = # new Stream, only WRITE-CHAR allowed
     allocate_stream(strmflags_wr_ch_B,strmtype_buff_out,strm_len+2,0);
   stream_dummy_fill(stream);
-  TheStream(stream)->strm_wr_ch = P(wr_ch_buff_out);
-  TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_dummy);
+  TheStream(stream)->strm_wr_ch =
+    TheStream(stream)->strm_wr_ch_npnl = P(wr_ch_buff_out);
+  TheStream(stream)->strm_wr_ch_array =
+    TheStream(stream)->strm_wr_ch_array_npnl = P(wr_ch_array_dummy);
   TheStream(stream)->strm_buff_out_string = popSTACK(); # enter String
   TheStream(stream)->strm_wr_ch_lpos = popSTACK(); # enter Line Position
   TheStream(stream)->strm_buff_out_fun = popSTACK(); # enter Function
@@ -2996,8 +3112,10 @@ LISPFUNN(make_generic_stream,1) {
   TheStream(stream)->strm_pk_ch = P(pk_ch_generic);
   TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_dummy);
   TheStream(stream)->strm_rd_ch_last = NIL;
-  TheStream(stream)->strm_wr_ch = P(wr_ch_generic);
-  TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_generic);
+  TheStream(stream)->strm_wr_ch =
+    TheStream(stream)->strm_wr_ch_npnl = P(wr_ch_generic);
+  TheStream(stream)->strm_wr_ch_array =
+    TheStream(stream)->strm_wr_ch_array_npnl = P(wr_ch_array_generic);
   TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
   TheStream(stream)->strm_controller_object = popSTACK();
   VALUES1(stream); /* return stream */
@@ -5735,14 +5853,20 @@ local void fill_pseudofuns_unbuffered (object stream,
     if (eltype->kind == eltype_ch) {
       var object eol = TheEncoding(TheStream(stream)->strm_encoding)->enc_eol;
       if (eq(eol,S(Kunix))) {
-        TheStream(stream)->strm_wr_ch = P(wr_ch_unbuffered_unix);
-        TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_unbuffered_unix);
+        TheStream(stream)->strm_wr_ch =
+          TheStream(stream)->strm_wr_ch_npnl = P(wr_ch_unbuffered_unix);
+        TheStream(stream)->strm_wr_ch_array =
+          TheStream(stream)->strm_wr_ch_array_npnl = P(wr_ch_array_unbuffered_unix);
       } else if (eq(eol,S(Kmac))) {
-        TheStream(stream)->strm_wr_ch = P(wr_ch_unbuffered_mac);
-        TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_unbuffered_mac);
+        TheStream(stream)->strm_wr_ch =
+          TheStream(stream)->strm_wr_ch_npnl = P(wr_ch_unbuffered_mac);
+        TheStream(stream)->strm_wr_ch_array =
+          TheStream(stream)->strm_wr_ch_array_npnl = P(wr_ch_array_unbuffered_mac);
       } else if (eq(eol,S(Kdos))) {
-        TheStream(stream)->strm_wr_ch = P(wr_ch_unbuffered_dos);
-        TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_unbuffered_dos);
+        TheStream(stream)->strm_wr_ch =
+          TheStream(stream)->strm_wr_ch_npnl = P(wr_ch_unbuffered_dos);
+        TheStream(stream)->strm_wr_ch_array =
+          TheStream(stream)->strm_wr_ch_array_npnl = P(wr_ch_array_unbuffered_dos);
       } else
         NOTREACHED;
     } else {
@@ -5756,8 +5880,10 @@ local void fill_pseudofuns_unbuffered (object stream,
         ((eltype->kind == eltype_iu) && (eltype->size == 8)
          ? P(wr_by_array_iau8_unbuffered)
          : P(wr_by_array_dummy));
-      TheStream(stream)->strm_wr_ch = P(wr_ch_error);
-      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
+      TheStream(stream)->strm_wr_ch =
+        TheStream(stream)->strm_wr_ch_npnl = P(wr_ch_error);
+      TheStream(stream)->strm_wr_ch_array =
+        TheStream(stream)->strm_wr_ch_array_npnl = P(wr_ch_array_error);
     }
   }
 }
@@ -7507,14 +7633,20 @@ local void fill_pseudofuns_buffered (object stream,
     if (flags & strmflags_wr_ch_B) {
       var object eol=TheEncoding(TheStream(stream)->strm_encoding)->enc_eol;
       if (eq(eol,S(Kunix))) {
-        TheStream(stream)->strm_wr_ch = P(wr_ch_buffered_unix);
-        TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_buffered_unix);
+        TheStream(stream)->strm_wr_ch =
+          TheStream(stream)->strm_wr_ch_npnl = P(wr_ch_buffered_unix);
+        TheStream(stream)->strm_wr_ch_array =
+          TheStream(stream)->strm_wr_ch_array_npnl = P(wr_ch_array_buffered_unix);
       } else if (eq(eol,S(Kmac))) {
-        TheStream(stream)->strm_wr_ch = P(wr_ch_buffered_mac);
-        TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_buffered_mac);
+        TheStream(stream)->strm_wr_ch =
+          TheStream(stream)->strm_wr_ch_npnl = P(wr_ch_buffered_mac);
+        TheStream(stream)->strm_wr_ch_array =
+          TheStream(stream)->strm_wr_ch_array_npnl = P(wr_ch_array_buffered_mac);
       } else if (eq(eol,S(Kdos))) {
-        TheStream(stream)->strm_wr_ch = P(wr_ch_buffered_dos);
-        TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_buffered_dos);
+        TheStream(stream)->strm_wr_ch =
+          TheStream(stream)->strm_wr_ch_npnl = P(wr_ch_buffered_dos);
+        TheStream(stream)->strm_wr_ch_array =
+          TheStream(stream)->strm_wr_ch_array_npnl = P(wr_ch_array_buffered_dos);
       } else
         NOTREACHED;
     }
@@ -9001,8 +9133,8 @@ local maygc object make_terminal_stream_ (void) {
   var Stream s = TheStream(stream);
   s->strm_rd_ch = P(rd_ch_terminal); # READ-CHAR-Pseudofunction
   s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunction
-  s->strm_wr_ch = P(wr_ch_terminal); # WRITE-CHAR-Pseudofunction
-  s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunction
+  s->strm_wr_ch = s->strm_wr_ch_npnl = P(wr_ch_terminal); # WRITE-CHAR-Pseudofunction
+  s->strm_wr_ch_array = s->strm_wr_ch_array_npnl = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunction
   return stream;
 }
 
@@ -9650,8 +9782,8 @@ local maygc object make_terminal_stream_ (void) {
     s->strm_encoding = O(terminal_encoding);
     s->strm_rd_ch = P(rd_ch_terminal3); # READ-CHAR-Pseudofunction
     s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunction
-    s->strm_wr_ch = P(wr_ch_terminal3); # WRITE-CHAR-Pseudofunction
-    s->strm_wr_ch_array = P(wr_ch_array_terminal3); # WRITE-CHAR-SEQUENCE-Pseudofunction
+    s->strm_wr_ch = s->strm_wr_ch_npnl = P(wr_ch_terminal3); # WRITE-CHAR-Pseudofunction
+    s->strm_wr_ch_array = s->strm_wr_ch_array_npnl = P(wr_ch_array_terminal3); # WRITE-CHAR-SEQUENCE-Pseudofunction
     s->strm_terminal_isatty = S(equal); # stdout=stdin
     s->strm_terminal_ihandle = popSTACK(); # Handle for listen_char_unbuffered()
     s->strm_terminal_ohandle = popSTACK(); # Handle for Output
@@ -9685,8 +9817,8 @@ local maygc object make_terminal_stream_ (void) {
     s->strm_encoding = O(terminal_encoding);
     s->strm_rd_ch = P(rd_ch_terminal2); # READ-CHAR-Pseudofunction
     s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunction
-    s->strm_wr_ch = P(wr_ch_terminal2); # WRITE-CHAR-Pseudofunction
-    s->strm_wr_ch_array = P(wr_ch_array_terminal2); # WRITE-CHAR-SEQUENCE-Pseudofunction
+    s->strm_wr_ch = s->strm_wr_ch_npnl = P(wr_ch_terminal2); # WRITE-CHAR-Pseudofunction
+    s->strm_wr_ch_array = s->strm_wr_ch_array_npnl = P(wr_ch_array_terminal2); # WRITE-CHAR-SEQUENCE-Pseudofunction
     s->strm_terminal_isatty = (stdin_tty ? (same_tty ? S(equal) : T) : NIL);
     s->strm_terminal_ihandle = popSTACK(); # Handle for listen_char_unbuffered()
     s->strm_terminal_ohandle = popSTACK(); # Handle for Output
@@ -9716,8 +9848,8 @@ local maygc object make_terminal_stream_ (void) {
     s->strm_encoding = O(terminal_encoding);
     s->strm_rd_ch = P(rd_ch_terminal1); # READ-CHAR-Pseudofunction
     s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunction
-    s->strm_wr_ch = P(wr_ch_terminal1); # WRITE-CHAR-Pseudofunction
-    s->strm_wr_ch_array = P(wr_ch_array_terminal1); # WRITE-CHAR-SEQUENCE-Pseudofunction
+    s->strm_wr_ch = s->strm_wr_ch_npnl = P(wr_ch_terminal1); # WRITE-CHAR-Pseudofunction
+    s->strm_wr_ch_array = s->strm_wr_ch_array_npnl = P(wr_ch_array_terminal1); # WRITE-CHAR-SEQUENCE-Pseudofunction
     s->strm_terminal_isatty = (stdin_tty ? (same_tty ? S(equal) : T) : NIL);
     s->strm_terminal_ihandle = popSTACK(); # Handle for listen_char_unbuffered()
     s->strm_terminal_ohandle = popSTACK(); # Handle for Output
@@ -10367,8 +10499,8 @@ LISPFUNN(make_window,0) {
 
   stream_dummy_fill(stream);
   var Stream s = TheStream(stream);
-  s->strm_wr_ch       = P(wr_ch_window);       # WRITE-CHAR Pseudofunction
-  s->strm_wr_ch_array = P(wr_ch_array_window); # WRITE-CHAR-SEQUENCE Pseudofunction
+  s->strm_wr_ch       = s->strm_wr_ch_npnl       = P(wr_ch_window);       # WRITE-CHAR Pseudofunction
+  s->strm_wr_ch_array = s->strm_wr_ch_array_npnl = P(wr_ch_array_window); # WRITE-CHAR-SEQUENCE Pseudofunction
   s->strm_encoding    = O(terminal_encoding);
   s->strm_isatty      = NIL;
   s->strm_ichannel    = NIL;
@@ -12140,8 +12272,8 @@ LISPFUNN(make_window,0) {
   # and fill:
   stream_dummy_fill(stream);
   var Stream s = TheStream(stream);
-  s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunction
-  s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunction
+  s->strm_wr_ch = s->strm_wr_ch_npnl = P(wr_ch_window); # WRITE-CHAR-Pseudofunction
+  s->strm_wr_ch_array = s->strm_wr_ch_array_npnl = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunction
   # Initialize:
   begin_system_call();
   {
@@ -12359,8 +12491,8 @@ LISPFUNN(make_window,0) {
   # and fill:
   stream_dummy_fill(stream);
   var Stream s = TheStream(stream);
-  s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunction
-  s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunction
+  s->strm_wr_ch = s->strm_wr_ch_npnl = P(wr_ch_window); # WRITE-CHAR-Pseudofunction
+  s->strm_wr_ch_array = s->strm_wr_ch_array_npnl = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunction
   begin_system_call();
   initscr(); # initialize Curses # What, if this crashes?? use newterm()??
   cbreak(); noecho(); # Input not line-buffered, without Echo
@@ -13692,8 +13824,10 @@ local object make_socket_stream (SOCKET handle, decoded_el_t* eltype,
     TheStream(stream)->strm_pk_ch = P(pk_ch_twoway);
     TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_twoway);
     TheStream(stream)->strm_rd_ch_last = NIL;
-    TheStream(stream)->strm_wr_ch = P(wr_ch_twoway);
-    TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_twoway);
+    TheStream(stream)->strm_wr_ch =
+      TheStream(stream)->strm_wr_ch_npnl = P(wr_ch_twoway);
+    TheStream(stream)->strm_wr_ch_array =
+      TheStream(stream)->strm_wr_ch_array_npnl = P(wr_ch_array_twoway);
     TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
     TheStream(stream)->strm_twoway_socket_input = STACK_1;
     TheStream(stream)->strm_twoway_socket_output = STACK_0;
@@ -15618,9 +15752,10 @@ LISPFUNN(interactive_stream_p,1) {
 # < stream: Builtin-Stream
 # can trigger GC
 global maygc void builtin_stream_close (const gcv_object_t* stream_) {
-  var object stream = *stream_;
-  if ((TheStream(stream)->strmflags & strmflags_open_B) == 0) # Stream already closed?
+  if ((TheStream(*stream_)->strmflags & strmflags_open_B) == 0) # Stream already closed?
     return;
+  harden_elastic_newline(stream_);
+  var object stream = *stream_;
   # call type-specific routine (can trigger GC):
   switch (TheStream(stream)->strmtype) {
     case strmtype_synonym:
@@ -16095,6 +16230,9 @@ global maygc signean listen_byte (object stream) {
 # > stream: Stream
 # can trigger GC
 global maygc void finish_output (object stream) {
+  pushSTACK(stream);
+  harden_elastic_newline(&STACK_0);
+  stream = popSTACK();
   if (builtin_stream_p(stream)) {
     if (TheStream(stream)->strmflags & strmflags_wr_B) { # Output-Stream?
       # no -> finished, yes -> branch according to Stream-Type:
@@ -16147,6 +16285,9 @@ global maygc void finish_output (object stream) {
 # > stream: Stream
 # can trigger GC
 global maygc void force_output (object stream) {
+  pushSTACK(stream);
+  harden_elastic_newline(&STACK_0);
+  stream = popSTACK();
   if (builtin_stream_p(stream)) {
     if (TheStream(stream)->strmflags & strmflags_wr_B) { # Output-Stream?
       # no -> finished, yes -> branch according to Stream-Type:
@@ -16298,14 +16439,151 @@ global maygc object get_line_position (object stream) {
       default: # normal Stream
         return TheStream(stream)->strm_wr_ch_lpos;
     }
-  else { # Call the generic function (STREAM-LINE-COLUMN stream):
-    pushSTACK(stream); funcall(S(stream_line_column),1);
-    if (!(posfixnump(value1) || nullp(value1))) {
-      pushSTACK(S(stream_line_column));
-      pushSTACK(value1);
-      fehler(error,GETTEXT("Return value ~S of call to ~S is not a fixnum >= 0 or NIL."));
+  else {
+    pushSTACK(stream);
+    # Test (SLOT-VALUE stream '$penl):
+    var object stream_forwarded = stream;
+    instance_un_realloc(stream_forwarded);
+    instance_update(stream,stream_forwarded);
+    var object cv = TheInstance(stream_forwarded)->inst_class_version;
+    var object clas = TheClassVersion(cv)->cv_class;
+    var object slotinfo = gethash(S(penl),TheClass(clas)->slot_location_table,false);
+    if (!nullp(TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)])) {
+      # A newline is pending. The line position is already 0.
+      skipSTACK(1);
+      return Fixnum_0;
+    } else {
+      # Call the generic function (STREAM-LINE-COLUMN stream):
+      funcall(S(stream_line_column),1);
+      if (!(posfixnump(value1) || nullp(value1))) {
+        pushSTACK(S(stream_line_column));
+        pushSTACK(value1);
+        fehler(error,GETTEXT("Return value ~S of call to ~S is not a fixnum >= 0 or NIL."));
+      }
+      return value1;
     }
-    return value1;
+  }
+}
+
+# Tests whether the stream has an elastic newline pending.
+# elastic_newline_pending_p(stream)
+# > stream: Stream
+# < result: true if a newline should be output first
+# can trigger GC
+local maygc bool elastic_newline_pending_p (object stream) {
+  check_SP();
+ start:
+  if (builtin_stream_p(stream))
+    switch (TheStream(stream)->strmtype) {
+      case strmtype_synonym: # Synonym-Stream: follow further
+        resolve_as_synonym(stream);
+        goto start;
+      case strmtype_broad: # Broadcast-Stream:
+        # The OR of the individual streams.
+        {
+          pushSTACK(TheStream(stream)->strm_broad_list);
+          while (consp(STACK_0)) {
+            if (elastic_newline_pending_p(Car(STACK_0))) {
+              skipSTACK(1);
+              return true;
+            }
+            STACK_0 = Cdr(STACK_0);
+          }
+          skipSTACK(1);
+          return false;
+        }
+      case strmtype_twoway:
+      case strmtype_echo:
+      #ifdef SOCKET_STREAMS
+      case strmtype_twoway_socket:
+      #endif
+        # Two-Way-Stream or Echo-Stream: look at Output-Stream
+        stream = TheStream(stream)->strm_twoway_output;
+        goto start;
+      default: # normal stream
+        return eq(TheStream(stream)->strm_wr_ch,P(wr_ch_pending_newline));
+    }
+  else {
+    # Test (SLOT-VALUE stream '$penl):
+    var object stream_forwarded = stream;
+    instance_un_realloc(stream_forwarded);
+    instance_update(stream,stream_forwarded);
+    var object cv = TheInstance(stream_forwarded)->inst_class_version;
+    var object clas = TheClassVersion(cv)->cv_class;
+    var object slotinfo = gethash(S(penl),TheClass(clas)->slot_location_table,false);
+    return !nullp(TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)]);
+  }
+}
+
+# Writes a newline on a stream, if it is not already positioned at column 0.
+# fresh_line(&stream);
+# > stream: Stream
+# < stream: Stream
+# < result: true if did output a newline
+# can trigger GC
+global maygc bool fresh_line (const gcv_object_t* stream_) {
+  # Test whether an elastic newline is pending, so that
+  # (ELASTIC-NEWLINE stream) followed by (FRESH-LINE stream) always leads
+  # to exactly one newline being output.
+  if (elastic_newline_pending_p(*stream_)
+      || !eq(get_line_position(*stream_),Fixnum_0)) {
+    terpri(stream_);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+# Writes a newline on a stream, delayed and nullified if the next character
+# written would be a newline anyway.
+# elastic_newline(&stream);
+# > stream: Stream
+# < stream: Stream
+# can trigger GC
+global maygc void elastic_newline (const gcv_object_t* stream_) {
+  check_SP();
+  var object stream = *stream_;
+ start:
+  if (builtin_stream_p(stream))
+    switch (TheStream(stream)->strmtype) {
+      case strmtype_synonym: # Synonym-Stream: follow further
+        resolve_as_synonym(stream);
+        goto start;
+      case strmtype_broad: # Broadcast-Stream: dispatch
+        {
+          pushSTACK(TheStream(stream)->strm_broad_list);
+          pushSTACK(NIL);
+          while (consp(STACK_1)) {
+            STACK_0 = Car(STACK_1);
+            elastic_newline(&STACK_0);
+            STACK_1 = Cdr(STACK_1);
+          }
+          skipSTACK(2);
+          break;
+        }
+      case strmtype_twoway:
+      case strmtype_echo:
+      #ifdef SOCKET_STREAMS
+      case strmtype_twoway_socket:
+      #endif
+        # Two-Way-Stream or Echo-Stream: look at Output-Stream
+        stream = TheStream(stream)->strm_twoway_output;
+        goto start;
+      default: # normal stream
+        TheStream(stream)->strm_wr_ch = P(wr_ch_pending_newline);
+        TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_pending_newline);
+        TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
+        break;
+    }
+  else {
+    # (SETF (SLOT-VALUE stream '$penl) T):
+    var object stream_forwarded = stream;
+    instance_un_realloc(stream_forwarded);
+    instance_update(stream,stream_forwarded);
+    var object cv = TheInstance(stream_forwarded)->inst_class_version;
+    var object clas = TheClassVersion(cv)->cv_class;
+    var object slotinfo = gethash(S(penl),TheClass(clas)->slot_location_table,false);
+    TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)] = T;
   }
 }
 

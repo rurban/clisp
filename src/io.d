@@ -10467,13 +10467,19 @@ LISPFUN(terpri,seclass_default,0,1,norest,nokey,0,NIL) {
 # (FRESH-LINE [stream]), CLTL p. 384
 LISPFUN(fresh_line,seclass_default,0,1,norest,nokey,0,NIL) {
   check_ostream(&STACK_0);       /* check Output-Stream */
-  if (eq(get_line_position(STACK_0),Fixnum_0)) { # Line-Position = 0 ?
-    VALUES1(NIL);
-  } else {
-    terpri(&STACK_0); # no -> new line
+  if (fresh_line(&STACK_0)) {
     VALUES1(T);
+  } else {
+    VALUES1(NIL);
   }
   skipSTACK(1);
+}
+
+# (EXT:ELASTIC-NEWLINE [stream])
+LISPFUN(elastic_newline,seclass_default,0,1,norest,nokey,0,NIL) {
+  check_ostream(&STACK_0);       /* check Output-Stream */
+  elastic_newline(&STACK_0);
+  VALUES1(NIL); skipSTACK(1);
 }
 
 # (FINISH-OUTPUT [stream]), CLTL p. 384

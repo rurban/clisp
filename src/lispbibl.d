@@ -5483,17 +5483,19 @@ typedef struct {
       uintL strmfiller0;
     #endif
   #endif
-  gcv_object_t strm_rd_by       _attribute_aligned_object_;
-  gcv_object_t strm_rd_by_array _attribute_aligned_object_;
-  gcv_object_t strm_wr_by       _attribute_aligned_object_;
-  gcv_object_t strm_wr_by_array _attribute_aligned_object_;
-  gcv_object_t strm_rd_ch       _attribute_aligned_object_;
-  gcv_object_t strm_pk_ch       _attribute_aligned_object_;
-  gcv_object_t strm_rd_ch_array _attribute_aligned_object_;
-  gcv_object_t strm_rd_ch_last  _attribute_aligned_object_;
-  gcv_object_t strm_wr_ch       _attribute_aligned_object_;
-  gcv_object_t strm_wr_ch_array _attribute_aligned_object_;
-  gcv_object_t strm_wr_ch_lpos  _attribute_aligned_object_;
+  gcv_object_t strm_rd_by            _attribute_aligned_object_;
+  gcv_object_t strm_rd_by_array      _attribute_aligned_object_;
+  gcv_object_t strm_wr_by            _attribute_aligned_object_;
+  gcv_object_t strm_wr_by_array      _attribute_aligned_object_;
+  gcv_object_t strm_rd_ch            _attribute_aligned_object_;
+  gcv_object_t strm_pk_ch            _attribute_aligned_object_;
+  gcv_object_t strm_rd_ch_array      _attribute_aligned_object_;
+  gcv_object_t strm_rd_ch_last       _attribute_aligned_object_;
+  gcv_object_t strm_wr_ch            _attribute_aligned_object_;
+  gcv_object_t strm_wr_ch_array      _attribute_aligned_object_;
+  gcv_object_t strm_wr_ch_npnl       _attribute_aligned_object_;
+  gcv_object_t strm_wr_ch_array_npnl _attribute_aligned_object_;
+  gcv_object_t strm_wr_ch_lpos       _attribute_aligned_object_;
   gcv_object_t strm_other[unspecified] _attribute_aligned_object_; # type-specific components
 } *  Stream;
 # The macro TheStream actually means TheBuiltinStream.
@@ -13926,6 +13928,24 @@ extern maygc void clear_output (object stream);
 # can trigger GC
 extern maygc object get_line_position (object stream);
 # is used by IO, DEBUG
+
+# Writes a newline on a stream, if it is not already positioned at column 0.
+# fresh_line(&stream);
+# > stream: Stream
+# < stream: Stream
+# < result: true if did output a newline
+# can trigger GC
+extern maygc bool fresh_line (const gcv_object_t* stream_);
+# is used by IO
+
+# Writes a newline on a stream, delayed and nullified if the next character
+# written would be a newline anyway.
+# elastic_newline(&stream);
+# > stream: Stream
+# < stream: Stream
+# can trigger GC
+extern maygc void elastic_newline (const gcv_object_t* stream_);
+# is used by IO
 
 /* UP: give away corresponding underlying handle
  making sure buffers were flushed. One can then use the

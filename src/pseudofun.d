@@ -62,6 +62,7 @@ LPSEUDOCODE(rd_by_error) LPSEUDOCODE(rd_by_array_error) LPSEUDOCODE(rd_by_array_
 LPSEUDOCODE(wr_by_error) LPSEUDOCODE(wr_by_array_error) LPSEUDOCODE(wr_by_array_dummy)
 LPSEUDOCODE(rd_ch_error) LPSEUDOCODE(pk_ch_dummy) LPSEUDOCODE(rd_ch_array_error) LPSEUDOCODE(rd_ch_array_dummy)
 LPSEUDOCODE(wr_ch_error) LPSEUDOCODE(wr_ch_array_error) LPSEUDOCODE(wr_ch_array_dummy)
+LPSEUDOCODE(wr_ch_pending_newline) LPSEUDOCODE(wr_ch_array_pending_newline)
 
 LPSEUDOCODE(rd_by_synonym) LPSEUDOCODE(rd_by_array_synonym) LPSEUDOCODE(wr_by_synonym) LPSEUDOCODE(wr_by_array_synonym) LPSEUDOCODE(rd_ch_synonym) LPSEUDOCODE(pk_ch_synonym) LPSEUDOCODE(rd_ch_array_synonym) LPSEUDOCODE(wr_ch_synonym) LPSEUDOCODE(wr_ch_array_synonym)
 LPSEUDOCODE(wr_by_broad) LPSEUDOCODE(wr_by_array_broad) LPSEUDOCODE(wr_ch_broad) LPSEUDOCODE(wr_ch_array_broad)
