@@ -414,8 +414,10 @@
 
 (sys::%putd 'sys::check-redefinition
   (function sys::check-redefinition (lambda (symbol caller what)
-    (let ((cur-file (if compiler::*compiling*
-                        *compile-file-truename* *load-truename*))
+    ;; when *LOAD-COMPILING*, *COMPILING* is T,
+    ;; *COMPILE-FILE-TRUENAME* is NIL, and *LOAD-TRUENAME* is good
+    (let ((cur-file (or (when compiler::*compiling* *compile-file-truename*)
+                        *load-truename*))
           ;; distinguish between undefined and defined at top-level
           (old-file (getf (gethash symbol *documentation*) 'sys::file)))
       (unless (or (equalp old-file cur-file)
@@ -436,8 +438,7 @@
           (warn (TEXT "~a: redefining ~a ~s in ~a, was defined in ~a")
                 caller what symbol (or cur-file "top-level")
                 (or old-file "top-level")))
-        (when cur-file
-          (system::%set-documentation symbol 'sys::file cur-file)))))))
+        (system::%set-documentation symbol 'sys::file cur-file))))))
 
 (sys::%putd 'sys::remove-old-definitions
   (function sys::remove-old-definitions (lambda (symbol)
