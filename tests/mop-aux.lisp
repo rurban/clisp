@@ -26,7 +26,8 @@
     #'(lambda (&rest args) (apply 'no-applicable-method gf args))))
 
 #-(or CLISP SBCL)
-(progn
+(#+ALLEGRO without-package-locks
+ #-ALLEGRO progn
 
 (macrolet ((err-misplaced (item)
              `(funcall errfunc ,item
