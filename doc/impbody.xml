@@ -402,12 +402,27 @@ executes a compiled version of form.</para>
 <section id="classes"><title>Classes
   <ulink url="&clhs;/Body/sec_4-3.html">[CLHS-4.3]</ulink></title>
 
-<para>The &clos; symbols are &export;ed from the package
- <quote>CLOS</quote> and thus normally visible in all user packages. If
- you do not want them (for example, if you want to use the
+<para>The &clos; symbols are &export;ed from the package &clos-pac;.
+ &cl-pac; uses (as in &use-package;) &clos-pac; and &re-export;s all its
+ exported symbols.
+ Since the default &use-k; argument to &make-package; is &cl-pac;
+ (see <link linkend="make-pack">here</link>),
+ the &clos; symbols are normally visible in all user packages.
+ If you do not want them (for example, if you want to use the
  <ulink url="ftp://clisp.cons.org/pub/lisp/clisp/packages/pcl.sept92f.clisp.tar.gz">PCL</ulink>
- implementation of &clos; instead of the native one), do
- <literal role="sexp">(&unuse-package; &quot;CLOS&quot;)</literal>.</para>
+ implementation of &clos; instead of the native one), do the following:
+<programlisting>
+(&defpackage; "CL-NO-CLOS" (:use "CL"))
+(&do-external-symbols; (&symbol-r; &cl-pac;)
+  (&shadow; &symbol-r; "CL-NO-CLOS"))
+(&do-symbols (&symbol-r; "CL-NO-CLOS")
+  (&export &symbol-r; "CL-NO-CLOS"))
+(&in-package; "CL-NO-CLOS")
+(&load; "pcl") ; or whatever
+(&defpackage; "MY-USER" (:use "CL-NO-CLOS"))
+(&in-package; "MY-USER")
+;; your code which uses PCL goes here
+</programlisting>.</para>
 
 </section>
 
@@ -974,7 +989,7 @@ is the same as
 
 <para>The following additional packages exist:</para>
 <variablelist><title>Implementation-Defined Packages</title>
-  <varlistentry><term><quote>CLOS</quote></term><listitem>
+  <varlistentry><term>&clos-pac;</term><listitem>
    <simpara>&export;s all &clos; specific symbols, including some
    <link linkend="clos-diff">additional symbols</link>.
    </simpara></listitem></varlistentry>
@@ -1019,7 +1034,7 @@ is the same as
 <section id="make-pack"><title>Function &make-package;</title>
 
 <para>For &make-package;, the default value of the &use-k; argument is
- <literal role="sexp">("COMMON-LISP")</literal>.
+ <literal role="sexp">(&cl-pac;)</literal>.
 </para>
 
 <para>&make-package; accepts a keyword argument &case-sensitive-k;.
