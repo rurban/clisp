@@ -185,7 +185,6 @@ local void nobject_out1 (FILE* out, object obj, int level) {
         break;
     }
     fputs("\n  I=",out); XOUT(TheHashtable(obj)->ht_itable);
-    fputs("\n  N=",out); XOUT(TheHashtable(obj)->ht_ntable);
     fputs("\n  KV=",out); XOUT(TheHashtable(obj)->ht_kvtable);
     fputc(')',out);
   } else if (packagep(obj)) {

@@ -4168,6 +4168,10 @@ typedef xrecord_ *  Xrecord;
          Rectype_WeakAlist_Value,
          Rectype_WeakAlist_Either,
          Rectype_WeakAlist_Both,
+         Rectype_WeakHashedAlist_Key,
+         Rectype_WeakHashedAlist_Value,
+         Rectype_WeakHashedAlist_Either,
+         Rectype_WeakHashedAlist_Both,
          rectype_for_broken_compilers_that_dont_like_trailing_commas
        };
 
@@ -4907,7 +4911,6 @@ typedef struct {
   #endif
   gcv_object_t ht_maxcount           _attribute_aligned_object_;
   gcv_object_t ht_itable             _attribute_aligned_object_;
-  gcv_object_t ht_ntable             _attribute_aligned_object_;
   gcv_object_t ht_kvtable            _attribute_aligned_object_;
   gcv_object_t ht_lookupfn           _attribute_aligned_object_;
   gcv_object_t ht_hashcodefn         _attribute_aligned_object_;
@@ -4922,9 +4925,9 @@ typedef struct {
   uintL ht_size;
 } *  Hashtable;
 #ifdef GENERATIONAL_GC
-  #define hashtable_length  15
-#else
   #define hashtable_length  14
+#else
+  #define hashtable_length  13
 #endif
 #define hashtable_xlength  (sizeof(*(Hashtable)0)-offsetofa(record_,recdata)-hashtable_length*sizeof(gcv_object_t))
 # Mark a Hash Table as new to reorganize
@@ -4960,7 +4963,7 @@ typedef struct {
   !simple_vector_p(TheHashtable(ht)->ht_kvtable)
 # Get a pointer to the kvtable data array.
 #define kvtable_data(kvt)  \
-  (simple_vector_p(kvt) ? TheSvector(kvt)->data : TheWeakAlist(kvt)->wal_data)
+  (simple_vector_p(kvt) ? TheSvector(kvt)->data : TheWeakHashedAlist(kvt)->whal_data)
 #define ht_kvt_data(ht)   kvtable_data(TheHashtable(ht)->ht_kvtable)
 
 # Readtables
@@ -5251,6 +5254,16 @@ typedef struct {
   gcv_object_t mwal_list _attribute_aligned_object_;
 } * MutableWeakAlist;
 #define mutableweakalist_length  ((sizeof(*(MutableWeakAlist)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
+
+# weak hashed alist (rectype = Rectype_WeakHashedAlist_{Key,Value,Either,Both})
+typedef struct {
+  LRECORD_HEADER
+  gcv_object_t wp_cdr                 _attribute_aligned_object_; # active weak-pointers form a chained list
+  gcv_object_t whal_itable            _attribute_aligned_object_; # index-vector
+  gcv_object_t whal_count             _attribute_aligned_object_; # remaining pairs
+  gcv_object_t whal_freelist          _attribute_aligned_object_; # start index of freelist
+  gcv_object_t whal_data[unspecified] _attribute_aligned_object_; # (key, value, next) triples
+} * WeakHashedAlist;
 
 # Finalizer
 typedef struct {
@@ -5944,6 +5957,7 @@ typedef enum {
   #define TheWeakOrMapping(obj)  ((WeakOrMapping)(type_pointable(lrecord_type,obj)))
   #define TheMutableWeakAlist(obj)  ((MutableWeakAlist)(type_pointable(orecord_type,obj)))
   #define TheWeakAlist(obj)  ((WeakAlist)(type_pointable(lrecord_type,obj)))
+  #define TheWeakHashedAlist(obj)  ((WeakHashedAlist)(type_pointable(lrecord_type,obj)))
   #define TheFinalizer(obj)  ((Finalizer)(type_pointable(orecord_type,obj)))
   #ifdef SOCKET_STREAMS
   #define TheSocketServer(obj) ((Socket_server)(type_pointable(orecord_type,obj)))
@@ -6102,6 +6116,7 @@ typedef enum {
   #define TheWeakOrMapping(obj)  ((WeakOrMapping)(ngci_pointable(obj)-varobject_bias))
   #define TheMutableWeakAlist(obj)  ((MutableWeakAlist)(ngci_pointable(obj)-varobject_bias))
   #define TheWeakAlist(obj)  ((WeakAlist)(ngci_pointable(obj)-varobject_bias))
+  #define TheWeakHashedAlist(obj)  ((WeakHashedAlist)(ngci_pointable(obj)-varobject_bias))
   #define TheFinalizer(obj)  ((Finalizer)(ngci_pointable(obj)-varobject_bias))
   #ifdef SOCKET_STREAMS
   #define TheSocketServer(obj) ((Socket_server)(ngci_pointable(obj)-varobject_bias))
@@ -6165,9 +6180,9 @@ typedef enum {
       : Xrecord_length(obj)))
 # Length of an Lrecord, ignoring weak pointers:
 #define Lrecord_nonweak_length(obj)  \
-  ((Record_type(obj) >= Rectype_WeakList           \
-    && Record_type(obj) <= Rectype_WeakAlist_Both) \
-   ? 0                                             \
+  ((Record_type(obj) >= Rectype_WeakList                 \
+    && Record_type(obj) <= Rectype_WeakHashedAlist_Both) \
+   ? 0                                                   \
    : Lrecord_length(obj))
 # Length (number of objects) of a record, obj has to be a Record:
 #define Record_length(obj)  \
@@ -12219,13 +12234,14 @@ extern object hash_table_test (object ht);
 # Calls 'statement', where key and value are a pair from the table.
 # The first form is necessary, if the statement can trigger GC.
 #define map_hashtable(ht,key,value,statement)                           \
-  do { var object ht_from_map_hashtable = (ht);                         \
+  do {                                                                  \
+    var object ht_from_map_hashtable = (ht);                            \
     var uintL index_from_map_hashtable =                                \
-      2*posfixnum_to_L(TheHashtable(ht_from_map_hashtable)->ht_maxcount); \
+      3*posfixnum_to_L(TheHashtable(ht_from_map_hashtable)->ht_maxcount); \
     pushSTACK(TheHashtable(ht_from_map_hashtable)->ht_kvtable);         \
     loop {                                                              \
       if (index_from_map_hashtable==0) break;                           \
-        index_from_map_hashtable -= 2;                                  \
+        index_from_map_hashtable -= 3;                                  \
       {var gcv_object_t* KVptr_from_map_hashtable =                     \
          kvtable_data(STACK_0)+index_from_map_hashtable;                \
           var object key = KVptr_from_map_hashtable[0];                 \
@@ -12236,14 +12252,15 @@ extern object hash_table_test (object ht);
     skipSTACK(1);                                                       \
   } while(0)
 #define map_hashtable_nogc(ht,key,value,statement)                      \
-  do { var object ht_from_map_hashtable = (ht);                         \
+  do {                                                                  \
+    var object ht_from_map_hashtable = (ht);                            \
     var uintL index_from_map_hashtable =                                \
       posfixnum_to_L(TheHashtable(ht_from_map_hashtable)->ht_maxcount); \
     var gcv_object_t* KVptr_from_map_hashtable =                        \
-      ht_kvt_data(ht_from_map_hashtable) + 2*index_from_map_hashtable;  \
+      ht_kvt_data(ht_from_map_hashtable) + 3*index_from_map_hashtable;  \
     loop {                                                              \
       if (index_from_map_hashtable==0) break;                           \
-        index_from_map_hashtable--; KVptr_from_map_hashtable -= 2;      \
+        index_from_map_hashtable--; KVptr_from_map_hashtable -= 3;      \
         { var object key = KVptr_from_map_hashtable[0];                 \
        if (boundp(key)) {                                               \
          var object value = KVptr_from_map_hashtable[1];                \

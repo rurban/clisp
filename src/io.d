@@ -7577,7 +7577,7 @@ local void pr_kvtable (const gcv_object_t* stream_, gcv_object_t* kvt,
     loop {
       if (index==0) # finished kvtable?
         goto kvt_finish;
-      index -= 2; # decrease index
+      index -= 3; # decrease index
       if (boundp(kvtable_data(*kvt)[index+0])) /* Key /= "empty" ? */
         break;
     }
@@ -8459,7 +8459,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
           {
             var uintL count = posfixnum_to_L(TheHashtable(*obj_)->ht_count);
             var uintL index = # move Index into the Key-Value-Vector
-              2*posfixnum_to_L(TheHashtable(obj)->ht_maxcount);
+              3*posfixnum_to_L(TheHashtable(obj)->ht_maxcount);
             pushSTACK(TheHashtable(obj)->ht_kvtable); # Key-Value-Vector
             JUSTIFY_SPACE; # print Space
             # test for attaining of *PRINT-LINES* :
@@ -9294,6 +9294,13 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
     case Rectype_WeakAlist_Both: # #<INTERNAL-WEAK-ALIST>
       CHECK_PRINT_READABLY(obj);
       write_sstring_case(stream_,O(printstring_internal_weak_alist));
+      break;
+    case Rectype_WeakHashedAlist_Key:
+    case Rectype_WeakHashedAlist_Value:
+    case Rectype_WeakHashedAlist_Either:
+    case Rectype_WeakHashedAlist_Both: # #<INTERNAL-WEAK-HASHED-ALIST>
+      CHECK_PRINT_READABLY(obj);
+      write_sstring_case(stream_,O(printstring_internal_weak_hashed_alist));
       break;
     default:
       pushSTACK(S(print));
