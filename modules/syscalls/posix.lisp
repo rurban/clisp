@@ -1,15 +1,16 @@
 ;;; handle the posix functions
 ;;; Sam Steingold 1999-2004
 
-(defpackage "POSIX"
-  (:use "COMMON-LISP" "EXT")
-  (:nicknames "OS")
+(defpackage #:posix
+  (:use #:common-lisp #:ext)
+  (:nicknames #:os)
   (:export
-   "RESOLVE-HOST-IPADDR" "BOGOMIPS"
-   "STREAM-LOCK" "DUPLICATE-HANDLE" "COPY-FILE"
-   "HOSTENT" "HOSTENT-NAME" "HOSTENT-ALIASES" "HOSTENT-ADDR-LIST"
-   "HOSTENT-ADDRTYPE" "PHYSICAL-MEMORY"
-   "ERF" "ERFC" "J0" "J1" "JN" "Y0" "Y1" "YN" "GAMMA" "LGAMMA"))
+   #:resolve-host-ipaddr #:bogomips
+   #:stream-lock #:duplicate-handle #:copy-file
+   #:hostent #:hostent-name #:hostent-aliases #:hostent-addr-list
+   #:hostent-addrtype #:physical-memory
+   #+(or :win32 :cygwin) #:file-properties
+   #:erf #:erfc #:j0 #:j1 #:jn #:y0 #:y1 #:yn #:gamma #:lgamma))
 
 (setf (package-lock "EXT") nil)
 (use-package '("POSIX") "EXT")
