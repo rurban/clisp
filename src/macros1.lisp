@@ -2,7 +2,7 @@
 ;;;; 29.4.1988, 3.9.1988
 
 (in-package "EXT")
-(export '(mapcap maplap fcase))
+(export '(fcase))
 (in-package "SYSTEM")
 
 ;; (DEFMACRO-SPECIAL . macrodef) is like (DEFMACRO . macrodef) except
@@ -415,40 +415,3 @@
                    (values
                      `(IF (SETQ ,g ,(caar clauselist)) ,g ,ifif)
                      t))))))))
-
-;;; Mapping (Chapter 7.8.4)
-
-;; MAPCAN, but with APPEND instead of NCONC:
-;; (mapcap fun &rest lists) ==  (apply #'append (apply #'mapcar fun lists))
-(defun mapcap (fun &rest lists &aux (L nil))
-  (loop
-    (setq L
-      (nconc
-        (reverse
-          (apply fun
-            (maplist #'(lambda (listsr)
-                         (if (atom (car listsr))
-                           (return)
-                           (pop (car listsr))))
-                     lists)))
-        L)))
-  (sys::list-nreverse L))
-
-;; MAPCON, but with APPEND instead of NCONC:
-;; (maplap fun &rest lists) == (apply #'append (apply #'maplist fun lists))
-(defun maplap (fun &rest lists &aux (L nil))
-  (loop
-    (setq L
-      (nconc
-        (reverse
-          (apply fun
-            (maplist #'(lambda (listsr)
-                         (if (atom (car listsr))
-                           (return)
-                           (prog1
-                             (car listsr)
-                             (setf (car listsr) (cdr (car listsr))))))
-                     lists)))
-        L)))
-  (sys::list-nreverse L))
-

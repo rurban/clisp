@@ -1291,6 +1291,51 @@ LISPSPECFORM(return_from, 1,1,nobody)
   unwind_upto(FRAME);
 }
 
+/* UP: append LIST to the "accumulation set" STACK_1 (head)/STACK_0 (tail)
+ set_last_inplace() is "NCONC"
+ set_last_copy()   is "APPEND" [can trigger GC]
+ modifies */
+local inline void set_last_inplace (object list) {
+  if (!consp(STACK_0)) STACK_1=STACK_0=list; /* init */
+  else Cdr(STACK_0) = list; /* insert as (cdr (last totallist)) */
+  if (consp(list)) {
+    var object list1;
+    loop { /* list is a cons */
+      list1 = Cdr(list);
+      if (atomp(list1)) break;
+      list = list1;
+    }
+    STACK_0 = list; /* (last totallist) <- (last list) */
+  }
+}
+local inline void set_last_copy (object list) {
+  if (consp(list)) {
+    pushSTACK(list);
+    pushSTACK(allocate_cons());
+    pushSTACK(STACK_0);
+    /* stack layout: head, tail, list, copy, tail */
+    Car(STACK_0) = Car(STACK_2);
+    while (consp(Cdr(STACK_2))) {
+      STACK_2 = Cdr(STACK_2);
+      var object new_cons = allocate_cons();
+      Cdr(STACK_0) = new_cons; STACK_0 = new_cons;
+      Car(STACK_0) = Car(STACK_2);
+    }
+    Cdr(STACK_0) = Cdr(STACK_2); /* atom */
+    if (!consp(STACK_(0+3))) {
+      STACK_(1+3) = STACK_1; /* init head */
+      STACK_(0+3) = STACK_0; /* init tail */
+    } else {
+      Cdr(STACK_(0+3)) = STACK_1; /* insert as (cdr (last totallist)) */
+      STACK_(0+3) = STACK_0;
+    }
+    skipSTACK(3);
+  } else {
+    if (!consp(STACK_0)) STACK_1=STACK_0=list; /* init */
+    else Cdr(STACK_0) = list; /* insert as (cdr (last totallist)) */
+  }
+}
+
 /* We build the functions MAPCAR & MAPLIST in two versions:
  The first one builds the list in reversed order, then has to reverse it.
  The second one works in the forward direction. */
@@ -1396,7 +1441,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
  the last atom in dotted lists, e.g., (mapcan #'identity '(1))
  returns NIL when it should return 1:
  (apply (function nconc) (mapcar (function identity) (quote (1)))) => 1 */
-#define MAPCAN_MAPCON_BODY(listaccess)                                  \
+#define MAPCAN_MAPCON_BODY(listaccess,append_function)                  \
   { var gcv_object_t* args_pointer = rest_args_pointer STACKop 2;       \
     argcount++; /* argcount := number of lists on the stack */          \
     /* reserve space for the function call arguments: */                \
@@ -1417,15 +1462,9 @@ LISPSPECFORM(return_from, 1,1,nobody)
         *next_list_ = Cdr(next_list); /* shorten list */                \
       });                                                               \
       funcall(fun,argcount); /* call function */                        \
-     {var object list = value1; /* list to append */                    \
-      if (!consp(STACK_1)) STACK_1=list; /* init head */                 \
-      if (!consp(STACK_0)) STACK_0=list; /* init tail */                 \
-      else Cdr(STACK_0) = list; /* insert as (cdr (last totallist)) */  \
-      if (consp(list)) {                                                \
-        while (mconsp(Cdr(list))) { list = Cdr(list); }                 \
-        STACK_0 = list; /* and (last totallist) := (last list) */       \
-      }}}                                                               \
-   fertig:                                                              \
+      append_function(value1);                                          \
+    }                                                                   \
+    fertig:                                                             \
     VALUES1(*ret); /* result list */                                    \
     set_args_end_pointer(args_pointer); /* clean up STACK */            \
    }}
@@ -1450,11 +1489,19 @@ LISPFUN(mapl,2,0,rest,nokey,0,NIL)
 
 LISPFUN(mapcan,2,0,rest,nokey,0,NIL)
 /* (MAPCAN fun list {list}), CLTL p. 128 */
-  MAPCAN_MAPCON_BODY(Car)
+  MAPCAN_MAPCON_BODY(Car,set_last_inplace)
 
 LISPFUN(mapcon,2,0,rest,nokey,0,NIL)
 /* (MAPCON fun list {list}), CLTL p. 128 */
-  MAPCAN_MAPCON_BODY(Identity)
+  MAPCAN_MAPCON_BODY(Identity,set_last_inplace)
+
+LISPFUN(mapcap,2,0,rest,nokey,0,NIL)
+/* (EXT:MAPCAN fun list {list}) */
+  MAPCAN_MAPCON_BODY(Car,set_last_copy)
+
+LISPFUN(maplap,2,0,rest,nokey,0,NIL)
+/* (EXT:MAPCAN fun list {list}) */
+  MAPCAN_MAPCON_BODY(Identity,set_last_copy)
 
 LISPSPECFORM(tagbody, 0,0,body)
 { /* (TAGBODY {tag | statement}), CLTL p. 130 */

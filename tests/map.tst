@@ -208,6 +208,15 @@ ERROR
         (QUOTE (A B C)) (QUOTE (1 2 3)) (QUOTE (U I V)))
 ((A B C) (1 2 3) (U I V) (B C) (2 3) (I V) (C) (3) (V))
 
+(mapcon (constantly 1) (list 2))
+1
+
+(maplap #'list '(a b) '(1 2 3) '(u i v))
+((A B) (1 2 3) (U I V) (B) (2 3) (I V))
+
+(maplap #'list '(a b c) '(1 2 3) '(u i v))
+((A B C) (1 2 3) (U I V) (B C) (2 3) (I V) (C) (3) (V))
+
 ;; mapcan
 
 (mapcan #'(lambda (x) (and (numberp x) (list x))) '(a 1 b c 3 4 d 5))
@@ -234,3 +243,14 @@ ERROR
 (MAPCON (FUNCTION (LAMBDA (X) (LIST X))) (QUOTE (A B C)))
 ((A B C) (B C) (C))
 
+(mapcan #'identity '(1))
+1
+
+(mapcan #'identity '(1 2 3))
+3
+
+(mapcap #'list '(a b) '(1 2 3) '(u i v))
+(A 1 U B 2 I)
+
+(mapcap #'list '(a b c) '(1 2 3) '(u i v))
+(A 1 U B 2 I C 3 V)
