@@ -734,3 +734,13 @@ T
 ;; <http://www.lisp.org/HyperSpec/Body/sec_19-3-2-1.html>
 (pathname-device (logical-pathname "FOO:"))
 :UNSPECIFIC
+
+(let* ((old "foo-bar.old")
+       (new (make-pathname :type "new" :defaults old)))
+  (with-open-file (s old :direction :output) (write-line "to be renamed" s))
+  (unwind-protect
+       (list (list (not (not (probe-file old))) (probe-file new))
+             (length (multiple-value-list (rename-file old new)))
+             (list (probe-file old) (not (not (probe-file new)))))
+    (delete-file new)))
+((T NIL) 3 (NIL T))
