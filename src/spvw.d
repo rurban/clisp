@@ -649,7 +649,7 @@ nonreturning_function(global, fehler_notreached,
 #                        Initialization
 
 # name of the program (for error reporting)
-local char* program_name;
+local const char* program_name;
 
 # flag, if SYS::READ-FORM should behave ILISP-compatible:
 global bool ilisp_mode = false;
@@ -1532,8 +1532,8 @@ local void init_other_modules_2 (void) {
   });
 }
 
-# print usage and exit
-nonreturning_function (local, usage, (int exit_code)) {
+# print usage
+local void usage (void) {
   printf(PACKAGE_NAME " (" PACKAGE_BUGREPORT ") ");
   printf(GETTEXTL("is an ANSI Common Lisp."));
   printf("\n");
@@ -1585,10 +1585,9 @@ nonreturning_function (local, usage, (int exit_code)) {
   printf(GETTEXTL(" -interactive-debug - allow interaction for failed ASSERT and friends\n"));
   printf(GETTEXTL(" -repl              - enter the interactive read-eval-print loop when done\n"));
   printf(GETTEXTL("Default action is an interactive read-eval-print loop.\n"));
-  quit_sofort (exit_code); # abnormal end of program
 }
 
-# print license and exit
+# print license
 nonreturning_function (local, print_license, (void)) {
   local const char * const license [] = {
     PACKAGE_NAME " is free software; you can redistribute and/or modify it\n",
@@ -1742,33 +1741,8 @@ local object appease_form (bool interactive_debug, object form)
   return listof(2);
 }
 
-# main program stores the name 'main'.
-#ifdef NEXTAPP
-  # main() already exists in Lisp_main.m
-  #define main  clisp_main
-#endif
-#ifndef argc_t
-  #define argc_t int  # Type of argc is mostly 'int'.
-#endif
-global const char* locale_encoding = NULL; # GNU canonical name of locale encoding
-global const char* argv_encoding_misc = NULL; # override for *misc-encoding*
-global const char* argv_encoding_file = NULL; # ... for *default-file-encoding*
-global const char* argv_encoding_pathname = NULL; # ... for *pathname-encoding*
-global const char* argv_encoding_terminal = NULL; # ... for *terminal-encoding*
-global const char* argv_encoding_foreign = NULL; # ... for *foreign-encoding*
-local int argv_verbose = 2;    /* verbosity level */
-local bool argv_wait_keypress = false;
-local bool argv_license = false;
-global int main (argc_t argc, char* argv[]) {
-  # initialization of memory management.
-  # overall procedure:
-  # process command-line-options.
-  # determine memory partitioning.
-  # look at command string and either load LISP-data from .MEM-file
-  # or create manually and initialize static LISP-data.
-  # build up interrupt-handler.
-  # print banner.
-  # jump into the driver.
+# Very early initializations.
+local inline void init_lowest_level (char* argv[]) {
  #ifdef WIN32_NATIVE
   init_win32();
  #endif
@@ -1777,39 +1751,118 @@ global int main (argc_t argc, char* argv[]) {
   find_executable(argv[0]);
   end_system_call();
  #endif
-  var uintL argv_memneed = 0;
+}
+
+# Very late de-initializations,
+local inline void fini_lowest_level (void) {
+ #ifdef WIN32_NATIVE
+  done_win32();
+ #endif
+ #if defined(UNIX) && !defined(NEXTAPP)
+  terminal_sane(); # switch terminal again in normal mode
+ #endif
+}
+
+# There are three type of command-line options:
+# - Those which set global variables,
+# - Those which set parameters needed to initialize C I/O.
+# - Those which set parameters needed to initialize Lisp memory,
+# - Those which set parameters that determine the actions to be executed.
+
+# Global variables.
+global const char* locale_encoding = NULL; # GNU canonical name of locale encoding
+global const char* argv_encoding_misc = NULL; # override for *misc-encoding*
+global const char* argv_encoding_file = NULL; # ... for *default-file-encoding*
+global const char* argv_encoding_pathname = NULL; # ... for *pathname-encoding*
+global const char* argv_encoding_terminal = NULL; # ... for *terminal-encoding*
+global const char* argv_encoding_foreign = NULL; # ... for *foreign-encoding*
+
+# Parameters needed to initialize C I/O.
+struct argv_init_c {
+  const char* argv_language;
+  const char* argv_localedir;
+};
+
+# Parameters needed to initialize Lisp memory.
+struct argv_initparams {
+  uintL argv_memneed;
  #ifndef NO_SP_MALLOC
-  var uintL argv_stackneed = 0;
+  uintL argv_stackneed;
  #endif
  #ifdef MULTIMAP_MEMORY_VIA_FILE
-  var local char* argv_tmpdir = NULL;
+  const char* argv_tmpdir;
  #endif
-  var local char* argv_lisplibdir;
-  var local bool argv_developer = false;
-  var local char* argv_memfile = NULL;
-  var local bool argv_load_compiling = false;
-  var local uintL argv_init_filecount = 0;
-  var local bool argv_compile = false;
-  var local bool argv_compile_listing = false;
-  var local bool argv_norc = false;
-  var local bool argv_interactive_debug = false;
-  var local uintL argv_compile_filecount = 0;
-  typedef struct { char* input_file; char* output_file; } argv_compile_file_t;
-  var local argv_compile_file_t* argv_compile_files;
-  var local char* argv_package = NULL;
-  var local int argv_ansi = 0; # 0: default; 1: ANSI; 2: traditional
-  var local bool argv_repl = false;
-  var local uintL argv_expr_count = 0;
-  var local char* argv_execute_file = NULL;
-  var local char** argv_execute_args = NULL;
-  var local uintL argv_execute_arg_count;
-  var local char* argv_language = NULL;
-  var local char* argv_localedir = NULL;
-  var local bool batchmode_p = false;
-  {var DYNAMIC_ARRAY(argv_selection_array,char*,(uintL)argc); # max argc -x/-i
-  var DYNAMIC_ARRAY(argv_compile_files_array,argv_compile_file_t,(uintL)argc); # maximal argc file-arguments
-  argv_compile_files = argv_compile_files_array;
-  if (!(setjmp(original_context) == 0)) goto end_of_main;
+  const char* argv_memfile;
+};
+
+# Parameters that determine the actions to be executed.
+typedef struct { const char* input_file; const char* output_file; } argv_compile_file_t;
+struct argv_actions {
+  const char* argv_memfile;
+  int argv_verbose; /* verbosity level */
+  const char* argv_lisplibdir;
+  bool argv_developer;
+  bool argv_load_compiling;
+  uintL argv_init_filecount;
+  bool argv_compile;
+  bool argv_compile_listing;
+  bool argv_norc;
+  bool argv_interactive_debug;
+  uintL argv_compile_filecount;
+  argv_compile_file_t* argv_compile_files;
+  const char* argv_package;
+  int argv_ansi; # 0: default; 1: ANSI; 2: traditional
+  bool argv_repl;
+  uintL argv_expr_count;
+  const char* argv_execute_file;
+  const char** argv_execute_args;
+  uintL argv_execute_arg_count;
+  bool argv_batchmode_p;
+  const char** argv_selection_array;
+  bool argv_license;
+  bool argv_wait_keypress;
+};
+
+# Parse the command-line options.
+# Returns -1 on normal termination, or an exit code >= 0 for immediate exit.
+local inline int parse_options (int argc, const char* argv[],
+                                struct argv_init_c* p0,
+                                struct argv_initparams* p1,
+                                struct argv_actions* p2) {
+  p0->argv_language = NULL;
+  p0->argv_localedir = NULL;
+  p1->argv_memneed = 0;
+ #ifndef NO_SP_MALLOC
+  p1->argv_stackneed = 0;
+ #endif
+ #ifdef MULTIMAP_MEMORY_VIA_FILE
+  p1->argv_tmpdir = NULL;
+ #endif
+  p1->argv_memfile = NULL;
+  p2->argv_memfile = NULL;
+  p2->argv_verbose = 2;
+  p2->argv_lisplibdir = NULL;
+  p2->argv_developer = false;
+  p2->argv_load_compiling = false;
+  p2->argv_init_filecount = 0;
+  p2->argv_compile = false;
+  p2->argv_compile_listing = false;
+  p2->argv_norc = false;
+  p2->argv_interactive_debug = false;
+  p2->argv_compile_filecount = 0;
+  p2->argv_compile_files = (argv_compile_file_t*) malloc((uintL)argc*sizeof(argv_compile_file_t)); # maximal argc file-arguments
+  p2->argv_package = NULL;
+  p2->argv_ansi = 0;
+  p2->argv_repl = false;
+  p2->argv_expr_count = 0;
+  p2->argv_execute_file = NULL;
+  p2->argv_execute_args = NULL;
+  p2->argv_execute_arg_count = 0;
+  p2->argv_batchmode_p = false;
+  p2->argv_selection_array = (const char**) malloc((uintL)argc*sizeof(const char*)); # max argc -x/-i options
+  p2->argv_license = false;
+  p2->argv_wait_keypress = false;
+
   /* process arguments argv[0..argc-1] :
      -h              Help
      -m size         Memory size (size = xxxxxxxB oder xxxxKB oder xMB)
@@ -1854,22 +1907,30 @@ global int main (argc_t argc, char* argv[]) {
 
   program_name = argv[0]; # argv[0] is the program name
   {
-    var char** argptr = &argv[1];
-    var char** argptr_limit = &argv[argc];
+    var const char** argptr = &argv[1];
+    var const char** argptr_limit = &argv[argc];
     var enum { for_exec, for_init, for_compile, for_expr } argv_for = for_exec;
     # loop and process options, replace processed options with NULL:
     while (argptr < argptr_limit) {
-      var char* arg = *argptr++; # next argument
+      var const char* arg = *argptr++; # next argument
       if ((arg[0] == '-') && !(arg[1] == '\0')) {
         switch (arg[1]) {
           case 'h': # help
-            usage ((arg[2] != 0));
+            usage();
+            return (arg[2] != 0);
             # returns after a one-character token the rest of the
             # option in arg. poss. space is skipped.
             #define OPTION_ARG                                             \
               if (arg[2] == '\0') {                                        \
-                if (argptr < argptr_limit) arg = *argptr++; else usage (1);\
-              } else { arg = &arg[2]; }
+                if (argptr < argptr_limit)                                 \
+                  arg = *argptr++;                                         \
+                else {                                                     \
+                  usage();                                                 \
+                  return 1;                                                \
+                }                                                          \
+              } else {                                                     \
+                arg = &arg[2];                                             \
+              }
             # parses the rest of an option, that specifies a byte-size.
             # also checks, if certain boundaries are obeyed.
             #define SIZE_ARG(docstring,sizevar,limit_low,limit_high)       \
@@ -1894,12 +1955,14 @@ global int main (argc_t argc, char* argv[]) {
                 if (*arg != '\0') { # argument finished?                   \
                   fprintf(stderr,GETTEXTL("Syntax for %s: nnnnnnn or nnnnKB or nMB"), docstring); \
                   fputs("\n",stderr);                                      \
-                  usage (1);                                               \
+                  usage();                                                 \
+                  return 1;                                                \
                 }                                                          \
                 if (val < limit_low) {                                     \
                   fprintf(stderr,GETTEXTL("%s out of range"), docstring);  \
                   fputs("\n",stderr);                                      \
-                  usage (1);                                               \
+                  usage();                                                 \
+                  return 1;                                                \
                 }                                                          \
                 if (val > limit_high) {                                    \
                   fprintf(stderr,GETTEXTL("warning: %s out of range, using %u instead"), docstring, limit_high); \
@@ -1912,10 +1975,10 @@ global int main (argc_t argc, char* argv[]) {
           case 'm': # memory size
            #ifdef WIN32_NATIVE
             if (arg[2]=='m' && arg[3]=='\0') # "-mm" -> print a memory map
-              { DumpProcessMemoryMap(); quit_sofort(1); }
+              { DumpProcessMemoryMap(); return 1; }
            #endif
             OPTION_ARG;
-            SIZE_ARG(GETTEXTL("memory size"),argv_memneed,100000,
+            SIZE_ARG(GETTEXTL("memory size"),p1->argv_memneed,100000,
                      # memory size limited by:
                      (oint_addr_len+addr_shift < intLsize-1
                       # address space in oint_addr_len+addr_shift bits
@@ -1926,36 +1989,48 @@ global int main (argc_t argc, char* argv[]) {
          #ifndef NO_SP_MALLOC
           case 's': # stack size
             OPTION_ARG;
-            SIZE_ARG(GETTEXTL("stack size"),argv_stackneed,40000,8*1024*1024);
+            SIZE_ARG(GETTEXTL("stack size"),p1->argv_stackneed,40000,8*1024*1024);
             break;
          #endif
           case 't': # traditional, temporary directory
             if (asciz_equal(arg,"-traditional"))
-              argv_ansi = 2; # traditional
+              p2->argv_ansi = 2; # traditional
             else {
              #ifdef MULTIMAP_MEMORY_VIA_FILE
               OPTION_ARG;
-              if (!(argv_tmpdir == NULL)) usage (1);
-              argv_tmpdir = arg;
+              if (!(p1->argv_tmpdir == NULL)) {
+                usage();
+                return 1;
+              }
+              p1->argv_tmpdir = arg;
              #else
-              usage (1);
+              usage();
+              return 1;
              #endif
             }
             break;
           case 'd': /* developer mode */
-            argv_developer = true;
-            if (arg[2] != '\0') usage (1);
+            p2->argv_developer = true;
+            if (arg[2] != '\0') {
+              usage();
+              return 1;
+            }
             break;
           case 'B': # lisplibdir
             OPTION_ARG;
-            if (!(argv_lisplibdir == NULL)) usage (1);
-            argv_lisplibdir = arg;
+            if (!(p2->argv_lisplibdir == NULL)) {
+              usage();
+              return 1;
+            }
+            p2->argv_lisplibdir = arg;
             break;
           case 'n':
             if (asciz_equal(arg,"-norc"))
-              argv_norc = true;
-            else
-              usage (1);
+              p2->argv_norc = true;
+            else {
+              usage();
+              return 1;
+            }
             break;
          #if defined(UNIX) || defined(WIN32_NATIVE)
           case 'K': # linKing set
@@ -1966,18 +2041,22 @@ global int main (argc_t argc, char* argv[]) {
          #endif
           case 'M': # MEM-file: when repeated, only the last one counts.
             OPTION_ARG;
-            argv_memfile = arg;
+            p1->argv_memfile = arg;
+            p2->argv_memfile = arg;
             break;
           case 'L': # Language: when repeated, only the last one counts.
             OPTION_ARG;
-            argv_language = arg;
+            p0->argv_language = arg;
             break;
           case 'N': # NLS-directory: when repeated, only the last one counts.
             OPTION_ARG;
-            argv_localedir = arg;
+            p0->argv_localedir = arg;
             break;
           case 'E': # encoding
-            if (!(argptr < argptr_limit)) usage(1);
+            if (!(argptr < argptr_limit)) {
+              usage();
+              return 1;
+            }
             if (asciz_equal(&arg[2],"file"))
               argv_encoding_file = *argptr++;
             else if (asciz_equal(&arg[2],"pathname"))
@@ -1992,89 +2071,134 @@ global int main (argc_t argc, char* argv[]) {
               argv_encoding_file = argv_encoding_pathname =
                 argv_encoding_terminal = argv_encoding_foreign =
                 argv_encoding_misc = *argptr++;
-            else
-              usage(1);
+            else {
+              usage();
+              return 1;
+            }
             break;
           case 'q':             /* verbosity level */
-            argv_verbose--;
-            if (arg[2] != '\0') usage (1);
+            p2->argv_verbose--;
+            if (arg[2] != '\0') {
+              usage();
+              return 1;
+            }
             break;
           case 'v':             /* verbosity level */
-            argv_verbose++;
-            if (arg[2] != '\0') usage (1);
+            p2->argv_verbose++;
+            if (arg[2] != '\0') {
+              usage();
+              return 1;
+            }
             break;
           case 'I': # ILISP-friendly
             ilisp_mode = true;
-            if (arg[2] != '\0') usage (1);
+            if (arg[2] != '\0') {
+              usage();
+              return 1;
+            }
             break;
           case 'C': # set *LOAD-COMPILING*
-            argv_load_compiling = true;
-            if (arg[2] != '\0') usage (1);
+            p2->argv_load_compiling = true;
+            if (arg[2] != '\0') {
+              usage();
+              return 1;
+            }
             break;
           case 'r': /* -repl */
             if (asciz_equal(&arg[1],"repl"))
-              argv_repl = true;
+              p2->argv_repl = true;
+            else {
+              usage();
+              return 1;
+            }
             break;
           case 'i': # initialization files
-            if (arg[2] == '\0') argv_for = for_init;
+            if (arg[2] == '\0')
+              argv_for = for_init;
             else if (asciz_equal(&arg[1],"interactive-debug"))
-              argv_interactive_debug = true;
-            else usage (1);
+              p2->argv_interactive_debug = true;
+            else {
+              usage();
+              return 1;
+            }
             break;
           case 'c': # files to be compiled
-            argv_compile = true;
+            p2->argv_compile = true;
             argv_for = for_compile;
             if (arg[2] == 'l') {
-              argv_compile_listing = true;
-              if (arg[3] != '\0') usage (1);
+              p2->argv_compile_listing = true;
+              if (arg[3] != '\0') {
+                usage();
+                return 1;
+              }
             } else {
-              if (arg[2] != '\0') usage (1);
+              if (arg[2] != '\0') {
+                usage();
+                return 1;
+              }
             }
             break;
           case 'l': # compilation listings
-            argv_compile_listing = true;
-            if (arg[2] != '\0') usage (1);
+            p2->argv_compile_listing = true;
+            if (arg[2] != '\0') {
+              usage();
+              return 1;
+            }
             break;
           case 'o': # target for files to be compiled
-            if (arg[2] != '\0') usage (1);
+            if (arg[2] != '\0') {
+              usage();
+              return 1;
+            }
             OPTION_ARG;
-            if (!((argv_compile_filecount > 0)
-                  && (argv_compile_files[argv_compile_filecount-1].output_file==NULL)))
-              usage (1);
-            argv_compile_files[argv_compile_filecount-1].output_file = arg;
+            if (!((p2->argv_compile_filecount > 0)
+                  && (p2->argv_compile_files[p2->argv_compile_filecount-1].output_file==NULL))) {
+              usage();
+              return 1;
+            }
+            p2->argv_compile_files[p2->argv_compile_filecount-1].output_file = arg;
             break;
           case 'p': # package: when repeated, only the last one counts.
             OPTION_ARG;
-            argv_package = arg;
+            p2->argv_package = arg;
             break;
           case 'a': # ANSI CL Compliance
             if (asciz_equal(arg,"-ansi"))
-              argv_ansi = 1; # ANSI
-            else if (arg[2] != '\0') usage (1);
-            else {
+              p2->argv_ansi = 1; # ANSI
+            else if (arg[2] != '\0') {
+              usage();
+              return 1;
+            } else {
               fprintf(stderr,GETTEXTL("CLISP: -a is deprecated, use -ansi"));
               fputs("\n",stderr);
-              argv_ansi = 1; # ANSI
+              p2->argv_ansi = 1; # ANSI
             }
             break;
           case 'x': # execute LISP-expression
-            if (arg[2] != '\0') usage (1);
+            if (arg[2] != '\0') {
+              usage();
+              return 1;
+            }
             argv_for = for_expr;
             break;
           case 'w': # wait for keypress after termination
-            argv_wait_keypress = true;
-            if (arg[2] != '\0') usage (1);
+            p2->argv_wait_keypress = true;
+            if (arg[2] != '\0') {
+              usage();
+              return 1;
+            }
             break;
           case '-': # -- GNU-style long options
             if (arg[2] == 0) /* "--" ==> end of options */
               goto done_with_argv;
-            else if (asciz_equal(&arg[2],"help"))
-              usage (0);
-            else if (asciz_equal(&arg[2],"version")) {
-              argv_expr_count = 0;  /* discard previous -x */
-              argv_verbose = 1;
-              argv_norc = true;
-              argv_repl = false;
+            else if (asciz_equal(&arg[2],"help")) {
+              usage();
+              return 0;
+            } else if (asciz_equal(&arg[2],"version")) {
+              p2->argv_expr_count = 0;  /* discard previous -x */
+              p2->argv_verbose = 1;
+              p2->argv_norc = true;
+              p2->argv_repl = false;
               /* force processing this argument again,
                  but this time as if it came after an '-x' */
               argv_for = for_expr;
@@ -2095,91 +2219,153 @@ global int main (argc_t argc, char* argv[]) {
               break;
             } else if (asciz_equal(&arg[2],"quiet")
                        || asciz_equal(&arg[2],"silent")) {
-              argv_verbose--; break;
+              p2->argv_verbose--;
+              break;
             } else if (asciz_equal(&arg[2],"verbose")) {
-              argv_verbose++; break;
+              p2->argv_verbose++;
+              break;
             } else if (asciz_equal(&arg[2],"license")) {
-              argv_license = true; break;
-            } else
-              usage (1); # unknown option
+              p2->argv_license = true;
+              break;
+            } else {
+              # unknown option
+              usage();
+              return 1;
+            }
             break;
           default: # unknown option
-            usage (1);
+            usage();
+            return 1;
         }
       } else if (arg[0] == 0) {  /* done with the arguments */
        done_with_argv:
-        argv_execute_args = argptr;
-        argv_execute_arg_count = argptr_limit - argptr;
+        p2->argv_execute_args = argptr;
+        p2->argv_execute_arg_count = argptr_limit - argptr;
         argptr = argptr_limit; /* abort loop */
       } else {
         # no option is interpreted as file to be loaded / compiled / executed
         switch (argv_for) {
           case for_init:
-            argv_selection_array[argv_init_filecount++] = arg; break;
+            p2->argv_selection_array[p2->argv_init_filecount++] = arg;
+            break;
           case for_compile:
-            argv_compile_files[argv_compile_filecount].input_file = arg;
-            argv_compile_files[argv_compile_filecount].output_file = NULL;
-            argv_compile_filecount++;
+            p2->argv_compile_files[p2->argv_compile_filecount].input_file = arg;
+            p2->argv_compile_files[p2->argv_compile_filecount].output_file = NULL;
+            p2->argv_compile_filecount++;
             break;
           case for_exec:
-            argv_execute_file = arg;
+            p2->argv_execute_file = arg;
             # All further arguments are arguments for argv_execute_file.
-            argv_execute_args = argptr;
-            argv_execute_arg_count = argptr_limit - argptr;
+            p2->argv_execute_args = argptr;
+            p2->argv_execute_arg_count = argptr_limit - argptr;
             # Simulate -norc. Batch scripts should be executed in an
             # environment which does not depend on files in $HOME, for
             # maximum portability.
-            argv_norc = true;
+            p2->argv_norc = true;
             argptr = argptr_limit; # abort loop
             break;
           case for_expr:
-            argv_selection_array[argc-1- argv_expr_count++] = arg; break;
+            p2->argv_selection_array[argc-1-(p2->argv_expr_count++)] = arg;
+            break;
           default: NOTREACHED;
         }
         argv_for = for_exec;
       }
     }
-    batchmode_p = /* '-c' or '-x' or file => batch-mode: */
-      ((argv_compile || argv_expr_count || argv_execute_file != NULL)
-       && !argv_interactive_debug && !argv_repl);
+    p2->argv_batchmode_p = /* '-c' or '-x' or file => batch-mode: */
+      ((p2->argv_compile || p2->argv_expr_count || p2->argv_execute_file != NULL)
+       && !p2->argv_interactive_debug && !p2->argv_repl);
     # check options semantically and store defaults:
-    if (argv_memneed == 0) {
+    if (p1->argv_memneed == 0) {
      #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && defined(GENERATIONAL_GC)
       # Because of GENERATIONAL_GC the memory region is hardly exhausted.
-      argv_memneed = 3584*1024*sizeof(gcv_object_t); # 3584 KW = 14 MB Default
+      p1->argv_memneed = 3584*1024*sizeof(gcv_object_t); # 3584 KW = 14 MB Default
      #else
       # normal
-      argv_memneed = 512*1024*sizeof(gcv_object_t); # 512 KW = 2 MB Default
+      p1->argv_memneed = 512*1024*sizeof(gcv_object_t); # 512 KW = 2 MB Default
      #endif
     }
    #ifdef MULTIMAP_MEMORY_VIA_FILE
-    if (argv_tmpdir == NULL) {
-      argv_tmpdir = getenv("TMPDIR"); # try environment-variable
-      if (argv_tmpdir == NULL) { argv_tmpdir = "/tmp"; }
+    if (p1->argv_tmpdir == NULL) {
+      p1->argv_tmpdir = getenv("TMPDIR"); # try environment-variable
+      if (p1->argv_tmpdir == NULL) {
+        p1->argv_tmpdir = "/tmp";
+      }
     }
    #endif
-    if (argv_memfile == NULL)
+    if (p2->argv_memfile == NULL)
       # If no memfile is given, LOAD cannot be called with 3 arguments.
       # So disable the loading of ~/.clisprc.
-      argv_norc = true;
-    if (!argv_compile) {
+      p2->argv_norc = true;
+    if (!p2->argv_compile) {
       # Some options are useful only together with '-c' :
-      if (argv_compile_listing) usage (1);
+      if (p2->argv_compile_listing) {
+        usage();
+        return 1;
+      }
     } else {
       # Other options are useful only without '-c' :
-      if (argv_expr_count) usage (1);
+      if (p2->argv_expr_count) {
+        usage();
+        return 1;
+      }
     }
-    if (argv_expr_count && argv_execute_file) usage (1);
-    # The argv_* variables now have their final values.
-    # Analyze the environment variables determining the locale.
-    # Deal with LC_CTYPE.
-    init_ctype();
-    # Deal with LC_MESSAGE.
-    # (This must come last, because it may unset environment variable LC_ALL)
-   #ifndef LANGUAGE_STATIC
-    init_language(argv_language,argv_localedir);
-   #endif
-  } # option processing is over
+    if (p2->argv_expr_count && p2->argv_execute_file) {
+      usage();
+      return 1;
+    }
+  }
+  return -1;
+}
+
+# Delete command-line options.
+local inline void free_argv_initparams (struct argv_initparams *p) {
+}
+local inline void free_argv_actions (struct argv_actions *p) {
+  free(p->argv_selection_array);
+  free(p->argv_compile_files);
+}
+
+static struct argv_initparams argv1;
+static struct argv_actions argv2;
+
+# main program stores the name 'main'.
+#ifdef NEXTAPP
+  # main() already exists in Lisp_main.m
+  #define main  clisp_main
+#endif
+#ifndef argc_t
+  #define argc_t int  # Type of argc is mostly 'int'.
+#endif
+global int main (argc_t argc, char* argv[]) {
+  # initialization of memory management.
+  # overall procedure:
+  # process command-line-options.
+  # determine memory partitioning.
+  # look at command string and either load LISP-data from .MEM-file
+  # or create manually and initialize static LISP-data.
+  # build up interrupt-handler.
+  # print banner.
+  # jump into the driver.
+  init_lowest_level(argv);
+  var struct argv_init_c argv0;
+  {
+    var int parse_result = parse_options(argc,(const char**)argv,&argv0,&argv1,&argv2);
+    if (parse_result >= 0) {
+      exitcode = parse_result;
+      goto end_of_main;
+    }
+  }
+  # The argv_* variables now have their final values.
+  # Analyze the environment variables determining the locale.
+  # Deal with LC_CTYPE.
+  init_ctype();
+  # Deal with LC_MESSAGE.
+  # (This must come last, because it may unset environment variable LC_ALL)
+ #ifndef LANGUAGE_STATIC
+  init_language(argv0.argv_language,argv0.argv_localedir);
+ #endif
+  if (!(setjmp(original_context) == 0)) goto end_of_main;
   { # Initialize the table of relocatable pointers:
     var object* ptr2 = &pseudofun_tab.pointer[0];
     { var const Pseudofun* ptr1 = (const Pseudofun*)&pseudocode_tab;
@@ -2251,7 +2437,7 @@ global int main (argc_t argc, char* argv[]) {
       teile*varobject_alignment
      #endif
       ;
-    var uintL memneed = argv_memneed; # needed memory
+    var uintL memneed = argv1.argv_memneed; # needed memory
     var aint memblock; # lower address of the provided memory block
    #if !(defined(SPVW_MIXED_BLOCKS_OPPOSITE) && !defined(TRIVIALMAP_MEMORY))
     memneed = teile_stacks*floor(memneed,teile); # do not yet calculate memory for objects
@@ -2259,10 +2445,10 @@ global int main (argc_t argc, char* argv[]) {
     #define teile  teile_stacks
    #endif
    #ifndef NO_SP_MALLOC
-    if (!(argv_stackneed==0)) {
+    if (!(argv1.argv_stackneed==0)) {
       memneed = memneed*(teile-teile_SP)/teile;
       # the SP-size specified with option -s is not yet included in memneed.
-      memneed = memneed + argv_stackneed;
+      memneed = memneed + argv1.argv_stackneed;
     }
    #endif
    #if defined(TRIVIALMAP_MEMORY) && defined(WIN32_NATIVE)
@@ -2323,7 +2509,7 @@ global int main (argc_t argc, char* argv[]) {
     # and its boundaries are located on page boundaries.
    #ifdef MULTIMAP_MEMORY
     #ifdef MULTIMAP_MEMORY_VIA_FILE
-    if ( initmap(argv_tmpdir) <0) goto no_mem;
+    if ( initmap(argv1.argv_tmpdir) <0) goto no_mem;
     #else
     if ( initmap() <0) goto no_mem;
     #endif
@@ -2519,10 +2705,10 @@ global int main (argc_t argc, char* argv[]) {
       #define alignment  (varobject_alignment>STACK_alignment ? varobject_alignment : STACK_alignment)
       free_reserved = memneed;
       #ifndef NO_SP_MALLOC
-      if (argv_stackneed != 0 && 2*argv_stackneed <= free_reserved) {
+      if (argv1.argv_stackneed != 0 && 2*argv1.argv_stackneed <= free_reserved) {
         # do not reserve to much for the SP-stack
-        for_SP = round_down(argv_stackneed,varobject_alignment);
-        free_reserved -= argv_stackneed;
+        for_SP = round_down(argv1.argv_stackneed,varobject_alignment);
+        free_reserved -= argv1.argv_stackneed;
       }
       #endif
       # make divisible by teile*alignment, so that each 1/16 is aligned:
@@ -2677,10 +2863,10 @@ global int main (argc_t argc, char* argv[]) {
  #endif
   init_subr_tab_1(); # initialize subr_tab
   markwatchset = NULL; markwatchset_allocated = markwatchset_size = 0;
-  if (argv_memfile==NULL) # manual initialization:
+  if (argv1.argv_memfile==NULL) # manual initialization:
     initmem();
   else # load memory file:
-    loadmem(argv_memfile);
+    loadmem(argv1.argv_memfile);
   # init O(current_language)
   O(current_language) = current_language_o(language);
   # set current evaluator-environments to the toplevel-value:
@@ -2743,7 +2929,7 @@ global int main (argc_t argc, char* argv[]) {
   # Initialize locale dependent encodings:
   init_dependent_encodings();
   # initialize stream-variables:
-  init_streamvars(batchmode_p);
+  init_streamvars(argv2.argv_batchmode_p);
  #ifdef NEXTAPP
   # make nxterminal-stream functional:
   if (nxterminal_init()) { final_exitcode = 17; quit(); }
@@ -2776,18 +2962,20 @@ global int main (argc_t argc, char* argv[]) {
   }
   /* print greeting: */
   if (!nullpSv(quiet))           /* SYS::*QUIET* /= NIL ? */
-    { argv_verbose = 1; }        /* prevents the greeting */
-  if (argv_execute_file != NULL) /* batch-mode ? */
-    { argv_verbose = 1; }        /* prevents the greeting */
-  if (argv_verbose>=2 || argv_license) print_banner();
-  if (argv_license) print_license();
-  if (argv_execute_arg_count > 0) {
-    var uintL count = argv_execute_arg_count;
-    do { pushSTACK(asciz_to_string(*argv_execute_args++,O(misc_encoding))); }
+    { argv2.argv_verbose = 1; }        /* prevents the greeting */
+  if (argv2.argv_execute_file != NULL) /* batch-mode ? */
+    { argv2.argv_verbose = 1; }        /* prevents the greeting */
+  if (argv2.argv_verbose>=2 || argv2.argv_license)
+    print_banner();
+  if (argv2.argv_license)
+    print_license();
+  if (argv2.argv_execute_arg_count > 0) {
+    var uintL count = argv2.argv_execute_arg_count;
+    do { pushSTACK(asciz_to_string(*argv2.argv_execute_args++,O(misc_encoding))); }
     while (--count);
-    Symbol_value(S(args)) = listof(argv_execute_arg_count);
+    Symbol_value(S(args)) = listof(argv2.argv_execute_arg_count);
   }
-  if ((argv_memfile == NULL) && (argv_expr_count == 0)) {
+  if ((argv2.argv_memfile == NULL) && (argv2.argv_expr_count == 0)) {
     # warning for beginners
     pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # auf *STANDARD-OUTPUT*
     terpri(&STACK_0);
@@ -2798,7 +2986,7 @@ global int main (argc_t argc, char* argv[]) {
     write_string(&STACK_0,ascii_to_string(" -M lispinit.mem\n"));
     skipSTACK(1);
   }
-  if (argv_lisplibdir == NULL) {
+  if (argv2.argv_lisplibdir == NULL) {
     if (nullp(O(lib_dir))) {
       # warning for beginners and careless developers
       pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # on *STANDARD-OUTPUT*
@@ -2811,10 +2999,10 @@ global int main (argc_t argc, char* argv[]) {
       skipSTACK(1);
     }
   } else { # set it
-    pushSTACK(asciz_to_string(argv_lisplibdir,O(pathname_encoding)));
+    pushSTACK(asciz_to_string(argv2.argv_lisplibdir,O(pathname_encoding)));
     funcall(L(set_lib_directory),1);
   }
-  if (batchmode_p) {
+  if (argv2.argv_batchmode_p) {
     /* (setq *debug-io*
          (make-two-way-stream (make-string-input-stream "") *query-io*)) */
     funcall(L(make_concatenated_stream),0); # (MAKE-CONCATENATED-STREAM)
@@ -2822,7 +3010,7 @@ global int main (argc_t argc, char* argv[]) {
     var object stream = var_stream(S(query_io),strmflags_wr_ch_B);
     Symbol_value(S(debug_io)) = make_twoway_stream(popSTACK(),stream);
   }
-  switch (argv_ansi) {
+  switch (argv2.argv_ansi) {
     case 1: # Maximum ANSI CL compliance
       pushSTACK(T); funcall(L(set_ansi),1); break;
     case 2: # The traditional CLISP behavior
@@ -2830,13 +3018,13 @@ global int main (argc_t argc, char* argv[]) {
     default: # use the settings from the memory image
       break;
   }
-  if (argv_load_compiling) # (SETQ *LOAD-COMPILING* T) :
+  if (argv2.argv_load_compiling) # (SETQ *LOAD-COMPILING* T) :
     { Symbol_value(S(load_compiling)) = T; }
-  if (argv_verbose < 1) /* (setq *load-verbose* nil *compile-verbose* nil) */
+  if (argv2.argv_verbose < 1) /* (setq *load-verbose* nil *compile-verbose* nil) */
     Symbol_value(S(load_verbose)) = Symbol_value(S(compile_verbose)) = NIL;
-  if (argv_verbose > 2) /* (setq *load-print* t *compile-print* t) */
+  if (argv2.argv_verbose > 2) /* (setq *load-print* t *compile-print* t) */
     Symbol_value(S(load_print)) = Symbol_value(S(compile_print)) = T;
-  if (argv_developer) { /* developer mode */
+  if (argv2.argv_developer) { /* developer mode */
     /* unlock all packages */
     var object packlist = O(all_packages);
     while (consp(packlist)) {
@@ -2845,7 +3033,7 @@ global int main (argc_t argc, char* argv[]) {
     }
   }
   # load RC file ~/.clisprc
-  if (!argv_norc) {
+  if (!argv2.argv_norc) {
     # (LOAD (MAKE-PATHNAME :NAME ".clisprc"
     #                      :DEFAULTS (USER-HOMEDIR-PATHNAME))
     #       :IF-DOES-NOT-EXIST NIL
@@ -2867,23 +3055,25 @@ global int main (argc_t argc, char* argv[]) {
     funcall(S(load),3);
   }
   # execute (LOAD initfile) for each initfile:
-  if (argv_init_filecount > 0) {
-    var char** fileptr = &argv_selection_array[0];
-    var uintL count = argv_init_filecount;
+  if (argv2.argv_init_filecount > 0) {
+    var const char** fileptr = &argv2.argv_selection_array[0];
+    var uintL count = argv2.argv_init_filecount;
     if (interactive_stream_p(Symbol_value(S(debug_io))))
-      do { pushSTACK(asciz_to_string(*fileptr++,O(misc_encoding)));
+      do {
+        pushSTACK(asciz_to_string(*fileptr++,O(misc_encoding)));
         funcall(S(load),1);
       } while (--count);
     else { /* non-interactive - guard with SYS::BATCHMODE-ERRORS */
       pushSTACK(S(batchmode_errors));
-      do { pushSTACK(S(load));
+      do {
+        pushSTACK(S(load));
         pushSTACK(asciz_to_string(*fileptr++,O(misc_encoding)));
         { object tmp = listof(2); pushSTACK(tmp); }
       } while (--count);
-      eval_noenv(listof(argv_init_filecount+1));
+      eval_noenv(listof(argv2.argv_init_filecount+1));
     }
   }
-  if (argv_compile) {
+  if (argv2.argv_compile) {
     # execute
     #   (EXIT-ON-ERROR
     #     (APPEASE-CERRORS
@@ -2892,10 +3082,10 @@ global int main (argc_t argc, char* argv[]) {
     #                     [:LISTING (MERGE-PATHNAMES '#".lis" (or output-file file))]
     #   ) ) )
     # for each file:
-    if (argv_compile_filecount > 0) {
-      var argv_compile_file_t* fileptr = &argv_compile_files[0];
+    if (argv2.argv_compile_filecount > 0) {
+      var argv_compile_file_t* fileptr = &argv2.argv_compile_files[0];
       var uintL count;
-      dotimespL(count,argv_compile_filecount,{
+      dotimespL(count,argv2.argv_compile_filecount,{
         var uintC argcount = 1;
         var object filename = asciz_to_string(fileptr->input_file,O(misc_encoding));
         pushSTACK(S(compile_file));
@@ -2921,7 +3111,7 @@ global int main (argc_t argc, char* argv[]) {
           pushSTACK(value1);
           argcount += 2;
         }
-        if (argv_compile_listing) {
+        if (argv2.argv_compile_listing) {
           pushSTACK(S(Klisting));
           pushSTACK(O(listing_file_type)); # #".lis"
           pushSTACK(STACK_2); # (or output-file file)
@@ -2939,15 +3129,17 @@ global int main (argc_t argc, char* argv[]) {
           });
         }
         var object form = listof(1+argcount); # `(COMPILE-FILE ',...)
-        if (!argv_repl) form = appease_form(argv_interactive_debug,form);
+        if (!argv2.argv_repl)
+          form = appease_form(argv2.argv_interactive_debug,form);
         eval_noenv(form); # execute
         fileptr++;
       });
     }
-    if (!argv_repl) quit();
+    if (!argv2.argv_repl)
+      quit();
   }
-  if (argv_package != NULL) { # (IN-PACKAGE packagename)
-    var object packname = asciz_to_string(argv_package,O(misc_encoding));
+  if (argv2.argv_package != NULL) { # (IN-PACKAGE packagename)
+    var object packname = asciz_to_string(argv2.argv_package,O(misc_encoding));
     var object package = find_package(packname);
     if (!nullp(package)) {
       Symbol_value(S(packagestern)) = package;
@@ -2960,7 +3152,7 @@ global int main (argc_t argc, char* argv[]) {
       skipSTACK(1);
     }
   }
-  if (argv_execute_file != NULL) {
+  if (argv2.argv_execute_file != NULL) {
     #  execute:
     # (PROGN
     #   #+UNIX (SET-DISPATCH-MACRO-CHARACTER #\# #\!
@@ -2979,10 +3171,10 @@ global int main (argc_t argc, char* argv[]) {
     Symbol_value(S(load_verbose)) = NIL;
     var object form;
     pushSTACK(S(load));
-    if (asciz_equal(argv_execute_file,"-")) {
+    if (asciz_equal(argv2.argv_execute_file,"-")) {
       pushSTACK(S(standard_input)); # *STANDARD-INPUT*
     } else {
-      pushSTACK(asciz_to_string(argv_execute_file,O(misc_encoding)));
+      pushSTACK(asciz_to_string(argv2.argv_execute_file,O(misc_encoding)));
     }
     pushSTACK(S(Kextra_file_types));
    #ifdef WIN32_NATIVE
@@ -2994,20 +3186,23 @@ global int main (argc_t argc, char* argv[]) {
     pushSTACK(NIL);
    #endif
     form = listof(4);
-    if (!argv_repl) form = appease_form(argv_interactive_debug,form);
+    if (!argv2.argv_repl)
+      form = appease_form(argv2.argv_interactive_debug,form);
     eval_noenv(form); # execute
-    if (!argv_repl) quit();
+    if (!argv2.argv_repl)
+      quit();
   }
-  if (argv_expr_count) {
+  if (argv2.argv_expr_count) {
     # set *STANDARD-INPUT* to a stream, that produces argv_exprs:
-    var char** exprs = &argv_selection_array[argc-1];
-    if (argv_expr_count > 1) {
-      var uintL count = argv_expr_count;
+    var const char** exprs = &argv2.argv_selection_array[argc-1];
+    if (argv2.argv_expr_count > 1) {
+      var uintL count = argv2.argv_expr_count;
       do { pushSTACK(asciz_to_string(*exprs--,O(misc_encoding))); }
       while (--count);
-      var object total = string_concat(argv_expr_count);
+      var object total = string_concat(argv2.argv_expr_count);
       pushSTACK(total);
-    } else pushSTACK(asciz_to_string(*exprs--,O(misc_encoding)));
+    } else
+      pushSTACK(asciz_to_string(*exprs--,O(misc_encoding)));
     funcall(L(make_string_input_stream),1);
     # During bootstrapping, *DRIVER* has no value and SYS::BATCHMODE-ERRORS
     # is undefined. Do not set an error handler in that case.
@@ -3020,10 +3215,12 @@ global int main (argc_t argc, char* argv[]) {
       #   (UNLESS argv_repl (EXIT)))
       var object form;
       pushSTACK(S(funcall)); pushSTACK(S(driverstern)); form = listof(2);
-      if (!argv_repl) form = appease_form(argv_interactive_debug,form);
+      if (!argv2.argv_repl)
+        form = appease_form(argv2.argv_interactive_debug,form);
       eval_noenv(form);
-      if (!argv_repl) quit();
-      else dynamic_unbind(S(standard_input));
+      if (!argv2.argv_repl)
+        quit();
+      dynamic_unbind(S(standard_input));
     } else /* no *DRIVER* => bootstrap, no -repl */
       Symbol_value(S(standard_input)) = value1;
   }
@@ -3043,14 +3240,9 @@ global int main (argc_t argc, char* argv[]) {
  #ifdef MULTIMAP_MEMORY
   exitmap();
  #endif
-  FREE_DYNAMIC_ARRAY(argv_compile_files_array);
-  FREE_DYNAMIC_ARRAY(argv_selection_array); }
- #ifdef WIN32_NATIVE
-  done_win32();
- #endif
- #if defined(UNIX) && !defined(NEXTAPP)
-  terminal_sane(); # switch terminal again in normal mode
- #endif
+  free_argv_initparams(&argv1);
+  free_argv_actions(&argv2);
+  fini_lowest_level();
  #ifdef UNIX
   exit(exitcode); # Calling exit(), not _exit(), allows profiling to work.
  #endif
@@ -3083,13 +3275,13 @@ nonreturning_function(global, quit, (void)) {
     funcall(L(fresh_line),0); # (FRESH-LINE [*standard-output*])
     pushSTACK(var_stream(S(error_output),strmflags_wr_ch_B));
     funcall(L(fresh_line),1);   /* (FRESH-LINE *error-output*) */
-    if (argv_verbose >= 2) {
+    if (argv2.argv_verbose >= 2) {
       pushSTACK(CLSTEXT("Bye.")); funcall(L(write_line),1);
     }
   }
   # Then wait for a keypress:
-  if (argv_wait_keypress) {
-    argv_wait_keypress = false; # If this fails, do not retry it (robustness)
+  if (argv2.argv_wait_keypress) {
+    argv2.argv_wait_keypress = false; # If this fails, do not retry it (robustness)
     pushSTACK(CLSTEXT("Press a key to terminate..."));
     funcall(L(write_line),1);
     funcall(S(wait_keypress),0); # (SYS::WAIT-KEYPRESS)
