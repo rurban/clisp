@@ -1369,6 +1369,7 @@ LISPSYM(string_stream,"STRING-STREAM",lisp) # als Typ in PREDTYPE
 LISPSYM(stream,"STREAM",lisp) # als Typ in PREDTYPE
 LISPSYM(package,"PACKAGE",lisp) # als Typ in PREDTYPE
 LISPSYM(readtable,"READTABLE",lisp) # als Typ in PREDTYPE
+LISPSYM(special_operator,"SPECIAL-OPERATOR",lisp) # als Typ in PREDTYPE
 LISPSYM(load_time_eval,"LOAD-TIME-EVAL",lisp) # als Typ in PREDTYPE
 LISPSYM(symbol_macro,"SYMBOL-MACRO",lisp) # als Typ in PREDTYPE
 LISPSYM(encoding,"ENCODING",lisp) # als Typ in PREDTYPE
