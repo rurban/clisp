@@ -299,7 +299,7 @@
                            # clisp mit NEXTAPP und ohne NEXTAPP kompatibel sind
   #endif
   #if defined(__APPLE__) && defined(__MACH__)
-    #define UNIX_RHAPSODY  # MacOS X Server, a.k.a. Rhapsody
+    #define UNIX_MACOSX  # MacOS X
   #endif
   #ifdef AMIX
     #define UNIX_AMIX  # Amiga UNIX
@@ -386,6 +386,12 @@
   #endif
   #if (defined(SUN4) || (defined(I80386) && defined(__svr4__) && defined(__sun))) && !defined(HAVE_VADVISE) # && !defined(HAVE_GETPAGESIZE)
     #define UNIX_SUNOS5  # Sun OS Version 5.[1-5] (Solaris 2)
+  #endif
+  #if defined(UNIX_MACOSX) && !defined(HAVE_MSYNC)
+    #define UNIX_RHAPSODY  # MacOS X Server, a.k.a. Rhapsody
+  #endif
+  #if defined(UNIX_MACOSX) && defined(HAVE_MSYNC)
+    #define UNIX_DARWIN  # MacOS X, a.k.a. Darwin
   #endif
 
 
