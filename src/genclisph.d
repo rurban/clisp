@@ -260,10 +260,7 @@ int main(int argc, char* argv[])
  printf("#define CONCAT5(aaa,bbb,ccc,ddd,eee)  CONCAT5_(aaa,bbb,ccc,ddd,eee)\n"); */
   printf("#define STRING(token) #token\n");
   printf("#define STRINGIFY(token) STRING(token)\n");
-#if defined(__APPLE_CC__)
-  printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
-  printf("   __dead storclass void funname arguments\n");
-#elif defined(GNU)
+#if defined(GNU) && !defined(__APPLE_CC__)
  #if (__GNUC__ >= 3) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 7))
   printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
   printf("  storclass void __attribute__((__noreturn__)) funname arguments\n");
