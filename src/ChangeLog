@@ -1,5 +1,10 @@
 2001-10-25  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (MAKE-PATHNAME): STACK_* = listof()
+	might not be what you think! -- avoid
+
+2001-10-25  Sam Steingold  <sds@gnu.org>
+
 	* socket.d (ipv6_ntop): make sure buffer is returned
 
 2001-10-25  Sam Steingold  <sds@gnu.org>

@@ -4177,7 +4177,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
       directory_add_absolute:
         pushSTACK(S(Kabsolute));
         pushSTACK(directory);
-        STACK_3 = directory = listof(2);
+        directory = listof(2); STACK_3 = directory;
         goto directory_ok;
       } else if (consp(directory)) { # ein Cons?
         STACK_3 = directory = subst_coerce_normal_ss(directory);
