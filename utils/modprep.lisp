@@ -459,8 +459,8 @@ and, if yes, return the string"
                      ;; cannot have conditionals in this init
                      (write-string (objdef-init k) kwd-s))
                    (write-char #\) kwd-s))))
-          (format out "{ if (argcount < ~D) { pushSTACK(TheSubr(subr_self)->name); fehler(source_program_error,(\"EVAL/APPLY: too few arguments given to ~~\")); } " min-arg)
-          (when max-arg (format out "if (argcount > ~D) { pushSTACK(TheSubr(subr_self)->name); fehler(source_program_error,(\"EVAL/APPLY: too many arguments given to ~~\")); } " max-arg))
+          (format out "{ if (argcount < ~D) { pushSTACK(TheSubr(subr_self)->name); fehler(source_program_error,GETTEXT(\"EVAL/APPLY: too few arguments given to ~~S\")); } " min-arg)
+          (when max-arg (format out "if (argcount > ~D) { pushSTACK(TheSubr(subr_self)->name); fehler(source_program_error,GETTEXT(\"EVAL/APPLY: too many arguments given to ~~S\")); } " max-arg))
           (unless (zerop (signature-opt sig)) (format out "for (;argcount < ~D; argcount++) pushSTACK(unbound); " req+opt))
           (when (signature-key-p sig)
             (format out "if ((argcount-~D)%2) fehler_key_odd(argcount,TheSubr(subr_self)->name); " req+opt)

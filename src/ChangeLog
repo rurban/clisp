@@ -9,6 +9,8 @@
 	(def-something-p): simplified
 	(formatln): new macro
 	(print-tables-1): reinstated defaults
+	(check-signature): generated errors call GETTEXT
+	and use ~S instead of ~
 	* modules/berkeley-db/bdb.c, modules/i18n/gettext.c:
 	* modules/rawsock/rawsock.c, modules/syscalls/calls.c: updated
 
