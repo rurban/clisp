@@ -72,11 +72,10 @@
 
 ;;; Handle vector expansion, along the lines suggested by HyperSpec.
 (defun bq-vec-expand (vec-form)
-  (let* ((list-form (map 'list #'identity vec-form))
-         (expansion (bq-expand-list list-form)))
+  (let ((expansion (bq-expand-list (map 'list #'identity vec-form))))
     (if *backquote-optimize*
       (bq-optimize-vec expansion)
-      (list 'apply '#'vector expansion))))
+      (list 'apply #'vector (cons 'nconc expansion)))))
 
 ;;; Top level cases
 ;;;
