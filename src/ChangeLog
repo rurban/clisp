@@ -1,10 +1,15 @@
 2002-09-23  Sam Steingold  <sds@gnu.org>
 
+	some code clean-up
 	* describe.lisp (unicode-attributes): avoid a warning in LOOP
-
-2002-09-23  Sam Steingold  <sds@gnu.org>
-
 	* charstrg.d (eqcomp_fun_t): renamed from `eqcomp_fun'
+	* array.d (ADJUSTABLE-ARRAY-P): use VALUES_IF
+	(uint_bitpack_t): renamed from `uint_bitpack'
+	(uint_2bitpack_t): renamed from `uint_2bitpack'
+	(initial_contents_locals_t): renamed from `initial_contents_locals'
+	(reshape_data): renamed from `reshape_data'
+	(test_array): turned into a function
+	(ADJUST-ARRAY): use it
 
 2002-09-22  Arseny Slobodjuck <ampy@ich.dvo.ru>
 

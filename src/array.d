@@ -302,11 +302,13 @@ nonreturning_function(local, fehler_array, (object obj)) {
 }
 
 /* Checks an array argument.
- > object: argument
+ > array: argument
  > subr_self: caller (a SUBR)
  test_array(object) */
-#define test_array(object)                              \
-    if (!arrayp(object)) { fehler_array(object); }
+local inline object test_array (object array) {
+  if (!arrayp(array)) fehler_array(array);
+  return array;
+}
 
 /* Returns the rank of an array.
  arrayrank(array)
@@ -458,7 +460,8 @@ local uintL test_index (void) {
  > argcount : number of subscripts
  < index : index into the data vector
  < result : the data vector */
-local object subscripts_to_index (object array, object* argptr, uintC argcount, uintL* index_) {
+local object subscripts_to_index (object array, object* argptr,
+                                  uintC argcount, uintL* index_) {
   test_array(array); /* check array */
   if (array_simplep(array)) { /* simple vector, will be treated separately: */
     /* check number of subscripts: */
@@ -706,9 +709,7 @@ LISPFUNN(psvstore,3)
 
 LISPFUNN(row_major_aref,2)
 { /* (ROW-MAJOR-AREF array index), CLtL2 p. 450 */
-  var object array = STACK_1;
-  /* check Array: */
-  test_array(array);
+  var object array = test_array(STACK_1);
   /* check index: */
   if (!posfixnump(STACK_0))
     fehler_index_type();
@@ -728,9 +729,7 @@ LISPFUNN(row_major_store,3)
 { /* (SYS::ROW-MAJOR-STORE array index element)
    = (SETF (ROW-MAJOR-AREF array index) element), CLtL2 p. 450 */
   var object element = popSTACK();
-  var object array = STACK_1;
-  /* check Array: */
-  test_array(array);
+  var object array = test_array(STACK_1);
   /* check index: */
   if (!posfixnump(STACK_0))
     fehler_index_type();
@@ -805,23 +804,20 @@ global object array_element_type (object array) {
 
 LISPFUNN(array_element_type,1)
 { /* (ARRAY-ELEMENT-TYPE array), CLTL p. 291 */
-  var object array = popSTACK();
-  test_array(array);
+  var object array = test_array(popSTACK());
   VALUES1(array_element_type(array));
 }
 
 LISPFUNN(array_rank,1)
 { /* (ARRAY-RANK array), CLTL p. 292 */
-  var object array = popSTACK();
-  test_array(array);
+  var object array = test_array(popSTACK());
   VALUES1(arrayrank(array));
 }
 
 LISPFUNN(array_dimension,2)
 { /* (ARRAY-DIMENSION array axis-number), CLTL p. 292 */
   var object axis_number = popSTACK();
-  var object array = popSTACK();
-  test_array(array);
+  var object array = test_array(popSTACK());
   if (array_simplep(array)) {
     /* simple vector: axis-number must be =0, value is then the length. */
     if (eq(axis_number,Fixnum_0)) {
@@ -890,8 +886,7 @@ global object array_dimensions (object array) {
 
 LISPFUNN(array_dimensions,1)
 { /* (ARRAY-DIMENSIONS array), CLTL p. 292 */
-  var object array = popSTACK();
-  test_array(array);
+  var object array = test_array(popSTACK());
   VALUES1(array_dimensions(array));
 }
 
@@ -925,16 +920,14 @@ global void iarray_dims_sizes (object array, array_dim_size_t* dims_sizes) {
 
 LISPFUNN(array_total_size,1)
 { /* (ARRAY-TOTAL-SIZE array), CLTL p. 292 */
-  var object array = popSTACK();
-  test_array(array);
+  var object array = test_array(popSTACK());
   VALUES1(fixnum(array_total_size(array)));
 }
 
 LISPFUN(array_in_bounds_p,1,0,rest,nokey,0,NIL)
 { /* (ARRAY-IN-BOUNDS-P array {subscript}), CLTL p. 292 */
   var object* argptr = rest_args_pointer;
-  var object array = BEFORE(rest_args_pointer); /* fetch array */
-  test_array(array); /* check array */
+  var object array = test_array(BEFORE(rest_args_pointer)); /* fetch array */
   if (array_simplep(array)) { /* simple vector is treated separately: */
     /* check number of subscripts: */
     if (argcount != 1) /* should be = 1 */
@@ -981,9 +974,8 @@ LISPFUN(array_in_bounds_p,1,0,rest,nokey,0,NIL)
 
 LISPFUN(array_row_major_index,1,0,rest,nokey,0,NIL)
 { /* (ARRAY-ROW-MAJOR-INDEX array {subscript}), CLTL p. 293 */
-  var object array = Before(rest_args_pointer); /* fetch array */
+  var object array = test_array(Before(rest_args_pointer)); /* fetch array */
   var uintL index;
-  test_array(array); /* check array */
   if (array_simplep(array)) { /* simple vector is treated separately: */
     /* check number of subscripts: */
     if (argcount != 1) /* should be = 1 */
@@ -1004,25 +996,14 @@ LISPFUN(array_row_major_index,1,0,rest,nokey,0,NIL)
 
 LISPFUNN(adjustable_array_p,1)
 { /* (ADJUSTABLE-ARRAY-P array), CLTL p. 293 */
-  var object array = popSTACK(); /* fetch argument */
-  test_array(array); /* check array */
-  if (array_simplep(array))
-    goto no; /* simple vector, is not adjustable */
-  else
-    if (Iarray_flags(array) & bit(arrayflags_adjustable_bit))
-      goto yes;
-    else
-      goto no;
- yes:
-  VALUES1(T); return;
- no:
-  VALUES1(NIL); return;
+  var object array = test_array(popSTACK()); /* fetch argument */
+  VALUES_IF(!array_simplep(array) &&
+            (Iarray_flags(array) & bit(arrayflags_adjustable_bit)));
 }
 
 LISPFUNN(array_displacement,1)
 { /* (ARRAY-DISPLACEMENT array), CLHS */
-  var object array = popSTACK(); /* fetch argument */
-  test_array(array); /* check array */
+  var object array = test_array(popSTACK()); /* fetch argument */
   if (!array_simplep(array)
       && (Iarray_flags(array) & bit(arrayflags_displaced_bit))) {
     VALUES2(TheIarray(array)->data, /* next array */
@@ -1076,19 +1057,19 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL)
 
 /* For subroutines for bit vectors:
  We work with bit-blocks with bitpack bits.
- uint_bitpack is an unsigned integer with bitpack bits.
- uint_2bitpack is an unsigned integer with 2*bitpack bits.
- R_bitpack(x) returns the right (lower) half of a uint_2bitpack.
- L_bitpack(x) returns the left  (upper) half of a uint_2bitpack.
- LR_2bitpack(x,y) returns for x,y the uint_2bitpack concatenated from
+ uint_bitpack_t is an unsigned integer with bitpack bits.
+ uint_2bitpack_t is an unsigned integer with 2*bitpack bits.
+ R_bitpack(x) returns the right (lower) half of a uint_2bitpack_t.
+ L_bitpack(x) returns the left  (upper) half of a uint_2bitpack_t.
+ LR_2bitpack(x,y) returns for x,y the uint_2bitpack_t concatenated from
                    the left half x and the right half y.
  Use LR_0_bitpack(y) if x=0, LR_bitpack_0(x) if y=0. */
 #if defined(WIDE_HARD) && BIG_ENDIAN_P && (varobject_alignment%4 == 0)
  /* On big-endian-64-bit-machines we can work with 32 bit at a
     time (so long as varobject_alignment is divisible by 4 bytes): */
   #define bitpack  32
-  #define uint_bitpack  uint32
-  #define uint_2bitpack  uint64
+  #define uint_bitpack_t  uint32
+  #define uint_2bitpack_t  uint64
   #define R_bitpack(x)  ((uint32)(uint64)(x))
   #define L_bitpack(x)  ((uint32)((uint64)(x)>>32))
   #define LR_2bitpack(x,y)  (((uint64)(uint32)(x)<<32)|(uint64)(uint32)(y))
@@ -1098,8 +1079,8 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL)
  /* On big-endian-machines we can work with 16 bit at a time
     (so long as varobject_alignment is divisible by 2 bytes): */
   #define bitpack  16
-  #define uint_bitpack  uint16
-  #define uint_2bitpack  uint32
+  #define uint_bitpack_t  uint16
+  #define uint_2bitpack_t  uint32
   #define R_bitpack(x)  low16(x)
   #define L_bitpack(x)  high16(x)
   #define LR_2bitpack(x,y)  highlow32(x,y)
@@ -1108,13 +1089,13 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL)
 #else
  /* Otherwise we can take only 8 bits at a time: */
   #define bitpack  8
-  #define uint_bitpack  uint8
-  #define uint_2bitpack  uint16
-  #define R_bitpack(x)  ((uint_bitpack)(uint_2bitpack)(x))
-  #define L_bitpack(x)  ((uint_bitpack)((uint_2bitpack)(x) >> bitpack))
+  #define uint_bitpack_t  uint8
+  #define uint_2bitpack_t  uint16
+  #define R_bitpack(x)  ((uint_bitpack_t)(uint_2bitpack_t)(x))
+  #define L_bitpack(x)  ((uint_bitpack_t)((uint_2bitpack_t)(x) >> bitpack))
   #define LR_2bitpack(x,y)  \
-    (((uint_2bitpack)(uint_bitpack)(x) << bitpack)        \
-     | (uint_2bitpack)(uint_bitpack)(y))
+    (((uint_2bitpack_t)(uint_bitpack_t)(x) << bitpack)        \
+     | (uint_2bitpack_t)(uint_bitpack_t)(y))
   #define LR_0_bitpack(y)  LR_2bitpack(0,y)
   #define LR_bitpack_0(x)  LR_2bitpack(x,0)
 #endif
@@ -1131,8 +1112,8 @@ global bool bit_compare (object array1, uintL index1,
                          object array2, uintL index2,
                          uintL bitcount)
 {
-  var const uint_bitpack* ptr1 = &((uint_bitpack*)(&TheSbvector(array1)->data[0]))[index1/bitpack];
-  var const uint_bitpack* ptr2 = &((uint_bitpack*)(&TheSbvector(array2)->data[0]))[index2/bitpack];
+  var const uint_bitpack_t* ptr1 = &((uint_bitpack_t*)(&TheSbvector(array1)->data[0]))[index1/bitpack];
+  var const uint_bitpack_t* ptr2 = &((uint_bitpack_t*)(&TheSbvector(array2)->data[0]))[index2/bitpack];
   /* ptr1 points to the first word of the 1st bit-array.
      ptr2 points to the first word of the 2nd bit-array. */
   index1 = index1 % bitpack; /* bit-offset in the 1st bit-array */
@@ -1166,7 +1147,7 @@ global bool bit_compare (object array1, uintL index1,
       /* compare last word: */
       if (!(( (*ptr1 ^ *ptr2)
               & /* set bitmask with bits bitpack-1..bitpack-bitcount_rest */
-              ~( (uint_bitpack)(bitm(bitpack)-1) >> bitcount_rest)) ==0))
+              ~( (uint_bitpack_t)(bitm(bitpack)-1) >> bitcount_rest)) ==0))
         return false;
     }
     return true;
@@ -1180,7 +1161,7 @@ global bool bit_compare (object array1, uintL index1,
        The tighter loops are just an added benefit for speed. */
     if (index1 == 0) {
       /* index1 = 0, index2 > 0. */
-      var uint_2bitpack carry2 = LR_bitpack_0((*ptr2++) << index2);
+      var uint_2bitpack_t carry2 = LR_bitpack_0((*ptr2++) << index2);
       /* carry2 has in its upper bitpack-index2 bits
          (bits 2*bitpack-1..bitpack+index2)
          the affected bits of the 1st word of the 2nd array, else nulls. */
@@ -1210,12 +1191,12 @@ global bool bit_compare (object array1, uintL index1,
                  << index2, /* add to carry2 */
                  L_bitpack(carry2))) /* and use the left word from it */
                & /* set bitmask with bits bitpack-1..bitpack-bitcount_rest */
-               ~( (uint_bitpack)(bitm(bitpack)-1) >> bitcount_rest)) ==0))
+               ~( (uint_bitpack_t)(bitm(bitpack)-1) >> bitcount_rest)) ==0))
           return false;
       }
       return true;
     } else if (index2 == 0) { /* index1 > 0, index2 = 0. */
-      var uint_2bitpack carry1 = LR_bitpack_0((*ptr1++) << index1);
+      var uint_2bitpack_t carry1 = LR_bitpack_0((*ptr1++) << index1);
       /* carry1 has in its upper bitpack-index1 bits
          (bits 2*bitpack-1..bitpack+index1)
          the affected bits of the 1st word of the 1st array, else nulls. */
@@ -1246,16 +1227,16 @@ global bool bit_compare (object array1, uintL index1,
                  ^
                 *ptr2++)
                & /* set bitmask with bits bitpack-1..bitpack-bitcount_rest */
-               ~( (uint_bitpack)(bitm(bitpack)-1) >> bitcount_rest)) ==0))
+               ~( (uint_bitpack_t)(bitm(bitpack)-1) >> bitcount_rest)) ==0))
           return false;
       }
       return true;
     } else {
-      var uint_2bitpack carry1 = LR_bitpack_0((*ptr1++) << index1);
+      var uint_2bitpack_t carry1 = LR_bitpack_0((*ptr1++) << index1);
       /* carry1 has in its upper bitpack-index1 bits
          (bits 2*bitpack-1..bitpack+index1)
          the affected bits of the 1st word of the 1st array, else nulls. */
-      var uint_2bitpack carry2 = LR_bitpack_0((*ptr2++) << index2);
+      var uint_2bitpack_t carry2 = LR_bitpack_0((*ptr2++) << index2);
       /* carry2 has in its upper bitpack-index2 bits
          (bits 2*bitpack-1..bitpack+index2)
          the affected bits of the 1st word of the 2nd array, else nulls. */
@@ -1294,7 +1275,7 @@ global bool bit_compare (object array1, uintL index1,
                   << index2, /* add to carry2 */
                   L_bitpack(carry2))) /* and use the left word from it */
                & /* set bitmask with bits bitpack-1..bitpack-bitcount_rest */
-               ~( (uint_bitpack)(bitm(bitpack)-1) >> bitcount_rest)) ==0))
+               ~( (uint_bitpack_t)(bitm(bitpack)-1) >> bitcount_rest)) ==0))
           return false;
       }
       return true;
@@ -1314,8 +1295,8 @@ local void bit_copy (object array1, uintL index1,
                      object array2, uintL index2,
                      uintL bitcount)
 {
-  var const uint_bitpack* ptr1 = &((uint_bitpack*)(&TheSbvector(array1)->data[0]))[index1/bitpack];
-  var uint_bitpack* ptr2 = &((uint_bitpack*)(&TheSbvector(array2)->data[0]))[index2/bitpack];
+  var const uint_bitpack_t* ptr1 = &((uint_bitpack_t*)(&TheSbvector(array1)->data[0]))[index1/bitpack];
+  var uint_bitpack_t* ptr2 = &((uint_bitpack_t*)(&TheSbvector(array2)->data[0]))[index2/bitpack];
   /* ptr1 point to the first affected word in array1
      ptr2 point to the first affected word in array2 */
   index1 = index1 % bitpack; /* bit-offset in array1 */
@@ -1345,14 +1326,14 @@ local void bit_copy (object array1, uintL index1,
       *ptr2++ = *ptr1++;
     });
     if (bitcount_rest!=0)
-      *ptr2 ^= ~( (uint_bitpack)(bitm(bitpack)-1) >> bitcount_rest) & (*ptr2 ^ *ptr1);
+      *ptr2 ^= ~( (uint_bitpack_t)(bitm(bitpack)-1) >> bitcount_rest) & (*ptr2 ^ *ptr1);
   } else {
     var uintL bitpackcount = bitcount/bitpack;
     /* bitpackcount = number of complete words */
     var uintL bitcount_rest = bitcount % bitpack;
     /* bitcount_rest = number of remaining bits */
-    var uint_2bitpack carry2 =
-      LR_bitpack_0( ( ~ ( (uint_bitpack)(bitm(bitpack)-1) >> index2) ) & *ptr2 );
+    var uint_2bitpack_t carry2 =
+      LR_bitpack_0( ( ~ ( (uint_bitpack_t)(bitm(bitpack)-1) >> index2) ) & *ptr2 );
     /* The upper index2 bits of carry2 are exactly those bits of *ptr2
        which must not be modified.
        We distinguish two cases in order to avoid a memory overrun bug.
@@ -1371,7 +1352,7 @@ local void bit_copy (object array1, uintL index1,
         bitpackcount--;
       }
     } else { /* index1 > 0. */
-      var uint_2bitpack carry1 = LR_bitpack_0((*ptr1++) << index1);
+      var uint_2bitpack_t carry1 = LR_bitpack_0((*ptr1++) << index1);
       /* The upper bitpack-index1 bits of carry1 are the affected bits of
          the first word of array1. The other bits in carry1 are zero. */
       loop {
@@ -1379,7 +1360,7 @@ local void bit_copy (object array1, uintL index1,
            to the next word to be read, and ptr2 has advanced by n words, i.e.
            it points to the next word to be written. bitpackcount has been
            decremented by n. */
-        var uint_bitpack temp =
+        var uint_bitpack_t temp =
           (carry1 |= LR_0_bitpack(*ptr1++) << index1, L_bitpack(carry1));
         carry1 = LR_bitpack_0(R_bitpack(carry1));
         carry2 |= LR_bitpack_0(temp) >> index2;
@@ -1394,7 +1375,7 @@ local void bit_copy (object array1, uintL index1,
        2*bitpack-index2-1..bitpack-index2 of carry2): Only bitcount_rest
        bits must be stored in array2 */
     bitcount_rest = index2+bitcount_rest;
-    var uint_bitpack last_carry;
+    var uint_bitpack_t last_carry;
     if (bitcount_rest>=bitpack) {
       *ptr2++ = L_bitpack(carry2);
       last_carry = R_bitpack(carry2);
@@ -1403,7 +1384,7 @@ local void bit_copy (object array1, uintL index1,
       last_carry = L_bitpack(carry2);
     }
     if (bitcount_rest!=0)
-      *ptr2 ^= (*ptr2 ^ last_carry) & (~( (uint_bitpack)(bitm(bitpack)-1) >> bitcount_rest ));
+      *ptr2 ^= (*ptr2 ^ last_carry) & (~( (uint_bitpack_t)(bitm(bitpack)-1) >> bitcount_rest ));
   }
 }
 
@@ -1418,15 +1399,15 @@ local void bit_copy (object array1, uintL index1,
  > op: address of the operation
  > count: number of bits to combine, > 0
  bit_op_fun is a function, that combines two bitpack-bit-words: */
-typedef uint_bitpack bit_op_fun (uint_bitpack x, uint_bitpack y);
+typedef uint_bitpack_t bit_op_fun (uint_bitpack_t x, uint_bitpack_t y);
 local void bit_op (object array1, uintL index1,
                    object array2, uintL index2,
                    object array3, uintL index3,
                    bit_op_fun* op, uintL bitcount)
 {
-  var const uint_bitpack* ptr1 = &((uint_bitpack*)(&TheSbvector(array1)->data[0]))[index1/bitpack];
-  var const uint_bitpack* ptr2 = &((uint_bitpack*)(&TheSbvector(array2)->data[0]))[index2/bitpack];
-  var uint_bitpack* ptr3 = &((uint_bitpack*)(&TheSbvector(array3)->data[0]))[index3/bitpack];
+  var const uint_bitpack_t* ptr1 = &((uint_bitpack_t*)(&TheSbvector(array1)->data[0]))[index1/bitpack];
+  var const uint_bitpack_t* ptr2 = &((uint_bitpack_t*)(&TheSbvector(array2)->data[0]))[index2/bitpack];
+  var uint_bitpack_t* ptr3 = &((uint_bitpack_t*)(&TheSbvector(array3)->data[0]))[index3/bitpack];
   /* ptr1 points to the first word of the 1st bit-array.
      ptr2 points to the first word of the 2nd bit-array.
      ptr3 points to the first word of the 3rd bit-array. */
@@ -1445,10 +1426,10 @@ local void bit_op (object array1, uintL index1,
     /* bitcount_rest = remaining bits to file */
     if (bitcount_rest!=0) {
       /* file last word: */
-      var uint_bitpack temp = (*op)(*ptr1,*ptr2);
+      var uint_bitpack_t temp = (*op)(*ptr1,*ptr2);
       *ptr3 =
         ( ~
-          ( (uint_bitpack)(bitm(bitpack)-1) >> bitcount_rest)
+          ( (uint_bitpack_t)(bitm(bitpack)-1) >> bitcount_rest)
           /* set bitmask with bits bitpack-bitcount_rest-1..0 */
           /* set bitmask with bits bitpack-1..bitpack-bitcount_rest */
           &
@@ -1457,11 +1438,11 @@ local void bit_op (object array1, uintL index1,
     }
   } else {
     /* complicated loop: */
-    var uint_2bitpack carry3 =
+    var uint_2bitpack_t carry3 =
       LR_bitpack_0(
                    (~
                     (
-                     (uint_bitpack)(bitm(bitpack)-1) >> index3)
+                     (uint_bitpack_t)(bitm(bitpack)-1) >> index3)
                      /* set bitmask with bits bitpack-index3-1..0 */
                     ) /* set bitmask with bits bitpack-1..bitpack-index3 */
                    & (*ptr3));
@@ -1482,7 +1463,7 @@ local void bit_op (object array1, uintL index1,
              bitpackcount = number of entire words - n,
              carry3 = carry of bits still to save
                       (in the index3 upper bits, else null). */
-          var uint_bitpack temp =
+          var uint_bitpack_t temp =
             (*op)(*ptr1++,*ptr2++) ; /* combine both via *op */
           carry3 |= LR_bitpack_0(temp) >> index3;
           /* store the upper bitpack+index3 bits from carry3. */
@@ -1494,7 +1475,7 @@ local void bit_op (object array1, uintL index1,
         }
       } else {
         /* index1 = 0, index2 > 0. */
-        var uint_2bitpack carry2 = LR_bitpack_0((*ptr2++) << index2);
+        var uint_2bitpack_t carry2 = LR_bitpack_0((*ptr2++) << index2);
         /* carry2 has in its upper bitpack-index2 bits
            (bits 2*bitpack-1..bitpack+index2)
            the affected bits of the 1st word of the 2nd array, else nulls. */
@@ -1510,7 +1491,7 @@ local void bit_op (object array1, uintL index1,
              (in the bitpack-index2 upper bits, else Null),
              carry3 = carry of bits still to save
              (in the index3 upper bits, else null). */
-          var uint_bitpack temp =
+          var uint_bitpack_t temp =
             (*op)(*ptr1++,
                   ( carry2 |=
                     LR_0_bitpack(*ptr2++) /* read next word of the 2nd array */
@@ -1530,7 +1511,7 @@ local void bit_op (object array1, uintL index1,
     } else {
       if (index2 == 0) {
         /* index1 > 0, index2 = 0. */
-        var uint_2bitpack carry1 = LR_bitpack_0((*ptr1++) << index1);
+        var uint_2bitpack_t carry1 = LR_bitpack_0((*ptr1++) << index1);
         /* carry1 has in its upper bitpack-index1 bits
            (bits 2*bitpack-1..bitpack+index1)
            the affected bits of the 1st word of the 1st array, else nulls. */
@@ -1546,7 +1527,7 @@ local void bit_op (object array1, uintL index1,
                       (in the bitpack-index1 upper bits, else Null),
              carry3 = carry of bits still to save
                       (in the index3 upper bits, else null). */
-          var uint_bitpack temp =
+          var uint_bitpack_t temp =
             (*op)(
                   ( carry1 |=
                     LR_0_bitpack(*ptr1++) /* read the next word of 1st array */
@@ -1565,11 +1546,11 @@ local void bit_op (object array1, uintL index1,
         }
       } else {
         /* index1 > 0, index2 > 0. */
-        var uint_2bitpack carry1 = LR_bitpack_0((*ptr1++) << index1);
+        var uint_2bitpack_t carry1 = LR_bitpack_0((*ptr1++) << index1);
         /* carry1 has in its upper bitpack-index1 bits
            (bits 2*bitpack-1..bitpack+index1)
            the affected bits of the 1st word of the 1st array, else nulls. */
-        var uint_2bitpack carry2 = LR_bitpack_0((*ptr2++) << index2);
+        var uint_2bitpack_t carry2 = LR_bitpack_0((*ptr2++) << index2);
         /* carry2 has in its upper bitpack-index2 bits
            (bits 2*bitpack-1..bitpack+index2)
            the affected bits of the 1st word of the 2nd array, else nulls. */
@@ -1587,7 +1568,7 @@ local void bit_op (object array1, uintL index1,
                       (in the bitpack-index2 upper bits, else Null),
              carry3 = carry of bits still to save
                       (in the index3 upper bits, else null). */
-          var uint_bitpack temp =
+          var uint_bitpack_t temp =
             (*op)(
                   ( carry1 |=
                     LR_0_bitpack(*ptr1++) /* read next word of 1st array */
@@ -1617,7 +1598,7 @@ local void bit_op (object array1, uintL index1,
        2*bitpack-index3-1..bitpack-index3 of carry3)
        only bitcount_rest bits may be stored in the 3rd array. */
     bitcount_rest = index3+bitcount_rest;
-    var uint_bitpack last_carry;
+    var uint_bitpack_t last_carry;
     /* store the upper bitcount_rest bits: */
     if (bitcount_rest>=bitpack) {
       *ptr3++ = L_bitpack(carry3);
@@ -1630,7 +1611,7 @@ local void bit_op (object array1, uintL index1,
     if (bitcount_rest!=0)
       *ptr3 ^=
         (*ptr3 ^ last_carry)
-        & (~( (uint_bitpack)(bitm(bitpack)-1) >> bitcount_rest ));
+        & (~( (uint_bitpack_t)(bitm(bitpack)-1) >> bitcount_rest ));
     /* bitmask, where the upper bitcount_rest bits are set */
   }
 }
@@ -1858,27 +1839,27 @@ local Values bit_up (bit_op_fun* op)
 }
 
 /* The operators for BIT-AND etc.: */
-local uint_bitpack bitpack_and (uint_bitpack x, uint_bitpack y)
+local uint_bitpack_t bitpack_and (uint_bitpack_t x, uint_bitpack_t y)
 { return x&y; }
-local uint_bitpack bitpack_ior (uint_bitpack x, uint_bitpack y)
+local uint_bitpack_t bitpack_ior (uint_bitpack_t x, uint_bitpack_t y)
 { return x|y; }
-local uint_bitpack bitpack_xor (uint_bitpack x, uint_bitpack y)
+local uint_bitpack_t bitpack_xor (uint_bitpack_t x, uint_bitpack_t y)
 { return x^y; }
-local uint_bitpack bitpack_eqv (uint_bitpack x, uint_bitpack y)
+local uint_bitpack_t bitpack_eqv (uint_bitpack_t x, uint_bitpack_t y)
 { return ~(x^y); }
-local uint_bitpack bitpack_nand (uint_bitpack x, uint_bitpack y)
+local uint_bitpack_t bitpack_nand (uint_bitpack_t x, uint_bitpack_t y)
 { return ~(x&y); }
-local uint_bitpack bitpack_nor (uint_bitpack x, uint_bitpack y)
+local uint_bitpack_t bitpack_nor (uint_bitpack_t x, uint_bitpack_t y)
 { return ~(x|y); }
-local uint_bitpack bitpack_andc1 (uint_bitpack x, uint_bitpack y)
+local uint_bitpack_t bitpack_andc1 (uint_bitpack_t x, uint_bitpack_t y)
 { return (~x)&y; }
-local uint_bitpack bitpack_andc2 (uint_bitpack x, uint_bitpack y)
+local uint_bitpack_t bitpack_andc2 (uint_bitpack_t x, uint_bitpack_t y)
 { return x&(~y); }
-local uint_bitpack bitpack_orc1 (uint_bitpack x, uint_bitpack y)
+local uint_bitpack_t bitpack_orc1 (uint_bitpack_t x, uint_bitpack_t y)
 { return (~x)|y; }
-local uint_bitpack bitpack_orc2 (uint_bitpack x, uint_bitpack y)
+local uint_bitpack_t bitpack_orc2 (uint_bitpack_t x, uint_bitpack_t y)
 { return x|(~y); }
-local uint_bitpack bitpack_not (uint_bitpack x, uint_bitpack y)
+local uint_bitpack_t bitpack_not (uint_bitpack_t x, uint_bitpack_t y)
 { return ~x; }
 
 LISPFUN(bit_and,2,1,norest,nokey,0,NIL)
@@ -3515,8 +3496,7 @@ global bool array_has_fill_pointer_p (object array) {
 
 /* (ARRAY-HAS-FILL-POINTER-P array), CLTL p. 296 */
 LISPFUNN(array_has_fill_pointer_p,1) {
-  var object array = popSTACK();
-  test_array(array);
+  var object array = test_array(popSTACK());
   VALUES_IF(array_has_fill_pointer_p(array));
 }
 
@@ -3757,7 +3737,7 @@ global object allocate_bit_vector_0 (uintL len) {
   var object newvec = allocate_bit_vector(Atype_Bit,len); /* new bit-vector */
   var uintL count = ceiling(len,bitpack); /* fill ceiling(len/bitpack) words with zeroes */
   if (count!=0) {
-    var uint_bitpack* ptr = (uint_bitpack*)(&TheSbvector(newvec)->data[0]);
+    var uint_bitpack_t* ptr = (uint_bitpack_t*)(&TheSbvector(newvec)->data[0]);
     dotimespL(count,count, {
       *ptr++ = 0;
     });
@@ -4176,7 +4156,7 @@ typedef struct {
   object* localptr; /* pointer to data vector and dimensions */
   uintL index; /* index into the data vector */
   uintL depth; /* recursion depth */
-} initial_contents_locals;
+} initial_contents_locals_t;
 local map_sequence_function_t initial_contents_aux;
 local object initial_contents (object datenvektor, object dims, uintL rank,
                                object contents) {
@@ -4189,7 +4169,7 @@ local object initial_contents (object datenvektor, object dims, uintL rank,
   } else {
     pushSTACK(dims);
   }
-  var initial_contents_locals locals;
+  var initial_contents_locals_t locals;
   locals.localptr = &STACK_0; /* memorize current STACK-value */
   locals.index = 0; /* index := 0 */
   locals.depth = rank; /* depth := rank */
@@ -4205,7 +4185,7 @@ local object initial_contents (object datenvektor, object dims, uintL rank,
 /* auxiliary routine for initial_contents:
  processes the sequence-structure recursively. */
 local void initial_contents_aux (void* arg, object obj) {
-  var initial_contents_locals* locals = (initial_contents_locals*)arg;
+  var initial_contents_locals_t* locals = (initial_contents_locals_t*)arg;
   /* the following is passed:
      locals->depth = recursion depth,
      locals->index = index into the data vector,
@@ -4516,17 +4496,17 @@ typedef struct {
   uintL newindex; /* row-major-index in newvec */
   uintL olddelta; /* increment of oldindex for subscript++ */
   uintL newdelta; /* increment of newindex for subscript++ */
-} reshape_data;
+} reshape_data_t;
 local void reshape (object newvec, object newdims, object oldvec,
                     const uintL* olddims, uintL offset, uintL rank,
                     uintB eltype) {
   /* get space for the pseudo-stack: */
-  get_space_on_STACK(rank*sizeof(reshape_data));
+  get_space_on_STACK(rank*sizeof(reshape_data_t));
   /* starting point: */
-  var reshape_data* reshape_stack = &STACKblock_(reshape_data,-1);
+  var reshape_data_t* reshape_stack = &STACKblock_(reshape_data_t,-1);
   /* fill pseudo-stack: */
   if (rank!=0) {
-    var reshape_data* ptr;
+    var reshape_data_t* ptr;
     var uintC count;
     /* store newdim: */
     ptr = reshape_stack;
@@ -4561,7 +4541,7 @@ local void reshape (object newvec, object newdims, object oldvec,
     }
   }
   /* Start of pseudo-recursion: */
-  var reshape_data* ptr = reshape_stack;
+  var reshape_data_t* ptr = reshape_stack;
   var uintL oldindex = offset; /* row-major-index in oldvec */
   var uintL newindex = 0; /* row-major-index in newvec */
   var uintL depth = rank;
@@ -4609,11 +4589,10 @@ local void reshape (object newvec, object newdims, object oldvec,
 LISPFUN(adjust_array,2,0,norest,key,6,
         (kw(element_type),kw(initial_element),
          kw(initial_contents),kw(fill_pointer),
-         kw(displaced_to),kw(displaced_index_offset)) ) {
+         kw(displaced_to),kw(displaced_index_offset)) )
+{
   { /* check the array : */
-    var object array = STACK_7;
-    if (!arrayp(array))
-      fehler_array(array);
+    var object array = test_array(STACK_7);
     if (array_simplep(array)
         || ((Iarray_flags(array) & bit(arrayflags_adjustable_bit)) == 0)) {
         /* not an adjustable array */
