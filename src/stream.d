@@ -3449,25 +3449,26 @@ typedef struct strm_unbuffered_extrafields_t {
   # The low_... operations operate on bytes only, and independently of the
   # stream's element type. They cannot cause GC.
   # Fields used for the input side only:
-  sintL        (* low_read)          (object stream);
-  signean      (* low_listen)        (object stream);
-  bool      (* low_clear_input)   (object stream);
-  uintB*       (* low_read_array)    (object stream, uintB* byteptr, uintL len);
+  sintL        (* low_read)        (object stream);
+  signean      (* low_listen)      (object stream);
+  bool         (* low_clear_input) (object stream);
+  uintB*       (* low_read_array)  (object stream, uintB* byteptr, uintL len);
   sintL status;                        # -1 means EOF reached
-                                       # 0 means unknown, bytebuf invalid
+                                       #  0 means unknown, bytebuf invalid
                                        # >0 means the number of valid bytes in
                                        #    bytebuf, to be consumed
-  uintB bytebuf[max_bytes_per_chart];  # the last bytes read but not yet consumed
+  uintB bytebuf[max_bytes_per_chart];  # the last bytes read
+                                       # but not yet consumed
   #ifdef AMIGAOS
   LONG rawp;                           # current mode: 0 = CON, 1 = RAW
   #endif
-    # For general interoperability with Win32 systems, we recognize all possible
-    # line-terminators: LF, CR/LF and CR, independently of strm_encoding. This
-    # is because, when confronted to Unix-style text files (eol = LF), some
-    # Microsoft editors insert new lines with eol = CR/LF, while other Microsoft
-    # editors insert new lines with eol = CR. Java learned the lesson and
-    # understands all three line-terminators. So do we.
-  bool ignore_next_LF : 8;          # true after reading a CR
+   # For general interoperability with Win32 systems, we recognize all possible
+   # line-terminators: LF, CR/LF and CR, independently of strm_encoding. This
+   # is because, when confronted to Unix-style text files (eol = LF), some
+   # Microsoft editors insert new lines with eol = CR/LF, while other Microsoft
+   # editors insert new lines with eol = CR. Java learned the lesson and
+   # understands all three line-terminators. So do we.
+  bool ignore_next_LF : 8;             # true after reading a CR
   # Fields used for the output side only:
   void         (* low_write)         (object stream, uintB b);
   const uintB* (* low_write_array)   (object stream, const uintB* byteptr, uintL len);
