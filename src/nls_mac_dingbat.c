@@ -321,7 +321,8 @@ static const unsigned char * const uni2charset[256] = {
 struct nls_table nls_mac_dingbat_table = {
   "mac-dingbat",
   uni2charset,
-  charset2uni
+  charset2uni,
+  0
 };
 
 #undef uni2charset
