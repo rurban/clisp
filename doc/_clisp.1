@@ -17,7 +17,7 @@
 .el .ne 3
 .IP "\\$1" \\$2
 ..
-.TH "CLISP" 1 "Last modified: 2004-10-15" "" "CLISP version 2.33"
+.TH "CLISP" 1 "Last modified: 2004-11-08" "" "CLISP version 2.33"
 .SH NAME
 clisp \- ANSI Common Lisp compiler, interpreter and debugger.
 .SH "SYNOPSIS"
@@ -138,7 +138,7 @@ allocates memory dynamically\&. \fImem\-size\fR is essentially ignored (except t
 #ifdef MULTIMAP_MEMORY_VIA_FILE
 .TP
 \fB\-t\fR \fItemp\-dir\fR
-Specifies the directory where the temporary core file is to be held\&. This option takes precedence over the environment variable \fBTMPDIR\fR\&.
+Specifies the directory where the temporary core file is to be held\&. This option takes precedence over the environment variable  \fBTMPDIR\fR\&.
 #endif
 .TP
 \fB\-L\fR \fIlanguage\fR
@@ -147,7 +147,7 @@ Specifies the language \fBCLISP\fR uses to communicate with the user\&. This may
 only \fBenglish\fR\&.
 #else
 one of 
-\fBenglish\fR, \fBgerman\fR, \fBfrench\fR, \fBspanish\fR, \fBdutch\fR, \fBrussian\fR\&. Other languages may be specified through the environment variable \fBLANG\fR, provided the corresponding message catalog is installed\&.
+\fBenglish\fR, \fBgerman\fR, \fBfrench\fR, \fBspanish\fR, \fBdutch\fR, \fBrussian\fR\&. Other languages may be specified through the environment variable  \fBLANG\fR, provided the corresponding message catalog is installed\&.
 #endif
 The language may be changed dynamically using the symbol macro \fICUSTOM:*CURRENT\-LANGUAGE*\fR\&.
 
@@ -236,7 +236,7 @@ Compile when loading: at startup the value of the variable \fICUSTOM:*LOAD\-COMP
 
 .TP
 \fB\-norc\fR
-Normally \fBCLISP\fR loads the user ``run control'' (RC) file on startup (this happens after the \fB\-C\fR option is processed)\&. The file loaded is
+Normally \fBCLISP\fR loads the user ``run control'' (RC) file on startup (this happens \fIafter\fR the \fB\-C\fR option is processed)\&. The file loaded is
 #if defined(PATHNAME_WIN32)
 \fI_clisprc\&.lisp\fR or \fI_clisprc\&.fas\fR in the home directory \fBUSER\-HOMEDIR\-PATHNAME\fR,
 #endif
@@ -303,10 +303,10 @@ quit  \fBCLISP\fR\&.
 .TP
 EOF
 #if defined(UNIX)
-(Control-D on UNIX)
+(Control-D on \fIUNIX\fR)
 #endif
 #if defined(WIN32_NATIVE)
-(Control-Z on Win32)
+(Control-Z on \fIWin32\fR)
 #endif
 leave the current level of the read\-eval\-print loop (see also Section 1.1, &#8220;Special Symbols [CLHS-1.4.1.3]&#8221;)\&.
 #ifdef GNU_READLINE
@@ -368,7 +368,7 @@ initial memory image
 
 .TP
 \fIconfig\&.lisp\fR
-site\-dependent configuration (should have been customized before \fBCLISP\fR was built); see Section 30.11, &#8220;Customizing CLISP behavior.&#8221; 
+site\-dependent configuration (should have been customized before \fBCLISP\fR was built); see Section 30.12, &#8220;Customizing CLISP behavior.&#8221; 
 
 .TP
 \fI*\&.lisp\fR
@@ -406,9 +406,9 @@ specifies the locale which determines the character set in use\&. The value can 
 #endif
 .TP
 \fBLANG\fR
-specifies the language \fBCLISP\fR uses to communicate with the user, unless it is already specified through the environment variable \fBCLISP_LANGUAGE\fR or the \fB\-L\fR option\&.
+specifies the language \fBCLISP\fR uses to communicate with the user, unless it is already specified through the environment variable  \fBCLISP_LANGUAGE\fR or the \fB\-L\fR option\&.
 #ifdef UNICODE
-It also specifies the locale determining the character set in use, unless already specified through the environment variable \fBLC_CTYPE\fR\&.
+It also specifies the locale determining the character set in use, unless already specified through the environment variable  \fBLC_CTYPE\fR\&.
 #endif
 The value may begin with a two\-letter ISO 639 language code, for example \fBen\fR, \fBde\fR, \fBfr\fR\&.
 #ifdef UNIX
@@ -470,7 +470,7 @@ When you encounter a bug in \fBCLISP\fR, please report it to the CLISP mailing l
 
 
 .PP
-Before submitting a bug report, please take the following basic steps to make the report more useful:
+\fIBefore\fR submitting a bug report, please take the following basic steps to make the report more useful:
 
 
 .TP 3
@@ -493,7 +493,7 @@ When submitting a bug report, please specify the following information:
 
 .TP 3
 1.
-What is your platform (\fB\fBuname\fR \-a\fR on a UNIX system)? Compiler version? GNU  libc version (on GNU/Linux)?
+What is your platform (\fB\fBuname\fR \-a\fR on a \fIUNIX\fR system)? Compiler version? GNU  libc version (on GNU/\fILinux\fR)?
 .TP
 2.
 Where did you get the sources or binaries? When? (Absolute dates are preferred over the relative ones)\&.
