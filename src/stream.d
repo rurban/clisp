@@ -14978,11 +14978,13 @@ local void sock_opt_bool (SOCKET handle, int option, object value)
 {
   var int val;
   var SOCKLEN_T len = sizeof(val);
-  if (-1 == getsockopt(handle,SOL_SOCKET,option,(char *)&val,&len)) OS_error();
+  if (-1 == getsockopt(handle,SOL_SOCKET,option,(char*)&val,&len))
+    OS_error();
   pushSTACK(val ? T : NIL);
   if (!(eq(value,nullobj))) {
     val = !nullp(value);
-    if (-1 == setsockopt(handle,SOL_SOCKET,option,(char *)&val,len)) OS_error();
+    if (-1 == setsockopt(handle,SOL_SOCKET,option,(char*)&val,len))
+      OS_error();
   }
 }
 
@@ -14990,12 +14992,14 @@ local void sock_opt_int (SOCKET handle, int option, object value)
 {
   var uintL val;
   var SOCKLEN_T len = sizeof(val);
-  if (-1 == getsockopt(handle,SOL_SOCKET,option,(char *)&val,&len)) OS_error();
+  if (-1 == getsockopt(handle,SOL_SOCKET,option,(char*)&val,&len))
+    OS_error();
   pushSTACK(fixnum(val));
   if (!(eq(value,nullobj))) {
     if (!posfixnump(value)) fehler_posfixnum(value);
     val = posfixnum_to_L(value);
-    if (-1 == setsockopt(handle,SOL_SOCKET,option,(char *)&val,len)) OS_error();
+    if (-1 == setsockopt(handle,SOL_SOCKET,option,(char*)&val,len))
+      OS_error();
   }
 }
 
@@ -15011,7 +15015,8 @@ local void sock_opt_time (SOCKET handle, int option, object value)
   } else pushSTACK(fixnum(val.tv_sec));
   if (!(eq(value,nullobj))) {
     sec_usec(value,unbound,&val);
-    if (-1 == setsockopt(handle,SOL_SOCKET,option,(char *)&val,len)) OS_error();
+    if (-1 == setsockopt(handle,SOL_SOCKET,option,(char*)&val,len))
+      OS_error();
   }
 }
 
@@ -15043,7 +15048,8 @@ LISPFUN(socket_options,1,0,rest,nokey,0,NIL) {
     } else if (eq(kwd,S(Kso_linger))) {
       struct linger val;
       var SOCKLEN_T len = sizeof(val);
-      if (-1 == getsockopt(handle,SOL_SOCKET,SO_LINGER,(char *)&val,&len)) OS_error();
+      if (-1 == getsockopt(handle,SOL_SOCKET,SO_LINGER,(char*)&val,&len))
+        OS_error();
       if (val.l_onoff) pushSTACK(fixnum(val.l_linger));
       else pushSTACK(NIL);
       if (!(eq(arg,nullobj))) { /* arg points to STACK so it is safe */
@@ -15055,7 +15061,8 @@ LISPFUN(socket_options,1,0,rest,nokey,0,NIL) {
         } else if (nullp(arg)) {
           val.l_onoff = 0;
         } else fehler_posfixnum(arg);
-        if (-1 == setsockopt(handle,SOL_SOCKET,SO_LINGER,(char *)&val,len)) OS_error();
+        if (-1 == setsockopt(handle,SOL_SOCKET,SO_LINGER,(char*)&val,len))
+          OS_error();
       }
     } else if (eq(kwd,S(Kso_oobinline))) {
       sock_opt_bool(handle,SO_OOBINLINE,arg);
