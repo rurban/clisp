@@ -41,7 +41,6 @@ ERROR
   (cast place '(c-array sint8 (3 2))))
 #2A((-1 -2) (-3 -9) (-8 -7))
 
-;; <https://sourceforge.net/tracker/index.php?func=detail&aid=679661&group_id=1355&atid=101355>
 (def-c-struct triv (i int))
 TRIV
 
@@ -78,11 +77,6 @@ TRIGGER
 #+UNICODE
 (setf custom:*foreign-encoding* (ext:make-encoding :charset 'charset:utf-8))
 #+UNICODE ERROR ;  not a 1:1 encoding
-
-(typep (ffi::lookup-foreign-variable
-        "ffi_user_pointer" (ffi::parse-c-type 'ffi:c-pointer))
-       'ffi:foreign-variable)
-T
 
 (progn
   (def-call-out c-self (:name "ffi_identity")
@@ -272,20 +266,20 @@ FM
 (with-c-var (place 'c-string "abc")  place)
 "abc"
 
-;(with-c-var (place `(c-array character ,6) "abcdef")  place)
-;"abcdef"
+(with-c-var (place `(c-array character ,6) "abcdef")  place)
+"abcdef"
 
-;(with-c-var (place `(c-array character ,6) "abcdefghi")  place)
-;ERROR
+(with-c-var (place `(c-array character ,6) "abcdefghi")  place)
+ERROR
 
-;(with-c-var (place '(c-array character 7) "abc")  place)
-;ERROR
+(with-c-var (place '(c-array character 7) "abc")  place)
+ERROR
 
-;(with-c-var (place `(c-array-max character ,6) "abcdefgh")  place)
-;"abcdef"
+(with-c-var (place `(c-array-max character ,6) "abcdefgh")  place)
+"abcdef"
 
-;(with-c-var (place `(c-array-max character ,7) "abc")  place)
-;"abc"
+(with-c-var (place `(c-array-max character ,7) "abc")  place)
+"abc"
 
 (progn (setq fm (allocate-shallow 'character :count 3)) (type-of fm))
 FOREIGN-VARIABLE
@@ -308,10 +302,10 @@ FOREIGN-VARIABLE
 (progn (foreign-free fm) (makunbound 'fm))
 FM
 
-(with-c-var (place '(c-ptr (c-struct list
+(with-c-var (place '(c-ptr (c-struct vector
                              (a (c-array long 2))
                              (s (c-array character 3))))
-                   '(#(-2000000000 -1000333111) "abc"))
+                   '#(#(-2000000000 -1000333111) "abc"))
   (slot (deref place) 'a))
 #(-2000000000 -1000333111)
 
@@ -340,19 +334,15 @@ NIL
   (foreign-value x))
 (#(123456789) #(987654321) #(543235263) #(936272894 1333222444))
 
-;;TODO utf-16 is not in every CLISP with #+UNICODE
-#+UNICODE
-(with-foreign-string (fv e b "ABC" :encoding charset:utf-16)
-  (list e b))
-#+UNICODE (4 10) ; #\uFEFF is added upfront
+;;FIXME utf-16 is not in every CLISP with #+UNICODE
+;#+UNICODE
+;(with-foreign-string (fv e b "ABC" :encoding charset:utf-16)
+;  (list e b))
+;#+UNICODE (4 10) ; #\uFEFF is added upfront
 
 ;; prevent the user from shooting himself in the foot
 (setf (validp (unsigned-foreign-address 4)) nil)
 ERROR
-
-#+UNICODE
-(type-of (setq custom:*foreign-encoding* orig-encoding))
-#+UNICODE EXT:ENCODING
 
 (with-c-var (place '(c-ptr (c-struct list
                             (a (c-array long 2))
@@ -361,7 +351,15 @@ ERROR
   (slot (deref place) 's))
 "abc"
 
-(def-call-out make-foreign-string (:arguments (s c-string :in :malloc-free))
+(with-c-var (place '(c-ptr (c-struct vector
+                            (a (c-array long 2))
+                            (s (c-array character 3))))
+                   '#(#(-3 -1) #(#\a #\b #\c)))
+  place)
+#(#(-3 -1) "abc")
+
+(def-call-out make-foreign-string
+  (:arguments (s c-string :in :malloc-free))
   (:name "ffi_identity") (:language :stdc)
   (:return-type c-pointer))
 MAKE-FOREIGN-STRING
@@ -370,9 +368,14 @@ MAKE-FOREIGN-STRING
        (with-c-var (p 'c-pointer *x*) (cast p '(c-ptr (c-array uint8 4)))))
 #(97 98 99 100)
 
-;; <http://article.gmane.org/gmane.lisp.clisp.general/6890>
-;; <https://sourceforge.net/tracker/index.php?func=detail&aid=723097&group_id=1355&atid=101355>
 (with-c-var (p 'c-pointer *x*) (cast p '(c-ptr (c-array character 4))))
 "abcd"
+
+(progn (foreign-free *x*) (makunbound '*x*))
+*x*
+
+#+UNICODE
+(type-of (setq custom:*foreign-encoding* orig-encoding))
+#+UNICODE EXT:ENCODING
 
 (progn (in-package "USER") (delete-package "FTEST") T) T
