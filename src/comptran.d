@@ -647,17 +647,17 @@
            temp = R_ln_R(temp); # ln davon, ein Float
            temp = F_I_scale_float_F(temp,sfixnum(-2)); # .../4 =: u
          }
-       x = STACK_5; # x retten (Vorzeichen ist GC-invariant!)
-       STACK_5 = temp;
-       # Stackaufbau: u, y, 1+x, 1-x, y^2, -.
-       temp = R_R_mal_R(STACK_3,STACK_2); # (1+x)(1-x)
-       STACK_0 = R_R_minus_R(temp,STACK_1); # (1+x)(1-x)-y^2, ein Float
-       temp = F_I_scale_float_F(STACK_4,Fixnum_1); # 2y, ein Float
-       temp = R_R_atan_R(STACK_0,temp); # atan(X=(1-x)(1+x)-y^2,Y=2y), ein Float
-       if (R_minusp(STACK_0) && !R_minusp(x) && R_zerop(STACK_4)) # X<0.0 und x>=0.0 und Y=0.0 ?
-         { temp = F_minus_F(temp); } # ja -> Vorzeichenwechsel
-       STACK_4 = F_I_scale_float_F(temp,Fixnum_minus1); # .../2 =: v
-      }
+       {var signean x_sign = R_sign(STACK_5);
+        STACK_5 = temp;
+        # Stackaufbau: u, y, 1+x, 1-x, y^2, -.
+        temp = R_R_mal_R(STACK_3,STACK_2); # (1+x)(1-x)
+        STACK_0 = R_R_minus_R(temp,STACK_1); # (1+x)(1-x)-y^2, ein Float
+        temp = F_I_scale_float_F(STACK_4,Fixnum_1); # 2y, ein Float
+        temp = R_R_atan_R(STACK_0,temp); # atan(X=(1-x)(1+x)-y^2,Y=2y), ein Float
+        if (R_minusp(STACK_0) && (x_sign>=0) && R_zerop(STACK_4)) # X<0.0 und x>=0.0 und Y=0.0 ?
+          { temp = F_minus_F(temp); } # ja -> Vorzeichenwechsel
+        STACK_4 = F_I_scale_float_F(temp,Fixnum_minus1); # .../2 =: v
+      }}
       # Stackaufbau: u, v, 1+x, 1-x, y^2, -.
       skipSTACK(4); return;
     }
