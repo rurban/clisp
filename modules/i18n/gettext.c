@@ -13,12 +13,8 @@
 #include "clisp.h"
 #include "config.h"
 
-#if HAVE_STRING_H
-# include <string.h>             /* strncpy() */
-#endif
-#if defined(HAVE_LOCALE_H)
-# include <locale.h>
-#endif
+#include <string.h>             /* strncpy() */
+#include <locale.h>
 #if defined(HAVE_LANGINFO_H)
 # include <langinfo.h>
 #endif
@@ -197,7 +193,7 @@ DEFUN(I18N:SET-TEXTDOMAINDIR, domain directory)
 
 
 /* ======================== locale ======================== */
-#if defined(HAVE_SETLOCALE)
+
 DEFUN(I18N:SET-LOCALE, &optional category locale)
 { /* call setlocale(3) */
   gcv_object_t *category = &STACK_1;
@@ -244,7 +240,6 @@ DEFUN(I18N:SET-LOCALE, &optional category locale)
   }
   skipSTACK(2);
 }
-#endif
 
 #if defined(HAVE_LOCALECONV)
 static void thousands_sep_to_STACK (char* sep1000) {
