@@ -763,9 +763,14 @@ global maygc uintBWL intern (object string, bool invert, object pack, object* sy
       return ergebnis & 3; /* found -> finished */
   }
   pushSTACK(pack); /* save package */
-  pushSTACK(string);
-  check_pack_lock(S(intern),STACK_1 /*pack*/,STACK_0 /*string*/);
-  string = popSTACK();
+  if (pack_locked_p(pack)) {
+    /* when STRING comes from READ, it points to a re-usable buffer
+       that will be overwritten during the CERROR i/o
+       therefore we must copy and save it */
+    pushSTACK(coerce_ss(string));
+    cerror_package_locked(S(intern),STACK_1/*pack*/,STACK_0/*string*/);
+    string = popSTACK();
+  }
   if (invert)
     string = string_invertcase(string);
   string = coerce_imm_ss(string); /* string --> immutable simple-string */

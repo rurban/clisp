@@ -1,5 +1,11 @@
 2005-04-01  Sam Steingold  <sds@gnu.org>
 
+	* package.d (intern): when STRING comes from READ, it points to a
+	re-usable buffer that will be overwritten during the CERROR i/o
+	therefore we must copy and save it before CERROR
+
+2005-04-01  Sam Steingold  <sds@gnu.org>
+
 	implemented global error handlers
 	* eval.d (invoke_handlers): call GLOBAL-HANDLER at the end
 	* constsym.d (APPEASE-CERRORS, BATCHMODE-ERRORS, ABORT-ERRORS, LOOP):
