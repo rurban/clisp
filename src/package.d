@@ -969,10 +969,13 @@
               if (mconsp(STACK_0) && mconsp(Cdr(STACK_0)))
                 # Continuable Error auslösen:
                 { pushSTACK(OLS(unint_string2)); # "Sie dürfen auswählen..."
+                  pushSTACK(S(package_error)); # PACKAGE-ERROR
+                  pushSTACK(S(Kpackage)); # :PACKAGE
+                  pushSTACK(*pack_); # Package
                   pushSTACK(OLS(unint_string3)); # "Durch Uninternieren von ~S aus ~S ..."
                   pushSTACK(*sym_); # Symbol
                   pushSTACK(*pack_); # Package
-                  funcall(S(cerror),4); # (CERROR "..." "..." Symbol Package)
+                  funcall(L(cerror_of_type),7); # (SYS::CERROR-OF-TYPE "..." 'PACKAGE-ERROR :PACKAGE Package "..." Symbol Package)
                   STACK_0 = query_user(STACK_0); # Auswahl erfragen
                 }
                 else
@@ -1064,15 +1067,17 @@
           # Stackaufbau: Symbol-Name, othersym, othersymtab.
           # Continuable Error melden:
           { pushSTACK(OLS(import_string1)); # "Sie dürfen über das weitere Vorgehen entscheiden."
+            pushSTACK(S(package_error)); # PACKAGE-ERROR
+            pushSTACK(S(Kpackage)); # :PACKAGE
+            pushSTACK(*pack_); # Package
             pushSTACK(!inheritedp # bei inheritedp=FALSE die kurze Meldung
                       ? OLS(import_string2) # "Durch Importieren von ~S in ~S entsteht ein Namenskonflikt mit ~S."
                       : OLS(import_string3) # "Durch Importieren von ~S in ~S ... Namenskonflikt mit ~S und weiteren Symbolen."
                      );
             pushSTACK(*sym_); # Symbol
             pushSTACK(*pack_); # Package
-            pushSTACK(STACK_5); # othersym
-            # vom Typ package_error??
-            funcall(S(cerror),5); # (CERROR String1 String2/3 sym pack othersym)
+            pushSTACK(STACK_8); # othersym
+            funcall(L(cerror_of_type),8); # (SYS::CERROR-OF-TYPE String1 'PACKAGE-ERROR :PACKAGE pack String2/3 sym pack othersym)
           }
           # Antwort vom Benutzer erfragen:
           { var object ml = # Möglichkeitenliste (("I" ... T) ("N" ... NIL))
@@ -1122,13 +1127,16 @@
               goto import_sym; # ja -> importieren
             # nein -> Continuable Error melden und Benutzer fragen:
             { pushSTACK(NIL); # "Sie dürfen über das weitere Vorgehen entscheiden."
+              pushSTACK(S(package_error)); # PACKAGE-ERROR
+              pushSTACK(S(Kpackage)); # :PACKAGE
+              pushSTACK(pack); # Package
               pushSTACK(NIL); # "Durch Importieren von ~S in ~S entsteht ein Namenskonflikt mit ~S."
               pushSTACK(sym); # Symbol
               pushSTACK(pack); # Package
               pushSTACK(otherusedsym); # otherusedsym
-              STACK_4 = OLS(import_string1);
+              STACK_7 = OLS(import_string1);
               STACK_3 = OLS(import_string2);
-              funcall(S(cerror),5); # (CERROR String1 String2 sym pack otherusedsym)
+              funcall(L(cerror_of_type),8); # (SYS::CERROR-OF-TYPE String1 'PACKAGE-ERROR :PACKAGE pack String2 sym pack otherusedsym)
             }
             { var object antwort = query_user(OL(import_list3));
               if (nullp(Car(Cdr(Cdr(antwort))))) # NIL-Möglichkeit angewählt?
@@ -1255,13 +1263,15 @@
             # Symbol sym ist nicht einmal accessible in der Package pack
             # Continuable Error melden:
             { pushSTACK(NIL); # "Sie dürfen über das weitere Vorgehen entscheiden."
+              pushSTACK(S(package_error)); # PACKAGE-ERROR
+              pushSTACK(S(Kpackage)); # :PACKAGE
+              pushSTACK(pack); # Package
               pushSTACK(NIL); # "Symbol ~S müßte erst in ~S importiert werden, bevor es exportiert werden kann."
               pushSTACK(sym); # Symbol
               pushSTACK(pack); # Package
-              STACK_3 = OLS(export_string1);
+              STACK_6 = OLS(export_string1);
               STACK_2 = OLS(export_string2);
-              # vom Typ package_error??
-              funcall(S(cerror),4); # (CERROR "Sie dürfen aussuchen, ..." "..." Symbol Package)
+              funcall(L(cerror_of_type),7); # (SYS::CERROR-OF-TYPE "Sie dürfen aussuchen, ..." 'PACKAGE-ERROR :PACKAGE Package "..." Symbol Package)
             }
             # beim Benutzer nachfragen:
             { var object antwort = query_user(OL(export_list1));
@@ -1288,14 +1298,17 @@
                   #              anderes Symbol, USEnde Package.
                   # Continuable Error melden:
                   { pushSTACK(NIL); # "Sie dürfen aussuchen, welches Symbol Vorrang hat."
+                    pushSTACK(S(package_error)); # PACKAGE-ERROR
+                    pushSTACK(S(Kpackage)); # :PACKAGE
+                    pushSTACK(*pack_); # Package
                     pushSTACK(NIL); # "Durch Exportieren von ~S aus ~S ... Namenskonflikt mit ~S in ~S."
                     pushSTACK(*sym_); # Symbol
                     pushSTACK(*pack_); # Package
                     pushSTACK(othersym); # anderes Symbol
                     pushSTACK(usingpack); # USEnde Package
-                    STACK_5 = OLS(export_string3);
+                    STACK_8 = OLS(export_string3);
                     STACK_4 = OLS(export_string4);
-                    funcall(S(cerror),6); # (CERROR "..." "..." sym pack othersym usingpack)
+                    funcall(L(cerror_of_type),9); # (CERROR "..." 'PACKAGE-ERROR :PACKAGE pack "..." sym pack othersym usingpack)
                   }
                   # Einleitung ausgeben:
                   { var object stream = var_stream(S(query_io),strmflags_rd_ch_B|strmflags_wr_ch_B); # Stream *QUERY-IO*
@@ -1564,11 +1577,14 @@
         if (!(nullp(STACK_1))) # nur bei conflicts/=NIL nötig
           { # Continuable Error melden:
             { pushSTACK(OLS(usepack_string1)); # "Sie dürfen bei jedem Konflikt ..."
+              pushSTACK(S(package_error)); # PACKAGE-ERROR
+              pushSTACK(S(Kpackage)); # :PACKAGE
+              pushSTACK(STACK_6); # pack
               pushSTACK(OLS(usepack_string2)); # "~S Namenskonflikte bei USE-PACKAGE von ~S in die Package ~S."
-              pushSTACK(fixnum(llength(STACK_3))); # (length conflicts)
-              pushSTACK(STACK_5); # packlist
-              pushSTACK(STACK_7); # pack
-              funcall(S(cerror),5); # (CERROR "..." "..." (length conflicts) usedpacks pack)
+              pushSTACK(fixnum(llength(STACK_6))); # (length conflicts)
+              pushSTACK(STACK_8); # packlist
+              pushSTACK(STACK_(10)); # pack
+              funcall(L(cerror_of_type),8); # (SYS::CERROR-OF-TYPE "..." 'PACKAGE-ERROR :PACKAGE pack "..." (length conflicts) usedpacks pack)
             }
             { pushSTACK(STACK_1); # conflicts durchgehen
               while (mconsp(STACK_0))
@@ -2272,10 +2288,13 @@ LISPFUN(unuse_package,1,1,norest,nokey,0,NIL)
     { while (!(nullp(find_package(name))))
         { # Package mit diesem Namen existiert schon
           { pushSTACK(STACK_1); # "Sie dürfen ... eingeben."
+            pushSTACK(S(package_error)); # PACKAGE-ERROR
+            pushSTACK(S(Kpackage)); # :PACKAGE
+            pushSTACK(name); # Package-Name
             pushSTACK(NIL); # "Eine Package mit dem Namen ~S gibt es schon."
             pushSTACK(name);
             STACK_1 = OLS(makepack_string3);
-            funcall(S(cerror),3); # (CERROR "Sie dürfen ..." "Package ~S existiert" name)
+            funcall(L(cerror_of_type),6); # (SYS::CERROR-OF-TYPE "Sie dürfen ..." 'PACKAGE-ERROR :PACKAGE name "Package ~S existiert" name)
           }
           { var object stream = var_stream(S(query_io),strmflags_rd_ch_B|strmflags_wr_ch_B); # Stream *QUERY-IO*
             pushSTACK(stream);
@@ -2438,12 +2457,15 @@ LISPFUNN(delete_package,1)
         if (nullp(found))
           { # Continuable Error auslösen:
             pushSTACK(NIL); # "Ignorieren."
+            pushSTACK(S(package_error)); # PACKAGE-ERROR
+            pushSTACK(S(Kpackage)); # :PACKAGE
+            pushSTACK(pack); # Package-Name
             pushSTACK(NIL); # "~S: Eine Package mit Namen ~S gibt es nicht."
             pushSTACK(S(delete_package));
             pushSTACK(pack);
-            STACK_3 = OLS(delpack_string1);
+            STACK_6 = OLS(delpack_string1);
             STACK_2 = OLS(delpack_string2);
-            funcall(S(cerror),4); # (CERROR "..." "..." 'DELETE-PACKAGE pack)
+            funcall(L(cerror_of_type),7); # (SYS::CERROR-OF-TYPE "..." 'PACKAGE-ERROR :PACKAGE pack "..." 'DELETE-PACKAGE pack)
             value1 = NIL; mv_count=1; # 1 Wert NIL
             return;
           }
@@ -2457,13 +2479,16 @@ LISPFUNN(delete_package,1)
     if (!nullp(ThePackage(pack)->pack_used_by_list))
       { # Continuable Error auslösen:
         pushSTACK(NIL); # "~*~S wird trotzdem gelöscht."
+        pushSTACK(S(package_error)); # PACKAGE-ERROR
+        pushSTACK(S(Kpackage)); # :PACKAGE
+        pushSTACK(pack); # Package
         pushSTACK(NIL); # "~S: ~S wird von ~{~S~^, ~} benutzt."
         pushSTACK(S(delete_package));
         pushSTACK(pack);
         pushSTACK(ThePackage(pack)->pack_used_by_list);
-        STACK_4 = OLS(delpack_string3);
+        STACK_7 = OLS(delpack_string3);
         STACK_3 = OLS(delpack_string4);
-        funcall(S(cerror),5); # (CERROR "..." "..." 'DELETE-PACKAGE pack used-by-list)
+        funcall(L(cerror_of_type),8); # (SYS::CERROR-OF-TYPE "..." 'PACKAGE-ERROR :PACKAGE pack "..." 'DELETE-PACKAGE pack used-by-list)
       }
     pack = STACK_0;
     # (DOLIST (p used-py-list) (UNUSE-PACKAGE pack p)) ausführen:
