@@ -45,5 +45,5 @@ img
 { text-align: right; margin-left: 50%; }
 
 /* larger headings */
-h1, h2, h3, h4, h5
+h1, h2, h3, h4, h5, h6, h7, h8, h9
 { font-size: 150%; }
