@@ -42,6 +42,12 @@
             (progn
               (write-string " " stream)
               (write :uninitialized :stream stream)))))))
+  (:method ((object slot-definition) stream)
+    (print-unreadable-object (object stream :type t :identity t)
+      (write (slot-definition-name object) :stream stream)))
+  (:method ((object eql-specializer) stream)
+    (print-unreadable-object (object stream :type t)
+      (write (eql-specializer-object object) :stream stream)))
   (:method ((object method-combination) stream)
     (print-object-<method-combination> object stream))
   (:method ((object standard-method) stream)
