@@ -1166,6 +1166,7 @@
       compute-applicable-methods-using-classes
       compute-class-precedence-list
       compute-default-initargs
+      compute-direct-slot-definition-initargs
       compute-discriminating-function
       compute-effective-method
       compute-effective-slot-definition

@@ -1918,6 +1918,49 @@ any dependents of the class metaobject will be updated by calling
  compatible.</para></formalpara>
 </section><!-- validate-superclass -->
 
+<section id="compute-dsd-initargs"><title>Generic Function &compute-dsd-initargs;</title>
+
+<note>&clisp-only;<para>
+<variablelist><varlistentry><term>Syntax</term>
+ <listitem><simpara><code>(&compute-dsd-initargs;
+    &class-r; &rest-amp; <replaceable>slot-spec</replaceable>)
+ </code></simpara></listitem></varlistentry>
+<varlistentry><term>Arguments</term>
+ <listitem><variablelist>
+   <varlistentry><term>&class-r;</term>
+    <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>
+   <varlistentry><term><replaceable>slot-spec</replaceable></term>
+    <listitem><simpara>a &canonical-slot-spec;.</simpara></listitem></varlistentry>
+</variablelist></listitem></varlistentry>
+<varlistentry><term>Values</term>
+ <listitem><simpara>The value returned by this generic function is a
+   list of initialization arguments for a direct slot definition
+   metaobject.</simpara></listitem></varlistentry>
+<varlistentry><term>Purpose</term>
+ <listitem><simpara>This generic function determines the initialization
+   arguments for the direct slot definition for a slot in a class.
+   It is called during initialization of a class.  The resulting
+   initialization arguments are passed to &dsd-class; and then to
+   &make-instance;.</simpara>
+  <simpara>This generic function uses the supplied &canonical-slot-spec;.
+   The value of &name-k; in the returned initargs is the same as the value
+   of &name-k; in the supplied <replaceable>slot-spec</replaceable>
+   argument.</simpara></listitem></varlistentry></variablelist>
+
+<variablelist><title>Methods</title>
+<varlistentry><term><literal role="method">(&compute-dsd-initargs;
+   (&class-r; &standard-class;) &rest-amp;
+   <replaceable>slot-spec</replaceable>)</literal></term>
+ <term><literal role="method">(&compute-dsd-initargs;
+   (&class-r; &funcallable-standard-class;) &rest-amp;
+   <replaceable>slot-spec</replaceable>)</literal></term>
+ <listitem><simpara>This method returns <replaceable>slot-spec</replaceable>
+  unmodified.</simpara>
+  <simpara>This method can be overridden.</simpara></listitem>
+</varlistentry></variablelist>
+</para></note>
+</section><!-- compute-dsd-initargs -->
+
 <section id="dsd-class"><title>Generic Function &dsd-class;</title>
 
 <variablelist><varlistentry><term>Syntax</term>

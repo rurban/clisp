@@ -745,6 +745,38 @@ T
 EXTRA
 
 
+;;; Check the compute-direct-slot-definition-initargs protocol
+;;;   compute-direct-slot-definition-initargs
+
+;; Check that it's possible to generate accessors automatically.
+(progn
+  (defclass auto-accessors-2-class (standard-class)
+    ())
+  #-CLISP
+  (defmethod clos:validate-superclass ((c1 auto-accessors-2-class) (c2 standard-class))
+    t)
+  (defmethod clos::compute-direct-slot-definition-initargs ((class auto-accessors-2-class) &rest slot-spec)
+    (if (and (null (getf slot-spec ':readers)) (null (getf slot-spec ':writers)))
+      (let* ((containing-class-name (class-name class))
+             (accessor-name
+               (intern (concatenate 'string
+                                    (symbol-name containing-class-name)
+                                    "-"
+                                    (symbol-name (getf slot-spec ':name)))
+                       (symbol-package containing-class-name))))
+        (list* ;; Here are the additional reader/writer lists.
+               :readers (list accessor-name)
+               :writers (list (list 'setf accessor-name))
+               (call-next-method)))
+      (call-next-method)))
+  (defclass testclass15 ()
+    ((x :initarg :x) (y))
+    (:metaclass auto-accessors-2-class))
+  (let ((inst (make-instance 'testclass15 :x 12)))
+    (list (testclass15-x inst) (setf (testclass15-y inst) 13))))
+(12 13)
+
+
 ;;; Check the compute-discriminating-function protocol
 ;;;   compute-discriminating-function
 
