@@ -172,39 +172,39 @@ NIL
 (g '())
 (NULL SYMBOL LIST$)
 
-(defvar hl)
-HL
+(defparameter *hl* nil)
+*HL*
 
 (progn
 (defgeneric hgen (x)
   (:method ((x integer))
-    (setf hl (cons 'i-primary-1 hl))
+    (setf *hl* (cons 'i-primary-1 *hl*))
     (call-next-method)
-    (setf hl (cons 'i-primary-2 hl)))
+    (setf *hl* (cons 'i-primary-2 *hl*)))
   (:method :before ((x integer))
-    (setf hl (cons 'i-before hl)))
+    (setf *hl* (cons 'i-before *hl*)))
   (:method :after ((x integer))
-    (setf hl (cons 'i-after hl)))
+    (setf *hl* (cons 'i-after *hl*)))
   (:method :around ((x integer))
-    (setf hl (cons 'i-around-1 hl))
+    (setf *hl* (cons 'i-around-1 *hl*))
     (call-next-method)
-    (setf hl (cons 'i-around-2 hl)))
+    (setf *hl* (cons 'i-around-2 *hl*)))
   (:method ((x number))
-    (setf hl (cons 'n-primary-1 hl))
+    (setf *hl* (cons 'n-primary-1 *hl*))
     (call-next-method)
-    (setf hl (cons 'n-primary-2 hl)))
+    (setf *hl* (cons 'n-primary-2 *hl*)))
   (:method :before ((x number))
-    (setf hl (cons 'n-before hl)))
+    (setf *hl* (cons 'n-before *hl*)))
   (:method :after ((x number))
-    (setf hl (cons 'n-after hl)))
+    (setf *hl* (cons 'n-after *hl*)))
   (:method :around ((x number))
-    (setf hl (cons 'n-around-1 hl))
+    (setf *hl* (cons 'n-around-1 *hl*))
     (call-next-method)
-    (setf hl (cons 'n-around-2 hl)))
+    (setf *hl* (cons 'n-around-2 *hl*)))
   (:method ((x t))
-    (setf hl (cons 'innermost hl))))
+    (setf *hl* (cons 'innermost *hl*))))
 (defun h (x)
-  (setf hl '()) (hgen x) (reverse hl))
+  (setf *hl* '()) (hgen x) (reverse *hl*))
 )
 H
 
@@ -392,30 +392,123 @@ T
 T
 
 ;; make-load-form
+(defun mlf-tester (symbol &optional (lisp-file "make-load-form-demo.lisp")
+                   &aux (compiled-file (compile-file-pathname lisp-file)))
+  (unwind-protect
+       (progn
+         (with-open-file (stream lisp-file :direction :output
+                                 :if-exists :supersede)
+           (format stream "(in-package ~s)~%(defparameter ~S '#.~S)~%"
+                   (package-name (symbol-package symbol))
+                   symbol symbol))
+         (compile-file lisp-file)
+         (setf (symbol-value symbol) nil)
+         (load compiled-file)
+         (symbol-value symbol))
+    (delete-file compiled-file)
+    (delete-file lisp-file)
+    #+clisp (delete-file (make-pathname :type "lib" :defaults lisp-file))))
+MLF-TESTER
+
 ;; from kmp
 (progn
   (defclass test-class1 () ((foo :initarg :foo :accessor foo :initform 0)))
   (defclass test-class2 () ((foo :initarg :foo :accessor foo :initform 0)))
   (defmethod make-load-form ((obj test-class1) &optional environment)
+    (declare (ignore environment))
     `(make-instance 'test-class1 :foo ',(foo obj)))
   (defparameter *t-list*
     (list (make-instance 'test-class1 :foo 100)
           (make-instance 'test-class2 :foo 200)))
-  (let* ((lisp-file "make-load-form-demo.lisp")
-         (compiled-file
-          (compile-file
-           (with-open-file (stream lisp-file :direction :output
-                                   :if-exists :supersede)
-             (format stream "(in-package \"CL-USER\")~
-                             ~%(defparameter *t-list* '#.*t-list*)~%")
-             (truename stream)))))
-    (setq *t-list* '())
-    (load compiled-file)
-    (delete-file compiled-file)
-    (delete-file lisp-file)
-    #+clisp (delete-file (make-pathname :type "lib" :defaults lisp-file))
-    (mapcar #'foo *t-list*)))
+  (mlf-tester '*t-list*)
+  (mapcar #'foo *t-list*))
 (100 200)
+
+;; form Christophe Rhodes <csr21@cam.ac.uk>
+(defstruct foo a)
+FOO
+
+(progn
+  (defmethod make-load-form ((x foo) &optional env)
+    (make-load-form-saving-slots x :environment env))
+  (defparameter *tmp-file* "mlf-tmp.lisp")
+  (with-open-file (s *tmp-file* :direction :output)
+    (format s "(defparameter *foo* '#S(FOO :A BAR-CONST))~%"))
+  (load (compile-file *tmp-file*))
+  *foo*)
+#S(FOO :A BAR-CONST)
+
+(progn
+  (makunbound '*foo*)
+  (defconstant bar-const 1)
+  (load (compile-file *tmp-file*))
+  (prog1 *foo*
+    (delete-file *tmp-file*)
+    (delete-file (compile-file-pathname *tmp-file*))
+    #+clisp (delete-file (make-pathname :type "lib" :defaults *tmp-file*))))
+#S(FOO :A BAR-CONST)
+
+;; <http://www.lisp.org/HyperSpec/Issues/iss215-writeup.html>
+(progn
+  (defclass pos ()
+    ((x :initarg :x :reader pos-x)
+     (y :initarg :y :reader pos-y)
+     (r :accessor pos-r)))
+  (defmethod shared-initialize :after ((self pos) ignore1 &rest ignore2)
+    (declare (ignore ignore1 ignore2))
+    (unless (slot-boundp self 'r)
+      (setf (pos-r self) (sqrt (+ (* (pos-x self) (pos-x self))
+                                  (* (pos-y self) (pos-y self)))))))
+  (defmethod make-load-form ((self pos) &optional environment)
+    (declare (ignore environment))
+    `(make-instance ',(class-name (class-of self))
+                    :x ',(pos-x self) :y ',(pos-y self)))
+  (setq *foo* (make-instance 'pos :x 3.0 :y 4.0))
+  (mlf-tester '*foo*)
+  (list (pos-x *foo*) (pos-y *foo*) (pos-r *foo*)))
+(3.0 4.0 5.0)
+
+(progn
+  (defclass tree-with-parent ()
+    ((parent :accessor tree-parent)
+     (children :initarg :children)))
+  (defmethod make-load-form ((x tree-with-parent) &optional environment)
+    (declare (ignore environment))
+    (values
+     ;; creation form
+     `(make-instance ',(class-name (class-of x)))
+     ;; initialization form
+     `(setf (tree-parent ',x) ',(slot-value x 'parent)
+            (slot-value ',x 'children) ',(slot-value x 'children))))
+  (setq *foo* (make-instance 'tree-with-parent :children
+                             (list (make-instance 'tree-with-parent
+                                                  :children nil)
+                                   (make-instance 'tree-with-parent
+                                                  :children nil))))
+  (setf (tree-parent *foo*) *foo*)
+  (dolist (ch (slot-value *foo* 'children))
+    (setf (tree-parent ch) *foo*))
+  (mlf-tester '*foo*)
+  (list (eq *foo* (tree-parent *foo*))
+        (every (lambda (x) (eq x *foo*))
+               (mapcar #'tree-parent (slot-value *foo* 'children)))
+        (every #'null
+               (mapcar (lambda (x) (slot-value x 'children))
+                       (slot-value *foo* 'children)))))
+(T T T)
+
+;; <http://www.lisp.org/HyperSpec/Issues/iss237-writeup.html>
+(progn
+  (defparameter *initform-executed-counter* 0)
+  (defstruct foo (slot-1 (incf *initform-executed-counter*)))
+  (defparameter *foo* (make-foo)))
+*FOO*
+*foo*                           #S(FOO :SLOT-1 1)
+*initform-executed-counter*     1
+(progn
+  (mapc #'eval (multiple-value-list (make-load-form-saving-slots *foo*)))
+  *initform-executed-counter*)
+1
 
 ;; change-class
 ;; <http://www.lisp.org/HyperSpec/Body/stagenfun_change-class.html>
@@ -546,7 +639,7 @@ x-y-position
 
 ;; Test of incongruent generic function lambda list when
 ;; some methods do exist
-(ensure-generic-function egf-fun :lambda-list '(x y))
+(ensure-generic-function 'egf-fun :lambda-list '(x y))
 error
 
 ;; forward reference (GCL ansi test)
