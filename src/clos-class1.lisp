@@ -87,9 +87,15 @@
       ($listeners          ; list of objects to be notified upon a change
         :type list
         :initform nil)
-      ($initialized        ; set to true when the class is initialized
-        :type boolean
-        :initform nil))
+      ($initialized        ; describes which parts of the class are initialized
+        :type (integer 0 6) ; 0 = nothing
+                            ; 1 = name
+                            ; 2 = likewise, plus direct-... info
+                            ; 3 = likewise, plus class-precedence-list
+                            ; 4 = likewise, plus class-all-superclasses
+                            ; 5 = likewise, plus class-slots
+                            ; 6 = likewise, plus slot-location-table, default-initargs
+        :initform 0))
      (:fixed-slot-locations)))
 
 ;; Fixed slot locations.
@@ -120,8 +126,6 @@
   (sys::%record-ref object *<class>-all-superclasses-location*))
 (defun (setf class-all-superclasses) (new-value object)
   (setf (sys::%record-ref object *<class>-all-superclasses-location*) new-value))
-(defun %class-precedence-list (object)
-  (sys::%record-ref object *<class>-precedence-list-location*))
 (defun class-precedence-list (object)
   (sys::%record-ref object *<class>-precedence-list-location*))
 (defun (setf class-precedence-list) (new-value object)
@@ -200,10 +204,13 @@
       (setf (class-direct-subclasses-table class) nil)
       (setf (class-slot-location-table class) empty-ht)
       (setf (class-listeners class) nil)
-      (setf (class-initialized class) nil)))
+      (setf (class-initialized class) 0)))
   (if (or (eq situation 't) name-p)
-    ; No need to check the name: any name is valid.
-    (setf (class-classname class) name)
+    (progn
+      ; No need to check the name: any name is valid.
+      (setf (class-classname class) name)
+      (when (eq situation 't)
+        (setf (class-initialized class) 1)))
     ; Get the name, for error message purposes.
     (setq name (class-classname class)))
   (when (or (eq situation 't) direct-superclasses-p)
@@ -272,8 +279,9 @@
   ;   slots
   ;   slot-location-table
   ;   default-initargs
-  ; Now allow the user to call the class-xxx accessor functions.
-  (setf (class-initialized class) t)
+  ; Now allow the user to call some class-xxx accessor functions.
+  (when (eq situation 't)
+    (setf (class-initialized class) 2))
   class)
 
 ;;; ===========================================================================

@@ -33,14 +33,14 @@
 ;;; Optimized class-xxx accessors.
 ;;; These are possible thanks to the :fixed-slot-locations class option.
 
-(defun check-class-initialized (class)
-  (unless (class-initialized class)
+(defun check-class-initialized (class level)
+  (unless (>= (class-initialized class) level)
     (error (TEXT "The class ~S has not yet been initialized.")
            class)))
 
-(defun check-class-finalized (class)
-  (check-class-initialized class)
-  (when (null (%class-precedence-list class))
+(defun check-class-finalized (class level)
+  (check-class-initialized class 2)
+  (unless (>= (class-initialized class) level)
     (error (TEXT "The class ~S has not yet been finalized.")
            class)))
 
@@ -54,7 +54,7 @@
 ;; MOP p. 76
 (defgeneric class-name (class)
   (:method ((class class))
-    (check-class-initialized class)
+    (check-class-initialized class 1)
     (class-classname class)))
 ;; MOP p. 92
 (defgeneric (setf class-name) (new-value class)
@@ -74,7 +74,7 @@
 ;; MOP p. 76
 (defgeneric class-direct-superclasses (class)
   (:method ((class class))
-    (check-class-initialized class)
+    (check-class-initialized class 2)
     (sys::%record-ref class *<class>-direct-superclasses-location*)))
 ;; Not in MOP.
 (defun (setf class-direct-superclasses) (new-value class)
@@ -89,18 +89,15 @@
   (accessor-typecheck class 'class '(setf class-all-superclasses))
   (setf (sys::%record-ref class *<class>-all-superclasses-location*) new-value))
 
-;; Not in MOP.
-(defun %class-precedence-list (class)
-  (accessor-typecheck class 'class '%class-precedence-list)
-  (sys::%record-ref class *<class>-precedence-list-location*))
-(defun (setf class-precedence-list) (new-value class)
-  (accessor-typecheck class 'class '(setf class-precedence-list))
-  (setf (sys::%record-ref class *<class>-precedence-list-location*) new-value))
 ;; MOP p. 76
 (defgeneric class-precedence-list (class)
   (:method ((class class))
-    (check-class-finalized class)
+    (check-class-finalized class 3)
     (sys::%record-ref class *<class>-precedence-list-location*)))
+;; Not in MOP.
+(defun (setf class-precedence-list) (new-value class)
+  (accessor-typecheck class 'class '(setf class-precedence-list))
+  (setf (sys::%record-ref class *<class>-precedence-list-location*) new-value))
 
 ;; Not in MOP.
 (defun class-direct-subclasses-table (class)
@@ -112,13 +109,13 @@
 ;; MOP p. 76
 (defgeneric class-direct-subclasses (class)
   (:method ((class class))
-    (check-class-initialized class)
+    (check-class-initialized class 2)
     (list-direct-subclasses class)))
 
 ;; MOP p. 75
 (defgeneric class-direct-slots (class)
   (:method ((class class))
-    (check-class-initialized class)
+    (check-class-initialized class 2)
     (sys::%record-ref class *<class>-direct-slots-location*)))
 ;; Not in MOP.
 (defun (setf class-direct-slots) (new-value class)
@@ -128,7 +125,7 @@
 ;; MOP p. 77
 (defgeneric class-slots (class)
   (:method ((class class))
-    (check-class-finalized class)
+    (check-class-finalized class 5)
     (sys::%record-ref class *<class>-slots-location*)))
 ;; Not in MOP.
 (defun (setf class-slots) (new-value class)
@@ -146,7 +143,7 @@
 ;; MOP p. 75
 (defgeneric class-direct-default-initargs (class)
   (:method ((class class))
-    (check-class-initialized class)
+    (check-class-initialized class 2)
     (sys::%record-ref class *<class>-direct-default-initargs-location*)))
 ;; Not in MOP.
 (defun (setf class-direct-default-initargs) (new-value class)
@@ -156,7 +153,7 @@
 ;; MOP p. 75
 (defgeneric class-default-initargs (class)
   (:method ((class class))
-    (check-class-finalized class)
+    (check-class-finalized class 6)
     (sys::%record-ref class *<class>-default-initargs-location*)))
 ;; Not in MOP.
 (defun (setf class-default-initargs) (new-value class)
@@ -278,7 +275,7 @@
 ;; MOP p. 77
 (defgeneric class-prototype (class)
   (:method ((class semi-standard-class))
-    (check-class-finalized class)
+    (check-class-finalized class 6)
     (or (sys::%record-ref class *<semi-standard-class>-prototype-location*)
         (setf (sys::%record-ref class *<semi-standard-class>-prototype-location*)
               (let ((old-instantiated (class-instantiated class)))
@@ -302,8 +299,7 @@
 ;; MOP p. 76
 (defgeneric class-finalized-p (class)
   (:method ((class class))
-    (and (class-initialized class)
-         (not (null (%class-precedence-list class)))))
+    (= (class-initialized class) 6))
   ;; CLISP extension: Convenience method on symbols.
   (:method ((name symbol))
     (class-finalized-p (find-class name))))
