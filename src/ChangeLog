@@ -1,3 +1,20 @@
+2004-12-24  Bruno Haible  <bruno@clisp.org>
+
+	Support multibyte encodings in FFI:*FOREIGN-ENCODING*.
+	* encoding.d (init_dependent_encodings): Remove warning if
+	*FOREIGN-ENCODING* is not 1:1. Initialize O(foreign_8bit_encoding).
+	(SYSTEM::SET-FOREIGN-ENCODING): Update O(foreign_8bit_encoding).
+	* foreign.d (convert_from_foreign_array_fill): For characters, use
+	O(foreign_8bit_encoding).
+	(convert_from_foreign): Likewise. Add special conversion routines for
+	(C-ARRAY CHARACTER dim1), (C-ARRAY-MAX CHARACTER maxdim),
+	(C-ARRAY-PTR CHARACTER).
+	(count_walk_pre): For C-STRING and (C-ARRAY-PTR CHARACTER ...), compute
+	the amount of needed memory.
+	(convert_to_foreign): For characters, use O(foreign_8bit_encoding).
+	Add special conversion routines for (C-ARRAY CHARACTER dim1),
+	(C-ARRAY-MAX CHARACTER maxdim), (C-ARRAY-PTR CHARACTER).
+
 2004-12-23  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (stream_get_read_eval, stream_set_read_eval): Mark as
