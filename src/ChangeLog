@@ -1,5 +1,9 @@
 2002-10-13  Sam Steingold  <sds@gnu.org>
 
+	* places.lisp (psetf): handle the empty form (PSETF) properly
+
+2002-10-13  Sam Steingold  <sds@gnu.org>
+
 	* list.d (llength1): new global function, returning the last atom
 	in addition to the list length
 	(LIST-ENDTEST): use llength1: sequence functions expect proper sequences

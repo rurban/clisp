@@ -6,6 +6,9 @@
 (setf pa 'old)
 old
 
+(psetf)
+nil
+
 (psetf pa 'new pao pa)
 nil
 
