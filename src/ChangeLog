@@ -1,3 +1,7 @@
+2001-04-16  Sam Steingold  <sds@gnu.org>
+
+	* sequence.d (valid_type): CONS and NULL are sequences of type LIST
+
 2001-04-11  Sam Steingold  <sds@gnu.org>
 
 	* socket.d: made compilable with SAFETY=3
