@@ -2709,7 +2709,7 @@ checks whether the &hash-table-t; is weak.</para>
 <para>Just like all other <link linkend="weak">weak objects</link>, weak
 &hash-table-t;s cannot be printed readably.</para>
 
-<para>See also <olink targetdoc="impnotes" targetptr="weak-ht"/>.</para>
+<para>See also <xref linkend="weak-ht"/>.</para>
 
 <section id="hashtable-gc-rehash">
  <title>Interaction between &hash-table-t;s and &gc;ion.</title>
@@ -3129,8 +3129,7 @@ checks whether the &hash-table-t; is weak.</para>
  <title>Function &translate-logical-pathname;</title>
 
 <para>&translate-logical-pathname; accepts an additional keyword
- argument &absolute-k;, similar to
- <olink targetdoc="impnotes" targetptr="translate-pathname"/>.</para>
+ argument &absolute-k;, similar to <xref linkend="translate-pathname"/>.</para>
 
 </section>
 
@@ -4592,7 +4591,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <!-- #ifdef DYNAMIC_FFI -->
 <varlistentry><term><constant>:FFI</constant></term>
  <listitem><simpara>if a foreign function interface
-   (see <olink targetdoc="impnotes" targetptr="dffi"/>) is supported
+   (see <xref linkend="dffi"/>) is supported
    (<emphasis role="plat-dep">Many &unix;, &win32;
     platforms only</emphasis>)</simpara></listitem></varlistentry>
 <!-- #endif -->
