@@ -542,11 +542,22 @@
     #define C_CODE_ALIGNMENT  8
     #define log2_C_CODE_ALIGNMENT  3
   #endif
-  #if (defined(I80386) && defined(GNU)) || defined(SPARC) || defined(MIPS) || defined(HPPA) || defined(M88000) || defined(RS6000) || defined(ARM)
+  #if (defined(I80386) && defined(GNU)) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(ARM)
     # When using gcc on i386, this assumes that -malign-functions has not been
     # used to specify an alignment smaller than 4 bytes.
     #define C_CODE_ALIGNMENT  4
     #define log2_C_CODE_ALIGNMENT  2
+  #endif
+  #if defined(HPPA)
+    # A function pointer on hppa is either
+    #   - a code pointer == 0 mod 4, or
+    #   - a pointer to a two-word structure (first word: a code pointer,
+    #     second word: a value which will be put in register %r19),
+    #     incremented by 2, hence == 2 mod 4.
+    # The current compilers only emit the second kind of function pointers,
+    # hence we can assume that all function pointers are == 2 mod 4.
+    #define C_CODE_ALIGNMENT  2
+    #define log2_C_CODE_ALIGNMENT  1
   #endif
   #if defined(MC680X0) || defined(CONVEX)
     #define C_CODE_ALIGNMENT  2
@@ -4388,8 +4399,9 @@ typedef varobject_ *  Varobject;
     #define xrecord_tfl(type,flags,length,xlength)  \
       ((uintL)(uintB)(type)+((uintL)(uintB)(flags)<<8)+((uintL)(uintB)(length)<<16)+((uintL)(uintB)(xlength)<<24))
   #define varobject_type(ptr) ((sintB)((ptr)->tfl & 0xFF))
-  #if defined(__GNUC__) && (__GNUC__ == 2) && (__GNUC_MINOR__ == 90)
-    # Work around egcs-1.0.3a bug on i386 (it miscompiles xpathnamep).
+  #if defined(__GNUC__) && (__GNUC__ == 2) && ((__GNUC_MINOR__ == 8) || (__GNUC_MINOR__ == 90))
+    # Work around a gcc bug present (at least) in gcc-2.8.1 on hppa and
+    # egcs-1.0.3a on i386. It miscompiles xpathnamep.
     #undef varobject_type
     #define varobject_type(ptr) ((sintB)((sintL)((ptr)->tfl) & 0xFF))
   #endif
@@ -5682,6 +5694,8 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # make_machine_code(ptr)
   #if defined(TYPECODES) || (log2_C_CODE_ALIGNMENT >= 2)
     #define make_machine_code(ptr)  make_machine(ptr)
+  #elif defined(HPPA)
+    #define make_machine_code(ptr)  make_machine((uintP)(ptr)&~(uintP)3)
   #else
     #define make_machine_code(ptr)  make_machine((uintP)(ptr)<<(2-log2_C_CODE_ALIGNMENT))
   #endif
@@ -5926,6 +5940,8 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #define TheMachine(obj)  ((void*)(as_oint(obj)-machine_bias))
   #if (log2_C_CODE_ALIGNMENT >= 2)
     #define TheMachineCode(obj)  TheMachine(obj)
+  #elif defined(HPPA)
+    #define TheMachineCode(obj)  ((void*)((uintP)TheMachine(obj)+2))
   #else
     #define TheMachineCode(obj)  ((void*)((uintP)TheMachine(obj)>>(2-log2_C_CODE_ALIGNMENT)))
   #endif
