@@ -32,7 +32,7 @@ global void sstring_printf (object sstr, uintL len, uintL offset) {
   printf("\">");
 }
 global void string_printf (object str) {
-  uintL len, offset, index;
+  uintL len, offset;
   ASSERT(stringp(str));
   str = unpack_string_ro(str,&len,&offset);
   sstring_printf(str,len,offset);
@@ -1699,12 +1699,11 @@ local uintWL test_number_syntax (uintWL* base_, object* string_,
       default:
             break;
     }
-    while (index<len) { /* next character in exponent: */
+    for (; index<len; index++) { /* next character in exponent: */
       # from now on only digits are allowed:
       if (!(*attrptr++ == a_digit))
         return 0;
       flags |= bit(5);
-      index++;
     }
     # Token is finished after exponent
     if (!(flags & bit(5))) # no digit in exponent?
@@ -2918,7 +2917,7 @@ LISPFUNN(char_reader,3) { # reads #\\
     var uintL code = 0; # so far read xxxx (<char_code_limit)
     var uintL index = pos+4;
     var const chart* charptr = &TheSstring(token)->data[index];
-    while (index != len) { /* not reached end of Token? */
+    for (; index != len; index++) { /* not reached end of Token? */
       var cint c = as_cint(*charptr++); # next Character
       # is to be digit:
       if (!((c>='0') && (c<='9')))
@@ -2927,7 +2926,6 @@ LISPFUNN(char_reader,3) { # reads #\\
       # code is to be < char_code_limit:
       if (code >= char_code_limit)
         goto not_codexxxx;
-      index++;
     }
     # Charactername was of type Typ "Codexxxx" with code = xxxx < char_code_limit
     VALUES1(code_char(as_chart(code))); skipSTACK(3);
@@ -3295,7 +3293,7 @@ LISPFUNN(bit_vector_reader,3) { # reads #*
     var const chart* charptr = &TheSstring(TheIarray(buff_1)->data)->data[0];
     var chart ch; # last character ('0' or '1')
     var uintL index = 0;
-    while (index < n) {
+    for (; index < n; index++) {
       if (index < len)
         ch = *charptr++; # possibly, fetch next Character
       if (chareq(ch,ascii('0'))) {
@@ -3303,7 +3301,6 @@ LISPFUNN(bit_vector_reader,3) { # reads #*
       } else {
         sbvector_bset(bv,index); # Eins -> set Bit
       }
-      index++;
     }
   }
   VALUES1(bv); skipSTACK(3);
@@ -3380,12 +3377,11 @@ LISPFUNN(vector_reader,3) { # reads #(
     var gcv_object_t* vptr = &TheSvector(v)->data[0];
     var object el; # last Element
     var uintL index = 0;
-    while (index < n) {
+    for (;index < n; index++) {
       if (index < len) { # possibly fetch next Element
         el = Car(elements); elements = Cdr(elements);
       }
       *vptr++ = el;
-      index++;
     }
   }
   VALUES1(v); skipSTACK(3);
@@ -4241,7 +4237,7 @@ LISPFUNN(closure_reader,3) { # read #Y
       fehler_closure_badchar();
     {
       var uintL index = 0;
-      until (index==n) {
+      for (; index!=n; index++) {
         # skip Whitespace:
         do { read_char_syntax(ch = ,scode = ,stream_); # read character
         } while (scode == syntax_whitespace);
@@ -4262,7 +4258,6 @@ LISPFUNN(closure_reader,3) { # read #Y
         }
         # zif = read Byte. write into Codevector:
         TheSbvector(STACK_1)->data[index] = zif;
-        index++;
       }
     }
     # skip Whitespace:
@@ -4963,20 +4958,19 @@ local void pr_hex8 (const gcv_object_t* stream_, uintP x) {
 # *PRINT-LINES* = NIL,
 # *PRINT-GENSYM* = T, *PRINT-ARRAY* = T, *PRINT-CLOSURE* = T.
 
-# error-message when *PRINT-READABLY* /= NIL.
-# fehler_print_readably(obj); english: error_print_readably(obj);
+/* error-message when *PRINT-READABLY* /= NIL.
+ fehler_print_readably(obj); english: error_print_readably(obj); */
 nonreturning_function(local, fehler_print_readably, (object obj)) {
-  # (error-of-type 'print-not-readable
-  #        "~: Despite of ~, ~ cannot be printed readably."
-  #        'print '*print-readably* obj
-  # )
-  dynamic_bind(S(print_readably),NIL); # bind *PRINT-READABLY* to NIL
-  pushSTACK(obj); # PRINT-NOT-READABLE slot OBJECT
+  /* (error-of-type 'print-not-readable
+          "~: Despite ~, ~ cannot be printed readably."
+          'print '*print-readably* obj) */
+  dynamic_bind(S(print_readably),NIL); /* bind *PRINT-READABLY* to NIL */
+  pushSTACK(obj);               /* PRINT-NOT-READABLE slot OBJECT */
   pushSTACK(obj);
   pushSTACK(S(print_readably));
   pushSTACK(S(print));
   fehler(print_not_readable,
-         GETTEXT("~: Despite of ~, ~ cannot be printed readably."));
+         GETTEXT("~: Despite ~, ~ cannot be printed readably."));
 }
 #define CHECK_PRINT_READABLY(obj)               \
       if (!nullpSv(print_readably))        \
@@ -6220,10 +6214,9 @@ local bool circle_p (object obj,circle_info_t* ci) {
     var gcv_object_t* ptr = &TheSvector(table)->data[0]; # pointer in the vector
     var uintL i = posfixnum_to_L(*ptr++); # first element i
     var uintL index = 1;
-    until (index == m1) { # run through the loop m times
+    for (; index != m1; index++) { # run through the loop m times
       if (eq(*ptr++,obj)) # compare obj with the next vector-element
         goto found;
-      index++;
     }
     # not found -> done
     goto normal;
@@ -6936,11 +6929,10 @@ local void pr_symbol_part (const gcv_object_t* stream_, object string,
     # and fill:
     SstringDispatch(STACK_2,X, {
       var uintL index = 0;
-      until (index == len) {
+      for (; index != len; index++) {
         var chart c = as_chart(((SstringX)TheVarobject(STACK_2))->data[index]); # the next character
         ssstring_push_extend(STACK_1,c); # into the character-buffer
         ssbvector_push_extend(STACK_0,attribute_of(c)); # und into the Attributcode-Buffer
-        index++;
       }
     });
     O(token_buff_2) = popSTACK(); # Attributcode-Buffer
@@ -6973,7 +6965,7 @@ local void pr_symbol_part (const gcv_object_t* stream_, object string,
   write_ascii_char(stream_,'|');
   SstringDispatch(STACK_0,X, {
     var uintL index = 0;
-    until (index == len) {
+    for (; index != len; index++) {
       var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); # the next character
       switch (syntax_table_get(STACK_1,c)) { # its Syntaxcode
         case syntax_single_esc:
@@ -6982,7 +6974,6 @@ local void pr_symbol_part (const gcv_object_t* stream_, object string,
         default: ;
       }
       write_code_char(stream_,c); # print Character
-      index++;
     }
   });
   write_ascii_char(stream_,'|');
