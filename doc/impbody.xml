@@ -4209,7 +4209,7 @@ foo.fas: foo.lisp
 	clisp -c foo
 
 bar.fas: bar.lisp foo.fas
-        clisp -c bar
+	clisp -c bar
 </programlisting>
 instead of the more cumbersome (and slower, since &lib-file;s are
 usually smaller and load faster that &fasl-file;s):
