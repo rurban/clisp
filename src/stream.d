@@ -17402,7 +17402,7 @@ LISPFUN(file_stat,1,1,norest,nokey,0,NIL)
               stat(string,&buf) : lstat(string,&buf)))
       { OS_error(); }
     end_system_call();
-  } else fehler_thing(file);
+  } else fehler_pathname_descriptor(file);
 
   pushSTACK(file);                    # the object stat'ed
   pushSTACK(L_to_I(buf.st_dev));      # device
