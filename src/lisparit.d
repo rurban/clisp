@@ -257,23 +257,21 @@
           write_ascii_char(stream_,'-');
           z = I_minus_I(popSTACK());
         }
-     { SAVE_NUM_STACK # num_stack retten
-       var uintD* MSDptr;
-       var uintC len;
-       I_to_NDS(z, MSDptr=,len=,); # z als UDS
-      {var uintL need = digits_need(len,base);
-       var DYNAMIC_ARRAY(ziffern,chart,need); # Platz für die Ziffern
-       var DIGITS erg; erg.LSBptr = &ziffern[need];
-       UDS_to_DIGITS(MSDptr,len,(uintD)base,&erg); # Umwandlung in Ziffern
-       # Ziffern ausgeben:
-       if (write_char_array(*stream_,erg.MSBptr,erg.len) == NULL)
-         { var const chart* ptr = erg.MSBptr;
-           var uintL count;
-           dotimespL(count,erg.len, { write_code_char(stream_,*ptr++); } );
-         }
-       FREE_DYNAMIC_ARRAY(ziffern);
-       RESTORE_NUM_STACK # num_stack zurück
-    }}}
+     {  SAVE_NUM_STACK # num_stack retten
+        var uintD* MSDptr;
+        var uintC len;
+        I_to_NDS(z, MSDptr=,len=,); # z als UDS
+      { var uintL need = digits_need(len,base);
+        var DYNAMIC_STRING(digits,need);
+        pushSTACK(digits);
+       {var DIGITS erg; erg.LSBptr = &TheSstring(digits)->data[need];
+        UDS_to_DIGITS(MSDptr,len,(uintD)base,&erg); # Umwandlung in Ziffern
+        # Ziffern ausgeben:
+        write_char_array(stream_,&STACK_0,erg.MSBptr-&TheSstring(digits)->data[0],erg.len);
+        FREE_DYNAMIC_STRING(STACK_0);
+        skipSTACK(1);
+        RESTORE_NUM_STACK # num_stack zurück
+    }}}}
 
 # UP: Gibt ein Float aus.
 # print_float(z,&stream);

@@ -148,12 +148,12 @@
     typedef void (* wr_ch_Pseudofun) (const object* stream_, object obj);
   #
   # Spezifikation für WRITE-CHAR-ARRAY - Pseudofunktion:
-  # fun(stream,charptr,len)
-  # > stream: Stream
-  # > chart* charptr: Adresse der zu schreibenden Zeichenfolge
-  # > uintL len: Länge der zu schreibenden Zeichenfolge, >0
-  # < chart* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
-    typedef const chart* (* wr_ch_array_Pseudofun) (object stream, const chart* charptr, uintL len);
+  # fun(&stream,&chararray,start,len)
+  # > stream: stream 
+  # > object chararray: simple-string
+  # > uintL start: start index of character sequence to be written
+  # > uintL len: length of character sequence to be written, >0
+    typedef void (* wr_ch_array_Pseudofun) (const object* stream_, const object* chararray_, uintL start, uintL len);
   #
   # Spezifikation für WRITE-SIMPLE-STRING - Pseudofunktion:
   # fun(&stream,string,start,len)
@@ -332,18 +332,32 @@
     var const object* stream_;
     var object obj;
     { fehler_illegal_streamop(S(write_char),*stream_); }
-  local const chart* wr_ch_array_error (object stream, const chart* charptr, uintL len);
-  local const chart* wr_ch_array_error(stream,charptr,len)
-    var object stream;
-    var const chart* charptr;
+  local void wr_ch_array_error (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local void wr_ch_array_error(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
-    { fehler_illegal_streamop(S(write_char),stream); }
-  local const chart* wr_ch_array_dummy (object stream, const chart* charptr, uintL len);
-  local const chart* wr_ch_array_dummy(stream,charptr,len)
-    var object stream;
-    var const chart* charptr;
+    { fehler_illegal_streamop(S(write_char),*stream_); }
+  local void wr_ch_array_dummy (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local void wr_ch_array_dummy(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
-    { return NULL; }
+    { var uintL end = start + len;
+      var uintL index = start;
+      SstringDispatch(*chararray_,
+        { do { write_char(stream_,code_char(TheSstring(*chararray_)->data[index]));
+               index++;
+             } while (index < end);
+        },
+        { do { write_char(stream_,code_char(as_chart(TheSmallSstring(*chararray_)->data[index])));
+               index++;
+             } while (index < end);
+        }
+        );
+    }
   local void wr_ss_dummy (const object* stream_, object string, uintL start, uintL len);
   local void wr_ss_dummy(stream_,string,start,len)
     var const object* stream_;
@@ -651,19 +665,20 @@
         #endif
     }}
 
-# UP: Schreibt mehrere Characters auf einen Stream.
-# write_char_array(stream,charptr,len)
-# > stream: Stream
-# > chart* charptr: Adresse der zu schreibenden Zeichenfolge
-# > uintL len: Länge der zu schreibenden Zeichenfolge
-# < chart* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
-  global const chart* write_char_array (object stream, const chart* charptr, uintL len);
-  global const chart* write_char_array(stream,charptr,len)
-    var object stream;
-    var const chart* charptr;
+# Function: Writes several characters to a stream.
+# write_char_array(&stream,&chararray,start,len)
+# > stream: stream (on the STACK)
+# > object chararray: simple-string (on the STACK)
+# > uintL start: start index of character sequence to be written
+# > uintL len: length of character sequence to be written
+  global void write_char_array (const object* stream_, const object* chararray_, uintL start, uintL len);
+  global void write_char_array(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
-    { if (len==0) { return charptr; }
-      return wr_ch_array(stream)(stream,charptr,len);
+    { if (len==0) return;
+      wr_ch_array(*stream_)(stream_,chararray_,start,len);
     }
 
 # UP: Füllt beim Schließen eines Streams die Dummy-Pseudofunktionen ein.
@@ -983,16 +998,18 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     }}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für Synonym-Streams:
-  local const chart* wr_ch_array_synonym (object stream, const chart* charptr, uintL len);
-  local const chart* wr_ch_array_synonym(stream,charptr,len)
-    var object stream;
-    var const chart* charptr;
+  local void wr_ch_array_synonym (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local void wr_ch_array_synonym(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
-    { check_SP();
-     {var object symbol = TheStream(stream)->strm_synonym_symbol;
-      return write_char_array(get_synonym_stream(symbol),charptr,len);
+    { check_SP(); check_STACK();
+      pushSTACK(get_synonym_stream(TheStream(*stream_)->strm_synonym_symbol));
+      write_char_array(&STACK_0,chararray_,start,len);
+      skipSTACK(1);
       # No need to update wr_ch_lpos here. (See get_line_position.)
-    }}
+    }
 
 # WRITE-SIMPLE-STRING - Pseudofunktion für Synonym-Streams:
   local void wr_ss_synonym (const object* stream_, object string, uintL start, uintL len);
@@ -1213,19 +1230,22 @@ LISPFUNN(synonym_stream_symbol,1)
     }
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für Broadcast-Streams:
-  local const chart* wr_ch_array_broad0 (object stream, const chart* charptr, uintL len);
-  local const chart* wr_ch_array_broad0(stream,charptr,len)
-    var object stream;
-    var const chart* charptr;
+  local void wr_ch_array_broad (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local void wr_ch_array_broad(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
-    { return charptr+len; }
-  local const chart* wr_ch_array_broad1 (object stream, const chart* charptr, uintL len);
-  local const chart* wr_ch_array_broad1(stream,charptr,len)
-    var object stream;
-    var const chart* charptr;
-    var uintL len;
-    { check_SP();
-      return write_char_array(Car(TheStream(stream)->strm_broad_list),charptr,len);
+    { var object streamlist;
+      check_SP(); check_STACK();
+      pushSTACK(TheStream(*stream_)->strm_broad_list); # list of streams
+      while (streamlist = STACK_0, consp(streamlist))
+        { STACK_0 = Cdr(streamlist);
+          pushSTACK(Car(streamlist));
+          write_char_array(&STACK_0,chararray_,start,len);
+          skipSTACK(1);
+        }
+      skipSTACK(1);
       # No need to update wr_ch_lpos here. (See get_line_position.)
     }
 
@@ -1324,14 +1344,7 @@ LISPFUNN(synonym_stream_symbol,1)
       TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_broad);
-      TheStream(stream)->strm_wr_ch_array =
-        (consp(list)
-         ? (consp(Cdr(list))
-            ? P(wr_ch_array_dummy) # >= 2 streams, too complicated
-            : P(wr_ch_array_broad1) # just 1 stream
-           )
-         : P(wr_ch_array_broad0) # no streams
-        );
+      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_broad);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
       TheStream(stream)->strm_wr_ss = P(wr_ss_broad);
       TheStream(stream)->strm_broad_list = list;
@@ -1661,13 +1674,16 @@ LISPFUNN(concatenated_stream_streams,1)
     }
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für Two-Way- und Echo-Streams:
-  local const chart* wr_ch_array_twoway (object stream, const chart* charptr, uintL len);
-  local const chart* wr_ch_array_twoway(stream,charptr,len)
-    var object stream;
-    var const chart* charptr;
+  local void wr_ch_array_twoway (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local void wr_ch_array_twoway(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
-    { check_SP();
-      return write_char_array(TheStream(stream)->strm_twoway_output,charptr,len);
+    { check_SP(); check_STACK();
+      pushSTACK(TheStream(*stream_)->strm_twoway_output);
+      write_char_array(&STACK_0,chararray_,start,len);
+      skipSTACK(1);
       # No need to update wr_ch_lpos here. (See get_line_position.)
     }
 
@@ -1943,8 +1959,9 @@ LISPFUNN(two_way_stream_output_stream,1)
     { check_SP(); check_STACK();
       pushSTACK(TheStream(*stream_)->strm_twoway_input);
      {var uintL result = read_char_array(&STACK_0,chararray_,start,len);
+      STACK_0 = TheStream(*stream_)->strm_twoway_output;
+      write_char_array(&STACK_0,chararray_,start,result);
       skipSTACK(1);
-      write_char_array(TheStream(*stream_)->strm_twoway_output,&TheSstring(*chararray_)->data[start],result);
       return result;
     }}
 
@@ -2193,6 +2210,18 @@ LISPFUNN(string_input_stream_index,1)
       ssstring_push_extend(TheStream(stream)->strm_str_out_string,char_code(ch));
     }
 
+# WRITE-CHAR-ARRAY - Pseudofunktion für String-Output-Streams:
+  local void wr_ch_array_str_out (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local void wr_ch_array_str_out(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
+    var uintL len;
+    { var object ssstring = TheStream(*stream_)->strm_str_out_string; # Semi-Simple-String
+      ssstring = ssstring_append_extend(ssstring,*chararray_,start,len);
+      wr_ss_lpos(*stream_,&TheSstring(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],len); # Line-Position aktualisieren
+    }
+
 # WRITE-SIMPLE-STRING - Pseudofunktion für String-Output-Streams:
   local void wr_ss_str_out (const object* stream_, object string, uintL start, uintL len);
   local void wr_ss_str_out(stream_,srcstring,start,len)
@@ -2224,7 +2253,7 @@ LISPFUNN(string_input_stream_index,1)
       TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_str_out);
-      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_dummy);
+      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_str_out);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
       TheStream(stream)->strm_wr_ss = P(wr_ss_str_out);
       TheStream(stream)->strm_str_out_string = popSTACK(); # String eintragen
@@ -2387,6 +2416,19 @@ LISPFUNN(string_stream_p,1)
       ssstring_push_extend(Car(TheStream(stream)->strm_pphelp_strings),c);
     }}
 
+# WRITE-CHAR-ARRAY - Pseudofunktion für Pretty-Printer-Hilfs-Streams:
+  local void wr_ch_array_pphelp (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local void wr_ch_array_pphelp(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
+    var uintL len;
+    { var object ssstring = Car(TheStream(*stream_)->strm_pphelp_strings); # Semi-Simple-String
+      ssstring = ssstring_append_extend(ssstring,*chararray_,start,len);
+      if (wr_ss_lpos(*stream_,&TheSstring(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],len)) # Line-Position aktualisieren
+        { TheStream(*stream_)->strm_pphelp_modus = T; } # Nach NL: Modus := Mehrzeiler
+    }
+
 # WRITE-SIMPLE-STRING - Pseudofunktion für Pretty-Printer-Hilfs-Streams:
   local void wr_ss_pphelp (const object* stream_, object string, uintL start, uintL len);
   local void wr_ss_pphelp(stream_,srcstring,start,len)
@@ -2424,7 +2466,7 @@ LISPFUNN(string_stream_p,1)
       TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_pphelp);
-      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_dummy);
+      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_pphelp);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
       TheStream(stream)->strm_wr_ss = P(wr_ss_pphelp);
       TheStream(stream)->strm_pphelp_strings = popSTACK(); # String-Liste eintragen
@@ -5316,12 +5358,16 @@ global object iconv_range(encoding,start,end)
     }}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für Unbuffered-Channel-Streams:
-  local const chart* wr_ch_array_unbuffered_unix (object stream, const chart* charptr, uintL len);
-  local const chart* wr_ch_array_unbuffered_unix(stream,charptr,len)
-    var object stream;
-    var const chart* charptr;
+  local void wr_ch_array_unbuffered_unix (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local void wr_ch_array_unbuffered_unix(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
-    {
+    { var object stream = *stream_;
+      var const chart* charptr;
+      unpack_sstring_alloca(*chararray_,len,start, charptr=);
+     {
       #ifdef UNICODE
       #define tmpbufsize 4096
       var const chart* endptr = charptr + len;
@@ -5337,8 +5383,7 @@ global object iconv_range(encoding,start,end)
       var const chart* endptr = UnbufferedStreamLow_write_array(stream)(stream,charptr,len);
       #endif
       wr_ss_lpos(stream,endptr,len); # Line-Position aktualisieren
-      return endptr;
-    }
+    }}
 
 # WRITE-SIMPLE-STRING - Pseudofunktion für Unbuffered-Channel-Streams:
   local void wr_ss_unbuffered_unix (const object* stream_, object string, uintL start, uintL len);
@@ -5348,10 +5393,10 @@ global object iconv_range(encoding,start,end)
     var uintL start;
     var uintL len;
     { if (len==0) return;
-     {var const chart* charptr;
-      unpack_sstring_alloca(string,len,start, charptr=);
-      wr_ch_array_unbuffered_unix(*stream_,charptr,len);
-    }}
+      pushSTACK(string);
+      wr_ch_array_unbuffered_unix(stream_,&STACK_0,start,len);
+      skipSTACK(1);
+    }
 
 # WRITE-CHAR - Pseudofunktion für Unbuffered-Channel-Streams:
   local void wr_ch_unbuffered_mac (const object* stream_, object ch);
@@ -5378,12 +5423,16 @@ global object iconv_range(encoding,start,end)
     }}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für Unbuffered-Channel-Streams:
-  local const chart* wr_ch_array_unbuffered_mac (object stream, const chart* charptr, uintL len);
-  local const chart* wr_ch_array_unbuffered_mac(stream,charptr,len)
-    var object stream;
-    var const chart* charptr;
+  local void wr_ch_array_unbuffered_mac (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local void wr_ch_array_unbuffered_mac(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
-    { # Need a temporary buffer for NL->CR translation.
+    { var object stream = *stream_;
+      var const chart* charptr;
+      unpack_sstring_alloca(*chararray_,len,start, charptr=);
+     {# Need a temporary buffer for NL->CR translation.
       #define tmpbufsize 4096
       var chart tmpbuf[tmpbufsize];
       #ifdef UNICODE
@@ -5416,8 +5465,7 @@ global object iconv_range(encoding,start,end)
       } while (remaining > 0);
       #undef tmpbufsize
       wr_ss_lpos(stream,charptr,len); # Line-Position aktualisieren
-      return charptr;
-    }
+    }}
 
 # WRITE-SIMPLE-STRING - Pseudofunktion für Unbuffered-Channel-Streams:
   local void wr_ss_unbuffered_mac (const object* stream_, object string, uintL start, uintL len);
@@ -5427,10 +5475,10 @@ global object iconv_range(encoding,start,end)
     var uintL start;
     var uintL len;
     { if (len==0) return;
-     {var const chart* charptr;
-      unpack_sstring_alloca(string,len,start, charptr=);
-      wr_ch_array_unbuffered_mac(*stream_,charptr,len);
-    }}
+      pushSTACK(string);
+      wr_ch_array_unbuffered_mac(stream_,&STACK_0,start,len);
+      skipSTACK(1);
+    }
 
 # WRITE-CHAR - Pseudofunktion für Unbuffered-Channel-Streams:
   local void wr_ch_unbuffered_dos (const object* stream_, object ch);
@@ -5463,12 +5511,16 @@ global object iconv_range(encoding,start,end)
     }}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für Unbuffered-Channel-Streams:
-  local const chart* wr_ch_array_unbuffered_dos (object stream, const chart* charptr, uintL len);
-  local const chart* wr_ch_array_unbuffered_dos(stream,charptr,len)
-    var object stream;
-    var const chart* charptr;
+  local void wr_ch_array_unbuffered_dos (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local void wr_ch_array_unbuffered_dos(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
-    { # Need a temporary buffer for NL->CR/LF translation.
+    { var object stream = *stream_;
+      var const chart* charptr;
+      unpack_sstring_alloca(*chararray_,len,start, charptr=);
+     {# Need a temporary buffer for NL->CR/LF translation.
       #define tmpbufsize 4096
       var chart tmpbuf[2*tmpbufsize];
       #ifdef UNICODE
@@ -5503,8 +5555,7 @@ global object iconv_range(encoding,start,end)
       } while (remaining > 0);
       #undef tmpbufsize
       wr_ss_lpos(stream,charptr,len); # Line-Position aktualisieren
-      return charptr;
-    }
+    }}
 
 # WRITE-SIMPLE-STRING - Pseudofunktion für Unbuffered-Channel-Streams:
   local void wr_ss_unbuffered_dos (const object* stream_, object string, uintL start, uintL len);
@@ -5514,10 +5565,10 @@ global object iconv_range(encoding,start,end)
     var uintL start;
     var uintL len;
     { if (len==0) return;
-     {var const chart* charptr;
-      unpack_sstring_alloca(string,len,start, charptr=);
-      wr_ch_array_unbuffered_dos(*stream_,charptr,len);
-    }}
+      pushSTACK(string);
+      wr_ch_array_unbuffered_dos(stream_,&STACK_0,start,len);
+      skipSTACK(1);
+    }
 
 # UP: Bringt den wartenden Output eines Unbuffered-Channel-Stream ans Ziel.
 # finish_output_unbuffered(stream);
@@ -6605,12 +6656,16 @@ typedef struct strm_i_buffered_extrafields_struct {
     }}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für File-Streams für Characters:
-  local const chart* wr_ch_array_buffered_unix (object stream, const chart* charptr, uintL len);
-  local const chart* wr_ch_array_buffered_unix(stream,charptr,len)
-    var object stream;
-    var const chart* charptr;
+  local void wr_ch_array_buffered_unix (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local void wr_ch_array_buffered_unix(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
-    { var const chart* endptr = charptr + len;
+    { var object stream = *stream_;
+      var const chart* charptr;
+      unpack_sstring_alloca(*chararray_,len,start, charptr=);
+     {var const chart* endptr = charptr + len;
       #ifdef UNICODE
       #define tmpbufsize 4096
       var uintB tmptmpbuf[tmpbufsize*max_bytes_per_chart];
@@ -6630,8 +6685,7 @@ typedef struct strm_i_buffered_extrafields_struct {
       BufferedStream_position(stream) += len;
       #endif
       wr_ss_lpos(stream,endptr,len); # Line-Position aktualisieren
-      return endptr;
-    }
+    }}
 
 # WRITE-SIMPLE-STRING - Pseudofunktion für File-Streams für Characters
   local void wr_ss_buffered_unix (const object* stream_, object string, uintL start, uintL len);
@@ -6641,10 +6695,10 @@ typedef struct strm_i_buffered_extrafields_struct {
     var uintL start;
     var uintL len;
     { if (len==0) return;
-     {var const chart* charptr;
-      unpack_sstring_alloca(string,len,start, charptr=);
-      wr_ch_array_buffered_unix(*stream_,charptr,len);
-    }}
+      pushSTACK(string);
+      wr_ch_array_buffered_unix(stream_,&STACK_0,start,len);
+      skipSTACK(1);
+    }
 
 # WRITE-CHAR - Pseudofunktion für File-Streams für Characters
   local void wr_ch_buffered_mac (const object* stream_, object obj);
@@ -6674,12 +6728,16 @@ typedef struct strm_i_buffered_extrafields_struct {
     }}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für File-Streams für Characters:
-  local const chart* wr_ch_array_buffered_mac (object stream, const chart* charptr, uintL len);
-  local const chart* wr_ch_array_buffered_mac(stream,charptr,len)
-    var object stream;
-    var const chart* charptr;
+  local void wr_ch_array_buffered_mac (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local void wr_ch_array_buffered_mac(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
-    {
+    { var object stream = *stream_;
+      var const chart* charptr;
+      unpack_sstring_alloca(*chararray_,len,start, charptr=);
+     {
       #ifdef UNICODE
       # Need a temporary buffer for NL->CR translation.
       #define tmpbufsize 4096
@@ -6720,8 +6778,7 @@ typedef struct strm_i_buffered_extrafields_struct {
          until (remaining == 0);
       #endif
       wr_ss_lpos(stream,charptr,len); # Line-Position aktualisieren
-      return charptr;
-    }
+    }}
 
 # WRITE-SIMPLE-STRING - Pseudofunktion für File-Streams für Characters
   local void wr_ss_buffered_mac (const object* stream_, object string, uintL start, uintL len);
@@ -6731,10 +6788,10 @@ typedef struct strm_i_buffered_extrafields_struct {
     var uintL start;
     var uintL len;
     { if (len==0) return;
-     {var const chart* charptr;
-      unpack_sstring_alloca(string,len,start, charptr=);
-      wr_ch_array_buffered_mac(*stream_,charptr,len);
-    }}
+      pushSTACK(string);
+      wr_ch_array_buffered_mac(stream_,&STACK_0,start,len);
+      skipSTACK(1);
+    }
 
 # WRITE-CHAR - Pseudofunktion für File-Streams für Characters
   local void wr_ch_buffered_dos (const object* stream_, object obj);
@@ -6770,12 +6827,16 @@ typedef struct strm_i_buffered_extrafields_struct {
     }}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für File-Streams für Characters:
-  local const chart* wr_ch_array_buffered_dos (object stream, const chart* charptr, uintL len);
-  local const chart* wr_ch_array_buffered_dos(stream,charptr,len)
-    var object stream;
-    var const chart* charptr;
+  local void wr_ch_array_buffered_dos (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local void wr_ch_array_buffered_dos(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
-    {
+    { var object stream = *stream_;
+      var const chart* charptr;
+      unpack_sstring_alloca(*chararray_,len,start, charptr=);
+     {
       #ifdef UNICODE
       # Need a temporary buffer for NL->CR translation.
       #define tmpbufsize 4096
@@ -6820,8 +6881,7 @@ typedef struct strm_i_buffered_extrafields_struct {
          until (remaining == 0);
       #endif
       wr_ss_lpos(stream,charptr,len); # Line-Position aktualisieren
-      return charptr;
-    }
+    }}
 
 # WRITE-SIMPLE-STRING - Pseudofunktion für File-Streams für Characters
   local void wr_ss_buffered_dos (const object* stream_, object string, uintL start, uintL len);
@@ -6831,10 +6891,10 @@ typedef struct strm_i_buffered_extrafields_struct {
     var uintL start;
     var uintL len;
     { if (len==0) return;
-     {var const chart* charptr;
-      unpack_sstring_alloca(string,len,start, charptr=);
-      wr_ch_array_buffered_dos(*stream_,charptr,len);
-    }}
+      pushSTACK(string);
+      wr_ch_array_buffered_dos(stream_,&STACK_0,start,len);
+      skipSTACK(1);
+    }
 
 # File-Stream, Bit-basiert
 # ========================
@@ -9909,42 +9969,42 @@ LISPFUNN(make_keyboard_stream,0)
     var uintL start;
     var uintL len;
     { if (len==0) return;
-     {var const chart* ptr;
-      unpack_sstring_alloca(string,len,start, ptr =);
-      wr_ch_array_unbuffered_unix(*stream_,ptr,len);
+      wr_ss_unbuffered_unix(stream_,string,start,len);
       #if TERMINAL_OUTBUFFERED
-      # Zeichen seit dem letzten NL in den Buffer:
-      { var uintL pos = 0; # zähle die Zahl der Zeichen seit dem letzten NL
-        var uintL count;
-        ptr += len;
-        dotimespL(count,len, { if (chareq(*--ptr,ascii(NL))) goto found_NL; pos++; } );
-        if (FALSE)
-          found_NL: # pos Zeichen seit dem letzten NL
-          { ptr++;
-            TheIarray(TheStream(*stream_)->strm_terminal_outbuff)->dims[1] = 0; # Fill-Pointer := 0
-          }
-        if (pos > 0)
-          { SstringDispatch(string,
-              { # ptr points into the string, not GC-safe.
-                var uintL index = start + len - pos;
-                pushSTACK(string);
-                dotimespL(count,pos,
-                  { ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,
-                                         TheSstring(STACK_0)->data[index]);
-                    index++;
-                  });
-                string = popSTACK();
-              },
-              { # ptr points into the stack, not the string, so it's GC-safe.
-                dotimespL(count,pos,
-                  { ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,
-                                         *ptr++);
-                  });
-              }
-              );
-      }   }
+      {var const chart* ptr;
+       unpack_sstring_alloca(string,len,start, ptr =);
+       # Zeichen seit dem letzten NL in den Buffer:
+       { var uintL pos = 0; # zähle die Zahl der Zeichen seit dem letzten NL
+         var uintL count;
+         ptr += len;
+         dotimespL(count,len, { if (chareq(*--ptr,ascii(NL))) goto found_NL; pos++; } );
+         if (FALSE)
+           found_NL: # pos Zeichen seit dem letzten NL
+           { ptr++;
+             TheIarray(TheStream(*stream_)->strm_terminal_outbuff)->dims[1] = 0; # Fill-Pointer := 0
+           }
+         if (pos > 0)
+           { SstringDispatch(string,
+               { # ptr points into the string, not GC-safe.
+                 var uintL index = start + len - pos;
+                 pushSTACK(string);
+                 dotimespL(count,pos,
+                   { ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,
+                                          TheSstring(STACK_0)->data[index]);
+                     index++;
+                   });
+                 string = popSTACK();
+               },
+               { # ptr points into the stack, not the string, so it's GC-safe.
+                 dotimespL(count,pos,
+                   { ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,
+                                          *ptr++);
+                   });
+               }
+               );
+      }}   }
       #endif
-    }}
+    }
 
 # UP: Löscht den wartenden Output eines Terminal-Stream.
 # clear_output_terminal3(stream);
