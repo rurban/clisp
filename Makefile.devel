@@ -271,6 +271,7 @@ distrib : linux-distrib src-distrib
 # news:comp.os.linux.announce
 # http://freshmeat.net/projects/clisp/
 # https://sourceforge.net/news/submit.php?group_id=1355
+# https://www.opensourcedirectory.org/projects/clisp/
 # www/index.php and www/impnotes.html have to be updated too
 
 src-distrib : src/FILES src/version.h potfiles force
