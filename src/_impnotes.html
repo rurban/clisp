@@ -327,8 +327,8 @@ The class precedence lists of the system classes
 <h3><a href="CLHSROOT/Body/sec_2-3-4.html">
     2.3.4 Symbols as Tokens</a></h3>
 
-<p>A &#34;reserved <a href="CLHSROOT/Body/glo_t.html#token">token</a>&#34;,
-i.e. a token that has potential number syntax but cannot be interpreted
+<p>A "reserved token", i.e., a <a href="CLHSROOT/Body/glo_t.html#token">
+token</a> that has potential number syntax but cannot be interpreted
 as a number, is interpreted as symbol when being read.
 
 <p>When creating a symbol from a token, no character attributes are removed.
@@ -636,7 +636,8 @@ class is evaluated.
 
 <p><a href="CLHSROOT/Body/mac_defclass.html">
 <code>defclass</code></a> supports the option <code>:metaclass
-structure-class</code>. This option is necessary in order to define a
+<a href="CLHSROOT/Body/syscla_structure-class.html">
+structure-class</a></code>. This option is necessary in order to define a
 subclass of a <a href="CLHSROOT/Body/mac_defstruct.html">
 <code>defstruct</code></a>-defined structure type using
 <a href="CLHSROOT/Body/mac_defclass.html">
@@ -659,7 +660,7 @@ local macros, not local functions.  Use <code>#'(lambda ()
 you really need it as a function.
 
 <p>There is a generic function
-<code><strong>no-primary-method</strong></code> (analogous to
+<code><strong>clos:no-primary-method</strong></code> (analogous to
 <a href="CLHSROOT/Body/stagenfun_no-_cable-method.html">
 <code>no-applicable-method</code></a>) which is called when a generic
 function of the class <a href="CLHSROOT/Body/syscla_standa_ric-function.html">
@@ -1259,7 +1260,7 @@ like. The following rules must be obeyed:
 </ul>
 
 <p>The <code>:inherit</code> option is exactly like
-<code>:include</code> except that it doesn't create
+<code>:include</code> except that it does not create
 new accessors for the inherited slots.
 
 
@@ -1376,14 +1377,19 @@ performed by <a href="CLHSROOT/Body/mac_restart-case.html">
 <h2><a name="packages"></a><a href="CLHSROOT/Body/chap-11.html">
     Chapter 11: Packages</a></h2>
 
-<p>The ANSI CL packages
+<p>The standard ANSI CL packages
 <ul>
- <li> <code>COMMON-LISP</code> with nickname <code>"CL"</code> and
- <li> <code>COMMON-LISP-USER</code> with nickname
- <code>"CL-USER"</code>
+ <li><a href="CLHSROOT/Body/sec_11-1-2-1.html">
+     <code>COMMON-LISP</code></a> with the nickname <code>"CL"</code>;
+ <li><a href="CLHSROOT/Body/sec_11-1-2-2.html">
+     <code>COMMON-LISP-USER</code></a> with the nickname
+     <code>"CL-USER"</code> and
+ <li><a href="CLHSROOT/Body/sec_11-1-2-3.html">
+     <code>KEYWORD</code></a>
 </ul>
 
-<p>are implemented. The package <code>COMMON-LISP</code> exports only
+<p>are implemented. The package <a href="CLHSROOT/Body/sec_11-1-2-1.html">
+<code>COMMON-LISP</code></a> exports only
 those symbols from the ANSI CL standard that are actually implemented.
 
 <a name="clupack"></a><h3><a href="CLHSROOT/Body/sec_11-1-2-2.html">
@@ -1441,7 +1447,7 @@ keyword argument <code>:case-sensitive</code>.  Similarly,
 <code>defpackage</code></a> accepts an option
 <code>:case-sensitive</code>. When its value is non-<a
 href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>, the package will
-be case sensitive, i.e. the reader will not case-convert symbol names
+be case sensitive, i.e., the reader will not case-convert symbol names
 before looking them up or creating them in this package. The package
 names are still subject to <code>(<a
 href="CLHSROOT/Body/acc_readtable-case.html">readtable-case</a> <a
@@ -1577,8 +1583,8 @@ short-&gt;single-&gt;double-&gt;long.
  insufficient precision, an outright incorrect result can be returned.
  (E.g., <code>E(x^2)-E(x)^2</code> can be negative!)  The user should not
  mix floats of different precision (that's what
- <code>*warn-on-floating-point-contagion*</code> is for), but s/he should
- not be penalized for this too harshly.
+ <code>lisp:*warn-on-floating-point-contagion*</code> is for), but one
+ should not be penalized for this too harshly.
 </dl>
 
 <p>When <code>lisp:*floating-point-contagion-ansi*</code> is nil, the
@@ -1623,15 +1629,17 @@ floats (due to <code>float</code>, <code>coerce</code>,
 given by the variable
 <code><strong>lisp:*default-float-format*</strong></code>.
 
-<h4>without-floating-point-underflow</h4>
+<h4>lisp:without-floating-point-underflow</h4>
 
 <p>The macro
   <code><strong>lisp:without-floating-point-underflow</strong></code>:
   <code>(without-floating-point-underflow {<var>form</var>}*)</code>
 executes the <var>form</var>s, with errors of type
-<code>floating-point-underflow</code> inhibited.  Floating point
+<a href="CLHSROOT/Body/contyp_floati_nt-underflow.html">
+<code>floating-point-underflow</code></a> inhibited.  Floating point
 operations will silently return zero instead of signalling an error of
-type <code>floating-point-underflow</code>.
+type <a href="CLHSROOT/Body/contyp_floati_nt-underflow.html">
+<code>floating-point-underflow</code></a>.
 
 <h3><a href="CLHSROOT/Body/sec_12-1-5.html">
     12.1.5 Complex Computations</a></h3>
@@ -1936,7 +1944,7 @@ blank here cannot be represented in this character set).
 <!-- #if defined(NEXTSTEP_CHS) && !defined(UNICODE) -->
 <dl>
 <dt><em>Platform dependent: <strong>NeXTstep</strong> platforms only,
-    and only in clisp built <strong>without</strong> compile-time flag
+    and only in CLISP built <strong>without</strong> compile-time flag
     <code><strong>UNICODE</strong></code>.</em>
 <dd>More precisely, CLISP uses the NextStep character set:
 <table border=1>
@@ -2211,7 +2219,7 @@ See the description of <a href="#encoding">encodings</a>.
 <code>char-code</code></a> takes values from 0 (inclusive) to
 <a href="CLHSROOT/Body/convar_char-code-limit.html">
 <code>char-code-limit</code></a> (exclusive), i.e., the implementation
-supports <a href="CLHSROOT/Body/convar_char-code-limit.html">
+supports exactly <a href="CLHSROOT/Body/convar_char-code-limit.html">
 <code>char-code-limit</code></a> characters.
 <table border=1>
  <tr> <th>binaries built ...
@@ -2643,11 +2651,10 @@ directories can not be used interchangeably.
 <!-- #endif -->
 
 </dl>
-This is especially important for the functions
-<a href="CLHSROOT/Body/fun_directory.html">
-<code>directory</code></a>,
-<code>dir</code>, <code>cd</code>, <code>make-dir</code>,
-<code>delete-dir</code>.
+This is especially important for the functions <a
+href="#dir"><code>directory</code>, <code>lisp:dir</code>,
+<code>lisp:cd</code>, <code>lisp:make-dir</code>,
+<code>lisp:delete-dir</code></a>.
 
 <p>The minimum filename syntax that may be used portably is:
 <table>
@@ -3046,7 +3053,7 @@ characters, <code>'?'</code> matches any one character.
 <dt><em>Platform dependent: <strong>UNIX</strong>,
     <strong>OS/2</strong>, <strong>Win32</strong>,
     <strong>Amiga</strong> platforms only.</em>
-<dd>Due to the name/type splitting rule, there are pathnames that can't
+<dd>Due to the name/type splitting rule, there are pathnames that cannot
 result from <a href="CLHSROOT/Body/fun_parse-namestring.html">
 <code>parse-namestring</code></a>. To get a pathname whose type
 contains a dot or whose name contains a dot and whose type is
@@ -3495,7 +3502,7 @@ device is <a href="CLHSROOT/Body/convar_nil.html">
 characters, <code>'#'</code> or <code>'?'</code> matches any one
 character.
 
-<p>Due to the name/type swapping rule, there are pathnames that can't
+<p>Due to the name/type swapping rule, there are pathnames that cannot
 result from <a href="CLHSROOT/Body/fun_parse-namestring.html">
 <code>parse-namestring</code></a>. To get a pathname whose type
 is <a href="CLHSROOT/Body/convar_nil.html">
@@ -3742,8 +3749,9 @@ is a directory. It will, unlike
 <code>probe-file</code></a> or
 <a href="CLHSROOT/Body/fun_truename.html">
 <code>truename</code></a>, not signal an error if the parent directory
-of <var>pathname</var> doesn't exist.
+of <var>pathname</var> does not exist.
 
+<a name="dir"></a>
 <h4><a href="CLHSROOT/Body/fun_directory.html">
     directory</a></h4>
 
@@ -4273,7 +4281,7 @@ specified by <var><code>:start</code></var> and
 <a href="CLHSROOT/Body/syscla_string.html">
 <code>string</code></a> and <var>stream</var> is a
 <a href="#open">file</a>/<a href="#pipe">pipe</a>/<a href="#socket">socket</a>
-with element type <a href="CLHSROOT/Body/syscla_character.html">
+stream with element type <a href="CLHSROOT/Body/syscla_character.html">
 <code>character</code></a> or an
 <a href="CLHSROOT/Body/glo_i.html#input">
 input</a> <a href="CLHSROOT/Body/glo_s.html#string_stream">
@@ -4481,11 +4489,12 @@ the instruction how to type the character.
 <code>format</code></a>
 <a href="CLHSROOT/Body/sec_22-3-3-3.html"><code>~G</code></a>, the value of
 <a href="CLHSROOT/Body/var_stread-de_oat-formatst.html">
-<code>*read-default-float-format*</code></a> doesn't matter if
+<code>*read-default-float-format*</code></a> does not matter if
 <a href="CLHSROOT/Body/var_stprint-readablyst.html">
 <code>*print-readably*</code></a> is true.
 
-<p><code>format</code>
+<p><a href="CLHSROOT/Body/fun_format.html">
+<code>format</code></a>
 <a href="CLHSROOT/Body/sec_22-3-6-1.html"><code>~T</code></a>
 can determine the current column of any stream.
 
@@ -4994,13 +5003,13 @@ detail the stack is shown by the stack related debugger commands.
  <tr><th align=left width=100><code>Where</code>
      <td>shows the current stack frame.
  <tr><th align=left width=100><code>Up</code>
-     <td>goes up one frame, i.e. to the caller if in mode-5
+     <td>goes up one frame, i.e., to the caller if in mode-5
  <tr><th align=left width=100><code>Down</code>
-     <td>does down one frame, i.e. to the callee if in mode-5
+     <td>does down one frame, i.e., to the callee if in mode-5
  <tr><th align=left width=100><code>Top</code>
-     <td>goes to top frame, i.e. to the top-level form if in mode-4
+     <td>goes to top frame, i.e., to the top-level form if in mode-4
  <tr><th align=left width=100><code>Bottom</code>
-     <td>goes to bottom (most recent) frame, i.e. most probably to the
+     <td>goes to bottom (most recent) frame, i.e., most probably to the
          form or function that caused the debugger to be entered.
  <tr><th align=left width=100><code>Backtrace</code>
      <td>lists the stack in current mode, bottom frame first, top frame last.
@@ -5189,7 +5198,7 @@ second value of <a href="CLHSROOT/Body/fun_room.html">
 <code>room</code></a>.
 
 <h4><a href="CLHSROOT/Body/mac_time.html">
-    time</a></h4>
+    time</a> macro</h4>
 
 <p>The timing data printed by the macro <a
 href="CLHSROOT/Body/mac_time.html"> <code>time</code></a> includes: The real
@@ -5210,7 +5219,7 @@ defined in the current session (not loaded from a file), the program
 text to be edited is a pretty-printed version (without comments) of the
 text which was used to define the function.
 
-<h4>time</h4>
+<h4>clock time</h4>
 
 <!-- #if !(defined(UNIX) || defined(WIN32)) -->
 <dl>
@@ -5222,7 +5231,7 @@ contains the default time zone used by
 <code>encode-universal-time</code></a> and
 <a href="CLHSROOT/Body/fun_decode-universal-time.html">
 <code>decode-universal-time</code></a>. It is initially set to -1 (which
-means 1 hour east of Greenwich, i.e. Mid European Time).
+means 1 hour east of Greenwich, i.e., Mid European Time).
 </dl>
 <!-- #endif -->
 
@@ -6126,19 +6135,19 @@ invoked <code>lisp:saveinitmem</code>.
 [<var>errorp</var>])</code> and <code>(<strong>lisp:bye</strong>
 [<var>errorp</var>])</code> - all synonymous - terminate CLISP. If
 <var>errorp</var> is not <a href="CLHSROOT/Body/convar_nil.html">
-<code>nil</code></a>, CLISP aborts with error status, i.e. the
-environment is informed that the CLISP session didn't succeed.
+<code>nil</code></a>, CLISP aborts with error status, i.e., the
+environment is informed that the CLISP session did not succeed.
 
 <a name="language"></a><h3>Extensions-1.3. The Language</h3>
 
 <p>The language CLISP uses to communicate with the user can be either
-<code>ENGLISH</code> or <code>DEUTSCH</code> (i.e. german) or
-<code>FRANCAIS</code> (i.e. french) or <code>ESPA&Ntilde;OL</code> (i.e.
-spanish). More languages can be defined through the macro
+<code>ENGLISH</code> or <code>DEUTSCH</code> (i.e., German) or
+<code>FRANCAIS</code> (i.e., French) or <code>ESPA&Ntilde;OL</code> (i.e.
+Spanish). More languages can be defined through the macro
 <code><strong>lisp:deflanguage</strong></code>: <code>(lisp:deflanguage
 <var>lang</var>)</code> For such an additional language to take effect,
 you must install the corresponding message catalog, or translate the
-messages yourself, by use of GNU gettext and Emacs po-mode.
+messages yourself, using GNU gettext and Emacs po-mode.
 
 <p>The macros <code>ENGLISH</code>, <code>DEUTSCH</code>,
 <code>FRANCAIS</code> produce strings that depends on the language:
@@ -6224,44 +6233,46 @@ corresponding (constant) symbol in the <code>CHARSET</code> package.
       contain \u (backslash followed by lowercase Latin u) can be faithfully
       represented by this encoding.
   <li><code>ASCII</code>,
-      the well-known US centric 7-bit character set.
+      the well-known US-centric 7-bit character set (American Standard
+      Code for Information Interchange).
   <li><code>ISO-8859-1</code>,
-      an extension of the ASCII character set, suitable for the languages
-      Albanian, Catalan, Danish, Dutch, English, Faeroese, Finnish, French,
-      Galician, German, Icelandic, Irish, Italian, Norwegian, Portuguese,
-      Spanish, Swedish.
+      an extension of the ASCII character set, suitable for the
+      Albanian, Catalan, Danish, Dutch, English, Faeroese, Finnish,
+      French, Galician, German, Icelandic, Irish, Italian, Norwegian,
+      Portuguese, Spanish, and Swedish languages.
   <li><code>ISO-8859-2</code>,
-      an extension of the ASCII character set, suitable for the languages
-      Czech, German, Hungarian, Polish, Rumanian, Croatian, Slovak, Slovene.
+      an extension of the ASCII character set, suitable for the Czech,
+      German, Hungarian, Polish, Rumanian, Croatian, Slovak, and Slovene
+      languages.
   <li><code>ISO-8859-3</code>,
-      an extension of the ASCII character set, suitable for the languages
-      Esperanto, Galician, Maltese, Turkish.
+      an extension of the ASCII character set, suitable for the
+      Esperanto, Galician, Maltese, and Turkish languages.
   <li><code>ISO-8859-4</code>,
-      an extension of the ASCII character set, suitable for the languages
-      Estonian, Latvian, Lithuanian.
+      an extension of the ASCII character set, suitable for the
+      Estonian, Latvian, and Lithuanian languages.
   <li><code>ISO-8859-5</code>,
-      an extension of the ASCII character set, suitable for the language
-      Russian.
+      an extension of the ASCII character set, suitable for the
+      Russian language.
   <li><code>ISO-8859-6</code>,
-      suitable for the language Arabic.
+      suitable for the Arabic language.
   <li><code>ISO-8859-7</code>,
-      an extension of the ASCII character set, suitable for the language
-      Greek.
+      an extension of the ASCII character set, suitable for the Greek
+      language.
   <li><code>ISO-8859-8</code>,
-      an extension of the ASCII character set, suitable for the language
-      Hebrew (without punctuation).
+      an extension of the ASCII character set, suitable for the Hebrew
+      language (without punctuation).
   <li><code>ISO-8859-9</code>,
       an extension of the ASCII character set, suitable for the ISO-8859-1
       languages, plus Turkish.
   <li><code>ISO-8859-14</code>,
-      an extension of the ASCII character set, suitable for the languages
-      Inuit (Greenlandic), Sami (Lappish). (??)
+      an extension of the ASCII character set, suitable for the
+      Inuit (Greenlandic) and Sami (Lappish) languages. (??)
   <li><code>ISO-8859-15</code>,
       an extension of the ASCII character set, suitable for the ISO-8859-1
       languages, with improvements for French and the Euro.
   <li><code>KOI8-R</code>,
       an extension of the ASCII character set,
-      a popular character set for the language Russian.
+      a popular character set for the Russian language.
   <li><code>MAC-ARABIC</code>,
       a platform specific extension of the ASCII character set.
   <li><code>MAC-CENTRAL-EUROPE</code>,
@@ -6295,7 +6306,7 @@ corresponding (constant) symbol in the <code>CHARSET</code> package.
   <li><code>CP437-IBM</code>, an IBM variant of <code>CP437</code>.
   <li><code>CP737</code>, a DOS oldie,
       a platform specific extension of the ASCII character set,
-      meant to be suitable for the language Greek.
+      meant to be suitable for the Greek language.
   <li><code>CP775</code>, a DOS oldie,
       a platform specific extension of the ASCII character set,
       meant to be suitable for some Baltic languages.
@@ -6306,27 +6317,27 @@ corresponding (constant) symbol in the <code>CHARSET</code> package.
   <li><code>CP852-IBM</code>, an IBM variant of <code>CP852</code>.
   <li><code>CP855</code>, a DOS oldie,
       a platform specific extension of the ASCII character set,
-      meant to be suitable for the language Russian.
+      meant to be suitable for the Russian language.
   <li><code>CP857</code>, a DOS oldie,
       a platform specific extension of the ASCII character set,
-      meant to be suitable for the language Turkish.
+      meant to be suitable for the Turkish language.
   <li><code>CP860</code>, a DOS oldie,
       a platform specific extension of the ASCII character set,
-      meant to be suitable for the language Portuguese.
+      meant to be suitable for the Portuguese language.
   <li><code>CP860-IBM</code>, an IBM variant of <code>CP860</code>.
   <li><code>CP861</code>, a DOS oldie,
       a platform specific extension of the ASCII character set,
-      meant to be suitable for the language Icelandic.
+      meant to be suitable for the Icelandic language.
   <li><code>CP861-IBM</code>, an IBM variant of <code>CP861</code>.
   <li><code>CP862</code>, a DOS oldie,
       a platform specific extension of the ASCII character set,
-      meant to be suitable for the language Hebrew.
+      meant to be suitable for the Hebrew language.
   <li><code>CP862-IBM</code>, an IBM variant of <code>CP862</code>.
   <li><code>CP863</code>, a DOS oldie,
       a platform specific extension of the ASCII character set.
   <li><code>CP863-IBM</code>, an IBM variant of <code>CP863</code>.
   <li><code>CP864</code>, a DOS oldie,
-      meant to be suitable for the language Arabic.
+      meant to be suitable for the Arabic language.
   <li><code>CP864-IBM</code>, an IBM variant of <code>CP864</code>.
   <li><code>CP865</code>, a DOS oldie,
       a platform specific extension of the ASCII character set,
@@ -6334,14 +6345,14 @@ corresponding (constant) symbol in the <code>CHARSET</code> package.
   <li><code>CP865-IBM</code>, an IBM variant of <code>CP865</code>.
   <li><code>CP866</code>, a DOS oldie,
       a platform specific extension of the ASCII character set,
-      meant to be suitable for the language Russian.
+      meant to be suitable for the Russian language.
   <li><code>CP869</code>, a DOS oldie,
       a platform specific extension of the ASCII character set,
-      meant to be suitable for the language Greek.
+      meant to be suitable for the Greek language.
   <li><code>CP869-IBM</code>, an IBM variant of <code>CP869</code>.
   <li><code>CP874</code>, a DOS oldie,
       a platform specific extension of the ASCII character set,
-      meant to be suitable for the language Thai.
+      meant to be suitable for the Thai language.
   <li><code>CP874-IBM</code>, an IBM variant of <code>CP874</code>.
   <li><code>WINDOWS-1250</code> = <code>CP1250</code>,
       a platform specific extension of the ASCII character set,
@@ -6349,22 +6360,22 @@ corresponding (constant) symbol in the <code>CHARSET</code> package.
   <li><code>WINDOWS-1251</code> = <code>CP1251</code>,
       a platform specific extension of the ASCII character set,
       heavily incompatible with ISO-8859-5,
-      meant to be suitable for the language Russian.
+      meant to be suitable for the Russian language.
   <li><code>WINDOWS-1252</code> = <code>CP1252</code>,
       a platform specific extension of the ISO-8859-1 character set.
   <li><code>WINDOWS-1253</code> = <code>CP1253</code>,
       a platform specific extension of the ASCII character set,
       gratuitously incompatible with ISO-8859-7,
-      meant to be suitable for the language Greek.
+      meant to be suitable for the Greek language.
   <li><code>WINDOWS-1254</code> = <code>CP1254</code>,
       a platform specific extension of the ISO-8859-9 character set.
   <li><code>WINDOWS-1255</code> = <code>CP1255</code>,
       a platform specific extension of the ASCII character set,
       gratuitously incompatible with ISO-8859-8,
-      meant to be suitable for the language Hebrew.
+      meant to be suitable for the Hebrew language.
   <li><code>WINDOWS-1256</code> = <code>CP1256</code>,
       a platform specific extension of the ASCII character set,
-      meant to be suitable for the language Arabic.
+      meant to be suitable for the Arabic language.
   <li><code>WINDOWS-1257</code> = <code>CP1257</code>,
       a platform specific extension of the ASCII character set.
   <li><code>WINDOWS-1258</code> = <code>CP1258</code>,
@@ -6448,7 +6459,7 @@ sometimes they also accept <code>:unix</code> line terminators or produce
 
 <p>The line terminator mode is relevant only for output (writing to a file,
 pipe or socket). During input, all three kinds of line terminators are
-recognized. If you do not want this, i.e. if you really want to distinguish
+recognized. If you do not want this, i.e., if you really want to distinguish
 LF, CR and CR/LF, you have to resort to binary input (function
 <a href="CLHSROOT/Body/fun_read-byte.html"><code>read-byte</code></a>).
 
@@ -6457,11 +6468,11 @@ Input and Output</a>.
 
 <h4>lisp:make-encoding</h4>
 
-<p>The function <code>(<strong>lisp:make-encoding</strong> [:charset]
-[:line-terminator])</code> returns an encoding. The
-<code>:charset</code> argument may be an encoding, a string, or
-<code>:default</code>.  The possible values for the
-<code>:line-terminator</code> argument are the keywords
+<p>The function <code>(<strong>lisp:make-encoding</strong> &amp;key
+                       :charset :line-terminator)</code>
+returns an encoding. The <code>:charset</code> argument may be an
+encoding, a string, or <code>:default</code>.  The possible values for
+the <code>:line-terminator</code> argument are the keywords
 <code>:unix</code>, <code>:mac</code>, <code>:dos</code>.
 
 <p>Encodings are types.  As such, they represent the set of characters
@@ -6473,7 +6484,7 @@ be used on encodings.
 
 <p>Besides every <a href="#open">file</a>/<a href="#pipe">pipe</a>/<a
 href="#socket">socket</a> stream containing an encoding, the following
-symbol-macro places contain global encodings.
+symbol-macro places contain global encodings:
 
 <a name="def-file-enc"></a>
 <p><code><strong>lisp:*default-file-encoding*</strong></code> is the
@@ -6551,7 +6562,7 @@ never occurs.) It denotes a moment at which no references to
 
 <p>The variable <code><strong>sys::*prompt*</strong></code> controls the
 appearance of the prompt.  When its value is a function, it is called
-and it's value is printed with <a
+and its value is printed with <a
 href="CLHSROOT/Body/fun_writecm_p_rintcm_princ.html">
 <code>princ</code></a>.  Otherwise, the value itself is printed with <a
 href="CLHSROOT/Body/fun_writecm_p_rintcm_princ.html">
@@ -6559,7 +6570,7 @@ href="CLHSROOT/Body/fun_writecm_p_rintcm_princ.html">
 prints &#34;<var>package[nn]</var>&gt;&nbsp;&#34; where
 <var>package</var> is the shortest (nick)name of the current package <a
 href="CLHSROOT/Body/var_stpackagest.html"><code>*package*</code></a> if it
-is the same as it was in the beginning or if it doesn't contain symbol
+is the same as it was in the beginning or if it does not contain symbol
 <a href="CLHSROOT/Body/convar_t.html">
 <code>t</code></a> (it is assumed that in the latter case you would want to
 keep in mind that your current package is something weird); and
@@ -6605,7 +6616,7 @@ lisp.
      inode, protection, number of hard links, owner's UID, owner's GID,
      device type, total size (bytes), blocksize for filesystem I/O,
      number of blocks allocated, atime, mtime, ctime (as number of
-     seconds since 1900-01-01).  If the system doesn't support a
+     seconds since 1900-01-01).  If the system does not support a
      particular field (e.g., Win32 does not have hard links),
      <a href="CLHSROOT/Body/convar_nil.html">
      <code>nil</code></a> (or the default, like 1 for the number of
@@ -6619,7 +6630,7 @@ lisp.
      <code>nil</code></a>, return all users as a list
      of vectors of length 7.  When <code>user</code> is
      <code>:default</code> or not supplied, return the information
-     about the current user.  If the system doesn't support a particular
+     about the current user.  If the system does not support a particular
      field (e.g., Win32 does not have a concept of a shell),
      <a href="CLHSROOT/Body/convar_nil.html">
      <code>nil</code></a> (or the default, like <var>c:\command.com</var>
@@ -6759,7 +6770,7 @@ platform-independent command line options:
  <dd>returns a "window stream". As long as this stream is open,
   the terminal is in cbreak/noecho mode.  <a
   href="CLHSROOT/Body/var_stterminal-iost.html">
-  <code>*terminal-io*</code></a> shouldn't be used for input or output
+  <code>*terminal-io*</code></a> should not be used for input or output
   during this time. (Use <a
   href="#terminal"><code>lisp:with-keyboard</code></a> and
   <a href="#terminal"><code>lisp:*keyboard-input*</code></a> instead.)
@@ -6769,7 +6780,7 @@ platform-independent command line options:
   stream and executes <var>body</var>. The stream is
   guaranteed to be closed when the body is left. During its execution,
   <a href="CLHSROOT/Body/var_stterminal-iost.html">
-  <code>*terminal-io*</code></a> shouldn't be used, as above.
+  <code>*terminal-io*</code></a> should not be used, as above.
 
  <dt><code>(<strong>screen:window-size</strong>
             <var>window-stream</var>)</code>
@@ -7391,7 +7402,7 @@ a <code>NULL</code> pointer...) and deprecated.
 <h4>Operations on foreign places</h4>
 
 <p>A foreign variable <var>name</var> defined by <code>def-c-var</code>
-defines a "place", i.e.  a form which can also be used as
+defines a "place", i.e.,  a form which can also be used as
 argument to <a href="CLHSROOT/Body/mac_setfcm_psetf.html">
 <code>setf</code></a>. (An "lvalue" in C terminology.)
 The following operations are available on foreign places:
@@ -7637,7 +7648,7 @@ hppa) have problems with this.
 <dd>
 A symbol-macro place <code><strong>lisp:*foreign-encoding*</strong></code>
 contains the encoding for characters and strings passed through the
-FFI. Its value must be a 1:1 encoding, i.e. an encoding in which every
+FFI. Its value must be a 1:1 encoding, i.e., an encoding in which every
 character is represented by one byte.
 </dl>
 <!-- #endif -->
@@ -7960,12 +7971,13 @@ is created in the package <code>AFFI</code>. The link between this
 symbol and the OS-level library name is established by
 <code>declare-library-base</code>. To avoid multiple package conflicts,
 this and only this function requires the symbol-name to be in the
-<code>KEYWORD</code> package. The function returns the library-base.
+<a href="CLHSROOT/Body/sec_11-1-2-3.html">
+<code>KEYWORD</code></a> package. The function returns the library-base.
 
 <p>A library may be opened by <code>open-library</code> and closed by
 <code>close-library</code>. An opened library must be
 closed. <code>with-open-library</code> is provided to automatically
-close the library for you, thus it's much safer to use.
+close the library for you, thus it is much safer to use.
 
 <p>A function is contained in a library. Every function is referred to
 by a symbol. A function is defined through <code>defflibfun</code> or
@@ -8101,7 +8113,7 @@ acceptable where a <a href="CLHSROOT/Body/syscla_string.html">
 <dd>
 A symbol-macro place <code><strong>lisp:*foreign-encoding*</strong></code>
 contains the encoding for characters and strings passed through the
-FFI. Its value must be a 1:1 encoding, i.e. an encoding in which every
+FFI. Its value must be a 1:1 encoding, i.e., an encoding in which every
 character is represented by one byte.
 </dl>
 <!-- #endif -->
@@ -8125,7 +8137,7 @@ mask to be specified, <code>declare-library-function</code> requires the
 library name and computes the mask from the declaration of the
 arguments.
 
-<p>The value of mask is implementation-dependent. On the Amiga, it's an
+<p>The value of mask is implementation-dependent. On the Amiga, it is an
 integer whose hexadecimal value is the reverse of the function argument
 register numbers, where d0 has number <code>1</code> and a6 number
 <code>#xF</code>. A <a
