@@ -1,4 +1,4 @@
-(progn (in-package 'user)nil)
+(progn (in-package "CL-USER") nil)
 NIL
 ;; Test der neuen Valuezelle
 

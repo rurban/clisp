@@ -1,21 +1,27 @@
+2001-03-26  Sam Steingold  <sds@gnu.org>
+
+	* hash.tst, iofkts.tst, pack11.tst, streams.tst, symbol10.tst:
+	use strings instead of quoted symbols in `in-package' calls;
+	use ANSI-specified packages.
+
 2000-12-29  Bruno Haible  <haible@clisp.cons.org>
 
-        * characters.tst: Add exhaustive test for char-name and name-char.
+	* characters.tst: Add exhaustive test for char-name and name-char.
 
 2000-03-31  Bruno Haible  <haible@clisp.cons.org>
 
-        Renamed all *.lsp files to *.lisp.
-        * Makefile: Update.
+	Renamed all *.lsp files to *.lisp.
+	* Makefile: Update.
 
 2000-03-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-        Add support for ECL.
-        * array.tst, characters.tst, eval20.tst, format.tst, hashlong.tst,
-          iofkts.tst, lists152.tst, lists154.tst, lists155.tst, lists156.tst,
-          map.tst, pack11.tst, streams.tst, strings.tst, symbol10.tst,
-          symbols.tst, tests.lsp, type.tst: Add ECL conditionals. Based on
-          patches by Juan Jose Garcia Ripoll <jjgarcia@ind-cr.uclm.es>.
-        * pack11.tst: Change  :use 'xxx  to  :use '(xxx).
+	Add support for ECL.
+	* array.tst, characters.tst, eval20.tst, format.tst, hashlong.tst,
+	  iofkts.tst, lists152.tst, lists154.tst, lists155.tst, lists156.tst,
+	  map.tst, pack11.tst, streams.tst, strings.tst, symbol10.tst,
+	  symbols.tst, tests.lsp, type.tst: Add ECL conditionals. Based on
+	  patches by Juan Jose Garcia Ripoll <jjgarcia@ind-cr.uclm.es>.
+	* pack11.tst: Change  :use 'xxx	 to  :use '(xxx).
 
 1999-11-29  Sam Steingold  <sds@goems.com>
 
