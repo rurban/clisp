@@ -17410,9 +17410,10 @@ LISPFUN(file_stat,1,1,norest,nokey,0,NIL)
   pushSTACK(L_to_I(buf.st_size));     # total size, in bytes
   pushSTACK(UL_to_I(buf.st_blksize)); # blocksize for filesystem I/O
   pushSTACK(UL_to_I(buf.st_blocks));  # number of blocks allocated
-  pushSTACK(L_to_I(buf.st_atime));    # time of last access
-  pushSTACK(L_to_I(buf.st_mtime));    # time of last modification
-  pushSTACK(L_to_I(buf.st_ctime));    # time of last change
+  # 2208988800 is the number of seconds from 1900-01-01 to 1970-01-01
+  pushSTACK(UL_to_I(buf.st_atime+2208988800)); # time of last access
+  pushSTACK(UL_to_I(buf.st_mtime+2208988800)); # time of last modification
+  pushSTACK(UL_to_I(buf.st_ctime+2208988800)); # time of last change
   funcall(L(values),14);
 }
 
@@ -17449,20 +17450,19 @@ LISPFUN(user_data,0,1,norest,nokey,0,NIL)
 
     begin_system_call();
   if (posfixnump(user)) pwd = getpwuid(posfixnum_to_L(user));
-  else if (eq(user,unbound) || eq(user,S(Kdefault))) {
-    var char name[L_cuserid];
-    pwd = getpwnam(cuserid(name));
-  } else if (symbolp(user))
+  else if (eq(user,unbound) || eq(user,S(Kdefault)))
+    pwd = getpwnam(getlogin());
+  else if (symbolp(user))
     pwd = getpwnam(TheAsciz(string_to_asciz(Symbol_name(user),
                                             O(misc_encoding))));
   else if (stringp(user))
     pwd = getpwnam(TheAsciz(string_to_asciz(user,O(misc_encoding))));
   else { end_system_call(); fehler_string_int(user); }
-    end_system_call();
+  end_system_call();
 
-    if (NULL == pwd) { OS_error(); }
-    PASSWD_TO_STACK(pwd);
-    funcall(L(values),7);
+  if (NULL == pwd) { OS_error(); }
+  PASSWD_TO_STACK(pwd);
+  funcall(L(values),7);
 }
 
 #endif # UNIX
