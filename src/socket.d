@@ -152,7 +152,7 @@
   #ifdef HAVE_INET_NTOP
     #define ipv6_ntop(buffer,addr)  \
       inet_ntop(AF_INET6,&addr,buffer,45+1)
-  #elif defined(WIN32) || defined(__CYGWIN32__)
+  #elif defined(WIN32) || defined(UNIX_CYGWIN32)
     #define ipv6_ntop(buffer,addr)  \
       sprintf(buffer,"%x:%x:%x:%x:%x:%x:%x:%x", \
               ntohs(((u_short*)(addr).s6_addr)[0]), \
@@ -856,7 +856,7 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 
   if (eq(serv,unbound) || eq(serv,S(Kdefault)) || nullp(serv)) {
     var uintL count = 0;
-    #if !defined(WIN32) && !defined(__CYGWIN32__)
+    #if !defined(WIN32) && !defined(UNIX_CYGWIN32)
     begin_system_call();
     for (; (se = getservent()); count++) {
       end_system_call();
