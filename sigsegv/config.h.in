@@ -97,7 +97,7 @@
 #undef HAVE_SIGVEC
 
 /* CL_SIGALTSTACK */
-/* Define if you have the sigaltstack() function. */
+/* Define if you have the sigaltstack() function and the SA_ONSTACK macro. */
 #undef HAVE_SIGALTSTACK
 
 /* CL_GETPAGESIZE */
