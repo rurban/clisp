@@ -1,3 +1,8 @@
+2004-06-09  Bruno Haible  <bruno@clisp.org>
+
+	* clos-genfun2.lisp (compute-effective-method-as-function): Small
+	optimization.
+
 2004-05-29  Bruno Haible  <bruno@clisp.org>
 
 	* init.lisp: Export compute-effective-slot-definition.
