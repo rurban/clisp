@@ -10,8 +10,8 @@ prefix =
 exec_prefix = $(prefix)
 bindir  = $(exec_prefix)\bin
 shared  = $(prefix)\share
-mandir  = $(prefix)\share\man
-docdir  = $(prefix)\share\doc
+mandir  = $(shared)\man
+docdir  = $(shared)\doc
 lispdocdir = $(docdir)\clisp
 htmldir = $(lispdocdir)
 dvidir  = $(lispdocdir)
@@ -22,18 +22,20 @@ lisplibdir = $(libdir)\clisp
 # installation. This is useful when preparing a binary distribution.
 DESTDIR =
 
-# List of add-on modules:
+# (partial) list of available add-on modules:
 # queens               the queens function as a separate module
 # dirkey               the directory access (LDAP, win32 registry)
+# berkeley-db          the Berkeley DB access
 # syscalls             export some POSIX (and other) system calls
-# If you change this after doing "make", you have to "rm -r full; make".
+# regexp               POSIX regular expressions
+# pcre                 Perl-compatible regular expressions
 MODULES =  
 
 # Programs used by "make":
 CC = gcc
-CFLAGS =   -fomit-frame-pointer -Wno-sign-compare -O2 -fexpensive-optimizations -DUNICODE -DNO_GETTEXT -DNO_SIGSEGV -I.
+CFLAGS =   -Wno-sign-compare -O2 -fexpensive-optimizations -DUNICODE -DNO_GETTEXT -DNO_SIGSEGV -I.
 CPP = gcc -E
-CLFLAGS =  -x none
+CLFLAGS =   -x none
 LIBS =  -ltermcap
 X_LIBS = 
 LD = ld
@@ -130,7 +132,6 @@ ROFF_PS  = groff -Tps -mandoc # try "groff -Tps -mandoc"
 #
 
 COMMENT5 = comment5
-ANSIDECL = ansidecl
 VARBRACE = varbrace
 TXT2C = txt2c -I../
 
@@ -601,13 +602,13 @@ Makefile : makemake
 config.status : configure
 	sh config.status --recheck
 
-VERSION : version.h
+VERSION : configure
 	cd ..\ && $(MAKE) -f Makefile.devel src\VERSION
 
 configure : configure.in
 	cd ..\ && $(MAKE) -f Makefile.devel src\configure
 
-init : intparam.h floatparam.h comment5.exe ansidecl.exe varbrace.exe txt2c.exe ccmp2c.exe modprep.fas $(DFILES) modules.h
+init : intparam.h floatparam.h comment5.exe varbrace.exe txt2c.exe ccmp2c.exe $(DFILES) modules.h
 
 intparam.h : intparam.c unixconf.h
 	echo '#include "unixconf.h"' > tmp.c
@@ -626,15 +627,8 @@ floatparam.h : floatparam.c unixconf.h
 comment5.exe : ..\utils\comment5.c
 	$(CC) $(CFLAGS) $(CLFLAGS) ../utils/comment5.c -o comment5.exe
 
-ansidecl.exe : ..\utils\ansidecl.d comment5.exe
-	$(LN_S) ..\utils\ansidecl.d ansidecl.d
-	$(COMMENT5) ansidecl.d ansidecl.c
-	$(RM) ansidecl.d
-	$(CC) $(CFLAGS) $(CLFLAGS) ansidecl.c -o ansidecl.exe
-	$(RM) ansidecl.c
-
-varbrace.exe : ..\utils\varbrace.d comment5.exe ansidecl.exe
-	$(COMMENT5) ../utils/varbrace.d | $(ANSIDECL) > varbrace.c
+varbrace.exe : ..\utils\varbrace.d comment5.exe
+	$(COMMENT5) ../utils/varbrace.d > varbrace.c
 	$(CC) $(CFLAGS) $(CLFLAGS) varbrace.c -o varbrace.exe
 	$(RM) varbrace.c
 
@@ -653,314 +647,314 @@ stdint.h : stdint.h.in
 
 allc : init $(CFILES)
 
-spvw.c : spvw.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw.d | $(ANSIDECL) | $(VARBRACE) > spvw.c
+spvw.c : spvw.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw.d | $(VARBRACE) > spvw.c
 
-spvwtabf.c : spvwtabf.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvwtabf.d | $(ANSIDECL) | $(VARBRACE) > spvwtabf.c
+spvwtabf.c : spvwtabf.d comment5.exe varbrace.exe
+	$(COMMENT5) spvwtabf.d | $(VARBRACE) > spvwtabf.c
 
-spvwtabs.c : spvwtabs.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvwtabs.d | $(ANSIDECL) | $(VARBRACE) > spvwtabs.c
+spvwtabs.c : spvwtabs.d comment5.exe varbrace.exe
+	$(COMMENT5) spvwtabs.d | $(VARBRACE) > spvwtabs.c
 
-spvwtabo.c : spvwtabo.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvwtabo.d | $(ANSIDECL) | $(VARBRACE) > spvwtabo.c
+spvwtabo.c : spvwtabo.d comment5.exe varbrace.exe
+	$(COMMENT5) spvwtabo.d | $(VARBRACE) > spvwtabo.c
 
-eval.c : eval.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) eval.d | $(ANSIDECL) | $(VARBRACE) > eval.c
+eval.c : eval.d comment5.exe varbrace.exe
+	$(COMMENT5) eval.d | $(VARBRACE) > eval.c
 
-control.c : control.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) control.d | $(ANSIDECL) | $(VARBRACE) > control.c
+control.c : control.d comment5.exe varbrace.exe
+	$(COMMENT5) control.d | $(VARBRACE) > control.c
 
-encoding.c : encoding.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) encoding.d | $(ANSIDECL) | $(VARBRACE) > encoding.c
+encoding.c : encoding.d comment5.exe varbrace.exe
+	$(COMMENT5) encoding.d | $(VARBRACE) > encoding.c
 
-pathname.c : pathname.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) pathname.d | $(ANSIDECL) | $(VARBRACE) > pathname.c
+pathname.c : pathname.d comment5.exe varbrace.exe
+	$(COMMENT5) pathname.d | $(VARBRACE) > pathname.c
 
-stream.c : stream.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) stream.d | $(ANSIDECL) | $(VARBRACE) > stream.c
+stream.c : stream.d comment5.exe varbrace.exe
+	$(COMMENT5) stream.d | $(VARBRACE) > stream.c
 
-io.c : io.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) io.d | $(ANSIDECL) | $(VARBRACE) > io.c
+io.c : io.d comment5.exe varbrace.exe
+	$(COMMENT5) io.d | $(VARBRACE) > io.c
 
-array.c : array.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) array.d | $(ANSIDECL) | $(VARBRACE) > array.c
+array.c : array.d comment5.exe varbrace.exe
+	$(COMMENT5) array.d | $(VARBRACE) > array.c
 
-hashtabl.c : hashtabl.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) hashtabl.d | $(ANSIDECL) | $(VARBRACE) > hashtabl.c
+hashtabl.c : hashtabl.d comment5.exe varbrace.exe
+	$(COMMENT5) hashtabl.d | $(VARBRACE) > hashtabl.c
 
-list.c : list.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) list.d | $(ANSIDECL) | $(VARBRACE) > list.c
+list.c : list.d comment5.exe varbrace.exe
+	$(COMMENT5) list.d | $(VARBRACE) > list.c
 
-package.c : package.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) package.d | $(ANSIDECL) | $(VARBRACE) > package.c
+package.c : package.d comment5.exe varbrace.exe
+	$(COMMENT5) package.d | $(VARBRACE) > package.c
 
-record.c : record.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) record.d | $(ANSIDECL) | $(VARBRACE) > record.c
+record.c : record.d comment5.exe varbrace.exe
+	$(COMMENT5) record.d | $(VARBRACE) > record.c
 
-sequence.c : sequence.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) sequence.d | $(ANSIDECL) | $(VARBRACE) > sequence.c
+sequence.c : sequence.d comment5.exe varbrace.exe
+	$(COMMENT5) sequence.d | $(VARBRACE) > sequence.c
 
-charstrg.c : charstrg.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) charstrg.d | $(ANSIDECL) | $(VARBRACE) > charstrg.c
+charstrg.c : charstrg.d comment5.exe varbrace.exe
+	$(COMMENT5) charstrg.d | $(VARBRACE) > charstrg.c
 
-debug.c : debug.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) debug.d | $(ANSIDECL) | $(VARBRACE) > debug.c
+debug.c : debug.d comment5.exe varbrace.exe
+	$(COMMENT5) debug.d | $(VARBRACE) > debug.c
 
-error.c : error.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) error.d | $(ANSIDECL) | $(VARBRACE) > error.c
+error.c : error.d comment5.exe varbrace.exe
+	$(COMMENT5) error.d | $(VARBRACE) > error.c
 
-misc.c : misc.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) misc.d | $(ANSIDECL) | $(VARBRACE) > misc.c
+misc.c : misc.d comment5.exe varbrace.exe
+	$(COMMENT5) misc.d | $(VARBRACE) > misc.c
 
-time.c : time.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) time.d | $(ANSIDECL) | $(VARBRACE) > time.c
+time.c : time.d comment5.exe varbrace.exe
+	$(COMMENT5) time.d | $(VARBRACE) > time.c
 
-predtype.c : predtype.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) predtype.d | $(ANSIDECL) | $(VARBRACE) > predtype.c
+predtype.c : predtype.d comment5.exe varbrace.exe
+	$(COMMENT5) predtype.d | $(VARBRACE) > predtype.c
 
-symbol.c : symbol.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) symbol.d | $(ANSIDECL) | $(VARBRACE) > symbol.c
+symbol.c : symbol.d comment5.exe varbrace.exe
+	$(COMMENT5) symbol.d | $(VARBRACE) > symbol.c
 
-lisparit.c : lisparit.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) lisparit.d | $(ANSIDECL) | $(VARBRACE) > lisparit.c
+lisparit.c : lisparit.d comment5.exe varbrace.exe
+	$(COMMENT5) lisparit.d | $(VARBRACE) > lisparit.c
 
-i18n.c : i18n.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) i18n.d | $(ANSIDECL) | $(VARBRACE) > i18n.c
+i18n.c : i18n.d comment5.exe varbrace.exe
+	$(COMMENT5) i18n.d | $(VARBRACE) > i18n.c
 
-unixaux.c : unixaux.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) unixaux.d | $(ANSIDECL) | $(VARBRACE) > unixaux.c
+unixaux.c : unixaux.d comment5.exe varbrace.exe
+	$(COMMENT5) unixaux.d | $(VARBRACE) > unixaux.c
 
-lispbibl.c : lispbibl.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) lispbibl.d | $(ANSIDECL) | $(VARBRACE) > lispbibl.c
+lispbibl.c : lispbibl.d comment5.exe varbrace.exe
+	$(COMMENT5) lispbibl.d | $(VARBRACE) > lispbibl.c
 
-fsubr.c : fsubr.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) fsubr.d | $(ANSIDECL) | $(VARBRACE) > fsubr.c
+fsubr.c : fsubr.d comment5.exe varbrace.exe
+	$(COMMENT5) fsubr.d | $(VARBRACE) > fsubr.c
 
-subr.c : subr.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) subr.d | $(ANSIDECL) | $(VARBRACE) > subr.c
+subr.c : subr.d comment5.exe varbrace.exe
+	$(COMMENT5) subr.d | $(VARBRACE) > subr.c
 
-pseudofun.c : pseudofun.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) pseudofun.d | $(ANSIDECL) | $(VARBRACE) > pseudofun.c
+pseudofun.c : pseudofun.d comment5.exe varbrace.exe
+	$(COMMENT5) pseudofun.d | $(VARBRACE) > pseudofun.c
 
-constsym.c : constsym.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) constsym.d | $(ANSIDECL) | $(VARBRACE) > constsym.c
+constsym.c : constsym.d comment5.exe varbrace.exe
+	$(COMMENT5) constsym.d | $(VARBRACE) > constsym.c
 
-constobj.c : constobj.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) constobj.d | $(ANSIDECL) | $(VARBRACE) > constobj.c
+constobj.c : constobj.d comment5.exe varbrace.exe
+	$(COMMENT5) constobj.d | $(VARBRACE) > constobj.c
 
-msdos.c : msdos.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) msdos.d | $(ANSIDECL) | $(VARBRACE) > msdos.c
+msdos.c : msdos.d comment5.exe varbrace.exe
+	$(COMMENT5) msdos.d | $(VARBRACE) > msdos.c
 
-constpack.c : constpack.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) constpack.d | $(ANSIDECL) | $(VARBRACE) > constpack.c
+constpack.c : constpack.d comment5.exe varbrace.exe
+	$(COMMENT5) constpack.d | $(VARBRACE) > constpack.c
 
-avl.c : avl.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) avl.d | $(ANSIDECL) | $(VARBRACE) > avl.c
+avl.c : avl.d comment5.exe varbrace.exe
+	$(COMMENT5) avl.d | $(VARBRACE) > avl.c
 
-sort.c : sort.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) sort.d | $(ANSIDECL) | $(VARBRACE) > sort.c
+sort.c : sort.d comment5.exe varbrace.exe
+	$(COMMENT5) sort.d | $(VARBRACE) > sort.c
 
-subrkw.c : subrkw.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) subrkw.d | $(ANSIDECL) | $(VARBRACE) > subrkw.c
+subrkw.c : subrkw.d comment5.exe varbrace.exe
+	$(COMMENT5) subrkw.d | $(VARBRACE) > subrkw.c
 
-bytecode.c : bytecode.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) bytecode.d | $(ANSIDECL) | $(VARBRACE) > bytecode.c
+bytecode.c : bytecode.d comment5.exe varbrace.exe
+	$(COMMENT5) bytecode.d | $(VARBRACE) > bytecode.c
 
-spvw_module.c : spvw_module.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_module.d | $(ANSIDECL) | $(VARBRACE) > spvw_module.c
+spvw_module.c : spvw_module.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_module.d | $(VARBRACE) > spvw_module.c
 
-spvw_debug.c : spvw_debug.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_debug.d | $(ANSIDECL) | $(VARBRACE) > spvw_debug.c
+spvw_debug.c : spvw_debug.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_debug.d | $(VARBRACE) > spvw_debug.c
 
-spvw_alloca.c : spvw_alloca.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_alloca.d | $(ANSIDECL) | $(VARBRACE) > spvw_alloca.c
+spvw_alloca.c : spvw_alloca.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_alloca.d | $(VARBRACE) > spvw_alloca.c
 
-spvw_mmap.c : spvw_mmap.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_mmap.d | $(ANSIDECL) | $(VARBRACE) > spvw_mmap.c
+spvw_mmap.c : spvw_mmap.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_mmap.d | $(VARBRACE) > spvw_mmap.c
 
-spvw_multimap.c : spvw_multimap.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_multimap.d | $(ANSIDECL) | $(VARBRACE) > spvw_multimap.c
+spvw_multimap.c : spvw_multimap.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_multimap.d | $(VARBRACE) > spvw_multimap.c
 
-spvw_singlemap.c : spvw_singlemap.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_singlemap.d | $(ANSIDECL) | $(VARBRACE) > spvw_singlemap.c
+spvw_singlemap.c : spvw_singlemap.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_singlemap.d | $(VARBRACE) > spvw_singlemap.c
 
-spvw_page.c : spvw_page.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_page.d | $(ANSIDECL) | $(VARBRACE) > spvw_page.c
+spvw_page.c : spvw_page.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_page.d | $(VARBRACE) > spvw_page.c
 
-spvw_heap.c : spvw_heap.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_heap.d | $(ANSIDECL) | $(VARBRACE) > spvw_heap.c
+spvw_heap.c : spvw_heap.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_heap.d | $(VARBRACE) > spvw_heap.c
 
-spvw_global.c : spvw_global.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_global.d | $(ANSIDECL) | $(VARBRACE) > spvw_global.c
+spvw_global.c : spvw_global.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_global.d | $(VARBRACE) > spvw_global.c
 
-spvw_gcstat.c : spvw_gcstat.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_gcstat.d | $(ANSIDECL) | $(VARBRACE) > spvw_gcstat.c
+spvw_gcstat.c : spvw_gcstat.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_gcstat.d | $(VARBRACE) > spvw_gcstat.c
 
-spvw_space.c : spvw_space.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_space.d | $(ANSIDECL) | $(VARBRACE) > spvw_space.c
+spvw_space.c : spvw_space.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_space.d | $(VARBRACE) > spvw_space.c
 
-spvw_mark.c : spvw_mark.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_mark.d | $(ANSIDECL) | $(VARBRACE) > spvw_mark.c
+spvw_mark.c : spvw_mark.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_mark.d | $(VARBRACE) > spvw_mark.c
 
-spvw_objsize.c : spvw_objsize.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_objsize.d | $(ANSIDECL) | $(VARBRACE) > spvw_objsize.c
+spvw_objsize.c : spvw_objsize.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_objsize.d | $(VARBRACE) > spvw_objsize.c
 
-spvw_update.c : spvw_update.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_update.d | $(ANSIDECL) | $(VARBRACE) > spvw_update.c
+spvw_update.c : spvw_update.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_update.d | $(VARBRACE) > spvw_update.c
 
-spvw_fault.c : spvw_fault.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_fault.d | $(ANSIDECL) | $(VARBRACE) > spvw_fault.c
+spvw_fault.c : spvw_fault.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_fault.d | $(VARBRACE) > spvw_fault.c
 
-spvw_sigsegv.c : spvw_sigsegv.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_sigsegv.d | $(ANSIDECL) | $(VARBRACE) > spvw_sigsegv.c
+spvw_sigsegv.c : spvw_sigsegv.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_sigsegv.d | $(VARBRACE) > spvw_sigsegv.c
 
-spvw_sigcld.c : spvw_sigcld.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_sigcld.d | $(ANSIDECL) | $(VARBRACE) > spvw_sigcld.c
+spvw_sigcld.c : spvw_sigcld.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_sigcld.d | $(VARBRACE) > spvw_sigcld.c
 
-spvw_sigpipe.c : spvw_sigpipe.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_sigpipe.d | $(ANSIDECL) | $(VARBRACE) > spvw_sigpipe.c
+spvw_sigpipe.c : spvw_sigpipe.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_sigpipe.d | $(VARBRACE) > spvw_sigpipe.c
 
-spvw_sigint.c : spvw_sigint.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_sigint.d | $(ANSIDECL) | $(VARBRACE) > spvw_sigint.c
+spvw_sigint.c : spvw_sigint.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_sigint.d | $(VARBRACE) > spvw_sigint.c
 
-spvw_sigwinch.c : spvw_sigwinch.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_sigwinch.d | $(ANSIDECL) | $(VARBRACE) > spvw_sigwinch.c
+spvw_sigwinch.c : spvw_sigwinch.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_sigwinch.d | $(VARBRACE) > spvw_sigwinch.c
 
-spvw_garcol.c : spvw_garcol.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_garcol.d | $(ANSIDECL) | $(VARBRACE) > spvw_garcol.c
+spvw_garcol.c : spvw_garcol.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_garcol.d | $(VARBRACE) > spvw_garcol.c
 
-spvw_genera1.c : spvw_genera1.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_genera1.d | $(ANSIDECL) | $(VARBRACE) > spvw_genera1.c
+spvw_genera1.c : spvw_genera1.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_genera1.d | $(VARBRACE) > spvw_genera1.c
 
-spvw_genera2.c : spvw_genera2.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_genera2.d | $(ANSIDECL) | $(VARBRACE) > spvw_genera2.c
+spvw_genera2.c : spvw_genera2.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_genera2.d | $(VARBRACE) > spvw_genera2.c
 
-spvw_genera3.c : spvw_genera3.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_genera3.d | $(ANSIDECL) | $(VARBRACE) > spvw_genera3.c
+spvw_genera3.c : spvw_genera3.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_genera3.d | $(VARBRACE) > spvw_genera3.c
 
-spvw_allocate.c : spvw_allocate.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_allocate.d | $(ANSIDECL) | $(VARBRACE) > spvw_allocate.c
+spvw_allocate.c : spvw_allocate.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_allocate.d | $(VARBRACE) > spvw_allocate.c
 
-spvw_typealloc.c : spvw_typealloc.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_typealloc.d | $(ANSIDECL) | $(VARBRACE) > spvw_typealloc.c
+spvw_typealloc.c : spvw_typealloc.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_typealloc.d | $(VARBRACE) > spvw_typealloc.c
 
-spvw_circ.c : spvw_circ.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_circ.d | $(ANSIDECL) | $(VARBRACE) > spvw_circ.c
+spvw_circ.c : spvw_circ.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_circ.d | $(VARBRACE) > spvw_circ.c
 
-spvw_walk.c : spvw_walk.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_walk.d | $(ANSIDECL) | $(VARBRACE) > spvw_walk.c
+spvw_walk.c : spvw_walk.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_walk.d | $(VARBRACE) > spvw_walk.c
 
-spvw_ctype.c : spvw_ctype.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_ctype.d | $(ANSIDECL) | $(VARBRACE) > spvw_ctype.c
+spvw_ctype.c : spvw_ctype.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_ctype.d | $(VARBRACE) > spvw_ctype.c
 
-spvw_language.c : spvw_language.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_language.d | $(ANSIDECL) | $(VARBRACE) > spvw_language.c
+spvw_language.c : spvw_language.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_language.d | $(VARBRACE) > spvw_language.c
 
-spvw_memfile.c : spvw_memfile.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_memfile.d | $(ANSIDECL) | $(VARBRACE) > spvw_memfile.c
+spvw_memfile.c : spvw_memfile.d comment5.exe varbrace.exe
+	$(COMMENT5) spvw_memfile.d | $(VARBRACE) > spvw_memfile.c
 
-errunix.c : errunix.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) errunix.d | $(ANSIDECL) | $(VARBRACE) > errunix.c
+errunix.c : errunix.d comment5.exe varbrace.exe
+	$(COMMENT5) errunix.d | $(VARBRACE) > errunix.c
 
-aridecl.c : aridecl.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) aridecl.d | $(ANSIDECL) | $(VARBRACE) > aridecl.c
+aridecl.c : aridecl.d comment5.exe varbrace.exe
+	$(COMMENT5) aridecl.d | $(VARBRACE) > aridecl.c
 
-arilev0.c : arilev0.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) arilev0.d | $(ANSIDECL) | $(VARBRACE) > arilev0.c
+arilev0.c : arilev0.d comment5.exe varbrace.exe
+	$(COMMENT5) arilev0.d | $(VARBRACE) > arilev0.c
 
-arilev1.c : arilev1.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) arilev1.d | $(ANSIDECL) | $(VARBRACE) > arilev1.c
+arilev1.c : arilev1.d comment5.exe varbrace.exe
+	$(COMMENT5) arilev1.d | $(VARBRACE) > arilev1.c
 
-intelem.c : intelem.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intelem.d | $(ANSIDECL) | $(VARBRACE) > intelem.c
+intelem.c : intelem.d comment5.exe varbrace.exe
+	$(COMMENT5) intelem.d | $(VARBRACE) > intelem.c
 
-intlog.c : intlog.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intlog.d | $(ANSIDECL) | $(VARBRACE) > intlog.c
+intlog.c : intlog.d comment5.exe varbrace.exe
+	$(COMMENT5) intlog.d | $(VARBRACE) > intlog.c
 
-intplus.c : intplus.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intplus.d | $(ANSIDECL) | $(VARBRACE) > intplus.c
+intplus.c : intplus.d comment5.exe varbrace.exe
+	$(COMMENT5) intplus.d | $(VARBRACE) > intplus.c
 
-intcomp.c : intcomp.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intcomp.d | $(ANSIDECL) | $(VARBRACE) > intcomp.c
+intcomp.c : intcomp.d comment5.exe varbrace.exe
+	$(COMMENT5) intcomp.d | $(VARBRACE) > intcomp.c
 
-intbyte.c : intbyte.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intbyte.d | $(ANSIDECL) | $(VARBRACE) > intbyte.c
+intbyte.c : intbyte.d comment5.exe varbrace.exe
+	$(COMMENT5) intbyte.d | $(VARBRACE) > intbyte.c
 
-intmal.c : intmal.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intmal.d | $(ANSIDECL) | $(VARBRACE) > intmal.c
+intmal.c : intmal.d comment5.exe varbrace.exe
+	$(COMMENT5) intmal.d | $(VARBRACE) > intmal.c
 
-intdiv.c : intdiv.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intdiv.d | $(ANSIDECL) | $(VARBRACE) > intdiv.c
+intdiv.c : intdiv.d comment5.exe varbrace.exe
+	$(COMMENT5) intdiv.d | $(VARBRACE) > intdiv.c
 
-intgcd.c : intgcd.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intgcd.d | $(ANSIDECL) | $(VARBRACE) > intgcd.c
+intgcd.c : intgcd.d comment5.exe varbrace.exe
+	$(COMMENT5) intgcd.d | $(VARBRACE) > intgcd.c
 
-int2adic.c : int2adic.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) int2adic.d | $(ANSIDECL) | $(VARBRACE) > int2adic.c
+int2adic.c : int2adic.d comment5.exe varbrace.exe
+	$(COMMENT5) int2adic.d | $(VARBRACE) > int2adic.c
 
-intsqrt.c : intsqrt.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intsqrt.d | $(ANSIDECL) | $(VARBRACE) > intsqrt.c
+intsqrt.c : intsqrt.d comment5.exe varbrace.exe
+	$(COMMENT5) intsqrt.d | $(VARBRACE) > intsqrt.c
 
-intprint.c : intprint.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intprint.d | $(ANSIDECL) | $(VARBRACE) > intprint.c
+intprint.c : intprint.d comment5.exe varbrace.exe
+	$(COMMENT5) intprint.d | $(VARBRACE) > intprint.c
 
-intread.c : intread.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intread.d | $(ANSIDECL) | $(VARBRACE) > intread.c
+intread.c : intread.d comment5.exe varbrace.exe
+	$(COMMENT5) intread.d | $(VARBRACE) > intread.c
 
-rational.c : rational.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) rational.d | $(ANSIDECL) | $(VARBRACE) > rational.c
+rational.c : rational.d comment5.exe varbrace.exe
+	$(COMMENT5) rational.d | $(VARBRACE) > rational.c
 
-sfloat.c : sfloat.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) sfloat.d | $(ANSIDECL) | $(VARBRACE) > sfloat.c
+sfloat.c : sfloat.d comment5.exe varbrace.exe
+	$(COMMENT5) sfloat.d | $(VARBRACE) > sfloat.c
 
-ffloat.c : ffloat.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) ffloat.d | $(ANSIDECL) | $(VARBRACE) > ffloat.c
+ffloat.c : ffloat.d comment5.exe varbrace.exe
+	$(COMMENT5) ffloat.d | $(VARBRACE) > ffloat.c
 
-dfloat.c : dfloat.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) dfloat.d | $(ANSIDECL) | $(VARBRACE) > dfloat.c
+dfloat.c : dfloat.d comment5.exe varbrace.exe
+	$(COMMENT5) dfloat.d | $(VARBRACE) > dfloat.c
 
-lfloat.c : lfloat.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) lfloat.d | $(ANSIDECL) | $(VARBRACE) > lfloat.c
+lfloat.c : lfloat.d comment5.exe varbrace.exe
+	$(COMMENT5) lfloat.d | $(VARBRACE) > lfloat.c
 
-flo_konv.c : flo_konv.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) flo_konv.d | $(ANSIDECL) | $(VARBRACE) > flo_konv.c
+flo_konv.c : flo_konv.d comment5.exe varbrace.exe
+	$(COMMENT5) flo_konv.d | $(VARBRACE) > flo_konv.c
 
-flo_rest.c : flo_rest.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) flo_rest.d | $(ANSIDECL) | $(VARBRACE) > flo_rest.c
+flo_rest.c : flo_rest.d comment5.exe varbrace.exe
+	$(COMMENT5) flo_rest.d | $(VARBRACE) > flo_rest.c
 
-realelem.c : realelem.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) realelem.d | $(ANSIDECL) | $(VARBRACE) > realelem.c
+realelem.c : realelem.d comment5.exe varbrace.exe
+	$(COMMENT5) realelem.d | $(VARBRACE) > realelem.c
 
-realrand.c : realrand.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) realrand.d | $(ANSIDECL) | $(VARBRACE) > realrand.c
+realrand.c : realrand.d comment5.exe varbrace.exe
+	$(COMMENT5) realrand.d | $(VARBRACE) > realrand.c
 
-realtran.c : realtran.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) realtran.d | $(ANSIDECL) | $(VARBRACE) > realtran.c
+realtran.c : realtran.d comment5.exe varbrace.exe
+	$(COMMENT5) realtran.d | $(VARBRACE) > realtran.c
 
-compelem.c : compelem.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) compelem.d | $(ANSIDECL) | $(VARBRACE) > compelem.c
+compelem.c : compelem.d comment5.exe varbrace.exe
+	$(COMMENT5) compelem.d | $(VARBRACE) > compelem.c
 
-comptran.c : comptran.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) comptran.d | $(ANSIDECL) | $(VARBRACE) > comptran.c
+comptran.c : comptran.d comment5.exe varbrace.exe
+	$(COMMENT5) comptran.d | $(VARBRACE) > comptran.c
 
-arilev1c.c : arilev1c.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) arilev1c.d | $(ANSIDECL) | $(VARBRACE) > arilev1c.c
+arilev1c.c : arilev1c.d comment5.exe varbrace.exe
+	$(COMMENT5) arilev1c.d | $(VARBRACE) > arilev1c.c
 
-arilev1e.c : arilev1e.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) arilev1e.d | $(ANSIDECL) | $(VARBRACE) > arilev1e.c
+arilev1e.c : arilev1e.d comment5.exe varbrace.exe
+	$(COMMENT5) arilev1e.d | $(VARBRACE) > arilev1e.c
 
-arilev1i.c : arilev1i.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) arilev1i.d | $(ANSIDECL) | $(VARBRACE) > arilev1i.c
+arilev1i.c : arilev1i.d comment5.exe varbrace.exe
+	$(COMMENT5) arilev1i.d | $(VARBRACE) > arilev1i.c
 
-genclisph.c : genclisph.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) genclisph.d | $(ANSIDECL) | $(VARBRACE) > genclisph.c
+genclisph.c : genclisph.d comment5.exe varbrace.exe
+	$(COMMENT5) genclisph.d | $(VARBRACE) > genclisph.c
 
-modules.c : modules.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) modules.d | $(ANSIDECL) | $(VARBRACE) > modules.c
+modules.c : modules.d comment5.exe varbrace.exe
+	$(COMMENT5) modules.d | $(VARBRACE) > modules.c
 
-noreadline.c : noreadline.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) noreadline.d | $(ANSIDECL) | $(VARBRACE) > noreadline.c
+noreadline.c : noreadline.d comment5.exe varbrace.exe
+	$(COMMENT5) noreadline.d | $(VARBRACE) > noreadline.c
 
 ari80386.c : ari80386.d comment5.exe 
 	$(COMMENT5) ari80386.d > ari80386.c
@@ -975,13 +969,13 @@ alls : allc spvw.s spvwtabf.s spvwtabs.s spvwtabo.s eval.s control.s encoding.s 
 # Normally not used (just for debugging).
 alli : allc spvw.i spvwtabf.i spvwtabs.i spvwtabo.i eval.i control.i encoding.i pathname.i stream.i io.i array.i hashtabl.i list.i package.i record.i sequence.i charstrg.i debug.i error.i misc.i time.i predtype.i symbol.i lisparit.i i18n.i unixaux.i
 
-spvw.i : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c stdbool.h stdint.h version.h
+spvw.i : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c stdbool.h stdint.h version.h
 	$(CPP) $(CFLAGS) spvw.c > spvw.i
 
-spvw.s : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c stdbool.h stdint.h version.h
+spvw.s : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c stdbool.h stdint.h version.h
 	$(CC) $(CFLAGS) -S spvw.c
 
-spvw.o : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c stdbool.h stdint.h version.h
+spvw.o : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c stdbool.h stdint.h version.h
 	$(CC) $(CFLAGS) -c spvw.c
 
 spvwtabf.i : spvwtabf.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c stdbool.h stdint.h
@@ -1265,6 +1259,11 @@ RUN= lisp.exe -B . -Efile UTF-8 -Eterminal UTF-8 -norc
 
 modprep.fas : ..\utils\modprep.lisp lisp.exe lispinit.mem
 	$(RUN) -M lispinit.mem -q -c ../utils/modprep.lisp -o modprep.fas
+
+modprep.lisp : ..\utils\modprep.lisp
+	-$(RM) modprep.lisp
+	-$(LN_S) ..\utils\modprep.lisp modprep.lisp
+
 
 interpreted.mem : lisp.exe $(LISPFILES)
 	-$(RM) interpreted.mem
@@ -1752,19 +1751,14 @@ lispinit2.mem : lisp.exe $(TESTFASFILES)
 testsuite : suite lisp.exe lispinit.mem
 	cd suite && $(MAKE) LEXE=.exe
 
+testsuite-all : suite lisp.exe lispinit.mem
+	cd suite && $(MAKE) LEXE=.exe complete
+
 suite :
 	-mkdir suite
 	cd suite && $(LN_S) ..\..\tests\Makefile .
 	cd suite && $(LN_S) ..\..\tests\*.lisp .
 	cd suite && $(LN_S) ..\..\tests\*.tst .
-
-bench : benchmarks
-	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -Efile UTF-8 -Eterminal UTF-8 -norc"; export CLISP; cd benchmarks; $(MAKE) CLISP="$$CLISP" clisp
-
-benchmarks :
-	-mkdir benchmarks
-	cd benchmarks && $(LN_S) ..\..\benchmarks\Makefile .
-	cd benchmarks && $(LN_S) ..\..\benchmarks\*.lisp .
 
 
 lispbibl.h : lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c stdbool.h stdint.h
@@ -1774,23 +1768,35 @@ gc : lispbibl.h # show GC-related definitions
 	egrep '[^[:alpha:]](MEMORY|SPVW|GC|SIGSEGV|SAFETY|ASM|FAST|DEBUG)[^[:alpha:]]' lispbibl.h | grep -v 'define _' | egrep '^#define'
 
 
-clisp.h : genclisph.o unixconf.h  intparam.h floatparam.h
+clisp.h clisp-test.c : genclisph.o unixconf.h  intparam.h floatparam.h
 	$(CC) $(CFLAGS) $(CLFLAGS) genclisph.o -o genclisph.exe
 	(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo; echo '/* unixconf */' ; grep '^#' unixconf.h ) > clisp.h
 	(echo; echo '/* 'intparam.h' */' ; grep '^#' intparam.h ) >> clisp.h
 	(echo; echo '/* 'floatparam.h' */' ; grep '^#' floatparam.h ) >> clisp.h
-	(echo; echo '/* genclisph */' ; genclisph ; echo ; echo '#endif /* _CLISP_H */') >> clisp.h
-	$(RM) genclisph.exe
+	(echo; echo '/* genclisph */' ; genclisph clisp-test.c; echo ; echo '#endif /* _CLISP_H */') >> clisp.h
+	$(CC) $(CFLAGS) $(CLFLAGS) -DUSE_CLISP_H=1 clisp-test.c -o clisp-test-clisp.exe
+	$(CC) $(CFLAGS) $(CLFLAGS) -DUSE_CLISP_H=0 clisp-test.c -o clisp-test-lispbibl.exe
+	clisp-test-clisp > clisp-test-clisp.out
+	clisp-test-lispbibl > clisp-test-lispbibl.out
+	comp clisp-test-clisp.out clisp-test-lispbibl.out
+	$(RM) genclisph.exe clisp-test-clisp.exe clisp-test-lispbibl.exe clisp-test-clisp.out clisp-test-lispbibl.out
 
-linkkit : modules.d modules.c clisp.h
+linkkit : modules.d modules.c clisp.h exporting.lisp modprep.lisp
 	-$(RMRF) linkkit
 	mkdir linkkit
 	cd linkkit && $(LN_S) ..\modules.d modules.d
 	cd linkkit && $(LN_S) ..\modules.c modules.c
 	cd linkkit && $(LN_S) ..\clisp.h clisp.h
+	cd linkkit && $(LN_S) ..\exporting.lisp exporting.lisp
+	cd linkkit && $(LN_S) ..\modprep.lisp modprep.lisp
 
 exporting.fas : ..\modules\exporting.lisp lisp.exe lispinit.mem
 	$(RUN) -M lispinit.mem -q -c ../modules/exporting.lisp -o exporting.fas
+
+exporting.lisp : ..\modules\exporting.lisp
+	-$(RM) exporting.lisp
+	-$(LN_S) ..\modules\exporting.lisp exporting.lisp
+
 
 modular : lisp.a libnoreadline.a  clisp-link linkkit modules.h modules.o makevars
 
@@ -1935,7 +1941,7 @@ uninstall-bin : force
 
 # clean0 is harmless: removes only superfluous things: temporary files.
 clean0 : force
-	-$(RM) core ansidecl.c varbrace.c genclisph.exe txt.c txt.exe
+	-$(RM) core varbrace.c genclisph.exe txt.c txt.exe
 	-$(RMRF) linkkit
 
 # clean1 removes everything that becomes obsolete once lisp.exe is recompiled
@@ -1958,6 +1964,7 @@ clean2 : clean1
 # is recompiled. It leaves everything generated by "make allc".
 clean3 : clean2
 	-$(RM) $(FASFILES) *.lib
+	-$(RM) modprep.fas
 
 # clean4 removes everything that becomes obsolete
 # when switching to a new version of the C compiler.
@@ -1972,7 +1979,7 @@ clean5 : clean4
 	-$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY
 	-$(RM) config.lisp
 	-$(RMRF) data
-	-$(RM) clisp.exe clisp.rc comment5.exe ansidecl.exe varbrace.exe txt2c.exe ccmp2c.exe modprep.fas modprep.lib
+	-$(RM) clisp.exe clisp.rc comment5.exe varbrace.exe txt2c.exe ccmp2c.exe
 
 # clean6 lets us go back to "makemake > Makefile".
 clean6 : clean5

@@ -1,4 +1,4 @@
-# generated automatically by aclocal 1.7.6 -*- Autoconf -*-
+# generated automatically by aclocal 1.7.9 -*- Autoconf -*-
 
 # Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002
 # Free Software Foundation, Inc.
@@ -2861,7 +2861,7 @@ AC_DEFINE_UNQUOTED(MMAP_ADDR_T,$cl_cv_proto_mmap_arg1,[type of `addr' in mmap() 
 AC_DEFINE_UNQUOTED(MMAP_SIZE_T,$cl_cv_proto_mmap_arg2,[type of `len' in mmap() declaration])
 AC_CACHE_CHECK(for working mmap, cl_cv_func_mmap_works, [
 case "$host" in
-  i[3456]86-*-sysv4*)
+  i[34567]86-*-sysv4*)
     # UNIX_SYSV_UHC_1
     avoid=0x08000000 ;;
   mips-sgi-irix* | mips-dec-ultrix*)

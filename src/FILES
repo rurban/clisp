@@ -11,7 +11,7 @@ CLISP SOURCE(1)                                                CLISP SOURCE(1)
        [1m*.d    [22mThe source files for unpreprocessed C code.
 
 
-       [1m*.c    [22mThe C code after preprocessing by ansidecl.
+       [1m*.c    [22mThe C code after preprocessing by comment5 and varbrace.
 
 
        [1m*.lisp [22mThe source files for lisp code.
