@@ -37,6 +37,23 @@
     (print-object-<funcallable-standard-object> object stream)
     object))
 
+;; Check that all user-defined print-object methods return the object.
+(defparameter *print-object-method-warning* t)
+(defun print-object-method-warning (method object result)
+  (when *print-object-method-warning*
+    (let ((*print-object-method-warning* nil))
+      (warn (TEXT "~S: invalid method ~S. ANSI CL requires that every ~S method returns the object as value. Expected ~S, but it returned ~S.")
+            'print-object method 'print-object object result))))
+(defmethod compute-effective-method ((gf (eql #'print-object)) method-combination methods)
+  (multiple-value-bind (form options) (call-next-method)
+    (let ((object-var (gensym))
+          (result-var (gensym)))
+      (values `(LET ((,result-var ,form))
+                 (UNLESS (EQL ,result-var ,object-var)
+                   (PRINT-OBJECT-METHOD-WARNING ',(first methods) ,object-var ,result-var))
+                 ,object-var)
+              (cons `(:ARGUMENTS ,object-var) options)))))
+
 ;; Another DEFSTRUCT hook.
 (defun defstruct-remove-print-object-method (name)
   (let ((method (find-method #'print-object nil
