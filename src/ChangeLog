@@ -1,5 +1,11 @@
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
 
+	* io.d (get_readtable): Local variable zuweisung -> assignment.
+	(read_char_syntax): Likewise.
+	(wpeek_char_syntax): Likewise.
+
+2001-08-05  Bruno Haible  <haible@clisp.cons.org>
+
 	* eval.d (eval_fsubr): Change error message: talk about special
 	operator, not special form.
 
