@@ -277,6 +277,11 @@
               (return))
             (push (pop body-rest) list))
            (nreverse list)))
+       (parse-nonempty-progn (kw) ;; after kw: parses {expr}* (CLtL2) or {expr}+ (CLHS)
+         (let ((exprs (parse-progn)))
+           (unless exprs
+             (warn (TEXT "~S: missing forms after ~A") 'loop (symbol-name kw)))
+           exprs))
        (parse-unconditional () ;; parse an unconditional
          ;; unconditional ::= {do | doing} {expr}*
          ;; unconditional ::= return expr
@@ -285,7 +290,7 @@
            (case kw
              ((DO DOING)
               (pop body-rest)
-              `(PROGN ,@(parse-progn)))
+              `(PROGN ,@(parse-nonempty-progn kw)))
              ((RETURN)
               (pop body-rest)
               `(RETURN-FROM ,block-name ,(parse-form-or-it kw)))
@@ -509,10 +514,11 @@
                          main-code)))
                 ((INITIALLY)
                  (pop body-rest)
-                 (push `(PROGN ,@(parse-progn)) initially-code))
+                 (push `(PROGN ,@(parse-nonempty-progn kw)) initially-code))
                 ((FINALLY)
                  (pop body-rest)
-                 (push (or (parse-unconditional) `(PROGN ,@(parse-progn)))
+                 (push (or (parse-unconditional)
+                           `(PROGN ,@(parse-nonempty-progn kw)))
                        finally-code))
                 ((WITH FOR AS REPEAT)
                  (pop body-rest)
