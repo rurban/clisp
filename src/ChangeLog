@@ -1,3 +1,11 @@
+2005-01-02  Bruno Haible  <bruno@clisp.org>
+
+	* condition.lisp (appease-cerror): Don't convert the error message
+	to a string before signalling it, as this leads to ugly output.
+	Example: (appease-cerrors
+	           (cerror "foo" "bar ~S"
+	             (make-sequence 'list 30 :initial-element 0 :update #'1+)))
+
 2005-01-21  Sam Steingold  <sds@gnu.org>
 
 	* spvw_fault.d (handle_read_fault): fixed the mingw build by using
