@@ -4,6 +4,9 @@ User visible changes
 * WRITE-BYTE-SEQUENCE now accepts :NO-HANG keyword argument.
   Thanks to Don Cohen <don-sourceforge@isis.cs3-inc.com>.
 
+* Support files larger than 2 GB or 4 GB on platforms with LFS
+  (Large File Support).
+
 * Readline is now used properly on Cygwin/X11.
 
 
