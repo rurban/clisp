@@ -356,6 +356,7 @@
                                                               accuvar))))
                               results (cons accuvar results)))
                     (pushnew accuvar accu-vars-nil)
+                    (pushnew tailvar accu-vars-nil)
                     (case com
                       (cons `(if ,accuvar
                               (setf (cdr ,tailvar) (list ,form)
