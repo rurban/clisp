@@ -1,3 +1,12 @@
+2005-02-24  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (HAVE_DISASSEMBLER): define always
+	* misc.d (PROGRAM-ID): added a WIN32_NATIVE implementation
+	* pathname.d (maybe_executable): only on UNIX
+	(find_executable) [WIN32_NATIVE]: use GetModuleFileName()
+	instead of GetCommandLine()
+	* spvw.d (init_lowest_level): always call find_executable()
+
 2005-02-24  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in (ALL_LINGUAS): Look for configure.in in the right

@@ -1930,9 +1930,7 @@ typedef enum {
 # When changed: ??
 
 # Whether an external disassembler is provided:
-#if defined(UNIX)
   #define HAVE_DISASSEMBLER
-#endif
 # When changed: extend pathname.d
 
 # Now the ones that are only relevant internally:
