@@ -612,17 +612,29 @@ DEFUN(POSIX::USAGE,)
 }
 #endif /* HAVE_GETRUSAGE */
 
-#if defined(HAVE_GETRLIMIT)
+#if defined(HAVE_GETRLIMIT) || defined(HAVE_SETRLIMIT)
 DEFCHECKER(getrlimit_arg,prefix=RLIMIT, CPU FSIZE DATA STACK CORE RSS NOFILE \
            AS NPROC MEMLOCK LOCKS)
+#if SIZEOF_RLIMT_T == 8
+# define rlim_to_I_0(lim) uint64_to_I(lim)
+# define I_to_rlim_0(lim) I_to_uint64(check_uint64(lim))
+#else
+# define rlim_to_I_0(lim) uint32_to_I(lim)
+# define I_to_rlim_0(lim) I_to_uint32(check_uint32(lim))
+#endif
+static inline object rlim_to_I (rlim_t lim)
+{ return lim == RLIM_INFINITY ? NIL : rlim_to_I_0(lim); }
+static /* maygc */ inline rlim_t I_to_rlim (object lim)
+{ return missingp(lim) ? RLIM_INFINITY : I_to_rlim_0(lim); }
+#endif /* HAVE_GETRLIMIT || HAVE_SETRLIMIT */
+#if defined(HAVE_GETRLIMIT)
 DEFUN(POSIX::RLIMIT, &optional what)
 { /* getrlimit(3) */
 #define RLIM(what)                                                      \
   begin_system_call();                                                  \
   if (getrlimit(what,&rl)) OS_error();                                  \
   end_system_call();                                                    \
-  pushSTACK(rl.rlim_cur == RLIM_INFINITY ? NIL : L_to_I(rl.rlim_cur));  \
-  pushSTACK(rl.rlim_max == RLIM_INFINITY ? NIL : L_to_I(rl.rlim_max))
+  pushSTACK(rlim_to_I(rl.rlim_cur)); pushSTACK(rlim_to_I(rl.rlim_max))
 
   struct rlimit rl;
   object what = popSTACK();
@@ -646,10 +658,8 @@ DEFUN(POSIX::RLIMIT, &optional what)
  can trigger GC */
 static void check_rlimit (object arg, struct rlimit *rl) {
   pushSTACK(check_classname(arg,`POSIX::RLIMIT`));
-  rl->rlim_cur = posfixnum_default2(TheStructure(STACK_0)->recdata[1],
-                                    RLIM_INFINITY);
-  rl->rlim_max = posfixnum_default2(TheStructure(STACK_0)->recdata[2],
-                                    RLIM_INFINITY);
+  rl->rlim_cur = I_to_rlim(TheStructure(STACK_0)->recdata[1]);
+  rl->rlim_max = I_to_rlim(TheStructure(STACK_0)->recdata[2]);
   skipSTACK(1);
 }
 DEFUN(POSIX::SET-RLIMIT, what cur max)
@@ -675,8 +685,8 @@ DEFUN(POSIX::SET-RLIMIT, what cur max)
     int what = getrlimit_arg(STACK_2);
     struct rlimit rl;
     if (nullp(STACK_1) || posfixnump(STACK_1)) { /* 1st way */
-      rl.rlim_cur = posfixnum_default2(STACK_1,RLIM_INFINITY);
-      rl.rlim_max = posfixnum_default2(STACK_0,RLIM_INFINITY);
+      rl.rlim_cur = I_to_rlim(STACK_1);
+      rl.rlim_max = I_to_rlim(STACK_0);
     } else {                    /* 2nd way */
       if (!nullp(STACK_0)) goto rlimit_bad;
       check_rlimit(STACK_1,&rl);
