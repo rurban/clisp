@@ -324,8 +324,9 @@
                        (if (consp type)
                          `(LIST 'SETF (LIST 'AREF STRUCT ,offset) VALUE)
                          `(LIST 'SETF (LIST 'SVREF STRUCT ,offset) VALUE)))))
-                (SYSTEM::%PUT ',accessorname 'SYSTEM::DEFSTRUCT-WRITER
-                              ',name))))))
+                (eval-when (compile eval load)
+                  (SYSTEM::%PUT ',accessorname 'SYSTEM::DEFSTRUCT-WRITER
+                                ',name)))))))
     slotlist))
 
 ;; Two hooks for CLOS

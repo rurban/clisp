@@ -431,3 +431,21 @@ t
 
 pl
 (a 10 b 11 a 14 b 15)
+
+;; <http://article.gmane.org/gmane.lisp.clisp.general:7646>
+(unwind-protect
+     (let ((forms
+            '((defstruct foo a b)
+              (defstruct (bar (:include foo) (:conc-name foo-)) c)
+              (defun quux (x) (foo-a x))
+              (defun frobozz (x y) (setf (foo-a x) y))
+              (list (quux (make-foo :a 1))
+               (quux (make-bar :a 2))
+               (frobozz (make-foo) 10)
+               (frobozz (make-bar) 20)))))
+       (list (eval `(progn ,@forms))
+             (funcall (compile nil `(lambda () ,@forms)))))
+  (fmakunbound 'quux)
+  (fmakunbound 'frobozz)
+  (fmakunbound 'foo-a) (fmakunbound 'foo-b) (fmakunbound 'foo-c))
+((1 2 10 20) (1 2 10 20))
