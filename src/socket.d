@@ -307,48 +307,52 @@ local bool all_digits_dots (const char* host) {
 #endif
 
 /* for syscalls and rawsock modules */
+typedef int (*host_fn_t) (void* addr, int addrlen, int family, void* opts);
+/* call FN on host/size/opts if HOST is an IP address */
+local int with_host (char* host, host_fn_t fn, void* opts) {
+#ifdef HAVE_INET_PTON
+ #ifdef HAVE_IPV6
+  {
+    var struct in6_addr inaddr;
+    if (inet_pton(AF_INET6,host,&inaddr) > 0)
+      return fn((void*)&inaddr,sizeof(struct in6_addr),AF_INET6,opts);
+  }
+ #endif
+  {
+    var struct in_addr inaddr;
+    if (inet_pton(AF_INET,host,&inaddr) > 0)
+      return fn((void*)&inaddr,sizeof(struct in_addr),AF_INET,opts);
+  }
+#else
+  /* if numeric host name then try to parse it as such; do the number check
+     first because some systems return garbage instead of INVALID_INETADDR */
+  if (all_digits_dots(host)) {
+    var uint32 hostinetaddr = inet_addr(host) INET_ADDR_SUFFIX ;
+    if (!(hostinetaddr == ((uint32) -1)))
+      return fn((void*)&hostinetaddr,sizeof(uint32),AF_INET,opts);
+  }
+#endif
+  return fn(host,0,0,opts);
+}
+
+local int string_to_addr1 (void* addr, int addrlen, int family, void* ret) {
+  *(object*)ret = (addrlen
+                   ? udigits_to_I(addr,addrlen)
+                   : asciz_to_string((char*)addr,O(misc_encoding)));
+  (void)family; /* ignore */
+  return 0;
+}
 global object string_to_addr (char* name) {
-  char buffer[MAXHOSTNAMELEN];
   object ret;
   begin_system_call();
- #ifdef HAVE_INET_PTON
-  if (inet_pton(AF_INET,name,(void*)buffer) > 0)
-    ret = uint32_to_I(*(uint32*)buffer);
-  #ifdef HAVE_IPV6
-  else if (inet_pton(AF_INET6,name,buffer) > 0)
-    ret = uint64_to_I(*(uint64*)buffer);
-  #endif /* HAVE_IPV6 */
- #else /* HAVE_INET_PTON */
-  if (all_digits_dots(name)) {
-    ret = uint32_to_I(inet_addr(name) INET_ADDR_SUFFIX);
-  }
- #endif /* HAVE_INET_PTON */
-  else
-    ret = NIL;
+  with_host(name,&string_to_addr1,&ret);
   end_system_call();
   return ret;
 }
-local struct hostent* resolve_host1 (char* name) {
-  struct hostent* he;
-  char buffer[MAXHOSTNAMELEN];
-  begin_system_call();
- #ifdef HAVE_INET_PTON
-  if (inet_pton(AF_INET,name,(void*)buffer) > 0)
-    he = gethostbyaddr(buffer,sizeof(struct in_addr),AF_INET);
-  #ifdef HAVE_IPV6
-  else if (inet_pton(AF_INET6,name,buffer) > 0)
-    he = gethostbyaddr(buffer,sizeof(struct in6_addr),AF_INET);
-  #endif /* HAVE_IPV6 */
- #else /* HAVE_INET_PTON */
-  if (all_digits_dots(name)) {
-    uint32 ip = inet_addr(name) INET_ADDR_SUFFIX;
-    he = gethostbyaddr((char*)&ip,sizeof(uint32),AF_INET);
-  }
- #endif /* HAVE_INET_PTON */
-  else
-    he = gethostbyname(name);
-  end_system_call();
-  return he;
+local int resolve_host1 (void* addr, int addrlen, int family, void* ret) {
+  *(struct hostent**)ret =
+    (addrlen ? gethostbyaddr(addr,addrlen,family) : gethostbyname(addr));
+  return 0;
 }
 global struct hostent* resolve_host (object arg) {
   struct hostent* he;
@@ -359,24 +363,98 @@ global struct hostent* resolve_host (object arg) {
     he = gethostbyname(host);
     end_system_call();
   } else if (stringp(arg) || symbolp(arg)) {
-    with_string_0(stringp(arg)?arg:(object)Symbol_name(arg),O(misc_encoding),
-                  namez, { he = resolve_host1(namez); });
+    with_string_0(stringp(arg)?arg:(object)Symbol_name(arg),
+                  O(misc_encoding), namez, {
+      begin_system_call();
+      with_host(namez,&resolve_host1,&he);
+      end_system_call();
+    });
   } else if (uint32_p(arg)) {
-    uint32 ip = htonl(I_to_UL(arg));
+    uint32 ip = I_to_uint32(arg);
     begin_system_call();
     he = gethostbyaddr((char*)&ip,sizeof(uint32),AF_INET);
     end_system_call();
-  } else
-    fehler_string_integer(arg);
+  } else if (vectorp(arg)) {
+    /* bit vector: treat as raw IP address data */
+    uintL vec_len = vector_length(arg);
+    uintL data_size;            /* size of data in byte */
+    switch (array_atype(arg)) {
+      /* vec_len must be a whole number of bytes */
+      case Atype_Bit:   data_size = vec_len>>3;
+        if (vec_len & 7) goto resolve_host_bad_vector;
+        break;
+      case Atype_2Bit:  data_size = vec_len>>2;
+        if (vec_len & 3) goto resolve_host_bad_vector;
+        break;
+      case Atype_4Bit:  data_size = vec_len>>1;
+        if (vec_len & 1) goto resolve_host_bad_vector;
+        break;
+      case Atype_8Bit:  data_size = vec_len;    break;
+      case Atype_16Bit: data_size = vec_len<<1; break;
+      case Atype_32Bit: data_size = vec_len<<2; break;
+      default: goto resolve_host_bad_vector;
+    }
+    if (data_size == sizeof(struct in_addr)) {
+      uintL index;
+      object data = array_displace_check(arg,vec_len,&index);
+      begin_system_call();
+      he = gethostbyaddr((char*)(TheSbvector(data)->data+index),
+                         data_size,AF_INET);
+      end_system_call();
+    }
+   #ifdef HAVE_IPV6
+    else if (data_size == sizeof(struct in6_addr)) {
+      uintL index;
+      object data = array_displace_check(arg,vec_len,&index);
+      begin_system_call();
+      he = gethostbyaddr((char*)(TheSbvector(data)->data+index),
+                         data_size,AF_INET6);
+      end_system_call();
+    }
+   #endif
+    else { resolve_host_bad_vector:
+      pushSTACK(arg);                  /* TYPE-ERROR slot DATUM */
+      pushSTACK(O(type_uint8_vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
+     #ifdef HAVE_IPV6
+      pushSTACK(fixnum(sizeof(struct in6_addr)));
+     #endif
+      pushSTACK(fixnum(sizeof(struct in_addr)));
+      pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+            #ifdef HAVE_IPV6
+             GETTEXT("~S: IP address ~S must have length ~S or ~S")
+            #else
+             GETTEXT("~S: IP address ~S must have length ~S")
+            #endif
+             );
+    }
+  }
+ #ifdef HAVE_IPV6
+  else if (fixnump(arg)) { /* what if we ever get fixnums>32 bit?! */
+    uintL ip = I_to_UL(arg);
+    struct in6_addr addr;
+    begin_system_call();
+    memset(&addr,0,sizeof(struct in6_addr));
+    memcpy(&addr,&ip,sizeof(uintL)); /* FIXME: endianness?! */
+    he = gethostbyaddr((char*)&addr,sizeof(struct in6_addr),AF_INET6);
+    end_system_call();
+  } else if (bignump(arg) && positivep(arg)
+             && Bignum_length(arg)*intDsize <= sizeof(struct in6_addr)) {
+    /* arg is an integer of length at most 128 big - IPv6 address */
+    NOTREACHED;                 /* FIXME */
+  }
+ #endif
+  else fehler_string_integer(arg);
   return he;
 }
+
 
 /* Look up a host's IP address, then call a user-defined function taking
    a `struct sockaddr' and its size, and returning a SOCKET. */
 typedef SOCKET (*socket_connect_fn_t) (struct sockaddr * addr, int addrlen,
                                        void* opts);
-local SOCKET with_hostname (const char* host, unsigned short port,
-                            socket_connect_fn_t connector, void* opts) {
+local SOCKET with_host_port (const char* host, unsigned short port,
+                             socket_connect_fn_t connector, void* opts) {
 #ifdef HAVE_INET_PTON
  #ifdef HAVE_IPV6
   {
@@ -443,7 +521,6 @@ local SOCKET with_hostname (const char* host, unsigned short port,
     }
   }
 }
-
 #endif /* TCPCONN */
 
 /* ========================== X server connection ======================== */
@@ -617,9 +694,9 @@ global SOCKET connect_to_x_server (const char* host, int display)
       var unsigned short port = X_TCP_PORT+display;
       if (host[0] == '\0') {
         get_hostname(host =);
-        fd = with_hostname(host,port,&connect_to_x_via_ip,NULL);
+        fd = with_host_port(host,port,&connect_to_x_via_ip,NULL);
       } else {
-        fd = with_hostname(host,port,&connect_to_x_via_ip,NULL);
+        fd = with_host_port(host,port,&connect_to_x_via_ip,NULL);
       }
       if (fd == INVALID_SOCKET)
         return INVALID_SOCKET;
@@ -784,7 +861,7 @@ global SOCKET create_server_socket (host_data_t *hd, SOCKET sock,
   var SOCKET fd;
   if (sock == INVALID_SOCKET) {
     /* "0.0.0.0" allows connections from any host to our server */
-    fd = with_hostname("0.0.0.0",(unsigned short)port,&bindlisten_via_ip,NULL);
+    fd = with_host_port("0.0.0.0",(unsigned short)port,&bindlisten_via_ip,NULL);
   } else {
     var sockaddr_max_t addr;
     var SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
@@ -886,8 +963,8 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
 
 global SOCKET create_client_socket (const char*hostname, unsigned intport,
                                     void* timeout) {
-  return with_hostname(hostname,(unsigned short)intport,
-                       &connect_via_ip,timeout);
+  return with_host_port(hostname,(unsigned short)intport,
+                        &connect_via_ip,timeout);
 }
 
 /* ================= miscellaneous network related stuff ================= */
