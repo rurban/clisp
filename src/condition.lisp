@@ -1393,8 +1393,10 @@
           (with-condition-restarts condition (list (find-restart 'MUFFLE-WARNING))
             (signal condition)))
         (terpri *error-output*)
-        (write-string (TEXT "WARNING: ") *error-output*)
-        (pretty-print-condition condition *error-output* :indent 9)
+        (let ((first-line-prefix (TEXT "WARNING: ")))
+          (write-string first-line-prefix *error-output*)
+          (pretty-print-condition condition *error-output*
+                                  :indent (string-width first-line-prefix)))
         (when *break-on-warnings*
           (with-restarts
               ((CONTINUE
