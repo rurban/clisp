@@ -1,3 +1,7 @@
+2001-12-20  Sam Steingold  <sds@gnu.org>
+
+	* clos.tst: added WITH-SLOTS tests
+
 2001-12-04  Sam Steingold  <sds@gnu.org>
 
 	* array.tst, strings.tst: added REVERSE & NREVERSE tests

@@ -1,3 +1,5 @@
+;; -*- Lisp -*-
+
 #-CMU
 (use-package "CLOS")
 #-CMU
@@ -42,6 +44,21 @@ A
 
 (x-val a)
 10
+
+(with-slots (x y) a (+ x y))
+11
+
+(defun foo (z) (with-slots (x y) z (+ x y)))
+foo
+
+(foo a)
+11
+
+(compile 'foo)
+foo
+
+(foo a)
+11
 
 (defparameter b (make-instance (find-class '<C2>) :x 10 :y 20 :z 30))
 B
