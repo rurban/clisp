@@ -75,7 +75,7 @@
 	property-list, not in the value cell. Call %proclaim-symbol-macro.
 	* defs1.lisp (copy-symbol): Use symbol-value instead of %symbol-value.
 	* describe.lisp (apropos, describe-object@symbol): Symbol-macros are
-	now orthogonal to the contents of the value cell.
+	now orthogonal to the contents of the value cell. Update.
 
 2005-01-06  Sam Steingold  <sds@gnu.org>
 
