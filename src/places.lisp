@@ -154,29 +154,6 @@
            (simple-use-p (third form) var)
 ) )   )
 ;;;----------------------------------------------------------------------------
-(defun documentation (symbol doctype)
-  (unless (function-name-p symbol)
-    (error-of-type 'error
-      (TEXT "~S: first argument ~S is illegal, not a symbol")
-      'documentation symbol
-  ) )
-  (getf (get (get-funname-symbol symbol) 'SYSTEM::DOCUMENTATION-STRINGS) doctype)
-)
-(defun SYSTEM::%SET-DOCUMENTATION (symbol doctype value)
-  (unless (function-name-p symbol)
-    (error-of-type 'error
-      (TEXT "~S: first argument ~S is illegal, not a symbol")
-      'documentation symbol
-  ) )
-  (setq symbol (get-funname-symbol symbol))
-  (if (null value)
-    (when (getf (get symbol 'SYSTEM::DOCUMENTATION-STRINGS) doctype)
-      (remf (get symbol 'SYSTEM::DOCUMENTATION-STRINGS) doctype)
-      nil
-    )
-    (setf (getf (get symbol 'SYSTEM::DOCUMENTATION-STRINGS) doctype) value)
-) )
-;;;----------------------------------------------------------------------------
 (defmacro push (item place &environment env)
   (multiple-value-bind (vr vl sv se ge) (get-setf-expansion place env)
     (if (simple-assignment-p se sv)
@@ -730,19 +707,6 @@
       `(PROGN ,default ,storeform) ; default wird nur zum Schein ausgewertet
       `,storeform
 ) ) )
-;;;----------------------------------------------------------------------------
-#| ; see above:
- (defun SYSTEM::%SET-DOCUMENTATION (symbol doctype value)
-  (unless (function-name-p symbol)
-    (error-of-type 'error
-      (TEXT "first argument ~S is illegal, not a symbol")
-      symbol))
-  (setq symbol (get-funname-symbol symbol))
-  (if (null value)
-    (progn (remf (get symbol 'SYSTEM::DOCUMENTATION-STRINGS) doctype) nil)
-    (setf (getf (get symbol 'SYSTEM::DOCUMENTATION-STRINGS) doctype) value)))
-|#
-(defsetf documentation SYSTEM::%SET-DOCUMENTATION)
 ;;;----------------------------------------------------------------------------
 (defsetf fill-pointer SYSTEM::SET-FILL-POINTER)
 ;;;----------------------------------------------------------------------------

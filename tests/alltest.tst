@@ -528,7 +528,7 @@ V1
 
 (symbol-plist 'beispiel)
 #+XCL (DOCUMENTATION ((TYP2 . "doc 3") (TYP1 . "doc 1")))
-#+CLISP (SYSTEM::DOCUMENTATION-STRINGS (TYP2 "doc 3" TYP1 "doc 1"))
+#+CLISP NIL
 #+ALLEGRO (EXCL::%DOCUMENTATION ((TYP2 . "doc 3") (TYP1 . "doc 1")))
 #+CMU NIL
 #-(or XCL CLISP ALLEGRO CMU) UNKNOWN

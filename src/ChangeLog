@@ -1,3 +1,19 @@
+2002-12-23  Sam Steingold  <sds@gnu.org>
+
+	DOCUMENTATION is now a generic function
+	* clos.lisp (ensure-class): use SYS::%SET-DOCUMENTATION explicitly
+	(analyze-method-description): pass the method object to
+	CHECK-REDEFINITION when possible
+	(documentation, (setf documentation)): new generic functions
+	* defs2.lisp (defpackage): remember documentation string
+	* defstruct.lisp (defstruct): use SYS::%SET-DOCUMENTATION explicitly
+	* macros2.lisp (deftype): ditto
+	* describe.lisp (describe1): print all documentation
+	* places.lisp (documentation, %SET-DOCUMENTATION): removed
+	* init.lisp (*documentation*): new variable
+	(%set-documentation): implemented
+	(check-redefinition): save and check the SYS::FILE docstring
+
 2002-12-22  Sam Steingold  <sds@gnu.org>
 
 	* symbol.d (%PUTF): when the place is a cons, modify it in-place

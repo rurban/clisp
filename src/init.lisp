@@ -157,7 +157,7 @@
    file-position file-length file-string-length load directory
    ensure-directories-exist error cerror warn break compile
    compile-file disassemble with-compilation-unit
-   documentation variable structure type ; three documentation-types
+   variable structure type ; three documentation-types
    describe inspect room ed dribble apropos apropos-list get-decoded-time
    get-universal-time decode-universal-time encode-universal-time
    get-internal-run-time get-internal-real-time sleep lisp-implementation-type
@@ -355,7 +355,7 @@
 (export
  '(;; names of functions and macros:
    slot-value slot-boundp slot-makunbound slot-exists-p with-slots
-   with-accessors
+   with-accessors documentation
    find-class class-of defclass defmethod call-next-method next-method-p
    defgeneric generic-function
    class-name no-applicable-method no-next-method
@@ -393,20 +393,57 @@
             ((macro-function sym)     (TEXT "macro"))
             ((fboundp sym)            (TEXT "function"))))))
 
+(proclaim '(special *documentation*))
+(setq *documentation* (make-hash-table :test 'eq)); :weak t
+(sys::%putd 'sys::%set-documentation
+  (function sys::%set-documentation
+    (lambda (symbol doctype value)
+      #| ;; cannot use due to bootstrapping
+      (if value (setf (getf (gethash symbol *documentation*) doctype) value)
+        (multiple-value-bind (rec found-p) (gethash symbol *documentation*)
+          (when (and found-p (remf rec doctype) (null rec))
+            (remhash symbol *documentation*)))))|#
+      (if value
+        (let ((rec (sys::%putf (gethash symbol *documentation*)
+                               doctype value)))
+          (when rec (sys::puthash symbol *documentation* rec)))
+        (multiple-value-bind (rec found-p) (gethash symbol *documentation*)
+          (when found-p
+            (setq rec (sys::%remf rec doctype))
+            (cond ((null rec) (remhash symbol *documentation*))
+                  ((atom rec) (sys::puthash symbol *documentation* rec))))))
+      value)))
+
+(proclaim '(special *load-truename*))
+(setq *load-truename* nil)
+
 (sys::%putd 'sys::check-redefinition
   (function sys::check-redefinition
     (lambda (symbol caller what)
-      (declare (ignore what))   ; for now...
-      (sys::check-package-lock
-       caller
-       (cond ((atom symbol) (symbol-package symbol))
-             ((function-name-p symbol) (symbol-package (second symbol)))
-             ((mapcar #'(lambda (obj) ; handle (setf NAME) and (eql NAME)
-                          (let ((oo (if (atom obj) obj (second obj))))
-                            (when (symbolp oo)
-                              (symbol-package oo))))
-                      symbol)))
-       symbol))))
+      (let ((cur-file (if compiler::*compiling*
+                          *compile-file-truename* *load-truename*))
+            ;; distinguish between undefined and defined at top-level
+            (old-file (getf (gethash symbol *documentation*) 'sys::file)))
+        (unless (or (equalp old-file cur-file)
+                    (and (pathnamep old-file) (pathnamep cur-file)
+                         (equal (pathname-name old-file)
+                                (pathname-name cur-file))))
+          (sys::check-package-lock
+           caller
+           (cond ((atom symbol) (symbol-package symbol))
+                 ((function-name-p symbol) (symbol-package (second symbol)))
+                 ((mapcar #'(lambda (obj) ; handle (setf NAME) and (eql NAME)
+                              (let ((oo (if (atom obj) obj (second obj))))
+                                (when (symbolp oo)
+                                  (symbol-package oo))))
+                          symbol)))
+           symbol)
+          (when what
+            (warn (TEXT "~a: redefining ~a ~s in ~a, was defined in ~a")
+                  caller what symbol (or cur-file "top-level")
+                  (or old-file "top-level")))
+          (when cur-file
+            (system::%set-documentation symbol 'sys::file cur-file)))))))
 
 (sys::%putd 'sys::remove-old-definitions
   (function sys::remove-old-definitions
@@ -422,8 +459,7 @@
       ;; soon reset, anyway.
       (remprop symbol 'sys::macro) ; discard macro definition
       (remprop symbol 'sys::defstruct-reader) ; discard DEFSTRUCT information
-      (when (get symbol 'sys::documentation-strings) ; discard documentation
-        (sys::%set-documentation symbol 'FUNCTION nil))
+      (sys::%set-documentation symbol 'FUNCTION nil)
       (when (get symbol 'sys::inline-expansion)
         (sys::%put symbol 'sys::inline-expansion t))
       (when (get symbol 'sys::traced-definition) ; discard Trace
@@ -1216,8 +1252,6 @@
 (setq *load-compiling* nil)
 (proclaim '(special *load-pathname*))
 (setq *load-pathname* nil)
-(proclaim '(special *load-truename*))
-(setq *load-truename* nil)
 (proclaim '(special *load-input-stream*))
 (setq *load-input-stream* nil)
 (proclaim '(special *load-level*))
@@ -1612,7 +1646,7 @@
                             ',name (lambda-list-to-signature ',lambdalist)))))
                       (if (and (null (svref env 0))  ; venv
                                (null (svref env 1))) ; fenv
-                        `((EVAL-WHEN (EVAL)
+                          `((EVAL-WHEN (EVAL)
                             (LET ((%ENV (THE-ENVIRONMENT)))
                               (IF (AND (NULL (SVREF %ENV 0)) ; venv
                                        (NULL (SVREF %ENV 1)) ; fenv

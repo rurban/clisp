@@ -71,7 +71,7 @@
   (setq packname (string packname))
   ;; process options:
   (let ((size nil) ; :SIZE has been supplied
-        (documentation nil) ; :DOCUMENTATION has been supplied
+        (documentation nil) ; :DOCUMENTATION string
         (nickname-list '()) ; list of nicknames
         (shadow-list '()) ; list of symbol names to shadow
         (shadowing-list '()) ; list of pairs (symbol-name . package-name) for shadowing-import
@@ -103,7 +103,7 @@
                  (error-of-type 'source-program-error
                    (TEXT "~S ~A: the ~S option must not be given more than once")
                    'defpackage packname ':DOCUMENTATION)
-                 (setq documentation t))) ; ignored
+                 (setq documentation (second option))))
               (:NICKNAMES
                (dolist (name (rest option))
                  (push (string name) nickname-list)))
@@ -188,6 +188,10 @@
                  intern-list)
        ;; step 4
        ,@(if export-list `((INTERN-EXPORT ',export-list ,packname)))
+       ;; step 5
+       ,@(if documentation
+             `((SYS::%SET-DOCUMENTATION (find-package ,packname)
+                                        'package ,documentation)))
        (FIND-PACKAGE ,packname))))
 
 ; Hilfsfunktionen:
