@@ -16451,6 +16451,27 @@ LISPFUNN(output_stream_p,1)
     }
   }
 
+LISPFUNN(stream_element_type_eq,2)
+# (SYS::STREAM-ELEMENT-TYPE-EQ T0 T1)
+# this function is used for `stream-element-type' type merging
+# it does not handle types not seen as stream element types
+# it should be reasonably fast, so we are not using `canonicalize-type'
+# (defun stream-element-type-eq (t0 t1)
+#   (or (eq t0 t1)
+#       (and (consp t0) (consp t1)
+#            (eq (car t0) (car t1))
+#            (member (car t0) '(unsigned-byte signed-byte))
+#            (eql (cadr t0) (cadr t1)))))
+{ object t0 = popSTACK();
+  object t1 = popSTACK();
+  if (eq(t0,t1) ||
+      (consp(t0) && consp(t1) && eq(Car(t0),Car(t1)) &&
+       (eq(Car(t0),S(unsigned_byte)) || eq(Car(t0),S(signed_byte))) &&
+       (eql(Car(Cdr(t0)),Car(Cdr(t1))))))
+    { value1 = T; mv_count = 1; }
+  else { value1 = NIL; mv_count = 1; }
+}
+
 LISPFUNN(built_in_stream_element_type,1)
 # (SYS::BUILT-IN-STREAM-ELEMENT-TYPE stream)
 # liefert NIL (für geschlossene Streams) oder CHARACTER oder INTEGER oder T
@@ -16527,7 +16548,7 @@ LISPFUNN(built_in_stream_element_type,1)
           #                 (if (and (consp otype) (eq (car otype) 'OR))
           #                   (cdr otype)
           #                   (list otype)
-          #                 )
+          #                 ))
           # ) )     ) ) ) )
           {
             pushSTACK(TheStream(stream)->strm_twoway_input);
@@ -16560,7 +16581,9 @@ LISPFUNN(built_in_stream_element_type,1)
               }
               STACK_0 = tmp;
               funcall(L(append),2);
-              pushSTACK(value1); funcall(L(remove_duplicates),1);
+              pushSTACK(value1); pushSTACK(S(Ktest));
+              pushSTACK(S(stream_element_type_eq));
+              funcall(L(remove_duplicates),3);
               pushSTACK(value1);
               eltype = allocate_cons();
               Car(eltype) = S(or); Cdr(eltype) = popSTACK();
