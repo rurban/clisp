@@ -1293,6 +1293,7 @@ LISPSYM(make_char,"MAKE-CHAR",lisp) # als Funktion für STREAM
 LISPSYM(keyboard_input,"*KEYBOARD-INPUT*",lisp) # als Variable in STREAM
 #endif
 LISPSYM(completion,"COMPLETION",system) # als Funktion in STREAM, für den Fall, dass GNU_READLINE benutzt wird
+LISPSYM(conversion_failure,"CONVERSION-FAILURE",system) # als CATCH-Tag in STREAM
 LISPSYM(terminal_io,"*TERMINAL-IO*",lisp) # als Variable in STREAM
 LISPSYM(key_bindings,"*KEY-BINDINGS*",system) # als Variable in STREAM
 LISPSYM(query_io,"*QUERY-IO*",lisp) # als Variable in STREAM

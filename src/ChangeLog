@@ -1,3 +1,9 @@
+2001-03-02  Bruno Haible  <haible@clisp.cons.org>
+
+        * stream.d (lisp_completion_ignore): New function.
+          (lisp_completion): Use CATCH and HANDLER-BIND to catch conversion
+          errors. Skip symbols that are not convertible to *terminal-encoding*.
+
 2001-02-28  Bruno Haible  <haible@clisp.cons.org>
             Sam Steingold  <sds@gnu.org>
 

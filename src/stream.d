@@ -10230,6 +10230,18 @@ LISPFUNN(make_keyboard_stream,0)
 #if defined(GNU_READLINE) || defined(NEXTAPP)
 # Vervollständigung von Lisp-Symbolen
   global char** lisp_completion (char* text, int start, int end);
+  # Function to ignore unconvertible symbols.
+  local void lisp_completion_ignore (void* sp, object* frame, object label, object condition);
+  local void lisp_completion_ignore(sp,frame,label,condition)
+    var void* sp;
+    var object* frame;
+    var object label;
+    var object condition;
+    {
+      # (THROW 'SYS::CONVERSION-FAILURE NIL):
+      value1 = NIL; mv_count=1;
+      throw_to(S(conversion_failure));
+    }
   global char** lisp_completion(text,start,end)
     var char* text; # text[0..end-start-1] = the_line[start..end-1]
     var int start;
@@ -10249,17 +10261,30 @@ LISPFUNN(make_keyboard_stream,0)
         end_callback();
         return NULL;
       }
+      begin_system_call();
       var char** array = (char**) malloc((llength(mlist)+1)*sizeof(char*));
+      end_system_call();
       if (array==NULL) {
         end_callback();
         return NULL;
       }
       {
         var char** ptr = array;
-        while (consp(mlist)) {
-          var uintL charcount = Sstring_length(Car(mlist));
+        pushSTACK(mlist);
+        while (mconsp(STACK_0)) {
+          var uintL charcount = Sstring_length(Car(STACK_0));
           var const chart* ptr1;
-          unpack_sstring_alloca(Car(mlist),charcount,0, ptr1=);
+          unpack_sstring_alloca(Car(STACK_0),charcount,0, ptr1=);
+          # (CATCH 'SYS::CONVERSION-FAILURE ...)
+          {
+            var object* top_of_frame = STACK;
+            pushSTACK(S(conversion_failure));
+            var sp_jmp_buf returner;
+            finish_entry_frame(CATCH,&!returner,, goto catch_return; );
+          }
+          # Upon charset_type_error, call lisp_completion_ignore.
+          make_HANDLER_frame(O(handler_for_charset_type_error),&lisp_completion_ignore,NULL);
+          # Convert ptr1 to *TERMINAL-ENCODING*:
           var uintL bytecount = cslen(O(terminal_encoding),ptr1,charcount);
           begin_system_call();
           var char* ptr2 = (char*) malloc((bytecount+1)*sizeof(char));
@@ -10267,6 +10292,8 @@ LISPFUNN(make_keyboard_stream,0)
             until (ptr==array) { free(*--ptr); }
             free(array);
             end_system_call();
+            unwind_HANDLER_frame();
+            skipSTACK(3+1); # unwind CATCH frame, pop mlist
             end_callback();
             return NULL;
           }
@@ -10274,9 +10301,19 @@ LISPFUNN(make_keyboard_stream,0)
           cstombs(O(terminal_encoding),ptr1,charcount,(uintB*)ptr2,bytecount);
           ptr2[bytecount] = '\0';
           *ptr++ = ptr2;
-          mlist = Cdr(mlist);
+          unwind_HANDLER_frame();
+         catch_return:
+          skipSTACK(3); # unwind CATCH frame
+          STACK_0 = Cdr(STACK_0);
         }
+        skipSTACK(1); # pop mlist
         *ptr = NULL;
+      }
+      if (*array == NULL) {
+        begin_system_call();
+        free(array);
+        end_system_call();
+        array = NULL;
       }
       end_callback();
       return array;
