@@ -11170,13 +11170,11 @@ The function make-closure is required.
 
 ;; open C-Output-File, if not open yet:
 (defun prepare-coutput-file ()
-  (if (and *compiling-from-file* *coutput-file*)
-    (progn
-      (unless *coutput-stream*
-        (setq *coutput-stream* (open *coutput-file* :direction :output))
-        (format *coutput-stream* "#include \"clisp.h\"~%~%"))
-      t)
-    nil))
+  (when (and *compiling-from-file* *coutput-file*)
+    (unless *coutput-stream*
+      (setq *coutput-stream* (open *coutput-file* :direction :output))
+      (format *coutput-stream* "#include \"clisp.h\"~%~%"))
+    t))
 ;; Hook for FFI:
 (defun finalize-coutput-file ())
 
@@ -11457,23 +11455,29 @@ The function make-closure is required.
                     (compile-toplevel-form form
                       (symbol-suffix form-name (incf form-count)))))
                 (finalize-coutput-file)
-                (c-comment (TEXT "~&~%Compilation of file ~A is finished.")
-                           file)
                 (setq compilation-successful (zerop *error-count*))
+                (cond (compilation-successful
+                       (c-comment (TEXT "~&~%Wrote file ~A") output-file)
+                       (when *coutput-stream*
+                         (c-comment (TEXT "~%Wrote file ~A")
+                                    *coutput-file*)))
+                      (new-output-stream
+                       (c-comment (TEXT "~&~%Deleted file ~A") output-file)
+                       (when *coutput-stream*
+                         (c-comment (TEXT "~%Deleted file ~A")
+                                    *coutput-file*))))
+                (when new-listing-stream
+                  (c-comment (TEXT "~%Wrote file ~A") listing))
                 (values (if compilation-successful output-file nil)
                         (compile-warnings-p)
                         (compile-failure-p))))
             (when new-output-stream
               (close *fasoutput-stream*)
               (close *liboutput-stream*)
-              (if *coutput-stream*
-                (close *coutput-stream*)
-                (when (probe-file *coutput-file*)
-                  (delete-file *coutput-file*)))
+              (when *coutput-stream*
+                (close *coutput-stream*))
               (unless compilation-successful
-                (delete-file output-file) (delete-file liboutput-file)
-                (when (probe-file *coutput-file*)
-                  (delete-file *coutput-file*))))))
+                (delete-file output-file) (delete-file liboutput-file)))))
         (when new-listing-stream (close listing-stream))))))
 
 ;; This must be consistent with compile-file (see above)!

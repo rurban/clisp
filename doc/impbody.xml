@@ -4484,7 +4484,7 @@ compiles a file to platform-independent bytecode.</para>
 <warning><para>If you have two files in the same directory
 - &foolisp-f; and <filename>#P"foo.c"</filename>,
 and you compile the first file with &clisp;, the second file will be
-<emphasis>clobbered</emphasis> even if you have no &ffi-pac; forms in
+<emphasis>clobbered</emphasis> if you have any &ffi-pac; forms in
 the first one!</para></warning>
 
 </section>
