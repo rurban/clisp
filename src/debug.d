@@ -1508,12 +1508,12 @@ LISPFUNN(proom,0)
      - room free for LISP-objects
      - room statically occupied by LISP-objects
      do it in more detail at SPVW_PAGES?? */
-  var uintL n1 = used_space();
-  var uintL n2 = free_space();
-  var uintL n3 = static_space();
-  pushSTACK(UL_to_I(n1));
-  pushSTACK(UL_to_I(n2));
-  pushSTACK(UL_to_I(n3));
+  var uintM n1 = used_space();
+  var uintM n2 = free_space();
+  var uintM n3 = static_space();
+  pushSTACK(uintM_to_I(n1));
+  pushSTACK(uintM_to_I(n2));
+  pushSTACK(uintM_to_I(n3));
   STACK_to_mv(3);
 }
 

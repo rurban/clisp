@@ -23,7 +23,7 @@
 # varobject_bytelength(obj)
 # > obj: heap object of various length
 # < result: number of occupied bytes
-  global uintL varobject_bytelength (object obj);
+  global uintM varobject_bytelength (object obj);
 
 # ------------------------------ Implementation -------------------------------
 
@@ -90,7 +90,7 @@
 #endif
 #define size_svector(length)  # simple-vector                   \
   Varobject_aligned_size(offsetofa(svector_,data),              \
-                         sizeof(gcv_object_t),(uintL)(length))
+                         sizeof(gcv_object_t),(uintM)(uintL)(length))
 #define size_sistring(xlength)  # simple indirect string        \
   Varobject_aligned_size(offsetof(sistring_,data),sizeof(uintB), \
                          sizeof(gcv_object_t)/sizeof(uintB)+(uintL)(xlength))
@@ -227,7 +227,7 @@ inline local uintL objsize_sstring (void* addr) { # simple-string
 
 #ifdef SPVW_MIXED
 
-local uintL objsize (void* addr) {
+local uintM objsize (void* addr) {
  #ifdef TYPECODES
   switch (typecode_at(addr) & ~bit(garcol_bit_t)) # type of the object
  #else
@@ -377,57 +377,57 @@ local uintL objsize (void* addr) {
 
 #ifdef SPVW_PURE
 
-inline local uintL objsize_symbol (void* addr) { # Symbol
+inline local uintM objsize_symbol (void* addr) { # Symbol
   return size_symbol();
 }
-inline local uintL objsize_sbvector (void* addr) { # simple-bit-vector
+inline local uintM objsize_sbvector (void* addr) { # simple-bit-vector
   return size_sbvector(sbvector_length((Sbvector)addr));
 }
-inline local uintL objsize_sb2vector (void* addr) { # simple-2bit-vector
+inline local uintM objsize_sb2vector (void* addr) { # simple-2bit-vector
   return size_sb2vector(sbvector_length((Sbvector)addr));
 }
-inline local uintL objsize_sb4vector (void* addr) { # simple-4bit-vector
+inline local uintM objsize_sb4vector (void* addr) { # simple-4bit-vector
   return size_sb4vector(sbvector_length((Sbvector)addr));
 }
-inline local uintL objsize_sb8vector (void* addr) { # simple-8bit-vector
+inline local uintM objsize_sb8vector (void* addr) { # simple-8bit-vector
   return size_sb8vector(sbvector_length((Sbvector)addr));
 }
-inline local uintL objsize_sb16vector (void* addr) { # simple-16bit-vector
+inline local uintM objsize_sb16vector (void* addr) { # simple-16bit-vector
   return size_sb16vector(sbvector_length((Sbvector)addr));
 }
-inline local uintL objsize_sb32vector (void* addr) { # simple-32bit-vector
+inline local uintM objsize_sb32vector (void* addr) { # simple-32bit-vector
   return size_sb32vector(sbvector_length((Sbvector)addr));
 }
-inline local uintL objsize_svector (void* addr) { # simple-vector
+inline local uintM objsize_svector (void* addr) { # simple-vector
   return size_svector(svector_length((Svector)addr));
 }
-inline local uintL objsize_sxrecord (void* addr) { # Record
+inline local uintM objsize_sxrecord (void* addr) { # Record
   if (record_type((Record)addr) < rectype_limit)
     return size_srecord(srecord_length((Srecord)addr));
   else
     return size_xrecord(xrecord_length((Xrecord)addr),
                         xrecord_xlength((Xrecord)addr));
 }
-inline local uintL objsize_lrecord (void* addr) { # Lrecord
+inline local uintM objsize_lrecord (void* addr) { # Lrecord
   return size_lrecord(lrecord_length((Lrecord)addr));
 }
-inline local uintL objsize_bignum (void* addr) { # Bignum
+inline local uintM objsize_bignum (void* addr) { # Bignum
   return size_bignum(bignum_length((Bignum)addr));
 }
 #ifndef IMMEDIATE_FFLOAT
-inline local uintL objsize_ffloat (void* addr) { # Single-Float
+inline local uintM objsize_ffloat (void* addr) { # Single-Float
   return size_ffloat();
 }
 #endif
-inline local uintL objsize_dfloat (void* addr) { # Double-Float
+inline local uintM objsize_dfloat (void* addr) { # Double-Float
   return size_dfloat();
 }
-inline local uintL objsize_lfloat (void* addr) { # Long-Float
+inline local uintM objsize_lfloat (void* addr) { # Long-Float
   return size_lfloat(lfloat_length((Lfloat)addr));
 }
 
 # table of functions:
-typedef uintL (*objsize_func_t) (void* addr);
+typedef uintM (*objsize_func_t) (void* addr);
 local objsize_func_t objsize_table[heapcount];
 
 local void init_objsize_table (void) {
@@ -495,7 +495,7 @@ local void init_objsize_table (void) {
 
 #endif # SPVW_PURE
 
-global uintL varobject_bytelength (object obj) {
+global uintM varobject_bytelength (object obj) {
  #ifdef SPVW_PURE
   var uintL heapnr = typecode(obj);
  #endif

@@ -329,11 +329,11 @@ global void savemem (object stream)
   }
  #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
   { /* write objects of variable length: */
-    var uintL len = header._mem_varobjects_end - header._mem_varobjects_start;
+    var uintM len = header._mem_varobjects_end - header._mem_varobjects_start;
     WRITE(header._mem_varobjects_start,len);
   }
   { /* write conses: */
-    var uintL len = header._mem_conses_end - header._mem_conses_start;
+    var uintM len = header._mem_conses_end - header._mem_conses_start;
     WRITE(header._mem_conses_start,len);
   }
  #endif
@@ -411,7 +411,7 @@ global void savemem (object stream)
   {
     var uintL heapnr;
     for (heapnr=0; heapnr<heapcount; heapnr++) {
-      var uintL misaligned = 0;
+      var uintM misaligned = 0;
      #if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && defined(HAVE_MMAP) && varobjects_misaligned
       if (is_varobject_heap(heapnr)) {
         var uintB zeroes[varobjects_misaligned];
@@ -424,13 +424,13 @@ global void savemem (object stream)
      #endif
      #if !defined(GENERATIONAL_GC)
       map_heap(mem.heaps[heapnr],page, {
-        var uintL len = page->page_end - page->page_start;
+        var uintM len = page->page_end - page->page_start;
         WRITE(page->page_start,len);
         WRITE_page_alignment(misaligned+len);
       });
      #else /* defined(GENERATIONAL_GC) */
       var Heap* heap = &mem.heaps[heapnr];
-      var uintL len = heap->heap_gen0_end - heap->heap_gen0_start;
+      var uintM len = heap->heap_gen0_end - heap->heap_gen0_start;
       WRITE(heap->heap_gen0_start,len);
       WRITE_page_alignment(misaligned+len);
      #endif
@@ -843,7 +843,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     #endif
     var off_t file_offset;
     #define set_file_offset(x)  file_offset = (x)
-    #define inc_file_offset(x)  file_offset += (uintL)(x)
+    #define inc_file_offset(x)  file_offset += (uintM)(x)
    #else
     #define set_file_offset(x)
     #define inc_file_offset(x)
@@ -1187,12 +1187,12 @@ local void loadmem_from_handle (Handle handle, const char* filename)
           var Pages* pages_ptr = &mem.heaps[heapnr].inuse;
           var uintC pagecount = pagecounts[heapnr];
           while (pagecount!=0) {
-            var uintL need = old_page_ptr->_page_end - old_page_ptr->_page_start;
-            var uintL misaligned = mem.heaps[heapnr].misaligned;
-            var uintL size1 = round_up(misaligned+need,sizeof(cons_));
+            var uintM need = old_page_ptr->_page_end - old_page_ptr->_page_start;
+            var uintM misaligned = mem.heaps[heapnr].misaligned;
+            var uintM size1 = round_up(misaligned+need,sizeof(cons_));
             if (size1 < std_page_size) { size1 = std_page_size; }
             {
-              var uintL size2 = size1 + sizeof_NODE + (varobject_alignment-1);
+              var uintM size2 = size1 + sizeof_NODE + (varobject_alignment-1);
               var aint addr = (aint)mymalloc(size2);
               var Pages page;
               if ((void*)addr == NULL) goto abort3;
@@ -1233,7 +1233,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         var memdump_page_t* old_page_ptr = &old_pages[0];
         var aint* new_page_ptr = &new_pages[0];
         while (total_pagecount != 0) {
-          var uintL len = old_page_ptr->_page_end - old_page_ptr->_page_start;
+          var uintM len = old_page_ptr->_page_end - old_page_ptr->_page_start;
           READ(*new_page_ptr,len);
           old_page_ptr++; new_page_ptr++;
           total_pagecount--;
@@ -1250,10 +1250,10 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       var uintL heapnr;
       for (heapnr=0; heapnr<heapcount; heapnr++) {
         var Heap* heapptr = &mem.heaps[heapnr];
-        var uintL len = heapptr->heap_end - heapptr->heap_start;
-        var uintL misaligned =
+        var uintM len = heapptr->heap_end - heapptr->heap_start;
+        var uintM misaligned =
           (is_varobject_heap(heapnr) ? varobjects_misaligned : 0);
-        var uintL map_len = round_up(misaligned+len,map_pagesize);
+        var uintM map_len = round_up(misaligned+len,map_pagesize);
         heapptr->heap_limit = (heapptr->heap_start-misaligned) + map_len;
         if (map_len > 0) {
           if (heapptr->heap_limit-1 > heapptr->heap_hardlimit-1) goto abort3;
@@ -1314,18 +1314,18 @@ local void loadmem_from_handle (Handle handle, const char* filename)
    #endif  /* SPVW_PURE_BLOCKS || SPVW_MIXED_BLOCKS_STAGGERED */
    #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
     { /* read objects of variable length: */
-      var uintL len = header._mem_varobjects_end - header._mem_varobjects_start;
+      var uintM len = header._mem_varobjects_end - header._mem_varobjects_start;
      #ifdef TRIVIALMAP_MEMORY
-      var uintL map_len = round_up(len+varobjects_misaligned,map_pagesize);
+      var uintM map_len = round_up(len+varobjects_misaligned,map_pagesize);
       mem.varobjects.heap_limit = (mem.varobjects.heap_start-varobjects_misaligned) + map_len;
       if (zeromap((void*)(mem.varobjects.heap_start-varobjects_misaligned),map_len) <0) goto abort3;
      #endif
       READ(mem.varobjects.heap_start,len);
     }
     { /* read conses: */
-      var uintL len = header._mem_conses_end - header._mem_conses_start;
+      var uintM len = header._mem_conses_end - header._mem_conses_start;
      #ifdef TRIVIALMAP_MEMORY
-      var uintL map_len = round_up(len,map_pagesize);
+      var uintM map_len = round_up(len,map_pagesize);
       mem.conses.heap_limit = mem.conses.heap_end - map_len;
       if (zeromap((void*)mem.conses.heap_limit,map_len) <0) goto abort3;
      #endif
@@ -1490,7 +1490,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     install_segv_handler();
     #endif  /* GENERATIONAL_GC */
     {
-      var uintL space = used_space();
+      var uintM space = used_space();
       set_total_room(space); /* we have plenty of time until the next GC */
      #ifdef GENERATIONAL_GC
       mem.last_gcend_space0 = space;
@@ -1507,7 +1507,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
   O(gc_count) = Fixnum_0;  /* so far no GCs: */
  #endif
   { # Initialize markwatchset:
-    var uintL need = 0;
+    var uintM need = 0;
     var object L;
     for (L = O(all_weakpointers);
          !eq(L,Fixnum_0);

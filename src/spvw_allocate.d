@@ -5,7 +5,7 @@
 # Asks the OS for a piece of memory of need bytes, and verifies that it lies
 # in the address range usable for Lisp objects. Returns NULL if couldn't
 # satisfy the request.
-  local void* mymalloc (uintL need);
+  local void* mymalloc (uintM need);
 
 # Allocates a Lisp object.
 # allocate(type,flag,size,ptrtype,ptr,statement)
@@ -54,15 +54,15 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
 
 # On relaxed situation: fill up reserve again.
 # Invariant: (mem.conses.heap_start-mem.varobjects.heap_end >= need).
-  local void relax_reserve (uintL need)
+  local void relax_reserve (uintM need)
   {
     # Now, enough space is available. Maybe even enough, to enlarge
     # the reserve memory to normal size?
-    var uintL free = (mem.conses.heap_start-mem.varobjects.heap_end) - need;
+    var uintM free = (mem.conses.heap_start-mem.varobjects.heap_end) - need;
                      # bytes still free
-    var uintL free_reserve = mem.MEMTOP-mem.MEMRES;
+    var uintM free_reserve = mem.MEMTOP-mem.MEMRES;
                      # bytes still free in reserve, <=RESERVE
-    var uintL free_total = free + free_reserve;
+    var uintM free_total = free + free_reserve;
                      # free object memory + free reserve
     if (free_total >= RESERVE) { # at least normal value RESERVE ?
       # yes -> bring reserve memory to normal size, by shifting
@@ -88,7 +88,7 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
   #endif
 
 # fetches memory from the operating system
-  local void* mymalloc (uintL need)
+  local void* mymalloc (uintM need)
   {
     var void* addr;
     begin_system_call();
@@ -127,7 +127,7 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
 # if none is available -> error-message.
 # make_space_FLAG(need);
 # > flag: if object is of variable length or not
-# > uintL need: requested space in bytes (a variable or constant)
+# > uintM need: requested space in bytes (a variable or constant)
   # the test, if room is available, as macro, the rest as function:
   #define make_space_true(need)  make_space(need)
   #define make_space_false(need)  make_space(need)
@@ -138,9 +138,9 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
   #if !defined(GENERATIONAL_GC)
     #define not_enough_room_p(need)  (mem.conses.heap_start-mem.varobjects.heap_end < (uintP)(need))
   #else
-    #define not_enough_room_p(need)  (mem.total_room < (uintL)(need))
+    #define not_enough_room_p(need)  (mem.total_room < (uintM)(need))
   #endif
-  local void make_space_gc (uintL need)
+  local void make_space_gc (uintM need)
   {
     # (mem.conses.heap_start-mem.varobjects.heap_end < need)  resp.
     # (mem.total_room < need)  is already checked, so there
@@ -189,23 +189,23 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
 # if none is available -> error-message.
 # make_space_FLAG(need);
 # > flag: if object is of variable length or not
-# > uintL need: requested space in bytes (a variable or constant)
+# > uintM need: requested space in bytes (a variable or constant)
   # the test, if room is available, as macro, the rest as function:
   #define make_space_true(need)  \
-    { if ((mem.total_room < (uintL)(need))                                      \
+    { if ((mem.total_room < (uintM)(need))                                      \
           || (mem.varobjects.heap_limit - mem.varobjects.heap_end < (uintP)(need)) \
          )                                                                      \
         make_space_gc_true(need,&mem.varobjects);                               \
       inc_alloccount();                                                         \
     }
   #define make_space_false(need)  \
-    { if ((mem.total_room < (uintL)(need))                                   \
+    { if ((mem.total_room < (uintM)(need))                                   \
           || (mem.conses.heap_start - mem.conses.heap_limit < (uintP)(need)) \
          )                                                                   \
         make_space_gc_false(need,&mem.conses);                               \
       inc_alloccount();                                                      \
     }
-  local void make_space_gc_true (uintL need, Heap* heapptr)
+  local void make_space_gc_true (uintM need, Heap* heapptr)
   {
     # (mem.total_room < need) || (heapptr->heap_limit - heapptr->heap_end < need)
     # is already checked, so there is not enough room.
@@ -267,7 +267,7 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
         mem.total_room = need;
     }
   }
-  local void make_space_gc_false (uintL need, Heap* heapptr)
+  local void make_space_gc_false (uintM need, Heap* heapptr)
   {
     # (mem.total_room < need) || (heapptr->heap_start - heapptr->heap_limit < need)
     # is already checked, so there is not enough room.
@@ -336,17 +336,17 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
 # make room for a new object.
 # if none is available -> error-message.
 # make_space(need,heapptr);
-# > uintL need: requested space in bytes (a variable or constant)
+# > uintM need: requested space in bytes (a variable or constant)
 # > Heap* heapptr: pointer to the heap, where the room has to be taken from
   # the test, if room is available, as macro, the rest as function:
   #define make_space(need,heapptr)  \
-    { if ((mem.total_room < (uintL)(need))                                 \
+    { if ((mem.total_room < (uintM)(need))                                 \
           || ((heapptr)->heap_limit - (heapptr)->heap_end < (uintP)(need)) \
          )                                                                 \
         make_space_gc(need,heapptr);                                       \
       inc_alloccount();                                                    \
     }
-  local void make_space_gc (uintL need, Heap* heapptr)
+  local void make_space_gc (uintM need, Heap* heapptr)
   {
     # (mem.total_room < need) || (heapptr->heap_limit - heapptr->heap_end < need)
     # is already checked, so there is not enough room.
@@ -420,7 +420,7 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
 # make room for a new object.
 # if none is available -> error-message.
 # make_space(need,heap_ptr,stack_ptr, page);
-# > uintL need: requested space in bytes (a variable or constant)
+# > uintM need: requested space in bytes (a variable or constant)
 # > Heap* heap_ptr: address of the heap, where the room has to be taken from
 # > AVL(AVLID,stack) * stack_ptr: Address of a local stack,
 #   for a later AVL(AVLID,move)
@@ -432,10 +432,10 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
         pagevar = make_space_gc(need,heap_ptr,stack_ptr);            \
       inc_alloccount();                                              \
     }
-  local Pages make_space_gc (uintL need, Heap* heap_ptr, AVL(AVLID,stack) * stack_ptr)
+  local Pages make_space_gc (uintM need, Heap* heap_ptr, AVL(AVLID,stack) * stack_ptr)
   {
     var Pages* pages_ptr = &heap_ptr->inuse;
-    var uintL misaligned = heap_ptr->misaligned;
+    var uintM misaligned = heap_ptr->misaligned;
     # AVL(AVLID,least)(need,pages_ptr,stack_ptr) == EMPTY
     # is already checked,
     # so there is not enough room.
@@ -452,9 +452,9 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
       # try to get space from the operating system:
       #define make_space_using_malloc()                                     \
         do {                                                                \
-          var uintL size1 = round_up(misaligned+need,sizeof(cons_));        \
+          var uintM size1 = round_up(misaligned+need,sizeof(cons_));        \
           if (size1 < std_page_size) { size1 = std_page_size; }             \
-         {var uintL size2 = size1 + sizeof(NODE) + (varobject_alignment-1); \
+         {var uintM size2 = size1 + sizeof(NODE) + (varobject_alignment-1); \
           var aint addr = (aint)mymalloc(size2);                            \
           if ((void*)addr != NULL) {                                        \
             # get page from the OS.                                         \
@@ -474,13 +474,13 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
       # try to get space from the operating system:
       #define make_space_using_malloc()                                   \
         do {                                                              \
-          var uintL size1 = round_up(misaligned+need,sizeof(cons_));      \
+          var uintM size1 = round_up(misaligned+need,sizeof(cons_));      \
           if (size1 < std_page_size) { size1 = std_page_size; }           \
           begin_system_call();                                            \
          {var Pages page = (NODE*)malloc(sizeof(NODE));                   \
           end_system_call();                                              \
           if (page != NULL) {                                             \
-            var uintL size2 = size1 + (varobject_alignment-1);            \
+            var uintM size2 = size1 + (varobject_alignment-1);            \
             var aint addr = (aint)mymalloc(size2);                        \
             if ((void*)addr != NULL) {                                    \
               # get page from the OS.                                     \

@@ -2526,7 +2526,7 @@ LISPFUNN(note_new_standard_class,0)
 typedef struct {
   const gcv_object_t* name; /* pointer to a GC-safe object (e.g. in the STACK) */
   sintL n_instances; /* number of instances */
-  sintL n_bytes;     /* number of bytes */
+  sintM n_bytes;     /* number of bytes */
 } hs_record_t;
 
 /* The type of an object for statistics purposes is a little more detailed
@@ -2690,7 +2690,7 @@ local void init_hs_locals_rest (hs_locals_t* locals, NODE* free_room)
 }
 
 /* This is the function we pass to map_heap_objects(). */
-local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
+local void heap_statistics_mapper (void* arg, object obj, uintM bytelen)
 {
   var hs_locals_t* locals = (hs_locals_t*)arg;
   var hs_record_t* pighole; /* `pighole' stands for `pigeon-hole' */
@@ -3032,7 +3032,7 @@ local void heap_statistics_result (hs_locals_t* locals)
       var object hsr = make_list(2);
       Car(hsr) = *ptr->name;
       Car(Cdr(hsr)) = L_to_I(ptr->n_instances);
-      Cdr(Cdr(hsr)) = L_to_I(ptr->n_bytes);
+      Cdr(Cdr(hsr)) = sintM_to_I(ptr->n_bytes);
       TheSvector(*result_)->data[i] = hsr;
       ptr++; i++;
     });
@@ -3046,7 +3046,7 @@ local void heap_statistics_result (hs_locals_t* locals)
         var object hsr = make_list(2);
         Car(hsr) = *ptr->nodedata.value.name;
         Car(Cdr(hsr)) = L_to_I(ptr->nodedata.value.n_instances);
-        Cdr(Cdr(hsr)) = L_to_I(ptr->nodedata.value.n_bytes);
+        Cdr(Cdr(hsr)) = sintM_to_I(ptr->nodedata.value.n_bytes);
         TheSvector(*result_)->data[i] = hsr;
         i++;
       });
@@ -3061,7 +3061,7 @@ local void heap_statistics_result (hs_locals_t* locals)
         var object hsr = make_list(2);
         Car(hsr) = TheClass(*ptr->nodedata.value.name)->classname;
         Car(Cdr(hsr)) = L_to_I(ptr->nodedata.value.n_instances);
-        Cdr(Cdr(hsr)) = L_to_I(ptr->nodedata.value.n_bytes);
+        Cdr(Cdr(hsr)) = sintM_to_I(ptr->nodedata.value.n_bytes);
         TheSvector(*result_)->data[i] = hsr;
         i++;
       });

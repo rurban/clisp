@@ -80,7 +80,7 @@ global object make_symbol (object string) {
 # < result: new vector (elements are initialized with NIL)
 # can trigger GC
 global object allocate_vector (uintL len) {
-  var uintL need = size_svector(len); # needed memory
+  var uintM need = size_svector(len); # needed memory
  #ifdef TYPECODES
   #define SETTFL  ptr->length = len
  #else

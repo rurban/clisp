@@ -18,7 +18,7 @@ local void gar_col_compact (void);
 
 #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && RESERVE
 /* Move the conses, to make a little more room. */
-local void move_conses (sintL delta);
+local void move_conses (sintM delta);
 #endif
 
 /* --------------------------- Implementation -------------------------- */
@@ -1030,7 +1030,7 @@ local void gc_markphase (void)
         var tint flags = mtypecode(((Varobject)p2)->GCself);
         # save typeinfo (and flags for symbols)
         #endif
-        var uintL laenge = objsize((Varobject)p2); # determine byte-length
+        var uintM laenge = objsize((Varobject)p2); # determine byte-length
         if (!marked(p2)) { # object unmarked?
           p2 += laenge; goto sweeploop1; # yes -> goto next object
         }
@@ -1103,7 +1103,7 @@ local void gc_markphase (void)
         var tint flags = mtypecode(((Varobject)p2)->GCself);
         # save typeinfo (and flags for symbols)
         #endif
-        var uintL laenge = objsize((Varobject)p2); # determine byte-length
+        var uintM laenge = objsize((Varobject)p2); # determine byte-length
         if (!marked(p2)) { # object unmarked?
           last_open_ptr = (gcv_object_t*)p2; # yes -> store the next pointer here
           p2 += laenge; goto sweeploop1; # goto next object
@@ -1326,7 +1326,7 @@ local void gc_markphase (void)
     #error "Unbekannter Wert von 'varobject_alignment'!"
   #endif
   #if defined(GNU) && (__GNUC__ < 3) && !defined(__cplusplus) # better for optimization
-    #ifdef fast_dotimesL
+    #if defined(fast_dotimesL) && (intMsize==intLsize)
       #define move_aligned_p1_p2(count)  \
         dotimespL(count,count/varobject_alignment, *((uintV*)p2)++ = *((uintV*)p1)++; )
     #else
@@ -1360,7 +1360,7 @@ local void gc_markphase (void)
       if (marked(p1)) { # marked?
         unmark(p1); # delete mark
         # keep object and relocate:
-        var uintL count = objsize((Varobject)p1); # length (divisible by varobject_alignment , >0)
+        var uintM count = objsize((Varobject)p1); # length (divisible by varobject_alignment , >0)
         if (!(p1==p2)) { # if relocation is necessary
           move_aligned_p1_p2(count); # relocate and advance
         } else { # else only advance:
@@ -1453,8 +1453,8 @@ local void gc_unmarkcheck (void) {
   # is returned back to the operating system.
   local void free_some_unused_pages (void)
   {
-    var uintL needed_space = floor(mem.last_gcend_space,4); # 25%
-    var uintL accu_space = 0;
+    var uintM needed_space = floor(mem.last_gcend_space,4); # 25%
+    var uintM accu_space = 0;
     var Pages* pageptr = &mem.free_pages;
     var Pages page = *pageptr;
     until (page==NULL) {
@@ -1474,8 +1474,8 @@ local void gc_unmarkcheck (void) {
 # perform normal Garbage Collection:
   local void gar_col_normal (void)
   {
-    var uintL gcstart_space; # occupied memory at GC-start
-    var uintL gcend_space; # occupied memory at GC-end
+    var uintM gcstart_space; # occupied memory at GC-start
+    var uintM gcend_space; # occupied memory at GC-end
     var object all_weakpointers; # list of active Weak-pointers
     var object all_finalizers; # list of finalizers
     #ifdef GC_CLOSES_FILES
@@ -1842,7 +1842,7 @@ local void gc_unmarkcheck (void) {
     # we let the used space grow up to 25%, only then
     # the next GC is triggered:
     {
-      var uintL total_room = floor(mem.last_gcend_space,4);
+      var uintM total_room = floor(mem.last_gcend_space,4);
       if (total_room < 512*1024) { total_room = 512*1024; } # at least 512 KB
       mem.gctrigger_space = mem.last_gcend_space + total_room;
     }
@@ -1874,8 +1874,8 @@ local void gc_unmarkcheck (void) {
         if (mem.total_room < 512*1024) { mem.total_room = 512*1024; } # at least 512 KB \
       }
     {
-      var uintL gen0_sum = 0; # current size of the old generation
-      var uintL gen1_sum = 0; # current size of the new generation
+      var uintM gen0_sum = 0; # current size of the old generation
+      var uintM gen1_sum = 0; # current size of the new generation
       for_each_heap(heap, {
         gen0_sum += heap->heap_gen0_end - heap->heap_gen0_start;
       });
@@ -1894,7 +1894,7 @@ local void gc_unmarkcheck (void) {
     }
     #endif
     {
-      var uintL freed = gcstart_space - gcend_space; # freed memory by this GC
+      var uintM freed = gcstart_space - gcend_space; # freed memory by this GC
       inc_gc_space(freed); # add this to the 64-Bit-Accu gc_space
     }
     #ifdef SPVW_PAGES
@@ -1983,7 +1983,7 @@ local void gc_unmarkcheck (void) {
 # a little sorting-routine:
 #define SORTID  spvw
 #define SORT_ELEMENT  Pages
-#define SORT_KEY  uintL
+#define SORT_KEY  uintM
 #define SORT_KEYOF(page)  (page)->page_gcpriv.l
 #define SORT_COMPARE(key1,key2)  (sintL)((key1)-(key2))
 #define SORT_LESS(key1,key2)  ((key1) < (key2))
@@ -2026,12 +2026,12 @@ local void gc_unmarkcheck (void) {
       var Pages new_page = EMPTY; # Page, which is being filled
       var AVL(AVLID,stack) stack; # path from the root to the page
       var aint p2; # cache of new_page->page_end
-      var uintL l2; # cache of new_page->page_room
+      var uintM l2; # cache of new_page->page_room
       # try to copy all objects between p1 and p1end :
       loop {
         if (p1==p1end) # upper bound reached -> finished
           break;
-        var uintL laenge = objsize((Varobject)p1); # determine byte-length
+        var uintM laenge = objsize((Varobject)p1); # determine byte-length
         # search a page, that has still 'laenge' free bytes:
         if ((new_page == EMPTY) || (l2 < laenge)) {
           if (!(new_page == EMPTY)) { # empty cache?
@@ -2067,7 +2067,7 @@ local void gc_unmarkcheck (void) {
       page->page_start = p1; # current start of the page
       if (!(p1==p2)) # if shift is necessary
         until (p1==p1end) { # upper bound reached -> finished
-          var uintL laenge = objsize((Varobject)p1); # calculate byte-length
+          var uintM laenge = objsize((Varobject)p1); # calculate byte-length
           #ifdef TYPECODES
           var tint flags = mtypecode(((Varobject)p1)->GCself); # save typeinfo (and flags for symbols) retten
           #endif
@@ -2085,7 +2085,7 @@ local void gc_unmarkcheck (void) {
       var Pages new_page = EMPTY; # page, which is filled
       var AVL(AVLID,stack) stack; # path from the root to the page
       var aint p2; # cache of new_page->page_end
-      var uintL l2; # cache of new_page->page_room
+      var uintM l2; # cache of new_page->page_room
       # try to copy all objects between p1start and p1:
       loop {
         if (p1==p1start) # lower bound reached -> finished
@@ -2300,7 +2300,7 @@ local void gc_unmarkcheck (void) {
               # next object has address p1, is marked
               unmark(p1); # delete mark
               # retain object and relocate:
-              var uintL count = objsize((Varobject)p1); # length (divisible by varobject_alignment, >0)
+              var uintM count = objsize((Varobject)p1); # length (divisible by varobject_alignment, >0)
               move_aligned_p1_p2(count); # relocate and advance
             }
             page->page_end = p2;
@@ -2402,7 +2402,7 @@ local void gc_unmarkcheck (void) {
   # move_conses(delta);
   # the reserve memory is shrinked by delta bytes (divisible by
   # varobject_alignment), the conses are shifted upwards by delta bytes.
-  local void move_conses (sintL delta)
+  local void move_conses (sintM delta)
   {
     if (delta==0) # no relocation necessary?
       return;

@@ -122,10 +122,10 @@
   }
 
   #ifdef HAVE_MSYNC
-    typedef struct { void* mm_addr; uintL mm_len; } mmap_interval_t;
+    typedef struct { void* mm_addr; uintM mm_len; } mmap_interval_t;
     local mmap_interval_t mmap_intervals[256]; # 256 is abundant.
     local mmap_interval_t* mmap_intervals_ptr = &mmap_intervals[0];
-    local void remember_mmap_interval (void* map_addr, uintL map_len)
+    local void remember_mmap_interval (void* map_addr, uintM map_len)
     {
       if (mmap_intervals_ptr == &mmap_intervals[256])
         abort();
@@ -148,7 +148,7 @@
      #define msync_mmap_intervals()
   #endif
 
-  local int fdmap (int fd, void* map_addr, uintL map_len, int readonly, int shared, int remember)
+  local int fdmap (int fd, void* map_addr, uintM map_len, int readonly, int shared, int remember)
   {
     if ( (void*) mmap((void*)map_addr, # wished address
                       map_len, # length
@@ -171,12 +171,12 @@
     return 0;
   }
 
-  local int zeromap (void* map_addr, uintL map_len)
+  local int zeromap (void* map_addr, uintM map_len)
   {
     return fdmap(zero_fd,map_addr,map_len,false,false,false);
   }
 
-  local int open_temp_fd (uintL map_len)
+  local int open_temp_fd (uintM map_len)
   {
     var int fd;
     #if (TEMPFILE_DEBUG_LEVEL > 0)
@@ -212,7 +212,7 @@
       if (!( fstatfs(fd,&statbuf) <0))
       #endif
         if (!(statbuf.f_bsize == (long)(-1)) && !(statbuf.f_bavail == (long)(-1))) {
-          var uintL available = (uintL)(statbuf.f_bsize) * (uintL)(statbuf.f_bavail);
+          var uintM available = (uintM)(statbuf.f_bsize) * (uintM)(statbuf.f_bavail);
           if (available < map_len) {
             # there is likely too few disk space
             fprintf(stderr,GETTEXTL("** WARNING: ** Too little free disk space for <%s>."),tempfilename);
@@ -237,7 +237,7 @@
 
   #if !defined(MAP_MEMORY_TABLES)
     # copies the content of the interval [map_addr..map_addr+map_len-1] to the file.
-    local int fdsave (int fd, void* map_addr, uintL map_len)
+    local int fdsave (int fd, void* map_addr, uintM map_len)
     {
       if (( lseek(fd,0,SEEK_SET) <0) || (!( full_write(fd,map_addr,map_len) == map_len))) {
         fprintf(stderr,GETTEXTL("Cannot fill <%s>."),tempfilename);
@@ -334,7 +334,7 @@
     return 0;
   }
 
-  local int open_shmid (uintL map_len)
+  local int open_shmid (uintM map_len)
   {
     var int shmid = shmget(IPC_PRIVATE,map_len,0700|IPC_CREAT); # 0700 = 'Read/Write/Execute only for me'
     if (shmid<0) {
@@ -366,7 +366,7 @@
   #if !defined(MAP_MEMORY_TABLES)
     # copies the content of the interval [map_addr..map_addr+map_len-1] into
     # the shared-memory-segment.
-    local int shmsave (int shmid, void* map_addr, uintL map_len)
+    local int shmsave (int shmid, void* map_addr, uintM map_len)
     {
       var void* temp_addr = shmat(shmid,
                                   0, # address: arbitrary
@@ -399,7 +399,7 @@
     return 0;
   }
 
-  local int zeromap (void* map_addr, uintL map_len)
+  local int zeromap (void* map_addr, uintM map_len)
   {
     var int shmid = open_shmid(map_len);
     if (shmid<0)
@@ -439,10 +439,10 @@
   #define exitmap()
 
   #define multimap(typecases,total_map_addr,total_map_len,save_flag)  \
-    { var uintL remaining_len = total_map_len;                                 \
+    { var uintM remaining_len = total_map_len;                                 \
       var aint map_addr = total_map_addr;                                      \
       do {                                                                     \
-        var uintL map_len = (remaining_len > SHMMAX ? SHMMAX : remaining_len); \
+        var uintM map_len = (remaining_len > SHMMAX ? SHMMAX : remaining_len); \
         # open shared-memory-region:                                           \
         var int mapid = open_mapid(map_len);                                   \
         if (mapid<0) goto no_mem;                                              \

@@ -35,11 +35,11 @@ global uintL2 gc_space =
   ;
 
  #ifdef intQsize
-  #define inc_gc_space(freed)  gc_space += (uintL)(freed)
+  #define inc_gc_space(freed)  gc_space += (uintM)(freed)
  #else
   #define inc_gc_space(freed)                                   \
-    do { gc_space.lo += (uintL)(freed);                         \
-         if (gc_space.lo < (uintL)(freed)) # carry forward?     \
+    do { gc_space.lo += (uintM)(freed);                         \
+         if (gc_space.lo < (uintM)(freed)) # carry forward?     \
            gc_space.hi += 1;                                    \
     } while(0)
  #endif
