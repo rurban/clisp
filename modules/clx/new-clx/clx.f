@@ -9,6 +9,13 @@
 //
 // --------------------------------------------------------------------------------
 //
+// Revision 1.22  1999-06-06  bruno
+// - get_font_info_and_display now optionally returns the Lisp font. It also
+//   fills in the font's encoding.
+// - New function to_XChar2b, used to convert a character sequence to a font
+//   index sequence. Works for linear non-iso8859-1 fonts. Still needs work
+//   for chinese or japanese fonts.
+//
 // Revision 1.21  1999-05-30  bruno
 // - Add missing begin_callback() in `xlib_io_error_handler'.
 // - Save subr_self during some calls in xlib:change-property.
@@ -1191,11 +1198,12 @@ local object make_font_with_info (object dpy, Font fn, object name, XFontStruct 
 local Font get_font (object obj);
 Values C_xlib_gcontext_font (void);
 
-XFontStruct *get_font_info_and_display (object obj, Display **dpyf)
+XFontStruct *get_font_info_and_display (object obj, object* fontf, Display **dpyf)
      // Fetches the font information from a font, if it isn't there
      // already, query the server for it.
      // Further more if a gcontext is passed in, fetch its font slot instead.
      // Does type checking and raises error if unappropriate object passed in.
+     // If 'fontf' is non-0, also the font as a Lisp object is returned.
      // If 'dpyf' is non-0, also the display of the font is returned and it is
      // ensured that the display actually lives.
 {
@@ -1255,12 +1263,148 @@ XFontStruct *get_font_info_and_display (object obj, Display **dpyf)
 	  
 	  TheFpointer (STACK_0)->fp_pointer = info;	// Store it in the foreign pointer
 	  skipSTACK (1);
+
+#ifdef UNICODE
+          {
+            // Determine the font's encoding, so we can correctly convert
+            // characters to indices.
+            // Call (XLIB:FONT-PROPERTY font "CHARSET_REGISTRY")
+            // and  (XLIB:FONT-PROPERTY font "CHARSET_ENCODING")
+            // and translate the resulting pairs to CLISP encodings.
+            Atom xatom;
+            unsigned long rgstry;
+            unsigned long encdng;
+            begin_call();
+            xatom = XInternAtom (dpy, "CHARSET_REGISTRY", 0);
+            if (XGetFontProperty (info, xatom, &rgstry))
+              {
+                xatom = XInternAtom (dpy, "CHARSET_ENCODING", 0);
+                if (XGetFontProperty (info, xatom, &encdng))
+                  {
+                    Atom xatoms[2];
+                    char* names[2];
+
+                    xatoms[0] = rgstry;
+                    xatoms[1] = encdng;
+                    names[0] = NULL;
+                    names[1] = NULL;
+                    if (XGetAtomNames (dpy, xatoms, 2, names))
+                      {
+                        end_call();
+                        pushSTACK (asciz_to_string (names[0], misc_encoding ()));
+                        pushSTACK (`"-"`);
+                        pushSTACK (asciz_to_string (names[1], misc_encoding ()));
+                       {var object charset_name = string_concat(3);
+                        // On an XFree86-3.3 system (with Emacs intlfonts installed),
+                        // I have seen the following encodings:
+                        //   adobe-fontspecific
+                        //   big5.eten-0
+                        //   cns11643.1992-1
+                        //   cns11643.1992-2
+                        //   cns11643.1992-3
+                        //   cns11643.1992-4
+                        //   cns11643.1992-5
+                        //   cns11643.1992-6
+                        //   cns11643.1992-7
+                        //   dec-dectech
+                        //   ethiopic-unicode
+                        //   gb2312.1980-0
+                        //   gb2312.80&gb8565.88-0
+                        //   gost19768.74-1
+                        //   is13194-devanagari
+                        //   iso646.1991-irv
+                        //   iso8859-1
+                        //   iso8859-2
+                        //   iso8859-3
+                        //   iso8859-4
+                        //   iso8859-5
+                        //   iso8859-7
+                        //   iso8859-8
+                        //   iso8859-9
+                        //   jisc6226.1978-0
+                        //   jisx0201.1976-0
+                        //   jisx0208.1983-0
+                        //   jisx0208.1990-0
+                        //   jisx0212.1990-0
+                        //   koi8-1
+                        //   koi8-r
+                        //   ksc5601.1987-0
+                        //   misc-fontspecific
+                        //   mulearabic-0
+                        //   mulearabic-1
+                        //   mulearabic-2
+                        //   muleindian-1
+                        //   muleindian-2
+                        //   muleipa-1
+                        //   mulelao-1
+                        //   muletibetan-0
+                        //   muletibetan-1
+                        //   omron_udc_zh-0
+                        //   sisheng_cwnn-0
+                        //   sunolcursor-1
+                        //   sunolglyph-1
+                        //   tis620.2529-1
+                        //   viscii1.1-1
+                        var object encoding = NIL;
+                        if (string_equal (charset_name, `"iso8859-1"`))
+                          encoding = Symbol_value(`CHARSET:ISO-8859-1`);
+                        else if (string_equal (charset_name, `"iso8859-2"`))
+                          encoding = Symbol_value(`CHARSET:ISO-8859-2`);
+                        else if (string_equal (charset_name, `"iso8859-3"`))
+                          encoding = Symbol_value(`CHARSET:ISO-8859-3`);
+                        else if (string_equal (charset_name, `"iso8859-4"`))
+                          encoding = Symbol_value(`CHARSET:ISO-8859-4`);
+                        else if (string_equal (charset_name, `"iso8859-5"`))
+                          encoding = Symbol_value(`CHARSET:ISO-8859-5`);
+                        else if (string_equal (charset_name, `"iso8859-6"`))
+                          encoding = Symbol_value(`CHARSET:ISO-8859-6`);
+                        else if (string_equal (charset_name, `"iso8859-7"`))
+                          encoding = Symbol_value(`CHARSET:ISO-8859-7`);
+                        else if (string_equal (charset_name, `"iso8859-8"`))
+                          encoding = Symbol_value(`CHARSET:ISO-8859-8`);
+                        else if (string_equal (charset_name, `"iso8859-9"`))
+                          encoding = Symbol_value(`CHARSET:ISO-8859-9`);
+                        else if (string_equal (charset_name, `"iso8859-14"`))
+                          encoding = Symbol_value(`CHARSET:ISO-8859-14`);
+                        else if (string_equal (charset_name, `"iso8859-15"`))
+                          encoding = Symbol_value(`CHARSET:ISO-8859-15`);
+                        else if (string_equal (charset_name, `"koi8-r"`))
+                          encoding = Symbol_value(`CHARSET:KOI8-R`);
+                        //#if defined(HAVE_ICONV) && defined(UNIX_LINUX)
+                        //else if (string_equal (charset_name, `"gb2312.1980-0"`))
+                        //  encoding = `"GB"`;
+                        //#endif
+                        if (!nullp(encoding))
+                          {
+                            pushSTACK (`:CHARSET`); pushSTACK(encoding);
+                            pushSTACK (`:OUTPUT-ERROR-ACTION`); pushSTACK(fixnum(info->default_char));
+                            funcall (`MAKE-ENCODING`, 4);
+                            pushSTACK (STACK_0); // obj
+                            pushSTACK (`XLIB::ENCODING`);
+                            pushSTACK (value1);
+                            funcall (L(set_slot_value), 3);
+                          }
+                        begin_call ();
+                      }}
+                    if (names[0])
+                      XFree (names[0]);
+                    if (names[1])
+                      XFree (names[1]);
+                  }
+              }
+            end_call ();
+          }
+#endif
+
 	}
       else
 	{
 	  if (dpyf)
 	    unused get_font_and_display (STACK_0, dpyf); // caller wants the display, so get it!
 	}
+
+      if (fontf)
+        *fontf = STACK_0;
 
       skipSTACK (1);
       return info;					// all done
@@ -4460,6 +4604,61 @@ defun XLIB:DRAW-ARCS (3, 1)
 
 /* 6.7  Drawing Text */
 
+#ifdef UNICODE
+// Conversion from chart array to XChar2b array.
+// Returns 1 if a char array was generated, or 2 if a XChar2b array was generated.
+static int to_XChar2b (object font, XFontStruct* font_info, const chart* src, XChar2b* dst, unsigned int count)
+{
+  object encoding;
+
+  pushSTACK (font);
+  pushSTACK (`XLIB::ENCODING`);
+#if !WITH_SLOT_UP
+  funcall (L(slot_value), 2); encoding = value1;
+#else
+  { object *ptr = slot_up (); skipSTACK(2); encoding = *ptr; }
+#endif
+
+  if (font_info->min_byte1 == 0 && font_info->max_byte1 == 0)
+    {
+      // Linear addressing
+      if (!nullp(encoding) && TheEncoding(encoding)->max_bytes_per_char == 1)
+        // Special hack: use the font's encoding
+        {
+          if (count > 0)
+            {
+              Encoding_wcstombs(encoding)(encoding,nullobj,&src,src+count,(uintB**)&dst,(uintB*)dst+count);
+              return 1;
+            }
+        }
+      else
+        while (count > 0)
+          {
+            unsigned int c = as_cint(*src);
+            if (c >= font_info->min_char_or_byte2 && c <= font_info->max_char_or_byte2)
+              dst->byte2 = c;
+            else
+              dst->byte2 = font_info->default_char;
+            dst->byte1 = 0;
+            src++; dst++; count--;
+          }
+    }
+  else
+    {
+      // Matrix addressing
+      unsigned int d = font_info->max_char_or_byte2 - font_info->min_char_or_byte2 + 1;
+      while (count > 0)
+        {
+          unsigned int c = as_cint(*src);
+          dst->byte1 = (c / d) + font_info->min_byte1;
+          dst->byte2 = (c % d) + font_info->min_char_or_byte2;
+          src++; dst++; count--;
+        }
+    }
+  return 2;
+}
+#endif
+
 void general_draw_text (int image_p)
      // General text drawing routine to not to have to duplicate code for DRAW-GLYPHS and DRAW-IMAGE-GLYPHS.
 {
@@ -4561,17 +4760,27 @@ void general_draw_text (int image_p)
   if (!simple_string_p(STACK_5)) { NOTIMPLEMENTED }
 
 #ifdef UNICODE
-  SstringDispatch(STACK_5,
-    { XChar2b* str = (XChar2b*) &TheSstring(STACK_5)->data[0];
-      begin_call ();
-      (image_p ? XDrawImageString16 : XDrawString16) (dpy, da, gcon, x, y, str, len);
-      end_call ();
-    },
-    { char* str = (char*) &TheSmallSstring(STACK_5)->data[0];
-      begin_call ();
-      (image_p ? XDrawImageString : XDrawString) (dpy, da, gcon, x, y, str, len);
-      end_call ();
-    });
+  {
+    object font;
+    XFontStruct* font_info = get_font_info_and_display(STACK_8,&font,0);
+    const chart* charptr;
+    unpack_sstring_alloca(STACK_5,len,0,charptr=);
+    { DYNAMIC_ARRAY(str,XChar2b,len);
+      if (to_XChar2b(font,font_info,charptr,str,len) == 1)
+        {
+          begin_call ();
+          (image_p ? XDrawImageString : XDrawString) (dpy, da, gcon, x, y, (char*)str, len);
+          end_call ();
+        }
+      else
+        {
+          begin_call ();
+          (image_p ? XDrawImageString16 : XDrawString16) (dpy, da, gcon, x, y, str, len);
+          end_call ();
+        }
+      FREE_DYNAMIC_ARRAY(str);
+    }
+  }
 #else
   { char* str = (char*) &TheSstring(STACK_5)->data[0];
     begin_call ();
@@ -5335,7 +5544,7 @@ defun XLIB:LIST-FONTS (2, 0, norest, key, 2, (:MAX-FONTS :RESULT-TYPE))
 ##define DEF_FONT_ATTR(lspnam, type, cnam) 				\
 defun xlib:##lspnam (1)							\
 {									\
-  XFontStruct *info = get_font_info_and_display (STACK_0, 0);		\
+  XFontStruct *info = get_font_info_and_display (STACK_0, 0, 0);	\
   value1 = make_##type (info->cnam); mv_count = 1;			\
   skipSTACK (1);							\
 }  
@@ -5378,7 +5587,7 @@ defun XLIB:FONT-NAME (1)
 defun XLIB:FONT-PROPERTIES (1)
 {
   Display *dpy;
-  XFontStruct *font_struct = get_font_info_and_display (STACK_0, &dpy);
+  XFontStruct *font_struct = get_font_info_and_display (STACK_0, 0, &dpy);
   int i;
 
   for (i = 0; i < font_struct->n_properties; i++)
@@ -5410,7 +5619,7 @@ defun XLIB:FONT-PROPERTIES (1)
 defun XLIB:FONT-PROPERTY (2)
 {
   Display             *dpy;
-  XFontStruct *font_struct = get_font_info_and_display (STACK_1, &dpy);
+  XFontStruct *font_struct = get_font_info_and_display (STACK_1, 0, &dpy);
   Atom atom                = get_xatom (dpy, STACK_0);
   unsigned long value;
 
@@ -5492,7 +5701,7 @@ XCharStruct *font_char_info (XFontStruct *fs, unsigned int index)
 ##define DEF_CHAR_ATTR(lspnam, type, cnam)				\
     defun lspnam (2)			         			\
     {									\
-      XFontStruct *font_info = get_font_info_and_display (STACK_1, 0);	\
+      XFontStruct *font_info = get_font_info_and_display (STACK_1, 0, 0); \
       unsigned int index = get_uint16 (STACK_0);			\
       XCharStruct *char_info = font_char_info (font_info, index);	\
       if (char_info)							\
@@ -5524,7 +5733,8 @@ defun XLIB:TEXT-EXTENTS (2, 0, norest, key, 3, (:START :END :TRANSLATE))
   // FIXME: Could font be a graphics context?! -- yes! This is handled by get_font_info_and_display already
   if (simple_string_p (STACK_3))
     {
-      XFontStruct *font_info = get_font_info_and_display (STACK_4, 0);
+      object font;
+      XFontStruct *font_info = get_font_info_and_display (STACK_4, &font, 0);
       int start = gunboundp (STACK_2) ? 0 : get_uint16 (STACK_2);
       int end   = gunboundp (STACK_1) ? vector_length (STACK_3) : get_uint16 (STACK_1);
       int dir;
@@ -5532,17 +5742,23 @@ defun XLIB:TEXT-EXTENTS (2, 0, norest, key, 3, (:START :END :TRANSLATE))
       XCharStruct overall;
 
 #ifdef UNICODE
-      SstringDispatch(STACK_3,
-        { XChar2b* string = (XChar2b*) &TheSstring(STACK_3)->data[0];
-          begin_call();
-          XTextExtents16 (font_info, string + start, end - start, &dir, &font_ascent, &font_descent, &overall);
-          end_call();
-        },
-        { char* string = (char*) &TheSmallSstring(STACK_3)->data[0];
-          begin_call();
-          XTextExtents (font_info, string + start, end - start, &dir, &font_ascent, &font_descent, &overall);
-          end_call();
-        });
+      const chart* charptr;
+      unpack_sstring_alloca(STACK_3,end-start,start,charptr=);
+      { DYNAMIC_ARRAY(str,XChar2b,end-start);
+        if (to_XChar2b(font,font_info,charptr,str,end-start) == 1)
+          {
+            begin_call();
+            XTextExtents (font_info, (char*)str, end-start, &dir, &font_ascent, &font_descent, &overall);
+            end_call();
+          }
+        else
+          {
+            begin_call();
+            XTextExtents16 (font_info, str, end-start, &dir, &font_ascent, &font_descent, &overall);
+            end_call();
+          }
+        FREE_DYNAMIC_ARRAY(str);
+      }
 #else
       { char* string = (char*) &TheSstring(STACK_3)->data[0];
         begin_call();
@@ -5586,7 +5802,8 @@ defun XLIB:TEXT-EXTENTS (2, 0, norest, key, 3, (:START :END :TRANSLATE))
 //
 defun XLIB:TEXT-WIDTH (2, 0, norest, key, 3, (:START :END :TRANSLATE))
 {
-  XFontStruct *font_info = get_font_info_and_display (STACK_4, 0);
+  object font;
+  XFontStruct *font_info = get_font_info_and_display (STACK_4, &font, 0);
   
   // First fetch the quite common special case where sequence is a simple string:
   if (simple_string_p (STACK_3))
@@ -5596,17 +5813,23 @@ defun XLIB:TEXT-WIDTH (2, 0, norest, key, 3, (:START :END :TRANSLATE))
       int w;
 
 #ifdef UNICODE
-      SstringDispatch(STACK_3,
-        { XChar2b* string = (XChar2b*) &TheSstring(STACK_3)->data[0];
-          begin_call();
-          w = XTextWidth16 (font_info, string+start, end-start);
-          end_call();
-        },
-        { char* string = (char*) &TheSmallSstring(STACK_3)->data[0];
-          begin_call();
-          w = XTextWidth (font_info, string+start, end-start);
-          end_call();
-        });
+      const chart* charptr;
+      unpack_sstring_alloca(STACK_3,end-start,start,charptr=);
+      { DYNAMIC_ARRAY(str,XChar2b,end-start);
+        if (to_XChar2b(font,font_info,charptr,str,end-start) == 1)
+          {
+            begin_call();
+            w = XTextWidth (font_info, (char*)str, end-start);
+            end_call();
+          }
+        else
+          {
+            begin_call();
+            w = XTextWidth16 (font_info, str, end-start);
+            end_call();
+          }
+        FREE_DYNAMIC_ARRAY(str);
+      }
 #else
       { char* string = (char*) &TheSstring(STACK_3)->data[0];
         begin_call();
