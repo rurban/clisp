@@ -44,8 +44,8 @@
 ;; Agreement on Parameter Specializers and Qualifiers
 (defun methods-agree-p (method1 method2)
   (and (equal (std-method-qualifiers method1) (std-method-qualifiers method2))
-       (specializers-agree-p (std-method-parameter-specializers method1)
-                             (std-method-parameter-specializers method2))))
+       (specializers-agree-p (std-method-specializers method1)
+                             (std-method-specializers method2))))
 
 ;; CLtL2 28.1.6.4., ANSI CL 7.6.4. Congruent Lambda-lists
 (defun check-signature-congruence (gf method &optional
@@ -163,13 +163,21 @@
     (unless (eql (length specializers) n)
       (error-of-type 'error
         (TEXT "~S: the specializers argument has length ~D, but ~S has ~D required parameter~:P")
-        'find-method (length specializers) gf n)))
+        'find-method (length specializers) gf n))
+    ; Convert (EQL object) -> #<EQL-SPECIALIZER object>:
+    (setq specializers
+          (mapcar #'(lambda (specializer)
+                      (if (and (consp specializer) (eq (car specializer) 'EQL)
+                               (consp (cdr specializer)) (null (cddr specializer)))
+                        (intern-eql-specializer (second specializer))
+                        specializer))
+                  specializers)))
   ;; so to speak
   ;;   (find hypothetical-method (gf-methods gf) :test #'methods-agree-p)
   ;; cf. methods-agree-p
   (dolist (method (gf-methods gf))
     (when (and (equal (std-method-qualifiers method) qualifiers)
-               (specializers-agree-p (std-method-parameter-specializers method)
+               (specializers-agree-p (std-method-specializers method)
                                      specializers))
       (return-from std-find-method method)))
   (if errorp

@@ -11,8 +11,7 @@
 
 ;; CLtL2 28.1.6.2., ANSI CL 7.6.2. Applicable methods
 (defun method-applicable-p (method required-arguments)
-  (every #'typep required-arguments
-         (std-method-parameter-specializers method)))
+  (every #'typep required-arguments (std-method-specializers method)))
 
 ;; CLtL2 28.1.7.1., ANSI CL 7.6.6.1.2.
 ;; Sorting the applicable methods by precedence order
@@ -24,17 +23,17 @@
 (defun sort-applicable-methods (methods required-arguments argument-order)
   (sort (copy-list methods)
         #'(lambda (method1 method2) ; method1 < method2 ?
-            (let ((specializers1 (std-method-parameter-specializers method1))
-                  (specializers2 (std-method-parameter-specializers method2)))
+            (let ((specializers1 (std-method-specializers method1))
+                  (specializers2 (std-method-specializers method2)))
               (dolist (arg-index argument-order nil)
                 (let ((arg (nth arg-index required-arguments))
                       (psp1 (nth arg-index specializers1))
                       (psp2 (nth arg-index specializers2)))
-                  (if (consp psp1)
-                    (if (consp psp2)
+                  (if (eql-specializer-p psp1)
+                    (if (eql-specializer-p psp2)
                       nil         ; (EQL x) = (EQL x)
                       (return t)) ; (EQL x) < <class>  ==>  method1 < method2
-                    (if (consp psp2)
+                    (if (eql-specializer-p psp2)
                       (return nil) ; <class> > (EQL x)   ==>  method1 > method2
                       ;; two classes: compare the position in the CPL of arg:
                       (let* ((cpl (class-precedence-list (class-of arg)))
@@ -49,12 +48,10 @@
 (defun specializers-agree-p (specializers1 specializers2)
   (and (eql (length specializers1) (length specializers2))
        (every #'same-specializers-p specializers1 specializers2)))
-(defun same-specializers-p (parspec1 parspec2)
-  (or ;; two equal classes?
-      (eq parspec1 parspec2)
-      ;; two equal EQL-specializers?
-      (and (consp parspec1) (consp parspec2)
-           (eql (second parspec1) (second parspec2)))))
+(defun same-specializers-p (specializer1 specializer2)
+  ;; Since EQL-specializers can be assumed to be interned, just comparing
+  ;; with EQ is sufficient.
+  (eq specializer1 specializer2))
 
 
 ;;; ------------- Error Messages for Long Form Method Combination -------------

@@ -53,7 +53,7 @@
                     `',specializer-name
                     (if (and (consp specializer-name)
                              (eq (car specializer-name) 'EQL))
-                      `(LIST 'EQL ,(second specializer-name))
+                      `(INTERN-EQL-SPECIALIZER ,(second specializer-name))
                       `(FIND-CLASS ',specializer-name)))
                   req-specializer-forms )))
         (setq spec-list (nreverse spec-list))
@@ -131,10 +131,9 @@
                            ,@(if compile '((DECLARE (COMPILE))))
                            (%OPTIMIZE-FUNCTION-LAMBDA (T) ,@lambdabody))
                      :WANTS-NEXT-METHOD-P T
-                     :PARAMETER-SPECIALIZERS
-                       (LIST ,@(nreverse req-specializer-forms))
                      :QUALIFIERS ',qualifiers
                      :LAMBDA-LIST ',lambda-list
                      'SIGNATURE ,sig
+                     :SPECIALIZERS (LIST ,@(nreverse req-specializer-forms))
                      ,@(if (eq caller 'DEFGENERIC) `(:ORIGIN T)))
                   sig)))))))))

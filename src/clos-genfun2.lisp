@@ -371,11 +371,11 @@
                      (arg-var (nth arg-index req-vars))
                      (eql-cases ; all EQL-specializers for this argument
                        (remove-duplicates
-                         (mapcar #'second
-                           (remove-if-not #'consp
+                         (mapcar #'eql-specializer-object
+                           (remove-if-not #'eql-specializer-p
                              (mapcar #'(lambda (m)
                                          (nth arg-index
-                                           (std-method-parameter-specializers m)))
+                                           (std-method-specializers m)))
                                remaining-methods)))
                          :test #'eql))
                      (eql-caselist ; case-list for CASE
@@ -388,7 +388,7 @@
                                     #'(lambda (m)
                                         (typep object
                                           (nth arg-index
-                                            (std-method-parameter-specializers m))))
+                                            (std-method-specializers m))))
                                     (the list remaining-methods))
                                   class-of-exprs)))
                          eql-cases)))
@@ -397,9 +397,8 @@
                 (setq remaining-methods
                       (remove-if
                         #'(lambda (m)
-                            (consp
-                              (nth arg-index
-                                (std-method-parameter-specializers m))))
+                            (eql-specializer-p
+                              (nth arg-index (std-method-specializers m))))
                         (the list remaining-methods)))
                 ((lambda (other-cases)
                    (if eql-caselist
@@ -410,7 +409,7 @@
                            (delete-duplicates
                              (mapcar #'(lambda (m)
                                          (nth arg-index
-                                           (std-method-parameter-specializers m)))
+                                           (std-method-specializers m)))
                                      remaining-methods)))))
                    ;; If all classes that are to be tested for are
                    ;; built-in-classes, then we will inline the type-dispatch,
@@ -439,7 +438,7 @@
                                  #'(lambda (m)
                                      (bc-and class
                                        (nth arg-index
-                                         (std-method-parameter-specializers m))))
+                                         (std-method-specializers m))))
                                  (the list remaining-methods))
                                class-of-exprs)
                              ;; case differentiation via TYPEP
@@ -465,7 +464,7 @@
                                        #'(lambda (m)
                                            (bc-and
                                              (nth arg-index
-                                               (std-method-parameter-specializers m))
+                                               (std-method-specializers m))
                                              test-class))
                                        (the list remaining-methods)))
                                   ,(built-in-subtree
@@ -478,7 +477,7 @@
                                        #'(lambda (m)
                                            (bc-and-not
                                              (nth arg-index
-                                               (std-method-parameter-specializers m))
+                                               (std-method-specializers m))
                                              test-class))
                                        (the list remaining-methods))))))))
                        (built-in-subtree <t> classes remaining-methods))
