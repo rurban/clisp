@@ -415,8 +415,8 @@ executes a compiled version of form.</para>
 (&defpackage; "CL-NO-CLOS" (:use "CL"))
 (&do-external-symbols; (&symbol-r; &cl-pac;)
   (&shadow; &symbol-r; "CL-NO-CLOS"))
-(&do-symbols (&symbol-r; "CL-NO-CLOS")
-  (&export &symbol-r; "CL-NO-CLOS"))
+(&do-symbols; (&symbol-r; "CL-NO-CLOS")
+  (&export; &symbol-r; "CL-NO-CLOS"))
 (&in-package; "CL-NO-CLOS")
 (&load; "pcl") ; or whatever
 (&defpackage; "MY-USER" (:use "CL-NO-CLOS"))
@@ -4379,6 +4379,17 @@ functions are provided:</para>
  It specifies by how many characters items within the list will be
  indented relative to the beginning of the list.
  &pr-indent; is initially set to <literal>1</literal>.</para></formalpara>
+
+<formalpara id="ppr-first-newline"><title>&ppr-first-newline;</title>
+<para>An additional variable &ppr-first-newline; controls
+ pretty-printing of multi-line objects.
+ When &ppr-first-newline; is non-&nil;,
+ and the current line already has some characters on it,
+ and the next object will be printed on several lines,
+ and it does not start with a <keysym>#\Newline</keysym>,
+ then a <keysym>#\Newline</keysym> is printed before the object.
+ &ppr-first-newline; has no effect if &print-pretty-var; is &nil;.
+ &ppr-first-newline; is initially set to &t;.</para></formalpara>
 
 </section>
 
