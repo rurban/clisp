@@ -1068,7 +1068,7 @@ N. Gray to X3J13.</para>
    Returns the index of the first element of &sequence-r; that was not
    updated (= &end-r; or &lt; &end-r; if the stream reached its end).</simpara>
   <simpara>&sequence-r; is an &array-t; of &character-t;s, i.e. a &string-t;.
-   &start-r; is a nonnegative &integer-t; and defaults to 0.
+   &start-r; is a nonnegative &integer-t; and defaults to &zero;.
    &end-r; is a nonnegative &integer-t; or &nil; and defaults to &nil;,
    which stands for <literal role="sexp">(&length; &sequence-r;)</literal>.
   </simpara><simpara>The default method repeatedly calls &st-rc;; this
@@ -1100,8 +1100,8 @@ N. Gray to X3J13.</para>
  <varlistentry id="st-lc"><term><literal
     role="sexp">(&st-lc; &stream-r;)</literal></term>
   <listitem><simpara>Returns the column number where the next character
-   would be written (0 stands for the first column), or &nil; if that is
-   not meaningful for this stream.
+   would be written (&zero; stands for the first column),
+    or &nil; if that is not meaningful for this stream.
    </simpara>&need-defmethod;</listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>GRAY:STREAM-START-LINE-P</function>
@@ -1627,7 +1627,7 @@ here <function>WITH-FOO</function> does not receive the
 <para>The user-customizable variables are located in the package
  &custom-pac; and thus can be listed using
  <literal role="sexp">(&apropos; "" "CUSTOM")</literal>:
- <simplelist type="horiz" columns="3">
+ <simplelist type="horiz" columns="2">
   <member>&ansi;</member>
   <member><varname>CUSTOM:*APPLYHOOK*</varname></member>
   <member><varname>CUSTOM:*BREAK-ON-WARNINGS*</varname></member>
@@ -3000,7 +3000,7 @@ unit</ulink> (usually a file), a warning is issued and
    return.  When viewed as a Lisp function, there is no Lisp argument
    corresponding to this, instead it means an additional return value.
   </simpara></listitem></varlistentry>
- <varlistentry><term><constant>:IN-OUT</constant> (means: read-write):</term>
+ <varlistentry><term>&in-out-k; (means: read-write):</term>
   <listitem><simpara>Information is passed from the caller to the callee
    and then back to the caller.  When viewed as a Lisp function, the
    &out-k; value is returned as an additional multiple value.
@@ -3285,7 +3285,63 @@ $ base+sort/lisp.run -M base+sort/lispinit.mem -i sort2 sorttest
 $ rm -r base+sort
 </programlisting></para></example>
 
+<example id="dffi-gethostname"><title>Variable size arguments:
+  calling &gethostname; from &clisp;</title>
+
+<para><funcsynopsis><funcprototype>
+   <funcdef><type>int</type> <function>gethostname</function></funcdef>
+   <paramdef><type>char*</type> <parameter>name</parameter></paramdef>
+   <paramdef><type>size_t</type> <parameter>namelen</parameter></paramdef>
+</funcprototype></funcsynopsis>
+ follows a typical pattern of &c-lang; "out"-parameter convention - it
+ expects a pointer to a buffer it is going to fill.
+ So you must view this parameter as either &out-k; or &in-out-k;.
+ Additionaly, one must tell the function the size of the buffer.
+ Here <replaceable>namelen</replaceable> is just an &in-k; parameter.
+ Sometimes this will be an &in-out-k; parameter, returning the
+ number of bytes actually filled in.</para>
+
+<para>So <replaceable>name</replaceable> is actually a pointer to an
+ array of up to <replaceable>namelen</replaceable> characters,
+ regardless of what the poor <type>char*</type> &c-lang; prototype says,
+ to be used like a &c-lang; <type>string</type> (0-termination).
+ &unix; specifies that "kost names are limited to HOST_NAME_MAX bytes",
+ which is, of course, system dependent, but it appears that 256 is a
+ common value.</para>
+
+<para>In the present example, you can use allocation &alloca-k;, like
+ you would do in &c-lang;: stack-allocate a temporary.</para>
+
+<programlisting>
+(&def-c-call-out; gethostname
+  (:arguments (name (&c-ptr; (&c-array-max; ffi:char 256))
+		    &out-k; &alloca-k;)
+	      (len ffi:int))
+  (:return-type ffi:int))
+
+(defun myhostname ()
+  (multiple-value-bind (success name)
+      ;; &out-k; and &in-out-k; parameters are returned as multiple values
+      (gethostname 256)
+    (if (zerop success) name
+	(error ...)))) ;; &strerror;(&errno;)
+
+(defvar hostname (myhostname))
+</programlisting>
+</example>
+
+<section id="dffi-ex-more"><title>More examples</title>
+
+<para>You can find more information and examples of the &clisp;
+ &ffi-pac; in the following &clisp-list; messages:
+ <itemizedlist>
+  <listitem><simpara><ulink url="http://article.gmane.org/gmane.lisp.clisp.general/7278">"variable size values"</ulink></simpara></listitem>
+  <listitem><simpara><ulink url="http://article.gmane.org/gmane.lisp.clisp.general/6626">"variable length arrays"</ulink></simpara></listitem>
+ </itemizedlist>
+</para>
 </section>
+</section>
+
 </section>
 <!-- #endif -->
 
@@ -3529,7 +3585,7 @@ argument register numbers, where d0 has number <literal>1</literal>
 and a6 number <literal>#xF</literal>.  A &nil; mask is reserved for
 stack-based calls (unimplemented).</para>
 
-<para>The &affi-pac; type <literal>0</literal> is only acceptable as a
+<para>The &affi-pac; type &zero; is only acceptable as a
 function result type and yields either &t; or &nil;. The difference
 between <function>*</function> and &external-k; is the following:
 <function>*</function> uses integers, &external-k; uses
@@ -3942,7 +3998,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
     &x-r; or &nil; with the status and return the modified list.
     You can pass this modified list to &so-status; again.</simpara>
    <simpara>The optional arguments specify the timeout. &nil; means
-    wait forever, <literal>0</literal> means poll.</simpara>
+    wait forever, &zero; means poll.</simpara>
     <simpara>The second value returned is the number of objects with
     non-&nil; status, i.e., <quote>actionable</quote> objects.
     &so-status; returns either due to a timeout or when this number is

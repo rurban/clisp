@@ -43,6 +43,7 @@
 <!ENTITY if-output-exists "<constant>:IF-OUTPUT-EXISTS</constant>">
 <!ENTITY ignore-k "<constant>:IGNORE</constant>">
 <!ENTITY in-k "<constant>:IN</constant>">
+<!ENTITY in-out-k "<constant>:IN-OUT</constant>">
 <!ENTITY include-k "<constant>:INCLUDE</constant>">
 <!ENTITY inherit-k "<constant>:INHERIT</constant>">
 <!ENTITY input-k "<constant>:INPUT</constant>">
@@ -82,6 +83,7 @@
 <!ENTITY warnings-k "<constant>:WARNINGS</constant>">
 <!ENTITY wild-inferiors-k "<constant>:WILD-INFERIORS</constant>">
 <!ENTITY wild-k "<constant>:WILD</constant>">
+<!ENTITY zero "<literal>0</literal>">
 
 <!ENTITY dos-k "<constant>:DOS</constant>">
 <!ENTITY mac-k "<constant>:MAC</constant>">
