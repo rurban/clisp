@@ -4725,7 +4725,9 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
     { NO_BLOCK_DECL(handle);
       START_NO_BLOCK(handle);
       result = read(handle,&b,1);
+      var int saved_errno = errno;
       END_NO_BLOCK(handle);
+      errno = saved_errno;
     }
     if (result < 0) {
       if (errno==EINTR)
