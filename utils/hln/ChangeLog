@@ -1,3 +1,7 @@
+1999-05-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * resolve.c (resolve): Fix an off-by-one error.
+
 1999-02-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * ln.c (main): Change return type to `int'.
