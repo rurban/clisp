@@ -686,7 +686,8 @@ following information:</para>
    &glibc; version (on &gnu;/&linux;)?</simpara></listitem>
  <listitem><simpara>Where did you get the sources or binaries?  When?
    (Absolute dates are preferred over the relative ones).</simpara></listitem>
- <listitem><simpara>How did you build &clisp;? (What command, options &amp;c.)
+ <listitem><simpara>How did you build &clisp;?
+   (What command, options &amp;c.)</simpara></listitem>
  <listitem><simpara>What is the output of
    <command><link linkend="opt-version">"clisp
      --version"</link></command>?</simpara></listitem>
