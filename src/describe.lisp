@@ -161,7 +161,7 @@ to print the corresponding values, or T for all of them.")
 (clos:defgeneric describe-object (obj stream)
   (:method ((obj t) (stream stream))
     (ecase (type-of obj)
-      #+(or AMIGA FFI)
+      #+(or UNIX AMIGA FFI DIR-KEY)
       (EXT::FOREIGN-POINTER
        (format stream (TEXT "a foreign pointer")))
       #+FFI
@@ -171,11 +171,6 @@ to print the corresponding values, or T for all of them.")
       (FFI::FOREIGN-VARIABLE
        (format stream (TEXT "a foreign variable of foreign type ~S.")
                (deparse-c-type (sys::%record-ref obj 3))))
-      #+FFI
-      (FFI::FOREIGN-FUNCTION
-       (format stream (TEXT "a foreign function taking foreign types ~:S and returning foreign type ~S.")
-               (map 'list #'deparse-c-type (sys::%record-ref obj 3))
-               (deparse-c-type (sys::%record-ref obj 2))))
       (BYTE
        (format stream (TEXT "a byte specifier, denoting the ~S bits starting at bit position ~S of an integer.")
                (byte-size obj) (byte-position obj)))
@@ -437,12 +432,11 @@ to print the corresponding values, or T for all of them.")
     (ecase (type-of obj)
       #+FFI
       (FFI::FOREIGN-FUNCTION
-       (format stream (TEXT "a foreign function."))
-       (multiple-value-bind (name req opt rest-p key-p keywords other-keys-p)
-           (sys::function-signature obj)
-         (declare (ignore name))
-         (sys::describe-signature stream req opt rest-p key-p keywords
-                                  other-keys-p)))
+       (format stream (TEXT "a foreign function of foreign type ~S.")
+               (deparse-c-type (vector 'ffi::c-function
+                                       (sys::%record-ref obj 2)
+                                       (sys::%record-ref obj 3)
+                                       (sys::%record-ref obj 4)))))
       (COMPILED-FUNCTION ; SUBR
        (format stream (TEXT "a built-in system function."))
        (multiple-value-bind (name req opt rest-p keywords other-keys)
