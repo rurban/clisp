@@ -1,5 +1,11 @@
 1999-05-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (stream_line_number): Can trigger GC.
+        * stream.d (stream_line_number): Likewise.
+        * io.d (read_delimited_list: Update.
+
+1999-05-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * clos.lsp (install-dispatch): Don't assume the preliminary function
           has a VENV. Generic functions without any method don't have one.
 

@@ -2430,7 +2430,8 @@ LISPFUNN(set_readtable_case,2)
     { var object ergebnis;
       # SYS::*READ-LINE-NUMBER* an (SYS::LINE-NUMBER stream) binden
       # (für Fehlermeldung, damit man die Zeile der öffnenden Klammer erfährt):
-      dynamic_bind(S(read_line_number),stream_line_number(*stream_));
+      var object lineno = stream_line_number(*stream_);
+      dynamic_bind(S(read_line_number),lineno);
       # evtl. zuerst noch SYS::*READ-RECURSIVE-P* an T binden:
       if (test_value(S(read_recursive_p))) # schon rekursiv?
         { ergebnis = read_delimited_list_recursive(stream_,endch,ifdotted); }
