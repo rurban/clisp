@@ -1,5 +1,12 @@
 1999-05-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * makemake.in (clean1): Remove libsigsegv.la.
+          (clean4): Remove libintl.h, sigsegv.h.
+          (clean5): Remove ANNOUNCE, GNU-GPL, SUMMARY, version.h, NEWS,
+          clisp.gif, MAGIC.add, ccmp2c, modprep.
+
+1999-05-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * makemake.in (clean1, clean2): Don't remove wlisp* and wsuite*.
 
 1999-05-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
