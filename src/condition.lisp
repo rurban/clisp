@@ -1594,10 +1594,24 @@ Todo:
 
 ;; Extensions. They assume *USE-CLCS* is T.
 
-(defun maybe-continue (condition report-p)
+; Which restarts are suitable for automatic invocation?
+; - Only CONTINUE restarts.
+;   E.g. (check-type x float) has no CONTINUE restart.
+; - Only meaningful CONTINUE restarts.
+;   E.g. (assert (= 3 4)) has a CONTINUE restart, but it is not meaningful.
+; - Only non-interactive CONTINUE restarts.
+;   E.g. (assert (>= i 0) (i)) has a CONTINUE restart, but it prompts the user
+;   for a new value of i.
+(defun find-noninteractively-invokable-continue-restart (condition)
   (let ((restart (find-restart 'CONTINUE condition)))
-    (when (and restart (restart-meaningfulp restart)
-               (eq (restart-interactive restart) #'default-restart-interactive))
+    (and restart
+         (restart-meaningfulp restart)
+         (eq (restart-interactive restart) #'default-restart-interactive)
+         restart)))
+
+(defun maybe-continue (condition report-p)
+  (let ((restart (find-noninteractively-invokable-continue-restart condition)))
+    (when restart
       (when report-p
         (warn "~A" (with-output-to-string (stream)
                      (print-condition condition stream)
@@ -1640,10 +1654,8 @@ its CONTINUE restart is invoked."
   (elastic-newline *error-output*)
   (exit t))                     ; exit Lisp with error
 (defun exitonerror (condition) ; ABI
-  (let ((restart (find-restart 'CONTINUE condition)))
-    (unless (and restart (restart-meaningfulp restart)
-                 (eq (restart-interactive restart) #'default-restart-interactive))
-      (exitunconditionally condition))))
+  (unless (find-noninteractively-invokable-continue-restart condition)
+    (exitunconditionally condition)))
 (defmacro exit-on-error (&body body)
   "(EXIT-ON-ERROR {form}*) executes the forms, but exits Lisp if a
 non-continuable error or a Ctrl-C interrupt occurs."
