@@ -4767,7 +4767,7 @@ LISPFUN(read_from_string,seclass_default,1,2,norest,key,3,
 }
 
 # (PARSE-INTEGER string [:start] [:end] [:radix] [:junk-allowed]), CLTL p. 381
-LISPFUN(parse_integer,seclass_default,1,0,norest,key,4,
+LISPFUN(parse_integer,seclass_read,1,0,norest,key,4,
         (kw(start),kw(end),kw(radix),kw(junk_allowed)) ) {
   # process :junk-allowed-Argument:
   var bool junk_allowed;
@@ -4783,10 +4783,8 @@ LISPFUN(parse_integer,seclass_default,1,0,norest,key,4,
     if (!boundp(arg)) {
       base = 10; # Default 10
     } else {
-      if (posfixnump(arg) &&
-          (base = posfixnum_to_L(arg), ((base >= 2) && (base <= 36)))) {
-        # OK
-      } else {
+      if (!(posfixnump(arg) &&
+            (base = posfixnum_to_L(arg), ((base >= 2) && (base <= 36))))) {
         pushSTACK(arg);           # TYPE-ERROR slot DATUM
         pushSTACK(O(type_radix)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(arg); # base
@@ -4893,8 +4891,7 @@ LISPFUN(parse_integer,seclass_default,1,0,norest,key,4,
     pushSTACK(TheSubr(subr_self)->name);
     fehler(parse_error,GETTEXT("~: substring ~ does not have integer syntax"));
   }
-  VALUES2(NIL,
-          fixnum(index));
+  VALUES2(NIL,fixnum(index));
   return;
 }
 

@@ -417,7 +417,7 @@ LISPFUN(read_char_no_hang,seclass_default,0,4,norest,nokey,0,NIL)
 LISPFUN(clear_input,seclass_default,0,1,norest,nokey,0,NIL)
 LISPFUN(read_from_string,seclass_default,1,2,norest,key,3,
         (kw(preserve_whitespace),kw(start),kw(end)) )
-LISPFUN(parse_integer,seclass_default,1,0,norest,key,4,
+LISPFUN(parse_integer,seclass_read,1,0,norest,key,4,
         (kw(start),kw(end),kw(radix),kw(junk_allowed)) )
 LISPFUNN(print_structure,2)
 LISPFUN(write,seclass_default,1,0,norest,key,17,

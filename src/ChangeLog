@@ -1,3 +1,8 @@
+2003-02-28  Sam Steingold  <sds@gnu.org>
+
+	* io.d (PARSE-INTEGER): seclass_read
+	* subr.d (parse_integer): ditto
+
 2003-02-27  Sam Steingold  <sds@gnu.org>
 
 	* describe.lisp (describe-object): print additional information
