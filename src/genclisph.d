@@ -776,14 +776,14 @@ int main()
     #endif
   #endif
   printf("typedef union { dfloat eksplicit; } dfloatjanus;\n");
-# printf("typedef struct { LRECORD_HEADER uintL  length; } sarray_;\n");
+# printf("typedef struct { LRECORD_HEADER } sarray_;\n");
 # printf("typedef sarray_ *  Sarray;\n");
-  printf("typedef struct { LRECORD_HEADER uintL  length; uint8  data[unspecified]; } sbvector_;\n");
+  printf("typedef struct { LRECORD_HEADER uint8  data[unspecified]; } sbvector_;\n");
   printf("typedef sbvector_ *  Sbvector;\n");
  #ifdef UNICODE
-   printf("typedef struct { LRECORD_HEADER uintL  length; uint32  data[unspecified]; } sstring_;\n");
+   printf("typedef struct { LRECORD_HEADER uint32  data[unspecified]; } sstring_;\n");
  #else
-   printf("typedef struct { LRECORD_HEADER uintL  length; uint8  data[unspecified]; } sstring_;\n");
+   printf("typedef struct { LRECORD_HEADER uint8  data[unspecified]; } sstring_;\n");
  #endif
  printf("typedef sstring_ *  Sstring;\n");
  printf("typedef struct { LRECORD_HEADER gcv_object_t data[unspecified]; } svector_;\n");

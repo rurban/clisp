@@ -1,5 +1,9 @@
 2003-10-07  Sam Steingold  <sds@gnu.org>
 
+	* genclisph.d (sarray_, sbvector_, sstring_): fixed (no uintL length)
+
+2003-10-07  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.f (funcall1): new shortcut function
 	(get_angle, SET-DISPLAY-AFTER-FUNCTION, DISPLAY-DEFAULT-SCREEN)
 	(VISUAL-INFO, SET-GCONTEXT-DASHES, SET-GCONTEXT-CLIP-MASK)
