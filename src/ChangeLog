@@ -1,7 +1,7 @@
 2004-01-25  Sam Steingold  <sds@gnu.org>
 
-	* clx.f (get_ptr_object_and_display, get_font_info_and_display)
-	(DISCARD-FONT-INFO): use check_fpointer()
+	* modules/clx/new-clx/clx.f (get_ptr_object_and_display)
+	(get_font_info_and_display, DISCARD-FONT-INFO): use check_fpointer()
 	(OPEN-DISPLAY): use fehler_key_odd()
 	(SCREEN-BACKING-STORES): use VALUES1
 	(error_required_keywords, my_malloc, error_no_such_color):
@@ -12,6 +12,8 @@
 	(ALLOC-COLOR, LOOKUP-COLOR): use error_no_such_color()
 	(READ-FILE-TO-PIXMAP): signal an error on failure instead of
 	returning error code
+	* modules/clx/new-clx/demos/clx-demos.lisp: supply pathname to REQUIRE
+	do not SHADOW USAGE
 
 2004-01-25  Bruno Haible  <bruno@clisp.org>
 
@@ -20,8 +22,8 @@
 
 2004-01-23  Sam Steingold  <sds@gnu.org>
 
-	* clx.f (get_font_info_and_display): canonicalize encoding by
-	inserting "-" after "ISO" when necessary
+	* modules/clx/new-clx/clx.f (get_font_info_and_display):
+	canonicalize encoding by inserting "-" after "ISO" when necessary
 	Requested by Pascal J.Bourguignon <pjb@informatimago.com>
 
 2004-01-20  Bruno Haible  <bruno@clisp.org>

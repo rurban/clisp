@@ -5,7 +5,6 @@
 (defpackage "CLX-DEMOS"
   (:use "COMMON-LISP" "XLIB" "EXT")
   (:shadowing-import-from "XLIB" "CHAR-WIDTH") ; EXT has CHAR-WIDTH
-  (:shadow "USAGE")             ; POSIX has USAGE
   (:export "QIX" "SOKOBAN"))
 
 (in-package :clx-demos)
@@ -26,5 +25,5 @@ Return 3 values: host, server, screen."
   (multiple-value-bind (host di) (x-host-display)
     (xlib:open-display host :display di)))
 
-(require "qix")
-(require "sokoban")
+(require "qix" (list (make-pathname :name "qix" :defaults *load-truename*)))
+(require "sokoban" (list (make-pathname :name "sokoban" :defaults *load-truename*)))
