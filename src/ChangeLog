@@ -112,6 +112,11 @@
 	to _structure_types.
 	Reported by Jörg Höhle.
 
+2004-09-03  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* lispbibl.d (if_classp): varbrace does not work inside macros,
+	so must surround { var declarations with braces } by hand.
+
 2004-09-02  Sam Steingold  <sds@gnu.org>
 
 	new module for interface to ZLIB http://www.zlib.org
