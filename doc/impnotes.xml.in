@@ -22,6 +22,7 @@
   <!ENTITY rawsock SYSTEM "../modules/rawsock/rawsock.xml">
   <!ENTITY syscalls SYSTEM "../modules/syscalls/syscalls.xml">
   <!ENTITY gfdl-text SYSTEM "http://www.gnu.org/licenses/fdl.xml">
+  <!ENTITY gpl-text SYSTEM "http://www.gnu.org/licenses/gpl.xml">
 ]>
 
 <!-- *** Conventions: ***
@@ -36,6 +37,9 @@
  * lambda-key (&amp;)  == literal
  * declaration (ftype) == literal
  * package (CL-USER)   == quote role="package"
+ * form (CONS 1 2)     == literal role="sexp"
+ * data #(1 2 3)       == literal role="data"
+ * bytecode (SKIP&RET) == literal role="byte"
  a first mention of an object should be marked with <firstterm>
  -->
 
@@ -58,15 +62,25 @@
  <copyright><year>1998-2004</year><holder>Sam Steingold</holder></copyright>
 
  <legalnotice id="legalese">
-  <para>These notes are covered by the &gnu; &gfdl;:</para>
-  <para>Permission is granted to copy, distribute and/or modify this
-   document under the terms of the GNU Free Documentation License
-   (&gfdl;), Version 1.2 or any later version published by the &fsf;;
-   with no Invariant Sections,
-   with no Front-Cover Text, and
-   with no Back-Cover Texts.
-   A copy of the license is included in the section entitled
-   <link linkend="gfdl">"GNU Free Documentation License."</link></para>
+  <para>These notes are dually licensed
+   under &gnu; &gfdl; and &gnu; &gpl;.</para>
+  <formalpara><title>These notes are covered by the &gnu; &gfdl;.</title>
+   <para>Permission is granted to copy, distribute and/or modify this
+    document under the terms of the GNU Free Documentation License
+    (&gfdl;), either version 1.2 of the License, or (at your option) any
+    later version published by the &fsf;;
+    with no Invariant Sections,
+    with no Front-Cover Text, and
+    with no Back-Cover Texts.
+    A copy of the license is included in <xref linkend="gfdl"/>.
+  </para></formalpara>
+  <formalpara><title>These notes are covered by the &gnu; &gpl;.</title>
+   <para>This document documents free software; you can redistribute it
+    and/or modify it under the terms of the GNU General Public License
+    (&gpl;), either version 2 of the License, or (at your option) any
+    later version published by the &fsf;.
+    A copy of the license is included in <xref linkend="gpl"/>.
+  </para></formalpara>
  </legalnotice>
  <keywordset>
    <keyword>Lisp</keyword>
@@ -137,6 +151,7 @@ and
 &imp-byte;
 
 &gfdl-text;
+&gpl-text;
 
 <index id="idx"/>
 
