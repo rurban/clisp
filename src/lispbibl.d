@@ -5213,11 +5213,6 @@ typedef struct {
   #define strmflags_wr_ch_B  bit(strmflags_wr_ch_bit_B)
 # Nähere Typinfo:
   enum { # Die Werte dieser Aufzählung sind der Reihe nach 0,1,2,...
-  # These come first, for the if_strm_file_p macro.
-                              enum_strmtype_file,
-  #define strmtype_file       (uintB)enum_strmtype_file
-                              enum_strmtype_handle,
-  #define strmtype_handle     (uintB)enum_strmtype_handle
   # First the OS independent streams.
                               enum_strmtype_synonym,
   #define strmtype_synonym    (uintB)enum_strmtype_synonym
@@ -5246,6 +5241,8 @@ typedef struct {
   #define strmtype_generic    (uintB)enum_strmtype_generic
   #endif
   # Then the OS dependent streams.
+                              enum_strmtype_file,
+  #define strmtype_file       (uintB)enum_strmtype_file
   #ifdef KEYBOARD
                               enum_strmtype_keyboard,
   #define strmtype_keyboard   (uintB)enum_strmtype_keyboard
@@ -6133,17 +6130,6 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     #define streamp(obj)  \
       (orecordp(obj) && (Record_type(obj) == Rectype_Stream))
   #endif
-
-# Test, ob ein Stream vom Typ File-Stream ist:
-  #define if_strm_file_p(strm,statement1,statement2)  \
-    switchu (TheStream(strm)->strmtype) \
-      { case strmtype_file:             \
-        case strmtype_handle:           \
-          statement1; break;            \
-        default:                        \
-          statement2; break;            \
-      }
-# wird verwendet von PATHNAME
 
 # Test auf Package
   #define packagep(obj)  \
@@ -11578,6 +11564,13 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # make_pphelp_stream()
 # kann GC auslösen
   extern object make_pphelp_stream (void);
+# wird verwendet von IO
+
+# UP: Tells whether a stream is buffered.
+# stream_isbuffered(stream)
+# > stream: a file stream
+# < result: TRUE if stream is buffered, else FALSE
+  extern boolean stream_isbuffered (object stream);
 # wird verwendet von IO
 
 # UP: Returns the line current number of a stream.

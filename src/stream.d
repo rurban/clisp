@@ -3249,6 +3249,8 @@ LISPFUNN(generic_stream_p,1)
 typedef struct strm_handle_extrafields_struct {
   boolean buffered;                    # FALSE for unbuffered streams,
                                        # TRUE for buffered streams
+  # Fields used if the element-type is CHARACTER:
+  uintL lineno;                        # line number during read, >0
 } strm_handle_extrafields_struct;
 
 # Additional binary (not GCed) fields, used by unbuffered streams only:
@@ -3271,6 +3273,7 @@ typedef struct strm_u_file_extrafields_struct {
 #define HandleStream_ihandle(stream)  TheStream(stream)->strm_ihandle
 #define HandleStream_ohandle(stream)  TheStream(stream)->strm_ohandle
 #define HandleStream_buffered(stream)   ((strm_handle_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->buffered
+#define HandleStream_lineno(stream)   ((strm_handle_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->lineno
 #define FileStream_status(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->status
 #define FileStream_lastbyte(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->lastbyte
 #ifdef AMIGAOS
@@ -3330,7 +3333,9 @@ typedef struct strm_u_file_extrafields_struct {
           # kein Zeichen verfügbar -> muss EOF sein
           { return eof_value; }
           else
-          {
+          { if (c == NL)
+              # lineno incrementieren:
+              { HandleStream_lineno(stream) += 1; }
             #if defined(AMIGAOS)
             # Ctrl-C wird meist während des Read()-Aufrufs festgestellt, und
             # Read() liefert dann "unschuldig" ein Zeichen ab. Wir behandeln
@@ -3542,7 +3547,10 @@ typedef struct strm_u_file_extrafields_struct {
               return signean_minus;
             }
             else # Zeichen verfügbar
-            { TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
+            { if (c == NL)
+                # lineno incrementieren:
+                { HandleStream_lineno(stream) += 1; }
+              TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
               TheStream(stream)->strmflags |= strmflags_unread_B;
               return signean_null;
             }
@@ -3569,7 +3577,10 @@ typedef struct strm_u_file_extrafields_struct {
               return signean_minus;
             }
             else # Zeichen verfügbar
-            { TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
+            { if (c == NL)
+                # lineno incrementieren:
+                { HandleStream_lineno(stream) += 1; }
+              TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
               TheStream(stream)->strmflags |= strmflags_unread_B;
               return signean_null;
             }
@@ -3649,7 +3660,10 @@ typedef struct strm_u_file_extrafields_struct {
                   return signean_minus;
                 }
                 else # Zeichen verfügbar
-                { TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
+                { if (c == NL)
+                    # lineno incrementieren:
+                    { HandleStream_lineno(stream) += 1; }
+                  TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
                   TheStream(stream)->strmflags |= strmflags_unread_B;
                   return signean_null;
             }   }
@@ -3769,6 +3783,13 @@ typedef struct strm_u_file_extrafields_struct {
           #endif
           OS_error(); # Error melden
         }
+      # Update lineno:
+      { var const chart* ptr = charptr;
+        var uintL count;
+        dotimespL(count,ergebnis,
+          { if (chareq(*ptr++,ascii(NL))) { HandleStream_lineno(stream) += 1; } }
+          );
+      }
       charptr += ergebnis;
       return charptr;
     }}
@@ -4053,7 +4074,7 @@ typedef struct strm_u_file_extrafields_struct {
       pushSTACK(handle); # Handle retten
       #endif
      {# Stream allozieren:
-      var object stream = allocate_stream(flags,strmtype_handle,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
+      var object stream = allocate_stream(flags,strmtype_file,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
       # und füllen:
       if (direction & bit(0))
         { TheStream(stream)->strm_rd_by = P(rd_by_handle);
@@ -4099,6 +4120,8 @@ typedef struct strm_u_file_extrafields_struct {
       TheStream(stream)->strm_file_name = popSTACK(); # Filename eintragen
       TheStream(stream)->strm_eltype = popSTACK();
       HandleStream_buffered(stream) = FALSE;
+      if (eq(TheStream(stream)->strm_eltype,S(character)))
+        { HandleStream_lineno(stream) = 1; }
       FileStream_status(stream) = 0;
       #ifdef AMIGAOS
       FileStream_rawp(stream) = 0;
@@ -4157,13 +4180,6 @@ typedef struct strm_file_extrafields_struct {
   uintL position;               # position in logical units
 } strm_file_extrafields_struct;
 
-# For file streams with element type CHARACTER (ch_file)
-# every character is 1 byte.
-typedef struct strm_ch_file_extrafields_struct {
-  strm_file_extrafields_struct _parent;
-  uintL lineno;   # line number during read, >0
-} strm_ch_file_extrafields_struct;
-
 # For file streams with element type INTEGER ("byte files") every integer
 # uses the same amount of bits.
 typedef struct strm_i_file_extrafields_struct {
@@ -4197,8 +4213,6 @@ typedef struct strm_i_file_extrafields_struct {
   ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->modified
 #define FileStream_position(stream)  \
   ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->position
-#define FileStream_lineno(stream)  \
-  ((strm_ch_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->lineno
 #define FileStream_bitsize(stream)  \
   ((strm_i_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->bitsize
 #define FileStream_bitindex(stream)  \
@@ -4689,7 +4703,7 @@ typedef struct strm_i_file_extrafields_struct {
       if (!eq(ch,ascii_char(CR))) # Ist es CR ?
         { # nein -> OK
           if (eq(ch,ascii_char(NL))) # Ist es NL, dann lineno incrementieren
-            { FileStream_lineno(stream) += 1; }
+            { HandleStream_lineno(stream) += 1; }
           return ch;
         }
       # ja -> nächstes Zeichen auf LF untersuchen
@@ -4700,7 +4714,7 @@ typedef struct strm_i_file_extrafields_struct {
       FileStream_index(stream) += 1;
       FileStream_position(stream) += 1;
       # lineno incrementieren:
-      FileStream_lineno(stream) += 1;
+      HandleStream_lineno(stream) += 1;
       # NL als Ergebnis:
       return ascii_char(NL);
     }}
@@ -4744,7 +4758,7 @@ typedef struct strm_i_file_extrafields_struct {
              }   }
            if (ch==NL)
              # lineno incrementieren:
-             { FileStream_lineno(stream) += 1; }
+             { HandleStream_lineno(stream) += 1; }
            *charptr++ = as_chart(ch); len--;
          }}
          while (len > 0);
@@ -5882,9 +5896,7 @@ typedef struct strm_i_file_extrafields_struct {
         var uintB art;
         # Länge:
         var uintC xlen = sizeof(strm_file_extrafields_struct); # Das haben alle File-Streams
-        if (type==strmtype_ch_file)
-          { xlen = sizeof(strm_ch_file_extrafields_struct); } # Das haben die File-Streams für Characters
-        elif (type>=strmtype_iu_file)
+        if (!(type==strmtype_ch_file))
           { xlen = sizeof(strm_i_file_extrafields_struct); # Das haben die File-Streams für Integers maximal
             {var uintL bitsize = posfixnum_to_L(eltype_size);
              if ((bitsize%8)==0)
@@ -5998,7 +6010,7 @@ typedef struct strm_i_file_extrafields_struct {
             FileStream_position(stream) = 0; # position := 0
             if (type==strmtype_ch_file)
               # File-Stream für Characters
-              { FileStream_lineno(stream) = 1; }
+              { HandleStream_lineno(stream) = 1; }
             elif (type>=strmtype_iu_file)
               # File-Stream für Integers
               { FileStream_bitsize(stream) = posfixnum_to_L(eltype_size);
@@ -6267,8 +6279,8 @@ typedef struct strm_i_file_extrafields_struct {
 LISPFUNN(file_stream_p,1)
 # (SYS::FILE-STREAM-P stream) == (TYPEP stream 'FILE-STREAM)
   { var object arg = popSTACK();
-    if (streamp(arg))
-      { if_strm_file_p(arg, { value1 = T; } , { value1 = NIL; } ); }
+    if (streamp(arg) && (TheStream(arg)->strmtype == strmtype_file))
+      { value1 = T; }
       else
       { value1 = NIL; }
     mv_count=1;
@@ -8748,8 +8760,9 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
    {var LONG new_mode = (nullp(flag) ? 0 : 1);
     var LONG success;
     if ((TheStream(stream)->strmtype == strmtype_terminal) # der Terminal-Stream
-        || (TheStream(stream)->strmtype == strmtype_handle) # ein File-Handle-Stream
-       )
+        || (TheStream(stream)->strmtype == strmtype_file # ein ungebufferter File-Stream
+            && !HandleStream_buffered(stream)
+       )   )
       { if (!nullp(TheStream(stream)->strm_isatty))
           { if (TheStream(stream)->strmtype == strmtype_terminal)
               # Terminal
@@ -8763,7 +8776,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
                     terminal_mode = new_mode;
               }   }
               else
-              # Handle-Stream
+              # unbuffered File-Stream
               { value1 = (FileStream_rawp(stream) ? T : NIL);
                 if (new_mode == FileStream_rawp(stream))
                   { success = TRUE; }
@@ -13704,7 +13717,6 @@ LISPFUNN(stream_element_type,1)
               # CHARACTER
               eltype = S(character); break;
             case strmtype_file:
-            case strmtype_handle:
               # CHARACTER or ([UN]SIGNED-BYTE n)
               eltype = TheStream(stream)->strm_eltype; break;
             # dann die allgemeinen Streams:
@@ -13821,7 +13833,10 @@ LISPFUNN(stream_external_format,1)
           #if !defined(NEXTAPP)
           case strmtype_terminal:
           #endif
-          case strmtype_handle:
+          case strmtype_file:
+            if (HandleStream_buffered(stream))
+              # Buffered file streams are not considered to be interactive.
+              return FALSE;
             if (nullp(TheStream(stream)->strm_isatty))
               # Reguläre Files sind sicher nicht interaktiv.
               if (regular_handle_p(TheHandle(TheStream(stream)->strm_ihandle)))
@@ -13842,7 +13857,6 @@ LISPFUNN(stream_external_format,1)
           case strmtype_socket:
           #endif
             return TRUE;
-          case strmtype_file:
           default:
             return FALSE;
     }   }
@@ -13888,12 +13902,20 @@ LISPFUNN(interactive_stream_p,1)
           case strmtype_generic:
             close_generic(stream); break;
           #endif
+          case strmtype_file:
+            if (HandleStream_buffered(stream))
+              { close_file(stream); }
+              else
+              { if (TheStream(stream)->strmflags & strmflags_wr_B)
+                  close_ohandle(stream);
+                else
+                  close_ihandle(stream);
+              }
+            break;
           #ifdef KEYBOARD
           case strmtype_keyboard: break;
           #endif
           case strmtype_terminal: break;
-          case strmtype_file:
-            close_file(stream); break;
           #ifdef SCREEN
           case strmtype_window:
             close_window(stream); break;
@@ -13902,12 +13924,6 @@ LISPFUNN(interactive_stream_p,1)
           case strmtype_printer:
             close_printer(stream); break;
           #endif
-          case strmtype_handle:
-            if (TheStream(stream)->strmflags & strmflags_wr_B)
-              close_ohandle(stream);
-            else
-              close_ihandle(stream);
-            break;
           #ifdef PIPES
           case strmtype_pipe_in:
             close_pipe_in(stream); break;
@@ -14014,6 +14030,15 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               #ifdef GENERIC_STREAMS
               case strmtype_generic:  return listen_generic(stream);
               #endif
+              case strmtype_file:
+                if (TheStream(stream)->strmflags & strmflags_rd_ch_B)
+                  { if (HandleStream_buffered(stream))
+                      { return listen_ch_file(stream); }
+                      else
+                      { return listen_handle(stream); }
+                  }
+                  else
+                  { return signean_minus; } # kein READ-CHAR
               #ifdef KEYBOARD
               case strmtype_keyboard: return listen_keyboard(stream);
               #endif
@@ -14029,22 +14054,12 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                             );
                 #endif
                 NOTREACHED
-              case strmtype_file:
-                if (TheStream(stream)->strmflags & strmflags_rd_ch_B)
-                  { return listen_ch_file(stream); }
-                  else
-                  { return signean_minus; } # kein READ-CHAR
               #ifdef SCREEN
               case strmtype_window:   return signean_minus; # kein READ-CHAR
               #endif
               #ifdef PRINTER
               case strmtype_printer:  return signean_minus; # kein READ-CHAR
               #endif
-              case strmtype_handle:
-                if (TheStream(stream)->strmflags & strmflags_rd_ch_B)
-                  { return listen_handle(stream); }
-                  else
-                  { return signean_minus; } # kein READ-CHAR
               #ifdef PIPES
               case strmtype_pipe_in:  return listen_pipe_in(stream);
               case strmtype_pipe_out: return signean_minus; # kein READ-CHAR
@@ -14097,6 +14112,14 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
           case strmtype_generic:
             ergebnis = clear_input_generic(stream); break;
           #endif
+          case strmtype_file:
+            if (TheStream(stream)->strmflags & strmflags_rd_ch_B
+                && !HandleStream_buffered(stream)
+               )
+              { ergebnis = clear_input_handle(stream); }
+              else
+              { ergebnis = FALSE; }
+            break;
           #ifdef KEYBOARD
           case strmtype_keyboard:
             ergebnis = clear_input_keyboard(stream); break;
@@ -14112,12 +14135,6 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                          { ergebnis = clear_input_terminal3(stream); }
                         );
             #endif
-            break;
-          case strmtype_handle:
-            if (TheStream(stream)->strmflags & strmflags_rd_ch_B)
-              { ergebnis = clear_input_handle(stream); }
-              else
-              { ergebnis = FALSE; }
             break;
           #ifdef PIPES
           case strmtype_pipe_in: # Pipe: nichts löschen??
@@ -14165,18 +14182,20 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               case strmtype_generic:
                 finish_output_generic(stream); break;
               #endif
+              case strmtype_file:
+                if (HandleStream_buffered(stream))
+                  { finish_output_file(stream); }
+                  else
+                  { finish_output_handle(stream); }
+                break;
               case strmtype_terminal:
                 finish_output_terminal(stream); break;
-              case strmtype_file:
-                finish_output_file(stream); break;
               #ifdef PRINTER_AMIGAOS
               case strmtype_printer: # Printer:
                 # Schließen und neu aufmachen würde vermutlich einen
                 # Seitenvorschub ausgeben, und das ist ja wohl nicht erwünscht.
                 break; # Daher nichts tun.
               #endif
-              case strmtype_handle:
-                finish_output_handle(stream); break;
               #ifdef PIPES
               case strmtype_pipe_out: # Pipe: kann nichts tun
               #endif
@@ -14215,18 +14234,20 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               case strmtype_generic:
                 force_output_generic(stream); break;
               #endif
+              case strmtype_file:
+                if (HandleStream_buffered(stream))
+                  { force_output_file(stream); }
+                  else
+                  { force_output_handle(stream); }
+                break;
               case strmtype_terminal:
                 force_output_terminal(stream); break;
-              case strmtype_file:
-                force_output_file(stream); break;
               #ifdef PRINTER_AMIGAOS
               case strmtype_printer: # Printer:
                 # Schließen und neu aufmachen würde vermutlich einen
                 # Seitenvorschub ausgeben, und das ist ja wohl nicht erwünscht.
                 break; # Daher nichts tun.
               #endif
-              case strmtype_handle:
-                force_output_handle(stream); break;
               #ifdef PIPES
               case strmtype_pipe_out: # Pipe: kann nichts tun
               #endif
@@ -14269,6 +14290,12 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                 clear_output_generic(stream);
                 break;
               #endif
+              case strmtype_file:
+                if (HandleStream_buffered(stream))
+                  {} # File: nichts tun (würde die File-Verwaltung durcheinanderbringen)
+                  else
+                  { clear_output_handle(stream); }
+                break;
               case strmtype_terminal:
                 #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
                 terminalcase(stream,
@@ -14278,15 +14305,10 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                             );
                 #endif
                 break;
-              case strmtype_file:
-                # File: nichts tun (würde die File-Verwaltung durcheinanderbringen)
-                break;
               #ifdef PRINTER_AMIGAOS
               case strmtype_printer: # Printer: ungebuffert, also nichts zu tun
                 break;
               #endif
-              case strmtype_handle:
-                clear_output_handle(stream); break;
               #ifdef PIPES
               case strmtype_pipe_out: # Pipe: geht nicht
                 break;
@@ -14429,33 +14451,38 @@ LISPFUN(file_position,1,1,norest,nokey,0,NIL)
   { var object position = popSTACK();
     var object stream = popSTACK();
     stream = check_open_file_stream(stream); # stream überprüfen
-    if (eq(position,unbound))
-      # position nicht angegeben -> Position als Wert:
-      { value1 = UL_to_I(FileStream_position(stream)); mv_count=1; }
+    if (!HandleStream_buffered(stream))
+      # Don't know how to deal with the file position on unbuffered streams.
+      { value1 = NIL; mv_count=1; }
       else
-      { if (eq(position,S(Kstart)))
-          # :START -> an den Anfang positionieren:
-          { position_file_start(stream); }
-        elif (eq(position,S(Kend)))
-          # :END -> ans Ende positionieren:
-          { position_file_end(stream); }
-        elif (uint32_p(position))
-          # an die angegebene Position positionieren:
-          { position_file(stream,I_to_UL(position)); }
-        else
-          # Unzulässiges Position-Argument
-          { pushSTACK(position); # Wert für Slot DATUM von TYPE-ERROR
-            pushSTACK(O(type_position)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-            pushSTACK(position); pushSTACK(S(Kend)); pushSTACK(S(Kstart));
-            pushSTACK(TheSubr(subr_self)->name);
-            fehler(type_error,
-                   DEUTSCH ? "~: Position-Argument muss ~ oder ~ oder ein Integer >=0 sein, nicht ~" :
-                   ENGLISH ? "~: position argument should be ~ or ~ or a nonnegative integer, not ~" :
-                   FRANCAIS ? "~ : L'argument position doit être ~, ~ ou un entier positif ou zéro, mais non ~." :
-                   ""
-                  );
+      { if (eq(position,unbound))
+          # position nicht angegeben -> Position als Wert:
+          { value1 = UL_to_I(FileStream_position(stream)); mv_count=1; }
+          else
+          { if (eq(position,S(Kstart)))
+              # :START -> an den Anfang positionieren:
+              { position_file_start(stream); }
+            elif (eq(position,S(Kend)))
+              # :END -> ans Ende positionieren:
+              { position_file_end(stream); }
+            elif (uint32_p(position))
+              # an die angegebene Position positionieren:
+              { position_file(stream,I_to_UL(position)); }
+            else
+              # Unzulässiges Position-Argument
+              { pushSTACK(position); # Wert für Slot DATUM von TYPE-ERROR
+                pushSTACK(O(type_position)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+                pushSTACK(position); pushSTACK(S(Kend)); pushSTACK(S(Kstart));
+                pushSTACK(TheSubr(subr_self)->name);
+                fehler(type_error,
+                       DEUTSCH ? "~: Position-Argument muss ~ oder ~ oder ein Integer >=0 sein, nicht ~" :
+                       ENGLISH ? "~: position argument should be ~ or ~ or a nonnegative integer, not ~" :
+                       FRANCAIS ? "~ : L'argument position doit être ~, ~ ou un entier positif ou zéro, mais non ~." :
+                       ""
+                      );
+              }
+            value1 = T; mv_count=1; # Wert T
           }
-        value1 = T; mv_count=1; # Wert T
       }
   }
 
@@ -14463,16 +14490,21 @@ LISPFUNN(file_length,1)
 # (FILE-LENGTH file-stream), CLTL S. 425
   { var object stream = popSTACK();
     stream = check_open_file_stream(stream); # stream überprüfen
-    # Position merken:
-   {var uintL position = FileStream_position(stream);
-    # ans Ende positionieren:
-    position_file_end(stream);
-    # Ende-Position merken:
-    {var uintL endposition = FileStream_position(stream);
-     # an die alte Position zurückpositionieren:
-     position_file(stream,position);
-     value1 = UL_to_I(endposition); mv_count=1; # Ende-Position als Wert
-  }}}
+    if (!HandleStream_buffered(stream))
+      # Don't know how to deal with the file position on unbuffered streams.
+      { value1 = NIL; mv_count=1; }
+      else
+      { # Position merken:
+        var uintL position = FileStream_position(stream);
+        # ans Ende positionieren:
+        position_file_end(stream);
+        # Ende-Position merken:
+       {var uintL endposition = FileStream_position(stream);
+        # an die alte Position zurückpositionieren:
+        position_file(stream,position);
+        value1 = UL_to_I(endposition); mv_count=1; # Ende-Position als Wert
+      }}
+  }
 
 LISPFUNN(file_string_length,2)
 # (FILE-STRING-LENGTH stream object)
@@ -14512,6 +14544,17 @@ LISPFUNN(file_string_length,2)
       { value1 = NIL; mv_count=1; return; }
   }
 
+# UP: Tells whether a stream is buffered.
+# stream_isbuffered(stream)
+# > stream: a file stream
+# < result: TRUE if stream is buffered, else FALSE
+  global boolean stream_isbuffered (object stream);
+  global boolean stream_isbuffered(stream)
+    var object stream;
+    { return (TheStream(stream)->strmtype == strmtype_file)
+              && HandleStream_buffered(stream);
+    }
+
 # UP: Returns the line current number of a stream.
 # stream_line_number(stream)
 # > stream: a stream
@@ -14521,8 +14564,8 @@ LISPFUNN(file_string_length,2)
     var object stream;
     { return (TheStream(stream)->strmtype == strmtype_file
               && eq(TheStream(stream)->strm_eltype,S(character))
-              ? UL_to_I(FileStream_lineno(stream)) # aktuelle Zeilennummer
-              : NIL                                # NIL falls unbekannt
+              ? UL_to_I(HandleStream_lineno(stream)) # aktuelle Zeilennummer
+              : NIL                                  # NIL falls unbekannt
              );
     }
 

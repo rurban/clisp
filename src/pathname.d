@@ -1256,7 +1256,7 @@ local boolean legal_logical_word_char(ch)
     var object stream;
     { var object s = stream;
       loop
-        { if_strm_file_p(s, { return s; } , ; );
+        { if (TheStream(s)->strmtype == strmtype_file) { return s; }
           if (!(TheStream(s)->strmtype == strmtype_synonym)) break;
           s = Symbol_value(TheStream(stream)->strm_synonym_symbol);
           if (!streamp(s)) break;
@@ -7649,11 +7649,10 @@ LISPFUNN(probe_directory,1)
     { var object flist = O(open_files); # Liste aller offenen Files durchlaufen
       while (consp(flist))
         { var object f = Car(flist); # nächster offener Stream
-          if_strm_file_p(f, # File-Stream ?
+          if (TheStream(f)->strmtype == strmtype_file) # File-Stream ?
             { if (equal(TheStream(f)->strm_file_truename,pathname))
                 { return TRUE; }
-            },
-            ; );
+            }
           flist = Cdr(flist);
         }
       return FALSE;
