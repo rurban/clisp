@@ -27,7 +27,7 @@ ERROR
   (defvar *junk* #.(lambda (x) (+ 15 x))))~%"))
   (delete-file (compile-file ff))
   (delete-file ff)
-  #+clisp (delete-file (merge-pathnames ".lib" ff))
+  #+clisp (delete-file (make-pathname :type "lib" :defaults ff))
   nil)
 nil
 

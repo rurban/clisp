@@ -412,6 +412,6 @@ T
     (load compiled-file)
     (delete-file compiled-file)
     (delete-file lisp-file)
-    #+clisp (delete-file (merge-pathnames ".lib" lisp-file))
+    #+clisp (delete-file (make-pathname :type "lib" :defaults lisp-file))
     (mapcar #'foo *t-list*)))
 (100 200)
