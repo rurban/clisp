@@ -1,5 +1,30 @@
 1999-03-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Integrate types and encodings.
+        * lispbibl.d (Encoding): Add enc_range field.
+          (encoding_length): Increment by 1.
+          (Encoding_range): New macro.
+          (stringof): New declaration.
+        * charstrg.d (stringof): New function.
+        * encoding.d (all_range, nls_range): New functions.
+          (iconv_range): Declare.
+          (MAKE-ENCODING): Initialize the enc_range field.
+          (fehler_encoding, SYS::CHARSET-TYPEP, SYS::CHARSET-RANGE): New
+          functions.
+          (init_encodings): Initialize the enc_range field.
+        * stream.d (iconv_mblen): Optimize and make consistent with
+          iconv_mbstowcs.
+          (iconv_wcslen): Optimize and make consistent with iconv_wcstombs.
+          (iconv_wcstombs): Don't loop until outsize==0. The caller may have
+          given a larger buffer than necessary.
+          (iconv_range): New function.
+        * pseudofun.d: Update.
+        * type.lsp (typep): Accept an encoding as a type.
+          (canonicalize-type, subtypep): Likewise.
+          (charset-subtypep): New function.
+
+1999-03-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * encoding.d (SYS::ENCODINGP): New function.
         * type.lsp: Implement typep for type ENCODING.
           (subtypep): Treat ENCODING as an elementary type.

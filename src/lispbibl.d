@@ -5132,6 +5132,9 @@ typedef struct { XRECORD_HEADER
                  # Functions to convert characters to bytes.
                    object enc_wcslen; # uintL (*) (object encoding, const chart* src, const chart* srcend);
                    object enc_wcstombs; # void (*) (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+                 # Function to return the set of defined characters in the range [start,end],
+                 # as a simple-string of intervals #(start1 end1 ... startm endm).
+                   object enc_range; # object (*) (object encoding, uintL start, uintL end);
                  # An auxiliary pointer.
                  object enc_table;
                  # Minimum number of bytes needed to represent a character.
@@ -5142,7 +5145,7 @@ typedef struct { XRECORD_HEADER
                }
         *  Encoding;
 #ifdef UNICODE
-  #define encoding_length  7
+  #define encoding_length  8
 #else
   #define encoding_length  1
 #endif
@@ -5152,6 +5155,7 @@ typedef struct { XRECORD_HEADER
   #define Encoding_mbstowcs(encoding)  ((void (*) (object, object, const uintB**, const uintB*, chart**, chart*)) ThePseudofun(TheEncoding(encoding)->enc_mbstowcs))
   #define Encoding_wcslen(encoding)  ((uintL (*) (object, const chart*, const chart*)) ThePseudofun(TheEncoding(encoding)->enc_wcslen))
   #define Encoding_wcstombs(encoding)  ((void (*) (object, object, const chart**, const chart*, uintB**, uintB*)) ThePseudofun(TheEncoding(encoding)->enc_wcstombs))
+  #define Encoding_range(encoding)  ((object (*) (object, uintL, uintL)) ThePseudofun(TheEncoding(encoding)->enc_range))
 #endif
 #ifdef UNICODE
   #define cslen(encoding,src,srclen)  \
@@ -10875,6 +10879,18 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < ergebnis: /=0, wenn gleich
   extern boolean string_equal (object string1, object string2);
 # wird verwendet von IO, PATHNAME
+
+#ifdef UNICODE
+# UP: Bildet einen Simple-String mit gegebenen Elementen.
+# stringof(len)
+# > uintL len: gewünschte Vektorlänge
+# > auf STACK: len Characters, erstes zuoberst
+# < ergebnis: Simple-String mit diesen Objekten
+# Erhöht STACK
+# verändert STACK, kann GC auslösen
+  extern object stringof (uintL len);
+# wird verwendet von ENCODING, STREAM
+#endif
 
 # UP: kopiert einen String und macht dabei einen Simple-String draus.
 # copy_string(string)

@@ -90,6 +90,7 @@ PSEUDOFUN(wr_ch_printer)
 
 # External definitions from ENCODING.D:
 #ifdef UNICODE
+XPSEUDO(object, all_range, (object encoding, uintL start, uintL end))
 XPSEUDO(uintL, uni16_mblen, (object encoding, const uintB* src, const uintB* srcend))
 XPSEUDO(void, uni16be_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
 XPSEUDO(void, uni16le_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
@@ -110,6 +111,7 @@ XPSEUDO(void, nls_asciiext_mbstowcs, (object encoding, object stream, const uint
 XPSEUDO(uintL, nls_wcslen, (object encoding, const chart* src, const chart* srcend))
 XPSEUDO(void, nls_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
 XPSEUDO(void, nls_asciiext_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
+XPSEUDO(object, nls_range, (object encoding, uintL start, uintL end))
 XPSEUDO(struct nls_table, nls_ascii_table,)
 XPSEUDO(struct nls_table, nls_iso8859_1_table,)
 XPSEUDO(struct nls_table, nls_iso8859_2_table,)
@@ -179,6 +181,7 @@ XPSEUDO(uintL, iconv_mblen, (object encoding, const uintB* src, const uintB* src
 XPSEUDO(void, iconv_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
 XPSEUDO(uintL, iconv_wcslen, (object encoding, const chart* src, const chart* srcend))
 XPSEUDO(void, iconv_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
+XPSEUDO(object, iconv_range, (object encoding, uintL start, uintL end))
 #endif
 #endif
 

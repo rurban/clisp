@@ -85,6 +85,7 @@
          (t (typespec-error 'typep y))
     )  )
     ((clos::class-p y) (clos::subclassp (clos:class-of x) y))
+    ((encodingp y) (charset-typep x y))
     (t (typespec-error 'typep y))
 ) )
 
@@ -713,6 +714,17 @@
            (canonicalize-type (clos:class-name type))
            type
         ))
+        ((encodingp type)
+         #+UNICODE
+           (case (sys::%record-ref type 1) ; encoding-charset
+             ((charset:unicode-16-big-endian charset:unicode-16-little-endian
+               charset:utf-8 charset:java)
+              'CHARACTER
+             )
+             (t type)
+           )
+         #-UNICODE 'CHARACTER
+        )
 ) )
 (defun subtypep (type1 type2)
   (macrolet ((yes () '(return-from subtypep (values t t)))
@@ -961,8 +973,93 @@
         TWO-WAY-STREAM ECHO-STREAM STRING-STREAM)
        (if (eq type2 'STREAM) (yes) (no))
       )
-      (t (unknown))
+      (t
+       (if (encodingp (first type1))
+         (cond ((eq type2 'CHARACTER) (yes))
+               ((encodingp type2) (if (charset-subtypep (first type1) type2) (yes) (no)))
+               (t (no))
+         )
+         (unknown)
+      ))
 ) ) )
+
+#-UNICODE
+(defun charset-subtypep (encoding1 encoding2)
+  t
+)
+#+UNICODE
+(let ((table (make-hash-table :test #'equal)))
+     ; cache: charset name -> list of intervals #(start1 end1 ... startm endm)
+  #| ; Now in C and much more efficient.
+  (defun charset-range (encoding start end)
+    (setq start (char-code start))
+    (setq end (char-code end))
+    (let ((intervals '())   ; finished intervals
+          (i1 nil) (i2 nil) ; interval being built
+          (i start))
+      (loop
+        (if (charset-typep (code-char i) encoding)
+          (if i2 (setq i2 i) (setq i1 i i2 i))
+          (if i2 (setq intervals (list* i2 i1 intervals) i1 nil i2 nil))
+        )
+        (when (eql i end) (return))
+        (incf i)
+      )
+      (when i2 (setq intervals (list* i2 i1 intervals)))
+      (map 'simple-string #'code-char (nreverse intervals))
+  ) )
+  |#
+  ; Return the definition range of a character set. If necessary, compute it
+  ; and store it in the cache.
+  (defun get-charset-range (charset)
+    (or (gethash charset table)
+        (setf (gethash charset table)
+              (charset-range (make-encoding :charset charset) (code-char 0) (code-char (1- char-code-limit)))
+  ) )   )
+  ; Return the character set of an encoding (a symbol or string).
+  (defun encoding-charset (encoding) (sys::%record-ref encoding 1))
+  ; Fill the cache.
+  (do-external-symbols (sym (find-package "CHARSET"))
+    (get-charset-range (encoding-charset (symbol-value sym)))
+  )
+  ; Test whether all characters encodable in encoding1 are also encodable in
+  ; encoding2.
+  (defun charset-subtypep (encoding1 encoding2)
+    (let* ((intervals1 (get-charset-range (encoding-charset encoding1)))
+           (intervals2 (get-charset-range (encoding-charset encoding2)))
+           (n1 (length intervals1))
+           (n2 (length intervals2))
+           (j1 0)  ; grows by 2 from 0 to n1
+           (j2 0)) ; grows by 2 from 0 to n2
+      (loop
+        ; Get next interval from intervals1.
+        (when (eql j1 n1) (return-from charset-subtypep t))
+        (let ((i1 (schar intervals1 j1)) (i2 (schar intervals1 (+ j1 1))))
+          ; Test whether [i1,i2] is contained in intervals2.
+          (let (i3 i4)
+            (loop
+              (when (eql j2 n2)
+                ; [i1,i2] not contained in intervals2.
+                (return-from charset-subtypep nil)
+              )
+              (setq i3 (schar intervals2 j2))
+              (setq i4 (schar intervals2 (+ j2 1)))
+              ; If i3 <= i4 < i1 <= i2, skip the interval [i3,i4].
+              (when (char>= i4 i1) (return))
+              (incf j2 2)
+            )
+            (when (char< i1 i3)
+              ; i1 not contained in intervals2.
+              (return-from charset-subtypep nil)
+            )
+            (when (char< i4 i2)
+              ; i4+1 (in [i1,i2]) not contained in intervals2.
+              (return-from charset-subtypep nil)
+            )
+            ; Now (<= i3 i1) and (<= i2 i4), hence [i1,i2] contained in intervals2.
+            (incf j1 2)
+  ) ) ) ) )
+)
 
 ;; Bestimmt zwei Werte low,high so, dass (subtypep type `(INTEGER ,low ,high))
 ;; gilt und low möglichst groß und high möglichst klein ist.
