@@ -19,8 +19,7 @@ fi
 ])
 
 AC_DEFUN([CL_SHM],
-[AC_REQUIRE([CL_SHMAT])dnl
-AC_BEFORE([$0], [CL_SHM_RMID])dnl
+[AC_BEFORE([$0], [CL_SHM_RMID])dnl
 if test "$ac_cv_header_sys_shm_h" = yes -a "$ac_cv_header_sys_ipc_h" = yes; then
 # This test is from Marcus Daniels
 AC_CACHE_CHECK(for working shared memory, cl_cv_sys_shm_works, [
