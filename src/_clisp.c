@@ -47,9 +47,9 @@
 #ifndef HAVE_PERROR_DECL
 /* Both <errno.h> and <stdio.h> failed to declare perror(). Declare it now. */
 # if defined(__cplusplus)
-extern "C" int perror (const char *);
+extern "C" void perror (const char *);
 # else
-extern int perror (const char *);
+extern void perror (const char *);
 # endif
 #endif
 
@@ -186,6 +186,7 @@ int main (int argc, char* argv[])
             break;
           /* Skippable options without arguments. */
           case 'h':
+          case 'd':
           case 'q':
           case 'I':
           case 'C':
