@@ -9,7 +9,7 @@
   <email>clisp-devel@lists.sourceforge.net</email>,
   this chapter is not for you.</subtitle>
 
-<section><title>Introduction</title>
+<section id="internals-intro"><title>Introduction</title>
 
 <para>Knowing that most &malloc; implementations are buggy and/or slow,
 and because &clisp; needs to perform garbage collection, &clisp; has its
@@ -17,7 +17,7 @@ own memory management subsystem in files <filename>spvw*.d</filename>.</para>
 
 </section>
 
-<section><title>&clisp; objects</title>
+<section id="lisp-obj-in-c"><title>Lisp objects in &clisp;</title>
 
 <itemizedlist><title>Three kinds of storage are distinguished:</title>
  <listitem><simpara>&clisp; data (the "heap"), i.e. storage which contains
@@ -65,7 +65,7 @@ address decreases).</para>
 
 </section>
 
-<section><title>Memory Models</title>
+<section id="memory-models"><title>Memory Models</title>
 
 <para>There are 6 memory models. Which one is used, depends on the
 operating system and is determined at build time.</para>
@@ -235,7 +235,8 @@ possible:</para>
 
 </section>
 
-<section><title>The burden of GC upon the rest of CLISP:</title>
+<section id="gc-safety">
+   <title>The burden of &gc;ion upon the rest of &clisp;:</title>
 
 <para>Every subroutine marked with <emphasis>can trigger GC</emphasis>
 may invoke &gc;.
@@ -256,7 +257,7 @@ first and do the rest of the computation with &c-lang; variables,
 without calling unsafe routines, and without worrying about &gc;.</para>
 </section>
 
-<section><title>Foreign Pointers</title>
+<section id="foreign-pointers"><title>Foreign Pointers</title>
 
 <para>Pointers to &c-lang; functions and to &malloc;ed data can be
 hidden in &clisp; objects of type machine_type; &gc; will not modify its
