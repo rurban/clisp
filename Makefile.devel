@@ -53,7 +53,7 @@ SOURCES3 = $T/src/gettext/*[^o] $T/src/gettext/po/*[^p]
 #SOURCES4 = $T/modules/*
 # exclude $T/modules/[cqrw]* = $T/modules/queens $T/modules/wildcard $T/modules/regexp $T/modules/clx
 SOURCES4 = $T/modules/[^cqrw]*
-SOURCES5 = $T/ffcall $T/utils $T/unix $T/dos $T/dosdjgpp $T/doswatcom $T/os2 $T/cygwin32 $T/win32gcc $T/win32msvc $T/win32bc $T/amiga $T/acorn $T/nextapp
+SOURCES5 = $T/ffcall $T/utils $T/unix $T/os2 $T/cygwin32 $T/win32gcc $T/win32msvc $T/win32bc $T/amiga $T/acorn $T/nextapp
 SOURCES6 = $T/tests $T/emacs $T/doc/*.txt $T/Makefile.devel
 
 SOURCES = $(SOURCES1) $(SOURCES2) $(SOURCES3) $(SOURCES4) $(SOURCES5) $(SOURCES6)
@@ -66,16 +66,7 @@ TEMPDIR = /tmp/clispdos
 
 all : makefiles configures potfiles src/FILES src/version.h utils/comment5.c src/intparam.c src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c ffcall/avcall/avcall.h.msvc ffcall/avcall/avcall-i386-msvc.c ffcall/vacall/config.h.msvc ffcall/vacall/vacall.h.msvc ffcall/vacall/vacall-i386-msvc.c ffcall/trampoline/config.h.msvc ffcall/callback/vacall_r/config.h.msvc ffcall/callback/vacall_r/vacall_r.h.msvc ffcall/callback/vacall_r/vacall-i386-msvc.c ffcall/callback/trampoline_r/config.h.msvc acorn/pathname.txt
 
-makefiles : dos/makefile dosdjgpp/makefile doswatcom/makefile os2/makefile win32gcc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc5 win32bc/makefile acorn/makefile.cc acorn/makefile.gcc src/oldoldreadline/Makefile.dos src/oldoldreadline/Makefile.os2 src/oldoldreadline/Makefile.go32 src/oldreadline/Makefile.dos src/oldreadline/Makefile.os2 src/oldreadline/Makefile.go32
-
-dos/makefile : makemake
-	./makemake dos gcc > dos/makefile
-
-dosdjgpp/makefile : makemake
-	./makemake dosdjgpp gcc > dosdjgpp/makefile
-
-doswatcom/makefile : makemake
-	./makemake doswatcom wcl386 > doswatcom/makefile
+makefiles : os2/makefile win32gcc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc5 win32bc/makefile acorn/makefile.cc acorn/makefile.gcc src/oldoldreadline/Makefile.dos src/oldoldreadline/Makefile.os2 src/oldoldreadline/Makefile.go32 src/oldreadline/Makefile.dos src/oldreadline/Makefile.os2 src/oldreadline/Makefile.go32
 
 os2/makefile : makemake
 	./makemake os2 gcc > os2/makefile
@@ -264,7 +255,7 @@ acorn/pathname.txt : src/pathname.d
 	cat src/pathname.d | sed -e '1,/Burwood/d' | sed -e '/Komponenten/,$$d' | sed -e 's/^# //g' -e 's/^#$$//g' > acorn/pathname.txt
 
 
-distrib : linux-distrib dos-distrib src-distrib
+distrib : linux-distrib src-distrib
 
 # Before doing a "make src-distrib", don't forget
 # * update src/VERSION,
@@ -297,48 +288,6 @@ linux-distrib : force
 linux--distrib : force
 	cd make.gcc && $(MAKE) PACK="$(PACK)" PACKOPT="$(PACKOPT)" PACKEXT="$(PACKEXT)" distrib
 
-dos-distrib : force
-	$(MAKE) dos--distrib PACK="zip" PACKOPT="-r" PACKEXT=".zip"
-
-dos--distrib : force
-	mkdir $(TEMPDIR)
-	cp -p $(DOSDIR)/ANNOUNCE $(DOSDIR)/COPYRIGHT $(DOSDIR)/GNU-GPL $(DOSDIR)/SUMMARY $(DOSDIR)/NEWS $(TEMPDIR)
-	cp -p $(DOSDIR)/lisp.exe $(TEMPDIR)
-	cp -p $(DOSDIR)/lisp_1mb.exe $(TEMPDIR)
-	cp -p $(DOSDIR)/lispinit.mem $(TEMPDIR)
-	cp -p $(DOSDIR)/*.lsp $(TEMPDIR)
-	# cp -p $(DOSDIR)/*.fas $(TEMPDIR)
-	mkdir $(TEMPDIR)/locale
-	for lang in en de fr es; do mkdir $(TEMPDIR)/locale/$$lang; mkdir $(TEMPDIR)/locale/$$lang/LC_MESSAGES; cp -p $(DOSDIR)/locale/$$lang/LC_MESSAGES/clisp.mo $(TEMPDIR)/locale/$$lang/LC_MESSAGES/clisp.mo; done
-	cp -p $(DOSDIR)/README $(DOSDIR)/README.de $(DOSDIR)/README.en $(DOSDIR)/README.es $(DOSDIR)/clisp.1 $(DOSDIR)/clisp.html $(DOSDIR)/impnotes.html $(DOSDIR)/clisp.gif $(DOSDIR)/clreadline.3 $(DOSDIR)/clreadline.html $(TEMPDIR)
-	from-ibmpc $(TEMPDIR)/clisp.1 dos/clisp.1
-	from-ibmpc $(TEMPDIR)/clisp.html dos/clisp.html
-	from-ibmpc $(TEMPDIR)/impnotes.html dos/impnotes.html
-	from-ibmpc $(TEMPDIR)/clreadline.3 dos/clreadline.3
-	from-ibmpc $(TEMPDIR)/clreadline.html dos/clreadline.html
-	cd dos ; groff -Tascii -mandoc clisp.1 > clisp.man
-	cd dos ; groff -Tdvi -mandoc clisp.1 > clisp.dvi
-	cd dos ; groff -Tascii -mandoc clreadline.3 > clreadline.man
-	cd dos ; groff -Tdvi -mandoc clreadline.3 > clreadline.dvi
-	to-ibmpc dos/clisp.man $(TEMPDIR)/clisp.man
-	cp -p dos/clisp.dvi $(TEMPDIR)/clisp.dvi
-	to-ibmpc dos/clreadline.man $(TEMPDIR)/clreadline.man
-	cp -p dos/clreadline.dvi $(TEMPDIR)/clreadline.dvi
-	cd doc ; for f in CLOS-guide.txt LISP-tutorial.txt editors.txt; do to-ibmpc $$f $(TEMPDIR)/$$f; done
-	cd src/readline/doc ; $(MAKE) rluserman.dvi
-	cp -p src/readline/doc/rluserman.dvi $(TEMPDIR)/readline.dvi
-	cp -p $(EMXDIR)/bin/emx.exe $(TEMPDIR)/emx.exe
-	to-ibmpc dos/emx-faq.doc $(TEMPDIR)/emx-faq.doc
-	cp -p $(EMXDIR)/doc/emxrt.doc $(TEMPDIR)/emx-user.doc
-	cp -p $(EMXDIR)/etc/termcap.dat $(TEMPDIR)
-	cp -p $(RSXDIR)/bin/rsx.exe $(TEMPDIR)/rsx.exe
-#	cp -p $(RSXDIR)/bin/csx.exe $(TEMPDIR)/csx.exe
-	cp -p $(RSXDIR)/doc/readme.txt $(TEMPDIR)/rsx-read.txt
-	cp -p $(RSXDIR)/doc/rsx.hlp $(TEMPDIR)/rsx.hlp
-	cp -p dos/delay.exe $(TEMPDIR)/delay.exe
-	cd $(TEMPDIR) ; $(PACK) $(PACKOPT) /tmp/clisp$(PACKEXT) *
-	rm -rf $(TEMPDIR)
-
 os2-distrib : force
 	$(MAKE) os2--distrib PACK="zip" PACKOPT="-r" PACKEXT=".zip"
 
@@ -369,7 +318,7 @@ os2--distrib : force
 	cd src/readline/doc ; $(MAKE) rluserman.dvi
 	cp -p src/readline/doc/rluserman.dvi $(TEMPDIR)/readline.dvi
 	cp -p $(EMXDIR)/bin/emx.exe $(TEMPDIR)/emx.exe
-	to-ibmpc dos/emx-faq.doc $(TEMPDIR)/emx-faq.doc
+	to-ibmpc os2/emx-faq.doc $(TEMPDIR)/emx-faq.doc
 	cp -p $(EMXDIR)/doc/emxrt.doc $(TEMPDIR)/emx-user.doc
 	cp -p $(EMXDIR)/dll/emx.dll $(TEMPDIR)
 	cp -p $(EMXDIR)/dll/emxlibc.dll $(TEMPDIR)
