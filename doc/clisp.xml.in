@@ -28,8 +28,8 @@
  &bruno; &sds;
  <authorblurb><para>Bugs in both this manual page and &clisp; itself
    should be reported to the mailing list &clisp-list;.</para></authorblurb>
- <copyright><year>1992-2004</year><holder>Bruno Haible</holder></copyright>
- <copyright><year>1998-2004</year><holder>Sam Steingold</holder></copyright>
+ <copyright><year>1992-2005</year><holder>Bruno Haible</holder></copyright>
+ <copyright><year>1998-2005</year><holder>Sam Steingold</holder></copyright>
 </refentryinfo>
 
 <refmeta>
