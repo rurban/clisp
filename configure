@@ -87,6 +87,7 @@ passnext=''
 passnextm=''
 debug=''
 do_ffi='yes'
+target=''
 
 for arg # in "$@"
 do
@@ -184,6 +185,10 @@ do
 
       --without-dynamic-ffi | --with-dynamic-ffi=no | --with-no-dynamic-ffi)
         do_ffi="no" ;;
+
+      --with-mingw | --with-no-cygwin | --without-cygwin | --with-cygwin=no)
+        CC="gcc -mno-cygwin"; export CC;
+        target="win32gcc gcc" ;;
 
       --with-* | --without-*)
         subdir_configure_args="$subdir_configure_args $arg"
@@ -442,9 +447,7 @@ if test -d $ABS_DIRNAME/avcall -a -d $ABS_DIRNAME/callback; then
   makemake_args="--with-dynamic-ffi $makemake_args"
 fi
 
-if test -n "$debug"; then
-  makemake_args="$makemake_args $debug";
-fi
+makemake_args="${makemake_args} ${target} ${debug}";
 
 if test -z "$do_build"; then
 

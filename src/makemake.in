@@ -2229,7 +2229,7 @@ fi
 echol
 
 if [ -n "${SRCDIR}" ] ; then
-  if [ $HOS = unix ] ; then
+  if [ ${HOS} = unix -o ${HSYS} = win32gcc ] ; then
     for f in $DFILES $ARI_ASMD $SP_ASMD ; do
       echol "${f}.d : ${SRCDIR}${f}.d"
       echotab "-\$(LN_S) ${SRCDIR}${f}.d ${f}.d"
@@ -2541,19 +2541,8 @@ fi
 if [ -n "$with_dynamic_ffi" ] ; then
   for f in avcall callback; do
     if [ ${LIB_TYPE} = "unix" ] ; then
-      if [ ${TSYS} = "win32gcc" ]; then
-        link_dep $f.h ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}$f.h
-        echol
-        link_dep lib$f.a ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}lib$f.a
-        if [ $f = callback ] ; then
-          for g in vacall_r trampoline_r; do
-            echotab "-\$(LN_S) ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}$g.h $g.h"
-          done
-        fi
-      else
-        echol "$f.h lib$f.a :"
-        echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) check && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
-      fi
+      echol "$f.h lib$f.a :"
+      echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) check && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
       echol
     fi
     if [ ${LIB_TYPE} = "win32" ] ; then
@@ -2596,16 +2585,9 @@ fi
 
 for f in libcharset; do
   if [ ${LIB_TYPE} = "unix" ] ; then
-    if [ ${TSYS} = "win32gcc" ]; then
-      link_dep libcharset.h ${SRCTOPDIR_}$f${NEXT_}include${NEXT_}libcharset.h
-      echol
-      link_dep libcharset.a ${SRCTOPDIR_}$f${NEXT_}lib${NEXT_}libcharset.a
-      echol
-    else
-      echol "libcharset.h libcharset.a :"
-      echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
-      echol
-    fi
+    echol "libcharset.h libcharset.a :"
+    echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
+    echol
   fi
   if [ ${LIB_TYPE} = "win32" ] ; then
     echol "libcharset.h : ${SRCTOPDIR_M}$f${NEXT_M}include${NEXT_M}libcharset.h"
@@ -2620,12 +2602,7 @@ done
 for f in sigsegv; do
   if [ ${LIB_TYPE} = "unix" ] ; then
     echol "$f.h lib$f.a :"
-    if [ ${TSYS} = "win32gcc" ]; then
-      echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}$f.h $f.h";
-      echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}lib$f.a lib$f.a";
-    else
-      echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) check && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
-    fi
+    echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) check && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
     echol
   fi
   if [ ${LIB_TYPE} = "win32" ] ; then
