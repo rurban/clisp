@@ -1,3 +1,8 @@
+2001-08-20  Sam Steingold  <sds@gnu.org>
+
+	* places.lisp (setf-symbol): intern the result when the argument
+	is interned
+
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
 
 	* constsym.d: Reorder according to the definition order in the files.

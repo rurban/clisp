@@ -6,16 +6,15 @@
 ;;;----------------------------------------------------------------------------
 ;;; Funktionen zur Definition und zum Ausnutzen von places:
 ;;;----------------------------------------------------------------------------
-;; Return an un-interned symbol for SYSTEM::SETF-FUNCTION
+;; Return a symbol for SYSTEM::SETF-FUNCTION
+;; the returned symbol will be interned iff the argument is.
 (defun setf-symbol (symbol)
-  (make-symbol
-    (string-concat
-      "(SETF "
-      (let ((pack (symbol-package symbol))) (if pack (package-name pack) "#"))
-      ":"
-      (symbol-name symbol)
-      ")"
-) ) )
+  (let* ((pack (symbol-package symbol))
+         (name (string-concat "(SETF " (if pack (package-name pack) "#") ":"
+                              (symbol-name symbol) ")")))
+    (if pack
+        (intern name pack)
+        (make-symbol name))))
 ;;;----------------------------------------------------------------------------
 ;; Returns the symbol which is on the property list at SYSTEM::SETF-FUNCTION
 (defun get-setf-symbol (symbol)
