@@ -270,7 +270,9 @@ LISPFUNN(machine_instance,0)
 
 #if defined(TCPCONN)
 
-extern_C RET_INET_ADDR_TYPE inet_addr (INET_ADDR_CONST char* host);
+#ifndef WIN32
+  extern_C RET_INET_ADDR_TYPE inet_addr (INET_ADDR_CONST char* host);
+#endif
 
 #if !defined(HAVE_INET_PTON)
 # Newer RPCs specify that FQDNs can start with a digit, but can never consist
@@ -351,8 +353,6 @@ local SOCKET with_hostname(host,port,connector)
         { sock_set_errno(EPROTOTYPE); return INVALID_SOCKET; } # Not an Internet host!
     }
   }
-
-extern_C int setsockopt (int fd, int level, int optname, SETSOCKOPT_CONST SETSOCKOPT_ARG_T optval, SETSOCKOPT_OPTLEN_T optlen);
 
 #endif # TCPCONN
 
@@ -820,6 +820,7 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 
   if (eq(serv,unbound) || eq(serv,S(Kdefault)) || nullp(serv)) {
     var uintL count = 0;
+    #ifndef WIN32
     begin_system_call();
     for (; (se = getservent()); count++) {
       end_system_call();
@@ -829,6 +830,20 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
     }
     endservent();
     end_system_call();
+    #else # WIN32 does not have getservent()
+    var uintL port;
+    begin_system_call();
+    for (port = 0; port < 0x10000; port++) {
+      se = getservbyport(port,proto);
+      if (!(se==NULL)) {
+        end_system_call();
+        SERVENT_TO_STACK(se);
+        pushSTACK(vectorof(4));
+        begin_system_call();
+      }
+    }
+    end_system_call();
+    #endif
     value1 = listof(count); mv_count = 1;
   } elif (stringp(serv)) {
     with_string_0(serv,Symbol_value(S(ascii)),serv_asciz,
