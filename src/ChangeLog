@@ -4,6 +4,8 @@
 	fixed GC-safety errors
 	(LAUNCH): return NIL when :WAIT was NIL
 	[UNIX/RISCOS]: fixed GC-safety errors; handle :PRIORITY argument
+	* unixconf.h.in (HAVE_NICE): added
+	* configure.in: check for nice(2)
 
 2003-05-24  Sam Steingold  <sds@gnu.org>
 

@@ -499,6 +499,10 @@
 /* Define if you have the usleep() function. */
 #undef HAVE_USLEEP
 
+/* AC_CHECK_FUNCS(nice) */
+/* Define if you have the nice() function. */
+#undef HAVE_NICE
+
 /* CL_LOCALTIME */
 /* Define as const if the declaration of localtime() needs const. */
 #undef LOCALTIME_CONST
