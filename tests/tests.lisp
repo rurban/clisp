@@ -115,8 +115,7 @@
     (with-open-file (log logname :direction :output
                                  #+SBCL :if-exists #+SBCL :supersede
                                  #+ANSI-CL :if-exists #+ANSI-CL :new-version)
-      (let ((*package* *package*)
-            (*print-pretty* nil))
+      (let ((*package* *package*) (*print-circle* t) (*print-pretty* nil))
         (setf (values total-count error-count)
               (funcall tester s log ignore-errors)))))
   (when (zerop error-count) (delete-file logname))
