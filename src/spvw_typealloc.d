@@ -260,6 +260,9 @@ global object allocate_imm_s32string (uintL len) {
 # can trigger GC
 global object reallocate_small_string (object string, sintBWL newtype) {
   var uintL len = Sstring_length(string); # known to be > 0
+ #ifdef DEBUG_SPVW
+  var uintL size = objsize(ThePointer(string));
+ #endif
   pushSTACK(string);
   var object newstring =
     (newtype == Rectype_S32string
@@ -289,7 +292,7 @@ global object reallocate_small_string (object string, sintBWL newtype) {
     ptr = (Siarray)TheRecord(string);
   #endif
   var object mutated_string = bias_type_pointer_object(varobject_bias,Array_type_string,ptr); # mutation!
-  var uintL xlength = /* make sure that objsize(string) == objsize(mutated_string)*/
+  var uintL xlength = /* objsize(string) == objsize(mutated_string) !! */
     (oldtype == Rectype_S8string ? size_s8string(len) : size_s16string(len))
     - size_siarray(0);
   ptr->GCself = mutated_string; # works only if SPVW_MIXED!
@@ -300,6 +303,9 @@ global object reallocate_small_string (object string, sintBWL newtype) {
  #endif
   ptr->data = newstring;
   clr_break_sem_1(); # permit interrupts again
+ #ifdef DEBUG_SPVW
+  if (size != objsize(ThePointer(mutated_string))) abort();
+ #endif
   return mutated_string;
 }
 
