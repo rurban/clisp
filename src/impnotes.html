@@ -487,9 +487,9 @@ The possible results of <CODE>type-of</CODE> are:
  <TR> <TD>
  <CODE>package</CODE> <CODE>hash-table</CODE> <CODE>readtable</CODE> <CODE>pathname</CODE> <CODE>logical-pathname</CODE> <CODE>random-state</CODE> <CODE>byte</CODE>
  <TR> <TD>
- <CODE>load-time-eval</CODE> <CODE>symbol-macro</CODE> <CODE>foreign-variable</CODE> <CODE>foreign-function</CODE> <CODE>read-label</CODE>
+ <CODE>load-time-eval</CODE> <CODE>symbol-macro</CODE> <CODE>foreign-variable</CODE> <CODE>foreign-function</CODE> <CODE>weak-pointer</CODE>
  <TR> <TD>
- <CODE>frame-pointer</CODE> <CODE>system-internal</CODE>
+ <CODE>read-label</CODE> <CODE>frame-pointer</CODE> <CODE>system-internal</CODE>
  <TR> <TD>
  <CODE>address</CODE> (should not occur)
  <TR> <TD>
@@ -3035,7 +3035,19 @@ be treated like the default-language.) You can then access the localized value
 through the function call
   <CODE>(<STRONG>localized</STRONG> <VAR>symbol</VAR> [<VAR>language</VAR>])</CODE>.
 
-<H3>90.4. Finalization</H3>
+<H3>90.4. Weak Pointers</H3>
+
+A weak pointer is an object holding a reference to a given object, without
+keeping the latter from being garbage-collected.
+<P>
+<CODE>(<STRONG>make-weak-pointer</STRONG> <VAR>value</VAR>)</CODE> returns a fresh weak pointer referring to <VAR>value</VAR>.
+<P>
+<CODE>(<STRONG>weak-pointer-p</STRONG> <VAR>object</VAR>)</CODE> returns true if the <VAR>object</VAR> is of type <CODE><STRONG>weak-pointer</STRONG></CODE>.
+<P>
+<CODE>(<STRONG>weak-pointer-value</STRONG> <VAR>weak-pointer</VAR>)</CODE> returns two values: The original value and
+<CODE>t</CODE>, if the value has not yet been garbage collected, else <CODE>nil</CODE> and <CODE>nil</CODE>.
+
+<H3>90.5. Finalization</H3>
 
 Calling <CODE>(<STRONG>finalize</STRONG> <VAR>object</VAR> <VAR>function</VAR>)</CODE> has the effect that when the specified
 object is being garbage collected, <CODE>(funcall <VAR>function</VAR> <VAR>object</VAR>)</CODE> will be executed.
@@ -3053,7 +3065,7 @@ Lisp objects&quot; again.
 <P>
 No finalization request will be executed more than once.
 
-<H3>90.5. The Prompt</H3>
+<H3>90.6. The Prompt</H3>
 
 The variable <CODE>sys::*prompt*</CODE> controls the appearance of the
 prompt.  When its value is a function, it is called and it's value is

@@ -338,8 +338,8 @@ The possible results of TYPE-OF are:
  STREAM FILE-STREAM SYNONYM-STREAM BROADCAST-STREAM CONCATENATED-STREAM
  TWO-WAY-STREAM ECHO-STREAM STRING-STREAM
  PACKAGE HASH-TABLE READTABLE PATHNAME LOGICAL-PATHNAME RANDOM-STATE BYTE
- LOAD-TIME-EVAL SYMBOL-MACRO FOREIGN-VARIABLE FOREIGN-FUNCTION READ-LABEL
- FRAME-POINTER SYSTEM-INTERNAL
+ LOAD-TIME-EVAL SYMBOL-MACRO FOREIGN-VARIABLE FOREIGN-FUNCTION WEAK-POINTER
+ READ-LABEL FRAME-POINTER SYSTEM-INTERNAL
  ADDRESS (should not occur)
  any other symbol (structure types or CLOS classes)
  a class (CLOS classes without proper name)
@@ -2366,7 +2366,20 @@ be treated like the default-language.) You can then access the localized value
 through the function call
   (LOCALIZED symbol [language]).
 
-90.4. Finalization
+90.4. Weak Pointers
+-------------------
+
+A weak pointer is an object holding a reference to a given object, without
+keeping the latter from being garbage-collected.
+
+(MAKE-WEAK-POINTER value) returns a fresh weak pointer referring to value.
+
+(WEAK-POINTER-P object) returns true if the object is of type WEAK-POINTER.
+
+(WEAK-POINTER-VALUE weak-pointer) returns two values: The original value and
+T, if the value has not yet been garbage collected, else NIL and NIL.
+
+90.5. Finalization
 ------------------
 
 Calling (FINALIZE object function) has the effect that when the specified
@@ -2385,8 +2398,8 @@ Lisp objects" again.
 
 No finalization request will be executed more than once.
 
-90.5 The Prompt
----------------
+90.6. The Prompt
+----------------
 
 The variable `sys::*prompt*' controls the appearance of the prompt.
 When its value is a function, it is called and it's value is printed

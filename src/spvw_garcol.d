@@ -1542,6 +1542,7 @@
   local void gar_col_normal()
     { var uintL gcstart_space; # belegter Speicher bei GC-Start
       var uintL gcend_space; # belegter Speicher bei GC-Ende
+      var object all_weakpointers; # Liste der aktiven Weak-Pointer
       var object all_finalizers; # Liste der Finalisierer
       #ifdef GC_CLOSES_FILES
       var object files_to_close; # Liste der zu schließenden Files
@@ -1584,18 +1585,19 @@
       #endif
       CHECK_GC_GENERATIONAL();
       # Markierungsphase:
-        all_finalizers = O(all_finalizers); O(all_finalizers) = NIL;
+        all_weakpointers = O(all_weakpointers); O(all_weakpointers) = Fixnum_0;
+        all_finalizers = O(all_finalizers); O(all_finalizers) = Fixnum_0;
         #ifdef GC_CLOSES_FILES
         files_to_close = O(open_files); O(open_files) = NIL; # O(files_to_close) = NIL;
         #endif
         gc_markphase();
-        # (noch unmarkierte Liste all_finalizers aufspalten in zwei Listen:
+        # (noch unmarkierte) Liste all_finalizers aufspalten in zwei Listen:
         { var object Lu = all_finalizers;
           var object* L1 = &O(all_finalizers);
           var object* L2 = &O(pending_finalizers);
-          until (symbolp(*L2)) # eigentlich: until (nullp(*L2))
+          until (eq(*L2,Fixnum_0))
             { L2 = &TheFinalizer(*L2)->fin_cdr; }
-          until (symbolp(Lu)) # eigentlich: until (nullp(Lu))
+          until (eq(Lu,Fixnum_0))
             { # Wenn fin_alive tot ist, wird der Finalisierer weggeworfen,
               # ohne ausgeführt zu werden:
               if (!alive(TheFinalizer(Lu)->fin_alive))
@@ -1610,7 +1612,7 @@
                     { *L2 = Lu; L2 = &TheFinalizer(Lu)->fin_cdr; Lu = *L2; }
                 }
             }
-          *L1 = NIL; *L2 = NIL;
+          *L1 = Fixnum_0; *L2 = Fixnum_0;
         }
         gc_mark(O(all_finalizers)); gc_mark(O(pending_finalizers)); # Beide Listen jetzt markieren
         #ifdef GC_CLOSES_FILES
@@ -1632,6 +1634,35 @@
         }
         gc_mark(O(open_files)); gc_mark(O(files_to_close)); # Beide Listen jetzt markieren
         #endif
+        # (noch unmarkierte) Liste all_weakpointers verkürzen:
+        { var object Lu = all_weakpointers;
+          var object* L1 = &O(all_weakpointers);
+          until (eq(Lu,Fixnum_0))
+            { if (!alive(Lu))
+                # The weak-pointer itself is being GCed. Don't care about its
+                # contents. Remove it from the list.
+                { Lu = TheWeakpointer(Lu)->wp_cdr; }
+                else
+                { if (!alive(TheWeakpointer(Lu)->wp_value))
+                    # The referenced value is being GCed. Break the
+                    # weak-pointer and remove it from the list.
+                    { var object next = TheWeakpointer(Lu)->wp_cdr;
+                      TheWeakpointer(Lu)->wp_cdr = unbound;
+                      TheWeakpointer(Lu)->wp_value = unbound;
+                      Lu = next;
+                    }
+                    else
+                    # The referenced value is still alive. Keep the
+                    # weak-pointer in the list.
+                    { *L1 = Lu; L1 = &TheWeakpointer(Lu)->wp_cdr; Lu = *L1; }
+                }
+            }
+          *L1 = Fixnum_0;
+        }
+        { var object L = O(all_weakpointers); # mark the list
+          until (eq(L,Fixnum_0))
+            { gc_mark(L); L = TheWeakpointer(L)->wp_cdr; }
+        }
       # Jetzt sind alle aktiven Objekte markiert:
       # Aktive Objekte variabler Länge wie auch aktive Zwei-Pointer-Objekte tragen
       # in ihrem ersten Byte ein gesetztes Markierungsbit, aktive SUBRs tragen
@@ -1732,6 +1763,8 @@
         # Durchlaufen durch alle LISP-Objekte und aktualisieren:
           # Update pointers in all LISP-stacks:
             update_STACKs();
+          # Update weak-pointers:
+            update_weakpointers_mod();
           # Programmkonstanten aktualisieren:
             update_tables();
           #ifndef MORRIS_GC
@@ -1991,7 +2024,7 @@
   local void gar_col_done (void);
   local void gar_col_done()
     { # Finalisierer-Funktionen abarbeiten:
-      until (symbolp(O(pending_finalizers))) # eigentlich: until (nullp(...))
+      until (eq(O(pending_finalizers),Fixnum_0))
         { var object obj = O(pending_finalizers);
           O(pending_finalizers) = TheFinalizer(obj)->fin_cdr;
           pushSTACK(TheFinalizer(obj)->fin_trigger);
@@ -2262,6 +2295,8 @@
         # Durchlaufen durch alle LISP-Objekte und aktualisieren:
           # Pointer im LISP-Stack aktualisieren:
             update_STACKs();
+          # Update weak-pointers:
+            update_weakpointers_mod();
           # Programmkonstanten aktualisieren:
             update_tables();
           # Pointer in den Cons-Zellen aktualisieren:
@@ -2462,6 +2497,8 @@
             #define update_stackobj  update_stackobj_normal
             update_STACKs();
             #undef update_stackobj
+          # Update weak-pointers:
+            update_weakpointers_mod();
           # Programmkonstanten aktualisieren:
             update_tables();
           # Pointer in den Cons-Zellen aktualisieren:

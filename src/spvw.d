@@ -1170,6 +1170,8 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
               dotimesC(count,*module->otab_size, { *ptr++ = NIL; });
             });
         #endif
+        O(all_weakpointers) = Fixnum_0;
+        O(all_finalizers) = Fixnum_0; O(pending_finalizers) = Fixnum_0;
       }
   # andere Module grob initialisieren:
     local void init_other_modules_1 (void);
