@@ -2721,7 +2721,7 @@ for-value   NIL or T
 ;; returns a function name, that is composed by the package and the printname
 ;; of a given function name, a hyphen and a suffix.
 (defun symbol-suffix (funname suffix)
-  (if (and (symbolp funname) (null (symbol-package funname))
+  (if (and (symbolp funname) (not (and funname (symbol-package funname)))
            (function-name-p suffix))
     suffix
     (multiple-value-bind (name pack) (get-funname-string+pack funname)
