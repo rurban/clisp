@@ -854,7 +854,7 @@ fi
 # Main compiler dependencies:
 
 if [ $XCC_GCC = true ] ; then
-  XCC_GCC_VERSION=`$XCC -v 2>&1 | tail -1 | sed -e 's/.*version //g' -e 's/gcc //'`
+  XCC_GCC_VERSION=`$XCC -v 2>&1 | grep version | tail -1 | sed -e 's/.*version //g' -e 's/gcc //'`
   XCFLAGS='-W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type '
   if [ $HOS = os2 ] ; then
     # DOS has a very limited command line length
@@ -2392,7 +2392,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   if [ $f = spvw -o $f = hashtabl ] ; then
     depends=$depends' aridecl'
   fi
-  if [ $f = charstrg ] && [ "${with_unicode}" != "0" ] ; then
+  if [ $f = charstrg -a "${with_unicode}" != "0" ] ; then
     depends=$depends${UNICODE_INCLUDES}
     dependsc=${dependsc}${UNICODE_EXTRA};
   fi
@@ -2431,7 +2431,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     fi
   fi
   if [ $f = modules ] ; then
-    if [ $HOS = unix ] && [ $CROSS = false ] ; then
+    if [ $HOS = unix -a $CROSS = false ] ; then
       dependsc=$dependsc' clisp.h'
     else
       flags=$flags' -DNO_CLISP_H'
@@ -3664,7 +3664,7 @@ cat <<!!
 	-\$(RMRF) locale
 !!
 fi
-if [ $HOS = unix ] && [ $CROSS = false ] ; then
+if [ $HOS = unix -a $CROSS = false ] ; then
 cat <<!!
 	-\$(RMRF) \`ls -d ${SRCTOPDIR}modules/*/. | sed -e 's,/\.\$\$,,' -e 's,^.*/,,' | grep -v '^CVS\$\$'\`
 !!
