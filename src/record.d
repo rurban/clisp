@@ -671,7 +671,7 @@ LISPFUN(pallocate_instance,1,0,rest,nokey,0,NIL)
     { var object arglist = listof(argcount);
       pushSTACK(arglist);
       fehler(program_error,
-             GETTEXT("ALLOCATE-INITIALIZE: keyword argument list ~ has an odd length")
+             GETTEXT("ALLOCATE-INSTANCE: keyword argument list ~ has an odd length")
             );
     }
   set_args_end_pointer(rest_args_pointer); # STACK aufräumen
