@@ -1,5 +1,11 @@
 2002-04-24  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 548362 ]: inspector deletes wrong package on exit
+	* inspect.lisp (inspect): keep the temp inspect package in a
+	lexical variable in addition to *PACKAGE*
+
+2002-04-24  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (init_object_tab) [UNIX_CYGWIN32]: add :CYGWIN to *FEATURES*
 
 2002-04-24  Sam Steingold  <sds@gnu.org>

@@ -559,6 +559,7 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
         (when (> debug 0)
           (format t "~s: connection: ~s (keep-alive: ~s)~%"
                   'http-command (subseq line 12) keep-alive))
+        #+discard-keep-alive
         (when keep-alive
           (setq keep-alive nil)
           (when (> debug 0)
@@ -631,21 +632,20 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
 ;;;
 
 ;;;###autoload
-(defun inspect (object &key (frontend *inspect-frontend*)
-                (browser *inspect-browser*))
+(defun inspect (object &key ((:frontend *inspect-frontend*) *inspect-frontend*)
+                ((:browser *inspect-browser*) *inspect-browser*))
   (let* ((*print-array* nil) (*print-pretty* t)
          (*print-circle* t) (*print-escape* t)
          (*print-lines* *inspect-print-lines*)
          (*print-level* *inspect-print-level*)
          (*print-length* *inspect-print-length*)
-         (*package* (make-package (gensym "INSPECT-TMP-PACKAGE-")))
-         (*inspect-unbound-value* (intern "#<unbound>" *package*))
-         (*inspect-frontend* frontend)
-         (*inspect-browser* browser))
+         (tmp-pack (make-package (gensym "INSPECT-TMP-PACKAGE-")))
+         (*package* tmp-pack)
+         (*inspect-unbound-value* (intern "#<unbound>" tmp-pack)))
     (unwind-protect
-         (inspect-frontend (inspect-backend object) frontend)
-      (inspect-finalize frontend)
-      (delete-package *package*))
+         (inspect-frontend (inspect-backend object) *inspect-frontend*)
+      (inspect-finalize *inspect-frontend*)
+      (delete-package tmp-pack))
     (values)))
 
 ;;; inspect.lisp ends here
