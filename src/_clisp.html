@@ -353,8 +353,12 @@ will be bound to a list of strings, representing the <var>argument</var>s.
 The first line of <var>lispfile</var> may start with <code>#!</code>,
 thus permitting <code>clisp</code> to be used as a script interpreter.
 #endif
-If <var>lispfile</var> is <code>-</code>, the standard input is used instead of
-a file.
+If <var>lispfile</var> is <code>-</code>,
+the standard input is used instead of a file.
+If <var>lispfile</var> is an empty string <code>""</code>,
+the rest of the arguments is still available in <code>*args*</code>,
+for parsing by the <code><a href="impnotes.html#image">init-function</a></code>
+of the current image.
 This option must be the last one.
 No <a href="#opt-norc">RC file</a> will be executed.<p/></dd>
 
