@@ -11,7 +11,7 @@
    #:hostent #:hostent-name #:hostent-aliases #:hostent-addr-list
    #:hostent-addrtype #:file-owner #:physical-memory
    #+(or :win32 :cygwin) #:file-properties
-   #:priority #:process-id
+   #:priority #:process-id #:openlog #:setlogmask #:syslog #:closelog
    #:erf #:erfc #:j0 #:j1 #:jn #:y0 #:y1 #:yn #:gamma #:lgamma))
 
 (setf (package-lock "EXT") nil)
@@ -20,6 +20,11 @@
 (pushnew :syscalls *features*)
 (in-package "POSIX")
 
+;;; ============================================================
+(defun syslog (severity facility format &rest args)
+  (%syslog severity facility (apply #'format nil format args)))
+(define-compiler-macro syslog (severity facility format &rest args)
+  `(%syslog ,severity ,facility (format nil ,format ,@args)))
 ;;; ============================================================
 (defsetf priority (pid &optional which) (value)
   `(set-priority ,pid ,which ,value))

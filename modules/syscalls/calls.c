@@ -66,6 +66,9 @@
 #if defined(HAVE_LIMITS_H)
 # include <limits.h>
 #endif
+#if defined(HAVE_SYSLOG_H)
+# include <syslog.h>
+#endif
 
 #include <stdio.h>             /* for BUFSIZ */
 
@@ -166,7 +169,56 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
 
 #endif  /* fcntl | WIN32_NATIVE */
 
-/* process priority */
+/* ============================== syslog ============================== */
+#if defined(HAVE_SYSLOG)
+DEFCHECKER(check_syslog_severity,prefix=LOG,reverse=sint_to_I,  \
+           EMERG ALERT CRIT ERR WARNING NOTICE INFO DEBUG)
+DEFCHECKER(check_syslog_facility,default=LOG_USER,prefix=LOG,\
+           KERN USER MAIL NEWS UUCP DAEMON AUTH CRON LPR SYSLOG AUTHPRIV FTP \
+           LOCAL0 LOCAL1 LOCAL2 LOCAL3 LOCAL4 LOCAL5 LOCAL6 LOCAL7)
+DEFFLAGSET(syslog_opt_flags,LOG_PID LOG_CONS LOG_NDELAY LOG_ODELAY LOG_NOWAIT)
+#if defined(HAVE_OPENLOG)
+DEFUN(POSIX:OPENLOG,ident &key :PID :CONS :NDELAY :ODELAY :NOWAIT :FACILITY) {
+  int facility = check_syslog_facility(popSTACK());
+  int logopt = syslog_opt_flags();
+  with_string_0(check_string(popSTACK()),GLO(misc_encoding),ident, {
+      begin_system_call();
+      openlog(ident,logopt,facility);
+      end_system_call();
+    });
+  VALUES0;
+}
+#endif
+#if defined(HAVE_SETLOGMASK)
+DEFUN(POSIX:SETLOGMASK, maskpri) {
+  int priority = (missingp(STACK_0) ? (skipSTACK(1),0) /*query*/ :
+                  check_syslog_severity(popSTACK()));
+  int logmask;
+  begin_system_call();
+  logmask = setlogmask(LOG_MASK(priority));
+  end_system_call();
+  VALUES1(check_syslog_severity_reverse(logmask));
+}
+#endif
+DEFUN(POSIX::%SYSLOG, severity facility message) {
+  int priority =
+    check_syslog_severity(STACK_2) | check_syslog_facility(STACK_1);
+  with_string_0(STACK_0 = check_string(STACK_0),GLO(misc_encoding),mesg, {
+      begin_system_call();
+      syslog(priority,mesg);
+      end_system_call();
+    });
+  VALUES0; skipSTACK(3);
+}
+#if defined(HAVE_CLOSELOG)
+DEFUN(POSIX:CLOSELOG,) {
+  begin_system_call(); closelog(); end_system_call();
+  VALUES0;
+}
+#endif
+#endif  /* HAVE_SYSLOG */
+
+/* ========================== process priority ========================== */
 #if defined(WIN32_NATIVE)
 DEFCHECKER(check_priority_value,suffix=PRIORITY_CLASS,default=0,        \
            REALTIME HIGH ABOVE-NORMAL NORMAL BELOW-NORMAL LOW IDLE)
