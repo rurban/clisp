@@ -1376,7 +1376,7 @@ global int main()
 # printf("typedef Values subr_rest_function_t (uintC argcount, object* rest_args_pointer);\n");
   printf("extern struct subr_tab_ {\n");
   #undef LISPFUN
-  #define LISPFUN(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  \
+  #define LISPFUN(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords) \
     printf("  subr_t %s;\n",STRING(D_##name));
   #include "subr.c"
   #undef LISPFUN

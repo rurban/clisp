@@ -352,7 +352,7 @@ nonreturning_function(global, OS_filestream_error, (object stream)) {
   }
 }
 
-LISPFUN(error,1,0,rest,nokey,0,NIL)
+LISPFUN(error,seclass_default,1,0,rest,nokey,0,NIL)
 /* (ERROR errorstring {expr})
  Does not return.
  (defun error (errorstring &rest args)
@@ -434,7 +434,7 @@ local object convert_simple_condition (object type) {
   return type; /* not found -> leave type unchanged */
 }
 
-LISPFUN(cerror_of_type,3,0,rest,nokey,0,NIL)
+LISPFUN(cerror_of_type,seclass_default,3,0,rest,nokey,0,NIL)
 /* (SYSTEM::CERROR-OF-TYPE continue-format-string type {keyword value}*
                            error-format-string {arg}*)
  (defun cerror-of-type (continue-format-string type &rest arguments)
@@ -497,7 +497,7 @@ LISPFUN(cerror_of_type,3,0,rest,nokey,0,NIL)
   }
 }
 
-LISPFUN(error_of_type,2,0,rest,nokey,0,NIL)
+LISPFUN(error_of_type,seclass_default,2,0,rest,nokey,0,NIL)
 /* (SYSTEM::ERROR-OF-TYPE type {keyword value}* errorstring {expr}*)
  does not return.
  (defun error-of-type (type &rest arguments)
@@ -638,7 +638,7 @@ global void tast_break (void)
   }
 }
 
-LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
+LISPFUN(clcs_signal,seclass_default,1,0,rest,nokey,0,NIL)
 /* (SIGNAL datum {arg}*), CLtL2 p. 888
  (defun signal (datum &rest arguments)
    (let ((condition ; CLtL2 p. 918 specifies this

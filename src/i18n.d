@@ -15,7 +15,7 @@
 # =========== Old-style internationalization, for CLISP itself only ===========
 
 # (SYS::CURRENT-LANGUAGE) returns the current language.
-LISPFUNN(current_language,0) {
+LISPFUNNR(current_language,0) {
   VALUES1(O(current_language));
 }
 
@@ -48,8 +48,8 @@ LISPFUNN(set_current_language,1) {
   VALUES1(O(current_language)); skipSTACK(1);
 }
 
-# (SYS::TEXT english) returns the message in the current language
-LISPFUNN(text,1) {
+LISPFUNNR(text,1)
+{ /* (SYS::TEXT english) returns the message in the current language */
  #ifndef GNU_GETTEXT
   VALUES1(ENGLISH ? (object)STACK_0 : NIL);
  #else
@@ -123,10 +123,9 @@ local inline object do_ngettext (const char* msgid, const char* msgid_plural,
 
 #endif
 
-LISPFUN(gettext,1,2,norest,nokey,0,NIL)
-# (I18N:GETTEXT msgid [domain [category]]) returns the translation of
-# msgid in the given domain, depending on the given category.
-{
+LISPFUN(gettext,seclass_read,1,2,norest,nokey,0,NIL)
+{ /* (I18N:GETTEXT msgid [domain [category]]) returns the translation of
+ msgid in the given domain, depending on the given category. */
   var object msgid = STACK_2;
   if (!stringp(msgid))
     fehler_string(msgid);
@@ -151,11 +150,10 @@ LISPFUN(gettext,1,2,norest,nokey,0,NIL)
   skipSTACK(3);
 }
 
-LISPFUN(ngettext,3,2,norest,nokey,0,NIL)
-# (I18N:NGETTEXT msgid msgid_plural n [domain [category]]) returns the plural
-# form of the translation for of msgid and n in the given domain, depending
-# on the given category.
-{
+LISPFUN(ngettext,seclass_read,3,2,norest,nokey,0,NIL)
+{ /* (I18N:NGETTEXT msgid msgid_plural n [domain [category]]) returns
+ the plural form of the translation for of msgid and n in the given domain,
+ depending on the given category. */
   var object msgid = STACK_4;
   if (!stringp(msgid))
     fehler_string(msgid);
@@ -202,9 +200,8 @@ LISPFUN(ngettext,3,2,norest,nokey,0,NIL)
   skipSTACK(5);
 }
 
-LISPFUNN(textdomain,0)
-# (I18N:TEXTDOMAIN) returns the current default domain.
-{
+LISPFUNNR(textdomain,0)
+{ /* (I18N:TEXTDOMAIN) returns the current default domain. */
   #ifdef GNU_GETTEXT
   var const char* domain;
   begin_system_call();
@@ -217,8 +214,7 @@ LISPFUNN(textdomain,0)
 }
 
 LISPFUNN(set_textdomain,1)
-# (I18N::SET-TEXTDOMAIN domain) sets the default domain.
-{
+{ /* (I18N::SET-TEXTDOMAIN domain) sets the default domain. */
   var object domain = popSTACK();
   if (!stringp(domain))
     fehler_string(domain);
@@ -233,10 +229,9 @@ LISPFUNN(set_textdomain,1)
   VALUES1(domain);
 }
 
-LISPFUNN(textdomaindir,1)
-# (I18N::TEXTDOMAINDIR domain) returns the message catalog directory
-# for the given domain.
-{
+LISPFUNNR(textdomaindir,1)
+{ /* (I18N::TEXTDOMAINDIR domain) returns the message catalog directory
+ for the given domain. */
   var object domain = popSTACK();
   if (!stringp(domain))
     fehler_string(domain);
@@ -254,9 +249,8 @@ LISPFUNN(textdomaindir,1)
 }
 
 LISPFUNN(set_textdomaindir,2)
-# (I18N::SET-TEXTDOMAINDIR domain directory) sets the message catalog directory
-# for the given domain.
-{
+{ /* (I18N::SET-TEXTDOMAINDIR domain directory) sets the message
+  catalog directory for the given domain. */
   var object domain = STACK_1;
   if (!stringp(domain))
     fehler_string(domain);

@@ -5365,11 +5365,7 @@ typedef struct {
     uintB rest_flag;        # flag for arbitrary number of arguments
     uintB key_flag;         # flag for keywords
     uintW key_anz;          # number of keyword parameter
-    #if defined(NO_TYPECODES) && (alignment_long < 4) && defined(GNU)
-      # Force all Subrs to be allocated with a 4-byte alignment. GC needs this.
-      # __attribute__ ((aligned (4))) below is not sufficient with gcc-2.95.2.
-      uintW dummy;
-    #endif
+    uintW seclass; /* side-effect class */
   } subr_t
     #if defined(NO_TYPECODES) && (alignment_long < 4) && defined(GNU)
       # Force all Subrs to be allocated with a 4-byte alignment. GC needs this.
@@ -5429,6 +5425,26 @@ typedef struct {
   } subr_argtype_t;
 # Conversion: see SPVW:
 # extern subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz, subr_rest_t rest_flag, subr_key_t key_flag);
+
+/* side-effect class:
+ read_bit IS NOT SET when the function looks only at its arguments
+  (pointers, content only for numbers or similar unmodifiable data-structures)
+  and does not read any global variables.
+  such a function, if called twice with the same arguments
+  always returns the same result (according to EQL).
+ write_bit IS NOT SET when the function may modify the contents
+  of its arguments or values of global variables.
+ foldable IS SET when the function allows Constant-Folding:
+  two calls with identical arguments give the same result, and calls with
+  constant arguments can be evaluated at compile time.
+  foldable ==> not read_bit && not write_bit */
+#define seclass_foldable  (1<<0)
+#define seclass_read      (1<<1)
+#define seclass_write     (1<<2)
+/* by default, the function may do all nasty things */
+#define seclass_default   (seclass_read | seclass_write)
+/* no side effects, but not foldable */
+#define seclass_no_se     0
 
 # Read-Label
 #ifdef TYPECODES

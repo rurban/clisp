@@ -2516,151 +2516,8 @@ for-value   NIL or T
 ;;                      at the end and which executes the call.
 (defun c-DIRECT-FUNCTION-CALL (args applyargs fun req opt rest-p key-p keylist
                                subr-flag call-code-producer)
-  (let* ((foldable nil)
-         (sideeffects ; side-effect-class of the function call itself
-           (if (not subr-flag)
-             '(T . T) ; no SUBR -> can not decide
-             (case fun ; fun a SUBR
-               (;; side-effect-class (NIL . NIL) is assigned to those functions
-                ;; that look only at their arguments (Pointer, content only for
-                ;; numbers or similar unmodifiable data-structures)
-                ;; and do not access any global variables.
-                ;; a function, if called twice with the same arguments
-                ;; always returns the same result (according to EQL),
-                ;; allows Constant-Folding: If all arguments are constants
-                ;; and if the function call is executable, the function
-                ;; call may be replaced by the constant function result.
-                ;;
-                ;; This is the list of SUBRs which have no side effects,
-                ;; don't depend on global variables or such, don't even look
-                ;; "into" their arguments, and are "foldable" (two calls with
-                ;; identical arguments give the same result, and calls with
-                ;; constant arguments can be evaluated at compile time).
-                (SYSTEM::%FUNTABREF
-                 ARRAY-ELEMENT-TYPE ARRAY-RANK ADJUSTABLE-ARRAY-P
-                 STANDARD-CHAR-P GRAPHIC-CHAR-P STRING-CHAR-P ALPHA-CHAR-P
-                 UPPER-CASE-P LOWER-CASE-P BOTH-CASE-P DIGIT-CHAR-P
-                 ALPHANUMERICP CHAR= CHAR/= CHAR< CHAR> CHAR<= CHAR>=
-                 CHAR-EQUAL CHAR-NOT-EQUAL CHAR-LESSP CHAR-GREATERP
-                 CHAR-NOT-GREATERP CHAR-NOT-LESSP CHAR-CODE CODE-CHAR
-                 CHAR-UPCASE CHAR-DOWNCASE DIGIT-CHAR CHAR-INT INT-CHAR
-                 CHAR-NAME
-                 SPECIAL-OPERATOR-P
-                 ENDP
-                 IDENTITY EQ EQL CONSP ATOM SYMBOLP STRINGP NUMBERP
-                 NULL NOT SYSTEM::CLOSUREP LISTP INTEGERP SYSTEM::FIXNUMP
-                 RATIONALP FLOATP SYSTEM::SHORT-FLOAT-P SYSTEM::SINGLE-FLOAT-P
-                 SYSTEM::DOUBLE-FLOAT-P SYSTEM::LONG-FLOAT-P REALP COMPLEXP
-                 STREAMP SYSTEM::FILE-STREAM-P SYSTEM::SYNONYM-STREAM-P
-                 SYSTEM::BROADCAST-STREAM-P SYSTEM::CONCATENATED-STREAM-P
-                 SYSTEM::TWO-WAY-STREAM-P SYSTEM::ECHO-STREAM-P
-                 SYSTEM::STRING-STREAM-P
-                 RANDOM-STATE-P READTABLEP HASH-TABLE-P PATHNAMEP
-                 HASH-TABLE-TEST
-                 SYSTEM::LOGICAL-PATHNAME-P CHARACTERP FUNCTIONP PACKAGEP
-                 ARRAYP SIMPLE-ARRAY-P BIT-VECTOR-P VECTORP SIMPLE-VECTOR-P
-                 SIMPLE-STRING-P SIMPLE-BIT-VECTOR-P
-                 SYSTEM::SYMBOL-MACRO-P CLOS::STRUCTURE-OBJECT-P
-                 CLOS::STD-INSTANCE-P
-                 ZEROP PLUSP MINUSP ODDP EVENP = /= < > <= >= MAX MIN
-                 + - * / 1+ 1- CONJUGATE GCD LCM ISQRT
-                 RATIONAL RATIONALIZE NUMERATOR DENOMINATOR FLOOR CEILING
-                 TRUNCATE ROUND MOD REM DECODE-FLOAT SCALE-FLOAT FLOAT-RADIX
-                 FLOAT-SIGN FLOAT-DIGITS FLOAT-PRECISION INTEGER-DECODE-FLOAT
-                 COMPLEX REALPART IMAGPART LOGIOR LOGXOR LOGAND LOGEQV LOGNAND
-                 LOGNOR LOGANDC1 LOGANDC2 LOGORC1 LOGORC2 BOOLE LOGNOT LOGTEST
-                 LOGBITP ASH LOGCOUNT INTEGER-LENGTH LDB LDB-TEST MASK-FIELD
-                 DPB DEPOSIT-FIELD ! EXQUO
-                 #+syscalls posix::gamma #+syscalls posix::lgamma
-                 #+syscalls posix::erf #+syscalls posix::erfc
-                 #+syscalls posix::j0 #+syscalls posix::j1 #+syscalls posix::jn
-                 #+syscalls posix::y0 #+syscalls posix::y1 #+syscalls posix::yn
-                ) ; all these are SUBRs without Keyword-Parameter
-                (setq foldable t)
-                '(NIL . NIL))
-               (;; This is the list of SUBRs which have no side effects,
-                ;; don't depend on global variables or such, don't even look
-                ;; "into" their arguments, but are not "foldable".
-                (VECTOR MAKE-STRING
-                 VALUES ; not foldable, in order to avoid infinite loop!
-                 CONS LIST LIST* MAKE-LIST ACONS
-                 LISP-IMPLEMENTATION-TYPE LISP-IMPLEMENTATION-VERSION
-                 SOFTWARE-TYPE SOFTWARE-VERSION
-                 SYSTEM::MAKE-LOAD-TIME-EVAL SYSTEM::MAKE-SYMBOL-MACRO
-                 SYMBOL-NAME
-                 SYSTEM::DECIMAL-STRING)
-                '(NIL . NIL))
-               (;; This is the list of SUBRs which have no side effects,
-                ;; but depend on global variables
-                ;; or look "into" their arguments.
-                (SYSTEM::SUBR-INFO
-                 SYSTEM::%COPY-SIMPLE-VECTOR AREF SVREF ROW-MAJOR-AREF
-                 ARRAY-DIMENSION ARRAY-DIMENSIONS ARRAY-TOTAL-SIZE
-                 ARRAY-IN-BOUNDS-P ARRAY-ROW-MAJOR-INDEX BIT SBIT
-                 ARRAY-HAS-FILL-POINTER-P FILL-POINTER MAKE-ARRAY
-                 CHARACTER CHAR SCHAR STRING= STRING/= STRING< STRING> STRING<=
-                 STRING>= STRING-EQUAL STRING-NOT-EQUAL STRING-LESSP
-                 STRING-GREATERP STRING-NOT-GREATERP STRING-NOT-LESSP
-                 SYSTEM::SEARCH-STRING= SYSTEM::SEARCH-STRING-EQUAL
-                 SYSTEM::STRING-BOTH-TRIM STRING-UPCASE
-                 STRING-DOWNCASE STRING-CAPITALIZE STRING NAME-CHAR SUBSTRING
-                 STRING-CONCAT
-                 MAKE-SYMBOL SYMBOL-VALUE SYMBOL-FUNCTION BOUNDP FBOUNDP
-                 VALUES-LIST MACRO-FUNCTION CONSTANTP
-                 MAKE-HASH-TABLE GETHASH HASH-TABLE-COUNT
-                 HASH-TABLE-REHASH-SIZE HASH-TABLE-REHASH-THRESHOLD
-                 HASH-TABLE-SIZE SYSTEM::HASH-TABLE-ITERATOR SXHASH
-                 GET-MACRO-CHARACTER GET-DISPATCH-MACRO-CHARACTER
-                 CAR CDR CAAR CADR CDAR CDDR CAAAR CAADR CADAR CADDR CDAAR
-                 CDADR CDDAR CDDDR CAAAAR CAAADR CAADAR CAADDR CADAAR CADADR
-                 CADDAR CADDDR CDAAAR CDAADR CDADAR CDADDR CDDAAR CDDADR CDDDAR
-                 CDDDDR LIST-LENGTH NTH FIRST SECOND THIRD FOURTH FIFTH SIXTH
-                 SEVENTH EIGHTH NINTH TENTH REST NTHCDR LAST APPEND COPY-LIST
-                 COPY-ALIST COPY-TREE REVAPPEND BUTLAST LDIFF TAILP PAIRLIS
-                 GET-UNIVERSAL-TIME GET-INTERNAL-RUN-TIME
-                 GET-INTERNAL-REAL-TIME SYSTEM::%%TIME
-                 FIND-PACKAGE PACKAGE-NAME PACKAGE-NICKNAMES PACKAGE-USE-LIST
-                 PACKAGE-USED-BY-LIST PACKAGE-SHADOWING-SYMBOLS
-                 LIST-ALL-PACKAGES FIND-SYMBOL FIND-ALL-SYMBOLS
-                 PARSE-NAMESTRING PATHNAME PATHNAME-HOST PATHNAME-DEVICE
-                 PATHNAME-DIRECTORY PATHNAME-NAME PATHNAME-TYPE
-                 PATHNAME-VERSION FILE-NAMESTRING DIRECTORY-NAMESTRING
-                 HOST-NAMESTRING MERGE-PATHNAMES ENOUGH-NAMESTRING
-                 MAKE-PATHNAME NAMESTRING TRUENAME PROBE-FILE DIRECTORY
-                 FILE-WRITE-DATE FILE-AUTHOR
-                 EQUAL EQUALP COMPILED-FUNCTION-P CLOS::GENERIC-FUNCTION-P
-                 TYPE-OF CLOS::CLASS-P CLOS:CLASS-OF COERCE
-                 SYSTEM::%RECORD-REF SYSTEM::%RECORD-LENGTH
-                 SYSTEM::%STRUCTURE-REF SYSTEM::%MAKE-STRUCTURE
-                 COPY-STRUCTURE SYSTEM::%STRUCTURE-TYPE-P SYSTEM::CLOSURE-NAME
-                 SYSTEM::CLOSURE-CODEVEC SYSTEM::CLOSURE-CONSTS
-                 SYSTEM::MAKE-CODE-VECTOR SYSTEM::%MAKE-CLOSURE
-                 CLOS:SLOT-EXISTS-P SYSTEM::SEQUENCEP ELT SUBSEQ
-                 COPY-SEQ LENGTH REVERSE CONCATENATE
-                 MAKE-SYNONYM-STREAM SYNONYM-STREAM-SYMBOL
-                 MAKE-BROADCAST-STREAM BROADCAST-STREAM-STREAMS
-                 MAKE-CONCATENATED-STREAM CONCATENATED-STREAM-STREAMS
-                 MAKE-TWO-WAY-STREAM TWO-WAY-STREAM-INPUT-STREAM
-                 TWO-WAY-STREAM-OUTPUT-STREAM MAKE-ECHO-STREAM
-                 ECHO-STREAM-INPUT-STREAM ECHO-STREAM-OUTPUT-STREAM
-                 MAKE-STRING-INPUT-STREAM
-                 SYSTEM::STRING-INPUT-STREAM-INDEX MAKE-STRING-OUTPUT-STREAM
-                 SYSTEM::MAKE-STRING-PUSH-STREAM MAKE-BUFFERED-INPUT-STREAM
-                 MAKE-BUFFERED-OUTPUT-STREAM SYSTEM::BUILT-IN-STREAM-OPEN-P
-                 INPUT-STREAM-P OUTPUT-STREAM-P FILE-LENGTH
-                 SYSTEM::BUILT-IN-STREAM-ELEMENT-TYPE
-                 GET GETF GET-PROPERTIES SYMBOL-PACKAGE SYMBOL-PLIST KEYWORDP
-                 SYSTEM::SPECIAL-VARIABLE-P GENSYM
-                 FFLOOR FCEILING FTRUNCATE FROUND
-                 EXP EXPT LOG SQRT ABS PHASE SIGNUM SIN COS TAN CIS ASIN ACOS
-                 ATAN SINH COSH TANH ASINH ACOSH ATANH FLOAT BYTE BYTE-SIZE
-                 BYTE-POSITION SYSTEM::LOG2 SYSTEM::LOG10
-                 CLOS::%ALLOCATE-INSTANCE)
-                '(T . NIL))
-               ;; All other SUBRs (which may have side effects)
-               ;; are subsumed here.
-               (t '(T . T)))))) ; maybe side-effects
-    (if (and (null *for-value*) (null (cdr sideeffects)))
+  (multiple-value-bind (reads-p writes-p foldable-p) (function-side-effect fun)
+    (if (and (null *for-value*) (null writes-p))
       ;; Do not need to call the function, just evaluate the arguments.
       (progn
         (let ((*no-code* t) (*for-value* 'NIL))
@@ -2668,7 +2525,7 @@ for-value   NIL or T
         (c-form `(PROGN ,@args ,@applyargs)))
       (let ((n (length args))
             (reqopt (+ req opt))
-            (seclass sideeffects)
+            (seclass (cons reads-p writes-p))
             (codelist '()))
         (let ((*stackz* *stackz*))
           ;; required and given optional parameters:
@@ -2889,7 +2746,7 @@ for-value   NIL or T
         ;; Constant-Folding: if fun is foldable (i.e.: subr-flag = T and
         ;; key-flag = NIL) and if codelist consists besides the (PUSH)s and the
         ;; Call-Code at the end only of Anodes with code = ((CONST ...)) ?
-        (when (and foldable
+        (when (and foldable-p
                    (every #'(lambda (code)
                               (or (not (anode-p code)) (anode-constantp code)))
                           codelist))

@@ -1149,7 +1149,7 @@ local gcv_object_t check_weak (gcv_object_t weak) {
 
 # (MAKE-HASH-TABLE [:test] [:size] [:rehash-size] [:rehash-threshold]
 #                  [:initial-contents] [:weak]), CLTL p. 283
-LISPFUN(make_hash_table,0,0,norest,key,6,
+LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
         (kw(weak),kw(initial_contents),
          kw(test),kw(size),kw(rehash_size),kw(rehash_threshold)) ) {
   # The rehash-threshold correlates in our implementation to the
@@ -1378,7 +1378,7 @@ nonreturning_function(local, fehler_hashtable, (object obj)) {
 #define check_hashtable(ht) if(!hash_table_p(ht)) fehler_hashtable(ht)
 
 # (GETHASH key hashtable [default]), CLTL p. 284
-LISPFUN(gethash,2,1,norest,nokey,0,NIL) {
+LISPFUN(gethash,seclass_read,2,1,norest,nokey,0,NIL) {
   var object ht = STACK_1; # hashtable-argument
   check_hashtable(ht);
   var gcv_object_t* KVptr;
@@ -1520,39 +1520,39 @@ LISPFUNN(clrhash,1) {
   VALUES1(ht); /* hash-table as value */
 }
 
-# (HASH-TABLE-COUNT hashtable), CLTL p. 285, CLtL2 p. 439
-LISPFUNN(hash_table_count,1) {
-  var object ht = popSTACK(); # hashtable-argument
+LISPFUNNR(hash_table_count,1)
+{ /* (HASH-TABLE-COUNT hashtable), CLTL p. 285, CLtL2 p. 439 */
+  var object ht = popSTACK(); /* hashtable argument */
   check_hashtable(ht);
   VALUES1(TheHashtable(ht)->ht_count); /* fixnum COUNT as value */
 }
 
-# (HASH-TABLE-REHASH-SIZE hashtable), CLtL2 p. 441, dpANS p. 18-7
-LISPFUNN(hash_table_rehash_size,1) {
-  var object ht = popSTACK(); # hashtable-argument
+LISPFUNNR(hash_table_rehash_size,1)
+{ /* (HASH-TABLE-REHASH-SIZE hashtable), CLtL2 p. 441, dpANS p. 18-7 */
+  var object ht = popSTACK(); /* hashtable argument */
   check_hashtable(ht);
   VALUES1(TheHashtable(ht)->ht_rehash_size); /* short-float REHASH-SIZE as value */
 }
 
-# (HASH-TABLE-REHASH-THRESHOLD hashtable), CLtL2 p. 441, dpANS p. 18-8
-LISPFUNN(hash_table_rehash_threshold,1) {
-  var object ht = popSTACK(); # hashtable-argument
+LISPFUNNR(hash_table_rehash_threshold,1)
+{ /* (HASH-TABLE-REHASH-THRESHOLD hashtable), CLtL2 p. 441, dpANS p. 18-8 */
+  var object ht = popSTACK(); /* hashtable argument */
   check_hashtable(ht);
   # As MAKE-HASH-TABLE ignores the :REHASH-THRESHOLD argument, the value
   # is irrelevant here and arbitrary.
   VALUES1(make_SF(0,SF_exp_mid+0,(bit(SF_mant_len)/2)*3)); /* 0.75s0 as value */
 }
 
-# (HASH-TABLE-SIZE hashtable), CLtL2 p. 441, dpANS p. 18-9
-LISPFUNN(hash_table_size,1) {
-  var object ht = popSTACK(); # hashtable-argument
+LISPFUNNR(hash_table_size,1)
+{ /* (HASH-TABLE-SIZE hashtable), CLtL2 p. 441, dpANS p. 18-9 */
+  var object ht = popSTACK(); /* hashtable argument */
   check_hashtable(ht);
   VALUES1(TheHashtable(ht)->ht_maxcount); /* Fixnum MAXCOUNT */
 }
 
-# (HASH-TABLE-TEST hashtable), CLtL2 p. 441, dpANS p. 18-9
-LISPFUNN(hash_table_test,1) {
-  var object ht = popSTACK(); # hashtable-argument
+LISPFUNNF(hash_table_test,1)
+{ /* (HASH-TABLE-TEST hashtable), CLtL2 p. 441, dpANS p. 18-9 */
+  var object ht = popSTACK(); /* hashtable argument */
   check_hashtable(ht);
   var uintB flags = record_flags(TheHashtable(ht));
   VALUES1(hashtable_test(flags)); /* symbol as value */
@@ -1565,7 +1565,7 @@ LISPFUNN(hash_table_test,1) {
 # by one, thereby changes internal-state and returns: 3 values
 # T, key, value of the next hash-table-entry resp. 1 value NIL at the end.
 
-LISPFUNN(hash_table_iterator,1) {
+LISPFUNNR(hash_table_iterator,1) {
   var object ht = STACK_0; # hashtable-argument
   check_hashtable(ht);
   # An internal state consists of the key-value-vector and an index.
@@ -1598,8 +1598,8 @@ LISPFUNN(hash_table_iterate,1) {
   VALUES1(NIL); return; /* 1 value NIL */
 }
 
-# (EXT:HASH-TABLE-WEAK-P ht)
-LISPFUNN(hash_table_weak_p,1) {
+LISPFUNNR(hash_table_weak_p,1)
+{ # (EXT:HASH-TABLE-WEAK-P ht)
   var object ht = popSTACK(); # hashtable-argument
   check_hashtable(ht);
   VALUES1(ht_weak(ht));
@@ -1734,7 +1734,7 @@ local bool equal_tuple (object obj, uintC n, const gcv_object_t* args_pointer) {
   }
 }
 
-LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL) {
+LISPFUN(class_tuple_gethash,seclass_default,2,0,rest,nokey,0,NIL) {
   argcount++; rest_args_pointer skipSTACKop 1; # arguments: ht {object}+
   # first apply CLASS-OF to each argument:
   {
@@ -2015,8 +2015,8 @@ local uint32 sxhash (object obj) {
   }
 }
 
-# (SXHASH object), CLTL p. 285
-LISPFUNN(sxhash,1) {
+LISPFUNNR(sxhash,1)
+{ /* (SXHASH object), CLTL p. 285 */
   var uint32 sx = sxhash(popSTACK());
   # ANSI CL (SXHASH doc):
   # For any two objects, x and y, both of which are bit vectors,

@@ -298,7 +298,7 @@ typedef enum {
 
 /* (SYS::%FUNTABREF i) returns the name of function Nr. i from the function-
  table (a symbol), resp. NIL if i is not in the right range. */
-LISPFUNN(funtabref,1)
+LISPFUNNF(funtabref,1)
 {
   var object arg = popSTACK(); /* argument */
   var uintL i;
@@ -326,7 +326,7 @@ LISPFUNN(funtabref,1)
    keywords          list of admissible keywords (empty: no &key specified),
    allow-other-keys  flag, if additional keywords are allowed,
  otherwise NIL. */
-LISPFUNN(subr_info,1)
+LISPFUNNR(subr_info,1)
 {
   var object obj = popSTACK();
   if (!subrp(obj)) {
@@ -335,7 +335,7 @@ LISPFUNN(subr_info,1)
     }
     obj = Symbol_function(obj);
   }
-    /* obj is a SUBR */
+  /* obj is a SUBR */
   pushSTACK(TheSubr(obj)->name); /* Name */
   pushSTACK(fixnum(TheSubr(obj)->req_anz)); /* req-anz (req-nr) */
   pushSTACK(fixnum(TheSubr(obj)->opt_anz)); /* opt-anz (opt-nr) */
@@ -763,7 +763,7 @@ local inline gcv_object_t* symbol_env_search (object sym, object venv)
 #undef binds_sym_p
 }
 
-LISPFUN(special_variable_p,1,1,norest,nokey,0,NIL)
+LISPFUN(special_variable_p,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (SYS::SPECIAL-VARIABLE-P symbol &optional environment)
      check whether the symbol is a special variable or a constant
      missing or NIL environment means null environment

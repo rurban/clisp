@@ -1689,7 +1689,7 @@ extern object iconv_range (object encoding, uintL start, uintL end,
 /* (MAKE-ENCODING [:charset] [:line-terminator] [:input-error-action]
                   [:output-error-action] [:if-does-not-exist])
  creates a new encoding. */
-LISPFUN(make_encoding,0,0,norest,key,5,
+LISPFUN(make_encoding,seclass_read,0,0,norest,key,5,
         (kw(charset),kw(line_terminator),
          kw(input_error_action),kw(output_error_action)
          kw(if_does_not_exist))) {
@@ -1817,7 +1817,7 @@ LISPFUN(make_encoding,0,0,norest,key,5,
 }
 
 /* (SYSTEM::ENCODINGP object) */
-LISPFUNN(encodingp,1) {
+LISPFUNNF(encodingp,1) {
   var object arg = popSTACK();
   VALUES_IF(encodingp(arg));
 }
@@ -1833,7 +1833,7 @@ nonreturning_function(local, fehler_encoding, (object obj)) {
 
 /* (SYSTEM::CHARSET-TYPEP object encoding) tests whether the object
    is a character belonging to the given character set. */
-LISPFUNN(charset_typep,2) {
+LISPFUNNR(charset_typep,2) {
   var object encoding = STACK_0;
   if (!encodingp(encoding))
     fehler_encoding(encoding);
@@ -1853,7 +1853,7 @@ LISPFUNN(charset_typep,2) {
 }
 
 /* (EXT:ENCODING-CHARSET encoding) --> charset */
-LISPFUNN(encoding_charset,1) {
+LISPFUNNR(encoding_charset,1) {
   var object encoding = popSTACK();
   if (!encodingp(encoding))
     fehler_encoding(encoding);
@@ -1864,7 +1864,7 @@ LISPFUNN(encoding_charset,1) {
 
 /* (SYSTEM::CHARSET-RANGE encoding char1 char2 [maxintervals])
  returns the range of characters in [char1,char2] encodable in the encoding. */
-LISPFUN(charset_range,3,1,norest,nokey,0,NIL) {
+LISPFUN(charset_range,seclass_read,3,1,norest,nokey,0,NIL) {
   var object encoding = STACK_3;
   if (!encodingp(encoding))
     fehler_encoding(encoding);
@@ -2394,7 +2394,7 @@ global void init_dependent_encodings(void) {
  * Accessors */
 
 /* (SYSTEM::DEFAULT-FILE-ENCODING) */
-LISPFUNN(default_file_encoding,0) {
+LISPFUNNR(default_file_encoding,0) {
   VALUES1(O(default_file_encoding));
 }
 
@@ -2409,7 +2409,7 @@ LISPFUNN(set_default_file_encoding,1) {
 #ifdef UNICODE
 
 /* (SYSTEM::PATHNAME-ENCODING) */
-LISPFUNN(pathname_encoding,0) {
+LISPFUNNR(pathname_encoding,0) {
   VALUES1(O(pathname_encoding));
 }
 
@@ -2422,7 +2422,7 @@ LISPFUNN(set_pathname_encoding,1) {
 }
 
 /* (SYSTEM::TERMINAL-ENCODING) */
-LISPFUNN(terminal_encoding,0) {
+LISPFUNNR(terminal_encoding,0) {
   VALUES1(O(terminal_encoding));
 }
 
@@ -2440,7 +2440,7 @@ LISPFUNN(set_terminal_encoding,1) {
 #if defined(HAVE_FFI) || defined(HAVE_AFFI)
 
 /* (SYSTEM::FOREIGN-ENCODING) */
-LISPFUNN(foreign_encoding,0) {
+LISPFUNNR(foreign_encoding,0) {
   VALUES1(O(foreign_encoding));
 }
 
@@ -2459,7 +2459,7 @@ LISPFUNN(set_foreign_encoding,1) {
 #endif /* HAVE_FFI || HAVE_AFFI */
 
 /* (SYSTEM::MISC-ENCODING) */
-LISPFUNN(misc_encoding,0) {
+LISPFUNNR(misc_encoding,0) {
   VALUES1(O(misc_encoding));
 }
 
@@ -2477,7 +2477,8 @@ LISPFUNN(set_misc_encoding,1) {
  * More functions */
 
 /* (CONVERT-STRING-FROM-BYTES byte-array encoding [:start] [:end]) */
-LISPFUN(convert_string_from_bytes,2,0,norest,key,2, (kw(start),kw(end)) ) {
+LISPFUN(convert_string_from_bytes,seclass_read,2,0,norest,key,2,
+        (kw(start),kw(end)) ) {
   /* Stack layout: array, encoding, start, end. */
   var object array = STACK_3;
   if (!vectorp(array)) fehler_vector(array); /* check array */
@@ -2533,7 +2534,8 @@ LISPFUN(convert_string_from_bytes,2,0,norest,key,2, (kw(start),kw(end)) ) {
 }
 
 /* (CONVERT-STRING-TO-BYTES string encoding [:start] [:end]) */
-LISPFUN(convert_string_to_bytes,2,0,norest,key,2, (kw(start),kw(end)) ) {
+LISPFUN(convert_string_to_bytes,seclass_read,2,0,norest,key,2,
+        (kw(start),kw(end)) ) {
   /* Stack layout: string, encoding, start, end. */
   var object string = STACK_3;
   if (!encodingp(STACK_2)) fehler_encoding(STACK_2); /* check encoding */

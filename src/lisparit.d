@@ -414,7 +414,7 @@ global object decimal_string (object x) {
   return string;
 }
 
-LISPFUNN(decimal_string,1)
+LISPFUN(decimal_string,seclass_no_se,1,0,norest,nokey,0,NIL)
 { /* (SYS::DECIMAL-STRING integer)
  returns for an integer >=0  (write-to-string integer :base 10 :radix nil),
  which is the sequence of digits as a simple-string. */
@@ -423,35 +423,35 @@ LISPFUNN(decimal_string,1)
   VALUES1(decimal_string(x));
 }
 
-LISPFUNN(zerop,1)
+LISPFUNNF(zerop,1)
 { /* (ZEROP number), CLTL p. 195 */
   var object x = popSTACK();
   check_number(x);
   VALUES_IF(N_zerop(x));
 }
 
-LISPFUNN(plusp,1)
+LISPFUNNF(plusp,1)
 { /* (PLUSP real), CLTL p. 196 */
   var object x = popSTACK();
   check_real(x);
   VALUES_IF(R_plusp(x));
 }
 
-LISPFUNN(minusp,1)
+LISPFUNNF(minusp,1)
 { /* (MINUSP real), CLTL p. 196 */
   var object x = popSTACK();
   check_real(x);
   VALUES_IF(R_minusp(x));
 }
 
-LISPFUNN(oddp,1)
+LISPFUNNF(oddp,1)
 { /* (ODDP integer), CLTL p. 196 */
   var object x = popSTACK();
   check_integer(x);
   VALUES_IF(I_oddp(x));
 }
 
-LISPFUNN(evenp,1)
+LISPFUNNF(evenp,1)
 { /* (EVENP integer), CLTL p. 196 */
   var object x = popSTACK();
   check_integer(x);
@@ -491,7 +491,7 @@ local void test_integer_args (uintC argcount, gcv_object_t* args_pointer) {
   });
 }
 
-LISPFUN(gleich,1,0,rest,nokey,0,NIL)
+LISPFUN(gleich,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (= number {number}), CLTL p. 196 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_number_args(argcount,args_pointer); /* all arguments numbers? */
@@ -513,7 +513,7 @@ LISPFUN(gleich,1,0,rest,nokey,0,NIL)
   mv_count=1; set_args_end_pointer(args_pointer);
 }
 
-LISPFUN(ungleich,1,0,rest,nokey,0,NIL)
+LISPFUN(ungleich,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (/= number {number}), CLTL p. 196 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_number_args(argcount,args_pointer); /* all arguments numbers? */
@@ -540,7 +540,7 @@ LISPFUN(ungleich,1,0,rest,nokey,0,NIL)
   mv_count=1; set_args_end_pointer(args_pointer);
 }
 
-LISPFUN(kleiner,1,0,rest,nokey,0,NIL)
+LISPFUN(kleiner,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (< real {real}), CLTL p. 196 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_real_args(argcount,args_pointer); /* all arguments real numbers? */
@@ -562,7 +562,7 @@ LISPFUN(kleiner,1,0,rest,nokey,0,NIL)
   mv_count=1; set_args_end_pointer(args_pointer);
 }
 
-LISPFUN(groesser,1,0,rest,nokey,0,NIL)
+LISPFUN(groesser,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (> real {real}), CLTL p. 196 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_real_args(argcount,args_pointer); /* all arguments real numbers? */
@@ -584,7 +584,7 @@ LISPFUN(groesser,1,0,rest,nokey,0,NIL)
   mv_count=1; set_args_end_pointer(args_pointer);
 }
 
-LISPFUN(klgleich,1,0,rest,nokey,0,NIL)
+LISPFUN(klgleich,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (<= real {real}), CLTL p. 196 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_real_args(argcount,args_pointer); /* all arguments real numbers? */
@@ -606,7 +606,7 @@ LISPFUN(klgleich,1,0,rest,nokey,0,NIL)
   mv_count=1; set_args_end_pointer(args_pointer);
 }
 
-LISPFUN(grgleich,1,0,rest,nokey,0,NIL)
+LISPFUN(grgleich,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (>= real {real}), CLTL p. 196 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_real_args(argcount,args_pointer); /* all arguments real numbers? */
@@ -628,7 +628,7 @@ LISPFUN(grgleich,1,0,rest,nokey,0,NIL)
   mv_count=1; set_args_end_pointer(args_pointer);
 }
 
-LISPFUN(max,1,0,rest,nokey,0,NIL)
+LISPFUN(max,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (MAX real {real}), CLTL p. 198
      method:
      (max x1 x2 x3 ... xn) = (max ...(max (max x1 x2) x3)... xn) */
@@ -643,7 +643,7 @@ LISPFUN(max,1,0,rest,nokey,0,NIL)
   VALUES1(x); set_args_end_pointer(args_pointer);
 }
 
-LISPFUN(min,1,0,rest,nokey,0,NIL)
+LISPFUN(min,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (MIN real {real}), CLTL p. 198
      method:
      (min x1 x2 x3 ... xn) = (min ...(min (min x1 x2) x3)... xn) */
@@ -658,7 +658,7 @@ LISPFUN(min,1,0,rest,nokey,0,NIL)
   VALUES1(x); set_args_end_pointer(args_pointer);
 }
 
-LISPFUN(plus,0,0,rest,nokey,0,NIL)
+LISPFUN(plus,seclass_foldable,0,0,rest,nokey,0,NIL)
 { /* (+ {number}), CLTL p. 199
      method:
      (+) = 0
@@ -677,7 +677,7 @@ LISPFUN(plus,0,0,rest,nokey,0,NIL)
   VALUES1(x); set_args_end_pointer(rest_args_pointer);
 }
 
-LISPFUN(minus,1,0,rest,nokey,0,NIL)
+LISPFUN(minus,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (- number {number}), CLTL p. 199
      method:
      (- x) extra.
@@ -698,7 +698,7 @@ LISPFUN(minus,1,0,rest,nokey,0,NIL)
   mv_count=1; set_args_end_pointer(args_pointer);
 }
 
-LISPFUN(mal,0,0,rest,nokey,0,NIL)
+LISPFUN(mal,seclass_foldable,0,0,rest,nokey,0,NIL)
 { /* (* {number}), CLTL p. 199
      method:
      (*) = 1
@@ -720,7 +720,7 @@ LISPFUN(mal,0,0,rest,nokey,0,NIL)
   VALUES1(x); set_args_end_pointer(rest_args_pointer);
 }
 
-LISPFUN(durch,1,0,rest,nokey,0,NIL)
+LISPFUN(durch,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (/ number {number}), CLTL p. 200
      method:
      (/ x) extra.
@@ -742,28 +742,28 @@ LISPFUN(durch,1,0,rest,nokey,0,NIL)
   mv_count=1; set_args_end_pointer(args_pointer);
 }
 
-LISPFUNN(einsplus,1)
+LISPFUNNF(einsplus,1)
 { /* (1+ number), CLTL p. 200 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_1_plus_N(x));
 }
 
-LISPFUNN(einsminus,1)
+LISPFUNNF(einsminus,1)
 { /* (1- number), CLTL p. 200 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_minus1_plus_N(x));
 }
 
-LISPFUNN(conjugate,1)
+LISPFUNNF(conjugate,1)
 { /* (CONJUGATE number), CLTL p. 201 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_conjugate_N(x));
 }
 
-LISPFUN(gcd,0,0,rest,nokey,0,NIL)
+LISPFUN(gcd,seclass_foldable,0,0,rest,nokey,0,NIL)
 { /* (GCD {integer}), CLTL p. 202
      method:
      (gcd) = 0
@@ -788,7 +788,7 @@ LISPFUN(gcd,0,0,rest,nokey,0,NIL)
   set_args_end_pointer(rest_args_pointer);
 }
 
-LISPFUN(xgcd,0,0,rest,nokey,0,NIL)
+LISPFUN(xgcd,seclass_foldable,0,0,rest,nokey,0,NIL)
 { /* (XGCD {integer})
  (XGCD x1 ... xn) returns n+1 Werte: g = (gcd x1 ... xn), an integer >=0,
  and n integers u1,...,un with g = u1*x1+...+un*xn.
@@ -853,7 +853,7 @@ LISPFUN(xgcd,0,0,rest,nokey,0,NIL)
   set_args_end_pointer(rest_args_pointer);
 }
 
-LISPFUN(lcm,0,0,rest,nokey,0,NIL)
+LISPFUN(lcm,seclass_foldable,0,0,rest,nokey,0,NIL)
 { /* (LCM {integer})
  method:
  (lcm) = 1 (neutral element of lcm-operation)
@@ -878,7 +878,7 @@ LISPFUN(lcm,0,0,rest,nokey,0,NIL)
   set_args_end_pointer(rest_args_pointer);
 }
 
-LISPFUNN(exp,1)
+LISPFUNNR(exp,1)
 { /* (EXP number), CLTL p. 203 */
   check_number(STACK_0);
   if (complexp(STACK_0))
@@ -889,7 +889,7 @@ LISPFUNN(exp,1)
   skipSTACK(2);
 }
 
-LISPFUNN(expt,2)
+LISPFUNNR(expt,2)
 { /* (EXPT number number), CLTL p. 203 */
   var object x = STACK_1;
   var object y = STACK_0;
@@ -897,7 +897,7 @@ LISPFUNN(expt,2)
   VALUES1(N_N_expt_N(x,y));
 }
 
-LISPFUN(log,1,1,norest,nokey,0,NIL)
+LISPFUN(log,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (LOG number [base-number]), CLTL p. 204 */
   var object base = STACK_0;
   var object arg = STACK_1;
@@ -915,84 +915,84 @@ LISPFUN(log,1,1,norest,nokey,0,NIL)
   skipSTACK(2);
 }
 
-LISPFUNN(sqrt,1)
+LISPFUNNR(sqrt,1)
 { /* (SQRT number), CLTL p. 205 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_sqrt_N(x));
 }
 
-LISPFUNN(isqrt,1)
+LISPFUNNF(isqrt,1)
 { /* (ISQRT integer), CLTL p. 205 */
   var object x = popSTACK();
   check_integer(x);
   VALUES1((I_isqrt_I(x), popSTACK()));
 }
 
-LISPFUNN(abs,1)
+LISPFUNNR(abs,1)
 { /* (ABS number), CLTL p. 205 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_abs_R(x));
 }
 
-LISPFUNN(phase,1)
+LISPFUNNR(phase,1)
 { /* (PHASE number), CLTL p. 206 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_phase_R(x));
 }
 
-LISPFUNN(signum,1)
+LISPFUNNR(signum,1)
 { /* (SIGNUM number), CLTL p. 206 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_signum_N(x));
 }
 
-LISPFUNN(sin,1)
+LISPFUNNR(sin,1)
 { /* (SIN number), CLTL p. 207 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_sin_N(x));
 }
 
-LISPFUNN(cos,1)
+LISPFUNNR(cos,1)
 { /* (COS number), CLTL p. 207 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_cos_N(x));
 }
 
-LISPFUNN(tan,1)
+LISPFUNNR(tan,1)
 { /* (TAN number), CLTL p. 207 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_tan_N(x));
 }
 
-LISPFUNN(cis,1)
+LISPFUNNR(cis,1)
 { /* (CIS number), CLTL p. 207 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_cis_N(x));
 }
 
-LISPFUNN(asin,1)
+LISPFUNNR(asin,1)
 { /* (ASIN number), CLTL p. 207 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_asin_N(x));
 }
 
-LISPFUNN(acos,1)
+LISPFUNNR(acos,1)
 { /* (ACOS number), CLTL p. 207 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_acos_N(x));
 }
 
-LISPFUN(atan,1,1,norest,nokey,0,NIL)
+LISPFUN(atan,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (ATAN number [real]), CLTL p. 207 */
   var object arg2 = popSTACK();
   var object arg1 = popSTACK();
@@ -1005,49 +1005,49 @@ LISPFUN(atan,1,1,norest,nokey,0,NIL)
   }
 }
 
-LISPFUNN(sinh,1)
+LISPFUNNR(sinh,1)
 { /* (SINH number), CLTL p. 209 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_sinh_N(x));
 }
 
-LISPFUNN(cosh,1)
+LISPFUNNR(cosh,1)
 { /* (COSH number), CLTL p. 209 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_cosh_N(x));
 }
 
-LISPFUNN(tanh,1)
+LISPFUNNR(tanh,1)
 { /* (TANH number), CLTL p. 209 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_tanh_N(x));
 }
 
-LISPFUNN(asinh,1)
+LISPFUNNR(asinh,1)
 { /* (ASINH number), CLTL p. 209 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_asinh_N(x));
 }
 
-LISPFUNN(acosh,1)
+LISPFUNNR(acosh,1)
 { /* (ACOSH number), CLTL p. 209 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_acosh_N(x));
 }
 
-LISPFUNN(atanh,1)
+LISPFUNNR(atanh,1)
 { /* (ATANH number), CLTL p. 209 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_atanh_N(x));
 }
 
-LISPFUN(float,1,1,norest,nokey,0,NIL)
+LISPFUN(float,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (FLOAT number [float]), CLTL p. 214 */
   var object arg2 = popSTACK();
   var object arg1 = popSTACK();
@@ -1081,35 +1081,35 @@ global object coerce_float (object obj, object type) {
     return R_float_F(obj);
 }
 
-LISPFUNN(rational,1)
+LISPFUNNF(rational,1)
 { /* (RATIONAL real), CLTL p. 214 */
   var object x = popSTACK();
   check_real(x);
   VALUES1(R_rational_RA(x));
 }
 
-LISPFUNN(rationalize,1)
+LISPFUNNF(rationalize,1)
 { /* (RATIONALIZE real), CLTL p. 214 */
   var object x = popSTACK();
   check_real(x);
   VALUES1(R_rationalize_RA(x));
 }
 
-LISPFUNN(numerator,1)
+LISPFUNNF(numerator,1)
 { /* (NUMERATOR rational), CLTL p. 215 */
   var object x = popSTACK();
   check_rational(x);
   VALUES1(RA_integerp(x) ? x : (object)TheRatio(x)->rt_num);
 }
 
-LISPFUNN(denominator,1)
+LISPFUNNF(denominator,1)
 { /* (DENOMINATOR rational), CLTL p. 215 */
   var object x = popSTACK();
   check_rational(x);
   VALUES1(RA_integerp(x) ? Fixnum_1 : (object)TheRatio(x)->rt_den);
 }
 
-LISPFUN(floor,1,1,norest,nokey,0,NIL)
+LISPFUN(floor,seclass_foldable,1,1,norest,nokey,0,NIL)
 { /* (FLOOR real [real]), CLTL p. 215 */
   var object y = popSTACK();
   var object x = popSTACK();
@@ -1124,7 +1124,7 @@ LISPFUN(floor,1,1,norest,nokey,0,NIL)
   VALUES2(STACK_1, STACK_0); skipSTACK(2);
 }
 
-LISPFUN(ceiling,1,1,norest,nokey,0,NIL)
+LISPFUN(ceiling,seclass_foldable,1,1,norest,nokey,0,NIL)
 { /* (CEILING real [real]), CLTL p. 215 */
   var object y = popSTACK();
   var object x = popSTACK();
@@ -1139,7 +1139,7 @@ LISPFUN(ceiling,1,1,norest,nokey,0,NIL)
   VALUES2(STACK_1, STACK_0); skipSTACK(2);
 }
 
-LISPFUN(truncate,1,1,norest,nokey,0,NIL)
+LISPFUN(truncate,seclass_foldable,1,1,norest,nokey,0,NIL)
 { /* (TRUNCATE real [real]), CLTL p. 215 */
   var object y = popSTACK();
   var object x = popSTACK();
@@ -1154,7 +1154,7 @@ LISPFUN(truncate,1,1,norest,nokey,0,NIL)
   VALUES2(STACK_1, STACK_0); skipSTACK(2);
 }
 
-LISPFUN(round,1,1,norest,nokey,0,NIL)
+LISPFUN(round,seclass_foldable,1,1,norest,nokey,0,NIL)
 { /* (ROUND real [real]), CLTL p. 215 */
   var object y = popSTACK();
   var object x = popSTACK();
@@ -1169,7 +1169,7 @@ LISPFUN(round,1,1,norest,nokey,0,NIL)
   VALUES2(STACK_1, STACK_0); skipSTACK(2);
 }
 
-LISPFUNN(mod,2)
+LISPFUNNF(mod,2)
 { /* (MOD real real), CLTL p. 217 */
   var object y = popSTACK();
   var object x = popSTACK();
@@ -1178,7 +1178,7 @@ LISPFUNN(mod,2)
   VALUES1(R_R_mod_R(x,y));
 }
 
-LISPFUNN(rem,2)
+LISPFUNNF(rem,2)
 { /* (REM real real), CLTL p. 217 */
   var object y = popSTACK();
   var object x = popSTACK();
@@ -1187,7 +1187,7 @@ LISPFUNN(rem,2)
   VALUES1(R_R_rem_R(x,y));
 }
 
-LISPFUN(ffloor,1,1,norest,nokey,0,NIL)
+LISPFUN(ffloor,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (FFLOOR real [real]), CLTL p. 217 */
   var object y = popSTACK();
   var object x = popSTACK();
@@ -1202,7 +1202,7 @@ LISPFUN(ffloor,1,1,norest,nokey,0,NIL)
   VALUES2(STACK_1, STACK_0); skipSTACK(2);
 }
 
-LISPFUN(fceiling,1,1,norest,nokey,0,NIL)
+LISPFUN(fceiling,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (FCEILING real [real]), CLTL p. 217 */
   var object y = popSTACK();
   var object x = popSTACK();
@@ -1217,7 +1217,7 @@ LISPFUN(fceiling,1,1,norest,nokey,0,NIL)
   VALUES2(STACK_1, STACK_0); skipSTACK(2);
 }
 
-LISPFUN(ftruncate,1,1,norest,nokey,0,NIL)
+LISPFUN(ftruncate,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (FTRUNCATE real [real]), CLTL p. 217 */
   var object y = popSTACK();
   var object x = popSTACK();
@@ -1232,7 +1232,7 @@ LISPFUN(ftruncate,1,1,norest,nokey,0,NIL)
   VALUES2(STACK_1, STACK_0); skipSTACK(2);
 }
 
-LISPFUN(fround,1,1,norest,nokey,0,NIL)
+LISPFUN(fround,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (FROUND real [real]), CLTL p. 217 */
   var object y = popSTACK();
   var object x = popSTACK();
@@ -1247,7 +1247,7 @@ LISPFUN(fround,1,1,norest,nokey,0,NIL)
   VALUES2(STACK_1, STACK_0); skipSTACK(2);
 }
 
-LISPFUNN(decode_float,1)
+LISPFUNNF(decode_float,1)
 { /* (DECODE-FLOAT float), CLTL p. 218 */
   var object f = popSTACK();
   check_float(f);
@@ -1255,7 +1255,7 @@ LISPFUNN(decode_float,1)
   VALUES3(STACK_2, STACK_1, STACK_0); skipSTACK(3);
 }
 
-LISPFUNN(scale_float,2)
+LISPFUNNF(scale_float,2)
 { /* (SCALE-FLOAT float integer), CLTL p. 218 */
   var object f = STACK_1;
   var object i = STACK_0;
@@ -1263,14 +1263,14 @@ LISPFUNN(scale_float,2)
   VALUES1(F_I_scale_float_F(f,i));
 }
 
-LISPFUNN(float_radix,1)
+LISPFUNNF(float_radix,1)
 { /* (FLOAT-RADIX float), CLTL p. 218 */
   var object f = popSTACK();
   check_float(f);
   VALUES1(F_float_radix_I(f));
 }
 
-LISPFUN(float_sign,1,1,norest,nokey,0,NIL)
+LISPFUN(float_sign,seclass_foldable,1,1,norest,nokey,0,NIL)
 { /* (FLOAT-SIGN float [float]), CLTL p. 218 */
   var object arg2 = popSTACK();
   var object arg1 = popSTACK();
@@ -1283,7 +1283,7 @@ LISPFUN(float_sign,1,1,norest,nokey,0,NIL)
   }
 }
 
-LISPFUN(float_digits,1,1,norest,nokey,0,NIL)
+LISPFUN(float_digits,seclass_foldable,1,1,norest,nokey,0,NIL)
 { /* (FLOAT-DIGITS number [digits]), CLTL p. 218 */
   var object arg2 = popSTACK();
   var object arg1 = popSTACK();
@@ -1312,14 +1312,14 @@ LISPFUN(float_digits,1,1,norest,nokey,0,NIL)
   }
 }
 
-LISPFUNN(float_precision,1)
+LISPFUNNF(float_precision,1)
 { /* (FLOAT-PRECISION float), CLTL p. 218 */
   var object f = popSTACK();
   check_float(f);
   VALUES1(F_float_precision_I(f));
 }
 
-LISPFUNN(integer_decode_float,1)
+LISPFUNNF(integer_decode_float,1)
 { /* (INTEGER-DECODE-FLOAT float), CLTL p. 218 */
   var object f = popSTACK();
   check_float(f);
@@ -1327,7 +1327,7 @@ LISPFUNN(integer_decode_float,1)
   VALUES3(STACK_2, STACK_1, STACK_0); skipSTACK(3);
 }
 
-LISPFUN(complex,1,1,norest,nokey,0,NIL)
+LISPFUN(complex,seclass_foldable,1,1,norest,nokey,0,NIL)
 { /* (COMPLEX real [real]), CLTL p. 220
  deviation from CLTL:
  for real x, (COMPLEX x) = x.
@@ -1346,21 +1346,21 @@ LISPFUN(complex,1,1,norest,nokey,0,NIL)
   }
 }
 
-LISPFUNN(realpart,1)
+LISPFUNNF(realpart,1)
 { /* (REALPART number), CLTL p. 220 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_realpart_R(x));
 }
 
-LISPFUNN(imagpart,1)
+LISPFUNNF(imagpart,1)
 { /* (IMAGPART number), CLTL p. 220 */
   var object x = popSTACK();
   check_number(x);
   VALUES1(N_imagpart_R(x));
 }
 
-LISPFUN(logior,0,0,rest,nokey,0,NIL)
+LISPFUN(logior,seclass_foldable,0,0,rest,nokey,0,NIL)
 { /* (LOGIOR {integer}), CLTL p. 221
  method:
  (logior) = 0
@@ -1379,7 +1379,7 @@ LISPFUN(logior,0,0,rest,nokey,0,NIL)
   VALUES1(x); set_args_end_pointer(rest_args_pointer);
 }
 
-LISPFUN(logxor,0,0,rest,nokey,0,NIL)
+LISPFUN(logxor,seclass_foldable,0,0,rest,nokey,0,NIL)
 { /* (LOGXOR {integer}), CLTL p. 221
  method:
  (logxor) = 0
@@ -1398,7 +1398,7 @@ LISPFUN(logxor,0,0,rest,nokey,0,NIL)
   VALUES1(x); set_args_end_pointer(rest_args_pointer);
 }
 
-LISPFUN(logand,0,0,rest,nokey,0,NIL)
+LISPFUN(logand,seclass_foldable,0,0,rest,nokey,0,NIL)
 { /* (LOGAND {integer}), CLTL p. 221
   method:
   (logand) = -1
@@ -1417,7 +1417,7 @@ LISPFUN(logand,0,0,rest,nokey,0,NIL)
   VALUES1(x); set_args_end_pointer(rest_args_pointer);
 }
 
-LISPFUN(logeqv,0,0,rest,nokey,0,NIL)
+LISPFUN(logeqv,seclass_foldable,0,0,rest,nokey,0,NIL)
 { /* (LOGEQV {integer}), CLTL p. 221
   method:
   (logeqv) = -1
@@ -1436,7 +1436,7 @@ LISPFUN(logeqv,0,0,rest,nokey,0,NIL)
   VALUES1(x); set_args_end_pointer(rest_args_pointer);
 }
 
-LISPFUNN(lognand,2)
+LISPFUNNF(lognand,2)
 { /* (LOGNAND integer integer), CLTL p. 221 */
   var object x = STACK_1;
   var object y = STACK_0;
@@ -1444,7 +1444,7 @@ LISPFUNN(lognand,2)
   VALUES1(I_I_lognand_I(x,y));
 }
 
-LISPFUNN(lognor,2)
+LISPFUNNF(lognor,2)
 { /* (LOGNOR integer integer), CLTL p. 221 */
   var object x = STACK_1;
   var object y = STACK_0;
@@ -1452,7 +1452,7 @@ LISPFUNN(lognor,2)
   VALUES1(I_I_lognor_I(x,y));
 }
 
-LISPFUNN(logandc1,2)
+LISPFUNNF(logandc1,2)
 { /* (LOGANDC1 integer integer), CLTL p. 221 */
   var object x = STACK_1;
   var object y = STACK_0;
@@ -1460,7 +1460,7 @@ LISPFUNN(logandc1,2)
   VALUES1(I_I_logandc1_I(x,y));
 }
 
-LISPFUNN(logandc2,2)
+LISPFUNNF(logandc2,2)
 { /* (LOGANDC2 integer integer), CLTL p. 221 */
   var object x = STACK_1;
   var object y = STACK_0;
@@ -1468,7 +1468,7 @@ LISPFUNN(logandc2,2)
   VALUES1(I_I_logandc2_I(x,y));
 }
 
-LISPFUNN(logorc1,2)
+LISPFUNNF(logorc1,2)
 { /* (LOGORC1 integer integer), CLTL p. 221 */
   var object x = STACK_1;
   var object y = STACK_0;
@@ -1476,7 +1476,7 @@ LISPFUNN(logorc1,2)
   VALUES1(I_I_logorc1_I(x,y));
 }
 
-LISPFUNN(logorc2,2)
+LISPFUNNF(logorc2,2)
 { /* (LOGORC2 integer integer), CLTL p. 221 */
   var object x = STACK_1;
   var object y = STACK_0;
@@ -1484,7 +1484,7 @@ LISPFUNN(logorc2,2)
   VALUES1(I_I_logorc2_I(x,y));
 }
 
-LISPFUNN(boole,3)
+LISPFUNNF(boole,3)
 { /* (BOOLE op integer integer), CLTL p. 222 */
   var object op = STACK_2; /* operator, not a typetest */
   var object x = STACK_1;
@@ -1493,14 +1493,14 @@ LISPFUNN(boole,3)
   VALUES1(OP_I_I_boole_I(op,x,y));
 }
 
-LISPFUNN(lognot,1)
+LISPFUNNF(lognot,1)
 { /* (LOGNOT integer), CLTL p. 223 */
   var object x = popSTACK();
   check_integer(x);
   VALUES1(I_lognot_I(x));
 }
 
-LISPFUNN(logtest,2)
+LISPFUNNF(logtest,2)
 { /* (LOGTEST integer integer), CLTL p. 223 */
   var object x = STACK_1;
   var object y = STACK_0;
@@ -1508,7 +1508,7 @@ LISPFUNN(logtest,2)
   VALUES_IF(I_I_logtest(x,y));
 }
 
-LISPFUNN(logbitp,2)
+LISPFUNNF(logbitp,2)
 { /* (LOGBITP integer integer), CLTL p. 224 */
   var object x = STACK_1;
   var object y = STACK_0;
@@ -1516,7 +1516,7 @@ LISPFUNN(logbitp,2)
   VALUES_IF(I_I_logbitp(x,y));
 }
 
-LISPFUNN(ash,2)
+LISPFUNNF(ash,2)
 { /* (ASH integer integer), CLTL p. 224 */
   var object x = STACK_1;
   var object y = STACK_0;
@@ -1524,21 +1524,21 @@ LISPFUNN(ash,2)
   VALUES1(I_I_ash_I(x,y));
 }
 
-LISPFUNN(logcount,1)
+LISPFUNNF(logcount,1)
 { /* (LOGCOUNT integer), CLTL p. 224 */
   var object x = popSTACK();
   check_integer(x);
   VALUES1(I_logcount_I(x));
 }
 
-LISPFUNN(integer_length,1)
+LISPFUNNF(integer_length,1)
 { /* (INTEGER-LENGTH integer), CLTL p. 224 */
   var object x = popSTACK();
   check_integer(x);
   VALUES1(I_integer_length_I(x));
 }
 
-LISPFUNN(byte,2)
+LISPFUNNR(byte,2)
 { /* (BYTE size position), CLTL p. 225 */
   var object s = STACK_1;
   var object p = STACK_0;
@@ -1546,19 +1546,19 @@ LISPFUNN(byte,2)
   VALUES1(I_I_Byte(s,p)); /* type checks there. Why fixnums?? */
 }
 
-LISPFUNN(bytesize,1)
+LISPFUNNR(bytesize,1)
 { /* (BYTE-SIZE bytespec), CLTL p. 226 */
   var object b = popSTACK();
   VALUES1(Byte_size(b)); /* type check there */
 }
 
-LISPFUNN(byteposition,1)
+LISPFUNNR(byteposition,1)
 { /* (BYTE-POSITION bytespec), CLTL p. 226 */
   var object b = popSTACK();
   VALUES1(Byte_position(b)); /* type check there */
 }
 
-LISPFUNN(ldb,2)
+LISPFUNNF(ldb,2)
 { /* (LDB bytespec integer), CLTL p. 226 */
   var object b = STACK_1; /* Type check will take place later */
   var object x = STACK_0;
@@ -1566,7 +1566,7 @@ LISPFUNN(ldb,2)
   VALUES1(I_Byte_ldb_I(x,b));
 }
 
-LISPFUNN(ldb_test,2)
+LISPFUNNF(ldb_test,2)
 { /* (LDB-TEST bytespec integer), CLTL p. 226 */
   var object b = STACK_1; /* Type check will take place later */
   var object x = STACK_0;
@@ -1574,7 +1574,7 @@ LISPFUNN(ldb_test,2)
   VALUES_IF(I_Byte_ldb_test(x,b));
 }
 
-LISPFUNN(mask_field,2)
+LISPFUNNF(mask_field,2)
 { /* (MASK_FIELD bytespec integer), CLTL p. 226 */
   var object b = STACK_1; /* Type check will take place later */
   var object x = STACK_0;
@@ -1582,7 +1582,7 @@ LISPFUNN(mask_field,2)
   VALUES1(I_Byte_mask_field_I(x,b));
 }
 
-LISPFUNN(dpb,3)
+LISPFUNNF(dpb,3)
 { /* (DPB integer bytespec integer), CLTL p. 227 */
   var object x = STACK_2;
   var object b = STACK_1; /* Type check will take place later */
@@ -1591,7 +1591,7 @@ LISPFUNN(dpb,3)
   VALUES1(I_I_Byte_dpb_I(x,y,b));
 }
 
-LISPFUNN(deposit_field,3)
+LISPFUNNF(deposit_field,3)
 { /* (DEPOSIT-FIELD integer bytespec integer), CLTL p. 227 */
   var object x = STACK_2;
   var object b = STACK_1; /* Type check will take place later */
@@ -1630,7 +1630,7 @@ local object check_random_state (object obj) {
   }
 }
 
-LISPFUN(random,1,1,norest,nokey,0,NIL)
+LISPFUN(random,seclass_default,1,1,norest,nokey,0,NIL)
 { /* (RANDOM number [state]), CLTL p. 228 */
   var object x = STACK_1;
   var object r = check_random_state(STACK_0);
@@ -1712,12 +1712,12 @@ local object make_random_state (object r)
   return state;
 }
 
-LISPFUN(make_random_state,0,1,norest,nokey,0,NIL)
+LISPFUN(make_random_state,seclass_default,0,1,norest,nokey,0,NIL)
 { /* (MAKE-RANDOM-STATE [state]), CLTL p. 230 */
   VALUES1(make_random_state(popSTACK()));
 }
 
-LISPFUNN(fakultaet,1)
+LISPFUNNF(fakultaet,1)
 { /* (! integer) */
   var object x = popSTACK();
   check_integer(x);
@@ -1726,7 +1726,7 @@ LISPFUNN(fakultaet,1)
   VALUES1(FN_fak_I(x));
 }
 
-LISPFUNN(exquo,2)
+LISPFUNNF(exquo,2)
 { /* (EXT:EXQUO x y) returns the quotient of x and y. The caller
   asserts that x is a multiple of y.
   (EXQUO x y) == (THE INTEGER (/ (THE INTEGER x) (THE INTEGER y))) */
@@ -1844,12 +1844,12 @@ local object log_digits (object x, object digits, gcv_object_t* objptr) {
     return LF_to_SF(ln_x);
 }
 
-LISPFUNN(log2,1)
+LISPFUNNR(log2,1)
 { /* (SYS::LOG2 digits) returns ln(2) with at least 'digits' bits. */
   VALUES1(log_digits(fixnum(2),popSTACK(),&O(LF_ln2)));
 }
 
-LISPFUNN(log10,1)
+LISPFUNNR(log10,1)
 { /* (SYS::LOG10 digits) returns ln(10) with at least 'digits' Bits. */
   VALUES1(log_digits(fixnum(10),popSTACK(),&O(LF_ln10)));
 }

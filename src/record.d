@@ -58,8 +58,8 @@ local gcv_object_t* record_up (void) {
   return &TheRecord(record)->recdata[index]; /* record element address */
 }
 
-/* (SYS::%RECORD-REF record index) return the index'th entry in the record */
-LISPFUNN(record_ref,2) {
+LISPFUNNR(record_ref,2)
+{ /* (SYS::%RECORD-REF record index) return the index'th entry in the record */
   VALUES1(*(record_up())); /* record element as value */
 }
 
@@ -70,8 +70,8 @@ LISPFUNN(record_store,3) {
   VALUES1(*(record_up()) = value); /* set record element */
 }
 
-/* (SYS::%RECORD-LENGTH record) return the length of the record. */
-LISPFUNN(record_length,1) {
+LISPFUNNR(record_length,1)
+{ /* (SYS::%RECORD-LENGTH record) return the length of the record. */
   /* the record must be a Closure/Structure/Stream/OtherRecord: */
   if_recordp(STACK_0, ; , { fehler_record(); } );
   var object record = popSTACK();
@@ -146,16 +146,16 @@ local gcv_object_t* structure_up (void) {
 }
 
 /* (SYS::%%STRUCTURE-REF type structure index) returns for a structure of
-   given Type type (a symbol) the entry index>=1.
+   the given Type type (a symbol) the entry index>=1.
  #<UNBOUND> is possible. */
-LISPFUNN(pstructure_ref,3) {
+LISPFUNNR(pstructure_ref,3) {
   VALUES1(*(structure_up())); /* structure-element as value */
   skipSTACK(3); /* clean up stack */
 }
 
 /* (SYS::%STRUCTURE-REF type structure index) returns for a structure of
-   given Type type (a symbol) the entry index>=1. */
-LISPFUNN(structure_ref,3) {
+   the given Type type (a symbol) the entry index>=1. */
+LISPFUNNR(structure_ref,3) {
   VALUES1(*(structure_up())); /* structure-element as value */
   if (!boundp(value1)) {
     /* could be = #<UNBOUND> , after use of SLOT-MAKUNBOUND
@@ -188,7 +188,7 @@ LISPFUNN(structure_store,4) {
 
 /* (SYS::%MAKE-STRUCTURE type length) creates a structure with length>=1
    elements of Type type. */
-LISPFUNN(make_structure,2) {
+LISPFUNNR(make_structure,2) {
   /* check length, should be a fixnum /=0  that fits into a uintW: */
   var uintL length;
   test_record_length(length);
@@ -201,7 +201,7 @@ LISPFUNN(make_structure,2) {
 
 /* (COPY-STRUCTURE structure) returns a copy of the Structure structure
    of the same type. */
-LISPFUNN(copy_structure,1) {
+LISPFUNNR(copy_structure,1) {
   if (!structurep(STACK_0)) {
     /* STACK_0 = TYPE-ERROR slot DATUM */
     pushSTACK(S(structure_object)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -220,7 +220,7 @@ LISPFUNN(copy_structure,1) {
    structure that has the Type type, which can be recognized in
    component 0. There, an object (name_1 ... name_i-1 name_i) should
    be located with one of the names EQ to type. */
-LISPFUNN(structure_type_p,2) {
+LISPFUNNR(structure_type_p,2) {
   /* check object for structure: */
   if (!structurep(STACK_0)) { skipSTACK(2); goto no; }
   {
@@ -258,7 +258,7 @@ LISPFUNN(structure_type_p,2) {
    == (APPLY (APPLY ergebnis arguments) arguments) .
 */
 /* (SYS::CLOSURE-NAME closure) returns the name of a closure. */
-LISPFUNN(closure_name,1) {
+LISPFUNNR(closure_name,1) {
   var object closure = popSTACK();
   if (!closurep(closure)) {
     pushSTACK(closure);
@@ -279,7 +279,7 @@ nonreturning_function(local, fehler_cclosure, (object obj)) {
 
 /* (SYS::CLOSURE-CODEVEC closure) returns the code-vector of a compiled
    closure, as list of fixnums >=0, <256. */
-LISPFUNN(closure_codevec,1) {
+LISPFUNNR(closure_codevec,1) {
   var object closure = popSTACK();
   if (!(cclosurep(closure))) fehler_cclosure(closure);
   var object codevec = TheCclosure(closure)->clos_codevec;
@@ -300,7 +300,7 @@ LISPFUNN(closure_codevec,1) {
 
 /* (SYS::CLOSURE-CONSTS closure) returns a list of all constants of a
    compiled closure. */
-LISPFUNN(closure_consts,1) {
+LISPFUNNR(closure_consts,1) {
   var object closure = popSTACK();
   if (!(cclosurep(closure))) fehler_cclosure(closure);
   /* comprise elements 2,3,... to a list: */
@@ -322,7 +322,7 @@ LISPFUNN(closure_consts,1) {
 /* (SYS::MAKE-CODE-VECTOR list) returns for a list of fixnums >=0, <256
    a simple-bit-vector of eight fold length, that contains these
    numbers as bytes. */
-LISPFUNN(make_code_vector,1) {
+LISPFUNNR(make_code_vector,1) {
   var object bv = allocate_bit_vector(Atype_8Bit,llength(STACK_0)); /* simple-8bit-vector */
   /* fill: */
   var object listr = popSTACK(); /* list */
@@ -348,7 +348,7 @@ LISPFUNN(make_code_vector,1) {
 /* (SYS::%MAKE-CLOSURE name codevec consts) returns a closure with given
    name (a symbol), given code-vector (a simple-bit-vector) and
    further given constants. */
-LISPFUNN(make_closure,3) {
+LISPFUNNR(make_closure,3) {
   /* codevec must be a simple-bit-vector: */
   if (!simple_bit_vector_p(Atype_8Bit,STACK_1)) {
     /* STACK_1 = codevec */
@@ -451,7 +451,7 @@ LISPFUNN(generic_function_effective_method_function,1) {
 
  (SYS::MAKE-LOAD-TIME-EVAL form) returns a load-time-eval-object that
   - if printed and read again - evaluates form. */
-LISPFUNN(make_load_time_eval,1) {
+LISPFUN(make_load_time_eval,seclass_no_se,1,0,norest,nokey,0,NIL) {
   var object lte = allocate_loadtimeeval();
   TheLoadtimeeval(lte)->loadtimeeval_form = popSTACK();
   VALUES1(lte);
@@ -474,14 +474,14 @@ LISPFUNN(make_load_time_eval,1) {
 */
 /* (SYS::MAKE-SYMBOL-MACRO expansion) returns a symbol-macro-object,
    that represents the given expansion. */
-LISPFUNN(make_symbol_macro,1) {
+LISPFUN(make_symbol_macro,seclass_no_se,1,0,norest,nokey,0,NIL) {
   var object sm = allocate_symbolmacro();
   TheSymbolmacro(sm)->symbolmacro_expansion = popSTACK();
   VALUES1(sm);
 }
 
-/* (SYS::SYMBOL-MACRO-P object) tests for symbol-macro. */
-LISPFUNN(symbol_macro_p,1) {
+LISPFUNNF(symbol_macro_p,1)
+{ /* (SYS::SYMBOL-MACRO-P object) tests for symbol-macro. */
   var object obj = popSTACK();
   VALUES_IF(symbolmacrop(obj));
 }
@@ -666,7 +666,7 @@ LISPFUNN(weak_pointer_value,1) {
  records that function is called if object dies through GC, with
  object and poss. alive as argument. If alive dies before object dies,
  nothing will be done. */
-LISPFUN(finalize,2,1,norest,nokey,0,NIL) {
+LISPFUN(finalize,seclass_default,2,1,norest,nokey,0,NIL) {
   STACK_1 = coerce_function(STACK_1);
   if (!gcinvariant_object_p(STACK_2)) {
     var object f = allocate_finalizer();
@@ -682,14 +682,14 @@ LISPFUN(finalize,2,1,norest,nokey,0,NIL) {
 /* ===========================================================================
  * CLOS objects: */
 
-/* (CLOS::STRUCTURE-OBJECT-P object) checks if object is a structure. */
-LISPFUNN(structure_object_p,1) {
+LISPFUNNF(structure_object_p,1)
+{ /* (CLOS::STRUCTURE-OBJECT-P object) checks if object is a structure. */
   var object obj = popSTACK();
   VALUES_IF(structurep(obj));
 }
 
-/* (CLOS::STD-INSTANCE-P object) checks if object is a CLOS-object. */
-LISPFUNN(std_instance_p,1) {
+LISPFUNNF(std_instance_p,1)
+{ /* (CLOS::STD-INSTANCE-P object) checks if object is a CLOS-object. */
   var object obj = popSTACK();
   VALUES_IF(instancep(obj));
 }
@@ -749,7 +749,7 @@ local Values do_allocate_instance (object clas);
 /* (CLOS::%ALLOCATE-INSTANCE class &rest initargs)
   returns an instance of the class.
   class must be an instance of <standard-class> or <structure-class>. */
-LISPFUN(pallocate_instance,1,0,rest,nokey,0,NIL) {
+LISPFUN(pallocate_instance,seclass_read,1,0,rest,nokey,0,NIL) {
   check_keywords(argcount,S(allocate_instance));
   set_args_end_pointer(rest_args_pointer); /* clean up STACK */
   return_Values do_allocate_instance(popSTACK());
@@ -879,7 +879,7 @@ LISPFUNN(slot_makunbound,2) {
 #ifdef RISCOS_CCBUG
   #pragma -z0
 #endif
-LISPFUNN(slot_exists_p,2) {
+LISPFUNNR(slot_exists_p,2) {
   pushSTACK(STACK_1); C_class_of(); /* determine (CLASS-OF instance) */
   var object slotinfo = /* (GETHASH slot-name (class-slot-location-table class)) */
     gethash(STACK_0,TheClass(value1)->slot_location_table);
@@ -1021,7 +1021,7 @@ local inline gcv_object_t* slot_in_arglist (const object slot, uintC argcount,
                          (if (car init) (funcall (car init))
                              (cdr init)))))))))))
    instance) */
-LISPFUN(pshared_initialize,2,0,rest,nokey,0,NIL) {
+LISPFUN(pshared_initialize,seclass_default,2,0,rest,nokey,0,NIL) {
   check_keywords(argcount,S(shared_initialize));
   argcount = argcount/2; /* number of Initarg/Value-pairs */
   { /* stack layout: instance, slot-names, argcount Initarg/Value-Pairs. */
@@ -1127,7 +1127,7 @@ local inline void call_init_fun (object fun, object last,
                      (setf (slot-value instance slotname) init-value)))))
              instance)))
        (apply #'initial-reinitialize-instance instance initargs)))) */
-LISPFUN(preinitialize_instance,1,0,rest,nokey,0,NIL) {
+LISPFUN(preinitialize_instance,seclass_default,1,0,rest,nokey,0,NIL) {
   var object instance = Before(rest_args_pointer);
   /* instance of <standard-class> or <structure-class>: */
   var object clas = class_of(instance);
@@ -1202,7 +1202,7 @@ LISPFUN(preinitialize_instance,1,0,rest,nokey,0,NIL) {
 local Values do_initialize_instance (object info,
                                      gcv_object_t* rest_args_pointer,
                                      uintC argcount);
-LISPFUN(pinitialize_instance,1,0,rest,nokey,0,NIL) {
+LISPFUN(pinitialize_instance,seclass_default,1,0,rest,nokey,0,NIL) {
   var object instance = Before(rest_args_pointer);
   /* instance of <standard-class> or <structure-class>: */
   var object clas = class_of(instance);
@@ -1305,7 +1305,7 @@ local Values do_initialize_instance (object info,
                (apply (svref h 3) instance 'T initargs)
                ...))))
        (apply #'initial-make-instance class initargs)))) */
-LISPFUN(pmake_instance,1,0,rest,nokey,0,NIL) {
+LISPFUN(pmake_instance,seclass_default,1,0,rest,nokey,0,NIL) {
   check_keywords(argcount,S(make_instance));
   argcount = argcount/2; /* number of Initarg/Value-pairs */
   /* stack layout: class, argcount Initarg/Value-pairs. */

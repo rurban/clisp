@@ -148,21 +148,20 @@ LISPFUNN(proclaim_constant,2)
     VALUES1(symbol); /* return symbol */
   }
 
-LISPFUN(get,2,1,norest,nokey,0,NIL)
-# (GET symbol key [not-found]), CLTL S. 164
-  {
-    var object symbol = test_symbol(STACK_2);
-    var object result = get(symbol,STACK_1); # suchen
-    if (! boundp(result)) { /* not found? */
-      result = STACK_0; # Defaultwert ist not-found
-      if (! boundp(result)) /* not supplied */
-        result = NIL; # dann NIL.
-    }
-    VALUES1(result);
-    skipSTACK(3);
+LISPFUN(get,seclass_read,2,1,norest,nokey,0,NIL)
+{ /* (GET symbol key [not-found]), CLTL p. 164 */
+  var object symbol = test_symbol(STACK_2);
+  var object result = get(symbol,STACK_1); # suchen
+  if (! boundp(result)) { /* not found? */
+    result = STACK_0; # Defaultwert ist not-found
+    if (! boundp(result)) /* not supplied */
+      result = NIL; # dann NIL.
   }
+  VALUES1(result);
+  skipSTACK(3);
+}
 
-LISPFUN(getf,2,1,norest,nokey,0,NIL)
+LISPFUN(getf,seclass_read,2,1,norest,nokey,0,NIL)
 { /* (GETF place key [not-found]), CLTL p. 166 */
   var gcv_object_t *plistr_ = plist_find(&STACK_2,STACK_1);
   if (plistr_ == NULL) /* property list has odd length */
@@ -238,7 +237,7 @@ LISPFUNN(remf,2)
   value1 = STACK_1; mv_count = 2; skipSTACK(2);
 }
 
-LISPFUNN(get_properties,2)
+LISPFUNNR(get_properties,2)
 { /* (GET-PROPERTIES place keylist), CLTL p. 167 */
   var object keylist = popSTACK();
   var object plist = popSTACK();
@@ -318,35 +317,31 @@ LISPFUNN(remprop,2)
   mv_count = 1;
 }
 
-LISPFUNN(symbol_package,1)
-# (SYMBOL-PACKAGE symbol), CLTL S. 170
-  {
-    var object symbol = test_symbol(popSTACK());
-    VALUES1(Symbol_package(symbol));
-  }
+LISPFUNNR(symbol_package,1)
+{ /* (SYMBOL-PACKAGE symbol), CLTL p. 170 */
+  var object symbol = test_symbol(popSTACK());
+  VALUES1(Symbol_package(symbol));
+}
 
-LISPFUNN(symbol_plist,1)
-# (SYMBOL-PLIST symbol), CLTL S. 166
-  {
-    var object symbol = test_symbol(popSTACK());
-    VALUES1(Symbol_plist(symbol));
-  }
+LISPFUNNR(symbol_plist,1)
+{ /* (SYMBOL-PLIST symbol), CLTL p. 166 */
+  var object symbol = test_symbol(popSTACK());
+  VALUES1(Symbol_plist(symbol));
+}
 
-LISPFUNN(symbol_name,1)
-# (SYMBOL-NAME symbol), CLTL S. 168
-  {
-    var object symbol = test_symbol(popSTACK());
-    VALUES1(Symbol_name(symbol));
-  }
+LISPFUN(symbol_name,seclass_no_se,1,0,norest,nokey,0,NIL)
+{ /* (SYMBOL-NAME symbol), CLTL S. 168 */
+  var object symbol = test_symbol(popSTACK());
+  VALUES1(Symbol_name(symbol));
+}
 
-LISPFUNN(keywordp,1)
-# (KEYWORDP object), CLTL S. 170
-  {
-    var object obj = popSTACK();
-    VALUES_IF(symbolp(obj) && keywordp(obj));
-  }
+LISPFUNNR(keywordp,1)
+{ /* (KEYWORDP object), CLTL p. 170 */
+  var object obj = popSTACK();
+  VALUES_IF(symbolp(obj) && keywordp(obj));
+}
 
-LISPFUN(gensym,0,1,norest,nokey,0,NIL)
+LISPFUN(gensym,seclass_read,0,1,norest,nokey,0,NIL)
 # (GENSYM x), CLTL S. 169, CLtL2 S. 245-246
 # (defun gensym (&optional (x nil s))
 #   (let ((prefix "G") ; ein String
