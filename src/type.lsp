@@ -1177,7 +1177,7 @@ referring to circular lists.
     (if b
       (loop
         (multiple-value-setq (a b) (type-expand-1 a))
-        (unless b (return (values a b)))
+        (unless b (return (values a t)))
       )
       (values typespec nil)
 ) ) )
