@@ -8488,7 +8488,22 @@ local object open_file (object filename, direction_t direction,
   var object handle;
  {var bool append_flag = false;
  {switch (direction) {
-    case DIRECTION_PROBE: /* open, then close */
+    case DIRECTION_PROBE:
+      if (!file_exists(namestring)) { # file does not exist
+        # :IF-DOES-NOT-EXIST decides:
+        if (if_not_exists==IF_DOES_NOT_EXIST_ERROR)
+          goto fehler_notfound;
+        if (if_not_exists==IF_DOES_NOT_EXIST_UNBOUND
+            || if_not_exists==IF_DOES_NOT_EXIST_NIL)
+          goto ergebnis_NIL;
+        # :CREATE -> create the file using open and close:
+        with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+          prepare_create(STACK_0);
+          create_new_file(namestring_asciz);
+        });
+      }
+      handle = NIL; # Handle := NIL
+      break;
     case DIRECTION_INPUT: case DIRECTION_INPUT_IMMUTABLE: { # == :INPUT
       var Handle handl;
       var bool result;
@@ -8511,15 +8526,6 @@ local object open_file (object filename, direction_t direction,
           goto fehler_notfound;
       }
       handle = allocate_handle(handl);
-      if (direction == DIRECTION_PROBE) {
-        /* when probing, close the handle right away */
-       #if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS)
-        CLOSE(TheHandle(handle));
-       #endif
-       #ifdef WIN32_NATIVE
-        CloseHandle(TheHandle(handle));
-       #endif
-      }
     }
       break;
     default: # DIRECTION is :OUTPUT or :IO
