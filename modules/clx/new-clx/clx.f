@@ -777,6 +777,28 @@ static object lookup_xid (object dpy, XID xid) {
   }
 }
 
+/* set the ID to map to RESOURCE on display
+ < display hash-table object, XID number, resource object
+ can trigger GC */
+static void set_resource_id (gcv_object_t *ht, XID xid,
+                             gcv_object_t *resource) {
+  pushSTACK(make_uint16 (xid & 0xFFFF)); /* lower halfword */
+  pushSTACK(make_uint16 (xid >> 16));    /* upper halfword */
+  funcall(L(cons),2);                    /* cons `em */
+  pushSTACK(value1);                     /* key for puthash */
+  pushSTACK(*ht);                        /* hashtable */
+  pushSTACK(*resource);                  /* value */
+  funcall (L(puthash), 3);               /* put it into the hashtable */
+}
+
+/* delete the resource ID from the display
+ < display hash-table object, XID number */
+static Values delete_resource_id (gcv_object_t *ht, XID xid) {
+  Car (O(xlib_a_cons)) = make_uint16 (xid & 0xFFFF); /* lower halfword */
+  Cdr (O(xlib_a_cons)) = make_uint16 (xid >> 16);    /* upper halfword */
+  pushSTACK(O(xlib_a_cons)); pushSTACK(*ht); funcall(L(remhash),2);
+}
+
 static object make_xid_obj_2 (object type, object dpy, XID xid,
                               object prealloc)
 { /* NOTE: - This code is not reentrant :-( But hence it saves consing
@@ -800,14 +822,7 @@ static object make_xid_obj_2 (object type, object dpy, XID xid,
     pushSTACK(dpy);             /* ditto */
     pushSTACK(ht);              /* hashtable */
     pushSTACK(make_xid_obj_low (&STACK_3, &STACK_2, &STACK_1, xid));
-    /* Now enter this into the hashtable */
-    pushSTACK(make_uint16 (xid & 0xFFFF)); /* lower halfword */
-    pushSTACK(make_uint16 (xid >> 16));    /* upper halfword */
-    funcall(L(cons),2);                    /* cons `em */
-    pushSTACK(value1);                     /* key for puthash */
-    pushSTACK(STACK_2);                    /* hashtable */
-    pushSTACK(STACK_2);                    /* value */
-    funcall (L(puthash), 3);    /* put it into the hashtable */
+    set_resource_id(&STACK_1,xid,&STACK_0); /* enter it into the hashtable */
     VALUES1(popSTACK());        /* return freshly allocated structure */
     skipSTACK(4);               /* remove saved prealloc, type, dpy, ht */
   }
@@ -1849,10 +1864,42 @@ DEFUN(XLIB:DISPLAY-XID, display)
   VALUES1(``XLIB::%DISPLAY-XID``);
 }
 
-DEFUN(XLIB::LOOKUP-RESOURCE-ID, display id) {
+DEFUN(XLIB::LOOKUP-RESOURCE-ID, display id) { /* used by RGB-COLORMAPS */
   XID resource_id = get_uint29(popSTACK());
   object ht = lookup_xid(popSTACK(),resource_id); /* set value1 if found */
   if (!eq(ht,nullobj)) VALUES1(NIL); /* not found */
+}
+
+DEFUN(XLIB::SAVE-ID, display id resource) { /* used by CLUE */
+  XID resource_id = get_uint29(STACK_1);
+  STACK_2 = display_hash_table(STACK_2);
+  set_resource_id(&STACK_2,resource_id,&STACK_0);
+  VALUES1(STACK_0);
+  skipSTACK(3);
+}
+
+DEFUN(XLIB::DEALLOCATE-RESOURCE-ID, display id type) { /* used by CLUE */
+  XID resource_id = get_uint29(STACK_1);
+  STACK_2 = display_hash_table(STACK_2);
+  delete_resource_id(&STACK_2,resource_id); /* sets values */
+  skipSTACK(3);
+}
+
+DEFUN(XLIB::SET-GCONTEXT-DISPLAY, display gcontext) { /* used by CLUE */
+  Display *dpy_orig, *dpy_new;
+  GC gcon = get_gcontext_and_display(STACK_0,&dpy_orig);
+  pushSTACK(STACK_1); dpy_new = pop_display();
+  if (dpy_orig != dpy_new) {
+    pushSTACK(uint32_to_I(dpy_orig)); pushSTACK(uint32_to_I(dpy_new));
+    pushSTACK(STACK_3)/*gc*/; pushSTACK(STACK_3)/* dpy */;
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,"~S: cannot change dpy of ~S to ~S (~S is not ~S)");
+  }
+  pushSTACK(STACK_0);           /* GC */
+  pushSTACK(`XLIB::DISPLAY`);   /* slot */
+  pushSTACK(STACK_3);           /* dpy */
+  funcall(L(set_slot_value),3);
+  skipSTACK(2);
 }
 
 DEFUN(XLIB:DISPLAY-AFTER-FUNCTION, display) /* OK */
@@ -6786,9 +6833,8 @@ DEFUN(XLIB:KEYSYM->CHARACTER, display keysym &optional state)
 
   keysym = get_uint32 (popSTACK());
   dpy = pop_display ();
-
-  NOTIMPLEMENTED;
   /* Too wired -- I have to browse some more in the manuals ... Back soon. */
+  VALUES1(int_char(keysym)); /* how about just int_char ?! */
 }
 
 /* Return keycodes for keysym, as multiple values
@@ -6800,6 +6846,30 @@ DEFUN(XLIB:KEYSYM->CHARACTER, display keysym &optional state)
 DEFUN(XLIB:KEYSYM->KEYCODES, display keysym) /* NIM */
 {
   UNDEFINED;
+}
+
+DEFUN(XLIB:KEYSYM, keysym &rest bytes) { /* see mit-clx/translate.lisp */
+  if (uint8_p(STACK_(argcount))) {
+    uint32 keysym = get_uint8(STACK_(argcount));
+    int count = argcount;
+    while (count--) keysym = (keysym<<8) | get_uint8(STACK_(count));
+    skipSTACK(argcount+1);
+    VALUES1(make_uint32(keysym));
+  } else if ((stringp(STACK_(argcount)) || symbolp(STACK_(argcount)))
+             && argcount==0) {
+    KeySym keysym;
+    /* unfortunately, keysyms should be named Hyper_L or Super_R,
+       not :left-hyper or :right-super */
+    with_stringable_0_tc(STACK_0,GLO(misc_encoding),name, {
+        X_CALL(keysym=XStringToKeysym(name));
+      });
+    skipSTACK(1);
+    VALUES1(make_uint32(keysym));
+  } else {
+    object tmp = listof(argcount+1); pushSTACK(tmp);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,("~S: invalid arguments ~S"));
+  }
 }
 
 /* And there also the undocumented function:
