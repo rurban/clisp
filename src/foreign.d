@@ -2105,9 +2105,12 @@ global void convert_to_foreign_nomalloc (object fvd, object obj, void* data)
 
 /* Error messages. */
 nonreturning_function(local, fehler_foreign_variable, (object obj)) {
-  pushSTACK(obj);
+  pushSTACK(NIL);                 /* no PLACE */
+  pushSTACK(obj);                 /* TYPE-ERROR slot DATUM */
+  pushSTACK(S(foreign_variable)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(STACK_0); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~S: argument is not a foreign variable: ~S"));
+  fehler(type_error,GETTEXT("~S: ~S is not of type ~S"));
 }
 nonreturning_function(local, fehler_variable_no_fvd, (object obj)) {
   pushSTACK(obj);
@@ -2748,9 +2751,12 @@ LISPFUN(foreign_free,seclass_default,1,0,norest,key,1,(kw(full)))
 
 /* Error messages. */
 nonreturning_function(local, fehler_foreign_function, (object obj)) {
-  pushSTACK(obj);
+  pushSTACK(NIL);                 /* no PLACE */
+  pushSTACK(obj);                 /* TYPE-ERROR slot DATUM */
+  pushSTACK(S(foreign_function)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(STACK_0); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~S: argument is not a foreign function: ~S"));
+  fehler(type_error,GETTEXT("~S: ~S is not of type ~S"));
 }
 nonreturning_function(local, fehler_function_no_fvd,
                       (object obj, object caller)) {
