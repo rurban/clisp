@@ -198,6 +198,8 @@
   (std-gf-methods gf))
 (defun generic-function-method-class (gf)
   (std-gf-default-method-class gf))
+(defun generic-function-signature (gf)
+  (std-gf-signature gf))
 
 ;; ============================================================================
 
@@ -209,6 +211,7 @@
 (defvar |#'compute-effective-method| nil)
 (defvar |#'generic-function-methods| nil)
 (defvar |#'generic-function-method-class| nil)
+(defvar |#'generic-function-signature| nil)
 (defvar |#'method-qualifiers| nil)
 (defvar |#'method-specializers| nil)
 
@@ -224,6 +227,14 @@
           (eq gf |#'compute-effective-method|))
     (std-gf-default-method-class gf)
     (generic-function-method-class gf)))
+
+(defun safe-gf-signature (gf)
+  (if (or (eq gf #'generic-function-signature) ; for bootstrapping
+          (eq gf |#'generic-function-signature|)
+          (eq gf |#'generic-function-method-class|)
+          (eq gf |#'compute-effective-method|))
+    (std-gf-signature gf)
+    (generic-function-signature gf)))
 
 (defun safe-method-qualifiers (method gf)
   (if (or (eq gf #'method-qualifiers) ; for bootstrapping
