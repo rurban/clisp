@@ -47,6 +47,13 @@
     (TEXT "The macro ~S may not be called with ~S arguments: ~S")
     (car macro-form) (1- (length macro-form)) macro-form))
 
+(defun macro-nonnull-element-error (macro-form macro-name element)
+  (error-of-type 'source-program-error
+    :form macro-form
+    :detail element
+    (TEXT "~S: ~S does not match lambda list element ~:S")
+    macro-name element '()))
+
 (proclaim '(special
         %whole-form ;; the whole source form being macroexpanded or compiled
 
@@ -280,16 +287,12 @@ the actual object #<MACRO expander> for the FENV.
    (cons (cdr h) (cdr exp))
    (list 'cdr exp)))
 
-(defun empty-pattern (name accessexp wholevar &aux (g (gensym)))
-  (setq %let-list (cons `(,g ,(cons-car accessexp)) %let-list)
-        %null-tests (cons
-                     `(if ,g
-                       (error-of-type 'source-program-error
-                         :form ,wholevar
-                         :detail ,g
-                         (TEXT "~S: ~S does not match lambda list element ~:S")
-                         ',name ,g '()))
-                     %null-tests)))
+(defun empty-pattern (name accessexp wholevar)
+  (let ((g (gensym)))
+    (setq %let-list (cons `(,g ,(cons-car accessexp)) %let-list))
+    (setq %null-tests
+          (cons `(WHEN ,g (MACRO-NONNULL-ELEMENT-ERROR ,wholevar ',name ,g))
+                 %null-tests))))
 
 (defun analyze1 (lambdalist accessexp name wholevar)
   (do ((listr lambdalist (cdr listr))
