@@ -1,3 +1,14 @@
+2005-02-13  Bruno Haible  <bruno@clisp.org>
+
+	* tests.lisp: Updates for GCL.
+	* clos.tst: Likewise.
+	* format.tst: Likewise.
+	* iofkts.tst: Likewise.
+	* mop.tst: Likewise.
+	* setf.tst: Likewise.
+	* streamslong.tst: Likewise.
+	* type.tst: Likewise.
+
 2005-02-13  Sam Steingold  <sds@gnu.org>
 
 	* streams.tst: test CLEAR-INPUT and CLEAR-OUTPUT

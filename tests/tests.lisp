@@ -20,7 +20,7 @@
                       (return-from ,b (values 'error error-message)))))))
          ,@forms))))
 
-#+(or AKCL ECL)
+#+(or (and AKCL (not GCL)) ECL)
 (defmacro with-ignored-errors (&rest forms)
   (let ((b (gensym))
         (h (gensym)))
@@ -38,7 +38,7 @@
     `(LET ((,r (MULTIPLE-VALUE-LIST (EXCL:ERRORSET (PROGN ,@forms)))))
        (IF (CAR ,r) (VALUES-LIST (CDR ,r)) 'ERROR))))
 
-#-(or OLD-CLISP AKCL ECL ALLEGRO)
+#-(or OLD-CLISP (and AKCL (not GCL)) ECL ALLEGRO)
 (defmacro with-ignored-errors (&rest forms)
   (let ((b (gensym)))
     `(BLOCK ,b
@@ -55,8 +55,8 @@
 ;; (lisp-implementation-type) may return something quite long, e.g.,
 ;; on CMUCL it returns "CMU Common Lisp".
 (defvar lisp-implementation
-  #+CLISP "CLISP" #+AKCL "AKCL" #+ECL "ECL" #+ALLEGRO "ALLEGRO" #+CMU "CMUCL"
-  #-(or CLISP AKCL ECL ALLEGRO CMU) (lisp-implementation-type))
+  #+CLISP "CLISP" #+(and AKCL (not GCL)) "AKCL" #+GCL "GCL" #+ECL "ECL" #+ALLEGRO "ALLEGRO" #+CMU "CMUCL"
+  #-(or CLISP AKCL GCL ECL ALLEGRO CMU) (lisp-implementation-type))
 
 (defvar *eval-method* :eval)
 (defun my-eval (form)
@@ -198,7 +198,7 @@
                                     "array"
                   #-OpenMCL         "backquot"
                   #+CLISP           "bin-io"
-                  #-AKCL            "characters"
+                  #-(and AKCL (not GCL)) "characters"
                   #+(or CLISP ALLEGRO CMU OpenMCL) "clos"
                   #+CLISP ,@(unless disable-risky '("defhash"))
                   #+(and CLISP UNICODE) "encoding"
@@ -213,12 +213,12 @@
                                     "iofkts"
                                     "lambda"
                                     "lists151"
-                  #-OpenMCL         "lists152"
+                  #-(or GCL OpenMCL) "lists152"
                                     "lists153"
                                     "lists154"
                                     "lists155"
                                     "lists156"
-                  #+(or CLISP ALLEGRO CMU SBCL OpenMCL) "loop"
+                  #+(or CLISP GCL ALLEGRO CMU SBCL OpenMCL) "loop"
                                     "macro8"
                                     "map"
                   #+(or CLISP ALLEGRO CMU OpenMCL) "mop"

@@ -144,7 +144,7 @@ T
 
 ;; depends on (UPGRADED-COMPLEX-PART-TYPE '(EQL 0))
 (TYPEP #C(0 1) '(COMPLEX (EQL 0)))
-#+(or CLISP CMU19 OpenMCL) NIL #+(or CMU18 SBCL) T #-(or CLISP CMU SBCL OpenMCL) UNKNOWN
+#+(or CLISP GCL CMU19 OpenMCL) NIL #+(or CMU18 SBCL) T #-(or CLISP GCL CMU SBCL OpenMCL) UNKNOWN
 
 #| ; depends on (upgraded-array-element-type 'SYMBOL) !
  (TYPEP '#(A B C D) (QUOTE (VECTOR SYMBOL 4)))
