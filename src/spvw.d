@@ -1696,7 +1696,7 @@ local void usage (int exit_code)
             " -x sexp     - execute the expression and exit" NLstring
             " --license   - print the licensing information" NLstring
             " --version   - print the version information" NLstring
-            " -q, --silent, --quiet - do not print the banner" NLstring);
+            " -q, --quiet, --silent - do not print the banner" NLstring);
   quit_sofort (exit_code); # anormales Programmende
 }
 
@@ -2099,8 +2099,8 @@ local void print_banner ()
                         argv_expr = "(PROGN (FORMAT T \"CLISP ~A\" (LISP-IMPLEMENTATION-VERSION)) (LISP:EXIT))";
                         break;
                       }
-                    elif (asciz_equal(&arg[2],"quiet") ||
-                          asciz_equal(&arg[2],"silent"))
+                    elif (asciz_equal(&arg[2],"quiet")
+                          || asciz_equal(&arg[2],"silent"))
                       { argv_quiet = TRUE; break; }
                     elif (asciz_equal(&arg[2],"license"))
                       { argv_license = TRUE; break; }
