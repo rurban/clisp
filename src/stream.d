@@ -44,17 +44,23 @@
   # strmflags_open_B: die 4 oberen Bits
 # strmtype = Nähere Typinfo. Siehe LISPBIBL.D.
 
-# einzelne Komponenten:
-  # strm_rd_by       Pseudofunktion für READ-BYTE
-  # strm_wr_by       Pseudofunktion für WRITE-BYTE
-  # strm_rd_ch       Pseudofunktion für READ-CHAR
-  # strm_pk_ch       Pseudofunktion für PEEK-CHAR
-  # strm_rd_ch_last  letztes von READ-CHAR gelesenes Zeichen
-  #                  (NIL falls noch keines gelesen), nach UNREAD-CHAR
-  #                  ist zusätzlich strmflags_unread_bit_B gesetzt.
-  # strm_wr_ch       Pseudofunktion für WRITE-CHAR
-  # strm_wr_ch_lpos  Line-Position in der Zeile nach dem letzten WRITE-CHAR
-  # strm_wr_ss       Pseudofunktion für WRITE-SIMPLE-STRING
+# individual fields:
+  # strm_rd_by         pseudofunction for READ-BYTE
+  # strm_rd_by_array   pseudofunction for READ-BYTE-SEQUENCE
+  # strm_wr_by         pseudofunction for WRITE-BYTE
+  # strm_wr_by_array   pseudofunction for WRITE-BYTE-SEQUENCE
+  # strm_rd_ch         pseudofunction for READ-CHAR
+  # strm_pk_ch         pseudofunction for PEEK-CHAR
+  # strm_rd_ch_array   pseudofunction for READ-CHAR-SEQUENCE
+  # strm_rd_ch_last    last character read by READ-CHAR, NIL if none has been
+  #                    read upto now, eof_value after EOF has been seen.
+  #                    After UNREAD-CHAR, additionally the bit
+  #                    strmflags_unread_bit_B is set.
+  # strm_wr_ch         pseudofunction for WRITE-CHAR
+  # strm_wr_ch_array   pseudofunction for WRITE-CHAR-SEQUENCE
+  # strm_wr_ch_lpos    line-position in the current line after last WRITE-CHAR,
+  #                    a fixnum >=0
+  # strm_wr_ss         pseudofunction for WRITE-SIMPLE-STRING
 # weitere (typspezifische) Komponenten:
   # siehe in LISPBIBL.D und bei den einzelnen Stream-Typen.
 
@@ -67,37 +73,22 @@
 # READ-/WRITE-Operationen effizient laufen, werden Streams folgendermaßen
 # aufgebaut:
 #    - Typ des Streams,
-#    - Komponenten für READ-BYTE,
-#    - Komponenten für WRITE-BYTE,
-#    - Komponenten für READ-CHAR,
-#    - Komponenten für WRITE-CHAR,
+#    - Komponenten für READ-BYTE, READ-BYTE-SEQUENCE,
+#    - Komponenten für WRITE-BYTE, WRITE-BYTE-SEQUENCE,
+#    - Komponenten für READ-CHAR, READ-CHAR-SEQUENCE,
+#    - Komponenten für WRITE-CHAR, WRITE-CHAR-SEQUENCE,
 #    - vom Typ des Streams abhängige Komponenten.
 
-# Feste Komponenten
-# -----------------
-# für READ-BYTE:
-#     RD_BY          Pseudofunktion zum Lesen eines Bytes
-# für WRITE-BYTE:
-#     WR_BY          Pseudofunktion zum Schreiben eines Bytes
-# für READ-CHAR:
-#     RD_CH          Pseudofunktion zum Lesen eines Characters
-#     RD_CH_LAST     letztes gelesenes Zeichen und Flag
-#                    (NIL zu Beginn, eof_value nach End-of-File,
-#                    sonst: letztes gelesenes Zeichen)
-# für WRITE-CHAR:
-#     WR_CH          Pseudofunktion zum Schreiben eines Characters
-#     WR_CH_LPOS     Position in der Zeile (Fixnum >=0) (für FORMAT ~T)
-
-# Pseudofunktionen sind Adressen von C-Funktionen, die direkt angesprungen
-# werden können, mit dem Stream als erstem Argument, und ein Objekt
-# als Ergebnis liefern.
+# Pseudofunctions are addresses of C functions which can be called directly
+# (not through FUNCALL). They get the stream as first argument and return an
+# object.
   #ifdef TYPECODES
-    #define P(fun)  (type_constpointer_object(machine_type,(Pseudofun)&(fun)))
+    #define P(fun)  type_constpointer_object(machine_type,(Pseudofun)&(fun))
   #else
     #define P(fun)  make_machine_code((Pseudofun)&(fun))
   #endif
 
-# Spezifikation der vier Typen von Pseudofunktionen:
+# Spezifikation der neun Typen von Pseudofunktionen:
   #
   # Spezifikation für READ-BYTE - Pseudofunktion:
   # fun(stream)
@@ -106,12 +97,28 @@
   # kann GC auslösen
     typedef object (* rd_by_Pseudofun) (object stream);
   #
+  # Spezifikation für READ-BYTE-ARRAY - Pseudofunktion:
+  # fun(stream,byteptr,len)
+  # > stream: Stream
+  # > uintB* byteptr: Adresse der zu füllenden Bytefolge
+  # > uintL len: Länge der zu füllenden Bytefolge, >0
+  # < uintB* ergebnis: Pointer ans Ende des gefüllten Bereiches oder NULL
+    typedef uintB* (* rd_by_array_Pseudofun) (object stream, uintB* byteptr, uintL len);
+  #
   # Spezifikation für WRITE-BYTE - Pseudofunktion:
   # fun(stream,obj)
   # > stream: Stream
   # > obj: auszugebender Integer
   # kann GC auslösen
     typedef void (* wr_by_Pseudofun) (object stream, object obj);
+  #
+  # Spezifikation für WRITE-BYTE-ARRAY - Pseudofunktion:
+  # fun(stream,byteptr,len)
+  # > stream: Stream
+  # > uintB* byteptr: Adresse der zu schreibenden Bytefolge
+  # > uintL len: Länge der zu schreibenden Bytefolge, >0
+  # < uintB* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
+    typedef const uintB* (* wr_by_array_Pseudofun) (object stream, const uintB* byteptr, uintL len);
   #
   # Spezifikation für READ-CHAR - Pseudofunktion:
   # fun(&stream)
@@ -131,6 +138,14 @@
   # kann GC auslösen
     typedef object (* pk_ch_Pseudofun) (const object* stream_);
   #
+  # Spezifikation für READ-CHAR-ARRAY - Pseudofunktion:
+  # fun(stream,charptr,len)
+  # > stream: Stream
+  # > chart* charptr: Adresse der zu füllenden Zeichenfolge
+  # > uintL len: Länge der zu füllenden Zeichenfolge, >0
+  # < chart* ergebnis: Pointer ans Ende des gefüllten Bereiches oder NULL
+    typedef chart* (* rd_ch_array_Pseudofun) (object stream, chart* charptr, uintL len);
+  #
   # Spezifikation für WRITE-CHAR - Pseudofunktion:
   # fun(&stream,obj)
   # > stream: Stream
@@ -138,6 +153,14 @@
   # > obj: auszugebendes Character
   # kann GC auslösen
     typedef void (* wr_ch_Pseudofun) (const object* stream_, object obj);
+  #
+  # Spezifikation für WRITE-CHAR-ARRAY - Pseudofunktion:
+  # fun(stream,charptr,len)
+  # > stream: Stream
+  # > chart* charptr: Adresse der zu schreibenden Zeichenfolge
+  # > uintL len: Länge der zu schreibenden Zeichenfolge, >0
+  # < chart* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
+    typedef const chart* (* wr_ch_array_Pseudofun) (object stream, const chart* charptr, uintL len);
   #
   # Spezifikation für WRITE-SIMPLE-STRING - Pseudofunktion:
   # fun(&stream,string,start,len)
@@ -151,10 +174,14 @@
 
 # Pseudofunktionen aus einem Stream herausgreifen:
   #define rd_by(strm)  (*(rd_by_Pseudofun)(ThePseudofun(TheStream(strm)->strm_rd_by)))
+  #define rd_by_array(strm)  (*(rd_by_array_Pseudofun)(ThePseudofun(TheStream(strm)->strm_rd_by_array)))
   #define wr_by(strm)  (*(wr_by_Pseudofun)(ThePseudofun(TheStream(strm)->strm_wr_by)))
+  #define wr_by_array(strm)  (*(wr_by_array_Pseudofun)(ThePseudofun(TheStream(strm)->strm_wr_by_array)))
   #define rd_ch(strm)  (*(rd_ch_Pseudofun)(ThePseudofun(TheStream(strm)->strm_rd_ch)))
   #define pk_ch(strm)  (*(pk_ch_Pseudofun)(ThePseudofun(TheStream(strm)->strm_pk_ch)))
+  #define rd_ch_array(strm)  (*(rd_ch_array_Pseudofun)(ThePseudofun(TheStream(strm)->strm_rd_ch_array)))
   #define wr_ch(strm)  (*(wr_ch_Pseudofun)(ThePseudofun(TheStream(strm)->strm_wr_ch)))
+  #define wr_ch_array(strm)  (*(wr_ch_array_Pseudofun)(ThePseudofun(TheStream(strm)->strm_wr_ch_array)))
   #define wr_ss(strm)  (*(wr_ss_Pseudofun)(ThePseudofun(TheStream(strm)->strm_wr_ss)))
 
 #  Mögliche Typen von Streams              Zusatzkomponenten
@@ -224,17 +251,41 @@
     }
 
 # Dummy-Pseudo-Funktionen, die Errors liefern:
-  local object rd_by_dummy (object stream);
-  local object rd_by_dummy(stream)
+  local object rd_by_error (object stream);
+  local object rd_by_error(stream)
     var object stream;
     { fehler_illegal_streamop(S(read_byte),stream); }
-  local void wr_by_dummy (object stream, object obj);
-  local void wr_by_dummy(stream,obj)
+  local uintB* rd_by_array_error (object stream, uintB* byteptr, uintL len);
+  local uintB* rd_by_array_error(stream,byteptr,len)
+    var object stream;
+    var uintB* byteptr;
+    var uintL len;
+    { fehler_illegal_streamop(S(read_byte),stream); }
+  local uintB* rd_by_array_dummy (object stream, uintB* byteptr, uintL len);
+  local uintB* rd_by_array_dummy(stream,byteptr,len)
+    var object stream;
+    var uintB* byteptr;
+    var uintL len;
+    { return NULL; }
+  local void wr_by_error (object stream, object obj);
+  local void wr_by_error(stream,obj)
     var object stream;
     var object obj;
     { fehler_illegal_streamop(S(write_byte),stream); }
-  local object rd_ch_dummy (const object* stream_);
-  local object rd_ch_dummy(stream_)
+  local const uintB* wr_by_array_error (object stream, const uintB* byteptr, uintL len);
+  local const uintB* wr_by_array_error(stream,byteptr,len)
+    var object stream;
+    var const uintB* byteptr;
+    var uintL len;
+    { fehler_illegal_streamop(S(write_byte),stream); }
+  local const uintB* wr_by_array_dummy (object stream, const uintB* byteptr, uintL len);
+  local const uintB* wr_by_array_dummy(stream,byteptr,len)
+    var object stream;
+    var const uintB* byteptr;
+    var uintL len;
+    { return NULL; }
+  local object rd_ch_error (const object* stream_);
+  local object rd_ch_error(stream_)
     var const object* stream_;
     { fehler_illegal_streamop(S(read_char),*stream_); }
   local object pk_ch_dummy (const object* stream_);
@@ -246,11 +297,35 @@
         { TheStream(*stream_)->strmflags |= strmflags_unread_B; }
       return newch;
     }
-  local void wr_ch_dummy (const object* stream_, object obj);
-  local void wr_ch_dummy(stream_,obj)
+  local chart* rd_ch_array_error (object stream, chart* charptr, uintL len);
+  local chart* rd_ch_array_error(stream,charptr,len)
+    var object stream;
+    var chart* charptr;
+    var uintL len;
+    { fehler_illegal_streamop(S(read_char),stream); }
+  local chart* rd_ch_array_dummy (object stream, chart* charptr, uintL len);
+  local chart* rd_ch_array_dummy(stream,charptr,len)
+    var object stream;
+    var chart* charptr;
+    var uintL len;
+    { return NULL; }
+  local void wr_ch_error (const object* stream_, object obj);
+  local void wr_ch_error(stream_,obj)
     var const object* stream_;
     var object obj;
     { fehler_illegal_streamop(S(write_char),*stream_); }
+  local const chart* wr_ch_array_error (object stream, const chart* charptr, uintL len);
+  local const chart* wr_ch_array_error(stream,charptr,len)
+    var object stream;
+    var const chart* charptr;
+    var uintL len;
+    { fehler_illegal_streamop(S(write_char),stream); }
+  local const chart* wr_ch_array_dummy (object stream, const chart* charptr, uintL len);
+  local const chart* wr_ch_array_dummy(stream,charptr,len)
+    var object stream;
+    var const chart* charptr;
+    var uintL len;
+    { return NULL; }
   local void wr_ss_dummy (const object* stream_, object string, uintL start, uintL len);
   local void wr_ss_dummy(stream_,string,start,len)
     var const object* stream_;
@@ -334,16 +409,46 @@
     var object stream;
     { return rd_by(stream)(stream); }
 
+# UP: Liest mehrere Bytes von einem Stream.
+# read_byte_array(stream,byteptr,len)
+# > stream: Stream
+# > uintB* byteptr: Adresse der zu füllenden Bytefolge
+# > uintL len: Länge der zu füllenden Bytefolge
+# < uintB* ergebnis: Pointer ans Ende des gefüllten Bereiches oder NULL
+  global uintB* read_byte_array (object stream, uintB* byteptr, uintL len);
+  global uintB* read_byte_array(stream,byteptr,len)
+    var object stream;
+    var uintB* byteptr;
+    var uintL len;
+    { if (len==0) { return byteptr; }
+      return rd_by_array(stream)(stream,byteptr,len);
+    }
+
 # Schreibt ein Byte auf einen Stream.
 # write_byte(stream,byte);
 # > stream: Stream
 # > byte: auszugebender Integer
 # kann GC auslösen
-  global void write_byte(object stream, object byte);
+  global void write_byte (object stream, object byte);
   global void write_byte(stream,byte)
     var object stream;
     var object byte;
     { wr_by(stream)(stream,byte); }
+
+# UP: Schreibt mehrere Bytes auf einen Stream.
+# write_byte_array(stream,byteptr,len)
+# > stream: Stream
+# > uintB* byteptr: Adresse der zu schreibenden Bytefolge
+# > uintL len: Länge der zu schreibenden Bytefolge
+# < uintB* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
+  global const uintB* write_byte_array (object stream, const uintB* byteptr, uintL len);
+  global const uintB* write_byte_array(stream,byteptr,len)
+    var object stream;
+    var const uintB* byteptr;
+    var uintL len;
+    { if (len==0) { return byteptr; }
+      return wr_by_array(stream)(stream,byteptr,len);
+    }
 
 # Liest ein Character von einem Stream.
 # read_char(&stream)
@@ -430,6 +535,37 @@
         { return TheStream(stream)->strm_rd_ch_last; }
     }
 
+# UP: Liest mehrere Characters von einem Stream.
+# read_char_array(stream,charptr,len)
+# > stream: Stream
+# > chart* charptr: Adresse der zu füllenden Zeichenfolge
+# > uintL len: Länge der zu füllenden Zeichenfolge
+# < chart* ergebnis: Pointer ans Ende des gefüllten Bereiches oder NULL
+  global chart* read_char_array (object stream, chart* charptr, uintL len);
+  global chart* read_char_array(stream,charptr,len)
+    var object stream;
+    var chart* charptr;
+    var uintL len;
+    { if (len==0) { return charptr; }
+     {var object lastchar = TheStream(stream)->strm_rd_ch_last;
+      if (eq(lastchar,eof_value)) # EOF ?
+        { return charptr; }
+      if (TheStream(stream)->strmflags & strmflags_unread_B)
+        { if (!charp(lastchar)) { return NULL; }
+          *charptr++ = char_code(lastchar);
+          len--;
+          if (len==0)
+            { TheStream(stream)->strmflags &= ~strmflags_unread_B;
+              return charptr;
+        }   }
+      {var chart* endptr = rd_ch_array(stream)(stream,charptr,len);
+       if (endptr == NULL) { return NULL; }
+       TheStream(stream)->strm_rd_ch_last =
+         (endptr == charptr+len ? code_char(endptr[-1]) : eof_value);
+       TheStream(stream)->strmflags &= ~strmflags_unread_B;
+       return endptr;
+    }}}
+
 # Schreibt ein Character auf einen Stream.
 # write_char(&stream,ch);
 # > ch: auszugebendes Character
@@ -479,18 +615,37 @@
         #endif
     }}
 
+# UP: Schreibt mehrere Characters auf einen Stream.
+# write_char_array(stream,charptr,len)
+# > stream: Stream
+# > chart* charptr: Adresse der zu schreibenden Zeichenfolge
+# > uintL len: Länge der zu schreibenden Zeichenfolge
+# < chart* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
+  global const chart* write_char_array (object stream, const chart* charptr, uintL len);
+  global const chart* write_char_array(stream,charptr,len)
+    var object stream;
+    var const chart* charptr;
+    var uintL len;
+    { if (len==0) { return charptr; }
+      return wr_ch_array(stream)(stream,charptr,len);
+    }
+
 # UP: Füllt beim Schließen eines Streams die Dummy-Pseudofunktionen ein.
 # close_dummys(stream);
 # > stream: Stream
   local void close_dummys (object stream);
   local void close_dummys(stream)
     var object stream;
-    { TheStream(stream)->strm_rd_by = P(rd_by_dummy);
-      TheStream(stream)->strm_wr_by = P(wr_by_dummy);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+    { TheStream(stream)->strm_rd_by = P(rd_by_error);
+      TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+      TheStream(stream)->strm_wr_by = P(wr_by_error);
+      TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
+      TheStream(stream)->strm_rd_ch = P(rd_ch_error);
       TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
       TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
-      TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
+      TheStream(stream)->strm_wr_ch = P(wr_ch_error);
+      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
       TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
       TheStream(stream)->strmflags &= ~(strmflags_open_B|strmflags_unread_B); # Fähigkeiten-Flags löschen
     }
@@ -717,6 +872,17 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
       return read_byte(get_synonym_stream(symbol));
     }}
 
+# READ-BYTE-ARRAY - Pseudofunktion für Synonym-Streams:
+  local uintB* rd_by_array_synonym (object stream, uintB* byteptr, uintL len);
+  local uintB* rd_by_array_synonym(stream,byteptr,len)
+    var object stream;
+    var uintB* byteptr;
+    var uintL len;
+    { check_SP();
+     {var object symbol = TheStream(stream)->strm_synonym_symbol;
+      return read_byte_array(get_synonym_stream(symbol),byteptr,len);
+    }}
+
 # WRITE-BYTE - Pseudofunktion für Synonym-Streams:
   local void wr_by_synonym (object stream, object obj);
   local void wr_by_synonym(stream,obj)
@@ -725,6 +891,17 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     { check_SP();
      {var object symbol = TheStream(stream)->strm_synonym_symbol;
       write_byte(get_synonym_stream(symbol),obj);
+    }}
+
+# WRITE-BYTE-ARRAY - Pseudofunktion für Synonym-Streams:
+  local const uintB* wr_by_array_synonym (object stream, const uintB* byteptr, uintL len);
+  local const uintB* wr_by_array_synonym(stream,byteptr,len)
+    var object stream;
+    var const uintB* byteptr;
+    var uintL len;
+    { check_SP();
+     {var object symbol = TheStream(stream)->strm_synonym_symbol;
+      return write_byte_array(get_synonym_stream(symbol),byteptr,len);
     }}
 
 # READ-CHAR - Pseudofunktion für Synonym-Streams:
@@ -753,6 +930,17 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
        return ergebnis;
     }}}
 
+# READ-CHAR-ARRAY - Pseudofunktion für Synonym-Streams:
+  local chart* rd_ch_array_synonym (object stream, chart* charptr, uintL len);
+  local chart* rd_ch_array_synonym(stream,charptr,len)
+    var object stream;
+    var chart* charptr;
+    var uintL len;
+    { check_SP();
+     {var object symbol = TheStream(stream)->strm_synonym_symbol;
+      return read_char_array(get_synonym_stream(symbol),charptr,len);
+    }}
+
 # WRITE-CHAR - Pseudofunktion für Synonym-Streams:
   local void wr_ch_synonym (const object* stream_, object obj);
   local void wr_ch_synonym(stream_,obj)
@@ -764,6 +952,18 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
       pushSTACK(get_synonym_stream(symbol));
       write_char(&STACK_0,obj);
       skipSTACK(1);
+    }}
+
+# WRITE-CHAR-ARRAY - Pseudofunktion für Synonym-Streams:
+  local const chart* wr_ch_array_synonym (object stream, const chart* charptr, uintL len);
+  local const chart* wr_ch_array_synonym(stream,charptr,len)
+    var object stream;
+    var const chart* charptr;
+    var uintL len;
+    { check_SP();
+     {var object symbol = TheStream(stream)->strm_synonym_symbol;
+      return write_char_array(get_synonym_stream(symbol),charptr,len);
+      # No need to update wr_ch_lpos here. (See get_line_position.)
     }}
 
 # WRITE-SIMPLE-STRING - Pseudofunktion für Synonym-Streams:
@@ -874,11 +1074,15 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
      {var object stream = # neuer Stream, alle Operationen erlaubt
         allocate_stream(strmflags_open_B,strmtype_synonym,strm_len+1,0);
       TheStream(stream)->strm_rd_by = P(rd_by_synonym);
+      TheStream(stream)->strm_rd_by_array = P(rd_by_array_synonym);
       TheStream(stream)->strm_wr_by = P(wr_by_synonym);
+      TheStream(stream)->strm_wr_by_array = P(wr_by_array_synonym);
       TheStream(stream)->strm_rd_ch = P(rd_ch_synonym);
       TheStream(stream)->strm_pk_ch = P(pk_ch_synonym);
+      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_synonym);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_synonym);
+      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_synonym);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
       TheStream(stream)->strm_wr_ss = P(wr_ss_synonym);
       TheStream(stream)->strm_synonym_symbol = popSTACK();
@@ -945,6 +1149,22 @@ LISPFUNN(synonym_stream_symbol,1)
       skipSTACK(1);
     }
 
+# WRITE-BYTE-ARRAY - Pseudofunktion für Broadcast-Streams:
+  local const uintB* wr_by_array_broad0 (object stream, const uintB* byteptr, uintL len);
+  local const uintB* wr_by_array_broad0(stream,byteptr,len)
+    var object stream;
+    var const uintB* byteptr;
+    var uintL len;
+    { return byteptr+len; }
+  local const uintB* wr_by_array_broad1 (object stream, const uintB* byteptr, uintL len);
+  local const uintB* wr_by_array_broad1(stream,byteptr,len)
+    var object stream;
+    var const uintB* byteptr;
+    var uintL len;
+    { check_SP();
+      return write_byte_array(Car(TheStream(stream)->strm_broad_list),byteptr,len);
+    }
+
 # WRITE-CHAR - Pseudofunktion für Broadcast-Streams:
   local void wr_ch_broad (const object* stream_, object obj);
   local void wr_ch_broad(stream_,obj)
@@ -964,7 +1184,24 @@ LISPFUNN(synonym_stream_symbol,1)
       skipSTACK(3);
     }
 
-# WRITE-CHAR - Pseudofunktion für Broadcast-Streams:
+# WRITE-CHAR-ARRAY - Pseudofunktion für Broadcast-Streams:
+  local const chart* wr_ch_array_broad0 (object stream, const chart* charptr, uintL len);
+  local const chart* wr_ch_array_broad0(stream,charptr,len)
+    var object stream;
+    var const chart* charptr;
+    var uintL len;
+    { return charptr+len; }
+  local const chart* wr_ch_array_broad1 (object stream, const chart* charptr, uintL len);
+  local const chart* wr_ch_array_broad1(stream,charptr,len)
+    var object stream;
+    var const chart* charptr;
+    var uintL len;
+    { check_SP();
+      return write_char_array(Car(TheStream(stream)->strm_broad_list),charptr,len);
+      # No need to update wr_ch_lpos here. (See get_line_position.)
+    }
+
+# WRITE-SIMPLE-STRING - Pseudofunktion für Broadcast-Streams:
   local void wr_ss_broad (const object* stream_, object string, uintL start, uintL len);
   local void wr_ss_broad(stream_,string,start,len)
     var const object* stream_;
@@ -1049,15 +1286,34 @@ LISPFUNN(synonym_stream_symbol,1)
     { pushSTACK(list); # list retten
      {var object stream = # neuer Stream, nur WRITEs erlaubt
         allocate_stream(strmflags_wr_B,strmtype_broad,strm_len+1,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_dummy);
+      list = popSTACK();
+      TheStream(stream)->strm_rd_by = P(rd_by_error);
+      TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
       TheStream(stream)->strm_wr_by = P(wr_by_broad);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+      TheStream(stream)->strm_wr_by_array =
+        (consp(list)
+         ? (consp(Cdr(list))
+            ? P(wr_by_array_dummy) # >= 2 streams, too complicated
+            : P(wr_by_array_broad1) # just 1 stream
+           )
+         : P(wr_by_array_broad0) # no streams
+        );
+      TheStream(stream)->strm_rd_ch = P(rd_ch_error);
       TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_broad);
+      TheStream(stream)->strm_wr_ch_array =
+        (consp(list)
+         ? (consp(Cdr(list))
+            ? P(wr_ch_array_dummy) # >= 2 streams, too complicated
+            : P(wr_ch_array_broad1) # just 1 stream
+           )
+         : P(wr_ch_array_broad0) # no streams
+        );
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
       TheStream(stream)->strm_wr_ss = P(wr_ss_broad);
-      TheStream(stream)->strm_broad_list = popSTACK();
+      TheStream(stream)->strm_broad_list = list;
       return stream;
     }}
 
@@ -1141,6 +1397,36 @@ LISPFUNN(broadcast_stream_streams,1)
       return ergebnis;
     }}
 
+# READ-BYTE-ARRAY - Pseudofunktion für Concatenated-Streams:
+  local uintB* rd_by_array_concat (object stream, uintB* byteptr, uintL len);
+  local uintB* rd_by_array_concat(stream,byteptr,len)
+    var object stream;
+    var uintB* byteptr;
+    var uintL len;
+    { check_SP();
+     {var object streamlist = TheStream(stream)->strm_concat_list; # Liste von Streams
+      if (consp(streamlist))
+        { if (consp(Cdr(streamlist)))
+            # More than two streams are too complicated, because there is the
+            # possibility of a partial read (i.e. the first stream's contents
+            # is read upto EOF, and the second stream does not support
+            # read_byte_array).
+            { return NULL; }
+            else
+            # Only one stream.
+            { var uintB* endptr = read_byte_array(Car(streamlist),byteptr,len);
+              if (!(endptr==NULL))
+                if (!(endptr == byteptr+len))
+                  { # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
+                    TheStream(stream)->strm_concat_list = Cdr(streamlist);
+                  }
+              return endptr;
+            }
+        }
+        else
+        { return byteptr; }
+    }}
+
 # READ-CHAR - Pseudofunktion für Concatenated-Streams:
   local object rd_ch_concat (const object* stream_);
   local object rd_ch_concat(stream_)
@@ -1179,6 +1465,36 @@ LISPFUNN(broadcast_stream_streams,1)
         }}}
       # alle Streams verbraucht -> liefere EOF:
       return eof_value;
+    }}
+
+# READ-CHAR-ARRAY - Pseudofunktion für Concatenated-Streams:
+  local chart* rd_ch_array_concat (object stream, chart* charptr, uintL len);
+  local chart* rd_ch_array_concat(stream,byteptr,len)
+    var object stream;
+    var chart* charptr;
+    var uintL len;
+    { check_SP();
+     {var object streamlist = TheStream(stream)->strm_concat_list; # Liste von Streams
+      if (consp(streamlist))
+        { if (consp(Cdr(streamlist)))
+            # More than two streams are too complicated, because there is the
+            # possibility of a partial read (i.e. the first stream's contents
+            # is read upto EOF, and the second stream does not support
+            # read_char_array).
+            { return NULL; }
+            else
+            # Only one stream.
+            { var chart* endptr = read_char_array(Car(streamlist),charptr,len);
+              if (!(endptr==NULL))
+                if (!(endptr == charptr+len))
+                  { # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
+                    TheStream(stream)->strm_concat_list = Cdr(streamlist);
+                  }
+              return endptr;
+            }
+        }
+        else
+        { return charptr; }
     }}
 
 # Stellt fest, ob ein Concatenated-Stream ein Zeichen verfügbar hat.
@@ -1242,11 +1558,15 @@ LISPFUNN(broadcast_stream_streams,1)
      {var object stream = # neuer Stream, nur READs erlaubt
         allocate_stream(strmflags_rd_B,strmtype_concat,strm_len+2,0);
       TheStream(stream)->strm_rd_by = P(rd_by_concat);
-      TheStream(stream)->strm_wr_by = P(wr_by_dummy);
+      TheStream(stream)->strm_rd_by_array = P(rd_by_array_concat);
+      TheStream(stream)->strm_wr_by = P(wr_by_error);
+      TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
       TheStream(stream)->strm_rd_ch = P(rd_ch_concat);
       TheStream(stream)->strm_pk_ch = P(pk_ch_concat);
+      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_concat);
       TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
+      TheStream(stream)->strm_wr_ch = P(wr_ch_error);
+      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
       TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
       TheStream(stream)->strm_concat_list =
@@ -1301,6 +1621,16 @@ LISPFUNN(concatenated_stream_streams,1)
       write_byte(TheStream(stream)->strm_twoway_output,obj);
     }
 
+# WRITE-BYTE-ARRAY - Pseudofunktion für Two-Way- und Echo-Streams:
+  local const uintB* wr_by_array_twoway (object stream, const uintB* byteptr, uintL len);
+  local const uintB* wr_by_array_twoway(stream,byteptr,len)
+    var object stream;
+    var const uintB* byteptr;
+    var uintL len;
+    { check_SP();
+      return write_byte_array(TheStream(stream)->strm_twoway_output,byteptr,len);
+    }
+
 # WRITE-CHAR - Pseudofunktion für Two-Way- und Echo-Streams:
   local void wr_ch_twoway (const object* stream_, object obj);
   local void wr_ch_twoway(stream_,obj)
@@ -1310,6 +1640,17 @@ LISPFUNN(concatenated_stream_streams,1)
       pushSTACK(TheStream(*stream_)->strm_twoway_output);
       write_char(&STACK_0,obj);
       skipSTACK(1);
+    }
+
+# WRITE-CHAR-ARRAY - Pseudofunktion für Two-Way- und Echo-Streams:
+  local const chart* wr_ch_array_twoway (object stream, const chart* charptr, uintL len);
+  local const chart* wr_ch_array_twoway(stream,charptr,len)
+    var object stream;
+    var const chart* charptr;
+    var uintL len;
+    { check_SP();
+      return write_char_array(TheStream(stream)->strm_twoway_output,charptr,len);
+      # No need to update wr_ch_lpos here. (See get_line_position.)
     }
 
 # WRITE-SIMPLE-STRING - Pseudofunktion für Two-Way- und Echo-Streams:
@@ -1398,6 +1739,16 @@ LISPFUNN(concatenated_stream_streams,1)
       return read_byte(TheStream(stream)->strm_twoway_input);
     }
 
+# READ-BYTE-ARRAY - Pseudofunktion für Two-Way-Streams:
+  local uintB* rd_by_array_twoway (object stream, uintB* byteptr, uintL len);
+  local uintB* rd_by_array_twoway(stream,byteptr,len)
+    var object stream;
+    var uintB* byteptr;
+    var uintL len;
+    { check_SP();
+      return read_byte_array(TheStream(stream)->strm_twoway_input,byteptr,len);
+    }
+
 # READ-CHAR - Pseudofunktion für Two-Way-Streams:
   local object rd_ch_twoway (const object* stream_);
   local object rd_ch_twoway(stream_)
@@ -1420,6 +1771,16 @@ LISPFUNN(concatenated_stream_streams,1)
       return ergebnis;
     }}
 
+# READ-CHAR-ARRAY - Pseudofunktion für Two-Way-Streams:
+  local chart* rd_ch_array_twoway (object stream, chart* charptr, uintL len);
+  local chart* rd_ch_array_twoway(stream,charptr,len)
+    var object stream;
+    var chart* charptr;
+    var uintL len;
+    { check_SP();
+      return read_char_array(TheStream(stream)->strm_twoway_input,charptr,len);
+    }
+
 # Liefert einen Two-Way-Stream zu einem Input-Stream und einem Output-Stream.
 # make_twoway_stream(input_stream,output_stream)
 # > input_stream : Input-Stream
@@ -1434,11 +1795,15 @@ LISPFUNN(concatenated_stream_streams,1)
      {var object stream = # neuer Stream, alle Operationen erlaubt
         allocate_stream(strmflags_open_B,strmtype_twoway,strm_len+2,0);
       TheStream(stream)->strm_rd_by = P(rd_by_twoway);
+      TheStream(stream)->strm_rd_by_array = P(rd_by_array_twoway);
       TheStream(stream)->strm_wr_by = P(wr_by_twoway);
+      TheStream(stream)->strm_wr_by_array = P(wr_by_array_twoway);
       TheStream(stream)->strm_rd_ch = P(rd_ch_twoway);
       TheStream(stream)->strm_pk_ch = P(pk_ch_twoway);
+      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_twoway);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_twoway);
+      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_twoway);
       output_stream = popSTACK(); input_stream = popSTACK(); # Streams zurück
       TheStream(stream)->strm_wr_ch_lpos = TheStream(output_stream)->strm_wr_ch_lpos;
       TheStream(stream)->strm_wr_ss = P(wr_ss_twoway);
@@ -1539,11 +1904,15 @@ LISPFUNN(two_way_stream_output_stream,1)
       var object stream = # neuer Stream, alle Operationen erlaubt
         allocate_stream(flags,strmtype_echo,strm_len+2,0);
       TheStream(stream)->strm_rd_by = P(rd_by_echo);
+      TheStream(stream)->strm_rd_by_array = P(rd_by_array_dummy);
       TheStream(stream)->strm_wr_by = P(wr_by_twoway);
+      TheStream(stream)->strm_wr_by_array = P(wr_by_array_twoway);
       TheStream(stream)->strm_rd_ch = P(rd_ch_echo);
       TheStream(stream)->strm_pk_ch = P(pk_ch_twoway);
+      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_dummy);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_twoway);
+      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_twoway);
       output_stream = popSTACK(); input_stream = popSTACK(); # Streams zurück
       TheStream(stream)->strm_wr_ch_lpos = TheStream(output_stream)->strm_wr_ch_lpos;
       TheStream(stream)->strm_wr_ss = P(wr_ss_twoway);
@@ -1641,6 +2010,30 @@ LISPFUNN(echo_stream_output_stream,1)
         }}
     }
 
+# READ-CHAR-ARRAY - Pseudofunktion für String-Input-Streams:
+  local chart* rd_ch_array_str_in (object stream, chart* charptr, uintL len);
+  local chart* rd_ch_array_str_in(stream,charptr,len)
+    var object stream;
+    var chart* charptr;
+    var uintL len;
+    { var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index); # Index
+      var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
+      if (index < endindex)
+        { var uintL srclen;
+          var const chart* srcptr = unpack_string(TheStream(stream)->strm_str_in_string,&srclen);
+          # Ab srcptr kommen srclen Zeichen.
+          if (srclen < endindex) { fehler_str_in_adjusted(stream); }
+          srcptr += index;
+         {var uintL count = endindex - index;
+          if (count > len) { count = len; }
+          # count = min(len,endindex-index) > 0.
+          len -= count;
+          TheStream(stream)->strm_str_in_index = fixnum_inc(TheStream(stream)->strm_str_in_index,count);
+          dotimespL(count,count, { *charptr++ = *srcptr++; } );
+        }}
+      return charptr;
+    }
+
 # Schließt einen String-Input-Stream.
 # close_str_in(stream);
 # > stream : String-Input-Stream
@@ -1679,12 +2072,16 @@ LISPFUN(make_string_input_stream,1,2,norest,nokey,0,NIL)
     pushSTACK(string); # String retten
     { var object stream = # neuer Stream, nur READ-CHAR erlaubt
         allocate_stream(strmflags_rd_ch_B,strmtype_str_in,strm_len+3,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_dummy);
-      TheStream(stream)->strm_wr_by = P(wr_by_dummy);
+      TheStream(stream)->strm_rd_by = P(rd_by_error);
+      TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+      TheStream(stream)->strm_wr_by = P(wr_by_error);
+      TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
       TheStream(stream)->strm_rd_ch = P(rd_ch_str_in);
       TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_str_in);
       TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
+      TheStream(stream)->strm_wr_ch = P(wr_ch_error);
+      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
       TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
       TheStream(stream)->strm_str_in_string = popSTACK();
@@ -1769,12 +2166,16 @@ LISPFUNN(string_input_stream_index,1)
       pushSTACK(make_ssstring(50));
      {var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
         allocate_stream(strmflags_wr_ch_B,strmtype_str_out,strm_len+1,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_dummy);
-      TheStream(stream)->strm_wr_by = P(wr_by_dummy);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+      TheStream(stream)->strm_rd_by = P(rd_by_error);
+      TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+      TheStream(stream)->strm_wr_by = P(wr_by_error);
+      TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
+      TheStream(stream)->strm_rd_ch = P(rd_ch_error);
       TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_str_out);
+      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_dummy);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
       TheStream(stream)->strm_wr_ss = P(wr_ss_str_out);
       TheStream(stream)->strm_str_out_string = popSTACK(); # String eintragen
@@ -1886,12 +2287,16 @@ LISPFUNN(make_string_push_stream,1)
     }  }
     {var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
        allocate_stream(strmflags_wr_ch_B,strmtype_str_push,strm_len+1,0);
-     TheStream(stream)->strm_rd_by = P(rd_by_dummy);
-     TheStream(stream)->strm_wr_by = P(wr_by_dummy);
-     TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+     TheStream(stream)->strm_rd_by = P(rd_by_error);
+     TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+     TheStream(stream)->strm_wr_by = P(wr_by_error);
+     TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
+     TheStream(stream)->strm_rd_ch = P(rd_ch_error);
      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+     TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
      TheStream(stream)->strm_rd_ch_last = NIL;
      TheStream(stream)->strm_wr_ch = P(wr_ch_str_push);
+     TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_dummy);
      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
      TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
      TheStream(stream)->strm_str_push_string = popSTACK(); # String eintragen
@@ -1983,12 +2388,16 @@ LISPFUNN(string_stream_p,1)
      }
      {var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
         allocate_stream(strmflags_wr_ch_B,strmtype_pphelp,strm_len+2,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_dummy);
-      TheStream(stream)->strm_wr_by = P(wr_by_dummy);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+      TheStream(stream)->strm_rd_by = P(rd_by_error);
+      TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+      TheStream(stream)->strm_wr_by = P(wr_by_error);
+      TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
+      TheStream(stream)->strm_rd_ch = P(rd_ch_error);
       TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_pphelp);
+      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_dummy);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
       TheStream(stream)->strm_wr_ss = P(wr_ss_pphelp);
       TheStream(stream)->strm_pphelp_strings = popSTACK(); # String-Liste eintragen
@@ -2147,12 +2556,16 @@ LISPFUNN(make_buffered_input_stream,2)
 # (MAKE-BUFFERED-INPUT-STREAM fun mode)
   { var object stream = # neuer Stream, nur READ-CHAR erlaubt
       allocate_stream(strmflags_rd_ch_B,strmtype_buff_in,strm_len+5,0);
-    TheStream(stream)->strm_rd_by = P(rd_by_dummy);
-    TheStream(stream)->strm_wr_by = P(wr_by_dummy);
+    TheStream(stream)->strm_rd_by = P(rd_by_error);
+    TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+    TheStream(stream)->strm_wr_by = P(wr_by_error);
+    TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
     TheStream(stream)->strm_rd_ch = P(rd_ch_buff_in);
     TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+    TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_dummy);
     TheStream(stream)->strm_rd_ch_last = NIL;
-    TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
+    TheStream(stream)->strm_wr_ch = P(wr_ch_error);
+    TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
     TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
     TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
     TheStream(stream)->strm_buff_in_mode = popSTACK();
@@ -2278,12 +2691,16 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
     pushSTACK(make_ssstring(50));
    {var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
       allocate_stream(strmflags_wr_ch_B,strmtype_buff_out,strm_len+2,0);
-    TheStream(stream)->strm_rd_by = P(rd_by_dummy);
-    TheStream(stream)->strm_wr_by = P(wr_by_dummy);
-    TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+    TheStream(stream)->strm_rd_by = P(rd_by_error);
+    TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+    TheStream(stream)->strm_wr_by = P(wr_by_error);
+    TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
+    TheStream(stream)->strm_rd_ch = P(rd_ch_error);
     TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+    TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
     TheStream(stream)->strm_rd_ch_last = NIL;
     TheStream(stream)->strm_wr_ch = P(wr_ch_buff_out);
+    TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_dummy);
     TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
     TheStream(stream)->strm_buff_out_string = popSTACK(); # String eintragen
     TheStream(stream)->strm_wr_ch_lpos = popSTACK(); # Line Position eintragen
@@ -2491,11 +2908,15 @@ LISPFUNN(make_generic_stream,1)
   { var object stream =
       allocate_stream(strmflags_open_B,strmtype_generic,strm_len+1,0);
     TheStream(stream)->strm_rd_by = P(rd_by_generic);
+    TheStream(stream)->strm_rd_by_array = P(rd_by_array_dummy);
     TheStream(stream)->strm_wr_by = P(wr_by_generic);
+    TheStream(stream)->strm_wr_by_array = P(wr_by_array_dummy);
     TheStream(stream)->strm_rd_ch = P(rd_ch_generic);
     TheStream(stream)->strm_pk_ch = P(pk_ch_generic);
+    TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_dummy);
     TheStream(stream)->strm_rd_ch_last = NIL;
     TheStream(stream)->strm_wr_ch = P(wr_ch_generic);
+    TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_dummy);
     TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
     TheStream(stream)->strm_wr_ss = P(wr_ss_generic);
     TheStream(stream)->strm_controller_object = popSTACK();
@@ -3236,6 +3657,107 @@ LISPFUNN(generic_stream_p,1)
       #endif
     }
 
+# READ-CHAR-ARRAY - Pseudofunktion für Handle-Streams:
+  local chart* rd_ch_array_handle (object stream, chart* charptr, uintL len);
+  local chart* rd_ch_array_handle(stream,charptr,len)
+    var object stream;
+    var chart* charptr;
+    var uintL len;
+    { # FIXME: Transform this into a as_chart(...) loop.
+      var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
+      run_time_stop(); # Run-Time-Stoppuhr anhalten
+      begin_system_call();
+      #ifdef GRAPHICS_SWITCH
+      if (handle == stdin_handle) switch_text_mode();
+      #endif
+     {var sintL ergebnis = full_read(handle,charptr,len);
+      end_system_call();
+      run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
+      if (ergebnis<0)
+        {
+          #if !(defined(AMIGAOS) || defined(WIN32_NATIVE))
+          begin_system_call();
+          if (errno==EINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
+            interruptp(
+              { end_system_call();
+                pushSTACK(S(read_char_sequence));
+                fehler(serious_condition,
+                       DEUTSCH ? "~: Ctrl-C: Tastatur-Interrupt" :
+                       ENGLISH ? "~: Ctrl-C: User break" :
+                       FRANCAIS ? "~ : Ctrl-C : Interruption clavier" :
+                       ""
+                      );
+              });
+          #endif
+          #ifdef WIN32_NATIVE
+          begin_system_call();
+          if (GetLastError()==ERROR_SIGINT) # Unterbrechung durch Ctrl-C ?
+            { end_system_call();
+              pushSTACK(S(read_char_sequence));
+              fehler(serious_condition,
+                     DEUTSCH ? "~: Ctrl-C: Tastatur-Interrupt" :
+                     ENGLISH ? "~: Ctrl-C: User break" :
+                     FRANCAIS ? "~ : Ctrl-C : Interruption clavier" :
+                     ""
+                    );
+            }
+          #endif
+          OS_error(); # Error melden
+        }
+      charptr += ergebnis;
+      return charptr;
+    }}
+
+# READ-BYTE-ARRAY - Pseudofunktion für Handle-Streams:
+  local uintB* rd_by_array_handle (object stream, uintB* byteptr, uintL len);
+  local uintB* rd_by_array_handle(stream,byteptr,len)
+    var object stream;
+    var uintB* byteptr;
+    var uintL len;
+    { var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
+      run_time_stop(); # Run-Time-Stoppuhr anhalten
+      begin_system_call();
+      #ifdef GRAPHICS_SWITCH
+      if (handle == stdin_handle) switch_text_mode();
+      #endif
+     {var sintL ergebnis = full_read(handle,byteptr,len);
+      end_system_call();
+      run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
+      if (ergebnis<0)
+        {
+          #if !(defined(AMIGAOS) || defined(WIN32_NATIVE))
+          begin_system_call();
+          if (errno==EINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
+            interruptp(
+              { end_system_call();
+                pushSTACK(S(read_byte_sequence));
+                fehler(serious_condition,
+                       DEUTSCH ? "~: Ctrl-C: Tastatur-Interrupt" :
+                       ENGLISH ? "~: Ctrl-C: User break" :
+                       FRANCAIS ? "~ : Ctrl-C : Interruption clavier" :
+                       ""
+                      );
+              });
+          #endif
+          #ifdef WIN32_NATIVE
+          begin_system_call();
+          if (GetLastError()==ERROR_SIGINT) # Unterbrechung durch Ctrl-C ?
+            { end_system_call();
+              pushSTACK(S(read_byte_sequence));
+              fehler(serious_condition,
+                     DEUTSCH ? "~: Ctrl-C: Tastatur-Interrupt" :
+                     ENGLISH ? "~: Ctrl-C: User break" :
+                     FRANCAIS ? "~ : Ctrl-C : Interruption clavier" :
+                     ""
+                    );
+            }
+          #endif
+          OS_error(); # Error melden
+        }
+      byteptr += ergebnis;
+      return byteptr;
+    }}
+
 # WRITE-CHAR - Pseudofunktion für Handle-Streams:
   local void wr_ch_handle (const object* stream_, object ch);
   local void wr_ch_handle(stream_,ch)
@@ -3276,9 +3798,28 @@ LISPFUNN(generic_stream_p,1)
       }
     }}
 
-# WRITE-CHAR-SEQUENCE für Handle-Streams:
-  local const chart* write_char_array_handle (object stream, const chart* ptr, uintL len);
-  local const chart* write_char_array_handle(stream,ptr,len)
+# WRITE-BYTE-ARRAY - Pseudofunktion für Handle-Streams:
+  local const uintB* wr_by_array_handle (object stream, const uintB* byteptr, uintL len);
+  local const uintB* wr_by_array_handle(stream,byteptr,len)
+    var object stream;
+    var const uintB* byteptr;
+    var uintL len;
+    { var Handle handle = TheHandle(TheStream(stream)->strm_ohandle);
+      begin_system_call();
+      #ifdef GRAPHICS_SWITCH
+      if (handle == stdout_handle) switch_text_mode();
+      #endif
+     {var sintL ergebnis = full_write(handle,byteptr,len);
+      if (ergebnis<0) { OS_error(); } # Error melden
+      end_system_call();
+      if (!(ergebnis==(sintL)len)) # nicht erfolgreich?
+        { fehler_unwritable(S(write_byte_sequence),stream); }
+      return byteptr+ergebnis;
+    }}
+
+# WRITE-CHAR-ARRAY - Pseudofunktion für Handle-Streams:
+  local const chart* wr_ch_array_handle (object stream, const chart* ptr, uintL len);
+  local const chart* wr_ch_array_handle(stream,ptr,len)
     var object stream;
     var const chart* ptr;
     var uintL len;
@@ -3305,7 +3846,7 @@ LISPFUNN(generic_stream_p,1)
     var uintL start;
     var uintL len;
     { if (len==0) return;
-      write_char_array_handle(*stream_,&TheSstring(string)->data[start],len);
+      wr_ch_array_handle(*stream_,&TheSstring(string)->data[start],len);
     }
 
 #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
@@ -3323,10 +3864,12 @@ LISPFUNN(generic_stream_p,1)
         # alle anderen Zeichen unverändert ausgeben
         { wr_ch_handle(stream_,ch); }
     }
-  #define wr_ss_handle_x wr_ss_dummy
+  #define wr_ch_array_handle_x  wr_ch_array_dummy
+  #define wr_ss_handle_x  wr_ss_dummy
 #else
-  #define wr_ch_handle_x wr_ch_handle
-  #define wr_ss_handle_x wr_ss_handle
+  #define wr_ch_handle_x  wr_ch_handle
+  #define wr_ch_array_handle_x  wr_ch_array_handle
+  #define wr_ss_handle_x  wr_ss_handle
 #endif
 
 # UP: Bringt den wartenden Output eines Handle-Stream ans Ziel.
@@ -3457,21 +4000,29 @@ LISPFUNN(generic_stream_p,1)
       # und füllen:
       if (direction & bit(0))
         { TheStream(stream)->strm_rd_by = P(rd_by_handle);
+          TheStream(stream)->strm_rd_by_array = P(rd_by_array_handle);
           TheStream(stream)->strm_rd_ch = P(rd_ch_handle);
+          TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_handle);
         }
         else
-        { TheStream(stream)->strm_rd_by = P(rd_by_dummy);
-          TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+        { TheStream(stream)->strm_rd_by = P(rd_by_error);
+          TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+          TheStream(stream)->strm_rd_ch = P(rd_ch_error);
+          TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
         }
       TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
       if (direction & bit(2))
         { TheStream(stream)->strm_wr_by = P(wr_by_handle);
+          TheStream(stream)->strm_wr_by_array = P(wr_by_array_handle);
           TheStream(stream)->strm_wr_ch = P(wr_ch_handle_x);
+          TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_handle_x);
           TheStream(stream)->strm_wr_ss = P(wr_ss_handle_x);
         }
         else
-        { TheStream(stream)->strm_wr_by = P(wr_by_dummy);
-          TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
+        { TheStream(stream)->strm_wr_by = P(wr_by_error);
+          TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
+          TheStream(stream)->strm_wr_ch = P(wr_ch_error);
+          TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
           TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
         }
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
@@ -4470,7 +5021,7 @@ local object make_key_event(event)
   #endif
 
   #ifdef NEXTAPP
-    #define rd_ch_keyboard  rd_ch_dummy
+    #define rd_ch_keyboard  rd_ch_error
   #endif
 
 # Liefert einen Keyboard-Stream.
@@ -4668,12 +5219,16 @@ local object make_key_event(event)
         # Flags: nur READ-CHAR erlaubt
       # und füllen:
       var Stream s = TheStream(stream);
-        s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
-        s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
+        s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
+        s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
+        s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
+        s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
         s->strm_rd_ch = P(rd_ch_keyboard); # READ-CHAR-Pseudofunktion
         s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
+        s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunktion
         s->strm_rd_ch_last = NIL; # Lastchar := NIL
-        s->strm_wr_ch = P(wr_ch_dummy); # WRITE-CHAR unmöglich
+        s->strm_wr_ch = P(wr_ch_error); # WRITE-CHAR unmöglich
+        s->strm_wr_ch_array = P(wr_ch_array_error); # WRITE-CHAR unmöglich
         s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
         s->strm_wr_ss = P(wr_ss_dummy);
         #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
@@ -4833,12 +5388,16 @@ LISPFUNN(make_keyboard_stream,0)
         # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
       # und füllen:
       var Stream s = TheStream(stream);
-        s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
-        s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
+        s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
+        s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
+        s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
+        s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
         s->strm_rd_ch = P(rd_ch_terminal); # READ-CHAR-Pseudofunktion
         s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
+        s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunktion
         s->strm_rd_ch_last = NIL; # Lastchar := NIL
         s->strm_wr_ch = P(wr_ch_terminal); # WRITE-CHAR-Pseudofunktion
+        s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
         s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
         s->strm_wr_ss = P(wr_ss_dummy_nogc);
       return stream;
@@ -5525,12 +6084,16 @@ LISPFUNN(make_keyboard_stream,0)
         # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
         # und füllen:
         var Stream s = TheStream(stream);
-          s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
-          s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
+          s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
+          s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
+          s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
+          s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
           s->strm_rd_ch = P(rd_ch_terminal1); # READ-CHAR-Pseudofunktion
           s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
+          s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunktion
           s->strm_rd_ch_last = NIL; # Lastchar := NIL
           s->strm_wr_ch = P(wr_ch_terminal1); # WRITE-CHAR-Pseudofunktion
+          s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
           s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
           s->strm_wr_ss = P(wr_ss_terminal1);
           begin_system_call();
@@ -5611,12 +6174,16 @@ LISPFUNN(make_keyboard_stream,0)
               # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
             # und füllen:
             var Stream s = TheStream(stream);
-              s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
-              s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
+              s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
+              s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
+              s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
+              s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
               s->strm_rd_ch = P(rd_ch_terminal3); # READ-CHAR-Pseudofunktion
               s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
+              s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunktion
               s->strm_rd_ch_last = NIL; # Lastchar := NIL
               s->strm_wr_ch = P(wr_ch_terminal3); # WRITE-CHAR-Pseudofunktion
+              s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
               s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
               s->strm_wr_ss = P(wr_ss_terminal3);
               s->strm_terminal_isatty = S(equal); # stdout=stdin
@@ -5644,12 +6211,16 @@ LISPFUNN(make_keyboard_stream,0)
               # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
             # und füllen:
             var Stream s = TheStream(stream);
-              s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
-              s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
+              s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
+              s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
+              s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
+              s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
               s->strm_rd_ch = P(rd_ch_terminal2); # READ-CHAR-Pseudofunktion
               s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
+              s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunktion
               s->strm_rd_ch_last = NIL; # Lastchar := NIL
               s->strm_wr_ch = P(wr_ch_terminal2); # WRITE-CHAR-Pseudofunktion
+              s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
               s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
               s->strm_wr_ss = P(wr_ss_terminal2);
               s->strm_terminal_isatty = (stdin_tty ? (same_tty ? S(equal) : T) : NIL);
@@ -5671,12 +6242,16 @@ LISPFUNN(make_keyboard_stream,0)
             # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
           # und füllen:
           var Stream s = TheStream(stream);
-            s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
-            s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
+            s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
+            s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
+            s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
+            s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
             s->strm_rd_ch = P(rd_ch_terminal1); # READ-CHAR-Pseudofunktion
             s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
+            s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunktion
             s->strm_rd_ch_last = NIL; # Lastchar := NIL
             s->strm_wr_ch = P(wr_ch_terminal1); # WRITE-CHAR-Pseudofunktion
+            s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
             s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
             s->strm_wr_ss = P(wr_ss_terminal1);
             s->strm_terminal_isatty = (stdin_tty ? (same_tty ? S(equal) : T) : NIL);
@@ -6511,12 +7086,16 @@ LISPFUNN(make_window,0)
       # Flags: nur WRITE-CHAR erlaubt
     # und füllen:
     var Stream s = TheStream(stream);
-      s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
-      s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
-      s->strm_rd_ch = P(rd_ch_dummy); # READ-CHAR unmöglich
+      s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
+      s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
+      s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
+      s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
+      s->strm_rd_ch = P(rd_ch_error); # READ-CHAR unmöglich
       s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
+      s->strm_rd_ch_array = P(rd_ch_array_error); # READ-CHAR unmöglich
       s->strm_rd_ch_last = NIL; # Lastchar := NIL
       s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
+      s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
       s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
       s->strm_wr_ss = P(wr_ss_dummy_nogc);
     LINES = v_rows(); COLS = v_cols();
@@ -6678,12 +7257,16 @@ LISPFUNN(make_window,0)
       # Flags: nur WRITE-CHAR erlaubt
     # und füllen:
     var Stream s = TheStream(stream);
-      s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
-      s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
-      s->strm_rd_ch = P(rd_ch_dummy); # READ-CHAR unmöglich
+      s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
+      s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
+      s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
+      s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
+      s->strm_rd_ch = P(rd_ch_error); # READ-CHAR unmöglich
       s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
+      s->strm_rd_ch_array = P(rd_ch_array_error); # READ-CHAR unmöglich
       s->strm_rd_ch_last = NIL; # Lastchar := NIL
       s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
+      s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
       s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
       s->strm_wr_ss = P(wr_ss_dummy_nogc);
     v_init(); # Initialisieren
@@ -8517,12 +9100,16 @@ LISPFUNN(make_window,0)
       # Flags: nur WRITE-CHAR erlaubt
     # und füllen:
     var Stream s = TheStream(stream);
-      s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
-      s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
-      s->strm_rd_ch = P(rd_ch_dummy); # READ-CHAR unmöglich
+      s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
+      s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
+      s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
+      s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
+      s->strm_rd_ch = P(rd_ch_error); # READ-CHAR unmöglich
       s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
+      s->strm_rd_ch_array = P(rd_ch_array_error); # READ-CHAR unmöglich
       s->strm_rd_ch_last = NIL; # Lastchar := NIL
       s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
+      s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
       s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
       s->strm_wr_ss = P(wr_ss_dummy_nogc);
     # Initialisieren:
@@ -8739,12 +9326,16 @@ LISPFUNN(make_window,0)
       # Flags: nur WRITE-CHAR erlaubt
     # und füllen:
     var Stream s = TheStream(stream);
-      s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
-      s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
-      s->strm_rd_ch = P(rd_ch_dummy); # READ-CHAR unmöglich
+      s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
+      s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
+      s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
+      s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
+      s->strm_rd_ch = P(rd_ch_error); # READ-CHAR unmöglich
       s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
+      s->strm_rd_ch_array = P(rd_ch_array_error); # READ-CHAR unmöglich
       s->strm_rd_ch_last = NIL; # Lastchar := NIL
       s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
+      s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
       s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
       s->strm_wr_ss = P(wr_ss_dummy_nogc);
     begin_system_call();
@@ -8919,12 +9510,16 @@ LISPFUNN(make_window,0)
       # Flags: nur WRITE-CHAR erlaubt
     # und füllen:
     var Stream s = TheStream(stream);
-      s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
-      s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
-      s->strm_rd_ch = P(rd_ch_dummy); # READ-CHAR unmöglich
+      s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
+      s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
+      s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
+      s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
+      s->strm_rd_ch = P(rd_ch_error); # READ-CHAR unmöglich
       s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
+      s->strm_rd_ch_array = P(rd_ch_array_error); # READ-CHAR unmöglich
       s->strm_rd_ch_last = NIL; # Lastchar := NIL
       s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
+      s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
       s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
       s->strm_wr_ss = P(wr_ss_dummy_nogc);
     # size: aWSR? aWBR??
@@ -9486,9 +10081,41 @@ typedef struct strm_i_file_extrafields_struct {
         } }   }}
     }
 
+# UP: Liest einen Array von Bytes von einem (offenen) Byte-basierten
+# File-Stream.
+# read_byte_array_b_file(stream,byteptr,len)
+# > stream : (offener) Byte-basierter File-Stream.
+# < byteptr[0..len-1] : eingelesene Bytes.
+# < result: &byteptr[len]
+# verändert in stream: index, eofindex, buffstart, position
+  local uintB* read_byte_array_b_file (object stream, uintB* byteptr, uintL len);
+  local uintB* read_byte_array_b_file(stream,byteptr,len)
+    var object stream;
+    var uintB* byteptr;
+    var uintL len;
+    { do { var uintB* ptr = b_file_nextbyte(stream);
+           if (ptr == (uintB*)NULL) break;
+          {var sintL eofindex = FileStream_eofindex(stream);
+           var uintL available =
+             (eofindex == eofindex_all_valid ? strm_file_bufflen : eofindex)
+             - FileStream_index(stream);
+           if (available > len) { available = len; }
+           # Alle verfügbaren Bytes kopieren:
+           { var uintL count;
+             dotimespL(count,available, { *byteptr++ = *ptr++; } );
+           }
+           # index und position incrementieren:
+           FileStream_index(stream) += available;
+           FileStream_position(stream) += available;
+           len -= available;
+         }}
+         while (len > 0);
+      return byteptr;
+    }
+
 # UP: Schreibt einen Array von Bytes auf einen (offenen) Byte-basierten
 # File-Stream.
-# write_byte_array_b_file(stream,byteptr,len);
+# write_byte_array_b_file(stream,byteptr,len)
 # > stream : (offener) Byte-basierter File-Stream.
 # > byteptr[0..len-1] : auszugebende Bytes.
 # < result: &byteptr[len]
@@ -9610,6 +10237,37 @@ typedef struct strm_i_file_extrafields_struct {
         { return signean_null; }
     }
 
+# READ-CHAR-ARRAY - Pseudofunktion für File-Streams für Characters:
+  local chart* rd_ch_array_ch_file (object stream, chart* charptr, uintL len);
+  local chart* rd_ch_array_ch_file(stream,charptr,len)
+    var object stream;
+    var chart* charptr;
+    var uintL len;
+    { do { var uintB* ptr = b_file_nextbyte(stream);
+           if (ptr == (uintB*)NULL) break; # EOF -> fertig
+          {var uintB ch = *ptr;
+           # index und position incrementieren:
+           FileStream_index(stream) += 1;
+           FileStream_position(stream) += 1;
+           # CR/LF -> NL umwandeln:
+           if (ch==CR)
+             { # nächstes Zeichen auf LF untersuchen
+               ptr = b_file_nextbyte(stream);
+               if (!(ptr == (uintB*)NULL) && (*ptr == LF))
+                 { # index und position incrementieren:
+                   FileStream_index(stream) += 1;
+                   FileStream_position(stream) += 1;
+                   ch = NL;
+             }   }
+           if (ch==NL)
+             # lineno incrementieren:
+             { FileStream_lineno(stream) += 1; }
+           *charptr++ = as_chart(ch); len--;
+         }}
+         while (len > 0);
+      return charptr;
+    }
+
 # UP: Schreibt ein Byte auf einen Byte-basierten File-Stream.
 # write_b_file(stream,b);
 # > stream : (offener) Byte-basierter File-Stream.
@@ -9645,11 +10303,11 @@ typedef struct strm_i_file_extrafields_struct {
       #endif
     }}
 
-# WRITE-CHAR-SEQUENCE für File-Streams für Characters:
-  local const chart* write_char_array_ch_file (object stream, const chart* strptr, uintL len);
+# WRITE-CHAR-ARRAY - Pseudofunktion für File-Streams für Characters:
+  local const chart* wr_ch_array_ch_file (object stream, const chart* strptr, uintL len);
   #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
   # Wegen NL->CR/LF-Umwandlung keine Optimierung möglich.
-  local inline const chart* write_char_array_ch_file(stream,strptr,len)
+  local inline const chart* wr_ch_array_ch_file(stream,strptr,len)
     var object stream;
     var const chart* strptr;
     var uintL len;
@@ -9668,7 +10326,7 @@ typedef struct strm_i_file_extrafields_struct {
       return strptr;
     }
   #else
-  local const chart* write_char_array_ch_file(stream,strptr,len)
+  local const chart* wr_ch_array_ch_file(stream,strptr,len)
     var object stream;
     var const chart* strptr;
     var uintL len;
@@ -9696,7 +10354,7 @@ typedef struct strm_i_file_extrafields_struct {
     var uintL start;
     var uintL len;
     { if (len==0) return;
-      write_char_array_ch_file(*stream_,&TheSstring(string)->data[start],len);
+      wr_ch_array_ch_file(*stream_,&TheSstring(string)->data[start],len);
     }
 
 # File-Stream, Bit-basiert
@@ -10401,10 +11059,13 @@ typedef struct strm_i_file_extrafields_struct {
     var object obj;
     { wr_by_ixs_file(stream,obj,&wr_by_ic); }
 
+# READ-BYTE-SEQUENCE für File-Streams für Integers, Art au, bitsize = 8 :
+  local uintB* read_byte_array_iau8_file (object stream, uintB* byteptr, uintL len);
+  #define read_byte_array_iau8_file  read_byte_array_b_file
+
 # WRITE-BYTE-SEQUENCE für File-Streams für Integers, Art au, bitsize = 8 :
   local const uintB* write_byte_array_iau8_file (object stream, const uintB* byteptr, uintL len);
-  #define write_byte_array_iau8_file(stream,byteptr,len)  \
-    write_byte_array_b_file(stream,byteptr,len)
+  #define write_byte_array_iau8_file  write_byte_array_b_file
 
 # File-Stream allgemein
 # =====================
@@ -10640,7 +11301,9 @@ typedef struct strm_i_file_extrafields_struct {
          { case strmtype_ch_file:
              TheStream(stream)->strm_rd_ch = P(rd_ch_ch_file);
              TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+             TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_ch_file);
              TheStream(stream)->strm_wr_ch = P(wr_ch_ch_file);
+             TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_ch_file);
              TheStream(stream)->strm_wr_ss = P(wr_ss_ch_file);
              break;
            case strmtype_iu_file:
@@ -10649,10 +11312,20 @@ typedef struct strm_i_file_extrafields_struct {
                 art==strmflags_ib_B ? P(rd_by_ibu_file) :
                                       P(rd_by_icu_file)
                );
+             TheStream(stream)->strm_rd_by_array =
+               (art==strmflags_ia_B && (posfixnum_to_L(eltype_size) == 8)
+                ? P(read_byte_array_iau8_file)
+                : P(rd_by_array_dummy)
+               );
              TheStream(stream)->strm_wr_by =
                (art==strmflags_ia_B ? P(wr_by_iau_file) :
                 art==strmflags_ib_B ? P(wr_by_ibu_file) :
                                       P(wr_by_icu_file)
+               );
+             TheStream(stream)->strm_wr_by_array =
+               (art==strmflags_ia_B && (posfixnum_to_L(eltype_size) == 8)
+                ? P(write_byte_array_iau8_file)
+                : P(wr_by_array_dummy)
                );
              break;
            case strmtype_is_file:
@@ -10661,29 +11334,37 @@ typedef struct strm_i_file_extrafields_struct {
                 art==strmflags_ib_B ? P(rd_by_ibs_file) :
                                       P(rd_by_ics_file)
                );
+             TheStream(stream)->strm_rd_by_array = P(rd_by_array_dummy);
              TheStream(stream)->strm_wr_by =
                (art==strmflags_ia_B ? P(wr_by_ias_file) :
                 art==strmflags_ib_B ? P(wr_by_ibs_file) :
                                       P(wr_by_ics_file)
                );
+             TheStream(stream)->strm_wr_by_array = P(wr_by_array_dummy);
              break;
            default: NOTREACHED
          }
        # Default für READ-BYTE-Pseudofunktion:
        if ((flags & strmflags_rd_by_B)==0)
-         { TheStream(stream)->strm_rd_by = P(rd_by_dummy); }
+         { TheStream(stream)->strm_rd_by = P(rd_by_error);
+           TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+         }
        # Default für WRITE-BYTE-Pseudofunktion:
        if ((flags & strmflags_wr_by_B)==0)
-         { TheStream(stream)->strm_wr_by = P(wr_by_dummy); }
+         { TheStream(stream)->strm_wr_by = P(wr_by_error);
+           TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
+         }
        # Default für READ-CHAR-Pseudofunktion:
        if ((flags & strmflags_rd_ch_B)==0)
-         { TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+         { TheStream(stream)->strm_rd_ch = P(rd_ch_error);
            TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+           TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
          }
        TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
        # Default für WRITE-CHAR-Pseudofunktion:
        if ((flags & strmflags_wr_ch_B)==0)
-         { TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
+         { TheStream(stream)->strm_wr_ch = P(wr_ch_error);
+           TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
            TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
          }
        TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
@@ -11036,12 +11717,16 @@ LISPFUNN(file_stream_p,1)
        end_system_call();
        TheHandle(STACK_0) = handle; # Handle verpacken
       }
-      TheStream(stream)->strm_rd_by = P(rd_by_dummy);
-      TheStream(stream)->strm_wr_by = P(wr_by_dummy);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+      TheStream(stream)->strm_rd_by = P(rd_by_error);
+      TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+      TheStream(stream)->strm_wr_by = P(wr_by_error);
+      TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
+      TheStream(stream)->strm_rd_ch = P(rd_ch_error);
       TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_printer);
+      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_dummy);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
       TheStream(stream)->strm_wr_ss = P(wr_ss_dummy_nogc);
       TheStream(stream)->strm_printer_handle = popSTACK();
@@ -11078,9 +11763,11 @@ LISPFUNN(make_printer_stream,0)
 
 # READ-CHAR - Pseudofunktion für Pipe-Input-Streams:
   #define rd_ch_pipe_in  rd_ch_handle
+  #define rd_ch_array_pipe_in  rd_ch_array_handle
 
 # READ-BYTE - Pseudofunktion für Pipe-Input-Streams:
   #define rd_by_pipe_in  rd_by_handle
+  #define rd_by_array_pipe_in  rd_by_array_handle
 
 # Schließt einen Pipe-Input-Stream.
 # close_pipe_in(stream);
@@ -11236,11 +11923,15 @@ LISPFUNN(make_pipe_input_stream,1)
     { var object stream = # neuer Stream, nur READ-CHAR und READ-BYTE erlaubt
         allocate_stream(strmflags_rd_B,strmtype_pipe_in,strm_len+4,0);
       TheStream(stream)->strm_rd_by = P(rd_by_pipe_in);
-      TheStream(stream)->strm_wr_by = P(wr_by_dummy);
+      TheStream(stream)->strm_rd_by_array = P(rd_by_array_pipe_in);
+      TheStream(stream)->strm_wr_by = P(wr_by_error);
+      TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
       TheStream(stream)->strm_rd_ch = P(rd_ch_pipe_in);
       TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_pipe_in);
       TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
+      TheStream(stream)->strm_wr_ch = P(wr_ch_error);
+      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
       TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
       TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
@@ -11262,12 +11953,14 @@ LISPFUNN(make_pipe_input_stream,1)
 
 # WRITE-CHAR - Pseudofunktion für Pipe-Output-Streams:
   #define wr_ch_pipe_out  wr_ch_handle_x
+  #define wr_ch_array_pipe_out  wr_ch_array_handle_x
 
 # WRITE-SIMPLE-STRING - Pseudofunktion für Pipe-Output-Streams:
   #define wr_ss_pipe_out  wr_ss_handle_x
 
 # WRITE-BYTE - Pseudofunktion für Pipe-Output-Streams:
   #define wr_by_pipe_out  wr_by_handle
+  #define wr_by_array_pipe_out  wr_by_array_handle
 
 # Schließt einen Pipe-Output-Stream.
 # close_pipe_out(stream);
@@ -11412,12 +12105,16 @@ LISPFUNN(make_pipe_output_stream,1)
     # Stream allozieren:
     { var object stream = # neuer Stream, nur WRITE-CHAR und WRITE-BYTE erlaubt
         allocate_stream(strmflags_wr_B,strmtype_pipe_out,strm_len+4,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_dummy);
+      TheStream(stream)->strm_rd_by = P(rd_by_error);
+      TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
       TheStream(stream)->strm_wr_by = P(wr_by_pipe_out);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+      TheStream(stream)->strm_wr_by_array = P(wr_by_array_pipe_out);
+      TheStream(stream)->strm_rd_ch = P(rd_ch_error);
       TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_pipe_out);
+      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_pipe_out);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
       TheStream(stream)->strm_wr_ss = P(wr_ss_pipe_out);
       TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
@@ -11582,12 +12279,16 @@ LISPFUNN(make_pipe_io_stream,1)
     # Input-Stream allozieren:
     { var object stream = # neuer Stream, nur READ-CHAR erlaubt
         allocate_stream(strmflags_rd_ch_B,strmtype_pipe_in,strm_len+4,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_dummy);
-      TheStream(stream)->strm_wr_by = P(wr_by_dummy);
+      TheStream(stream)->strm_rd_by = P(rd_by_error);
+      TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+      TheStream(stream)->strm_wr_by = P(wr_by_error);
+      TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
       TheStream(stream)->strm_rd_ch = P(rd_ch_pipe_in);
       TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_pipe_in);
       TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
+      TheStream(stream)->strm_wr_ch = P(wr_ch_error);
+      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
       TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
       TheStream(stream)->strm_pipe_pid = STACK_2; # Child-Pid
@@ -11598,12 +12299,16 @@ LISPFUNN(make_pipe_io_stream,1)
     # Output-Stream allozieren:
     { var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
         allocate_stream(strmflags_wr_ch_B,strmtype_pipe_out,strm_len+4,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_dummy);
-      TheStream(stream)->strm_wr_by = P(wr_by_dummy);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+      TheStream(stream)->strm_rd_by = P(rd_by_error);
+      TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+      TheStream(stream)->strm_wr_by = P(wr_by_error);
+      TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
+      TheStream(stream)->strm_rd_ch = P(rd_ch_error);
       TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_pipe_out);
+      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_pipe_out);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
       TheStream(stream)->strm_wr_ss = P(wr_ss_pipe_out);
       TheStream(stream)->strm_pipe_pid = STACK_2; # Child-Pid
@@ -11735,6 +12440,44 @@ LISPFUNN(make_pipe_io_stream,1)
     #define listen_socket  listen_handle
   #endif
 
+# READ-CHAR-ARRAY - Pseudofunktion für Socket-Streams:
+  #ifdef WIN32_NATIVE
+    local chart* rd_ch_array_socket (object stream, chart* charptr, uintL len);
+    local chart* rd_ch_array_socket(stream,charptr,len)
+      var object stream;
+      var chart* charptr;
+      var uintL len;
+      { var SOCKET handle = TheSocket(TheStream(stream)->strm_ihandle);
+        begin_system_call();
+        # This loop is probably not needed, because sock_read() returns
+        # only when done or EOF. Keep it nevertheless, for the sake of EINTR.
+        # FIXME: Transform this into a as_chart(...) loop.
+        loop
+          { var sintL ergebnis = sock_read(handle,charptr,len);
+            if (ergebnis<0)
+              { if (WSAGetLastError()==WSAEINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
+                  { end_system_call();
+                    pushSTACK(S(read_char_sequence));
+                    fehler(serious_condition,
+                           DEUTSCH ? "~: Ctrl-C: Tastatur-Interrupt" :
+                           ENGLISH ? "~: Ctrl-C: User break" :
+                           FRANCAIS ? "~ : Ctrl-C : Interruption clavier" :
+                           ""
+                          );
+                  }
+                SOCK_error(); # Error melden
+              }
+            if (ergebnis==0) break; # EOF -> fertig
+            charptr += ergebnis; len -= ergebnis;
+            if (len==0) break; # fertig?
+          }
+        end_system_call();
+        return charptr;
+      }
+  #else
+    #define rd_ch_array_socket  rd_ch_array_handle
+  #endif
+
 # WRITE-CHAR - Pseudofunktion für Socket-Streams:
   #ifdef WIN32_NATIVE
     local void wr_ch_socket (const object* stream_, object ch);
@@ -11764,10 +12507,10 @@ LISPFUNN(make_pipe_io_stream,1)
     #define wr_ch_socket  wr_ch_handle
   #endif
 
-# WRITE-CHAR-SEQUENCE für X11-Socket-Streams:
+# WRITE-CHAR-ARRAY - Pseudofunktion für Socket-Streams:
   #ifdef WIN32_NATIVE
-    local const chart* write_char_array_socket (object stream, const chart* ptr, uintL len);
-    local const chart* write_char_array_socket(stream,ptr,len)
+    local const chart* wr_ch_array_socket (object stream, const chart* ptr, uintL len);
+    local const chart* wr_ch_array_socket(stream,ptr,len)
       var object stream;
       var const chart* ptr;
       var uintL len;
@@ -11789,6 +12532,8 @@ LISPFUNN(make_pipe_io_stream,1)
         wr_ss_lpos(stream,ptr,len); # Line-Position aktualisieren
         return ptr;
       }
+  #else
+    #define wr_ch_array_socket  wr_ch_array_handle
   #endif
 
 # WRITE-SIMPLE-STRING - Pseudofunktion für Socket-Streams:
@@ -11800,7 +12545,7 @@ LISPFUNN(make_pipe_io_stream,1)
       var uintL start;
       var uintL len;
       { if (len==0) return;
-        write_char_array_socket(*stream_,&TheSstring(string)->data[start],len);
+        wr_ch_array_socket(*stream_,&TheSstring(string)->data[start],len);
       }
   #else
     #define wr_ss_socket  wr_ss_handle
@@ -11823,6 +12568,31 @@ LISPFUNN(make_pipe_io_stream,1)
     #define rd_by_socket  rd_by_handle
   #endif
 
+# READ-BYTE-ARRAY - Pseudofunktion für Socket-Streams:
+  #ifdef WIN32_NATIVE
+    local uintB* rd_by_array_socket (object stream, uintB* byteptr, uintL len);
+    local uintB* rd_by_array_socket(stream,byteptr,len)
+    var object stream;
+    var uintB* byteptr;
+    var uintL len;
+    { var SOCKET handle = TheSocket(TheStream(stream)->strm_ihandle);
+      begin_system_call();
+      # This loop is probably not needed, because sock_read() returns
+      # only when done or EOF. Keep it nevertheless.
+      loop
+        { var sintL ergebnis = sock_read(handle,byteptr,len);
+          if (ergebnis<0) { SOCK_error(); } # Error melden
+          if (ergebnis==0) break; # EOF -> fertig
+          byteptr += ergebnis; len -= ergebnis;
+          if (len==0) break; # fertig?
+        }
+      end_system_call();
+      return byteptr;
+    }
+  #else
+    #define rd_by_array_socket  rd_by_array_handle
+  #endif
+
 # WRITE-BYTE - Pseudofunktion für Socket-Streams:
   #ifdef WIN32_NATIVE
     local void wr_by_socket (object stream, object obj);
@@ -11839,6 +12609,32 @@ LISPFUNN(make_pipe_io_stream,1)
       }
   #else
     #define wr_by_socket  wr_by_handle
+  #endif
+
+# WRITE-BYTE-ARRAY - Pseudofunktion für Socket-Streams:
+  #ifdef WIN32_NATIVE
+    local const uintB* wr_by_array_socket (object stream, const uintB* byteptr, uintL len);
+    local const uintB* wr_by_array_socket(stream,byteptr,len)
+    var object stream;
+    var const uintB* byteptr;
+    var uintL len;
+    { var SOCKET handle = TheSocket(TheStream(stream)->strm_ohandle);
+      begin_system_call();
+      # This loop is probably not needed, because sock_write() returns
+      # only when done or EOF. Keep it nevertheless.
+      loop
+        { var sintL ergebnis = sock_write(handle,byteptr,len);
+          if (ergebnis<0) { SOCK_error(); } # Error melden
+          if (ergebnis==0) # nicht erfolgreich?
+            { end_system_call(); fehler_unwritable(S(write_byte_sequence),stream); }
+          byteptr += ergebnis; len -= ergebnis;
+          if (len==0) break; # fertig?
+        }
+      end_system_call();
+      return byteptr;
+    }
+  #else
+    #define wr_by_array_socket  wr_by_array_handle
   #endif
 
 # Schließt einen Socket-Stream.
@@ -11872,10 +12668,14 @@ LISPFUNN(make_pipe_io_stream,1)
 
 #define rd_ch_x11socket  rd_ch_socket
 #define listen_x11socket  listen_socket
+#define rd_ch_array_x11socket  rd_ch_array_socket
 #define wr_ch_x11socket  wr_ch_socket
+#define wr_ch_array_x11socket  wr_ch_array_socket
 #define wr_ss_x11socket  wr_ss_socket
 #define rd_by_x11socket  rd_by_socket
+#define rd_by_array_x11socket  rd_by_array_socket
 #define wr_by_x11socket  wr_by_socket
+#define wr_by_array_x11socket  wr_by_array_socket
 #define close_x11socket  close_socket
 
 extern SOCKET connect_to_x_server (const char* host, int display); # ein Stück X-Source...
@@ -11918,11 +12718,15 @@ LISPFUNN(make_x11socket_stream,2)
     {var object stream = # neuer Stream, alles erlaubt
        allocate_stream(strmflags_open_B,strmtype_x11socket,strm_len+4,0);
      TheStream(stream)->strm_rd_by = P(rd_by_x11socket);
+     TheStream(stream)->strm_rd_by_array = P(rd_by_array_x11socket);
      TheStream(stream)->strm_wr_by = P(wr_by_x11socket);
+     TheStream(stream)->strm_wr_by_array = P(wr_by_array_x11socket);
      TheStream(stream)->strm_rd_ch = P(rd_ch_x11socket);
      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+     TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_x11socket);
      TheStream(stream)->strm_rd_ch_last = NIL;
      TheStream(stream)->strm_wr_ch = P(wr_ch_x11socket);
+     TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_x11socket);
      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
      TheStream(stream)->strm_wr_ss = P(wr_ss_x11socket);
      TheStream(stream)->strm_ihandle =
@@ -12070,11 +12874,15 @@ local object make_socket_stream(handle,host,port)
    {var object stream = # neuer Stream, alles erlaubt
       allocate_stream(strmflags_open_B,strmtype_socket,strm_len+5,0);
     TheStream(stream)->strm_rd_by = P(rd_by_socket);
+    TheStream(stream)->strm_rd_by_array = P(rd_by_array_socket);
     TheStream(stream)->strm_wr_by = P(wr_by_socket);
+    TheStream(stream)->strm_wr_by_array = P(wr_by_array_socket);
     TheStream(stream)->strm_rd_ch = P(rd_ch_socket);
     TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+    TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_socket);
     TheStream(stream)->strm_rd_ch_last = NIL;
     TheStream(stream)->strm_wr_ch = P(wr_ch_socket);
+    TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_socket);
     TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
     TheStream(stream)->strm_wr_ss = P(wr_ss_socket);
     TheStream(stream)->strm_socket_port = port;
@@ -13347,373 +14155,6 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
             return TheStream(stream)->strm_wr_ch_lpos;
     }   }
 
-# UP: Liest mehrere Bytes von einem Stream.
-# read_byte_array(stream,byteptr,len)
-# > stream: Stream
-# > uintB* byteptr: Adresse der zu füllenden Bytefolge
-# > uintL len: Länge der zu füllenden Bytefolge
-# < uintB* ergebnis: Pointer ans Ende des gefüllten Bereiches oder NULL
-  global uintB* read_byte_array (object stream, uintB* byteptr, uintL len);
-  global uintB* read_byte_array(stream,byteptr,len)
-    var object stream;
-    var uintB* byteptr;
-    var uintL len;
-    { if (len==0) { return byteptr; }
-      start:
-      if (eq(TheStream(stream)->strm_rd_by,P(rd_by_synonym))) # synonym
-        { stream = get_synonym_stream(TheStream(stream)->strm_synonym_symbol);
-          goto start;
-        }
-      elif (eq(TheStream(stream)->strm_rd_by,P(rd_by_twoway))) # twoway
-        { stream = TheStream(stream)->strm_twoway_input;
-          goto start;
-        }
-      #if defined(HANDLES) || defined(X11SOCKETS) || defined(SOCKET_STREAMS)
-      elif (eq(TheStream(stream)->strm_rd_by,P(rd_by_handle))) # handle, x11socket, socket
-        { var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
-          begin_system_call();
-         {var sintL ergebnis = full_read(handle,byteptr,len);
-          if (ergebnis<0)
-            {
-              #if !(defined(AMIGAOS) || defined(WIN32_NATIVE))
-              if (errno==EINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
-                interruptp(
-                  { end_system_call();
-                    pushSTACK(S(read_byte_sequence));
-                    fehler(serious_condition,
-                           DEUTSCH ? "~: Ctrl-C: Tastatur-Interrupt" :
-                           ENGLISH ? "~: Ctrl-C: User break" :
-                           FRANCAIS ? "~ : Ctrl-C : Interruption clavier" :
-                           ""
-                          );
-                  });
-              #endif
-              OS_error(); # Error melden
-            }
-          byteptr += ergebnis;
-          end_system_call();
-          return byteptr;
-        }}
-      #endif
-      #if (defined(X11SOCKETS) || defined(SOCKET_STREAMS)) && defined(WIN32_NATIVE)
-      elif (eq(TheStream(stream)->strm_rd_by,P(rd_by_socket))) # x11socket, socket
-        { var SOCKET handle = TheSocket(TheStream(stream)->strm_ihandle);
-          begin_system_call();
-          # This loop is probably not needed, because sock_read() returns
-          # only when done or EOF. Keep it nevertheless.
-          loop
-            { var sintL ergebnis = sock_read(handle,byteptr,len);
-              if (ergebnis<0) { SOCK_error(); } # Error melden
-              if (ergebnis==0) break; # EOF -> fertig
-              byteptr += ergebnis; len -= ergebnis;
-              if (len==0) break; # fertig?
-            }
-          end_system_call();
-          return byteptr;
-        }
-      #endif
-      elif (eq(TheStream(stream)->strm_rd_by,P(rd_by_iau_file)) # file
-            && (FileStream_bitsize(stream)==8) # eltype = (UNSIGNED-BYTE 8)
-           )
-        { dotimespL(len,len,
-            { var uintB* ptr = b_file_nextbyte(stream);
-              if (ptr == (uintB*)NULL) break;
-              *byteptr++ = *ptr;
-              # index und position incrementieren:
-              FileStream_index(stream) += 1;
-              FileStream_position(stream) += 1;
-            });
-          return byteptr;
-        }
-      else # keine Optimierung möglich
-        { return NULL; }
-    }
-
-# UP: Schreibt mehrere Bytes auf einen Stream.
-# write_byte_array(stream,byteptr,len)
-# > stream: Stream
-# > uintB* byteptr: Adresse der zu schreibenden Bytefolge
-# > uintL len: Länge der zu schreibenden Bytefolge
-# < uintB* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
-  global const uintB* write_byte_array (object stream, const uintB* byteptr, uintL len);
-  global const uintB* write_byte_array(stream,byteptr,len)
-    var object stream;
-    var const uintB* byteptr;
-    var uintL len;
-    { if (len==0) { return byteptr; }
-      start:
-      if (eq(TheStream(stream)->strm_wr_by,P(wr_by_synonym))) # synonym
-        { stream = get_synonym_stream(TheStream(stream)->strm_synonym_symbol);
-          goto start;
-        }
-      elif (eq(TheStream(stream)->strm_wr_by,P(wr_by_twoway))) # twoway, echo
-        { stream = TheStream(stream)->strm_twoway_output;
-          goto start;
-        }
-      #if defined(HANDLES) || defined(X11SOCKETS) || defined(SOCKET_STREAMS)
-      elif (eq(TheStream(stream)->strm_wr_by,P(wr_by_handle))) # handle, x11socket, socket
-        { var Handle handle = TheHandle(TheStream(stream)->strm_ohandle);
-          begin_system_call();
-         {var sintL ergebnis = full_write(handle,byteptr,len);
-          if (ergebnis<0) { OS_error(); } # Error melden
-          end_system_call();
-          if (!(ergebnis==(sintL)len)) # nicht erfolgreich?
-            { fehler_unwritable(S(write_byte_sequence),stream); }
-          return byteptr+ergebnis;
-        }}
-      #endif
-      #if (defined(X11SOCKETS) || defined(SOCKET_STREAMS)) && defined(WIN32_NATIVE)
-      elif (eq(TheStream(stream)->strm_wr_by,P(wr_by_socket))) # x11socket, socket
-        { var SOCKET handle = TheSocket(TheStream(stream)->strm_ohandle);
-          begin_system_call();
-          # This loop is probably not needed, because sock_write() returns
-          # only when done or EOF. Keep it nevertheless.
-          loop
-            { var sintL ergebnis = sock_write(handle,byteptr,len);
-              if (ergebnis<0) { SOCK_error(); } # Error melden
-              if (ergebnis==0) # nicht erfolgreich?
-                { end_system_call(); fehler_unwritable(S(write_byte_sequence),stream); }
-              byteptr += ergebnis; len -= ergebnis;
-              if (len==0) break; # fertig?
-            }
-          end_system_call();
-          return byteptr;
-        }
-      #endif
-      elif (eq(TheStream(stream)->strm_wr_by,P(wr_by_iau_file)) # file
-            && (FileStream_bitsize(stream)==8) # eltype = (UNSIGNED-BYTE 8)
-           )
-        { return write_byte_array_iau8_file(stream,byteptr,len); }
-      else # keine Optimierung möglich
-        { return NULL; }
-    }
-
-# UP: Liest mehrere Characters von einem Stream.
-# read_char_array(stream,charptr,len)
-# > stream: Stream
-# > chart* charptr: Adresse der zu füllenden Zeichenfolge
-# > uintL len: Länge der zu füllenden Zeichenfolge
-# < chart* ergebnis: Pointer ans Ende des gefüllten Bereiches oder NULL
-  global chart* read_char_array (object stream, chart* charptr, uintL len);
-  global chart* read_char_array(stream,charptr,len)
-    var object stream;
-    var chart* charptr;
-    var uintL len;
-    { if (len==0) { return charptr; }
-     {var object lastchar = TheStream(stream)->strm_rd_ch_last;
-      if (eq(lastchar,eof_value)) # EOF ?
-        { return charptr; }
-      if ((TheStream(stream)->strmflags & strmflags_unread_B) # Char nach UNREAD ?
-          && !charp(lastchar) # aber kein Character?
-         )
-        { return NULL; }
-      if (eq(TheStream(stream)->strm_rd_ch,P(rd_ch_synonym))) # synonym
-        { var object substream = get_synonym_stream(TheStream(stream)->strm_synonym_symbol);
-          check_SP();
-         {var chart* endptr =
-            (TheStream(stream)->strmflags & strmflags_unread_B
-             ? read_char_array(substream,charptr+1,len-1)
-             : read_char_array(substream,charptr,len)
-            );
-          if (endptr==NULL) { return NULL; }
-          if (TheStream(stream)->strmflags & strmflags_unread_B)
-            { charptr[0] = char_code(lastchar); }
-          TheStream(stream)->strm_rd_ch_last =
-            (endptr == charptr+len ? code_char(endptr[-1]) : eof_value);
-          TheStream(stream)->strmflags &= ~strmflags_unread_B;
-          return endptr;
-        }}
-      elif (eq(TheStream(stream)->strm_rd_ch,P(rd_ch_twoway))) # twoway
-        { var object substream = TheStream(stream)->strm_twoway_input;
-          check_SP();
-         {var chart* endptr =
-            (TheStream(stream)->strmflags & strmflags_unread_B
-             ? read_char_array(substream,charptr+1,len-1)
-             : read_char_array(substream,charptr,len)
-            );
-          if (endptr==NULL) { return NULL; }
-          if (TheStream(stream)->strmflags & strmflags_unread_B)
-            { charptr[0] = char_code(lastchar); }
-          TheStream(stream)->strm_rd_ch_last =
-            (endptr == charptr+len ? code_char(endptr[-1]) : eof_value);
-          TheStream(stream)->strmflags &= ~strmflags_unread_B;
-          return endptr;
-        }}
-      #ifdef XHANDLES
-      elif (eq(TheStream(stream)->strm_rd_ch,P(rd_ch_handle))) # handle, pipe_in, socket
-        { if (TheStream(stream)->strmflags & strmflags_unread_B)
-            { *charptr++ = char_code(lastchar); len--; }
-          if (len>0)
-            # FIXME: Transform this into a as_chart(...) loop.
-            { var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
-              run_time_stop(); # Run-Time-Stoppuhr anhalten
-              begin_system_call();
-              #ifdef GRAPHICS_SWITCH
-              if (handle == stdin_handle) switch_text_mode();
-              #endif
-             {var sintL ergebnis = full_read(handle,charptr,len);
-              if (ergebnis<0)
-                {
-                  #if !(defined(AMIGAOS) || defined(WIN32_NATIVE))
-                  if (errno==EINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
-                    interruptp(
-                      { end_system_call();
-                        run_time_restart();
-                        pushSTACK(S(read_char_sequence));
-                        fehler(serious_condition,
-                               DEUTSCH ? "~: Ctrl-C: Tastatur-Interrupt" :
-                               ENGLISH ? "~: Ctrl-C: User break" :
-                               FRANCAIS ? "~ : Ctrl-C : Interruption clavier" :
-                               ""
-                              );
-                      });
-                  #endif
-                  OS_error(); # Error melden
-                }
-              charptr += ergebnis; len -= ergebnis;
-              end_system_call();
-              run_time_restart();
-            }}
-          TheStream(stream)->strm_rd_ch_last =
-            (len==0 ? code_char(charptr[-1]) : eof_value);
-          TheStream(stream)->strmflags &= ~strmflags_unread_B;
-          return charptr;
-        }
-      #endif
-      #if (defined(X11SOCKETS) || defined(SOCKET_STREAMS)) && defined(WIN32_NATIVE)
-      elif (eq(TheStream(stream)->strm_rd_ch,P(rd_ch_socket))) # socket
-        { if (TheStream(stream)->strmflags & strmflags_unread_B)
-            { *charptr++ = char_code(lastchar); len--; }
-          if (len>0)
-            { var SOCKET handle = TheSocket(TheStream(stream)->strm_ihandle);
-              run_time_stop(); # Run-Time-Stoppuhr anhalten
-              begin_system_call();
-              # This loop is probably not needed, because sock_read() returns
-              # only when done or EOF. Keep it nevertheless, for the sake of EINTR.
-              # FIXME: Transform this into a as_chart(...) loop.
-              loop
-                { var sintL ergebnis = sock_read(handle,charptr,len);
-                  if (ergebnis<0)
-                    { if (WSAGetLastError()==WSAEINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
-                        { end_system_call();
-                          run_time_restart();
-                          pushSTACK(S(read_char_sequence));
-                          fehler(serious_condition,
-                                 DEUTSCH ? "~: Ctrl-C: Tastatur-Interrupt" :
-                                 ENGLISH ? "~: Ctrl-C: User break" :
-                                 FRANCAIS ? "~ : Ctrl-C : Interruption clavier" :
-                                 ""
-                                );
-                        }
-                      SOCK_error(); # Error melden
-                    }
-                  if (ergebnis==0) break; # EOF -> fertig
-                  charptr += ergebnis; len -= ergebnis;
-                  if (len==0) break; # fertig?
-                }
-              end_system_call();
-              run_time_restart();
-            }
-          TheStream(stream)->strm_rd_ch_last =
-            (len==0 ? code_char(charptr[-1]) : eof_value);
-          TheStream(stream)->strmflags &= ~strmflags_unread_B;
-          return charptr;
-        }
-      #endif
-      elif (eq(TheStream(stream)->strm_rd_ch,P(rd_ch_ch_file))) # file
-        { if (TheStream(stream)->strmflags & strmflags_unread_B)
-            { *charptr++ = char_code(lastchar); len--; }
-          while (len>0)
-            { var uintB* ptr = b_file_nextbyte(stream);
-              if (ptr == (uintB*)NULL) break; # EOF -> fertig
-             {var uintB ch = *ptr;
-              # index und position incrementieren:
-              FileStream_index(stream) += 1;
-              FileStream_position(stream) += 1;
-              # CR/LF -> NL umwandeln:
-              if (ch==CR)
-                { # nächstes Zeichen auf LF untersuchen
-                  ptr = b_file_nextbyte(stream);
-                  if (!(ptr == (uintB*)NULL) && (*ptr == LF))
-                    { # index und position incrementieren:
-                      FileStream_index(stream) += 1;
-                      FileStream_position(stream) += 1;
-                      ch = NL;
-                }   }
-              if (ch==NL)
-                # lineno incrementieren:
-                { FileStream_lineno(stream) += 1; }
-              *charptr++ = as_chart(ch); len--;
-            }}
-          TheStream(stream)->strm_rd_ch_last =
-            (len==0 ? code_char(charptr[-1]) : eof_value);
-          TheStream(stream)->strmflags &= ~strmflags_unread_B;
-          return charptr;
-        }
-      elif (eq(TheStream(stream)->strm_rd_ch,P(rd_ch_str_in))) # str_in
-        { if (TheStream(stream)->strmflags & strmflags_unread_B)
-            { *charptr++ = char_code(lastchar); len--; }
-          if (len>0)
-            { var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index); # Index
-              var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
-              if (index < endindex)
-                { var uintL srclen;
-                  var const chart* srcptr = unpack_string(TheStream(stream)->strm_str_in_string,&srclen);
-                  # Ab srcptr kommen srclen Zeichen.
-                  if (srclen < endindex) { fehler_str_in_adjusted(stream); }
-                  srcptr += index;
-                 {var uintL count = endindex - index;
-                  if (count > len) { count = len; }
-                  # count = min(len,endindex-index) > 0.
-                  len -= count;
-                  dotimespL(count,count, { *charptr++ = *srcptr++; } );
-            }   }}
-          TheStream(stream)->strm_rd_ch_last =
-            (len==0 ? code_char(charptr[-1]) : eof_value);
-          TheStream(stream)->strmflags &= ~strmflags_unread_B;
-          return charptr;
-        }
-      else # keine Optimierung möglich
-        { return NULL; }
-    }}
-
-# UP: Schreibt mehrere Characters auf einen Stream.
-# write_char_array(stream,charptr,len)
-# > stream: Stream
-# > chart* charptr: Adresse der zu schreibenden Zeichenfolge
-# > uintL len: Länge der zu schreibenden Zeichenfolge
-# < chart* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
-  global const chart* write_char_array (object stream, const chart* charptr, uintL len);
-  global const chart* write_char_array(stream,charptr,len)
-    var object stream;
-    var const chart* charptr;
-    var uintL len;
-    { if (len==0) { return charptr; }
-      start:
-      if (eq(TheStream(stream)->strm_wr_ch,P(wr_ch_synonym))) # synonym
-        { stream = get_synonym_stream(TheStream(stream)->strm_synonym_symbol);
-          goto start;
-          # Line-Position aktualisieren kann hier entfallen.
-        }
-      elif (eq(TheStream(stream)->strm_wr_ch,P(wr_ch_twoway))) # twoway, echo
-        { stream = TheStream(stream)->strm_twoway_output;
-          goto start;
-          # Line-Position aktualisieren kann hier entfallen.
-        }
-      #ifdef XHANDLES
-      elif (eq(TheStream(stream)->strm_wr_ch,P(wr_ch_handle))) # handle, pipe_out, socket
-        { return write_char_array_handle(stream,charptr,len); }
-      #endif
-      #if (defined(X11SOCKETS) || defined(SOCKET_STREAMS)) && defined(WIN32_NATIVE)
-      elif (eq(TheStream(stream)->strm_wr_ch,P(wr_ch_socket))) # socket
-        { return write_char_array_socket(stream,charptr,len); }
-      #endif
-      elif (eq(TheStream(stream)->strm_wr_ch,P(wr_ch_ch_file))) # file
-        { return write_char_array_ch_file(stream,charptr,len); }
-      else # keine Optimierung möglich
-        { return NULL; }
-    }
-
 LISPFUN(read_byte,1,2,norest,nokey,0,NIL)
 # (READ-BYTE stream [eof-error-p [eof-value]]), CLTL S. 382
   { # Stream überprüfen:
@@ -13926,20 +14367,20 @@ LISPFUN(allow_read_eval,1,1,norest,nokey,0,NIL)
 # Binärkompatibilität zwischen .mem-Files mit und ohne NEXTAPP erreichen:
   #ifdef MAYBE_NEXTAPP
     #ifndef NEXTAPP
-      #define wr_ch_terminal  wr_ch_dummy
-      #define rd_ch_terminal  rd_ch_dummy
+      #define wr_ch_terminal  wr_ch_error
+      #define rd_ch_terminal  rd_ch_error
     #else
-      #define wr_ch_terminal1  wr_ch_dummy
-      #define rd_ch_terminal1  rd_ch_dummy
+      #define wr_ch_terminal1  wr_ch_error
+      #define rd_ch_terminal1  rd_ch_error
       #define wr_ss_terminal1  wr_ss_dummy_nogc
     #endif
     #ifndef GNU_READLINE
-      #define wr_ch_terminal3  wr_ch_dummy
-      #define rd_ch_terminal3  rd_ch_dummy
+      #define wr_ch_terminal3  wr_ch_error
+      #define rd_ch_terminal3  rd_ch_error
       #define wr_ss_terminal3  wr_ss_dummy_nogc
     #endif
     #ifdef NEXTAPP
-      #define wr_ch_window  wr_ch_dummy
+      #define wr_ch_window  wr_ch_error
     #endif
   #endif
 
