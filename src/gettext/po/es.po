@@ -97,7 +97,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
-"POT-Creation-Date: 2001-02-06 17:23:55 CET\n"
+"POT-Creation-Date: 2001-03-15 19:39:51 CET\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -290,71 +290,23 @@ msgstr "~*No obstante borre ~S."
 msgid "~S: ~S is used by ~{~S~^, ~}."
 msgstr "~S: ~S es utilizado por ~{~S~^, ~}."
 
-#: constobj.d:458
-msgid "January"
-msgstr "Enero"
-
-#: constobj.d:462
-msgid "February"
-msgstr "Febrero"
-
-#: constobj.d:466
-msgid "March"
-msgstr "Marzo"
-
-#: constobj.d:470
-msgid "April"
-msgstr "Abril"
-
-#: constobj.d:474
-msgid "May"
-msgstr "Mayo"
-
-#: constobj.d:478
-msgid "June"
-msgstr "Junio"
-
-#: constobj.d:482
-msgid "July"
-msgstr "Julio"
-
-#: constobj.d:486
-msgid "August"
-msgstr "Agosto"
-
-#: constobj.d:490
-msgid "September"
-msgstr "Septiembre"
-
-#: constobj.d:494
-msgid "October"
-msgstr "Octubre"
-
-#: constobj.d:498
-msgid "November"
-msgstr "Noviembre"
-
-#: constobj.d:502
-msgid "December"
-msgstr "Diciembre"
-
-#: constobj.d:516
+#: constobj.d:472
 msgid "ANSI C program"
 msgstr "programa ANSI C"
 
-#: constobj.d:520
+#: constobj.d:476
 msgid "GNU C++ "
 msgstr "GNU C++"
 
-#: constobj.d:523
+#: constobj.d:479
 msgid "GNU C "
 msgstr "GNU C "
 
-#: constobj.d:530
+#: constobj.d:486
 msgid "C++ compiler"
 msgstr "Compilador de C++"
 
-#: constobj.d:533
+#: constobj.d:489
 msgid "C compiler"
 msgstr "Compilador de C"
 
@@ -365,22 +317,22 @@ msgstr "Compilador de C"
 # de modo que en la traducción alemana pone "DEUTSCH" y en la francesa
 # "FRANCAIS", pues en la española, "ESPAÑOL", como corresponde - cll
 #
-#: constobj.d:538
+#: constobj.d:494
 msgid "ENGLISH"
 msgstr "ESPAÑOL"
 
-#: constobj.d:701
+#: constobj.d:657
 msgid "The value of ~S was not a pathname. ~:*~S is being reset."
 msgstr "El valor de ~S no es del tipo PATHNAME. ~:*~S se reinicializará."
 
 # Duda: ¿Creando *el* directorio? ¿Creando *un* directorio? De momento,
 # simplemente "Creando directorio" - cll
 #
-#: constobj.d:706
+#: constobj.d:662
 msgid "Creating directory: "
 msgstr "Creando directorio: "
 
-#: constobj.d:860
+#: constobj.d:819
 msgid ""
 "The variable ~S had an illegal value.\n"
 "~S has been reset to ~S."
@@ -388,7 +340,7 @@ msgstr ""
 "La variable ~S tenía un valor inválido.\n"
 "~S ha sido inicializado a ~S."
 
-#: constobj.d:862
+#: constobj.d:821
 msgid ""
 "Floating point operation combines numbers of different precision.\n"
 "See ANSI CL 12.1.4.4 and the CLISP impnotes for details.\n"
@@ -403,11 +355,11 @@ msgstr ""
 "~S.\n"
 "Para eliminar este aviso, establezca el valor de ~S a ~S."
 
-#: constobj.d:877
+#: constobj.d:836
 msgid "Bye."
 msgstr "Adiós."
 
-#: constobj.d:879
+#: constobj.d:838
 msgid "Press a key to terminate..."
 msgstr ""
 
@@ -416,7 +368,7 @@ msgstr ""
 # Hmmm, ..., aquí no estoy de acuerdo contigo. No me suena bien lo del
 # "Entorno siguiente", ... cll
 #
-#: constobj.d:884
+#: constobj.d:843
 msgid ""
 "\n"
 "  Next environment: "
@@ -424,7 +376,7 @@ msgstr ""
 "\n"
 "  Siguiente entorno: "
 
-#: constobj.d:886
+#: constobj.d:845
 msgid ""
 "\n"
 "APPLY frame with breakpoint for call "
@@ -432,7 +384,7 @@ msgstr ""
 "\n"
 "marco APPLY con punto de ruptura para invocar "
 
-#: constobj.d:888
+#: constobj.d:847
 msgid ""
 "\n"
 "APPLY frame for call "
@@ -440,7 +392,7 @@ msgstr ""
 "\n"
 "marco APPLY para invocar "
 
-#: constobj.d:890
+#: constobj.d:849
 msgid ""
 "\n"
 "EVAL frame with breakpoint for form "
@@ -448,7 +400,7 @@ msgstr ""
 "\n"
 "marco EVAL con punto de ruptura para la forma "
 
-#: constobj.d:892
+#: constobj.d:851
 msgid ""
 "\n"
 "EVAL frame for form "
@@ -475,7 +427,7 @@ msgstr ""
 #
 # ..., que viene a ser algo como lo que he puesto yo. - cll
 #
-#: constobj.d:894
+#: constobj.d:853
 msgid ""
 "\n"
 "frame binding variables (~ = dynamically):"
@@ -483,7 +435,7 @@ msgstr ""
 "\n"
 "marco de ligadura de las variables (~ = dinámicamente):"
 
-#: constobj.d:897
+#: constobj.d:856
 msgid ""
 "\n"
 "CALLBACK frame"
@@ -491,7 +443,7 @@ msgstr ""
 "\n"
 "marco CALLBACK"
 
-#: constobj.d:900
+#: constobj.d:859
 msgid ""
 "\n"
 "frame binding variables "
@@ -499,7 +451,7 @@ msgstr ""
 "\n"
 "marco de ligadura de las variables"
 
-#: constobj.d:902
+#: constobj.d:861
 msgid ""
 "\n"
 "frame binding functions "
@@ -507,11 +459,11 @@ msgstr ""
 "\n"
 "marco de ligadura de las funciones "
 
-#: constobj.d:904
+#: constobj.d:863
 msgid " binds (~ = dynamically):"
 msgstr " vincula (~ = dinámicamente):"
 
-#: constobj.d:907
+#: constobj.d:866
 msgid ""
 "\n"
 "block frame "
@@ -519,7 +471,7 @@ msgstr ""
 "\n"
 "marco de bloque"
 
-#: constobj.d:909
+#: constobj.d:868
 msgid ""
 "\n"
 "nested block frame "
@@ -527,11 +479,11 @@ msgstr ""
 "\n"
 "marco anidado de bloque"
 
-#: constobj.d:911
+#: constobj.d:870
 msgid " for "
 msgstr " para "
 
-#: constobj.d:913
+#: constobj.d:872
 msgid ""
 "\n"
 "compiled block frame for "
@@ -539,7 +491,7 @@ msgstr ""
 "\n"
 "marco de bloque compilado para "
 
-#: constobj.d:915
+#: constobj.d:874
 msgid ""
 "\n"
 "tagbody frame "
@@ -575,7 +527,7 @@ msgstr ""
 # "entorno" pero que solo tiene sentido dentro de esta trama (o marco),
 # puesto que se ha levantado un `closure'. - cll
 #
-#: constobj.d:917
+#: constobj.d:876
 msgid ""
 "\n"
 "nested tagbody frame "
@@ -583,11 +535,11 @@ msgstr ""
 "\n"
 "marco anidado del cuerpo de etiquetas de salto"
 
-#: constobj.d:919
+#: constobj.d:878
 msgid " for"
 msgstr " para"
 
-#: constobj.d:922
+#: constobj.d:881
 msgid ""
 "\n"
 "compiled tagbody frame for "
@@ -598,7 +550,7 @@ msgstr ""
 #
 # Ésta estaba claramente mal - lsg
 #
-#: constobj.d:924
+#: constobj.d:883
 msgid ""
 "\n"
 "catch frame for tag "
@@ -630,7 +582,7 @@ msgstr ""
 # En fin, a la vista de esta definición y de la siguiente aclaración,
 # propongo `manejador' para su traducción - cll
 #
-#: constobj.d:926
+#: constobj.d:885
 msgid ""
 "\n"
 "handler frame for conditions"
@@ -646,7 +598,7 @@ msgstr ""
 #
 # Leo, como puedes ver he cambiado en todos lados `trama' por `marco' - cll
 #
-#: constobj.d:928
+#: constobj.d:887
 msgid ""
 "\n"
 "unwind-protect frame"
@@ -663,7 +615,7 @@ msgstr ""
 #
 # Vale, ¡pero vamos!, que cambio `recinto' por `trama' - cll
 #
-#: constobj.d:930
+#: constobj.d:889
 msgid ""
 "\n"
 "\n"
@@ -685,7 +637,7 @@ msgstr ""
 #
 # ¿Que os parece?
 #
-#: constobj.d:932
+#: constobj.d:891
 msgid ""
 "\n"
 "frame binding environments"
@@ -693,7 +645,7 @@ msgstr ""
 "\n"
 "marco de ligadura del entorno"
 
-#: spvw.d:593
+#: spvw.d:595
 msgid "could not make symbol value per-thread"
 msgstr ""
 
@@ -701,7 +653,7 @@ msgstr ""
 #
 # En mi opinión, RESET debe traducirse como un imperativo - cll
 #
-#: spvw.d:657
+#: spvw.d:659
 msgid ""
 "\n"
 "*** - Program stack overflow. RESET"
@@ -727,7 +679,7 @@ msgstr ""
 #
 # Por otra parte, tienes toda la razón, Lisp debe ir con mayúsculas :) - cll
 #
-#: spvw.d:662
+#: spvw.d:664
 msgid ""
 "\n"
 "*** - Lisp stack overflow. RESET"
@@ -738,7 +690,7 @@ msgstr ""
 #
 # Muy bueno el apunte sobre ese acento en "cómo". Gracias, Santiago - cll
 #
-#: spvw.d:799
+#: spvw.d:801
 msgid ""
 "internal error: statement in file ~, line ~ has been reached!!\n"
 "Please send the authors of the program a description how you produced this error!"
@@ -759,7 +711,7 @@ msgstr ""
 # siguiente), pues para no pillarme los dedos lo dejaré tal y como lo
 # puso Joerg Hoehle - cll
 #
-#: spvw.d:861
+#: spvw.d:863
 msgid "Unknown signature of an FSUBR\n"
 msgstr "Tipo de argumento desconocido para FSUBR\n"
 
@@ -799,7 +751,7 @@ msgstr "Tipo de argumento desconocido para FSUBR\n"
 # A tenor de lo que se dice en la última de las frases, considero que la
 # traducción actual (inspirada en la francesa) está bien, ¿sugerencias? - cll
 #
-#: spvw.d:970
+#: spvw.d:972
 msgid "Unknown signature of a SUBR\n"
 msgstr "Tipo de argumento desconocido para SUBR\n"
 
@@ -811,9 +763,143 @@ msgstr "Tipo de argumento desconocido para SUBR\n"
 #
 # Pues si, tienes toda la razón del mundo - cll
 #
-#: spvw.d:1612
+#: spvw.d:1614
 msgid "module `%s' requires package %s.\n"
 msgstr "el módulo `%s' necesita el paquete %s.\n"
+
+#: spvw.d:1655
+msgid ""
+"GNU CLISP (http://clisp.cons.org/) is an ANSI Common Lisp.\n"
+"Usage:  "
+msgstr ""
+
+#: spvw.d:1658
+msgid ""
+" [options] [lispfile [argument ...]]\n"
+" When `lispfile' is given, it is loaded and `*ARGS*' is set\n"
+" to the list of argument strings. Otherwise, an interactive\n"
+" read-eval-print loop is entered.\n"
+msgstr ""
+
+#: spvw.d:1662
+msgid "Informative output:\n"
+msgstr ""
+
+#: spvw.d:1663
+msgid " -h, --help  - print this help and exit\n"
+msgstr ""
+
+#: spvw.d:1664
+msgid " --version   - print the version information\n"
+msgstr ""
+
+#: spvw.d:1665
+msgid " --license   - print the licensing information\n"
+msgstr ""
+
+#: spvw.d:1666
+msgid "Memory image selection:\n"
+msgstr ""
+
+#: spvw.d:1667
+msgid " -B lisplibdir - set the installation directory\n"
+msgstr ""
+
+#: spvw.d:1669
+msgid " -K linkingset - use this executable and memory image\n"
+msgstr ""
+
+#: spvw.d:1671
+msgid " -M memfile  - use this memory image\n"
+msgstr ""
+
+#: spvw.d:1672
+msgid " -m size     - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
+msgstr ""
+
+#: spvw.d:1674
+msgid " -s size     - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
+msgstr ""
+
+#: spvw.d:1677
+msgid " -t tmpdir   - temporary directory for memmap\n"
+msgstr ""
+
+#: spvw.d:1679
+msgid "Internationalization:\n"
+msgstr ""
+
+#: spvw.d:1680
+msgid " -L language - set user language\n"
+msgstr ""
+
+#: spvw.d:1681
+msgid " -N nlsdir   - NLS catalog directory\n"
+msgstr ""
+
+#: spvw.d:1682
+msgid " -Edomain encoding - set encoding\n"
+msgstr ""
+
+#: spvw.d:1683
+msgid "Interoperability:\n"
+msgstr ""
+
+#: spvw.d:1684
+msgid " -q, --quiet, --silent - do not print the banner\n"
+msgstr ""
+
+#: spvw.d:1685
+msgid " -w          - wait for keypress after program termination\n"
+msgstr ""
+
+#: spvw.d:1686
+msgid " -I          - be ILISP-friendly\n"
+msgstr ""
+
+#: spvw.d:1687
+msgid "Startup actions:\n"
+msgstr ""
+
+#: spvw.d:1688
+msgid " -a          - more ANSI CL compliance\n"
+msgstr ""
+
+#: spvw.d:1689
+msgid " -p package  - start in the package\n"
+msgstr ""
+
+#: spvw.d:1690
+msgid " -C          - set *LOAD-COMPILING* to T\n"
+msgstr ""
+
+#: spvw.d:1691
+msgid " -norc       - do not load the user ~/.clisprc file\n"
+msgstr ""
+
+#: spvw.d:1692
+msgid " -i file     - load initfile (can be repeated)\n"
+msgstr ""
+
+#: spvw.d:1693
+msgid "Actions:\n"
+msgstr ""
+
+#: spvw.d:1694
+msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
+msgstr ""
+
+#: spvw.d:1695
+msgid " -x expression - execute the expression, then exit\n"
+msgstr ""
+
+#: spvw.d:1696
+msgid " lispfile [argument ...] - load lispfile, then exit\n"
+msgstr ""
+
+#: spvw.d:1697
+msgid "Default action is an interactive read-eval-print loop.\n"
+msgstr ""
 
 # Antes de entrar en el debate sobre la traducción de port:
 # ¿Es tan fundamentalmente distinto version y port en este contexto como
@@ -824,17 +910,17 @@ msgstr "el módulo `%s' necesita el paquete %s.\n"
 # cachondeo, en el contexto de estos mensajes la expresión "versión" es
 # perfecta, ... - cll
 #
-#: spvw.d:1753
+#: spvw.d:1755
 #, fuzzy
 msgid "                    Amiga version: Joerg Hoehle\n"
 msgstr "                    Versión para Amiga: Jörg Höhle\n"
 
-#: spvw.d:1757
+#: spvw.d:1759
 #, fuzzy
 msgid "                    RISCOS port: Peter Burwood, Bruno Haible\n"
 msgstr "                    Versión para RISCOS: Peter Burwood, Bruno Haible\n"
 
-#: spvw.d:1968
+#: spvw.d:1970
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
 msgstr "Sintaxis de %s: nnnnnnn or nnnnKB or nMB\n"
 
@@ -849,19 +935,19 @@ msgstr "Sintaxis de %s: nnnnnnn or nnnnKB or nMB\n"
 #
 # ¿No te mola más? - cll
 #
-#: spvw.d:1972
+#: spvw.d:1974
 msgid "%s out of range\n"
 msgstr "%s se ha salido del rango\n"
 
-#: spvw.d:1984
+#: spvw.d:1986
 msgid "memory size"
 msgstr "tamaño de memoria"
 
-#: spvw.d:1994
+#: spvw.d:1996
 msgid "stack size"
 msgstr "tamaño de la pila"
 
-#: spvw.d:2315
+#: spvw.d:2317
 msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
 msgstr "El valor devuelto por malloc() = %x no es compatible con la distribución del código de tipo.\n"
 
@@ -870,7 +956,7 @@ msgstr "El valor devuelto por malloc() = %x no es compatible con la distribución
 #
 # ¡¡Madre mía!! Tienes toda la razón del mundo - cll :)
 #
-#: spvw.d:2322
+#: spvw.d:2324
 msgid "Only %d bytes available.\n"
 msgstr "Sólo quedan %d bytes disponibles.\n"
 
@@ -878,7 +964,7 @@ msgstr "Sólo quedan %d bytes disponibles.\n"
 # viene decir "SP stack"? ¿Se referirán con ello a la pila del sistema?
 # - cll
 #
-#: spvw.d:2556
+#: spvw.d:2558
 msgid "Couldn't determine the end of the SP stack!\n"
 msgstr "No fue posible determinar el final de la pila SP!\n"
 
@@ -899,7 +985,7 @@ msgstr "No fue posible determinar el final de la pila SP!\n"
 # Otra nota de interés es la siguiente: he cambiado "aviso" por
 # "atención". Creo que así suena mejor. Sugerencia de Santiago - cll
 #
-#: spvw.d:2777
+#: spvw.d:2779
 msgid ""
 "\n"
 "WARNING: No initialisation file specified.\n"
@@ -907,7 +993,7 @@ msgstr ""
 "\n"
 "ATENCIÓN: No se ha especificado ningún fichero de inicialización.\n"
 
-#: spvw.d:2781 spvw.d:2796
+#: spvw.d:2783 spvw.d:2798
 msgid "Please try: "
 msgstr "Por favor, intente:"
 
@@ -928,7 +1014,7 @@ msgstr "Por favor, intente:"
 # Otra nota de interés es la siguiente: he cambiado "aviso" por
 # "atención". Creo que así suena mejor. Sugerencia de Santiago - cll
 #
-#: spvw.d:2795
+#: spvw.d:2797
 #, fuzzy
 msgid ""
 "\n"
@@ -937,7 +1023,7 @@ msgstr ""
 "\n"
 "ATENCIÓN: No se ha especificado ningún fichero de inicialización.\n"
 
-#: spvw.d:3000
+#: spvw.d:3002
 msgid "Not enough memory for Lisp.\n"
 msgstr "No hay memoria suficiente para Lisp.\n"
 
@@ -1178,7 +1264,7 @@ msgstr ""
 msgid "Trying to make room through a GC...\n"
 msgstr "Intentando obtener más espacio a través de un GC ...\n"
 
-#: spvw_memfile.d:218
+#: spvw_memfile.d:234
 msgid "disk full"
 msgstr "el disco está lleno"
 
@@ -1196,23 +1282,23 @@ msgstr "el disco está lleno"
 #
 # - cll
 #
-#: spvw_memfile.d:744
+#: spvw_memfile.d:763
 msgid "operating system error during load of initialisation file `%s'\n"
 msgstr "error del sistema operativo durante la carga del fichero de inicialización `%s'\n"
 
-#: spvw_memfile.d:1216
+#: spvw_memfile.d:1235
 msgid "Cannot map the initialisation file into memory."
 msgstr "No puedo escribir el fichero de inicialización en memoria."
 
-#: spvw_memfile.d:1480
+#: spvw_memfile.d:1513
 msgid "operating system error during load of initialisation file\n"
 msgstr "error del sistema operativo durante la carga del fichero de inicialización\n"
 
-#: spvw_memfile.d:1486
+#: spvw_memfile.d:1519
 msgid "initialisation file was not created by this version of LISP\n"
 msgstr "el fichero de inicialización no fue creado con esta versión de LISP\n"
 
-#: spvw_memfile.d:1490
+#: spvw_memfile.d:1523
 msgid "not enough memory for initialisation\n"
 msgstr "no hay memoria suficiente para la inicialización\n"
 
@@ -1404,15 +1490,11 @@ msgstr "EVAL/APPLY: no se han entregado suficientes argumentos a ~"
 # Bueno, he quitado lo de "asignado" porque parece de "perogrullo", pero
 # lo demás se queda - cll
 #
-#: eval.d:3165
+#: eval.d:3148
 msgid "EVAL: variable ~ has no value"
 msgstr "EVAL: la variable ~ no tiene ningún valor"
 
-#: eval.d:3190
-msgid "EVAL: illegal form ~"
-msgstr "EVAL: forma ~ inválida"
-
-#: control.d:109 eval.d:3274 eval.d:4299 eval.d:5227
+#: control.d:109 eval.d:3248 eval.d:4273 eval.d:5201
 msgid "~: ~ is not a function name"
 msgstr "~: ~ no es el nombre de una función"
 
@@ -1420,7 +1502,7 @@ msgstr "~: ~ no es el nombre de una función"
 #
 # Bueno, pues te digo lo mismo que en el mensaje eval.d:2572, ... - cll
 #
-#: eval.d:3353
+#: eval.d:3327
 msgid "EVAL: too few parameters for special-form ~: ~"
 msgstr "EVAL: no se han entregado suficientes argumentos a la forma especial ~: ~"
 
@@ -1430,11 +1512,11 @@ msgstr "EVAL: no se han entregado suficientes argumentos a la forma especial ~: 
 # O sea, que quite lo de "para" y ponga "a". Pues vale, tienes toda la
 # razón del mundo - cll
 #
-#: eval.d:3367
+#: eval.d:3341
 msgid "EVAL: too many parameters for special-form ~: ~"
 msgstr "EVAL: se han entregado demasiados parámetros a la forma especial ~: ~"
 
-#: eval.d:3380
+#: eval.d:3354
 msgid "EVAL: dotted parameter list for special form ~: ~"
 msgstr "EVAL: la lista de parámetros para la forma especial ~ está punteada: ~"
 
@@ -1443,7 +1525,7 @@ msgstr "EVAL: la lista de parámetros para la forma especial ~ está punteada: ~"
 #
 # Una vez más, te digo lo mismo que en el mensaje eval.d:2572 - cll
 #
-#: eval.d:3447
+#: eval.d:3421
 msgid "EVAL: too few arguments given to ~: ~"
 msgstr "EVAL: no se han entregado suficientes argumentos a ~: ~"
 
@@ -1452,7 +1534,7 @@ msgstr "EVAL: no se han entregado suficientes argumentos a ~: ~"
 #
 # Me gusta más "entregado" que "pasado" - cll
 #
-#: eval.d:3460
+#: eval.d:3434
 msgid "EVAL: too many arguments given to ~: ~"
 msgstr "EVAL: se han entregado demasiados argumentos a ~: ~"
 
@@ -1461,11 +1543,11 @@ msgstr "EVAL: se han entregado demasiados argumentos a ~: ~"
 #
 # Me gusta más "entregada" que "pasada" - cll
 #
-#: eval.d:3473
+#: eval.d:3447
 msgid "EVAL: argument list given to ~ is dotted: ~"
 msgstr "EVAL: la lista de argumentos entregada a ~ está punteada: ~"
 
-#: eval.d:4312
+#: eval.d:4286
 msgid "APPLY: argument list given to ~ is dotted"
 msgstr "APPLY: la lista de argumentos entregada a ~ está punteada"
 
@@ -1474,7 +1556,7 @@ msgstr "APPLY: la lista de argumentos entregada a ~ está punteada"
 #
 # Una vez más, me gusta más "entregar" que "pasar" - cll
 #
-#: eval.d:4324
+#: eval.d:4298
 msgid "APPLY: too many arguments given to ~"
 msgstr "APPLY: se han entregado demasiados argumentos a ~"
 
@@ -1483,7 +1565,7 @@ msgstr "APPLY: se han entregado demasiados argumentos a ~"
 #
 # Pues eso, que me gusta más "entregar" - cll
 #
-#: eval.d:4336
+#: eval.d:4310
 msgid "APPLY: too few arguments given to ~"
 msgstr "APPLY: se han entregado pocos argumentos a ~"
 
@@ -1495,11 +1577,11 @@ msgstr "APPLY: se han entregado pocos argumentos a ~"
 # valor asignado, pues prefiero omitir lo de "asignado" y evitar que el
 # usuario lea términos innecesarios - cll
 #
-#: eval.d:6795 eval.d:6811
+#: eval.d:6769 eval.d:6785
 msgid "symbol ~ has no value"
 msgstr "el símbolo ~ no tiene valor"
 
-#: eval.d:6826
+#: eval.d:6800
 msgid "assignment to constant symbol ~ is impossible"
 msgstr "no pueden realizarse asignaciones sobre el símbolo constante ~"
 
@@ -1512,7 +1594,7 @@ msgstr "no pueden realizarse asignaciones sobre el símbolo constante ~"
 #
 # queda como más "indio". Tu traducción me encanta - cll
 #
-#: control.d:2415 eval.d:7452
+#: control.d:2415 eval.d:7426
 msgid "~: too many arguments given to ~"
 msgstr "~: se ha invocado ~ con demasiados argumentos"
 
@@ -1539,31 +1621,31 @@ msgstr "~: se ha invocado ~ con demasiados argumentos"
 # `tagbody' es perfecta y, además, sigue los pasos de la de Santiago, de
 # modo que "moción aceptada" :)
 #
-#: eval.d:7630 eval.d:7667
+#: eval.d:7604 eval.d:7641
 msgid "(~ ~): the tagbody of the tags ~ has already been left"
 msgstr "(~ ~): ya se ha salido del cuerpo de etiquetas ~"
 
-#: control.d:2108 eval.d:7731
+#: control.d:2108 eval.d:7705
 msgid "~: there is no CATCHer for tag ~"
 msgstr "~: No hay ningún capturador (CATCH) para la etiqueta de salto ~"
 
-#: eval.d:7756
+#: eval.d:7730
 msgid "STACK corrupted"
 msgstr "Pila (STACK) corrupta"
 
-#: eval.d:8140
+#: eval.d:8114
 msgid "~: ~ is not a correct index into ~"
 msgstr "~: ~ no es un índice correcto en ~"
 
-#: eval.d:8752
+#: eval.d:8726
 msgid "undefined bytecode in ~ at byte ~"
 msgstr "Código de octeto ~ indefinido en el octeto ~"
 
-#: eval.d:8762
+#: eval.d:8736
 msgid "too many return values"
 msgstr "Demasiados valores devueltos"
 
-#: eval.d:8769
+#: eval.d:8743
 msgid "Corrupted STACK in ~ at byte ~"
 msgstr "Pila corrupta en ~ en el byte ~"
 
@@ -1809,14 +1891,14 @@ msgstr "~: ~ no es un registro"
 # 					Telepromoción - cll) :)
 #
 #
-#: pathname.d:1184 pathname.d:1235
+#: pathname.d:1208 pathname.d:1259
 msgid "~: host should be NIL or a string, not ~"
 msgstr "~: el anfitrión debe ser, o bien NIL, o una cadena, pero no ~"
 
 #
 # Duda: he traducido hostname por "nombre del `host'". ¿Qué os parece?
 #
-#: pathname.d:1206 pathname.d:1255
+#: pathname.d:1230 pathname.d:1279
 msgid "~: illegal hostname ~"
 msgstr "~: nombre de anfitrión inválido ~"
 
@@ -1831,27 +1913,31 @@ msgstr "~: nombre de anfitrión inválido ~"
 # (A propósito, el juego ese de LucasArts es ¡¡¡GENIAL!!!
 # 					Telepromoción - cll) :)
 #
-#: pathname.d:1277
+#: pathname.d:1301
 msgid "~: host should be NIL, not ~"
 msgstr "~: el anfitrión debe ser NIL, no ~"
 
-#: pathname.d:1396
+#: pathname.d:1420
 msgid "~: argument should be a string, symbol, file stream or pathname, not ~"
 msgstr "~: el argumento debe ser o bien una cadena, o un símbolo, o un flujo de fichero o un PATHNAME pero no ~"
 
-#: pathname.d:1439
+#: pathname.d:1463
 msgid "~: filename for ~ is unknown"
 msgstr "~: el nombre de fichero de ~ es desconocido"
 
-#: pathname.d:1969 pathname.d:2333
+#: pathname.d:1865
+msgid "~(~ ~ ~): a logical pathname must contain host"
+msgstr ""
+
+#: pathname.d:2002 pathname.d:2366
 msgid "~: there is no environment variable ~"
 msgstr "~: no hay ninguna variable de entorno ~"
 
-#: pathname.d:2276
+#: pathname.d:2309
 msgid "~: there is no user named ~"
 msgstr "~: no hay ningún usuario con el nombre ~"
 
-#: pathname.d:2583
+#: pathname.d:2616
 msgid "~: syntax error in filename ~ at position ~"
 msgstr "~: error de sintáxis en el nombre del fichero ~, en la posición ~"
 
@@ -1866,89 +1952,89 @@ msgstr "~: error de sintáxis en el nombre del fichero ~, en la posición ~"
 # (A propósito, el juego ese de LucasArts es ¡¡¡GENIAL!!!
 # 					Telepromoción - cll) :)
 #
-#: pathname.d:2600 pathname.d:2615
+#: pathname.d:2633 pathname.d:2648
 msgid "~: hosts ~ and ~ of ~ should coincide"
 msgstr "~: los anfitriones ~ y ~ de ~ deben coincidir"
 
-#: pathname.d:2857
+#: pathname.d:2890
 msgid "~: argument ~ is not a logical pathname, string, stream or symbol"
 msgstr "~: el argumento ~ no es un PATHNAME \"lógica\", una cadena de caracteres, un flujo o un símbolo"
 
-#: pathname.d:2913
+#: pathname.d:2946
 msgid "~: endless loop while resolving ~"
 msgstr "~: bucle infinito para ~"
 
-#: pathname.d:2935
+#: pathname.d:2968
 msgid "~: unknown logical host ~ in ~"
 msgstr "~: anfitrión ~ desconocido en ~"
 
-#: pathname.d:2947
+#: pathname.d:2980
 msgid "~: No replacement rule for ~ is known."
 msgstr "~: No se conoce ninguna regla de sustitución para ~."
 
-#: pathname.d:3341
+#: pathname.d:3374
 msgid "~: :VERSION-argument should be NIL or a positive fixnum or :WILD or :NEWEST, not ~"
 msgstr "~: el argumento :VERSION debe ser NIL, un número positivo del tipo fixnum, :WILD o :NEWEST pero no ~"
 
-#: pathname.d:3368
+#: pathname.d:3401
 msgid "~: :VERSION-argument should be NIL or :WILD or :NEWEST, not ~"
 msgstr "~: el argumento :VERSION debe ser o bien NIL, o :WILD o :NEWEST, pero no ~"
 
-#: pathname.d:4205
+#: pathname.d:4238
 msgid "~: on host ~, device ~ is invalid, should be NIL"
 msgstr ""
 
-#: pathname.d:4455
+#: pathname.d:4488
 msgid "~: illegal ~ argument ~"
 msgstr "~: el argumento de ~ es inválido: ~"
 
 # Duda: Wildcard por comodín, ..., está bien, ¿no?
 #
-#: pathname.d:4801
+#: pathname.d:4834
 msgid "wildcards are not allowed here: ~"
 msgstr "Aquí no están permitidos los comodines: ~"
 
-#: pathname.d:4838
+#: pathname.d:4871
 msgid "~: argument ~ should be ~, ~, ~, ~, ~, ~ or ~"
 msgstr "~: el argumento ~ debe ser ~, ~, ~, ~, ~, ~ o ~"
 
-#: pathname.d:5960
+#: pathname.d:6036
 msgid "~: replacement pieces ~ do not fit into ~"
 msgstr "~: las piezas de intercambio ~ no caben en ~"
 
-#: pathname.d:6027
+#: pathname.d:6129
 msgid "~: ~ is not a specialization of ~"
 msgstr "~: ~ no es una especialización de ~"
 
-#: pathname.d:6078
+#: pathname.d:6180
 msgid "(~ ~ ~ ~) is ambiguous: ~"
 msgstr "(~ ~ ~ ~) es ambiguo: ~"
 
-#: pathname.d:6104
+#: pathname.d:6206
 msgid "nonexistent directory: ~"
 msgstr "directorio inexistente: ~"
 
-#: pathname.d:6120
+#: pathname.d:6222
 msgid "~: File ~ already exists"
 msgstr "~: El fichero ~ ya existe"
 
-#: pathname.d:6398 pathname.d:7254
+#: pathname.d:6500 pathname.d:7356
 msgid "no directory ~ above ~"
 msgstr "no existe el directorio ~ bajo ~"
 
-#: pathname.d:6406
+#: pathname.d:6508
 msgid "\"..\\\\\" after \"...\\\\\" is invalid: ~"
 msgstr "\"..\\\\\" después de \"...\\\\\" es inválido: ~"
 
-#: pathname.d:6611
+#: pathname.d:6713
 msgid "Couldn't access current directory"
 msgstr "No se pudo acceder al directorio actual"
 
-#: pathname.d:6761
+#: pathname.d:6863
 msgid "~: ~ names a file, not a directory"
 msgstr "~: ~ es el nombre de un fichero, no de un directorio"
 
-#: pathname.d:6809 pathname.d:7006 pathname.d:7373
+#: pathname.d:6911 pathname.d:7108 pathname.d:7475
 msgid "~: ~ names a directory, not a file"
 msgstr "~: ~ es el nombre de un directorio, no de un fichero"
 
@@ -1957,7 +2043,7 @@ msgstr "~: ~ es el nombre de un directorio, no de un fichero"
 # Tienes razón. Ahora que veo este mensaje me lío a poner dos puntos en
 # los mensajes anteriores. cll
 #
-#: pathname.d:6855
+#: pathname.d:6957
 msgid "UNIX error while GETWD: ~"
 msgstr "Se produjo un error UNIX durante la ejecución de GETWD: ~"
 
@@ -1975,7 +2061,7 @@ msgstr "Se produjo un error UNIX durante la ejecución de GETWD: ~"
 #
 # Por este motivo, creo que lo más conveniente es dejarlo como está. cll
 #
-#: pathname.d:6864
+#: pathname.d:6966
 msgid "UNIX GETWD returned ~"
 msgstr "Se produjo un error UNIX durante la ejecución de GETWD: ~"
 
@@ -1983,63 +2069,63 @@ msgstr "Se produjo un error UNIX durante la ejecución de GETWD: ~"
 #
 # Lo mismo también ;) cll
 #
-#: pathname.d:6966
+#: pathname.d:7068
 msgid "UNIX REALPATH returned ~"
 msgstr "Se produjo un error UNIX durante la ejecución de REALPATH: ~"
 
-#: pathname.d:7188
+#: pathname.d:7290
 msgid "~: If a device is specified, the directory must begin with ~: ~"
 msgstr "~: Si se especifica un dispositivo, el directorio debe comenzar con ~: ~"
 
-#: pathname.d:7580
+#: pathname.d:7682
 msgid "no file name given: ~"
 msgstr "no se ha entregado ningún nombre de fichero: ~"
 
-#: pathname.d:7594
+#: pathname.d:7696
 msgid "not a directory: ~"
 msgstr "no es un directorio: ~"
 
-#: pathname.d:7663
+#: pathname.d:7765
 msgid "~: file ~ does not exist"
 msgstr "~: el fichero ~ no existe"
 
-#: pathname.d:7692
+#: pathname.d:7794
 msgid "~: pathname with type but without name makes no sense: ~"
 msgstr "~: un PATHNAME con tipo, pero sin nombre, no tiene ningún sentido: ~"
 
-#: pathname.d:7923
+#: pathname.d:8025
 msgid "cannot delete file ~ since there is file stream open to it"
 msgstr "no se puede borrar el fichero ~ puesto que hay un flujo abierto sobre el"
 
-#: pathname.d:7985
+#: pathname.d:8087
 msgid "cannot rename file ~ since there is file stream open to it"
 msgstr "no se puede renombrar el fichero ~ puesto que hay un flujo abierto sobre el"
 
-#: pathname.d:8579
+#: pathname.d:8681
 msgid "file ~ does not exist"
 msgstr "el fichero ~ no existe"
 
-#: pathname.d:8585
+#: pathname.d:8687
 msgid "a file named ~ already exists"
 msgstr "ya existe un fichero con el nombre ~"
 
-#: pathname.d:8647
+#: pathname.d:8749
 msgid "~: illegal :DIRECTION argument ~"
 msgstr "~: argumento :DIRECTION inválido ~"
 
-#: pathname.d:8676
+#: pathname.d:8778
 msgid "~: illegal :IF-EXISTS argument ~"
 msgstr "~: argumento :IF-EXISTS inválido ~"
 
-#: pathname.d:8696
+#: pathname.d:8798
 msgid "~: illegal :IF-DOES-NOT-EXIST argument ~"
 msgstr "~: argumento :IF-DOES-NOT-EXIST inválido ~"
 
-#: pathname.d:9894
+#: pathname.d:9996
 msgid "~: cannot change default directory on remote host: ~"
 msgstr ""
 
-#: pathname.d:9940
+#: pathname.d:10042
 msgid "root directory not allowed here: ~"
 msgstr "el directorio raíz no está permitido aquí: ~"
 
@@ -2049,11 +2135,11 @@ msgstr "el directorio raíz no está permitido aquí: ~"
 #
 # Asi que, muchas gracias Santiago por la indicación, ... - cll
 #
-#: pathname.d:10612 pathname.d:10659 pathname.d:10719
+#: pathname.d:10714 pathname.d:10761 pathname.d:10821
 msgid "~: the command should be a string, not ~"
 msgstr "~: la orden debe ser una cadena y no ~"
 
-#: pathname.d:10977
+#: pathname.d:11079
 msgid "~: library directory is not known, use a command line option to specify it"
 msgstr ""
 
@@ -2065,7 +2151,7 @@ msgstr ""
 #
 # ¿os gusta o lo encontrais raro?
 #
-#: stream.d:222 stream.d:15815
+#: stream.d:223 stream.d:16246
 msgid "~ on ~ is illegal"
 msgstr "~ no es posible sobre el flujo ~"
 
@@ -2073,12 +2159,12 @@ msgstr "~ no es posible sobre el flujo ~"
 #
 # Algo parecido he puesto yo - cll
 #
-#: stream.d:508 stream.d:719
+#: stream.d:509 stream.d:720
 #, fuzzy
 msgid "Return value ~ of call to ~ should be an integer between ~ and ~."
 msgstr "~: el argumento ~ debe ser un entero comprendido entre 2 y 36, y no ~"
 
-#: stream.d:618
+#: stream.d:619
 msgid "~: the last character read from ~ was not ~"
 msgstr "~: el último carácter leído de ~ no era ~"
 
@@ -2151,54 +2237,54 @@ msgstr "~: el último carácter leído de ~ no era ~"
 #
 # ---------------------------------------------------------------------------
 #
-#: stream.d:626
+#: stream.d:627
 msgid "~ from ~ without ~ before it"
 msgstr "~ en ~ sin ~ antes de él"
 
-#: stream.d:896
+#: stream.d:897
 msgid "~: cannot output to ~"
 msgstr "~: no se puede escribir en ~"
 
-#: stream.d:912
+#: stream.d:913
 msgid "~ is not a character, cannot be output onto ~"
 msgstr "~ no es un carácter, no puede escribirse en ~"
 
-#: stream.d:928
+#: stream.d:929
 msgid "~ is not an integer, cannot be output onto ~"
 msgstr "~ no es un entero, no puede escribirse en ~"
 
-#: stream.d:943
+#: stream.d:944
 msgid "integer ~ is out of range, cannot be output onto ~"
 msgstr "el entero ~ está fuera del dominio, no puede imprimirse en ~"
 
-#: stream.d:996
+#: stream.d:997
 #, fuzzy
 msgid "~: argument ~ should be an input stream"
 msgstr "~: el argumento ~ debe ser un flujo"
 
-#: stream.d:1014
+#: stream.d:1015
 #, fuzzy
 msgid "~: argument ~ should be an output stream"
 msgstr "~: el argumento ~ debe ser un flujo"
 
-#: stream.d:1353
+#: stream.d:1354
 msgid "~: argument should be a symbol, not ~"
 msgstr "~: el argumento debe ser un símbolo, no ~"
 
-#: stream.d:2396 stream.d:2889
+#: stream.d:2397 stream.d:2890
 msgid "~ is beyond the end because the string ~ has been adjusted"
 msgstr "~ está más allá del final porque la cadena ~ ha sido ajustada"
 
-#: stream.d:2527
+#: stream.d:2528
 msgid "~: ~ is not a string input stream"
 msgstr "~: ~ no es un flujo de entrada de cadenas de caracteres"
 
-#: charstrg.d:3322 stream.d:2620
+#: charstrg.d:3322 stream.d:2621
 #, fuzzy
 msgid "~: ~ argument must be a subtype of ~, not ~"
 msgstr "~S: el argumento debe ser ~S, ~S o ~S, pero no ~S"
 
-#: stream.d:2657
+#: stream.d:2658
 msgid "~: ~ is not a string output stream"
 msgstr "~: ~ no es un flujo de salida de cadenas de caracteres"
 
@@ -2210,7 +2296,7 @@ msgstr "~: ~ no es un flujo de salida de cadenas de caracteres"
 # and the others are inactive." (Guy L. Steele, Jr; Common Lisp, The
 # Language - 2nd Edition; pag. 454).
 #
-#: stream.d:2699
+#: stream.d:2700
 msgid "~: argument ~ should be a string with fill pointer"
 msgstr "~: El argumento ~ debe ser una cadena con un puntero de relleno"
 
@@ -2218,46 +2304,46 @@ msgstr "~: El argumento ~ debe ser una cadena con un puntero de relleno"
 # Duda: de acuerdo con la lista de spanglish, `buffer' se traduce
 # ---entre otros términos--- por "buffer".
 #
-#: stream.d:3001
+#: stream.d:3002
 msgid "~: ~ is not a buffered input stream"
 msgstr "~: ~ no es un flujo de entrada con buffer"
 
-#: stream.d:3328
+#: stream.d:3329
 msgid "~: stream must be a generic-stream, not ~"
 msgstr "~: el flujo debe ser un `generic-stream', no ~"
 
-#: stream.d:3420
+#: stream.d:3421
 #, fuzzy
 msgid "~: illegal :BUFFERED argument ~"
 msgstr "~: argumento :TEST inválido ~"
 
-#: stream.d:3536 stream.d:17966
+#: stream.d:3537 stream.d:18398
 msgid "~: illegal :ELEMENT-TYPE argument ~"
 msgstr "~: argumento :ELEMENT-TYPE inválido ~"
 
-#: stream.d:3606
+#: stream.d:3607
 #, fuzzy
 msgid "~: illegal :EXTERNAL-FORMAT argument ~"
 msgstr "~: argumento :TEST inválido ~"
 
-#: stream.d:4047
+#: stream.d:4048
 msgid "~: Ctrl-C: User break"
 msgstr "~: Ctrl-C: Interrupción del usuario"
 
-#: stream.d:4099
+#: stream.d:4100
 #, fuzzy
 msgid "unknown character set ~"
 msgstr "Registro desconocido: ~S"
 
-#: stream.d:6392
+#: stream.d:6393
 msgid "Unbuffered streams need an ~ with a bit size being a multiple of 8, not ~"
 msgstr ""
 
-#: stream.d:6784
+#: stream.d:6785
 msgid "Closed ~ because disk is full."
 msgstr "Se ha cerrado ~ porque el disco está lleno."
 
-#: stream.d:6972
+#: stream.d:6973
 msgid "cannot position ~ beyond EOF"
 msgstr "no es posible colocarse en ~ más allá de EOF"
 
@@ -2265,23 +2351,33 @@ msgstr "no es posible colocarse en ~ más allá de EOF"
 # en la asignatura de Sistemas Operativos, en mi Facultad, los
 # llamábamos "ficheros normales". ¿Qué tal os suena?.
 #
-#: stream.d:8599
+#: stream.d:8600
 #, fuzzy
 msgid "~: argument ~ ~ was specified, but ~ is not a regular file."
 msgstr "~: ~ no es un fichero normal."
 
-#: stream.d:8634
+#: stream.d:8635
 msgid "~: arguments ~ ~ and ~ ~ were specified, but ~ is not a regular file."
 msgstr ""
 
 # Duda: aqui he traducido de la version francesa (no se frances, pero
 # por lo que parece que pone, ...)
 #
-#: stream.d:8696
+#: stream.d:8697
 msgid "file ~ is not an integer file"
 msgstr "el fichero ~ no tiene el formato de un fichero de enteros"
 
-#: stream.d:10553
+#: stream.d:10272 stream.d:17792
+#, fuzzy
+msgid "Return value ~ of call to ~ is not a ~."
+msgstr "El valor de ~ no es un flujo: ~"
+
+#: stream.d:10295
+#, fuzzy
+msgid "Return value ~ of call to ~ contains ~ which is not a ~."
+msgstr "El valor de ~ no es un flujo: ~"
+
+#: stream.d:10614
 msgid "character ~ contains bits, cannot be output onto ~"
 msgstr "el carácter ~ contiene bits, que no pueden imprimirse en ~"
 
@@ -2290,23 +2386,23 @@ msgstr "el carácter ~ contiene bits, que no pueden imprimirse en ~"
 # quede claro que me refiero a la palabra reservada RAW (igual que
 # ocurre en la versión original)
 #
-#: stream.d:11292
+#: stream.d:11353
 msgid "RAW mode not supported on ~"
 msgstr "Modo RAW no soportado en ~"
 
-#: stream.d:11724
+#: stream.d:11785
 msgid "~: argument ~ should be a window stream"
 msgstr "~: el argumento ~ debe ser un WINDOW-STREAM"
 
-#: stream.d:12009
+#: stream.d:12440
 msgid "cannot output to standard output"
 msgstr "no se puede escribir en la salida estándar"
 
-#: stream.d:13405
+#: stream.d:13836
 msgid "environment has no TERM variable"
 msgstr "no existe ninguna variable de entorno TERM"
 
-#: stream.d:13410
+#: stream.d:13841
 msgid "terminal type ~ unknown to termcap"
 msgstr "No existe ninguna entrada para el tipo de terminal ~ en termcap"
 
@@ -2318,7 +2414,7 @@ msgstr "No existe ninguna entrada para el tipo de terminal ~ en termcap"
 # 	tipo "usando el modo de impresora" o algo así, ¿no os parece
 # 	mejor?
 #
-#: stream.d:13435
+#: stream.d:13866
 msgid "insufficient terminal: hardcopy terminal"
 msgstr "terminal insuficiente: usando el modo de impresora"
 
@@ -2327,23 +2423,23 @@ msgstr "terminal insuficiente: usando el modo de impresora"
 # alemana (aunque no sé ni alemán ni francés) hacen ---por lo visto---,
 # lo que yo: una traducción libre.
 #
-#: stream.d:13439
+#: stream.d:13870
 msgid "insufficient terminal: overstrikes, cannot clear output"
 msgstr "teminal insuficiente: no se puede inicializar la salida"
 
-#: stream.d:13443
+#: stream.d:13874
 msgid "insufficient terminal: cannot scroll"
 msgstr "terminal insuficiente: no se puede desplazar la pantalla"
 
-#: stream.d:13448
+#: stream.d:13879
 msgid "insufficient terminal: cannot clear screen"
 msgstr "terminal insuficiente: no se puede borrar la pantalla"
 
-#: stream.d:13452
+#: stream.d:13883
 msgid "insufficient terminal: cannot position cursor randomly"
 msgstr "terminal insuficiente: no se puede situar el cursor aleatoriamente"
 
-#: stream.d:13964
+#: stream.d:14395
 msgid "~: package SCREEN is not implemented"
 msgstr "~: el paquete SCREEN no está implementado"
 
@@ -2357,7 +2453,7 @@ msgstr "~: el paquete SCREEN no está implementado"
 # (A propósito, el juego ese de LucasArts es ¡¡¡GENIAL!!!
 # 					Telepromoción - cll) :)
 #
-#: stream.d:15493
+#: stream.d:15924
 msgid "host should be string, not ~"
 msgstr "el anfitrión debe ser una cadena de caracteres y no ~"
 
@@ -2368,94 +2464,89 @@ msgstr "el anfitrión debe ser una cadena de caracteres y no ~"
 # por ser el nombre de un subtipo (o tipo, si se quiere) en Lisp, está
 # sin traducir, ...
 #
-#: stream.d:15501
+#: stream.d:15932
 msgid "display should be a nonnegative fixnum, not ~"
 msgstr "el `display' debe ser un entero del tipo FIXNUM >=0, y no ~"
 
-#: stream.d:15569
+#: stream.d:16000
 msgid "~: stream must be a socket-stream, not ~"
 msgstr "~: el flujo debe ser un `socket-stream' y no ~"
 
-#: stream.d:15582
+#: stream.d:16013
 msgid "~: argument ~ should be a vector of type (ARRAY (UNSIGNED-BYTE 8) (*))"
 msgstr "~: el argumento ~ debe ser un vector del tipo (ARRAY (UNSIGNED-BYTE 8) (*)) "
 
-#: io.d:1042 stream.d:15606 stream.d:18008 stream.d:18082 stream.d:18300 stream.d:18380
+#: io.d:1042 stream.d:16037 stream.d:18440 stream.d:18514 stream.d:18732 stream.d:18812
 msgid "~: input stream ~ has reached its end"
 msgstr "~: el flujo de entrada ~ ha alcanzado su final"
 
-#: stream.d:15808
+#: stream.d:16239
 msgid "~: ~ is not a SOCKET-SERVER"
 msgstr "~: ~ no es un SOCKET-SERVER"
 
-#: stream.d:15874
+#: stream.d:16305
 #, fuzzy
 msgid "~: argument ~ is neither an open SOCKET-STREAM nor a positive FIXNUM"
 msgstr "~: el argumento ~ no es un SOCKET-STREAM"
 
-#: stream.d:16068
+#: stream.d:16499
 #, fuzzy
 msgid "~: argument ~ is not an open SOCKET-STREAM"
 msgstr "~: el argumento ~ no es un SOCKET-STREAM"
 
-#: stream.d:16081
+#: stream.d:16512
 msgid "~: argument ~ is not a SOCKET-STREAM"
 msgstr "~: el argumento ~ no es un SOCKET-STREAM"
 
-#: stream.d:16127
+#: stream.d:16558
 #, fuzzy
 msgid "~: list ~ is too long (~ maximum)"
 msgstr "~: la secuencia ~ es demasiado larga"
 
-#: stream.d:16399
+#: stream.d:16830
 msgid "The value of ~ is not a stream: ~"
 msgstr "El valor de ~ no es un flujo: ~"
 
-#: stream.d:16403
+#: stream.d:16834
 msgid "The value of ~ is not an appropriate stream: ~"
 msgstr "El valor de ~ no es un flujo apropiado: ~"
 
-#: stream.d:16417
+#: stream.d:16848
 msgid "The value of ~ was not a stream: ~. It has been changed to ~."
 msgstr "El valor de ~ no era un flujo: ~. Ha sido cambiado por ~."
 
-#: stream.d:16436
+#: stream.d:16867
 msgid "readline library: out of memory."
 msgstr "biblioteca readline: la memoria ha sido agotada."
 
-#: stream.d:16740
+#: stream.d:17171
 #, fuzzy
 msgid "~: The ~ of ~ cannot be changed from ~ to ~."
 msgstr "~: ~ no puede convertirse al tipo ~"
 
-#: stream.d:17360
-#, fuzzy
-msgid "Return value ~ of call to ~ is not a string."
-msgstr "El valor de ~ no es un flujo: ~"
-
-#: stream.d:17906
+#: stream.d:18338
 msgid "Return value ~ of call to ~ is not a fixnum >= 0 or NIL."
 msgstr ""
 
-#: stream.d:17925
+#: stream.d:18357
 msgid "~ needs an ~ with a bit size being a multiple of 8, not ~"
 msgstr ""
 
-#: stream.d:17987
+#: stream.d:18419
 #, fuzzy
 msgid "~: illegal endianness argument ~"
 msgstr "~: el argumento de ~ es inválido: ~"
 
-#: stream.d:18623 stream.d:18635
+#: stream.d:19055 stream.d:19067
 #, fuzzy
 msgid "~ is not a ~, cannot be output onto ~"
 msgstr "~ no es un entero, no puede escribirse en ~"
 
-#: stream.d:18722
+#: stream.d:19154
 msgid "~: argument ~ is not an open file stream"
 msgstr "~: el argumento ~ no es el flujo de un fichero abierto"
 
-#: stream.d:18756
+#: stream.d:19188
 #, fuzzy
 msgid "~: position argument should be ~ or ~ or a nonnegative integer, not ~"
 msgstr "~: el argumento de posición debe ser ~, ~ o un número no negativo del tipo FIXNUM, pero no ~"
@@ -4513,11 +4604,11 @@ msgstr "Error de Win32 "
 msgid "Winsock error "
 msgstr "Error de `winsock'"
 
-#: misc.d:44
+#: misc.d:106
 msgid "This file was produced by another lisp version, must be recompiled."
 msgstr "Este fichero fue producido por otra versión de lisp. Debe recompilarse."
 
-#: misc.d:261
+#: misc.d:323
 msgid "~: type of attribute ~ is unsupported"
 msgstr "~: el tipo de atributo ~ no está soportado"
 
@@ -4941,11 +5032,11 @@ msgstr "sintaxis inválida en MACROLET: ~S"
 msgid "code after SYMBOL-MACROLET contains a dotted list, ending with ~S"
 msgstr "el código después de SYMBOL-MACROLET contiene una lista punteada que termina con ~S"
 
-#: compiler.lisp:7293 init.lisp:824
+#: compiler.lisp:7284 init.lisp:824
 msgid "~S: symbol ~S must not be declared SPECIAL and a macro at the same time"
 msgstr "~S: el símbolo ~S no debe ser declarado SPECIAL y una macro al mismo tiempo"
 
-#: compiler.lisp:7288 init.lisp:839
+#: compiler.lisp:7279 init.lisp:839
 #, fuzzy
 msgid "~S: symbol ~S is declared special and must not be declared a macro"
 msgstr "~S: el símbolo ~S no debe ser declarado SPECIAL y una macro al mismo tiempo"
@@ -5101,7 +5192,7 @@ msgstr "Par argumento clave y valor inválido: ~S ~S"
 msgid "The macro ~S may not be called with ~S arguments: ~S"
 msgstr "La macro ~S no puede ser invocada con ~S argumentos: ~S"
 
-#: defmacro.lisp:125 defmacro.lisp:150 defmacro.lisp:295
+#: defmacro.lisp:125 defmacro.lisp:150 defmacro.lisp:301
 msgid "The rest of the lambda list will be ignored."
 msgstr "El resto de la lista lambda será ignorado."
 
@@ -5122,7 +5213,7 @@ msgstr "La lista lambda de la macro ~S contiene un punto después de &KEY"
 # Je, je, je, ... pareces un psicópata con lo de ignorar. A mí me parece
 # muy razonable, ... ignorar es como olvidar que algo ocurre :) cll
 #
-#: defmacro.lisp:160 defmacro.lisp:178 defmacro.lisp:374 defmacro.lisp:390 defmacro.lisp:395
+#: defmacro.lisp:160 defmacro.lisp:178 defmacro.lisp:380 defmacro.lisp:396 defmacro.lisp:401
 msgid "It will be ignored."
 msgstr "Será ignorado."
 
@@ -5152,11 +5243,11 @@ msgstr "La lista lambda de la macro ~S contiene una especificación de argumento 
 msgid "The lambda list of macro ~S is missing a variable after &REST/&BODY."
 msgstr "La lista lambda de la macro ~S necesita una variable después de &REST/&BODY."
 
-#: defmacro.lisp:286
+#: defmacro.lisp:292
 msgid "The lambda list of macro ~S contains an illegal variable after &REST/&BODY: ~S"
 msgstr "La lista lambda de la macro ~S contiene una variable inválida después de &REST/&BODY: ~S"
 
-#: defmacro.lisp:296
+#: defmacro.lisp:302
 msgid "The lambda list of macro ~S contains a misplaced dot."
 msgstr "La lista lambda de la macro ~S contiene un punto mal situado."
 
@@ -5164,55 +5255,55 @@ msgstr "La lista lambda de la macro ~S contiene un punto mal situado."
 #
 # :) Vale :) cll
 #
-#: defmacro.lisp:301
+#: defmacro.lisp:307
 msgid "They will be ignored."
 msgstr "Serán ignorados."
 
-#: defmacro.lisp:302
+#: defmacro.lisp:308
 msgid "The lambda list of macro ~S contains superfluous elements: ~S"
 msgstr "La lista lambda de la macro ~S contiene elementos innecesarios: ~S"
 
-#: defmacro.lisp:355
+#: defmacro.lisp:361
 msgid "The lambda list of macro ~S contains an illegal &REST variable: ~S"
 msgstr "La lista lambda de la macro ~S contiene una variable &REST inválida: ~S"
 
-#: defmacro.lisp:369
+#: defmacro.lisp:375
 msgid "The lambda list of macro ~S contains an invalid &WHOLE: ~S"
 msgstr "La lista lambda de la macro ~S contiene un &WHOLE inválido: ~S"
 
-#: defmacro.lisp:375
+#: defmacro.lisp:381
 msgid "The lambda list of macro ~S contains a superfluous ~S."
 msgstr "La lista lambda de la macro ~S contiene un ~S innecesario."
 
-#: defmacro.lisp:391
+#: defmacro.lisp:397
 msgid "The lambda list of macro ~S contains ~S before &KEY."
 msgstr "La lista lambda de la macro ~S contiene ~S antes de &KEY."
 
-#: defmacro.lisp:396
+#: defmacro.lisp:402
 msgid "The lambda list of macro ~S contains ~S which is illegal here."
 msgstr "La lista lambda de la macro ~S contiene ~S, lo cual es incorrecto aquí."
 
-#: defmacro.lisp:415
+#: defmacro.lisp:421
 msgid "The lambda list of macro ~S contains an invalid element ~S"
 msgstr "La lista lambda de la macro ~S contiene un elemento inválido: ~S"
 
-#: defmacro.lisp:429
+#: defmacro.lisp:435
 msgid "The lambda list of macro ~S contains an invalid supplied-variable ~S"
 msgstr "La lista lambda de la macro ~S contiene una \"variable-proporcionada\" inválida ~S"
 
-#: defmacro.lisp:491
+#: defmacro.lisp:497
 msgid "In the lambda list of macro ~S, &ENVIRONMENT must be followed by a non-NIL symbol: ~S"
 msgstr "En la lista lambda de la macro ~S, &ENVIRONMENT debe estar seguido de un símbolo no nulo: ~S"
 
-#: defmacro.lisp:513
+#: defmacro.lisp:519
 msgid "Cannot define a macro from that: ~S"
 msgstr "No se puede definir una macro a partir de: ~S"
 
-#: defmacro.lisp:518
+#: defmacro.lisp:524
 msgid "The name of a macro must be a symbol, not ~S"
 msgstr "El nombre de una macro debe ser un símbolo, no ~S"
 
-#: defmacro.lisp:523
+#: defmacro.lisp:529
 msgid "Macro ~S is missing a lambda list."
 msgstr "La macro ~S necesita una lista lambda."
 
@@ -5260,7 +5351,7 @@ msgstr "El átomo ~S no debe usarse como una cláusula COND."
 msgid "COND code contains a dotted list, ending with ~S"
 msgstr "El código de COND contiene una lista punteada que termina con ~S"
 
-#: compiler.lisp:7344 macros1.lisp:411
+#: compiler.lisp:7335 macros1.lisp:411
 msgid "COND clause without test: ~S"
 msgstr "Cláusula COND sin prueba condicional: ~S"
 
@@ -5515,6 +5606,10 @@ msgstr "APPLY de ~S no es un lugar `setf' modificable"
 msgid "SETF FUNCALL is only defined for functions of the form #'symbol."
 msgstr "SETF FUNCALL sólo está definido para funciones de la forma #'símbolo."
 
+#: places.lisp:1004
+msgid "SETF place ~S expects different numbers of values in the true and branches (~D vs. ~D values)."
+msgstr ""
+
 #: floatprint.lisp:341
 msgid "argument is not a float: ~S"
 msgstr "el argumento no es un número en coma flotante: ~S"
@@ -5523,7 +5618,7 @@ msgstr "el argumento no es un número en coma flotante: ~S"
 msgid "~S: invalid type specification ~S"
 msgstr "~S: la especificación de tipo ~S es inválida"
 
-#: compiler.lisp:8485 type.lisp:61
+#: compiler.lisp:8476 type.lisp:61
 msgid "~S: argument to SATISFIES must be a symbol: ~S"
 msgstr "~S: el argumento de SATISFIES debe ser un símbolo: ~S"
 
@@ -5947,21 +6042,17 @@ msgstr "Forma demasiado corta, muy pocos argumentos: ~S"
 msgid "Form too long, too many arguments: ~S"
 msgstr "Forma demasiado larga, demasiados argumentos: ~S"
 
-#: compiler.lisp:3199
-msgid "Invalid form: ~S"
-msgstr "La forma ~S es inválida"
-
 # Añado lo que faltaba. sv
 #
 # Hmmm, ¿se me olvidó algo?. Atención, jóvenes traductores: recordad que
 # hay un momento en el que es necesario parar de trabajar, ..., la
 # cabeza puede llegar a dar muchas vueltas :) cll
 #
-#: compiler.lisp:3251
+#: compiler.lisp:3242
 msgid "Not the name of a function: ~S"
 msgstr "No es el nombre de una función: ~S"
 
-#: compiler.lisp:3332 compiler.lisp:3412
+#: compiler.lisp:3323 compiler.lisp:3403
 msgid ""
 "~S is neither declared nor bound,~@\n"
 "                        it will be treated as if it were declared SPECIAL."
@@ -5969,7 +6060,7 @@ msgstr ""
 "~S no está ni declarado ni ligado,~@\n"
 "                        será tratado como si hubiese sido declarado SPECIAL."
 
-#: compiler.lisp:3429
+#: compiler.lisp:3420
 msgid ""
 "The constant ~S may not be assigned to.~@\n"
 "                                                  The assignment will be ignored."
@@ -5977,11 +6068,11 @@ msgstr ""
 "La constante ~S no puede asignarse. ~@\n"
 "                                                  La asignación será ignorada."
 
-#: compiler.lisp:3571
+#: compiler.lisp:3562
 msgid "argument list to function ~S is dotted: ~S"
 msgstr "el argumento de la función ~S es una lista punteada: ~S"
 
-#: compiler.lisp:3577
+#: compiler.lisp:3568
 msgid ""
 "~S called with ~S~:[~; or more~] arguments, but it requires ~\n"
 "                        ~:[~:[from ~S to ~S~;~S~]~;at least ~*~S~] arguments."
@@ -5989,7 +6080,7 @@ msgstr ""
 "~S fue invocado con ~S~:[~; o más~] argumentos, pero requiere ~\n"
 "                        ~:[~:[de ~S a ~S~;~S~]~;al menos ~*~S~] argumentos."
 
-#: compiler.lisp:3590
+#: compiler.lisp:3581
 msgid "keyword arguments to function ~S should occur pairwise: ~S"
 msgstr "los argumentos clave de la función ~S deben aparecer por pares: ~S"
 
@@ -5998,7 +6089,7 @@ msgstr "los argumentos clave de la función ~S deben aparecer por pares: ~S"
 # lista (en inglés, como dice el estándar) sirve perfectamente para el
 # español
 #
-#: compiler.lisp:3601
+#: compiler.lisp:3592
 msgid ""
 "keyword ~S is not allowed for function ~S.~\n"
 "                              ~%The only allowed keyword~:[s are ~{~S~#[~; and ~S~:;, ~]~}~; is ~{~S~}~]."
@@ -6006,12 +6097,12 @@ msgstr ""
 "la palabra clave ~S no está permitida en la función ~S.~\n"
 "                              ~%La~:[s~;~] única~:*~:[s~;~] palabra~:*~:[s~;~] clave permitida~:*~:[s son ~{~S~#[~; y ~S~:;, ~]~}~; es ~{~S~}~]."
 
-#: compiler.lisp:3613
+#: compiler.lisp:3604
 #, fuzzy
 msgid "argument ~S to function ~S is not a symbol"
 msgstr "el argumento ~S para la función ~S no es un argumento clave"
 
-#: compiler.lisp:4282
+#: compiler.lisp:4273
 msgid ""
 "~S called with ~S arguments, but it requires ~\n"
 "                                   ~:[~:[from ~S to ~S~;~S~]~;at least ~*~S~] arguments."
@@ -6019,108 +6110,108 @@ msgstr ""
 "~S ha sido invocado con ~S argumentos, pero requiere ~\n"
 "                                   ~:[~:[de ~S a ~S~;~S~]~;al menos ~*~S~] argumentos."
 
-#: compiler.lisp:4462
+#: compiler.lisp:4453
 msgid "Illegal syntax in LET/LET*: ~S"
 msgstr "Sintaxis inválida en LET/LET*: ~S"
 
-#: compiler.lisp:4499
+#: compiler.lisp:4490
 msgid "Lambda list marker ~S not allowed here."
 msgstr "El marcador de la lista lambda ~S no está permitido aquí."
 
-#: compiler.lisp:4505
+#: compiler.lisp:4496
 msgid "Missing &REST parameter in lambda list ~S"
 msgstr "La lista lambda ~S necesita un parámetro &REST"
 
-#: compiler.lisp:4511
+#: compiler.lisp:4502
 msgid "Lambda list element ~S is superfluous."
 msgstr "El elemento ~S de la lista lambda es innecesario."
 
-#: compiler.lisp:4686
+#: compiler.lisp:4677
 msgid "Lambda lists with dots are only allowed in macros, not here: ~S"
 msgstr "Sólo se permiten las listas lambda con puntos en la macros, no aquí: ~S"
 
-#: compiler.lisp:4702
+#: compiler.lisp:4693
 msgid "Illegal lambda list element ~S"
 msgstr "Elemento inválido en lista lambda ~S"
 
-#: compiler.lisp:4798
+#: compiler.lisp:4789
 msgid "Binding variable ~S can cause side effects despite of IGNORE declaration~%since it is declared SPECIAL."
 msgstr "Asociar la variable ~S puede causar otros efectos, a pesar de la declaración~%IGNORE puesto que está declarada como SPECIAL."
 
-#: compiler.lisp:4802
+#: compiler.lisp:4793
 msgid "variable ~S is used despite of IGNORE declaration."
 msgstr "La variable ~S está siendo usada a pesar de la declaración IGNORE."
 
-#: compiler.lisp:4813
+#: compiler.lisp:4804
 msgid "variable ~S is not used.~%Misspelled or missing IGNORE declaration?"
 msgstr "La variable ~S no está siendo usada.~%¿Está mal escrita o es que falta la declaración IGNORE?"
 
-#: compiler.lisp:4819
+#: compiler.lisp:4810
 #, fuzzy
 msgid "The variable ~S is assigned to, despite of READ-ONLY declaration."
 msgstr "La variable ~S está siendo usada a pesar de la declaración IGNORE."
 
-#: compiler.lisp:4865 compiler.lisp:5001
+#: compiler.lisp:4856 compiler.lisp:4992
 msgid "Constant ~S cannot be bound."
 msgstr "La constante ~S no puede ligarse."
 
-#: compiler.lisp:5749
+#: compiler.lisp:5740
 msgid "Misplaced declaration: ~S"
 msgstr "Declaración situada incorrectamente: ~S"
 
-#: compiler.lisp:5961
+#: compiler.lisp:5952
 msgid "Odd number of arguments to SETQ: ~S"
 msgstr "Número impar de argumentos de SETQ: ~S"
 
-#: compiler.lisp:5998 compiler.lisp:6035 compiler.lisp:6133
+#: compiler.lisp:5989 compiler.lisp:6026 compiler.lisp:6124
 msgid "Cannot assign to non-symbol ~S."
 msgstr "No se puede asignar a un \"no-símbolo\" ~S."
 
-#: compiler.lisp:6010
+#: compiler.lisp:6001
 msgid "Odd number of arguments to PSETQ: ~S"
 msgstr "Número impar de argumentos de PSETQ: ~S"
 
-#: compiler.lisp:6271
+#: compiler.lisp:6262
 msgid "Only symbols may be used as variables, not ~S"
 msgstr "Sólo pueden usarse los símbolos como variables, no ~S"
 
-#: compiler.lisp:6376
+#: compiler.lisp:6367
 msgid "Illegal syntax in COMPILER-LET: ~S"
 msgstr "Sintaxis inválida en COMPILER-LET: ~S"
 
-#: compiler.lisp:6384
+#: compiler.lisp:6375
 msgid "Block name must be a symbol, not ~S"
 msgstr "El nombre de un bloque debe ser un símbolo, no ~S"
 
-#: compiler.lisp:6433
+#: compiler.lisp:6424
 msgid "RETURN-FROM block ~S is impossible from here."
 msgstr "No es posible hacer RETURN-FROM del bloque ~S desde aquí."
 
-#: compiler.lisp:6504
+#: compiler.lisp:6495
 msgid "Only numbers and symbols are valid tags, not ~S"
 msgstr "Sólo son etiquetas de salto válidas los números y los símbolos, no ~S"
 
-#: compiler.lisp:6575
+#: compiler.lisp:6566
 msgid "Tag must be a symbol or a number, not ~S"
 msgstr "Una etiqueta de salto debe ser un símbolo o un número, no ~S"
 
-#: compiler.lisp:6580
+#: compiler.lisp:6571
 msgid "GO to tag ~S is impossible from here."
 msgstr "No es posible ir (GO) a la etiqueta de salto ~S desde aquí."
 
-#: compiler.lisp:6682
+#: compiler.lisp:6673
 msgid "~S is not a function. It is a locally defined macro."
 msgstr "~S no es una función. Se trata de una macro definida localmente."
 
-#: compiler.lisp:6698
+#: compiler.lisp:6689
 msgid "Only symbols and lambda expressions are function names, not ~S"
 msgstr "Sólo los símbolos y las expresiones lambda son nombres de funciones válidos, no ~S"
 
-#: compiler.lisp:6749
+#: compiler.lisp:6740
 msgid "Illegal function definition syntax in ~S: ~S"
 msgstr "La sintaxis para la definición de la función en ~S es inválida: ~S"
 
-#: compiler.lisp:7282
+#: compiler.lisp:7273
 msgid "Illegal syntax in SYMBOL-MACROLET: ~S"
 msgstr "Sintaxis inválida en SYMBOL-MACROLET: ~S"
 
@@ -6129,31 +6220,31 @@ msgstr "Sintaxis inválida en SYMBOL-MACROLET: ~S"
 # debe evaluarse la expresión que viene a continuación y, que de hecho,
 # puede ser ---como dice el mensaje--- EVAL, LOAD o COMPILE.
 #
-#: compiler.lisp:7323
+#: compiler.lisp:7314
 msgid "EVAL-WHEN situation must be EVAL or LOAD or COMPILE, but not ~S"
 msgstr "El instante de EVAL-WHEN debe ser EVAL, LOAD o COMPILE, pero no ~S"
 
-#: compiler.lisp:7366
+#: compiler.lisp:7357
 msgid "CASE clause without objects: ~S"
 msgstr "Cláusula CASE sin objetos: ~S"
 
-#: compiler.lisp:7376
+#: compiler.lisp:7367
 msgid "~S: the ~S clause must be the last one: ~S"
 msgstr "~S: la clausula ~S debe ser la última: ~S"
 
-#: compiler.lisp:7386
+#: compiler.lisp:7377
 msgid "Duplicate ~S label ~S : ~S"
 msgstr "~S : La etiqueta ~S se repite: ~S"
 
-#: compiler.lisp:7648
+#: compiler.lisp:7639
 msgid "Too many arguments to ~S"
 msgstr "Demasiados argumentos para ~S"
 
-#: compiler.lisp:7663
+#: compiler.lisp:7654
 msgid "Too few arguments to ~S"
 msgstr "Muy pocos argumentos para ~S"
 
-#: compiler.lisp:8554
+#: compiler.lisp:8545
 #, fuzzy
 msgid "The ~S destination is invalid (not NIL or T or a stream or a string with fill-pointer): ~S"
 msgstr "El argumento destino no es NIL, ni tampoco T, un flujo o una cadena: ~S"
@@ -6164,19 +6255,19 @@ msgstr "El argumento destino no es NIL, ni tampoco T, un flujo o una cadena: ~S"
 #
 # Perfecto, ... cll
 #
-#: compiler.lisp:12038
+#: compiler.lisp:12029
 msgid "Name of function to be compiled must be a symbol, not ~S"
 msgstr "El nombre de una función que hay que compilar debe ser un símbolo, no ~S"
 
-#: compiler.lisp:12049
+#: compiler.lisp:12040
 msgid "~S: redefining ~S; it was traced!"
 msgstr "~S: redefiniendo ~S; ¡estaba siendo rastreada!"
 
-#: compiler.lisp:12057 compiler.lisp:12090
+#: compiler.lisp:12048 compiler.lisp:12081
 msgid "~S is already compiled."
 msgstr "~S ya está compilada."
 
-#: compiler.lisp:12078 compiler.lisp:12688
+#: compiler.lisp:12069 compiler.lisp:12679
 msgid "Undefined function ~S"
 msgstr "La función ~S no está definida"
 
@@ -6191,39 +6282,39 @@ msgstr "La función ~S no está definida"
 #
 # O sea, que es " ... ni ... ni ..." cll
 #
-#: compiler.lisp:12099
+#: compiler.lisp:12090
 msgid "Not a lambda expression nor a function: ~S"
 msgstr "Ni es una expresión lambda ni es una función: ~S"
 
-#: compiler.lisp:12285
+#: compiler.lisp:12276
 msgid "~%There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}"
 msgstr "~%Ha habido errores en las siguientes funciones:~%~{~<~%~:; ~S~>~^~}"
 
-#: compiler.lisp:12290
+#: compiler.lisp:12281
 msgid "~%The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}"
 msgstr "~%Las siguientes funciones han sido utilizadas pero no definidas:~%~{~<~%~:; ~S~>~^~}"
 
-#: compiler.lisp:12297
+#: compiler.lisp:12288
 msgid "~%The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}"
 msgstr "~%Las siguientes variables especiales no han sido definidas:~%~{~<~%~:; ~S~>~^~}"
 
-#: compiler.lisp:12300
+#: compiler.lisp:12291
 msgid "~%The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}"
 msgstr "~%Las siguientes variables especiales fueron definidas demasiado tarde:~%~{~<~%~:; ~S~>~^~}"
 
-#: compiler.lisp:12303
+#: compiler.lisp:12294
 msgid "~%The following functions were used but are deprecated:~%~{~<~%~:; ~S~>~^~}"
 msgstr "~%Las siguientes funciones han sido utilizadas pero no aprobadas:~%~{~<~%~:; ~S~>~^~}"
 
-#: compiler.lisp:12387
+#: compiler.lisp:12378
 msgid "~&Listing of compilation of file ~A~%on ~@? by ~A, version ~A"
 msgstr "~&Listado de la compilación del fichero ~A~%el ~@? por ~A, versión ~A"
 
-#: compiler.lisp:12419
+#: compiler.lisp:12410
 msgid "~%Compiling file ~A ..."
 msgstr "~%Compilando el fichero ~A ..."
 
-#: compiler.lisp:12469
+#: compiler.lisp:12460
 msgid "~&~%Compilation of file ~A is finished."
 msgstr "~&~%La compilación del fichero ~A ha finalizado."
 
@@ -6244,55 +6335,55 @@ msgstr "~&~%La compilación del fichero ~A ha finalizado."
 # en el que se sacan los mensajes del compilador. ¿No os suena muchísimo
 # mejor esta segunda alternativa? - cll
 #
-#: compiler.lisp:12471
+#: compiler.lisp:12462
 msgid "~%~D error~:P, ~D warning~:P"
 msgstr "~%~D error~:*~[es~;~:;es~], ~D advertencia~:P"
 
-#: compiler.lisp:12532
+#: compiler.lisp:12523
 msgid "~%~%Disassembly of function ~S"
 msgstr "Desensamblado de la función ~S"
 
-#: compiler.lisp:12543
+#: compiler.lisp:12534
 msgid "~%~S required arguments"
 msgstr "~%~S argumentos obligatorios"
 
-#: compiler.lisp:12546
+#: compiler.lisp:12537
 msgid "~%~S optional arguments"
 msgstr "~%~S argumentos opcionales"
 
-#: compiler.lisp:12549
+#: compiler.lisp:12540
 msgid "~%~:[No rest parameter~;Rest parameter~]"
 msgstr "~%~:[Sin parámetro resto~;Parámetro resto~]"
 
-#: compiler.lisp:12554
+#: compiler.lisp:12545
 msgid "~%~S keyword parameter~:P: ~{~S~^, ~}."
 msgstr "~%~S parámetro~:P clave: ~{~S~^, ~}."
 
-#: compiler.lisp:12558
+#: compiler.lisp:12549
 msgid "~%Other keywords are allowed."
 msgstr "~%Se permiten otros parámetros clave."
 
-#: compiler.lisp:12560
+#: compiler.lisp:12551
 msgid "~%No keyword parameters"
 msgstr "~%Sin parámetros clave"
 
-#: compiler.lisp:12577
+#: compiler.lisp:12568
 msgid "Disassembly of function "
 msgstr "Desensamblado de la función "
 
-#: compiler.lisp:12595
+#: compiler.lisp:12586
 msgid " required arguments"
 msgstr " argumentos obligatorios"
 
-#: compiler.lisp:12600
+#: compiler.lisp:12591
 msgid " optional arguments"
 msgstr " argumentos opcionales"
 
-#: compiler.lisp:12605
+#: compiler.lisp:12596
 msgid "Rest parameter"
 msgstr "Parámetro resto"
 
-#: compiler.lisp:12608
+#: compiler.lisp:12599
 msgid "No rest parameter"
 msgstr "Sin parámetro de resto"
 
@@ -6302,19 +6393,19 @@ msgstr "Sin parámetro de resto"
 # Bueno, en este caso es perfecta :) No hay ningún problema de ningún
 # tipo
 #
-#: compiler.lisp:12615
+#: compiler.lisp:12606
 msgid " keyword parameter~P: "
 msgstr "parámetro~P clave: "
 
-#: compiler.lisp:12625
+#: compiler.lisp:12616
 msgid "Other keywords are allowed."
 msgstr "Se permiten otras palabras clave."
 
-#: compiler.lisp:12630
+#: compiler.lisp:12621
 msgid "No keyword parameters"
 msgstr "Sin parámetros clave"
 
-#: compiler.lisp:12711
+#: compiler.lisp:12702
 msgid "Cannot disassemble ~S"
 msgstr "No se puede desensamblar ~S"
 
@@ -7806,6 +7897,48 @@ msgstr "No se puede esperar por ~S."
 #, fuzzy
 msgid "~S: argument ~S should be a string or a symbol"
 msgstr "~: el argumento ~ debe ser una cadena o un símbolo"
+
+#~ msgid "January"
+#~ msgstr "Enero"
+
+#~ msgid "February"
+#~ msgstr "Febrero"
+
+#~ msgid "March"
+#~ msgstr "Marzo"
+
+#~ msgid "April"
+#~ msgstr "Abril"
+
+#~ msgid "May"
+#~ msgstr "Mayo"
+
+#~ msgid "June"
+#~ msgstr "Junio"
+
+#~ msgid "July"
+#~ msgstr "Julio"
+
+#~ msgid "August"
+#~ msgstr "Agosto"
+
+#~ msgid "September"
+#~ msgstr "Septiembre"
+
+#~ msgid "October"
+#~ msgstr "Octubre"
+
+#~ msgid "November"
+#~ msgstr "Noviembre"
+
+#~ msgid "December"
+#~ msgstr "Diciembre"
+
+#~ msgid "EVAL: illegal form ~"
+#~ msgstr "EVAL: forma ~ inválida"
+
+#~ msgid "Invalid form: ~S"
+#~ msgstr "La forma ~S es inválida"
 
 #, fuzzy
 #~ msgid "~: path ~ cannot be remote"
