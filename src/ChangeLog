@@ -1,3 +1,7 @@
+2004-07-27  Sam Steingold  <sds@gnu.org>
+
+	* control.d (FUNCTION-SIDE-EFFECT): fixed G++ compilation
+
 2004-07-26  Sam Steingold  <sds@gnu.org>
 
 	interface to the LOG subsystem
