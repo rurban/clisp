@@ -138,14 +138,13 @@ extern void regfree (regex_t *preg);
 ;; slightly modified functions.
 #|
 extern int mregcomp (regex_t **ppreg, const char *pattern, int cflags);
-extern int regexec (const regex_t *preg, const char *string, size_t nmatch,
-                    regmatch_t pmatch[], int eflags);
+extern regmatch_t* mregexec (const regex_t *preg, const char *string,
+                             int eflags);
 extern const char *mregerror (int errcode, const regex_t *preg);,
 extern void mregfree (regex_t *preg);
 ;|#
 
 (eval-when (compile load eval)
-  (defconstant num-matches 10)
   (setq ffi:*output-c-functions* t ffi:*output-c-variables* t))
 
 (def-call-out mregcomp
@@ -153,13 +152,9 @@ extern void mregfree (regex_t *preg);
                 (pattern c-string)
                 (cflags int))
   (:return-type int))
-(def-call-out regexec
-    (:arguments (preg regex_t-ptr)
-                (string c-string)
-                (nmatch size_t)
-                (pmatch (c-ptr (c-array regmatch_t #.num-matches)) :out)
-                (eflags int))
-  (:return-type int))
+(def-call-out mregexec
+    (:arguments (preg regex_t-ptr) (string c-string) (eflags int))
+  (:return-type (c-array-ptr regmatch_t) :malloc-free))
 (def-call-out mregerror (:arguments (errcode int) (preg regex_t-ptr))
   (:return-type c-string :malloc-free))
 (def-call-out mregfree (:arguments (preg regex_t-ptr))
@@ -241,26 +236,11 @@ extern void mregfree (regex_t *preg);
              (make-array (- end start)
                          :element-type 'character
                          :displaced-to string
-                         :displaced-index-offset start))))
+                         :displaced-index-offset start)))
+         (matches (mregexec compiled-pattern string eflags)))
     (declare (string string))
-    (multiple-value-bind (errcode matches)
-        (regexec compiled-pattern string #.num-matches eflags)
-      ;; Compute return values.
-      (if (zerop errcode)
-        (values-list          ; the first value will be non-NIL
-         (do ((n (position-if-not #'minusp matches :key #'match-start
-                                  :from-end t)
-                 (1- n))
-              (result '()))
-             ((minusp n) result)
-           (let ((match (svref matches n)))
-             (push (cond ((= (match-start match) -1) nil)
-                         (t (unless (eql start 0)
-                              (incf (match-start match) start)
-                              (incf (match-end match) start))
-                            match))
-                   result))))
-        nil))))
+    (when matches
+      (values-list (coerce matches 'list)))))
 
 (define-compiler-macro regexp-exec (&whole form compiled-pattern string &key
                                            start end notbol noteol eflags)
