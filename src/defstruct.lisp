@@ -74,21 +74,18 @@
    kreiert und füllt.
 |#
 (defun ds-make-constructor-body (type name names size slotlist)
-  (if (and (eq type 'VECTOR)
+  (if (and (or (eq type 'VECTOR) (eq type 'LIST))
            (do ((slotlistr slotlist (cdr slotlistr))
                 (index 0 (1+ index)))
                ((null slotlistr) t)
-             (unless (eq (ds-slot-offset (car slotlistr)) index) (return nil))
-      )    )
-    ; optimize the usual case
-    `(VECTOR ,@(mapcar #'(lambda (slot)
-                           (if (ds-slot-name slot)
-                             `(THE ,(ds-slot-type slot) ,(ds-slot-name slot))
-                             `(QUOTE ,(ds-slot-default slot))
-                         ) )
-                       slotlist
-               )
-     )
+             (unless (eq (ds-slot-offset (car slotlistr)) index)
+               (return nil))))
+    ;; optimize the simple case
+    `(,type ,@(mapcar #'(lambda (slot)
+                          (if (ds-slot-name slot)
+                            `(THE ,(ds-slot-type slot) ,(ds-slot-name slot))
+                            `(QUOTE ,(ds-slot-default slot))))
+                       slotlist))
     `(LET ((OBJECT
              ,(cond ((eq type 'T) `(%MAKE-STRUCTURE ,names ,size))
                     ((eq type 'LIST) `(MAKE-LIST ,size))
