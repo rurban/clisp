@@ -1859,7 +1859,9 @@ README_es : _README_es c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.consto
 html.clisp : html._clisp c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn txt2c
 	$(TXT2C) < html._clisp > text.c
 	$(CC) $(CFLAGS) $(CLFLAGS) c.text -o text
-	/@.text > html.clisp
+	/@.text > TMPPIPE1
+	sed -e 's,HREF="CLHSROOT/,HREF="http://www.harlequin.com/education/books/HyperSpec/,' < TMPPIPE1 > html.clisp
+	$(RM) TMPPIPE1
 	$(RM) c.text
 	$(RM) text
 

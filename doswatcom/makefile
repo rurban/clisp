@@ -1582,7 +1582,7 @@ clisp.1 : _clisp.1 lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c m
 clisp.html : _clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c txt2c.exe
 	$(TXT2C) < _clisp.html > txt.c
 	$(CC) $(CFLAGS) $(CLFLAGS) txt.c -fo=txt.exe
-	txt > clisp.html
+	txt | sed -e 's,HREF="CLHSROOT/,HREF="http://www.harlequin.com/education/books/HyperSpec/,' > clisp.html
 	$(RM) txt.c
 	$(RM) txt.exe
 

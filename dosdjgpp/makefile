@@ -1612,7 +1612,7 @@ clisp.html : _clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c consto
 	$(CC) $(CFLAGS) $(CLFLAGS) -O0 txt.c -o txt
 	$(COFF2EXE) txt txt.exe
 	$(RM) txt
-	txt > clisp.html
+	txt | sed -e 's,HREF="CLHSROOT/,HREF="http://www.harlequin.com/education/books/HyperSpec/,' > clisp.html
 	$(RM) txt.c
 	$(RM) txt.exe
 

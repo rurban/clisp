@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 1999-07-19\n"
-"POT-Creation-Date: 1999-07-19 19:58:47 CEST\n"
-"PO-Revision-Date: 1999-07-19 19:58:47 CEST\n"
+"Project-Id-Version: clisp 1999-07-22\n"
+"POT-Creation-Date: 1999-07-20 16:11:34 CEST\n"
+"PO-Revision-Date: 1999-07-20 16:11:34 CEST\n"
 "Last-Translator: Automatically generated <haible@laplace.ilog.fr>\n"
 "Language-Team: Template <xx@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -2122,7 +2122,7 @@ msgid "~: ~ is not a class"
 msgstr ""
 
 #: record.d:674
-msgid "ALLOCATE-INITIALIZE: keyword argument list ~ has an odd length"
+msgid "ALLOCATE-INSTANCE: keyword argument list ~ has an odd length"
 msgstr ""
 
 #: record.d:865
