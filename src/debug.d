@@ -1,5 +1,5 @@
 # Top-Level-Schleife, Hilfsfunktionen für Debugger, Stepper von CLISP
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 # ILISP friendliness: Marcus Daniels 8.4.1994
 
 #include "lispbibl.c"
@@ -1139,6 +1139,18 @@ LISPFUNN(return_from_eval_frame,2)
               }
             }
             break;
+          # Compilierte Block/Tagbody-Frames:
+          case CBLOCK_CTAGBODY_frame_info:
+            if (simple_vector_p(Car(FRAME_(frame_ctag)))) {
+              # compilierte Tagbody-Frames:
+              write_sstring(stream_,OLS(showstack_string_CTAGBODY_frame)); # "¿Tagbody-Frame (compiliert) für "
+              prin1(stream_,Car(FRAME_(frame_ctag))); # Tag-Vektor
+            } else {
+              # compilierte Block-Frames:
+              write_sstring(stream_,OLS(showstack_string_CBLOCK_frame)); # "¿Block-Frame (compiliert) für "
+              prin1(stream_,Car(FRAME_(frame_ctag))); # Blockname
+            }
+            break;
           # Interpretierte Block-Frames:
           case IBLOCK_frame_info:
             write_sstring(stream_,OLS(showstack_string_IBLOCK_frame)); # "¿Block-Frame "
@@ -1152,11 +1164,6 @@ LISPFUNN(return_from_eval_frame,2)
             write_sstring(stream_,OLS(showstack_string_for1)); # " für "
             prin1(stream_,FRAME_(frame_name)); # Blockname
             goto NEXT_ENV;
-          case CBLOCK_frame_info:
-            # compilierte Block-Frames:
-            write_sstring(stream_,OLS(showstack_string_CBLOCK_frame)); # "¿Block-Frame (compiliert) für "
-            prin1(stream_,FRAME_(frame_ctag)); # Blockname
-            break;
           # Interpretierte Tagbody-Frames:
           case ITAGBODY_frame_info:
             write_sstring(stream_,OLS(showstack_string_ITAGBODY_frame)); # "¿Tagbody-Frame "
@@ -1206,11 +1213,6 @@ LISPFUNN(return_from_eval_frame,2)
                 } while (consp(env));
               }
             }
-            break;
-          case CTAGBODY_frame_info:
-            # compilierte Tagbody-Frames:
-            write_sstring(stream_,OLS(showstack_string_CTAGBODY_frame)); # "¿Tagbody-Frame (compiliert) für "
-            prin1(stream_,Car(FRAME_(frame_ctag))); # Tag-Vektor
             break;
           case CATCH_frame_info:
             # Catch-Frames:

@@ -1,5 +1,5 @@
 # Evaluator, Applyer und Bytecode-Interpreter für CLISP
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 
 #include "lispbibl.c"
 
@@ -365,7 +365,7 @@ LISPFUNN(subr_info,1)
         # (Nein bei APPLY, EVAL ungetrapped, CATCH, HANDLER,
         #  IBLOCK und ITAGBODY ungenestet)
         {
-          if ((frame_info & bit(skip2_bit_t)) == 0) # ENV-Frame oder DYNBIND-Frame?
+          if ((frame_info & bit(skip2_bit_t)) == 0) { # ENV-Frame oder DYNBIND-Frame?
             #ifdef entrypoint_bit_t
             if (frame_info & bit(entrypoint_bit_t)) # BLOCK, TAGBODY, CATCH etc. ?
             #else
@@ -411,30 +411,43 @@ LISPFUNN(subr_info,1)
                 }
               }
             else {
-              # VAR_FRAME oder FUN_FRAME liegt vor
-              var object* new_STACK = topofframe(STACK_0); # Pointer übern Frame
-              if (frame_info & bit(fun_bit_t)) {
-                # bei Funktionen nichts weiter zu tun
-              } else {
-                # VAR_FRAME liegt vor, bindingptr läuft durch die Bindungen hoch
-                var object* frame_end = STACKpointable(new_STACK);
-                var object* bindingptr = &STACK_(frame_bindings); # Beginn der Variablen-/Funktionsbindungen
-                until (bindingptr == frame_end) {
-                  if (as_oint(*(bindingptr STACKop 0)) & wbit(dynam_bit_o))
-                    if (as_oint(*(bindingptr STACKop 0)) & wbit(active_bit_o)) {
-                      # Bindung statisch oder inaktiv -> nichts zu tun
-                      # Bindung dynamisch und aktiv -> Wert zurückschreiben:
-                      TheSymbolflagged(*(bindingptr STACKop varframe_binding_sym))->symvalue =
-                        *(bindingptr STACKop varframe_binding_value);
-                    }
-                  bindingptr skipSTACKop varframe_binding_size; # nächste Bindung
+              #ifdef HAVE_SAVED_REGISTERS
+              if ((frame_info & bit(callback_bit_t)) == 0) {
+                # CALLBACK_FRAME liegt vor
+                var object* new_STACK = topofframe(STACK_0); # Pointer übern Frame
+                # callback_saved_registers neu setzen:
+                callback_saved_registers = (struct registers *)(aint)as_oint(STACK_1);
+                # STACK neu setzen, dadurch Frame auflösen:
+                setSTACK(STACK = new_STACK);
+                goto fertig;
+              } else
+              #endif
+              {
+                # VAR_FRAME oder FUN_FRAME liegt vor
+                var object* new_STACK = topofframe(STACK_0); # Pointer übern Frame
+                if (frame_info & bit(fun_bit_t)) {
+                  # bei Funktionen nichts weiter zu tun
+                } else {
+                  # VAR_FRAME liegt vor, bindingptr läuft durch die Bindungen hoch
+                  var object* frame_end = STACKpointable(new_STACK);
+                  var object* bindingptr = &STACK_(frame_bindings); # Beginn der Variablen-/Funktionsbindungen
+                  until (bindingptr == frame_end) {
+                    if (as_oint(*(bindingptr STACKop 0)) & wbit(dynam_bit_o))
+                      if (as_oint(*(bindingptr STACKop 0)) & wbit(active_bit_o)) {
+                        # Bindung statisch oder inaktiv -> nichts zu tun
+                        # Bindung dynamisch und aktiv -> Wert zurückschreiben:
+                        TheSymbolflagged(*(bindingptr STACKop varframe_binding_sym))->symvalue =
+                          *(bindingptr STACKop varframe_binding_value);
+                      }
+                    bindingptr skipSTACKop varframe_binding_size; # nächste Bindung
+                  }
                 }
+                # STACK neu setzen, dadurch Frame auflösen:
+                setSTACK(STACK = new_STACK);
+                goto fertig;
               }
-              # STACK neu setzen, dadurch Frame auflösen:
-              setSTACK(STACK = new_STACK);
-              goto fertig;
             }
-          else
+          } else {
             # DYNBIND_FRAME oder CALLBACK_FRAME oder ENV_FRAME liegt vor
             if (frame_info & bit(envbind_bit_t)) {
               # ENV_FRAME liegt vor
@@ -464,32 +477,20 @@ LISPFUNN(subr_info,1)
                 default: NOTREACHED
               }
             } else {
-              #ifdef HAVE_SAVED_REGISTERS
-              if (frame_info & bit(callback_bit_t)) {
-                # CALLBACK_FRAME liegt vor
-                var object* new_STACK = topofframe(STACK_0); # Pointer übern Frame
-                # callback_saved_registers neu setzen:
-                callback_saved_registers = (struct registers *)(aint)as_oint(STACK_1);
-                # STACK neu setzen, dadurch Frame auflösen:
-                setSTACK(STACK = new_STACK);
-                goto fertig;
-              } else
-              #endif
-                # DYNBIND_FRAME liegt vor
-                {
-                  var object* new_STACK = topofframe(STACK_0); # Pointer übern Frame
-                  var object* frame_end = STACKpointable(new_STACK);
-                  var object* bindingptr = &STACK_1; # Beginn der Bindungen
-                  # bindingptr läuft durch die Bindungen hoch
-                  until (bindingptr == frame_end) {
-                    Symbol_value(*(bindingptr STACKop 0)) = *(bindingptr STACKop 1);
-                    bindingptr skipSTACKop 2; # nächste Bindung
-                  }
-                  # STACK neu setzen, dadurch Frame auflösen:
-                  setSTACK(STACK = new_STACK);
-                  goto fertig;
-                }
+              # DYNBIND_FRAME liegt vor
+              var object* new_STACK = topofframe(STACK_0); # Pointer übern Frame
+              var object* frame_end = STACKpointable(new_STACK);
+              var object* bindingptr = &STACK_1; # Beginn der Bindungen
+              # bindingptr läuft durch die Bindungen hoch
+              until (bindingptr == frame_end) {
+                Symbol_value(*(bindingptr STACKop 0)) = *(bindingptr STACKop 1);
+                bindingptr skipSTACKop 2; # nächste Bindung
+              }
+              # STACK neu setzen, dadurch Frame auflösen:
+              setSTACK(STACK = new_STACK);
+              goto fertig;
             }
+          }
         }
       # STACK neu setzen, dadurch Frame auflösen:
       setSTACK(STACK = topofframe(STACK_0));
