@@ -134,3 +134,4 @@ vacall_r.h
 win32.c
 win32aux.c
 xthread.c
+stdbool.h
