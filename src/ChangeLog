@@ -1,3 +1,11 @@
+2002-11-26  Sam Steingold  <sds@gnu.org>
+
+	* list.d (list_length): new function
+	(LIST-LENGTH, LIST-LENGTH-DOTTED): use it
+	* subr.d, constsym.d (LIST-LENGTH-DOTTED): added
+	* init.d (LIST-LENGTH-DOTTED): exported
+	* describe.lisp (LIST-LENGTH-DOTTED): defined in list.d now
+
 2002-11-25  Sam Steingold  <sds@gnu.org>
 
 	* loop.lisp (expand-loop): when IT keyword is not appropriate,

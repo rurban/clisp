@@ -126,18 +126,6 @@ to print the corresponding values, or T for all of them.")
     (setf (fill-pointer buffer) 0)
     (clear-output target-stream)))
 
-;; Returns the length of the list, or nil if circular.
-;; The second value is the last atom (i.e., `dotted-p').
-(defun list-length-dotted (obj)
-  ;; cf. function list-length in CLtL p. 265
-  (do ((nn 0 (+ nn 2))
-       (fast obj (cddr fast))
-       (slow obj (cdr slow)))
-      (nil)
-    (when (atom fast) (return (values nn fast)))
-    (when (atom (cdr fast)) (return (values (1+ nn) (cdr fast))))
-    (when (eq (cdr fast) slow) (return nil))))
-
 ; List of objects which have been described during the current top-level call.
 (defvar *describe-done*)
 
