@@ -1,3 +1,26 @@
+2004-07-12  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (Class): Remove direct_generic_functions field.
+	* clos-specializer1.lisp (specializer): Remove direct-generic-functions
+	slot.
+	(*<specializer>-direct-generic-functions-location*): Remove constant.
+	(*<specializer>-direct-methods-location*): Update.
+	(specializer-direct-generic-functions-table): Remove accessor.
+	(shared-initialize-<specializer>): Update.
+	(*<eql-specializer>-...-location*): Decrement by 1.
+	(*<eql-specializer>-instance-size*): New constant.
+	(make-instance-<eql-specializer>): Use it.
+	(specializer-direct-generic-functions-table): Remove accessor.
+	* clos-class1.lisp (*<class>-...-location*): Decrement by 1.
+	(*<built-in-class>-instance-size*): Likewise.
+	(*<slotted-class>-...-location*): Likewise.
+	(*<structure-class>-...-location*): Likewise.
+	(*<structure-class>-instance-size*): Likewise.
+	(*<semi-standard-class>-...-location*): Likewise.
+	(*<standard-class>-instance-size*): Likewise.
+	* clos-genfun1.lisp (*<funcallable-standard-class>-instance-size*):
+	Likewise.
+
 2004-09-08  Sam Steingold  <sds@gnu.org>
 
 	* foreign.d (open_library): since name may be modified by

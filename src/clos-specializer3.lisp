@@ -13,13 +13,6 @@
 
 ;; Optimized accessors, with type checking.
 
-(defun specializer-direct-generic-functions-table (specializer)
-  (accessor-typecheck specializer 'specializer 'specializer-direct-generic-functions-table)
-  (sys::%record-ref specializer *<specializer>-direct-generic-functions-location*))
-(defun (setf specializer-direct-generic-functions-table) (new-value specializer)
-  (accessor-typecheck specializer 'specializer '(setf specializer-direct-generic-functions-table))
-  (setf (sys::%record-ref specializer *<specializer>-direct-generic-functions-location*) new-value))
-
 (defun specializer-direct-methods-table (specializer)
   (accessor-typecheck specializer 'specializer 'specializer-direct-methods-table)
   (sys::%record-ref specializer *<specializer>-direct-methods-location*))
