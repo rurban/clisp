@@ -1101,6 +1101,8 @@ local uintL I_ord2 (object x)
    #else /* oint_data_len=32, x_ can also be =0 . */
     /* Only method 1c works at x = most-negative-fixnum. */
     x_ = x_ | (- x_); x_ = ~ x_;
+    if (x_ == 0)
+      return 0;
     integerlength32(x_,return);
    #endif
   } else {

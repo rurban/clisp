@@ -1,6 +1,6 @@
 /*
  * Miscellaneous CLISP functions
- * Bruno Haible 1990-2003
+ * Bruno Haible 1990-2005
  * Sam Steingold 1999-2004
  */
 
@@ -524,13 +524,21 @@ LISPFUNNF(identity,1)
 LISPFUNN(address_of,1)
 { /* (SYS::ADDRESS-OF object) return the address of the object */
   var object arg = popSTACK();
- #if defined(WIDE_HARD)
-  VALUES1(UQ_to_I(untype(arg)));
- #elif defined(WIDE_SOFT)
-  VALUES1(UL_to_I(untype(arg)));
- #else
-  VALUES1(UL_to_I(as_oint(arg)));
- #endif
+  #ifdef TYPECODES
+   #if defined(WIDE_HARD)
+    VALUES1(UQ_to_I(untype(arg)));
+   #elif defined(WIDE_SOFT)
+    VALUES1(UL_to_I(untype(arg)));
+   #else
+    VALUES1(UL_to_I(as_oint(arg)));
+   #endif
+  #else /* HEAPCODES */
+   #if defined(WIDE)
+    VALUES1(UQ_to_I(as_oint(arg)));
+   #else
+    VALUES1(UL_to_I(as_oint(arg)));
+   #endif
+  #endif
 }
 
 #ifdef HAVE_DISASSEMBLER

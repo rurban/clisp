@@ -1,3 +1,12 @@
+2005-03-07  Bruno Haible  <bruno@clisp.org>
+
+	Make HEAPCODES work on 64-bit platforms.
+	* lispbibl.d (oint_type_shift, oint_type_len, oint_type_mask,
+	oint_data_shift, oint_data_len, oint_data_mask, garcol_bit_o)
+	[HEAPCODES && WIDE_HARD]: Define appropriately.
+	* misc.d (SYS::ADDRESS-OF): Make it work if HEAPCODES && WIDE.
+	* intlog.d (I_ord2): Fix bug on 64-bit platforms.
+
 2005-03-06  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (OPENLOG, SETLOGMASK, %SYSLOG, CLOSELOG):
