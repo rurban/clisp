@@ -1,12 +1,16 @@
+;; win32 CLISP installation
+;; (c) 2001-2002  Sam Steingold, released as part of CLISP under GNU GPL.
+
 ;; load this file in the directory where your CLISP distribution is located
-;; to set the Registry appropriately
-;; to create CLISP.BAT on your desktop
+;;  - to set the Registry appropriately
+;;  - to create CLISP.BAT on your desktop
 
 (defvar *clisp-home* (namestring (default-directory)))
 (defvar *clisp-base-cmd*
-  (concatenate 'string *clisp-home* "lisp.exe -B " *clisp-home* " -M "))
+  (concatenate 'string "\"" *clisp-home* "lisp.exe\" -B \""
+               *clisp-home* "\" -M "))
 (defvar *clisp-cmd*
-  (concatenate 'string *clisp-base-cmd* *clisp-home* "lispinit.mem"))
+  (concatenate 'string *clisp-base-cmd* "\"" *clisp-home* "lispinit.mem\""))
 
 (defvar *eflags*
   (make-array 4 :element-type '(unsigned-byte 8) :initial-contents '(0 0 0 0)))
