@@ -1,3 +1,7 @@
+2001-02-21  Bruno Haible  <haible@clisp.cons.org>
+
+        * places.lisp (PROGN, LOCALLY, IF): New defsetf expanders.
+
 2001-02-17  Arseny Slobodjuck <ampy@crosswinds.net>
             Bruno Haible  <haible@clisp.cons.org>
 
