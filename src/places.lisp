@@ -1095,7 +1095,8 @@ Variables affected: `custom:*floating-point-contagion-ansi*',
  `custom:*merge-pathnames-ansi*', `custom:*print-pathnames-ansi*',
  `custom:*parse-namestring-ansi*',
  `custom:*sequence-count-ansi*', `custom:*coerce-fixnum-char-ansi*'.
-Invoking CLISP with `-a' sets this to T.")
+Invoking CLISP with `-ansi' sets this to T.
+Invoking CLISP with `-traditional' sets this to NIL.")
 
 (define-symbol-macro *default-file-encoding*
   (system::default-file-encoding))
