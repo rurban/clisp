@@ -1,3 +1,7 @@
+2001-07-20  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: added a :case :common test
+
 2001-07-19  Sam Steingold  <sds@gnu.org>
 
 	* alltest.tst: added a ldiff/tailp test from CLHS
