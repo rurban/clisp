@@ -83,6 +83,12 @@
 #+CROSS (shadow '(compile-file))
 #+CROSS (export '(compile-file))
 
+;; some auxilliary functions
+(proclaim '(inline env mac-exp))
+(defun env () (vector *venv* *fenv*))
+(defun mac-exp (mac form &optional (env (env)))
+  (funcall *macroexpand-hook* mac form env))
+
 #-CLISP (shadow '(macroexpand-1 macroexpand))
 #-CLISP
 (progn
@@ -109,7 +115,7 @@
           (fenv-search (car form) (svref env 1))
         (when (null a) (setq m (macro-function (car form))))
         (if m
-          (values (funcall *macroexpand-hook* m form env) t)
+          (values (mac-exp m form env) t)
           (values form nil)
       ) )
       (if (symbolp form)
@@ -152,7 +158,7 @@
   )
   (defun add-implicit-block (name body)
     (multiple-value-bind (body-rest declarations docstring)
-        (parse-body body t (vector *venv* *fenv*))
+        (parse-body body t (env))
       (append (if declarations (cons 'DECLARE declarations))
               (if docstring (list docstring))
               (list (list* 'BLOCK (function-block-name name) body-rest))
@@ -3212,14 +3218,14 @@ der Docstring (oder NIL).
                         )
                       (funcall handler) ; ja -> aufrufen
                       (if (macro-function fun)
-                        (c-form (funcall *macroexpand-hook* (macro-function fun) *form* (vector *venv* *fenv*))) ; -> expandieren
+                        (c-form (mac-exp (macro-function fun) *form*))
                         ; normaler Aufruf globaler Funktion
                         (c-GLOBAL-FUNCTION-CALL fun)
                     ) )
                     ; nein -> jedenfalls keine Special-Form (die sind ja
                     ; alle in der Tabelle).
                     (if (and (symbolp fun) (macro-function fun)) ; globaler Macro ?
-                      (c-form (funcall *macroexpand-hook* (macro-function fun) *form* (vector *venv* *fenv*))) ; -> expandieren
+                      (c-form (mac-exp (macro-function fun) *form*))
                       ; globale Funktion
                       (if (and (in-defun-p fun)
                                (not (declared-notinline fun)))
@@ -3229,7 +3235,7 @@ der Docstring (oder NIL).
                         (c-GLOBAL-FUNCTION-CALL fun)
                 ) ) ) )
                 (if (and m (not (and f1 (declared-notinline fun))))
-                  (c-form (funcall *macroexpand-hook* m *form* (vector *venv* *fenv*))) ; -> expandieren
+                  (c-form (mac-exp m *form*))
                   (case f1
                     (GLOBAL ; Funktion im Interpreter-Environment %fenv% gefunden
                       ; (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
@@ -3258,15 +3264,21 @@ der Docstring (oder NIL).
   anode
 ))
 
-; macroexpandiere eine Form.
-; Das ist genau das, was c-form später sowieso macht.
-; (c-form (macroexpand-form form)) == (c-form form).
+;;; Macroexpand a form.
+;;; That is exactly what makes c-form later anyway.
+;;; (c-form (macroexpand-form form)) == (c-form form).
 (defun macroexpand-form (form)
-  ; Der Unterschied zu (values (macroexpand form (vector *venv* *fenv*)))
-  ; ist, dass wir hier Macros, die in c-form-table aufgeführt sind, nicht
-  ; als Macros expandieren.
+  ;; The differemce from (values (macroexpand form (env)))
+  ;; is that here the macros mentioned in `cform-table' are not expanded.
   (tagbody
     reexpand
+    (when (consp form)
+      (let* ((env (env))
+             (cm (compiler-macro-function (car form) env))
+             (exp (and cm (mac-exp cm form env))))
+        (when (and cm (not (eq form exp)))
+          (setq form exp)
+          (go reexpand))))
     (if (atom form)
       (if (symbolp form)
         (multiple-value-bind (macrop expansion) (venv-search-macro form *venv*)
@@ -3280,29 +3292,21 @@ der Docstring (oder NIL).
         (if (function-name-p fun)
           (multiple-value-bind (a m f1 f2 f3 f4) (fenv-search fun)
             (declare (ignore f2 f3 f4))
-            (if a
-              ; lokal definiert
-              (when f1 ; lokale Funktion?
-                (setq m nil)
-              )
-              ; nicht lokal definiert
-              (when (and (symbolp fun) (macro-function fun) ; globaler Macro?
-                         (not (gethash fun c-form-table))
-                    )
-                (setq m (macro-function fun))
-            ) )
-            (if m ; Macro?
+            (if a               ; locally defined
+              (when f1          ; local function?
+                (setq m nil))
+              ;; no local definition
+              (when (and (symbolp fun) (macro-function fun) ; global macro?
+                         (not (gethash fun c-form-table)))
+                (setq m (macro-function fun))))
+            (if m               ; macro?
               (progn
-                (setq form (funcall *macroexpand-hook* m form (vector *venv* *fenv*))) ; -> expandieren
-                (go reexpand)
-              )
-              (go done)
-          ) )
-          (go done)
-    ) ) )
+                (setq form (mac-exp m form)) ; -> expand
+                (go reexpand))
+              (go done)))
+          (go done))))
     done
-    (return-from macroexpand-form form)
-) )
+    (return-from macroexpand-form form)))
 
 ; compiliere NIL (eine Art Notausgang)
 (defun c-NIL ()
@@ -4790,73 +4794,58 @@ der Docstring (oder NIL).
            (cdr (assoc fun *inline-definitions* :test #'equal)))
       (get (get-funname-symbol fun) 'sys::inline-expansion)))
 
-; (inline-callable-function-lambda-p form n) bzw.
-; (inline-callable-function-p form n) stellt fest, ob form eine Form ist, die
-; eine Funktion liefert, die mit n (und evtl. mehr) Argumenten Inline
-; aufgerufen werden kann. (vorbehaltlich Syntax-Errors in der Lambdaliste)
-; form sollte bereits macroexpandiert sein.
+;;; (inline-callable-function-lambda-p form n) or
+;;; (inline-callable-function-p form n) check whether the FORM
+;;; can be called inline with N (and maybe MORE) arguments
+;;; (subject to syntax errors in the lambda list)
+;;; form should be already macroexpanded.
 (defun inline-callable-function-lambda-p (form n &optional (more nil))
-  ; muss von der Bauart (FUNCTION funname) sein
-  (and (consp form) (eq (first form) 'FUNCTION)
-       (consp (cdr form)) (null (cddr form))
-       (let ((funname (second form)))
-         ; funname muss von der Bauart (LAMBDA lambdalist ...) sein
-         (and (consp funname) (eq (first funname) 'LAMBDA) (consp (cdr funname))
-              (let ((lambdalist (second funname)))
-                ; lambdalist muss eine Liste sein, die kein &KEY enthält
-                ; (Funktionen mit &KEY werden nicht INLINE-expandiert, weil die
-                ; Zuordnung von den Argumenten zu den Variablen nur dynamisch,
-                ; mit GETF, möglich ist, und das kann die in Assembler
-                ; geschriebene APPLY-Routine schneller.)
-                (and (listp lambdalist)
-                     (not (position '&KEY lambdalist))
-                     (not (position '&ALLOW-OTHER-KEYS lambdalist))
-                     (let ((&opt-pos (position '&OPTIONAL lambdalist))
-                           (&rest-pos (position '&REST lambdalist))
-                           (&aux-pos (or (position '&AUX lambdalist)
-                                         (length lambdalist)
-                          ))         )
-                       (if &rest-pos
-                         ; &rest angegeben
-                         (or more (>= n (or &opt-pos &rest-pos)))
-                         ; &rest nicht angegeben
-                         (if more
-                           (<= n (if &opt-pos (- &aux-pos 1) &aux-pos))
-                           (if &opt-pos
-                             (<= &opt-pos n (- &aux-pos 1))
-                             (= n &aux-pos)
-                     ) ) ) )
-              ) )
-       ) )
-) )
+  (let ((funname (function-form-funform form)))
+    ;; funname must be (LAMBDA lambdalist ...)
+    (and (consp funname) (eq (first funname) 'LAMBDA) (consp (cdr funname))
+         (let ((lambdalist (second funname)))
+           ;; lambdalist must be a list, with no &KEYs
+           ;; (functions with &KEYs cannot be expanded INLINE, since these
+           ;; arguments are dynamically bound to the variables.
+           ;; it is possible to speed up APPLY with GETF in assembler)
+           (and (listp lambdalist)
+                (not (position '&KEY lambdalist))
+                (not (position '&ALLOW-OTHER-KEYS lambdalist))
+                (let ((&opt-pos (position '&OPTIONAL lambdalist))
+                      (&rest-pos (position '&REST lambdalist))
+                      (&aux-pos (or (position '&AUX lambdalist)
+                                    (length lambdalist))))
+                  (if &rest-pos
+                      (or more (>= n (or &opt-pos &rest-pos)))
+                      (if more
+                          (<= n (if &opt-pos (- &aux-pos 1) &aux-pos))
+                          (if &opt-pos
+                              (<= &opt-pos n (- &aux-pos 1))
+                              (= n &aux-pos))))))))))
 (defun inline-callable-lambdabody-p (inline-lambdabody n &optional (more nil))
-  (and #| inline-lambdabody |#
-       (consp inline-lambdabody)
+  (and (consp inline-lambdabody)
        (inline-callable-function-lambda-p
         `(FUNCTION (LAMBDA ,@inline-lambdabody)) n more)))
 (defun inline-callable-function-p (form n)
   (or (inline-callable-function-lambda-p form n)
-      (and (consp form) (eq (first form) 'FUNCTION)
-           (consp (cdr form)) (null (cddr form))
-           (let ((fun (second form)))
-             ; fun muss ein Funktionsname mit Inline-Definition sein,
-             ; dann wird (FUNCALL form ...) später zu (fun ...)
-             ; umgewandelt und inline compiliert werden.
-             ; Siehe c-FUNCALL, c-FUNCTION-CALL, c-GLOBAL-FUNCTION-CALL.
-             (and (function-name-p fun)
-                  (null (fenv-search fun))
-                  (not (and (symbolp fun) (or (special-operator-p fun) (macro-function fun))))
-                  (not (declared-notinline fun))
-                  (or #| ;; Lohnt sich wohl nicht
-                      (and (in-defun fun)
-                           (multiple-value-bind (req opt rest-flag key-flag keylist allow-flag)
-                               (fdescr-signature (cons *func* nil))
-                             (declare (ignore keylist allow-flag))
-                             (and (<= req n) (or rest-flag (<= n (+ req opt))) (not key-flag))
-                      )    )
-                      |#
-                      (inline-callable-lambdabody-p (inline-lambdabody fun) n)
-) )   )    ) )    )
+      (let ((fun (function-form-funform form)))
+        ;; fun must be a function name with an inline-definition,
+        ;; then (FUNCALL fun ...) is converted to (fun ...) compiled inline.
+        ;; see c-FUNCALL, c-FUNCTION-CALL, c-GLOBAL-FUNCTION-CALL.
+        (and fun (function-name-p fun) (null (fenv-search fun))
+             (not (and (symbolp fun)
+                       (or (special-operator-p fun) (macro-function fun))))
+             (not (declared-notinline fun))
+             (or #| ;; probably not worth it
+                 (and (in-defun fun)
+                      (multiple-value-bind
+                            (req opt rest-flag key-flag keylist allow-flag)
+                          (fdescr-signature (cons *func* nil))
+                        (declare (ignore keylist allow-flag))
+                        (and (<= req n) (or rest-flag (<= n (+ req opt)))
+                             (not key-flag))))
+                 |#
+                 (inline-callable-lambdabody-p (inline-lambdabody fun) n))))))
 
 ;; Special-deklarierte Symbole:
 
@@ -5342,7 +5331,7 @@ der Docstring (oder NIL).
       )
       (when fenv-cons (setf (caar fenv-cons) *func*)) ; Fixup für c-LABELS
       (multiple-value-bind (body-rest declarations)
-          (parse-body (cdr lambdabody) t (vector *venv* *fenv*))
+          (parse-body (cdr lambdabody) t (env))
         (let ((oldstackz *stackz*)
               (*stackz* *stackz*)
               (*denv* *denv*)
@@ -6046,9 +6035,7 @@ der Docstring (oder NIL).
     (c-NIL) ; (SETQ) == (PROGN) == NIL
     (if (setqlist-macrop (cdr *form*))
       (c-form ; (SETF ...) statt (SETQ ...), macroexpandieren
-        (funcall (macro-function 'SETF) (cons 'SETF (cdr *form*))
-                 (vector *venv* *fenv*)
-      ) )
+        (funcall (macro-function 'SETF) (cons 'SETF (cdr *form*)) (env)))
       (do ((L (cdr *form*) (cddr L))
            #+COMPILER-DEBUG (anodelist '())
            (seclass '(NIL . NIL))
@@ -6095,9 +6082,7 @@ der Docstring (oder NIL).
     (c-NIL) ; (PSETQ) == (PROGN) == NIL
     (if (setqlist-macrop (cdr *form*))
       (c-form ; (PSETF ...) statt (PSETQ ...), macroexpandieren
-        (funcall (macro-function 'PSETF) (cons 'PSETF (cdr *form*))
-                 (vector *venv* *fenv*)
-      ) )
+        (funcall (macro-function 'PSETF) (cons 'PSETF (cdr *form*)) (env)))
       (let ((anodelist '())
             (setterlist '()))
         ; Formen und Zuweisungen compilieren:
@@ -6276,7 +6261,7 @@ der Docstring (oder NIL).
   (test-list *form* 2)
   (test-list (second *form*) 0)
   (multiple-value-bind (body-rest declarations)
-      (parse-body (cddr *form*) nil (vector *venv* *fenv*))
+      (parse-body (cddr *form*) nil (env))
     (let ((oldstackz *stackz*)
           (*stackz* *stackz*)
           (*denv* *denv*)
@@ -6332,7 +6317,7 @@ der Docstring (oder NIL).
 (defun c-LOCALLY (&optional (c #'c-form)) ; vgl. c-LET/LET*
   (test-list *form* 1)
   (multiple-value-bind (body-rest declarations)
-      (parse-body (cdr *form*) nil (vector *venv* *fenv*))
+      (parse-body (cdr *form*) nil (env))
     (let ((*venv* *venv*))
       (multiple-value-bind (*specials* ignores ignorables readonlys)
           (process-declarations declarations)
@@ -6355,7 +6340,7 @@ der Docstring (oder NIL).
     (if (= (length symbols) 1)
       (c-form `(LET ((,(first symbols) ,(third *form*))) ,@(cdddr *form*)))
       (multiple-value-bind (body-rest declarations)
-          (parse-body (cdddr *form*) nil (vector *venv* *fenv*))
+          (parse-body (cdddr *form*) nil (env))
         (let ((oldstackz *stackz*)
               (*stackz* *stackz*)
               (*denv* *denv*)
@@ -7156,7 +7141,7 @@ der Docstring (oder NIL).
                     L2
               )
               (push (clos::make-generic-function-form 'clos:generic-flet
-                      name (second fdef) (cddr fdef) (vector *venv* *fenv*)
+                      name (second fdef) (cddr fdef) (env)
                     )
                     L3
             ) )
@@ -7267,7 +7252,7 @@ der Docstring (oder NIL).
                         L3
                   )
                   (push (clos::make-generic-function-form 'clos:generic-labels
-                          name (second fdef) (cddr fdef) (vector *venv* *fenv*)
+                          name (second fdef) (cddr fdef) (env)
                         )
                         L4
                 ) )
@@ -7343,7 +7328,7 @@ der Docstring (oder NIL).
   (test-list *form* 2)
   (test-list (second *form*) 0)
   (multiple-value-bind (body-rest declarations)
-      (parse-body (cddr *form*) nil (vector *venv* *fenv*))
+      (parse-body (cddr *form*) nil (env))
     (let ((*denv* *denv*)
           (*venv* *venv*))
       (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys*)
@@ -7758,7 +7743,7 @@ der Docstring (oder NIL).
                                            *denv*
            ))       ) )     )
         (multiple-value-bind (body-rest declarations)
-            (parse-body lambdabody t (vector *venv* *fenv*))
+            (parse-body lambdabody t (env))
           (let (*specials* *ignores* *ignorables* *readonlys*
                 req-vars req-anodes req-stackzs
                 opt-vars opt-anodes opt-stackzs ; optionale und svar zusammen!
@@ -8030,13 +8015,7 @@ der Docstring (oder NIL).
     (return-from c-FUNCTION-CALL
       (c-form `(PROG1 ,(second funform) ,@arglist))
   ) )
-  (when (and (consp funform) (eq (first funform) 'FUNCTION)
-             ; Ausdrücke der Form (FUNCTION ...) dürfen zu beliebigem
-             ; Zeitpunkt ausgewertet werden, also ist
-             ; (SYS::%FUNCALL (FUNCTION fun) . arglist)  äquivalent zu
-             ; (fun . arglist).
-             (consp (rest funform)) (function-name-p (second funform)) ; vorerst nur #'sym, sonst Endlosschleife!
-        )
+  (when (simple-function-form-p funform) ; #'symbol
     (return-from c-FUNCTION-CALL
       (progn
         (test-list funform 2 2)
@@ -8079,9 +8058,7 @@ der Docstring (oder NIL).
       ;; (let ((o obj)) ... #'(lambda (&rest a) (declare (ignore a)) o) ...)
       (return-from c-APPLY
         (c-form `(PROG1 ,(second funform) ,@arglist))))
-    (when (and (consp funform) (eq (first funform) 'FUNCTION)
-               ;; (FUNCTION ...) forms can be arbitrary
-               (consp (rest funform)) (function-name-p (second funform)))
+    (when (simple-function-form-p funform) ; #'symbol
       (let ((fun (second funform)))
         (test-list funform 2 2)
         (multiple-value-bind (name req opt rest-p key-p keylist allow-p)
@@ -12284,13 +12261,12 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                 )
                 (t (when (macro-function fun) ; globaler Macro ?
                      (return-from compile-toplevel-form
-                       (compile-toplevel-form (funcall *macroexpand-hook* (macro-function fun) form (vector *venv* *fenv*))) ; -> expandieren
-              ) )  ) )
+                       (compile-toplevel-form
+                        (mac-exp (macro-function fun) form))))))
               ; lokal definiert
               (when (and m (null f1)) ; lokaler Macro, aber keine lokale Funktion
                 (return-from compile-toplevel-form
-                  (compile-toplevel-form (funcall *macroexpand-hook* m form (vector *venv* *fenv*))) ; -> expandieren
-              ) )
+                  (compile-toplevel-form (mac-exp m form))))
     ) ) ) ) )
     ; 2. Schritt: compilieren und rausschreiben
     (when (and (not *toplevel-for-value*) (l-constantp form))
