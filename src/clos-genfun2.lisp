@@ -81,7 +81,7 @@
 ;; CLtL2 28.1.6.4., ANSI CL 7.6.4. Congruent Lambda-lists
 (defun check-signature-congruence (gf method
                                    &optional (gf-sign (std-gf-signature gf))
-                                             (m-sign (std-method-signature method)))
+                                             (m-sign (method-signature method)))
   (unless (= (sig-req-num m-sign) (sig-req-num gf-sign))
     (error-of-type 'error
       (TEXT "~S has ~D, but ~S has ~D required parameter~:P")
@@ -317,7 +317,7 @@
     ;; The first added method determines the generic-function's signature.
     (shared-initialize-<standard-generic-function> gf nil
       :lambda-list (gf-lambdalist-from-first-method (method-lambda-list method)
-                                                    (std-method-signature method)))
+                                                    (method-signature method)))
     (check-signature-congruence gf method))
   (when (std-method-generic-function method)
     (error-of-type 'error
@@ -1390,7 +1390,7 @@
     (unless (sig-allow-p signature)
       ;; "The specific set of keyword arguments accepted ...
       ;;  varies according to the applicable methods."
-      (let ((signatures (mapcar #'std-method-signature methods)))
+      (let ((signatures (mapcar #'method-signature methods)))
         ;; "A method that has &rest but not &key does not affect the
         ;;   set of acceptable keyword arguments."
         (setq signatures (delete-if-not #'sig-keys-p signatures))

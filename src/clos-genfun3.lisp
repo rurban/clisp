@@ -208,7 +208,7 @@
                          (values (getf method-or-initargs ':lambda-list)
                                  (getf method-or-initargs 'signature))
                          (values (method-lambda-list method-or-initargs)
-                                 (std-method-signature method-or-initargs)))
+                                 (method-signature method-or-initargs)))
                      (let ((gf-lambdalist
                              (gf-lambdalist-from-first-method m-lambdalist m-signature)))
                        (make-generic-function-instance <standard-generic-function>
