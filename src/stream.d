@@ -6037,7 +6037,9 @@ global object file_stream_truename (object s)
 local uintL low_fill_buffered_handle (object stream, bool no_hang) {
   var sintL result = 0;
   var Handle handle = TheHandle(BufferedStream_channel(stream));
-  var signean listen_status = ls_avail;
+  var signean listen_status = ls_eof;
+  /* no_hang => call listen_handle() => correct listen_status
+   otherwise, result=0 means there was nothing to read => EOF */
   if (!no_hang
       || ls_avail_p(listen_status = listen_handle(handle,false,NULL))) {
     begin_system_call();

@@ -2,6 +2,7 @@
 
 	* stream.d (buffered_nextbyte): return -1 only when no_hang
 	(listen_char_buffered): pass no_hang=true to buffered_nextbyte()
+	(low_fill_buffered_handle): listen_status defaults to ls_eof
 
 2003-10-11  Sam Steingold  <sds@gnu.org>
 
