@@ -2,6 +2,8 @@
 
 (in-package "SYS")
 
+(require "linux")
+
 (defpackage "LINUX"
   (:case-sensitive t)
   (:nicknames "UNIX" "GLIBC")

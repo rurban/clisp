@@ -1,3 +1,7 @@
+2002-02-18  Sam Steingold  <sds@gnu.org>
+
+	* bindings/linuxlibc6/wrap.lisp: require "linux" to avoid warnings
+
 2002-02-13  Sam Steingold  <sds@gnu.org>
 
 	* bindings/linuxlibc6/linux.lisp (getdomainname, setdomainname)
