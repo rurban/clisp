@@ -1,3 +1,16 @@
+1999-12-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * utils/unicode/ftp.unicode.org/UnicodeData.txt: Upgrade to Unicode
+          version 3.0.
+
+1999-12-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * utils/unicode/Makefile: Use plain-text tables instead of *.in files.
+        * utils/unicode/nls_table.c: New file.
+        * utils/unicode/nls_table.java, utils/unicode/nls_txt_to_in.java:
+          Remove files.
+        * utils/unicode/ftp.unicode.org/*.TXT: Remove files.
+
 1999-12-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * stream.d (iconv_mbstowcs, iconv_wcstombs): When called from a
