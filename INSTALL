@@ -33,9 +33,6 @@ Installation:
       src/*.in           auxiliary files
       utils/*            auxiliary programs
       unix/              installing on Unix 
-      dos/               installing on DOS, using EMX
-      dosdjgpp/          installing on DOS, using DJGPP
-      doswatcom/         installing on DOS, using WATCOM
       os2/               installing on OS/2
       win32msvc/         installing on Win32, using MSVC
       win32bc/           installing on Win32, using Borland C/C++
@@ -67,7 +64,6 @@ Installation:
 For instruction on how to install CLISP
 * on Unix: see file unix/INSTALL.
 * on Amiga (AmigaOS): see file amiga/INSTALL.
-* on DOS:  see files dos/INSTALL, dosdjgpp/INSTALL and doswatcom/INSTALL.
 * on OS/2: see file os2/INSTALL,
 * on Win32 (WinNT, Win95): see files win32msvc/INSTALL and win32bc/INSTALL.
 
