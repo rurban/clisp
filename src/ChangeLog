@@ -1,3 +1,9 @@
+2004-08-24  Bruno Haible  <bruno@clisp.org>
+
+	* Makefile.devel (build-linux-x86-[1-10]): New targets.
+	(multibuild-linux-x86): Depend on them.
+	(multibuild-darwin-powerpc, build-darwin-powerpc-[1-10]): New targets.
+
 2004-08-28  Bruno Haible  <bruno@clisp.org>
 
 	* stream.d (rd_by_aux_icx_buffered): Fill exactly the required number
