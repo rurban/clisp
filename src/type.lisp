@@ -769,9 +769,14 @@
             (or (clos-class type) type))
            (t
             (let ((f (clos-class type)))
-              (if (and f (not (clos::built-in-class-p f)))
-                  f
-                  type)))))
+              (if f (if (clos::built-in-class-p f) type f)
+                  (let ((d (get type 'DEFSTRUCT-DESCRIPTION)))
+                    ;; if TYPE names a normal structure (i.e., (svref d 1)=T),
+                    ;; it is also a CLOS class, so the above would apply
+                    (if d (canonicalize-type (svref d 1))
+                        (if (or (eq type '*) (get type 'type-symbol)) type
+                            ;; by now we know that type does not name anything
+                            type))))))))
         ((and (consp type) (symbolp (first type)))
          (case (first type)
            (MEMBER ; (MEMBER &rest objects)
@@ -932,8 +937,14 @@
             ;)
             ;; NOT: siehe oben
             ((and (eq (first type2) 'NOT) (eql (length type2) 2))
-             (unknown)
-            )
+             (if (eq (second type2) 'CONS) ; (NOT CONS) == ATOM
+                 (if (or (eq type1 'CONS) ; CONS or (CONS ...)
+                         (and (consp type1) (eq (first type1) 'CONS)))
+                     (no)
+                     (if (clos::class-p type1)
+                         (yes)
+                         (setq type2 'atom)))
+                 (unknown)))
             ;; AND: type1 muss Subtyp jedes der Typen sein
             ((eq (first type2) 'AND)
              (dolist (type (rest type2) (yes))
@@ -975,6 +986,7 @@
     (when (atom type1) (setq type1 (list type1)))
     (case (first type1)
       ((ARRAY SIMPLE-ARRAY)
+       (when (eq type2 'atom) (yes))
         (macrolet ((array-p (type)
                      `(or (eq ,type 'ARRAY) (eq ,type (first type1)))
                   ))
@@ -1010,7 +1022,8 @@
               t
       ) ) ) )
       (COMPLEX
-        (let* ((rtype1 (if (rest type1) (second type1) '*))
+       (when (eq type2 'atom) (yes))
+       (let* ((rtype1 (if (rest type1) (second type1) '*))
                (itype1 (if (cddr type1) (third type1) rtype1)))
           (values
             (cond ((or (eq type2 'COMPLEX) (eq type2 'NUMBER)) t)
@@ -1030,6 +1043,7 @@
             t
       ) ) )
       ((REAL INTEGER RATIONAL FLOAT SHORT-FLOAT SINGLE-FLOAT DOUBLE-FLOAT LONG-FLOAT)
+       (when (eq type2 'atom) (yes))
         (let ((typelist
                 (cons (first type1)
                   (case (first type1)
@@ -1125,19 +1139,25 @@
       )) ) ) ) )
       ((CHARACTER ENCODING FUNCTION HASH-TABLE PACKAGE PATHNAME RANDOM-STATE
         READTABLE SYMBOL)
+       (when (eq type2 'atom) (yes))
        (no)
       )
       ((CLOS:GENERIC-FUNCTION COMPILED-FUNCTION #+ffi FFI::FOREIGN-FUNCTION)
+       (when (eq type2 'atom) (yes))
        (if (eq type2 'FUNCTION) (yes) (no))
       )
       (CLOS:STANDARD-GENERIC-FUNCTION
-       (if (or (eq type2 'CLOS:GENERIC-FUNCTION) (eq type2 'FUNCTION)) (yes) (no))
-      )
+       (when  (yes))
+       (if (or (eq type2 'CLOS:GENERIC-FUNCTION) (eq type2 'FUNCTION)
+               (eq type2 'atom))
+           (yes) (no)))
       #+LOGICAL-PATHNAMES
-      (LOGICAL-PATHNAME (if (eq type2 'PATHNAME) (yes) (no)))
+      (LOGICAL-PATHNAME
+       (if (or (eq type2 'atom) (eq type2 'PATHNAME)) (yes) (no)))
       (t
        (if (encodingp (first type1))
          (cond ((eq type2 'CHARACTER) (yes))
+               ((eq type2 'atom) (yes))
                ((encodingp type2) (if (charset-subtypep (first type1) type2) (yes) (no)))
                (t (no))
          )
