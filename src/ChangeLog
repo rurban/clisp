@@ -1,3 +1,9 @@
+2004-06-06  Bruno Haible  <bruno@clisp.org>
+
+	* clos-methcomb2.lisp (qualifiers-match-p): Remove function.
+	(compute-method-partition-lambdas): Use LDIFF and EQUAL to match the
+	qualifiers list against the pattern.
+
 2004-05-16  Bruno Haible  <bruno@clisp.org>
 
 	Move slots, direct-slots up to CLASS.
