@@ -1,3 +1,7 @@
+2004-03-30  Bruno Haible  <bruno@clisp.org>
+
+	* po/de.po: Update translations.
+
 2004-03-14  Bruno Haible  <bruno@clisp.org>
 
 	Make use of GNU gettext >= 0.13 features.
