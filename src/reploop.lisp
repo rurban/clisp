@@ -402,16 +402,18 @@ Continue       :c       switch off single step mode, continue evaluation
   (driver                 ; build driver-frame; do #'lambda "infinitely"
    #'(lambda ()
        (catch 'debug            ; catch the (throw 'debug ...)
-         (when (read-eval-print   ; read-eval-print INPUT-line
-                (string-concat (prompt-start) (prompt-body) (prompt-finish))
-                (commands0))
-           ;; T -> #<EOF>
-           ;; NIL -> form is already evaluated
-           ;;        result has been printed
-           (if (interactive-stream-p *standard-input*)
-             (exit)           ; user typed EOF
-             (progn (setq *command-index* 0) ; reset *command-index*
-                    (return-from main-loop)))))))) ; and proceed
+         ;; ANSI CL wants an ABORT restart to be available.
+         (with-restarts ((ABORT () (throw 'debug 'continue)))
+           (when (read-eval-print   ; read-eval-print INPUT-line
+                   (string-concat (prompt-start) (prompt-body) (prompt-finish))
+                   (commands0))
+             ;; T -> #<EOF>
+             ;; NIL -> form is already evaluated
+             ;;        result has been printed
+             (if (interactive-stream-p *standard-input*)
+               (exit)           ; user typed EOF
+               (progn (setq *command-index* 0) ; reset *command-index*
+                      (return-from main-loop))))))))) ; and proceed
 
 (setq *driver* #'main-loop)
 
@@ -522,16 +524,18 @@ Continue       :c       switch off single step mode, continue evaluation
        ;; build driver frame and repeat #'lambda (infinitely; ...)
        #'(lambda ()
            (case (catch 'debug    ; catch (throw 'debug ...) and analyse
-                   ;; build environment *debug-frame*
-                   ;; which is valid/equal for/to *debug-frame*
-                   (same-env-as *debug-frame*
-                     #'(lambda ()
-                         (if (read-eval-print ; read-eval-print INPUT-line
-                              prompt commands-list)
+                   ;; ANSI CL wants an ABORT restart to be available.
+                   (with-restarts ((ABORT () (throw 'debug 'continue)))
+                     ;; build environment *debug-frame*
+                     ;; which is valid/equal for/to *debug-frame*
+                     (same-env-as *debug-frame*
+                       #'(lambda ()
+                           (if (read-eval-print ; read-eval-print INPUT-line
+                                 prompt commands-list)
                              ;; T -> #<EOF>
                              ;; NIL -> form is already evaluated;
                              ;;        result has been printed
-                             (throw 'debug (if may-continue 'quit 'unwind))))))
+                             (throw 'debug (if may-continue 'quit 'unwind)))))))
              ((print-error) (print-error condition))
              ((inspect-error) (inspect condition))
              ((unwind) (go unwind))
@@ -621,21 +625,23 @@ Continue       :c       switch off single step mode, continue evaluation
                 (driver
                   ;;  build driver frame and repeat #'lambda (infinitely ...)
                   #'(lambda ()
+                      ;; catch the (throw 'debug ...) and analyse
                       (case
                           (catch 'debug
-                            ;; catch the (throw 'debug ...) and analyse
-                            (same-env-as *debug-frame*
-                              ;; build environment *debug-frame* that
-                              ;; is valid/equal for/to *debug-frame*
-                              #'(lambda ()
-                                  (if (read-eval-print ; get/read INPUT-line
-                                       prompt commands-list)
+                            ;; ANSI CL wants an ABORT restart to be available.
+                            (with-restarts ((ABORT () (throw 'debug 'continue)))
+                              (same-env-as *debug-frame*
+                                ;; build environment *debug-frame* that
+                                ;; is valid/equal for/to *debug-frame*
+                                #'(lambda ()
+                                    (if (read-eval-print ; get/read INPUT-line
+                                          prompt commands-list)
                                       ;; T -> #<EOF>
                                       (go continue)
                                       ;; NIL -> form is already evaluated;
                                       ;;        result has been printed
-                                    #|(throw 'debug 'continue)|#
-                                      ))))
+                                      #|(throw 'debug 'continue)|#
+                                      )))))
                         ((unwind) (go unwind))
                         ((abort-to-top) (go abort-to-top))
                         (t ))))) ; other cases, especially continue

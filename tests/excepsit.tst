@@ -5,7 +5,7 @@
 ;; specifications which have the wording "an error is signalled" or
 ;; "an error should be signalled".
 
-(abort)
+(invoke-restart 'nonexistent-restart)
 control-error
 
 (acos 'x)
