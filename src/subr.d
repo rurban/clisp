@@ -105,6 +105,8 @@
 LISPFUNNF(funtabref,1)
 LISPFUNNR(subr_info,1)
 LISPFUN(special_variable_p,seclass_read,1,1,norest,nokey,0,NIL)
+LISPFUNNR(add_implicit_block,2)
+LISPFUNNR(function_block_name,1)
 /* ---------- ARRAY ---------- */
 LISPFUNNR(copy_simple_vector,1)
 LISPFUN(vector,seclass_no_se,0,0,rest,nokey,0,NIL)

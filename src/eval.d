@@ -1584,6 +1584,20 @@ local object lambdabody_source (object lambdabody) {
     }
   }
 
+LISPFUNNR(add_implicit_block,2)
+{ /* inserts an implicit BLOCK in the BODY */
+  parse_dd(STACK_0);
+  add_implicit_block();
+  mv_count = 1;
+  skipSTACK(2);
+}
+LISPFUNNR(function_block_name,1)
+{ /* returns the name of the implicit block for a function-name */
+  var object funname =
+    check_funname(type_error,S(function_block_name),popSTACK());
+  VALUES1(funname_blockname(funname));
+}
+
 /* UP: Creates the corresponding Closure for a Lambdabody by decomposition
  of the lambda list and poss. macro-expansion of all forms.
  get_closure(lambdabody,name,blockp,env)
