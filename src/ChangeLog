@@ -1,3 +1,8 @@
+2002-09-17  John  Hinsdale <hin@alma.com>
+
+	* modules/oracle/oracle.lisp: use new FFI calls; many performance
+	improvements in low-level functions and macros
+
 2002-09-17  Sam Steingold  <sds@gnu.org>
 
 	* lisparit.d (log_digits): fixed the 2002-09-11 patch:
