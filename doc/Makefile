@@ -68,9 +68,9 @@ endif
 # http://openjade.sourceforge.net/
 # http://www.jclark.com/jade/
 
-FILLIN=sed -e 's,@DTD@,$(DTD),' \
+FILLIN=. ../version.sh && sed -e 's,@DTD@,$(DTD),' \
 	    -e 's,@DTDVER@,$(DTDVER),' \
-	    -e 's,@VERSION@,'`cat ../src/VERSION`',' \
+	    -e 's,@VERSION@,'$${VERSION_NUMBER}',' \
 	    -e 's,@PLATFORM@,'`uname`',' \
 	    -e 's,@TODAY@,'`date +"%Y-%m-%d"`','
 
@@ -92,7 +92,7 @@ tdb-pile.xml: impnotes.xml $(IMPNOTES) pile.xsl common.xsl
 tdb-chunk.xml: impnotes.xml $(IMPNOTES) chunk.xsl common.xsl
 	$(MAKE_TDB) "$@" chunk.xsl $<
 
-clisp.xml: clisp.xml.in ../src/VERSION Makefile
+clisp.xml: clisp.xml.in ../version.sh Makefile
 	$(RM) $@
 	$(FILLIN) $< > $@
 
@@ -112,7 +112,7 @@ clisp.1: clisp.xml common.xsl man.xsl tdb-pile.xml olink-pile.xml
 _clisp.1: clisp.1
 	sed $(SGML_UNCOMMENT) $< > $@
 
-impnotes.xml: impnotes.xml.in $(IMPNOTES) ../src/VERSION Makefile
+impnotes.xml: impnotes.xml.in $(IMPNOTES) ../version.sh Makefile
 	$(RM) $@
 	$(FILLIN) $< > $@
 
