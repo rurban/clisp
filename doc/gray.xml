@@ -303,7 +303,7 @@ and is supported by most &cl; implementations currently in use.</para>
  <varlistentry><term><literal
     role="sexp">(<function>GRAY:STREAM-READ-BYTE-SEQUENCE</function>
                  &stream-r; &sequence-r; &optional-amp;
-                 [&start-r; [&end-r; [&no-hang;]]])</literal></term>
+                 [&start-r; [&end-r; [&no-hang; [&interactive-r;]]]])</literal></term>
   <listitem><simpara>Fills the subsequence of &sequence-r; specified by
    &start-k; and &end-k; with integers consecutively read from &stream-r;.
    Returns the index of the first element of &sequence-r; that was not
@@ -313,7 +313,11 @@ and is supported by most &cl; implementations currently in use.</para>
    &start-r; is a nonnegative &integer-t; and defaults to 0.
    &end-r; is a nonnegative &integer-t; or &nil; and defaults to &nil;,
    which stands for <literal role="sexp">(&length; &sequence-r;)</literal>.
-  </simpara><simpara>The default method repeatedly calls &st-rb;; this
+   If &no-hang; is true, the function should avoid blocking and instead fill
+   only as many elements as are immediately available. If &no-hang; is false
+   and &interactive-r; is true, the function can block for reading the first
+   byte but should avoid blocking for any further bytes.</simpara>
+  <simpara>The default method repeatedly calls &st-rb;; this
    is always sufficient if speed does not matter.</simpara>
   <simpara>This function is a &clisp; extension (see
    &rd-by-seq;).</simpara></listitem></varlistentry>
@@ -335,7 +339,11 @@ and is supported by most &cl; implementations currently in use.</para>
    &start-r; is a nonnegative &integer-t; and defaults to 0.
    &end-r; is a nonnegative &integer-t; or &nil; and defaults to &nil;,
    which stands for <literal role="sexp">(&length; &sequence-r;)</literal>.
-  </simpara><simpara>The default method repeatedly calls
+   If &no-hang; is true, the function should avoid blocking and instead output
+   only as many elements as it can immediately proceed. If &no-hang; is false
+   and &interactive-r; is true, the function can block for writing the first
+   byte but should avoid blocking for any further bytes.</simpara>
+  <simpara>The default method repeatedly calls
    <function>GRAY:STREAM-WRITE-BYTE</function>; this is always
    sufficient if speed does not matter.</simpara>
   <simpara>This function is a &clisp; extension (see

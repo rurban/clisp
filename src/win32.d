@@ -210,13 +210,12 @@ extern_C char *setlocale (int category, const char *locale);
 /* Like ReadConsoleInput with Length==1, but is interruptible by Ctrl-C. */
 extern BOOL ReadConsoleInput1 (HANDLE ConsoleInput, PINPUT_RECORD Buffer, LPDWORD NumberOfEventsRead);
 /* The following functions deal with all kinds of file/pipe/console handles */
-extern int read_helper (HANDLE fd, void* buf, int nbyte, bool no_hang);
-#define safe_read(f,b,n)  read_helper(f,b,n,true)
-#define full_read(f,b,n)  read_helper(f,b,n,false)
-extern int write_helper (HANDLE fd, const void* buf, int nbyte, bool no_hang);
-#define full_write(f,b,n)  write_helper(f,b,n,false)
-#define read  full_read
-#define write  full_write
+extern ssize_t read_helper (HANDLE fd, void* buf, size_t nbyte, perseverance_t persev);
+extern ssize_t write_helper (HANDLE fd, const void* buf, size_t nbyte, perseverance_t persev);
+#define safe_read(fd,buf,nbyte)  read_helper(fd,buf,nbyte,persev_partial)
+#define full_read(fd,buf,nbyte)  read_helper(fd,buf,nbyte,persev_full)
+#define safe_write(fd,buf,nbyte)  write_helper(fd,buf,nbyte,persev_partial)
+#define full_write(fd,buf,nbyte)  write_helper(fd,buf,nbyte,persev_full)
 /* Changing the position within a file. */
 #define lseek(handle,offset,mode)  ((int)SetFilePointer(handle,offset,NULL,mode))
 #undef SEEK_SET
@@ -278,8 +277,8 @@ extern int write_helper (HANDLE fd, const void* buf, int nbyte, bool no_hang);
 /* Signalling a socket related error
    extern void SOCK_error (void);
    Reading and writing from a socket */
-extern int sock_read (SOCKET fd, void* buf, int nbyte);
-extern int sock_write (SOCKET fd, const void* buf, int nbyte, bool no_hang);
+extern int sock_read (SOCKET fd, void* buf, size_t nbyte, perseverance_t persev);
+extern int sock_write (SOCKET fd, const void* buf, size_t nbyte, perseverance_t persev);
 /* Interruptible wait for something on socket */
 typedef enum { socket_wait_read, socket_wait_write, socket_wait_except } socket_wait_event;
 extern int interruptible_socket_wait (SOCKET socket_handle, socket_wait_event waitwhat, struct timeval * timeout_ptr);

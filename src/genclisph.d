@@ -455,7 +455,18 @@ int main(int argc, char* argv[])
   sprintf(buf,"sint%d",intDsize); emit_typedef(buf,"sintD");
 #endif
   sprintf(buf,"uint%d",intDsize); emit_typedef(buf,"uintD");
+  printf("typedef enum { persev_full, persev_partial, persev_immediate, persev_bonus } perseverance_t;\n");
   printf("#include <stdlib.h>\n");
+  printf("#include <sys/types.h>\n");
+#if defined(WIN32_NATIVE)
+  printf("#define Handle HANDLE\n");
+#elif defined(UNIX)
+  printf("#define Handle uintW\n");
+#else
+  printf("#error \"what is Handle on your platform?!\"\n");
+#endif
+  printf("extern ssize_t read_helper (Handle fd, void* buf, size_t nbyte, perseverance_t persev);\n");
+  printf("extern ssize_t write_helper (Handle fd, const void* buf, size_t nbyte, perseverance_t persev);\n");
 #if notused
  #ifdef WIDE_HARD
    printf("#define WIDE_HARD\n");
@@ -2084,22 +2095,13 @@ int main(int argc, char* argv[])
   printf("extern object convert_time_to_universal (const FILETIME* time);\n");
 #endif
   printf("#define UNIX_LISP_TIME_DIFF 2208988800UL\n");
-#if defined(WIN32_NATIVE)
-  printf("#define Handle HANDLE\n");
-#elif defined(UNIX)
-  printf("#define Handle uintW\n");
-#else
-  printf("#error \"what is Handle on your platform?!\"\n");
-#endif
   printf("extern Handle handle_dup (Handle old_handle, Handle new_handle);\n");
   printf("extern Handle stream_lend_handle (object stream, bool inputp, int * handletype);\n");
-  printf("extern uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, bool no_hang);\n");
-  printf("extern uintL write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, bool no_hang);\n");
+  printf("extern uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);\n");
+  printf("extern uintL write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);\n");
   printf("extern void builtin_stream_close (const gcv_object_t* stream_);\n");
   printf("extern object file_stream_truename (object s);\n");
   printf("extern object open_file_stream_handle (object stream, Handle *fd);\n");
-  printf("extern int write_helper (Handle fd, const void* buf, int nbyte, bool no_hang);\n");
-  printf("extern int read_helper (Handle fd, void* buf, int nbyte, bool no_hang);\n");
   printf("extern object addr_to_string (short type, char *addr);\n");
   printf("extern struct hostent* resolve_host (object arg);\n");
   printf("#define strm_buffered_bufflen %d\n",strm_buffered_bufflen);

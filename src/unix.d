@@ -510,12 +510,12 @@ extern int nonintr_close (int fd);
 #define CLOSE close
 #endif
 /* wrapper around the system call, get partial results and handle EINTR: */
-extern ssize_t read_helper (int fd, void* buf, size_t nbyte, bool no_hang);
-extern ssize_t write_helper (int fd, const void* buf, size_t nbyte, bool no_hang);
-#define safe_read(f,b,n)  read_helper(f,b,n,true)
-#define full_read(f,b,n)  read_helper(f,b,n,false)
-#define safe_write(f,b,n)  write_helper(f,b,n,true)
-#define full_write(f,b,n)  write_helper(f,b,n,false)
+extern ssize_t read_helper (int fd, void* buf, size_t nbyte, perseverance_t persev);
+extern ssize_t write_helper (int fd, const void* buf, size_t nbyte, perseverance_t persev);
+#define safe_read(fd,buf,nbyte)  read_helper(fd,buf,nbyte,persev_partial)
+#define full_read(fd,buf,nbyte)  read_helper(fd,buf,nbyte,persev_full)
+#define safe_write(fd,buf,nbyte)  write_helper(fd,buf,nbyte,persev_partial)
+#define full_write(fd,buf,nbyte)  write_helper(fd,buf,nbyte,persev_full)
 /* used by STREAM, PATHNAME, SPVW, MISC, UNIXAUX */
 
 /* inquire the terminal, window size: */
@@ -786,14 +786,14 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
   #ifdef UNIX_BEOS
     /* BeOS 5 sockets cannot be used like file descriptors.
        Reading and writing from a socket */
-    extern ssize_t sock_read (int socket, void* buf, size_t size);
-    extern ssize_t sock_write (int socket, const void* buf, size_t size, bool no_hang);
+    extern ssize_t sock_read (int socket, void* buf, size_t size, perseverance_t persev);
+    extern ssize_t sock_write (int socket, const void* buf, size_t size, perseverance_t persev);
     /* Closing a socket */
     /* extern int closesocket (int socket); */
   #else
     /* Reading and writing from a socket */
-    #define sock_read(s,b,n)   read_helper(s,b,n,true)
-    #define sock_write(s,b,n,no_hang)  write_helper(s,b,n,no_hang)
+    #define sock_read(socket,buf,nbyte,persev)   read_helper(socket,buf,nbyte,persev)
+    #define sock_write(socket,buf,nbyte,persev)  write_helper(socket,buf,nbyte,persev)
     /* Closing a socket */
     #define closesocket  close
   #endif

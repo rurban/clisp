@@ -370,7 +370,7 @@ global BOOL ReadConsoleInput1 (HANDLE ConsoleInput, PINPUT_RECORD Buffer,
 
 /* Reading from a file/pipe/console handle.
  This is the non-interruptible routine. */
-local int read_helper_low (HANDLE fd, void* bufarea, int nbyte, bool no_hang) {
+local int read_helper_low (HANDLE fd, void* bufarea, size_t nbyte, perseverance_t persev) {
  #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   handle_fault_range(PROT_READ_WRITE,(aint)bufarea,(aint)bufarea+nbyte);
  #endif
@@ -407,15 +407,20 @@ local int read_helper_low (HANDLE fd, void* bufarea, int nbyte, bool no_hang) {
       break;
     if (err != ERROR_IO_PENDING)
       return -1;
-    if (!GetOverlappedResult(fd, &overlap, &nchars, true)) {
+    if (!GetOverlappedResult(fd, &overlap, &nchars,
+                             persev != persev_immediate && persev != persev_bonus)) {
       if (GetLastError() == ERROR_HANDLE_EOF)
         break;
       return -1;
     }
    ok:
-    buf += nchars; done += nchars; nbyte -= nchars;
-    if (nchars == 0 || no_hang)
+    if (nchars == 0)
       break;
+    buf += nchars; done += nchars; nbyte -= nchars;
+    if (persev != persev_full && nchars < MAX_IO)
+      break;
+    if (persev == persev_partial)
+      persev = persev_bonus;
   }
  #ifndef UNICODE
   /* Possibly translate characters. */
@@ -443,26 +448,25 @@ local int read_helper_low (HANDLE fd, void* bufarea, int nbyte, bool no_hang) {
 }
 /* Then we make it interruptible. */
 struct full_read_params {
-  HANDLE fd; void* buf; int nbyte;
+  HANDLE fd; void* buf; size_t nbyte; perseverance_t persev;
   int retval; DWORD errcode;
-  bool no_hang;
 };
 local DWORD WINAPI do_read_helper (LPVOID arg) {
   var struct full_read_params * params = (struct full_read_params *)arg;
   params->retval = read_helper_low(params->fd,params->buf,params->nbyte,
-                                   params->no_hang);
+                                   params->persev);
   if (params->retval < 0)
     params->errcode = GetLastError();
   return 0;
 }
-global int read_helper (HANDLE fd, void* buf, int nbyte, bool no_hang) {
+global int read_helper (HANDLE fd, void* buf, size_t nbyte, perseverance_t persev) {
   var struct full_read_params params;
   params.fd      = fd;
   params.buf     = buf;
   params.nbyte   = nbyte;
+  params.persev  = persev;
   params.retval  = 0;
   params.errcode = 0;
-  params.no_hang = no_hang;
   if (DoInterruptible(&do_read_helper,(void*)&params,false)) {
     if (params.retval < 0)
       SetLastError(params.errcode);
@@ -473,7 +477,7 @@ global int read_helper (HANDLE fd, void* buf, int nbyte, bool no_hang) {
 }
 
 /* Writing to a file/pipe/console handle. */
-global int write_helper (HANDLE fd, const void* b, int nbyte, bool no_hang)
+global int write_helper (HANDLE fd, const void* b, size_t nbyte, perseverance_t persev)
 {
 #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   handle_fault_range(PROT_READ,(aint)b,(aint)b+nbyte);
@@ -534,18 +538,24 @@ global int write_helper (HANDLE fd, const void* b, int nbyte, bool no_hang)
     }
     if (err != ERROR_IO_PENDING)
       return -1;
-    if (no_hang) return done; /* do not wait! */
-    if (!GetOverlappedResult(fd, &overlap, &nchars, true))
+    if (!GetOverlappedResult(fd, &overlap, &nchars,
+                             persev != persev_immediate && persev != persev_bonus))
       return -1;
    ok:
+    if (nchars == 0)
+      break;
     buf += nchars; done += nchars; nbyte -= nchars;
+    if (persev != persev_full && nchars < MAX_IO)
+      break;
+    if (persev == persev_partial)
+      persev = persev_bonus;
   }
   return done;
 }
 
 /* Reading from a socket.
    This is the non-interruptible routine. */
-local int lowlevel_sock_read (SOCKET fd, void* b, int nbyte)
+local int lowlevel_sock_read (SOCKET fd, void* b, size_t nbyte, perseverance_t persev)
 {
 #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   handle_fault_range(PROT_READ_WRITE,(aint)b,(aint)b+nbyte);
@@ -561,30 +571,35 @@ local int lowlevel_sock_read (SOCKET fd, void* b, int nbyte)
       return retval;
     else {
       buf += retval; done += retval; nbyte -= retval;
-      break;                    /* return partial read */
+      if (persev != persev_full && retval < MAX_IO)
+        break;
+      if (persev == persev_partial)
+        persev = persev_bonus;
     }
   }
   return done;
 }
 /* Then we make it interruptible. */
 struct sock_read_params {
-  SOCKET fd; void* buf; int nbyte;
+  SOCKET fd; void* buf; size_t nbyte; perseverance_t persev;
   int retval; int errcode;
 };
 local DWORD WINAPI do_sock_read (LPVOID arg)
 {
   var struct sock_read_params * params = (struct sock_read_params *)arg;
-  params->retval = lowlevel_sock_read(params->fd,params->buf,params->nbyte);
+  params->retval = lowlevel_sock_read(params->fd,params->buf,params->nbyte,
+                                      params->persev);
   if (params->retval < 0)
     params->errcode = WSAGetLastError();
   return 0;
 }
-global int sock_read (SOCKET fd, void* buf, int nbyte)
+global int sock_read (SOCKET fd, void* buf, size_t nbyte, perseverance_t persev)
 {
   var struct sock_read_params params;
   params.fd      = fd;
   params.buf     = buf;
   params.nbyte   = nbyte;
+  params.persev  = persev;
   params.retval  = 0;
   params.errcode = 0;
   if (DoInterruptible(&do_sock_read,(void*)&params,true)) {
@@ -598,8 +613,7 @@ global int sock_read (SOCKET fd, void* buf, int nbyte)
 
 /* Writing to a socket.
    This is the non-interruptible routine. */
-local int lowlevel_sock_write (SOCKET fd, const void* b, int nbyte,
-                               bool no_hang)
+local int lowlevel_sock_write (SOCKET fd, const void* b, size_t nbyte, perseverance_t persev)
 {
 #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   handle_fault_range(PROT_READ,(aint)b,(aint)b+nbyte);
@@ -615,35 +629,37 @@ local int lowlevel_sock_write (SOCKET fd, const void* b, int nbyte,
       return retval;
     else {
       buf += retval; done += retval; nbyte -= retval;
-      if (no_hang) break;
+      if (persev != persev_full && retval < MAX_IO)
+        break;
+      if (persev == persev_partial)
+        persev = persev_bonus;
     }
   }
   return done;
 }
 /* Then we make it interruptible. */
 struct sock_write_params {
-  SOCKET fd; const void* buf; int nbyte;
+  SOCKET fd; const void* buf; size_t nbyte; perseverance_t persev;
   int retval; int errcode;
-  bool no_hang;
 };
 local DWORD WINAPI do_sock_write (LPVOID arg)
 {
   var struct sock_write_params * params = (struct sock_write_params *)arg;
   params->retval = lowlevel_sock_write(params->fd,params->buf,params->nbyte,
-                                       params->no_hang);
+                                       params->persev);
   if (params->retval < 0)
     params->errcode = WSAGetLastError();
   return 0;
 }
-global int sock_write (SOCKET fd, const void* buf, int nbyte, bool no_hang)
+global int sock_write (SOCKET fd, const void* buf, size_t nbyte, perseverance_t persev)
 {
   var struct sock_write_params params;
   params.fd      = fd;
   params.buf     = buf;
   params.nbyte   = nbyte;
+  params.persev  = persev;
   params.retval  = 0;
   params.errcode = 0;
-  params.no_hang = no_hang;
   if (DoInterruptible(&do_sock_write,(void*)&params,true)) {
     if (params.retval < 0)
       WSASetLastError(params.errcode);
