@@ -78,6 +78,7 @@ install-bin : all force
 	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
 	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
 	if [ ! -d $(lisplibdir) ] ; then mkdir $(lisplibdir) ; fi
+	tar cf - data | (cd $(lisplibdir) && tar xf -)
 	(cd $(lisplibdir) && rm -rf $(linkingsets))
 	tar cf - clisp-link linkkit | (cd $(lisplibdir) && tar xf -)
 	tar cf - $(linkingsets) | (cd $(lisplibdir) && tar xf -)
