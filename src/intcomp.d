@@ -6,7 +6,8 @@
   global signean I_I_comp(x,y)
     var object x;
     var object y;
-    { # Methode:
+    {
+      # Methode:
       # x und y haben verschiedenes Vorzeichen ->
       #    x < 0 -> x < y
       #    x >= 0 -> x > y
@@ -32,72 +33,76 @@
           # x>=0, y>=0
           if (I_fixnump(x))
             # x Fixnum >=0, y>=0
-            if (I_fixnump(y))
-              { # x Fixnum >=0, y Fixnum >=0
-                if (as_oint(x) == as_oint(y)) return signean_null;
-                else if (as_oint(x) > as_oint(y)) return signean_plus;
-                else return signean_minus;
-              }
+            if (I_fixnump(y)) {
+              # x Fixnum >=0, y Fixnum >=0
+              if (as_oint(x) == as_oint(y))
+                return signean_null;
+              else if (as_oint(x) > as_oint(y))
+                return signean_plus;
               else
+                return signean_minus;
+            } else
               # x Fixnum >=0, y Bignum >0
               return signean_minus; # x<y
-            else
+          else
             # x Bignum >0, y>=0
             if (I_fixnump(y))
               # x Bignum >0, y Fixnum >=0
               return signean_plus; # x>y
-              else
+            else
               # x und y Bignums >0
               if (eq(x,y))
                 return signean_null; # gleiche Pointer -> selbe Zahl
+              else {
+                xlen = Bignum_length(x);
+                ylen = Bignum_length(y);
+                if (xlen==ylen)
+                 samelength:
+                  # gleiche Länge -> digitweise vergleichen
+                  return compare_loop_up(&TheBignum(x)->data[0],&TheBignum(y)->data[0],xlen);
                 else
-                { xlen = Bignum_length(x);
-                  ylen = Bignum_length(y);
-                  if (xlen==ylen)
-                    samelength:
-                    # gleiche Länge -> digitweise vergleichen
-                    return compare_loop_up(&TheBignum(x)->data[0],&TheBignum(y)->data[0],xlen);
-                    else
-                    return (xlen > ylen ? signean_plus : signean_minus);
-                }
-          else
+                  return (xlen > ylen ? signean_plus : signean_minus);
+              }
+        else
           # x>=0, y<0
           return signean_plus; # x>y
-        else
+      else
         # x<0
         if (!(R_minusp(y)))
           # x<0, y>=0
           return signean_minus; # x<y
-          else
+        else
           # x<0, y<0
           if (I_fixnump(x))
             # x Fixnum <0, y<0
-            if (I_fixnump(y))
-              { # x Fixnum <0, y Fixnum <0
-                if (as_oint(x) == as_oint(y)) return signean_null;
-                else if (as_oint(x) > as_oint(y)) return signean_plus;
-                else return signean_minus;
-              }
+            if (I_fixnump(y)) {
+              # x Fixnum <0, y Fixnum <0
+              if (as_oint(x) == as_oint(y))
+                return signean_null;
+              else if (as_oint(x) > as_oint(y))
+                return signean_plus;
               else
+                return signean_minus;
+            } else
               # x Fixnum <0, y Bignum <0
               return signean_plus; # x>y
-            else
+          else
             # x Bignum <0, y<0
             if (I_fixnump(y))
               # x Bignum <0, y Fixnum <0
               return signean_minus; # x<y
-              else
+            else
               # x und y Bignums <0
               if (eq(x,y))
                 return signean_null; # gleiche Pointer -> selbe Zahl
+              else {
+                xlen = Bignum_length(x);
+                ylen = Bignum_length(y);
+                if (xlen==ylen)
+                  # gleiche Länge -> wortweise vergleichen
+                  goto samelength; # wie oben
                 else
-                { xlen = Bignum_length(x);
-                  ylen = Bignum_length(y);
-                  if (xlen==ylen)
-                    # gleiche Länge -> wortweise vergleichen
-                    goto samelength; # wie oben
-                    else
-                    return (xlen > ylen ? signean_minus : signean_plus);
-                }
+                  return (xlen > ylen ? signean_minus : signean_plus);
+              }
     }
 
