@@ -9281,6 +9281,33 @@ LISPFUN(open,1,0,norest,key,6,\
                  {var object namestring = string_concat(2); # zusammenhängen
                   # Information holen:
                   var struct stat status;
+                  #if 1 # just an optimization
+                  if (!recursively)
+                    { # Try to avoid calling directory_search_direntry_ok(),
+                      # since it is an expensive operation (it calls stat()).
+                      if (next_task < 0)
+                        {
+                          #ifndef RISCOS
+                          # (car subdir-list) mit direntry matchen:
+                          if (wildcard_match(Car(STACK_(1+4+3)),STACK_0))
+                          #endif
+                            if (directory_search_direntry_ok(namestring,&status))
+                              if (S_ISDIR(status.st_mode))
+                                goto push_matching_subdir;
+                        }
+                      elif (next_task > 0)
+                        {
+                          #ifndef RISCOS
+                          # name&type mit direntry matchen:
+                          if (wildcard_match(STACK_(2+4+3),STACK_0))
+                          #endif
+                            if (directory_search_direntry_ok(namestring,&status))
+                              if (!S_ISDIR(status.st_mode))
+                                goto push_matching_file;
+                        }
+                      goto done_direntry;
+                    }
+                  #endif
                   if (directory_search_direntry_ok(namestring,&status))
                     { # Eintrag existiert und ist nicht unerwünscht.
                       if (S_ISDIR(status.st_mode)) # Ist es ein Directory?
@@ -9304,6 +9331,7 @@ LISPFUN(open,1,0,norest,key,6,\
                               # (car subdir-list) mit direntry matchen:
                               if (wildcard_match(Car(STACK_(1+4+3)),STACK_0))
                               #endif
+                                push_matching_subdir:
                                 # Subdirectory matcht -> zu einem Pathname
                                 # machen und auf new-pathname-list pushen:
                                 { pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname und direntry
@@ -9324,6 +9352,7 @@ LISPFUN(open,1,0,norest,key,6,\
                               # name&type mit direntry matchen:
                               if (wildcard_match(STACK_(2+4+3),STACK_0))
                               #endif
+                                push_matching_file:
                                 # File matcht -> zu einem Pathname machen
                                 # und auf result-list pushen:
                                 {
@@ -9365,6 +9394,7 @@ LISPFUN(open,1,0,norest,key,6,\
                                   skipSTACK(2);
                             }   }
                     }   }
+                  done_direntry:
                   skipSTACK(1); # direntry vergessen
             }}  }}
           begin_system_call();

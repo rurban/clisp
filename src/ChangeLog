@@ -1,3 +1,8 @@
+1999-03-11  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * pathname.d (directory_search_scandir): Avoid calling stat() if
+          the given wildcard mask excludes a given directory entry.
+
 1999-03-10  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Fix a bug: clear-input did not kill the EOF condition in terminal2
