@@ -512,3 +512,11 @@ t
 (progn (delete-file "file.da") t)
 t
 
+(progn
+ (setf (logical-pathname-translations "clocc")
+       '(("**;*" "/usr/local/src/clocc/**/*")))
+ nil)
+nil
+
+(translate-logical-pathname "clocc:src;port;")
+#P"/usr/local/src/clocc/src/port/"
