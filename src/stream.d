@@ -9610,9 +9610,8 @@ local bool clear_input_terminal2 (object stream) {
 #define TERMINAL_LINEBUFFERED  true
 #define TERMINAL_OUTBUFFERED   true
 
-extern_C char *READLINE_FILE_COMPLETE (READLINE_CONST char *, int);
 local bool want_filename_completion;
-local char** lisp_completion_matches (READLINE_CONST char* text, int start, int end) {
+local char** lisp_completion_matches (char* text, int start, int end) {
   # text[0..end-start-1] = the_line[start..end-1]
   if (((start>=2)
        && (rl_line_buffer[start-2]=='#')
@@ -9631,7 +9630,7 @@ local char** lisp_completion_matches (READLINE_CONST char* text, int start, int 
 
 # If the function above returns NULL (no Matches), the following
 # function is called until it returns NULL on its part.
-local char* lisp_completion_more (READLINE_CONST char* text, int state) {
+local char* lisp_completion_more (char* text, int state) {
   if (want_filename_completion)
     return READLINE_FILE_COMPLETE(text,state);
   else
@@ -10020,14 +10019,16 @@ local object make_terminal_stream_ (void) {
      #endif
     #endif
     #ifdef MSDOS
-      if (   ((get_handle_info(stdin_handle) & (bit(7)|bit(0))) == (bit(7)|bit(0))) # stdin == console_input ?
-             && ((get_handle_info(stdout_handle) & (bit(7)|bit(1))) == (bit(7)|bit(1)))) # stdout == console_output ?
+      if (   ((get_handle_info(stdin_handle) & (bit(7)|bit(0)))
+              == (bit(7)|bit(0))) /* stdin == console_input ? */
+          && ((get_handle_info(stdout_handle) & (bit(7)|bit(1)))
+              == (bit(7)|bit(1)))) /* stdout == console_output ? */
         same_tty = true;
     #endif
     #ifdef WIN32_NATIVE
       var DWORD console_mode;
       if (   GetConsoleMode(stdin_handle,&console_mode)
-             && GetConsoleMode(stdout_handle,&console_mode))
+          && GetConsoleMode(stdout_handle,&console_mode))
         same_tty = true;
     #endif
     }
