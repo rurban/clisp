@@ -36,6 +36,9 @@ T
 (and (find-package "SYS") t)
 T
 
+(eq (find-package (find-package "CL")) (find-package "CL"))
+t
+
 ;nicknames
 (find "SYS" (package-nicknames 'sys) :test #'string=)
 "SYS"
