@@ -7631,10 +7631,9 @@ New Operations:
                 ((JMPCASE JMPCASE1-TRUE JMPCASE1-FALSE)
                  (end-ref (second item)) (end-ref (third item)))
                 (JMPHASH (dolist (label (cdddr item)) (end-ref label)))
-                ((JMPIFBOUNDP CATCH-OPEN UNWIND-PROTECT-OPEN
-                  UNWIND-PROTECT-CLOSE)
+                ((CATCH-OPEN UNWIND-PROTECT-OPEN UNWIND-PROTECT-CLOSE)
                  (mid-ref (second item)))
-                ((BLOCK-OPEN JSR) (mid-ref (third item)))
+                ((JMPIFBOUNDP BLOCK-OPEN JSR) (mid-ref (third item)))
                 (JMPTAIL (mid-ref (fourth item)))
                 (TAGBODY-OPEN (dolist (label (cddr item)) (mid-ref label)))
                 (HANDLER-OPEN

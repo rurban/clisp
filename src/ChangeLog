@@ -1,3 +1,9 @@
+2003-12-18  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 842913 ]: Compiler bug involving optional parameters
+	* compiler.lisp (note-references, remove-references):
+	handle JMPIFBOUNDP properly (label is 3rd, not 2nd!)
+
 2003-12-17  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (coalesce): fixed bug [ 842912 ]:

@@ -621,3 +621,17 @@ nil
               (setq a (+ a b)))))
  777595384624 -1510893868)
 777595384624
+
+;;<https://sourceforge.net/tracker/index.php?func=detail&aid=842913&group_id=1355&atid=101355>
+(FUNCALL
+ (COMPILE NIL
+          (LAMBDA (A C)
+            (FLET ((%F10 () 10))
+              (FLET ((%F4 (&OPTIONAL
+                           (F4-1 (SETQ C (%F10)))
+                           (F4-2 (SETQ A 0)))
+                       (+ F4-1 F4-2)
+                       123))
+                (%F4 -5)))))
+ 13 17)
+123
