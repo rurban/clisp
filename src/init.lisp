@@ -366,8 +366,10 @@
    class standard-class structure-class built-in-class
    standard-object structure-object
    generic-function standard-generic-function method standard-method
-   ;; other symbols:
-   standard)) ; method combination
+   ;; method combinations
+   standard method-combination define-method-combination
+   method-combination-error invalid-method-error
+   call-method make-method))
 
 (use-package '("CLOS") "COMMON-LISP")
 (ext:re-export "CLOS" "COMMON-LISP")

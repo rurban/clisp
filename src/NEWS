@@ -13,6 +13,9 @@ User visible changes
   and EXPT on integers.
   See <http://clisp.cons.org/impnotes.html#int-func-ext> for details.
 
+* DEFINE-METHOD-COMBINATION and friends are now implemented.
+  Thanks to James Anderson <james.anderson@setf.de>.
+
 Portability
 -----------
 

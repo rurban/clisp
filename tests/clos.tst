@@ -936,3 +936,68 @@ error
 ((NO-PRIMARY-METHOD nil)
  (NO-PRIMARY-METHOD ((A . B)))
  (NO-PRIMARY-METHOD ((A . B) (C . D))))
+
+
+;;; method combinations
+(progn
+  (defgeneric test-mc-standard (x)
+    (:method ((x string)) (cons 'string (call-next-method)))
+    (:method ((x t)) x))
+  (list (test-mc-standard 1)
+        (test-mc-standard "a")))
+(1 (STRING . "a"))
+
+(progn
+  (defgeneric test-mc-progn (x s)
+    (:method-combination progn)
+    (:method progn ((x string) s) (vector-push-extend 'string s))
+    (:method progn ((x t) s) (vector-push-extend 't s))
+    (:method :around ((x number) s)
+             (vector-push-extend 'number s) (call-next-method)))
+  (list (let ((s (make-array 10 :adjustable t :fill-pointer 0)))
+          (test-mc-progn 1 s)
+          s)
+        (let ((s (make-array 10 :adjustable t :fill-pointer 0)))
+          (test-mc-progn "a" s)
+          s)))
+#+CLISP (#(NUMBER T) #(T STRING))
+#+LWW   (#(NUMBER T) #(STRING T))
+
+(progn
+  (defun positive-integer-qualifier-p (method-qualifiers)
+    (and (= (length method-qualifiers) 1)
+         (typep (first method-qualifiers) '(integer 0 *))))
+  (define-method-combination example-method-combination ()
+    ((method-list positive-integer-qualifier-p))
+    `(progn ,@(mapcar #'(lambda (method) `(call-method ,method))
+                      (stable-sort method-list #'<
+                                   :key #'(lambda (method)
+                                            (first (method-qualifiers
+                                                    method)))))))
+  (defgeneric mc-test-piq (p1 p2 s)
+    (:method-combination example-method-combination)
+    (:method 1 ((p1 t) (p2 t) s) (vector-push-extend (list 1 p1 p2) s))
+    (:method 2 ((p1 t) (p2 t) s) (vector-push-extend (list 2 p1 p2) s))
+    (:method 3 ((p1 t) (p2 t) s) (vector-push-extend (list 3 p1 p2) s)))
+  (let ((s (make-array 10 :adjustable t :fill-pointer 0)))
+    (mc-test-piq 1 2 s)
+    s))
+#((1 1 2) (2 1 2) (3 1 2))
+
+(progn
+  (define-method-combination w-args ()
+    ((method-list *))
+    (:arguments arg1 arg2 &aux (extra :extra))
+    `(progn ,@(mapcar #'(lambda (method) `(call-method ,method)) method-list)))
+  (defgeneric mc-test-w-args (p1 p2 s)
+    (:method-combination w-args)
+    (:method ((p1 number) (p2 t) s)
+      (vector-push-extend (list 'number p1 p2) s))
+    (:method ((p1 string) (p2 t) s)
+      (vector-push-extend (list 'string p1 p2) s))
+    (:method ((p1 t) (p2 t) s) (vector-push-extend (list t p1 p2) s)))
+  (let ((s (make-array 10 :adjustable t :fill-pointer 0)))
+    (mc-test-w-args 1 2 s)
+    s))
+#+CLISP #((T 1 2) (NUMBER 1 2))
+#+LWW   #((NUMBER 1 2) (T 1 2))
