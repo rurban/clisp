@@ -1,459 +1,417 @@
-CLISP SOURCE(1)                                   CLISP SOURCE(1)
+CLISP SOURCE(1)                                                CLISP SOURCE(1)
 
 
 
-AABBOOUUTT
+[1mABOUT[0m
        The source files for CLISP.
 
 
 
-FFIILLEE TTYYPPEESS
-       **..dd    The source files for unpreprocessed C code.
+[1mFILE TYPES[0m
+       [1m*.d    [22mThe source files for unpreprocessed C code.
 
 
-       **..cc    The C code after preprocessing by ansidecl.
+       [1m*.c    [22mThe C code after preprocessing by ansidecl.
 
 
-       **..lliisspp The source files for lisp code.
+       [1m*.lisp [22mThe source files for lisp code.
 
 
-       **..ffaass  Compiled lisp code (platform-independent).
+       [1m*.fas  [22mCompiled lisp code (platform-independent).
 
 
 
-FFIILLEESS
+[1mFILES[0m
        Unpreprocessed C code:
 
 
            Includes:
 
 
-               lliissppbbiibbll..dd     main include file
+               [1mlispbibl.d     [22mmain include file
 
-               ffssuubbrr..dd        list of all built-in special forms
+               [1mfsubr.d        [22mlist of all built-in special forms
 
-               ssuubbrr..dd         list of all built-in functions
+               [1msubr.d         [22mlist of all built-in functions
 
-               ppsseeuuddooffuunn..dd    list of all "pseudo functions"
+               [1mpseudofun.d    [22mlist of all "pseudo functions"
 
-               ccoonnssttppaacckk..dd    list of packages accessed by C code
+               [1mconstpack.d    [22mlist of packages accessed by C code
 
-               ccoonnssttssyymm..dd     list of symbols accessed by C code
+               [1mconstsym.d     [22mlist of symbols accessed by C code
 
-               ccoonnssttoobbjj..dd     list   of   miscellaneous   objects
-                              accessed by C code
+               [1mconstobj.d     [22mlist of miscellaneous objects accessed by C code
 
-               uunniixx..dd         include  file  for unix implementa-
-                              tions
+               [1munix.d         [22minclude file for unix implementations
 
-               aammiiggaa..dd        include file for Amiga/AmigaOS ver-
-                              sion
+               [1mamiga.d        [22minclude file for Amiga/AmigaOS version
 
-               aammiiggaa22..dd       second  include file for Amiga/Ami-
-                              gaOS version
+               [1mamiga2.d       [22msecond include file for Amiga/AmigaOS version
 
-               mmssddooss..dd        include file for  OS/2  based  ver-
-                              sions
+               [1mmsdos.d        [22minclude file for OS/2 based versions
 
-               wwiinn3322..dd        include  file  for Win32 based ver-
-                              sions
+               [1mwin32.d        [22minclude file for Win32 based versions
 
-               xxtthhrreeaadd..dd      include file for thread support
+               [1mxthread.d      [22minclude file for thread support
 
-               ppoossiixxmmaatthh..dd    POSIX math functions
+               [1mposixmath.d    [22mPOSIX math functions
 
-               ppoossiixxmmiisscc..dd    misc POSIX (system information etc)
+               [1mposixmisc.d    [22mmisc POSIX (system information etc)
 
-               mmoodduulleess..hh      list of foreign modules
+               [1mmodules.h      [22mlist of foreign modules
 
-               vveerrssiioonn..hh      version of CLISP
+               [1mversion.h      [22mversion of CLISP
 
 
            Modules:
 
-               ssppvvww..dd         Memory  management (garbage collec-
-                              tion), startup. some OS  interface.
+               [1mspvw.d         [22mMemory management (garbage collection), startup.
+                              some OS interface.
 
-                   aavvll..dd          An implementation of AVL (Adel-
-                                  son-Velskii and Landis)  trees.
+                   [1mavl.d          [22mAn  implementation  of  AVL (Adelson-Velskii
+                                  and Landis) trees.
 
-                   ssoorrtt..dd         A sorting routine.
+                   [1msort.d         [22mA sorting routine.
 
-                   ssuubbrrkkww..dd       list  of all built-in functions
-                                  with keywords
+                   [1msubrkw.d       [22mlist of all built-in functions with keywords
 
-               ssppvvwwttaabbff..dd     Table of built-in special forms and
-                              functions.
+               [1mspvwtabf.d     [22mTable of built-in special forms and functions.
 
-               ssppvvwwttaabbss..dd     Table  of  symbols  accessed  by  C
+               [1mspvwtabs.d     [22mTable of symbols accessed by C code.
+
+               [1mspvwtabo.d     [22mTable  of  miscellaneous  objects  accessed by C
                               code.
 
-               ssppvvwwttaabboo..dd     Table  of   miscellaneous   objects
-                              accessed by C code.
+               [1meval.d         [22mEvaluator (form interpreter) and bytecode inter-
+                              preter.
 
-               eevvaall..dd         Evaluator  (form  interpreter)  and
-                              bytecode interpreter.
+                   [1mbytecode.d     [22mList of bytecodes.
 
-                   bbyytteeccooddee..dd     List of bytecodes.
+               [1mcontrol.d      [22mSpecial forms (form interpreter).
 
-               ccoonnttrrooll..dd      Special forms (form interpreter).
+               [1mpathname.d     [22mPathnames,  file-  and  directory-related  func-
+                              tions.
 
-               ppaatthhnnaammee..dd     Pathnames,  file-  and   directory-
-                              related functions.
+               [1mstream.d       [22mStreams of all  kinds:  file  streams,  terminal
+                              stream, string streams etc.
 
-               ssttrreeaamm..dd       Streams of all kinds: file streams,
-                              terminal  stream,  string   streams
-                              etc.
+               [1msocket.d       [22mOpening sockets for TCP/IP and CLX.
 
-               ssoocckkeett..dd       Opening sockets for TCP/IP and CLX.
+               [1mio.d           [22mThe  lisp  reader  (parser)  and  printer  (also
+                              pretty printer).
 
-               iioo..dd           The  lisp   reader   (parser)   and
-                              printer (also pretty printer).
+               [1marray.d        [22mFunctions dealing with arrays and vectors.
 
-               aarrrraayy..dd        Functions  dealing  with arrays and
-                              vectors.
+               [1mhashtabl.d     [22mFunctions dealing with hash tables.
 
-               hhaasshhttaabbll..dd     Functions dealing with hash tables.
+               [1mlist.d         [22mFunctions dealing with lists.
 
-               lliisstt..dd         Functions dealing with lists.
+               [1mpackage.d      [22mFunctions dealing with packages.
 
-               ppaacckkaaggee..dd      Functions dealing with packages.
+               [1mrecord.d       [22mFunctions dealing with records (structures, clo-
+                              sures, etc.)
 
-               rreeccoorrdd..dd       Functions   dealing   with  records
-                              (structures, closures, etc.)
+               [1msequence.d     [22mThe generic sequence functions.
 
-               sseeqquueennccee..dd     The generic sequence functions.
+               [1mcharstrg.d     [22mFunctions dealing with characters and strings.
 
-               cchhaarrssttrrgg..dd     Functions dealing  with  characters
-                              and strings.
+               [1mdebug.d        [22mSupport  for  debugging  and the read-eval-print
+                              loop.
 
-               ddeebbuugg..dd        Support for debugging and the read-
-                              eval-print loop.
+               [1merror.d        [22mError handling and signalling.
 
-               eerrrroorr..dd        Error handling and signalling.
+                   [1merramiga.d     [22mAMIGAOS specific error messages.
 
-                   eerrrraammiiggaa..dd     AMIGAOS  specific  error   mes-
-                                  sages.
+                   [1merrunix.d      [22mUnix specific error messages.
 
-                   eerrrruunniixx..dd      Unix specific error messages.
+                   [1merrwin32.d     [22mWin32 specific error messages.
 
-                   eerrrrwwiinn3322..dd     Win32  specific error messages.
+               [1mmisc.d         [22mMiscellaneous functions.
 
-               mmiisscc..dd         Miscellaneous functions.
+               [1mtime.d         [22mTiming functions.
 
-               ttiimmee..dd         Timing functions.
+               [1mpredtype.d     [22mPredicates, type tests.
 
-               pprreeddttyyppee..dd     Predicates, type tests.
+               [1msymbol.d       [22mFunctions dealing with symbols.
 
-               ssyymmbbooll..dd       Functions dealing with symbols.
+               [1munixaux.d      [22mAuxiliary functions (UNIX version only).
 
-               uunniixxaauuxx..dd      Auxiliary functions  (UNIX  version
-                              only).
+               [1mwin32aux.d     [22mAuxiliary functions (Win32 version only).
 
-               wwiinn3322aauuxx..dd     Auxiliary  functions (Win32 version
-                              only).
+               [1mamigaaux.d     [22mAuxiliary functions (Amiga version only).
 
-               aammiiggaaaauuxx..dd     Auxiliary functions (Amiga  version
-                              only).
+               [1macornaux.d     [22mAuxiliary functions (Acorn/RiscOS version only).
 
-               aaccoorrnnaauuxx..dd     Auxiliary  functions  (Acorn/RiscOS
-                              version only).
+               [1mrexx.d         [22mLow-level Rexx interface (Amiga version only).
 
-               rreexxxx..dd         Low-level  Rexx  interface   (Amiga
-                              version only).
+               [1mgraph.d        [22mLow-level graphics functions.
 
-               ggrraapphh..dd        Low-level graphics functions.
+               [1mforeign.d      [22mForeign function interface support.
 
-               ffoorreeiiggnn..dd      Foreign function interface support.
+               [1mlisparit.d     [22mFunctions dealing with numbers (arithmetic), see
+                              below.
 
-               lliissppaarriitt..dd     Functions  dealing   with   numbers
-                              (arithmetic), see below.
-
-               nnoorreeaaddlliinnee..dd   Replacement    for   GNU   readline
-                              library.
+               [1mnoreadline.d   [22mReplacement for GNU readline library.
 
 
            Number system (arithmetic):
 
-               lliissppaarriitt..dd     initialization,   input/output   of
-                              numbers, lisp functions
+               [1mlisparit.d     [22minitialization, input/output  of  numbers,  lisp
+                              functions
 
-               aarriiddeeccll..dd      declarations
+               [1maridecl.d      [22mdeclarations
 
-               aarriilleevv00..dd      arithmetic at the machine level
+               [1marilev0.d      [22marithmetic at the machine level
 
-               aarriilleevv11..dd      digit sequences
+               [1marilev1.d      [22mdigit sequences
 
-               aarriilleevv11cc..dd     operations   on   digit  sequences,
-                              written in C
+               [1marilev1c.d     [22moperations on digit sequences, written in C
 
-               aarriilleevv11ii..dd     operations on digit  sequences,  as
-                              inline functions
+               [1marilev1i.d     [22moperations  on  digit sequences, as inline func-
+                              tions
 
-               aarriilleevv11ee..dd     operations   on   digit  sequences,
-                              bindings to external routines
+               [1marilev1e.d     [22moperations  on  digit  sequences,  bindings   to
+                              external routines
 
-               iinntteelleemm..dd      integers: elementary operations
+               [1mintelem.d      [22mintegers: elementary operations
 
-               iinnttlloogg..dd       integers: logical connectives
+               [1mintlog.d       [22mintegers: logical connectives
 
-               iinnttpplluuss..dd      integers: addition and subtraction
+               [1mintplus.d      [22mintegers: addition and subtraction
 
-               iinnttccoommpp..dd      integers: comparison
+               [1mintcomp.d      [22mintegers: comparison
 
-               iinnttbbyyttee..dd      integers:  byte   operations   _l_d_b,
-                              _l_o_a_d_-_b_y_t_e, ...
+               [1mintbyte.d      [22mintegers: byte operations [4mldb[24m, [4mload-byte[24m, ...
 
-               iinnttmmaall..dd       integers: multiplication
+               [1mintmal.d       [22mintegers: multiplication
 
-               iinnttddiivv..dd       integers: division
+               [1mintdiv.d       [22mintegers: division
 
-               iinnttggccdd..dd       integers: gcd and lcm
+               [1mintgcd.d       [22mintegers: gcd and lcm
 
-               iinntt22aaddiicc..dd     integers:   operations   on  2-adic
-                              integers
+               [1mint2adic.d     [22mintegers: operations on 2-adic integers
 
-               iinnttssqqrrtt..dd      integers: square root, n-th root
+               [1mintsqrt.d      [22mintegers: square root, n-th root
 
-               iinnttpprriinntt..dd     subroutines for integer output
+               [1mintprint.d     [22msubroutines for integer output
 
-               iinnttrreeaadd..dd      subroutines for integer input
+               [1mintread.d      [22msubroutines for integer input
 
-               rraattiioonnaall..dd     rational numbers
+               [1mrational.d     [22mrational numbers
 
-               ssffllooaatt..dd       elementary  operations  for   short
-                              floats
+               [1msfloat.d       [22melementary operations for short floats
 
-               ffffllooaatt..dd       elementary  operations  for  single
-                              floats
+               [1mffloat.d       [22melementary operations for single floats
 
-               ddffllooaatt..dd       elementary  operations  for  double
-                              floats
+               [1mdfloat.d       [22melementary operations for double floats
 
-               llffllooaatt..dd       elementary   operations   for  long
-                              floats
+               [1mlfloat.d       [22melementary operations for long floats
 
-               fflloo__kkoonnvv..dd     conversions between floats
+               [1mflo_konv.d     [22mconversions between floats
 
-               fflloo__rreesstt..dd     general float operations
+               [1mflo_rest.d     [22mgeneral float operations
 
-               rreeaalleelleemm..dd     elementary functions for real  num-
-                              bers
+               [1mrealelem.d     [22melementary functions for real numbers
 
-               rreeaallrraanndd..dd     random numbers
+               [1mrealrand.d     [22mrandom numbers
 
-               rreeaallttrraann..dd     transcendental  functions  for real
-                              numbers
+               [1mrealtran.d     [22mtranscendental functions for real numbers
 
-               ccoommppeelleemm..dd     elementary  functions  for  complex
-                              numbers
+               [1mcompelem.d     [22melementary functions for complex numbers
 
-               ccoommppttrraann..dd     transcendental  functions  for com-
-                              plex numbers
+               [1mcomptran.d     [22mtranscendental functions for complex numbers
 
 
-           External routines for the arithmetic  system,  written
-           in assembly language:
+           External  routines  for  the arithmetic system, written in assembly
+           language:
 
-               aarrii6688000000..dd          written  in  68000  assembler,
-                                   MIT syntax
+               [1mari68000.d          [22mwritten in 68000 assembler, MIT syntax
 
-               aarrii6688002200..dd          written  in  68020  assembler,
-                                   MIT syntax
+               [1mari68020.d          [22mwritten in 68020 assembler, MIT syntax
 
-               aarriissppaarrcc..dd          written in SPARC assembler
+               [1marisparc.d          [22mwritten in SPARC assembler
 
-               aarriissppaarrcc6644..dd        written in 64-bit SPARC assem-
-                                   bler
+               [1marisparc64.d        [22mwritten in 64-bit SPARC assembler
 
-               aarrii8800338866..dd          written in i386/i486 assembler
+               [1mari80386.d          [22mwritten in i386/i486 assembler
 
-               aarriimmiippss..dd           written in MIPS assembler
+               [1marimips.d           [22mwritten in MIPS assembler
 
-               aarriimmiippss6644..dd         written in 64-bit MIPS  assem-
-                                   bler
+               [1marimips64.d         [22mwritten in 64-bit MIPS assembler
 
-               aarriihhppppaa..dd           written in HPPA-1.0 assembler
+               [1marihppa.d           [22mwritten in HPPA-1.0 assembler
 
-               aarriivvaaxxuunniixx..dd        written in VAX assembler, Unix
-                                   assembler syntax
+               [1marivaxunix.d        [22mwritten  in  VAX  assembler, Unix assembler
+                                   syntax
 
-               aarriiaarrmm..dd            written in ARM assembler
+               [1mariarm.d            [22mwritten in ARM assembler
 
 
-           External routines for accessing the stack, written  in
-           assembly language:
+           External routines for accessing the stack, written in assembly lan-
+           guage:
 
-               sspp6688000000..dd           written  in  68000  assembler,
-                                   MIT syntax
+               [1msp68000.d           [22mwritten in 68000 assembler, MIT syntax
 
-               ssppssppaarrcc..dd           written in SPARC assembler
+               [1mspsparc.d           [22mwritten in SPARC assembler
 
-               ssppssppaarrcc6644..dd         written in 64-bit SPARC assem-
-                                   bler
+               [1mspsparc64.d         [22mwritten in 64-bit SPARC assembler
 
-               sspp8800338866..dd           written in i386/i486 assembler
+               [1msp80386.d           [22mwritten in i386/i486 assembler
 
-               ssppmmiippss..dd            written in MIPS assembler
+               [1mspmips.d            [22mwritten in MIPS assembler
 
 
 
        Other assembly language stuff:
 
-           aassmmii338866..sshh
-                  converts  i386  assembler  from MIT syntax to a
-                  macro syntax
+           [1masmi386.sh[0m
+                  converts i386 assembler from MIT syntax to a macro syntax
 
-           aassmmii338866..hhhh
-                  expands  i386  assembler  in  macro  syntax  to
-                  either MIT or Intel syntax
+           [1masmi386.hh[0m
+                  expands i386 assembler in macro  syntax  to  either  MIT  or
+                  Intel syntax
 
 
        Lisp source files:
 
 
-           iinniitt..lliisspp
+           [1minit.lisp[0m
                   first file to be loaded, loads everything else
 
-           ddeeffsseeqq..lliisspp
-                  defines   the  usual  sequence  types  for  the
-                  generic sequence functions
+           [1mdefseq.lisp[0m
+                  defines  the  usual  sequence types for the generic sequence
+                  functions
 
-           bbaacckkqquuoottee..lliisspp
+           [1mbackquote.lisp[0m
                   implements the backquote read macro
 
-           ddeeffmmaaccrroo..lliisspp
-                  implements _d_e_f_m_a_c_r_o
+           [1mdefmacro.lisp[0m
+                  implements [4mdefmacro[0m
 
-           mmaaccrrooss11..lliisspp
+           [1mmacros1.lisp[0m
                   the most important macros
 
-           mmaaccrrooss22..lliisspp
+           [1mmacros2.lisp[0m
                   some other macros
 
-           ddeeffss11..lliisspp
+           [1mdefs1.lisp[0m
                   miscellaneous definitions
 
-           ttiimmeezzoonnee..lliisspp
-                  site-dependent definition of time zone,  except
-                  for Unix
+           [1mtimezone.lisp[0m
+                  site-dependent definition of time zone, except for Unix
 
-           ppllaacceess..lliisspp
+           [1mplaces.lisp[0m
                   macros using places, definitions of most places
 
-           ffllooaattpprriinntt..lliisspp
+           [1mfloatprint.lisp[0m
                   printing floating point numbers in base 10
 
-           ttyyppee..lliisspp
-                  functions working with type specifiers:  _t_y_p_e_p,
-                  _s_u_b_t_y_p_e_p
+           [1mtype.lisp[0m
+                  functions working with type specifiers: [4mtypep[24m, [4msubtypep[0m
 
-           ddeeffssttrruucctt..lliisspp
-                  implements the _d_e_f_s_t_r_u_c_t macro
+           [1mdefstruct.lisp[0m
+                  implements the [4mdefstruct[24m macro
 
-           ffoorrmmaatt..lliisspp
-                  implements _f_o_r_m_a_t
+           [1mformat.lisp[0m
+                  implements [4mformat[0m
 
-           uusseerr11..lliisspp
+           [1muser1.lisp[0m
                   user interface, from the system's point of view
 
-           uusseerr22..lliisspp
+           [1muser2.lisp[0m
                   user interface, from the user's point of view
 
-           ttrraaccee..lliisspp
+           [1mtrace.lisp[0m
                   tracer
 
-           mmaaccrrooss33..lliisspp
-                  (optional) the macros _l_e_t_f, _l_e_t_f_* and _e_t_h_e.
+           [1mmacros3.lisp[0m
+                  (optional) the macros [4mletf[24m, [4mletf*[24m and [4methe[24m.
 
-           ccoonnffiigg..lliisspp
-                  (user  written)  site-dependent  configuration,
-                  may be a link to one of the following:
+           [1mconfig.lisp[0m
+                  (user written) site-dependent configuration, may be  a  link
+                  to one of the following:
 
-                  ccffggssuunnuuxx..lliisspp  for Unix, using SunOS
+                  [1mcfgsunux.lisp  [22mfor Unix, using SunOS
 
-                  ccffgguunniixx..lliisspp   for any other Unix
+                  [1mcfgunix.lisp   [22mfor any other Unix
 
-                  ccffggaammiiggaa..lliisspp  for Amiga
+                  [1mcfgamiga.lisp  [22mfor Amiga
 
-                  ccffggddooss..lliisspp    for OS/2 version
+                  [1mcfgdos.lisp    [22mfor OS/2 version
 
-                  ccffggwwiinn3322..lliisspp  for WinNT/Win95 version
+                  [1mcfgwin32.lisp  [22mfor WinNT/Win95 version
 
-                  ccffggaaccoorrnn..lliisspp  for Acorn, using RiscOS
+                  [1mcfgacorn.lisp  [22mfor Acorn, using RiscOS
 
-           ccoommppiilleerr..lliisspp
+           [1mcompiler.lisp[0m
                   compiles lisp code to bytecode
 
-           ddiissaasssseemm..lliisspp
+           [1mdisassem.lisp[0m
                   disassembles machine code
 
-           ddeeffss22..lliisspp
+           [1mdefs2.lisp[0m
                   miscellaneous CLtL2 compatible definitions
 
-           lloooopp..lliisspp
+           [1mloop.lisp[0m
                   implements a CLtL2/dpANS compatible LOOP macro
 
-           ccllooss..lliisspp
-                  implements  a  subset of the Common Lisp Object
-                  System
+           [1mclos.lisp[0m
+                  implements a subset of the Common Lisp Object System
 
-           ccoonnddiittiioonn..lliisspp
+           [1mcondition.lisp[0m
                   implements the Common Lisp Condition System
 
-           ddeeffss33..lliisspp
+           [1mdefs3.lisp[0m
                   more CLtL2 compatible definitions
 
-           ggssttrreeaamm..lliisspp
+           [1mgstream.lisp[0m
                   generic stream default methods
 
-           ffoorreeiiggnn11..lliisspp
+           [1mforeign1.lisp[0m
                   foreign language interface
 
-           ssccrreeeenn..lliisspp
+           [1mscreen.lisp[0m
                   the screen access package
 
-           rreexxxx11..lliisspp
+           [1mrexx1.lisp[0m
                   for Amiga, an interface to Rexx
 
-           eeddiitt..lliisspp
+           [1medit.lisp[0m
                   (optional) the screen editor
 
-           ppoossiixx..lliisspp
+           [1mposix.lisp[0m
                   export POSIX calls
 
-           tthhrreeaaddss..lliisspp
+           [1mthreads.lisp[0m
                   MT interface
 
-           ssppaanniisshh..lliisspp, ggeerrmmaann..lliisspp, ffrreenncchh..lliisspp,  rruussssiiaann..lliisspp,
-           dduuttcchh..lliisspp
+           [1mspanish.lisp[22m, [1mgerman.lisp[22m, [1mfrench.lisp[22m, [1mrussian.lisp[22m, [1mdutch.lisp[0m
                   i18n user messages
 
 
        Documentation:
 
 
-           FFIILLEESS  lists the source files
+           [1mFILES  [22mlists the source files
 
-           FFIILLEESS..11
-                  nroff master for _F_I_L_E_S
+           [1mFILES.1[0m
+                  nroff master for [4mFILES[0m
 
-           NNEEWWSS   lists the user visible changes
+           [1mNEWS   [22mlists the user visible changes
 
-           __RREEAADDMMEE
+           [1m_README[0m
                   master for the distribution's README
 
-           __RREEAADDMMEE..eenn, __RREEAADDMMEE..ddee, __RREEAADDMMEE..eess
-                  translations of ___R_E_A_D_M_E
+           [1m_README.en[22m, [1m_README.de[22m, [1m_README.es[0m
+                  translations of [4m_README[0m
 
-           __cclliisspp..11
+           [1m_clisp.1[0m
                   master for the distribution's manual page
 
-           __cclliisspp..hhttmmll
-                  master for the distribution's  manual  page  in
-                  HTML format
+           [1m_clisp.html[0m
+                  master for the distribution's manual page in HTML format
 
-           iimmppnnootteess..hhttmmll
+           [1mimpnotes.html[0m
                   the implementation notes
 
 
@@ -461,60 +419,57 @@ FFIILLEESS
        Internationalization:
 
 
-           ppoo//**..ppoott
-                  list    of   translatable   messages
-                  ("portable object template")
+           [1mpo/*.pot[0m
+                  list  of  translatable messages ("portable object
+                  template")
 
-           ppoo//**..ppoo
-                  translated    messages    ("portable
+           [1mpo/*.po[0m
+                  translated messages ("portable objects")
+
+           [1mpo/*.gmo[0m
+                  translated   messages   ("GNU   format    message
                   objects")
-
-           ppoo//**..ggmmoo
-                  translated   messages  ("GNU  format
-                  message objects")
 
 
        Automatic configuration on Unix:
 
 
-           ccoonnffiigguurree..iinn
+           [1mconfigure.in[0m
                   lists the features to be checked
 
-           aauuttooccoonnff//aauuttooccoonnff..mm44
-                  _a_u_t_o_c_o_n_f's driver macros.   Part  of
-                  GNU autoconf-2.13
+           [1mautoconf/autoconf.m4[0m
+                  [4mautoconf[24m's  driver  macros.   Part  of  GNU auto-
+                  conf-2.53
 
-           aauuttooccoonnff//aaccllooccaall..mm44
-                  a  repertoire of features.  Use with
-                  GNU autoconf-2.13
+           [1mm4/*.m4[0m
+                  a repertoire of features.   Use  with  GNU  auto-
+                  conf-2.53
 
-           ccoonnffiigguurree
-                  configuration  script,  checks   for
-                  dozens of features
+           [1mconfigure[0m
+                  configuration  script,  checks for dozens of fea-
+                  tures
 
-           iinnttppaarraamm..dd
-                  figures  out some machine parameters
-                  (word size, endianness etc.)
+           [1mintparam.c[0m
+                  figures out some machine parameters  (word  size,
+                  endianness etc.)
 
-           iinnttppaarraamm..cc
-                  preprocessed version of _i_n_t_p_a_r_a_m_._d
+           [1mfloatparam.c[0m
+                  figures   out  some  floating  point  arithmetics
+                  parameters (rounding, epsilons etc.)
 
-           uunniixxccoonnff..hh..iinn
-                  header file master. unixconf.h  con-
-                  tains  the  values  of  the features
-                  found out by configure.
+           [1munixconf.h.in[0m
+                  header file master. unixconf.h contains the  val-
+                  ues of the features found out by configure.
 
-           mmaakkeemmaakkee..iinn
+           [1mmakemake.in[0m
                   makefile construction script master
 
-           __cclliisspp..cc
-                  master for the distribution's driver
-                  program
+           [1m_clisp.c[0m
+                  master for the distribution's driver program
 
-           __ddiissttmmaakkeeffiillee
-                  master  for the distribution's Make-
-                  file
+           [1m_distmakefile[0m
+                  master for the distribution's Makefile
 
 
 
-                            2002-08-28            CLISP SOURCE(1)
+                                  2002-08-28                   CLISP SOURCE(1)
