@@ -40,7 +40,7 @@
           # Das kann - entgegen der Dokumentation - scheitern!
           if (/* (lines > 0) && */ (columns > 0)) goto OK;
           #endif
-          #ifndef WATCOM
+          #if !(defined(NO_TERMCAP_NCURSES) || defined(WATCOM))
           # Nun probieren wir's über termcap:
           { var const char* term_name = getenv("TERM");
             if (term_name==NULL) { term_name = "unknown"; }

@@ -6,6 +6,8 @@
 # Flags intended to be set through CFLAGS:
 #   Readline library:
 #     NO_READLINE
+#   Termcap/ncurses library:
+#     NO_TERMCAP_NCURSES
 #   Internationalization:
 #     NO_GETTEXT, UNICODE
 #   Foreign function interface:
@@ -1819,7 +1821,7 @@
 
 # Ob ein Stream *KEYBOARD-INPUT* gebildet wird,
 # und ob er für den Stream *TERMINAL-IO* verwendet wird:
-  #if defined(MSDOS) || (defined(UNIX) && !defined(NEXTAPP) || defined(MAYBE_NEXTAPP)) || defined(RISCOS) || defined(WIN32_NATIVE)
+  #if defined(MSDOS) || ((defined(UNIX) && !defined(NEXTAPP) || defined(MAYBE_NEXTAPP)) && !defined(NO_TERMCAP_NCURSES)) || defined(RISCOS) || defined(WIN32_NATIVE)
     #define KEYBOARD
     #if 0
       #define TERMINAL_USES_KEYBOARD
@@ -1836,7 +1838,7 @@
 # Bei Erweiterung: READLINE erweitern.
 
 # Ob es Window-Streams und eine Package SCREEN gibt:
-  #if defined(MSDOS) || (defined(UNIX) && !defined(NEXTAPP) || defined(MAYBE_NEXTAPP))
+  #if defined(MSDOS) || ((defined(UNIX) && !defined(NEXTAPP) || defined(MAYBE_NEXTAPP)) && !defined(NO_TERMCAP_NCURSES))
     #define SCREEN
   #endif
 # Bei Erweiterung: STREAM erweitern (viel Arbeit!).
