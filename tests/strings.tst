@@ -1151,6 +1151,12 @@ error
   (string-upcase d :start 2 :end 4))
 "deFGh"
 
+(let* ((s "abcdefgh")
+       (d (make-array 5 :displaced-to s :displaced-index-offset 3
+                      :element-type 'character)))
+  (and (eq (nstring-upcase d :start 2 :end 4) d) d))
+"deFGh"
+
 #+CLISP
 (let* ((s (format nil "A~CB" (code-char 0)))
        (d (make-array 2 :displaced-to s :displaced-index-offset 1
