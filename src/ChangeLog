@@ -1,5 +1,10 @@
 2001-05-01  Sam Steingold  <sds@gnu.org>
 
+	* format.lisp: pass width to ~a when a non-number is
+	given to a numeric format instruction
+
+2001-05-01  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (main): added "-t" ("traditional") command line
 	option to override "-a" ("maximum ANSI")
 
