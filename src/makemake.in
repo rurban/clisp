@@ -1208,7 +1208,7 @@ else
   XCL_FFILIBS=''
 fi
 
-if [ -n "${with_dynamic_modules-yes}" ]; then
+if [ -n "${with_dynamic_modules}" ]; then
   XCFLAGS="$XCFLAGS -DDYNAMIC_MODULES"
 fi
 
