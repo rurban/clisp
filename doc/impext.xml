@@ -2060,7 +2060,7 @@ precludes some efficiency optimizations which are on by default.</para></note>
 
 <section id="module-tools"><title>Module tools</title>
 
-<para>There some tools to facilitate easy module writing.</para>
+<para>There are some tools to facilitate easy module writing.</para>
 
 <section id="modprep"><title>Modprep</title>
 <para>If your module is written in &c-lang;, you can pre-process your
@@ -2079,8 +2079,13 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
  T)</literal> will return <literal role="sexp">(A 12 T 0
  MY-PACKAGE::SOME-SYMBOL #(:THIS :IS :A :VECTOR)
  #'MY-PACKAGE::MY-FUNCTION-NAME)</literal>.</para>
+<para>Another useful macro is <function>DEFVAR</function> which lets
+ you create a GC-visible object.</para>
 <para>See <filename>modules/syscalls</filename> and other included
- modules for more examples.</para>
+ modules for more examples and file <filename>modprep.lisp</filename>
+ for full documentation.</para>
+<warning><para>If you manipulate Lisp objects, you need to watch for
+  <link linkend="gc-safety">GC-safety</link>.</para></warning>
 </section>
 
 <section id="exporting"><title>Exporting</title>
