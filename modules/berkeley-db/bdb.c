@@ -17,20 +17,22 @@
 # define UNIX_CYGWIN32
 #endif
 
-#define WIN32_LEAN_AND_MEAN  /* avoid including junk */
-#if defined(UNIX_CYGWIN32) || defined(__MINGW32__)
+#if defined(_WIN32) || defined(UNIX_CYGWIN32)
+# define WIN32_LEAN_AND_MEAN  /* avoid including junk */
+# if defined(UNIX_CYGWIN32) || defined(__MINGW32__)
 /* `unused' is used in function declarations. */
-# undef unused
-# define ULONGLONG OS_ULONGLONG
-# define ULONG OS_ULONG
-# include <windows.h>
-# undef ULONG
-# undef ULONGLONG
-# define unused (void)
-#else
-# undef unused
-# include <windows.h>
-# define unused
+#  undef unused
+#  define ULONGLONG OS_ULONGLONG
+#  define ULONG OS_ULONG
+#  include <windows.h>
+#  undef ULONG
+#  undef ULONGLONG
+#  define unused (void)
+# else
+#  undef unused
+#  include <windows.h>
+#  define unused
+# endif
 #endif
 
 #include <string.h>             /* for memset() */
