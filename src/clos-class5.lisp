@@ -152,7 +152,7 @@
 
 ;;; collect all keywords from a list of applicable methods
 (defun valid-initarg-keywords (class methods)
-  (let ((signatures (mapcar #'std-method-signature methods)))
+  (let ((signatures (mapcar #'method-signature methods)))
     ;; "A method that has &rest but not &key does not affect the set of
     ;;  acceptable keyword srguments."
     (setq signatures (delete-if-not #'sig-keys-p signatures))

@@ -64,18 +64,18 @@
 (initialize-extended-method-check #'method-lambda-list)
 
 ;; Not in MOP.
-(fmakunbound 'method-signature)
-(defgeneric method-signature (method)
-  (:method ((method method))
-    (let ((lambda-list (method-lambda-list method)))
-      (method-lambda-list-to-signature lambda-list
-        #'(lambda (detail errorstring &rest arguments)
-            (declare (ignore detail))
-            (error (TEXT "Invalid ~S result for ~S: ~:S: ~A")
-                   'method-lambda-list method lambda-list
-                   (apply #'format nil errorstring arguments))))))
-  (:method ((method standard-method))
-    (std-method-signature method)))
+(let ((*allow-making-generic* t))
+  (defgeneric method-signature (method)
+    (:method ((method method))
+      (let ((lambda-list (method-lambda-list method)))
+        (method-lambda-list-to-signature lambda-list
+          #'(lambda (detail errorstring &rest arguments)
+              (declare (ignore detail))
+              (error (TEXT "Invalid ~S result for ~S: ~:S: ~A")
+                     'method-lambda-list method lambda-list
+                     (apply #'format nil errorstring arguments))))))
+    (:method ((method standard-method))
+      (std-method-signature method))))
 
 ;; MOP p. 82
 (let ((*allow-making-generic* t))
@@ -94,7 +94,7 @@
 
 (defgeneric function-keywords (method)
   (:method ((method standard-method))
-    (let ((sig (std-method-signature method)))
+    (let ((sig (method-signature method)))
       (values (sig-keywords sig) (sig-allow-p sig)))))
 
 ;; MOP p. 82-83
