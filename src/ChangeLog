@@ -1,3 +1,10 @@
+2000-03-21  Sam Steingold  <sds@gnu.org>
+
+	* inspect.lsp: use a vector instead of a hash for inspected
+	objects.
+	* clhs.lsp (*browsers*): support more browsers
+	* makemake.in: fixed installation of clhs.txt
+
 2000-03-20  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/Makefile.in:

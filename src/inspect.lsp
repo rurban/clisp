@@ -7,7 +7,7 @@
 ;;;
 ;;; utilities from cllib
 ;;;
- 
+
 (in-package "SYSTEM")
 
 ;(export '(inspect *inspect-frontend* *inspect-print-lines*
@@ -18,13 +18,13 @@
 Inspired by Paul Graham, <On Lisp>, p. 145."
   `(let (,@(mapcar (lambda (sy) `(,sy (gensym ,(car syms)))) (cdr syms)))
     ,@body))
- 
+
 (defun current-time (&optional (out t))
   "Print the current time to the stream (defaults to T)."
   (multiple-value-bind (se mi ho da mo ye) (get-decoded-time)
     (format out "~4d-~2,'0d-~2,'0d ~2,'0d:~2,'0d:~2,'0d"
             ye mo da ho mi se)))
- 
+
 (defmacro string-beg-with (beg strv &optional (lenv `(length ,strv)))
   "Check whether the string STRV starts with BEG."
   (if (stringp beg)
@@ -36,7 +36,7 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
 
 ;; The characters which must be replaced before putting a string into HTML
 (defvar *html-chars* '((#\< . "&lt;") (#\> . "&gt;") (#\& . "&amp;")))
- 
+
 (clos:defclass html-stream-out (fundamental-character-output-stream)
   ((target-stream :initarg :stream :type stream)))
 (clos:defmethod stream-write-char ((stream html-stream-out) ch)
@@ -51,7 +51,7 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
   (clos:with-slots (target-stream) stream (force-output target-stream)))
 (clos:defmethod stream-clear-output ((stream html-stream-out))
   (clos:with-slots (target-stream) stream (clear-output target-stream)))
- 
+
 (defmacro with-html-output ((var stream
                              &key (doctype ''(html public
                                               "-//W3C//DTD HTML 3.2//EN"))
@@ -101,20 +101,20 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
                            (princ ,mail ,var)))
                        (with-tagl (:strong) (current-time ,var)))))))
           (when ,raw (close ,raw)))))))
- 
+
 ;;;
 ;;; options
 ;;;
 
 (defvar *inspect-frontend* :tty) ; the default frontend
+(defvar *inspect-browser* :netscape) ; the default browser
 (defvar *inspect-print-lines* 5) ; default for `*print-lines*'
 (defvar *inspect-print-level* 5) ; default for `*print-level*'
 (defvar *inspect-print-length* 10) ; default for `*print-length*'
 (defvar *inspect-length* 5)     ; the number of sequence elements to print
 
-(defvar *inspect-count*) ; the number of `inspection' objects in this session
 ;; all `inspection' objects in this session
-(defparameter *inspect-hash* (make-hash-table))
+(defparameter *inspect-all* (make-array 10 :fill-pointer 0 :adjustable t))
 (defparameter *inspect-debug* 0) ; debug level
 
 ;;;
@@ -122,30 +122,41 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
 ;;;
 
 (defstruct (inspection (:conc-name insp-))
-  self
-  (id (incf *inspect-count*) :type fixnum)
-  (title "" :type string)
-  (blurb nil :type list)
-  (up nil :type (or null inspection))
-  (num-slots 0 :type fixnum)
+  self                          ; the object being inspected
+  (id (fill-pointer *inspect-all*) :type fixnum) ; unique in a session
+  (title "" :type string)       ; the short description of the object
+  (blurb nil :type list)        ; list of strings with general information
+  (up nil :type (or null inspection)) ; parent
+  (num-slots 0 :type fixnum)    ; the number of slots
   (pos nil :type (or null fixnum)) ; pos in parent
   (nth-slot nil :type (or null (function (integer) (t t)))) ; value & name
-  (set-slot nil :type (or null (function (integer t) t))))
+  (set-slot nil :type (or null (function (integer t) t)))) ; set Nth slot
 
-(defun insp-last-slot (insp) (1- (insp-num-slots insp)))
-(defun insp-left-p (insp)
-  (let ((pos (insp-pos insp))) (and pos (< 0 pos))))
-(defun insp-right-p (insp)
+(defun insp-check (insp)
+  ;; this should always be okay
+  (let ((up (insp-up insp)) (pos (insp-pos insp)) (id (insp-id insp)))
+    (assert (eq insp (aref *inspect-all* id)) (insp)
+            "~s: ~s is corrupted (~d->~d):~%~s~%~s~%"
+            'get-insp '*inspect-all* id (insp-id (aref *inspect-all* id))
+            insp (aref *inspect-all* id))
+    (when up
+      (assert (< -1 pos (insp-num-slots up)) (insp)
+              "~s: pos out of range: ~d ~d" 'insp-check pos
+              (insp-num-slots up))
+      (unless (eq (funcall (insp-nth-slot up) pos) (insp-self insp))
+        (warn "~s: slot ~d of the ~s has changed:~%~s~%"
+              'insp-check pos (insp-self up) up)))))
+
+(defun insp-last-slot (insp)
+  (1- (insp-num-slots insp)))
+(defun insp-num-slots-print (insp)
+  (min (insp-last-slot insp) *inspect-length*))
+(defun insp-left-p (insp) ; check for the presence of a left neighbor
+  (let ((pos (insp-pos insp)) (up (insp-up insp)))
+    (and pos up (< 0 pos))))
+(defun insp-right-p (insp) ; check for the presence of a right neighbor
   (let ((pos (insp-pos insp)) (up (insp-up insp)))
     (and pos up (< pos (insp-last-slot up)))))
-
-(clos:defmethod clos::print-object ((insp inspection) (out stream))
-  (if *print-readably* (clos::call-next-method)
-      (handler-case (print-inspection insp out *inspect-frontend*)
-        (error (err)
-          (format t "~&*** print error for inspection! ***~%")
-          (clos::call-next-method)
-          (format t "~&*** print error: ~s***~%" err)))))
 
 (defun set-slot-error (ii obj)
   (error "~s: Cannot set the slot number ~s for object ~s"
@@ -202,12 +213,13 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
     (multiple-value-bind (len dotted-p) (list-length-dotted obj)
       (apply
        #'make-inspection
-       :num-slots (if len (if dotted-p (1+ len) len) most-positive-fixnum)
+       :num-slots (if len (if dotted-p (1+ len) len)
+                      (1+ (position obj obj :test #'eq)))
        :nth-slot (lambda (ii) (if (and dotted-p (= ii len)) dotted-p
                                   (nth ii obj)))
        :set-slot (lambda (ii val)
                    (if (and dotted-p (= ii len))
-                       (setf (cdr (nthcdr ii obj)) val)
+                       (setf (cdr (nthcdr (1- ii) obj)) val)
                        (setf (nth ii obj) val)))
        :blurb (list (if len
                         (if dotted-p
@@ -273,19 +285,28 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
     (apply #'make-inspection :self obj :title "atom"
            :blurb (list (format nil "type: ~s" (type-of obj))
                         (format nil "class: ~s" (clos::class-of obj))) opts))
-  (:method :around ((obj t) &rest opts)
-    (declare (ignore opts))
-    (let ((insp (clos::call-next-method)))
-      (setf (gethash (insp-id insp) *inspect-hash*) insp))))
+  (:method :around ((obj t) &key id &allow-other-keys)
+    (or (and (not id) (find obj *inspect-all* :key #'insp-self))
+        (let ((insp (clos::call-next-method)))
+          (when (> *inspect-debug* 0)
+            (format t "~s [id: ~:d, forced: ~s]: ~s~%" 'inspect-backend
+                    (insp-id insp) id (insp-self insp)))
+          (if id (setf (aref *inspect-all* id) insp)
+              (vector-push-extend insp *inspect-all*))
+          insp))))
 
 (defun get-insp (id-or-insp com)
   "Get the INSPECTION object from the ID (or inspection object) and COMmand."
   (let ((insp (etypecase id-or-insp
                 (inspection id-or-insp)
-                (fixnum (gethash id-or-insp *inspect-hash*)))))
+                (fixnum (aref *inspect-all* id-or-insp)))))
+    (insp-check insp)
     (when insp
       (case com
-        (:s insp) (:q :q)
+        (:q :q)
+        (:s                     ; re-inspect Self
+         (inspect-backend (insp-self insp) :up (insp-up insp)
+                          :pos (insp-pos insp) :id (insp-id insp)))
         (:u (insp-up insp))
         (:l (when (insp-pos insp)
               (get-insp (insp-up insp) (1- (insp-pos insp)))))
@@ -298,6 +319,7 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
 ;;;
 ;;; To define a frontend, one has to define methods for
 ;;;  `print-inspection' and `inspect-frontend'
+;;;
 
 (clos:defgeneric print-inspection (insp out frontend)
   (:method ((insp inspection) (out stream) (frontend t))
@@ -307,7 +329,26 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
     (error "~s: unknown inspect front end: ~s" 'inspect-frontend frontend)))
 (clos:defgeneric inspect-finalize (frontend)
   (:method ((frontend t))
-    (clrhash *inspect-hash*)))
+    (dotimes (ii (length *inspect-all*))
+      (setf (aref *inspect-all* ii) nil))
+    (setf (fill-pointer *inspect-all*) 0)))
+
+(defun inspect-read-clean-eval (insp stream)
+  ;; `read' a form, destructively replace `:self' with INSP and `:slot'
+  ;; with the appropriate `funcall', then `eval'
+  ;; this is useful for frontends which provide an eval/modify facility
+  (labels ((clean (form)
+             (cond ((eq (car form) :self)
+                    (setf (car form) (list 'quote (insp-self insp)))
+                    (clean-up (cdr form)))
+                   ((eq (car form) :slot)
+                    (setf (car form) 'funcall
+                          (cdr form) (cons (insp-nth-slot insp) (cdr form)))
+                    (clean-up (cddr form)))
+                   (t (clean-up (car form))
+                      (clean-up (cdr form)))))
+           (clean-up (form) (when (consp form) (clean form)) form))
+    (eval (clean-up (read stream nil nil)))))
 
 ;;;
 ;;; TTY frontend
@@ -319,8 +360,7 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
   (format out "~s:  ~a~%~{ ~a~%~}" (insp-self insp) (insp-title insp)
           (insp-blurb insp))
   (when (insp-nth-slot insp)
-    (loop :for ii :from 0 :to (min (1- (insp-num-slots insp))
-                                   *inspect-print-length*)
+    (loop :for ii :from 0 :to (insp-num-slots-print insp)
           :do (multiple-value-bind (val name) (funcall (insp-nth-slot insp) ii)
                 (format out "~d~@[ [~a]~]:  ~s~%" ii name val)))))
 
@@ -335,6 +375,7 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
       (:q)
       ((:h :?) (format t " *** commands:~% :h, :?~15t this help
  :p, :a~15t Print the current item Again
+ :s~15t re-inspect this item (Self)
  :d~15t Describe the current item~%")
        (when (insp-up insp)
          (format t " :u~15t return UP to the parent~%"))
@@ -344,34 +385,21 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
         (format t " :r~15t inspect the right neighbor~%"))
        (when (insp-nth-slot insp)
          (format t " number~15t inspect this slot~%"))
-       (format t " :e lisp form~15t eval this form, with these substitutions:
+       (format t " :e lisp-form~15t eval this form, with these substitutions:
  ~20t (:slot number) is replaced with the appropriate slot value
  ~20t :self is replaced with this object
+ :m num lisp~15t Modify this slot
  :q~15t return to the main Read/Eval/Print loop~% ---> ")
        (force-output))
       (:d (describe (insp-self insp)))
       ((:p :a) (print-inspection insp *terminal-io* frontend))
-      (:e (labels ((clean (form)
-                     (cond ((eq (car form) :self)
-                            (setf (car form) `',(insp-self insp))
-                            (clean-up (cdr form)))
-                           ((eq (car form) :slot)
-                            (setf (car form) 'funcall
-                                  (cdr form) (cons (insp-nth-slot insp)
-                                                   (cdr form)))
-                            (clean-up (cddr form)))
-                           (t (clean-up (car form))
-                              (clean-up (cdr form)))))
-                   (clean-up (form) (when (consp form) (clean form)) form))
-            (multiple-value-bind (form err)
-                (ignore-errors (read *terminal-io* nil nil))
-              (if err (format t "read error: ~s" err)
-                  (let ((cln (clean-up form)))
-                    (format t " in > ~s~% -- > ~s~%" form cln)
-                    (multiple-value-bind (res err)
-                        (ignore-errors (eval cln))
-                      (if err (format t "eval error: ~s" err)
-                          (format t " ++ > ~%" res))))))))
+      (:e (handler-case (print (inspect-read-clean-eval insp *terminal-io*))
+            (error (err) (format t " *** error: ~s" err))))
+      (:m (handler-case
+              (print (funcall (insp-set-slot insp)
+                              (inspect-read-clean-eval insp *terminal-io*)
+                              (inspect-read-clean-eval insp *terminal-io*)))
+            (error (err) (format t " *** error: ~s" err))))
       (t (cond ((setq insp (get-insp id com))
                 (print-inspection insp *terminal-io* frontend)
                 (setq id (insp-id insp)))
@@ -395,8 +423,7 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
         (with-tag (:pre) (write (insp-self insp) :stream out)))
       (when (insp-nth-slot insp)
         (with-tag (:ol)
-          (loop :for ii :from 0 :to (min (1- (insp-num-slots insp))
-                                         *inspect-print-length*)
+          (loop :for ii :from 0 :to (insp-num-slots-print insp)
                 :do (multiple-value-bind (val name)
                         (funcall (insp-nth-slot insp) ii)
                       (with-tag (:li)
@@ -444,7 +471,8 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
   (do ((server (let ((server (socket-server)))
                  (browse-url (format nil "http://~a:~d/0/:s"
                                      (socket-server-host server)
-                                     (socket-server-port server)))
+                                     (socket-server-port server))
+                             :browser *inspect-browser*)
                  server))
        sock id com)
       ((eq com :q) (socket-server-close server))
@@ -470,14 +498,16 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
 ;;;
 
 ;;;###autoload
-(defun inspect (object &key (frontend *inspect-frontend*))
+(defun inspect (object &key (frontend *inspect-frontend*)
+                (browser *inspect-browser*))
   (let ((*print-array* nil) (*print-pretty* t)
         (*print-circle* t) (*print-escape* t)
         #-clisp (*print-lines* *inspect-print-lines*)
         (*print-level* *inspect-print-level*)
         (*print-length* *inspect-print-length*)
-        (*package* (make-package (gensym))) ; for `read'
-        (*inspect-frontend* frontend) (*inspect-count* -1))
+        (*package* (make-package (gensym "INSPECT-TNP-PACKAGE-"))) ; for `read'
+        (*inspect-frontend* frontend)
+        (*inspect-browser* browser))
     (unwind-protect
          (inspect-frontend (inspect-backend object) frontend)
       (inspect-finalize frontend)
