@@ -120,22 +120,22 @@ global object make_list (uintL len) {
 # nreverse(list)
 # > list: Liste (x1 ... xm)
 # < ergebnis: Liste (xm ... x1), EQ zur alten
-# Methode:
-# (lambda (L)
-#   (cond ((atom L) L)
-#         ((atom (cdr L)) L)
-#         ((atom (cddr L)) (rotatef (car L) (cadr L)) L)
-#         (t (let ((L1 (cdr L)))
-#              (do ((L3 L1 (cdr L3))
-#                   (L2 nil (rplacd L3 L2)))
-#                  ((atom (cdr L3))
-#                   (setf (cdr L) L2)
-#                   (setf (cdr L1) L3)
-#                   (rotatef (car L) (car L3))
-#              )   )
-#              L
-# ) )     )  )
 global object nreverse (object list) {
+  # Algorithm:
+  # (lambda (L)
+  #   (cond ((atom L) L)
+  #         ((atom (cdr L)) L)
+  #         ((atom (cddr L)) (rotatef (car L) (cadr L)) L)
+  #         (t (let ((L1 (cdr L)))
+  #              (do ((L3 L1 (cdr L3))
+  #                   (L2 nil (rplacd L3 L2)))
+  #                  ((atom (cdr L3))
+  #                   (setf (cdr L) L2)
+  #                   (setf (cdr L1) L3)
+  #                   (rotatef (car L) (car L3))
+  #              )   )
+  #              L
+  # ) )     )  )
   if (consp(list)) { # (atom L) -> L
     var object list3 = Cdr(list); # L3 := (cdr L)
     if (consp(list3)) { # (atom (cdr L)) -> L
@@ -877,13 +877,12 @@ LISPFUNN(copy_list,1) # (COPY-LIST list), CLTL S. 268
 # > alist: Aliste
 # < ergebnis: Kopie der Aliste
 # can trigger GC
-# Methode:
-# Statt
-#   (mapcar #'(lambda (x) (if (consp x) (cons (car x) (cdr x)) x)) l)
-# wird die Liste erst kopiert mit copy-list, dann die Top-Level-Elemente
-# der Kopie, die Conses sind, durch neue Conses mit selbem CAR und CDR
-# ersetzt.
 local object copy_alist (object alist) {
+  # Algorithm:
+  # Instead of
+  #   (mapcar #'(lambda (x) (if (consp x) (cons (car x) (cdr x)) x)) l)
+  # the list is first copied via copy-list, then the conses among the top
+  # level elements of the copy are replaced with conses with same CAR and CDR.
   alist = copy_list(alist);
   pushSTACK(alist); # Gesamtliste retten
   # alist läuft durch die Gesamtliste
