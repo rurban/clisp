@@ -763,18 +763,19 @@ she will get the output
 <section id="newline"><title>Line Terminators</title>
 
 <para>The line terminator mode can be one of the following three keywords:
-<informaltable id="newline-table" frame="all">
- <tgroup cols="2" colsep="1" rowsep="1" align="center">
-<thead><row><entry>keyword</entry>
-            <entry>newline representation</entry></row></thead>
-<tbody>
-<row><entry>&unix-k;</entry><entry>Newline is represented by the &ascii;
-     &lf-c; character (<keycode>U000A</keycode>).</entry></row>
-<row><entry>&mac-k;</entry><entry>Newline is represented by the &ascii;
-     &cr-c; character (<keycode>U000D</keycode>).</entry></row>
-<row><entry>&dos-k;</entry><entry>Newline is represented by the &ascii;
-     &cr-c; followed by the &ascii; &lf-c;.</entry></row>
-</tbody></tgroup></informaltable></para>
+<variablelist>
+<varlistentry><term>&unix-k;</term>
+ <listitem><simpara>Newline is represented by the &ascii;
+   &lf-c; character (<keycode>U000A</keycode>).
+</simpara></listitem></varlistentry>
+<varlistentry><term>&mac-k;</term>
+ <listitem><simpara>Newline is represented by the &ascii;
+   &cr-c; character (<keycode>U000D</keycode>).
+</simpara></listitem></varlistentry>
+<varlistentry><term>&dos-k;</term>
+ <listitem><simpara>Newline is represented by the &ascii;
+   &cr-c; followed by the &ascii; &lf-c;.
+</simpara></listitem></varlistentry></variablelist></para>
 
 <para>Windows programs typically use the &dos-k; line terminator,
  sometimes they also accept &unix-k; line terminators or produce
@@ -2502,29 +2503,29 @@ only.</subtitle>
 </simpara></listitem></varlistentry>
 
 <varlistentry id="sizeof">
-  <term><literal role="sexp">(&sizeof; &ctype-r;)</literal></term>
-  <term><literal role="sexp">(&sizeof; &cplace-r;)</literal></term>
-<listitem><simpara>The first form returns the size and alignment of a
-  &c-lang; type &ctype-r;, measured in bytes.</simpara>
+ <term><literal role="sexp">(&sizeof; &ctype-r;)</literal></term>
+ <term><literal role="sexp">(&sizeof; &cplace-r;)</literal></term>
+ <listitem><simpara>The first form returns the size and alignment of the
+   &c-lang; type &ctype-r;, measured in bytes.</simpara>
   <simpara>The second form returns the size and alignment of the
-  &c-lang; type of &cplace-r;, measured in bytes.
-  </simpara></listitem></varlistentry>
+   &c-lang; type of &cplace-r;, measured in bytes.
+</simpara></listitem></varlistentry>
 
 <varlistentry id="bitsizeof">
-  <term><literal role="sexp">(&bitsizeof; &ctype-r;)</literal></term>
-  <term><literal role="sexp">(&bitsizeof; &cplace-r;)</literal></term>
-<listitem><simpara>The first form returns the size and alignment of the
-  &c-lang; type &ctype-r;, measured in bits.</simpara>
+ <term><literal role="sexp">(&bitsizeof; &ctype-r;)</literal></term>
+ <term><literal role="sexp">(&bitsizeof; &cplace-r;)</literal></term>
+ <listitem><simpara>The first form returns the size and alignment of the
+   &c-lang; type &ctype-r;, measured in bits.</simpara>
   <simpara>The second form returns the size and alignment of the
-  &c-lang; type of &cplace-r;, measured in bits.
- </simpara></listitem></varlistentry>
+   &c-lang; type of &cplace-r;, measured in bits.
+</simpara></listitem></varlistentry>
 
 <varlistentry id="fa-null">
-  <term><literal role="sexp">(&foreign-address-null; &f-ent;)</literal></term>
+ <term><literal role="sexp">(&foreign-address-null; &f-ent;)</literal></term>
 <listitem><simpara>This predicate returns &t; if the
   &f-ent; refers to the &c-NULL; address (and thus &f-ent; should
   probably not be passed to most foreign functions).
- </simpara></listitem></varlistentry>
+</simpara></listitem></varlistentry>
 
 <varlistentry id="faddr-u">
  <term><literal role="sexp">(&foreign-address-unsigned;
@@ -2991,17 +2992,16 @@ unit</ulink> (usually a file), a warning is issued and
 
 <para>Values of type &c-string;, &c-ptr;, &c-ptr-null;, &c-array-ptr;
  need storage.  The &allocation; specifies the allocation policy:
-<informaltable id="allocation-tab" frame="all">
- <tgroup cols="2" colsep="1" rowsep="1" align="left">
- <thead><row><entry>&allocation;</entry>
-        <entry>meaning</entry></row></thead><tbody>
-<row><entry>&none-k;</entry>
-   <entry>no storage is allocated.</entry></row>
-<row><entry>&alloca-k;</entry><entry>allocation of storage on the
-   stack, which has dynamic extent.</entry></row>
-<row><entry>&malloc-free-k;</entry><entry>storage will be allocated via
-   &malloc; and freed via &free;.</entry></row>
-</tbody></tgroup></informaltable></para>
+<variablelist>
+<varlistentry><term>&none-k;</term>
+ <listitem><simpara>no storage is allocated.
+</simpara></listitem></varlistentry>
+<varlistentry><term>&alloca-k;</term>
+ <listitem><simpara>allocation of storage on the stack, which has
+   dynamic extent.</simpara></listitem></varlistentry>
+<varlistentry><term>&malloc-free-k;</term>
+ <listitem><simpara>storage will be allocated via &malloc; and freed via
+   &free;.</simpara></listitem></varlistentry></variablelist></para>
 
 <para>If no &allocation; is specified, the default &allocation; is
  &none-k; for most types, but &alloca-k; for &c-string; and &c-ptr; and
