@@ -1,5 +1,9 @@
 1999-10-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * array.d (bit_compare, bit_op): Use `const'.
+
+1999-10-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * array.d (bitpack, uint_bitpack, ...): Use 32-bit words if possible.
 
 1999-10-18  Sam Steingold  <sds@ksp.com>
