@@ -289,6 +289,7 @@ LISPFUN(xor,seclass_foldable,0,0,rest,nokey,0,NIL)
 /* ---------- DEBUG ---------- */
 LISPFUN(read_form,seclass_default,1,1,norest,nokey,0,NIL)
 LISPFUN(read_eval_print,seclass_default,1,1,norest,nokey,0,NIL)
+LISPFUNN(initial_break_driver,1)
 LISPFUNN(load,1)
 LISPFUNN(frame_up_1,2)
 LISPFUNN(frame_up,2)

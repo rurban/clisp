@@ -476,6 +476,12 @@ global void break_driver (bool continuable_p) {
   }
 }
 
+LISPFUNN(initial_break_driver,1)
+{
+  break_driver(!nullp(popSTACK()));
+  VALUES1(NIL);
+}
+
 LISPFUNN(load,1)
 # (LOAD filename), primitivere Version als in CLTL S. 426
   # Methode:
