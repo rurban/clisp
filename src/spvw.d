@@ -55,9 +55,13 @@
 # Größe dieser Tabelle:
   #define fsubr_anz  (sizeof(fsubr_tab)/sizeof(fsubr_))
 
-# Tabelle aller Pseudofunktionen: ausgelagert nach STREAM
-# Größe dieser Tabelle:
-  #define pseudofun_anz  (sizeof(pseudofun_tab)/sizeof(Pseudofun))
+# Tabellen aller relozierbarer Pointer: ausgelagert nach STREAM
+# Größe dieser Tabellen:
+  #define pseudocode_anz  (sizeof(pseudocode_tab)/sizeof(Pseudofun))
+  #define pseudodata_anz  (sizeof(pseudodata_tab)/sizeof(Pseudofun))
+# Gesamt-Tabelle:
+  #define pseudofun_anz  (pseudocode_anz+pseudodata_anz)
+  local struct pseudofun_tab_ { object pointer[pseudofun_anz]; } pseudofun_tab;
 
 # Tabelle aller festen Symbole: ausgelagert nach SPVWTABS
 # Größe dieser Tabelle:
@@ -2197,6 +2201,19 @@ local void print_banner ()
          { setlocale(LC_CTYPE,locale); }
      }
      #endif
+     # Initialize the table of relocatable pointers:
+     { var object* ptr2 = &pseudofun_tab.pointer[0];
+       { var const Pseudofun* ptr1 = (const Pseudofun*)&pseudocode_tab;
+         var uintC count;
+         dotimesC(count,pseudocode_anz,
+           { *ptr2++ = make_machine_code(*ptr1); ptr1++; });
+       }
+       { var const Pseudofun* ptr1 = (const Pseudofun*)&pseudodata_tab;
+         var uintC count;
+         dotimesC(count,pseudodata_anz,
+           { *ptr2++ = make_machine(*ptr1); ptr1++; });
+       }
+     }
      # Speicher holen:
      #if (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || defined(MULTITHREAD)) && (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))
      mmap_init_pagesize();

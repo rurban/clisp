@@ -1,193 +1,198 @@
-# Liste aller Pseudofunktionen
-# Bruno Haible 14.2.1999
+# List of all relocatable machine pointers
+# Bruno Haible 4.4.1999
 
-# Der Macro PSEUDOFUN deklariert eine Pseudofunktion.
-# PSEUDOFUN(fun)
-# > fun: C-Funktion
+# There are three kinds of relocatable pointers:
+#   LPSEUDOCODE(fun)                    local C function defined in stream.d
+#   XPSEUDOCODE(rettype,name,arglist)   external C function
+#   XPSEUDODATA(type,name)              external C variable
 
-# Expander für die Deklaration der Tabelle:
-  #define PSEUDOFUN_A(fun)  Pseudofun pseudo_##fun;
+# The macro PSEUDO, defined in the including file, determines the macro
+# expansion for these macros.
+#   #define PSEUDO PSEUDO_A   for the declaration of the code table
+#   #define PSEUDO PSEUDO_B   for the declaration of the data table
+#   #define PSEUDO PSEUDO_C   for the declaration of both tables' elements
+#   #define PSEUDO PSEUDO_D   for the initialisation of the code table
+#   #define PSEUDO PSEUDO_E   for the initialisation of the data table
 
-# Expander für die Deklaration der Tabellenelemente:
-  #define PSEUDOFUN_B(fun)
+#define LPSEUDOCODE CONCAT(LCODE_,PSEUDO)
+#define XPSEUDOCODE CONCAT(XCODE_,PSEUDO)
+#define XPSEUDODATA CONCAT(XDATA_,PSEUDO)
 
-# Expander für die Initialisierung der Tabelle:
-  #define PSEUDOFUN_C(fun)  (Pseudofun)(&fun),
+#define LCODE_PSEUDO_A(fun)  Pseudofun pseudo_##fun;
+#define LCODE_PSEUDO_B(fun)
+#define LCODE_PSEUDO_C(fun)
+#define LCODE_PSEUDO_D(fun)  (Pseudofun)(&fun),
+#define LCODE_PSEUDO_E(fun)
+#define XCODE_PSEUDO_A(rettype,name,arglist)  Pseudofun pseudo_##name;
+#define XCODE_PSEUDO_B(rettype,name,arglist)
+#define XCODE_PSEUDO_C(rettype,name,arglist)  extern rettype name arglist;
+#define XCODE_PSEUDO_D(rettype,name,arglist)  (Pseudofun)(&name),
+#define XCODE_PSEUDO_E(rettype,name,arglist)
+#define XDATA_PSEUDO_A(type,name)
+#define XDATA_PSEUDO_B(type,name)  Pseudofun pseudo_##name;
+#define XDATA_PSEUDO_C(type,name)  extern type name;
+#define XDATA_PSEUDO_D(type,name)
+#define XDATA_PSEUDO_E(type,name)  (Pseudofun)(&name),
 
-# Der Macro XPSEUDO deklariert eine Pseudofunktion, die nicht in stream.d
-# definiert ist.
-# XPSEUDO(rettype,name,arglist)
-# > name: C-Funktion oder C-Variable
 
-# Expander für die Deklaration der Tabelle:
-  #define XPSEUDO_A(rettype,name,arglist)  Pseudofun pseudo_##name;
+LPSEUDOCODE(rd_by_error) LPSEUDOCODE(rd_by_array_error) LPSEUDOCODE(rd_by_array_dummy)
+LPSEUDOCODE(wr_by_error) LPSEUDOCODE(wr_by_array_error) LPSEUDOCODE(wr_by_array_dummy)
+LPSEUDOCODE(rd_ch_error) LPSEUDOCODE(pk_ch_dummy) LPSEUDOCODE(rd_ch_array_error) LPSEUDOCODE(rd_ch_array_dummy)
+LPSEUDOCODE(wr_ch_error) LPSEUDOCODE(wr_ch_array_error) LPSEUDOCODE(wr_ch_array_dummy)
+LPSEUDOCODE(wr_ss_dummy) LPSEUDOCODE(wr_ss_dummy_nogc)
 
-# Expander für die Deklaration der Tabellenelemente:
-  #define XPSEUDO_B(rettype,name,arglist)  extern rettype name arglist;
-
-# Expander für die Initialisierung der Tabelle:
-  #define XPSEUDO_C(rettype,name,arglist)  (Pseudofun)(&name),
-
-# Welche Expander benutzt werden, muss vom Hauptfile aus eingestellt werden.
-
-PSEUDOFUN(rd_by_error) PSEUDOFUN(rd_by_array_error) PSEUDOFUN(rd_by_array_dummy)
-PSEUDOFUN(wr_by_error) PSEUDOFUN(wr_by_array_error) PSEUDOFUN(wr_by_array_dummy)
-PSEUDOFUN(rd_ch_error) PSEUDOFUN(pk_ch_dummy) PSEUDOFUN(rd_ch_array_error) PSEUDOFUN(rd_ch_array_dummy)
-PSEUDOFUN(wr_ch_error) PSEUDOFUN(wr_ch_array_error) PSEUDOFUN(wr_ch_array_dummy)
-PSEUDOFUN(wr_ss_dummy) PSEUDOFUN(wr_ss_dummy_nogc)
-
-PSEUDOFUN(rd_by_synonym) PSEUDOFUN(rd_by_array_synonym) PSEUDOFUN(wr_by_synonym) PSEUDOFUN(wr_by_array_synonym) PSEUDOFUN(rd_ch_synonym) PSEUDOFUN(pk_ch_synonym) PSEUDOFUN(rd_ch_array_synonym) PSEUDOFUN(wr_ch_synonym) PSEUDOFUN(wr_ch_array_synonym) PSEUDOFUN(wr_ss_synonym)
-PSEUDOFUN(wr_by_broad) PSEUDOFUN(wr_by_array_broad0) PSEUDOFUN(wr_by_array_broad1) PSEUDOFUN(wr_ch_broad) PSEUDOFUN(wr_ch_array_broad0) PSEUDOFUN(wr_ch_array_broad1) PSEUDOFUN(wr_ss_broad)
-PSEUDOFUN(rd_by_concat) PSEUDOFUN(rd_by_array_concat) PSEUDOFUN(rd_ch_concat) PSEUDOFUN(pk_ch_concat) PSEUDOFUN(rd_ch_array_concat)
-PSEUDOFUN(wr_by_twoway) PSEUDOFUN(wr_by_array_twoway) PSEUDOFUN(wr_ch_twoway) PSEUDOFUN(wr_ch_array_twoway) PSEUDOFUN(wr_ss_twoway)
-PSEUDOFUN(rd_by_twoway) PSEUDOFUN(rd_by_array_twoway) PSEUDOFUN(rd_ch_twoway) PSEUDOFUN(pk_ch_twoway) PSEUDOFUN(rd_ch_array_twoway)
-PSEUDOFUN(rd_by_echo) PSEUDOFUN(rd_ch_echo)
-PSEUDOFUN(rd_ch_str_in) PSEUDOFUN(rd_ch_array_str_in)
-PSEUDOFUN(wr_ch_str_out) PSEUDOFUN(wr_ss_str_out)
-PSEUDOFUN(wr_ch_str_push)
-PSEUDOFUN(wr_ch_pphelp) PSEUDOFUN(wr_ss_pphelp)
-PSEUDOFUN(rd_ch_buff_in)
-PSEUDOFUN(wr_ch_buff_out)
+LPSEUDOCODE(rd_by_synonym) LPSEUDOCODE(rd_by_array_synonym) LPSEUDOCODE(wr_by_synonym) LPSEUDOCODE(wr_by_array_synonym) LPSEUDOCODE(rd_ch_synonym) LPSEUDOCODE(pk_ch_synonym) LPSEUDOCODE(rd_ch_array_synonym) LPSEUDOCODE(wr_ch_synonym) LPSEUDOCODE(wr_ch_array_synonym) LPSEUDOCODE(wr_ss_synonym)
+LPSEUDOCODE(wr_by_broad) LPSEUDOCODE(wr_by_array_broad0) LPSEUDOCODE(wr_by_array_broad1) LPSEUDOCODE(wr_ch_broad) LPSEUDOCODE(wr_ch_array_broad0) LPSEUDOCODE(wr_ch_array_broad1) LPSEUDOCODE(wr_ss_broad)
+LPSEUDOCODE(rd_by_concat) LPSEUDOCODE(rd_by_array_concat) LPSEUDOCODE(rd_ch_concat) LPSEUDOCODE(pk_ch_concat) LPSEUDOCODE(rd_ch_array_concat)
+LPSEUDOCODE(wr_by_twoway) LPSEUDOCODE(wr_by_array_twoway) LPSEUDOCODE(wr_ch_twoway) LPSEUDOCODE(wr_ch_array_twoway) LPSEUDOCODE(wr_ss_twoway)
+LPSEUDOCODE(rd_by_twoway) LPSEUDOCODE(rd_by_array_twoway) LPSEUDOCODE(rd_ch_twoway) LPSEUDOCODE(pk_ch_twoway) LPSEUDOCODE(rd_ch_array_twoway)
+LPSEUDOCODE(rd_by_echo) LPSEUDOCODE(rd_ch_echo)
+LPSEUDOCODE(rd_ch_str_in) LPSEUDOCODE(rd_ch_array_str_in)
+LPSEUDOCODE(wr_ch_str_out) LPSEUDOCODE(wr_ss_str_out)
+LPSEUDOCODE(wr_ch_str_push)
+LPSEUDOCODE(wr_ch_pphelp) LPSEUDOCODE(wr_ss_pphelp)
+LPSEUDOCODE(rd_ch_buff_in)
+LPSEUDOCODE(wr_ch_buff_out)
 #ifdef GENERIC_STREAMS
-PSEUDOFUN(rd_ch_generic) PSEUDOFUN(pk_ch_generic) PSEUDOFUN(wr_ch_generic) PSEUDOFUN(wr_ss_generic) PSEUDOFUN(rd_by_generic) PSEUDOFUN(wr_by_generic)
+LPSEUDOCODE(rd_ch_generic) LPSEUDOCODE(pk_ch_generic) LPSEUDOCODE(wr_ch_generic) LPSEUDOCODE(wr_ss_generic) LPSEUDOCODE(rd_by_generic) LPSEUDOCODE(wr_by_generic)
 #endif
 
-PSEUDOFUN(rd_by_iau_unbuffered) PSEUDOFUN(rd_by_ias_unbuffered) PSEUDOFUN(rd_by_iau8_unbuffered) PSEUDOFUN(rd_by_array_iau8_unbuffered)
-PSEUDOFUN(wr_by_iau_unbuffered) PSEUDOFUN(wr_by_ias_unbuffered) PSEUDOFUN(wr_by_iau8_unbuffered) PSEUDOFUN(wr_by_array_iau8_unbuffered)
-PSEUDOFUN(rd_ch_unbuffered) PSEUDOFUN(rd_ch_array_unbuffered)
-PSEUDOFUN(wr_ch_unbuffered_unix) PSEUDOFUN(wr_ch_array_unbuffered_unix) PSEUDOFUN(wr_ss_unbuffered_unix)
-PSEUDOFUN(wr_ch_unbuffered_mac) PSEUDOFUN(wr_ch_array_unbuffered_mac) PSEUDOFUN(wr_ss_unbuffered_mac)
-PSEUDOFUN(wr_ch_unbuffered_dos) PSEUDOFUN(wr_ch_array_unbuffered_dos) PSEUDOFUN(wr_ss_unbuffered_dos)
-PSEUDOFUN(rd_ch_buffered) PSEUDOFUN(rd_ch_array_buffered)
-PSEUDOFUN(wr_ch_buffered_unix) PSEUDOFUN(wr_ch_array_buffered_unix) PSEUDOFUN(wr_ss_buffered_unix)
-PSEUDOFUN(wr_ch_buffered_mac) PSEUDOFUN(wr_ch_array_buffered_mac) PSEUDOFUN(wr_ss_buffered_mac)
-PSEUDOFUN(wr_ch_buffered_dos) PSEUDOFUN(wr_ch_array_buffered_dos) PSEUDOFUN(wr_ss_buffered_dos)
-PSEUDOFUN(rd_by_iau_buffered) PSEUDOFUN(rd_by_ias_buffered) PSEUDOFUN(rd_by_ibu_buffered) PSEUDOFUN(rd_by_ibs_buffered) PSEUDOFUN(rd_by_icu_buffered) PSEUDOFUN(rd_by_ics_buffered) PSEUDOFUN(rd_by_iau8_buffered)
-PSEUDOFUN(rd_by_array_iau8_buffered)
-PSEUDOFUN(wr_by_iau_buffered) PSEUDOFUN(wr_by_ias_buffered) PSEUDOFUN(wr_by_ibu_buffered) PSEUDOFUN(wr_by_ibs_buffered) PSEUDOFUN(wr_by_icu_buffered) PSEUDOFUN(wr_by_ics_buffered) PSEUDOFUN(wr_by_iau8_buffered)
-PSEUDOFUN(wr_by_array_iau8_buffered)
+LPSEUDOCODE(rd_by_iau_unbuffered) LPSEUDOCODE(rd_by_ias_unbuffered) LPSEUDOCODE(rd_by_iau8_unbuffered) LPSEUDOCODE(rd_by_array_iau8_unbuffered)
+LPSEUDOCODE(wr_by_iau_unbuffered) LPSEUDOCODE(wr_by_ias_unbuffered) LPSEUDOCODE(wr_by_iau8_unbuffered) LPSEUDOCODE(wr_by_array_iau8_unbuffered)
+LPSEUDOCODE(rd_ch_unbuffered) LPSEUDOCODE(rd_ch_array_unbuffered)
+LPSEUDOCODE(wr_ch_unbuffered_unix) LPSEUDOCODE(wr_ch_array_unbuffered_unix) LPSEUDOCODE(wr_ss_unbuffered_unix)
+LPSEUDOCODE(wr_ch_unbuffered_mac) LPSEUDOCODE(wr_ch_array_unbuffered_mac) LPSEUDOCODE(wr_ss_unbuffered_mac)
+LPSEUDOCODE(wr_ch_unbuffered_dos) LPSEUDOCODE(wr_ch_array_unbuffered_dos) LPSEUDOCODE(wr_ss_unbuffered_dos)
+LPSEUDOCODE(rd_ch_buffered) LPSEUDOCODE(rd_ch_array_buffered)
+LPSEUDOCODE(wr_ch_buffered_unix) LPSEUDOCODE(wr_ch_array_buffered_unix) LPSEUDOCODE(wr_ss_buffered_unix)
+LPSEUDOCODE(wr_ch_buffered_mac) LPSEUDOCODE(wr_ch_array_buffered_mac) LPSEUDOCODE(wr_ss_buffered_mac)
+LPSEUDOCODE(wr_ch_buffered_dos) LPSEUDOCODE(wr_ch_array_buffered_dos) LPSEUDOCODE(wr_ss_buffered_dos)
+LPSEUDOCODE(rd_by_iau_buffered) LPSEUDOCODE(rd_by_ias_buffered) LPSEUDOCODE(rd_by_ibu_buffered) LPSEUDOCODE(rd_by_ibs_buffered) LPSEUDOCODE(rd_by_icu_buffered) LPSEUDOCODE(rd_by_ics_buffered) LPSEUDOCODE(rd_by_iau8_buffered)
+LPSEUDOCODE(rd_by_array_iau8_buffered)
+LPSEUDOCODE(wr_by_iau_buffered) LPSEUDOCODE(wr_by_ias_buffered) LPSEUDOCODE(wr_by_ibu_buffered) LPSEUDOCODE(wr_by_ibs_buffered) LPSEUDOCODE(wr_by_icu_buffered) LPSEUDOCODE(wr_by_ics_buffered) LPSEUDOCODE(wr_by_iau8_buffered)
+LPSEUDOCODE(wr_by_array_iau8_buffered)
 #if defined(KEYBOARD) || defined(MAYBE_NEXTAPP)
-PSEUDOFUN(rd_ch_keyboard)
+LPSEUDOCODE(rd_ch_keyboard)
 #endif
 #if defined(MAYBE_NEXTAPP)
-PSEUDOFUN(wr_ch_terminal) PSEUDOFUN(rd_ch_terminal)
+LPSEUDOCODE(wr_ch_terminal) LPSEUDOCODE(rd_ch_terminal)
 #endif
 #if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS)
-PSEUDOFUN(wr_ch_terminal1) PSEUDOFUN(rd_ch_terminal1) PSEUDOFUN(wr_ss_terminal1)
+LPSEUDOCODE(wr_ch_terminal1) LPSEUDOCODE(rd_ch_terminal1) LPSEUDOCODE(wr_ss_terminal1)
 #ifdef MSDOS
-PSEUDOFUN(wr_ch_terminal2) PSEUDOFUN(rd_ch_terminal2) PSEUDOFUN(wr_ss_terminal2)
+LPSEUDOCODE(wr_ch_terminal2) LPSEUDOCODE(rd_ch_terminal2) LPSEUDOCODE(wr_ss_terminal2)
 #endif
 #if defined(GNU_READLINE) || defined(MAYBE_NEXTAPP)
-PSEUDOFUN(wr_ch_terminal3) PSEUDOFUN(rd_ch_terminal3) PSEUDOFUN(wr_ss_terminal3)
+LPSEUDOCODE(wr_ch_terminal3) LPSEUDOCODE(rd_ch_terminal3) LPSEUDOCODE(wr_ss_terminal3)
 #endif
 #endif
 #ifdef SCREEN
-PSEUDOFUN(wr_ch_window)
+LPSEUDOCODE(wr_ch_window)
 #endif
 #ifdef PRINTER
-PSEUDOFUN(wr_ch_printer)
+LPSEUDOCODE(wr_ch_printer)
 #endif
 
 # External definitions from ENCODING.D:
 #ifdef UNICODE
-XPSEUDO(object, all_range, (object encoding, uintL start, uintL end))
-XPSEUDO(uintL, uni16_mblen, (object encoding, const uintB* src, const uintB* srcend))
-XPSEUDO(void, uni16be_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
-XPSEUDO(void, uni16le_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
-XPSEUDO(uintL, uni16_wcslen, (object encoding, const chart* src, const chart* srcend))
-XPSEUDO(void, uni16be_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
-XPSEUDO(void, uni16le_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
-XPSEUDO(uintL, uni32_mblen, (object encoding, const uintB* src, const uintB* srcend))
-XPSEUDO(void, uni32be_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
-XPSEUDO(void, uni32le_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
-XPSEUDO(uintL, uni32_wcslen, (object encoding, const chart* src, const chart* srcend))
-XPSEUDO(void, uni32be_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
-XPSEUDO(void, uni32le_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
-XPSEUDO(uintL, utf8_mblen, (object encoding, const uintB* src, const uintB* srcend))
-XPSEUDO(void, utf8_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
-XPSEUDO(uintL, utf8_wcslen, (object encoding, const chart* src, const chart* srcend))
-XPSEUDO(void, utf8_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
-XPSEUDO(uintL, java_mblen, (object encoding, const uintB* src, const uintB* srcend))
-XPSEUDO(void, java_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
-XPSEUDO(uintL, java_wcslen, (object encoding, const chart* src, const chart* srcend))
-XPSEUDO(void, java_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
-XPSEUDO(uintL, nls_mblen, (object encoding, const uintB* src, const uintB* srcend))
-XPSEUDO(void, nls_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
-XPSEUDO(void, nls_asciiext_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
-XPSEUDO(uintL, nls_wcslen, (object encoding, const chart* src, const chart* srcend))
-XPSEUDO(void, nls_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
-XPSEUDO(void, nls_asciiext_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
-XPSEUDO(object, nls_range, (object encoding, uintL start, uintL end))
-XPSEUDO(struct nls_table, nls_ascii_table,)
-XPSEUDO(struct nls_table, nls_iso8859_1_table,)
-XPSEUDO(struct nls_table, nls_iso8859_2_table,)
-XPSEUDO(struct nls_table, nls_iso8859_3_table,)
-XPSEUDO(struct nls_table, nls_iso8859_4_table,)
-XPSEUDO(struct nls_table, nls_iso8859_5_table,)
-XPSEUDO(struct nls_table, nls_iso8859_6_table,)
-XPSEUDO(struct nls_table, nls_iso8859_7_table,)
-XPSEUDO(struct nls_table, nls_iso8859_8_table,)
-XPSEUDO(struct nls_table, nls_iso8859_9_table,)
-XPSEUDO(struct nls_table, nls_iso8859_14_table,)
-XPSEUDO(struct nls_table, nls_iso8859_15_table,)
-XPSEUDO(struct nls_table, nls_koi8_r_table,)
-XPSEUDO(struct nls_table, nls_mac_arabic_table,)
-XPSEUDO(struct nls_table, nls_mac_centraleurope_table,)
-XPSEUDO(struct nls_table, nls_mac_croatian_table,)
-XPSEUDO(struct nls_table, nls_mac_cyrillic_table,)
-XPSEUDO(struct nls_table, nls_mac_dingbat_table,)
-XPSEUDO(struct nls_table, nls_mac_greek_table,)
-XPSEUDO(struct nls_table, nls_mac_hebrew_table,)
-XPSEUDO(struct nls_table, nls_mac_iceland_table,)
-XPSEUDO(struct nls_table, nls_mac_roman_table,)
-XPSEUDO(struct nls_table, nls_mac_romania_table,)
-XPSEUDO(struct nls_table, nls_mac_symbol_table,)
-XPSEUDO(struct nls_table, nls_mac_thai_table,)
-XPSEUDO(struct nls_table, nls_mac_turkish_table,)
-XPSEUDO(struct nls_table, nls_mac_ukraine_table,)
-XPSEUDO(struct nls_table, nls_cp437_ms_table,)
-XPSEUDO(struct nls_table, nls_cp437_ibm_table,)
-XPSEUDO(struct nls_table, nls_cp737_table,)
-XPSEUDO(struct nls_table, nls_cp775_table,)
-XPSEUDO(struct nls_table, nls_cp850_table,)
-XPSEUDO(struct nls_table, nls_cp852_ms_table,)
-XPSEUDO(struct nls_table, nls_cp852_ibm_table,)
-XPSEUDO(struct nls_table, nls_cp855_table,)
-XPSEUDO(struct nls_table, nls_cp857_table,)
-XPSEUDO(struct nls_table, nls_cp860_ms_table,)
-XPSEUDO(struct nls_table, nls_cp860_ibm_table,)
-XPSEUDO(struct nls_table, nls_cp861_ms_table,)
-XPSEUDO(struct nls_table, nls_cp861_ibm_table,)
-XPSEUDO(struct nls_table, nls_cp862_ms_table,)
-XPSEUDO(struct nls_table, nls_cp862_ibm_table,)
-XPSEUDO(struct nls_table, nls_cp863_ms_table,)
-XPSEUDO(struct nls_table, nls_cp863_ibm_table,)
-XPSEUDO(struct nls_table, nls_cp864_ms_table,)
-XPSEUDO(struct nls_table, nls_cp864_ibm_table,)
-XPSEUDO(struct nls_table, nls_cp865_ms_table,)
-XPSEUDO(struct nls_table, nls_cp865_ibm_table,)
-XPSEUDO(struct nls_table, nls_cp866_table,)
-XPSEUDO(struct nls_table, nls_cp869_ms_table,)
-XPSEUDO(struct nls_table, nls_cp869_ibm_table,)
-XPSEUDO(struct nls_table, nls_cp874_ms_table,)
-XPSEUDO(struct nls_table, nls_cp874_ibm_table,)
-XPSEUDO(struct nls_table, nls_cp1250_table,)
-XPSEUDO(struct nls_table, nls_cp1251_table,)
-XPSEUDO(struct nls_table, nls_cp1252_table,)
-XPSEUDO(struct nls_table, nls_cp1253_table,)
-XPSEUDO(struct nls_table, nls_cp1254_table,)
-XPSEUDO(struct nls_table, nls_cp1255_table,)
-XPSEUDO(struct nls_table, nls_cp1256_table,)
-XPSEUDO(struct nls_table, nls_cp1257_table,)
-XPSEUDO(struct nls_table, nls_cp1258_table,)
-XPSEUDO(struct nls_table, nls_hp_roman8_table,)
-XPSEUDO(struct nls_table, nls_nextstep_table,)
+XPSEUDOCODE(object, all_range, (object encoding, uintL start, uintL end))
+XPSEUDOCODE(uintL, uni16_mblen, (object encoding, const uintB* src, const uintB* srcend))
+XPSEUDOCODE(void, uni16be_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
+XPSEUDOCODE(void, uni16le_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
+XPSEUDOCODE(uintL, uni16_wcslen, (object encoding, const chart* src, const chart* srcend))
+XPSEUDOCODE(void, uni16be_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
+XPSEUDOCODE(void, uni16le_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
+XPSEUDOCODE(uintL, uni32_mblen, (object encoding, const uintB* src, const uintB* srcend))
+XPSEUDOCODE(void, uni32be_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
+XPSEUDOCODE(void, uni32le_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
+XPSEUDOCODE(uintL, uni32_wcslen, (object encoding, const chart* src, const chart* srcend))
+XPSEUDOCODE(void, uni32be_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
+XPSEUDOCODE(void, uni32le_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
+XPSEUDOCODE(uintL, utf8_mblen, (object encoding, const uintB* src, const uintB* srcend))
+XPSEUDOCODE(void, utf8_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
+XPSEUDOCODE(uintL, utf8_wcslen, (object encoding, const chart* src, const chart* srcend))
+XPSEUDOCODE(void, utf8_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
+XPSEUDOCODE(uintL, java_mblen, (object encoding, const uintB* src, const uintB* srcend))
+XPSEUDOCODE(void, java_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
+XPSEUDOCODE(uintL, java_wcslen, (object encoding, const chart* src, const chart* srcend))
+XPSEUDOCODE(void, java_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
+XPSEUDOCODE(uintL, nls_mblen, (object encoding, const uintB* src, const uintB* srcend))
+XPSEUDOCODE(void, nls_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
+XPSEUDOCODE(void, nls_asciiext_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
+XPSEUDOCODE(uintL, nls_wcslen, (object encoding, const chart* src, const chart* srcend))
+XPSEUDOCODE(void, nls_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
+XPSEUDOCODE(void, nls_asciiext_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
+XPSEUDOCODE(object, nls_range, (object encoding, uintL start, uintL end))
+XPSEUDODATA(struct nls_table, nls_ascii_table)
+XPSEUDODATA(struct nls_table, nls_iso8859_1_table)
+XPSEUDODATA(struct nls_table, nls_iso8859_2_table)
+XPSEUDODATA(struct nls_table, nls_iso8859_3_table)
+XPSEUDODATA(struct nls_table, nls_iso8859_4_table)
+XPSEUDODATA(struct nls_table, nls_iso8859_5_table)
+XPSEUDODATA(struct nls_table, nls_iso8859_6_table)
+XPSEUDODATA(struct nls_table, nls_iso8859_7_table)
+XPSEUDODATA(struct nls_table, nls_iso8859_8_table)
+XPSEUDODATA(struct nls_table, nls_iso8859_9_table)
+XPSEUDODATA(struct nls_table, nls_iso8859_14_table)
+XPSEUDODATA(struct nls_table, nls_iso8859_15_table)
+XPSEUDODATA(struct nls_table, nls_koi8_r_table)
+XPSEUDODATA(struct nls_table, nls_mac_arabic_table)
+XPSEUDODATA(struct nls_table, nls_mac_centraleurope_table)
+XPSEUDODATA(struct nls_table, nls_mac_croatian_table)
+XPSEUDODATA(struct nls_table, nls_mac_cyrillic_table)
+XPSEUDODATA(struct nls_table, nls_mac_dingbat_table)
+XPSEUDODATA(struct nls_table, nls_mac_greek_table)
+XPSEUDODATA(struct nls_table, nls_mac_hebrew_table)
+XPSEUDODATA(struct nls_table, nls_mac_iceland_table)
+XPSEUDODATA(struct nls_table, nls_mac_roman_table)
+XPSEUDODATA(struct nls_table, nls_mac_romania_table)
+XPSEUDODATA(struct nls_table, nls_mac_symbol_table)
+XPSEUDODATA(struct nls_table, nls_mac_thai_table)
+XPSEUDODATA(struct nls_table, nls_mac_turkish_table)
+XPSEUDODATA(struct nls_table, nls_mac_ukraine_table)
+XPSEUDODATA(struct nls_table, nls_cp437_ms_table)
+XPSEUDODATA(struct nls_table, nls_cp437_ibm_table)
+XPSEUDODATA(struct nls_table, nls_cp737_table)
+XPSEUDODATA(struct nls_table, nls_cp775_table)
+XPSEUDODATA(struct nls_table, nls_cp850_table)
+XPSEUDODATA(struct nls_table, nls_cp852_ms_table)
+XPSEUDODATA(struct nls_table, nls_cp852_ibm_table)
+XPSEUDODATA(struct nls_table, nls_cp855_table)
+XPSEUDODATA(struct nls_table, nls_cp857_table)
+XPSEUDODATA(struct nls_table, nls_cp860_ms_table)
+XPSEUDODATA(struct nls_table, nls_cp860_ibm_table)
+XPSEUDODATA(struct nls_table, nls_cp861_ms_table)
+XPSEUDODATA(struct nls_table, nls_cp861_ibm_table)
+XPSEUDODATA(struct nls_table, nls_cp862_ms_table)
+XPSEUDODATA(struct nls_table, nls_cp862_ibm_table)
+XPSEUDODATA(struct nls_table, nls_cp863_ms_table)
+XPSEUDODATA(struct nls_table, nls_cp863_ibm_table)
+XPSEUDODATA(struct nls_table, nls_cp864_ms_table)
+XPSEUDODATA(struct nls_table, nls_cp864_ibm_table)
+XPSEUDODATA(struct nls_table, nls_cp865_ms_table)
+XPSEUDODATA(struct nls_table, nls_cp865_ibm_table)
+XPSEUDODATA(struct nls_table, nls_cp866_table)
+XPSEUDODATA(struct nls_table, nls_cp869_ms_table)
+XPSEUDODATA(struct nls_table, nls_cp869_ibm_table)
+XPSEUDODATA(struct nls_table, nls_cp874_ms_table)
+XPSEUDODATA(struct nls_table, nls_cp874_ibm_table)
+XPSEUDODATA(struct nls_table, nls_cp1250_table)
+XPSEUDODATA(struct nls_table, nls_cp1251_table)
+XPSEUDODATA(struct nls_table, nls_cp1252_table)
+XPSEUDODATA(struct nls_table, nls_cp1253_table)
+XPSEUDODATA(struct nls_table, nls_cp1254_table)
+XPSEUDODATA(struct nls_table, nls_cp1255_table)
+XPSEUDODATA(struct nls_table, nls_cp1256_table)
+XPSEUDODATA(struct nls_table, nls_cp1257_table)
+XPSEUDODATA(struct nls_table, nls_cp1258_table)
+XPSEUDODATA(struct nls_table, nls_hp_roman8_table)
+XPSEUDODATA(struct nls_table, nls_nextstep_table)
 #ifdef HAVE_ICONV
-XPSEUDO(uintL, iconv_mblen, (object encoding, const uintB* src, const uintB* srcend))
-XPSEUDO(void, iconv_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
-XPSEUDO(uintL, iconv_wcslen, (object encoding, const chart* src, const chart* srcend))
-XPSEUDO(void, iconv_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
-XPSEUDO(object, iconv_range, (object encoding, uintL start, uintL end))
+XPSEUDOCODE(uintL, iconv_mblen, (object encoding, const uintB* src, const uintB* srcend))
+XPSEUDOCODE(void, iconv_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
+XPSEUDOCODE(uintL, iconv_wcslen, (object encoding, const chart* src, const chart* srcend))
+XPSEUDOCODE(void, iconv_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
+XPSEUDOCODE(object, iconv_range, (object encoding, uintL start, uintL end))
 #endif
 #endif
 
