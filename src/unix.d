@@ -1,6 +1,6 @@
 # Include-File für UNIX-Version von CLISP
-# Bruno Haible 1990-2001
-
+# Bruno Haible 1990-2002
+# Sam Steingold 1998-2002
 
 # Konstanten für Steuerzeichen:
 
@@ -858,7 +858,14 @@
   #endif
 # wird verwendet von SOCKET, STREAM
 
-# Dynamisches Laden von Modulen:
+# Dynamic module loading:
+#  Even though HP-UX 10.20 and 11.00 support shl_load *and* dlopen,
+#  dlopen works correctly only with a patch. Because we want to avoid
+#  the situation where we build on a system with the patch but deploy
+#  on a system without, don't use dlopen on HP-UX.
+#ifdef UNIX_HPUX
+  #undef HAVE_DLOPEN
+#endif
   #ifdef HAVE_DLOPEN
     #include <dlfcn.h>
     extern_C void* dlopen (const char * library, int flag);
