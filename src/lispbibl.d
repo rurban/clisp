@@ -749,6 +749,20 @@
         #define subr_self_register  "s7"
       #endif
     #endif
+    # Declare the registers now (before any system include file which could
+    # contain some inline functions).
+      #ifdef STACK_register
+        register long STACK_reg __asm__(STACK_register);
+      #endif
+      #ifdef mv_count_register
+        register long mv_count_reg __asm__(mv_count_register);
+      #endif
+      #ifdef value1_register
+        register long value1_reg __asm__(value1_register);
+      #endif
+      #ifdef subr_self_register
+        register long subr_self_reg __asm__(subr_self_register);
+      #endif
     # Saving "save" registers.
     #if (defined(I80386) && !defined(DYNAMIC_MODULES)) || defined(HPPA) || defined(M88000) || defined(ARM) || defined(DECALPHA)
       #define HAVE_SAVED_REGISTERS
@@ -773,7 +787,6 @@
         #define callback_saved_registers  (current_thread()->_callback_saved_registers)
       #endif
       #ifdef STACK_register
-        register long STACK_reg __asm__(STACK_register);
         #define SAVE_STACK_register(registers)     registers->STACK_register_contents = STACK_reg;
         #define RESTORE_STACK_register(registers)  STACK_reg = registers->STACK_register_contents;
       #else
@@ -781,7 +794,6 @@
         #define RESTORE_STACK_register(registers)
       #endif
       #ifdef mv_count_register
-        register long mv_count_reg __asm__(mv_count_register);
         #define SAVE_mv_count_register(registers)     registers->mv_count_register_contents = mv_count_reg;
         #define RESTORE_mv_count_register(registers)  mv_count_reg = registers->mv_count_register_contents;
       #else
@@ -789,7 +801,6 @@
         #define RESTORE_mv_count_register(registers)
       #endif
       #ifdef value1_register
-        register long value1_reg __asm__(value1_register);
         #define SAVE_value1_register(registers)     registers->value1_register_contents = value1_reg;
         #define RESTORE_value1_register(registers)  value1_reg = registers->value1_register_contents;
       #else
@@ -797,7 +808,6 @@
         #define RESTORE_value1_register(registers)
       #endif
       #ifdef subr_self_register
-        register long subr_self_reg __asm__(subr_self_register);
         #define SAVE_subr_self_register(registers)     registers->subr_self_register_contents = subr_self_reg;
         #define RESTORE_subr_self_register(registers)  subr_self_reg = registers->subr_self_register_contents;
       #else
