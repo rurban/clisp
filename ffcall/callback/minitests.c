@@ -1,2 +1,2 @@
-#define SKIP_STRUCTS
+#define SKIP_EXTRA_STRUCTS
 #include "tests.c"
