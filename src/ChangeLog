@@ -1,5 +1,13 @@
 1999-01-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        with_sstring and with_sstring_0 must not be called in a loop which
+        is executed a lot of times, otherwise SP overflow danger.
+        * pathname.d (subdirs): Change argument from char* to simple-string.
+          (subfiles, directory_search_1subdir, directory_search_hashcode,
+           directory_search_direntry_ok, directory_search_scandir): New
+          functions, moved out of the body of directory_search.
+          (allsubdirs, directory_search): Update.
+
         Minimize the use of heap-allocated ASCIZ strings.
         * constobj.d (O(null_string)): Remove.
         * spvw.d (init_object_tab): Update.
