@@ -95,6 +95,7 @@ LPSEUDOCODE(wr_ch_printer)
 # External definitions from ENCODING.D:
 #ifdef UNICODE
 XPSEUDOCODE(object, all_range, (object encoding, uintL start, uintL end, uintL maxintervals))
+XPSEUDOCODE(object, bmp_range, (object encoding, uintL start, uintL end, uintL maxintervals))
 XPSEUDOCODE(uintL, uni16_mblen, (object encoding, const uintB* src, const uintB* srcend))
 XPSEUDOCODE(void, uni16be_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
 XPSEUDOCODE(void, uni16le_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))

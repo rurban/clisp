@@ -271,7 +271,7 @@
 	(legal_name): Update SstringDispatch invocation.
 	(ensure_last_slash): Likewise.
 	* predtype.d (elt_compare_T_Char): Update SstringDispatch invocation.
-	* pseudofun.d (uni32be_mblen, uni32le_mblen): New entries.
+	* pseudofun.d (bmp_range, uni32be_mblen, uni32le_mblen): New entries.
 	(uni32_mblen): Remove entry.
 	* spvw_garcol.d (gc_mark): Handle 3 different simple-string types.
 	* spvw_genera1.d (walk_area, build_old_generation_cache): Likewise.
