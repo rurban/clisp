@@ -1,5 +1,13 @@
 2002-01-09  Sam Steingold  <sds@gnu.org>
 
+	notice function redefinitions again
+	* compiler.lisp (c-DEFUN): accept optional argument TYPE, to
+	distinguish between DEFUN and DEFMETHOD (CURRENT-FUNCTION for
+	top-level forms does not return anything useful)
+	* clos.lisp (defmethod, defgeneric): pass the 4th argument to c-DEFUN
+
+2002-01-09  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #501166
 	* pathname.d (SUBDIR_PUSHSTACK): check for non-string subdir
 	elements, do not return
