@@ -122,7 +122,7 @@
   (let* ((form-type (first typespec))
          (spec-list
           (ecase form-type
-            (C-STRUCT (cddr typespec))
+            (C-STRUCT (cdddr typespec))
             (C-UNION (cdr typespec)))))
     (mapcar (lambda (subspec)
               (unless (and (consp subspec)
@@ -139,7 +139,7 @@
     (case class
       (VECTOR #'vector)
       (LIST #'list)
-      (t (let* ((slots (mapcar #'first (cddr typespec)))
+      (t (let* ((slots (mapcar #'first (cdddr typespec)))
                 (vars (mapcar #'(lambda (x) (gensym (symbol-name x)))
                               slots))
                 h)
@@ -191,12 +191,14 @@
            (dimp (dim) (typep dim '(integer 0 *))))
       (case (first typespec)
         (C-STRUCT
-         (with-defining-c-type (name c-type (1+ (length typespec)))
-           (setf (svref c-type 0) (first typespec))
-           (setf (svref c-type 1) (map 'vector #'first (cddr typespec)))
-           (setf (svref c-type 2) ; constructor
+         (with-defining-c-type (name c-type (max 5 (+ 2 (length typespec))))
+           (setf (svref c-type 0) (first typespec)) ; c-struct
+           (setf (svref c-type 1) (second typespec)) ; name
+           (setf (svref c-type 2) (third typespec)) ; options
+           (setf (svref c-type 3) (map 'vector #'first (cdddr typespec)))
+           (setf (svref c-type 4) ; constructor
                  (c-struct-constructor typespec))
-           (setf (subseq c-type 3) (parse-components typespec))))
+           (setf (subseq c-type 5) (parse-components typespec))))
         (C-UNION
          (with-defining-c-type (name c-type (1+ (length typespec)))
            (setf (svref c-type 0) (first typespec))
@@ -380,15 +382,17 @@
                        (new-type ctype typespec)
                        (setf (rest typespec) ; fill the rest
                              (ecase (svref ctype 0)
-                               ;; #(c-struct slots constructor <c-type>*)
+                               ;; #(c-struct name options slots
+                               ;;            constructor <c-type>*)
                                (C-STRUCT
-                                (cons
-                                 (let ((constructor (svref ctype 2)))
-                                   (cond ((eql constructor #'vector) 'vector)
-                                         ((eql constructor #'list) 'list)
-                                         (t 'nil)))
-                                 (map 'list #'deparse-slot
-                                      (svref ctype 1) (subseq ctype 3))))
+                                (let ((constructor (svref ctype 4)))
+                                  `(,(cond ((eql constructor #'vector) 'vector)
+                                           ((eql constructor #'list) 'list)
+                                           (t (svref ctype 1))) ; name
+                                     ,(svref ctype 2) ; options
+                                     . ,(map 'list #'deparse-slot
+                                             (svref ctype 3)
+                                             (subseq ctype 5)))))
                                ;; #(c-union alternatives <c-type>*)
                                (C-UNION
                                 (map 'list #'deparse-slot
@@ -533,22 +537,26 @@
     (c-pointer (format nil "void* ~A" name))
     (t (if (gethash c-type *type-table*)
          (format nil "~A ~A" (gethash c-type *type-table*) name)
-         (macrolet ((with-to-c ((class typename) &body body)
-                      `(let ((,typename
-                              (format nil "~A ~A" ,class (gensym "t"))))
-                        (unwind-protect
-                             (progn (setf (gethash c-type *type-table*)
-                                          ,typename)
-                                    ,@body)
-                          (setf (gethash c-type *type-table*) nil)))))
+         (macrolet ((with-to-c ((class typename &key (tname '(gensym "t")))
+                                &body body)
+                      `(let ((,typename (format nil "~A ~A" ,class ,tname)))
+                         (unwind-protect
+                              (progn (setf (gethash c-type *type-table*)
+                                           ,typename)
+                                     ,@body)
+                           (setf (gethash c-type *type-table*) nil)))))
            (case (ctype-type c-type)
              (c-struct
-              (with-to-c ("struct" type)
-                (format nil "~a { ~{~A; ~}} ~A"
-                        type (map 'list #'to-c-typedecl
-                                  (cdddr (coerce c-type 'list))
-                                  (svref c-type 1))
-                        name)))
+              (cond ((sys::memq :typedef (svref c-type 2))
+                     (format nil "~A ~A" (svref c-type 1) name))
+                    ((sys::memq :external (svref c-type 2))
+                     (format nil "struct ~A ~A" (svref c-type 1) name))
+                    (t (with-to-c ("struct" type :tname (svref c-type 1))
+                         (format nil "~a { ~{~A; ~}} ~A"
+                                 type (map 'list #'to-c-typedecl
+                                           (subseq c-type 5)
+                                           (svref c-type 3))
+                                 name)))))
              (c-union
               (with-to-c ("union" type)
                 (format nil "~A { ~{~A; ~}} ~A"
@@ -627,9 +635,19 @@
                      *function-list* :key #'first :test #'equal)))
     (dolist (function *function-list*)
       ;(prepare-c-typedecl (svref (second function) 1))
-      (format *coutput-stream* "extern ~A;~%"
+      (format *coutput-stream* "extern ~A"
               (to-c-typedecl (svref (second function) 1)
-                             (format nil "(~A)()" (first function)))))
+                             (format nil "(~A)(" (first function))))
+      (when (third function)    ; built-in, requires full arglist
+        (do* ((parameters (svref (second function) 2))
+              (length (length parameters)) (i 0 (+ 2 i))
+              (parameter (svref parameters i)))
+             ((>= i length))
+          (unless (zerop i)
+            (write-string ", " *coutput-stream*))
+          (write-string (to-c-typedecl parameter "")
+                        *coutput-stream*)))
+      (format *coutput-stream* ");~%"))
     (format *coutput-stream*
             "~%void module__~A__init_function_1 (module_t* module)~%{ }~%"
             *c-name*)
@@ -782,13 +800,13 @@
 ;; ============================ heep allocation ============================
 
 (defmacro allocate-deep (ffi-type initval &rest keywords &key count read-only)
-  (declare (ignore count read-only))	; to be accessed via keywords
+  (declare (ignore count read-only)) ; to be accessed via keywords
   `(foreign-allocate (parse-c-type ,ffi-type)
                      :initial-contents ,initval
                      ,@keywords))
 
 (defmacro allocate-shallow (ffi-type &rest keywords &key count read-only)
-  (declare (ignore count read-only))	; to be accessed via keywords
+  (declare (ignore count read-only)) ; to be accessed via keywords
   `(foreign-alloc* (parse-c-type ,ffi-type) ,@keywords))
 
 ;; ============================ named C functions ============================
@@ -800,7 +818,9 @@
 
 (defmacro DEF-CALL-OUT (&whole whole name &rest options)
   (check-symbol (first whole) name)
-  (let* ((alist (parse-options options '(:name :arguments :return-type :language) whole))
+  (let* ((alist (parse-options options '(:name :arguments :return-type
+                                         :language :built-in)
+                               whole))
          (parsed-function (parse-c-function alist whole))
          (signature (argvector-to-signature (svref parsed-function 2)))
          (c-name (foreign-name name (assoc ':name alist))))
@@ -818,7 +838,9 @@
 (defun note-c-fun (c-name alist whole)
   (when (compiler::prepare-coutput-file)
     (prepare-module)
-    (push (list c-name (parse-c-function alist whole)) *function-list*)))
+    (push (list c-name (parse-c-function alist whole)
+                (cadr (assoc :built-in alist)))
+          *function-list*)))
 
 #+AMIGA
 (defmacro DEF-LIB-CALL-OUT (&whole whole name library &rest options)
@@ -976,10 +998,14 @@
       (setq next-value `(1+ ,item)))
     `(PROGN ,@(nreverse forms) (def-c-type ,name int))))
 
-(defmacro def-c-struct (name &rest slots)
-  `(PROGN
-     (DEFSTRUCT ,name ,@(mapcar #'first slots))
-     (DEF-C-TYPE ,name (C-STRUCT ,name ,@slots))))
+(defmacro def-c-struct (name+options &rest slots)
+  (multiple-value-bind (name options)
+      (if (consp name+options)
+          (values (first name+options) (rest name+options))
+          (values name+options nil))
+    `(PROGN
+       (DEFSTRUCT ,name ,@(mapcar #'first slots))
+       (DEF-C-TYPE ,name (C-STRUCT ,name ,options ,@slots)))))
 
 ;; In order for ELEMENT, DEREF, SLOT to be SETFable, I make them macros.
 ;; (element (foreign-value x) ...) --> (foreign-value (%element x ...))

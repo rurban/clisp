@@ -1437,7 +1437,7 @@ N. Gray to X3J13.</para>
  called and its value is printed with &princ;.  Otherwise, the value
  itself is printed with &princ;.  The default value of
  <varname>CUSTOM:*PROMPT*</varname> prints
- <prompt>"package[n]&gt;&nbsp;"</prompt> where &pack-r is the shortest
+ <prompt>"package[n]&gt;&nbsp;"</prompt> where &pack-r; is the shortest
  (nick)name of the current package &package-var; if it is &not-e; the
  same as it was in the beginning or if it does not contain symbol &t;
  (it is assumed that in the latter case you would want to keep in mind
@@ -2103,13 +2103,16 @@ containing:</para>
    &ctype-r; [&allocation;])</literal></entry></row>
 <row><entry/><entry>|</entry><entry><literal role="sexp">(&lang-k;
    &lang-r;)</literal></entry></row>
+<row><entry/><entry>|</entry><entry><literal role="sexp">(:BUILT-IN
+   &boolean-t;)</literal></entry></row>
 </tbody></tgroup></table>
 
 <simpara>This form defines a named call-out function (a foreign function
  called from Lisp: control flow temporarily leaves Lisp).  Any Lisp
  function call to <function>#'&name-r;</function>
  is redirected to call the &c-lang; function &cname-r;.
-</simpara></listitem></varlistentry>
+ When the function is a &c-lang; built-in, full prototype has to be
+ output.</simpara></listitem></varlistentry>
 
 <varlistentry id="def-call-in"><term><literal role="sexp">(&def-call-in;
               &name-r; {&option-r;}*)</literal></term>
@@ -2148,9 +2151,24 @@ containing:</para>
 
 <varlistentry id="def-c-struct"><term><literal role="sexp">(&def-c-struct;
    &name-r; (<replaceable>ident</replaceable> &ctype-r;)*)</literal></term>
- <listitem><simpara>This form defines &name-r; to be both a
+ <listitem><para>This form defines &name-r; to be both a
   &structure-class; and a foreign &c-lang; type with the given slots.
- </simpara></listitem></varlistentry>
+  &name-r; is a &symbol-t; (structure name) or a &list-t; whose &first;
+  element is the structure name and the &rest; is options.
+  Two options are supported at this time:
+  <variablelist id="def-c-struct-opts">
+   <varlistentry id="def-c-struct-typedef">
+    <term><constant>:TYPEDEF</constant></term>
+    <listitem><simpara>means that the name of this structure is a
+      &c-lang; type defined with <function>typedef</function>.
+   </simpara></listitem></varlistentry>
+   <varlistentry id="def-c-struct-external">
+    <term><constant>:EXTERNAL</constant></term>
+    <listitem><simpara>means that this structure is defined in a
+      &c-file; file that you include with, e.g.,
+      <literal role="sexp">(&c-lines; "#include &lt;filename.h&gt;")</literal>.
+  </simpara></listitem></varlistentry></variablelist>
+</para></listitem></varlistentry>
 
 <varlistentry id="def-c-enum"><term><literal role="sexp">(&def-c-enum;
         &name-r; {<replaceable>ident</replaceable> |
@@ -2908,7 +2926,7 @@ extern div_t div (int numer, int denom);
 This translates to
 
 <programlisting>
-(def-c-struct div_t
+(def-c-struct (div_t :typedef)
   (quot int)
   (rem int))
 (default-foreign-language :stdc)

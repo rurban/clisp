@@ -253,7 +253,7 @@ LISPFUNNR(foreign_address,1)
 #   <simple-c-type>   as described in impnotes.html#dffi
 #   c-pointer
 #   c-string
-#   #(c-struct slots constructor <c-type>*)
+#   #(c-struct name options slots constructor <c-type>*)
 #   #(c-union alternatives <c-type>*)
 #   #(c-array <c-type> number*)
 #   #(c-array-max <c-type> number)
@@ -262,7 +262,7 @@ LISPFUNNR(foreign_address,1)
 #   #(c-ptr-null <c-type>)
 #   #(c-array-ptr <c-type>)
 
-#define C_STRUCT_SLOTS         1
+#define C_STRUCT_SLOTS         3
 #define C_STRUCT_CONSTRUCTOR   (C_STRUCT_SLOTS+1)
 #define C_STRUCT_C_TYPE_START  (C_STRUCT_CONSTRUCTOR+1)
 
