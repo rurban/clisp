@@ -1,3 +1,12 @@
+2004-10-17  Bruno Haible  <bruno@clisp.org>
+
+	Remove redundant data from a defstruct-description.
+	* io.d (structure_reader): Expect a vector of size = 4.
+	* defstruct.lisp (find-structure-slot-initfunction): New function.
+	(defstruct): Use it to recover the initfunctions, not svref on the
+	defstruct-description. Don't put the initfunctions into the
+	defstruct-description.
+
 2004-11-01  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/configure.in: check for select() with CL_SELECT;
