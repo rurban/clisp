@@ -1,3 +1,15 @@
+2002-03-27  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+	    Sam Steingold  <sds@gnu.org>
+
+	* install.bat: search for install.lisp in the current directory
+	if it is not found in src/; slashes changed to backslashes
+	* install.lisp (*clisp-home*): forward slashes only for -B parameter
+	(*lisp-type-map*): new variables
+	(top-level): registers all file extensions
+	HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes is a synonym for
+	HKEY_CLASSES_ROOT, do not set it
+	Use Y-OR-NO-P to let the user control the setup.
+
 2002-03-24  Sam Steingold  <sds@gnu.org>
 
 	* defs1.lisp (%time): avoid some possible consing by computing
