@@ -1603,6 +1603,7 @@ esac
 echol "htmldir = \$(lispdocdir)"
 echol "dvidir  = \$(lispdocdir)"
 echol "psdir   = \$(lispdocdir)"
+echol "pdfdir  = \$(lispdocdir)"
 echol "libdir = \$(exec_prefix)${NEXT_}lib"
 echol "lisplibdir = \$(libdir)${NEXT_}clisp"
 if [ -n "$USE_GETTEXT" ] ; then
@@ -2970,7 +2971,7 @@ echol
 OBSOLETE=$OBSOLETE" genclisph${HEXE}"
 
 if test -n "$GROFF"; then
-  manual_dvi='clisp.dvi clisp.ps'
+  manual_dvi='clisp.dvi clisp.ps clisp.pdf'
 else
   manual_dvi=''
 fi
@@ -2989,8 +2990,8 @@ for f in ${IMPNOTES_FILES} ; do
 done
 EMACS_FILES="clisp-coding.el clisp-indent.el clisp-indent.lisp"
 
-# On Unix, clisp.dvi & clisp.ps must be built by "make all", because
-# "make install" needs it and "make install" must not create files in
+# On Unix, clisp.dvi, clisp.ps, clisp.pdf must be built by "make all",
+# because "make install" needs it and "make install" must not create files in
 # the current directory, for compliance with the GNU standards.
 # On other OSes, clisp.dvi & clisp.ps must be built manually on another
 # machine, so don't make it part of "make all".
@@ -3089,6 +3090,12 @@ if test -n "$GROFF"; then
   echol "clisp.ps : clisp.1"
   echotab "\$(ROFF_PS) clisp.1 > clisp.ps"
   echol
+  # Use dvipdf, not ps2pdf, to generate clisp.pdf, because ps2pdf generates
+  # bad quality output: It puts an undesired space after "fi", such as in
+  # "file".
+  echol "clisp.pdf : clisp.dvi"
+  echotab "dvipdf clisp.dvi clisp.pdf"
+  echol
 fi
 
 echol "clisp.man : clisp.1"
@@ -3152,6 +3159,7 @@ if [ $CROSS = false ] ; then
         echotab_mkdir_maybe "\$(DESTDIR)\$(htmldir)"
         echotab_mkdir_maybe "\$(DESTDIR)\$(dvidir)"
         echotab_mkdir_maybe "\$(DESTDIR)\$(psdir)"
+        echotab_mkdir_maybe "\$(DESTDIR)\$(pdfdir)"
         ;;
       *bsd)
         echotab_mkdir_maybe "\$(DESTDIR)\$(lispdocdir)"
@@ -3207,9 +3215,11 @@ if [ $CROSS = false ] ; then
         echotab "\$(INSTALL_DATA) clisp.html \$(DESTDIR)\$(htmldir)/clisp.html"
         echotab_mkdir_maybe "\$(DESTDIR)\$(dvidir)"
         echotab_mkdir_maybe "\$(DESTDIR)\$(psdir)"
+        echotab_mkdir_maybe "\$(DESTDIR)\$(pdfdir)"
         if test -n "$GROFF"; then
           echotab "\$(INSTALL_DATA) clisp.dvi \$(DESTDIR)\$(dvidir)/clisp.dvi"
           echotab "\$(INSTALL_DATA) clisp.ps  \$(DESTDIR)\$(psdir)/clisp.ps"
+          echotab "\$(INSTALL_DATA) clisp.pdf \$(DESTDIR)\$(pdfdir)/clisp.pdf"
         fi
         ;;
       *bsd)
@@ -3265,6 +3275,7 @@ if [ $CROSS = false ] ; then
         echotab "\$(RM) \$(DESTDIR)\$(htmldir)/clisp.html"
         echotab "\$(RM) \$(DESTDIR)\$(dvidir)/clisp.dvi"
         echotab "\$(RM) \$(DESTDIR)\$(psdir)/clisp.ps"
+        echotab "\$(RM) \$(DESTDIR)\$(pdfdir)/clisp.pdf"
         ;;
     esac
     echotab "\$(RMRF) \$(DESTDIR)\$(lispdocdir)"
@@ -3522,7 +3533,7 @@ cat <<!!
 	-rmdir ${RECOMPILEDIR}
 	-rmdir ${TESTSDIR}
 	-rmdir ${ANSITESTSDIR}
-	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.ps clisp.html \$(IMPNOTES) clisp.c distmakefile \$(TXTFILES)
+	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.ps clisp.pdf clisp.html \$(IMPNOTES) clisp.c distmakefile \$(TXTFILES)
 
 # clean2 removes everything that becomes obsolete once lisp${LEXE}
 # is recompiled without changing the bytecode format.

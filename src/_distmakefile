@@ -23,6 +23,7 @@ lispdocdir = $(docdir)/clisp
 htmldir = $(lispdocdir)
 dvidir = $(lispdocdir)
 psdir = $(lispdocdir)
+pdfdir = $(lispdocdir)
 libdir = $(exec_prefix)/lib
 lisplibdir = $(libdir)/clisp
 lexe=@@LEXE@@
@@ -111,10 +112,12 @@ install-man : doc/clisp.1 doc/clisp.html force
 	if [ ! -d $(htmldir) ] ; then mkdir $(htmldir) ; fi
 	if [ ! -d $(dvidir) ] ; then mkdir $(dvidir) ; fi
 	if [ ! -d $(psdir) ] ; then mkdir $(psdir) ; fi
+	if [ ! -d $(pdfdir) ] ; then mkdir $(pdfdir) ; fi
 	$(INSTALL_DATA) doc/clisp.1 $(mandir)/man1/clisp.1
 	$(INSTALL_DATA) doc/clisp.html $(htmldir)/clisp.html
 	$(INSTALL_DATA) doc/clisp.dvi $(dvidir)/clisp.dvi
 	$(INSTALL_DATA) doc/clisp.ps $(psdir)/clisp.ps
+	$(INSTALL_DATA) doc/clisp.pdf $(pdfdir)/clisp.pdf
 
 install-doc : force
 	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
@@ -133,6 +136,7 @@ uninstall : force
 	rm -f $(htmldir)/clisp.html
 	rm -f $(dvidir)/clisp.dvi
 	rm -f $(psdir)/clisp.ps
+	rm -f $(pdfdir)/clisp.pdf
 	rm -rf $(lispdocdir)
 
 force:
