@@ -3600,7 +3600,7 @@ local object dlerror_string (void)
 { /* return the string object for dlerror() value */
   var char* error;
   begin_system_call(); error = dlerror(); end_system_call();
-  return asciz_to_string(error,O(misc_encoding));
+  return error == NULL ? NIL : asciz_to_string(error,O(misc_encoding));
 }
 #endif
 
