@@ -485,18 +485,26 @@ global bool near_SP_overflow (void) {
 
 # At overflow of one of the stacks:
 nonreturning_function(global, SP_ueber, (void)) {
+  var bool interactive_p = interactive_stream_p(Symbol_value(S(debug_io)));
+  begin_system_call();
   fputs(GETTEXTL(NLstring "*** - " "Program stack overflow. RESET"),stderr);
-  if (interactive_stream_p(Symbol_value(S(debug_io))))
-    reset();
+  if (!interactive_p) fputs(NLstring,stderr);
+  fflush(stderr);
+  end_system_call();
+  if (interactive_p) reset();
   /* non-interactive session: quit */
-  else { fputs(NLstring,stderr); final_exitcode=1; quit(); }
+  else { final_exitcode=1; quit(); }
 }
 nonreturning_function(global, STACK_ueber, (void)) {
+  var bool interactive_p = interactive_stream_p(Symbol_value(S(debug_io)));
+  begin_system_call();
   fputs(GETTEXTL(NLstring "*** - " "Lisp stack overflow. RESET"),stderr);
-  if (interactive_stream_p(Symbol_value(S(debug_io))))
-    reset();
+  if (!interactive_p) fputs(NLstring,stderr);
+  fflush(stderr);
+  end_system_call();
+  if (interactive_p) reset();
   /* non-interactive session: quit */
-  else { fputs(NLstring,stderr); final_exitcode=1; quit(); }
+  else { final_exitcode=1; quit(); }
 }
 
 # ----------------------------------------------------------------------------
