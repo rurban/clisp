@@ -4196,7 +4196,13 @@ functions are provided:
 <para>&get-output-stream-string; returns the same value after
  &close; as it would before it.</para>
 
-<para>&close; on already closed stream does nothing and returns &t;</para>
+<para>&close; on an already closed &stream-t; does nothing and returns
+ &t;.</para>
+
+<para>If you do not &close; your &stream-t; explicitly, it will be
+ closed at &gc;ion time automatically.
+ This is not recommended though because &gc;ion is not deterministic.
+ Please use &with-open-stream; etc.</para>
 
 </section>
 
