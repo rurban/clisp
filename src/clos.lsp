@@ -3647,7 +3647,9 @@
 (defgeneric slot-unbound (class instance slot-name)
   (:method ((class t) instance slot-name)
     (declare (ignore class))
-    (error-of-type 'error
+    (error-of-type 'unbound-slot
+      :name slot-name
+      :instance instance
       (DEUTSCH "~S: Der Slot ~S von ~S hat keinen Wert."
        ENGLISH "~S: The slot ~S of ~S has no value"
        FRANCAIS "~S : Le composant ~S de ~S n'a pas de valeur.")
