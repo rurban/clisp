@@ -222,6 +222,7 @@
           type `void*'.
         * unixconf.h.in (IOCTL_ARGUMENT_T): New definition.
         * unix.d (ioctl, nonintr_ioctl): Change declarations.
+          (IOCTL_ARGUMENT_T): New definition.
         * unixaux.d (nonintr_ioctl): Likewise.
 
 1998-12-21  Sam Steingold  <sds@goems.com>
