@@ -561,20 +561,6 @@ AC_DEFINE_UNQUOTED(RETABORTTYPE,$cl_cv_proto_abort_ret)
 AC_DEFINE_UNQUOTED(ABORT_VOLATILE,$cl_cv_proto_abort_vol)
 ])dnl
 dnl
-AC_DEFUN(CL_MKDIR,
-[CL_PROTO([mkdir], [
-CL_PROTO_CONST([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <sys/types.h>
-#include <sys/stat.h>
-], [int mkdir (char* path, mode_t mode);], [int mkdir();], cl_cv_proto_mkdir_arg1)
-], [extern int mkdir ($cl_cv_proto_mkdir_arg1 char*, mode_t);])
-AC_DEFINE_UNQUOTED(MKDIR_CONST,$cl_cv_proto_mkdir_arg1)
-])dnl
-dnl
 AC_DEFUN(CL_OPEN,
 [AC_BEFORE([$0], [CL_FILECHARSET])dnl
 CL_PROTO([open], [
