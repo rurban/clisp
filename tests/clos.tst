@@ -60,6 +60,9 @@ foo
 (foo a)
 11
 
+(fmakunbound 'foo)
+foo
+
 (defparameter b (make-instance (find-class '<C2>) :x 10 :y 20 :z 30))
 B
 
