@@ -1,5 +1,11 @@
 2003-04-21  Sam Steingold  <sds@gnu.org>
 
+	EQUALP on HASH-TABLEs now correctly descends the structure
+	* predtype.d (hash_table_equalp): new function
+	(equalp): use it to compare hash-tables
+
+2003-04-21  Sam Steingold  <sds@gnu.org>
+
 	* spvw_fault.d, spvw_genera1.d, spvw_genera2.d, spvw_genera3.d:
 	* spvw_heap.d, spvw_memfile.d (memdump_header, memdump_page)
 	(memdump_physpage_state, memdump_reloc_header, old_new_pointer)

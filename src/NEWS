@@ -92,8 +92,10 @@ User visible changes
     <EXTERNAL-FORMAT-FOR-EVERY-FILE-CONNECTION:MINIMUM>,
     <IMPORT-SETF-SYMBOL-PACKAGE>, <SETF-FIND-CLASS:ALLOW-NIL>,
     <SUBTYPEP-ENVIRONMENT:ADD-ARG>;
+  + EQUALP on HASH-TABLEs now correctly descends the structure;
   + a character is now accepted as a package designator.
-  Thanks to Paul F. Dietz <dietz@dls.net> and his ANSI compliance suite.
+  Thanks to Paul F. Dietz <dietz@dls.net> and his ANSI compliance
+  suite, which helped detect some of these deficiencies.
 
 * FUNCTION-LAMBDA-EXPRESSION now always returns the correct function name.
   See <http://clisp.cons.org/impnotes.html#fle> for details.
