@@ -267,7 +267,7 @@ case "$1" in
       for f in $TO_PRELOAD; do
         to_preload="$to_preload $moduledir/$f"
       done
-      verbose "$sourcedir"/lisp.run -M "$sourcedir"/lispinit.mem -q -i $to_preload -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
+      verbose "$sourcedir"/lisp.run -M "$sourcedir"/lispinit.mem -norc -q -i $to_preload -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
       lispinitdir="$destinationdir"
     else
       lispinitdir="$sourcedir"
@@ -277,7 +277,7 @@ case "$1" in
     for f in $TO_LOAD; do
       to_load="$to_load $moduledir/$f"
     done
-    verbose "$destinationdir"/lisp.run -M "$lispinitdir"/lispinit.mem -q -i $to_load -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
+    verbose "$destinationdir"/lisp.run -M "$lispinitdir"/lispinit.mem -norc -q -i $to_load -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
     # Generate new makevars
     sed -e "s,^LIBS=.*\$,LIBS='${LIBS}'," -e "s,^FILES=.*\$,FILES='${FILES}'," < "$sourcedir"/makevars > "$destinationdir"/makevars
     # Done.
@@ -407,13 +407,13 @@ case "$1" in
       (cd "$destinationdir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o lisp.run)
       if [ -n "$PRELOAD" ] ; then
         # Generate new preliminary lispinit.mem
-        verbose "$sourcedir"/lisp.run -M "$sourcedir"/lispinit.mem -q -i ${PRELOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
+        verbose "$sourcedir"/lisp.run -M "$sourcedir"/lispinit.mem -norc -q -i ${PRELOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
       fi
       # Generate new lispinit.mem
       if [ -n "$PRELOAD" ] ; then
-        verbose "$destinationdir"/lisp.run -M "$destinationdir"/lispinit.mem -q -i ${LOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
+        verbose "$destinationdir"/lisp.run -M "$destinationdir"/lispinit.mem -norc -q -i ${LOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
       else
-        verbose "$destinationdir"/lisp.run -M "$sourcedir"/lispinit.mem -q -i ${LOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
+        verbose "$destinationdir"/lisp.run -M "$sourcedir"/lispinit.mem -norc -q -i ${LOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
       fi
       # Generate new makevars
       sed -e "s,^LIBS=.*\$,LIBS='${LIBS}'," -e "s,^FILES=.*\$,FILES='${FILES}'," < "$sourcedir"/makevars > "$destinationdir"/makevars
