@@ -174,50 +174,53 @@
 ;; ----------------------------------------------------------------------------
 
 ;; Make GET-MACRO-CHARACTER work on dispatch macro characters.
-(let ((vector '#()))
-  (declare (compile))
-  ; This code must be in accordance with io.d:read_macro().
-  (defun dispatch-reader (stream ch)
-    (let ((arg 0)
-          subch)
-      (let ((flag nil))
-        (loop
-          (let ((nextch (read-char stream nil nil)))
-            (unless nextch
-              (error-of-type 'end-of-file
-                :stream stream
-                (TEXT "~S: input stream ~S ends within read macro beginning to ~S")
-                'read stream ch
-            ) )
-            (unless (characterp nextch)
-              (error-of-type 'stream-error
-                :stream stream
-                (TEXT "~S from ~S: character read should be a character: ~S")
-                'read stream ch
-            ) )
-            (unless (char<= #\0 nextch #\9)
-              (setq subch nextch)
-              (return)
-            )
-            (setq arg (+ (* 10 arg) (digit-char-p nextch)))
-            (setq flag t)
-        ) )
-        (unless flag (setq arg nil))
-      )
-      (let* ((subc (char-upcase subch))
-             (macrodef
-               (if (< (char-code subc) #x100)
-                 (svref vector (char-code subc))
-                 (gethash subc (svref vector #x100))
-            )) )
-        (unless macrodef
-          (error-of-type 'stream-error
-            :stream stream
-            (TEXT "~S from ~S: After ~S is ~S an undefined dispatch macro character")
-            'read stream ch subch
-        ) )
-        (funcall macrodef stream subch arg)
-  ) ) )
+(let ((vector
+        (let ((vector '#()))
+          (declare (compile))
+          ; This code must be in accordance with io.d:read_macro().
+          (defun dispatch-reader (stream ch)
+            (let ((arg 0)
+                  subch)
+              (let ((flag nil))
+                (loop
+                  (let ((nextch (read-char stream nil nil)))
+                    (unless nextch
+                      (error-of-type 'end-of-file
+                        :stream stream
+                        (TEXT "~S: input stream ~S ends within read macro beginning to ~S")
+                        'read stream ch
+                    ) )
+                    (unless (characterp nextch)
+                      (error-of-type 'stream-error
+                        :stream stream
+                        (TEXT "~S from ~S: character read should be a character: ~S")
+                        'read stream ch
+                    ) )
+                    (unless (char<= #\0 nextch #\9)
+                      (setq subch nextch)
+                      (return)
+                    )
+                    (setq arg (+ (* 10 arg) (digit-char-p nextch)))
+                    (setq flag t)
+                ) )
+                (unless flag (setq arg nil))
+              )
+              (let* ((subc (char-upcase subch))
+                     (macrodef
+                       (if (< (char-code subc) #x100)
+                         (svref vector (char-code subc))
+                         (gethash subc (svref vector #x100))
+                    )) )
+                (unless macrodef
+                  (error-of-type 'stream-error
+                    :stream stream
+                    (TEXT "~S from ~S: After ~S is ~S an undefined dispatch macro character")
+                    'read stream ch subch
+                ) )
+                (funcall macrodef stream subch arg)
+          ) ) )
+          vector
+     )) )
   (let ((vector-index
           (do ((i 0 (1+ i)))
                (nil)

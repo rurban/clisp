@@ -1,3 +1,13 @@
+2004-11-06  Bruno Haible  <bruno@clisp.org>
+
+	Eliminate warnings during bootstrapping.
+	* init.lisp (fbound-string): For a preliminary macro, return nil,
+	not "function".
+	(eval-loaded-form, cerror): Define as preliminary.
+	* type.lisp (clos::builtin-class-p): Define as preliminary.
+	* defs2.lisp (dispatch-reader): Refer to #'dispatch-reader outside
+	the compiled block, not inside.
+
 2004-11-06  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (clean3): also remove FAS files in modules

@@ -526,14 +526,16 @@
 (sys::%putd 'sys::fbound-string
   (function sys::fbound-string (lambda (sym)
     (cond ((special-operator-p sym) (TEXT "special operator"))
-          ((and (macro-function sym)
-                (not (and (sys::closurep (macro-function sym))
-                          (sys::preliminary-p (sys::closure-name (macro-function sym))))))
-           (TEXT "macro"))
-          ((and (fboundp sym)
-                (not (and (sys::closurep (symbol-function sym))
-                          (sys::preliminary-p (sys::closure-name (symbol-function sym))))))
-           (TEXT "function"))))))
+          ((macro-function sym)
+           (if (not (and (sys::closurep (macro-function sym))
+                         (sys::preliminary-p (sys::closure-name (macro-function sym)))))
+             (TEXT "macro")
+             nil))
+          ((fboundp sym)
+           (if (not (and (sys::closurep (symbol-function sym))
+                         (sys::preliminary-p (sys::closure-name (symbol-function sym)))))
+             (TEXT "function")
+             nil))))))
 
 (proclaim '(special *documentation*))
 (setq *documentation* (make-hash-table :key-type 'symbol ; actually (or symbol cons)
@@ -1515,7 +1517,7 @@
 ;; in theory this is a good idea:
 ;;   (proclaim '(inline eval-loaded-form-low))
 ;; unfortunately, when condition.lisp is compiled,
-;; this funtion is not necessarily already compiled
+;; this function is not necessarily already compiled
 ;; due to our bootstrapping process,
 ;; so it will not be inlined there (in eval-loaded-form),
 ;; therefore the "test" target (self-recompilation) will fail
@@ -1527,7 +1529,10 @@
 
 ;; redefined in condition.lisp
 (proclaim '(notinline eval-loaded-form))
-(defun eval-loaded-form (obj) (eval-loaded-form-low obj))
+(sys::%putd 'eval-loaded-form
+  (sys::make-preliminary
+    (function eval-loaded-form (lambda (obj)
+      (eval-loaded-form-low obj)))))
 
 ;; (LOAD filename [:verbose] [:print] [:if-does-not-exist] [:external-format]
 ;;                [:echo] [:compiling] [:extra-file-types] [:obsolete-action]),
@@ -2033,7 +2038,7 @@
 ;; At this point saveinitmem works.
 
 ;; preliminary definition of CERROR, CLtL2 p. 887
-(defun cerror (continue-format-string error-format-string &rest args)
+(predefun cerror (continue-format-string error-format-string &rest args)
   (if *error-handler*
     (apply *error-handler*
            (or continue-format-string t) error-format-string args)
