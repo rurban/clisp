@@ -803,6 +803,18 @@ if [ $XCC_GCC = true ] ; then
       else
         XCFLAGS=$XCFLAGS' -O2'
       fi
+    elif [ "$cpu" = x86_64 ] ; then
+      if [ $CROSS = false ] ; then
+        case "$XCC_GCC_VERSION" in
+          3.[0-2]*)
+            # gcc-3.2.2 produces incorrect code when -O or -O2 is used.
+            ;;
+          * )
+            XCFLAGS=$XCFLAGS' -O' ;;
+        esac
+      else
+        XCFLAGS=$XCFLAGS' -O'
+      fi
     else
       XCFLAGS=$XCFLAGS' -O2'
     fi
