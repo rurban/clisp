@@ -17,7 +17,8 @@ local uintC generation;
 # > heapnr: 0 for varobject, 1 for cons and other two-pointer objects
 # < result: true if a partial GC is being run and obj belongs to the old
 #           generation.
-# Attention! The result is undefined for any of the constsyms.
+# Attention! The result is undefined for any of the constsyms and any of
+# the subrs outside the heap.
 
 #ifdef GENERATIONAL_GC
 

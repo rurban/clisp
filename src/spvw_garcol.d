@@ -237,26 +237,30 @@ local void gc_mark (object obj)
   { dies = objectplus(vorg,-(soint)offsetofa(record_,recdata)<<(oint_addr_shift-addr_shift)); /* record becomes current object */ \
     vorg = vorvorg; goto up; /* go further up */  \
   }
+#ifdef HEAPCODES
 #define down_subr()                                                     \
-  { var gcv_object_t* dies_ = (gcv_object_t*)pointerplus(TheSubr(dies),subr_const_offset);\
+  if (in_old_generation(dies,typecode(dies),0))                         \
+    goto up; /* do not mark older generation */                         \
+  { var gcv_object_t* dies_ = (gcv_object_t*)TheSubr(dies);             \
     if (marked(dies_)) goto up; /* marked -> up */                      \
-    /* mark later */                                                    \
+    mark(dies_); /* marked */                                           \
   }                                                                     \
-  { var object dies_ = objectplus(dies,(soint)(subr_const_offset+(subr_const_anz-1)*sizeof(gcv_object_t))<<(oint_addr_shift-addr_shift)); \
+  { var object dies_ = objectplus(dies,((soint)offsetofa(record_,recdata) << (oint_addr_shift-addr_shift)) \
+      + ((soint)subr_length * (soint)sizeof(gcv_object_t) << (oint_addr_shift-addr_shift)) \
+      - ((soint)sizeof(gcv_object_t) << (oint_addr_shift-addr_shift)) ); \
     /* start with the last pointer */                                   \
     var object nachf = *(gcv_object_t*)TheSubr(dies_); /* successor */  \
     *(gcv_object_t*)TheSubr(dies_) = vorg; /* store predecessor */      \
-    /* mark first pointer (and thus the SUBR itself) : */               \
-    mark(pointerplus(TheSubr(dies),subr_const_offset));                 \
+    mark(&((Record)TheSubr(dies))->recdata[0]); /* mark first pointer */ \
     vorg = dies_; /* current object becomes new predecessor */          \
     dies = nachf; /* predecessor becomes current object */              \
     goto down; /* and descent */                                        \
   }
 #define up_subr()                                                       \
-  { mark(TheSubr(vorg)); /* mark again */                               \
-    dies = objectplus(vorg,-(soint)subr_const_offset<<(oint_addr_shift-addr_shift)); /* SUBR becomes current object */ \
-    vorg = vorvorg; goto up; /* go further up */                        \
+  { dies = objectplus(vorg,-(soint)offsetofa(record_,recdata)<<(oint_addr_shift-addr_shift)); /* SUBR becomes current object */ \
+    vorg = vorvorg; goto up; /* go further up */  \
   }
+#endif
 
  down: /* entry for further descent.
           dies = object to be marked (engl. this),
@@ -294,6 +298,7 @@ local void gc_mark (object obj)
     case_weakkvt: /* weak-key-value-table */
       down_weakkvt();
     case_record: /* Srecord/Xrecord */
+    case_subr: /* SUBR */
       down_record();
     case_machine: /* maschine address */
     case_char: /* character */
@@ -305,8 +310,6 @@ local void gc_mark (object obj)
    #endif
       /* These are direct objects, no pointers. */
       goto up;
-    case_subr: /* SUBR */
-      down_subr();
     default: /* These are no objects. */
       /*NOTREACHED*/ abort();
   }
@@ -416,9 +419,8 @@ local void gc_mark (object obj)
         /* non-simple arrays: */
         up_iarray();
       case_record: /* Srecord/Xrecord */
-        up_record();
       case_subr: /* SUBR */
-        up_subr();
+        up_record();
       case_machine: /* maschine address */
       case_char: /* character */
       case_system: /* frame-pointer, read-label, system */
@@ -449,12 +451,12 @@ local void gc_mark (object obj)
     switch (as_oint(vorg) & nonimmediate_bias_mask) {
       case cons_bias: /* Cons */
         up_pair();
-      case subr_bias: /* SUBR */
-        up_subr();
       case varobject_bias:
         /* This works only because all varobjects have the same
            objects_offset! */
         up_record();
+      case subr_bias: /* SUBR */
+        up_subr();
       default: /* these are no objects. */
         /*NOTREACHED*/ abort();
     }
@@ -535,12 +537,17 @@ local void gc_markphase (void)
   if (generation > 0) { gc_mark_old_generation(); }
  #endif
   /* mark all program constants: */
-  for_all_subrs(gc_mark(subr_tab_ptr_as_object(ptr));); /* subr_tab */
  #if !defined(GENERATIONAL_GC)
+  for_all_subrs(gc_mark(subr_tab_ptr_as_object(ptr));); /* subr_tab */
   for_all_constsyms(gc_mark(symbol_tab_ptr_as_object(ptr));); /* symbol_tab */
  #else
-  /* because of the macro in_old_generation(), gc_mark() regards all constant
-     symbols as belonging to the old generation and does not peruse them. */
+  /* Because of the macro in_old_generation(), gc_mark() may regard all
+     constant symbols and all subrs as belonging to the old generation and
+     may not walk through their pointers recursively. So do it by hand. */
+  for_all_subrs({ /* peruse subr_tab */
+    gc_mark(ptr->name);
+    gc_mark(ptr->keywords);
+  });
   for_all_constsyms({ /* peruse symbol_tab */
     GC_MARK(ptr->symvalue);
     gc_mark(ptr->symfunction);
@@ -574,8 +581,7 @@ local void gc_markphase (void)
         if (in_old_generation(obj,typecode(obj),0)) return true;
         if (marked(ThePointer(obj))) return true; else return false;
       case_subr: # Subr
-        if (marked(pointerplus(TheSubr(obj),subr_const_offset)))
-          return true; else return false;
+        if (marked(TheSubr(obj))) return true; else return false;
       case_machine: # Maschine Pointer
       case_char: # Character
       case_system: # Frame-pointer, Read-label, system
@@ -599,8 +605,7 @@ local void gc_markphase (void)
         if (in_old_generation(obj,,1)) return true;
         if (marked(ThePointer(obj))) return true; else return false;
       case subr_bias:
-        if (marked(pointerplus(TheSubr(obj),subr_const_offset)))
-          return true; else return false;
+        if (marked(TheSubr(obj))) return true; else return false;
       default:
         return true;
     }
@@ -610,13 +615,11 @@ local void gc_markphase (void)
 # unmark SUBRs and fixed Symbols:
   local void unmark_fixed_varobjects (void)
   {
-    for_all_subrs( unmark((aint)ptr+subr_const_offset); ); # unmark each Subr
-    #if !defined(GENERATIONAL_GC)
+    /* Even if defined(GENERATIONAL_GC), because the macro in_old_generation()
+       has undefined behaviour for constsyms and subrs, therefore we don't know
+       a priori whether the constsyms and subrs have their mark bit set. */
+    for_all_subrs( unmark(&((Subr)ptr)->GCself); ); # unmark each Subr
     for_all_constsyms( unmark(&((Symbol)ptr)->GCself); ); # unmark each Symbol in symbol_tab
-    #else
-    # As we have not marked the constant Symbols, but only their
-    # content, we do not have to unmark them.
-    #endif
   }
 
 #if !defined(MORRIS_GC)
