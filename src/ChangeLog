@@ -1,3 +1,12 @@
+2002-04-27  Sam Steingold  <sds@gnu.org>
+
+	limited support for tracing local functions (cannot use the
+	lexicals, i.e., must not be real closures)
+	* trace.lisp (tracer): new struct
+	(tracer-set-fdef, check-traceable): new functions
+	(trace, trace1): use them
+	(untrace1, untrace2): handle the tracer argument
+
 2002-04-26  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (PC386) [WIN32]: define, so that *FEATURES* will
