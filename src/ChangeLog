@@ -1,3 +1,29 @@
+1999-04-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Distinguish built-in and other streams.
+        * lispbibl.d (builtin_stream_p): Renamed from streamp.
+          (streamp): New macro.
+          (socket_stream-p): Use builtin_stream_p instead of streamp.
+        * pathname.d (as_file_stream, PARSE-NAMESTRING, TRUENAME,
+           PROBE-FILE, DELETE-FILE, RENAME-FILE, OPEN, FILE-WRITE-DATE,
+           FILE-AUTHOR, FILE-STAT): Use builtin_stream_p instead of streamp.
+        * stream.d (SYS::SYNONYM-STREAM-P, SYS::BROADCAST-STREAM-P,
+           SYS::CONCATENATED-STREAM-P, SYS::TWO-WAY-STREAM-P,
+           SYS::ECHO-STREAM-P, SYSTEM::STRING-INPUT-STREAM-INDEX,
+           GET-OUTPUT-STREAM-STRING, SYS::STRING-STREAM-P,
+           SYSTEM::BUFFERED-INPUT-STREAM-INDEX, SYS::FILE-STREAM-P,
+           check_window_stream, low_close_pipe, SOCKET-SERVER,
+           test_socket_stream, check_open_file_stream): Use builtin_stream_p
+          instead of streamp.
+          (SYNONYM-STREAM-SYMBOL, BROADCAST-STREAM-STREAMS,
+           CONCATENATED-STREAM-STREAMS, TWO-WAY-STREAM-INPUT-STREAM,
+           TWO-WAY-STREAM-OUTPUT-STREAM, ECHO-STREAM-INPUT-STREAM,
+           ECHO-STREAM-OUTPUT-STREAM, GENERIC-STREAM-CONTROLLER,
+           SYS::LISTEN-BYTE, test_n_bytes_args): Use builtin_stream_p in the
+          first place, and streamp only for the error message.
+          (GENERIC-STREAM-P, SYS::TERMINAL-RAW): Use builtin_stream_p.
+        * predtype.d (SYS::BUILT-IN-STREAM-P): New function.
+
 1999-04-29  <wolfgang@mat.univie.ac.at>
 
         * control.d (make_variable_frame): Treat special-declared variables
