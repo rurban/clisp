@@ -698,9 +698,12 @@ LISPFUNN(program_name,0)
 #endif
 LISPFUNN(lib_directory,0)
 LISPFUNN(set_lib_directory,1)
-#if defined(EXPORT_SYSCALLS) && defined(UNIX)
+#if defined(EXPORT_SYSCALLS)
+#if defined(UNIX)
 LISPFUNN(user_data_,1)
 LISPFUN(file_stat_,1,1,norest,nokey,0,NIL)
+#endif
+LISPFUN(duplicate_handle,1,1,norest,nokey,0,NIL)
 #endif
 # ---------- POSIXMISC ----------
 #if defined(EXPORT_SYSCALLS) && defined(UNIX)

@@ -10709,6 +10709,40 @@ LISPFUN(file_stat_,1,1,norest,nokey,0,NIL) {
 }
 
 #endif # UNIX
+
+/* Lisp interface to dup(2)/dup2(2). */
+LISPFUN(duplicate_handle,1,1,norest,nokey,0,NIL) {
+  var object new_fd = popSTACK();
+  var object old_fd = popSTACK();
+  if (!posfixnump(old_fd)) fehler_posfixnum(old_fd);
+  if (!eq(new_fd,unbound) && !nullp(new_fd) && !posfixnump(new_fd))
+    fehler_posfixnum(new_fd);
+  var Handle old_handle = (Handle)posfixnum_to_L(old_fd);
+  var Handle new_handle = (posfixnump(new_fd) ? (Handle)posfixnum_to_L(new_fd)
+                           : (Handle)-1);
+
+  begin_system_call();
+ #if defined(UNIX)
+  new_handle = (posfixnump(new_fd) ? dup(old_handle)
+                : dup2(old_handle,(Handle)posfixnum_to_L(new_fd)));
+ #elif defined(WIN32_NATIVE)
+  if (!DuplicateHandle(GetCurrentProcess(),old_handle,
+                       GetCurrentProcess(),&new_handle,
+                       0, true, DUPLICATE_SAME_ACCESS)) {
+    OS_error();
+  }
+ #else
+  NOTREACHED;
+ #endif
+  end_system_call();
+  if (new_handle == (Handle)-1) {
+    OS_error();
+  } else {
+    value1 = fixnum(new_handle);
+    mv_count = 1;
+  }
+}
+
 #endif # EXPORT_SYSCALLS
 
 # =============================================================================

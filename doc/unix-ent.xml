@@ -16,6 +16,7 @@
 
 <!-- functions (system calls) -->
 <!ENTITY unix-f "&unix-top;/functions">
+<!ENTITY dup "<ulink url='&unix-f;/dup.html'><function>dup/dup2</function></ulink>">
 <!ENTITY flock "<ulink url='&unix-f;/flockfile.html'><function>flock</function></ulink>">
 <!ENTITY free "<ulink url='&unix-f;/free.html'><function>free</function></ulink>">
 <!ENTITY fstat "<ulink url='&unix-f;/fstat.html'><function>fstat</function></ulink>">
@@ -38,8 +39,7 @@
 <!ENTITY unix-b "&unix-top;/basedefs">
 <!ENTITY regex-h "<ulink url='&unix-b;/regex.h.html'><filename>regex.h</filename></ulink>">
 <!ENTITY stdlib-h "<ulink url='&unix-b;/stdlib.h.html'><filename>stdlib.h</filename></ulink>">
-<!ENTITY env-var "<ulink url='&unix-b;/xbd_chap08.html'><quote>environment
-  variable</quote></ulink>">
+<!ENTITY env-var "<ulink url='&unix-b;/xbd_chap08.html'>environment variable</ulink>">
 
 <!-- utilities -->
 <!ENTITY unix-u "&unix-top;/utilities">
