@@ -44,7 +44,7 @@ local void string_out_ (FILE* out, object str, object encoding) {
   fputs((const char*)buffer,out);
   FREE_DYNAMIC_ARRAY(buffer);
 }
-#define string_out(o,s) string_out(o,s,O(terminal_encoding))
+#define string_out(o,s) string_out_(o,s,O(terminal_encoding))
 #else /* no UNICODE */
 local void string_out (FILE* out, object str) {
   var uintL len;
