@@ -1,0 +1,1734 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: clisp 2000-03-09\n"
+"POT-Creation-Date: 2001-02-06 17:24:02 CET\n"
+"PO-Revision-Date: 2000-06-13 22:37:09 CEST\n"
+"Last-Translator: Automatically generated <haible@honolulu>\n"
+"Language-Team: English <en@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8-bit\n"
+
+msgid ""
+"\n"
+"*** - Program stack overflow. RESET"
+msgstr ""
+"\n"
+"*** - Program stack overflow. RESET"
+
+msgid ""
+"\n"
+"*** - Lisp stack overflow. RESET"
+msgstr ""
+"\n"
+"*** - Lisp stack overflow. RESET"
+
+msgid "Unknown signature of an FSUBR\n"
+msgstr "Unknown signature of an FSUBR\n"
+
+msgid "Unknown signature of a SUBR\n"
+msgstr "Unknown signature of a SUBR\n"
+
+msgid "module `%s' requires package %s.\n"
+msgstr "module `%s' requires package %s.\n"
+
+msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
+msgstr "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
+
+msgid "%s out of range\n"
+msgstr "%s out of range\n"
+
+msgid "memory size"
+msgstr "memory size"
+
+msgid "stack size"
+msgstr "stack size"
+
+msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
+msgstr "Return value of malloc() = %x is not compatible with type code distribution.\n"
+
+msgid "Only %d bytes available.\n"
+msgstr "Only %d bytes available.\n"
+
+msgid "Couldn't determine the end of the SP stack!\n"
+msgstr "Couldn't determine the end of the SP stack!\n"
+
+msgid ""
+"\n"
+"WARNING: No initialisation file specified.\n"
+msgstr ""
+"\n"
+"WARNING: No initialisation file specified.\n"
+
+msgid "Please try: "
+msgstr "Please try: "
+
+msgid "Not enough memory for Lisp.\n"
+msgstr "Not enough memory for Lisp.\n"
+
+msgid ""
+"\n"
+"*** - Virtual memory exhausted. RESET"
+msgstr ""
+"\n"
+"*** - Virtual memory exhausted. RESET"
+
+msgid ""
+"\n"
+"*** - Memory exhausted. RESET"
+msgstr ""
+"\n"
+"*** - Memory exhausted. RESET"
+
+msgid "Cannot map memory to address 0x%x ."
+msgstr "Cannot map memory to address 0x%x ."
+
+msgid "Cannot reserve address range at 0x%x ."
+msgstr "Cannot reserve address range at 0x%x ."
+
+msgid "Cannot reserve address range 0x%x-0x%x ."
+msgstr "Cannot reserve address range 0x%x-0x%x ."
+
+msgid "CreateFileMapping() failed."
+msgstr "CreateFileMapping() failed."
+
+msgid "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
+msgstr "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
+
+msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x.\n"
+msgstr "MapViewOfFileEx() returned 0x%x instead of 0x%x.\n"
+
+msgid "VirtualFree() failed."
+msgstr "VirtualFree() failed."
+
+msgid "VirtualProtect() failed."
+msgstr "VirtualProtect() failed."
+
+msgid "Cannot open /dev/zero ."
+msgstr "Cannot open /dev/zero ."
+
+msgid "msync(0x%x,0x%x,MS_INVALIDATE) fails."
+msgstr "msync(0x%x,0x%x,MS_INVALIDATE) fails."
+
+msgid "Cannot open %s ."
+msgstr "Cannot open %s ."
+
+msgid "Cannot delete %s ."
+msgstr "Cannot delete %s ."
+
+msgid "** WARNING: ** Too few free disk space for %s .\n"
+msgstr "** WARNING: ** Too few free disk space for %s .\n"
+
+msgid "Please restart LISP with fewer memory (option -m).\n"
+msgstr "Please restart LISP with fewer memory (option -m).\n"
+
+msgid "Cannot make %s long enough."
+msgstr "Cannot make %s long enough."
+
+msgid "Cannot fill %s ."
+msgstr "Cannot fill %s ."
+
+msgid "Cannot close %s ."
+msgstr "Cannot close %s ."
+
+msgid "Cannot close /dev/zero ."
+msgstr "Cannot close /dev/zero ."
+
+msgid "Recompile your operating system with SYSV IPC support.\n"
+msgstr "Recompile your operating system with SYSV IPC support.\n"
+
+msgid "Cannot allocate private shared memory segment."
+msgstr "Cannot allocate private shared memory segment."
+
+msgid "Cannot map shared memory to address 0x%x."
+msgstr "Cannot map shared memory to address 0x%x."
+
+msgid "Cannot fill shared memory."
+msgstr "Cannot fill shared memory."
+
+msgid "Could not fill shared memory."
+msgstr "Could not fill shared memory."
+
+msgid "Cannot remove shared memory segment."
+msgstr "Cannot remove shared memory segment."
+
+msgid "mprotect() fails."
+msgstr "mprotect() fails."
+
+msgid ""
+"\n"
+"SIGSEGV cannot be cured. Fault address = 0x%x.\n"
+msgstr ""
+"\n"
+"SIGSEGV cannot be cured. Fault address = 0x%x.\n"
+
+msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
+msgstr "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
+
+msgid "munmap() fails."
+msgstr "munmap() fails."
+
+msgid ""
+"\n"
+"*** - No more room for LISP objects: RESET"
+msgstr ""
+"\n"
+"*** - No more room for LISP objects: RESET"
+
+msgid "Trying to make room through a GC...\n"
+msgstr "Trying to make room through a GC...\n"
+
+msgid "operating system error during load of initialisation file `%s'\n"
+msgstr "operating system error during load of initialisation file `%s'\n"
+
+msgid "Cannot map the initialisation file into memory."
+msgstr "Cannot map the initialisation file into memory."
+
+msgid "operating system error during load of initialisation file\n"
+msgstr "operating system error during load of initialisation file\n"
+
+msgid "initialisation file was not created by this version of LISP\n"
+msgstr "initialisation file was not created by this version of LISP\n"
+
+msgid "not enough memory for initialisation\n"
+msgstr "not enough memory for initialisation\n"
+
+msgid "Operation not permitted"
+msgstr "Operation not permitted"
+
+msgid "No such file or directory"
+msgstr "No such file or directory"
+
+msgid "No such process"
+msgstr "No such process"
+
+msgid "Interrupted system call"
+msgstr "Interrupted system call"
+
+msgid "I/O error"
+msgstr "I/O error"
+
+msgid "No such device or address"
+msgstr "No such device or address"
+
+msgid "Arg list too long"
+msgstr "Arg list too long"
+
+msgid "Exec format error"
+msgstr "Exec format error"
+
+msgid "Bad file number"
+msgstr "Bad file number"
+
+msgid "No child processes"
+msgstr "No child processes"
+
+msgid "No more processes"
+msgstr "No more processes"
+
+msgid "Not enough memory"
+msgstr "Not enough memory"
+
+msgid "Permission denied"
+msgstr "Permission denied"
+
+msgid "Bad address"
+msgstr "Bad address"
+
+msgid "Block device required"
+msgstr "Block device required"
+
+msgid "Device busy"
+msgstr "Device busy"
+
+msgid "File exists"
+msgstr "File exists"
+
+msgid "Cross-device link"
+msgstr "Cross-device link"
+
+msgid "No such device"
+msgstr "No such device"
+
+msgid "Not a directory"
+msgstr "Not a directory"
+
+msgid "Is a directory"
+msgstr "Is a directory"
+
+msgid "Invalid argument"
+msgstr "Invalid argument"
+
+msgid "File table overflow"
+msgstr "File table overflow"
+
+msgid "Too many open files"
+msgstr "Too many open files"
+
+msgid "Inappropriate ioctl for device"
+msgstr "Inappropriate ioctl for device"
+
+msgid "Text file busy"
+msgstr "Text file busy"
+
+msgid "File too large"
+msgstr "File too large"
+
+msgid "No space left on device"
+msgstr "No space left on device"
+
+msgid "Illegal seek"
+msgstr "Illegal seek"
+
+msgid "Read-only file system"
+msgstr "Read-only file system"
+
+msgid "Too many links"
+msgstr "Too many links"
+
+msgid "Broken pipe, child process terminated or socket closed"
+msgstr "Broken pipe, child process terminated or socket closed"
+
+msgid "Argument out of domain"
+msgstr "Argument out of domain"
+
+msgid "Result too large"
+msgstr "Result too large"
+
+msgid "Invalid multibyte or wide character"
+msgstr "Invalid multibyte or wide character"
+
+msgid "Operation would block"
+msgstr "Operation would block"
+
+msgid "Operation now in progress"
+msgstr "Operation now in progress"
+
+msgid "Operation already in progress"
+msgstr "Operation already in progress"
+
+msgid "Too many levels of symbolic links"
+msgstr "Too many levels of symbolic links"
+
+msgid "File name too long"
+msgstr "File name too long"
+
+msgid "Directory not empty"
+msgstr "Directory not empty"
+
+msgid "Stale NFS file handle"
+msgstr "Stale NFS file handle"
+
+msgid "Too many levels of remote in path"
+msgstr "Too many levels of remote in path"
+
+msgid "Socket operation on non-socket"
+msgstr "Socket operation on non-socket"
+
+msgid "Destination address required"
+msgstr "Destination address required"
+
+msgid "Message too long"
+msgstr "Message too long"
+
+msgid "Protocol wrong type for socket"
+msgstr "Protocol wrong type for socket"
+
+msgid "Option not supported by protocol"
+msgstr "Option not supported by protocol"
+
+msgid "Protocol not supported"
+msgstr "Protocol not supported"
+
+msgid "Socket type not supported"
+msgstr "Socket type not supported"
+
+msgid "Operation not supported on socket"
+msgstr "Operation not supported on socket"
+
+msgid "Protocol family not supported"
+msgstr "Protocol family not supported"
+
+msgid "Address family not supported by protocol family"
+msgstr "Address family not supported by protocol family"
+
+msgid "Address already in use"
+msgstr "Address already in use"
+
+msgid "Can't assign requested address"
+msgstr "Can't assign requested address"
+
+msgid "Network is down"
+msgstr "Network is down"
+
+msgid "Network is unreachable"
+msgstr "Network is unreachable"
+
+msgid "Network dropped connection on reset"
+msgstr "Network dropped connection on reset"
+
+msgid "Software caused connection abort"
+msgstr "Software caused connection abort"
+
+msgid "Connection reset by peer"
+msgstr "Connection reset by peer"
+
+msgid "No buffer space available"
+msgstr "No buffer space available"
+
+msgid "Socket is already connected"
+msgstr "Socket is already connected"
+
+msgid "Socket is not connected"
+msgstr "Socket is not connected"
+
+msgid "Can't send after socket shutdown"
+msgstr "Can't send after socket shutdown"
+
+msgid "Too many references: can't splice"
+msgstr "Too many references: can't splice"
+
+msgid "Connection timed out"
+msgstr "Connection timed out"
+
+msgid "Connection refused"
+msgstr "Connection refused"
+
+msgid "Remote peer released connection"
+msgstr "Remote peer released connection"
+
+msgid "Host is down"
+msgstr "Host is down"
+
+msgid "Host is unreachable"
+msgstr "Host is unreachable"
+
+msgid "Networking error"
+msgstr "Networking error"
+
+msgid "Too many processes"
+msgstr "Too many processes"
+
+msgid "Too many users"
+msgstr "Too many users"
+
+msgid "Disk quota exceeded"
+msgstr "Disk quota exceeded"
+
+msgid "Not a stream device"
+msgstr "Not a stream device"
+
+msgid "Timer expired"
+msgstr "Timer expired"
+
+msgid "Out of stream resources"
+msgstr "Out of stream resources"
+
+msgid "No message of desired type"
+msgstr "No message of desired type"
+
+msgid "Not a data message"
+msgstr "Not a data message"
+
+msgid "Identifier removed"
+msgstr "Identifier removed"
+
+msgid "Resource deadlock would occur"
+msgstr "Resource deadlock would occur"
+
+msgid "No record locks available"
+msgstr "No record locks available"
+
+msgid "Machine is not on the network"
+msgstr "Machine is not on the network"
+
+msgid "Object is remote"
+msgstr "Object is remote"
+
+msgid "Link has been severed"
+msgstr "Link has been severed"
+
+msgid "Advertise error"
+msgstr "Advertise error"
+
+msgid "Srmount error"
+msgstr "Srmount error"
+
+msgid "Communication error on send"
+msgstr "Communication error on send"
+
+msgid "Protocol error"
+msgstr "Protocol error"
+
+msgid "Multihop attempted"
+msgstr "Multihop attempted"
+
+msgid "Remote address changed"
+msgstr "Remote address changed"
+
+msgid "Function not implemented"
+msgstr "Function not implemented"
+
+msgid "Not supported under MS-DOS"
+msgstr "Not supported under MS-DOS"
+
+msgid "This version of CLISP runs only in low address memory.\n"
+msgstr "This version of CLISP runs only in low address memory.\n"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
