@@ -469,7 +469,7 @@ local void callback (void* data, va_alist args);
             }
             # free the trampoline:
             begin_system_call();
-            free_callback(Faddress_value(TheFfunction(ffun)->ff_address));
+            free_callback((__TR_function)Faddress_value(TheFfunction(ffun)->ff_address));
             end_system_call();
           }
         }
@@ -574,7 +574,12 @@ local uintL data_alignment;
 local bool data_splittable;
 # `struct_alignment' is what gcc calls STRUCTURE_SIZE_BOUNDARY/8.
 # It is = 1 on most machines, but = 2 on MC680X0 and = 4 on ARM.
+#ifdef __cplusplus
+struct trivial_struct { char slot1; };
+static const uintL struct_alignment = sizeof(struct trivial_struct);
+#else
 #define struct_alignment  sizeof(struct { char slot1; })
+#endif
 local void foreign_layout(fvd)
   var object fvd;
   {
