@@ -64,7 +64,7 @@
                           (prompt-new-package))
                       (package-short-name *package*))
                   (prompt-index))
-          (DEUTSCH "[*package* ungültig]"
+          (DEUTSCH "[*package* ungültig]"
            ENGLISH "[*package* invalid]"
            FRANCAIS "[*package* invalide]")))
   "The top level prompt.  If a function, the return value is used.

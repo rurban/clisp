@@ -1,5 +1,9 @@
 1998-09-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * user1.lsp: Fix German message, broken by last patch.
+
+1998-09-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * bytecode.html: New file.
         * compiler.lsp: Remove description of instruction set.
 
