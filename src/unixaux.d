@@ -490,6 +490,7 @@ global void abort()
 /* Cygwin internal in <src/winsup/cygwin/times.cc>
  Convert a Win32 time to "UNIX" format.
  used by syscalls and dirkey modules */
+#include <windows.h>
 #define FACTOR (0x19db1ded53ea710LL)
 #define NSPERSEC 10000000LL
 global long to_time_t_ (FILETIME * ptr) {
