@@ -237,10 +237,20 @@
 |#
 
 (defun ds-arg-default (arg slot)
-  (let ((initer (clos::slot-definition-inheritable-initer slot)))
+  (let* ((initer (clos::slot-definition-inheritable-initer slot))
+         (initfunction (clos::inheritable-slot-definition-initfunction initer)))
     `(,arg
-      ,(if (constant-initfunction-p (cdr initer)) ; equivalent to (constantp (car initer))
-         (car initer) ; initform
+      ;; Initial value: If it is not a constant form, must funcall the
+      ;; initfunction. If it is a constant, we can use the initform directly.
+      ;; If no initform has been provided, ANSI CL says that "the consequences
+      ;; are undefined if an attempt is later made to read the slot's value
+      ;; before a value is explicitly assigned", i.e. we could leave the slot
+      ;; uninitialized (= #<UNBOUND> in the structure case). But CLtL2 says
+      ;; "the element's initial value is undefined", which implies that the
+      ;; slot is initialized to an arbitrary value. We use NIL as this value.
+      ,(if ; equivalent to (constantp (clos::inheritable-slot-definition-initform initer))
+           (or (null initfunction) (constant-initfunction-p initfunction))
+         (clos::inheritable-slot-definition-initform initer)
          `(FUNCALL ,(clos::structure-effective-slot-definition-initff slot))))))
 
 #| auxiliary function for both constructors:
@@ -729,6 +739,11 @@
           (assert (> include-skip (clos:slot-definition-location (first slotlist)))))
         ;; include-skip >=0 is the number of slots that are already consumend
         ;;    by the substructure, the "size" of the substructure.
+        (when incl-class
+          (dolist (slot slotlist)
+            (setf (clos::structure-effective-slot-definition-initff slot)
+                  `(FIND-STRUCTURE-CLASS-SLOT-INITFUNCTION ',subname
+                     ',(clos:slot-definition-name slot)))))
         ;; process further arguments of the :INCLUDE-option:
         (dolist (slotarg (rest option))
           (let* ((slotname (if (atom slotarg) slotarg (first slotarg)))
@@ -794,15 +809,16 @@
                                (TEXT "~S ~S: ~S is not a slot option.")
                                'defstruct name slot-keyword)))))))))
         (dolist (slot slotlist)
-          (unless (constant-initfunction-p (clos:slot-definition-initfunction slot))
-            (let ((variable (gensym)))
-              (push (clos::structure-effective-slot-definition-initff slot)
-                    slotdefaultfuns)
-              (push variable slotdefaultvars)
-              (push slot slotdefaultslots)
-              (push nil slotdefaultdirectslots)
-              (setf (clos::structure-effective-slot-definition-initff slot)
-                    variable))))
+          (let ((initfunction (clos:slot-definition-initfunction slot)))
+            (unless (or (null initfunction) (constant-initfunction-p initfunction))
+              (let ((variable (gensym)))
+                (push (clos::structure-effective-slot-definition-initff slot)
+                      slotdefaultfuns)
+                (push variable slotdefaultvars)
+                (push slot slotdefaultslots)
+                (push nil slotdefaultdirectslots)
+                (setf (clos::structure-effective-slot-definition-initff slot)
+                      variable)))))
         (when (eq (first include-option) ':INHERIT)
           (setq inherited-slot-count (length slotlist))))
       (if (eq name 'STRUCTURE-OBJECT)
