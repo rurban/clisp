@@ -635,95 +635,91 @@ LISPFUNN(subr_info,1)
 # dieser Handler sich zuständig fühlt (d.h. wenn jeder Handler zurückkehrt).
 # invoke_handlers(cond);
 # can trigger GC
-  global void invoke_handlers (object cond);
 # Dies deaktiviert den Handler, der gerade aufgerufen wird,
 # und alle neueren Handler.
-  global void invoke_handlers(cond)
-    var object cond;
-    {
-      # Die Handler-Bereiche, die ausgeblendet werden:
-      var stack_range* other_ranges = inactive_handlers;
-      var stack_range new_range;
-      # Suche nach Handler-Frame, der einen Typ behandelt mit (TYPEP cond type):
-      var object* FRAME = STACK;
-      loop { # Suche im Stack ab FRAME nach einem passenden HANDLER-Frame:
-        if (!(other_ranges == NULL) && (FRAME == other_ranges->low_limit)) {
-          FRAME = other_ranges->high_limit;
-          other_ranges = other_ranges->next;
-        } elif (eq(FRAME_(0),nullobj)) { # Stackende?
-          break; # ja -> fertig, Rücksprung
-        } elif (framecode(FRAME_(0)) & bit(frame_bit_t)) {
-          # Frame gefunden
-          if (framecode(FRAME_(0)) == HANDLER_frame_info) { # Handler-Frame?
-            # Typen des Vektors #(type1 label1 ... typem labelm) durchlaufen:
-            var uintL m2 = Svector_length(Car(FRAME_(frame_handlers))); # 2*m
-            var uintL i = 0;
-            do {
-              pushSTACK(cond); # cond retten
-              pushSTACK(cond);
-              pushSTACK(TheSvector(Car(FRAME_(frame_handlers)))->data[i]); # typei
-              funcall(S(safe_typep),2); # (SYS::SAFE-TYPEP cond typei) ausführen
-              if (!nullp(value1)) { # found a suitable handler
-                # CLtL2 S. 873, 884:
-                # "A handler is executed in the dynamic context
-                # of the signaler, except that the set of available condition
-                # handlers will have been rebound to the value that was active
-                # at the time the condition handler was made active."
-                # Das Ganze sichern wir durch einen Unwind-Protect-Frame ab:
-                var stack_range* saved_inactive_handlers = inactive_handlers;
-                new_range.low_limit = STACK;
-                new_range.high_limit = topofframe(FRAME_(0));
-                new_range.next = other_ranges;
-                var object* top_of_frame = STACK;
-                var sp_jmp_buf returner; # Rücksprungpunkt
-                finish_entry_frame(UNWIND_PROTECT,&!returner,, {
-                  var restart fun = unwind_protect_to_save.fun;
-                  var object* arg = unwind_protect_to_save.upto_frame;
-                  skipSTACK(2); # Unwind-Protect-Frame auflösen
-                  # Cleanup: Handler reaktivieren:
-                  inactive_handlers = saved_inactive_handlers;
-                  # und weiterspringen:
-                  fun(arg);
-                  NOTREACHED
-                });
-                # Handler deaktivieren:
-                inactive_handlers = &new_range;
-                if (!nullp(Cdr(FRAME_(frame_handlers)))) {
-                  # Information für den Handler bereitlegen:
-                  handler_args.condition = STACK_(0+2);
-                  handler_args.stack = FRAME STACKop 4;
-                  handler_args.sp = (SPint*)(aint)as_oint(FRAME_(frame_SP));
-                  handler_args.spdepth = Cdr(FRAME_(frame_handlers));
-                  # Handler aufrufen:
-                  var object closure = FRAME_(frame_closure);
-                  var object codevec = TheCclosure(closure)->clos_codevec;
-                  var uintL index = (TheCodevec(codevec)->ccv_flags & bit(7) ? CCV_START_KEY : CCV_START_NONKEY)
-                                    + posfixnum_to_L(TheSvector(Car(FRAME_(frame_handlers)))->data[i+1]);
-                  interpret_bytecode(closure,codevec,index);
-                } else {
-                  # C-Handler aufrufen:
-                  void* handler_fn = TheMachineCode(FRAME_(frame_closure));
-                  ((void (*) (void*, object*, object, object)) handler_fn)
-                    ((void*)(aint)as_oint(FRAME_(frame_SP)),FRAME,
-                     TheSvector(Car(FRAME_(frame_handlers)))->data[i+1],
-                     STACK_(0+2));
-                }
-                skipSTACK(2); # Unwind-Protect-Frame auflösen
-                # Handler reaktivieren:
-                inactive_handlers = saved_inactive_handlers;
-                cond = popSTACK(); # cond back
-              }
-              cond = popSTACK(); # cond zurück
-              i += 2;
-            } while (i < m2);
+global void invoke_handlers (object cond) {
+  # Die Handler-Bereiche, die ausgeblendet werden:
+  var stack_range* other_ranges = inactive_handlers;
+  var stack_range new_range;
+  # Suche nach Handler-Frame, der einen Typ behandelt mit (TYPEP cond type):
+  var object* FRAME = STACK;
+  loop { # Suche im Stack ab FRAME nach einem passenden HANDLER-Frame:
+    if (!(other_ranges == NULL) && (FRAME == other_ranges->low_limit)) {
+      FRAME = other_ranges->high_limit;
+      other_ranges = other_ranges->next;
+    } elif (eq(FRAME_(0),nullobj)) { # Stackende?
+      break; # ja -> fertig, Rücksprung
+    } elif (framecode(FRAME_(0)) & bit(frame_bit_t)) {
+      # Frame gefunden
+      if (framecode(FRAME_(0)) == HANDLER_frame_info) { # Handler-Frame?
+      # Typen des Vektors #(type1 label1 ... typem labelm) durchlaufen:
+        var uintL m2 = Svector_length(Car(FRAME_(frame_handlers))); # 2*m
+        var uintL i = 0;
+        do {
+          pushSTACK(cond); # cond retten
+          pushSTACK(cond);
+          pushSTACK(TheSvector(Car(FRAME_(frame_handlers)))->data[i]); # typei
+          funcall(S(safe_typep),2); # (SYS::SAFE-TYPEP cond typei) ausführen
+          if (!nullp(value1)) { # found a suitable handler
+            # CLtL2 S. 873, 884:
+            # "A handler is executed in the dynamic context
+            # of the signaler, except that the set of available condition
+            # handlers will have been rebound to the value that was active
+            # at the time the condition handler was made active."
+            # Das Ganze sichern wir durch einen Unwind-Protect-Frame ab:
+            var stack_range* saved_inactive_handlers = inactive_handlers;
+            new_range.low_limit = STACK;
+            new_range.high_limit = topofframe(FRAME_(0));
+            new_range.next = other_ranges;
+            var object* top_of_frame = STACK;
+            var sp_jmp_buf returner; # Rücksprungpunkt
+            finish_entry_frame(UNWIND_PROTECT,&!returner,, {
+              var restart fun = unwind_protect_to_save.fun;
+              var object* arg = unwind_protect_to_save.upto_frame;
+              skipSTACK(2); # Unwind-Protect-Frame auflösen
+              # Cleanup: Handler reaktivieren:
+              inactive_handlers = saved_inactive_handlers;
+              # und weiterspringen:
+              fun(arg);
+              NOTREACHED
+            });
+            # Handler deaktivieren:
+            inactive_handlers = &new_range;
+            if (!nullp(Cdr(FRAME_(frame_handlers)))) {
+              # Information für den Handler bereitlegen:
+              handler_args.condition = STACK_(0+2);
+              handler_args.stack = FRAME STACKop 4;
+              handler_args.sp = (SPint*)(aint)as_oint(FRAME_(frame_SP));
+              handler_args.spdepth = Cdr(FRAME_(frame_handlers));
+              # Handler aufrufen:
+              var object closure = FRAME_(frame_closure);
+              var object codevec = TheCclosure(closure)->clos_codevec;
+              var uintL index = (TheCodevec(codevec)->ccv_flags & bit(7) ? CCV_START_KEY : CCV_START_NONKEY)
+                + posfixnum_to_L(TheSvector(Car(FRAME_(frame_handlers)))->data[i+1]);
+              interpret_bytecode(closure,codevec,index);
+            } else {
+              # C-Handler aufrufen:
+              void* handler_fn = TheMachineCode(FRAME_(frame_closure));
+              ((void (*) (void*, object*, object, object)) handler_fn)
+                ((void*)(aint)as_oint(FRAME_(frame_SP)),FRAME,
+                 TheSvector(Car(FRAME_(frame_handlers)))->data[i+1],
+                 STACK_(0+2));
+            }
+            skipSTACK(2); # Unwind-Protect-Frame auflösen
+            # Handler reaktivieren:
+            inactive_handlers = saved_inactive_handlers;
           }
-          # Frame übergehen:
-          FRAME = topofframe(FRAME_(0));
-        } else {
-          FRAME skipSTACKop 1;
-        }
+          cond = popSTACK(); # cond back
+          i += 2;
+        } while (i < m2);
       }
+      # Frame übergehen:
+      FRAME = topofframe(FRAME_(0));
+    } else {
+      FRAME skipSTACKop 1;
     }
+  }
+}
 
 # UP: Stellt fest, ob ein Objekt ein Funktionsname, d.h. ein Symbol oder
 # eine Liste der Form (SETF symbol), ist.
