@@ -4368,41 +4368,47 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
   {
     #if HAS_HOST
     STACK_0 = test_optional_host(STACK_0,FALSE); # Host überprüfen
-    #if defined(PATHNAME_RISCOS)
-    {
-      var object pathname = allocate_pathname(); # neuer Pathname
-      ThePathname(pathname)->pathname_host      = popSTACK();
-      #if HAS_DEVICE
-      ThePathname(pathname)->pathname_device    = NIL;
+    if (!nullp(STACK_0)) {
+      #if defined(PATHNAME_RISCOS)
+      {
+        var object pathname = allocate_pathname(); # neuer Pathname
+        ThePathname(pathname)->pathname_host      = popSTACK();
+        #if HAS_DEVICE
+        ThePathname(pathname)->pathname_device    = NIL;
+        #endif
+        ThePathname(pathname)->pathname_directory = O(directory_homedir);
+        ThePathname(pathname)->pathname_name      = NIL;
+        ThePathname(pathname)->pathname_type      = NIL;
+        #if HAS_VERSION
+        ThePathname(pathname)->pathname_version   = NIL;
+        #endif
+        value1 = pathname;
+      }
+      #elif defined(PATHNAME_WIN32)
+      # This is very primitive. Does Windows have the notion of homedirs on
+      # remote hosts??
+      {
+        var object pathname = allocate_pathname(); # neuer Pathname
+        ThePathname(pathname)->pathname_host      = popSTACK();
+        #if HAS_DEVICE
+        ThePathname(pathname)->pathname_device    = NIL;
+        #endif
+        ThePathname(pathname)->pathname_directory = O(directory_absolute);
+        ThePathname(pathname)->pathname_name      = NIL;
+        ThePathname(pathname)->pathname_type      = NIL;
+        #if HAS_VERSION
+        ThePathname(pathname)->pathname_version   = NIL;
+        #endif
+        value1 = pathname;
+      }
+      #else
+      ??
       #endif
-      ThePathname(pathname)->pathname_directory = O(directory_homedir);
-      ThePathname(pathname)->pathname_name      = NIL;
-      ThePathname(pathname)->pathname_type      = NIL;
-      #if HAS_VERSION
-      ThePathname(pathname)->pathname_version   = NIL;
-      #endif
-      value1 = pathname;
+    } else {
+      # no host given
+      skipSTACK(1);
+      value1 = O(user_homedir); # User-Homedir-Pathname
     }
-    #elif defined(PATHNAME_WIN32)
-    # This is very primitive. Does Windows have the notion of homedirs on
-    # remote hosts??
-    {
-      var object pathname = allocate_pathname(); # neuer Pathname
-      ThePathname(pathname)->pathname_host      = popSTACK();
-      #if HAS_DEVICE
-      ThePathname(pathname)->pathname_device    = NIL;
-      #endif
-      ThePathname(pathname)->pathname_directory = O(directory_absolute);
-      ThePathname(pathname)->pathname_name      = NIL;
-      ThePathname(pathname)->pathname_type      = NIL;
-      #if HAS_VERSION
-      ThePathname(pathname)->pathname_version   = NIL;
-      #endif
-      value1 = pathname;
-    }
-    #else
-    ??
-    #endif
     #else
     test_optional_host(popSTACK()); # Host überprüfen und ignorieren
     value1 = O(user_homedir); # User-Homedir-Pathname

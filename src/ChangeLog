@@ -1,3 +1,8 @@
+2001-01-03  Bruno Haible  <haible@clisp.cons.org>
+
+        * pathname.d (USER-HOMEDIR-PATHNAME): If HAS_HOST is defined but the
+          host is NIL, use the homedir on the local machine.
+
 2001-01-02  Bruno Haible  <haible@clisp.cons.org>
 
 	* lispbibl.d (HAS_HOST): Set to 1 for PATHNAME_WIN32.
