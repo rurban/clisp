@@ -3645,7 +3645,7 @@ expansion is shown in the following example:
                                        (intern-eql-specializer 0))
                    :lambda-list '(p l &optional-amp; (visiblyp t)
                                       &key-amp; color)
-                   :function (function method-lambda)
+                   :function (function <replaceable>method-lambda</replaceable>)
                    'additional-initarg-1 't
                    'additional-initarg-2 '39)))
 </programlisting></informalexample></para>
@@ -3679,7 +3679,7 @@ not considered by any of the protocols specified in this document.
     '(lambda (p l &optional-amp; (visiblyp t) &key-amp; color)
        (set-to-origin p)
        (when visiblyp (show-move p 0 color)))
-    environment))
+    <replaceable>environment</replaceable>))
 </programlisting></informalexample>
 
 <para>The first step occurs during macro-expansion of the macro form.
