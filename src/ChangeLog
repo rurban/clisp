@@ -1,3 +1,8 @@
+2000-05-09  Sam Steingold  <sds@gnu.org>
+
+	* disassem.lisp (disassemble-machine-code): do not call
+	the pager when running under Emacs.
+
 2000-05-03  Guilherme Manika  <gwm@conectiva.com.br>
 
 	* makemake.in (install-bin): Fix duplicate \$(install_root).
