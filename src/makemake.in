@@ -2071,17 +2071,35 @@ echol
 
 # development targets
 echol "makemake : makemake.in"
-echotab "./config.status --file=makemake"
+echotab "sh config.status --file=makemake"
 echotab "chmod +x makemake"
 echol
-echol "unixconf.h : unixconf.h.in"
-echotab "./config.status --header=unixconf.h"
+echol "unixconf.h : unixconf.h.in config.status"
+echotab "sh config.status --header=unixconf.h"
 echol
 echol "Makefile : makemake"
 echotab "$0$makemake_args > Makefile.tmp"
 echotab "\$(MV) Makefile Makefile~"
 echotab "\$(MV) Makefile.tmp Makefile"
-echol;
+echol
+echol "config.status : configure"
+echotab "sh config.status --recheck"
+echol
+echol "${SRCDIR}VERSION : ${SRCDIR}version.h"
+echotab "cd ${SRCTOPDIR_} && \$(MAKE) -f Makefile.devel src${NEXT_}VERSION"
+echol
+echol "${SRCDIR}configure : ${SRCDIR}configure.in"
+echotab "cd ${SRCTOPDIR_} && \$(MAKE) -f Makefile.devel src${NEXT_}configure"
+echol
+if [ -n "${SRCDIR}" ] ; then
+  for f in makemake.in unixconf.h.in configure VERSION; do
+    echol "${f} : ${SRCDIR}${f}"
+    echotab "-\$(RM) ${f}"
+    echotab "-\$(LN_S) ${SRCDIR}${f} ${f}"
+    echol
+  done
+fi
+
 
 UTILS=''
 if [ $NEED_CCPAUX = true ] ; then
@@ -2217,12 +2235,6 @@ echol
 echol "stdbool.h : ${SRCDIR}stdbool.h.in"
 echotab "-\$(LN_S) ${SRCDIR}stdbool.h.in stdbool.h"
 echol
-
-if [ $HOS = unix ] ; then
-  echol "${SRCDIR}VERSION : ${SRCDIR}version.h"
-  echotab "cd ${SRCTOPDIR} && \$(MAKE) -f Makefile.devel src/VERSION"
-  echol
-fi
 
 if [ -n "${SRCDIR}" ] ; then
   if [ $HOS = unix ] ; then

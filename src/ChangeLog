@@ -1,6 +1,8 @@
 2002-03-12  Sam Steingold  <sds@gnu.org>
 
 	* configure (maybe_link): new function
+	* makemake.in (config.status, configure, makemake.in)
+	(unixconf.h.in, VERSION): new targets
 
 2002-03-12  Sam Steingold  <sds@gnu.org>
 
