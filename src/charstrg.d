@@ -1612,6 +1612,9 @@ LISPFUN(digit_char_p,1,1,norest,nokey,0,NIL)
     case 0xFF: /* FULLWIDTH_DIGIT_* */
       if ((c >= 0xff10) && (c <= 0xff19)) { c -= 0xff10; break; }
       goto no;
+    case 0x1d7: /* MATHEMATICAL_* SANS-SERIF/BOLD DOUBLE-STRUCK MONOSPACE */
+      if ((c >= 0x1d7ce) && (c <= 0x1d7ff)) { c -= 0x1d7ce; c %= 10; break; }
+      goto no;
     default:
       goto no;
   }
