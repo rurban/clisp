@@ -29,7 +29,7 @@ top_srcdir = @top_srcdir@
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
-datadir = $(prefix)/share
+datadir = @datadir@
 localedir = $(datadir)/locale
 
 # Programs used by "make":
