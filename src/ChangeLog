@@ -2,6 +2,8 @@
 
 	* spvw.d (--version): print SOFTWARE-TYPE, SOFTWARE-VERSION,
 	MACHINE-TYPE, MACHINE-VERSION, MACHINE-INSTANCE
+	(print_license): removed dead link
+	do not use NLstring
 
 2003-12-21  Sam Steingold  <sds@gnu.org>
 
