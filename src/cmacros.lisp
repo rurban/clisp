@@ -75,11 +75,13 @@
       form))
 
 (defmacro define-compiler-macro (&whole form name args &body body)
-  (declare (ignore args body))
-  (sys::check-redefinition name 'define-compiler-macro "compiler macro")
+  (declare (ignore name args body))
   (multiple-value-bind (expansion name lambdalist docstring)
       (sys::make-macro-expansion (cdr form) 'strip-funcall-form)
     (declare (ignore lambdalist))
+    (sys::check-redefinition name 'define-compiler-macro
+                             (and (compiler-macro-function name)
+                                  "compiler macro"))
     `(EVAL-WHEN (COMPILE LOAD EVAL)
       ,@(when docstring
          `((SYSTEM::%SET-DOCUMENTATION ',name 'COMPILER-MACRO ,docstring)))

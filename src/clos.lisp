@@ -1510,10 +1510,11 @@
                   req-specializer-forms )))
         (setq spec-list (nreverse spec-list))
         (sys::check-redefinition
-         (or (and (fboundp 'find-method) (fboundp funname)
-                  (find-method (fdefinition funname) qualifiers spec-list nil))
-             (list* funname spec-list qualifiers))
-         caller "method")
+         (list* funname qualifiers spec-list) caller
+         ;; do not warn about redefinition when no method was defined
+         (and (fboundp 'find-method) (fboundp funname)
+              (find-method (fdefinition funname) qualifiers spec-list nil)
+              "method"))
         (let* ((reqanz (length req-vars))
                (lambda-list (nreconc req-vars specialized-lambda-list))
                (optanz
