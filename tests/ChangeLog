@@ -1,3 +1,7 @@
+2005-02-14  Bruno Haible  <bruno@clisp.org>
+
+	* streams.tst: Test FINISH-OUTPUT and FORCE-OUTPUT as well.
+
 2005-02-13  Bruno Haible  <bruno@clisp.org>
 
 	* tests.lisp (do-test): Print a blank line after the "Differ"
