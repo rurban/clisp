@@ -1,3 +1,7 @@
+2004-06-19  Sam Steingold  <sds@gnu.org>
+
+	* genclisph.d (symbol_): fixed the definition
+
 2004-06-18  Sam Steingold  <sds@gnu.org>
 
 	* macros1.lisp (do/do*-expand): do not bind DOC: it is ignored anyway
