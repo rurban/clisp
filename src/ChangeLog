@@ -1,5 +1,10 @@
 2004-03-27  Bruno Haible  <bruno@clisp.org>
 
+	* io.d (pr_symbol_part): Add |...| markers also when *print-readably*
+	is true.
+
+2004-03-27  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (arraysize_limit_1): Reduce value by 1.
 	* spvw.d (init_symbol_values): Initialize array-total-size-limit,
 	array-dimension-limit and array-rank-limit as fixnums.
