@@ -488,7 +488,7 @@
                              (error-of-type 'sys::source-program-error
                                (TEXT "~S ~S: slot name ~S should be a symbol")
                                'defclass name slot-name))
-                           (if (member slot-name slot-names :test #'eq)
+                           (if (memq slot-name slot-names)
                              (error-of-type 'sys::source-program-error
                                (TEXT "~S ~S: There may be only one direct slot with the name ~S.")
                                'defclass name slot-name)
@@ -808,7 +808,7 @@
 (defun add-default-superclass (direct-superclasses default-superclass)
   ;; Sometimes one wants to coerce a certain superclass.
   ;; But it may not be specified twice.
-  (if (member default-superclass direct-superclasses :test #'eq)
+  (if (memq default-superclass direct-superclasses)
     direct-superclasses
     (append direct-superclasses (list default-superclass))))
 
@@ -1505,11 +1505,10 @@
         (let* ((reqanz (length req-vars))
                (lambda-list (nreconc req-vars specialized-lambda-list))
                (optanz
-                 (let ((h (cdr (member '&OPTIONAL lambda-list :test #'eq))))
+                 (let ((h (cdr (memq '&OPTIONAL lambda-list))))
                    (or (position-if #'lambda-list-keyword-p h) (length h))))
-               (keyp (not (null (member '&KEY lambda-list :test #'eq))))
-               (restp (or keyp (not (null (member '&REST lambda-list
-                                                  :test #'eq)))))
+               (keyp (not (null (memq '&KEY lambda-list))))
+               (restp (or keyp (not (null (memq '&REST lambda-list)))))
                (keywords
                  (mapcar
                    #'(lambda (item)
@@ -1517,9 +1516,10 @@
                        (if (consp item)
                          (first item)
                          (intern (symbol-name item) *keyword-package*)))
-                   (let ((h (cdr (member '&KEY lambda-list :test #'eq))))
+                   (let ((h (cdr (memq '&KEY lambda-list))))
                      (subseq h 0 (position-if #'lambda-list-keyword-p h)))))
-               (allowp (and keyp (not (null (member '&ALLOW-OTHER-KEYS lambda-list :test #'eq))))))
+               (allowp (and keyp (not (null (memq '&ALLOW-OTHER-KEYS
+                                                  lambda-list))))))
           ;; methods have an implicit &allow-other-keys (28.1.6.4.):
           (when (and keyp (not allowp))
             (let ((index (+ (position '&KEY lambda-list :test #'eq) 1 (length keywords))))
@@ -1962,9 +1962,8 @@
   (defvar *warn-if-gf-already-called* t)
   (defun warn-if-gf-already-called (gf)
     (when (and *warn-if-gf-already-called* (not (gf-never-called-p gf))
-               (not (member (sys::%record-ref gf 0)
-                            *dynamically-modifiable-generic-function-names*
-                            :test #'eq)))
+               (not (memq (sys::%record-ref gf 0)
+                          *dynamically-modifiable-generic-function-names*)))
       (warn (TEXT "The generic function ~S is being modified, but has already been called.")
             gf)))
 ) ; let
@@ -2090,7 +2089,7 @@
                         setf-em-expr
                         `(SYSTEM::PUTHASH
                           ,(let ((tuple-fun (hash-tuple-function n)))
-                             (if (member '&rest (second tuple-fun))
+                             (if (memq '&rest (second tuple-fun))
                                `(,tuple-fun ,@class-of-exprs)
                                ;; no &rest -> can optimize
                                ;; (the compiler is not yet too good at that)
@@ -2734,7 +2733,7 @@
                (error-of-type 'sys::source-program-error
                  (TEXT "~S ~S: variable name ~S should be a symbol")
                  caller funname var))
-             (when (member var req-vars :test #'eq)
+             (when (memq var req-vars)
                (error-of-type 'sys::source-program-error
                  (TEXT "~S ~S: duplicate variable name ~S")
                  caller funname var))
@@ -3233,7 +3232,7 @@
           (unless (slot-boundp instance slotname)
             (let ((init (slotdef-initer slot)))
               (when init
-                (when (or (eq slot-names 'T) (member slotname slot-names :test #'eq))
+                (when (or (eq slot-names 'T) (memq slotname slot-names))
                   (setf (slot-value instance slotname)
                         (if (car init) (funcall (car init))
                             (cdr init)))))))))))

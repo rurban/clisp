@@ -1702,6 +1702,7 @@ for-value   NIL or T
 
 ;; (memq item const-symbollist) == (member item const-symbollist :test #'eq),
 ;; only the boolean value.
+#-CLISP
 (defmacro memq (item list)
   (if (and (constantp list) (listp (eval list)))
     `(case ,item (,(eval list) t) (t nil))
@@ -2144,7 +2145,7 @@ for-value   NIL or T
 #+CLISP
 (defun proclaimed-special-p (var)
   (or (sys::special-variable-p var)
-      (not (null (member var *known-special-vars* :test #'eq)))))
+      (not (null (memq var *known-special-vars*)))))
 #-CLISP
 (defun proclaimed-special-p (var)
   (or
@@ -2362,16 +2363,14 @@ for-value   NIL or T
               declspec)
       (let ((declspectype (car declspec)))
         (if (and (symbolp declspectype)
-                 (or (member declspectype *declaration-types* :test #'eq)
+                 (or (memq declspectype *declaration-types*)
                      (do ((L *denv* (cdr L)))
                          ((null L) nil)
                        (if (and (eq (first (car L)) 'DECLARATION)
-                                (member declspectype (rest (car L))
-                                        :test #'eq))
+                                (memq declspectype (rest (car L))))
                          (return t)))
                      (and *compiling-from-file*
-                          (member declspectype *user-declaration-types*
-                                  :test #'eq))))
+                          (memq declspectype *user-declaration-types*))))
           (cond ((eq declspectype 'SPECIAL)
                  (dolist (x (cdr declspec))
                    (if (symbolp x)
@@ -2435,15 +2434,15 @@ for-value   NIL or T
   (loop
     (when (atom denv)
       (when *compiling-from-file*
-        (when (member sym *notinline-constants*) (return t))
-        (when (member sym *inline-constants*) (return nil)))
+        (when (memq sym *notinline-constants*) (return t))
+        (when (memq sym *inline-constants*) (return nil)))
       (return (eq (get sym 'constant-inlinable) 'constant-notinline)))
     (let ((declspec (car denv)))
       (when (and (eq (car declspec) 'CONSTANT-INLINE)
-                 (member sym (cdr declspec)))
+                 (memq sym (cdr declspec)))
         (return nil))
       (when (and (eq (car declspec) 'CONSTANT-NOTINLINE)
-                 (member sym (cdr declspec)))
+                 (memq sym (cdr declspec)))
         (return t)))
     (setq denv (cdr denv))))
 
@@ -2617,8 +2616,8 @@ for-value   NIL or T
 ;; (seclass-or class1 ... classk) determines the total class of execution
 ;; of all classes.
 (defun seclass-or (&rest args)
-  (cond ((member 'T args :test #'eq) 'T)
-        ((member 'VAL args :test #'eq) 'VAL)
+  (cond ((memq 'T args) 'T)
+        ((memq 'VAL args) 'VAL)
         (t 'NIL)))
 ;; Ditto, with only 2 Arguments
 (defun seclass-or-2 (seclass1 seclass2)
@@ -2691,7 +2690,7 @@ for-value   NIL or T
 ;; side-effects to lexical variables bound further inwards don't count
 ;; and are therefore eliminated:
 (defun seclass-without (seclass varlist)
-  (flet ((bound (var) (member var varlist))) ; tests, if var is bound
+  (flet ((bound (var) (memq var varlist))) ; tests, if var is bound
     ;; (dynamic variables are not eliminated; they are contained in varlist
     ;; as VAR-structures and in seclass as symbols.)
     (cons (if (eq (car seclass) 'T) 'T (remove-if #'bound (car seclass)))
@@ -3554,7 +3553,7 @@ for-value   NIL or T
           (unless (c-constantp (second keyargs))
             (return-from test-argument-syntax 'DYNAMIC-KEYS))
           (when (c-constant-value (second keyargs)) (setq allow-flag t)))
-        (unless (or allow-flag (member key keylist :test #'eq))
+        (unless (or allow-flag (memq key keylist))
           (setq wrong-key key))))))
 
 ;; (c-DIRECT-FUNCTION-CALL args applyargs fun req opt rest-p key-p keylist
@@ -4616,7 +4615,7 @@ for-value   NIL or T
 ;; checks if a variable is rightly ignore-declared...
 (defun ignore-check (var)
   (let ((sym (var-name var)))
-    (if (member sym *ignores* :test #'eq)
+    (if (memq sym *ignores*)
       ;; var ignore-declared
       (if (var-specialp var)
         (c-warn (TEXT "Binding variable ~S can cause side effects despite of IGNORE declaration~%since it is declared SPECIAL.")
@@ -4625,7 +4624,7 @@ for-value   NIL or T
           (c-style-warn (TEXT "variable ~S is used despite of IGNORE declaration.")
                         sym)))
       ;; var not ignore-declared
-      (unless (member sym *ignorables* :test #'eq)
+      (unless (memq sym *ignorables*)
         ;; var also not ignorable-declared
         (unless (or (var-specialp var) (var-usedp var))
           ;; var lexically and unused
@@ -4634,7 +4633,7 @@ for-value   NIL or T
             ;; the warning would only cause confusion).
             (c-style-warn (TEXT "variable ~S is not used.~%Misspelled or missing IGNORE declaration?")
                           sym)))))
-    (when (member sym *readonlys* :test #'eq)
+    (when (memq sym *readonlys*)
       (unless (var-specialp var)
         (when (var-assignedp var)
           (c-warn (TEXT "The variable ~S is assigned to, despite of READ-ONLY declaration.")
@@ -4674,7 +4673,7 @@ for-value   NIL or T
 (defun bind-fixed-var-1 (symbol)
   (if (or (constantp symbol)
           (proclaimed-special-p symbol)
-          (member symbol *specials* :test #'eq))
+          (memq symbol *specials*))
     ;; must bind symbol dynamically:
     (progn
       (when (l-constantp symbol)
@@ -4788,7 +4787,7 @@ for-value   NIL or T
 (defun bind-movable-var (symbol form-anode)
   (if (or (constantp symbol)
           (proclaimed-special-p symbol)
-          (member symbol *specials* :test #'eq))
+          (memq symbol *specials*))
     ;; must bind symbol dynamically:
     (progn
       (if (l-constantp symbol)
@@ -5247,7 +5246,7 @@ for-value   NIL or T
               ,@(mapcap ; Block-Conses have to be passed on construction
                   #'(lambda (block)
                       (prog1
-                        `(,(if (member block (fnode-Blocks *func*) :test #'eq)
+                        `(,(if (memq block (fnode-Blocks *func*))
                              `(BCONST ,block)
                              `(GET ,(block-consvar block) ,*venvc* ,*stackz*))
                            (PUSH))
@@ -5256,8 +5255,7 @@ for-value   NIL or T
               ,@(mapcap ; Tagbody-Conses have to be passed on construction
                   #'(lambda (tagbody)
                       (prog1
-                          `(,(if (member tagbody (fnode-Tagbodys *func*)
-                                         :test #'eq)
+                          `(,(if (memq tagbody (fnode-Tagbodys *func*))
                                `(GCONST ,tagbody)
                                `(GET ,(tagbody-consvar tagbody)
                                      ,*venvc* ,*stackz*))
@@ -5818,7 +5816,7 @@ for-value   NIL or T
                                ;; does the value of other-anode possibly depend
                                ;; on the value of var?
                                (let ((uses (car (anode-seclass other-anode))))
-                                 (or (eq uses 'T) (member symbol uses))))
+                                 (or (eq uses 'T) (memq symbol uses))))
                            (cdr anodelistr))))
                 (let* ((stackz (car stackzlistr))
                        (dummyvar ; auxiliary variable in Stack
@@ -6781,7 +6779,7 @@ for-value   NIL or T
           (dolist (symbol symbols)
             (if (or (constantp symbol) (proclaimed-special-p symbol))
                 (c-error-c (TEXT "~S: symbol ~S is declared special and must not be declared a macro") 'symbol-macrolet symbol)
-                (when (member symbol *specials* :test #'eq)
+                (when (memq symbol *specials*)
                   (c-error-c (TEXT "~S: symbol ~S must not be declared SPECIAL and a macro at the same time")
                              'symbol-macrolet symbol))))
           (funcall c `(PROGN ,@body-rest)))))))
@@ -8496,7 +8494,7 @@ New Operations:
            (let ((var (second item))
                  (venvc (third item))
                  (stackz (fourth item)))
-             (unless (member var *current-vars* :test #'eq)
+             (unless (memq var *current-vars*)
                ;; already the current value = var ?
                (push
                 (if (var-constantp var)
@@ -8531,7 +8529,7 @@ New Operations:
            (let ((var (second item))
                  (venvc (third item))
                  (stackz (fourth item)))
-             (unless (member var *current-vars* :test #'eq)
+             (unless (memq var *current-vars*)
                ;; already the current value = var ?
                (push
                 (if (var-specialp var)
@@ -8551,12 +8549,12 @@ New Operations:
                (push var *current-vars*)))) ; *current-value* is unchanged
           (GETVALUE
            (let ((symbol (second item)))
-             (unless (member symbol *current-vars* :test #'eq)
+             (unless (memq symbol *current-vars*)
                (push `(GETVALUE ,(kconstvalue-index symbol)) *code-part*)
                (setq *current-value* nil *current-vars* (list symbol)))))
           (SETVALUE
            (let ((symbol (second item)))
-             (unless (member symbol *current-vars* :test #'eq)
+             (unless (memq symbol *current-vars*)
                (push `(SETVALUE ,(kconstvalue-index symbol)) *code-part*)
                (push symbol *current-vars*)))) ; *current-value* is unchanged
           (BIND
@@ -10096,7 +10094,7 @@ This step determines, how many SP-Entries the function needs at most.
                 ;; Starting at this label, process the code-list:
                 ;; (Thereby (label . depth) is added to seen-label-alist,
                 ;; it is already removed from unseen-label-alist.)
-                (setq middle (member label code-list :test #'eq))
+                (setq middle (memq label code-list))
                 (return)))))))))
 
 

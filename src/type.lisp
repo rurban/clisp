@@ -655,7 +655,7 @@
               (types (cdr type)))
           ; required-Werte:
           (loop
-            (when (or (atom types) (member (car types) lambda-list-keywords :test #'eq))
+            (when (or (atom types) (memq (car types) lambda-list-keywords))
               (return)
             )
             (unless (and (consp vals) (near-typep (car vals) (car types)))
@@ -668,7 +668,7 @@
           (when (and (consp types) (eq (car types) '&optional))
             (setq types (cdr types))
             (loop
-              (when (or (atom types) (member (car types) lambda-list-keywords :test #'eq))
+              (when (or (atom types) (memq (car types) lambda-list-keywords))
                 (return)
               )
               (when (consp vals)
@@ -698,7 +698,8 @@
                 (when (oddp (length vals)) (return-from %the nil))
                 (let ((keywords nil))
                   (loop
-                    (when (or (atom types) (member (car types) lambda-list-keywords :test #'eq))
+                    (when (or (atom types)
+                              (memq (car types) lambda-list-keywords))
                       (return)
                     )
                     (let ((item (car types)))
@@ -718,7 +719,7 @@
                     (unless (getf vals ':allow-other-keys)
                       (do ((L vals (cddr L)))
                           ((atom L))
-                        (unless (member (car L) keywords :test #'eq)
+                        (unless (memq (car L) keywords)
                           (return-from %the nil)
                   ) ) ) )
               ) )
