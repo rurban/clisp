@@ -1,5 +1,7 @@
 Version  Date            New features
 
+2.32     2003-12-29      LFS, Berkeley-DB, PCRE
+
 2.31     2003-09-01      fastcgi, dirkey, syscalls, bindings/win32, netica;
                          modules on win32; Unicode 3.2; new BACKQUOTE;
                          many ANSI compliance fixes; more FFI functionality
