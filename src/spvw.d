@@ -1705,12 +1705,12 @@ local void print_license (void)
     "General Public License for more details."                             NLstring,
                                                                            NLstring,
     "You should have received a copy of the GNU General Public License"    NLstring,
-    "along with this program (see file GNU-GPL);"                          NLstring,
-    "if not, write to the Free Software Foundation,"                       NLstring,
-    "59 Temple Place - Suite 330, Boston, MA 02111-1307, USA."             NLstring,
+    "along with this program; if not, write to the Free Software"          NLstring,
+    "Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA." NLstring,
                                                                            NLstring,
-    "Under certain conditions, you may distribute commercial software"     NLstring,
-    "built with CLISP.  See file COPYRIGHT for details."                   NLstring,
+    "Distribution of Lisp programs meant to run in CLISP in compiled form" NLstring,
+    "and without source is possible under certain conditions.  See"        NLstring,
+    "http://clisp.sourceforge.net/copyright.html for details."             NLstring,
                                                                            NLstring,
   };
   var const char * const * ptr = license;
