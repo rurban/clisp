@@ -2501,13 +2501,13 @@ LISPFUN(convert_string_from_bytes,seclass_read,2,0,norest,key,2,
     pushSTACK(S(Kstart)); pushSTACK(STACK_(1+3));
     pushSTACK(S(Kend)); pushSTACK(STACK_(0+5));
     funcall(L(coerced_subseq),6);
-    array = value1;
-    if (!bit_vector_p(Atype_8Bit,array)) { NOTREACHED; }
+    if (!bit_vector_p(Atype_8Bit,value1)) { NOTREACHED; }
+    STACK_2 = value1;
     STACK_0 = I_I_minus_I(STACK_0,STACK_1); /* end := (- end start) */
     STACK_1 = Fixnum_0; /* start := 0 */
+    array = STACK_2;
   }
   /* Determine size of result string: */
-  STACK_2 = array;
   var stringarg sa;
   sa.offset = 0; sa.len = vector_length(array);
   sa.string = array_displace_check(array,sa.len,&sa.offset);
