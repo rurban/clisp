@@ -52,11 +52,19 @@
    PANIC_ENVIRONMENT REGION_INIT TXN_NOSYNC TXN_WRITE_NOSYNC YIELDCPU
    VERB_CHKPOINT VERB_DEADLOCK VERB_RECOVERY VERB_REPLICATION
    VERB_WAITSFOR VERBOSE)</literal></term>
- <listitem><simpara>Set some environment options using &DBE_set_flags;,
-   &DBE_set_verbose;, &DBE_set_tmp_dir;, &DBE_set_data_dir;,
-   &DBE_set_tx_max;, &DBE_set_tx_timestamp;, &DBE_set_tas_spins;,
-   &DBE_set_shm_key;, &DBE_set_timeout;, &DBE_set_encrypt; &DBE_set_errfile;.
-</simpara></listitem></varlistentry>
+ <listitem><para>Set some environment options using <simplelist>
+    <member>&DBE_set_flags;</member>
+    <member>&DBE_set_verbose;</member>
+    <member>&DBE_set_tmp_dir;</member>
+    <member>&DBE_set_data_dir;</member>
+    <member>&DBE_set_tx_max;</member>
+    <member>&DBE_set_tx_timestamp;</member>
+    <member>&DBE_set_tas_spins;</member>
+    <member>&DBE_set_shm_key;</member>
+    <member>&DBE_set_timeout;</member>
+    <member>&DBE_set_encrypt;</member>
+    <member>&DBE_set_errfile;</member>
+   </simplelist>.</para></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:ENV-GET-OPTIONS dbe
    &optional-amp; what)</literal></term>
  <listitem><para>Retrieve some environment options.
@@ -252,7 +260,7 @@
    RE_DELIM RE_LEN RE_PAD RE_SOURCE
    CHKSUM ENCRYPT TXN_NOT_DURABLE DUP DUPSORT RECNUM REVSPLITOFF
    RENUMBER SNAPSHOT)</literal></term>
- <listitem><para>Call <simplelist>
+ <listitem><para>Set some database options using <simplelist>
     <member>&DB_set_errfile;</member>
     <member>&DB_set_encrypt;</member>
     <member>&DB_set_cachesize;</member>
