@@ -317,15 +317,26 @@
         (setq last l)))
     (if last (progn (rplacd last nil) first) nil)))
 
+(macrolet ((rev-arg (f) `(lambda (x y) (funcall ,f y x))))
+  ;; this is done so that the elements of LIST1 and LIST2 are passed
+  ;; to TEST and TEST-NOT always in the correct order
 (defun set-exclusive-or (list1 list2 &rest rest &key test test-not key)
-  (declare (ignore test test-not key))
+  (declare (ignore key))
   (append (apply #'set-difference list1 list2 rest)
-          (apply #'set-difference list2 list1 rest)))
+          (apply #'set-difference list2 list1
+                 (cond (test (list* :test (rev-arg test) rest))
+                       (test-not (list* :test-not (rev-arg test-not) rest))
+                       (rest)))))
 
 (defun nset-exclusive-or (list1 list2 &rest rest &key test test-not key)
-  (declare (ignore test test-not key))
+  (declare (ignore key))
   (nconc (apply #'set-difference list1 list2 rest)
-         (apply #'nset-difference list2 list1 rest)))
+         (apply #'nset-difference list2 list1
+                (cond (test (list* :test (rev-arg test) rest))
+                      (test-not (list* :test-not (rev-arg test-not) rest))
+                      (rest)))))
+
+) ; macrolet rev-arg
 
 (defun subsetp (list1 list2 &rest rest &key test test-not key)
   (declare (ignore test test-not key))

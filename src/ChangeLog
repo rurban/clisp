@@ -1,3 +1,9 @@
+2002-11-02  Sam Steingold  <sds@gnu.org>
+
+	* defs1.lisp (set-exclusive-or, nset-exclusive-or): call TEST and
+	TEST-NOT with the arguments in the correct order, i.e., the first
+	arg from the first list and the second arg from the second list
+
 2002-11-01  Sam Steingold  <sds@gnu.org>
 
 	* defs1.lisp (do-symbols, do-external-symbols, do-all-symbols):
