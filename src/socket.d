@@ -725,7 +725,7 @@ global SOCKET create_server_socket (hd, sock, port)
     var SOCKET fd;
     if (sock == INVALID_SOCKET) {
       # "0.0.0.0" allows connections from any host to our server
-      fd = with_hostname("0.0.0.0",port,&bindlisten_via_ip);
+      fd = with_hostname("0.0.0.0",(unsigned short)port,&bindlisten_via_ip);
     } else {
       var sockaddr_max addr;
       var SOCKLEN_T addrlen = sizeof(sockaddr_max);
@@ -787,7 +787,7 @@ global SOCKET create_client_socket(hostname,port)
   var const char* hostname;
   var unsigned int port;
   {
-    return with_hostname(hostname,port,&connect_via_ip);
+    return with_hostname(hostname,(unsigned short)port,&connect_via_ip);
   }
 
 # ==================== miscellaneous network related stuff ====================
@@ -869,7 +869,7 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
     end_system_call();
     #endif
     value1 = listof(count); mv_count = 1;
-  } elif (stringp(serv)) {
+  } else if (stringp(serv)) {
     with_string_0(serv,Symbol_value(S(ascii)),serv_asciz, {
       begin_system_call();
       se = getservbyname(serv_asciz,proto);
@@ -880,7 +880,7 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
     });
     servent_to_stack(se);
     funcall(L(values),4);
-  } elif (integerp(serv)) {
+  } else if (integerp(serv)) {
     var uintL port = I_to_UL(serv);
     begin_system_call();
     se = getservbyport(htons(port),proto);
