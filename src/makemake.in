@@ -966,9 +966,11 @@ fi
 if [ ${TOS} = win32 -o ${HSYSOS} = cygwin ] ; then
   TEXE='.exe'
   LEXE='.exe'
+  DLL='.dll'
 else
   TEXE=''
   LEXE='.run'
+  DLL='.so'
 fi
 
 # TOBJ = extension for compiled modules on target
@@ -3228,7 +3230,7 @@ echol
 for f in clisp-link ; do
   echol "${f} : ${SRCDIR}${f}.in"
   XCC_CREATESHARED_=`echo "$XCC_CREATESHARED" | sed -e 's,\\$,$$,g'`
-  echotab "sed -e 's%@with_dynamic_modules@%${with_dynamic_modules}%' -e 's%@createsharedlib@%$XCC_CREATESHARED_%' -e 's%@LEXE@%${LEXE}%' < ${SRCDIR}${f}.in > ${f}"
+  echotab "sed -e 's%@with_dynamic_modules@%${with_dynamic_modules}%' -e 's%@createsharedlib@%$XCC_CREATESHARED_%' -e 's%@LEXE@%${LEXE}%' -e 's%@DLL@%${DLL}%'< ${SRCDIR}${f}.in > ${f}"
   echotab "chmod a+x ${f}"
   echol
 done

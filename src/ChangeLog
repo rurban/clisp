@@ -1,5 +1,11 @@
 2005-02-14  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (DLL): new platform-dependent variable
+	(clisp-link): substitute it
+	* clisp-link.in: use @DLL@ instead of the literal `.so'
+
+2005-02-14  Sam Steingold  <sds@gnu.org>
+
 	* eval.d (parse_dd): declaration processing should not modify code
 
 2005-02-13  Bruno Haible  <bruno@clisp.org>
