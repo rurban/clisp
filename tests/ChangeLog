@@ -1,3 +1,7 @@
+2004-09-28  Bruno Haible  <bruno@clisp.org>
+
+	* clos.tst: Add a couple of defgeneric tests.
+
 2004-09-23  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: Add a few more defclass tests.
