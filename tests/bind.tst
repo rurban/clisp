@@ -104,3 +104,31 @@ GOOD
        (DECLARE (SPECIAL X))
        Z))))
 6
+
+;; interaction with global specials
+(progn (defvar *global-var-for-bind.tst* 123)
+ (let ((*global-var-for-bind.tst* 5))
+   (let ((*global-var-for-bind.tst* (1+ *global-var-for-bind.tst*)))
+     (declare (special *global-var-for-bind.tst*))
+     *global-var-for-bind.tst*)))
+6
+(progn (defvar *global-var-for-bind.tst* 123)
+ (let ((*global-var-for-bind.tst* 5))
+   (let* ((*global-var-for-bind.tst* (1+ *global-var-for-bind.tst*)))
+     (declare (special *global-var-for-bind.tst*))
+     *global-var-for-bind.tst*)))
+6
+(progn (defvar *global-var-for-bind.tst* 123)
+ (let ((*global-var-for-bind.tst* 5))
+   (multiple-value-bind (*global-var-for-bind.tst*)
+       (1+ *global-var-for-bind.tst*)
+     (declare (special *global-var-for-bind.tst*))
+     *global-var-for-bind.tst*)))
+6
+(progn (defvar *global-var-for-bind.tst* 123)
+ (let ((*global-var-for-bind.tst* 5))
+   ((lambda (*global-var-for-bind.tst*)
+      (declare (special *global-var-for-bind.tst*))
+      *global-var-for-bind.tst*)
+    (1+ *global-var-for-bind.tst*))))
+6
