@@ -159,8 +159,8 @@ location depends on the &category;: it will be expected at
 <para>A non-internationalized program simulating a restaurant dialogue
 might look as follows.</para>
 
-<example id="i18n-non-i"><title>prog.lisp</title>
-<programlisting>
+<formalpara id="i18n-non-i"><title>prog.lisp</title>
+<programlisting language="lisp">
 (setq n (parse-integer (first &args;)))
 
 (format t "~A~%" "'Your command, please?', asked the waiter.")
@@ -168,15 +168,15 @@ might look as follows.</para>
 (format t "~@?~%"
           (if (= n 1) "a piece of cake" "~D pieces of cake")
           n)
-</programlisting></example>
+</programlisting></formalpara>
 
 <para>After being internationalized, all strings are wrapped in
 &gettext; calls, and &ngettext; is used for plurals.
 Also, &textdomaindir; is assigned a value; in our case, for simplicity,
 the current directory.</para>
 
-<example id="i18n-i"><title>prog.lisp</title>
-<programlisting>
+<formalpara id="i18n-i"><title>prog.lisp</title>
+<programlisting language="lisp">
 (setf (textdomain) "prog")
 (setf (textdomaindir "prog") "./")
 
@@ -188,13 +188,13 @@ the current directory.</para>
 (format t "~@?~%"
           (ngettext "a piece of cake" "~D pieces of cake" n)
           n)
-</programlisting></example>
+</programlisting></formalpara>
 
 <para>For ease of reading, it is customary to define an abbreviation
 for the &gettext; function.  An underscore is customary.</para>
 
-<example id="i18n-i-abbrev"><title>prog.lisp</title>
-<programlisting>
+<formalpara id="i18n-i-abbrev"><title>prog.lisp</title>
+<programlisting language="lisp">
 (setf (textdomaindir "prog") "./")
 (defun _ (msgid) (gettext msgid "prog"))
 
@@ -206,7 +206,7 @@ for the &gettext; function.  An underscore is customary.</para>
 (format t "~@?~%"
           (ngettext "a piece of cake" "~D pieces of cake" n "prog")
           n)
-</programlisting></example>
+</programlisting></formalpara>
 
 <para>Now the program's maintainer creates a message catalog template
 through the command
@@ -220,8 +220,8 @@ bash$ xgettext -o prog.pot prog.lisp
 
 <para>The message catalog template looks roughly like this.</para>
 
-<example id="i18n-pot"><title>prog.pot</title>
-<programlisting>
+<formalpara id="i18n-pot"><title>prog.pot</title>
+<programlisting language="pot">
 msgid "'Your command, please?', asked the waiter."
 msgstr ""
 
@@ -229,12 +229,12 @@ msgid "a piece of cake"
 msgid_plural "%d pieces of cake"
 msgstr[0] ""
 msgstr[1] ""
-</programlisting></example>
+</programlisting></formalpara>
 
 <para>Then a French translator creates a French message catalog</para>
 
-<example id="i18n-fr-po"><title>prog.fr.po</title>
-<programlisting>
+<formalpara id="i18n-fr-po"><title>prog.fr.po</title>
+<programlisting language="po">
 msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-1\n"
@@ -248,7 +248,7 @@ msgid "a piece of cake"
 msgid_plural "%d pieces of cake"
 msgstr[0] "un morceau de gateau"
 msgstr[1] "%d morceaux de gateau"
-</programlisting></example>
+</programlisting></formalpara>
 
 <para>and sends it to the program's maintainer.</para>
 
@@ -1300,8 +1300,8 @@ N. Gray to X3J13.</para>
 <literal role="sexp">(with-fill-stream (fill stream [:indent
  symbol-or-number]) ...)</literal>.</para>
 
-<example><title>Example of &fill-stream; usage</title>
- <programlisting>
+<example id="ex-fill-stream"><title>Example of &fill-stream; usage</title>
+ <programlisting language="lisp">
 (defvar *my-indent-level*)
 (with-output-to-string (out)
   (let ((*print-right-margin* 20)
@@ -1312,7 +1312,7 @@ N. Gray to X3J13.</para>
       (let ((*my-indent-level* 5))
         (format fill "~%and   properly    indented to the level specified by the ~S argument which can be a sybol or an integer." :INDENT))
       (format fill "~%Don't forget   to call ~S on it, and/or use ~S" 'force-output 'with-fill-stream))))
-"
+<computeroutput>"
   this is some long
   sentence which
   will be broken at
@@ -1328,8 +1328,7 @@ N. Gray to X3J13.</para>
   Don't forget to
   call FORCE-OUTPUT
   on it, and/or use
-  WITH-FILL-STREAM"
- </programlisting>
+  WITH-FILL-STREAM"</computeroutput></programlisting>
 </example>
 </section>
 
@@ -2085,25 +2084,25 @@ In other words, each pair is:
  except that they can bind &place;s, even &place;s with &mul-val;.
  Example:
 
-<programlisting>
+<programlisting language="lisp">
  (letf (((values a b) form)) ...)
 </programlisting>
 
 is equivalent to
 
-<programlisting>
+<programlisting language="lisp">
  (multiple-value-bind (a b) form ...)
 </programlisting>
 
 while
 
-<programlisting>
+<programlisting language="lisp">
 (letf (((first l) 7)) ...)
 </programlisting>
 
 is approximately equivalent to
 
-<programlisting>
+<programlisting language="lisp">
  (&let-star; ((#:g1 l) (#:g2 (first #:g1)))
    (&unwind-protect; (&progn; (&setf; (first #:g1) 7) ...)
       (&setf; (first #:g1) #:g2)))
@@ -2119,7 +2118,7 @@ is approximately equivalent to
  collect objects given to it into lists, which are then returned as
  &mul-val;.  E.g.,
 
-<programlisting>
+<programlisting language="lisp">
  (ext:with-collect (c0 c1)
    (dotimes (i 10) (if (oddp i) (c0 i) (c1 i))))
 </programlisting>
@@ -2134,11 +2133,11 @@ returns two lists <literal role="data">(1 3 5 7 9)</literal> and
  <ulink url="http://www.paulgraham.com/">Paul Graham</ulink>'s book
  <ulink url="http://www.paulgraham.com/onlisp.html"><quote>On
   Lisp</quote></ulink>, this macro is useful for writing other macros:
-<programlisting>
+<programlisting language="lisp">
  (with-gensyms ("FOO-" bar baz zot) ...)
 </programlisting>
 expands to
-<programlisting>
+<programlisting language="lisp">
  (let ((bar (gensym "FOO-BAR-"))
        (baz (gensym "FOO-BAZ-"))
        (zot (gensym "FOO-ZOT-")))
@@ -2151,7 +2150,7 @@ expands to
 <para>Similar to &remove; and &remf;, this function removes some
  properties from a property list.  It is non-destructve and thus can be
  used on &rest-amp; arguments to remove some keyword parameters, e.g.,
-<programlisting>
+<programlisting language="lisp">
  (defmacro with-foo ((&key-amp; foo1 foo2) &body-amp; body)
    `(... ,foo1 ... ,foo2 ... ,@body))
  (defmacro with-foo-bar ((&rest-amp; opts &key-amp; bar1 bar2
@@ -2266,7 +2265,7 @@ here <function>WITH-FOO</function> does not receive the
 
 <para>You can use <function>EXT:EXPAND-FORM</function> to expand all
  the macros, &symbol-macro;s, etc, in a single form:
-<programlisting>
+<programlisting language="lisp">
  (expand-form '(macrolet ((bar (x) `(print ,x)))
                  (macrolet ((baz (x) `(bar ,x)))
                    (symbol-macrolet ((z 3))
@@ -2591,32 +2590,29 @@ precludes some efficiency optimizations which are on by default.</para></note>
 <orderedlist numeration="arabic">
 <listitem><para>Create a new &modset;:
 
-<programlisting>$ clisp-link create-module-set linux /<replaceable>somewhere</replaceable>/bindings/linux.c</programlisting>
+<screen>$ clisp-link create-module-set linux /<replaceable>somewhere</replaceable>/bindings/linux.c</screen>
 
- Modify the newly created <filename>linux/link.sh</filename> to add
- <option>-lm</option>; to the libraries: replace
-<programlisting>NEW_LIBS="$file_list"</programlisting>
-   with
-<programlisting>NEW_LIBS="$file_list -lm"</programlisting>
+Modify the newly created <filename>linux/link.sh</filename>
+to add <option>-lm</option>; to the libraries:
+replace <screen>NEW_LIBS="$file_list"</screen>
+with <screen>NEW_LIBS="$file_list -lm"</screen>
 
-   Modify the newly created <filename>linux/link.sh</filename> to load
-   <filename>linux.fas</filename> before saving the &mem-image;:
-   replace
-<programlisting>TO_LOAD=''</programlisting>
-   with
-<programlisting>TO_LOAD='/<replaceable>somewhere</replaceable>/bindings/linux.fas'</programlisting></para></listitem>
+Modify the newly created <filename>linux/link.sh</filename>
+to load <filename>linux.fas</filename> before saving the &mem-image;:
+replace <screen>TO_LOAD=''</screen>
+with <screen>TO_LOAD='/<replaceable>somewhere</replaceable>/bindings/linux.fas'</screen></para></listitem>
 
 <listitem><para>Compile <filename>linux.lisp</filename>, creating
   <filename>linux.c</filename>:
 
-<programlisting>$ clisp -c /<replaceable>somewhere</replaceable>/bindings/linux.lisp</programlisting></para></listitem>
+<screen>$ clisp -c /<replaceable>somewhere</replaceable>/bindings/linux.lisp</screen></para></listitem>
 
 <listitem><para>Create a new &linkset;:
-<programlisting>$ clisp-link add-module-set linux base base+linux</programlisting></para></listitem>
+<screen>$ clisp-link add-module-set linux base base+linux</screen></para></listitem>
 
 <listitem><para>Run and try it:
 
-<programlisting>$ base+linux/lisp.run -M base+linux/lispinit.mem -x '(linux:stat "/tmp")'</programlisting></para></listitem>
+<screen>$ base+linux/lisp.run -M base+linux/lispinit.mem -x '(linux:stat "/tmp")'</screen></para></listitem>
 
 </orderedlist>
 
@@ -2630,7 +2626,7 @@ precludes some efficiency optimizations which are on by default.</para></note>
 <para>If your module is written in &c-lang;, you can pre-process your
  sources with <filename>modprep.lisp</filename> in the &clisp;
  distribution and define lisp functions with the
- <function>DEFUN</function> macro:<programlisting>
+ <function>DEFUN</function> macro:<programlisting language="C">
 DEFUN(MY-PACKAGE:MY-FUNCTION-NAME, arg1 arg2 &key-amp; FOO BAR) {
   if (!boundp(STACK_0)) STACK_0 = fixnum(0); /* BAR */
   if (!boundp(STACK_1)) STACK_1 = fixnum(1); /* FOO */
@@ -3186,10 +3182,10 @@ only.</subtitle>
   &ctype-r;.  Therefore, &c-array-max;, <literal role="data">#()</literal>
   and <literal role="data">""</literal> are your friends for creating a
   pointer to the empty arrays:
-<programlisting>(with-c-var (v '(c-ptr (c-array-max uint8 32)) #())
+<programlisting language="lisp">(with-c-var (v '(c-ptr (c-array-max uint8 32)) #())
   (setf (element (deref v) 0) 127) v)</programlisting>
   &ctype-r; is evaluated, making creation of variable sized buffers easy:
-<programlisting>(with-c-var (fv `(c-array uint8 ,(length my-vector)) my-vector)
+<programlisting language="lisp">(with-c-var (fv `(c-array uint8 ,(length my-vector)) my-vector)
   (print fv))</programlisting>
  </para></listitem></varlistentry>
 
@@ -3221,7 +3217,7 @@ only.</subtitle>
   <simpara>The &foreign-address-t; object bound to &f-addr; is
    invalidated upon the exit from the form.</simpara>
   <para>A stupid example (a quite costly interface to &mblen;):
-<programlisting>(with-foreign-string (fv elems bytes string
+<programlisting language="lisp">(with-foreign-string (fv elems bytes string
                       :encoding charset:jis... :null-terminated-p nil
                       :end 5)
  (declare (ignore fv elems))
@@ -3298,7 +3294,7 @@ only.</subtitle>
   &with-foreign-object; and &with-c-place;.</simpara>
   <para>Such a &place; can be used to access memory referenced by a &f-ent;
   object:
-  <programlisting>(setq foo (allocate-deep '(c-array uint8 3) rgb))
+  <programlisting language="lisp">(setq foo (allocate-deep '(c-array uint8 3) rgb))
 (with-c-place (place foo) (element place 0))</programlisting>
 </para></listitem></varlistentry>
 
@@ -3687,7 +3683,7 @@ unit</ulink> (usually a file), a warning is issued and
 
 <para>The &c-lang; declaration
 
-<programlisting>
+<programlisting language="C">
 struct foo {
     int a;
     struct foo * b[100];
@@ -3696,7 +3692,7 @@ struct foo {
 
 corresponds to
 
-<programlisting>
+<programlisting language="lisp">
 (def-c-struct foo
   (a int)
   (b (c-array (c-ptr foo) 100)))
@@ -3704,14 +3700,14 @@ corresponds to
 
 <para>The element access
 
-<programlisting>
+<programlisting language="C">
 struct foo f;
 f.b[7].a
 </programlisting>
 
 corresponds to
 
-<programlisting>
+<programlisting language="lisp">
 (declare (type foo f))
 (foo-a (aref (foo-b f) 7)) or (slot-value (aref (slot-value f 'b) 7) 'a)
 </programlisting></para></example>
@@ -3719,7 +3715,7 @@ corresponds to
 <example id="dffi-extern-var">
  <title>external &c-lang; variable and some accesses</title>
 
-<para><programlisting>
+<para><programlisting language="C">
 struct bar {
     short x, y;
     char a, b;
@@ -3736,7 +3732,7 @@ my_struct = my_struct-&gt;n;
 
 corresponds to
 
-<programlisting>
+<programlisting language="lisp">
 (def-c-struct bar
   (x short)
   (y short)
@@ -3759,7 +3755,7 @@ or (setq my_struct (deref (slot my_struct 'n)))
 
 <para>On ANSI &c-lang; systems, &stdlib-h; contains the declarations:
 
-<programlisting>
+<programlisting language="C">
 typedef struct {
   int quot;   /* Quotient */
   int rem;    /* Remainder */
@@ -3769,7 +3765,7 @@ extern div_t div (int numer, int denom);
 
 This translates to
 
-<programlisting>
+<programlisting language="lisp">
 (def-c-struct (div_t :typedef)
   (quot int)
   (rem int))
@@ -3780,7 +3776,7 @@ This translates to
 
 Sample call from within Lisp:
 
-<programlisting>
+<programlisting language="lisp">
 (div 20 3)
 <returnvalue>#S(DIV_T :QUOT 6 :REM 2)</returnvalue>
 </programlisting></para></example>
@@ -3791,7 +3787,7 @@ Sample call from within Lisp:
 <para>Suppose the following is defined in a file
  <filename>cfun.c</filename>:
 
-<programlisting>
+<programlisting language="C">
 struct cfunr { int x; char *s; };
 struct cfunr * cfun (int i,char *s,struct cfunr * r,int a[10]) {
   int j;
@@ -3814,7 +3810,7 @@ It is possible to call this function from Lisp using the file
 <link linkend="c-file-overwrite">overwrite</link>
 <filename>cfun.c</filename>) whose contents is:
 
-<programlisting>
+<programlisting language="lisp">
 (&defpackage; "TEST-C-CALL" (:use "LISP" "FFI"))
 (&in-package; "TEST-C-CALL")
 (eval-when (compile) (setq &ffi-out-fun; t))
@@ -3833,7 +3829,7 @@ It is possible to call this function from Lisp using the file
 
 Use the &module; facility:
 
-<programlisting>
+<screen>
 $ clisp-link create-module-set cfun callcfun.c
 $ cc -O -c cfun.c
 $ cd cfun
@@ -3861,12 +3857,12 @@ a[9] = 9.
 #S(TEST-C-CALL::CFUNR :X 10 :S "A C string")
 &gt;
 $ rm -r base+cfun
-</programlisting></para>
+</screen></para>
 
 <para>Note that there is a memory leak here: The return value
 <varname>r2</varname> of <function>cfun()</function> is
 &malloc;ed but never &free;d. Specifying
-<programlisting>
+<programlisting language="lisp">
 (:return-type (c-ptr cfunr) :malloc-free)
 </programlisting>
 is not an alternative because this would also
@@ -3880,7 +3876,7 @@ pointer to static data.</para></example>
  following interface code <filename>sort1.c</filename>.
  The main problem is to pass a variable-sized array.
 
-<programlisting>
+<programlisting language="C">
 extern void lispsort_begin (int);
 void* lispsort_function;
 void lispsort_double (int n, double * array) {
@@ -3895,7 +3891,7 @@ void lispsort_double (int n, double * array) {
 
 This is accompanied by <filename>sort2.lisp</filename>:
 
-<programlisting>
+<programlisting language="lisp">
 (&defpackage; "FFI-TEST" (:use "LISP" "FFI"))
 (&in-package; "FFI-TEST")
 (eval-when (compile) (setq &ffi-out-fun; t))
@@ -3917,7 +3913,7 @@ This is accompanied by <filename>sort2.lisp</filename>:
 
 To test this, use the following test file <filename>sorttest.lisp</filename>:
 
-<programlisting>
+<programlisting language="lisp">
 (eval-when (compile) (setq &ffi-out-fun; t))
 (def-call-out sort10
   (:name "lispsort_double")
@@ -3928,12 +3924,12 @@ To test this, use the following test file <filename>sorttest.lisp</filename>:
 
 Now try
 
-<programlisting>
+<screen>
 $ clisp-link create-module-set sort sort2.c sorttest.c
 $ cc -O -c sort1.c
 $ cd sort
 $ ln -s ../sort1.o sort1.o
-</programlisting>
+</screen>
 
 Add <filename>sort1.o</filename> to <envar>NEW_LIBS</envar>
 and <envar>NEW_FILES</envar> in <filename>link.sh</filename>.
@@ -3943,7 +3939,7 @@ form <literal role="sexp">(&defpackage; "FFI-TEST" (:use "LISP"
 to <envar>TO_PRELOAD</envar> in <filename>link.sh</filename>.
 Proceed:
 
-<programlisting>
+<screen>
 $ cd ..
 $ base/lisp.run -M base/lispinit.mem -c sort2.lisp sorttest.lisp
 $ clisp-link add-module-set sort base base+sort
@@ -3952,7 +3948,7 @@ $ base+sort/lisp.run -M base+sort/lispinit.mem -i sort2 sorttest
                 0.523d0 0.585d0 0.670d0 0.271d0 0.063d0))
 #(0.063d0 0.271d0 0.501d0 0.523d0 0.528d0 0.55d0 0.585d0 0.615d0 0.67d0 0.711d0)
 $ rm -r base+sort
-</programlisting></para></example>
+</screen></para></example>
 
 <example id="ex-call-in-dll">
  <title>Calling Lisp from &c-lang; dynamically</title>
@@ -3960,14 +3956,14 @@ $ rm -r base+sort
 <para>Create a dynamic library <filename>lispdll</filename>
  (<filename>#P".dll"</filename> on &win32;,
   <filename>#P".so"</filename> on &unix;)
-  with the following function:<programlisting>
+  with the following function:<programlisting language="C">
 typedef int (*LispFunc)(int parameter);
 int CallInFunc(LispFunc f) {
   return f(5)+11;
 }
 </programlisting>
   and call it from Lisp:
-  <programlisting>
+  <programlisting language="lisp">
 (ffi:def-call-out callout
   (:name "CallInFunc")
   (:library "lispdll.dll")
@@ -4009,7 +4005,7 @@ int CallInFunc(LispFunc f) {
 <para>In the present example, you can use allocation &alloca-k;, like
  you would do in &c-lang;: stack-allocate a temporary.</para>
 
-<programlisting>
+<programlisting language="lisp">
 (&def-c-call-out; gethostname
   (:arguments (name (&c-ptr; (&c-array-max; ffi:char 256))
 		    &out-k; &alloca-k;)
@@ -4032,7 +4028,7 @@ int CallInFunc(LispFunc f) {
 
 <para>Suppose one wants to access and modify variables that reside in
  shared libraries:
-<programlisting>
+<programlisting language="C">
 struct bar {
   double x, y;
   double out;
@@ -4050,7 +4046,7 @@ double test_dll(struct bar *ptr)
  <filename>libtest.dll</filename>, depending on your platform).</para>
 
 <para>Use the following lisp code:
-<programlisting>
+<programlisting language="lisp">
 (&use-package; "FFI")
 
 (&def-c-struct; bar
@@ -4075,7 +4071,7 @@ double test_dll(struct bar *ptr)
 
 <para>Now you can access call <function>get-own-c-float</function> on
 <varname>my-c-var</varname>:
-<programlisting>
+<programlisting language="lisp">
 (&c-var-addr; my-c-var)
 <returnvalue>#&lt;FOREIGN-ADDRESS #x282935D8&gt;</returnvalue>
 (get-own-c-float (&c-var-addr; my-c-var))
@@ -4464,7 +4460,7 @@ Feel free to suggest enhancements to this facility!</para>
 <example id="affi-ex-1-predefined">
    <title>Using a predefined library function file</title>
 
-<para><programlisting>
+<para><programlisting language="lisp">
 (&defpackage; "AFFI-TEST" (:use "LISP" "AFFI"))
 (&in-package; "AFFI-TEST")
 
@@ -4487,7 +4483,7 @@ Compiled, it will have inlined the library function calls.
 </para></example>
 
 <example id="affi-ex-2-flibcall"><title>Using flibcall</title>
-<programlisting>
+<programlisting language="lisp">
 (&defpackage; "AFFI-TEST" (:use "LISP" "AFFI"))
 (&in-package; "AFFI-TEST")
 
@@ -4506,7 +4502,7 @@ Compiled, it will have inlined the library function calls.
 
 <example id="affi-ex-3-dynamic">
    <title>Be fully dynamic, defining library bases ourselves</title>
-<programlisting>
+<programlisting language="lisp">
 (&defpackage; "AFFI-TEST" (:use "LISP" "AFFI"))
 (&in-package; "AFFI-TEST")
 
@@ -4523,7 +4519,7 @@ Compiled, it will have inlined the library function calls.
 </programlisting></example>
 
 <example id="affi-ex-4-sample"><title>Some sample function definitions</title>
-<programlisting>
+<programlisting language="lisp">
 (defflibfun 'FindTask 'SysBase -294 #xA '* 'string)
 (eval-library-function FindTask "exec.library"
   (:offset -294)
@@ -4797,7 +4793,7 @@ Compiled, it will have inlined the library function calls.
  <term>Platform dependent: &unix; platforms only.</term>
 <listitem><para>On &unix;, a text file (&fasl-file; or &lisp-file;) can
  be made executable by adding a first line of the form
- <programlisting>#!&interp-r; [&interp-args;]</programlisting>
+ <screen>#!&interp-r; [&interp-args;]</screen>
  and using &chmod-u; to make the script executable.
  &clisp; can be used as a script interpreter under the following
  circumstances:</para>
@@ -4866,7 +4862,7 @@ Compiled, it will have inlined the library function calls.
 <formalpara id="script-bad"><title>If nothing works</title>
 <para>Another, quite inferior, alternative is to put the following into
  a file:
-<programlisting>
+<programlisting language="shell">
 #!/bin/sh
 exec clisp &lt;&lt;EOF
 (lisp-form)
@@ -5172,7 +5168,7 @@ bash$
  <firstterm>&with-print;<indexterm id="with-print" significance="preferred">
    <primary id="with-print-i">WITH-OUTPUT-TO-PRINTER<function></function>
  </primary></indexterm></firstterm>:
-<programlisting>
+<programlisting language="lisp">
 (&with-print; (&var-r; [&extfmt;])
   {&declaration-r;}*
   {&form-r;}*)
@@ -5211,7 +5207,7 @@ are returned in an &alist;.</para>
   <firstterm>&mk-xterm-io;<indexterm id="mk-xterm" significance="preferred">
     <primary id="mk-xterm-i"><function>MAKE-XTERM-IO-STREAM</function>
   </primary></indexterm></firstterm>:
-<programlisting>
+<programlisting language="lisp">
   (&setq; &error-output-var;
     (&setq; &debug-io-var;
       (&mk-xterm-io;)))
