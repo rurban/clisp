@@ -1,4 +1,4 @@
-# Evaluator, Applyer und Bytecode-Interpreter für CLISP
+# EVAL, APPLY and bytecode interpreter for CLISP
 # Bruno Haible 1990-2000
 
 #include "lispbibl.c"
@@ -6261,7 +6261,7 @@ LISPFUNN(subr_info,1)
         #if defined(GNU) && defined(I80386) && !defined(NO_ASM)
           #if 0
             # In earlier times, the GNU assembler assembled
-            # "testb %edx,%edx" as "testb %dl,%dl". This made possib;e to
+            # "testb %edx,%edx" as "testb %dl,%dl". This made possible to
             # produce the output in any register.
             #define OUT_EAX  "=q"
             #define EAX      "%0"
