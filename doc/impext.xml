@@ -2161,14 +2161,15 @@ only.</subtitle>
    <varlistentry id="def-c-struct-typedef">
     <term><constant>:TYPEDEF</constant></term>
     <listitem><simpara>means that the name of this structure is a
-      &c-lang; type defined with <function>typedef</function>.
-   </simpara></listitem></varlistentry>
+      &c-lang; type defined with <function>typedef</function>
+      elsewhere.</simpara></listitem></varlistentry>
    <varlistentry id="def-c-struct-external">
     <term><constant>:EXTERNAL</constant></term>
     <listitem><simpara>means that this structure is defined in a
       &c-file; file that you include with, e.g.,
       <literal role="sexp">(&c-lines; "#include &lt;filename.h&gt;")</literal>.
   </simpara></listitem></varlistentry></variablelist>
+  These options determine how the struct is written to the &c-file;.
 </para></listitem></varlistentry>
 
 <varlistentry id="def-c-enum"><term><literal role="sexp">(&def-c-enum;
@@ -2552,7 +2553,8 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
   a string, without the trailing zero character.
  </simpara></listitem></varlistentry>
 
-<varlistentry id="c-struct"><term><literal role="type">(&c-struct; &class-r;
+<varlistentry id="c-struct"><term><literal role="type">(&c-struct;
+  &class-r; (&option-r;*)
   (<replaceable>ident&sub-1;</replaceable>
    <replaceable>c-type&sub-1;</replaceable>) ...
   (<replaceable>ident&sub-n;</replaceable>
@@ -2563,10 +2565,13 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
  <replaceable>c-type&sub-n;</replaceable>
  <replaceable>ident&sub-n;</replaceable>; }</type>.
  Its Lisp equivalent is: if &class-r; is &vector-t;, a
- &simple-vector-t;; if &class-r; is &list-t;, a list; if
- &class-r; is a symbol naming a structure or &clos; class, an instance
- of this class, with slots of names <replaceable>ident&sub-1;</replaceable>,
- ... ,<replaceable>ident&sub-n;</replaceable>.
+ &simple-vector-t;; if &class-r; is &list-t;, a
+ <ulink url="&clhs;/Body/glo_p.html#proper_list">proper list</ulink>;
+ if &class-r; is a symbol naming a structure or &clos; class, an
+ instance of this class, with slots of names
+ <replaceable>ident&sub-1;</replaceable>, ...,
+ <replaceable>ident&sub-n;</replaceable>.</simpara><simpara>
+ (&option-r;*) are there to reconstruct the &def-c-struct; form.
  </simpara></listitem></varlistentry>
 
 <varlistentry id="c-union"><term><literal role="type">(&c-union;
