@@ -41,8 +41,10 @@
   (let ((b (gensym)))
     `(BLOCK ,b
        (HANDLER-BIND
-         ((ERROR #'(LAMBDA (CONDITION) (DECLARE (IGNORE CONDITION))
-                     (RETURN-FROM ,b 'ERROR))))
+         ((ERROR #'(LAMBDA (CONDITION)
+                     (TERPRI) (PRINC CONDITION)
+                     (RETURN-FROM ,b (values 'ERROR
+                                             (princ-to-string condition))))))
          ,@forms))))
 
 (defun merge-extension (type filename)
