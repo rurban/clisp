@@ -55,8 +55,8 @@
       (when newline-p (newline)))))
 (progn
   (defmethod stream-write-char ((stream fill-stream) ch)
-    (with-slots (buffer pending-space) stream
-      #1=
+    (with-slots #1=(buffer pending-space) stream
+      #2=
       (case ch
         (#\Newline (fill-stream-flush-buffer stream t))
         ((#\Space #\Tab)
@@ -71,12 +71,12 @@
             start 0 end (length sequence))
       (unless end (setq end (length sequence))))
     (when (< start end)
-      (with-slots (target-stream buffer current-indent pending-indent) stream
+      (with-slots #1# stream
         (do ((pos start (1+ pos)))
             ((>= pos end))
           (let ((ch (elt sequence pos)))
             ; Same body as in stream-write-char.
-            #1#))))))
+            #2#))))))
 (defmethod stream-line-column ((stream fill-stream))
   (let ((pos (line-pos stream)))
     (if pos (max (- pos (slot-value stream 'current-indent)) 0) nil)))
