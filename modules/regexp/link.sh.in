@@ -8,4 +8,4 @@ NEW_FILES="$file_list @REGEX_O@ regexp.dvi"
 NEW_LIBS="$file_list @REGEX_O@"
 NEW_MODULES="$mod_list"
 TO_LOAD='regexp'
-TO_PRELOAD='preload'
+TO_PRELOAD='preload.lisp'
