@@ -1,3 +1,8 @@
+2003-02-07  Sam Steingold  <sds@gnu.org>
+
+	* list.d (endp): made global
+	* lispbibl.d (endp): added the prototype
+
 2003-02-06  Sam Steingold  <sds@gnu.org>
 
 	* spvw_debug.d (nobject_out): return the object argument

@@ -11845,6 +11845,15 @@ extern object nreconc (object list, object obj);
 extern object deleteq (object list, object obj);
 # is used by PACKAGE, STREAM
 
+/* UP: check whether OBJ ends a proper list
+ endp(obj)
+ > obj: object
+ < result: true if obj is the list end NIL,
+           false if obj is a Cons.
+           error otherwise */
+extern bool endp (object obj);
+/* used by CONTROL */
+
 # UP: Creates a list with given elements.
 # listof(len)
 # > uintC len: desired list length

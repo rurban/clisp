@@ -519,10 +519,10 @@ LISPFUN(tree_equal,2,0,norest,key,2, (kw(test),kw(test_not)) )
 /* UP: check whether OBJ ends a proper list
  endp(obj)
  > obj: object
- < ergebnis: true if obj is the list end NIL,
-             false if obj is a Cons.
-             error otherwise */
-local bool endp (object obj) {
+ < result: true if obj is the list end NIL,
+           false if obj is a Cons.
+           error otherwise */
+global bool endp (object obj) {
   if (consp(obj))
     return false;
   else if (nullp(obj))
@@ -532,7 +532,7 @@ local bool endp (object obj) {
 }
 
 LISPFUNN(endp,1)
-{ /* (ENDP object), CLTL S. 264 */
+{ /* (ENDP object), CLTL p. 264 */
   VALUES_IF(endp(popSTACK()));
 }
 
