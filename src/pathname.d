@@ -8939,6 +8939,75 @@ LISPFUN(open,1,0,norest,key,5,\
     }
   #endif
   #
+  # Check whether a directory exists.
+  # check_stat_directory(namestring_asciz,error_statement,exists_statement);
+  # If the directory does not exist or is a file, does nothing.
+  #if defined(UNIX) || defined(RISCOS)
+    #define check_stat_directory(namestring_asciz,error_statement,exists_statement)  \
+      { var struct stat status;                                  \
+        begin_system_call();                                     \
+        if (!( stat(namestring_asciz,&status) ==0))              \
+          { if (!(errno==ENOENT))                                \
+              { end_system_call(); error_statement }             \
+              else                                               \
+              # Subdirectory existiert nicht -> OK.              \
+              { end_system_call(); }                             \
+          }                                                      \
+          else                                                   \
+          # File existiert.                                      \
+          { end_system_call();                                   \
+            if (S_ISDIR(status.st_mode)) # Ist es ein Directory? \
+              { exists_statement }                               \
+      }   }
+  #endif
+  #ifdef AMIGAOS
+    #define check_stat_directory(namestring_asciz,error_statement,exists_statement)  \
+      { var LONGALIGNTYPE(struct FileInfoBlock) fib;                       \
+        var struct FileInfoBlock * fibptr = LONGALIGN(&fib);               \
+        set_break_sem_4();                                                 \
+        begin_system_call();                                               \
+       {var BPTR lock = Lock(namestring_asciz,ACCESS_READ);                \
+        if (lock==BPTR_NULL)                                               \
+          { if (!(IoErr()==ERROR_OBJECT_NOT_FOUND))                        \
+              { end_system_call(); clr_break_sem_4(); error_statement }    \
+              else                                                         \
+              # Subdirectory existiert nicht -> OK.                        \
+              { end_system_call(); clr_break_sem_4(); }                    \
+          }                                                                \
+          else                                                             \
+          # File existiert.                                                \
+          { if (! Examine(lock,fibptr) )                                   \
+              { UnLock(lock);                                              \
+                end_system_call(); clr_break_sem_4();                      \
+                error_statement                                            \
+              }                                                            \
+              else                                                         \
+              { UnLock(lock);                                              \
+                end_system_call(); clr_break_sem_4();                      \
+                if (fibptr->fib_DirEntryType >= 0) # Ist es ein Directory? \
+                  { exists_statement }                                     \
+      }}  }   }
+  #endif
+  #ifdef WIN32_NATIVE
+    #define check_stat_directory(namestring_asciz,error_statement,exists_statement)  \
+      { var DWORD fileattr;                                                  \
+        begin_system_call();                                                 \
+        fileattr = GetFileAttributes(namestring_asciz);                      \
+        if (fileattr == 0xFFFFFFFF)                                          \
+          { if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND)) \
+              { end_system_call(); error_statement }                         \
+              else                                                           \
+              # Subdirectory existiert nicht -> OK.                          \
+              { end_system_call(); }                                         \
+          }                                                                  \
+          else                                                               \
+          # File existiert.                                                  \
+          { end_system_call();                                               \
+            if (fileattr & FILE_ATTRIBUTE_DIRECTORY) # Ist es ein Directory? \
+              { exists_statement }                                           \
+      }   }
+  #endif
+  #
   local object directory_search(pathname)
     var object pathname;
     {
@@ -9142,94 +9211,19 @@ LISPFUN(open,1,0,norest,key,5,\
                           pushSTACK(O(null_string)); # und Nullbyte
                           namestring = string_concat(3); # zusammenhängen
                           # Information holen:
-                         #if defined(UNIX) || defined(RISCOS)
-                         {var struct stat status;
-                          begin_system_call();
-                          if (!( stat(TheAsciz(namestring),&status) ==0))
-                            { if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_0); }
-                              end_system_call();
-                              # Subdirectory existiert nicht -> OK.
-                            }
-                            else
-                            # File existiert.
-                            { end_system_call();
-                              if (S_ISDIR(status.st_mode)) # Ist es ein Directory?
-                                # ja -> neuen Pathname dazu bilden:
-                                { # pathname kopieren und dessen Directory um
-                                  # (car subdir-list) verlängern:
-                                  pushSTACK(Car(STACK_(1+(1+H+2)+1)));
-                                 {var object pathname = pathname_add_subdir();
-                                  pushSTACK(pathname);
-                                 }# Diesen neuen Pathname vor new-pathname-list pushen:
-                                 {var object new_cons = allocate_cons();
-                                  Car(new_cons) = STACK_0;
-                                  Cdr(new_cons) = STACK_(H+2+1);
-                                  STACK_(H+2+1) = new_cons;
-                                }}
-                         }  }
-                         #endif
-                         #ifdef AMIGAOS
-                         { var LONGALIGNTYPE(struct FileInfoBlock) fib;
-                           var struct FileInfoBlock * fibptr = LONGALIGN(&fib);
-                           set_break_sem_4();
-                           begin_system_call();
-                          {var BPTR lock = Lock(TheAsciz(namestring),ACCESS_READ);
-                           if (lock==BPTR_NULL)
-                             { if (!(IoErr()==ERROR_OBJECT_NOT_FOUND))
-                                 { end_system_call(); OS_file_error(STACK_0); }
-                               end_system_call();
-                               clr_break_sem_4();
-                               # Subdirectory existiert nicht -> OK.
-                             }
-                             else
-                             # File existiert.
-                             { if (! Examine(lock,fibptr) )
-                                 { UnLock(lock); end_system_call(); OS_file_error(STACK_0); }
-                               UnLock(lock);
-                               end_system_call();
-                               clr_break_sem_4();
-                               if (fibptr->fib_DirEntryType >= 0) # Ist es ein Directory?
-                                 # ja -> neuen Pathname dazu bilden:
-                                 { # pathname kopieren und dessen Directory um
-                                   # (car subdir-list) verlängern:
-                                   pushSTACK(Car(STACK_(1+(1+H+2)+1)));
-                                  {var object pathname = pathname_add_subdir();
-                                   pushSTACK(pathname);
-                                  }# Diesen neuen Pathname vor new-pathname-list pushen:
-                                  {var object new_cons = allocate_cons();
-                                   Car(new_cons) = STACK_0;
-                                   Cdr(new_cons) = STACK_(H+2+1);
-                                   STACK_(H+2+1) = new_cons;
-                                 }}
-                         }}  }
-                         #endif
-                         #ifdef WIN32_NATIVE
-                         {var DWORD fileattr;
-                          begin_system_call();
-                          fileattr = GetFileAttributes(TheAsciz(namestring));
-                          if (fileattr == 0xFFFFFFFF)
-                            { if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND))
-                                { end_system_call(); OS_file_error(STACK_0); }
-                              end_system_call();
-                              # Subdirectory existiert nicht -> OK.
-                            }
-                            else
-                            { end_system_call();
-                              if (fileattr & FILE_ATTRIBUTE_DIRECTORY) # Ist es ein Directory?
-                                # ja -> neuen Pathname dazu bilden:
-                                { # pathname kopieren und dessen Directory um
-                                  # (car subdir-list) verlängern:
-                                  pushSTACK(Car(STACK_(1+(1+H+2)+1)));
-                                 {var object pathname = pathname_add_subdir();
-                                  pushSTACK(pathname);
-                                 }# Diesen neuen Pathname vor new-pathname-list pushen:
-                                 {var object new_cons = allocate_cons();
-                                  Car(new_cons) = STACK_0;
-                                  Cdr(new_cons) = STACK_(H+2+1);
-                                  STACK_(H+2+1) = new_cons;
-                                }}
-                         }  }
-                         #endif
+                          check_stat_directory(TheAsciz(namestring),
+                                               { OS_file_error(STACK_0); },
+                            { # pathname kopieren und dessen Directory um
+                              # (car subdir-list) verlängern:
+                              pushSTACK(Car(STACK_(1+(1+H+2)+1)));
+                             {var object pathname = pathname_add_subdir();
+                              pushSTACK(pathname);
+                             }# Diesen neuen Pathname vor new-pathname-list pushen:
+                             {var object new_cons = allocate_cons();
+                              Car(new_cons) = STACK_0;
+                              Cdr(new_cons) = STACK_(H+2+1);
+                              STACK_(H+2+1) = new_cons;
+                            }});
                         }
                         skipSTACK(1);
                         goto next_pathname;
