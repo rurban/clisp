@@ -302,16 +302,19 @@ to make sure the !Clisp directory is the currently selected directory. Then
 
 #endif
 #if defined(UNIX) || defined(WIN32)
+      (without-package-lock ()
         (compile-file "src/config.lisp")
-        (load "src/config.fas")
+        (load "src/config.fas"))
 #else
+      (without-package-lock ()
         (compile-file "config.lisp")
-        (load "config.fas")
+        (load "config.fas"))
 
 and - in case you modified timezone.lisp -
 
+      (without-package-lock ()
         (compile-file "timezone.lisp")
-        (load "timezone.fas")
+        (load "timezone.fas"))
 #endif
 
 and then
