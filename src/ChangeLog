@@ -1,3 +1,9 @@
+1998-09-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * condition.lsp (prompt-for-new-value): Change message, to be
+          consistent with prompt-for-new-value-string.
+          (assert): Make more readable. Prefer `append' to `nconc'.
+
 1998-09-11  Sam Steingold  <sds@goems.com>
 
 	* conditio.lsp (prompt-for-new-value): returns a list now; works
