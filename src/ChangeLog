@@ -1,5 +1,10 @@
 2002-05-21  Sam Steingold  <sds@gnu.org>
 
+	* inspect.lisp (*http-encoding*): new variable (utf-8/dos)
+	(http-command, with-http-output): use it
+
+2002-05-21  Sam Steingold  <sds@gnu.org>
+
 	* encoding.d (MAKE-ENCODING): when the iconv charset is already
 	built-in use it instead of iconv
 	(ENCODING-CHARSET): new function

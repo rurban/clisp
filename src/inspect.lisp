@@ -132,24 +132,26 @@
           (when ,var (close ,var))
           (when ,raw (close ,raw)))))))
 
+(defvar *http-encoding*
+  (make-encoding :charset charset:utf-8 :line-terminator :dos))
+
 (defmacro with-http-output ((var raw &rest opts &key keep-alive (debug 0)
                              (return-code 200) (return-name "OK")
                              &allow-other-keys)
                             &body body)
   "Write some HTML to an http client on socket stream RAW.
 Supplies some HTTP/1.0 headers and calls `with-html-output'."
-  (with-gensyms ("HTTP-" string vector enc stream sock header line dbg alive)
+  (with-gensyms ("HTTP-" string vector stream sock header line dbg alive)
     (remf opts :keep-alive) (remf opts :debug)
     (remf opts :return-code) (remf opts :return-name)
     `(let* ((,sock ,raw)
             (,dbg ,debug) (,alive ,keep-alive)
             (,string (with-output-to-string (,stream)
                        (with-html-output (,var ,stream ,@opts) ,@body)))
-            (,enc (stream-external-format ,sock))
-            (,vector (ext:convert-string-to-bytes ,string ,enc))
+            (,vector (ext:convert-string-to-bytes ,string *http-encoding*))
             (,header (list (format nil "HTTP/1.0 ~d ~a"
                                    ,return-code ,return-name)
-                           "Content-type: text/html"
+                           "Content-type: text/html; charset=utf-8"
                            (format nil "Content-length: ~d" (length ,vector))
                            (format nil "Connection: ~:[close~;keep-alive~]"
                                    ,alive))))
@@ -543,7 +545,8 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
     (format t "~s: server: ~s; socket: ~s~%" 'http-command server socket))
   (let (response id com keep-alive)
     (loop (unless (and socket (open-stream-p socket))
-            (setq socket (socket-accept server :external-format :dos))
+            (setq socket (socket-accept server :external-format
+                                        *http-encoding*))
             (when (> debug 1)
               (format t "~s: new socket: ~s~%" 'http-command socket)))
           (setq response (flush-http socket))
