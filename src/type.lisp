@@ -21,7 +21,7 @@
 
 ; vorläufig, solange bis clos.lisp geladen wird:
 (eval-when (eval)
-  (defun clos::built-in-class-p (object) (declare (ignore object)) nil))
+  (predefun clos::built-in-class-p (object) (declare (ignore object)) nil))
 (unless (fboundp 'clos::class-name)
   (defun clos::class-name (c) (declare (ignore c)) nil)
 )
