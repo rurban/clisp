@@ -480,8 +480,9 @@
           ((fboundp sym)            (TEXT "function"))))))
 
 (proclaim '(special *documentation*))
-(setq *documentation* (make-hash-table :key-type 'symbol :value-type 'list
-                                       :test 'stablehash-eq :warn-if-needs-rehash-after-gc t :size 1000)) ; :weak :key
+(setq *documentation* (make-hash-table :key-type 'symbol ; actually (or symbol cons)
+                                       :value-type 'list
+                                       :test 'stablehash-equal :warn-if-needs-rehash-after-gc t :size 1000)) ; :weak :key
 (sys::%putd 'sys::%set-documentation
   (function sys::%set-documentation (lambda (symbol doctype value)
     #| ;; cannot use due to bootstrapping
