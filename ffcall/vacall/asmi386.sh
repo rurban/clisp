@@ -21,7 +21,7 @@ cat > $tmpscript01 << \EOF
 # ----------- Strip comments
 s,# .*,,
 s,[ 	][ 	]*$,,
-\EOF
+EOF
 
 cat > $tmpscript02 << \EOF
 # ----------- Remove #APP/#NO_APP lines, add a blank line at the end
@@ -29,12 +29,12 @@ cat > $tmpscript02 << \EOF
 /^#NO_APP$/d
 /gcc2_compiled/d
 /gnu_compiled_c/d
-\EOF
+EOF
 
 cat > $tmpscript03 << \EOF
 # ----------- Global symbols depends on ASM_UNDERSCORE
 s/_\([A-Za-z0-9_:]*\)/C(\1)/
-\EOF
+EOF
 
 cat > $tmpscript04 << \EOF
 # ----------- Introduce macro syntax for operands
@@ -44,7 +44,7 @@ s/\([-+0-9A-Z_]\+\)[(],%\(e..\),\([0-9]*\)[)]/MEM_DISP_SHINDEX0(\1,\2,\3)/g
 s/\([-+0-9A-Z_]\+\)[(]%\(e..\),%\(e..\),\([0-9]*\)[)]/MEM_DISP_SHINDEX(\2,\1,\3,\4)/g
 s/[(]%\(e..\),%\(e..\),\([0-9]*\)[)]/MEM_SHINDEX(\1,\2,\3)/g
 s/[(]%\(e..\),%\(e..\)[)]/MEM_INDEX(\1,\2)/g
-\EOF
+EOF
 
 cat > $tmpscript05 << \EOF
 # ----------- Introduce macro syntax for instructions
@@ -55,7 +55,7 @@ s/\(mov\|add\|sub\|adc\|sbb\|xor\|test\|cmp\|rcl\|rcr\|and\|or\|sar\|shr\|shl\|l
 s/\(shld\|shrd\)\(.\)\( \+\)shcl\( \+\)\(.*\)$/INSN2SHCL(\1,\2	,\5)/
 s/rep ;/REP/
 s/repz ;/REPZ/
-\EOF
+EOF
 
 cat > $tmpscript06 << \EOF
 # ----------- Add size prefixes to memory references' \
@@ -64,14 +64,14 @@ s/\([(]f[^(,]*,l.*\),MEM/\1,X8 MEM/g
 s/\([(][^(,]*,b.*\),MEM/\1,X1 MEM/g
 s/\([(][^(,]*,w.*\),MEM/\1,X2 MEM/g
 s/\([(][^(,]*,l.*\),MEM/\1,X4 MEM/g
-\EOF
+EOF
 
 cat > $tmpscript07 << \EOF
 # ----------- Introduce macro syntax for register names
 s/%\(e..\)/R(\1)/g
 s/%\(..\)/R(\1)/g
 s/\$\([-0-9]*\)/NUM(\1)/g
-\EOF
+EOF
 
 cat > $tmpscript08 << \EOF
 # ----------- Treat table jumps (hairy)
@@ -92,12 +92,12 @@ s/^	\(INSN1[(]jmp,_[^,]*,\)\*MEM_DISP_SHINDEX0[(]\([^,)]*\),\([^,)]*\),4[)][)]$/
 #else\
 	\1INDIR(MEM_DISP_SHINDEX0(\2,\3,4)))\
 #endif/
-\EOF
+EOF
 
 cat > $tmpscript09 << \EOF
 # ----------- Treat indirect calls
 s/\(INSN1[(]\(call\|jmp\),_[^,]*,\)\*\(R[(][^)]*[)]\)[)]$/\1INDIR(\3))/
-\EOF
+EOF
 
 cat > $tmpscript10 << \EOF
 # ----------- Introduce macro syntax for assembler pseudo-ops
@@ -112,13 +112,13 @@ n
 /^$/s/^$/FUNEND()\
 /
 }
-\EOF
+EOF
 
 cat > $tmpscript11 << \EOF
 # ----------- Declare global symbols as functions (we have no variables)
 s/GLOBL(C(\([A-Za-z0-9_]*\)))$/GLOBL(C(\1))\
 	DECLARE_FUNCTION(\1)/
-\EOF
+EOF
 
 sed -f $tmpscript01 | \
 sed -f $tmpscript02 | \

@@ -1,3 +1,7 @@
+2000-01-22  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * src/asmi386.sh: Terminate the here documents with EOF, not \EOF.
+
 2000-01-15  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * modules/regexp/regexp.lsp (regexp-exec): Remove wrong declaration.
