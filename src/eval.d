@@ -1390,99 +1390,78 @@ global Values eval_noenv (object form) {
       value1 = form; value2 = NIL;
     }
 
-# UP: Parse-Declarations-Docstring. Detaches those from a list of forms,
-# that have to be viewed as declarations resp.
-# documentation string.
-# parse_dd(formlist,venv,fenv)
-# > formlist: ( {decl|doc-string} . body )
-# > venv: a variable- and Symbolmacro-Environment (for the macro expansions)
-# > fenv: function- and macrobinding-environment (for the macro expansions)
-# < value1: body
-# < value2: List of decl-specs
-# < value3: Doc-String or NIL
-# < result: true if one (COMPILE)-declaration occurred, else false
-# can trigger GC
-  global bool parse_dd (object formlist, object venv, object fenv);
-  global bool parse_dd(formlist,venv,fenv)
-    var object formlist;
-    var object venv;
-    var object fenv;
-    {
-      pushSTACK(formlist); # store formlist for error message
-      pushSTACK(venv); # variable-environment
-      pushSTACK(fenv); # Macrobinding-Environment
-      pushSTACK(NIL); # preliminary Doc-String
-      pushSTACK(NIL); # start of decl-spec-Liste
-      # Stack Structure: formlist, venv, fenv, docstring, declspecs.
-      var bool compile_decl = false; # Flag, if a (COMPILE)-declaration occurred
-      var object body = formlist; # rest of the form-list
-      while (consp(body)) {
-        var object form = Car(body); # next form
-        var object body_rest = Cdr(body); # shorten body
-        if (stringp(form)) { # found Doc-String?
-          if (atomp(body_rest)) # at the last position of the form list?
-            goto fertig; # yes -> last form can't be a Doc-String!
-          if (!nullp(STACK_1)) { # preceding Doc-String?
-            # yes -> more than one Doc-String is too much:
-            pushSTACK(STACK_4); # formlist
-            fehler(source_program_error,
-                   GETTEXT("Too many documentation strings in ~"));
-          }
-          STACK_1 = form; # new Doc-String
-          body = body_rest;
-        } elif (consp(form) && eq(Car(form),S(declare))) { # Declaration (DECLARE ...) ?
-          # cons decl-specs one by one onto STACK_0:
-          pushSTACK(body_rest); # save body_rest
-          pushSTACK(Cdr(form)); # list of the new decl-specs
-          while (mconsp(STACK_0)) {
-            {
-              var object declspec = Car(STACK_0); # next decl-spec
-              # Test, if (EQUAL d '(COMPILE)) =
-              #   (and (consp d) (eq (car d) 'COMPILE) (null (cdr d)))
-              if (consp(declspec)
-                  && eq(Car(declspec),S(compile))
-                  && nullp(Cdr(declspec)))
-                compile_decl = true;
-            }
-            # Cons this declaration onto STACK_(0+2) :
-            {
-              var object new_cons = allocate_cons();
-              Car(new_cons) = Car(STACK_0);
-              Cdr(new_cons) = STACK_(0+2);
-              STACK_(0+2) = new_cons;
-            }
-            # go to next decl-spec:
-            STACK_0 = Cdr(STACK_0);
-          }
-          skipSTACK(1);
-          body = popSTACK(); # body := old body_rest
-        } else {
-         fertig: # finished with loop over the form list
-          #if 0
-          # Once, this has been a nice optimization, that avoided twofold
-          # macro-expansion. Unfortunately it is not save anymore,
-          # because in (FUNCTION (LAMBDA ...)), LET, LET*, MULTIPLE-VALUE-BIND
-          # the outer(!) Variable-Environment is passed, so that in
-          # (SYMBOL-MACROLET ((X Y)) (LET ((X (FOO))) (SETF X ...) ...))
-          # the SETF-Macro would get a wrong venv and would be expanded to
-          # (SETQ Y ...) .
-          if (!eq(form,Car(body))) { # if the Form was expanded,
-            # replace body by (cons form (cdr body)) :
-            pushSTACK(body_rest); pushSTACK(form);
-            body = allocate_cons();
-            Car(body) = popSTACK(); # form
-            Cdr(body) = popSTACK(); # body_rest
-          }
-          #endif
-          break;
-        }
+/* UP: Parse-Declarations-Docstring. Detaches those from a list of forms,
+ that have to be viewed as declarations resp.
+ documentation string.
+ parse_dd(formlist,venv,fenv)
+ > formlist: ( {decl|doc-string} . body )
+ > venv: a variable- and Symbolmacro-Environment (for the macro expansions)
+ > fenv: function- and macrobinding-environment (for the macro expansions)
+ < value1: body
+ < value2: List of decl-specs
+ < value3: Doc-String or NIL
+ < result: true if one (COMPILE)-declaration occurred, else false
+ can trigger GC */
+global bool parse_dd (object formlist, object venv, object fenv)
+{
+  pushSTACK(formlist); /* store formlist for error message */
+  pushSTACK(venv); /* variable-environment */
+  pushSTACK(fenv); /* Macrobinding-Environment */
+  pushSTACK(NIL); /* preliminary Doc-String */
+  pushSTACK(NIL); /* start of decl-spec-Liste */
+  /* stack layout: formlist, venv, fenv, docstring, declspecs. */
+  var bool compile_decl = false; /* flag: (COMPILE)-declaration occurred */
+  var object body = formlist; /* rest of the form-list */
+  while (consp(body)) {
+    var object form = Car(body); /* next form */
+    var object body_rest = Cdr(body); /* shorten body */
+    if (stringp(form)) { /* found Doc-String? */
+      if (atomp(body_rest)) /* at the last position of the form list? */
+        goto fertig; /* yes -> last form can't be a Doc-String! */
+      if (!nullp(STACK_1)) { /* preceding Doc-String? */
+        /* yes -> more than one Doc-String is too much: */
+        pushSTACK(STACK_4); /* formlist */
+        fehler(source_program_error,
+               GETTEXT("Too many documentation strings in ~"));
       }
-      value1 = body;
-      value2 = nreverse(popSTACK()); # decl-spec-Liste
-      value3 = popSTACK(); # Doc-String
-      skipSTACK(3);
-      return compile_decl;
+      STACK_1 = form; /* new Doc-String */
+      body = body_rest;
+    } else if (consp(form) && eq(Car(form),S(declare))) {/* (DECLARE ...) */
+      /* cons decl-specs one by one onto STACK_0: */
+      pushSTACK(body_rest); /* save body_rest */
+      pushSTACK(Cdr(form)); /* list of the new decl-specs */
+      while (mconsp(STACK_0)) {
+        { /* check for (COMPILE) */
+          var object declspec = Car(STACK_0); /* next decl-spec */
+          /* Test: (EQUAL d '(COMPILE)) =
+               (and (consp d) (eq (car d) 'COMPILE) (null (cdr d))) */
+          if (consp(declspec)
+              && eq(Car(declspec),S(compile))
+              && nullp(Cdr(declspec)))
+            compile_decl = true;
+        }
+        { /* push this declaration onto STACK_(0+2) : */
+          var object new_cons = allocate_cons();
+          Car(new_cons) = Car(STACK_0);
+          Cdr(new_cons) = STACK_(0+2);
+          STACK_(0+2) = new_cons;
+        }
+        /* go to next decl-spec: */
+        STACK_0 = Cdr(STACK_0);
+      }
+      skipSTACK(1);
+      body = popSTACK(); /* body := old body_rest */
+    } else {
+     fertig: /* finished with loop over the form list */
+      break;
     }
+  }
+  value1 = body;
+  value2 = nreverse(popSTACK()); /* decl-spec-Liste */
+  value3 = popSTACK(); /* Doc-String */
+  skipSTACK(3);
+  return compile_decl;
+}
 
 # UP: binds *EVALHOOK* and *APPLYHOOK* dynamically to the specified values.
 # bindhooks(evalhook_value,applyhook_value);
