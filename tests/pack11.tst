@@ -58,6 +58,9 @@ t
     (delete-package p)))
 t
 
+(progn (make-package #\p) (delete-package #\p))
+T
+
 ;;; 11.7 anlegen von paketen, export import ...
 
   ;package-funktionen mit nutzerdefinierten paketen
