@@ -3834,8 +3834,10 @@ for-value   NIL or T
                                 (tripel (assoc key key-positions :test #'eq)) ; can be =NIL!
                                 (for-value (third tripel))
                                 (arg (pop args)))
-                           ;; for-value /= NIL: Existing Keyword, and the Slot is still empty
-                           ;; for-value = NIL: ALLOW-allowed Keyword or Slot already filled
+                           ;; for-value /= NIL: Existing Keyword,
+                           ;; and the Slot is still empty
+                           ;; for-value = NIL: ALLOW-allowed Keyword
+                           ;; or Slot already filled
                            (let* ((*stackz* (cons 0 *stackz*)) ; 0 will be replaced later
                                   (anode (c-form arg (if for-value
                                                          'ONE 'NIL))))
@@ -5545,7 +5547,7 @@ for-value   NIL or T
                             ,anode3
                             ,@(if flag
                                 `((UNWIND ,stackz3 ,*stackz* ,*for-value*))
-                                ; is expanded to '((UNBIND1) (SKIPSP 1 0))
+                                ;; is expanded to '((UNBIND1) (SKIPSP 1 0))
                                 )))))))
 
 ;; compile (MULTIPLE-VALUE-PROG1 form1 {form}*)
@@ -6848,8 +6850,7 @@ for-value   NIL or T
               (push (cons keys (cdr clause)) newclauses)))))
       (unless default-passed (push '(T NIL) newclauses))
       (setq newclauses (nreverse newclauses))
-      (setq allkeys (nreverse allkeys))
-    )
+      (setq allkeys (nreverse allkeys)))
     ;; newclauses now contains no double keys, T as keys exactly once,
     ;; and allkeys is the set of all Keys.
     (if (<= (length allkeys) 2) ; few Keys -> use EQL directly
@@ -8704,9 +8705,9 @@ New Operations:
            (setq *current-value* 'FALSE *current-vars* '()))
           ((SKIP SKIPI SKIPSP VALUES1 MVCALLP BLOCK-CLOSE TAGBODY-CLOSE
             CATCH-CLOSE UNWIND-PROTECT-NORMAL-EXIT HANDLER-BEGIN
-            STORE ; STORE only on function-arguments within a
-                  ; function-call, cf. c-DIRECT-FUNCTION-CALL
-            )
+            ;; STORE only on function-arguments within a
+            ;; function-call, cf. c-DIRECT-FUNCTION-CALL
+            STORE)
            (push item *code-part*))
           ((T)
            (push item *code-part*)
@@ -10211,16 +10212,14 @@ This step works on the code-list and changes is destructively.
         (when (consp item)
           (case (first item)
             (CONST ; (CONST n c) -> (CONST n)
-              (setf (cddr item) '())
-            )
+              (setf (cddr item) '()))
             ((ATOM CONSP)
               (setq item (first item))
               (if (and #| (consp (cdr crest)) |#
                        (consp (cadr crest))
                        (memq (first (cadr crest)) '(JMPIF JMPIFNOT))
-                       (null (third (cadr crest)))
-                  )
-                ; e.g. (ATOM) (JMPIF label NIL) --> (JMPIFATOM label)
+                       (null (third (cadr crest))))
+                ;; e.g. (ATOM) (JMPIF label NIL) --> (JMPIFATOM label)
                 (setf (car crest)
                       `(,(if (eq (first (cadr crest)) 'JMPIF)
                            (if (eq item 'ATOM) 'JMPIFATOM 'JMPIFCONSP)
@@ -10284,8 +10283,7 @@ This step works on the code-list and changes is destructively.
                                              (FUNCALL  . FUNCALL&PUSH)
                                              (APPLY    . APPLY&PUSH)
                                              (COPY-CLOSURE . COPY-CLOSURE&PUSH)
-                                             (HANDLER-BEGIN . HANDLER-BEGIN&PUSH)
-                                    )       )
+                                             (HANDLER-BEGIN . HANDLER-BEGIN&PUSH)))
                                     (JMPIF
                                       (let ((alist
                                               '((EQ     . JMPIFEQ)
@@ -10294,15 +10292,11 @@ This step works on the code-list and changes is destructively.
                                                 (CALL2  . CALL2&JMPIF)
                                                 (CALLS1 . CALLS1&JMPIF)
                                                 (CALLS2 . CALLS2&JMPIF)
-                                                (CALLSR . CALLSR&JMPIF)
-                                               )
-                                           ))
+                                                (CALLSR . CALLSR&JMPIF))))
                                         (when (third (car right))
-                                          (setq alist (cdr alist))
-                                        )
+                                          (setq alist (cdr alist)))
                                         (setf (cddr (car right)) '())
-                                        alist
-                                    ) )
+                                        alist))
                                     (JMPIFNOT
                                       (let ((alist
                                               '((EQ     . JMPIFNOTEQ)
@@ -10311,32 +10305,24 @@ This step works on the code-list and changes is destructively.
                                                 (CALL2  . CALL2&JMPIFNOT)
                                                 (CALLS1 . CALLS1&JMPIFNOT)
                                                 (CALLS2 . CALLS2&JMPIFNOT)
-                                                (CALLSR . CALLSR&JMPIFNOT)
-                                               )
-                                           ))
+                                                (CALLSR . CALLSR&JMPIFNOT))))
                                         (when (third (car right))
-                                          (setq alist (cdr alist))
-                                        )
+                                          (setq alist (cdr alist)))
                                         (setf (cddr (car right)) '())
-                                        alist
-                                    ) )
+                                        alist))
                                     (STORE '((NIL    . NIL&STORE)
                                              (T      . T&STORE)
                                              (POP    . POP&STORE)
                                              (CALLS1 . CALLS1&STORE)
                                              (CALLS2 . CALLS2&STORE)
-                                             (CALLSR . CALLSR&STORE)
-                                    )       )
+                                             (CALLSR . CALLSR&STORE)))
                                     (STOREC '((LOAD . LOAD&STOREC)))
                                     (RET '((SKIP . SKIP&RET)))
-                                    (RETGF '((SKIP . SKIP&RETGF)))
-                                  )
-                                  :test #'eq
-                   )) )    )
+                                    (RETGF '((SKIP . SKIP&RETGF))))
+                                  :test #'eq))))
                 (when new-op
-                  (ersetze 2 `(,new-op ,@(rest item) ,@(rest (car right))))
-            ) ) )
-            ; further conversions:
+                  (ersetze 2 `(,new-op ,@(rest item) ,@(rest (car right)))))))
+            ;; further conversions:
             (case (first item)
               ((NIL PUSH-NIL)
                 (flet ((nilpusher-p (coder)
@@ -10348,59 +10334,46 @@ This step works on the code-list and changes is destructively.
                                 (PUSH-NIL (second (car coder)))
                                 ((NIL) (when (equal (cadr coder) '(PUSH))
                                          (setf (cdr coder) (cddr coder))
-                                         1
-                                )      )
-                                (t nil)
-                      )) )    )
+                                         1))
+                                (t nil)))))
                   (let ((count (nilpusher-p middle)))
                     (when count
                       (setq right (cdr middle))
                       (loop
                         (let ((next-count (nilpusher-p right)))
                           (unless next-count (return))
-                          (incf count next-count)
-                        )
-                        (setq right (cdr right))
-                      )
-                      (setf (car middle) (if (eql count 1) '(NIL&PUSH) `(PUSH-NIL ,count))
-                            (cdr middle) right
-                      )
-                      (go next)
-              ) ) ) )
+                          (incf count next-count))
+                        (setq right (cdr right)))
+                      (setf (car middle)
+                            (if (eql count 1) '(NIL&PUSH) `(PUSH-NIL ,count))
+                            (cdr middle) right)
+                      (go next)))))
               (CONST
                 (when (and #| (consp right) |# (consp (car right)))
                   (case (first (car right))
                     (SYMBOL-FUNCTION
                       (let ((n (second item)))
                         (cond ((and #| (consp (cdr right)) |#
-                                    (equal (cadr right) '(PUSH))
-                               )
-                               (ersetze 3 `(CONST&SYMBOL-FUNCTION&PUSH ,n))
-                              )
+                                    (equal (cadr right) '(PUSH)))
+                               (ersetze 3 `(CONST&SYMBOL-FUNCTION&PUSH ,n)))
                               ((and #| (consp (cdr right)) |#
                                     (consp (cadr right))
-                                    (eq (first (cadr right)) 'STORE)
-                               )
+                                    (eq (first (cadr right)) 'STORE))
                                (ersetze 3
-                                 `(CONST&SYMBOL-FUNCTION&STORE ,n ,(second (cadr right)))
-                              ))
-                              (t (ersetze 2 `(CONST&SYMBOL-FUNCTION ,n)))
-                    ) ) )
+                                 `(CONST&SYMBOL-FUNCTION&STORE ,n
+                                   ,(second (cadr right)))))
+                              (t (ersetze 2 `(CONST&SYMBOL-FUNCTION ,n))))))
                     (EQ
                       (when (and #| (consp (cdr right)) |#
                                  (consp (cadr right))
                                  (memq (first (cadr right)) '(JMPIF JMPIFNOT))
-                                 (null (third (cadr right)))
-                            )
+                                 (null (third (cadr right))))
                         (ersetze 3
                           `(,(if (eq (first (cadr right)) 'JMPIF)
                                'JMPIFEQTO
-                               'JMPIFNOTEQTO
-                             )
+                               'JMPIFNOTEQTO)
                             ,(second item)
-                            ,(second (cadr right))
-                           )
-              ) ) ) ) ) )
+                            ,(second (cadr right)))))))))
               (LOAD
                 (when (and #| (consp right) |# (consp (car right)))
                   (let ((n (second item)))
@@ -10410,53 +10383,39 @@ This step works on the code-list and changes is destructively.
                           (case (first (cadr right))
                             (PUSH (ersetze 3 `(LOAD&CAR&PUSH ,n)))
                             (STORE
-                              (ersetze 3
-                                `(LOAD&CAR&STORE ,n ,(second (cadr right)))
-                      ) ) ) ) )
+                             (ersetze 3 `(LOAD&CAR&STORE
+                                          ,n ,(second (cadr right))))))))
                       (CDR
                         (when (and #| (consp (cdr right)) |# (consp (cadr right)))
                           (case (first (cadr right))
                             (PUSH (ersetze 3 `(LOAD&CDR&PUSH ,n)))
                             (STORE
                               (when (eql n (second (cadr right)))
-                                (ersetze 3 `(LOAD&CDR&STORE ,n))
-                      ) ) ) ) )
+                                (ersetze 3 `(LOAD&CDR&STORE ,n)))))))
                       (CONS
                         (when (and #| (consp (cdr right)) |# (consp (cadr right))
                                    (eq (first (cadr right)) 'STORE)
-                                   (eql (second (cadr right)) (- n 1))
-                              )
-                          (ersetze 3 `(LOAD&CONS&STORE ,(- n 1)))
-                      ) )
+                                   (eql (second (cadr right)) (- n 1)))
+                          (ersetze 3 `(LOAD&CONS&STORE ,(- n 1)))))
                       (PUSH
                         (when (and #| (consp (cdr right)) |# (consp (cadr right))
                                    (or (equal (cadr right) CALLS-1+)
-                                       (equal (cadr right) CALLS-1-)
-                                   )
-                                   #| (consp (cddr right)) |# (consp (caddr right))
-                              )
+                                       (equal (cadr right) CALLS-1-))
+                                   #| (consp (cddr right)) |# (consp (caddr right)))
                           (when (equal (caddr right) '(PUSH))
                             (ersetze 4
                               `(,(if (equal (cadr right) CALLS-1+)
                                    'LOAD&INC&PUSH
-                                   'LOAD&DEC&PUSH
-                                 )
-                                ,n
-                               )
-                          ) )
+                                   'LOAD&DEC&PUSH)
+                                ,n)))
                           (when (and (eq (first (caddr right)) 'STORE)
-                                     (eql (second (caddr right)) n)
-                                )
+                                     (eql (second (caddr right)) n))
                             (ersetze 4
                               `(,(if (equal (cadr right) CALLS-1+)
                                    'LOAD&INC&STORE
-                                   'LOAD&DEC&STORE
-                                 )
-                                ,n
-                               )
-                        ) ) )
-                        (ersetze 2 `(LOAD&PUSH ,n))
-              ) ) ) ) )
+                                   'LOAD&DEC&STORE)
+                                ,n))))
+                        (ersetze 2 `(LOAD&PUSH ,n)))))))
               (JMPIFBOUNDP ; simplify (JMPIFBOUNDP n l) (NIL) (STORE n) l
                 (when (and #| (consp right) |#
                            (equal (car right) '(NIL))
@@ -10465,33 +10424,26 @@ This step works on the code-list and changes is destructively.
                            (eq (first (cadr right)) 'STORE)
                            (eql (second (cadr right)) (second item))
                            #| (consp (cddr right)) |#
-                           (eq (caddr right) (third item))
-                      )
-                  (ersetze 3 `(UNBOUND->NIL ,(second item)))
-              ) )
+                           (eq (caddr right) (third item)))
+                  (ersetze 3 `(UNBOUND->NIL ,(second item)))))
               (JSR
                 (if (and #| (consp right) |# (equal (car right) '(PUSH)))
                   (ersetze 2 `(JSR&PUSH ,(third item)))
-                  (ersetze 1 `(JSR ,(third item)))
-              ) )
+                  (ersetze 1 `(JSR ,(third item)))))
               (UNBIND1
                 (let ((count 1))
                   (loop
                     (unless (and #| (consp right) |#
-                                 (equal (car right) '(UNBIND1))
-                            )
-                      (return)
-                    )
+                                 (equal (car right) '(UNBIND1)))
+                      (return))
                     (incf count)
-                    (setq right (cdr right))
-                  )
+                    (setq right (cdr right)))
                   (unless (eql count 1)
                     (setf (car middle) `(UNBIND ,count))
                     (setf (cdr middle) right)
-                    (go next)
-              ) ) )
-              ;(RET (ersetze 1 '(SKIP&RET 0))) ; does not occur!
-              ;(RETGF (ersetze 1 '(SKIP&RETGF 0))) ; does not occur!
+                    (go next))))
+              ;; (RET (ersetze 1 '(SKIP&RET 0))) ; does not occur!
+              ;; (RETGF (ersetze 1 '(SKIP&RETGF 0))) ; does not occur!
               (UNWIND-PROTECT-CLOSE (ersetze 1 '(UNWIND-PROTECT-CLOSE)))
               ((JMPIF JMPIFNOT) (ersetze 1 `(,(first item) ,(second item))))
               ((JMPHASH JMPHASHV)
@@ -10499,30 +10451,24 @@ This step works on the code-list and changes is destructively.
                       (labels (cddddr item)))
                   (maphash
                     #'(lambda (obj index) ; (gethash obj hashtable) = index
-                        (setf (gethash obj hashtable) (nth index labels))
-                      )
-                    hashtable
-                ) )
-                (setf (cddddr item) '())
-              )
+                        (setf (gethash obj hashtable) (nth index labels)))
+                    hashtable))
+                (setf (cddddr item) '()))
               (HANDLER-OPEN
                 (do ((v (third item))
                      (labels (cddddr item) (cdr labels))
                      (i 1 (+ i 2)))
                     ((null labels))
-                  (setf (svref v i) (car labels))
-                )
-                (setf (cdddr item) '())
-              )
+                  (setf (svref v i) (car labels)))
+                (setf (cdddr item) '()))
               (APPLY
                 (when (and #| (consp right) |#
                            (consp (car right))
                            (eq (first (car right)) 'SKIP)
                            #| (consp (cdr right)) |#
-                           (equal (cadr right) '(RET))
-                      )
-                  (ersetze 3 `(APPLY&SKIP&RET ,(second item) ,(second (car right))))
-              ) )
+                           (equal (cadr right) '(RET)))
+                  (ersetze 3 `(APPLY&SKIP&RET ,(second item)
+                               ,(second (car right))))))
               (FUNCALL
                 (when (and #| (consp right) |#
                            (consp (car right))
@@ -10784,8 +10730,7 @@ freshly rebuilt as list of bytes.
                       (let* ((q (position instr-code short-code-ops
                                           :test #'>= :from-end t))
                              (r (- instr-code (svref short-code-ops q))))
-                        (list (svref instruction-table-K q) r)
-                      )
+                        (list (svref instruction-table-K q) r))
                       (let* ((table-entry (svref instruction-table instr-code))
                              (instr-name (first table-entry)))
                         (case (second table-entry)
@@ -10949,7 +10894,7 @@ The function make-closure is required.
           const-list)))))
 
 
-;;;;***                  THIRD    PASS
+;;;;****                  THIRD    PASS
 
 (defun pass3 ()
   (dolist (pair *fnode-fixup-table*)
