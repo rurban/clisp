@@ -1,3 +1,12 @@
+2004-03-11  Sam Steingold  <sds@gnu.org>
+            Bruno Haible  <bruno@clisp.org>
+
+	* configure.in: Check for <sys/statvfs.h> and <sys/statfs.h>.
+	* unix.d: Prefer <sys/statvfs.h> over <sys/statfs.h>. Use <sys/mount.h>
+	when neither of the two exists (e.g. on FreeBSD 4).
+	* spvw_multimap.d (open_temp_fd): Use fstatvfs instead of fstatfs when
+	possible.
+
 2004-03-10  Bruno Haible  <bruno@clisp.org>
 
 	* configure: Use an if-then statement so that a "make check" failure
