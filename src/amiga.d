@@ -37,8 +37,9 @@
 
 #include <exec/memory.h>         # für Allocate()-Deklaration, MEMF_24BITDMA
 #include <exec/execbase.h>       # für SysBase, AFF_680x0
-#include <libraries/dos.h>
-#include <libraries/dosextens.h>
+#include <dos/dos.h>
+#include <dos/dosextens.h>
+# #include <dos/dostags.h>       # für SystemTags()
 
 #ifdef ANSI
   #include <stdlib.h>
@@ -351,6 +352,7 @@
 # Programme aufrufen.
 # Execute(command,ihandle,ohandle)
 # > command: Kommandozeile, wie man sie im Kommandozeilen-Interpreter eintippt
+#            oder "" für Subshell (bei interaktivem ihandle).
 # > ihandle: Handle für weitere Kommandos, nachdem command abgearbeitet ist,
 #            bei ihandle = 0 werden keine weiteren Kommandos ausgeführt.
 # > ohandle: Handle für Ausgaben der Kommandos,
@@ -358,6 +360,19 @@
 # < ergebnis: Flag, ob erfolgreich aufgerufen.
   extern LONG Execute (CONST ASTRING command, BPTR ihandle, BPTR ohandle); # siehe dos.library/Execute
   #define Execute(command,ihandle,ohandle)  (Execute)((CONST ASTRING)(command),ihandle,ohandle)
+# wird verwendet von PATHNAME
+#
+# SystemTagList(command,tags)
+# SystemTags(command,tags...)
+# > command: Kommandozeile, wie man sie im Kommandozeilen-Interpreter eintippt
+# > tags: Array von ULONG (vgl. dostags.h), am Schluß TAG_DONE
+#         SYS_Input: Handle für Eingabestrom, Default Input()
+#         SYS_Output: Handle für Ausgabestrom, Default Output()
+#                     wenn 0 und Input interaktiv ist, wird es geklont
+#         SYS_UserShell: günstig, wenn command vom Anwender stammt
+# < ergebnis: Returncode, -1 bei Fehler
+  extern LONG SystemTaglist (CONST ASTRING command, CONST struct TagItem *tags);
+  extern LONG SystemTags (CONST ASTRING command, CONST struct TagItem *tags, ...);
 # wird verwendet von PATHNAME
 
 
