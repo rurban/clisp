@@ -183,7 +183,7 @@ Initial revision
 - Garnet accidentally used :on/:off for save under values
   [But only sometimes]
 
-- Scan for all funcalls and safe subr_self prior to call.
+- Scan for all funcalls and save subr_self prior to call.
 
 - Is it right that we make the list of displays public?
 
@@ -4127,13 +4127,13 @@ static void handle_image_z (int src_x, int src_y, int x, int y, int w, int h,
     case 8: bytes_per_line = ((width+3)/4)*4; break;
     default:
       goto sorry;
-    }
+  }
 
   /* Allocate memory */
   X_CALL(data = malloc (bytes_per_line * height));
 
   if (data == 0) {
-    pushSTACK(TheSubr(subr_self)->name); /* probably wrong subr_self here */
+    pushSTACK(TheSubr(subr_self)->name);
     fehler (error, "~: Could not malloc.");
   }
 
@@ -4146,7 +4146,7 @@ static void handle_image_z (int src_x, int src_y, int x, int y, int w, int h,
 
   if (im == 0) {
     free (data);
-    pushSTACK(TheSubr(subr_self)->name); /* probably wrong subr_self here */
+    pushSTACK(TheSubr(subr_self)->name);
     fehler (error, "~: XCreateImage call failed.");
   }
 
@@ -4157,7 +4157,7 @@ static void handle_image_z (int src_x, int src_y, int x, int y, int w, int h,
 
   /* Now the silly loop
    This loop is anything but efficient.
-   On the other hand it works reliabable.
+   On the other hand it works reliabably.
    -- That is more important to me than speed. */
   for (iy = 0; iy < height; iy++)
     for (ix = 0; ix < width; ix++) {
@@ -4242,7 +4242,7 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
     if (bitmap_p && im.depth == 1)
       im.format = XYBitmap;
 
-    /* Now fetch data it *must* be a vector of card8 */
+    /* Now fetch data - it *must* be a vector of card8 */
     pushSTACK(STACK_7); funcall (`XLIB::IMAGE-X-DATA`, 1);
     if (simple_bit_vector_p (Atype_8Bit, value1)) {
       im.data = (char*) &TheSbvector (value1)->data[0];
@@ -4305,7 +4305,7 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
       X_CALL(data = malloc (bytes_per_line * height));
 
       if (data == 0) {
-        pushSTACK(TheSubr(subr_self)->name); /* probably wrong subr_self here */
+        pushSTACK(TheSubr(subr_self)->name);
         fehler (error, "~: Could not malloc.");
       }
 
@@ -4313,11 +4313,12 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
                                 (bitmap_p && depth == 1) ? XYBitmap : ZPixmap,
                                 0, data, width, height,
                                 32, bytes_per_line));
-      dprintf (("im.bytes_per_line = %d (vs. %d)", im->bytes_per_line, bytes_per_line));
+      dprintf (("im.bytes_per_line = %d (vs. %d)",
+                im->bytes_per_line, bytes_per_line));
 
       if (im == 0) {
         free (data);
-        pushSTACK(TheSubr(subr_self)->name); /* probably wrong subr_self here */
+        pushSTACK(TheSubr(subr_self)->name);
         fehler (error, "~: XCreateImage call failed.");
       }
 
@@ -5971,11 +5972,10 @@ static int disassemble_event_on_stack (XEvent *ev, gcv_object_t *dpy_objf)
   pushSTACK(`:SEND-EVENT-P`); pushSTACK(make_bool (ev->xany.send_event)); cnt += 2;
   pushSTACK(`:EVENT-WINDOW`); pushSTACK(make_window (*dpy_objf, ev->xany.window)); cnt += 2;
 
-  /* BTW I really  hate   it that the   naming convention  for events   is  not
-   * consistent, while you have a name for the mask, the event type, the event
-   * substructure  and all  may have different  names.  (i.e. you  have to say
-   * 'exposure' and sometimes 'expose') This bothers me really .. :-{}^
-   */
+  /* BTW I really hate it that the naming convention for events is not
+   * consistent , while you have a name for the mask, the event type, the event
+   * substructure and all may have different names. (i.e. you have to say
+   * 'exposure' and sometimes 'expose') This bothers me really .. :-{}^ */
 
   switch (ev->type) {
     default: {
