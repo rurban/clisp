@@ -1,3 +1,20 @@
+2004-12-10  Sam Steingold  <sds@gnu.org>
+
+	New user variable CUSTOM:*PRINT-SYMBOL-PACKAGE-PREFIX-SHORTEST*
+	allows using the shortest package (nick)name as the symbol prefix
+	* lispbibl.d, genclisph.d (Package): new slot pack_shortest_name
+	* package.d (ensure_pack_shortest_name): new function
+	(make_package, RENAME-PACKAGE): call it
+	(EXT:PACKAGE-SHORTEST-NAME): new function
+	* constsym.d, subr.d (package_shortest_name): added
+	* constsym.d (*PRINT-SYMBOL-PACKAGE-PREFIX-SHORTEST*): added
+	* spvw.d (init_symbol_values): initialize it
+	* reploop.lisp (package-short-name): removed
+	(*prompt-body*): use PACKAGE-SHORTEST-NAME
+	* io.d (pr_symbol): when *PRINT-SYMBOL-PACKAGE-PREFIX-SHORTEST*
+	and not *PRINT-READABLY*, use pack_shortest_name instead of pack_name
+	* init.lisp (EXT:PACKAGE-SHORTEST-NAME): export
+
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (list_length): Mark as "can trigger GC".

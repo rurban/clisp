@@ -1268,6 +1268,7 @@ local void init_symbol_values (void) {
   define_variable(S(print_indent_lists),fixnum(1)); # *PRINT-INDENT-LISTS* := 1
   define_variable(S(print_pretty_fill),NIL);      # *PRINT-PRETTY-FILL* := NIL
   define_variable(S(print_circle_table),unbound); # SYS::*PRINT-CIRCLE-TABLE*
+  define_variable(S(print_symbol_package_prefix_shortest),NIL); /* CUSTOM:*PRINT-SYMBOL-PACKAGE-PREFIX-SHORTEST* */
   define_variable(S(prin_level),unbound);         # SYS::*PRIN-LEVEL*
   define_variable(S(prin_lines),unbound);         # SYS::*PRIN-LINES*
   define_variable(S(prin_stream),unbound);        # SYS::*PRIN-STREAM*
