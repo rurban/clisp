@@ -7,6 +7,7 @@
 	* eval.d (get_closure): pass ewfp T to compile-lambda, thus
 	(:LAMBDA () (DECLARE (COMPILE)) (LET ((:Z T)) :Z))
 	now errors out instead of returning a weird function object
+	* disassem.lisp (disassemble): pass ewfp NIL to compile-lambda
 
 2003-04-29  Sam Steingold  <sds@gnu.org>
 
