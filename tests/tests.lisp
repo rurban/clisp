@@ -58,7 +58,7 @@
   #+CLISP "CLISP" #+AKCL "AKCL" #+ECL "ECL" #+ALLEGRO "ALLEGRO" #+CMU "CMUCL"
   #-(or CLISP AKCL ECL ALLEGRO CMU) (lisp-implementation-type))
 
-(defvar *eval-method* 'eval)
+(defvar *eval-method* :eval)
 (defun my-eval (form)
   (ecase *eval-method*
     (:eval (eval form))
