@@ -865,16 +865,6 @@ if [ $XCC_GCC = true ] ; then
     XCFLAGS=''
   fi
   XCFLAGS="$XCPPFLAGS $XCFLAGS"
-  if [ "$DEBUGGING" != debug ] ; then
-    # We do not need a frame-pointer. Where we need it (in eval.d:
-    # interpret_bytecode_()), we enforce it by using alloca().
-    # On Windows, -fomit-frame-pointer may not be used in general (because
-    # otherwise gcc might store data-pointers in %ebp, which is not admissible
-    # because of incompatible segment registers). Fortunately, this is no
-    # problem with rsxw32, because %cs = 0x185F,
-    # %ds = %es = %fs = %gs = %ss = 0x1867, in particular %ds = %ss.
-    XCFLAGS=$XCFLAGS' -fomit-frame-pointer'
-  fi
   if [ $TSYS = amiga ] ; then
     # register A4 contains the stack.
     # The GCC-Strength-Reduction is not unproblematic on 68000.
@@ -896,17 +886,13 @@ if [ $XCC_GCC = true ] ; then
   if [ "${DEBUGGING}" != debug ] ; then # no optimizations
     if [ "$cpu" = i386 ] ; then
       # gcc <= 2.3.2 may crash when compiling lisparit with -O2
-      # gcc 2.3.3 may produce incorrect code when compiling spvw(SPVW_PURE)
-      # with -O -fomit-frame-pointer
       if [ $CROSS = false ] ; then
         case "$XCC_GCC_VERSION" in
           2.7.[0-2] )
             # gcc-2.7.2 has a strength-reduction bug (fixed in gcc-2.7.2.1,
             # also fixed through the specs file of some Linux distributions).
             XCFLAGS=$XCFLAGS' -O2 -fexpensive-optimizations -fno-strength-reduce' ;;
-          2.3.[3-9]* | 2.[4-9]* | 3.* | egcs-2.*)
-            # XCFLAGS=$XCFLAGS' -O2 -fno-omit-frame-pointer' ;;
-            # Let's try it nevertheless!
+          2.3.[2-9]* | 2.[4-9]* | 3.* | egcs-2.*)
             XCFLAGS=$XCFLAGS' -O2 -fexpensive-optimizations' ;;
           * )
             XCFLAGS=$XCFLAGS' -O' ;;

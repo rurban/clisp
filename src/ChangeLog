@@ -1,5 +1,13 @@
 2003-12-20  Sam Steingold  <sds@gnu.org>
 
+	Dropped -fomit-frame-pointer: it buys nothing on today's x86
+	processors, and it buys nothing anyway on processors which are not
+	as register-starved as the x86 (Bruno)
+	* eval.d (interpret_bytecode_) [GNU/FAST_SP]: no need for alloca()
+	* makemake.in (XCFLAGS): never use -fomit-frame-pointer
+
+2003-12-20  Sam Steingold  <sds@gnu.org>
+
 	the initial verbosity level is controlled by the pair
 	of mutually cancelling options -q/-v - see manual
 	* spvw.d (argv_quiet): replaced with argv_verbose
