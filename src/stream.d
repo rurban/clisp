@@ -1068,8 +1068,8 @@ nonreturning_function(local, fehler_output_stream, (object stream)) {
       var gcv_object_t* pointer = (args_pointer);       \
       var uintC count;                                  \
       dotimespC(count,argcount, {                       \
-        var object arg = NEXT(pointer);                 \
-        check_stream(arg);                              \
+        var object arg = Next(pointer);                 \
+        NEXT(pointer) = arg = check_stream(arg);        \
         test_input_stream(arg);                         \
       });                                               \
     }
@@ -1083,8 +1083,8 @@ nonreturning_function(local, fehler_output_stream, (object stream)) {
       var gcv_object_t* pointer = (args_pointer);       \
       var uintC count;                                  \
       dotimespC(count,argcount, {                       \
-        var object arg = NEXT(pointer);                 \
-        check_stream(arg);                              \
+        var object arg = Next(pointer);                 \
+        NEXT(pointer) = arg = check_stream(arg);        \
         test_output_stream(arg);                        \
       });                                               \
     }
