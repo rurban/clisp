@@ -3758,7 +3758,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>posix:user-data</function>
-    &optional-amp; <replaceable>user</replaceable>)</literal>></term>
+    &optional-amp; <replaceable>user</replaceable>)</literal></term>
  <listitem><simpara>Return the passwd struct (name, encoded password,
    UID, GID, full name, home directory, shell).  When
    <replaceable>user</replaceable> is &nil;, return all users.  When
