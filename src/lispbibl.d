@@ -12685,7 +12685,7 @@ extern uintL I_integer_length (object x);
 extern object c_float_to_FF (const ffloatjanus* val_);
 
 # FF_to_c_float(obj,&val);
-# converts aingle-float obj into an IEEE-single-float val.
+# converts single-float obj into an IEEE-single-float val.
 extern void FF_to_c_float (object obj, ffloatjanus* val_);
 
 # c_double_to_DF(&val) converts an IEEE-double-float val into a double-float.
