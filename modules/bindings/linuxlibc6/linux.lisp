@@ -1822,6 +1822,18 @@
                       (:return-type pid_t)
 )
 
+(c-lines "#include <sys/wait.h>~%")
+
+(def-c-call-out wait
+    (:arguments (status (c-ptr int) :out :alloca))
+  (:return-type pid_t))
+
+(def-c-call-out waitpid
+    (:arguments (pid pid_t)
+                (status (c-ptr int) :out :alloca)
+                (options int))
+  (:return-type pid_t))
+
 (def-c-call-out ttyname (:arguments (fd int))
                         (:return-type c-string)
 )
@@ -2955,3 +2967,5 @@
 
 (eval-when (compile eval)
   (lisp:delete-package "LINUX-AUX"))
+
+(provide "linux")

@@ -1,3 +1,8 @@
+2002-02-27  Sam Steingold  <sds@gnu.org>
+
+	* linux.lisp (wait, waitpid): new C call-outs
+	(provide "linux"): for (require "linux") in wrap.lisp
+
 2002-03-01  Sam Steingold  <sds@gnu.org>
 
 	error reporting unification
