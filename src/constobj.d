@@ -419,6 +419,8 @@
  #endif
  #ifdef LOGICAL_PATHNAMES
   LISPOBJ(empty_logical_pathname,".") # (already initialized)
+  LISPOBJ(handler_for_parse_error,"(#(PARSE-ERROR NIL))")
+  LISPOBJ(type_logical_pathname_string,"(AND STRING (SATISFIES SYSTEM::VALID-LOGICAL-PATHNAME-STRING-P))")
   LISPOBJ(default_logical_pathname_host,"\"SYS\"")
  #endif
   LISPOBJ_S(empty_string,"")

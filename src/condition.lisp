@@ -1513,6 +1513,15 @@ Todo:
 |#
 
 
+;; Miscellaneous functions that condition macros.
+
+#+LOGICAL-PATHNAMES
+(defun valid-logical-pathname-string-p (string)
+  (handler-case (logical-pathname string)
+    (TYPE-ERROR () nil)
+    (:NO-ERROR (&rest values) (declare (ignore values)) t)))
+
+
 ;; Extensions. They assume *USE-CLCS* is T.
 
 (defun maybe-continue (condition report-p)
