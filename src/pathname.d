@@ -444,7 +444,7 @@
       #ifdef WIN32_NATIVE
         begin_system_call();
         if (! DeleteFile(pathstring) ) {
-          if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND)) {
+          if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND || GetLastError()==ERROR_BAD_NETPATH)) {
             end_system_call(); OS_file_error(STACK_0);
           }
           exists = FALSE;
@@ -540,7 +540,7 @@
       #ifdef WIN32_NATIVE
         begin_system_call();
         if (! MoveFile(old_pathstring,new_pathstring) ) {
-          if (GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND) {
+          if (GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND || GetLastError()==ERROR_BAD_NETPATH) {
             end_system_call(); OS_file_error(STACK_3);
           } else {
             end_system_call(); OS_file_error(STACK_1);
@@ -6300,7 +6300,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
             begin_system_call();
             fileattr = GetFileAttributes(path);
             if (fileattr == 0xFFFFFFFF) {
-              if (!(tolerantp && (GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND))) {
+              if (!(tolerantp && (GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND || GetLastError()==ERROR_BAD_NETPATH))) {
                 end_system_call(); OS_file_error(STACK_0);
               }
               end_system_call();
@@ -7621,7 +7621,7 @@ LISPFUNN(probe_file,1)
           begin_system_call();
           var DWORD fileattr = GetFileAttributes(dir_namestring_asciz);
           if (fileattr == 0xFFFFFFFF) {
-            if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND)) {
+            if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND || GetLastError()==ERROR_BAD_NETPATH)) {
               end_system_call(); OS_file_error(STACK_0);
             }
             exists = FALSE;
@@ -8091,7 +8091,7 @@ LISPFUNN(rename_file,2)
           handle = CreateFile(pathstring, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
                               NULL, flag, FILE_ATTRIBUTE_NORMAL, NULL);
           if (handle==INVALID_HANDLE_VALUE) {
-            if (GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND) { # nicht gefunden?
+            if (GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND || GetLastError()==ERROR_BAD_NETPATH) { # nicht gefunden?
               # Datei existiert nicht
               if (!create_if_not_exists) { end_system_call(); return FALSE; }
             }
@@ -8596,18 +8596,18 @@ LISPFUN(open,1,0,norest,key,6,\
         var HANDLE search_handle;
       #define READDIR_end_declarations
       #define READDIR_findfirst(pathstring,error_statement,done_statement)  \
-        if ((search_handle = FindFirstFile(pathstring,&filedata)) == INVALID_HANDLE_VALUE)       \
-          { if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND)) \
-              { error_statement }                                                                \
-            else                                                                                 \
-              { done_statement }                                                                 \
+        if ((search_handle = FindFirstFile(pathstring,&filedata)) == INVALID_HANDLE_VALUE) \
+          { if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND || GetLastError()==ERROR_BAD_NETPATH)) \
+              { error_statement }                                                          \
+            else                                                                           \
+              { done_statement }                                                           \
           }
       #define READDIR_findnext(error_statement,done_statement)  \
-        if (!FindNextFile(search_handle,&filedata))                                              \
-          { if (!(GetLastError()==ERROR_NO_MORE_FILES) || !FindClose(search_handle))             \
-              { error_statement }                                                                \
-            else                                                                                 \
-              { done_statement }                                                                 \
+        if (!FindNextFile(search_handle,&filedata))                                        \
+          { if (!(GetLastError()==ERROR_NO_MORE_FILES) || !FindClose(search_handle))       \
+              { error_statement }                                                          \
+            else                                                                           \
+              { done_statement }                                                           \
           }
       #define READDIR_entry_name()  (&filedata.cFileName[0])
       #define READDIR_entry_ISDIR()  (filedata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -8771,7 +8771,7 @@ LISPFUN(open,1,0,norest,key,6,\
         begin_system_call();                                                 \
         fileattr = GetFileAttributes(namestring_asciz);                      \
         if (fileattr == 0xFFFFFFFF)                                          \
-          { if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND)) \
+          { if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND || GetLastError()==ERROR_BAD_NETPATH)) \
               { end_system_call(); error_statement }                         \
               else                                                           \
               # Subdirectory existiert nicht -> OK.                          \
@@ -10143,7 +10143,7 @@ LISPFUNN(file_write_date,1)
         begin_system_call();
         search_handle = FindFirstFile(namestring_asciz,&filedata);
         if (search_handle==INVALID_HANDLE_VALUE) {
-          if (GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND) {
+          if (GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND || GetLastError()==ERROR_BAD_NETPATH) {
             end_system_call(); fehler_file_not_exists();
           }
           end_system_call(); OS_file_error(STACK_0);
