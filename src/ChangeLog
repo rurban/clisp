@@ -1,3 +1,8 @@
+2002-11-28  Sam Steingold  <sds@gnu.org>
+
+	* pprint.lisp (with-gensyms): append the variable name
+	to GENSYM prefix
+
 2002-11-27  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 644353 ]: Segfault when overriding stdin
