@@ -2786,7 +2786,9 @@ LISPFUNN(map_all_symbols,1)
     value1 = NIL; mv_count=1; # NIL als Wert
   }
 
-local void export_symbol_from (object* pack, object sym) { export(&sym,pack); }
+local void export_symbol_from (void *pack, object sym) {
+  export(&sym,(object*)pack);
+}
 
 LISPFUNN(reexport,2)
 # (EXT:RE-EXPORT "FROM-PACK" "TO-PACK")
