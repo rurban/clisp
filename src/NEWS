@@ -19,6 +19,9 @@ User visible changes
   Web server CGI-compatible protocol (see http://www.fastcgi.com/)
   Thanks to John K. Hinsdale <hin@alma.com>.
 
+* External modules now work on win32 (when used with cygwin or mingw).
+  See <http://clisp.cons.org/impnotes.html#mod-win32> for details.
+
 * READ-BYTE-ARRAY now accepts :NO-HANG keyword argument.
 
 * LOAD now takes an additional keyword argument :OBSOLETE-ACTION which
