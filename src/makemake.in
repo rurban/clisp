@@ -2050,7 +2050,6 @@ echol
 # development targets
 echol "makemake : makemake.in config.status"
 echotab "./config.status --file=makemake"
-echotab "./config.status makemake"
 echol
 echol "unixconf.h : unixconf.h.in config.status"
 echotab "sh config.status --header=unixconf.h"
