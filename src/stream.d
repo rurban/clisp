@@ -21,6 +21,7 @@
   # Bits in den Flags:
   #                             0,1 # gesetzt, falls Integer-Stream
   # define strmflags_reval_bit_B 2  # gesetzt, falls Read-Eval erlaubt ist
+  #define strmflags_unread_bit_B 3  # gesetzt, während strm_rd_ch_last zurück ist
   #define strmflags_rd_by_bit_B  4  # gesetzt, falls READ-BYTE möglich ist
   #define strmflags_wr_by_bit_B  5  # gesetzt, falls WRITE-BYTE möglich ist
   # define strmflags_rd_ch_bit_B 6  # gesetzt, falls READ-CHAR möglich ist
@@ -30,6 +31,7 @@
   #define strmflags_ia_B     (       bit(0))  # Integer-Stream der Art a
   #define strmflags_ib_B     (bit(1)       )  # Integer-Stream der Art b
   #define strmflags_ic_B     (bit(1)|bit(0))  # Integer-Stream der Art c
+  #define strmflags_unread_B bit(strmflags_unread_bit_B)
   #define strmflags_reval_B  bit(strmflags_reval_bit_B)
   #define strmflags_rd_by_B  bit(strmflags_rd_by_bit_B)
   #define strmflags_wr_by_B  bit(strmflags_wr_by_bit_B)
@@ -48,7 +50,8 @@
   # strm_rd_ch       Pseudofunktion für READ-CHAR
   # strm_pk_ch       Pseudofunktion für PEEK-CHAR
   # strm_rd_ch_last  letztes von READ-CHAR gelesenes Zeichen
-  #                  (bzw. als Fixnum nach UNREAD-CHAR bzw. NIL sonst)
+  #                  (NIL falls noch keines gelesen), nach UNREAD-CHAR
+  #                  ist zusätzlich strmflags_unread_bit_B gesetzt.
   # strm_wr_ch       Pseudofunktion für WRITE-CHAR
   # strm_wr_ch_lpos  Line-Position in der Zeile nach dem letzten WRITE-CHAR
   #ifdef STRM_WR_SS
@@ -82,8 +85,7 @@
 #     RD_CH          Pseudofunktion zum Lesen eines Characters
 #     RD_CH_LAST     letztes gelesenes Zeichen und Flag
 #                    (NIL zu Beginn, eof_value nach End-of-File,
-#                    sonst: letztes gelesenes Zeichen, als Fixnum,
-#                    falls es mit UNREAD zurückgeschoben wurde)
+#                    sonst: letztes gelesenes Zeichen)
 # für WRITE-CHAR:
 #     WR_CH          Pseudofunktion zum Schreiben eines Characters
 #     WR_CH_LPOS     Position in der Zeile (Fixnum >=0) (für FORMAT ~T)
@@ -125,7 +127,7 @@
   # fun(&stream)
   # Wie READ-CHAR mit nachfolgendem UNREAD-CHAR, nur dass Seiteneffekte bis
   # zum nächsten wirklichen READ-CHAR hinausgezögert werden (soweit möglich).
-  # > stream: Stream (mit strm_rd_ch_last kein Fixnum)
+  # > stream: Stream (mit strmflags_unread_bit_B gelöscht)
   # < stream: Stream
   # < ergebnis: gelesenes Character (eof_value bei EOF)
   # kann GC auslösen
@@ -245,8 +247,9 @@
   local object pk_ch_dummy(stream_)
     var const object* stream_;
     { var object newch = rd_ch(*stream_)(stream_);
-      TheStream(*stream_)->strm_rd_ch_last =
-        (eq(newch,eof_value) ? newch : char_to_fixnum(newch));
+      TheStream(*stream_)->strm_rd_ch_last = newch;
+      if (!eq(newch,eof_value))
+        { TheStream(*stream_)->strmflags |= strmflags_unread_B; }
       return newch;
     }
   local void wr_ch_dummy (const object* stream_, object obj);
@@ -360,16 +363,18 @@
   global object read_char(stream_)
     var const object* stream_;
     { var object stream = *stream_;
-      if (!posfixnump(TheStream(stream)->strm_rd_ch_last)) # Char nach UNREAD ?
+      if (!(TheStream(stream)->strmflags & strmflags_unread_B)) # Char nach UNREAD ?
         # nein -> neues Zeichen holen:
         { var object newch = rd_ch(stream)(stream_);
-          TheStream(*stream_)->strm_rd_ch_last = newch; # und abspeichern
+          stream = *stream_;
+          TheStream(stream)->strm_rd_ch_last = newch; # und abspeichern
+          TheStream(stream)->strmflags &= ~strmflags_unread_B;
           return newch;
         }
         else
         # ja -> Flagbit löschen und letztes Zeichen holen:
-        { return TheStream(stream)->strm_rd_ch_last =
-                   fixnum_to_char(TheStream(stream)->strm_rd_ch_last);
+        { TheStream(stream)->strmflags &= ~strmflags_unread_B;
+          return TheStream(stream)->strm_rd_ch_last;
     }   }
 
 # Schiebt das letzte gelesene Character auf einen Stream zurück.
@@ -382,12 +387,14 @@
     var const object* stream_;
     var object ch;
     { var object stream = *stream_;
-      if (eq(TheStream(stream)->strm_rd_ch_last,ch))
-        { TheStream(stream)->strm_rd_ch_last =
-            char_to_fixnum(TheStream(stream)->strm_rd_ch_last); # Flagbit setzen
-        }
+      if (eq(TheStream(stream)->strm_rd_ch_last,ch)
+          && !(TheStream(stream)->strmflags & strmflags_unread_B)
+         )
+        { TheStream(stream)->strmflags |= strmflags_unread_B; } # Flagbit setzen
         else
-        { if (charp(TheStream(stream)->strm_rd_ch_last))
+        { if (!nullp(TheStream(stream)->strm_rd_ch_last)
+              && !(TheStream(stream)->strmflags & strmflags_unread_B)
+             )
             { pushSTACK(stream); # Wert für Slot STREAM von STREAM-ERROR
               pushSTACK(ch);
               pushSTACK(stream);
@@ -423,12 +430,12 @@
   global object peek_char(stream_)
     var const object* stream_;
     { var object stream = *stream_;
-      if (!posfixnump(TheStream(stream)->strm_rd_ch_last)) # Char nach UNREAD ?
+      if (!(TheStream(stream)->strmflags & strmflags_unread_B)) # Char nach UNREAD ?
         # nein -> neues Zeichen holen:
         { return pk_ch(stream)(stream_); }
         else
         # ja -> letztes Zeichen holen:
-        { return fixnum_to_char(TheStream(stream)->strm_rd_ch_last); }
+        { return TheStream(stream)->strm_rd_ch_last; }
     }
 
 # Schreibt ein Character auf einen Stream.
@@ -495,7 +502,7 @@
       #ifdef STRM_WR_SS
       TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
       #endif
-      TheStream(stream)->strmflags &= ~strmflags_open_B; # Fähigkeiten-Flags löschen
+      TheStream(stream)->strmflags &= ~(strmflags_open_B|strmflags_unread_B); # Fähigkeiten-Flags löschen
     }
 
 # Liefert Fehlermeldung, wenn der Wert des Symbols sym kein Stream ist.
@@ -1048,7 +1055,8 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
             # das Ctrl-C jetzt. Damit das Zeichen nicht verlorengeht, wird
             # es wie durch unread_char() zurückgelegt.
             interruptp(
-              { TheStream(stream)->strm_rd_ch_last = fixnum(c);
+              { TheStream(stream)->strm_rd_ch_last = code_char(c);
+                TheStream(stream)->strmflags |= strmflags_unread_B;
                 pushSTACK(S(read_char)); tast_break(); # Break-Schleife aufrufen
                 return read_char(stream_);
               });
@@ -1228,7 +1236,8 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
             { return signean_plus; }
             else
             # Zeichen verfügbar
-            { TheStream(stream)->strm_rd_ch_last = fixnum(c);
+            { TheStream(stream)->strm_rd_ch_last = code_char(c);
+              TheStream(stream)->strmflags |= strmflags_unread_B;
               return signean_null;
             }
           # Sollte das nicht gehen, einen Timer von 1/10 sec verwenden??
@@ -1251,7 +1260,8 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
               return signean_minus;
             }
             else # Zeichen verfügbar
-            { TheStream(stream)->strm_rd_ch_last = fixnum(c);
+            { TheStream(stream)->strm_rd_ch_last = code_char(c);
+              TheStream(stream)->strmflags |= strmflags_unread_B;
               return signean_null;
             }
         }}
@@ -1277,7 +1287,8 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
               return signean_minus;
             }
             else # Zeichen verfügbar
-            { TheStream(stream)->strm_rd_ch_last = fixnum(c);
+            { TheStream(stream)->strm_rd_ch_last = code_char(c);
+              TheStream(stream)->strmflags |= strmflags_unread_B;
               return signean_null;
             }
         }
@@ -1355,7 +1366,8 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
                   return signean_minus;
                 }
                 else # Zeichen verfügbar
-                { TheStream(stream)->strm_rd_ch_last = fixnum(c);
+                { TheStream(stream)->strm_rd_ch_last = code_char(c);
+                  TheStream(stream)->strmflags |= strmflags_unread_B;
                   return signean_null;
             }   }
           case FILE_TYPE_PIPE:
@@ -2070,7 +2082,8 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
                      : (cint)(uintB)ch << char_code_shift_c
             );
           /* asciz_out_1("{%x}",ch); _sleep2(500); */ # Test
-          TheStream(stream)->strm_rd_ch_last = char_to_fixnum(int_char(c));
+          TheStream(stream)->strm_rd_ch_last = int_char(c);
+          TheStream(stream)->strmflags |= strmflags_unread_B;
           return signean_null;
         }}
         else
@@ -8671,6 +8684,7 @@ LISPFUNN(window_cursor_off,1)
         }
       TheStream(stream)->strm_file_position = Fixnum_0; # position := 0
       TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
+      TheStream(stream)->strmflags &= ~strmflags_unread_B;
     }
 
 # UP: Positioniert einen (offenen) File-Stream an eine gegebene Position.
@@ -8699,6 +8713,7 @@ LISPFUNN(window_cursor_off,1)
           else # String-Char-Stream
             { position_b_file(stream,position); }
           TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
+          TheStream(stream)->strmflags &= ~strmflags_unread_B;
         }
       TheStream(stream)->strm_file_position = fixnum(position);
     }
@@ -8792,6 +8807,7 @@ LISPFUNN(window_cursor_off,1)
         # position setzen:
         TheStream(stream)->strm_file_position = fixnum(position);
         TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
+        TheStream(stream)->strmflags &= ~strmflags_unread_B;
     }}}
 
 # UP: erzeugt ein File-Stream
@@ -10284,7 +10300,7 @@ LISPFUNN(string_input_stream_index,1)
    {var object index = TheStream(stream)->strm_str_in_index;
     # Falls ein Character mit UNREAD-CHAR zurückgeschoben wurde,
     # verwende (1- index), ein Fixnum >=0, als Wert:
-    if (posfixnump(TheStream(stream)->strm_rd_ch_last))
+    if (TheStream(stream)->strmflags & strmflags_unread_B)
       { index = fixnum_inc(index,-1); }
     value1 = index; mv_count=1;
   }}
@@ -10747,7 +10763,7 @@ LISPFUNN(buffered_input_stream_index,1)
    {var object index = TheStream(stream)->strm_buff_in_index;
     # Falls ein Character mit UNREAD-CHAR zurückgeschoben wurde,
     # verwende (1- index), ein Fixnum >=0, als Wert:
-    if (posfixnump(TheStream(stream)->strm_rd_ch_last))
+    if (TheStream(stream)->strmflags & strmflags_unread_B)
       { index = fixnum_inc(index,-1); }
     value1 = index; mv_count=1;
   }}
@@ -11613,7 +11629,8 @@ LISPFUNN(make_pipe_io_stream,1)
                 return signean_minus;
               }
               else # Zeichen verfügbar
-              { TheStream(stream)->strm_rd_ch_last = fixnum(c);
+              { TheStream(stream)->strm_rd_ch_last = code_char(c);
+                TheStream(stream)->strmflags |= strmflags_unread_B;
                 return signean_null;
               }
           }}
@@ -12265,16 +12282,16 @@ LISPFUNN(socket_stream_handle,1)
     var const object* stream_;
     { pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
       pushSTACK(value1); funcall(S(generic_stream_pkch),1);
+      if (nullp(value1)) { value1 = eof_value; }
       if ((mv_count >= 2) && !nullp(value2))
         { # READ-CHAR schon ausgeführt -> muss ein implizites UNREAD-CHAR
           # ausführen (d.h. das Ergebnis für das nächste READ-CHAR/PEEK-CHAR
           # aufheben).
-          if (!(nullp(value1) || charp(value1)))
-            { subr_self = L(unread_char); fehler_char(value1); }
-          TheStream(*stream_)->strm_rd_ch_last =
-            (nullp(value1) ? eof_value : char_to_fixnum(value1));
+          TheStream(*stream_)->strm_rd_ch_last = value1;
+          if (!eq(value1,eof_value))
+            { TheStream(*stream_)->strmflags |= strmflags_unread_B; }
         }
-      return nullp(value1) ? eof_value : value1;
+      return value1;
     }
 
   # (LISTEN s) ==
@@ -13035,7 +13052,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
   global signean stream_listen(stream)
     var object stream;
     { check_SP(); check_STACK();
-      if (posfixnump(TheStream(stream)->strm_rd_ch_last)) # Char nach UNREAD ?
+      if (TheStream(stream)->strmflags & strmflags_unread_B) # Char nach UNREAD ?
         { return signean_null; } # ja -> verfügbar
         else
         # sonst nach Streamtyp verzweigen.
@@ -13189,7 +13206,9 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
       if (ergebnis)
         # Input wurde gelöscht -> auch das Lastchar muß gelöscht werden.
         # Dabei wird auch ein schon gesehenes EOF vergessen.
-        { TheStream(stream)->strm_rd_ch_last = NIL; }
+        { TheStream(stream)->strm_rd_ch_last = NIL;
+          TheStream(stream)->strmflags &= ~strmflags_unread_B;
+        }
       return ergebnis;
     }}
 
@@ -13569,44 +13588,46 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
      {var object lastchar = TheStream(stream)->strm_rd_ch_last;
       if (eq(lastchar,eof_value)) # EOF ?
         { return charptr; }
-      if (posfixnump(lastchar) # Char nach UNREAD ?
-          && !string_char_p(fixnum_to_char(lastchar)) # aber kein String-Char?
+      if ((TheStream(stream)->strmflags & strmflags_unread_B) # Char nach UNREAD ?
+          && !string_char_p(lastchar) # aber kein String-Char?
          )
         { return NULL; }
       if (eq(TheStream(stream)->strm_rd_ch,P(rd_ch_synonym))) # synonym
         { var object substream = get_synonym_stream(TheStream(stream)->strm_synonym_symbol);
           check_SP();
          {var uintB* endptr =
-            (posfixnump(lastchar)
+            (TheStream(stream)->strmflags & strmflags_unread_B
              ? read_schar_array(substream,charptr+1,len-1)
              : read_schar_array(substream,charptr,len)
             );
           if (endptr==NULL) { return NULL; }
-          if (posfixnump(lastchar))
-            { charptr[0] = char_code(fixnum_to_char(lastchar)); }
+          if (TheStream(stream)->strmflags & strmflags_unread_B)
+            { charptr[0] = char_code(lastchar); }
           TheStream(stream)->strm_rd_ch_last =
             (endptr == charptr+len ? code_char(endptr[-1]) : eof_value);
+          TheStream(stream)->strmflags &= ~strmflags_unread_B;
           return endptr;
         }}
       elif (eq(TheStream(stream)->strm_rd_ch,P(rd_ch_twoway))) # twoway
         { var object substream = TheStream(stream)->strm_twoway_input;
           check_SP();
          {var uintB* endptr =
-            (posfixnump(lastchar)
+            (TheStream(stream)->strmflags & strmflags_unread_B
              ? read_schar_array(substream,charptr+1,len-1)
              : read_schar_array(substream,charptr,len)
             );
           if (endptr==NULL) { return NULL; }
-          if (posfixnump(lastchar))
-            { charptr[0] = char_code(fixnum_to_char(lastchar)); }
+          if (TheStream(stream)->strmflags & strmflags_unread_B)
+            { charptr[0] = char_code(lastchar); }
           TheStream(stream)->strm_rd_ch_last =
             (endptr == charptr+len ? code_char(endptr[-1]) : eof_value);
+          TheStream(stream)->strmflags &= ~strmflags_unread_B;
           return endptr;
         }}
       #ifdef XHANDLES
       elif (eq(TheStream(stream)->strm_rd_ch,P(rd_ch_handle))) # handle, pipe_in, socket
-        { if (posfixnump(lastchar))
-            { *charptr++ = char_code(fixnum_to_char(lastchar)); len--; }
+        { if (TheStream(stream)->strmflags & strmflags_unread_B)
+            { *charptr++ = char_code(lastchar); len--; }
           if (len>0)
             { var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
               run_time_stop(); # Run-Time-Stoppuhr anhalten
@@ -13643,13 +13664,14 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
             }
           TheStream(stream)->strm_rd_ch_last =
             (len==0 ? code_char(charptr[-1]) : eof_value);
+          TheStream(stream)->strmflags &= ~strmflags_unread_B;
           return charptr;
         }
       #endif
       #if (defined(X11SOCKETS) || defined(SOCKET_STREAMS)) && defined(WIN32_NATIVE)
       elif (eq(TheStream(stream)->strm_rd_ch,P(rd_ch_socket))) # socket
-        { if (posfixnump(lastchar))
-            { *charptr++ = char_code(fixnum_to_char(lastchar)); len--; }
+        { if (TheStream(stream)->strmflags & strmflags_unread_B)
+            { *charptr++ = char_code(lastchar); len--; }
           if (len>0)
             { var SOCKET handle = TheSocket(TheStream(stream)->strm_ihandle);
               run_time_stop(); # Run-Time-Stoppuhr anhalten
@@ -13681,12 +13703,13 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
             }
           TheStream(stream)->strm_rd_ch_last =
             (len==0 ? code_char(charptr[-1]) : eof_value);
+          TheStream(stream)->strmflags &= ~strmflags_unread_B;
           return charptr;
         }
       #endif
       elif (eq(TheStream(stream)->strm_rd_ch,P(rd_ch_sch_file))) # file
-        { if (posfixnump(lastchar))
-            { *charptr++ = char_code(fixnum_to_char(lastchar)); len--; }
+        { if (TheStream(stream)->strmflags & strmflags_unread_B)
+            { *charptr++ = char_code(lastchar); len--; }
           while (len>0)
             { var uintB* ptr = b_file_nextbyte(stream);
               if (ptr == (uintB*)NULL) break; # EOF -> fertig
@@ -13711,11 +13734,12 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
             }}
           TheStream(stream)->strm_rd_ch_last =
             (len==0 ? code_char(charptr[-1]) : eof_value);
+          TheStream(stream)->strmflags &= ~strmflags_unread_B;
           return charptr;
         }
       elif (eq(TheStream(stream)->strm_rd_ch,P(rd_ch_str_in))) # str_in
-        { if (posfixnump(lastchar))
-            { *charptr++ = char_code(fixnum_to_char(lastchar)); len--; }
+        { if (TheStream(stream)->strmflags & strmflags_unread_B)
+            { *charptr++ = char_code(lastchar); len--; }
           if (len>0)
             { var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index); # Index
               var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
@@ -13733,6 +13757,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
             }   }}
           TheStream(stream)->strm_rd_ch_last =
             (len==0 ? code_char(charptr[-1]) : eof_value);
+          TheStream(stream)->strmflags &= ~strmflags_unread_B;
           return charptr;
         }
       else # keine Optimierung möglich

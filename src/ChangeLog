@@ -1,5 +1,28 @@
 1998-10-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Encode the "last read character has been pushed back" state of a
+        stream in the strmflags, instead of in strm_rd_ch_last.
+        * stream.d (strmflags_unread_bit_B, strmflags_unread_B): New defines.
+          (pk_ch_dummy): Set the bit, unless the return value is eof_value.
+          (read_char): Clear the bit.
+          (unread_char): Set the bit.
+          (peek_char): Test the bit.
+          (close_dummys): Clear the bit.
+          (rd_ch_handle for AMIGAOS): Set the bit before entering a break loop.
+          (listen_handle): Set the bit when a character is available.
+          (listen_keyboard): Likewise.
+          (listen_socket): Likewise.
+          (position_file_start, position_file, position_file_end): Clear the
+          bit.
+          (SYSTEM::STRING-INPUT-STREAM-INDEX): Test the bit.
+          (SYSTEM::BUFFERED-INPUT-STREAM-INDEX): Likewise.
+          (pk_ch_generic): Simplify. Don't check for a character any more.
+          (stream_listen): Test the bit.
+          (clear_input): Clear the bit.
+          (read_schar_array): Test and clear the bit.
+
+1998-10-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * type.lsp (upgraded-array-element-type): Fix so that for
           STANDARD-CHAR it returns STRING-CHAR.
         * array.d (eltype_code): Likewise.
