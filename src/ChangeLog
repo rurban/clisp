@@ -1,5 +1,11 @@
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
+	* array.d (SYS::STORE): Fix GC-safety bug introduced on 2002-05-22.
+	(SYS::ROW-MAJOR-STORE): Put the array into STACK_0, for error messages;
+	fixes a long-standing bug. Fix GC-safety bug introduced on 2002-05-22.
+
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
 	* predtype.d (heap_statistics_record): New function.
 	(heap_statistics_result): Use it. Fixes GC-safety bug when the heap
 	size is big.
