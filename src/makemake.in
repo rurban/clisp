@@ -2759,8 +2759,15 @@ if [ -n "$USE_GETTEXT" ] ; then
     echotab "(cd po && \$(MAKE) && \$(MAKE) install datadir=.. localedir='\$\$(datadir)/locale' INSTALL_DATA='$LN_HARD') || (rm -rf locale ; exit 1)"
   else
     echotab "mkdir locale"
-    my_eval `grep ALL_LINGUAS= src/configure.in`
-    for lang in ${ALL_LINGUAS:-"en de fr"}; do
+    if test -f src/configure.in; then
+      # makemake being called in top-srcdir.
+      src_configure_file=src/configure.in
+    else
+      # makemake being called in build dir.
+      src_configure_file=${srcdir}/configure.in
+    fi
+    my_eval `grep ALL_LINGUAS= ${src_configure_file}`
+    for lang in ${ALL_LINGUAS:-en de fr es nl ru}; do
       echotab "mkdir locale${NEXT_}${lang}"
       echotab "mkdir locale${NEXT_}${lang}${NEXT_}LC_MESSAGES"
       echotab "\$(LN_S) po${NEXT_}${lang}.gmo locale${NEXT_}${lang}${NEXT_}LC_MESSAGES${NEXT_}clisp.mo"
