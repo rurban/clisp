@@ -1,5 +1,10 @@
 2005-03-14  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/posix.lisp (rlimit): added DEFSETF
+	* modules/syscalls/calls.c (SET-RLIMIT): implemented
+
+2005-03-14  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (cygwin_check): make sure that no cygwin
 	dependencies creep into the mingw builds
 
