@@ -1813,8 +1813,6 @@ interpreter compiler
 
 ;; At this point the core Common Lisp is complete.
 
-#+syscalls
-(load "posix")
 
 ;; Fancy streams:
 
@@ -1865,6 +1863,9 @@ interpreter compiler
 )
 
 #+AMIGA (LOAD "rexx1") ;; Rexx-Schnittstelle, optional
+
+#+syscalls
+(LOAD "posix")     ;; POSIX/SUSV2 system calls and library functions, optional
 
 (LOAD "defs3")     ;; the COMMON-LISP package
 
