@@ -1,3 +1,8 @@
+2003-06-18  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (run-all-tests) [CLISP]: added weakptr
+	* weakptr.tst: new test file for weak pointers
+
 2003-05-13  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (run-all-tests) [CLISP]: run defhash
