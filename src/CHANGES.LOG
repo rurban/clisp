@@ -22,6 +22,8 @@ User visible changes
 
 * Support UNC pathnames (\\host\dir\name.ext) on win32.
 
+* Support the SCREEN package on Win32. Thanks to Arseny Slobodjuck.
+
 * New functions CONVERT-STRING-FROM-BYTES and CONVERT-STRING-TO-BYTES.
 
 * Support for non-blocking binary I/O.
