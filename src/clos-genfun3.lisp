@@ -96,12 +96,13 @@
       "~S: ~S already belongs to ~S, cannot also add it to ~S"
       'std-add-method method (std-method-generic-function method) gf))
   (check-method-qualifiers gf method)
-  (setf (std-method-function method) nil
+  (setf (std-method-fast-function method) nil
         (std-method-generic-function method) gf)
   ;; determine function from initfunction:
-  (when (null (std-method-function method))
+  (when (and (null (std-method-function method))
+             (null (std-method-fast-function method)))
     (let ((h (funcall (std-method-initfunction method) method)))
-      (setf (std-method-function method) (car h))
+      (setf (std-method-fast-function method) (car h))
       (when (car (cdr h)) ; could the variable ",cont" be optimized away?
         (setf (std-method-wants-next-method-p method) nil))))
   ;; method is finished. store:
@@ -125,8 +126,8 @@
     (finalize-fast-gf gf))
   ;;(sys::closure-set-seclass gf
   ;;  (sys::seclass-or (sys::function-side-effect gf)
-  ;;                   (sys::function-side-effect
-  ;;                    (std-method-function method))))
+  ;;                   (sys::seclass-or (sys::function-side-effect (std-method-function method))
+  ;;                                    (sys::function-side-effect (std-method-fast-function method)))))
   gf)
 
 ;; removal of a method from a generic function:
@@ -148,9 +149,10 @@
             (std-method-from-defgeneric old-method) nil)
       ;;(sys::closure-set-seclass gf
       ;;  (reduce #'sys::seclass-or (gf-methods gf)
-      ;;          :key (lambda (sm) (sys::function-side-effect
-      ;;                             (std-method-function sm)))
-      ;;          :initial-value NIL))
+      ;;          :key #'(lambda (method)
+      ;;                   (sys::seclass-or (sys::function-side-effect (std-method-function method))
+      ;;                                    (sys::function-side-effect (std-method-fast-function method))))
+      ;;          :initial-value sys::*seclass-foldable*))
       (finalize-fast-gf gf)))
   gf)
 

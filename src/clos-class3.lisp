@@ -1228,14 +1228,14 @@
                              (let* ((args
                                       (list
                                         :specializers (list class)
-                                        :initfunction
+                                        'initfunction
                                           (eval
                                             `#'(LAMBDA (#:SELF)
                                                  (DECLARE (COMPILE))
                                                  (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION OBJECT)
                                                    (DECLARE (COMPILE))
                                                    ,access-place)))
-                                        :wants-next-method-p t
+                                        'wants-next-method-p t
                                         :qualifiers nil
                                         :lambda-list '(OBJECT)
                                         'signature (sys::memoized (make-signature :req-num 1))
@@ -1263,14 +1263,14 @@
                              (let* ((args
                                       (list
                                         :specializers (list <t> class)
-                                        :initfunction
+                                        'initfunction
                                           (eval
                                             `#'(LAMBDA (#:SELF)
                                                  (DECLARE (COMPILE))
                                                  (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION NEW-VALUE OBJECT)
                                                    (DECLARE (COMPILE))
                                                    (SETF ,access-place NEW-VALUE))))
-                                        :wants-next-method-p t
+                                        'wants-next-method-p t
                                         :qualifiers nil
                                         :lambda-list '(NEW-VALUE OBJECT)
                                         'signature (sys::memoized (make-signature :req-num 2))

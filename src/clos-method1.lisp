@@ -16,14 +16,21 @@
 
 (defparameter <standard-method>
   (defclass standard-method (method)
-    (($function            ; the function
+    (($fast-function       ; the function with fast calling conventions, i.e.
+                           ; argument list (&rest arguments) or
+                           ; (next-methods-function &rest arguments), depending
+                           ; on wants-next-method-p
        :type (or null function)
-       :accessor std-method-function)
+       :accessor std-method-fast-function)
      ($wants-next-method-p ; flag, if the NEXT-METHOD (as function with all
                            ; arguments) resp. NIL is to be passed as first
                            ; argument (= NIL for :BEFORE- and :AFTER-methods)
        :type boolean
        :accessor std-method-wants-next-method-p)
+     ($function            ; the function with slow calling conventions, i.e.
+                           ; argument list (arguments next-methods-list)
+       :type (or null function)
+       :accessor std-method-function)
      ($specializers        ; list of specializers, e.g. classes or
                            ; eql-specializers
        :type list
@@ -45,7 +52,7 @@
                            ; NO-NEXT-METHOD)
        :type (or null generic-function)
        :accessor std-method-generic-function)
-     ($initfunction        ; returns - if called - the function
+     ($initfunction        ; returns - if called - the fast-function
                            ; (only for the purpose of ADD-METHOD)
        :type function
        :accessor std-method-initfunction)
@@ -81,8 +88,9 @@
                                                    (specializers nil specializers-p)
                                                    (function nil function-p)
                                                    (documentation nil)
-                                                   initfunction
-                                                   wants-next-method-p
+                                                   ((fast-function fast-function) nil fast-function-p)
+                                                   ((initfunction initfunction) nil initfunction-p)
+                                                   ((wants-next-method-p wants-next-method-p) nil)
                                                    ((signature signature) nil signature-p)
                                                    ((gf gf) nil)
                                                    ((from-defgeneric from-defgeneric) nil)
@@ -137,13 +145,33 @@
     (error (TEXT "(~S ~S): The lambda list ~S has ~S required arguments, but the specializers list ~S has length ~S.")
            'initialize-instance 'standard-method lambda-list (sig-req-num signature)
            specializers (length specializers)))
+  ; Check the function, fast-function, initfunction and wants-next-method-p.
+  (unless (or function-p fast-function-p initfunction-p)
+    (error (TEXT "(~S ~S): Missing ~S argument.")
+           'initialize-instance 'standard-method ':function))
+  (when function-p
+    (unless (functionp function)
+      (error (TEXT "(~S ~S): The ~S argument should be a function, not ~S")
+             'initialize-instance 'standard-method ':function function)))
+  (when fast-function-p
+    (unless (functionp fast-function)
+      (error (TEXT "(~S ~S): The ~S argument should be a function, not ~S")
+             'initialize-instance 'standard-method 'fast-function fast-function)))
+  (when initfunction-p
+    (unless (functionp initfunction)
+      (error (TEXT "(~S ~S): The ~S argument should be a function, not ~S")
+             'initialize-instance 'standard-method 'initfunction initfunction)))
+  (unless (typep wants-next-method-p 'boolean)
+    (error (TEXT "(~S ~S): The ~S argument should be a NIL or T, not ~S")
+           'initialize-instance 'standard-method 'wants-next-method-p  wants-next-method-p))
   ; Check the documentation.
   (unless (or (null documentation) (stringp documentation))
     (error (TEXT "(~S ~S): The ~S argument should be a string or NIL, not ~S")
            'initialize-instance 'standard-method ':documentation documentation))
   ; Fill the slots.
-  (setf (std-method-function method) function)
+  (setf (std-method-fast-function method) fast-function)
   (setf (std-method-wants-next-method-p method) wants-next-method-p)
+  (setf (std-method-function method) function)
   (setf (std-method-specializers method) specializers)
   (setf (std-method-qualifiers method) qualifiers)
   (setf (std-method-lambda-list method) lambda-list)

@@ -126,11 +126,11 @@
                                           :keywords keywords :allow-p allowp)))
                 (values
                   `(MAKE-INSTANCE-<STANDARD-METHOD> (LOAD-TIME-VALUE <STANDARD-METHOD>)
-                     :INITFUNCTION
+                     'INITFUNCTION
                        #'(LAMBDA (,self)
                            ,@(if compile '((DECLARE (COMPILE))))
                            (%OPTIMIZE-FUNCTION-LAMBDA (T) ,@lambdabody))
-                     :WANTS-NEXT-METHOD-P T
+                     'WANTS-NEXT-METHOD-P T
                      :QUALIFIERS ',qualifiers
                      :LAMBDA-LIST ',lambda-list
                      'SIGNATURE ,sig
