@@ -1,5 +1,10 @@
 2004-04-30  Bruno Haible  <bruno@clisp.org>
 
+	* Makefile.devel (MULTIBUILD_OPTIONS): New variable.
+	(multibuild-linux-x86): New target.
+
+2004-04-30  Bruno Haible  <bruno@clisp.org>
+
 	Fixes for the TYPECODES model on 32-bit platforms.
 	* intlog.d (I_I_logand_I, I_I_lognand_I, I_I_logandc2_I): Fix bug
 	when combining a fixnum with a bignum.
