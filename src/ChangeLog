@@ -4,7 +4,7 @@
 
 2004-04-20  Sam Steingold  <sds@gnu.org>
 
-	* clispload.lsp (disassemble-machine-code) [win32, cygwin]: do
+	* utils/clispload.lsp (disassemble-machine-code) [win32, cygwin]: do
 	not redefine
 
 2004-04-20  Bruno Haible  <bruno@clisp.org>
@@ -25,7 +25,7 @@
 
 2004-04-20  Sam Steingold  <sds@gnu.org>
 
-	* clispload.lsp (*expected-failures*): updated
+	* utils/clispload.lsp (*expected-failures*): updated
 
 2004-04-19  Sam Steingold  <sds@gnu.org>
 
@@ -425,23 +425,38 @@
 2004-04-13  Sam Steingold  <sds@gnu.org>
 
 	sync modules/clx/mit-clx/ with CLOCC/GUI/CLX
-	* link.sh (TO_LOAD): added shape and split-sequence
-	* Makefile (ALLLISP, ALLFAS): ditto
-	* Makefile.clisp, Makefile.gcl, README.GCL, akcl_dep.lisp:
-	* build-clx.lisp, exclcmac.lisp, excldefsys.lisp, excldep.c:
-	* excldep.lisp, exclMakefile, exclREADME, fix-socket.c:
-	* generalock.lisp, sysdef.lisp, kcl-compiler-patches.lisp:
-	* kcl-patches.lisp, kcl-system-patches.lisp, makefile.akcl:
-	* ms-patch.uu, provide.lisp, sockcl.lisp, socket.c:
-	* sys-package.lisp, sys-proclaim.lisp: removed
-	* doc.lisp-doc: renamed to doc.lisp
-	* shape.lisp, split-sequence.lisp: added
-	* attributes.lisp, buffer.lisp, bufmac.lisp, clx.lisp:
-	* defsystem.lisp, depdefs.lisp, dependent.lisp, describe.lisp:
-	* display.lisp, fonts.lisp, gcontext.lisp, graphics.lisp:
-	* image.lisp, input.lisp, keysyms.lisp, macros.lisp, manager.lisp:
-	* package.lisp, requests.lisp, resource.lisp, text.lisp, trace.lisp:
-	* translate.lisp: sync with CLOCC
+	* modules/clx/mit-clx/link.sh (TO_LOAD): added shape and split-sequence
+	* modules/clx/mit-clx/Makefile (ALLLISP, ALLFAS): ditto
+	* modules/clx/mit-clx/Makefile.clisp, modules/clx/mit-clx/Makefile.gcl:
+	* modules/clx/mit-clx/README.GCL, modules/clx/mit-clx/akcl_dep.lisp:
+	* modules/clx/mit-clx/build-clx.lisp, modules/clx/mit-clx/exclcmac.lisp:
+	* modules/clx/mit-clx/excldefsys.lisp, modules/clx/mit-clx/excldep.c:
+	* modules/clx/mit-clx/excldep.lisp, modules/clx/mit-clx/exclMakefile:
+	* modules/clx/mit-clx/exclREADME, modules/clx/mit-clx/fix-socket.c:
+	* modules/clx/mit-clx/generalock.lisp, modules/clx/mit-clx/sysdef.lisp:
+	* modules/clx/mit-clx/kcl-compiler-patches.lisp:
+	* modules/clx/mit-clx/kcl-patches.lisp:
+	* modules/clx/mit-clx/kcl-system-patches.lisp:
+	* modules/clx/mit-clx/makefile.akcl:
+	* modules/clx/mit-clx/ms-patch.uu, modules/clx/mit-clx/provide.lisp:
+	* modules/clx/mit-clx/sockcl.lisp, modules/clx/mit-clx/socket.c:
+	* modules/clx/mit-clx/sys-package.lisp:
+	* modules/clx/mit-clx/sys-proclaim.lisp: Remove files.
+	* modules/clx/mit-clx/doc.lisp: Renamed from doc.lisp-doc.
+	* modules/clx/mit-clx/shape.lisp:
+	* modules/clx/mit-clx/split-sequence.lisp: New files.
+	* modules/clx/mit-clx/attributes.lisp, modules/clx/mit-clx/buffer.lisp:
+	* modules/clx/mit-clx/bufmac.lisp, modules/clx/mit-clx/clx.lisp:
+	* modules/clx/mit-clx/defsystem.lisp, modules/clx/mit-clx/depdefs.lisp:
+	* modules/clx/mit-clx/dependent.lisp, modules/clx/mit-clx/describe.lisp:
+	* modules/clx/mit-clx/display.lisp, modules/clx/mit-clx/fonts.lisp:
+	* modules/clx/mit-clx/gcontext.lisp, modules/clx/mit-clx/graphics.lisp:
+	* modules/clx/mit-clx/image.lisp, modules/clx/mit-clx/input.lisp:
+	* modules/clx/mit-clx/keysyms.lisp, modules/clx/mit-clx/macros.lisp:
+	* modules/clx/mit-clx/manager.lisp, modules/clx/mit-clx/package.lisp:
+	* modules/clx/mit-clx/requests.lisp, modules/clx/mit-clx/resource.lisp:
+	* modules/clx/mit-clx/text.lisp, modules/clx/mit-clx/trace.lisp:
+	* modules/clx/mit-clx/translate.lisp: sync with CLOCC
 
 2004-04-13  Sam Steingold  <sds@gnu.org>
 
@@ -531,7 +546,7 @@
 
 2004-04-07  Sam Steingold  <sds@gnu.org>
 
-	* cpcre.c: better support for older PCRE versions
+	* modules/pcre/cpcre.c: better support for older PCRE versions
 
 2004-04-05  Sam Steingold  <sds@gnu.org>
 
