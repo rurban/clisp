@@ -1,5 +1,10 @@
 2005-01-25  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (MAKE-STREAM): handle_to_stream() already duplicates
+	the handle, do not do it here
+
+2005-01-25  Sam Steingold  <sds@gnu.org>
+
 	* install.lisp: use EXT:STRING-CONCAT instead of CONCATENATE 'STRING
 	(*clisp-linkset*): new variable
 	(*clisp-runtime*, *clisp-args*): use it
