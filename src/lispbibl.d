@@ -2324,97 +2324,97 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 # oint_type_mask  is always subset  (2^oint_type_len-1)<<oint_type_shift
 # and  oint_addr_mask superset (2^oint_addr_len-1)<<oint_addr_shift .
 #if !defined(TYPECODES)
-  #if defined(WIDE_HARD)
-    # This is probably not really useful...
+  # HEAPCODES model:
+  # For pointers, the address takes the full word (with type info in the
+  # lowest two bits). For immediate objects, we use 24 bits for the data
+  # (but exclude the highest available bit, which is the garcol_bit).
+  #if !(defined(STANDARD_HEAPCODES) || defined(LINUX_NOEXEC_HEAPCODES))
+    # Choose the appropriate HEAPCODES variant for the machine.
+    # On most systems, one of the high bits is suitable as GC bit; here we
+    # choose STANDARD_HEAPCODES.
+    # On some Linux/x86 systems, starting in 2004, a "no-exec" kernel patch
+    # is used that distributes virtual addresses over the entire address
+    # space from 0x00000000 to 0xBFFFFFFF (as a function of its access
+    # permissions); here we use LINUX_NOEXEC_HEAPCODES.
+    #if defined(I80386) && defined(UNIX_LINUX)
+      #define LINUX_NOEXEC_HEAPCODES
+    #else
+      #define STANDARD_HEAPCODES
+    #endif
+  #endif
+  #ifdef STANDARD_HEAPCODES
+    # The portable case. Assumes only that the GC bit can be chosen.
+    #if defined(SPARC) && defined(UNIX_LINUX) && (__GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 2))
+      #define LINUX_SPARC_OLD_GLIBC
+    #endif
+    #if defined(WIDE_HARD)
+      #define oint_type_shift 0
+      #define oint_type_len 8
+      #define oint_type_mask 0x000000000000007FUL
+      #define oint_data_shift 7
+      #define oint_data_len 32
+      #define oint_data_mask 0x0000007FFFFFFF80UL
+      #define garcol_bit_o 63
+    #elif !((defined(MC680X0) && defined(UNIX_LINUX)) || (defined(I80386) && defined(UNIX_BEOS)) || defined(LINUX_SPARC_OLD_GLIBC))
+      #define oint_type_shift 0
+      #define oint_type_len 8
+      #define oint_type_mask 0x0000007FUL
+      #define oint_data_shift 7
+      #define oint_data_len 24
+      #define oint_data_mask 0x7FFFFF80UL
+      #define garcol_bit_o 31
+    #elif defined(I80386) && defined(UNIX_BEOS)
+      # On BeOS 5, malloc()ed addresses are of the form 0x80...... Bit 31
+      # is therefore part of an address and cannot be used as garcol_bit.
+      #define oint_type_shift 0
+      #define oint_type_len 8
+      #define oint_type_mask 0x0000003FUL
+      #define oint_data_shift 6
+      #define oint_data_len 24
+      #define oint_data_mask 0x3FFFFFC0UL
+      #define garcol_bit_o 30
+    #elif (defined(MC680X0) && defined(UNIX_LINUX)) || defined(LINUX_SPARC_OLD_GLIBC)
+      # On Sparc-Linux with glibc 2.1 and older:
+      # malloc()ed addresses are of the form 0x0....... or 0xe........
+      # Bits 31..29 are therefore part of an address and cannot
+      # be used as garcol_bit. We therefore choose bit 28 as garcol_bit.
+      # Now, the 24 data bits of an immediate value must not intersect the
+      # garcol_bit, so we use bits 27..4 for that (we could use bits 26..3
+      # as well).
+      # On m68k-Linux, malloc()ed addresses are of the form 0x80...... or
+      # 0xc0....... Bits 31..30 are therefore part of an address and cannot
+      # be used as garcol_bit. We therefore have three choices:
+      #   data bits: bits 26..3, garcol_bit_o = 28/27
+      #   data bits: bits 27..4, garcol_bit_o = 28/3
+      #   data bits: bits 28..5, garcol_bit_o = 4/3
+      #define oint_type_shift 0
+      #define oint_type_len 32
+      #define oint_type_mask 0xE000000FUL
+      #define oint_data_shift 4
+      #define oint_data_len 24
+      #define oint_data_mask 0x0FFFFFF0UL
+      #define garcol_bit_o 28
+    #endif
+  #endif # STANDARD_HEAPCODES
+  #ifdef LINUX_NOEXEC_HEAPCODES
+    # The Linux/32-bit case. Assumes 1. that the virtual memory addresses end
+    # at 0xC0000000, or at least that we can put a black hole on the range
+    # 0xC0000000..0xDFFFFFFF, 2. that the compiler and linker can enforce an
+    # 8-byte alignment of symbol_tab and subr_tab.
+    # Only bit 0 or 1 can be used as GC-bit.
     #define oint_type_shift 0
-    #define oint_type_len 16
-    #define oint_type_mask 0x000000000000FFFFUL
-    #define oint_data_shift 16
-    #define oint_data_len 32
-    #define oint_data_mask 0x0000FFFFFFFF0000UL
-    #define garcol_bit_o 63
+    #define oint_type_len 32
+    #define oint_type_mask 0xE000001FUL
+    #define oint_data_shift 5
+    #define oint_data_len 24
+    #define oint_data_mask 0x1FFFFFE0UL
+    #define garcol_bit_o 0
+  #endif # LINUX_NOEXEC_HEAPCODES
+  #if defined(WIDE_HARD)
     #define oint_addr_shift 0
     #define oint_addr_len 64
     #define oint_addr_mask 0xFFFFFFFFFFFFFFFFUL
   #else
-    # HEAPCODES model:
-    # For pointers, the address takes the full word (with type info in the
-    # lowest two bits). For immediate objects, we use 24 bits for the data
-    # (but exclude the highest available bit, which is the garcol_bit).
-    #if !(defined(STANDARD_HEAPCODES) || defined(LINUX_NOEXEC_HEAPCODES))
-      # Choose the appropriate HEAPCODES variant for the machine.
-      # On most systems, one of the high bits is suitable as GC bit; here we
-      # choose STANDARD_HEAPCODES.
-      # On some Linux/x86 systems, starting in 2004, a "no-exec" kernel patch
-      # is used that distributes virtual addresses over the entire address
-      # space from 0x00000000 to 0xBFFFFFFF (as a function of its access
-      # permissions); here we use LINUX_NOEXEC_HEAPCODES.
-      #if defined(I80386) && defined(UNIX_LINUX)
-        #define LINUX_NOEXEC_HEAPCODES
-      #else
-        #define STANDARD_HEAPCODES
-      #endif
-    #endif
-    #ifdef STANDARD_HEAPCODES
-      # The portable case. Assumes only that the GC bit can be chosen.
-      #if defined(SPARC) && defined(UNIX_LINUX) && (__GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 2))
-        #define LINUX_SPARC_OLD_GLIBC
-      #endif
-      #if !((defined(MC680X0) && defined(UNIX_LINUX)) || (defined(I80386) && defined(UNIX_BEOS)) || defined(LINUX_SPARC_OLD_GLIBC))
-        #define oint_type_shift 0
-        #define oint_type_len 8
-        #define oint_type_mask 0x0000007FUL
-        #define oint_data_shift 7
-        #define oint_data_len 24
-        #define oint_data_mask 0x7FFFFF80UL
-        #define garcol_bit_o 31
-      #elif defined(I80386) && defined(UNIX_BEOS)
-        # On BeOS 5, malloc()ed addresses are of the form 0x80...... Bit 31
-        # is therefore part of an address and cannot be used as garcol_bit.
-        #define oint_type_shift 0
-        #define oint_type_len 8
-        #define oint_type_mask 0x0000003FUL
-        #define oint_data_shift 6
-        #define oint_data_len 24
-        #define oint_data_mask 0x3FFFFFC0UL
-        #define garcol_bit_o 30
-      #elif (defined(MC680X0) && defined(UNIX_LINUX)) || defined(LINUX_SPARC_OLD_GLIBC)
-        # On Sparc-Linux with glibc 2.1 and older:
-        # malloc()ed addresses are of the form 0x0....... or 0xe........
-        # Bits 31..29 are therefore part of an address and cannot
-        # be used as garcol_bit. We therefore choose bit 28 as garcol_bit.
-        # Now, the 24 data bits of an immediate value must not intersect the
-        # garcol_bit, so we use bits 27..4 for that (we could use bits 26..3
-        # as well).
-        # On m68k-Linux, malloc()ed addresses are of the form 0x80...... or
-        # 0xc0....... Bits 31..30 are therefore part of an address and cannot
-        # be used as garcol_bit. We therefore have three choices:
-        #   data bits: bits 26..3, garcol_bit_o = 28/27
-        #   data bits: bits 27..4, garcol_bit_o = 28/3
-        #   data bits: bits 28..5, garcol_bit_o = 4/3
-        #define oint_type_shift 0
-        #define oint_type_len 32
-        #define oint_type_mask 0xE000000FUL
-        #define oint_data_shift 4
-        #define oint_data_len 24
-        #define oint_data_mask 0x0FFFFFF0UL
-        #define garcol_bit_o 28
-      #endif
-    #endif # STANDARD_HEAPCODES
-    #ifdef LINUX_NOEXEC_HEAPCODES
-      # The Linux/32-bit case. Assumes 1. that the virtual memory addresses end
-      # at 0xC0000000, or at least that we can put a black hole on the range
-      # 0xC0000000..0xDFFFFFFF, 2. that the compiler and linker can enforce an
-      # 8-byte alignment of symbol_tab and subr_tab.
-      # Only bit 0 or 1 can be used as GC-bit.
-      #define oint_type_shift 0
-      #define oint_type_len 32
-      #define oint_type_mask 0xE000001FUL
-      #define oint_data_shift 5
-      #define oint_data_len 24
-      #define oint_data_mask 0x1FFFFFE0UL
-      #define garcol_bit_o 0
-    #endif # LINUX_NOEXEC_HEAPCODES
     #define oint_addr_shift 0
     #define oint_addr_len 32
     #define oint_addr_mask 0xFFFFFFFFUL
