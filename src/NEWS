@@ -1,3 +1,13 @@
+2.33.2 (2004-05-27)
+===================
+
+Portability
+-----------
+
+* Support for the Linux/x86 distributions called Redhat Fedora and Redhat
+  Enterprise Linux.
+
+
 2.33.1 (2004-05-22)
 ===================
 
