@@ -1,5 +1,12 @@
 2004-10-05  Sam Steingold  <sds@gnu.org>
 
+	The user commands can now be extended using CUSTOM:*USER-COMMANDS*
+	* reploop.lisp (*user-commands*): new user variable
+	(wrap-user-commands): new function
+	(commands0, commands): activate user commands
+
+2004-10-05  Sam Steingold  <sds@gnu.org>
+
 	* constobj.d (type_foreign_variable, type_foreign_function):
 	new constants
 	* foreign.d (FOREIGN-VARIABLE, FOREIGN-FUNCTION): use them instead
