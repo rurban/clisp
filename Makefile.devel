@@ -277,44 +277,107 @@ ffcall/callback/trampoline_r/config.h.msvc : ffcall/callback/trampoline_r/config
 # Build and test all essential memory models on a Linux/x86 machine.
 MULTIBUILD_OPTIONS =
 MULTIBUILD_CFLAGS = -g
-multibuild-linux-x86:
+
+multibuild-linux-x86: build-linux-x86-1 build-linux-x86-2 build-linux-x86-3 build-linux-x86-4 build-linux-x86-5 build-linux-x86-6 build-linux-x86-7 build-linux-x86-8 build-linux-x86-9 build-linux-x86-10
+build-linux-x86-1:
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DSTANDARD_HEAPCODES -DCONS_HEAP_GROWS_UP" \
 	  ./configure --build $(MULTIBUILD_OPTIONS) \
 	              build-standard-spvw_mixed_blocks-staggered
+build-linux-x86-2:
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DSTANDARD_HEAPCODES -DCONS_HEAP_GROWS_DOWN" \
 	  ./configure --build $(MULTIBUILD_OPTIONS) \
 	              build-standard-spvw_mixed_blocks-opposite
+build-linux-x86-3:
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DSTANDARD_HEAPCODES -DNO_VIRTUAL_MEMORY -DNO_TRIVIALMAP" \
 	  ./configure --build $(MULTIBUILD_OPTIONS) \
 	              build-standard-spvw_mixed_blocks-opposite-fixedmemsize
+build-linux-x86-4:
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DSTANDARD_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DNO_MULTIMAP_FILE -DNO_MULTIMAP_SHM" \
 	  ./configure --build $(MULTIBUILD_OPTIONS) \
 	              build-standard-spvw_mixed_pages
+build-linux-x86-5:
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DCONS_HEAP_GROWS_UP" \
 	  ./configure --build $(MULTIBUILD_OPTIONS) \
 	              build-noexec-spvw_mixed_blocks-staggered
+build-linux-x86-6:
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DCONS_HEAP_GROWS_DOWN" \
 	  ./configure --build $(MULTIBUILD_OPTIONS) \
 	              build-noexec-spvw_mixed_blocks-opposite
+build-linux-x86-7:
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DNO_VIRTUAL_MEMORY -DNO_TRIVIALMAP" \
 	  ./configure --build $(MULTIBUILD_OPTIONS) \
 	              build-noexec-spvw_mixed_blocks-opposite-fixedmemsize
+build-linux-x86-8:
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DNO_MULTIMAP_FILE -DNO_MULTIMAP_SHM" \
 	  ./configure --build $(MULTIBUILD_OPTIONS) \
 	              build-noexec-spvw_mixed_pages
+build-linux-x86-9:
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DTYPECODES" \
 	  ./configure --build $(MULTIBUILD_OPTIONS) \
 	              build-spvw_pure_blocks
+build-linux-x86-10:
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DWIDE" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) \
+	              build-wide
+
+multibuild-darwin-powerpc: build-darwin-powerpc-1 build-darwin-powerpc-2 build-darwin-powerpc-3 build-darwin-powerpc-4 build-darwin-powerpc-5 build-darwin-powerpc-6 build-darwin-powerpc-7 build-darwin-powerpc-8 build-darwin-powerpc-9 build-darwin-powerpc-10
+build-darwin-powerpc-1:
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSTANDARD_HEAPCODES -DCONS_HEAP_GROWS_UP" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) \
+	              build-standard-spvw_mixed_blocks-staggered
+build-darwin-powerpc-2:
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSTANDARD_HEAPCODES -DCONS_HEAP_GROWS_DOWN" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) \
+	              build-standard-spvw_mixed_blocks-opposite
+build-darwin-powerpc-3:
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSTANDARD_HEAPCODES -DNO_VIRTUAL_MEMORY -DNO_TRIVIALMAP" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) \
+	              build-standard-spvw_mixed_blocks-opposite-fixedmemsize
+build-darwin-powerpc-4:
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSTANDARD_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DNO_MULTIMAP_FILE -DNO_MULTIMAP_SHM" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) \
+	              build-standard-spvw_mixed_pages
+build-darwin-powerpc-5:
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DCONS_HEAP_GROWS_UP" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) \
+	              build-noexec-spvw_mixed_blocks-staggered
+build-darwin-powerpc-6:
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DCONS_HEAP_GROWS_DOWN" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) \
+	              build-noexec-spvw_mixed_blocks-opposite
+build-darwin-powerpc-7:
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DNO_VIRTUAL_MEMORY -DNO_TRIVIALMAP" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) \
+	              build-noexec-spvw_mixed_blocks-opposite-fixedmemsize
+build-darwin-powerpc-8:
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DNO_MULTIMAP_FILE -DNO_MULTIMAP_SHM" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) \
+	              build-noexec-spvw_mixed_pages
+build-darwin-powerpc-9:
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DTYPECODES" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) \
+	              build-spvw_pure_blocks
+build-darwin-powerpc-10:
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DWIDE" \
 	  ./configure --build $(MULTIBUILD_OPTIONS) \
 	              build-wide
