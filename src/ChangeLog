@@ -1,3 +1,7 @@
+2002-03-04  Sam Steingold  <sds@gnu.org>
+
+	* foreign1.lisp (to-c-typedecl): c-pointer --> void*, not char*
+
 2002-03-03  Sam Steingold  <sds@gnu.org>
 
 	* version.h: 2.28 is released
