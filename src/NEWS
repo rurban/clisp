@@ -1,3 +1,198 @@
+User visible changes
+--------------------
+
+* CLISP does not come with GNU libiconv anymore.  The most important
+  encodings are built-in anyway, and CLISP can use the GNU libc 2.2
+  iconv and a GNU libiconv when it is independently installed.
+
+* CLISP does not come with GNU gettext anymore.  This is a separate
+  package and should be installed separately, if you wish to use i18n.
+
+* CLISP does not come with GNU readline anymore, because, starting with
+  version 4.3, readline supports multibyte characters out of the box.
+
+* Strings can now hold UCS-4 characters, instead of only UCS-2 characters.
+  CHAR-CODE-LIMIT increased from 65536 to 1114112.
+
+* New user variable CUSTOM:*PARSE-NAMESTRING-DOT-FILE* controls
+  how the file names starting with a dot are parsed.
+  By default, it is set to :NAME, so #P".clisprc" is now
+  #S(PATHNAME :NAME ".clisprc"); to get the old result of
+  #S(PATHNAME :TYPE "clisprc"), set the variable to :TYPE.
+  This is an incompatible change.
+  See <http://clisp.cons.org/impnotes.html#name-type-split> for details.
+
+* New user variable CUSTOM:*TRACE-INDENT* controls TRACE output indentation.
+  See <http://clisp.cons.org/impnotes.html#trace> for details.
+
+* SOCKET:SOCKET-ACCEPT and SOCKET:SOCKET-CONNECT now accept a :TIMEOUT
+  keyword argument.
+  See <http://clisp.cons.org/impnotes.html#timeout-k> for details.
+
+* SAVEINITMEM now accepts :START-PACKAGE, :VERBOSE, and :LOCKED-PACKAGES
+  keyword arguments.
+  See <http://clisp.cons.org/impnotes.html#image> for details.
+
+* You can now shutdown a socket for input or output separately
+  using SOCKET:SOCKET-STREAM-SHUTDOWN.
+  See <http://clisp.cons.org/impnotes.html#sost-shut> for details.
+
+* CUSTOM:*SOURCE-FILE-TYPES* and CUSTOM:*COMPILED-FILE-TYPES*
+  now contain strings, not pathnames.
+  See <http://clisp.cons.org/impnotes.html#loadfile> for details.
+
+* EXT:GETENV now returns all of the environment as an alist when its
+  argument is omitted or NIL.
+
+* When configured with --with-export-syscalls,
+  several new functions are available:
+   POSIX:STREAM-LOCK provides an interface to flock(2);
+   POSIX:COPY-FILE provides an interface to link(2)/symlink(2)/rename(2),
+     (in addition to the usual file copy);
+   POSIX:DUPLICATE-HANDLE provides an interface to dup(2)/dup2(2).
+  Thanks to Marco Baringer for COPY-FILE and DUPLICATE-HANDLE.
+  See <http://clisp.cons.org/impnotes.html#syscalls> for details.
+
+* You can now control the CLISP exit code better by passing a
+  non-negative integer to EXT:EXIT.
+  See <http://clisp.cons.org/impnotes.html#quit> for details.
+
+* Russian translations of the user interface messages have been added.
+  Thanks to Arseny Slobodjuck <ampy@ich.dvo.ru>.
+
+* When built with readline, CLISP will DESCRIBE the current function
+  when you hit TAB after a #\Space.
+
+* MAKE-ENCODING now checks whether the iconv charset is valid, and
+  signals an error if it is invalid unless given the :IF-DOES-NOT-EXIST
+  NIL argument.
+
+* New debugger command Quit (:q) aborts to the top-level read-eval-print
+  loop immediately, saving you typing :a several times.
+
+* When CUSTOM:*PARSE-NAMESTRING-ANSI* is non-NIL, do not accept symbols
+  as pathname designators.
+  See <http://clisp.cons.org/impnotes.html#filename-dict> for details.
+
+* COMPILE-FILE no longer clobbers an existing *.c file when the Lisp
+  file being compiled does not contain any FFI forms.
+  See <http://clisp.cons.org/impnotes.html#compilefile> for details.
+
+* Type COMPLEX now correctly uses UPGRADED-COMPLEX-PART-TYPE.
+
+* Fixed a bug: Conversion from bytes to string did not work for the encoding
+  (MAKE-ENCODING :CHARSET CHARSET:UNICODE-32-LITTLE-ENDIAN
+                 :INPUT-ERROR-ACTION :IGNORE).
+
+* Fixed a bug in compiling duplicate keyword arguments.
+
+* Wide-mode -W backward compatibility option is now gone
+  (defunct since 1998-09-09).  This permits colons in memory image file
+  names (necessary on Cygwin).
+
+* CLISP on Cygwin now understands native pathnames like "c:/gnu/clisp/"
+  by translating them internally to "/cygdrive/c/gnu/clisp/".
+  CLISP on Win32 now understands Cygwin pathnames like "/cygdrive/c/gnu/clisp/"
+  by translating them internally to "c:/gnu/clisp/".
+  You can disable this by setting CUSTOM:*DEVICE-PREFIX* to NIL.
+  See <http://clisp.cons.org/impnotes.html#device-prefix> for details.
+
+* Readline is now used properly on Cygwin.
+
+* DIR-KEY now works on Cygwin.
+
+Portability
+-----------
+
+* CLISP now works on SPARC/Linux with glibc 2.2 when built with SAFETY=3.
+
+
+2.29 (2002-07-25)
+=================
+
+User visible changes [this is a bug-fix/portability release]
+--------------------
+
+* INSPECT: fixed bugs in HTML generation, Content-Length header,
+  removing incorrect package on exit, help in nested inspect sessions.
+
+* COMPILE-FILE: fixed :VERBOSE NIL handling.
+
+* DESCRIBE: handles DIR-KEY now.
+
+* (LAMBDA () (DEFMETHOD ...)) now works.
+
+* Fixed RETURN-FROM in deep nesting.
+
+* Fixed crash on errors in module initialization.
+
+* COMPILER-MACROs can now expand to special forms.
+
+* EVAL-WHEN now distinguishes between COMPILE and :COMPILE-TOPLEVEL
+  and between LOAD and :LOAD-TOLEVEL.
+
+Portability
+-----------
+
+* CLISP now builds with GCC-3.1 out of the box.
+
+
+2.28 (2002-03-03)
+=================
+
+Important notes
+---------------
+
+* All .fas files generated by previous CLISP versions
+  are invalid and must be recompiled.
+
+User visible changes
+--------------------
+
+* ANSI CL functions MAKE-LOAD-FORM and MAKE-LOAD-FORM-SAVING-SLOTS
+  are implemented.
+
+* ANSI CL pretty printer <http://www.lisp.org/HyperSpec/Body/sec_22-2.html>
+  is implemented.
+  In particular,
+    variables     *PRINT-LINES*, *PRINT-MISER-WIDTH*, *PRINT-PPRINT-DISPATCH*,
+    macro         PPRINT-LOGICAL-BLOCK,
+    local macros  PPRINT-EXIT-IF-LIST-EXHAUSTED, PPRINT-POP
+    and functions PPRINT-DISPATCH, COPY-PPRINT-DISPATCH, SET-PPRINT-DISPATCH,
+                  PPRINT-FILL, PPRINT-LINEAR, PPRINT-TABULAR, PPRINT-TAB,
+                  PPRINT-NEWLINE, PPRINT-INDENT
+  are implemented.
+  See the impnotes <http://clisp.cons.org/impnotes.html#clpp> for details.
+
+* The functions WRITE and WRITE-TO-STRING now accept :LINES, :MISER-WIDTH
+  and :PRINT-PPRINT-DISPATCH keyword arguments.
+  This change requires recompilation of all .fas files.
+
+* Weak hash-tables are now supported.
+  See the impnotes <http://clisp.cons.org/impnotes.html#make-hash> for details.
+
+* Support Cygwin's "/cygdrive/drive/path" pathname syntax on Win32.
+
+* New macro EXT:FCASE which allows specifying comparison function in CASE.
+  See the impnotes <http://clisp.cons.org/impnotes.html#fcase> for details.
+
+* New user variable CUSTOM:*LOAD-LOGICAL-PATHNAME-TRANSLATIONS-DATABASE*.
+  See the impnotes <http://clisp.cons.org/impnotes.html#load-lpt> for details.
+
+* Packages can now be locked and unlocked using EXT:PACKAGE-LOCK
+  See the impnotes <http://clisp.cons.org/impnotes.html#pack-lock> for details.
+
+* CLISP now supports internationalized Lisp programs, via GNU gettext.
+  Macros ENGLISH, FRANCAIS and DEUTSCH have been removed.
+  See the impnotes <http://clisp.cons.org/impnotes.html#language> for details.
+
+* The UI language can now be changed dynamically,
+  via symbol-macro *CURRENT-LANGUAGE*.
+  See the impnotes <http://clisp.cons.org/impnotes.html#i18n> for details.
+
+* Fixed a bug: LDIFF now handles dotted lists correctly.
+
+
 2.27 (2001-07-17)
 =================
 
@@ -16,10 +211,19 @@ User visible changes
 
 * ANSI CL compliance: more conformant pathname handling.
 
+* Speed up MEMBER &co when :TEST is EQ, EQL or EQUAL.
+
+* Optimize away local functions that are not used
+  (much less consing in CLOS).
+
+* When built with readline, CLISP allows multi-line form editing.
+  Use M-p and M-n to move between virtual lines.
+
 * Fixed handling of circular structs and pointers to functions in the FFI.
 
 * Fixed binary I/O for streams with element type longer than one byte,
   but not a whole number of bytes.
+
 
 2.26 (2001-05-23)
 =================
@@ -68,6 +272,7 @@ User visible changes
 * The compiler now checks the signature of function calls
   for all functions, not just the inlined built-ins.
 
+
 2.25.1 (2001-04-06)
 ===================
 
@@ -88,6 +293,9 @@ User visible changes [this is a bug-fix only release]
 * Fixed a bug: COMPILE-FILE-PATHNAME could return bad results when given a
   non-existent INPUT-FILE argument and an OUTPUT-FILE argument with
   non-NIL directory part.
+
+* Fixed --without-unicode build.
+
 
 2.25 (2001-03-15)
 =================
@@ -182,6 +390,8 @@ Portability
 
 * Added support for BeOS 5. Thanks to Alexis Rivera Rios <ahrivera@yahoo.com>.
 
+* Removed support for DOS. Don't worry, OS/2 and Win32 are still supported.
+
 
 2000-03-06
 ==========
@@ -190,6 +400,8 @@ User visible changes
 --------------------
 
 * New functions READ-FLOAT and WRITE-FLOAT.
+
+* Implemented ANSI CL macro WITH-COMPILATION-UNIT.
 
 * Unicode support: The pretty-printer and FORMAT ~T now handle non-spacing and
   double-width Unicode characters correctly. Pretty-printer slows down by 30%.
@@ -414,12 +626,20 @@ Portability
 
 * Added support for Apple PowerPC running MacOS X Server (a.k.a. Rhapsody).
 
+* Improved support for m68k running Linux.
+
+* Added build instructions for Win32 using MSVC 6.0.
+
 Other modifications
 -------------------
 
 * On Linux 2.2.x with glibc-2.1, Solaris, OSF/1 and Irix, stack overflow is
   now caught reliably. Previously, endless recursion in interpreted code could
   cause a crash in some cases.
+
+* Speed up the function DIRECTORY on Unix in some cases.
+
+* Speed up compiled calls to LDB, LDB-TEST, MASK-FIELD, DPB, DEPOSIT-FIELD.
 
 
 1999-01-08
@@ -555,8 +775,14 @@ User visible changes
 
 * The function VALUES-LIST now verifies that its argument is a proper list.
 
-* The function XGCD now always returns coefficients of smallest possible
-  absolute value. Suggested by the LiDIA group.
+* The function XGCD now in most cases (but not always) returns coefficients of
+  smallest possible absolute value. Suggested by the LiDIA group.
+
+Portability
+-----------
+
+Other modifications
+-------------------
 
 
 9 September 1998
@@ -663,7 +889,7 @@ User visible changes
 
 * Fixed a bug: Reading objects in #n# syntax into typed structure slots gave
   an error if the structure's constructor was not compiled.
-  Reported by Sam Steingold <sds@usa.net>.
+  Reported by Sam Steingold.
 
 * BUTLAST and NBUTLAST are now ANSI CL compliant: They signal an error if the
   argument is a dotted list of length 0. (Stupid.)
@@ -740,7 +966,17 @@ Portability
   sufficient for writing socket clients.
   Thanks to Jörg Höhle.
 
+* Port to Win32 using msvc5. (Previously only msvc4 was supported.)
+
+* Dropped support for pre-ANSI-C compilers.
+
+* Updated support for EMX.
+
+* Dropped support for EMX versions older than 0.9c.
+
 * Added support for PowerPC running MkLinux.
+
+* Removed (incomplete) support for MS Windows 3.1.
 
 Other modifications
 -------------------
@@ -759,6 +995,10 @@ Other modifications
   side of *TERMINAL-IO* will be buffered.
 
 * Dropped the STDWIN library.
+
+* Added a new type encoding scheme which allows all address ranges from
+  0x00000000 to 0x7FFFFFFF to be used. This should make porting to some
+  systems easier.
 
 * Added bindings to libc for Linux with libc6 (aka glibc 2.0).
 
@@ -838,6 +1078,20 @@ User visible changes
 * Added image support to the clx/new-clx module.
   Thanks to Gilbert Baumann <gilbert@ma2s2.mathematik.uni-karlsruhe.de>.
 
+Portability
+-----------
+
+* More Win32 support: stack overflow handling, foreign function interface,
+  more robust memory management.
+
+* Added support for Win32 (WinNT and Win95), using Borland C++.
+
+* Fixed a compilation error when compiling for sparcv8.
+  Thanks to Hans Adams <adamsh@server.ecomp.de>.
+
+* Updated support for Solaris/x86.
+  Thanks to Lutz Euler <euler@lavielle.com>.
+
 Other modifications
 -------------------
 
@@ -888,12 +1142,23 @@ User visible changes
 * Fixed a bug: Printing socket streams created by SOCKET-ACCEPT could result
   in an error or an endless loop.
 
+Portability
+-----------
+
+* Added support for Win32 (WinNT and Win95), using Microsoft Visual C++.
+
+* Added support for Cygwin32 version 18 (Unix emulation on WinNT or Win95).
+
+* Added support for GNU 0.2 (the Hurd). Thanks to Marcus Daniels.
+
 Other modifications
 -------------------
 
 * "clisp" can now be called with "-" as argument. The standard input is then
   executed by a read-eval-print loop without prompt, while the remaining
   arguments will be assigned to the variable *ARGS*.
+
+* Overall speedup by 13% on i386.
 
 
 3 May 1997
@@ -935,8 +1200,8 @@ User visible changes
   New macros DEFLANGUAGE, DEFINTERNATIONAL, DEFLOCALIZED. New function
   LOCALIZED. The macros ENGLISH, DEUTSCH, FRANCAIS now work only for strings.
   Removed the macro LANGUAGE-CASE.
-  The implementation uses the GNU gettext library. Thanks to Ulrich Drepper
-  and Marcus Daniels.
+  The implementation uses the GNU gettext library.
+  Thanks to Ulrich Drepper and Marcus Daniels.
 
 * New user-interface language ESPANOL.
   Thanks to Carlos Linares López <clinares@delicias.dia.fi.upm.es> who has
@@ -1016,15 +1281,40 @@ User visible changes
 Portability
 -----------
 
+* The core of CLISP can now be compiled with a C++ compiler if no C compiler
+  is available (without readline library, FFI or modules).
+
+* Added support for Mips processors in 64-bit mode.
+
+* Updated support for Linux 2.0.
+
+* Support for immutable objects now works on Linux/ELF. It did already work
+  on Linux/a.out.
+
+* Updated Amiga support. Thanks to Jörg Höhle <Joerg.Hoehle@gmd.de>.
+
+* Updated Acorn support. Thanks to Peter Burwood <clisp@arcangel.dircon.co.uk>.
+
+* Updated OS/2 support. Thanks to Jörg Diederich <J_Diederich@herlab.ruhr.de>.
+
+* Updated support for Solaris/x86. Thanks to Marty Shannon <mjs@tiaa-cref.org>.
+
+* Fixed a bug which could cause the readline completion to dump core on HP-UX.
+
+* Fixed a bug relating to the read-eval-print loop's return point on some
+  platforms. Thanks to Peter Burwood <clisp@arcangel.dircon.co.uk>.
+
 * Removed an incompatibility between SPARC/Sun4 and UltraSPARC memory images.
   Found by Martin Ginkel <ginkel@iik.cs.uni-magdeburg.de>.
+
+* Removed support for AmigaOS versions < 2.04.
 
 Other modifications
 -------------------
 
-* Normal and wide-mode binaries can now be built and distributed
-  simultaneously. New command-line option -W for choosing the wide-mode
-  binaries instead of the normal binaries.
+* New "makemake" option --with-wide causes normal and wide-mode binaries to
+  be built and distributed simultaneously. New command-line option -W
+  for choosing the wide-mode binaries instead of the normal binaries.
 
 * On Unix, "clisp" is now an executable instead of a shell script.
 
@@ -1032,6 +1322,11 @@ Other modifications
   arguments will be passed to the Lisp program in the variable *ARGS*.
   On Unix, you can thus make Lisp programs executable by putting
   "#!/usr/local/bin/clisp" in the first line and doing a "chmod a+x".
+
+* The read-eval-print loop now calls FORCE-OUTPUT after outputting the prompt.
+  Thanks to Jörg Höhle <Joerg.Hoehle@gmd.de>.
+
+* Support for immutable objects now also works in the WIDE tagging scheme.
 
 * Reduced the startup time by 20-30%.
 
@@ -1125,6 +1420,35 @@ User visible changes
 * Fixed a bug in XGCD which caused the results to be wrong with a small
   probability, for example in the case (XGCD 77874422 32223899).
 
+Portability
+-----------
+
+* FreeBSD/NetBSD patches and compilation notes.
+  Thanks to Douglas Crosher <dtc@stan.xx.swin.oz.au>.
+
+* Added support for SUNWspro cc 3.0.1 on Sparc.
+
+* Updated support for Ultrix.
+
+* Updated support for NeXTstep version 3.3.
+  Thanks to Robert Murphy <robert.murphy@yale.edu>.
+
+* Updated support for SINIX. Thanks to Michael Becker <mb12@coconet.de>.
+
+* Fixed a bug in the conversion of double-float numbers from "foreign land"
+  to "Lisp land" on DEC Alpha. Thanks to Ken Olum <kdo@mit.edu>.
+
+* Fixed a bug in the implementation of LISTEN on Irix: CLISP went into a
+  `function call not implemented' OS error loop. Thanks to Marcus Daniels.
+
+* Fixed a signal handling bug on some versions of SunOS 4: Strange things
+  could happen in a break loop.
+
+* The `configure' script now supports the --srcdir, --prefix and --exec-prefix
+  options.
+
+* Removed support for Atari ST/TT running TOS.
+
 Other modifications
 -------------------
 
@@ -1132,6 +1456,12 @@ Other modifications
   (FUNCALL (LAMBDA ...) ...), (DECLAIM (INLINE F)) (MAPCAR #'F ...)
   are now compiled as inline function calls. Previously you had to write
   (FUNCTION (LAMBDA ...)) explicitly. Suggested by Jörg Höhle.
+
+* "makemake" now supports the --srcdir, --prefix and --exec-prefix options.
+
+* Added a testsuite for part of CLOS. Thanks to Christian Jullien.
+
+* Miscellaneous documentation updates.
 
 
 23 June 1995
@@ -1146,11 +1476,11 @@ Important note
 User visible changes
 --------------------
 
-* X3J13 vote <106> is implemented: LAST has an optional argument. Thanks to
-  Pierpaolo Bernardi.
+* X3J13 vote <106> is implemented: LAST has an optional argument.
+  Thanks to Pierpaolo Bernardi.
 
-* X3J13 vote <87> is implemented: New function COMPLEMENT. Thanks to Pierpaolo
-  Bernardi.
+* X3J13 vote <87> is implemented: New function COMPLEMENT.
+  Thanks to Pierpaolo Bernardi.
 
 * X3J13 vote <40> is partially implemented: New macro WITH-STANDARD-IO-SYNTAX.
   Thanks to Pierpaolo Bernardi.
@@ -1194,27 +1524,44 @@ User visible changes
   produced a warning. Thanks to Pierpaolo Bernardi.
 
 * Fixed a bug in the compiler: Some CASE form with duplicate keys, when
-  compiled, chose the wrong clause to be executed. Thanks to Pierpaolo
-  Bernardi.
+  compiled, chose the wrong clause to be executed.
+  Thanks to Pierpaolo Bernardi.
 
-* Fixed a bug in the #+/#- reader macros. (LIST #+FOO #-BAR 1 2 3) now returns
-  (2 3), not (3).
+* Fixed a bug in the #+/#- reader macros. (LIST #+FOO #-BAR 1 2 3) now
+  returns (2 3), not (3).
 
 * Fixed a bug in LOG: (LOG x^n x^m), where n, m are integers, |m| > 1, and
   x is a rational number /= 1, now correctly returns n/m. Previously,
   (LOG 2 4) returned 1/0.
 
 * Fixed a CLOS bug: Using the :DOCUMENTATION option in DEFGENERIC declarations
-  for function names of the form (SETF symbol) signalled an error. Thanks to
-  Pierpaolo Bernardi.
+  for function names of the form (SETF symbol) signalled an error.
+  Thanks to Pierpaolo Bernardi.
 
 * Fixed a bug in DEFSETF: An IGNORE declaration for the store variable had
   no effect. Thanks to Pierpaolo Bernardi.
 
+Portability
+-----------
+
+* Added support for Linux/ELF. Thanks to Marcus Daniels.
+
+* Added support for Solaris/x86. Thanks to Marty Shannon.
+
+* On Solaris, LISTEN and READ-CHAR-NO-HANG did not work on the terminal stream
+  if standard input was redirected to come from a file.
+
+* On OS/2, consider the virtual directory \PIPE\ as existent.
+
 Other modifications
 -------------------
 
+* A couple of bug fixes and new functions in the STDWIN package.
+  Thanks to Pierpaolo Bernardi.
+
 * The structure of external modules has changed a bit.
+
+* Miscellaneous documentation updates.
 
 
 25 April 1995
@@ -1275,11 +1622,40 @@ User visible changes
 
 * Fixed a bogus error message in SET-DISPATCH-MACRO-CHARACTER.
 
+Portability
+-----------
+
+* Fixed a couple of building problems relating to the foreign language
+  interface (missing `mark_fp_invalid' and `pr_hex8', missing makefile
+  dependencies, support for --with-dynamic-modules, warnings when compiling
+  user2.lsp and foreign1.lsp).
+
+* Fixed a building problem: Not all C compilers accept casts in constant
+  expressions used as initializers, e.g. gcc-2.5.8.
+
+* Foreign function interface: Fixed a couple of possible bugs in the low-level
+  foreign function call routine for i386/486/586, m680x0, SPARC CPUs.
+  Thanks to Jörg Höhle.
+
+* Small fixes for SCO.
+
+* Added a utility "hln" for making hard links. Needed for "make distrib";
+  Solaris "ln" does not make a hard link if a symbolic link is involved.
+
+* On some Unix systems, use "uname -m", not "arch", to determine
+  (MACHINE-TYPE) and (MACHINE-VERSION).
+
+* More support for BSDI 1.0, AIX, HP-UX, Solaris.
+
+* Changed STDWIN so that it compiles under X11R6.
+
 Other modifications
 -------------------
 
 * Speed up compiled calls to FORMAT with literal control string by use of
   FORMATTER.
+
+* Miscellaneous documentation updates.
 
 
 4 April 1995
@@ -1343,6 +1719,17 @@ User visible changes
 * Unix version only: DISASSEMBLE can display machine instructions, provided
   that GNU gdb is present.
 
+Portability
+-----------
+
+* Updated support for EMX.
+
+* Fixed a bug which caused a preprocessor error on SunOS and OSF/1.
+
+* Small fixes for Sinix and SCO.
+
+* Removed support for Coherent.
+
 Other modifications
 -------------------
 
@@ -1350,6 +1737,55 @@ Other modifications
 
 * Generational garbage collection and support for immutable objects don't
   exclude each other any more.
+
+* Speed up the bytecode interpreter by about 2%.
+
+* Miscellaneous documentation updates.
+
+
+1 January 1995
+==============
+
+CLISP now compiles and runs on
+* microcomputers:
+  * DOS
+  * OS/2 2.0
+  * MS Windows 3.1
+  * Amiga 500-4000, Amiga OS
+  * Atari ST/TT, TOS
+  * Acorn ARM Risc PC, RISC OS
+* Unix workstations:
+  * PC, Linux
+  * PC, USL SVR4
+  * DEC Alpha AXP, OSF/1
+  * Sun4, SunOS 4 or 5
+  * HP9000/800, HP-UX
+  * NeXT, NeXTstep 3.1
+  * PC, NeXTstep 3.2
+  * SGI Mips, Irix 4 or 5
+  * SNI Mips, USL SVR4
+  * DECstation 5000, Ultrix 4.2
+  * IBM RS/6000, AIX 3.2
+  * M88000
+  * Sun386, SunOS 4
+  * Sun3, SunOS 4 (?)
+  * HP9000/300, HP-UX or NetBSD
+  * Apple MacII, A/UX (?)
+  * Amiga 3000, Amiga Unix 2.1
+  * Sequent PTX
+  * PC, 386BSD or NetBSD or BSDI/386
+  * PC, UnixWare
+  * PC, SCO (?)
+  * PC, Coherent 4.0
+  * Convex, ConvexOS
+  * Atari ST/TT, MiNT
+
+Generational GC works on
+  * PC, Linux
+  * Sun4, SunOS 4 or 5
+  * NeXT, NeXTstep 3.1
+  * PC, NeXTstep 3.2
+  * DEC Alpha AXP, OSF/1 3.0
 
 
 1 January 1995
@@ -1378,10 +1814,34 @@ User visible changes
 * Fixed a bug which could cause a crash when a GC occurred during single or
   double float subtraction.
 
+Portability
+-----------
+
+* More support for Acorn ARM running RISCOS. Thanks to Peter Burwood.
+
+* Fixed a problem in the readline library on non-POSIX BSD systems: Only LF
+  was output instead of CR/LF.
+
+* Updated support for EMX.
+
+* The `configure' script now caches its results.
+
 Other modifications
 -------------------
 
+* New memory model TRIVIALMAP_MEMORY which supports generational garbage
+  collection in combination with the WIDE tagging scheme.
+
 * Generational garbage collection now also works on NeXTstep and OSF/1 3.0.
+
+* When a memory image is loaded, the terminal stream from the previous
+  session is closed.
+
+* Renamed `target' to `configure'.
+
+* Added a manual page in HTML format.
+
+* Miscellaneous documentation updates.
 
 
 26 October 1994
@@ -1449,8 +1909,12 @@ User visible changes
 Portability
 -----------
 
+* Added some support for MS Windows.
+
 * On DOS, the readline library now handles the /!INPUTRC and history files
   correctly.
+
+* Some modification for the sake of gcc-2.6.1.
 
 Other modifications
 -------------------
@@ -1459,6 +1923,11 @@ Other modifications
 
 * On Unix, external modules written in C can be linked to CLISP without
   recompiling CLISP from source. For example, the STDWIN library.
+
+* Small fix: On some machines, some internal objects were being printed as
+  #<SYSTEM-POINTER ...> instead of #<FRAME-POINTER ...>.
+
+* Miscellaneous documentation updates.
 
 
 1 September 1994
@@ -1473,6 +1942,17 @@ User visible changes
 
 * Unix version only: The daylight saving time flag of a time zone (eighth
   value of GET-DECODED-TIME and DECODE-UNIVERSAL-TIME) is now correct.
+
+Portability
+-----------
+
+* Added support for Acorn ARM running RISCOS. Thanks to Peter Burwood.
+
+* Added support for NetBSD 1.0. Thanks to Douglas Crosher.
+
+* Updated support for EMX and DJGPP.
+
+* GNU malloc for HP-UX now works.
 
 
 23 August 1994
@@ -1501,12 +1981,55 @@ User visible changes
 * Readline library: When a closing parenthesis is typed, the corresponding
   opening parenthesis is displayed.
 
+Portability
+-----------
+
+* Added support for Convex. Thanks to Marcus Daniels.
+
+* Added support for SCO. Thanks to Cathy Bareiss and Marcus Daniels.
+
+* More NeXTstep support.
+
+* More Sinix support. Thanks to Manfred Weichel.
+
+* Updated support for AmigaOS. Thanks to Jörg Höhle.
+
+* Some modification for the sake of gcc-2.6.
+
+* Added GNU malloc. For HP-UX.
+
+* Added a bunch of character set conversion utilities. Covers the ASCII,
+  ISO Latin-1, IBM PC, HP Roman8, NeXTstep and Atari ST character sets.
+
+* The `configure' script now prints its results.
+
+* Floating point computations on some CPUs (Sparc, HP-PA, M88000, RS/6000):
+  Fixed some confusion between overflow and NaN and between underflow and zero.
+
+* Removed support for Atari Turbo-C (now known as PURE-C).
+
 Other modifications
 -------------------
 
 * Copyright clarification.
 
+* Generational garbage collection. This works only for Unix implementations
+  with powerful virtual memory management, currently only SunOS.
+
+* Improved virtual memory efficiency:
+  - Memory model SPVW_PAGES: don't put a piece of management data into
+    every page.
+  - Memory model SPVW_BLOCKS: compact conses, don't shuffle them, so that
+    they are kept sorted according to their age.
+  - Memory model SPVW_PURE_BLOCKS: pages containing garbage are
+    immediately freed.
+
+* Unix version only: To reduce the startup time, try to use mmap() instead
+  of read() for the startup file.
+
 * Added a readline manual page.
+
+* Miscellaneous documentation updates.
 
 
 4 July 1994
@@ -1540,7 +2063,12 @@ User visible changes
   another present symbol of the same name.
 
 * Fixed a bug in the debugger which caused the BACKTRACE commands to print
-  garbage if the current user interface language was not english.
+  garbage if the current user interface language was not English.
+
+Other modifications
+-------------------
+
+* Miscellaneous documentation updates.
 
 
 22 June 1994
@@ -1628,11 +2156,85 @@ Installation
 * All non-Unix versions: Setting the local time zone should now be much
   easier. 122 time zone names are supported.
 
+Portability
+-----------
+
+* Unix version only: Getting the time zone should be more robust.
+
+* Added support for NeXT (68k or i386 CPU) running NeXTstep 3.2.
+  Thanks to Marcus Daniels.
+
+* Added support for Sequent PTX. Thanks to Marcus Daniels.
+
+* Added support for m88000 running DG/UX. Thanks to Pat McClanahan.
+
+* Added support for UnixWare. Thanks to Alexander Adam.
+
+* Added support for BSDI/386. Thanks to Atsuo Ohki.
+
+* More support for WATCOM C on DOS. Thanks to Blake McBride.
+
+* More support for IRIX 5. Thanks to Bjorn Remseth.
+
+* More support for Sun4m. Thanks to Neil Faulks.
+
+* Better support (speedup) for HP 9000/800 running HP-UX.
+
+* On HP 9000/700 running HP-UX: Don't depend directly on the assembler.
+
+* Maybe some support for SCO. Thanks to Cathy Bareiss.
+
+Other modifications
+-------------------
+
+* Speedup SUBLIS and NSUBLIS.
+
+* Let all known versions of gcc2 emit dbra instructions for loops.
+  Thanks to Jörg Höhle.
+
+* Renamed condition.lsp to conditio.lsp.
+
+* Miscellaneous documentation updates.
+
 
 8 January 1994
 ==============
 
-None.
+Portability
+-----------
+
+* Remove (incomplete) support for VMS.
+
+
+7 January 1994
+==============
+
+CLISP now compiles and runs on
+* microcomputers:
+  * Atari ST/TT
+  * Amiga 500-4000
+  * DOS
+  * MS Windows 3.1
+  * OS/2 2.0
+* Unix workstations:
+  * PC, Linux
+  * PC, USL SVR4
+  * Sun4, SunOS 4 or 5
+  * HP9000/800, HP-UX
+  * SGI Mips, Irix 4 or 5
+  * DEC Alpha AXP, OSF 1.3
+  * DECstation 5000, Ultrix 4.2
+  * IBM RS/6000, AIX 3.2
+  * M88000
+  * Sun386, SunOS 4
+  * Sun3, SunOS 4 (?)
+  * HP9000/300, HP-UX or NetBSD
+  * Apple MacII, A/UX (?)
+  * Amiga 3000, Amiga Unix 2.1
+  * NeXT, NeXTstep 3.1
+  * PC, 386BSD or NetBSD
+  * PC, Coherent 4.0
+  * Atari ST/TT, MiNT
 
 
 7 January 1994
@@ -1699,7 +2301,7 @@ User visible changes
   exactly the first non-digit read from the stream. Previously it was its
   upper-case equivalent.
 
-* DEFPACKAGE now accepts an option (:DOCUMENTATION doctring).
+* DEFPACKAGE now accepts an option (:DOCUMENTATION docstring).
 
 * DIRECTORY now accepts a keyword argument :CIRCLE. If it is non-NIL,
   the directory search for ".../" and "**/" wildcards on Unix avoids endless
@@ -1732,6 +2334,37 @@ User visible changes
   #1= definitions could result when PRINT-OBJECT methods were called while
   *PRINT-CIRCLE* was true. Thanks to Marcus Daniels.
 
+Portability
+-----------
+
+* Fixed five bugs in the number crunching routines that appeared on
+  64-bit processors or in combination with the WIDE tagging scheme.
+
+* More support for 64-bit processors like DEC Alpha.
+
+* Added support for NeXT running NeXTstep 3.1. Thanks to Marcus Daniels.
+
+* Added support for Amiga 3000 running AMIX Unix. Thanks to Michel Loi.
+
+* Fixed a problem with Ctrl-C on HP-UX. Thanks to Gabor Herr.
+
+* Added support for HP9000/300 running HP-UX. Thanks to Gabor Herr.
+
+* Added support for WATCOM C 9.5 on DOS.
+
+* Amiga version: Tolerate memory outside the 27-bit addressable range.
+
+* Remove support for the Atari ST assembly language version CLISP1.
+
+Other modifications
+-------------------
+
+* Added some documentation of the GNU readline library.
+
+* Changed the default memory size back from 2.5 megabytes to 2 megabytes.
+
+* Miscellaneous documentation updates.
+
 
 8 November 1993
 ===============
@@ -1762,6 +2395,41 @@ User visible changes
 
 * Fixed a serious bug in GCD on 16-bit processors: (GCD x y) with
   2^k - 2^(k-16) <= |x|,|y| < 2^k could cause a division by zero.
+
+Portability
+-----------
+
+* Added support for DEC Alpha AXP running OSF/1 Unix.
+
+* Added support for Apple Mac II running A/UX.
+
+* Added support for Atari ST/TT running MiNT. Thanks to Scott Kolodzieski.
+
+* Support for SunOS4 cc now works.
+
+* The makefile now also works with "parallel" make utilities (e.g. GNU make
+  with option -j). Thanks to Rick Sladkey.
+
+* Easier porting: The most dangerous optimizations (inline asm() statements,
+  global register allocations, ...) are inhibited if CLISP is compiled with
+  option SAFETY=3.
+
+* Some modifications for the sake of gcc-2.5.
+
+Other modifications
+-------------------
+
+* Speed up generic function dispatch.
+
+* Some kinds of objects take less space (all CPUs except 680x0).
+
+* The list of X3J13 votes and their current status in CLISP has been moved
+  from file `src/defs2.lsp' to file `src/cltl2.txt'.
+
+* The code for setting up a connection to an X server (file `src/socket.d')
+  has been completely rewritten.
+
+* Miscellaneous documentation updates.
 
 
 27 September 1993
@@ -1804,6 +2472,25 @@ User visible changes
 
 * DEFGENERIC is more tolerant about invalid declarations.
 
+Portability
+-----------
+
+* Added Dynix/ptx Sequent support. Thanks to Esther Davis.
+
+* Added support for RS/6000 CPU and AIX. Thanks to Gabor Herr.
+
+Other modifications
+-------------------
+
+* Made the memory allocation and (ROOM), (TIME ...) more virtual memory
+  efficient (less paging on Unix and DOS). Thanks to Don Cohen.
+
+* Added Geoffrey Gordon's "LISP tutorial".
+
+* Renamed stdwin.lsp to stdwin2.lsp.
+
+* Miscellaneous documentation updates.
+
 
 1 September 1993
 ================
@@ -1832,6 +2519,18 @@ User visible changes
 
 * Fixed a bogus error message that occurred when storing an out-of-range
   integer into an array of element-type (UNSIGNED-BYTE 32).
+
+Portability
+-----------
+
+* Added NetBSD support. Thanks to Charles Hannum.
+
+Other modifications
+-------------------
+
+* Added Jeff Dalton's "brief CLOS guide".
+
+* Miscellaneous documentation updates.
 
 
 22 August 1993
@@ -1899,6 +2598,30 @@ User visible changes
 
 * Fixed a bogus error message in the complex number reader.
 
+Portability
+-----------
+
+* The DOS README explains how to run CLISP in the DOS box of Microsoft
+  Windows. Thanks to Ralf Muschall.
+
+* Added Sinix support. Thanks to Manfred Weichel.
+
+* Improved installation on OS/2.
+
+Other modifications
+-------------------
+
+* A function proclaimed INLINE will be taken inline in a wider set of
+  circumstances. (Previously INLINE worked only when that function was being
+  used in the same file or in a file that REQUIREd the file defining the
+  function.)
+
+* The compiler now produces better code for (APPLY (FUNCTION fun) args).
+
+* Changed the default memory size from 2 megabytes to 2.5 megabytes.
+
+* Miscellaneous documentation updates.
+
 
 17 July 1993
 ============
@@ -1929,6 +2652,18 @@ User visible changes
 * Fixed a bug in the compiler that caused the compiler to crash by endless
   recursion and stack overflow when compiling assignments to symbol macros.
 
+Portability
+-----------
+
+* Added support for m88000 CPU.
+
+* Amiga version: detect 68000 CPU, for better use of present memory.
+
+Other modifications
+-------------------
+
+* Miscellaneous documentation updates.
+
 
 29 June 1993
 ============
@@ -1957,6 +2692,22 @@ User visible changes
 * Fixed a bug: The functions REMOVE-DUPLICATES and DELETE-DUPLICATES produced
   an out-of-bounds error when called on a small sequence, with :FROM-END T
   argument and without :END argument.
+
+Portability
+-----------
+
+* Updated support for DJGPP.
+
+Other modifications
+-------------------
+
+* The macros SETF, PUSH, POP, PUSHNEW have been completely rewritten.
+
+* Changed internal representation of special form handlers: They now consume
+  regular memory. This frees one type tag, which will be used by CLOS
+  instances.
+
+* Miscellaneous documentation updates.
 
 
 24 May 1993
@@ -2002,11 +2753,41 @@ User visible changes
 
 * Corrected the branch cuts of the complex ATAN and ATANH functions.
 
+Portability
+-----------
+
+* 68000 and other versions: Fixed a bug in the low-level division algorithm.
+
+* Mips and Vax versions: Finished the low-level number crunching routines.
+
+* Added Ultrix support.
+
+* Added Coherent support.
+
+* Finished Sun3 support.
+
+Other modifications
+-------------------
+
+* The file `src/defs2.lsp' contains a list of X3J13 votes and their current
+  status in CLISP.
+
+* The file `src/foreign.txt' documents how to do function calls to foreign
+  language routines from within CLISP.
+
+* Miscellaneous documentation updates.
+
 
 5 April 1993
 ============
 
-None.
+Portability
+-----------
+
+* 68000/68020 versions: Fixed some bugs in the low-level number crunching
+  routines.
+
+* Improved efficiency of the WIDE tagging scheme.
 
 
 30 March 1993
@@ -2030,6 +2811,19 @@ User visible changes
 * Fixed TRACE so that functions calling TRACE are correctly handled by
   COMPILE-FILE.
 
+Portability
+-----------
+
+* Unix version: Correct handling of system calls that are interrupted
+  by signals.
+
+* Finished IRIX support.
+
+Other modifications
+-------------------
+
+* Miscellaneous documentation updates.
+
 
 19 March 1993
 =============
@@ -2038,6 +2832,34 @@ User visible changes
 --------------------
 
 * Replaced variable *TEMPFILE* by a function EDITOR-TEMPFILE.
+
+Portability
+-----------
+
+* Unix version: Corrected detection of ANSI C header files.
+
+* Unix version: Check whether signal handlers are automatically reinstalled
+  when activated.
+
+* Made readline library ANSI C compliant and (on Unix) auto-configuring.
+
+* In case there is no room for three extra bits in a symbol pointer,
+  allocate three stack words per binding in a VAR frame (instead of two stack
+  words). This completes the Amiga 3000/4000 version.
+
+* Completed memory model SPVW_PURE_BLOCKS: There is a large contiguous memory
+  area for each kind of Lisp object. This model is used only if memory can
+  be allocated at prescribed addresses, for example on Unix with mmap().
+
+* More 386BSD support.
+
+Other modifications
+-------------------
+
+* Remove limit on the number of files that may be specified on the command
+  line. Limit was 1000.
+
+* Miscellaneous documentation updates.
 
 
 4 March 1993
@@ -2056,6 +2878,18 @@ User visible changes
 
 * Unix, Amiga, OS/2 versions: When a pathname is to be fully specified, no
   subdirectory wildcard "**/" or ".../" is allowed. Check this.
+
+Portability
+-----------
+
+* Corrected underflow detection in SCALE-FLOAT on 16-bit processors.
+
+* Atari ST version: fixed getenv(), wrote INSTALL instructions.
+
+Other modifications
+-------------------
+
+* Miscellaneous documentation updates.
 
 
 21 February 1993
@@ -2077,11 +2911,38 @@ User visible changes
 
 * Amiga version: Renamed REXX-WAIT-COMMAND to REXX-WAIT-SENT-COMMAND.
 
+Portability
+-----------
+
+* On HP-UX: Use /bin/ksh for shell scripts instead of the buggy /bin/sh.
+
+* Now compiles on IRIX using CC="cc -ansi".
+
+* Added 386BSD support.
+
+Other modifications
+-------------------
+
+* Miscellaneous documentation updates.
+
 
 3 February 1993
 ===============
 
-None.
+Portability
+-----------
+
+* Support for 386 UHC UNIX System V release 4 now works.
+
+Other modifications
+-------------------
+
+* lispbibl.d: Rename macro `untype' to `upointer', `type_untype_object' to
+  `type_pointer_object'.
+
+* lispbibl.d: Clean up selection of type code and frame code tables.
+
+* Remove init streams. Use string input streams instead.
 
 
 1 February 1993
@@ -2098,6 +2959,34 @@ User visible changes
 * Pathnames resulting from OPEN on special files are now called
   "file handle streams", they are unbuffered file streams.
   They can now be used as argument in situations where a pathname is expected.
+
+Portability
+-----------
+
+* The `target' and `configure' scripts no longer depend on awk.
+
+* Support Sun4 with 32 bit address range (kernel architecture "Sun4m") as
+  well as Sun4 with 29 bit address range (kernel architecture "Sun4", "Sun4c).
+
+* Can now exploit the shared memory facilities of SunOS 4.1 and of Linux.
+
+* Added support for 386 UHC UNIX System V release 4.
+
+Other modifications
+-------------------
+
+* Implemented memory model SPVW_PURE_PAGES where memory is divided
+  into many small pages each containing objects of the same type.
+
+* Fixed up source for systems without window streams.
+
+* lispbibl.d, constobj.d: reorder the stream types such that the test for
+  file stream becomes faster.
+
+* /usr/local/lib/aclocal.m4, configure.in, unixconf.h.in: prefix my own local
+  macros by CL_ instead of AC_.
+
+* Miscellaneous documentation updates.
 
 
 11 January 1993
@@ -2124,9 +3013,66 @@ User visible changes
 * stream.d, readline/readline.[ch]: exported rl_deprep_terminal such that a
   failing call to xmalloc() can now signal an ordinary error instead of exiting.
 
+Portability
+-----------
+
+* Rewrote makemake.in using indentation.
+
+* /usr/local/lib/aclocal.lsp: fixed AC_SYS_ERRLIST (m4 bug?) and AC_RENAME,
+  improved AC_SELECT and added AC_SETITIMER.
+
+* spvw.d: implement ualarm for Unix with interval timers, e.g. HP/UX or Linux.
+
+* Remove support for Linux 0.12.
+
+Other modifications
+-------------------
+
+* Language (DEUTSCH resp. ENGLISH) can now be set from CFLAGS, without
+  modifying lispbibl.d.
+
+* _README translated into german.
+
+* Renamed clispsrc.1 to FILES.1.
+
+* Renamed pseudofu.d to pseudofun.d.
+
+* Sun4 version: merged il_sparc.il into cc_sparc.il.
+
+* lispbibl.d: use an enum type to get the stream types converted
+  to consecutive numbers without risking clashes.
+
+* intgcd.d: found algorithm for binary extended gcd.
+
+* intlog.d: make use of 80386 instruction "bsfl" where possible.
+
+* lispbibl.d: let gcc2 on 680x0 emit "dbra" instructions.
+
+* spvw.d: use IPC_PRIVATE as key for all shared memory segments.
+
+* avl.d: don't generate code for unused functions insert and delete.
+
+* Miscellaneous documentation updates.
+
 
 1 January 1993
 ==============
 
-Release of first portable version of CLISP.
+Release of the first portable version of CLISP.
+It now compiles and runs under
+* Atari ST
+* Amiga 500-2000
+* DOS
+* OS/2 2.0
+* Linux
+* Sun4
+* Sun386
+* HP9000/800
 
+Now that the tests passed, I hope I'll never again have to remove a serious
+bug.
+
+Local Variables:
+mode: text
+coding: utf-8
+end:
