@@ -204,8 +204,8 @@
 ;; ifdef USE_SSL
 ;; (def-call-out PQgetssl (:arguments (conn PGconn)) (:return-type SSL))
 (def-call-out PQgetssl (:arguments (conn PGconn)) (:return-type c-pointer))
-;; Tell libpq whether it needs to initialize OpenSSL
-(def-call-out PQinitSSL (:return-type nil) (:arguments (do_init int)))
+;; Tell libpq whether it needs to initialize OpenSSL (not in libpq 8.0)
+;(def-call-out PQinitSSL (:return-type nil) (:arguments (do_init int)))
 
 (def-call-out PQsetErrorVerbosity (:return-type PGVerbosity)
   (:arguments (conn PGconn) (verbosity PGVerbosity)))
