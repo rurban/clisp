@@ -1,5 +1,12 @@
 1999-06-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * room.lsp (room, space-tabulate): Use *print-right-margin* instead of
+          sys::*prin-linelength* when it is non-NIL.
+        * describe.lsp (describe): Likewise.
+        * compiler.lsp (compile-file): Likewise.
+
+1999-06-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * describe.lsp (describe-slotted-object, describe-object, describe,
            describe-signature): Fix amount of indentation white space.
           (describe): Bind *describe-nesting* instead of setting it. This
