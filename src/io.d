@@ -6561,9 +6561,9 @@ local void pr_enter_1 (const object* stream_, object obj,
         var object indent = Fixnum_0;
         if (mconsp(top)) { # if :FILL and the next string fits the line
           STACK_0 = Cdr(STACK_0);
-          if (modus_single_p ||
-              (eq(PPHELP_NL_TYPE(top),S(Kfill)) &&
-               string_fit_line_p(STACK_0,*stream_,0)))
+          if (modus_single_p
+              || (eq(PPHELP_NL_TYPE(top),S(Kfill))
+                  && string_fit_line_p(STACK_0,*stream_,0)))
             goto skip_NL;
           indent = PPHELP_INDENTN(top);
           if (!mconsp(STACK_0)) break; # end of stream
@@ -6572,10 +6572,10 @@ local void pr_enter_1 (const object* stream_, object obj,
           if (!mconsp(STACK_0)) break; # end of stream
           # if the next object is not a NL then indent
           var uintL num_space = PPH_FORMAT_TAB(*stream_,top);
-          if (modus_single_p || stringp(Car(STACK_0)) ||
-              (mconsp(Car(STACK_0)) &&  # ignored NL
-               (eq(PPHELP_NL_TYPE(Car(STACK_0)),S(Kfill)) &&
-                string_fit_line_p(Cdr(STACK_0),*stream_,num_space)))) {
+          if (modus_single_p || stringp(Car(STACK_0))
+              || (mconsp(Car(STACK_0))  # ignored NL
+                  && (eq(PPHELP_NL_TYPE(Car(STACK_0)),S(Kfill))
+                      && string_fit_line_p(Cdr(STACK_0),*stream_,num_space)))) {
             spaces(stream_,fixnum(num_space));
             goto skip_NL;
           } else if (mconsp(Car(STACK_0))) # set indent

@@ -288,9 +288,9 @@ local void open_reg_key (HKEY hkey, char* path, direction_t dir,
   begin_system_call();
   status = RegOpenKeyEx(hkey,path,0,perms,p_hkey);
   if (status != ERROR_SUCCESS) {
-    if ((if_not_exists == IF_DOES_NOT_EXIST_UNBOUND /*ignore*/) ||
-        ((status == ERROR_FILE_NOT_FOUND) &&
-         (if_not_exists != IF_DOES_NOT_EXIST_ERROR))) {
+    if ((if_not_exists == IF_DOES_NOT_EXIST_UNBOUND /*ignore*/)
+        || ((status == ERROR_FILE_NOT_FOUND)
+            && (if_not_exists != IF_DOES_NOT_EXIST_ERROR))) {
       switch (if_not_exists) {
         case IF_DOES_NOT_EXIST_NIL: case IF_DOES_NOT_EXIST_UNBOUND:
           *p_hkey = NULL; break;
