@@ -1331,6 +1331,9 @@ fi
 if [ $TSYS = master -o $TOS = acorn ] ; then
   CPARTS=$CPARTS' acornaux acornsig'
 fi
+if test -n "$with_export_syscalls"; then
+  CPARTS=$CPARTS' posixmisc';
+fi
 
 EVERY_INCLUDES='lispbibl fsubr subr pseudofun constsym constobj '$OS_INCLUDES
 
