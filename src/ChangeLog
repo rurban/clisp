@@ -1,5 +1,10 @@
 1999-05-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw.d (init_symbol_values): Don't call a function here, too early.
+          (initmem): Call SYS::SET-ANSI here.
+
+1999-05-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
          * lispbibl.d (stream_fd): Move declaration.
          * stream.d (stream_fd): Move function.
 
