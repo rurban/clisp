@@ -1,7 +1,7 @@
 2002-11-06  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-FORMAT): when destination is T, pass
-	*STANDARD-OUTPUT* to the value of the FORMATER call, not NIL;
+	*STANDARD-OUTPUT* to the value of the FORMATTER call, not NIL;
 	also treat destination NIL specially
 
 2002-11-05  Sam Steingold  <sds@gnu.org>
@@ -141,7 +141,7 @@
 	* pathname.d (assure_dir_exists) [WIN32_NATIVE]:
 	handle situation when dir exists but filename does not.
 	(directory_search_scandir) [WIN32_NATIVE]: return symbolic
-	name for nonexisting targets.
+	name for nonexistent targets.
 
 2002-10-22  Sam Steingold  <sds@gnu.org>
 
@@ -473,7 +473,7 @@
 	(SPECIAL-VARIABLE-P): accept an optional second argument
 	- the environment (NIL for global, T for local, VENV, or ENV5)
 	moved here from symbol.d because it uses symbol_env_search()
-	* subr.d (SPECIAL-VARIABLE-P): changed the signagure
+	* subr.d (SPECIAL-VARIABLE-P): changed the signature
 	* constobj.d (version): bumped because SPECIAL-VARIABLE-P is in FUNTAB
 	* symbol.d (SPECIAL-VARIABLE-P): moved to eval.d
 	* compiler.lisp (subr-info) [CROSS]: updated the signature
@@ -502,7 +502,7 @@
 
 	Bring (directory) to compliance with new win32 shortcut handling.
 	* pathname.d [WIN32_NATIVE]:
-	(resolve_shell_shortcut): changed parameters and symantics to
+	(resolve_shell_shortcut): changed parameters and semantics to
 	lower level (symlink is based on shortcuts which is
 	an implementation method).
 	(resolve_shell_symlink): use it, work as old
@@ -669,7 +669,7 @@
 	(R_R_log_R): handle these changes
 	* realelem.d (N_N_contagion_R, F_R_float_F, RA_R_float_F)
 	(R_R_float_F, C_R_float_C, N_N_float_N): new functions
-	* lisparit.d (EXP, EXPT, log_digits): accomodate the changes in
+	* lisparit.d (EXP, EXPT, log_digits): accommodate the changes in
 	signatures of the basic transcendental functions
 	* comptran.d (N_exp_N, N_log_N): accept start_p and end_p
 	(N_N_log_N, N_N_expt_N, N_sin_N, N_cos_N, N_tan_N, N_cis_N)
@@ -898,7 +898,7 @@
 	(FILE-WRITE-DATE, FILE-AUTHOR, EXECUTE): use true_namestring()
 	(NAMESTRING2, FILENAME_ACTION): removed
 	(copy_attributes_and_close): converted from copy_attributes()
-	(copy_file_low): do NOT do pathname mergind and resolving
+	(copy_file_low): do NOT do pathname merging and resolving
 	(copy_one_file): do it here
 	(COPY-FILE): return 2 values: file count and byte count
 
@@ -917,7 +917,7 @@
 
 	* install.lisp: add a URL shortcut to CLISP home to the desktop
 	* makemake.in (TXT_FILES): make clisp.c on all systems
-	(needs): drop .clisp and .clisp-full infavor of clisp.c
+	(needs): drop .clisp and .clisp-full in favor of clisp.c
 	(IMPNOTES_FILES) [win32]: added clisp.ico
 	(clisp): new target
 	* doc/clisp.ico: new file
@@ -1436,7 +1436,7 @@
 	with CHART_STRUCT.
 	* charstrg.d (copy_string, subsstring, SUBSTRING, string_concat):
 	Likewise.
-	* io.d (write_sstring_case): LIkewise.
+	* io.d (write_sstring_case): Likewise.
 	* lisparit.d (decimal_string): Likewise.
 	* pathname.d (Z_AT_SLASH): Fix for changed return type of schar.
 	(wildcard_diff_ab): Likewise.
@@ -2496,7 +2496,7 @@
 2002-05-20  Bruno Haible  <bruno@clisp.org>
 
 	Remove gcc-3.0.4 warning.
-	* eval.d (LD, LR): Don't use CONCAT to paste strings; justaposing the
+	* eval.d (LD, LR): Don't use CONCAT to paste strings; juxtaposing the
 	strings is sufficient.
 
 2002-05-19  Sam Steingold  <sds@gnu.org>
@@ -2802,7 +2802,7 @@
 
 2002-04-22  Sam Steingold  <sds@gnu.org>
 
-	do not go into an edless loop on `clisp -x '(assert nil)'`
+	do not go into an endless loop on `clisp -x '(assert nil)'`
 	* condition.lisp (assert): name the interactive CONTINUE restart
 	functions for the benefit of APPEASE-CERRORS and MUFFLE-CERRORS
 	(assert-restart-no-prompts, maybe-continue, muffle-cerror):
@@ -2815,7 +2815,7 @@
 
 	fixed bug #[ 547046 ]: compiler-macro -> no special-operator
 	* compiler.lisp (c-form): call EXPAND-COMPILER-MACRO before
-	checking C-FORM-TABLE to accomodate expanding to a special form
+	checking C-FORM-TABLE to accommodate expanding to a special form
 
 2002-04-22  Sam Steingold  <sds@gnu.org>
 
@@ -3088,7 +3088,7 @@
 	* init.lisp (%expand-form): do not conflate COMPILE and
 	:COMPILE-TOPLEVEL situations
 	* compiler.lisp (c-EVAL-WHEN): do not conflate LOAD with
-	:LOAD-TOLEVEL and COMPILE with :COMPILE-TOPLEVEL
+	:LOAD-TOPLEVEL and COMPILE with :COMPILE-TOPLEVEL
 
 2002-03-21  Sam Steingold  <sds@gnu.org>
 
@@ -3098,7 +3098,7 @@
 2002-03-21  Will Newton  <will@misconception.org.uk>
 
 	fixed bug #[ 501963 ]: FFCALL cannot be built with GCC 3.0
-	When compiling with -O2 or better, the configure test for pcc
+	When compiling with -O2 or better, the configure test for PCC
 	non-reentrant struct return convention is optimized away and
 	always returns true. This causes avcall to believe it can use PCC
 	when it cannot - and so bad things happen.
@@ -3131,7 +3131,7 @@
 
 2002-03-18  Sam Steingold  <sds@gnu.org>
 
-	* spvw.d (main): void domain for the -E command line argment
+	* spvw.d (main): void domain for the -E command line argument
 	means all 5 domains
 
 2002-03-18  Sam Steingold  <sds@gnu.org>
@@ -3172,7 +3172,7 @@
 
 	* describe.lisp (describe-object): FOREIGN-POINTER is present
 	when UNIX or DIR-KEY are present too;
-	handle FOREIGN-FUNCTION only under FUNCTION, not undet T too, and
+	handle FOREIGN-FUNCTION only under FUNCTION, not under T too, and
 	print its full foreign type
 
 2002-03-15  Sam Steingold  <sds@gnu.org>
@@ -3185,7 +3185,7 @@
 	(match_subr_key, match_cclosure_key): use fehler_too_many_args()
 	(fehler_apply_[zuviel/zuwenig]): unchanged for now: it is unclear
 	how to keep enough info for a good error message without taking a
-	performane hit in apply_*()
+	performance hit in apply_*()
 	(fehler_apply_dotted): accept another argument -
 	the arglist terminator
 
@@ -3228,9 +3228,9 @@
 2002-03-12  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 527380 ]: encoding :output-error-action :ignore broken
-	* encoding.d (nls_wcslen): synch with nls_wcstombs() wrt
+	* encoding.d (nls_wcslen): sync with nls_wcstombs() wrt
 	ignoring errors (i.e., return the correct number of dest bytes)
-	(nls_asciiext_wcslen): synch with nls_asciiext_wcstombs() wrt
+	(nls_asciiext_wcslen): sync with nls_asciiext_wcstombs() wrt
 	ignoring errors (i.e., return the correct number of dest bytes)
 	(nls_wcstombs, nls_asciiext_wcstombs): handle ignored errors
 	properly (and do not require the same SRC and DEST count)
@@ -3527,7 +3527,7 @@
 	concomitant macros
 	(if_recordp): Rectype_WeakKVT is not a record
 	(allocate_weakkvt): declare
-	(map_hashtable, map_hashtable_nogc): accomodate weak hash-tables
+	(map_hashtable, map_hashtable_nogc): accommodate weak hash-tables
 	(case_array, case_Rectype_array_above): added WeakKVT
 	* places.lisp (hash-table-weak-p): added defsetf
 	* predtype.d (CLASS-OF, TYPE-OF, heap_statistics_mapper):
@@ -3589,8 +3589,8 @@
 	* misc.d, spvw_memfile.d (software_version_string): removed the
 	cache (language-dependent)
 	* i18n.d (TEXT): use CLSTEXT() instead of localized_string()
-	* gettext/po/clisp-xgettext: accomodate these changes: search for
-	CLSTEXT and CLOTEXT in *.d and for TEXT inin *.lisp
+	* gettext/po/clisp-xgettext: accommodate these changes: search for
+	CLSTEXT and CLOTEXT in *.d and for TEXT in *.lisp
 	* gettext/po/Makefile.devel (GMSGFMT): set to msgfmt, since GNU
 	gettext does not install gmsgfmt, and require GNU gettext
 	(clean): remove tmp
@@ -3623,13 +3623,13 @@
 	* constsym.d, subr.d (language): removed
 	(set_current_language, text): added
 	* encoding.d (init_encodings): split into init_encodings_1() and
-	init_encodings_2() to accomodate non-ASCII symbol names
+	init_encodings_2() to accommodate non-ASCII symbol names
 	* i18n.d (SET-CURRENT-LANGUAGE): new function
 	(LANGUAGE): replaced with TEXT
 	* lispbibl.d (init_encodings_1, init_encodings_2):
 	replace init_encodings()
 	(init_language): global now (called by SET-CURRENT-LANGUAGE)
-	* spvw.d (init_symbol_tab_2): accomodate non-ASCII symbols
+	* spvw.d (init_symbol_tab_2): accommodate non-ASCII symbols
 	(initmem): call init_encodings_1() and init_encodings_2()
 	around init_symbol_tab_2()
 	(main): init O(current_language)
@@ -3659,7 +3659,7 @@
 2002-02-22  Sam Steingold  <sds@gnu.org>
 
 	* install.lisp (*clisp-base-cmd*, *clisp-cmd*): surround
-	pathnames with quotes to accomodate "c:/Program Files/CLISP/" &c
+	pathnames with quotes to accommodate "c:/Program Files/CLISP/" &c
 	(*clisp-home*): convert backslashes to forward slashes
 
 2002-02-21  Sam Steingold  <sds@gnu.org>
@@ -4064,7 +4064,7 @@
 	* package.d (cerror_package_locked): new function
 	(check_pack_lock, safe_check_pack_lock): new macros
 	(intern, shadowing_import, shadow, unintern, unexport, export)
-	(use_package, RENAME-PACKAGE): check pakcage lock
+	(use_package, RENAME-PACKAGE): check package lock
 	(PACKAGE-LOCK, %SET-PACKAGE-LOCK, CHECK-PACKAGE-LOCK): implemented
 	* subr.d, constsym.d (package_lock, set_package_lock)
 	(check_package_lock): added
@@ -4169,7 +4169,7 @@
 2002-01-03  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (OGETTEXT): new macro
-	* gettext/po/clisp-xgettext: recongnize the new OGETTEXT macro
+	* gettext/po/clisp-xgettext: recognize the new OGETTEXT macro
 
 2001-12-26  Stefan Kain  <stefan.kain@freenet.de>
 
@@ -4820,7 +4820,7 @@
 	(multi_line_sub_block_out): new function
 	(justify_end_eng, justify_end_weit): use it
 	(space_available, pphelp_length, string_fit_line_p): new functions
-	(pr_enter_1): accomodate the new strm_pphelp_strings format
+	(pr_enter_1): accommodate the new strm_pphelp_strings format
 	(PPRINT-NEWLINE): implemented non-mandatory newlines
 	(FORMAT-TABULATE): moved here from format.lisp
 
@@ -4990,7 +4990,7 @@
 
 	win32gcc names libraries libFOO.a and not FOO.LIB
 	* makemake.in (LIB_TYPE): new variable, used instead of $HOS
-	in creating library dependecies
+	in creating library dependencies
 
 2001-08-27  Sam Steingold  <sds@gnu.org>
 
@@ -5165,7 +5165,7 @@
 2001-08-21  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 446942 ]
-	* makemake.in (DISTFILE): isulate from AIX uname which does not
+	* makemake.in (DISTFILE): insulate from AIX uname which does not
 	have the -p option
 
 2001-08-21  Sam Steingold  <sds@gnu.org>
@@ -5809,7 +5809,7 @@
 
 2001-06-25  Bruno Haible  <haible@clisp.cons.org>
 
-	* condition.lisp (handler-case): After signalling a warning for
+	* condition.lisp (handler-case): After signaling a warning for
 	duplicated :NO-ERROR clause, don't treat it like a regular clause.
 
 2001-06-16  Bruno Haible  <haible@clisp.cons.org>
@@ -5893,7 +5893,7 @@
 	some symbols appeared in wrong packages - fix this
 	* compiler.lisp (function-signature): FOREIGN-FUNCTION is in FFI
 	* constobj.d: added package prefixes to non-CL symbols
-	* constsym.d (MACRO): all ttype designators are in EXT
+	* constsym.d (MACRO): all type designators are in EXT
 	* describe.d: FOREIGN-FUNCTION, FOREIGN-VARIABLE, FOREIGN-ADDRESS
 	are in FFI, FOREIGN-POINTER is in EXT
 	* foreign1.lisp: export FOREIGN-* from FFI
@@ -5937,7 +5937,7 @@
 
 2001-06-11  Sam Steingold  <sds@gnu.org>
 
-	* compiler.lisp (compile-file-pathname-helper): thweak the
+	* compiler.lisp (compile-file-pathname-helper): tweak the
 	2001-05-30 patch making sure FILE is treated as a pathname
 
 2001-06-09  Sam Steingold  <sds@gnu.org>
@@ -6080,7 +6080,7 @@
 2001-05-24  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (merge-pathnames): if PATHNAME is a logical
-	namestring, while DEFAULT is a physical pathname, coerse DEFAULT
+	namestring, while DEFAULT is a physical pathname, coerce DEFAULT
 	to logical using whole_namestring().
 
 2001-05-24  Sam Steingold  <sds@gnu.org>
@@ -6627,7 +6627,7 @@
 	* cfgwin32.lisp (*clhs-root-default*): Likewise.
 	* makemake.in (HSDEFAULT): Likewise.
 	(hyperspec): Check existence of directory if it's an absolute
-	directory. Remove trailing slash afterwards.
+	directory. Remove trailing slash afterward.
 	* clhs.lisp (clhs): Accept a clhs-root with or without trailing slash.
 
 2001-03-20  Bruno Haible  <haible@clisp.cons.org>
@@ -6776,7 +6776,7 @@
 	(translate_host): respect and expect `:host' in `subst'
 	(translate_device): respect and expect `:device' in `subst'
 	also, added a pathname translation debugging infrastructure
-	also, translated some German coments
+	also, translated some German comments
 
 2001-03-09  Sam Steingold  <sds@gnu.org>
 
@@ -8771,7 +8771,7 @@
 1999-09-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
 	* stream.d (iconv_wcslen, iconv_wcstombs): Call end_system_call()
-	  before signalling an error.
+	  before signaling an error.
 
 1999-09-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
@@ -15433,7 +15433,7 @@
 
 	Implement the new :execute, :load-toplevel and :compile-toplevel
 	keywords for eval-when as synonyms for eval, load and compile
-	respectively.  The symantics is old.
+	respectively.  The semantics is old.
 	* constsym.d: add :execute, :load-toplevel and :compile-toplevel
 	  keywords.
 	* control.d (eval_when): handle :execute and :compile-toplevel.
@@ -16307,7 +16307,7 @@
 1998-03-12  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
 	* loop.lsp (expand-loop): Emit the REPEAT decrement before its
-	  end test, not afterwards.
+	  end test, not afterward.
 	* loop.tst: A new test.
 
 1998-03-11  Pierpaolo Bernardi  <bernardp@cli.di.unipi.it>
