@@ -55,12 +55,12 @@
 # Ergebnis ist die UDS MSDptr/len/LSDptr, mit len=2*len1, im Stack.
 # Dabei wird num_stack erniedrigt.
   #define UDS_square_UDS(len1,LSDptr1, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung)  \
-    { var uintL len_from_UDSmal = 2*(uintL)(len1);                                                 \
-      var uintD* LSDptr_from_UDSmal;                                                               \
-      if ((intWCsize < 32) && (len_from_UDSmal > (uintL)(bitc(intWCsize)-1))) { mal_ueberlauf(); } \
-      unused (len_zuweisung len_from_UDSmal);                                                      \
-      num_stack_need(len_from_UDSmal,MSDptr_zuweisung,LSDptr_zuweisung LSDptr_from_UDSmal =);      \
-      square_2loop_down((LSDptr1),(len1),LSDptr_from_UDSmal);                                      \
+    { var uintL len_from_UDSmal = 2*(uintL)(len1);                                            \
+      var uintD* LSDptr_from_UDSmal;                                                          \
+      if ((intWCsize < 32) && (len_from_UDSmal > (uintL)(bitc(intWCsize)-1))) { RESTORE_NUM_STACK; mal_ueberlauf(); } \
+      unused (len_zuweisung len_from_UDSmal);                                                 \
+      num_stack_need(len_from_UDSmal,MSDptr_zuweisung,LSDptr_zuweisung LSDptr_from_UDSmal =); \
+      square_2loop_down((LSDptr1),(len1),LSDptr_from_UDSmal);                                 \
     }
 
 # Quadrier-Doppelschleife:
@@ -247,8 +247,7 @@
           if (x_ < 0) { hi -= 2*(uint32)x_; } # dann Korrektur für Vorzeichen
           return L2_to_I(hi,lo);
         }}
-     {SAVE_NUM_STACK # num_stack retten
-      var uintD* xMSDptr;
+     {var uintD* xMSDptr;
       var uintC xlen;
       var uintD* xLSDptr;
       var uintD* ergMSDptr;
@@ -257,20 +256,22 @@
       I_to_NDS_nocopy(x, xMSDptr = , xlen = , xLSDptr = );
       erglen = 2*xlen;
       if ((intWCsize < 32) && (erglen > (uintL)(bitc(intWCsize)-1))) { mal_ueberlauf(); }
-      num_stack_need(erglen, ergMSDptr = , ergLSDptr = );
-      begin_arith_call();
-      { var uintC len = xlen;
-        var uintD MSD = xMSDptr[0];
-        if (MSD == 0) { ergMSDptr[0] = 0; ergMSDptr[1] = 0; len--; }
-        square_2loop_down(xLSDptr,len,ergLSDptr);
-        if ((sintD)MSD < 0)
-          { subfrom_loop_down(xLSDptr,ergLSDptr-xlen,xlen);
-            subfrom_loop_down(xLSDptr,ergLSDptr-xlen,xlen);
-      }   }
-      end_arith_call();
-      RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-      return DS_to_I(ergMSDptr,erglen);
-    }}
+      {SAVE_NUM_STACK # num_stack retten
+       num_stack_need(erglen, ergMSDptr = , ergLSDptr = );
+       begin_arith_call();
+       { var uintC len = xlen;
+         var uintD MSD = xMSDptr[0];
+         if (MSD == 0) { ergMSDptr[0] = 0; ergMSDptr[1] = 0; len--; }
+         square_2loop_down(xLSDptr,len,ergLSDptr);
+         if ((sintD)MSD < 0)
+           { subfrom_loop_down(xLSDptr,ergLSDptr-xlen,xlen);
+             subfrom_loop_down(xLSDptr,ergLSDptr-xlen,xlen);
+       }   }
+       end_arith_call();
+       {var object result = DS_to_I(ergMSDptr,erglen);
+        RESTORE_NUM_STACK # num_stack zurück
+        return result;
+    }}}}
 
 # Multipliziert zwei Unsigned-Digit-sequences.
 # UDS_UDS_mal_UDS(len1,LSDptr1, len2,LSDptr2, MSDptr=,len=,LSDptr=);
@@ -279,12 +280,12 @@
 # Ergebnis ist die UDS MSDptr/len/LSDptr, mit len=len1+len2, im Stack.
 # Dabei wird num_stack erniedrigt.
   #define UDS_UDS_mal_UDS(len1,LSDptr1,len2,LSDptr2, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung)  \
-    { var uintL len_from_UDSmal = (uintL)(len1) + (uintL)(len2);                                   \
-      var uintD* LSDptr_from_UDSmal;                                                               \
-      if ((intWCsize < 32) && (len_from_UDSmal > (uintL)(bitc(intWCsize)-1))) { mal_ueberlauf(); } \
-      unused (len_zuweisung len_from_UDSmal);                                                      \
-      num_stack_need(len_from_UDSmal,MSDptr_zuweisung,LSDptr_zuweisung LSDptr_from_UDSmal =);      \
-      mulu_2loop_down((LSDptr1),(len1),(LSDptr2),(len2),LSDptr_from_UDSmal);                       \
+    { var uintL len_from_UDSmal = (uintL)(len1) + (uintL)(len2);                              \
+      var uintD* LSDptr_from_UDSmal;                                                          \
+      if ((intWCsize < 32) && (len_from_UDSmal > (uintL)(bitc(intWCsize)-1))) { RESTORE_NUM_STACK; mal_ueberlauf(); } \
+      unused (len_zuweisung len_from_UDSmal);                                                 \
+      num_stack_need(len_from_UDSmal,MSDptr_zuweisung,LSDptr_zuweisung LSDptr_from_UDSmal =); \
+      mulu_2loop_down((LSDptr1),(len1),(LSDptr2),(len2),LSDptr_from_UDSmal);                  \
     }
 
 # Multiplikations-Doppelschleife:
@@ -654,8 +655,7 @@
           if (y_ < 0) { hi -= (uint32)x_; } # (vgl. DS_DS_mal_DS)
           return L2_to_I(hi,lo);
         }}
-     {SAVE_NUM_STACK # num_stack retten
-      var uintD* xMSDptr;
+     {var uintD* xMSDptr;
       var uintC xlen;
       var uintD* xLSDptr;
       I_to_NDS_nocopy(x, xMSDptr = , xlen = , xLSDptr = );
@@ -663,14 +663,16 @@
        var uintC ylen;
        var uintD* yLSDptr;
        I_to_NDS_nocopy(y, yMSDptr = , ylen = , yLSDptr = );
-       {var uintD* ergMSDptr;
+       {SAVE_NUM_STACK # num_stack retten
+        var uintD* ergMSDptr;
         var uintC erglen;
         begin_arith_call();
         DS_DS_mal_DS(xMSDptr,xlen,xLSDptr,yMSDptr,ylen,yLSDptr, ergMSDptr=,erglen=,);
         end_arith_call();
-        RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-        return DS_to_I(ergMSDptr,erglen);
-    }}}}
+        {var object result = DS_to_I(ergMSDptr,erglen);
+         RESTORE_NUM_STACK # num_stack zurück
+         return result;
+    }}}}}
 
 # (EXPT x y), wo x Integer, y Integer >0 ist.
 # can trigger GC

@@ -301,11 +301,8 @@ LISPFUN(read_eval_print,1,1,norest,nokey,0,NIL)
       Symbol_value(S(break_count)) = Fixnum_0; # SYS::*BREAK-COUNT* := 0
       # dann einen Driver-Frame aufbauen:
       { var object* top_of_frame = STACK; # Pointer übern Frame
-        var DRIVER_frame_data returner_and_data; # Rücksprungpunkt merken
-        #ifdef HAVE_NUM_STACK
-        returner_and_data.old_NUM_STACK_normal = NUM_STACK_normal;
-        #endif
-        finish_entry_frame(DRIVER,&!returner_and_data.returner,,;);
+        var sp_jmp_buf returner; # Rücksprungpunkt merken
+        finish_entry_frame(DRIVER,&!returner,,;);
         # Hier ist der Einsprungpunkt.
         loop
           { # (SYS::READ-EVAL-PRINT "> ") ausführen:
@@ -326,18 +323,9 @@ LISPFUN(read_eval_print,1,1,norest,nokey,0,NIL)
     { pushSTACK(continuable);
      {var object driverfun = Symbol_value(S(break_driver)); # Wert von *BREAK-DRIVER*
       if (!nullp(driverfun))
-        {
-          #ifdef HAVE_NUM_STACK
-          var uintD* old_NUM_STACK = NUM_STACK;
-          var uintD* old_NUM_STACK_normal = NUM_STACK_normal;
-          #endif
-          pushSTACK(STACK_0); funcall(driverfun,1); # mit Argument continuable aufrufen
+        { pushSTACK(STACK_0); funcall(driverfun,1); # mit Argument continuable aufrufen
           if (nullp(popSTACK())) # nicht continuable?
             { reset(); } # -> dann zur nächsten Schleife zurück
-          #ifdef HAVE_NUM_STACK
-          NUM_STACK = old_NUM_STACK;
-          NUM_STACK_normal = old_NUM_STACK_normal;
-          #endif
         }
         else
         { # Default-Driver:
@@ -373,16 +361,9 @@ LISPFUN(read_eval_print,1,1,norest,nokey,0,NIL)
           }
           # Driver-Frame aufbauen:
          {var object* top_of_frame = STACK; # Pointer übern Frame
-          var DRIVER_frame_data returner_and_data; # Rücksprungpunkt merken
-          #ifdef HAVE_NUM_STACK
-          var uintD* old_NUM_STACK = NUM_STACK;
-          returner_and_data.old_NUM_STACK_normal = NUM_STACK_normal;
-          #endif
-          finish_entry_frame(DRIVER,&!returner_and_data.returner,,;);
+          var sp_jmp_buf returner; # Rücksprungpunkt merken
+          finish_entry_frame(DRIVER,&!returner,,;);
           # Hier ist der Einsprungpunkt.
-          #ifdef HAVE_NUM_STACK
-          NUM_STACK_normal = old_NUM_STACK;
-          #endif
           loop
             { # (SYS::READ-EVAL-PRINT Prompt) ausführen:
               pushSTACK(STACK_(0+2)); # Prompt "nnn. Break> "
@@ -391,10 +372,6 @@ LISPFUN(read_eval_print,1,1,norest,nokey,0,NIL)
             }
           if (nullp(STACK_(0+4*3+1+2))) # nicht continuable?
             { unwind(); reset(); } # -> dann zur nächsten Schleife zurück
-          #ifdef HAVE_NUM_STACK
-          NUM_STACK = old_NUM_STACK;
-          NUM_STACK_normal = returner_and_data.old_NUM_STACK_normal;
-          #endif
           skipSTACK(1+2); # Driver-Frame auflösen, Prompt vergessen
           dynamic_unbind(); dynamic_unbind(); dynamic_unbind(); dynamic_unbind();
           skipSTACK(1);

@@ -1217,6 +1217,19 @@
     #define longjmpl(x,y)  (jmpl_value = (y), longjmp(x,1))
   #endif
 
+# An alloca() replacement, used for DYNAMIC_ARRAY and SAVE_NUM_STACK.
+# See spvw_alloca.d.
+#if !((defined(GNU) && !defined(RISCOS) && !defined(CONVEX)) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(WATCOM) || defined(BORLAND) || defined(MICROSOFT))
+  #define NEED_MALLOCA
+  #ifdef HAVE_STDLIB_H
+    #include <stdlib.h>
+  #else
+    #include <sys/types.h>
+  #endif
+  extern void* malloca (size_t size);
+  extern void freea (void* ptr);
+#endif
+
 # Dynamisch allozierte Arrays mit dynamic extent:
 # Beispiel:
 #     { var DYNAMIC_ARRAY(my_array,uintL,n);
@@ -1246,20 +1259,6 @@
   #else
     # Platz woanders reservieren und dann wieder freigeben.
     # { var uintL* my_array = (uintL*)malloc(n*sizeof(uintL)); ... free(my_array); }
-    #ifdef HAVE_STDLIB_H
-      #include <stdlib.h>
-    #else
-      #include <sys/types.h>
-    #endif
-    #ifndef malloc
-      extern_C void* malloc (size_t size); # siehe MALLOC(3V)
-    #endif
-    #ifndef free
-      extern_C void free (void* ptr); # siehe MALLOC(3V)
-    #endif
-    #define NEED_MALLOCA
-    extern void* malloca (size_t size); # siehe SPVW.D
-    extern void freea (void* ptr); # siehe SPVW.D
     #define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  \
       arrayeltype* arrayvar = (arrayeltype*)malloca((arraysize)*sizeof(arrayeltype))
     #define FREE_DYNAMIC_ARRAY(arrayvar)  freea(arrayvar)
@@ -10047,15 +10046,6 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
       NOTREACHED                                                                                                     \
     }
 # wird verwendet von EVAL
-
-# Bei Driver-Frames ist evtl. auch noch der Wert
-# von NUM_STACK_normal vor Aufbau des Frames enthalten:
-  typedef struct { sp_jmp_buf returner; # zuerst - wie bei allen - der jmp_buf
-                   #ifdef HAVE_NUM_STACK
-                   uintD* old_NUM_STACK_normal;
-                   #endif
-                 }
-          DRIVER_frame_data;
 
 # Baut einen HANDLER-Frame mit C-Handler auf.
 # make_HANDLER_frame(types_labels_vector_list,handler,sp_arg);

@@ -1162,8 +1162,8 @@
        #else
        var uintL manthi;
        #endif
-       {SAVE_NUM_STACK # num_stack retten
-        var DS q;
+       SAVE_NUM_STACK # num_stack retten
+       {var DS q;
         var DS r;
         begin_arith_call();
         UDS_divide(&mant1[0],128/intDsize,&mant1[128/intDsize],
@@ -1174,7 +1174,6 @@
         # Es ist 2^53 <= q < 2^55, also q.len = ceiling(54/intDsize)=ceiling(55/intDsize),
         # und r=0 genau dann, wenn r.len=0.
         ASSERT(q.len==ceiling(54,intDsize))
-        RESTORE_NUM_STACK # num_stack zurück
         {var uintD* ptr = q.MSDptr;
          manthi = get_max32_Dptr(23,ptr);
          mantlo = get_32_Dptr(&ptr[ceiling(23,intDsize)]);
@@ -1251,6 +1250,7 @@
           }   }   }
         #endif
        }
+       RESTORE_NUM_STACK # num_stack zurück
        #ifdef intQsize
        encode_DF(sign1,exp1,manthi, return);
        #else
@@ -1294,34 +1294,34 @@
         # e gerade
         { mantx = mantx << (64-(DF_mant_len+1)); }
       exp = exp >> 1; # exp := exp/2
-     {var uintD mant [128/intDsize];
-      set_32_Dptr(mant,(uint32)(mantx>>32)); set_32_Dptr(&mant[32/intDsize],(uint32)mantx);
-        set_32_Dptr(&mant[2*32/intDsize],0); set_32_Dptr(&mant[3*32/intDsize],0);
-      {SAVE_NUM_STACK # num_stack retten
-       var DS wurzel;
-       var boolean exactp;
-       UDS_sqrt(&mant[0],128/intDsize,&mant[128/intDsize], &wurzel, exactp=);
-       # wurzel = isqrt(2^74_75 * mant), eine 64-Bit-Zahl.
-       RESTORE_NUM_STACK # num_stack zurück
-       {var uintD* ptr = wurzel.MSDptr;
-        mantx = ((uint64)get_32_Dptr(ptr) << 32) | (uint64)get_32_Dptr(&ptr[32/intDsize]);
-       }
-       # Die hinteren 63-DF_mant_len Bits wegrunden:
-       if ( ((mantx & bit(62-DF_mant_len)) ==0) # Bit 10 =0 -> abrunden
-            || ( ((mantx & (bit(62-DF_mant_len)-1)) ==0) # Bit 10 =1 und Bits 9..0 >0 -> aufrunden
-                 && exactp                   # Bit 10 =1 und Bits 9..0 =0, aber Rest -> aufrunden
-                 # round-to-even, je nach Bit 11 :
-                 && ((mantx & bit(63-DF_mant_len)) ==0)
-          )    )
-         # abrunden
-         { mantx = mantx >> (63-DF_mant_len); }
-         else
-         # aufrunden
-         { mantx = mantx >> (63-DF_mant_len);
-           mantx += 1;
-           if (mantx >= bit(DF_mant_len+1)) # rounding overflow?
-             { mantx = mantx>>1; exp = exp+1; }
-         }
+      {var uintD mant [128/intDsize];
+       set_32_Dptr(mant,(uint32)(mantx>>32)); set_32_Dptr(&mant[32/intDsize],(uint32)mantx);
+         set_32_Dptr(&mant[2*32/intDsize],0); set_32_Dptr(&mant[3*32/intDsize],0);
+       {SAVE_NUM_STACK # num_stack retten
+        var DS wurzel;
+        var boolean exactp;
+        UDS_sqrt(&mant[0],128/intDsize,&mant[128/intDsize], &wurzel, exactp=);
+        # wurzel = isqrt(2^74_75 * mant), eine 64-Bit-Zahl.
+        {var uintD* ptr = wurzel.MSDptr;
+         mantx = ((uint64)get_32_Dptr(ptr) << 32) | (uint64)get_32_Dptr(&ptr[32/intDsize]);
+        }
+        # Die hinteren 63-DF_mant_len Bits wegrunden:
+        if ( ((mantx & bit(62-DF_mant_len)) ==0) # Bit 10 =0 -> abrunden
+             || ( ((mantx & (bit(62-DF_mant_len)-1)) ==0) # Bit 10 =1 und Bits 9..0 >0 -> aufrunden
+                  && exactp                   # Bit 10 =1 und Bits 9..0 =0, aber Rest -> aufrunden
+                  # round-to-even, je nach Bit 11 :
+                  && ((mantx & bit(63-DF_mant_len)) ==0)
+           )    )
+          # abrunden
+          { mantx = mantx >> (63-DF_mant_len); }
+          else
+          # aufrunden
+          { mantx = mantx >> (63-DF_mant_len);
+            mantx += 1;
+            if (mantx >= bit(DF_mant_len+1)) # rounding overflow?
+              { mantx = mantx>>1; exp = exp+1; }
+          }
+        RESTORE_NUM_STACK # num_stack zurück
       }}
       encode_DF(0,exp,mantx, return);
     }
@@ -1347,48 +1347,48 @@
           mantlo = mantlo << (64-(DF_mant_len+1));
         }
       exp = exp >> 1; # exp := exp/2
-     {var uintD mant [128/intDsize];
-      #if (intDsize==32) || (intDsize==16) || (intDsize==8)
-      set_32_Dptr(mant,manthi); set_32_Dptr(&mant[32/intDsize],mantlo);
-        set_32_Dptr(&mant[2*32/intDsize],0); set_32_Dptr(&mant[3*32/intDsize],0);
-      #else
-      {var uintD* ptr;
-       ptr = &mant[128/intDsize];
-       doconsttimes(64/intDsize, { *--ptr = 0; } );
-       doconsttimes(32/intDsize, { *--ptr = (uintD)mantlo; mantlo = mantlo>>intDsize; } );
-       doconsttimes(32/intDsize, { *--ptr = (uintD)manthi; manthi = manthi>>intDsize; } );
-      }
-      #endif
-      {SAVE_NUM_STACK # num_stack retten
-       var DS wurzel;
-       var boolean exactp;
-       UDS_sqrt(&mant[0],128/intDsize,&mant[128/intDsize], &wurzel, exactp=);
-       # wurzel = isqrt(2^74_75 * mant), eine 64-Bit-Zahl.
-       RESTORE_NUM_STACK # num_stack zurück
-       {var uintD* ptr = wurzel.MSDptr;
-        manthi = get_32_Dptr(ptr); mantlo = get_32_Dptr(&ptr[32/intDsize]);
+      {var uintD mant [128/intDsize];
+       #if (intDsize==32) || (intDsize==16) || (intDsize==8)
+       set_32_Dptr(mant,manthi); set_32_Dptr(&mant[32/intDsize],mantlo);
+         set_32_Dptr(&mant[2*32/intDsize],0); set_32_Dptr(&mant[3*32/intDsize],0);
+       #else
+       {var uintD* ptr;
+        ptr = &mant[128/intDsize];
+        doconsttimes(64/intDsize, { *--ptr = 0; } );
+        doconsttimes(32/intDsize, { *--ptr = (uintD)mantlo; mantlo = mantlo>>intDsize; } );
+        doconsttimes(32/intDsize, { *--ptr = (uintD)manthi; manthi = manthi>>intDsize; } );
        }
-       # Die hinteren 63-DF_mant_len Bits wegrunden:
-       if ( ((mantlo & bit(62-DF_mant_len)) ==0) # Bit 10 =0 -> abrunden
-            || ( ((mantlo & (bit(62-DF_mant_len)-1)) ==0) # Bit 10 =1 und Bits 9..0 >0 -> aufrunden
-                 && exactp                   # Bit 10 =1 und Bits 9..0 =0, aber Rest -> aufrunden
-                 # round-to-even, je nach Bit 11 :
-                 && ((mantlo & bit(63-DF_mant_len)) ==0)
-          )    )
-         # abrunden
-         { mantlo = (mantlo >> (63-DF_mant_len)) | (manthi << (DF_mant_len-32+1));
-           manthi = manthi >> (63-DF_mant_len);
-         }
-         else
-         # aufrunden
-         { mantlo = (mantlo >> (63-DF_mant_len)) | (manthi << (DF_mant_len-32+1));
-           manthi = manthi >> (63-DF_mant_len);
-           mantlo += 1;
-           if (mantlo==0)
-             { manthi += 1;
-               if (manthi >= bit(DF_mant_len-32+1)) # rounding overflow?
-                 { manthi = manthi>>1; exp = exp+1; }
-         }   }
+       #endif
+       {SAVE_NUM_STACK # num_stack retten
+        var DS wurzel;
+        var boolean exactp;
+        UDS_sqrt(&mant[0],128/intDsize,&mant[128/intDsize], &wurzel, exactp=);
+        # wurzel = isqrt(2^74_75 * mant), eine 64-Bit-Zahl.
+        {var uintD* ptr = wurzel.MSDptr;
+         manthi = get_32_Dptr(ptr); mantlo = get_32_Dptr(&ptr[32/intDsize]);
+        }
+        # Die hinteren 63-DF_mant_len Bits wegrunden:
+        if ( ((mantlo & bit(62-DF_mant_len)) ==0) # Bit 10 =0 -> abrunden
+             || ( ((mantlo & (bit(62-DF_mant_len)-1)) ==0) # Bit 10 =1 und Bits 9..0 >0 -> aufrunden
+                  && exactp                   # Bit 10 =1 und Bits 9..0 =0, aber Rest -> aufrunden
+                  # round-to-even, je nach Bit 11 :
+                  && ((mantlo & bit(63-DF_mant_len)) ==0)
+           )    )
+          # abrunden
+          { mantlo = (mantlo >> (63-DF_mant_len)) | (manthi << (DF_mant_len-32+1));
+            manthi = manthi >> (63-DF_mant_len);
+          }
+          else
+          # aufrunden
+          { mantlo = (mantlo >> (63-DF_mant_len)) | (manthi << (DF_mant_len-32+1));
+            manthi = manthi >> (63-DF_mant_len);
+            mantlo += 1;
+            if (mantlo==0)
+              { manthi += 1;
+                if (manthi >= bit(DF_mant_len-32+1)) # rounding overflow?
+                  { manthi = manthi>>1; exp = exp+1; }
+          }   }
+        RESTORE_NUM_STACK # num_stack zurück
       }}
       encode2_DF(0,exp,manthi,mantlo, return);
     }

@@ -248,11 +248,8 @@
 # SAVE_NUM_STACK rettet den aktuellen Wert von NUM_STACK.
 # Dann darf beliebig oft mit num_stack_need Platz auf dem Zahlen-Stack
 # belegt werden.
-# Mit RESTORE_NUM_STACK wird NUM_STACK wieder auf den vorigen Wert gesetzt.
-# Auf dem belegten Platz darf noch bis zum Ende der aktuellen C-Funktion
-# gearbeitet werden (allerdings ohne eine andere C-Funktion aufzurufen, die
-# selbst wieder Platz auf dem Zahlen-Stack belegt). Mit Beendigung der
-# aktuellen C-Funktion gilt der Platz als wieder freigegeben.
+# Mit RESTORE_NUM_STACK wird NUM_STACK wieder auf den vorigen Wert gesetzt
+# und der belegte Platz freigegeben.
 # In jeder C-Funktion sollte SAVE_NUM_STACK/RESTORE_NUM_STACK nur einmal
 # aufgerufen werden.
 
@@ -265,140 +262,55 @@
 # wie num_stack_need, nur dass unterhalb von low_addr noch ein Digit Platz
 # zusätzlich belegt wird.
 
-# Deklarationen für SPVW:
-#if !((defined(GNU) && !defined(RISCOS) && !defined(CONVEX)) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(WATCOM) || defined(BORLAND) || defined(MICROSOFT)) # siehe unten
-  #define HAVE_NUM_STACK
-  extern uintD*  NUM_STACK;
-  extern uintD*  NUM_STACK_bound;
-  extern uintD*  NUM_STACK_normal;
-  #define NUM_STACK_DOWN  # NUM_STACK wächst abwärts
-#endif
-
 #ifdef LISPARIT
 
 #if defined(GNU) && !defined(RISCOS) && !defined(CONVEX)
-  #if 0
-    # verkraftet dynamisch allozierte Arrays im Maschinenstack
-    #define SAVE_NUM_STACK
-    #define RESTORE_NUM_STACK  ;
-    #define num_stack_need(need,low_zuweisung,high_zuweisung)  \
-      {var uintL __need = (uintL)(need);                           \
-       var uintD __array [__need];                                 \
-       check_SP_notUNIX();                                         \
-       low_zuweisung &__array[0]; high_zuweisung &__array[__need]; \
-      }
-    #define num_stack_need_1(need,low_zuweisung,high_zuweisung)  \
-      {var uintL __need = (uintL)(need)+1;                         \
-       var uintD __array [__need];                                 \
-       check_SP_notUNIX();                                         \
-       low_zuweisung &__array[1]; high_zuweisung &__array[__need]; \
-      }
-    # Funktioniert aber nicht, da der bereitgestellte Speicherplatz
-    # sofort wieder freigegeben wird!
-  #else
-    # Fast identisch, nur dass der belegte Platz erst bei Beendigung
-    # der C-Funktion freigegeben wird:
-    #define SAVE_NUM_STACK
-    #define RESTORE_NUM_STACK  ;
-    #define num_stack_need(need,low_zuweisung,high_zuweisung)  \
-      {var uintL __need = (uintL)(need);                                             \
-       var uintD* __array = (uintD*)__builtin_alloca(__need*sizeof(uintD));          \
-       check_SP_notUNIX();                                                           \
-       unused (low_zuweisung &__array[0]); unused (high_zuweisung &__array[__need]); \
-      }
-    #define num_stack_need_1(need,low_zuweisung,high_zuweisung)  \
-      {var uintL __need = (uintL)(need)+1;                                           \
-       var uintD* __array = (uintD*)__builtin_alloca(__need*sizeof(uintD));          \
-       check_SP_notUNIX();                                                           \
-       unused (low_zuweisung &__array[1]); unused (high_zuweisung &__array[__need]); \
-      }
-  #endif
+  #define SAVE_NUM_STACK
+  #define RESTORE_NUM_STACK  ;
+  #define num_stack_need(need,low_zuweisung,high_zuweisung)  \
+    {var uintL __need = (uintL)(need);                                             \
+     var uintD* __array = (uintD*)__builtin_alloca(__need*sizeof(uintD));          \
+     check_SP_notUNIX();                                                           \
+     unused (low_zuweisung &__array[0]); unused (high_zuweisung &__array[__need]); \
+    }
+  #define num_stack_need_1(need,low_zuweisung,high_zuweisung)  \
+    {var uintL __need = (uintL)(need)+1;                                           \
+     var uintD* __array = (uintD*)__builtin_alloca(__need*sizeof(uintD));          \
+     check_SP_notUNIX();                                                           \
+     unused (low_zuweisung &__array[1]); unused (high_zuweisung &__array[__need]); \
+    }
 #elif (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(WATCOM) || defined(BORLAND) || defined(MICROSOFT)
   # Platz im Maschinenstack reservieren.
   #define SAVE_NUM_STACK
   #define RESTORE_NUM_STACK  ;
   #define num_stack_need(need,low_zuweisung,high_zuweisung)  \
-    {var uintL __need = (uintL)(need);                           \
-     var uintD* __array = (uintD*)alloca(__need*sizeof(uintD));  \
-     low_zuweisung &__array[0]; high_zuweisung &__array[__need]; \
+    {var uintL __need = (uintL)(need);                                             \
+     var uintD* __array = (uintD*)alloca(__need*sizeof(uintD));                    \
+     unused (low_zuweisung &__array[0]); unused (high_zuweisung &__array[__need]); \
     }
   #define num_stack_need_1(need,low_zuweisung,high_zuweisung)  \
-    {var uintL __need = (uintL)(need)+1;                         \
-     var uintD* __array = (uintD*)alloca(__need*sizeof(uintD));  \
-     low_zuweisung &__array[1]; high_zuweisung &__array[__need]; \
+    {var uintL __need = (uintL)(need)+1;                                           \
+     var uintD* __array = (uintD*)alloca(__need*sizeof(uintD));                    \
+     unused (low_zuweisung &__array[1]); unused (high_zuweisung &__array[__need]); \
     }
 #else
-  # Verwende eine globale Variable als Zahlen-Stack-Pointer.
-  global uintD*  NUM_STACK;
-  global uintD*  NUM_STACK_bound;
-  # Dieser Zahlen-Stack-Pointer wird nur von den arithmetischen Funktionen
-  # benutzt und hat nach Beendigung einer solchen Funktion wieder denselben
-  # Wert wie bei Eintritt in diese Funktion.
-  # Arithmetische Funktionen können aber (z.B. durch die Tastaturabfrage
-  # bei der Garbage-Collection) rekursiv einen Driver und damit weitere
-  # arithmetische Funktionen aufrufen.
-  # Zurücksetzen von NUM_STACK bei Fehlerbehandlung: Beim nichtfortsetzenden
-  # Verlassen eines Drivers (und auch bei der Auflösung eines Driver-Frames)
-  # erhält NUM_STACK den Wert, den es im vorigen Driver hatte. Beim
-  # fortsetzenden Verlassen eines Drivers dagegen bleibt NUM_STACK unver-
-  # ändert auf dem Wert, den es bei Eintritt in diesen Driver hatte.
-  # (Dies funktioniert, da die Arithmetik-Funktionen keine Frames aufmachen,
-  # an die man unwinden könnte.)
-  global uintD*  NUM_STACK_normal;  # Wert von NUM_STACK im letzten Driver
-  #
-  #define SAVE_NUM_STACK  var uintD* old_num_stack = NUM_STACK;
-  #define RESTORE_NUM_STACK  NUM_STACK = old_num_stack;
-  #
-  # Fehlermeldung, wenn zuwenig Platz für num_stack:
-    nonreturning_function(local, arith_ueberlauf, (void));
-    local void arith_ueberlauf()
-      { fehler(storage_condition,
-               GETTEXT("stack overflow during bignum arithmetic")
-              );
-      }
-  #
-  # Error liefern, wenn eine Adresse NUM_STACK_bound unterschritten hat:
-  # compare_NUM_STACK_bound(addr);
-    #if 1
-      #ifdef NUM_STACK_DOWN
-        #define compare_NUM_STACK_bound(addr)  \
-          ( (aint)(addr) < (aint)NUM_STACK_bound ? (arith_ueberlauf(),0) : 0 )
-      #endif
-      #ifdef NUM_STACK_UP
-        #define compare_NUM_STACK_bound(addr)  \
-          ( (aint)(addr) > (aint)NUM_STACK_bound ? (arith_ueberlauf(),0) : 0 )
-      #endif
-    #else # Wenn nichts zu überprüfen ist: trotzdem 'addr' auswerten!
-      #define compare_NUM_STACK_bound(addr)  (addr)
-    #endif
-  #
-  # num_stack_need(need, low_addr = , high_addr = );
-  # zieht von num_stack need Digits ab, testet dabei auf Stack-Überlauf und
-  # liefert die untere Grenze des so allozierten Bereiches in low_addr
-  # und die obere Grenze in high_addr. Jedes von beiden ist optional.
-    #ifdef NUM_STACK_DOWN
-      #define num_stack_need(need,low_zuweisung,high_zuweisung)  \
-        (high_zuweisung NUM_STACK,                        \
-         NUM_STACK -= (aint)(need),                       \
-         compare_NUM_STACK_bound(low_zuweisung NUM_STACK) \
-        )
-      #define num_stack_need_1(need,low_zuweisung,high_zuweisung)  \
-        (high_zuweisung NUM_STACK,                                                           \
-         compare_NUM_STACK_bound(NUM_STACK = (low_zuweisung (NUM_STACK - (aint)(need))) - 1) \
-        )
-    #endif
-    #ifdef NUM_STACK_UP
-      #define num_stack_need(need,low_zuweisung,high_zuweisung)  \
-        (low_zuweisung NUM_STACK,                          \
-         NUM_STACK += (aint)(need),                        \
-         compare_NUM_STACK_bound(high_zuweisung NUM_STACK) \
-        )
-      #define num_stack_need_1(need,low_zuweisung,high_zuweisung)  \
-        (low_zuweisung NUM_STACK += 1,                     \
-         NUM_STACK += (aint)(need),                        \
-         compare_NUM_STACK_bound(high_zuweisung NUM_STACK) \
-        )
-    #endif
+  # Use malloca/freea.
+  # num_stack is the first stack-allocated block. freea(num_stack) also frees
+  # all more recently allocated blocks.
+  #define SAVE_NUM_STACK  var void* num_stack = NULL;
+  #define RESTORE_NUM_STACK  if (num_stack) freea(num_stack);
+  #define num_stack_need(need,low_zuweisung,high_zuweisung)  \
+    {var uintL __need = (uintL)(need);                                             \
+     var uintD* __array = (uintD*)malloca(__need*sizeof(uintD));                   \
+     if (!num_stack) { num_stack = __array; }                                      \
+     unused (low_zuweisung &__array[0]); unused (high_zuweisung &__array[__need]); \
+    }
+  #define num_stack_need_1(need,low_zuweisung,high_zuweisung)  \
+    {var uintL __need = (uintL)(need)+1;                                           \
+     var uintD* __array = (uintD*)malloca(__need*sizeof(uintD));                   \
+     if (!num_stack) { num_stack = __array; }                                      \
+     unused (low_zuweisung &__array[1]); unused (high_zuweisung &__array[__need]); \
+    }
 #endif
 
 #endif # LISPARIT

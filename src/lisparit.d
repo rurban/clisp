@@ -74,11 +74,12 @@
       end_arith_call();
       if (!(carry==0))
         { *--MSDptr = carry; len++;
-          if (uintWCoverflow(len)) { BN_ueberlauf(); } # Überlauf der Länge?
+          if (uintWCoverflow(len)) { RESTORE_NUM_STACK; BN_ueberlauf(); } # Überlauf der Länge?
         }
-      RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-      return UDS_to_I(MSDptr,len); # UDS als Integer zurück
-    }}
+      {var object result = UDS_to_I(MSDptr,len); # UDS als Integer
+       RESTORE_NUM_STACK # num_stack zurück
+       return result;
+    }}}
 
 # UP: Wandelt eine Zeichenkette mit Integer-Syntax in ein Integer um.
 # Punkte werden überlesen.
@@ -446,11 +447,11 @@
        var DYNAMIC_ARRAY(ziffern,chart,need); # Platz für die Ziffern
        var DIGITS erg; erg.LSBptr = &ziffern[need];
        UDS_to_DIGITS(MSDptr,len,10,&erg); # Umwandlung in Ziffern
-       RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
        # Ziffern in Normal-Simple-String schreiben:
       {var object string = allocate_string(erg.len);
        chartcopy(erg.MSBptr,&TheSstring(string)->data[0],erg.len);
        FREE_DYNAMIC_ARRAY(ziffern);
+       RESTORE_NUM_STACK # num_stack zurück
        return string;
     }}}
 

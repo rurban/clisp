@@ -1,5 +1,82 @@
 1999-06-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (malloc, free): Remove declarations.
+          (malloca, freea): Move declarations.
+          (DRIVER_frame_data): Remove type.
+        * spvw_alloca.d (malloc, free): New declarations.
+        * aridecl.d (HAVE_NUM_STACK, NUM_STACK, NUM_STACK_bound,
+           NUM_STACK_normal): Remove declarations.
+          (num_stack_need, num_stack_need_1): Remove obsolete code. Add
+          `unused' to avoid gcc warnings.
+          (NUM_STACK_normal, arith_ueberlauf, compare_NUM_STACK_bound): Remove.
+          (SAVE_NUM_STACK, RESTORE_NUM_STACK. num_stack_need,
+           num_stack_need_1): New definitions, using malloca/freea.
+        * intlog.d (I_I_logior_I, I_I_logxor_I, I_I_logand_I, I_I_logeqv_I,
+           I_I_lognand_I, I_I_lognor_I, I_I_logandc2_I, I_I_logorc2_I,
+           I_lognot_I): Defer RESTORE_NUM_STACK until done with the temporary
+          digit sequence.
+          (I_I_ash_I): Do RESTORE_NUM_STACK before error.
+        * intplus.d (DS_1_plus, DS_minus1_plus): Do RESTORE_NUM_STACK before
+          error.
+          (I_1_plus_I, I_minus1_plus_I): Defer RESTORE_NUM_STACK until done
+          with the temporary digit sequence.
+          (I_I_plus_I, I_minus_I, I_I_minus_I): Likewise. Do RESTORE_NUM_STACK
+          before error.
+        * intbyte.d (lb_extract): Move SAVE_NUM_STACK and defer
+          RESTORE_NUM_STACK until done with the temporary digit sequence.
+          (mkf_extract): Likewise.
+        * intmal.d (UDS_square_UDS): Do RESTORE_NUM_STACK before error.
+          (I_square_I): Move SAVE_NUM_STACK and defer RESTORE_NUM_STACK until
+          done with the temporary digit sequence.
+          (UDS_UDS_mal_UDS): Do RESTORE_NUM_STACK before error.
+          (I_I_mal_I): Move SAVE_NUM_STACK and defer RESTORE_NUM_STACK until
+          done with the temporary digit sequence.
+        * intdiv.d (UDS_divide_): Move SAVE_NUM_STACK and defer
+          RESTORE_NUM_STACK until done with the temporary digit sequence.
+          (I_I_divide_I_I): Defer SAVE_NUM_STACK until needed. Defer
+          RESTORE_NUM_STACK until done with the temporary digit sequence.
+        * intgcd.d (I_I_gcd_I) [1]: Defer RESTORE_NUM_STACK until done with
+          the temporary digit sequence.
+          (I_I_gcd_I) [3]: Likewise.
+          (I_I_xgcd_I_I_I) [3]: Do RESTORE_NUM_STACK before side return.
+        * intsqrt.d (UDS_sqrt_): Defer RESTORE_NUM_STACK until done with the
+          temporary digit sequence.
+          (I_isqrt_I, I_sqrtp):  Move SAVE_NUM_STACK and defer
+          RESTORE_NUM_STACK until done with the temporary digit sequence.
+          (I_rootp): Defer RESTORE_NUM_STACK until done with the temporary
+          digit sequence.
+        * intread.d (DIGITS_to_I): Defer RESTORE_NUM_STACK until done with the
+          temporary digit sequence.
+        * dfloat.d (DF_DF_durch_DF): Defer RESTORE_NUM_STACK until done with
+          the temporary digit sequence.
+          (DF_sqrt_DF): Likewise.
+        * lfloat.d (LF_ftruncate_LF, LF_futruncate_LF, LF_fround_LF): Defer
+          RESTORE_NUM_STACK until done with the temporary digit sequence.
+          (LF_LF_plus_LF): Do RESTORE_NUM_STACK before error or return.
+          (LF_square_LF): Move SAVE_NUM_STACK and defer RESTORE_NUM_STACK
+          until done with the temporary digit sequence. Do RESTORE_NUM_STACK
+          before error or return.
+          (LF_LF_mal_LF): Likewise.
+          (LF_LF_durch_LF): Likewise.
+          (LF_sqrt_LF): Likewise.
+          (LF_to_I): Move SAVE_NUM_STACK.
+        * realrand.d (I_random_I): Move SAVE_NUM_STACK and defer
+          RESTORE_NUM_STACK until done with the temporary digit sequence.
+        * lisparit.d (mal_10_plus_x): Defer RESTORE_NUM_STACK until done with
+          the temporary digit sequence. Do RESTORE_NUM_STACK before error.
+          (decimal_string): Defer RESTORE_NUM_STACK until done with the
+          temporary digit sequence.
+        * eval.d (unwind): No need to reset NUM_STACK when reaching a
+          DRIVER_frame.
+        * debug.d (driver): No need to save current NUM_STACK in the frame.
+          (break_driver): No need to save and restore NUM_STACK.
+        * control.d (SYS::DRIVER): No need to save current NUM_STACK in the
+          frame.
+        * spvw.d: No need any more for include "aridecl.c".
+          (main): Remove teile_NUM_STACK, assume it is 0.
+
+1999-06-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * intlog.d (I_I_ash_I): Restrict begin/end_arith_call() to the case
           where it is needed.
         * intbyte.d (lb_extract): Restrict begin/end_arith_call() to the case

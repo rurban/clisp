@@ -213,8 +213,8 @@
           goto label_2;
         label_5: # a=b>0
           # a zu einer NDS machen:
-          RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
           a = NUDS_to_I(a_MSDptr,a_len); # ggT der ungeraden Anteile als Integer
+          RESTORE_NUM_STACK # num_stack zurück
           return I_I_ash_I(a,fixnum(j)); # (ash a j) als Ergebnis
       }
       #undef evenp
@@ -713,8 +713,10 @@
          }
        end_arith_call();
       }
-      RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-      return NUDS_to_I(a_MSDptr,a_len); # NUDS a als Ergebnis
+      {var object result = NUDS_to_I(a_MSDptr,a_len); # NUDS a als Ergebnis
+       RESTORE_NUM_STACK # num_stack zurück
+       return result;
+      }
       #undef I_abs_to_NUDS
     }}
 #endif
@@ -886,14 +888,16 @@
         }
       I_abs_to_NUDS(a, # (abs A) als NUDS erzeugen
                     # A=0 -> g=|B|, (u,v) = (0,sB)
-                    { pushSTACK(Fixnum_0); # u
+                    { RESTORE_NUM_STACK;
+                      pushSTACK(Fixnum_0); # u
                       pushSTACK(sB==0 ? Fixnum_1 : Fixnum_minus1); # v
                       pushSTACK(I_abs_I(b)); # g
                       return;
                     });
       I_abs_to_NUDS(b, # (abs B) als NUDS erzeugen
                     # B=0 -> g=|A|, (u,v) = (sA,0)
-                    { pushSTACK(sA==0 ? Fixnum_1 : Fixnum_minus1); # u
+                    { RESTORE_NUM_STACK;
+                      pushSTACK(sA==0 ? Fixnum_1 : Fixnum_minus1); # u
                       pushSTACK(Fixnum_0); # v
                       pushSTACK(I_abs_I(a)); # g
                       return;

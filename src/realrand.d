@@ -63,27 +63,28 @@
   local object I_random_I(randomstate,n)
     var object randomstate;
     var object n;
-    { SAVE_NUM_STACK # num_stack retten
-      var uintD* n_MSDptr;
+    { var uintD* n_MSDptr;
       var uintC n_len;
       var uintD* n_LSDptr;
       I_to_NDS_nocopy(n, n_MSDptr=,n_len=,n_LSDptr=); # Digit sequence >0 zu n
      {var uintD* MSDptr;
       var uintC len = n_len + ceiling(16,intDsize); # 16 Bits mehr
       if ((intWCsize < 32) && ((uintWC)len < (uintWC)n_len)) { BN_ueberlauf(); }
-      # neue UDS mit len Zufallsdigits bilden:
-      num_stack_need(len,MSDptr=,);
-      begin_arith_call();
-      random_UDS(randomstate,MSDptr,len);
-      # und durch n dividieren:
-      {var DS q;
-       var DS r;
-       UDS_divide(MSDptr,len,&MSDptr[(uintP)len], n_MSDptr,n_len,n_LSDptr, &q,&r);
-       end_arith_call();
-       RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-       # Rest in Integer umwandeln:
-       return NUDS_to_I(r.MSDptr,r.len);
-    }}}
+      {SAVE_NUM_STACK # num_stack retten
+       # neue UDS mit len Zufallsdigits bilden:
+       num_stack_need(len,MSDptr=,);
+       begin_arith_call();
+       random_UDS(randomstate,MSDptr,len);
+       # und durch n dividieren:
+       {var DS q;
+        var DS r;
+        UDS_divide(MSDptr,len,&MSDptr[(uintP)len], n_MSDptr,n_len,n_LSDptr, &q,&r);
+        end_arith_call();
+        # Rest in Integer umwandeln:
+        {var object result = NUDS_to_I(r.MSDptr,r.len);
+         RESTORE_NUM_STACK # num_stack zurück
+         return result;
+    }}}}}
 
 # F_random_F(randomstate,n) liefert zu einem Float n>0 ein zufälliges
 # Float x mit 0 <= x < n.

@@ -18,6 +18,14 @@
 
 #ifdef NEED_MALLOCA
 
+# Make sure malloc() and free() are declared.
+#ifndef malloc
+  extern_C void* malloc (size_t size); # siehe MALLOC(3V)
+#endif
+#ifndef free
+  extern_C void free (void* ptr); # siehe MALLOC(3V)
+#endif
+
 # The allocated memory blocks are a linked list.
 typedef struct malloca_header
                { struct malloca_header * next;

@@ -136,9 +136,11 @@
             *ptr++ = mantMSDptr[count] & minus_bitm(intDsize-bitcount); # dann bitcount Bits kopieren
             clear_loop_up(ptr,mantlen-count-1); # Rest mit Nullen füllen
           }
-          RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-          encode_LF(sign,exp,MSDptr,mantlen, return);
-    }   }
+          { var object result;
+            encode_LF(sign,exp,MSDptr,mantlen, result =);
+            RESTORE_NUM_STACK # num_stack zurück
+            return result;
+    }   } }
 #else
   local object LF_ftruncate_LF(x)
     var object x;
@@ -219,9 +221,11 @@
               }
             clear_loop_up(&ptr[1],mantlen-count-1); # Rest mit Nullen füllen
           }
-          RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-          encode_LF(sign,exp,MSDptr,mantlen, return);
-    }   }}
+          { var object result;
+            encode_LF(sign,exp,MSDptr,mantlen, result =);
+            RESTORE_NUM_STACK # num_stack zurück
+            return result;
+    }   }}}
 #else
   local object LF_futruncate_LF(x)
     var object x;
@@ -311,9 +315,11 @@
               copy_loop_up(mantMSDptr,MSDptr,count); # count ganze Digits kopieren
             *ptr++ = mantMSDptr[count] & mask; # dann bitcount Bits kopieren
             clear_loop_up(ptr,mantlen-count-1); # Rest mit Nullen füllen
-            RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-            encode_LF(sign,exp,MSDptr,mantlen, return);
-          }}
+            {var object result;
+             encode_LF(sign,exp,MSDptr,mantlen, result =);
+             RESTORE_NUM_STACK # num_stack zurück
+             return result;
+          }}}
           auf: # aufrunden
           { SAVE_NUM_STACK # num_stack retten
             var uintD* MSDptr;
@@ -325,9 +331,11 @@
                   { MSDptr[0] = bit(intDsize-1); exp = exp+1; } # evtl. Exponenten erhöhen
               }
             clear_loop_up(&ptr[1],mantlen-count-1); # Rest mit Nullen füllen
-            RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-            encode_LF(sign,exp,MSDptr,mantlen, return);
-          }}
+            {var object result;
+             encode_LF(sign,exp,MSDptr,mantlen, result =);
+             RESTORE_NUM_STACK # num_stack zurück
+             return result;
+          }}}
     }   }
 #else
   local object LF_fround_LF(x)
@@ -757,6 +765,7 @@
               if (!(rounding_bits==0)) goto nonzero_found;
               # Die UDS ist ganz Null. Also war e1=e2, keine Rundungsbits.
               end_arith_call();
+              RESTORE_NUM_STACK # num_stack zurück
               #if !(defined(SPVW_MIXED) && defined(TYPECODES))
               { NOTREACHED } # diesen Fall haben wir schon behandelt
               #else
@@ -780,6 +789,7 @@
                   if (uexp <= k)
                   #endif
                     { end_arith_call();
+                      RESTORE_NUM_STACK # num_stack zurück
                       if (underflow_allowed())
                         { fehler_underflow(); }
                         else
@@ -814,6 +824,7 @@
                   if (uexp <= s)
                   #endif
                     { end_arith_call();
+                      RESTORE_NUM_STACK # num_stack zurück
                       if (underflow_allowed())
                         { fehler_underflow(); }
                         else
@@ -835,7 +846,7 @@
              { # Übertrag durchs Aufrunden
                y_mantMSDptr[0] = bit(intDsize-1); # Mantisse := 10...0
                # Exponent erhöhen:
-               if (++(TheLfloat(y)->expo) == LF_exp_high+1) { end_arith_call(); fehler_overflow(); }
+               if (++(TheLfloat(y)->expo) == LF_exp_high+1) { end_arith_call(); RESTORE_NUM_STACK; fehler_overflow(); }
              }
          ab: # abrunden
            ;
@@ -910,15 +921,13 @@
       pushSTACK(x);
       {var uintC len = Lfloat_length(x); # Länge n von x
        var object y = allocate_lfloat(len,uexp,0);
+       SAVE_NUM_STACK # num_stack retten
        x = popSTACK();
        # Produkt bilden:
        {var uintD* MSDptr;
-        {SAVE_NUM_STACK # num_stack retten
-         begin_arith_call();
-         UDS_square_UDS(len,&TheLfloat(x)->data[(uintP)len],
-                        MSDptr=,_EMA_,);
-         RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-        }
+        begin_arith_call();
+        UDS_square_UDS(len,&TheLfloat(x)->data[(uintP)len],
+                       MSDptr=,_EMA_,);
         {var uintD* midptr = &MSDptr[(uintP)len]; # Pointer in die Mitte der 2n Digits
          if ((sintD)MSDptr[0] >= 0) # führendes Bit abtesten
            { # erste n+1 Digits um 1 Bit nach links schieben:
@@ -926,6 +935,7 @@
              # Exponenten decrementieren:
              if ((TheLfloat(y)->expo)-- == LF_exp_low-1)
                { end_arith_call();
+                 RESTORE_NUM_STACK # num_stack zurück
                  if (underflow_allowed())
                    { fehler_underflow(); }
                    else
@@ -955,8 +965,9 @@
                   (TheLfloat(y)->expo)++; # Exponent wieder zurück-erhöhen
             }   }
           # LF_exp_low <= exp <= LF_exp_high sicherstellen:
-          if (TheLfloat(y)->expo == LF_exp_high+1) { fehler_overflow(); }
+          if (TheLfloat(y)->expo == LF_exp_high+1) { RESTORE_NUM_STACK; fehler_overflow(); }
        }}}
+       RESTORE_NUM_STACK # num_stack zurück
        return y;
     } }
 
@@ -1005,16 +1016,14 @@
        var signean sign = LF_sign(x1) ^ LF_sign(x2);
        #endif
        var object y = allocate_lfloat(len,uexp1,sign);
+       SAVE_NUM_STACK # num_stack retten
        x2 = popSTACK(); x1 = popSTACK();
        # Produkt bilden:
        {var uintD* MSDptr;
-        {SAVE_NUM_STACK # num_stack retten
-         begin_arith_call();
-         UDS_UDS_mal_UDS(len,&TheLfloat(x1)->data[(uintP)len],
-                         len,&TheLfloat(x2)->data[(uintP)len],
-                         MSDptr=,_EMA_,);
-         RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-        }
+        begin_arith_call();
+        UDS_UDS_mal_UDS(len,&TheLfloat(x1)->data[(uintP)len],
+                        len,&TheLfloat(x2)->data[(uintP)len],
+                        MSDptr=,_EMA_,);
         {var uintD* midptr = &MSDptr[(uintP)len]; # Pointer in die Mitte der 2n Digits
          if ((sintD)MSDptr[0] >= 0) # führendes Bit abtesten
            { # erste n+1 Digits um 1 Bit nach links schieben:
@@ -1022,6 +1031,7 @@
              # Exponenten decrementieren:
              if ((TheLfloat(y)->expo)-- == LF_exp_low-1)
                { end_arith_call();
+                 RESTORE_NUM_STACK # num_stack zurück
                  if (underflow_allowed())
                    { fehler_underflow(); }
                    else
@@ -1051,8 +1061,9 @@
                   (TheLfloat(y)->expo)++; # Exponent wieder zurück-erhöhen
             }   }
           # LF_exp_low <= exp <= LF_exp_high sicherstellen:
-          if (TheLfloat(y)->expo == LF_exp_high+1) { fehler_overflow(); }
+          if (TheLfloat(y)->expo == LF_exp_high+1) { RESTORE_NUM_STACK; fehler_overflow(); }
        }}}
+       RESTORE_NUM_STACK # num_stack zurück
        return y;
     }}}
 
@@ -1128,74 +1139,75 @@
        var object y = allocate_lfloat(len,uexp1,sign);
        x2 = popSTACK(); x1 = popSTACK();
        # Zähler bilden:
-       {SAVE_NUM_STACK # num_stack retten
-        var uintD* z_MSDptr;
+       {var uintD* z_MSDptr;
         var uintL z_len;
         var uintD* z_LSDptr;
         z_len = 2*(uintL)len + 1;
         if ((intWCsize < 32) && (z_len > (uintL)(bitc(intWCsize)-1))) { fehler_LF_toolong(); }
-        num_stack_need(z_len, z_MSDptr=,z_LSDptr=);
-        {var uintD* ptr =
-           copy_loop_up(&TheLfloat(x1)->data[0],z_MSDptr,len); # n Digits kopieren
-         clear_loop_up(ptr,len+1); # und n+1 Null-Digits
-        }
-        # Quotienten bilden: 2n+1-Digit-Zahl durch n-Digit-Zahl dividieren
-        begin_arith_call();
-        {var DS q;
-         var DS r;
-         {var uintD* x2_mantMSDptr = &TheLfloat(x2)->data[0];
-          UDS_divide(z_MSDptr,z_len,z_LSDptr,
-                     x2_mantMSDptr,len,&x2_mantMSDptr[(uintP)len],
-                     &q, &r
-                    );
+        {SAVE_NUM_STACK # num_stack retten
+         num_stack_need(z_len, z_MSDptr=,z_LSDptr=);
+         {var uintD* ptr =
+            copy_loop_up(&TheLfloat(x1)->data[0],z_MSDptr,len); # n Digits kopieren
+          clear_loop_up(ptr,len+1); # und n+1 Null-Digits
          }
-         # q ist der Quotient mit n+1 oder n+2 Digits, r der Rest.
-         RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-         if (q.len > len+1)
-           # Quotient hat n+2 Digits -> um 1 Bit nach rechts schieben:
-           { var uintD* y_mantMSDptr = &TheLfloat(y)->data[0];
-             var uintD carry_rechts =
-               shiftrightcopy_loop_up(&q.MSDptr[1],y_mantMSDptr,len,1,
-                                      /* carry links = q.MSDptr[0] = 1 */ 1 );
-             # Exponenten incrementieren:
-             if (++(TheLfloat(y)->expo) == LF_exp_high+1) { fehler_overflow(); }
-             # Runden:
-             if ( (carry_rechts == 0) # herausgeschobenes Bit =0 -> abrunden
-                  || ( (q.LSDptr[-1]==0) # =1 und weitere Bits >0 oder Rest >0 -> aufrunden
-                       && (r.len==0)
-                       # round-to-even
-                       && ((q.LSDptr[-2] & bit(1)) ==0)
-                )    )
-               # abrunden
-               {}
-               else
-               # aufrunden
-               { inc_loop_down(&y_mantMSDptr[(uintP)len],len); }
-           }
-           else
-           # Quotient hat n+1 Digits -> nur kopieren:
-           { var uintD* y_mantMSDptr = &TheLfloat(y)->data[0];
-             copy_loop_up(q.MSDptr,y_mantMSDptr,len);
-             # Runden:
-             if ( ((sintD)(q.LSDptr[-1]) >= 0) # nächstes Bit =0 -> abrunden
-                  || ( ((q.LSDptr[-1] & ((uintD)bit(intDsize-1)-1)) ==0) # =1 und weitere Bits >0 oder Rest >0 -> aufrunden
-                       && (r.len==0)
-                       # round-to-even
-                       && ((q.LSDptr[-2] & bit(0)) ==0)
-                )    )
-               # abrunden
-               {}
-               else
-               # aufrunden
-               { if ( inc_loop_down(&y_mantMSDptr[(uintP)len],len) )
-                   # Übertrag durchs Aufrunden
-                   { y_mantMSDptr[0] = bit(intDsize-1); # Mantisse := 10...0
-                     # Exponenten incrementieren:
-                     if (++(TheLfloat(y)->expo) == LF_exp_high+1) { fehler_overflow(); }
-               }   }
-           }
+         # Quotienten bilden: 2n+1-Digit-Zahl durch n-Digit-Zahl dividieren
+         begin_arith_call();
+         {var DS q;
+          var DS r;
+          {var uintD* x2_mantMSDptr = &TheLfloat(x2)->data[0];
+           UDS_divide(z_MSDptr,z_len,z_LSDptr,
+                      x2_mantMSDptr,len,&x2_mantMSDptr[(uintP)len],
+                      &q, &r
+                     );
+          }
+          # q ist der Quotient mit n+1 oder n+2 Digits, r der Rest.
+          if (q.len > len+1)
+            # Quotient hat n+2 Digits -> um 1 Bit nach rechts schieben:
+            { var uintD* y_mantMSDptr = &TheLfloat(y)->data[0];
+              var uintD carry_rechts =
+                shiftrightcopy_loop_up(&q.MSDptr[1],y_mantMSDptr,len,1,
+                                       /* carry links = q.MSDptr[0] = 1 */ 1 );
+              # Exponenten incrementieren:
+              if (++(TheLfloat(y)->expo) == LF_exp_high+1) { fehler_overflow(); }
+              # Runden:
+              if ( (carry_rechts == 0) # herausgeschobenes Bit =0 -> abrunden
+                   || ( (q.LSDptr[-1]==0) # =1 und weitere Bits >0 oder Rest >0 -> aufrunden
+                        && (r.len==0)
+                        # round-to-even
+                        && ((q.LSDptr[-2] & bit(1)) ==0)
+                 )    )
+                # abrunden
+                {}
+                else
+                # aufrunden
+                { inc_loop_down(&y_mantMSDptr[(uintP)len],len); }
+            }
+            else
+            # Quotient hat n+1 Digits -> nur kopieren:
+            { var uintD* y_mantMSDptr = &TheLfloat(y)->data[0];
+              copy_loop_up(q.MSDptr,y_mantMSDptr,len);
+              # Runden:
+              if ( ((sintD)(q.LSDptr[-1]) >= 0) # nächstes Bit =0 -> abrunden
+                   || ( ((q.LSDptr[-1] & ((uintD)bit(intDsize-1)-1)) ==0) # =1 und weitere Bits >0 oder Rest >0 -> aufrunden
+                        && (r.len==0)
+                        # round-to-even
+                        && ((q.LSDptr[-2] & bit(0)) ==0)
+                 )    )
+                # abrunden
+                {}
+                else
+                # aufrunden
+                { if ( inc_loop_down(&y_mantMSDptr[(uintP)len],len) )
+                    # Übertrag durchs Aufrunden
+                    { y_mantMSDptr[0] = bit(intDsize-1); # Mantisse := 10...0
+                      # Exponenten incrementieren:
+                      if (++(TheLfloat(y)->expo) == LF_exp_high+1) { fehler_overflow(); }
+                }   }
+            }
+         }
+         end_arith_call();
+         RESTORE_NUM_STACK # num_stack zurück
         }
-        end_arith_call();
         # LF_exp_low <= exp <= LF_exp_high sicherstellen:
         if (TheLfloat(y)->expo == LF_exp_low-1)
           { if (underflow_allowed())
@@ -1233,59 +1245,59 @@
       if (uexp==0) { return x; } # x=0.0 -> 0.0 als Ergebnis
      {var uintC len = Lfloat_length(x);
       # Radikanden bilden:
-      SAVE_NUM_STACK # num_stack retten
       var uintD* r_MSDptr;
       var uintD* r_LSDptr;
       var uintL r_len = 2*(uintL)len+2; # Länge des Radikanden
       if ((intWCsize < 32) && (r_len > (uintL)(bitc(intWCsize)-1))) { fehler_LF_toolong(); }
-      num_stack_need(r_len, r_MSDptr=,r_LSDptr=);
-      uexp = uexp - LF_exp_mid + 1;
-      if (uexp & bit(0))
-        # Exponent gerade
-        {var uintD* ptr =
-           copy_loop_up(&TheLfloat(x)->data[0],r_MSDptr,len); # n Digits kopieren
-         clear_loop_up(ptr,len+2); # n+2 Nulldigits anhängen
-        }
-        else
-        # Exponent ungerade
-        { begin_arith_call();
-         {var uintD carry_rechts = # n Digits kopieren und um 1 Bit rechts shiften
-            shiftrightcopy_loop_up(&TheLfloat(x)->data[0],r_MSDptr,len,1,0);
-          var uintD* ptr = &r_MSDptr[(uintP)len];
-          *ptr++ = carry_rechts; # Übertrag und
-          clear_loop_up(ptr,len+1); # n+1 Nulldigits anhängen
-          end_arith_call();
-        }}
-      uexp = (sintL)((sintL)uexp >> 1); # Exponent halbieren
-      uexp = uexp + LF_exp_mid;
-      {# Ergebnis allozieren:
-       var object y = allocate_lfloat(len,uexp,0);
-       var uintD* y_mantMSDptr = &TheLfloat(y)->data[0];
-       # Wurzel ziehen:
-       var DS w;
-       var boolean exactp;
-       UDS_sqrt(r_MSDptr,r_len,r_LSDptr, &w, exactp=);
-       # w ist die Ganzzahl-Wurzel, eine n+1-Digit-Zahl.
-       RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-       copy_loop_up(w.MSDptr,y_mantMSDptr,len); # NUDS nach y kopieren
-       # Runden:
-       if ( ((sintD)(w.LSDptr[-1]) >= 0) # nächstes Bit =0 -> abrunden
-            || ( ((w.LSDptr[-1] & ((uintD)bit(intDsize-1)-1)) ==0) # =1 und weitere Bits >0 oder Rest >0 -> aufrunden
-                 && exactp
-                 # round-to-even
-                 && ((w.LSDptr[-2] & bit(0)) ==0)
-          )    )
-         # abrunden
-         {}
+      {SAVE_NUM_STACK # num_stack retten
+       num_stack_need(r_len, r_MSDptr=,r_LSDptr=);
+       uexp = uexp - LF_exp_mid + 1;
+       if (uexp & bit(0))
+         # Exponent gerade
+         {var uintD* ptr =
+            copy_loop_up(&TheLfloat(x)->data[0],r_MSDptr,len); # n Digits kopieren
+          clear_loop_up(ptr,len+2); # n+2 Nulldigits anhängen
+         }
          else
-         # aufrunden
-         { if ( inc_loop_down(&y_mantMSDptr[(uintP)len],len) )
-             # Übertrag durchs Aufrunden
-             { y_mantMSDptr[0] = bit(intDsize-1); # Mantisse := 10...0
-               (TheLfloat(y)->expo)++; # Exponenten incrementieren
-         }   }
-       return y;
-    }}}
+         # Exponent ungerade
+         { begin_arith_call();
+          {var uintD carry_rechts = # n Digits kopieren und um 1 Bit rechts shiften
+             shiftrightcopy_loop_up(&TheLfloat(x)->data[0],r_MSDptr,len,1,0);
+           var uintD* ptr = &r_MSDptr[(uintP)len];
+           *ptr++ = carry_rechts; # Übertrag und
+           clear_loop_up(ptr,len+1); # n+1 Nulldigits anhängen
+           end_arith_call();
+         }}
+       uexp = (sintL)((sintL)uexp >> 1); # Exponent halbieren
+       uexp = uexp + LF_exp_mid;
+       {# Ergebnis allozieren:
+        var object y = allocate_lfloat(len,uexp,0);
+        var uintD* y_mantMSDptr = &TheLfloat(y)->data[0];
+        # Wurzel ziehen:
+        var DS w;
+        var boolean exactp;
+        UDS_sqrt(r_MSDptr,r_len,r_LSDptr, &w, exactp=);
+        # w ist die Ganzzahl-Wurzel, eine n+1-Digit-Zahl.
+        copy_loop_up(w.MSDptr,y_mantMSDptr,len); # NUDS nach y kopieren
+        # Runden:
+        if ( ((sintD)(w.LSDptr[-1]) >= 0) # nächstes Bit =0 -> abrunden
+             || ( ((w.LSDptr[-1] & ((uintD)bit(intDsize-1)-1)) ==0) # =1 und weitere Bits >0 oder Rest >0 -> aufrunden
+                  && exactp
+                  # round-to-even
+                  && ((w.LSDptr[-2] & bit(0)) ==0)
+           )    )
+          # abrunden
+          {}
+          else
+          # aufrunden
+          { if ( inc_loop_down(&y_mantMSDptr[(uintP)len],len) )
+              # Übertrag durchs Aufrunden
+              { y_mantMSDptr[0] = bit(intDsize-1); # Mantisse := 10...0
+                (TheLfloat(y)->expo)++; # Exponenten incrementieren
+          }   }
+        RESTORE_NUM_STACK # num_stack zurück
+        return y;
+    }}}}
 
 # LF_to_I(x) wandelt ein Long-Float x, das eine ganze Zahl darstellt,
 # in ein Integer um.
@@ -1299,28 +1311,28 @@
     { var uintL uexp = TheLfloat(x)->expo;
       if (uexp==0) { return Fixnum_0; } # x=0.0 -> Ergebnis 0
       # Mantisse zu einem Integer machen:
-     {SAVE_NUM_STACK # num_stack retten
-      var uintD* MSDptr;
+     {var uintD* MSDptr;
       var uintD* LSDptr;
       var uintC len = Lfloat_length(x);
       var uintC len1 = len+1; # brauche 1 Digit mehr
       if (uintWCoverflow(len1)) { fehler_LF_toolong(); }
-      num_stack_need(len1, MSDptr=,LSDptr=);
-      copy_loop_up(&TheLfloat(x)->data[0],&MSDptr[1],len); # Mantisse kopieren
-      MSDptr[0] = 0; # und zusätzliches Nulldigit
-      # Mantisse ist die UDS MSDptr/len1/LSDptr.
-      if (R_minusp(x))
-        # x<0 -> Mantisse negieren:
-        { neg_loop_down(LSDptr,len1); }
-      # Vorzeichen*Mantisse ist die DS MSDptr/len1/LSDptr.
-      pushSTACK(DS_to_I(MSDptr,len1)); # Vorzeichen*Mantisse als Integer
-      RESTORE_NUM_STACK # num_stack zurück
-      # e-16n = uexp-LF_exp_mid-16n als Integer bilden:
-      {var uintL sub = LF_exp_mid + intDsize*(uintL)len;
-       var object shiftcount = UL_UL_minus_I(uexp,sub);
-       # (ASH Vorzeichen*Mantisse (- e 16n)) durchführen:
-       return I_I_ash_I(popSTACK(),shiftcount);
-    }}}
+      {SAVE_NUM_STACK # num_stack retten
+       num_stack_need(len1, MSDptr=,LSDptr=);
+       copy_loop_up(&TheLfloat(x)->data[0],&MSDptr[1],len); # Mantisse kopieren
+       MSDptr[0] = 0; # und zusätzliches Nulldigit
+       # Mantisse ist die UDS MSDptr/len1/LSDptr.
+       if (R_minusp(x))
+         # x<0 -> Mantisse negieren:
+         { neg_loop_down(LSDptr,len1); }
+       # Vorzeichen*Mantisse ist die DS MSDptr/len1/LSDptr.
+       pushSTACK(DS_to_I(MSDptr,len1)); # Vorzeichen*Mantisse als Integer
+       RESTORE_NUM_STACK # num_stack zurück
+       # e-16n = uexp-LF_exp_mid-16n als Integer bilden:
+       {var uintL sub = LF_exp_mid + intDsize*(uintL)len;
+        var object shiftcount = UL_UL_minus_I(uexp,sub);
+        # (ASH Vorzeichen*Mantisse (- e 16n)) durchführen:
+        return I_I_ash_I(popSTACK(),shiftcount);
+    }}}}
 
 # I_to_LF(x,len) wandelt ein Integer x in ein Long-Float mit len Digits um
 # und rundet dabei.
