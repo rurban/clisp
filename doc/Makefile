@@ -52,7 +52,7 @@ check: impnotes.xml $(IMPNOTES)
 impnotes.texi: $(IMPNOTES)
 	docbook2texi impnotes.xml > $@
 
-impnotes.html: impnotes.xml $(IMPNOTES)
+impnotes.html: impnotes.xml $(IMPNOTES) tidy.conf
 	$(JAVA) -classpath "$(CLASSPATH)" com.icl.saxon.StyleSheet \
 		-t -dt -o $@ $< $(XMLHOME)/docbook.xsl/xhtml/docbook.xsl \
 		process.source.toc=1 html.stylesheet=impnotes.css
@@ -60,7 +60,8 @@ impnotes.html: impnotes.xml $(IMPNOTES)
 #		org.apache.xalan.xslt.Process \
 #		-diag -edump -in $< -out $@ \
 #		-xsl "file://$(XMLHOME)/docbook.xsl/xhtml/docbook.xsl"
-	tidy -wrap 75 -xml -asxml -m impnotes.html || true
+#	cp impnotes.html impnotes-saved.html
+	tidy -config tidy.conf impnotes.html || true
 
 regexp.html: ../modules/regexp/regexp.texinfo $(TEXI2HTML)
 	perl $(TEXI2HTML) -monolithic -verbose $<
