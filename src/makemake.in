@@ -1206,45 +1206,6 @@ if [ $TOS = unix -o $TOS = os2 ] ; then
   fi
 fi
 
-USE_GETTEXT=''
-GETTEXTLIB=''
-XCL_GETTEXTLIB=''
-if [ $TOS = unix ] || [ $TOS = os2 ] ; then
-  if test -n "$with_nogettext"; then
-    XCFLAGS=$XCFLAGS' -DNO_GETTEXT'
-  else
-    USE_GETTEXT=yes
-    if [ -f gettext/config.status ] ; then
-      if grep '@USE_INCLUDED_LIBINTL@.*yes' gettext/config.status > /dev/null; then
-        use_included_libintl=yes
-      else
-        use_included_libintl=''
-      fi
-      gettext_datadirname_sedcommand=`grep @DATADIRNAME@ gettext/config.status`
-    else
-      use_included_libintl=yes
-      gettext_datadirname_sedcommand='s%@DATADIRNAME@%share%g'
-    fi
-    # Do we build libintl.a, or is it already contained in the system libraries?
-    if [ -n "$use_included_libintl" ] ; then
-      # Don't put "-lintl" into LIBS for the same reasons as above.
-      GETTEXTLIB='gettext/intl/libintl.a'
-      if [ $HOS = unix ] ; then
-        # use symbolic link
-        XCL_GETTEXTLIB='libintl.a'
-        FILES=$FILES' libintl.a'
-      else
-        XCL_GETTEXTLIB=$GETTEXTLIB
-      fi
-      LIBS=$XCL_GETTEXTLIB' '$LIBS
-    fi
-    XCL_GETTEXTLIB=$XCL_GETTEXTLIB' locale'
-  fi
-fi
-if [ $TOS = win32 ] ; then
-  XCFLAGS=$XCFLAGS' -DNO_GETTEXT'
-fi
-
 USE_TERMCAP=''
 TERMCAPLIB=''
 XCL_TERMCAPLIB=''
@@ -1284,6 +1245,45 @@ if [ $HOS = unix -o $HOS = win32 ] ; then
     XCL_ICONVLIB='iconv.lib'
   fi
   LIBS=$XCL_ICONVLIB' '$LIBS
+fi
+
+USE_GETTEXT=''
+GETTEXTLIB=''
+XCL_GETTEXTLIB=''
+if [ $TOS = unix ] || [ $TOS = os2 ] ; then
+  if test -n "$with_nogettext"; then
+    XCFLAGS=$XCFLAGS' -DNO_GETTEXT'
+  else
+    USE_GETTEXT=yes
+    if [ -f gettext/config.status ] ; then
+      if grep '@USE_INCLUDED_LIBINTL@.*yes' gettext/config.status > /dev/null; then
+        use_included_libintl=yes
+      else
+        use_included_libintl=''
+      fi
+      gettext_datadirname_sedcommand=`grep @DATADIRNAME@ gettext/config.status`
+    else
+      use_included_libintl=yes
+      gettext_datadirname_sedcommand='s%@DATADIRNAME@%share%g'
+    fi
+    # Do we build libintl.a, or is it already contained in the system libraries?
+    if [ -n "$use_included_libintl" ] ; then
+      # Don't put "-lintl" into LIBS for the same reasons as above.
+      GETTEXTLIB='gettext/intl/libintl.a'
+      if [ $HOS = unix ] ; then
+        # use symbolic link
+        XCL_GETTEXTLIB='libintl.a'
+        FILES=$FILES' libintl.a'
+      else
+        XCL_GETTEXTLIB=$GETTEXTLIB
+      fi
+      LIBS=$XCL_GETTEXTLIB' '$LIBS
+    fi
+    XCL_GETTEXTLIB=$XCL_GETTEXTLIB' locale'
+  fi
+fi
+if [ $TOS = win32 ] ; then
+  XCFLAGS=$XCFLAGS' -DNO_GETTEXT'
 fi
 
 USE_SIGSEGV=''
