@@ -82,6 +82,7 @@
 <!ENTITY pathmerge "<link linkend='pathmerge'><varname>lisp:*merge-pathnames-ansi*</varname></link>">
 <!ENTITY pathprint "<link linkend='pathprint'><varname>lisp:*print-pathnames-ansi*</varname></link>">
 <!ENTITY pr-closure "<link linkend='pr-closure'><varname>lisp:*print-closure*</varname></link>">
+<!ENTITY socket-stream "<link linkend='socket'><classname>socket-stream</classname></link>">
 <!ENTITY warn-fpc "<link linkend='warn-fpc'><varname>lisp:*warn-on-floating-point-contagion*</varname></link>">
 <!ENTITY with-kbd "<link linkend='terminal'><function>lisp:with-keyboard</function></link>">
 
