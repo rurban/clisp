@@ -163,6 +163,51 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
 
 #endif  /* fcntl | WIN32_NATIVE */
 
+/* process priority */
+#if defined(WIN32_NATIVE)
+DEFCHECKER(check_priority_value,suffix=PRIORITY_CLASS,default=0,        \
+           ABOVE-NORMAL BELOW-NORMAL HIGH IDLE NORMAL REALTIME)
+#else
+#define check_priority_value(x) posfixnum_to_L(check_posfixnum(x))
+#endif
+DEFCHECKER(check_priority_which,prefix=PRIO,default=0, PROCESS PGRP USER)
+DEFUN(OS:PRIORITY, pid &optional which) {
+  int which = check_priority_which(popSTACK());
+  int pid = posfixnum_to_L(check_posfixnum(popSTACK()));
+#if defined(HAVE_GETPRIORITY)
+  int res;
+  errno = 0;
+  begin_system_call();
+  res = getpriority(which,pid);
+  end_system_call();
+  if (errno) OS_error();
+  VALUES1(sint32_to_I(res));
+#elif defined(WIN32_NATIVE)
+  DWORD res;
+  begin_system_call();
+  res = GetPriorityClass(pid);
+  end_system_call();
+  VALUES1(check_priority_value_reverse(res));
+#else
+  NOTREACHED;
+#endif
+}
+DEFUN(OS:SET-PRIORITY, pid which value) {
+  int value = check_priority_value(STACK_0);
+  int which = check_priority_which(STACK_1);
+  int pid = posfixnum_to_L(check_posfixnum(STACK_2));
+  begin_system_call();
+#if defined(HAVE_SETPRIORITY)
+  if (setpriority(which,pid,value)) OS_error();
+#elif defined(WIN32_NATIVE)
+  if (!SetPriorityClass(pid,value)) OS_error();
+#else
+  NOTREACHED;
+#endif
+  end_system_call();
+  VALUES1(STACK_0); skipSTACK(3);
+}
+
 /* posix math functions in <math.h> */
 /* Must include <math.h> */
 #define decimal_string  solaris_decimal_string  /* needed on Solaris */
