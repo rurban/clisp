@@ -1,5 +1,12 @@
 2004-03-16  Bruno Haible  <bruno@clisp.org>
 
+	* utils/modprep.lisp (print-tables-2): Use sizeof, not pointer
+	subtraction, to compute the size of the subr table.
+	* utils/modpreptest.out: Update.
+	Needed on AIX with xlc.
+
+2004-03-16  Bruno Haible  <bruno@clisp.org>
+
 	* genclisph.d (main): Remove trailing comma in definition of
 	condition_t. Needed on AIX with xlc.
 

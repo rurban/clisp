@@ -758,7 +758,7 @@ commas and parentheses."
           (format out "  LISPFUN_F~A" (fundef-lispfun fd sig)))))
     (write-string "  0" out) (newline out)
     (write-string "};" out) (newline out)
-    (format out "uintC module__~A__subr_tab_size = ((char*)&~A._dummy_to_avoid_trailing_comma_in_initializer-(char*)&~A)/sizeof(subr_t);" *module-name* subr-tab subr-tab)
+    (format out "uintC module__~A__subr_tab_size = (sizeof(struct ~A_t)-sizeof(int))/sizeof(subr_t);" *module-name* subr-tab)
     (newline out) (newline out)
     (write-string "struct {" out) (newline out)
     (loop :for fd :across *fundefs*
