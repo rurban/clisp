@@ -1,697 +1,700 @@
-# EVAL, APPLY and bytecode interpreter for CLISP
-# Bruno Haible 1990-2002
-# Sam Steingold 1998-2002
-# German comments translated into English: Stefan Kain 2001-08-13
-
+/*
+ * EVAL, APPLY and bytecode interpreter for CLISP
+ * Bruno Haible 1990-2002
+ * Sam Steingold 1998-2002
+ * German comments translated into English: Stefan Kain 2001-08-13
+ */
 #include "lispbibl.c"
 
 
-# function-table:
-# In this table only SUBRS are listed, which may be inlined by the compiler.
-# In FUNTAB1 and FUNTAB2 SUBRs without Rest-Parameter (i.e. with
-# fixed number of arguments known at compile-time) are listed.
-# In FUNTABR SUBRs with Rest-Parameter are listed.
-  #define _(name)  &subr_tab.D_##name  # address of SUBR name, like L(name)
-  # FUNTAB1 and FUNTAB2, first:
-  local const Subr FUNTAB[] = {
-    # SPVW : 0 SUBRs
-    # EVAL : 3 SUBRs
-    _(funtabref), _(subr_info), _(special_variable_p),
-    # ARRAY : 30-2 SUBRs
-    _(copy_simple_vector), /* _(svref), _(psvstore), */ _(row_major_aref),
-    _(row_major_store), _(array_element_type), _(array_rank),
-    _(array_dimension), _(array_dimensions), _(array_total_size),
-    _(adjustable_array_p), _(bit_and), _(bit_ior), _(bit_xor), _(bit_eqv),
-    _(bit_nand), _(bit_nor), _(bit_andc1), _(bit_andc2), _(bit_orc1),
-    _(bit_orc2), _(bit_not), _(array_has_fill_pointer_p), _(fill_pointer),
-    _(set_fill_pointer), _(vector_push), _(vector_pop), _(vector_push_extend),
-    _(make_array), _(adjust_array),
-    # CHARSTRG : 47 SUBRs
-    _(standard_char_p), _(graphic_char_p), _(string_char_p), _(alpha_char_p),
-    _(upper_case_p), _(lower_case_p), _(both_case_p), _(digit_char_p),
-    _(alphanumericp), _(char_code), _(code_char), _(character), _(char_upcase),
-    _(char_downcase), _(digit_char), _(char_int), _(int_char), _(char_name),
-    _(char), _(schar), _(store_char), _(store_schar), _(string_gleich),
-    _(string_ungleich), _(string_kleiner), _(string_groesser),
-    _(string_klgleich), _(string_grgleich), _(string_equal),
-    _(string_not_equal), _(string_lessp), _(string_greaterp),
-    _(string_not_greaterp), _(string_not_lessp), _(search_string_gleich),
-    _(search_string_equal), _(make_string), _(string_both_trim),
-    _(nstring_upcase), _(string_upcase), _(nstring_downcase),
-    _(string_downcase), _(nstring_capitalize), _(string_capitalize),
-    _(string), _(name_char), _(substring),
-    # CONTROL : 21-2 SUBRs
-    _(symbol_value), /* _(symbol_function), */ _(boundp), _(fboundp),
-    _(special_operator_p), _(set), _(makunbound), _(fmakunbound), /* _(values_list), */
-    _(driver), _(unwind_to_driver), _(macro_function), _(macroexpand),
-    _(macroexpand_1), _(proclaim), _(eval), _(evalhook), _(applyhook),
-    _(constantp), _(parse_body), _(keyword_test),
-    # DEBUG : 0 SUBRs
-    # ERROR : 1 SUBR
-    _(invoke_debugger),
-    # HASHTABL : 11 SUBRs
-    _(make_hash_table), _(gethash), _(puthash), _(remhash), _(maphash),
-    _(clrhash), _(hash_table_count), _(hash_table_iterator),
-    _(hash_table_iterate), _(class_gethash), _(sxhash),
-    # IO : 36 SUBRs
-    _(copy_readtable), _(set_syntax_from_char), _(set_macro_character),
-    _(get_macro_character), _(make_dispatch_macro_character),
-    _(set_dispatch_macro_character), _(get_dispatch_macro_character),
-    _(read), _(read_preserving_whitespace), _(read_delimited_list),
-    _(read_line), _(read_char), _(unread_char), _(peek_char), _(listen),
-    _(read_char_no_hang), _(clear_input), _(read_from_string),
-    _(parse_integer), _(write), _(prin1), _(print), _(pprint), _(princ),
-    _(write_to_string), _(prin1_to_string), _(princ_to_string), _(write_char),
-    _(write_string), _(write_line), _(terpri), _(fresh_line),
-    _(finish_output), _(force_output), _(clear_output), _(line_position),
-    # LIST : 84-36=48 SUBRs
-    /* _(car), _(cdr), _(caar), _(cadr), _(cdar), _(cddr), _(caaar), _(caadr),
-    _(cadar), _(caddr), _(cdaar), _(cdadr), _(cddar), _(cdddr), _(caaaar),
-    _(caaadr), _(caadar), _(caaddr), _(cadaar), _(cadadr), _(caddar),
-    _(cadddr), _(cdaaar), _(cdaadr), _(cdadar), _(cdaddr), _(cddaar),
-    _(cddadr), _(cdddar), _(cddddr), _(cons), */ _(tree_equal), _(endp),
-    _(list_length), _(nth), /* _(first), _(second), _(third), _(fourth), */
-    _(fifth), _(sixth), _(seventh), _(eighth), _(ninth), _(tenth), /* _(rest), */
-    _(nthcdr), _(last), _(make_list), _(copy_list), _(copy_alist), _(memq),
-    _(copy_tree), _(revappend), _(nreconc), _(list_nreverse), _(butlast),
-    _(nbutlast), _(ldiff), _(rplaca), _(prplaca), _(rplacd), _(prplacd),
-    _(subst), _(subst_if), _(subst_if_not), _(nsubst), _(nsubst_if),
-    _(nsubst_if_not), _(sublis), _(nsublis), _(member), _(member_if),
-    _(member_if_not), _(tailp), _(adjoin), _(acons), _(pairlis), _(assoc),
-    _(assoc_if), _(assoc_if_not), _(rassoc), _(rassoc_if), _(rassoc_if_not),
-    # MISC : 10 SUBRs
-    _(lisp_implementation_type), _(lisp_implementation_version),
-    _(software_type), _(software_version), _(identity), _(get_universal_time),
-    _(get_internal_run_time), _(get_internal_real_time), _(sleep), _(time),
-    # PACKAGE : 26 SUBRs
-    _(make_symbol), _(find_package), _(package_name), _(package_nicknames),
-    _(rename_package), _(package_use_list), _(package_used_by_list),
-    _(package_shadowing_symbols), _(list_all_packages), _(intern),
-    _(find_symbol), _(unintern), _(export), _(unexport), _(import),
-    _(shadowing_import), _(shadow), _(use_package), _(unuse_package),
-    _(make_package), _(pin_package), _(find_all_symbols),
-    _(map_symbols), _(map_external_symbols), _(map_all_symbols),
-    _(pfind_package), _(re_export),
-    # PATHNAME : 27 SUBRs
-    _(parse_namestring), _(pathname), _(pathnamehost), _(pathnamedevice),
-    _(pathnamedirectory), _(pathnamename), _(pathnametype),
-    _(pathnameversion), _(file_namestring), _(directory_namestring),
-    _(host_namestring), _(merge_pathnames), _(enough_namestring),
-    _(make_pathname), _(namestring), _(truename), _(probe_file),
-    _(delete_file), _(rename_file), _(open), _(directory), _(cd),
-    _(make_dir), _(delete_dir), _(file_write_date), _(file_author),
-    _(savemem),
-    # PREDTYPE : 46-3 SUBRs
-    /* _(eq), */ _(eql), _(equal), _(equalp), _(consp), _(atom), _(symbolp),
-    _(stringp), _(numberp), _(compiled_function_p), /* _(null), _(not), */
-    _(closurep), _(listp), _(integerp), _(fixnump), _(rationalp), _(floatp),
-    _(short_float_p), _(single_float_p), _(double_float_p), _(long_float_p),
-    _(realp), _(complexp), _(streamp), _(random_state_p), _(readtablep),
-    _(hash_table_p), _(pathnamep), _(logical_pathname_p), _(characterp),
-    _(functionp), _(generic_function_p), _(packagep), _(arrayp),
-    _(simple_array_p), _(bit_vector_p), _(vectorp), _(simple_vector_p),
-    _(simple_string_p), _(simple_bit_vector_p), _(type_of),
-    _(class_of), _(find_class), _(coerce),
-    # RECORD : 23 SUBRs
-    _(record_ref), _(record_store), _(record_length), _(structure_ref),
-    _(structure_store), _(make_structure), _(copy_structure),
-    _(structure_type_p), _(closure_name), _(closure_codevec),
-    _(closure_consts), _(make_code_vector), _(make_closure),
-    _(copy_generic_function), _(make_load_time_eval),
-    _(function_macro_function), _(structure_object_p), _(std_instance_p),
-    _(slot_value), _(set_slot_value), _(slot_boundp), _(slot_makunbound),
-    _(slot_exists_p),
-    # SEQUENCE : 40 SUBRs
-    _(sequencep), _(elt), _(setelt), _(subseq), _(copy_seq), _(length),
-    _(reverse), _(nreverse), _(make_sequence), _(reduce), _(fill),
-    _(replace), _(remove), _(remove_if), _(remove_if_not), _(delete),
-    _(delete_if), _(delete_if_not), _(remove_duplicates),
-    _(delete_duplicates), _(substitute), _(substitute_if),
-    _(substitute_if_not), _(nsubstitute), _(nsubstitute_if),
-    _(nsubstitute_if_not), _(find), _(find_if), _(find_if_not), _(position),
-    _(position_if), _(position_if_not), _(count), _(count_if),
-    _(count_if_not), _(mismatch), _(search), _(sort), _(stable_sort),
-    _(merge),
-    # STREAM : 24 SUBRs
-    _(file_stream_p), _(make_synonym_stream), _(synonym_stream_p),
-    _(broadcast_stream_p), _(concatenated_stream_p), _(make_two_way_stream),
-    _(two_way_stream_p), _(make_echo_stream), _(echo_stream_p),
-    _(make_string_input_stream), _(string_input_stream_index),
-    _(make_string_output_stream), _(get_output_stream_string),
-    _(make_string_push_stream), _(string_stream_p), _(input_stream_p),
-    _(output_stream_p), _(built_in_stream_element_type),
-    _(stream_external_format), _(built_in_stream_close), _(read_byte),
-    _(write_byte), _(file_position), _(file_length),
-    # SYMBOL : 14 SUBRs
-    _(putd), _(proclaim_constant), _(get), _(getf), _(get_properties),
-    _(putplist), _(put), _(remprop), _(symbol_package), _(symbol_plist),
-    _(symbol_name), _(keywordp), _(gensym), _(gensym),
-    # LISPARIT : 84 SUBRs
-    _(decimal_string), _(zerop), _(plusp), _(minusp), _(oddp), _(evenp),
-    _(einsplus), _(einsminus), _(conjugate), _(exp), _(expt), _(log),
-    _(sqrt), _(isqrt), _(abs), _(phase), _(signum), _(sin), _(cos), _(tan),
-    _(cis), _(asin), _(acos), _(atan), _(sinh), _(cosh), _(tanh), _(asinh),
-    _(acosh), _(atanh), _(float), _(rational), _(rationalize), _(numerator),
-    _(denominator), _(floor), _(ceiling), _(truncate), _(round), _(mod),
-    _(rem), _(ffloor), _(fceiling), _(ftruncate), _(fround), _(decode_float),
-    _(scale_float), _(float_radix), _(float_sign), _(float_digits),
-    _(float_precision), _(integer_decode_float), _(complex), _(realpart),
-    _(imagpart), _(lognand), _(lognor), _(logandc1), _(logandc2), _(logorc1),
-    _(logorc2), _(boole), _(lognot), _(logtest), _(logbitp), _(ash),
-    _(logcount), _(integer_length), _(byte), _(bytesize), _(byteposition),
-    _(ldb), _(ldb_test), _(mask_field), _(dpb), _(deposit_field), _(random),
-    _(make_random_state), _(fakultaet), _(exquo), _(long_float_digits),
-    _(set_long_float_digits), _(log2), _(log10),
-    # other:
-    };
-  # that were 527-43 SUBRs.
-  # Now FUNTABR :
-  local const Subr FUNTABR[] = {
-    # SPVW : 0 SUBRs
-    # EVAL : 0 SUBRs
-    # ARRAY : 7 SUBRs
-    _(vector), _(aref), _(store), _(array_in_bounds_p),
-    _(array_row_major_index), _(bit), _(sbit),
-    # CHARSTRG : 13 SUBRs
-    _(char_gleich), _(char_ungleich), _(char_kleiner), _(char_groesser),
-    _(char_klgleich), _(char_grgleich), _(char_equal), _(char_not_equal),
-    _(char_lessp), _(char_greaterp), _(char_not_greaterp), _(char_not_lessp),
-    _(string_concat),
-    # CONTROL : 9 SUBRs
-    _(apply), _(funcall), _(mapcar), _(maplist), _(mapc),
-    _(mapl), _(mapcan), _(mapcon), _(values),
-    # DEBUG : 0 SUBRs
-    # ERROR : 2 SUBRs
-    _(error), _(error_of_type),
-    # HASHTABL : 1 SUBR
-    _(class_tuple_gethash),
-    # IO : 0 SUBRs
-    # LIST : 4 SUBRs
-    _(list), _(liststern), _(append), _(nconc),
-    # MISC : 0 SUBRs
-    # PACKAGE : 0 SUBRs
-    # PATHNAME : 0 SUBRs
-    # PREDTYPE : 0 SUBRs
-    # RECORD : 1 SUBR
-    _(pallocate_instance),
-    # SEQUENCE : 6 SUBRs
-    _(concatenate), _(map), _(some), _(every), _(notany), _(notevery),
-    # STREAM : 2 SUBRs
-    _(make_broadcast_stream), _(make_concatenated_stream),
-    # SYMBOL : 0 SUBRs
-    # LISPARIT : 18 SUBRs
-    _(gleich), _(ungleich), _(kleiner), _(groesser), _(klgleich),
-    _(grgleich), _(max), _(min), _(plus), _(minus), _(mal), _(durch), _(gcd),
-    _(lcm), _(logior), _(logxor), _(logand), _(logeqv),
-    };
-  # That were 63 SUBRs.
-  #undef _
-  #define FUNTAB1  (&FUNTAB[0])
-  #define FUNTAB2  (&FUNTAB[256])
-  #define FUNTAB_length  (sizeof(FUNTAB)/sizeof(Subr))
-  #define FUNTABR_length  (sizeof(FUNTABR)/sizeof(Subr))
+/* function-table:
+ In this table only SUBRS are listed, which may be inlined by the compiler.
+ In FUNTAB1 and FUNTAB2 SUBRs without Rest-Parameter (i.e. with
+ fixed number of arguments known at compile-time) are listed.
+ In FUNTABR SUBRs with Rest-Parameter are listed. */
+#define _(name)  &subr_tab.D_##name  /* address of SUBR name, like L(name) */
+/* FUNTAB1 and FUNTAB2, first: */
+local const Subr FUNTAB[] = {
+  /* SPVW : 0 SUBRs */
+  /* EVAL : 3 SUBRs */
+  _(funtabref), _(subr_info), _(special_variable_p),
+  /* ARRAY : 30-2 SUBRs */
+  _(copy_simple_vector), /* _(svref), _(psvstore), */ _(row_major_aref),
+  _(row_major_store), _(array_element_type), _(array_rank),
+  _(array_dimension), _(array_dimensions), _(array_total_size),
+  _(adjustable_array_p), _(bit_and), _(bit_ior), _(bit_xor), _(bit_eqv),
+  _(bit_nand), _(bit_nor), _(bit_andc1), _(bit_andc2), _(bit_orc1),
+  _(bit_orc2), _(bit_not), _(array_has_fill_pointer_p), _(fill_pointer),
+  _(set_fill_pointer), _(vector_push), _(vector_pop), _(vector_push_extend),
+  _(make_array), _(adjust_array),
+  /* CHARSTRG : 47 SUBRs */
+  _(standard_char_p), _(graphic_char_p), _(string_char_p), _(alpha_char_p),
+  _(upper_case_p), _(lower_case_p), _(both_case_p), _(digit_char_p),
+  _(alphanumericp), _(char_code), _(code_char), _(character), _(char_upcase),
+  _(char_downcase), _(digit_char), _(char_int), _(int_char), _(char_name),
+  _(char), _(schar), _(store_char), _(store_schar), _(string_gleich),
+  _(string_ungleich), _(string_kleiner), _(string_groesser),
+  _(string_klgleich), _(string_grgleich), _(string_equal),
+  _(string_not_equal), _(string_lessp), _(string_greaterp),
+  _(string_not_greaterp), _(string_not_lessp), _(search_string_gleich),
+  _(search_string_equal), _(make_string), _(string_both_trim),
+  _(nstring_upcase), _(string_upcase), _(nstring_downcase),
+  _(string_downcase), _(nstring_capitalize), _(string_capitalize),
+  _(string), _(name_char), _(substring),
+  /* CONTROL : 21-2 SUBRs */
+  _(symbol_value), /* _(symbol_function), */ _(boundp), _(fboundp),
+  _(special_operator_p), _(set), _(makunbound), _(fmakunbound),
+  /* _(values_list), */ _(driver), _(unwind_to_driver), _(macro_function),
+  _(macroexpand), _(macroexpand_1), _(proclaim), _(eval),
+  _(evalhook), _(applyhook), _(constantp), _(parse_body), _(keyword_test),
+  /* DEBUG : 0 SUBRs */
+  /* ERROR : 1 SUBR */
+  _(invoke_debugger),
+  /* HASHTABL : 11 SUBRs */
+  _(make_hash_table), _(gethash), _(puthash), _(remhash), _(maphash),
+  _(clrhash), _(hash_table_count), _(hash_table_iterator),
+  _(hash_table_iterate), _(class_gethash), _(sxhash),
+  /* IO : 36 SUBRs */
+  _(copy_readtable), _(set_syntax_from_char), _(set_macro_character),
+  _(get_macro_character), _(make_dispatch_macro_character),
+  _(set_dispatch_macro_character), _(get_dispatch_macro_character),
+  _(read), _(read_preserving_whitespace), _(read_delimited_list),
+  _(read_line), _(read_char), _(unread_char), _(peek_char), _(listen),
+  _(read_char_no_hang), _(clear_input), _(read_from_string),
+  _(parse_integer), _(write), _(prin1), _(print), _(pprint), _(princ),
+  _(write_to_string), _(prin1_to_string), _(princ_to_string), _(write_char),
+  _(write_string), _(write_line), _(terpri), _(fresh_line),
+  _(finish_output), _(force_output), _(clear_output), _(line_position),
+  /* LIST : 84-36=48 SUBRs */
+  /* _(car), _(cdr), _(caar), _(cadr), _(cdar), _(cddr), _(caaar), _(caadr),
+     _(cadar), _(caddr), _(cdaar), _(cdadr), _(cddar), _(cdddr), _(caaaar),
+     _(caaadr), _(caadar), _(caaddr), _(cadaar), _(cadadr), _(caddar),
+     _(cadddr), _(cdaaar), _(cdaadr), _(cdadar), _(cdaddr), _(cddaar),
+     _(cddadr), _(cdddar), _(cddddr), _(cons), */ _(tree_equal), _(endp),
+  _(list_length), _(nth), /* _(first), _(second), _(third), _(fourth), */
+  _(fifth), _(sixth), _(seventh), _(eighth), _(ninth), _(tenth), /* _(rest), */
+  _(nthcdr), _(last), _(make_list), _(copy_list), _(copy_alist), _(memq),
+  _(copy_tree), _(revappend), _(nreconc), _(list_nreverse), _(butlast),
+  _(nbutlast), _(ldiff), _(rplaca), _(prplaca), _(rplacd), _(prplacd),
+  _(subst), _(subst_if), _(subst_if_not), _(nsubst), _(nsubst_if),
+  _(nsubst_if_not), _(sublis), _(nsublis), _(member), _(member_if),
+  _(member_if_not), _(tailp), _(adjoin), _(acons), _(pairlis), _(assoc),
+  _(assoc_if), _(assoc_if_not), _(rassoc), _(rassoc_if), _(rassoc_if_not),
+  /* MISC : 10 SUBRs */
+  _(lisp_implementation_type), _(lisp_implementation_version),
+  _(software_type), _(software_version), _(identity), _(get_universal_time),
+  _(get_internal_run_time), _(get_internal_real_time), _(sleep), _(time),
+  /* PACKAGE : 26 SUBRs */
+  _(make_symbol), _(find_package), _(package_name), _(package_nicknames),
+  _(rename_package), _(package_use_list), _(package_used_by_list),
+  _(package_shadowing_symbols), _(list_all_packages), _(intern),
+  _(find_symbol), _(unintern), _(export), _(unexport), _(import),
+  _(shadowing_import), _(shadow), _(use_package), _(unuse_package),
+  _(make_package), _(pin_package), _(find_all_symbols),
+  _(map_symbols), _(map_external_symbols), _(map_all_symbols),
+  _(pfind_package), _(re_export),
+  /* PATHNAME : 27 SUBRs */
+  _(parse_namestring), _(pathname), _(pathnamehost), _(pathnamedevice),
+  _(pathnamedirectory), _(pathnamename), _(pathnametype),
+  _(pathnameversion), _(file_namestring), _(directory_namestring),
+  _(host_namestring), _(merge_pathnames), _(enough_namestring),
+  _(make_pathname), _(namestring), _(truename), _(probe_file),
+  _(delete_file), _(rename_file), _(open), _(directory), _(cd),
+  _(make_dir), _(delete_dir), _(file_write_date), _(file_author),
+  _(savemem),
+  /* PREDTYPE : 46-3 SUBRs */
+  /* _(eq), */ _(eql), _(equal), _(equalp), _(consp), _(atom), _(symbolp),
+  _(stringp), _(numberp), _(compiled_function_p), /* _(null), _(not), */
+  _(closurep), _(listp), _(integerp), _(fixnump), _(rationalp), _(floatp),
+  _(short_float_p), _(single_float_p), _(double_float_p), _(long_float_p),
+  _(realp), _(complexp), _(streamp), _(random_state_p), _(readtablep),
+  _(hash_table_p), _(pathnamep), _(logical_pathname_p), _(characterp),
+  _(functionp), _(generic_function_p), _(packagep), _(arrayp),
+  _(simple_array_p), _(bit_vector_p), _(vectorp), _(simple_vector_p),
+  _(simple_string_p), _(simple_bit_vector_p), _(type_of),
+  _(class_of), _(find_class), _(coerce),
+  /* RECORD : 23 SUBRs */
+  _(record_ref), _(record_store), _(record_length), _(structure_ref),
+  _(structure_store), _(make_structure), _(copy_structure),
+  _(structure_type_p), _(closure_name), _(closure_codevec),
+  _(closure_consts), _(make_code_vector), _(make_closure),
+  _(copy_generic_function), _(make_load_time_eval),
+  _(function_macro_function), _(structure_object_p), _(std_instance_p),
+  _(slot_value), _(set_slot_value), _(slot_boundp), _(slot_makunbound),
+  _(slot_exists_p),
+  /* SEQUENCE : 40 SUBRs */
+  _(sequencep), _(elt), _(setelt), _(subseq), _(copy_seq), _(length),
+  _(reverse), _(nreverse), _(make_sequence), _(reduce), _(fill),
+  _(replace), _(remove), _(remove_if), _(remove_if_not), _(delete),
+  _(delete_if), _(delete_if_not), _(remove_duplicates),
+  _(delete_duplicates), _(substitute), _(substitute_if),
+  _(substitute_if_not), _(nsubstitute), _(nsubstitute_if),
+  _(nsubstitute_if_not), _(find), _(find_if), _(find_if_not), _(position),
+  _(position_if), _(position_if_not), _(count), _(count_if),
+  _(count_if_not), _(mismatch), _(search), _(sort), _(stable_sort),
+  _(merge),
+  /* STREAM : 24 SUBRs */
+  _(file_stream_p), _(make_synonym_stream), _(synonym_stream_p),
+  _(broadcast_stream_p), _(concatenated_stream_p), _(make_two_way_stream),
+  _(two_way_stream_p), _(make_echo_stream), _(echo_stream_p),
+  _(make_string_input_stream), _(string_input_stream_index),
+  _(make_string_output_stream), _(get_output_stream_string),
+  _(make_string_push_stream), _(string_stream_p), _(input_stream_p),
+  _(output_stream_p), _(built_in_stream_element_type),
+  _(stream_external_format), _(built_in_stream_close), _(read_byte),
+  _(write_byte), _(file_position), _(file_length),
+  /* SYMBOL : 14 SUBRs */
+  _(putd), _(proclaim_constant), _(get), _(getf), _(get_properties),
+  _(putplist), _(put), _(remprop), _(symbol_package), _(symbol_plist),
+  _(symbol_name), _(keywordp), _(gensym), _(gensym),
+  /* LISPARIT : 84 SUBRs */
+  _(decimal_string), _(zerop), _(plusp), _(minusp), _(oddp), _(evenp),
+  _(einsplus), _(einsminus), _(conjugate), _(exp), _(expt), _(log),
+  _(sqrt), _(isqrt), _(abs), _(phase), _(signum), _(sin), _(cos), _(tan),
+  _(cis), _(asin), _(acos), _(atan), _(sinh), _(cosh), _(tanh), _(asinh),
+  _(acosh), _(atanh), _(float), _(rational), _(rationalize), _(numerator),
+  _(denominator), _(floor), _(ceiling), _(truncate), _(round), _(mod),
+  _(rem), _(ffloor), _(fceiling), _(ftruncate), _(fround), _(decode_float),
+  _(scale_float), _(float_radix), _(float_sign), _(float_digits),
+  _(float_precision), _(integer_decode_float), _(complex), _(realpart),
+  _(imagpart), _(lognand), _(lognor), _(logandc1), _(logandc2), _(logorc1),
+  _(logorc2), _(boole), _(lognot), _(logtest), _(logbitp), _(ash),
+  _(logcount), _(integer_length), _(byte), _(bytesize), _(byteposition),
+  _(ldb), _(ldb_test), _(mask_field), _(dpb), _(deposit_field), _(random),
+  _(make_random_state), _(fakultaet), _(exquo), _(long_float_digits),
+  _(set_long_float_digits), _(log2), _(log10),
+  /* other: */
+}; /* that were 527-43 SUBRs. */
+/* Now FUNTABR : */
+local const Subr FUNTABR[] = {
+  /* SPVW : 0 SUBRs */
+  /* EVAL : 0 SUBRs */
+  /* ARRAY : 7 SUBRs */
+  _(vector), _(aref), _(store), _(array_in_bounds_p),
+  _(array_row_major_index), _(bit), _(sbit),
+  /* CHARSTRG : 13 SUBRs */
+  _(char_gleich), _(char_ungleich), _(char_kleiner), _(char_groesser),
+  _(char_klgleich), _(char_grgleich), _(char_equal), _(char_not_equal),
+  _(char_lessp), _(char_greaterp), _(char_not_greaterp), _(char_not_lessp),
+  _(string_concat),
+  /* CONTROL : 9 SUBRs */
+  _(apply), _(funcall), _(mapcar), _(maplist), _(mapc),
+  _(mapl), _(mapcan), _(mapcon), _(values),
+  /* DEBUG : 0 SUBRs */
+  /* ERROR : 2 SUBRs */
+  _(error), _(error_of_type),
+  /* HASHTABL : 1 SUBR */
+  _(class_tuple_gethash),
+  /* IO : 0 SUBRs */
+  /* LIST : 4 SUBRs */
+  _(list), _(liststern), _(append), _(nconc),
+  /* MISC : 0 SUBRs */
+  /* PACKAGE : 0 SUBRs */
+  /* PATHNAME : 0 SUBRs */
+  /* PREDTYPE : 0 SUBRs */
+  /* RECORD : 1 SUBR */
+  _(pallocate_instance),
+  /* SEQUENCE : 6 SUBRs */
+  _(concatenate), _(map), _(some), _(every), _(notany), _(notevery),
+  /* STREAM : 2 SUBRs */
+  _(make_broadcast_stream), _(make_concatenated_stream),
+  /* SYMBOL : 0 SUBRs */
+  /* LISPARIT : 18 SUBRs */
+  _(gleich), _(ungleich), _(kleiner), _(groesser), _(klgleich),
+  _(grgleich), _(max), _(min), _(plus), _(minus), _(mal), _(durch), _(gcd),
+  _(lcm), _(logior), _(logxor), _(logand), _(logeqv),
+}; /* That were 63 SUBRs. */
+#undef _
+#define FUNTAB1  (&FUNTAB[0])
+#define FUNTAB2  (&FUNTAB[256])
+#define FUNTAB_length  (sizeof(FUNTAB)/sizeof(Subr))
+#define FUNTABR_length  (sizeof(FUNTABR)/sizeof(Subr))
 
-# argument-type-tokens for compiled closures:
-  typedef enum {
-    cclos_argtype_default,
-    cclos_argtype_0_0,
-    cclos_argtype_1_0,
-    cclos_argtype_2_0,
-    cclos_argtype_3_0,
-    cclos_argtype_4_0,
-    cclos_argtype_5_0,
-    cclos_argtype_0_1,
-    cclos_argtype_1_1,
-    cclos_argtype_2_1,
-    cclos_argtype_3_1,
-    cclos_argtype_4_1,
-    cclos_argtype_0_2,
-    cclos_argtype_1_2,
-    cclos_argtype_2_2,
-    cclos_argtype_3_2,
-    cclos_argtype_0_3,
-    cclos_argtype_1_3,
-    cclos_argtype_2_3,
-    cclos_argtype_0_4,
-    cclos_argtype_1_4,
-    cclos_argtype_0_5,
-    cclos_argtype_0_0_rest,
-    cclos_argtype_1_0_rest,
-    cclos_argtype_2_0_rest,
-    cclos_argtype_3_0_rest,
-    cclos_argtype_4_0_rest,
-    cclos_argtype_0_0_key,
-    cclos_argtype_1_0_key,
-    cclos_argtype_2_0_key,
-    cclos_argtype_3_0_key,
-    cclos_argtype_4_0_key,
-    cclos_argtype_0_1_key,
-    cclos_argtype_1_1_key,
-    cclos_argtype_2_1_key,
-    cclos_argtype_3_1_key,
-    cclos_argtype_0_2_key,
-    cclos_argtype_1_2_key,
-    cclos_argtype_2_2_key,
-    cclos_argtype_0_3_key,
-    cclos_argtype_1_3_key,
-    cclos_argtype_0_4_key,
-    cclos_argtype_for_broken_compilers_that_dont_like_trailing_commas
-  } cclos_argtype_;
+/* argument-type-tokens for compiled closures: */
+typedef enum {
+  cclos_argtype_default,
+  cclos_argtype_0_0,
+  cclos_argtype_1_0,
+  cclos_argtype_2_0,
+  cclos_argtype_3_0,
+  cclos_argtype_4_0,
+  cclos_argtype_5_0,
+  cclos_argtype_0_1,
+  cclos_argtype_1_1,
+  cclos_argtype_2_1,
+  cclos_argtype_3_1,
+  cclos_argtype_4_1,
+  cclos_argtype_0_2,
+  cclos_argtype_1_2,
+  cclos_argtype_2_2,
+  cclos_argtype_3_2,
+  cclos_argtype_0_3,
+  cclos_argtype_1_3,
+  cclos_argtype_2_3,
+  cclos_argtype_0_4,
+  cclos_argtype_1_4,
+  cclos_argtype_0_5,
+  cclos_argtype_0_0_rest,
+  cclos_argtype_1_0_rest,
+  cclos_argtype_2_0_rest,
+  cclos_argtype_3_0_rest,
+  cclos_argtype_4_0_rest,
+  cclos_argtype_0_0_key,
+  cclos_argtype_1_0_key,
+  cclos_argtype_2_0_key,
+  cclos_argtype_3_0_key,
+  cclos_argtype_4_0_key,
+  cclos_argtype_0_1_key,
+  cclos_argtype_1_1_key,
+  cclos_argtype_2_1_key,
+  cclos_argtype_3_1_key,
+  cclos_argtype_0_2_key,
+  cclos_argtype_1_2_key,
+  cclos_argtype_2_2_key,
+  cclos_argtype_0_3_key,
+  cclos_argtype_1_3_key,
+  cclos_argtype_0_4_key,
+  cclos_argtype_for_broken_compilers_that_dont_like_trailing_commas
+} cclos_argtype_t;
 
-# Call of the bytecode-interpreter:
-# interpretes the bytecode of a compiled closure.
-# interpret_bytecode(closure,codevec,index);
-# > closure: compiled closure
-# > codevec: its codevector, a Simple-Bit-Vector
-# > index: Start-Index
-# < mv_count/mv_space: values
-# changes STACK, can trigger GC
-  # local Values interpret_bytecode (object closure, object codevec, uintL index);
-  local Values interpret_bytecode_ (object closure, Sbvector codeptr, const uintB* byteptr);
-  #define interpret_bytecode(closure,codevec,index)  \
-    with_saved_back_trace(closure,-1,interpret_bytecode_(closure,TheSbvector(codevec),&TheSbvector(codevec)->data[index]))
+/* Call of the bytecode-interpreter:
+ interpretes the bytecode of a compiled closure.
+ interpret_bytecode(closure,codevec,index);
+ > closure: compiled closure
+ > codevec: its codevector, a Simple-Bit-Vector
+ > index: Start-Index
+ < mv_count/mv_space: values
+ changes STACK, can trigger GC
+ local Values interpret_bytecode (object closure, object codevec, uintL index);
+*/
+local Values interpret_bytecode_ (object closure, Sbvector codeptr,
+                                  const uintB* byteptr);
+#define interpret_bytecode(closure,codevec,index)                       \
+  with_saved_back_trace(closure,-1,interpret_bytecode_(closure,TheSbvector(codevec),&TheSbvector(codevec)->data[index]))
 
-# GCC2 can jump directly to labels. This results in faster code than switch().
-  #ifdef GNU
-    #if (__GNUC__ >= 2) && !defined(UNIX_HPUX) && !defined(NO_FAST_DISPATCH) # work around HP-UX Linker Bug
-      #define FAST_DISPATCH
-      #if (__GNUC__ >= 3) || (__GNUC_MINOR__ >= 7) # work around gcc-2.6.3 Bug (-fno-defer-pop ginge auch)
-        #define FAST_DISPATCH_THREADED
-      #endif
+/* GCC2 can jump directly to labels.
+   This results in faster code than switch(). */
+#ifdef GNU
+  #if (__GNUC__ >= 2) && !defined(UNIX_HPUX) && !defined(NO_FAST_DISPATCH) /* work around HP-UX Linker Bug */
+    #define FAST_DISPATCH
+    #if (__GNUC__ >= 3) || (__GNUC_MINOR__ >= 7) /* work around gcc-2.6.3 Bug (-fno-defer-pop ginge auch) */
+      #define FAST_DISPATCH_THREADED
     #endif
   #endif
+#endif
 
-# Values of the bytecodes (256 totally):
-  #ifndef FAST_DISPATCH
-    typedef enum {
-      #define BYTECODE(code)  code,
-      #include "bytecode.c"
-      #undef BYTECODE
-      cod_for_broken_compilers_that_dont_like_trailing_commas
-    } bytecode_enum;
-  #endif
+/* Values of the bytecodes (256 totally): */
+#ifndef FAST_DISPATCH
+typedef enum {
+ #define BYTECODE(code)  code,
+  #include "bytecode.c"
+ #undef BYTECODE
+  cod_for_broken_compilers_that_dont_like_trailing_commas
+} bytecode_enum_t;
+#endif
 
 
-#        ---------------------- LISP-FUNCTIONS -----------------------
+/* ---------------------- LISP-FUNCTIONS ----------------------- */
 
-# (SYS::%FUNTABREF i) returns the name of function Nr. i from the function-
-# table (a symbol), resp. NIL if i is not in the right range.
+/* (SYS::%FUNTABREF i) returns the name of function Nr. i from the function-
+ table (a symbol), resp. NIL if i is not in the right range. */
 LISPFUNN(funtabref,1)
-  {
-    var object arg = popSTACK(); # argument
-    var uintL i;
-    if (posfixnump(arg) # should be Fixnum >=0
-        && (i = posfixnum_to_L(arg),
-            i < FUNTAB_length+FUNTABR_length)) { # and < table-length
-      # Name of the indexed element of the table:
-      value1 = (i < FUNTAB_length
-                ? FUNTAB[i]                # from FUNTAB1/2
-                : FUNTABR[i-FUNTAB_length] # resp. from FUNTABR
-               )->name;
-    } else {
-      value1 = NIL; # or NIL
-    }
-    mv_count=1; # as value
+{
+  var object arg = popSTACK(); /* argument */
+  var uintL i;
+  if (posfixnump(arg) /* should be Fixnum >=0 */
+      && (i = posfixnum_to_L(arg),
+          i < FUNTAB_length+FUNTABR_length)) { /* and < table-length */
+    /* Name of the indexed element of the table: */
+    value1 = (i < FUNTAB_length
+              ? FUNTAB[i]                /* from FUNTAB1/2 */
+              : FUNTABR[i-FUNTAB_length] /* resp. from FUNTABR */
+              )->name;
+  } else {
+    value1 = NIL; /* or NIL */
   }
+  mv_count=1; /* as value */
+}
 
-# (SYS::SUBR-INFO obj) returns information for this SUBR, if obj is a SUBR (or a Symbol with a
-# SUBR as global function definition),
-# 6 values:
-#   name              Name,
-#   req-anz           number of required parameters,
-#   opt-anz           number of optional parameters,
-#   rest-p            flag, if &rest is specified,
-#   keywords          list of admissible keywords (empty: no &key specified),
-#   allow-other-keys  flag, if additional keywords are allowed,
-# otherwise NIL.
+/* (SYS::SUBR-INFO obj) returns information for this SUBR, if obj is a SUBR
+   (or a Symbol with a SUBR as global function definition),
+ 6 values:
+   name              Name,
+   req-anz           number of required parameters,
+   opt-anz           number of optional parameters,
+   rest-p            flag, if &rest is specified,
+   keywords          list of admissible keywords (empty: no &key specified),
+   allow-other-keys  flag, if additional keywords are allowed,
+ otherwise NIL. */
 LISPFUNN(subr_info,1)
-  {
-    var object obj = popSTACK();
-    if (!subrp(obj)) {
-      if (!(symbolp(obj) && subrp(Symbol_function(obj)))) {
-        VALUES0; return; /* no SUBR -> no value */
-      }
-      obj = Symbol_function(obj);
+{
+  var object obj = popSTACK();
+  if (!subrp(obj)) {
+    if (!(symbolp(obj) && subrp(Symbol_function(obj)))) {
+      VALUES0; return; /* no SUBR -> no value */
     }
-    # obj is a SUBR
-    pushSTACK(TheSubr(obj)->name); # Name
-    pushSTACK(fixnum(TheSubr(obj)->req_anz)); # req-anz (req-nr)
-    pushSTACK(fixnum(TheSubr(obj)->opt_anz)); # opt-anz (opt-nr)
-    pushSTACK(TheSubr(obj)->rest_flag == subr_norest ? NIL : T); # rest-p
-    coerce_sequence(TheSubr(obj)->keywords,S(list),true);
-    pushSTACK(value1); # keyword-vector as list
-    pushSTACK(TheSubr(obj)->key_flag == subr_key_allow ? T : NIL); # allow-other-keys
-    funcall(L(values),6); # 6 values
+    obj = Symbol_function(obj);
   }
+    /* obj is a SUBR */
+  pushSTACK(TheSubr(obj)->name); /* Name */
+  pushSTACK(fixnum(TheSubr(obj)->req_anz)); /* req-anz (req-nr) */
+  pushSTACK(fixnum(TheSubr(obj)->opt_anz)); /* opt-anz (opt-nr) */
+  pushSTACK(TheSubr(obj)->rest_flag == subr_norest ? NIL : T); /* rest-p */
+  coerce_sequence(TheSubr(obj)->keywords,S(list),true);
+  pushSTACK(value1); /* keyword-vector as list */
+  pushSTACK(TheSubr(obj)->key_flag == subr_key_allow ? T : NIL); /* allow-other-keys */
+  funcall(L(values),6); /* 6 values */
+}
 
 
-#        ----------------------- SUBROUTINES -----------------------
+/* ----------------------- SUBROUTINES ----------------------- */
 
-# UP: unwinds a frame, which is pointed at by STACK.
-# unwind();
-# The values mv_count/mv_space remain unmodified.
-# If it is no Unwind-Protect-Frame: return normally.
-# If it is a  Unwind-Protect-Frame:
-#   save the values, climbs(?) up STACK and SP
-#   and then calls unwind_protect_to_save.fun .
-# changes STACK
-# can trigger GC
-  global void unwind (void);
-  global void unwind()
-    {
-      var fcint frame_info = framecode(STACK_0);
-      #ifdef unwind_bit_t
-      if (frame_info & bit(unwind_bit_t)) # anything to do?
-      #else
-      if (frame_info >= unwind_limit_t) # anything to do?
-      #endif
-        # (no at APPLY, EVAL ungetrapped, CATCH, HANDLER,
-        #  IBLOCK and ITAGBODY unnested)
-        {
-          if ((frame_info & bit(skip2_bit_t)) == 0) { # ENV-Frame or DYNBIND-Frame?
-            #ifdef entrypoint_bit_t
-            if (frame_info & bit(entrypoint_bit_t)) # BLOCK, TAGBODY, CATCH etc. ?
-            #else
-            if (frame_info < entrypoint_limit_t) # BLOCK, TAGBODY, CATCH etc. ?
-            #endif
-              # Frame with Exitpoint
-              if (frame_info & bit(blockgo_bit_t)) { # BLOCK or TAGBODY?
-                # BLOCK_FRAME or TAGBODY_FRAME
-                if (frame_info & bit(cframe_bit_t)) { # compiled?
-                  # CBLOCK_FRAME or CTAGBODY_FRAME
-                  # In Cons (NAME/Tags . <Framepointer>)
-                  Cdr(STACK_(frame_ctag)) = disabled; # disable Exit/Tags
-                } else {
-                  # IBLOCK_FRAME or ITAGBODY_FRAME, nested
-                  # In Cons (NAME/Tags . <Framepointer>)
-                  # (first pair of alist next_env)
-                  Cdr(Car(STACK_(frame_next_env))) = disabled; # disable Exit/Tags
-                }
-              } else {
-                # UNWIND_PROTECT_FRAME, DRIVER_FRAME or trapped APPLY/EVAL_FRAME
-                if (frame_info & bit(dynjump_bit_t)) {
-                  # UNWIND_PROTECT_FRAME or DRIVER_FRAME
-                  if (frame_info & bit(driver_bit_t)) {
-                    # DRIVER_FRAME
-                  } else {
-                    # UNWIND_PROTECT_FRAME
-                    enter_frame_at_STACK();
-                  }
-                } else {
-                  # trapped APPLY/EVAL_FRAME
-                  # like in the tracer:
-                  var object values;
-                  mv_to_list(); values = popSTACK(); # pack values into list
-                  dynamic_bind(S(trace_values),values); # bind *TRACE-VALUES*
-                  break_driver(true); /* call break-driver */
-                  list_to_mv(Symbol_value(S(trace_values)), # build values again
-                             fehler_mv_zuviel(framecode(STACK_(0+3))==TRAPPED_EVAL_frame_info
-                                              ? S(eval)
-                                              : S(apply)););
-                  dynamic_unbind(); # unbind
-                }
-              }
-            else {
-              #ifdef HAVE_SAVED_REGISTERS
-              if ((frame_info & bit(callback_bit_t)) == 0) {
-                # CALLBACK_FRAME
-                var gcv_object_t* new_STACK = topofframe(STACK_0); # Pointer to Frame
-                # set callback_saved_registers:
-                callback_saved_registers = (struct registers *)(aint)as_oint(STACK_1);
-                # set STACK, thus unwind frame:
-                setSTACK(STACK = new_STACK);
-                goto fertig;
-              } else
-              #endif
-              {
-                # VAR_FRAME or FUN_FRAME
-                var gcv_object_t* new_STACK = topofframe(STACK_0); # Pointer to Frame
-                if (frame_info & bit(fun_bit_t)) {
-                  # for functions: do nothing
-                } else {
-                  # VAR_FRAME, bindingptr iterates over the bindungs
-                  var gcv_object_t* frame_end = STACKpointable(new_STACK);
-                  var gcv_object_t* bindingptr = &STACK_(frame_bindings); # start of the variable-/functionbindings
-                  until (bindingptr == frame_end) {
-                    if (as_oint(*(bindingptr STACKop 0)) & wbit(dynam_bit_o))
-                      if (as_oint(*(bindingptr STACKop 0)) & wbit(active_bit_o)) {
-                        # binding static or inactive -> nothing to do
-                        # binding dynamic and active -> write back value:
-                        TheSymbolflagged(*(bindingptr STACKop varframe_binding_sym))->symvalue =
-                          *(bindingptr STACKop varframe_binding_value);
-                      }
-                    bindingptr skipSTACKop varframe_binding_size; # next binding
-                  }
-                }
-                # set STACK, thus unwind frame:
-                setSTACK(STACK = new_STACK);
-                goto fertig;
-              }
+/* UP: unwinds a frame, which is pointed at by STACK.
+ unwind();
+ The values mv_count/mv_space remain unmodified.
+ If it is no Unwind-Protect-Frame: return normally.
+ If it is a  Unwind-Protect-Frame:
+   save the values, climbs(?) up STACK and SP
+   and then calls unwind_protect_to_save.fun .
+ changes STACK
+ can trigger GC */
+global void unwind (void);
+{
+  var fcint frame_info = framecode(STACK_0);
+ #ifdef unwind_bit_t
+  if (frame_info & bit(unwind_bit_t)) /* anything to do? */
+ #else
+  if (frame_info >= unwind_limit_t) /* anything to do? */
+ #endif
+    { /* (no at APPLY, EVAL ungetrapped, CATCH, HANDLER,
+         IBLOCK and ITAGBODY unnested) */
+      if ((frame_info & bit(skip2_bit_t)) == 0) { /* ENV- or DYNBIND-Frame? */
+       #ifdef entrypoint_bit_t
+        if (frame_info & bit(entrypoint_bit_t)) /* BLOCK, TAGBODY, CATCH etc. ? */
+       #else
+        if (frame_info < entrypoint_limit_t) /* BLOCK, TAGBODY, CATCH etc. ? */
+       #endif
+          /* Frame with Exitpoint */
+          if (frame_info & bit(blockgo_bit_t)) { /* BLOCK or TAGBODY? */
+            /* BLOCK_FRAME or TAGBODY_FRAME */
+            if (frame_info & bit(cframe_bit_t)) { /* compiled? */
+              /* CBLOCK_FRAME or CTAGBODY_FRAME
+                 In Cons (NAME/Tags . <Framepointer>) */
+              Cdr(STACK_(frame_ctag)) = disabled; /* disable Exit/Tags */
+            } else {
+              /* IBLOCK_FRAME or ITAGBODY_FRAME, nested
+                 In Cons (NAME/Tags . <Framepointer>)
+                 (first pair of alist next_env) */
+              Cdr(Car(STACK_(frame_next_env))) = disabled; /* disable Exit/Tags */
             }
           } else {
-            # DYNBIND_FRAME or CALLBACK_FRAME or ENV_FRAME
-            if (frame_info & bit(envbind_bit_t)) {
-              # ENV_FRAME
-              var gcv_object_t* ptr = &STACK_1;
-              switch (frame_info & envbind_case_mask_t) {
-                case (ENV1V_frame_info & envbind_case_mask_t): # 1 VAR_ENV
-                  aktenv.var_env = *ptr; ptr skipSTACKop 1; break;
-                case (ENV1F_frame_info & envbind_case_mask_t): # 1 FUN_ENV
-                  aktenv.fun_env = *ptr; ptr skipSTACKop 1; break;
-                case (ENV1B_frame_info & envbind_case_mask_t): # 1 BLOCK_ENV
-                  aktenv.block_env = *ptr; ptr skipSTACKop 1; break;
-                case (ENV1G_frame_info & envbind_case_mask_t): # 1 GO_ENV
-                  aktenv.go_env = *ptr; ptr skipSTACKop 1; break;
-                case (ENV1D_frame_info & envbind_case_mask_t): # 1 DECL_ENV
-                  aktenv.decl_env = *ptr; ptr skipSTACKop 1; break;
-                case (ENV2VD_frame_info & envbind_case_mask_t): # 1 VAR_ENV and 1 DECL_ENV
-                  aktenv.var_env = *ptr; ptr skipSTACKop 1;
-                  aktenv.decl_env = *ptr; ptr skipSTACKop 1;
-                  break;
-                case (ENV5_frame_info & envbind_case_mask_t): # all 5 Environments
-                  aktenv.var_env = *ptr; ptr skipSTACKop 1;
-                  aktenv.fun_env = *ptr; ptr skipSTACKop 1;
-                  aktenv.block_env = *ptr; ptr skipSTACKop 1;
-                  aktenv.go_env = *ptr; ptr skipSTACKop 1;
-                  aktenv.decl_env = *ptr; ptr skipSTACKop 1;
-                  break;
-                default: NOTREACHED;
+            /* UNWIND_PROTECT_FRAME DRIVER_FRAME or trapped APPLY/EVAL_FRAME */
+            if (frame_info & bit(dynjump_bit_t)) {
+              /* UNWIND_PROTECT_FRAME or DRIVER_FRAME */
+              if (frame_info & bit(driver_bit_t)) {
+                /* DRIVER_FRAME */
+              } else {
+                /* UNWIND_PROTECT_FRAME */
+                enter_frame_at_STACK();
               }
             } else {
-              # DYNBIND_FRAME
-              var gcv_object_t* new_STACK = topofframe(STACK_0); # Pointer to Frame
-              var gcv_object_t* frame_end = STACKpointable(new_STACK);
-              var gcv_object_t* bindingptr = &STACK_1; # start of the bindings
-              # bindingptr iterates through the bindings
-              until (bindingptr == frame_end) {
-                Symbol_value(*(bindingptr STACKop 0)) = *(bindingptr STACKop 1);
-                bindingptr skipSTACKop 2; # next binding
-              }
-              # set STACK, thus unwind frame:
-              setSTACK(STACK = new_STACK);
-              goto fertig;
+              /* trapped APPLY/EVAL_FRAME
+                 like in the tracer: */
+              var object values;
+              mv_to_list(); values = popSTACK(); /* pack values into list */
+              dynamic_bind(S(trace_values),values); /* bind *TRACE-VALUES* */
+              break_driver(true); /* call break-driver */
+              list_to_mv(Symbol_value(S(trace_values)), /* build values again */
+                         fehler_mv_zuviel(framecode(STACK_(0+3))==
+                                          TRAPPED_EVAL_frame_info
+                                          ? S(eval)
+                                          : S(apply)););
+              dynamic_unbind(); /* unbind */
             }
           }
+        else {
+         #ifdef HAVE_SAVED_REGISTERS
+          if ((frame_info & bit(callback_bit_t)) == 0) {
+            /* CALLBACK_FRAME */
+            var gcv_object_t* new_STACK = topofframe(STACK_0); /* Pointer to Frame */
+            /* set callback_saved_registers: */
+            callback_saved_registers = (struct registers *)(aint)as_oint(STACK_1);
+            /* set STACK, thus unwind frame: */
+            setSTACK(STACK = new_STACK);
+            goto fertig;
+          } else
+         #endif
+          {
+            /* VAR_FRAME or FUN_FRAME */
+            var gcv_object_t* new_STACK = topofframe(STACK_0); /* Pointer to Frame */
+            if (frame_info & bit(fun_bit_t)) {
+              /* for functions: do nothing */
+            } else {
+              /* VAR_FRAME, bindingptr iterates over the bindungs */
+              var gcv_object_t* frame_end = STACKpointable(new_STACK);
+              var gcv_object_t* bindingptr = &STACK_(frame_bindings); /* start of the variable-/functionbindings */
+              while (bindingptr != frame_end) {
+                if (as_oint(*(bindingptr STACKop 0)) & wbit(dynam_bit_o))
+                  if (as_oint(*(bindingptr STACKop 0)) & wbit(active_bit_o)) {
+                    /* binding static or inactive -> nothing to do
+                       binding dynamic and active -> write back value: */
+                    TheSymbolflagged(*(bindingptr STACKop varframe_binding_sym))->symvalue =
+                      *(bindingptr STACKop varframe_binding_value);
+                  }
+                bindingptr skipSTACKop varframe_binding_size; /* next binding */
+              }
+            }
+            /* set STACK, thus unwind frame: */
+            setSTACK(STACK = new_STACK);
+            goto fertig;
+          }
         }
-      # set STACK, thus unwind frame:
-      setSTACK(STACK = topofframe(STACK_0));
-      fertig: ;
+      } else {
+        /* DYNBIND_FRAME or CALLBACK_FRAME or ENV_FRAME */
+        if (frame_info & bit(envbind_bit_t)) {
+          /* ENV_FRAME */
+          var gcv_object_t* ptr = &STACK_1;
+          switch (frame_info & envbind_case_mask_t) {
+            case (ENV1V_frame_info & envbind_case_mask_t): /* 1 VAR_ENV */
+              aktenv.var_env = *ptr; ptr skipSTACKop 1; break;
+            case (ENV1F_frame_info & envbind_case_mask_t): /* 1 FUN_ENV */
+              aktenv.fun_env = *ptr; ptr skipSTACKop 1; break;
+            case (ENV1B_frame_info & envbind_case_mask_t): /* 1 BLOCK_ENV */
+              aktenv.block_env = *ptr; ptr skipSTACKop 1; break;
+            case (ENV1G_frame_info & envbind_case_mask_t): /* 1 GO_ENV */
+              aktenv.go_env = *ptr; ptr skipSTACKop 1; break;
+            case (ENV1D_frame_info & envbind_case_mask_t): /* 1 DECL_ENV */
+              aktenv.decl_env = *ptr; ptr skipSTACKop 1; break;
+            case (ENV2VD_frame_info & envbind_case_mask_t): /* 1 VAR_ENV and 1 DECL_ENV */
+              aktenv.var_env = *ptr; ptr skipSTACKop 1;
+                  aktenv.decl_env = *ptr; ptr skipSTACKop 1;
+                  break;
+            case (ENV5_frame_info & envbind_case_mask_t): /* all 5 Environments */
+              aktenv.var_env = *ptr; ptr skipSTACKop 1;
+              aktenv.fun_env = *ptr; ptr skipSTACKop 1;
+              aktenv.block_env = *ptr; ptr skipSTACKop 1;
+              aktenv.go_env = *ptr; ptr skipSTACKop 1;
+              aktenv.decl_env = *ptr; ptr skipSTACKop 1;
+              break;
+            default: NOTREACHED;
+          }
+        } else {
+          /* DYNBIND_FRAME */
+          var gcv_object_t* new_STACK = topofframe(STACK_0); /* Pointer to Frame */
+          var gcv_object_t* frame_end = STACKpointable(new_STACK);
+          var gcv_object_t* bindingptr = &STACK_1; /* start of the bindings */
+          /* bindingptr iterates through the bindings */
+          until (bindingptr == frame_end) {
+            Symbol_value(*(bindingptr STACKop 0)) = *(bindingptr STACKop 1);
+            bindingptr skipSTACKop 2; /* next binding */
+          }
+          /* set STACK, thus unwind frame: */
+          setSTACK(STACK = new_STACK);
+          goto fertig;
+        }
+      }
     }
+  /* set STACK, thus unwind frame: */
+  setSTACK(STACK = topofframe(STACK_0));
+ fertig: ;
+}
 
-# UP: "unwinds" the STACK up to the next DRIVER_FRAME and
-# jumps into the corresponding top-level-loop.
-# reset();
+/* UP: "unwinds" the STACK up to the next DRIVER_FRAME and
+ jumps into the corresponding top-level-loop.
+ reset(); */
 nonreturning_function(global, reset, (void)) {
-  # when unwinding UNWIND-PROTECT-frames, don't save values:
+  /* when unwinding UNWIND-PROTECT-frames, don't save values: */
   VALUES0;
   unwind_protect_to_save.fun = (restartf_t)&reset;
   loop {
-    # does STACK end here?
+    /* does STACK end here? */
     if (eq(STACK_0,nullobj) && eq(STACK_1,nullobj)) {
-      driver(); quit(); # STACK completely gone -> restart
+      driver(); quit(); /* STACK completely gone -> restart */
     }
     if (framecode(STACK_0) & bit(frame_bit_t)) {
-      # at STACK_0: beginning of a frame
-      if (framecode(STACK_0) == DRIVER_frame_info) # DRIVER_FRAME ?
-        break; # yes -> found
-      unwind(); # unwind frame
+      /* at STACK_0: beginning of a frame */
+      if (framecode(STACK_0) == DRIVER_frame_info) /* DRIVER_FRAME ? */
+        break; /* yes -> found */
+      unwind(); /* unwind frame */
     } else {
-      # STACK_0 contains a normal LISP-object
+      /* STACK_0 contains a normal LISP-object */
       skipSTACK(1);
     }
   }
-  # At STACK_0 a new Driver-Frame starts.
+  /* At STACK_0 a new Driver-Frame starts. */
   enter_frame_at_STACK();
 }
 
-# UP: dynamically binds the symbols of list symlist
-# to the the values of list vallist.
-# progv(symlist,vallist);
-# > symlist, vallist: two lists
-# Exactly one variable binding frame is constructed.
-# changes STACK
+/* UP: dynamically binds the symbols of list symlist
+ to the the values of list vallist.
+ progv(symlist,vallist);
+ > symlist, vallist: two lists
+ Exactly one variable binding frame is constructed.
+ changes STACK */
 global void progv (object symlist, object vallist) {
-  # demand room on STACK:
+  /* demand room on STACK: */
   get_space_on_STACK(llength(symlist)*2*sizeof(gcv_object_t));
-  # build frame:
-  var gcv_object_t* top_of_frame = STACK; # Pointer to Frame
+  /* build frame: */
+  var gcv_object_t* top_of_frame = STACK; /* Pointer to Frame */
   var object symlistr = symlist;
-  while (consp(symlistr)) { # loop over symbol list
+  while (consp(symlistr)) { /* loop over symbol list */
     var object sym = test_symbol_non_constant(S(progv),Car(symlistr));
-    pushSTACK(Symbol_value(sym)); # old value of the variables
-    pushSTACK(sym); # variable
+    pushSTACK(Symbol_value(sym)); /* old value of the variables */
+    pushSTACK(sym); /* variable */
     symlistr = Cdr(symlistr);
   }
   finish_frame(DYNBIND);
-  # building of frame completed, now change the values of the variables:
+  /* building of frame completed, now change the values of the variables: */
   while (consp(symlist)) {
     if (atomp(vallist)) {
-      # value list shorter than symbol list
-      # -> all further "values" are #<UNBOUND>
+      /* value list shorter than symbol list
+         -> all further "values" are #<UNBOUND> */
       do {
         Symbol_value(Car(symlist)) = unbound;
         symlist = Cdr(symlist);
       } while (consp(symlist));
       break;
     }
-    # symbol obtains new value:
+    /* symbol obtains new value: */
     Symbol_value(Car(symlist)) = Car(vallist);
     symlist = Cdr(symlist); vallist = Cdr(vallist);
   }
 }
 
-# UP: unwinds the dynamic nesting in STACK up to the frame
-# (exclusively), which is pointed to by upto, and then jumps to it.
-# unwind_upto(upto);
-# > upto: pointer to a frame (into the stack, without typinfo).
-# saves the values mv_count/mv_space.
-# changes STACK,SP
-# can trigger GC
-# then jumps to the frame, which was found.
+/* UP: unwinds the dynamic nesting in STACK up to the frame
+ (exclusively), which is pointed to by upto, and then jumps to it.
+ unwind_upto(upto);
+ > upto: pointer to a frame (into the stack, without typinfo).
+ saves the values mv_count/mv_space.
+ changes STACK,SP
+ can trigger GC
+ then jumps to the frame, which was found. */
 nonreturning_function(global, unwind_upto, (gcv_object_t* upto_frame)) {
   unwind_protect_to_save.fun        = &unwind_upto;
   unwind_protect_to_save.upto_frame = upto_frame;
-  until (STACK == upto_frame) { # arrived at target-frame?
-    if (framecode(STACK_0) & bit(frame_bit_t)) { # is it a frame?
-      unwind(); # yes -> unwind
-      # (if this is a Unwind-Protect-Frame, then
-      # unwind_upto(upto_frame) is called again, and we are again here.)
+  until (STACK == upto_frame) { /* arrived at target-frame? */
+    if (framecode(STACK_0) & bit(frame_bit_t)) { /* is it a frame? */
+      unwind(); /* yes -> unwind */
+      /* (if this is a Unwind-Protect-Frame, then
+         unwind_upto(upto_frame) is called again, and we are again here.) */
     } else {
-      skipSTACK(1); # no -> simply go ahead
+      skipSTACK(1); /* no -> simply go ahead */
     }
   }
-  # now STACK points to the FRAME found.
+  /* now STACK points to the FRAME found. */
   enter_frame_at_STACK();
 }
 
-# UP: throws to the Tag tag and passes the values mv_count/mv_space.
-# returns only, if there is no CATCH-Frame for this tag.
-# throw_to(tag);
+/* UP: throws to the Tag tag and passes the values mv_count/mv_space.
+ returns only, if there is no CATCH-Frame for this tag.
+ throw_to(tag); */
 global void throw_to (object tag) {
-  # search for Catch-Frame with Tag = tag:
+  /* search for Catch-Frame with Tag = tag: */
   var gcv_object_t* FRAME = STACK;
-  loop { # search in the Stack starting at FRAME for a CATCH-Frame with the same Tag:
-    if (eq(FRAME_(0),nullobj)) # end of Stack?
-      return; # yes -> no suitable Catch there -> jump back
+  loop { /* search in the Stack starting at FRAME
+            for a CATCH-Frame with the same Tag: */
+    if (eq(FRAME_(0),nullobj)) /* end of Stack? */
+      return; /* yes -> no suitable Catch there -> jump back */
     if (framecode(FRAME_(0)) & bit(frame_bit_t)) {
-    # found frame
-      if ((framecode(FRAME_(0)) == CATCH_frame_info) # Catch-Frame?
-          && eq(FRAME_(frame_tag),tag)) # with the same tag?
-        break; # yes -> search-loop finished
-        # skip Frame:
+      /* found frame */
+      if ((framecode(FRAME_(0)) == CATCH_frame_info) /* Catch-Frame? */
+          && eq(FRAME_(frame_tag),tag)) /* with the same tag? */
+        break; /* yes -> search-loop finished */
+      /* skip Frame: */
       FRAME = topofframe(FRAME_(0));
     } else {
       FRAME skipSTACKop 1;
     }
   }
-  # FRAME points to the lowest CATCH-Frame with the same Tag
-  unwind_upto(FRAME); # unwind upto there, then jump
+  /* FRAME points to the lowest CATCH-Frame with the same Tag */
+  unwind_upto(FRAME); /* unwind upto there, then jump */
 }
 
-# UP: Invokes all handlers for condition cond. Returns only, if none
-# of these handlers feels responsible (i.e. if each handler returns).
-# invoke_handlers(cond);
-# can trigger GC
-# This deactivates the handler, that is called right now,
-# and all newer handlers.
+/* UP: Invokes all handlers for condition cond. Returns only, if none
+ of these handlers feels responsible (i.e. if each handler returns).
+ invoke_handlers(cond);
+ can trigger GC
+ This deactivates the handler, that is called right now,
+ and all newer handlers. */
 global void invoke_handlers (object cond) {
-  # Also deactivates the handler being called, and all newer handlers.
-  # the handler-ranges, which are screened off:
+  /* Also deactivates the handler being called, and all newer handlers.
+     the handler-ranges, which are screened off: */
   var stack_range_t* other_ranges = inactive_handlers;
   var stack_range_t new_range;
-  # Search for Handler-Frame, that handles a Type with (TYPEP cond type):
+  /* Search for Handler-Frame, that handles a Type with (TYPEP cond type): */
   var gcv_object_t* FRAME = STACK;
-  loop { # search in Stack starting at FRAME for a suitable HANDLER-Frame:
+  loop { /* search in Stack starting at FRAME for a suitable HANDLER-Frame: */
     if (!(other_ranges == NULL) && (FRAME == other_ranges->low_limit)) {
       FRAME = other_ranges->high_limit;
       other_ranges = other_ranges->next;
-    } elif (eq(FRAME_(0),nullobj)) { # End of Stack?
-      break; # yes -> finised, jump back
-    } elif (framecode(FRAME_(0)) & bit(frame_bit_t)) {
-      # found frame
-      if (framecode(FRAME_(0)) == HANDLER_frame_info) { # Handler-Frame?
-      # loop over types of the vectors #(type1 label1 ... typem labelm):
-        var uintL m2 = Svector_length(Car(FRAME_(frame_handlers))); # 2*m
+    } else if (eq(FRAME_(0),nullobj)) { /* End of Stack? */
+      break; /* yes -> finised, jump back */
+    } else if (framecode(FRAME_(0)) & bit(frame_bit_t)) {
+      /* found frame */
+      if (framecode(FRAME_(0)) == HANDLER_frame_info) { /* Handler-Frame? */
+        /* loop over types of the vectors #(type1 label1 ... typem labelm): */
+        var uintL m2 = Svector_length(Car(FRAME_(frame_handlers))); /* 2*m */
         var uintL i = 0;
         do {
-          pushSTACK(cond); # save cond
+          pushSTACK(cond); /* save cond */
           pushSTACK(cond);
-          pushSTACK(TheSvector(Car(FRAME_(frame_handlers)))->data[i]); # typei
-          funcall(S(safe_typep),2); # execute (SYS::SAFE-TYPEP cond typei)
-          if (!nullp(value1)) { # found a suitable handler
-            # CLtL2 S. 873, 884:
-            # "A handler is executed in the dynamic context
-            # of the signaler, except that the set of available condition
-            # handlers will have been rebound to the value that was active
-            # at the time the condition handler was made active."
-            # we make the whole thing bullet-proof by an Unwind-Protect-Frame:
+          pushSTACK(TheSvector(Car(FRAME_(frame_handlers)))->data[i]); /* typei */
+          funcall(S(safe_typep),2); /* execute (SYS::SAFE-TYPEP cond typei) */
+          if (!nullp(value1)) { /* found a suitable handler */
+            /* CLtL2 S. 873, 884:
+               "A handler is executed in the dynamic context
+               of the signaler, except that the set of available condition
+               handlers will have been rebound to the value that was active
+               at the time the condition handler was made active."
+               we make the whole thing bullet-proof by an
+               Unwind-Protect-Frame: */
             var stack_range_t* saved_inactive_handlers = inactive_handlers;
             new_range.low_limit = STACK;
             new_range.high_limit = topofframe(FRAME_(0));
             new_range.next = other_ranges;
             var gcv_object_t* top_of_frame = STACK;
-            var sp_jmp_buf returner; # return point
+            var sp_jmp_buf returner; /* return point */
             finish_entry_frame(UNWIND_PROTECT,&!returner,, {
               var restartf_t fun = unwind_protect_to_save.fun;
               var gcv_object_t* arg = unwind_protect_to_save.upto_frame;
-              skipSTACK(2); # unwind Unwind-Protect-Frame
-              # Cleanup: reactivate Handler:
+              skipSTACK(2); /* unwind Unwind-Protect-Frame */
+              /* Cleanup: reactivate Handler: */
               inactive_handlers = saved_inactive_handlers;
-              # and jump ahead:
+              /* and jump ahead: */
               fun(arg);
               NOTREACHED;
             });
-            # deactivate Handler:
+            /* deactivate Handler: */
             inactive_handlers = &new_range;
             if (!nullp(Cdr(FRAME_(frame_handlers)))) {
-              # make information available for Handler:
+              /* make information available for Handler: */
               handler_args.condition = STACK_(0+2);
               handler_args.stack = FRAME STACKop 4;
               handler_args.sp = (SPint*)(aint)as_oint(FRAME_(frame_SP));
               handler_args.spdepth = Cdr(FRAME_(frame_handlers));
-              # call Handler:
+              /* call Handler: */
               var object closure = FRAME_(frame_closure);
               var object codevec = TheCclosure(closure)->clos_codevec;
               var uintL index = (TheCodevec(codevec)->ccv_flags & bit(7) ? CCV_START_KEY : CCV_START_NONKEY)
                 + posfixnum_to_L(TheSvector(Car(FRAME_(frame_handlers)))->data[i+1]);
               interpret_bytecode(closure,codevec,index);
             } else {
-              # call C-Handler:
+              /* call C-Handler: */
               void* handler_fn = TheMachineCode(FRAME_(frame_closure));
               ((void (*) (void*, gcv_object_t*, object, object)) handler_fn)
                 ((void*)(aint)as_oint(FRAME_(frame_SP)),FRAME,
                  TheSvector(Car(FRAME_(frame_handlers)))->data[i+1],
                  STACK_(0+2));
             }
-            skipSTACK(2); # unwind Unwind-Protect-Frame
-            # reactivate Handler:
+            skipSTACK(2); /* unwind Unwind-Protect-Frame */
+            /* reactivate Handler: */
             inactive_handlers = saved_inactive_handlers;
           }
-          cond = popSTACK(); # cond back
+          cond = popSTACK(); /* cond back */
           i += 2;
         } while (i < m2);
       }
-      # skip Frame:
+      /* skip Frame: */
       FRAME = topofframe(FRAME_(0));
     } else {
       FRAME skipSTACKop 1;
@@ -699,11 +702,11 @@ global void invoke_handlers (object cond) {
   }
 }
 
-# UP: finds out, if an object is a function name, i.e. a Symbol or
-# a list of the form (SETF symbol).
-# funnamep(obj)
-# > obj: Object
-# < result: true if function name
+/* UP: finds out, if an object is a function name, i.e. a Symbol or
+ a list of the form (SETF symbol).
+ funnamep(obj)
+ > obj: Object
+ < result: true if function name */
 global bool funnamep (object obj) {
   if (symbolp(obj))
     return true;
