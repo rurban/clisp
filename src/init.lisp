@@ -1239,7 +1239,7 @@
 #+ffi (setq ffi::*foreign-language* nil)
 
 ;; preliminary; needed here for open-for-load
-(sys::%putd 'warn #'format)
+(defun warn (&rest args) (print (cons 'warn args)) nil)
 (defun open-for-load (filename extra-file-types external-format
                       &aux stream (present-files t) obj path)
  (block open-for-load
@@ -1256,7 +1256,7 @@
                                  external-format)
                    :if-does-not-exist nil))
            (bad (error-p stream message)
-             (close stream)
+             (sys::built-in-stream-close stream)
              (when (eq *load-obsolete-action* :delete) (delete-file stream))
              (if error-p
                  (error-of-type 'file-error :pathname (pathname stream)
