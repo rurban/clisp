@@ -13758,6 +13758,11 @@ local object test_socket_stream (object obj, bool check_open) {
 # and return its socket-like handle(s)
 local void stream_handles (object obj, bool check_open, bool* char_p,
                            SOCKET* in_sock, SOCKET* out_sock) {
+  if (posfixnump(obj)) {
+    if (in_sock)   *in_sock = (SOCKET)posfixnum_to_L(obj);
+    if (out_sock) *out_sock = (SOCKET)posfixnum_to_L(obj);
+    if (char_p) *char_p = false;
+  }
   if (socket_server_p(obj)) {
     if (check_open) test_socket_server(obj,true);
     if (in_sock) *in_sock = TheSocket(TheSocketServer(obj)->socket_handle);
@@ -14103,44 +14108,36 @@ LISPFUN(socket_options,seclass_default,1,0,rest,nokey,0,NIL) {
     }
    #endif
    #ifdef SO_OOBINLINE
-    else if (eq(kwd,S(Kso_oobinline))) {
+    else if (eq(kwd,S(Kso_oobinline)))
       sock_opt_bool(handle,SO_OOBINLINE,arg);
-    }
    #endif
    #ifdef SO_TYPE
-    else if (eq(kwd,S(Kso_type))) {
+    else if (eq(kwd,S(Kso_type)))
       sock_opt_bool(handle,SO_TYPE,arg);
-    }
    #endif
    #ifdef SO_RCVBUF
-    else if (eq(kwd,S(Kso_rcvbuf))) {
+    else if (eq(kwd,S(Kso_rcvbuf)))
       sock_opt_int(handle,SO_RCVBUF,arg);
-    }
    #endif
    #ifdef SO_SNDBUF
-    else if (eq(kwd,S(Kso_sndbuf))) {
+    else if (eq(kwd,S(Kso_sndbuf)))
       sock_opt_int(handle,SO_SNDBUF,arg);
-    }
    #endif
    #ifdef SO_RCVLOWAT
-    else if (eq(kwd,S(Kso_rcvlowat))) {
+    else if (eq(kwd,S(Kso_rcvlowat)))
       sock_opt_int(handle,SO_RCVLOWAT,arg);
-    }
    #endif
    #ifdef SO_SNDLOWAT
-    else if (eq(kwd,S(Kso_sndlowat))) {
+    else if (eq(kwd,S(Kso_sndlowat)))
       sock_opt_int(handle,SO_SNDLOWAT,arg);
-    }
    #endif
    #ifdef SO_RCVTIMEO
-    else if (eq(kwd,S(Kso_rcvtimeo))) {
+    else if (eq(kwd,S(Kso_rcvtimeo)))
       sock_opt_time(handle,SO_RCVTIMEO,arg);
-    }
    #endif
    #ifdef SO_SNDTIMEO
-    else if (eq(kwd,S(Kso_sndtimeo))) {
+    else if (eq(kwd,S(Kso_sndtimeo)))
       sock_opt_time(handle,SO_SNDTIMEO,arg);
-    }
    #endif
     else {
       pushSTACK(kwd);                   /* TYPE-ERROR slot DATUM */
