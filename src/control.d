@@ -362,15 +362,19 @@ LISPSPECFORM(prog2, 2,0,body)
   VALUES1(popSTACK()); /* return saved value */
 }
 
-/* error-message because of not allowed docstrings
- fehler_docstring(caller,body);
- > caller: Caller, a Symbol
- > body: whole Body */
-nonreturning_function(local, fehler_docstring, (object caller, object body)) {
-  pushSTACK(body);
-  pushSTACK(caller);
-  fehler(source_program_error,
-         GETTEXT("~S: doc-strings are not allowed here: ~S"));
+/* call parse_dd() and maybe complain about doc-string
+ parse_doc_decl(body);
+ > body: whole Body
+ can trigger GC */
+local bool parse_doc_decl (object body, bool permit_doc_string) {
+  var bool to_compile = parse_dd(body);
+  if (!permit_doc_string && !nullp(value3)) {
+    pushSTACK(value1); pushSTACK(value2); pushSTACK(value3); /* save */
+    pushSTACK(CLSTEXT("doc-string is not allowed here and will be ignored: ~S"));
+    pushSTACK(body); funcall(S(warn),2);
+    value3 = popSTACK(); value2 = popSTACK(); value1 = popSTACK();
+  }
+  return to_compile;
 }
 
 /* get the 5 environment objects to the stack
@@ -630,11 +634,7 @@ local void make_variable_frame (object caller, object varspecs,
 LISPSPECFORM(let, 1,0,body)
 { /* (LET ({varspec}) {decl} {form}), CLTL p. 110 */
   /* separate {decl} {form}: */
-  var bool to_compile = parse_dd(STACK_0);
-  /* no docstring, please: */
-  if (!nullp(value3))
-    fehler_docstring(S(let),STACK_0);
-  if (to_compile) { /* declaration (COMPILE) ? */
+  if (parse_doc_decl(STACK_0,false)) { /* declaration (COMPILE) ? */
     /* yes -> compile form: */
     skipSTACK(2); return_Values compile_eval_form();
   } else {
@@ -683,11 +683,7 @@ LISPSPECFORM(let, 1,0,body)
 LISPSPECFORM(letstern, 1,0,body)
 { /* (LET* ({varspec}) {decl} {form}), CLTL p. 111 */
   /* separate {decl} {form} : */
-  var bool to_compile = parse_dd(STACK_0);
-  /* no docstring, please: */
-  if (!nullp(value3))
-    fehler_docstring(S(letstern),STACK_0);
-  if (to_compile) { /* declaration (COMPILE) ? */
+  if (parse_doc_decl(STACK_0,false)) { /* declaration (COMPILE) ? */
     /* yes -> compile form: */
     skipSTACK(2); return_Values compile_eval_form();
   } else {
@@ -728,10 +724,7 @@ LISPSPECFORM(letstern, 1,0,body)
 LISPSPECFORM(locally, 0,0,body)
 { /* (LOCALLY {decl} {form}), CLTL2 p. 221 */
   /* separate {decl} {form} : */
-  var bool to_compile = parse_dd(STACK_0);
-  /* please no docstring: */
-  if (!nullp(value3))
-    fehler_docstring(S(locally),STACK_0);
+  var bool to_compile = parse_doc_decl(STACK_0,false);
   skipSTACK(1);
   if (to_compile) { /* declaration (COMPILE) ? */
     /* yes -> compile form: */
@@ -1106,11 +1099,7 @@ LISPSPECFORM(function_macro_let, 1,0,body)
 LISPSPECFORM(symbol_macrolet, 1,0,body)
 { /* (SYMBOL-MACROLET ({(var expansion)}) {decl} {form}), CLTL2 p. 155 */
   /* separate {decl} {form} : */
-  var bool to_compile = parse_dd(STACK_0);
-  /* please no docstring: */
-  if (!nullp(value3))
-    fehler_docstring(S(symbol_macrolet),STACK_0);
-  if (to_compile) { /* declaration (COMPILE) ? */
+  if (parse_doc_decl(STACK_0,false)) { /* declaration (COMPILE) ? */
     /* yes -> compile form: */
     skipSTACK(2); return_Values compile_eval_form();
   } else {
@@ -1745,11 +1734,7 @@ LISPSPECFORM(multiple_value_prog1, 1,0,body)
 LISPSPECFORM(multiple_value_bind, 2,0,body)
 { /* (MULTIPLE-VALUE-BIND ({var}) values-form {decl} {form}), CLTL p. 136 */
   /* separate {decl} {form} : */
-  var bool to_compile = parse_dd(STACK_0);
-  /* please no docstring: */
-  if (!nullp(value3))
-    fehler_docstring(S(multiple_value_bind),STACK_0);
-  if (to_compile) { /* declaration (COMPILE) ? */
+  if (parse_doc_decl(STACK_0,false)) { /* declaration (COMPILE) ? */
     /* yes -> compile form: */
     skipSTACK(3); return_Values compile_eval_form();
   } else {
@@ -2271,11 +2256,7 @@ LISPFUN(parse_body,seclass_default,1,1,norest,nokey,0,NIL)
  2. list of occurred declspecs
  3. docstring (only if docstring-allowed=T ) or NIL.
  (docstring-allowed should be = NIL or T) */
-  parse_dd(STACK_1/*body*/);
-  if (missingp(STACK_0) && !nullp(value3)) { /* doc forbidden but found */
-    pushSTACK(STACK_1); /* whole body */
-    fehler(source_program_error,GETTEXT("no doc-strings allowed here: ~S"));
-  }
+  parse_doc_decl(STACK_1/*body*/,!missingp(STACK_0));
   /* got 3 values from parse_dd(): ({form}), declspecs, doc */
   mv_count = 3;
   skipSTACK(2);
