@@ -424,12 +424,13 @@
       (declare (ignore what))   ; for now...
       (sys::check-package-lock
        caller
-       (if (atom symbol) (symbol-package symbol)
-           (mapcar #'(lambda (obj) ; handle (setf NAME) and (eql NAME)
-                       (let ((oo (if (atom obj) obj (second obj))))
-                         (when (symbolp oo)
-                           (symbol-package oo))))
-                   symbol))
+       (cond ((atom symbol) (symbol-package symbol))
+             ((function-name-p symbol) (symbol-package (second symbol)))
+             ((mapcar #'(lambda (obj) ; handle (setf NAME) and (eql NAME)
+                          (let ((oo (if (atom obj) obj (second obj))))
+                            (when (symbolp oo)
+                              (symbol-package oo))))
+                      symbol)))
        symbol))))
 
 (sys::%putd 'sys::remove-old-definitions

@@ -134,6 +134,7 @@ This will not work with closures that use lexical variables!"
     (error-of-type 'source-program-error
       (ENGLISH "~S: function name should be a symbol, not ~S")
       'trace funname))
+  (check-redefinition funname 'trace "function")
   (let ((symbolform
           (if (atom funname)
             `',funname
@@ -271,6 +272,7 @@ This will not work with closures that use lexical variables!"
     (error-of-type 'source-program-error
       (ENGLISH "~S: function name should be a symbol, not ~S")
       'untrace funname))
+  (check-redefinition funname 'untrace "function")
   (let* ((symbol (get-funname-symbol funname))
          (old-definition (get symbol 'sys::traced-definition)))
     (prog1
