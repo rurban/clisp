@@ -1,25 +1,23 @@
-# File: <clisp.spec - 1999-01-07 Thu 12:31:17 EST sds@eho.eaglets.com>
+# File: <clisp.spec - 1999-01-10 Sun 14:30:04 EST sds@eho.eaglets.com>
 # $Id$
 # Copyright (C) 1998 by Sam Steingold
 # GNU General Public License v.2 (GPL2) is applicable:
 # No warranty; you may copy/modify/redistribute under the same
 # conditions with the source code. See <URL:http://www.gnu.org>
 # for details and precise copyright document.
-#
-# to create the source tar:
-# cd /usr/src
-# find clisp/ -name \*old | tar cfz redhat/SOURCES/clispsrc.tar.gz clisp/ -exclude build -X -
 
+# The purpose of this file is creation of source/binary RPMs, **NOT**
+# building/installing CLISP.  If you read the comments below, you will
+# learn why.
 
 %define name clisp
-%define version 1998.10.31
-%define release 3
+%define version 1999.01.08
 %define clisp_build build
 
 Summary:   Common Lisp (ANSI CL) implementation
 Name:      %{name}
 Version:   %{version}
-Release:   %{release}
+Release:   1
 Icon:      clisp.gif
 Copyright: GPL [slightly modified]
 Group:     development/languages
@@ -48,20 +46,44 @@ Sources and selected binaries are available by anonymous ftp from
 The latest and greatest i386 binary RPM is on
 <ftp://cellar.goems.com/pub/clisp>.
 
+# RPM doesn't provide for comfortable operation: when I want to create a
+# package, I have to untar, build and install (--short-circuit works for
+# compilation and installation only, so if I want to build a binary RPM,
+# I am doomed to untar, compile and install!)  This is unacceptable, so
+# I disabled untar completely - I don't need it anyway, I work from a
+# CVS repository, and I comment out the build clause and `make install`.
 %prep
 %setup -T -D -n /usr/src/%{name}
 %build
-make -f Makefile.devel configures
-./configure --prefix=/usr --fsstnd=redhat --with-module=wildcard \
-    --with-module=regexp --with-module=bindings/linuxlibc6 \
-    --with-module=clx/new-clx --build %{clisp_build}
+#rm -rf src/VERSION
+#date +%Y-%02m-%02d > src/VERSION
+#make -f Makefile.devel src/version.h
+## make -f Makefile.devel
+## make -f Makefile.devel check-configures
+#./configure --prefix=/usr --fsstnd=redhat --with-module=wildcard \
+#    --with-module=regexp --with-module=bindings/linuxlibc6 \
+#    --with-module=clx/new-clx --build %{clisp_build}
 %install
 cd %{clisp_build}
-make install
+#make install
 test -d doc || mkdir doc
 cp impnotes.txt CLOS-guide.txt clisp.html cltl2.txt readline.dvi \
     LISP-tutorial.txt clreadline.3 editors.txt clisp.1 clreadline.dvi \
     impnotes.html clisp.gif clreadline.html doc
+cd ..
+
+# Can you believe it?!!  RPM runs chown -R root.root / chmod -R!!!
+# Who was the wise guy who invented this?!  Now not only I have to run
+# rpm as root (as I should not have to - chown/chmod can be done in the
+# package file itself, not on disk!) but I also cannot work with the
+# sources afterwards!
+chgrp -R src
+chmod -R g+wX .
+
+# create the source tar, necessary for source RPMs
+#cd ..
+#tar cfz redhat/SOURCES/clispsrc.tar.gz clisp/ --exclude build
+#cd clisp
 %files
 %dir /usr/lib/clisp/
 %docdir /usr/doc/%{name}-%{version}
@@ -87,4 +109,5 @@ cp impnotes.txt CLOS-guide.txt clisp.html cltl2.txt readline.dvi \
 /usr/share/locale/en/LC_MESSAGES/clisp.mo
 /usr/share/locale/es/LC_MESSAGES/clisp.mo
 /usr/share/locale/fr/LC_MESSAGES/clisp.mo
+
 
