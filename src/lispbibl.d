@@ -9166,15 +9166,15 @@ typedef struct {
 # < environment* env5: pointer to the Environment on the Stack
 #ifdef STACK_UP
   #define make_STACK_env(venv,fenv,benv,genv,denv,env5_allocation)      \
-    { pushSTACK(venv); pushSTACK(fenv); pushSTACK(benv);                \
-      pushSTACK(genv); pushSTACK(denv);                                 \
-      env5_allocation &STACKblock_(environment,0); } while(0)
+    do { pushSTACK(venv); pushSTACK(fenv); pushSTACK(benv);             \
+         pushSTACK(genv); pushSTACK(denv);                              \
+         env5_allocation &STACKblock_(environment,0); } while(0)
 #endif
 #ifdef STACK_DOWN
   #define make_STACK_env(venv,fenv,benv,genv,denv,env5_allocation)      \
-    { pushSTACK(denv); pushSTACK(genv); pushSTACK(benv);                \
-      pushSTACK(fenv); pushSTACK(venv);                                 \
-      env5_allocation &STACKblock_(environment,0); } while(0)
+    do { pushSTACK(denv); pushSTACK(genv); pushSTACK(benv);             \
+         pushSTACK(fenv); pushSTACK(venv);                              \
+         env5_allocation &STACKblock_(environment,0); } while(0)
 #endif
 
 # Frameinfobits in Frames:
@@ -9921,7 +9921,7 @@ extern object coerce_function (object obj);
 # increases STACK by 3 entries
 # modifies STACK
 #define dynamic_unbind()  \
-  { # write value back:                  \
+  do { # write value back:               \
     Symbol_value(STACK_(1)) = STACK_(2); \
     # Frame abbauen:                     \
     skipSTACK(3);                        \
@@ -9933,7 +9933,7 @@ extern object coerce_function (object obj);
 # Executes body as implicit PROGN. If the body is empty, the value is the default one.
 # can trigger GC
 #define implicit_progn(body,default)  \
-  { var object rest = (body);                                          \
+  do { var object rest = (body);                                       \
     if atomp(rest)                                                     \
       { value1 = (default); mv_count=1; } # default as value           \
       else                                                             \
@@ -10880,9 +10880,25 @@ extern object shifthash (object ht, object obj, object value);
 extern void init_reader (void);
 # is used by SPVW
 
+# UP: returns (cons (make-Semi-Simple-String 50) nil)
+extern object cons_ssstring (void);
+# used by io.d and stream.d
+# (setf (cdr new_cons) old_cons old_cons new_cons)
+#define PUSH_CONS(old_cons,new_cons) \
+  do { Cdr(new_cons) = old_cons; old_cons = new_cons; } while(0)
+#define PPHELP_PUSH(stream_,thing)                                      \
+  do { pushSTACK(thing);                                                \
+   {object new_cons = allocate_cons();                                  \
+    Car(new_cons) = popSTACK();                                         \
+    PUSH_CONS(TheStream(*stream_)->strm_pphelp_strings,new_cons); }} while(0)
+#define PPHELP_NEW_STRING(stream_)                                          \
+  do { object new_cons = cons_ssstring();                                   \
+   PUSH_CONS(TheStream(*stream_)->strm_pphelp_strings,new_cons); } while(0)
+
 # UP: Reads on object.
 # stream_read(&stream,recursive-p,whitespace-p)
-# > recursive-p: tells whether there's a recursive call of READ, with error at EOF
+# > recursive-p: tells whether there's a recursive call of READ,
+#                with error at EOF
 # > whitespace-p: tells, whether whitespace is to be consumed afterwards
 # > stream: Stream
 # < stream: Stream

@@ -2325,10 +2325,12 @@ local void wr_ch_pphelp (const object* stream_, object ch) {
     fehler_wr_char(stream,ch);
   var chart c = char_code(ch); # Character
   # Bei NL: Ab jetzt  Modus := Mehrzeiler
-  if (chareq(c,ascii(NL)))
+  if (chareq(c,ascii(NL))) {
     TheStream(stream)->strm_pphelp_modus = T;
-  # Character in den ersten String schieben:
-  ssstring_push_extend(Car(TheStream(stream)->strm_pphelp_strings),c);
+    PPHELP_NEW_STRING(stream_);
+  } else 
+    # Character in den ersten String schieben:
+    ssstring_push_extend(Car(TheStream(stream)->strm_pphelp_strings),c);
 }
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für Pretty-Printer-Hilfs-Streams:
@@ -2344,14 +2346,7 @@ local void wr_ch_array_pphelp (const object* stream_, const object* chararray_,
 # make_pphelp_stream()
 # can trigger GC
 global object make_pphelp_stream (void) {
-  # kleinen Semi-Simple-String der Länge 50 allozieren:
-  pushSTACK(make_ssstring(50));
-  # einelementige Stringliste bauen:
-  {
-    var object new_cons = allocate_cons();
-    Car(new_cons) = popSTACK();
-    pushSTACK(new_cons);
-  }
+  pushSTACK(cons_ssstring());
   var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
     allocate_stream(strmflags_wr_ch_B,strmtype_pphelp,strm_len+2,0);
   stream_dummy_fill(stream);

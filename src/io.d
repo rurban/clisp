@@ -6,6 +6,14 @@
 #include "lispbibl.c"
 #include "arilev0.c" # for Division in pr_uint
 
+# define IO_DEBUG 1
+#ifdef IO_DEBUG
+#include <stdio.h>
+global object car (object o) { return Car(o); }
+global object cdr (object o) { return Cdr(o); }
+global object pph_str (object o) { return TheStream(o)->strm_pphelp_strings; }
+#endif
+
 # =============================================================================
 # Readtable-functions
 # =============================================================================
@@ -4548,7 +4556,7 @@ LISPFUN(read_line,0,4,norest,nokey,0,NIL)
 # (READ-LINE [input-stream [eof-error-p [eof-value [recursive-p]]]]),
 # CLTL p. 378
 # This implementation always returns a simple string, if end-of-stream
-# is not encountered immediately. Some other code depends on this.
+# is not encountered immediately.  Code in debug.io depends on this.
   {
     # check input-stream:
     var object* stream_ = &STACK_3;
@@ -5415,6 +5423,11 @@ local void write_sstring_case (const object* stream_, object string) {
 # can trigger GC
 local void spaces (const object* stream_, object anzahl) {
   var uintL count;
+#ifdef IO_DEBUG
+  if (!posfixnump(anzahl)) {
+    printf("ERROR[spaces]: "); fehler_posfixnum(anzahl);
+  } else printf("spaces: %d\n",posfixnum_to_L(anzahl));
+#endif
   dotimesL(count,posfixnum_to_L(anzahl), {
     write_ascii_char(stream_,' ');
   });
@@ -5475,25 +5488,76 @@ local void spaces (const object* stream_, object anzahl) {
 #                    or NIL if the closing parenthesis should be moved to the
 #                    end of the line and not below the opening parenthesis)
 
+# this is a PPHELP helper - used here and in stream.d
+# (list (make-Semi-Simple-String (+ 50 *PRIN-INDENTATION*)))
+#  init the first *PRIN-INDENTATION* chars as spaces
+global object cons_ssstring (void) {
+  var uintL indent = 0;
+  if (!eq(unbound,Symbol_value(S(prin_indentation))))
+    indent = posfixnum_to_L(Symbol_value(S(prin_indentation)));
+  pushSTACK(make_ssstring(50+indent));
+  if (indent > 0) {
+    var object sstring = TheIarray(STACK_0)->data; 
+    dotimesL(indent,indent, {
+      TheSstring(sstring)->data[TheIarray(STACK_0)->dims[1]++] = ascii(' ');
+    });
+  }
+  var object new_cons = allocate_cons();
+  Car(new_cons) = popSTACK();
+  return new_cons;
+}
+
 # Sub-Routines:
 # ===============
 
 # These work on the stream and must be undone in the right order,
 # because they can modify the STACK.
 
-# Return (or *print-right-margin* sys::*prin-linelength*)
+# print the pretty prefix (prefix string and indentation)
+# and compute its length
+# can trigger GC when stream_ is non-NULL
+local uintL pprint_prefix (const object *stream_) {
+  var uintL len = 0;
+  var object prefix = Symbol_value(S(prin_line_prefix));
+  if (stringp(prefix)) {
+    var uintL add = vector_length(prefix);
+    len += add;
+    if ((stream_ != NULL) && (add != 0))
+      write_string(stream_,prefix);
+  }
+  var object indent = Symbol_value(S(prin_indentation));
+  if (posfixnump(indent)) {
+    var uintL add = posfixnum_to_L(indent);
+    len += add;
+    # output in wr_ch_pphelp()
+    # if ((stream_ != NULL) && (add != 0))
+    #   spaces(stream_,indent);
+  } 
+#ifdef IO_DEBUG
+  printf("pprint_prefix(%s): %d\n",(stream_==NULL?"null":"valid"),len);
+#endif
+  return len;
+}
+
+# return
+#     (- (or *print-right-margin* sys::*prin-linelength*) (pprint_prefix))
 local object right_margin (void) {
+  var uintL pp_pref_len = pprint_prefix(NULL);
   var object prm = Symbol_value(S(print_right_margin));
   if (nullp(prm))
-    return Symbol_value(S(prin_linelength));
+    prm = Symbol_value(S(prin_linelength));
   else if (posfixnump(prm))
-    return prm;
+    ; # okay
   else if (posbignump(prm))
-    return fixnum(bit(oint_data_len)-1);
+    prm = fixnum(bit(oint_data_len)-1);
   else {
     pushSTACK(prm); pushSTACK(S(print_right_margin));
     fehler(error,GETTEXT("~: must be a positive integer or NIL, not ~"));
   }
+  if (nullp(prm)) return prm; # *PRIN-LINELENGTH* is NIL
+  var uintL margin = posfixnum_to_L(prm);
+  if (margin <= pp_pref_len) return Fixnum_0;
+  else return fixnum(margin - pp_pref_len);
 }
 
 # Returns the string-width of a PPHELP stream block.
@@ -5517,12 +5581,8 @@ local uintL pphelp_string_width (object string) {
 # can trigger GC
 local void pphelp_newline (const object* stream_) {
   # (push (make-ssstring 50) (strm-pphelp-strings stream)) :
-  pushSTACK(make_ssstring(50)); # new Semi-Simple-String
-  var object new_cons = allocate_cons(); # new Cons
-  Car(new_cons) = popSTACK();
+  PPHELP_NEW_STRING(stream_);
   var object stream = *stream_;
-  Cdr(new_cons) = TheStream(stream)->strm_pphelp_strings;
-  TheStream(stream)->strm_pphelp_strings = new_cons;
   # Line-Position := 0, Modus := multi-liner :
   TheStream(stream)->strm_pphelp_lpos = Fixnum_0;
   TheStream(stream)->strm_pphelp_modus = mehrzeiler;
@@ -5667,10 +5727,7 @@ local void double_dots (const object*);
 # < stream: Stream
 # can trigger GC
 local void justify_empty_1 (const object* stream_) {
-  pushSTACK(make_ssstring(50)); # new Semi-Simple-String
-  var object new_cons = allocate_cons(); # new Cons
-  Car(new_cons) = popSTACK();
-  # new_cons = (list (make-ssstring 50))
+  var object new_cons = cons_ssstring(); # = (list (make-ssstring 50))
   var object stream = *stream_;
   TheStream(stream)->strm_pphelp_strings = new_cons; # new, empty line
   TheStream(stream)->strm_pphelp_modus = einzeiler; # Modus := single-liner
@@ -5679,7 +5736,8 @@ local void justify_empty_1 (const object* stream_) {
 # UP: starts a Justify-Block.
 # justify_start(&stream,traillength);
 # > stream: Stream
-# > traillength: additional width that needs to be reserved for closing brackets on this level
+# > traillength: additional width that needs to be reserved
+#                for closing brackets on this level
 # < stream: Stream
 # changes STACK
 local void justify_start (const object* stream_, uintL traillength) {
@@ -6340,8 +6398,7 @@ local void pr_enter_1 (const object* stream_, object obj,
       do {
         write_ascii_char(stream_,NL); # #\Newline as separating character between the lines
         # check out line prefix, if any
-        var object line_prefix = Symbol_value(S(prin_line_prefix));
-        if (stringp(line_prefix)) write_string(stream_,line_prefix);
+        pprint_prefix(stream_);
       skip_first_NL:
         # print non-empty string list STACK_0 to the stream:
         var object list = STACK_0;
@@ -9399,14 +9456,15 @@ LISPFUN(pprint_indent,2,1,norest,nokey,0,NIL)
     offset = fixnum_to_L(num);
   } else fehler_not_R(STACK_1);
   # check the relative-to arg
+  var object indent = Symbol_value(S(prin_indentation));
+  var object linepos = get_line_position(STACK_0);
+  var uintL linepos_i = (posfixnump(linepos) ? posfixnum_to_L(linepos) : 0);
   if (eq(S(Kblock),STACK_2)) {
-    # FIXME: which value should be used here, *PRIN-L1* or *PRIN-LM*?
-    if (posfixnump(Symbol_value(S(prin_lm))))
-      offset += posfixnum_to_L(Symbol_value(S(prin_lm)));
+    if (posfixnump(indent))
+      offset += posfixnum_to_L(indent);
   } else if (eq(S(Kcurrent),STACK_2)) {
-    var object linepos = get_line_position(STACK_0);
-    if (posfixnump(linepos))
-      offset += posfixnum_to_L(linepos);
+    if (linepos_i > 0)
+      offset += linepos_i;
   } else { # invalid value
     pushSTACK(STACK_2);               # TYPE-ERROR slot DATUM
     pushSTACK(O(type_pprint_indent)); # TYPE-ERROR slot EXPECTED-TYPE
@@ -9418,9 +9476,14 @@ LISPFUN(pprint_indent,2,1,norest,nokey,0,NIL)
   if (PPHELP_STREAM_P(STACK_0) && test_value(S(print_pretty))) {
     # set indentation
     if (offset<0) offset = 0;
-    var object new_indent = fixnum(offset);
-    Symbol_value(S(prin_l1)) = new_indent;
-    Symbol_value(S(prin_lm)) = new_indent;
+#ifdef IO_DEBUG
+    printf("pprint-indent: %d --> %d\n",
+           eq(unbound,Symbol_value(S(prin_indentation))) ? -1 :
+           posfixnum_to_L(Symbol_value(S(prin_indentation))),offset);
+#endif
+    Symbol_value(S(prin_indentation)) = fixnum(offset);
+    if (linepos_i < offset)
+      spaces(&STACK_0,fixnum(offset-linepos_i));
   }
   skipSTACK(3);
   value1=NIL;
@@ -9471,8 +9534,10 @@ LISPFUN(pprint_newline,1,1,norest,nokey,0,NIL)
 pr_routine_t pprint_lisp;
 # SYS::*PRIN-PPRINTER* == the lisp function
 void pprint_lisp (const object* stream_,object obj) {
+  LEVEL_CHECK;
   pushSTACK(*stream_); pushSTACK(obj);
   funcall(Symbol_value(S(prin_pprinter)),2);
+  LEVEL_END;
 }
 
 LISPFUNN(ppprint_logical_block,3)
