@@ -12,6 +12,9 @@
 #+cmu (progn (setf (symbol-function 'setf-gethash)
                    (symbol-function 'cl::%puthash)) t)
 #+cmu t
+#+SBCL (progn (setf (symbol-function 'setf-gethash)
+                    (symbol-function 'sb-kernel:%puthash)) t)
+#+SBCL t
 
 (defun symbole ()
   (let ((b 0.)
@@ -20,7 +23,7 @@
         (liste2 (make-list 50.)))
     (rplacd (last liste) liste)
     (rplacd (last liste2) liste2)
-    (do-external-symbols (x (find-package #+xcl 'lisptest #-xcl "LISP"))
+    (do-external-symbols (x (find-package #+XCL 'lisptest #+SBCL "COMMON-LISP" #-(or XCL SBCL) "LISP"))
       ;; (print x) (finish-output)
       (cond ((car liste)
              (let ((hval (gethash (car liste) hash-table))

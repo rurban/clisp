@@ -20,7 +20,7 @@ ERROR
 
 ;; eval-when
 (let ((ff "eval-when-test.lisp"))
-  (with-open-file (foo ff :direction :output)
+  (with-open-file (foo ff :direction :output #+SBCL :if-exists #+SBCL :supersede)
     (format foo "~%(eval-when (compile eval)
   ;; note that LAMBDA is not externalizable
   (defvar *junk* #.(lambda (x) (+ 15 x))))~%"))
@@ -46,7 +46,7 @@ nil
         (push `(let () (eval-when (,@c ,@l ,@x)
                          (push '(let ,@c ,@l ,@x) *collector*)))
               forms))))
-  (with-open-file (o ff :direction :output)
+  (with-open-file (o ff :direction :output #+SBCL :if-exists #+SBCL :supersede)
     (dolist (f forms)
       (prin1 f o)
       (terpri o)))
@@ -113,7 +113,7 @@ T
 ;; <http://www.lisp.org/HyperSpec/Issues/iss146-writeup.html>
 (let ((src "foo.lisp") (zz (cons 1 2)))
   (defun setf-foo (u v) (setf (car u) v))
-  (with-open-file (s src :direction :output)
+  (with-open-file (s src :direction :output #+SBCL :if-exists #+SBCL :supersede)
     (format s "(progn~%  (defsetf foo setf-foo)
   (defun bar (u v) (setf (foo u) v)))~%"))
   (load src #+CLISP :compiling #+CLISP t)

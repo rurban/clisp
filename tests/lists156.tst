@@ -18,12 +18,12 @@ ERROR
 
 (PAIRLIS '(A B C)
        '(1 2 3))
-#+(or XCL CLISP ALLEGRO CMU)
+#+(or XCL CLISP ALLEGRO CMU SBCL)
 ((C . 3)
  (B . 2)
  (A . 1))
 #+(or AKCL ECL) ((A . 1) (B . 2) (C . 3))
-#-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL) UNKNOWN
 
 (ASSOC 'A
        '((B C)
