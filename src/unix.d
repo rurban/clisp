@@ -63,10 +63,6 @@ extern_C char* strerror (int errnum);
 #endif
 #if defined(HAVE_MMAP) || defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_ANONYMOUS) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MMAP_DEVZERO_SUN4_29)
   #include <sys/mman.h>
-  #ifdef UNIX_CONVEX
-    #define mmap fixed_mmap  /* mmap() is broken under UNIX_CONVEX */
-    #define HAVE_WORKING_MPROTECT  /* our mprotect() in unixaux.d is sufficient */
-  #endif
   #if defined(HAVE_MMAP_ANONYMOUS) && !defined(HAVE_MMAP_ANON)
     /* HP-UX uses MAP_ANONYMOUS instead of MAP_ANON. */
     #define MAP_ANON MAP_ANONYMOUS
