@@ -10976,6 +10976,21 @@ LISPFUNN(program_name,0)
 
 #endif
 
+global char* argv_lisplibdir = NULL; # set during main()
+# (SYS::LIB-DIRECTORY) returns clisp's private library directory (called
+# $(lisplibdir) in the Makefile).
+LISPFUNN(lib_directory,0)
+{ if (!(argv_lisplibdir==NULL))
+    { value1 = asciz_dir_to_pathname(argv_lisplibdir,O(misc_encoding)); }
+    else
+    { pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,
+             GETTEXT("~: library directory is not known, use a command line option to specify it")
+            );
+    }
+  mv_count=1;
+}
+
 # =============================================================================
 
 #ifdef EXPORT_SYSCALLS

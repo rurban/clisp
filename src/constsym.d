@@ -600,6 +600,7 @@ LISPSYM(dynload_modules,"DYNLOAD-MODULES",system)
 #ifdef HAVE_DISASSEMBLER
 LISPSYM(program_name,"PROGRAM-NAME",system)
 #endif
+LISPSYM(lib_directory,"LIB-DIRECTORY",system)
 #ifdef EXPORT_SYSCALLS
 #ifdef UNIX
 LISPSYM(user_data,"USER-DATA",lisp)

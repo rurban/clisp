@@ -57,6 +57,7 @@ int main (int argc, char* argv[])
 {
   char* lisplibdir = LISPLIBDIR;
   char* localedir = LOCALEDIR;
+  char* argv_lisplibdir = NULL;
   char* argv_linkingset = "base";
   char* argv_memfile = NULL;
   char* argv_localedir = NULL;
@@ -152,6 +153,10 @@ int main (int argc, char* argv[])
                     { if (argptr < argptr_limit) arg = *argptr++; else goto usage; } \
                     else { arg = &arg[2]; }
                 /* Options to which we have to pay attention. */
+                case 'B':
+                  OPTION_ARG
+                  argv_lisplibdir = arg;
+                  break;
                 case 'K':
                   OPTION_ARG
                   argv_linkingset = arg;
@@ -229,12 +234,16 @@ int main (int argc, char* argv[])
       strcat(executable, execname);
     }
     /* Compute new arguments. */
-    new_argv = (char**)malloc((argc+4+1)*sizeof(char*));
+    new_argv = (char**)malloc((argc+6+1)*sizeof(char*));
     if (!new_argv) goto oom;
     new_argv[0] = executable;
     { char** argptr = &argv[1];
       char** argptr_limit = &argv[argc];
       char** new_argptr = &new_argv[1];
+      if (!argv_lisplibdir)
+        { *new_argptr++ = "-B";
+          *new_argptr++ = lisplibdir;
+        }
       if (!argv_memfile)
         { char* filename = "lispinit.mem";
           argv_memfile = (char*)malloc(strlen(linkingsetdir)+1+strlen(filename)+1);

@@ -379,7 +379,7 @@ And create a batch file that starts lisp:
    set TERM=ansi
    set TERMCAP=c:/emx/etc/termcap.dat
 #endif
-   d:\lib\lisp\lisp.exe -M d:\lib\lisp\lispinit.mem %1 %2 %3 %4 %5 %6 %7 %8 %9
+   d:\lib\lisp\lisp.exe -M d:\lib\lisp\lispinit.mem -B d:\lib\lisp\ %1 %2 %3 %4 %5 %6 %7 %8 %9
    [Ctrl-Z]
 #endif
 #ifdef UNIX
@@ -393,13 +393,13 @@ And create a shell script that starts lisp:
 #else
    #!/bin/sh
 #endif
-   exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem "$@"
+   exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem -B /usr/local/lib/lisp/ "$@"
 #else
    #!/bin/sh
    if test $# = 0; then
-     exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem
+     exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem -B /usr/local/lib/lisp/
    else
-     exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem "$@"
+     exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem -B /usr/local/lib/lisp/ "$@"
    fi
 #endif
    [Ctrl-D]EOF
@@ -448,7 +448,7 @@ To achieve this, the following additional steps are necessary:
 
    Program:                c:\rsx\bin\rsx.exe
    Program title:          COMMON LISP
-   Program parameters:     -Ra c:\lib\lisp\lisp.exe -M c:\lib\lisp\lispinit.mem
+   Program parameters:     -Ra c:\lib\lisp\lisp.exe -M c:\lib\lisp\lispinit.mem -B c:\lib\lisp\
                            (maybe after -Ra add also -Rs1024)
    Start directory:        e:\lisp  (or whatever)
    Screen:                 Text
