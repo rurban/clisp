@@ -5,8 +5,9 @@ DTDVER=4.2
 IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml			\
 	impext.xml impissue.xml impbyte.xml unix-ent.xml		\
 	../modules/dirkey/dirkey.xml ../modules/syscalls/syscalls.xml	\
-	../modules/regexp/regexp.xml ../modules/netica/netica.xml \
+	../modules/regexp/regexp.xml ../modules/netica/netica.xml       \
 	../modules/berkeley-db/berkeley-db.xml ../modules/pcre/pcre.xml \
+        ../modules/rawsock/rawsock.xml ../modules/matlab/matlab.xml     \
 	../modules/oracle/oracle.xml ../modules/fastcgi/fastcgi.xml
 OLINK=tdb-man.xml tdb-pile.xml tdb-chunk.xml olink-pile.xml olink-chunk.xml
 RM=/bin/rm -f
