@@ -67,12 +67,25 @@ The point should be on the prototype and the definition should follow."
     (c-indent-region beg (progn (forward-sexp 3) (point)))))
 
 (defun d-mode-convert-comment ()
-  "Comvert the current comment from # to /**/"
+  "Comvert the current comment line from # to /**/"
   (interactive "")
   (save-excursion
     (beginning-of-line)
     (when (search-forward "# " (line-end-position) t)
       (replace-match "/* ") (end-of-line) (insert " */"))))
+
+(defun d-mode-convert-block-comment ()
+  "Comvert the current comment block from # to /**/"
+  (interactive "")
+  (save-excursion
+    (beginning-of-line)
+    (while (looking-at "[ \t]*# ")
+      (forward-line -1))
+    (replace-match "/* ")
+    (forward-line 1)
+    (while (looking-at "[ \t]*# ")
+      (replace-match " ") (forward-line 1))
+    (forward-char -1) (insert " */")))
 
 (defun d-mode-wrap-do-while ()
   "Wrap this block in do/while(0) [for CPP macros]."
@@ -85,9 +98,9 @@ The point should be on the prototype and the definition should follow."
   (save-excursion (back-to-indentation) (if (looking-at "# ") 0 [0])))
 
 (defvar d-font-lock-extra-types
-  '(nconc (list "bool" "object" "chart" "[otac]int" "signean" "scint" "Handle"
-           "[csu]?int[BCLPQWX0-9]*" "Values" "fsubr_function" "lisp_function"
-           "SOCKET" "stringarg")
+  '(nconc (list "bool" "object" "chart" "[otac]int" "signean" "s[co]int"
+           "[csu]?int[BCDLPQWX0-9]*" "Values" "SOCKET" "Handle" "stringarg"
+           "FILETIME")
     c-font-lock-extra-types)
   "Extra types to be fontified as such.")
 
