@@ -4,6 +4,7 @@
 	* modules/berkeley-db/bdb.c (wrap_finalize): call MKHANDLE
 	* modules/berkeley-db/dbi.lisp (dbe, db, dbc, txn, logc, mpoolfile):
 	inherit from BDB-HANDLE
+	* genclisph.d (main): export copy_list()
 
 2004-07-21  John Hinsdale <hin@alma.com>
 

@@ -1862,6 +1862,7 @@ int main(int argc, char* argv[])
   printf("extern chart* unpack_string (object string, uintL* len);\n");
   printf("extern object make_list (uintL len);\n");
 #endif
+  printf("extern object copy_list (object old_list);\n");
   printf("extern object listof (uintC len);\n");
   printf("extern object nreverse (object list);\n");
   printf("extern object deleteq (object list, object obj);\n");
