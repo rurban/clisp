@@ -2208,14 +2208,22 @@ within Lisp (using &setq; or similar).</simpara>
   &c-lang; type of &cplace-r;, measured in bits.
  </simpara></listitem></varlistentry>
 
-<varlistentry id="validp"><term><literal role="sexp">(&validp;
-                <replaceable>foreign-entity</replaceable>)</literal></term>
+<varlistentry id="validp">
+  <term><literal role="sexp">(&validp; &f-ent;)</literal></term>
+<listitem><simpara>This predicate returns &nil; if the &f-ent;
+  (e.g. the Lisp equivalent of a &c-pointer;) refers to a pointer
+  which is invalid because it comes from a previous Lisp session.
+  It returns &t; if &f-ent; can be used within the current Lisp process
+  (thus it returns &t; for all non-foreign arguments).
+ </simpara></listitem></varlistentry>
+
+<varlistentry id="fa-null">
+  <term><literal role="sexp">(&foreign-address-null; &f-ent;)</literal></term>
 <listitem><simpara>This predicate returns &nil; if the
-  <replaceable>foreign-entity</replaceable> (e.g. the Lisp equivalent of
-  a <function>c-pointer</function>) refers to a pointer which is invalid
-  because it comes from a previous Lisp session.  It returns &t; if
-  <replaceable>foreign-entity</replaceable> can be used within the
-  current Lisp process.</simpara></listitem></varlistentry>
+  &f-ent; referes to the &c-NULL; address (and thus &f-ent; should
+  probably not be passed to most foreign functions).
+ </simpara></listitem></varlistentry>
+
 </variablelist>
 
 </section>
