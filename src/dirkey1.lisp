@@ -1,6 +1,6 @@
-;;; Copyright (C) 2000-2001 by Sam Steingold
+;;; Copyright (C) 2000-2002 by Sam Steingold
 ;;; This is Free Software, covered by the GNU GPL (v2)
-;;; See http://www.gnu.org/copyleft/gpl.html
+;;; See <http://www.gnu.org/copyleft/gpl.html>
 
 (use-package '("COMMON-LISP" "EXT") "LDAP")
 (in-package "LDAP")
@@ -58,8 +58,8 @@ The search is done according to the `scope', in the sub-`path' of `dkey'."
         ,@body))))
 
 ;; the following two functions are re-implementations of
-;; `dir-key-attributes' and `dir-key-subkeys' respectively, using
-;; `with-dir-key-search'.
+;; `dir-key-attributes' and `dir-key-subkeys' respectively,
+;; using `with-dir-key-search'.
 (defun dir-key-values (dkey path)
   (with-dir-key-search (k-iter a-iter dkey path :scope :self)
     (let ((kk (k-iter)) vals)
