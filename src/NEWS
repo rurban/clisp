@@ -24,6 +24,8 @@ Portability
 
 * Removed support for Borland C compiler on Win32.
 
+* Added FFI support for x86_64 (AMD64) Linux and PowerPC MacOS X.
+
 
 2.32 (2003-12-29)
 =================
