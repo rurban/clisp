@@ -7045,9 +7045,12 @@ All other long words on the LISP-Stack are LISP-objects.
       __asm__ __volatile__ ("movl %%esp,%0" : "=g" (__SP) : ); \
       __SP;                                                    \
      })
-  #define setSP(adresse)  \
-    ({ __asm__ __volatile__ ("movl %0,%%esp" : : "g" ((aint)(adresse)) : "sp" ); })
-  #define FAST_SP
+  # Doesn't work with gcc 3.1 any more.
+  #if (__GNUC__ < 3) || (__GNUC__ == 3 && __GNUC_MINOR__ < 1)
+    #define setSP(adresse)  \
+      ({ __asm__ __volatile__ ("movl %0,%%esp" : : "g" ((aint)(adresse)) : "sp" ); })
+    #define FAST_SP
+  #endif
 #elif defined(GNU) && defined(SP_register)
   register __volatile__ aint __SP __asm__(SP_register);
   #define SP()  __SP

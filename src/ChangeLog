@@ -1,3 +1,8 @@
+2002-05-28  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (setSP, FAST_SP) [I80386]: Don't define when using
+	gcc-3.1.
+
 2002-05-26  Bruno Haible  <bruno@clisp.org>
 
 	Assume <locale.h> exists.
