@@ -1,5 +1,10 @@
 2001-04-16  Sam Steingold  <sds@gnu.org>
 
+	* io.d (CHECK_READTABLE): new macro
+	(unread-char, write-char): use fehler_char()
+
+2001-04-16  Sam Steingold  <sds@gnu.org>
+
 	* sequence.d (valid_type): CONS and NULL are sequences of type LIST
 
 2001-04-11  Sam Steingold  <sds@gnu.org>
