@@ -1,5 +1,10 @@
 2004-02-14  Bruno Haible  <bruno@clisp.org>
 
+	* lists153.tst: Reduce the memory size, so that it needs only 80 MB,
+	not 160 MB, when using a WIDE memory model.
+
+2004-02-14  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (Rectype_realloc_Instance): Remove enum value.
 	(instancep, case_Rectype_Instance_above): Simplify accordingly.
 	(instflags_forwarded_B): New macro.
