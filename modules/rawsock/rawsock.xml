@@ -43,10 +43,8 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 <para>We do not interface to &getsockopt; and &setsockopt;,
  they are available through &so-opt;.</para>
 
-<para>We do not interface to &select;,
- it is available through &so-status;.</para>
-
-<para>We do not interface to &poll; yet, patches are welcome.</para>
+<para>We do not interface to &select; or &poll;,
+ they are available through &so-status;.</para>
 
 <variablelist id="rawsock-add-on"><title>Additional Functions</title>
  <varlistentry><term><code>(RAWSOCK:MAKE-SOCKADDR
