@@ -2266,22 +2266,20 @@ LISPFUNNR(function_name_p,1)
   VALUES_IF(funnamep(arg));
 }
 
-/* (SYS::%CHECK-FUNCTION-NAME caller funname)
+LISPFUNN(check_function_name,2)
+{ /* (SYS::%CHECK-FUNCTION-NAME funname caller)
  checks whether the funname argument is a function name, giving the user the
  opportunity to correct it if it is not. Returns the corrected function name. */
-LISPFUNN(check_function_name,2)
-{
-  VALUES1(check_funname(source_program_error,STACK_1,STACK_0));
+  VALUES1(check_funname(source_program_error,STACK_0,STACK_1));
   skipSTACK(2);
 }
 
-/* (SYS::%CHECK-SYMBOL caller symbol)
+LISPFUNN(check_symbol,2)
+{ /* (SYS::%CHECK-SYMBOL symbol caller)
  checks whether the symbol argument is a symbol, giving the user the
  opportunity to correct it if it is not. Returns the corrected symbol. */
-LISPFUNN(check_symbol,2)
-{
-  var gcv_object_t *sym_ = &STACK_0;
-  var gcv_object_t *caller_ = &STACK_1;
+  var gcv_object_t *sym_ = &STACK_1;
+  var gcv_object_t *caller_ = &STACK_0;
   while (!symbolp(*sym_)) {
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(*sym_);           /* SOURCE-PROGRAM-ERROR slot FORM */

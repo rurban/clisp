@@ -1,5 +1,13 @@
 2004-08-20  Sam Steingold  <sds@gnu.org>
 
+	* control.d (%CHECK-FUNCTION-NAME, %CHECK-SYMBOL): change the
+	order of arguments to match that of CHECK-TYPE
+	* init.lisp (CHECK-FUNCTION-NAME, CHECK-SYMBOL): ditto
+	* clos-genfun3.lisp, cmacros.lisp, compiler.lisp, defstruct.lisp:
+	* documentation.lisp, foreign1.lisp, trace.lisp: update callers
+
+2004-08-20  Sam Steingold  <sds@gnu.org>
+
 	* configure.in: added "sysre" option to optionally disable
 	the use of system-wide regexp library
 
