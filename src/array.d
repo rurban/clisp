@@ -4087,13 +4087,13 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
                   );
           }
       }
-      set_break_sem_1(); # Unterbrechungen verbieten
+      set_break_sem_1(); # forbid interrupts
       TheIarray(array)->data = neuer_datenvektor; # neuen Vektor als Datenvektor eintragen
       iarray_flags_clr(TheIarray(array),bit(arrayflags_displaced_bit)); # Displaced-Bit löschen
       TheIarray(array)->dims[2] += 1; # Fillpointer um 1 erhöhen
       TheIarray(array)->dims[1] = newlen; # neue Länge eintragen
       TheIarray(array)->totalsize = newlen; # ist auch neue totalsize
-      clr_break_sem_1(); # Unterbrechungen wieder zulassen
+      clr_break_sem_1(); # permit interrupts again
     }
     value1 = fixnum(oldfillp); mv_count=1;
     # alter Fill-Pointer als Wert
@@ -4168,22 +4168,36 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
 # > uintL len: desired length, must be >0
 # < fresh: fresh semi-simple-string of the given length
 # can trigger GC
-  global object make_ssstring (uintL len);
-  global object make_ssstring(len)
-    var uintL len;
-    {
-      var object new_string = allocate_string(len);
-      # neuer Normal-Simple-String dieser Länge
-      pushSTACK(new_string); # retten
-      var object new_array =
-        allocate_iarray(bit(arrayflags_fillp_bit)|Atype_Char,1,Array_type_string);
-        # Flags: nur FILL_POINTER_BIT, Elementtyp CHARACTER, Rang=1
-      TheIarray(new_array)->dims[1] = 0; # Fill-Pointer := 0
-      TheIarray(new_array)->totalsize =
-        TheIarray(new_array)->dims[0] = len; # Länge und Total-Size eintragen
-      TheIarray(new_array)->data = popSTACK(); # Datenvektor eintragen
-      return new_array;
-    }
+global object make_ssstring (uintL len) {
+  pushSTACK(allocate_string(len));
+  var object new_array =
+    allocate_iarray(bit(arrayflags_fillp_bit)|Atype_Char,1,Array_type_string);
+  # Flags: nur FILL_POINTER_BIT, Elementtyp CHARACTER, Rang=1
+  TheIarray(new_array)->dims[1] = 0; # Fill-Pointer := 0
+  TheIarray(new_array)->totalsize =
+    TheIarray(new_array)->dims[0] = len; # Länge und Total-Size eintragen
+  TheIarray(new_array)->data = popSTACK(); # Datenvektor eintragen
+  return new_array;
+}
+
+# Function: extend the string to the given length
+# > ssstring: a semi-simple-string
+# > size:     how much to allocate
+# < returns:  the same semi-simple-string
+# can trigger GC
+local object ssstring_extend_low (object ssstring, uintL size) {
+  pushSTACK(ssstring);
+  var object new_data = allocate_string(size);
+  ssstring = popSTACK();
+  chartcopy(TheSstring(TheIarray(ssstring)->data)->data,
+            TheSstring(new_data)->data,TheIarray(ssstring)->dims[1]);
+  set_break_sem_1(); # forbid interrupts
+  TheIarray(ssstring)->data = new_data;
+  TheIarray(ssstring)->totalsize = TheIarray(ssstring)->dims[0] = size;
+  clr_break_sem_1(); # permit interrupts again
+  TheIarray(ssstring)->data = new_data;
+  return ssstring;
+}
 
 # Function: Adds a character to a semi-simple-string, thereby possibly
 # extending it.
@@ -4192,36 +4206,19 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
 # > ch: a character
 # < result: the same semi-simple-string
 # can trigger GC
-  global object ssstring_push_extend (object ssstring, chart ch);
-  global object ssstring_push_extend(ssstring,ch)
-    var object ssstring;
-    var chart ch;
-    {
-      var object sstring = TheIarray(ssstring)->data; # Datenvektor (ein Normal-Simple-String)
-      if (TheIarray(ssstring)->dims[1] # Fill-Pointer
-          >= Sstring_length(sstring) ) { # >= Länge ?
-        # ja -> String wird um den Faktor 2 länger gemacht
-        pushSTACK(ssstring); # ssstring retten
-        pushSTACK(sstring); # Datenvektor ebenfalls retten
-        var object neuer_sstring = allocate_string(2 * Sstring_length(sstring));
-        # neuer Normal-Simple-String der doppelten Länge
-        sstring = popSTACK(); # sstring zurück
-        # Stringinhalt von String sstring nach String neuer_sstring kopieren:
-        chartcopy(&TheSstring(sstring)->data[0],&TheSstring(neuer_sstring)->data[0],Sstring_length(sstring));
-        ssstring = popSTACK(); # ssstring zurück
-        set_break_sem_1(); # Unterbrechungen verbieten
-        TheIarray(ssstring)->data = neuer_sstring; # neuen String als Datenvektor abspeichern
-        TheIarray(ssstring)->totalsize =
-          TheIarray(ssstring)->dims[0] = Sstring_length(neuer_sstring); # neue Länge eintragen
-        clr_break_sem_1(); # Unterbrechungen wieder zulassen
-        sstring = neuer_sstring;
-      }
-      # Nun ist wieder sstring der Datenvektor, und es gilt
-      # Fill-Pointer < Länge(Datenvektor).
-      # Character hineinschieben und Fill-Pointer erhöhen:
-      TheSstring(sstring)->data[ TheIarray(ssstring)->dims[1]++ ] = ch;
-      return ssstring;
-    }
+global object ssstring_push_extend (object ssstring, chart ch) {
+  var object sstring = TheIarray(ssstring)->data; # normal-simple-string
+  if (TheIarray(ssstring)->dims[1] # fill-pointer
+      >= Sstring_length(sstring) ) { # >= length ?
+    ssstring = ssstring_extend_low(ssstring,2 * Sstring_length(sstring));
+    sstring = TheIarray(ssstring)->data;
+  }
+  # now sstring is still the data vector, and we have
+  # Fill-Pointer < Length(data vector).
+  # push the character in and increase the fill-pointer:
+  TheSstring(sstring)->data[ TheIarray(ssstring)->dims[1]++ ] = ch;
+  return ssstring;
+}
 
 # Function: Ensures that a semi-simple-string has at least a given length,
 # possibly extending it.
@@ -4230,34 +4227,18 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
 # > size: desired minimum length
 # < ergebnis: the same semi-simple-string
 # can trigger GC
-  global object ssstring_extend (object ssstring, uintL needed_len);
-  global object ssstring_extend(ssstring,needed_len)
-    var object ssstring;
-    var uintL needed_len;
-    {
-      var object sstring = TheIarray(ssstring)->data; # Datenvektor (ein Normal-Simple-String)
-      var uintL now_len = Sstring_length(sstring); # jetzige Maximal-Länge
-      if (needed_len > now_len) {
-        # ja -> String wird länger gemacht, mindestens um den Faktor 2:
-        pushSTACK(ssstring); # ssstring retten
-        pushSTACK(sstring); # Datenvektor ebenfalls retten
-        now_len = now_len * 2;
-        if (needed_len > now_len)
-          now_len = needed_len; # now_len vergrößern
-        var object neuer_sstring = allocate_string(now_len);
-        # neuer Normal-Simple-String mindestens der gewünschten und der doppelten Länge
-        sstring = popSTACK(); # sstring zurück
-        # Stringinhalt von String sstring nach String neuer_sstring kopieren:
-        chartcopy(&TheSstring(sstring)->data[0],&TheSstring(neuer_sstring)->data[0],Sstring_length(sstring));
-        ssstring = popSTACK(); # ssstring zurück
-        set_break_sem_1(); # Unterbrechungen verbieten
-        TheIarray(ssstring)->data = neuer_sstring; # neuen String als Datenvektor abspeichern
-        TheIarray(ssstring)->totalsize =
-          TheIarray(ssstring)->dims[0] = now_len; # neue Länge eintragen
-        clr_break_sem_1(); # Unterbrechungen wieder zulassen
-      }
-      return ssstring;
-    }
+global object ssstring_extend (object ssstring, uintL needed_len) {
+  var object sstring = TheIarray(ssstring)->data; # normal simple string
+  var uintL now_len = Sstring_length(sstring); # current maximal lenth
+  if (needed_len > now_len) {
+    # yes -> lengthen the string at least by a factor of 2:
+    now_len *= 2;
+    if (needed_len > now_len)
+      now_len = needed_len; # increase now_len
+    ssstring = ssstring_extend_low(ssstring,now_len);
+  }
+  return ssstring;
+}
 
 # Function: Adds a substring to a semi-simple-string, thereby possibly
 # extending it.
@@ -4268,29 +4249,24 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
 # > len: the number of characters to be pushed, starting from start
 # < result: the same semi-simple-string
 # can trigger GC
-  global object ssstring_append_extend (object ssstring, object sstring, uintL start, uintL len);
-  global object ssstring_append_extend(ssstring,srcstring,start,len)
-    var object ssstring;
-    var object srcstring;
-    var uintL start;
-    var uintL len;
-    {
-      var uintL old_len = TheIarray(ssstring)->dims[1]; # jetzige Länge = Fill-Pointer
-      if (old_len + len > TheIarray(ssstring)->dims[0]) { # passen keine len Bytes mehr hinein
-        pushSTACK(srcstring);
-        ssstring = ssstring_extend(ssstring,old_len+len); # dann länger machen
-        srcstring = popSTACK();
-      }
-      # Zeichen hineinschieben:
-      var chart* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
-      SstringDispatch(srcstring,
-        { chartcopy(&TheSstring(srcstring)->data[start],ptr,len); },
-        { scintcopy(&TheSmallSstring(srcstring)->data[start],ptr,len); }
-        );
-      # und Fill-Pointer erhöhen:
-      TheIarray(ssstring)->dims[1] = old_len + len;
-      return ssstring;
-    }
+global object ssstring_append_extend (object ssstring, object srcstring,
+                                      uintL start, uintL len) {
+  var uintL old_len = TheIarray(ssstring)->dims[1]; # length = fill-pointer
+  if (old_len + len > TheIarray(ssstring)->dims[0]) { # len bytes will not fit
+    pushSTACK(srcstring);
+    ssstring = ssstring_extend(ssstring,old_len+len);
+    srcstring = popSTACK();
+  }
+  # push the characters in:
+  var chart* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
+  SstringDispatch(srcstring,
+  { chartcopy(&TheSstring(srcstring)->data[start],ptr,len); },
+  { scintcopy(&TheSmallSstring(srcstring)->data[start],ptr,len); }
+  );
+  # increase the fill-pointer:
+  TheIarray(ssstring)->dims[1] = old_len + len;
+  return ssstring;
+}
 
 # ============================================================================
 #                 Semi-simple byte vectors
@@ -4346,11 +4322,11 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
         # Inhalt von sbvector nach neuer_sbvector kopieren:
         elt_copy_8Bit_8Bit(sbvector,0,neuer_sbvector,0,Sbvector_length(sbvector));
         ssbvector = popSTACK(); # ssbvector zurück
-        set_break_sem_1(); # Unterbrechungen verbieten
+        set_break_sem_1(); # forbid interrupts
         TheIarray(ssbvector)->data = neuer_sbvector; # neuen Bit-Vektor als Datenvektor abspeichern
         TheIarray(ssbvector)->totalsize =
           TheIarray(ssbvector)->dims[0] = Sbvector_length(neuer_sbvector); # neue Länge eintragen
-        clr_break_sem_1(); # Unterbrechungen wieder zulassen
+        clr_break_sem_1(); # permit interrupts again
         sbvector = neuer_sbvector;
       }
       # Nun ist wieder sbvector der Datenvektor, und es gilt
@@ -5174,7 +5150,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
     # Array modifizieren:
     {
       var object array = STACK_6;
-      set_break_sem_1(); # Unterbrechungen verbieten
+      set_break_sem_1(); # forbid interrupts
       iarray_flags_replace(TheIarray(array),flags); # neue Flags eintragen
       TheIarray(array)->totalsize = totalsize; # neue Total-Size eintragen
       {
@@ -5199,7 +5175,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
       }
       # Datenvektor eintragen:
       TheIarray(array)->data = STACK_1; # displaced-to-Argument oder neuer Datenvektor
-      clr_break_sem_1(); # Unterbrechungen wieder zulassen
+      clr_break_sem_1(); # permit interrupts again
       # array als Wert:
       value1 = array; mv_count=1; skipSTACK(8);
     }

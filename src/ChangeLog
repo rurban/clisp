@@ -1,3 +1,8 @@
+2002-01-23  Sam Steingold  <sds@gnu.org>
+
+	* array.d (ssstring_extend_low): new function
+	(ssstring_push_extend, ssstring_extend): use it
+
 2002-01-22  Sam Steingold  <sds@gnu.org>
 
 	* predtype.d (with_gc_statistics) [DEBUG_SPVW]: print a message
