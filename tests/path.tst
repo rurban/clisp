@@ -493,9 +493,10 @@ nil
 (progn (close file) t)
 t
 
-(namestring
-  (multiple-value-setq (new-name pathname truename)
-                     (rename-file "nicht-vorhandenes-file.non" "file.da")))
+(let ((*default-pathname-defaults* #p""))
+  (namestring
+   (multiple-value-setq (new-name pathname truename)
+     (rename-file "nicht-vorhandenes-file.non" "file.da"))))
 "file.da"
 
 (namestring new-name)
@@ -788,3 +789,40 @@ NIL
 (first (pathname-directory (translate-pathname
                             "foo/bar/baz" #p"" #p"" :absolute t)))
 :ABSOLUTE
+
+(let ((file "this-is-a-temp-file-to-be-removed-immediately.lisp"))
+  (unwind-protect
+       (let* ((p (pathname (open file :direction :probe
+                                 :if-does-not-exist :create)))
+              (p1 (make-pathname :type nil :defaults p)))
+         (when (probe-file p1) (delete-file p1)) ; just in case
+         (list (not (null (probe-file p))) ; just created
+               (null (probe-file p1))      ; just deleted
+               (let ((*default-pathname-defaults* ; 19.2.3 !!!
+                      (make-pathname :type "lisp")))
+                 (not (null (probe-file p1))))))
+    (delete-file file)))
+(T T T)
+
+(let ((file "this-is-a-temp-file-to-be-removed-immediately"))
+  (unwind-protect
+       (let* ((p (pathname (open file :direction :probe
+                                 :if-does-not-exist :create))))
+         (list (not (null (probe-file p))) ; just created
+               (with-open-file (s p)
+                 (let ((*default-pathname-defaults*
+                        (make-pathname :type "lisp")))
+                   ;; despite 19.2.3, S is not subject to
+                   ;; *DEFAULT-PATHNAME-DEFAULTS*!
+                   (not (null (probe-file s)))))))
+    (delete-file file)))
+(T T)
+
+(let ((file "this-is-a-temp-file-to-be-removed-immediately"))
+  (unwind-protect
+       (with-open-file (s file :direction :output)
+         (list (not (null (probe-file file)))
+               (not (null (probe-file s)))
+               (equalp (truename s) (truename file))))
+    (delete-file file)))
+(T T T)
