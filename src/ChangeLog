@@ -1,5 +1,11 @@
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
+	* io.d (test_disp_sub_char): Expect readtable on the STACK. Fix
+	GC-safety bug introduced on 2004-06-02.
+	(SET-DISPATCH-MACRO-CHARACTER, GET-DISPATCH-MACRO-CHARACTER): Update.
+
+2004-12-05  Bruno Haible  <bruno@clisp.org>
+
 	* stream.d (SYSTEM::SET-STREAM-EXTERNAL-FORMAT): Fix GC-safety bug
 	introduced on 2003-05-07.
 
