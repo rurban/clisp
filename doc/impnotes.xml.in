@@ -33,7 +33,7 @@
 <bookinfo>
  <graphic srccredit="[CLISP icon]" align="center"
           fileref="clisp.png" width="48" depth="48"/>
- <date>Last modified: 2002-06-07</date>
+ <date>Last modified: 2002-09-03</date>
  <author id="bruno"><honorific>Dr</honorific> <firstname>Bruno</firstname>
    <surname>Haible</surname></author>
  <author id="sds"><honorific>Dr</honorific> <firstname>Sam</firstname>
@@ -108,107 +108,6 @@ and
 
 </preface>
 
-<toc>
-<tocpart><tocentry linkend="clhs-chapters">Chapters of the &hyperspec;
-  <ulink url="&clhs;/FrontMatter/Chapter-Index.html">[CLHS]</ulink></tocentry>
- <tocentry linkend="intro">Introduction
-   <ulink url="&clhs;/Body/chap-1.html">[CLHS-1]</ulink></tocentry>
- <tocentry linkend="syntax">Syntax
-   <ulink url="&clhs;/Body/chap-2.html">[CLHS-2]</ulink></tocentry>
- <tocentry linkend="eval">Evaluation and Compilation
-   <ulink url="&clhs;/Body/chap-3.html">[CLHS-3]</ulink></tocentry>
- <tocentry linkend="types-classes">Types and Classes
-   <ulink url="&clhs;/Body/chap-4.html">[CLHS-4]</ulink></tocentry>
- <tocentry linkend="data">Data and Control Flow
-   <ulink url="&clhs;/Body/chap-5.html">[CLHS-5]</ulink></tocentry>
- <tocentry linkend="iteration">Iteration
-   <ulink url="&clhs;/Body/chap-6.html">[CLHS-6]</ulink></tocentry>
- <tocentry linkend="objects">Objects
-   <ulink url="&clhs;/Body/chap-7.html">[CLHS-7]</ulink></tocentry>
- <tocentry linkend="structures">Structures
-   <ulink url="&clhs;/Body/chap-8.html">[CLHS-8]</ulink></tocentry>
- <tocentry linkend="conditions">Conditions
-   <ulink url="&clhs;/Body/chap-9.html">[CLHS-9]</ulink></tocentry>
- <tocentry linkend="symbols">Symbols
-   <ulink url="&clhs;/Body/chap-10.html">[CLHS-10]</ulink></tocentry>
- <tocentry linkend="packages">Packages
-   <ulink url="&clhs;/Body/chap-11.html">[CLHS-11]</ulink></tocentry>
- <tocentry linkend="numbers">Numbers
-   <ulink url="&clhs;/Body/chap-12.html">[CLHS-12]</ulink></tocentry>
- <tocentry linkend="characters">Characters
-   <ulink url="&clhs;/Body/chap-13.html">[CLHS-13]</ulink></tocentry>
- <tocentry linkend="conses">Conses
-   <ulink url="&clhs;/Body/chap-14.html">[CLHS-14]</ulink></tocentry>
- <tocentry linkend="arrays">Arrays
-   <ulink url="&clhs;/Body/chap-15.html">[CLHS-15]</ulink></tocentry>
- <tocentry linkend="strings">Strings
-   <ulink url="&clhs;/Body/chap-16.html">[CLHS-16]</ulink></tocentry>
- <tocentry linkend="sequences">Sequences
-   <ulink url="&clhs;/Body/chap-17.html">[CLHS-17]</ulink></tocentry>
- <tocentry linkend="hash">Hash Tables
-   <ulink url="&clhs;/Body/chap-18.html">[CLHS-18]</ulink></tocentry>
- <tocentry linkend="filenames">Filenames
-   <ulink url="&clhs;/Body/chap-19.html">[CLHS-19]</ulink></tocentry>
- <tocentry linkend="files">Files
-   <ulink url="&clhs;/Body/chap-20.html">[CLHS-20]</ulink></tocentry>
- <tocentry linkend="streams">Streams
-   <ulink url="&clhs;/Body/chap-21.html">[CLHS-21]</ulink></tocentry>
- <tocentry linkend="printer">Printer
-   <ulink url="&clhs;/Body/chap-22.html">[CLHS-22]</ulink></tocentry>
- <tocentry linkend="reader">Reader
-   <ulink url="&clhs;/Body/chap-23.html">[CLHS-23]</ulink></tocentry>
- <tocentry linkend="system">System Construction
-   <ulink url="&clhs;/Body/chap-24.html">[CLHS-24]</ulink></tocentry>
- <tocentry linkend="environment">Environment
-   <ulink url="&clhs;/Body/chap-25.html">[CLHS-25]</ulink></tocentry>
- <tocentry linkend="glossary">Glossary
-   <ulink url="&clhs;/Body/chap-26.html">[CLHS-26]</ulink></tocentry>
- <tocentry linkend="appendix">Appendix
-   <ulink url="&clhs;/Body/chap-a.html">[CLHS-a]</ulink></tocentry>
- <tocentry linkend="issues">X3J13 Issue Index
-   <ulink url="&clhs;/Issues/Issues-Categorized.html">[CLHS-ic]</ulink></tocentry>
-</tocpart>
-
-<tocpart><tocentry linkend="internals">Internals of the
- &clisp; Implementation</tocentry>
-<!-- filling this in would require some work and it is ignored anyway! -->
-</tocpart>
-
-<tocpart><tocentry linkend="extensions">Extensions</tocentry>
- <tocchap><tocentry linkend="p-indep">
-   [Platform-independent Extensions]</tocentry>
-   <tocentry linkend="image">[Saving an Image]</tocentry>
-   <tocentry linkend="quit">[Quitting Lisp]</tocentry>
-   <tocentry linkend="i18n">[Internationalization]</tocentry>
-   <tocentry linkend="encoding">[Encodings]</tocentry>
-   <tocentry linkend="clos-stream">[Defining new kinds of Streams]</tocentry>
-   <tocentry linkend="weak">[Weak Pointers]</tocentry>
-   <tocentry linkend="final">[Finalization]</tocentry>
-   <tocentry linkend="prompt">[The Prompt]</tocentry>
-   <tocentry linkend="ansi">[Maximum ANSI CL compliance]</tocentry>
-   <tocentry linkend="macros3">[Additional Fancy Macros]</tocentry>
- </tocchap>
- <tocchap><tocentry linkend="platform">
-   [Platform-specific Extensions]</tocentry>
-   <tocentry linkend="screen">[Random Screen Access]</tocentry>
-   <tocentry linkend="modules">[External Modules]</tocentry>
-   <tocentry linkend="dffi">[The Foreign Function Call Facility]</tocentry>
-   <tocentry linkend="affi">[The Amiga Foreign Function Facility]</tocentry>
-   <tocentry linkend="rexx">[ARexx]</tocentry>
-   <tocentry linkend="socket">[Socket Streams]</tocentry>
-   <tocentry linkend="syscalls">[System Calls]</tocentry>
-   <tocentry linkend="quickstart">[Quickstarting CLISP programs]</tocentry>
-   <tocentry linkend="app-dev">[Application delivery with CLISP]</tocentry>
-   <tocentry linkend="shell">[Shell, Pipes and Printing]</tocentry>
-   <tocentry linkend="dir-key">[Directory Access]</tocentry>
-   <tocentry linkend="other">[Other]</tocentry>
- </tocchap>
-</tocpart>
-<tocpart><tocentry>Appendices</tocentry>
-<tocentry linkend="gfdl">GNU Free Documentation License</tocentry>
-</tocpart>
-</toc>
-
 <part id="clhs-chapters"><title>Chapters or the &hyperspec;</title>
 
 &imp-body;
@@ -217,9 +116,9 @@ and
 
 </part>
 
-&imp-byte;
-
 &imp-ext;
+
+&imp-byte;
 
 &gfdl-text;
 
