@@ -1,18 +1,16 @@
 2002-11-25  Sam Steingold  <sds@gnu.org>
 
-	* loop.lisp (expand-loop): THEREIS clause adds NIL to RESULTS to
+	* loop.lisp (expand-loop): when IT keyword is not appropriate,
+	treat it as a variable and hope it is bound somewhere
+	- THEREIS clause adds NIL to RESULTS to
 	prevent ambiguity in the return values
+	- when summing (or counting &c) into a variable for which the type has
+	been declared, make sure it is initialized to that particular type
 
 2002-11-25  Sam Steingold  <sds@gnu.org>
 
 	* loop.lisp (loop-syntax-error, expand-loop): macro-expansion-time
 	errors have type SOURCE-PROGRAM-ERROR
-
-2002-11-25  Sam Steingold  <sds@gnu.org>
-
-	* loop.lisp (expand-loop): when summing (or counting &c) into a
-	variable for which the type has been declared, make sure it is
-	initialized to that particular type
 
 2002-11-25  Sam Steingold  <sds@gnu.org>
 
