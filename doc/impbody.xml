@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<chapter id="intro" label="Chapter 1">
- <title><ulink url="&clhs;/Body/chap-1.html">Introduction</ulink></title>
+<chapter id="intro"><title>Introduction
+  <ulink url="&clhs;/Body/chap-1.html">[CLHS-1]</ulink></title>
 
-<section><title><ulink url="&clhs;/Body/sec_1-4-1-3.html">1.4.1.3
-  Special Symbols</ulink></title>
+<section><title>Special Symbols
+  <ulink url="&clhs;/Body/sec_1-4-1-3.html">[CLHS-1.4.1.3]</ulink></title>
 
 <para>The final delimiter of an interactive stream: On Unix, the user
  has to type
@@ -24,16 +24,16 @@
 </section>
 
 
-<section><title><ulink url="&clhs;/Body/sec_1-4-2.html">1.4.2
-  Error Terminology</ulink></title>
+<section><title>Error Terminology
+  <ulink url="&clhs;/Body/sec_1-4-2.html">[CLHS-1.4.2]</ulink></title>
 
 <para>Safety settings are ignored; therefore where the standard uses the
  phrase <quote>should signal an error</quote>, an &error; is signaled.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_1-4-4-5.html">1.4.4.5
-   Class Precedence Lists</ulink></title>
+<section><title>Class Precedence Lists
+  <ulink url="&clhs;/Body/sec_1-4-4-5.html">[CLHS-1.4.4.5]</ulink></title>
 
 <para>The class precedence lists of the system classes &class;
  &built-in-class;, &structure-class;, &standard-class;,
@@ -42,8 +42,8 @@
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_1-9.html">1.9
-   Symbols in the Package</ulink> &cl-pac;</title>
+<section><title>Symbols in the Package &cl-pac;
+  <ulink url="&clhs;/Body/sec_1-9.html">[CLHS-1.9]</ulink></title>
 
 <para>31 symbol missing from the &cl-pac; package
  (out of 978 specified by the &ansi-cl;):</para>
@@ -86,11 +86,11 @@
 
 </chapter>
 
-<chapter id="syntax"><title><ulink url="&clhs;/Body/chap-2.html">Chapter 2:
-   Syntax</ulink></title>
+<chapter id="syntax"><title>Syntax
+   <ulink url="&clhs;/Body/chap-2.html">[CLHS-2]</ulink></title>
 
-<section><title><ulink url="&clhs;/Body/sec_2-3-4.html">2.3.4
-   Symbols as Tokens</ulink></title>
+<section><title>Symbols as Tokens
+  <ulink url="&clhs;/Body/sec_2-3-4.html">[CLHS-2.3.4]</ulink></title>
 
 <para>A "reserved token", i.e., a <ulink
  url="&clhs;/Body/glo_t.html#token">token</ulink> that has potential number
@@ -102,8 +102,8 @@
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_2-3-5.html">2.3.5
-   Valid Patterns for Tokens</ulink></title>
+<section><title>Valid Patterns for Tokens
+  <ulink url="&clhs;/Body/sec_2-3-5.html">[CLHS-2.3.5]</ulink></title>
 
 <para>When a token with package markers is read, then no checking is
  done whether the package part and the symbol-name part do not have
@@ -114,15 +114,15 @@
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_2-4-5.html">2.4.5
-   Double-Quote</ulink></title>
+<section><title>Double-Quote
+  <ulink url="&clhs;/Body/sec_2-4-5.html">[CLHS-2.4.5]</ulink></title>
 
 <para>When a string is read, no character attributes are removed.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_2-4-6.html">2.4.6
-   Backquote</ulink></title>
+<section><title>Backquote
+  <ulink url="&clhs;/Body/sec_2-4-6.html">[CLHS-2.4.6]</ulink></title>
 
 <para>The backquote read macro also works when nested. Example:
 <informalexample><programlisting>
@@ -138,8 +138,8 @@
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_2-4-8.html">2.4.8
-  Sharpsign</ulink></title>
+<section><title>Sharpsign
+  <ulink url="&clhs;/Body/sec_2-4-8.html">[CLHS-2.4.8]</ulink></title>
 
 <para>Reader macros are also defined for the following:
 
@@ -156,21 +156,21 @@
 </chapter>
 
 
-<chapter id="eval"><title><ulink url="&clhs;/Body/chap-3.html">Chapter 3:
-   Evaluation and Compilation</ulink></title>
+<chapter id="eval"><title>Evaluation and Compilation
+   <ulink url="&clhs;/Body/chap-3.html">[CLHS-3]</ulink></title>
 
 <para>All the functions built by &function;, &compile; and the like are
  atoms.  There are built-in functions written in &c-lang;, compiled
  functions (both of type &compiled-function-type;) and interpreted
  functions (of type &function-class;).</para>
 
-<section><title><ulink url="&clhs;/Body/sec_3-1.html">3.1
-   Evaluation</ulink></title>
+<section><title>Evaluation
+  <ulink url="&clhs;/Body/sec_3-1.html">[CLHS-3.1]</ulink></title>
 
-<section><title><ulink url="&clhs;/Body/sec_3-1-1.html">3.1.1
-   Introduction to Environments</ulink></title>
+<section><title>Introduction to Environments
+  <ulink url="&clhs;/Body/sec_3-1-1.html">[CLHS-3.1.1]</ulink></title>
 
-<formalpara><title><function>ext:the-environment</function></title>
+<formalpara><title><function>EXT:THE-ENVIRONMENT</function></title>
 <para>As in Scheme, the macro <literal
  role="sexp">(<function>ext:the-environment</function>)</literal>
  returns the current lexical environment.  This works only in
@@ -186,18 +186,18 @@
 </section>
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_3-2.html">3.2
-   Compilation</ulink></title>
+<section><title>Compilation
+  <ulink url="&clhs;/Body/sec_3-2.html">[CLHS-3.2]</ulink></title>
 
-<section><title><ulink url="&clhs;/Body/sec_3-2-1.html">3.2.1
-   Compiler Terminology</ulink></title>
+<section><title>Compiler Terminology
+  <ulink url="&clhs;/Body/sec_3-2-1.html">[CLHS-3.2.1]</ulink></title>
 
 <para>&clisp; compiles to platform-independent byte-code.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_3-2-4-2-2.html">3.2.4.2.2
-   Definition of Similarity</ulink></title>
+<section><title>Definition of Similarity
+  <ulink url="&clhs;/Body/sec_3-2-4-2-2.html">[CLHS-3.2.4.2.2]</ulink></title>
 
 <para>Hash tables are <ulink
  url="&clhs;/Body/glo_e.html#externalizable_object">externalizable
@@ -206,8 +206,8 @@
 </section>
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_3-3.html">3.3
-   Declarations</ulink></title>
+<section><title>Declarations
+  <ulink url="&clhs;/Body/sec_3-3.html">[CLHS-3.3]</ulink></title>
 
 <para>The declarations
  <literal role="sexp">(&type-dec; <replaceable>type</replaceable>
@@ -257,11 +257,11 @@ executes a compiled version of form.</para>
 </section>
 </section>
 
-<section id="lalist"><title><ulink url="&clhs;/Body/sec_3-4.html">3.4
-   Lambda Lists</ulink></title>
+<section id="lalist"><title>Lambda Lists
+   <ulink url="&clhs;/Body/sec_3-4.html">[CLHS-3.4]</ulink></title>
 
-<section><title><ulink url="&clhs;/Body/sec_3-4-6.html">3.4.6
-   Boa Lambda Lists</ulink></title>
+<section><title>Boa Lambda Lists
+  <ulink url="&clhs;/Body/sec_3-4-6.html">[CLHS-3.4.6]</ulink></title>
 
 <para>The initial value of an &aux-amp; variable in a boa &lalist; is
  the value of the corresponding slot's initial form.</para>
@@ -269,10 +269,10 @@ executes a compiled version of form.</para>
 </section>
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_3-8.html">3.8
-   The Evaluation and Compilation Dictionary</ulink></title>
+<section><title>The Evaluation and Compilation Dictionary
+  <ulink url="&clhs;/Body/sec_3-8.html">[CLHS-3.8]</ulink></title>
 
-<section><title>&special-dec;</title>
+<section><title>Declaration &special-dec;</title>
 
 <para><literal role="sexp">(&proclaim; '(&special-dec;
  <replaceable>var</replaceable>))</literal> declarations may not be
@@ -287,7 +287,7 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title>&eval-when;</title>
+<section><title>Macro &eval-when;</title>
 
 <para>&eval-when; also accepts the situations <literal role="sexp">(not
  eval)</literal> and <literal role="sexp">(not
@@ -299,14 +299,14 @@ executes a compiled version of form.</para>
 </chapter>
 
 
-<chapter id="types"><title><ulink url="&clhs;/Body/chap-4.html">Chapter 4:
-   Types and Classes</ulink></title>
+<chapter id="types"><title>Types and Classes
+   <ulink url="&clhs;/Body/chap-4.html">[CLHS-4]</ulink></title>
 
-<section><title><ulink url="&clhs;/Body/sec_4-2.html">4.2
-   Types.</ulink></title>
+<section><title>Types
+  <ulink url="&clhs;/Body/sec_4-2.html">[CLHS-4.2]</ulink></title>
 
-<section><title><ulink url="&clhs;/Body/sec_4-2-3.html">4.2.3
-   Type Specifiers.</ulink></title>
+<section><title>Type Specifiers
+  <ulink url="&clhs;/Body/sec_4-2-3.html">[CLHS-4.2.3]</ulink></title>
 
 <para>The general form of the &complex-class; type specifier is <literal
  role="sexp">(&complex-class;
@@ -413,8 +413,8 @@ executes a compiled version of form.</para>
 </section>
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_4-3.html">4.3
-   Classes</ulink></title>
+<section><title>Classes
+  <ulink url="&clhs;/Body/sec_4-3.html">[CLHS-4.3]</ulink></title>
 
 <para>The &clos; symbols are &export;ed from the package
  <quote>CLOS</quote> and thus normally visible in all user packages. If
@@ -472,8 +472,8 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_4-3-1-1.html">4.3.1.1
-   Standard Metaclasses</ulink></title>
+<section><title>Standard Metaclasses
+  <ulink url="&clhs;/Body/sec_4-3-1-1.html">[CLHS-4.3.1.1]</ulink></title>
 
 <para>Among those classes listed in <ulink
  url="&clhs;/Body/sec_4-3-7.html#classtypecorrespondence">Figure
@@ -506,8 +506,8 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_4-3-2.html">4.3.2
-   Defining Classes</ulink></title>
+<section><title>Defining Classes
+  <ulink url="&clhs;/Body/sec_4-3-2.html">[CLHS-4.3.2]</ulink></title>
 
 <para>&defclass; supports the &metaclass-k; option.  Possible values are
  &standard-class; (the default) and &structure-class; (which creates
@@ -515,16 +515,16 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_4-3-6.html">4.3.6
-   Redefining Classes</ulink></title>
+<section><title>Redefining Classes
+  <ulink url="&clhs;/Body/sec_4-3-6.html">[CLHS-4.3.6]</ulink></title>
 
 <para>Redefining classes is not supported.  The function
  &update-instance-for-redefined-class; is not implemented.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_4-3-7.html">4.3.7
-   Integrating Types and Classes</ulink></title>
+<section><title>Integrating Types and Classes
+  <ulink url="&clhs;/Body/sec_4-3-7.html">[CLHS-4.3.7]</ulink></title>
 
 <para>The class &method-combination-class; is not implemented.</para>
 
@@ -532,11 +532,11 @@ executes a compiled version of form.</para>
 </chapter>
 
 
-<chapter id="data"><title><ulink url="&clhs;/Body/chap-5.html">Chapter 5:
-   Data and Control Flow</ulink></title>
+<chapter id="data"><title>Data and Control Flow
+   <ulink url="&clhs;/Body/chap-5.html">[CLHS-5]</ulink></title>
 
-<section><title><ulink url="&clhs;/Body/sec_the_data__w_dictionary.html">5.3
-   The Data and Control Flow Dictionary</ulink></title>
+<section><title>The Data and Control Flow Dictionary
+   <ulink url="&clhs;/Body/sec_the_data__w_dictionary.html">[CLHS-5.3]</ulink></title>
 
 <formalpara><title>&prog1;, &prog2;, &and;, &or;, &psetq;, &when;,
  &unless;, &cond;, &case;, &multiple-value-list;, &multiple-value-bind;,
@@ -553,7 +553,7 @@ executes a compiled version of form.</para>
  &compiled-function-type; is not a subtype of &function-class;.</para>
 </formalpara>
 
-<section><title>&eq;</title>
+<section><title>Function &eq;</title>
 
 <para>&eq; compares characters and fixnums as &eql; does.  No
  unnecessary copies are made of characters and numbers.  Nevertheless,
@@ -565,7 +565,7 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title>&symbol-function;</title>
+<section><title>Function &symbol-function;</title>
 
 <para><literal role="sexp">(&setf; (&symbol-function;
  <replaceable>symbol</replaceable>)
@@ -576,7 +576,7 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title>&setf;</title>
+<section><title>Macro &setf;</title>
 
 <para>Additional places:
 <variablelist>
@@ -673,7 +673,7 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title>&function;</title>
+<section><title>Special Operator &function;</title>
 
 <para><literal role="sexp">(&function;
  <replaceable>symbol</replaceable>)</literal> returns the local function
@@ -688,7 +688,7 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title>&define-symbol-macro;</title>
+<section><title>Macro &define-symbol-macro;</title>
 
 <para>The macro &define-symbol-macro; establishes &symbol-macro;s with
  global scope (as opposed to &symbol-macro;s defined with
@@ -715,7 +715,7 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title>&lambda;</title>
+<section><title>Macro &lambda;</title>
 
 <formalpara><title>&lambda-list-keywords;</title>
 <para><literal role="sexp">(&optional-amp; &rest-amp; &key-amp;
@@ -745,7 +745,7 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title>&defun; &amp; &defmacro;</title>
+<section><title>Macros &defun; &amp; &defmacro;</title>
 
 <para>&defun; and &defmacro; are allowed in non-toplevel positions. As
  an example, consider the old (CLtL1) definition of &gensym;:</para>
@@ -775,15 +775,15 @@ executes a compiled version of form.</para>
 </chapter>
 
 
-<chapter id="iteration"><title><ulink url="&clhs;/Body/chap-6.html">
-    Chapter 6: Iteration</ulink></title>
+<chapter id="iteration"><title>Iteration
+   <ulink url="&clhs;/Body/chap-6.html">[CLHS-6]</ulink></title>
 
 <para>No notes.</para>
 
 </chapter>
 
-<chapter id="objects"><title><ulink url="&clhs;/Body/chap-7.html">
-    Chapter 7: Objects</ulink></title>
+<chapter id="objects"><title>Objects
+   <ulink url="&clhs;/Body/chap-7.html">[CLHS-7]</ulink></title>
 
 <para><ulink url="&clhs;/Body/sec_7-2.html">Changing the class of a given
  instance</ulink> is not supported.  The functions &change-class;,
@@ -800,8 +800,8 @@ executes a compiled version of form.</para>
 
 </chapter>
 
-<chapter id="structures"><title><ulink url="&clhs;/Body/chap-8.html">
-    Chapter 8: Structures</ulink></title>
+<chapter id="structures"><title>Structures
+   <ulink url="&clhs;/Body/chap-8.html">[CLHS-8]</ulink></title>
 
 <para>The &print-function-k; option should contain a &lambda-expr;
  <literal role="sexp">(&lambda; (structure stream depth) (declare
@@ -859,8 +859,8 @@ executes a compiled version of form.</para>
 </chapter>
 
 
-<chapter id="conditions"><title><ulink url="&clhs;/Body/chap-9.html">
-    Chapter 9: Conditions</ulink></title>
+<chapter id="conditions"><title>Conditions
+   <ulink url="&clhs;/Body/chap-9.html">[CLHS-9]</ulink></title>
 
 <para>When an error occurred, you are in a break loop. You can evaluate
  forms as usual. The <command>help</command> command (or help key if
@@ -905,8 +905,8 @@ executes a compiled version of form.</para>
  {<varname>restart-clause</varname>}*)</literal>.
 </para></formalpara>
 
-<section><title><ulink url="&clhs;/Body/sec_9-1-3-1-3.html">
-    9.1.3.1.3 Embedded Newlines in Condition Reports</ulink></title>
+<section><title>Embedded Newlines in Condition Reports
+   <ulink url="&clhs;/Body/sec_9-1-3-1-3.html">[CLHS-9.1.3.1.3]</ulink></title>
 
 <para>The error message prefix for the first line is "*** - ". There is
  no prefix for subsequent error lines. The aesthetics of condition
@@ -915,8 +915,8 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_the_condi_s_dictionary.html">
-    9.2. The Conditions Dictionary</ulink></title>
+<section><title>The Conditions Dictionary
+   <ulink url="&clhs;/Body/sec_the_condi_s_dictionary.html">[CLHS-9.2.]</ulink></title>
 
 <formalpara><title>&restart-case;</title>
 <para>In &restart-case; clauses the argument list can also be specified
@@ -946,15 +946,15 @@ executes a compiled version of form.</para>
 </chapter>
 
 
-<chapter id="symbols"><title><ulink url="&clhs;/Body/chap-10.html">
-    Chapter 10: Symbols</ulink></title>
+<chapter id="symbols"><title>Symbols
+   <ulink url="&clhs;/Body/chap-10.html">[CLHS-10]</ulink></title>
 
 <para>No notes.</para>
 
 </chapter>
 
-<chapter id="packages"><title><ulink url="&clhs;/Body/chap-11.html">
-    Chapter 11: Packages</ulink></title>
+<chapter id="packages"><title>Packages
+   <ulink url="&clhs;/Body/chap-11.html">[CLHS-11]</ulink></title>
 
 <para>The &ansi-cl; packages
 <itemizedlist>
@@ -970,15 +970,15 @@ executes a compiled version of form.</para>
 <para>are implemented. The package &cl-pac; &export;s only those symbols
  from the &ansi-cl; that are actually implemented.</para>
 
-<section id="clupack"><title><ulink url="&clhs;/Body/sec_11-1-2-2.html">
-    11.1.2.2 The COMMON-LISP-USER Package</ulink></title>
+<section id="clupack"><title>The COMMON-LISP-USER Package
+   <ulink url="&clhs;/Body/sec_11-1-2-2.html">[CLHS-11.1.2.2]</ulink></title>
 
 <para>The &clu-pac; package uses the &cl-pac; and &ext-pac; packages.</para>
 
 </section>
 
-<section id="imppack"><title><ulink url="&clhs;/Body/sec_11-1-2-4.html">
-    11.1.2.4 Implementation-Defined Packages</ulink></title>
+<section id="imppack"><title>Implementation-Defined Packages
+   <ulink url="&clhs;/Body/sec_11-1-2-4.html">[CLHS-11.1.2.4]</ulink></title>
 
 <para>The following additional packages exist:</para>
 <variablelist><title>Implementation-Defined Packages</title>
@@ -1022,10 +1022,10 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_the_packa_s_dictionary.html">
-    11.2. The Packages Dictionary</ulink></title>
+<section><title>The Packages Dictionary
+   <ulink url="&clhs;/Body/sec_the_packa_s_dictionary.html">[CLHS-11.2.]</ulink></title>
 
-<section><title>&make-package;</title>
+<section><title>Function &make-package;</title>
 
 <para>For &make-package;, the default value of the &use-k; argument is
  <literal role="sexp">("COMMON-LISP")</literal>.
@@ -1055,8 +1055,8 @@ executes a compiled version of form.</para>
 </section>
 </chapter>
 
-<chapter id="numbers"><title><ulink url="&clhs;/Body/chap-12.html">
-    Chapter 12: Numbers</ulink></title>
+<chapter id="numbers"><title>Numbers
+   <ulink url="&clhs;/Body/chap-12.html">[CLHS-12]</ulink></title>
 
 <section><title>Numeric Types</title>
 
@@ -1080,19 +1080,19 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_12-1.html">12.1
-  Number Concepts</ulink></title>
+<section><title>Number Concepts
+   <ulink url="&clhs;/Body/sec_12-1.html">[CLHS-12.1]</ulink></title>
 
-<section><title><ulink url="&clhs;/Body/sec_12-1-1-3-2.html">12.1.1.3.2
-   Byte Operations on Integers</ulink></title>
+<section><title>Byte Operations on Integers
+   <ulink url="&clhs;/Body/sec_12-1-1-3-2.html">[CLHS-12.1.1.3.2]</ulink></title>
 
 <para>Byte specifiers are objects of type <classname>byte</classname>,
  not integers.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_12-1-3-3.html">12.1.3.3
-    Rule of Float Substitutability</ulink></title>
+<section><title>Rule of Float Substitutability
+   <ulink url="&clhs;/Body/sec_12-1-3-3.html">[CLHS-12.1.3.3]</ulink></title>
 
 <para>When a mathematical function may return an exact (rational) or
  inexact (floating-point) result, it always returns the exact
@@ -1100,8 +1100,8 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_12-1-4.html">12.1.4
-    Floating-point Computations</ulink></title>
+<section><title>Floating-point Computations
+   <ulink url="&clhs;/Body/sec_12-1-4.html">[CLHS-12.1.4]</ulink></title>
 
 <para>There are four floating point types: &short-float-type;,
  &single-float-type;, &double-float-type; and &long-float-type;:</para>
@@ -1139,8 +1139,8 @@ executes a compiled version of form.</para>
  of long floats to 1000 decimal digits.</para>
 
 
-<section id="flocont"><title><ulink url="&clhs;/Body/sec_12-1-4-4.html">
-   12.1.4.4 Rule of Float Precision Contagion</ulink></title>
+<section id="flocont"><title>Rule of Float Precision Contagion
+   <ulink url="&clhs;/Body/sec_12-1-4-4.html">[CLHS-12.1.4.4]</ulink></title>
 
 <para>The floating point contagion is controlled by the variable
  &flocont;.  When it is non-&nil;, contagion is done as per the
@@ -1250,8 +1250,8 @@ executes a compiled version of form.</para>
 </section>
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_12-1-5.html">12.1.5
-    Complex Computations</ulink></title>
+<section><title>Complex Computations
+   <ulink url="&clhs;/Body/sec_12-1-5.html">[CLHS-12.1.5]</ulink></title>
 
 <para>Complex numbers can have a real part and an imaginary part of
  different types. For example, <literal role="sexp">(sqrt
@@ -1272,8 +1272,8 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_12-1-5-3.html">12.1.5.3
-   Rule of Canonical Representation for Complex Rationals</ulink></title>
+<section><title>Rule of Canonical Representation for Complex Rationals
+   <ulink url="&clhs;/Body/sec_12-1-5-3.html">[CLHS-12.1.5.3]</ulink></title>
 
 <para>Complex numbers can have a real part and an imaginary part of
  different types.  If the imaginary part is &eql; to
@@ -1290,16 +1290,14 @@ executes a compiled version of form.</para>
 </section>
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_the_numbers_dictionary.html">
-    12.2 The Numbers Dictionary</ulink></title>
+<section><title>The Numbers Dictionary
+   <ulink url="&clhs;/Body/sec_the_numbers_dictionary.html">[CLHS-12.2]</ulink></title>
 
-<section><title>&upgraded-complex-part-type;</title>
-
+<formalpara><title>&upgraded-complex-part-type;</title>
 <para>&upgraded-complex-part-type; always returns &t;, since a
  &complex-class; number in &clisp; can always have &realpart; and
  &imagpart; of any type.</para>
-
-</section>
+</formalpara>
 
 <section><title>Additional Integer Functions</title>
 
@@ -1361,8 +1359,8 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/fun_decode-fl_decode-float.html">
-    float decoding</ulink></title>
+<section><title>Float Decoding
+   <ulink url="&clhs;/Body/fun_decode-fl_decode-float.html">[CLHS]</ulink></title>
 
 <para>&float-radix; always returns <literal>2</literal>.</para>
 
@@ -1378,8 +1376,8 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/convar_boole-_cm_boole-xor.html">
-    Boolean Operations</ulink></title>
+<section><title>Boolean Operations
+   <ulink url="&clhs;/Body/convar_boole-_cm_boole-xor.html">[CLHS]</ulink></title>
 
 <segmentedlist><title>Boolean Operations</title>
 <segtitle>constant name</segtitle><segtitle>value</segtitle>
@@ -1419,8 +1417,8 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/convar_most-p_ative-fixnum.html">
-    fixnum limits</ulink></title>
+<section><title>Fixnum Limits
+   <ulink url="&clhs;/Body/convar_most-p_ative-fixnum.html">[CLHS]</ulink></title>
 
 <table frame="all"><title>Platform dependent</title>
  <tgroup cols="4" colsep="1" rowsep="1" align="center">
@@ -1440,8 +1438,8 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/convar_most-p_d-long-float.html">
-    float limits</ulink></title>
+<section><title>Float Limits
+   <ulink url="&clhs;/Body/convar_most-p_d-long-float.html">[CLHS]</ulink></title>
 
 <para>Together with &pi;, the other long float constants
  &least-negative-long-float; &least-negative-normalized-long-float;
@@ -1453,22 +1451,18 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title>&floating-point-invalid-operation-type;</title>
-
+<section><title>Condition &floating-point-invalid-operation-type;</title>
 <para>This condition is never signaled by &clisp;.</para>
-
 </section>
 
-<section><title>&floating-point-inexact-type;</title>
-
+<section><title>Condition &floating-point-inexact-type;</title>
 <para>This condition is never signaled by &clisp;.</para>
-
 </section>
 </section>
 </chapter>
 
-<chapter id="characters"><title><ulink url="&clhs;/Body/chap-13.html">
-    Chapter 13: Characters</ulink></title>
+<chapter id="characters"><title>Characters
+   <ulink url="&clhs;/Body/chap-13.html">[CLHS-13]</ulink></title>
 
 <para>The characters are ordered according to a superset of the ASCII
 encoding.</para>
@@ -1956,24 +1950,24 @@ blank here cannot be represented in this character set).
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_13-1-2-1.html">
-    13.1.2.1 Character Scripts</ulink></title>
+<section><title>Character Scripts
+   <ulink url="&clhs;/Body/sec_13-1-2-1.html">[CLHS-13.1.2.1]</ulink></title>
 
 <para>The only defined character script is the type &character-class;
  itself.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_13-1-3.html">
-    13.1.3 Character Attributes</ulink></title>
+<section><title>Character Attributes
+   <ulink url="&clhs;/Body/sec_13-1-3.html">[CLHS-13.1.3]</ulink></title>
 
 <para>Characters have no implementation-defined attributes.  All characters
 are simple characters.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_13-1-4-1.html">
-    13.1.4.1 Graphic Characters</ulink></title>
+<section><title>Graphic Characters
+   <ulink url="&clhs;/Body/sec_13-1-4-1.html">[CLHS-13.1.4.1]</ulink></title>
 
 <para>The graphic characters are those Unicode characters which are
  defined by the Unicode standard, excluding the ranges
@@ -1982,16 +1976,16 @@ are simple characters.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_13-1-4-2.html">
-    13.1.4.2 Alphabetic Characters</ulink></title>
+<section><title>Alphabetic Characters
+   <ulink url="&clhs;/Body/sec_13-1-4-2.html">[CLHS-13.1.4.2]</ulink></title>
 
 <para>The alphabetic characters are those Unicode characters which are
  defined as letters by the Unicode standard.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_13-1-4-3-4.html">
-    13.1.4.3.4 Case of Implementation-Defined Characters</ulink></title>
+<section><title>Case of Implementation-Defined Characters
+   <ulink url="&clhs;/Body/sec_13-1-4-3-4.html">[CLHS-13.1.4.3.4]</ulink></title>
 
 <para>The characters with case are those Unicode characters
  <replaceable>c</replaceable>, for
@@ -2017,23 +2011,23 @@ are simple characters.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_13-1-4-4.html">
-    13.1.4.4 Numeric Characters</ulink></title>
+<section><title>Numeric Characters
+   <ulink url="&clhs;/Body/sec_13-1-4-4.html">[CLHS-13.1.4.4]</ulink></title>
 
 <para>The numeric characters are those Unicode characters which are
  defined as digits by the Unicode standard.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_13-1-6.html">
-    13.1.6 Ordering of Characters</ulink></title>
+<section><title>Ordering of Characters
+   <ulink url="&clhs;/Body/sec_13-1-6.html">[CLHS-13.1.6]</ulink></title>
 
 <para>The characters are ordered according to their Unicode code.</para>
 
 </section>
 
-<section id="clhs-newline"><title><ulink url="&clhs;/Body/sec_13-1-8.html">
-    13.1.8 Treatment of Newline during Input and Output</ulink></title>
+<section id="clhs-newline"><title>Treatment of Newline during Input and Output
+   <ulink url="&clhs;/Body/sec_13-1-8.html">[CLHS-13.1.8]</ulink></title>
 
 <para>Newlines are written according to the stream's encoding, see the
  function &stream-external-format; and the description of <link
@@ -2062,24 +2056,24 @@ are simple characters.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_13-1-9.html">
-    13.1.9 Character Encodings</ulink></title>
+<section><title>Character Encodings
+   <ulink url="&clhs;/Body/sec_13-1-9.html">[CLHS-13.1.9]</ulink></title>
 
 <para>The integer returned by &char-int; is the same as the character's
  code.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_13-1-10.html">
-    13.1.10 Character Encodings</ulink></title>
+<section><title>Character Encodings
+   <ulink url="&clhs;/Body/sec_13-1-10.html">[CLHS-13.1.10]</ulink></title>
 
 <para>See the description of <link
  linkend="encoding">encodings</link>.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_the_chara_s_dictionary.html">
-    13.2. The Characters Dictionary</ulink></title>
+<section><title>The Characters Dictionary
+   <ulink url="&clhs;/Body/sec_the_chara_s_dictionary.html">[CLHS-13.2.]</ulink></title>
 
 <para>&char-code; takes values from 0 (inclusive) to
  &char-code-limit; (exclusive), i.e., the implementation
@@ -2343,7 +2337,7 @@ and the international alphabetic characters from the character set:
 
 </section>
 
-<section><title>obsolete constants</title>
+<section><title>Obsolete Constants</title>
 
 <segmentedlist><title>obsolete constants</title>
  <segtitle>constant</segtitle><segtitle>value</segtitle>
@@ -2362,17 +2356,17 @@ and the international alphabetic characters from the character set:
 </chapter>
 
 
-<chapter id="conses"><title><ulink url="&clhs;/Body/chap-14.html">
-    Chapter 14: Conses</ulink></title>
+<chapter id="conses"><title>Conses
+   <ulink url="&clhs;/Body/chap-14.html">[CLHS-14]</ulink></title>
 
-<section><title><ulink url="&clhs;/Body/sec_the_conses_dictionary.html">
-    14.2 The Conses Dictionary</ulink></title>
+<section><title>The Conses Dictionary
+   <ulink url="&clhs;/Body/sec_the_conses_dictionary.html">[CLHS-14.2]</ulink></title>
 
 <formalpara><title>&sublis;, &nsublis;</title>
 <para>&sublis; and &nsublis; apply the &key-k; argument to the nodes of
  the cons tree and not to the keys of the alist.</para></formalpara>
 
-<section><title>&mapcar;, &mapcan;, &maplist;, &mapcon;, ...</title>
+<section><title>Functions &mapcar;, &mapcan;, &maplist;, &mapcon;, ...</title>
 
 <para>The constant <emphasis
  role="strong"><function>ext:mapcap</function></emphasis> is like
@@ -2411,8 +2405,8 @@ and the international alphabetic characters from the character set:
 </chapter>
 
 
-<chapter id="arrays"><title><ulink url="&clhs;/Body/chap-15.html">
-    Chapter 15: Arrays</ulink></title>
+<chapter id="arrays"><title>Arrays
+   <ulink url="&clhs;/Body/chap-15.html">[CLHS-15]</ulink></title>
 
 <formalpara><title>&make-array;</title>
 <para>&make-array; can return specialized arrays for the element types
@@ -2423,8 +2417,8 @@ and the international alphabetic characters from the character set:
  <literal role="type">(&unsigned-byte-type; 32)</literal>
  and of course &bit-type; and &character-class;.</para></formalpara>
 
-<section><title><ulink url="&clhs;/Body/sec_15-1-1.html">
-    15.1.1 Array Elements</ulink></title>
+<section><title>Array Elements
+   <ulink url="&clhs;/Body/sec_15-1-1.html">[CLHS-15.1.1]</ulink></title>
 
 <table frame="all"><title>Platform dependent</title>
  <tgroup cols="4" colsep="1" rowsep="1" align="center">
@@ -2451,8 +2445,8 @@ and the international alphabetic characters from the character set:
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_the_arrays_dictionary.html">
-    15.2 The Arrays Dictionary</ulink></title>
+<section><title>The Arrays Dictionary
+   <ulink url="&clhs;/Body/sec_the_arrays_dictionary.html">[CLHS-15.2]</ulink></title>
 
 <formalpara><title>&adjust-array; for displaced arrays</title>
 <para>An array to which another array is displaced should not be shrunk
@@ -2464,16 +2458,16 @@ and the international alphabetic characters from the character set:
 </chapter>
 
 
-<chapter id="strings"><title><ulink url="&clhs;/Body/chap-16.html">
-    Chapter 16: Strings</ulink></title>
+<chapter id="strings"><title>Strings
+   <ulink url="&clhs;/Body/chap-16.html">[CLHS-16]</ulink></title>
 
 <para>String comparison is based on the function &char-leq;.  Therefore
  diphthongs do not obey the usual national rules.  Example:
  <literal>o</literal> &lt; <literal>oe</literal> &lt;
  <literal>z</literal> &lt; <literal>&ouml;</literal>.</para>
 
-<section><title><ulink url="&clhs;/Body/sec_the_strings_dictionary.html">
-    16.2 The Strings Dictionary</ulink></title>
+<section><title>The Strings Dictionary
+   <ulink url="&clhs;/Body/sec_the_strings_dictionary.html">[CLHS-16.2]</ulink></title>
 
 <formalpara id="string-width"><title>Functions on strings</title>
 
@@ -2488,13 +2482,13 @@ and the international alphabetic characters from the character set:
 </chapter>
 
 
-<chapter id="sequences"><title><ulink url="&clhs;/Body/chap-17.html">
-    Chapter 17: Sequences</ulink></title>
+<chapter id="sequences"><title>Sequences
+   <ulink url="&clhs;/Body/chap-17.html">[CLHS-17]</ulink></title>
 
-<section><title><ulink url="&clhs;/Body/sec_the_seque_s_dictionary.html">
-    17.3. The Sequences Dictionary</ulink></title>
+<section><title>The Sequences Dictionary
+   <ulink url="&clhs;/Body/sec_the_seque_s_dictionary.html">[CLHS-17.3.]</ulink></title>
 
-<section><title>&loop; &amp; &map;</title>
+<section><title>Additional Macros</title>
 
 <para>For iteration through a sequence, a macro
  <emphasis role="strong"><function>ext:doseq</function></emphasis>,
@@ -2510,7 +2504,7 @@ and the international alphabetic characters from the character set:
 
 </section>
 
-<section><title>&nreverse; &amp; &nreconc;</title>
+<section><title>Functions &nreverse; &amp; &nreconc;</title>
 
 <formalpara><title>&nreverse;</title>
 <para>The result of &nreverse; is always &eq; to the argument.
@@ -2524,7 +2518,7 @@ and the international alphabetic characters from the character set:
 </formalpara>
 </section>
 
-<section><title>&remove; &amp; &delete;</title>
+<section><title>Functions &remove; &amp; &delete;</title>
 
 <para>&remove;, &remove-if;, &remove-if-not;, &remove-duplicates; return
  their argument unchanged, if no element has to be removed.</para>
@@ -2546,7 +2540,7 @@ and the international alphabetic characters from the character set:
 
 </section>
 
-<section><title>&sort; &amp; &stable-sort;</title>
+<section><title>Functions &sort; &amp; &stable-sort;</title>
 
 <para>&sort; and &stable-sort; have two additional keywords &start-k;
 and &end-k;:</para>
@@ -2567,13 +2561,13 @@ and &end-k;:</para>
 </chapter>
 
 
-<chapter id="hash"><title><ulink url="&clhs;/Body/chap-18.html">
-    Chapter 18: Hash Tables</ulink></title>
+<chapter id="hash"><title>Hash Tables
+   <ulink url="&clhs;/Body/chap-18.html">[CLHS-18]</ulink></title>
 
-<section><title><ulink url="&clhs;/Body/sec_the_hash__s_dictionary.html">
-    18.2. The Hash Tables Dictionary</ulink></title>
+<section><title>The Hash Tables Dictionary
+   <ulink url="&clhs;/Body/sec_the_hash__s_dictionary.html">[CLHS-18.2.]</ulink></title>
 
-<section><title>&make-hash-table;</title>
+<section><title>Function &make-hash-table;</title>
 
 <para>&make-hash-table; has an additional keyword
  <constant>:initial-contents</constant>:</para>
@@ -2589,7 +2583,7 @@ and &end-k;:</para>
 
 </section>
 
-<section><title>&loop;, &maphash;</title>
+<section><title>Additional Macros</title>
 
 <para>For iteration through a hash table, a macro
  <emphasis role="strong"><function>ext:dohash</function></emphasis>,
@@ -2607,8 +2601,8 @@ and &end-k;:</para>
 </section>
 </chapter>
 
-<chapter id="filenames"><title><ulink url="&clhs;/Body/chap-19.html">
-    Chapter 19: Filenames</ulink></title>
+<chapter id="filenames"><title>Filenames
+   <ulink url="&clhs;/Body/chap-19.html">[CLHS-19]</ulink></title>
 
 <para>For most operations, pathnames denoting files and pathnames
  denoting directories can not be used interchangeably.</para>
@@ -2672,8 +2666,8 @@ and &end-k;:</para>
  <keysym>#\_</keysym>.  Other properties of pathname syntax vary between
  operating systems.</para>
 
-<section><title><ulink url="&clhs;/Body/sec_19-2-1.html">
-    19.2.1 Pathname Components</ulink></title>
+<section><title>Pathname Components
+   <ulink url="&clhs;/Body/sec_19-2-1.html">[CLHS-19.2.1]</ulink></title>
 
 <para>When a pathname is to be fully specified (no wildcards), that
  means that no &wild-k;, &wild-inferiors-k; is allowed, no wildcard
@@ -3729,8 +3723,8 @@ and &end-k;:</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_19-3.html">
-    19.3 Logical Pathnames.</ulink></title>
+<section><title>Logical Pathnames
+   <ulink url="&clhs;/Body/sec_19-3.html">[CLHS-19.3]</ulink></title>
 
 <!-- #ifdef LOGICAL_PATHNAMES -->
 <para>When the argument of the function &translate-logical-pathname; is
@@ -3739,8 +3733,8 @@ and &end-k;:</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_the_filen_s_dictionary.html">
-    19.4 The Filenames Dictionary.</ulink></title>
+<section><title>The Filenames Dictionary
+   <ulink url="&clhs;/Body/sec_the_filen_s_dictionary.html">[CLHS-19.4]</ulink></title>
 
 <para>&pathname; always returns a physical pathname.</para>
 
@@ -3761,9 +3755,7 @@ and &end-k;:</para>
  <replaceable>to-pathname</replaceable> are not replaced by
  corresponding pieces of <replaceable>source</replaceable>.</para>
 
-<para>This function seems to be buggy at this time.  Sorry.</para>
-
-<section id="parsename"><title>&parse-namestring;</title>
+<section id="parsename"><title>Function &parse-namestring;</title>
 
 <para><literal role="sexp">(&parse-namestring;
    <replaceable>string</replaceable> &optional-amp;
@@ -3788,7 +3780,7 @@ non-&nil;.</para>
 
 </section>
 
-<section id="pathmerge"><title>&merge-pathnames;</title>
+<section id="pathmerge"><title>Function &merge-pathnames;</title>
 
 <para><literal role="sexp">(&merge-pathnames;
    <replaceable>pathname</replaceable>
@@ -3840,11 +3832,11 @@ non-&nil;.</para>
 </chapter>
 
 
-<chapter id="files"><title><ulink url="&clhs;/Body/chap-20.html">
-    Chapter 20: Files</ulink></title>
+<chapter id="files"><title>Files
+   <ulink url="&clhs;/Body/chap-20.html">[CLHS-20]</ulink></title>
 
-<section><title><ulink url="&clhs;/Body/sec_the_files_dictionary.html">
-    20.2 The Files Dictionary.</ulink></title>
+<section><title>The Files Dictionary
+   <ulink url="&clhs;/Body/sec_the_files_dictionary.html">[CLHS-20.2]</ulink></title>
 
 <formalpara><title>&rename-file;</title>
 <para>&rename-file; always returns a non-logical pathname as
@@ -3874,7 +3866,7 @@ non-&nil;.</para>
  parent directory of <replaceable>pathname</replaceable> does not
  exist.</para></formalpara>
 
-<section id="dir"><title>&directory;</title>
+<section id="dir"><title>Function &directory;</title>
 
 <para><literal role="sexp">(&directory; &optional-amp;
  <replaceable>pathname</replaceable> &key-amp; :full :circle)</literal>
@@ -3962,11 +3954,11 @@ non-&nil;.</para>
 </chapter>
 
 
-<chapter id="streams"><title><ulink url="&clhs;/Body/chap-21.html">
-    Chapter 21: Streams</ulink></title>
+<chapter id="streams"><title>Streams
+   <ulink url="&clhs;/Body/chap-21.html">[CLHS-21]</ulink></title>
 
-<section><title><ulink url="&clhs;/Body/sec_21-1-1-1-3.html">
-    21.1.1.1.3 Interactive Streams</ulink></title>
+<section><title>Interactive Streams
+   <ulink url="&clhs;/Body/sec_21-1-1-1-3.html">[CLHS-21.1.1.1.3]</ulink></title>
 
 <para>Interactive streams are those whose next input might depend on a
  prompt one might output.</para>
@@ -4127,10 +4119,10 @@ non-&nil;.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_the_streams_dictionary.html">
-    21.2. The Streams Dictionary</ulink></title>
+<section><title>The Streams Dictionary
+   <ulink url="&clhs;/Body/sec_the_streams_dictionary.html">[CLHS-21.2.]</ulink></title>
 
-<section><title>&stream-element-type;</title>
+<section><title>Function &stream-element-type;</title>
 
 <para>&stream-element-type; is &setf;able. The element type of streams
   created by the functions &open;,
@@ -4253,7 +4245,7 @@ non-&nil;.</para>
 
 </section>
 
-<section><title>&read-sequence;</title>
+<section><title>Function &read-sequence;</title>
 
 <para>In addition to &read-sequence;, the following two
  functions are provided:</para>
@@ -4307,7 +4299,7 @@ non-&nil;.</para>
 
 </section>
 
-<section><title>&write-sequence;</title>
+<section><title>Function &write-sequence;</title>
 
 <para>In addition to &write-sequence;, the following two
 functions are provided:</para>
@@ -4352,7 +4344,7 @@ functions are provided:</para>
 </section>
 
 <!-- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0)) -->
-<section><title>&file-position;</title>
+<section><title>Function &file-position;</title>
 
 <variablelist>
  <varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
@@ -4366,7 +4358,7 @@ functions are provided:</para>
 </section>
 <!-- #endif -->
 
-<section id="open"><title>&open;</title>
+<section id="open"><title>Function  &open;</title>
 
 <para>&open; cannot handle files of size &ge; 4 GB.</para>
 
@@ -4411,13 +4403,13 @@ functions are provided:</para>
 
 </section>
 
-<section><title>&close;</title>
+<section><title>Function &close;</title>
 
 <para>&close; ignores its &abort-k; argument.</para>
 
 </section>
 
-<section><title>&broadcast-stream-class;</title>
+<section><title>Class &broadcast-stream-class;</title>
 
 <para>&input-stream-p; and &interactive-stream-p; return false for
  <ulink url="&clhs;/Body/glo_b.html#broadcast_stream">broadcast
@@ -4428,11 +4420,11 @@ functions are provided:</para>
 </chapter>
 
 
-<chapter id="printer"><title><ulink url="&clhs;/Body/chap-22.html">
-    Chapter 22: Printer</ulink></title>
+<chapter id="printer"><title>Printer
+   <ulink url="&clhs;/Body/chap-22.html">[CLHS-22]</ulink></title>
 
-<section><title><ulink url="&clhs;/Body/sec_22-1-1-1.html">
-    22.1.1.1 Multiple Possible Textual Representations</ulink></title>
+<section><title>Multiple Possible Textual Representations
+   <ulink url="&clhs;/Body/sec_22-1-1-1.html">[CLHS-22.1.1.1]</ulink></title>
 
 <formalpara id="pr-closure"><title>&pr-closure;</title>
 <para>An additional variable &pr-closure; controls whether compiled and
@@ -4458,8 +4450,8 @@ functions are provided:</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_22-1-3-7.html">
-    22.1.3.7 Printing Other Vectors</ulink></title>
+<section><title>Printing Other Vectors
+   <ulink url="&clhs;/Body/sec_22-1-3-7.html">[CLHS-22.1.3.7]</ulink></title>
 
 <para>When &print-readably-var; is true, other vectors are written as
  follows: if the element-type is &t-class;, the syntax <literal
@@ -4472,8 +4464,8 @@ functions are provided:</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_22-1-3-8.html">
-    22.1.3.8 Printing Other Arrays</ulink></title>
+<section><title>Printing Other Arrays
+   <ulink url="&clhs;/Body/sec_22-1-3-8.html">[CLHS-22.1.3.8]</ulink></title>
 
 <para>When &print-readably-var; is true, other arrays are written as
  follows: if the element-type is &t-class;, the syntax <literal
@@ -4485,22 +4477,22 @@ functions are provided:</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_22-2.html">
-    22.2 The Lisp Pretty Printer</ulink></title>
+<section><title>The Lisp Pretty Printer
+   <ulink url="&clhs;/Body/sec_22-2.html">[CLHS-22.2]</ulink></title>
 
 <para>The List Pretty Printer is not implemented yet.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_the_printer_dictionary.html">
-    22.4 The Printer Dictionary</ulink></title>
+<section><title>The Printer Dictionary
+   <ulink url="&clhs;/Body/sec_the_printer_dictionary.html">[CLHS-22.4]</ulink></title>
 
 <formalpara><title>&write; &amp; &write-to-string;</title>
 <para>The functions &write; and &write-to-string; have an additional
  keyword argument <constant>:closure</constant> which is used to bind
  &pr-closure;.</para></formalpara>
 
-<section><title>&format;</title>
+<section><title>Function &format;</title>
 
 <para>The &format; instruction &format-w; is similar to &format-a; and
  &format-s;, but avoids binding of &print-escape-var;.
@@ -4602,8 +4594,8 @@ functions are provided:</para>
 </section>
 </chapter>
 
-<chapter id="reader"><title><ulink url="&clhs;/Body/chap-23.html">
-    Chapter 23: Reader</ulink></title>
+<chapter id="reader"><title>Reader
+   <ulink url="&clhs;/Body/chap-23.html">[CLHS-23]</ulink></title>
 
 <para>This is the list of objects whose external representation can not
   be meaningfully read in:
@@ -4728,7 +4720,7 @@ functions are provided:</para>
 
 </section>
 
-<section><title>&readtable-case;</title>
+<section><title>Function &readtable-case;</title>
 
 <para>When the value of <literal role="sexp">(&readtable-case;
  <replaceable>readtable</replaceable>)</literal> is
@@ -4740,7 +4732,7 @@ functions are provided:</para>
 
 </section>
 
-<section><title>&listen;, &read-char-no-hang;</title>
+<section><title>Functions &listen;, &read-char-no-hang;</title>
 
 <variablelist>
  <varlistentry><term><literal
@@ -4766,7 +4758,7 @@ functions are provided:</para>
 
 </section>
 
-<section><title>&read-byte;</title>
+<section><title>Function &read-byte;</title>
 
 <variablelist>
  <varlistentry><term><literal
@@ -4809,8 +4801,8 @@ functions are provided:</para>
 </chapter>
 
 
-<chapter id="system"><title><ulink url="&clhs;/Body/chap-24.html">
-    Chapter 24: System Construction</ulink></title>
+<chapter id="system"><title>System Construction
+   <ulink url="&clhs;/Body/chap-24.html">[CLHS-24]</ulink></title>
 
 <section><title><ulink url="&clhs;/Body/sec_the_syste_n_dictionary.html">
     24.2: The System Construction Dictionary</ulink></title>
@@ -4820,7 +4812,7 @@ functions are provided:</para>
  linkend="compile-decl"><literal
  role="sexp">(compile)</literal></link>.</para>
 
-<section id="compilefile"><title>&compile-file;</title>
+<section id="compilefile"><title>Function &compile-file;</title>
 
 <para><literal role="sexp">(&compile-file;
           <replaceable>input-file</replaceable> &key-amp; :output-file
@@ -4883,16 +4875,16 @@ compiles a file to platform-independent bytecode.</para>
 
 </section>
 
-<section><title>&compile-file-pathname;</title>
+<section><title>Function &compile-file-pathname;</title>
 <para>The default for the <constant>:output-file</constant> argument is
  &t;, which means <function>#p".fas"</function>.</para></section>
 
-<section><title>&require;</title>
+<section><title>Function &require;</title>
 <para>The function &require; receives as optional argument either a
  pathname or a list of pathnames: files to be loaded if the required
  module is not already in memory.</para></section>
 
-<section id="loadfile"><title>&load;</title>
+<section id="loadfile"><title>Function &load;</title>
 
 <para>&load; has two additional keywords &echo-k; and
  &compiling-k;.</para>
@@ -4934,27 +4926,34 @@ compiles a file to platform-independent bytecode.</para>
 
 </section>
 
-<section id="features"><title><ulink
-  url="&clhs;/Body/var_stfeaturesst.html"><varname>*features*</varname></ulink>
-  </title>
+<section id="features"><title>Variable &features-var;</title>
 
 <para>The variable &features-var; initially contains the symbols
 <segmentedlist>
  <segtitle>keyword</segtitle><segtitle>meaning</segtitle>
 <seglistitem><seg><constant>:CLISP</constant></seg>
    <seg>the name of this implementation</seg></seglistitem>
-<seglistitem><seg><constant>:ANSI-CL</constant></seg>
-   <seg>if invoked with the <ulink url="clisp.html#Option
-   -a"><option>-a</option></ulink> <ulink url="clisp.html">command line
-   option.</ulink></seg></seglistitem>
-<seglistitem><seg><constant>:COMMON-LISP</constant></seg>
-  <seg/></seglistitem>
-<seglistitem><seg><constant>:CLTL2</constant></seg>
-  <seg/></seglistitem>
-<seglistitem><seg><constant>:INTERPRETER</constant></seg>
-  <seg/></seglistitem>
-<seglistitem><seg><constant>:COMPILER</constant></seg>
-  <seg/></seglistitem>
+<seglistitem><seg><constant>:ANSI-CL</constant></seg><seg/></seglistitem>
+<seglistitem><seg><constant>:COMMON-LISP</constant></seg><seg/></seglistitem>
+<seglistitem><seg><constant>:INTERPRETER</constant></seg><seg/></seglistitem>
+<seglistitem><seg><constant>:COMPILER</constant></seg><seg/></seglistitem>
+<!-- #ifdef SOCKET_STREAMS -->
+<seglistitem><seg><constant>:SOCKETS</constant></seg>
+   <seg>see <link linkend="socket">Socket Streams</link></seg></seglistitem>
+<!-- #endif -->
+<!-- #ifdef GENERIC_STREAMS -->
+<seglistitem><seg><constant>:GENERIC-STREAMS</constant></seg>
+   <seg>see <link linkend="clos-stream">Defining new kinds of
+    Streams</link></seg></seglistitem>
+<!-- #endif -->
+<!-- #ifdef EXPORT_SYSCALLS -->
+<seglistitem><seg><constant>:SYSCALLS</constant></seg>
+   <seg>see <link linkend="syscalls">System Calls</link></seg></seglistitem>
+<!-- #endif -->
+<!-- #ifdef DIR_KEY -->
+<seglistitem><seg><constant>:DIR-KEY</constant></seg>
+   <seg>see <link linkend="dir-key">Directory Access</link></seg></seglistitem>
+<!-- #endif -->
 <!-- #ifdef LOGICAL_PATHNAMES -->
 <seglistitem><seg><constant>:LOGICAL-PATHNAMES</constant></seg>
   <seg/></seglistitem>
@@ -5006,11 +5005,11 @@ compiles a file to platform-independent bytecode.</para>
 </chapter>
 
 
-<chapter id="environment"><title><ulink url="&clhs;/Body/chap-25.html">
-    Chapter 25: Environment</ulink></title>
+<chapter id="environment"><title>Environment
+   <ulink url="&clhs;/Body/chap-25.html">[CLHS-25]</ulink></title>
 
-<section id="debugger"><title><ulink url="&clhs;/Body/sec_25-1-2.html">
-    25.1.2 Debugging Utilities</ulink></title>
+<section id="debugger"><title>Debugging Utilities
+   <ulink url="&clhs;/Body/sec_25-1-2.html">[CLHS-25.1.2]</ulink></title>
 
 <para>The debugger may be invoked through the functions
  &invoke-debugger;, &break;, &signal;, &error;, &cerror;, &warn;. The
@@ -5211,12 +5210,12 @@ compiles a file to platform-independent bytecode.</para>
 
 </section>
 
-<section><title><ulink url="&clhs;/Body/sec_the_envir_t_dictionary.html">
-    25.2 The Environment Dictionary</ulink></title>
+<section><title>The Environment Dictionary
+   <ulink url="&clhs;/Body/sec_the_envir_t_dictionary.html">[CLHS-25.2]</ulink></title>
 
 <!-- #ifdef HAVE_DISASSEMBLER -->
 
-<section><title>&disassemble;</title>
+<section><title>Function &disassemble;</title>
 
 <variablelist>
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
@@ -5231,7 +5230,7 @@ compiles a file to platform-independent bytecode.</para>
 
 <!-- #endif -->
 
-<section><title>ext:uncompile</title>
+<section><title>Function <function>EXT:UNCOMPILE</function></title>
 
 <para>The function <emphasis
  role="strong"><function>ext:uncompile</function></emphasis> does the
@@ -5243,7 +5242,7 @@ compiles a file to platform-independent bytecode.</para>
 
 </section>
 
-<section><title>&documentation;</title>
+<section><title>Function &documentation;</title>
 
 <para>No on-line documentation is available for the system functions
  (yet).  &documentation; still has the CLtL1 implementation.</para>
@@ -5260,7 +5259,7 @@ compiles a file to platform-independent bytecode.</para>
 
 </section>
 
-<section><title>&trace;</title>
+<section><title>Macro &trace;</title>
 
 <para><literal role="sexp">(&trace; <replaceable>fun</replaceable>
  ...)</literal> makes the functions <replaceable>fun</replaceable>,
@@ -5341,7 +5340,7 @@ and you can leave the function call with specified values by using
 
 </section>
 
-<section><title>&inspect;</title>
+<section><title>Function &inspect;</title>
 
 <para>The function &inspect; takes a keyword argument
  <constant>:frontend</constant>, which specifies the way &clisp; will
@@ -5368,7 +5367,7 @@ and you can leave the function call with specified values by using
 </variablelist>
 </section>
 
-<section id="space"><title>ext:space</title>
+<section id="space"><title>EXT:SPACE</title>
 
 <para>The macro <emphasis
  role="strong"><function>ext:space</function></emphasis> is like the
@@ -5381,7 +5380,7 @@ and you can leave the function call with specified values by using
 
 </section>
 
-<section id="gc"><title>&room;</title>
+<section id="gc"><title>Function &room;</title>
 
 <para>The function &room; returns two values: the number of bytes
  currently occupied by Lisp objects, and the number of bytes that can be
@@ -5394,7 +5393,7 @@ and you can leave the function call with specified values by using
 
 </section>
 
-<section id="time"><title>&time;</title>
+<section id="time"><title>Macro &time;</title>
 
 <para>The timing data printed by the macro &time; includes: The real
  time (elapsed time), the run time (processor time for this process),
@@ -5404,7 +5403,7 @@ and you can leave the function call with specified values by using
 
 </section>
 
-<section><title>&ed;</title>
+<section><title>Function &ed;</title>
 
 <para>The function &ed; calls the external editor specified by the
  variable <emphasis
@@ -5416,7 +5415,7 @@ and you can leave the function call with specified values by using
 
 </section>
 
-<section><title>clock time</title>
+<section><title>Clock Time</title>
 
 <!-- #if !(defined(UNIX) || defined(WIN32)) -->
 <variablelist>
@@ -5448,7 +5447,7 @@ and you can leave the function call with specified values by using
 
 </section>
 
-<section><title>machine</title>
+<section><title>Machine</title>
 <variablelist>
 <!-- #ifdef MACHINE_KNOWN -->
 <varlistentry><term>Platform dependent: &unix;, &win32; platforms only.</term>
@@ -5467,14 +5466,14 @@ and you can leave the function call with specified values by using
 
 </section>
 
-<section><title>&apropos;, &apropos-list;</title>
+<section><title>Functions &apropos; &amp; &apropos-list;</title>
 
 <para>The search performed by &apropos; and &apropos-list; is
  case-insensitive.</para>
 
 </section>
 
-<section><title>&dribble;</title>
+<section><title>Function &dribble;</title>
 
 <para>If &dribble; is called with an argument, and dribbling is already
  enabled, a warning is printed, and the new dribbling request is
@@ -5482,7 +5481,7 @@ and you can leave the function call with specified values by using
 
 </section>
 
-<section><title>&lisp-implementation-version;</title>
+<section><title>Function &lisp-implementation-version;</title>
 
 <para>&lisp-implementation-version; returns
  the numeric version (like <literal>3.14</literal>), and
@@ -5498,15 +5497,15 @@ and you can leave the function call with specified values by using
 </chapter>
 
 
-<chapter id="glossary"><title><ulink url="&clhs;/Body/chap-26.html">
-    Chapter 26: Glossary</ulink></title>
+<chapter id="glossary"><title>Glossary
+   <ulink url="&clhs;/Body/chap-26.html">[CLHS-26]</ulink></title>
 
 <para>No notes.</para>
 
 </chapter>
 
-<chapter id="appendix"><title><ulink url="&clhs;/Body/chap-a.html">
-    Appendix</ulink></title>
+<chapter id="appendix"><title>Appendix
+   <ulink url="&clhs;/Body/chap-a.html">[CLHS-a]</ulink></title>
 
 <para>No notes.</para>
 

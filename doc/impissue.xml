@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<chapter id="issues"><title><ulink url="&clhs;/Issues/Issues-Categorized.html">
-    X3J13 Issue Index</ulink></title>
+<chapter id="issues"><title>X3J13 Issue Index
+   <ulink url="&clhs;/Issues/Issues-Categorized.html">[CLHS-ic]</ulink></title>
 
 <para>This is the list of ANSI CL issues and their current status in
  &clisp;, i.e., whether &clisp; supports code that makes use of the
