@@ -8960,8 +8960,171 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
       } else
         write_sstring_case(stream_,O(printstring_broken_weakpointer));
       break;
-    case Rectype_WeakKVT: # weak key-value table
-      pr_weakkvt(stream_,obj);
+    case Rectype_MutableWeakList: # #<WEAK-LIST (element1 ...)>
+      CHECK_PRINT_READABLY(obj);
+      LEVEL_CHECK;
+      {
+        pushSTACK(TheMutableWeakList(obj)->mwl_list); # save list
+        var gcv_object_t* wl_ = &STACK_0; # and memorize, where it is
+        var uintL wl_length = Lrecord_length(*wl_)-2;
+        UNREADABLE_START;
+        var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
+        JUSTIFY_LAST(length_limit==0);
+        write_sstring_case(stream_,O(printstring_weak_list)); # "WEAK-LIST"
+        {
+          # check for attaining of *PRINT-LENGTH*:
+          if (0 >= length_limit) goto weak_list_end;
+          JUSTIFY_SPACE; # print Space
+          JUSTIFY_LAST(true);
+          # Now the list (element1 ...):
+          LEVEL_CHECK;
+          var uintL length = 0; # previous length := 0
+          KLAMMER_AUF; # '('
+          INDENT_START(get_indent_lists()); # indent by 1 character, because of '('
+          JUSTIFY_START(1);
+          # test for attaining of *PRINT-LENGTH* :
+          CHECK_LENGTH_LIMIT(length_limit==0,goto weak_list_end);
+          # test for attaining of *PRINT-LINES* :
+          CHECK_LINES_LIMIT(goto weak_list_end);
+          var uintL i1;
+          for (i1 = 0; i1 < wl_length; i1++)
+            if (!eq(TheWeakList(*wl_)->wl_elements[i1],unbound))
+              break;
+          if (i1 < wl_length) {
+            pushSTACK(TheWeakList(*wl_)->wl_elements[i1]);
+            loop {
+              var uintL i2;
+              for (i2 = i1+1; i2 < wl_length; i2++)
+                if (!eq(TheWeakList(*wl_)->wl_elements[i2],unbound))
+                  break;
+              JUSTIFY_LAST(i2 == wl_length);
+              var object element = STACK_0; # = TheWeakList(*wl_)->wl_elements[i1]
+              if (i2 < wl_length)
+                STACK_0 = TheWeakList(*wl_)->wl_elements[i2];
+              prin_object(stream_,element);
+              length++; # increment length
+              if (i2 == wl_length)
+                break;
+              JUSTIFY_SPACE; # print one Space
+              # check for attaining *PRINT-LENGTH* :
+              CHECK_LENGTH_LIMIT(length >= length_limit,break);
+              # check for attaining *PRINT-LINES* :
+              CHECK_LINES_LIMIT(break);
+              i1 = i2;
+            }
+            skipSTACK(1);
+          }
+          JUSTIFY_END_FILL;
+          INDENT_END;
+          KLAMMER_ZU;
+          LEVEL_END;
+        }
+      weak_list_end:
+        JUSTIFY_END_FILL;
+        UNREADABLE_END;
+        skipSTACK(1);
+      }
+      LEVEL_END;
+      break;
+    case Rectype_MutableWeakAlist: # #<WEAK-ALIST (pair1 ...)>
+      CHECK_PRINT_READABLY(obj);
+      LEVEL_CHECK;
+      {
+        pushSTACK(TheMutableWeakAlist(obj)->mwal_list); # save list
+        var gcv_object_t* wal_ = &STACK_0; # and memorize, where it is
+        var uintL wal_length = (Lrecord_length(*wal_)-2)/2;
+        UNREADABLE_START;
+        var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
+        JUSTIFY_LAST(length_limit==0);
+        write_sstring_case(stream_,O(printstring_weak_alist)); # "WEAK-ALIST"
+        {
+          # check for attaining of *PRINT-LENGTH*:
+          if (0 >= length_limit) goto weak_alist_end;
+          JUSTIFY_SPACE; # print Space
+          JUSTIFY_LAST(true);
+          # Now the list (pair1 ...):
+          LEVEL_CHECK;
+          var uintL length = 0; # previous length := 0
+          KLAMMER_AUF; # '('
+          INDENT_START(get_indent_lists()); # indent by 1 character, because of '('
+          JUSTIFY_START(1);
+          # test for attaining of *PRINT-LENGTH* :
+          CHECK_LENGTH_LIMIT(length_limit==0,goto weak_alist_end);
+          # test for attaining of *PRINT-LINES* :
+          CHECK_LINES_LIMIT(goto weak_alist_end);
+          var uintL i1;
+          for (i1 = 0; i1 < wal_length; i1++)
+            if (!eq(TheWeakAlist(*wal_)->wal_data[2*i1+0],unbound))
+              break;
+          if (i1 < wal_length) {
+            pushSTACK(TheWeakAlist(*wal_)->wal_data[2*i1+0]);
+            pushSTACK(TheWeakAlist(*wal_)->wal_data[2*i1+1]);
+            loop {
+              var uintL i2;
+              for (i2 = i1+1; i2 < wal_length; i2++)
+                if (!eq(TheWeakAlist(*wal_)->wal_data[2*i2+0],unbound))
+                  break;
+              JUSTIFY_LAST(i2 == wal_length);
+              var object key = STACK_1; # = TheWeakAlist(*wal_)->wal_data[2*i1+0]
+              var object value = STACK_0; # = TheWeakAlist(*wal_)->wal_data[2*i1+1]
+              if (i2 < wal_length) {
+                STACK_1 = TheWeakAlist(*wal_)->wal_data[2*i2+0];
+                STACK_0 = TheWeakAlist(*wal_)->wal_data[2*i2+1];
+              }
+              pr_pair(stream_,key,value);
+              length++; # increment length
+              if (i2 == wal_length)
+                break;
+              JUSTIFY_SPACE; # print one Space
+              # check for attaining *PRINT-LENGTH* :
+              CHECK_LENGTH_LIMIT(length >= length_limit,break);
+              # check for attaining *PRINT-LINES* :
+              CHECK_LINES_LIMIT(break);
+              i1 = i2;
+            }
+            skipSTACK(2);
+          }
+          JUSTIFY_END_FILL;
+          INDENT_END;
+          KLAMMER_ZU;
+          LEVEL_END;
+        }
+      weak_alist_end:
+        JUSTIFY_END_FILL;
+        UNREADABLE_END;
+        skipSTACK(1);
+      }
+      LEVEL_END;
+      break;
+    case Rectype_Weakmapping: # #<WEAK-MAPPING (key . value)> or #<BROKEN WEAK-MAPPING>
+      CHECK_PRINT_READABLY(obj);
+      if (!eq(TheWeakmapping(obj)->wm_value,unbound)) {
+        LEVEL_CHECK;
+        {
+          pushSTACK(TheWeakmapping(obj)->wm_value); # save value
+          pushSTACK(TheWeakmapping(obj)->wm_key); # save key
+          var gcv_object_t* aux_ = &STACK_0; # and memorize, where they are
+          UNREADABLE_START;
+          var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
+          JUSTIFY_LAST(length_limit==0);
+          write_sstring_case(stream_,O(printstring_weakmapping)); # "WEAK-MAPPING"
+          {
+            var uintL length = 0; # previous length := 0
+            # check for attaining of *PRINT-LENGTH*:
+            if (length >= length_limit) goto weakmapping_end;
+            JUSTIFY_SPACE; # print Space
+            JUSTIFY_LAST(true);
+            pr_pair(stream_,*(aux_ STACKop 0),*(aux_ STACKop 1)); # output (key . value) pair
+            length++; # increase previous length
+          }
+        weakmapping_end:
+          JUSTIFY_END_FILL;
+          UNREADABLE_END;
+          skipSTACK(2);
+        }
+        LEVEL_END;
+      } else
+        write_sstring_case(stream_,O(printstring_broken_weakmapping));
       break;
     case Rectype_Finalizer: # #<FINALIZER>
       CHECK_PRINT_READABLY(obj);
@@ -9030,6 +9193,138 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
       LEVEL_END;
       break;
 #endif
+    case Rectype_WeakList: # #<INTERNAL-WEAK-LIST>
+      CHECK_PRINT_READABLY(obj);
+      write_sstring_case(stream_,O(printstring_internal_weak_list));
+      break;
+    case Rectype_WeakAnd: # #<WEAK-AND-RELATION keys-list> or #<BROKEN WEAK-AND-RELATION>
+      CHECK_PRINT_READABLY(obj);
+      if (!eq(TheWeakAnd(obj)->war_keys_list,unbound)) {
+        LEVEL_CHECK;
+        {
+          pushSTACK(TheWeakAnd(obj)->war_keys_list); # save keys list
+          var gcv_object_t* keys_list_ = &STACK_0; # and memorize, where it is
+          UNREADABLE_START;
+          var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
+          JUSTIFY_LAST(length_limit==0);
+          write_sstring_case(stream_,O(printstring_weak_and_relation)); # "WEAK-AND-RELATION"
+          {
+            var uintL length = 0; # previous length := 0
+            # check for attaining of *PRINT-LENGTH*:
+            if (length >= length_limit) goto weak_and_relation_end;
+            JUSTIFY_SPACE; # print Space
+            JUSTIFY_LAST(true);
+            prin_object(stream_,*keys_list_); # output keys-list
+            length++; # increase previous length
+          }
+        weak_and_relation_end:
+          JUSTIFY_END_FILL;
+          UNREADABLE_END;
+          skipSTACK(1);
+        }
+        LEVEL_END;
+      } else
+        write_sstring_case(stream_,O(printstring_broken_weak_and_relation));
+      break;
+    case Rectype_WeakOr: # #<WEAK-OR-RELATION keys-list> or #<BROKEN WEAK-OR-RELATION>
+      CHECK_PRINT_READABLY(obj);
+      if (!eq(TheWeakOr(obj)->wor_keys_list,unbound)) {
+        LEVEL_CHECK;
+        {
+          pushSTACK(TheWeakOr(obj)->wor_keys_list); # save keys list
+          var gcv_object_t* keys_list_ = &STACK_0; # and memorize, where it is
+          UNREADABLE_START;
+          var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
+          JUSTIFY_LAST(length_limit==0);
+          write_sstring_case(stream_,O(printstring_weak_or_relation)); # "WEAK-OR-RELATION"
+          {
+            var uintL length = 0; # previous length := 0
+            # check for attaining of *PRINT-LENGTH*:
+            if (length >= length_limit) goto weak_or_relation_end;
+            JUSTIFY_SPACE; # print Space
+            JUSTIFY_LAST(true);
+            prin_object(stream_,*keys_list_); # output keys-list
+            length++; # increase previous length
+          }
+        weak_or_relation_end:
+          JUSTIFY_END_FILL;
+          UNREADABLE_END;
+          skipSTACK(1);
+        }
+        LEVEL_END;
+      } else
+        write_sstring_case(stream_,O(printstring_broken_weak_or_relation));
+      break;
+    case Rectype_WeakAndMapping: # #<WEAK-AND-MAPPING (keys-list . value)> or #<BROKEN WEAK-AND-MAPPING>
+      CHECK_PRINT_READABLY(obj);
+      if (!eq(TheWeakAndMapping(obj)->wam_keys_list,unbound)) {
+        LEVEL_CHECK;
+        {
+          pushSTACK(TheWeakAndMapping(obj)->wam_value); # save value
+          pushSTACK(TheWeakAndMapping(obj)->wam_keys_list); # save keys-list
+          var gcv_object_t* aux_ = &STACK_0; # and memorize, where they are
+          UNREADABLE_START;
+          var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
+          JUSTIFY_LAST(length_limit==0);
+          write_sstring_case(stream_,O(printstring_weak_and_mapping)); # "WEAK-AND-MAPPING"
+          {
+            var uintL length = 0; # previous length := 0
+            # check for attaining of *PRINT-LENGTH*:
+            if (length >= length_limit) goto weak_and_mapping_end;
+            JUSTIFY_SPACE; # print Space
+            JUSTIFY_LAST(true);
+            pr_pair(stream_,*(aux_ STACKop 0),*(aux_ STACKop 1)); # output (keys-list . value) pair
+            length++; # increase previous length
+          }
+        weak_and_mapping_end:
+          JUSTIFY_END_FILL;
+          UNREADABLE_END;
+          skipSTACK(2);
+        }
+        LEVEL_END;
+      } else
+        write_sstring_case(stream_,O(printstring_broken_weak_and_mapping));
+      break;
+    case Rectype_WeakOrMapping: # #<WEAK-OR-MAPPING (keys-list . value)> or #<BROKEN WEAK-OR-MAPPING>
+      CHECK_PRINT_READABLY(obj);
+      if (!eq(TheWeakOrMapping(obj)->wom_keys_list,unbound)) {
+        LEVEL_CHECK;
+        {
+          pushSTACK(TheWeakOrMapping(obj)->wom_value); # save value
+          pushSTACK(TheWeakOrMapping(obj)->wom_keys_list); # save keys-list
+          var gcv_object_t* aux_ = &STACK_0; # and memorize, where they are
+          UNREADABLE_START;
+          var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
+          JUSTIFY_LAST(length_limit==0);
+          write_sstring_case(stream_,O(printstring_weak_or_mapping)); # "WEAK-OR-MAPPING"
+          {
+            var uintL length = 0; # previous length := 0
+            # check for attaining of *PRINT-LENGTH*:
+            if (length >= length_limit) goto weak_or_mapping_end;
+            JUSTIFY_SPACE; # print Space
+            JUSTIFY_LAST(true);
+            pr_pair(stream_,*(aux_ STACKop 0),*(aux_ STACKop 1)); # output (keys-list . value) pair
+            length++; # increase previous length
+          }
+        weak_or_mapping_end:
+          JUSTIFY_END_FILL;
+          UNREADABLE_END;
+          skipSTACK(2);
+        }
+        LEVEL_END;
+      } else
+        write_sstring_case(stream_,O(printstring_broken_weak_or_mapping));
+      break;
+    case Rectype_WeakAlist_Key:
+    case Rectype_WeakAlist_Value:
+    case Rectype_WeakAlist_Either:
+    case Rectype_WeakAlist_Both: # #<INTERNAL-WEAK-ALIST>
+      CHECK_PRINT_READABLY(obj);
+      write_sstring_case(stream_,O(printstring_internal_weak_alist));
+      break;
+    case Rectype_WeakKVT: # weak key-value table
+      pr_weakkvt(stream_,obj);
+      break;
     default:
       pushSTACK(S(print));
       fehler(serious_condition,

@@ -1,3 +1,67 @@
+2004-05-08  Bruno Haible  <bruno@clisp.org>
+
+	New data types containing weak references.
+	* lispbibl.d (Rectype_MutableWeakList, Rectype_MutableWeakAlist,
+	Rectype_Weakmapping, Rectype_WeakList, Rectype_WeakAnd, Rectype_WeakOr,
+	Rectype_WeakAndMapping, Rectype_WeakOrMapping, Rectype_WeakAlist_Key,
+	Rectype_WeakAlist_Value, Rectype_WeakAlist_Either,
+	Rectype_WeakAlist_Both): New enum values.
+	(WeakList, MutableWeakList, WeakAnd, WeakOr, Weakmapping,
+	WeakAndMapping, WeakOrMapping, WeakAlist, MutableWeakAlist): New types.
+	(mutableweaklist_length, weakmapping_length, mutableweakalist_length):
+	New macros.
+	(TheMutableWeakList, TheWeakList, TheWeakAnd, TheWeakOr,
+	TheWeakmapping, TheWeakAndMapping, TheWeakOrMapping,
+	TheMutableWeakAlist, TheWeakAlist): New macros.
+	(SXrecord_nonweak_length, Lrecord_nonweak_length): Return 0 also for
+	the new weak data types.
+	(activate_weak): New declaration.
+	* spvw_gcmark.d: New file, extracted from spvw_garcol.d.
+	(gc_mark): Handle Rectype_WeakList, Rectype_WeakAnd, Rectype_WeakOr,
+	Rectype_WeakAndMapping, Rectype_WeakOrMapping, Rectype_WeakAlist_* as
+	Lrecords.
+	* spvw_weak.d: New file.
+	* spvw_garcol.d (gc_mark): Move away to spvw_gcmark.d. Include
+	spvw_gcmark.c, spvw_weak.c.
+	(gar_col_normal): Invoke gc_mark_weakpointers and clean_weakpointers.
+	Remove old handling of O(all_weakpointers).
+	* spvw_circ.d (get_circ_mark, get_circ_unmark): Handle
+	Rectype_MutableWeakList, Rectype_MutableWeakAlist, Rectype_Weakmapping,
+	Rectype_WeakList, Rectype_WeakAnd, Rectype_WeakOr,
+	Rectype_WeakAndMapping, Rectype_WeakOrMapping, Rectype_WeakAlist_*.
+	* spvw.d (main): Initialize markwatchset.
+	* spvw_memfile.d (loadmem_from_handle): Likewise.
+	* weak.d: New file.
+	* record.d (mk_weakpointer, MAKE-WEAK-POINTER, WEAK-POINTER-P,
+	check_weakpointer_replacement, check_weakpointer, WEAK-POINTER-VALUE,
+	SETF WEAK-POINTER-VALUE): Move to weak.d.
+	* io.d (pr_orecord): Handle Rectype_MutableWeakList,
+	Rectype_MutableWeakAlist, Rectype_Weakmapping, Rectype_WeakList,
+	Rectype_WeakAnd, Rectype_WeakOr, Rectype_WeakAndMapping,
+	Rectype_WeakOrMapping, Rectype_WeakAlist_*.
+	* predtype.d (TYPE-OF, CLASS-OF): Handle Rectype_MutableWeakList,
+	Rectype_MutableWeakAlist, Rectype_Weakmapping, Rectype_WeakList,
+	Rectype_WeakAnd, Rectype_WeakOr, Rectype_WeakAndMapping,
+	Rectype_WeakOrMapping, Rectype_WeakAlist_*.
+	(enum_hs_weak_list, enum_hs_weak_alist, enum_hs_weakmapping,
+	enum_hs_internal_weak_list, enum_hs_weak_and_relation,
+	enum_hs_weak_or_relation, enum_hs_weak_and_mapping,
+	enum_hs_weak_or_mapping, enum_hs_internal_weak_alist): New enum values.
+	(heap_statistics_mapper): Handle Rectype_MutableWeakList,
+	Rectype_MutableWeakAlist, Rectype_Weakmapping, Rectype_WeakList,
+	Rectype_WeakAnd, Rectype_WeakOr, Rectype_WeakAndMapping,
+	Rectype_WeakOrMapping, Rectype_WeakAlist_*.
+	* init.lisp: Export symbols relating to weak-list, weak-and-relation,
+	weak-or-relation, weak-mapping, weak-and-mapping, weak-or-mapping,
+	weak-alist from EXT.
+	* places.lisp (setf weak-pointer-value): Define as a function alias.
+	(setf weak-list-list, setf weak-mapping-value,
+	setf weak-and-mapping-value, setf weak-or-mapping-value,
+	setf weak-alist-contents, setf weak-alist-value): New aliases.
+	* makemake.in (CPARTS): Add weak.
+	(SPVW_INCLUDES): Add spvw_gcmark, spvw_weak.
+	* po/Makefile.devel (DSOURCES): Add spvw_gcmark, spvw_weak, weak.
+
 2004-04-25  Bruno Haible  <bruno@clisp.org>
 
 	Make it possible to attach a documentation string to classes without

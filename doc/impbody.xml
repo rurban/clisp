@@ -381,7 +381,9 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
   <classname>LOAD-TIME-EVAL</classname>, &symbol-macro;, &encoding;,
   &foreign-pointer-t;, &foreign-address-t;,
   &foreign-variable;;, &foreign-function;</simpara></listitem>
- <listitem><simpara>&weak-pointer;,
+ <listitem><simpara>&weak-pointer;, &weak-list;, &weak-and-relation;,
+  &weak-or-relation;, &weak-mapping;, &weak-and-mapping;, &weak-or-mapping;,
+  &weak-alist;,
    <link linkend="reader"><classname>READ-LABEL</classname></link>,
    <link linkend="reader"><classname>FRAME-POINTER</classname></link>,
    <classname>SYSTEM-INTERNAL</classname></simpara></listitem>

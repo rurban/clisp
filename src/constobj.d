@@ -144,6 +144,8 @@
   LISPOBJ(type_weak_ht,"(MEMBER :BOTH :EITHER :VALUE :KEY NIL)")
 # for RECORD.D:
   LISPOBJ(constant_initfunction_code,".")
+# for WEAK.D:
+  LISPOBJ(type_weak_alist,"(MEMBER :BOTH :EITHER :VALUE :KEY)")
 # for SEQUENCE.D:
   # internal list of all defined sequence-types:
   LISPOBJ(seq_types,"NIL")
@@ -262,7 +264,9 @@
   #endif
   LISPOBJ(hs_realloc_instance,"EXT::FORWARD-POINTER-INSTANCE")
   LISPOBJ(hs_weakpointer,"EXT::WEAK-POINTER")
-  LISPOBJ(hs_weakkvt,"EXT::WEAK-KEY-VALUE-TABLE")
+  LISPOBJ(hs_weak_list,"EXT::WEAK-LIST")
+  LISPOBJ(hs_weak_alist,"EXT::WEAK-ALIST")
+  LISPOBJ(hs_weakmapping,"EXT::WEAK-MAPPING")
   LISPOBJ(hs_finalizer,"EXT::FINALIZER")
   #ifdef SOCKET_STREAMS
   LISPOBJ(hs_socket_server,"SOCKET::SOCKET-SERVER")
@@ -270,6 +274,13 @@
   #ifdef YET_ANOTHER_RECORD
   LISPOBJ(hs_yetanother,"SYS::YETANOTHER")
   #endif
+  LISPOBJ(hs_internal_weak_list,"SYS::INTERNAL-WEAK-LIST")
+  LISPOBJ(hs_weak_and_relation,"EXT::WEAK-AND-RELATION")
+  LISPOBJ(hs_weak_or_relation,"EXT::WEAK-OR-RELATION")
+  LISPOBJ(hs_weak_and_mapping,"EXT::WEAK-AND-MAPPING")
+  LISPOBJ(hs_weak_or_mapping,"EXT::WEAK-OR-MAPPING")
+  LISPOBJ(hs_internal_weak_alist,"SYS::INTERNAL-WEAK-ALIST")
+  LISPOBJ(hs_weakkvt,"EXT::WEAK-KEY-VALUE-TABLE")
   LISPOBJ(hs_system_function,"EXT::SYSTEM-FUNCTION")
   LISPOBJ(hs_bignum,"BIGNUM")
   LISPOBJ(hs_ratio,"RATIO")
@@ -573,6 +584,10 @@
   #endif
   LISPOBJ_S(printstring_weakpointer,"WEAK-POINTER")
   LISPOBJ_S(printstring_broken_weakpointer,"#<BROKEN WEAK-POINTER>")
+  LISPOBJ_S(printstring_weak_list,"WEAK-LIST")
+  LISPOBJ_S(printstring_weak_alist,"WEAK-ALIST")
+  LISPOBJ_S(printstring_weakmapping,"WEAK-MAPPING")
+  LISPOBJ_S(printstring_broken_weakmapping,"#<BROKEN WEAK-MAPPING>")
   LISPOBJ_S(printstring_finalizer,"#<FINALIZER>")
   #ifdef SOCKET_STREAMS
   LISPOBJ_S(printstring_socket_server,"SOCKET-SERVER")
@@ -580,6 +595,16 @@
   #ifdef YET_ANOTHER_RECORD
   LISPOBJ_S(printstring_yetanother,"YET-ANOTHER")
   #endif
+  LISPOBJ_S(printstring_internal_weak_list,"#<INTERNAL-WEAK-LIST>")
+  LISPOBJ_S(printstring_weak_and_relation,"WEAK-AND-RELATION")
+  LISPOBJ_S(printstring_broken_weak_and_relation,"#<BROKEN WEAK-AND-RELATION>")
+  LISPOBJ_S(printstring_weak_or_relation,"WEAK-OR-RELATION")
+  LISPOBJ_S(printstring_broken_weak_or_relation,"#<BROKEN WEAK-OR-RELATION>")
+  LISPOBJ_S(printstring_weak_and_mapping,"WEAK-AND-MAPPING")
+  LISPOBJ_S(printstring_broken_weak_and_mapping,"#<BROKEN WEAK-AND-MAPPING>")
+  LISPOBJ_S(printstring_weak_or_mapping,"WEAK-OR-MAPPING")
+  LISPOBJ_S(printstring_broken_weak_or_mapping,"#<BROKEN WEAK-OR-MAPPING>")
+  LISPOBJ_S(printstring_internal_weak_alist,"#<INTERNAL-WEAK-ALIST>")
   LISPOBJ_S(printstring_closure,"CLOSURE")
   LISPOBJ_S(printstring_generic_function,"GENERIC-FUNCTION")
   LISPOBJ_S(printstring_compiled_closure,"COMPILED-CLOSURE")

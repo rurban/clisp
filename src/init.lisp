@@ -337,6 +337,19 @@
    function-macro foreign-pointer symbol-macro symbol-macro-expand designator
    address special-operator finalize finalizer
    weak-pointer make-weak-pointer weak-pointer-p weak-pointer-value
+   weak-list make-weak-list weak-list-p weak-list-list
+   weak-and-relation make-weak-and-relation weak-and-relation-p
+   weak-and-relation-list
+   weak-or-relation make-weak-or-relation weak-or-relation-p
+   weak-or-relation-list
+   weak-mapping make-weak-mapping weak-mapping-p weak-mapping-pair
+   weak-mapping-value
+   weak-and-mapping make-weak-and-mapping weak-and-mapping-p
+   weak-and-mapping-pair weak-and-mapping-value
+   weak-or-mapping make-weak-or-mapping weak-or-mapping-p weak-or-mapping-pair
+   weak-or-mapping-value
+   weak-alist make-weak-alist weak-alist-p weak-alist-type weak-alist-contents
+   weak-alist-assoc weak-alist-rassoc weak-alist-value
    read-integer read-float write-integer write-float
    read-byte-lookahead read-byte-will-hang-p read-byte-no-hang
    read-char-will-hang-p

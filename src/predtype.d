@@ -1648,8 +1648,12 @@ LISPFUNNR(type_of,1)
        #endif
         case Rectype_Weakpointer: /* Weak-Pointer */
           value1 = S(weak_pointer); break;
-        case Rectype_WeakKVT: /* Weak-Key-Value-Table */
-          value1 = S(weak_kvtable); break;
+        case Rectype_MutableWeakList: /* mutable Weak-List */
+          value1 = S(weak_list); break;
+        case Rectype_MutableWeakAlist: /* mutable Weak-Alist */
+          value1 = S(weak_alist); break;
+        case Rectype_Weakmapping: /* Weak-Mapping */
+          value1 = S(weak_mapping); break;
         case Rectype_Finalizer: /* Finalizer (should not occur) */
           value1 = S(finalizer); break;
        #ifdef SOCKET_STREAMS
@@ -1660,6 +1664,23 @@ LISPFUNNR(type_of,1)
         case Rectype_Yetanother: /* Yetanother -> YET-ANOTHER */
           value1 = S(yet_another); break;
        #endif
+        case Rectype_WeakList: /* Weak-List */
+          value1 = S(internal_weak_list); break;
+        case Rectype_WeakAnd: /* Weak-And-Relation */
+          value1 = S(weak_and_relation); break;
+        case Rectype_WeakOr: /* Weak-Or-Relation */
+          value1 = S(weak_or_relation); break;
+        case Rectype_WeakAndMapping: /* Weak-And-Mapping */
+          value1 = S(weak_and_mapping); break;
+        case Rectype_WeakOrMapping: /* Weak-Or-Mapping */
+          value1 = S(weak_or_mapping); break;
+        case Rectype_WeakAlist_Key:
+        case Rectype_WeakAlist_Value:
+        case Rectype_WeakAlist_Either:
+        case Rectype_WeakAlist_Both: /* Weak-Alist */
+          value1 = S(internal_weak_alist); break;
+        case Rectype_WeakKVT: /* Weak-Key-Value-Table */
+          value1 = S(weak_kvtable); break;
         default: goto unknown;
       }
       break;
@@ -1906,7 +1927,9 @@ LISPFUNNR(class_of,1)
         case Rectype_Fvariable: /* Foreign-Variable -> <t> */
        #endif
         case Rectype_Weakpointer: /* Weak-Pointer -> <t> */
-        case Rectype_WeakKVT: /* Weak-Key-Value-Table -> <t> */
+        case Rectype_MutableWeakList: /* mutable Weak-List -> <t> */
+        case Rectype_MutableWeakAlist: /* mutable Weak-Alist -> <t> */
+        case Rectype_Weakmapping: /* Weak-Mapping -> <t> */
         case Rectype_Finalizer: /* Finalizer -> <t> */
        #ifdef SOCKET_STREAMS
         case Rectype_Socket_Server: /* Socket-Server -> <t> */
@@ -1920,6 +1943,17 @@ LISPFUNNR(class_of,1)
         case Rectype_Yetanother: /* Yetanother -> <t> */
           value1 = O(class_t); break;
        #endif
+        case Rectype_WeakList: /* Weak-List -> <t> */
+        case Rectype_WeakAnd: /* Weak-And-Relation -> <t> */
+        case Rectype_WeakOr: /* Weak-Or-Relation -> <t> */
+        case Rectype_WeakAndMapping: /* Weak-And-Mapping -> <t> */
+        case Rectype_WeakOrMapping: /* Weak-Or-Mapping -> <t> */
+        case Rectype_WeakAlist_Key: /* Weak-Alist -> <t> */
+        case Rectype_WeakAlist_Value: /* Weak-Alist -> <t> */
+        case Rectype_WeakAlist_Either: /* Weak-Alist -> <t> */
+        case Rectype_WeakAlist_Both: /* Weak-Alist -> <t> */
+        case Rectype_WeakKVT: /* Weak-Key-Value-Table -> <t> */
+          value1 = O(class_t); break;
         default: goto unknown;
       }
       break;
@@ -2519,7 +2553,9 @@ enum { /* The values of this enumeration are 0,1,2,...
  #endif
   enum_hs_realloc_instance,
   enum_hs_weakpointer,
-  enum_hs_weakkvt,
+  enum_hs_weak_list,
+  enum_hs_weak_alist,
+  enum_hs_weakmapping,
   enum_hs_finalizer,
  #ifdef SOCKET_STREAMS
   enum_hs_socket_server,
@@ -2527,6 +2563,13 @@ enum { /* The values of this enumeration are 0,1,2,...
  #ifdef YET_ANOTHER_RECORD
   enum_hs_yetanother,
  #endif
+  enum_hs_internal_weak_list,
+  enum_hs_weak_and_relation,
+  enum_hs_weak_or_relation,
+  enum_hs_weak_and_mapping,
+  enum_hs_weak_or_mapping,
+  enum_hs_internal_weak_alist,
+  enum_hs_weakkvt,
   enum_hs_system_function,
   enum_hs_bignum,
   enum_hs_ratio,
@@ -2851,9 +2894,12 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
        #endif
         case Rectype_Weakpointer: /* Weak-Pointer */
           pighole = &locals->builtins[(int)enum_hs_weakpointer]; break;
-        case Rectype_WeakKVT: /* weak-key-value-table */
-          pighole = &locals->builtins[(int)enum_hs_weakkvt];
-          break;
+        case Rectype_MutableWeakList: /* mutable Weak-List */
+          pighole = &locals->builtins[(int)enum_hs_weak_list]; break;
+        case Rectype_MutableWeakAlist: /* mutable Weak-Alist */
+          pighole = &locals->builtins[(int)enum_hs_weak_alist]; break;
+        case Rectype_Weakmapping: /* Weak-Mapping */
+          pighole = &locals->builtins[(int)enum_hs_weakmapping]; break;
         case Rectype_Finalizer: /* Finalizer */
           pighole = &locals->builtins[(int)enum_hs_finalizer]; break;
        #ifdef SOCKET_STREAMS
@@ -2864,6 +2910,24 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
         case Rectype_Yetanother: /* Yetanother */
           pighole = &locals->builtins[(int)enum_hs_yetanother]; break;
        #endif
+        case Rectype_WeakList: /* Weak-List */
+          pighole = &locals->builtins[(int)enum_hs_internal_weak_list]; break;
+        case Rectype_WeakAnd: /* Weak-And-Relation */
+          pighole = &locals->builtins[(int)enum_hs_weak_and_relation]; break;
+        case Rectype_WeakOr: /* Weak-Or-Relation */
+          pighole = &locals->builtins[(int)enum_hs_weak_or_relation]; break;
+        case Rectype_WeakAndMapping: /* Weak-And-Mapping */
+          pighole = &locals->builtins[(int)enum_hs_weak_and_mapping]; break;
+        case Rectype_WeakOrMapping: /* Weak-Or-Mapping */
+          pighole = &locals->builtins[(int)enum_hs_weak_or_mapping]; break;
+        case Rectype_WeakAlist_Key:
+        case Rectype_WeakAlist_Value:
+        case Rectype_WeakAlist_Either:
+        case Rectype_WeakAlist_Both: /* Weak-Alist */
+          pighole = &locals->builtins[(int)enum_hs_internal_weak_alist]; break;
+        case Rectype_WeakKVT: /* Weak-Key-Value-Table */
+          pighole = &locals->builtins[(int)enum_hs_weakkvt];
+          break;
         default:
           pighole = &locals->builtins[(int)enum_hs_t]; break;
       }

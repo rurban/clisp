@@ -315,7 +315,20 @@
 ;;;----------------------------------------------------------------------------
 (defsetf package-lock SYSTEM::%SET-PACKAGE-LOCK)
 (defsetf hash-table-weak-p SYSTEM::%SET-HASH-TABLE-WEAK-P)
-(defsetf weak-pointer-value SYSTEM::%SET-WEAK-POINTER-VALUE)
+(system::%put 'weak-pointer-value 'SYSTEM::SETF-FUNCTION
+              'SYSTEM::|(SETF WEAK-POINTER-VALUE)|)
+(system::%put 'weak-list-list 'SYSTEM::SETF-FUNCTION
+              'SYSTEM::|(SETF WEAK-LIST-LIST)|)
+(system::%put 'weak-mapping-value 'SYSTEM::SETF-FUNCTION
+              'SYSTEM::|(SETF WEAK-MAPPING-VALUE)|)
+(system::%put 'weak-and-mapping-value 'SYSTEM::SETF-FUNCTION
+              'SYSTEM::|(SETF WEAK-AND-MAPPING-VALUE)|)
+(system::%put 'weak-or-mapping-value 'SYSTEM::SETF-FUNCTION
+              'SYSTEM::|(SETF WEAK-OR-MAPPING-VALUE)|)
+(system::%put 'weak-alist-contents 'SYSTEM::SETF-FUNCTION
+              'SYSTEM::|(SETF WEAK-ALIST-CONTENTS)|)
+(system::%put 'weak-alist-value 'SYSTEM::SETF-FUNCTION
+              'SYSTEM::|(SETF WEAK-ALIST-VALUE)|)
 ;;;----------------------------------------------------------------------------
 (defsetf aref (array &rest indices) (value)
   `(SYSTEM::STORE ,array ,@indices ,value))
