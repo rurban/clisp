@@ -671,6 +671,17 @@
         q_zuweisung (uint32)__q;     \
         r_zuweisung (uint32)__r;     \
        })
+    #define divu_3232_3232_(x,y)  \
+      ({var uint32 __x = (x);        \
+        var uint32 __y = (y);        \
+        var uint64 __q;              \
+        __asm__ __volatile__ (       \
+          "wr %%g0,%%g0,%%y\n\t"     \
+          "udiv %1,%2,%0"            \
+          : "=&r" (__q)              \
+          : "r" (__x), "r" (__y));   \
+        (uint32)__q;                 \
+       })
   #elif defined(SPARC) || defined(SPARC64) || defined(I80386) || defined(HPPA_DIV_WORKS)
     #define divu_3232_3232(x,y,q_zuweisung,r_zuweisung)  \
       divu_6432_3232(0,x,y,_EMA_ q_zuweisung,_EMA_ r_zuweisung)
