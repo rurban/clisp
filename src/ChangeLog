@@ -1,5 +1,11 @@
 2004-04-24  Bruno Haible  <bruno@clisp.org>
 
+	* loadform.lisp (mlf-init-function): Return a FUNCTION form with a
+	suitable name. Add (DECLARE (COMPILE)) when appropriate.
+	(make-init-form): Use EVAL instead of COMPILE.
+
+2004-04-24  Bruno Haible  <bruno@clisp.org>
+
 	* describe.lisp (write-to-short-string): Move to ...
 	* defs1.lisp (write-to-short-string): ... here.
 

@@ -61,15 +61,27 @@
     `(find-class ',(class-name object))))
 
 (defun mlf-init-function (object)
-  (multiple-value-bind (cre-form ini-form) (make-load-form object)
-    (if ini-form
-        (let ((var (gensym "MAKE-LOAD-FORM-")))
-          `(lambda ()
-            (let ((,var ,cre-form))
-              ,(sublis `((',object . ,var) (,object . ,var)) ini-form
-                       :test #'equal)
-              ,var)))
-        `(lambda () ,cre-form))))
+  (multiple-value-bind (creation-form initialization-form)
+      (make-load-form object)
+    (let ((funname
+            (gensym
+              (sys::string-concat
+                "CREATE-INSTANCE-OF-<"
+                (write-to-string (class-name (class-of object)) :readably nil)
+                ">-"))))
+      `(FUNCTION ,funname
+         (LAMBDA ()
+           ,@(if (and compiler::*compiling* compiler::*compiling-from-file*)
+               '((DECLARE (COMPILE)))
+               '())
+           ,(if initialization-form
+              (let ((var (gensym "MAKE-LOAD-FORM-")))
+                `(LET ((,var ,creation-form))
+                   ,(sublis `((',object . ,var) (,object . ,var))
+                            initialization-form
+                            :test #'equal)
+                   ,var))
+              creation-form))))))
 
 (defun make-init-form (object)
   (when compiler::*load-forms*
@@ -84,5 +96,4 @@
                      #'(lambda (err)
                          (when (eql (missing-load-form-object err) object)
                            (return-from compute-init-form nil)))))
-                  ; TODO: Explain why it's worth invoking the compiler here.
-                  `(funcall ,(compile nil (mlf-init-function object))))))))))
+                  `(funcall ,(eval (mlf-init-function object))))))))))
