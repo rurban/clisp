@@ -33,17 +33,19 @@
     (let* ((reqanz (sig-req-num (gf-signature gf)))
            (methods (gf-methods gf))
            (dispatching-arg (single-dispatching-arg reqanz methods)))
-      (if dispatching-arg
-        (error-of-type 'method-call-type-error
-          :datum (nth dispatching-arg args)
-          :expected-type (dispatching-arg-type dispatching-arg methods)
-          :generic-function gf :argument-list args
-          (TEXT "~S: When calling ~S with arguments ~S, no method is applicable.")
-          'no-applicable-method gf args)
-        (error-of-type 'method-call-error
-          :generic-function gf :argument-list args
-          (TEXT "~S: When calling ~S with arguments ~S, no method is applicable.")
-          'no-applicable-method gf args)))))
+      (sys::retry-function-call
+       (if dispatching-arg
+         (make-condition 'method-call-type-error
+           :datum (nth dispatching-arg args)
+           :expected-type (dispatching-arg-type dispatching-arg methods)
+           :generic-function gf :argument-list args
+           :format-control (TEXT "~S: When calling ~S with arguments ~S, no method is applicable.")
+           :format-arguments (list 'no-applicable-method gf args))
+         (make-condition 'method-call-error
+           :generic-function gf :argument-list args
+           :format-control (TEXT "~S: When calling ~S with arguments ~S, no method is applicable.")
+           :format-arguments (list 'no-applicable-method gf args)))
+       gf args))))
 
 (defgeneric no-primary-method (gf &rest args)
   (:method ((gf t) &rest args)
@@ -51,37 +53,41 @@
            (methods (remove-if-not #'null (gf-methods gf)
                                    :key #'std-method-qualifiers))
            (dispatching-arg (single-dispatching-arg reqanz methods)))
-      (if dispatching-arg
-        (error-of-type 'method-call-type-error
-          :datum (nth dispatching-arg args)
-          :expected-type (dispatching-arg-type dispatching-arg methods)
-          :generic-function gf :argument-list args
-          (TEXT "~S: When calling ~S with arguments ~S, no primary method is applicable.")
-          'no-primary-method gf args)
-        (error-of-type 'method-call-error
-          :generic-function gf :argument-list args
-          (TEXT "~S: When calling ~S with arguments ~S, no primary method is applicable.")
-          'no-primary-method gf args)))))
+      (sys::retry-function-call
+       (if dispatching-arg
+         (make-condition 'method-call-type-error
+           :datum (nth dispatching-arg args)
+           :expected-type (dispatching-arg-type dispatching-arg methods)
+           :generic-function gf :argument-list args
+           :format-control (TEXT "~S: When calling ~S with arguments ~S, no primary method is applicable.")
+           :format-arguments (list 'no-primary-method gf args))
+         (make-condition 'method-call-error
+           :generic-function gf :argument-list args
+           :format-control (TEXT "~S: When calling ~S with arguments ~S, no primary method is applicable.")
+           :format-arguments (list 'no-primary-method gf args)))
+       gf args))))
 
 (defun %no-next-method (method &rest args)
   (apply #'no-next-method (std-method-gf method) method args))
 (defgeneric no-next-method (gf method &rest args)
-  (:method ((gf standard-generic-function) (method standard-method) &rest args)
+  (:method ((gf standard-generic-function) (method standard-method) &rest args
+            &aux (cont-mesg (format nil (TEXT "ignore ~S") 'CALL-NEXT-METHOD)))
     (if (let ((method-combo (gf-method-combination gf)))
           (funcall (method-combination-call-next-method-allowed method-combo)
                    gf method-combo method))
-      (error-of-type 'method-call-error
+      (cerror cont-mesg 'method-call-error
         :generic-function gf :method method :argument-list args
-        (TEXT "~S: When calling ~S with arguments ~S, there is no next method after ~S, and ~S was called.")
-        'no-next-method gf args method '(call-next-method))
+        :format-control (TEXT "~S: When calling ~S with arguments ~S, there is no next method after ~S, and ~S was called.")
+        :format-arguments (list 'no-next-method gf args method
+                                '(call-next-method)))
       (let ((qualifiers (std-method-qualifiers method)))
         (if qualifiers
-          (error-of-type 'program-error
-            (TEXT "~S: ~S is invalid within ~{~S~^ ~} methods")
-            gf 'CALL-NEXT-METHOD qualifiers)
-          (error-of-type 'program-error
-            (TEXT "~S: ~S is invalid within primary methods")
-            gf 'CALL-NEXT-METHOD))))))
+          (cerror cont-mesg 'program-error
+            :format-control (TEXT "~S: ~S is invalid within ~{~S~^ ~} methods")
+            :format-arguments (list gf 'CALL-NEXT-METHOD qualifiers))
+          (cerror cont-mesg 'program-error
+            :format-control (TEXT "~S: ~S is invalid within primary methods")
+            :format-arguments (list gf 'CALL-NEXT-METHOD)))))))
 
 (defgeneric find-method (gf qualifiers specializers &optional errorp)
   (:method ((gf standard-generic-function) qualifiers specializers &optional (errorp t))
