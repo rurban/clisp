@@ -4,7 +4,7 @@
 
 (in-package "LISP")
 
-(export '(clhs *browsers* *browser* read-from-file browse-url))
+(export '(clhs clhs-root *browsers* *browser* read-from-file browse-url))
 
 (in-package "SYSTEM")
 
