@@ -1,5 +1,10 @@
 2004-09-20  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (PARSE-NAMESTRING): fix second return value for
+	displaced arguments
+
+2004-09-20  Sam Steingold  <sds@gnu.org>
+
 	* describe.lisp (describe-object): print pathname components as
 	is, not as pathnames with only this component, because :VERSION is
 	never printed for non-logical pathnames and :NEWEST is thus

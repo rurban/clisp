@@ -826,3 +826,9 @@ NIL
                (equalp (truename s) (truename file))))
     (delete-file file)))
 (T T T)
+
+(multiple-value-list
+ (parse-namestring (make-array 0 :element-type 'character
+                               :displaced-to "foo"
+                               :displaced-index-offset 1)))
+(#P"" 0)
