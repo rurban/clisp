@@ -1514,7 +1514,7 @@ performance considerations.
 <section id="float-decode"><title>Float Decoding
   <ulink url="&clhs;/Body/fun_decode-fl_decode-float.html">[CLHS]</ulink></title>
 
- <para>&float-radix; always returns <literal role="data">2</literal>.</para>
+ <para>&float-radix; always returns <returnvalue>2</returnvalue>.</para>
 
  <para><code>(&float-digits; &number-r; &digits-r;)</code> coerces
    &number-r; (a &real-t; number) to a floating point number with at
@@ -1974,22 +1974,20 @@ performance considerations.
   "bar" (string &cr-s;) (string &lf-s;))</code>
  Suppose we open it with <code>(&open; "foo" &extfmt; &dos-k;)</code>.
  What should &read-line; return?
- Right now, it returns <literal role="data">"foo"</literal>
- (the second &read-line; returns <literal role="data">"bar"</literal>
+ Right now, it returns <returnvalue>"foo"</returnvalue>
+ (the second &read-line; returns <returnvalue>"bar"</returnvalue>
  and reaches &eos;).
  If our i/o were "faithful", &read-line; would have returned the string
  <code>(&concatenate; 'string "foo" (string &lf-s;) "bar")</code>, i.e.,
-  a string with an embedded &nl-s; between <literal
-  role="data">"foo"</literal> and <literal role="data">"bar"</literal>
-  (because a single &lf-s; is not a &nl-s; in the specified &extfmt;, it
-  will not make &read-line; return, but it &is-e; a &clisp; &nl-s;!)
-  Even though the specification for &read-line; does not explicitly
-  forbids newlines inside the returned string, such behavior would be
-  quite surprising, to say the least.  Moreover, this line (with an
-  embedded &nl-s;) would be written as two lines (when writing to a
-  &stream-t; with &extfmt; of &dos-k;), because the embedded &nl-s;
-  would be written as &cr-c;+&lf-c;.
-</para></formalpara>
+ a string with an embedded &nl-s; between <returnvalue>"foo"</returnvalue>
+ and <returnvalue>"bar"</returnvalue> (because a single &lf-s; is not a
+ &nl-s; in the specified &extfmt;, it will not make &read-line; return,
+ but it &is-e; a &clisp; &nl-s;!)  Even though the specification for
+ &read-line; does not explicitly forbids newlines inside the returned
+ string, such behavior would be quite surprising, to say the least.
+ Moreover, this line (with an embedded &nl-s;) would be written as two
+ lines (when writing to a &stream-t; with &extfmt; of &dos-k;), because
+ the embedded &nl-s; would be written as &cr-c;+&lf-c;.</para></formalpara>
 
 </section>
 
@@ -2537,8 +2535,8 @@ checks whether the &hash-table-t; is weak.</para>
 <para>Function &hash-table-test; returns either one of the four standard
  symbols &eq;, &eql;, &equal;, &equalp;, or, for &hash-table-t;s
  created with a user-defined &hash-table-test; (see macro &defhash;),
- a &cons-t; cell <literal role="data">(&test-f; . &hash-f;)</literal>.</para>
-</section>
+ a &cons-t; cell <literal role="data">(&test-f; . &hash-f;)</literal>.
+</para></section>
 
 <section id="dohash"><title>Macro &dohash;</title>
 
@@ -3067,12 +3065,12 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
   regular files in the directory <filename>#P"/etc/"</filename>.
   If the <constant>:FULL</constant> argument is non-&nil;,
   additional information is returned: for each matching file you get a
-  list of at least four elements <literal
-  role="data">(<replaceable>file-pathname</replaceable>
-  <replaceable>file-truename</replaceable>
-  <replaceable>file-write-date-as-decoded-time</replaceable>
-  <replaceable>file-length</replaceable>)</literal>.</simpara></listitem>
-</itemizedlist>
+  &list-t; of at least four elements
+   <returnvalue>(<replaceable>file-pathname</replaceable>
+    <replaceable>file-truename</replaceable>
+    <replaceable>file-write-date-as-decoded-time</replaceable>
+    <replaceable>file-length</replaceable>)</returnvalue>.
+</simpara></listitem></itemizedlist>
 
 If you want <emphasis>all</emphasis> the files <emphasis>and</emphasis>
 subdirectories in the current directory, you should use
@@ -3754,11 +3752,11 @@ functions are provided:
    <ulink url="&clhs;/Body/sec_22-1-3-7.html">[CLHS-22.1.3.7]</ulink></title>
 
 <para>When &print-readably-var; is true, other vectors are written as
- follows: if the &array-element-type; is &t-t;, the syntax <literal
- role="data">#(<replaceable>x<subscript>0</subscript></replaceable>
- ... <replaceable>x<subscript>n-1</subscript></replaceable>)</literal>
- is used.  Otherwise, the syntax <literal role="data">#A(&eltype-r;
- &dimensions-r; &cont-r;)</literal> is used.</para>
+ follows: if the &array-element-type; is &t-t;, the syntax
+ <computeroutput>#(<replaceable>x<subscript>0</subscript></replaceable>
+  ... <replaceable>x<subscript>n-1</subscript></replaceable>)</computeroutput>
+ is used.  Otherwise, the syntax <computeroutput>#A(&eltype-r;
+ &dimensions-r; &cont-r;)</computeroutput> is used.</para>
 
 </section>
 
@@ -3766,10 +3764,10 @@ functions are provided:
    <ulink url="&clhs;/Body/sec_22-1-3-8.html">[CLHS-22.1.3.8]</ulink></title>
 
 <para>When &print-readably-var; is true, other arrays are written as
- follows: if the &array-element-type; is &t-t;, the syntax <literal
- role="data">#<replaceable>rank</replaceable>A &cont-r;</literal> is
- used.  Otherwise, the syntax <literal role="data">#A(&eltype-r;
- &dimensions-r; &cont-r;)</literal> is used.</para>
+ follows: if the &array-element-type; is &t-t;, the syntax
+ <computeroutput>#<replaceable>rank</replaceable>A &cont-r;</computeroutput>
+ is used.  Otherwise, the syntax <computeroutput>#A(&eltype-r;
+ &dimensions-r; &cont-r;)</computeroutput> is used.</para>
 
 <para>As explicitly permitted by this section, specialized &bit-t; and
  &character-t; &array-t;s are printed with the innermost lists generated
@@ -3779,11 +3777,11 @@ functions are provided:
 <formalpara id="pr-empty-arr-ansi"><title>Variable &pr-empty-arr-ansi;</title>
 <para>Empty &array-t;s, i.e., arrays with no elements and zero
  &array-total-size; (because one of its dimensions is zero) are printed
- with the readable syntax <literal role="data">#A(&eltype-r;
- &dimensions-r; &cont-r;)</literal>, unless the variable
+ with the readable syntax <computeroutput>#A(&eltype-r;
+ &dimensions-r; &cont-r;)</computeroutput>, unless the variable
  &pr-empty-arr-ansi; is non-&nil;, in which case the arrays are printed
- using the &ansi;-prescribed syntax
- <literal role="data">#<replaceable>rank</replaceable>A &cont-r;</literal>
+ using the &ansi-cl;-prescribed syntax
+ <computeroutput>#<replaceable>rank</replaceable>A &cont-r;</computeroutput>
  which often loses the dimension information.</para></formalpara>
 
 </section>

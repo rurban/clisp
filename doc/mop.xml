@@ -1135,24 +1135,24 @@ portable program modifies the binding of any slot of a prototype instance.
 
 <informalexample><para>This allows non-&consing; access to slots with
   allocation &class-k;:<programlisting language="lisp">
-  (defclass counter ()
-    ((count :allocation :class :initform 0 :reader how-many)))
-  (defmethod initialize-instance :after ((obj counter) &amp;rest args)
-    (incf (slot-value obj 'count)))
-  (defclass counted-object (counter) ((name :initarg :name)))
+(defclass counter ()
+  ((count :allocation :class :initform 0 :reader how-many)))
+(defmethod initialize-instance :after ((obj counter) &amp;rest args)
+  (incf (slot-value obj 'count)))
+(defclass counted-object (counter) ((name :initarg :name)))
  </programlisting>
  Now one can find out how many <classname>COUNTED-OBJECT</classname>s
  have been created by using
   <code>(HOW-MANY (&class-prototype; (&find-class; 'COUNTER)))</code>:
   <programlisting language="lisp">
-  (&make-instance; 'counted-object :name 'foo)
-    <returnvalue>#&lt;COUNTED-OBJECT #x203028C9&gt;</returnvalue>
-  (HOW-MANY (&class-prototype; (&find-class; 'counter)))
-    <returnvalue>1</returnvalue>
-  (&make-instance; 'counted-object :name 'bar)
-    <returnvalue>#&lt;COUNTED-OBJECT #x20306CB1&gt;</returnvalue>
-  (HOW-MANY (&class-prototype; (&find-class; 'counter)))
-    <returnvalue>2</returnvalue>
+(&make-instance; 'counted-object :name 'foo)
+<computeroutput>#&lt;COUNTED-OBJECT #x203028C9&gt;</computeroutput>
+(HOW-MANY (&class-prototype; (&find-class; 'counter)))
+<computeroutput>1</computeroutput>
+(&make-instance; 'counted-object :name 'bar)
+<computeroutput>#&lt;COUNTED-OBJECT #x20306CB1&gt;</computeroutput>
+(HOW-MANY (&class-prototype; (&find-class; 'counter)))
+<computeroutput>2</computeroutput>
 </programlisting></para>
 </informalexample></simplesect>
 
@@ -4191,13 +4191,11 @@ restrictions.</para>
 <formalpara><title>Examples</title>
 <para><informalexample><programlisting language="lisp">
 (&extract-lambda-list; '((p position)))
- <returnvalue>(P)</returnvalue>
-
+<computeroutput>(P)</computeroutput>
 (&extract-lambda-list; '((p position) x y))
- <returnvalue>(P X Y)</returnvalue>
-
+<computeroutput>(P X Y)</computeroutput>
 (&extract-lambda-list; '(a (b (eql x)) c &rest-amp; i))
- <returnvalue>(A B C &amp;OPTIONAL I)</returnvalue>
+<computeroutput>(A B C &optional-amp; I)</computeroutput>
 </programlisting></informalexample></para></formalpara>
 </section><!-- extract-lambda-list -->
 
@@ -4232,13 +4230,11 @@ restrictions.</para>
 <formalpara><title>Examples</title>
 <para><informalexample><programlisting language="lisp">
 (&extract-specializer-names; '((p position)))
- <returnvalue>(POSITION)</returnvalue>
-
+<computeroutput>(POSITION)</computeroutput>
 (&extract-specializer-names; '((p position) x y))
- <returnvalue>(POSITION T T)</returnvalue>
-
+<computeroutput>(POSITION T T)</computeroutput>
 (&extract-specializer-names; '(a (b (eql x)) c &rest-amp; i))
- <returnvalue>(T (EQL X) T)</returnvalue>
+<computeroutput>(T (EQL X) T)</computeroutput>
 </programlisting></informalexample></para></formalpara>
 </section><!-- extract-specializer-names -->
 
@@ -4835,10 +4831,9 @@ objects linked, for example, by hash tables.)
 
 (setq c1 (make-instance 'constructor
                         :name 'position :fields '(x y)))
-<returnvalue>#&lt;CONSTRUCTOR 262437&gt;</returnvalue>
-
+<computeroutput>#&lt;CONSTRUCTOR 262437&gt;</computeroutput>
 (setq p1 (funcall c1))
-<returnvalue>#&lt;ARRAY 3 263674&gt;</returnvalue>
+<computeroutput>#&lt;ARRAY 3 263674&gt;</computeroutput>
 </programlisting></para></informalexample>
 </section><!-- mop-sa-funcallable -->
 

@@ -1522,8 +1522,8 @@ is approximately equivalent to
    (dotimes (i 10) (if (oddp i) (c0 i) (c1 i))))
 </programlisting>
 
-returns two lists <literal role="data">(1 3 5 7 9)</literal> and
-<literal role="data">(0 2 4 6 8)</literal> as &mul-val;.
+returns two &list-t;s <returnvalue>(1 3 5 7 9)</returnvalue>
+and <returnvalue>(0 2 4 6 8)</returnvalue> as &mul-val;.
 </para></formalpara>
 
 <formalpara id="with-gensyms">
@@ -2078,9 +2078,9 @@ DEFUN(MY-PACKAGE:MY-FUNCTION-NAME, arg1 arg2 &key-amp; FOO BAR) {
   VALUES1(listof(7)); /* cons up a new list and clean up the STACK */
 }</programlisting>
 Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
- return <literal role="data">(A 12 T 0 MY-PACKAGE::SOME-SYMBOL #(:THIS
+ return <returnvalue>(A 12 T 0 MY-PACKAGE::SOME-SYMBOL #(:THIS
   :IS :A :VECTOR) #&lt;ADD-ON-SYSTEM-FUNCTION
-  MY-PACKAGE:MY-FUNCTION-NAME&gt;)</literal>
+  MY-PACKAGE:MY-FUNCTION-NAME&gt;)</returnvalue>
 (assuming you &export;ed <literal>MY-FUNCTION-NAME</literal> from
  <quote role="package">MY-PACKAGE</quote>).</para>
 
@@ -2579,8 +2579,9 @@ only.</subtitle>
    internal &c-lang; type descriptor (as obtained from &parse-c-type;).
    &name-r;, a &string-t;, is mostly useful for documentation and
    interactive debugging since it appears in the printed representation
-   of the &foreign-variable-t; object, as in <literal
-    role="data">#&lt;&foreign-variable-t; "foo" #x0ADD4E55&gt;</literal>.
+   of the &foreign-variable-t; object, as in
+   <computeroutput>#&lt;&foreign-variable-t; "foo"
+    #x0ADD4E55&gt;</computeroutput>.
    In effect, this is similar to &cast; (or rather
    <code>(&offset; ... 0 ...)</code> for places),
    except that it works with &foreign-address; objects and allows
@@ -2596,8 +2597,9 @@ only.</subtitle>
    expressions are likely to be evaluated at run time, outside the &comp-unit;).
    &name-r;, a &string-t;, is mostly useful for documentation and
    interactive debugging since it appears in the printed representation
-   of the &foreign-function-t; object, as in <literal
-    role="data">#&lt;&foreign-function-t; "foo" #x0052B060&gt;</literal>.
+   of the &foreign-function-t; object, as in
+   <computeroutput>#&lt;&foreign-function-t; "foo"
+    #x0052B060&gt;</computeroutput>.
    It is inherited from the given &foreign-function-t; object when
    available.</simpara></listitem></varlistentry>
 
@@ -3263,7 +3265,7 @@ Sample call from within Lisp:
 
 <programlisting language="lisp">
 (div 20 3)
-<returnvalue>#S(DIV_T :QUOT 6 :REM 2)</returnvalue>
+<computeroutput>#S(DIV_T :QUOT 6 :REM 2)</computeroutput>
 </programlisting></para></example>
 
 <example id="dffi-extern-func2">
@@ -3470,9 +3472,9 @@ int CallInFunc(LispFunc f) {
   (:return-type ffi:int)
   (:language :stdc))
 (defun f (x) (* x 2))
-<returnvalue>F</returnvalue>
+<computeroutput>F</computeroutput>
 (callout #'f)
-<returnvalue>21</returnvalue>
+<computeroutput>21</computeroutput>
 </programlisting></para></example>
 
 <example id="dffi-gethostname"><title>Variable size arguments:
@@ -3570,15 +3572,15 @@ double test_dll(struct bar *ptr)
 <varname>my-c-var</varname>:
 <programlisting language="lisp">
 (&c-var-addr; my-c-var)
-<returnvalue>#&lt;FOREIGN-ADDRESS #x282935D8&gt;</returnvalue>
+<computeroutput>#&lt;FOREIGN-ADDRESS #x282935D8&gt;</computeroutput>
 (get-own-c-float (&c-var-addr; my-c-var))
-<returnvalue>30.5d0</returnvalue>
+<computeroutput>30.5d0</computeroutput>
 (get-own-c-float (&c-var-addr; my-c-var))
-<returnvalue>61.0d0</returnvalue>
+<computeroutput>61.0d0</computeroutput>
 (get-own-c-float (&c-var-addr; my-c-var))
-<returnvalue>91.5d0</returnvalue>
+<computeroutput>91.5d0</computeroutput>
 (get-own-c-float (&c-var-addr; my-c-var))
-<returnvalue>122.0d0</returnvalue>
+<computeroutput>122.0d0</computeroutput>
 </programlisting></para>
 
 </example>
