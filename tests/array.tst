@@ -658,3 +658,40 @@ VMFAD                   #(5d0 4d0 3d0 2d0 1d0 0d0)
 (VECTOR-PUSH-EXTEND 5.0S0 VMFAD)
 #+(or XCL GCL ALLEGRO CMU) ERROR #+(or CLISP (and AKCL (not GCL)) ECL) 0
 #-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
+
+;; (VECTOR NIL)
+(upgraded-array-element-type nil)
+nil
+
+(arrayp (setq nil-arr (make-array '(10 20) :element-type nil)))
+t
+
+(array-element-type
+ (setq nil-vec (make-array 4 :element-type nil
+                           :displaced-to nil-arr
+                           :displaced-index-offset 2)))
+nil
+
+(typep nil-vec 'sequence)
+t
+
+(aref nil-arr 2 2)
+error
+
+(setf (aref nil-vec 1) 0)
+error
+
+(fill nil-vec 1)
+error
+
+(replace nil-vec #(0 1 0 1))
+error
+
+(replace #(0 1 0 1) nil-vec)
+error
+
+(copy-seq nil-vec)
+#A(NIL (4))
+
+(setq nil-vec nil nil-arr nil)
+nil

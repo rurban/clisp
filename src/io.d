@@ -3512,20 +3512,22 @@ LISPFUNN(array_reader,3) { # reads #A
     var object obj = read_recursive_no_dot(stream_); # read List
     obj = make_references(obj); # unentangle references
     # (this is harmless, since we don't use this #A-Syntax
-    # for Arrays with Elementtyp T, and Byte-Arrays contain no references.)
-    if (!consp(obj)) goto bad;
-    {
+    # for Arrays with element-type T, and Byte-Arrays contain no references.)
+    if (consp(obj)) {
       var object obj2 = Cdr(obj);
       if (!consp(obj2)) goto bad;
       var object obj3 = Cdr(obj2);
-      if (!consp(obj3)) goto bad;
-      if (!nullp(Cdr(obj3))) goto bad;
+      /* type=NIL => no contents, otherwise contents is required */
+      if (nullp(Car(obj)) ? !nullp(obj3) : !consp(obj3) || !nullp(Cdr(obj3)))
+        goto bad;
+      if (consp(obj3)) obj3 = Car(obj3); /* contents */
       # call (MAKE-ARRAY dims :element-type eltype :initial-contents contents):
       STACK_2 = Car(obj2); STACK_1 = S(Kelement_type); STACK_0 = Car(obj);
-      pushSTACK(S(Kinitial_contents)); pushSTACK(Car(obj3));
+      if (nullp(STACK_0)) obj3 = unbound; /* no initial contents */
+      pushSTACK(S(Kinitial_contents)); pushSTACK(obj3);
       goto call_make_array;
     }
-  bad:
+   bad:
     pushSTACK(*stream_); # STREAM-ERROR slot STREAM
     pushSTACK(obj); # Object
     pushSTACK(*stream_); # Stream
@@ -3536,9 +3538,9 @@ LISPFUNN(array_reader,3) { # reads #A
   # read content:
   {
     # bind SYS::*READING-ARRAY* to T.
-    # this allows the backquote reader functions to 
+    # this allows the backquote reader functions to
     # distinguish #(...) vectors from #1A(...) vectors.
-    dynamic_bind(S(reading_array),T); 
+    dynamic_bind(S(reading_array),T);
     var object contents = read_recursive_no_dot(stream_);
     dynamic_unbind();
     pushSTACK(contents); pushSTACK(contents);
@@ -5848,7 +5850,8 @@ local void justify_space (const gcv_object_t* stream_) {
   }
 }
 
-local void multi_line_sub_block_out (object block, const gcv_object_t* stream_) {
+local void multi_line_sub_block_out (object block, const gcv_object_t* stream_)
+{
   block = nreverse(block); # bring lines into the right order
   while (!stringp(Car(block))) # drop the initial indentations
     block = Cdr(block);
@@ -7587,8 +7590,11 @@ local void pr_vector (const gcv_object_t* stream_, object v) {
       # process vector elementwise:
       var uintL len = vector_length(v); # vector-length
       var uintL offset = 0; # offset of vector into the data-vector
+      var bool vector_nil_p = false;
       {
         var object sv = array_displace_check(v,len,&offset); # data-vector
+        if (Array_type(sv) == Array_type_snilvector)
+          readable = vector_nil_p = true;
         pushSTACK(sv); # save simple-vektor
       }
       var gcv_object_t* sv_ = &STACK_0; # and memorize, where it is
@@ -7599,38 +7605,42 @@ local void pr_vector (const gcv_object_t* stream_, object v) {
         INDENT_START(3); # indent by 3 characters because of '#A('
         JUSTIFY_START(1);
         JUSTIFY_LAST(false);
-        prin_object_dispatch(stream_,array_element_type(*sv_)); # print elementtype
+        prin_object_dispatch(stream_,array_element_type(*sv_)); # print element-type
         JUSTIFY_SPACE;
         JUSTIFY_LAST(false);
         pushSTACK(fixnum(len));
         pr_list(stream_,listof(1)); # print list with the length
-        JUSTIFY_SPACE;
-        JUSTIFY_LAST(true);
-        KLAMMER_AUF; # '('
-        INDENT_START(1); # indent by  1 character because of '('
+        if (!vector_nil_p) { /* not a (VECTOR NIL) */
+          JUSTIFY_SPACE;
+          JUSTIFY_LAST(true);
+          KLAMMER_AUF; # '('
+          INDENT_START(1); # indent by  1 character because of '('
+        }
       } else {
         write_ascii_char(stream_,'#');
         KLAMMER_AUF; # '('
         INDENT_START(2); # indent by 2 characters because of '#('
       }
-      JUSTIFY_START(1);
-      for (; len > 0; len--) {
-        # print Space (unless in front of first elemnt):
-        if (!(length==0))
-          JUSTIFY_SPACE;
-        # check for attaining of *PRINT-LENGTH* :
-        CHECK_LENGTH_LIMIT(length >= length_limit,break);
-        # test for attaining of *PRINT-LINES* :
-        CHECK_LINES_LIMIT(break);
-        JUSTIFY_LAST(len==1);
-        # print vector-element:
-        prin_object(stream_,storagevector_aref(*sv_,index));
-        length++; # increment length
-        index++; # then go to vector-element
+      if (!vector_nil_p) { /* if not a (VECTOR NIL) print contents */
+        JUSTIFY_START(1);
+        for (; len > 0; len--) {
+          # print Space (unless in front of first elemnt):
+          if (!(length==0))
+            JUSTIFY_SPACE;
+          # check for attaining of *PRINT-LENGTH* :
+          CHECK_LENGTH_LIMIT(length >= length_limit,break);
+          # test for attaining of *PRINT-LINES* :
+          CHECK_LINES_LIMIT(break);
+          JUSTIFY_LAST(len==1);
+          # print vector-element:
+          prin_object(stream_,storagevector_aref(*sv_,index));
+          length++; # increment length
+          index++; # then go to vector-element
+        }
+        JUSTIFY_END_ENG;
+        INDENT_END;
+        KLAMMER_ZU;
       }
-      JUSTIFY_END_ENG;
-      INDENT_END;
-      KLAMMER_ZU;
       if (readable) {
         JUSTIFY_END_ENG;
         INDENT_END;
@@ -7908,6 +7918,9 @@ local void pr_array (const gcv_object_t* stream_, object obj) {
         var uintB atype = Iarray_flags(obj) & arrayflags_atype_mask;
         if ((r>0) && (locals.length_limit >= dims_sizes[0].dim)) {
           switch (atype) {
+            case Atype_NIL: # do not print contents at all
+              locals.pr_one_elt = NULL;
+              goto routine_ok;
             case Atype_Bit: # print whole bitvectors instead of single bits
               locals.pr_one_elt = &pr_array_elt_bvector;
               goto not_single;
@@ -7936,8 +7949,8 @@ local void pr_array (const gcv_object_t* stream_, object obj) {
       var gcv_object_t* obj_ = &STACK_0; # and memorize, where it is
       # fetch data-vector:
       var uintL size = TheIarray(obj)->totalsize;
-      if (size == 0)
-        readable = true; # or else you even don't know the dimensions
+      if (size == 0 || locals.pr_one_elt==NULL)
+        readable = true; # or else you would not even know the dimensions
       obj = iarray_displace_check(obj,size,&locals.info.index); # data-vector
       # locals.info.index = Offset from  array to the data-vector
       pushSTACK(obj); locals.obj_ = &STACK_0; # store obj in Stack
@@ -7949,12 +7962,12 @@ local void pr_array (const gcv_object_t* stream_, object obj) {
         JUSTIFY_START(1);
         JUSTIFY_LAST(false);
         prin_object_dispatch(stream_,array_element_type(*obj_)); # print element-type (Symbol or List)
-        JUSTIFY_SPACE;
-        JUSTIFY_LAST(false);
+        JUSTIFY_SPACE; JUSTIFY_LAST(false);
         pr_list(stream_,array_dimensions(*obj_)); # print dimension-list
-        JUSTIFY_SPACE;
-        JUSTIFY_LAST(true);
-        pr_array_recursion(&locals,depth); # print array-elements
+        if (locals.pr_one_elt) { /* not (ARRAY NIL) */
+          JUSTIFY_SPACE; JUSTIFY_LAST(true);
+          pr_array_recursion(&locals,depth); # print array-elements
+        }
         JUSTIFY_END_ENG;
         INDENT_END;
         KLAMMER_ZU; # print ')'
@@ -8497,6 +8510,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
     case Rectype_b16vector: case Rectype_Sb16vector: # 16bit-vector
     case Rectype_b32vector: case Rectype_Sb32vector: # 32bit-vector
     case Rectype_vector: case Rectype_Svector: # (vector t)
+    case Rectype_nilvector: case Rectype_Snilvector: /* (VECTOR NIL) */
       pr_vector(stream_,obj); break;
     case Rectype_WeakKVT: # weak key-value table
       pr_weakkvt(stream_,obj); break;
