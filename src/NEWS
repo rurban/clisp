@@ -1,3 +1,41 @@
+2000-03-06
+==========
+
+User visible changes
+--------------------
+
+* New functions READ-FLOAT and WRITE-FLOAT.
+
+* Unicode support: The pretty-printer and FORMAT ~T now handle non-spacing and
+  double-width Unicode characters correctly. Pretty-printer slows down by 30%.
+
+* Fixed two bugs in TRANSLATE-PATHNAME: Substitution of "**" did not work.
+  Substitutions without version into non-logical pathnames crashed.
+
+* When configured with --with-export-syscalls, :SYSCALLS is in *FEATURES*
+  and functions POSIX:RESOLVE-IP-ADDR, POSIX:USER-DATA, POSIX:FILE-STAT,
+  POSIX:SYSINFO, POSIX:RESOURCE-USAGE-LIMITS,
+  as well as those libm.so functions which do not have a better
+  counterpart in ANSI CL are available.
+
+* New supported character sets in package CHARSET: ISO-8859-16, KOI8-U,
+  KOI8-RU, EUC-JP, SHIFT-JIS, CP932, ISO-2022-JP, ISO-2022-JP-2, ISO-2022-JP-1,
+  EUC-CN, HZ, GBK, CP936, EUC-TW, BIG5, CP950, ISO-2022-CN, ISO-2022-CN-EXT,
+  EUC-KR, CP949, ISO-2022-KR, ARMSCII-8, GEORGIAN-ACADEMY, GEORGIAN-PS,
+  TIS-620, MULELAO-1, CP1133, VISCII, TCVN, UTF-16, UTF-7, MACINTOSH (as an
+  alias for MAC-ROMAN).
+
+Other modifications
+-------------------
+
+* Speed up some sequence functions when operating on vectors: MAKE-SEQUENCE,
+  CONCATENATE, COPY-SEQ, COERCE, SUBSEQ, REPLACE, FILL, REVERSE, NREVERSE,
+  REMOVE[-IF[-NOT]] with :START/:END, SUBSTITUTE[-IF[-NOT]] with :START/:END,
+  SORT.
+
+* Speed up ADJUST-ARRAY.
+
+
 1999-07-22
 ==========
 
