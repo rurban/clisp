@@ -105,9 +105,9 @@
     <member>&DBE_set_lk_max_objects;</member>
 </simplelist></para></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:DBE-GET-OPTIONS dbe
-   &optional-amp; what)</literal></term>
+   &optional-amp; &what-r;)</literal></term>
  <listitem><para>Retrieve some environment options.
-   <variablelist><title>Values of <replaceable>what</replaceable></title>
+   <variablelist><title>Values of &what-r;</title>
     <varlistentry><term>missing</term><term>&nil;</term>
      <listitem><simpara>all options as a &list-t;
     </simpara></listitem></varlistentry>
@@ -346,9 +346,9 @@
     <member>&DB_set_flags;</member>
    </simplelist></para></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:DB-GET-OPTIONS db
-   &optional-amp; what)</literal></term>
+   &optional-amp; &what-r;)</literal></term>
  <listitem><para>Retrieve some database options.
-   <variablelist><title>Values of <replaceable>what</replaceable></title>
+   <variablelist><title>Values of &what-r;</title>
     <varlistentry><term>missing</term><term>&nil;</term>
      <listitem><simpara>all options as a &list-t;
     </simpara></listitem></varlistentry>

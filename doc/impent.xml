@@ -608,6 +608,7 @@
 <!ENTITY val-type-r "<replaceable>value-type</replaceable>">
 <!ENTITY value-r "<replaceable>value</replaceable>">
 <!ENTITY var-r "<replaceable>variable</replaceable>">
+<!ENTITY what-r "<replaceable>what</replaceable>">
 <!ENTITY ws-r "<replaceable>window-stream</replaceable>">
 <!ENTITY x-r "<replaceable>x</replaceable>">
 <!ENTITY x1-r "<replaceable>x&sub-1;</replaceable>">
