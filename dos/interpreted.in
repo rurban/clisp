@@ -1,3 +1,0 @@
-(load "init.lsp")
-(sys::%saveinitmem)
-(exit)
