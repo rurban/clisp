@@ -20,7 +20,7 @@ development environment, using native system calls
         cd ..
 
         cd libiconv
-        nmake -f Makefile.msvc check
+        nmake -f Makefile.msvc check STATIC=1
         cd ..
 
         cd sigsegv
