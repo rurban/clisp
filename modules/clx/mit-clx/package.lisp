@@ -166,3 +166,5 @@
     wm-size-hints-width wm-size-hints-width-inc wm-size-hints-win-gravity
     wm-size-hints-x wm-size-hints-y wm-zoom-hints write-bitmap-file
     write-resources xatom))
+
+(pushnew "XLIB" custom:*system-package-list* :test #'string=)
