@@ -1,3 +1,12 @@
+2004-11-20  Bruno Haible  <bruno@clisp.org>
+
+	* tests.lisp (lisp-implementation): Renamed from
+	lisp-implementation-type. Needed because of SBCL's package locks.
+	* clos.tst: Move tests which use MOP symbols to mop.tst. Fix syntax
+	of foo129, foo130 tests.
+	* mop.tst: New tests from clos.tst. Add clos: package prefix in some
+	places. Improve portability.
+
 2004-11-19  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: Test the forward-referenced-class behaviour with both
