@@ -1,3 +1,15 @@
+2002-09-25  Sam Steingold  <sds@gnu.org>
+
+	* eval.d (symbol_env_search): new function
+	(sym_value, setq): use it
+	(SPECIAL-VARIABLE-P): accept an optional second argument
+	- the environment (NIL for global, T for local, VENV, or ENV5)
+	moved here from symbol.d because it uses symbol_env_search()
+	* subr.d (SPECIAL-VARIABLE-P): changed the signagure
+	* constobj.d (version): bumped because SPECIAL-VARIABLE-P is in FUNTAB
+	* symbol.d (SPECIAL-VARIABLE-P): moved to eval.d
+	* compiler.lisp (subr-info) [CROSS]: updated the signature
+
 2002-09-23  Sam Steingold  <sds@gnu.org>
 
 	some code clean-up
