@@ -642,10 +642,9 @@
 <!ENTITY interp-args "<replaceable>interpreter-arguments</replaceable>">
 <!ENTITY interp-r "<replaceable>interpreter</replaceable>">
 
-<!ENTITY cpu-type-header "<colspec colname='vars'/><colspec colname='b16'/>
- <colspec colname='b32'/><colspec colname='b64'/>
- <thead><row><entry>CPU type</entry><entry>16-bit CPU</entry>
-           <entry>32-bit CPU</entry><entry>64-bit CPU</entry></row></thead>">
+<!ENTITY cpu-type-header "<colspec colname='vars'/><colspec colname='b32'/>
+ <colspec colname='b64'/><thead><row><entry>CPU type</entry>
+   <entry>32-bit CPU</entry><entry>64-bit CPU</entry></row></thead>">
 <!ENTITY cmd-abbrev-oper-header
  " <thead><row><entry>command</entry><entry>abbreviation</entry>
          <entry>operation</entry></row></thead>">
