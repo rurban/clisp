@@ -258,9 +258,13 @@ LISPFUNNR(structure_type_p,2) {
  (SYS::MAKE-CODE-VECTOR list) returns for a list of fixnums >=0, <256
    a simple-bit-vector of eight fold length, that contains these numbers
     as bytes.
- (SYS::%MAKE-CLOSURE name codevec consts) returns a closure with given
+ (SYS::%MAKE-CLOSURE name codevec consts seclass) returns a closure with given
    name (a symbol), given code-vector (a simple-bit-vector) and
    further given constants.
+ (SYS::MAKE-CONSTANT-INITFUNCTION value) returns a closure that, when called
+   with 0 arguments, returns the given value.
+ (SYS::CONSTANT-INITFUNCTION-P object) tests whether an object was returned by
+   SYS::MAKE-CONSTANT-INITFUNCTION.
  (SYS::%COPY-GENERIC-FUNCTION venv closure) copies the closure, which must be
    a generic function with venv slot, copying in the given venv.
  (SYS::GENERIC-FUNCTION-EFFECTIVE-METHOD-FUNCTION generic-function)
@@ -405,6 +409,28 @@ LISPFUNNR(make_closure,4) {
     }
   }
   VALUES1(closure); skipSTACK(2);
+}
+
+/* (SYS::MAKE-CONSTANT-INITFUNCTION value) returns a closure that, when called
+   with 0 arguments, returns the given value. */
+LISPFUNN(make_constant_initfunction,1)
+{
+  var object consts = listof(1);
+  pushSTACK(S(constant_initfunction));
+  pushSTACK(O(constant_initfunction_code));
+  pushSTACK(consts);
+  pushSTACK(O(seclass_no_se));
+  C_make_closure();
+}
+
+/* (SYS::CONSTANT-INITFUNCTION-P object) tests whether an object was returned by
+   SYS::MAKE-CONSTANT-INITFUNCTION. */
+LISPFUNN(constant_initfunction_p,1)
+{
+  var object obj = popSTACK();
+  VALUES_IF(closurep(obj)
+            && eq(TheClosure(obj)->clos_name,S(constant_initfunction))
+            && eq(TheClosure(obj)->clos_codevec,O(constant_initfunction_code)));
 }
 
 LISPFUNN(closure_set_seclass,2)

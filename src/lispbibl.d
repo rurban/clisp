@@ -10610,6 +10610,11 @@ extern object coerce_function (object obj);
  See SUBR.D
  is used by all modules */
 
+/* UP: initialize hand-made compiled closures
+ init_cclosures();
+ can trigger GC */
+extern void init_cclosures (void);
+
 
 # ##################### CTRLBIBL for CONTROL.D ############################# #
 

@@ -1,3 +1,13 @@
+2004-04-22  Bruno Haible  <bruno@clisp.org>
+
+	Special representation of slot initfunctions for constants.
+	* lispbibl.d (init_cclosures): New declaration.
+	* eval.d (bytecode_enum_t): Define unconditionally.
+	(init_cclosures): New function.
+	* spvw.d (init_object_tab): Call it.
+	* record.d (SYS::MAKE-CONSTANT-INITFUNCTION,
+	SYS::CONSTANT-INITFUNCTION-P): New functions.
+
 2004-04-28  Bruno Haible  <bruno@clisp.org>
 
 	* record.d (check_weakpointer_replacement, check_weakpointer): New
