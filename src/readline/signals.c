@@ -237,6 +237,7 @@ rl_set_sighandler (sig, handler, ohandler)
      SigHandler *handler;
      sighandler_cxt *ohandler;
 {
+  sighandler_cxt old_handler;
 #if defined (HAVE_POSIX_SIGNALS)
   struct sigaction act;
 
@@ -244,10 +245,15 @@ rl_set_sighandler (sig, handler, ohandler)
   act.sa_flags = 0;
   sigemptyset (&act.sa_mask);
   sigemptyset (&ohandler->sa_mask);
-  sigaction (sig, &act, ohandler);
+  sigaction (sig, &act, &old_handler);
 #else
-  ohandler->sa_handler = (SigHandler *)signal (sig, handler);
+  old_handler.sa_handler = (SigHandler *)signal (sig, handler);
 #endif /* !HAVE_POSIX_SIGNALS */
+  /* If rl_set_signals() was called twice in a row, don't set
+     ohandler->sa_handler = rl_signal_handler,
+     because that would lead to an infinite recursion. */
+  if (handler != rl_signal_handler || old_handler.sa_handler != rl_signal_handler)
+    memcpy (ohandler, &old_handler, sizeof (sighandler_cxt));
   return (ohandler->sa_handler);
 }
 
