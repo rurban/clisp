@@ -23,8 +23,10 @@
 # define DEBUG_TRANSLATE_PATHNAME 1
 #if DEBUG_TRANSLATE_PATHNAME
 #include <stdio.h>
+#define string_concat(x) (asciz_out_2("[%d]string_concat(%d)\n",__LINE__,x),(string_concat)(x))
 local object debug_output (const char* label,object obj,const int pos) {
-  fprintf(stdout,"[%d] %s: ",pos,label);fflush(stdout);
+  # fprintf(stdout,"[%d] %s: ",pos,label);fflush(stdout);
+  asciz_out_1("[%d] ",pos); asciz_out_s("%s: ",label);
   pushSTACK(obj);pushSTACK(subr_self);
   # gar_col();fprintf(stdout,"[gc] ");fflush(stdout);
   object_out(STACK_1);
@@ -3010,37 +3012,36 @@ local object coerce_pathname (object obj) {
 # < result: number of strings pushed on the stack
 # changes STACK
 
-#define SUBDIR_PUSHSTACK(subdir)                                \
-  if (eq(subdir,S(Kwild_inferiors))) {                          \
-    pushSTACK(O(wildwild_string)); return 1;                    \
-  } else if (eq(subdir,S(Kwild))) {                             \
-    pushSTACK(O(wild_string)); return 1;                        \
-  } else if (eq(subdir,S(Kup)) || eq(subdir,S(Kback))) {        \
-    pushSTACK(O(dotdot_string)); return 1;                      \
-  } else { pushSTACK(subdir); return 1; }
+#define SUBDIR_PUSHSTACK(subdir)                                         \
+  do { if (eq(subdir,S(Kwild_inferiors))) pushSTACK(O(wildwild_string)); \
+       else if (eq(subdir,S(Kwild))) pushSTACK(O(wild_string));          \
+       else if (eq(subdir,S(Kup)) || eq(subdir,S(Kback)))                \
+         pushSTACK(O(dotdot_string));                                    \
+       else if (stringp(subdir)) pushSTACK(subdir);                      \
+       else NOTREACHED;                                                  \
+  } while(0)
 
 local uintC subdir_namestring_parts (object path,bool logp) {
   var object subdir = Car(path);
  #if defined(LOGICAL_PATHNAMES) && (defined(PATHNAME_AMIGAOS) || defined(PATHNAME_RISCOS))
-  if (logp) { # same as UNIX/win32/OS2
-    SUBDIR_PUSHSTACK(subdir);
+  if (logp) { # same as UNIX/Win32/OS2
+    SUBDIR_PUSHSTACK(subdir); return 1;
   }
  #endif
  #ifdef PATHNAME_AMIGAOS
   if (eq(subdir,S(Kparent))) { # :PARENT ?
     return 0; # empty string
-  } else SUBDIR_PUSHSTACK(subdir);
+  } else { SUBDIR_PUSHSTACK(subdir); return 1; }
  #endif
  #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-  SUBDIR_PUSHSTACK(subdir);
+  SUBDIR_PUSHSTACK(subdir); return 1;
  #endif
  #ifdef PATHNAME_RISCOS
   if (eq(subdir,S(Kparent))) { # :PARENT ?
     pushSTACK(O(parent_string)); return 1;
-  } else SUBDIR_PUSHSTACK(subdir);
+  } else { SUBDIR_PUSHSTACK(subdir); return 1; }
  #endif
 }
-#undef SUBDIR_PUSHSTACK
 
 # UP: Pushes substrings for STRING_CONCAT on the STACK, that together yield
 # the String for the host of the Pathname pathname.
@@ -3160,22 +3161,22 @@ local uintC directory_namestring_parts (object pathname) {
     # other subdirs on the stack:
     while (consp(directory)) {
       stringcount += subdir_namestring_parts(directory,logp);
-   #if defined(LOGICAL_PATHNAMES)
-    if (logp) {
-      pushSTACK(O(semicolon_string)); stringcount++; # ";"
-    } else
-   #endif
-    {
-     #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-      pushSTACK(O(backslash_string)); stringcount++; # "\\"
+     #if defined(LOGICAL_PATHNAMES)
+      if (logp) {
+        pushSTACK(O(semicolon_string)); stringcount++; # ";"
+      } else
      #endif
-     #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
-      pushSTACK(O(slash_string)); stringcount++; # "/"
-     #endif
-     #ifdef PATHNAME_RISCOS
-      pushSTACK(O(dot_string)); stringcount++; # "."
-     #endif
-    }
+      {
+       #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+        pushSTACK(O(backslash_string)); stringcount++; # "\\"
+       #endif
+       #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
+        pushSTACK(O(slash_string)); stringcount++; # "/"
+       #endif
+       #ifdef PATHNAME_RISCOS
+        pushSTACK(O(dot_string)); stringcount++; # "."
+       #endif
+      }
     directory = Cdr(directory);
     }
   }
@@ -6110,7 +6111,7 @@ local object use_default_dir (object pathname) {
     if (eq(Car(subdirs),S(Krelative))) {
       # yes -> replace :RELATIVE with the default-directory:
       pushSTACK(Cdr(subdirs));
- #if HAS_HOST # PATHNAME_WIN32
+     #if HAS_HOST # PATHNAME_WIN32
       if (!nullp(ThePathname(pathname)->pathname_host)) {
         # We do not have the concept of a current directory on a
         # remote host. Simply use :ABSOLUTE instead of :RELATIVE.
@@ -6118,7 +6119,7 @@ local object use_default_dir (object pathname) {
         Car(subdirs) = S(Kabsolute);
         Cdr(subdirs) = popSTACK();
       } else
- #endif
+     #endif
       {
         var uintB drive = as_cint(TheSstring(ThePathname(pathname)->pathname_device)->data[0]);
         var object default_dir = default_directory_of(drive,pathname);
@@ -6171,7 +6172,8 @@ local object use_default_dir (object pathname) {
     skipSTACK(1);
     # stack layout: pathname.
     pathname = popSTACK();
-    ThePathname(pathname)->pathname_directory = subdirs; # enter into the pathname
+    ThePathname(pathname)->pathname_directory =
+      simplify_directory(subdirs); # enter into the pathname
   }
   return pathname;
 }
@@ -6364,7 +6366,7 @@ local object use_default_dir (object pathname) {
   pathname = copy_pathname(pathname);
   { # then build the default-directory into the pathname:
     var object subdirs = ThePathname(pathname)->pathname_directory;
-    # does pathname-directory start with :RELATIVE ?
+    # does pathname-directory start with :RELATIVE?
     if (eq(Car(subdirs),S(Krelative))) {
       # yes -> replace :RELATIVE with default-subdirs, i.e.
       # form  (append default-subdirs (cdr subdirs))
@@ -6376,8 +6378,8 @@ local object use_default_dir (object pathname) {
       temp = reverse(temp);
       subdirs = nreconc(temp,popSTACK());
       pathname = popSTACK();
-      # enter into the pathname:
-      ThePathname(pathname)->pathname_directory = subdirs;
+      ThePathname(pathname)->pathname_directory =
+        simplify_directory(subdirs); # enter into the pathname:
     }
   }
   return pathname;
@@ -6593,11 +6595,11 @@ local object default_directory (void) {
 #             (short: "absolute pathname")
 # can trigger GC
 local object use_default_dir (object pathname) {
-  # copy the pathname, first:
+  # copy the pathname first:
   pathname = copy_pathname(pathname);
-  { # Then build the Default-Directory into pathname:
+  { # then build the default-directory into the pathname:
     var object subdirs = ThePathname(pathname)->pathname_directory;
-    # Does pathname-directory start with :RELATIVE?
+    # does pathname-directory start with :RELATIVE?
     if (eq(Car(subdirs),S(Krelative))) {
       # yes -> replace :RELATIVE with default-subdirs, i.e.
       # form  (append default-subdirs (cdr subdirs))
@@ -6609,8 +6611,8 @@ local object use_default_dir (object pathname) {
       temp = reverse(temp);
       subdirs = nreconc(temp,popSTACK());
       pathname = popSTACK();
-      # enter into the pathname:
-      ThePathname(pathname)->pathname_directory = subdirs;
+      ThePathname(pathname)->pathname_directory =
+        simplify_directory(subdirs); # enter into the pathname:
     }
   }
   return pathname;
@@ -6961,7 +6963,8 @@ local object use_default_dir (object pathname) {
   var object subdirs = nreverse(popSTACK()); # newlist, reverse again
   skipSTACK(1);
   pathname = popSTACK();
-  ThePathname(pathname)->pathname_directory = subdirs; # enter into the pathname
+  ThePathname(pathname)->pathname_directory =
+    simplify_directory(subdirs); # enter into the pathname
   return pathname;
 }
 
@@ -6974,7 +6977,7 @@ local object use_default_dir (object pathname) {
 local object OSnamestring (object dir_namestring) {
   var object pathname = STACK_0;
   var uintC stringcount;
-  pushSTACK(dir_namestring); # directory-namestring as 1. string
+  pushSTACK(dir_namestring); # directory-namestring as 1st string
   stringcount = # and strings for the filename
     (nullp(ThePathname(pathname)->pathname_type)
      ? nametype_namestring_parts(ThePathname(pathname)->pathname_name,
@@ -8777,13 +8780,13 @@ local void directory_search_scandir (bool recursively, signean next_task) {
       # skip "." and ".." :
       if (!(equal(direntry,O(dot_string))
             || equal(direntry,O(dotdot_string))))
-#endif
+     #endif
         {
           pushSTACK(direntry);
           # stack layout: ..., pathname, dir_namestring, direntry.
           # determine, if it is a directory or a file:
           pushSTACK(STACK_1); # Directory-Namestring
-          pushSTACK(direntry); # direntry
+          SUBDIR_PUSHSTACK(direntry); # direntry
           var object namestring = string_concat(2); # concatenate
           # get information:
           var struct stat status;
@@ -8948,7 +8951,7 @@ local void directory_search_scandir (bool recursively, signean next_task) {
           if (fibptr->fib_DirEntryType == ST_SOFTLINK) {
             # get a lock on the target and execute Examine:
             # this works, because Lock() resolves links (resp. it tries)
-            pushSTACK(STACK_1); pushSTACK(STACK_(0+1));
+            SUBDIR_PUSHSTACK(STACK_1); SUBDIR_PUSHSTACK(STACK_(0+1));
             var object direntry_namestring = string_concat(2);
             with_sstring_0(direntry_namestring,O(pathname_encoding),direntry_namestring_asciz, {
               begin_system_call();
@@ -9059,7 +9062,7 @@ local void directory_search_scandir (bool recursively, signean next_task) {
  #endif
  #if defined(MSDOS) || defined(WIN32_NATIVE)
   {
-    pushSTACK(STACK_0); # Directory-Name
+    SUBDIR_PUSHSTACK(STACK_0); # Directory-Name
     pushSTACK(READDIR_wildnametype_suffix); # and concatenate
     var object namestring = string_concat(2); # "*.*" resp. "*"
     with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
@@ -9368,7 +9371,7 @@ local object directory_search (object pathname) {
                    #endif
                   } else
                  #endif
-                    pushSTACK(subdir);
+                    SUBDIR_PUSHSTACK(subdir);
                 }
                 namestring = string_concat(2); # concatenate
                 # get information:
