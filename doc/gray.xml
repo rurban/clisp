@@ -379,8 +379,10 @@ and is supported by most &cl; implementations currently in use.</para>
       (format fill "~%this is some long sentence which will      be broken at spaces")
       (force-output fill)
       (let ((*my-indent-level* 5))
-        (format fill "~%and    properly indented to the level specified by the ~S argument which can be a ~S or an ~S - cool!" :TEXT-INDENT 'symbol 'integer))
-      (format fill "~%Don't forget  to call ~S on it, and/or use ~S   Pretty formatting of the  S-expressions    printed with ~~S is  preserved: ~S" 'force-output 'with-fill-stream '(defun foo (x y z) (if x (+ y z) (* y z)))))))
+        (format fill "~%and    properly indented to the level specified by the ~S argument which can be a ~S or an ~S - cool!"
+                :TEXT-INDENT 'symbol 'integer))
+      (format fill "~%Don't forget  to call ~S on it, and/or use ~S   Pretty formatting of the  S-expressions    printed with ~~S is  preserved: ~S"
+              'force-output 'with-fill-stream '(defun foo (x y z) (if x (+ y z) (* y z)))))))
 <computeroutput>"
   this is some long
   sentence which
