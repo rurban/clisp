@@ -90,7 +90,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     if (nullp(pack)) fputs("#:",out); /* uninterned symbol */
     else if (eq(pack,O(keyword_package))) fputc(':',out);
     else {
-      string_out(out,ThePackage(pack)->pack_name);
+      string_out(out,ThePackage(pack)->pack_shortest_name);
       fputs("::",out);
     }
     string_out(out,Symbol_name(obj));
