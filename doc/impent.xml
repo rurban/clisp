@@ -192,6 +192,8 @@
 <!ENTITY re-regexp-exec "<link linkend='re-regexp-exec'><function>REGEXP:REGEXP-EXEC</function></link>">
 <!ENTITY re-regexp-split "<link linkend='re-regexp-split'><function>REGEXP:REGEXP-SPLIT</function></link>">
 <!ENTITY re-with-loop-split "<link linkend='re-with-loop-split'><function>REGEXP:WITH-LOOP-SPLIT</function></link>">
+<!ENTITY re-cflags-opts "<link linkend='re-cflags'><constant>:EXTENDED</constant> (&case-sensitive-k; &t;) <constant>:NEWLINE</constant> <constant>:NOSUB</constant> <constant>:CFLAGS</constant></link>">
+<!ENTITY re-eflags-opts "<link linkend='re-eflags'><constant>:NOTBOL</constant> <constant>:NOTEOL</constant> <constant>:EFLAGS</constant></link>">
 <!ENTITY exec "<link linkend='exec'><function>EXT:EXECUTE</function></link>">
 <!ENTITY shell "<link linkend='exec'><function>EXT:SHELL</function></link>">
 <!ENTITY mk-pipe-io "<link linkend='pipe'><function>EXT:MAKE-PIPE-IO-STREAM</function></link>">

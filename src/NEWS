@@ -125,6 +125,12 @@ User visible changes
     see <http://clisp.cons.org/impnotes.html#foreign-stack-string>.
   Thanks to Jörg Höhle <Joerg-Cyril.Hoehle@t-systems.com>.
 
+* Regexp module functions now support more options, e.g., :EXTENDED to
+  use extended regular expressions.
+  In particular, REGEXP:REGEXP-COMPILE now accepts keyword and not
+  optional arguments (this is not backwards compatible).
+  See <http://clisp.cons.org/impnotes.html#regexp> for details.
+
 * Fixed a bug in PEEK-CHAR with non-NIL peek-type on ECHO-STREAMS.
 
 * Fixed a bug in FILE-POSITION after UNREAD-CHAR (or PEEK-CHAR).

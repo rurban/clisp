@@ -1,3 +1,22 @@
+2003-03-30  Sam Steingold  <sds@gnu.org>
+
+	* regexp.lisp (cflags, eflags): new macros
+	(cflags-max): new constant
+	(regexp-compile): accept extended/case-sensitive/newline/nosub/cflags
+	&key arguments instead of an &optional argument case-sensitive;
+	added a compiler macro to pre-compute cflags when possible
+	(regexp-exec): accept notbol/noteol/eflags &key arguments
+	added a compiler macro to pre-compute eflags when possible
+	(optimize-flags): new function, pre-compute cflags & eflags for
+	compiler macros for the following functions:
+	(match-once, %match, regexp-split): accept both notbol/noteol/eflags
+	and extended/case-sensitive/newline/nosub/cflags &key arguments;
+	added compiler macros to pre-compute cflags & eflags when possible
+	(with-loop-split): accept both notbol/noteol/eflags and
+	extended/case-sensitive/newline/nosub/cflags &key arguments
+	(regexp-quote): accept an &optional extended argument
+	Suggested by Pascal Bourguignon <pjb@informatimago.com>
+
 2003-03-29  Sam Steingold  <sds@gnu.org>
 
 	solidified updating back_trace callers
