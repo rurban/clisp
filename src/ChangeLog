@@ -1,3 +1,11 @@
+2001-08-05  Bruno Haible  <haible@clisp.cons.org>
+
+	* lispbibl.d (subr_argtype_3_2): New enum value.
+	* eval.d (eval_subr): Treat it.
+	(apply_subr): Likewise.
+	(funcall_subr): Likewise.
+	* spvw.d (subr_argtype): Likewise.
+
 2001-08-03  Sam Steingold  <sds@gnu.org>
 
 	some minor code rearrangements
