@@ -10,17 +10,21 @@
 <para>The function
   <literal role="sexp">(<function>ext:saveinitmem</function>
     &optional-amp; (&filename-r; "lispinit.mem")
-    &key-amp; :quiet :init-function)</literal>
- saves the running &clisp;'s memory to the file &filename-r;;
- extension &mem-file; is recommended.
- If the <constant>:quiet</constant> argument is not &nil;, the startup
- banner and the good-bye message will be suppressed.
- The <constant>:init-function</constant> argument specifies a function
- that will be executed at startup of the saved image.
- When &filename-r; does not have an extension,
- &mem-file; extension is automatically used.
- The starting package of the new image is the one in which you were when
- you invoked <function>ext:saveinitmem</function>.</para>
+    &key-amp; :quiet :init-function :locked-packages)</literal>
+saves the running &clisp;'s memory to the file &filename-r;;
+extension &mem-file; is recommended.
+If the <constant>:quiet</constant> argument is not &nil;, the startup
+banner and the good-bye message will be suppressed.
+The <constant>:init-function</constant> argument specifies a function
+that will be executed at startup of the saved image.
+When &filename-r; does not have an extension,
+&mem-file; extension is automatically used.
+The <constant>:locked-packages</constant> argument specifies the
+packages to lock before saving the image; this is convenient for
+application delivery, when you do not want your user to mess your
+product.
+The starting package of the new image is the one in which you were when
+you invoked <function>ext:saveinitmem</function>.</para>
 
 </section>
 

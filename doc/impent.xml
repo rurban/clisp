@@ -158,6 +158,7 @@
 <!ENTITY maplap "<link linkend='mapcap'><function>EXT:MAPLAP</function></link>">
 <!ENTITY match-t "<classname>REGEXP::REGMATCH_T</classname>">
 <!ENTITY mem-image "<link linkend='image'>memory image</link>">
+<!ENTITY package-lock "<link linkend='pack-lock'><function>EXT:PACKAGE-LOCK</function></link>">
 <!ENTITY parsename "<link linkend='parsename'><varname>CUSTOM:*PARSE-NAMESTRING-ANSI*</varname></link>">
 <!ENTITY pathmerge "<link linkend='pathmerge'><varname>CUSTOM:*MERGE-PATHNAMES-ANSI*</varname></link>">
 <!ENTITY pathprint "<link linkend='pathprint'><varname>CUSTOM:*PRINT-PATHNAMES-ANSI*</varname></link>">
