@@ -1270,8 +1270,8 @@ local object LF_sqrt_LF (object x)
   {
     SAVE_NUM_STACK /* save num_stack */
     num_stack_need(r_len, r_MSDptr=,r_LSDptr=);
-    uexp = uexp - LF_exp_mid + 1;
-    if (uexp & bit(0)) { /* exponent even */
+    var uintC last_bit = uexp & bit(0);
+    if (last_bit == 0) { /* exponent even */
       var uintD* ptr =
         copy_loop_up(&TheLfloat(x)->data[0],r_MSDptr,len); /* copy n digits */
       clear_loop_up(ptr,len+2); /* append n+2 Nulldigits */
@@ -1284,8 +1284,7 @@ local object LF_sqrt_LF (object x)
       clear_loop_up(ptr,len+1); /* n+1 Nulldigits */
       end_arith_call();
     }
-    uexp = (sintL)((sintL)uexp >> 1); /* halve exponent */
-    uexp = uexp + LF_exp_mid;
+    uexp = (uexp >> 1) + (LF_exp_mid >> 1) + last_bit;
     /* allocate result: */
     var object y = allocate_lfloat(len,uexp,0);
     var uintD* y_mantMSDptr = &TheLfloat(y)->data[0];
