@@ -190,8 +190,7 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
 (defvar *inspect-print-length* 10) ; default for `*print-length*'
 (defvar *inspect-length* 5)     ; the number of sequence elements to print
 
-;; all `inspection' objects in this session
-(defparameter *inspect-all* (make-array 10 :fill-pointer 0 :adjustable t))
+(defvar *inspect-all* nil) ; all `inspection' objects in this session
 (defparameter *inspect-debug* 0) ; debug level
 (defvar *inspect-unbound-value*) ; the value for the unbound slots
 
@@ -415,10 +414,7 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
     (error "~s: unknown inspect front end: ~s" 'inspect-frontend frontend)))
 
 (clos:defgeneric inspect-finalize (frontend)
-  (:method ((frontend t))
-    (dotimes (ii (length *inspect-all*))
-      (setf (aref *inspect-all* ii) nil))
-    (setf (fill-pointer *inspect-all*) 0)))
+  (:method ((frontend t))))
 
 (defun inspect-read-clean-eval (insp stream)
   ;; `read' a form, destructively replace `:self' with INSP and `:slot'
@@ -639,6 +635,7 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
          (*print-lines* *inspect-print-lines*)
          (*print-level* *inspect-print-level*)
          (*print-length* *inspect-print-length*)
+         (*inspect-all* (make-array 10 :fill-pointer 0 :adjustable t))
          (tmp-pack (make-package (gensym "INSPECT-TMP-PACKAGE-")))
          (*package* tmp-pack)
          (*inspect-unbound-value* (intern "#<unbound>" tmp-pack)))
