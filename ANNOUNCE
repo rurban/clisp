@@ -111,6 +111,10 @@ WWW resources
   http://www-aig.jpl.nasa.gov/home/gat/home.html
   [Erann Gat]
 
+  Yahoo! Store
+  http://store.yahoo.com
+  [Paul Graham <pg@yahoo-inc.com>]
+
 * To access URLs...
 
   Netscape Navigator is recommended. It is free of charge. Alternative WWW
@@ -183,7 +187,9 @@ Our Common Lisp CLISP provides
   * 594 library functions, 542 of them written in C
 
 CLISP compares well with other ANSI CL implementations wrt performance
-in most areas, such as CLOS, i/o, lists, integer arithmetics.
+in most areas, such as CLOS, i/o, lists, integer arithmetics (CLISP's
+bignum performance is exceptional, orders of magnitude better than that
+of CMUCL, Allegro CL &c).
 The worst performance CLISP exhibits in the area of floating point
 arithmetics.  While showing nothing spectacularly bad and easily
 outperforming Java, Perl, TCL and any Scheme interpreter, CLISP is slower
