@@ -633,42 +633,43 @@
 # Now: defined(WIDE) == defined(WIDE_HARD) || defined(WIDE_SOFT)
 
 
-# Global register declarations.
-# They must occur before any system include files define any inline function,
-# which is the case on UNIX_DGUX and UNIX_GNU.
-#if defined(GNU) && !defined(__cplusplus) && !defined(MULTITHREAD) && (SAFETY < 2)
-  # Overview of use of registers in gcc terminology:
-  # fixed: mentioned in FIXED_REGISTERS
-  # used:  mentioned in CALL_USED_REGISTERS but not FIXED_REGISTERS
-  #                     (i.e. caller-saved)
-  # save:  otherwise (i.e. call-preserved, callee-saved)
-  #
-  #               STACK    mv_count  value1   subr_self
-  # MC680X0       used
-  # I80386        save
-  # SPARC         fixed    fixed     fixed    used
-  # MIPS
-  # HPPA          save     save      save     save
-  # M88000        save     save      save
-  # ARM           save
-  # DECALPHA      save     save      save
-  # CONVEX                 used      used     used     (??)
-  # IA64
-  # S390          save
-  #
-  # Special notes:
-  # - If STACK is in a "used"/"save" register, it needs to be saved into
-  #   saved_STACK upon begin_call(), so that asynchronous interrupts will
-  #   be able to restore it.
-  # - All of the "used" registers need to be backed up upon begin_call()
-  #   and restored during end_call().
-  # - All of the "save" registers need to be backed up upon begin_callback()
-  #   and restored during end_callback().
-  # - When the interpreter does a longjmp(), the registers STACK, mv_count,
-  #   value1 may need to be temporarily saved. This is highly machine
-  #   dependent and is indicated by the NEED_temp_xxxx macros.
-  # - CONVEX hasn't been tested for a long time.
-  #
+/* Global register declarations.
+   They must occur before any system include files define any inline function,
+   which is the case on UNIX_DGUX and UNIX_GNU. */
+#if defined(GNU) && !defined(__cplusplus) && !defined(MULTITHREAD) && (SAFETY < 2) && (!(defined(SPARC) && (__GNUC__ >= 3)))
+/* Overview of use of registers in gcc terminology:
+ fixed: mentioned in FIXED_REGISTERS
+ used:  mentioned in CALL_USED_REGISTERS but not FIXED_REGISTERS
+                     (i.e. caller-saved)
+ save:  otherwise (i.e. call-preserved, callee-saved)
+
+               STACK    mv_count  value1   subr_self
+ MC680X0       used
+ I80386        save
+ SPARC (gcc2)  fixed    fixed     fixed    used
+ MIPS
+ HPPA          save     save      save     save
+ M88000        save     save      save
+ ARM           save
+ DECALPHA      save     save      save
+ CONVEX                 used      used     used     (??)
+ IA64
+ S390          save
+
+ Special notes:
+ - gcc3/Sparc (Linux & Solaris) handles registers differently from gcc2. FIXME
+ - If STACK is in a "used"/"save" register, it needs to be saved into
+   saved_STACK upon begin_call(), so that asynchronous interrupts will
+   be able to restore it.
+ - All of the "used" registers need to be backed up upon begin_call()
+   and restored during end_call().
+ - All of the "save" registers need to be backed up upon begin_callback()
+   and restored during end_callback().
+ - When the interpreter does a longjmp(), the registers STACK, mv_count,
+   value1 may need to be temporarily saved. This is highly machine
+   dependent and is indicated by the NEED_temp_xxxx macros.
+ - CONVEX hasn't been tested for a long time. */
+
   # Register for STACK.
   #if defined(MC680X0)
     #define STACK_register "a4" # highest address register after sp=A7,fp=A6/A5
