@@ -1,3 +1,12 @@
+2004-05-09  Bruno Haible  <bruno@clisp.org>
+
+	Let the GC clean up weak hash tables.
+	* spvw_weak.d (weak_hashed_alist_update_one, weak_hashed_alist_update):
+	New functions.
+	(weak_clean_dead): Call weak_hashed_alist_update when appropriate.
+	* hashtabl.d (hash_lookup_builtin, hash_lookup_user): Don't test
+	whether the key/value pair has been garbage-collected.
+
 2004-06-06  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (TRANSLATE-LOGICAL-PATHNAME): accept :ABSOLUTE
