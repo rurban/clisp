@@ -1,12 +1,16 @@
+2004-03-05  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (DEVPREFIX): needed on both "win32gcc" and "cygwin"
+
 2004-03-04  Bruno Haible  <bruno@clisp.org>
 
-	Change the maximum number of hash buckets of a symbol table from 2^16-1
-	to 2^24-1.
+	Change the maximum number of hash buckets of a symbol table
+	from 2^16-1 to 2^24-1.
 	* package.d (string_hashcode): Return a 24-bit integer.
 	(newinsert): Take a 24-bit size as argument.
 	(rehash_symtab): Bump the max to 2^24-1.
-	(symtab_lookup, symtab_find, symtab_insert, symtab_delete): Don't cast
-	the size to uintW.
+	(symtab_lookup, symtab_find, symtab_insert, symtab_delete):
+	Don't cast the size to uintW.
 
 2004-03-04  Bruno Haible  <bruno@clisp.org>
             Sam Steingold  <sds@gnu.org>
