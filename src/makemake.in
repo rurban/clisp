@@ -1212,6 +1212,13 @@ if [ $TSYS = sun4 -a $CROSS = false ] ; then
     XCFLAGS=$XCFLAGS' -DSUN4_29'
   fi
 fi
+# <http://article.gmane.org/gmane.lisp.clisp.devel:10411>
+#  IF platform frequently comes without compiler and linker
+#    THEN use BINARY_DISTRIB
+#    ELSE
+#      IF platform has strict libc version checking
+#        THEN use static library distribution
+#        ELSE use BINARY_DISTRIB
 if [ "$cpu" = i386 -o $TSYS = sun4 ] && [ $CROSS = false ] ; then
   # Distinguish good SunOS 4 from the SunOS 5 garbage called "Solaris 2":
   case "$host_os" in
@@ -1243,6 +1250,10 @@ if [ "$cpu" = i386 -o $TSYS = sun4 ] && [ $CROSS = false ] ; then
       # compiler, only with K&R "cc" whose only use may be to bootstrap gcc.
       BINARY_DISTRIB=1
     ;;
+    darwin*)
+      # Douglas Philips <dgou@mac.com>:
+      # Mac OS/X does not come with developer tools
+      BINARY_DISTRIB=1; ;;
   esac
 fi
 if test -n "$BINARY_DISTRIB"; then
