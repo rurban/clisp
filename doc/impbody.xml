@@ -1749,14 +1749,14 @@ can give problems:
 
  <para>Together with &pi-v;, the other &long-float-t; constants
   <simplelist columns="2">
-   <member>&least-negative-long-float</member>
-   <member>&least-negative-normalized-long-float</member>
-   <member>&least-positive-long-float</member>
-   <member>&least-positive-normalized-long-float</member>
-   <member>&long-float-epsilon</member>
-   <member>&long-float-negative-epsilon</member>
-   <member>&most-negative-long-float</member>
-   <member>&most-positive-long-float</member></simplelist>
+   <member>&least-negative-long-float;</member>
+   <member>&least-negative-normalized-long-float;</member>
+   <member>&least-positive-long-float;</member>
+   <member>&least-positive-normalized-long-float;</member>
+   <member>&long-float-epsilon;</member>
+   <member>&long-float-negative-epsilon;</member>
+   <member>&most-negative-long-float;</member>
+   <member>&most-positive-long-float;</member></simplelist>
   are recomputed whenever &lfd-l; is &setf;ed.
   They are &not-e; &constant;s.</para>
 
