@@ -2068,17 +2068,32 @@ LISPFUNN(charset_range,3)
         # If it was given, use that, and if the specified encoding was invalid,
         # use a default encoding that does not depend on the locale.
         O(default_file_encoding) =
-          (argv_encoding_file ? encoding_from_name(argv_encoding_file) : STACK_0);
+          (argv_encoding_file ? encoding_from_name(argv_encoding_file)
+           : STACK_0);
         O(pathname_encoding) =
-          (argv_encoding_pathname ? encoding_from_name(argv_encoding_pathname) : STACK_0);
+          (argv_encoding_pathname ? encoding_from_name(argv_encoding_pathname)
+           : STACK_0);
+        #if defined(WIN32_NATIVE)
+        {
+          var char *enc = argv_encoding_terminal;
+          var char buf[2+10+1];
+          if (enc == NULL)
+            sprintf(enc=buf,"CP%u",GetOEMCP());
+          O(terminal_encoding) = encoding_from_name(enc);
+        }
+        #else
         O(terminal_encoding) =
-          (argv_encoding_terminal ? encoding_from_name(argv_encoding_terminal) : STACK_0);
+          (argv_encoding_terminal ? encoding_from_name(argv_encoding_terminal)
+           : STACK_0);
+        #endif
         #if defined(HAVE_FFI) || defined(HAVE_AFFI)
         O(foreign_encoding) =
-          (argv_encoding_foreign ? encoding_from_name(argv_encoding_foreign) : STACK_0);
+          (argv_encoding_foreign ? encoding_from_name(argv_encoding_foreign)
+           : STACK_0);
         #endif
         O(misc_encoding) =
-          (argv_encoding_misc ? encoding_from_name(argv_encoding_misc) : STACK_0);
+          (argv_encoding_misc ? encoding_from_name(argv_encoding_misc)
+           : STACK_0);
         skipSTACK(1);
       #else
         O(default_file_encoding) = encoding_from_name(NULL);

@@ -11232,7 +11232,6 @@ local void wr_ch_array_window (const object* stream_,const object* chararray_,
     Encoding_wcstombs(encoding)
       (encoding,*stream_,&cptr,chart_str+strindex,
        &bptr,mb_str + len * max_bytes_per_chart);
-    CharToOem(mb_str,mb_str);
     v_puts(handle,mb_str,&pos,sz,attr); # will work only when multi == 1 in multibytes
     free(mb_str);
   }
@@ -11261,19 +11260,13 @@ local void wr_ch_window (const object* stream_, object ch) {
     fehler_wr_char(*stream_,ch);
   var chart c = char_code(ch);
 #ifdef UNICODE
-  # we convert to local charset then to OEM charset
-  # since it will be inhumane to lisp programmer
-  # to make him remember about windows nightmares
-  # another way is init *terminal-io* to OEM charset
-  # but this may require other places to be changed.
-  # (I saw ANSI2OEM in win32aux.d)
   var uintB buf[max_bytes_per_chart];
   var object encoding = TheStream(*stream_)->strm_encoding;
   var const chart* cptr = &c;
   var uintB* bptr = buf;
   Encoding_wcstombs(encoding)
     (encoding,*stream_,&cptr,cptr+1,&bptr,buf+max_bytes_per_chart);
-  CharToOemBuff(buf,(char *)&c,1);
+  c = (uintB)*buf;
 #else
   CharToOemBuff((char *)&c,(char *)&c,1);
 #endif
