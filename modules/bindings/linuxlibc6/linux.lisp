@@ -2070,16 +2070,29 @@
   (l_whence short)
   (l_start off_t)
   (l_len off_t)
-  (l_pid pid_t)
-)
+  (l_pid pid_t))
 
-; ------------------------------ <fcntl.h> ------------------------------------
+(def-c-call-out flock
+    (:arguments (fd int) (cmd int))
+  (:return-type int))
+
+;; ------------------------------ <fcntl.h> ---------------------------------
 
 (defconstant FNDELAY O_NDELAY)
 
-(def-c-call-out fcntl (:arguments (fildes int) (cmd int) (arg c-pointer)) ; ??
-                      (:return-type int)
-)
+(def-c-call-out fcntl2          ; 2 args
+    (:arguments (fd int) (cmd int))
+  (:return-type int)
+  (:name "fcntl"))
+(def-c-call-out fcntl3l         ; 3 args, 3rd = long
+    (:arguments (fd int) (cmd int) (arg long))
+  (:return-type int)
+  (:name "fcntl"))
+(def-c-call-out fcntl3f         ; 3 args, 3rd = struct flock
+    (:arguments (fd int) (cmd int)
+                (lock (c-ptr flock) :in-out :alloca))
+  (:return-type int)
+  (:name "fcntl"))
 
 (def-c-call-out open (:arguments (filename c-string) (flags int) (mode mode_t))
                      (:return-type int)
@@ -2923,7 +2936,7 @@
 
 ; ============================= <sys/ioctl.h> =================================
 
-; ---------------------------- <ioctl-types.h> --------------------------------
+;;; --------------------------- <bits/ioctl-types.h> -------------------------
 
 (def-c-struct winsize
   (ws_row ushort)
@@ -2969,11 +2982,22 @@
 
 ; lots of old stuff
 
-; ----------------------------- <sys/ioctl.h> ---------------------------------
+;;; ----------------------------- <sys/ioctl.h> ------------------------------
 
-(def-c-call-out ioctl (:arguments (fd int) (request int) (arg c-pointer))
-                      (:return-type int)
-)
+(def-c-call-out ioctl-set
+    (:arguments (fd int) (request int)
+                (arg c-pointer))
+  (:return-type int)
+  (:name "ioctl"))
+(def-c-call-out ioctl-get
+    (:arguments (fd int) (request int)
+                (arg (c-ptr int) :out :alloca))
+  (:return-type int)
+  (:name "ioctl"))
+(def-c-call-out ioctl
+    (:arguments (fd int) (request int)
+                (arg (c-ptr int) :in-out :alloca))
+  (:return-type int))
 
 ;;; ==========================================================================
 ;;; clean up
