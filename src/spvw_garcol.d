@@ -1729,7 +1729,6 @@
         # Durchlaufen durch alle LISP-Objekte und aktualisieren:
           # Update pointers in all LISP-stacks:
             update_STACKs();
-            #undef update_stackobj
           # Programmkonstanten aktualisieren:
             update_tables();
           #ifndef MORRIS_GC
@@ -2394,6 +2393,7 @@
     }
 
 # Macro update jetzt unnötig:
+  #undef update_stackobj
   #undef update
 
 #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && RESERVE
