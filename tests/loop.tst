@@ -871,6 +871,17 @@ nil
 (LOOP FOR NIL ON NIL DO (RETURN T))
 NIL
 
+;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-3.html>
+(handler-case
+    (eval (macroexpand '(loop :for i :from 1 :to 20 :sum i :maximize i)))
+  (program-error (c) (princ c) (values '(correct program-error))))
+(correct program-error)
+
+(handler-case
+    (eval (macroexpand '(loop :for i :from 1 :to 20 :sum i :always (evenp i))))
+  (program-error (c) (princ c) (values '(correct program-error))))
+(correct program-error)
+
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)
 ;; eval: (remove-hook 'write-file-functions 'delete-trailing-whitespace t)
