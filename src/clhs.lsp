@@ -2,13 +2,16 @@
 ;;; This file is a part of CLISP (http://clisp.cons.org), and, as such,
 ;;; is distributed under the GNU GPL (http://www.gnu.org/copyleft/gpl.html)
 
-(in-package :lisp)
+(in-package "LISP")
 
 (export '(clhs *browsers* read-from-file browse-url))
+
+(in-package "SYSTEM")
 
 (defvar *clhs-table* nil)       ; the hash table
 
 (defun clhs-file ()
+  ; $(lisplibdir)/data/clhs.txt
   (merge-pathnames
    "clhs.txt"
    (let ((libdir (sys::lib-directory)))
@@ -32,7 +35,10 @@ The keyword argument OUT specifies the output for log messages."
                        file (file-length str))
                (force-output (if (eq out t) *standard-output* out)))
              (with-standard-io-syntax
-               (read str)))
+               ; Look up the symbols in package COMMON-LISP, not
+               ; COMMON-LISP-USER, which is under user's control.
+               (let ((*package* (find-package "COMMON-LISP")))
+                 (read str))))
       (when out
         (format out "done [~,2f sec]~%"
                 (/ (- (get-internal-real-time) beg-real)
@@ -60,12 +66,14 @@ The keyword argument OUT specifies the output for log messages."
     (setq *clhs-table* (read-from-file (clhs-file) :out out)))
   (do* ((symbol (etypecase symbol-string
                   (symbol symbol-string)
-                  (string (multiple-value-bind (symb found-p)
-                              (find-symbol (string-upcase symbol-string) :cl)
-                            (unless found-p
-                              (error "no symbol named ~s in ~s"
-                                     symbol-string (find-package :cl)))
-                            symb))))
+                  (string
+                    (let ((pack (find-package "COMMON-LISP")))
+                      (multiple-value-bind (symb found-p)
+                          (find-symbol (string-upcase symbol-string) pack)
+                        (unless (eq found-p ':external)
+                          (error "no symbol named ~s exported from ~s"
+                                 symbol-string pack))
+                        symb)))))
         (path-list (or (gethash symbol *clhs-table*)
                        (error "No HyperSpec doc for `~s'" symbol))
                    (cdr path-list)))
