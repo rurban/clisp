@@ -937,9 +937,10 @@ When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
   &pr-rpars;, &pr-indent;.</simpara></listitem>
 </itemizedlist>
 
+<formalpara id="defstruct-inherit"><title>Option &inherit-k;</title>
 <para>The &inherit-k; option is exactly like &include-k; except that it
  does not create new accessors for the inherited slots (this is a
- &clisp; extension).</para>
+ &clisp; extension).</para></formalpara>
 
 </chapter>
 
