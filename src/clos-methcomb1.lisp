@@ -59,9 +59,6 @@ in the generic function instance."
                                 ; in the particular method.
   (declarations nil)            ; list to be prepended to the effective method
                                 ; body
-  (arguments-lambda-list nil)   ; The :arguments option of the defined method
-                                ; combination for inclusion in the effective
-                                ; method function.
 
   ;; The following slots apply only to standard and short form
   ;; method-combination.
@@ -71,6 +68,16 @@ in the generic function instance."
   (operator nil)                ; a symbol
   (identity-with-one-argument nil) ; true if `(operator ,x) should be replaced
                                 ; with x
+
+  ;; The following slots apply only to long form method-combination.
+  (long-expander nil)           ; A function of 2+n variables
+                                ; (function methods . options)
+                                ; which computes the inner body of the effective
+                                ; method, as a form containing (CALL-METHOD ...)
+                                ; forms
+  (arguments-lambda-list nil)   ; The :arguments option of the defined method
+                                ; combination for inclusion in the effective
+                                ; method function.
 
   ;; The following slots depend on the particular generic function.
   (options nil))                ; arguments for the method combination
