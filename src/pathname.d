@@ -8335,7 +8335,6 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   STACK_1 = STACK_0;
   skipSTACK(1);
   /* STACK: ascizcmdlist */
-  var int exit_code = 0;
   var int child_id = 0;
 #ifdef UNIX
   var DYNAMIC_ARRAY(argv,char*,1+(uintL)arglist_count+1);
@@ -8391,6 +8390,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
     end_system_call();
     OS_error();
   }
+  var int exit_code = 0;
   if (wait_p) {
     var int status = wait2(child_id);
     exit_code = WEXITSTATUS(status);
