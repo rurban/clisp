@@ -251,6 +251,7 @@ LISPSYM(proom,"%ROOM",system)
 LISPSYM(gc,"GC",lisp)
 # ---------- ENCODING ----------
 LISPSYM(make_encoding,"MAKE-ENCODING",lisp)
+LISPSYM(encodingp,"ENCODINGP",system)
 # ---------- ERROR ----------
 LISPSYM(error,"ERROR",lisp)
 LISPSYM(defclcs,"%DEFCLCS",system)

@@ -1001,6 +1001,12 @@ LISPFUN(make_encoding,0,0,norest,key,2,
     skipSTACK(2);
   }
 
+LISPFUNN(encodingp,1)
+# (SYSTEM::ENCODINGP object)
+  { var object arg = popSTACK();
+    value1 = (encodingp(arg) ? T : NIL); mv_count=1;
+  }
+
 # -----------------------------------------------------------------------------
 #                          Elementary string functions
 
