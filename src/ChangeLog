@@ -1,5 +1,10 @@
 2002-07-09  Sam Steingold  <sds@gnu.org>
 
+	* complete.lisp (completion): consider the situation FUNCTIONALP
+	when start==end, this fixes the "(finalize TAB" bug)
+
+2002-07-09  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (PARSE-NAMESTRING): barf on symbols when
 	CUSTOM:*PARSE-NAMESTRING-ANSI* is non-NIL
 	(FILE-STAT-INTERNAL): use coerce_pathname()
