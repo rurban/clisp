@@ -1,5 +1,9 @@
 2001-05-05  Sam Steingold  <sds@gnu.org>
 
+	* type.lisp (subtypep): COMPILED-FUNCTION is a subtype of FUNCTION
+
+2001-05-05  Sam Steingold  <sds@gnu.org>
+
 	* clos.lisp (function-keywords): return 2 values: list of keywords
 	and allow-other-keys-flag, as per ANSI CL
 
