@@ -19,7 +19,7 @@ AC_CHECK_HEADERS(errno.h fcntl.h netdb.h sys/resource.h)
 AC_CHECK_HEADERS(pwd.h sys/stat.h sys/time.h sys/unistd.h time.h unistd.h)
 AC_CHECK_HEADERS(shlobj.h)
 if test "$ac_cv_header_shlobj_h" = yes ; then
-   LIBS=${LIBS}' -luser32 -lole32 -luuid';
+   LIBS=${LIBS}' -luser32 -lole32 -loleaut32 -luuid';
 fi
 AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/vfs.h sys/types.h crypt.h)
 AC_MSG_CHECKING([whether f_fsid is scalar])
