@@ -23,18 +23,25 @@
                             (equal (subseq string (- start1 2) start1) "#'")))
          ;; completion of a function
          (functionalp (or (= start end) functionalp1 functionalp2))
+         (keep-case-p
+          (or quotedp (case (readtable-case *readtable*)
+                        ((:upcase :downcase) nil) ((:preserve :invert) t))))
+         (string-cmp (if keep-case-p #'string= #'string-equal))
+         (char-cmp (if keep-case-p #'char= #'char-equal))
          (gatherer
           (if functionalp
               (lambda (sym)
                 (when (fboundp sym)
                   (let ((name (symbol-name sym)))
                     (when (and (>= (length name) known-len)
-                               (string-equal name known-part :end1 known-len))
+                               (funcall string-cmp name known-part
+                                        :end1 known-len))
                       (push name return-list)))))
               (lambda (sym)
                 (let ((name (symbol-name sym)))
                   (when (and (>= (length name) known-len)
-                             (string-equal name known-part :end1 known-len))
+                             (funcall string-cmp name known-part
+                                      :end1 known-len))
                     (push name return-list))))))
          (package *package*)
          (mapfun #'sys::map-symbols)
@@ -54,8 +61,8 @@
               ((char= #\) (schar string pos)) (decf depth))
               ((whitespacep (schar string pos)) (setq white pos))))
       (when (< end start)       ; nothing useful was entered - just whitespace
-        (sys::help) (terpri)
-        (return-from completion 0)))
+        (sys::help) (terpri)    ; print help
+        (return-from completion 0))) ; redraw the prompt
     ;; get the package name:
     (unless quotedp
       (let ((colon (position #\: string :start start :end end)))
@@ -69,8 +76,8 @@
               (setq mapfun #'sys::map-external-symbols))
           (setq prefix (subseq string start colon))
           (setq start colon))))
-    (setq known-part (subseq string start end))
-    (setq known-len (length known-part))
+    (setq known-part (subseq string start end)
+          known-len (length known-part))
     (funcall mapfun gatherer package)
     (when (null return-list) (return-from completion nil))
     (when void-completion
@@ -80,9 +87,10 @@
             (cond ((equalp state new-state)
                    (describe sym) (terpri) (terpri))
                   ((setq state new-state)))
-            0))))
+            0))))               ; redraw the prompt
     ;; for a function without arguments, append the closing paren
     (when (and functionalp1
+               (not quotedp)    ; readline will close the quote after #\) !
                (null (cdr return-list))
                (let ((sym (find-symbol (car return-list) package)))
                  (and sym (fboundp sym) (functionp (symbol-function sym))
@@ -92,16 +100,16 @@
                         (and (eql req-anz 0) (eql opt-anz 0)
                              (not rest-p) (not key-p))))))
       (setf (car return-list) (string-concat (car return-list) ")")))
-    (unless quotedp             ; downcase
+    (unless (or quotedp keep-case-p) ; downcase
       (setq return-list (mapcar #'string-downcase return-list)))
     (setq return-list (sort return-list #'string<))
     ;; look for the largest common initial piece
     (let ((imax (reduce #'min return-list :key #'length)))
       (do ((i 0 (1+ i)))
-          ((or (eql i imax)
+          ((or (= i imax)
                (let ((c (char (first return-list) i)))
                  (dolist (s (rest return-list) nil)
-                   (unless (eql (char s i) c) (return t)))))
+                   (unless (funcall char-cmp (char s i) c) (return t)))))
            (push (subseq (first return-list) 0 i) return-list))))
     ;; reattach prefix
     (when prefix
