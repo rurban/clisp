@@ -4156,6 +4156,8 @@ global void iconv_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
             if (eq(action,S(Kignore))) {
               inptr++; insize--;
             } elif (eq(action,S(Kerror))) {
+              if (inptr > *srcp)
+                break;
               OS_error();
             } else {
               if (outsize < sizeof(chart))
@@ -4344,11 +4346,15 @@ global void iconv_wcstombs(encoding,stream,srcp,srcend,destp,destend)
                 elif (errno != EILSEQ) {
                   OS_error();
                 } else {
+                  if (inptr > (char*)*srcp)
+                    break;
                   end_system_call();
                   fehler_unencodable(encoding,*(const chart*)inptr);
                 }
               }
             } else {
+              if (inptr > (char*)*srcp)
+                break;
               end_system_call();
               fehler_unencodable(encoding,*(const chart*)inptr);
             }
