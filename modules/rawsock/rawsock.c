@@ -36,10 +36,19 @@
 # include <net/if.h>
 #endif
 #if defined(HAVE_SYS_IOCTL_H)
-#include <sys/ioctl.h>
+# include <sys/ioctl.h>
+#endif
+#if defined(HAVE_SYS_UN_H)
+# include <sys/un.h>
 #endif
 #if defined(HAVE_ERRNO_H)
 # include <errno.h>
+#endif
+#if defined(HAVE_STROPS_H)
+# include <stropts.h>
+#endif
+#if defined(HAVE_POLL_H)
+# include <poll.h>
 #endif
 
 DEFMODULE(rawsock,"RAWSOCK")
@@ -77,8 +86,9 @@ object check_struct (object type, object arg) {
 }
 /* DANGER: the reuturn value is invalidated by GC!
  can trigger GC */
-void* check_struct_data (object type, object arg) {
+void* check_struct_data (object type, object arg, size_t *size) {
   object vec = TheStructure(check_struct(type,arg))->recdata[1];
+  *size = Sbvector_length(vec);
   return (void*)TheSbvector(vec)->data;
 }
 
@@ -92,9 +102,35 @@ DEFUN(RAWSOCK:RESIZE-BUFFER,new-size) {
 }
 
 DEFUN(RAWSOCK:SOCKADDR-FAMILY, sa) {
+  size_t size;
   struct sockaddr *sa =
-    (struct sockaddr*)check_struct_data(`RAWSOCK:SOCKADDR`,popSTACK());
-  VALUES1(fixnum(sa->sa_family));
+    (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,popSTACK(),&size);
+  VALUES2(fixnum(sa->sa_family),fixnum(size));
+}
+
+/* can trigger GC */
+static object make_sockaddr (void) {
+  pushSTACK(allocate_bit_vector(Atype_8Bit,sizeof(struct sockaddr)));
+  funcall(`RAWSOCK::MAKE-SA`,1);
+  return value1;
+}
+
+DEFUN(RAWSOCK:MAKE-SOCKADDR,family data) {
+  int family = check_socket_domain(STACK_1);
+  struct sockaddr sa;
+  unsigned char *buffer;
+  size_t buffer_len;
+  STACK_0 = check_buffer_arg(STACK_0);
+  buffer_len = Sbvector_length(STACK_0);
+  pushSTACK(allocate_bit_vector(Atype_8Bit,sizeof(sa.sa_family)+buffer_len));
+  buffer = (void*)TheSbvector(STACK_0)->data;
+  ((struct sockaddr*)buffer)->sa_family = family;
+  begin_system_call();
+  memcpy(((struct sockaddr*)buffer)->sa_data,TheSbvector(STACK_1)->data,
+         buffer_len);
+  end_system_call();
+  funcall(`RAWSOCK::MAKE-SA`,1);
+  skipSTACK(2);
 }
 
 /* invoke system call C, place return value in R, report error on socket C */
@@ -102,280 +138,372 @@ DEFUN(RAWSOCK:SOCKADDR-FAMILY, sa) {
   do { begin_system_call(); r = c; end_system_call();   \
     if (r<0) {                                          \
       if (s<=0) OS_error();                             \
-      else OS_filestream_error(fixnum(s));              \
+      else OS_file_error(fixnum(s));                    \
     }                                                   \
   } while(0)
 
 
 /* ================== sys/socket.h interface ================== */
 
-DEFUN(RAWSOCK:SOCKET,domain type protocol) {
-  int sock, domain, type, protocol;
- restart_check_protocol:        /* PROTOCOL */
-  if (!posfixnump(STACK_0)) {
-    if (nullp(STACK_0)) protocol = 0;
-#  if defined(ETH_P_LOOP)
-    else if (eq(STACK_0,`:ETH_P_LOOP`))      protocol = ETH_P_LOOP;
+static int check_socket_domain (object arg) {
+ restart_check_domain:
+  if (!posfixnump(arg)) {
+    if (nullp(arg)) return 0;
+#  if defined(AF_UNSPEC)
+    else if (eq(arg,`:AF_UNSPEC`))    return AF_UNSPEC;
 #  endif
-#  if defined(ETH_P_PUP)
-    else if (eq(STACK_0,`:ETH_P_PUP`))       protocol = ETH_P_PUP;
+#  if defined(AF_UNIX)
+    else if (eq(arg,`:AF_UNIX`))      return AF_UNIX;
 #  endif
-#  if defined(ETH_P_PUPAT)
-    else if (eq(STACK_0,`:ETH_P_PUPAT`))     protocol = ETH_P_PUPAT;
+#  if defined(AF_LOCAL)
+    else if (eq(arg,`:AF_LOCAL`))     return AF_LOCAL;
 #  endif
-#  if defined(ETH_P_IP)
-    else if (eq(STACK_0,`:ETH_P_IP`))        protocol = ETH_P_IP;
+#  if defined(AF_INET)
+    else if (eq(arg,`:AF_INET`))      return AF_INET;
 #  endif
-#  if defined(ETH_P_X25)
-    else if (eq(STACK_0,`:ETH_P_X25`))       protocol = ETH_P_X25;
+#  if defined(AF_AX25)
+    else if (eq(arg,`:AF_AX25`))      return AF_AX25;
 #  endif
-#  if defined(ETH_P_ARP)
-    else if (eq(STACK_0,`:ETH_P_ARP`))       protocol = ETH_P_ARP;
+#  if defined(AF_IPX)
+    else if (eq(arg,`:AF_IPX`))       return AF_IPX;
 #  endif
-#  if defined(ETH_P_BPQ)
-    else if (eq(STACK_0,`:ETH_P_BPQ`))       protocol = ETH_P_BPQ;
+#  if defined(AF_APPLETALK)
+    else if (eq(arg,`:AF_APPLETALK`)) return AF_APPLETALK;
 #  endif
-#  if defined(ETH_P_IEEEPUP)
-    else if (eq(STACK_0,`:ETH_P_IEEEPUP`))   protocol = ETH_P_IEEEPUP;
+#  if defined(AF_NETROM)
+    else if (eq(arg,`:AF_NETROM`))    return AF_NETROM;
 #  endif
-#  if defined(ETH_P_IEEEPUPAT)
-    else if (eq(STACK_0,`:ETH_P_IEEEPUPAT`)) protocol = ETH_P_IEEEPUPAT;
+#  if defined(AF_BRIDGE)
+    else if (eq(arg,`:AF_BRIDGE`))    return AF_BRIDGE;
 #  endif
-#  if defined(ETH_P_DEC)
-    else if (eq(STACK_0,`:ETH_P_DEC`))       protocol = ETH_P_DEC;
+#  if defined(AF_ATMPVC)
+    else if (eq(arg,`:AF_ATMPVC`))    return AF_ATMPVC;
 #  endif
-#  if defined(ETH_P_DNA_DL)
-    else if (eq(STACK_0,`:ETH_P_DNA_DL`))    protocol = ETH_P_DNA_DL;
+#  if defined(AF_X25)
+    else if (eq(arg,`:AF_X25`))       return AF_X25;
 #  endif
-#  if defined(ETH_P_DNA_RC)
-    else if (eq(STACK_0,`:ETH_P_DNA_RC`))    protocol = ETH_P_DNA_RC;
+#  if defined(AF_INET6)
+    else if (eq(arg,`:AF_INET6`))     return AF_INET6;
 #  endif
-#  if defined(ETH_P_DNA_RT)
-    else if (eq(STACK_0,`:ETH_P_DNA_RT`))    protocol = ETH_P_DNA_RT;
+#  if defined(AF_ROSE)
+    else if (eq(arg,`:AF_ROSE`))      return AF_ROSE;
 #  endif
-#  if defined(ETH_P_LAT)
-    else if (eq(STACK_0,`:ETH_P_LAT`))       protocol = ETH_P_LAT;
+#  if defined(AF_DECnet)
+    else if (eq(arg,`:AF_DECNET`))    return AF_DECnet;
 #  endif
-#  if defined(ETH_P_DIAG)
-    else if (eq(STACK_0,`:ETH_P_DIAG`))      protocol = ETH_P_DIAG;
+#  if defined(AF_NETBEUI)
+    else if (eq(arg,`:AF_NETBEUI`))   return AF_NETBEUI;
 #  endif
-#  if defined(ETH_P_CUST)
-    else if (eq(STACK_0,`:ETH_P_CUST`))      protocol = ETH_P_CUST;
+#  if defined(AF_SECURITY)
+    else if (eq(arg,`:AF_SECURITY`))  return AF_SECURITY;
 #  endif
-#  if defined(ETH_P_SCA)
-    else if (eq(STACK_0,`:ETH_P_SCA`))       protocol = ETH_P_SCA;
+#  if defined(AF_KEY)
+    else if (eq(arg,`:AF_KEY`))       return AF_KEY;
 #  endif
-#  if defined(ETH_P_RARP)
-    else if (eq(STACK_0,`:ETH_P_RARP`))      protocol = ETH_P_RARP;
+#  if defined(AF_NETLINK)
+    else if (eq(arg,`:AF_NETLINK`))   return AF_NETLINK;
 #  endif
-#  if defined(ETH_P_ATALK)
-    else if (eq(STACK_0,`:ETH_P_ATALK`))     protocol = ETH_P_ATALK;
+#  if defined(AF_ROUTE)
+    else if (eq(arg,`:AF_ROUTE`))     return AF_ROUTE;
 #  endif
-#  if defined(ETH_P_AARP)
-    else if (eq(STACK_0,`:ETH_P_AARP`))      protocol = ETH_P_AARP;
+#  if defined(AF_PACKET)
+    else if (eq(arg,`:AF_PACKET`))    return AF_PACKET;
 #  endif
-#  if defined(ETH_P_IPX)
-    else if (eq(STACK_0,`:ETH_P_IPX`))       protocol = ETH_P_IPX;
+#  if defined(AF_ASH)
+    else if (eq(arg,`:AF_ASH`))       return AF_ASH;
 #  endif
-#  if defined(ETH_P_IPV6)
-    else if (eq(STACK_0,`:ETH_P_IPV6`))      protocol = ETH_P_IPV6;
+#  if defined(AF_ECONET)
+    else if (eq(arg,`:AF_ECONET`))    return AF_ECONET;
 #  endif
-#  if defined(ETH_P_PPP_DISC)
-    else if (eq(STACK_0,`:ETH_P_PPP_DISC`))  protocol = ETH_P_PPP_DISC;
+#  if defined(AF_ATMSVC)
+    else if (eq(arg,`:AF_ATMSVC`))    return AF_ATMSVC;
 #  endif
-#  if defined(ETH_P_PPP_SES)
-    else if (eq(STACK_0,`:ETH_P_PPP_SES`))   protocol = ETH_P_PPP_SES;
+#  if defined(AF_SNA)
+    else if (eq(arg,`:AF_SNA`))       return AF_SNA;
 #  endif
-#  if defined(ETH_P_ATMMPOA)
-    else if (eq(STACK_0,`:ETH_P_ATMMPOA`))   protocol = ETH_P_ATMMPOA;
+#  if defined(AF_IRDA)
+    else if (eq(arg,`:AF_IRDA`))      return AF_IRDA;
 #  endif
-#  if defined(ETH_P_ATMFATE)
-    else if (eq(STACK_0,`:ETH_P_ATMFATE`))   protocol = ETH_P_ATMFATE;
+#  if defined(AF_PPPOX)
+    else if (eq(arg,`:AF_PPPOX`))     return AF_PPPOX;
 #  endif
-#  if defined(ETH_P_802_3)
-    else if (eq(STACK_0,`:ETH_P_802_3`))     protocol = ETH_P_802_3;
+#  if defined(AF_WANPIPE)
+    else if (eq(arg,`:AF_WANPIPE`))   return AF_WANPIPE;
 #  endif
-#  if defined(ETH_P_AX25)
-    else if (eq(STACK_0,`:ETH_P_AX25`))      protocol = ETH_P_AX25;
-#  endif
-#  if defined(ETH_P_ALL)
-    else if (eq(STACK_0,`:ETH_P_ALL`))       protocol = ETH_P_ALL;
-#  endif
-#  if defined(ETH_P_802_2)
-    else if (eq(STACK_0,`:ETH_P_802_2`))     protocol = ETH_P_802_2;
-#  endif
-#  if defined(ETH_P_SNAP)
-    else if (eq(STACK_0,`:ETH_P_SNAP`))      protocol = ETH_P_SNAP;
-#  endif
-#  if defined(ETH_P_DDCMP)
-    else if (eq(STACK_0,`:ETH_P_DDCMP`))     protocol = ETH_P_DDCMP;
-#  endif
-#  if defined(ETH_P_WAN_PPP)
-    else if (eq(STACK_0,`:ETH_P_WAN_PPP`))   protocol = ETH_P_WAN_PPP;
-#  endif
-#  if defined(ETH_P_PPP_MP)
-    else if (eq(STACK_0,`:ETH_P_PPP_MP`))    protocol = ETH_P_PPP_MP;
-#  endif
-#  if defined(ETH_P_LOCALTALK)
-    else if (eq(STACK_0,`:ETH_P_LOCALTALK`)) protocol = ETH_P_LOCALTALK;
-#  endif
-#  if defined(ETH_P_PPPTALK)
-    else if (eq(STACK_0,`:ETH_P_PPPTALK`))   protocol = ETH_P_PPPTALK;
-#  endif
-#  if defined(ETH_P_TR_802_2)
-    else if (eq(STACK_0,`:ETH_P_TR_802_2`))  protocol = ETH_P_TR_802_2;
-#  endif
-#  if defined(ETH_P_MOBITEX)
-    else if (eq(STACK_0,`:ETH_P_MOBITEX`))   protocol = ETH_P_MOBITEX;
-#  endif
-#  if defined(ETH_P_CONTROL)
-    else if (eq(STACK_0,`:ETH_P_CONTROL`))   protocol = ETH_P_CONTROL;
-#  endif
-#  if defined(ETH_P_IRDA)
-    else if (eq(STACK_0,`:ETH_P_IRDA`))      protocol = ETH_P_IRDA;
-#  endif
-#  if defined(ETH_P_ECONET)
-    else if (eq(STACK_0,`:ETH_P_ECONET`))    protocol = ETH_P_ECONET;
+#  if defined(AF_BLUETOOTH)
+    else if (eq(arg,`:AF_BLUETOOTH`)) return AF_BLUETOOTH;
 #  endif
     else {
-      STACK_0 = my_check_argument(`PROTOCOL`,STACK_0);
-      goto restart_check_protocol;
+      arg = my_check_argument(`DOMAIN`,arg);
+      goto restart_check_domain;
     }
-  } else protocol = posfixnum_to_L(STACK_0);
-  skipSTACK(1);                 /* drop PROTOCOL argument */
- restart_check_type:            /* TYPE */
-  if (!posfixnump(STACK_0)) {
-    if (nullp(STACK_0)) type = 0;
+  } else return posfixnum_to_L(arg);
+}
+static int check_socket_type (object arg) {
+ restart_check_type:
+  if (!posfixnump(arg)) {
+    if (nullp(arg)) return 0;
 #  if defined(SOCK_STREAM)
-    else if (eq(STACK_0,`:SOCK_STREAM`))    type = SOCK_STREAM;
+    else if (eq(arg,`:SOCK_STREAM`))    return SOCK_STREAM;
 #  endif
 #  if defined(SOCK_DGRAM)
-    else if (eq(STACK_0,`:SOCK_DGRAM`))     type = SOCK_DGRAM;
+    else if (eq(arg,`:SOCK_DGRAM`))     return SOCK_DGRAM;
 #  endif
 #  if defined(SOCK_RAW)
-    else if (eq(STACK_0,`:SOCK_RAW`))       type = SOCK_RAW;
+    else if (eq(arg,`:SOCK_RAW`))       return SOCK_RAW;
 #  endif
 #  if defined(SOCK_RDM)
-    else if (eq(STACK_0,`:SOCK_RDM`))       type = SOCK_RDM;
+    else if (eq(arg,`:SOCK_RDM`))       return SOCK_RDM;
 #  endif
 #  if defined(SOCK_SEQPACKET)
-    else if (eq(STACK_0,`:SOCK_SEQPACKET`)) type = SOCK_SEQPACKET;
+    else if (eq(arg,`:SOCK_SEQPACKET`)) return SOCK_SEQPACKET;
 #  endif
 #  if defined(SOCK_PACKET)
-    else if (eq(STACK_0,`:SOCK_PACKET`))    type = SOCK_PACKET;
+    else if (eq(arg,`:SOCK_PACKET`))    return SOCK_PACKET;
 #  endif
     else {
-      my_check_argument(`TYPE`,STACK_0);
+      arg = my_check_argument(`TYPE`,arg);
       goto restart_check_type;
     }
   }
-  else type = posfixnum_to_L(STACK_0);
-  skipSTACK(1);                 /* drop TYPE argument */
- restart_check_domain:          /* DOMAIN */
-  if (!posfixnump(STACK_0)) {
-    if (nullp(STACK_0)) domain = 0;
-#  if defined(AF_UNSPEC)
-    else if (eq(STACK_0,`:AF_UNSPEC`))    domain = AF_UNSPEC;
+  else return posfixnum_to_L(arg);
+}
+static int check_socket_protocol (object arg) {
+ restart_check_protocol:
+  if (!posfixnump(arg)) {
+    if (nullp(arg)) return 0;
+#  if defined(ETH_P_LOOP)
+    else if (eq(arg,`:ETH_P_LOOP`))      return ETH_P_LOOP;
 #  endif
-#  if defined(AF_UNIX)
-    else if (eq(STACK_0,`:AF_UNIX`))      domain = AF_UNIX;
+#  if defined(ETH_P_PUP)
+    else if (eq(arg,`:ETH_P_PUP`))       return ETH_P_PUP;
 #  endif
-#  if defined(AF_LOCAL)
-    else if (eq(STACK_0,`:AF_LOCAL`))     domain = AF_LOCAL;
+#  if defined(ETH_P_PUPAT)
+    else if (eq(arg,`:ETH_P_PUPAT`))     return ETH_P_PUPAT;
 #  endif
-#  if defined(AF_INET)
-    else if (eq(STACK_0,`:AF_INET`))      domain = AF_INET;
+#  if defined(ETH_P_IP)
+    else if (eq(arg,`:ETH_P_IP`))        return ETH_P_IP;
 #  endif
-#  if defined(AF_AX25)
-    else if (eq(STACK_0,`:AF_AX25`))      domain = AF_AX25;
+#  if defined(ETH_P_X25)
+    else if (eq(arg,`:ETH_P_X25`))       return ETH_P_X25;
 #  endif
-#  if defined(AF_IPX)
-    else if (eq(STACK_0,`:AF_IPX`))       domain = AF_IPX;
+#  if defined(ETH_P_ARP)
+    else if (eq(arg,`:ETH_P_ARP`))       return ETH_P_ARP;
 #  endif
-#  if defined(AF_APPLETALK)
-    else if (eq(STACK_0,`:AF_APPLETALK`)) domain = AF_APPLETALK;
+#  if defined(ETH_P_BPQ)
+    else if (eq(arg,`:ETH_P_BPQ`))       return ETH_P_BPQ;
 #  endif
-#  if defined(AF_NETROM)
-    else if (eq(STACK_0,`:AF_NETROM`))    domain = AF_NETROM;
+#  if defined(ETH_P_IEEEPUP)
+    else if (eq(arg,`:ETH_P_IEEEPUP`))   return ETH_P_IEEEPUP;
 #  endif
-#  if defined(AF_BRIDGE)
-    else if (eq(STACK_0,`:AF_BRIDGE`))    domain = AF_BRIDGE;
+#  if defined(ETH_P_IEEEPUPAT)
+    else if (eq(arg,`:ETH_P_IEEEPUPAT`)) return ETH_P_IEEEPUPAT;
 #  endif
-#  if defined(AF_ATMPVC)
-    else if (eq(STACK_0,`:AF_ATMPVC`))    domain = AF_ATMPVC;
+#  if defined(ETH_P_DEC)
+    else if (eq(arg,`:ETH_P_DEC`))       return ETH_P_DEC;
 #  endif
-#  if defined(AF_X25)
-    else if (eq(STACK_0,`:AF_X25`))       domain = AF_X25;
+#  if defined(ETH_P_DNA_DL)
+    else if (eq(arg,`:ETH_P_DNA_DL`))    return ETH_P_DNA_DL;
 #  endif
-#  if defined(AF_INET6)
-    else if (eq(STACK_0,`:AF_INET6`))     domain = AF_INET6;
+#  if defined(ETH_P_DNA_RC)
+    else if (eq(arg,`:ETH_P_DNA_RC`))    return ETH_P_DNA_RC;
 #  endif
-#  if defined(AF_ROSE)
-    else if (eq(STACK_0,`:AF_ROSE`))      domain = AF_ROSE;
+#  if defined(ETH_P_DNA_RT)
+    else if (eq(arg,`:ETH_P_DNA_RT`))    return ETH_P_DNA_RT;
 #  endif
-#  if defined(AF_DECnet)
-    else if (eq(STACK_0,`:AF_DECnet`))    domain = AF_DECnet;
+#  if defined(ETH_P_LAT)
+    else if (eq(arg,`:ETH_P_LAT`))       return ETH_P_LAT;
 #  endif
-#  if defined(AF_NETBEUI)
-    else if (eq(STACK_0,`:AF_NETBEUI`))   domain = AF_NETBEUI;
+#  if defined(ETH_P_DIAG)
+    else if (eq(arg,`:ETH_P_DIAG`))      return ETH_P_DIAG;
 #  endif
-#  if defined(AF_SECURITY)
-    else if (eq(STACK_0,`:AF_SECURITY`))  domain = AF_SECURITY;
+#  if defined(ETH_P_CUST)
+    else if (eq(arg,`:ETH_P_CUST`))      return ETH_P_CUST;
 #  endif
-#  if defined(AF_KEY)
-    else if (eq(STACK_0,`:AF_KEY`))       domain = AF_KEY;
+#  if defined(ETH_P_SCA)
+    else if (eq(arg,`:ETH_P_SCA`))       return ETH_P_SCA;
 #  endif
-#  if defined(AF_NETLINK)
-    else if (eq(STACK_0,`:AF_NETLINK`))   domain = AF_NETLINK;
+#  if defined(ETH_P_RARP)
+    else if (eq(arg,`:ETH_P_RARP`))      return ETH_P_RARP;
 #  endif
-#  if defined(AF_ROUTE)
-    else if (eq(STACK_0,`:AF_ROUTE`))     domain = AF_ROUTE;
+#  if defined(ETH_P_ATALK)
+    else if (eq(arg,`:ETH_P_ATALK`))     return ETH_P_ATALK;
 #  endif
-#  if defined(AF_PACKET)
-    else if (eq(STACK_0,`:AF_PACKET`))    domain = AF_PACKET;
+#  if defined(ETH_P_AARP)
+    else if (eq(arg,`:ETH_P_AARP`))      return ETH_P_AARP;
 #  endif
-#  if defined(AF_ASH)
-    else if (eq(STACK_0,`:AF_ASH`))       domain = AF_ASH;
+#  if defined(ETH_P_IPX)
+    else if (eq(arg,`:ETH_P_IPX`))       return ETH_P_IPX;
 #  endif
-#  if defined(AF_ECONET)
-    else if (eq(STACK_0,`:AF_ECONET`))    domain = AF_ECONET;
+#  if defined(ETH_P_IPV6)
+    else if (eq(arg,`:ETH_P_IPV6`))      return ETH_P_IPV6;
 #  endif
-#  if defined(AF_ATMSVC)
-    else if (eq(STACK_0,`:AF_ATMSVC`))    domain = AF_ATMSVC;
+#  if defined(ETH_P_PPP_DISC)
+    else if (eq(arg,`:ETH_P_PPP_DISC`))  return ETH_P_PPP_DISC;
 #  endif
-#  if defined(AF_SNA)
-    else if (eq(STACK_0,`:AF_SNA`))       domain = AF_SNA;
+#  if defined(ETH_P_PPP_SES)
+    else if (eq(arg,`:ETH_P_PPP_SES`))   return ETH_P_PPP_SES;
 #  endif
-#  if defined(AF_IRDA)
-    else if (eq(STACK_0,`:AF_IRDA`))      domain = AF_IRDA;
+#  if defined(ETH_P_ATMMPOA)
+    else if (eq(arg,`:ETH_P_ATMMPOA`))   return ETH_P_ATMMPOA;
 #  endif
-#  if defined(AF_PPPOX)
-    else if (eq(STACK_0,`:AF_PPPOX`))     domain = AF_PPPOX;
+#  if defined(ETH_P_ATMFATE)
+    else if (eq(arg,`:ETH_P_ATMFATE`))   return ETH_P_ATMFATE;
 #  endif
-#  if defined(AF_WANPIPE)
-    else if (eq(STACK_0,`:AF_WANPIPE`))   domain = AF_WANPIPE;
+#  if defined(ETH_P_802_3)
+    else if (eq(arg,`:ETH_P_802_3`))     return ETH_P_802_3;
 #  endif
-#  if defined(AF_BLUETOOTH)
-    else if (eq(STACK_0,`:AF_BLUETOOTH`)) domain = AF_BLUETOOTH;
+#  if defined(ETH_P_AX25)
+    else if (eq(arg,`:ETH_P_AX25`))      return ETH_P_AX25;
+#  endif
+#  if defined(ETH_P_ALL)
+    else if (eq(arg,`:ETH_P_ALL`))       return ETH_P_ALL;
+#  endif
+#  if defined(ETH_P_802_2)
+    else if (eq(arg,`:ETH_P_802_2`))     return ETH_P_802_2;
+#  endif
+#  if defined(ETH_P_SNAP)
+    else if (eq(arg,`:ETH_P_SNAP`))      return ETH_P_SNAP;
+#  endif
+#  if defined(ETH_P_DDCMP)
+    else if (eq(arg,`:ETH_P_DDCMP`))     return ETH_P_DDCMP;
+#  endif
+#  if defined(ETH_P_WAN_PPP)
+    else if (eq(arg,`:ETH_P_WAN_PPP`))   return ETH_P_WAN_PPP;
+#  endif
+#  if defined(ETH_P_PPP_MP)
+    else if (eq(arg,`:ETH_P_PPP_MP`))    return ETH_P_PPP_MP;
+#  endif
+#  if defined(ETH_P_LOCALTALK)
+    else if (eq(arg,`:ETH_P_LOCALTALK`)) return ETH_P_LOCALTALK;
+#  endif
+#  if defined(ETH_P_PPPTALK)
+    else if (eq(arg,`:ETH_P_PPPTALK`))   return ETH_P_PPPTALK;
+#  endif
+#  if defined(ETH_P_TR_802_2)
+    else if (eq(arg,`:ETH_P_TR_802_2`))  return ETH_P_TR_802_2;
+#  endif
+#  if defined(ETH_P_MOBITEX)
+    else if (eq(arg,`:ETH_P_MOBITEX`))   return ETH_P_MOBITEX;
+#  endif
+#  if defined(ETH_P_CONTROL)
+    else if (eq(arg,`:ETH_P_CONTROL`))   return ETH_P_CONTROL;
+#  endif
+#  if defined(ETH_P_IRDA)
+    else if (eq(arg,`:ETH_P_IRDA`))      return ETH_P_IRDA;
+#  endif
+#  if defined(ETH_P_ECONET)
+    else if (eq(arg,`:ETH_P_ECONET`))    return ETH_P_ECONET;
 #  endif
     else {
-      my_check_argument(`DOMAIN`,STACK_0);
-      goto restart_check_domain;
+      arg = my_check_argument(`PROTOCOL`,arg);
+      goto restart_check_protocol;
     }
-  } else type = posfixnum_to_L(STACK_0);
-  skipSTACK(1);                 /* drop DOMAIN argument */
-  SYSCALL(sock,-1,socket(domain, type, protocol));
-  VALUES1(fixnum(sock));
-} /* RAWSOCK:SOCKET */
-
-DEFUN(RAWSOCK:CLOSESOCK, socket) {
-  int sock = posfixnum_to_L(check_posfixnum(popSTACK())), retval;
-  SYSCALL(retval,sock,close(sock));
-  VALUES1(fixnum(retval));
+  } else return posfixnum_to_L(arg);
 }
 
-DEFUN(RAWSOCK:RECVFROM, socket buffer address \
-      &key MSG_PEEK MSG_OOB MSG_WAITALL) {
+DEFUN(RAWSOCK:SOCKET,domain type protocol) {
+  int sock;
+  int protocol = check_socket_protocol(popSTACK());
+  int type = check_socket_type(popSTACK());
+  int domain = check_socket_domain(popSTACK());
+  SYSCALL(sock,-1,socket(domain,type,protocol));
+  VALUES1(fixnum(sock));
+}
+
+DEFUN(RAWSOCK:SOCKETPAIR,domain type protocol) {
+  int sock[2], retval;
+  int protocol = check_socket_protocol(popSTACK());
+  int type = check_socket_type(popSTACK());
+  int domain = check_socket_domain(popSTACK());
+  SYSCALL(retval,-1,socketpair(domain,type,protocol,sock));
+  VALUES2(fixnum(sock[0]),fixnum(sock[1]));
+}
+
+/* process optional (struct sockaddr*) argument:
+   NIL: return NULL
+   T: allocate
+   SOCKADDR: extract data
+ DANGER: the reuturn value is invalidated by GC!
+ can trigger GC */
+void optional_sockaddr_argument (gcv_object_t *arg, struct sockaddr**sa,
+                                 size_t *size) {
+  if (nullp(*arg)) *sa = NULL;
+  else {
+    if (eq(T,*arg)) *arg = make_sockaddr();
+    *sa = (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,*arg,size);
+  }
+}
+
+DEFUN(RAWSOCK:ACCEPT,socket sockaddr) {
+  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  struct sockaddr *sa = NULL;
+  socklen_t sa_size;
+  optional_sockaddr_argument(&STACK_0,&sa,&sa_size);
+  /* no GC after this point! */
+  SYSCALL(retval,sock,accept(sock,sa,&sa_size));
+  VALUES3(fixnum(retval),fixnum(sa_size),STACK_0); skipSTACK(2);
+}
+
+DEFUN(RAWSOCK:BIND,socket sockaddr) {
+  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  size_t size;
+  struct sockaddr *sa =
+    (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,STACK_0,&size);
+  /* no GC after this point! */
+  SYSCALL(retval,sock,bind(sock,sa,size));
+  VALUES0; skipSTACK(2);
+}
+
+DEFUN(RAWSOCK:CONNECT,socket sockaddr) {
+  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  size_t size;
+  struct sockaddr *sa =
+    (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,STACK_0,&size);
+  /* no GC after this point! */
+  SYSCALL(retval,sock,connect(sock,sa,size));
+  VALUES0; skipSTACK(2);
+}
+
+DEFUN(RAWSOCK:GETPEERNAME,socket sockaddr) {
+  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  struct sockaddr *sa = NULL;
+  socklen_t sa_size;
+  optional_sockaddr_argument(&STACK_0,&sa,&sa_size);
+  /* no GC after this point! */
+  SYSCALL(retval,sock,getpeername(sock,sa,&sa_size));
+  VALUES2(STACK_0,fixnum(sa_size)); skipSTACK(2);
+}
+
+DEFUN(RAWSOCK:GETSOCKNAME,socket sockaddr) {
+  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  struct sockaddr *sa = NULL;
+  socklen_t sa_size;
+  optional_sockaddr_argument(&STACK_0,&sa,&sa_size);
+  /* no GC after this point! */
+  SYSCALL(retval,sock,getsockname(sock,sa,&sa_size));
+  VALUES2(STACK_0,fixnum(sa_size)); skipSTACK(2);
+}
+
+DEFUN(RAWSOCK:LISTEN,socket backlog) {
+  int backlog = posfixnum_to_L(check_posfixnum(popSTACK()));
+  int sock = posfixnum_to_L(check_posfixnum(popSTACK())), retval;
+  SYSCALL(retval,sock,listen(sock,backlog));
+  VALUES0;
+}
+
+#if defined(HAVE_POLL)
+DEFUN(RAWSOCK:POLL,sockets) {
+  skipSTACK(1);
+  VALUES0;
+}
+#endif
+
+/* ================== RECEIVING ================== */
+
+/* remove 3 objects from the STACK and return the RECV flag
+   based on MSG_PEEK MSG_OOB MSG_WAITALL */
+int recv_flags (void) {
   int flags = 0
 #  if defined(MSG_WAITALL)
     | (missingp(STACK_0) ? 0 : MSG_WAITALL)
@@ -387,29 +515,66 @@ DEFUN(RAWSOCK:RECVFROM, socket buffer address \
     | (missingp(STACK_2) ? 0 : MSG_PEEK)
 #  endif
     ;
-  int sock, retval;
-  struct sockaddr *sa = NULL;
-  void *buffer;
-  size_t buffer_len, sa_size = sizeof(struct sockaddr);
-  skipSTACK(3);                 /* drop flags */
-  STACK_1 = check_buffer_arg(STACK_1);
-  if (nullp(STACK_0)) {
-    pushSTACK(allocate_bit_vector(Atype_8Bit,sa_size));
-    funcall(`RAWSOCK:MAKE-SOCKADDR`,1);
-    STACK_0 = value1;
-  }
-  sa = (struct sockaddr*)check_struct_data(`RAWSOCK:SOCKADDR`,STACK_0);
-  /* no GC after this point! */
-  buffer = (void*)TheSbvector(STACK_1)->data;
-  buffer_len = vector_length(STACK_1);
-  sock = posfixnum_to_L(check_posfixnum(STACK_2));
-  SYSCALL(retval,sock,recvfrom(sock,buffer,buffer_len,flags,sa,&sa_size));
-  VALUES3(fixnum(retval),fixnum(sa_size),STACK_0);
   skipSTACK(3);
+  return flags;
 }
 
-DEFUN(RAWSOCK:SENDTO, socket buffer address &key MSG_OOB MSG_EOR) {
-  int flags = 0
+DEFUN(RAWSOCK:RECV,socket buffer &key MSG_PEEK MSG_OOB MSG_WAITALL) {
+  int flags = recv_flags();
+  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  void *buffer;
+  size_t buffer_len;
+  STACK_0 = check_buffer_arg(STACK_0);
+  buffer = (void*)TheSbvector(STACK_1)->data;
+  buffer_len = Sbvector_length(STACK_1);
+  SYSCALL(retval,sock,recv(sock,buffer,buffer_len,flags));
+  VALUES1(fixnum(retval)); skipSTACK(2);
+}
+
+DEFUN(RAWSOCK:RECVFROM, socket buffer address \
+      &key MSG_PEEK MSG_OOB MSG_WAITALL) {
+  int flags = recv_flags();
+  int sock = posfixnum_to_L(check_posfixnum(STACK_2)), retval;
+  struct sockaddr *sa = NULL;
+  void *buffer;
+  size_t buffer_len;
+  socklen_t sa_size;
+  STACK_1 = check_buffer_arg(STACK_1);
+  optional_sockaddr_argument(&STACK_0,&sa,&sa_size);
+  /* no GC after this point! */
+  buffer = (void*)TheSbvector(STACK_1)->data;
+  buffer_len = Sbvector_length(STACK_1);
+  SYSCALL(retval,sock,recvfrom(sock,buffer,buffer_len,flags,sa,&sa_size));
+  VALUES3(fixnum(retval),fixnum(sa_size),STACK_0); skipSTACK(3);
+}
+
+DEFUN(RAWSOCK:RECVMSG,socket message &key MSG_PEEK MSG_OOB MSG_WAITALL) {
+  int flags = recv_flags();
+  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  size_t size;
+  struct msghdr *message =
+    (struct msghdr*)check_struct_data(`RAWSOCK::MSGHDR`,STACK_0,&size);
+  SYSCALL(retval,sock,recvmsg(sock,message,flags));
+  VALUES1(fixnum(retval)); skipSTACK(2);
+}
+
+DEFUN(RAWSOCK:SOCK-READ,socket buffer) {
+  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  void *buffer;
+  size_t buffer_len;
+  STACK_0 = check_buffer_arg(STACK_0);
+  buffer = (void*)TheSbvector(STACK_1)->data;
+  buffer_len = Sbvector_length(STACK_1);
+  SYSCALL(retval,sock,read(sock,buffer,buffer_len));
+  VALUES1(fixnum(retval)); skipSTACK(2);
+}
+
+/* ================== SENDING ================== */
+
+/* remove 2 objects from the STACK and return the SEND flag
+   based on MSG_OOB MSG_EOR */
+int send_flags (void) {
+   int flags = 0
 #  if defined(MSG_EOR)
     | (missingp(STACK_0) ? 0 : MSG_EOR)
 #  endif
@@ -417,20 +582,62 @@ DEFUN(RAWSOCK:SENDTO, socket buffer address &key MSG_OOB MSG_EOR) {
     | (missingp(STACK_1) ? 0 : MSG_OOB)
 #  endif
     ;
-  int sock, retval;
-  struct sockaddr *sa;
+   skipSTACK(2);
+   return flags;
+}
+
+DEFUN(RAWSOCK:SEND,socket buffer &key MSG_OOB MSG_EOR) {
+  int flags = send_flags();
+  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
   void *buffer;
   size_t buffer_len;
-  skipSTACK(2);                 /* drop flags */
+  STACK_0 = check_buffer_arg(STACK_0);
+  buffer = (void*)TheSbvector(STACK_1)->data;
+  buffer_len = Sbvector_length(STACK_1);
+  SYSCALL(retval,sock,send(sock,buffer,buffer_len,flags));
+  VALUES1(fixnum(retval)); skipSTACK(2);
+}
+
+DEFUN(RAWSOCK:SENDMSG,socket message &key MSG_OOB MSG_EOR) {
+  int flags = send_flags();
+  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  size_t size;
+  struct msghdr *message =
+    (struct msghdr*)check_struct_data(`RAWSOCK::MSGHDR`,STACK_0,&size);
+  SYSCALL(retval,sock,sendmsg(sock,message,flags));
+  VALUES1(fixnum(retval)); skipSTACK(2);
+}
+
+DEFUN(RAWSOCK:SENDTO, socket buffer address &key MSG_OOB MSG_EOR) {
+  int flags = send_flags();
+  int sock = posfixnum_to_L(check_posfixnum(STACK_2)), retval;
+  struct sockaddr *sa;
+  void *buffer;
+  size_t buffer_len, size;
   STACK_1 = check_buffer_arg(STACK_1);
-  sa = (struct sockaddr*)check_struct_data(`RAWSOCK:SOCKADDR`,STACK_0);
+  sa = (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,STACK_0,&size);
   /* no GC after this point! */
   buffer = (void*)TheSbvector(STACK_1)->data;
-  buffer_len = vector_length(STACK_1);
-  sock = posfixnum_to_L(check_posfixnum(STACK_2));
+  buffer_len = Sbvector_length(STACK_1);
   SYSCALL(retval,sock,
           sendto(sock,buffer,buffer_len,flags,sa,sizeof(struct sockaddr)));
-  skipSTACK(2);
+  VALUES1(fixnum(retval)); skipSTACK(2);
+}
+
+DEFUN(RAWSOCK:SOCK-WRITE,socket buffer) {
+  int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
+  void *buffer;
+  size_t buffer_len;
+  STACK_0 = check_buffer_arg(STACK_0);
+  buffer = (void*)TheSbvector(STACK_1)->data;
+  buffer_len = Sbvector_length(STACK_1);
+  SYSCALL(retval,sock,write(sock,buffer,buffer_len));
+  VALUES1(fixnum(retval)); skipSTACK(2);
+}
+
+DEFUN(RAWSOCK:CLOSESOCK, socket) {
+  int sock = posfixnum_to_L(check_posfixnum(popSTACK())), retval;
+  SYSCALL(retval,sock,close(sock));
   VALUES1(fixnum(retval));
 }
 
@@ -447,7 +654,6 @@ DEFUN(RAWSOCK:SHUTDOWN, socket direction) {
   SYSCALL(retval,sock,shutdown(sock,how));
   VALUES1(fixnum(retval));
 }
-
 
 /* STACK_3 = name, for error reporting */
 static void configdev (int sock, char* name, int ipaddress, int flags) {

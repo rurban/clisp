@@ -6,4 +6,4 @@ NEW_FILES="${files}"
 NEW_LIBS="${files} @LIBS@"
 NEW_MODULES="rawsock"
 TO_LOAD='sock'
-TO_LOAD='preload.lisp'
+TO_PRELOAD='preload.lisp'
