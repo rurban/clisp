@@ -11330,7 +11330,25 @@ local bool maybe_executable (const char * filename) {
 # Return value is 0 if successful, -1 and errno set if not.
 global int find_executable (const char * program_name) {
   # Do not need to execute this more than once.
-  if (!(executable_name == NULL)) return 0;
+  if (executable_name != NULL) return 0;
+ #if defined(WIN32_NATIVE)
+  { /* try WIN32 API - this is not used because HAVE_DISASSEMBLER is UNIX-only,
+       but this is an illustration that win32 API can be sometimes useful */
+    LPTSTR cmdl = GetCommandLine();
+    /* cmdl is now the full command line and the first word is the
+       full correct executable path, quoted with "" if it contains spaces */
+    if (cmdl[0] == '"') {
+      int pos_end = strchr(cmdl+1,'"') - cmdl - 1;
+      strncpy(executable_name,cmdl+1,pos_end);
+      executable_name[pos_end] = 0;
+    } else {
+      int pos_end = strchr(cmdl,' ') - cmdl;
+      strncpy(executable_name,cmdl,pos_end);
+      executable_name[pos_end] = 0;
+    }
+    return 0;
+  }
+ #endif
  #ifdef UNIX_LINUX
   # The executable is accessible as /proc/<pid>/exe. We try this first
   # because it is safer: no race condition w.r.t. the file system. It may
