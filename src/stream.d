@@ -6353,7 +6353,7 @@ local const uintB* write_byte_array_buffered (object stream,
     ptr = buffered_nextbyte(stream,no_hang);
     if (ptr == (uintB*)NULL)
       goto eof_reached;
-    if (ptr < 0) return byteptr;
+    if (ptr == (uintB*)-1) return byteptr;
     var uintL endvalid = BufferedStream_endvalid(stream);
     var uintL next = # as many as still fit in the Buffer or until EOF
       endvalid - BufferedStream_index(stream); # > 0 !
