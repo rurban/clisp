@@ -1,3 +1,7 @@
+1999-04-22  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * macros2.lsp (space): Also print timing data, like TIME does.
+
 1999-04-27  Sam Steingold  <sds@goems.com>
 
 	* describe.lsp (describe): wrap `describe-object' in `unwind-protect'.

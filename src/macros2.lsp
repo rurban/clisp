@@ -413,8 +413,21 @@
   (let ((var1 (gensym))
         (var2 (gensym))
         (var3 (gensym))
-        (var4 (gensym)))
-    `(MULTIPLE-VALUE-BIND (,var1 ,var2 ,var3 ,var4) (%SPACE1)
+        (var4 (gensym))
+        (timevars1 (list (gensym) (gensym) (gensym) (gensym) (gensym) (gensym)
+                         (gensym) (gensym) (gensym)))
+        (timevars2 (list (gensym) (gensym) (gensym) (gensym) (gensym) (gensym)
+                         (gensym) (gensym) (gensym))))
+    (setq form
+          `(PROGN
+             (MULTIPLE-VALUE-SETQ ,timevars1 (%%TIME))
+             (UNWIND-PROTECT
+               ,form
+               (MULTIPLE-VALUE-SETQ ,timevars2 (%%TIME))
+           ) )
+    )
+    `(MULTIPLE-VALUE-BIND (,var1 ,var2 ,var3 ,var4 ,@timevars1 ,@timevars2)
+         (%SPACE1)
        (UNWIND-PROTECT
          (LET ((*GC-STATISTICS* (1+ (MAX *GC-STATISTICS* 0))))
            (UNWIND-PROTECT
@@ -422,6 +435,7 @@
              (SETQ ,var4 (%SPACE2))
          ) )
          (%SPACE ,var1 ,var2 ,var3 ,var4)
+         (%TIME ,@timevars2 ,@timevars1)
        ) ; Diese Konstruktion verbraucht zur Laufzeit nur Stackplatz!
        (VALUES-LIST ,var3)
      )
