@@ -1,3 +1,7 @@
+2004-08-30  Stefan Kain  <stefan.kain@freenet.de>
+
+	* debug.d: translated all comments
+
 2004-08-30  Sam Steingold  <sds@gnu.org>
 
 	* modules/bindings/amigaos: removed
