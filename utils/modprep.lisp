@@ -809,7 +809,7 @@ commas and parentheses."
 (defun modprep (*input-file* &optional (output (mod-file *input-file*)))
   (format t "~&;; ~S: ~S --> ~S~%" 'modprep *input-file* output)
   (with-open-file (in *input-file* :direction :input
-                      :external-format charset:utf-8)
+                      #+UNICODE :external-format #+UNICODE charset:utf-8)
     (format t ";; ~S: reading ~S: ~:D byte~:P, "
             'modprep *input-file* (file-length in))
     (force-output)
@@ -822,7 +822,7 @@ commas and parentheses."
           *emulation-count* (length *vardefs*) (length *varinits*)
           *module-all-packages*) ; should we write preload.lisp?
   (with-open-file (out output :direction :output :if-exists :supersede
-                       :external-format charset:utf-8)
+                       #+UNICODE :external-format #+UNICODE charset:utf-8)
     (output-all out *input-file* *lines*)
     (format t "~&~S: wrote ~S (~:D byte~:P)~&"
             'modprep output (file-length out))))
