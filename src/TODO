@@ -9,11 +9,6 @@ Even though the warnings are off by default now,
 the user who enables them will will report bug
 <http://sourceforge.net/tracker/index.php?func=detail&aid=945469&group_id=1355&atid=101355>
 
-Inefficiency of class redefinition when old or new class is unfinalizable
-
-support perseverances also on write side
-change wr_by_array_iau8_buffered to use persev instead of persev_full
-
 Passing --with-...-prefix=... configure argument to modules/.../configure
 <http://article.gmane.org/gmane.lisp.clisp.devel:13286>
 
@@ -31,6 +26,11 @@ MUST-FIX BEFORE RELEASE 2.35
 
 Many pretty-printer test failures.
 (Sam - but Bruno has to fix the risky-test in iofkts.tst first)
+
+Inefficiency of class redefinition when old or new class is unfinalizable
+
+support perseverances also on write side
+change wr_by_array_iau8_buffered to use persev instead of persev_full
 
 
 URGENT PROBLEMS
