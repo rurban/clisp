@@ -27,19 +27,19 @@
 #endif
 
 # The allocated memory blocks are a linked list.
-typedef struct malloca_header {
-  struct malloca_header * next;
+typedef struct malloca_header_t {
+  struct malloca_header_t * next;
   oint usable_memory[unspecified]; # "oint" forces alignment
-} malloca_header;
+} malloca_header_t;
 
 # Linked list of blocks, the most recent in front, the oldest at the end.
-  local malloca_header* malloca_list = NULL;
+  local malloca_header_t* malloca_list = NULL;
 
   global void* malloca (size_t size);
   global void* malloca(size)
     var size_t size;
     {
-      var malloca_header* ptr = (malloca_header*)malloc(offsetofa(malloca_header,usable_memory) + size);
+      var malloca_header_t* ptr = (malloca_header_t*)malloc(offsetofa(malloca_header_t,usable_memory) + size);
       if (!(ptr == NULL)) {
         ptr->next = malloca_list;
         malloca_list = ptr;
@@ -58,11 +58,11 @@ typedef struct malloca_header {
   global void freea(address)
     var void* address;
     {
-      var malloca_header* ptr = (malloca_header*)
-        ((aint)address - offsetofa(malloca_header,usable_memory));
-      var malloca_header* p = malloca_list;
+      var malloca_header_t* ptr = (malloca_header_t*)
+        ((aint)address - offsetofa(malloca_header_t,usable_memory));
+      var malloca_header_t* p = malloca_list;
       loop {
-        var malloca_header* n = p->next;
+        var malloca_header_t* n = p->next;
         free(p);
         if (!(p == ptr)) {
           p = n;
