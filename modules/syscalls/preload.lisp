@@ -1,1 +1,1 @@
-(make-package "POSIX")
+(make-package "POSIX" :nicknames '("OS"))
