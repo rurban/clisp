@@ -12198,7 +12198,8 @@ extern BOOL real_path (LPCSTR namein, LPSTR nameout);
 # ##################### PATHBIBL for PATHNAME.D ############################ #
 
 /* Check that the namestring for path will be parsed into a similar object
- used by pr_orecord() in io.d */
+ used by pr_orecord() in io.d
+ can trigger GC */
 extern bool namestring_correctly_parseable_p (gcv_object_t *path_);
 
 # UP: Gives the directory-namestring in OS-format of a halfway checked

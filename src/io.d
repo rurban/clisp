@@ -8563,8 +8563,8 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
       # call (NAMESTRING pathname)
       pushSTACK(obj); funcall(L(namestring),1); obj = value1;
       ASSERT(stringp(obj));
+      pushSTACK(obj); # string
       if (!nullpSv(print_readably) && nullpSv(print_pathnames_ansi)) {
-        pushSTACK(obj); # string
         var gcv_object_t* obj_ = &STACK_0;
         var bool not_compiling = nullpSv(compiling);
         if (not_compiling) {
@@ -8591,19 +8591,17 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
         pr_record_descr(stream_,*(obj_ STACKop 1),S(pathname),true,
                         O(pathname_slotlist));
         if (not_compiling) { JUSTIFY_END_FILL; JUSTIFY_END_FILL; }
-        skipSTACK(1);
       } else {
         if (!nullpSv(print_readably)
-            && !namestring_correctly_parseable_p(&STACK_0))
-          fehler_print_readably(STACK_0);
-        STACK_0 = obj;          /* String */
+            && !namestring_correctly_parseable_p(&STACK_1))
+          fehler_print_readably(STACK_1);
         if (!nullpSv(print_escape) || !nullpSv(print_readably)) {
           # print "#P"
           write_ascii_char(stream_,'#'); write_ascii_char(stream_,'P');
         }
         pr_string(stream_,STACK_0); # print the string
       }
-      skipSTACK(1);
+      skipSTACK(2);
      #endif
       break;
    #ifdef LOGICAL_PATHNAMES
