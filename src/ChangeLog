@@ -1,3 +1,9 @@
+2005-04-01  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (POSIX:SET-FILE-STAT):
+	use I_to_UL() instead for I_to_L() for time conversion
+	Reported by Aurelio Bignoli <clisp@bignoli.it>
+
 2005-03-29  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/posix.lisp (getpgid, setpgrp, getsid, setsid, kill):
