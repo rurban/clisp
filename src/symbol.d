@@ -83,12 +83,7 @@ LISPFUNN(putd,2)
     elif (consp(fun) && eq(Car(fun),S(lambda))) { # eine Lambda-Expression?
       fehler_lambda_expression(fun);
     }
-    pushSTACK(fun); # TYPE-ERROR slot DATUM
-    pushSTACK(S(function)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(fun);
-    fehler(type_error,
-           GETTEXT("SETF SYMBOL-FUNCTION: ~ is not a function")
-          );
+    fehler_function(fun);
    ok: # fun korrekt, in die Funktionszelle stecken:
     VALUES1(popSTACK()); /* return function-Argument */
     Symbol_function(popSTACK()) = fun;
