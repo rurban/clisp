@@ -2078,7 +2078,7 @@ global bool typep_class (object obj, object clas) {
         return !eq(gethash(clas,superclasses_table),nullobj);
       /* Few superclasses -> not worth a hash table access. */
     } else {
-      /* <structure-class> or <built-in-class>. */
+      /* <structure-class>. */
       /* There are few superclasses. Not worth a hash table access. */
     }
   }
@@ -2118,7 +2118,7 @@ global bool typep_classname (object obj, object classname) {
        Is (class-current-version class) a vector, or is (class-names class)
        a cons? */
     if (matomp(TheClass(objclass)->current_version)) {
-      /* <semi-standard-class> or <built-in-class>. */
+      /* <semi-standard-class>. */
       if (nullp(TheClass(objclass)->precedence_list)) /* not yet finalized? */
         NOTREACHED; /* shouldn't happen because obj is already an instance */
       var object superclasses_table = TheClass(objclass)->all_superclasses;
