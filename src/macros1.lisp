@@ -257,7 +257,7 @@
   `(LET () ,@body))
 
 (defun case-expand (form-name test keyform clauses)
-  (let ((var (gensym (concat-strings (symbol-name form-name) "-KEY-"))))
+  (let ((var (gensym (string-concat (symbol-name form-name) "-KEY-"))))
     `(let ((,var ,keyform))
       (cond
         ,@(maplist
