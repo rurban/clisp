@@ -1,5 +1,9 @@
 2001-06-09  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (OS_error): [macro]: use asciz_out_1()
+
+2001-06-09  Sam Steingold  <sds@gnu.org>
+
 	* install.lisp: create CLISP.BAT on desktop
 
 2001-06-08  Bruno Haible  <haible@clisp.cons.org>
