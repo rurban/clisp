@@ -4183,6 +4183,37 @@ sorry:
   fehler (error, "Sorry, my implementation of XLIB:PUT-IMAGE is still not complete.");
 }
 
+#if defined(DEBUG_CLX)
+/* from Barry Fishman <barry_fishman@att.net>
+   http://article.gmane.org/gmane.lisp.clisp.general/7587  */
+void dump_image (XImage *image)
+{ /* test function to print the contents of the bitmap */
+  char *row;
+  int x, y;
+  int height = image->height;
+  int width  = image->width;
+  int line_len = image->bytes_per_line;
+
+  printf("\n;; Image (%s) %dx%dx%d, bpl= %d, pad= %d:\n",
+         ((char*[]){"bitmap","xy-pixmap","z-pixmap"})[image->format],
+         width,height,image->depth,line_len,image->bitmap_pad);
+  for (y = 0; y < height; y++) {
+    printf(";|");
+    row = image->data + y * line_len;
+    for (x = 0; x < width; x++) {
+      if (row[x / 8] & (1 << (x % 8)))
+        printf("*");
+      else
+        printf(" ");
+    }
+    printf("|\n");
+  }
+}
+#define DUMP_IMAGE(im) dump_image(im)
+#else
+#define DUMP_IMAGE(im)
+#endif
+
 DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
       &key SRC-X SRC-Y X Y WIDTH HEIGHT BITMAP-P)
 { /* This is a *VERY* silly implementation.
@@ -4253,11 +4284,8 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
       fehler (error, "~: Slot :DATA of x-image ~ is not of type ~.");
     }
 
-    dprintf (("\n;; put-image: IMAGE-X  %dx%dx%d, fmt= %s, bpl= %d, pad= %d -> %dx%d+%d+%d",
-              im.width,im.height,im.depth,
-              ((char*[]){"bitmap","xy-pixmap","z-pixmap"})[im.format],
-              im.bytes_per_line, im.bitmap_pad,
-              w,h,x,y));
+    dprintf(("\n;; put-image: IMAGE-X -> %dx%d+%d+%d",w,h,x,y));
+    DUMP_IMAGE(&im);
 
     begin_x_call();
     XPutImage (dpy, drawable, gcontext, &im, src_x, src_y, x,y,w,h);
