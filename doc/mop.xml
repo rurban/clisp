@@ -4613,7 +4613,7 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
 <section id="mop-meth-comb-inheritance">
  <title>Inheritance Structure of &mcmo; Classes</title>
 <figure id="mop-meth-comb-inheritance-fig">
- <title>Inheritance Structure of meth-comb MO Classes</title>
+ <title>Inheritance Structure of Method Combination Metaobject Classes</title>
  <mediaobject><imageobject>
    <imagedata width="100%" scalefit="1" fileref="mop-classes-methcomb.png"/>
 </imageobject></mediaobject></figure>
