@@ -1,3 +1,34 @@
+1999-01-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * pathname.d (host_match): Treat muster=NIL as wild.
+          (device_match): Likewise.
+          (nametype_match_aux): Renamed from nametype_match.
+          (subdir_match): Adjust.
+          (directory_match): Treat muster=(:RELATIVE) as wild.
+          (nametype_match): New function.
+          (version_match): Treat muster=NIL as wild.
+          (host_diff): Treat muster=NIL as wild.
+          (device_diff): Likewise. Produce NIL instead of "".
+          (nametype_diff_aux): Renamed from nametype_diff. Produce NIL instead
+          of "".
+          (subdir_diff): Adjust. Produce NIL instead of "".
+          (directory_diff_ab): Produces lists prefixed with :DIRECTORY.
+          (directory_diff): Treat muster=(:RELATIVE) as wild.
+          (nametype_diff): New function.
+          (version_diff): Treat muster=NIL as wild. Always produce a result.
+          Produce NIL instead of "".
+          (translate_host): Treat muster=NIL as wild.
+          (translate_device): Likewise. Accept NIL instead of "".
+          (translate_nametype_aux): Renamed from translate_nametype. Accept
+          NIL instead of "".
+          (translate_subdir): Adjust.
+          (translate_directory): Treat muster=(:RELATIVE) as wild. Accept
+          lists prefixed with :DIRECTORY.
+          (translate_nametype): New function.
+          (translate_version): Treat muster=NIL as wild. Accept NIL instead of
+          "". Always consume an item.
+        * defs1.lsp (set-logical-pathname-translations for SYS): Simplify.
+
 1998-11-22  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d (STRM_WR_SS): Assume to be 1.
