@@ -1,3 +1,19 @@
+1999-12-21  Sam Steingold  <sds@gnu.org>
+
+	* posixmath.d: new file; erf(3m), bessel(3m) and gamma(3m)
+	are now accessible in the package POSIX with --export-syscalls.
+	* makemake.in, gettext/po/Makefile.devel: added `posixmath'.
+	* lisparit.d: include posixmath.c.
+	* subr.d, eval.d, constsymb.d: added the functions.
+	* constobj.d, package.d (init_packages), spvw.d
+	(init_symbol_tab_2): added package POSIX.
+	* socket.d (resolve_host_ipaddr): moved to POSIX.
+	* pathname.d (file_stat, user_data): ditto.
+	* compiler.lsp (c-DIRECT-FUNCTION-CALL): mention the arithmetic
+	functions.
+	(*deprecated-functions-list*): do not deprecate functions in POSIX.
+	* init.lsp: export the functions from POSIX.
+
 1999-12-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * stream.d (iconv_wcslen): At the end, call iconv with NULL input.

@@ -923,7 +923,7 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 
 # Lisp interface to gethostbyname(3) and gethostbyaddr(3)
 LISPFUN(resolve_host_ipaddr,0,1,norest,nokey,0,NIL)
-# (LISP:RESOLVE-HOST-IPADDR &optional host)
+# (POSIX:RESOLVE-HOST-IPADDR &optional host)
 {
   var object arg = popSTACK();
   var struct hostent *he = NULL;
