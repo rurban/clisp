@@ -40,7 +40,7 @@
 <para>The language &clisp; uses to communicate with the user can be
  either <function>ENGLISH</function> or <function>DEUTSCH</function>
  (i.e., German) or <function>FRANCAIS</function> (i.e., French) or
- <function>ESPA&Ntilde;OL</function> (i.e.  Spanish).  More languages
+ <function>ESPA&Ntilde;OL</function> (i.e., Spanish).  More languages
  can be defined through the macro <emphasis
  role="strong"><function>i18n:deflanguage</function></emphasis>:
  <literal role="sexp">(<function>i18n:deflanguage</function>
@@ -3828,7 +3828,7 @@ input will be available.</para>
 
 <screen>
 bash# echo ":CLISP:E::fas::/usr/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/register
-bash# echo ":CLISP:E::lsp::/usr/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/register
+bash# echo ":CLISP:E::lisp::/usr/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/register
 </screen></para>
 
 <para>Then you can do the following:
@@ -4135,7 +4135,7 @@ bash$
 
 <para>When &clisp; is configured with an option
  <option>--with-dir-key</option>, some directory access is available
- from lisp, in package <quote>LISP</quote>.  3 types of directory keys
+ from lisp, in package &ldap-pac;.  3 types of directory keys
  may exist, depending on the compilation environment.</para>
 
 <variablelist id="dir-key-type"><title>valid directory key types</title>
@@ -4147,7 +4147,7 @@ bash$
   </simpara></listitem></varlistentry>
  <varlistentry><term>:ldap</term>
   <listitem><simpara>LDAP interface via
-   <ulink url='http://www.openldap.org'>OpenLDAP</ulink>.
+   <ulink url="http://www.openldap.org">OpenLDAP</ulink>.
   </simpara></listitem></varlistentry>
 </variablelist>
 
