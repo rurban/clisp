@@ -586,7 +586,11 @@ abort continue muffle-warning store-value use-value
                            'handler-case clause))
           (when (eq (first clause) ':no-error)
             (if (null no-error-clause)
-              (progn (setq no-error-clause clause) (return-from check-clause))
+              (progn (setq no-error-clause clause)
+                     ;;(when clauses
+                     ;;  (warn (ENGLISH "~S: ~S is not the last clause: ~S")
+                     ;;        'handler-case ':no-error clause))
+                     (return-from check-clause))
               (warn (ENGLISH "~S: multiple ~S clauses: ~S and ~S")
                     'handler-case ':no-error clause no-error-clause)))
           (let ((varlist (second clause))) ; known to be a list
