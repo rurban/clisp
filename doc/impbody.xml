@@ -1281,19 +1281,26 @@ performance considerations.
   <literal>1.700001f0</literal> if there were rounding errors).
   </simpara></listitem></varlistentry>
 <varlistentry><term>Experience:</term>
- <listitem><simpara>If in a computation using thousands of short floats,
-  a long float (like &pi-v;) happens to be used, the long precision should
-  not propagate throughout all the intermediate values. Otherwise, the
-  long result would look precise, but its accuracy is only that of a
-  short float; furthermore much computation time would be lost by
-  calculating with long floats when only short floats would be needed.
+ <listitem><simpara>If in a computation using thousands of &short-float-t;s,
+  a &long-float-t; (like &pi-v;) happens to be used, the long precision
+  should not propagate throughout all the intermediate values.
+  Otherwise, the long result would look precise, but its accuracy is
+  only that of a &short-float-t;; furthermore much computation time
+  would be lost by calculating with &long-float-t;s when only
+  &short-float-t;s would be needed.
   </simpara></listitem></varlistentry>
 </variablelist>
 
 <formalpara id="warn-fpc"><title>Variable &warn-fpc;</title>
 <para>If the variable &warn-fpc; is non-&nil;, a warning is emitted for
  every coercion involving different floating-point types.
-</para></formalpara>
+ As explained above, float precision contagion is not a good idea,
+ this is why &warn-fpc; is set to &t; initially.
+ You can avoid the contagion by doing all your computations with the
+ same floating-point type (and using &float; to convert all constants,
+ e.g., &pi-v; to your preferred type).
+ Set it to &error; to have &clisp; &signal; an &error-t; on float
+ precision contagion.</para></formalpara>
 
 </section>
 </section>
