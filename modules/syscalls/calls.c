@@ -1028,38 +1028,16 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
 #endif  /* chmod chown utime */
 
 /* <http://www.opengroup.org/onlinepubs/009695399/basedefs/sys/stat.h.html> */
-DEFCHECKER(check_chmod_mode,prefix=S_,default=, SUID SGID SVTX          \
+DEFCHECKER(check_chmod_mode,prefix=S,default=, bitmasks=both, SUID SGID SVTX \
            RWXU RUSR WUSR XUSR RWXG RGRP WGRP XGRP RWXO ROTH WOTH XOTH)
 
 DEFUN(POSIX::CONVERT-MODE, mode)
 { /* convert between symbolic and numeric permissions */
- convert_mode_restart:
-  if (posfixnump(STACK_0)) {
-    mode_t mode = posfixnum_to_L(check_posfixnum(popSTACK()));
-    int count = 0;
-    unsigned int index;
-    for (index = 0; index < check_chmod_mode_table_size; index++) {
-      unsigned int c_const = check_chmod_mode_table[index].c_const;
-      if (c_const == (mode & c_const)) {
-        pushSTACK(*check_chmod_mode_table[index].l_const);
-        count++;
-        mode &= ~c_const;       /* clear this bit */
-      }
-    }
-    if (mode) {                 /* not all bits have been accounted for */
-      pushSTACK(fixnum(mode));
-      count++;
-    }
-    VALUES1(listof(count));
-  } else if (listp(STACK_0)) {
-    mode_t mode = 0;
-    while (consp(STACK_0)) {
-      mode |= check_chmod_mode(Car(STACK_0));
-      STACK_0 = Cdr(STACK_0);
-    }
-    skipSTACK(1);               /* drop the argument */
-    VALUES1(fixnum(mode));
-  } else VALUES1(fixnum(check_chmod_mode(popSTACK())));
+  if (posfixnump(STACK_0))
+    VALUES1(check_chmod_mode_to_list(posfixnum_to_L(check_posfixnum(popSTACK()))));
+  else if (listp(STACK_0))
+    VALUES1(fixnum(check_chmod_mode_from_list(popSTACK())));
+  else VALUES1(fixnum(check_chmod_mode(popSTACK())));
 }
 
 #if defined(HAVE_UMASK)
