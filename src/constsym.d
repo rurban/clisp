@@ -1040,6 +1040,7 @@ LISPSYM(Kload_toplevel,"LOAD-TOPLEVEL",keyword)
 LISPSYM(Keof,"EOF",keyword)
 LISPSYM(Kinput_available,"INPUT-AVAILABLE",keyword)
 LISPSYM(Kwait,"WAIT",keyword)
+LISPSYM(Kline_position,"LINE-POSITION",keyword)
 #ifdef REXX
 LISPSYM(Kresult,"RESULT",keyword)
 LISPSYM(Kstring,"STRING",keyword)

@@ -1,5 +1,15 @@
 1998-10-31  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (MAKE-STRING-OUTPUT-STREAM): Replace optional argument by
+          keyword arguments :ELEMENT-TYPE and :LINE-POSITION.
+        * compiler.lsp (subr-info): Update for MAKE-STRING-OUTPUT-STREAM.
+        * format.lsp (format-case-conversion, format-justification,
+          formatter-main-1): Pass keywords to MAKE-STRING-OUTPUT-STREAM.
+        * macros2.lsp (with-output-to-string): Add keyword argument
+          :ELEMENT-TYPE.
+
+1998-10-31  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * charstrg.d (MAKE-STRING): Add keyword argument :ELEMENT-TYPE.
         * compiler.lsp (subr-info): Update for MAKE-STRING.
 

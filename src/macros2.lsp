@@ -483,16 +483,16 @@
 ) )
 ;-------------------------------------------------------------------------------
 (defmacro with-output-to-string
-    ((var &optional (string nil)) &body body &environment env)
+    ((var &optional (string nil) &key element-type) &body body &environment env)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body nil env)
     (if string
       `(LET ((,var (SYS::MAKE-STRING-PUSH-STREAM ,string)))
          (DECLARE (READ-ONLY ,var) ,@declarations)
          (UNWIND-PROTECT
-           (PROGN ,@body-rest)
+           (PROGN ,element-type ,@(or body-rest '(NIL)))
            (CLOSE ,var)
        ) )
-      `(LET ((,var (MAKE-STRING-OUTPUT-STREAM)))
+      `(LET ((,var (MAKE-STRING-OUTPUT-STREAM :ELEMENT-TYPE ,element-type)))
          ,@declarations
          (UNWIND-PROTECT
            (PROGN ,@body-rest (GET-OUTPUT-STREAM-STRING ,var))
