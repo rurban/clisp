@@ -403,8 +403,9 @@ local void gc_mark (object obj)
       case_subr: /* SUBR */
         up_subr();
       case_sstring: /* simple-string */
-        if (sstring_reallocatedp(TheSstring(vorg))) {
-          up_sistring();
+        { var object vorg_ = objectplus(vorg,-(soint)sistring_data_offset<<(oint_addr_shift-addr_shift));
+          if (sstring_reallocatedp(TheSstring(vorg_)))
+            up_sistring();
         }
         /*FALLTHROUGH*/
       case_machine: /* maschine address */
