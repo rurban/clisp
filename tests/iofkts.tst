@@ -1,4 +1,4 @@
-;; -*- mode: Lisp; write-file-hooks: nil -*-
+;; -*- mode: Lisp -*-
 ;;****************************************************************************
 ;;*      Test the I/O functions                                              *
 ;;****************************************************************************
@@ -6,9 +6,8 @@
 (PROGN (IN-PACKAGE "USER") T)
 T
 
-;--- let test ------------------------------------------------------------------
-; ewiger compiler-fehler
-;
+;;--- let test ---------------------------------------------------------------
+;; always compiler error
 
 (progn (setq bs (make-broadcast-stream)) t)
 T
@@ -22,9 +21,8 @@ T
 #+XCL *cur-broadcast-stream*
 #+XCL NIL
 
-;-------------------------------------------------------------------------------
-; Unread test mit structure-stream
-;
+;;----------------------------------------------------------------------------
+;; Unread test with structure-stream
 
 (SETQ STR1 "test 123456")   "test 123456"
 
@@ -56,8 +54,7 @@ T
 
 STR1   "test 123456"
 
-
-;-------------------------------------------------------------------------------
+;;----------------------------------------------------------------------------
 
 (MULTIPLE-VALUE-LIST (PARSE-INTEGER "abc"))
 ERROR
@@ -393,7 +390,8 @@ T
 ASK
 
 (ASK)
-((DRESDEN FRANKFURT BONN MUENCHEN) NIL (KARL LUISE DIETER ALDO) "--- reset ---")
+((DRESDEN FRANKFURT BONN MUENCHEN) NIL (KARL LUISE DIETER ALDO)
+ "--- reset ---")
 
 (SETQ STRING1 "Das ist ein Teststring")
 "Das ist ein Teststring"
@@ -518,7 +516,8 @@ IMAL
 J
 7
 
-(WITH-INPUT-FROM-STRING (S "animal crackers" :INDEX J :START 0 :END 6) (READ S))
+(WITH-INPUT-FROM-STRING (S "animal crackers" :INDEX J :START 0 :END 6)
+  (READ S))
 ANIMAL
 
 J
@@ -537,12 +536,14 @@ ERROR
 J
 7
 
-(WITH-INPUT-FROM-STRING (S "animal crackers" :INDEX J :START 6 :END
-20) (READ S))
-#+XCL CRACKERS #+(or CLISP AKCL ECL ALLEGRO) ERROR #-(or XCL CLISP AKCL ECL ALLEGRO) UNKNOWN
+(WITH-INPUT-FROM-STRING (S "animal crackers" :INDEX J :START 6 :END 20)
+  (READ S))
+#+XCL CRACKERS #+(or CLISP AKCL ECL ALLEGRO) ERROR
+#-(or XCL CLISP AKCL ECL ALLEGRO) UNKNOWN
 
 J
-#+XCL 20 #+(or CLISP AKCL ECL ALLEGRO) 7 #-(or XCL CLISP AKCL ECL ALLEGRO) UNKNOWN
+#+XCL 20 #+(or CLISP AKCL ECL ALLEGRO) 7
+#-(or XCL CLISP AKCL ECL ALLEGRO) UNKNOWN
 
 (SETQ A "Das ist wieder einmal einer der SUUPERTESTstrings.")
 "Das ist wieder einmal einer der SUUPERTESTstrings."
@@ -600,8 +601,8 @@ ERROR
 "
 XXX "
 
-(SETQ A (MAKE-ARRAY 10 :ELEMENT-TYPE (QUOTE #-CMU STRING-CHAR #+CMU CHARACTER) :FILL-POINTER
-0))
+(SETQ A (MAKE-ARRAY 10 :ELEMENT-TYPE (QUOTE #-CMU STRING-CHAR #+CMU CHARACTER)
+                    :FILL-POINTER 0))
 ""
 
 (WITH-OUTPUT-TO-STRING (S A) (PRINC 123 S))
@@ -629,8 +630,8 @@ A
 "1234567890"
 
 (SETQ A
-(MAKE-ARRAY 10 :ELEMENT-TYPE (QUOTE #-CMU STRING-CHAR #+CMU CHARACTER) :FILL-POINTER 0 :ADJUSTABLE
-T))
+      (MAKE-ARRAY 10 :ELEMENT-TYPE (QUOTE #-CMU STRING-CHAR #+CMU CHARACTER)
+                  :FILL-POINTER 0 :ADJUSTABLE T))
 ""
 
 (WITH-OUTPUT-TO-STRING (S A) (PRINC 123 S))
@@ -683,3 +684,8 @@ T
   (string= st (symbol-name (read-from-string
                             (prin1-to-string (make-symbol st))))))
 t
+
+;; local variables:
+;; eval: (make-local-variable 'write-file-functions)
+;; eval: (remove-hook 'write-file-functions 'delete-trailing-whitespace t)
+;; end:
