@@ -1,3 +1,11 @@
+2004-03-12  Bruno Haible  <bruno@clisp.org>
+
+	* modules/pcre/cpcre.c: Remove semicolon after DEFMODULE declaration.
+	* modules/regexp/regexi.c: Likewise.
+	* modules/dirkey/dirkey.c: Likewise.
+	* modules/syscalls/calls.c: Likewise.
+	* modules/berkeley-db/bdb.c: Likewise.
+
 2004-03-12  Sam Steingold  <sds@gnu.org>
 
 	* configure.in (AC_INIT): pre-release 2.32.93

@@ -27,7 +27,7 @@
 # include <string.h>            /* for memcpy(3) */
 #endif
 
-DEFMODULE(pcre,"PCRE");
+DEFMODULE(pcre,"PCRE")
 
 DEFUN(PCRE::PCRE-VERSION,)
 { VALUES3(asciz_to_string(pcre_version(),GLO(misc_encoding)),

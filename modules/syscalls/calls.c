@@ -62,7 +62,7 @@ extern object nobject_out (FILE* stream, object obj);
 # define XOUT(o,l)
 #endif
 
-DEFMODULE(syscalls,"POSIX");
+DEFMODULE(syscalls,"POSIX")
 
 #if defined(HAVE_FCNTL) || defined(WIN32_NATIVE)
 /* we use posix fcntl() on unix and win32 LockFileEx() on win32.
