@@ -30,7 +30,9 @@
 #ifdef MULTITHREAD
   #ifdef HAVE_MEMSET
     #include <string.h>
-    extern_C RETMEMSETTYPE memset (void* ptr, int c, size_t len); # siehe MEMORY(3)
+    #ifndef memset
+      extern_C RETMEMSETTYPE memset (void* ptr, int c, size_t len); # siehe MEMORY(3)
+    #endif
     #define bzero(ptr,len)  memset(ptr,0,len)
     #define bcopy(source,dest,len)  memcpy(dest,source,len)
   #else

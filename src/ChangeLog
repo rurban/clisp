@@ -1,3 +1,9 @@
+1999-01-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * unix.d: Don't declare memset if it's a macro.
+        * spvw.d: Likewise.
+        * socket.d: Likewise.
+
 1999-01-07  Sam Steingold  <sds@goems.com>
 
 	* bindings/linuxlibc6/linux.lsp: commented out *gammaf?_*.
