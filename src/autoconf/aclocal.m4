@@ -1281,13 +1281,20 @@ AC_DEFINE(HAVE_ALLOCA_H))dnl
 decl="#ifdef __GNUC__
 #define alloca __builtin_alloca
 #else
+#ifdef _MSC_VER
+#include <malloc.h>
+#define alloca _alloca
+#else
 #ifdef HAVE_ALLOCA_H
 #include <alloca.h>
 #else
 #ifdef _AIX
  #pragma alloca
 #else
+#ifndef alloca
 char *alloca ();
+#endif
+#endif
 #endif
 #endif
 #endif
@@ -1300,7 +1307,7 @@ if test -n "$alloca_missing"; then
   # that cause trouble.  Some versions do not even contain alloca or
   # contain a buggy version.  If you still want to use their alloca,
   # use ar to extract alloca.o from them instead of compiling alloca.c.
-  ALLOCA=alloca.o
+  ALLOCA=alloca.${ac_objext}
   AC_DEFINE(NO_ALLOCA)
 fi
 AC_SUBST(ALLOCA)dnl

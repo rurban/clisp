@@ -1,3 +1,12 @@
+1999-01-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * acgeneral.m4, acspecific.m4: Upgrade to autoconf-2.13.
+        * config.guess, config.sub: Likewise.
+        * aclocal.m4 (CL_ALLOCA): Test for _MSC_VER and alloca being a macro.
+          Use ${ac_objext}.
+        * lispbibl.d (alloca): Put _MSC_VER test before the others, conforming
+          with CL_ALLOCA.
+
 1999-01-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * spvw.d (copyright_notice): Use a long string, because gcc stores an

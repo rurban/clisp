@@ -1017,6 +1017,9 @@
 # alloca()
   #if defined(GNU) && !defined(RISCOS) && !defined(CONVEX)
     #define alloca  __builtin_alloca
+  #elif defined(MICROSOFT)
+    #include <malloc.h>
+    #define alloca _alloca
   #elif defined(HAVE_ALLOCA_H) || defined(RISCOS)
     #include <alloca.h>
     #ifndef alloca # Manche definieren 'alloca' als Macro...
@@ -1030,9 +1033,6 @@
     #pragma alloca /* AIX requires this to be the first thing in the file. */
   #elif defined(WATCOM) || defined(BORLAND)
     #include <malloc.h> # definiert 'alloca' als Macro
-  #elif defined(MICROSOFT)
-    #include <malloc.h>
-    #define alloca _alloca
   #elif !defined(NO_ALLOCA)
     extern_C void* alloca (int size); # siehe MALLOC(3V)
   #endif
