@@ -1,0 +1,148 @@
+/*
+ * Finding the full path of the executable.
+ * Bruno Haible 20.12.1994
+ * Sam Steingold 2004-2005
+ */
+
+/* This assumes that the executable is not removed or renamed while
+   running. */
+
+/* file name of the executable */
+static char* executable_name = NULL;
+#ifdef UNIX_CYGWIN32
+/* note that up and including win2000, detaching from a process kills it
+ <http://article.gmane.org/gmane.os.cygwin/32245>
+ <http://article.gmane.org/gmane.os.cygwin/32246>
+ <http://article.gmane.org/gmane.os.cygwin/32250> */
+#define default_executable_name  "lisp.exe"
+#else
+#define default_executable_name  "lisp.run"
+#endif
+
+/* file descriptor of the executable
+ (Only used to verify that we find the correct executable.) */
+static int executable_fd = -1;
+
+#if defined(UNIX)
+/* maybe_executable(pathname)
+ checks whether a given pathname may belong to the executable. */
+static int maybe_executable (const char * filename) {
+  struct stat statexe;
+  struct stat statfile;
+  if (access(filename,R_OK|X_OK) < 0)
+    return false;
+  if (executable_fd < 0)
+    return true;
+  /* If we already have an executable_fd, check that filename points to
+   the same inode. */
+  if (fstat(executable_fd,&statexe) < 0)
+    return true;
+  if (stat(filename,&statfile) < 0)
+    return false;
+  if (statfile.st_dev
+      && statfile.st_dev == statexe.st_dev
+      && statfile.st_ino == statexe.st_ino)
+    return true;
+  return false;
+}
+#endif
+
+/* find_executable(program_name)
+ is to be called immediately after the program starts,
+ with program_name = argv[0],
+ before any chdir() operation and before any setenv("PATH",...).
+ It determines the full program path and opens a file descriptor to
+ the executable, for later use.
+ Return value is 0 if successful, -1 and errno set if not. */
+int find_executable (const char * program_name) {
+  /* Do not need to execute this more than once. */
+  if (executable_name != NULL) return 0;
+#if defined(WIN32_NATIVE)
+  { /* try WIN32 API - this is not used because HAVE_DISASSEMBLER is UNIX-only,
+       but this is an illustration that win32 API can be sometimes useful */
+    char execname[MAX_PATH];
+    if (!GetModuleFileName(NULL,execname,MAX_PATH))
+      goto notfound;
+    executable_name = malloc(strlen(execname)+1);
+    strcpy(executable_name,execname);
+    return 0;
+  }
+#elif defined(UNIX)
+ #if defined(UNIX_LINUX) || defined(UNIX_CYGWIN32)
+  { /* The executable is accessible as /proc/<pid>/exe. We try this first
+   because it is safer: no race condition w.r.t. the file system. It may
+   fail, however, if the user has not compiled /proc support into his
+   kernel. */
+    char buf[6+10+5];
+    int fd;
+    sprintf(buf,"/proc/%d/exe",getpid());
+    fd = open(buf,O_RDONLY,my_open_mask);
+    if (fd >= 0)
+      executable_fd = fd;
+  }
+ #endif
+  /* Now we guess the executable's full path. We assume the executable
+   has been called via execlp() or execvp() with properly set up argv[0].
+   The login(1) convention to add a '-' prefix to argv[0] is not supported. */
+  bool has_slash = false;
+  {
+    const char * p;
+    for (p = program_name; *p; p++)
+      if (*p == '/') {
+        has_slash = true; break;
+      }
+  }
+  if (!has_slash) {
+    /* exec searches paths without slashes in the directory list given
+     by $PATH. */
+    const char * path = getenv("PATH");
+    if (!(path==NULL)) {
+      const char * p;
+      const char * p_next;
+      for (p = path; *p; p = p_next) {
+        const char * q;
+        uintL p_len;
+        for (q = p; *q; q++) { if (*q == ':') break; }
+        p_len = q-p; p_next = (*q=='\0' ? q : q+1);
+        { /* We have a path item at p, of length p_len.
+             Now concatenate the path item and program_name. */
+          char * concat_name =
+            (char*) malloc(p_len + strlen(program_name) + 2);
+          if (concat_name == NULL) { errno = ENOMEM; goto notfound; }
+          if (p_len == 0) {
+            /* empty PATH element designates the current directory */
+            strcpy(concat_name,program_name);
+          } else {
+            memcpy(concat_name, p, p_len);
+            concat_name[p_len] = '/';
+            strcpy(concat_name+p_len+1, program_name);
+          }
+          if (maybe_executable(concat_name)) {
+            /* Assume we have found the executable */
+            program_name = concat_name; goto resolve;
+          }
+          free(concat_name);
+        }
+      }
+    }
+    /* Not found in the PATH, assume the current directory. */
+  }
+  /* exec treats paths containing slashes as relative to the current
+     directory */
+  if (maybe_executable(program_name)) {
+   resolve:
+    /* resolve program_name: */
+    executable_name = (char*) malloc(MAXPATHLEN);
+    if (executable_name == NULL) { errno = ENOMEM; goto notfound; }
+    if (realpath(program_name,executable_name) == NULL) {
+      free(executable_name); goto notfound;
+    }
+    return 0;
+  }
+  errno = ENOENT;
+#else
+  #error "not implemented: find_executable()"
+#endif
+ notfound:
+  executable_name = default_executable_name; return -1;
+}
