@@ -1,5 +1,11 @@
 2005-03-16  Sam Steingold  <sds@gnu.org>
 
+	* modules/postgresql/postgresql.lisp (PQgetCancel, PQfreeCancel)
+	(PQcancel, PQserverVersion, PQgetssl, PQinitSSL, PQdsplen):
+	added v8 functions
+
+2005-03-16  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.f (make_key_vector, XLIB:KEYBOARD-CONTROL)
 	(XLIB:%RESTORE-GCONTEXT-COMPONENTS): wrap memcpy() with X_CALL
 
