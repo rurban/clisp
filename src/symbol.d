@@ -15,14 +15,8 @@
     var object symbol;
     {
       var object fun = Symbol_function(symbol);
-      if (eq(fun,unbound)) {
-        pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
-        pushSTACK(symbol);
-        pushSTACK(S(symbol_function));
-        fehler(undefined_function,
-               GETTEXT("~: ~ has no global function definition")
-              );
-      }
+      if (eq(fun,unbound))
+        fehler_undef_function(S(symbol_function),symbol);
       if (consp(fun)) {
         pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
         pushSTACK(symbol);
