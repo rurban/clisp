@@ -1,17 +1,23 @@
 ;;;; Simple Foreign Function Interface support
 ;;;; Jörg Höhle 7.8.1996
 
+#+UNICODE
+(progn
+  (in-package "EXT")
+  (export '(custom::*foreign-encoding*) "CUSTOM")
+  (export '(custom::*foreign-encoding*) "EXT"))
+
 (in-package "SYSTEM")
 
 (defpackage "AFFI"
+  (:use "COMMON-LISP" "EXT")
   (:import-from "SYSTEM"
                 sys::mem-read sys::mem-write sys::mem-write-vector
                 sys::nzero-pointer-p)
   (:export "DECLARE-LIBRARY-BASE" "REQUIRE-LIBRARY-FUNCTIONS"
            "OPEN-LIBRARY" "CLOSE-LIBRARY" "WITH-OPEN-LIBRARY"
            "DEFFLIBFUN" "DECLARE-LIBRARY-FUNCTION" "FLIBCALL" "MLIBCALL"
-           "NZERO-POINTER-P" "MEM-READ" "MEM-WRITE" "MEM-WRITE-VECTOR"
-           #+UNICODE "*FOREIGN-ENCODING*"))
+           "NZERO-POINTER-P" "MEM-READ" "MEM-WRITE" "MEM-WRITE-VECTOR"))
 
 (in-package "AFFI")
 
