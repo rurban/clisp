@@ -150,14 +150,6 @@ This will not work with closures that use lexical variables!"
                          `(trace1 ,trr)))))
               funs))))
 
-(defun check-function-name (caller funname)
-  (do () ((function-name-p funname) funname)
-    (setq funname (check-value nil (coerce-to-condition
-                                    (TEXT "~s: ~s is not a function name")
-                                    (list caller funname)
-                                    'check-function-name
-                                    'simple-source-program-error)))))
-
 ;; check whether the FUNNAME can be traced,
 ;; fill SYMB, CUR-DEF and LOCAL-P slots of TRR and return TRR
 (defun check-traceable (funname trr caller)
