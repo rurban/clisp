@@ -23,9 +23,9 @@ CPP = cl -E
 INCLUDES = -I. -I$(srcdir)
 AR = lib
 AR_FLAGS = /out:
-MV = mv
-LN = cp
-RM = rm -f
+MV = ren
+LN = copy
+RM = del
 
 # Programs used by "make install":
 INSTALL = @INSTALL@
@@ -41,25 +41,25 @@ OBJECTS = vacall_r/vacall.obj vacall_r/misc.obj vacall_r/structcpy.obj trampolin
 all : $(OBJECTS) callback.h vacall_r.h trampoline_r.h callback.lib $(srcdir)/callback.3 $(srcdir)/callback.html
 
 callback.h : $(srcdir)/callback.h.in
-	-$(LN) $(srcdir)/callback.h.in callback.h
+	-$(LN) $(srcdir)\callback.h.in callback.h
 
 vacall_r.h : vacall_r/vacall_r.h
-	$(LN) vacall_r/vacall_r.h vacall_r.h
+	$(LN) vacall_r\vacall_r.h vacall_r.h
 
 vacall_r/vacall_r.h : vacall_r/vacall_r.h.msvc
-	$(RM) vacall_r/vacall_r.h
-	$(LN) vacall_r/vacall_r.h.msvc vacall_r/vacall_r.h
+	$(RM) vacall_r\vacall_r.h
+	$(LN) vacall_r\vacall_r.h.msvc vacall_r\vacall_r.h
 
 vacall_r/config.h : vacall_r/config.h.msvc
-	$(RM) vacall_r/config.h
-	$(LN) vacall_r/config.h.msvc vacall_r/config.h
+	$(RM) vacall_r\config.h
+	$(LN) vacall_r\config.h.msvc vacall_r\config.h
 
 vacall_r/vacall.obj : vacall_r/vacall-$(CPU).obj
-	$(RM) vacall_r/vacall.obj
-	$(LN) vacall_r/vacall-$(CPU).obj vacall_r/vacall.obj
+	$(RM) vacall_r\vacall.obj
+	$(LN) vacall_r\vacall-$(CPU).obj vacall_r\vacall.obj
 
 vacall_r/vacall-i386.obj : $(srcdir)/vacall_r/vacall-i386-msvc.c vacall_r/vacall_r.h
-	$(RM) vacall_r/vacall-i386.obj
+	$(RM) vacall_r\vacall-i386.obj
 	$(CC) -c $(srcdir)/vacall_r/vacall-i386-msvc.c /Fovacall_r/vacall-i386.obj
 
 vacall_r/misc.obj : $(srcdir)/vacall_r/misc.c vacall_r/vacall_r.h vacall_r/config.h
@@ -69,13 +69,13 @@ vacall_r/structcpy.obj : $(srcdir)/vacall_r/structcpy.c
 	$(CC) $(CFLAGS) -c $(srcdir)/vacall_r/structcpy.c /Fovacall_r/structcpy.obj
 
 trampoline_r.h : trampoline_r/trampoline_r.h
-	$(LN) trampoline_r/trampoline_r.h trampoline_r.h
+	$(LN) trampoline_r\trampoline_r.h trampoline_r.h
 
 trampoline_r/trampoline_r.h : $(srcdir)/trampoline_r/trampoline_r.h.in
-	-$(LN) $(srcdir)/trampoline_r/trampoline_r.h.in trampoline_r/trampoline_r.h
+	-$(LN) $(srcdir)\trampoline_r\trampoline_r.h.in trampoline_r\trampoline_r.h
 
 trampoline_r/config.h : $(srcdir)/trampoline_r/config.h.msvc
-	-$(LN) $(srcdir)/trampoline_r/config.h.msvc trampoline_r/config.h
+	-$(LN) $(srcdir)\trampoline_r\config.h.msvc trampoline_r\config.h
 
 trampoline_r/trampoline.obj : $(srcdir)/trampoline_r/trampoline.c trampoline_r/trampoline_r.h trampoline_r/config.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/trampoline_r/trampoline.c /Fotrampoline_r/trampoline.obj
@@ -123,12 +123,12 @@ check : all test1.exe test2.exe tests.exe
 mostlyclean : clean
 
 clean : force
-	$(RM) $(OBJECTS) vacall_r/vacall-i386.obj callback.lib core
+	$(RM) $(OBJECTS) vacall_r\vacall-i386.obj callback.lib core
 	$(RM) test1.obj test1.exe test2.obj test2.exe
 	$(RM) tests.obj tests.s tests.exe tests.out
 
 distclean : clean
-	$(RM) config.status config.log config.cache Makefile vacall_r/vacall_r.h vacall_r/config.h trampoline_r/config.h trampoline_r/trampoline_r.h vacall_r.h trampoline_r.h tests.output.*
+	$(RM) config.status config.log config.cache Makefile vacall_r\vacall_r.h vacall_r\config.h trampoline_r\config.h trampoline_r\trampoline_r.h vacall_r.h trampoline_r.h tests.output.*
 
 maintainer-clean : distclean
 
