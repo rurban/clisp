@@ -505,6 +505,7 @@
   # Number: Mischung aus Exponent, Länge, erste 32 Bit
   extern uint32 hashcode4_real (object obj); # siehe REALELEM.D
   extern uint32 hashcode4_uint32 (uint32 x); # siehe REALELEM.D
+  extern uint32 hashcode4_uint4 [16]; # siehe REALELEM.D
   # Vektoren: komponentenweise ansehen
   local uint32 hashcode4_vector_T (object dv, uintL index, uintL count, uint32 bish_code);
   local uint32 hashcode4_vector_Char (object dv, uintL index, uintL count, uint32 bish_code);
@@ -552,7 +553,7 @@
     { if (count > 0)
         { var const uintB* ptr = &TheSbvector(dv)->data[index/8];
           dotimespL(count,count,
-            { var uint32 next_code = hashcode4_uint32((*ptr >> ((~index)%8)) & (bit(1)-1)); # nächstes Byte
+            { var uint32 next_code = hashcode4_uint4[(*ptr >> ((~index)%8)) & (bit(1)-1)]; # nächstes Byte
               bish_code = misch(bish_code,next_code); # dazunehmen
               index++;
               ptr += ((index%8)==0);
@@ -568,7 +569,7 @@
     { if (count > 0)
         { var const uintB* ptr = &TheSbvector(TheIarray(dv)->data)->data[index/4];
           dotimespL(count,count,
-            { var uint32 next_code = hashcode4_uint32((*ptr >> ((~index)%4)) & (bit(2)-1)); # nächstes Byte
+            { var uint32 next_code = hashcode4_uint4[(*ptr >> ((~index)%4)) & (bit(2)-1)]; # nächstes Byte
               bish_code = misch(bish_code,next_code); # dazunehmen
               index++;
               ptr += ((index%4)==0);
@@ -584,7 +585,7 @@
     { if (count > 0)
         { var const uintB* ptr = &TheSbvector(TheIarray(dv)->data)->data[index/2];
           dotimespL(count,count,
-            { var uint32 next_code = hashcode4_uint32((*ptr >> ((~index)%2)) & (bit(4)-1)); # nächstes Byte
+            { var uint32 next_code = hashcode4_uint4[(*ptr >> ((~index)%2)) & (bit(4)-1)]; # nächstes Byte
               bish_code = misch(bish_code,next_code); # dazunehmen
               index++;
               ptr += ((index%2)==0);

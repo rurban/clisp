@@ -943,6 +943,24 @@
       {var uint32 msd = x << (32-exp);
        return hashcode4_(msd,exp,0);
     }}}
+  global uint32 hashcode4_uint4 [16] =
+    { 0,
+      hashcode4_( 1*(uint32)bit(31),1,0),
+      hashcode4_( 2*(uint32)bit(30),2,0),
+      hashcode4_( 3*(uint32)bit(30),2,0),
+      hashcode4_( 4*(uint32)bit(29),3,0),
+      hashcode4_( 5*(uint32)bit(29),3,0),
+      hashcode4_( 6*(uint32)bit(29),3,0),
+      hashcode4_( 7*(uint32)bit(29),3,0),
+      hashcode4_( 8*(uint32)bit(28),4,0),
+      hashcode4_( 9*(uint32)bit(28),4,0),
+      hashcode4_(10*(uint32)bit(28),4,0),
+      hashcode4_(11*(uint32)bit(28),4,0),
+      hashcode4_(12*(uint32)bit(28),4,0),
+      hashcode4_(13*(uint32)bit(28),4,0),
+      hashcode4_(14*(uint32)bit(28),4,0),
+      hashcode4_(15*(uint32)bit(28),4,0)
+    };
 
 # R_R_max_R(x,y) liefert (max x y), wo x und y reelle Zahlen sind.
 # kann GC auslösen
