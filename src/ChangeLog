@@ -6,7 +6,7 @@
 2001-03-28  Sam Steingold  <sds@gnu.org>
 
 	* condition.lisp (simple-type-error): [ANSI]
-	do not inherit from simple-error
+	inherit from `simple-condition', not `simple-error'
 
 2001-03-28  Bruno Haible  <haible@clisp.cons.org>
 
