@@ -1,3 +1,8 @@
+1999-03-22  Sam Steingold  <sds@goems.com>
+
+	* pathname.d (merge-pathnames): be ANSI CL compliant when
+	lisp:*ansi* is non-nil.
+
 1999-03-20  Sam Steingold  <sds@gnu.org>
 
 	Added PostgreSQL interface.  New module: postgresql.
@@ -1702,7 +1707,7 @@
 1999-01-29  Sam Steingold  <sds@goems.com>
 
 	* spvw.d (print_banner): do not cut the copyright on narrow
-	screens. 
+	screens.
 
 1999-01-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
@@ -2595,7 +2600,7 @@
 
 1999-01-04  Sam Steingold  <sds@goems.com>
 
-	* socket.d (socket_getlocalname): declare return value to be 
+	* socket.d (socket_getlocalname): declare return value to be
 	pointer to host_data, not const char.
 
 1999-01-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
@@ -3261,7 +3266,7 @@
 	  (machine-instance): init from $HOSTNAME.
 	* cfgacorn.lsp, cfgamiga.lsp, cfgdos.lsp, cfgsunux.lsp, cfgunix.lsp:
 	  (short-site-name, long-site-name): init from $ORGANIZATION.
-	  In both cases, when the environment variable is undefined, return 
+	  In both cases, when the environment variable is undefined, return
 	  an instruction to edit `config.lsp'.
 
 1998-10-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
@@ -3452,7 +3457,7 @@
 	* conditio.lsp (prompt-for-new-value): returns a list now; works
 	with multiple value places.
 	(check-type): adopt for new semantics od `prompt-for-new-value'.
-	(assert): work with multiple value places.	
+	(assert): work with multiple value places.
 
 1998-09-10  Sam Steingold  <sds@goems.com>
 
@@ -4374,7 +4379,7 @@
         * control.d (make_variable_frame): Don't call Car(NIL).
 
 1998-07-16  Sam Steingold  <sds@goems.com>
- 
+
         * spvw.d, constsym.d: new symbol print_right_margin
           (ANSI CL's *print-right-margin*).
         * io.d (right_margin): New function.
@@ -4502,7 +4507,7 @@
         * arilev1c.d (eqv_loop_up, nand_loop_up): Fix typo in declaration.
 
 1998-06-20  Gilbert Baumann  <unk6@rz.uni-karlsruhe.de>
- 
+
         * io.d (SYS::REAL-LISTEN): New function.
 
 1998-06-15  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
@@ -4512,7 +4517,7 @@
         * clx/new-clx/clx.f, clx/new-clx/e2d.c: Likewise.
 
 1998-06-10  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* io.d (pr_enter_1, pr_enter_2, pr_enter): New functions, generalizing
 	  prin1a, prin1b, prin1.
 	  (pr_external_1, pr_external_2): Moved.
@@ -4523,22 +4528,22 @@
 	  (prin1): Use pr_enter.
 
 1998-07-08  Sam Steingold  <sds@goems.com>
- 
+
         * array.d: fixed the grammar of some English messages.
-	
+
 1998-05-31  Pierpaolo Bernardi  <bernardp@cli.di.unipi.it>
-	
+
 	* macros2.lsp (with-output-to-string): The STRING parameter
-	  now accept NIL as value (with the same meaning as if it were 
+	  now accept NIL as value (with the same meaning as if it were
 	  unsupplied). {Old|New} behavior {was CLtL1|is ANSI} compliant.
-	
+
 1998-05-25  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* lispbibl.d: Rename immediate_type_p to gcinvariant_type_p.
 	* spvw.d: Update.
-	
+
 1998-05-24  Pierpaolo Bernardi  <bernardp@cli.di.unipi.it>
-	
+
 	* macros1.lsp (do/do*-expand): Barf on bad syntax.
 
 1998-05-20  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
@@ -4552,27 +4557,27 @@
         * windows.d, wintext.d, winstat.d, winmain.d, winaux.d: Remove files.
         * lispbibl.d, genclisph.d, msdos.d, makemake.in, spvw.d, pathname.d,
           stream.d, pseudofun.d, time.d: Remove support for Windows 3.1.
-	
+
 1998-05-20  Sam Steingold  <sds@usa.net>
-	
+
 	* io.d (pr_orecord): print PATHNAME with #P syntax, as
 	  per ANSI CL <PRINT-READABLY-BEHAVIOR:CLARIFY>;
-	
+
 1998-05-19  Sam Steingold  <sds@usa.net>
-	
+
 	Implement the new :execute, :load-toplevel and :compile-toplevel
 	keywords for eval-when as synonyms for eval, load and compile
-	respectively.  The symantics is old.	
+	respectively.  The symantics is old.
 	* constsym.d: add :execute, :load-toplevel and :compile-toplevel
 	  keywords.
 	* control.d (eval_when): handle :execute and :compile-toplevel.
 	* init.lsp (%expand-form, (%put '%expand 'EVAL-WHEN)): handle
-	  :compile-toplevel. 
+	  :compile-toplevel.
 	* compiler.lsp (c-EVAL-WHEN): handle the three new keywords as
 	  synonyms to the old symbols.
-	
+
 1998-05-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* control.d (SPECIAL-OPERATOR-P): Renamed from SPECIAL-FORM-P.
 	* eval.d (FUNTAB): Update.
 	* compiler.lsp (funtab, subr-info): Update.
@@ -4587,18 +4592,18 @@
 	* user2.lsp (fbound-string, describe): Use SPECIAL-OPERATOR-P.
 	* trace.lsp (trace1): Use SPECIAL-OPERATOR-P.
 	* defs3.lsp: Export SPECIAL-OPERATOR-P only.
-	
+
 1998-05-17  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* genclisph.d (main): Define sintB.
-	
+
 1998-05-16  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* clx/new-clx/clx.f: Update to use the new macro names.
-	
+
 	* realtran.d (R_cos_sin_R_R): Shift a fixnum by oint_data_shift, not
 	  oint_addr_shift.
-	
+
 	New type encoding scheme NO_TYPECODES.
 	* lispbibl.d (TYPECODES): Define if NO_TYPECODES is not defined.
 	  (oint_type_*, oint_addr_*, oint_data_*): Provide alternative
@@ -4757,78 +4762,78 @@
 	* constsym.d (LISPSYM_B): Provide alternative definition.
 	* affi.d (affi_call_argsa, SYS::NZERO-POINTER-P): Provide alternative
 	  type dispatch.
-	
+
 1998-05-12  Sam Steingold  <sds@usa.net>
-	
+
 	* format.lsp (format-parse-cs, formatter-main-1): handle the ~//
 	  format directive;
 	  (format-slash, format-get-symbol): new functions that do the job.
-	
+
 1998-05-11  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* stream.d (SOCKET-SERVER, SOCKET-STREAM-PEERNAME): Remove unused
 	  variables.
-	
+
 1998-05-10  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* lispbibl.d (iarray_rank, Iarray_rank, iarray_flags, Iarray_flags,
 	  iarray_flags_*): New macros.
 	* lispbibl.d, genclisph.d, spvw.d, io.d, stream.d, array.d,
 	  hashtabl.d, sequence.d, charstrg.d, predtype.d, foreign.d, affi.d:
 	  Update.
-	
+
 	* lispbibl.d (Array_type, Array_type_*): New macros.
 	* io.d, array.d, predtype.d: Update.
-	
+
 	* lispbibl.d (oint_symbolflags_shift #ifdef NO_symbolflags): Define
 	  as oint_data_shift, not oint_addr_shift.
 	* spvw.d (gc_markphase, aktualisiere_STACK): Conditionalize more
 	  code #ifndef NO_symbolflags.
 	* debug.d (print_stackitem): Likewise.
-	
+
 	* spvw.d (memdump_header): Put _memflags right after _magic.
 	  (savemem, loadmem_from_handle): Update.
-	
+
 	* spvw.d (pointer_as_object, pointer_was_object): New macros.
 	  (gc_compact_cons_page, gc_sweep1_varobject_page, aktualisiere,
 	  gc_sweep2_varobject_page, aktualisiere_page,
 	  gc_compact_from_varobject_page, gc_compact_from_cons_page): Use them.
-	
+
 	* lispbibl.d (make_read_label, read_label_integer_p): New macros.
 	  (framepointerp): New macro, renamed from stack_env_p.
 	  (systemp): Remove macro.
 	* eval.d, control.d, io.d, debug.d: Update.
-	
+
 	* eval.d (apply, funcall): Use abstract type test macros, and
 	  improve the generated code a little bit.
-	
+
 	* lispbibl.d (record_type, Record_type, record_flags, Record_flags,
 	  record_flags_*, srecord_length, Srecord_length, xrecord_length,
 	  xrecord_xlength, Xrecord_length, Xrecord_xlength): New macros.
 	* lispbibl.d, genclisph.d, spvw.d, eval.d, io.d, stream.d,
 	  hashtabl.d, record.d, predtype.d, foreign.d, affi.d: Update.
-	
+
 	* spvw.d (do_aktualisiere_symbol, do_aktualisiere_svector,
 	  do_aktualisiere_iarray, do_aktualisiere_record): New macros.
 	  (aktualisiere_*): Use them.
 	  (aktualisiere_iarray): Renamed from aktualisiere_array.
-	
+
 1998-05-09  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* stream.d (fehler_terminal_raw): Define function only when needed.
-	
+
 	* io.d (pr_readlabel, pr_framepointer): New functions, split out from
 	  pr_system.
 	  (pr_system): Much smaller.
 	  (prin_object_dispatch): Distinguish system/read-label/framepointer
 	  here.
-	
+
 	* lispbibl.d (framecode): New macro.
 	* lispbibl.d, spvw.d, eval.d, control.d, eval.d: Use it.
-	
+
 	* lispbibl.d (fcint): New type.
 	* eval.d: Use it.
-	
+
 	* lispbibl.d (msymbolp, mnumberp, mvectorp, m_simple_vector_p,
 	  m_general_vector_p, m_simple_string_p, mstringp,
 	  m_simple_bit_vector_p, m_bit_vector_p, marray1p, if_mrecordp,
@@ -4843,24 +4848,24 @@
 	  list.d, package.d, record.d, sequence.d, charstrg.d, debug.d,
 	  error.d, misc.d, predtype.d, symbol.d, rexx.d, foreign.d,
 	  intdiv.d, realelem.d, realtran.d, compelem.d, comptran.d: Update.
-	
+
 	* lispbibl.d (if_vectorp, if_simplep): Remove macros.
 	* array.d, predtype.d: Update.
-	
+
 	* lispbibl.d: Document that any of the type test macros can cause
 	  multiple evaluation of their argument.
 	* predtype.d: Don't do type tests directly on popSTACK().
-	
+
 	* lispbibl.d (allocate_closure, allocate_cclosure_copy): New macros.
 	* eval.d (get_closure, interpret_bytecode_): Use them.
 	* io.d (GET-MACRO-CHARACTER): Use them.
 	* record.d (SYS::%MAKE-CLOSURE,
 	  SYS::GENERIC-FUNCTION-EFFECTIVE-METHOD-FUNCTION): Use them.
-	
+
 	* spvw.d (walk_area_cons, walk_area_symbol, walk_area_array,
 	  walk_area_svector, walk_area_svector): New macros.
 	  (walk_area): Simplify, use them.
-	
+
 	* lispbibl.d (byte_vector_p, general_byte_vector_p): New macros.
 	* genclisph.d: Likewise.
 	* stream.d (test_n_bytes_args): Use them.
@@ -4868,7 +4873,7 @@
 	* affi.d (SYS::MEM-READ, SYS::MEM-WRITE): Likewise.
 	* predtype.d (equalp): Likewise.
 	* foreign.d (convert_to_foreign): Likewise.
-	
+
 	* lispbibl.d (mdarray_type): Renamed from array_type.
 	  (case_mdarray): Renamed from case_array1.
 	  (Iarray): Renamed from Array.
@@ -4878,12 +4883,12 @@
 	  (iarray_displace_check): Renamed from array1_displace_check.
 	* genclisph.d, spvw.d, stream.d, io.d, array.d, hashtabl.d, sequence.d,
 	  charstrg.d, predtype.d, foreign.d, affi.d: Update.
-	
+
 	* lispbibl.d: Replace documentation of type encoding by new one.
-	
+
 	* lispbibl.d: Move the code defining SPVW_* before the definition of
 	  the case_* macros.
-	
+
 	* lispbibl.d (uintWC, sintWC): New types, used for bignum length,
 	  lfloat length, iarray rank.
 	  (uintWCoverflow): New macro, replaces uintCoverflow.
@@ -4904,12 +4909,12 @@
 	* lisparit.d (mal_10_plus_x, FLOAT-DIGITS, SYS::%SET-LONG-FLOAT-DIGITS,
 	  log_digits): Likewise.
 	* pathname.d (OPEN): Likewise.
-	
+
 	* constsym.d: Remove LISPSYM_B. Rename LISPSYM_C to LISPSYM_B.
 	  Rename LISPSYM_D to LISPSYM_C. Rename LISPSYM_E to LISPSYM_D.
 	* spvwtabs.d (symbol_tab_data): Update.
 	* spvw.d (init_symbol_tab_2): Update.
-	
+
 	* lispbibl.d: Reorganize declarations of Cons, Ratio, Complex.
 	  (Rectype_*): Now enum values.
 	  (rectype_limit): New enum value.
@@ -4920,9 +4925,9 @@
 	  Likewise.
 	* predtype.d (equalp): Likewise.
 	  (COMMONP): Put #if around "case Rectype_*".
-	
+
 	* spvw.d (gc_mark): Start macroizing this function.
-	
+
 	If SPVW_MIXED, put Ratio and Complex among the Varobjects.
 	* lispbibl.d (_case_ratio, _case_complex): New macros (ugly).
 	  (case_pair): New macro.
@@ -4937,107 +4942,107 @@
 	* predtype.d (enum_hs_ratio, enum_hs_complex): Now unconditional.
 	  (heap_statistics_mapper): Update.
 	* constobj.d: Update.
-	
+
 	* lispbibl.d (make_machine): New macro.
 	  (nullobj): Use it.
 	* genclisph.d, spvw.d, list.d: Update.
-	
+
 	* lispbibl.d (bignum_length, Bignum_length): New macros.
 	* lispbibl.d, genclisph.d, spvw.d, stream.d, hashtabl.d, predtype.d,
 	  intelem.d, intlog.d, intcomp.d, intplus.d, flo_rest.d, realelem.d,
 	  realtran.d: Update.
-	
+
 	* lispbibl.d (lfloat_length, Lfloat_length): New macros.
 	* spvw.d, predtype.d, lfloat.d, flo_rest.d, realelem.d, realtran.d,
 	  compelem.d, lisparit.d: Update.
-	
+
 	* lispbibl.d (sarray_length, Sarray_length): New macros.
 	* lispbibl.d, array.d: Update.
-	
+
 	* lispbibl.d (sbvector_length, Sbvector_length): New macros.
 	* spvw.d, io.d, array.d, record.d: Update.
-	
+
 	* lispbibl.d (sstring_length, Sstring_length): New macros.
 	* spvw.d, io.d, pathname.d, stream.d, array.d, charstrg.d, rexx.d:
 	  Update.
-	
+
 	* lispbibl.d (svector_length, Svector_length): New macros.
 	* spvw.d, eval.d, control.d, io.d, array.d, hashtabl.d, package.d,
 	  debug.d, error.d, predtype.d, rexx.d, foreign.d, affi.d: Update.
-	
+
 1998-05-09  Pierpaolo Bernardi  <bernardp@cli.di.unipi.it>
-	
-	* user1.lsp: move *PROMPT-WITH-PACKAGE* from SYS to LISP, 
+
+	* user1.lsp: move *PROMPT-WITH-PACKAGE* from SYS to LISP,
 	  and export it
-	
+
 1998-05-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* ffcall: Add support for DEC Alpha running Linux (libc6): Change all
 	  ".rdata" in assembler output to ".data".
-	
+
 1998-05-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* socket.d: Don't declare connect() when using glibc2.
 	* aclocal.m4 (CL_TCPCONN): Allow setsockopt to be declared with
 	  socklen_t = unsigned int.
-	
+
 1998-05-08  Sam Steingold  <sds@usa.net>
-	
+
 	* constsym.d (*floating-point-contagion-ansi*): New variable.
 	* constobj.d (fpcontagion_warn_string): Change wording.
 	* flo_rest.d (warn_floating_point_contagion): Change appropriately.
 	  (GEN_F_op2, GEN_LF_op2_0): Implement ANSI compliant float contagion.
 	* realelem.d (R_R_contagion_R): Likewise.
 	* lisparit.d (init_arith): Initialize *floating-point-contagion-ansi*.
-	
+
 1998-05-08  Pierpaolo Bernardi  <bernardp@cli.di.unipi.it>
-	
+
 	* pathname.d (ensure_directories_exist): Changed arglist from
 	  "&optional verbose" to "&key verbose"
 	* subr.d: Likewise.
 	* subrkw.d: Added entry for ensure_directories_exist.
 	* constsym.d: Added the keyword :VERBOSE.
-	
+
 1998-05-07  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* aclocal.m4 (CL_RUSAGE): Check for getrusage declaration. Define
 	  RUSAGE_WHO_T.
 	* unixconf.h.in (RUSAGE_WHO_T): New macro.
 	* unix.d (getrusage): Change declaration.
-	
+
 1998-05-05  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* aclocal.m4 (CL_DYNLOAD): Check for dlerror declaration.
 	* configure.in, unixconf.h.in: CL_DYNLOAD sets DLERROR_CONST.
 	* unix.d (dlerror): Use DLERROR_CONST in the declaration.
-	
+
 1997-05-01  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* socket.d (create_server_socket): Avoid an EADDRINUSE error in some
 	  harmless cases.
 	  (setsockopt): Declare.
-	
+
 1998-05-01  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* init.lsp: Load amigasock.lsp by default.
-	
+
 1998-04-25  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* predtype.d (CLASS-OF): Change so that (class-of (sys::make-anode))
 	  returns the class STRUCTURE-OBJECT instead of the class T.
-	
+
 1998-04-25  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* modules/bindings/linux/linux.lsp: Make LINUX package case sensitive.
 	  (fd_isset): Use lisp:floor, not linux:floor.
 	  (EXIT_SUCCESS): Set to 0.
-	
+
 1998-04-25  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* compiler.lsp (c-form): Respect NOTINLINE declarations on macros.
-	
+
 1998-04-25  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* flo_rest.d (warn_floating_point_contagion): New function.
 	  (GEN_F_op2): Warn when floating point contagion occurs.
 	* realelem.d (R_R_contagion_R): Likewise.
@@ -5046,12 +5051,12 @@
 	  (init_arith): Initialize *inhibit-floating-point-underflow* here,
 	  not in set_lf_digits().
 	* constobj.d (fpcontagion_warn_string): New.
-	
+
 1998-04-20  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* makemake.in: Rename bindings/linux to bindings/linuxlibc5.
 	* bindings/linuxlibc6: New module.
-	
+
 1998-04-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
         * conditio.lsp (floating-point-inexact,
@@ -5060,15 +5065,15 @@
         * defs3.lsp: Likewise.
 
 1998-04-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* clos.lsp: Export CLOS:METHOD.
 	  (method): New structure class.
 	  (standard-method): Inherit from it.
 	* init.lsp: Export CLOS:METHOD.
 	* defs3.lsp: Likewise.
-	
+
 1998-04-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* predtype.d (TYPE-OF, CLASS-OF): Use CLOS::CLOSCLASS instead of
 	  CLOS::CLASS.
 	* record.d (fehler_keine_klasse): Use CLOS:CLASS.
@@ -5079,9 +5084,9 @@
 	* compiler.lsp (c-TYPEP): Likewise.
 	* init.lsp: Export clos:class.
 	* defs3.lsp: Likewise.
-	
+
 1998-04-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* record.d (CLOS::STRUCTURE-OBJECT-P): Renamed from
 	  CLOS::STRUCTURE-INSTANCE-P.
 	  (COPY-STRUCTURE): Use type STRUCTURE-OBJECT instead of STRUCTURE.
@@ -5104,9 +5109,9 @@
 	  CLOS::STRUCTURE-OBJECT-P.
 	* init.lsp: Export STRUCTURE-OBJECT.
 	* defs3.lsp: Likewise.
-	
+
 1998-04-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* io.d (print_structure): New function, doing the bulk of pr_structure.
 	  (pr_structure): Call it.
 	  (pr_external_1): Do respect *print-circle*.
@@ -5126,13 +5131,13 @@
 	* conditio.lsp (restart): Use :PRINT-OBJECT option instead of
 	  :PRINT-FUNCTION option.
 	  (print-restart): Lose third argument.
-	
+
 1998-04-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* defs3.lsp: Don't export *evalhook*, *applyhook*, evalhook, applyhook.
-	
+
 1998-04-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* constsym.d (set): Rename SET to SYS::SET-SYMBOL-VALUE.
 	* places.lsp (SYMBOL-VALUE): Use SYS::SET-SYMBOL-VALUE.
 	  SET is a deprecated alias.
@@ -5148,9 +5153,9 @@
 	  (c-FUNCTION): Call it.
 	  (compile-file): Initialize *deprecated-functions*. Warn about the
 	  use of deprecated functions.
-	
+
 1998-04-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* type.lsp (CLOS:GENERIC-FUNCTION): New builtin type.
 	  (subtypep): Treat it.
 	* compiler.lsp (c-typep-alist1): Treat it.
@@ -5158,38 +5163,38 @@
 	  (<generic-function>): New variable, new class CLOS:GENERIC-FUNCTION.
 	* init.lsp: Export CLOS:GENERIC-FUNCTION.
 	* defs3.lsp: Likewise.
-	
+
 1998-04-17  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* constsym.d (copy_structure): Rename SYS::%COPY-STRUCTURE to
 	  COPY-STRUCTURE.
 	* defstruc.lsp (ds-make-copier): Likewise.
 	* compiler.lsp (funtab, subr-info, c-DIRECT-FUNCTION-CALL): Likewise.
 	* init.lsp: Export COPY-STRUCTURE.
 	* defs3.lsp: Likewise.
-	
+
 1998-04-16  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* defmacro.lsp (make-macro-expansion): Change scope of the block to
 	  include only the body, not the lambda list.
 	* macros2.lsp (deftype): Likewise.
-	
+
 1998-04-16  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* debug.d (read_form): Withdraw the clear-input/listen hack, use
 	  interactive-stream-p instead. After reading a form, clear input
 	  only upto a newline.
 	* lispbibl.d (interactive_stream_p): New declaration.
 	* user1.lsp (break-loop): Do (clear-input *debug-io*) upon entry
 	  of the break loop.
-	
+
 1998-04-13  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* type.lsp (type-expand-1, type-expand): New functions.
 	* user2.lsp (describe): Give a hint for DEFTYPEd types.
-	
+
 1998-04-13  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* type.lsp (CONS): New composite type specifier.
 	  (canonicalize-type): Expand NUMBER to (OR REAL COMPLEX).
 	  (canonicalize-type): Simplify (AND type), (OR type).
@@ -5197,48 +5202,48 @@
 	  the fallback case. Treat the composite CONS type.
 	* compiler.lsp (c-typep-alist3): New composite type specifier CONS.
 	* type.tst: Replace '(cons symbol) by '(symbol cons).
-	
+
 1998-04-13  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* defstruc.lsp (defstruct): Compare slot names using :test #'string=
 	  :key #'symbol-name, not :test #'eq.
-	
+
 1998-04-13  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* conditio.lsp (arithmetic-error, cell-error, unbound-slot, type-error,
 	  package-error, print-not-readable, stream-error, file-error,
 	  simple-condition): Use non-exported symbols as slot names.
-	
+
 1998-04-13  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* clos.lsp (compute-applicable-methods): Turn into a generic
 	  function.
-	
+
 1998-04-13  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* compiler.lsp (compile-file): Perform more merge-pathnames
 	  operations.
 	  (compile-file-pathname): Likewise. Add &allow-other-keys.
-	
+
 1998-04-13  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* clos.lsp (analyze-method-description): Allow class objects as
 	  parameter specializers.
-	
+
 1998-04-13  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* init.lsp: Remove an unnecessary copy of the walker code.
-	
+
 1998-04-13  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* control.d (case): New special form.
 	* init.lsp (%expand-form): Treat it.
 	  (%expand-case): New function.
 	* macros1.lsp (case): Put the macro definition on the property list.
 	* compiler.lsp (c-CASE): Now a special form handler.
-	
+
 1998-04-13  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* array.d (copy_sbvector): New function.
 	* lispbibl.d (copy_sbvector): Declare it.
 	* record.d (SYS::GENERIC-FUNCTION-EFFECTIVE-METHOD-FUNCTION): New
@@ -5253,9 +5258,9 @@
 	  (initial-funcall-gf): Just return the gf, don't apply it to the args.
 	  (compute-dispatch): Return the effective method, don't call it.
 	  (%call-next-method): New function.
-	
+
 1998-04-13  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* bytecode.d (cod_skip_retgf, cod_funcall_skip_retgf): New byte codes.
 	  (cod_store8, cod_store9): Remove.
 	* eval.d (interpret_bytecode_): Implement the new bytecodes.
@@ -5268,9 +5273,9 @@
 	  (SP-depth): RETGF returns, like RET.
 	  (insert-combined-LAPs): Combine SKIP and RETGF. Combine FUNCALL and
 	  SKIP and RETGF.
-	
+
 1998-04-13  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* constobj.d (version): New bytecode version.
 	  (old_version): Remove.
 	* misc.d (SYS::VERSION): Drop test for O(old_version).
@@ -5284,18 +5289,18 @@
 	  old_in_package by the new make_package, pin_package, in_package.
 	  Remove old_room.
 	* compiler.lsp (funtab): Likewise.
-	
+
 1998-04-13  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* list.d (BUTLAST, NBUTLAST): Signal an error if len==0 and dotted.
-	
+
 1998-04-12  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* array.d (ARRAY-DISPLACEMENT): New function.
 	* init.lsp, defs3.lsp: Export it.
-	
+
 1998-04-11  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* lispbibl.d (conditiontype): New condition types source_program_error
 	  and keyword_error.
 	* genclisph.d (conditiontype): Likewise.
@@ -5358,99 +5363,99 @@
 	  instead of program-error.
 	* trace.lsp (trace1, untrace1): Emit source-program-error instead of
 	  program-error.
-	
+
 1998-04-11  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* constobj.d (type_peektype, type_rexx_host): Use BOOLEAN instead of
 	  (MEMBER NIL T).
 	* format.lsp (format): Likewise.
 	* clx.lsp (boolean): Remove definition.
-	
+
 1998-04-10  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* lispbibl.d: Port to powerpc-apple-mklinux.
 	  Add a verification for oint_addr_mask.
-	
+
 1998-04-10  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* aclocal.m4 (CL_FPU_CONTROL): New macro.
 	* configure.in: Call it.
 	* unixconf.h.in: New macro HAVE_SETFPUCW.
 	* unixaux.d: Set __fpu_control only if __setfpucw() doesn't exist.
 	* spvw.d (main): Call __setfpucw() if it exists.
-	
+
 1998-04-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* compiler.lsp (EQL=EQ): Don't use fixnump.
-	
+
 1998-04-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* init.lsp: Export BOOLEAN.
 	* defs3.lsp: Likewise.
 	* type.lsp (TYPE-SYMBOL, SUBTYPEP): Treat BOOLEAN.
 	* compiler.lsp (*declaration-types*, c-typep-alist2): Likewise.
 	* predtype.d (TYPE-OF): (type-of 't) returns BOOLEAN.
 	* user2.lsp (describe): Adapt for TYPE-OF change.
-	
+
 1998-04-01  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* type.lsp (%the): Instead of typep, use near-typep, which returns T
 	  for a read-label.
-	
+
 1998-03-24  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* compiler.lsp (var): New slot `for-value-usedp'.
           (c-VAR): Set it.
           (ignore-check): Use it, instead of `usedp'.
           (bind-fixed-var-1, process-fixed-var-list, bind-movable-var,
            c-FLET, c-LABELS, c-GENERIC-FLET, c-GENERIC-LABELS): Initialize it.
-	
+
 1998-03-24  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* io.d (princ_up): Bind *PRINT-READABLY* to NIL.
-	
+
 1998-03-23  Jörg Höhle  <Joerg.Hoehle@gmd.de>
-	
+
 	* compiler.lsp (c-IF): No extra JMP if no else part.
-	
+
 1998-03-16  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* pathname.d (OPEN): For the :element-type argument, allow deftype'd
           type specifiers. Check their validity using SUBTYPEP and
           SYS::SUBTYPEP-INTEGER.
-	
+
 1998-03-14  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* macros2.lsp (space): Call VALUES-LIST explicitly.
 	* user2.lsp (%space): No need to return values.
-	
+
 1998-03-14  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* io.d (%DEFIO): New function.
-	  (SET-MACRO-CHARACTER): If function is a dispatch-reader function, 
+	  (SET-MACRO-CHARACTER): If function is a dispatch-reader function,
 	  unpack it.
 	  (GET-MACRO-CHARACTER): For a dispatch macro character, return a
 	  dispatch-reader function.
 	* defs2.lsp (dispatch-reader): New function. Call %defio.
-	
+
 1998-03-12  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* loop.lsp (expand-loop): Emit the REPEAT decrement before its
           end test, not afterwards.
 	* loop.tst: A new test.
-	
+
 1998-03-11  Pierpaolo Bernardi  <bernardp@cli.di.unipi.it>
-	
+
 	* macros2.lsp (etypecase, ctypecase, ecase, ccase): Allow T and
           OTHERWISE as keys, but warn about them unless parenthesized.
 	* conditio.lsp (etypecase, ctypecase, ecase, ccase): Likewise.
-	
+
 1998-03-10  Sam Steingold  <sds@usa.net>
-	
+
 	* io.d: fixed a minor grammatical error.
-	
+
 1998-03-07  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* amiga.d (stdin_handle): Renamed from Input_handle.
 	  (stdout_handle): Renamed from Output_handle.
 	  All references changed.
@@ -5471,20 +5476,20 @@
 	  (finish_output_file): For unnamed streams, don't close the handle.
 	  (make_terminal_io): New function.
 	  (init_streamvars): Call it.
-	
+
 1998-03-07  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* stream.d (finish_tty_output, force_tty_output, clear_tty_output):
 	  Ignore ENOSYS on Irix (occurs on pipes).
-	
+
 1998-02-19  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* spvw.d: Define MULTIMAP_MEMORY_SYMBOL_TAB if
 	  MULTIMAP_MEMORY && MAP_MEMORY_TABLES. But don't multimap the subr_tab
 	  - wouldn't work in the case of dynamic loading.
-	
+
 1998-02-19  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
         Make aktenv a separate entity (will be per-thread later).
 	* lispbibl.d (aktenv): Make a global variable.
 	* eval.d (aktenv): New global variable.
@@ -5492,21 +5497,21 @@
 	* spvw.d (for_all_threadobjs): New macro.
 	  (gc_markphase, aktualisiere_object_tab): Call it.
 	  (initmem): Initialize aktenv.
-	
+
 1998-02-19  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* clos.lsp (*dynamically-modifiable-generic-function-names*): New
 	  variable.
 	  (warn-if-gf-already-called): Don't warn if gf is listed in it.
-	
+
 1998-02-19  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* format.lsp (format-parse-cs): Add format directive ~!.
 	  (format-call): New function.
 	  (formatter-main-1): Compile format-call.
-	
+
 1998-02-15  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* lispbibl.d (GNU_GETTEXT): Support gettext with IBMPC_CHS as well.
 	  (INIT_SYMBOL_TAB): Don't define for EMUNIX.
 	* gettext/intl/Makefile.dos: New file.
@@ -5530,9 +5535,9 @@
 	* Makefile.devel (dos--distrib, os2--distrib): Copy lispinit.mem,
 	  not compiled.mem. Copy the *.mo files. Copy the translated READMEs.
 	  Copy impnotes.html. Copy emx.exe. Copy emxrt.doc.
-	
+
 1998-02-15  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* lispbibl.d: Remove support for EMX versions < 0.9c.
 	* msdos.d: Likewise.
 	  (FILE_PID): Remove definition.
@@ -5547,14 +5552,14 @@
 	  * graph.d: Likewise.
 	* pathname.d: Likewise.
 	* time.d: Likewise.
-	
+
 1998-02-15  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* cv-to-ibmpc.c (main): Translate the characters 0xCD and 0xD3 to
 	  ASCII, instead of dropping them. Needed for the spanish messages.
-	
+
 1998-02-11  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	Remove support for traditional (pre-ANSI-C) compilers. Assume
 	<stdlib.h> and <string.h> are present.
 	* ansidecl.d: Assume <stdlib.h> is present.
@@ -5610,32 +5615,32 @@
 	  CC_NEED_DEERROR, CC_NEED_MERGESTRINGS to be false. Assume CC_ANSI
 	  to be true. Assume gcc is not used with -traditional. Always use
 	  ansidecl, not traddecl.
-	
+
 1998-02-11  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* modules/stdwin: Removed.
 	* makemake.in (--with-module-stdwin): Remove option.
 	* Makefile.devel (SOURCES4): No need any more to exclude stdwin.
 	  (CONFIGURES): Remove modules/stdwin/configure.
 	  (src--distrib): Don't create clispsrc-stdwin.tar.gz.
-	
+
 1998-02-10  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* intsqrt.d (UDS_sqrt_): gcc-2.5.8 on hppa has same problem with
 	  isqrt as gcc-2.7.0 on i386. Same workaround works.
-	
+
 1998-02-10  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* constobj.d (showstack_string_CALLBACK_frame): Define if
 	  HAVE_SAVED_REGISTERS, not HAVE_SAVED_STACK.
-	
+
 1998-02-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* spvw.d (gar_col_normal): Unify three occurrences of the same error
 	  message. Wrap munmap() calls in begin/end_system_call().
-	
+
 1998-02-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	Preliminary support for Mingw32:
 	* ansidecl.d, traddecl.d, dedefined.c, ccmp2c.d, txt2c.c: Define
 	  STDC_HEADERS if __MINGW32__.
@@ -5655,27 +5660,27 @@
 	  Mingw32.
 	  (PARENT_M, NEXT_M, SRCTOPDIR_M, UTILDIR_M, DOCDIR_M): New variables.
 	  Use them in Makefile rules (as opposed to Makefile commands).
-	
+
 1998-02-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* pathname.d (init_pathnames): Don't expect that getlogin() sets
 	  errno when it fails.
-	
+
 1998-02-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* spvw.d (xmprotect): Use OS_errno, not errno. For Win32.
-	
+
 1998-02-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* spvw.d (main.banner): Add a copyright line for 1998.
-	
+
 1998-02-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* init.lsp: Export `define-symbol-macro'.
 	* defs3.lsp: Likewise.
-	
+
 1998-02-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* pathname.d (fehler_notdir): New function, extracted from
 	  shorter_directory_arg.
 	  (directory_exists): New function.
@@ -5687,97 +5692,97 @@
 	  (ENSURE-DIRECTORIES-EXIST): New function.
 	* init.lsp: Export `ensure-directories-exist'.
 	* defs3.lsp: Likewise.
-	
+
 1998-01-23  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* arilev0.d (mulu32 for I80386): Fix a wrong description of the "mull"
 	  instruction.
-	
+
 1998-01-21  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* asmi386.hh (NUM, ADDR): To prepend a dollar, use $##n. (Some
 	  compilers allow dollars in identifiers. Needed for mingw32.)
-	
+
 1998-01-19  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* stream.d (clear_tty_output): Avoid error during CLEAR-OUTPUT on
 	  pipes on Win32.
-	
+
 1998-01-14  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* pathname.d (file_write_date, file_author): file_exists() takes
 	  a `object' as argument, not a `const char *'.
-	
+
 1998-01-14  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* predtype.d (hs_record): Add const here too, to fix a small problem
 	  in 1997-09-28-const.diff.
-	
+
 1998-01-13  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* makemake.in: Add a comment about MODULES to the makefile.
-	
+
 1998-01-11  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* spvw.d (mem.heaptype): Use -1 for SUBRs and < -1 for unused
 	  typecodes.
 	  (main): Initialize mem.heaptype accordingly.
 	  (main): prepare_zeromap for subr_tab is now implicit.
-	
+
 1997-12-30  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* lispbibl.d (nonreturning_function): Fix comment.
 	* win32.d (SetConsoleCtrlHandler): Fix comment.
-	
+
 1997-12-13  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* eval.d (unwind): Fix a compilation warning in WIDE mode: don't cast
 	  directly from oint to a pointer.
-	
+
 1997-12-11  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* lispbibl.d: Write MC680X0 instead of M680X0.
-	
+
 1997-12-11  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* spvw.d (make_space_gc*): If zeromap() fails, output an informative
 	  message, to calm down users.
-	
+
 1997-12-11  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* makemake.in (distrib for acorn): Distribute impnotes.html.
-	
+
 1997-12-05  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* sequence.d (valid_type): Recognize (SIMPLE-ARRAY eltype 1) as
 	  equivalent of (SIMPLE-ARRAY eltype (*)).
 	* type.lsp (subtypep): Likewise.
-	
+
 1997-12-01  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* cfglinux.lsp: File removed.
 	* FILES.1: Don't mention it.
 	* makemake.in: Likewise.
-	
+
 1997-11-29  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* ffcall/{trampoline,callback/trampoline_r}/trampoline.c
 	  (alloc_trampoline): Add support for NetBSD/m68k.
 	* makemake.in: Recognize m68k-netbsd for ari680x0 support.
-	
+
 1997-11-15  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* ffcall/callback/Makefile.{in,msvc}: callback.h resides in the
 	  build dir, not the source dir.
 	* ffcall/callback/callback.h.in: Renamed from callback.h.
-	
+
 1997-11-14  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* io.d (prin1a): When *PRINT-PRETTY* = T, there is no need to output
 	  a newline if the next string begins with a newline character anyway.
-	
+
 1997-11-14  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	Allow dynamic loading of modules, if configured --with-dynamic-modules.
 	* clisp-link.in (run): New command.
 	* aclocal.m4 (CL_DYNLOAD): New macro.
@@ -5797,62 +5802,62 @@
 	  (init_module_2): New function.
 	  (init_other_modules_2): Call it.
 	  (dynload_modules): New function.
-	
+
 1997-11-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* ffcall: Upgrade to ffcall-1.3
 	* Makefile.devel (CONFIGURES): Update accordingly.
 	* foreign.d (convert_function_to_foreign, free_foreign_callin,
 	  convert_function_from_foreign, callback, init_ffi): Use callback
 	  package instead of vacall+trampoline.
-	
+
 1997-11-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* aclocal.m4 (CL_MACHINE): Force CL_CHAR_UNSIGNED before CL_MACHINE.
-	
+
 1997-11-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* aclocal.m4 (CL_CANONICAL_HOST_CPU): Support for KAI C++ which
           doesn't like "#undef __i386__" nor "#define __i386__".
-	
+
 1997-10-20  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* disassem.lsp (disassemble-machine-code for UNIX): Inhibit line
           breaks, 1 instruction per line, otherwise the instruction gets
           filtered away.
-	
+
 1997-10-19  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* conditio.lsp: Conditionalize upon feature ANSI-CL, not dpANS.
 	* defs2.lsp, defs3.lsp, init.lsp, loop.lsp: Likewise.
-	
+
 1997-10-12  Jörg Höhle  <Joerg.Hoehle@zeus.gmd.de>
-	
+
 	* amigasock.lsp: New file.
-	
+
 1997-10-08  Jörg Höhle  <Joerg.Hoehle@zeus.gmd.de>
-	
+
 	* eval.d (interpret_bytecode (cod_throw)): Tweak message.
-	
+
 1997-10-06  Jörg Höhle  <Joerg.Hoehle@zeus.gmd.de>
-	
+
 	* cfgamiga.lsp (machine-instance): Prefix with "localhost".
 	* erramiga.d (error200_msg_table): Add some translations.
 
 1997-09-30  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* utils/gcc-cccp/Makefile.msvc: Set stack size for cccp.exe.
 	* asmi386.sh: For the sake of msvc5, which assembles relative
           addresses in an unpredictable way, turn jump tables into absolute,
           not relative, addresses.
-	
+
 1997-09-28  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* charstrg.d (copy_string, NSTRING-UPCASE, NSTRING-DOWNCASE,
 	  NSTRING-CAPITALIZE): Make reentrant and multithread-safe.
-	
+
 1997-09-28  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
         Stack overflow robustness on Win32:
 	* lispbibl.d (NO_SP_CHECK, NOCOST_SP_CHECK): New macros. SP checks
           are enabled if AMIGAOS || (WIN32_NATIVE && !CAN_HANDLE_WP_FAULT).
@@ -5863,26 +5868,26 @@
           main_exception_filter): Put in the right #ifdefs.
 	* spvw.d (stack_overflow_stack): New variable.
           (main): Set it.
-	
+
 1997-09-28  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* lispbibl.d (map_heap_function): Renamed from mapper_function.
           (map_heap_objects): Change declaration.
 	* spvw.d (map_heap_objects): Likewise.
-	
+
 1997-09-28  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* array.d (initial_contents_locals): New structure.
           (initial_contents_aux): Make reentrant and multithread-safe.
 	* lispbibl.d (map_sequence): Declare.
 	* sequence.d (map_sequence): New function.
-	
+
 1997-09-28  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* spvw.d (everything_ready): Remove unused variable.
-	
+
 1997-09-28  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* Use `const' qualifier when possible, especially on constant arrays.
           This allows constant arrays to be put into the rodata section.
 	* arilev1c.d (copy_loop_up, copy_loop_down, or_loop_up, xor_loop_up,
@@ -5939,8 +5944,8 @@
           fsubr_data_tab, object_initstring_tab, features_initstring,
           init_object_tab, banner, banner2, banner3, main,
           loadmem_aktualisiere, copyright_notice): Use `const'.
-	
+
 1997-09-27  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* acspecific.m4 (AC_FUNC_VFORK): Fix so that it works right when
 	  cross-compiling.
