@@ -2,9 +2,11 @@
 
 CC = @CC@
 CFLAGS = @CFLAGS@
-INCLUDES=
+INCLUDES= ../
+REGEX_O = @REGEX_O@
+REGEX_H = @REGEX_H@
 
-CLISP =
+CLISP = clisp -q -norc
 
 LN = ln
 
@@ -12,10 +14,10 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = wildcard.o fnmatch.o link.sh Makefile README wildcard.lisp wildcard.texinfo wildcard.dvi
+DISTRIBFILES = wildcard.o $(FNMATCH_O) link.sh Makefile README wildcard.lisp wildcard.texinfo wildcard.dvi
 distribdir =
 
-all : wildcard.o fnmatch.o
+all : wildcard.o $(FNMATCH_O)
 
 wildcard.c : wildcard.lisp
 	$(CLISP) -c wildcard.lisp
@@ -24,7 +26,7 @@ wildcard.o : wildcard.c
 	$(CC) $(CFLAGS) -I$(INCLUDES) -c wildcard.c
 
 fnmatch.o : fnmatch.c fnmatch.h
-	$(CC) $(CFLAGS) -I. -DHAVE_CONFIG_H -D_LIBC -c fnmatch.c
+	$(CC) $(CFLAGS) -I. -DHAVE_CONFIG_H -c fnmatch.c
 
 # Make a module
 clisp-module : all
