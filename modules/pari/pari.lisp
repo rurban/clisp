@@ -3,10 +3,11 @@
 ;; Copyright (C) 2004-2005 Sam Steingold
 ;; This is free software, distributed under the GNU GPL
 
-(defpackage #:pari
+(defpackage "PARI"
   (:modern t)
   (:use #:cl #:ffi))
-(in-package #:pari)
+(in-package "PARI")
+(pushnew "PARI" custom:*system-package-list* :test #'string=)
 
 (default-foreign-language :stdc)
 
