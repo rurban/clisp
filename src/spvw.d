@@ -1650,7 +1650,7 @@ local void usage (int exit_code)
   asciz_out(" -t tmpdir   - temporary directory for memmap" NLstring);
   #endif
   asciz_out(" -B lisplibdir - set the installation directory" NLstring);
-  #if defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)
+  #ifdef UNIX
   asciz_out(" -K linkingset - use this executable and memory image" NLstring);
   #endif
   asciz_out(" -M memfile  - use this memory image" NLstring
