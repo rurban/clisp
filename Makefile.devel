@@ -415,6 +415,26 @@ check-sbcl:
 	cd sbcl-$(SBCL_VERSION) && sh make.sh $$clisp
 
 
+# Build a GCC from source.
+# Note that this requires ca. 1 GB of disk space.
+GCC_VERSION = 3.4.3
+GCC_SOURCE_FILE = gcc-$(GCC_VERSION).tar.bz2
+GCC_SOURCE_URL = http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/$(GCC_SOURCE_FILE)
+# Put here the --prefix that you would like to use for installing gcc.
+# It should *not* be the same --prefix as you use for other programs.
+GCC_INSTALL_DIR := $(shell dirname $$(dirname $$(which clisp | head -1)))/inst-gcc-$(GCC_VERSION)
+install-gcc:
+	test -f $(GCC_SOURCE_FILE) || wget $(GCC_SOURCE_URL)
+	rm -rf gcc-$(GCC_VERSION) gcc-$(GCC_VERSION)-build
+	bunzip2 -c < $(GCC_SOURCE_FILE) | tar xvf -
+	mkdir gcc-$(GCC_VERSION)-build
+	cd gcc-$(GCC_VERSION)-build && ../gcc-$(GCC_VERSION)/configure --prefix=$(GCC_INSTALL_DIR) --enable-shared --enable-threads `if grep __GLIBC__ /usr/include/features.h > /dev/null 2>/dev/null; then echo --enable-__cxa_atexit; fi` --enable-version-specific-runtime-libs --enable-languages=c,c++ --enable-nls
+	cd gcc-$(GCC_VERSION)-build && make bootstrap
+	cd gcc-$(GCC_VERSION)-build && make install
+	rm -rf gcc-$(GCC_VERSION)-build
+	rm -rf gcc-$(GCC_VERSION)
+
+
 distrib : linux-distrib src-distrib
 
 ## Pre-release TODO:
