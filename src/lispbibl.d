@@ -2647,7 +2647,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 # bit. But on segmented architectures which allow many medium-sized memory
 # blocks, like the 80286 was, the total available memory size may be bigger.
 # Also, we avoid size_t because it's likely to be wrong on 64-bit Woe32.)
-#if !defined(WIDE_HARD) || ((oint_addr_mask & !0xFFFFFFFFUL) == 0)
+#if !defined(WIDE_HARD) || ((oint_addr_mask & ~0xFFFFFFFFUL) == 0)
   # A 32-bit integer is sufficient.
   #define intMsize  intLsize
   typedef uintL uintM;
@@ -9212,15 +9212,15 @@ extern break_sems_ break_sems;
 extern bool ilisp_mode;
 
 # returns the amount of space occupied by static LISP-objects
-extern uintL static_space (void);
+extern uintM static_space (void);
 # is used by DEBUG
 
 # returns the amount of space occupied by LISP-objects
-extern uintL used_space (void);
+extern uintM used_space (void);
 # is used by TIME, DEBUG
 
 # returns the amount of space still available for LISP-objects
-extern uintL free_space (void);
+extern uintM free_space (void);
 # is used by DEBUG
 
 # UP: saves memory image to disc

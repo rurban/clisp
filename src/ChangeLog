@@ -1,3 +1,9 @@
+2004-11-27  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (uintM, sintM): Fix conditional.
+	(static_space, used_space, free_space): Change return value type to
+	uintM.
+
 2004-11-26  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (try-eval): extracted from c-DIRECT-FUNCTION-CALL
