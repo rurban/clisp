@@ -1,3 +1,7 @@
+2001-12-26   Stefan Kain  <stefan.kain@freenet.de>
+
+	* trace.lisp: translated all comments
+
 2002-01-01  Todd Sabin  <tas@webspan.net>
 	    Sam Steingold  <sds@gnu.org>
 
