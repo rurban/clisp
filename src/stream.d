@@ -4406,65 +4406,12 @@ local void low_close_handle (object stream, object handle) {
 # ------------------------------
 
 local maygc object bitbuff_iu_I (object bitbuffer, uintL bitsize, uintL bytesize) {
-  # normalize number in bitbuffer:
   var uintB* bitbufferptr = &TheSbvector(bitbuffer)->data[bytesize-1];
   *bitbufferptr &= (bit(((bitsize-1)%8)+1)-1); # mask High byte
-  var uintL count = bytesize;
-  while ((!(count==0)) && (*bitbufferptr==0)) { count--; bitbufferptr--; }
-  # make number:
-  if # at most oint_data_len Bits ?
-    ((count <= floor(oint_data_len,8))
-     || ((count == floor(oint_data_len,8)+1)
-         && (*bitbufferptr < bit(oint_data_len%8)))) {
-    # yes -> build Fixnum >=0 :
-    var uintL wert = 0;
-    until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
-    return fixnum(wert);
-  }
-  # no -> build Bignum >0 :
   pushSTACK(bitbuffer);
-  var uintL digitcount = floor(count,(intDsize/8));
-  if (((count%(intDsize/8)) > 0) || (*bitbufferptr & bit(7)))
-    digitcount++;
-  # As bitsize < intDsize*uintWC_max,
-  # digitcount <= ceiling((bitsize+1)/intDsize) <= uintWC_max .
-  var object big = allocate_bignum(digitcount,0); # new Bignum >0
-  TheBignum(big)->data[0] = 0; # set highest Digit to 0
-  # fill remaining Digits from right to left,
-  # thereby translate sequence of Bytes into sequence of uintD:
-  bitbuffer = popSTACK();
-  bitbufferptr = &TheSbvector(bitbuffer)->data[0];
-  #if BIG_ENDIAN_P
-  {
-    var uintB* bigptr = (uintB*)(&TheBignum(big)->data[digitcount]);
-    dotimespL(count,count, { *--bigptr = *bitbufferptr++; } );
-  }
-  #else
-  {
-    var uintD* bigptr = &TheBignum(big)->data[digitcount];
-    var uintL count2;
-#define GET_NEXT_BYTE(i)  digit |= ((uintD)(*bitbufferptr++) << (8*i));
-    dotimespL(count2,floor(count,intDsize/8), {
-      var uintD digit = 0;
-      DOCONSTTIMES(intDsize/8,GET_NEXT_BYTE); # GET_NEXT_BYTE(0..intDsize/8-1)
-      *--bigptr = digit;
-    });
-#undef GET_NEXT_BYTE
-    count2 = count % (intDsize/8);
-    if (count2>0) {
-      var uintL shiftcount = 0;
-      var uintD digit = (uintD)(*bitbufferptr++);
-      dotimesL(count2,count2-1, {
-        shiftcount += 8;
-        digit |= ((uintD)(*bitbufferptr++) << shiftcount);
-      });
-      *--bigptr = digit;
-    }
-  }
-  #endif
-  # since (intDsize/8)*(digitcount-1) <= count <= (intDsize/8)*digitcount
-  # everything is filled.
-  return big;
+  var object result = LESbvector_to_UI(bytesize,&STACK_0);
+  skipSTACK(1);
+  return result;
 }
 
 # UP for READ-BYTE on File-Streams of Integers, Type u :
@@ -4475,90 +4422,17 @@ local maygc object rd_by_iu_I (object stream, uintL bitsize, uintL bytesize) {
 }
 
 local maygc object bitbuff_is_I (object bitbuffer, uintL bitsize, uintL bytesize) {
-  # normalize number in bitbuffer:
   var uintB* bitbufferptr = &TheSbvector(bitbuffer)->data[bytesize-1];
-  var sintD sign;
   var uintL signbitnr = (bitsize-1)%8;
-  var uintL count = bytesize;
   if (!(*bitbufferptr & bit(signbitnr))) {
-    sign = 0;
     *bitbufferptr &= (bitm(signbitnr+1)-1); # sign-extend High byte
-    # normalize, highest Bit must remain 0:
-    while ((count>=2) && (*bitbufferptr==0)
-           && !(*(bitbufferptr-1) & bit(7))) {
-      count--; bitbufferptr--;
-    }
-    # build number:
-    if # at most oint_data_len+1 Bits, count <2^oint_data_len ?
-      ((count <= floor(oint_data_len,8))
-       || ((count == floor(oint_data_len,8)+1)
-           && (*bitbufferptr < bit(oint_data_len%8)))) {
-      # yes -> build Fixnum >=0:
-      var uintL wert = 0;
-      until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
-      return posfixnum(wert);
-    }
   } else {
-    sign = -1;
     *bitbufferptr |= minus_bitm(signbitnr+1); # sign-extend High byte
-    # normalize, highest Bit must remain 1:
-    while ((count>=2) && (*bitbufferptr==(uintB)(-1))
-           && (*(bitbufferptr-1) & bit(7))) {
-      count--; bitbufferptr--;
-    }
-    # make number:
-    if # at most oint_data_len+1 Bits, count >=-2^oint_data_len ?
-      ((count <= floor(oint_data_len,8))
-       || ((count == floor(oint_data_len,8)+1)
-           && (*bitbufferptr >= (uintB)(-bit(oint_data_len%8))))) {
-      # yes -> build Fixnum <0:
-      var uintL wert = (uintL)(-1);
-      until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
-      return negfixnum(-wbitm(intLsize)+(oint)wert);
-    }
   }
-  # make bignum:
   pushSTACK(bitbuffer);
-  var uintL digitcount = ceiling(count,(intDsize/8));
-  # As bitsize < intDsize*uintWC_max,
-  # digitcount <= ceiling(bitsize/intDsize) <= uintWC_max .
-  var object big = allocate_bignum(digitcount,(sintB)sign);
-  TheBignum(big)->data[0] = sign; # set highest Word to sign
-  # fill the remaining Digits from right to left,
-  # thereby translate sequence of Bytes into sequence of uintD:
-  bitbuffer = popSTACK();
-  bitbufferptr = &TheSbvector(bitbuffer)->data[0];
-  #if BIG_ENDIAN_P
-  {
-    var uintB* bigptr = (uintB*)(TheBignum(big)->data+digitcount);
-    dotimespL(count,count, { *--bigptr = *bitbufferptr++; } );
-  }
-  #else
-  {
-    var uintD* bigptr = TheBignum(big)->data+digitcount;
-    var uintL count2;
-#define GET_NEXT_BYTE(i) digit |= ((uintD)(*bitbufferptr++) << (8*i));
-    dotimespL(count2,floor(count,intDsize/8), {
-      var uintD digit = 0;
-      DOCONSTTIMES(intDsize/8,GET_NEXT_BYTE); # GET_NEXT_BYTE(0..intDsize/8-1)
-      *--bigptr = digit;
-    });
-#undef GET_NEXT_BYTE
-    count2 = count % (intDsize/8);
-    if (count2>0) {
-      var uintL shiftcount = 0;
-      var uintD digit = (uintD)(*bitbufferptr++);
-      dotimesL(count2,count2-1, {
-        shiftcount += 8;
-        digit |= ((uintD)(*bitbufferptr++) << shiftcount);
-      });
-      *--bigptr = digit ^ (sign << (shiftcount+8));
-    }
-  }
-  #endif
-  # since (intDsize/8)*(digitcount-1) < count <= (intDsize/8)*digitcount
-  # everything is filled.
-  return big;
+  var object result = LESbvector_to_I(bytesize,&STACK_0);
+  skipSTACK(1);
+  return result;
 }
 
 # UP for READ-BYTE on File-Streams of Integers, Type s :
@@ -4578,69 +4452,10 @@ typedef maygc object rd_by_ix_I (object stream, uintL bitsize, uintL bytesize);
 # stream.
 typedef void wr_by_aux_ix (object stream, uintL bitsize, uintL bytesize);
 
-local void bitbuff_ixu_sub (object stream, object bitbuffer,
-                            uintL bitsize, uintL bytesize, object obj) {
-  ASSERT_wr_int(stream,obj);
-  if (!positivep(obj))
+local inline void bitbuff_ixu_sub (object stream, object bitbuffer,
+                                   uintL bitsize, object obj) {
+  if (UI_to_LEbytes(obj,bitsize,TheSbvector(bitbuffer)->data))
     fehler_bad_integer(stream,obj);
-  # obj is an integer >=0
-  # transfer obj into the bitbuffer:
-  {
-    var uintB* bitbufferptr = TheSbvector(bitbuffer)->data;
-    var uintL count = bytesize;
-    if (posfixnump(obj)) { # obj is a Fixnum >=0
-      var uintL wert = posfixnum_to_L(obj);
-      # check wert < 2^bitsize:
-      if (!((bitsize>=oint_data_len) || (wert < bit(bitsize))))
-        fehler_bad_integer(stream,obj);
-      # store wert in Bitbuffer:
-      until (wert==0) {
-        *bitbufferptr++ = (uint8)wert; wert = wert>>8; count--;
-      }
-    } else { # obj is a Bignum >0
-      var uintL len = (uintL)Bignum_length(obj);
-      # check obj < 2^bitsize:
-      if (!((floor(bitsize,intDsize) >= len)
-            || ((floor(bitsize,intDsize) == len-1)
-                && (TheBignum(obj)->data[0] < bit(bitsize%intDsize)))))
-        fehler_bad_integer(stream,obj);
-      #if BIG_ENDIAN_P
-      {
-        var uintB* ptr = (uintB*)&TheBignum(obj)->data[len];
-        # convert Digit-Length in Byte-Length:
-        len = (intDsize/8)*len;
-#define CHECK_NEXT_BYTE(i)  \
-   if (((uintB*)(&TheBignum(obj)->data[0]))[i] != 0) goto len_ok; len--;
-        DOCONSTTIMES(intDsize/8,CHECK_NEXT_BYTE); # CHECK_NEXT_BYTE(0..intDsize/8-1)
-#undef CHECK_NEXT_BYTE
-      len_ok:
-        # store obj in Bitbuffer:
-        count = count - len;
-        dotimespL(len,len, { *bitbufferptr++ = *--ptr; } );
-      }
-      #else
-      {
-        var uintD* ptr = &TheBignum(obj)->data[len];
-        len--;
-        count -= (intDsize/8)*len;
-        dotimesL(len,len, {
-          var uintD digit = *--ptr;
-          doconsttimes(intDsize/8, {
-            *bitbufferptr++ = (uintB)digit; digit = digit >> 8;
-          });
-        });
-        var uintD digit = *--ptr;
-        doconsttimes(intDsize/8, {
-          if (digit==0) goto ok;
-          *bitbufferptr++ = (uintB)digit; digit = digit >> 8;
-          count--;
-        });
-      ok: ;
-      }
-    #endif
-    }
-    memset(bitbufferptr,0,count);
-  }
 }
 
 # UP for WRITE-BYTE on File-Streams of Integers, Type u :
@@ -4651,79 +4466,15 @@ local void bitbuff_ixu_sub (object stream, object bitbuffer,
 local maygc void wr_by_ixu_sub (object stream, object obj, wr_by_aux_ix* finisher) {
   var uintL bitsize = ChannelStream_bitsize(stream);
   var uintL bytesize = ceiling(bitsize,8);
-  bitbuff_ixu_sub(stream,TheStream(stream)->strm_bitbuffer,
-                  bitsize,bytesize,obj);
+  ASSERT_wr_int(stream,obj);
+  bitbuff_ixu_sub(stream,TheStream(stream)->strm_bitbuffer,bitsize,obj);
   (*finisher)(stream,bitsize,bytesize);
 }
 
-local void bitbuff_ixs_sub (object stream, object bitbuffer,
-                            uintL bitsize, uintL bytesize, object obj) {
-  ASSERT_wr_int(stream,obj);
-  # obj is an integer
-  # transfer obj into the bitbuffer:
-  {
-    var uintB* bitbufferptr = TheSbvector(bitbuffer)->data;
-    var uintL count = bytesize;
-    var uintL sign = (sintL)R_sign(obj);
-    if (fixnump(obj)) {
-      # obj is a Fixnum
-      var uintL wert = fixnum_to_L(obj); # >=0 or <0, according to sign
-      # check 0 <= wert < 2^(bitsize-1) resp. -2^(bitsize-1) <= wert < 0:
-      wert = wert^sign;
-      if (!((bitsize>oint_data_len) || (wert < bit(bitsize-1))))
-        fehler_bad_integer(stream,obj);
-      # store wert^sign in Bitbuffer:
-      until (wert == 0) {
-        *bitbufferptr++ = (uint8)(wert^sign); wert = wert>>8; count--;
-      }
-      memset(bitbufferptr,(uint8)sign,count);
-    } else {
-      # obj is a Bignum
-      var uintL len = (uintL)Bignum_length(obj);
-      # check -2^(bitsize-1) <= obj < 2^(bitsize-1):
-      if (!((floor(bitsize,intDsize) >= len)
-            || ((bitsize > intDsize*(len-1))
-                && ((TheBignum(obj)->data[0] ^ (uintD)sign) <
-                    bit((bitsize%intDsize)-1)))))
-        fehler_bad_integer(stream,obj);
-      #if BIG_ENDIAN_P
-      {
-        var uintB* ptr = (uintB*)&TheBignum(obj)->data[len];
-        # convert Digit-Length in Byte-Length:
-        len = (intDsize/8)*len;
-#define CHECK_NEXT_BYTE(i)  \
-   if (((uintB*)(&TheBignum(obj)->data[0]))[i] != (uintB)sign) goto len_ok; \
-   len--;
-        DOCONSTTIMES(intDsize/8,CHECK_NEXT_BYTE); # CHECK_NEXT_BYTE(0..intDsize/8-1)
-#undef CHECK_NEXT_BYTE
-      len_ok:
-        # store obj in Bitbuffer:
-        count = count - len;
-        dotimespL(len,len, { *bitbufferptr++ = *--ptr; } );
-      }
-      #else
-      {
-        var uintD* ptr = &TheBignum(obj)->data[len];
-        len--;
-        count -= (intDsize/8)*len;
-        dotimesL(len,len, {
-          var uintD digit = *--ptr;
-          doconsttimes(intDsize/8, {
-            *bitbufferptr++ = (uintB)digit; digit = digit >> 8;
-          });
-        });
-        var sintD digit = *--ptr;
-        doconsttimes(intDsize/8, {
-          if (digit == (sintD)sign) goto ok;
-          *bitbufferptr++ = (uintB)digit; digit = digit >> 8;
-          count--;
-        });
-      ok: ;
-      }
-      #endif
-      memset(bitbufferptr,(uintB)sign,count);
-    }
-  }
+local inline void bitbuff_ixs_sub (object stream, object bitbuffer,
+                                   uintL bitsize, object obj) {
+  if (I_to_LEbytes(obj,bitsize,TheSbvector(bitbuffer)->data))
+    fehler_bad_integer(stream,obj);
 }
 
 # UP for WRITE-BYTE on File-Streams of Integers, Type s :
@@ -4734,8 +4485,8 @@ local void bitbuff_ixs_sub (object stream, object bitbuffer,
 local maygc void wr_by_ixs_sub (object stream, object obj, wr_by_aux_ix* finisher) {
   var uintL bitsize = ChannelStream_bitsize(stream);
   var uintL bytesize = ceiling(bitsize,8);
-  bitbuff_ixs_sub(stream,TheStream(stream)->strm_bitbuffer,
-                  bitsize,bytesize,obj);
+  ASSERT_wr_int(stream,obj);
+  bitbuff_ixs_sub(stream,TheStream(stream)->strm_bitbuffer,bitsize,obj);
   (*finisher)(stream,bitsize,bytesize);
 }
 
@@ -17087,10 +16838,10 @@ LISPFUN(write_integer,seclass_default,3,1,norest,nokey,0,NIL) {
   # Copy the integer's data into the buffer.
   switch (eltype.kind) {
     case eltype_iu:
-      bitbuff_ixu_sub(STACK_3,bitbuffer,bitsize,bytesize,obj);
+      bitbuff_ixu_sub(STACK_3,bitbuffer,bitsize,obj);
       break;
     case eltype_is:
-      bitbuff_ixs_sub(STACK_3,bitbuffer,bitsize,bytesize,obj);
+      bitbuff_ixs_sub(STACK_3,bitbuffer,bitsize,obj);
       break;
     default: NOTREACHED;
   }
