@@ -1,3 +1,16 @@
+2004-02-28  Bruno Haible  <bruno@clisp.org>
+
+	Due to the rule 1 in
+	<http://www.lisp.org/HyperSpec/Body/fun_type-of.html>,
+	we must have (TYPEP X Y) ==> (SUBTYPEP (TYPE-OF X) Y)
+	for all "built-in types" Y as listed in table 4-2 in
+	<http://www.lisp.org/HyperSpec/Body/sec_4-2-3.html>
+	Apply this to X = #\a and Y = STANDARD-CHAR.
+	* lispbibl.d (standard_cint_p): New macro.
+	* charstrg.d (STANDARD-CHAR-P): Use it.
+	* predtype.d (TYPE-OF): For standard-char elements, return
+	STANDARD-CHAR instead of BASE-CHAR.
+
 2004-03-21  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (installcheck): pass "-E utf-8 -norc" to CLISP

@@ -1243,6 +1243,7 @@ LISPSYM(Kwin32,"WIN32",keyword)
 LISPSYM(Kread_only,"READ-ONLY",keyword)
 
 /* other symbols: */
+LISPSYM(standard_char,"STANDARD-CHAR",lisp) /* type in PREDTYPE */
 LISPSYM(string_char,"STRING-CHAR",ext) /* type in PREDTYPE */
 LISPSYM(base_char,"BASE-CHAR",lisp) /* type in PREDTYPE */
 LISPSYM(array_rank_limit,"ARRAY-RANK-LIMIT",lisp) /* constant in ARRAY */

@@ -4096,6 +4096,9 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
 # Conversion standard char (in ASCII encoding) --> object.
 #define ascii_char(x)  code_char(ascii(x))
 
+# Test for STANDARD-CHAR.
+#define standard_cint_p(x)  ((('~' >= (x)) && ((x) >= ' ')) || ((x) == NL))
+
 # Whether to use three different kinds of string representations.
 #if defined(UNICODE) && (defined(GNU) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT)) && !defined(NO_SMALL_SSTRING)
 #define HAVE_SMALL_SSTRING
