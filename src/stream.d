@@ -12028,7 +12028,7 @@ local void DoneConsole (void);
 local void DoneConsole()
   {
     if (console_needtoclose) {
-      CloseHandle(console_needtoclose);
+      CloseHandle(console_handle);
       console_needtoclose = false;
     }
   }
@@ -12086,7 +12086,7 @@ local void v_cd (void)
 local void v_scroll (int ax, int ay, int bx, int by, int n)
   {
     CHAR_INFO c;
-    SMALL_RECT r1:
+    SMALL_RECT r1;
     SMALL_RECT r2;
     COORD p;
     c.Char.AsciiChar = ' '; c.Attributes = attr;
@@ -12116,7 +12116,7 @@ local void v_su (void)
 
 local void v_move(y,x)
   var uintW y;
-  var uintW x)
+  var uintW x;
   {
     # set cursor
     console_cursor_pos.X = x; console_cursor_pos.Y = y;
