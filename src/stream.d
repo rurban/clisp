@@ -6511,54 +6511,50 @@ global object iconv_range(encoding,start,end)
 # < ergebnis: File-Handle-Stream, Handle_{input,output}_init noch aufzurufen
 # < STACK: aufgeräumt
 # can trigger GC
-  local object make_unbuffered_stream (uintB type, uintB direction, const decoded_eltype* eltype, bool handle_tty);
-  local object make_unbuffered_stream(type,direction,eltype,handle_tty)
-    var uintB type;
-    var uintB direction;
-    var const decoded_eltype* eltype;
-    var bool handle_tty;
-    {
-      # Flags:
-      var uintB flags = DIRECTION_FLAGS(direction);
-      if (eltype->kind == eltype_ch)
-        flags &= strmflags_ch_B | strmflags_immut_B;
-      else
-        flags &= strmflags_by_B | strmflags_immut_B;
-      # Stream allozieren:
-      var object stream = allocate_stream(flags,type,strm_channel_len,sizeof(strm_unbuffered_extrafields_struct));
-      # und füllen:
-      TheStream(stream)->strm_encoding = STACK_2;
-      fill_pseudofuns_unbuffered(stream,eltype);
-      UnbufferedStream_ignore_next_LF(stream) = false;
-      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
-      {
-        var object handle = popSTACK();
-        if (READ_P(direction))
-          TheStream(stream)->strm_ichannel = handle; # Handle eintragen
-        if (WRITE_P(direction))
-          TheStream(stream)->strm_ochannel = handle; # Handle eintragen
-        if (type == strmtype_file)
-          TheStream(stream)->strm_buffered_channel = handle; # Handle eintragen
-      }
-      # Flag isatty = (handle_tty ? T : NIL) eintragen:
-      TheStream(stream)->strm_isatty = (handle_tty ? T : NIL);
-      TheStream(stream)->strm_eltype = popSTACK();
-      ChannelStream_buffered(stream) = false;
-      ChannelStream_init(stream);
-      # element-type dependent initializations:
-      ChannelStream_bitsize(stream) = eltype->size;
-      ChannelStream_lineno(stream) = 1; # initialize always (cf. set-stream-element-type)
-      if (!(eltype->kind == eltype_ch)) {
-        # File-Stream für Integers
-        # Bitbuffer allozieren:
-        pushSTACK(stream);
-        var object bitbuffer = allocate_bit_vector(Atype_Bit,eltype->size);
-        stream = popSTACK();
-        TheStream(stream)->strm_bitbuffer = bitbuffer;
-      }
-      skipSTACK(1);
-      return stream;
-    }
+local object make_unbuffered_stream (uintB type,direction_t direction,
+                                     const decoded_eltype* eltype,
+                                     bool handle_tty) {
+  # Flags:
+  var uintB flags = DIRECTION_FLAGS(direction);
+  if (eltype->kind == eltype_ch)
+    flags &= strmflags_ch_B | strmflags_immut_B;
+  else
+    flags &= strmflags_by_B | strmflags_immut_B;
+  # Stream allozieren:
+  var object stream = allocate_stream(flags,type,strm_channel_len,sizeof(strm_unbuffered_extrafields_struct));
+  # und füllen:
+  TheStream(stream)->strm_encoding = STACK_2;
+  fill_pseudofuns_unbuffered(stream,eltype);
+  UnbufferedStream_ignore_next_LF(stream) = false;
+  TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
+  {
+    var object handle = popSTACK();
+    if (READ_P(direction))
+      TheStream(stream)->strm_ichannel = handle; # Handle eintragen
+    if (WRITE_P(direction))
+      TheStream(stream)->strm_ochannel = handle; # Handle eintragen
+    if (type == strmtype_file)
+      TheStream(stream)->strm_buffered_channel = handle; # Handle eintragen
+  }
+  # Flag isatty = (handle_tty ? T : NIL) eintragen:
+  TheStream(stream)->strm_isatty = (handle_tty ? T : NIL);
+  TheStream(stream)->strm_eltype = popSTACK();
+  ChannelStream_buffered(stream) = false;
+  ChannelStream_init(stream);
+  # element-type dependent initializations:
+  ChannelStream_bitsize(stream) = eltype->size;
+  ChannelStream_lineno(stream) = 1; # initialize always (cf. set-stream-element-type)
+  if (!(eltype->kind == eltype_ch)) {
+  # File-Stream für Integers
+  # Bitbuffer allozieren:
+    pushSTACK(stream);
+    var object bitbuffer = allocate_bit_vector(Atype_Bit,eltype->size);
+    stream = popSTACK();
+    TheStream(stream)->strm_bitbuffer = bitbuffer;
+  }
+  skipSTACK(1);
+  return stream;
+}
 
 
 # File-Stream
@@ -8454,14 +8450,10 @@ typedef struct strm_i_buffered_extrafields_struct {
 #           for eltype.size<8 also eofposition still to be to determined
 # < STACK: cleaned up
 # can trigger GC
-  local object make_buffered_stream (uintB type, uintB direction, const decoded_eltype* eltype, bool handle_regular, bool handle_blockpositioning);
-  local object make_buffered_stream(type,direction,eltype,handle_regular,handle_blockpositioning)
-    var uintB type;
-    var uintB direction;
-    var const decoded_eltype* eltype;
-    var bool handle_regular;
-    var bool handle_blockpositioning;
-    {
+local object make_buffered_stream (uintB type,direction_t direction,
+                                   const decoded_eltype* eltype,
+                                   bool handle_regular,
+                                   bool handle_blockpositioning) {
       var uintB flags = DIRECTION_FLAGS(direction);
       var uintC xlen = sizeof(strm_buffered_extrafields_struct); # Das haben alle File-Streams
       if (eltype->kind == eltype_ch) {
@@ -8549,168 +8541,161 @@ typedef struct strm_i_buffered_extrafields_struct {
 # < ergebnis: File-Stream (oder evtl. File-Handle-Stream)
 # < STACK: aufgeräumt
 # can trigger GC
-  global object make_file_stream (uintB direction, bool append_flag, bool handle_fresh);
-  global object make_file_stream(direction,append_flag,handle_fresh)
-    var uintB direction;
-    var bool append_flag;
-    var bool handle_fresh;
-    {
-      var decoded_eltype eltype;
-      var signean buffered;
-      # Check and canonicalize the :ELEMENT-TYPE argument:
-      test_eltype_arg(&STACK_1,&eltype);
-      STACK_1 = canon_eltype(&eltype);
-      # Check and canonicalize the :EXTERNAL-FORMAT argument:
-      STACK_2 = test_external_format_arg(STACK_2);
-      # Stackaufbau: filename, truename, buffered, encoding, eltype, handle.
-      var object stream;
-      var object handle = STACK_0;
-      var bool handle_regular = true;
-      if (!nullp(handle))
-        handle_regular = regular_handle_p(TheHandle(handle));
-      # Check and canonicalize the :BUFFERED argument:
-      # Default is T for regular files, NIL for non-regular files because they
-      # probably don't support lseek().
-      buffered = test_buffered_arg(STACK_3);
-      if (buffered == 0)
-        buffered = (handle_regular ? 1 : -1);
-      if (buffered < 0) {
-        if (!(eltype.kind == eltype_ch) && !((eltype.size % 8) == 0)) {
-          pushSTACK(STACK_4); # Truename, FILE-ERROR slot PATHNAME
-          pushSTACK(STACK_0);
-          pushSTACK(STACK_(1+2));
-          pushSTACK(S(Kelement_type));
-          pushSTACK(TheSubr(subr_self)->name);
-          fehler(file_error,
-                 GETTEXT("~: argument ~ ~ was specified, but ~ is not a regular file.")
-                );
-        }
-        var bool handle_tty = false;
-        if (READ_P(direction)) # only needed for input handles
-          if (!handle_regular) { # regular files are certainly not ttys
-            begin_system_call();
-            handle_tty = isatty(TheHandle(handle));
-            end_system_call();
-          }
-        stream = make_unbuffered_stream(strmtype_file,direction,&eltype,handle_tty);
-        # File-Handle-Streams werden für Pathname-Zwecke wie File-Streams behandelt.
-        # Daher ist (vgl. file_write_date) strm_buffered_channel == strm_ochannel,
-        # und wir tragen nun die Pathnames ein:
-        TheStream(stream)->strm_file_truename = STACK_1; # Truename eintragen
-        TheStream(stream)->strm_file_name = STACK_2; # Filename eintragen
-        if (READ_P(direction)) {
-          UnbufferedHandleStream_input_init(stream);
-        }
-        if (WRITE_P(direction)) {
-          UnbufferedHandleStream_output_init(stream);
-        }
-        ChannelStreamLow_close(stream) = &low_close_handle;
-      } else {
-        if (direction==DIRECTION_IO && !handle_regular) {
-          # FIXME: Instead of signalling an error, we could return some kind
-          # of two-way-stream (cf. make_socket_stream).
-          pushSTACK(STACK_4); # Truename, FILE-ERROR slot PATHNAME
-          pushSTACK(STACK_0);
-          pushSTACK(T);
-          pushSTACK(S(Kbuffered));
-          pushSTACK(S(Kio));
-          pushSTACK(S(Kdirection));
-          pushSTACK(TheSubr(subr_self)->name);
-          fehler(file_error,
-                 GETTEXT("~: arguments ~ ~ and ~ ~ were specified, but ~ is not a regular file.")
-                );
-        }
-        # Positioning the buffer on block boundaries is possible only if
-        # 1. the handle refers to a regular file (otherwise read() and
-        #    write() on the handle may be unrelated),
-        # 2. if write access is requested, the handle is known to have
-        #    read access as well (O_RDWR vs. O_WRONLY).
-        var bool handle_blockpositioning =
-          (handle_regular && (WRITE_P(direction) ? handle_fresh : true));
-        # Now, if direction==DIRECTION_IO(5), handle_blockpositioning is true.
-        # Stream allozieren:
-        stream = make_buffered_stream(strmtype_file,direction,&eltype,
-                                      handle_regular,handle_blockpositioning);
-        TheStream(stream)->strm_file_truename = STACK_1; # Truename eintragen
-        TheStream(stream)->strm_file_name = STACK_2; # Filename eintragen
-        BufferedHandleStream_init(stream);
-        ChannelStreamLow_close(stream) = &low_close_handle;
-        if (handle_regular && !handle_fresh) {
-          var uintL position;
-          begin_system_call();
-          handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
-                       0,SEEK_CUR,position=);
-          end_system_call();
-          position_file_buffered(stream,position);
-        }
-        if (!nullp(TheStream(stream)->strm_buffered_channel)
-            && !(eltype.kind == eltype_ch)
-            && (eltype.size < 8)) {
-          # Art b
-          # eofposition lesen:
-          var uintL eofposition = 0;
-          var uintC count;
-          for (count=0; count < 8*sizeof(uintL); count += 8 ) {
-            var uintB* ptr = buffered_nextbyte(stream);
-            if (ptr == (uintB*)NULL)
-              goto too_short;
-            eofposition |= ((*ptr) << count);
-            # index incrementieren, da gerade *ptr verarbeitet:
-            BufferedStream_index(stream) += 1;
-          }
-          if (false) {
-           too_short:
-            # File zu kurz (< sizeof(uintL) Bytes)
-            if ((TheStream(stream)->strmflags & strmflags_wr_by_B) == 0) # Read-Only-Stream?
-              goto bad_eofposition;
-            # File Read/Write -> setze eofposition := 0
-            eofposition = 0;
-            position_file_buffered(stream,0); # an Position 0 positionieren
-            var uintC count; # und eofposition = 0 herausschreiben
-            dotimespC(count,sizeof(uintL), { buffered_writebyte(stream,0); } );
-          } elif (eofposition > (uintL)(bitm(oint_data_len)-1)) {
-           bad_eofposition:
-            # Keine gültige EOF-Position.
-            # File schließen und Error melden:
-            TheStream(stream)->strmflags &= ~strmflags_wr_by_B; # Stream Read-Only machen
-            pushSTACK(stream);
-            builtin_stream_close(&STACK_0);
-            pushSTACK(Truename_or_Self(STACK_0)); # STREAM-ERROR slot STREAM
-            fehler(stream_error,
-                   GETTEXT("file ~ is not an integer file")
-                  );
-          }
-          # Auf die gelesene EOF-Position verlassen wir uns jetzt!
-          BufferedStream_eofposition(stream) = eofposition;
-        }
-      }
-      skipSTACK(3);
-      # Liste der offenen File-Streams um stream erweitern:
-      pushSTACK(stream);
-      {
-        var object new_cons = allocate_cons();
-        Car(new_cons) = stream = popSTACK();
-        Cdr(new_cons) = O(open_files);
-        O(open_files) = new_cons;
-      }
-      # Modus :APPEND behandeln:
-      # CLHS says that :APPEND implies that "the file pointer is _initially_
-      # positioned at the end of the file". Note that this is different from
-      # the Unix O_APPEND semantics.
-      if (append_flag) {
-        if (buffered < 0) {
-          # ans Ende positionieren:
-          begin_system_call();
-          handle_lseek(stream,TheStream(stream)->strm_ochannel,
-                       0,SEEK_END,);
-          end_system_call();
-        } else {
-          logical_position_file_end(stream);
-        }
-      }
-      # Done.
-      return stream;
+global object make_file_stream (direction_t direction,bool append_flag,
+                                bool handle_fresh) {
+  var decoded_eltype eltype;
+  var signean buffered;
+  # Check and canonicalize the :ELEMENT-TYPE argument:
+  test_eltype_arg(&STACK_1,&eltype);
+  STACK_1 = canon_eltype(&eltype);
+  # Check and canonicalize the :EXTERNAL-FORMAT argument:
+  STACK_2 = test_external_format_arg(STACK_2);
+  # Stackaufbau: filename, truename, buffered, encoding, eltype, handle.
+  var object stream;
+  var object handle = STACK_0;
+  var bool handle_regular = true;
+  if (!nullp(handle))
+    handle_regular = regular_handle_p(TheHandle(handle));
+  # Check and canonicalize the :BUFFERED argument:
+  # Default is T for regular files, NIL for non-regular files because they
+  # probably don't support lseek().
+  buffered = test_buffered_arg(STACK_3);
+  if (buffered == 0)
+    buffered = (handle_regular ? 1 : -1);
+  if (buffered < 0) {
+    if (!(eltype.kind == eltype_ch) && !((eltype.size % 8) == 0)) {
+      pushSTACK(STACK_4); # Truename, FILE-ERROR slot PATHNAME
+      pushSTACK(STACK_0);
+      pushSTACK(STACK_(1+2));
+      pushSTACK(S(Kelement_type));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(file_error,
+             GETTEXT("~: argument ~ ~ was specified, but ~ is not a regular file.")
+             );
     }
+    var bool handle_tty = false;
+    if (READ_P(direction)) # only needed for input handles
+      if (!handle_regular) { # regular files are certainly not ttys
+        begin_system_call();
+        handle_tty = isatty(TheHandle(handle));
+        end_system_call();
+      }
+    stream=make_unbuffered_stream(strmtype_file,direction,&eltype,handle_tty);
+    # file-handle-streams are treated for pathname purposes as file-streams
+    # thus (wrt file_write_date) strm_buffered_channel == strm_ochannel,
+    # and we have pathnames now:
+    TheStream(stream)->strm_file_truename = STACK_1; # truename
+    TheStream(stream)->strm_file_name = STACK_2; # filename
+    if (READ_P(direction)) {
+      UnbufferedHandleStream_input_init(stream);
+    }
+    if (WRITE_P(direction)) {
+      UnbufferedHandleStream_output_init(stream);
+    }
+    ChannelStreamLow_close(stream) = &low_close_handle;
+  } else {
+    if (direction==DIRECTION_IO && !handle_regular) {
+      # FIXME: Instead of signalling an error, we could return some kind
+      # of two-way-stream (cf. make_socket_stream).
+      pushSTACK(STACK_4); # Truename, FILE-ERROR slot PATHNAME
+      pushSTACK(STACK_0);
+      pushSTACK(T);
+      pushSTACK(S(Kbuffered));
+      pushSTACK(S(Kio));
+      pushSTACK(S(Kdirection));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(file_error,
+             GETTEXT("~: arguments ~ ~ and ~ ~ were specified, but ~ is not a regular file.")
+             );
+    }
+    # Positioning the buffer on block boundaries is possible only if
+    # 1. the handle refers to a regular file (otherwise read() and
+    #    write() on the handle may be unrelated),
+    # 2. if write access is requested, the handle is known to have
+    #    read access as well (O_RDWR vs. O_WRONLY).
+    var bool handle_blockpositioning =
+      (handle_regular && (WRITE_P(direction) ? handle_fresh : true));
+    # Now, if direction==DIRECTION_IO(5), handle_blockpositioning is true.
+    # allocate stream:
+    stream = make_buffered_stream(strmtype_file,direction,&eltype,
+                                  handle_regular,handle_blockpositioning);
+    TheStream(stream)->strm_file_truename = STACK_1; # truename
+    TheStream(stream)->strm_file_name = STACK_2; # filename
+    BufferedHandleStream_init(stream);
+    ChannelStreamLow_close(stream) = &low_close_handle;
+    if (handle_regular && !handle_fresh) {
+      var uintL position;
+      begin_system_call();
+      handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
+                   0,SEEK_CUR,position=);
+      end_system_call();
+      position_file_buffered(stream,position);
+    }
+    if (!nullp(TheStream(stream)->strm_buffered_channel)
+        && !(eltype.kind == eltype_ch) && (eltype.size < 8)) {
+      # Art b
+      # eofposition lesen:
+      var uintL eofposition = 0;
+      var uintC count;
+      for (count=0; count < 8*sizeof(uintL); count += 8 ) {
+        var uintB* ptr = buffered_nextbyte(stream);
+        if (ptr == (uintB*)NULL)
+          goto too_short;
+        eofposition |= ((*ptr) << count);
+        # index incrementieren, da gerade *ptr verarbeitet:
+        BufferedStream_index(stream) += 1;
+      }
+      if (false) {
+       too_short:
+        # File zu kurz (< sizeof(uintL) Bytes)
+        if ((TheStream(stream)->strmflags & strmflags_wr_by_B) == 0) # Read-Only-Stream?
+          goto bad_eofposition;
+        # File Read/Write -> setze eofposition := 0
+        eofposition = 0;
+        position_file_buffered(stream,0); # an Position 0 positionieren
+        var uintC count; # und eofposition = 0 herausschreiben
+        dotimespC(count,sizeof(uintL), { buffered_writebyte(stream,0); } );
+      } elif (eofposition > (uintL)(bitm(oint_data_len)-1)) {
+       bad_eofposition:
+        # Keine gültige EOF-Position.
+        # File schließen und Error melden:
+        TheStream(stream)->strmflags &= ~strmflags_wr_by_B; # Stream Read-Only machen
+        pushSTACK(stream);
+        builtin_stream_close(&STACK_0);
+        pushSTACK(Truename_or_Self(STACK_0)); # STREAM-ERROR slot STREAM
+        fehler(stream_error,
+               GETTEXT("file ~ is not an integer file")
+               );
+      }
+      # Auf die gelesene EOF-Position verlassen wir uns jetzt!
+      BufferedStream_eofposition(stream) = eofposition;
+    }
+  }
+  skipSTACK(3);
+  # Liste der offenen File-Streams um stream erweitern:
+  pushSTACK(stream);
+  {
+    var object new_cons = allocate_cons();
+    Car(new_cons) = stream = popSTACK();
+    Cdr(new_cons) = O(open_files);
+    O(open_files) = new_cons;
+  }
+  # Modus :APPEND behandeln:
+  # CLHS says that :APPEND implies that "the file pointer is _initially_
+  # positioned at the end of the file". Note that this is different from
+  # the Unix O_APPEND semantics.
+  if (append_flag) {
+    if (buffered < 0) {
+      # ans Ende positionieren:
+      begin_system_call();
+      handle_lseek(stream,TheStream(stream)->strm_ochannel,0,SEEK_END,);
+      end_system_call();
+    } else {
+      logical_position_file_end(stream);
+    }
+  }
+  return stream;
+}
 
 # UP: Bereitet das Schließen eines File-Streams vor.
 # Dabei wird der Buffer und evtl. eofposition hinausgeschrieben.

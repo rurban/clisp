@@ -11770,7 +11770,7 @@ extern if_exists_t check_if_exists (const object if_exists);
 # < ergebnis: File-Stream (oder evtl. File-Handle-Stream)
 # < STACK: aufgeräumt
 # can trigger GC
-  extern object make_file_stream (uintB direction, bool append_flag, bool handle_at_pos_0);
+  extern object make_file_stream (direction_t direction, bool append_flag, bool handle_at_pos_0);
 # wird verwendet von PATHNAME
 
 # Liefert einen Broadcast-Stream zum Stream stream.
