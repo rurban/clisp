@@ -64,6 +64,7 @@
 <!ENTITY fcntl-h "<ulink url='&unix-b;/fcntl.h.html'><filename>fcntl.h</filename></ulink>">
 <!ENTITY env-var "<ulink url='&unix-b;/xbd_chap08.html'>environment variable</ulink>">
 <!ENTITY file-des "<ulink url='&unix-b;/xbd_chap03.html#tag_03_165'>file descriptor</ulink>">
+<!ENTITY reg-exp "<ulink url='&unix-b;/xbd_chap09.html'>regular expression</ulink>">
 
 <!-- utilities -->
 <!ENTITY unix-u "&unix-top;/utilities">
