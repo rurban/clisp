@@ -1,3 +1,10 @@
+1999-08-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * makemake.in (install_root): New variable.
+          (installdirs, install-bin, install-man, install-doc, uninstall-bin,
+           uninstall-man,): Prepend $(install_root) to every installation
+          directory.
+
 1999-07-31  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * spvw_ctype.d (init_ctype): Accept "he" as a new name for "iw".
