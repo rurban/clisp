@@ -565,30 +565,46 @@ extern_C int isatty (int fd); /* TTYNAME(3V) */
 /* START_NO_BLOCK() & END_NO_BLOCK() should appear in pairs
    inside { NO_BLOCK_DECL(); ... };
  NO_BLOCK_DECL() should be before the first statement,
-   but after the last declaration */
-#ifdef FIONBIO                  /* non-blocking I/O a la BSD 4.2 */
- /* semicolon in NO_BLOCK_DECL ensures no declaration after it */
- #define NO_BLOCK_DECL(handle)  int non_blocking_io = 1;
- #define START_NO_BLOCK(handle)                                   \
-    if (ioctl(handle,FIONBIO,&non_blocking_io)) { OS_error(); }
- #define END_NO_BLOCK(handle)                                          \
-    do { non_blocking_io = 0;                                          \
-      if (ioctl(handle,FIONBIO,&non_blocking_io)) { OS_error(); }      \
-    } while(0)
-#else  /* non-blocking I/O a la SYSV */
- #define NO_BLOCK_DECL(handle)                                          \
+   but after the last declaration. */
+#if defined(F_GETFL) && defined(O_NONBLOCK)
+  /* non-blocking I/O a la SYSV */
+  #define NO_BLOCK_DECL(handle)                                         \
     int fcntl_flags;                                                    \
     if ((fcntl_flags = fcntl(handle,F_GETFL,0))<0) { OS_error(); }
- #ifdef O_NONBLOCK
-  #define START_NO_BLOCK(handle)       \
-  do{if (fcntl(handle,F_SETFL,fcntl_flags|O_NONBLOCK)<0) {OS_error();}}while(0)
- #else  /* older Unices called it O_NDELAY */
-  #define START_NO_BLOCK(handle)       \
-  do{if (fcntl(handle,F_SETFL,fcntl_flags|O_NDELAY)<0) {OS_error();}}while(0)
- #endif
- #define END_NO_BLOCK(handle)                    \
-  do{if (fcntl(handle,F_SETFL,fcntl_flags)<0) {OS_error();}}while(0)
-#endif  /* FIONBIO */
+  #define START_NO_BLOCK(handle)  \
+    do {                                                                  \
+      if (fcntl(handle,F_SETFL,fcntl_flags|O_NONBLOCK)<0) { OS_error(); } \
+    } while (0)
+  #define END_NO_BLOCK(handle)  \
+    do {                                                       \
+      if (fcntl(handle,F_SETFL,fcntl_flags)<0) { OS_error(); } \
+    } while(0)
+#elif defined(F_GETFL) && defined(O_NDELAY)
+  /* non-blocking I/O a la SYSV, older Unices called it O_NDELAY */
+  #define NO_BLOCK_DECL(handle)                                         \
+    int fcntl_flags;                                                    \
+    if ((fcntl_flags = fcntl(handle,F_GETFL,0))<0) { OS_error(); }
+  #define START_NO_BLOCK(handle)  \
+    do {                                                                \
+      if (fcntl(handle,F_SETFL,fcntl_flags|O_NDELAY)<0) { OS_error(); } \
+    } while (0)
+  #define END_NO_BLOCK(handle)  \
+    do {                                                       \
+      if (fcntl(handle,F_SETFL,fcntl_flags)<0) { OS_error(); } \
+    } while(0)
+#elif defined(FIONBIO)
+  /* non-blocking I/O a la BSD 4.2 */
+  /* semicolon in NO_BLOCK_DECL ensures no declaration after it */
+  #define NO_BLOCK_DECL(handle)  \
+    int non_blocking_io = 1;
+  #define START_NO_BLOCK(handle)                                \
+    if (ioctl(handle,FIONBIO,&non_blocking_io)) { OS_error(); }
+  #define END_NO_BLOCK(handle)                                    \
+    do {                                                          \
+      non_blocking_io = 0;                                        \
+      if (ioctl(handle,FIONBIO,&non_blocking_io)) { OS_error(); } \
+    } while (0)
+#endif
 
 #if (defined(UNIX_TERM_TERMIOS) || defined(UNIX_TERM_TERMIO)) && !(defined(TCIFLUSH) && defined(TCOFLUSH))
   #define TCIFLUSH 0
