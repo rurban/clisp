@@ -1597,7 +1597,11 @@
          (type (or null fixnum) timeout))
   #.(declare-buffun)
   (let ((stream (display-input-stream display)))
-    (cond ((and (eql timeout 0) (not (listen stream))) :timeout)
+    (cond ((and (eql timeout 0)
+                (not (#-have-listen-byte listen
+                      #+have-listen-byte sys::listen-byte
+                       stream)))
+           :timeout)
           (t (system::read-n-bytes stream vector start (- end start)) nil)
 ) ) )
 
