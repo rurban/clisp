@@ -979,17 +979,21 @@ LISPFUN(make_sequence,2,0,norest,key,2,\
   }
 
 # UP: Wandelt ein Objekt in eine Sequence gegebenen Typs um.
-# coerce_sequence(obj,result_type)
+# coerce_sequence(obj,result_type,error_p)
 # > obj: Objekt, sollte eine Sequence sein
 # > result_type: Bezeichner (Symbol) des Sequence-Typs
+# > error_p: when result_type is not a sequence:
+#              when true, signal an error; when false, return nullobj
 # < Wert: Sequence vom Typ result_type
 # can trigger GC
-global Values coerce_sequence (object sequence, object result_type) {
+global Values coerce_sequence (object sequence, object result_type,
+                               bool error_p) {
   pushSTACK(sequence);
   pushSTACK(result_type);
   { # check result-type:
-    var object typdescr2 = valid_type1(result_type);
-    if (eq(NIL,typdescr2)) { # result_type is not a sequence
+    var object typdescr2 = (error_p ? valid_type(result_type)
+                            : valid_type1(result_type));
+    if (!error_p && eq(NIL,typdescr2)) { # result_type is not a sequence
       value1 = nullobj; mv_count = 1; skipSTACK(1); return;
     }
     pushSTACK(typdescr2);
