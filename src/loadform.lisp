@@ -27,13 +27,31 @@
                             slot-names))
             (initialize-instance ,object))))
 
+;; Condition type thrown by make-load-form.
+;; It's not sufficient to rely on method-call-error because a test like
+;;    (eq (method-call-error-generic-function err) #'make-load-form)
+;; doesn't work when make-load-form is traced.
+(define-condition missing-load-form (simple-error)
+  (($object :initarg :object :reader missing-load-form-object)))
+
+(defun signal-missing-load-form (object)
+  (error-of-type 'missing-load-form :object object
+    (TEXT "No method has been defined on ~S for class ~S")
+    'make-load-form (class-name (class-of object))))
+
 (defgeneric make-load-form (object &optional environment)
   ;; <http://www.lisp.org/HyperSpec/Body/stagenfun_make-load-form.html>
   ;; "The methods specialized on standard-object, structure-object, and
   ;;  condition all signal an error of type error."
-  ;;(:method ((object standard-object) &optional environment)
-  ;;  (make-load-form-saving-slots object :environment environment))
-  )
+  (:method ((object standard-object) &optional environment)
+    (signal-missing-load-form object))
+  (:method ((object structure-object) &optional environment)
+    (signal-missing-load-form object))
+  (:method ((object condition) &optional environment)
+    (signal-missing-load-form object))
+  (:method ((object class) &optional environment)
+    ; TODO: Implement as described in CLHS
+    `(find-class ',(class-name object))))
 
 (defun mlf-init-function (object)
   (multiple-value-bind (cre-form ini-form) (make-load-form object)
@@ -51,15 +69,13 @@
     (multiple-value-bind (form found-p)
         (gethash object compiler::*load-forms*)
       (if found-p
-          form
-          (handler-case
-              (setf (gethash object compiler::*load-forms*)
-                    `(funcall ,(compile nil (mlf-init-function object))))
-            (method-call-error ()) ; no method defined -- ignore
-            (error (err)           ; something serious -- warn
-              (with-standard-io-syntax
-                (let ((*print-readably* nil))
-                  (warn "~s[~s][~s]: ~?~%" 'make-init-form
-                        (type-of object) (type-of err)
-                        (simple-condition-format-control err)
-                        (simple-condition-format-arguments err))))))))))
+        form
+        (setf (gethash object compiler::*load-forms*)
+              (block compute-init-form
+                (handler-bind
+                  ((missing-load-form
+                     #'(lambda (err)
+                         (when (eq (missing-load-form-object err) object)
+                           (return-from compute-init-form nil)))))
+                  ; TODO: Explain why it's worth invoking the compiler here.
+                  `(funcall ,(compile nil (mlf-init-function object))))))))))
