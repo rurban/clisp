@@ -382,8 +382,8 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
   &foreign-pointer-t;, &foreign-address-t;,
   &foreign-variable;;, &foreign-function;</simpara></listitem>
  <listitem><simpara>&weak-pointer;, &weak-list;, &weak-and-relation;,
-  &weak-or-relation;, &weak-mapping;, &weak-and-mapping;, &weak-or-mapping;,
-  &weak-alist;,
+   &weak-or-relation;, &weak-mapping;, &weak-and-mapping;,
+   &weak-or-mapping;, &weak-alist;,
    <link linkend="reader"><classname>READ-LABEL</classname></link>,
    <link linkend="reader"><classname>FRAME-POINTER</classname></link>,
    <classname>SYSTEM-INTERNAL</classname></simpara></listitem>
@@ -677,10 +677,9 @@ is the same as
 
  <varlistentry><term>&values-list;</term>
   <listitem><simpara>
-   <literal role="sexp">(&setf; (&values-list;
-       <replaceable>list</replaceable>) &form-r;)</literal>
+   <literal role="sexp">(&setf; (&values-list; &list-r;) &form-r;)</literal>
     is equivalent to
-   <literal role="sexp">(&values-list; (&setf; <replaceable>list</replaceable>
+   <literal role="sexp">(&values-list; (&setf; &list-r;
     (&multiple-value-list; &form-r;)))</literal>
   </simpara></listitem></varlistentry>
 </variablelist></para>
@@ -2453,9 +2452,9 @@ and &end-k;:</para>
  <simplelist columns="1">
  <member>&nil; (default)</member>
  <member>&key-k;</member>
- <member><constant>:VALUE</constant></member>
- <member><constant>:EITHER</constant></member>
- <member><constant>:BOTH</constant></member>
+ <member>&value-k;</member>
+ <member>&either-k;</member>
+ <member>&both-k;</member>
 </simplelist>
 and specifies whether the &hash-table-t; is <emphasis>weak</emphasis>:
 if the key, value, either or both are not accessible for the &gc;ion
@@ -2466,8 +2465,10 @@ and &weak-pointer;s, it is &gc;ed and removed from the weak
 <para>The &setf;able predicate <function>EXT:HASH-TABLE-WEAK-P</function>
 checks whether the &hash-table-t; is weak.</para>
 
-<para>Just like &weak-pointer;s, weak &hash-table-t;s cannot be
-printed readably.</para>
+<para>Just like all other <link linkend="weak">weak objects</link>, weak
+&hash-table-t;s cannot be printed readably.</para>
+
+<para>See also <olink targetdoc="impnotes" targetptr="weak-ht"/>.</para>
 
 </section>
 
