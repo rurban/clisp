@@ -4,6 +4,8 @@
 
 #include "clisp.h"
 
+DEFMODULE(queens,"USER")
+
 #define nmax 100
 
 /* extern declaration */
@@ -12,7 +14,7 @@ extern unsigned int queens (unsigned int n);
 /* (USER::QUEENS n) returns the number of solutions to the n-queens problem.
  * n ought to be an integer > 0, <= nmax. Otherwise it returns NIL.
  */
-LISPFUNN(queens,1)
+DEFUN(USER::QUEENS, n)
 { /*
    * No garbage collection is a problem. So we get the argument from the
    * STACK immediately.
@@ -47,36 +49,4 @@ LISPFUNN(queens,1)
     /* We could issue an error. We prefer to return NIL here. */
     value1 = NIL; mv_count=1; return;
 }
-
-
-/* linkable module for CLISP */
-
-#undef LISPFUN
-#define LISPFUN LISPFUN_F
-#undef LISPSYM
-#define LISPSYM(name,printname,package)  { package, printname },
-
-subr_ module__queens__subr_tab [1] = {
-  LISPFUNN(queens,1)
-};
-
-uintC module__queens__subr_tab_size = 1;
-
-subr_initdata module__queens__subr_tab_initdata[1] = {
-  LISPSYM(queens,"QUEENS","USER")
-};
-
-object module__queens__object_tab [1];
-
-uintC module__queens__object_tab_size = 0;
-
-object_initdata module__queens__object_tab_initdata[1];
-
-void module__queens__init_function_1(module)
-  var module_* module;
-  { }
-
-void module__queens__init_function_2(module)
-  var module_* module;
-  { }
 
