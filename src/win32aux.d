@@ -59,6 +59,7 @@
   # fn() should return 0 once it terminated successfully.
   # Returns TRUE if successful, FALSE if interrupted.
   local BOOL DoInterruptible (LPTHREAD_START_ROUTINE fn, LPVOID arg, BOOL socketp);
+  local BOOL interruptible_active;
   local HANDLE interruptible_thread;
   local BOOL interruptible_socketp;
 
@@ -67,9 +68,14 @@
     var DWORD CtrlType;
     { if (CtrlType == CTRL_C_EVENT || CtrlType == CTRL_BREAK_EVENT)
         { # Could invoke a signal handler at this point.??
-          # Terminate the interruptible operation, set the exitcode to 1.
-          if (interruptible_socketp) { WSACancelBlockingCall(); }
-          if (!TerminateThread(interruptible_thread,1+CtrlType)) { OS_error(); }
+          if (interruptible_active)
+            { # Set interruptible_active to false, so we won't get here a
+              # second time and try to terminate the same thread twice.
+              interruptible_active = FALSE;
+              # Terminate the interruptible operation, set the exitcode to 1.
+              if (interruptible_socketp) { WSACancelBlockingCall(); }
+              if (!TerminateThread(interruptible_thread,1+CtrlType)) { OS_error(); }
+            }
           # Don't invoke the other handlers (in particular, the default handler)
           return TRUE;
         }
@@ -87,10 +93,13 @@
       var DWORD thread_exitcode;
       thread = CreateThread(NULL,10000,fn,arg,0,&thread_id);
       if (thread==NULL) { OS_error(); }
+      interruptible_active = FALSE;
       interruptible_thread = thread;
       interruptible_socketp = socketp;
       SetConsoleCtrlHandler((PHANDLER_ROUTINE)temp_interrupt_handler,TRUE);
+      interruptible_active = TRUE;
       WaitForSingleObject(interruptible_thread,INFINITE);
+      interruptible_active = FALSE;
       SetConsoleCtrlHandler((PHANDLER_ROUTINE)temp_interrupt_handler,FALSE);
       GetExitCodeThread(interruptible_thread,&thread_exitcode);
       CloseHandle(interruptible_thread);
