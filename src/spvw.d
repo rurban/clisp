@@ -2768,10 +2768,7 @@ global int main (argc_t argc, char* argv[]) {
         mem.last_gcend_space = 0;
         mem.gctrigger_space = 0;
         #endif
-        # initialize stacks:
-        #ifdef NOCOST_SP_CHECK
-          install_stackoverflow_handler(0x4000); # 16 KB reserve should be enough
-        #endif
+        # initialize stack:
         pushSTACK(nullobj); pushSTACK(nullobj); # two nullpointer as STACK end marker
       }
     }
@@ -2806,6 +2803,8 @@ global int main (argc_t argc, char* argv[]) {
   aktenv.block_env = NIL;
   aktenv.go_env    = NIL;
   aktenv.decl_env  = O(top_decl_env);
+  # Prepare for catching SP overflow.
+  install_stackoverflow_handler(0x4000); # 16 KB reserve should be enough
   { /* init ARGV */
     var uintL count;
     O(argv) = allocate_vector(argc);
