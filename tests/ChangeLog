@@ -1,3 +1,7 @@
+2001-04-23  Sam Steingold  <sds@gnu.org>
+
+	* number2.tst (check-xgcd): new function, used throughout the file
+
 2001-04-18  Sam Steingold  <sds@gnu.org>
 
 	* symbols.tst: check the external symbols of the COMMON-LISP package
