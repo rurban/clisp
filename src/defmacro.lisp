@@ -269,7 +269,7 @@ the actual object #<MACRO expander> for the FENV.
 
 (defun analyze1 (lambdalist accessexp name wholevar)
   (do ((listr lambdalist (cdr listr))
-       (withinoptional nil)
+       (within-optional nil)
        (item)
        (g))
       ((atom listr)
@@ -293,11 +293,11 @@ the actual object #<MACRO expander> for the FENV.
                (TEXT "The lambda list of macro ~S contains an invalid &WHOLE: ~S")
                name listr)))
           ((eq item '&OPTIONAL)
-           (if withinoptional
+           (if within-optional
                (cerror (TEXT "It will be ignored.")
                        (TEXT "The lambda list of macro ~S contains a superfluous ~S.")
                        name item))
-           (setq withinoptional t))
+           (setq within-optional t))
           ((or (eq item '&REST) (eq item '&BODY))
            (return-from nil (analyze-rest (cdr listr) accessexp name)))
           ((eq item '&KEY)
@@ -315,7 +315,7 @@ the actual object #<MACRO expander> for the FENV.
                    name item))
           ((eq item '&AUX)
            (return-from nil (analyze-aux (cdr listr) name)))
-          (withinoptional
+          (within-optional
            (setq %arg-count (1+ %arg-count))
            (if %default-form
              (cond ((symbolp item) (setq item (list item %default-form)))
