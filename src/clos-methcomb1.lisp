@@ -10,12 +10,15 @@
 ;;; Global management of method-combinations and their names:
 
 ;; Mapping from name, a symbol, to method-combination instance.
-(defun find-method-combination (name &key (if-does-not-exist :error))
-  (or (get name 'find-method-combination)
-      (and if-does-not-exist
-           (error "undefined method combination ~s" name))))
-(defun (setf find-method-combination) (new-value name)
-  (setf (get name 'find-method-combination) new-value))
+;; If the caller is non-nil, an error is signalled if the method-combination
+;; does not exist. Otherwise nil is returned.
+(defun get-method-combination (name caller)
+  (or (get name '%method-combination)
+      (and caller
+           (error (TEXT "~S: The method combination ~S is not defined.")
+                  caller name))))
+(defun (setf get-method-combination) (new-value name)
+  (setf (get name '%method-combination) new-value))
 
 
 ;;; The method-combination class definition.
