@@ -273,9 +273,6 @@
 
 #endif
 
-# Set during the core of GC.
-bool inside_gc = false;
-
 #if defined(SPVW_BLOCKS) && defined(DEBUG_SPVW)
   #ifdef SPVW_PURE
     #define is_valid_varobject_address(address)  \
@@ -323,6 +320,9 @@ bool inside_gc = false;
   #define is_valid_heap_object_address(address)  true
   #define is_valid_stack_address(address)  true
 #endif
+
+# Set during the core of GC.
+bool inside_gc = false;
 
 # check of the memory content to be GC-proof:
   #if defined(SPVW_PAGES) && defined(DEBUG_SPVW)
