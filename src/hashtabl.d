@@ -1068,7 +1068,6 @@ global bool hash_lookup_builtin (object ht, object obj, gcv_object_t** KVptr_,
     var gcv_object_t* Iptr = Nptr;
     var gcv_object_t* KVptr = /* pointer to entries in key-value-vector */
       kvt_data + 3*index;
-    Nptr = &KVptr[2];         /* pointer to index of next entry */
     var object key = KVptr[0];
     /* compare key with obj: */
     if (flags & htflags_test_eq_B ? eq(key,obj) :  /* compare with EQ */
@@ -1076,6 +1075,7 @@ global bool hash_lookup_builtin (object ht, object obj, gcv_object_t** KVptr_,
       /* object obj found */
       *KVptr_ = KVptr; *Iptr_ = Iptr; return true;
     }
+    Nptr = &KVptr[2];         /* pointer to index of next entry */
   }
   /* not found */
   *Iptr_ = Nptr; return false;
@@ -1115,7 +1115,7 @@ global bool hash_lookup_user (object ht, object obj, gcv_object_t** KVptr_,
   var gcv_object_t* kvt_data = TheHashedAlist(kvtable)->hal_data;
   var uintL i_n; /* Iptr-Nptr FIXME: This is not GC-safe */
   while (!eq(*Nptr,nix)) { /* track "list" : "list" finished -> not found */
-    var int index = posfixnum_to_L(*Nptr); /* next index */
+    var uintL index = posfixnum_to_L(*Nptr); /* next index */
     var gcv_object_t* Iptr = Nptr;
     var gcv_object_t* KVptr = /* pointer to entries in key-value-vector */
       kvt_data + 3*index;
@@ -2213,10 +2213,11 @@ LISPFUN(class_tuple_gethash,seclass_default,2,0,rest,nokey,0,NIL) {
     var object kvtable = TheHashtable(ht)->ht_kvtable;
     var gcv_object_t* Nptr =    /* pointer to the current entry */
       &TheSvector(TheHashedAlist(kvtable)->hal_itable)->data[hashindex];
+    var gcv_object_t* kvt_data = TheHashedAlist(kvtable)->hal_data;
     while (!eq(*Nptr,nix)) { /* track "list" : "list" finished -> not found */
       var uintL index = posfixnum_to_L(*Nptr); /* next index */
       var gcv_object_t* KVptr = /* pointer to entries in key-value-vector */
-        &TheHashedAlist(kvtable)->hal_data[3*index];
+        kvt_data + 3*index;
       if (equal_tuple(KVptr[0],argcount,rest_args_pointer)) { /* compare key */
         /* found */
         VALUES1(KVptr[1]); goto fertig; /* Value as value */
