@@ -32,7 +32,15 @@
     )      )
     (delete-file tempfilename)
     ; Now let the user view the listing.
-    (shell (format nil "~A ~A" (or (sys::getenv "PAGER") "more") outfilename))
+    (if (or (string= (sys::getenv "TERM") "dumb")
+            (string= (sys::getenv "TERM") "emacs"))
+      ;; do not call a pager when running under Emacs
+      (with-open-file (in outfilename :direction :input)
+        (do ((line (read-line in nil nil) (read-line in nil nil)))
+            ((null line))
+          (format t "~a~%" line)))
+      (shell (format nil "~A ~A" (or (sys::getenv "PAGER") "more")
+                     outfilename)))
     (delete-file outfilename)
   )
   #| ; This uses SunOS dbx. (Untested.)
