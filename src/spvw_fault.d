@@ -140,7 +140,7 @@ local int handle_read_fault (aint address, physpage_state_t* physpage)
     if (count > 0) {
       var old_new_pointer_t* ptr = physpage->cache;
       #if !defined(MULTIMAP_MEMORY)
-      if (mprotect((MMAP_ADDR_T)address, physpagesize, PROT_READ_WRITE) < 0)
+      if (mprotect((void*)address, physpagesize, PROT_READ_WRITE) < 0)
         return -1;
       #endif
       dotimespL(count,count, {
@@ -151,7 +151,7 @@ local int handle_read_fault (aint address, physpage_state_t* physpage)
   }
   # superimpose page read-only:
   #if !defined(MULTIMAP_MEMORY)
-  if (mprotect((MMAP_ADDR_T)address, physpagesize, PROT_READ) < 0)
+  if (mprotect((void*)address, physpagesize, PROT_READ) < 0)
     return -1;
   #else # MULTIMAP_MEMORY
   #if !defined(WIDE_SOFT)
@@ -161,7 +161,7 @@ local int handle_read_fault (aint address, physpage_state_t* physpage)
     var uintL type;
     for (type = 0; type < typecount; type++)
       if (mem.heapnr_from_type[type] >= 0) # type listed in MM_TYPECASES?
-        if (mprotect((MMAP_ADDR_T)combine(type,address), physpagesize, PROT_READ) < 0)
+        if (mprotect((void*)combine(type,address), physpagesize, PROT_READ) < 0)
           return -1;
   }
   #endif
@@ -174,7 +174,7 @@ local int handle_readwrite_fault (aint address, physpage_state_t* physpage)
 {
   # superimose page read-write:
   #if !defined(MULTIMAP_MEMORY)
-  if (mprotect((MMAP_ADDR_T)address, physpagesize, PROT_READ_WRITE) < 0)
+  if (mprotect((void*)address, physpagesize, PROT_READ_WRITE) < 0)
     return -1;
   #else # MULTIMAP_MEMORY
   ASSERT(address == upointer(address));
@@ -182,7 +182,7 @@ local int handle_readwrite_fault (aint address, physpage_state_t* physpage)
     var uintL type;
     for (type = 0; type < typecount; type++)
       if (mem.heapnr_from_type[type] >= 0) # type listed in MM_TYPECASES?
-        if (mprotect((MMAP_ADDR_T)combine(type,address), physpagesize, PROT_READ_WRITE) < 0)
+        if (mprotect((void*)combine(type,address), physpagesize, PROT_READ_WRITE) < 0)
           return -1;
   }
   #endif
@@ -239,11 +239,11 @@ local handle_fault_result_t handle_fault (aint address, int verbose)
               return handler_done;
             #ifdef SPVW_PURE_BLOCKS
             case PROT_READ:
-              if (mprotect((MMAP_ADDR_T)pa_uaddress,physpagesize,PROT_READ) < 0)
+              if (mprotect((void*)pa_uaddress,physpagesize,PROT_READ) < 0)
                 goto error3;
               return handler_done;
             case PROT_NONE:
-              if (mprotect((MMAP_ADDR_T)pa_uaddress,physpagesize,PROT_NONE) < 0)
+              if (mprotect((void*)pa_uaddress,physpagesize,PROT_NONE) < 0)
                 goto error3;
               return handler_done;
             #endif
@@ -371,7 +371,7 @@ global bool handle_fault_range (int prot, aint start_address, aint end_address)
                   switch (heap->physpages[pageno].protection) {
                     case PROT_NONE:
                       if (!(prot == PROT_READ || prot == PROT_READ_WRITE)) {
-                        if (mprotect((MMAP_ADDR_T)pa_uaddress,physpagesize,PROT_NONE) < 0)
+                        if (mprotect((void*)pa_uaddress,physpagesize,PROT_NONE) < 0)
                           return false;
                         break;
                       }
@@ -380,7 +380,7 @@ global bool handle_fault_range (int prot, aint start_address, aint end_address)
                       /* fallthrough */
                     case PROT_READ:
                       if (!(prot == PROT_READ_WRITE)) {
-                        if (mprotect((MMAP_ADDR_T)pa_uaddress,physpagesize,PROT_READ) < 0)
+                        if (mprotect((void*)pa_uaddress,physpagesize,PROT_READ) < 0)
                           return false;
                         break;
                       }
@@ -454,7 +454,7 @@ local int selfmade_mmap (Heap* heap, uintL map_len, off_t offset)
 #ifdef GENERATIONAL_GC
 
 local void xmprotect (aint addr, uintL len, int prot) {
-  if (mprotect((MMAP_ADDR_T)addr,len,prot) < 0) {
+  if (mprotect((void*)addr,len,prot) < 0) {
     fprintf(stderr,GETTEXTL("mprotect(0x%x,%d,%d) failed."),addr,len,prot);
     errno_out(OS_errno);
     abort();

@@ -413,10 +413,7 @@ extern void DumpProcessMemoryMap (void); /* see win32aux.d */
 /* #define HAVE_MMAP */
 #define HAVE_MUNMAP
 #define HAVE_WORKING_MPROTECT
-#define MMAP_ADDR_T  void*
-#define MMAP_SIZE_T  DWORD
 #define off_t  _off_t
-#define RETMMAPTYPE  MMAP_ADDR_T
 #define PROT_NONE  PAGE_NOACCESS
 #define PROT_READ  PAGE_READONLY
 #define PROT_READ_WRITE PAGE_READWRITE
