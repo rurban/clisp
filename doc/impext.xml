@@ -2133,7 +2133,7 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
   <listitem><simpara>Access
     <ulink url="http://www.fastcgi.com/">FastCGI</ulink> from &clisp;;
     by &hin;.</simpara></listitem></varlistentry>
- <varlistentry><term>netica</term>
+ <varlistentry><term><link linkend="netica">netica</link></term>
   <listitem><simpara>Work with Bayesian belief networks and influence
     diagrams using
     <ulink url="http://norsys.com/netica_c_api.htm">Netica</ulink>.
@@ -2158,6 +2158,8 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
  <varlistentry><term><ulink url="wildcard.html">wildcard</ulink></term>
   <listitem><simpara>Shell (&sh;) globbing</simpara></listitem></varlistentry>
 </variablelist>
+
+&netica;
 
 &dirkey;
 
