@@ -1,6 +1,7 @@
 2003-12-31  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (uninstall-bin) [CYGWIN]: remove clisp.README & clisp.exe
+	(testsuite-all): `clean complete compare', not just `complete'
 
 2003-12-29  Sam Steingold  <sds@gnu.org>
 
