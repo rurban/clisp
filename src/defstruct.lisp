@@ -504,6 +504,24 @@
                classname slotname))
       (clos:slot-definition-initfunction slot))))
 
+(defun find-structure-slot-initfunction (name slotname) ; ABI
+  (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
+    (unless desc
+      (if (get name 'CLOS::CLOSCLASS)
+        (error (TEXT "The structure type ~S has been defined as a class.")
+               name)
+        (error (TEXT "The structure type ~S has not been defined.")
+               name)))
+    (let* ((slots (svref desc 3))
+           (slot
+             ; (find slotname (the list) slots :test #'clos:slot-definition-name)
+             (dolist (s slots)
+               (when (eql (clos:slot-definition-name s) slotname) (return s)))))
+      (unless slot
+        (error (TEXT "The structure type ~S has no slot named ~S.")
+               name slotname))
+      (clos:slot-definition-initfunction slot))))
+
 ;; A hook for CLOS
 (defun clos::defstruct-remove-print-object-method (name) ; preliminary
   (declare (ignore name))
@@ -739,10 +757,12 @@
           (assert (> include-skip (clos:slot-definition-location (first slotlist)))))
         ;; include-skip >=0 is the number of slots that are already consumend
         ;;    by the substructure, the "size" of the substructure.
-        (when incl-class
-          (dolist (slot slotlist)
-            (setf (clos::structure-effective-slot-definition-initff slot)
+        (dolist (slot slotlist)
+          (setf (clos::structure-effective-slot-definition-initff slot)
+                (if incl-class
                   `(FIND-STRUCTURE-CLASS-SLOT-INITFUNCTION ',subname
+                     ',(clos:slot-definition-name slot))
+                  `(FIND-STRUCTURE-SLOT-INITFUNCTION ',subname
                      ',(clos:slot-definition-name slot)))))
         ;; process further arguments of the :INCLUDE-option:
         (dolist (slotarg (rest option))
@@ -977,20 +997,19 @@
                   slotlist))))
         constructor-option-list))
     ;; constructor-forms = list of forms, that define the constructors.
-    (let ((index 4))
-      (mapc #'(lambda (slot directslot)
-                (let ((initfunctionform
-                        (if (eq type-option 'T)
-                          `(FIND-STRUCTURE-CLASS-SLOT-INITFUNCTION
-                             ',name ',(clos:slot-definition-name slot))
-                          `(SVREF (GET ',name 'DEFSTRUCT-DESCRIPTION) ,index))))
-                  (setf (clos::structure-effective-slot-definition-initff slot)
-                        initfunctionform)
-                  (when directslot
-                    (setf (clos::structure-direct-slot-definition-initff directslot)
-                          initfunctionform)))
-                (incf index))
-            slotdefaultslots slotdefaultdirectslots))
+    (mapc #'(lambda (slot directslot)
+              (let ((initfunctionform
+                      (if (eq type-option 'T)
+                        `(FIND-STRUCTURE-CLASS-SLOT-INITFUNCTION
+                           ',name ',(clos:slot-definition-name slot))
+                        `(FIND-STRUCTURE-SLOT-INITFUNCTION
+                           ',name ',(clos:slot-definition-name slot)))))
+                (setf (clos::structure-effective-slot-definition-initff slot)
+                      initfunctionform)
+                (when directslot
+                  (setf (clos::structure-direct-slot-definition-initff directslot)
+                        initfunctionform))))
+          slotdefaultslots slotdefaultdirectslots)
     ;; now, slotlist contains no more slotdefaultvars.
     `(EVAL-WHEN (LOAD COMPILE EVAL)
        (LET ()
@@ -1006,8 +1025,7 @@
                                                slot
                                                (let ((i (position slot slotdefaultslots)))
                                                  (if i (nth i slotdefaultvars) nil))))
-                                         slotlist))
-                             ,@slotdefaultvars)))
+                                         slotlist)))))
            ,(if (eq type-option 'T)
               `(CLOS::DEFINE-STRUCTURE-CLASS ',name
                  ,namesform
