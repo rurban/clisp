@@ -11991,13 +11991,13 @@ extern object stream_fd (object stream);
   extern uintL read_byte_array (const object* stream_, const object* bytearray_, uintL start, uintL len);
 # wird verwendet von SEQUENCE
 
-# UP: Schreibt mehrere Bytes auf einen Stream.
-# write_byte_array(stream,byteptr,len)
-# > stream: Stream
-# > uintB* byteptr: Adresse der zu schreibenden Bytefolge
-# > uintL len: Länge der zu schreibenden Bytefolge
-# < uintB* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
-  extern const uintB* write_byte_array (object stream, const uintB* byteptr, uintL len);
+# Function: Writes several bytes to a stream.
+# write_byte_array(&stream,&bytearray,start,len)
+# > stream: Stream (on the STACK)
+# > object bytearray: simple-bit-vector (on the STACK)
+# > uintL start: start index of byte sequence to be written
+# > uintL len: length of byte sequence to be written
+  extern void write_byte_array (const object* stream_, const object* bytearray_, uintL start, uintL len);
 # wird verwendet von SEQUENCE
 
 # UP: Liest mehrere Characters von einem Stream.

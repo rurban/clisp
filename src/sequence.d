@@ -4166,12 +4166,9 @@ LISPFUN(write_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
       { var uintL start = posfixnum_to_L(STACK_2);
         var uintL end = posfixnum_to_L(STACK_1);
         var uintL index = 0;
-        var object dv = iarray_displace_check(STACK_4,end,&index);
-        var const uintB* byteptr = &TheSbvector(TheIarray(dv)->data)->data[index];
-        # Ab byteptr kommen end Bytes.
-        # Versuche, eine optimierte Schreib-Routine aufzurufen:
-        var const uintB* endptr = write_byte_array(STACK_3,&byteptr[start],end-start);
-        if (!(endptr==NULL)) goto done;
+        STACK_0 = iarray_displace_check(STACK_4,end,&index);
+        write_byte_array(&STACK_3,&STACK_0,index+start,end-start);
+        goto done;
       }
     # start- und end-Argumente subtrahieren:
     STACK_1 = I_I_minus_I(STACK_1,STACK_2); # (- end start), ein Integer >=0
