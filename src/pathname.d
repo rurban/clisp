@@ -10961,7 +10961,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
   var int command_pos = 0;
   while (!nullp(STACK_0)) {
     if (command_pos > 0) command_data[command_pos++] = ' ';
-    command_pos += shell_quote(command_data+command_pos,TheAsciz(Car(STACK_0)),NULL);
+    command_pos += shell_quote(command_data+command_pos,TheAsciz(Car(STACK_0)));
     ASSERT(command_pos < command_len*2);
     STACK_0 = Cdr(STACK_0);
   }
@@ -11048,7 +11048,7 @@ LISPFUN(shell_execute,seclass_default,0,4,norest,nokey,0,NIL) {
   var int parameter_pos = 0;
   while (!nullp(STACK_0)) {
     if (parameter_pos > 0) parameters[parameter_pos++] = ' ';
-    parameter_pos += shell_quote(parameters+parameter_pos,TheAsciz(Car(STACK_0)),NULL);
+    parameter_pos += shell_quote(parameters+parameter_pos,TheAsciz(Car(STACK_0)));
     ASSERT(parameter_pos < parameters_len*2);
     STACK_0 = Cdr(STACK_0);
   }
@@ -11071,14 +11071,14 @@ LISPFUN(shell_execute,seclass_default,0,4,norest,nokey,0,NIL) {
   if (!nullp(STACK_0))
     for (sp=TheAsciz(STACK_0),dp=defaultdir;(*dp = *sp);sp++,dp++);
   begin_system_call();
-  var DWORD result = ShellExecute(NULL,
+  var DWORD result = (DWORD) ShellExecute(NULL,
     nullp(STACK_2)?NULL:verb,
     filename,
     parameters_len?parameters:NULL,
     nullp(STACK_0)?NULL:defaultdir,
     SW_SHOWNORMAL);
   end_system_call();
-  if (result <= 32) OS_error(); /* TODO: report extended info */
+  if (result <= 32) OS_error();
   FREE_DYNAMIC_ARRAY(defaultdir);
   FREE_DYNAMIC_ARRAY(filename);
   FREE_DYNAMIC_ARRAY(verb);
