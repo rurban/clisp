@@ -97,7 +97,7 @@ int main (int argc, char* argv[])
    * mutually exclusive).
    * As a workaround against the Solaris/HP-UX problem, we split not
    * only at normal spaces, but also at hard spaces.
-   * See section 99.8 of impnotes.txt.
+   * See <impnotes.html#script>.
    */
   if (argc > 1)
     { int wordcount = 0; /* number of pieces in argv[1] */

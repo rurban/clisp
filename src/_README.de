@@ -52,7 +52,7 @@ Zu CLISP gehören folgende Dateien:
    doc/clisp.1          Benutzungshinweise im man-Format von Unix
    doc/clisp.man        Benutzungshinweise
    doc/clisp.html       Benutzungshinweise im HTML-Format
-   doc/impnotes.txt     Dokumentation von Implementierungsdetails
+   doc/impnotes.html    Dokumentation von Implementierungsdetails
    doc/cltl2.txt        Dokumentation des Verhältnisses von CLISP zu CLtL2
 #ifdef GNU_READLINE
    doc/clreadline.3     Eingabezeilen-Benutzungshinweise im man-Format von Unix
@@ -117,7 +117,6 @@ oder
 #ifdef MSDOS
       clisp.dvi        Benutzungshinweise im DVI-Format
 #endif
-      impnotes.txt     Dokumentation von Implementierungsdetails
       impnotes.html    Dokumentation von Implementierungsdetails im HTML-Format
       cltl2.txt        Dokumentation des Verhältnisses von CLISP zu CLtL2
 #ifdef GNU_READLINE

@@ -59,18 +59,6 @@ appears fixed on HP-UX 9 with readline.
 upgrade to newest CLN, but still big-endian and without gmp
 
 
-Distribute impnotes.txt as a patch against Harlequin's HyperSpec.
-(We cannot distribute the patched HyperSpec because the copyright
-forbids this.)
-
-
-Add Unicode (ISO 10646-1) support. Extend the CHARACTER type to have 24 bits
-instead of 16: 4 "bits", 4 "font", 16 "unicode". A Latin-1 character will
-consist of the following 32 bits:  |typecode|bits|font|00000000|Latin-1code|
-Problem: Streams of type CHARACTER - shall they transmit their characters in
-24 bit chunks or in UTF-8 format?
-
-
 If you (TRACE generic-function) and then reload the file defining that
 function, you get an error saying that #<CLOSURE TRACED-xxx> is not a generic
 function.

@@ -94,7 +94,7 @@
   LISPOBJ(type_line_terminator,"(MEMBER :DEFAULT :UNIX :MAC :DOS)")
 # zu CHARSTRG.D:
   # Bei Änderung der Character-Namen außer CONSTOBJ.D auch
-  # CHARSTRG.D, FORMAT.LSP, IMPNOTES.TXT anpassen!
+  # CHARSTRG.D, FORMAT.LSP, IMPNOTES.HTML anpassen!
   #ifdef AMIGA_CHARNAMES
     LISPOBJ(charname_0,"\"Null\"")
     LISPOBJ(charname_1,"\"Code1\"")
