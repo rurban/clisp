@@ -35,6 +35,7 @@
       (linux::ASH . lisp:ash)
       (linux::coerce . lisp:coerce)
       (linux::compile . lisp:compile)
+      (linux::defconstant . lisp:defconstant)
       (linux::dotimes . lisp:dotimes)
       (linux::eval . lisp:eval)
       (linux::fill . lisp:fill)
