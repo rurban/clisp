@@ -220,6 +220,12 @@ test11
 (test11)
 2
 
+;; check that declaration processing does not modify code
+(let* ((f '(locally (declare (optimize safety abazonk (debug 20))) (+ 3 4)))
+       (c (copy-tree f)))
+  (list (eval f) (equal f c)))
+(7 T)
+
 (defun test-compiler (lambda-expression &rest args)
   (let ((ret-i (apply lambda-expression args))
         (ret-c (apply (compile nil lambda-expression) args)))
@@ -451,7 +457,7 @@ FEXPAND-1
        (compile ',f)
        (define-symbol-macro ,b ,a)
        (,f))))
-; Must return either ERROR or 3 or 2. 
+; Must return either ERROR or 3 or 2.
 3
 
 ;; A symbol-macro can refer to its own symbol-value. (Nothing in CLHS forbids
