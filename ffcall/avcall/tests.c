@@ -248,7 +248,7 @@ void* vp_vpdpcpsp _P((a,b,c,d), void* a _ double* b _ char* c _ Int* d)
 uchar uc_ucsil _P((a,b,c,d), uchar a _ ushort b _ uint c _ ulong d)
 {
   uchar r = -1;
-  fprintf(out,"uchar f(uchar,ushort,uint,ulong):(%u,%u,%u,%u)",a,b,c,d);
+  fprintf(out,"uchar f(uchar,ushort,uint,ulong):(%u,%u,%u,%lu)",a,b,c,d);
   fflush(out);
   return r;
 }
@@ -323,7 +323,7 @@ J J_JiJ _P((a,b,c), J a _ int b _ J c)
 {
   J r;
   r.l1 = a.l1+c.l1; r.l2 = a.l2+b+c.l2;
-  fprintf(out,"J f(J,int,J):({%d,%d},%d,{%d,%d})",a.l1,a.l2,b,c.l1,c.l2);
+  fprintf(out,"J f(J,int,J):({%ld,%ld},%d,{%ld,%ld})",a.l1,a.l2,b,c.l1,c.l2);
   fflush(out);
   return r;
 }
@@ -817,7 +817,7 @@ void
 #endif
 
   Jr = J_JiJ(J1,i2,J2);
-  fprintf(out,"->{%d,%d}\n",Jr.l1,Jr.l2);
+  fprintf(out,"->{%ld,%ld}\n",Jr.l1,Jr.l2);
   fflush(out);
   Jr.l1 = Jr.l2 = 0; clear_traces();
   av_start_struct(a,J_JiJ,J,av_word_splittable_2(long,long),&Jr);
@@ -825,7 +825,7 @@ void
   av_int(a,i2);
   av_struct(a,J,J2);
   av_call(a);
-  fprintf(out,"->{%d,%d}\n",Jr.l1,Jr.l2);
+  fprintf(out,"->{%ld,%ld}\n",Jr.l1,Jr.l2);
   fflush(out);
 
 #ifndef SKIP_EXTRA_STRUCTS
