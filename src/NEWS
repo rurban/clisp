@@ -119,6 +119,8 @@ User visible changes
   + macros FFI:C-VAR-ADDRESS and FFI:OFFSET,
     see <http://clisp.cons.org/impnotes.html#offset> and
     <http://clisp.cons.org/impnotes.html#c-var-addr>;
+  + function (SETF FFI:VALIDP) invalidates foreign objects
+    see <http://clisp.cons.org/impnotes.html#validp> for details;
   + macro FFI:WITH-FOREIGN-STRING,
     see <http://clisp.cons.org/impnotes.html#foreign-stack-string>.
   Thanks to Jörg Höhle <Joerg-Cyril.Hoehle@t-systems.com>.

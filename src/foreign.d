@@ -98,6 +98,22 @@ LISPFUNNR(validp,1) {
   var object fp = foreign_pointer(popSTACK());
   VALUES_IF(eq(fp,nullobj) || fp_validp(TheFpointer(fp)));
 }
+LISPFUNN(set_validp,2)
+{ /* (setf (validp f-ent) new-value) */
+  var bool new_value = !nullp(popSTACK());
+  var object arg = popSTACK();
+  var object fp = foreign_pointer(arg);
+  if (eq(fp,nullobj)) /* permit new_value=true ? */
+    fehler_foreign_object(arg);
+  if (fp_validp(TheFpointer(fp))) {
+    if (!new_value)
+      mark_fp_invalid(TheFpointer(fp));
+  } else if (new_value) {
+    pushSTACK(fp); pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,GETTEXT("~: cannot resurrect the zombie ~"));
+  }
+  VALUES_IF(new_value);
+}
 
 /* FOREIGN-POINTER of this foreign entity */
 LISPFUNNR(foreign_pointer,1)
@@ -120,7 +136,8 @@ LISPFUNN(set_foreign_pointer,2)
   } else if (!fp_validp(TheFpointer(new_fp))) {
     fehler_fpointer_invalid(new_fp);
   } else {
-    var sintP offset = Faddress_value(faddr) - Fpointer_value(new_fp);
+    var sintP offset =
+      (uintP)Faddress_value(faddr) - (uintP)Fpointer_value(new_fp);
     TheFaddress(faddr)->fa_base = new_fp;
     TheFaddress(faddr)->fa_offset = offset;
     VALUES1(new_fp);
