@@ -6,7 +6,7 @@
  <ulink url="regexp.html">POSIX regular expressions</ulink>
 via an &ffi-pac; call to the standard &c-lang; system facilities.
 The syntax of these regular expressions is described in many places,
-such as your local <function>regexp</function>(5) manual and &emacs;
+such as your local <function>regexp(5)</function> manual and &emacs;
 info pages.</para>
 
 <para>The &regexp-pac; package exports the following 9 symbols:</para>
@@ -31,23 +31,25 @@ info pages.</para>
   containing the indices of the start and end of the first match for the
   regular expression &pattern-r; in &string-r;;
   or &nil; if there is no match.
+  Additionally, a &match-t; structure is returned for every matched
+  <literal>"\(...\)"</literal> group in &pattern-r;, in the
+  order that the open parentheses appear in &pattern-r;.
   If &start-r; is non-&nil;, the search starts at that index in &string-r;.
   If &end-r; is non-&nil;, only <literal role="sexp">(&subseq;
   &string-r; &start-r; &end-r;)</literal> is considered.
   <example><title>&re-match;</title>
    <programlisting>
-    (match "quick" "The quick brown fox jumped quickly.")
-     <returnvalue>#S(match :start 4 :end 9)</returnvalue>
-    (match "quick" "The quick brown fox jumped quickly." :start 8)
-     <returnvalue> #S(match :start 27 :end 32)</returnvalue>
-    (match "quick" "The quick brown fox jumped quickly." :start 8 :end 30)
-     <returnvalue>NIL</returnvalue>
+    (&re-match; "quick" "The quick brown fox jumped quickly.")
+     <literal role="sexp">#S(&match-t; :RM_SO 4 :RM_EO 9)</literal>
+    (&re-match; "quick" "The quick brown fox jumped quickly." :start 8)
+     <literal role="sexp">#S(&match-t; :RM_SO 27 :RM_EO 32)</literal>
+    (&re-match; "quick" "The quick brown fox jumped quickly." :start 8 :end 30)
+     &nil;
+    (&re-match; "\\([a-z]*\\)[0-9]*\\(bar\\)" "foo12bar")
+     <literal role="sexp">#S(&match-t; :RM_SO 0 :RM_EO 8) ;</literal>
+     <literal role="sexp">#S(&match-t; :RM_SO 0 :RM_EO 3) ;</literal>
+     <literal role="sexp">#S(&match-t; :RM_SO 5 :RM_EO 8)</literal>
    </programlisting></example>
-  The index of the first character of the string is 0, the index of the
-  second character is 1, and so on.
-  The next values are &match-t; structures for every
-  <replaceable>\(...\)</replaceable> construct in &pattern-r;, in the
-  order that the open parentheses appear in &pattern-r;.
  </para></listitem></varlistentry>
 
 <varlistentry id="re-match-start"><term><literal
@@ -97,7 +99,7 @@ info pages.</para>
   regular expression returned by &re-regexp-compile;, against the
   appropriate portion of the &string-r;.</simpara>
   <simpara>Negative &end-r; means <literal role="sexp">(&plus; (&length;
-  &string-r;) &end-r;)</literal></simpara></listitem></varlistentry> 
+  &string-r;) &end-r;)</literal></simpara></listitem></varlistentry>
 
 <varlistentry id="re-regexp-split"><term><literal
     role="sexp">(&re-regexp-split;  &pattern-r; &string-r; &key-amp;
