@@ -1,3 +1,10 @@
+2003-06-06  Bruno Haible  <bruno@clisp.org>
+
+	* clos.lisp (analyze-method-description): Call %call-next-method even
+	if there is no next method.
+	(%call-next-method): When there is no next method, call %no-next-method
+	here.
+
 2003-06-05  Sam Steingold  <sds@gnu.org>
 
 	* predtype.d (TYPE-OF): return KEYWORD for keyword symbols
