@@ -882,30 +882,30 @@
   local object FN_fak_I(n)
     var object n;
     {
-      local var const object fakul_table [] = {
-        Fixnum_1,
-        fixnum(1UL),
-        fixnum(1UL*2),
+      local var const uintL fakul_table [] = {
+        1UL,
+        1UL,
+        1UL*2,
         #if (oint_data_len>=3)
-        fixnum(1UL*2*3),
+        1UL*2*3,
         #if (oint_data_len>=5)
-        fixnum(1UL*2*3*4),
+        1UL*2*3*4,
         #if (oint_data_len>=7)
-        fixnum(1UL*2*3*4*5),
+        1UL*2*3*4*5,
         #if (oint_data_len>=10)
-        fixnum(1UL*2*3*4*5*6),
+        1UL*2*3*4*5*6,
         #if (oint_data_len>=13)
-        fixnum(1UL*2*3*4*5*6*7),
+        1UL*2*3*4*5*6*7,
         #if (oint_data_len>=16)
-        fixnum(1UL*2*3*4*5*6*7*8),
+        1UL*2*3*4*5*6*7*8,
         #if (oint_data_len>=19)
-        fixnum(1UL*2*3*4*5*6*7*8*9),
+        1UL*2*3*4*5*6*7*8*9,
         #if (oint_data_len>=22)
-        fixnum(1UL*2*3*4*5*6*7*8*9*10),
+        1UL*2*3*4*5*6*7*8*9*10,
         #if (oint_data_len>=26)
-        fixnum(1UL*2*3*4*5*6*7*8*9*10*11),
+        1UL*2*3*4*5*6*7*8*9*10*11,
         #if (oint_data_len>=29)
-        fixnum(1UL*2*3*4*5*6*7*8*9*10*11*12),
+        1UL*2*3*4*5*6*7*8*9*10*11*12,
         #if (oint_data_len>=33)
         ...
         #endif
@@ -921,8 +921,8 @@
         #endif
         };
       var uintL n_ = posfixnum_to_L(n);
-      if (n_ < sizeof(fakul_table)/sizeof(object)) {
-        return fakul_table[n_];
+      if (n_ < sizeof(fakul_table)/sizeof(uintL)) {
+        return fixnum(fakul_table[n_]);
       } else {
         pushSTACK(Fixnum_1); # bisheriges Produkt := 1
         pushSTACK(n);        # n
