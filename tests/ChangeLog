@@ -1,3 +1,8 @@
+2004-05-05  Bruno Haible  <bruno@clisp.org>
+
+	* type.tst: Change expected result of tests that depend on
+	upgraded-complex-part-type.
+
 2004-05-13  Sam Steingold  <sds@gnu.org>
 
 	* number2.tst: added a LOG test that fails on Solaris/Sparc64

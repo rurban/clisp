@@ -1,5 +1,12 @@
 2004-05-05  Bruno Haible  <bruno@clisp.org>
 
+	* type.lisp (upgraded-complex-part-type): Change result to be as
+	precise as possible. Add environment argument.
+	* subtypep.lisp (COMPLEX): Call upgraded-complex-part-type where
+	appropriate.
+
+2004-05-05  Bruno Haible  <bruno@clisp.org>
+
 	* io.d (pr_pair): New function.
 	(pr_kvtable): Use it.
 

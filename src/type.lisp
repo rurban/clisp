@@ -89,6 +89,8 @@
 
 ;; ----------------------------------------------------------------------------
 
+;; UPGRADED-ARRAY-ELEMENT-TYPE is a lattice homomorphism, see
+;; ANSI CL 15.1.2.1.
 (defun upgraded-array-element-type (type &optional environment)
   (declare (ignore environment))
   ;; see array.d
@@ -114,6 +116,45 @@
              (if (subtypep type 'CHARACTER)
                'CHARACTER
                'T)))))))
+
+;; ----------------------------------------------------------------------------
+
+;; UPGRADED-COMPLEX-PART-TYPE is a lattice homomorphism, see
+;; HyperSpec/Body/fun_complex.html and HyperSpec/Body/syscla_complex.html,
+;; and an idempotent. Therefore
+;;   (subtypep (upgraded-complex-part-type T1) (upgraded-complex-part-type T2))
+;; is equivalent to
+;;   (subtypep T1 (upgraded-complex-part-type T2))
+;; (Proof: Let U T be an abbreviation for (upgraded-complex-part-type T).
+;;  If U T1 <= U T2, then T1 <= U T1 <= U T2.
+;;  If T1 <= U T2, then by homomorphism U T1 <= U U T2 = U T2.)
+;;
+;; For _any_ CL implementation, you could define
+;;   (defun upgraded-complex-part-type (type) 'REAL)
+;; Likewise for _any_ CL implementation, you could define
+;;   (defun upgraded-complex-part-type (type) type)
+;; or - again for _any_ CL implementation:
+;;   (defun upgraded-complex-part-type (type)
+;;     (cond ((subtypep type 'NIL) 'NIL)
+;;           ((subtypep type 'SHORT-FLOAT) 'SHORT-FLOAT)
+;;           ((subtypep type 'SINGLE-FLOAT) 'SINGLE-FLOAT)
+;;           ((subtypep type 'DOUBLE-FLOAT) 'DOUBLE-FLOAT)
+;;           ((subtypep type 'LONG-FLOAT) 'LONG-FLOAT)
+;;           ((subtypep type 'RATIONAL) 'RATIONAL)
+;;           ((subtypep type 'REAL) 'REAL)
+;;           (t (error ...))))
+;; The reason is that a complex number is immutable: no setters for the
+;; realpart and imagpart exist.
+;;
+;; We choose the second implementation because it allows the most precise
+;; type inference.
+(defun upgraded-complex-part-type (type &optional environment)
+  (declare (ignore environment))
+  (if (subtypep type 'REAL)
+    type
+    (error-of-type 'error
+      (TEXT "~S: type ~S is not a subtype of ~S")
+      'upgraded-complex-part-type type 'real)))
 
 ;; ----------------------------------------------------------------------------
 
@@ -706,15 +747,6 @@
 
 ;; SUBTYPEP
 (load "subtypep")
-
-;; this function does not return anything useful,
-;; since CLISP complex numbers can always hold any number
-(defun upgraded-complex-part-type (spec)
-  (if (subtypep spec 'real)
-    'real
-    (error-of-type 'error
-      (TEXT "~S: type ~S is not a subtype of ~S")
-      'upgraded-complex-part-type spec 'real)))
 
 
 ;; Returns the number of bytes that are needed to represent #\Null in a
