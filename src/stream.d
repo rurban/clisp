@@ -8947,7 +8947,7 @@ LISPFUNN(window_cursor_off,1)
         end_system_call();
        #endif
       #else
-        if (!nullp(strm_file_truename)) # avoid closing stdout_handle
+        if (!nullp(TheStream(stream)->strm_file_truename)) # avoid closing stdout_handle
           {
             #ifdef MSDOS
               # File-Handle duplizieren und schlieﬂen:
