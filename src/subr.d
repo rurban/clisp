@@ -289,6 +289,7 @@ LISPFUNN(gc,0)
 # ---------- ENCODING ----------
 LISPFUN(make_encoding,0,0,norest,key,2,
         (kw(charset),kw(line_terminator)) )
+LISPFUNN(encodingp,1)
 # ---------- ERROR ----------
 LISPFUN(error,1,0,rest,nokey,0,NIL)
 LISPFUNN(defclcs,1)

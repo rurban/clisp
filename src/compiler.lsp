@@ -8377,6 +8377,7 @@ der Docstring (oder NIL).
     (COMPLEX . complexp)
     (CONS . consp)
     (DOUBLE-FLOAT . double-float-p)
+    (ENCODING . sys::encodingp)
     (FIXNUM . fixnump)
     (FLOAT . floatp)
     (FUNCTION . functionp)
