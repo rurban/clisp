@@ -1942,7 +1942,7 @@ echol
 echolist "DFILES =" "$DFILES $ARI_ASMD $SP_ASMD" ".d"
 echol
 
-echolist "CFILES =" "$DFILES $ARI_ASMD $ARI_ASMC $SP_ASMD $UNICODE_INCLUDES $NLS_INCLUDES" ".c"
+echolist "CFILES =" "$DFILES $ARI_ASMD $ARI_ASMC $SP_ASMD" ".c"
 echol
 
 echolist "OBJECTS =" "$CPARTS $ARI_ASMS $SP_ASMS $GMALLOC" "${TOBJ}"
@@ -2013,6 +2013,11 @@ done
 line=$line" \$(DFILES) modules.h"
 if [ $TSYS = sun4 -a "$CC" = cc -a -z "$XCC_SUNPRO" ] ; then
   line=$line" cc_sparc.il"
+fi
+if [ -n "${SRCDIR}" ] ; then
+  for f in $UNICODE_INCLUDES $NLS_INCLUDES ; do
+    line=$line" ${f}.c"
+  done
 fi
 echol $line
 if [ $HOS = unix -a $CROSS = false ] ; then
