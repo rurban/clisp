@@ -1,7 +1,7 @@
 ;;; handle the posix functions
 ;;; Sam Steingold 1999
 
-(in-package "POSIX" :use '("LISP"))
+(in-package "POSIX" :use '("LISP" "CLOS"))
 
 (export '(resolve-host-ipaddr hostent user-data file-stat sysinfo bogomips
           resource-usage-limits
@@ -38,6 +38,13 @@
   (full-name "" :type simple-string)
   (home-dir  "" :type simple-string)
   (shell     "" :type simple-string))
+
+(defmethod print-object ((ud user-data) (out stream))
+  (if *print-readably* (call-next-method)
+      (format out "~a:~a:~d:~d:~a:~a:~a"
+              (user-data-login-id ud) (user-data-passwd ud)
+              (user-data-uid ud) (user-data-gid ud) (user-data-full-name ud)
+              (user-data-home-dir ud) (user-data-shell ud))))
 
 (defun user-data (&optional (user :default))
   (if user
@@ -115,6 +122,10 @@
   "see getrlimit(2) for details"
   (soft 0 :type (unsigned-byte 32))
   (hard 0 :type (unsigned-byte 32)))
+
+(defmethod print-object ((rl rlimit) (out stream))
+  (if *print-readably* (call-next-method)
+      (format out "~d:~d" (rlimit-soft rl) (rlimit-hard rl))))
 
 (defstruct limits
   "see getrlimit(2) for details"
