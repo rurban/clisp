@@ -383,19 +383,19 @@ if test -n "$do_config"; then
       maybe_link ffcall/$f $ABS_DIRNAME/$f
     done
   fi # do_ffi
-  # Similarly for libiconv and sigsegv.
-  for subdir in libiconv sigsegv; do
+  # Similarly for libcharset and sigsegv.
+  for subdir in libcharset sigsegv; do
     if [ -d $subdir ] ; then
       maybe_mkdir "${ABS_DIRNAME}/${subdir}";
     fi
   done
-  for subdir in libiconv sigsegv; do
+  for subdir in libcharset sigsegv; do
     f=$subdir/configure
     maybe_link $f $ABS_DIRNAME/$f
   done
   # Prepare the configure files.
   chmod a+x $ABS_DIRNAME/configure
-  for subdir in readline ${FFI_DIRS} libiconv sigsegv; do
+  for subdir in readline ${FFI_DIRS} libcharset sigsegv; do
     if test -d $ABS_DIRNAME/$subdir; then
       chmod a+x $ABS_DIRNAME/$subdir/configure
     fi
@@ -410,21 +410,6 @@ if test -n "$do_config"; then
   fi
   ${CONFIG_SHELL-/bin/sh} configure $subdir_srcdir_args \
       $subdir_configure_args --cache-file=config.cache
-  # libiconv must be built before gettext is even configured.
-  # This is because we want gettext to recognize libiconv as being present,
-  # even though we do not install it publicly.
-  for subdir in libiconv; do
-    if test -d $subdir; then
-      echo "executing $DIRNAME/$subdir/configure ..."
-      cd $subdir
-      ${CONFIG_SHELL-/bin/sh} configure --srcdir="$RREL_SRCDIR/$subdir" \
-          $subdir_configure_args --cache-file=../config.cache \
-          --enable-static --disable-shared
-      make
-      make install-lib libdir="$ABS_DIRNAME" includedir="$ABS_DIRNAME"
-      cd ..
-    fi
-  done
   for subdir in readline gettext; do
     if test -d $subdir; then
       # readline is not even configurable in C++ mode.
@@ -470,7 +455,7 @@ if test -n "$do_config"; then
       fi
     done
   fi # do_ffi
-  for subdir in sigsegv; do
+  for subdir in libcharset sigsegv; do
     if test -d $subdir; then
       echo "executing $DIRNAME/$subdir/configure ..."
       cd $subdir
