@@ -25,7 +25,7 @@
             ((atom slot-location) ; access local slot
              (sys::%record-ref instance slot-location))
             (t ; access shared slot
-             (svref (class-shared-slots (car slot-location))
+             (svref (cv-shared-slots (car slot-location))
                     (cdr slot-location)))))))
  (defun std-setf-slot-value (instance slot-name new-value)
    (let* ((class (class-of instance))
@@ -35,7 +35,7 @@
            ((atom slot-location) ; access local slot
             (sys::%record-store instance slot-location new-value))
            (t ; access shared slot
-            (setf (svref (class-shared-slots (car slot-location))
+            (setf (svref (cv-shared-slots (car slot-location))
                          (cdr slot-location))
                   new-value)))))
  (defun std-slot-boundp (instance slot-name)
@@ -47,7 +47,7 @@
            ((atom slot-location) ; access local slot
             (not (eq (sys::%record-ref instance slot-location) unbound)))
            (t ; access shared slot
-            (not (eq (svref (class-shared-slots (car slot-location))
+            (not (eq (svref (cv-shared-slots (car slot-location))
                             (cdr slot-location))
                      unbound))))))
  (defun std-slot-makunbound (instance slot-name)
@@ -59,7 +59,7 @@
            ((atom slot-location) ; access local slot
             (sys::%record-store instance slot-location unbound))
            (t ; access shared slot
-            (setf (svref (class-shared-slots (car slot-location))
+            (setf (svref (cv-shared-slots (car slot-location))
                          (cdr slot-location))
                   unbound)))))
  (defun std-slot-exists-p (instance slot-name)

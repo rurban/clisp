@@ -5150,7 +5150,6 @@ typedef Srecord  Structure;
 typedef struct {
   SRECORD_HEADER
   gcv_object_t structure_types_2       _attribute_aligned_object_; # list (metaclass <class>)
-  gcv_object_t class_id                _attribute_aligned_object_; /* keep instances in sync with redefined classes */
   gcv_object_t metaclass               _attribute_aligned_object_; # a subclass of <class>
   gcv_object_t classname               _attribute_aligned_object_; # a symbol
   gcv_object_t direct_superclasses     _attribute_aligned_object_; # direct superclasses
@@ -5164,24 +5163,38 @@ typedef struct {
   gcv_object_t valid_initargs          _attribute_aligned_object_;
   gcv_object_t instance_size           _attribute_aligned_object_;
   # from here on only for metaclass = <standard-class>
-  gcv_object_t shared_slots            _attribute_aligned_object_;
+  gcv_object_t current_version         _attribute_aligned_object_; /* most recent class-version, points back to this class */
   gcv_object_t direct_slots            _attribute_aligned_object_;
   gcv_object_t direct_default_initargs _attribute_aligned_object_;
-  gcv_object_t previous_definition     _attribute_aligned_object_; /* previous definitions as a list */
-  gcv_object_t prototype               _attribute_aligned_object_; /* class prototype - an instance or NIL
-      or (added . discarded) slots for old definitions */
+  gcv_object_t instantiated            _attribute_aligned_object_;
+  gcv_object_t proto                   _attribute_aligned_object_; /* class prototype - an instance or NIL */
   gcv_object_t other[unspecified]      _attribute_aligned_object_;
 } *  Class;
+
+# CLOS class-versions, see clos.lisp
+typedef struct { 
+  LRECORD_HEADER
+  gcv_object_t cv_newest_class             _attribute_aligned_object_; # the CLASS object describing the newest available version
+  gcv_object_t cv_class                    _attribute_aligned_object_; # the CLASS object describing the slots
+  gcv_object_t cv_shared_slots             _attribute_aligned_object_; # simple-vector with the values of all shared slots, or nil
+  gcv_object_t cv_serial                   _attribute_aligned_object_; # serial number of this class version
+  gcv_object_t cv_next                     _attribute_aligned_object_; # next class-version, or nil
+  gcv_object_t cv_slotlists_valid_p        _attribute_aligned_object_; # true if the following fields are already computed
+  gcv_object_t cv_kept_slot_locations      _attribute_aligned_object_; # plist of old and new slot locations of those slots that remain local or were shared and become local
+  gcv_object_t cv_added_slots              _attribute_aligned_object_; # list of local slots that are added in the next version
+  gcv_object_t cv_discarded_slots          _attribute_aligned_object_; # list of local slots that are removed or become shared in the next version
+  gcv_object_t cv_discarded_slot_locations _attribute_aligned_object_; # plist of local slots and their old slot locations that are removed or become shared in the next version
+} *  ClassVersion;
 
 # CLOS-instances
 typedef struct {
   SRECORD_HEADER
-  gcv_object_t inst_class _attribute_aligned_object_; # a CLOS-class
-  gcv_object_t inst_cl_id _attribute_aligned_object_; /* the class_id of inst_class */
+  gcv_object_t inst_class_version _attribute_aligned_object_; # indirect pointer to a CLOS-class
   gcv_object_t other[unspecified] _attribute_aligned_object_;
 } *  Instance;
 # Bit masks in the flags:
   #define instflags_forwarded_B    bit(0)
+  #define instflags_beingupdated_B bit(3)
   # The following are only used during garbage collection.
   #define instflags_backpointer_B  bit(1)
   #define instflags_relocated_B    bit(2)
@@ -5753,6 +5766,7 @@ typedef enum {
   # Object, represents a pointer into the memory:
   #define ThePointer(obj)  ((void*)(pgci_pointable(obj) & ~(aint)nonimmediate_bias_mask))
 #endif
+#define TheClassVersion(obj) ((ClassVersion)TheSvector(obj))
 
 # Some acronyms
 # Access to objects that are conses:
@@ -12760,43 +12774,57 @@ static inline object check_structure (object obj) {
 /* used by IO */
 
 # instance_un_realloc(obj);
-# walks over forward pointers left by instance reallocation (CHANGE-CLASS).
+# walks over forward pointers left by instance reallocation (CHANGE-CLASS
+# and/or redefined classes).
 # > obj: a CLOS instance, possibly a forward pointer
 # < obj: the same CLOS instance, not a forward pointer
 # Note that the forwarded instance must not be leaked to "userland", because
 # the forward pointer and the forwarded instance are not EQ.
 #define instance_un_realloc(obj) \
-  while (record_flags(TheInstance(obj)) & instflags_forwarded_B) \
-    (obj) = TheInstance(obj)->inst_class/*;*/
+  if (record_flags(TheInstance(obj)) & instflags_forwarded_B) {        \
+    (obj) = TheInstance(obj)->inst_class_version;                      \
+    /* We know that there is at most one indirection. */               \
+    ASSERT(!(record_flags(TheInstance(obj)) & instflags_forwarded_B)); \
+  }
 
-# update-instance-for-redefined-class
+# update_instance(user_obj,obj)
+# updates a CLOS instance after its class or one of its superclasses has been
+# redefined.
+# > user_obj: a CLOS instance, possibly a forward pointer
+# > obj: the same CLOS instance, not a forward pointer
+# < result: the same CLOS instance, not a forward pointer
 # can trigger GC
-extern object update_instance (object obj);
+extern object update_instance (object user_obj, object obj);
 
 # instance_valid_p(obj)
 # Tests whether a CLOS instance can be used without first updating it.
 # > obj: a CLOS instance, not a forward pointer
-# < result: true if its class was updated since the instance was last used
+# < result: false if its class was redefined since the instance was last used
 #define instance_valid_p(obj) \
-  eq(TheInstance(obj)->inst_cl_id, \
-     TheClass(TheInstance(obj)->inst_class)->class_id)
+  nullp(TheClassVersion(TheInstance(obj)->inst_class_version)->cv_next)
 
-# instance_update(obj);
+# instance_update(user_obj,obj);
 # performs necessary CLOS instance updates on obj.
-# > obj: a CLOS instance, not a forward pointer
-# < obj: the same CLOS instance
+# > user_obj: a CLOS instance, possibly a forward pointer
+# > obj: the same CLOS instance, not a forward pointer
+# < obj: the same CLOS instance, not a forward pointer
 # can trigger GC
-#define instance_update(obj) \
+#define instance_update(user_obj,obj) \
   if (!instance_valid_p(obj)) \
-    (obj) = update_instance(obj)/*;*/
+    (obj) = update_instance(user_obj,obj)/*;*/
 
-/* Test for CLOS instance of a given class */
+/* Test for CLOS instance of a given class
+ > obj: a Lisp object
+ > clas: a class that doesn't have obsolete instances */
 #ifndef COMPILE_STANDALONE
 static inline bool instanceof (object obj, object clas) {
   if (!instancep(obj)) return false;
-  instance_un_realloc(obj);
-  instance_update(obj);
-  return !eq(gethash(clas,TheClass(TheInstance(obj)->inst_class)->all_superclasses),nullobj);
+  var object obj_forwarded = obj;
+  instance_un_realloc(obj_forwarded);
+  /*instance_update(obj,obj_forwarded); - not needed since we don't access a slot */
+  var object cv = TheInstance(obj_forwarded)->inst_class_version;
+  var object objclas = TheClassVersion(cv)->cv_newest_class;
+  return !eq(gethash(clas,TheClass(objclas)->all_superclasses),nullobj);
 }
 #endif
 

@@ -24,14 +24,23 @@
       (print-unreadable-object (object stream :type t)
         (write (class-classname object) :stream stream)
         (when (standard-class-p object)
-          (unless (class-precedence-list object) ; not yet finalized?
-            (write-string " " stream)
-            (write :incomplete :stream stream))
-          (when (and (slot-boundp object 'id) (/= 0 (class-id object)))
-            (write-string " " stream)
-            (write :version :stream stream)
-            (write-string " " stream)
-            (write (class-id object) :stream stream))))))
+          (if (and (slot-boundp object 'current-version)
+                   (typep (class-current-version object) 'clos::class-version)
+                   (slot-boundp object 'precedence-list))
+            (progn
+              (unless (class-precedence-list object) ; not yet finalized?
+                (write-string " " stream)
+                (write :incomplete :stream stream))
+              ;; FIXME: Overhaul this questionable and confusing feature.
+              (let ((serial (cv-serial (class-current-version object))))
+                (unless (eql serial 0)
+                  (write-string " " stream)
+                  (write :version :stream stream)
+                  (write-string " " stream)
+                  (write serial :stream stream))))
+            (progn
+              (write-string " " stream)
+              (write :uninitialized :stream stream)))))))
   (:method ((object method-combination) stream)
     (print-method-combination object stream))
   (:method ((object standard-method) stream)

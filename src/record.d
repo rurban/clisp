@@ -750,12 +750,25 @@ LISPFUNNF(std_instance_p,1)
   VALUES_IF(instancep(obj));
 }
 
-/* returns (CLOS:CLASS-OF object). Especially efficient for CLOS objects. */
+/* returns (CLOS:CLASS-OF object). Especially efficient for CLOS objects.
+ can trigger GC */
 local inline object class_of (object obj) {
   if (instancep(obj)) {
-    instance_un_realloc(obj);
-    instance_update(obj);
-    return (object)TheInstance(obj)->inst_class;
+    var object obj_forwarded = obj;
+    instance_un_realloc(obj_forwarded);
+    if ((record_flags(TheInstance(obj_forwarded)) & instflags_beingupdated_B) == 0) {
+      /* We need instance_update here because CLHS 4.3.6. says:
+         "Updating such an instance occurs at an implementation-dependent time,
+          but no later than the next time a slot of that instance is read or
+          written." */
+      instance_update(obj,obj_forwarded);
+      var object cv = TheInstance(obj_forwarded)->inst_class_version;
+      return TheClassVersion(cv)->cv_newest_class;
+    } else {
+      /* Accessing an instance which is being updated. */
+      var object cv = TheInstance(obj_forwarded)->inst_class_version;
+      return TheClassVersion(cv)->cv_class;
+    }
   } else {
     pushSTACK(obj); C_class_of(); return value1;
   }
@@ -779,14 +792,18 @@ LISPFUNN(allocate_std_instance,2) {
   var uintL length;
   test_record_length(length);
   skipSTACK(1);
+  { /* Fetch the class-version now, before any possible GC, at which the
+       user could redefine the class of which we are creating an instance. */
+    var object clas = STACK_0;
+    if_classp(clas, ; , fehler_keine_klasse(clas); );
+    TheClass(clas)->instantiated = T;
+    STACK_0 = TheClass(clas)->current_version;
+  }
   var object instance =
     allocate_srecord(0,Rectype_Instance,length,instance_type);
-  var object clas = popSTACK();
-  if_classp(clas, ; , fehler_keine_klasse(clas); );
-  TheInstance(instance)->inst_class = clas;
-  TheInstance(instance)->inst_cl_id = TheClass(clas)->class_id;
+  TheInstance(instance)->inst_class_version = popSTACK();
   /* fill the slots of the instance with #<UNBOUND> : */
-  length-=2;
+  length--;
   if (length > 0) {
     var gcv_object_t* ptr = &TheInstance(instance)->other[0];
     dotimespL(length,length, { *ptr++ = unbound; } );
@@ -825,7 +842,8 @@ local Values do_allocate_instance (object clas) {
   /* Make a distinction between <standard-class> and <structure-class> for
      allocate-instance: Is (class-shared-slots class) a vector or NIL, or
      is (class-names class) a cons? */
-  if (matomp(TheClass(clas)->shared_slots)) { /* <standard-class>. */
+  if (matomp(TheClass(clas)->current_version)) {
+    /* <standard-class>. */
     pushSTACK(clas); /* save for ALLOCATE-STD-INSTANCE */
     if (nullp(TheClass(clas)->precedence_list)) { /* finalize */
       pushSTACK(clas); pushSTACK(T);
@@ -834,9 +852,10 @@ local Values do_allocate_instance (object clas) {
     /* (CLOS::ALLOCATE-STD-INSTANCE class (class-instance-size class)) */
     pushSTACK(TheClass(clas)->instance_size);
     C_allocate_std_instance();
-  } else { /* <structure-class>. */
+  } else {
+    /* <structure-class>. */
     /* (SYS::%MAKE-STRUCTURE (class-names class) (class-instance-size class))*/
-    pushSTACK(TheClass(clas)->shared_slots);
+    pushSTACK(TheClass(clas)->current_version);
     pushSTACK(TheClass(clas)->instance_size);
     C_make_structure();
     /* fill the slots of the structure with #<UNBOUND> for
@@ -863,8 +882,8 @@ local inline gcv_object_t* ptr_to_slot (object instance, object slotinfo) {
   return (atomp(slotinfo)
           /* local slot, slotinfo is index */
           ? &TheSrecord(instance)->recdata[posfixnum_to_L(slotinfo)]
-          /* shared slot, slotinfo is (class . index) */
-          : &TheSvector(TheClass(Car(slotinfo))->shared_slots)
+          /* shared slot, slotinfo is (class-version . index) */
+          : &TheSvector(TheClassVersion(Car(slotinfo))->cv_shared_slots)
                ->data[posfixnum_to_L(Cdr(slotinfo))]);
 }
 
@@ -875,13 +894,14 @@ local inline gcv_object_t* ptr_to_slot (object instance, object slotinfo) {
  < result: pointer to the slot (value1 = (class-of instance)),
              or NULL (then SLOT-MISSING was called). */
 local gcv_object_t* slot_up (void) {
-  pushSTACK(STACK_1); C_class_of(); /* determine (CLASS-OF instance) */
+  var object clas = class_of(STACK_1); /* determine (CLASS-OF instance) */
   var object slotinfo = /* (GETHASH slot-name (class-slot-location-table class)) */
-    gethash(STACK_0,TheClass(value1)->slot_location_table);
+    gethash(STACK_0,TheClass(clas)->slot_location_table);
   if (!eq(slotinfo,nullobj)) { /* found? */
+    value1 = clas;
     return ptr_to_slot(STACK_1,slotinfo);
   } else { /* missing slot -> (SLOT-MISSING class instance slot-name caller) */
-    pushSTACK(value1); pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
+    pushSTACK(clas); pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
     pushSTACK(TheSubr(subr_self)->name);
     funcall(S(slot_missing),4);
     return NULL;
@@ -905,14 +925,14 @@ LISPFUNN(slot_value,2) {
 
 LISPFUNN(set_slot_value,3) {
   /* stack layout: instance, slot-name, new-value. */
-  pushSTACK(STACK_2); C_class_of(); /* determine(CLASS-OF instance) */
+  var object clas = class_of(STACK_2); /* determine (CLASS-OF instance) */
   var object slotinfo = /* (GETHASH slot-name (class-slot-location-table class)) */
-    gethash(STACK_1,TheClass(value1)->slot_location_table);
+    gethash(STACK_1,TheClass(clas)->slot_location_table);
   if (!eq(slotinfo,nullobj)) { /* found? */
     value1 = *ptr_to_slot(STACK_2,slotinfo) = STACK_0;
   } else { /* missing slot
               -> (SLOT-MISSING class instance slot-name 'setf new-value) */
-    pushSTACK(value1); pushSTACK(STACK_(2+1)); pushSTACK(STACK_(1+2));
+    pushSTACK(clas); pushSTACK(STACK_(2+1)); pushSTACK(STACK_(1+2));
     pushSTACK(S(setf)); pushSTACK(STACK_(0+4));
     funcall(S(slot_missing),5);
     value1 = STACK_0;
@@ -935,9 +955,9 @@ LISPFUNN(slot_makunbound,2) {
 }
 
 LISPFUNNR(slot_exists_p,2) {
-  pushSTACK(STACK_1); C_class_of(); /* determine (CLASS-OF instance) */
+  var object clas = class_of(STACK_1); /* determine (CLASS-OF instance) */
   var object slotinfo = /* (GETHASH slot-name (class-slot-location-table class)) */
-    gethash(STACK_0,TheClass(value1)->slot_location_table);
+    gethash(STACK_0,TheClass(clas)->slot_location_table);
   VALUES_IF(! eq(slotinfo,nullobj)); skipSTACK(2);
 }
 
@@ -946,11 +966,11 @@ LISPFUNNR(slot_exists_p,2) {
    make instance point to a new instance of new-class */
 LISPFUNN(pchange_class,3) {
   var bool do_copy_p = !nullp(popSTACK());
-  /* STACK: instance, new-class */
+  /* Stack layout: instance, new-class. */
   instance_un_realloc(STACK_0);
-  instance_un_realloc(STACK_1);
   do_allocate_instance(STACK_0);
   pushSTACK(value1); /* the new object, to be filled in Lisp */
+  /* Stack layout: instance, new-class, new-instance. */
   if (do_copy_p) {
     /* a copy of the old instance - the return value of CHANGE-CLASS */
     var object clas = class_of(STACK_2);
@@ -960,77 +980,196 @@ LISPFUNN(pchange_class,3) {
       copy_mem_o(&TheStructure(value1)->structure_types,
                  &TheStructure(STACK_3)->structure_types,
                  Structure_length(STACK_3));
-    else /* CLOS class instance */
-      copy_mem_o(&TheInstance(value1)->inst_class,
-                 &TheInstance(STACK_3)->inst_class,
+    else { /* CLOS class instance */
+      var object old_instance = STACK_3;
+      instance_un_realloc(old_instance);
+      copy_mem_o(&TheInstance(value1)->inst_class_version,
+                 &TheInstance(old_instance)->inst_class_version,
                  posfixnum_to_L(TheClass(STACK_0)->instance_size));
+    }
     skipSTACK(1);
   } else
     VALUES1(NIL);
-  /* STACK: instance, new-class, new-instance */
+  /* Stack layout: instance, new-class, new-instance. */
   { /* Turn instance into a realloc (see the instance_un_realloc macro): */
     set_break_sem_1(); /* forbid interrupts */
     var Instance ptr = TheInstance(STACK_2);
     record_flags_set(ptr,instflags_forwarded_B);
-    ptr->inst_class = STACK_0;
+    ptr->inst_class_version = STACK_0;
     clr_break_sem_1(); /* permit interrupts again */
   }
-  ASSERT(Record_flags(STACK_2) == 1);
+  ASSERT(Record_flags(STACK_2) & instflags_forwarded_B);
   skipSTACK(3);
 }
 
-/* update-instance-for-redefined-class
+/* update_instance(obj)
+ updates a CLOS instance after its class or one of its superclasses has been
+ redefined.
+ > user_obj: a CLOS instance, possibly a forward pointer
+ > obj: the same CLOS instance, not a forward pointer
+ < result: the same CLOS instance, not a forward pointer
  can trigger GC */
-global object update_instance (object obj) {
+global object update_instance (object user_obj, object obj) {
+  /* Note about the handling of multiple consecutive class redefinitions:
+     When there are multiple class redefinitions before an instance gets to
+     be updated, we call UPDATE-INSTANCE-FOR-REDEFINED-CLASS once for each
+     redefinition, not once for all changes together.
+     Rationale:
+       1. CLHS 4.3.6. says
+            "When the class C is redefined, changes are propagated to its
+             instances ... Updating such an instance occurs at an
+             implementation-dependent time, but no later than the next time
+             a slot of that instance is read or written."
+          This implies that conceptually, there is an update for each class
+          redefinition.
+       2. It's easier for the user to write customization methods for
+          UPDATE-INSTANCE-FOR-REDEFINED-CLASS that take into account each
+          step separately, rather than arbitrary groupings of consecutive
+          steps.
+       3. When in a redefinition, a local slot is discarded, and in a later
+          redefinition, a local slot of the same name is added, we would need
+          to pass the slot both among the added-slots and among the discarded-
+          slots, and it's questionable whether user-defined
+          UPDATE-INSTANCE-FOR-REDEFINED-CLASS methods handle this correctly.
+     The downside of this way of handling multiple redefinitions is that while
+     UPDATE-INSTANCE-FOR-REDEFINED-CLASS is processing, slot accesses to the
+     instance being redefined must *not* invoke update_instance (otherwise we
+     get an unwanted recursion; this slows down SLOT-VALUE. */
  #if defined(STACKCHECKS) || defined(STACKCHECKC)
   var gcv_object_t *saved_stack = STACK;
  #endif
-  var object new_class = (object)TheInstance(obj)->inst_class;
-  var object old_id = (object)TheInstance(obj)->inst_cl_id;
-  var object old_class = new_class;
-  while (!nullp(old_class) && !eq(old_id,TheClass(old_class)->class_id))
-    old_class = TheClass(old_class)->previous_definition;
-  if (nullp(old_class)) NOTREACHED;
-  /* update instance class id to avoid infinite loop/stack overflow */
-  TheInstance(obj)->inst_cl_id = TheClass(new_class)->class_id;
-  pushSTACK(obj); pushSTACK(old_class); pushSTACK(new_class); /* save */
-  { /* compute property-list */
-    var object slots_tab = TheClass(old_class)->slot_location_table;
-    var uintL index = 2*posfixnum_to_L(TheHashtable(slots_tab)->ht_maxcount);
-    var uintL num_slots = 0;
-    var gcv_object_t* kvt = kvtable_data(TheHashtable(slots_tab)->ht_kvtable);
-    while (index) {
-      index -= 2;
-      if (boundp(kvt[index])) { /* non-void entry */
-        /* value is slotinfo */
-        var gcv_object_t *slot_ = ptr_to_slot(obj,kvt[index+1]);
-        if (boundp(*slot_)) {
-          pushSTACK(kvt[index]); /* key=slot-name */
-          pushSTACK(*slot_); /* value=slot-value */
-          num_slots++;
+  pushSTACK(user_obj);
+  {
+    var gcv_object_t* top_of_frame = STACK;
+    var sp_jmp_buf returner; /* return point */
+    finish_entry_frame(UNWIND_PROTECT,returner,, goto clean_up; );
+  }
+  record_flags_set(TheInstance(obj),instflags_beingupdated_B);
+  do {
+    pushSTACK(obj);
+    var object cv = TheInstance(obj)->inst_class_version;
+    # We know that the next class is already finalized before
+    # TheInstance(obj)->inst_class_version is filled.
+    {
+      var object newclass = TheClassVersion(TheClassVersion(cv)->cv_next)->cv_class;
+      if (nullp(TheClass(newclass)->precedence_list))
+        NOTREACHED;
+    }
+    # Compute the information needed for the update, if not already done.
+    if (nullp(TheClassVersion(cv)->cv_slotlists_valid_p)) {
+      # Invoke (CLOS::CLASS-VERSION-COMPUTE-SLOTLISTS cv):
+      pushSTACK(cv); funcall(S(class_version_compute_slotlists),1);
+      obj = STACK_0;
+      cv = TheInstance(obj)->inst_class_version;
+      ASSERT(!nullp(TheClassVersion(cv)->cv_slotlists_valid_p));
+    }
+    pushSTACK(TheClassVersion(cv)->cv_added_slots);
+    pushSTACK(TheClassVersion(cv)->cv_discarded_slots);
+    # Fetch the values of the local slots that are discarded.
+    {
+      var uintL max_local_slots = posfixnum_to_L(TheClass(TheClassVersion(cv)->cv_class)->instance_size);
+      get_space_on_STACK(2*max_local_slots);
+      var object plist = TheClassVersion(cv)->cv_discarded_slot_locations;
+      var uintL count = 0;
+      while (consp(plist)) {
+        var object slotname = Car(plist);
+        plist = Cdr(plist);
+        var object slotinfo = Car(plist);
+        plist = Cdr(plist);
+        ASSERT(atomp(slotinfo));
+        var object value = TheSrecord(obj)->recdata[posfixnum_to_L(slotinfo)];
+        if (!eq(value,unbound)) {
+          pushSTACK(slotname);
+          pushSTACK(value);
+          count += 2;
         }
       }
+      plist = listof(count);
+      pushSTACK(plist);
     }
-    var object property_list = listof(2*num_slots);
-    pushSTACK(property_list); /* save */
-  } /* stack: obj old_class new_class property_list */
-  /* change class */
-  pushSTACK(STACK_3);/*obj*/ pushSTACK(STACK_(1+1));/*new_class*/
-  pushSTACK(NIL); funcall(L(pchange_class),3);
-  { /* update-instance-for-redefined-class */
-    var object property_list = popSTACK(); /* restore */
-    var object added_discarded = TheClass(STACK_1)->prototype; /* old_class */
-    pushSTACK(STACK_2); /*obj*/ pushSTACK(Car(added_discarded));
-    pushSTACK(Cdr(added_discarded)); pushSTACK(property_list);
+    obj = STACK_3;
+    cv = TheInstance(obj)->inst_class_version;
+    # Fetch the values of the slots that remain local or were shared and
+    # become local. These values are retained.
+    var uintL kept_slots;
+    {
+      var object oldclass = TheClassVersion(cv)->cv_class;
+      var object newclass = TheClassVersion(TheClassVersion(cv)->cv_next)->cv_class;
+      var uintL max_local_slots = posfixnum_to_L(TheClass(newclass)->instance_size);
+      get_space_on_STACK(2*max_local_slots);
+      var object plist = TheClassVersion(cv)->cv_kept_slot_locations;
+      var uintL count = 0;
+      while (consp(plist)) {
+        var object old_slotinfo = Car(plist);
+        plist = Cdr(plist);
+        var object new_slotinfo = Car(plist);
+        plist = Cdr(plist);
+        var object value =
+          (atomp(old_slotinfo)
+           /* local slot, old_slotinfo is index */
+           ? TheSrecord(obj)->recdata[posfixnum_to_L(old_slotinfo)]
+           /* shared slot, old_slotinfo is (class . index) */
+           : TheSvector(TheClassVersion(Car(old_slotinfo))->cv_shared_slots)
+               ->data[posfixnum_to_L(Cdr(old_slotinfo))]);
+        if (!eq(value,unbound)) {
+          pushSTACK(value);
+          pushSTACK(new_slotinfo);
+          count++;
+        }
+      }
+      kept_slots = count;
+    }
+    # STACK layout: user-obj, UNWIND-PROTECT frame,
+    #               obj, added-slots, discarded-slots, propertylist,
+    #               {old-value, new-slotinfo}*kept_slots.
+    # ANSI CL 4.3.6.1. Modifying the Structure of Instances
+    {
+      var object newclass = TheClassVersion(TheClassVersion(cv)->cv_next)->cv_class;
+      /* (CLOS::ALLOCATE-STD-INSTANCE newclass (class-instance-size newclass)): */
+      pushSTACK(newclass); pushSTACK(TheClass(newclass)->instance_size);
+      C_allocate_std_instance();
+    }
+    obj = value1;
+    record_flags_set(TheInstance(obj),instflags_beingupdated_B);
+    { /* Turn user-obj into a forward-pointer (see the instance_un_realloc
+         macro): */
+      set_break_sem_1(); /* forbid interrupts */
+      var Instance ptr = TheInstance(STACK_(2+4+2*kept_slots));
+      record_flags_set(ptr,instflags_forwarded_B);
+      ptr->inst_class_version = obj;
+      clr_break_sem_1(); /* permit interrupts again */
+    }
+    ASSERT(Record_flags(STACK_(2+4+2*kept_slots)) & instflags_forwarded_B);
+    dotimesL(kept_slots,kept_slots, {
+      var object new_slotinfo = popSTACK();
+      ASSERT(atomp(new_slotinfo));
+      TheSrecord(obj)->recdata[posfixnum_to_L(new_slotinfo)] = popSTACK();
+    });
+    STACK_3 = STACK_(2+4);
+    # STACK layout: user-obj, UNWIND-PROTECT frame,
+    #               user-obj, added-slots, discarded-slots, propertylist.
+    # ANSI CL 4.3.6.2. Initializing Newly Added Local Slots
     funcall(S(update_instance_frc),4);
-  }
-  obj = STACK_2; skipSTACK(3); /* drop new_class, old_class, obj */
+    # STACK layout: user-obj, UNWIND-PROTECT frame.
+    obj = STACK_2;
+    instance_un_realloc(obj);
+  } while (!instance_valid_p(obj));
+  record_flags_clr(TheInstance(obj),instflags_beingupdated_B);
+  skipSTACK(1+2); /* unwind UNWIND-PROTECT frame, drop user-obj */
  #if defined(STACKCHECKS) || defined(STACKCHECKC)
   if (saved_stack != STACK) abort();
  #endif
-  /* obj is a reallocated instance, so we need to unrealloc it */
+  return obj;
+ clean_up: {
+  var restartf_t fun = unwind_protect_to_save.fun;
+  var gcv_object_t* arg = unwind_protect_to_save.upto_frame;
+  skipSTACK(2); /* unwind UNWIND-PROTECT frame */
+  /* Mark the instance update as being terminated. */
+  obj = STACK_0;
   instance_un_realloc(obj);
-  return obj; /* return the argument */
+  record_flags_clr(TheInstance(obj),instflags_beingupdated_B);
+  fun(arg); /* jump further */
+ }
 }
 
 /* UP: check keywords, cf. SYSTEM::KEYWORD-TEST
@@ -1457,8 +1596,8 @@ LISPFUN(pmake_instance,seclass_default,1,0,rest,nokey,0,NIL) {
           dotimespC(count,2*argcount+1, { pushSTACK(NEXT(ptr)); });
           funcall(fun,2*argcount+1);
           pushSTACK(value1); /* save instance */
-          pushSTACK(value1); C_class_of();
-          if (!eq(value1,Before(rest_args_pointer))) {
+          var object cls = class_of(value1);
+          if (!eq(cls,Before(rest_args_pointer))) {
             /* instance already in STACK_0 */
             pushSTACK(Before(rest_args_pointer));
             pushSTACK(S(allocate_instance));

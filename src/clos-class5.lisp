@@ -368,8 +368,8 @@
  (defun %allocate-instance (class &rest initargs)
   (check-initialization-argument-list initargs 'allocate-instance)
   ;; Quick and dirty dispatch among <standard-class> and <structure-class>.
-  ;; (class-shared-slots class) is a simple-vector, (class-names class) a cons.
-  (if (atom (class-shared-slots class))
+  ;; (class-current-version class) is a simple-vector, (class-names class) a cons.
+  (if (atom (class-current-version class))
     (progn (unless (class-precedence-list class) (finalize-class class t))
       (allocate-std-instance class (class-instance-size class)))
     (sys::%make-structure (class-names class) (class-instance-size class)
@@ -528,21 +528,30 @@
   (:method ((instance t) (new-class symbol) &rest initargs)
     (apply #'change-class instance (find-class new-class) initargs)))
 
-(defgeneric update-instance-for-different-class
-    (previous current &key &allow-other-keys)
+(defgeneric update-instance-for-different-class (previous current
+                                                 &key &allow-other-keys)
   (:method ((previous standard-object) (current standard-object)
             &rest initargs)
-    (apply #'shared-initialize current
-           (slot-difference (class-of current) (class-of previous))
-           initargs)))
+    (let* ((old-slots-table (class-slot-location-table (class-of previous)))
+           (added-slots
+             (mapcan #'(lambda (slot)
+                         ; Only local slots.
+                         (when (atom (slotdef-location slot))
+                           (let ((name (slotdef-name slot)))
+                             ; Only slots for which no slot of the same name
+                             ; exists in the previous class.
+                             (when (null (gethash name old-slots-table))
+                               (list name)))))
+                     (class-slots (class-of current)))))
+      (apply #'shared-initialize current added-slots initargs))))
 
+;; Users want to be able to create subclasses of <standard-class> and write
+;; methods on MAKE-INSTANCES-OBSOLETE on them. So, we now go redefine
+;; MAKE-INSTANCES-OBSOLETE as a generic function.
+(fmakunbound 'make-instances-obsolete)
 (defgeneric make-instances-obsolete (class)
   (:method ((class standard-class))
-    (when (class-precedence-list class) ; nothing to do if not yet finalized
-      (let ((name (class-name class)))
-        (warn (TEXT "~S: Class ~S (or one of its ancestors) is being redefined, instances are obsolete")
-              'defclass name))
-      (mapc #'make-instances-obsolete (class-direct-subclasses class)))
+    (make-instances-obsolete-standard-class class)
     class)
   (:method ((class symbol))
     (make-instances-obsolete (find-class class))

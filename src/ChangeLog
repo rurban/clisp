@@ -1,3 +1,69 @@
+2004-04-12  Bruno Haible  <bruno@clisp.org>
+
+	ANSI CL compliance: Handle class redefinition as specified.
+	* lispbibl.d (Class): Remove class_id field. Remove shared_slots,
+	previous_definition slots. Add current_version, instantiated slot.
+	Rename prototype slot.
+	(ClassVersion): New type.
+	(Instance): Remove class and cl_id fields. Add class_version field.
+	(instflags_beingupdated_B): New macro.
+	(TheClassVersion): New macro.
+	(instance_un_realloc): Use a single test instead of a loop.
+	(update_instance): Take a second argument.
+	(instance_valid_p): Look at class-version instead of id field.
+	(instance_update): Take a second argument.
+	(instanceof): Don't call instance_update. Update.
+	* spvw_garcol.d (gc_sweep1_instance_forward): Use the class_version
+	field for the forward pointer.
+	* record.d (class_of): Don't call instance_update if the instance is
+	already being updated.
+	(CLOS::ALLOCATE-STD-INSTANCE): Set the class-version field instead of
+	class and id fields.
+	(do_allocate_instance): Update.
+	(ptr_to_slot): Update shared slot access: The location's CAR is now a
+	class-version.
+	(slot_up): Invoke the local class_of instead of CLASS-OF.
+	(CLOS::SET-SLOT-VALUE, CLOS:SLOT-EXISTS-P): Likewise.
+	(CLOS::%CHANGE-CLASS): Turn the user visible object into a forward
+	pointer, instead of creating a chain of forward pointers.
+	(update_instance): Take a second argument. Completely rewritten.
+	(CLOS::%MAKE-INSTANCE): Invoke the local class_of instead of CLASS-OF.
+	* hashtabl.d (sxhash_atom): Don't call instance_update. Update.
+	* predtype.d (TYPE-OF, CLOS:CLASS-OF): Likewise.
+	(heap_statistics_mapper): Update.
+	* stream.d (stream_get_read_eval, stream_set_read_eval): Call
+	instance_update. Update.
+	* genclisph.d (main): Update definition of Instance.
+	* clos-class2.lisp (class): Remove id slot.
+	(standard-class): Remove shared-slots, previous-definition slots.
+	Add current-version, instantiated slots.
+	(class-version): New structure.
+	(slot-difference): Remove function.
+	(ensure-class): Call make-instances-obsolete before re-initializing
+	the class. Move the versioning stuff to make-instances-obsolete.
+	Remove the computation of added/discarded slot lists. Update the
+	subclasses after redefining a class.
+	(initialize-instance-standard-class): Initialize the current-version
+	slot. When clearing the precedence-list, clear the all-superclasses
+	table as well.
+	(finalize-instance-standard-class): Default instance-size is now 1,
+	not 2. The shared-slots are now stored in the class-version. Don't
+	erase the values of shared slots that remain shared.
+	(std-layout-slots): Let the cons point to the class-version, not to
+	the class.
+	(make-instances-obsolete): New preliminary function.
+	(make-instances-obsolete-standard-class): New function.
+	(update-subclasses-for-redefined-class): New function.
+	(class-version-compute-slotlists): New function.
+	(<standard-object>): Update instance-size. Install a class-version.
+	(unbound): Update.
+	* clos-class4.lisp (PRINT-OBJECT on CLASS): When the class is not
+	properly initialized, print UNINITIALIZED instead of giving an error.
+	* clos-class5.lisp (update-instance-for-different-class): Compute
+	list of added slots as specified in ANSI CL.
+	(make-instances-obsolete on STANDARD-CLASS): Just invoke
+	make-instances-obsolete-standard-class.
+
 2004-04-21  Bruno Haible  <bruno@clisp.org>
 
 	* pathname.d (file_namestring_parts, namestring_correctly_parseable_p):

@@ -21,7 +21,6 @@
 ;; Definition of <class> and its subclasses.
 
 (defstruct (class (:predicate nil))
-  (id 0)                   ; the class ID to keep instances in sync with redefined classes
   metaclass                ; (class-of class) = (class-metaclass class), a class
   classname                ; (class-name class) = (class-classname class), a symbol
   direct-superclasses      ; list of all direct superclasses (or their names,
@@ -39,18 +38,17 @@
   slots                    ; list of all slots (as slot-definitions)
   default-initargs         ; default-initargs (as alist initarg -> initer)
   valid-initargs           ; list of valid initargs
-  instance-size)           ; number of slots of the direct instances + 2
+  instance-size)           ; number of slots of the direct instances + 1
 
 (defstruct (structure-class (:inherit slotted-class) (:conc-name "CLASS-"))
   names)                   ; encoding of the include-nesting, a list
 
 (defstruct (standard-class (:inherit slotted-class) (:conc-name "CLASS-"))
-  shared-slots             ; simple-vector with the values of all shared slots, or nil
+  current-version          ; most recent class-version, points back to this class
   direct-slots             ; list of all freshly added slots (as plists)
   direct-default-initargs  ; freshly added default-initargs (as plist)
-  previous-definition      ; the previous class definition or nil
-  proto)                   ; class prototype - an instance
-                           ; or (added . discarded) slots for old definitions
+  instantiated             ; true if an instance has already been created
+  proto)                   ; class prototype - an instance or NIL
 
 ;; CLtL2 28.1.4., ANSI CL 4.3.7. Integrating Types and Classes
 (defun subclassp (class1 class2)
@@ -74,6 +72,33 @@
           'concatenated-stream 'two-way-stream 'echo-stream 'string-stream
           'string 'symbol 't 'vector))
 
+;; A new class-version is created each time a class is redefined.
+;; Used to keep the instances in sync through lazy updates.
+;; Note: Why are the shared-slots an element of the class-version, not of the
+;;   class? Answer: When a class is redefined in such a way that a shared slot
+;;   becomes local, the update of the instances of its subclasses needs to
+;;   access the value of the shared slot before the redefinition. This is
+;;   prepared by class-version-compute-slotlists for each subclass; but when
+;;   this is run, the pair (class . index) is not sufficient any more to
+;;   retrieve the value. Hence we use a pair (class-version . index) instead.
+;;   Then, storing the shared-slots vector in the class-version avoids an
+;;   indirection:    class-version -> shared-slots
+;;   instead of      class-version -> class -> shared-slots.
+(defstruct (class-version (:type vector) (:predicate nil) (:copier nil) (:conc-name "CV-"))
+  newest-class             ; the CLASS object describing the newest available version
+  class                    ; the CLASS object describing the slots
+  shared-slots             ; simple-vector with the values of all shared slots, or nil
+  serial                   ; serial number of this class version
+  (next nil)               ; next class-version, or nil
+  (slotlists-valid-p nil)  ; true if the following fields are already computed
+  kept-slot-locations      ; plist of old and new slot locations of those slots
+                           ; that remain local or were shared and become local
+  added-slots              ; list of local slots that are added in the next version
+  discarded-slots          ; list of local slots that are removed or become
+                           ; shared in the next version
+  discarded-slot-locations ; plist of local slots and their old slot locations
+                           ; that are removed or become shared in the next version
+)
 
 ;;; -------------------------------- DEFCLASS --------------------------------
 
@@ -339,13 +364,6 @@
    (readonly nil))                       ; ds-slot-readonly
 ||#
 
-;; Compute the difference between the set of slots of two classes.
-(defun slot-difference (new-class old-class)
-  (mapcar #'slotdef-name
-          (set-difference (class-slots new-class)
-                          (class-slots old-class)
-                          :test #'eq :key #'slotdef-name)))
-
 (defun ensure-class (name &rest all-keys
                           &key (metaclass <standard-class>)
                                (direct-superclasses '())
@@ -418,9 +436,9 @@
             ;; subclasses of class!
           )
           ;; Instances have to be updated:
-          (let ((copy (copy-standard-class class)))
-            (setf (class-previous-definition class) copy)
-            (incf (class-id class))
+          (progn
+            (setf (class-proto class) nil)
+            (make-instances-obsolete class)
             (apply (cond ((eq metaclass <standard-class>)
                           #'initialize-instance-standard-class)
                          ((eq metaclass <built-in-class>)
@@ -432,13 +450,8 @@
                    :name name
                    :direct-superclasses direct-superclasses
                    all-keys)
-            ;; Precompute added/discarded slot lists for all previous definitions:
-            (do ((oc copy (class-previous-definition oc)))
-                ((null oc))
-              (setf (class-proto oc)
-                    (cons (slot-difference class oc)
-                          (slot-difference oc class))))
-            (make-instances-obsolete class)))
+            ;; FIXME: Need to handle changes of shared slots here?
+            (update-subclasses-for-redefined-class class)))
         ;; Modified class as value:
         class)
       (setf (find-class name)
@@ -499,6 +512,10 @@
      &key name (direct-superclasses '()) (direct-slots '())
      (direct-default-initargs '()) &allow-other-keys)
   ;; metaclass = <standard-class>
+  ;; Don't add functionality here! This is a preliminary definition that is
+  ;; replaced with #'make-instance later.
+  ;; But note a subtle difference: This definition here sets unspecified class
+  ;; slots to NIL; make-instance doesn't do this.
   (declare (ignore direct-superclasses direct-slots direct-default-initargs))
   (let ((class (make-standard-class :classname name :metaclass metaclass)))
     (apply #'initialize-instance-standard-class class args)))
@@ -506,10 +523,16 @@
 (defun initialize-instance-standard-class
     (class &key (direct-superclasses '()) (direct-slots '())
      (direct-default-initargs '()) &allow-other-keys)
+  (unless (slot-boundp class 'current-version)
+    (setf (class-current-version class)
+          (make-class-version :newest-class class
+                              :class class
+                              :serial 0)))
   (setf (class-direct-superclasses class) (copy-list direct-superclasses))
   (setf (class-direct-slots class) direct-slots)
   (setf (class-direct-default-initargs class) direct-default-initargs)
   (setf (class-precedence-list class) nil) ; mark as not yet finalized
+  (setf (class-all-superclasses class) nil) ; mark as not yet finalized
   (finalize-class class nil) ; try to finalize it
   class)
 
@@ -552,9 +575,13 @@
 
 (let (unbound) (declare (compile)) ; unbound = #<unbound>
 (defun def-unbound (x) (declare (compile)) (setq unbound x))
-(defun finalize-instance-standard-class
-    (class &aux (direct-superclasses (class-direct-superclasses class))
-     (name (class-name class)))
+(defun finalize-instance-standard-class (class
+       &aux (direct-superclasses (class-direct-superclasses class))
+            (name (class-name class))
+            (old-slot-location-table
+              (if (slot-boundp class 'slot-location-table)
+                (class-slot-location-table class)
+                empty-ht)))
   ;; metaclass <= <standard-class>
   (check-metaclass-mix name direct-superclasses
                        #'standard-class-p 'STANDARD-CLASS)
@@ -567,19 +594,27 @@
   (setf (class-slot-location-table class) (make-hash-table :test #'eq))
   (dolist (cl direct-superclasses)
     (pushnew class (class-direct-subclasses cl)))
-  (setf (class-instance-size class) 2) ; 0=class, 1=class_id
+  (setf (class-instance-size class) 1) ; slot 0 is the class_version pointer
   (let ((shared-index (std-layout-slots class (class-slots class))))
     (when (plusp shared-index)
-      (setf (class-shared-slots class)
+      (setf (cv-shared-slots (class-current-version class))
             (let ((v (make-array shared-index))
                   (i 0))
               (dolist (slot (class-slots class) v)
                 (when (eq (slotdef-allocation slot) class)
                   (setf (svref v i)
-                        (let ((init (slotdef-initer slot)))
-                          (if init
-                              (if (car init) (funcall (car init)) (cdr init))
-                              unbound)))
+                        (let ((old-slot-location
+                                (gethash (slotdef-name slot) old-slot-location-table)))
+                          (if (and (consp old-slot-location)
+                                   (eq (cv-newest-class (car old-slot-location)) class))
+                            ;; The slot was already shared. Retain its value.
+                            (svref (cv-shared-slots (car old-slot-location))
+                                   (cdr old-slot-location))
+                            ;; A new shared slot.
+                            (let ((init (slotdef-initer slot)))
+                              (if init
+                                (if (car init) (funcall (car init)) (cdr init))
+                                unbound)))))
                   (incf i)))))))
   ;; CLtL2 28.1.3.3., ANSI CL 4.3.4.2. Inheritance of Class Options
   (setf (class-default-initargs class)
@@ -847,7 +882,8 @@
                        (cond ((eq allocation ':instance) ; local slot
                               (prog1 local-index (incf local-index)))
                              ((eq allocation class) ; new shared slot
-                              (prog1 (cons class shared-index)
+                              (prog1
+                                (cons (class-current-version class) shared-index)
                                 (incf shared-index)))
                              (t ; inherited shared slot
                               (gethash name (class-slot-location-table
@@ -857,6 +893,80 @@
           slots)
     (setf (class-instance-size class) local-index)
     shared-index))
+
+;; --------------- Redefining an instance of <standard-class> ---------------
+
+;; Preliminary definition.
+(defun make-instances-obsolete (class)
+  (make-instances-obsolete-standard-class class))
+
+(defun make-instances-obsolete-standard-class (class)
+  (when (class-precedence-list class) ; nothing to do if not yet finalized
+    (when (class-instantiated class) ; don't warn if there are no instances
+      (let ((name (class-name class)))
+        (warn (TEXT "~S: Class ~S (or one of its ancestors) is being redefined, instances are obsolete")
+              'defclass name)))
+    ;; Create a new class-version. (Even if there are no instances: the
+    ;; shared-slots may need change.)
+    (let* ((copy (copy-standard-class class))
+           (old-version (class-current-version copy))
+           (new-version
+             (make-class-version :newest-class class
+                                 :class class
+                                 :serial (1+ (cv-serial old-version)))))
+      (setf (cv-class old-version) copy)
+      (setf (cv-next old-version) new-version)
+      (setf (class-current-version class) new-version))
+    ;; Recurse to the subclasses. (Even if there are no instances: the
+    ;; subclasses may have instances.)
+    (mapc #'make-instances-obsolete (class-direct-subclasses class))))
+
+;; After a class redefinition, finalize the subclasses so that the instances
+;; can be updated.
+;; FIXME: What should we do if this finalization fails?
+(defun update-subclasses-for-redefined-class (class)
+  (setf (class-precedence-list class) nil) ; mark as not yet finalized
+  (setf (class-all-superclasses class) nil) ; mark as not yet finalized
+  (when (class-instantiated class)
+    (finalize-class class t))
+  (mapc #'update-subclasses-for-redefined-class (class-direct-subclasses class)))
+
+;; Store the information needed by the update of obsolete instances in a
+;; class-version object. Invoked when an instance needs to be updated.
+(defun class-version-compute-slotlists (old-version)
+  (let ((old-class (cv-class old-version))
+        (new-class (cv-class (cv-next old-version)))
+        ; old-class is already finalized - otherwise no instance could exist.
+        ; new-class is already finalized, because ensure-class guarantees it.
+        (kept2 '())
+        (added '())
+        (discarded '())
+        (discarded2 '()))
+    (dolist (old-slot (class-slots old-class))
+      (let* ((name (slotdef-name old-slot))
+             (new-slot (find name (class-slots new-class)
+                             :test #'eq :key #'slotdef-name)))
+        (if (and new-slot (atom (slotdef-location new-slot)))
+          ;; Local slot remains local, or shared slot becomes local.
+          (setq kept2 (list* (slotdef-location old-slot)
+                             (slotdef-location new-slot)
+                             kept2))
+          (if (atom (slotdef-location old-slot))
+            ;; Local slot is discarded or becomes shared.
+            (setq discarded (cons name discarded)
+                  discarded2 (list* name (slotdef-location old-slot) discarded2))))))
+    (dolist (new-slot (class-slots new-class))
+      (let* ((name (slotdef-name new-slot))
+             (old-slot (find name (class-slots old-class)
+                             :test #'eq :key #'slotdef-name)))
+        (unless old-slot
+          ;; Newly added local slot.
+          (setq added (cons name added)))))
+    (setf (cv-kept-slot-locations old-version) kept2)
+    (setf (cv-added-slots old-version) added)
+    (setf (cv-discarded-slots old-version) discarded)
+    (setf (cv-discarded-slot-locations old-version) discarded2)
+    (setf (cv-slotlists-valid-p old-version) t)))
 
 ;; --------------- Creation of an instance of <built-in-class> ---------------
 
@@ -890,6 +1000,10 @@
      ;; The following keys come from DEFINE-STRUCTURE-CLASS.
      names (slots '()) (size 1) &allow-other-keys)
   ;; metaclass = <structure-class>
+  ;; Don't add functionality here! This is a preliminary definition that is
+  ;; replaced with #'make-instance later.
+  ;; But note a subtle difference: This definition here sets unspecified class
+  ;; slots to NIL; make-instance doesn't do this.
   (declare (ignore direct-superclasses direct-slots direct-default-initargs
                    names slots size))
   (let ((class (make-structure-class :classname name :metaclass metaclass)))
@@ -1031,9 +1145,13 @@
           :direct-slots '()
           :slots '()
           :slot-location-table empty-ht
-          :instance-size 2
+          :instance-size 1
           :direct-default-initargs nil
           :default-initargs nil))
+  (setf (class-current-version <standard-object>)
+        (make-class-version :newest-class <standard-object>
+                            :class <standard-object>
+                            :serial 0))
   (setf (class-all-superclasses <standard-object>)
         (std-compute-superclasses
           (setf (class-precedence-list <standard-object>)
@@ -1042,7 +1160,7 @@
   (system::note-new-standard-class)
   ;; 7. value #<unbound>
   (def-unbound
-    (sys::%record-ref (allocate-std-instance <standard-object> 3) 2)))
+    (sys::%record-ref (allocate-std-instance <standard-object> 2) 1)))
 
 
 ;;; Install built-in classes:

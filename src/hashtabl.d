@@ -2034,11 +2034,15 @@ local uint32 sxhash_atom (object obj) {
         return bish_code;
       }
    }
-    case_instance:              /* instance */
+    case_instance: {            /* instance */
       /* utilize only the class */
-      instance_un_realloc(obj);
-      instance_update(obj);
-      return sxhash(TheInstance(obj)->inst_class) + 0x61EFA249;
+      var object obj_forwarded = obj;
+      instance_un_realloc(obj_forwarded);
+      /*instance_update(obj,obj_forwarded); - not needed since we don't access a slot */
+      var object cv = TheInstance(obj_forwarded)->inst_class_version;
+      var object objclass = TheClassVersion(cv)->cv_newest_class;
+      return sxhash(objclass) + 0x61EFA249;
+    }
     case_char:                  /* character */
       /* take EQ-hashcode (for characters EQUAL == EQL == EQ) */
       return hashcode1(obj);
