@@ -1,3 +1,22 @@
+1999-10-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * lispbibl.d (uint1_p, uint2_p, uint4_p): New macros.
+          (fehler_index_range, fehler_store, elt_copy, elt_move, elt_fill):
+          New declarations.
+        * array.d (fehler_index_range): Make global.
+          (fehler_store): New function, taken out of storagevector_store.
+          (storagevector_store): Call it.
+          (bit_copy, elt_copy_*_*, elt_copy): New functions.
+          (elt_move_*, elt_move): New functions.
+          (elt_fill): New function.
+          (VECTOR-PUSH-EXTEND): Use the elt_copy_*_* functions.
+          (ssbvector_push_extend): Use elt_copy_8Bit_8Bit.
+          (make_storagevector): Use elt_fill.
+          (reshape): Use elt_copy for speedup.
+        * sequence.d (fehler_vector_index_range): New function.
+          (copy_seqpart_into): For vectors, use elt_copy or elt_move.
+          (MAKE-SEQUENCE, FILL): For vectors, use elt_fill.
+
 1999-10-29  Sam Steingold  <sds@ksp.com>
 
 	* modules/regexp/regexp.lsp (with-loop-split): New macro.

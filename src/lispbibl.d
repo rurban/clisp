@@ -6276,6 +6276,12 @@ typedef struct {
 
 # Test auf ein Integer eines vorgegebenen Bereiches.
 # obj sollte eine Variable sein
+  #define uint1_p(obj)  \
+    ((as_oint(obj) & ~((oint)0x01 << oint_data_shift)) == as_oint(Fixnum_0))
+  #define uint2_p(obj)  \
+    ((as_oint(obj) & ~((oint)0x03 << oint_data_shift)) == as_oint(Fixnum_0))
+  #define uint4_p(obj)  \
+    ((as_oint(obj) & ~((oint)0x0F << oint_data_shift)) == as_oint(Fixnum_0))
   #define uint8_p(obj)  \
     ((as_oint(obj) & ~((oint)0xFF << oint_data_shift)) == as_oint(Fixnum_0))
   #define sint8_p(obj)  \
@@ -9996,6 +10002,12 @@ typedef struct {
   extern object storagevector_aref (object storagevector, uintL index);
 # used by IO
 
+# Error when attempting to store an invalid value in an array.
+# fehler_store(array,value);
+# > subr_self: Aufrufer (ein SUBR)
+  nonreturning_function(extern, fehler_store, (object array, object value));
+# used by SEQUENCE
+
 # Macro: Tests a bit in a simple-bit-vector.
 # if (sbvector_btst(sbvector,index)) ...
 # > sbvector: a simple-bit-vector
@@ -10077,6 +10089,38 @@ typedef struct {
                               object array2, uintL index2,
                               uintL bitcount);
 # used by PREDTYPE
+
+# Function: Copies a slice of an array array1 into another array array2.
+# elt_copy(dv1,index1,dv2,index2,count);
+# > dv1: source storage-vector
+# > index1: start index in dv1
+# > dv2: destination storage-vector
+# > index2: start index in dv2
+# > count: number of elements to be copied, > 0
+# can trigger GC
+  extern void elt_copy (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+# used by SEQUENCE
+
+# Function: Copies a slice of an array array1 into another array array2 of
+# the same element type. Handles overlapping arrays correctly.
+# elt_move(dv1,index1,dv2,index2,count);
+# > dv1: source storage-vector
+# > index1: start index in dv1
+# > dv2: destination storage-vector
+# > index2: start index in dv2
+# > count: number of elements to be copied, > 0
+# can trigger GC
+  extern void elt_move (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+# used by SEQUENCE
+
+# Function: Fills a slice of an array with an element.
+# elt_fill(dv,index,count,element)
+# > dv: destination storage-vector
+# > index: start index in dv
+# > count: number of elements to be filled
+# < result: TRUE if element does not fit, FALSE when done
+  extern boolean elt_fill (object dv, uintL index, uintL count, object element);
+# used by SEQUENCE
 
 # Function: Tests whether an array has a fill-pointer.
 # array_has_fill_pointer_p(array)
