@@ -1,5 +1,22 @@
 2004-07-15  Sam Steingold  <sds@gnu.org>
 
+	support binary i/o for fixed-record-length databases
+	* modules/berkeley-db/bdb.c (fill_dbt): accept r_len argument for
+	writing numbers to fixed record length databases
+	(record_length): new function
+	(BDB:DB-PUT): fixed for :QUEUE and :RECNO databases
+	(gb_size): removed
+	(giga_byte): new DEFVAR
+	(size_to_giga_bytes): new function
+	(BDB:DB-SET-OPTIONS): accept :CACHE for compatibility with
+	BDB:DB-GET-OPTIONS and :RE_DELIM + :RE_PAD
+	(DEFINE_DB_GETTER): renamed to DEFINE_DB_GETTER1
+	(DEFINE_DB_GETTER2): new macro
+	(get_re_delim, get_re_len, get_re_pad): define with it
+	(BDB:DB-GET-OPTIONS): accept :RE_DELIM + :RE_PAD
+
+2004-07-15  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (distrib) [win32gcc]: distribute linkkit because
 	the user may have mingw installed
 

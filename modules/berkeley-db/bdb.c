@@ -44,13 +44,24 @@ extern object nobject_out (FILE* stream, object obj);
 # define XOUT(obj,label)                                                \
   (printf("[%s:%d] %s: %s:\n",__FILE__,__LINE__,STRING(obj),label),     \
    obj=nobject_out(stdout,obj), printf("\n"))
+# define VECOUT(v,l)                            \
+  (printf("[%s:%d] %d: ",__FILE__,__LINE__,l),  \
+   vecout(v,l), printf("\n"))
+static void vecout (unsigned char* v, int l) {
+  int i; for (i=0; i<l; i++) printf(" %x",v[i]);
+}
 #else
 # undef OBJECT_OUT
 # define OBJECT_OUT(o,l)
 # define XOUT(o,l)
+# define VECOUT(v,l)
 #endif
 
 #include <db.h>
+
+#ifndef MAX
+# define MAX(a,b) ((a)>(b) ? a : b)
+#endif
 
 DEFMODULE(bdb,"BDB")
 
@@ -76,9 +87,8 @@ void error_callback (const char *errpfx, char *msg) {
   if (errpfx) strcpy(error_message,errpfx);
   strcpy(error_message+offset,msg);
 }
-void error_message_reset (void) {
-  if (error_message) { free(error_message); error_message=NULL; }
-}
+#define FREE_RESET(x) if (x) { free(x); x = NULL; }
+void error_message_reset (void) { FREE_RESET(error_message) }
 nonreturning_function(static, error_bdb, (int status, char *caller)) {
   end_system_call();
   pushSTACK(`BDB::BDB-ERROR`);  /* error type */
@@ -436,7 +446,7 @@ DEFUN(BDB:ENV-SET-OPTIONS, dbe &key                                     \
     SYSCALL(dbe->set_shm_key,(dbe,shm_key));
   }
   skipSTACK(1);
-  if (!missingp(STACK_0)) {     /* TXN_TIMEOUT & LOCK_TIMEOUT */
+  if (!missingp(STACK_0)) {     /* TIMEOUT = TXN_TIMEOUT & LOCK_TIMEOUT */
     STACK_0 = check_list(STACK_0);
     if (consp(STACK_0)) {
       db_timeout_t txn_timeout = posfixnum_to_L(check_posfixnum(Car(STACK_0)));
@@ -822,10 +832,11 @@ static object check_dbt_object (object obj) {
 }
 
 /* fill a DBT with contents of obj (a byte vector, string, or positive integer)
+ dbt_type, when non-NULL, will contain the argument type
+ when re_len is > 0, it the database has fixed-record-length
  can trigger GC */
-static void fill_dbt (object obj, DBT* key, dbt_o_t *dbt_type)
+static void fill_dbt (object obj, DBT* key, dbt_o_t *dbt_type, int re_len)
 {
-  unsigned long idx = 0;
   obj = check_dbt_object(obj);
   init_dbt(key,DB_DBT_MALLOC);
   if (stringp(obj)) {
@@ -838,6 +849,7 @@ static void fill_dbt (object obj, DBT* key, dbt_o_t *dbt_type)
       });
     if (dbt_type) *dbt_type = DBT_STRING;
   } else if (bit_vector_p(Atype_8Bit,obj)) {
+    unsigned long idx = 0;
     key->ulen = key->size = vector_length(obj);
     obj = array_displace_check(obj,key->size,&idx);
     key->data = my_malloc(key->size);
@@ -846,62 +858,87 @@ static void fill_dbt (object obj, DBT* key, dbt_o_t *dbt_type)
     end_system_call();
     if (dbt_type) *dbt_type = DBT_RAW;
   } else if (fixnump(obj)) {
-    key->ulen = key->size = sizeof(uintL);
+    key->ulen = key->size = MAX(re_len,sizeof(uintL));
     key->data = my_malloc(key->size);
-    *(uintL*)key->data = posfixnum_to_L(obj);
+    begin_system_call(); memset(key->data,0,key->size); end_system_call();
+    *(uintL*)((char*)key->data + key->size - sizeof(uintL))
+      = posfixnum_to_L(obj);
+    VECOUT(key->data,key->size);
     if (dbt_type) *dbt_type = DBT_INTEGER;
   } else if (bignump(obj)) {
-    key->ulen = key->size = sizeof(uintD)*Bignum_length(obj);
+    int need = sizeof(uintD)*Bignum_length(obj);
+    key->ulen = key->size = MAX(re_len,need);
     key->data = my_malloc(key->size);
     begin_system_call();
-    memcpy(key->data,TheBignum(obj)->data,key->size);
+    memset(key->data,0,key->size);
+    memcpy((char*)key->data + key->size - need,TheBignum(obj)->data,need);
     end_system_call();
+    VECOUT(key->data,key->size);
     if (dbt_type) *dbt_type = DBT_INTEGER;
   } else NOTREACHED;
 }
 static void free_dbt(DBT* dbt) {
-  begin_system_call(); free(dbt->data); end_system_call();
+  begin_system_call(); FREE_RESET(dbt->data); end_system_call();
 }
 
-/* convert a DBT to a byte vector
+/* convert a DBT to an object of the specified type
+ p_dbt->data is free()d and set to NULL
  can trigger GC */
-static object dbt_to_object (DBT *p_dbt, dbt_o_t type)
-{
-  object vec;
+static object dbt_to_object (DBT *p_dbt, dbt_o_t type) {
   if (p_dbt->data == NULL) return NIL;
   switch (type) {
-    case DBT_RAW:
-      vec = allocate_bit_vector(Atype_8Bit,p_dbt->size);
+    case DBT_RAW: {
+      object vec = allocate_bit_vector(Atype_8Bit,p_dbt->size);
       begin_system_call();
       memcpy(TheSbvector(vec)->data,p_dbt->data,p_dbt->size);
-      free(p_dbt->data);
+      free(p_dbt->data); p_dbt->data = NULL;
       end_system_call();
       return vec;
-    case DBT_STRING:
-      return n_char_to_string(p_dbt->data,p_dbt->size,GLO(misc_encoding));
+    }
+    case DBT_STRING: {
+      object s = n_char_to_string(p_dbt->data,p_dbt->size,GLO(misc_encoding));
+      free_dbt(p_dbt);
+      return s;
+    }
     case DBT_INTEGER:
       if (p_dbt->size > sizeof(uintL)) {
         uintL bn_size = ceiling(p_dbt->size,sizeof(uintD));
         uintD total = bn_size * sizeof(uintD);
-        object num = allocate_bignum(bn_size,0);
+        void *data = alloca(total);
         begin_system_call();
-        memset(TheBignum(num)->data,0,total);
-        memcpy(TheBignum(num)->data + total - p_dbt->size,
-               p_dbt->data,p_dbt->size);
+        memset(data,0,total);
+        memcpy((char*)data + total - p_dbt->size,p_dbt->data,p_dbt->size);
+        free(p_dbt->data); p_dbt->data = NULL;
         end_system_call();
-        return num;
+        VECOUT(data,total);
+        return UDS_to_I(data,bn_size);
       } else if (p_dbt->size == sizeof(uintL)) {
-        return UL_to_I(*(uintL*)p_dbt->data);
+        object ret = UL_to_I(*(uintL*)p_dbt->data);
+        free_dbt(p_dbt);
+        return ret;
       } else {
         uintL res = 0, i;
         for (i=0; i < p_dbt->size; i++)
           res += ((char*)p_dbt->data)[i] << i;
+        free_dbt(p_dbt);
         return UL_to_I(res);
       }
     default: NOTREACHED;
   }
 }
 
+/* extract record length, not errors */
+static u_int32_t record_length (DB *db) {
+  u_int32_t ret;
+  int status;
+  begin_system_call();
+  status = db->get_re_len(db,&ret);
+  end_system_call();
+  if (status) {
+    error_message_reset();
+    return 0;
+  } else return ret;
+}
 
 DEFUN(BDB:DB-DEL, dbe key &key :TRANSACTION :AUTO_COMMIT)
 { /* Delete items from a database */
@@ -909,7 +946,7 @@ DEFUN(BDB:DB-DEL, dbe key &key :TRANSACTION :AUTO_COMMIT)
   DB_TXN *txn = object_handle(STACK_1,`BDB::TXN`,OH_NIL_IS_NULL);
   DB *db = object_handle(STACK_3,`BDB::DB`,OH_VALID);
   DBT key;
-  fill_dbt(STACK_2,&key,NULL);
+  fill_dbt(STACK_2,&key,NULL,record_length(db));
   SYSCALL1(db->del,(db,txn,&key,flags),{free(key.data);});
   skipSTACK(4);
   VALUES0;
@@ -935,7 +972,7 @@ DEFUN(BDB:DB-GET, db key &key :ACTION :AUTO_COMMIT :DIRTY_READ :MULTIPLE :RMW \
   DB *db = object_handle(STACK_1,`BDB::DB`,OH_VALID);
   DBT key, val;
   int status;
-  fill_dbt(STACK_0,&key,NULL);
+  fill_dbt(STACK_0,&key,NULL,record_length(db));
   init_dbt(&val,DB_DBT_MALLOC);
   skipSTACK(2);
   begin_system_call();
@@ -951,7 +988,6 @@ DEFUN(BDB:DB-GET, db key &key :ACTION :AUTO_COMMIT :DIRTY_READ :MULTIPLE :RMW \
     error_bdb(status,"db->get");
   }
   VALUES1(dbt_to_object(&val,out_type));
-  free_dbt(&val);
 }
 
 DEFUN(BDB:DB-STAT, db &key :FAST_STAT)
@@ -1133,19 +1169,44 @@ DEFUN(BDB:DB-REMOVE, db file database)
   VALUES0; skipSTACK(3);
 }
 
-DEFCHECKER(db_put_flag, DB_APPEND DB_NODUPDATA DB_NOOVERWRITE)
-DEFUN(BDB:DB-PUT, db key val &key :AUTO_COMMIT :FLAG :TRANSACTION)
+DEFCHECKER(db_put_action, DB_APPEND DB_NODUPDATA DB_NOOVERWRITE)
+DEFFLAGSET(db_put_flags, DB_AUTO_COMMIT)
+DEFUN(BDB:DB-PUT, db key val &key :AUTO_COMMIT :ACTION :TRANSACTION)
 { /* Store items into a database */
   DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,OH_NIL_IS_NULL);
-  u_int32_t flags = db_put_flag(popSTACK());
-  DB *db = object_handle(STACK_3,`BDB::DB`,OH_VALID);
+  u_int32_t action = db_put_action(popSTACK());
+  u_int32_t flags = db_put_flags();
+  DB *db = object_handle(STACK_2,`BDB::DB`,OH_VALID);
   DBT key, val;
-  if (!missingp(STACK_0)) flags |= DB_AUTO_COMMIT;
-  skipSTACK(1);
-  fill_dbt(STACK_0,&val,NULL);
-  fill_dbt(STACK_1,&key,NULL);
-  SYSCALL1(db->put,(db,txn,&key,&val,flags),{free(val.data);free(key.data);});
-  VALUES0; skipSTACK(3);
+  u_int32_t re_len = record_length(db);
+  fill_dbt(STACK_0,&val,NULL,re_len);
+  if (action == DB_APPEND) {     /* DB is :QUEUE or :RECNO */
+    init_dbt(&key,DB_DBT_MALLOC); /* key is ignored - it will be returned */
+    SYSCALL1(db->put,(db,txn,&key,&val,action | flags),{free(val.data);});
+    VALUES1(dbt_to_object(&key,DBT_INTEGER));
+  } else {
+    fill_dbt(STACK_1,&key,NULL,re_len);
+    switch (action) {
+      case DB_NODUPDATA: case DB_NOOVERWRITE: {
+        int status;
+        begin_system_call();
+        db->put(db,txn,&key,&val,action | flags);
+        free(val.data); free(key.data);
+        end_system_call();
+        switch (status) {
+          case 0: VALUES0; break;
+          case DB_KEYEXIST: VALUES1(`:KEYEXIST`); error_message_reset(); break;
+          default: error_bdb(status,"db->put");
+        }
+        break;
+      }
+      default:
+        SYSCALL1(db->put,(db,txn,&key,&val,action | flags),
+                 {free(val.data);free(key.data);});
+        VALUES0;
+    }
+  }
+  skipSTACK(3);                 /* drop db key val */
 }
 
 DEFFLAGSET(db_join_flags, DB_JOIN_NOSORT)
@@ -1182,7 +1243,7 @@ DEFUN(BDB:DB-KEY-RANGE, db key &key :TRANSACTION)
   DBT key;
   DB_KEY_RANGE key_range;
   DB *db = object_handle(STACK_1,`BDB::DB`,OH_VALID);
-  fill_dbt(STACK_0,&key,NULL);
+  fill_dbt(STACK_0,&key,NULL,record_length(db));
   SYSCALL1(db->key_range,(db,txn,&key,&key_range,0),{free(key.data);});
   pushSTACK(c_double_to_DF((dfloatjanus*)&(key_range.less)));
   pushSTACK(c_double_to_DF((dfloatjanus*)&(key_range.equal)));
@@ -1233,17 +1294,12 @@ DEFUN(BDB:DB-VERIFY, db file &key :DATABASE :SALVAGE :AGGRESSIVE :PRINTABLE \
  DB->set_errcall	Set error message callback
  DB->set_errpfx	Set error message prefix
  DB->set_feedback	Set feedback callback
- DB->set_lorder	Set the database byte order
- DB->set_pagesize	Set the underlying database page size
  DB->set_paniccall	Set panic callback
 Btree/Recno Configuration
  DB->set_append_recno	Set record append callback
  DB->set_bt_compare	Set a Btree comparison function
  DB->set_bt_minkey	Set the minimum number of keys per Btree page
  DB->set_bt_prefix	Set a Btree prefix comparison function
- DB->set_re_delim	Set the variable-length record delimiter
- DB->set_re_len	Set the fixed-length record length
- DB->set_re_pad	Set the fixed-length record pad byte
  DB->set_re_source	Set the backing Recno text file
 Hash Configuration
  DB->set_h_ffactor	Set the Hash table density
@@ -1253,7 +1309,15 @@ Queue Configuration
  DB->set_q_extentsize	Set Queue database extent size
 */
 
-DEFVAR(gb_size,`#.(ASH 1 30)`)
+/* convert a Lisp integer to a pair of (Giga-bytes bytes)
+ can trigger GC */
+DEFVAR(giga_byte,`#.(BYTE 30 0)`)
+static void size_to_giga_bytes (object size, u_int32_t *gb, u_int32_t *by) {
+  pushSTACK(size); pushSTACK(negfixnum(-30));
+  pushSTACK(O(giga_byte)); pushSTACK(size);
+  funcall(L(ldb),2); *by = I_to_uint32(value1);
+  funcall(L(ash),2); *gb = I_to_uint32(value1);
+}
 
 /* set the password to perform encryption and decryption.
  can trigger GC */
@@ -1283,11 +1347,11 @@ static object db_get_flags_list (DB *db) {
 }
 
 DEFUN(BDB:DB-SET-OPTIONS, db &key :ERRFILE :PASSWORD :ENCRYPTION      \
-      :NCACHE :CACHESIZE :LORDER :PAGESIZE :RE_LEN                    \
+      :NCACHE :CACHESIZE :CACHE :LORDER :PAGESIZE :RE_DELIM :RE_LEN :RE_PAD \
       :CHKSUM :ENCRYPT :TXN_NOT_DURABLE :DUP :DUPSORT :RECNUM         \
       :REVSPLITOFF :RENUMBER :SNAPSHOT)
 { /* set database options */
-  DB *db = object_handle(STACK_(17),`BDB::DB`,OH_VALID);
+  DB *db = object_handle(STACK_(20),`BDB::DB`,OH_VALID);
   { /* flags */
     u_int32_t flags_on = 0, flags_off = 0;
     set_flags(popSTACK(),&flags_on,&flags_off,DB_SNAPSHOT);
@@ -1307,9 +1371,19 @@ DEFUN(BDB:DB-SET-OPTIONS, db &key :ERRFILE :PASSWORD :ENCRYPTION      \
       SYSCALL(db->set_flags,(db,flags));
     }
   }
+  if (!missingp(STACK_0)) {     /* RE_PAD */
+    int re_pad = I_to_uint8(check_uint8(STACK_0));
+    SYSCALL(db->set_re_pad,(db,re_pad));
+  }
+  skipSTACK(1);
   if (!missingp(STACK_0)) {     /* RE_LEN */
     u_int32_t re_len = I_to_uint32(check_uint32(STACK_0));
     SYSCALL(db->set_re_len,(db,re_len));
+  }
+  skipSTACK(1);
+  if (!missingp(STACK_0)) {     /* RE_DELIM */
+    int re_delim = I_to_uint8(check_uint8(STACK_0));
+    SYSCALL(db->set_re_delim,(db,re_delim));
   }
   skipSTACK(1);
   if (!missingp(STACK_0)) {     /* PAGESIZE */
@@ -1322,12 +1396,22 @@ DEFUN(BDB:DB-SET-OPTIONS, db &key :ERRFILE :PASSWORD :ENCRYPTION      \
     SYSCALL(db->set_lorder,(db,lorder));
   }
   skipSTACK(1);
+  if (!missingp(STACK_0)) {     /* CACHE = (ncache cachesize) */
+    STACK_0 = check_list(STACK_0);
+    if (consp(STACK_0)) {
+      int ncache = posfixnum_to_L(check_posfixnum(Car(STACK_0)));
+      u_int32_t gbytes=0, bytes=0;
+      STACK_0 = check_list(Cdr(STACK_0));
+      if (consp(STACK_0))
+        size_to_giga_bytes(Car(STACK_0),&gbytes,&bytes);
+      SYSCALL(db->set_cachesize,(db,gbytes,bytes,ncache));
+    }
+  }
+  skipSTACK(1);
   if (!missingp(STACK_0)) {     /* CACHESIZE */
     int ncache = posfixnum_default(STACK_1);
     u_int32_t gbytes, bytes;
-    pushSTACK(STACK_0); pushSTACK(O(gb_size)); funcall(L(floor),2);
-    gbytes = I_to_UL(value1);
-    bytes  = I_to_UL(value2);
+    size_to_giga_bytes(STACK_0,&gbytes,&bytes);
     SYSCALL(db->set_cachesize,(db,gbytes,bytes,ncache));
   }
   skipSTACK(2);
@@ -1357,27 +1441,31 @@ static void db_get_cache (DB* db, int errorp) {
     value2 = fixnum(ncache);
   }
 }
-#define DEFINE_DB_GETTER(getter,type)            \
+#define DEFINE_DB_GETTER1(getter,type)            \
   static object db_##getter (DB* db) {           \
     type value;                                  \
     SYSCALL(db->getter,(db,&value));             \
     return UL_to_I(value);                       \
   }
-DEFINE_DB_GETTER(get_lorder,int)
-DEFINE_DB_GETTER(get_pagesize,u_int32_t)
-static object db_get_re_len (DB* db, int errorp) {
-  u_int32_t re_len;
-  int status;
-  begin_system_call();
-  status = db->get_re_len(db,&re_len);
-  end_system_call();
-  if (status) {
-    if (errorp) error_bdb(status,"db->get_re_len");
-    error_message_reset();
-    return NIL;
-  } else
-    return UL_to_I(re_len);
-}
+DEFINE_DB_GETTER1(get_lorder,int)
+DEFINE_DB_GETTER1(get_pagesize,u_int32_t)
+#define DEFINE_DB_GETTER2(getter,type)                  \
+  static object db_##getter (DB* db,int errorp) {       \
+    type value;                                         \
+    int status;                                         \
+    begin_system_call();                                \
+    status = db->getter(db,&value);                     \
+    end_system_call();                                  \
+    if (status) {                                       \
+      if (errorp) error_bdb(status,"db->" #getter);     \
+      error_message_reset();                            \
+      return NIL;                                       \
+    } else                                              \
+      return UL_to_I(value);                            \
+  }
+DEFINE_DB_GETTER2(get_re_delim,int)
+DEFINE_DB_GETTER2(get_re_len,u_int32_t)
+DEFINE_DB_GETTER2(get_re_pad,int)
 ERRFILE_FD_EXTRACTOR(db_get_errfile,DB*)
 FLAG_EXTRACTOR(db_get_flags_num,DB*)
 DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
@@ -1395,7 +1483,9 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
     pushSTACK(value1); count++;
     pushSTACK(`:LORDER`); pushSTACK(db_get_lorder(db)); count++;
     pushSTACK(`:PAGESIZE`); pushSTACK(db_get_pagesize(db)); count++;
+    pushSTACK(`:RE_DELIM`); pushSTACK(db_get_re_delim(db,false)); count++;
     pushSTACK(`:RE_LEN`); pushSTACK(db_get_re_len(db,false)); count++;
+    pushSTACK(`:RE_PAD`); pushSTACK(db_get_re_pad(db,false)); count++;
     VALUES1(listof(2*count));
   } else if (eq(what,`:CACHE`)) {
     db_get_cache(db,true); mv_count = 2;
@@ -1411,8 +1501,12 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
     VALUES1(db_get_errfile(db));
   } else if (eq(what,`:PAGESIZE`)) {
     VALUES1(db_get_pagesize(db));
+  } else if (eq(what,`:RE_DELIM`)) {
+    VALUES1(db_get_re_delim(db,true));
   } else if (eq(what,`:RE_LEN`)) {
     VALUES1(db_get_re_len(db,true));
+  } else if (eq(what,`:RE_PAD`)) {
+    VALUES1(db_get_re_pad(db,true));
   } else if (eq(what,`:LORDER`)) {
     VALUES1(db_get_lorder(db));
   } else if (eq(what,`:FLAGS`)) {
@@ -1506,14 +1600,15 @@ DEFUN(BDB:CURSOR-GET, cursor key data action &key :DIRTY_READ :MULTIPLE \
   DBT key, val;
   dbt_o_t key_type, val_type;
   int status;
+  u_int32_t re_len = 0/*record_length(db)*/;
   if (symbolp(STACK_1)) {       /* type spec for the return value */
     key_type = check_dbt_type(STACK_1);
     init_dbt(&key,DB_DBT_MALLOC);
-  } else fill_dbt(STACK_1,&key,&key_type); /* datum */
+  } else fill_dbt(STACK_1,&key,&key_type,re_len); /* datum */
   if (symbolp(STACK_0)) {       /* type spec for the return value */
     val_type = check_dbt_type(STACK_0);
     init_dbt(&val,DB_DBT_MALLOC);
-  } else fill_dbt(STACK_0,&val,&val_type); /* datum */
+  } else fill_dbt(STACK_0,&val,&val_type,re_len); /* datum */
   skipSTACK(3);
   begin_system_call();
   status = cursor->c_get(cursor,&key,&val,flag);
@@ -1532,7 +1627,6 @@ DEFUN(BDB:CURSOR-GET, cursor key data action &key :DIRTY_READ :MULTIPLE \
   value2 = dbt_to_object(&val,val_type);
   value1 = popSTACK();
   mv_count = 2;
-  free_dbt(&key); free_dbt(&val);
 }
 
 DEFCHECKER(cursor_put_flag, DB_AFTER DB_BEFORE DB_CURRENT DB_KEYFIRST \
@@ -1542,8 +1636,9 @@ DEFUN(BDB:CURSOR-PUT, cursor key data flag)
   u_int32_t flag = cursor_put_flag(popSTACK());
   DBC *cursor = object_handle(STACK_2,`BDB::CURSOR`,OH_VALID);
   DBT key, val;
-  fill_dbt(STACK_1,&key,NULL);
-  fill_dbt(STACK_0,&val,NULL);
+  u_int32_t re_len = 0/*record_length(db)*/;
+  fill_dbt(STACK_1,&key,NULL,re_len);
+  fill_dbt(STACK_0,&val,NULL,re_len);
   SYSCALL1(cursor->c_put,(cursor,&key,&val,flag),
            {free(val.data);free(key.data);});
   skipSTACK(3);
