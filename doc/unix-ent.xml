@@ -89,6 +89,7 @@
 <!ENTITY mknod "<ulink url='&unix-f;/mknod.html'><function>mknod</function></ulink>">
 <!ENTITY chmod "<ulink url='&unix-f;/chmod.html'><function>chmod</function></ulink>">
 <!ENTITY chown "<ulink url='&unix-f;/chown.html'><function>chown</function></ulink>">
+<!ENTITY utime "<ulink url='&unix-f;/utime.html'><function>utime</function></ulink>">
 
 <!-- header files -->
 <!ENTITY unix-b "&unix-top;/basedefs">
