@@ -1096,6 +1096,9 @@ performance considerations.
    <simpara>defines an API for <link linkend="screen">random screen
      access</link>.  Some platforms only.
  </simpara></listitem></varlistentry>
+ <varlistentry><term>&cs-cl;</term><term>&cs-clu;</term><listitem>
+   <simpara>case-sensitive versions of &cl-pac; and &clu-pac;.
+    See <xref linkend="package-case"/>.</simpara></listitem></varlistentry>
 </variablelist>
 
 <para>All pre-existing packages except &clu-pac; belong to the
@@ -1106,31 +1109,176 @@ performance considerations.
 
 </section>
 
+<section id="package-case"><title>Package Case-Sensitivity</title>
+
+<para>&clisp; supports programs written with case sensitive symbols. For
+example, with case sensitive symbols, the symbols <literal>cdr</literal>
+(the function equivalent to &rest;) and the symbol <literal>CDR</literal>
+(a user-defined type denoting a Call Data Record) are different and unrelated.
+</para>
+
+<para>There are some incompatibilities between programs assuming case
+sensitive symbols and programs assuming the &ansi-cl; case insensitive symbols.
+For example, <code>(eq 'KB 'Kb)</code> evaluates to false in a case
+sensitive world and to true in a case insensitive world. However, unlike some
+commercial &cl; implementations, &clisp; allows both kinds of programs to
+coexist in the same process and interoperate with each other. Example:
+<variablelist>
+ <varlistentry><term><filename>OLD.lisp</filename></term>
+  <listitem><programlisting language="lisp">
+(&in-package; "OLD")
+(&defun; FOO () ...)
+</programlisting></listitem></varlistentry>
+ <varlistentry><term><filename>modern.lisp</filename></term>
+  <listitem><programlisting language="lisp">
+(in-package "NEW")
+(defun bar () (old:foo))
+(symbol-name 'bar) ; <computeroutput>"bar"</computeroutput>
+</programlisting></listitem></varlistentry></variablelist></para>
+
+<para>This is achieved through specification of the symbol case policy at
+the package level. A <firstterm>modern package
+  <indexterm id="pack-modern" significance="preferred">
+   <primary>&package-t;</primary>
+   <secondary id="pack-modern-i">modern</secondary></indexterm></firstterm>
+ is one that is declared to be both case-sensitive and case-inverted and
+ which use the symbols from the &cs-cl; package.</para>
+
+<para>A <firstterm>case-sensitive package
+  <indexterm id="pack-case-sensitive" significance="preferred">
+   <primary>&package-t;</primary>
+   <secondary id="pack-case-sensitive-i">case-sensitive</secondary></indexterm>
+ </firstterm> is one whose &defpackage; declaration (or &make-package;
+ creation form) has the option <code>(&case-sensitive-k; &t;)</code>.
+ In a case-sensitive package, the reader does &not-e; uppercase the
+ symbol name before calling &intern;.  Similarly, the printer, when
+ printing the &symbol-name; part of a &symbol-t; (i.e. the part after
+ the package markers), behaves as if the readtable's case were set
+ to <constant>:PRESERVE</constant>.</para>
+
+<para>A <firstterm>case-inverted package
+  <indexterm id="pack-case-inverted" significance="preferred">
+   <primary>&package-t;</primary>
+   <secondary id="pack-case-inverted-i">case-inverted</secondary></indexterm>
+ </firstterm> is one whose &defpackage; declaration (or &make-package;
+ creation form) has the option <code>(&case-inverted-k; &t;)</code>.
+ In the context of a case-inverted package, symbol names are
+ case-inverted: upper case characters are mapped to lower case, lower
+ case characters are mapped to upper case, and other characters are left
+ untouched.  Every symbol thus conceptually has two symbol names: an
+ old-world symbol name and a modern-world symbol name, which is the
+ case-inverted old-world name.  The first symbol name is returned by the
+ function &symbol-name;, the modern one by the
+ function <function>cs-cl:symbol-name</function>.  The internal
+ functions for creating or looking up symbols in a package, which
+ traditionally took a string argument, now conceptually take two string
+ arguments: old-style-string and inverted-string.  Actually, a function
+ like &intern; takes the old-style-string as argument and computes the
+ inverted-string from it; whereas the
+ function <function>cs-cl:intern</function> takes the inverted-string as
+ argument and computes the old-style-string from it.</para>
+
+<para>For a few built-in functions, a variant for the case-inverted
+world is defined in the &cs-cl; package, which has the nickname
+ <quote role="package">CS-CL</quote>:<variablelist>
+  <varlistentry><term><function>cs-cl:symbol-name</function></term>
+   <listitem><simpara>returns the case-inverted symbol name.
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><function>cs-cl:intern</function></term>
+   <term><function>cs-cl:find-symbol</function></term>
+   <listitem><simpara>work consistently with
+     <function>cs-cl:symbol-name</function>.</simpara></listitem></varlistentry>
+  <varlistentry><term><function>cs-cl:shadow</function></term>
+   <term><function>cs-cl:find-all-symbols</function></term>
+   <term><function>cs-cl:string=</function></term>
+   <term><function>cs-cl:string/=</function></term>
+   <term><function>cs-cl:string&lt;</function></term>
+   <term><function>cs-cl:string&gt;</function></term>
+   <term><function>cs-cl:string&lt;=</function></term>
+   <term><function>cs-cl:string&gt;=</function></term>
+   <term><function>cs-cl:string-trim</function></term>
+   <term><function>cs-cl:string-left-trim</function></term>
+   <term><function>cs-cl:string-right-trim</function></term>
+   <listitem><simpara>convert a &symbol-t; to a &string-t; and therefore
+     exist in a variant that uses <function>cs-cl:symbol-name</function>
+     instead of &symbol-name;.</simpara></listitem></varlistentry>
+  <varlistentry><term><function>cs-cl:make-package</function></term>
+   <listitem><simpara>creates a case-inverted &package-t;.
+</simpara></listitem></varlistentry></variablelist></para>
+
+<section id="cs-clu"><title>User Package for the Case-sensitive World</title>
+<para>A package &cs-clu; is provided for the user to modify and work in.
+It plays the same role as &clu-pac;, but for the case-sensitive
+world.</para></section>
+
+<section id="cs-pack-name"><title>Pakage Names</title>
+<para>The handling of package names is unchanged.  Package names are
+ still usually uppercase.  The package names are also subject to
+ <code>(&readtable-case; &readtable-var;)</code>.</para></section>
+
+<section id="cs-gensym-kwd"><title>Gensyms and Keywords</title>
+<para>Note that gensyms and keywords are still treated traditionally:
+even in a case-sensitive package, <code>(&eq; #:FooBar #:foobar)</code>
+and <code>(&eq; ':KeyWord ':keyword)</code> evaluate to true.  We
+believe this has limited negative impact for the moment, but can be
+changed a few years from now.</para></section>
+
+<section id="case-sensitive-migration"><title>Migration Tips</title>
+
+<para>The following practices will pose no problems when migrating to a
+modern case-sensitive world:
+<itemizedlist>
+<listitem><simpara>Using &ansi-cl; symbols in lowercase.</simpara></listitem>
+<listitem><simpara>Macros that create symbols by suffixing or prefixing given
+  symbols.</simpara></listitem>
+<listitem><simpara>Comparing symbol names as in
+  <code>(string= (symbol-name x) (symbol-name y))</code>.</simpara></listitem>
+</itemizedlist></para>
+
+<para>The following practices will not work in a case-sensitive world or
+can give problems:
+<itemizedlist>
+<listitem><simpara>Accessing the same symbol in both upper- and
+  lowercase from the same source file.</simpara></listitem>
+<listitem><simpara>Macros that create symbols in other packages than the
+  original symbols.</simpara></listitem>
+<listitem><simpara>Comparing symbol-name return values with &eq;.
+</simpara></listitem>
+<listitem><simpara>Comparing <code>(&symbol-name; x)</code> with
+  <code>(cs-cl:symbol-name y)</code>.</simpara></listitem>
+</itemizedlist></para>
+
+</section>
+
+<section id="case-sensitive-startup">
+ <title>Using case-sensitive packages by default</title>
+
+<para>&clisp; supports a command-line option &opt-modern; that
+ sets the &package-var; initially to the &cs-clu; package, and
+ &print-base-var; to <constant>:downcase</constant>.</para>
+
+<para>For packages to be located in the modern, case-sensitive world, you
+ need to augment their &defpackage; declaration, by adding the options
+ <code>(&case-sensitive-k; &t;) (&case-inverted-k; &t;)</code>, and replacing
+ <code>(:use #:cl)</code> with <code>(:use #:cs-cl)</code>.
+</para>
+
+</section>
+</section>
+
 <section id="pack-dict"><title>The Packages Dictionary
    <ulink url="&clhs;/Body/sec_the_packa_s_dictionary.html">[CLHS-11.2]</ulink></title>
 
-<section id="package-case"><title>Package Case-Sensitivity</title>
-<para>&make-package; accepts a keyword argument &case-sensitive-k; and a
- keyword argument &case-inverted-k;. Similarly, &defpackage; accepts an option
- &case-sensitive-k; and an option &case-inverted-k;.
- When the &case-sensitive-k; value is non-&nil;, the package will be
- <firstterm>case sensitive</firstterm>, i.e., the reader will not case-convert
- symbol names before looking them up or creating them in this package.
- When the &case-inverted-k; value is non-&nil;, the package's symbol names
- will be <firstterm>case inverted</firstterm>, i.e., the reader will map
- uppercase characters to lower case and lowercase characters to upper case
- when looking up or creating symbols in this package, and the printer will do
- the inverse transformation.
- The package names are still subject to
- <code>(&readtable-case; &readtable-var;)</code>, though.
- See <xref linkend="case-sensitive-packages"/> for details.</para>
-</section>
-
 <section id="make-pack"><title>Function &make-package;</title>
-<para>For &make-package;, the default value of the &use-k; argument is
- <literal role="data">(&cl-pac;)</literal>.</para></section>
+<para>The default value of the &use-k; argument is
+ <literal role="data">(&cl-pac;)</literal>.</para>
+
+<para>&make-package; accepts additional keyword arguments
+ &case-sensitive-k; and &case-inverted-k;.</para></section>
 
 <section id="defpack"><title>Macro &defpackage;</title>
+<para>&defpackage; accepts additional options &case-sensitive-k; and
+ &case-inverted-k;.</para>
 <para>When the package being defined already exists, it is modified as
  follows (and in this order):<variablelist>
   <varlistentry><term><constant>:NICKNAMES</constant></term>
@@ -1159,7 +1307,7 @@ performance considerations.
      &unexport;)</simpara></listitem></varlistentry>
   <varlistentry><term><constant>:SIZE</constant></term>
    <listitem><simpara>ignored</simpara></listitem></varlistentry>
-  <varlistentry><term>&case-sensitive-k;</term>
+  <varlistentry><term>&case-sensitive-k;</term><term>&case-inverted-k;</term>
    <listitem><simpara>immutable</simpara></listitem></varlistentry>
 </variablelist></para></section>
 
