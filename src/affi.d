@@ -373,15 +373,20 @@ local void affi_call_argsa(address, ffinfo, args, count)
                     if (!(accept & ACCEPT_STRING_ARG)) goto bad_arg;
                     # Cf. with_string_0() macro in lispbibl.d
                     { var uintL length;
-                      var uintB* charptr = unpack_string(arg,&length);
+                      var chart* charptr = unpack_string(arg,&length);
                       if (accept & ACCEPT_MAKE_ASCIZ)
                         { var uintB* ptr = alloca(1+length); # TODO Ergebnis testen
                           *thing = (aint)ptr;
-                          dotimesL(length,length, { *ptr++ = *charptr++; } );
+                          dotimesL(length,length, { *ptr++ = as_cint(*charptr++); } );
                           *ptr = '\0';
                         }
                         else
-                        { *thing = (aint)charptr; }
+                        { var uintB* ptr = alloca(length); # TODO Ergebnis testen
+                          *thing = (aint)ptr;
+                          dotimesL(length,length, { *ptr++ = as_cint(*charptr++); } );
+                          #error "Ich bin mir nicht sicher, ob das das Gewünschte ist."
+                          #error "Gibt es FFI-Bindings, die versuchen, in einen String hineinzuschreiben?"
+                        }
                     }
                     break;
                   case_symbol:
@@ -495,8 +500,8 @@ LISPFUN(mem_read,2,1,norest,nokey,0,NIL)
       { value1 = asciz_to_string((uintB*)address); }
     elif (stringp(into)) # copy memory into a LISP string
       { var uintL length;
-        var uintB* charptr = unpack_string(into,&length);
-        dotimesL(length,length, { *charptr++ = *((uintB*)address)++; } );
+        var chart* charptr = unpack_string(into,&length);
+        dotimesL(length,length, { *charptr++ = as_chart(*((uintB*)address)++); } );
         value1 = into;
       }
     elif (!bit_vector_p(into) # copy memory into a LISP unsigned-byte vector
@@ -565,8 +570,8 @@ LISPFUN(mem_write_vector,2,1,norest,nokey,0,NIL)
     skipSTACK(3);
     if (stringp(from)) # write a LISP string to memory
       { var uintL length;
-        var uintB* charptr = unpack_string(from,&length);
-        dotimesL(length,length, { *((uintB*)address)++ = *charptr++; } );
+        var const chart* charptr = unpack_string(from,&length);
+        dotimesL(length,length, { *((uintB*)address)++ = as_cint(*charptr++); } );
         *(uintB*)address = '\0'; # and zero-terminate memory!
       }
     elif (!bit_vector_p(from) # copy memory into a LISP unsigned-byte vector

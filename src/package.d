@@ -43,7 +43,7 @@
   local uint16 string_hashcode(string)
     var object string;
     { var uintL len;
-      var uintB* charptr = unpack_string(string,&len);
+      var const chart* charptr = unpack_string(string,&len);
       # ab charptr kommen len Zeichen
       var uint32 hashcode = 0; # Hashcode, nur die unteren 16 Bit sind wesentlich
       var uintC count;
@@ -51,7 +51,7 @@
         { # hashcode um 5 Bit nach links rotieren:
           hashcode = hashcode << 5; hashcode = hashcode | high16(hashcode);
           # und nächstes Byte dazuXORen:
-          hashcode = hashcode ^ (uint32)(*charptr++);
+          hashcode = hashcode ^ (uint32)as_cint(*charptr++);
         });
       return (uint16)hashcode;
     }

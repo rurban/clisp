@@ -126,7 +126,7 @@
             { write_errorchar(BEFORE(argptr)); }
           else
             # nein -> Zeichen normal ausgeben:
-            { write_char(&STACK_0,code_char(ch)); }
+            { write_code_char(&STACK_0,as_chart(ch)); }
         }
       return argptr;
     }

@@ -863,8 +863,8 @@ global object convert_from_foreign (object fvd, const void* data);
     var const void* data;
     { if (eq(eltype,S(character)))
         { var const uintB* ptr1 = (const uintB*)data;
-          var uintB* ptr2 = &TheSstring(array)->data[0];
-          dotimesL(size,size, { *ptr2++ = *ptr1++; } );
+          var chart* ptr2 = &TheSstring(array)->data[0];
+          dotimesL(size,size, { *ptr2++ = as_chart(*ptr1++); } );
         }
       elif (eq(eltype,S(uint8)))
         { var const uint8* ptr1 = (const uint8*)data;
@@ -921,7 +921,7 @@ global object convert_from_foreign(fvd,data)
           }
         elif (eq(fvd,S(character)))
           { var const uintB* pdata = (const unsigned char *)data;
-            return code_char(*pdata);
+            return code_char(as_chart(*pdata));
           }
         elif (eq(fvd,S(char)) || eq(fvd,S(sint8)))
           { var const sint8* pdata = (const sint8*)data;
@@ -1617,7 +1617,7 @@ local void convert_to_foreign(fvd,obj,data)
         elif (eq(fvd,S(character)))
           { var uintB* pdata = (unsigned char *)data;
             if (!charp(obj)) goto bad_obj;
-            *pdata = char_code(obj);
+            *pdata = as_cint(char_code(obj));
             return;
           }
         elif (eq(fvd,S(char)) || eq(fvd,S(sint8)))
@@ -1729,11 +1729,11 @@ local void convert_to_foreign(fvd,obj,data)
               { *(char**)data = NULL; return; }
             if (!stringp(obj)) goto bad_obj;
            {var uintL len;
-            var uintB* ptr1 = unpack_string(obj,&len);
+            var const chart* ptr1 = unpack_string(obj,&len);
             var char* asciz = converter_malloc(*(char**)data,len+1,1);
             {var uintB* ptr2 = (uintB*)asciz;
              var uintL count;
-             dotimesL(count,len, { *ptr2++ = *ptr1++; } );
+             dotimesL(count,len, { *ptr2++ = as_cint(*ptr1++); } );
              *ptr2++ = '\0';
             }
             *(char**)data = asciz;
@@ -1814,10 +1814,10 @@ local void convert_to_foreign(fvd,obj,data)
                   goto bad_obj;
                 if (eq(eltype,S(character)) && stringp(obj))
                   { var uintL len;
-                    var uintB* ptr1 = unpack_string(obj,&len);
+                    var const chart* ptr1 = unpack_string(obj,&len);
                     var uintB* ptr2 = (uintB*)data;
                     var uintL count;
-                    dotimesL(count,len, { *ptr2++ = *ptr1++; } );
+                    dotimesL(count,len, { *ptr2++ = as_cint(*ptr1++); } );
                   }
                 elif (eq(eltype,S(uint8))
                       && general_byte_vector_p(obj)
@@ -1877,10 +1877,10 @@ local void convert_to_foreign(fvd,obj,data)
                 if (len > maxdim) { len = maxdim; }
                 if (eq(eltype,S(character)) && stringp(obj))
                   { var uintL dummy_len;
-                    var uintB* ptr1 = unpack_string(obj,&dummy_len);
+                    var const chart* ptr1 = unpack_string(obj,&dummy_len);
                     var uintB* ptr2 = (uintB*)data;
                     var uintL count;
-                    dotimesL(count,len, { *ptr2++ = *ptr1++; } );
+                    dotimesL(count,len, { *ptr2++ = as_cint(*ptr1++); } );
                     if (len < maxdim) { *ptr2 = '\0'; }
                   }
                 elif (eq(eltype,S(uint8))

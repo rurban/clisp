@@ -168,15 +168,15 @@
     var uintL index3;
     { pushSTACK(string); # string retten
       # Exponent:
-     {var uintB exp_marker;
+     {var chart exp_marker;
       var object exponent;
       {var uintL exp_len = index2-index4; # Anzahl Stellen des Exponenten
        if (exp_len > 0)
-         { var uintB* ptr = &TheSstring(string)->data[index4]; # zeigt auf den Exponentmarker
+         { var const chart* ptr = &TheSstring(string)->data[index4]; # zeigt auf den Exponentmarker
            exp_marker = *ptr++; exp_len--; # Exponentmarker überlesen
                         # (als Großbuchstabe, da vom Aufrufer umgewandelt)
           {var signean exp_sign = 0; # Exponenten-Vorzeichen
-           switch (*ptr)
+           switch (as_cint(*ptr))
              { case '-': exp_sign = ~exp_sign; # Vorzeichen := negativ
                case '+': ptr++; exp_len--; # Exponenten-Vorzeichen überlesen
                default: ;
@@ -186,7 +186,7 @@
          }}
          else
          # kein Exponent da
-         { exp_marker = 'E'; exponent = Fixnum_0; }
+         { exp_marker = ascii('E'); exponent = Fixnum_0; }
        # exp_marker = Exponentmarker als Großbuchtabe,
        # exponent = Exponent als Integer.
        exponent = # Exponent - Anzahl der Nachkommaziffern
@@ -208,7 +208,7 @@
               { TheRatio(exponent)->rt_num = mantisse; mantisse = exponent; }
           }
         # mantisse = Mantisse * Zehnerpotenz, als ungekürzte rationale Zahl!
-        switch (exp_marker)
+        switch (as_cint(exp_marker))
           { case 'S': SF: # in Short-Float umwandeln
               {var object x = RA_to_SF(mantisse);
                return (sign==0 ? x : SF_minus_SF(x)); # evtl. noch Vorzeichenwechsel
@@ -260,12 +260,12 @@
        var uintC len;
        I_to_NDS(z, MSDptr=,len=,); # z als UDS
       {var uintL need = digits_need(len,base);
-       var DYNAMIC_ARRAY(ziffern,uintB,need); # Platz für die Ziffern
+       var DYNAMIC_ARRAY(ziffern,chart,need); # Platz für die Ziffern
        var DIGITS erg; erg.LSBptr = &ziffern[need];
        UDS_to_DIGITS(MSDptr,len,(uintD)base,&erg); # Umwandlung in Ziffern
        # Ziffern ausgeben:
        if (write_char_array(*stream_,erg.MSBptr,erg.len) == NULL)
-         { var uintB* ptr = erg.MSBptr;
+         { var const chart* ptr = erg.MSBptr;
            var uintL count;
            dotimespL(count,erg.len, { write_code_char(stream_,*ptr++); } );
          }
@@ -303,10 +303,10 @@
           # Exponent-Marker ausgeben:
           {var object exp_marker;
            floatcase(STACK_3,
-                     { exp_marker = code_char('s'); },
-                     { exp_marker = code_char('f'); },
-                     { exp_marker = code_char('d'); },
-                     { exp_marker = code_char('L'); }
+                     { exp_marker = ascii_char('s'); },
+                     { exp_marker = ascii_char('f'); },
+                     { exp_marker = ascii_char('d'); },
+                     { exp_marker = ascii_char('L'); }
                     );
            write_char(stream_,exp_marker);
           }
@@ -461,11 +461,16 @@
        var uintC len;
        I_to_NDS(x, MSDptr=,len=,); # x (>=0) als UDS
      { var uintL need = digits_need(len,10);
-       var DYNAMIC_ARRAY(ziffern,uintB,need); # Platz für die Ziffern
+       var DYNAMIC_ARRAY(ziffern,chart,need); # Platz für die Ziffern
        var DIGITS erg; erg.LSBptr = &ziffern[need];
        UDS_to_DIGITS(MSDptr,len,10,&erg); # Umwandlung in Ziffern
        RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-      {var object string = make_string(erg.MSBptr,erg.len); # Ziffern in Simple-String schreiben
+       # Ziffern in Simple-String schreiben:
+      {var object string = allocate_string(erg.len);
+       var const chart* ptr1 = erg.MSBptr;
+       var chart* ptr2 = &TheSstring(string)->data[0];
+       var uintL count;
+       dotimespL(count,erg.len, { *ptr2++ = *ptr1++; });
        FREE_DYNAMIC_ARRAY(ziffern);
        return string;
     }}}

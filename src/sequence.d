@@ -899,7 +899,7 @@ LISPFUN(make_sequence,2,0,norest,key,2,\
                   );
           }
         if (eq(seq_type(typdescr),S(string))) # Typname = STRING ?
-          { STACK_2 = code_char(' '); } # initial-element := ' '
+          { STACK_2 = ascii_char(' '); } # initial-element := ' '
         elif (posfixnump(seq_type(typdescr))) # Typname Integer? (bedeutet Byte-Vektoren)
           { STACK_2 = Fixnum_0; } # initial-element := 0
       }
@@ -4073,12 +4073,12 @@ LISPFUN(read_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
     test_start_end(&O(kwpair_start),&STACK_1);
     if (eq(seq_type(STACK_0),S(string))) # Typname = STRING ?
       { var uintL len;
-        var uintB* charptr = unpack_string(STACK_4,&len);
+        var chart* charptr = unpack_string(STACK_4,&len);
         # Ab charptr kommen len Zeichen.
         var uintL start = posfixnum_to_L(STACK_2);
         var uintL end = posfixnum_to_L(STACK_1);
         # Versuche, eine optimierte Lese-Routine aufzurufen:
-        var uintB* endptr = read_char_array(STACK_3,&charptr[start],end-start);
+        var chart* endptr = read_char_array(STACK_3,&charptr[start],end-start);
         if (!(endptr==NULL))
           { value1 = fixnum(endptr-charptr); mv_count=1;
             skipSTACK(5);
@@ -4119,12 +4119,12 @@ LISPFUN(write_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
     test_start_end(&O(kwpair_start),&STACK_1);
     if (eq(seq_type(STACK_0),S(string))) # Typname = STRING ?
       { var uintL len;
-        var const uintB* charptr = unpack_string(STACK_4,&len);
+        var const chart* charptr = unpack_string(STACK_4,&len);
         # Ab charptr kommen len Zeichen.
         var uintL start = posfixnum_to_L(STACK_2);
         var uintL end = posfixnum_to_L(STACK_1);
         # Versuche, eine optimierte Schreib-Routine aufzurufen:
-        var const uintB* endptr = write_char_array(STACK_3,&charptr[start],end-start);
+        var const chart* endptr = write_char_array(STACK_3,&charptr[start],end-start);
         if (!(endptr==NULL)) goto done;
       }
     # start- und end-Argumente subtrahieren:

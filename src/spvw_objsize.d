@@ -63,7 +63,7 @@
         * varobject_alignment                                                           \
       )
     #define size_sstring(length)  # simple-string \
-      round_up( (uintL)(length) + offsetofa(sstring_,data), varobject_alignment)
+      Varobject_aligned_size(offsetofa(sstring_,data),sizeof(chart),(uintL)(length))
     #define size_svector(length)  # simple-vector \
       Varobject_aligned_size(offsetofa(svector_,data),sizeof(object),(uintL)(length))
     #define size_iarray(size)  # Nicht-simpler Array, mit \

@@ -157,10 +157,10 @@
                   var object ss2 = array_displace_check(obj2,len1,&index2);
                   # ssi ist der Datenvektor, indexi der Index in den Datenvektor
                   # zu obji (i=1,2).
-                  var uintB* ptr1 = &TheSstring(ss1)->data[index1];
-                  var uintB* ptr2 = &TheSstring(ss2)->data[index2];
+                  var const chart* ptr1 = &TheSstring(ss1)->data[index1];
+                  var const chart* ptr2 = &TheSstring(ss2)->data[index2];
                   dotimespL(len1,len1,
-                    { if (!(*ptr1++ == *ptr2++)) goto no; }
+                    { if (!chareq(*ptr1++,*ptr2++)) goto no; }
                     );
                 }
               return TRUE;
@@ -269,11 +269,11 @@
     var uintL index2;
     var uintL count;
     { var const object* ptr1 = &TheSvector(dv1)->data[index1];
-      var const uintB* ptr2 = &TheSstring(dv2)->data[index2];
+      var const chart* ptr2 = &TheSstring(dv2)->data[index2];
       dotimespL(count,count,
         { var object elt1 = *ptr1++;
-          var uintB elt2 = *ptr2++;
-          if (!(charp(elt1) && (up_case(char_code(elt1)) == up_case(elt2))))
+          var chart elt2 = *ptr2++;
+          if (!(charp(elt1) && chareq(up_case(char_code(elt1)),up_case(elt2))))
             goto no;
         });
       return TRUE;
@@ -388,10 +388,10 @@
     var object dv2;
     var uintL index2;
     var uintL count;
-    { var const uintB* ptr1 = &TheSstring(dv1)->data[index1];
-      var const uintB* ptr2 = &TheSstring(dv2)->data[index2];
+    { var const chart* ptr1 = &TheSstring(dv1)->data[index1];
+      var const chart* ptr2 = &TheSstring(dv2)->data[index2];
       dotimespL(count,count,
-        { if (!(up_case(*ptr1++) == up_case(*ptr2++))) goto no; });
+        { if (!chareq(up_case(*ptr1++),up_case(*ptr2++))) goto no; });
       return TRUE;
       no: return FALSE;
     }
@@ -1034,7 +1034,7 @@
                 # obj1, obj2 beide Characters.
                 # Wie mit CHAR-EQUAL vergleichen: Bits und Font ignorieren,
                 # in Groﬂbuchstaben umwandeln und dann vergleichen.
-                if (up_case(char_code(obj1)) == up_case(char_code(obj2)))
+                if (chareq(up_case(char_code(obj1)),up_case(char_code(obj2))))
                   return TRUE;
                   else
                   goto no;

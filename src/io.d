@@ -10,18 +10,34 @@
 # Readtable-Funktionen
 # =============================================================================
 
-#define RM_anzahl   256  # Anzahl READ-Macro-Pointer
-#define DRM_anzahl  256  # Anzahl Dispatch-READ-Macro-Pointer
+# Syntax tables, indexed by characters.
+# allocate_syntax_table()
+# syntax_table_get(table,c)
+# syntax_table_put(table,c,value)
+  #define allocate_syntax_table()  allocate_bit_vector(char_code_limit*8)
+  #define syntax_table_get(table,c)  TheSbvector(table)->data[as_cint(c)]
+  #define syntax_table_put(table,c,value)  (TheSbvector(table)->data[as_cint(c)] = (value))
+
+# Tables indexed by characters.
+# allocate_perchar_table()
+# perchar_table_get(table,c)
+# perchar_table_put(table,c,value)
+# copy_perchar_table(table)
+  # A simple-vector of char_code_limit elements.
+  #define allocate_perchar_table()  allocate_vector(char_code_limit)
+  #define perchar_table_get(table,c)  TheSvector(table)->data[(uintP)as_cint(c)]
+  #define perchar_table_put(table,c,value)  (TheSvector(table)->data[(uintP)as_cint(c)] = (value))
+  #define copy_perchar_table(table)  copy_svector(table)
 
 # Aufbau von Readtables (siehe LISPBIBL.D):
   # readtable_syntax_table
-  #    ein Bitvektor mit RM_anzahl Bytes: Zu jedem Character der Syntaxcode
+  #    ein Bitvektor mit char_code_limit Bytes: Zu jedem Character der Syntaxcode
   # readtable_macro_table
-  #    ein Vektor mit RM_anzahl Elementen: Zu jedem Character
+  #    ein Vektor mit char_code_limit Elementen: Zu jedem Character
   #    entweder  (wenn das Character keinen Read-Macro darstellt)
   #              NIL
   #    oder      (wenn das Character einen Dispatch-Macro darstellt)
-  #              ein Vektor mit DRM_anzahl Funktionen/NILs,
+  #              ein Vektor mit char_code_limit Funktionen/NILs,
   #    oder      (wenn das Character einen sonstigen Read-Macro darstellt)
   #              die Funktion, die aufgerufen wird, wenn das Character vorkommt.
   # readtable_case
@@ -48,7 +64,7 @@
 #                     Wenn ein Objekt damit anfängt: Macro-Funktion aufrufen.
 
 # originale Syntaxtabelle für eingelesene Zeichen:
-  local const uintB orig_syntax_table [RM_anzahl] = {
+  local const uintB orig_syntax_table [char_code_limit] = {
     #define illg  syntax_illegal
     #define sesc  syntax_single_esc
     #define mesc  syntax_multi_esc
@@ -157,16 +173,16 @@
   local object orig_readtable (void);
   local object orig_readtable()
     { # Syntax-Tabelle initialisieren:
-      { var object s_table = allocate_bit_vector(RM_anzahl*8); # neuer Bitvektor
+      { var object s_table = allocate_syntax_table(); # neuer Bitvektor
         pushSTACK(s_table); # retten
         # und mit dem Original füllen:
         { var const uintB * ptr1 = &orig_syntax_table[0];
           var uintB* ptr2 = &TheSbvector(s_table)->data[0];
           var uintC count;
-          dotimesC(count,RM_anzahl, { *ptr2++ = *ptr1++; } );
+          dotimesC(count,char_code_limit, { *ptr2++ = *ptr1++; } );
       } }
       # Dispatch-Macro '#' initialisieren:
-      { var object d_table = allocate_vector(DRM_anzahl); # neuer Vektor
+      { var object d_table = allocate_perchar_table(); # neuer Vektor
         pushSTACK(d_table); # retten
         # und die Sub-Character-Funktionen zu '#' eintragen:
         { var object* table = &TheSvector(d_table)->data[0];
@@ -203,7 +219,7 @@
           table['P'] = L(ansi_pathname_reader);
       } }
       # READ-Macros initialisieren:
-      { var object m_table = allocate_vector(RM_anzahl); # neuer Vektor, mit NIL gefüllt
+      { var object m_table = allocate_perchar_table(); # neuer Vektor, mit NIL gefüllt
         # und die Macro-Characters eintragen:
         { var object* table = &TheSvector(m_table)->data[0];
           table['('] = L(lpar_reader);
@@ -241,20 +257,20 @@
       { var uintB* ptr1 = &TheSbvector(TheReadtable(from_readtable)->readtable_syntax_table)->data[0];
         var uintB* ptr2 = &TheSbvector(TheReadtable(to_readtable)->readtable_syntax_table)->data[0];
         var uintC count;
-        dotimesC(count,RM_anzahl, { *ptr2++ = *ptr1++; } );
+        dotimesC(count,char_code_limit, { *ptr2++ = *ptr1++; } );
       }
       # die Macro-Tabelle kopieren:
       pushSTACK(to_readtable); # to-readtable retten
       { var object mtable1 = TheReadtable(from_readtable)->readtable_macro_table;
         var object mtable2 = TheReadtable(to_readtable)->readtable_macro_table;
         var uintL i;
-        for (i=0; i<RM_anzahl; i++)
+        for (i=0; i<char_code_limit; i++)
           { # Eintrag Nummer i kopieren:
             var object entry = TheSvector(mtable1)->data[i];
             if (simple_vector_p(entry))
               # Simple-Vector wird elementweise kopiert:
               { pushSTACK(mtable1); pushSTACK(mtable2);
-                entry = copy_svector(entry);
+                entry = copy_perchar_table(entry);
                 mtable2 = popSTACK(); mtable1 = popSTACK();
               }
             TheSvector(mtable2)->data[i] = entry;
@@ -271,8 +287,8 @@
   local object copy_readtable(from_readtable)
     var object from_readtable;
     { pushSTACK(from_readtable); # retten
-      pushSTACK(allocate_bit_vector(RM_anzahl*8)); # neue leere Syntaxtabelle
-      pushSTACK(allocate_vector(RM_anzahl)); # neue leere Macro-Tabelle
+      pushSTACK(allocate_syntax_table()); # neue leere Syntaxtabelle
+      pushSTACK(allocate_perchar_table()); # neue leere Macro-Tabelle
      {var object to_readtable = allocate_readtable(); # neue Readtable
       # füllen:
       TheReadtable(to_readtable)->readtable_macro_table = popSTACK();
@@ -438,22 +454,20 @@ LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
       else
       { if (!readtablep(from_readtable)) { fehler_readtable(from_readtable); } }
     # Nun sind to_char, from_char, to_readtable, from_readtable OK.
-    { var uintL to_c = char_code(to_char);
-      var uintL from_c = char_code(from_char);
+    { var chart to_c = char_code(to_char);
+      var chart from_c = char_code(from_char);
       # Syntaxcode kopieren:
-      TheSbvector(TheReadtable(to_readtable)->readtable_syntax_table)->data[to_c] =
-        TheSbvector(TheReadtable(from_readtable)->readtable_syntax_table)->data[from_c];
+      syntax_table_put(TheReadtable(to_readtable)->readtable_syntax_table,to_c,
+        syntax_table_get(TheReadtable(from_readtable)->readtable_syntax_table,from_c));
       # Macro-Funktion/Vektor kopieren:
-     {var object entry =
-        TheSvector(TheReadtable(from_readtable)->readtable_macro_table)->data[from_c];
+     {var object entry = perchar_table_get(TheReadtable(from_readtable)->readtable_macro_table,from_c);
       if (simple_vector_p(entry))
         # Ist entry ein Simple-Vector, so muss er kopiert werden:
         { pushSTACK(to_readtable);
-          entry = copy_svector(entry);
+          entry = copy_perchar_table(entry);
           to_readtable = popSTACK();
         }
-      TheSvector(TheReadtable(to_readtable)->readtable_macro_table)->data[to_c] =
-        entry;
+      perchar_table_put(TheReadtable(to_readtable)->readtable_macro_table,to_c,entry);
     }}
     value1 = T; mv_count=1; # Wert T
   }
@@ -522,20 +536,18 @@ LISPFUN(set_macro_character,2,2,norest,nokey,0,NIL)
            ((Srecord)TheCclosure(function))->recdata[posfixnum_to_L(O(dispatch_reader_index))];
          if (simple_vector_p(vector))
            # It's a clone of #'dispatch-reader. Pull out the vector.
-           { function = copy_svector(vector); }
+           { function = copy_perchar_table(vector); }
        }
      STACK_2 = function;
     }
    {var object readtable = test_readtable_arg(); # Readtable
     var uintB syntaxcode = test_nontermp_arg(); # neuer Syntaxcode
     var object function = popSTACK();
-    var uintL c = char_code(popSTACK());
+    var chart c = char_code(popSTACK());
     # Syntaxcode setzen:
-    TheSbvector(TheReadtable(readtable)->readtable_syntax_table)->data[c] =
-      syntaxcode;
+    syntax_table_put(TheReadtable(readtable)->readtable_syntax_table,c,syntaxcode);
     # Macrodefinition eintragen:
-    TheSvector(TheReadtable(readtable)->readtable_macro_table)->data[c] =
-      function;
+    perchar_table_put(TheReadtable(readtable)->readtable_macro_table,c,function);
     value1 = T; mv_count=1; # 1 Wert T
   }}
 
@@ -547,15 +559,14 @@ LISPFUN(get_macro_character,1,1,norest,nokey,0,NIL)
     }
    {var object readtable = test_readtable_null_arg(); # Readtable
     var object ch = popSTACK();
-    var uintL c = char_code(ch);
+    var chart c = char_code(ch);
     # Teste den Syntaxcode:
     var object nontermp = NIL; # non-terminating-p Flag
-    switch (TheSbvector(TheReadtable(readtable)->readtable_syntax_table)->data[c])
+    switch (syntax_table_get(TheReadtable(readtable)->readtable_syntax_table,c))
       { case syntax_nt_macro: nontermp = T;
         case syntax_t_macro: # nontermp = NIL;
           # c ist ein Macro-Character.
-          { var object entry =
-              TheSvector(TheReadtable(readtable)->readtable_macro_table)->data[c];
+          { var object entry = perchar_table_get(TheReadtable(readtable)->readtable_macro_table,c);
             if (simple_vector_p(entry))
               # c ist ein Dispatch-Macro-Character.
               { if (nullp(O(dispatch_reader)))
@@ -570,7 +581,7 @@ LISPFUN(get_macro_character,1,1,norest,nokey,0,NIL)
                           );
                   }
                 # Clone #'dispatch-reader.
-                pushSTACK(copy_svector(entry));
+                pushSTACK(copy_perchar_table(entry));
                 { var object newclos = allocate_cclosure_copy(O(dispatch_reader));
                   do_cclosure_copy(newclos,O(dispatch_reader));
                   ((Srecord)TheCclosure(newclos))->recdata[posfixnum_to_L(O(dispatch_reader_index))] = popSTACK();
@@ -595,18 +606,16 @@ LISPFUN(make_dispatch_macro_character,1,2,norest,nokey,0,NIL)
     # char überprüfen:
     var object ch = popSTACK();
     if (!charp(ch)) { fehler_char(ch); }
-   {var uintL c = char_code(ch);
+   {var chart c = char_code(ch);
     # neue (leere) Dispatch-Macro-Tabelle holen:
     pushSTACK(readtable);
-    {var object dm_table = allocate_vector(DRM_anzahl); # Vektor, mit NIL gefüllt
+    {var object dm_table = allocate_perchar_table(); # Vektor, mit NIL gefüllt
      readtable = popSTACK();
     # alles in der Readtable ablegen:
      # Syntaxcode in die Syntax-Table:
-     TheSbvector(TheReadtable(readtable)->readtable_syntax_table)->data[c] =
-       syntaxcode;
+     syntax_table_put(TheReadtable(readtable)->readtable_syntax_table,c,syntaxcode);
      # neue Dispatch-Macro-Tabelle in die Macrodefinitionen-Tabelle:
-     TheSvector(TheReadtable(readtable)->readtable_macro_table)->data[c] =
-       dm_table;
+     perchar_table_put(TheReadtable(readtable)->readtable_macro_table,c,dm_table);
     }
     value1 = T; mv_count=1; # 1 Wert T
   }}
@@ -615,19 +624,17 @@ LISPFUN(make_dispatch_macro_character,1,2,norest,nokey,0,NIL)
 # > STACK: STACK_1 = disp-char, STACK_0 = sub-char
 # > readtable: Readtable
 # > subr_self: Aufrufer (ein SUBR)
-# < STACK: um 2 erhöht (außer wenn sub-char eine Ziffer ist)
-# < ergebnis: Pointer auf den zu sub-char gehörenden Eintrag in der
-#             Dispatch-Macro-Tabelle zu disp-char,
-#             NULL falls sub-char eine Ziffer ist.
-  local object* test_disp_sub_char (object readtable);
-  local object* test_disp_sub_char(readtable)
+# < ergebnis: die Dispatch-Macro-Tabelle zu disp-char,
+#             nullobj falls sub-char eine Ziffer ist.
+  local object test_disp_sub_char (object readtable);
+  local object test_disp_sub_char(readtable)
     var object readtable;
-    { var object sub_ch = popSTACK(); # sub-char
-      var object disp_ch = popSTACK(); # disp-char
+    { var object sub_ch = STACK_0; # sub-char
+      var object disp_ch = STACK_1; # disp-char
       if (!charp(disp_ch)) { fehler_char(disp_ch); } # disp-char muss ein Character sein
       if (!charp(sub_ch)) { fehler_char(sub_ch); } # sub-char muss ein Character sein
-     {var uintL disp_c = char_code(disp_ch);
-      var object entry = TheSvector(TheReadtable(readtable)->readtable_macro_table)->data[disp_c];
+     {var chart disp_c = char_code(disp_ch);
+      var object entry = perchar_table_get(TheReadtable(readtable)->readtable_macro_table,disp_c);
       if (!simple_vector_p(entry))
         { pushSTACK(disp_ch);
           pushSTACK(TheSubr(subr_self)->name);
@@ -639,13 +646,13 @@ LISPFUN(make_dispatch_macro_character,1,2,norest,nokey,0,NIL)
                 );
         }
       # disp-char ist ein Dispatching-Macro-Character, entry der Vektor.
-      {var uintB sub_c = up_case(char_code(sub_ch)); # sub-char in Großbuchstaben umwandeln
+      {var cint sub_c = as_cint(up_case(char_code(sub_ch))); # sub-char in Großbuchstaben umwandeln
        if ((sub_c >= '0') && (sub_c <= '9'))
          # Ziffer
-         { pushSTACK(sub_ch); return (object*)NULL; }
+         { return nullobj; }
          else
          # gültiges sub-char
-         { return &TheSvector(entry)->data[(uintP)sub_c]; }
+         { return entry; }
     }}}
 
 LISPFUN(set_dispatch_macro_character,3,1,norest,nokey,0,NIL)
@@ -656,8 +663,8 @@ LISPFUN(set_dispatch_macro_character,3,1,norest,nokey,0,NIL)
     subr_self = L(set_dispatch_macro_character);
    {var object readtable = test_readtable_arg(); # Readtable
     var object function = popSTACK(); # function
-    var object* ptr = test_disp_sub_char(readtable);
-    if (ptr == (object*)NULL)
+    var object dm_table = test_disp_sub_char(readtable);
+    if (eq(dm_table,nullobj))
       { # STACK_0 = sub-char, Wert für Slot DATUM von TYPE-ERROR
         pushSTACK(O(type_not_digit)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(STACK_1);
@@ -670,16 +677,17 @@ LISPFUN(set_dispatch_macro_character,3,1,norest,nokey,0,NIL)
               );
       }
       else
-      { *ptr = function; # Funktion in die Dispatch-Macro-Tabelle eintragen
-        value1 = T; mv_count=1; # 1 Wert T
+      { perchar_table_put(dm_table,char_code(STACK_0),function); # Funktion in die Dispatch-Macro-Tabelle eintragen
+        value1 = T; mv_count=1; skipSTACK(2); # 1 Wert T
       }
   }}
 
 LISPFUN(get_dispatch_macro_character,2,1,norest,nokey,0,NIL)
 # (GET-DISPATCH-MACRO-CHARACTER disp-char sub-char [readtable]), CLTL S. 364
   { var object readtable = test_readtable_null_arg(); # Readtable
-    var object* ptr = test_disp_sub_char(readtable);
-    value1 = (ptr == (object*)NULL ? NIL : *ptr); mv_count=1; # NIL oder Funktion als Wert
+    var object dm_table = test_disp_sub_char(readtable);
+    value1 = (eq(dm_table,nullobj) ? NIL : perchar_table_get(dm_table,char_code(STACK_0))); # NIL oder Funktion als Wert
+    mv_count=1; skipSTACK(2);
   }
 
 LISPFUNN(readtable_case,1)
@@ -829,7 +837,7 @@ LISPFUNN(set_readtable_case,2)
          {var object readtable;                                        \
           get_readtable(readtable = );                                 \
           scode_zuweisung # Syntaxcode aus Tabelle holen               \
-            TheSbvector(TheReadtable(readtable)->readtable_syntax_table)->data[(uintP)char_code(ch0)]; \
+            syntax_table_get(TheReadtable(readtable)->readtable_syntax_table,char_code(ch0)); \
         }}                                                             \
     }
 
@@ -908,7 +916,7 @@ LISPFUNN(set_readtable_case,2)
           {var object readtable;                                           \
            get_readtable(readtable = );                                    \
            if (!((scode_zuweisung # Syntaxcode aus Tabelle holen           \
-                    TheSbvector(TheReadtable(readtable)->readtable_syntax_table)->data[(uintP)char_code(ch0)] \
+                    syntax_table_get(TheReadtable(readtable)->readtable_syntax_table,char_code(ch0)) \
                  )                                                         \
                  == syntax_whitespace                                      \
               ) )                                                          \
@@ -935,7 +943,7 @@ LISPFUNN(set_readtable_case,2)
           {var object readtable;
            get_readtable(readtable = );
            if (!(( # Syntaxcode aus Tabelle holen
-                  TheSbvector(TheReadtable(readtable)->readtable_syntax_table)->data[(uintP)char_code(ch)]
+                  syntax_table_get(TheReadtable(readtable)->readtable_syntax_table,char_code(ch))
                  )
                  == syntax_whitespace
               ) )
@@ -972,7 +980,7 @@ LISPFUNN(set_readtable_case,2)
 # Anmerkung: 0-9,A-Z,a-z werden erst als a_digit oder a_expo_m interpretiert,
 # dann (falls sich kein Integer aus einem Token ergibt) wird a_digit
 # oberhalb von *READ-BASE* als a_alpha (alphabetic) interpretiert.
-  local const uintB attribute_table[RM_anzahl] = {
+  local const uintB attribute_table[char_code_limit] = {
     a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,   # chr(0) bis chr(7)
     a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,   # chr(8) bis chr(15)
     a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,   # chr(16) bis chr(23)
@@ -1063,6 +1071,12 @@ LISPFUNN(set_readtable_case,2)
     a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,
     #endif
     };
+
+# Returns the attribute code for a character code.
+# attribute_of(c)
+# > chart c: character code
+# < uintB result: attribute code
+  #define attribute_of(c)  attribute_table[as_cint(c)]
 
 # Flag. Zeigt an, ob im letztgelesenen Token
 # ein Single-Escape- oder Multiple-Escape-Zeichen vorkam:
@@ -1202,9 +1216,9 @@ LISPFUNN(set_readtable_case,2)
                 if (multiple_escape_flag) # Zwischen Multiple-Escape-Zeichen?
                   goto escape; # ja -> Zeichen unverändert übernehmen
                 # ins Token übernehmen (Groß-/Klein-Umwandlung kommt später):
-                {var uintB c = char_code(ch);
+                {var chart c = char_code(ch);
                  ssstring_push_extend(STACK_1,c);
-                 ssbvector_push_extend(STACK_0,attribute_table[c]);
+                 ssbvector_push_extend(STACK_0,attribute_of(c));
                 }
                 break;
               case syntax_whitespace:
@@ -1262,7 +1276,7 @@ LISPFUNN(set_readtable_case,2)
 #     Unterscheidung zwischen [a_pack_m | a_dot | sonstiges] bleibt erhalten.
 # < ergebnis: TRUE, falls potential number vorliegt
 #             (und dann ist token_info mit {charptr, attrptr, len} gefüllt)
-  typedef struct { uintB* charptr; uintB* attrptr; uintL len; } token_info;
+  typedef struct { chart* charptr; uintB* attrptr; uintL len; } token_info;
   local boolean test_potential_number_syntax (uintWL* base_, token_info* info);
   local boolean test_potential_number_syntax(base_,info)
     var uintWL* base_;
@@ -1291,7 +1305,7 @@ LISPFUNN(set_readtable_case,2)
     # 7. Test, ob letztes Zeichenattribut =a_plus oder =a_minus.
     #    Ja -> kein potential number.
     # 8. Potential number liegt vor.
-    { var uintB* charptr0; # Pointer auf die Characters
+    { var chart* charptr0; # Pointer auf die Characters
       var uintB* attrptr0; # Pointer auf die Attribute
       var uintL len; # Länge des Token
       # initialisieren:
@@ -1313,12 +1327,12 @@ LISPFUNN(set_readtable_case,2)
       }
       # 2. Alles >=a_letter mit Wert <Basis in a_digit umwandeln:
       { var uintB* attrptr = attrptr0;
-        var uintB* charptr = charptr0;
+        var chart* charptr = charptr0;
         var uintL count;
         dotimesL(count,len,
           { if (*attrptr >= a_letter)
               # Attributcode >= a_letter
-              { var uintB c = *charptr; # Zeichen, muss 'A'-'Z','a'-'Z' sein
+              { var cint c = as_cint(*charptr); # Zeichen, muss 'A'-'Z','a'-'Z' sein
                 if (c >= 'a') { c -= 'a'-'A'; }
                 if ((c - 'A') + 10 < *base_) # Wert < Basis ?
                   { *attrptr = a_digit; } # in a_digit umwandeln
@@ -1446,7 +1460,7 @@ LISPFUNN(set_readtable_case,2)
     #        Falls keine Nachkommastellen kommen:
     #          Falls Vorkommastellen da waren, Dezimal-Integer.
     #          Sonst keine Zahl.
-    {  var uintB* charptr0; # Pointer auf die Characters
+    {  var chart* charptr0; # Pointer auf die Characters
        var uintB* attrptr0; # Pointer auf die Attribute
        var uintL len; # Länge des Token
        # 1. Auf potential number testen:
@@ -1479,7 +1493,7 @@ LISPFUNN(set_readtable_case,2)
        # charptr0 und attrptr0 und index0 ab jetzt unverändert.
       {var uintB flags = 0; # alle Flags löschen
        # 3. Rationale Zahl
-       { var uintB* charptr = charptr0;
+       { var chart* charptr = charptr0;
          var uintB* attrptr = attrptr0;
          var uintL index = index0;
          # flags & bit(0)  zeigt an, ob bereits ein a_digit < base
@@ -1491,7 +1505,7 @@ LISPFUNN(set_readtable_case,2)
              if (index>=len) break;
             {var uintB attr = *attrptr++; # dessen Attributcode
              if (attr==a_digit)
-               { var uintB c = *charptr++; # Character (Digit, also '0'-'9','A'-'Z','a'-'z')
+               { var cint c = as_cint(*charptr++); # Character (Digit, also '0'-'9','A'-'Z','a'-'z')
                  # Wert bestimmen:
                  var uintB wert = (c<'A' ? c-'0' : c<'a' ? c-'A'+10 : c-'a'+10);
                  if (wert >= *base_) # Digit mit Wert >=base ?
@@ -1528,13 +1542,14 @@ LISPFUNN(set_readtable_case,2)
        schritt4:
        # 4. base:=10, mit Eliminierung von 'A'-'Z','a'-'z'
        if (*base_ > 10)
-         { var uintB* charptr = charptr0;
+         { var chart* charptr = charptr0;
            var uintB* attrptr = attrptr0;
            var uintL count;
            dotimesL(count,len-index0,
-             { var uintB c = *charptr++; # nächstes Character
+             { var chart ch = *charptr++; # nächstes Character
+               var cint c = as_cint(ch);
                if (((c>='A') && (c<='Z')) || ((c>='a') && (c<='z')))
-                 { var uintB attr = attribute_table[c]; # dessen wahrer Attributcode
+                 { var uintB attr = attribute_of(ch); # dessen wahrer Attributcode
                    if (attr == a_letter) # Ist er = a_letter ?
                      { return 0; } # ja -> keine Zahl
                    # sonst (muss a_expo_m sein) eintragen:
@@ -1645,7 +1660,7 @@ LISPFUNN(set_readtable_case,2)
   local void upcase_token()
     { var object string = O(token_buff_1); # Semi-Simple-String
       var uintL len = TheIarray(string)->dims[1]; # Fill-Pointer
-      var uintB* charptr = &TheSstring(TheIarray(string)->data)->data[0];
+      var chart* charptr = &TheSstring(TheIarray(string)->data)->data[0];
       dotimesL(len,len, { *charptr = up_case(*charptr); charptr++; } );
     }
 
@@ -1661,7 +1676,7 @@ LISPFUNN(set_readtable_case,2)
     var uintL start_index;
     var uintL end_index;
     var uintW direction;
-    { var uintB* charptr = &TheSstring(TheIarray(O(token_buff_1))->data)->data[start_index];
+    { var chart* charptr = &TheSstring(TheIarray(O(token_buff_1))->data)->data[start_index];
       var uintB* attrptr = &TheSbvector(TheIarray(O(token_buff_2))->data)->data[start_index];
       var uintL len = end_index - start_index;
       if (len == 0) return;
@@ -1693,13 +1708,14 @@ LISPFUNN(set_readtable_case,2)
             # Ansonsten nichts tun.
             { var boolean seen_uppercase = FALSE;
               var boolean seen_lowercase = FALSE;
-              var const uintB* cptr = charptr;
+              var const chart* cptr = charptr;
               var const uintB* aptr = attrptr;
               var uintL count;
               dotimespL(count,len,
                 { if (!(*aptr == a_escaped))
-                    { if (!(*cptr == up_case(*cptr))) { seen_lowercase = TRUE; }
-                      if (!(*cptr == down_case(*cptr))) { seen_uppercase = TRUE; }
+                    { var chart c = *cptr;
+                      if (!chareq(c,up_case(c))) { seen_lowercase = TRUE; }
+                      if (!chareq(c,down_case(c))) { seen_uppercase = TRUE; }
                     }
                   cptr++; aptr++;
                 });
@@ -1739,7 +1755,7 @@ LISPFUNN(set_readtable_case,2)
     { var object readtable;
       get_readtable(readtable = ); # aktuelle Readtable (brauche ch nicht zu retten)
      {var object macrodef = # Macro-Definition aus Tabelle holen
-        TheSvector(TheReadtable(readtable)->readtable_macro_table)->data[(uintP)char_code(ch)];
+        perchar_table_get(TheReadtable(readtable)->readtable_macro_table,char_code(ch));
       if (nullp(macrodef)) # =NIL ?
         { pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
           pushSTACK(ch);
@@ -1778,7 +1794,7 @@ LISPFUNN(set_readtable_case,2)
         { pushSTACK(macrodef); # Vektor retten
          {var object arg; # Argument (Integer >=0 oder NIL)
           var object subch; # sub-char
-          var uintB subc; # sub-char
+          var chart subc; # sub-char
           # Ziffern des Argumentes lesen:
           { var boolean flag = FALSE; # Flag, ob schon eine Ziffer kam
             pushSTACK(Fixnum_0); # bisheriger Integer := 0
@@ -1798,9 +1814,10 @@ LISPFUNN(set_readtable_case,2)
                   }
                 # Sonst auf Character überprüfen.
                 if (!charp(nextch)) { fehler_charread(nextch,stream_); }
-               {var uintB c = char_code(nextch);
+               {var chart ch = char_code(nextch);
+                var cint c = as_cint(ch);
                 if (!((c>='0') && (c<='9'))) # keine Ziffer -> Schleife fertig
-                  { subc = c; break; }
+                  { subc = ch; break; }
                 # Integer mal 10 nehmen und Ziffer addieren:
                 STACK_0 = mal_10_plus_x(STACK_0,(c-'0'));
                 flag = TRUE;
@@ -1813,7 +1830,7 @@ LISPFUNN(set_readtable_case,2)
           subch = code_char(subc);
           subc = up_case(subc); # Subchar in Großbuchstaben umwandeln
           macrodef = popSTACK(); # Vektor zurück
-          macrodef = TheSvector(macrodef)->data[subc]; # Subchar-Funktion oder NIL
+          macrodef = perchar_table_get(macrodef,subc); # Subchar-Funktion oder NIL
           if (nullp(macrodef))
             # NIL -> undefiniert
             { pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
@@ -2468,7 +2485,7 @@ LISPFUNN(set_readtable_case,2)
 LISPFUNN(lpar_reader,2) # liest (
   { var object* stream_ = test_stream_arg(STACK_1);
     # Liste nach '(' bis ')' lesen, Dot erlaubt:
-    value1 = read_delimited_list(stream_,code_char(')'),dot_value); mv_count=1;
+    value1 = read_delimited_list(stream_,ascii_char(')'),dot_value); mv_count=1;
     skipSTACK(2);
   }
 
@@ -2608,7 +2625,7 @@ LISPFUNN(line_comment_reader,2) # liest ;
   { var object* stream_ = test_stream_arg(STACK_1);
     loop
       { var object ch = read_char(stream_); # Zeichen lesen
-        if (eq(ch,eof_value) || eq(ch,code_char(NL))) break;
+        if (eq(ch,eof_value) || eq(ch,ascii_char(NL))) break;
       }
     value1 = NIL; mv_count=0; skipSTACK(2); # keine Werte zurück
   }
@@ -2695,7 +2712,7 @@ LISPFUNN(comment_reader,3) # liest #|
         # sub-char gelesen
         { ch = read_char(stream_); # nächstes Zeichen
           if (eq(ch,eof_value)) goto fehler_eof; # EOF -> Error
-          elif (eq(ch,code_char('#')))
+          elif (eq(ch,ascii_char('#')))
             # sub-char und '#' gelesen -> depth erniedrigen:
             { if (depth==0) goto fertig;
               depth--; goto loop1;
@@ -2703,7 +2720,7 @@ LISPFUNN(comment_reader,3) # liest #|
           else
             goto loop2;
         }
-      elif (eq(ch,code_char('#')))
+      elif (eq(ch,ascii_char('#')))
         # '#' gelesen
         { ch = read_char(stream_); # nächstes Zeichen
           if (eq(ch,eof_value)) goto fehler_eof; # EOF -> Error
@@ -2790,7 +2807,7 @@ LISPFUNN(char_reader,3) # liest #\
   { # Stackaufbau: Stream, sub-char, n.
     var object* stream_ = test_stream_arg(STACK_2);
     # Token lesen, mit Dummy-Character '\' als Token-Anfang:
-    read_token_1(stream_,code_char('\\'),syntax_single_esc);
+    read_token_1(stream_,ascii_char('\\'),syntax_single_esc);
     # bei *READ-SUPPRESS* /= NIL sofort fertig:
     if (test_value(S(read_suppress)))
       { value1 = NIL; mv_count=1; skipSTACK(3); return; } # NIL als Wert
@@ -2821,7 +2838,7 @@ LISPFUNN(char_reader,3) # liest #\
           { var uintL hyphen = pos; # hyphen := pos
             loop
               { if (hyphen == len) goto no_more_hyphen; # schon Token-Ende?
-                if (TheSstring(token)->data[hyphen] == '-') break; # Hyphen gefunden?
+                if (chareq(TheSstring(token)->data[hyphen],ascii('-'))) break; # Hyphen gefunden?
                 hyphen++; # nein -> weitersuchen
               }
             # Hyphen bei Position hyphen gefunden
@@ -2847,7 +2864,7 @@ LISPFUNN(char_reader,3) # liest #\
             pos = hyphen+1; # zum nächsten
         } }}
       # einbuchstabiger Charactername
-      {var uintB code = TheSstring(token)->data[pos]; # (char token pos)
+      {var chart code = TheSstring(token)->data[pos]; # (char token pos)
        value1 = code_char(code); mv_count=1; skipSTACK(3); return;
       }
       no_more_hyphen: # kein weiteres Hyphen gefunden.
@@ -2866,10 +2883,10 @@ LISPFUNN(char_reader,3) # liest #\
            # Dezimalzahl entziffern:
           {var uintWL code = 0; # bisher gelesenes xxxx (<char_code_limit)
            var uintL index = pos+4;
-           var uintB* charptr = &TheSstring(token)->data[index];
+           var const chart* charptr = &TheSstring(token)->data[index];
            loop
              { if (index == len) break; # Token-Ende erreicht?
-              {var uintB c = *charptr++; # nächstes Character
+              {var cint c = as_cint(*charptr++); # nächstes Character
                # soll Ziffer sein:
                if (!((c>='0') && (c<='9'))) goto not_codexxxx;
                code = 10*code + (c-'0'); # Ziffer dazunehmen
@@ -2878,14 +2895,14 @@ LISPFUNN(char_reader,3) # liest #\
                index++;
              }}
            # Charactername war vom Typ "Codexxxx" mit code = xxxx < char_code_limit
-           value1 = code_char(code); mv_count=1; skipSTACK(3); return;
+           value1 = code_char(as_chart(code)); mv_count=1; skipSTACK(3); return;
          }}
        not_codexxxx:
        # Test auf Pseudo-Character-Namen ^X:
-       if ((sub_len == 2) && (TheSstring(token)->data[pos] == '^'))
-         { var uintB code = TheSstring(token)->data[pos+1]-64;
+       if ((sub_len == 2) && chareq(TheSstring(token)->data[pos],ascii('^')))
+         { var cint code = as_cint(TheSstring(token)->data[pos+1])-64;
            if (code < 32)
-             { value1 = code_char(code); mv_count=1; skipSTACK(3); return; }
+             { value1 = ascii_char(code); mv_count=1; skipSTACK(3); return; }
          }
        # Test auf Characternamen wie NAME-CHAR:
        TheIarray(hstring)->totalsize =
@@ -2938,7 +2955,7 @@ LISPFUNN(char_reader,3) # liest #\
       switch (test_number_syntax(&base,&string,&info))
         { case 1: # Integer
             # letztes Character ein Punkt?
-            if (TheSstring(string)->data[info.index2-1] == '.')
+            if (chareq(TheSstring(string)->data[info.index2-1],ascii('.')))
               # ja -> Dezimal-Integer, nicht in Basis base
               goto not_rational;
             # test_number_syntax wurde bereits im Schritt 3 fertig,
@@ -3220,11 +3237,11 @@ LISPFUNN(bit_vector_reader,3) # liest #*
       }
    {var object buff_1 = O(token_buff_1); # Character-Buffer
     var uintL len = TheIarray(buff_1)->dims[1]; # Länge = Fill-Pointer
-    {var uintB* charptr = &TheSstring(TheIarray(buff_1)->data)->data[0];
+    {var const chart* charptr = &TheSstring(TheIarray(buff_1)->data)->data[0];
      var uintL count;
      dotimesL(count,len,
-       { var uintB c = *charptr++; # nächstes Character
-         if (!((c=='0') || (c=='1'))) # nur '0' und '1' sind OK
+       { var chart c = *charptr++; # nächstes Character
+         if (!(chareq(c,ascii('0')) || chareq(c,ascii('1')))) # nur '0' und '1' sind OK
            goto fehler_nur01;
        });
     }
@@ -3266,12 +3283,12 @@ LISPFUNN(bit_vector_reader,3) # liest #*
      {var object bv = allocate_bit_vector(n);
       # und fülle die Bits ein:
       buff_1 = O(token_buff_1);
-      { var uintB* charptr = &TheSstring(TheIarray(buff_1)->data)->data[0];
-        var uintB ch; # letztes Zeichen ('0' oder '1')
+      { var const chart* charptr = &TheSstring(TheIarray(buff_1)->data)->data[0];
+        var chart ch; # letztes Zeichen ('0' oder '1')
         var uintL index = 0;
         while (index < n)
           { if (index < len) { ch = *charptr++; } # evtl. nächstes Character holen
-            if (ch == '0')
+            if (chareq(ch,ascii('0')))
               { sbvector_bclr(bv,index); } # Null -> Bit löschen
               else
               { sbvector_bset(bv,index); } # Eins -> Bit setzen
@@ -3312,7 +3329,7 @@ LISPFUNN(bit_vector_reader,3) # liest #*
 LISPFUNN(vector_reader,3) # liest #(
   { var object* stream_ = test_stream_arg(STACK_2);
     # Liste bis zur Klammer zu lesen, Dot nicht erlaubt:
-    var object elements = read_delimited_list(stream_,code_char(')'),eof_value);
+    var object elements = read_delimited_list(stream_,ascii_char(')'),eof_value);
     # bei *READ-SUPPRESS* /= NIL sofort fertig:
     if (test_value(S(read_suppress)))
       { value1 = NIL; mv_count=1; skipSTACK(3); return; } # NIL als Wert
@@ -4244,7 +4261,7 @@ LISPFUNN(structure_reader,3) # liest #S
       var uintWL scode;
       { if (scode == syntax_eof) { fehler_eof_innen(&STACK_2); }
         # ch ist ein Character
-       {var uintB c = char_code(ch);
+       {var cint c = as_cint(char_code(ch));
         if (c<'0') goto badchar; if (c<='9') { return (c-'0'); } # '0'..'9'
         if (c<'A') goto badchar; if (c<='F') { return (c-'A'+10); } # 'A'..'F'
         if (c<'a') goto badchar; if (c<='f') { return (c-'a'+10); } # 'a'..'f'
@@ -4300,7 +4317,7 @@ LISPFUNN(closure_reader,3) # liest #Y
         do { read_char_syntax(ch = ,scode = ,stream_); } # Zeichen lesen
            until (!(scode == syntax_whitespace));
         # Es muss ein '(' folgen:
-        if (!eq(ch,code_char('('))) { fehler_closure_badchar(); }
+        if (!eq(ch,ascii_char('('))) { fehler_closure_badchar(); }
         {var uintL index = 0;
          until (index==n)
            { # Whitespace überlesen:
@@ -4311,7 +4328,7 @@ LISPFUNN(closure_reader,3) # liest #Y
              # nächstes Character lesen:
              read_char_syntax(ch = ,scode = ,stream_);
              if (scode == syntax_eof) { fehler_eof_innen(stream_); } # EOF -> Error
-             if ((scode == syntax_whitespace) || eq(ch,code_char(')')))
+             if ((scode == syntax_whitespace) || eq(ch,ascii_char(')')))
                # Whitespace oder Klammer zu
                { # wird auf den Stream zurückgeschoben:
                  unread_char(stream_,ch);
@@ -4330,7 +4347,7 @@ LISPFUNN(closure_reader,3) # liest #Y
         do { read_char_syntax(ch = ,scode = ,stream_); } # Zeichen lesen
            until (!(scode == syntax_whitespace));
         # Es muss ein ')' folgen:
-        if (!eq(ch,code_char(')'))) { fehler_closure_badchar(); }
+        if (!eq(ch,ascii_char(')'))) { fehler_closure_badchar(); }
         #if BIG_ENDIAN_P
         # Header von Little-Endian nach Big-Endian konvertieren:
         { var Sbvector v = TheSbvector(STACK_1);
@@ -4425,7 +4442,7 @@ LISPFUNN(unix_executable_reader,3) # liest #!
     # Stackaufbau: Stream, sub-char #\!.
     loop
       { var object ch = read_char(stream_); # Zeichen lesen
-        if (eq(ch,eof_value) || eq(ch,code_char(NL))) break;
+        if (eq(ch,eof_value) || eq(ch,ascii_char(NL))) break;
       }
     value1 = NIL; mv_count=0; skipSTACK(2); # keine Werte zurück
   }
@@ -4558,7 +4575,7 @@ LISPFUN(read_line,0,4,norest,nokey,0,NIL)
         if (eq(ch,eof_value)) goto eof; # EOF ?
         # sonst auf Character überprüfen:
         if (!charp(ch)) { subr_self = L(read_line); fehler_char(ch); }
-        if (eq(ch,code_char(NL))) goto eol; # NL -> End of Line
+        if (eq(ch,ascii_char(NL))) goto eol; # NL -> End of Line
         # sonstiges Character in den Buffer schreiben:
         ssstring_push_extend(STACK_1,char_code(ch));
       }
@@ -4820,7 +4837,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       var object string; # String
       var uintL start; # Wert des :start-Arguments
       var uintL len; # Anzahl der angesprochenen Characters
-      var uintB* charptr = test_string_limits(&string,&start,&len);
+      var chart* charptr = test_string_limits(&string,&start,&len);
       # STACK jetzt aufgeräumt.
       # Datenvektor holen:
       var uintL start_offset = 0;
@@ -4837,18 +4854,18 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       #   index : Index in den String,
       #   count : verbleibende Anzahl Characters.
       var signean sign; # Vorzeichen
-     {var uintB c; # letztes gelesenes Character
+     {var chart c; # letztes gelesenes Character
       # 1. Schritt: Whitespace übergehen
       loop
         { if (count==0) goto badsyntax; # Stringstück schon zu Ende ?
           c = *charptr; # nächstes Character
-          if (!(orig_syntax_table[c] == syntax_whitespace)) # kein Whitespace?
+          if (!(orig_syntax_table[as_cint(c)] == syntax_whitespace)) # kein Whitespace?
             break;
           charptr++; index++; count--; # Whitespacezeichen übergehen
         }
       # 2. Schritt: Vorzeichen lesen
       sign = 0; # Vorzeichen := positiv
-      switch (c)
+      switch (as_cint(c))
         { case '-': sign = -1; # Vorzeichen := negativ
           case '+': # Vorzeichen angetroffen
             charptr++; index++; count--; # übergehen
@@ -4860,7 +4877,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       # Ab jetzt:  start_offset = Offset der ersten Ziffer im Datenvektor.
       # 3. Schritt: Ziffern lesen
       loop
-        { var uintB c = *charptr; # nächstes Character
+        { var cint c = as_cint(*charptr); # nächstes Character
           # Test auf Ziffer: (digit-char-p (code-char c) base) ?
           # (vgl. DIGIT-CHAR-P in CHARSTRG.D)
           if (c > 'z') break; # zu groß -> nein
@@ -4885,8 +4902,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       # 4. Schritt: evtl. Whitespace am Schluss übergehen
       if (!junk_allowed) # (falls junk_allowed, ist nichts zu tun)
         { while (!(count==0))
-            { var uintB c = *charptr; # nächstes Character
-              if (!(orig_syntax_table[c] == syntax_whitespace)) # kein Whitespace?
+            { var chart c = *charptr; # nächstes Character
+              if (!(orig_syntax_table[as_cint(c)] == syntax_whitespace)) # kein Whitespace?
                 goto badsyntax;
               charptr++; index++; count--; # Whitespacezeichen übergehen
             }
@@ -5255,7 +5272,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                 dotimesL(count,Sstring_length(string),
                   { # flag zeigt an, ob gerade innerhalb eines Wortes
                     var boolean oldflag = flag;
-                    var uintB c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
+                    var chart c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
                     if ((flag = alphanumericp(c)) && oldflag)
                       # alphanumerisches Zeichen im Wort:
                       { c = down_case(c); } # Groß- in Kleinbuchstaben umwandeln
@@ -5323,7 +5340,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                 dotimesL(count,Sstring_length(string),
                   { # flag zeigt an, ob gerade innerhalb eines Wortes
                     var boolean oldflag = flag;
-                    var uintB c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
+                    var chart c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
                     if ((flag = alphanumericp(c)) && !oldflag)
                       # alphanumerisches Zeichen am Wortanfang:
                       { c = up_case(c); } # Klein- in Großbuchstaben umwandeln
@@ -5342,12 +5359,12 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             # *PRINT-CASE* ignorieren.
             { var boolean seen_uppercase = FALSE;
               var boolean seen_lowercase = FALSE;
-              var const uintB* cptr = &TheSstring(string)->data[0];
+              var const chart* cptr = &TheSstring(string)->data[0];
               var uintL count;
               dotimesL(count,Sstring_length(string),
-                { if (!(*cptr == up_case(*cptr))) { seen_lowercase = TRUE; }
-                  if (!(*cptr == down_case(*cptr))) { seen_uppercase = TRUE; }
-                  cptr++;
+                { var chart c = *cptr++;
+                  if (!chareq(c,up_case(c))) { seen_lowercase = TRUE; }
+                  if (!chareq(c,down_case(c))) { seen_uppercase = TRUE; }
                 });
               if (seen_uppercase)
                 { if (!seen_lowercase) goto do_downcase; }
@@ -5537,25 +5554,25 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                if (len < need) # Zeile zu kurz ?
                  goto new_line; # ja -> neue Zeile anfangen
                lastline = TheIarray(lastline)->data; # letzte Zeile, Simple-String
-             { var uintB* charptr = &TheSstring(lastline)->data[0];
+             { var chart* charptr = &TheSstring(lastline)->data[0];
                # Teste, ob need Spaces kommen:
                {var uintL count;
                 dotimesL(count,need,
-                  { if (!(*charptr++ == ' ')) # Space ?
+                  { if (!chareq(*charptr++,ascii(' '))) # Space ?
                       goto new_line; # nein -> neue Zeile anfangen
                   });
                }
-              {var uintB* charptr1 = charptr; # Position merken
+              {var chart* charptr1 = charptr; # Position merken
                # Teste, ob len-need mal Space oder ')' kommt:
                {var uintL count;
                 dotimesL(count,len-need,
-                  { var uintB c = *charptr++;
-                    if (!((c == ' ') || (c == ')'))) # Space oder ')' ?
+                  { var chart c = *charptr++;
+                    if (!(chareq(c,ascii(' ')) || chareq(c,ascii(')')))) # Space oder ')' ?
                       goto new_line; # nein -> neue Zeile anfangen
                   });
                }
                # Klammer an die gewünschte Position pos = need-1 setzen:
-               *--charptr1 = ')';
+               *--charptr1 = ascii(')');
             }}}
             else
             # Einzeiler.
@@ -6223,7 +6240,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                  goto skip_first_NL; # in die Schleife
                {var object firststring = Car(STACK_0); # erste Zeile, ein Semi-Simple-String
                 if ((TheIarray(firststring)->dims[1] == 0) # leer?
-                    || (TheSstring(TheIarray(firststring)->data)->data[0] == NL) # oder Newline am Anfang?
+                    || chareq(TheSstring(TheIarray(firststring)->data)->data[0],ascii(NL)) # oder Newline am Anfang?
                    )
                   goto skip_first_NL; # in die Schleife
                }
@@ -6636,31 +6653,31 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       if (len==0) goto surround; # Länge=0 -> muss |...| verwenden
       # Bedingungen 2-4 überprüfen:
       { # Brauche die Attributcodetabelle und die aktuelle Syntaxcodetabelle:
-        var uintB* syntax_table; # Syntaxcodetabelle, RM_anzahl Elemente
+        var object syntax_table; # Syntaxcodetabelle, char_code_limit Elemente
         var uintW rtcase; # readtable-case
         { var object readtable;
           get_readtable(readtable = ); # aktuelle Readtable
-          syntax_table = &TheSbvector(TheReadtable(readtable)->readtable_syntax_table)->data[0];
+          syntax_table = TheReadtable(readtable)->readtable_syntax_table;
           rtcase = posfixnum_to_L(TheReadtable(readtable)->readtable_case);
         }
         # String durchlaufen:
-        { var uintB* charptr = &TheSstring(string)->data[0];
+        { var const chart* charptr = &TheSstring(string)->data[0];
           var uintL count = len;
-          var uintB c = *charptr++; # erstes Character
+          var chart c = *charptr++; # erstes Character
           # sein Syntaxcode soll Constituent sein:
-          if (!(syntax_table[c] == syntax_constituent))
+          if (!(syntax_table_get(syntax_table,c) == syntax_constituent))
             goto surround; # nein -> muss |...| verwenden
           loop
-            { if (attribute_table[c] == a_pack_m) # Attributcode Package-Marker ?
+            { if (attribute_of(c) == a_pack_m) # Attributcode Package-Marker ?
                 goto surround; # ja -> muss |...| verwenden
               if (!case_sensitive)
                 switch (rtcase)
                   { case case_upcase:
-                      if (!(c == up_case(c))) # war c ein Kleinbuchstabe?
+                      if (!chareq(c,up_case(c))) # war c ein Kleinbuchstabe?
                         goto surround; # ja -> muss |...| verwenden
                       break;
                     case case_downcase:
-                      if (!(c == down_case(c))) # war c ein Großbuchstabe?
+                      if (!chareq(c,down_case(c))) # war c ein Großbuchstabe?
                         goto surround; # ja -> muss |...| verwenden
                       break;
                     case case_preserve:
@@ -6671,7 +6688,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                   }
               count--; if (count == 0) break; # String zu Ende -> Schleifenende
               c = *charptr++; # nächstes Character
-              switch (syntax_table[c]) # sein Syntaxcode
+              switch (syntax_table_get(syntax_table,c)) # sein Syntaxcode
                 { case syntax_constituent:
                   case syntax_nt_macro:
                     break;
@@ -6686,9 +6703,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # und füllen:
         { var uintL index = 0;
           until (index == len)
-            { var uintB c = TheSstring(STACK_2)->data[index]; # nächstes Character
+            { var chart c = TheSstring(STACK_2)->data[index]; # nächstes Character
               ssstring_push_extend(STACK_1,c); # in den Character-Buffer
-              ssbvector_push_extend(STACK_0,attribute_table[c]); # und in den Attributcode-Buffer
+              ssbvector_push_extend(STACK_0,attribute_of(c)); # und in den Attributcode-Buffer
               index++;
         }   }
         O(token_buff_2) = popSTACK(); # Attributcode-Buffer
@@ -6719,8 +6736,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         write_ascii_char(stream_,'|');
         { var uintL index = 0;
           until (index == len)
-            { var uintB c = TheSstring(STACK_0)->data[index]; # nächstes Character
-              switch (TheSbvector(STACK_1)->data[c]) # dessen Syntaxcode
+            { var chart c = TheSstring(STACK_0)->data[index]; # nächstes Character
+              switch (syntax_table_get(STACK_1,c)) # dessen Syntaxcode
                 { case syntax_single_esc:
                   case syntax_multi_esc:
                     # Dem Escape-Character c wird ein '\' vorangestellt:
@@ -6769,7 +6786,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # bzw.     # \ charname
         { write_ascii_char(stream_,'#');
           write_ascii_char(stream_,'\\');
-         {var uintB code = char_code(ch); # Code
+         {var chart code = char_code(ch); # Code
           var object charname = char_name(code); # Name des Characters
           if (nullp(charname))
             # kein Name vorhanden
@@ -6807,9 +6824,10 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           write_ascii_char(stream_,'"'); # vorher ein Anführungszeichen
           #if 0
           dotimesL(len,len,
-            { var uintB c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
+            { var chart c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
               # bei c = #\" oder c = #\\ erst noch ein '\' ausgeben:
-              if ((c=='"') || (c=='\\')) { write_ascii_char(stream_,'\\'); }
+              if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
+                { write_ascii_char(stream_,'\\'); }
               write_code_char(stream_,c);
               index++;
             });
@@ -6819,8 +6837,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               { # Suche den nächsten #\" oder #\\ :
                 string = STACK_0;
                 while (len > 0)
-                  { var uintB c = TheSstring(string)->data[index];
-                    if ((c=='"') || (c=='\\')) break;
+                  { var chart c = TheSstring(string)->data[index];
+                    if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
+                      break;
                     index++; len--;
                   }
                 if (!(index==index0))
@@ -7089,12 +7108,12 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
   local void pr_list_splice(stream_,list) # list = (SPLICE object)
     var const object* stream_;
     var object list;
-    { pr_list_bothsplice(stream_,list,code_char('@')); }
+    { pr_list_bothsplice(stream_,list,ascii_char('@')); }
 
   local void pr_list_nsplice(stream_,list) # list = (NSPLICE object)
     var const object* stream_;
     var object list;
-    { pr_list_bothsplice(stream_,list,code_char('.')); }
+    { pr_list_bothsplice(stream_,list,ascii_char('.')); }
 
   local void pr_list_unquote(stream_,list) # list = (UNQUOTE object)
     var const object* stream_;
@@ -7252,7 +7271,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'*');
       dotimesL(len,len,
         { write_char(stream_,
-                     (sbvector_btst(STACK_0,index) ? code_char('1') : code_char('0'))
+                     (sbvector_btst(STACK_0,index) ? ascii_char('1') : ascii_char('0'))
                     );
           index++;
         });

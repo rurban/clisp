@@ -1,3 +1,105 @@
+1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Change the string element type from `uintB' to `chart' (an abstract
+        equivalent of `cint').
+        * lispbibl.d (OBJECT_STRUCT): Define macro.
+          (chart): New type.
+          (as_cint, as_chart): New macros.
+          (code_char, char_code): Convert from/to chart now, instead of cint.
+          (chareq, charlt, chargt): New macros.
+          (ascii, ascii_char): New macros.
+          (sstring_): Change element type to `chart'.
+          (with_string_0, with_sstring_0, with_string, with_sstring): Update.
+          (ssstring_push_extend): Change declaration.
+          (up_case, down_case, alphanumericp, graphic_char_p, unpack_string,
+           char_name, test_string_limits, nstring_upcase, nstring_downcase,
+           nstring_capitalize): Likewise.
+          (write_ascii_char): Update.
+          (read_char_array, write_char_array): Change delaration.
+        * genclisph.d (chart): New type.
+          (as_cint, as_chart): New macros.
+          (code_char, char_code): Convert from/to chart now, instead of cint.
+        * spvw.d (make_string, string_to_asciz, main): Update.
+        * spvw_objsize.d (size_sstring): Update.
+        * charstrg.d (up_case, down_case, alphap, alphanumericp,
+           graphic_char_p, unpack_string, string_gleich, string_equal,
+           copy_string, coerce_char, char_name, STANDARD-CHAR-P, UPPER-CASE-P,
+           LOWER-CASE-P, BOTH_CASE-P, DIGIT-CHAR-P, CHAR-CODE, CODE-CHAR,
+           DIGIT-CHAR, CHAR-INT, INT-CHAR, test_index_arg, CHAR, SCHAR,
+           SYSTEM::STORE-CHAR, SYSTEM::STORE-SCHAR, test_string_limits,
+           test_1_stringsym_limits, test_2_stringsym_limits, string_eqcomp,
+           string_comp, STRING=, STRING/=, STRING<, STRING>, STRING<=,
+           STRING>=, string_eqcomp_ci, string_comp_ci, STRING-EQUAL,
+           STRING-NOT-EQUAL, STRING-LESSP, STRING-GREATERP,
+           STRING-NOT-GREATERP, STRING-NOT-LESSP, string_search,
+           SYS::SEARCH-STRING=, SYS::SEARCH-STRING-EQUAL, MAKE-STRING,
+           nstring_upcase, NSTRING-UPCASE, STRING-UPCASE, nstring_downcase,
+           NSTRING-DOWNCASE, STRING-DOWNCASE, nstring_capitalize,
+           NSTRING-CAPITALIZE, STRING-CAPITALIZE, subsstring, SUBSTRING,
+           string_concat): Update
+        * io.d (RM_anzahl, DRM_anzahl): Remove, replace with char_code_limit.
+          (allocate_syntax_table, syntax_table_get, syntax_table_put): New
+          macros.
+          (allocate_perchar_table, perchar_table_get, perchar_table_put,
+           copy_perchar_table): New macros.
+          (orig_syntax_table, orig_readtable, copy_readtable_contents,
+           copy_readtable, SET-SYNTAX-FROM-CHAR, SET-MACRO-CHARACTER,
+           GET-MACRO-CHARACTER, MAKE-DISPATCH-MACRO-CHARACTER,
+           test_disp_sub_char, SET-DISPATCH-MACRO-CHARACTER,
+           GET-DISPATCH-MACRO-CHARACTER, read_char_syntax, wpeek_char_syntax,
+           wpeek_char_eof, attribute_table): Update.
+          (attribute_of): New macro.
+          (read_token_1, token_info, test_potential_number_syntax,
+           test_number_syntax, upcase_token, case_convert_token, read_macro,
+           lpar_reader, line_comment_reader, comment_reader, char_reader,
+           radix_2, bit_vector_reader, vector_reader, hexziffer,
+           closure_reader, unix_executable_reader, READ-LINE, PARSE-INTEGER,
+           write_sstring_case, klammer_zu, pr_enter_1, pr_symbol_part,
+           pr_character, pr_sstring_ab, pr_list_splice, pr_list_nsplice,
+           pr_sbvector_ab): Update.
+        * stream.d (wr_ss_dummy, wr_ss_dummy_nogc, wr_ss_lpos, write_char,
+           rd_ch_handle, listen_handle, wr_ch_handle, write_char_array_handle,
+           key_event): Update.
+          (key_ascii, key_special): New macros.
+          (listen_keyboard, rd_ch_keyboard, add_keybinding): Update.
+          (keybinding): Take only one argument.
+          (make_keyboard_stream, lisp_completion, rd_ch_terminal,
+           rd_ch_terminal1, rd_ch_terminal2, rd_ch_terminal3, wr_ch_terminal3,
+           wr_ss_terminal3, wr_ch_window, rd_ch_ch_file, wr_ch_ch_file,
+           write_char_array_ch_file, rd_ch_str_in, wr_ss_str_out,
+           wr_ch_pphelp, wr_ss_pphelp, rd_ch_buff_in, wr_ch_buff_out,
+           wr_ch_printer, rd_ch_socket, listen_socket, wr_ch_socket,
+           write_char_array_socket, read_char_array, write_char_array,
+           FILE-STRING-LENGTH): Update.
+        * pathname.d (common_case, legal_logical_word_char, legal_hostchar,
+           test_optional_host, equal_pathchar, legal_namechar,
+           singlewild_char_p, slashp, parse_logical_word, all_digits,
+           parse_logical_pathnamestring, parse_name_or_type, split_name_type,
+           PARSE-NAMESTRING, legal_logical_word, legal_name_or_type,
+           legal_name, legal_type, MAKE-PATHNAME, has_wildcards,
+           has_word_wildcards, wildcard_match_ab, wildcard_diff_ab,
+           translate_nametype_aux, use_default_dir, OSdirnamestring, SHELL):
+          Update.
+        * array.d (VECTOR-PUSH-EXTEND, ssstring_push_extend, ssstring_extend,
+           make_datenvektor): Update.
+        * hashtabl.d (hashcode_string, hashcode4_char, hashcode4_vector_Char):
+          Update.
+        * package.d (string_hashcode): Update.
+        * predtype.d (equal, elt_compare_T_Char, elt_compare_Char_Char,
+           equalp): Update.
+        * sequence.d (MAKE-SEQUENCE, READ-CHAR-SEQUENCE, WRITE-CHAR-SEQUENCE):
+          Update.
+        * debug.d (read_form): Update.
+        * error.d (write_errorstring): Update.
+        * lisparit.d (read_float, print_integer, print_float, decimal_string):
+          Update.
+        * intprint.d (DIGITS, UDS_to_DIGITS): Update.
+        * intread.d (DIGITS_to_I): Update.
+        * foreign.d (convert_from_foreign_array_fill, convert_from_foreign,
+           convert_to_foreign): Update.
+        * affi.d (affi_call_argsa, SYSTEM::MEM-READ,
+           SYSTEM::MEM-WRITE-VECTOR): Update.
+
 1999-01-21  Sam Steingold  <sds@goems.com>
 
 	* user2.lsp (signature-to-list, arglist): new functions.
