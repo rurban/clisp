@@ -147,8 +147,8 @@ stamp-h: config.status $(srcdir)/config.h.in
 	CONFIG_FILES= CONFIG_HEADERS=config.h ./config.status
 	echo > $@
 
-$(srcdir)/configure: $(srcdir)/configure.in	## Comment-me-out in distribution
-	cd $(srcdir) && autoconf	## Comment-me-out in distribution
+#$(srcdir)/configure: $(srcdir)/configure.in	## Comment-me-out in distribution
+#	cd $(srcdir) && autoconf	## Comment-me-out in distribution
 
 
 shared:	force
