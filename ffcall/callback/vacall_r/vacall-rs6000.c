@@ -3,6 +3,7 @@
 /*
  * Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
  * Copyright 2000 Adam Fedor, <fedor@gnu.org>
+ * Copyright 2004 Paul Guyot, <pguyot@kallisys.net>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -45,7 +46,7 @@ vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
         __vaword firstword)
 {
   __va_alist list;
-#if defined(_AIX)
+#if defined(_AIX) || (defined(__MACH__) && defined(__APPLE__))
   /* gcc-2.6.3 source says: When a parameter is passed in a register,
    * stack space is still allocated for it.
    */
@@ -78,7 +79,7 @@ vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
   list.farg[5] = farg6;
   list.farg[6] = farg7;
   list.farg[7] = farg8;
-#if defined(_AIX)
+#if defined(_AIX) || (defined(__MACH__) && defined(__APPLE__))
   list.farg[8] = farg9;
   list.farg[9] = farg10;
   list.farg[10] = farg11;
@@ -87,7 +88,7 @@ vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
 #endif
   /* Prepare the va_alist. */
   list.flags = 0;
-#if defined(_AIX)
+#if defined(_AIX) || (defined(__MACH__) && defined(__APPLE__))
   list.aptr = (long)(&firstword - 8);
 #else
   list.aptr = (long)(&list.regarg[0]);
