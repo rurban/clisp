@@ -12,16 +12,23 @@ Contagion warnings emitted by many floating-point operations. (Bruno)
 FILL-STREAM cannot print structured multiline objects reasonably: it
 flattens all whitespace -- use pretty-printer instead. (Sam)
 
+Review this TODO list and remove obsolete items (Bruno).
+
+
+MUST-FIX BEFORE RELEASE 2.35
+============================
+
 Many pretty-printer test failures.
 (Sam - but Bruno has to fix the risky-test in iofkts.tst first)
-
-Review this TODO list and remove obsolete items (Bruno).
 
 
 URGENT PROBLEMS
 ===============
 
 Should handle these soon.
+
+
+Embeddability: additional API in spvw.d; global error handler; example.
 
 
 Better error checking in get-setf-expansion for long defsetf
