@@ -28,9 +28,10 @@
 ;; This function works only when compiled!
 (defun saveinitmem (&optional (filename "lispinit.mem")
                     &key ((:quiet *quiet*) nil) init-function verbose
+                    keep-global-handlers
                     ((:start-package *package*) *package*)
                     (locked-packages *system-package-list*))
-  (let* ((old-driver *driver*)
+  (let* ((old-driver *driver*) old-global-handlers
          (fn (merge-pathnames filename #.(make-pathname :type "mem")))
          (*driver*
            #'(lambda ()
@@ -59,8 +60,13 @@
                (setq *driver* old-driver)
                (when init-function (funcall init-function))
                (funcall *driver*))))
+    (unless keep-global-handlers
+      (setq old-global-handlers ; disable and save all global handlers
+            (ext::set-global-handler nil nil)))
     (setf (package-lock locked-packages) t)
     (savemem fn)
+    (when old-global-handlers   ; re-install all global handlers
+      (ext::set-global-handler old-global-handlers nil))
     (when verbose
       (fresh-line)
       (format t (TEXT "Wrote the memory image into ~A") fn)

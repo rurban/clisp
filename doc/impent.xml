@@ -271,6 +271,7 @@
 <!ENTITY opt-M "<option><olink targetdoc='man' targetptr='opt-memfile'>-M</olink></option>">
 <!ENTITY opt-v "<option><olink targetdoc='man' targetptr='opt-verbose'>-v</olink></option>">
 <!ENTITY opt-modern "<option><olink targetdoc='man' targetptr='opt-modern'>-modern</olink></option>">
+<!ENTITY opt-on-error "<option><olink targetdoc='man' targetptr='opt-on-error'>-on-error</olink></option>">
 <!ENTITY pack-inverted "<link linkend='pack-inverted'><function>EXT:PACKAGE-CASE-INVERTED-P</function></link>">
 <!ENTITY pack-sensitive "<link linkend='pack-sensitive'><function>EXT:PACKAGE-CASE-SENSITIVE-P</function></link>">
 <!ENTITY package-lock "<link linkend='pack-lock'><function>EXT:PACKAGE-LOCK</function></link>">
@@ -324,6 +325,7 @@
 <!ENTITY run-prog "<link linkend='run-prog'><function>EXT:RUN-PROGRAM</function></link>">
 <!ENTITY scr-win "<link linkend='screen'><varname>SCREEN:*WINDOW*</varname></link>">
 <!ENTITY service-port "<link linkend='service-port'><function>SOCKET:SOCKET-SERVICE-PORT</function></link>">
+<!ENTITY set-global-handler "<olink targetdoc='impnotes' targetptr='global-hjandler'><function>EXT:SET-GLOBAL-HANDLER</function></olink>">
 <!ENTITY shell "<olink targetdoc='impnotes' targetptr='exec'><function>EXT:SHELL</function></olink>">
 <!ENTITY so-accept "<link linkend='so-accept'><function>SOCKET:SOCKET-ACCEPT</function></link>">
 <!ENTITY so-connect "<link linkend='so-connect'><function>SOCKET:SOCKET-CONNECT</function></link>">
@@ -540,6 +542,7 @@
 <!ENTITY cname-r "<replaceable>c-name</replaceable>">
 <!ENTITY command-r "<replaceable>command</replaceable>">
 <!ENTITY cont-r "<replaceable>contents</replaceable>">
+<!ENTITY cond-r "<replaceable>condition</replaceable>">
 <!ENTITY count-r "<replaceable>count</replaceable>">
 <!ENTITY cplace-r "<replaceable>c-place</replaceable>">
 <!ENTITY ctype-r "<replaceable>c-type</replaceable>">

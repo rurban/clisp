@@ -65,7 +65,8 @@
 
 <para>The function <code>(<function>EXT:SAVEINITMEM</function>
   &optional-amp; (&filename-r; "lispinit.mem") &key-amp;
-  :QUIET :INIT-FUNCTION :LOCKED-PACKAGES :START-PACKAGE)</code>
+  :KEEP-GLOBAL-HANDLERS :QUIET :INIT-FUNCTION :LOCKED-PACKAGES
+  :START-PACKAGE)</code>
 saves the running &clisp;'s memory to the file &filename-r;;
 extension &mem-file; is recommended (when &filename-r; does not have an
 extension, &mem-file; extension is automatically added).
@@ -95,6 +96,10 @@ extension, &mem-file; extension is automatically added).
   <listitem><simpara>This argument specifies the starting value of
    &package-var; in the image being saved, and defaults to the current
    value of &package-var;.</simpara></listitem></varlistentry>
+ <varlistentry><term><constant>:KEEP-GLOBAL-HANDLERS</constant></term>
+  <listitem><simpara>When non-&nil;, the currently established global
+    handlers (either with &set-global-handler; or with &opt-on-error;)
+    are inherited by the image.</simpara></listitem></varlistentry>
 </variablelist>
 You can use this memory image with the &opt-M; option.
 On &unix; systems, you may compress it with &gnu; &gzip; to save disk

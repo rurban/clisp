@@ -313,7 +313,8 @@ compiles the specified lisp files to a platform-independent
     <varlistentry><term>exit</term>
      <listitem><simpara>&cont-err;s are appeased, other &error-t;s terminate
        &clisp; with &exit-on-error;</simpara></listitem></varlistentry>
-</variablelist></para></listitem></varlistentry>
+   </variablelist>
+   See also &set-global-handler;.</para></listitem></varlistentry>
 
 <varlistentry id="opt-repl"><term><option>-repl</option></term>
  <listitem><simpara>Start an interactive &repl; after processing the
