@@ -2565,6 +2565,19 @@ for-value   NIL or T
         (unless (or allow-flag (memq key keylist))
           (setq wrong-key key))))))
 
+;; try to evaluate FORM for side effects
+;; returns NIL on error and T on success
+(defmacro try-eval (&body forms)
+  `(block try-eval
+     (let ((*error-handler*
+            #'(lambda (&rest error-args)
+                ;; FIXME: the warning is reported twice!
+                (apply #'c-warn (TEXT "Run time error expected: ~@?")
+                       (cdr error-args))
+                (return-from try-eval nil))))
+       ,@forms)
+     t))
+
 ;; (c-DIRECT-FUNCTION-CALL args applyargs fun req opt rest-p key-p keylist
 ;;                         subr-flag call-code-producer)
 ;; compiles the processing of the arguments for the direct call of a
@@ -2822,14 +2835,9 @@ for-value   NIL or T
                             (push (anode-constant-value code) L)))
                         (nreverse L)))
                 resulting-values)
-            (when (block try-eval
-                    (setq resulting-values
-                      (let ((*error-handler*
-                              #'(lambda (&rest error-args)
-                                  (declare (ignore error-args))
-                                  (return-from try-eval nil))))
-                        (multiple-value-list (apply fun args))))
-                    t)
+            (when (try-eval
+                   (setq resulting-values
+                         (multiple-value-list (apply fun args))))
               ;; function called successfully, perform constant folding:
               (return-from c-DIRECT-FUNCTION-CALL
                 (c-GLOBAL-FUNCTION-CALL-form
@@ -6300,7 +6308,8 @@ for-value   NIL or T
   (test-list *form* 1)
   (multiple-value-bind (const-sum other-parts)
       (c-collect-numeric-constants (cdr *form*))
-    (setq const-sum (reduce #'+ const-sum))
+    (unless (try-eval (setq const-sum (reduce #'+ const-sum)))
+      (return-from c-PLUS (c-GLOBAL-FUNCTION-CALL-form *form*)))
     (cond ((null other-parts)   ; constant addends only
            (c-form const-sum))  ; ==> constant result
           ((eql const-sum 0)    ; const-sum == 0 ==> skip it
@@ -6318,9 +6327,10 @@ for-value   NIL or T
   (test-list *form* 1)
   (multiple-value-bind (const-prod other-parts)
       (c-collect-numeric-constants (cdr *form*))
-    (setq const-prod (reduce #'* const-prod))
-    (cond ((null other-parts)   ; constant multiples only
-           (c-form const-prod)) ; ==> constant result
+    (unless (try-eval (setq const-prod (reduce #'* const-prod)))
+      (return-from c-STAR (c-GLOBAL-FUNCTION-CALL-form *form*)))
+    (cond ((null other-parts)     ; constant multiples only
+           (c-form const-prod))   ; ==> constant result
           ;; this is a bad optimization: one call to #'* is cheaper than PROGN
           ;;((eql const-prod 0)   ; const-prod == 0 ==> result == 0
           ;; (c-form `(progn ,@(mapcar (lambda (form) `(the number ,form))
@@ -6345,8 +6355,10 @@ for-value   NIL or T
           (setq first-part val))))
     (multiple-value-bind (consts others)
         (c-collect-numeric-constants (if unary-p (cdr *form*) (cddr *form*)))
-      (setq const-sum (reduce #'- consts :initial-value const-sum)
-            other-parts others))
+      (unless (try-eval (setq const-sum (reduce #'- consts
+                                                :initial-value const-sum)))
+        (return-from c-MINUS (c-GLOBAL-FUNCTION-CALL-form *form*)))
+      (setq other-parts others))
     (if (null other-parts)      ; nothing to subtract
       (let ((*form* `(+ ,const-sum ,first-part))) (c-PLUS))
       (c-GLOBAL-FUNCTION-CALL-form
@@ -6371,8 +6383,10 @@ for-value   NIL or T
           (setq first-part val))))
     (multiple-value-bind (consts others)
         (c-collect-numeric-constants (if unary-p (cdr *form*) (cddr *form*)))
-      (setq const-prod (reduce #'/ consts :initial-value const-prod)
-            other-parts others))
+      (unless (try-eval (setq const-prod (reduce #'/ consts
+                                                 :initial-value const-prod)))
+        (return-from c-SLASH (c-GLOBAL-FUNCTION-CALL-form *form*)))
+      (setq other-parts others))
     (cond ((null other-parts)      ; no divisors
            (let ((*form* `(* ,const-prod ,first-part))) (c-STAR)))
           ;; this is a bad optimization: one call to #'/ is cheaper than PROGN
