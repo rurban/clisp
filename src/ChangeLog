@@ -1,5 +1,10 @@
 2003-07-08  Sam Steingold  <sds@gnu.org>
 
+	* configure: pass --win32gcc to makemake instead of ${target}
+	* makemake.in: rely on autoconf for win32gcc
+
+2003-07-08  Sam Steingold  <sds@gnu.org>
+
 	* predtype.d (equalp): fixed a crash in (EQUALP '(0 1) '(#P""))
 
 2003-07-08  Sam Steingold  <sds@gnu.org>

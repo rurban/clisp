@@ -195,7 +195,7 @@ do
 
       --with-mingw | --with-no-cygwin | --without-cygwin | --with-cygwin=no)
         CC="gcc -mno-cygwin"; export CC;
-        target="win32gcc gcc" ;;
+        makemake_args="$makemake_args --win32gcc" ;;
 
       --with-* | --without-*)
         subdir_configure_args="$subdir_configure_args $arg"
