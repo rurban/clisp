@@ -2,6 +2,8 @@
 
         * _distmakefile (CC): Set to "cc -Aa" on HP-UX, because "cc" is not
           ANSI C compliant and doesn't grok `main' in clisp.c.
+          (CC): Set to "gcc" on SunOS4, because the normal "cc" is not ANSI C
+          compliant.
 
 1998-10-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
