@@ -1,22 +1,13 @@
-#ifdef ASM_UNDERSCORE
-#ifdef __STDC__
-#define C(entrypoint) _##entrypoint
-#else
-#define C(entrypoint) _/**/entrypoint
-#endif
-#else
-#define C(entrypoint) entrypoint
-#endif
-gcc2_compiled.:
-C(__gnu_compiled_c:)
+#include "asmsparc.h"
 .text
 	.align 4
 	.global C(__vacall_r)
+	DECLARE_FUNCTION(__vacall_r)
 	.proc	020
 C(__vacall_r:)
-	!#PROLOGUE# 0
+	!$PROLOGUE$ 0
 	save %sp,-144,%sp
-	!#PROLOGUE# 1
+	!$PROLOGUE$ 1
 	st %i0,[%fp+68]
 	st %i1,[%fp+72]
 	st %i2,[%fp+76]

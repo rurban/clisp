@@ -5,6 +5,7 @@
 TEXT()
 	ALIGN(2)
 GLOBL(C(__vacall_r))
+	DECLARE_FUNCTION(__vacall_r)
 FUNBEGIN(__vacall_r)
 	INSN2(sub,l	,NUM(36),R(esp))
 	INSN1(push,l	,R(esi))

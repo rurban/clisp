@@ -1,134 +1,134 @@
 #include "asmi386.h"
-	.file	"vacall-i386.c"
-gcc2_compiled.:
-C(__gnu_compiled_c:)
-.text
-	.align 2
-.globl C(__vacall_r)
-C(__vacall_r:)
-	subl $36,%esp
-	pushl %esi
-	movl $0,4(%esp)
-	leal 44(%esp),%esi
-	movl %esi,8(%esp)
-	movl $0,12(%esp)
-	movl $0,16(%esp)
-	movl %ebx,36(%esp)
-	leal 4(%esp),%edx
-	pushl %edx
-	movl 4(%ecx),%edx
-	pushl %edx
-	movl (%ecx),%edx
-	call *%edx
-	addl $8,%esp
-	movl 16(%esp),%edx
-	testl %edx,%edx
-	je L3
-	cmpl $1,%edx
-	je L45
-	cmpl $2,%edx
-	jne L6
+TEXT()
+	ALIGN(2)
+GLOBL(C(__vacall_r))
+	DECLARE_FUNCTION(__vacall_r)
+FUNBEGIN(__vacall_r)
+	INSN2(sub,l	,NUM(36),R(esp))
+	INSN1(push,l	,R(esi))
+	INSN2(mov,l	,NUM(0),X4 MEM_DISP(esp,4))
+	INSN2(lea,l	,X4 MEM_DISP(esp,44),R(esi))
+	INSN2(mov,l	,R(esi),X4 MEM_DISP(esp,8))
+	INSN2(mov,l	,NUM(0),X4 MEM_DISP(esp,12))
+	INSN2(mov,l	,NUM(0),X4 MEM_DISP(esp,16))
+	INSN2(mov,l	,R(ebx),X4 MEM_DISP(esp,36))
+	INSN2(lea,l	,X4 MEM_DISP(esp,4),R(edx))
+	INSN1(push,l	,R(edx))
+	INSN2(mov,l	,X4 MEM_DISP(ecx,4),R(edx))
+	INSN1(push,l	,R(edx))
+	INSN2(mov,l	,X4 MEM(ecx),R(edx))
+	INSN1(call,_	,INDIR(R(edx)))
+	INSN2(add,l	,NUM(8),R(esp))
+	INSN2(mov,l	,X4 MEM_DISP(esp,16),R(edx))
+	INSN2(test,l	,R(edx),R(edx))
+	INSN1(je,_	,L3)
+	INSN2(cmp,l	,NUM(1),R(edx))
+	INSN1(je,_	,L45)
+	INSN2(cmp,l	,NUM(2),R(edx))
+	INSN1(jne,_	,L6)
 L45:
-	movsbl 28(%esp),%eax
-	jmp L3
+	INSN2MOVX(movs,b	,X1 MEM_DISP(esp,28),R(eax))
+	INSN1(jmp,_	,L3)
 L6:
-	cmpl $3,%edx
-	jne L8
-	movzbl 28(%esp),%eax
-	jmp L3
+	INSN2(cmp,l	,NUM(3),R(edx))
+	INSN1(jne,_	,L8)
+	INSN2MOVX(movz,b	,X1 MEM_DISP(esp,28),R(eax))
+	INSN1(jmp,_	,L3)
 L8:
-	cmpl $4,%edx
-	jne L10
-	movswl 28(%esp),%eax
-	jmp L3
+	INSN2(cmp,l	,NUM(4),R(edx))
+	INSN1(jne,_	,L10)
+	INSN2MOVX(movs,w	,X2 MEM_DISP(esp,28),R(eax))
+	INSN1(jmp,_	,L3)
 L10:
-	cmpl $5,%edx
-	jne L12
-	movzwl 28(%esp),%eax
-	jmp L3
+	INSN2(cmp,l	,NUM(5),R(edx))
+	INSN1(jne,_	,L12)
+	INSN2MOVX(movz,w	,X2 MEM_DISP(esp,28),R(eax))
+	INSN1(jmp,_	,L3)
 L12:
-	cmpl $6,%edx
-	je L46
-	cmpl $7,%edx
-	je L46
-	cmpl $8,%edx
-	je L46
-	cmpl $9,%edx
-	je L46
-	addl $-10,%edx
-	cmpl $1,%edx
-	ja L22
-	movl 28(%esp),%eax
-	movl 32(%esp),%edx
-	jmp L3
+	INSN2(cmp,l	,NUM(6),R(edx))
+	INSN1(je,_	,L46)
+	INSN2(cmp,l	,NUM(7),R(edx))
+	INSN1(je,_	,L46)
+	INSN2(cmp,l	,NUM(8),R(edx))
+	INSN1(je,_	,L46)
+	INSN2(cmp,l	,NUM(9),R(edx))
+	INSN1(je,_	,L46)
+	INSN2(add,l	,NUM(-10),R(edx))
+	INSN2(cmp,l	,NUM(1),R(edx))
+	INSN1(ja,_	,L22)
+	INSN2(mov,l	,X4 MEM_DISP(esp,28),R(eax))
+	INSN2(mov,l	,X4 MEM_DISP(esp,32),R(edx))
+	INSN1(jmp,_	,L3)
 L22:
-	movl 16(%esp),%edx
-	cmpl $12,%edx
-	jne L24
-	flds 28(%esp)
-	jmp L3
+	INSN2(mov,l	,X4 MEM_DISP(esp,16),R(edx))
+	INSN2(cmp,l	,NUM(12),R(edx))
+	INSN1(jne,_	,L24)
+	INSN1(fld,s	,X4 MEM_DISP(esp,28))
+	INSN1(jmp,_	,L3)
 L24:
-	cmpl $13,%edx
-	jne L26
-	fldl 28(%esp)
-	jmp L3
+	INSN2(cmp,l	,NUM(13),R(edx))
+	INSN1(jne,_	,L26)
+	INSN1(fld,l	,X8 MEM_DISP(esp,28))
+	INSN1(jmp,_	,L3)
 L26:
-	cmpl $14,%edx
-	jne L28
+	INSN2(cmp,l	,NUM(14),R(edx))
+	INSN1(jne,_	,L28)
 L46:
-	movl 28(%esp),%eax
-	jmp L3
+	INSN2(mov,l	,X4 MEM_DISP(esp,28),R(eax))
+	INSN1(jmp,_	,L3)
 L28:
-	cmpl $15,%edx
-	jne L3
-	movl 4(%esp),%edx
-	testb $1,%dl
-	jne L47
-	testb $4,%dh
-	je L33
-	movl 20(%esp),%edx
-	cmpl $1,%edx
-	jne L34
-	movl 12(%esp),%edx
-	movzbl (%edx),%eax
-	jmp L3
+	INSN2(cmp,l	,NUM(15),R(edx))
+	INSN1(jne,_	,L3)
+	INSN2(mov,l	,X4 MEM_DISP(esp,4),R(edx))
+	INSN2(test,b	,NUM(1),R(dl))
+	INSN1(jne,_	,L47)
+	INSN2(test,b	,NUM(4),R(dh))
+	INSN1(je,_	,L33)
+	INSN2(mov,l	,X4 MEM_DISP(esp,20),R(edx))
+	INSN2(cmp,l	,NUM(1),R(edx))
+	INSN1(jne,_	,L34)
+	INSN2(mov,l	,X4 MEM_DISP(esp,12),R(edx))
+	INSN2MOVX(movz,b	,X1 MEM(edx),R(eax))
+	INSN1(jmp,_	,L3)
 L34:
-	cmpl $2,%edx
-	jne L37
-	movl 12(%esp),%edx
-	movzwl (%edx),%eax
-	jmp L3
+	INSN2(cmp,l	,NUM(2),R(edx))
+	INSN1(jne,_	,L37)
+	INSN2(mov,l	,X4 MEM_DISP(esp,12),R(edx))
+	INSN2MOVX(movz,w	,X2 MEM(edx),R(eax))
+	INSN1(jmp,_	,L3)
 L37:
-	cmpl $4,%edx
-	jne L39
-	movl 12(%esp),%edx
-	movl (%edx),%eax
-	jmp L3
+	INSN2(cmp,l	,NUM(4),R(edx))
+	INSN1(jne,_	,L39)
+	INSN2(mov,l	,X4 MEM_DISP(esp,12),R(edx))
+	INSN2(mov,l	,X4 MEM(edx),R(eax))
+	INSN1(jmp,_	,L3)
 L39:
-	cmpl $8,%edx
-	jne L33
-	movl 12(%esp),%edx
-	movl (%edx),%eax
-	movl 4(%edx),%edx
-	jmp L3
+	INSN2(cmp,l	,NUM(8),R(edx))
+	INSN1(jne,_	,L33)
+	INSN2(mov,l	,X4 MEM_DISP(esp,12),R(edx))
+	INSN2(mov,l	,X4 MEM(edx),R(eax))
+	INSN2(mov,l	,X4 MEM_DISP(edx,4),R(edx))
+	INSN1(jmp,_	,L3)
 L33:
-	movl 4(%esp),%edx
-	testb $24,%dl
-	jne L42
-	addl $40,%esp
-	ret $4
+	INSN2(mov,l	,X4 MEM_DISP(esp,4),R(edx))
+	INSN2(test,b	,NUM(24),R(dl))
+	INSN1(jne,_	,L42)
+	INSN2(add,l	,NUM(40),R(esp))
+	ret NUM(4)
 L42:
-	testb $16,%dl
-	je L3
+	INSN2(test,b	,NUM(16),R(dl))
+	INSN1(je,_	,L3)
 L47:
-	movl 12(%esp),%eax
+	INSN2(mov,l	,X4 MEM_DISP(esp,12),R(eax))
 L3:
-	testb $2,5(%esp)
-	je L44
-	movl 40(%esp),%ecx
-	movl 8(%esp),%esp
-	jmp *%ecx
+	INSN2(test,b	,NUM(2),X1 MEM_DISP(esp,5))
+	INSN1(je,_	,L44)
+	INSN2(mov,l	,X4 MEM_DISP(esp,40),R(ecx))
+	INSN2(mov,l	,X4 MEM_DISP(esp,8),R(esp))
+	INSN1(jmp,_	,INDIR(R(ecx)))
 L44:
-	popl %esi
-	addl $36,%esp
+	INSN1(pop,l	,R(esi))
+	INSN2(add,l	,NUM(36),R(esp))
 	ret
+FUNEND()
+
