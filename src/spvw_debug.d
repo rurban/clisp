@@ -54,6 +54,13 @@ global void nobject_out (FILE* out, object obj) {
     fputc('"',out);
     string_out(out,obj,O(terminal_encoding));
     fputc('\"',out);
+  } else if (charp(obj)) {
+    var object name = char_name(char_code(obj));
+    fprintf(out,"[%c]",as_cint(char_code(obj)));
+    if (!nullp(name)) {
+      fputs("=#\\",out);
+      string_out(out,name,O(terminal_encoding));
+    }
   } else if (symbolp(obj)) {
     string_out(out,ThePackage(Symbol_package(obj))->pack_name,
                O(terminal_encoding));

@@ -1,5 +1,9 @@
 2002-12-02  Sam Steingold  <sds@gnu.org>
 
+	* spvw_debug.d (nobject_out): handle characters
+
+2002-12-02  Sam Steingold  <sds@gnu.org>
+
 	* foreign1.lisp (finalize-coutput-file): produce ANSI C,
 	compilable with a C++ compiler such as g++
 
