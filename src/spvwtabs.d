@@ -1,23 +1,23 @@
-# Aus der Speicherverwaltung ausgelagert:
-# Tabelle aller festen Symbole
+# Moved out of memory management:
+# table of all fixed symbols
 # Bruno Haible 1990-2001
 
 #include "lispbibl.c"
 
 #undef LISPSYM
 
-# Noch so ein Macro-Problem. Grr...
+# Yet another macro-problem. Grr...
   #undef inline
-# Cygwin32 macht "#define listen ...". Grr...
+# Cygwin32 does "#define listen ...". Grr...
   #undef listen
-# WIN32.D macht "#define read" und "#define write"
+# WIN32.D does "#define read" and "#define write"
   #undef read
   #undef write
 # LISPBIBL.D does "#define export"
   #undef export
 
-# Tabelle aller festen Symbole:
-  global struct symbol_tab_ symbol_tab_data
+# Table of all fixed symbols:
+global struct symbol_tab_ symbol_tab_data
     #if defined(INIT_SYMBOL_TAB) && NIL_IS_CONSTANT
     = {
         #define LISPSYM  LISPSYM_B
