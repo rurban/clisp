@@ -2776,6 +2776,8 @@ typedef object gcv_object_t;
 # for use as second word in SKIP2 frames.
 #define fake_gcv_object(value)  as_object(value)
 
+typedef gcv_object_t gcunsafe_object_t;
+
 
 # mask of those bits of a tint, which really belong to the type:
 # tint_type_mask = oint_type_mask >> oint_type_shift
