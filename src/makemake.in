@@ -234,7 +234,10 @@ while test -z "$endofargs"; do
       case "$arg" in
         *://*) hyperspec="$arg" ;;
         /*) hyperspec="file:${arg}" ;;
-        *)  if test -d "$arg" -a -d "$arg/FrontMatter" ; then
+        *)  case "$arg" in
+              file:*) arg=`echo "$arg" | sed -e 's,^file:,,'` ;;
+            esac
+            if test -d "$arg" -a -d "$arg/FrontMatter" ; then
               hyperspec="file:"`cd "$arg" && pwd`
             else
               echo "makemake: --hyperspec=${arg} argument ignored, does not point to the Common Lisp HyperSpec" 1>&2
@@ -1002,10 +1005,14 @@ if test -n "$with_dynamic_modules"; then
       XCC_PICFLAG=''
       ;;
   esac
-  XCC_DLOPENABLE_EXE_FLAG="${XCC_LINKER_FLAG_PREFIX}-export-dynamic"
   # Support for creating a shared library. Taken from libtool's ltconfig.in,
   # much simplified: no support for weird systems like AIX, no support for
   # GNU ld on non-GNU systems, don't care about where we find ld.
+  if ld -v 2>&1 < /dev/null | egrep '(GNU|with BFD)' > /dev/null ; then
+    XCC_DLOPENABLE_EXE_FLAG="${XCC_LINKER_FLAG_PREFIX}-export-dynamic"
+  else
+    XCC_DLOPENABLE_EXE_FLAG=""
+  fi
   XCC_CREATESHARED='create-shared-lib -o $lib $libs' # dummy command
   case "$host_os" in
     freebsd2.2*)
