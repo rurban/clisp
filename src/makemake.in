@@ -1603,7 +1603,7 @@ if [ -n "$USE_GETTEXT" ] ; then
 fi
 echol "# The value of following variable is prepended to all the paths for"
 echol "# installation. This is useful when preparing a binary distribution."
-echol "install_root ="
+echol "install_root = $(DESTDIR)"
 echol
 echol     "# List of add-on modules:"
 echol     "# queens               the queens function as a separate module"
