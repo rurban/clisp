@@ -6973,33 +6973,57 @@ local object rd_by_aux_icx_buffered (object stream, rd_by_ix_I* finisher) {
   var uintL bitshift = BufferedStream_bitindex(stream);
   var uintB* ptr = buffered_nextbyte(stream,false);
   if (ptr != (uintB*)NULL) {
-    # start getting bytes:
-    var uint16 bit_akku = (*ptr)>>bitshift;
-    bitshift = 8-bitshift; # bitshift := 8-bitindex
-    count -= bitshift;
-    loop {
-      BufferedStream_index(stream) += 1;
-      # bit_akku: bits (bitshift-1)..0 are valid.
-      # have to get count (>0) bits.
-      {
-        var uintB* ptr = buffered_nextbyte(stream,false);
+    if (bitshift==0) {
+      # Optimized loop, without shifting.
+      loop {
+        *bitbufferptr++ = *ptr; # store 8 bits
+        # After digesting *ptr, increment index:
+        BufferedStream_index(stream) += 1;
+        count -= 8;
+        # have to get count (>0) bits.
+        ptr = buffered_nextbyte(stream,false);
         if (ptr == (uintB*)NULL)
           goto eof;
-        # get next byte:
-        bit_akku |= (uint16)(*ptr)<<bitshift;
+        if (count<=8) # are count bits finished?
+          break;
       }
-      # bit_akku: bits (7+bitshift)..0 are valid.
-      *bitbufferptr++ = (uint8)bit_akku; # store 8 Bit
-      bit_akku >>= 8;
-      if (count<=8) # are count bits finished?
-        break;
-      count -= 8;
+      # Still need count = bitsize%8 (>0,<8) bits.
+      *bitbufferptr++ = *ptr; # store 8 bits
+    } else {
+      # start getting bytes:
+      var uint16 bit_akku = (*ptr)>>bitshift;
+      bitshift = 8-bitshift; # bitshift := 8-bitindex (>0, <8)
+      count -= bitshift;
+      loop {
+        BufferedStream_index(stream) += 1;
+        # bit_akku: bits (bitshift-1)..0 are valid.
+        # have to get count (>0) bits.
+        {
+          var uintB* ptr = buffered_nextbyte(stream,false);
+          if (ptr == (uintB*)NULL)
+            goto eof;
+          # get next byte:
+          bit_akku |= (uint16)(*ptr)<<bitshift;
+        }
+        # bit_akku: bits (7+bitshift)..0 are valid.
+        *bitbufferptr++ = (uint8)bit_akku; # store 8 bits
+        bit_akku >>= 8;
+        if (count<=8) # are count bits finished?
+          break;
+        count -= 8;
+      }
+      if (count == 8) {
+        count = 0;
+        BufferedStream_index(stream) += 1;
+      }
+      if ((bitsize%8) <= bitshift)
+        *bitbufferptr++ = (uint8)bit_akku; # store bitshift bits
+      # Now bitbufferptr has been incremented
+      #   ceiling(bitsize-bitshift,8) + ((bitsize%8) <= bitshift ? 1 : 0)
+      #   = ceiling(bitsize,8) = bytesize
+      # times.
     }
-    # count > 0 -- the number of bits to get
-    ptr = buffered_nextbyte(stream,false);
-    if (ptr == (uintB*)NULL) # EOF ?
-      bit_akku = *buffered_eofbyte(stream);
-    *bitbufferptr = (uint8)(bit_akku & (uint8)(bit(count)-1));
+    ASSERT(bitbufferptr == &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[bytesize]);
     BufferedStream_bitindex(stream) = count;
     BufferedStream_position(stream) += 1; # increment position
     return (*finisher)(stream,bitsize,bytesize); # convert to a number
