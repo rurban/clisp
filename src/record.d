@@ -543,12 +543,14 @@ LISPFUN(finalize,2,1,norest,nokey,0,NIL)
 # registiert, dass, wenn object durch GC stirbt, function aufgerufen wird, mit
 # object und evtl. alive als Argument. Wenn alive stirbt, bevor object stirbt,
 # wird gar nichts getan.
-  { var object f = allocate_finalizer();
-    TheFinalizer(f)->fin_trigger = STACK_2;
-    TheFinalizer(f)->fin_function = STACK_1;
-    TheFinalizer(f)->fin_alive = STACK_0; # Der Default #<UNBOUND> lebt ewig.
-    TheFinalizer(f)->fin_cdr = O(all_finalizers);
-    O(all_finalizers) = f;
+  { if (!gcinvariant_object_p(STACK_2))
+      { var object f = allocate_finalizer();
+        TheFinalizer(f)->fin_trigger = STACK_2;
+        TheFinalizer(f)->fin_function = STACK_1;
+        TheFinalizer(f)->fin_alive = STACK_0; # Der Default #<UNBOUND> lebt ewig.
+        TheFinalizer(f)->fin_cdr = O(all_finalizers);
+        O(all_finalizers) = f;
+      }
     skipSTACK(3); value1 = NIL; mv_count=1;
   }
 
