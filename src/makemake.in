@@ -2848,6 +2848,9 @@ echol
 echol "impnotes.html: ${SRCDIR}_impnotes.html"
 echotab "sed -e 's,<HS>,${hyperspec},' ${SRCDIR}_impnotes.html > impnotes.html"
 echol
+echol "clisp.gif: ${SRCDIR}clisp.gif"
+echotab "cp ${SRCDIR}clisp.gif clisp.gif"
+echol
 echol "manual : \$(READMES) \$(MANUALS)"
 echodummyrule manual
 echol
