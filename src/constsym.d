@@ -1779,7 +1779,7 @@ LISPSYM(utf_7,"UTF-7",charset) # ---------------------------+
 #endif
 #endif
 LISPSYM(english,"ENGLISH",i18n) # a language for MISC
-#ifdef UNICODE
+#ifdef GNU_GETTEXT
 LISPSYM(german,"DEUTSCH",i18n) # a language for MISC
 LISPSYM(french," FRAN\303\207AIS",i18n) # a language for MISC [' ' => utf8]
 LISPSYM(spanish," ESPA\303\221OL",i18n) # a language for MISC [' ' => utf8]
