@@ -409,14 +409,10 @@ has already transpired."
                     qualifiers qualifier))))
              (values
               (ecase order
-                ((nil :most-specific-first)
-                 (nreverse primary-methods))
-                (:most-specific-last
-                 primary-methods))
+                (:most-specific-first (nreverse primary-methods))
+                (:most-specific-last primary-methods))
               (nreverse around-methods)))))
-    (destructuring-bind
-          (&optional (order (method-combination-order combination)))
-        options
+    (destructuring-bind (&optional (order ':most-specific-first)) options
       (let ((operator (method-combination-operator combination)))
         (multiple-value-bind (primary around)
             (partition-short-form-method-list combination methods order)

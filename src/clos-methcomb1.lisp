@@ -57,7 +57,6 @@ in the generic function instance."
 
   ;; The following slots apply only to short form method-combination.
   (operator nil)                ; a symbol
-  (order :most-specific-first)  ; the order for primary methods
 
   ;; The following slots depend on the particular generic function.
   (options nil))                ; arguments for the method combination
