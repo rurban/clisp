@@ -113,22 +113,28 @@
                                (let ((optionkey (first optionsr))
                                      (argument (second optionsr)))
                                  (case optionkey
-                                   ((:READER :WRITER)
+                                   (:READER
+                                    (unless (and (symbolp argument) argument)
+                                      (error-of-type 'ext:source-program-error
+                                        :form whole-form
+                                        :detail argument
+                                        (TEXT "~S ~S, slot option for slot ~S: ~S is not a non-NIL symbol")
+                                        'defclass name slot-name argument))
+                                    (push argument readers))
+                                   (:WRITER
                                     (unless (function-name-p argument)
                                       (error-of-type 'ext:source-program-error
                                         :form whole-form
                                         :detail argument
                                         (TEXT "~S ~S, slot option for slot ~S: ~S is not a function name")
                                         'defclass name slot-name argument))
-                                    (case optionkey
-                                      (:READER (push argument readers))
-                                      (:WRITER (push argument writers))))
+                                    (push argument writers))
                                    (:ACCESSOR
-                                    (unless (symbolp argument)
+                                    (unless (and (symbolp argument) argument)
                                       (error-of-type 'ext:source-program-error
                                         :form whole-form
                                         :detail argument
-                                        (TEXT "~S ~S, slot option for slot ~S: ~S is not a symbol")
+                                        (TEXT "~S ~S, slot option for slot ~S: ~S is not a non-NIL symbol")
                                         'defclass name slot-name argument))
                                     (push argument readers)
                                     (push `(SETF ,argument) writers))
