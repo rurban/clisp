@@ -1,5 +1,12 @@
 2004-02-15  Bruno Haible  <bruno@clisp.org>
 
+	Undo the 2001-11-27 patch, because it breaks in WIDE_SOFT mode with
+	gcc-3.3.
+	* array.d (SIMPLE_NREVERSE): Change to contain only the loop.
+	(elt_nreverse): Handle the byte vectors correctly.
+
+2004-02-15  Bruno Haible  <bruno@clisp.org>
+
 	Make GENERATIONAL_GC work in WIDE mode again.
 	* spvw_garcol.d (PRIoint): New macro.
 	(gc_mark_stack): Pass to gc_mark the pointer without symbol flags.

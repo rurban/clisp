@@ -3447,20 +3447,18 @@ global void elt_reverse (object dv1, uintL index1, object dv2, uintL index2,
  > index: start index in dv
  > count: number of elements to be reversed, > 0 */
 global void elt_nreverse (object dv, uintL index, uintL count) {
-#define SIMPLE_NREVERSE(type_t,ve,i1,i2,count)                  \
-  if (count > 0) {                                              \
-    var type_t* ptr1 = &((type_t*)TheSvector(ve)->data)[i1];    \
-    var type_t* ptr2 = &((type_t*)TheSvector(ve)->data)[i2];    \
-    dotimespL(count,count, {                                    \
-      var type_t tmp = *ptr1; *ptr1++ = *ptr2; *ptr2-- = tmp;   \
-    });                                                         \
-  }
+#define SIMPLE_NREVERSE(TYPE,p1,p2,c)  \
+  dotimespL(c,c, { var TYPE tmp = *p1; *p1++ = *p2; *p2-- = tmp; })
   var uintL index1 = index;
   var uintL index2 = index+count-1;
   count = floor(count,2);
   switch (Array_type(dv)) {
     case Array_type_svector: /* Simple-Vector */
-      SIMPLE_NREVERSE(gcv_object_t,dv,index1,index2,count);
+      if (count > 0) {
+        var gcv_object_t* ptr1 = &TheSvector(dv)->data[index1];
+        var gcv_object_t* ptr2 = &TheSvector(dv)->data[index2];
+        SIMPLE_NREVERSE(gcv_object_t,ptr1,ptr2,count);
+      }
       break;
     case Array_type_sbvector: /* Simple-Bit-Vector */
       if (count > 0) {
@@ -3511,13 +3509,25 @@ global void elt_nreverse (object dv, uintL index, uintL count) {
       }
       break;
     case Array_type_sb8vector:
-      SIMPLE_NREVERSE(uint8,dv,index1,index2,count);
+      if (count > 0) {
+        var uint8* ptr1 = &TheSbvector(dv)->data[index1];
+        var uint8* ptr2 = &TheSbvector(dv)->data[index2];
+        SIMPLE_NREVERSE(uint8,ptr1,ptr2,count);
+      }
       break;
     case Array_type_sb16vector:
-      SIMPLE_NREVERSE(uint16,dv,index1,index2,count);
+      if (count > 0) {
+        var uint16* ptr1 = &((uint16*)&TheSbvector(dv)->data[0])[index1];
+        var uint16* ptr2 = &((uint16*)&TheSbvector(dv)->data[0])[index2];
+        SIMPLE_NREVERSE(uint16,ptr1,ptr2,count);
+      }
       break;
     case Array_type_sb32vector:
-      SIMPLE_NREVERSE(uint32,dv,index1,index2,count);
+      if (count > 0) {
+        var uint32* ptr1 = &((uint32*)&TheSbvector(dv)->data[0])[index1];
+        var uint32* ptr2 = &((uint32*)&TheSbvector(dv)->data[0])[index2];
+        SIMPLE_NREVERSE(uint32,ptr1,ptr2,count);
+      }
       break;
     case Array_type_sstring: /* Simple-String */
       check_sstring_mutable(dv);
@@ -3525,9 +3535,7 @@ global void elt_nreverse (object dv, uintL index, uintL count) {
         SstringDispatch(dv,X, {
           var cintX* ptr1 = &((SstringX)TheVarobject(dv))->data[index1];
           var cintX* ptr2 = &((SstringX)TheVarobject(dv))->data[index2];
-          dotimespL(count,count, {
-            cintX tmp = *ptr1; *ptr1++ = *ptr2; *ptr2-- = tmp;
-          });
+          SIMPLE_NREVERSE(cintX,ptr1,ptr2,count);
         });
       }
       break;
