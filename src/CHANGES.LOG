@@ -2,6 +2,9 @@
 User visible changes
 --------------------
 
+* X3J13 writeups <READER-ERROR:NEW-TYPE> and <PARSE-ERROR-STREAM:SPLIT-TYPES>
+  are implemented: New condition classes PARSE-ERROR and READER-ERROR.
+
 * X3J13 writeup <SLOT-MISSING-VALUES:SPECIFY> is implemented: Some of the
   values of SLOT-MISSING are ignored, depending on context.
 
