@@ -22,6 +22,9 @@ User visible changes
 * Strings can now hold UCS-4 characters, instead of only UCS-2 characters.
   CHAR-CODE-LIMIT increased from 65536 to 1114112.
 
+* Added a new module - "oracle": an interface to the Oracle ODBMS.
+  Thanks to John K. Hinsdale <hin@alma.com>.
+
 * New user variable CUSTOM:*PARSE-NAMESTRING-DOT-FILE* controls
   how the file names starting with a dot are parsed.
   By default, it is set to :NAME in config.lisp,
