@@ -1,5 +1,9 @@
 2004-09-14  Sam Steingold  <sds@gnu.org>
 
+	* foreign.d (object_handle): check that the new name is a string
+
+2004-09-14  Sam Steingold  <sds@gnu.org>
+
 	support libsigsegv-2.1 on cygwin,
 	which includes <windows.h> from <sigsegv.h>
 	* lispbibl.d [UNIX_CYGWIN32]: undefine WIN32 and
