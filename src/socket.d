@@ -706,9 +706,8 @@ global SOCKET create_server_socket (hd, sock, port)
   var unsigned int port;
   { var SOCKET fd;
     if (sock == INVALID_SOCKET) {
-      var const char* host;
-      get_hostname(host =); # was: host = "localhost";
-      fd = with_hostname(host,port,&bindlisten_via_ip);
+      # "0.0.0.0" allows connections from any host to our server
+      fd = with_hostname("0.0.0.0",port,&bindlisten_via_ip);
     } else {
       var sockaddr_max addr;
       var int addrlen = sizeof(sockaddr_max);
