@@ -10549,16 +10549,14 @@ extern void macroexp0 (object form, object env);
 
 # UP: Parse-Declarations-Docstring. Detaches from a Form-list those,
 # that must be viewed as Declarations resp. Documentation-string.
-# parse_dd(formlist,venv,fenv)
+# parse_dd(formlist)
 # > formlist: ( {decl|doc-string} . body )
-# > venv: a Variables- and Symbolmacro-Environment (for the Macroexpansions)
-# > fenv: Functions- and Macrobindings-Environment (for the Macroexpansions)
 # < value1: body
 # < value2: list of decl-specs
 # < value3: Doc-String or NIL
 # < result: true if an (COMPILE)-Declaration occurred, else false
 # can trigger GC
-extern bool parse_dd (object formlist, object venv, object fenv);
+extern bool parse_dd (object formlist);
 # is used by CONTROL
 
 # UP: Creates a corresponding Closure for a Lambda-body by disassembling
