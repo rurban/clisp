@@ -34,6 +34,10 @@
 	SYS::CONSES-P, so that the test can cope with dotted lists and
 	circular lists.
 
+2004-04-04  Bruno Haible  <bruno@clisp.org>
+
+	* list.d (SYS::CONSES-P): New function.
+
 2004-04-03  Bruno Haible  <bruno@clisp.org>
 
 	* sequence.d (valid_type1): Call eltype_code only if the element-type
