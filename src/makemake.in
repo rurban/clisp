@@ -37,6 +37,10 @@ options:
        --with-dynamic-modules  dynamic loading of foreign language modules
        --with-module=wildcard
        --with-module=regexp
+       --with-module=postgresql
+       --with-module=bindings/linuxlibc5
+       --with-module=bindings/linuxlibc6
+       --with-module=bindings/amigaos
        --export-syscalls       export some UNIX system calls to Lisp
 debug: Specify this if you expect that you will need to debug the sources.
 Example:
@@ -1588,6 +1592,7 @@ echol     "# queens               the queens function as a separate module"
 if test -n "$with_dynamic_ffi"; then
   echol   "# wildcard             wildcard matching"
   echol   "# regexp               Unix-style regular expression matching and searching"
+  echol   "# postgresql           PostgreSQL interface"
   if [ "$cpu" = i386 -a "$TSYSOS" = linux ] ; then
     echol "# bindings/linuxlibc5  Linux libc/libm bindings (lib[cm]4, lib[cm]5 only)"
     echol "# bindings/linuxlibc6  Linux libc/libm bindings (lib[cm]6 only)"
