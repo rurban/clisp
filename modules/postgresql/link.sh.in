@@ -1,14 +1,9 @@
-file_list=''
-mod_list=''
-if test -f postgresql.c; then
-  file_list="$file_list"' postgresql.o'
-  mod_list="$mod_list"' postgresql'
-fi
+file_list='postgresql.o'
 make clisp-module \
      CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
      INCLUDES="$absolute_linkkitdir"
 
 NEW_FILES="$file_list"
 NEW_LIBS="$file_list @LIBS@"
-NEW_MODULES="$mod_list"
+NEW_MODULES="postgresql"
 TO_LOAD='postgresql'
