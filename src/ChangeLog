@@ -1,3 +1,8 @@
+2004-12-10  Arseny Slobodyuk  <ampy@ich.dvo.ru>
+
+	* win32.d: fixed mingw build - include sys/types.h before using of
+	ssize_t.
+
 2004-12-09  Sam Steingold  <sds@gnu.org>
 
 	* genclisph.d (TESTOUT): check some constants (nullobj, unbound &c)
