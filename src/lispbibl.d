@@ -1127,8 +1127,12 @@ typedef signed int  signean;
   #undef offsetof
   #define offsetof(type,ident)  ((ULONG)&(((type*)0)->ident))
 #endif
-# Determine the offset of an array 'ident' in a truct of the type 'type':
-#define offsetofa(type,ident)  offsetof(type,ident[0])
+# Determine the offset of an array 'ident' in a struct of the type 'type':
+#ifdef __cplusplus
+  #define offsetofa(type,ident)  offsetof(type,ident)
+#else
+  #define offsetofa(type,ident)  offsetof(type,ident[0])
+#endif
 
 # alignof(type) is a constant expression, returning the alignment of type.
 #ifdef __cplusplus
@@ -10276,7 +10280,12 @@ extern void bindhooks (object evalhook_value, object applyhook_value);
 #   and then jumps to unwind_protect_to_save.fun.
 # modifies STACK
 # can trigger GC
-nonreturning_function(typedef, (*restartf_t), (gcv_object_t* upto_frame));
+#ifdef __cplusplus
+  /* g++-3.4 doesn't like nonreturning in a typedef */
+  typedef /* nonreturning */ void (*restartf_t)(gcv_object_t* upto_frame);
+#else
+  nonreturning_function(typedef, (*restartf_t), (gcv_object_t* upto_frame));
+#endif
 typedef struct {
   restartf_t fun;
   gcv_object_t* upto_frame;
