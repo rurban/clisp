@@ -2915,7 +2915,7 @@ global int main (argc_t argc, char* argv[]) {
 # leave LISP-interpreter
 # quit();
 # > final_exitcode: 0 on normal exit, 1 on abort
-global bool final_exitcode = 0;
+global int final_exitcode = 0;
 local int quit_retry = 0;
 nonreturning_function(global, quit, (void)) {
   # first "unwind" the STACK downto STACK-end:
