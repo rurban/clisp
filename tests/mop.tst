@@ -1941,6 +1941,79 @@ T
 (NIL 0.5 T 8.5)
 
 
+#| ;; Not implemented, because the MOP's description of
+   ;; compute-discriminating-function doesn't say that we need to invalidate
+   ;; the effective method cache in this case.
+
+;; Check that defining a method on compute-applicable-methods[-using-classes]
+;; invalidates the cache of all affected generic functions.
+(progn
+  (defclass customized1-generic-function (standard-generic-function)
+    ()
+    (:metaclass clos:funcallable-standard-class))
+  (defgeneric testgf31 (x)
+    (:generic-function-class customized1-generic-function))
+  (defmethod testgf31 ((x integer))
+    (cons 'integer (if (next-method-p) (call-next-method))))
+  (defmethod testgf31 ((x real))
+    (cons 'real (if (next-method-p) (call-next-method))))
+  (list
+    (testgf31 3)
+    (progn
+      (defmethod clos:compute-applicable-methods ((gf customized1-generic-function) args)
+        (let ((all-applicable (call-next-method)))
+          (if all-applicable (list (first all-applicable)) '())))
+      (defmethod clos:compute-applicable-methods-using-classes ((gf customized1-generic-function) classes)
+        (let ((all-applicable (call-next-method)))
+          (if all-applicable (list (first all-applicable)) '())))
+      (testgf31 3))))
+((INTEGER REAL) (INTEGER))
+
+;; Check that defining a method on compute-effective-method
+;; invalidates the cache of all affected generic functions.
+(progn
+  (defclass customized2-generic-function (standard-generic-function)
+    ()
+    (:metaclass clos:funcallable-standard-class))
+  (defgeneric testgf32 (x)
+    (:generic-function-class customized2-generic-function))
+  (defmethod testgf32 ((x integer))
+    (cons 'integer (if (next-method-p) (call-next-method))))
+  (defmethod testgf32 ((x real))
+    (cons 'real (if (next-method-p) (call-next-method))))
+  (list
+    (testgf32 3)
+    (progn
+      (defmethod clos:compute-effective-method ((gf customized2-generic-function) method-combination methods)
+        `(REVERSE ,(call-next-method)))
+      (testgf32 3))))
+((INTEGER REAL) (REAL INTEGER))
+
+;; Check that defining a method on compute-discriminating-function
+;; invalidates the cache of all affected generic functions.
+(progn
+  (defclass customized3-generic-function (standard-generic-function)
+    ()
+    (:metaclass clos:funcallable-standard-class))
+  (defgeneric testgf33 (x)
+    (:generic-function-class customized3-generic-function))
+  (defmethod testgf33 ((x integer))
+    (cons 'integer (if (next-method-p) (call-next-method))))
+  (defmethod testgf33 ((x real))
+    (cons 'real (if (next-method-p) (call-next-method))))
+  (list
+    (testgf33 3)
+    (progn
+      (defmethod clos:compute-discriminating-function ((gf customized3-generic-function))
+        (let ((orig-df (call-next-method)))
+          #'(lambda (&rest arguments)
+              (reverse (apply orig-df arguments)))))
+      (testgf33 3))))
+((INTEGER REAL) (REAL INTEGER))
+
+|#
+
+
 ;;; Application example: Typechecked slots
 
 (progn
