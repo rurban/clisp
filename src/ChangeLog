@@ -1,5 +1,12 @@
 1999-08-14  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Assume mode_t is defined.
+        * aclocal.m4 (CL_MKDIR): Don't determine MODE_T, use mode_t instead.
+          (CL_OPEN): Use mode_t instead of MODE_T. Don't depend on CL_MKDIR.
+        * unixconf.h.in: Don't define MODE_T.
+        * unix.d: Use mode_t instead of MODE_T.
+        * unixaux.d (nonintr_open): Likewise.
+
         Assume ISC and Minix are dead.
         * configure.in: Don't call AC_ISC_POSIX and AC_MINIX.
         * unixconf.h.in: Don't define _POSIX_SOURCE, _POSIX_1_SOURCE, _MINIX.

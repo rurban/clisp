@@ -203,7 +203,7 @@ CL_GETCWD
 CL_CHDIR
                       dnl DEFS CHDIR_CONST
 CL_MKDIR
-                      dnl DEFS MKDIR_CONST, MODE_T
+                      dnl DEFS MKDIR_CONST
 CL_RMDIR
                       dnl DEFS RMDIR_CONST
 AC_HEADER_STAT

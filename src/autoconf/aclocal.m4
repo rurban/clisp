@@ -2148,34 +2148,7 @@ AC_DEFINE_UNQUOTED(CHDIR_CONST,$cl_cv_proto_chdir_arg1)
 ])dnl
 dnl
 AC_DEFUN(CL_MKDIR,
-[AC_BEFORE([$0], [CL_OPEN])
-CL_PROTO([mkdir], [
-AC_EGREP_HEADER(mode_t, sys/types.h,
-dnl mode_t defined. check if it is really used by mkdir() :
-CL_PROTO_TRY([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <sys/types.h>
-#include <sys/stat.h>
-], [int mkdir (char* path, mode_t mode);], [int mkdir();], mode_t_unneeded=1, )
-if test -z "$mode_t_unneeded"; then
-CL_PROTO_TRY([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <sys/types.h>
-#include <sys/stat.h>
-], [int mkdir (const char* path, mode_t mode);], [int mkdir();], mode_t_unneeded=1, )
-fi)dnl
-if test -n "$mode_t_unneeded"; then
-cl_cv_type_mode_t="mode_t"
-else
-cl_cv_type_mode_t="int"
-fi
-dnl Now MODE_T should be correct, check for const:
+[CL_PROTO([mkdir], [
 CL_PROTO_CONST([
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
@@ -2183,9 +2156,8 @@ CL_PROTO_CONST([
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
-], [int mkdir (char* path, $cl_cv_type_mode_t mode);], [int mkdir();], cl_cv_proto_mkdir_arg1)
-], [extern int mkdir ($cl_cv_proto_mkdir_arg1 char*, $cl_cv_type_mode_t);])
-AC_DEFINE_UNQUOTED(MODE_T,$cl_cv_type_mode_t)
+], [int mkdir (char* path, mode_t mode);], [int mkdir();], cl_cv_proto_mkdir_arg1)
+], [extern int mkdir ($cl_cv_proto_mkdir_arg1 char*, mode_t);])
 AC_DEFINE_UNQUOTED(MKDIR_CONST,$cl_cv_proto_mkdir_arg1)
 ])dnl
 dnl
@@ -2551,10 +2523,9 @@ fi
 ])dnl
 dnl
 AC_DEFUN(CL_OPEN,
-[AC_REQUIRE([CL_MKDIR])dnl defines MODE_T
-AC_BEFORE([$0], [CL_FILECHARSET])dnl
+[AC_BEFORE([$0], [CL_FILECHARSET])dnl
 CL_PROTO([open], [
-for y in 'MODE_T mode' '...'; do
+for y in 'mode_t mode' '...'; do
 for x in '' 'const'; do
 if test -z "$have_open"; then
 CL_PROTO_TRY([
@@ -2585,7 +2556,7 @@ fi
 if test $cl_cv_proto_open_dots = yes; then
 cl_cv_proto_open_args="$cl_cv_proto_open_arg1 char*, int, ..."
 else
-cl_cv_proto_open_args="$cl_cv_proto_open_arg1 char*, int, $cl_cv_type_mode_t"
+cl_cv_proto_open_args="$cl_cv_proto_open_arg1 char*, int, mode_t"
 fi
 ], [extern int open ($cl_cv_proto_open_args);])
 AC_DEFINE_UNQUOTED(OPEN_CONST,$cl_cv_proto_open_arg1)
