@@ -154,6 +154,10 @@ int handler (void* fault_address, int serious)
   return sigsegv_dispatch(&dispatcher,fault_address);
 }
 
+void barrier ()
+{
+}
+
 int main ()
 {
   unsigned long area1 = 0x12340000;
@@ -191,6 +195,7 @@ int main ()
   ((int*)area3)[412] = 33;
   ((int*)area2)[135] = 22;
   ((int*)area1)[612] = 11;
+  barrier();
   if (logcount != 3) exit(1);
   if (!(logdata[0] == area2 && logdata[1] == area3 && logdata[2] == area1))
     exit(1);
