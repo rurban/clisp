@@ -199,7 +199,7 @@
       (let ((expansion (bq-expand-list (map 'list #'identity form))))
         (if *backquote-optimize*
           (bq-optimize-for-vector expansion)
-          (list 'apply #'vector (cons 'nconc expansion)))))
+          (list 'APPLY '#'VECTOR (cons 'APPEND expansion)))))
     (t (list 'quote form))))
 
 ;;; Handle the transformation of [x1] [x2] ... forms as described
