@@ -1,6 +1,6 @@
 # -*- makefile -*-
 # This is the developer's makefile, not the user's makefile.
-# Don't use it unless you know exactly what you do!
+# Do not use it unless you know exactly what you are doing!
 
 
 # Some important programs:
@@ -58,7 +58,7 @@ PACKEXT = .tar.bz2
 TOPDIR = clisp
 T = $(TOPDIR)
 
-SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.spec $T/configure #$T/HTML-index.html
+SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.spec $T/clisp.lsm $T/configure #$T/HTML-index.html
 #SOURCES2 = $T/src/*
 # exclude $T/src/g*t = $T/src/gettext
 SOURCES2 = $T/src/*[^t] $T/src/[^g]*t $T/src/.??*
@@ -82,7 +82,7 @@ all : makefiles configures potfiles src/FILES src/VERSION utils/comment5.c src/i
 ffcall-i386 : ffcall/avcall/avcall-i386-msvc.c ffcall/vacall/vacall-i386-msvc.c ffcall/callback/vacall_r/vacall-i386-msvc.c
 
 htmldoc:
-	cd doc && make impnotes.html &&	cp impnotes.html ../src && cd ..;
+	cd doc && make impnotes.html && make html && cd ..;
 
 makefiles : os2/makefile win32gcc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc5 win32bc/makefile acorn/makefile.cc acorn/makefile.gcc
 
