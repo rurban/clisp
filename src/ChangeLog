@@ -1,3 +1,25 @@
+2004-12-09  Bruno Haible  <bruno@clisp.org>
+
+	More invariant checking for generational GC.
+	* lispbibl.d (SP_anchor): New declaration.
+	* spvw.d (SP_anchor): New variable.
+	(main): Initialize it.
+	* spvw_debug.d (DEBUG_SPVW_ASSERT): New macro.
+	* spvw_global.d (is_valid_varobject_address, is_valid_cons_address,
+	is_valid_heap_object_address, is_valid_stack_address): New macros.
+	* spvw_garcol.d (update) [DEBUG_SPVW]: Check that the pointers being
+	written to memory are valid.
+	* spvw_genera1.d (rebuild_old_generation_cache) [DEBUG_SPVW]: Check
+	that the pointers being put into the physpage cache are valid.
+	* spvw_genera2.d (gc_mark_old_generation) [DEBUG_SPVW]: Check that the
+	pointers taken from the physpage cache are valid.
+	* spvw_genera3.d (update_old_generation) [DEBUG_SPVW]: Check that the
+	pointers in the physpage cache are valid and not pointing into the
+	wrong heap.
+	* spvw_fault.d (handle_read_fault): [DEBUG_SPVW]: Check that the
+	pointers in the physpage cache are valid and not pointing into the
+	wrong heap.
+
 2004-12-14  Sam Steingold  <sds@gnu.org>
 
 	case-sensitive/case-inverted package properties are now mutable

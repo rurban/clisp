@@ -1187,12 +1187,16 @@ local void gc_markphase (void)
               var object obj = *(gcv_object_t*)objptr; # object            \
               if (!in_old_generation(obj,type,mem.heapnr_from_type[type])) \
                 # older generation -> do nothing (object stayed there)     \
-                if (marked(ThePointer(obj))) # marked?                     \
+                if (marked(ThePointer(obj))) { # marked?                   \
                   # no -> do nothing (object stayed there)                 \
                   # yes -> enter new address and typeinfobyte (incl.       \
                   #        poss. symbol-binding-flag)                      \
-                  *(gcv_object_t*)objptr =                                 \
+                  var object newptr =                                      \
                     type_untype_object(type,untype(*(gcv_object_t*)ThePointer(obj))); \
+                  DEBUG_SPVW_ASSERT(is_valid_heap_object_address(as_oint(newptr)) \
+                                    || is_valid_stack_address(as_oint(newptr))); \
+                  *(gcv_object_t*)objptr = newptr;                         \
+                }                                                          \
             }                                                              \
           }
       #else
@@ -1202,11 +1206,15 @@ local void gc_markphase (void)
               if (!gcinvariant_object_p(obj)) # un-movable -> do nothing      \
                 if (!(consp(obj) ? in_old_generation(obj,,1) : in_old_generation(obj,,0))) \
                   # older generation -> do nothing (object stayed there)      \
-                  if (marked(ThePointer(obj))) # marked?                      \
+                  if (marked(ThePointer(obj))) { # marked?                    \
                     # no ->  do nothing (object stayed there)                 \
                     # yes -> enter new address                                \
-                    *(gcv_object_t*)objptr =                                  \
+                    var object newptr =                                       \
                       as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(gcv_object_t*)ThePointer(obj)) & ~wbit(garcol_bit_o))); \
+                    DEBUG_SPVW_ASSERT((consp(obj) ? is_valid_cons_address(as_oint(newptr)) : is_valid_varobject_address(as_oint(newptr))) \
+                                      || is_valid_stack_address(as_oint(newptr))); \
+                    *(gcv_object_t*)objptr = newptr;                          \
+                  }                                                           \
             }
         #else
           #define update(objptr)  \
@@ -1214,11 +1222,15 @@ local void gc_markphase (void)
               if (!gcinvariant_object_p(obj)) # un-movable -> do nothing      \
                 if (!in_old_generation(obj,,))                                \
                   # older generation -> do nothing (object stayed there)      \
-                  if (marked(ThePointer(obj))) # marked?                      \
+                  if (marked(ThePointer(obj))) { # marked?                    \
                     # no ->  do nothing (object stayed there)                 \
                     # yes -> enter new address                                \
-                    *(gcv_object_t*)objptr =                                  \
+                    var object newptr =                                       \
                       as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(gcv_object_t*)ThePointer(obj)) & ~wbit(garcol_bit_o))); \
+                    DEBUG_SPVW_ASSERT((consp(obj) ? is_valid_cons_address(as_oint(newptr)) : is_valid_varobject_address(as_oint(newptr))) \
+                                      || is_valid_stack_address(as_oint(newptr))); \
+                    *(gcv_object_t*)objptr = newptr;                          \
+                  }                                                           \
             }
         #endif
       #endif
@@ -1232,8 +1244,13 @@ local void gc_markphase (void)
                   default: # object of variable length                  \
                     { var object obj = *(gcv_object_t*)objptr; # object \
                       if (!in_old_generation(obj,type,0))               \
-                        if (marked(ThePointer(obj))) # marked?          \
-                          *(gcv_object_t*)objptr = type_untype_object(type,untype(*(gcv_object_t*)ThePointer(obj))); \
+                        if (marked(ThePointer(obj))) { # marked?        \
+                          var object newptr =                           \
+                            type_untype_object(type,untype(*(gcv_object_t*)ThePointer(obj))); \
+                          DEBUG_SPVW_ASSERT(is_valid_varobject_address(as_oint(newptr)) \
+                                            || is_valid_stack_address(as_oint(newptr))); \
+                          *(gcv_object_t*)objptr = newptr;              \
+                        }                                               \
                     }                                                   \
                     break;                                              \
                   case_pair: # Two-Pointer-Object                       \
@@ -1261,8 +1278,13 @@ local void gc_markphase (void)
                 } else {                                                      \
                   # object of variable length                                 \
                   if (!in_old_generation(obj,,0)) {                           \
-                    if (marked(ThePointer(obj))) # marked?                    \
-                      *(gcv_object_t*)objptr = as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(gcv_object_t*)ThePointer(obj)) & ~wbit(garcol_bit_o) & ~(oint)nonimmediate_bias_mask)); \
+                    if (marked(ThePointer(obj))) { # marked?                  \
+                      var object newptr =                                     \
+                        as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(gcv_object_t*)ThePointer(obj)) & ~wbit(garcol_bit_o) & ~(oint)nonimmediate_bias_mask)); \
+                      DEBUG_SPVW_ASSERT(is_valid_varobject_address(as_oint(newptr)) \
+                                        || is_valid_stack_address(as_oint(newptr))); \
+                      *(gcv_object_t*)objptr = newptr;                        \
+                    }                                                         \
                   }                                                           \
                 }                                                             \
               }                                                               \
@@ -1277,8 +1299,13 @@ local void gc_markphase (void)
                 # older generation -> do nothing (object stayed there)      \
                 if (is_varobject_heap(type)) {                              \
                   # object of variable length                               \
-                  if (marked(ThePointer(obj))) # marked?                    \
-                    *(gcv_object_t*)objptr = type_untype_object(type,untype(*(gcv_object_t*)ThePointer(obj))); \
+                  if (marked(ThePointer(obj))) { # marked?                  \
+                    var object newptr =                                     \
+                      type_untype_object(type,untype(*(gcv_object_t*)ThePointer(obj))); \
+                    DEBUG_SPVW_ASSERT(is_valid_varobject_address(as_oint(newptr)) \
+                                      || is_valid_stack_address(as_oint(newptr))); \
+                    *(gcv_object_t*)objptr = newptr;                        \
+                  }                                                         \
                 } else {                                                    \
                   # Two-Pointer-Object                                      \
                   # for later update, insert into its list:                 \

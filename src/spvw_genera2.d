@@ -40,7 +40,9 @@ local void gc_mark_old_generation (void) {
               if (count > 0) {
                 var old_new_pointer_t* ptr = physpage->cache;
                 dotimespL(count,count, {
-                  gc_mark(ptr->o); ptr++;
+                  DEBUG_SPVW_ASSERT(is_valid_heap_object_address(as_oint(ptr->o)));
+                  gc_mark(ptr->o);
+                  ptr++;
                 });
               }
             } else { # mark the entire page-content:
