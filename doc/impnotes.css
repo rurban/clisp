@@ -21,7 +21,7 @@ dd p { margin: 0pt; }
 { background-color: lightcyan; color: darkblue; }
 
 /* literal data */
-.data, .returnvalue
+.computeroutput, .returnvalue, .data
 { background-color: lightblue; color: darkred; }
 
 /* bytecode instructions */
