@@ -1,5 +1,10 @@
 2005-02-01  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (POSIX::LGAMMA): finished the
+	2005-01-24 patch: HAVE_DECL_* is always defined to either 0 or 1
+
+2005-02-01  Sam Steingold  <sds@gnu.org>
+
 	* modules/i18n/gettext.c (get_locale_info) [WIN32_NATIVE]: define
 	for I18N:LANGUAGE-INFORMATION even when HAVE_LOCALECONV is defined
 	which can happen on mingw which has localeconv() but not
