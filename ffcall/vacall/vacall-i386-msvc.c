@@ -3,7 +3,7 @@
 #endif
 #include "asmi386.h"
 TEXT()
-	ALIGN(4)
+	ALIGN(2)
 GLOBL(C(vacall))
 FUNBEGIN(vacall)
 	INSN2(sub,l	,NUM(36),R(esp))
@@ -171,7 +171,7 @@ L18:
 	INSN2(mov,l	,X4 MEM(esp),R(edx))
 	INSN2(test,b	,NUM(1),R(dl))
 	INSN1(jne,_	,L36)
-	INSN2(test,b	,NUM(2),R(dh))
+	INSN2(test,b	,NUM(4),R(dh))
 	INSN1(je,_	,L21)
 	INSN2(mov,l	,X4 MEM_DISP(esp,16),R(edx))
 	INSN2(cmp,l	,NUM(2),R(edx))
@@ -215,7 +215,7 @@ L31:
 L36:
 	INSN2(mov,l	,X4 MEM_DISP(esp,8),R(eax))
 L2:
-	INSN2(test,b	,NUM(1),X1 MEM_DISP(esp,1))
+	INSN2(test,b	,NUM(2),X1 MEM_DISP(esp,1))
 	INSN1(je,_	,L35)
 	INSN2(mov,l	,X4 MEM_DISP(esp,36),R(ecx))
 	INSN2(mov,l	,X4 MEM_DISP(esp,4),R(esp))

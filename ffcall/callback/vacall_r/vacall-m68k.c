@@ -1,7 +1,7 @@
 /* vacall function for m68k CPU */
 
 /*
- * Copyright 1995-1997 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -26,6 +26,8 @@ register int	iret2	__asm__("d1");
 register int	pret	__asm__("a0");	/* some compilers return pointers in a0 */
 register float	fret	__asm__("d0");	/* d0 */
 register double	dret	__asm__("d0");	/* d0,d1 */
+register float	fp_fret	__asm__("fp0");
+register double	fp_dret	__asm__("fp0");
 
 void /* the return type is variable, not void! */
 vacall (__vaword firstword)
@@ -62,12 +64,20 @@ vacall (__vaword firstword)
         iret2 = ((__vaword *) &list.tmp._longlong)[1];
         break;
       case __VAfloat:
-        if (list.flags & __VA_SUNCC_FLOAT_RETURN)
-          dret = (double)list.tmp._float;
+        if (list.flags & __VA_FREG_FLOAT_RETURN)
+          fp_fret = list.tmp._float;
         else
-          fret = list.tmp._float;
+          if (list.flags & __VA_SUNCC_FLOAT_RETURN)
+            dret = (double)list.tmp._float;
+          else
+            fret = list.tmp._float;
         break;
-      case __VAdouble:	dret = list.tmp._double; break;
+      case __VAdouble:
+        if (list.flags & __VA_FREG_FLOAT_RETURN)
+          fp_dret = list.tmp._double;
+        else
+          dret = list.tmp._double;
+        break;
       case __VAvoidp:	pret = iret = (long)list.tmp._ptr; break;
       case __VAstruct:
         /* NB: On m68k, all structure sizes are divisible by 2. */
