@@ -730,5 +730,14 @@ T
 (adjust-array #(1 2 3 4) '(6))
 #(1 2 3 4 NIL NIL)
 
+(let* ((a1 (make-array 5 :initial-contents '(a b c d e) :fill-pointer 3))
+       (a2 (adjust-array a1 8 :fill-pointer 5 :initial-element 'x)))
+  (assert (if (adjustable-array-p a1) (eq a1 a2)
+              (equal (array-dimensions a1) '(5))))
+  (assert (not (array-displacement a2)))
+  (list (array-dimensions a2) (fill-pointer a2) a2
+        (aref a2 5) (aref a2 6) (aref a2 7)))
+((8) 5 #(A B C D E) X X X)
+
 (equal (make-string 0) (make-array 0 :element-type nil)) T
 (equalp (make-array '(1 2 0)) (make-array '(1 2 0) :element-type nil)) T
