@@ -1270,10 +1270,9 @@ Long-form options are a list of method-group specifiers,
              (TEXT "~S ~S: invalid syntax, neither short form nor long form syntax: ~S")
              'define-method-combination name whole-form))))
 
-;; DEFINE-METHOD-COMBINATION execution
+;; DEFINE-METHOD-COMBINATION execution.
+;; Performs the instantiation and registration and returns the name.
 (defun do-define-method-combination (name &rest initargs)
-  "Support function for the DEFINE-METHOD-COMBINATION macro,
-which performs the instantiation and registration and returns NAME."
   (let ((method-combination
           (apply #'make-instance-<method-combination> <method-combination>
                  :name name initargs)))

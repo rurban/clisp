@@ -423,9 +423,8 @@
 ) ; let
 
 
-;; The actual dispatch-code is calculated at the first call of the
-;; function, in order to make successive method-definitions not too
-;; expensive.
+;; The actual dispatch-code is calculated at the first call of the function,
+;; in order to make successive method definitions not too expensive.
 
 ;; first call of a generic function:
 (defun initial-funcall-gf (gf)
@@ -469,7 +468,7 @@
 ;;   If that failed:
 ;;   (APPLY 'COMPUTE-AND-ADD-EFFECTIVE-METHOD gf Arguments)
 ;; )
-;; One does not need to write (APPLY ... Arguments)
+;; One does not need to write (APPLY ... Arguments),
 ;; it is done by %GENERIC-FUNCTION-LAMBDA automatically.
 (defun compute-dispatch (gf)
   (let* ((signature (std-gf-signature gf))
@@ -484,7 +483,7 @@
          (block-name (gensym))
          (maybe-no-applicable nil)
          (ht-vars '())) ; list of hashtable variables and their inits
-    ;; we do a recursion over the arguments.
+    ;; We do a recursion over the arguments.
     (labels
        ((recursion (remaining-args ; an nthcdr of arg-order
                     remaining-methods ; sublist of methods
@@ -494,7 +493,7 @@
               (setq maybe-no-applicable t)
               'NIL) ; nothing to do, call NO-APPLICABLE-METHOD later
             (if (null remaining-args)
-              ;; all arguments processed
+              ;; All arguments processed.
               #|| ; use GETHASH :
               (let ((ht-var (gensym))
                     (n (length class-of-exprs)) ; index with n-tuples
@@ -573,7 +572,7 @@
                        (,@setf-em-expr
                              (,apply-fun 'COMPUTE-APPLICABLE-METHODS-EFFECTIVE-METHOD
                                          ',gf ,@apply-args)))))
-              ;; process next argument:
+              ;; Process next argument:
               (let* ((arg-index (first remaining-args))
                      (arg-var (nth arg-index req-vars))
                      (eql-cases ; all EQL-specializers for this argument
@@ -599,8 +598,8 @@
                                     (the list remaining-methods))
                                   class-of-exprs)))
                          eql-cases)))
-                ;; until further notice we do not need to consider the
-                ;; EQL-methods anymore.
+                ;; Until further notice we do not need to consider the
+                ;; EQL-specialized methods anymore.
                 (setq remaining-methods
                       (remove-if
                         #'(lambda (m)
