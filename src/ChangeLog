@@ -1,5 +1,11 @@
 1999-07-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * asmi386.sh: New optional argument -no-C.
+        * Makefile.devel (src/ari80386.msvc.c, src/sp80386.msvc.c): Pass
+          option -no-C to asmi386.sh.
+
+1999-07-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * makemake.in (clisp.html): Substitute CLHSROOT, like in impnotes.html.
 
 1999-07-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
