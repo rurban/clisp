@@ -1275,7 +1275,7 @@ N. Gray to X3J13.</para>
  is a <quote>formatting</quote> &stream-t;, which makes the final
  output to the underlying stream look neat: indented and filled.
  An instance of &fill-stream; is created like this:
-<literal role="sexp">(make-instance '&fill-stream; :stream &stream-r;
+<literal role="sexp">(&make-instance; '&fill-stream; :stream &stream-r;
  [:indent symbol-or-number])</literal> where &stream-r; is the target
  stream where the output actually goes
  and <replaceable>symbol-or-number</replaceable> is the variable whose
@@ -1665,8 +1665,8 @@ is approximately equivalent to
    (dotimes (i 10) (if (oddp i) (c0 i) (c1 i))))
 </programlisting>
 
-returns two lists <literal role="sexp">(1 3 5 7 9)</literal> and
-<literal role="sexp">(0 2 4 6 8)</literal> as &mul-val;.
+returns two lists <literal role="data">(1 3 5 7 9)</literal> and
+<literal role="data">(0 2 4 6 8)</literal> as &mul-val;.
 </para></formalpara>
 
 <formalpara id="with-gensyms">
@@ -2182,7 +2182,7 @@ DEFUN(MY-PACKAGE:MY-FUNCTION-NAME, arg1 arg2 &key-amp; FOO BAR) {
   VALUES1(listof(7)); /* cons up a new list and clean up the STACK */
 }</programlisting>
 Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
- T)</literal> will return <literal role="sexp">(A 12 T 0
+ T)</literal> will return <literal role="data">(A 12 T 0
  MY-PACKAGE::SOME-SYMBOL #(:THIS :IS :A :VECTOR)
  #&lt;ADD-ON-SYSTEM-FUNCTION MY-PACKAGE:MY-FUNCTION-NAME&gt;)</literal>
 (assuming you &export;ed <literal>MY-FUNCTION-NAME</literal> from
@@ -2673,8 +2673,8 @@ only.</subtitle>
   for a single pointer, initialized to &c-NULL;.</simpara>
   <para>When <replaceable>initarg</replaceable> is supplied, they
   allocate space for an arbitrarily complex set of structures rooted in
-  &ctype-r;.  Therefore, &c-array-max;, <literal role="sexp">#()</literal>
-  and <literal role="sexp">""</literal> are your friends for creating a
+  &ctype-r;.  Therefore, &c-array-max;, <literal role="data">#()</literal>
+  and <literal role="data">""</literal> are your friends for creating a
   pointer to the empty arrays:
 <programlisting>(with-c-var (v '(c-ptr (c-array-max uint8 32)) #())
   (setf (element (deref v) 0) 127) v)</programlisting>
@@ -4080,8 +4080,8 @@ Compiled, it will have inlined the library function calls.
     &socket-stream; for the connection.
    Waits for an attempt to connect to the server for no more than
    &timeout-k; seconds (which may be a non-negative real number or a
-   list <literal role="sexp">(sec usec)</literal> or a pair
-   <literal role="sexp">(sec . usec)</literal>).
+   list <literal role="data">(sec usec)</literal> or a pair
+   <literal role="data">(sec . usec)</literal>).
    &signal;s an &error-t; if no connection is made in that time.
   </simpara></listitem></varlistentry>
  <varlistentry id="so-connect"><term><literal role="sexp">(&so-connect;
@@ -4168,8 +4168,8 @@ Compiled, it will have inlined the library function calls.
    </variablelist>
    <simpara>If you want to avoid &cons;ing up a &fresh; list, you can
     make the elements of <replaceable>socket-stream-or-list</replaceable>
-    to be <literal role="sexp">(&sost-r; &direction-r; .
-     &x-r;)</literal> or <literal role="sexp">(&sose-r; . &x-r;)</literal>.
+    to be <literal role="data">(&sost-r; &direction-r; .
+     &x-r;)</literal> or <literal role="data">(&sose-r; . &x-r;)</literal>.
     Then &so-status; will destructively modify its argument and replace
     &x-r; or &nil; with the status and return the modified list.
     You can pass this modified list to &so-status; again.</simpara>

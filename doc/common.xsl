@@ -15,7 +15,8 @@
  <strong><xsl:apply-templates/></strong>
 </xsl:template>
 
-<xsl:template match="literal[@role = 'type' or @role = 'sexp']">
+<xsl:template match="literal[@role = 'type' or @role = 'sexp'
+                     or @role = 'data' or @role = 'byte']">
  <tt class="{@role}"><xsl:apply-templates/></tt>
 </xsl:template>
 

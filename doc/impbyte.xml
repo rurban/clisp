@@ -94,8 +94,8 @@ immediate objects (which have some more type bits), &cons-t;es (which
 have no type bits in the heap, since they occupy just two words in the
 heap, with no header), other heap objects (many, from &simple-vector-t;s
 to &foreign-pointer-t;s), and <type>Subr</type>s. Most object types are
-distinguished by looking a the <varname>rectype</varname> field in the
-header of the heap object.</para>
+distinguished by looking a the <structfield>rectype</structfield> field
+in the header of the heap object.</para>
 
 <para>The &typecodes; object representation has about two dozen of types
 encoded in 6 or 7 bits in the object pointer.
@@ -104,8 +104,8 @@ the upper 16 bits or 32 bits of a word (on a 64-bit machine).
 The particular values of the typecodes allow many common operations to
 be performed with a single bit test (e.g. &consp; and &minusp; for a
 &real-t; are bit tests) or range check.
-However, the <varname>rectype</varname> field still exists for many
-types, because there are many built-in types which do not need a
+However, the <structfield>rectype</structfield> field still exists for
+many types, because there are many built-in types which do not need a
 particularly fast type test.</para>
 
 <para>Which object representation is chosen is decided at build time
@@ -532,7 +532,7 @@ callee's &STACK;), but a virtual machine implementation may also copy
 outgoing arguments to incoming arguments instead of sharing them.</para>
 
 <para>The virtual machine has a special data structure,
-<literal>values</literal>, containing the "top of stack", specially
+<varname>values</varname>, containing the "top of stack", specially
 adapted to &cl; &mul-val;:
 <variablelist>
  <varlistentry><term>&mv-count;</term>
@@ -540,14 +540,13 @@ adapted to &cl; &mul-val;:
   </simpara></listitem></varlistentry>
  <varlistentry><term>&value1;</term>
   <listitem><simpara>the first value, a &clisp; object.
-  If <literal>&mv-count;</literal> = 0, this is &nil;.
-  </simpara></listitem></varlistentry>
+  If &mv-count; = 0, this is &nil;.</simpara></listitem></varlistentry>
  <varlistentry><term>&mv-space;</term>
   <listitem><simpara>all values except the first one, an array of &clisp;
   objects.</simpara></listitem></varlistentry>
 </variablelist></para>
 
-<para>The contents of <literal>values</literal> is short-lived.
+<para>The contents of <varname>values</varname> is short-lived.
 It does not survive a function call, not even a garbage collection.</para>
 
 <para>The interpretation of some bytecode instructions depends on a
@@ -569,7 +568,7 @@ vector.  The separation thus helps the garbage collector (since the byte
 vector does not need to be scanned for pointers).</para>
 
 <para>A function looks like this
- (cf. the &c-lang; type <literal>Cclosure</literal>):
+ (cf. the &c-lang; type <type>Cclosure</type>):
 <variablelist>
  <varlistentry id="func-name"><term>name</term>
   <listitem><simpara>This is the name of the function, normally a symbol
@@ -605,7 +604,7 @@ vector does not need to be scanned for pointers).</para>
   <listitem><simpara>At most one object, representing the closed-up
    variables, representing the variables of the lexical environment in
    which this function was defined.  It is a &simple-vector-t;, which
-   looks like this: <literal role="sexp">#(<replaceable>next</replaceable>
+   looks like this: <literal role="data">#(<replaceable>next</replaceable>
    <replaceable>value&sub-1;</replaceable> ...
    <replaceable>value&sub-n;</replaceable>)</literal>
    where <replaceable>value&sub-1;</replaceable>, ...,
@@ -655,13 +654,13 @@ instead of each &venv-const;, &block-const;, &tagbody-const;.
 At runtime, a function is created by copying this prototype and
 replacing the &nil; values by the definitive ones.</para>
 
-<para>The list <literal role="sexp">(&keyword-const;*
+<para>The list <literal role="data">(&keyword-const;*
 &other-const;*)</literal> normally does not contain duplicates, because
 the compiler removes duplicates when possible.  (Duplicates can occur
 nevertheless, through the use of &load-time-value;.)</para>
 
 <para>The &codevec; looks like this
- (cf. the &c-lang; type <literal>Codevec</literal>):
+ (cf. the &c-lang; type <type>Codevec</type>):
 <variablelist>
  <varlistentry><term><literal>spdepth_1</literal> (2 bytes)</term>
   <listitem><simpara>The 1st part of the maximal &SP; depth.
@@ -762,17 +761,17 @@ letters:
 <informaltable id="instr-const-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
- <row><entry><literal role="sexp">(&nil;)</literal></entry>
+ <row><entry><literal role="byte">(&nil;)</literal></entry>
       <entry>Load &nil; into values.</entry>
       <entry>&value1; := &nil;, &mv-count; := 1</entry></row>
- <row><entry><literal role="sexp">(PUSH-NIL &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(PUSH-NIL &n-r;)</literal></entry>
       <entry>Push &n-r; &nil;s into the &STACK;.</entry>
       <entry>&n-r; times do: *--&STACK; := &nil;,
              values undefined</entry></row>
- <row><entry><literal role="sexp">(&t;)</literal></entry>
+ <row><entry><literal role="byte">(&t;)</literal></entry>
       <entry>Load &t; into values.</entry>
       <entry>&value1; := &t;, &mv-count; := 1</entry></row>
- <row><entry><literal role="sexp">(CONST &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(CONST &n-r;)</literal></entry>
       <entry>Load the function's &n-r;th constant into values.</entry>
       <entry>&value1; := &consts;[&n-r;],
              &mv-count; := 1</entry></row>
@@ -783,21 +782,21 @@ letters:
 <informaltable id="instr-lex-var-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
- <row><entry><literal role="sexp">(LOAD &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(LOAD &n-r;)</literal></entry>
       <entry>Load a directly accessible local variable into values.</entry>
       <entry>&value1; := *(&STACK;+&n-r;),
              &mv-count; := 1</entry></row>
- <row><entry><literal role="sexp">(LOADI &k1-r; &k2-r; &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(LOADI &k1-r; &k2-r; &n-r;)</literal></entry>
       <entry>Load an indirectly accessible local variable into values.</entry>
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
               &value1; := *(*(&SP;+&k-r;)+ &n-r;),
               &mv-count; := 1</entry></row>
- <row><entry><literal role="sexp">(LOADC &n-r; &m-r;)</literal></entry>
+ <row><entry><literal role="byte">(LOADC &n-r; &m-r;)</literal></entry>
       <entry>Load a closed-up variable, defined in the same function and
              directly accessible, into values.</entry>
       <entry>&value1; := &svref;(*(&STACK;+&n-r;),1+&m-r;),
              &mv-count; := 1</entry></row>
- <row><entry><literal role="sexp">(LOADV &k-r; &m-r;)</literal></entry>
+ <row><entry><literal role="byte">(LOADV &k-r; &m-r;)</literal></entry>
       <entry>Load a closed-up variable, defined in an outer function,
              into values.</entry>
       <entry>&v-r; := &venv-const;,
@@ -805,28 +804,28 @@ letters:
              &value1; := &svref;(&v-r;,&m-r;),
              &mv-count; := 1</entry></row>
  <row><entry><literal
-         role="sexp">(LOADIC &k1-r; &k2-r; &n-r; &m-r;)</literal></entry>
+         role="byte">(LOADIC &k1-r; &k2-r; &n-r; &m-r;)</literal></entry>
       <entry>Load a closed-up variable, defined in the same function and
              indirectly accessible, into values.</entry>
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
              &value1; := &svref;(*(*(&SP;+&k-r;)+&n-r;),1+&m-r;),
              &mv-count; := 1</entry></row>
- <row><entry><literal role="sexp">(STORE &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(STORE &n-r;)</literal></entry>
       <entry>Store values into a directly accessible local variable.</entry>
       <entry>*(&STACK;+&n-r;) := &value1;,
              &mv-count; := 1</entry></row>
  <row><entry><literal
-         role="sexp">(STOREI &k1-r; &k2-r; &n-r;)</literal></entry>
+         role="byte">(STOREI &k1-r; &k2-r; &n-r;)</literal></entry>
       <entry>Store values into an indirectly accessible local variable.</entry>
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
               *(*(&SP;+&k-r;)+ &n-r;) := &value1;,
               &mv-count; := 1</entry></row>
- <row><entry><literal role="sexp">(STOREC &n-r; &m-r;)</literal></entry>
+ <row><entry><literal role="byte">(STOREC &n-r; &m-r;)</literal></entry>
       <entry>Store values into a closed-up variable, defined in the same
              function and directly accessible.</entry>
       <entry>&svref;(*(&STACK;+&n-r;),1+m) := &value1;,
              &mv-count; := 1</entry></row>
- <row><entry><literal role="sexp">(STOREV &k-r; &m-r;)</literal></entry>
+ <row><entry><literal role="byte">(STOREV &k-r; &m-r;)</literal></entry>
       <entry>Store values into a closed-up variable, defined in an outer
              function.</entry>
       <entry>&v-r; := &venv-const;,
@@ -834,7 +833,7 @@ letters:
              &svref;(&v-r;,&m-r;) := &value1;,
              &mv-count; := 1</entry></row>
  <row><entry><literal
-         role="sexp">(STOREIC &k1-r; &k2-r; &n-r; &m-r;)</literal></entry>
+         role="byte">(STOREIC &k1-r; &k2-r; &n-r; &m-r;)</literal></entry>
       <entry>Store values into a closed-up variable, defined in the same
              function and indirectly accessible.</entry>
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
@@ -847,35 +846,31 @@ letters:
 <informaltable id="instr-dyn-var-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
- <row><entry><literal role="sexp">(GETVALUE
-             &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(GETVALUE &n-r;)</literal></entry>
       <entry>Load a symbol's value into values.</entry>
       <entry>&value1; := symbol-value(&consts;[&n-r;]),
              &mv-count; := 1</entry></row>
- <row><entry><literal role="sexp">(SETVALUE
-             &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(SETVALUE &n-r;)</literal></entry>
       <entry>Store values into a symbol's value.</entry>
       <entry>symbol-value(&consts;[&n-r;]) := &value1;,
              &mv-count; := 1</entry></row>
- <row><entry><literal role="sexp">(BIND
-             &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(BIND &n-r;)</literal></entry>
       <entry>Bind a symbol dynamically.</entry>
       <entry>Bind the value of the symbol
              &consts;[&n-r;] to &value1;,
              implicitly &STACK; -= 3,
              values undefined</entry></row>
- <row><entry><literal role="sexp">(UNBIND1)</literal></entry>
+ <row><entry><literal role="byte">(UNBIND1)</literal></entry>
       <entry>Dissolve one binding frame.</entry>
       <entry>Unbind the binding frame &STACK; is pointing to,
              implicitly &STACK; += 3</entry></row>
- <row><entry><literal role="sexp">(UNBIND
-             &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(UNBIND &n-r;)</literal></entry>
       <entry>Dissolve &n-r; binding frames.</entry>
       <entry>&n-r; times do:
               Unbind the binding frame &STACK; is pointing to, thereby
               incrementing &STACK;
              Thus, &STACK; += 1+2*&n-r;</entry></row>
- <row><entry><literal role="sexp">(PROGV)</literal></entry>
+ <row><entry><literal role="byte">(PROGV)</literal></entry>
       <entry>Bind a set of symbols dynamically to a set of values.</entry>
       <entry><replaceable>symbols</replaceable> := *&STACK;++,
              *--&SP; := &STACK;,
@@ -889,25 +884,25 @@ letters:
 <informaltable id="instr-stack-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
- <row><entry><literal role="sexp">(PUSH)</literal></entry>
+ <row><entry><literal role="byte">(PUSH)</literal></entry>
       <entry>Push one object onto the &STACK;.</entry>
       <entry>*--&STACK; := &value1;,
              values undefined</entry></row>
- <row><entry><literal role="sexp">(POP)</literal></entry>
+ <row><entry><literal role="byte">(POP)</literal></entry>
       <entry>Pop one object from the &STACK;, into values.</entry>
       <entry>&value1; := *&STACK;++, &mv-count; := 1</entry></row>
- <row><entry><literal role="sexp">(SKIP &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(SKIP &n-r;)</literal></entry>
       <entry>Restore a previous &STACK; pointer.
              Remove &n-r; objects from the &STACK;.</entry>
       <entry>&STACK; := &STACK; + &n-r;</entry></row>
- <row><entry><literal role="sexp">(SKIPI &k1-r; &k2-r; &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(SKIPI &k1-r; &k2-r; &n-r;)</literal></entry>
       <entry>Restore a previous &STACK; pointer. Remove an unknown
              number of objects from the &STACK;.</entry>
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
              &STACK; := *(&SP;+&k-r;),
              &SP; := &SP;+&k-r;+1,
              &STACK; := &STACK; + &n-r;</entry></row>
- <row><entry><literal role="sexp">(SKIPSP &k1-r; &k2-r;)</literal></entry>
+ <row><entry><literal role="byte">(SKIPSP &k1-r; &k2-r;)</literal></entry>
       <entry>Restore a previous &SP; pointer.</entry>
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
              &SP; := &SP;+&k-r;</entry></row>
@@ -918,11 +913,11 @@ letters:
 <informaltable id="instr-jump-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
- <row><entry><literal role="sexp">(SKIP&amp;RET &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(SKIP&amp;RET &n-r;)</literal></entry>
       <entry>Clean up the &STACK;, and return from the function.</entry>
       <entry>&STACK; := &STACK;+&n-r;,
             return from the function, returning values.</entry></row>
- <row><entry><literal role="sexp">(SKIP&amp;RETGF &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(SKIP&amp;RETGF &n-r;)</literal></entry>
       <entry>Clean up the &STACK;, and return from the generic
              function.</entry>
       <entry>If bit 3 is set in the function's &flags;,
@@ -937,61 +932,60 @@ letters:
                      apply &value1; to the &numreq; arguments and the
                            &rest-amp; argument, all still on the &STACK;, and
                            return from the function.</entry></row>
- <row><entry><literal role="sexp">(JMP &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(JMP &lab-r;)</literal></entry>
       <entry>Jump to &lab-r;.</entry>
       <entry>PC := &lab-r;.</entry></row>
- <row><entry><literal role="sexp">(JMPIF &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(JMPIF &lab-r;)</literal></entry>
       <entry>Jump to &lab-r;, if &value1; is true.</entry>
       <entry>If &value1; is not &nil;, PC := &lab-r;.</entry></row>
- <row><entry><literal role="sexp">(JMPIFNOT &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(JMPIFNOT &lab-r;)</literal></entry>
       <entry>Jump to &lab-r;, if &value1; is false.</entry>
       <entry>If &value1; is &nil;, PC := &lab-r;.</entry></row>
- <row><entry><literal role="sexp">(JMPIF1 &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(JMPIF1 &lab-r;)</literal></entry>
       <entry>Jump to &lab-r; and forget secondary values,
              if &value1; is true.</entry>
       <entry>If &value1; is not &nil;,
                 &mv-count; := 1, PC := &lab-r;.</entry></row>
- <row><entry><literal role="sexp">(JMPIFNOT1 &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(JMPIFNOT1 &lab-r;)</literal></entry>
       <entry>Jump to &lab-r; and forget secondary values,
              if &value1; is false.</entry>
       <entry>If &value1; is &nil;,
                 &mv-count; := 1, PC := &lab-r;.</entry></row>
- <row><entry><literal role="sexp">(JMPIFATOM &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(JMPIFATOM &lab-r;)</literal></entry>
       <entry>Jump to &lab-r;, if &value1; is not a cons.</entry>
       <entry>If &value1; is not a cons, PC := &lab-r;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(JMPIFCONSP &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(JMPIFCONSP &lab-r;)</literal></entry>
       <entry>Jump to &lab-r;, if &value1; is a cons.</entry>
       <entry>If &value1; is a cons, PC := &lab-r;.
                 values undefined</entry></row>
- <row><entry><literal role="sexp">(JMPIFEQ &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(JMPIFEQ &lab-r;)</literal></entry>
       <entry>Jump to &lab-r;, if &value1; is &eq; to the top-of-stack.</entry>
       <entry>If eq(&value1;,*&STACK;++), PC := &lab-r;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(JMPIFNOTEQ &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(JMPIFNOTEQ &lab-r;)</literal></entry>
       <entry>Jump to &lab-r;, if &value1; is not &eq;
              to the top-of-stack.</entry>
       <entry>If not eq(&value1;,*&STACK;++), PC := &lab-r;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(JMPIFEQTO &n-r; &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(JMPIFEQTO &n-r; &lab-r;)</literal></entry>
       <entry>Jump to &lab-r;,
              if the top-of-stack is &eq; to a constant.</entry>
       <entry>If eq(*&STACK;++,&consts;[&n-r;]), PC := &lab-r;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(JMPIFNOTEQTO &n-r;
-             &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(JMPIFNOTEQTO &n-r; &lab-r;)</literal></entry>
       <entry>Jump to &lab-r;, if the top-of-stack is not &eq;
              to a constant.</entry>
       <entry>If not eq(*&STACK;++,&consts;[&n-r;]), PC := &lab-r;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(JMPHASH &n-r; &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(JMPHASH &n-r; &lab-r;)</literal></entry>
       <entry>Table-driven jump, depending on &value1;.</entry>
       <entry>Lookup &value1; in the hash table &consts;[&n-r;].
              (The hash table's test is either &eq; or &eql;.)
              If found, the hash table value is a signed &fixnum-t;,
              jump to it: PC := PC + value.  Else jump to &lab-r;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(JMPHASHV &n-r; &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(JMPHASHV &n-r; &lab-r;)</literal></entry>
       <entry>Table-driven jump, depending on &value1;,
              inside a generic function.</entry>
       <entry>Lookup &value1; in the hash table &svref;(&consts;[0],&n-r;).
@@ -999,14 +993,14 @@ letters:
              If found, the hash table value is a signed &fixnum-t;,
              jump to it: PC := PC + value.  Else jump to &lab-r;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(JSR &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(JSR &lab-r;)</literal></entry>
       <entry>Subroutine call.</entry>
       <entry>*--&STACK; := function. Then start interpreting the
              bytecode at &lab-r;, with values undefined.
-             When a <literal role="sexp">(RET)</literal> is encountered,
+             When a <literal role="byte">(RET)</literal> is encountered,
              program execution is resumed at the instruction after
-             <literal role="sexp">(JSR &lab-r;)</literal>.</entry></row>
- <row><entry><literal role="sexp">(JMPTAIL &m-r; &n-r;
+             <literal role="byte">(JSR &lab-r;)</literal>.</entry></row>
+ <row><entry><literal role="byte">(JMPTAIL &m-r; &n-r;
              &lab-r;)</literal></entry>
       <entry>Tail subroutine call.</entry>
       <entry>&n-r; &geq; &m-r;.
@@ -1024,18 +1018,18 @@ letters:
 <informaltable id="instr-env-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
- <row><entry><literal role="sexp">(VENV)</literal></entry>
+ <row><entry><literal role="byte">(VENV)</literal></entry>
       <entry>Load the &venv-const; into values.</entry>
       <entry>&value1; := &consts;[0], &mv-count; := 1.</entry>
   </row>
  <row><entry><literal
-         role="sexp">(MAKE-VECTOR1&amp;PUSH &n-r;)</literal></entry>
+         role="byte">(MAKE-VECTOR1&amp;PUSH &n-r;)</literal></entry>
       <entry>Create a &simple-vector-t; used for closed-up variables.</entry>
       <entry>&v-r; := new &simple-vector-t; of size &n-r;+1.
              &svref;(&v-r;,0) := &value1;.
              *--&STACK; := &v-r;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(COPY-CLOSURE &m-r; &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(COPY-CLOSURE &m-r; &n-r;)</literal></entry>
       <entry>Create a closure by copying the prototype and filling in
              the lexical environment.</entry>
       <entry>&f-r; := copy-function(&consts;[&m-r;]).
@@ -1050,26 +1044,26 @@ letters:
 <informaltable id="instr-funcall-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
- <row><entry><literal role="sexp">(CALL &k-r; &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(CALL &k-r; &n-r;)</literal></entry>
       <entry>Calls a constant function with &k-r; arguments.</entry>
       <entry>The function &consts;[&n-r;] is called
              with the arguments *(&STACK;+&k-r;-1), ..., *(&STACK;+0).
              &STACK; += &k-r;.
              The returned values go into values.</entry></row>
- <row><entry><literal role="sexp">(CALL0 &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(CALL0 &n-r;)</literal></entry>
       <entry>Calls a constant function with 0 arguments.</entry>
       <entry>The function &consts;[&n-r;] is called with 0 arguments.
              The returned values go into values.</entry></row>
- <row><entry><literal role="sexp">(CALL1 &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(CALL1 &n-r;)</literal></entry>
       <entry>Calls a constant function with 1 argument.</entry>
       <entry>The function &consts;[&n-r;] is called with one argument *&STACK;.
              &STACK; += 1. The returned values go into values.</entry></row>
- <row><entry><literal role="sexp">(CALL2 &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(CALL2 &n-r;)</literal></entry>
       <entry>Calls a constant function with 2 arguments.</entry>
       <entry>The function &consts;[&n-r;] is called
              with two arguments *(&STACK;+1) and *(&STACK;+0).
              &STACK; += 2. The returned values go into values.</entry></row>
- <row><entry><literal role="sexp">(CALLS1 &b-r;)</literal></entry>
+ <row><entry><literal role="byte">(CALLS1 &b-r;)</literal></entry>
       <entry>Calls a system function with no &rest-amp;.</entry>
       <entry>Calls the system function FUNTAB[&b-r;].
              The right number of arguments is already on the &STACK;
@@ -1077,7 +1071,7 @@ letters:
               &key-amp; parameters).
              The arguments are removed from the &STACK;.
              The returned values go into values.</entry></row>
- <row><entry><literal role="sexp">(CALLS2 &b-r;)</literal></entry>
+ <row><entry><literal role="byte">(CALLS2 &b-r;)</literal></entry>
       <entry>Calls a system function with no &rest-amp;.</entry>
       <entry>Calls the system function FUNTAB[256+&b-r;].
              The right number of arguments is already on the &STACK;
@@ -1085,14 +1079,14 @@ letters:
               &key-amp; parameters).
              The arguments are removed from the &STACK;.
              The returned values go into values.</entry></row>
- <row><entry><literal role="sexp">(CALLSR &m-r; &b-r;)</literal></entry>
+ <row><entry><literal role="byte">(CALLSR &m-r; &b-r;)</literal></entry>
       <entry>Calls a system function with &rest-amp;.</entry>
       <entry>Calls the system function FUNTABR[&b-r;].
              The minimum number of arguments is already on the &STACK;,
              and &m-r; additional arguments as well.
              The arguments are removed from the &STACK;.
              The returned values go into values.</entry></row>
- <row><entry><literal role="sexp">(CALLC)</literal></entry>
+ <row><entry><literal role="byte">(CALLC)</literal></entry>
       <entry>Calls a computed compiled function with no &key-amp;.</entry>
       <entry>Calls the compiled function &value1;.
              The right number of arguments is already on the &STACK;
@@ -1100,7 +1094,7 @@ letters:
               parameters).
              The arguments are removed from the &STACK;.
              The returned values go into values.</entry></row>
- <row><entry><literal role="sexp">(CALLCKEY)</literal></entry>
+ <row><entry><literal role="byte">(CALLCKEY)</literal></entry>
       <entry>Calls a computed compiled function with &key-amp;.</entry>
       <entry>Calls the compiled function &value1;.
              The right number of arguments is already on the &STACK;
@@ -1108,13 +1102,13 @@ letters:
               or &key-amp; parameters).
              The arguments are removed from the &STACK;.
              The returned values go into values.</entry></row>
- <row><entry><literal role="sexp">(FUNCALL &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(FUNCALL &n-r;)</literal></entry>
       <entry>Calls a computed function.</entry>
       <entry>Calls the function *(&STACK;+&n-r;)
              with the arguments *(&STACK;+&n-r;-1), ..., *(&STACK;+0).
              &STACK; += &n-r;+1.
              The returned values go into values.</entry></row>
- <row><entry><literal role="sexp">(APPLY &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(APPLY &n-r;)</literal></entry>
       <entry>Calls a computed function with an unknown number of
              arguments.</entry>
       <entry>Calls the function *(&STACK;+&n-r;)
@@ -1130,11 +1124,11 @@ letters:
 <informaltable id="instr-optkey-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
- <row><entry><literal role="sexp">(PUSH-UNBOUND &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(PUSH-UNBOUND &n-r;)</literal></entry>
       <entry>Push &n-r; &unbound;s into the &STACK;.</entry>
       <entry>&n-r; times do: *--&STACK; := &unbound;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(UNLIST &n-r; &m-r;)</literal></entry>
+ <row><entry><literal role="byte">(UNLIST &n-r; &m-r;)</literal></entry>
       <entry>Destructure a proper &list-t;.</entry>
       <entry>0 &le; &m-r; &le; &n-r;.
              &n-r; times do: *--&STACK; := &car;(&value1;),
@@ -1144,7 +1138,7 @@ letters:
              in this case, *--&STACK; := &unbound;.
              At the end, &value1; must be &nil;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(UNLIST* &n-r; &m-r;)</literal></entry>
+ <row><entry><literal role="byte">(UNLIST* &n-r; &m-r;)</literal></entry>
       <entry>Destructure a proper or dotted &list-t;.</entry>
       <entry>0 &le; &m-r; &le; &n-r;, &n-r; &gt; 0.
              &n-r; times do: *--&STACK; := &car;(&value1;),
@@ -1154,18 +1148,18 @@ letters:
              in this case, *--&STACK; := &unbound;.
              At the end, after &n-r; &cdr;s, *--&STACK; := &value1;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(JMPIFBOUNDP &n-r; &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(JMPIFBOUNDP &n-r; &lab-r;)</literal></entry>
       <entry>Jump to &lab-r;, if a local variable is not unbound.</entry>
       <entry>If *(&STACK;+&n-r;) is not &unbound;,
                 &value1; := *(&STACK;+&n-r;), &mv-count; := 1, PC := &lab-r;.
              Else: values undefined.</entry></row>
- <row><entry><literal role="sexp">(BOUNDP &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(BOUNDP &n-r;)</literal></entry>
       <entry>Load &t; or &nil; into values, depending on whether a local
              variable is bound.</entry>
       <entry>If *(&STACK;+&n-r;) is not &unbound;,
                 &value1; := &t;, &mv-count; := 1.
              Else: &value1; := &nil;, &mv-count; := 1.</entry></row>
- <row><entry><literal role="sexp">(UNBOUND->NIL &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(UNBOUND->NIL &n-r;)</literal></entry>
       <entry>If a local variable is unbound, assign a default value
              &nil; to it.</entry>
       <entry>If *(&STACK;+&n-r;) is &unbound;,
@@ -1177,41 +1171,41 @@ letters:
 <informaltable id="instr-mulval-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
- <row><entry><literal role="sexp">(VALUES0)</literal></entry>
+ <row><entry><literal role="byte">(VALUES0)</literal></entry>
       <entry>Load no values into values.</entry>
       <entry>&value1; := &nil;, &mv-count; := 0</entry>
   </row>
- <row><entry><literal role="sexp">(VALUES1)</literal></entry>
+ <row><entry><literal role="byte">(VALUES1)</literal></entry>
       <entry>Forget secondary values.</entry>
       <entry>&mv-count; := 1</entry>
   </row>
- <row><entry><literal role="sexp">(&STACK;-TO-MV &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(&STACK;-TO-MV &n-r;)</literal></entry>
       <entry>Pop the first &n-r; objects from &STACK; into values.</entry>
       <entry>Load values(*(&STACK;+&n-r;-1),...,*(&STACK;+0)) into
              values. &STACK; += &n-r;.</entry></row>
- <row><entry><literal role="sexp">(MV-TO-&STACK;)</literal></entry>
+ <row><entry><literal role="byte">(MV-TO-&STACK;)</literal></entry>
       <entry>Save values on &STACK;.</entry>
       <entry>Push the &mv-count; values onto the &STACK;
              (in order: &value1; comes first).
              &STACK; -= &mv-count;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(NV-TO-&STACK; &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(NV-TO-&STACK; &n-r;)</literal></entry>
       <entry>Save &n-r; values on &STACK;.</entry>
       <entry>Push the first &n-r; values onto the &STACK;
              (in order: &value1; comes first).
              &STACK; -= &n-r;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(MV-TO-LIST)</literal></entry>
+ <row><entry><literal role="byte">(MV-TO-LIST)</literal></entry>
       <entry>Convert &mul-val; into a list.</entry>
       <entry>&value1; := list of values, &mv-count; := 1</entry></row>
- <row><entry><literal role="sexp">(LIST-TO-MV)</literal></entry>
+ <row><entry><literal role="byte">(LIST-TO-MV)</literal></entry>
       <entry>Convert a &list-t; into &mul-val;.</entry>
       <entry>Call the function &values-list; with &value1; as argument.
              The returned values go into values.</entry></row>
- <row><entry><literal role="sexp">(MVCALLP)</literal></entry>
+ <row><entry><literal role="byte">(MVCALLP)</literal></entry>
       <entry>Start a &multiple-value-call; invocation.</entry>
       <entry>*--&SP; := &STACK;. *--&STACK; := &value1;.</entry></row>
- <row><entry><literal role="sexp">(MVCALL)</literal></entry>
+ <row><entry><literal role="byte">(MVCALL)</literal></entry>
       <entry>Finish a &multiple-value-call; invocation.</entry>
       <entry>newSTACK := *&SP;++.
              Call the function *(newSTACK-1), passing it
@@ -1226,25 +1220,25 @@ letters:
 <informaltable id="instr-block-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
- <row><entry><literal role="sexp">(BLOCK-OPEN &n-r; &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(BLOCK-OPEN &n-r; &lab-r;)</literal></entry>
   <entry>Create a &block; frame.</entry>
   <entry>Create a &block; frame, &STACK; -= 3, &SP; -= 2+&jbs;.
    The topmost (third) object in the block frame is
    &cons;(&consts;[&n-r;],frame-pointer) (its &bc-r;).
    Upon a &return-from; to this frame, execution will continue at &lab-r;.
    values undefined.</entry></row>
- <row><entry><literal role="sexp">(BLOCK-CLOSE)</literal></entry>
+ <row><entry><literal role="byte">(BLOCK-CLOSE)</literal></entry>
       <entry>Dissolve a &block; frame.</entry>
       <entry>Dissolve the &block; frame at &STACK;, &STACK; += 3,
              &SP; += 2+&jbs;. Mark the &bc-r; as invalid.</entry></row>
- <row><entry><literal role="sexp">(RETURN-FROM &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(RETURN-FROM &n-r;)</literal></entry>
       <entry>Leave a &block; whose &bc-r; is given.</entry>
       <entry>&bc-r; := &consts;[&n-r;].
              If &cdr;(&bc-r;) = &disabled;, &signal; an &error-t;.
              Else &cdr;(&bc-r;) is a frame-pointer.
              Unwind the stack up to this frame, pass it values.</entry></row>
  <row><entry><literal
-         role="sexp">(RETURN-FROM-I &k1-r; &k2-r; &n-r;)</literal></entry>
+         role="byte">(RETURN-FROM-I &k1-r; &k2-r; &n-r;)</literal></entry>
       <entry>Leave a &block; whose &bc-r; is indirectly accessible.</entry>
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
              &bc-r; := *(*(&SP;+&k-r;)+&n-r;).
@@ -1258,7 +1252,7 @@ letters:
 <informaltable id="instr-tagbody-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
- <row><entry><literal role="sexp">(TAGBODY-OPEN &m-r;
+ <row><entry><literal role="byte">(TAGBODY-OPEN &m-r;
              <replaceable>label&sub-1;</replaceable> ...
              <replaceable>label&sub-n;</replaceable>)</literal></entry>
       <entry>Create a &tagbody; frame.</entry>
@@ -1271,25 +1265,25 @@ letters:
              will continue at
               <replaceable>label<subscript>l</subscript></replaceable>.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(TAGBODY-CLOSE-NIL)</literal></entry>
+ <row><entry><literal role="byte">(TAGBODY-CLOSE-NIL)</literal></entry>
       <entry>Dissolve a &tagbody; frame, and load &nil; into values.</entry>
       <entry>Dissolve the &tagbody; frame at &STACK;,
              &STACK; += 3+&m-r;, &SP; += 1+&jbs;.
              Mark the &tbc-r; as invalid.
              &value1; := &nil;, &mv-count; := 1.</entry></row>
- <row><entry><literal role="sexp">(TAGBODY-CLOSE)</literal></entry>
+ <row><entry><literal role="byte">(TAGBODY-CLOSE)</literal></entry>
       <entry>Dissolve a &tagbody; frame.</entry>
       <entry>Dissolve the &tagbody; frame at &STACK;,
              &STACK; += 3+&m-r;, &SP; += 1+&jbs;.
              Mark the &tbc-r; as invalid.</entry></row>
- <row><entry><literal role="sexp">(GO &n-r; &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(GO &n-r; &lab-r;)</literal></entry>
       <entry>Jump into a &tagbody; whose &tbc-r; is given.</entry>
       <entry>&tbc-r; := &consts;[&n-r;].
              If &cdr;(&tbc-r;) = &disabled;, &signal; an &error-t;.
              Else &cdr;(&tbc-r;) is a frame-pointer. Unwind the stack up
              to this frame, pass it the number &lab-r;.</entry></row>
  <row><entry><literal
-         role="sexp">(GO-I &k1-r; &k2-r; &n-r; &lab-r;)</literal></entry>
+         role="byte">(GO-I &k1-r; &k2-r; &n-r; &lab-r;)</literal></entry>
       <entry>Jump into a &tagbody; whose &tbc-r; is indirectly
              accessible.</entry>
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
@@ -1304,17 +1298,17 @@ letters:
 <informaltable id="instr-catch-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
- <row><entry><literal role="sexp">(CATCH-OPEN &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(CATCH-OPEN &lab-r;)</literal></entry>
       <entry>Create a &catch; frame.</entry>
       <entry>Create a &catch; frame, with &value1; as tag.
              &STACK; -= 3, &SP; -= 2+&jbs;.
              Upon a &throw; to this tag execution continues at
              &lab-r;.</entry></row>
- <row><entry><literal role="sexp">(CATCH-CLOSE)</literal></entry>
+ <row><entry><literal role="byte">(CATCH-CLOSE)</literal></entry>
       <entry>Dissolve a &catch; frame.</entry>
       <entry>Dissolve the &catch; frame at &STACK;.
              &STACK; += 3, &SP; += 2+&jbs;.</entry></row>
- <row><entry><literal role="sexp">(THROW)</literal></entry>
+ <row><entry><literal role="byte">(THROW)</literal></entry>
       <entry>Non-local exit to a &catch; frame.</entry>
       <entry>&tag-r; := *&STACK;++.
              Search the innermost &catch; frame with tag
@@ -1327,7 +1321,7 @@ letters:
 <informaltable id="instr-unwind-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
- <row><entry><literal role="sexp">(UNWIND-PROTECT-OPEN
+ <row><entry><literal role="byte">(UNWIND-PROTECT-OPEN
              &lab-r;)</literal></entry>
       <entry>Create an &unwind-protect; frame.</entry>
       <entry>Create an &unwind-protect; frame.
@@ -1336,7 +1330,7 @@ letters:
              values will be saved on &STACK;, and execution will be
              transferred to &lab-r;.</entry></row>
  <row><entry><literal
-         role="sexp">(UNWIND-PROTECT-NORMAL-EXIT)</literal></entry>
+         role="byte">(UNWIND-PROTECT-NORMAL-EXIT)</literal></entry>
       <entry>Dissolve an &unwind-protect; frame, and start the cleanup
              code.</entry>
       <entry>Dissolve the &unwind-protect; frame at &STACK;.
@@ -1344,7 +1338,7 @@ letters:
              *--&SP; := 0, *--&SP; := 0, *--&SP; := &STACK;.
              Save the values on the &STACK;,
              &STACK; -= &mv-count;.</entry></row>
- <row><entry><literal role="sexp">(UNWIND-PROTECT-CLOSE)</literal></entry>
+ <row><entry><literal role="byte">(UNWIND-PROTECT-CLOSE)</literal></entry>
       <entry>Terminate the cleanup code.</entry>
       <entry>newSTACK := *&SP;++. Load
              values(*(newSTACK-1), ..., *(&STACK;+0)) into values.
@@ -1353,7 +1347,7 @@ letters:
              If both are 0, simply continue execution.
              If SPword2 is 0 but SPword1 is nonzero, interpret it as a
              label and jump to it.</entry></row>
- <row><entry><literal role="sexp">(UNWIND-PROTECT-CLEANUP)</literal></entry>
+ <row><entry><literal role="byte">(UNWIND-PROTECT-CLEANUP)</literal></entry>
       <entry>Dissolve an &unwind-protect; frame, and execute the cleanup
              code like a subroutine call.</entry>
       <entry>Dissolve the &unwind-protect; frame at &STACK;,
@@ -1369,13 +1363,13 @@ letters:
 <informaltable id="instr-handler-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
- <row><entry><literal role="sexp">(HANDLER-OPEN &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(HANDLER-OPEN &n-r;)</literal></entry>
       <entry>Create a handler frame.</entry>
       <entry>Create a handler frame, using &consts;[&n-r;] which
              contains the &condition-t; types, the corresponding labels and
              the current &SP; depth (= function entry &SP; - current &SP;).
              </entry></row>
- <row><entry><literal role="sexp">(HANDLER-BEGIN&amp;PUSH)</literal></entry>
+ <row><entry><literal role="byte">(HANDLER-BEGIN&amp;PUSH)</literal></entry>
       <entry>Start a handler.</entry>
       <entry>Restore the same &SP; state as after the HANDLER-OPEN.
              &value1; := the &condition-t; that was passed to the handler,
@@ -1389,44 +1383,44 @@ letters:
 <informaltable id="instr-inline-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
- <row><entry><literal role="sexp">(NOT)</literal></entry>
+ <row><entry><literal role="byte">(NOT)</literal></entry>
       <entry>Inlined call to &not-f;.</entry>
       <entry>&value1; := not(&value1;), &mv-count; := 1.</entry></row>
- <row><entry><literal role="sexp">(EQ)</literal></entry>
+ <row><entry><literal role="byte">(EQ)</literal></entry>
       <entry>Inlined call to &eq;.</entry>
       <entry>&value1; := eq(*&STACK;++,&value1;),
              &mv-count; := 1.</entry></row>
- <row><entry><literal role="sexp">(CAR)</literal></entry>
+ <row><entry><literal role="byte">(CAR)</literal></entry>
       <entry>Inlined call to &car;.</entry>
       <entry>&value1; := &car;(&value1;), &mv-count; := 1.</entry></row>
- <row><entry><literal role="sexp">(CDR)</literal></entry>
+ <row><entry><literal role="byte">(CDR)</literal></entry>
       <entry>Inlined call to &cdr;.</entry>
       <entry>&value1; := &cdr;(&value1;), &mv-count; := 1.</entry></row>
- <row><entry><literal role="sexp">(CONS)</literal></entry>
+ <row><entry><literal role="byte">(CONS)</literal></entry>
       <entry>Inlined call to &cons;.</entry>
       <entry>&value1; := cons(*&STACK;++,&value1;),
              &mv-count; := 1.</entry></row>
- <row><entry><literal role="sexp">(SYMBOL-FUNCTION)</literal></entry>
+ <row><entry><literal role="byte">(SYMBOL-FUNCTION)</literal></entry>
       <entry>Inlined call to &symbol-function;.</entry>
       <entry>&value1; := &symbol-function;(&value1;),
              &mv-count; := 1.</entry></row>
- <row><entry><literal role="sexp">(SVREF)</literal></entry>
+ <row><entry><literal role="byte">(SVREF)</literal></entry>
       <entry>Inlined call to &svref;.</entry>
       <entry>&value1; := &svref;(*&STACK;++,&value1;),
              &mv-count; := 1.</entry></row>
- <row><entry><literal role="sexp">(SVSET)</literal></entry>
-      <entry>Inlined call to <function>SYSTEM::SVSTORE</function>.</entry>
+ <row><entry><literal role="byte">(SVSET)</literal></entry>
+      <entry>Inlined call to <function>(&setf; &svref;</function>.</entry>
       <entry><replaceable>arg1</replaceable> := *(&STACK;+1),
              <replaceable>arg2</replaceable> := *(&STACK;+0), &STACK; += 2.
              &svref;(<replaceable>arg2</replaceable>,&value1;) :=
                   <replaceable>arg1</replaceable>.
              &value1; := <replaceable>arg1</replaceable>,
              &mv-count; := 1.</entry></row>
- <row><entry><literal role="sexp">(LIST &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(LIST &n-r;)</literal></entry>
       <entry>Inlined call to &list;.</entry>
       <entry>&value1; := &list;(*(&STACK;+&n-r;-1),...,*(&STACK;+0)),
              &mv-count; := 1, &STACK; += &n-r;.</entry></row>
- <row><entry><literal role="sexp">(LIST* &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(LIST* &n-r;)</literal></entry>
       <entry>Inlined call to &list-star;.</entry>
       <entry>&value1; := &list-star;(*(&STACK;+&n-r;-1),...,
                                      *(&STACK;+0),&value1;),
@@ -1439,186 +1433,186 @@ letters:
 <para>The most frequent short sequences of instructions have an
 equivalent combined instruction.  They are only present for space and
 speed optimization. The only exception is
-<literal role="sexp">FUNCALL&amp;SKIP&amp;RETGF</literal>, which is needed for
+<literal role="byte">FUNCALL&amp;SKIP&amp;RETGF</literal>, which is needed for
 generic functions.</para>
 
 <informaltable id="instr-combo-tab" frame="all">
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
  <thead><row><entry>mnemonic</entry><entry>equivalent</entry></row></thead>
 <tbody>
- <row><entry><literal role="sexp">(NIL&amp;PUSH)</literal></entry>
-      <entry><literal role="sexp">(NIL) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(NIL&amp;PUSH)</literal></entry>
+      <entry><literal role="byte">(NIL) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(T&amp;PUSH)</literal></entry>
-      <entry><literal role="sexp">(T) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(T&amp;PUSH)</literal></entry>
+      <entry><literal role="byte">(T) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CONST&amp;PUSH &n-r;)</literal></entry>
-      <entry><literal role="sexp">(CONST &n-r;) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(CONST&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="byte">(CONST &n-r;) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(LOAD&amp;PUSH &n-r;)</literal></entry>
-      <entry><literal role="sexp">(LOAD &n-r;) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(LOAD&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="byte">(LOAD &n-r;) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(LOADI&amp;PUSH &k1-r; &k2-r; &n-r;)</literal></entry>
-      <entry><literal role="sexp">(LOADI &k1-r; &k2-r; &n-r;) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(LOADI&amp;PUSH &k1-r; &k2-r; &n-r;)</literal></entry>
+      <entry><literal role="byte">(LOADI &k1-r; &k2-r; &n-r;) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(LOADC&amp;PUSH &n-r; &m-r;)</literal></entry>
-      <entry><literal role="sexp">(LOADC &n-r; &m-r;) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(LOADC&amp;PUSH &n-r; &m-r;)</literal></entry>
+      <entry><literal role="byte">(LOADC &n-r; &m-r;) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(LOADV&amp;PUSH &k-r; &m-r;)</literal></entry>
-      <entry><literal role="sexp">(LOADV &k-r; &m-r;) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(LOADV&amp;PUSH &k-r; &m-r;)</literal></entry>
+      <entry><literal role="byte">(LOADV &k-r; &m-r;) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(POP&amp;STORE &n-r;)</literal></entry>
-      <entry><literal role="sexp">(POP) (STORE &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(POP&amp;STORE &n-r;)</literal></entry>
+      <entry><literal role="byte">(POP) (STORE &n-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(GETVALUE&amp;PUSH &n-r;)</literal></entry>
-      <entry><literal role="sexp">(GETVALUE &n-r;) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(GETVALUE&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="byte">(GETVALUE &n-r;) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(JSR&amp;PUSH &lab-r;)</literal></entry>
-      <entry><literal role="sexp">(JSR &lab-r;) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(JSR&amp;PUSH &lab-r;)</literal></entry>
+      <entry><literal role="byte">(JSR &lab-r;) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(COPY-CLOSURE&amp;PUSH &m-r; &n-r;)</literal></entry>
-      <entry><literal role="sexp">(COPY-CLOSURE &m-r; &n-r;) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(COPY-CLOSURE&amp;PUSH &m-r; &n-r;)</literal></entry>
+      <entry><literal role="byte">(COPY-CLOSURE &m-r; &n-r;) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALL&amp;PUSH &k-r; &n-r;)</literal></entry>
-      <entry><literal role="sexp">(CALL &k-r; &n-r;) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(CALL&amp;PUSH &k-r; &n-r;)</literal></entry>
+      <entry><literal role="byte">(CALL &k-r; &n-r;) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALL1&amp;PUSH &n-r;)</literal></entry>
-      <entry><literal role="sexp">(CALL1 &n-r;) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(CALL1&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="byte">(CALL1 &n-r;) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALL2&amp;PUSH &n-r;)</literal></entry>
-      <entry><literal role="sexp">(CALL2 &n-r;) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(CALL2&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="byte">(CALL2 &n-r;) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALLS1&amp;PUSH &b-r;)</literal></entry>
-      <entry><literal role="sexp">(CALLS1 &b-r;) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(CALLS1&amp;PUSH &b-r;)</literal></entry>
+      <entry><literal role="byte">(CALLS1 &b-r;) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALLS2&amp;PUSH &b-r;)</literal></entry>
-      <entry><literal role="sexp">(CALLS2 &b-r;) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(CALLS2&amp;PUSH &b-r;)</literal></entry>
+      <entry><literal role="byte">(CALLS2 &b-r;) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALLSR&amp;PUSH &m-r; &n-r;)</literal></entry>
-      <entry><literal role="sexp">(CALLSR &m-r; &n-r;) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(CALLSR&amp;PUSH &m-r; &n-r;)</literal></entry>
+      <entry><literal role="byte">(CALLSR &m-r; &n-r;) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALLC&amp;PUSH)</literal></entry>
-      <entry><literal role="sexp">(CALLC) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(CALLC&amp;PUSH)</literal></entry>
+      <entry><literal role="byte">(CALLC) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALLCKEY&amp;PUSH)</literal></entry>
-      <entry><literal role="sexp">(CALLCKEY) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(CALLCKEY&amp;PUSH)</literal></entry>
+      <entry><literal role="byte">(CALLCKEY) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(FUNCALL&amp;PUSH &n-r;)</literal></entry>
-      <entry><literal role="sexp">(FUNCALL &n-r;) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(FUNCALL&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="byte">(FUNCALL &n-r;) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(APPLY&amp;PUSH &n-r;)</literal></entry>
-      <entry><literal role="sexp">(APPLY &n-r;) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(APPLY&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="byte">(APPLY &n-r;) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CAR&amp;PUSH)</literal></entry>
-      <entry><literal role="sexp">(CAR) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(CAR&amp;PUSH)</literal></entry>
+      <entry><literal role="byte">(CAR) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CDR&amp;PUSH)</literal></entry>
-      <entry><literal role="sexp">(CDR) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(CDR&amp;PUSH)</literal></entry>
+      <entry><literal role="byte">(CDR) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CONS&amp;PUSH)</literal></entry>
-      <entry><literal role="sexp">(CONS) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(CONS&amp;PUSH)</literal></entry>
+      <entry><literal role="byte">(CONS) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(LIST&amp;PUSH &n-r;)</literal></entry>
-      <entry><literal role="sexp">(LIST &n-r;) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(LIST&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="byte">(LIST &n-r;) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(LIST*&amp;PUSH &n-r;)</literal></entry>
-      <entry><literal role="sexp">(LIST* &n-r;) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(LIST*&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="byte">(LIST* &n-r;) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(NIL&amp;STORE &n-r;)</literal></entry>
-      <entry><literal role="sexp">(NIL) (STORE &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(NIL&amp;STORE &n-r;)</literal></entry>
+      <entry><literal role="byte">(NIL) (STORE &n-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(T&amp;STORE &n-r;)</literal></entry>
-      <entry><literal role="sexp">(T) (STORE &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(T&amp;STORE &n-r;)</literal></entry>
+      <entry><literal role="byte">(T) (STORE &n-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(LOAD&amp;STOREC &k-r; &n-r; &m-r;)</literal></entry>
-      <entry><literal role="sexp">(LOAD &k-r;) (STOREC &n-r; &m-r;)</literal></entry>
+ <row><entry><literal role="byte">(LOAD&amp;STOREC &k-r; &n-r; &m-r;)</literal></entry>
+      <entry><literal role="byte">(LOAD &k-r;) (STOREC &n-r; &m-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALLS1&amp;STORE &b-r; &k-r;)</literal></entry>
-      <entry><literal role="sexp">(CALLS1 &b-r;) (STORE &k-r;)</literal></entry>
+ <row><entry><literal role="byte">(CALLS1&amp;STORE &b-r; &k-r;)</literal></entry>
+      <entry><literal role="byte">(CALLS1 &b-r;) (STORE &k-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALLS2&amp;STORE &b-r; &k-r;)</literal></entry>
-      <entry><literal role="sexp">(CALLS2 &b-r;) (STORE &k-r;)</literal></entry>
+ <row><entry><literal role="byte">(CALLS2&amp;STORE &b-r; &k-r;)</literal></entry>
+      <entry><literal role="byte">(CALLS2 &b-r;) (STORE &k-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALLSR&amp;STORE &m-r; &n-r; &k-r;)</literal></entry>
-      <entry><literal role="sexp">(CALLSR &m-r; &n-r;) (STORE &k-r;)</literal></entry>
+ <row><entry><literal role="byte">(CALLSR&amp;STORE &m-r; &n-r; &k-r;)</literal></entry>
+      <entry><literal role="byte">(CALLSR &m-r; &n-r;) (STORE &k-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(LOAD&amp;CDR&amp;STORE &n-r;)</literal></entry>
-      <entry><literal role="sexp">(LOAD &n-r;) (CDR) (STORE &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(LOAD&amp;CDR&amp;STORE &n-r;)</literal></entry>
+      <entry><literal role="byte">(LOAD &n-r;) (CDR) (STORE &n-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(LOAD&amp;CONS&amp;STORE &n-r;)</literal></entry>
-      <entry><literal role="sexp">(LOAD &n-r;+1) (CONS) (STORE &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(LOAD&amp;CONS&amp;STORE &n-r;)</literal></entry>
+      <entry><literal role="byte">(LOAD &n-r;+1) (CONS) (STORE &n-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(LOAD&amp;INC&amp;STORE &n-r;)</literal></entry>
-      <entry><literal role="sexp">(LOAD &n-r;) (CALL1 #'1+) (STORE &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(LOAD&amp;INC&amp;STORE &n-r;)</literal></entry>
+      <entry><literal role="byte">(LOAD &n-r;) (CALL1 #'1+) (STORE &n-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(LOAD&amp;DEC&amp;STORE &n-r;)</literal></entry>
-      <entry><literal role="sexp">(LOAD &n-r;) (CALL1 #'1-) (STORE &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(LOAD&amp;DEC&amp;STORE &n-r;)</literal></entry>
+      <entry><literal role="byte">(LOAD &n-r;) (CALL1 #'1-) (STORE &n-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(LOAD&amp;CAR&amp;STORE &m-r; &n-r;)</literal></entry>
-      <entry><literal role="sexp">(LOAD &m-r;) (CAR) (STORE &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(LOAD&amp;CAR&amp;STORE &m-r; &n-r;)</literal></entry>
+      <entry><literal role="byte">(LOAD &m-r;) (CAR) (STORE &n-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALL1&amp;JMPIF &n-r; &lab-r;)</literal></entry>
-      <entry><literal role="sexp">(CALL1 &n-r;) (JMPIF &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(CALL1&amp;JMPIF &n-r; &lab-r;)</literal></entry>
+      <entry><literal role="byte">(CALL1 &n-r;) (JMPIF &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALL1&amp;JMPIFNOT &n-r; &lab-r;)</literal></entry>
-      <entry><literal role="sexp">(CALL1 &n-r;) (JMPIFNOT &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(CALL1&amp;JMPIFNOT &n-r; &lab-r;)</literal></entry>
+      <entry><literal role="byte">(CALL1 &n-r;) (JMPIFNOT &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALL2&amp;JMPIF &n-r; &lab-r;)</literal></entry>
-      <entry><literal role="sexp">(CALL2 &n-r;) (JMPIF &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(CALL2&amp;JMPIF &n-r; &lab-r;)</literal></entry>
+      <entry><literal role="byte">(CALL2 &n-r;) (JMPIF &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALL2&amp;JMPIFNOT &n-r; &lab-r;)</literal></entry>
-      <entry><literal role="sexp">(CALL2 &n-r;) (JMPIFNOT &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(CALL2&amp;JMPIFNOT &n-r; &lab-r;)</literal></entry>
+      <entry><literal role="byte">(CALL2 &n-r;) (JMPIFNOT &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALLS1&amp;JMPIF &b-r; &lab-r;)</literal></entry>
-      <entry><literal role="sexp">(CALLS1 &b-r;) (JMPIF &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(CALLS1&amp;JMPIF &b-r; &lab-r;)</literal></entry>
+      <entry><literal role="byte">(CALLS1 &b-r;) (JMPIF &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALLS1&amp;JMPIFNOT &b-r; &lab-r;)</literal></entry>
-      <entry><literal role="sexp">(CALLS1 &b-r;) (JMPIFNOT &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(CALLS1&amp;JMPIFNOT &b-r; &lab-r;)</literal></entry>
+      <entry><literal role="byte">(CALLS1 &b-r;) (JMPIFNOT &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALLS2&amp;JMPIF &b-r; &lab-r;)</literal></entry>
-      <entry><literal role="sexp">(CALLS2 &b-r;) (JMPIF &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(CALLS2&amp;JMPIF &b-r; &lab-r;)</literal></entry>
+      <entry><literal role="byte">(CALLS2 &b-r;) (JMPIF &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALLS2&amp;JMPIFNOT &b-r; &lab-r;)</literal></entry>
-      <entry><literal role="sexp">(CALLS2 &b-r;) (JMPIFNOT &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(CALLS2&amp;JMPIFNOT &b-r; &lab-r;)</literal></entry>
+      <entry><literal role="byte">(CALLS2 &b-r;) (JMPIFNOT &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALLSR&amp;JMPIF &m-r; &n-r; &lab-r;)</literal></entry>
-      <entry><literal role="sexp">(CALLSR &m-r; &n-r;) (JMPIF &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(CALLSR&amp;JMPIF &m-r; &n-r; &lab-r;)</literal></entry>
+      <entry><literal role="byte">(CALLSR &m-r; &n-r;) (JMPIF &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALLSR&amp;JMPIFNOT &m-r; &n-r; &lab-r;)</literal></entry>
-      <entry><literal role="sexp">(CALLSR &m-r; &n-r;) (JMPIFNOT &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(CALLSR&amp;JMPIFNOT &m-r; &n-r; &lab-r;)</literal></entry>
+      <entry><literal role="byte">(CALLSR &m-r; &n-r;) (JMPIFNOT &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(LOAD&amp;JMPIF &n-r; &lab-r;)</literal></entry>
-      <entry><literal role="sexp">(LOAD &n-r;) (JMPIF &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(LOAD&amp;JMPIF &n-r; &lab-r;)</literal></entry>
+      <entry><literal role="byte">(LOAD &n-r;) (JMPIF &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(LOAD&amp;JMPIFNOT &n-r; &lab-r;)</literal></entry>
-      <entry><literal role="sexp">(LOAD &n-r;) (JMPIFNOT &lab-r;)</literal></entry>
+ <row><entry><literal role="byte">(LOAD&amp;JMPIFNOT &n-r; &lab-r;)</literal></entry>
+      <entry><literal role="byte">(LOAD &n-r;) (JMPIFNOT &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(LOAD&amp;CAR&amp;PUSH &n-r;)</literal></entry>
-      <entry><literal role="sexp">(LOAD &n-r;) (CAR) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(LOAD&amp;CAR&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="byte">(LOAD &n-r;) (CAR) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(LOAD&amp;CDR&amp;PUSH &n-r;)</literal></entry>
-      <entry><literal role="sexp">(LOAD &n-r;) (CDR) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(LOAD&amp;CDR&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="byte">(LOAD &n-r;) (CDR) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(LOAD&amp;INC&amp;PUSH &n-r;)</literal></entry>
-      <entry><literal role="sexp">(LOAD &n-r;) (CALL1 #'1+) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(LOAD&amp;INC&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="byte">(LOAD &n-r;) (CALL1 #'1+) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(LOAD&amp;DEC&amp;PUSH &n-r;)</literal></entry>
-      <entry><literal role="sexp">(LOAD &n-r;) (CALL1 #'1-) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(LOAD&amp;DEC&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="byte">(LOAD &n-r;) (CALL1 #'1-) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CONST&amp;SYMBOL-FUNCTION &n-r;)</literal></entry>
-      <entry><literal role="sexp">(CONST &n-r;) (SYMBOL-FUNCTION)</literal></entry>
+ <row><entry><literal role="byte">(CONST&amp;SYMBOL-FUNCTION &n-r;)</literal></entry>
+      <entry><literal role="byte">(CONST &n-r;) (SYMBOL-FUNCTION)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CONST&amp;SYMBOL-FUNCTION&amp;PUSH &n-r;)</literal></entry>
-      <entry><literal role="sexp">(CONST &n-r;) (SYMBOL-FUNCTION) (PUSH)</literal></entry>
+ <row><entry><literal role="byte">(CONST&amp;SYMBOL-FUNCTION&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="byte">(CONST &n-r;) (SYMBOL-FUNCTION) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CONST&amp;SYMBOL-FUNCTION&amp;STORE &n-r; &k-r;)</literal></entry>
-      <entry><literal role="sexp">(CONST &n-r;) (SYMBOL-FUNCTION) (STORE &k-r;)</literal></entry>
+ <row><entry><literal role="byte">(CONST&amp;SYMBOL-FUNCTION&amp;STORE &n-r; &k-r;)</literal></entry>
+      <entry><literal role="byte">(CONST &n-r;) (SYMBOL-FUNCTION) (STORE &k-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(APPLY&amp;SKIP&amp;RET &n-r; &k-r;)</literal></entry>
-      <entry><literal role="sexp">(APPLY &n-r;) (SKIP&amp;RET &k-r;)</literal></entry>
+ <row><entry><literal role="byte">(APPLY&amp;SKIP&amp;RET &n-r; &k-r;)</literal></entry>
+      <entry><literal role="byte">(APPLY &n-r;) (SKIP&amp;RET &k-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(FUNCALL&amp;SKIP&amp;RETGF &n-r; &k-r;)</literal></entry>
-      <entry><literal role="sexp">(FUNCALL &n-r;) (SKIP&amp;RETGF &k-r;)</literal></entry>
+ <row><entry><literal role="byte">(FUNCALL&amp;SKIP&amp;RETGF &n-r; &k-r;)</literal></entry>
+      <entry><literal role="byte">(FUNCALL &n-r;) (SKIP&amp;RETGF &k-r;)</literal></entry>
   </row>
 </tbody></tgroup></informaltable>
 
@@ -1633,15 +1627,15 @@ operands) for the following frequent instructions:</para>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
  <thead><row><entry>mnemonic</entry><entry>operand range</entry></row></thead>
 <tbody>
- <row><entry><literal role="sexp">(LOAD &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(LOAD &n-r;)</literal></entry>
       <entry>0 &le; &n-r; &lt; 15</entry></row>
- <row><entry><literal role="sexp">(LOAD&amp;PUSH &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(LOAD&amp;PUSH &n-r;)</literal></entry>
       <entry>0 &le; &n-r; &lt; 25</entry></row>
- <row><entry><literal role="sexp">(CONST &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(CONST &n-r;)</literal></entry>
       <entry>0 &le; &n-r; &lt; 21</entry></row>
- <row><entry><literal role="sexp">(CONST&amp;PUSH &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(CONST&amp;PUSH &n-r;)</literal></entry>
       <entry>0 &le; &n-r; &lt; 30</entry></row>
- <row><entry><literal role="sexp">(STORE &n-r;)</literal></entry>
+ <row><entry><literal role="byte">(STORE &n-r;)</literal></entry>
       <entry>0 &le; &n-r; &lt; 8</entry></row>
 </tbody></tgroup></informaltable>
 
