@@ -52,9 +52,7 @@
          (*reading-struct* nil)
          (*backquote-level* (1+ (or *backquote-level* 0)))
          (object (read stream t nil t)))
-    (unless (or (and (vectorp object)
-                     (not (stringp object))
-                     (not (bit-vector-p object)))
+    (unless (or (and (vectorp object) (eq (array-element-type object) 'T))
                 (listp object))
       (when *unquote-occurred*
         (error-of-type 'reader-error
@@ -196,7 +194,7 @@
             (if *backquote-optimize*
               (bq-optimize-for-list expansion)
               (cons 'append expansion))))))
-    ((and (vectorp form) (not (or (stringp form) (bit-vector-p form))))
+    ((and (vectorp form) (eq (array-element-type form) 'T))
       ;; Handle vector expansion, along the lines suggested by HyperSpec.
       (let ((expansion (bq-expand-list (map 'list #'identity form))))
         (if *backquote-optimize*
