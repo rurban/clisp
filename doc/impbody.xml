@@ -1123,9 +1123,37 @@ performance considerations.
  <literal role="data">(&cl-pac;)</literal>.</para></section>
 
 <section id="defpack"><title>Macro &defpackage;</title>
-<para>When the package being defined already exists, it is modified to
- conform with the new definition, except for the &case-sensitive-k;
- option which is immutable.</para></section>
+<para>When the package being defined already exists, it is modified as
+ follows (and in this order):<variablelist>
+  <varlistentry><term><constant>:NICKNAMES</constant></term>
+   <listitem><simpara>adjusted with &rename-package;
+  </simpara></listitem></varlistentry>
+  <varlistentry><term>&documentation-k;</term>
+   <listitem><simpara>reset to the new value with <code>(&setf;
+      &documentation;)</code></simpara></listitem></varlistentry>
+  <varlistentry><term><constant>:SHADOW</constant></term>
+   <listitem><simpara>adjusted with &shadow;
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><constant>:SHADOWING-IMPORT-FROM</constant></term>
+   <listitem><simpara>adjusted with &shadowing-import;
+  </simpara></listitem></varlistentry>
+  <varlistentry><term>&use-k;</term>
+   <listitem><simpara>adjusted with &use-package; and &unuse-package;
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><constant>:IMPORT-FROM</constant></term>
+   <listitem><simpara>adjusted with &import;
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><constant>:INTERN</constant></term>
+   <listitem><simpara>adjusted with &intern; (but &not-e; &unintern;)
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><constant>:EXPORT</constant></term>
+   <listitem><simpara>adjusted with &intern; and &export; (but &not-e;
+     &unexport;)</simpara></listitem></varlistentry>
+  <varlistentry><term><constant>:SIZE</constant></term>
+   <listitem><simpara>ignored</simpara></listitem></varlistentry>
+  <varlistentry><term>&case-sensitive-k;</term>
+   <listitem><simpara>immutable</simpara></listitem></varlistentry>
+</variablelist></para></section>
 
 <section id="re-export"><title>Function &re-export;</title>
 
