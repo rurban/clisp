@@ -1,11 +1,16 @@
 ;;;; Debugger, Stepper, Errors
 
 (in-package "EXT")
-(export '(custom::*prompt*) "CUSTOM")
+(export
+ '(custom::*prompt-start* custom::*prompt-step* custom::*prompt-break*
+   custom::*prompt-body* custom::*prompt-finish*)
+ "CUSTOM")
 (export
  '(*command-index* prompt-new-package package-short-name
    #+unix make-xterm-io-stream
-   custom::*prompt*)
+   break-level step-level
+   custom::*prompt-start* custom::*prompt-step* custom::*prompt-break*
+   custom::*prompt-body* custom::*prompt-finish*)
  "EXT")
 (in-package "SYSTEM")
 
@@ -44,7 +49,7 @@
 ; The number of commands received so far.
 (defvar *command-index* 0)
 
-; The starting package of this session.
+;; The starting package of this session (used here and in SAVEINITMEM)
 (defvar *home-package* nil)
 
 ;; Returns the current package or NIL if it never changed.
@@ -52,31 +57,47 @@
   (unless *home-package* (setq *home-package* *package*))
   (unless (eq *home-package* *package*) *package*))
 
-(defvar *prompt*
-  #'(lambda ()
-      ;; prompt with *package* when it is different from the initial one
-      ;; or when it doesn't contain standard LISP symbols, like T.
-      (if (and (packagep *package*) (package-name *package*))
+(defmacro prompt-to-string (variable)
+  `(typecase ,variable
+     (string ,variable)
+     (function
+      (multiple-value-bind (value error) (ignore-errors (funcall ,variable))
+        (if error
+            (string-concat ,(symbol-name variable) "->"
+                           (symbol-name (type-of error)))
+            (if (stringp value) value
+                (princ-to-string value)))))
+     (t (princ-to-string ,variable))))
+
+;; Prompt - first part:
+(defvar *prompt-start* ""
+  "The initial part of the prompt, defaults to an empty string.")
+(defun prompt-start () (prompt-to-string *prompt-start*))
+
+(defun break-level () *break-count*)
+(defvar *prompt-break*
+  (lambda () (string-concat "Break " (princ-to-string (break-level)) " "))
+  "The break level part of the prompt, may use `EXT:BREAK-LEVEL'.")
+(defun prompt-break () (prompt-to-string *prompt-break*))
+
+(defvar *prompt-body*
+  (lambda ()
+    ;; prompt with *package* when it is different from the initial one
+    ;; or when it doesn't contain standard LISP symbols, like T.
+    (if (and (packagep *package*) (package-name *package*))
         (format nil "~@[~a~][~:d]"
                 (if (or (not (find-symbol "T" *package*))
                         (prompt-new-package))
-                  (package-short-name *package*))
+                    (package-short-name *package*))
                 (incf *command-index*))
         (TEXT "[*package* invalid]")))
-  "The top level prompt.  If a function, the return value is used.
-If anything else, printed.")
+  "The main top level prompt.")
+(defun prompt-body () (prompt-to-string *prompt-body*))
 
-;; Prompt - first part:
-(defun prompt-string1 () "")
-
-;; Prompt - second part:
-(defun prompt-string2 ()
-  (princ-to-string
-    (if (functionp *prompt*)
-      (ignore-errors (funcall *prompt*))
-      *prompt*)))
 ;; Prompt: last part
-(defun prompt-string3 () "> ")
+(defvar *prompt-finish* "> "
+  "The final part of the prompt")
+(defun prompt-finish () (prompt-to-string *prompt-finish*))
 
 ;; Help-function:
 (defvar *key-bindings* nil)     ; list of key-bindings and help strings
@@ -377,9 +398,7 @@ Continue       :c       switch off single step mode, continue evaluation
    #'(lambda ()
        (catch 'debug            ; catch the (throw 'debug ...)
          (when (read-eval-print   ; read-eval-print INPUT-line
-                (string-concat (prompt-string1)
-                               (prompt-string2)
-                               (prompt-string3))
+                (string-concat (prompt-start) (prompt-body) (prompt-finish))
                 (commands0))
            ;; T -> #<EOF>
            ;; NIL -> form is already evaluated
@@ -481,13 +500,8 @@ Continue       :c       switch off single step mode, continue evaluation
            (stream (make-synonym-stream '*debug-io*))
            (*standard-input* stream)
            (*standard-output* stream)
-           (prompt
-             (with-output-to-string (s)
-               (write-string (prompt-string1) s)
-               (write *break-count* :stream s)
-               (write-string ". Break " s)
-               (write-string (prompt-string2) s)
-               (write-string (prompt-string3) s)))
+           (prompt (string-concat (prompt-start) (prompt-break)
+                                  (prompt-body) (prompt-finish)))
            (*frame-limit1* (frame-limit1 13))
            (*frame-limit2* (frame-limit2))
            (*debug-mode* 4)
@@ -560,6 +574,12 @@ Continue       :c       switch off single step mode, continue evaluation
            (unless (endp L) (write-string ", " #|*debug-io*|#))))))
   (values-list values))
 
+(defun step-level () *step-level*)
+(defvar *prompt-step*
+  (lambda () (string-concat "Step " (princ-to-string (step-level)) " "))
+  "The stepper part of the prompt, may use `EXT:STEP-LEVEL'." )
+(defun prompt-step () (prompt-to-string *prompt-step*))
+
 (defun step-hook-fn (form &optional (env *toplevel-environment*))
   (let ((*step-level* (1+ *step-level*)))
     (when (>= *step-level* *step-quit*) ; while *step-level* >= *step-quit*
@@ -571,13 +591,8 @@ Continue       :c       switch off single step mode, continue evaluation
       (let* ((stream (make-synonym-stream '*debug-io*))
              (*standard-input* stream)
              (*standard-output* stream)
-             (prompt (with-output-to-string (s)
-                       (write-string (prompt-string1) s)
-                       (write-string "Step " s)
-                       (write *step-level* :stream s)
-                       (write-char #\Space s)
-                       (write-string (prompt-string2) s)
-                       (write-string (prompt-string3) s)))
+             (prompt (string-concat (prompt-start) (prompt-step)
+                                    (prompt-body) (prompt-finish)))
              (*frame-limit1* (frame-limit1 11))
              (*frame-limit2* (frame-limit2))
              (*debug-mode* 4)

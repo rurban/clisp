@@ -1444,36 +1444,67 @@ N. Gray to X3J13.</para>
 
 <section id="prompt"><title>Extensions-1.8. The Prompt</title>
 
-<para>The variable <firstterm>&prompt;</firstterm> controls
- the appearance of the prompt.  When its value is a function, it is
- called and its value is printed with &princ;.  Otherwise, the value
- itself is printed with &princ;.  The default value of &prompt; prints
- <prompt>"package[n]&gt;&nbsp;"</prompt> where &pack-r; is the shortest
- (nick)name of the current package &package-var; if it is &not-e; the
- same as it was in the beginning or if it does not contain symbol &t;
- (it is assumed that in the latter case you would want to keep in mind
- that your current package is something weird);
- and &n-r; is the ordinal number of the current prompt
- (hopefully, it will remain finite).
- To help you in constructing your own fancy prompts, two
- functions and one variable are provided:
+<para>&clisp; prompt consists of 3 mandatory parts: <quote>start</quote>,
+ <quote>body</quote>, and <quote>finish</quote>; and 2 optional parts:
+ <quote>break</quote>, which appears only during
+ <link linkend="debugger">debugging</link> (after &break; or &error;),
+ and <quote>step</quote>, which appears only during &step;ping.
+ Each part is controlled by a custom variable, which can be either a
+ &string-t; or a &function-t; of no arguments returning a &string-t;
+ (if it is something else - or if the return value was not a &string-t;
+ - it is printed with &princ;).  In the order of invocation:
  <variablelist>
-  <varlistentry><term>function
-    <function>EXT:PROMPT-NEW-PACKAGE</function></term>
-   <listitem><simpara>returns &package-var; or &nil; if the current
-     package is the same as it was initially
+  <varlistentry id="prompt-start"><term>&prompt-start;</term>
+   <listitem><simpara>Defaults to an empty string.
   </simpara></listitem></varlistentry>
-  <varlistentry><term>function
-    <function>EXT:PACKAGE-SHORT-NAME</function></term>
-   <listitem><simpara>takes one argument, a package, and returns its
-     shortest name or nickname</simpara></listitem></varlistentry>
-  <varlistentry><term>variable <varname>EXT:*COMMAND-INDEX*</varname></term>
+  <varlistentry id="prompt-step"><term>&prompt-step;</term>
+   <listitem><simpara>Used only during &step;ping.
+     Defaults to <prompt>"Step n&nbsp;"</prompt>,
+     where &n-r; is the stepping level as returned by &step-level;.
+  </simpara></listitem></varlistentry>
+  <varlistentry id="prompt-break"><term>&prompt-break;</term>
+   <listitem><simpara>Used only inside break loop (during debugging).
+     Defaults to <prompt>"Break n&nbsp;"</prompt>,
+     where &n-r; is the break level as returned by &break-level;.
+  </simpara></listitem></varlistentry>
+  <varlistentry id="prompt-body"><term>&prompt-body;</term>
+   <listitem><simpara>Defaults to <prompt>"package[n]"</prompt>
+     where &pack-r; is the shortest (nick)name (as returned by
+     &package-short-name;) of the current package &package-var;
+     if it is &not-e; the same as it was in the beginning
+     (determined by &prompt-new-package;)
+     or if it does not contain symbol &t;,
+     (it is assumed that in the latter case you would want to keep in
+     mind that your current package is something weird);
+     and &n-r; is the index of the current prompt, kept in &command-index;;
+  </simpara></listitem></varlistentry>
+  <varlistentry id="prompt-finish"><term>&prompt-finish;</term>
+   <listitem><simpara>Defaults to <prompt>&gt;&nbsp;</prompt>.
+</simpara></listitem></varlistentry></variablelist></para>
+
+<para>To facilitate your own custom prompt creation, the following
+ functions and variables are available:
+ <variablelist>
+  <varlistentry id="break-level"><term>&break-level;</term>
+   <listitem><simpara>This &function-t; returns current &break;/&error; level.
+  </simpara></listitem></varlistentry>
+  <varlistentry id="step-level"><term>&step-level;</term>
+   <listitem><simpara>This &function-t; returns current &step; level.
+  </simpara></listitem></varlistentry>
+  <varlistentry id="prompt-new-package"><term>&prompt-new-package;</term>
+   <listitem><simpara>This &function-t; returns &package-var; or &nil;
+     if the current package is the same as it was initially.
+  </simpara></listitem></varlistentry>
+  <varlistentry id="package-short-name"><term>&package-short-name;</term>
+   <listitem><simpara>This &function-t; takes one argument, a
+     &package-t;, and returns its shortest name or nickname.
+  </simpara></listitem></varlistentry>
+  <varlistentry id="command-index"><term>&command-index;</term>
    <listitem><simpara>contains the current prompt number;
      it is your responsibility to increment it
      (this variable is bound to 0 before saving the &mem-image;).
   </simpara></listitem></varlistentry>
- </variablelist></para>
-</section>
+</variablelist></para></section>
 
 
 <section id="ansi"><title>Extensions-1.9. Maximum ANSI CL compliance</title>
@@ -1671,7 +1702,11 @@ here <function>WITH-FOO</function> does not receive the
   <member><varname>CUSTOM:*PRINT-PRETTY-FILL*</varname></member>
   <member>&pr-rpars;</member>
   <member><varname>CUSTOM:*PRINT-SYMBOLS-LONG*</varname></member>
-  <member>&prompt;</member>
+  <member>&prompt-body;</member>
+  <member>&prompt-break;</member>
+  <member>&prompt-finish;</member>
+  <member>&prompt-start;</member>
+  <member>&prompt-step;</member>
   <member>&count-ansi;</member>
   <member>&source-types;</member>
   <member>&suppress-check-redef;</member>
