@@ -528,6 +528,9 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             case Rectype_Readtable:
               # Readtables are not printed component-wise
               goto m_end;
+            case Rectype_Weakpointer: /* only the value is printed! */
+              get_circ_mark(TheWeakpointer(obj)->wp_value,env);
+              goto m_end;
             default: break;
           }
           # Pathnames, Random-States, Bytes, Fsubrs, Loadtimeevals,
@@ -833,6 +836,9 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             case Rectype_Readtable:
               # Readtables are not printed component-wise
               goto m_end;
+            case Rectype_Weakpointer: /* only the value is printed! */
+              get_circ_mark(TheWeakpointer(obj)->wp_value,env);
+              goto m_end;
             default: break;
           }
           # Pathnames, Random-States, Bytes, Fsubrs, Loadtimeevals,
@@ -1010,6 +1016,9 @@ global object subst_circ (gcv_object_t* ptr, object alist);
               goto u_end;
             case Rectype_Readtable:
               # Readtables are not printed component-wise
+              goto u_end;
+            case Rectype_Weakpointer: /* only the value is printed! */
+              get_circ_unmark(TheWeakpointer(obj)->wp_value,env);
               goto u_end;
             default: break;
           }
