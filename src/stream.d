@@ -15607,7 +15607,16 @@ LISPFUNN(built_in_stream_element_type,1) {
   var object stream = popSTACK();
   check_builtin_stream(stream);
   var object eltype;
+ start:
   switch (TheStream(stream)->strmtype) {
+    case strmtype_synonym: # Synonym-Stream: follow further
+      resolve_as_synonym(stream);
+      if (builtin_stream_p(stream))
+        goto start;
+      else { # Call (STREAM-ELEMENT-TYPE stream):
+        pushSTACK(stream); funcall(S(stream_element_type),1);
+      }
+      break;
     # first the stream-types with restricted element-types:
     case strmtype_str_in:
     case strmtype_str_out:
