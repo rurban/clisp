@@ -1,5 +1,10 @@
 2005-01-31  Sam Steingold  <sds@gnu.org>
 
+	* spvw_sigsegv.d (print_mem_stats): new function
+	(sigsegv_handler_failed, stackoverflow_handler): call it
+
+2005-01-31  Sam Steingold  <sds@gnu.org>
+
 	fixed TRUENAME on WIN32: it used to lose :VERSION :NEWEST
 	* pathname.d (substitute_resolved_path): new function, extracted
 	from assure_dir_exists/unix
