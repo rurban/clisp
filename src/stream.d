@@ -5020,7 +5020,20 @@ global object iconv_range(encoding,start,end)
       # In case this didn't work, and as a general method for platforms on
       # which clear_tty_input() does nothing: read a byte, as long as listen
       # says that a byte is available.
-      while (ls_avail_p(low_listen_unbuffered_handle(stream))) { low_read_unbuffered_handle(stream); }
+      while (ls_avail_p(low_listen_unbuffered_handle(stream)))
+        {
+          #ifdef WIN32_NATIVE
+          # Our low_listen_unbuffered_handle function, when applied to a WinNT
+          # console, cannot tell when there is an LF pending after the
+          # preceding CR has been eaten. Therefore be careful to set
+          # UnbufferedStream_ignore_next_LF to TRUE when we read a LF.
+          var uintL c = low_read_unbuffered_handle(stream);
+          if (c >= 0)
+            UnbufferedStream_ignore_next_LF(stream) = (c == CR);
+          #else
+          low_read_unbuffered_handle(stream);
+          #endif
+        }
       return TRUE;
     }
 
@@ -5264,7 +5277,14 @@ global object iconv_range(encoding,start,end)
     { if (nullp(TheStream(stream)->strm_isatty))
         { return FALSE; } # it's a file -> nothing to do
       TheStream(stream)->strm_rd_ch_last = NIL; # forget about past EOF
+      #ifdef WIN32_NATIVE
+      # Our low_listen_unbuffered_handle function, when applied to a WinNT
+      # console, cannot tell when there is an LF pending after the
+      # preceding CR has been eaten. Therefore be careful not to reset
+      # UnbufferedStream_ignore_next_LF.
+      #else
       UnbufferedStream_ignore_next_LF(stream) = FALSE;
+      #endif
       UnbufferedStreamLow_clear_input(stream)(stream);
       return TRUE;
     }
