@@ -1,5 +1,11 @@
 2001-08-21  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (XCFLAGS): with win32gcc, do not need
+	-D_NO_OLDNAMES: there is no sleep() in stdlib.h and
+	_NO_OLDNAMES_ kills struct timeb in timeb.h
+
+2001-08-21  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #446942
 	* makemake.in (DISTFILE): isulate from AIX uname which does not
 	have the -p option
