@@ -161,6 +161,7 @@ case typecase  otherwise ; otherwise als Marker für die catchall-clause
 return loop do do* dolist dotimes prog prog* multiple-value-list
 multiple-value-bind multiple-value-setq defmacro remf do-symbols
 do-external-symbols do-all-symbols incf decf push pushnew pop defstruct
+with-package-iterator
 with-open-stream with-input-from-string with-output-to-string
 with-standard-io-syntax with-open-file define-symbol-macro
 check-type assert etypecase ctypecase ecase ccase trace untrace step time space
