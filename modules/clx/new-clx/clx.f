@@ -1055,7 +1055,7 @@ local object get_display_obj (object obj)
 #define get_cursor_and_display(obj, dpyf)   ((Cursor)  get_xid_object_and_display (`XLIB::CURSOR`,   obj, dpyf))
 #define get_colormap_and_display(obj, dpyf) ((Colormap)get_xid_object_and_display (`XLIB::COLORMAP`, obj, dpyf))
 #define get_gcontext_and_display(obj,dpyf)  ((GC)      get_ptr_object_and_display (`XLIB::GCONTEXT`, obj, dpyf))
-#define get_screen_and_display(obj,dpyf)    ((Screen*) get_ptr_object_and_display (`XLIB::SCREEB`,   obj, dpyf))
+#define get_screen_and_display(obj,dpyf)    ((Screen*) get_ptr_object_and_display (`XLIB::SCREEN`,   obj, dpyf))
 #define get_font_and_display(obj, dpyf)     ((Font)    get_xid_object_and_display (`XLIB::FONT`,     obj, dpyf))
 
 // Predicates
@@ -1501,7 +1501,7 @@ local int get_enum (int n)
   /* Fall thru` -- raise type error */
   pushSTACK (`MEMBER`);
   pushSTACK (TheSubr(subr_self)->name); 	// incorparate also the subr name -- We have to save it!
-  funcall (L(list), n+2);
+  value1 = listof(n+2);
   pushSTACK (value1);
   funcall (L(nreverse), 1);
 
@@ -1514,7 +1514,7 @@ nonreturning_function(local, enum_error, (char *name, int value, int count));
 local void enum_error (char *name, int value, int count)
      // This function should never been called!
 {
-  funcall (L(list), count);
+  value1 = listof(count);
   pushSTACK (value1);
   pushSTACK (asciz_to_string (name, misc_encoding ()));
   pushSTACK (fixnum (count));
@@ -2030,15 +2030,14 @@ defun XLIB:MAKE-EVENT-KEYS (1)
   if (mask & (1L<<22)) pushSTACK (`:PROPERTY-CHANGE`), n++;
   if (mask & (1L<<23)) pushSTACK (`:COLORMAP-CHANGE`), n++;
   if (mask & (1L<<24)) pushSTACK (`:OWNER-GRAB-BUTTON`), n++;
-  funcall (L(list), n);
+  VALUES1(listof(n));
 }
 
 defun XLIB:MAKE-EVENT-MASK (0, 0, rest, nokey, 0, NIL)
 {
   /* First make-up a list of the &rest arguments */
   // FIXME! That is silly! It introduces unnec. consing.
-  funcall (L(list), argcount);
-  VALUES1(make_uint32(get_event_mask(value1)));
+  VALUES1(make_uint32(get_event_mask(listof(argcount))));
 }
 
 defun XLIB:MAKE-STATE-KEYS (1)
@@ -2058,7 +2057,7 @@ defun XLIB:MAKE-STATE-KEYS (1)
   if (mask & Button3Mask)     pushSTACK (`:BUTTON-3`), n++;
   if (mask & Button4Mask)     pushSTACK (`:BUTTON-4`), n++;
   if (mask & Button5Mask)     pushSTACK (`:BUTTON-5`), n++;
-  funcall (L(list), n);
+  VALUES1(listof(n));
 }
 
 defun XLIB:MAKE-STATE-MASK (0, 0, rest, nokey, 0, NIL)
@@ -2351,7 +2350,7 @@ defun XLIB:DISPLAY-PIXMAP-FORMATS (1) // OK
       XFree (formats);
       end_call ();
     }
-  funcall (L(list), cnt);
+  VALUES1(listof(cnt));
 }
 
 defun XLIB:DISPLAY-PROTOCOL-MAJOR-VERSION (1) // OK
@@ -2390,7 +2389,7 @@ defun XLIB:DISPLAY-ROOTS (1) // OK
     // thru` all screens
     pushSTACK (make_screen (STACK_(i), ScreenOfDisplay (dpy, i)));
 
-  funcall (L(list), cnt);			// cons`em together
+  VALUES1(listof(cnt));                         // cons`em together
   skipSTACK (1);				// cleanup and all done
  }
 
@@ -2670,12 +2669,12 @@ defun XLIB:SCREEN-DEPTHS (1)
 	  end_call ();
 	}
 
-      // Cons `em up
-      funcall (L(list), n_visual_infos+1);
+      value1 = listof(n_visual_infos+1); // cons `em up
+      pushSTACK(value1);
     }
 
   // Final cons
-  funcall (L(list), ndepths);
+  VALUES1(listof(ndepths));
   if (depths)
     {
       begin_call ();
@@ -3127,6 +3126,23 @@ defun XLIB:DRAWABLE-ROOT (1)
   skipSTACK (1);
 }
 
+/* can trigger GC */
+local object coerce_result_type (unsigned int stack_count,
+                                 gcv_object_t *result_type)
+{ /* there are stack_count objects on the STACK, which will be removed
+     and collected into a sequence of type *result_type */
+  if (eq(*result_type,`LIST`) || missingp(*result_type))
+    return listof(stack_count);
+  else {
+    var object vec = vectorof(stack_count);
+    if (!eq(*result_type,`VECTOR`)) {
+      pushSTACK(vec); pushSTACK(*result_type);
+      funcall(L(coerce),2);
+      return value1;
+    } else return vec;
+  }
+}
+
 //
 //  XLIB:QUERY-TREE window &key (result-type `list)
 //
@@ -3134,7 +3150,7 @@ defun XLIB:QUERY-TREE (1, 0, norest, key, 1, (:RESULT-TYPE))
 {
   Window win;
   Display *dpy;
-  object *dpy_objf;
+  gcv_object_t *dpy_objf, *res_type = &STACK_0;
   Window root;
   Window parent;
   Window *childs;
@@ -3156,17 +3172,8 @@ defun XLIB:QUERY-TREE (1, 0, norest, key, 1, (:RESULT-TYPE))
       if (childs) XFree (childs);
 
       // Now cons `em together
-      funcall (L(list), nchilds);
+      value1 = coerce_result_type(nchilds,res_type);
 
-      // coerce it to the right type if necessary
-      if (boundp(STACK_1))
-	{
-	  pushSTACK (value1);
-	  pushSTACK (STACK_2);
-	  funcall (L(coerce), 2);
-	}
-
-      // value1 har børns listet
       pushSTACK (value1);
       pushSTACK (make_window (*dpy_objf, parent));
       pushSTACK (make_window (*dpy_objf, root));
@@ -4548,7 +4555,7 @@ void general_draw_text (int image_p)
 	  pushSTACK (fixnum (8));
 	  pushSTACK (fixnum (16));
 	  pushSTACK (`:DEFAULT`);
-	  funcall (L(list), 4);
+	  value1 = listof(4);
 	  pushSTACK (value1);	// type
 	  my_standard_type_error (TheSubr(subr_self)->name); // XXX
 	}
@@ -5194,6 +5201,7 @@ defun XLIB:FONT-PATH (1, 0, norest, key, 1, (:RESULT-TYPE)) // [OK]
   Display *dpy;
   int npathen, i;
   char **pathen;
+  gcv_object_t *res_type = &STACK_0;
 
   pushSTACK (STACK_1); dpy = pop_display ();
 
@@ -5203,19 +5211,11 @@ defun XLIB:FONT-PATH (1, 0, norest, key, 1, (:RESULT-TYPE)) // [OK]
 
   for (i = 0; i < npathen; i++)
     pushSTACK (asciz_to_string (pathen[i], misc_encoding ()));
-  funcall (L(list), npathen);
+  VALUES1(coerce_result_type(npathen,res_type));
 
   begin_call ();
   if (pathen) XFreeFontPath (pathen);
   end_call ();
-
-  // coerce it to the right type if necessary
-  if (boundp(STACK_0))
-    {
-      pushSTACK (value1);
-      pushSTACK (STACK_1);
-      funcall (L(coerce), 2);
-    }
 
   skipSTACK (2);		// all done
 }
@@ -5275,44 +5275,37 @@ defun XLIB:SET-FONT-PATH (2)
   skipSTACK (2);
 }
 
-local void coerce_it (object cl_type);
-
 //
-//  XLIB:LIST-FONT-NAMES display pattern &key (:max-fonts 65535) (:result-type `list)
+//  XLIB:LIST-FONT-NAMES display pattern &key (:max-fonts 65535)
+//                       (:result-type `list)
 //
 //  -> sequence of string.
 //
-defun XLIB:LIST-FONT-NAMES (2, 0, norest, key, 2, (:MAX-FONTS :RESULT-TYPE)) // OK
+defun XLIB:LIST-FONT-NAMES (2, 0, norest, key, 2, /* OK */
+                            (:MAX-FONTS :RESULT-TYPE))
 {
   Display *dpy  = (pushSTACK (STACK_3), pop_display ());
   int max_fonts = boundp(STACK_1) ? get_fixnum(STACK_1) : 65535;
   int count = 0, i;
   char **names;
+  gcv_object_t *res_type = &STACK_0;
 
   if (stringp (STACK_2))
     {
       with_string_0 (STACK_2, misc_encoding (), pattern,
 	{
 	  begin_call ();
-	  if (names = XListFonts (dpy, pattern, max_fonts, &count))
-	    {
-	      end_call ();
+          names = XListFonts (dpy, pattern, max_fonts, &count);
+          end_call ();
 
-	      for (i = 0; i < count; i++)
-		pushSTACK (asciz_to_string (names[i], misc_encoding ()));
-
-	      begin_call ();
-	      XFreeFontNames (names);
-	      end_call ();
-	      funcall (L(list), count);
-	    }
-	  else
-	    {
-	      end_call ();
-	      value1 = NIL;
-	    }
-
-	  coerce_it (STACK_0);
+          if (count) {
+            for (i = 0; i < count; i++)
+              pushSTACK (asciz_to_string (names[i], misc_encoding ()));
+            begin_call ();
+            XFreeFontNames (names);
+            end_call ();
+          }
+	  VALUES1(coerce_result_type(count,res_type));
 	  skipSTACK (4);
 	});
     }
@@ -5325,7 +5318,8 @@ defun XLIB:LIST-FONT-NAMES (2, 0, norest, key, 2, (:MAX-FONTS :RESULT-TYPE)) // 
 }
 
 //
-//  XLIB:LIST-FONTS display pattern &key (:max-fonts 65535) (:result-type `list)
+//  XLIB:LIST-FONTS display pattern &key (:max-fonts 65535)
+//                  (:result-type `list)
 //  returns a sequence of pseudo fonts.
 //
 defun XLIB:LIST-FONTS (2, 0, norest, key, 2, (:MAX-FONTS :RESULT-TYPE))
@@ -5336,32 +5330,26 @@ defun XLIB:LIST-FONTS (2, 0, norest, key, 2, (:MAX-FONTS :RESULT-TYPE))
   int count = 0, i;
   char **names;
   XFontStruct *infos;
+  gcv_object_t *res_type = &STACK_0;
 
   if (stringp (STACK_2))
     {
       begin_call ();
       with_string_0 (STACK_2, misc_encoding (), pattern,
 	{
-	  if (names = XListFontsWithInfo (dpy, pattern, max_fonts, &count, &infos))
-	    {
-	      end_call ();
+	  names = XListFontsWithInfo (dpy, pattern, max_fonts, &count, &infos);
+          end_call ();
 
-	      for (i = 0; i < count; i++)
-		pushSTACK (make_font_with_info (*dpyf, 0, asciz_to_string (names[i], misc_encoding ()), infos+i));
+          if (count) {
+            for (i = 0; i < count; i++)
+              pushSTACK (make_font_with_info (*dpyf, 0, asciz_to_string (names[i], misc_encoding ()), infos+i));
 
-	      begin_call ();
-	      XFreeFontNames (names);
-	      end_call ();
-
-	      funcall (L(list), count);
-	    }
-	  else
-	    {
-	      end_call ();
-	      value1 = NIL;
-	    }
+            begin_call ();
+            XFreeFontNames (names);
+            end_call ();
+          }
 	});
-      coerce_it (STACK_0);
+      VALUES1(coerce_result_type(count,res_type));
       skipSTACK (4);
     }
   else
@@ -5448,7 +5436,7 @@ defun XLIB:FONT-PROPERTIES (1)
       end_call ();
     }
 
-  funcall (L(list), 2 * font_struct->n_properties);
+  VALUES1(listof(2 * font_struct->n_properties));
   skipSTACK (1);		// all done
 }
 
@@ -5709,18 +5697,6 @@ defun XLIB:TEXT-WIDTH (2, 0, norest, key, 3, (:START :END :TRANSLATE))
 //  MAKE-COLOR COLOR-BLUE COLOR-GREEN COLOR-P COLOR-RED COLOR-RGB
 //
 
-local void coerce_it (object cl_type)
-     // coerce value1 to cl_type
-     // unbound and NIL are interpreted as a NULL conversation.
-{
-  if (!missingp(cl_type))
-    {
-      pushSTACK (value1);
-      pushSTACK (cl_type);
-      funcall (L(coerce), 2);
-    }
-}
-
 /* 9.3  Colormap Functions */
 defun XLIB:CREATE-COLORMAP (2, 1)
 {
@@ -5784,6 +5760,7 @@ defun XLIB:INSTALLED-COLORMAPS (1, 0, norest, key, 1, (:RESULT-TYPE))
   int      num_cms = 0;		// paranoia
   int            i;
   Colormap    *cms;
+  gcv_object_t *res_type = &STACK_0;
 
   begin_call ();
   cms = XListInstalledColormaps (dpy, win, &num_cms);
@@ -5801,8 +5778,7 @@ defun XLIB:INSTALLED-COLORMAPS (1, 0, norest, key, 1, (:RESULT-TYPE))
     }
 
   // Now cons 'em together
-  funcall (L(list), num_cms);
-  coerce_it (STACK_0);
+  VALUES1(coerce_result_type(num_cms,res_type));
 
   skipSTACK (2);		// all done
 }
@@ -5901,17 +5877,20 @@ defun XLIB:ALLOC-COLOR (2)
 }
 
 //
-// XLIB:ALLOC-COLOR-CELLS colormap colors &key (:planes 0) :contiguous_p (:result-type `list)
+// XLIB:ALLOC-COLOR-CELLS colormap colors &key (:planes 0) :contiguous_p
+//                        (:result-type `list)
 // returns
 //   pixels, masks -- Type sequence of pixels
 //
-defun XLIB:ALLOC-COLOR-CELLS (2, 0, norest, key, 3, (:PLANES :CONTIGUOUS-P :RESULT-TYPE))
+defun XLIB:ALLOC-COLOR-CELLS (2, 0, norest, key, 3,
+                              (:PLANES :CONTIGUOUS-P :RESULT-TYPE))
 {
   Display         *dpy;
   Colormap          cm = get_colormap_and_display (STACK_4, &dpy);
   unsigned int npixels = get_uint32 (STACK_3);
   unsigned int nplanes = boundp(STACK_2) ? get_uint32(STACK_2) : 0;
   Bool    contiguous_p = !missingp(STACK_1);
+  gcv_object_t *res_type = &STACK_0;
 
   // FIXME -- we should introduce some checks here, since if the luser gave
   //          nonsense arguments, we might run into real problems.
@@ -5930,18 +5909,12 @@ defun XLIB:ALLOC-COLOR-CELLS (2, 0, norest, key, 3, (:PLANES :CONTIGUOUS-P :RESU
 
 	    for (i = 0; i < nplanes; i++)
 	      pushSTACK (make_uint32 (plane_masks [i]));
-	    funcall (L(list), nplanes);
-
-	    coerce_it (STACK_0);
+	    value1 = coerce_result_type(nplanes,res_type);
 	    pushSTACK (value1);
 
 	    for (i = 0; i < npixels; i++)
 	      pushSTACK (make_uint32 (pixels [i]));
-	    funcall (L(list), npixels);
-
-	    coerce_it (STACK_0);
-	    value2 = popSTACK ();
-	    mv_count = 2;
+	    VALUES2(coerce_result_type(npixels,res_type),popSTACK());
 	  }
 	else
 	  {
@@ -5977,6 +5950,7 @@ defun XLIB:ALLOC-COLOR-PLANES (2, 0, norest, key, 5,
   unsigned int  nblues = boundp(STACK_2) ? get_uint32(STACK_2) : 0;
   Bool    contiguous_p = !missingp(STACK_1);
   unsigned long red_mask, green_mask, blue_mask;
+  gcv_object_t *res_type = &STACK_0;
 
   {
     DYNAMIC_ARRAY (pixels, unsigned long, ncolors);
@@ -5991,9 +5965,7 @@ defun XLIB:ALLOC-COLOR-PLANES (2, 0, norest, key, 5,
 
 	for (i = 0; i < ncolors; i++)
 	  pushSTACK (make_uint32 (pixels [i]));
-	funcall (L(list), ncolors);
-
-	coerce_it (STACK_0);
+	value1 = coerce_result_type(ncolors,res_type);
 	pushSTACK (value1);
 	pushSTACK (make_uint32 (red_mask));
 	pushSTACK (make_uint32 (green_mask));
@@ -6089,6 +6061,7 @@ defun XLIB:QUERY-COLORS (2, 0, norest, key, 1, (:RESULT-TYPE))
   Display *dpy;
   Colormap cm = get_colormap_and_display (STACK_2, &dpy);
   int ncolors, i;
+  gcv_object_t *res_type = &STACK_0;
 
   pushSTACK (STACK_1); funcall (L(length), 1); ncolors = get_uint32 (value1);
 
@@ -6110,9 +6083,7 @@ defun XLIB:QUERY-COLORS (2, 0, norest, key, 1, (:RESULT-TYPE))
 
     for (i = 0; i < ncolors; i++)
       pushSTACK (make_color (&(colors[i])));
-
-    funcall (L(list), i);
-    coerce_it (STACK_0);
+    VALUES1(coerce_result_type(ncolors,res_type));
 
     FREE_DYNAMIC_ARRAY (colors);
   }
@@ -6519,7 +6490,8 @@ defun XLIB:DELETE-PROPERTY (2)	// OK
 //            format      -- Type (member 8 16 32)
 //            bytes-after -- Type card32
 //
-defun XLIB:GET-PROPERTY (2, 0, norest, key, 6, (:TYPE :START :END :DELETE-P :RESULT-TYPE :TRANSFORM)) //OK
+defun XLIB:GET-PROPERTY (2, 0, norest, key, 6, /* OK */
+                         (:TYPE :START :END :DELETE-P :RESULT-TYPE :TRANSFORM))
 {
   // input:
   Display *display;
@@ -6568,8 +6540,8 @@ defun XLIB:GET-PROPERTY (2, 0, norest, key, 6, (:TYPE :START :END :DELETE-P :RES
       else
 	{
 	  uintC i;
-	  object *transform_f = &(STACK_0);
-	  object *result_type_f = &(STACK_1);
+	  gcv_object_t *transform_f = &(STACK_0);
+	  gcv_object_t *result_type_f = &(STACK_1);
 
 	  for (i = 0; i < nitems_return; i++)
 	    {
@@ -6590,16 +6562,7 @@ defun XLIB:GET-PROPERTY (2, 0, norest, key, 6, (:TYPE :START :END :DELETE-P :RES
                 pushSTACK (value1);
               }
 	    }
-	  if (eq (*result_type_f, `LIST`) || !boundp(*result_type_f))
-	    {
-	      funcall (L(list), nitems_return);
-	    }
-	  else
-	    {
-	      funcall (L(vector), nitems_return);
-	      coerce_it (*result_type_f);
-	    }
-
+          value1 = coerce_result_type(nitems_return,result_type_f);
 	  pushSTACK (value1);
 	}
 
@@ -6640,6 +6603,7 @@ defun XLIB:GET-PROPERTY (2, 0, norest, key, 6, (:TYPE :START :END :DELETE-P :RES
 defun XLIB:LIST-PROPERTIES (1, 0, norest, key, 1, (:RESULT-TYPE)) //OK
 {
   int num_props, i;
+  gcv_object_t *res_type = &STACK_0;
 
   Display *dpy;
   Window win   = get_window_and_display (STACK_1, &dpy);
@@ -6669,17 +6633,7 @@ defun XLIB:LIST-PROPERTIES (1, 0, norest, key, 1, (:RESULT-TYPE)) //OK
     if (props) XFree (props);
   end_call ();
 
-  // Now cons `em together
-  funcall (L(list), num_props);
-
-  // coerce it to the right type if necessary
-  if (boundp(STACK_0))
-    {
-      pushSTACK (value1);
-      pushSTACK (STACK_1);
-      funcall (L(coerce), 2);
-    }
-
+  VALUES1(coerce_result_type(num_props,res_type));
   skipSTACK (2);		// all done
 }
 
@@ -7556,6 +7510,7 @@ defun XLIB:MOTION-EVENTS (1, 0, norest, key, 3, (:START :STOP :RESULT-TYPE))
   Time stop = get_timestamp (STACK_1);
   XTimeCoord *events = 0;
   int nevents = 0;
+  gcv_object_t *res_type = &STACK_0;
 
   begin_call ();
   events = XGetMotionEvents (dpy, win, start, stop, &nevents);
@@ -7570,14 +7525,12 @@ defun XLIB:MOTION-EVENTS (1, 0, norest, key, 3, (:START :STOP :RESULT-TYPE))
 	  pushSTACK (make_sint16 (events[i].y));
 	  pushSTACK (make_uint32 (events[i].time));
 	}
-      funcall (L(list), 3*i);
       // XXX RTFS: Should I XFree on events?
     }
   else
     value1 = NIL;
 
-  coerce_it (STACK_0);
-  mv_count = 1;
+  VALUES1(coerce_result_type(3*nevents,res_type));
   skipSTACK (4);
 }
 
@@ -8113,6 +8066,7 @@ defun XLIB:POINTER-MAPPING (1, 0, norest, key, 1, (:RESULT-TYPE))
   unsigned int nmap, i;
   Display *dpy;
   pushSTACK (STACK_1); dpy = pop_display ();
+  gcv_object_t *res_type = &STACK_0;
 
   begin_call ();
   nmap = XGetPointerMapping (dpy, map, sizeof (map)/sizeof (map[0]));
@@ -8120,15 +8074,7 @@ defun XLIB:POINTER-MAPPING (1, 0, norest, key, 1, (:RESULT-TYPE))
 
   for (i = 0; i < nmap; i++)
     pushSTACK (make_uint8 (map[i]));
-  funcall (L(list), nmap);
-
-  if (boundp(STACK_0))
-    {
-      pushSTACK (value1);
-      pushSTACK (STACK_0);
-      funcall (L(coerce), 2);
-    }
-
+  VALUES1(coerce_result_type(nmap,res_type));
   skipSTACK (2);	// all done
 }
 
@@ -8239,7 +8185,7 @@ defun XLIB:MODIFIER-MAPPING (1)
 	  pushSTACK (fixnum (more_coffee->modifiermap[i]));
 	  if (i%more_coffee->max_keypermod == 0)
 	    {
-	      funcall (L(list), more_coffee->max_keypermod);
+	      value1 = listof(more_coffee->max_keypermod);
 	      pushSTACK (value1);
 	    }
 	}
@@ -8612,6 +8558,7 @@ defun XLIB:LIST-EXTENSIONS (1, 0, norest, key, 1, (:RESULT-TYPE))
   int n = 0;
   char **extlist;
   Display *dpy;
+  gcv_object_t *res_type = &STACK_0;
 
   pushSTACK (STACK_1); dpy = pop_display ();
 
@@ -8624,15 +8571,12 @@ defun XLIB:LIST-EXTENSIONS (1, 0, norest, key, 1, (:RESULT-TYPE))
       int i;
       for (i = 0; i < n; i++)
 	pushSTACK (asciz_to_string (extlist[i], misc_encoding ()));
-      funcall (L(list), n);
-      coerce_it (STACK_0);
 
       begin_call ();
       XFreeExtensionList (extlist);
       end_call ();
     }
-  else
-    VALUES1(NIL);
+  VALUES1(coerce_result_type(n,res_type));
   skipSTACK (2);
 }
 

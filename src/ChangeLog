@@ -1,13 +1,24 @@
 2003-06-06  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.f (get_screen_and_display): fixed a typo
+	use listof() instead of funcall(L(list)) throughout the file
+	(coerce_result_type): new function, used by all functions that
+	take a :RESULT-TYPE argument
+	(coerce_it): removed (it was used inconsistently and
+	coerce_result_type() is more efficient anyway)
+	(SCREEN-DEPTHS): fixed a crash due to not pushing the visual info
+	lists on the stack (they were just discarded!)
+
+2003-06-06  Sam Steingold  <sds@gnu.org>
+
 	* encoding.d (CONVERT-STRING-FROM-BYTES): fixed a bug in handling
 	of indirect byte vectors
 	Reported by Adam Warner <lists@consulting.net.nz>
 
 2003-06-06  Will Newton  <will@misconception.org.uk>
 
-	* clx.f: fix the build with gcc 3.3, which has some changes
-	with respect to multi-line strings
+	* modules/clx/new-clx/clx.f: fix the build with gcc 3.3,
+	which has some changes with respect to multi-line strings
 
 2003-06-06  Bruno Haible  <bruno@clisp.org>
 
