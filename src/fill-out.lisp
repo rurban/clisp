@@ -1,6 +1,7 @@
 ;;; filling/indenting stream
 ;;;
 ;;; Copyright (C) 2004 by Sam Steingold
+;;; Copyright (C) 2004 by Bruno Haible
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 
@@ -52,15 +53,30 @@
       (write-char-sequence buffer target-stream)
       (setf (fill-pointer buffer) 0)
       (when newline-p (newline)))))
-(defmethod stream-write-char ((stream fill-stream) ch)
-  (with-slots (buffer pending-space) stream
-    (case ch
-      (#\Newline (fill-stream-flush-buffer stream t))
-      ((#\Space #\Tab)
-       (when (plusp (length buffer))
-         (fill-stream-flush-buffer stream nil))
-       (setq pending-space t))
-      (t (vector-push-extend ch buffer)))))
+(progn
+  (defmethod stream-write-char ((stream fill-stream) ch)
+    (with-slots (buffer pending-space) stream
+      #1=
+      (case ch
+        (#\Newline (fill-stream-flush-buffer stream t))
+        ((#\Space #\Tab)
+         (when (plusp (length buffer))
+           (fill-stream-flush-buffer stream nil))
+         (setq pending-space t))
+        (t (vector-push-extend ch buffer)))))
+  (defmethod stream-write-char-sequence ((stream fill-stream) sequence &optional (start 0) (end nil))
+    (if (listp sequence)
+      ; Convert list to a vector, to avoid quadratic runtime.
+      (setq sequence (if end (subseq sequence start end) (subseq sequence start))
+            start 0 end (length sequence))
+      (unless end (setq end (length sequence))))
+    (when (< start end)
+      (with-slots (target-stream buffer current-indent pending-indent) stream
+        (do ((pos start (1+ pos)))
+            ((>= pos end))
+          (let ((ch (elt sequence pos)))
+            ; Same body as in stream-write-char.
+            #1#))))))
 (defmethod stream-line-column ((stream fill-stream))
   (let ((pos (line-pos stream)))
     (if pos (max (- pos (slot-value stream 'current-indent)) 0) nil)))
