@@ -17036,7 +17036,7 @@ local bool test_endianness_arg (object arg) {
 # stream_lend_handle(stream, inputp, handletype)
 # > stream: stream for handle to extract
 # > inputp: whether it input or output side is requested.
-# < int * handletype 0: reserved 1: file 2: socket
+# < int * handletype 0:reserved, 1:file, 2:socket
 # < Handle result - extracted handle
 # can trigger GC
 global Handle stream_lend_handle (object stream, bool inputp, int * handletype) {
@@ -17064,6 +17064,7 @@ global Handle stream_lend_handle (object stream, bool inputp, int * handletype) 
         return stream_lend_handle(TheStream(stream)->strm_twoway_input,inputp,handletype);
       case strmtype_synonym:
         return stream_lend_handle(resolve_synonym_stream(stream),inputp,handletype);
+      #ifdef KEYBOARD
       case strmtype_keyboard:
 #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS) || defined(WIN32_NATIVE)
         if (inputp) {
@@ -17072,6 +17073,7 @@ global Handle stream_lend_handle (object stream, bool inputp, int * handletype) 
         }
 #endif
         break;
+      #endif
       case strmtype_terminal:
         # fixme: no actual need to flush
         *handletype = 1;

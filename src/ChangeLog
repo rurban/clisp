@@ -1,3 +1,8 @@
+2003-04-28  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* stream.d (stream_lend_handle): strm_keyboard_handle only
+	present when #define KEYBOARD
+
 2003-04-27  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	Implemented extended program launcher in win32.
