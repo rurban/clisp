@@ -3,6 +3,7 @@
 ;; CLISP-Version 16.08.1988, 03.09.1988, 04.08.1989
 ;; Major revision by Bruno Haible  14.02.1990-15.02.1990
 ;; Further revised and wrote FORMATTER 9.4.1995-11.4.1995
+;; German comments translated into English: Stefan Kain 2001-09-09
 
 ;; FORMAT is a mechanism for producing string output conveniently by,
 ;; basically, taking a pre-determined string with placeholders and

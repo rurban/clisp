@@ -2,6 +2,7 @@
 # Bruno Haible 1990-2001
 # Marcus Daniels 11.3.1997
 # Sam Steingold 1998-2001
+# German comments translated into English: Stefan Kain 2001-06-12
 
 #include "lispbibl.c"
 #include "arilev0.c" # for Division in pr_uint

@@ -1,5 +1,7 @@
 ;;;;   INITIALIZATION-FILE
 
+;; German comments translated into English: Stefan Kain 2001-08-27
+
 (eval-when (compile load eval)
   (setq *package* (sys::%find-package "COMMON-LISP")))
 
