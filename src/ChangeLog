@@ -1,3 +1,11 @@
+2004-07-12  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp (defun): when *DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST*
+	is non-nil, convert specialized lambda lists to type declarations
+	* misc.d (SYS::SET-ANSI): set *DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST*
+	* spvw.d (init_symbol_values): initialize it
+	* constsym.d (defun_accept_spelalist): added
+
 2004-06-10  Bruno Haible  <bruno@clisp.org>
 
 	* clos-methcomb1.lisp (method-combination): New slot long-expander.
