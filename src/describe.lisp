@@ -146,6 +146,51 @@ to print the corresponding values, or T for all of them.")
                      value)
              (describe value stream))
            (format stream (TEXT "a GC-invisible pointer to a now defunct object.")))))
+      (EXT:WEAK-LIST
+       (let ((remaining (weak-list-list obj)))
+         (if remaining
+           (format stream (TEXT "a list of GC-invisible pointers to ~{~S~^, ~}.")
+                   remaining)
+           (format stream (TEXT "a list of GC-invisible pointers, all defunct by now.")))))
+      (EXT:WEAK-AND-RELATION
+       (let ((remaining (weak-and-relation-list obj)))
+         (if remaining
+           (format stream (TEXT "a weak \"and\" relation between ~{~S~^, ~}.")
+                   remaining)
+           (format stream (TEXT "a weak \"and\" relation, no longer referring to its objects.")))))
+      (EXT:WEAK-OR-RELATION
+       (let ((remaining (weak-or-relation-list obj)))
+         (if remaining
+           (format stream (TEXT "a weak \"or\" relation between ~{~S~^, ~}.")
+                   remaining)
+           (format stream (TEXT "a weak \"or\" relation, all elements defunct by now.")))))
+      (EXT:WEAK-MAPPING
+       (multiple-value-bind (key value alive) (weak-mapping-pair obj)
+         (if alive
+           (format stream (TEXT "a weak association from ~S to ~S.") key value)
+           (format stream (TEXT "a weak association, the key value being defunct by now.")))))
+      (EXT:WEAK-AND-MAPPING
+       (multiple-value-bind (keys value alive) (weak-and-mapping-pair obj)
+         (if alive
+           (format stream (TEXT "a weak \"and\" mapping from ~:S to ~S.") keys value)
+           (format stream (TEXT "a weak \"and\" mapping, some key value being defunct by now.")))))
+      (EXT:WEAK-OR-MAPPING
+       (multiple-value-bind (keys value alive) (weak-or-mapping-pair obj)
+         (if alive
+           (format stream (TEXT "a weak \"or\" mapping from ~:S to ~S.") keys value)
+           (format stream (TEXT "a weak \"or\" mapping, all keys being defunct by now.")))))
+      (EXT:WEAK-ALIST
+       (let ((type (weak-alist-type obj))
+             (remaining (weak-alist-contents obj)))
+         (format stream (TEXT "a weak association list, of type ~S ") type)
+         (ecase type
+           (:KEY    (format stream (TEXT "(i.e. a list of EXT:WEAK-MAPPING key/value pairs)")))
+           (:VALUE  (format stream (TEXT "(i.e. a list of EXT:WEAK-MAPPING value/key pairs)")))
+           (:EITHER (format stream (TEXT "(i.e. a list of (key . value) pairs each combined into a EXT:WEAK-AND-RELATION)")))
+           (:BOTH   (format stream (TEXT "(i.e. a list of (key . value) pairs each combined into a EXT:WEAK-OR-RELATION)"))))
+         (if remaining
+           (format stream (TEXT ", containing ~S.") remaining)
+           (format stream (TEXT ", no longer referring to any pairs.")))))
       (SYS::READ-LABEL
        (format stream (TEXT "a label used for resolving #~D# references during READ.")
                (logand (sys::address-of obj)
