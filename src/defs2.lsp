@@ -4,7 +4,7 @@
 ;===============================================================================
 
 (in-package "LISP")
-(export '(nth-value function-lambda-expression defpackage define-symbol-macro
+(export '(nth-value function-lambda-expression defpackage
           print-unreadable-object declaim destructuring-bind complement
           constantly with-standard-io-syntax with-hash-table-iterator
           read-sequence write-sequence designator
@@ -273,38 +273,6 @@
   (export (mapcar #'(lambda (string) (intern string packname)) string-list)
           packname
 ) )
-
-;-------------------------------------------------------------------------------
-
-;; cf. X3J13 vote <173>
-
-;; Definition globaler Symbol-Macros
-(defmacro define-symbol-macro (symbol expansion)
-  (unless (symbolp symbol)
-    (error-of-type 'source-program-error
-      (DEUTSCH "~S: Der Name eines Symbol-Macros muss ein Symbol sein, nicht: ~S"
-       ENGLISH "~S: the name of a symbol macro must be a symbol, not ~S"
-       FRANCAIS "~S : Le nom d'un macro symbole doit être un symbole et non ~S")
-      'define-symbol-macro symbol
-  ) )
-  `(LET ()
-     (EVAL-WHEN (COMPILE LOAD EVAL)
-       (CHECK-NOT-SPECIAL-VARIABLE-P ',symbol)
-       (MAKUNBOUND ',symbol)
-       (SYSTEM::SET-SYMBOL-VALUE ',symbol (SYSTEM::MAKE-SYMBOL-MACRO ',expansion))
-     )
-     ',symbol
-   )
-)
-
-(defun check-not-special-variable-p (symbol)
-  (when (special-variable-p symbol)
-    (error-of-type 'program-error
-      (DEUTSCH "~S: Das Symbol ~S benennt eine globale Variable."
-       ENGLISH "~S: the symbol ~S names a global variable"
-       FRANCAIS "~S : Le symbole ~S est le nom d'une variable globale.")
-      'define-symbol-macro symbol
-) ) )
 
 ;-------------------------------------------------------------------------------
 
