@@ -1331,10 +1331,12 @@ LISPFUNN(show_stack,0)
     var object* FRAME = STACK; # läuft durch den Stack nach oben
     pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # Stream *STANDARD-OUTPUT*
     var object* stream_ = &STACK_0;
+    var uintL count = 0;
     until (eq(FRAME_(0),nullobj)) { # Nullword = oberes Stackende
       FRAME = print_stackitem(stream_,FRAME); # Stack-Item ausgeben
+      count++;
     }
-    skipSTACK(1); value1 = NIL; mv_count=0; # keine Werte
+    skipSTACK(1); value1 = UL_to_I(count); mv_count=1;
   }
 
 LISPFUNN(debug,0)

@@ -88,7 +88,7 @@ If anything else, printed.")
 (defun debug-reset-io ()
   (rotatef *package* *saved-debug-package*)
   (rotatef *readtable* *saved-debug-readtable*)
-  (format *debug-io* "~&Reset *PACKAGE* to ~s" *package*)
+  (format *debug-io* (ENGLISH "~&Reset *PACKAGE* to ~s") *package*)
   (throw 'debug 'continue))
 
 ;; Components of the Break-Loop:
@@ -152,12 +152,13 @@ If anything else, printed.")
 (defun get-frame-limit ()
   (let (number)
     (loop
-     (format *debug-io* "
-~%Enter the limit for max. frames to print or ':all' for all: ")
+     (write-string (ENGLISH "
+Enter the limit for max. frames to print or ':all' for all: ") *debug-io*)
      (setq number (read-from-string (read-line *debug-io* nil nil)))
      (if (or (integerp number) (eq number :all))
        (return)
-       (format *debug-io* "~&~A is not a number. Try again." number)))
+       (format *debug-io* (ENGLISH "~&~A is not a number. Try again.")
+               number)))
     (unless (eq number :all)
       number)))
 
@@ -178,6 +179,7 @@ If anything else, printed.")
         ((and local-limit (>= i local-limit)) nil)
       (describe-frame *standard-output* frame)
       (when (eq frame (setq frame (frame-up-1 frame mode)))
+        (format *debug-io* (ENGLISH "~&Printed ~D frames") i)
         (return)))
     (throw 'debug 'continue)))
 
@@ -213,7 +215,8 @@ If anything else, printed.")
 
 ;;; print it
 (defun print-error (condition)
-  (format t "~%Recent Error is: >> ~A <<" (print-condition condition nil)))
+  (format *debug-io* (ENGLISH "~%Recent Error is: >> ~A <<")
+          (print-condition condition nil)))
 
 
 ;; extended commands
