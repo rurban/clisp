@@ -46,13 +46,13 @@
 	start_driver_p, is false
 	(fehler): pass true as start_driver_p to end_error()
 	(check_value): new function, calls CHECK-VALUE
-	(fehler_symbol): removed
+	(fehler_symbol, fehler_string): removed
 	(check_symbol, check_char, check_string): added
 	* errunix.d (OS_error, OS_file_error): pass true as
 	start_driver_p to end_error()
 	* init.lisp (make-condition): pre-draw for clos.lisp
 	* lispbibl.d (check_string, check_symbol, check_char): declare
-	(fehler_symbol, test_symbol): removed
+	(fehler_symbol, test_symbol, fehler_string): removed
 	* macros2.lisp (report-one-new-value-string)
 	(report-new-values-string): return a format string with 1 argument
 	(report-one-new-value-string-instead): new function
