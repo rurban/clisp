@@ -1063,7 +1063,7 @@ typedef struct
  * Miscellaneous declarations.
  */
 
-#if defined(__STDC__) || defined(__GNUC__)
+#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
 extern int __builtin_avcall (av_alist* l);
 extern void __structcpy (void* dest, void* src, unsigned long size, unsigned long alignment);
 #else
