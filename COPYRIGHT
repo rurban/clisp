@@ -81,10 +81,11 @@ Authors:
   OS/2 version:  Bruno Haible
   Unix version:  Bruno Haible
 
-Maintenance:     Bruno Haible, Michael Stoll 1992, 1993
+Maintenance:     Bruno Haible, Michael Stoll 1992-1993
                  Bruno Haible, Marcus Daniels 1994-1997
                  Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998
-                 Bruno Haible, Sam Steingold 1999-2003
+                 Bruno Haible, Sam Steingold 1999-2001
+                 Sam Steingold 2002-2003
 
 Email addresses (September 1992 or newer):
   Bruno Haible       bruno@clisp.org
