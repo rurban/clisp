@@ -1,5 +1,10 @@
 2003-05-03  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
+	* pathname.d (LAUNCH): deobfuscated according to General Line.
+	Supported -1 as return value.
+
+2003-05-03  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
 	Fixed msvc (and amiga ?) build.
 	* errwin32.d: added second argument start_driver_p = true
 	to calls.

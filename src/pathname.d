@@ -10789,7 +10789,8 @@ inline Handle MyDupHandle (Handle h0) {
 }
 
 /* shell_quote - surrounds dangerous strings with double quotes. quotes quotes.
- dest should be twice as large as source + 2 (for quotes) */
+ dest should be twice as large as source + 2 (for quotes) + 1 for zero byte
+ + 1 for poss endslash */
 local int shell_quote (char * dest, const char * source,
                        const char * source_end) {
   var const char * characters = " &<>|^\t";
@@ -10813,7 +10814,7 @@ local int shell_quote (char * dest, const char * source,
     if (escaped) *dcp++ = '\\'; # double ending slash
     *dcp++ = '"'; *dest = '"'; }
   *dcp = 0;
-  # shift string left if no quote was inserted
+  /* shift string left if no quote was inserted */
   if (!quote) for (dcp = dest;;dcp++) if (!(*dcp = dcp[1])) break;
   return dcp - dest;
 }
@@ -10875,42 +10876,39 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
   var object cmdlist_cons = allocate_cons();
   var object curcons;
   Car(cmdlist_cons) = command_arg; Cdr(cmdlist_cons) = arg_arg;
-  for (i=0;i<2;i++) {
-    var DYNAMIC_ARRAY(command_data,char,command_len+1);
-    for (curcons = cmdlist_cons;!nullp(curcons);curcons = Cdr(curcons)) {
-      if (!stringp(Car(curcons))) fehler_string(Car(curcons));
-      with_string(Car(curcons),O(misc_encoding),pcommand,pcomlen, {
-        if (!i) # sum max estimates of lenghts
-          command_len += pcomlen*2 + 1 + 2; # 1 for space 2 for quotes *2 for quoting of quotes
-        else {  # collect parts
-          if (command_pos > 0)
-            *(command_data+command_pos++) = ' ';
-          command_pos += shell_quote(command_data+command_pos,pcommand,pcommand+pcomlen);
-          ASSERT(command_pos < command_len + 1);
-        }
-      });
-    }
-    if (i) { # string is ready
-      /* Start new process. */
-      var PROCESS_INFORMATION pinfo;
-      var STARTUPINFO sinfo;
-      begin_system_call();
-      memset(&sinfo,0,sizeof(sinfo));
-      sinfo.cb = sizeof(STARTUPINFO);
-      sinfo.dwFlags = STARTF_USESTDHANDLES;
-      sinfo.hStdInput = hinput;
-      sinfo.hStdOutput = houtput;
-      sinfo.hStdError = herror;
-      if (!CreateProcess(NULL, command_data, NULL, NULL, true, pry,
-                         NULL, NULL, &sinfo, &pinfo))
-        { end_system_call(); OS_error(); }
-      if (pinfo.hThread /* zero for 16 bit programs in NT */
-           && !CloseHandle(pinfo.hThread)) { end_system_call(); OS_error(); }
-      prochandle = pinfo.hProcess;
-    }
-    FREE_DYNAMIC_ARRAY(command_data);
+  for (curcons = cmdlist_cons;!nullp(curcons);curcons = Cdr(curcons)) {
+    with_string(check_string(Car(curcons)),O(misc_encoding),pcommand,pcomlen, {
+      /* sum max estimates of quoted lenghts
+         1 for space 1 for poss. endslash 2 for quotes *2 for quoting of quotes */
+      command_len += pcomlen*2 + 1 + 1 + 2; 
+    });
   }
-
+  var DYNAMIC_ARRAY(command_data,char,command_len+1);
+  for (curcons = cmdlist_cons;!nullp(curcons);curcons = Cdr(curcons)) {
+    with_string(Car(curcons),O(misc_encoding),pcommand,pcomlen, {
+      /* collect parts */
+      if (command_pos > 0) *(command_data+command_pos++) = ' ';
+      command_pos += shell_quote(command_data+command_pos,pcommand,pcommand+pcomlen);
+      ASSERT(command_pos < command_len + 1);
+    });
+  }
+  /* Start new process. */
+  var PROCESS_INFORMATION pinfo;
+  var STARTUPINFO sinfo;
+  begin_system_call();
+  memset(&sinfo,0,sizeof(sinfo));
+  sinfo.cb = sizeof(STARTUPINFO);
+  sinfo.dwFlags = STARTF_USESTDHANDLES;
+  sinfo.hStdInput = hinput;
+  sinfo.hStdOutput = houtput;
+  sinfo.hStdError = herror;
+  if (!CreateProcess(NULL, command_data, NULL, NULL, true, pry,
+                     NULL, NULL, &sinfo, &pinfo))
+    { end_system_call(); OS_error(); }
+  if (pinfo.hThread /* zero for 16 bit programs in NT */
+       && !CloseHandle(pinfo.hThread)) { end_system_call(); OS_error(); }
+  prochandle = pinfo.hProcess;
+  FREE_DYNAMIC_ARRAY(command_data);
   var DWORD exitcode = 0;
   if (!nullp(wait_arg)) {
     /* Wait until it terminates, get its exit status code. */
@@ -10933,7 +10931,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
   if (houtput!=stderr_handle && !CloseHandle(herror)) { end_system_call(); OS_error(); }
 
   end_system_call();
-  VALUES1(fixnum(exitcode));
+  VALUES1((exitcode == 0xFFFFFFFF)?negfixnum(-1):fixnum(exitcode));
   skipSTACK(7);
 }
 
