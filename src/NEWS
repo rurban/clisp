@@ -119,6 +119,7 @@ User visible changes
   + EQUALP on HASH-TABLEs now correctly descends the structure;
   + macro definitions now respect the lexical environment;
   + more thorough lambda list matching check;
+  + DEFINE-CONDITION now return the condition name;
   + a character is now accepted as a package designator.
   Thanks to Paul F. Dietz <dietz@dls.net> and his ANSI compliance
   suite, which helped detect some of these deficiencies.

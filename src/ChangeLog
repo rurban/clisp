@@ -1,6 +1,7 @@
 2003-08-26  Sam Steingold  <sds@gnu.org>
 
 	* control.d (MACROLET): fixed a GC-safety bug
+	* condition.lisp (define-condition): return name, as per ANSI
 
 2003-08-26  Sam Steingold  <sds@gnu.org>
 

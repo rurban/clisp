@@ -119,14 +119,14 @@
                ,slot-specs
                ,@(if docstring-option `(,docstring-option))
                ,@(if default-initargs-option `(,default-initargs-option)))))
-      (if report-function
-        `(PROGN
-           ,defclass-form
-           (CLOS:DEFMETHOD PRINT-CONDITION ((CONDITION ,name) STREAM)
-             ,(if (stringp (first report-function))
-                `(WRITE-STRING ,(first report-function) STREAM)
-                `(FUNCALL (FUNCTION ,@report-function) CONDITION STREAM))))
-        defclass-form))))
+      `(PROGN
+         ,defclass-form
+         ,@(when report-function
+             `((CLOS:DEFMETHOD PRINT-CONDITION ((CONDITION ,name) STREAM)
+                 ,(if (stringp (first report-function))
+                   `(WRITE-STRING ,(first report-function) STREAM)
+                   `(FUNCALL (FUNCTION ,@report-function) CONDITION STREAM)))))
+         ',name))))
 
 ;;; 29.4.6. Creating Conditions
 
