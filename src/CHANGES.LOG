@@ -10,6 +10,11 @@ Important note
 User visible changes
 --------------------
 
+* The 16 MB memory size limit on 32-bit machines is gone. No need for
+  wide-mode binaries any more. The "makemake" option --with-wide is not
+  supported any more. The command-line option -W is supported for backward
+  compatibility, but will be removed in the future.
+
 * New variables *WARN-ON-FLOATING-POINT-CONTAGION* and
   *FLOATING-POINT-CONTAGION-ANSI*.
 

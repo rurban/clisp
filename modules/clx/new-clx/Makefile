@@ -8,7 +8,6 @@ LN = ln
 SHELL = /bin/sh
 
 DISTRIBFILES = link.sh Makefile clx-preload.lsp clx.lsp clx.fas image.lsp image.fas clx.o
-WDISTRIBFILES = $(DISTRIBFILES) wclx.o
 distribdir =
 
 ### Custom defs.
@@ -49,20 +48,12 @@ clx.c: clx.d
 clx.o: clx.c
 	$(CC) $(CFLAGS) -I$(INCLUDES) -c clx.c
 
-wclx.o: clx.c
-	$(CC) $(CFLAGS) -DWIDE -I$(INCLUDES) -c clx.c -o wclx.o
-
 # Make a module
 clisp-module : clx.fas image.fas clx.o
-
-clisp-module-wide : clx.fas image.fas clx.o wclx.o
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
-
-clisp-module-distrib-wide : clisp-module-wide force
-	$(LN) $(WDISTRIBFILES) $(distribdir)
 
 
 clean : force

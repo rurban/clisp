@@ -25,7 +25,6 @@ A linking set is a directory containing:
                         CFLAGS   flags for the C compiler, when compiling
                         CLFLAGS  flags for the C compiler, when linking
                         LIBS     libraries to use when linking
-                        WLIBS    libraries to use when linking in wide mode
                         X_LIBS   additional X window system libraries to use
                         RANLIB   the ranlib command
                         FILES    the list of files needed when linking
@@ -33,20 +32,15 @@ A linking set is a directory containing:
     all the FILES listed in makevars
     lisp.run          the executable
     lispinit.mem      the memory image
-    and maybe
-    wlisp.run         the executable in wide mode
-    wlispinit.mem     the corresponding memory image
 To run a clisp contained in some linking set <dir>, call
 "<dir>/lisp.run -M <dir>/lispinit.mem".
 
 A module set is a directory containing:
     link.sh          some /bin/sh commands, which prepare the directory
                      before linking, and set the variables NEW_FILES, NEW_LIBS,
-                     NEW_WLIBS, NEW_MODULES, TO_LOAD and optionally TO_PRELOAD
+                     NEW_MODULES, TO_LOAD and optionally TO_PRELOAD
 and any other files needed by link.sh .
 Note that in link.sh the module set directory is referred to as "$modulename"/.
-Note also that link.sh must test the variable "$with_wide" and generate both
-standard mode and wide mode object files if "$with_wide" is non-empty.
 
   The NEW_FILES variable shall contain a space-separated list of files that
   belong to the module set and will belong to every new linking set.
@@ -54,12 +48,6 @@ standard mode and wide mode object files if "$with_wide" is non-empty.
   The NEW_LIBS variable shall contain a space-separated list of files or C
   compiler switches that need to be passed to the C compiler when linking the
   lisp.run belonging to a new linking set.
-
-  The NEW_WLIBS variable shall contain a space-separated list of files or C
-  compiler switches that need to be passed to the C compiler when linking the
-  wlisp.run belonging to a new linking set. By convention, this is the same
-  as NEW_LIBS, with xxx.o replaced by wxxx.o if xxx.o depends on
-  sizeof(object).
 
   The NEW_MODULES variable shall contain a space-separated list of the module
   names belonging to the module set. Normally, every .c file in the module set
@@ -107,10 +95,8 @@ steps are needed. (Step 1 and step 2 need not be executed in this order.)
    Modify the newly created linux/link.sh to add "-lm" to the libraries:
 
    NEW_LIBS="$file_list"
-   NEW_WLIBS="$file_list"
    -->
    NEW_LIBS="$file_list -lm"
-   NEW_WLIBS="$file_list -lm"
 
    Modify the newly created linux/link.sh to load linux.fas before saving
    the memory image:

@@ -57,7 +57,6 @@ int main (int argc, char* argv[])
 {
   char* lisplibdir = LISPLIBDIR;
   char* localedir = LOCALEDIR;
-  int argv_wide = 0;
   char* argv_memfile = NULL;
   char* argv_localedir = NULL;
   char* program_name;
@@ -152,9 +151,6 @@ int main (int argc, char* argv[])
                     { if (argptr < argptr_limit) arg = *argptr++; else goto usage; } \
                     else { arg = &arg[2]; }
                 /* Options to which we have to pay attention. */
-                case 'W':
-                  argv_wide = 1;
-                  break;
                 case 'M':
                   OPTION_ARG
                   argv_memfile = arg;
@@ -172,6 +168,7 @@ int main (int argc, char* argv[])
                 case '-':
                   break;
                 /* Skippable options with arguments. */
+                case 'W':
                 case 'm':
                 case 's':
                 case 't':
@@ -206,7 +203,7 @@ int main (int argc, char* argv[])
   { char* executable;
     char** new_argv;
     /* Compute executable's name. */
-    { char* execname = (argv_wide ? "wlisp.run" : "lisp.run");
+    { char* execname = "lisp.run";
       executable = (char*)malloc(strlen(lisplibdir)+1+strlen(execname)+1);
       if (!executable) goto oom;
       strcpy(executable, lisplibdir);
@@ -221,7 +218,7 @@ int main (int argc, char* argv[])
       char** argptr_limit = &argv[argc];
       char** new_argptr = &new_argv[1];
       if (!argv_memfile)
-        { char* filename = (argv_wide ? "wlispinit.mem" : "lispinit.mem");
+        { char* filename = "lispinit.mem";
           argv_memfile = (char*)malloc(strlen(lisplibdir)+1+strlen(filename)+1);
           if (!argv_memfile) goto oom;
           strcpy(argv_memfile, lisplibdir);

@@ -1,5 +1,22 @@
 1998-06-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d: Define NO_TYPECODES by default for 32-bit machines.
+        * configure: Don't pass option --with-wide to makemake.
+        * makemake.in: Drop support for --with-wide.
+        * clisp-link.in: Likewise.
+        * _distmakefile: Likewise.
+        * regexp/link.sh, regexp/Makefile.in: Likewise.
+        * wildcard/link.sh, wildcard/Makefile.in: Likewise.
+        * queens/link.sh, queens/Makefile: Likewise.
+        * linuxlibc5/link.sh, linuxlibc5/Makefile: Likewise.
+        * linuxlibc6/link.sh, linuxlibc6/Makefile: Likewise.
+        * clx/mit-clx/link.sh, clx/mit-clx/Makefile.clisp: Likewise.
+        * clx/new-clx/link.sh, clx/new-clx/Makefile: Likewise.
+        * doc/module.txt, impnotes.html: Update.
+        * _clisp.c: Ignore option -W.
+
+1998-06-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (finish_output_file): Fix typo.
         * makemake.in: For Win32, replace
           "-I../ffcall/avcall -I../ffcall/callback" with "-I../callback".

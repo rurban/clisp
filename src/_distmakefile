@@ -49,29 +49,15 @@ INSTALL_DATA = $(INSTALL)
 
 SHELL = /bin/sh
 
-#ifdef WITH_WIDE
-all : $(fromdir)/lisp.run $(fromdir)/wlisp.run
-#else
 all : $(fromdir)/lisp.run
-#endif
 
 #ifndef UNIX_BINARY_DISTRIB
 base/lisp.run : @@BASE_FILES@@
 	$(CC) $(CFLAGS) @@BASE_LIBS@@ -o base/lisp.run
 
-#ifdef WITH_WIDE
-base/wlisp.run : @@BASE_FILES@@
-	$(CC) $(CFLAGS) @@BASE_WLIBS@@ -o base/wlisp.run
-
-#endif
 full/lisp.run : @@FULL_FILES@@
 	$(CC) $(CFLAGS) @@FULL_LIBS@@ -o full/lisp.run
 
-#ifdef WITH_WIDE
-full/wlisp.run : @@FULL_FILES@@
-	$(CC) $(CFLAGS) @@FULL_WLIBS@@ -o full/wlisp.run
-
-#endif
 #endif
 install : install-bin install-man
 
@@ -81,11 +67,6 @@ install-bin : $(fromdir)/lisp.run $(fromdir)/lispinit.mem force
 	$(INSTALL_PROGRAM) $(fromdir)/lisp.run $(lisplibdir)/lisp.run
 	rm -f $(lisplibdir)/lispinit.mem
 	$(INSTALL_DATA) $(fromdir)/lispinit.mem $(lisplibdir)/lispinit.mem
-#ifdef WITH_WIDE
-	$(INSTALL_PROGRAM) $(fromdir)/wlisp.run $(lisplibdir)/wlisp.run
-	rm -f $(lisplibdir)/wlispinit.mem
-	$(INSTALL_DATA) $(fromdir)/wlispinit.mem $(lisplibdir)/wlispinit.mem
-#endif
 #ifdef GNU_GETTEXT
 	if [ ! -d $(datadir) ] ; then mkdir $(datadir) ; fi
 	if [ ! -d $(localedir) ] ; then mkdir $(localedir) ; fi
