@@ -2881,6 +2881,11 @@ der Docstring (oder NIL).
 (defun current-function ()
   (and (boundp '*func*) (fnode-p *func*) (fnode-name *func*)))
 
+;; check whether we are now inside the DEFUN FUN
+(defun in-defun-p (fun)
+  (and (equal fun (current-function))
+       (member `(SYS::IN-DEFUN ,fun) *denv* :test #'equal)))
+
 (defvar *warning-count*)
 ;;; (C-WARN format-control-string . args)
 ;;; issue a compilation warning using FORMAT.
@@ -3216,13 +3221,11 @@ der Docstring (oder NIL).
                     (if (and (symbolp fun) (macro-function fun)) ; globaler Macro ?
                       (c-form (funcall *macroexpand-hook* (macro-function fun) *form* (vector *venv* *fenv*))) ; -> expandieren
                       ; globale Funktion
-                      (if (and (equal fun (fnode-name *func*))
-                               (not (declared-notinline fun))
-                               (member `(SYS::IN-DEFUN ,fun) *denv* :test #'equal)
-                          )
-                        ; rekursiver Aufruf der aktuellen globalen Funktion
+                      (if (and (in-defun-p fun)
+                               (not (declared-notinline fun)))
+                        ;; recursive call of the current global function
                         (c-LOCAL-FUNCTION-CALL fun (cons *func* nil) (cdr *form*))
-                        ; normaler Aufruf globaler Funktion
+                        ;; normal call of the global function
                         (c-GLOBAL-FUNCTION-CALL fun)
                 ) ) ) )
                 (if (and m (not (and f1 (declared-notinline fun))))
@@ -4397,7 +4400,7 @@ der Docstring (oder NIL).
         (if kf
           (match-known-unknown-functions uf kf)
           (push uf *unknown-functions*)))
-      (unless (equalp name (current-function))
+      (unless (in-defun-p name)
         (c-warn (ENGLISH "Function ~s is not defined") name))))
   (when (memq name *deprecated-functions-list*)
     (if *compiling-from-file*
@@ -4838,8 +4841,7 @@ der Docstring (oder NIL).
                   (not (and (symbolp fun) (or (special-operator-p fun) (macro-function fun))))
                   (not (declared-notinline fun))
                   (or #| ;; Lohnt sich wohl nicht
-                      (and (equal fun (fnode-name *func*))
-                           (member `(SYS::IN-DEFUN ,fun) *denv* :test #'equal)
+                      (and (in-defun fun)
                            (multiple-value-bind (req opt rest-flag key-flag keylist allow-flag)
                                (fdescr-signature (cons *func* nil))
                              (declare (ignore keylist allow-flag))
@@ -8107,10 +8109,8 @@ der Docstring (oder NIL).
                 (unless (and (symbolp fun) ; special form or global macro?
                              (or (special-operator-p fun)
                                  (macro-function fun)))
-                  (when (and (equal fun (fnode-name *func*))
-                             (member `(SYS::IN-DEFUN ,fun) *denv*
-                                     :test #'equal))
-                    ;; recursive call of a defined global function
+                  (when (in-defun-p fun)
+                    ;; recursive call of the current global function
                     (c-LOCAL-APPLY (cons *func* nil)))
                   (let ((inline-lambdabody (inline-lambdabody fun)))
                     (when (inline-callable-lambdabody-p inline-lambdabody n t)
