@@ -2,6 +2,16 @@
 
 	* affi1.lisp: use DEFPACKAGE to define package AFFI
 
+2001-04-22  Sam Steingold  <sds@gnu.org>
+
+	* bindings/amigaos/asl-load.lisp, bindings/amigaos/window.lisp,
+	bindings/linuxlibc5/linux.lisp, bindings/linuxlibc6/linux.lisp,
+	clx/mit-clx/package.lisp, modules/postgresql642/postgresql.
+	modules/postgresql632/postgresql.lisp, modules/wildcard/wildcard.lisp:
+	use DEFPACKAGE, not CLtL1 IN-PACKAGE
+	* new-clx/demos/clx-demos.lisp: getenv is in EXT, not SYS now,
+	use strings, not symbols in DEFPACKAGE
+
 2001-04-20  Sam Steingold  <sds@gnu.org>
 
 	* constobj.d (version): bump the bytecode version due to repackaging
