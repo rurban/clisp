@@ -1,3 +1,12 @@
+2003-09-11  Sam Steingold  <sds@gnu.org>
+
+	* modules/bindings/glibc/linux.lisp (scalb, scalbf): commented out
+	because they do not compile on either RedHat or Debian
+
+2003-09-10  Sam Steingold  <sds@gnu.org>
+
+	* debug.d (print_back_trace): do not confuse backtrace with prompts
+
 2003-09-09  Sam Steingold  <sds@gnu.org>
 
 	* genclisph.d (constobj): include at compile time (like subr &
