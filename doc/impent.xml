@@ -105,6 +105,7 @@
 <!ENTITY pr-indent "<link linkend='pr-indent'><varname>custom:*print-indent-lists*</varname></link>">
 <!ENTITY pr-rpars "<link linkend='pr-rpars'><varname>custom:*print-rpars*</varname></link>">
 <!ENTITY re-export "<link linkend='re-export'><function>re-export</function></link>">
+<!ENTITY socket-server "<link linkend='socket'><classname>socket-server</classname></link>">
 <!ENTITY socket-stream "<link linkend='socket'><classname>socket-stream</classname></link>">
 <!ENTITY warn-fpc "<link linkend='warn-fpc'><varname>custom:*warn-on-floating-point-contagion*</varname></link>">
 <!ENTITY with-kbd "<link linkend='terminal'><function>ext:with-keyboard</function></link>">
