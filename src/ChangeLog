@@ -1,7 +1,13 @@
+2004-06-01  Bruno Haible  <bruno@clisp.org>
+
+	* clos-class3.lisp (install-class-direct-accessors): For slots at
+	fixed slot locations, generate more efficient accessors that use
+	SYS::%RECORD-REF instead of SLOT-VALUE.
+
 2004-07-22  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (bitbuff_ixs_sub): fixed bitbufferptr initialization
-	Reported by "Randolph Udodenko" <udodenko@users.sourceforge.net>
+	Reported by Randolph Udodenko <udodenko@users.sourceforge.net>
 
 2004-06-01  Bruno Haible  <bruno@clisp.org>
 
@@ -7449,7 +7455,7 @@
 2003-09-04  Sam Steingold  <sds@gnu.org>
 
 	* describe.lisp (describe-object) [SOCKETS]: handle SOCKET-SERVER
-	Reported by "John K. Hinsdale" <hin@alma.com>
+	Reported by John K. Hinsdale <hin@alma.com>
 	* genclisph.d (Atype_32Bit): export for gdi (Dan Stanger)
 
 2003-09-03  Sam Steingold  <sds@gnu.org>
@@ -11825,7 +11831,7 @@
 
 	* io.d (multi_line_sub_block_out): fixed a crash when block
 	contains several indentations
-	Reported by "Ribeiro, Glauber" <glauber.ribeiro@experian.com>
+	Reported by Glauber Ribeiro <glauber.ribeiro@experian.com>
 
 2002-08-14  Sam Steingold  <sds@gnu.org>
 

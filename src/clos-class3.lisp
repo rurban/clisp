@@ -1201,79 +1201,93 @@
   (dolist (slot (class-direct-slots class))
     (let ((slot-name (slot-definition-name slot))
           (readers (slot-definition-readers slot))
-          (writers (slot-definition-writers slot))
-          (generic-p (class-generic-accessors class)))
-      ; Generic accessors are defined as methods and listed in the
-      ; direct-accessors list, so they can be removed upon class redefinition.
-      ; Non-generic accessors are defined as plain functions.
-      (dolist (funname readers)
-        (if generic-p
-          (setf (class-direct-accessors class)
-                (list* funname
-                       (do-defmethod funname
-                         (let* ((args
-                                  (list
-                                    :initfunction
-                                      (eval
-                                        `#'(LAMBDA (#:SELF)
-                                             (DECLARE (COMPILE))
-                                             (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION OBJECT)
-                                               (DECLARE (COMPILE))
-                                               (SLOT-VALUE OBJECT ',slot-name))))
-                                    :wants-next-method-p t
-                                    :parameter-specializers (list class)
-                                    :qualifiers nil
-                                    :signature (make-signature :req-num 1)
-                                    :slot-definition slot))
-                                (method-class
-                                  (apply #'reader-method-class class slot args)))
-                           (unless (and (class-p method-class)
-                                        (subclassp method-class <standard-reader-method>))
-                             (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
-                                    'reader-method-class (class-name class) 'standard-reader-method method-class))
-                           (apply #'make-instance method-class args)))
-                       (class-direct-accessors class)))
-          (setf (fdefinition funname)
-                (eval `(FUNCTION ,funname
-                         (LAMBDA (OBJECT)
-                           ,@(if *compile-accessor-functions* '((DECLARE (COMPILE))))
-                           (UNLESS (TYPEP OBJECT ',class)
-                             (ERROR-ACCESSOR-TYPECHECK ',funname OBJECT ',class))
-                           (SLOT-VALUE OBJECT ',slot-name)))))))
-      (dolist (funname writers)
-        (if generic-p
-          (setf (class-direct-accessors class)
-                (list* funname
-                       (do-defmethod funname
-                         (let* ((args
-                                  (list
-                                    :initfunction
-                                      (eval
-                                        `#'(LAMBDA (#:SELF)
-                                             (DECLARE (COMPILE))
-                                             (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION NEW-VALUE OBJECT)
-                                               (DECLARE (COMPILE))
-                                               (SETF (SLOT-VALUE OBJECT ',slot-name) NEW-VALUE))))
-                                    :wants-next-method-p t
-                                    :parameter-specializers (list <t> class)
-                                    :qualifiers nil
-                                    :signature (make-signature :req-num 2)
-                                    :slot-definition slot))
-                                (method-class
-                                  (apply #'writer-method-class class slot args)))
-                           (unless (and (class-p method-class)
-                                        (subclassp method-class <standard-writer-method>))
-                             (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
-                                    'writer-method-class (class-name class) 'standard-writer-method method-class))
-                           (apply #'make-instance method-class args)))
-                       (class-direct-accessors class)))
-          (setf (fdefinition funname)
-                (eval `(FUNCTION ,funname
-                         (LAMBDA (NEW-VALUE OBJECT)
-                           ,@(if *compile-accessor-functions* '((DECLARE (COMPILE))))
-                           (UNLESS (TYPEP OBJECT ',class)
-                             (ERROR-ACCESSOR-TYPECHECK ',funname OBJECT ',class))
-                           (SETF (SLOT-VALUE OBJECT ',slot-name) NEW-VALUE))))))))))
+          (writers (slot-definition-writers slot)))
+      (when (or readers writers)
+        (let ((generic-p (class-generic-accessors class))
+              (access-place
+                (let (effective-slot)
+                  (if (and (standard-class-p class)
+                           (class-fixed-slot-locations class)
+                           (setq effective-slot
+                                 (find slot-name (class-slots class)
+                                       :key #'slot-definition-name))
+                           (eq (slot-definition-allocation effective-slot)
+                               ':instance))
+                    (progn
+                      (assert (typep (slot-definition-location effective-slot) 'integer))
+                      `(SYS::%RECORD-REF OBJECT ,(slot-definition-location effective-slot)))
+                    `(SLOT-VALUE OBJECT ',slot-name)))))
+          ; Generic accessors are defined as methods and listed in the
+          ; direct-accessors list, so they can be removed upon class redefinition.
+          ; Non-generic accessors are defined as plain functions.
+          (dolist (funname readers)
+            (if generic-p
+              (setf (class-direct-accessors class)
+                    (list* funname
+                           (do-defmethod funname
+                             (let* ((args
+                                      (list
+                                        :initfunction
+                                          (eval
+                                            `#'(LAMBDA (#:SELF)
+                                                 (DECLARE (COMPILE))
+                                                 (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION OBJECT)
+                                                   (DECLARE (COMPILE))
+                                                   ,access-place)))
+                                        :wants-next-method-p t
+                                        :parameter-specializers (list class)
+                                        :qualifiers nil
+                                        :signature (make-signature :req-num 1)
+                                        :slot-definition slot))
+                                    (method-class
+                                      (apply #'reader-method-class class slot args)))
+                               (unless (and (class-p method-class)
+                                            (subclassp method-class <standard-reader-method>))
+                                 (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
+                                        'reader-method-class (class-name class) 'standard-reader-method method-class))
+                               (apply #'make-instance method-class args)))
+                           (class-direct-accessors class)))
+              (setf (fdefinition funname)
+                    (eval `(FUNCTION ,funname
+                             (LAMBDA (OBJECT)
+                               ,@(if *compile-accessor-functions* '((DECLARE (COMPILE))))
+                               (UNLESS (TYPEP OBJECT ',class)
+                                 (ERROR-ACCESSOR-TYPECHECK ',funname OBJECT ',class))
+                               ,access-place))))))
+          (dolist (funname writers)
+            (if generic-p
+              (setf (class-direct-accessors class)
+                    (list* funname
+                           (do-defmethod funname
+                             (let* ((args
+                                      (list
+                                        :initfunction
+                                          (eval
+                                            `#'(LAMBDA (#:SELF)
+                                                 (DECLARE (COMPILE))
+                                                 (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION NEW-VALUE OBJECT)
+                                                   (DECLARE (COMPILE))
+                                                   (SETF ,access-place NEW-VALUE))))
+                                        :wants-next-method-p t
+                                        :parameter-specializers (list <t> class)
+                                        :qualifiers nil
+                                        :signature (make-signature :req-num 2)
+                                        :slot-definition slot))
+                                    (method-class
+                                      (apply #'writer-method-class class slot args)))
+                               (unless (and (class-p method-class)
+                                            (subclassp method-class <standard-writer-method>))
+                                 (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
+                                        'writer-method-class (class-name class) 'standard-writer-method method-class))
+                               (apply #'make-instance method-class args)))
+                           (class-direct-accessors class)))
+              (setf (fdefinition funname)
+                    (eval `(FUNCTION ,funname
+                             (LAMBDA (NEW-VALUE OBJECT)
+                               ,@(if *compile-accessor-functions* '((DECLARE (COMPILE))))
+                               (UNLESS (TYPEP OBJECT ',class)
+                                 (ERROR-ACCESSOR-TYPECHECK ',funname OBJECT ',class))
+                               (SETF ,access-place NEW-VALUE))))))))))))
 
 ;; Remove a set of accessor methods given as a plist.
 (defun remove-accessor-methods (plist)
