@@ -1,3 +1,8 @@
+1998-10-15  Sam Steingold  <sds@goems.com>
+
+	* loop.lsp (expand-loop): fixed handling of `of-type' in
+	sum/max/count.
+
 1998-10-14  Leigh Smith  <leigh@antechinus.cs.uwa.oz.au>
 
         * makemake.in (echol): Use `cat', not `printf'.
