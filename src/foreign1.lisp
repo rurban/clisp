@@ -86,7 +86,9 @@
                                 "register" "return" "short" "sizeof" "static"
                                 "struct" "switch" "typedef" "union" "unsigned"
                                 "void" "while"))
-                             (reserved-table (make-hash-table :test #'equal)))
+                             (reserved-table
+                               (make-hash-table :key-type 'string :value-type '(eql t)
+                                                :test #'equal)))
                         (dolist (w reserved-list)
                           (setf (gethash w reserved-table) 'T))
                         reserved-table))))))
@@ -110,7 +112,8 @@
 ;; ============================ C types ============================
 
 ;: The table of C types.
-(defvar *c-type-table* (make-hash-table :test #'eq))
+(defvar *c-type-table*
+  (make-hash-table :key-type 'symbol :test #'eq))
 
 ; simple C types
 (dolist (c-type
@@ -470,8 +473,10 @@
 (defstruct ffi-module
   name
   c-name
-  (object-table (make-hash-table :test #'equal))
-  (type-table (make-hash-table :test #'eq))
+  (object-table (make-hash-table :key-type '(or string symbol) :value-type '(cons string fixnum)
+                                 :test #'equal))
+  (type-table (make-hash-table :key-type 'symbol :value-type '(or null string)
+                               :test #'eq))
   (variable-list '())
   (function-list '()))
 (define-symbol-macro *name*
@@ -1023,7 +1028,7 @@
 
 (defmacro def-c-enum (&whole whole name &rest items)
   (check-symbol (first whole) name)
-  (let ((forms '()) (ht (make-hash-table))
+  (let ((forms '()) (ht (make-hash-table :key-type 'fixnum :value-type 'symbol))
         (next-value 0) (this-val 0))
     (dolist (item items)
       (when (consp item)

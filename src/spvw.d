@@ -1325,7 +1325,8 @@ local void init_symbol_values (void) {
  #endif
   # for PATHNAME:
  #ifdef LOGICAL_PATHNAMES
-  { # SYS::*LOGICAL-PATHNAME-TRANSLATIONS* := (MAKE-HASH-TABLE :TEST #'EQUALP)
+  { # SYS::*LOGICAL-PATHNAME-TRANSLATIONS* :=
+    #   (MAKE-HASH-TABLE :KEY-TYPE 'STRING :VALUE-TYPE 'LIST :TEST #'EQUALP)
     pushSTACK(S(Ktest)); pushSTACK(L(equalp)); funcall(L(make_hash_table),2);
     define_variable(S(logpathname_translations),value1);
   }

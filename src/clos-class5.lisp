@@ -20,25 +20,31 @@
 ;; - UPDATE-INSTANCE-FOR-DIFFERENT-CLASS must be informed about the methods of
 ;;   UPDATE-INSTANCE-FOR-DIFFERENT-CLASS and SHARED-INITIALIZE.
 
-(defparameter *make-instance-table* (make-hash-table :test #'eq))
+(defparameter *make-instance-table*
+  (make-hash-table :key-type 'class :value-type '(simple-vector 4)
+                   :test #'eq))
   ;; Hash table, mapping a class to a simple-vector containing
   ;; - a list of valid keyword arguments,
   ;; - the effective method of allocate-instance,
   ;; - the effective method of initialize-instance,
   ;; - the effective method of shared-initialize.
 
-(defparameter *reinitialize-instance-table* (make-hash-table :test #'eq))
+(defparameter *reinitialize-instance-table*
+  (make-hash-table :key-type 'class :value-type 'cons
+                   :test #'eq))
   ;; Hash table, mapping a class to a cons containing
   ;; - a list of valid keyword arguments,
   ;; - the effective method of shared-initialize.
 
 (defparameter *update-instance-for-redefined-class-table*
-  (make-hash-table :test #'eq))
+  (make-hash-table :key-type 'class :value-type 'list
+                   :test #'eq))
   ;; Hash table, mapping a class to
   ;; - a list of valid keyword arguments.
 
 (defparameter *update-instance-for-different-class-table*
-  (make-hash-table :test #'equal))
+  (make-hash-table :key-type '(cons class class) :value-type 'list
+                   :test #'equal))
   ;; Hash table, mapping a cons (old-class . new-class) to
   ;; - a list of valid keyword arguments.
 
