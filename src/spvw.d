@@ -2903,7 +2903,7 @@ local inline void main_actions (struct argv_actions *p) {
       pushSTACK(S(nil));
       funcall(S(load),3);
       if (!nullp(value1)) {     /* loaded the file */
-        pushSTACK(GETTEXT("The name of the Run-Control file has changed from '_clisprc' to '.clisprc' on all platforms. Please rename your Run-Control file."));
+        pushSTACK(CLSTEXT("The name of the Run-Control file has changed from '_clisprc' to '.clisprc' on all platforms. Please rename your Run-Control file."));
         funcall(S(warn),1);
       }
     }
