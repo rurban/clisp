@@ -1223,17 +1223,17 @@ local void test_key_arg (void) {
 # > key: value of the :KEY argument
 # > item: object being considered
 # < value1: (FUNCALL key item)
-#define funcall_key(key,item)                       \
-    {                                               \
-      var object _key = (key);                      \
-      var object _item = (item);                    \
-      # shortcut for :KEY #'IDENTITY, very frequent \
-      if (!eq(_key,L(identity))) {                  \
-        pushSTACK(_item); funcall(_key,1);          \
-      } else {                                      \
-        value1 = _item;                             \
-      }                                             \
-    }
+#define funcall_key(key,item)                     \
+  {                                               \
+    var object _key = (key);                      \
+    var object _item = (item);                    \
+    # shortcut for :KEY #'IDENTITY, very frequent \
+    if (!eq(_key,L(identity))) {                  \
+      pushSTACK(_item); funcall(_key,1);          \
+    } else {                                      \
+      value1 = _item;                             \
+    }                                             \
+  }
 
 # UP: Überprüft die :TEST, :TEST-NOT - Argumente
 # test_test_args()
