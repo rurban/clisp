@@ -37,6 +37,12 @@
     (print-object-<funcallable-standard-object> object stream)
     object))
 
+#| ;; Commented out because the example in the CLHS description of
+   ;; PRINT-UNREADABLE-OBJECT leaves doubts about whether the
+   ;;   "print-object object stream => object"
+   ;; specification was meant as it is.
+   ;; CLISP's printer ignores the value of PRINT-OBJECT anyway.
+
 ;; Check that all user-defined print-object methods return the object.
 (defparameter *print-object-method-warning* t)
 (defun print-object-method-warning (method object result)
@@ -55,6 +61,7 @@
                    (PRINT-OBJECT-METHOD-WARNING ',(first methods) ,object-var ,result-var))
                  ,object-var)
               (cons `(:ARGUMENTS ,object-var) options)))))
+|#
 
 ;; Another DEFSTRUCT hook.
 (defun defstruct-remove-print-object-method (name) ; ABI
