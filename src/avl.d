@@ -1,5 +1,5 @@
 # AVL-Bäume für CLISP
-# Bruno Haible 25.10.1993
+# Bruno Haible 1993-1999
 
 # Ziel: Eine Menge von Elementen sortiert zu halten, in der ab und zu
 # einmal ein Element dazukommt oder ein Element seinen Sortierschlüssel

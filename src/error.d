@@ -1,5 +1,5 @@
 # Error-Handling für CLISP
-# Bruno Haible 26.6.1997
+# Bruno Haible 1990-1999
 # Marcus Daniels 8.4.1994
 
 #include "lispbibl.c"

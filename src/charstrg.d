@@ -1,5 +1,5 @@
 # Funktionen für Characters und Strings für CLISP
-# Bruno Haible 16.9.1997
+# Bruno Haible 1990-1999
 
 #include "lispbibl.c"
 

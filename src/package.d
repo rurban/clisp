@@ -1,5 +1,5 @@
 # Package-Verwaltung für CLISP
-# Bruno Haible 24.9.1997
+# Bruno Haible 1990-1999
 
 #include "lispbibl.c"
 #include "arilev0.c" # für Hashcode-Berechnung

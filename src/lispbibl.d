@@ -1,5 +1,5 @@
 # Haupt-Include-File für CLISP
-# Bruno Haible 21.9.1997
+# Bruno Haible 1990-1999
 # Marcus Daniels 11.11.1994
 
 

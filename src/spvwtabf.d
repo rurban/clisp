@@ -1,6 +1,6 @@
 # Aus der Speicherverwaltung ausgelagert:
 # Tabelle aller SUBRs
-# Bruno Haible 6.8.1996
+# Bruno Haible 1990-1999
 
 #include "lispbibl.c"
 

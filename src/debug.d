@@ -1,5 +1,5 @@
 # Top-Level-Schleife, Hilfsfunktionen für Debugger, Stepper von CLISP
-# Bruno Haible 30.8.1997
+# Bruno Haible 1990-1999
 # ILISP friendliness: Marcus Daniels 8.4.1994
 
 #include "lispbibl.c"

@@ -1,5 +1,5 @@
 # Zeitmessungsfunktionen für CLISP
-# Bruno Haible 22.8.1997
+# Bruno Haible 1990-1999
 
 #include "lispbibl.c"
 #include "arilev0.c"  # für high16, low16 in %%TIME,

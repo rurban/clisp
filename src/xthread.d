@@ -1,5 +1,5 @@
 # Cross-platform thread support
-# Bruno Haible 5.10.1997
+# Bruno Haible 1997-1999
 
 # =============================================================================
 # This part is heavily influenced by the file <X11/Xthreads.h> from X11R6,

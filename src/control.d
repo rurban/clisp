@@ -1,5 +1,5 @@
 # Special-Forms, Kontrollstrukturen, Evaluator-Nahes für CLISP
-# Bruno Haible 11.6.1997
+# Bruno Haible 1990-1999
 
 #include "lispbibl.c"
 

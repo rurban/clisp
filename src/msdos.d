@@ -1,5 +1,5 @@
 # Include-File für MSDOS-(DJUNIX/EMUNIX/WATCOM)-Version von CLISP
-# Bruno Haible 12.7.1997
+# Bruno Haible 1992-1999
 
 
 # Konstanten für Steuerzeichen:

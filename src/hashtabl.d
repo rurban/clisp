@@ -1,5 +1,5 @@
 # Hash-Tabellen in CLISP
-# Bruno Haible 17.6.1997
+# Bruno Haible 1990-1999
 
 #include "lispbibl.c"
 #include "arilev0.c" # für Hashcode-Berechnung

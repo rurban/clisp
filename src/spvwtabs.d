@@ -1,6 +1,6 @@
 # Aus der Speicherverwaltung ausgelagert:
 # Tabelle aller festen Symbole
-# Bruno Haible 27.6.1997
+# Bruno Haible 1990-1999
 
 #include "lispbibl.c"
 

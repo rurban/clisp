@@ -1,5 +1,5 @@
 # Prädikate für Gleichheit und Typtests, Typen, Klassen in CLISP
-# Bruno Haible 2.9.1997
+# Bruno Haible 1990-1999
 
 #include "lispbibl.c"
 

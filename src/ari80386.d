@@ -7,7 +7,7 @@
 # Ergebnis-Übergabe: in %eax
 # Einstellungen: intCsize=32, intDsize=32.
 
-# Bruno Haible 14.8.1992
+# Bruno Haible 1992-1999
 # Zum Teil abgeschrieben von Bernhard Degels "v-i386.s"
 
 #ifdef INCLUDED_FROM_C

@@ -1,5 +1,5 @@
 # Funktionen für Records und Structures von CLISP
-# Bruno Haible 20.8.1996
+# Bruno Haible 1990-1999
 
 #include "lispbibl.c"
 

@@ -1,5 +1,5 @@
 # Module für CLISP
-# Bruno Haible 1.4.1995
+# Bruno Haible 1994-1999
 
 # Alle Abhängigkeiten von modules.h werden hier gesammelt!
 

@@ -1,5 +1,5 @@
 # Evaluator, Applyer und Bytecode-Interpreter für CLISP
-# Bruno Haible 14.9.1997
+# Bruno Haible 1990-1999
 
 #include "lispbibl.c"
 

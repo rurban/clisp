@@ -1,5 +1,5 @@
 # Liste aller dem C-Programm bekannten Symbole ("Programmkonstanten")
-# Bruno Haible 23.9.1997
+# Bruno Haible 1990-1999
 
 # Der Macro LISPSYM deklariert ein LISP-Symbol.
 # LISPSYM(name,printname,package)

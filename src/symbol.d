@@ -1,5 +1,5 @@
 # Funktionen betr. Symbole für CLISP
-# Bruno Haible 18.3.1997
+# Bruno Haible 1990-1999
 
 #include "lispbibl.c"
 

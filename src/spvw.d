@@ -1,5 +1,5 @@
 # Speicherverwaltung für CLISP
-# Bruno Haible 6.12.1997
+# Bruno Haible 1990-1999
 
 # Inhalt:
 # Modulverwaltung

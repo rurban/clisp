@@ -1,5 +1,5 @@
 # Ein Ersatz für die GNU readline()-Library.
-# Bruno Haible 19.3.1997
+# Bruno Haible 1992-1999
 
 # These are the only things we need from lispbibl.c :
 #define global

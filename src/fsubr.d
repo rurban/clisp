@@ -1,5 +1,5 @@
 # Liste aller FSUBRs
-# Bruno Haible 10.7.1994
+# Bruno Haible 1990-1999
 
 # Eine Special-Form wird definiert durch eine Deklaration
 #   LISPSPECFORM(name,req_anz,opt_anz,body_flag)
