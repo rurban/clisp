@@ -263,5 +263,5 @@ m
 (destructuring-bind (&key (x x)) nil x)
 3
 
-(destructuring-bind (x . y) (1 . 10) (list x y))
+(destructuring-bind (x . y) '(1 . 10) (list x y))
 (1 10)
