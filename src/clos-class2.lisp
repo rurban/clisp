@@ -1144,47 +1144,18 @@
 ;;; - NIL or a weak-list (for saving memory when there are few subclasses), or
 ;;; - a weak-hash-table (for speed when there are many subclasses).
 
+#|
 ;; Adds a class to the list of direct subclasses.
-(defun add-direct-subclass (class subclass)
-  (let ((direct-subclasses (class-direct-subclasses class)))
-    (cond ((null direct-subclasses)
-           (setf (class-direct-subclasses class)
-                 (ext:make-weak-list (list subclass))))
-          ((ext:weak-list-p direct-subclasses)
-           (let ((list (ext:weak-list-list direct-subclasses)))
-             (unless (member subclass list :test #'eq)
-               (push subclass list)
-               (if (<= (length list) 10)
-                 (setf (ext:weak-list-list direct-subclasses) list)
-                 (setf (class-direct-subclasses class)
-                       (let ((ht (make-hash-table :key-type 'class :value-type '(eql t)
-                                                  :test 'ext:stablehash-eq :warn-if-needs-rehash-after-gc t
-                                                  :weak :key)))
-                         (dolist (x list) (setf (gethash x ht) t))
-                         ht))))))
-          (t (setf (gethash subclass direct-subclasses) t)))))
-
+(defun add-direct-subclass (class subclass) ...)
 ;; Removes a class from the list of direct subclasses.
-(defun remove-direct-subclass (class subclass)
-  (let ((direct-subclasses (class-direct-subclasses class)))
-    (cond ((null direct-subclasses))
-          ((ext:weak-list-p direct-subclasses)
-           (let ((list (ext:weak-list-list direct-subclasses)))
-             (when (member subclass list :test #'eq)
-               (setf (ext:weak-list-list direct-subclasses)
-                     (remove subclass list :test #'eq)))))
-          (t (remhash subclass direct-subclasses)))))
-
+(defun remove-direct-subclass (class subclass) ...)
 ;; Returns the currently existing direct subclasses, as a freshly consed list.
-(defun list-direct-subclasses (class)
-  (let ((direct-subclasses (class-direct-subclasses class)))
-    (cond ((null direct-subclasses) '())
-          ((ext:weak-list-p direct-subclasses)
-           (ext:weak-list-list direct-subclasses))
-          (t (let ((l '()))
-               (maphash #'(lambda (x y) (declare (ignore y)) (push x l))
-                        direct-subclasses)
-               l)))))
+(defun list-direct-subclasses (class) ...)
+|#
+(def-weak-set-accessors class-direct-subclasses class
+  add-direct-subclass
+  remove-direct-subclass
+  list-direct-subclasses)
 
 ;; Returns the currently existing subclasses, in top-down order, including the
 ;; class itself as first element.
