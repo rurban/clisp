@@ -14503,7 +14503,7 @@ extern maygc object decimal_string (object x);
   extern void convert_to_foreign_nomalloc (object fvd, object obj, void* data);
 
 # Initialize the FFI.
-  extern void init_ffi (void);
+  extern maygc void init_ffi (void);
 # used by SPVW
 
 # De-Initialize the FFI.

@@ -4139,7 +4139,7 @@ local uintP ffi_identity (uintP arg) {
 global void* ffi_user_pointer = NULL;
 
 /* Initialize the FFI. */
-global void init_ffi (void) {
+global maygc void init_ffi (void) {
   /* Allocate a fresh zero foreign pointer: */
   O(fp_zero) = allocate_fpointer((void*)0);
   ffi_user_pointer = NULL;
