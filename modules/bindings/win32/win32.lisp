@@ -56,8 +56,21 @@
   (:return-type c-pointer))
 #| example:
  (setq icon (win32:LoadImageA nil "d:\\gnu\\clisp\\current\\doc\\clisp.ico"
-                             win32:IMAGE_ICON 0 0  win32:LR_LOADFROMFILE))
+                              win32:IMAGE_ICON 0 0  win32:LR_LOADFROMFILE))
 |#
+
+(eval-when (compile eval load)
+  (defconstant MAX_PATH 260))   ; see <windef.h>
+
+(def-call-out GetModuleFileNameA (:library "kernel32.dll")
+  (:arguments (application-instance-handle c-pointer)
+              (name (c-ptr (c-array-max character #.MAX_PATH)) :out :alloca)
+              (size int))  ; always pass MAX_PATH as the second argument
+  (:return-type uint32))
+
+(def-call-out GetModuleHandleA (:library "kernel32.dll")
+  (:arguments (name c-string))
+  (:return-type c-pointer))
 
 ;;; ==========================================================================
 ;;; clean up
