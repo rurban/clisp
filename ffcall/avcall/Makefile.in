@@ -120,7 +120,7 @@ avcall-rs6000.lo : $(srcdir)/avcall-rs6000-aix.old.s $(srcdir)/avcall-rs6000-aix
 	case "$(OS)" in \
 	  aix3*) syntax=aix.old;; \
 	  aix*) syntax=aix.new;; \
-	  linux*) syntax=linux;; \
+	  linux* | netbsd*) syntax=linux;; \
 	  *) syntax=sysv4;; \
 	esac; \
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-rs6000-$${syntax}.s ; \
