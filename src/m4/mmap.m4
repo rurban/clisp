@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -18,32 +18,6 @@ if test -z "$no_mmap"; then
 AC_CHECK_FUNC(mmap, , no_mmap=1)dnl
 if test -z "$no_mmap"; then
 AC_DEFINE(HAVE_MMAP,,[have <sys/mmap.h> and the mmap() function])
-CL_PROTO([mmap], [
-for z in 'int' 'size_t'; do
-for y in 'void*' 'caddr_t'; do
-for x in 'void*' 'caddr_t'; do
-if test -z "$have_mmap_decl"; then
-CL_PROTO_TRY([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <sys/types.h>
-#include <sys/mman.h>
-], [$x mmap ($y addr, $z length, int prot, int flags, int fd, off_t off);],
-[$x mmap();], [
-cl_cv_proto_mmap_ret="$x"
-cl_cv_proto_mmap_arg1="$y"
-cl_cv_proto_mmap_arg2="$z"
-have_mmap_decl=1])
-fi
-done
-done
-done
-], [extern $cl_cv_proto_mmap_ret mmap ($cl_cv_proto_mmap_arg1, $cl_cv_proto_mmap_arg2, int, int, int, off_t);])
-AC_DEFINE_UNQUOTED(RETMMAPTYPE,$cl_cv_proto_mmap_ret,[return type of mmap()])
-AC_DEFINE_UNQUOTED(MMAP_ADDR_T,$cl_cv_proto_mmap_arg1,[type of `addr' in mmap() declaration])
-AC_DEFINE_UNQUOTED(MMAP_SIZE_T,$cl_cv_proto_mmap_arg2,[type of `len' in mmap() declaration])
 AC_CACHE_CHECK(for working mmap, cl_cv_func_mmap_works, [
 case "$host" in
   i[34567]86-*-sysv4*)
@@ -69,12 +43,6 @@ mmap_prog_1='
 #endif
 #include <sys/types.h>
 #include <sys/mman.h>
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-RETMMAPTYPE mmap (MMAP_ADDR_T addr, MMAP_SIZE_T length, int prot, int flags, int fd, off_t off);
-#else
-RETMMAPTYPE mmap();
-#endif
 int main () {
 '
 mmap_prog_2="#define bits_to_avoid $avoid"'
@@ -100,7 +68,7 @@ mmap_prog_2="#define bits_to_avoid $avoid"'
 #else
         long size = ((i+1)/2)*my_size;
 #endif
-        if (mmap(addr,size,PROT_READ|PROT_WRITE,flags|MAP_FIXED,fd,0) == (RETMMAPTYPE)-1) exit(1);
+        if (mmap(addr,size,PROT_READ|PROT_WRITE,flags|MAP_FIXED,fd,0) == (void*)-1) exit(1);
     }
 #define x(i)  *(unsigned char *) ((i<<my_shift) + (i*i))
 #define y(i)  (unsigned char)((3*i-4)*(7*i+3))

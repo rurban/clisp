@@ -54,17 +54,11 @@ extern_C char* strerror (int errnum);
   /* ignore the contents of libposix.a, since it is not documented */
   #undef HAVE_MMAP
   #undef HAVE_MUNMAP
-  #undef MMAP_ADDR_T
-  #undef MMAP_SIZE_T
-  #undef RETMMAPTYPE
 #endif
 #ifdef UNIX_RHAPSODY
 /* Ignore mmap and friends, because the configure test says no working mmap. */
   #undef HAVE_MMAP
   #undef HAVE_MUNMAP
-  #undef MMAP_ADDR_T
-  #undef MMAP_SIZE_T
-  #undef RETMMAPTYPE
   #undef HAVE_WORKING_MPROTECT
 #endif
 #if defined(HAVE_MMAP) || defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_ANONYMOUS) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MMAP_DEVZERO_SUN4_29)
@@ -99,7 +93,7 @@ extern_C char* strerror (int errnum);
       /* tested only on UNIX_LINUX, not UNIX_SUNOS4, not UNIX_SUNOS5,
          not UNIX_FREEBSD. ?? */
       /* for MULTIMAP_MEMORY_VIA_FILE: */
-      extern_C int msync (MMAP_ADDR_T addr, MMAP_SIZE_T len, int flags);
+      extern_C int msync (void* addr, size_t len, int flags);
     #else
       /* NetBSD has a 2-argument msync(), unusable for our purposes. */
       #undef HAVE_MSYNC
@@ -126,22 +120,23 @@ extern_C char* strerror (int errnum);
   #define HAVE_MMAP
   #define HAVE_MUNMAP
   #define HAVE_WORKING_MPROTECT
-  #define MMAP_ADDR_T  vm_address_t
-  #define MMAP_SIZE_T  vm_size_t
-  #define RETMMAPTYPE  MMAP_ADDR_T
+  /* We assume the following types are effectively the same:
+       vm_address_t and void*
+       vm_size_t and size_t
+   */
   #define PROT_NONE  0
   #define PROT_READ  VM_PROT_READ
   #define PROT_WRITE VM_PROT_WRITE
   #define PROT_EXEC  VM_PROT_EXECUTE
 #endif
 #ifdef HAVE_MMAP
-  extern_C RETMMAPTYPE mmap (MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot, int flags, int fd, off_t off); /* MMAP(2) */
+  extern_C void* mmap (void* addr, size_t len, int prot, int flags, int fd, off_t off); /* MMAP(2) */
 #endif
 #ifdef HAVE_MUNMAP
-  extern_C int munmap (MMAP_ADDR_T addr, MMAP_SIZE_T len); /* MUNMAP(2) */
+  extern_C int munmap (void* addr, size_t len); /* MUNMAP(2) */
 #endif
 #ifdef HAVE_WORKING_MPROTECT
-  /* extern_C int mprotect (MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot); */ /* MPROTECT(2) */
+  /* extern_C int mprotect (void* addr, size_t len, int prot); */ /* MPROTECT(2) */
 #endif
 /* Possible values of prot: PROT_NONE, PROT_READ, PROT_READ_WRITE. */
 #ifndef PROT_NONE

@@ -134,7 +134,7 @@
     local void msync_mmap_intervals (void) {
       var mmap_interval_t* ptr = &mmap_intervals[0];
       while (ptr != mmap_intervals_ptr) {
-        if (msync((MMAP_ADDR_T)ptr->mm_addr,ptr->mm_len,MS_INVALIDATE) < 0) {
+        if (msync((void*)ptr->mm_addr,ptr->mm_len,MS_INVALIDATE) < 0) {
           fprintf(stderr,GETTEXTL("msync(0x%x,0x%x,MS_INVALIDATE) failed."),
                   ptr->mm_addr, ptr->mm_len);
           errno_out(errno);
@@ -149,7 +149,7 @@
 
   local int fdmap (int fd, void* map_addr, uintL map_len, int readonly, int shared, int remember)
   {
-    if ( (void*) mmap((MMAP_ADDR_T)map_addr, # wished address
+    if ( (void*) mmap((void*)map_addr, # wished address
                       map_len, # length
                       readonly ? PROT_READ : PROT_READ_WRITE, # access rights
                       (shared ? MAP_SHARED : 0) | MAP_FIXED, # exactly to this address!

@@ -489,7 +489,7 @@ global long to_time_t_ (FILETIME * ptr) {
 
 # Ein Wrapper um die mmap-Funktion.
   #undef mmap
-  global RETMMAPTYPE fixed_mmap (MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot, int flags, int fd, off_t off) {
+  global void* fixed_mmap (void* addr, size_t len, int prot, int flags, int fd, off_t off) {
     if (fd < 0) {
       # Brauche ein Handle auf ein reguläres File.
       var local int regular_fd = -2;
@@ -507,7 +507,7 @@ global long to_time_t_ (FILETIME * ptr) {
   }
 
 # Ein Ersatz für die mprotect-Funktion.
-  global int mprotect(MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot) {
+  global int mprotect(void* addr, size_t len, int prot) {
     return mremap(addr,&len,prot,MAP_PRIVATE);
   }
 

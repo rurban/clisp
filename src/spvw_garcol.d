@@ -2175,7 +2175,7 @@ local void gc_unmarkcheck (void) {
         if (needed_limit > heap->heap_limit)
           abort();
         if (needed_limit < heap->heap_limit) {
-          if (munmap((MMAP_ADDR_T)needed_limit,heap->heap_limit-needed_limit) < 0)
+          if (munmap((void*)needed_limit,heap->heap_limit-needed_limit) < 0)
             goto munmap_failure;
           heap->heap_limit = needed_limit;
         }
@@ -2187,7 +2187,7 @@ local void gc_unmarkcheck (void) {
           if (needed_limit < heap->heap_limit)
             abort();
           if (needed_limit > heap->heap_limit) {
-            if (munmap((MMAP_ADDR_T)heap->heap_limit,needed_limit-heap->heap_limit) < 0)
+            if (munmap((void*)heap->heap_limit,needed_limit-heap->heap_limit) < 0)
               goto munmap_failure;
             heap->heap_limit = needed_limit;
           }
@@ -2196,7 +2196,7 @@ local void gc_unmarkcheck (void) {
           if (needed_limit > heap->heap_limit)
             abort();
           if (needed_limit < heap->heap_limit) {
-            if (munmap((MMAP_ADDR_T)needed_limit,heap->heap_limit-needed_limit) < 0)
+            if (munmap((void*)needed_limit,heap->heap_limit-needed_limit) < 0)
               goto munmap_failure;
             heap->heap_limit = needed_limit;
           }

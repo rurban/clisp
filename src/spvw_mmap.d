@@ -37,11 +37,11 @@
 #endif
 
 # Unmaps a memory range.
-  global int munmap (MMAP_ADDR_T addr, MMAP_SIZE_T len);
+  global int munmap (void* addr, size_t len);
 
 # Changes the access protection for a memory range.
 #if 0 /* Already declared in <sys/mman.h> on those platforms that have it. */
-  global int mprotect ([const] MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot);
+  global int mprotect ([const] void* addr, size_t len, int prot);
 #endif
 
 # ------------------------------ Implementation -------------------------------
@@ -87,7 +87,7 @@
   }
 
   # We need to implement munmap() ourselves.
-  global int munmap (MMAP_ADDR_T addr, MMAP_SIZE_T len)
+  global int munmap (void* addr, size_t len)
   {
     switch (vm_deallocate(task_self(),addr,len)) {
       case KERN_SUCCESS:
@@ -99,7 +99,7 @@
   }
 
   # We need to implement mprotect() ourselves.
-  global int mprotect (MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot)
+  global int mprotect (void* addr, size_t len, int prot)
   {
     switch (vm_protect(task_self(),addr,len,0,prot)) {
       case KERN_SUCCESS:
@@ -242,7 +242,7 @@
   #endif
 
   # We need to implement munmap() ourselves.
-  global int munmap (MMAP_ADDR_T addr, MMAP_SIZE_T len)
+  global int munmap (void* addr, size_t len)
   {
     if (!VirtualFree(addr,len,MEM_DECOMMIT)) {
       var DWORD errcode = GetLastError();
@@ -254,7 +254,7 @@
   }
 
   # We need to implement mprotect() ourselves.
-  global int mprotect (MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot)
+  global int mprotect (void* addr, size_t len, int prot)
   {
     var DWORD oldprot;
     if (!VirtualProtect(addr,len,prot,&oldprot)) {
@@ -343,7 +343,7 @@
 
   local int mmap_zeromap (void* map_addr, uintL map_len)
   {
-    if ( (void*) mmap((MMAP_ADDR_T)map_addr, /* wished address */
+    if ( (void*) mmap((void*)map_addr, /* wished address */
                       map_len, /* length */
                       PROT_READ_WRITE, /* access rights */
                       map_flags | MAP_FIXED, /* exactly at this address! */
@@ -359,7 +359,7 @@
   #ifdef HAVE_MMAP
   local void* mmap_filemap (void* map_addr, uintL map_len, int fd, off_t offset)
   {
-    return (void*) mmap((MMAP_ADDR_T)map_addr,
+    return (void*) mmap((void*)map_addr,
                         map_len,
                         PROT_READ_WRITE,
                         MAP_FIXED | MAP_PRIVATE,
