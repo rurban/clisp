@@ -14808,7 +14808,7 @@ LISPFUNN(socket_stream_handle,1)
           pushSTACK(ascii_to_string("/dev/fd/2")); funcall(L(pathname),1);
           pushSTACK(value1);
           pushSTACK(S(Kunix)); pushSTACK(S(character)); pushSTACK(allocate_handle(2));
-         {var decoded_eltype eltype = { eltype_ch };
+         {var decoded_eltype eltype = { eltype_ch, 0 };
           stream = make_unbuffered_stream(strmtype_file,4,&eltype,FALSE);
           UnbufferedHandleStream_output_init(stream);
           ChannelStreamLow_close(stream) = &low_close_handle;
