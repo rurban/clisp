@@ -4664,10 +4664,12 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
     # switch to non-blocking mode, then try read():
     var uintB b;
     var int result;
-  restart_read_tty:
-    START_NO_BLOCK(handle);
-    result = read(handle,&b,1);
-    END_NO_BLOCK(handle);
+   restart_read_tty:
+    { NO_BLOCK_DECL(handle);
+      START_NO_BLOCK(handle);
+      result = read(handle,&b,1);
+      END_NO_BLOCK(handle);
+    }
     if (result < 0) {
       if (errno==EINTR)
         goto restart_read_tty;
