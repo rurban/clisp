@@ -14,17 +14,18 @@ if test $ac_cv_search_tgetent != no ; then
   AC_CHECK_HEADERS(readline/readline.h)
   if test $ac_cv_header_readline_readline_h = yes ; then
     AC_SEARCH_LIBS(readline, readline)
+    # newer versions of readline prepend "rl_"
     AC_CHECK_FUNCS(rl_filename_completion_function)
     if [ test $ac_cv_func_rl_filename_completion_function = no ];
-    then RL_FCF = filename_completion_function;
-    else RL_FCF = rl_filename_completion_function; fi
+    then RL_FCF=filename_completion_function;
+    else RL_FCF=rl_filename_completion_function; fi
     CL_PROTO([${RL_FCF}], [
       CL_PROTO_CONST([
 #include <stdio.h>
 #include <readline/readline.h>
-      ],[char *${RL_FCF} (char *, int);], [char *${RL_FCF}();],
+      ],[char* ${RL_FCF} (char *, int);], [char* ${RL_FCF}();],
       cl_cv_proto_readline_const) ],
-      [extern char *${RL_FCF}($cl_cv_proto_readline_const char*, int);])
+      [extern char* ${RL_FCF}($cl_cv_proto_readline_const char*, int);])
       AC_DEFINE_UNQUOTED(READLINE_FILE_COMPLETE,${RL_FCF})
       AC_DEFINE_UNQUOTED(READLINE_CONST,$cl_cv_proto_readline_const)
   fi

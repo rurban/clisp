@@ -1,8 +1,9 @@
-# A substitute for the GNU readline library.
-# Bruno Haible 1992-2002
-# Sam Steingold 1998-2002
-
-# These are the only things we need from lispbibl.c :
+/*
+ * A substitute for the GNU readline library.
+ * Bruno Haible 1992-2002
+ * Sam Steingold 1998-2002
+ */
+/* These are the only things we need from lispbibl.c: */
 #define global
 #define local static
 #define var
@@ -12,11 +13,14 @@
   #define NULL  ((char*) 0L)
 #endif
 
-typedef int rl_command_func_t (int, int);
-typedef char **rl_completion_func_t (const char *, int, int);
-typedef char *rl_compentry_func_t (const char *, int);
+/* defines READLINE_CONST */
+#include "unixconf.h"
 
-global int rl_gnu_readline_p = 0; # readline library not used
+typedef int rl_command_func_t (int, int);
+typedef char **rl_completion_func_t (READLINE_CONST char *, int, int);
+typedef char *rl_compentry_func_t (READLINE_CONST char *, int);
+
+global int rl_gnu_readline_p = 0; /* readline library not used */
 
 global char* rl_readline_name;
 global rl_completion_func_t* rl_attempted_completion_function;
@@ -33,7 +37,7 @@ global char* readline (char* prompt) { return NULL; }
 
 global void rl_deprep_terminal() {}
 
-global char* filename_completion_function (const char* text, int state)
+global char* filename_completion_function (READLINE_CONST char* text, int state)
 { return NULL; }
 
 global void add_history (char* line) {}
@@ -44,11 +48,11 @@ global rl_command_func_t* rl_named_function (char* string)
 global int rl_bind_key (int key, rl_command_func_t* function)
 { return 0; }
 
-global int rl_variable_bind (const char *variable, const char *value)
+global int rl_variable_bind (READLINE_CONST char *variable, READLINE_CONST char *value)
 { return 0; }
 
 global int rl_set_paren_blink_timeout (int timeout)
 { return 0; }
 
-global int rl_add_defun (const char *name, rl_command_func_t *func, int key)
+global int rl_add_defun (READLINE_CONST char *name, rl_command_func_t *func, int key)
 { return 0; }
