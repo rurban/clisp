@@ -72,6 +72,15 @@
 	* sequence.d (valid_type1): Recognize also built-in class objects.
 	* clos-class3.lisp: Pass <list> to %defclos as well.
 
+2004-09-28  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* modules/bindings/glibc/linux.lisp:
+	(seed48): provide exact definition now that prototyes are not
+	written to the C output file anymore (see *output-c-functions*).
+	The limitation in ffi::to-c-typedecl still exists: it produces
+	uint16 (* (seed48) (uint16 (* arg2163)[3]))[3] as prototype...
+	(execl,execlp): use DEFUN-based interface, call execv/p.
+
 2004-09-19  Bruno Haible  <bruno@clisp.org>
 
 	Support for user-defined DEFGENERIC options.
