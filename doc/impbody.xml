@@ -4630,7 +4630,8 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <para><literal role="sexp">(&trace; &func-r; ...)</literal> makes the
  functions &func-r;, ... traced.  &func-r; should be either a symbol or
  a list <literal role="sexp">(&symbol-r; &key-amp;
- <constant>:suppress-if</constant> <constant>:step-if</constant>
+ <constant>:suppress-if</constant> <constant>:max-depth</constant>
+ <constant>:step-if</constant>
  <constant>:pre</constant> <constant>:post</constant>
  <constant>:pre-break-if</constant> <constant>:post-break-if</constant>
  <constant>:pre-print</constant> <constant>:post-print</constant>
@@ -4639,6 +4640,12 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <variablelist>
  <varlistentry><term><constant>:suppress-if</constant> &form-r;</term>
   <listitem><simpara>no trace output as long as &form-r; is true
+  </simpara></listitem></varlistentry>
+ <varlistentry><term><constant>:max-depth</constant> &form-r;</term>
+  <listitem><simpara>no trace output as long as <literal role="sexp">(&gt;
+  *trace-level* &form-r;)</literal>. This is useful for tracing functions that
+  are use by the tracer itself, such as &print-object;, or otherwise when
+  tracing would lead to an infinite recursion.
   </simpara></listitem></varlistentry>
  <varlistentry><term><constant>:step-if</constant> &form-r;</term>
   <listitem><simpara>invokes the stepper as soon as &form-r; is true
