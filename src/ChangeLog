@@ -1,5 +1,15 @@
 2002-10-13  Sam Steingold  <sds@gnu.org>
 
+	* list.d (llength1): new global function, returning the last atom
+	in addition to the list length
+	(LIST-ENDTEST): use llength1: sequence functions expect proper sequences
+	* lispbibl.d (llength1): declare
+	(llength): define as a macro expanding to llength1()
+	* sequence.d (LENGTH): use llength1 for lists and check for
+	proper list termination
+
+2002-10-13  Sam Steingold  <sds@gnu.org>
+
 	a character is a package designator too
 	* package.d (test_package_arg, test_stringsym_arg)
 	(DELETE-PACKAGE): convert characters to singleton strings
