@@ -23,7 +23,7 @@ User visible changes
   the old and the new element type are equivalent to CHARACTER or
   (UNSIGNED-BYTE n), (SIGNED-BYTE n), where n is a positive multiple of 8.
 
-* OPEN has an new keyword argument :BUFFERED. It determines whether the file
+* OPEN has a new keyword argument :BUFFERED. It determines whether the file
   stream returned is buffered or not. Possible values for it are NIL, T, or
   :DEFAULT. If it is :DEFAULT, buffered file streams will be returned for
   regular files and (on Unix) block-devices, and unbuffered file streams for
