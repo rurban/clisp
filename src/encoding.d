@@ -2085,20 +2085,8 @@ LISPFUNN(set_terminal_encoding,1)
     if (!encodingp(encoding))
       fehler_encoding(encoding);
     # Make sure that O(terminal_encoding) = (STREAM-EXTERNAL-FORMAT *TERMINAL-IO*).
-    { # First modify (STREAM-EXTERNAL-FORMAT *TERMINAL-IO*):
-      var object terminal_stream = var_stream(S(terminal_io),0);
-      if (builtin_stream_p(terminal_stream)
-          && TheStream(terminal_stream)->strmtype == strmtype_terminal
-          && eq(TheStream(terminal_stream)->strm_encoding,O(terminal_encoding))
-         ) {
-        # This is the only place which is allowed to modify the terminal
-        # stream's encoding.
-        TheStream(terminal_stream)->strm_encoding = encoding;
-      } else {
-        pushSTACK(terminal_stream); pushSTACK(encoding);
-        funcall(L(set_stream_external_format),2);
-      }
-    }
+    # But first modify (STREAM-EXTERNAL-FORMAT *TERMINAL-IO*):
+    set_terminalstream_external_format(var_stream(S(terminal_io),0),encoding);
     value1 = O(terminal_encoding) = popSTACK(); mv_count=1;
   }
 

@@ -1,5 +1,12 @@
 2000-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Permit setting *terminal-encoding* to an iconv based stream.
+        * lispbibl.d (set_terminalstream_external_format): New declaration.
+        * stream.d (set_terminalstream_external_format): New function.
+        * encoding.d (SYSTEM::SET-FOREIGN-ENCODING): Call it.
+
+2000-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * errunix.d (init_errormsg_table): Add EILSEQ.
 
 2000-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
