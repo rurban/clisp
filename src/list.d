@@ -1,8 +1,9 @@
-# List functions for CLISP
-# Bruno Haible 1990-2002
-# Marcus Daniels 8.4.1994
-# Sam Steingold 1999-2002
-
+/*
+ * List functions for CLISP
+ * Bruno Haible 1990-2002
+ * Marcus Daniels 8.4.1994
+ * Sam Steingold 1999-2002
+ */
 #include "lispbibl.c"
 
 # UP: Kopiert eine Liste
@@ -1446,49 +1447,49 @@ LISPFUN(nsubst_if_not,3,0,norest,key,1, (kw(key)) )
     skipSTACK(5);
   }
 
-# UP: Liefert das erste Listenelement, dessen CAR der TESTFUNktion genügt.
-# sublis_assoc(stackptr)
-# > *(stackptr+3) = alist: Aliste
-# > stackptr: *(stackptr-1) = KEY
-# > *(stackptr-3) = TESTFUN = Testfunktion, wird für alle Listenelemente
-#       (u . v) mit selbem stackptr und mit (KEY x) und u als Argumenten angesprungen.
-#       Sie liefert true, falls der Test erfüllt ist, false sonst.
-# < ergebnis: Listenelement (ein Cons) oder NIL
-# can trigger GC
-local object sublis_assoc (object* stackptr) {
+/* UP: return the first list element, whose CAR passed the TESTFUNction.
+ sublis_assoc(stackptr)
+ > *(stackptr+3) = alist
+ > stackptr: *(stackptr-1) = KEY
+ > *(stackptr-3) = TESTFUN = test function, called on each list element
+       (u . v) with the same stackptr and with (KEY x) and u as arguments.
+       returns true, when the test passes, false otherwise.
+ < return: list element (a CONS) or NIL
+ can trigger GC */
+local object sublis_assoc (object* stackptr)
+{
   var object alist = *(stackptr STACKop 3);
-  while (consp(alist)) {
-    # How to treat atoms in the list?
-    # a. One can ignore them.
-    # b. One can signal an error on them.
-    # c. One can signal an error only for non-NIL atoms.
-    # Obviously (b) is best, because it provides the best possible
-    # error checking. But CLtL2 and CLHS both contain a "note" that
-    # suggests to some people that atoms are ignored, therefore I
-    # assume that there is code outside which assumes this behaviour,
-    # and we must not signal an error on it.
-    # Note: To other people this note suggests that only NILs are
-    # ignored, and they suggest (c). This is inconsistent with the
-    # definition of "association list" in the CLHS glossary and with
-    # the general use of alists as lookup tables.
-    # Therefore we implement (a).
-    if (mconsp(Car(alist))) { # atomare Listenelemente überspringen
-      pushSTACK(alist); # Listenrest ((u . v) ...) retten
-      # Testen, ob die zweiargumentige Testfunktion
-      # *(stackptr-3) (eine Adresse!), angewandt auf u und das
-      # vorher in *(stackptr-2) abgelegte Argument, erfüllt ist:
-      var bool erg =
-        (*(up2_function_t)TheMachineCode(*(stackptr STACKop -3))) # zweiargumentige Testfunktion, wurde abgelegt
-        ( stackptr, *(stackptr STACKop -2), Car(Car(alist)) ); # auf (KEY x) und u anwenden
-      alist = popSTACK();
-      if (erg)
-        # Test erfüllt -> x = (u . v) = (CAR alist) als Ergebnis
-        return Car(alist);
-      # Test nicht erfüllt
+  pushSTACK(alist); /* save the list ((u . v) ...) */
+  while (consp(STACK_0)) {
+    /* How to treat atoms in the list?
+       a. One can ignore them.
+       b. One can signal an error on them.
+       c. One can signal an error only for non-NIL atoms.
+       Obviously (b) is best, because it provides the best possible
+       error checking. But CLtL2 and CLHS both contain a "note" that
+       suggests to some people that atoms are ignored, therefore I
+       assume that there is code outside which assumes this behaviour,
+       and we must not signal an error on it.
+       Note: To other people this note suggests that only NILs are
+       ignored, and they suggest (c). This is inconsistent with the
+       definition of "association list" in the CLHS glossary and with
+       the general use of alists as lookup tables.
+       Therefore we implement (a). */
+    if (mconsp(Car(STACK_0))) { /* skip atoms in the list */
+      /* test whether the 2-argument test function
+         *(stackptr-3) (an adress!), called on u and the
+         value in *(stackptr-2), returns true: */
+      var bool erg = /* 2-argument test function, called on (KEY x) and u */
+        (*(up2_function_t)TheMachineCode(*(stackptr STACKop -3)))
+        ( stackptr, *(stackptr STACKop -2), Car(Car(STACK_0)) );
+      if (erg) /* test passed ==> return x = (u . v) = (CAR alist) */
+        return Car(popSTACK());
+      /* test failed */
     }
-    alist = Cdr(alist); # Tail-End-Rekursion
+    STACK_0 = Cdr(STACK_0); /* tail recursion */
   }
-  # Listenende erreicht -> ergibt Ergebnis NIL
+  skipSTACK(1); /* forget alist */
+  /* reached list end ==> return NIL */
   return NIL;
 }
 
