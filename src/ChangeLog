@@ -1841,6 +1841,7 @@
 	  clx-ini.lisp,clx.lisp,demos/sokoban.lisp}: Update.
 	* modules/regexp/{Makefile.in,README,configure.in}: Update.
 	* modules/wildcard/{Makefile.in,configure.in}: Update.
+	* modules/postgresql642/Makefile: update
 
 2000-03-30  Bruno Haible  <haible@clisp.cons.org>
 
@@ -4420,6 +4421,10 @@
 	* stream.d (rd_ch_array_buffered): Increment the stream's index and
 	  position appropriately.
 
+1999-04-13  Sam Steingold  <sds@goems.com>
+
+	* modules/postgresql642/link.sh (have_libcrypt): do not quote ${CC}.
+
 1999-04-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
 	* makemake.in (data, UnicodeData.txt): New rules.
@@ -4587,6 +4592,14 @@
 	   XLIB:GET-PROPERTY, XLIB:LIST-PROPERTIES, XLIB:LIST-EXTENSIONS,
 	   XLIB:QUERY-EXTENSION): Use misc_encoding.
 	(XPM:READ-FILE-TO-PIXMAP): Use pathname_encoding.
+	* modules/postgresql642/postgresql.lsp: Comments.
+	Don't need to include <stdio.h>.
+	(PGnotify): Use foreign type ffi:character, not ffi:char.
+	(pqbool): Use foreign type ffi:char, not ffi:character.
+	* modules/postgresql642sql.lsp (sql-error): Condition type is
+	SQL-ERROR, not SQL.
+	* modules/postgresql642/link.sh: Link with -lcrypt only
+	if this library exists.
 
 1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
