@@ -14822,6 +14822,11 @@ local void stream_handles (object obj, bool check_open, bool* char_p,
       if (out_sock) *out_sock = (SOCKET)stdout_handle;
       if (char_p) *char_p = true;
       return;
+    case strmtype_keyboard:
+      if (in_sock)
+        *in_sock = TheSocket(TheStream(obj)->strm_keyboard_handle);
+      if (char_p) *char_p = true;
+      return;
     case strmtype_twoway_socket:
       obj = TheStream(obj)->strm_twoway_socket_input;
       if (in_sock)  *in_sock  = SocketChannel(obj);
