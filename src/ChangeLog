@@ -1,5 +1,11 @@
 2004-06-01  Sam Steingold  <sds@gnu.org>
 
+	* list.d (check_list_length): to check that the argument is a
+	non-circular list and compute its length
+	(BUTLAST, NBUTLAST): use it
+
+2004-06-01  Sam Steingold  <sds@gnu.org>
+
 	* hashtabl.d (hashcode4) [PATHNAME_WIN32]: declare global
 
 2004-05-31  Bruno Haible  <bruno@clisp.org>
