@@ -382,6 +382,7 @@
 <!-- *** oracle *** -->
 <!ENTITY oracle-link "<ulink url='http://www.oracle.com'>Oracle</ulink>">
 <!ENTITY oracle-oci "<ulink url='http://www.vivtek.com/oracle.html'>OCI</ulink>">
+<!ENTITY ora-connect "<link linkend='ora-connect'><function>ORACLE:CONNECT</function></link>">
 
 <!-- *** matlab *** -->
 <!ENTITY matlab-c-api "http://www.mathworks.com/access/helpdesk/help/techdoc/apiref/">
