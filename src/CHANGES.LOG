@@ -155,6 +155,8 @@ Other modifications
 
 * Speed up the function DIRECTORY on Unix in some cases.
 
+* Speed up compiled calls to LDB, LDB-TEST, MASK-FIELD, DPB, DEPOSIT-FIELD.
+
 
 1999-01-08
 ==========
