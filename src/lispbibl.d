@@ -121,7 +121,7 @@
   #if (defined(sun) && defined(unix) && defined(sun386))
     #define SUN386
   #endif
-  #if (defined(unix) && (defined(linux) || defined(__CYGWIN32__)) && (defined(i386) || defined(__i386__)))
+  #if (defined(unix) && (defined(linux) || defined(__CYGWIN32__)) && (defined(i386) || defined(__i386__) || defined(__x86_64__) || defined(__amd64__)))
     #define PC386
   #endif
   #if (defined(sun) && defined(unix) && defined(mc68020))
