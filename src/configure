@@ -5999,12 +5999,6 @@ cat >>confdefs.h <<\_ACEOF
 #define HAVE_SIGSEGV 1
 _ACEOF
 
-  else
-
-cat >>confdefs.h <<\_ACEOF
-#define NO_SIGSEGV 1
-_ACEOF
-
   fi
   if test "$cl_cv_lib_sigsegv" = yes; then
     echo "$as_me:$LINENO: checking how to link with libiconv" >&5

@@ -2500,8 +2500,6 @@ AC_DEFUN([CL_SIGSEGV],
   ])
   if test "$cl_cv_lib_sigsegv" = yes; then
     AC_DEFINE(HAVE_SIGSEGV, 1, [Define if you have the libsigsegv library.])
-  else
-    AC_DEFINE(NO_SIGSEGV, 1, [Define if you lack the libsigsegv library.])
   fi
   if test "$cl_cv_lib_sigsegv" = yes; then
     AC_MSG_CHECKING([how to link with libiconv])
