@@ -3016,6 +3016,19 @@ local void heap_statistics_mapper (void* arg, object obj, uintM bytelen)
   }
 }
 
+/* Creates a statistics record for the objects of a given type.
+ can trigger GC */
+local maygc object heap_statistics_record (object type, sintL n_instances, sintM n_bytes) {
+  pushSTACK(type);
+  pushSTACK(L_to_I(n_instances));
+  pushSTACK(sintM_to_I(n_bytes));
+  var object hsr = make_list(2);
+  Cdr(Cdr(hsr)) = popSTACK();
+  Car(Cdr(hsr)) = popSTACK();
+  Car(hsr) = popSTACK();
+  return hsr;
+}
+
 /* Creates a vector containing the heap statistics result,
  and pushes it onto the STACK.
  can trigger GC */
@@ -3027,17 +3040,14 @@ local void heap_statistics_result (hs_locals_t* locals)
     + locals->standard_classes.count;
   pushSTACK(allocate_vector(length));
   var gcv_object_t* result_ = &STACK_0;
-  /* Fill result vector.
-     (L_to_I cannot call GC here, because the numbers are small.) */
+  /* Fill result vector. */
   var uintL i = 0;
   {
     var uintC count;
     var hs_record_t* ptr = &locals->builtins[0];
     dotimesC(count,(uintC)enum_hs_dummy, {
-      var object hsr = make_list(2);
-      Car(hsr) = *ptr->name;
-      Car(Cdr(hsr)) = L_to_I(ptr->n_instances);
-      Cdr(Cdr(hsr)) = sintM_to_I(ptr->n_bytes);
+      var object hsr =
+        heap_statistics_record(*ptr->name,ptr->n_instances,ptr->n_bytes);
       TheSvector(*result_)->data[i] = hsr;
       ptr++; i++;
     });
@@ -3048,10 +3058,10 @@ local void heap_statistics_result (hs_locals_t* locals)
       var NODE* ptr = locals->structure_classes.free_nodes;
       dotimespL(count,count, {
         --ptr;
-        var object hsr = make_list(2);
-        Car(hsr) = *ptr->nodedata.value.name;
-        Car(Cdr(hsr)) = L_to_I(ptr->nodedata.value.n_instances);
-        Cdr(Cdr(hsr)) = sintM_to_I(ptr->nodedata.value.n_bytes);
+        var object hsr =
+          heap_statistics_record(*ptr->nodedata.value.name,
+                                 ptr->nodedata.value.n_instances,
+                                 ptr->nodedata.value.n_bytes);
         TheSvector(*result_)->data[i] = hsr;
         i++;
       });
@@ -3063,10 +3073,10 @@ local void heap_statistics_result (hs_locals_t* locals)
       var NODE* ptr = locals->standard_classes.free_nodes;
       dotimespL(count,count, {
         --ptr;
-        var object hsr = make_list(2);
-        Car(hsr) = TheClass(*ptr->nodedata.value.name)->classname;
-        Car(Cdr(hsr)) = L_to_I(ptr->nodedata.value.n_instances);
-        Cdr(Cdr(hsr)) = sintM_to_I(ptr->nodedata.value.n_bytes);
+        var object hsr =
+          heap_statistics_record(TheClass(*ptr->nodedata.value.name)->classname,
+                                 ptr->nodedata.value.n_instances,
+                                 ptr->nodedata.value.n_bytes);
         TheSvector(*result_)->data[i] = hsr;
         i++;
       });

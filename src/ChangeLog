@@ -1,5 +1,11 @@
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
+	* predtype.d (heap_statistics_record): New function.
+	(heap_statistics_result): Use it. Fixes GC-safety bug when the heap
+	size is big.
+
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
 	* sequence.d (MAKE-SEQUENCE): Avoid potential GC-safety bug: since now
 	elt_fill can trigger GC.
 
