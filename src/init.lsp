@@ -236,7 +236,8 @@ interpreter compiler
   compute-applicable-methods method-qualifiers function-keywords
   slot-missing slot-unbound
   print-object describe-object
-  make-instance initialize-instance reinitialize-instance shared-initialize
+  make-instance allocate-instance initialize-instance reinitialize-instance
+  shared-initialize
   ;; Namen von Klassen:
   class standard-class structure-class built-in-class
   standard-object structure-object
