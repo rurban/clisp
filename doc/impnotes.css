@@ -14,6 +14,9 @@ dd p { margin: 0pt; }
 /* mark sexps with color */
 .sexp { background-color: lightgray; color: darkblue; }
 
+/* mark methods with color */
+.method { background-color: lightcyan; color: darkblue; }
+
 /* literal data */
 .data { background-color: lightblue; color: darkred; }
 
