@@ -8628,8 +8628,8 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
 #endif
 
 #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
-local inline object* kbd_last_buf (const object stream) {
-  var object* last_ = &TheStream(stream)->strm_keyboard_buffer;
+local inline gcv_object_t* kbd_last_buf (const object stream) {
+  var gcv_object_t* last_ = &TheStream(stream)->strm_keyboard_buffer;
   while (mconsp(*last_)) { last_ = &Cdr(*last_); }
   return last_;
 }

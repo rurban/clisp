@@ -1036,8 +1036,9 @@ LISPFUNN(resolve_host_ipaddr_,1)
     he = gethostbyname(host);
     end_system_call();
   } else if (stringp(arg) || symbolp(arg)) {
-    char* name = TheAsciz(string_to_asciz(stringp(arg)?arg:Symbol_name(arg),
-                                          O(misc_encoding)));
+    char* name =
+      TheAsciz(string_to_asciz(stringp(arg)?arg:(object)Symbol_name(arg),
+                               O(misc_encoding)));
     begin_system_call();
     #ifdef HAVE_INET_PTON
     if (inet_pton(AF_INET,name,(void*)buffer) > 0)
