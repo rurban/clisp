@@ -28,6 +28,10 @@
 
 ;;; Handle the transformation of `(x1 x2 x3 ...) as described by HyperSpec
 ;;; to produce a list of forms that can be combined into an APPEND form.
+;;; There is one deviation from the HyperSpec: namely, in the case
+;;; `(x1 x2 ... xn . atom) the atom is translated to (backquote atom)
+;;; rather than (quote atom). This allows for the atom to be a vector
+;;; with embedded unquotes, an apparently common extension.
 (defun bq-expand-list (form)
   (cond
     ((null form) nil)
@@ -44,7 +48,7 @@
                   (bq-expand-list (rest form))))))
     ((null (rest form))
        (list (bq-transform (first form))))
-    (t (list (bq-transform (first form)) (list 'quote (rest form))))))
+    (t (list (bq-transform (first form)) (list 'BACKQUOTE (rest form))))))
 
 ;;; Handle base cases as describe by HyperSpec, plus nested backquote:
 ;;;
