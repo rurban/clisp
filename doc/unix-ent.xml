@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- *** Entities for docbook/xml, related to UNIX *** -->
+<!--
+ Copyright (C) 2002 by Sam Steingold
+ This is Free Software, covered by the GNU GPL (v2 or later)
+ See http://www.gnu.org/copyleft/gpl.html
+ -->
+
+<!ENTITY unix "<ulink url='http://www.UNIX-systems.org/online.html'><emphasis role='strong'>UNIX</emphasis></ulink>">
+<!-- The Open Group Base Specifications Issue 6 -->
+<!ENTITY unix1 "http://www.opengroup.org/onlinepubs/007904975/functions">
+<!ENTITY shutdown "<ulink url='&unix1;/shutdown.html'><function>shutdown</function></ulink>">
+<!ENTITY iconv "<ulink url='&unix1;/iconv.html'><function>iconv</function></ulink>">
+<!ENTITY malloc "<ulink url='&unix1;/malloc.html'><function>malloc</function></ulink>">
+<!ENTITY free "<ulink url='&unix1;/free.html'><function>free</function></ulink>">
+<!ENTITY read "<ulink url='&unix1;/read.html'><function>read</function></ulink>">
+<!ENTITY qsort "<ulink url='&unix1;/qsort.html'><function>qsort</function></ulink>">
+<!ENTITY stat "<ulink url='&unix1;/stat.html'><function>stat</function></ulink>">
+<!ENTITY lstat "<ulink url='&unix1;/lstat.html'><function>lstat</function></ulink>">
+<!ENTITY fstat "<ulink url='&unix1;/fstat.html'><function>fstat</function></ulink>">
+<!ENTITY getrlimit "<ulink url='&unix1;/getrlimit.html'><function>getrlimit</function></ulink>">
+<!ENTITY getrusage "<ulink url='&unix1;/getrusage.html'><function>getrusage</function></ulink>">
+<!ENTITY flock "<ulink url='&unix1;/flockfile.html'><function>flock</function></ulink>">
+<!ENTITY select "<ulink url='&unix1;/select.html'><function>select</function></ulink>">

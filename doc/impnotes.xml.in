@@ -3,6 +3,8 @@
   %cl-entities;
   <!ENTITY % imp-entities SYSTEM "impent.xml">
   %imp-entities;
+  <!ENTITY % unix-entities SYSTEM "unix-ent.xml">
+  %unix-entities;
   <!ENTITY imp-body SYSTEM "impbody.xml">
   <!ENTITY imp-issues SYSTEM "impissue.xml">
   <!ENTITY imp-ext SYSTEM "impext.xml">
@@ -66,7 +68,7 @@
  <textobject><phrase>[CLISP icon]</phrase></textobject>
 </inlinemediaobject></title>
 
-<subtitle>Last modified: 2002-02-13</subtitle>
+<subtitle>Last modified: 2002-03-30</subtitle>
 
 <para>These notes discuss the &clisp; implementation of &cl; by
 <blockquote><address><honorific>Dr</honorific> <firstname>Bruno</firstname> <surname>Haible</surname>

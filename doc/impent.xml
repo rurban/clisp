@@ -241,7 +241,6 @@
 <!ENTITY textdomain "<link linkend='textdomain'><function>I18N:TEXTDOMAIN</function></link>">
 <!ENTITY textdomaindir "<link linkend='textdomaindir'><function>I18N:TEXTDOMAINDIR</function></link>">
 <!ENTITY msgid "<replaceable>MSGID</replaceable>">
-<!ENTITY iconv "<link linkend='iconv'><function>iconv()</function></link>">
 
 <!-- *** FFI *** -->
 <!ENTITY c-pointer "<link linkend='c-pointer'><type>FFI:C-POINTER</type></link>">
@@ -445,8 +444,6 @@ linkend='fa-null'><function>FFI:FOREIGN-ADDRESS-NULL</function></link>">
 <!ENTITY alt "<keycap>Alternate</keycap>">
 <!ENTITY ctrl "<keycap>Control</keycap>">
 <!ENTITY shift "<keycap>Shift</keycap>">
-<!ENTITY malloc "<function>malloc()</function>">
-<!ENTITY free "<function>free()</function>">
 <!ENTITY fasl-file "<filename>#P&quot;.fas&quot;</filename>">
 <!ENTITY lisp-file "<filename>#P&quot;.lisp&quot;</filename>">
 <!ENTITY mem-file "<filename>#P&quot;.mem&quot;</filename>">
