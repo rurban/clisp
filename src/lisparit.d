@@ -460,7 +460,12 @@
       UDS_to_DIGITS(MSDptr,len,10,&erg); # Umwandlung in Ziffern
       # Ziffern in Normal-Simple-String schreiben:
       var object string = allocate_string(erg.len);
-      chartcopy(erg.MSBptr,&TheSstring(string)->data[0],erg.len);
+      if (erg.len > 0) {
+        var const chart* p = erg.MSBptr;
+        var cint32* q = &TheSstring(string)->data[0];
+        var uintL count;
+        dotimespL(count,erg.len, { *q++ = as_cint(*p++); });
+      }
       FREE_DYNAMIC_ARRAY(ziffern);
       RESTORE_NUM_STACK # num_stack zurück
       return string;

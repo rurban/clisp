@@ -1,5 +1,5 @@
 # Prädikate für Gleichheit und Typtests, Typen, Klassen in CLISP
-# Bruno Haible 1990-2001
+# Bruno Haible 1990-2002
 
 #include "lispbibl.c"
 #include "arilev0.c" # für R_sign
@@ -297,26 +297,15 @@
     var uintL count;
     {
       var const object* ptr1 = &TheSvector(dv1)->data[index1];
-      SstringDispatch(dv2,
-        {
-          var const chart* ptr2 = &TheSstring(dv2)->data[index2];
-          dotimespL(count,count, {
-            var object elt1 = *ptr1++;
-            var chart elt2 = *ptr2++;
-            if (!(charp(elt1) && chareq(up_case(char_code(elt1)),up_case(elt2))))
-              goto no;
-          });
-        },
-        {
-          var const scint* ptr2 = &TheSmallSstring(dv2)->data[index2];
-          dotimespL(count,count, {
-            var object elt1 = *ptr1++;
-            var chart elt2 = as_chart(*ptr2++);
-            if (!(charp(elt1) && chareq(up_case(char_code(elt1)),up_case(elt2))))
-              goto no;
-          });
-        }
-        );
+      SstringDispatch(dv2,X, {
+        var const cintX* ptr2 = &((SstringX)TheVarobject(dv2))->data[index2];
+        dotimespL(count,count, {
+          var object elt1 = *ptr1++;
+          var chart elt2 = as_chart(*ptr2++);
+          if (!(charp(elt1) && chareq(up_case(char_code(elt1)),up_case(elt2))))
+            goto no;
+        });
+      });
       return true;
      no: return false;
     }

@@ -1907,7 +1907,7 @@ are simple characters.</para>
              <entry>&with; &unicode; support</entry></row></thead>
  <tbody><row><entry>&char-code-limit;</entry>
              <entry>2<superscript>8</superscript> = 256</entry>
-             <entry>2<superscript>16</superscript> = 65536</entry></row>
+             <entry>17 * 2<superscript>16</superscript> = 1114112</entry></row>
 </tbody></tgroup></table>
 
 <para>The types <classname>ext:string-char</classname> and

@@ -23,6 +23,8 @@
 #   Advanced memory management:
 #     NO_SINGLEMAP, NO_TRIVIALMAP, NO_MULTIMAP_FILE, NO_MULTIMAP_SHM,
 #     NO_MORRIS_GC, NO_GENERATIONAL_GC
+#   String representation:
+#     NO_SMALL_SSTRING
 
 
 # Implementation is prepared for the following computers,
@@ -1130,7 +1132,7 @@
  #if defined(long_long_bitsize) && (long_long_bitsize==64)
   typedef long long           SLONGLONG;
   typedef unsigned long long  ULONGLONG;
- #else # useledd type
+ #else # useless type
   #undef HAVE_LONGLONG
  #endif
 #elif defined(MICROSOFT)
@@ -3638,8 +3640,7 @@ typedef varobject_ *  Varobject;
 #   elements.
 # Long-Records are recognized by their type field:
 #   rectype == Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector,
-#              Rectype_Sstring, Rectype_Imm_Sstring,
-#              Rectype_SmallSstring, Rectype_Imm_SmallSstring,
+#              Rectype_S[8|16|32]string, Rectype_Imm_S[8|16|32]string,
 #              Rectype_Svector, Rectype_WeakKVT.
 # The others are partitioned into:
 #   - Simple-Records, if rectype < rectype_limit.
@@ -3771,13 +3772,15 @@ typedef xrecord_ *  Xrecord;
          Rectype_Sb8vector,        /* 13 */ # Sbvector, not Srecord/Xrecord
          Rectype_Sb16vector,       /* 14 */ # Sbvector, not Srecord/Xrecord
          Rectype_Sb32vector,       /* 15 */ # Sbvector, not Srecord/Xrecord
-         Rectype_Sstring,          /* 16 */ # Sstring, not Srecord/Xrecord
-         Rectype_Imm_Sstring,      /* 17 */ # immutable Sstring, not Srecord/Xrecord
-         Rectype_SmallSstring,     /* 18 */ # SmallSstring, not Srecord/Xrecord, only used #ifdef HAVE_SMALL_SSTRING
-         Rectype_Imm_SmallSstring, /* 19 */ # immutable SmallSstring, not Srecord/Xrecord, only used #ifdef HAVE_SMALL_SSTRING
-         Rectype_reallocstring,    /* 20 */ # reallocated simple string, Siarray, an Xrecord, only used #ifdef HAVE_SMALL_SSTRING
-         Rectype_string,           /* 21 */ # Iarray, not Srecord/Xrecord
-         Rectype_mdarray,          /* 22 */ # Iarray, not Srecord/Xrecord
+         Rectype_S8string,         /* 16 */ # S8string, not Srecord/Xrecord
+         Rectype_Imm_S8string,     /* 17 */ # immutable S8string, not Srecord/Xrecord
+         Rectype_S16string,        /* 18 */ # S16string, not Srecord/Xrecord
+         Rectype_Imm_S16string,    /* 19 */ # immutable S16string, not Srecord/Xrecord
+         Rectype_S32string,        /* 20 */ # S32string, not Srecord/Xrecord
+         Rectype_Imm_S32string,    /* 21 */ # immutable S32string, not Srecord/Xrecord
+         Rectype_reallocstring,    /* 22 */ # reallocated simple string, Siarray, an Xrecord, only used #ifdef HAVE_SMALL_SSTRING
+         Rectype_string,           /* 23 */ # Iarray, not Srecord/Xrecord
+         Rectype_mdarray,          /* 24 */ # Iarray, not Srecord/Xrecord
                           # Here the arrays end.
                           # Here the numbers start.
          Rectype_Bignum,                # Bignum, not Srecord/Xrecord
@@ -3937,11 +3940,12 @@ typedef symbol_ *  Symbol;
 
 # Integer type holding the data of a character:
 #ifdef UNICODE
-  #define char_int_len 16
+  #define char_int_len 24  /* anything between 21 and 32 will do */
+  #define char_int_limit 0x110000UL
 #else
   #define char_int_len 8
+  #define char_int_limit 0x100UL
 #endif
-#define char_int_limit  (1UL<<char_int_len)
 typedef unsigned_int_with_n_bits(char_int_len)  cint;
 #define char_code_limit  char_int_limit
 # Converting an integral code to a character:
@@ -4002,11 +4006,30 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
 # Conversion standard char (in ASCII encoding) --> object.
 #define ascii_char(x)  code_char(ascii(x))
 
-# Small characters are those whose code is < small_char_code_limit.
-#define small_char_int_len 8
-#define small_char_int_limit  (1UL<<small_char_int_len)
-typedef unsigned_int_with_n_bits(small_char_int_len)  scint;
-#define small_char_code_limit  small_char_int_limit
+# Whether to use three different kinds of string representations.
+#if !defined(TYPECODES) && defined(SPVW_MIXED) && defined(UNICODE) && ((defined(GNU) && !defined(RISCOS) && !defined(CONVEX)) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT)) && !defined(NO_SMALL_SSTRING)
+#define HAVE_SMALL_SSTRING
+#endif
+
+#ifdef HAVE_SMALL_SSTRING
+  # We have three kinds of simple strings, with 8-bit codes (ISO-8859-1
+  # strings), with 16-bit codes (UCS-2 strings) and with 32-bit codes
+  # (UCS-4/UTF-32 strings).
+  typedef uint8 cint8;
+  #define cint8_limit (1UL<<8)
+  typedef uint16 cint16;
+  #define cint16_limit (1UL<<16)
+  typedef uint32 cint32;
+  #define cint32_limit 0x110000UL
+#else
+  # Only one kind of simple strings.
+  typedef cint cint8;
+  #define cint8_limit char_int_limit
+  typedef cint cint16;
+  #define cint16_limit char_int_limit
+  typedef cint cint32;
+  #define cint32_limit char_int_limit
+#endif
 
 # Base characters.
 #define base_char_int_len char_int_len
@@ -4014,8 +4037,8 @@ typedef unsigned_int_with_n_bits(small_char_int_len)  scint;
 # The BASE-CHAR type is defined as
 #     (upgraded-array-element-type 'standard-char),
 # i.e. the element-type of arrays created with (make-array 'standard-char ...).
-# Since it defeats the purpose of UNICODE to have different 8-bit and 16-bit
-# character types, we define BASE-CHAR=CHARACTER.
+# Since it defeats the purpose of UNICODE to have different 8-bit, 16-bit
+# and 24-bit character types, we define BASE-CHAR=CHARACTER.
 
 # Fixnums
 
@@ -4233,25 +4256,52 @@ typedef sbvector_ *  Sbvector;
 #define sbvector_length(ptr)  sarray_length(ptr)
 #define Sbvector_length(obj)  sbvector_length(TheSbvector(obj))
 
-# simple string (a.k.a. "normal simple string")
-typedef struct {
-  LRECORD_HEADER # self-pointer for GC, lenth in characters
-  chart  data[unspecified]; # Characters
-} sstring_;
-typedef sstring_ *  Sstring;
+# simple string template
+#define STRUCT_SSTRING(cint_type) \
+  struct {                                                    \
+    LRECORD_HEADER # self-pointer for GC, lenth in characters \
+    cint_type  data[unspecified];  # Characters               \
+  }
+#ifdef HAVE_SMALL_SSTRING
+  typedef STRUCT_SSTRING(cint8)  s8string_;
+  typedef s8string_ *  S8string;
+  typedef STRUCT_SSTRING(cint16)  s16string_;
+  typedef s16string_ *  S16string;
+  typedef STRUCT_SSTRING(cint32)  s32string_;
+  typedef s32string_ *  S32string;
+#else
+  # Only one kind of simple strings.
+  #ifdef UNICODE
+    typedef STRUCT_SSTRING(cint32)  s32string_;
+    typedef s32string_ *  S32string;
+    # Aliases.
+    typedef s32string_  s16string_;
+    typedef S32string  S16string;
+    typedef s32string_  s8string_;
+    typedef S32string  S8string;
+  #else
+    typedef STRUCT_SSTRING(cint8)  s8string_;
+    typedef s8string_ *  S8string;
+    # Aliases.
+    typedef s8string_  s16string_;
+    typedef S8string  S16string;
+    typedef s8string_  s32string_;
+    typedef S8string  S32string;
+  #endif
+#endif
+# A "normal simple string" is one of maximum-width element type.
+# It cannot be reallocated. Only strings with smaller element type
+# (called "small simple strings") can be reallocated.
+#ifdef UNICODE
+typedef s32string_ sstring_;
+typedef S32string Sstring;
+#else
+typedef s8string_ sstring_;
+typedef S8string Sstring;
+#endif
+# These accessors work on any simple string, except reallocated simple-strings.
 #define sstring_length(ptr)  sarray_length(ptr)
 #define Sstring_length(obj)  sstring_length(TheSstring(obj))
-
-# simple string with only one byte per character (a.k.a. "small simple string")
-#if !defined(TYPECODES) && defined(SPVW_MIXED) && defined(UNICODE) && ((defined(GNU) && !defined(RISCOS) && !defined(CONVEX)) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT))
-#define HAVE_SMALL_SSTRING
-typedef struct {
-  LRECORD_HEADER # selfpointer for GC, length in Characters
-  scint  data[unspecified]; # Characters
-} small_sstring_;
-typedef small_sstring_ *  SmallSstring;
-# use sstring_length and Sstring_length for accessing the length
-#endif
 
 # simple vector
 typedef struct {
@@ -4375,7 +4425,7 @@ typedef iarray_ *  Iarray;
   #define Array_type_sb8vector   Rectype_Sb8vector   # Sbvector
   #define Array_type_sb16vector  Rectype_Sb16vector  # Sbvector
   #define Array_type_sb32vector  Rectype_Sb32vector  # Sbvector
-  #define Array_type_sstring     Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_SmallSstring: case Rectype_Imm_SmallSstring: case Rectype_reallocstring   # Sstring, SmallSstring, reallocated string
+  #define Array_type_sstring     Rectype_S8string: case Rectype_Imm_S8string: case Rectype_S16string: case Rectype_Imm_S16string: case Rectype_S32string: case Rectype_Imm_S32string: case Rectype_reallocstring   # S[8|16|32]string, reallocated string
   #define Array_type_svector     Rectype_Svector     # Svector
 #endif
 # Determining the atype of a [simple-]bit-array:
@@ -5266,6 +5316,9 @@ typedef struct {
   #define TheSarray(obj)  ((Sarray)(types_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type|sstring_type|svector_type|weakkvt_type,obj)))
   #define TheSbvector(obj)  ((Sbvector)(types_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type,obj)))
   #define TheCodevec(obj)  ((Codevec)(types_pointable(sb8vector_type,obj)))
+  #define TheS8string(obj)  ((S8string)(types_pointable(sstring_type,obj)))
+  #define TheS16string(obj)  ((S16string)(types_pointable(sstring_type,obj)))
+  #define TheS32string(obj)  ((S32string)(types_pointable(sstring_type,obj)))
   #define TheSstring(obj)  ((Sstring)(types_pointable(sstring_type,obj)))
   #define TheSvector(obj)  ((Svector)(types_pointable(svector_type,obj)))
   #define TheWeakKVT(obj)  ((WeakKVT)(types_pointable(weakkvt_type,obj)))
@@ -5370,10 +5423,10 @@ typedef struct {
   #define TheSarray(obj)  ((Sarray)(as_oint(obj)-varobject_bias))
   #define TheSbvector(obj)  ((Sbvector)(as_oint(obj)-varobject_bias))
   #define TheCodevec(obj)  ((Codevec)TheSbvector(obj))
+  #define TheS8string(obj)  ((S8string)(as_oint(obj)-varobject_bias))
+  #define TheS16string(obj)  ((S16string)(as_oint(obj)-varobject_bias))
+  #define TheS32string(obj)  ((S32string)(as_oint(obj)-varobject_bias))
   #define TheSstring(obj)  ((Sstring)(as_oint(obj)-varobject_bias))
-  #ifdef HAVE_SMALL_SSTRING
-  #define TheSmallSstring(obj)  ((SmallSstring)(as_oint(obj)-varobject_bias))
-  #endif
   #define TheSvector(obj)  ((Svector)(as_oint(obj)-varobject_bias))
   #define TheWeakKVT(obj)  ((WeakKVT)(as_oint(obj)-varobject_bias))
   #define TheSiarray(obj)  ((Siarray)(as_oint(obj)-varobject_bias))
@@ -5578,10 +5631,10 @@ typedef struct {
   #define vectorp(obj)  \
     ((tint)(typecode(obj) - sbvector_type) <= (tint)(vector_type - sbvector_type))
 #else
-  # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String,
+  # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_]S[8|16|32]string,
   #        Rectype_bvector, Rectype_b[2|4|8|16|32]vector, Rectype_vector, Rectype_reallocstring, Rectype_string
   #define vectorp(obj)  \
-    (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= 21-1))
+    (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= 23-1))
 #endif
 
 # Test for simple-vector or simple-bit-vector or simple-string
@@ -5589,10 +5642,10 @@ typedef struct {
   #define simplep(obj)  \
     ((tint)(typecode(obj) - sbvector_type) <= (tint)(svector_type - sbvector_type))
 #else
-  # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String,
+  # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_]S[8|16|32]string,
   #        Rectype_reallocstring
   #define simplep(obj)  \
-    (varobjectp(obj) && ((uintB)(Record_type(obj) - 9) <= 20-9))
+    (varobjectp(obj) && ((uintB)(Record_type(obj) - 9) <= 22-9))
 #endif
 
 # Tests an Array for simple-vector or simple-bit-vector or simple-string
@@ -5600,10 +5653,10 @@ typedef struct {
   #define array_simplep(obj)  \
     ((typecode(obj) & bit(notsimple_bit_t)) == 0)
 #else
-  # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String,
+  # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_]S[8|16|32]string,
   #        Rectype_reallocstring
   #define array_simplep(obj)  \
-    ((uintB)(Record_type(obj) - 9) <= 20-9)
+    ((uintB)(Record_type(obj) - 9) <= 22-9)
 #endif
 
 # Test for simple-vector
@@ -5633,9 +5686,9 @@ typedef struct {
   #define simple_string_p(obj)  \
     (typecode(obj) == sstring_type)
 #else
-  # cases: Rectype_[Imm_][Small]String, Rectype_reallocstring
+  # cases: Rectype_[Imm_]S[8|16|32]string, Rectype_reallocstring
   #define simple_string_p(obj)  \
-    (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= 20-16))
+    (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= 22-16))
 #endif
 
 # Test for string
@@ -5643,9 +5696,9 @@ typedef struct {
   #define stringp(obj)  \
     ((typecode(obj) & ~bit(notsimple_bit_t)) == sstring_type)
 #else
-  # cases: Rectype_[Imm_][Small]String, Rectype_reallocstring, Rectype_string
+  # cases: Rectype_[Imm_]S[8|16|32]string, Rectype_reallocstring, Rectype_string
   #define stringp(obj)  \
-    (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= 21-16))
+    (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= 23-16))
 #endif
 
 # Test for simple-bit[n]-vector
@@ -5675,11 +5728,11 @@ typedef struct {
   #define arrayp(obj)  \
     ((tint)(typecode(obj) - mdarray_type) <= (tint)(vector_type - mdarray_type))
 #else
-  # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String,
+  # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_]S[8|16|32]string,
   #        Rectype_bvector, Rectype_b[2|4|8|16|32]vector, Rectype_vector, Rectype_reallocstring, Rectype_string,
   #        Rectype_mdarray
   #define arrayp(obj)  \
-    (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= 22-1))
+    (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= 24-1))
 #endif
 
 # Test for Array, that isn't a Vector (type byte %100)
@@ -5705,8 +5758,9 @@ typedef struct {
       if (orecordp(obj))                                                     \
         switch (Record_type(obj)) {                                          \
           case Rectype_Sbvector:                                             \
-          case Rectype_Sstring: case Rectype_Imm_Sstring:                    \
-          case Rectype_SmallSstring: case Rectype_Imm_SmallSstring:          \
+          case Rectype_S8string: case Rectype_Imm_S8string:                  \
+          case Rectype_S16string: case Rectype_Imm_S16string:                \
+          case Rectype_S32string: case Rectype_Imm_S32string:                \
           case Rectype_Svector: case Rectype_WeakKVT:                        \
           case Rectype_mdarray:                                              \
           case Rectype_bvector: case Rectype_string: case Rectype_vector:    \
@@ -5935,10 +5989,6 @@ typedef struct {
   #define base_char_p(obj)  \
     ((as_oint(obj) & ~((oint)(bit(base_char_int_len)-1)<<oint_data_shift)) == type_zero_oint(char_type))
 #endif
-
-# Test for small character
-#define small_char_p(obj)  \
-  ((as_oint(obj) & ~((oint)(bit(small_char_int_len)-1)<<oint_data_shift)) == type_zero_oint(char_type))
 
 # Test for SUBR (compiled functional object)
 #ifdef TYPECODES
@@ -6212,7 +6262,7 @@ typedef struct {
   #define case_Rectype_Sb32vector_above  \
     case Rectype_Sb32vector: goto case_sb32vector;
   #define case_Rectype_Sstring_above  \
-    case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_SmallSstring: case Rectype_Imm_SmallSstring: case Rectype_reallocstring: goto case_sstring;
+    case Rectype_S8string: case Rectype_Imm_S8string: case Rectype_S16string: case Rectype_Imm_S16string: case Rectype_S32string: case Rectype_Imm_S32string: case Rectype_reallocstring: goto case_sstring;
   #define case_Rectype_Svector_above  \
     case Rectype_Svector: goto case_svector;
   #define case_Rectype_WeakKVT_above  \
@@ -6251,7 +6301,7 @@ typedef struct {
     case Rectype_Symbol: goto case_symbol;
   # Composite cases:
   #define case_Rectype_string_above  \
-    case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_SmallSstring: case Rectype_Imm_SmallSstring: case Rectype_reallocstring: case Rectype_string: goto case_string;
+    case Rectype_S8string: case Rectype_Imm_S8string: case Rectype_S16string: case Rectype_Imm_S16string: case Rectype_S32string: case Rectype_Imm_S32string: case Rectype_reallocstring: case Rectype_string: goto case_string;
   #define case_Rectype_bvector_above  \
     case Rectype_Sbvector: case Rectype_bvector: goto case_bvector;
   #define case_Rectype_b2vector_above  \
@@ -6267,8 +6317,9 @@ typedef struct {
   #define case_Rectype_vector_above  \
     case Rectype_Svector: case Rectype_vector: goto case_vector;
   #define case_Rectype_array_above                            \
-    case Rectype_Sstring: case Rectype_Imm_Sstring:           \
-    case Rectype_SmallSstring: case Rectype_Imm_SmallSstring: \
+    case Rectype_S8string: case Rectype_Imm_S8string:         \
+    case Rectype_S16string: case Rectype_Imm_S16string:       \
+    case Rectype_S32string: case Rectype_Imm_S32string:       \
     case Rectype_reallocstring: case Rectype_string:          \
     case Rectype_Sbvector: case Rectype_bvector:              \
     case Rectype_Sb2vector: case Rectype_b2vector:            \
@@ -7548,12 +7599,80 @@ extern object allocate_bit_vector (uintB atype, uintL len);
 #endif
 # used by STREAM
 
+#if !defined(UNICODE) || defined(HAVE_SMALL_SSTRING)
+# UP, provides 8-bit character string
+# allocate_s8string(len)
+# > len: length of the string (in characters)
+# < result: new 8-bit character simple-string (LISP-object)
+# can trigger GC
+extern object allocate_s8string (uintL len);
+# used by
+#endif
+#if defined(UNICODE) && !defined(HAVE_SMALL_SSTRING)
+#define allocate_s8string(len)  allocate_s32string(len)
+#endif
+
+#if (!defined(UNICODE) || defined(HAVE_SMALL_SSTRING)) && !defined(TYPECODES)
+# UP, provides immutable 8-bit character string
+# allocate_imm_s8string(len)
+# > len: length of the string (in characters)
+# < result: new immutable 8-bit character simple-string (LISP-object)
+# can trigger GC
+extern object allocate_imm_s8string (uintL len);
+# used by
+#endif
+
+#ifdef HAVE_SMALL_SSTRING
+# UP, provides 16-bit character string
+# allocate_s16string(len)
+# > len: length of the string (in characters)
+# < result: new 16-bit character simple-string (LISP-object)
+# can trigger GC
+extern object allocate_s16string (uintL len);
+# used by
+#endif
+#if defined(UNICODE) && !defined(HAVE_SMALL_SSTRING)
+#define allocate_s16string(len)  allocate_s32string(len)
+#endif
+
+#ifdef HAVE_SMALL_SSTRING
+# UP, provides immutable 16-bit character string
+# allocate_imm_s16string(len)
+# > len: length of the string (in characters)
+# < result: new immutable 16-bit character simple-string (LISP-object)
+# can trigger GC
+extern object allocate_imm_s16string (uintL len);
+# used by
+#endif
+
+#ifdef UNICODE
+# UP, provides 32-bit character string
+# allocate_s32string(len)
+# > len: length of the string (in characters)
+# < result: new 32-bit character simple-string (LISP-object)
+# can trigger GC
+extern object allocate_s32string (uintL len);
+#endif
+
+#if defined(UNICODE) && !defined(TYPECODES)
+# UP, provides immutable 32-bit character string
+# allocate_imm_s32string(len)
+# > len: length of the string (in characters)
+# < result: new immutable 32-bit character simple-string (LISP-object)
+# can trigger GC
+extern object allocate_imm_s32string (uintL len);
+#endif
+
 # UP: allocates String
 # allocate_string(len)
 # > len: length of the Strings (in Characters)
 # < result: new Normal-Simple-String (LISP-object)
 # can trigger GC
-  extern object allocate_string (uintL len);
+#ifdef UNICODE
+  #define allocate_string(len)  allocate_s32string(len)
+#else
+  #define allocate_string(len)  allocate_s8string(len)
+#endif
 # is used by ARRAY, CHARSTRG, STREAM, PATHNAME
 
 # Macro: Allocates a normal string on the stack, with dynamic extent.
@@ -7600,34 +7719,23 @@ extern object allocate_bit_vector (uintB atype, uintL len);
 # > len: length of the String (in Characters)
 # < result: new immutable Normal-Simple-String (LISP-object)
 # can trigger GC
-  extern object allocate_imm_string (uintL len);
+#ifdef UNICODE
+  #define allocate_imm_string(len)  allocate_imm_s32string(len)
+#else
+  #define allocate_imm_string(len)  allocate_imm_s8string(len)
+#endif
 # is used by CHARSTRG
 #endif
 
 #ifdef HAVE_SMALL_SSTRING
-# UP: allocates Small-String
-# allocate_small_string(len)
-# > len: length of the String (in Characters)
-# < result: new Small-Simple-String (LISP-object)
-# can trigger GC
-  extern object allocate_small_string (uintL len);
-# is used by CHARSTRG
-
-# UP: allocates immutable Small-String
-# allocate_imm_small_string(len)
-# > len: length of the String (in Characters)
-# < result: new immutable Small-Simple-String (LISP-object)
-# can trigger GC
-  extern object allocate_imm_small_string (uintL len);
-# is used by CHARSTRG
-
-# UP: Changes the allocation of a Small-String to an Iarray, while
+# UP: Changes the allocation of a Small-String to an Siarray, while
 # copying the contents to a fresh normal string.
 # reallocate_small_string(string)
 # > string: a nonempty Small-String
-# < result: an Iarray pointing to a normal String
+# > newtype: new wider string type, Rectype_S16string or Rectype_S32string
+# < result: an Siarray pointing to a wider String
 # can trigger GC
-  extern object reallocate_small_string (object string);
+  extern object reallocate_small_string (object string, sintBWL newtype);
 # is used by ARRAY
 #endif
 
@@ -10658,35 +10766,130 @@ extern bool graphic_char_p (chart ch);
 extern uintL char_width (chart ch);
 # is used by IO, STREAM
 
-# Copies an array of chart to an array of chart.
-# chartcopy(src,dest,len);
-# > chart* src: characters
-# > chart* dest: room for characters
-# > uintL len: number of characters to be copied, > 0
-#define chartcopy(src,dest,len) memcpy(dest,src,len*sizeof(chart))
-# is used by ARRAY, STREAM, LISPARIT
-
-#ifdef HAVE_SMALL_SSTRING
-# Copies an array of scint to an array of chart.
-# scintcopy(src,dest,len);
-# > scint* src: small characters
-# > chart* dest: room for normal characters
-# > uintL len: number of characters to be copied, > 0
-  extern void scintcopy (const scint* src, chart* dest, uintL len);
-# is used by ARRAY, STREAM, Macro unpack_sstring_alloca
+#if !defined(UNICODE) || defined(HAVE_SMALL_SSTRING)
+# Copies an array of uint8 to an array of uint8.
+# copy_8bit_8bit(src,dest,len);
+# > uint8* src: source
+# > uint8* dest: destination
+# > uintL len: number of elements to be copied, > 0
+extern void copy_8bit_8bit (const uint8* src, uint8* dest, uintL len);
 #endif
 
-# Dispatches among Sstring and SmallSstring.
-# SstringDispatch(string,sstring_statement,small_sstring_statement)
+#if defined(HAVE_SMALL_SSTRING)
+# Copies an array of uint8 to an array of uint16.
+# copy_8bit_16bit(src,dest,len);
+# > uint8* src: source
+# > uint16* dest: destination
+# > uintL len: number of elements to be copied, > 0
+extern void copy_8bit_16bit (const uint8* src, uint16* dest, uintL len);
+#endif
+
+#if defined(HAVE_SMALL_SSTRING)
+# Copies an array of uint8 to an array of uint32.
+# copy_8bit_32bit(src,dest,len);
+# > uint8* src: source
+# > uint32* dest: destination
+# > uintL len: number of elements to be copied, > 0
+extern void copy_8bit_32bit (const uint8* src, uint32* dest, uintL len);
+#endif
+
+#if defined(HAVE_SMALL_SSTRING)
+# Copies an array of uint16 to an array of uint8.
+# All source elements must fit into uint8.
+# copy_16bit_8bit(src,dest,len);
+# > uint16* src: source
+# > uint8* dest: destination
+# > uintL len: number of elements to be copied, > 0
+extern void copy_16bit_8bit (const uint16* src, uint8* dest, uintL len);
+#endif
+
+#if defined(HAVE_SMALL_SSTRING)
+# Copies an array of uint16 to an array of uint16.
+# copy_16bit_16bit(src,dest,len);
+# > uint16* src: source
+# > uint16* dest: destination
+# > uintL len: number of elements to be copied, > 0
+extern void copy_16bit_16bit (const uint16* src, uint16* dest, uintL len);
+#endif
+
+#if defined(HAVE_SMALL_SSTRING)
+# Copies an array of uint16 to an array of uint32.
+# copy_16bit_32bit(src,dest,len);
+# > uint16* src: source
+# > uint32* dest: destination
+# > uintL len: number of elements to be copied, > 0
+extern void copy_16bit_32bit (const uint16* src, uint32* dest, uintL len);
+#endif
+
+#if defined(HAVE_SMALL_SSTRING)
+# Copies an array of uint32 to an array of uint8.
+# All source elements must fit into uint8.
+# copy_32bit_8bit(src,dest,len);
+# > uint32* src: source
+# > uint8* dest: destination
+# > uintL len: number of elements to be copied, > 0
+extern void copy_32bit_8bit (const uint32* src, uint8* dest, uintL len);
+#endif
+
+#if defined(HAVE_SMALL_SSTRING)
+# Copies an array of uint32 to an array of uint16.
+# All source elements must fit into uint16.
+# copy_32bit_16bit(src,dest,len);
+# > uint32* src: source
+# > uint16* dest: destination
+# > uintL len: number of elements to be copied, > 0
+extern void copy_32bit_16bit (const uint32* src, uint16* dest, uintL len);
+#endif
+
+#if defined(UNICODE)
+# Copies an array of uint32 to an array of uint32.
+# copy_32bit_32bit(src,dest,len);
+# > uint32* src: source
+# > uint32* dest: destination
+# > uintL len: number of elements to be copied, > 0
+extern void copy_32bit_32bit (const uint32* src, uint32* dest, uintL len);
+#endif
+
+# Dispatches among S8string, S16string and S32string.
+# SstringCase(string,s8string_statement,s16string_statement,s32string_statement);
 # > string: a simple-string
-# Executes small_sstring_statement if it is a SmallSstring, else sstring_statement.
-#ifdef HAVE_SMALL_SSTRING
-  #define SstringDispatch(string,sstring_statement,small_sstring_statement)  \
-    if (Record_type(string) == Rectype_SmallSstring || Record_type(string) == Rectype_Imm_SmallSstring) { small_sstring_statement } else { sstring_statement }
+# Executes one of the three statement, depending on the element size of string.
+#ifdef UNICODE
+  #ifdef HAVE_SMALL_SSTRING
+    #define SstringCase(string,s8string_statement,s16string_statement,s32string_statement)  \
+      if (Record_type(string) == Rectype_S8string || Record_type(string) == Rectype_Imm_S8string) { s8string_statement } else \
+      if (Record_type(string) == Rectype_S16string || Record_type(string) == Rectype_Imm_S16string) { s16string_statement } else \
+      if (Record_type(string) == Rectype_S32string || Record_type(string) == Rectype_Imm_S32string) { s32string_statement } else \
+      NOTREACHED;
+  #else
+    #define SstringCase(string,s8string_statement,s16string_statement,s32string_statement)  \
+      { s32string_statement }
+  #endif
 #else
-  #define SstringDispatch(string,sstring_statement,small_sstring_statement)  \
-    { sstring_statement }
+  # In this case we take the s32string_statement, not the s8string_statement,
+  # because the s32string_statement is the right one for normal simple strings.
+  #define SstringCase(string,s8string_statement,s16string_statement,s32string_statement)  \
+    { /*s8string_statement*/ s32string_statement }
 #endif
+# is used by CHARSTRG, ARRAY, HASHTABL, PACKAGE, PATHNAME, PREDTYPE, STREAM
+
+# Dispatches among S8string, S16string and S32string.
+# SstringDispatch(string,suffix,statement)
+# > string: a simple-string
+# Executes the statement with cint##suffix being bound to the appropriate
+# integer type (cint8, cint16 or cint32) and with Sstring being bound to the
+# appropriate struct pointer type (S8string, S16string or S32string).
+#define SstringDispatch(string,suffix,statement)  \
+  SstringCase(string,                                                 \
+    { typedef cint8 cint##suffix; typedef S8string Sstring##suffix;   \
+      statement                                                       \
+    },                                                                \
+    { typedef cint16 cint##suffix; typedef S16string Sstring##suffix; \
+      statement                                                       \
+    },                                                                \
+    { typedef cint32 cint##suffix; typedef S32string Sstring##suffix; \
+      statement                                                       \
+    })
 # is used by CHARSTRG, ARRAY, HASHTABL, PACKAGE, PATHNAME, PREDTYPE, STREAM
 
 # Tests whether a simple-string is a normal-simple-string.
@@ -10694,7 +10897,7 @@ extern uintL char_width (chart ch);
 # > string: a simple-string
 #ifdef HAVE_SMALL_SSTRING
   #define sstring_normal_p(string)  \
-    (!(Record_type(string) == Rectype_SmallSstring || Record_type(string) == Rectype_Imm_SmallSstring))
+    (Record_type(string) == Rectype_S32string || Record_type(string) == Rectype_Imm_S32string)
 #else
   #define sstring_normal_p(string)  1
 #endif
@@ -10706,14 +10909,29 @@ extern uintL char_width (chart ch);
 # > uintL offset: where the characters to be accessed start
 # < const chart* charptr: pointer to the characters
 #   (may be in string, may be on the stack)
-#define unpack_sstring_alloca(string,len,offset,charptr_assignment)           \
-  SstringDispatch(string,                                                     \
-    { charptr_assignment (const chart*) &TheSstring(string)->data[offset]; }, \
-    { var chart* _unpacked_ = (chart*)alloca((len)*sizeof(chart));            \
-      if ((len) > 0)                                                          \
-        scintcopy(&TheSmallSstring(string)->data[offset],_unpacked_,len);     \
-      charptr_assignment (const chart*) _unpacked_;                           \
-    });
+#ifdef HAVE_SMALL_SSTRING
+  #define unpack_sstring_alloca(string,len,offset,charptr_assignment)  \
+    if (Record_type(string) == Rectype_S32string                               \
+        || Record_type(string) == Rectype_Imm_S32string) {                     \
+      charptr_assignment (const chart*) &TheS32string(string)->data[offset];   \
+    } else {                                                                   \
+      var chart* _unpacked_ = (chart*)alloca((len)*sizeof(chart));             \
+      if ((len) > 0) {                                                         \
+        if (Record_type(string) == Rectype_S16string                           \
+            || Record_type(string) == Rectype_Imm_S16string)                   \
+          copy_16bit_32bit(&TheS16string(string)->data[offset],_unpacked_,len);\
+        elif (Record_type(string) == Rectype_S8string                          \
+              || Record_type(string) == Rectype_Imm_S8string)                  \
+          copy_8bit_32bit(&TheS8string(string)->data[offset],_unpacked_,len);  \
+        else                                                                   \
+          NOTREACHED;                                                          \
+      }                                                                        \
+      charptr_assignment (const chart*) _unpacked_;                            \
+    }
+#else
+  #define unpack_sstring_alloca(string,len,offset,charptr_assignment)  \
+    charptr_assignment (const chart*) &TheSstring(string)->data[offset];
+#endif
 # is used by
 
 # UP: unpacks a String.
@@ -11360,7 +11578,17 @@ nonreturning_function(extern, fehler_sstring, (object obj));
   #define check_sstring_mutable(obj)
 #else
   #define check_sstring_mutable(obj)  \
-    if (!(Record_type(obj) == Rectype_Sstring || Record_type(obj) == Rectype_SmallSstring)) fehler_sstring_immutable(obj);
+    switch (Record_type(obj)) {        \
+      case Rectype_Imm_S8string:       \
+      case Rectype_Imm_S16string:      \
+      case Rectype_Imm_S32string:      \
+        fehler_sstring_immutable(obj); \
+      case Rectype_S8string:           \
+      case Rectype_S16string:          \
+      case Rectype_S32string:          \
+        break;                         \
+      default: NOTREACHED;             \
+    }
   # Error message, if a Simple-String is immutable:
   # fehler_sstring_immutable(obj);
   # > obj: der String

@@ -1,5 +1,5 @@
 # Functions for characters and strings for CLISP
-# Bruno Haible 1990-2001
+# Bruno Haible 1990-2002
 # Sam Steingold 1999, 2001
 
 #include "lispbibl.c"
@@ -41,7 +41,7 @@
 
 #ifdef UNICODE
 # No-conversion table, used by up_case_table and down_case_table.
-static const cint nop_page[256] = {
+static const uint16 nop_page[256] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -70,7 +70,10 @@ static const cint nop_page[256] = {
       #ifdef UNICODE
       #include "uni_upcase.c"
       var cint c = as_cint(ch);
-      return as_chart((c+up_case_table[c>>8][c&0xFF])&(bit(char_int_len)-1));
+      if (c < sizeof(up_case_table)/sizeof(up_case_table[0]) << 8)
+        return as_chart(c+(sint16)up_case_table[c>>8][c&0xFF]);
+      else
+        return ch;
       #else
       # Tabelle für Umwandlung in Großbuchstaben:
       local const cint up_case_table[char_code_limit] =
@@ -178,7 +181,10 @@ static const cint nop_page[256] = {
       #ifdef UNICODE
       #include "uni_downcase.c"
       var cint c = as_cint(ch);
-      return as_chart((c+down_case_table[c>>8][c&0xFF])&(bit(char_int_len)-1));
+      if (c < sizeof(down_case_table)/sizeof(down_case_table[0]) << 8)
+        return as_chart(c+(sint16)down_case_table[c>>8][c&0xFF]);
+      else
+        return ch;
       #else
       # Tabelle für Umwandlung in Kleinbuchstaben:
       local const cint down_case_table[char_code_limit] =
@@ -287,7 +293,9 @@ static const cint nop_page[256] = {
 #           3 = graphic and alphabetic
   #include "uni_attribute.c"
   #define unicode_attribute(c)  \
-    ((unicode_attribute_table[(c)>>10][((c)>>2)&0xFF] >> (((c)&0x3)*2)) & 0x3)
+    ((c) < sizeof(unicode_attribute_table)/sizeof(unicode_attribute_table[0]) << 10 \
+     ? (unicode_attribute_table[(c)>>10][((c)>>2)&0xFF] >> (((c)&0x3)*2)) & 0x3     \
+     : 0)
 #endif
 
 # UP: Stellt fest, ob ein Character alphabetisch ist.
@@ -631,22 +639,124 @@ static const cint nop_page[256] = {
       #endif
     }
 
-#ifdef HAVE_SMALL_SSTRING
-# Copies an array of scint to an array of chart.
-# scintcopy(src,dest,len);
-# > scint* src: small characters
-# > chart* dest: room for normal characters
-# > uintL len: number of characters to be copied, > 0
-  global void scintcopy (const scint* src, chart* dest, uintL len);
-  global void scintcopy(src,dest,len)
-    var const scint* src;
-    var chart* dest;
-    var uintL len;
-    {
-      dotimespL(len,len, {
-        *dest++ = as_chart(*src++);
-      });
-    }
+#if !defined(UNICODE) || defined(HAVE_SMALL_SSTRING)
+# Copies an array of uint8 to an array of uint8.
+# copy_8bit_8bit(src,dest,len);
+# > uint8* src: source
+# > uint8* dest: destination
+# > uintL len: number of elements to be copied, > 0
+global void copy_8bit_8bit (const uint8* src, uint8* dest, uintL len) {
+  dotimespL(len,len, {
+    *dest++ = *src++;
+  });
+}
+#endif
+
+#if defined(HAVE_SMALL_SSTRING)
+# Copies an array of uint8 to an array of uint16.
+# copy_8bit_16bit(src,dest,len);
+# > uint8* src: source
+# > uint16* dest: destination
+# > uintL len: number of elements to be copied, > 0
+global void copy_8bit_16bit (const uint8* src, uint16* dest, uintL len) {
+  dotimespL(len,len, {
+    *dest++ = *src++;
+  });
+}
+#endif
+
+#if defined(HAVE_SMALL_SSTRING)
+# Copies an array of uint8 to an array of uint32.
+# copy_8bit_32bit(src,dest,len);
+# > uint8* src: source
+# > uint32* dest: destination
+# > uintL len: number of elements to be copied, > 0
+global void copy_8bit_32bit (const uint8* src, uint32* dest, uintL len) {
+  dotimespL(len,len, {
+    *dest++ = *src++;
+  });
+}
+#endif
+
+#if defined(HAVE_SMALL_SSTRING)
+# Copies an array of uint16 to an array of uint8.
+# All source elements must fit into uint8.
+# copy_16bit_8bit(src,dest,len);
+# > uint16* src: source
+# > uint8* dest: destination
+# > uintL len: number of elements to be copied, > 0
+global void copy_16bit_8bit (const uint16* src, uint8* dest, uintL len) {
+  dotimespL(len,len, {
+    *dest++ = *src++;
+  });
+}
+#endif
+
+#if defined(HAVE_SMALL_SSTRING)
+# Copies an array of uint16 to an array of uint16.
+# copy_16bit_16bit(src,dest,len);
+# > uint16* src: source
+# > uint16* dest: destination
+# > uintL len: number of elements to be copied, > 0
+global void copy_16bit_16bit (const uint16* src, uint16* dest, uintL len) {
+  dotimespL(len,len, {
+    *dest++ = *src++;
+  });
+}
+#endif
+
+#if defined(HAVE_SMALL_SSTRING)
+# Copies an array of uint16 to an array of uint32.
+# copy_16bit_32bit(src,dest,len);
+# > uint16* src: source
+# > uint32* dest: destination
+# > uintL len: number of elements to be copied, > 0
+global void copy_16bit_32bit (const uint16* src, uint32* dest, uintL len) {
+  dotimespL(len,len, {
+    *dest++ = *src++;
+  });
+}
+#endif
+
+#if defined(HAVE_SMALL_SSTRING)
+# Copies an array of uint32 to an array of uint8.
+# All source elements must fit into uint8.
+# copy_32bit_8bit(src,dest,len);
+# > uint32* src: source
+# > uint8* dest: destination
+# > uintL len: number of elements to be copied, > 0
+global void copy_32bit_8bit (const uint32* src, uint8* dest, uintL len) {
+  dotimespL(len,len, {
+    *dest++ = *src++;
+  });
+}
+#endif
+
+#if defined(HAVE_SMALL_SSTRING)
+# Copies an array of uint32 to an array of uint16.
+# All source elements must fit into uint16.
+# copy_32bit_16bit(src,dest,len);
+# > uint32* src: source
+# > uint16* dest: destination
+# > uintL len: number of elements to be copied, > 0
+global void copy_32bit_16bit (const uint32* src, uint16* dest, uintL len) {
+  dotimespL(len,len, {
+    *dest++ = *src++;
+  });
+}
+#endif
+
+#if defined(UNICODE)
+# Copies an array of uint32 to an array of uint32.
+# copy_32bit_32bit(src,dest,len);
+# > uint32* src: source
+# > uint32* dest: destination
+# > uintL len: number of elements to be copied, > 0
+global void copy_32bit_32bit (const uint32* src, uint32* dest, uintL len) {
+  dotimespL(len,len, {
+    *dest++ = *src++;
+  });
+}
 #endif
 
 # UP: unpack a string
@@ -711,44 +821,17 @@ global object unpack_string_rw (object string, uintL* len, uintL* offset) {
         goto no;
       # Now both strings have exactly len1 characters. Compare them.
       if (len1 > 0) {
-        SstringDispatch(string1,
-          { var const chart* ptr1 = &TheSstring(string1)->data[offset1];
-            SstringDispatch(string2,
-              { var const chart* ptr2 = &TheSstring(string2)->data[0];
-                var uintL count;
-                dotimespL(count,len1, {
-                  if (!chareq(*ptr1++,*ptr2++))
-                    goto no;
-                });
-              },
-              { var const scint* ptr2 = &TheSmallSstring(string2)->data[0];
-                var uintL count;
-                dotimespL(count,len1, {
-                  if (!chareq(*ptr1++,as_chart(*ptr2++)))
-                    goto no;
-                });
-              }
-              );
-          },
-          { var const scint* ptr1 = &TheSmallSstring(string1)->data[offset1];
-            SstringDispatch(string2,
-              { var const chart* ptr2 = &TheSstring(string2)->data[0];
-                var uintL count;
-                dotimespL(count,len1, {
-                  if (!chareq(as_chart(*ptr1++),*ptr2++))
-                    goto no;
-                });
-              },
-              { var const scint* ptr2 = &TheSmallSstring(string2)->data[0];
-                var uintL count;
-                dotimespL(count,len1, {
-                  if (!chareq(as_chart(*ptr1++),as_chart(*ptr2++)))
-                    goto no;
-                });
-              }
-              );
-          }
-          );
+        SstringDispatch(string1,X1, {
+          var const cintX1* ptr1 = &((SstringX1)TheVarobject(string1))->data[offset1];
+          SstringDispatch(string2,X2, {
+            var const cintX2* ptr2 = &((SstringX2)TheVarobject(string2))->data[0];
+            var uintL count;
+            dotimespL(count,len1, {
+              if (!chareq(as_chart(*ptr1++),as_chart(*ptr2++)))
+                goto no;
+            });
+          });
+        });
       }
       return true;
      no: return false;
@@ -772,44 +855,17 @@ global object unpack_string_rw (object string, uintL* len, uintL* offset) {
         goto no;
       # Now both strings have exactly len1 characters. Compare them.
       if (len1 > 0) {
-        SstringDispatch(string1,
-          { var const chart* ptr1 = &TheSstring(string1)->data[offset1];
-            SstringDispatch(string2,
-              { var const chart* ptr2 = &TheSstring(string2)->data[0];
-                var uintL count;
-                dotimespL(count,len1, {
-                  if (!chareq(up_case(*ptr1++),up_case(*ptr2++)))
-                    goto no;
-                });
-              },
-              { var const scint* ptr2 = &TheSmallSstring(string2)->data[0];
-                var uintL count;
-                dotimespL(count,len1, {
-                  if (!chareq(up_case(*ptr1++),up_case(as_chart(*ptr2++))))
-                    goto no;
-                });
-              }
-              );
-          },
-          { var const scint* ptr1 = &TheSmallSstring(string1)->data[offset1];
-            SstringDispatch(string2,
-              { var const chart* ptr2 = &TheSstring(string2)->data[0];
-                var uintL count;
-                dotimespL(count,len1, {
-                  if (!chareq(up_case(as_chart(*ptr1++)),up_case(*ptr2++)))
-                    goto no;
-                });
-              },
-              { var const scint* ptr2 = &TheSmallSstring(string2)->data[0];
-                var uintL count;
-                dotimespL(count,len1, {
-                  if (!chareq(up_case(as_chart(*ptr1++)),up_case(as_chart(*ptr2++))))
-                    goto no;
-                });
-              }
-              );
-          }
-          );
+        SstringDispatch(string1,X1, {
+          var const cintX1* ptr1 = &((SstringX1)TheVarobject(string1))->data[offset1];
+          SstringDispatch(string2,X2, {
+            var const cintX2* ptr2 = &((SstringX2)TheVarobject(string2))->data[0];
+            var uintL count;
+            dotimespL(count,len1, {
+              if (!chareq(up_case(as_chart(*ptr1++)),up_case(as_chart(*ptr2++))))
+                goto no;
+            });
+          });
+        });
       }
       return true;
      no: return false;
@@ -831,23 +887,48 @@ global object unpack_string_rw (object string, uintL* len, uintL* offset) {
       simple_array_to_storage(inner_string);
       switch (Array_type(inner_string)) {
         #ifndef TYPECODES
+        #ifdef UNICODE
         #ifdef HAVE_SMALL_SSTRING
-        case Rectype_SmallSstring: # mutable Simple-String
-          if (as_cint(element) < small_char_int_limit) {
-            TheSmallSstring(inner_string)->data[index] = (scint)as_cint(element);
+        case Rectype_S8string: # mutable Simple-String
+          if (as_cint(element) < cint8_limit) {
+            TheS8string(inner_string)->data[index] = as_cint(element);
             break;
           }
           ASSERT(eq(string,inner_string));
-          string = reallocate_small_string(inner_string);
+          if (as_cint(element) < cint16_limit) {
+            string = reallocate_small_string(inner_string,Rectype_S16string);
+            inner_string = TheSiarray(string)->data;
+            TheS16string(inner_string)->data[index] = as_cint(element);
+            break;
+          }
+          string = reallocate_small_string(inner_string,Rectype_S32string);
           inner_string = TheSiarray(string)->data;
+          TheS32string(inner_string)->data[index] = as_cint(element);
+          break;
+        case Rectype_S16string: # mutable Simple-String
+          if (as_cint(element) < cint16_limit) {
+            TheS16string(inner_string)->data[index] = as_cint(element);
+            break;
+          }
+          pushSTACK(string);
+          inner_string = reallocate_small_string(inner_string,Rectype_S32string);
+          string = popSTACK();
+          inner_string = TheSiarray(inner_string)->data;
           /*FALLTHROUGH*/
         #endif
-        case Rectype_Sstring: # mutable Simple-String
+        case Rectype_S32string: # mutable Simple-String
+          TheS32string(inner_string)->data[index] = as_cint(element);
+          break;
+        #else
+        case Rectype_S8string: # mutable Simple-String
+          TheS8string(inner_string)->data[index] = as_cint(element);
+          break;
+        #endif
         #else
         case Array_type_sstring: # Simple-String
-        #endif
           TheSstring(inner_string)->data[index] = element;
           break;
+        #endif
         default: NOTREACHED;
       }
       return string;
@@ -872,43 +953,127 @@ global object unpack_string_rw (object string, uintL* len, uintL* offset) {
         simple_array_to_storage(inner_string);
         switch (Array_type(inner_string)) {
           #ifndef TYPECODES
+          #ifdef UNICODE
           #ifdef HAVE_SMALL_SSTRING
-          case Rectype_SmallSstring: # mutable Simple-String
+          case Rectype_S8string: # mutable Simple-String
             {
-              var bool smallp = true;
+              var bool fits_in_8bit = true;
+              var bool fits_in_16bit = true;
               {
                 var uintL n;
                 var const chart* p = charptr;
                 dotimespL(n,len, {
-                  if (!(as_cint(*p) < small_char_int_limit)) {
-                    smallp = false;
+                  if (!(as_cint(*p) < cint8_limit))
+                    fits_in_8bit = false;
+                  if (!(as_cint(*p) < cint16_limit)) {
+                    fits_in_16bit = false;
                     break;
                   }
                   p++;
                 });
               }
-              if (smallp) {
+              if (fits_in_8bit) {
                 var const chart* p = charptr;
-                var scint* q = &TheSmallSstring(inner_string)->data[offset];
+                var cint8* q = &TheS8string(inner_string)->data[offset];
                 dotimespL(len,len, {
-                  *q = (scint)as_cint(*p);
+                  *q = as_cint(*p);
                   p++;
                   q++;
                 });
                 break;
               }
+              ASSERT(eq(string,inner_string));
+              if (fits_in_16bit) {
+                string = reallocate_small_string(inner_string,Rectype_S16string);
+                inner_string = TheSiarray(string)->data;
+                var const chart* p = charptr;
+                var cint16* q = &TheS16string(inner_string)->data[offset];
+                dotimespL(len,len, {
+                  *q = as_cint(*p);
+                  p++;
+                  q++;
+                });
+                break;
+              }
+              string = reallocate_small_string(inner_string,Rectype_S32string);
+              inner_string = TheSiarray(string)->data;
+              var const chart* p = charptr;
+              var cint32* q = &TheS32string(inner_string)->data[offset];
+              dotimespL(len,len, {
+                *q = as_cint(*p);
+                p++;
+                q++;
+              });
             }
-            ASSERT(eq(string,inner_string));
-            string = reallocate_small_string(inner_string);
-            inner_string = TheSiarray(string)->data;
+            break;
+          case Rectype_S16string: # mutable Simple-String
+            {
+              var bool fits_in_16bit = true;
+              {
+                var uintL n;
+                var const chart* p = charptr;
+                dotimespL(n,len, {
+                  if (!(as_cint(*p) < cint16_limit)) {
+                    fits_in_16bit = false;
+                    break;
+                  }
+                  p++;
+                });
+              }
+              if (fits_in_16bit) {
+                var const chart* p = charptr;
+                var cint16* q = &TheS16string(inner_string)->data[offset];
+                dotimespL(len,len, {
+                  *q = as_cint(*p);
+                  p++;
+                  q++;
+                });
+                break;
+              }
+              pushSTACK(string);
+              inner_string = reallocate_small_string(inner_string,Rectype_S32string);
+              string = popSTACK();
+              inner_string = TheSiarray(inner_string)->data;
+            }
             /*FALLTHROUGH*/
           #endif
-          case Rectype_Sstring: # mutable Simple-String
+          case Rectype_S32string: # mutable Simple-String
+            {
+              var const chart* p = charptr;
+              var cint32* q = &TheS32string(inner_string)->data[offset];
+              dotimespL(len,len, {
+                *q = as_cint(*p);
+                p++;
+                q++;
+              });
+            }
+            break;
+          #else
+          case Rectype_S8string: # mutable Simple-String
+            {
+              var const chart* p = charptr;
+              var cint8* q = &TheS8string(inner_string)->data[offset];
+              dotimespL(len,len, {
+                *q = as_cint(*p);
+                p++;
+                q++;
+              });
+            }
+            break;
+          #endif
           #else
           case Array_type_sstring: # Simple-String
-          #endif
-            chartcopy(charptr,&TheSstring(inner_string)->data[offset],len);
+            {
+              var const chart* p = charptr;
+              var cint8* q = &TheS8string(inner_string)->data[offset];
+              dotimespL(len,len, {
+                *q = as_cint(*p);
+                p++;
+                q++;
+              });
+            }
             break;
+          #endif
           default: NOTREACHED;
         }
       }
@@ -958,10 +1123,14 @@ global object unpack_string_rw (object string, uintL* len, uintL* offset) {
       # new_string = neuer Normal-Simple-String mit vorgegebener Länge len
       string = popSTACK(); # String zurück
       if (len > 0) {
-        SstringDispatch(string,
-          { chartcopy(&TheSstring(string)->data[offset],&TheSstring(new_string)->data[0],len); },
-          { scintcopy(&TheSmallSstring(string)->data[offset],&TheSstring(new_string)->data[0],len); }
-          );
+        #ifdef UNICODE
+        SstringCase(string,
+          { copy_8bit_32bit(&TheS8string(string)->data[offset],&TheSstring(new_string)->data[0],len); },
+          { copy_16bit_32bit(&TheS16string(string)->data[offset],&TheSstring(new_string)->data[0],len); },
+          { copy_32bit_32bit(&TheS32string(string)->data[offset],&TheSstring(new_string)->data[0],len); });
+        #else
+        copy_8bit_8bit(&TheSstring(string)->data[offset],&TheSstring(new_string)->data[0],len);
+        #endif
       }
       return new_string;
     }
@@ -1014,69 +1183,122 @@ global object unpack_string_rw (object string, uintL* len, uintL* offset) {
     var object obj;
     { if (orecordp(obj))
         switch (Record_type(obj)) {
+          #ifdef UNICODE
           #ifdef HAVE_SMALL_SSTRING
-          case Rectype_Imm_SmallSstring:
+          case Rectype_Imm_S8string:
+          case Rectype_Imm_S16string:
           #endif
-          case Rectype_Imm_Sstring:
+          case Rectype_Imm_S32string:
+          #else
+          case Rectype_Imm_S8string:
+          #endif
             # immutabler Simple-String, unverändert zurück
             return obj;
+          #ifdef UNICODE
           #ifdef HAVE_SMALL_SSTRING
           case Rectype_reallocstring:
-          case Rectype_SmallSstring:
+          case Rectype_S8string:
+          case Rectype_S16string:
           #endif
-          case Rectype_Sstring:
+          case Rectype_S32string:
+          #else
+          case Rectype_S8string:
+          #endif
           case Rectype_string:
             # sonstiger String, kopieren
             {
               var uintL len;
               var uintL offset;
               var object string = unpack_string_ro(obj,&len,&offset);
+              #ifdef UNICODE
               #ifdef HAVE_SMALL_SSTRING
-              if (Record_type(string) == Rectype_SmallSstring
-                  || Record_type(string) == Rectype_Imm_SmallSstring) {
+              if (Record_type(string) == Rectype_S8string) {
                 pushSTACK(string);
-                var object new_string = allocate_imm_small_string(len);
+                var object new_string = allocate_imm_s8string(len);
+                string = popSTACK();
+                if (len > 0)
+                  copy_8bit_8bit(&TheS8string(string)->data[offset],&TheS8string(new_string)->data[0],len);
+                return new_string;
+              }
+              if (Record_type(string) == Rectype_S16string) {
+                # Check if all characters fit into an 8-bit character string.
+                var bool fits_in_8bit = true;
+                if (len > 0) {
+                  var const cint16* ptr = &TheS16string(string)->data[offset];
+                  var uintL count;
+                  dotimespL(count,len, {
+                    if (!(*ptr < cint8_limit)) {
+                      fits_in_8bit = false;
+                      break;
+                    }
+                    ptr++;
+                  });
+                }
+                pushSTACK(string);
+                var object new_string =
+                  (fits_in_8bit ? allocate_imm_s8string(len) :
+                   allocate_imm_s16string(len));
                 string = popSTACK();
                 if (len > 0) {
-                  var const scint* ptr1 = &TheSmallSstring(string)->data[offset];
-                  var scint* ptr2 = &TheSmallSstring(new_string)->data[0];
-                  var uintL count;
-                  dotimespL(count,len, { *ptr2++ = *ptr1++; } );
+                  if (fits_in_8bit)
+                    copy_16bit_8bit(&TheS16string(string)->data[offset],&TheS8string(new_string)->data[0],len);
+                  else
+                    copy_16bit_16bit(&TheS16string(string)->data[offset],&TheS16string(new_string)->data[0],len);
                 }
                 return new_string;
               }
+              ASSERT(Record_type(string) == Rectype_S32string);
               # We use alloca for small-simple-strings, therefore their length
               # should not be too large, or we risk an SP overflow and
               # core dump.
               if (len < 0x10000) {
-                # Check if all characters fit into a small-simple-string:
+                # Check if all characters fit into an 8-bit or 16-bit character
+                # simple string:
+                var bool fits_in_8bit = true;
+                var bool fits_in_16bit = true;
                 if (len > 0) {
-                  var const chart* ptr = &TheSstring(string)->data[offset];
+                  var const cint32* ptr = &TheS32string(string)->data[offset];
                   var uintL count;
                   dotimespL(count,len, {
-                    if (as_cint(*ptr++) >= small_char_int_limit)
-                      goto make_nonsmall;
+                    if (!(*ptr < cint8_limit))
+                      fits_in_8bit = false;
+                    if (!(*ptr < cint16_limit)) {
+                      fits_in_16bit = false;
+                      break;
+                    }
+                    ptr++;
                   });
                 }
-                pushSTACK(string);
-                var object new_string = allocate_imm_small_string(len);
-                string = popSTACK();
-                if (len > 0) {
-                  var const chart* ptr1 = &TheSstring(string)->data[offset];
-                  var scint* ptr2 = &TheSmallSstring(new_string)->data[0];
-                  var uintL count;
-                  dotimespL(count,len, { *ptr2++ = as_cint(*ptr1++); } );
+                if (fits_in_16bit) {
+                  pushSTACK(string);
+                  var object new_string =
+                    (fits_in_8bit ? allocate_imm_s8string(len) :
+                     allocate_imm_s16string(len));
+                  string = popSTACK();
+                  if (len > 0) {
+                    if (fits_in_8bit)
+                      copy_32bit_8bit(&TheS32string(string)->data[offset],&TheS8string(new_string)->data[0],len);
+                    else
+                      copy_32bit_16bit(&TheS32string(string)->data[offset],&TheS16string(new_string)->data[0],len);
+                  }
+                  return new_string;
                 }
-                return new_string;
               }
-             make_nonsmall:
               #endif
+              pushSTACK(string);
+              var object new_string = allocate_imm_s32string(len);
+              string = popSTACK();
+              if (len > 0)
+                copy_32bit_32bit(&TheS32string(string)->data[offset],&TheS32string(new_string)->data[0],len);
+              return new_string;
+              #else
               pushSTACK(string);
               var object new_string = allocate_imm_string(len);
               string = popSTACK();
               if (len > 0)
-                chartcopy(&TheSstring(string)->data[offset],&TheSstring(new_string)->data[0],len);
+                copy_8bit_8bit(&TheSstring(string)->data[offset],&TheSstring(new_string)->data[0],len);
               return new_string;
+              #endif
             }
           default:
             break;
@@ -1103,12 +1325,14 @@ global object unpack_string_rw (object string, uintL* len, uintL* offset) {
       if (orecordp(obj))
        restart_it:
         switch (Record_type(obj)) {
-          case Rectype_Imm_Sstring:
-          case Rectype_Sstring:
+          case Rectype_Imm_S32string:
+          case Rectype_S32string:
             # Normal-Simple-String, unverändert zurück
             return obj;
-          case Rectype_Imm_SmallSstring:
-          case Rectype_SmallSstring:
+          case Rectype_Imm_S8string:
+          case Rectype_S8string:
+          case Rectype_Imm_S16string:
+          case Rectype_S16string:
           case Rectype_string:
             # sonstiger String, kopieren
             return copy_string(obj);
@@ -1141,12 +1365,14 @@ global object unpack_string_rw (object string, uintL* len, uintL* offset) {
     {
       if (orecordp(obj))
         switch (Record_type(obj)) {
-          case Rectype_Imm_Sstring:
+          case Rectype_Imm_S32string:
             # immutabler Normal-Simple-String, unverändert zurück
             return obj;
-          case Rectype_Imm_SmallSstring:
-          case Rectype_SmallSstring:
-          case Rectype_Sstring:
+          case Rectype_Imm_S8string:
+          case Rectype_Imm_S16string:
+          case Rectype_S8string:
+          case Rectype_S16string:
+          case Rectype_S32string:
           case Rectype_reallocstring:
           case Rectype_string:
             # sonstiger String, kopieren
@@ -1158,10 +1384,10 @@ global object unpack_string_rw (object string, uintL* len, uintL* offset) {
               var object new_string = allocate_imm_string(len);
               string = popSTACK();
               if (len > 0) {
-                SstringDispatch(string,
-                  { chartcopy(&TheSstring(string)->data[offset],&TheSstring(new_string)->data[0],len); },
-                  { scintcopy(&TheSmallSstring(string)->data[offset],&TheSstring(new_string)->data[0],len); }
-                  );
+                SstringCase(string,
+                  { copy_8bit_32bit(&TheS8string(string)->data[offset],&TheSstring(new_string)->data[0],len); },
+                  { copy_16bit_32bit(&TheS16string(string)->data[offset],&TheSstring(new_string)->data[0],len); },
+                  { copy_32bit_32bit(&TheS32string(string)->data[offset],&TheSstring(new_string)->data[0],len); });
               }
               return new_string;
             }
@@ -1198,10 +1424,8 @@ global object unpack_string_rw (object string, uintL* len, uintL* offset) {
         var object string = unpack_string_ro(obj,&len,&offset);
         # ab ptr kommen len Characters
         if (len==1) {
-          SstringDispatch(string,
-            { return code_char(TheSstring(string)->data[offset]); },
-            { return code_char(as_chart(TheSmallSstring(string)->data[offset])); }
-            );
+          SstringDispatch(string,X,
+            { return code_char(((SstringX)TheVarobject(string))->data[offset]); });
         }
       } elif (nullp(Symbol_value(S(coerce_fixnum_char_ansi)))
               && posfixnump(obj)) {
@@ -1267,89 +1491,8 @@ global object unpack_string_rw (object string, uintL* len, uintL* offset) {
 
 #ifdef UNICODE
 
-# Table of Unicode character names, derived from UnicodeData.txt.
-#include "uninames.c"
-
-# Returns the word with a given index.
-  local const char* unicode_name_word (uintWL index, uintL* lengthp);
-  local const char* unicode_name_word(index,lengthp)
-    var uintWL index;
-    var uintL* lengthp;
-    {
-      ASSERT(index < UNICODE_CHARNAME_NUM_WORDS);
-      # Binary search for i with
-      #   unicode_name_by_length[i].ind_offset <= index
-      # and
-      #   index < unicode_name_by_length[i+1].ind_offset
-      var uintL i1 = 0;
-      var uintL i2 = sizeof(unicode_name_by_length)/sizeof(unicode_name_by_length[0]) - 1;
-      while (i2-i1 > 1) {
-        var uintL i = (i1+i2)>>1;
-        if (unicode_name_by_length[i].ind_offset <= index)
-          i1 = i;
-        else
-          i2 = i;
-      }
-      var uintL i = i1;
-      ASSERT(unicode_name_by_length[i].ind_offset <= index
-             && index < unicode_name_by_length[i+1].ind_offset);
-      *lengthp = i;
-      return &unicode_name_words[unicode_name_by_length[i].extra_offset + (index-unicode_name_by_length[i].ind_offset)*i];
-    }
-
-# Looks up the index of a word.
-  local sintL unicode_name_word_lookup (const char* word, uintL length);
-  local sintL unicode_name_word_lookup(word,length)
-    var const char* word;
-    var uintL length;
-    {
-      if (length > 0 && length < sizeof(unicode_name_by_length)/sizeof(unicode_name_by_length[0]) - 1) {
-        # Binary search among the words of given length.
-        var uintL extra_offset = unicode_name_by_length[length].extra_offset;
-        var uintL i0 = unicode_name_by_length[length].ind_offset;
-        var uintL i1 = i0;
-        var uintL i2 = unicode_name_by_length[length+1].ind_offset;
-        while (i2-i1 > 0) {
-          var uintL i = (i1+i2)>>1;
-          var const char* p = &unicode_name_words[extra_offset + (i-i0)*length];
-          var const char* w = word;
-          var uintL n = length;
-          loop {
-            if (*p < *w) {
-              if (i1 == i)
-                return -1;
-              # Note here: i1 < i < i2.
-              i1 = i;
-              break;
-            }
-            if (*p > *w) {
-              # Note here: i1 <= i < i2.
-              i2 = i;
-              break;
-            }
-            p++; w++; n--;
-            if (n == 0)
-              return i;
-          }
-        }
-      }
-      return -1;
-    }
-
-# Auxiliary tables for Hangul syllable names, see the Unicode 3.0 book,
-# sections 3.11 and 4.4.
-static const char jamo_initial_short_name[19][3] = {
-  "G", "GG", "N", "D", "DD", "R", "M", "B", "BB", "S", "SS", "", "J", "JJ",
-  "C", "K", "T", "P", "H"
-};
-static const char jamo_medial_short_name[21][4] = {
-  "A", "AE", "YA", "YAE", "EO", "E", "YEO", "YE", "O", "WA", "WAE", "OE", "YO",
-  "U", "WEO", "WE", "WI", "YU", "EU", "YI", "I"
-};
-static const char jamo_final_short_name[28][3] = {
-  "", "G", "GG", "GS", "N", "NI", "NH", "D", "L", "LG", "LM", "LB", "LS", "LT",
-  "LP", "LH", "M", "B", "BS", "S", "SS", "NG", "J", "C", "K", "T", "P", "H"
-};
+#include "uniname.h"
+#include "uniname.c"
 
 #endif
 
@@ -1410,61 +1553,15 @@ global object char_name (chart code) {
   }
   #else
   # Here is a much faster implementation.
-  if (c >= 0xAC00 && c <= 0xD7A3) {
-    # Special case for Hangul syllables. Keeps the tables small.
-    var char buf[16+7];
-    var char* ptr;
-    memcpy(buf,"HANGUL_SYLLABLE_",16);
-    ptr = buf+16;
-    var uintL tmp = c - 0xAC00;
-    var uintL index3 = tmp % 28; tmp = tmp / 28;
-    var uintL index2 = tmp % 21; tmp = tmp / 21;
-    var uintL index1 = tmp;
-    var const char* q;
-    q = jamo_initial_short_name[index1];
-    while (*q != '\0') { *ptr++ = *q++; }
-    q = jamo_medial_short_name[index2];
-    while (*q != '\0') { *ptr++ = *q++; }
-    q = jamo_final_short_name[index3];
-    while (*q != '\0') { *ptr++ = *q++; }
-    return n_char_to_string(buf,ptr-buf,Symbol_value(S(ascii)));
-  } else {
-    var const uint16* words = NULL;
-    { # Binary search in unicode_code_to_name.
-      var uintL i1 = 0;
-      var uintL i2 =
-        sizeof(unicode_code_to_name)/sizeof(unicode_code_to_name[0]);
-      loop {
-        var uintL i = (i1+i2)>>1;
-        var uint16 code = unicode_code_to_name[i].code;
-        if (code == c) {
-          words = &unicode_names[unicode_code_to_name[i].name];
-          break;
-        } else if (code < c) {
-          if (i1 == i)
-            break;
-          # Note here: i1 < i < i2.
-          i1 = i;
-        } else if (code > c) {
-          if (i2 == i)
-            break;
-          # Note here: i1 <= i < i2.
-          i2 = i;
-        }
-      }
-    }
-    if (words != NULL) {
-      # Found it in unicode_code_to_name. Now concatenate the words.
-      var char buf[UNICODE_CHARNAME_MAX_LENGTH];
+  {
+    var char buf[UNINAME_MAX];
+    if (unicode_character_name(c,buf)) {
       var char* ptr = buf;
-      loop {
-        var uintL wordlen;
-        var const char* word = unicode_name_word(*words>>1,&wordlen);
-        do { *ptr++ = *word++; } while (--wordlen > 0);
-        if ((*words & 1) == 0)
-          break;
-        *ptr++ = '_';
-        words++;
+      # Turn the word separators into underscores.
+      while (*ptr != '\0') {
+        if (*ptr == ' ')
+          *ptr = '_';
+        ptr++;
       }
       return n_char_to_string(buf,ptr-buf,Symbol_value(S(ascii)));
     }
@@ -1476,22 +1573,27 @@ global object char_name (chart code) {
   /* if (!graphic_char_p(code)) */
   {
     local char hex_table[] = "0123456789ABCDEF";
-    #ifdef HAVE_SMALL_SSTRING
-    var object name = allocate_small_string(5);
-    TheSmallSstring(name)->data[0] = as_cint(ascii('U'));
-    TheSmallSstring(name)->data[1] = as_cint(ascii(hex_table[(c>>12)&0x0F]));
-    TheSmallSstring(name)->data[2] = as_cint(ascii(hex_table[(c>>8)&0x0F]));
-    TheSmallSstring(name)->data[3] = as_cint(ascii(hex_table[(c>>4)&0x0F]));
-    TheSmallSstring(name)->data[4] = as_cint(ascii(hex_table[c&0x0F]));
-    #else
-    var object name = allocate_string(5);
-    TheSstring(name)->data[0] = ascii('U');
-    TheSstring(name)->data[1] = ascii(hex_table[(c>>12)&0x0F]);
-    TheSstring(name)->data[2] = ascii(hex_table[(c>>8)&0x0F]);
-    TheSstring(name)->data[3] = ascii(hex_table[(c>>4)&0x0F]);
-    TheSstring(name)->data[4] = ascii(hex_table[c&0x0F]);
-    #endif
-    return name;
+    if (c < 0x10000) {
+      var object name = allocate_s8string(5);
+      TheS8string(name)->data[0] = as_cint(ascii('U'));
+      TheS8string(name)->data[1] = as_cint(ascii(hex_table[(c>>12)&0x0F]));
+      TheS8string(name)->data[2] = as_cint(ascii(hex_table[(c>>8)&0x0F]));
+      TheS8string(name)->data[3] = as_cint(ascii(hex_table[(c>>4)&0x0F]));
+      TheS8string(name)->data[4] = as_cint(ascii(hex_table[c&0x0F]));
+      return name;
+    } else {
+      var object name = allocate_s8string(9);
+      TheS8string(name)->data[0] = as_cint(ascii('U'));
+      TheS8string(name)->data[1] = as_cint(ascii('0'));
+      TheS8string(name)->data[2] = as_cint(ascii('0'));
+      TheS8string(name)->data[3] = as_cint(ascii(hex_table[(c>>20)&0x0F]));
+      TheS8string(name)->data[4] = as_cint(ascii(hex_table[(c>>16)&0x0F]));
+      TheS8string(name)->data[5] = as_cint(ascii(hex_table[(c>>12)&0x0F]));
+      TheS8string(name)->data[6] = as_cint(ascii(hex_table[(c>>8)&0x0F]));
+      TheS8string(name)->data[7] = as_cint(ascii(hex_table[(c>>4)&0x0F]));
+      TheS8string(name)->data[8] = as_cint(ascii(hex_table[c&0x0F]));
+      return name;
+    }
   }
  #else # no UNICODE
   {
@@ -1524,11 +1626,11 @@ global object name_char (object string) {
     var uintL len;
     var uintL offset;
     string = unpack_string_ro(string,&len,&offset);
-    if (len > 1 && len <= UNICODE_CHARNAME_MAX_LENGTH) {
+    if (len > 1 && len < UNINAME_MAX) {
       var const chart* charptr;
       unpack_sstring_alloca(string,len,offset, charptr=);
-      # Test for Uxxxx syntax.
-      if (len == 5
+      # Test for Uxxxx or Uxxxxxxxx syntax.
+      if ((len == 5 || len == 9)
           && (chareq(charptr[0],ascii('U')) || chareq(charptr[0],ascii('u')))) {
         # decode a hexadecimal number:
         var uintL code = 0;
@@ -1548,7 +1650,10 @@ global object name_char (object string) {
           if (code >= char_code_limit) break; # should not occur
           index++;
           if (index == len) {
-            # character name was "Uxxxx" with code = xxxx < char_code_limit
+            # Character name was "Uxxxx" with code = xxxx < char_code_limit.
+            # Its length should be 5 or 9, depending on xxxx < 0x10000.
+            if (!(len == (code < 0x10000 ? 5 : 9)))
+              break;
             # Don't test for graphic_char_p - see comment in char_name().
             # This also avoids us special-casing the #\Uxxxx syntax in io.d.
             /* if (!graphic_char_p(as_chart(code))) */
@@ -1558,128 +1663,22 @@ global object name_char (object string) {
       }
       # Test for word1_word2_... syntax.
       {
-        var char buf[UNICODE_CHARNAME_MAX_LENGTH];
+        var char buf[UNINAME_MAX];
         var char* ptr = buf;
         loop {
           var cint c = as_cint(*charptr++);
           if (!(c >= ' ' && c <= '~'))
             break;
-          *ptr++ = (char)(c >= 'a' && c <= 'z' ? c-'a'+'A' : c);
+          *ptr++ = (char)(c == '_' ? ' ' : c);
           if (--len == 0)
             goto filled_buf;
         }
         if (false) {
         filled_buf:
-          # Convert the constituents to uint16 words.
-          var uint16 words[UNICODE_CHARNAME_MAX_WORDS];
-          var uint16* wordptr = words;
-          {
-            var const char* p1 = buf;
-            loop {
-              var const char* p2 = p1;
-              while (p2 < ptr && *p2 != '_') p2++;
-              var sintL word = unicode_name_word_lookup(p1,p2-p1);
-              if (word < 0)
-                break;
-              if (wordptr == &words[UNICODE_CHARNAME_MAX_WORDS])
-                break;
-              *wordptr++ = word;
-              if (p2 == ptr)
-                goto filled_words;
-              p1 = p2+1;
-              # Special case for Hangul syllables. Keeps the tables small.
-              if (wordptr == &words[2]
-                  && words[0] == UNICODE_CHARNAME_WORD_HANGUL
-                  && words[1] == UNICODE_CHARNAME_WORD_SYLLABLE) {
-                # Split the last word [p1..ptr) into three parts:
-                # 1) [BCDGHJKMNPRST]
-                # 2) [AEIOUWY]
-                # 3) [BCDGHIJKLMNPST]
-                var const char* p2 = p1;
-                while (p2 < ptr
-                       && (*p2=='B' || *p2=='C' || *p2=='D' || *p2=='G'
-                           || *p2=='H' || *p2=='J' || *p2=='K' || *p2=='M'
-                           || *p2=='N' || *p2=='P' || *p2=='R' || *p2=='S'
-                           || *p2=='T'))
-                  p2++;
-                var const char* p3 = p2;
-                while (p3 < ptr
-                       && (*p3=='A' || *p3=='E' || *p3=='I' || *p3=='O'
-                           || *p3=='U' || *p3=='W' || *p3=='Y'))
-                  p3++;
-                var const char* p4 = p3;
-                while (p4 < ptr
-                       && (*p4=='B' || *p4=='C' || *p4=='D' || *p4=='G'
-                           || *p4=='H' || *p4=='I' || *p4=='J' || *p4=='K'
-                           || *p4=='L' || *p4=='M' || *p4=='N' || *p4=='P'
-                           || *p4=='S' || *p4=='T'))
-                  p4++;
-                if (p4 == ptr) {
-                  var uintL n1 = p2-p1;
-                  var uintL n2 = p3-p2;
-                  var uintL n3 = p4-p3;
-                  if (n1 <= 2 && (n2 >= 1 && n2 <= 3) && n3 <= 2) {
-                    var uintL index1;
-                    for (index1 = 0; index1 < 19; index1++)
-                      if (memcmp(jamo_initial_short_name[index1],p1,n1)==0
-                          && jamo_initial_short_name[index1][n1] == '\0') {
-                        var uintL index2;
-                        for (index2 = 0; index2 < 21; index2++)
-                          if (memcmp(jamo_medial_short_name[index2],p2,n2)==0
-                              && jamo_medial_short_name[index2][n2] == '\0') {
-                            var uintL index3;
-                            for (index3 = 0; index3 < 28; index3++)
-                              if (memcmp(jamo_final_short_name[index3],p3,n3)==0
-                                  && jamo_final_short_name[index3][n3] == '\0')
-                                return code_char(as_chart(0xAC00 + (index1*21+index2)*28+index3));
-                            break;
-                          }
-                        break;
-                      }
-                  }
-                }
-              }
-            }
-          }
-          if (false) {
-          filled_words:
-            # Multiply by 2, to simplify later comparisons.
-            var uintL words_length = wordptr - words;
-            {
-              var sintL i = words_length-1;
-              words[i] = 2*words[i];
-              for (; --i >= 0; )
-                words[i] = 2*words[i] + 1;
-            }
-            # Binary search in unicode_name_to_code.
-            var uintL i1 = 0;
-            var uintL i2 = sizeof(unicode_name_to_code)/sizeof(unicode_name_to_code[0]);
-            loop {
-              var uintL i = (i1+i2)>>1;
-              var const uint16* w = words;
-              var const uint16* p = &unicode_names[unicode_name_to_code[i].name];
-              var uintL n = words_length;
-              loop {
-                if (*p < *w) {
-                  if (i1 == i)
-                    goto name_not_found;
-                  # Note here: i1 < i < i2.
-                  i1 = i;
-                  break;
-                } else if (*p > *w) {
-                  if (i2 == i)
-                    goto name_not_found;
-                  # Note here: i1 <= i < i2.
-                  i2 = i;
-                  break;
-                }
-                p++; w++; n--;
-                if (n == 0)
-                  return code_char(as_chart(unicode_name_to_code[i].code));
-              }
-            }
-          name_not_found:;
-          }
+          *ptr = '\0';
+          var cint32 code = unicode_name_character(buf);
+          if (code != UNINAME_INVALID)
+            return code_char(as_chart(code));
         }
       }
     }
@@ -2503,10 +2502,9 @@ LISPFUNN(char,2) # (CHAR string index), CLTL S. 300
     }
     var uintL index = test_index_arg(len);
     var chart ch;
-    SstringDispatch(string,
-      { ch = TheSstring(string)->data[offset+index]; },
-      { ch = as_chart(TheSmallSstring(string)->data[offset+index]); }
-      );
+    SstringDispatch(string,X, {
+      ch = as_chart(((SstringX)TheVarobject(string))->data[offset+index]);
+    });
     value1 = code_char(ch); mv_count=1;
     skipSTACK(2);
   }
@@ -2519,10 +2517,9 @@ LISPFUNN(schar,2) # (SCHAR string integer), CLTL S. 300
     simple_array_to_storage(string);
     var uintL index = test_index_arg(Sstring_length(string));
     var chart ch;
-    SstringDispatch(string,
-      { ch = TheSstring(string)->data[index]; },
-      { ch = as_chart(TheSmallSstring(string)->data[index]); }
-      );
+    SstringDispatch(string,X, {
+      ch = as_chart(((SstringX)TheVarobject(string))->data[index]);
+    });
     value1 = code_char(ch); mv_count=1;
     skipSTACK(2);
   }
@@ -2651,10 +2648,19 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
     var stringarg* arg;
     {
       var object string = test_string_limits_ro(arg);
-      if (arg->len > 0)
-        if (!(Record_type(arg->string) == Rectype_Sstring
-              || Record_type(arg->string) == Rectype_SmallSstring))
-          fehler_sstring_immutable(string);
+      if (arg->len > 0) {
+        switch (Record_type(arg->string)) {
+          case Rectype_Imm_S8string:
+          case Rectype_Imm_S16string:
+          case Rectype_Imm_S32string:
+            fehler_sstring_immutable(string);
+          case Rectype_S8string:
+          case Rectype_S16string:
+          case Rectype_S32string:
+            break;
+          default: NOTREACHED;
+        }
+      }
       return string;
     }
 #endif
@@ -2829,40 +2835,16 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
     var uintL offset2;
     var uintL len;
     {
-      SstringDispatch(string1,
-        { var const chart* charptr1 = &TheSstring(string1)->data[offset1];
-          SstringDispatch(string2,
-            { var const chart* charptr2 = &TheSstring(string2)->data[offset2];
-              dotimespL(len,len, {
-                if (!chareq(*charptr1++,*charptr2++))
-                  goto no;
-              });
-            },
-            { var const scint* charptr2 = &TheSmallSstring(string2)->data[offset2];
-              dotimespL(len,len, {
-                if (!chareq(*charptr1++,as_chart(*charptr2++)))
-                  goto no;
-              });
-            }
-            );
-        },
-        { var const scint* charptr1 = &TheSmallSstring(string1)->data[offset1];
-          SstringDispatch(string2,
-            { var const chart* charptr2 = &TheSstring(string2)->data[offset2];
-              dotimespL(len,len, {
-                if (!chareq(as_chart(*charptr1++),*charptr2++))
-                  goto no;
-              });
-            },
-            { var const scint* charptr2 = &TheSmallSstring(string2)->data[offset2];
-              dotimespL(len,len, {
-                if (!chareq(as_chart(*charptr1++),as_chart(*charptr2++)))
-                  goto no;
-              });
-            }
-            );
-        }
-        );
+      SstringDispatch(string1,X1, {
+        var const cintX1* charptr1 = &((SstringX1)TheVarobject(string1))->data[offset1];
+        SstringDispatch(string2,X2, {
+          var const cintX2* charptr2 = &((SstringX2)TheVarobject(string2))->data[offset2];
+          dotimespL(len,len, {
+            if (!chareq(as_chart(*charptr1++),as_chart(*charptr2++)))
+              goto no;
+          });
+        });
+      });
       return true;
      no: return false;
     }
@@ -2881,45 +2863,27 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
     {
       var uintL len1 = arg1->len;
       var uintL len2 = arg2->len;
-      SstringDispatch(arg1->string,
-        { var const chart* charptr1_0 = &TheSstring(arg1->string)->data[arg1->offset];
-          var const chart* charptr1 = &charptr1_0[arg1->index];
-          SstringDispatch(arg2->string,
-            { var const chart* charptr2 = &TheSstring(arg2->string)->data[arg2->offset+arg2->index];
-              loop {
-                # einer der Strings zu Ende ?
-                if (len1==0) goto A_string1_end;
-                if (len2==0) goto A_string2_end;
-                # nächste Characters vergleichen:
-                if (!chareq(*charptr1++,*charptr2++)) break;
-                # beide Zähler erniedrigen:
-                len1--; len2--;
-              }
-              # zwei verschiedene Characters gefunden
-              arg1->index = --charptr1 - charptr1_0;
-              if (charlt(*charptr1,*--charptr2))
-                return signean_minus; # String1 < String2
-              else
-                return signean_plus; # String1 > String2
-            },
-            { var const scint* charptr2 = &TheSmallSstring(arg2->string)->data[arg2->offset+arg2->index];
-              loop {
-                # einer der Strings zu Ende ?
-                if (len1==0) goto A_string1_end;
-                if (len2==0) goto A_string2_end;
-                # nächste Characters vergleichen:
-                if (!chareq(*charptr1++,as_chart(*charptr2++))) break;
-                # beide Zähler erniedrigen:
-                len1--; len2--;
-              }
-              # zwei verschiedene Characters gefunden
-              arg1->index = --charptr1 - charptr1_0;
-              if (charlt(*charptr1,as_chart(*--charptr2)))
-                return signean_minus; # String1 < String2
-              else
-                return signean_plus; # String1 > String2
+      SstringCase(arg1->string,
+        { var const cint8* charptr1_0 = &TheS8string(arg1->string)->data[arg1->offset];
+          var const cint8* charptr1 = &charptr1_0[arg1->index];
+          SstringDispatch(arg2->string,X2, {
+            var const cintX2* charptr2 = &((SstringX2)TheVarobject(arg2->string))->data[arg2->offset+arg2->index];
+            loop {
+              # einer der Strings zu Ende ?
+              if (len1==0) goto A_string1_end;
+              if (len2==0) goto A_string2_end;
+              # nächste Characters vergleichen:
+              if (!chareq(as_chart(*charptr1++),as_chart(*charptr2++))) break;
+              # beide Zähler erniedrigen:
+              len1--; len2--;
             }
-            );
+            # zwei verschiedene Characters gefunden
+            arg1->index = --charptr1 - charptr1_0;
+            if (charlt(as_chart(*charptr1),as_chart(*--charptr2)))
+              return signean_minus; # String1 < String2
+            else
+              return signean_plus; # String1 > String2
+          });
          A_string1_end: # String1 zu Ende
           arg1->index = charptr1 - charptr1_0;
           if (len2==0)
@@ -2930,44 +2894,26 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
           arg1->index = charptr1 - charptr1_0;
           return signean_plus; # String2 ist echtes Anfangsstück von String1
         },
-        { var const scint* charptr1_0 = &TheSmallSstring(arg1->string)->data[arg1->offset];
-          var const scint* charptr1 = &charptr1_0[arg1->index];
-          SstringDispatch(arg2->string,
-            { var const chart* charptr2 = &TheSstring(arg2->string)->data[arg2->offset+arg2->index];
-              loop {
-                # einer der Strings zu Ende ?
-                if (len1==0) goto B_string1_end;
-                if (len2==0) goto B_string2_end;
-                # nächste Characters vergleichen:
-                if (!chareq(as_chart(*charptr1++),*charptr2++)) break;
-                # beide Zähler erniedrigen:
-                len1--; len2--;
-              }
-              # zwei verschiedene Characters gefunden
-              arg1->index = --charptr1 - charptr1_0;
-              if (charlt(as_chart(*charptr1),*--charptr2))
-                return signean_minus; # String1 < String2
-              else
-                return signean_plus; # String1 > String2
-            },
-            { var const scint* charptr2 = &TheSmallSstring(arg2->string)->data[arg2->offset+arg2->index];
-              loop {
-                # einer der Strings zu Ende ?
-                if (len1==0) goto B_string1_end;
-                if (len2==0) goto B_string2_end;
-                # nächste Characters vergleichen:
-                if (!chareq(as_chart(*charptr1++),as_chart(*charptr2++))) break;
-                # beide Zähler erniedrigen:
-                len1--; len2--;
-              }
-              # zwei verschiedene Characters gefunden
-              arg1->index = --charptr1 - charptr1_0;
-              if (charlt(as_chart(*charptr1),as_chart(*--charptr2)))
-                return signean_minus; # String1 < String2
-              else
-                return signean_plus; # String1 > String2
+        { var const cint16* charptr1_0 = &TheS16string(arg1->string)->data[arg1->offset];
+          var const cint16* charptr1 = &charptr1_0[arg1->index];
+          SstringDispatch(arg2->string,X2, {
+            var const cintX2* charptr2 = &((SstringX2)TheVarobject(arg2->string))->data[arg2->offset+arg2->index];
+            loop {
+              # einer der Strings zu Ende ?
+              if (len1==0) goto B_string1_end;
+              if (len2==0) goto B_string2_end;
+              # nächste Characters vergleichen:
+              if (!chareq(as_chart(*charptr1++),as_chart(*charptr2++))) break;
+              # beide Zähler erniedrigen:
+              len1--; len2--;
             }
-            );
+            # zwei verschiedene Characters gefunden
+            arg1->index = --charptr1 - charptr1_0;
+            if (charlt(as_chart(*charptr1),as_chart(*--charptr2)))
+              return signean_minus; # String1 < String2
+            else
+              return signean_plus; # String1 > String2
+          });
          B_string1_end: # String1 zu Ende
           arg1->index = charptr1 - charptr1_0;
           if (len2==0)
@@ -2975,6 +2921,36 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
           else
             return signean_minus; # String1 ist echtes Anfangsstück von String2
          B_string2_end: # String2 zu Ende, String1 noch nicht
+          arg1->index = charptr1 - charptr1_0;
+          return signean_plus; # String2 ist echtes Anfangsstück von String1
+        },
+        { var const cint32* charptr1_0 = &TheS32string(arg1->string)->data[arg1->offset];
+          var const cint32* charptr1 = &charptr1_0[arg1->index];
+          SstringDispatch(arg2->string,X2, {
+            var const cintX2* charptr2 = &((SstringX2)TheVarobject(arg2->string))->data[arg2->offset+arg2->index];
+            loop {
+              # einer der Strings zu Ende ?
+              if (len1==0) goto C_string1_end;
+              if (len2==0) goto C_string2_end;
+              # nächste Characters vergleichen:
+              if (!chareq(as_chart(*charptr1++),as_chart(*charptr2++))) break;
+              # beide Zähler erniedrigen:
+              len1--; len2--;
+            }
+            # zwei verschiedene Characters gefunden
+            arg1->index = --charptr1 - charptr1_0;
+            if (charlt(as_chart(*charptr1),as_chart(*--charptr2)))
+              return signean_minus; # String1 < String2
+            else
+              return signean_plus; # String1 > String2
+          });
+         C_string1_end: # String1 zu Ende
+          arg1->index = charptr1 - charptr1_0;
+          if (len2==0)
+            return signean_null; # String1 = String2
+          else
+            return signean_minus; # String1 ist echtes Anfangsstück von String2
+         C_string2_end: # String2 zu Ende, String1 noch nicht
           arg1->index = charptr1 - charptr1_0;
           return signean_plus; # String2 ist echtes Anfangsstück von String1
         }
@@ -3078,40 +3054,17 @@ LISPFUN(string_grgleich,2,0,norest,key,4,\
     var object string2;
     var uintL offset2;
     var uintL len;
-    { SstringDispatch(string1,
-        { var const chart* charptr1 = &TheSstring(string1)->data[offset1];
-          SstringDispatch(string2,
-            { var const chart* charptr2 = &TheSstring(string2)->data[offset2];
-              dotimespL(len,len, {
-                if (!chareq(up_case(*charptr1++),up_case(*charptr2++)))
-                  goto no;
-              });
-            },
-            { var const scint* charptr2 = &TheSmallSstring(string2)->data[offset2];
-              dotimespL(len,len, {
-                if (!chareq(up_case(*charptr1++),up_case(as_chart(*charptr2++))))
-                  goto no;
-              });
-            }
-            );
-        },
-        { var const scint* charptr1 = &TheSmallSstring(string1)->data[offset1];
-          SstringDispatch(string2,
-            { var const chart* charptr2 = &TheSstring(string2)->data[offset2];
-              dotimespL(len,len, {
-                if (!chareq(up_case(as_chart(*charptr1++)),up_case(*charptr2++)))
-                  goto no;
-              });
-            },
-            { var const scint* charptr2 = &TheSmallSstring(string2)->data[offset2];
-              dotimespL(len,len, {
-                if (!chareq(up_case(as_chart(*charptr1++)),up_case(as_chart(*charptr2++))))
-                  goto no;
-              });
-            }
-            );
-        }
-        );
+    {
+      SstringDispatch(string1,X1, {
+        var const cintX1* charptr1 = &((SstringX1)TheVarobject(string1))->data[offset1];
+        SstringDispatch(string2,X2, {
+          var const cintX2* charptr2 = &((SstringX2)TheVarobject(string2))->data[offset2];
+          dotimespL(len,len, {
+            if (!chareq(up_case(as_chart(*charptr1++)),up_case(as_chart(*charptr2++))))
+              goto no;
+          });
+        });
+      });
       return true;
      no: return false;
     }
@@ -3130,35 +3083,23 @@ LISPFUN(string_grgleich,2,0,norest,key,4,\
     {
       var uintL len1 = arg1->len;
       var uintL len2 = arg2->len;
-      SstringDispatch(arg1->string,
-        { var const chart* charptr1_0 = &TheSstring(arg1->string)->data[arg1->offset];
-          var const chart* charptr1 = &charptr1_0[arg1->index];
+      SstringCase(arg1->string,
+        { var const cint8* charptr1_0 = &TheS8string(arg1->string)->data[arg1->offset];
+          var const cint8* charptr1 = &charptr1_0[arg1->index];
           var chart ch1;
           var chart ch2;
-          SstringDispatch(arg2->string,
-            { var const chart* charptr2 = &TheSstring(arg2->string)->data[arg2->offset+arg2->index];
-              loop {
-                # einer der Strings zu Ende ?
-                if (len1==0) goto A_string1_end;
-                if (len2==0) goto A_string2_end;
-                # nächste Characters vergleichen:
-                if (!chareq(ch1 = up_case(*charptr1++), ch2 = up_case(*charptr2++))) break;
-                # beide Zähler erniedrigen:
-                len1--; len2--;
-              }
-            },
-            { var const scint* charptr2 = &TheSmallSstring(arg2->string)->data[arg2->offset+arg2->index];
-              loop {
-                # einer der Strings zu Ende ?
-                if (len1==0) goto A_string1_end;
-                if (len2==0) goto A_string2_end;
-                # nächste Characters vergleichen:
-                if (!chareq(ch1 = up_case(*charptr1++), ch2 = up_case(as_chart(*charptr2++)))) break;
-                # beide Zähler erniedrigen:
-                len1--; len2--;
-              }
+          SstringDispatch(arg2->string,X2, {
+            var const cintX2* charptr2 = &((SstringX2)TheVarobject(arg2->string))->data[arg2->offset+arg2->index];
+            loop {
+              # einer der Strings zu Ende ?
+              if (len1==0) goto A_string1_end;
+              if (len2==0) goto A_string2_end;
+              # nächste Characters vergleichen:
+              if (!chareq(ch1 = up_case(as_chart(*charptr1++)), ch2 = up_case(as_chart(*charptr2++)))) break;
+              # beide Zähler erniedrigen:
+              len1--; len2--;
             }
-            );
+          });
           # zwei verschiedene Characters gefunden
           arg1->index = --charptr1 - charptr1_0;
           if (charlt(ch1,ch2))
@@ -3175,34 +3116,22 @@ LISPFUN(string_grgleich,2,0,norest,key,4,\
           arg1->index = charptr1 - charptr1_0;
           return signean_plus; # String2 ist echtes Anfangsstück von String1
         },
-        { var const scint* charptr1_0 = &TheSmallSstring(arg1->string)->data[arg1->offset];
-          var const scint* charptr1 = &charptr1_0[arg1->index];
+        { var const cint16* charptr1_0 = &TheS16string(arg1->string)->data[arg1->offset];
+          var const cint16* charptr1 = &charptr1_0[arg1->index];
           var chart ch1;
           var chart ch2;
-          SstringDispatch(arg2->string,
-            { var const chart* charptr2 = &TheSstring(arg2->string)->data[arg2->offset+arg2->index];
-              loop {
-                # einer der Strings zu Ende ?
-                if (len1==0) goto B_string1_end;
-                if (len2==0) goto B_string2_end;
-                # nächste Characters vergleichen:
-                if (!chareq(ch1 = up_case(as_chart(*charptr1++)), ch2 = up_case(*charptr2++))) break;
-                # beide Zähler erniedrigen:
-                len1--; len2--;
-              }
-            },
-            { var const scint* charptr2 = &TheSmallSstring(arg2->string)->data[arg2->offset+arg2->index];
-              loop {
-                # einer der Strings zu Ende ?
-                if (len1==0) goto B_string1_end;
-                if (len2==0) goto B_string2_end;
-                # nächste Characters vergleichen:
-                if (!chareq(ch1 = up_case(as_chart(*charptr1++)), ch2 = up_case(as_chart(*charptr2++)))) break;
-                # beide Zähler erniedrigen:
-                len1--; len2--;
-              }
+          SstringDispatch(arg2->string,X2, {
+            var const cintX2* charptr2 = &((SstringX2)TheVarobject(arg2->string))->data[arg2->offset+arg2->index];
+            loop {
+              # einer der Strings zu Ende ?
+              if (len1==0) goto B_string1_end;
+              if (len2==0) goto B_string2_end;
+              # nächste Characters vergleichen:
+              if (!chareq(ch1 = up_case(as_chart(*charptr1++)), ch2 = up_case(as_chart(*charptr2++)))) break;
+              # beide Zähler erniedrigen:
+              len1--; len2--;
             }
-            );
+          });
           # zwei verschiedene Characters gefunden
           arg1->index = --charptr1 - charptr1_0;
           if (charlt(ch1,ch2))
@@ -3216,6 +3145,38 @@ LISPFUN(string_grgleich,2,0,norest,key,4,\
           else
             return signean_minus; # String1 ist echtes Anfangsstück von String2
          B_string2_end: # String2 zu Ende, String1 noch nicht
+          arg1->index = charptr1 - charptr1_0;
+          return signean_plus; # String2 ist echtes Anfangsstück von String1
+        },
+        { var const cint32* charptr1_0 = &TheS32string(arg1->string)->data[arg1->offset];
+          var const cint32* charptr1 = &charptr1_0[arg1->index];
+          var chart ch1;
+          var chart ch2;
+          SstringDispatch(arg2->string,X2, {
+            var const cintX2* charptr2 = &((SstringX2)TheVarobject(arg2->string))->data[arg2->offset+arg2->index];
+            loop {
+              # einer der Strings zu Ende ?
+              if (len1==0) goto C_string1_end;
+              if (len2==0) goto C_string2_end;
+              # nächste Characters vergleichen:
+              if (!chareq(ch1 = up_case(as_chart(*charptr1++)), ch2 = up_case(as_chart(*charptr2++)))) break;
+              # beide Zähler erniedrigen:
+              len1--; len2--;
+            }
+          });
+          # zwei verschiedene Characters gefunden
+          arg1->index = --charptr1 - charptr1_0;
+          if (charlt(ch1,ch2))
+            return signean_minus; # String1 < String2
+          else
+            return signean_plus; # String1 > String2
+         C_string1_end: # String1 zu Ende
+          arg1->index = charptr1 - charptr1_0;
+          if (len2==0)
+            return signean_null; # String1 = String2
+          else
+            return signean_minus; # String1 ist echtes Anfangsstück von String2
+         C_string2_end: # String2 zu Ende, String1 noch nicht
           arg1->index = charptr1 - charptr1_0;
           return signean_plus; # String2 ist echtes Anfangsstück von String1
         }
@@ -3498,20 +3459,12 @@ LISPFUN(string_width,1,0,norest,key,2, (kw(start),kw(end)) )
     var uintL width = 0;
     var uintL len = arg.len;
     if (len > 0) {
-      SstringDispatch(string,
-        {
-          var const chart* charptr = &TheSstring(arg.string)->data[arg.offset];
-          dotimespL(len,len, {
-            width += char_width(*charptr); charptr++;
-          });
-        },
-        {
-          var const uintB* charptr = &TheSmallSstring(arg.string)->data[arg.offset];
-          dotimespL(len,len, {
-            width += char_width(as_chart(*charptr)); charptr++;
-          });
-        }
-        );
+      SstringDispatch(string,X, {
+        var const cintX* charptr = &((SstringX)TheVarobject(arg.string))->data[arg.offset];
+        dotimespL(len,len, {
+          width += char_width(as_chart(*charptr)); charptr++;
+        });
+      });
     }
     # width <= 2*arg.len.
     value1 = UL_to_I(width); mv_count=1;
@@ -3531,16 +3484,21 @@ LISPFUN(string_width,1,0,norest,key,2, (kw(start),kw(end)) )
     {
     restart_it:
       if (len > 0)
-        SstringDispatch(dv,
+        SstringCase(dv,
           {
-            var chart* charptr = &TheSstring(dv)->data[offset];
-            dotimespL(len,len, {
-              *charptr = up_case(*charptr); charptr++;
-            });
+            do {
+              dv = sstring_store(dv,offset,up_case(as_chart(TheS8string(dv)->data[offset])));
+              offset++;
+              len--;
+              if (Record_type(dv) == Rectype_reallocstring) { # has it been reallocated?
+                dv = TheSiarray(dv)->data;
+                goto restart_it;
+              }
+            } while (len > 0);
           },
           {
             do {
-              dv = sstring_store(dv,offset,up_case(as_chart(TheSmallSstring(dv)->data[offset])));
+              dv = sstring_store(dv,offset,up_case(as_chart(TheS16string(dv)->data[offset])));
               offset++;
               len--;
               if (Record_type(dv) == Rectype_reallocstring) { # has it been reallocated?
@@ -3605,25 +3563,42 @@ LISPFUN(string_upcase,1,0,norest,key,2, (kw(start),kw(end)) )
     var uintL offset;
     var uintL len;
     {
-    restart:
+    restart_it:
       if (len > 0)
-        SstringDispatch(dv,
-          {
-            var chart* charptr = &TheSstring(dv)->data[offset];
-            dotimespL(len,len, {
-              *charptr = down_case(*charptr); charptr++;
-            });
-          },
+        SstringCase(dv,
           {
             do {
-              dv = sstring_store(dv,offset,down_case(as_chart(TheSmallSstring(dv)->data[offset])));
+              dv = sstring_store(dv,offset,down_case(as_chart(TheS8string(dv)->data[offset])));
               offset++;
               len--;
               if (Record_type(dv) == Rectype_reallocstring) { # has it been reallocated?
                 dv = TheSiarray(dv)->data;
-                goto restart;
+                goto restart_it;
               }
             } while (len > 0);
+          },
+          {
+            do {
+              dv = sstring_store(dv,offset,down_case(as_chart(TheS16string(dv)->data[offset])));
+              offset++;
+              len--;
+              if (Record_type(dv) == Rectype_reallocstring) { # has it been reallocated?
+                dv = TheSiarray(dv)->data;
+                goto restart_it;
+              }
+            } while (len > 0);
+          },
+          {
+            var cint32* charptr = &TheS32string(dv)->data[offset];
+            dotimespL(len,len, {
+              *charptr = as_cint(up_case(as_chart(*charptr))); charptr++;
+            });
+          },
+          {
+            var cint32* charptr = &TheS32string(dv)->data[offset];
+            dotimespL(len,len, {
+              *charptr = as_cint(down_case(as_chart(*charptr))); charptr++;
+            });
           }
           );
     }
@@ -3686,40 +3661,12 @@ LISPFUN(string_downcase,1,0,norest,key,2, (kw(start),kw(end)) )
     var uintL len;
     {
       var chart ch;
-      SstringDispatch(dv,
-        {
-          # Search the start of a word.
-         search_wordstart_16:
-          until (len==0) {
-            ch = TheSstring(dv)->data[offset];
-            if (alphanumericp(ch))
-              goto wordstart_16;
-            offset++; len--;
-          }
-          return; # len = 0 -> string terminated
-          # Found the start of a word.
-         wordstart_16:
-          dv = sstring_store(dv,offset,up_case(ch));
-          loop {
-            offset++;
-            if (Record_type(dv) == Rectype_reallocstring) { # has it been reallocated?
-              abort();
-            }
-           in_word_16:
-            if (--len==0)
-              break;
-            ch = TheSstring(dv)->data[offset];
-            if (!alphanumericp(ch))
-              goto search_wordstart_16;
-            dv = sstring_store(dv,offset,down_case(ch));
-          }
-          return; # len = 0 -> string terminated
-        },
+      SstringCase(dv,
         {
           # Search the start of a word.
          search_wordstart_8:
           until (len==0) {
-            ch = as_chart(TheSmallSstring(dv)->data[offset]);
+            ch = as_chart(TheS8string(dv)->data[offset]);
             if (alphanumericp(ch))
               goto wordstart_8;
             offset++; len--;
@@ -3732,19 +3679,73 @@ LISPFUN(string_downcase,1,0,norest,key,2, (kw(start),kw(end)) )
             offset++;
             if (Record_type(dv) == Rectype_reallocstring) { # has it been reallocated?
               dv = TheSiarray(dv)->data;
-              SstringDispatch(dv, goto in_word_16;, abort(); )
+              SstringCase(dv, abort();, goto in_word_16;, goto in_word_32; )
             }
            in_word_8:
             if (--len==0)
               break;
-            ch = as_chart(TheSmallSstring(dv)->data[offset]);
+            ch = as_chart(TheS8string(dv)->data[offset]);
             if (!alphanumericp(ch))
               goto search_wordstart_8;
             dv = sstring_store(dv,offset,down_case(ch));
           }
           return; # len = 0 -> string terminated
+        },
+        {
+          # Search the start of a word.
+         search_wordstart_16:
+          until (len==0) {
+            ch = as_chart(TheS16string(dv)->data[offset]);
+            if (alphanumericp(ch))
+              goto wordstart_16;
+            offset++; len--;
+          }
+          return; # len = 0 -> string terminated
+          # Found the start of a word.
+         wordstart_16:
+          dv = sstring_store(dv,offset,up_case(ch));
+          loop {
+            offset++;
+            if (Record_type(dv) == Rectype_reallocstring) { # has it been reallocated?
+              dv = TheSiarray(dv)->data;
+              SstringCase(dv, abort();, abort();, goto in_word_32; )
+            }
+           in_word_16:
+            if (--len==0)
+              break;
+            ch = as_chart(TheS16string(dv)->data[offset]);
+            if (!alphanumericp(ch))
+              goto search_wordstart_16;
+            dv = sstring_store(dv,offset,down_case(ch));
+          }
+          return; # len = 0 -> string terminated
+        },
+        {
+          # Search the start of a word.
+         search_wordstart_32:
+          until (len==0) {
+            ch = as_chart(TheS32string(dv)->data[offset]);
+            if (alphanumericp(ch))
+              goto wordstart_32;
+            offset++; len--;
+          }
+          return; # len = 0 -> string terminated
+          # Found the start of a word.
+         wordstart_32:
+          TheS32string(dv)->data[offset] = as_cint(up_case(ch));
+          loop {
+            offset++;
+           in_word_32:
+            if (--len==0)
+              break;
+            ch = as_chart(TheS32string(dv)->data[offset]);
+            if (!alphanumericp(ch))
+              goto search_wordstart_32;
+            TheS32string(dv)->data[offset] = as_cint(down_case(ch));
+          }
+          return; # len = 0 -> string terminated
         }
-        )
+        );
     }
 
 LISPFUN(nstring_capitalize,1,0,norest,key,2, (kw(start),kw(end)) )
@@ -3801,10 +3802,14 @@ LISPFUNN(name_char,1) # (NAME-CHAR name), CLTL S. 243
       var object new_string = allocate_string(count);
       string = popSTACK();
       if (count > 0) {
-        SstringDispatch(string,
-          { chartcopy(&TheSstring(string)->data[start],&TheSstring(new_string)->data[0],count); },
-          { scintcopy(&TheSmallSstring(string)->data[start],&TheSstring(new_string)->data[0],count); }
-          );
+        #ifdef UNICODE
+        SstringCase(string,
+          { copy_8bit_32bit(&TheS8string(string)->data[start],&TheSstring(new_string)->data[0],count); },
+          { copy_16bit_32bit(&TheS16string(string)->data[start],&TheSstring(new_string)->data[0],count); },
+          { copy_32bit_32bit(&TheS32string(string)->data[start],&TheSstring(new_string)->data[0],count); });
+        #else
+        copy_8bit_8bit(&TheSstring(string)->data[start],&TheSstring(new_string)->data[0],count);
+        #endif
       }
       return new_string;
     }
@@ -3847,10 +3852,14 @@ LISPFUN(substring,2,1,norest,nokey,0,NIL)
       var uintL len; # nochmals die Länge des alten Strings
       var uintL offset;
       string = unpack_string_ro(string,&len,&offset);
-      SstringDispatch(string,
-        { chartcopy(&TheSstring(string)->data[offset+start],&TheSstring(new_string)->data[0],count); },
-        { scintcopy(&TheSmallSstring(string)->data[offset+start],&TheSstring(new_string)->data[0],count); }
-        );
+      #ifdef UNICODE
+      SstringCase(string,
+        { copy_8bit_32bit(&TheS8string(string)->data[offset+start],&TheSstring(new_string)->data[0],count); },
+        { copy_16bit_32bit(&TheS16string(string)->data[offset+start],&TheSstring(new_string)->data[0],count); },
+        { copy_32bit_32bit(&TheS32string(string)->data[offset+start],&TheSstring(new_string)->data[0],count); });
+      #else
+      copy_8bit_8bit(&TheSstring(string)->data[offset+start],&TheSstring(new_string)->data[0],count);
+      #endif
     }
     value1 = new_string; mv_count=1;
   }
@@ -3886,20 +3895,24 @@ LISPFUN(substring,2,1,norest,nokey,0,NIL)
       if (argcount > 0) {
         var chart* charptr2 = &TheSstring(new_string)->data[0];
         var object* argptr = args_pointer;
-        dotimespC(argcount,argcount, {
+        do {
           var object arg = NEXT(argptr); # nächster Argument-String
           var uintL len; # dessen Länge
           var uintL offset;
           var object string = unpack_string_ro(arg,&len,&offset);
           if (len > 0) {
             # Kopiere len Characters von string nach charptr2:
-            SstringDispatch(string,
-              { chartcopy(&TheSstring(string)->data[offset],charptr2,len); },
-              { scintcopy(&TheSmallSstring(string)->data[offset],charptr2,len); }
-              );
+            #ifdef UNICODE
+            SstringCase(string,
+              { copy_8bit_32bit(&TheS8string(string)->data[offset],charptr2,len); },
+              { copy_16bit_32bit(&TheS16string(string)->data[offset],charptr2,len); },
+              { copy_32bit_32bit(&TheS32string(string)->data[offset],charptr2,len); });
+            #else
+            copy_8bit_8bit(&TheSstring(string)->data[offset],charptr2,len);
+            #endif
             charptr2 += len;
           }
-        });
+        } while (--argcount > 0);
       }
       set_args_end_pointer(args_pointer); # STACK aufräumen
       return new_string;

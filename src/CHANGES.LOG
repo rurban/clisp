@@ -5,6 +5,9 @@ User visible changes
   The most important encodings are built-in anyway, and CLISP can use the
   GNU libc 2.2 iconv and a GNU libiconv when it is independently installed.
 
+* Strings can now hold UCS-4 characters, instead of only UCS-2 characters.
+  CHAR-CODE-LIMIT increases from 65536 to 1114112.
+
 * New user variable CUSTOM:*PARSE-NAMESTRING-DOT-FILE* controls
   how the file names starting with a dot are parsed.
   By default, it is set to :NAME, so #P".clisprc" is now
@@ -26,6 +29,10 @@ User visible changes
 * When configured with --with-export-syscalls, a new function
   POSIX:STREAM-LOCK provides an interface to flock(2).
   See <http://clisp.cons.org/impnotes.html#syscalls> for details.
+
+* Fixed a bug: Conversion from bytes to string did not work for the encoding
+  (MAKE-ENCODING :CHARSET CHARSET:UNICODE-32-LITTLE-ENDIAN
+                 :INPUT-ERROR-ACTION :IGNORE).
 
 2.28 (2002-03-03)
 =================

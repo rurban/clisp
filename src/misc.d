@@ -226,14 +226,14 @@ LISPFUNN(machine_version,0)
             # Check for Windows NT, since the info.wProcessorLevel is
             # garbage on Windows 95.
             if (v.dwPlatformId == VER_PLATFORM_WIN32_NT)
-              TheSmallSstring(erg)->data[3] = '0'+info.wProcessorLevel;
+              TheS8string(erg)->data[3] = '0'+info.wProcessorLevel;
             else {
               if (info.dwProcessorType == PROCESSOR_INTEL_386)
-                TheSmallSstring(erg)->data[3] = '3';
+                TheS8string(erg)->data[3] = '3';
               elif (info.dwProcessorType == PROCESSOR_INTEL_486)
-                TheSmallSstring(erg)->data[3] = '4';
+                TheS8string(erg)->data[3] = '4';
               elif (info.dwProcessorType == PROCESSOR_INTEL_PENTIUM)
-                TheSmallSstring(erg)->data[3] = '5';
+                TheS8string(erg)->data[3] = '5';
             }
           }
         }

@@ -43,30 +43,17 @@ local uint16 string_hashcode (object string) {
   var uintL len;
   var uintL offset;
   string = unpack_string_ro(string,&len,&offset);
-  SstringDispatch(string, {
-    var const chart* charptr = &TheSstring(string)->data[offset];
+  SstringDispatch(string,X, {
+    var const cintX* charptr = &((SstringX)TheVarobject(string))->data[offset];
     # there are len characters, starting at charptr
     var uint32 hashcode = 0; # hashcode, only the lower 16 Bit
     # are essential
     var uintC count;
-    dotimesC(count, (len>16 ? 16 : len), { # min(len,16) mal:
+    dotimesC(count, (len>16 ? 16 : len), { # min(len,16) times:
       # rotate hashcode by 5 bits to the left:
       hashcode = hashcode << 5; hashcode = hashcode | high16(hashcode);
       # 'add' next byte via XOR:
-      hashcode = hashcode ^ (uint32)as_cint(*charptr++);
-    });
-    return (uint16)hashcode;
-  },{
-    var const scint* charptr = &TheSmallSstring(string)->data[offset];
-    # there are len characters, starting at charptr
-    var uint32 hashcode = 0; # hashcode, only the lower 16 Bit
-    # are essential
-    var uintC count;
-    dotimesC(count, (len>16 ? 16 : len), { # min(len,16) mal:
-      # rotate hashcode by 5 bits to the left:
-      hashcode = hashcode << 5; hashcode = hashcode | high16(hashcode);
-      # 'add' next byte via XOR:
-      hashcode = hashcode ^ (uint32)(cint)(*charptr++);
+      hashcode = hashcode ^ (uint32)(*charptr++);
     });
     return (uint16)hashcode;
   });

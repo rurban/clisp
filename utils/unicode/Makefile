@@ -77,30 +77,10 @@ ALL = $(DESTDIR)uni_upcase.c $(DESTDIR)uni_downcase.c $(DESTDIR)uni_attribute.c 
  $(DESTDIR)nls_nextstep.c \
  $(DESTDIR)nls_jisx0201.c
 
-JAVA = java
-JAVAC = javac -O
 CC = gcc -O -Wall
 ICONV = iconv_prog --loose
 
 all : $(ALL)
-
-$(DESTDIR)uni_upcase.c : upcase_table.class
-	$(JAVA) upcase_table uni_upcase.c $(DESTDIR)
-
-upcase_table.class : upcase_table.java
-	$(JAVAC) upcase_table.java
-
-$(DESTDIR)uni_downcase.c : downcase_table.class
-	$(JAVA) downcase_table uni_downcase.c $(DESTDIR)
-
-downcase_table.class : downcase_table.java
-	$(JAVAC) downcase_table.java
-
-$(DESTDIR)uni_attribute.c : attribute_table.class
-	$(JAVA) attribute_table uni_attribute.c $(DESTDIR)
-
-attribute_table.class : attribute_table.java
-	$(JAVAC) attribute_table.java
 
 $(DESTDIR)nls_ascii.c : $(TABLESDIR)/glibc-2.1-iconv/ASCII.TXT nls_table
 	./nls_table ascii nls_ascii.c $(DESTDIR) < $<

@@ -244,8 +244,9 @@ local uintC generation;
                   case Rectype_Sb8vector:                                 \
                   case Rectype_Sb16vector:                                \
                   case Rectype_Sb32vector:                                \
-                  case Rectype_Sstring: case Rectype_Imm_Sstring:         \
-                  case Rectype_SmallSstring: case Rectype_Imm_SmallSstring: \
+                  case Rectype_S8string: case Rectype_Imm_S8string:       \
+                  case Rectype_S16string: case Rectype_Imm_S16string:     \
+                  case Rectype_S32string: case Rectype_Imm_S32string:     \
                   case Rectype_Bignum:                                    \
                   case Rectype_Ffloat:                                    \
                   case Rectype_Dfloat:                                    \
@@ -661,8 +662,9 @@ local uintC generation;
                       case Rectype_Sb8vector:
                       case Rectype_Sb16vector:
                       case Rectype_Sb32vector:
-                      case Rectype_Sstring: case Rectype_Imm_Sstring:
-                      case Rectype_SmallSstring: case Rectype_Imm_SmallSstring:
+                      case Rectype_S8string: case Rectype_Imm_S8string:
+                      case Rectype_S16string: case Rectype_Imm_S16string:
+                      case Rectype_S32string: case Rectype_Imm_S32string:
                       case Rectype_Bignum:
                       case Rectype_Ffloat: case Rectype_Dfloat: case Rectype_Lfloat:
                         goto case_nopointers;

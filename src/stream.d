@@ -323,14 +323,9 @@ local void wr_ch_array_dummy (const object* stream_, const object* chararray_,
                               uintL start, uintL len) {
   var uintL end = start + len;
   var uintL index = start;
-  SstringDispatch(*chararray_,{
+  SstringDispatch(*chararray_,X, {
     do {
-      write_char(stream_,code_char(TheSstring(*chararray_)->data[index]));
-      index++;
-    } while (index < end);
-  },{
-    do {
-      write_char(stream_,code_char(as_chart(TheSmallSstring(*chararray_)->data[index])));
+      write_char(stream_,code_char(as_chart(((SstringX)TheVarobject(*chararray_))->data[index])));
       index++;
     } while (index < end);
   });
@@ -660,10 +655,8 @@ global uintL read_char_array (const object* stream_, const object* chararray_,
       var object chararray = *chararray_;
       simple_array_to_storage(chararray);
       var chart last_ch;
-      SstringDispatch(chararray,
-        { last_ch = TheSstring(chararray)->data[index-1]; },
-        { last_ch = as_chart(TheSmallSstring(chararray)->data[index-1]); }
-        );
+      SstringDispatch(chararray,X,
+        { last_ch = as_chart(((SstringX)TheVarobject(chararray))->data[index-1]); });
       TheStream(stream)->strm_rd_ch_last = code_char(last_ch);
     } else
       TheStream(stream)->strm_rd_ch_last = eof_value;
@@ -2068,9 +2061,8 @@ local object rd_ch_str_in (const object* stream_) {
     if (index >= len) # Index too big?
       fehler_str_in_adjusted(stream);
     var object ch; # fetch character from String
-    SstringDispatch(string,
-    { ch = code_char(TheSstring(string)->data[offset+index]); },
-    { ch = code_char(as_chart(TheSmallSstring(string)->data[offset+index]));});
+    SstringDispatch(string,X,
+      { ch = code_char(as_chart(((SstringX)TheVarobject(string))->data[offset+index]));});
     # increase Index:
     TheStream(stream)->strm_str_in_index =
       fixnum_inc(TheStream(stream)->strm_str_in_index,1);
@@ -2371,9 +2363,8 @@ local void wr_ch_array_pphelp (const object* stream_, const object* chararray_,
     # printf(" [%d/",beg);
     while (end < start+len) {
       var chart ch;
-      SstringDispatch(*chararray_,
-        { ch = TheSstring(*chararray_)->data[end]; },
-        { ch = as_chart(TheSmallSstring(*chararray_)->data[end]); });
+      SstringDispatch(*chararray_,X,
+        { ch = as_chart(((SstringX)TheVarobject(*chararray_))->data[end]); });
       if (chareq(ch,ascii(NL))) { /*printf("%d=NL",end);*/break; }
       if (filling && (chareq(ch,ascii(' ')) || chareq(ch,ascii('\t')))) {
         # printf("%d=SPC",end);
@@ -2491,9 +2482,8 @@ local object rd_ch_buff_in (const object* stream_) {
     fehler(stream_error,GETTEXT("~ is beyond the end because the string ~ has been adjusted"));
   }
   var object ch; # fetch character from String
-  SstringDispatch(string,
-  { ch = code_char(TheSstring(string)->data[offset+index]); },
-  { ch = code_char(as_chart(TheSmallSstring(string)->data[offset+index])); });
+  SstringDispatch(string,X,
+    { ch = code_char(as_chart(((SstringX)TheVarobject(string))->data[offset+index])); });
   # increase Index:
   TheStream(stream)->strm_buff_in_index = fixnum_inc(TheStream(stream)->strm_buff_in_index,1);
   return ch;
@@ -3573,23 +3563,20 @@ nonreturning_function(local, fehler_interrupt, (void)) {
 
 #if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
 
-# Our internal encoding is UCS-2 with platform dependent endianness.
+# Our internal encoding is UCS-4 with platform dependent endianness.
 #ifdef GNU_LIBICONV
-  #define CLISP_INTERNAL_CHARSET  "UCS-2-INTERNAL"
+  #define CLISP_INTERNAL_CHARSET  "UCS-4-INTERNAL"
 #else
-  #ifdef __GLIBC__
-    #if BIG_ENDIAN_P
-      #define CLISP_INTERNAL_CHARSET  "UNICODEBIG"
-    #else
-      #define CLISP_INTERNAL_CHARSET  "UNICODELITTLE"
-    #endif
+  #if (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2))
+    # glibc >= 2.2 also has UCS-4BE, UCS-4LE but WCHAR_T is more efficient.
+    #define CLISP_INTERNAL_CHARSET  "WCHAR_T"
   #elif defined(UNIX_HPUX) && BIG_ENDIAN_P
-    #define CLISP_INTERNAL_CHARSET  "ucs2"
+    #define CLISP_INTERNAL_CHARSET  "ucs4"
   #else
     #if BIG_ENDIAN_P
-      #define CLISP_INTERNAL_CHARSET  "UCS-2"
+      #define CLISP_INTERNAL_CHARSET  "UCS-4"
     #else
-      #define CLISP_INTERNAL_CHARSET  "UCS-2"  # FIXME: This is probably wrong
+      #define CLISP_INTERNAL_CHARSET  "UCS-4"  # FIXME: This is probably wrong
     #endif
   #endif
 #endif
@@ -6554,68 +6541,36 @@ local uintL rd_ch_array_buffered (const object* stream_,
     {
       var object chararray = *chararray_;
       simple_array_to_storage(chararray);
-      SstringDispatch(chararray,
-        {
-          var chart* startptr = &TheSstring(chararray)->data[startindex];
-          var chart* currptr = &TheSstring(chararray)->data[currindex];
-          const chart* ptr1 = startptr;
-          chart* ptr2 = startptr;
-          do {
-            chart c = *ptr1++;
-            if (chareq(c,ascii(NL))) {
-              ChannelStream_lineno(stream) += 1;
-            } else if (chareq(c,ascii(CR))) {
-              # check next character for LF
-              if (ptr1 == currptr) {
-                var uintB* bufferptr = buffered_nextbyte(stream);
-                if ((bufferptr != NULL)
-                    && chareq(as_chart(*bufferptr),ascii(LF))) {
-                  # increment index and position
-                  BufferedStream_index(stream) += 1;
-                  BufferedStream_position(stream) += 1;
-                }
-              } else {
-                if (chareq(*ptr1,ascii(LF)))
-                  ptr1++;
+      SstringDispatch(chararray,X, {
+        var cintX* startptr = &((SstringX)TheVarobject(chararray))->data[startindex];
+        var cintX* currptr = &((SstringX)TheVarobject(chararray))->data[currindex];
+        const cintX* ptr1 = startptr;
+        cintX* ptr2 = startptr;
+        do {
+          cintX c = *ptr1++;
+          if (chareq(as_chart(c),ascii(NL))) {
+            ChannelStream_lineno(stream) += 1;
+          } else if (chareq(as_chart(c),ascii(CR))) {
+            # check next character for LF
+            if (ptr1 == currptr) {
+              var uintB* bufferptr = buffered_nextbyte(stream);
+              if ((bufferptr != NULL)
+                  && chareq(as_chart(*bufferptr),ascii(LF))) {
+                # increment index and position
+                BufferedStream_index(stream) += 1;
+                BufferedStream_position(stream) += 1;
               }
-              c = ascii(NL);
-              ChannelStream_lineno(stream) += 1;
+            } else {
+              if (chareq(as_chart(*ptr1),ascii(LF)))
+                ptr1++;
             }
-            *ptr2++ = c;
-          } until (ptr1 == currptr);
-          currindex = ptr2 - &TheSstring(chararray)->data[0];
-        },
-        {
-          var scint* startptr = &TheSmallSstring(chararray)->data[startindex];
-          var scint* currptr = &TheSmallSstring(chararray)->data[currindex];
-          const scint* ptr1 = startptr;
-          scint* ptr2 = startptr;
-          do {
-            scint c = *ptr1++;
-            if (chareq(as_chart(c),ascii(NL))) {
-              ChannelStream_lineno(stream) += 1;
-            } else if (chareq(as_chart(c),ascii(CR))) {
-              # check next character for LF
-              if (ptr1 == currptr) {
-                var uintB* bufferptr = buffered_nextbyte(stream);
-                if ((bufferptr != NULL)
-                    && chareq(as_chart(*bufferptr),ascii(LF))) {
-                  # increment index and position
-                  BufferedStream_index(stream) += 1;
-                  BufferedStream_position(stream) += 1;
-                }
-              } else {
-                if (chareq(as_chart(*ptr1),ascii(LF)))
-                  ptr1++;
-              }
-              c = NL;
-              ChannelStream_lineno(stream) += 1;
-            }
-            *ptr2++ = c;
-          } until (ptr1 == currptr);
-          currindex = ptr2 - &TheSmallSstring(chararray)->data[0];
-        }
-        );
+            c = NL;
+            ChannelStream_lineno(stream) += 1;
+          }
+          *ptr2++ = c;
+        } until (ptr1 == currptr);
+        currindex = ptr2 - &((SstringX)TheVarobject(chararray))->data[0];
+      });
     }
     if (currindex == end)
       break;
@@ -9990,19 +9945,25 @@ local void wr_ch_array_terminal3 (const object* stream_,
       TheIarray(TheStream(*stream_)->strm_terminal_outbuff)->dims[1] = 0; # Fill-Pointer := 0
     }
     if (pos > 0) {
-      SstringDispatch(string, {
-        # ptr points into the string, not GC-safe.
-        var uintL index = start + len - pos;
+      SstringCase(string, {
+        # ptr points into the stack, not the string, so it's GC-safe.
         dotimespL(count,pos, {
           ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,
-                               TheSstring(*chararray_)->data[index]);
-          index++;
+                               *ptr++);
         });
       },{
         # ptr points into the stack, not the string, so it's GC-safe.
         dotimespL(count,pos, {
           ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,
                                *ptr++);
+        });
+      },{
+        # ptr points into the string, not GC-safe.
+        var uintL index = start + len - pos;
+        dotimespL(count,pos, {
+          ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,
+                               TheSstring(*chararray_)->data[index]);
+          index++;
         });
       });
     }
@@ -11015,16 +10976,10 @@ local void wr_ch_array_window (const object* stream_,const object* chararray_,
   var chart * chart_str = (chart *)malloc((len + 1)*sizeof(chart));
   var char  * char_str = (char *)chart_str;
   if (!chart_str) return;
-  SstringDispatch(*chararray_,{
+  SstringDispatch(*chararray_,X, {
     do {
-      chart_str[strindex] = TheSstring(*chararray_)->data[index];
-      index++;strindex++;
-    } while (index < end);
-    chart_str[strindex] = 0;
-  },{
-    do {
-      chart_str[strindex] = TheSmallSstring(*chararray_)->data[index];
-      index++;strindex++;
+      chart_str[strindex] = as_chart(((SstringX)TheVarobject(*chararray_))->data[index]);
+      index++; strindex++;
     } while (index < end);
     chart_str[strindex] = 0;
   });
@@ -17404,15 +17359,8 @@ LISPFUNN(file_string_length,2) {
       var object string = unpack_string_ro(obj,&len,&offset);
       var uintL result = len;
       if (len > 0) {
-        SstringDispatch(string,{
-          var const chart* charptr = &TheSstring(string)->data[offset];
-          var uintL count;
-          dotimespL(count,len, {
-            if (chareq(*charptr++,ascii(NL)))
-              result++;
-          });
-        },{
-          var const scint* charptr = &TheSmallSstring(string)->data[offset];
+        SstringDispatch(string,X, {
+          var const cintX* charptr = &((SstringX)TheVarobject(string))->data[offset];
           var uintL count;
           dotimespL(count,len, {
             if (chareq(as_chart(*charptr++),ascii(NL)))

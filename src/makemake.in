@@ -1381,9 +1381,9 @@ done
 
 EVERY_INCLUDES_H=''
 if [ $TOS = unix ] ; then
-  EVERY_INCLUDES_H=$EVERY_INCLUDES_H' @STDBOOL_H@'
+  EVERY_INCLUDES_H=$EVERY_INCLUDES_H' @STDBOOL_H@ @STDINT_H@'
 else
-  EVERY_INCLUDES_H=$EVERY_INCLUDES_H' stdbool.h'
+  EVERY_INCLUDES_H=$EVERY_INCLUDES_H' stdbool.h stdint.h'
 fi
 if [ -n "$USE_LIBCHARSET" ] ; then
   EVERY_INCLUDES_H=$EVERY_INCLUDES_H' libcharset.h'
@@ -1401,7 +1401,7 @@ SPVW_INCLUDES=' spvw_module spvw_debug spvw_alloca spvw_mmap spvw_multimap spvw_
 
 UNICODE_INCLUDES=''
 if [ "${with_unicode}" != "0" ] ; then
-  UNICODE_INCLUDES=$UNICODE_INCLUDES' uni_upcase uni_downcase uni_attribute uninames'
+  UNICODE_INCLUDES=$UNICODE_INCLUDES' uni_upcase uni_downcase uni_attribute uniname'
 fi
 
 NLS_INCLUDES=''
@@ -2134,6 +2134,7 @@ if [ -n "${SRCDIR}" ] ; then
   for f in $UNICODE_INCLUDES $NLS_INCLUDES ; do
     line=$line" ${f}.c"
   done
+  line=$line" unitypes.h uniname.h uninames.h"
 fi
 echol $line
 if [ $HOS = unix -a $CROSS = false ] ; then
@@ -2235,6 +2236,14 @@ else
 fi
 echol
 
+echol "stdint.h : ${SRCDIR}stdint.h.in"
+if [ $TOS = unix ] ; then
+  echotab "sed -e 's/@''HAVE_LONG_64BIT''@/@HAVE_LONG_64BIT@/g' -e 's/@''HAVE_LONGLONG_64BIT''@/@HAVE_LONGLONG_64BIT@/g' < ${SRCDIR}stdint.h.in > stdint.h"
+else
+  echotab "sed -e 's/@''HAVE_LONG_64BIT''@/0/g' -e 's/@''HAVE_LONGLONG_64BIT''@/0/g' < ${SRCDIR}stdint.h.in > stdint.h"
+fi
+echol
+
 if [ -n "${SRCDIR}" ] ; then
   if [ $HOS = unix ] ; then
     for f in $DFILES $ARI_ASMD $SP_ASMD ; do
@@ -2247,7 +2256,7 @@ if [ -n "${SRCDIR}" ] ; then
       echotab "-\$(LN_S) ${SRCDIR}${f}.c ${f}.c"
       echol
     done
-    for f in version.h modules.h ; do
+    for f in unitypes.h uniname.h uninames.h version.h modules.h ; do
       echol "${f} : ${SRCDIR}${f}"
       echotab "-\$(LN_S) ${SRCDIR}${f} ${f}"
       echol
@@ -2378,8 +2387,9 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   if [ $f = spvw -o $f = hashtabl ] ; then
     depends=$depends' aridecl'
   fi
-  if [ $f = charstrg ] ; then
+  if [ $f = charstrg ] && [ "${with_unicode}" != "0" ] ; then
     depends=$depends''$UNICODE_INCLUDES
+    dependsc=$dependsc' unitypes.h uniname.h uninames.h'
   fi
   if [ $f = encoding ] ; then
     depends=$depends''$NLS_INCLUDES
@@ -3696,6 +3706,7 @@ cat <<!!
 fi
 cat <<!!
 	-\$(RM) stdbool.h
+	-\$(RM) stdint.h
 
 # clean5 even undoes "make init".
 !!
