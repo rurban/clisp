@@ -6,8 +6,8 @@
 	add-direct-method.
 	(remove-direct-method-internal): Renamed from remove-direct-method.
 	(add-direct-method, remove-direct-method): New functions.
-	* clos-specializer3.lisp (add-direct-method, remove-direct-method): New
-	generic functions.
+	* clos-specializer3.lisp (add-direct-method, remove-direct-method):
+	New generic functions.
 	* clos-method1.lisp (method): Inherit from standard-stablehash.
 	(initialize-instance-<standard-method>): Invoke
 	shared-initialize-<standard-stablehash>.
@@ -48,7 +48,6 @@
 	(parse_options): Drop support for option -s.
 	(main): Don't reserve space for SP. Don't call setSP.
 	* doc/clisp.xml.in: Remove documentation of option -s.
-	* doc/_clisp.html: Likewise.
 
 2004-08-31  Bruno Haible  <bruno@clisp.org>
 
@@ -68,8 +67,8 @@
 	(struct argv_initparams): New type.
 	(struct argv_actions): New type.
 	(argv_verbose, argv_wait_keypress, argv_license): Remov variables.
-	(parse_options): New function, extracted from main(). Signal an error when an
-	invalid option beginning with "-r" is seen.
+	(parse_options): New function, extracted from main().
+	Signal an error when an invalid option beginning with "-r" is seen.
 	(free_argv_initparams, free_argv_actions): New functions.
 	(argv1, argv2): New variables.
 	(main): Use parse_options.
