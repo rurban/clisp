@@ -2782,7 +2782,7 @@ if [ $CROSS = false ] ; then
 
   for f in $LPARTS ; do
     echol "${RECOMPILEDIR}${NEXT_M}${f}.fas : ${RECOMPILEDIR}${NEXT_M}${f}.lisp lisp${LEXE} ${TESTIMAGE}"
-    echotab "\$(RUN) -m 750KW -M ${TESTIMAGE} -q -d -c ${RECOMPILEDIR}${NEXT_}${f}.lisp"
+    echotab "\$(RUN) -m 800KW -M ${TESTIMAGE} -q -d -c ${RECOMPILEDIR}${NEXT_}${f}.lisp"
     echol
   done
 
