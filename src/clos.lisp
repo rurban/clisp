@@ -4033,23 +4033,25 @@
     :qualifiers '()
     :signature #s(compiler::signature :req-num 1 :rest-p t)))
 (defun initial-make-instance (class &rest initargs)
-  (multiple-value-bind (valid-keywords ai-ef) (make-instance-table-entry1 class)
-    ; 28.1.9.2. validity of initialization arguments
+  (multiple-value-bind (valid-keywords ai-ef)
+      (make-instance-table-entry1 class)
+    ;; http://www.lisp.org/HyperSpec/Body/sec_7-1-2.html
+    ;; 7.1.2 Declaring the Validity of Initialization Arguments
     (unless (eq valid-keywords 't)
-      (sys::keyword-test initargs valid-keywords)
-    )
-    ; effektive Methode von ALLOCATE-INSTANCE anwenden:
+      (sys::keyword-test initargs valid-keywords))
+    ;; call the effective method of ALLOCATE-INSTANCE:
     (let ((instance (apply ai-ef class initargs)))
       (unless (eq (class-of instance) class)
         (error-of-type 'error
           (ENGLISH "~S method for ~S returned ~S")
-          'allocate-instance class instance
-      ) )
+          'allocate-instance class instance))
       (multiple-value-bind (ii-ef si-ef) (make-instance-table-entry2 instance)
-        (setf (gethash class *make-instance-table*) (vector valid-keywords ai-ef ii-ef si-ef))
-        ; effektive Methode von INITIALIZE-INSTANCE anwenden:
-        (apply ii-ef instance initargs)
-) ) ) )
+        (setf (gethash class *make-instance-table*)
+              (vector valid-keywords ai-ef ii-ef si-ef))
+        ;; call the effective method of INITIALIZE-INSTANCE:
+        (apply ii-ef instance initargs))
+      ;; return the instance
+      instance)))
 
 
 ;; Users want to be able to create instances of subclasses of <standard-class>
