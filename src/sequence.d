@@ -1,5 +1,5 @@
 # Sequences für CLISP
-# Bruno Haible 1987-1999
+# Bruno Haible 1987-2000
 
 #include "lispbibl.c"
 
@@ -1021,6 +1021,65 @@ LISPFUN(make_sequence,2,0,norest,key,2,\
             return_Values copy_seq_onto();
           }
     } }}
+
+LISPFUN(coerced_subseq,2,0,norest,key,2, (kw(start),kw(end)) )
+# (SYSTEM::COERCED-SUBSEQ sequence result-type [:start] [:end])
+# == (COERCE (SUBSEQ sequence start end) result-type)
+# except that only one sequence is allocated, not two.
+# Note: result-type = ARRAY and = VECTOR are interpreted to mean GENERAL-VECTOR.
+  {
+    # Stack layout: sequence, result-type, start, end.
+    {
+      # Check sequence:
+      var object typdescr = get_valid_seq_type(STACK_3);
+      pushSTACK(typdescr);
+    }
+    # Stack layout: sequence, result-type, start, end, typdescr.
+    {
+      # Check result-type:
+      var object typdescr2 = valid_type(STACK_3);
+      pushSTACK(typdescr2);
+    }
+    # Stack layout: sequence, result-type, start, end, typdescr, typdescr2-len, typdescr2.
+    # Default value for start is 0:
+    start_default_0(STACK_4);
+    # Default value for end is (length sequence):
+    end_default_len(STACK_3,STACK_6,STACK_2);
+    # Check start and end arguments:
+    test_start_end(&O(kwpair_start),&STACK_3);
+    # Determine result sequence length.
+    STACK_3 = I_I_minus_I(STACK_3,STACK_4); # count := (- end start)
+    # Stack layout: sequence, result-type, start, count, typdescr, typdescr2-len, typdescr2.
+    if (!(eq(STACK_1,unbound) || eql(STACK_3,STACK_1)))
+      fehler_seqtype_length(STACK_1,STACK_3);
+    if (eq(seq_type(STACK_2),seq_type(STACK_0))) {
+      # Same types of sequences.
+      if (eq(STACK_4,Fixnum_0)) {
+        # With start = 0.
+        var object old_subr_self = subr_self; # current SUBR, GC invariant!
+        # Test (= count (length sequence))
+        # via (SEQ-ENDTEST sequence (SEQ-INIT-START sequence count)):
+        pushSTACK(STACK_6); pushSTACK(STACK_(3+1)); funcall(seq_init_start(STACK_(2+2)),2);
+        pushSTACK(STACK_6); pushSTACK(value1); funcall(seq_endtest(STACK_(2+2)),2);
+        subr_self = old_subr_self;
+        if (!nullp(value1)) {
+          # With end = (length sequence).
+          # Nothing to do.
+          skipSTACK(6); value1 = popSTACK(); mv_count=1; # return sequence
+          return;
+        }
+      }
+    }
+    # Allocate new sequence.
+    pushSTACK(STACK_3); funcall(seq_make(STACK_(0+1)),1); # (SEQ2-MAKE count)
+    STACK_5 = STACK_2; STACK_2 = STACK_3; STACK_3 = STACK_0;
+    STACK_1 = STACK_6; STACK_0 = STACK_4;
+    STACK_4 = value1;
+    # Stack layout: sequence, typdescr, seq2, typdescr2, count, sequence, start.
+    funcall(seq_init_start(STACK_5),2); pushSTACK(value1);
+    # Stack layout: sequence, typdescr, seq2, typdescr2, count, pointer1.
+    return_Values copy_seqpart_onto(); # copy, return seq2
+  }
 
 LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
 # (CONCATENATE result-type {sequence}), CLTL S. 249
