@@ -216,3 +216,5 @@
      (FFI:DEF-CALL-IN ,name ,@options)))
 
 |#
+
+(pushnew "EXPORTING" custom:*system-package-list* :test #'string=)
