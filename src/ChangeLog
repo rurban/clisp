@@ -1,3 +1,10 @@
+2004-05-30  Bruno Haible  <bruno@clisp.org>
+
+	* clos-class3.lisp (install-class-direct-accessors,
+	remove-accessor-methods, add-accessor-methods): New functions,
+	extracted from ensure-class-using-class-<t>.
+	(ensure-class-using-class-<t>): Use them.
+
 2004-06-13  Bruno Haible  <bruno@clisp.org>
 
 	* lambdalist.lisp (analyze-generic-function-lambdalist): New function.
