@@ -39,6 +39,7 @@ global bool number_gleich (object x, object y);
 #include "intsqrt.c"  /* Root, ISQRT */
 #include "intprint.c" /* auxiliary function for output of integers */
 #include "intread.c"  /* auxiliary function for input  of integers */
+#include "intserial.c" /* serialization of integers */
 /* for rational numbers: */
 #include "rational.c" /* rational numbers */
 /* for floats: */

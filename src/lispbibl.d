@@ -8656,6 +8656,20 @@ extern maygc object allocate_bit_vector (uintB atype, uintL len);
 #endif
 # used by STREAM, PATHNAME
 
+# Macro: Wraps a GC-invariant uintB* pointer in a fake simple-8bit-vector.
+# FAKE_8BIT_VECTOR(ptr)
+# > uintB* ptr: pointer to GC-invariant data
+# < gcv_object_t obj: a fake simple-8bit-vector,
+#                     with TheSbvector(obj)->data == ptr,
+#                     that must *not* be stored in GC-visible locations
+#ifdef TYPECODES
+  #define FAKE_8BIT_VECTOR(ptr)  \
+    type_pointer_object(0, (const char*)(ptr) - offsetofa(sbvector_,data))
+#else
+  #define FAKE_8BIT_VECTOR(ptr)  \
+    fake_gcv_object((aint)((const char*)(ptr) - offsetofa(sbvector_,data)) + varobject_bias)
+#endif
+
 #if !defined(UNICODE) || defined(HAVE_SMALL_SSTRING)
 # UP, provides 8-bit character string
 # allocate_s8string(len)
@@ -14478,6 +14492,57 @@ extern maygc object I_I_ash_I (object x, object y);
 # I_integer_length(x)
 extern uintL I_integer_length (object x);
 # is used by ARRAY
+
+# Converts a little-endian byte sequence to an unsigned integer.
+# > bytesize: number of given 8-bit bytes of the integer,
+#             < intDsize/8*uintWC_max
+# > bufferptr: address of bytesize bytes of memory
+# < result: an integer >= 0 with I_integer_length(result) <= 8*bytesize
+extern maygc object LEbytes_to_UI (uintL bytesize, const uintB* bufferptr);
+
+# Converts a little-endian byte sequence to an unsigned integer.
+# > bytesize: number of given 8-bit bytes of the integer,
+#             < intDsize/8*uintWC_max
+# > *buffer_: address of a simple-8bit-vector (or of a fake)
+#             containing bytesize bytes of memory
+# < result: an integer >= 0 with I_integer_length(result) <= 8*bytesize
+extern maygc object LESbvector_to_UI (uintL bytesize, const gcv_object_t* buffer_);
+# is used by STREAM
+
+# Converts a little-endian byte sequence to an integer.
+# > bytesize: number of given 8-bit bytes of the integer, > 0,
+#             < intDsize/8*uintWC_max
+# > bufferptr: address of bytesize bytes of memory
+# < result: an integer with I_integer_length(result) < 8*bytesize
+extern maygc object LEbytes_to_I (uintL bytesize, const uintB* bufferptr);
+
+# Converts a little-endian byte sequence to an integer.
+# > bytesize: number of given 8-bit bytes of the integer, > 0,
+#             < intDsize/8*uintWC_max
+# > *buffer_: address of a simple-8bit-vector (or of a fake)
+#             containing bytesize bytes of memory
+# < result: an integer with I_integer_length(result) < 8*bytesize
+extern maygc object LESbvector_to_I (uintL bytesize, const gcv_object_t* buffer_);
+# is used by STREAM
+
+# Converts an unsigned integer to a little-endian byte sequence.
+# > obj: an integer
+# > bitsize: maximum number of bits of the integer
+# > bufferptr: pointer to bytesize = ceiling(bitsize,8) bytes of memory
+# < false and bufferptr[0..bytesize-1] filled, if obj >= 0 and
+#                                              I_integer_length(obj) <= bitsize;
+#   true, if obj is out of range
+extern bool UI_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr);
+# is used by STREAM
+
+# Converts an integer to a little-endian byte sequence.
+# > obj: an integer
+# > bitsize: maximum number of bits of the integer, including the sign bit
+# > bufferptr: pointer to bytesize = ceiling(bitsize,8) bytes of memory
+# < false and bufferptr[0..bytesize-1] filled, if I_integer_length(obj) < bitsize;
+#   true, if obj is out of range
+extern bool I_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr);
+# is used by STREAM
 
 # c_float_to_FF(&val) converts an IEEE-single-float val into an single-float.
 # can trigger GC

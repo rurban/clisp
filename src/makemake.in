@@ -1630,7 +1630,7 @@ if [ $TSYS = master -o $TOS = win32 ] ; then
   ERROR_INCLUDES=$ERROR_INCLUDES' errwin32'
 fi
 
-LISPARIT_SUBFILES=' aridecl arilev0 arilev1 intelem intlog intplus intcomp intbyte intmal intdiv intgcd int2adic intsqrt intprint intread rational'
+LISPARIT_SUBFILES=' aridecl arilev0 arilev1 intelem intlog intplus intcomp intbyte intmal intdiv intgcd int2adic intsqrt intprint intread intserial rational'
 LISPARIT_SUBFILES=$LISPARIT_SUBFILES' sfloat ffloat dfloat lfloat flo_konv flo_rest realelem realrand realtran compelem comptran'
 LISPARIT_INCLUDES=$LISPARIT_SUBFILES' arilev1c arilev1e arilev1i'
 

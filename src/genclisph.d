@@ -1,6 +1,6 @@
 /*
  * Export CLISP internals for modules
- * Bruno Haible 1994-2004
+ * Bruno Haible 1994-2005
  * Sam Steingold 1998-2005
  */
 
@@ -2221,6 +2221,10 @@ int main(int argc, char* argv[])
   printf("extern object I_I_plus_I (object x, object y);\n");
   printf("extern object I_I_minus_I (object x, object y);\n");
 #endif
+  printf("extern object LEbytes_to_UI (uintL bytesize, const uintB* bufferptr);\n");
+  printf("extern object LEbytes_to_I (uintL bytesize, const uintB* bufferptr);\n");
+  printf("extern bool UI_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr);\n");
+  printf("extern bool I_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr);\n");
   printf("extern object c_float_to_FF (const ffloatjanus* val_);\n");
   printf("extern void FF_to_c_float (object obj, ffloatjanus* val_);\n");
   printf("extern object c_double_to_DF (const dfloatjanus* val_);\n");
