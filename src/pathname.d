@@ -2677,7 +2677,6 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
     DOUT("parse-namestring:[end ret]",value1);
     skipSTACK(5+2); return;
   }
-#undef pslashp
 #undef colonp
 #undef Z_SUB
 #undef Z_AT_SLASH
@@ -9672,6 +9671,7 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL) {
   value1 = popSTACK(); mv_count=1; # new pathname as the value
 }
 #undef slashp
+#undef pslashp
 
 # UP: Überprüft ein Pathname, ob Name und Typ beide =NIL sind,
 # und ob das Directory "fast" existiert.
