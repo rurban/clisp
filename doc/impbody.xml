@@ -4155,8 +4155,8 @@ functions are provided:
  character.</para>
 
 <variablelist>
- <varlistentry id="rcwhp"><term><literal
-  role="sexp">(&rcwhp; &stream-r;)</literal></term>
+ <varlistentry id="rcwhp"><term><literal role="sexp">(&rcwhp;
+    &stream-r;)</literal></term>
   <listitem><simpara>&rcwhp; queries the stream's input status.
   It returns &nil; if &read-char; and &peek-char; with a
   <replaceable>peek-type</replaceable> of &nil; will return immediately.
@@ -4170,8 +4170,8 @@ functions are provided:
   deliver more characters.  It only means that it is not known at this
   moment whether the &stream-r; is already at &eos;, or will deliver
   more characters.</simpara></listitem></varlistentry>
- <varlistentry id="rbla"><term><literal
-    role="sexp">(&rbla; &stream-r;)</literal></term>
+ <varlistentry id="rbla"><term><literal role="sexp">(&rbla;
+    &stream-r;)</literal></term>
   <listitem><simpara>To be called only if &stream-r;'s
    &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
    Returns &t; if &read-byte; would return immediately with an
@@ -4179,16 +4179,14 @@ functions are provided:
    Returns &eof-k; if the &eos; is already known to be reached.
    If &read-byte;'s value is not available immediately, returns &nil;
    instead of waiting.</simpara></listitem></varlistentry>
- <varlistentry><term><literal
-  role="sexp">(<function>EXT:READ-BYTE-WILL-HANG-P</function>
-              &stream-r;)</literal></term>
+ <varlistentry id="rbwhp"><term><literal role="sexp">(&rbwhp;
+    &stream-r;)</literal></term>
   <listitem><simpara>To be called only if &stream-r;'s
    &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
    Returns &nil; if &read-byte; will return immediately.
    Otherwise it returns true.</simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>EXT:READ-BYTE-NO-HANG</function>
-                 &stream-r; &optional-amp; &eof-ep; &eof-v;)</literal></term>
+ <varlistentry id="rbnh"><term><literal role="sexp">(&rbnh;
+    &stream-r; &optional-amp; &eof-ep; &eof-v;)</literal></term>
   <listitem><simpara>To be called only if &stream-r;'s
    &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
    Returns an &integer-t; or does &eos; handling, like &read-byte;,

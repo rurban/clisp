@@ -1201,7 +1201,8 @@ N. Gray to X3J13.</para>
    Returns &nil; if &st-rb; will return immediately.
    Otherwise it returns true.</simpara>
    <simpara>The default method calls &st-rbla;; this is always sufficient.
-  </simpara></listitem></varlistentry>
+   </simpara><simpara>This function is a &clisp; extension (see &rbwhp;).
+ </simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>GRAY:STREAM-READ-BYTE-NO-HANG</function>
                  &stream-r;)</literal></term>
@@ -1211,7 +1212,9 @@ N. Gray to X3J13.</para>
    return immediately.  If &st-rb;'s value is not available immediately,
    returns &nil; instead of waiting.</simpara>
    <simpara>The default method calls &st-rb; if &st-rbla; returns true;
-   this is always sufficient.</simpara></listitem></varlistentry>
+    this is always sufficient.</simpara>
+   <simpara>This function is a &clisp; extension (see &rbnh;).
+ </simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>GRAY:STREAM-READ-BYTE-SEQUENCE</function>
                  &stream-r; &sequence-r;
@@ -2068,8 +2071,7 @@ containing:</para>
 
 </section>
 
-<section id="mod-dynload">
-   <title>Function &mod-dynload;</title>
+<section id="mod-dynload"><title>Function &mod-dynload;</title>
 <subtitle>Platform dependent: some &unix; platforms only, compiled &with;
  compile-time flag <option>--with-dynamic-modules</option>.</subtitle>
 
@@ -2078,23 +2080,23 @@ containing:</para>
  precludes some efficiency optimizations which are on by default.</para>
 
 <para>Function <literal role="sexp">(&mod-dynload; &filename-r;
- ({&name-r;}+))</literal> loads a shared object file or library containing a
- number of named external CLISP modules. This facility cannot be used to
- &dlopen; and access arbitrary shared libraries.</para>
- 
+ ({&name-r;}+))</literal> loads a shared object file or library
+ containing a number of named external CLISP modules.
+ This facility cannot be used to &dlopen; and access arbitrary shared
+ libraries.</para>
+
 <para>External modules for CLISP are those which contain a
- <literal>module__&name-r;__subr_tab</literal>,
- among others. This serves to register external functions which operate on
+ <literal>module__&name-r;__subr_tab</literal>, among others.
+ This serves to register external functions which operate on
  Lisp-level structures with CLISP.</para>
 
 <para>To use &dlopen; with modules, you should add
- <option>-fPIC</option> to the module's compilation options. Something like
- <command>cc -shared -o &name-r;.so &name-r;.o</command> may be needed to
- produce the shared object file.</para>
+ <option>-fPIC</option> to the module's compilation options.
+ Something like <command>cc -shared -o &name-r;.so &name-r;.o</command>
+ may be needed to produce the shared object file.</para>
 
 </section>
 </section>
-
 
 <!-- #ifdef DYNAMIC_FFI -->
 <section id="dffi">
