@@ -3827,3 +3827,16 @@ T
   (defmethod foo115 (x y) (list x y))
   (foo115 3 4))
 (3 4)
+
+;; Check that invalid print-object methods yield a warning.
+(progn
+  (defclass foo128 () ())
+  (defmethod print-object ((object foo128) stream)
+    (print-unreadable-object (object stream :type t :identity t)
+      (write "BLABLA" :stream stream)))
+  (block nil
+    (handler-bind ((WARNING #'(lambda (w) (declare (ignore w)) (return 'WARNING))))
+      (prin1-to-string (make-instance 'foo128)))
+    nil))
+#+CLISP WARNING
+#-CLISP NIL
