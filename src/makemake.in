@@ -127,6 +127,11 @@ ECHOVAL_END
   fi
 fi
 
+link_dep() {
+  echol "$1 : $2";
+  echotab "-\$(LN_S) $2 $1";
+}
+
 # Handle --help and --version arguments.
 for arg do
   case "$arg" in
@@ -1163,6 +1168,13 @@ if test -z "$with_nounicode"; then
   XCFLAGS="$XCFLAGS -DUNICODE"
 fi
 
+# the type of library naming
+if [ ${HOS} = "win32" -a ${HSYS} != "win32gcc" ]; then
+  LIB_TYPE="win32";             # foo.lib
+else
+  LIB_TYPE="unix";              # libfoo.a
+fi
+
 if test -n "$with_export_syscalls"; then
   XCFLAGS="$XCFLAGS -DEXPORT_SYSCALLS"
   LIBS=$LIBS' -lm'
@@ -1174,7 +1186,7 @@ fi
 
 if test -n "$with_dynamic_ffi"; then
   XCFLAGS="$XCFLAGS -DDYNAMIC_FFI"
-  if [ $HOS = win32 ] ; then
+  if [ ${LIB_TYPE} = "win32" ] ; then
     XCL_FFILIBS='avcall.lib callback.lib'
   else
     XCL_FFILIBS='libavcall.a libcallback.a'
@@ -1244,12 +1256,12 @@ fi
 USE_LIBICONV=''
 if [ $HOS = unix -o $HOS = win32 ] ; then
   USE_LIBICONV=yes
-  if [ $HOS = unix ] ; then
+  if [ ${LIB_TYPE} = "unix" ] ; then
     # use symbolic link
     XCL_ICONVLIB='libiconv.a'
     FILES=$FILES' libiconv.a'
   fi
-  if [ $HOS = win32 ] ; then
+  if [ ${LIB_TYPE} = "win32" ] ; then
     XCL_ICONVLIB='iconv.lib'
   fi
   LIBS=$XCL_ICONVLIB' '$LIBS
@@ -1295,12 +1307,12 @@ fi
 USE_SIGSEGV=''
 if [ $HOS = unix -o $HOS = win32 ] ; then
   USE_SIGSEGV=yes
-  if [ $HOS = unix ] ; then
+  if [ ${LIB_TYPE} = "unix" ] ; then
     # use symbolic link
     XCL_SIGSEGVLIB='libsigsegv.a'
     FILES=$FILES' libsigsegv.a'
   fi
-  if [ $HOS = win32 ] ; then
+  if [ ${LIB_TYPE} = "win32" ] ; then
     XCL_SIGSEGVLIB='sigsegv.lib'
   fi
   LIBS=$XCL_SIGSEGVLIB' '$LIBS
@@ -2498,12 +2510,23 @@ fi
 
 if [ -n "$with_dynamic_ffi" ] ; then
   for f in avcall callback; do
-    if [ $HOS = unix ] ; then
-      echol "$f.h lib$f.a :"
-      echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) check && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
+    if [ ${LIB_TYPE} = "unix" ] ; then
+      if [ ${TSYS} = "win32gcc" ]; then
+        link_dep $f.h ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}$f.h
+        echol
+        link_dep lib$f.a ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}lib$f.a
+        if [ $f = callback ] ; then
+          for g in vacall_r trampoline_r; do
+            echotab "-\$(LN_S) ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}$g.h $g.h"
+          done
+        fi
+      else
+        echol "$f.h lib$f.a :"
+        echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) check && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
+      fi
       echol
     fi
-    if [ $HOS = win32 ] ; then
+    if [ ${LIB_TYPE} = "win32" ] ; then
       echol "$f.h : ${SRCTOPDIR_M}ffcall${NEXT_M}$f${NEXT_M}$f.h"
       echotab "-\$(LN_S) ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}$f.h $f.h"
       if [ $f = callback ] ; then
@@ -2585,15 +2608,24 @@ if [ -n "$USE_TERMCAP" ] ; then
 fi
 
 for f in libiconv; do
-  if [ $HOS = unix ] ; then
-    echol "iconv.h libiconv.a :"
-    echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
-    echol
-    echol "libcharset.h :"
-    echotab "builddir=\"\`pwd\`\"; cd $f/libcharset && \$(MAKE) && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
-    echol
+  if [ ${LIB_TYPE} = "unix" ] ; then
+    if [ ${TSYS} = "win32gcc" ]; then
+      link_dep iconv.h ${SRCTOPDIR_}$f${NEXT_}include${NEXT_}iconv.h
+      echol
+      link_dep libiconv.a ${SRCTOPDIR_}$f${NEXT_}lib${NEXT_}libiconv.a
+      echol
+      link_dep libcharset.h ${SRCTOPDIR_}$f${NEXT_}libcharset${NEXT_}include${NEXT_}libcharset.h
+      echol
+    else
+      echol "iconv.h libiconv.a :"
+      echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
+      echol
+      echol "libcharset.h :"
+      echotab "builddir=\"\`pwd\`\"; cd $f/libcharset && \$(MAKE) && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
+      echol
+    fi
   fi
-  if [ $HOS = win32 ] ; then
+  if [ ${LIB_TYPE} = "win32" ] ; then
     echol "iconv.h : ${SRCTOPDIR_M}$f${NEXT_M}include${NEXT_M}iconv.h"
     echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}include${NEXT_}iconv.h iconv.h"
     echol
@@ -2607,12 +2639,17 @@ for f in libiconv; do
 done
 
 for f in sigsegv; do
-  if [ $HOS = unix ] ; then
+  if [ ${LIB_TYPE} = "unix" ] ; then
     echol "$f.h lib$f.a :"
-    echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) check && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
+    if [ ${TSYS} = "win32gcc" ]; then
+      echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}$f.h $f.h";
+      echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}lib$f.a lib$f.a";
+    else
+      echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) check && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
+    fi
     echol
   fi
-  if [ $HOS = win32 ] ; then
+  if [ ${LIB_TYPE} = "win32" ] ; then
     echol "$f.h : ${SRCTOPDIR_M}$f${NEXT_M}$f.h"
     echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}$f.h $f.h"
     echol
@@ -3575,7 +3612,7 @@ clean0 : force
 clean1 : clean0
 	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} clisp-link makevars ${TESTDIR}${NEXT}* ${TESTSDIR}${NEXT}*
 !!
-if [ $HOS = win32 ] ; then
+if [ ${LIB_TYPE} = "win32" ] ; then
 cat <<!!
 	-\$(RM) sigsegv.lib iconv.lib avcall.lib callback.lib
 !!
