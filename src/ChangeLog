@@ -1,5 +1,10 @@
 2004-03-12  Bruno Haible  <bruno@clisp.org>
 
+	* stdbool.h.in: Define bool as 'long' in the normal case.
+	Needed on BeOS and on Solaris with cc.
+
+2004-03-12  Bruno Haible  <bruno@clisp.org>
+
 	* makemake.in (LN_HARD): New variable.
 	(locale): Use it.
 	Needed for BeOS 5.
