@@ -159,7 +159,7 @@ T (same indentation as the text, i.e., the same effect as #'IDENTITY).")
     `(LET ((,stream-var (MAKE-INSTANCE 'fill-stream :STREAM ,target-stream
                                        ,@opts)))
        (DECLARE (READ-ONLY ,stream-var) ,@declarations)
-       (UNWIND-PROTECT (PROGN ,@(or body-rest '(NIL)))
+       (UNWIND-PROTECT (PROGN ,@body-rest)
          (FORCE-OUTPUT ,stream-var)))))
 
 ;;; for format, see `format-s-expression'
