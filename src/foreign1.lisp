@@ -614,31 +614,26 @@
             *c-name*)))
 (defun finalize-coutput-file ()
   (when *ffi-module*
-    (format *coutput-stream* "~%")
-    (format *coutput-stream* "subr_t module__~A__subr_tab[1];~%" *c-name*)
-    (format *coutput-stream* "uintC module__~A__subr_tab_size = 0;~%" *c-name*)
-    (format *coutput-stream* "subr_initdata_t module__~A__subr_tab_initdata[1];~%"
-            *c-name*)
-    (format *coutput-stream* "~%")
+    (format *coutput-stream* "~%subr_t module__~A__subr_tab[1];~%~
+            uintC module__~A__subr_tab_size = 0;~%~
+            subr_initdata_t module__~A__subr_tab_initdata[1];~2%"
+            *c-name* *c-name* *c-name*)
     (let ((count (hash-table-count *object-table*)))
       (if (zerop count)
-        (progn
-          (format *coutput-stream* "object module__~A__object_tab[1];~%" *c-name*)
-          (format *coutput-stream*
-                  "object_initdata_t module__~A__object_tab_initdata[1];~%" *c-name*))
+        (format *coutput-stream* "object module__~A__object_tab[1];~%~
+                object_initdata_t module__~A__object_tab_initdata[1];~%"
+                *c-name* *c-name*)
         (let ((v (make-array count)))
-          (format *coutput-stream* "object module__~A__object_tab[~D];~%"
-                  *c-name* count)
-          (format *coutput-stream*
-                  "object_initdata_t module__~A__object_tab_initdata[~D] = {~%"
-                  *c-name* count)
+          (format *coutput-stream* "object module__~A__object_tab[~D];~%~
+                  object_initdata_t module__~A__object_tab_initdata[~D] = {~%"
+                  *c-name* count *c-name* count)
           (dohash (key value *object-table*)
             (declare (ignore key))
             (setf (svref v (cdr value)) (car value)))
           (map nil #'(lambda (initstring)
                        (format *coutput-stream* "  { ~A },~%"
                                (to-c-string initstring)))
-                   v)
+               v)
           (format *coutput-stream* "};~%")))
       (format *coutput-stream* "uintC module__~A__object_tab_size = ~D;~%"
               *c-name* count))
@@ -647,14 +642,14 @@
           (nreverse (delete-duplicates
                      *variable-list* :key #'first :test #'equal)))
     (dolist (variable *variable-list*)
-      ;(prepare-c-typedecl (second variable))
+      ;;(prepare-c-typedecl (second variable))
       (format *coutput-stream* "extern ~A;~%"
               (to-c-typedecl (second variable) (first variable))))
     (setq *function-list*
           (nreverse (delete-duplicates
                      *function-list* :key #'first :test #'equal)))
     (dolist (function *function-list*)
-      ;(prepare-c-typedecl (svref (second function) 1))
+      ;;(prepare-c-typedecl (svref (second function) 1))
       (format *coutput-stream* "extern ~A"
               (to-c-typedecl (svref (second function) 1)
                              (format nil "(~A)(" (first function))))
@@ -669,11 +664,9 @@
                         *coutput-stream*)))
       (format *coutput-stream* ");~%"))
     (format *coutput-stream*
-            "~%void module__~A__init_function_1 (module_t* module)~%{ }~%"
-            *c-name*)
-    (format *coutput-stream*
-            "~%void module__~A__init_function_2 (module_t* module)~%{~%"
-            *c-name*)
+            "~%void module__~A__init_function_1 (module_t* module)~%{ }~2%~
+            void module__~A__init_function_2 (module_t* module)~%{~%"
+            *c-name* *c-name*)
     (dolist (variable *variable-list*)
       (format *coutput-stream*
               "  register_foreign_variable((void*)&~A,~A,~D,sizeof(~A));~%"
@@ -966,10 +959,9 @@
         (format *coutput-stream* "  funcall(~A,~D);~%"
                 (object-to-c-value (pass-object name)) inargcount)
         (unless (eq rettype 'NIL)
-          (format *coutput-stream* " {~%")
-          (format *coutput-stream* "  var ~A;~%"
-                  (to-c-typedecl rettype "retval"))
-          (format *coutput-stream* "  ~A(~A,value1,&retval);~%"
+          (format *coutput-stream* " {~%  var ~A;~%~:
+  ~A(~A,value1,&retval);~%"
+                  (to-c-typedecl rettype "retval")
                   (if (flag-set-p flags ff-flag-malloc-free)
                       "convert_to_foreign_mallocing"
                       "convert_to_foreign_nomalloc")
@@ -996,8 +988,7 @@
                 argtypes argflags argnames))
         (format *coutput-stream* "  end_callback();~%")
         (unless (eq rettype 'NIL)
-          (format *coutput-stream* "  return retval;~%")
-          (format *coutput-stream* " }~%")))
+          (format *coutput-stream* "  return retval;~% }~%")))
       (format *coutput-stream* "}~%"))))
 
 ;; ===========================================================================
