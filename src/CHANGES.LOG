@@ -26,6 +26,8 @@ User visible changes
 
 * Support Cygwin's "/cygdrive/drive/path" pathname symtax on Win32.
 
+* New macro EXT:FCASE which allows specifying comparison function in CASE.
+
 * Fixed a bug: LDIFF now handles dotted lists correctly.
 
 2.27 (2001-07-17)
