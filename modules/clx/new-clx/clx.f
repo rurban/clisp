@@ -221,10 +221,6 @@
 //   count_return on failure, so set it yourself to 0 before you make the call,
 //   so that we do not run into difficulties.
 //
-// - we should change the names xxx-SETTER to SET-xxx, since this is the way
-//   clx names these functions.
-//   [But there seems to be an incompatibility between (setf fn) and defsetf?!]
-//
 // - Maybe we dont put all those symbols in the XLIB package to be able to
 //   include the MIT-CLX also.  (Generally CLISP lacks some of the nice package
 //   features Symbolics Common LISP provided.  There were also anonymous or
@@ -327,10 +323,6 @@
 
 // --- IMPLEMENTATION NOTES ---------------------------------------------------
 //
-//   If there are setf-methods for some functions, I call `em xxx_setter, later
-// I bind them into LISP, with putting the right properties on the right
-// symbols.
-//
 // The following types are only XID`s:
 //   window, drawable, font, pixmap, cursor, colormap, GContext, keysym
 //
@@ -418,16 +410,16 @@
 #include "lispbibl.c"
 #include "clx.tabs.c"
 #include <X11/Xlib.h>
-#include <X11/Xutil.h>		// This is for XGetVisualInfo
-#include <X11/Xcms.h>           // This if forXcmsCCCOfColormap and XcmsVisualOfCCC.
+#include <X11/Xutil.h> /* This is for XGetVisualInfo */
+#include <X11/Xcms.h> /* This if forXcmsCCCOfColormap and XcmsVisualOfCCC. */
 
 #define DEBUG_CLX 0
 
 #ifndef FOREIGN
 #error FOREIGN is not defined.
-#error The clx interface needs a CLISP built with the foreign pointer datatype support.
-#error Go into the main CLISP makefile and add a -DFOREIGN=void* to CFLAGS make variable
-#error and rebuild CLISP before coming back here.
+#error CLX needs a CLISP built with the foreign pointer datatype support.
+#error Go into the main CLISP makefile and add a -DFOREIGN=void*
+#error to CFLAGS make variable and rebuild CLISP before coming back here.
 #endif
 
 // ... But first we provide some prototypes for functions, which maybe worth
@@ -500,6 +492,15 @@ nonreturning_function(local,my_standard_type_error,(object subrnam))
   pushSTACK (subrnam);			// Funktionsname
   fehler (type_error, ("~: ~ is not of type ~"));
 }
+nonreturning_function (local, closed_display_error,
+                       (object caller, object dpy)) {
+  pushSTACK(`XLIB::CLOSED-DISPLAY`);
+  pushSTACK(`:DISPLAY`); pushSTACK(dpy);
+  pushSTACK(`:CALLER`); pushSTACK(caller);
+  funcall(L(error),5);
+  abort(); /* ERROR does not return: avoid a compiler warning */
+}
+
 
 // Willst es nich' kappiern, naja dann kann ich auch anners:
 #define BLOEDER_COMPILER_VERDAMMT_NOCHMAL for(;;)
@@ -511,7 +512,6 @@ nonreturning_function(local,my_standard_type_error,(object subrnam))
 // ein Beispiel dessen, dass es nicht gut ist Programme in C zu schreiben,
 // die aus 500k Zeilen Code bestehen. BTW mein X leckt auch!
 // ... Ich geh gleich hin und hol mein CP/M raus, da leckt nichts.
-//
 
 local int isa_instance_of_p (object type, object obj)
      // This function tests whether 'obj' is an instance of the class 'type'
@@ -567,17 +567,11 @@ local int isa_instance_of_p (object type, object obj)
 }
 
 local int isa_struct_p (object type, object obj)
-     // This function is much like the above one, it checks whether 'obj' isa structure of type 'type'.
+// This function is much like the above one, it checks whether 'obj'
+// is a structure of type 'type'.
 {
-  if (structurep (obj))				        // Is it a structure at all?
-    {
-      object q;
-      for (q = TheStructure(obj)->recdata[0]; consp (q); q = Cdr(q))
-	if (eq (Car(q), type))
-	  return 1;
-    }
-
-  // Fall thru'
+  if (structurep (obj)) /* Is it a structure at all? */
+    return !nullp(memq(type,TheStructure(obj)->recdata[0]));
   return 0;
 }
 
@@ -749,42 +743,29 @@ local object find_display (Display *display)
   return NIL;
 }
 
-local void ensure_living_display (object *objf)
-     // ensures that the object pointed to by 'objf' is really a display.
-     // Also the display must be 'alive', meaning that it does not contain
-     // a fptr from an previous incarnation of CLISP. If all that does not
-     // hold an error is signaled.
-     //
-     // 'objf' should point into the stack due to GC.
+local Bool ensure_living_display (object *objf)
+// ensures that the object pointed to by 'objf' is really a display.
+// Also the display must be 'alive', meaning that it does not contain
+// a fptr from an previous incarnation of CLISP.
+// If all that does not hold an error is signaled.
+// Finally, returns an indicator of whether the display has been closed.
+// 'objf' should point into the stack due to GC.
 {
-  if (isa_struct_p (`XLIB::DISPLAY`, (*objf)))   // Is it a display at all?
-    {
-      object fptr = TheStructure(*objf)->recdata[slot_DISPLAY_FOREIGN_POINTER];
-      if (fpointerp (fptr))
-	{
-	  // Now it is a display and has a foreign pointer in the slot, now see if it is a living one.
-	  if (fp_validp (TheFpointer (fptr)))
-	    {
-	      // Everything o.k. just return
-	      return;
-	    }
-	  else
-	    {
-	      // Raise an error message [Remember fehler wants the arguments backwards!]
-	      pushSTACK (TheSubr(subr_self)->name);
-	      fehler (error, "~: Wanted to refer to a dead display.");
-	      //
-	      // FIXME there is closed-display condition defined in CLX. That
-	      // would be the obvious thing to signal!
-	      //
-	    }
-	}
-    }
-
-  // Fall thru` -- raise type error.
-  pushSTACK (*(objf));      			// Value for slot DATUM of TYPE-ERROR
-  pushSTACK (`XLIB::DISPLAY`);			// Value for slot EXPECTED-TYPE of TYPE-ERROR
+  if (isa_struct_p (`XLIB::DISPLAY`, (*objf))) { /* Is it a display at all? */
+    object fptr = TheStructure(*objf)->recdata[slot_DISPLAY_FOREIGN_POINTER];
+    if (fpointerp(fptr) && fp_validp(TheFpointer(fptr)))
+      return (TheFpointer(fptr)->fp_pointer != NULL);
+  }
+  /* Fall through -- raise type error */
+  pushSTACK (*(objf));          /* TYPE-ERROR slot DATUM */
+  pushSTACK (`XLIB::DISPLAY`);  /* TYPE-ERROR slot EXPECTED-TYPE */
   my_standard_type_error (TheSubr(subr_self)->name);
+}
+
+defun XLIB:CLOSED-DISPLAY-P (1)
+{
+  VALUES_IF(!ensure_living_display(&STACK_0));
+  skipSTACK(1);
 }
 
 // display_hash_table -- return the hashtable of a display object
@@ -794,7 +775,8 @@ local void ensure_living_display (object *objf)
 //
 local void display_hash_table (void)
 {
-  ensure_living_display(&(STACK_0));
+  if (!ensure_living_display(&(STACK_0)))
+    closed_display_error(TheSubr(subr_self)->name,STACK_0);
   STACK_0 = TheStructure (STACK_0)->recdata[slot_DISPLAY_HASH_TABLE];
 }
 
@@ -805,7 +787,8 @@ local void display_hash_table (void)
 //
 local Display *pop_display (void)
 {
-  ensure_living_display(&(STACK_0));
+  if (!ensure_living_display(&(STACK_0)))
+    closed_display_error(TheSubr(subr_self)->name,STACK_0);
   STACK_0 = TheStructure (STACK_0)->recdata[slot_DISPLAY_FOREIGN_POINTER];
   return TheFpointer(popSTACK())->fp_pointer;
 }
@@ -835,13 +818,14 @@ local object make_ptr_obj (object type, object dpy, void *ptr)
   return value1;
 }
 
-local void *get_ptr_object_and_display (object type, object obj, Display **dpyf)
-     // 'obj'  is the lisp object, whose C representation is returned.
-     // When 'dpyf' is non-0, the display of 'obj' is also returned and it is ensured that
-     // it lives. [Otherwise an error is signaled.]
-     // If 'obj' is not of type 'type', a symbol naming the desired class, an error is issued.
-     //
-     // Hence this function ensures, that an proper object is returned, or nothing.
+local void *get_ptr_object_and_display (object type, object obj,
+                                        Display **dpyf)
+// 'obj'  is the lisp object, whose C representation is returned.
+// When 'dpyf' is non-0, the display of 'obj' is also returned and it is
+// ensured that it lives. [Otherwise an error is signaled.]
+// If 'obj' is not of type 'type', a symbol naming the desired class,
+// an error is issued.
+// Hence this function ensures, that an proper object is returned, or nothing.
 {
   pushSTACK (type);
   pushSTACK (obj);
@@ -858,8 +842,7 @@ local void *get_ptr_object_and_display (object type, object obj, Display **dpyf)
 	  { object *ptr = slot_up (); skipSTACK(2); value1 = *ptr; }
 #endif
 	  pushSTACK (value1);
-	  ensure_living_display (&(STACK_0));
-	  *dpyf = TheFpointer (TheStructure (popSTACK())->recdata[slot_DISPLAY_FOREIGN_POINTER])->fp_pointer;
+	  *dpyf = pop_display ();
 	}
 
       pushSTACK (STACK_0);					// 'obj'
@@ -1007,8 +990,7 @@ local XID get_xid_object_and_display (object type, object obj, Display **dpyf)
 	  { object *ptr = slot_up (); skipSTACK(2); value1 = *ptr; }
 #endif
 	  pushSTACK (value1);
-	  ensure_living_display (&(STACK_0));
-	  *dpyf = TheFpointer (TheStructure (popSTACK())->recdata[slot_DISPLAY_FOREIGN_POINTER])->fp_pointer;
+	  *dpyf = pop_display();
 	}
 
       pushSTACK (STACK_0);					// obj already on stack
@@ -1963,16 +1945,16 @@ local void general_plist_reader (object type)
 //
 // general_plist_writer (type) -- used by the various xxx-plist functions
 //  > type the type the argument should have
-//  > STACK_0 the object in question
-//  > STACK_1 the new value for plist
+//  > STACK_1 the object in question
+//  > STACK_0 the new value for plist
 //
 local void general_plist_writer (object type)
 {
   // the XLIB object and the new value are already on the stack
-  if (isa_instance_of_p (type, STACK_0))
+  if (isa_instance_of_p (type, STACK_1))
     {
       pushSTACK (`XLIB::PLIST`);			// the slot
-      pushSTACK (STACK_2);				// new value
+      pushSTACK (STACK_1);				// new value
       funcall (L(set_slot_value), 3);
       skipSTACK (1);
     }
@@ -1987,20 +1969,22 @@ local void general_plist_writer (object type)
 local void general_lookup (object type)
 {
   XID xid = get_uint29 (STACK_0);
-  ensure_living_display (&(STACK_1));
+  if (!ensure_living_display (&(STACK_1)))
+    closed_display_error(TheSubr(subr_self)->name,STACK_1);
   VALUES1(make_xid_obj_2 (type, STACK_1, xid, NIL));
   skipSTACK (2);
 }
 
 //
-// Defines xxx-{DISPLAY,PLIST,PLIST-SETTER,P,EQUAL,ID} and LOOKUP-xxx for xid objects
+// Defines xxx-{DISPLAY,PLIST,SET-PLIST,P,EQUAL,ID}
+// and LOOKUP-xxx for xid objects
 //
 ##define STANDARD_XID_OBJECT_LOOK(type)                                 \
   defun XLIB:##type##-DISPLAY (1)                                       \
     { VALUES1(get_display_obj_tc(`XLIB::##type`, popSTACK ())); }       \
   defun XLIB:##type##-PLIST (1)                                         \
     { general_plist_reader (`XLIB::##type##`); }                        \
-  defun XLIB:##type##-PLIST-SETTER (2)                                  \
+  defun XLIB:SET-##type##-PLIST (2)                                     \
     { general_plist_writer (`XLIB::##type##`); }                        \
   defun XLIB:##type##-P (1)                                             \
     { VALUES_IF(type##_p (popSTACK ())); }                              \
@@ -2012,7 +1996,7 @@ local void general_lookup (object type)
     { general_lookup (`XLIB::##type##`); }
 
 //
-// Defines xxx-{DISPLAY,PLIST,PLIST-SETTER,P,EQUAL}
+// Defines xxx-{DISPLAY,PLIST,SET-PLIST,P,EQUAL}
 // However xxx-ID and LOOKUP-xxx are not defined, since the way to
 // get the xid and looking it up differs between ptr objects
 //
@@ -2021,7 +2005,7 @@ local void general_lookup (object type)
     { VALUES1(get_display_obj_tc(`XLIB::##type`, popSTACK ())); }       \
   defun XLIB:##type##-PLIST (1)                                         \
     { general_plist_reader (`XLIB::##type##`); }                        \
-  defun XLIB:##type##-PLIST-SETTER (2)                                  \
+  defun XLIB:SET-##type##-PLIST (2)                                     \
     { general_plist_writer (`XLIB::##type##`); }                        \
   defun XLIB:##type##-P (1)                                             \
     { VALUES_IF(type##_p (popSTACK ())); }                              \
@@ -2299,10 +2283,10 @@ defun XLIB:DISPLAY-ERROR-HANDLER (1) // OK
   skipSTACK (1);
 }
 
-defun XLIB:DISPLAY-ERROR-HANDLER-SETTER (2)	// OK
+defun XLIB:SET-DISPLAY-ERROR-HANDLER (2)	// OK
 {
-  ensure_living_display (&(STACK_1));
-  VALUES1(TheStructure (STACK_1)->recdata[slot_DISPLAY_ERROR_HANDLER] = STACK_0);
+  ensure_living_display (&(STACK_0));
+  VALUES1(TheStructure(STACK_0)->recdata[slot_DISPLAY_ERROR_HANDLER]=STACK_1);
   skipSTACK (2);
 }
 
@@ -2472,31 +2456,27 @@ defun XLIB:DISPLAY-AFTER-FUNCTION (1) // OK
   skipSTACK (1);
 }
 
-defun XLIB:DISPLAY-AFTER-FUNCTION-SETTER (2) // OK
+defun XLIB:SET-DISPLAY-AFTER-FUNCTION (2) // OK
 {
   // TODO - check for function type
-  //        [Not very important since the xlib_after_function should get this error.]
-  //
-  ensure_living_display (&(STACK_0));
-  TheStructure (STACK_0)->recdata[slot_DISPLAY_AFTER_FUNCTION] = STACK_1;
-  {
-    Display *dpy = pop_display ();
-
-    if (nullp (STACK_0))
-      {
-	begin_call ();
-	XSetAfterFunction (dpy, NULL); // Q: Is that right?!
-	end_call ();
-      }
-    else
-      {
-	int xlib_after_function (Display *display);
-	begin_call ();
-	XSetAfterFunction (dpy, xlib_after_function);
-	end_call ();
-      }
+  // [Not very important since the xlib_after_function should get this error.]
+  object display = STACK_1;
+  Display *dpy;
+  pushSTACK(display);
+  dpy = pop_display ();
+  TheStructure (display)->recdata[slot_DISPLAY_AFTER_FUNCTION] = STACK_0;
+  if (nullp (STACK_0)) {
+    begin_call ();
+    XSetAfterFunction (dpy, NULL); // Q: Is that right?!
+    end_call ();
+  } else {
+    int xlib_after_function (Display *display);
+    begin_call ();
+    XSetAfterFunction (dpy, xlib_after_function);
+    end_call ();
   }
-  VALUES1(popSTACK());
+  VALUES1(STACK_0);
+  skipSTACK(2);
 }
 
 defun XLIB:DISPLAY-FORCE-OUTPUT (1)	// OK
@@ -2544,9 +2524,10 @@ defun XLIB:CLOSE-DISPLAY (1, 0, norest, key, 1, (:ABORT)) // OK
   funcall (L(delete), 2);
   pushSTACK (value1);
   funcall (L(set), 2);
-
-  skipSTACK (1);
-  VALUES1(NIL);                 // right?
+  /* mark the display as closed */
+  TheFpointer(TheStructure(STACK_0)->recdata[slot_DISPLAY_FOREIGN_POINTER])
+    ->fp_pointer = NULL;
+  VALUES1(popSTACK());
 }
 
 defun XLIB:DISPLAY-PLIST (1) // OK
@@ -2556,10 +2537,10 @@ defun XLIB:DISPLAY-PLIST (1) // OK
   skipSTACK (1);
 }
 
-defun XLIB:DISPLAY-PLIST-SETTER (2)	// OK
+defun XLIB:SET-DISPLAY-PLIST (2) // OK
 {
-  ensure_living_display (&(STACK_0));
-  VALUES1(TheStructure (STACK_0)->recdata[slot_DISPLAY_PLIST] = STACK_1);
+  ensure_living_display (&(STACK_1));
+  VALUES1(TheStructure (STACK_1)->recdata[slot_DISPLAY_PLIST] = STACK_0);
   skipSTACK (2);
 }
 
@@ -2619,9 +2600,9 @@ defun XLIB:DISPLAY-REPORT-ASYNCHRONOUS-ERRORS (1)
   VALUES1(`(:IMMEDIATELY)`);		// Well, em ... fake it!
 }
 
-defun XLIB:DISPLAY-REPORT-ASYNCHRONOUS-ERRORS-SETTER (2)
+defun XLIB:SET-DISPLAY-REPORT-ASYNCHRONOUS-ERRORS (2)
 {
-  VALUES1(STACK_1);
+  VALUES1(STACK_0);
   skipSTACK (2);
 }
 
@@ -2740,7 +2721,7 @@ defun XLIB:SCREEN-PLIST (1)	// OK
   general_plist_reader (`XLIB::SCREEN`);
 }
 
-defun XLIB:SCREEN-PLIST-SETTER (2) // OK
+defun XLIB:SET-SCREEN-PLIST (2) // OK
 {
   general_plist_writer (`XLIB::SCREEN`);
 }
@@ -2933,25 +2914,25 @@ defun XLIB:CREATE-WINDOW (0, 0, norest, key, 23,
 	  skipSTACK (1);                                                \
 	}
 
-##define DEF_DRAWABLE_GEOM_SETTER(type, lspnam, attr, mask)     \
-        defun XLIB:DRAWABLE-##lspnam##-SETTER (2)               \
+##define DEF_SET_DRAWABLE_GEOM(type, lspnam, attr, mask)        \
+        defun XLIB:SET-DRAWABLE-##lspnam##(2)                   \
 	{                                                       \
 	  XWindowChanges values;                                \
 	  Window win;                                           \
 	  Display *dpy;                                         \
           /* Why window here vvvv and not drawable? */          \
-	  win = get_window_and_display (STACK_0, &dpy);         \
-	  values.attr = get_##type (STACK_1);                   \
+	  win = get_window_and_display (STACK_1, &dpy);         \
+	  values.attr = get_##type (STACK_0);                   \
 	  begin_call ();                                        \
 	  XConfigureWindow (dpy, win, mask, &values);           \
 	  end_call ();                                          \
-	  VALUES1(STACK_1);                                     \
+	  VALUES1(STACK_0);                                     \
 	  skipSTACK (2);                                        \
 	}
 
 ##define DEF_DRAWABLE_GEOM(type, lspnam, attr, mask)		\
 	DEF_DRAWABLE_GEOM_GETTER (type, lspnam, attr)		\
-	DEF_DRAWABLE_GEOM_SETTER (type, lspnam, attr, mask)
+	DEF_SET_DRAWABLE_GEOM (type, lspnam, attr, mask)
 
 DEF_DRAWABLE_GEOM (uint16, border-width, border_width, CWBorderWidth)	// OK
 DEF_DRAWABLE_GEOM_GETTER (uint8, depth, depth)			// OK
@@ -2972,51 +2953,51 @@ defun XLIB:WINDOW-ALL-EVENT-MASKS (1)
   skipSTACK (1);
 }
 
-defun XLIB:WINDOW-BACKGROUND-SETTER (2) /*OK*/
+defun XLIB:SET-WINDOW-BACKGROUND (2) /*OK*/
 {
   XSetWindowAttributes attr;
   unsigned long valuemask = 0;
 
-  if (eq (STACK_1, `:NONE`))
+  if (eq (STACK_0, `:NONE`))
     { attr.background_pixmap = None; valuemask |= CWBackPixmap; }
-  else if (eq (STACK_1, `:PARENT-RELATIVE`))
+  else if (eq (STACK_0, `:PARENT-RELATIVE`))
     { attr.background_pixmap = ParentRelative; valuemask |= CWBackPixmap; }
-  else if (pixmap_p (STACK_1))
-    { attr.background_pixmap = get_pixmap (STACK_1); valuemask |= CWBackPixmap; }
-  else if (pixel_p (STACK_1))
-    { attr.background_pixel = get_pixel (STACK_1); valuemask |= CWBackPixel; }
+  else if (pixmap_p (STACK_0))
+    { attr.background_pixmap = get_pixmap (STACK_0); valuemask |= CWBackPixmap; }
+  else if (pixel_p (STACK_0))
+    { attr.background_pixel = get_pixel (STACK_0); valuemask |= CWBackPixel; }
   else
     {
       // raise type error
-      pushSTACK (STACK_1);  		// datum
+      pushSTACK (STACK_0);  		// datum
 
       // expected type:
       pushSTACK (`(OR XLIB::PIXMAP XLIB::PIXEL (EQL :NONE) (EQL :PARENT-RELATIVE))`);
-      my_standard_type_error (`XLIB::WINDOW-BACKGROUND-SETTER`);
+      my_standard_type_error (`XLIB::SET-WINDOW-BACKGROUND`);
     }
 
   {
     Display *dpy;
-    Window win = get_xid_object_and_display (`XLIB::WINDOW`, STACK_0, &dpy);
+    Window win = get_xid_object_and_display (`XLIB::WINDOW`, STACK_1, &dpy);
     begin_call ();
     XChangeWindowAttributes (dpy, win, valuemask, &attr);
     end_call ();
   }
-  VALUES1(STACK_1);
+  VALUES1(STACK_0);
   skipSTACK(2);
 }
 
-##define DEF_WIN_ATTR_READER(lspnam,typ,slotget)				\
-  defun XLIB:WINDOW-##lspnam (1)						\
-  {										\
-    XWindowAttributes attr;							\
-    Display *dpy;								\
-    Window win = get_xid_object_and_display (`XLIB::WINDOW`, STACK_0, &dpy);	\
-    begin_call ();								\
-      XGetWindowAttributes (dpy, win, &attr);					\
-    end_call ();								\
-    VALUES1(make_##typ (attr.slotget));				\
-    skipSTACK (1);								\
+##define DEF_WIN_ATTR_READER(lspnam,typ,slotget)                        \
+  defun XLIB:WINDOW-##lspnam (1)                                        \
+  {                                                                     \
+    XWindowAttributes attr;                                             \
+    Display *dpy;                                                       \
+    Window win = get_xid_object_and_display (`XLIB::WINDOW`, STACK_0, &dpy); \
+    begin_call ();                                                      \
+      XGetWindowAttributes (dpy, win, &attr);                           \
+    end_call ();                                                        \
+    VALUES1(make_##typ (attr.slotget));                                 \
+    skipSTACK (1);                                                      \
   }
 
 ##define DEF_WIN_ATTR_READER_2(lspnam,typ,slotget)			\
@@ -3033,16 +3014,16 @@ defun XLIB:WINDOW-BACKGROUND-SETTER (2) /*OK*/
      }
 
 ##define DEF_WIN_ATTR_WRITER(lspnam,typ,slotset,msk)            \
-     defun XLIB:WINDOW-##lspnam##-setter (2)                    \
+     defun XLIB:SET-WINDOW-##lspnam##(2)                        \
      {                                                          \
           XSetWindowAttributes attr;                            \
 	  Display *dpy;                                         \
-	  Window win = get_window_and_display (STACK_0, &dpy);  \
-          attr.slotset = get_##typ (STACK_1);                   \
+	  Window win = get_window_and_display (STACK_1, &dpy);  \
+          attr.slotset = get_##typ (STACK_0);                   \
 	  begin_call ();                                        \
           XChangeWindowAttributes (dpy, win, msk, &attr);       \
 	  end_call ();                                          \
-          VALUES1(STACK_1);                                     \
+          VALUES1(STACK_0);                                     \
           skipSTACK (2);                                        \
      }
 
@@ -3078,48 +3059,46 @@ defun XLIB:WINDOW-CURSOR (1)
   fehler (error, ("~ can only be set"));
 }
 
-defun XLIB:WINDOW-BORDER-SETTER (2)
+defun XLIB:SET-WINDOW-BORDER (2)
 {
   Display *dpy;
-  Window win   = get_window_and_display (STACK_0, &dpy);
+  Window win   = get_window_and_display (STACK_1, &dpy);
   XSetWindowAttributes attr;
   unsigned long value_mask = 0;
 
-  if (eq (STACK_1, `:COPY`))
-    { attr.border_pixmap = CopyFromParent; value_mask = CWBorderPixmap; }
-  else
-    if (pixmap_p (STACK_1))
-      { attr.border_pixmap = get_pixmap (STACK_1); value_mask = CWBorderPixmap; }
-    else
-      if (pixel_p (STACK_1))
-	{ attr.border_pixel = get_pixel (STACK_1); value_mask = CWBorderPixel; }
-      else
-	{
-	  // raise type error
-	  pushSTACK (STACK_1);  	// datum
-	  pushSTACK (`(OR XLIB::PIXMAP XLIB::PIXEL (EQL :COPY))`);
-	  my_standard_type_error (`XLIB::WINDOW-BORDER-SETTER`);
-	}
+  if (eq (STACK_0, `:COPY`)) {
+    attr.border_pixmap = CopyFromParent; value_mask = CWBorderPixmap;
+  } else if (pixmap_p (STACK_0)) {
+    attr.border_pixmap = get_pixmap (STACK_0); value_mask = CWBorderPixmap;
+  } else if (pixel_p (STACK_0)) {
+    attr.border_pixel = get_pixel (STACK_0); value_mask = CWBorderPixel;
+  } else { // raise type error
+    pushSTACK (STACK_0);  	// datum
+    pushSTACK (`(OR XLIB::PIXMAP XLIB::PIXEL (EQL :COPY))`);
+    my_standard_type_error (`XLIB::SET-WINDOW-BORDER`);
+  }
 
   begin_call ();
   XChangeWindowAttributes (dpy, win, value_mask, &attr);
   end_call ();
 
-  VALUES1(STACK_1);
+  VALUES1(STACK_0);
   skipSTACK (2);			// all done
 }
 
 //
-// XLIB:WINDOW-PRIORITY-SETTER mode window &optional sibling
+// (setf (XLIB:SET-WINDOW-PRIORITY window &optional sibling)  mode)
 //
-defun XLIB:WINDOW-PRIORITY-SETTER (2, 1)
+defun XLIB:SET-WINDOW-PRIORITY (2, 1)
 {
   XWindowChanges changes;
   unsigned int value_mask = 0;
   Display *dpy;
   Window win   = get_window_and_display (STACK_1, &dpy);
 
-  if (boundp(STACK_0)) { changes.sibling = get_window (STACK_0); value_mask |= CWSibling; }
+  if (!missingp(STACK_0)) {
+    changes.sibling = get_window (STACK_0); value_mask |= CWSibling;
+  }
   changes.stack_mode = get_stack_mode (STACK_2); value_mask |= CWStackMode;
   begin_call ();
   XConfigureWindow (dpy, win, value_mask, &changes);
@@ -3137,8 +3116,7 @@ defun XLIB:CIRCULATE-WINDOW-DOWN (1)
   begin_call();
   XCirculateSubwindowsDown (dpy, win);
   end_call ();
-  skipSTACK (1);
-  value1= NIL; mv_count = 1;
+  VALUES1(popSTACK());
 }
 
 defun XLIB:CIRCULATE-WINDOW-UP (1)
@@ -3148,8 +3126,7 @@ defun XLIB:CIRCULATE-WINDOW-UP (1)
   begin_call();
   XCirculateSubwindowsUp (dpy, win);
   end_call ();
-  skipSTACK (1);
-  value1= NIL; mv_count = 1;
+  VALUES1(popSTACK());
 }
 
 /* 4.5  Window Hierachy */
@@ -3492,7 +3469,7 @@ defun XLIB:CREATE-GCONTEXT (0, 0, norest, key, 26,
       gcon = XCreateGC (dpy, da, valuemask, &values);
       end_call ();
 
-      VALUES1(make_gcontext (get_display_obj STACK_(25), gcon));
+      VALUES1(make_gcontext (get_display_obj(STACK_(25)), gcon));
 
       if (non_trivial_clip_mask_p)
 	{
@@ -3504,8 +3481,8 @@ defun XLIB:CREATE-GCONTEXT (0, 0, norest, key, 26,
 	  pushSTACK (STACK_1);	// the gcontext again
 	  pushSTACK (STACK_6);	// the :clip-ordering argument
 	  {
-	    Values C_xlib_gcontext_clip_mask_setter (void);
-	    C_xlib_gcontext_clip_mask_setter ();
+	    Values C_xlib_set_gcontext_clip_mask (void);
+	    C_xlib_set_gcontext_clip_mask ();
 	  }
 	  value1 = popSTACK();	// restore gcontext
 	}
@@ -3517,8 +3494,8 @@ defun XLIB:CREATE-GCONTEXT (0, 0, norest, key, 26,
 	  pushSTACK (STACK_2);	// the :dashes argument
 	  pushSTACK (STACK_1);	// gcontext again
 	  {
-	    Values C_xlib_gcontext_dashes_setter (void);
-	    C_xlib_gcontext_dashes_setter ();
+	    Values C_xlib_set_gcontext_dashes (void);
+	    C_xlib_set_gcontext_dashes ();
 	  }
 	  value1 = popSTACK();	// restore gcontext
 	}
@@ -3573,31 +3550,31 @@ defun XLIB:CREATE-GCONTEXT (0, 0, norest, key, 26,
 	  skipSTACK (1);                                                \
 	}
 
-##define DEF_GCONTEXT_SLOT_SETTER(lspnam, type, slot, mask)     \
-	defun XLIB:GCONTEXT-##lspnam##-setter (2)               \
+##define DEF_SET_GCONTEXT_SLOT(lspnam, type, slot, mask)        \
+	defun XLIB:SET-GCONTEXT-##lspnam##(2)                   \
 	{                                                       \
 	  XGCValues values;                                     \
 	  Display *dpy;                                         \
-	  GC gcon = get_gcontext_and_display (STACK_0, &dpy);   \
-	  values.slot = get_##type (STACK_1);                   \
+	  GC gcon = get_gcontext_and_display (STACK_1, &dpy);   \
+	  values.slot = get_##type (STACK_0);                   \
 	  begin_call ();                                        \
 	  XChangeGC (dpy, gcon, mask, &values);                 \
 	  end_call ();                                          \
-	  VALUES1(STACK_1);					\
+	  VALUES1(STACK_0);					\
 	  skipSTACK (2);                                        \
 	}
 
 ##define DEF_GCONTEXT_SLOT(lspnam, type, slot, mask)            \
 	DEF_GCONTEXT_SLOT_GETTER (lspnam, type, slot, mask)     \
-	DEF_GCONTEXT_SLOT_SETTER (lspnam, type, slot, mask)
+	DEF_SET_GCONTEXT_SLOT (lspnam, type, slot, mask)
 
 ##define DEF_GCONTEXT_SLOT2(lspnam, type, slot, mask)           \
 	DEF_GCONTEXT_SLOT_GETTER2 (lspnam, type, slot, mask)    \
-	DEF_GCONTEXT_SLOT_SETTER (lspnam, type, slot, mask)
+	DEF_SET_GCONTEXT_SLOT (lspnam, type, slot, mask)
 
-/*----------------------------------------------------------------------------------------------
+/*--------------------------------------------------------------------------
                     lisp name       type            C slot              mask
- ----------------------------------------------------------------------------------------------*/
+ ---------------------------------------------------------------------------*/
 DEF_GCONTEXT_SLOT  (arc-mode,       arc_mode,       arc_mode,           GCArcMode)
 DEF_GCONTEXT_SLOT  (background,     pixel,          background,         GCBackground)
 DEF_GCONTEXT_SLOT  (cap-style,      cap_style,      cap_style,          GCCapStyle)
@@ -3630,16 +3607,15 @@ defun XLIB:GCONTEXT-CACHE-P (1)
   skipSTACK (1);
 }
 
-defun XLIB:GCONTEXT-CACHE-P-SETTER (2)
+defun XLIB:SET-GCONTEXT-CACHE-P (2)
 {
   Display *dpy;
-  unused get_gcontext_and_display (STACK_0, &dpy);
-  if (eq (STACK_1, NIL))
-    {
-      pushSTACK (TheSubr (subr_self)->name);
-      fehler (error, "~: This CLX implemenation does not allow uncached graphics contexts.");
-    }
-  VALUES1(STACK_1);
+  unused get_gcontext_and_display (STACK_1, &dpy);
+  if (nullp(STACK_0)) {
+    pushSTACK (TheSubr (subr_self)->name);
+    fehler (error, "~: This CLX implemenation does not allow uncached graphics contexts.");
+  }
+  VALUES1(STACK_0);
   skipSTACK (2);
 }
 
@@ -3675,76 +3651,70 @@ defun XLIB:GCONTEXT-DASHES (1)
 }
 
 //
-// (setf xlib:gcontext-dashes) dashes gcontext
+// (setf (xlib:gcontext-dashes gcontext) dashes)
 //
-defun XLIB:GCONTEXT-DASHES-SETTER (2)
+defun XLIB:SET-GCONTEXT-DASHES (2)
 {
   XGCValues values;
   Display *dpy;
-  GC gcon = get_gcontext_and_display (STACK_0, &dpy);
+  GC gcon = get_gcontext_and_display (STACK_1, &dpy);
 
-  if (uint8_p (STACK_1))
+  if (uint8_p (STACK_0)) {
+    values.dashes = get_uint8 (STACK_0);
+    begin_call ();
+    XChangeGC (dpy, gcon, GCDashList, &values);
+    end_call ();
+    // Now set the %dashes slot.
+    pushSTACK (STACK_1);        // The instance, hence the gcontext
+    pushSTACK (`xlib::%dashes`);			// slot
+    pushSTACK (make_uint8 ((uint8)values.dashes));	// value
+    funcall (L(set_slot_value), 3);
+  } else {
+    uintC n;
+    // Now STACK_0 is required to be a non-empty sequence
+    pushSTACK (STACK_0);
+    funcall (L(length), 1);
+    n = get_fixnum (value1);
+    if (n < 1) {
+      pushSTACK (TheSubr(subr_self)->name);
+      fehler (error, "~: The dash list should be non-empty.");
+    }
     {
-      values.dashes = get_uint8 (STACK_1);
+      // FIXME: For efficiency reasons, we should look
+      //        if user gave already a byte vector.
+      //        [probably via with-gcontext].
+      uintC i;
+
+      // Allocate a simple vector of uint8's:
+      pushSTACK (allocate_bit_vector (/* eltype: */ Atype_8Bit, /* len: */ n));
+
+      // Copy the values from the dash-list argument into the
+      // newly created byte-vector representation
+      for (i = 0; i < n; i++) {
+        pushSTACK (STACK_1);	       // the dashes-list argument
+        pushSTACK (fixnum (i));	       // index
+        funcall (L(elt), 2);	       // (elt dashes index)
+        ((uint8*)TheSbvector (STACK_0)->data)[i] = get_uint8 (value1);
+      }
+
+      // The XSetDashes routine requires also the dash_offset,
+      // so retrieve it first.
       begin_call ();
-        XChangeGC (dpy, gcon, GCDashList, &values);
+      XGetGCValues (dpy, gcon, GCDashOffset, &values);
+      XSetDashes (dpy, gcon, values.dash_offset,
+                  ((char*)(&TheSbvector (STACK_1)->data[0])), n);
       end_call ();
 
-      // Now set the %dashes slot.
-      pushSTACK (STACK_0); 				// The instance, hence the gcontext
-      pushSTACK (`xlib::%dashes`);			// slot
-      pushSTACK (make_uint8 ((uint8)values.dashes));	// value
+      // Now install the byte-vector into the %dashes slot:
+      pushSTACK (STACK_0);      // The instance, hence the gcontext
+      pushSTACK (`xlib::%dashes`);		// slot
+      pushSTACK (STACK_2);		        // value, the byte-vector
       funcall (L(set_slot_value), 3);
+      skipSTACK (1);				// clean up; pop the byte-vector
     }
-  else
-    {
-      uintC n;
+  }
 
-      // Now STACK_1 is required to be a non-empty sequence
-      pushSTACK (STACK_1);
-      funcall (L(length), 1);
-      n = get_fixnum (value1);
-
-      if (n < 1)
-	{
-	  pushSTACK (TheSubr(subr_self)->name);
-	  fehler (error, "~: The dash list should be non-empty.");
-	}
-
-      {
-	// FIXME: For efficiency reasons, we should look, if user gave already a byte vector.
-	//        [probably via with-gcontext].
-	//
-	uintC i;
-
-	// Allocate a simple vector of uint8's:
-	pushSTACK (allocate_bit_vector (/* elm type: */ Atype_8Bit, /* len: */ n));
-
-	// Copy the values from the dash-list argument into the newly created byte-vector representation
-	for (i = 0; i < n; i++)
-	  {
-	    pushSTACK (STACK_2);	       // the dashes-list argument
-	    pushSTACK (fixnum (i));	       // index
-	    funcall (L(elt), 2);	       // (elt dashes index)
-	    ((uint8*)TheSbvector (STACK_0)->data)[i] = get_uint8 (value1);
-	  }
-
-	// The XSetDashes routine requires also the dash_offset, so retrieve it first.
-	begin_call ();
-	  XGetGCValues (dpy, gcon, GCDashOffset, &values);
-	  XSetDashes (dpy, gcon, values.dash_offset, ((char*)(&TheSbvector (STACK_0)->data[0])), n);
-	end_call ();
-
-	// Now install the byte-vector into the %dashes slot:
-	pushSTACK (STACK_1); 			// The instance, hence the gcontext
-	pushSTACK (`xlib::%dashes`);		// slot
-	pushSTACK (STACK_2);		        // value, the byte-vector
-	funcall (L(set_slot_value), 3);
-	skipSTACK (1);				// clean up; pop the byte-vector
-      }
-    }
-
-  VALUES1(STACK_1);
+  VALUES1(STACK_0);
   skipSTACK (2);
   // all done
 }
@@ -3778,101 +3748,90 @@ defun XLIB:GCONTEXT-CLIP-MASK (1)
 
 
 //
-// (SETF XLIB:GCONTEXT-CLIP-MASK) clip-mask gcontext &optional ordering
+// (SETF (XLIB:GCONTEXT-CLIP-MASK gcontext &optional ordering) clip-mask)
 //
-defun XLIB:GCONTEXT-CLIP-MASK-SETTER (2,1)
+defun XLIB:SET-GCONTEXT-CLIP-MASK (2,1)
 {
   Display *dpy;
-  GC gcontext;
+  GC gcontext = get_gcontext_and_display (STACK_1, &dpy);
 
-  gcontext = get_gcontext_and_display (STACK_1, &dpy);
+  if (eq (STACK_2, `:NONE`) || eq (STACK_2, NIL)) {
+    begin_call ();
+    XSetClipMask (dpy, gcontext, None);
+    end_call ();
+  } else if (pixmap_p (STACK_2)) {
+    Pixmap pixmap = get_pixmap (STACK_2);
+    begin_call ();
+    XSetClipMask (dpy, gcontext, pixmap);
+    end_call ();
+  } else {
+    // FIXME: We could use a more effient representation for the clip-mask
+    //        in the gcontext.
+    //        We should think about the portability of using a halfword-vector
+    //        and then beam the data directly into the rectangles vector.
+    int ordering, n;
+    if (missingp(STACK_0))
+      ordering = Unsorted;
+    else
+      ordering = get_ordering (STACK_0);
 
-  if (eq (STACK_2, `:NONE`) || eq (STACK_2, NIL))
-    {
-      begin_call ();
-        XSetClipMask (dpy, gcontext, None);
-      end_call ();
+    pushSTACK (STACK_2);
+    funcall (L(length), 1);
+    n = get_sint32 (value1);
+
+    // See if length is a multiple of 4?
+    if (n%4) {
+      pushSTACK (TheSubr (subr_self)->name);
+      pushSTACK (`XLIB::RECT-SEQ`);
+      pushSTACK (fixnum (n));
+      fehler (error, "~: Argument is no proper ~; Length of sequence, ~, is no multiple of four.");
     }
-  else
-  if (pixmap_p (STACK_2))
+
     {
-      Pixmap pixmap = get_pixmap (STACK_2);
-      begin_call ();
-        XSetClipMask (dpy, gcontext, pixmap);
-      end_call ();
-    }
-  else
-    {
-      // FIXME: We could use a more effient representation for the clip-mask in the gcontext.
-      //        We should think about the portability of using a halfword-vector and then beam
-      //        the data directly into the rectangles vector.
+      int i;
 
-      int ordering, n;
-      if (missingp(STACK_0))
-	ordering = Unsorted;
-      else
-	ordering = get_ordering (STACK_0);
+      DYNAMIC_ARRAY (rectangles, XRectangle, n/4);
 
-      pushSTACK (STACK_2);
-      funcall (L(length), 1);
-      n = get_sint32 (value1);
+      // btw all this copying of sequences, could probably be warped into some
+      // common function/macro.  This function should also cdr-down lists,
+      // since elt is highly unappropriate for lists. [most cases we get
+      // lists.]
 
-      // See if length is a multiple of 4?
-      if (n%4)
-	{
-	  pushSTACK (TheSubr (subr_self)->name);
-	  pushSTACK (`XLIB::RECT-SEQ`);
-	  pushSTACK (fixnum (n));
-	  fehler (error, "~: Argument is no proper ~; Length of sequence, ~, is no multiple of four.");
-	}
+      for (i = 0; i < n; i += 4) {
+        pushSTACK (STACK_2); pushSTACK (fixnum (i+0)); funcall (L(elt), 2);
+        rectangles[i/4].x = get_sint16(value1);
+
+        pushSTACK (STACK_2); pushSTACK (fixnum (i+1)); funcall (L(elt), 2);
+        rectangles[i/4].y = get_sint16(value1);
+
+        pushSTACK (STACK_2); pushSTACK (fixnum (i+2)); funcall (L(elt), 2);
+        rectangles[i/4].width = get_sint16(value1);
+
+        pushSTACK (STACK_2); pushSTACK (fixnum (i+3)); funcall (L(elt), 2);
+        rectangles[i/4].height = get_sint16(value1);
+      }
 
       {
-	int i;
-
-	DYNAMIC_ARRAY (rectangles, XRectangle, n/4);
-
-	// btw all this copying of sequences, could probably be warped into some
-	// common function/macro.  This function should also cdr-down lists,
-	// since elt is highly unappropriate for lists. [most cases we get
-	// lists.]
-	//
-
-	for (i = 0; i < n; i += 4)
-	  {
-	    pushSTACK (STACK_2); pushSTACK (fixnum (i+0)); funcall (L(elt), 2);
-	    rectangles[i/4].x = get_sint16(value1);
-
-	    pushSTACK (STACK_2); pushSTACK (fixnum (i+1)); funcall (L(elt), 2);
-	    rectangles[i/4].y = get_sint16(value1);
-
-	    pushSTACK (STACK_2); pushSTACK (fixnum (i+2)); funcall (L(elt), 2);
-	    rectangles[i/4].width = get_sint16(value1);
-
-	    pushSTACK (STACK_2); pushSTACK (fixnum (i+3)); funcall (L(elt), 2);
-	    rectangles[i/4].height = get_sint16(value1);
-	  }
-
-	{
-	  XGCValues values;
-	  begin_call ();
-	    XGetGCValues (dpy, gcontext, GCClipXOrigin|GCClipYOrigin, &values);
-	    XSetClipRectangles (dpy, gcontext, values.clip_x_origin, values.clip_y_origin, rectangles, n/4, ordering);
-	  end_call ();
-	}
-
-	// ok. now copy the value given by user, so if he messes around with
-	// what he gave as argument, it will not affect the saved value.
-
-	pushSTACK (STACK_2);
-	funcall (L(copy_seq), 1);
-	STACK_2 = value1;
-
-	FREE_DYNAMIC_ARRAY (rectangles);
+        XGCValues values;
+        begin_call ();
+        XGetGCValues (dpy, gcontext, GCClipXOrigin|GCClipYOrigin, &values);
+        XSetClipRectangles (dpy, gcontext, values.clip_x_origin, values.clip_y_origin, rectangles, n/4, ordering);
+        end_call ();
       }
+
+      // ok. now copy the value given by user, so if he messes around with
+      // what he gave as argument, it will not affect the saved value.
+
+      pushSTACK (STACK_2);
+      funcall (L(copy_seq), 1);
+      STACK_2 = value1;
+
+      FREE_DYNAMIC_ARRAY (rectangles);
     }
+  }
 
   // Now save the value just set in the %clip-mask slot.
-  pushSTACK (STACK_1); 				// The instance, hence the gcontext
+  pushSTACK (STACK_1);          // The instance, hence the gcontext
   pushSTACK (`xlib::%clip-mask`);		// slot
   pushSTACK (STACK_4);				// value
   funcall (L(set_slot_value), 3);
@@ -3902,15 +3861,12 @@ defun XLIB:GCONTEXT-FONT (1, 1)
   skipSTACK (2);
 }
 
-defun XLIB:GCONTEXT-FONT-SETTER (2, 1)
-     // want to say: defun (SETF XLIB:GCONTEXT-FONT) (2, 1)
+defun XLIB:SET-GCONTEXT-FONT (2, 1)
 {
   int pseudo_font_p;
   XGCValues values;
   Display *dpy;
-  GC gc;
-
-  gc = get_gcontext_and_display (STACK_1, &dpy);
+  GC gc = get_gcontext_and_display (STACK_1, &dpy);
 
   pseudo_font_p = !missingp(STACK_0);
   if (pseudo_font_p) NOTIMPLEMENTED;
@@ -5284,49 +5240,44 @@ defun XLIB:FONT-PATH (1, 0, norest, key, 1, (:RESULT-TYPE)) // [OK]
   skipSTACK (2);		// all done
 }
 
+//  (SETF (XLIB:FONT-PATH display) new-path)
+//     == (XLIB:SET-FONT-PATH display new-path)
 //
-//  (SETF (XLIB:FONT-PATH display) new-path) == (XLIB:FONT-PATH-SETTER new-path display)
+//  NOTE  - The CLX manual says that pathnames are also o.k. as arguments.
+//          But I consider it dirty, since the X server may live on an
+//          entirely different architecture than the client.
 //
-//  NOTE  - The CLX manual says that pathnames are also o.k. as arguments. But I
-//          consider  it dirty,  since  the  X  server  may  live  on an  entire
-//          different architecture than the client.
-//
-defun XLIB:FONT-PATH-SETTER (2)
+defun XLIB:SET-FONT-PATH (2)
 {
   Display *dpy;
   int npathen,i;
 
-  pushSTACK (STACK_0); dpy = pop_display ();
+  pushSTACK (STACK_1); dpy = pop_display ();
 
   // Find number of pathen
-  pushSTACK (STACK_1);
+  pushSTACK (STACK_0);
   funcall (L(length), 1);
   npathen = get_uint32 (value1);
 
   {
     DYNAMIC_ARRAY (pathen, char*, npathen);
 
-    for (i = 0; i < npathen; i++)
-      {
-	pushSTACK (STACK_1);	// pathen
-	pushSTACK (fixnum (i));	// index
-	funcall (L(elt), 2);
-	if (stringp (value1))
-	  { with_string_0 (value1, misc_encoding (), frob,
-		 	 {
-			   uintL j;
-			   j = asciz_length (frob)+1;    // das ist bloed, denn laenge ist ja schon bekannt 8-(
-			   pathen [i] = malloc (j);      // warum eigendlich kein begin/end_call hier? 8-?
-			   while (j--) pathen[i][j] = frob[j];
-			 });}
-	else
-	  {
-	    // Raise type error
-	    pushSTACK (value1);		// object in question
-	    pushSTACK (`STRING`);	// desired type
-	    my_standard_type_error (TheSubr(subr_self)->name);
-	  }
+    for (i = 0; i < npathen; i++) {
+      pushSTACK (STACK_0);	// pathen
+      pushSTACK (fixnum (i));	// index
+      funcall (L(elt), 2);
+      if (stringp (value1)) {
+        with_string_0 (value1, misc_encoding (), frob, {
+          uintL j = asciz_length (frob)+1;    // das ist bloed, denn laenge ist ja schon bekannt 8-(
+          pathen [i] = malloc (j);      // warum eigendlich kein begin/end_call hier? 8-?
+          while (j--) pathen[i][j] = frob[j];
+        });
+      } else { // Raise type error
+        pushSTACK (value1);		// object in question
+        pushSTACK (`STRING`);	// desired type
+        my_standard_type_error (TheSubr(subr_self)->name);
       }
+    }
 
     begin_call ();
     XSetFontPath (dpy, pathen, npathen);
@@ -5340,7 +5291,7 @@ defun XLIB:FONT-PATH-SETTER (2)
     FREE_DYNAMIC_ARRAY (pathen);
   }
 
-  VALUES1(STACK_1);
+  VALUES1(STACK_0);
   skipSTACK (2);
 }
 
@@ -6840,9 +6791,9 @@ defun XLIB:SELECTION-OWNER (2)
 
 //
 // (SETF (XLIB:SELECTION-OWNER display selection &optional time) owner)
-// == (XLIB:SELECTION-OWNER-SETTER owner display selection &optional time)
+// == (XLIB:SET-SELECTION-OWNER owner display selection &optional time)
 //
-defun XLIB:SELECTION-OWNER-SETTER (3, 1)
+defun XLIB:SET-SELECTION-OWNER (3, 1)
 {
   Window owner = get_window (STACK_3);
   Display *dpy = (pushSTACK (STACK_2), pop_display ());
@@ -8220,27 +8171,26 @@ defun XLIB:POINTER-MAPPING (1, 0, norest, key, 1, (:RESULT-TYPE))
 
 //
 // (SETF (XLIB:POINTER-MAPPING display) mapping)
-// == (XLIB:POINTER-MAPPING-SETTER mapping display)
+// == (XLIB:SET-POINTER-MAPPING display mapping)
 //
-defun XLIB:POINTER-MAPPING-SETTER (2)
+defun XLIB:SET-POINTER-MAPPING (2)
 {
   Display *dpy;
   int nmap, i;
   int result;
 
-  pushSTACK (STACK_0); dpy = pop_display ();
-  pushSTACK (STACK_1); funcall (L(length), 1); nmap = get_uint32 (value1);
+  pushSTACK (STACK_1); dpy = pop_display ();
+  pushSTACK (STACK_0); funcall (L(length), 1); nmap = get_uint32 (value1);
 
   {
     DYNAMIC_ARRAY (map, unsigned char, nmap);
 
-    for (i = 0; i < nmap; i++)
-      {
-	pushSTACK (STACK_1);	// mapping argument
-	pushSTACK (fixnum (i)); // index
-	funcall (L(elt), 2);
-	map [i] = get_uint8 (value1);
-      }
+    for (i = 0; i < nmap; i++) {
+      pushSTACK (STACK_0);	// mapping argument
+      pushSTACK (fixnum (i)); // index
+      funcall (L(elt), 2);
+      map [i] = get_uint8 (value1);
+    }
 
     begin_call ();
     result = XSetPointerMapping (dpy, map, nmap);
@@ -8258,7 +8208,7 @@ defun XLIB:POINTER-MAPPING-SETTER (2)
     FREE_DYNAMIC_ARRAY (map);
   }
 
-  VALUES1(STACK_1);
+  VALUES1(STACK_0);
   skipSTACK (2);	// all done
 
   // Isn't that all a overdoze for this functions?! (But since my mouse thinks
@@ -8283,8 +8233,8 @@ defun XLIB:BELL (1, 1)
 }
 
 defun XLIB:CHANGE-KEYBOARD-CONTROL (1, 0, norest, key, 8,
-				    (:KEY-CLICK-PERCENT :BELL-PERCENT :BELL-PITCH :BELL-DURATION :LED :LED-MODE
-				     :KEY :AUTO-REPEAT-MODE))
+          (:KEY-CLICK-PERCENT :BELL-PERCENT :BELL-PITCH :BELL-DURATION
+           :LED :LED-MODE :KEY :AUTO-REPEAT-MODE))
 {UNDEFINED;}
 
 defun XLIB:KEYBOARD-CONTROL (1)
@@ -8525,7 +8475,7 @@ defun XLIB:CLOSE-DOWN-MODE (1)
   fehler (error, ("~ can only be set"));
 }
 
-defun XLIB:CLOSE-DOWN-MODE-SETTER (2)
+defun XLIB:SET-CLOSE-DOWN-MODE (2)
 {
   Display *dpy = pop_display ();
   int mode = get_close_down_mode (STACK_0);
@@ -8589,10 +8539,8 @@ defun XLIB:ACCESS-CONTROL (1)
   VALUES_IF(state);
 }
 
-defun XLIB:ACCESS-CONTROL-SETTER (2)
-     // alias
-     // defun (SETF XLIB:ACCESS-CONTROL) (2)
-     //
+// (SETF (XLIB:ACCESS-CONTROL dpy) state)
+defun XLIB:SET-ACCESS-CONTROL (2)
 {
   Display *dpy = pop_display ();
   Bool state = get_bool (STACK_0);
@@ -8872,7 +8820,6 @@ int xlib_after_function (Display *display)
   begin_callback ();
 
   pushSTACK (find_display (display));
-  ensure_living_display (&(STACK_0)); // somewhat bogus?!
   pushSTACK (TheStructure (STACK_0)->recdata[slot_DISPLAY_AFTER_FUNCTION]);
   pushSTACK (STACK_1);
   funcall (L(funcall), 2);
@@ -9390,8 +9337,3 @@ void module__clx__init_function_2 (module_t *module)
     }
 #endif
 }
-
-// Local variables:
-// truncate-lines: t
-// fill-column: 79
-// end:

@@ -11,7 +11,7 @@
 	use PRINT-OBJECT, not :PRINT-FUNCTION DEFSTRUCT option
 	use (DEFSETF foo set-foo) instead of (SETF (FDEFINITION '(SETF
 	foo)) #'set-foo) for all setters
-	(make-gcontext): new funtion (for clue)
+	(make-gcontext): new function (for clue)
 	(x-error, closed-display): new conditions (complete)
 	(request-error, resource-error, request-error, resource-error)
 	(access-error, alloc-error, atom-error, colormap-error)
@@ -22,6 +22,21 @@
 	(sequence-error, server-disconnect, unexpected-reply)
 	(unknown-error, value-error, window-error): new conditions (just
 	the stubs)
+	* modules/clx/new-clx/clx.f (closed_display_error): new function
+	(isa_struct_p): use memq() instead of an explicit loop
+	(ensure_living_display): return Bool indicator of whether the
+	display has been closed
+	(CLOSED-DISPLAY-P): new public function
+	(CLOSE-DISPLAY): mark the display as closed
+	by setting fp_pointer to NULL
+	(display_hash_table, pop_display, general_lookup): signal a
+	CLOSED-DISPLAY error when ensure_living_display() returns false
+	(get_ptr_object_and_display, get_xid_object_and_display): use
+	pop_display() instead of ensure_living_display()
+	(SET-DISPLAY-AFTER-FUNCTION): do not call
+	ensure_living_display() twice
+	(xlib_after_function): no need to call ensure_living_display()
+	converted *-SETTER --> SET-*
 
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
