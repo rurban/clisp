@@ -643,9 +643,7 @@
        var uintL real_time; # Sekunden
        var internal_time it;
        get_real_time(&it);
-       # it.tv_sec sind Sekunden seit 1.1.1970
-       # 25567*24*60*60 Sekunden zwischen 1.1.1900 und 1.1.1970
-       real_time = 2208988800UL + it.tv_sec;
+       real_time = UNIX_LISP_TIME_DIFF + it.tv_sec;
       #endif
       #ifdef TIME_WIN32
        var internal_time offset = # difference between 1.1.1601 and 1.1.1900

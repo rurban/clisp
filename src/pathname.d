@@ -10932,10 +10932,9 @@ LISPFUN(file_stat_,1,1,norest,nokey,0,NIL)
     pushSTACK(L_to_I(buf.st_size));     # total size, in bytes
     pushSTACK(UL_to_I(buf.st_blksize)); # blocksize for filesystem I/O
     pushSTACK(UL_to_I(buf.st_blocks));  # number of blocks allocated
-    # 2208988800 is the number of seconds from 1900-01-01 to 1970-01-01
-    pushSTACK(UL_to_I(buf.st_atime+2208988800)); # time of last access
-    pushSTACK(UL_to_I(buf.st_mtime+2208988800)); # time of last modification
-    pushSTACK(UL_to_I(buf.st_ctime+2208988800)); # time of last change
+    pushSTACK(UL_to_I(buf.st_atime+UNIX_LISP_TIME_DIFF)); # time of last access
+    pushSTACK(UL_to_I(buf.st_mtime+UNIX_LISP_TIME_DIFF)); # last modification
+    pushSTACK(UL_to_I(buf.st_ctime+UNIX_LISP_TIME_DIFF)); # time of last change
     funcall(L(values),14);
   }
 
