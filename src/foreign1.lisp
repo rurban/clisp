@@ -22,7 +22,7 @@
           c-function c-ptr c-ptr-null c-array-ptr
           def-c-enum def-c-struct element deref slot cast typeof
           sizeof bitsizeof c-var-object c-var-address offset
-          validp with-c-place foreign-value
+          validp with-c-place foreign-value enum-from-value enum-to-value
           foreign-address foreign-address-unsigned unsigned-foreign-address
           with-foreign-object with-c-var with-foreign-string
           foreign-allocate allocate-deep allocate-shallow foreign-free
@@ -1027,15 +1027,38 @@
 
 (defmacro def-c-enum (&whole whole name &rest items)
   (check-symbol (first whole) name)
-  (let ((forms '())
-        (next-value 0))
+  (let ((forms '()) (ht (make-hash-table))
+        (next-value 0) (this-val 0))
     (dolist (item items)
       (when (consp item)
-        (when (rest item) (setq next-value (second item)))
+        (when (rest item)
+          (setq next-value (second item)
+                this-val (second item)))
         (setq item (first item)))
       (push `(DEFCONSTANT ,item ,next-value) forms)
-      (setq next-value `(1+ ,item)))
-    `(PROGN ,@(nreverse forms) (def-c-type ,name int))))
+      (when (gethash this-val ht)
+        (warn (TEXT "~S (~S): value ~S will be assigned to both ~S and ~S")
+              'def-c-enum this-val (gethash this-val ht) item))
+      (setf (gethash this-val ht) item)
+      (setq next-value `(1+ ,item) this-val (1+ this-val)))
+    `(PROGN ,@(nreverse forms) (setf (get ',name 'def-c-enum) ,ht)
+            (def-c-type ,name int))))
+
+(defun enum-table (enum)
+  (or (get enum 'def-c-enum)
+      (error (TEXT "~S does not name a C enum type") enum)))
+(defun enum-to-value (enum symbol)
+  (let ((val (dohash (k v (enum-table enum)
+                      (error (TEXT "~S is not of C enum type ~S") symbol enum))
+               (when (eq v symbol) (return k)))))
+    (unless (= val (symbol-value symbol))
+      (error
+       (TEXT "~S symbol value (~S) does not match its table value (~S) in ~S")
+       symbol (symbol-value symbol) val enum))
+    val))
+(defun enum-from-value (enum value)
+  (or (gethash value (enum-table enum))
+      (error (TEXT "~S is not a valid value of type ~S") value enum)))
 
 (defmacro def-c-struct (name+options &rest slots)
   (with-name/options (name options name+options)

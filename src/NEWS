@@ -180,6 +180,9 @@ User visible changes
     be treated as NULL; NULL return value of type FFI:C-POINTER is
     returned as NIL.
     See <http://clisp.cons.org/impnotes.html#c-pointer>.
+  + You can now map between numeric and symbolic C enum values using
+    functions FFI:ENUM-FROM-VALUE and FFI:ENUM-TO-VALUE.
+    See <http://clisp.cons.org/impnotes.html#def-c-enum>.
 
 * FFI does not output extern variable and function declarations unless
   you set FFI:*OUTPUT-C-VARIABLES* and/or FFI:*OUTPUT-C-FUNCTIONS* to T.

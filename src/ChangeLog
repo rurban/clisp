@@ -1,5 +1,12 @@
 2003-08-13  Sam Steingold  <sds@gnu.org>
 
+	You can now map between numeric and symbolic C enum values using
+	functions FFI:ENUM-FROM-VALUE and FFI:ENUM-TO-VALUE
+	* foreign1.lisp (enum-from-value, enum-to-value): new functions
+	(def-c-enum): save the value -> constant name map in a hash-table
+
+2003-08-13  Sam Steingold  <sds@gnu.org>
+
 	do FUNCTION-CODES lookup at load time: a change in FUNCTION-CODES
 	means a change in FUNTAB, i.e., all FAS recompilation anyway
 	* compiler.lisp (CALLS-code-fun): new macro
