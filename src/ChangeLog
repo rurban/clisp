@@ -1,5 +1,11 @@
 2004-03-12  Bruno Haible  <bruno@clisp.org>
 
+	* m4/ioctl.m4 (CL_IOCTL): Define IOCTL_ARGUMENT_T through
+	AC_DEFINE_UNQUOTED, not AC_DEFINE. Fixes bug introduced on 2003-08-03
+	(no ChangeLog entry). Needed on OSF/1 and AIX.
+
+2004-03-12  Bruno Haible  <bruno@clisp.org>
+
 	* makemake.in (testsuite, testsuite-all): Set CLISP_LANGUAGE to empty
 	while running the tests. Needed to avoid a testsuite failure when the
 	user has set CLISP_LANGUAGE=francais but *terminal-encoding* is ASCII.
