@@ -1,3 +1,9 @@
+2004-04-27  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (run-all-tests) [CLISP]: bind
+	CUSTOM:*WARN-ON-FLOATING-POINT-CONTAGION* and
+	CUSTOM:*WARN-ON-FLOATING-POINT-RATIONAL-CONTAGION* to NIL
+
 2004-04-17  Bruno Haible  <bruno@clisp.org>
 
 	Add support for SBCL.
