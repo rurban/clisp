@@ -88,16 +88,19 @@
   ;; In CLISP the classes CLASS and METHOD are implemented as structures.
   TYPES.3 BUILT-IN-CLASS-CPL STANDARD-CLASS-CPL STANDARD-METHOD-CPL
 
-  ; To be revisited:
-  ; CHANGE-CLASS.1.11 CHANGE-CLASS.3.2 CHANGE-CLASS.ERROR.4
-  ; MAKE-INSTANCES-OBSOLETE.2 TYPES.7B TYPES.7C
-  ; USER-CLASS-DISJOINTNESS USER-CLASS-DISJOINTNESS-2 TAC-3.16
-
-  ;; test bug: PROBE-FILE on directory:
+  ;; Paul Dietz assumes that PROBE-FILE on a directory is allowed.
+  ;; In CLISP, it always gives an error.
   ENSURE-DIRECTORIES-EXIST.8
 
-  ;; test bug
+  ;; Paul Dietz assumes that gensyms, when printed with *PRINT-READABLY* = T,
+  ;; look like #:ABC.
+  ;; In CLISP, they look like #:|ABC|.
   PRINT.SYMBOL.PREFIX.3
+
+  ; To be revisited:
+  ; CHANGE-CLASS.1.11 CHANGE-CLASS.3.2 CHANGE-CLASS.ERROR.4
+  ; MAKE-INSTANCES-OBSOLETE.2 IMAGPART.4 TYPES.7B TYPES.7C
+  ; USER-CLASS-DISJOINTNESS USER-CLASS-DISJOINTNESS-2 TAC-3.16
 ))
 
 ;; A few tests call DISASSEMBLE. Make it work without user intervention.
