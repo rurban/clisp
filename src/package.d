@@ -1895,7 +1895,7 @@ global void symbol_value_check_lock (object caller, object symbol) {
     check_pack_lock(caller,pack,symbol);
 }
 LISPFUNN(symbol_value_lock,1) { /* SYS::SYMBOL-VALUE-LOCK */
-  var object symb = popSTACK();
+  var object symb = check_symbol(popSTACK());
   var object pack = Symbol_package(symb);
   VALUES_IF(SYM_VAL_LOCK(symb,pack) && pack_locked_p(pack));
 }
