@@ -6875,7 +6875,8 @@ for-value   NIL or T
                                                ',(clos:class-name type)))))))
               ;; ((sys::encodingp type) ...) ; not worth optimizing
               )))
-    (c-GLOBAL-FUNCTION-CALL-form `(TYPEP ,objform ,typeform))))
+    (c-GLOBAL-FUNCTION-CALL-form `(TYPEP ,objform ,typeform
+                                         ,(cadddr *form*)))))
 
 ;; c-FORMAT cf. FORMAT in format.lisp
 (defun c-FORMAT ()
