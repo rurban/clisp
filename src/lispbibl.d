@@ -1741,17 +1741,6 @@
 # 386BSD macht "#define CBLOCK 64". Grr...
   #undef CBLOCK
 
-# Some OS calls expect `wchar_t*' arguments instead of `char*' arguments.
-#if defined(WIN32_NATIVE) && defined(UNICODE)
-  # NB: The Win32 include files pay attention to the macro `UNICODE'.
-  # When it is defined, XXX is an alias to XXXW, otherwise an alias to XXXA.
-  #define wchar  wchar_t
-  #define WLITERAL(string)  L##string
-#else
-  #define wchar  char
-  #define WLITERAL(string)  string
-#endif
-
 #ifdef AMIGAOS
   # Behandlung von AMIGAOS-Fehlern
   # OS_error();
@@ -1927,9 +1916,6 @@
 # assoziiert:
   #if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32)
     #define HAVE_ENVIRONMENT
-    #ifndef WIN32
-      #define wgetenv  getenv
-    #endif
   #endif
 # Bei Erweiterung: Nichts weiter zu tun.
 
@@ -7810,11 +7796,6 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   extern void asciz_out_1_ (const char * asciz, unsigned long arg1);
   extern void asciz_out_2_ (const char * asciz, unsigned long arg1, unsigned long arg2);
   extern void asciz_out_3_ (const char * asciz, unsigned long arg1, unsigned long arg2, unsigned long arg3);
-#if defined(WIN32_NATIVE) && defined(UNICODE)
-  extern void wasciz_out (const wchar * asciz);
-#else
-  #define wasciz_out  asciz_out
-#endif
 # wird verwendet von SPVW
 
 # uintL in Dezimalnotation direkt übers Betriebssystem ausgeben:
@@ -8347,11 +8328,6 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 #       (Adresse einer durch ein Nullbyte abgeschlossenen Zeichenfolge)
 # < ergebnis: Länge der Zeichenfolge (ohne Nullbyte)
   extern uintL asciz_length (const char * asciz);
-  #if defined(WIN32_NATIVE) && defined(UNICODE)
-    extern uintL wasciz_length (const wchar * asciz);
-  #else
-    #define wasciz_length  asciz_length
-  #endif
 # wird verwendet von SPVW
 
 # UP: Vergleicht zwei ASCIZ-Strings.
@@ -8360,13 +8336,6 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # > char* asciz2: zweiter ASCIZ-String
 # < ergebnis: TRUE falls die Zeichenfolgen gleich sind
   extern boolean asciz_equal (const char * asciz1, const char * asciz2);
-  #if defined(WIN32_NATIVE) && defined(UNICODE)
-    extern boolean wasciz_equal (const wchar * asciz1, const char * asciz2);
-    extern boolean wwasciz_equal (const wchar * asciz1, const wchar * asciz2);
-  #else
-    #define wasciz_equal  asciz_equal
-    #define wwasciz_equal  asciz_equal
-  #endif
 # wird verwendet von STREAM
 
 #if defined(GNU) && (SAFETY < 2)
@@ -10524,12 +10493,6 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
     #define n_char_to_string(charptr,len,encoding)  n_char_to_string_(charptr,len)
     extern object n_char_to_string_ (const char* charptr, uintL len);
   #endif
-  #if defined(WIN32_NATIVE) && defined(UNICODE)
-    #define n_wchar_to_string(charptr,len,encoding)  n_wchar_to_string_(charptr,len)
-    extern object n_wchar_to_string_ (const wchar* charptr, uintL len);
-  #else
-    #define n_wchar_to_string  n_char_to_string
-  #endif
 # wird verwendet von PATHNAME
 
 # UP: Wandelt einen ASCIZ-String in einen LISP-String um.
@@ -10545,12 +10508,6 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   #else
     #define asciz_to_string(asciz,encoding)  asciz_to_string_(asciz)
     extern object asciz_to_string_ (const char * asciz);
-  #endif
-  #if defined(WIN32_NATIVE) && defined(UNICODE)
-    #define wasciz_to_string(asciz,encoding)  wasciz_to_string_(asciz)
-    extern object wasciz_to_string_ (const wchar * asciz);
-  #else
-    #define wasciz_to_string  asciz_to_string
   #endif
   extern object ascii_to_string (const char * asciz);
 # wird verwendet von SPVW/CONSTSYM, STREAM, PATHNAME, PACKAGE, GRAPH
@@ -10578,10 +10535,6 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # copies the contents of string (which should be a Lisp string) to a safe area
 # (zero-terminating it), binds the variable asciz pointing to it, and
 # executes the statement.
-# with_string_w0(string,encoding,asciz,statement);
-# with_sstring_w0(simple_string,encoding,asciz,statement);
-# do the same thing, except that the variable asciz will be of type wchar*.
-# Normally used when encoding is O(pathname_encoding) or O(misc_encoding).
 #if 0
   #define with_string_0(string,encoding,ascizvar,statement)  \
     { var char* ascizvar = TheAsciz(string_to_asciz(string,encoding)); \
@@ -10618,38 +10571,6 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
       }                                                                   \
       FREE_DYNAMIC_ARRAY(ascizvar##_data);                                \
     }}
-#endif
-#if defined(WIN32_NATIVE) && defined(UNICODE)
-  #define with_string_w0(string,encoding,ascizvar,statement)  \
-    { var uintL ascizvar##_len;                                           \
-      var uintL ascizvar##_offset;                                        \
-      var object ascizvar##_string = unpack_string_ro(string,&ascizvar##_len,&ascizvar##_offset); \
-      var const chart* ptr1;                                              \
-      unpack_sstring_alloca(ascizvar##_string,ascizvar##_len,ascizvar##_offset, ptr1=); \
-     {var DYNAMIC_ARRAY(ascizvar##_data,wchar,ascizvar##_len+1);          \
-      if (ascizvar##_len > 0) n_chart_to_wchar(ptr1,&ascizvar##_data[0],ascizvar##_len); \
-      ascizvar##_data[ascizvar##_len] = (wchar)'\0';                      \
-      {var wchar* ascizvar = &ascizvar##_data[0];                         \
-       statement                                                          \
-      }                                                                   \
-      FREE_DYNAMIC_ARRAY(ascizvar##_data);                                \
-    }}
-  #define with_sstring_w0(string,encoding,ascizvar,statement)  \
-    { var object ascizvar##_string = (string);                            \
-      var uintL ascizvar##_len = Sstring_length(ascizvar##_string);       \
-      var const chart* ptr1;                                              \
-      unpack_sstring_alloca(ascizvar##_string,ascizvar##_len,0, ptr1=);   \
-     {var DYNAMIC_ARRAY(ascizvar##_data,wchar,ascizvar##_len+1);          \
-      if (ascizvar##_len > 0) n_chart_to_wchar(ptr1,&ascizvar##_data[0],ascizvar##_len); \
-      ascizvar##_data[ascizvar##_len] = (wchar)'\0';                      \
-      {var wchar* ascizvar = &ascizvar##_data[0];                         \
-       statement                                                          \
-      }                                                                   \
-      FREE_DYNAMIC_ARRAY(ascizvar##_data);                                \
-    }}
-#else
-  #define with_string_w0  with_string_0
-  #define with_sstring_w0  with_sstring_0
 #endif
 # wird verwendet von PATHNAME, MISC, FOREIGN
 
@@ -10995,15 +10916,6 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < ergebnis: TRUE falls druckend, FALSE sonst.
   extern boolean graphic_char_p (chart ch);
 # wird verwendet von STREAM, PATHNAME
-
-#if defined(WIN32_NATIVE) && defined(UNICODE)
-# Copies an array of chart to an array of wchar.
-# n_chart_to_wchar(src,dest,len);
-# > chart* src: characters
-# > wchar* dest: room for characters
-# > uintL len: number of characters to be copied, > 0
-  extern void n_chart_to_wchar (const chart* src, wchar* dest, uintL len);
-#endif
 
 # Copies an array of chart to an array of chart.
 # chartcopy(src,dest,len);

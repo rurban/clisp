@@ -1,3 +1,11 @@
+1999-06-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Don't use Unicode API on Win32. It does not work on Win95.
+        * lispbibl.d, win32.d, spvw.d, spvw_debug.d, spvw_language.d,
+          spvw_memfile.d, encoding.d, charstrg.d, pathname.d, stream.d,
+          misc.d, error.d, errwin32.d, win32aux.d: Revert most of 1999-06-20
+          patch.
+
 1999-06-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * pathname.d (asciz_dir_to_pathname_): Change declaration of pathbuf.
