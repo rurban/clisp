@@ -1807,10 +1807,8 @@
 (defconstant SEEK_CUR 1)
 (defconstant SEEK_END 2)
 
-(def-c-type FILE
-  (c-struct vector
-    ; components unknown
-) )
+(def-c-type FILE (c-struct vector #| components unknown |# ))
+
 (def-c-type fpos_t _G_fpos_t)
 
 (defconstant P_tmpdir "/tmp")
@@ -1982,7 +1980,7 @@
 (defmacro IFTODT (mode) `(ash (logand ,mode #o170000) -12))
 (defmacro DTTOIF (dirtype) `(ash ,dirtype 12))
 
-(def-c-struct (DIR :typedef)) ; components unknown
+(def-c-type DIR (c-struct vector #| components unknown |# ))
 
 (def-call-out opendir (:arguments (name c-string))
   (:return-type c-pointer))     ; (c-ptr DIR)?!
