@@ -41,7 +41,7 @@
 ;;   - poss. better Optimization by data-flow-analysis
 ;;   - Inline-Compilation of calls of local functions
 
-;; Sam Steingold 1999-2004
+;; Sam Steingold 1999-2005
 ;; German comments translated into English: Stefan Kain 2001-12-18
 ;; "z" at the end of a variable name stands for "zustand" (German for "state")
 
