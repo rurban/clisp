@@ -1,5 +1,10 @@
 Version  Date            New features
 
+2.26     2001-05-23      dropped CLtL1, #+LISP=CL
+                         DEFINE-COMPILER-MACRO, UPGRADED-COMPLEX-PART-TYPE
+                         RUN-SHELL-COMMAND, RUN-PROGRAM :WAIT
+                         compiler checks funcall signatures
+
 2.25.1   2001-04-06      bug-fixes only
 
 2.25     2001-03-15      INSPECT, CLHS,
