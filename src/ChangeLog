@@ -1,5 +1,9 @@
 2004-06-19  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/dbi.lisp (with-open-db): simplified
+
+2004-06-19  Sam Steingold  <sds@gnu.org>
+
 	* genclisph.d (symbol_): fixed the definition
 
 2004-06-18  Sam Steingold  <sds@gnu.org>
