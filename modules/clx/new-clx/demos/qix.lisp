@@ -59,12 +59,13 @@
        (step-qix k win gc white-pixel black-pixel))
      (xlib:display-force-output dpy)
      (sleep delay)
-     (setq n (- n 1))
+     (decf n)
      (if (<= n 0) (return)))))
 
 (defun qix (&key host display dpy
             (width 400) (height 400) (delay 0.05) (nqixs 3) (nlines 80))
-  (setf (values host display) (x-host-display))
+  (unless dpy
+    (setf (values host display) (x-host-display)))
   (let* ((dp1 (or dpy (xlib:open-display host :display display)))
          (scr (first (xlib:display-roots dp1)))
          (root-win (xlib:screen-root scr))
@@ -78,14 +79,14 @@
                                      :background white-pixel)))
     (xlib:map-window win)
     (xlib:display-finish-output dp1)
-    (format t "~&Qix uses the following parameters:~%  :dpy: ~s
+    (format t "~&Qix uses the following parameters:~%  :dpy ~s
   :host ~s :display ~s
   :width ~d :height ~d :delay ~f :nqixs ~d :nlines ~d~%"
-            dp1 host display  width height delay nqixs nlines)
+            dp1 host display width height delay nqixs nlines)
     (draw-qix dp1 win gcon width height white-pixel black-pixel
               delay nqixs nlines)
     (xlib:unmap-window win)
-    (xlib:destroy-window win)
+    (xlib:display-finish-output dp1)
     ;;clean-up
     (unless dpy (xlib:close-display dp1))))
 
