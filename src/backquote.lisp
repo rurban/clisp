@@ -176,9 +176,32 @@
   ;; we don't have TYPECASE at this stage
   (cond
     ((null form) nil)
-    ((consp form) (bq-expand-cons form))
-    ((or (stringp form) (bit-vector-p form)) (list 'quote form))
-    ((vectorp form) (bq-expand-vector form))
+    ((consp form)
+      ;; Handle base cases as described by HyperSpec, plus nested backquote:
+      ;;
+      ;; `,form     -->  form
+      ;; `,@form    -->  error
+      ;; ``form     -->  `form-expanded
+      ;; list-form  -->  (append f1 f2 f3 ...) where (f1 f2 f3 ...)
+      ;;                 is the output of (bq-expand-list list-form).
+      (case (first form)
+        ((UNQUOTE)
+          (second form))
+        ((SPLICE NSPLICE)
+          (bq-non-list-splice-error (second form)))
+        ((BACKQUOTE)
+          (list 'BACKQUOTE (bq-expand (second form))))
+        (otherwise
+          (let ((expansion (bq-expand-list form)))
+            (if *backquote-optimize*
+              (bq-optimize-for-list expansion)
+              (cons 'append expansion))))))
+    ((and (vectorp form) (not (or (stringp form) (bit-vector-p form))))
+      ;; Handle vector expansion, along the lines suggested by HyperSpec.
+      (let ((expansion (bq-expand-list (map 'list #'identity form))))
+        (if *backquote-optimize*
+          (bq-optimize-for-vector expansion)
+          (list 'apply #'vector (cons 'nconc expansion)))))
     (t (list 'quote form))))
 
 ;;; Handle the transformation of [x1] [x2] ... forms as described
@@ -195,26 +218,6 @@
       (otherwise (list 'list (bq-expand form))))
     (list 'list (bq-expand form))))
 
-;;; Handle base cases as describe by HyperSpec, plus nested backquote:
-;;;
-;;; `,form     -->  form
-;;; `,@form    -->  error
-;;; ``form     -->  `form-expanded
-;;; list-form  -->  (append f1 f2 f3 ...) where (f1 f2 f3 ...)
-;;;                 is the output of (bq-expand-list list-form).
-(defun bq-expand-cons (form)
-  (case (first form)
-    ((UNQUOTE)
-       (second form))
-    ((SPLICE NSPLICE)
-       (bq-non-list-splice-error (second form)))
-    ((BACKQUOTE)
-       (list 'BACKQUOTE (bq-expand (second form))))
-    (otherwise
-       (if *backquote-optimize*
-         (bq-optimize-for-list (bq-expand-list form))
-         (cons 'append (bq-expand-list form))))))
-
 ;;; Handle the transformation of `(x1 x2 x3 ...) as described by HyperSpec
 ;;; to produce a list of forms that can be combined into an APPEND form.
 ;;; There is one deviation from the HyperSpec: namely, in the case
@@ -222,29 +225,22 @@
 ;;; rather than (quote atom). This allows for the atom to be a vector
 ;;; with embedded unquotes, an apparently common extension.
 (defun bq-expand-list (form)
-  (cond
-    ((null form) nil)
-    ((consp (rest form))
-       (case (second form)
-         ;; well-defined dotted unquote `( ... . ,form)
-         ((UNQUOTE)
-            (list (bq-transform (first form)) (third form)))
-         ;; undefined dotted splice: `( ... . ,@form)
-         ((SPLICE NSPLICE)
-            (bq-dotted-splice-error (second form)))
-         (otherwise
-            (cons (bq-transform (first form))
-                  (bq-expand-list (rest form))))))
-    ((null (rest form))
-       (list (bq-transform (first form))))
-    (t (list (bq-transform (first form)) (list 'BACKQUOTE (rest form))))))
-
-;;; Handle vector expansion, along the lines suggested by HyperSpec.
-(defun bq-expand-vector (vec-form)
-  (let ((expansion (bq-expand-list (map 'list #'identity vec-form))))
-    (if *backquote-optimize*
-      (bq-optimize-for-vector expansion)
-      (list 'apply #'vector (cons 'nconc expansion)))))
+  (if (null form)
+    nil
+    (let ((expanded-car (bq-transform (first form)))
+          (tail (rest form)))
+      (cond ((null tail) (list expanded-car))
+            ((consp tail)
+             (case (first tail)
+               ;; well-defined dotted unquote `( ... . ,form)
+               ((UNQUOTE)
+                (list expanded-car (second tail)))
+               ;; undefined dotted splice: `( ... . ,@form)
+               ((SPLICE NSPLICE)
+                (bq-dotted-splice-error (first tail)))
+               (otherwise
+                 (cons expanded-car (bq-expand-list tail)))))
+            (t (list expanded-car (list 'BACKQUOTE tail)))))))
 
 ;;; --------------------------- Expansion Optimizer ---------------------------
 
