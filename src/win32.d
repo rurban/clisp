@@ -210,6 +210,9 @@
   #define write  full_write
   # Changing the position within a file.
   #define lseek(handle,offset,mode)  ((int)SetFilePointer(handle,offset,NULL,mode))
+  #undef SEEK_SET
+  #undef SEEK_CUR
+  #undef SEEK_END
   #define SEEK_SET  FILE_BEGIN
   #define SEEK_CUR  FILE_CURRENT
   #define SEEK_END  FILE_END
