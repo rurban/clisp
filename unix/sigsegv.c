@@ -82,7 +82,7 @@ extern signal_handler signal (int sig, signal_handler handler);
 /* This is the database how to get the fault address. */
 
 
-#if (defined(i386) || defined(__i386) || defined(_I386)) && defined(linux)
+#if (defined(i386) || defined(__i386) || defined(__i386__) || defined(_I386)) && defined(linux)
   /* This has been tested on Linux 1.1.38, but is likely to work for
    * most i386 Unices because of iBCS compatibility.
    *
