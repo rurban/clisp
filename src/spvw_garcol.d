@@ -1716,31 +1716,65 @@ local void gc_unmarkcheck (void) {
           while (!eq(L,Fixnum_0))
             { gc_mark(L); L = TheWeakpointer(L)->wp_cdr; }
         }
-        { # (still unmarked) shorten the all_weakkvtables list:
+        { /* (still unmarked) shorten the all_weakkvtables list: */
           var object Lu = all_weakkvtables;
           var gcv_object_t* L1 = &O(all_weakkvtables);
           while (!eq(Lu,Fixnum_0)) {
             ASSERT(weakkvtp(Lu));
             if (!alive(Lu)) {
-              # The weak key-value table itself is being GCed.
-              # Don't care about its contents. Remove it from the list.
+              /* The weak key-value table itself is being GCed.
+                 Don't care about its contents. Remove it from the list. */
               Lu = TheWeakKVT(Lu)->wkvt_cdr;
-            } else {
-              # kill the key/value pairs where the key is dead
+            } else { /* kill the key/value pairs where
+                        either the key or the value is dead */
               var uintL len = Weakkvt_length(Lu);
               var uintL idx = 0;
               var WeakKVT wt = TheWeakKVT(Lu);
               var gcv_object_t* data = wt->data;
-              for (; idx < len; idx += 2) {
-                var object key = data[idx];
-                if (boundp(key)) {
-                  if (alive(key)) # mark value
-                    gc_mark(data[idx+1]);
-                  else # drop both key and value from the table
+              if (eq(S(Kkey),wt->wkvt_type)) { /* :KEY */
+                for (; idx < len; idx += 2) {
+                  var object key = data[idx];
+                  if (boundp(key)) {
+                    if (alive(key)) /* mark value */
+                      gc_mark(data[idx+1]);
+                    else /* drop both key and value from the table */
+                      data[idx] = data[idx+1] = unbound;
+                  }
+                }
+              } else if (eq(S(Kvalue),wt->wkvt_type)) { /* :VALUE */
+                for (; idx < len; idx += 2) {
+                  var object value = data[idx+1];
+                  if (boundp(value)) {
+                    if (alive(value)) /* mark key */
+                      gc_mark(data[idx]);
+                    else /* drop both key and value from the table */
+                      data[idx] = data[idx+1] = unbound;
+                  }
+                }
+              } else if (eq(S(Keither),wt->wkvt_type)) { /* :EITHER */
+                for (; idx < len; idx += 2) {
+                  var object key = data[idx];
+                  var object val = data[idx+1];
+                  if ((boundp(key) && !alive(key)) ||
+                      (boundp(val) && !alive(val)))
+                    /* drop both key and value from the table */
                     data[idx] = data[idx+1] = unbound;
                 }
-              }
-              # Keep the WeakKVT in the list.
+              } else if (eq(S(Kboth),wt->wkvt_type)) { /* :BOTH */
+                for (; idx < len; idx += 2) {
+                  var object key = data[idx];
+                  var object val = data[idx+1];
+                  if ((boundp(key) && !alive(key)) &&
+                      (boundp(val) && !alive(val)))
+                    /* drop both key and value from the table */
+                    data[idx] = data[idx+1] = unbound;
+                  else {
+                    gc_mark(key);
+                    gc_mark(val);
+                  }
+                }
+              } else /*NOTREACHED*/ abort();
+              /* Keep the WeakKVT in the list. */
               *L1 = Lu; L1 = &TheWeakKVT(Lu)->wkvt_cdr; Lu = *L1;
             }
           }
