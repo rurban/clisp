@@ -83,6 +83,7 @@ It consists of the following files:
    data/clhs.txt          keyword-to-HyperSpec mapper
    data/UnicodeDataFull.txt  unicode character database
 #ifdef WIN32_NATIVE
+   clisp.exe              the driver
    install.bat,
    src/install.lisp       user-friendly installer
 #endif
@@ -167,7 +168,7 @@ timezone.lisp.
 Then start
 
 #ifdef WIN32_NATIVE
-         lisp.exe -M lispinit.mem
+         clisp.exe
 #endif
 #ifdef UNIX
          base/lisp.run -M base/lispinit.mem
@@ -224,18 +225,18 @@ I would suggest /usr/local/lib/lisp :
    mv base/lispinit.mem /usr/local/lib/lisp
 #endif
 #ifdef WIN32_NATIVE
-Assuming D:\LIB\LISP :
+Assuming D:\GNU\CLISP :
 
-   mkdir d:\lib\lisp
-   copy lisp.exe d:\lib\lisp
-   copy lispinit.mem d:\lib\lisp
+   mkdir d:\gnu\clisp
+   copy lisp.exe d:\gnu\clisp
+   copy lispinit.mem d:\gnu\clisp
 #endif
 
 #ifdef WIN32_NATIVE
 And create a batch file that starts lisp:
 
    copy con c:\bat\clisp.bat
-   d:\lib\lisp\lisp.exe -M d:\lib\lisp\lispinit.mem -B d:\lib\lisp\ %1 %2 %3 %4 %5 %6 %7 %8 %9
+   d:\gnu\clisp\lisp.exe -M d:\gnu\clisp\lispinit.mem -B d:\gnu\clisp\ %1 %2 %3 %4 %5 %6 %7 %8 %9
    [Ctrl-Z]
 #endif
 
@@ -298,7 +299,6 @@ Sources:
 --------
 
 The sources of CLISP are available from
-     ftp://cvs2.cons.org/pub/lisp/clisp/source/
      ftp://ftp.gnu.org/pub/gnu/clisp/
      http://clisp.cons.org/
      http://www.gnu.org/software/clisp/

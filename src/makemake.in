@@ -2408,7 +2408,7 @@ if [ -n "${SRCDIR}" ] ; then
     for f in $DFILES $ARI_ASMD $SP_ASMD ; do
       link_dep "${f}.d" "${SRCDIR}${f}.d"
     done
-    for f in $UNICODE_INCLUDES $NLS_INCLUDES spvw_calendar w32shell; do
+    for f in $UNICODE_INCLUDES $NLS_INCLUDES spvw_calendar w32shell execname; do
       link_dep "${f}.c" "${SRCDIR}${f}.c"
     done
     for f in ${UNICODE_EXTRA} modules.h ; do
@@ -2570,7 +2570,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     dependsc=$dependsc' avcall.h callback.h'
   fi
   if [ $f = pathname -a ${TOS} = win32 ]; then
-    dependsc=$dependsc' w32shell.c'
+    dependsc=$dependsc' w32shell.c execname.c'
   fi
   if [ $f = built ] ; then
     dependsc=${dependsc}' cflags.h'
@@ -3408,7 +3408,7 @@ if [ $CROSS = false ] ; then
   DRIVER_DEP=''; DRIVER_RES=''
   if [ $HOS = win32 ]; then
     DRIVER_RES=' clispres.o'
-    DRIVER_DEP=${DRIVER_RES}' w32shell.c'
+    DRIVER_DEP=${DRIVER_RES}' w32shell.c execname.c'
     echol "clispres.o : clisp.rc"
     echotab "windres -i clisp.rc -o clispres.o"
     echol
@@ -3426,7 +3426,7 @@ if [ $CROSS = false ] ; then
       ;;
   esac
   echol "clisp : clisp.c${DRIVER_DEP}"
-  echotab "builddir=\"${PWDCMD}\"; \$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DLISPLIBDIR='\"'"\$\$builddir"'\"' -DLOCALEDIR='\"'"\$\$builddir/locale"'\"' clisp.c${DRIVER_RES} ${LIBS} -o clisp"
+  echotab "builddir=\"${PWDCMD}\"; \$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DLISPLIBDIR=NULL -DLOCALEDIR=NULL clisp.c${DRIVER_RES} ${LIBS} -o clisp"
   echol
   if [ $HOS = unix ] ; then
     echol "install : install-bin install-man install-doc"
@@ -3761,7 +3761,7 @@ elif [ $HOS = win32 ] ; then
   echotab "done ; \\"
   if [ $TSYS = win32msvc ] ; then
     echotab "distfile=clisp-\$\$version-msvc-win32.zip ; \\"
-    echotab "for f in lisp.exe lispinit.mem install.bat ; do \\"
+    echotab "for f in lisp.exe lispinit.mem install.bat clisp.exe ; do \\"
     echotab "  cp -p \$\$f \$\$distdir/\$\$f ; \\"
     echotab "done ; \\"
   else
@@ -3776,7 +3776,10 @@ elif [ $HOS = win32 ] ; then
     echotab "for f in ${LINKKIT}; do \\"
     echotab "  cp -p linkkit/\$\$f \$\$distdir/linkkit/\$\$f; \\"
     echotab "done ; \\"
-    echotab "cp clisp-link \$\$distdir/; \\"
+    echotab "cp clisp-link clisp.exe \$\$distdir/; \\"
+  fi
+  if [ -n "${USE_GETTEXT}" ]; then
+    echotab "cp -r locale/ \$\$distdir/"
   fi
   if [ "${with_dynamic_modules}" != no ]; then
     echotab "mkdir \$\$distdir/dynmod ; \\"
@@ -3884,7 +3887,7 @@ echotab "-\$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY"
 if [ -n "${SRCDIR}" ] ; then
   line="-\$(RM)"
   line="$line \$(DFILES)"
-  for f in $UNICODE_INCLUDES $NLS_INCLUDES spvw_calendar w32shell ; do
+  for f in $UNICODE_INCLUDES $NLS_INCLUDES spvw_calendar w32shell execname ; do
     line="$line ${f}.c"
   done
   line="$line modules.h"${UNICODE_EXTRA}
