@@ -1,3 +1,126 @@
+2004-10-30  Bruno Haible  <bruno@clisp.org>
+
+	A third way of reading input.
+	* lispbibl.d (perseverance_t): New type.
+	(read_byte_array, write_byte_array): Take a perseverance argument
+	instead of a no_hang argument.
+	* unix.d (read_helper, write_helper): Take a perseverance argument
+	instead of a no_hang argument.
+	(full_read, full_write): Update.
+	(safe_read, safe_write): Pass persev_partial, not no_hang=true.
+	(sock_read): Add a perseverance argument.
+	(sock_write): Take a perseverance argument instead of a no_hang
+	argument.
+	* win32.d (read_helper, write_helper): Take a perseverance argument
+	instead of a no_hang argument. Change type of nbyte argument.
+	(full_read, full_write): Update.
+	(safe_read, safe_write): Pass persev_partial, not no_hang=true.
+	(sock_read): Add a perseverance argument.
+	(sock_write): Take a perseverance argument instead of a no_hang
+	argument.
+	* unixaux.d (read_helper): Take a perseverance argument instead of a
+	no_hang argument. Bug fixes: Handle EWOULDBLOCK like EAGAIN. Don't
+	forget to call END_NO_BLOCK in case of an error.
+	(write_helper): Take a perseverance argument instead of a no_hang
+	argument. Bug fixes: Handle EWOULDBLOCK like EAGAIN. Don't cast a
+	negative int to a size_t.
+	(sock_read): Add a perseverance argument.
+	(sock_write): Take a perseverance argument instead of a no_hang
+	argument.
+	* win32aux.d (read_helper_low): Take a perseverance argument instead of
+	a no_hang argument. Change type of nbyte argument. When no blocking
+	is required, call GetOverlappedResult with wait=false. Continue the
+	loop when limited_nbyte == MAX_IO.
+	(full_read_params): Replace no_hang with perseverance. Change type of
+	nbyte field.
+	(do_read_helper): Update.
+	(read_helper): Take a perseverance argument instead of a no_hang
+	argument. Change type of nbyte argument.
+	(write_helper): Take a perseverance argument instead of a no_hang
+	argument. Change type of nbyte argument. When no blocking is required,
+	call GetOverlappedResult with wait=false, instead of skipping it.
+	Continue the loop when limited_nbyte == MAX_IO.
+	(lowlevel_sock_read): Add a perseverance argument. Change type of nbyte
+	argument. Continue the loop when limited_nbyte == MAX_IO.
+	(sock_read_params): Add perseverance. Change type of nbyte field.
+	(do_sock_read): Update.
+	(sock_read): Add a perseverance argument. Change type of nbyte
+	argument.
+	(lowlevel_sock_write): Take a perseverance argument instead of a
+	no_hang argument. Change type of nbyte argument. Continue the loop when
+	limited_nbyte == MAX_IO.
+	(sock_write_params): Replace no_hang with perseverance. Change type of
+	nbyte field.
+	(do_sock_write): Update.
+	(sock_write): Take a perseverance argument instead of a no_hang
+	argument. Change type of nbyte argument.
+	* stream.d (rd_by_array_Pseudofun, wr_by_array_Pseudofun): Take a
+	perseverance argument instead of a no_hang argument.
+	(rd_by_array_error): Update.
+	(rd_by_array_dummy): Update. Implement persev_partial too.
+	(wr_by_array_error): Update.
+	(wr_by_array_dummy): Update.
+	(read_byte_array): Update. Pass a 6th argument to
+	GRAY:STREAM-READ-BYTE-SEQUENCE.
+	(write_byte_array): Update. Pass a 6th argument to
+	GRAY:STREAM-WRITE-BYTE-SEQUENCE.
+	(rd_by_array_synonym, wr_by_array_synonym): Update.
+	(wr_by_array_broad): Update.
+	(rd_by_array_concat): Update.
+	(wr_by_array_twoway): Update.
+	(rd_by_array_twoway): Update.
+	(rd_by_array_echo): Update.
+	(struct strm_unbuffered_extrafields_t): Change low_read_array,
+	low_write_array methods to take a perseverance argument instead of a
+	no_hang argument.
+	(low_read_array_unbuffered_handle): Update.
+	(rd_by_aux_iax_unbuffered, rd_by_array_iau8_unbuffered): Update.
+	(rd_ch_array_unbuffered): Update.
+	(low_write_array_unbuffered_handle): Update.
+	(wr_by_aux_ia_unbuffered, wr_by_array_iau8_unbuffered): Update.
+	(wr_ch_unbuffered_unix, wr_ch_array_unbuffered_unix): Update.
+	(wr_ch_unbuffered_mac, wr_ch_array_unbuffered_mac): Update.
+	(wr_ch_unbuffered_dos, wr_ch_array_unbuffered_dos): Update.
+	(oconv_unshift_output_unbuffered_): Update.
+	(struct strm_buffered_extrafields_t): Change low_fill method to take
+	a perseverance argument instead of a no_hang argument.
+	(low_fill_buffered_handle): Update. When a byte has already been read,
+	use persev_immediate also if no_hang=false.
+	(buffered_nextbyte): Take a restricted perseverance argument instead of
+	a no_hang argument.
+	(buffered_writebyte, position_file_buffered): Update.
+	(read_byte_array_buffered, write_byte_array_buffered): Take a
+	perseverance argument instead of a no_hang argument.
+	(rd_ch_buffered, listen_char_buffered, rd_ch_array_buffered): Update.
+	(wr_ch_buffered_unix, wr_ch_array_buffered_unix): Update.
+	(wr_ch_buffered_mac, wr_ch_array_buffered_mac): Update.
+	(wr_ch_buffered_dos, wr_ch_array_buffered_dos): Update.
+	(oconv_unshift_output_buffered_): Update.
+	(position_file_i_buffered, rd_by_aux_iax_buffered,
+	rd_by_aux_ibx_buffered, rd_by_aux_icx_buffered, rd_by_iau8_buffered,
+	rd_by_array_iau8_buffered, listen_byte_ia8_buffered): Update.
+	(wr_by_aux_ia_buffered, WRITE_LAST_BYTE, wr_by_aux_ib_buffered,
+	wr_by_aux_ic_buffered, wr_by_array_iau8_buffered): Update.
+	(logical_position_file_end): Update.
+	(make_file_stream): Update.
+	(low_write_array_unbuffered_pipe): Update.
+	(low_read_unbuffered_socket, low_listen_unbuffered_socket): Update.
+	(low_read_array_unbuffered_socket): Update.
+	(low_write_unbuffered_socket): Update.
+	(low_write_array_unbuffered_socket): Update. Fix the safety check.
+	(SYS::READ-N-BYTES, SYS::WRITE-N-BYTES): Update.
+	(low_fill_buffered_socket): Take a perseverance argument instead of a
+	no_hang argument.
+	(low_flush_buffered_socket): Update.
+	(READ-INTEGER, READ-FLOAT, WRITE-INTEGER, WRITE-FLOAT): Update.
+	* sequence.d (READ-BYTE-SEQUENCE, WRITE-BYTE-SEQUENCE): Add
+	:interactive argument.
+	* genclisph.d (main): Emit perseverance_t. Emit include of sys/types.h.
+	Fix declations of read_helper, write_helper to be consistent with those
+	in unix.d. Update declarations of read_byte_array, write_byte_array.
+	* gray.lisp (stream-read-byte-sequence): Add interactive argument.
+	(stream-write-byte-sequence): Likewise.
+
 2004-10-17  Bruno Haible  <bruno@clisp.org>
 
 	* defstruct.lisp (defstruct): Simplify directslotlist iteration.

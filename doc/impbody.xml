@@ -3469,13 +3469,15 @@ pointing to non-existent files and can take the following values:
  <varlistentry id="rd-by-seq"><term>&rd-by-seq;
    performs multiple &read-byte; operations:</term>
  <listitem><simpara><literal role="sexp">(&rd-by-seq; &sequence-r;
-   &stream-r; &key-amp; &start-k; &end-k; :NO-HANG)</literal> fills the
-   subsequence of &sequence-r; specified by &start-k; and &end-k; with
-   &integer-t;s consecutively read from &stream-r;.  It returns the
+   &stream-r; &key-amp; &start-k; &end-k; :NO-HANG :INTERACTIVE)</literal>
+   fills the subsequence of &sequence-r; specified by &start-k; and &end-k;
+   with &integer-t;s consecutively read from &stream-r;.  It returns the
    index of the first element of &sequence-r; that was not updated (=
    &end-r; or &lt; &end-r; if the &stream-r; reached its end).
-   When <constant>:NO-HANG</constant> is non-&nil;, does not block:
-   treat input unavailability as &eos;.</simpara>
+   When &no-hang; is non-&nil;, it does not block: it treats input
+   unavailability as &eos;. When &no-hang; is &nil; and &interactive-r; is
+   non-&nil;, it can block for reading the first byte but does not block
+   for any further bytes.</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
    &unsigned-byte-vec; and &stream-r; is a &file-pipe-socket-s;
    with &stream-element-type; &unsigned-byte-8;.

@@ -48,7 +48,7 @@ s(read_char_sequence)
 s(write_char_sequence)
 s(convert_string_from_bytes)
 s(convert_string_to_bytes)
-v(3, (kw(start),kw(end),kw(no_hang)) )
+v(4, (kw(start),kw(end),kw(no_hang),kw(interactive)) )
 s(read_byte_sequence)
 s(write_byte_sequence)
 v(5, (kw(charset),kw(line_terminator),kw(input_error_action),

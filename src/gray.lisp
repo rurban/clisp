@@ -319,17 +319,18 @@
   ) )
 )
 
-(clos:defgeneric stream-read-byte-sequence
-    (stream sequence &optional start end no-hang)
+(clos:defgeneric stream-read-byte-sequence (stream sequence
+                                            &optional start end no-hang interactive)
   (:method ((stream fundamental-input-stream) (sequence vector)
-            &optional (start 0) (end nil) (no-hang nil))
+            &optional (start 0) (end nil) (no-hang nil) (interactive nil))
     ;; sequence is a (simple-array (unsigned-byte 8) (*)),
     ;; and start and end are suitable integers.
     (unless end (setq end (length sequence)))
     (do ((index start (1+ index)))
         ((eql index end) index)
-      (let ((x (if no-hang (stream-read-byte-no-hang stream)
-                   (stream-read-byte stream))))
+      (let ((x (if (or no-hang (and interactive (> index start)))
+                 (stream-read-byte-no-hang stream)
+                 (stream-read-byte stream))))
         (when (or (null x) (eq x ':EOF)) (return index))
         (setf (aref sequence index) x)))))
 
@@ -338,9 +339,9 @@
 (clos:defgeneric stream-write-byte (stream integer))
 
 (clos:defgeneric stream-write-byte-sequence (stream sequence
-                                             &optional start end no-hang)
+                                             &optional start end no-hang interactive)
   (:method ((stream fundamental-output-stream) (sequence vector)
-            &optional (start 0) (end nil) (no-hang nil))
+            &optional (start 0) (end nil) (no-hang nil) (interactive nil))
     ;; sequence is a (simple-array (unsigned-byte 8) (*)),
     ;; and start and end are suitable integers.
     ;; if no-hang and you write less than end-start bytes then you should
@@ -349,6 +350,9 @@
     (when no-hang
       (error "~S: ~S is not supported by the default method"
              'stream-write-byte-sequence :NO-HANG))
+    (when interactive
+      (error "~S: ~S is not supported by the default method"
+             'stream-write-byte-sequence :INTERACTIVE))
     (unless end (setq end (length sequence)))
     (do ((index start (1+ index)))
         ((eql index end) nil)

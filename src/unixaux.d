@@ -220,11 +220,11 @@ global int siginterrupt (int sig, int flag) {
 #endif
 
 /* a wrapper for read(). */
-global ssize_t read_helper (int fd, void* bufarea, size_t nbyte, bool no_hang)
+global ssize_t read_helper (int fd, void* bufarea, size_t nbyte, perseverance_t persev)
 {
   var char* buf = (char*) bufarea;
   var ssize_t retval;
-  var size_t done = 0;
+  var ssize_t done = 0;
  #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   /* Must adjust the memory permissions before calling read().
    - On SunOS4 a missing write permission causes the read() call to hang
@@ -239,57 +239,16 @@ global ssize_t read_helper (int fd, void* bufarea, size_t nbyte, bool no_hang)
  #endif
   {
     NO_BLOCK_DECL(fd);
-    if (no_hang) START_NO_BLOCK(fd);
+    if (persev == persev_immediate || persev == persev_bonus) START_NO_BLOCK(fd);
     while (nbyte!=0) {
       retval = read(fd,buf,nbyte);
       if (retval == 0)
         break;
       else if (retval < 0) {
-        /* FIXME: Why only EAGAIN and not also EWOULDBLOCK? */
-        if (no_hang && (errno == EAGAIN)) {
-          /* FIXME: signal blocking state reached -- just use errno?
-             never executes - printf("read_helper - read blocked\n"); */
-          break;
-        }
-       #ifdef EINTR
-        if (errno != EINTR)
-       #endif
-          return retval;
-      } else {
-        buf += retval; done += (size_t)retval; nbyte -= (size_t)retval;
-        if (no_hang)
-          break;
-      }
-    }
-    if (no_hang) END_NO_BLOCK(fd);
-  }
-  /* never executes
-     if (errno == EAGAIN) printf("returning with block from read_helper\n");*/
-  return done;
-}
-
-/* a wrapper for write(). */
-global ssize_t write_helper (int fd, const void* bufarea, size_t nbyte,
-                             bool no_hang)
-{
-  var const char* buf = (const char*) bufarea;
-  var ssize_t retval;
-  var size_t done = 0;
- #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
-  /* Must adjust the memory permissions before calling write(). */
-  handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
- #endif
-  {
-    NO_BLOCK_DECL(fd);
-    if (no_hang) START_NO_BLOCK(fd);
-    while (nbyte!=0) {
-      retval = write(fd,buf,nbyte);
-      if (retval < 0) {
-        /* FIXME: Why only EAGAIN and not also EWOULDBLOCK? */
-        if (no_hang && (errno == EAGAIN))
+        if ((persev == persev_immediate || persev == persev_bonus)
+            && (errno == EAGAIN || errno == EWOULDBLOCK))
           break;
        #ifdef EINTR
-        /* FIXME: no way to interrupt a large write? *** */
         if (errno != EINTR)
        #endif
           {
@@ -298,9 +257,48 @@ global ssize_t write_helper (int fd, const void* bufarea, size_t nbyte,
           }
       } else {
         buf += retval; done += (size_t)retval; nbyte -= (size_t)retval;
+        if (persev != persev_full)
+          break;
       }
     }
-    if (no_hang) END_NO_BLOCK(fd);
+    if (persev == persev_immediate || persev == persev_bonus) END_NO_BLOCK(fd);
+  }
+  return done;
+}
+
+/* a wrapper for write(). */
+global ssize_t write_helper (int fd, const void* bufarea, size_t nbyte, perseverance_t persev)
+{
+  var const char* buf = (const char*) bufarea;
+  var ssize_t retval;
+  var ssize_t done = 0;
+ #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
+  /* Must adjust the memory permissions before calling write(). */
+  handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
+ #endif
+  {
+    NO_BLOCK_DECL(fd);
+    if (persev == persev_immediate || persev == persev_bonus) START_NO_BLOCK(fd);
+    while (nbyte!=0) {
+      retval = write(fd,buf,nbyte);
+      if (retval < 0) {
+        if ((persev == persev_immediate || persev == persev_bonus)
+            && (errno == EAGAIN || errno == EWOULDBLOCK))
+          break;
+       #ifdef EINTR
+        if (errno != EINTR)
+       #endif
+          {
+            done = retval; /* -1 */
+            break;
+          }
+      } else {
+        buf += retval; done += (size_t)retval; nbyte -= (size_t)retval;
+        if (persev != persev_full)
+          break;
+      }
+    }
+    if (persev == persev_immediate || persev == persev_bonus) END_NO_BLOCK(fd);
   }
   return done;
 }
@@ -310,64 +308,78 @@ global ssize_t write_helper (int fd, const void* bufarea, size_t nbyte,
 /* BeOS 5 sockets cannot be used like file descriptors. */
 
 /* A wrapper around the recv() function. */
-/* FIXME: Why no no_hang argument here? */
-global ssize_t sock_read (int fd, void* bufarea, size_t nbyte) {
+/* FIXME: persev_immediate case totally untested ! */
+global ssize_t sock_read (int fd, void* bufarea, size_t nbyte, perseverance_t persev) {
   var char* buf = (char*) bufarea;
   var ssize_t retval;
-  var size_t done = 0;
+  var ssize_t done = 0;
  #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   /* Must adjust the memory permissions before calling recv(). */
   handle_fault_range(PROT_READ_WRITE,(aint)buf,(aint)buf+nbyte);
  #endif
-  while (nbyte!=0) {
-    retval = recv(fd,buf,nbyte,0);
-    if (retval == 0)
-      break;
-    else if (retval < 0) {
-     #ifdef EINTR
-      if (!(errno == EINTR))
-     #endif
-        return retval;
-    } else {
-      buf += retval; done += retval; nbyte -= retval;
-      break;                    /* return partial read */
+  {
+    NO_BLOCK_DECL(fd);
+    if (persev == persev_immediate || persev == persev_bonus) START_NO_BLOCK(fd);
+    while (nbyte!=0) {
+      retval = recv(fd,buf,nbyte,0);
+      if (retval == 0)
+        break;
+      else if (retval < 0) {
+        if ((persev == persev_immediate || persev == persev_bonus)
+            && (errno == EAGAIN || errno == EWOULDBLOCK))
+          break;
+       #ifdef EINTR
+        if (errno != EINTR)
+       #endif
+          {
+            done = retval; /* -1 */
+            break;
+          }
+      } else {
+        buf += retval; done += (size_t)retval; nbyte -= (size_t)retval;
+        if (persev != persev_full)
+          break;
+      }
     }
+    if (persev == persev_immediate || persev == persev_bonus) END_NO_BLOCK(fd);
   }
   return done;
 }
 
-/* A wrapper around the send() function.
- FIXME: no_hang case totally untested ! */
-global ssize_t sock_write (int fd, const void* bufarea, size_t nbyte,
-                           bool no_hang)
+/* A wrapper around the send() function. */
+/* FIXME: persev_immediate case totally untested ! */
+global ssize_t sock_write (int fd, const void* bufarea, size_t nbyte, perseverance_t persev)
 {
   var const char* buf = (const char*) bufarea;
   var ssize_t retval;
-  var size_t done = 0;
+  var ssize_t done = 0;
  #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   /* Must adjust the memory permissions before calling send(). */
   handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
  #endif
   {
     NO_BLOCK_DECL(fd);
-    if (no_hang) START_NO_BLOCK(fd);
+    if (persev == persev_immediate || persev == persev_bonus) START_NO_BLOCK(fd);
     while (nbyte!=0) {
       retval = send(fd,buf,nbyte,0);
       if (retval < 0) {
-        if (no_hang && (errno == EAGAIN || errno == EWOULDBLOCK))
+        if ((persev == persev_immediate || persev == persev_bonus)
+            && (errno == EAGAIN || errno == EWOULDBLOCK))
           break;
        #ifdef EINTR
         if (errno != EINTR)
        #endif
           {
-            done = retval;
+            done = retval; /* -1 */
             break;
           }
       } else {
-        buf += retval; done += retval; nbyte -= retval;
+        buf += retval; done += (size_t)retval; nbyte -= (size_t)retval;
+        if (persev != persev_full)
+          break;
       }
     }
-    if (no_hang) END_NO_BLOCK(fd);
+    if (persev == persev_immediate || persev == persev_bonus) END_NO_BLOCK(fd);
   }
   return done;
 }

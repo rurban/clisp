@@ -126,15 +126,15 @@
     typedef object (* rd_by_Pseudofun) (object stream);
 
 /* Specification for READ-BYTE-ARRAY - Pseudo-Function:
- fun(&stream,&bytearray,start,len,no_hang)
+ fun(&stream,&bytearray,start,len,persev)
  > stream: stream
  > object bytearray: simple-8bit-vector
  > uintL start: start index of byte sequence to be filled
  > uintL len: length of byte sequence to be filled, >0
- > bool no_hang: do not block
+ > perseverance_t persev: how to react on incomplete I/O
  < uintL result: number of bytes that have been filled
  can trigger GC */
-typedef uintL (* rd_by_array_Pseudofun) (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, bool no_hang);
+typedef uintL (* rd_by_array_Pseudofun) (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);
 
   # Specification for WRITE-BYTE - Pseudo-Function:
   # fun(stream,obj)
@@ -144,14 +144,14 @@ typedef uintL (* rd_by_array_Pseudofun) (const gcv_object_t* stream_, const gcv_
     typedef void (* wr_by_Pseudofun) (object stream, object obj);
 
   # Specification for WRITE-BYTE-ARRAY - Pseudo-Function:
-  # fun(&stream,&bytearray,start,len,no_hang)
+  # fun(&stream,&bytearray,start,len,persev)
   # > stream: stream
   # > object bytearray: simple-8bit-vector
   # > uintL start: start index of byte sequence to be written
   # > uintL len: length of byte sequence to be written, >0
-  # > bool no_hang: do not block
+  # > perseverance_t persev: how to react on incomplete I/O
   # can trigger GC
-    typedef uintL (* wr_by_array_Pseudofun) (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, bool no_hang);
+    typedef uintL (* wr_by_array_Pseudofun) (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);
 
   # Specification for READ-CHAR - Pseudo-Function:
   # fun(&stream)
@@ -276,25 +276,29 @@ local object rd_by_error (object stream) {
 
 local uintL rd_by_array_error (const gcv_object_t* stream_,
                                const gcv_object_t* bytearray_,
-                               uintL start, uintL len, bool no_hang) {
+                               uintL start, uintL len, perseverance_t persev) {
   fehler_illegal_streamop(S(read_byte),*stream_);
 }
 
 local uintL rd_by_array_dummy (const gcv_object_t* stream_,
                                const gcv_object_t* bytearray_,
-                               uintL start, uintL len, bool no_hang) {
+                               uintL start, uintL len, perseverance_t persev) {
   var uintL end = start + len;
   var uintL index = start;
   do {
     var object stream = *stream_;
-    var object obj = (no_hang && !ls_avail_p(listen_byte(stream))
-                      ? eof_value : rd_by(stream)(stream));
+    if ((persev == persev_immediate || persev == persev_bonus)
+        && !ls_avail_p(listen_byte(stream)))
+      break;
+    var object obj = rd_by(stream)(stream);
     if (eq(obj,eof_value))
       break;
     obj = check_uint8(obj);
     TheSbvector(*bytearray_)->data[index] =
       (uintB)(as_oint(obj) >> oint_data_shift);
     index++;
+    if (persev == persev_partial)
+      persev = persev_bonus;
   } while (index < end);
   return index - start;
 }
@@ -305,16 +309,16 @@ local void wr_by_error (object stream, object obj) {
 
 local void wr_by_array_error (const gcv_object_t* stream_,
                               const gcv_object_t* bytearray_,
-                              uintL start, uintL len, bool no_hang) {
+                              uintL start, uintL len, perseverance_t persev) {
   fehler_illegal_streamop(S(write_byte),*stream_);
 }
 
 local uintL wr_by_array_dummy (const gcv_object_t* stream_,
                               const gcv_object_t* bytearray_,
-                              uintL start, uintL len, bool no_hang) {
+                              uintL start, uintL len, perseverance_t persev) {
   var uintL end = start + len;
   var uintL index = start;
-  if (no_hang)                /* FIXME: need write_byte_will_hang_p() */
+  if (persev != persev_full) /* FIXME: need write_byte_will_hang_p() */
     fehler_illegal_streamop(S(write_byte_sequence),*stream_);
   do {
     var object stream = *stream_;
@@ -509,29 +513,30 @@ global object read_byte (object stream) {
 }
 
 # Function: Reads several bytes from a stream.
-# read_byte_array(&stream,&bytearray,start,len,no_hang)
+# read_byte_array(&stream,&bytearray,start,len,persev)
 # > stream: stream (on the STACK)
 # > object bytearray: simple-8bit-vector (on the STACK)
 # > uintL start: start index of byte sequence to be filled
 # > uintL len: length of byte sequence to be filled
-# > bool no_hang: don't block, return already after partial read
+# > perseverance_t persev: how to react on incomplete I/O
 # < uintL result: number of bytes that have been filled
 # can trigger GC
 global uintL read_byte_array (const gcv_object_t* stream_,
                               const gcv_object_t* bytearray_,
-                              uintL start, uintL len, bool no_hang) {
+                              uintL start, uintL len, perseverance_t persev) {
   if (len==0)
     return 0;
   var object stream = *stream_;
   if (builtin_stream_p(stream)) {
-    return rd_by_array(stream)(stream_,bytearray_,start,len,no_hang);
+    return rd_by_array(stream)(stream_,bytearray_,start,len,persev);
   } else {
     # Call the generic function
-    # (STREAM-READ-BYTE-SEQUENCE stream bytearray start start+len):
+    # (STREAM-READ-BYTE-SEQUENCE stream bytearray start start+len no-hang interactive):
     pushSTACK(stream); pushSTACK(*bytearray_);
     pushSTACK(fixnum(start)); pushSTACK(fixnum(start+len));
-    pushSTACK(no_hang ? T : NIL);
-    funcall(S(stream_read_byte_sequence),5);
+    pushSTACK(persev == persev_immediate || persev == persev_bonus ? T : NIL);
+    pushSTACK(persev == persev_partial ? T : NIL);
+    funcall(S(stream_read_byte_sequence),6);
     var uintL result;
     if (!(posfixnump(value1)
           && (result = posfixnum_to_L(value1),
@@ -561,28 +566,29 @@ global void write_byte (object stream, object byte) {
 }
 
 # Function: Writes several bytes to a stream.
-# write_byte_array(&stream,&bytearray,start,len,no_hang)
+# write_byte_array(&stream,&bytearray,start,len,persev)
 # > stream: Stream (on the STACK)
 # > object bytearray: simple-8bit-vector (on the STACK)
 # > uintL start: start index of byte sequence to be written
 # > uintL len: length of byte sequence to be written
-# > bool no_hang: don't block, return already after partial write
+# > perseverance_t persev: how to react on incomplete I/O
 # < uintL result: number of bytes that have been written
 global uintL write_byte_array (const gcv_object_t* stream_,
                               const gcv_object_t* bytearray_,
-                              uintL start, uintL len, bool no_hang) {
+                              uintL start, uintL len, perseverance_t persev) {
   if (len==0)
     return 0;
   var object stream = *stream_;
   if (builtin_stream_p(stream)) {
-    return wr_by_array(stream)(stream_,bytearray_,start,len,no_hang);
+    return wr_by_array(stream)(stream_,bytearray_,start,len,persev);
   } else {
     # Call the generic function
-    # (STREAM-WRITE-BYTE-SEQUENCE stream bytearray start start+len, no_hang):
+    # (STREAM-WRITE-BYTE-SEQUENCE stream bytearray start start+len no-hang interactive):
     pushSTACK(stream); pushSTACK(*bytearray_);
     pushSTACK(fixnum(start)); pushSTACK(fixnum(start+len));
-    pushSTACK(no_hang ? T : NIL);
-    funcall(S(stream_write_byte_sequence),5);
+    pushSTACK(persev == persev_immediate || persev == persev_bonus ? T : NIL);
+    pushSTACK(persev == persev_partial ? T : NIL);
+    funcall(S(stream_write_byte_sequence),6);
     if (mv_count >= 2) {
       /* second return value is index of first unwritten byte
          have to change that here into #bytes written */
@@ -1122,11 +1128,11 @@ local object rd_by_synonym (object stream) {
 # READ-BYTE-ARRAY - Pseudo-Function for Synonym-Streams:
 local uintL rd_by_array_synonym (const gcv_object_t* stream_,
                                  const gcv_object_t* bytearray_,
-                                 uintL start, uintL len, bool no_hang) {
+                                 uintL start, uintL len, perseverance_t persev) {
   check_SP(); check_STACK();
   var object symbol = TheStream(*stream_)->strm_synonym_symbol;
   pushSTACK(get_synonym_stream(symbol));
-  var uintL result = read_byte_array(&STACK_0,bytearray_,start,len,no_hang);
+  var uintL result = read_byte_array(&STACK_0,bytearray_,start,len,persev);
   skipSTACK(1);
   return result;
 }
@@ -1141,11 +1147,11 @@ local void wr_by_synonym (object stream, object obj) {
 # WRITE-BYTE-ARRAY - Pseudo-Function for Synonym-Streams:
 local uintL wr_by_array_synonym (const gcv_object_t* stream_,
                                 const gcv_object_t* bytearray_,
-                                uintL start, uintL len, bool no_hang) {
+                                uintL start, uintL len, perseverance_t persev) {
   check_SP(); check_STACK();
   var object symbol = TheStream(*stream_)->strm_synonym_symbol;
   pushSTACK(get_synonym_stream(symbol));
-  var uintL result = write_byte_array(&STACK_0,bytearray_,start,len,no_hang);
+  var uintL result = write_byte_array(&STACK_0,bytearray_,start,len,persev);
   skipSTACK(1);
   return result;
 }
@@ -1380,10 +1386,10 @@ local void wr_by_broad (object stream, object obj) {
 
 # WRITE-BYTE-ARRAY - Pseudo-Function for Broadcast-Streams:
 local uintL wr_by_array_broad (const gcv_object_t* stream_, const gcv_object_t* bytearray_,
-                              uintL start, uintL len, bool no_hang) {
+                              uintL start, uintL len, perseverance_t persev) {
   /* what happens if different streams write different amounts?
-     no_hang not supported for broadcast streams */
-  if (no_hang) {
+     Only persev_full is supported for broadcast streams. */
+  if (persev != persev_full) {
     fehler_illegal_streamop(S(write_byte_sequence),*stream_);
   }
   check_SP(); check_STACK();
@@ -1392,7 +1398,7 @@ local uintL wr_by_array_broad (const gcv_object_t* stream_, const gcv_object_t* 
   while (streamlist = STACK_0, consp(streamlist)) {
     STACK_0 = Cdr(streamlist);
     pushSTACK(Car(streamlist));
-    write_byte_array(&STACK_0,bytearray_,start,len,false);
+    write_byte_array(&STACK_0,bytearray_,start,len,persev);
     skipSTACK(1);
   }
   skipSTACK(1);
@@ -1586,14 +1592,14 @@ local object rd_by_concat (object stream) {
 # READ-BYTE-ARRAY - Pseudo-Function for Concatenated-Streams:
 local uintL rd_by_array_concat (const gcv_object_t* stream_,
                                 const gcv_object_t* bytearray_,
-                                uintL start, uintL len, bool no_hang) {
+                                uintL start, uintL len, perseverance_t persev) {
   check_SP(); check_STACK();
   var uintL result = 0;
   var object stream = *stream_;
   var object streamlist = TheStream(stream)->strm_concat_list;
   while (consp(streamlist)) {
     pushSTACK(Car(streamlist));
-    var uintL count = read_byte_array(&STACK_0,bytearray_,start,len,no_hang);
+    var uintL count = read_byte_array(&STACK_0,bytearray_,start,len,persev);
     skipSTACK(1);
     result += count;
     start += count; len -= count;
@@ -1603,6 +1609,8 @@ local uintL rd_by_array_concat (const gcv_object_t* stream_,
     stream = *stream_;
     streamlist = TheStream(stream)->strm_concat_list =
              Cdr(TheStream(stream)->strm_concat_list);
+    if (persev == persev_partial && result > 0)
+      persev = persev_bonus;
   }
   return result;
 }
@@ -1807,10 +1815,10 @@ local void wr_by_twoway (object stream, object obj) {
 # WRITE-BYTE-ARRAY - Pseudo-Function for Two-Way- and Echo-Streams:
 local uintL wr_by_array_twoway (const gcv_object_t* stream_,
                                const gcv_object_t* bytearray_,
-                               uintL start, uintL len, bool no_hang) {
+                               uintL start, uintL len, perseverance_t persev) {
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_twoway_output);
-  var uintL result = write_byte_array(&STACK_0,bytearray_,start,len,no_hang);
+  var uintL result = write_byte_array(&STACK_0,bytearray_,start,len,persev);
   skipSTACK(1);
   return result;
 }
@@ -1908,10 +1916,10 @@ local object rd_by_twoway (object stream) {
 # READ-BYTE-ARRAY - Pseudo-Function for Two-Way-Streams:
 local uintL rd_by_array_twoway (const gcv_object_t* stream_,
                                 const gcv_object_t* bytearray_,
-                                uintL start, uintL len, bool no_hang) {
+                                uintL start, uintL len, perseverance_t persev) {
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_twoway_input);
-  var uintL result = read_byte_array(&STACK_0,bytearray_,start,len,no_hang);
+  var uintL result = read_byte_array(&STACK_0,bytearray_,start,len,persev);
   skipSTACK(1);
   return result;
 }
@@ -2047,12 +2055,12 @@ local object rd_by_echo (object stream) {
 # READ-BYTE-ARRAY - Pseudo-Function for Echo-Streams:
 local uintL rd_by_array_echo (const gcv_object_t* stream_,
                               const gcv_object_t* bytearray_,
-                              uintL start, uintL len, bool no_hang) {
+                              uintL start, uintL len, perseverance_t persev) {
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_twoway_input);
-  var uintL result = read_byte_array(&STACK_0,bytearray_,start,len,no_hang);
+  var uintL result = read_byte_array(&STACK_0,bytearray_,start,len,persev);
   STACK_0 = TheStream(*stream_)->strm_twoway_output;
-  write_byte_array(&STACK_0,bytearray_,start,result,false);
+  write_byte_array(&STACK_0,bytearray_,start,result,persev_full);
   skipSTACK(1);
   return result;
 }
@@ -3508,7 +3516,7 @@ typedef struct strm_unbuffered_extrafields_t {
   signean      (* low_listen)      (object stream);
   bool         (* low_clear_input) (object stream);
   uintB*       (* low_read_array)  (object stream, uintB* byteptr,
-                                    uintL len, bool no_hang);
+                                    uintL len, perseverance_t persev);
   sintL status;                        # -1 means EOF reached
                                        #  0 means unknown, bytebuf invalid
                                        # >0 means the number of valid bytes in
@@ -3524,7 +3532,7 @@ typedef struct strm_unbuffered_extrafields_t {
   /*bool*/int  ignore_next_LF : 8;     # true after reading a CR
   # Fields used for the output side only:
   void         (* low_write)         (object stream, uintB b);
-  const uintB* (* low_write_array)   (object stream, const uintB* byteptr, uintL len, bool no_hang);
+  const uintB* (* low_write_array)   (object stream, const uintB* byteptr, uintL len, perseverance_t persev);
   void         (* low_finish_output) (object stream);
   void         (* low_force_output)  (object stream);
   void         (* low_clear_output)  (object stream);
@@ -4902,19 +4910,20 @@ local bool low_clear_input_unbuffered_handle (object stream) {
 }
 
 local uintB* low_read_array_unbuffered_handle (object stream, uintB* byteptr,
-                                               uintL len, bool no_hang) {
+                                               uintL len, perseverance_t persev) {
   if (UnbufferedStream_status(stream) < 0) /* already EOF? */
     return byteptr;
   byteptr = UnbufferedStream_pop_all(stream,byteptr,&len);
   if (len == 0) return byteptr;
-  if (!no_hang || ls_avail_p(low_listen_unbuffered_handle(stream))) {
+  if ((persev != persev_immediate && persev != persev_bonus)
+      || ls_avail_p(low_listen_unbuffered_handle(stream))) {
     /* low_listen_unbuffered_handle could add to bytebuf */
     byteptr = UnbufferedStream_pop_all(stream,byteptr,&len);
     if (len == 0) return byteptr;
     var Handle handle = TheHandle(TheStream(stream)->strm_ichannel);
     run_time_stop(); /* hold run time clock */
     begin_system_call();
-    var sintL result = read_helper(handle,byteptr,len,no_hang);
+    var sintL result = read_helper(handle,byteptr,len,persev);
     end_system_call();
     run_time_restart(); /* resume run time clock */
     if (result<0) {
@@ -4950,8 +4959,8 @@ local object rd_by_aux_iax_unbuffered (object stream, rd_by_ix_I* finisher) {
   # transfer sufficiently many bytes into the bitbuffer
   var uintB* bitbufferptr =
     &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
-  if (UnbufferedStreamLow_read_array(stream)(stream,bitbufferptr,
-                                             bytesize,false)
+  if (UnbufferedStreamLow_read_array(stream)(stream,bitbufferptr,bytesize,
+                                             persev_full)
       != bitbufferptr+bytesize)
     goto eof;
   # convert to number:
@@ -4981,12 +4990,12 @@ local object rd_by_iau8_unbuffered (object stream) {
 # READ-BYTE-ARRAY - Pseudo-Function for Handle-Streams, Type au, bitsize = 8 :
 local uintL rd_by_array_iau8_unbuffered (const gcv_object_t* stream_,
                                          const gcv_object_t* bytearray_,
-                                         uintL start, uintL len, bool no_hang)
+                                         uintL start, uintL len, perseverance_t persev)
 {
   var object stream = *stream_;
   var uintB* startptr = &TheSbvector(*bytearray_)->data[start];
   var uintB* endptr =
-    UnbufferedStreamLow_read_array(stream)(stream,startptr,len,no_hang);
+    UnbufferedStreamLow_read_array(stream)(stream,startptr,len,persev);
   return endptr-startptr;
 }
 
@@ -5189,7 +5198,7 @@ local uintL rd_ch_array_unbuffered (const gcv_object_t* stream_,
       var uintB tmptmpbuf[tmpbufsize];
       var uintB* tmptmpendptr =
         UnbufferedStreamLow_read_array(stream)(stream,tmptmpbuf,remaining,
-                                               false);
+                                               persev_full);
       var const uintB* tmptmpptr = &tmptmpbuf[0];
       var chart* tmpptr = &tmpbuf[0];
       Encoding_mbstowcs(encoding)
@@ -5214,7 +5223,7 @@ local uintL rd_ch_array_unbuffered (const gcv_object_t* stream_,
       skipSTACK(1);
     }
     #else
-    count = (chart*)UnbufferedStreamLow_read_array(stream)(stream,(uintB*)tmpbuf,remaining,false) - &tmpbuf[0];
+    count = (chart*)UnbufferedStreamLow_read_array(stream)(stream,(uintB*)tmpbuf,remaining,persev_full) - &tmpbuf[0];
     #endif
     if (count == 0)
       break;
@@ -5306,14 +5315,15 @@ local void low_write_unbuffered_handle (object stream, uintB b) {
 local const uintB* low_write_array_unbuffered_handle (object stream,
                                                       const uintB* byteptr,
                                                       uintL len,
-                                                      bool no_hang) {
+                                                      perseverance_t persev) {
   var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
   begin_system_call();
-  var sintL result = write_helper(handle,byteptr,len,no_hang);
+  var sintL result = write_helper(handle,byteptr,len,persev);
   if (result<0) { OS_error(); }
   end_system_call();
-  /* how does result != len other than no_hang ? *** */
-  if (!no_hang && !(result==(sintL)len)) # not successful?
+  /* Safety check whether persev argument was respected or EOWF was reached: */
+  if ((persev == persev_full && !(result==(sintL)len))
+      || (persev == persev_partial && !(result>0)))
     fehler_unwritable(TheSubr(subr_self)->name,stream);
   return byteptr+result;
 }
@@ -5338,7 +5348,8 @@ local void low_clear_output_unbuffered_handle (object stream) {
 local void wr_by_aux_ia_unbuffered (object stream, uintL bitsize,
                                     uintL bytesize) {
   uintB* bitbufferptr = TheSbvector(TheStream(stream)->strm_bitbuffer)->data;
-  UnbufferedStreamLow_write_array(stream)(stream,bitbufferptr,bytesize,false);
+  UnbufferedStreamLow_write_array(stream)(stream,bitbufferptr,bytesize,
+                                          persev_full);
 }
 
 # WRITE-BYTE - Pseudo-Function for File-Streams of Integers, Type au :
@@ -5362,11 +5373,11 @@ local void wr_by_iau8_unbuffered (object stream, object obj) {
 # WRITE-BYTE-ARRAY - Pseudo-Function for Handle-Streams, Type au, bitsize = 8 :
 local uintL wr_by_array_iau8_unbuffered (const gcv_object_t* stream_,
                                         const gcv_object_t* bytearray_,
-                                        uintL start, uintL len, bool no_hang) {
+                                        uintL start, uintL len, perseverance_t persev) {
   object stream = *stream_;
   uintB* startp = &TheSbvector(*bytearray_)->data[start];
   const uintB* endp =
-    UnbufferedStreamLow_write_array(stream)(stream,startp,len,no_hang);
+    UnbufferedStreamLow_write_array(stream)(stream,startp,len,persev);
   return (endp - startp);
 }
 
@@ -5388,7 +5399,7 @@ local void wr_ch_unbuffered_unix (const gcv_object_t* stream_, object ch) {
   Encoding_wcstombs(encoding)
     (encoding,stream,&cptr,cptr+1,&bptr,&buf[max_bytes_per_chart]);
   ASSERT(cptr == &c+1);
-  UnbufferedStreamLow_write_array(stream)(stream,&buf[0],bptr-&buf[0],false);
+  UnbufferedStreamLow_write_array(stream)(stream,&buf[0],bptr-&buf[0],persev_full);
   #else
   UnbufferedStreamLow_write(stream)(stream,as_cint(c));
   #endif
@@ -5411,11 +5422,11 @@ local void wr_ch_array_unbuffered_unix (const gcv_object_t* stream_,
     Encoding_wcstombs(encoding)(encoding,stream,&charptr,endptr,&bptr,
                                 &tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
     UnbufferedStreamLow_write_array(stream)(stream,&tmptmpbuf[0],
-                                            bptr-&tmptmpbuf[0],false);
+                                            bptr-&tmptmpbuf[0],persev_full);
   } while (charptr != endptr);
   #undef tmpbufsize
   #else
-  var const chart* endptr = (const chart*)UnbufferedStreamLow_write_array(stream)(stream,(const uintB*)charptr,len,false);
+  var const chart* endptr = (const chart*)UnbufferedStreamLow_write_array(stream)(stream,(const uintB*)charptr,len,persev_full);
   #endif
   wr_ss_lpos(stream,endptr,len); # update Line-Position
 }
@@ -5435,7 +5446,7 @@ local void wr_ch_unbuffered_mac (const gcv_object_t* stream_, object ch) {
   Encoding_wcstombs(encoding)(encoding,stream,&cptr,cptr+1,&bptr,
                               &buf[max_bytes_per_chart]);
   ASSERT(cptr == &c+1);
-  UnbufferedStreamLow_write_array(stream)(stream,&buf[0],bptr-&buf[0],false);
+  UnbufferedStreamLow_write_array(stream)(stream,&buf[0],bptr-&buf[0],persev_full);
   #else
   UnbufferedStreamLow_write(stream)(stream,as_cint(c));
   #endif
@@ -5476,10 +5487,10 @@ local void wr_ch_array_unbuffered_mac (const gcv_object_t* stream_,
                                   &tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
       ASSERT(cptr == tmpptr);
       UnbufferedStreamLow_write_array(stream)(stream,&tmptmpbuf[0],
-                                              bptr-&tmptmpbuf[0],false);
+                                              bptr-&tmptmpbuf[0],persev_full);
       #else
-      UnbufferedStreamLow_write_array(stream)(stream,(const uintB*)tmpbuf,
-                                              n,false);
+      UnbufferedStreamLow_write_array(stream)(stream,(const uintB*)tmpbuf,n,
+                                              persev_full);
       #endif
     }
     remaining -= n;
@@ -5509,10 +5520,10 @@ local void wr_ch_unbuffered_dos (const gcv_object_t* stream_, object ch) {
   Encoding_wcstombs(encoding)(encoding,stream,&cptr,cp+n,&bptr,
                               &buf[2*max_bytes_per_chart]);
   ASSERT(cptr == cp+n);
-  UnbufferedStreamLow_write_array(stream)(stream,&buf[0],bptr-&buf[0],false);
+  UnbufferedStreamLow_write_array(stream)(stream,&buf[0],bptr-&buf[0],persev_full);
   #else
   if (chareq(c,ascii(NL))) {
-    UnbufferedStreamLow_write_array(stream)(stream,(const uintB*)crlf,2,false);
+    UnbufferedStreamLow_write_array(stream)(stream,(const uintB*)crlf,2,persev_full);
   } else {
     UnbufferedStreamLow_write(stream)(stream,as_cint(c));
   }
@@ -5555,10 +5566,10 @@ local void wr_ch_array_unbuffered_dos (const gcv_object_t* stream_,
       Encoding_wcstombs(encoding)(encoding,stream,&cptr,tmpptr,&bptr,&tmptmpbuf[2*tmpbufsize*max_bytes_per_chart]);
       ASSERT(cptr == tmpptr);
       UnbufferedStreamLow_write_array(stream)(stream,&tmptmpbuf[0],
-                                              bptr-&tmptmpbuf[0],false);
+                                              bptr-&tmptmpbuf[0],persev_full);
       #else
       UnbufferedStreamLow_write_array(stream)(stream,(const uintB*)tmpbuf,
-                                              tmpptr-&tmpbuf[0],false);
+                                              tmpptr-&tmpbuf[0],persev_full);
       #endif
     }
     remaining -= n;
@@ -5595,7 +5606,7 @@ local void wr_ch_array_unbuffered_dos (const gcv_object_t* stream_,
     var uintL outcount = outptr-(char*)tmpbuf;
     if (outcount > 0)
       UnbufferedStreamLow_write_array(stream)(stream,&tmpbuf[0],
-                                              outcount,false);
+                                              outcount,persev_full);
     #undef tmpbufsize
   }
 #else
@@ -5812,7 +5823,7 @@ local object make_unbuffered_stream (uintB type, direction_t direction,
 # Additional binary (not GCed) fields:
 typedef struct strm_buffered_extrafields_t {
   strm_channel_extrafields_t _parent;
-  uintL (* low_fill)  (object stream, bool no_hang);
+  uintL (* low_fill)  (object stream, perseverance_t persev);
   void  (* low_flush) (object stream, uintL bufflen);
   uoff_t buffstart;    # start position of buffer
   uintL endvalid;      # index up to which the data is known to be valid
@@ -5943,26 +5954,28 @@ global object file_stream_truename (object s)
 #endif
 
 /* UP: Fills the buffer, up to strm_buffered_bufflen bytes.
- low_fill_buffered_handle(stream,no_hang)
+ low_fill_buffered_handle(stream,persev)
  > stream: (open) byte-based file stream
- > no_hang: do not block
+ > persev: one of persev_partial, persev_immediate, persev_bonus
  < result: number of bytes read */
-local uintL low_fill_buffered_handle (object stream, bool no_hang) {
+local uintL low_fill_buffered_handle (object stream, perseverance_t persev) {
   var sintL result = 0;
   var Handle handle = TheHandle(BufferedStream_channel(stream));
   var signean listen_status = ls_eof;
   var int byte = -1;
   /* no_hang => call listen_handle() => correct listen_status
    otherwise, result=0 means there was nothing to read => EOF */
-  if (!no_hang
+  if (persev == persev_partial
       || ls_avail_p(listen_status = listen_handle(handle,false,&byte))) {
     var uintB * buff = BufferedStream_buffer_address(stream,0);
     begin_system_call();
     if (byte != -1) {
       buff[0] = byte;
-      result = read_helper(handle,buff+1,strm_buffered_bufflen-1,no_hang);
+      result = read_helper(handle,buff+1,strm_buffered_bufflen-1,
+                           persev == persev_partial ? persev_bonus : persev);
     } else
-      result = read_helper(handle,buff,strm_buffered_bufflen,no_hang);
+      result = read_helper(handle,buff,strm_buffered_bufflen,
+                           persev);
     end_system_call();
     if (result<0)               /* error occurred? */
       OS_filestream_error(stream);
@@ -6044,15 +6057,15 @@ local void buffered_flush (object stream) {
 
 /* UP: Positions a Byte-based File-Stream, so the next Byte can be
  read or overwritten.
- buffered_nextbyte(stream,no_hang)
+ buffered_nextbyte(stream,persev)
  > stream : (open) Byte-based File-Stream.
- > no_hang: do not block
+ > persev: one of persev_partial, persev_immediate, persev_bonus
  < result : 0 = EOF (the next byte can be written, not read)
-            -1 = would block (only if no_hang, next byte cannot yet
+            -1 = would block (only if not persev_partial, next byte cannot yet
                  be read or written)
             else Pointer to the next Byte (can be read or written)
  changed in stream: index, endvalid, have_eof_p, buffstart */
-local uintB* buffered_nextbyte (object stream, bool no_hang) {
+local uintB* buffered_nextbyte (object stream, perseverance_t persev) {
   var sintL endvalid = BufferedStream_endvalid(stream);
   var uintL index = BufferedStream_index(stream);
   if ((endvalid == index) && !BufferedStream_have_eof_p(stream)) {
@@ -6064,9 +6077,9 @@ local uintB* buffered_nextbyte (object stream, bool no_hang) {
     var uintL result;
     if (BufferedStream_blockpositioning(stream)
         || (TheStream(stream)->strmflags & strmflags_rd_B)) {
-      result = BufferedStreamLow_fill(stream)(stream,no_hang);
+      result = BufferedStreamLow_fill(stream)(stream,persev);
       if (result == 0 && !BufferedStream_have_eof_p(stream))
-        return no_hang ? (uintB*)-1 : NULL; /* hang case */
+        return persev != persev_partial ? (uintB*)-1 : NULL; /* hang case */
     } else
       result = 0;
     BufferedStream_index(stream) = index = 0;
@@ -6113,7 +6126,7 @@ local uintB* buffered_eofbyte (object stream) {
 # > b : Byte to be written
 # changed in stream: index, endvalid, buffstart
 local void buffered_writebyte (object stream, uintB b) {
-  var uintB* ptr = buffered_nextbyte(stream,false);
+  var uintB* ptr = buffered_nextbyte(stream,persev_partial);
   if (!(ptr == (uintB*)NULL)) {
     if (*ptr == b) # no real Modification?
       goto no_modification;
@@ -6185,7 +6198,7 @@ local void position_file_buffered (object stream, uoff_t position) {
     BufferedStream_have_eof_p(stream) = false;
     var uintL newindex = position % strm_buffered_bufflen; # desired Index in the Sector
     if (newindex!=0) { # Position between Sectors -> nothing needs to be read
-      buffered_nextbyte(stream,false);
+      buffered_nextbyte(stream,persev_partial);
       # Now index=0.
       # set index to (position mod bufflen) , but check beforehand:
       var uintL endvalid = BufferedStream_endvalid(stream);
@@ -6223,22 +6236,20 @@ local void sync_file_buffered (object stream) {
   BufferedStream_have_eof_p(stream) = false;
 }
 
-
-
 # UP: Reads an Array of Bytes from an (open) Byte-based
 # File-Stream.
-# read_byte_array_buffered(stream,byteptr,len,no_hang)
+# read_byte_array_buffered(stream,byteptr,len,persev)
 # > stream : (open) Byte-based File-Stream.
 # > byteptr[0..len-1] : place
 # > len : > 0
-# > no_hang: do not block
+# > persev: how to react on incomplete I/O
 # < byteptr[0..count-1] : read Bytes.
 # < result: &byteptr[count] (with count = len, or count < len if EOF reached)
 # changed in stream: index, endvalid, buffstart
 local uintB* read_byte_array_buffered (object stream, uintB* byteptr,
-                                       uintL len, bool no_hang) {
-  do {
-    var uintB* ptr = buffered_nextbyte(stream,no_hang);
+                                       uintL len, perseverance_t persev) {
+  for (;;) {
+    var uintB* ptr = buffered_nextbyte(stream, persev == persev_full ? persev_partial : persev);
     if (ptr == (uintB*)NULL || ptr == (uintB*)-1)
       break;
     var uintL endvalid = BufferedStream_endvalid(stream);
@@ -6251,26 +6262,40 @@ local uintB* read_byte_array_buffered (object stream, uintB* byteptr,
     # increment index:
     BufferedStream_index(stream) += available;
     len -= available;
-  } while (len > 0);
+    if (len == 0)
+      break;
+    if (available > 0) {
+      if (persev == persev_partial)
+        persev = persev_bonus;
+      #if defined(UNIX) || defined(WIN32_NATIVE)
+      if (persev == persev_immediate || persev == persev_bonus)
+        # There's no need to continue the loop, with persev_immediate or
+        # persev_bonus, because if read() has returned a partial result, it
+        # means that nothing more is immediately available. (The OS doesn't
+        # gratuitously return less bytes to read() than available.)
+        break;
+      #endif
+    }
+  }
   return byteptr;
 }
 
 # UP: Writes an Array of Bytes to an (open) Byte-based
 # File-Stream.
-# write_byte_array_buffered(stream,byteptr,len,no_hang)
+# write_byte_array_buffered(stream,byteptr,len,persev)
 # > stream : (open) Byte-based File-Stream.
 # > byteptr[0..len-1] : Bytes to be written.
 # > len : > 0
-# > no_hang : don't block
+# > persev: how to react on incomplete I/O
 # < result: &byteptr[len]
 # changed in stream: index, endvalid, buffstart
 local const uintB* write_byte_array_buffered (object stream,
                                               const uintB* byteptr,
-                                              uintL len, bool no_hang) {
+                                              uintL len, perseverance_t persev) {
   var uintL remaining = len;
   var uintB* ptr;
-  do { # still remaining>0 Bytes to be filed.
-    ptr = buffered_nextbyte(stream,no_hang);
+  for (;;) { # still remaining>0 Bytes to be filled.
+    ptr = buffered_nextbyte(stream, persev == persev_full ? persev_partial : persev);
     if (ptr == (uintB*)NULL)
       goto eof_reached;
     if (ptr == (uintB*)-1) return byteptr;
@@ -6292,7 +6317,21 @@ local const uintB* write_byte_array_buffered (object stream,
     remaining = remaining - next;
     # increment index
     BufferedStream_index(stream) += next;
-  } while (remaining != 0);
+    if (remaining == 0)
+      break;
+    if (next > 0) {
+      if (persev == persev_partial)
+        persev = persev_bonus;
+      #if defined(UNIX) || defined(WIN32_NATIVE)
+      if (persev == persev_immediate || persev == persev_bonus)
+        # There's no need to continue the loop, with persev_immediate or
+        # persev_bonus, because if write() has returned a partial result, it
+        # means that nothing more is immediately accepted. (The OS doesn't
+        # gratuitously return less bytes to write() than it can.)
+        break;
+      #endif
+    }
+  }
   if (false) {
   eof_reached: # Write at EOF, endvalid = index
     do { # Still remaining>0 Bytes to file.
@@ -6313,8 +6352,7 @@ local const uintB* write_byte_array_buffered (object stream,
       if (next > remaining)
         next = remaining;
       # copy the next bytes in the buffer:
-      copy_mem_b(BufferedStream_buffer_address
-                 (stream,BufferedStream_index(stream)),
+      copy_mem_b(BufferedStream_buffer_address(stream,BufferedStream_index(stream)),
                  byteptr,next);
       byteptr += next;
       BufferedStream_modified(stream) = true;
@@ -6336,7 +6374,7 @@ local const uintB* write_byte_array_buffered (object stream,
 # READ-CHAR - Pseudo-Function for File-Streams of Characters
 local object rd_ch_buffered (const gcv_object_t* stream_) {
   var object stream = *stream_;
-  var uintB* bufferptr = buffered_nextbyte(stream,false);
+  var uintB* bufferptr = buffered_nextbyte(stream,persev_partial);
   if (bufferptr == (uintB*)NULL) # EOF ?
     return eof_value;
   # fetch next character:
@@ -6387,7 +6425,7 @@ local object rd_ch_buffered (const gcv_object_t* stream_) {
           }
           break;
         }
-        bufferptr = buffered_nextbyte(stream,false);
+        bufferptr = buffered_nextbyte(stream,persev_partial);
         if (bufferptr == (uintB*)NULL)
           return eof_value;
       }
@@ -6403,7 +6441,7 @@ local object rd_ch_buffered (const gcv_object_t* stream_) {
     ChannelStream_lineno(stream) += 1;
   } else if (chareq(c,ascii(CR))) {
     # check next character for LF
-    bufferptr = buffered_nextbyte(stream,false);
+    bufferptr = buffered_nextbyte(stream,persev_partial);
     # FIXME: This is wrong. It assumes an ASCII compatible encoding.
     if ((bufferptr != NULL) && chareq(as_chart(*bufferptr),ascii(LF))) {
       # increment index and position
@@ -6423,7 +6461,7 @@ local object rd_ch_buffered (const gcv_object_t* stream_) {
              ls_eof   if EOF is reached,
              ls_wait  if no character is available, but not because of EOF */
 local signean listen_char_buffered (object stream) {
-  uintB* buf = buffered_nextbyte(stream,true);
+  uintB* buf = buffered_nextbyte(stream,persev_immediate);
   if (buf == (uintB*)NULL) return ls_eof; /* EOF */
   if (buf == (uintB*)-1)   return ls_wait; /* will hang */
   /* In case of UNICODE, the presence of a byte does not guarantee the
@@ -6445,7 +6483,7 @@ local uintL rd_ch_array_buffered (const gcv_object_t* stream_,
   var object encoding = TheStream(stream)->strm_encoding;
   loop {
     var uintL startindex = currindex;
-    var uintB* bufferptr = buffered_nextbyte(stream,false);
+    var uintB* bufferptr = buffered_nextbyte(stream,persev_partial);
     if (bufferptr == (uintB*)NULL) # EOF -> finished
       break;
     { # Read as many complete characters from the buffer as possible.
@@ -6499,7 +6537,7 @@ local uintL rd_ch_array_buffered (const gcv_object_t* stream_,
             stream = *stream_;
             break;
           }
-          bufferptr = buffered_nextbyte(stream,false);
+          bufferptr = buffered_nextbyte(stream,persev_partial);
           if (bufferptr == (uintB*)NULL) # EOF -> finished
             break;
         }
@@ -6524,7 +6562,7 @@ local uintL rd_ch_array_buffered (const gcv_object_t* stream_,
           } else if (chareq(as_chart(c),ascii(CR))) {
             # check next character for LF
             if (ptr1 == currptr) {
-              var uintB* bufferptr = buffered_nextbyte(stream,false);
+              var uintB* bufferptr = buffered_nextbyte(stream,persev_partial);
               if ((bufferptr != NULL)
                   # FIXME: This is wrong. It assumes an ASCII compatible encoding.
                   && chareq(as_chart(*bufferptr),ascii(LF))) {
@@ -6552,7 +6590,7 @@ local uintL rd_ch_array_buffered (const gcv_object_t* stream_,
   var chart* startptr = &TheSnstring(*chararray_)->data[start];
   var chart* charptr = startptr;
   do {
-    var uintB* ptr = buffered_nextbyte(stream,false);
+    var uintB* ptr = buffered_nextbyte(stream,persev_partial);
     if (ptr == (uintB*)NULL) # EOF -> finished
       break;
     var chart ch = as_chart(*ptr);
@@ -6563,7 +6601,7 @@ local uintL rd_ch_array_buffered (const gcv_object_t* stream_,
       ChannelStream_lineno(stream) += 1;
     } else if (chareq(ch,ascii(CR))) {
       # check next character for LF
-      ptr = buffered_nextbyte(stream,false);
+      ptr = buffered_nextbyte(stream,persev_partial);
       if (!(ptr == (uintB*)NULL) && chareq(as_chart(*ptr),ascii(LF))) {
         # increment index and position
         BufferedStream_index(stream) += 1;
@@ -6606,7 +6644,7 @@ local void wr_ch_buffered_unix (const gcv_object_t* stream_, object obj) {
                               &buf[max_bytes_per_chart]);
   ASSERT(cptr == &c+1);
   var uintL buflen = bptr-&buf[0];
-  write_byte_array_buffered(stream,&buf[0],buflen,false);
+  write_byte_array_buffered(stream,&buf[0],buflen,persev_full);
   # increment position
   BufferedStream_position(stream) += buflen;
  #else
@@ -6631,13 +6669,13 @@ local void wr_ch_array_buffered_unix (const gcv_object_t* stream_,
     Encoding_wcstombs(encoding)(encoding,stream,&charptr,endptr,&bptr,
                                 &tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
     var uintL tmptmpbuflen = bptr-&tmptmpbuf[0];
-    write_byte_array_buffered(stream,&tmptmpbuf[0],tmptmpbuflen,false);
+    write_byte_array_buffered(stream,&tmptmpbuf[0],tmptmpbuflen,persev_full);
     # increment position
     BufferedStream_position(stream) += tmptmpbuflen;
   } until (charptr == endptr);
   #undef tmpbufsize
  #else
-  write_byte_array_buffered(stream,(const uintB*)charptr,len,false);
+  write_byte_array_buffered(stream,(const uintB*)charptr,len,persev_full);
   # increment position
   BufferedStream_position(stream) += len;
  #endif
@@ -6659,7 +6697,7 @@ local void wr_ch_buffered_mac (const gcv_object_t* stream_, object obj) {
   Encoding_wcstombs(encoding)(encoding,stream,&cptr,cptr+1,&bptr,&buf[max_bytes_per_chart]);
   ASSERT(cptr == &c+1);
   var uintL buflen = bptr-&buf[0];
-  write_byte_array_buffered(stream,&buf[0],buflen,false);
+  write_byte_array_buffered(stream,&buf[0],buflen,persev_full);
   # increment position
   BufferedStream_position(stream) += buflen;
  #else
@@ -6700,7 +6738,7 @@ local void wr_ch_array_buffered_mac (const gcv_object_t* stream_,
                                   &tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
       ASSERT(cptr == tmpptr);
       var uintL tmptmpbuflen = bptr-&tmptmpbuf[0];
-      write_byte_array_buffered(stream,&tmptmpbuf[0],tmptmpbuflen,false);
+      write_byte_array_buffered(stream,&tmptmpbuf[0],tmptmpbuflen,persev_full);
       # increment position
       BufferedStream_position(stream) += tmptmpbuflen;
     }
@@ -6742,7 +6780,7 @@ local void wr_ch_buffered_dos (const gcv_object_t* stream_, object obj) {
                               &buf[2*max_bytes_per_chart]);
   ASSERT(cptr == cp+n);
   var uintL buflen = bptr-&buf[0];
-  write_byte_array_buffered(stream,&buf[0],buflen,false);
+  write_byte_array_buffered(stream,&buf[0],buflen,persev_full);
   # increment position
   BufferedStream_position(stream) += buflen;
  #else
@@ -6788,7 +6826,7 @@ local void wr_ch_array_buffered_dos (const gcv_object_t* stream_,
       Encoding_wcstombs(encoding)(encoding,stream,&cptr,tmpptr,&bptr,&tmptmpbuf[2*tmpbufsize*max_bytes_per_chart]);
       ASSERT(cptr == tmpptr);
       var uintL tmptmpbuflen = bptr-&tmptmpbuf[0];
-      write_byte_array_buffered(stream,&tmptmpbuf[0],tmptmpbuflen,false);
+      write_byte_array_buffered(stream,&tmptmpbuf[0],tmptmpbuflen,persev_full);
       # increment position
       BufferedStream_position(stream) += tmptmpbuflen;
     }
@@ -6837,7 +6875,7 @@ local void wr_ch_array_buffered_dos (const gcv_object_t* stream_,
    end_system_call();
    var uintL outcount = outptr-(char*)tmpbuf;
    if (outcount > 0) {
-     write_byte_array_buffered(stream,&tmpbuf[0],outcount,false);
+     write_byte_array_buffered(stream,&tmpbuf[0],outcount,persev_full);
      # increment position
      BufferedStream_position(stream) += outcount;
    }
@@ -6880,7 +6918,7 @@ local void position_file_i_buffered (object stream, uoff_t position) {
     return;
   if (# Is the addressed position situated in the first byte after EOF ?
       ((!((position_bits%8)==0))
-       && (buffered_nextbyte(stream,false) == (uintB*)NULL))
+       && (buffered_nextbyte(stream,persev_partial) == (uintB*)NULL))
        # Is the addressed position situated in the last byte too far?
       || ((bitsize < 8)
           && (position > BufferedStream_eofposition(stream)))) {
@@ -6910,7 +6948,7 @@ local object rd_by_aux_iax_buffered (object stream, rd_by_ix_I* finisher) {
   #if 0 # equivalent, but slower
   var uintL count;
   dotimespL(count,bytesize, {
-    var uintB* ptr = buffered_nextbyte(stream,false);
+    var uintB* ptr = buffered_nextbyte(stream,persev_partial);
     if (ptr == (uintB*)NULL)
       goto eof;
     # fetch next Byte:
@@ -6919,7 +6957,7 @@ local object rd_by_aux_iax_buffered (object stream, rd_by_ix_I* finisher) {
     BufferedStream_index(stream) += 1;
   });
   #else
-  if (read_byte_array_buffered(stream,bitbufferptr,bytesize,false)
+  if (read_byte_array_buffered(stream,bitbufferptr,bytesize,persev_full)
       != bitbufferptr+bytesize)
     goto eof;
   #endif
@@ -6947,7 +6985,7 @@ local object rd_by_aux_ibx_buffered (object stream, rd_by_ix_I* finisher) {
     var uintL bitindex = BufferedStream_bitindex(stream);
     var uintL count = bitindex + bitsize;
     var uint8 bit_akku;
-    var uintB* ptr = buffered_nextbyte(stream,false);
+    var uintB* ptr = buffered_nextbyte(stream,persev_partial);
     if (ptr == (uintB*)NULL)
       goto eof;
     # Get first partial byte:
@@ -6958,7 +6996,7 @@ local object rd_by_aux_ibx_buffered (object stream, rd_by_ix_I* finisher) {
       # increment index, because *ptr is processed:
       BufferedStream_index(stream) += 1;
       count -= 8; # still count (>0) Bits to fetch.
-      var uintB* ptr = buffered_nextbyte(stream,false);
+      var uintB* ptr = buffered_nextbyte(stream,persev_partial);
       if (ptr == (uintB*)NULL)
         goto eof1;
       # fetch next Byte:
@@ -6994,7 +7032,7 @@ local object rd_by_aux_icx_buffered (object stream, rd_by_ix_I* finisher) {
     &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
   var uintL count = bitsize;
   var uintL bitshift = BufferedStream_bitindex(stream);
-  var uintB* ptr = buffered_nextbyte(stream,false);
+  var uintB* ptr = buffered_nextbyte(stream,persev_partial);
   if (ptr != (uintB*)NULL) {
     if (bitshift==0) {
       # Optimized loop, without shifting.
@@ -7004,7 +7042,7 @@ local object rd_by_aux_icx_buffered (object stream, rd_by_ix_I* finisher) {
         BufferedStream_index(stream) += 1;
         count -= 8;
         # have to get count (>0) bits.
-        ptr = buffered_nextbyte(stream,false);
+        ptr = buffered_nextbyte(stream,persev_partial);
         if (ptr == (uintB*)NULL)
           goto eof;
         if (count<=8) # are count bits finished?
@@ -7022,7 +7060,7 @@ local object rd_by_aux_icx_buffered (object stream, rd_by_ix_I* finisher) {
         # bit_akku: bits (bitshift-1)..0 are valid.
         # have to get count (>0) bits.
         {
-          var uintB* ptr = buffered_nextbyte(stream,false);
+          var uintB* ptr = buffered_nextbyte(stream,persev_partial);
           if (ptr == (uintB*)NULL)
             goto eof;
           # get next byte:
@@ -7088,7 +7126,7 @@ local object rd_by_ics_buffered (object stream) {
 
 # READ-BYTE - Pseudo-Function for File-Streams of Integers, Type au, bitsize = 8 :
 local object rd_by_iau8_buffered (object stream) {
-  var uintB* ptr = buffered_nextbyte(stream,false);
+  var uintB* ptr = buffered_nextbyte(stream,persev_partial);
   if (!(ptr == (uintB*)NULL)) {
     var object obj = fixnum(*ptr);
     # increment index and position
@@ -7103,9 +7141,9 @@ local object rd_by_iau8_buffered (object stream) {
 # READ-BYTE-SEQUENCE for File-Streams of Integers, Type au, bitsize = 8 :
 local uintL rd_by_array_iau8_buffered (const gcv_object_t* stream_,
                                        const gcv_object_t* bytearray_,
-                                       uintL start, uintL len, bool no_hang) {
+                                       uintL start, uintL len, perseverance_t persev) {
   var uintB* startptr = &TheSbvector(*bytearray_)->data[start];
-  var uintB* endptr = read_byte_array_buffered(*stream_,startptr,len,no_hang);
+  var uintB* endptr = read_byte_array_buffered(*stream_,startptr,len,persev);
   var uintL result = endptr-startptr;
   # increment position:
   BufferedStream_position(*stream_) += result;
@@ -7119,7 +7157,7 @@ local uintL rd_by_array_iau8_buffered (const gcv_object_t* stream_,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no byte is available, but not because of EOF
 local signean listen_byte_ia8_buffered (object stream) {
-  if (buffered_nextbyte(stream,false) == (uintB*)NULL)
+  if (buffered_nextbyte(stream,persev_partial) == (uintB*)NULL)
     return ls_eof; # EOF
   return ls_avail;
 }
@@ -7138,7 +7176,7 @@ local void wr_by_aux_ia_buffered (object stream, uintL bitsize, uintL bytesize)
     buffered_writebyte(stream,*bitbufferptr++);
   });
   #else
-  write_byte_array_buffered(stream,bitbufferptr,bytesize,false);
+  write_byte_array_buffered(stream,bitbufferptr,bytesize,persev_full);
   #endif
   # increment position:
   BufferedStream_position(stream) += 1;
@@ -7147,7 +7185,7 @@ local void wr_by_aux_ia_buffered (object stream, uintL bitsize, uintL bytesize)
 # write last byte (count bits):
 #define WRITE_LAST_BYTE                                                 \
  if (count!=0) {                                                        \
-   ptr = buffered_nextbyte(stream,false);                               \
+   ptr = buffered_nextbyte(stream,persev_partial);                      \
    if (ptr == (uintB*)NULL) { /* EOF */                                 \
      ptr = buffered_eofbyte(stream); /* 1 Byte */                       \
      *ptr = (uint8)bit_akku; /* write byte */                           \
@@ -7168,7 +7206,7 @@ local void wr_by_aux_ib_buffered (object stream, uintL bitsize, uintL bytesize)
   var uintL bitshift = BufferedStream_bitindex(stream);
   var uint16 bit_akku = (uint16)(TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0])<<bitshift;
   var uintL count = bitsize;
-  var uintB* ptr = buffered_nextbyte(stream,false);
+  var uintB* ptr = buffered_nextbyte(stream,persev_partial);
   # start getting bytes:
   if (!(ptr == (uintB*)NULL))
     bit_akku |= (*ptr)&(bit(bitshift)-1);
@@ -7194,7 +7232,7 @@ local void wr_by_aux_ic_buffered (object stream, uintL bitsize, uintL bytesize) 
   var uintL bitshift = BufferedStream_bitindex(stream);
   var uintL count = bitsize;
   var uint16 bit_akku;
-  var uintB* ptr = buffered_nextbyte(stream,false);
+  var uintB* ptr = buffered_nextbyte(stream,persev_partial);
   # start getting bytes:
   bit_akku = (ptr==(uintB*)NULL ? 0 : (*ptr)&(bit(bitshift)-1) );
   count += bitshift;
@@ -7256,8 +7294,8 @@ local void wr_by_iau8_buffered (object stream, object obj) {
 # WRITE-BYTE-SEQUENCE for File-Streams of Integers, Type au, bitsize = 8 :
 local uintL wr_by_array_iau8_buffered (const gcv_object_t* stream_,
                                       const gcv_object_t* bytearray_,
-                                      uintL start, uintL len, bool no_hang) {
-  write_byte_array_buffered(*stream_,TheSbvector(*bytearray_)->data+start,len,false);
+                                      uintL start, uintL len, perseverance_t persev) {
+  write_byte_array_buffered(*stream_,TheSbvector(*bytearray_)->data+start,len,persev_full);
   # increment position:
   BufferedStream_position(*stream_) += len;
   return len;
@@ -7370,7 +7408,7 @@ local uoff_t logical_position_file_end (object stream) {
     var uintL endvalid = eofbytes % strm_buffered_bufflen;
     if (!((endvalid==0) && (eofbits==0))) {
       # EOF at end of Sector -> nothing to read
-      buffered_nextbyte(stream,false);
+      buffered_nextbyte(stream,persev_partial);
       # Now index=0. set index and endvalid:
       BufferedStream_index(stream) = endvalid;
       if (eofbits != 0)
@@ -7672,7 +7710,7 @@ global object make_file_stream (direction_t direction, bool append_flag,
       var uoff_t eofposition = 0;
       var uintC count;
       for (count = 0; count < 8*sizeof(uintL); count += 8) {
-        var uintB* ptr = buffered_nextbyte(stream,false);
+        var uintB* ptr = buffered_nextbyte(stream,persev_partial);
         if (ptr == (uintB*)NULL)
           goto too_short;
         eofposition |= ((*ptr) << count);
@@ -12629,15 +12667,17 @@ local void low_write_unbuffered_pipe (object stream, uintB b) {
 
 local const uintB* low_write_array_unbuffered_pipe (object stream,
                                                     const uintB* byteptr,
-                                                    uintL len, bool no_hang) {
+                                                    uintL len, perseverance_t persev) {
   var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
   begin_system_call();
   writing_to_subprocess = true;
-  var sintL result = write_helper(handle,byteptr,len,no_hang);
+  var sintL result = write_helper(handle,byteptr,len,persev);
   writing_to_subprocess = false;
   if (result<0) { OS_error(); }
   end_system_call();
-  if (!no_hang && !(result==(sintL)len)) /* not successful? */
+  /* Safety check whether persev argument was respected or EOWF was reached: */
+  if ((persev == persev_full && !(result==(sintL)len))
+      || (persev == persev_partial && !(result>0)))
     fehler_unwritable(TheSubr(subr_self)->name,stream);
   return byteptr+result;
 }
@@ -13132,7 +13172,8 @@ local sintL low_read_unbuffered_socket (object stream) {
   }
   var SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);
   var uintB b;
-  var int result; SYSCALL(result,sock_read(handle,&b,1)); # try to read a byte
+  var int result;
+  SYSCALL(result,sock_read(handle,&b,1,persev_full)); # try to read a byte
   if (result==0) {
     # no byte available -> must be EOF
     UnbufferedStream_status(stream) = -1; return -1;
@@ -13174,7 +13215,7 @@ local signean low_listen_unbuffered_socket (object stream) {
     # When read() returns a result without blocking, this can also be EOF!
     # try to read a byte:
     var uintB b;
-    var int result = sock_read(handle,&b,1);
+    var int result = sock_read(handle,&b,1,persev_full);
     if (result<0) {
       CHECK_INTERRUPT;
       SOCK_error();
@@ -13196,17 +13237,19 @@ local bool low_clear_input_unbuffered_socket (object stream) {
 }
 
 local uintB* low_read_array_unbuffered_socket (object stream, uintB* byteptr,
-                                               uintL len, bool no_hang) {
+                                               uintL len, perseverance_t persev) {
   if (UnbufferedStream_status(stream) < 0) # already EOF?
     return byteptr;
   byteptr = UnbufferedStream_pop_all(stream,byteptr,&len);
   if (len == 0) return byteptr;
-  if (!no_hang || ls_avail_p(low_listen_unbuffered_socket(stream))) {
+  if ((persev != persev_immediate && persev != persev_bonus)
+      || ls_avail_p(low_listen_unbuffered_socket(stream))) {
     /* low_listen_unbuffered_handle could add to bytebuf */
     byteptr = UnbufferedStream_pop_all(stream,byteptr,&len);
     if (len == 0) return byteptr;
     var SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);
-    var int result; SYSCALL(result,sock_read(handle,byteptr,len));
+    var int result;
+    SYSCALL(result,sock_read(handle,byteptr,len,persev));
     byteptr += result;
   }
   return byteptr;
@@ -13239,16 +13282,18 @@ local uintB* low_read_array_unbuffered_socket (object stream, uintB* byteptr,
 local void low_write_unbuffered_socket (object stream, uintB b) {
   var SOCKET handle = TheSocket(TheStream(stream)->strm_ochannel);
   var int result;
-  SYSCALL(result,sock_write(handle,&b,1,false)); # Try to output the byte.
+  SYSCALL(result,sock_write(handle,&b,1,persev_full)); # Try to output the byte.
   if (result==0) # not successful?
     fehler_unwritable(TheSubr(subr_self)->name,stream);
 }
 
-local const uintB* low_write_array_unbuffered_socket (object stream, const uintB* byteptr, uintL len, bool no_hang) {
+local const uintB* low_write_array_unbuffered_socket (object stream, const uintB* byteptr, uintL len, perseverance_t persev) {
   var SOCKET handle = TheSocket(TheStream(stream)->strm_ochannel);
   var int result;
-  SYSCALL(result,sock_write(handle,byteptr,len,no_hang));
-  if (result < 0) # not successful? - formerly != (sintL)len
+  SYSCALL(result,sock_write(handle,byteptr,len,persev));
+  /* Safety check whether persev argument was respected or EOWF was reached: */
+  if ((persev == persev_full && !(result==(sintL)len))
+      || (persev == persev_partial && !(result>0)))
     fehler_unwritable(TheSubr(subr_self)->name,stream);
   return byteptr+result;
 }
@@ -13398,7 +13443,7 @@ LISPFUNN(read_n_bytes,4) {
   var uintL totalcount;
   test_n_bytes_args(&startindex,&totalcount);
   if (!(totalcount==0)) {
-    if (read_byte_array(&STACK_1,&STACK_0,startindex,totalcount,false)
+    if (read_byte_array(&STACK_1,&STACK_0,startindex,totalcount,persev_full)
         != totalcount) {
       pushSTACK(STACK_1); # STREAM-ERROR slot STREAM
       pushSTACK(STACK_(1+1)); # Stream
@@ -13415,7 +13460,7 @@ LISPFUNN(write_n_bytes,4) {
   var uintL totalcount;
   test_n_bytes_args(&startindex,&totalcount);
   if (!(totalcount==0)) {
-    write_byte_array(&STACK_1,&STACK_0,startindex,totalcount,false);
+    write_byte_array(&STACK_1,&STACK_0,startindex,totalcount,persev_full);
   }
   skipSTACK(2);
   VALUES1(T);
@@ -13441,16 +13486,16 @@ LISPFUNN(write_n_bytes,4) {
 #if defined(UNIX_BEOS) || defined(WIN32_NATIVE)
 
 /* UP: Fills the buffer, up to strm_buffered_bufflen bytes.
- low_fill_buffered_socket(stream,no_hang)
+ low_fill_buffered_socket(stream,persev)
  > stream: (open) byte-based socket stream
- > no_hang: do not block
+ > persev: one of persev_partial, persev_immediate, persev_bonus
  < result: number of bytes read */
-local uintL low_fill_buffered_socket (object stream, bool no_hang) {
+local uintL low_fill_buffered_socket (object stream, perseverance_t persev) {
   var sintL result;
-  /* FIXME: ignores no_hang! */
   SYSCALL(result,sock_read(TheSocket(BufferedStream_channel(stream)),
                            BufferedStream_buffer_address(stream,0),
-                           strm_buffered_bufflen));
+                           strm_buffered_bufflen,
+                           persev));
   return result;
 }
 
@@ -13468,7 +13513,7 @@ local void low_flush_buffered_socket (object stream, uintL bufflen) {
   var sintL result = # flush Buffer
     sock_write(TheSocket(BufferedStream_channel(stream)),
                BufferedStream_buffer_address(stream,0),
-               bufflen,false);
+               bufflen,persev_full);
  #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
   writing_to_subprocess = false;
  #endif
@@ -15051,8 +15096,8 @@ LISPFUNN(built_in_stream_set_element_type,2) {
                 if (ChannelStream_buffered(stream)) {
                   if ((BufferedStream_index(stream) > 0)
                       && (BufferedStream_position(stream) > 0)
-                      && (*BufferedStream_buffer_address
-                          (stream,BufferedStream_index(stream)-1) == b)) {
+                      && (*BufferedStream_buffer_address(stream,BufferedStream_index(stream)-1)
+                          == b)) {
                     # decrement index and position:
                     BufferedStream_index(stream) -= 1;
                     BufferedStream_position(stream) -= 1;
@@ -16365,7 +16410,7 @@ LISPFUN(read_integer,seclass_default,2,3,norest,nokey,0,NIL) {
   pushSTACK(bitbuffer);
   # Stack layout: stream, element-type, endianness, eof-error-p, eof-value, bitbuffer.
   # Read the data.
-  if (read_byte_array(&STACK_5,&STACK_0,0,bytesize,false) != bytesize)
+  if (read_byte_array(&STACK_5,&STACK_0,0,bytesize,persev_full) != bytesize)
     goto eof;
   bitbuffer = STACK_0;
   if (endianness) /* byte swap */
@@ -16414,7 +16459,7 @@ LISPFUN(read_float,seclass_default,2,3,norest,nokey,0,NIL) {
   pushSTACK(bitbuffer);
   # Stack layout: stream, element-type, endianness, eof-error-p, eof-value, bitbuffer.
   # Read the data.
-  if (read_byte_array(&STACK_5,&STACK_0,0,bytesize,false) != bytesize)
+  if (read_byte_array(&STACK_5,&STACK_0,0,bytesize,persev_full) != bytesize)
     goto eof;
   bitbuffer = STACK_0;
   if (BIG_ENDIAN_P ? !endianness : endianness) /* byte swap */
@@ -16507,7 +16552,7 @@ LISPFUN(write_integer,seclass_default,3,1,norest,nokey,0,NIL) {
   if (endianness) /* byte swap */
     elt_nreverse(bitbuffer,0,bytesize);
   # Write the data.
-  write_byte_array(&STACK_3,&STACK_0,0,bytesize,false);
+  write_byte_array(&STACK_3,&STACK_0,0,bytesize,persev_full);
   FREE_DYNAMIC_8BIT_VECTOR(STACK_0);
   VALUES1(STACK_4); /* return obj */
   skipSTACK(5);
@@ -16578,7 +16623,7 @@ LISPFUN(write_float,seclass_default,3,1,norest,nokey,0,NIL) {
   if (BIG_ENDIAN_P ? !endianness : endianness) /* byte swap */
     elt_nreverse(bitbuffer,0,bytesize);
   # Write the data.
-  write_byte_array(&STACK_3,&STACK_0,0,bytesize,false);
+  write_byte_array(&STACK_3,&STACK_0,0,bytesize,persev_full);
   FREE_DYNAMIC_8BIT_VECTOR(STACK_0);
   VALUES1(STACK_4); /* return obj */
   skipSTACK(5);
