@@ -205,6 +205,17 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     if (weakpointerp(TheWeakpointer(obj)->wp_cdr)) fputs("#<next wp>",out);
     else XOUT(TheWeakpointer(obj)->wp_cdr);
     fputc('>',out);
+  } else if (fpointerp(obj)) {
+    fputs("#<",out); string_out(out,O(printstring_fpointer));
+    fprintf(out," 0x%x>",TheFpointer(obj)->fp_pointer);
+  } else if (structurep(obj)) {
+    var uintL ii;
+    fputs("#<structure",out);
+    for(ii=0; ii<Structure_length(obj); ii++) {
+      fputc(' ',out);
+      XOUT(TheStructure(obj)->recdata[ii]);
+    }
+    fputc('>',out);
   } else if (fixnump(obj)) fprintf(out,"%d",fixnum_to_L(obj));
   else if (eq(obj,unbound))   string_out(out,O(printstring_unbound));
   else if (eq(obj,nullobj))   fputs("#<NULLOBJ>",out);
