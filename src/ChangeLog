@@ -1,5 +1,17 @@
 2002-06-12  Sam Steingold  <sds@gnu.org>
 
+	Russian messages are now working
+	* configure.in (ALL_LINGUAS): added `ru'
+	* constsym.d (russian): added
+	* init.lisp (russian.lisp) [GETTEX UNICODE]: load
+	* russian.lisp: new file
+	* spvw_language.d (language_russian): added
+	(current_language_o, init_language): handle it
+	(init_language_from): check for Russian
+	* makemake.in (LPARTS) [$with_unicode]: added russian
+
+2002-06-12  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (schar): match the cast in return the the return type
 
 2002-06-12  Arseny Slobodjuck  <ampy@ich.dvo.ru>

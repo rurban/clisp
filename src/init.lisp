@@ -1861,6 +1861,7 @@
 #+(and GETTEXT UNICODE) (LOAD "french") ; French messages
 #+(and GETTEXT UNICODE) (LOAD "spanish") ; Spanish messages
 #+GETTEXT (LOAD "dutch")        ; Dutch messages
+#+(and GETTEXT UNICODE) (LOAD "russian") ; Russian messages
 
 #+dir-key
 (load "dirkey1")                ; win32 registry, LDAP, Gnome-config
