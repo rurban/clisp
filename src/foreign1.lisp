@@ -772,8 +772,9 @@
   (when (compiler::prepare-coutput-file)
     (prepare-module)
     (etypecase format-string
-      (string (apply #'format *coutput-stream* format-string args))
-      (symbol
+      ((or string function)
+       (apply #'format *coutput-stream* format-string args))
+      ((member :init-always :init-once :fini)
        (let ((code (apply #'format nil args)))
          (ecase format-string
            (:init-always (push code *init-always*))
