@@ -1,6 +1,6 @@
 # Page fault and protection handling. Support for SELFMADE_MMAP.
 
-# ------------------------------ Specification ---------------------------------
+# ------------------------------ Specification --------------------------------
 
 # Physical page size. When a fault occurs, an entire physical page must
 # change its protections.
@@ -44,7 +44,7 @@ local void xmmprotect (aint addr, uintL len, int prot);
 
 #endif
 
-# ------------------------------ Implementation --------------------------------
+# ------------------------------ Implementation -------------------------------
 
 # Initialization.
   #define init_physpageshift()  \
@@ -64,10 +64,10 @@ local void xmmprotect (aint addr, uintL len, int prot);
       init_physpageshift();
   #endif
 
-#ifdef SELFMADE_MMAP # impliziert SPVW_PURE_BLOCKS <==> SINGLEMAP_MEMORY
-                     # oder       SPVW_MIXED_BLOCKS_STAGGERED
+#ifdef SELFMADE_MMAP # implies SPVW_PURE_BLOCKS <==> SINGLEMAP_MEMORY
+                     # or      SPVW_MIXED_BLOCKS_STAGGERED
 
-# Unterroutine fürs Lesen einer Page vom mem-File.
+# subroutine for reading a page from the mem-file.
 local int handle_mmap_fault (uintL offset, aint address, uintB* memfile_page);
 local int handle_mmap_fault(offset,address,memfile_page)
   var uintL offset;
@@ -131,17 +131,17 @@ local int handle_mmap_fault(offset,address,memfile_page)
 
 #endif # SELFMADE_MMAP
 
-#ifdef GENERATIONAL_GC # impliziert SPVW_PURE_BLOCKS <==> SINGLEMAP_MEMORY
-                       # oder       SPVW_MIXED_BLOCKS_STAGGERED
-                       # oder       SPVW_MIXED_BLOCKS_OPPOSITE
+#ifdef GENERATIONAL_GC # implies SPVW_PURE_BLOCKS <==> SINGLEMAP_MEMORY
+                       # or      SPVW_MIXED_BLOCKS_STAGGERED
+                       # or      SPVW_MIXED_BLOCKS_OPPOSITE
 
-# Unterroutine für protection: PROT_NONE -> PROT_READ
+# subroutine for protection: PROT_NONE -> PROT_READ
 local int handle_read_fault (aint address, physpage_state* physpage);
 local int handle_read_fault(address,physpage)
   var aint address;
   var physpage_state* physpage;
   {
-    # Seite auf den Stand des Cache bringen:
+    # bring page up to date with the state of the cache:
     {
       var uintL count = physpage->cache_size;
       if (count > 0) {
@@ -156,7 +156,7 @@ local int handle_read_fault(address,physpage)
         });
       }
     }
-    # Seite read-only einblenden:
+    # superimpose page read-only:
     #if !defined(MULTIMAP_MEMORY)
     if (mprotect((MMAP_ADDR_T)address, physpagesize, PROT_READ) < 0)
       return -1;
@@ -167,7 +167,7 @@ local int handle_read_fault(address,physpage)
     {
       var uintL type;
       for (type = 0; type < typecount; type++)
-        if (mem.heapnr_from_type[type] >= 0) # type in MM_TYPECASES aufgeführt?
+        if (mem.heapnr_from_type[type] >= 0) # type listed in MM_TYPECASES?
           if (mprotect((MMAP_ADDR_T)combine(type,address), physpagesize, PROT_READ) < 0)
             return -1;
     }
@@ -176,13 +176,13 @@ local int handle_read_fault(address,physpage)
     return 0;
   }
 
-# Unterroutine für protection: PROT_READ -> PROT_READ_WRITE
+# subroutine for protection: PROT_READ -> PROT_READ_WRITE
 local int handle_readwrite_fault (aint address, physpage_state* physpage);
 local int handle_readwrite_fault(address,physpage)
   var aint address;
   var physpage_state* physpage;
   {
-    # Seite read-write einblenden:
+    # superimose page read-write:
     #if !defined(MULTIMAP_MEMORY)
     if (mprotect((MMAP_ADDR_T)address, physpagesize, PROT_READ_WRITE) < 0)
       return -1;
@@ -191,7 +191,7 @@ local int handle_readwrite_fault(address,physpage)
     {
       var uintL type;
       for (type = 0; type < typecount; type++)
-        if (mem.heapnr_from_type[type] >= 0) # type in MM_TYPECASES aufgeführt?
+        if (mem.heapnr_from_type[type] >= 0) # type listed in MM_TYPECASES?
           if (mprotect((MMAP_ADDR_T)combine(type,address), physpagesize, PROT_READ_WRITE) < 0)
             return -1;
     }
@@ -217,7 +217,7 @@ local handle_fault_result handle_fault(address,verbose)
   {
     var uintL heapnr;
     var object obj = as_object((oint)address << oint_addr_shift);
-    var aint uaddress = canon(address); # hoffentlich = canonaddr(obj);
+    var aint uaddress = canon(address); # hopefully = canonaddr(obj);
     var aint pa_uaddress = uaddress & -physpagesize; # page aligned address
     #ifdef SPVW_PURE_BLOCKS
     heapnr = typecode(obj);
@@ -368,7 +368,7 @@ global bool handle_fault_range(prot,start_address,end_address)
     var Heap* heap = &mem.heaps[0]; # varobject_heap
     var bool did_pagein = false;
     if ((end_address <= heap->heap_mgen_start) || (heap->heap_mgen_end <= start_address))
-      return true; # nichts zu tun, aber seltsam, dass überhaupt ein Fehler kam
+      return true; # nothing to do, but strange that an error occurred at all
     #ifdef SELFMADE_MMAP
     if (heap->memfile_numpages > 0) {
       var aint pa_uaddress;
@@ -496,7 +496,7 @@ local void xmprotect(addr,len,prot)
       unused heap;
       var uintL type;
       for (type = 0; type < typecount; type++)
-        if (mem.heapnr_from_type[type] >= 0) # type in MM_TYPECASES aufgeführt?
+        if (mem.heapnr_from_type[type] >= 0) # type listed in MM_TYPECASES?
           xmprotect((aint)combine(type,addr),len,prot);
     }
 #else
@@ -508,9 +508,9 @@ local void xmprotect(addr,len,prot)
       var uintL len;
       var int prot;
       {
-        # Überspringe die noch nicht eingeblendeten Seiten und mimimiere
-        # dabei die Anzahl der nötigen mprotect()-Aufrufe: Auf Halde steht
-        # ein mprotect-Aufruf für das Intervall [todo_address,address-1].
+        # skip the not yet superimposed pages and minimize
+        # the number of necessary mprotect()-calls: a mprotect-call
+        # is pending for the interval [todo_address,address-1].
         var aint todo_address = 0;
         #define do_todo()  \
           { if (todo_address)                                        \
@@ -520,7 +520,7 @@ local void xmprotect(addr,len,prot)
           }   }
         #define addto_todo()  \
           { if (todo_address)             \
-              {} # incrementiere address  \
+              {} # increment address  \
               else                        \
               { todo_address = address; } \
           }
