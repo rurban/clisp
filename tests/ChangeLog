@@ -1,3 +1,7 @@
+2005-01-26  Bruno Haible  <bruno@clisp.org>
+
+	* setf.tst: Add a test for SETF VALUES-LIST.
+
 2005-01-21  Bruno Haible  <bruno@clisp.org>
 
 	* alltest.tst: At the end, clean up symbols affected by side-effects.
