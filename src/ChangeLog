@@ -1,3 +1,8 @@
+1998-08-05  Bruno Haible  <haible@ilog.fr>
+
+        * debug.d (SYS::%ROOM): Don't assume that the byte counts fit into
+          fixnums.
+
 1998-08-05  Jörg Höhle  <hoehle@zeus.gmd.de>
 
         * affi.d (affi_nonzerop): Fix typo: BN_positivep.

@@ -1282,10 +1282,13 @@ LISPFUNN(proom,0)
 # - für LISP-Objekte freier Platz
 # - von LISP-Objekten statisch belegter Platz
 # bei SPVW_PAGES ausführlicher machen??
-  { value1 = fixnum(used_space());
-    value2 = fixnum(free_space());
-    value3 = fixnum(static_space());
-    mv_count=3;
+  { var uintL n1 = used_space();
+    var uintL n2 = free_space();
+    var uintL n3 = static_space();
+    pushSTACK(UL_to_I(n1));
+    pushSTACK(UL_to_I(n2));
+    pushSTACK(UL_to_I(n3));
+    STACK_to_mv(3);
   }
 
 LISPFUNN(gc,0)
