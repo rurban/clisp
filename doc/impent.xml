@@ -212,6 +212,7 @@
 <!ENTITY ethe "<link linkend='ethe'><function>EXT:ETHE</function></link>">
 <!ENTITY exec "<link linkend='exec'><function>EXT:EXECUTE</function></link>">
 <!ENTITY exit-on-error "<link linkend='exit-on-error'><function>EXT:EXIT-ON-ERROR</function></link>">
+<!ENTITY expand-form "<link linkend='code-walk'><function>EXT:EXPAND-FORM</function></link>">
 <!ENTITY extfmt "<link linkend='extfmt'><constant>:EXTERNAL-FORMAT</constant></link>">
 <!ENTITY file-pipe-socket-s "<link linkend='open'>file</link>/<link linkend='pipe'>pipe</link>/<link linkend='socket'>socket</link> &stream-t;">
 <!ENTITY finalize "<link linkend='final'><function>EXT:FINALIZE</function></link>">
