@@ -1497,6 +1497,10 @@ global maygc bool parse_dd (object formlist)
               && eq(Car(declspec),S(compile))
               && nullp(Cdr(declspec)))
             compile_decl = true;
+          else if (consp(declspec) && eq(Car(declspec),S(optimize))) {
+            pushSTACK(Cdr(declspec)); funcall(S(note_optimize),1);
+            Cdr(Car(STACK_0)) = value1;
+          }
         }
         { /* push this declaration onto STACK_(0+2) : */
           var object new_cons = allocate_cons();

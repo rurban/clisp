@@ -1379,7 +1379,9 @@ for-value   NIL or T
            (cons (integer 0 3) null))
      (values (first spec) (second spec)))
     (#1# (values spec 3))
-    (t (c-warn (TEXT "Invalid ~S declaration ~S") 'optimize spec))))
+    ;; WARN is defined in CONDITION so we cannot use #'WARN here
+    (t (funcall (if (boundp '*warning-count*) #'c-warn 'warn)
+                (TEXT "Invalid ~S declaration ~S") 'optimize spec))))
 
 ;; (declared-optimize quality) returns the optimization level for the given
 ;; quality, as an integer between 0 and 3 (inclusive).
