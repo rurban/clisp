@@ -151,3 +151,6 @@ X
   (list (setf (*avar*) 4)
         *avar*))
 (10 10)
+
+(let ((a 12)) (macrolet ((b () (let ((c 19)) ``(,a ,@',@(list c))))) (b)))
+(12 . 19)

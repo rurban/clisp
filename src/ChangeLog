@@ -5,8 +5,8 @@
 2004-04-27  Kaz Kylheku  <kaz@ashi.footprints.net>
 
 	* backquote.lisp (bq-optimize-list*): be careful to watch for
-	splicing unquote forms in the last position, and also for a
-	quoted unquote in the last position
+	splicing UNQUOTE forms in the last position, and also for
+	quoted UNQUOTE, SPLICE or NSPLICE in the last position
 
 2004-04-13  Bruno Haible  <bruno@clisp.org>
 

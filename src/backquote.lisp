@@ -304,7 +304,8 @@
         ((and (consp last-opt)
               (eq (first last-opt) 'quote)
               (listp (second last-opt))
-	      (not (eq (first (second last-opt)) 'UNQUOTE)))
+	      (not (memq (first (second last-opt))
+                         '(UNQUOTE SPLICE NSPLICE))))
 	 (bq-optimize-list
           (append '(list) (butlast forms)
                   (mapcar #'maybe-quote
