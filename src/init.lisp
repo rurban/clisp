@@ -182,8 +182,6 @@ eval load compile
 special type ftype function inline notinline ignore ignorable optimize speed
 space safety compilation-speed debug declaration dynamic-extent compile
 constant-inline constant-notinline
-; Features:
-interpreter compiler
 ))
 
 (proclaim

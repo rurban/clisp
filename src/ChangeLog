@@ -1,3 +1,8 @@
+2001-03-18  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp: do not export `interpreter' & `compiler' from LISP
+	for `*features*', since they are keywords now.
+
 2001-03-17  Sam Steingold  <sds@gnu.org>
 
 	load-inside-load bug fix
