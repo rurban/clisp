@@ -797,6 +797,8 @@ static const unsigned char nopage[256] = {
 #include "nls_iso8859_7.c"
 #include "nls_iso8859_8.c"
 #include "nls_iso8859_9.c"
+#include "nls_iso8859_10.c"
+#include "nls_iso8859_13.c"
 #include "nls_iso8859_14.c"
 #include "nls_iso8859_15.c"
 #include "nls_koi8_r.c"
@@ -867,6 +869,8 @@ static const nls_table * const nls_tables[] = {
   &nls_iso8859_7_table,
   &nls_iso8859_8_table,
   &nls_iso8859_9_table,
+  &nls_iso8859_10_table,
+  &nls_iso8859_13_table,
   &nls_iso8859_14_table,
   &nls_iso8859_15_table,
   &nls_koi8_r_table,
