@@ -21,11 +21,10 @@
 
 /* Prototypes for local functions.  Needed to ensure compiler checking of
    function argument counts despite of K&R C function definition syntax.  */
-static int is_cjk_encoding PARAMS ((const char *encoding));
+static int is_cjk_encoding (const char *encoding);
 
 static int
-is_cjk_encoding (encoding)
-     const char *encoding;
+is_cjk_encoding (const char *encoding)
 {
   if (0
       /* Legacy Japanese encodings */
