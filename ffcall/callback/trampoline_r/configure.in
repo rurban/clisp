@@ -28,10 +28,6 @@ CL_OPENFLAGS
 CL_MMAP
 CL_MPROTECT
 CL_SHM_H
-CL_SHMGET
-CL_SHMAT
-CL_SHMDT
-CL_SHMCTL
 CL_SHM
 dnl See above. Avoid duplicate warning.
 dnl CL_CANONICAL_HOST(../../autoconf)
