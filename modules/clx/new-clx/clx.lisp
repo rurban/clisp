@@ -1529,3 +1529,6 @@
 (define-condition unknown-error (request-error) ())
 (define-condition value-error (request-error) ())
 (define-condition window-error (resource-error) ())
+
+(pushnew "XLIB" custom:*system-package-list* :test #'string=)
+(pushnew "XPM" custom:*system-package-list* :test #'string=)
