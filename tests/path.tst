@@ -514,9 +514,30 @@ t
 
 (progn
  (setf (logical-pathname-translations "clocc")
-       '(("**;*" "/usr/local/src/clocc/**/*")))
+       '(("**;*" "/usr/local/src/clocc/**/*"))
+       (logical-pathname-translations "CL-LIBRARY")
+       (list (quote (";**;*.*.*" "/tmp/clisp/"))))
  nil)
 nil
 
 (translate-logical-pathname "clocc:src;port;")
 #P"/usr/local/src/clocc/src/port/"
+
+(translate-pathname "foobar" "foo*" "*baz")
+#P"barbaz"
+
+(translate-pathname "foobarbazquux" "foo*baz*" "*baq*zot")
+#P"barbaqquuxzot"
+
+(translate-pathname "foobarbazquuxfff" "foo*baz*f?" "*baq*zot*")
+#P"barbaqquuxfzotf"
+
+(translate-pathname "uufoobarbazquuxfff" "u?foo*baz*f?" "**baq*zot*")
+#P"ubarbaqquuxfzotf"
+
+#+clisp
+(make-pathname :defaults "**/*.FASL" :host "CL-LIBRARY")
+#+clisp
+#S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL
+   :DIRECTORY (:RELATIVE :WILD-INFERIORS)
+   :NAME :WILD :TYPE "FASL" :VERSION NIL)
