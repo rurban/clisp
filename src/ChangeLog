@@ -1,3 +1,8 @@
+2004-02-16  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (combine_stream_element_types): new function
+	(BUILT-IN-STREAM-ELEMENT-TYPE): use it to handle 2way/echo & concat
+
 2004-02-15  Sam Steingold  <sds@gnu.org>
 
 	FILE-POSITION does not require its 1st argument to be a FILE-STREAM

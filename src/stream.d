@@ -14538,6 +14538,37 @@ LISPFUNN(stream_element_type_eq,2) {
                 && eql(Car(Cdr(t0)),Car(Cdr(t1)))));
 }
 
+/* combine several stream-element-type into one, using OR
+ types are on the STACK (numarg or them)
+ remove numarg elements from STACK
+ can trigger GC */
+local object combine_stream_element_types (uintL numarg) {
+  var uintL count = numarg;
+  var gcv_object_t *arg_ptr = &STACK_0;
+  do { /* remove OR / listify */
+    if (consp(*arg_ptr) && eq(Car(*arg_ptr),S(or)))
+      *arg_ptr = Cdr(*arg_ptr);
+    else if (!nullp(*arg_ptr)) {
+      var object tmp = allocate_cons();
+      Car(tmp) = *arg_ptr;
+      *arg_ptr = tmp;
+    }
+    BEFORE(arg_ptr);
+  } while (--count);
+  funcall(L(append),numarg);
+  pushSTACK(value1); pushSTACK(S(Ktest));
+  pushSTACK(L(stream_element_type_eq));
+  funcall(L(remove_duplicates),3);
+  if (consp(value1)) {
+    if (!nullp(Cdr(value1))) {  /* (PUSH 'OR LIST) */
+      pushSTACK(value1);
+      var object tmp = allocate_cons();
+      Car(tmp) = S(or); Cdr(tmp) = popSTACK();
+      return tmp;
+    } else return Car(value1); /* single type, no OR */
+  } else return value1; /* NIL */
+}
+
 # (SYS::BUILT-IN-STREAM-ELEMENT-TYPE stream)
 # returns CHARACTER or INTEGER or T
 # or (more specific) (UNSIGNED-BYTE n) or (SIGNED-BYTE n).
@@ -14605,27 +14636,23 @@ LISPFUNNR(built_in_stream_element_type,1) {
       eltype = TheStream(stream)->strm_eltype; break;
    #endif
     case strmtype_twoway:
-    case strmtype_echo:
-      # (let ((itype (stream-element-type (two-way-input-stream stream)))
-      #       (otype (stream-element-type (two-way-output-stream stream))))
-      #   ; Simplify `(OR ,itype ,otype)
-      #   (cond ((eq itype 'NIL) otype)
-      #         ((eq otype 'NIL) itype)
-      #         ((eq itype otype) itype)
-      #         (t
-      #           (cons 'OR
-      #             (remove-duplicates
-      #               (append
-      #                 (if (and (consp itype) (eq (car itype) 'OR))
-      #                   (cdr itype)
-      #                   (list itype)
-      #                 )
-      #                 (if (and (consp otype) (eq (car otype) 'OR))
-      #                   (cdr otype)
-      #                   (list otype)
-      #                 ))
-      # ) )     ) ) ) )
-      {
+    case strmtype_echo: {
+      /* (let ((itype (stream-element-type (two-way-input-stream stream)))
+             (otype (stream-element-type (two-way-output-stream stream))))
+         ; Simplify `(OR ,itype ,otype)
+         (cond ((eq itype 'NIL) otype)
+               ((eq otype 'NIL) itype)
+               ((eq itype otype) itype)
+               (t
+                 (cons 'OR
+                   (remove-duplicates
+                     (append
+                       (if (and (consp itype) (eq (car itype) 'OR))
+                         (cdr itype)
+                         (list itype))
+                       (if (and (consp otype) (eq (car otype) 'OR))
+                         (cdr otype)
+                         (list otype))))))))) */
         pushSTACK(TheStream(stream)->strm_twoway_input);
         pushSTACK(TheStream(stream)->strm_twoway_output);
         pushSTACK(STACK_1); funcall(S(stream_element_type),1);
@@ -14639,33 +14666,26 @@ LISPFUNNR(built_in_stream_element_type,1) {
         } else if (nullp(otype) || eq(itype,otype)) {
           eltype = itype;
           skipSTACK(2);
-        } else {
-          var object tmp;
-          if (consp(itype) && eq(Car(itype),S(or)))
-            tmp = Cdr(itype);
-          else {
-            tmp = allocate_cons();
-            Car(tmp) = STACK_1;
-            otype = STACK_0;
-          }
-          STACK_1 = tmp;
-          if (consp(otype) && eq(Car(otype),S(or)))
-            tmp = Cdr(otype);
-          else {
-            tmp = allocate_cons();
-            Car(tmp) = STACK_0;
-          }
-          STACK_0 = tmp;
-          funcall(L(append),2);
-          pushSTACK(value1); pushSTACK(S(Ktest));
-          pushSTACK(S(stream_element_type_eq));
-          funcall(L(remove_duplicates),3);
-          pushSTACK(value1);
-          eltype = allocate_cons();
-          Car(eltype) = S(or); Cdr(eltype) = popSTACK();
-        }
+        } else
+          eltype = combine_stream_element_types(2);
+    } break;
+    case strmtype_concat: {
+      var uintL count = 0;
+      var gcv_object_t *stream_list_;
+      pushSTACK(TheStream(stream)->strm_concat_list);
+      stream_list_ = &STACK_0;
+      while (consp(*stream_list_)) {
+        pushSTACK(Car(*stream_list_)); funcall(S(stream_element_type),1);
+        pushSTACK(value1); count++;
+        *stream_list_ = Cdr(*stream_list_);
       }
-      break;
+      switch (count) {
+        case 0: eltype = T; skipSTACK(1); break; /* no streams */
+        case 1: eltype = STACK_0; skipSTACK(2); break;
+        default: eltype = combine_stream_element_types(count);
+          skipSTACK(1); break;
+      }
+    } break;
       # then the general streams:
    #ifdef GENERIC_STREAMS
     case strmtype_generic:
