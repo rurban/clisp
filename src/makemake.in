@@ -2402,11 +2402,11 @@ else
 fi
 echol
 
-echol "stdint.h : ${SRCDIR}stdint.h.in"
+echol "stdint.h : ${SRCDIR}stdint_.h"
 if [ $TOS = unix ] ; then
-  echotab "sed -e 's/@''HAVE_LONG_64BIT''@/@HAVE_LONG_64BIT@/g' -e 's/@''HAVE_LONGLONG_64BIT''@/@HAVE_LONGLONG_64BIT@/g' < ${SRCDIR}stdint.h.in > stdint.h"
+  echotab "sed -e 's/@''HAVE_LONG_64BIT''@/@HAVE_LONG_64BIT@/g' -e 's/@''HAVE_LONG_LONG_64BIT''@/@HAVE_LONG_LONG_64BIT@/g' < ${SRCDIR}stdint_.h > stdint.h"
 else
-  echotab "sed -e ${ARGQ}s/@${ARGQ}${ARGQ}HAVE_LONG_64BIT${ARGQ}${ARGQ}@/0/g${ARGQ} -e ${ARGQ}s/@${ARGQ}${ARGQ}HAVE_LONGLONG_64BIT${ARGQ}${ARGQ}@/0/g${ARGQ} < ${SRCDIR}stdint.h.in > stdint.h"
+  echotab "sed -e ${ARGQ}s/@${ARGQ}${ARGQ}HAVE_LONG_64BIT${ARGQ}${ARGQ}@/0/g${ARGQ} -e ${ARGQ}s/@${ARGQ}${ARGQ}HAVE_LONG_LONG_64BIT${ARGQ}${ARGQ}@/0/g${ARGQ} < ${SRCDIR}stdint_.h > stdint.h"
 fi
 echol
 

@@ -113,8 +113,8 @@ dnl DEFS HAVE_OFFSETOF if offsetof in stddef.h
 CL_OFFSETOF
 dnl DEFS HAVE_STDBOOL_H, sets variables STDBOOL_H, HAVE__BOOL
 gt_STDBOOL_H
-dnl DEFS HAVE_STDINT_H, sets variables STDINT_H, HAVE_LONG_64BIT, HAVE_LONGLONG_64BIT
-gt_STDINT_H
+dnl DEFS HAVE_STDINT_H, sets variables STDINT_H, HAVE_LONG_64BIT, HAVE_LONG_LONG_64BIT
+gl_STDINT_H
 AC_CHECK_HEADERS(unistd.h)dnl DEFS HAVE_UNISTD_H if exist <unistd.h>
 dnl DEFS ACCESS_NEEDS_SYS_FILE_H if sys/file.h is needed for the access() flags
 CL_ACCESSFLAGS

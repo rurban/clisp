@@ -1,3 +1,12 @@
+2005-03-16  Bruno Haible  <bruno@clisp.org>
+
+	* m4/stdint.m4: Update from gnulib.
+	* stdint_.h: New file, from gnulib.
+	* stdint.h.in: Remove file.
+	* makemake.in (stdint.h): Generate from stdint_.h instead of stdint.h.
+	Substitute HAVE_LONG_LONG_64BIT instead of HAVE_LONGLONG_64BIT.
+	* configure.in: Call gl_STDINT_H instead of gt_STDINT_H.
+
 2005-03-24  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (parse_logical_pathnamestring): when version is blank,
