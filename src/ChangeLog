@@ -1,7 +1,11 @@
 2003-10-16  Sam Steingold  <sds@gnu.org>
 
-	* win32.lisp (MAX_PATH): new constant
+	* modules/bindings/win32/win32.lisp (MAX_PATH): new constant
 	(GetModuleFileNameA, GetModuleHandleA): new functions
+	(RIGHTS, PROCESS): new enum types
+	(handle): new type
+	(GetCurrentProcess, GetCurrentThread, GetCurrentProcessId)
+	(CloseHandle, OpenProcess): new functions
 
 2003-10-14  Sam Steingold  <sds@gnu.org>
 
