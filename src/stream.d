@@ -394,22 +394,23 @@
 # check whether the stream is a terminal stream
 global bool terminal_stream_p (const object stream) {
   if (!streamp(stream)) return false;
+  if (eq(stream,Symbol_value(S(terminal_read_stream)))) return true;
   if (TheStream(stream)->strmtype == strmtype_terminal) return true;
   if (TheStream(stream)->strmtype == strmtype_synonym)
     return terminal_stream_p(Symbol_value # get_synonym_stream
                              (TheStream(stream)->strm_synonym_symbol));
-  if (TheStream(stream)->strmtype == strmtype_concat) {
-    # this is a gross hack for the CLISP kludge
-    # of reading the first line with READ-LINE for *KEY-BINDINGS*
-    # and then concatenating the line with the terminal stream
-    object list = TheStream(stream)->strm_concat_list;
-    while (consp(list)) {
-      if (terminal_stream_p(Car(list)))
-        return true;
-      list = Cdr(list);
-    }
-    return false;
-  } else return false;
+  # if (TheStream(stream)->strmtype == strmtype_concat) {
+  #  # this is a gross hack for the CLISP kludge
+  #  # of reading the first line with READ-LINE for *KEY-BINDINGS*
+  #  # and then concatenating the line with the terminal stream
+  #  object list = TheStream(stream)->strm_concat_list;
+  #  while (consp(list)) {
+  #    if (terminal_stream_p(Car(list)))
+  #      return true;
+  #    list = Cdr(list);
+  #  }
+  #  return false;
+  return false;
 }
 
   # Am Ende eines wr_ch_array die Line-Position aktualisieren:

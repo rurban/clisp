@@ -1242,6 +1242,7 @@
         define_variable(S(prin_jbmodus),unbound);       # SYS::*PRIN-JBMODUS*
         define_variable(S(prin_jblpos),unbound);        # SYS::*PRIN-JBLPOS*
         define_variable(S(terminal_read_open_object),unbound); # SYS::*TERMINAL-READ-OPEN-OBJECT*
+        define_variable(S(terminal_read_stream),unbound); # SYS::*TERMINAL-READ-STREAM*
         define_variable(S(pprint_first_newline),T);     # CUSTOM:*PPRINT-FIRST-NEWLINE*
         define_variable(S(print_symbols_long),NIL);     # CUSTOM:*PRINT-SYMBOLS-LONG*
         define_variable(S(print_pathnames_ansi),NIL);   # CUSTOM:*PRINT-PATHNAMES-ANSI*

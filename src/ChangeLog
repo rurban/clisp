@@ -1,3 +1,13 @@
+2001-06-29  Sam Steingold  <sds@gnu.org>
+
+	command-oriented-history-2
+	* constsym.d (*TERMINAL-READ-STREAM*): added
+	* spvw.d (*TERMINAL-READ-STREAM*): define
+	* stream.d (terminal_stream_p): use it
+	* debug.d (read_form): bind it
+	* io.d (string_reader): unbind *TERMINAL-READ-OPEN-OBJECT*
+	in case of an error too
+
 2001-06-27  Sam Steingold  <sds@gnu.org>
 
 	command-oriented-history-1

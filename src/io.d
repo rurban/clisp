@@ -1247,10 +1247,10 @@ LISPFUNN(set_readtable_case,2)
 # > chart c: character code
 # < uintB result: attribute code
   #if (small_char_code_limit < char_code_limit) # i.e. defined(UNICODE)
-    #define attribute_of(c)  \
-      (as_cint(c) < small_char_code_limit       \
-       ? attribute_table[as_cint(c)]            \
-       : (graphic_char_p(c) ? a_alpha : a_illg))
+    #define attribute_of(c)                            \
+      (uintB)(as_cint(c) < small_char_code_limit       \
+              ? attribute_table[as_cint(c)]            \
+              : (graphic_char_p(c) ? a_alpha : a_illg))
   #else
     #define attribute_of(c)  attribute_table[as_cint(c)]
   #endif
@@ -2054,7 +2054,7 @@ LISPFUNN(set_readtable_case,2)
               break;
             }
             # multiply Integer by 10 and add digit:
-            STACK_0 = mal_10_plus_x(STACK_0,(c-'0'));
+            STACK_0 = mal_10_plus_x(STACK_0,(uintB)(c-'0'));
             flag = true;
           }
           # argument in STACK_0 finished (only if flag=true).
@@ -2575,7 +2575,7 @@ LISPFUNN(set_readtable_case,2)
       }
       if (terminal_stream_p(*stream_))
         dynamic_unbind(); # S(terminal_read_open_object)
-      dynamic_unbind();
+      dynamic_unbind(); # S(read_line_number)
       return ergebnis;
     }
   #ifdef RISCOS_CCBUG
@@ -2785,8 +2785,13 @@ LISPFUNN(rpar_reader,2) # reads )
 LISPFUNN(string_reader,2) # reads "
   {
     var object* stream_ = test_stream_arg(STACK_1);
-    if (terminal_stream_p(*stream_))
+    var object delim_char = STACK_0;
+    if (terminal_stream_p(*stream_)) {
       dynamic_bind(S(terminal_read_open_object),S(string));
+      pushSTACK(*stream_);
+      pushSTACK(delim_char);
+      stream_ = &(STACK_1);
+    }
     # stack layout: stream, char.
     if (test_value(S(read_suppress))) { # *READ-SUPPRESS* /= NIL ?
       # yes -> only read ahead of string:
@@ -2843,11 +2848,17 @@ LISPFUNN(string_reader,2) # reads "
       # free Buffer for reuse:
       O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
     }
-    if (terminal_stream_p(*stream_))
+    if (terminal_stream_p(*stream_)) {
+      skipSTACK(2);
       dynamic_unbind(); # S(terminal_read_open_object)
+    }
     mv_count=1; skipSTACK(2);
     return;
    fehler_eof:
+    if (terminal_stream_p(*stream_)) {
+      skipSTACK(2);
+      dynamic_unbind(); # S(terminal_read_open_object)
+    }
     pushSTACK(*stream_); # STREAM-ERROR slot STREAM
     pushSTACK(*stream_); # Stream
     pushSTACK(S(read));
@@ -5343,7 +5354,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'x'); # Prefix for "Hexadecimal"
       #define pr_hexpart(k)  # output bits k+7..k:  \
         if (((oint_addr_mask>>oint_addr_shift)<<addr_shift) & minus_wbit(k)) \
-          { pr_hex2(stream_,(uint8)(x >> k) & (((oint_addr_mask>>oint_addr_shift)<<addr_shift) >> k) & 0xFF); }
+          { pr_hex2(stream_,(uint8)((x >> k) & (((oint_addr_mask>>oint_addr_shift)<<addr_shift) >> k) & 0xFF)); }
       #ifdef WIDE_HARD
       pr_hexpart(56);
       pr_hexpart(48);
