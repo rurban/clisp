@@ -45,6 +45,7 @@
 <!ENTITY getsockname "<ulink url='&unix-f;/getsockname.html'><function>getsockname</function></ulink>">
 <!ENTITY getsockopt "<ulink url='&unix-f;/getsockopt.html'><function>getsockopt</function></ulink>">
 <!ENTITY iconv "<ulink url='&unix-f;/iconv.html'><function>iconv</function></ulink>">
+<!ENTITY ioctl "<ulink url='&unix-f;/ioctl.html'><function>ioctl</function></ulink>">
 <!ENTITY link "<ulink url='&unix-f;/link.html'><function>link</function></ulink>">
 <!ENTITY listen-c "<ulink url='&unix-f;/listen.html'><function>listen</function></ulink>">
 <!ENTITY lstat "<ulink url='&unix-f;/lstat.html'><function>lstat</function></ulink>">

@@ -494,6 +494,7 @@
 <!ENTITY base-r "<replaceable>base</replaceable>">
 <!ENTITY bc-r "<replaceable>block-cons</replaceable>">
 <!ENTITY body-r "<replaceable>body</replaceable>">
+<!ENTITY buf-r "<replaceable>buffer</replaceable>">
 <!ENTITY c-r "<replaceable>c</replaceable>">
 <!ENTITY case-sensitive-r "<replaceable>case-sensitive</replaceable>">
 <!ENTITY ch-r "<replaceable>char</replaceable>">
@@ -506,6 +507,7 @@
 <!ENTITY cplace-r "<replaceable>c-place</replaceable>">
 <!ENTITY ctype-r "<replaceable>c-type</replaceable>">
 <!ENTITY ctypei-r "<replaceable>c-type-internal</replaceable>">
+<!ENTITY data-r "<replaceable>data</replaceable>">
 <!ENTITY declaration-r "<replaceable>declaration</replaceable>">
 <!ENTITY dependent-r "<replaceable>dependent</replaceable>">
 <!ENTITY digits-r "<replaceable>digits</replaceable>">
@@ -579,6 +581,7 @@
 <!ENTITY esd-r "<replaceable>effective-slot-definition</replaceable>">
 <!ENTITY dsd-r "<replaceable>direct-slot-definition</replaceable>">
 <!ENTITY slot-name-r "<replaceable>slot-name</replaceable>">
+<!ENTITY sock-r "<replaceable>socket</replaceable>">
 <!ENTITY sose-r "<replaceable>socket-server</replaceable>">
 <!ENTITY sost-r "<replaceable>socket-stream</replaceable>">
 <!ENTITY source-r "<replaceable>source</replaceable>">
