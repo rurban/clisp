@@ -1,3 +1,7 @@
+1998-07-31  Bruno Haible  <haible@ilog.fr>
+
+        * control.d (make_variable_frame): Don't call Car(NIL).
+
 1998-07-16  Sam Steingold  <sds@goems.com>
  
         * spvw.d, constsym.d: new symbol print_right_margin
