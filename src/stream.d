@@ -4264,7 +4264,7 @@ local object bitbuff_is_I (object bitbuffer, uintL bitsize, uintL bytesize) {
            (*(bitbufferptr-1) & bit(7))) {
       count--; bitbufferptr--;
     }
-    # Zahl bilden:
+    # make number:
     if # höchstens oint_data_len+1 Bits, Zahl >=-2^oint_data_len ?
       ((count <= floor(oint_data_len,8))
        || ((count == floor(oint_data_len,8)+1)
@@ -4275,25 +4275,24 @@ local object bitbuff_is_I (object bitbuffer, uintL bitsize, uintL bytesize) {
       return negfixnum(wbitm(intLsize)+(oint)wert);
     }
   }
-  # Bignum bilden:
+  # make bignum:
   pushSTACK(bitbuffer);
   var uintL digitcount = ceiling(count,(intDsize/8));
   # Da bitsize < intDsize*uintWC_max, ist
   # digitcount <= ceiling(bitsize/intDsize) <= uintWC_max .
   var object big = allocate_bignum(digitcount,(sintB)sign);
-  TheBignum(big)->data[0] = sign; # höchstes Word auf sign setzen
   # restliche Digits von rechts füllen, dabei Folge von Bytes in
   # Folge von uintD übersetzen:
   bitbuffer = popSTACK();
   bitbufferptr = &TheSbvector(bitbuffer)->data[0];
   #if BIG_ENDIAN_P
   {
-    var uintB* bigptr = (uintB*)(&TheBignum(big)->data[digitcount]);
+    var uintB* bigptr = (uintB*)(TheBignum(big)->data+digitcount);
     dotimespL(count,count, { *--bigptr = *bitbufferptr++; } );
   }
   #else
   {
-    var uintD* bigptr = &TheBignum(big)->data[digitcount];
+    var uintD* bigptr = TheBignum(big)->data+digitcount;
     var uintL count2;
 #define GET_NEXT_BYTE(i) digit |= ((uintD)(*bitbufferptr++) << (8*i));
     dotimespL(count2,floor(count,intDsize/8), {
@@ -4310,7 +4309,7 @@ local object bitbuff_is_I (object bitbuffer, uintL bitsize, uintL bytesize) {
         shiftcount += 8;
         digit |= ((uintD)(*bitbufferptr++) << shiftcount);
       });
-      *--bigptr = digit;
+      *--bigptr = digit ^ (sign << (shiftcount+8));
     }
   }
   #endif
