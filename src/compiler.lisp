@@ -2571,7 +2571,10 @@ for-value   NIL or T
   `(block try-eval
      (let ((*error-handler*
             #'(lambda (&rest error-args)
-                ;; FIXME: the warning is reported twice!
+                ;; NB: the warning may be reported twice: if you compile
+                ;; (* 1d30 1d30), this will be called first from c-STAR
+                ;; (because this is a * form), and second from
+                ;; c-DIRECT-FUNCTION-CALL (because this is a constant form)
                 (apply #'c-warn (TEXT "Run time error expected: ~@?")
                        (cdr error-args))
                 (return-from try-eval nil))))
