@@ -36,7 +36,7 @@ User visible changes
   See <http://clisp.cons.org/impnotes.html#loadfile> for details.
 
 * EXT:GETENV now returns all of the environment as an alist when its
-  argument is NIL.
+  argument is omitted or NIL.
 
 * When configured with --with-export-syscalls,
   several new functions are available:
