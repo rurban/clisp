@@ -1272,6 +1272,7 @@ LISPSYM(initial_initialize_instance,"INITIAL-INITIALIZE-INSTANCE",clos) /* funct
 LISPSYM(initial_make_instance,"INITIAL-MAKE-INSTANCE",clos) /* function for RECORD */
 LISPSYM(allocate_instance,"ALLOCATE-INSTANCE",clos) /* function for RECORD */
 LISPSYM(finalize_class,"FINALIZE-CLASS",clos) /* function for RECORD */
+LISPSYM(class_version_compute_slotlists,"CLASS-VERSION-COMPUTE-SLOTLISTS",clos) /* function for RECORD */
 LISPSYM(simple_vector,"SIMPLE-VECTOR",lisp) /* type in SEQUENCE, PREDTYPE */
 LISPSYM(simple_string,"SIMPLE-STRING",lisp) /* type in SEQUENCE, PREDTYPE */
 LISPSYM(base_string,"BASE-STRING",lisp) /* type in SEQUENCE, PREDTYPE */

@@ -882,7 +882,7 @@ int main(int argc, char* argv[])
   */
   emit_typedef("Srecord","Structure");
   printf("#define structure_types   recdata[0]\n");
-  sprintf(buf,"struct { SRECORD_HEADER gcv_object_t inst_class%s; gcv_object_t inst_cl_id%s; gcv_object_t other[unspecified]%s; } *",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
+  sprintf(buf,"struct { SRECORD_HEADER gcv_object_t inst_class_version%s; gcv_object_t other[unspecified]%s; } *",attribute_aligned_object,attribute_aligned_object);
   emit_typedef(buf,"Instance");
   printf("typedef void Values;\n"); /* emit_typedef useless: no sizeof(void) */
   emit_typedef_f("Values (*%s)()","lisp_function_t");

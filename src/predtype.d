@@ -1669,9 +1669,11 @@ LISPFUNNR(type_of,1)
       break;
     case_instance: { /* Instance -> name of the class or the class itself */
         /* (CLtL2 p. 781 top) */
-        instance_un_realloc(arg);
-        instance_update(arg);
-        var object clas = TheInstance(arg)->inst_class;
+        var object arg_forwarded = arg;
+        instance_un_realloc(arg_forwarded);
+        /*instance_update(arg,arg_forwarded); - not needed since we don't access a slot */
+        var object cv = TheInstance(arg_forwarded)->inst_class_version;
+        var object clas = TheClassVersion(cv)->cv_newest_class;
         var object name = TheClass(clas)->classname;
         value1 = (eq(get(name,S(closclass)),clas)
                   /* (GET name 'CLOS::CLOSCLASS) = class ? */
@@ -1793,10 +1795,14 @@ LISPFUNNR(class_of,1)
   switch (0)
  #endif
   {
-    case_instance: /* instance -> its class */
-      instance_un_realloc(arg);
-      instance_update(arg);
-      value1 = TheInstance(arg)->inst_class; break;
+    case_instance: { /* instance -> its class */
+      var object arg_forwarded = arg;
+      instance_un_realloc(arg_forwarded);
+      /*instance_update(arg,arg_forwarded); - not needed since we don't access a slot */
+      var object cv = TheInstance(arg_forwarded)->inst_class_version;
+      value1 = TheClassVersion(cv)->cv_newest_class;
+      break;
+    }
     case_structure: { /* Structure -> type of the structure or <t> */
       var object type = TheStructure(arg)->structure_types;
       /* (name_1 ... name_i-1 name_i). type is name_1. */
@@ -2533,7 +2539,8 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
         pighole = &locals->builtins[(int)enum_hs_realloc_instance];
         break;
       }
-      var object clas = TheInstance(obj)->inst_class;
+      var object cv = TheInstance(obj)->inst_class_version;
+      var object clas = TheClassVersion(cv)->cv_newest_class;
       var NODE* found = AVL(AVLID,member0)(clas,locals->standard_classes.tree);
       if (found == (NODE*)NULL) {
         if (locals->standard_classes.free_count == 0) { /* shouldn't happen */

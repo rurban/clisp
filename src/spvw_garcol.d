@@ -1322,7 +1322,7 @@ local void gc_markphase (void)
 
 # Special handling of forward pointers among CLOS instances.
   local void gc_sweep1_instance_forward (aint p2) {
-    var gcv_object_t forward = ((Instance)p2)->inst_class;
+    var gcv_object_t forward = ((Instance)p2)->inst_class_version;
     if (record_flags(TheInstance(forward)) & instflags_relocated_B) {
       var gcv_object_t target = TheInstance(forward)->GCself;
       var aint backchain = p2;
