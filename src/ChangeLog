@@ -1,3 +1,10 @@
+2003-02-04  Hoehle, Joerg-Cyril  <Joerg-Cyril.Hoehle@t-systems.com>
+	    Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 679661 ]: FFI segfault passing struct arrays
+	* foreign.d (count_walk_pre): C-ARRAY-PTR should reserve room
+	for the array argument
+
 2003-02-03  Sam Steingold  <sds@gnu.org>
 
 	EXT:XOR checks that exactly one of its arguments is non-NIL

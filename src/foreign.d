@@ -1570,6 +1570,8 @@ local void count_walk_pre(fvd,obj)
       foreign_layout(TheSvector(fvd)->data[1]);
       size = data_size;
       alignment = data_alignment;
+      if (eq(TheSvector(fvd)->data[0],S(c_array_ptr)))
+        size *= vector_length(obj);
     }
     walk_counter = ((walk_counter + alignment-1) & -alignment) + size;
     # walk_alignment = lcm(walk_alignment,alignment);
