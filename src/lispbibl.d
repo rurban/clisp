@@ -3075,6 +3075,8 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
     # gcinvariant_object_p(obj)
       #define gcinvariant_object_p(obj)  \
         (((as_oint(obj) & 1) == 0) || immediate_object_p(obj))
+      #define gcinvariant_oint_p(obj_o)  \
+        ((((obj_o) & 1) == 0) || ((7 & ~(obj_o)) == 0))
 
     # Test for gc-invariant object, given only the bias.
       #define gcinvariant_bias_p(bias)  \
@@ -3167,6 +3169,8 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
     # gcinvariant_object_p(obj)
       #define gcinvariant_object_p(obj)  \
         ((as_oint(obj) & bit(1)) == 0)
+      #define gcinvariant_oint_p(obj_o)  \
+        (((obj_o) & bit(1)) == 0)
     # NB: Subrs are not included in this test, because subrp(obj) require a
     # memory access.
 
@@ -3520,6 +3524,8 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 # gcinvariant_object_p(obj)
   #define gcinvariant_object_p(obj)  \
     gcinvariant_type_p(typecode(obj))
+  #define gcinvariant_oint_p(obj_o)  \
+    gcinvariant_type_p((tint)((obj_o) >> oint_type_shift) & (oint_type_mask >> oint_type_shift))
 
 #else # no TYPECODES
 
@@ -3594,9 +3600,19 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define nonimmsubrp(obj)  false
   #endif
 
+  # Force a crash if a memory pointer points to nonexistent memory.
+  #define nonimmprobe(obj_o)  \
+    do {                                                                       \
+      if (((obj_o) & wbit(garcol_bit_o)) == 0) /* exclude frame words from the STACK */ \
+        if (!gcinvariant_oint_p(obj_o)) /* exclude immediate objects */        \
+          /* Access a single char, without needing to subtract the bias. */    \
+          *(volatile char *)(((aint)((obj_o) >> oint_addr_shift) & (aint)(oint_addr_mask >> oint_addr_shift)) <<addr_shift); \
+    } while (0)
+
   # When a gcv_object_t is fetched from a GC visible location (in the heap or
   # on the STACK) we can assume that GC has updated it.
   inline gcv_object_t::operator object () const {
+    nonimmprobe(one_o);
     return (object){ one_o: one_o INIT_ALLOCSTAMP };
   }
 
@@ -3608,6 +3624,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
           || obj.allocstamp == alloccount || nonimmsubrp(obj)))
       abort();
     one_o = as_oint(obj);
+    nonimmprobe(one_o);
   }
   # The only exception are fake gcv_objects.
   inline gcv_object_t::gcv_object_t (fake_gcv_object obj) {
@@ -5995,18 +6012,22 @@ typedef enum {
       if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj)
             || obj.allocstamp == alloccount || nonimmsubrp(obj)))
         abort();
+      nonimmprobe(obj.one_o);
       return obj.one_o;
     }
     static inline aint pgci_pointable (gcv_object_t obj) {
+      nonimmprobe(obj.one_o);
       return obj.one_o;
     }
     static inline aint ngci_pointable (object obj) {
       if (!(gcinvariant_symbol_p(obj)
             || obj.allocstamp == alloccount || nonimmsubrp(obj)))
         abort();
+      nonimmprobe(obj.one_o);
       return obj.one_o;
     }
     static inline aint ngci_pointable (gcv_object_t obj) {
+      nonimmprobe(obj.one_o);
       return obj.one_o;
     }
   #elif defined(WIDE_AUXI)
