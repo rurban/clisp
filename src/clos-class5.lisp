@@ -165,8 +165,9 @@
       ;;  lambda-list becomes an initialization argument for all classes for
       ;;  which the method is applicable."
       (remove-duplicates
-       (append (class-valid-initargs class) (mapcap #'sig-keywords signatures))
-       :from-end t))))
+        (append (class-valid-initargs-from-slots class)
+                (mapcap #'sig-keywords signatures))
+        :from-end t))))
 
 ;; NB: On calculation of an effective method, the residual
 ;; arguments do not count.
@@ -578,7 +579,7 @@
   #||
   ;; CLtL2 28.1.9.2., ANSI CL 7.1.2. Validity of initialization arguments
   (sys::keyword-test initargs
-      (union (class-valid-initargs class)
+      (union (class-valid-initargs-from-slots class)
              (applicable-keywords #'initialize-instance class))) ; ??
   (let ((instance (apply #'allocate-instance class initargs)))
     (apply #'initialize-instance instance initargs))
