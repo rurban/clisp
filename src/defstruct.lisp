@@ -74,12 +74,8 @@
   (let ((default (ds-slot-default slot)))
     ; Default ist entweder Konstante oder Funktion oder Symbol
     (if (constantp default)
-      (if (null default)
-        (if (symbolp arg) arg `(,arg))
         `(,arg ,default)
-      )
-      `(,arg (SYS::%FUNCALL ,default))
-) ) )
+        `(,arg (SYS::%FUNCALL ,default)))))
 
 #| Hilfsfunktion für beide Konstruktoren:
    (ds-make-constructor-body type name names size slotlist)
@@ -144,13 +140,13 @@
     arg
     ; kein Defaultwert in der Lambda-Liste
     (let* ((var (if (listp arg) (first arg) arg))
-           (slot (find (if (consp var) (second var) var) slotlist :key #'ds-slot-name :test #'eq)))
+           (slot (find (if (consp var) (second var) var) slotlist
+                       :key #'ds-slot-name :test #'eq)))
       (if slot
         ; Slot gefunden -> dessen Defaultwert nehmen
-        (ds-arg-default arg slot)
+        (ds-arg-default var slot)
         ; Slot nicht gefunden, kein Defaultwert
-        arg
-) ) ) )
+        arg))))
 
 #| (ds-make-boa-constructor descriptor type name names size slotlist)
    liefert die Form, die den BOA-Konstrukor definiert.
