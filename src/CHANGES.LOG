@@ -23,6 +23,9 @@ User visible changes
   keyword argument.
   See <http://clisp.cons.org/impnotes.html#timeout-k> for details.
 
+* SAVEINITMEM now accepts a :START-PACKAGE keyword argument.
+  See <http://clisp.cons.org/impnotes.html#image> for details.
+
 * You can now shutdown a socket for input or output separately
   using SOCKET:SOCKET-STREAM-SHUTDOWN.
   See <http://clisp.cons.org/impnotes.html#sost-shut> for details.
