@@ -1,5 +1,10 @@
 2003-10-02  Bruno Haible  <bruno@clisp.org>
 
+	* utils/comment5.c: Use '／＊' instead of '/*' inside comments, to avoid
+	gcc warning “"/*" within comment”.
+
+2003-10-02  Bruno Haible  <bruno@clisp.org>
+
 	* utils/ansidecl.d (main): Don't miss to return an error code if the
 	last write on stdout fails.
 	* utils/ccmp2c.c (main): Likewise.
