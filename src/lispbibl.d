@@ -12024,16 +12024,22 @@ typedef enum {
   condition_for_broken_compilers_that_dont_like_trailing_commas
 } condition_t;
 
-# Error with error-string. Does not return.
-# fehler(errortype,errorstring);
-# > errortype: condition-type
-# > errorstring: constant ASCIZ-String, in UTF-8 Encoding.
-#   At every tilde, a LISP-object ist taken from the STACK and printed
-#   instead of the tilde.
-# > on the STACK: initial values for the Condition, depending on error-type
+/* Error with error-string. Does not return.
+ fehler(errortype,errorstring);
+ > errortype: condition-type
+ > errorstring: constant ASCIZ-String, in UTF-8 Encoding.
+   At every tilde, a LISP-object is taken from the STACK and printed
+   instead of the tilde.
+ > on the STACK: initial values for the Condition, depending on error-type */
 nonreturning_function(extern, fehler, (condition_t errortype, const char * errorstring));
-extern void check_value (condition_t errortype, const char * errorstringvoid);
-# used by all modules
+/* Report an error and try to recover by asking the user to supply a value.
+ Arguments - as above, expect one additional element on the STACK for PLACE
+ - the first argument of CHECK-VALUE (see condition.lisp)
+ If returns, the 2 return values from CHECK-VALUE are in value1 & value2
+ (value1 supplied by the user, value2 indicates whether PLACE should be filled)
+ can trigger GC */
+extern void check_value (condition_t errortype, const char * errorstring);
+/* used by all modules */
 
 # Just like OS_error, but signal a FILE-ERROR.
 # OS_file_error(pathname);
@@ -12140,6 +12146,7 @@ nonreturning_function(extern, fehler_posfixnum, (object obj));
 # fehler_char(obj);
 # > obj: the faulty argument
 nonreturning_function(extern, fehler_char, (object obj));
+/* can trigger GC */
 extern object check_char (object obj);
 # is used by CHARSTRG
 
@@ -12148,6 +12155,7 @@ extern object check_char (object obj);
 # > obj: the possibly faulty argument
 # < a string
 nonreturning_function(extern, fehler_string, (object obj));
+/* can trigger GC */
 extern object check_string (object obj);
 # is used by CHARSTRG, FOREIGN, MISC, PATHNAME, STREAM, SOCKET, I18N, DIRKEY
 
@@ -12237,7 +12245,8 @@ global object check_encoding (object obj, const gcv_object_t* e_default,
 
 /* report errors if the argument is not a function name
  obj - bad object; caller - the calling function (a symbol)
- errtype - type_error or source_program_error */
+ errtype - type_error or source_program_error
+ can trigger GC */
 global object check_funname (condition_t errtype, object caller, object obj);
 
 # Error message, if an argument is a lambda-expression instead of a function:
