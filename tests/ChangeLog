@@ -1,3 +1,7 @@
+2001-10-18  Sam Steingold  <sds@gnu.org>
+
+	* clos.tst: test for initialize-instance returning junk
+
 2001-09-10  Sam Steingold  <sds@gnu.org>
 
 	* format.tst: test (format nil "~0f" 10)
