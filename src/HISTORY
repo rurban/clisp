@@ -1,11 +1,11 @@
 Version  Date            New features
 
-2.25     2001-03-15      UNC pathnames, win32 registry, SCREEN on win32,
+2.25     2001-03-15      INSPECT, CLHS,
                          CONVERT-STRING-FROM-BYTES, CONVERT-STRING-TO-BYTES,
-                         STREAM-READ-BYTE-LOOKAHEAD, READ-BYTE-LOOKAHEAD,
-                         STREAM-READ-BYTE-WILL-HANG-P, READ-BYTE-WILL-HANG-P,
-                         STREAM-READ-BYTE-NO-HANG, READ-BYTE-NO-HANG,
-                         INSPECT, CLHS
+                         READ-BYTE-LOOKAHEAD, STREAM-READ-BYTE-LOOKAHEAD,
+                         READ-BYTE-WILL-HANG-P, STREAM-READ-BYTE-WILL-HANG-P,
+                         READ-BYTE-NO-HANG, STREAM-READ-BYTE-NO-HANG,
+                         Win32 improvements (UNC pathnames, registry, SCREEN)
 
 2.24     2000-03-06      READ-FLOAT, WRITE-FLOAT, WITH-COMPILATION-UNIT,
                          CHAR-WIDTH, STRING-WIDTH
@@ -100,7 +100,7 @@ Version  Date            New features
 2.12.1   1994-09-01
 
 2.12     1994-08-23      generational garbage collection,
-                         DESTRUCTURING-BIND, UNCOMPILE,
+                         DESTRUCTURING-BIND, UNCOMPILE
 
 2.11     1994-07-04      LOOP, LOOP-FINISH, MAP-INTO,
                          LEAST-POSITIVE-NORMALIZED-SHORT-FLOAT,
