@@ -348,7 +348,7 @@ LISPFUN(clcs_signal,seclass_default,1,0,rest,nokey,0,NIL)
 LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
         (kw(weak),kw(initial_contents),
          kw(test),kw(size),kw(rehash_size),kw(rehash_threshold)) )
-LISPFUN(gethash,seclass_read,2,1,norest,nokey,0,NIL)
+LISPFUN(gethash,seclass_default,2,1,norest,nokey,0,NIL)
 LISPFUNN(puthash,3)
 LISPFUNN(remhash,2)
 LISPFUNN(maphash,2)

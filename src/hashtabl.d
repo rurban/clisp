@@ -1479,7 +1479,7 @@ local object check_hashtable (object obj) {
   return obj;
 }
 
-LISPFUN(gethash,seclass_read,2,1,norest,nokey,0,NIL)
+LISPFUN(gethash,seclass_default,2,1,norest,nokey,0,NIL)
 { /* (GETHASH key hashtable [default]), CLTL p. 284 */
   var object ht = check_hashtable(STACK_1); /* hashtable argument */
   var gcv_object_t* KVptr;
