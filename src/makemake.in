@@ -1688,7 +1688,7 @@ case "$fsstnd" in
     echol "lispdocdir = \$(docdir)${NEXT_}packages${NEXT_}clisp"
     ;;
   redhat)
-    echol "lispdocdir = \$(docdir)${NEXT_}clisp-`cat ${SRCDIR}VERSION`"
+    echol "lispdocdir = \$(docdir)${NEXT_}clisp-\`cat ${SRCDIR}VERSION\`"
     ;;
   debian | gnu_ext | *bsd)
     echol "lispdocdir = \$(docdir)${NEXT_}clisp"
@@ -3389,12 +3389,28 @@ if [ ${HSYSOS} = cygwin ]; then
   echotab "echo '' >> cygwin.README"
   echotab "cat SUMMARY >> cygwin.README"
   echol
+  CLISP_VERSION="clisp-\`cat VERSION\`";
+  CLISP_SCRIPT=${CLISP_VERSION}-1.sh;
+  CLISP_CYGWIN=${CLISP_VERSION}-cygwin-`uname -r|sed 's/(.*)//g'`.tar.bz2;
   echol "DEST_TMP='`pwd`/.install'";
-  echol "distrib : setup.hint force"
+  echol "distrib : setup.hint cygwin.README force"
   echotab "\$(RMRF) \$(DEST_TMP); mkdir -p \$(DEST_TMP)"
   echotab "\$(MAKE) install prefix=/usr DESTDIR=\$(DEST_TMP)"
-  echotab "cd \$(DEST_TMP); tar cvfj ../clisp-\`cat ../VERSION\`-cygwin-`uname -r|sed 's/(.*)//g'`.tar.bz2 *"
+  echotab "cd \$(DEST_TMP); tar cvfj ../${CLISP_CYGWIN} *"
+  echotab "ln ${CLISP_CYGWIN} ${CLISP_VERSION}-1.tar.bz2"
   echotab "\$(RMRF) \$(DEST_TMP)"
+  echol
+  echol "TAR_SRC=\"../../archives/${CLISP_VERSION}.tar.bz2\""
+  echol "cygwin-src : setup.hint force"
+  echotab "touch ${CLISP_VERSION}-1.patch"
+  echotab "echo '#!/bin/sh' > ${CLISP_SCRIPT}"
+  echotab "echo './configure$makemake_args --build build-cygwin' >> ${CLISP_SCRIPT}"
+  echotab "echo 'cd build-cygwin' >> ${CLISP_SCRIPT}"
+  echotab "echo 'make distrib' >> ${CLISP_SCRIPT}"
+  echotab "ln -s \$(TAR_SRC) ${CLISP_VERSION}.tar.bz2"
+  echotab "tar cvfjh ${CLISP_VERSION}-1.src.tar.bz2 ${CLISP_VERSION}.tar.bz2 ${CLISP_SCRIPT} ${CLISP_VERSION}-1.patch setup.hint cygwin.README"
+  echotab "\$(RMRF) ${CLISP_VERSION}.tar.bz2 ${CLISP_SCRIPT} ${CLISP_VERSION}-1.patch"
+  echol
 elif [ ${HOS} = unix ] ; then   # but not cygwin!
 cat <<!!
 # Choose one of the packers:
