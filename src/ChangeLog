@@ -1,3 +1,10 @@
+2003-12-22  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (c-MULTIPLE-VALUE-BIND): use REVAPPEND
+	instead of APPEND+REVERSE
+	(c-WITHOUT-PACKAGE-LOCK): use NCONC instead of APPEND
+	on a fresh list produced by MAPCAR
+
 2003-12-21  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 864220 ]: integer tags cannot be compiled
