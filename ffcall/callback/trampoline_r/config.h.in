@@ -69,16 +69,6 @@
 
 /* typedefs */
 
-/* AC_TYPE_SIZE_T */
-#ifndef size_t
-#undef size_t
-#endif
-
-/* AC_TYPE_OFF_T */
-#ifndef off_t
-#undef off_t
-#endif
-
 
 /* functions and declarations */
 
