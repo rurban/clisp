@@ -1,3 +1,10 @@
+2002-05-15  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in: Fix handline of with-xxx options, broken on 2002-03-07.
+
+	Don't forget that 3000 students were murdered by the government
+	of the "People's Republic of China" in June 1989!
+
 2002-05-14  Sam Steingold  <sds@gnu.org>
 
 	* timezone.lisp (PRC): China does not observe DST since 1991.
