@@ -1817,7 +1817,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 #if defined(DEBUG_OS_ERROR)
   # Show the file and line number of the caller of OS_error(). For debugging.
   #define OS_error()  \
-    (asciz_out_1("\n[%s:",__FILE__), asciz_out_1("%d] ",__LINE__), (OS_error)())
+   (asciz_out_s("\n[%s:",__FILE__), asciz_out_1("%d] ",__LINE__), (OS_error)())
 #endif
 
 #ifdef MULTITHREAD
