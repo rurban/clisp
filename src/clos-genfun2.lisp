@@ -324,16 +324,7 @@
       "~S: ~S already belongs to ~S, cannot also add it to ~S"
       'std-add-method method (method-generic-function method) gf))
   (check-method-qualifiers gf method)
-  (when (typep method <standard-method>)
-    (setf (std-method-fast-function method) nil)
-    ;; Determine function from initfunction:
-    (when (and (null (std-method-function method))
-               (null (std-method-fast-function method)))
-      (let ((h (funcall (std-method-initfunction method) method)))
-        (setf (std-method-fast-function method) (car h))
-        (when (car (cdr h)) ; could the variable ",cont" be optimized away?
-          (setf (std-method-wants-next-method-p method) nil)))))
-  ;; The method is finished. Now add it:
+  ;; The method is checked. Now add it:
   (warn-if-gf-already-called gf)
   (let ((old-method (find method (std-gf-methods gf) :test #'methods-agree-p)))
     (when old-method
@@ -384,11 +375,7 @@
 
 ;; Remove a method from a generic function.
 (defun std-remove-method (gf method)
-  (let ((old-method
-          (if (typep method <standard-method>)
-            (find (std-method-initfunction method) (std-gf-methods gf)
-                  :key #'std-method-initfunction)
-            (find method (std-gf-methods gf)))))
+  (let ((old-method (find method (std-gf-methods gf))))
     (when old-method
       (warn-if-gf-already-called gf)
       (when (need-gf-already-called-warning-p gf)
