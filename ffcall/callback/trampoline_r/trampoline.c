@@ -840,12 +840,15 @@ __TR_function alloc_trampoline_r (address, data0, data1)
    *    .long   <data>
    *    .long   <address>
    */
-  *(long *) (function + 0) = ((long *) ((char*)&tramp_r-2))[0];
-  *(long *) (function + 4) = (long) (function + 8);
-  *(long *) (function + 8) = (long) data;
-  *(long *) (function +12) = (long) address;
+  { /* work around a bug in gcc 3.* */
+    void *foo=&tramp_r;
+    *(long *) (function + 0) = ((long *) ((char*)foo-2))[0];
+    *(long *) (function + 4) = (long) (function + 8);
+    *(long *) (function + 8) = (long) data;
+    *(long *) (function +12) = (long) address;
+  }
 #define is_tramp(function)  \
-  ((long *) function)[0] == ((long *) ((char*)&tramp_r-2))[0]
+  { void *foo=&tramp_r; *((long *) function) == *((long *) ((char*)foo-2)); }
 #define tramp_address(function)  \
   ((long *) function)[3]
 #define tramp_data(function)  \
