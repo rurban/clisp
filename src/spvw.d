@@ -2826,11 +2826,11 @@ local void print_banner ()
           Symbol_value(S(floating_point_contagion_ansi)) = T;
           # (IN-PACKAGE "COMMON-LISP-USER")
           pushSTACK(O(ansi_user_package_name)); funcall(L(in_package),1);
-          # (PUSH :ANSI-CL *FEATURES*) (PUSH :IEEE-FLOATING-POINT *FEATURES*)
-          { pushSTACK(ascii_to_string("(:ANSI-CL :IEEE-FLOATING-POINT)"));
-            { var object list = (funcall(L(read_from_string),1), value1);
-              pushSTACK(list); pushSTACK(Symbol_value(S(features)));
-              funcall(L(nconc),2);
+          # (PUSHNEW :ANSI-CL *FEATURES*)
+          { pushSTACK(ascii_to_string(":ANSI-CL"));
+            { var object feat = (funcall(L(read_from_string),1), value1);
+              pushSTACK(feat); pushSTACK(Symbol_value(S(features)));
+              funcall(L(adjoin),2);
               Symbol_value(S(features)) = value1;
         } } }
       if (!(argv_package == NULL))
