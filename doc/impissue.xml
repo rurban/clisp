@@ -3,405 +3,403 @@
 <chapter id="issues"><title>X3J13 Issue Index
    <ulink url="&clhs;/Issues/Issues-Categorized.html">[CLHS-ic]</ulink></title>
 
-<para>This is the list of ANSI CL issues and their current status in
+<para>This is the list of &ansi-cl; issues and their current status in
  &clisp;, i.e., whether &clisp; supports code that makes use of the
  functionality specified by the vote.</para>
 
 <variablelist id="issues-list"><title>X3J13 Issues</title>
- <varlistentry id="iss001"><term><ulink url="&clhs;/Issues/iss001.html">&amp;ENVIRONMENT-BINDING-ORDER:FIRST</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss002"><term><ulink url="&clhs;/Issues/iss002.html">ACCESS-ERROR-NAME</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss003"><term><ulink url="&clhs;/Issues/iss003.html">ADJUST-ARRAY-DISPLACEMENT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss004"><term><ulink url="&clhs;/Issues/iss004.html">ADJUST-ARRAY-FILL-POINTER</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss005"><term><ulink url="&clhs;/Issues/iss005.html">ADJUST-ARRAY-NOT-ADJUSTABLE:IMPLICIT-COPY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss006"><term><ulink url="&clhs;/Issues/iss006.html">ALLOCATE-INSTANCE:ADD</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss007"><term><ulink url="&clhs;/Issues/iss007.html">ALLOW-LOCAL-INLINE:INLINE-NOTINLINE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss008"><term><ulink url="&clhs;/Issues/iss008.html">ALLOW-OTHER-KEYS-NIL:PERMIT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss009"><term><ulink url="&clhs;/Issues/iss009.html">AREF-1D</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss010"><term><ulink url="&clhs;/Issues/iss010.html">ARGUMENT-MISMATCH-ERROR-AGAIN:CONSISTENT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss011"><term><ulink url="&clhs;/Issues/iss011.html">ARGUMENT-MISMATCH-ERROR-MOON:FIX</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss012"><term><ulink url="&clhs;/Issues/iss012.html">ARGUMENT-MISMATCH-ERROR:MORE-CLARIFICATIONS</ulink></term>
-     <listitem><simpara>yes, except for argument list checking in
-     &call-next-method; in compiled code (items 11,12)
-     </simpara></listitem></varlistentry>
- <varlistentry id="iss013"><term><ulink url="&clhs;/Issues/iss013.html">ARGUMENTS-UNDERSPECIFIED:SPECIFY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss014"><term><ulink url="&clhs;/Issues/iss014.html">ARRAY-DIMENSION-LIMIT-IMPLICATIONS:ALL-FIXNUM</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss015"><term><ulink url="&clhs;/Issues/iss015.html">ARRAY-TYPE-ELEMENT-TYPE-SEMANTICS:UNIFY-UPGRADING</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss016"><term><ulink url="&clhs;/Issues/iss016.html">ASSERT-ERROR-TYPE:ERROR</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss017"><term><ulink url="&clhs;/Issues/iss017.html">ASSOC-RASSOC-IF-KEY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss018"><term><ulink url="&clhs;/Issues/iss018.html">ASSOC-RASSOC-IF-KEY:YES</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss019"><term><ulink url="&clhs;/Issues/iss019.html">BOA-AUX-INITIALIZATION:ERROR-ON-READ</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss020"><term><ulink url="&clhs;/Issues/iss020.html">BREAK-ON-WARNINGS-OBSOLETE:REMOVE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss021"><term><ulink url="&clhs;/Issues/iss021.html">BROADCAST-STREAM-RETURN-VALUES:CLARIFY-MINIMALLY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss022"><term><ulink url="&clhs;/Issues/iss022.html">BUTLAST-NEGATIVE:SHOULD-SIGNAL</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss023"><term><ulink url="&clhs;/Issues/iss023.html">CHANGE-CLASS-INITARGS:PERMIT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss024"><term><ulink url="&clhs;/Issues/iss024.html">CHAR-NAME-CASE:X3J13-MAR-91</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss025"><term><ulink url="&clhs;/Issues/iss025.html">CHARACTER-LOOSE-ENDS:FIX</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss026"><term><ulink url="&clhs;/Issues/iss026.html">CHARACTER-PROPOSAL:2</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss027"><term><ulink url="&clhs;/Issues/iss027.html">CHARACTER-PROPOSAL:2-1-1</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss028"><term><ulink url="&clhs;/Issues/iss028.html">CHARACTER-PROPOSAL:2-1-2</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss029"><term><ulink url="&clhs;/Issues/iss029.html">CHARACTER-PROPOSAL:2-2-1</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss030"><term><ulink url="&clhs;/Issues/iss030.html">CHARACTER-PROPOSAL:2-3-1</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss031"><term><ulink url="&clhs;/Issues/iss031.html">CHARACTER-PROPOSAL:2-3-2</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss032"><term><ulink url="&clhs;/Issues/iss032.html">CHARACTER-PROPOSAL:2-3-3</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss033"><term><ulink url="&clhs;/Issues/iss033.html">CHARACTER-PROPOSAL:2-3-4</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss034"><term><ulink url="&clhs;/Issues/iss034.html">CHARACTER-PROPOSAL:2-3-5</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss035"><term><ulink url="&clhs;/Issues/iss035.html">CHARACTER-PROPOSAL:2-3-6</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss036"><term><ulink url="&clhs;/Issues/iss036.html">CHARACTER-PROPOSAL:2-4-1</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss037"><term><ulink url="&clhs;/Issues/iss037.html">CHARACTER-PROPOSAL:2-4-2</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss038"><term><ulink url="&clhs;/Issues/iss038.html">CHARACTER-PROPOSAL:2-4-3</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss039"><term><ulink url="&clhs;/Issues/iss039.html">CHARACTER-PROPOSAL:2-5-2</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss040"><term><ulink url="&clhs;/Issues/iss040.html">CHARACTER-PROPOSAL:2-5-6</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss041"><term><ulink url="&clhs;/Issues/iss041.html">CHARACTER-PROPOSAL:2-5-7</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss042"><term><ulink url="&clhs;/Issues/iss042.html">CHARACTER-PROPOSAL:2-6-1</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss043"><term><ulink url="&clhs;/Issues/iss043.html">CHARACTER-PROPOSAL:2-6-2</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss044"><term><ulink url="&clhs;/Issues/iss044.html">CHARACTER-PROPOSAL:2-6-3</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss045"><term><ulink url="&clhs;/Issues/iss045.html">CHARACTER-PROPOSAL:2-6-5</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss046"><term><ulink url="&clhs;/Issues/iss046.html">CHARACTER-VS-CHAR:LESS-INCONSISTENT-SHORT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss047"><term><ulink url="&clhs;/Issues/iss047.html">CLASS-OBJECT-SPECIALIZER:AFFIRM</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss048"><term><ulink url="&clhs;/Issues/iss048.html">CLOS-CONDITIONS-AGAIN:ALLOW-SUBSET</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss049"><term><ulink url="&clhs;/Issues/iss049.html">CLOS-CONDITIONS:INTEGRATE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss050"><term><ulink url="&clhs;/Issues/iss050.html">CLOS-ERROR-CHECKING-ORDER:NO-APPLICABLE-METHOD-FIRST</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss051"><term><ulink url="&clhs;/Issues/iss051.html">CLOS-MACRO-COMPILATION:MINIMAL</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss052"><term><ulink url="&clhs;/Issues/iss052.html">CLOSE-CONSTRUCTED-STREAM:ARGUMENT-STREAM-ONLY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss053"><term><ulink url="&clhs;/Issues/iss053.html">CLOSED-STREAM-OPERATIONS:ALLOW-INQUIRY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss054"><term><ulink url="&clhs;/Issues/iss054.html">COERCING-SETF-NAME-TO-FUNCTION:ALL-FUNCTION-NAMES</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss055"><term><ulink url="&clhs;/Issues/iss055.html">COLON-NUMBER</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss056"><term><ulink url="&clhs;/Issues/iss056.html">COMMON-FEATURES:SPECIFY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss057"><term><ulink url="&clhs;/Issues/iss057.html">COMMON-TYPE:REMOVE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss058"><term><ulink url="&clhs;/Issues/iss058.html">COMPILE-ARGUMENT-PROBLEMS-AGAIN:FIX</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss059"><term><ulink url="&clhs;/Issues/iss059.html">COMPILE-FILE-HANDLING-OF-TOP-LEVEL-FORMS:CLARIFY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss060"><term><ulink url="&clhs;/Issues/iss060.html">COMPILE-FILE-OUTPUT-FILE-DEFAULTS:INPUT-FILE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss061"><term><ulink url="&clhs;/Issues/iss061.html">COMPILE-FILE-PACKAGE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss062"><term><ulink url="&clhs;/Issues/iss062.html">COMPILE-FILE-PATHNAME-ARGUMENTS:MAKE-CONSISTENT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss063"><term><ulink url="&clhs;/Issues/iss063.html">COMPILE-FILE-SYMBOL-HANDLING:NEW-REQUIRE-CONSISTENCY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss064"><term><ulink url="&clhs;/Issues/iss064.html">COMPILED-FUNCTION-REQUIREMENTS:TIGHTEN</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss065"><term><ulink url="&clhs;/Issues/iss065.html">COMPILER-DIAGNOSTICS:USE-HANDLER</ulink></term>&no;</varlistentry>
- <varlistentry id="iss066"><term><ulink url="&clhs;/Issues/iss066.html">COMPILER-LET-CONFUSION:ELIMINATE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss067"><term><ulink url="&clhs;/Issues/iss067.html">COMPILER-VERBOSITY:LIKE-LOAD</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss068"><term><ulink url="&clhs;/Issues/iss068.html">COMPILER-WARNING-STREAM</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss069"><term><ulink url="&clhs;/Issues/iss069.html">COMPLEX-ATAN-BRANCH-CUT:TWEAK</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss070"><term><ulink url="&clhs;/Issues/iss070.html">COMPLEX-ATANH-BOGUS-FORMULA:TWEAK-MORE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss071"><term><ulink url="&clhs;/Issues/iss071.html">COMPLEX-RATIONAL-RESULT:EXTEND</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss072"><term><ulink url="&clhs;/Issues/iss072.html">COMPUTE-APPLICABLE-METHODS:GENERIC</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss073"><term><ulink url="&clhs;/Issues/iss073.html">CONCATENATE-SEQUENCE:SIGNAL-ERROR</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss074"><term><ulink url="&clhs;/Issues/iss074.html">CONDITION-ACCESSORS-SETFABLE:NO</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss075"><term><ulink url="&clhs;/Issues/iss075.html">CONDITION-RESTARTS:BUGGY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss076"><term><ulink url="&clhs;/Issues/iss076.html">CONDITION-RESTARTS:PERMIT-ASSOCIATION</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss077"><term><ulink url="&clhs;/Issues/iss077.html">CONDITION-SLOTS:HIDDEN</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss078"><term><ulink url="&clhs;/Issues/iss078.html">CONS-TYPE-SPECIFIER:ADD</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss079"><term><ulink url="&clhs;/Issues/iss079.html">CONSTANT-CIRCULAR-COMPILATION:YES</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss080"><term><ulink url="&clhs;/Issues/iss080.html">CONSTANT-COLLAPSING:GENERALIZE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss081"><term><ulink url="&clhs;/Issues/iss081.html">CONSTANT-COMPILABLE-TYPES:SPECIFY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss082"><term><ulink url="&clhs;/Issues/iss082.html">CONSTANT-FUNCTION-COMPILATION:NO</ulink></term>&no;</varlistentry>
- <varlistentry id="iss083"><term><ulink url="&clhs;/Issues/iss083.html">CONSTANT-MODIFICATION:DISALLOW</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss084"><term><ulink url="&clhs;/Issues/iss084.html">CONSTANTP-DEFINITION:INTENTIONAL</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss085"><term><ulink url="&clhs;/Issues/iss085.html">CONSTANTP-ENVIRONMENT:ADD-ARG</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss086"><term><ulink url="&clhs;/Issues/iss086.html">CONTAGION-ON-NUMERICAL-COMPARISONS:TRANSITIVE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss087"><term><ulink url="&clhs;/Issues/iss087.html">COPY-SYMBOL-COPY-PLIST:COPY-LIST</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss088"><term><ulink url="&clhs;/Issues/iss088.html">COPY-SYMBOL-PRINT-NAME:EQUAL</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss089"><term><ulink url="&clhs;/Issues/iss089.html">DATA-IO:ADD-SUPPORT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss090"><term><ulink url="&clhs;/Issues/iss090.html">DATA-TYPES-HIERARCHY-UNDERSPECIFIED</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss091"><term><ulink url="&clhs;/Issues/iss091.html">DEBUGGER-HOOK-VS-BREAK:CLARIFY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss092"><term><ulink url="&clhs;/Issues/iss092.html">DECLARATION-SCOPE:NO-HOISTING</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss093"><term><ulink url="&clhs;/Issues/iss093.html">DECLARE-ARRAY-TYPE-ELEMENT-REFERENCES:RESTRICTIVE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss094"><term><ulink url="&clhs;/Issues/iss094.html">DECLARE-FUNCTION-AMBIGUITY:DELETE-FTYPE-ABBREVIATION</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss095"><term><ulink url="&clhs;/Issues/iss095.html">DECLARE-MACROS:FLUSH</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss096"><term><ulink url="&clhs;/Issues/iss096.html">DECLARE-TYPE-FREE:LEXICAL</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss097"><term><ulink url="&clhs;/Issues/iss097.html">DECLS-AND-DOC</ulink></term>
-    <listitem><simpara>??</simpara></listitem></varlistentry>
- <varlistentry id="iss098"><term><ulink url="&clhs;/Issues/iss098.html">DECODE-UNIVERSAL-TIME-DAYLIGHT:LIKE-ENCODE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss099"><term><ulink url="&clhs;/Issues/iss099.html">DEFCONSTANT-SPECIAL:NO</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss100"><term><ulink url="&clhs;/Issues/iss100.html">DEFGENERIC-DECLARE:ALLOW-MULTIPLE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss101"><term><ulink url="&clhs;/Issues/iss101.html">DEFINE-COMPILER-MACRO:X3J13-NOV89</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss102"><term><ulink url="&clhs;/Issues/iss102.html">DEFINE-CONDITION-SYNTAX:INCOMPATIBLY-MORE-LIKE-DEFCLASS+EMPHASIZE-READ-ONLY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss103"><term><ulink url="&clhs;/Issues/iss103.html">DEFINE-METHOD-COMBINATION-BEHAVIOR:CLARIFY</ulink></term>&no;</varlistentry>
- <varlistentry id="iss104"><term><ulink url="&clhs;/Issues/iss104.html">DEFINING-MACROS-NON-TOP-LEVEL:ALLOW</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss105"><term><ulink url="&clhs;/Issues/iss105.html">DEFMACRO-BLOCK-SCOPE:EXCLUDES-BINDINGS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss106"><term><ulink url="&clhs;/Issues/iss106.html">DEFMACRO-LAMBDA-LIST:TIGHTEN-DESCRIPTION</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss107"><term><ulink url="&clhs;/Issues/iss107.html">DEFMETHOD-DECLARATION-SCOPE:CORRESPONDS-TO-BINDINGS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss108"><term><ulink url="&clhs;/Issues/iss108.html">DEFPACKAGE:ADDITION</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss109"><term><ulink url="&clhs;/Issues/iss109.html">DEFSTRUCT-CONSTRUCTOR-KEY-MIXTURE:ALLOW-KEY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss110"><term><ulink url="&clhs;/Issues/iss110.html">DEFSTRUCT-CONSTRUCTOR-OPTIONS:EXPLICIT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss111"><term><ulink url="&clhs;/Issues/iss111.html">DEFSTRUCT-CONSTRUCTOR-SLOT-VARIABLES:NOT-BOUND</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss112"><term><ulink url="&clhs;/Issues/iss112.html">DEFSTRUCT-COPIER-ARGUMENT-TYPE:RESTRICT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss113"><term><ulink url="&clhs;/Issues/iss113.html">DEFSTRUCT-COPIER:ARGUMENT-TYPE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss114"><term><ulink url="&clhs;/Issues/iss114.html">DEFSTRUCT-DEFAULT-VALUE-EVALUATION:IFF-NEEDED</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss115"><term><ulink url="&clhs;/Issues/iss115.html">DEFSTRUCT-INCLUDE-DEFTYPE:EXPLICITLY-UNDEFINED</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss116"><term><ulink url="&clhs;/Issues/iss116.html">DEFSTRUCT-PRINT-FUNCTION-AGAIN:X3J13-MAR-93</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss117"><term><ulink url="&clhs;/Issues/iss117.html">DEFSTRUCT-PRINT-FUNCTION-INHERITANCE:YES</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss118"><term><ulink url="&clhs;/Issues/iss118.html">DEFSTRUCT-REDEFINITION:ERROR</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss119"><term><ulink url="&clhs;/Issues/iss119.html">DEFSTRUCT-SLOTS-CONSTRAINTS-NAME:DUPLICATES-ERROR</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss120"><term><ulink url="&clhs;/Issues/iss120.html">DEFSTRUCT-SLOTS-CONSTRAINTS-NUMBER</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss121"><term><ulink url="&clhs;/Issues/iss121.html">DEFTYPE-DESTRUCTURING:YES</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss122"><term><ulink url="&clhs;/Issues/iss122.html">DEFTYPE-KEY:ALLOW</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss123"><term><ulink url="&clhs;/Issues/iss123.html">DEFVAR-DOCUMENTATION:UNEVALUATED</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss124"><term><ulink url="&clhs;/Issues/iss124.html">DEFVAR-INIT-TIME:NOT-DELAYED</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss125"><term><ulink url="&clhs;/Issues/iss125.html">DEFVAR-INITIALIZATION:CONSERVATIVE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss126"><term><ulink url="&clhs;/Issues/iss126.html">DEPRECATION-POSITION:LIMITED</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss127"><term><ulink url="&clhs;/Issues/iss127.html">DESCRIBE-INTERACTIVE:NO</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss128"><term><ulink url="&clhs;/Issues/iss128.html">DESCRIBE-UNDERSPECIFIED:DESCRIBE-OBJECT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss129"><term><ulink url="&clhs;/Issues/iss129.html">DESTRUCTIVE-OPERATIONS:SPECIFY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss130"><term><ulink url="&clhs;/Issues/iss130.html">DESTRUCTURING-BIND:NEW-MACRO</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss131"><term><ulink url="&clhs;/Issues/iss131.html">DISASSEMBLE-SIDE-EFFECT:DO-NOT-INSTALL</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss132"><term><ulink url="&clhs;/Issues/iss132.html">DISPLACED-ARRAY-PREDICATE:ADD</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss133"><term><ulink url="&clhs;/Issues/iss133.html">DO-SYMBOLS-BLOCK-SCOPE:ENTIRE-FORM</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss134"><term><ulink url="&clhs;/Issues/iss134.html">DO-SYMBOLS-DUPLICATES</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss135"><term><ulink url="&clhs;/Issues/iss135.html">DOCUMENTATION-FUNCTION-BUGS:FIX</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss136"><term><ulink url="&clhs;/Issues/iss136.html">DOCUMENTATION-FUNCTION-TANGLED:REQUIRE-ARGUMENT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss137"><term><ulink url="&clhs;/Issues/iss137.html">DOTIMES-IGNORE:X3J13-MAR91</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss138"><term><ulink url="&clhs;/Issues/iss138.html">DOTTED-LIST-ARGUMENTS:CLARIFY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss139"><term><ulink url="&clhs;/Issues/iss139.html">DOTTED-MACRO-FORMS:ALLOW</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss140"><term><ulink url="&clhs;/Issues/iss140.html">DRIBBLE-TECHNIQUE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss141"><term><ulink url="&clhs;/Issues/iss141.html">DYNAMIC-EXTENT-FUNCTION:EXTEND</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss142"><term><ulink url="&clhs;/Issues/iss142.html">DYNAMIC-EXTENT:NEW-DECLARATION</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss143"><term><ulink url="&clhs;/Issues/iss143.html">EQUAL-STRUCTURE:MAYBE-STATUS-QUO</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss144"><term><ulink url="&clhs;/Issues/iss144.html">ERROR-TERMINOLOGY-WARNING:MIGHT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss145"><term><ulink url="&clhs;/Issues/iss145.html">EVAL-OTHER:SELF-EVALUATE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss146"><term><ulink url="&clhs;/Issues/iss146.html">EVAL-TOP-LEVEL:LOAD-LIKE-COMPILE-FILE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss147"><term><ulink url="&clhs;/Issues/iss147.html">EVAL-WHEN-NON-TOP-LEVEL:GENERALIZE-EVAL-NEW-KEYWORDS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss148"><term><ulink url="&clhs;/Issues/iss148.html">EVAL-WHEN-OBSOLETE-KEYWORDS:X3J13-MAR-1993</ulink></term>&no;</varlistentry>
- <varlistentry id="iss149"><term><ulink url="&clhs;/Issues/iss149.html">EVALHOOK-STEP-CONFUSION:FIX</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss150"><term><ulink url="&clhs;/Issues/iss150.html">EVALHOOK-STEP-CONFUSION:X3J13-NOV-89</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss151"><term><ulink url="&clhs;/Issues/iss151.html">EXIT-EXTENT-AND-CONDITION-SYSTEM:LIKE-DYNAMIC-BINDINGS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss152"><term><ulink url="&clhs;/Issues/iss152.html">EXIT-EXTENT:MINIMAL</ulink></term>
-    <listitem><simpara>yes, actually implement MEDIUM
-    </simpara></listitem></varlistentry>
- <varlistentry id="iss153"><term><ulink url="&clhs;/Issues/iss153.html">EXPT-RATIO:P.211</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss154"><term><ulink url="&clhs;/Issues/iss154.html">EXTENSIONS-POSITION:DOCUMENTATION</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss155"><term><ulink url="&clhs;/Issues/iss155.html">EXTERNAL-FORMAT-FOR-EVERY-FILE-CONNECTION:MINIMUM</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss156"><term><ulink url="&clhs;/Issues/iss156.html">EXTRA-RETURN-VALUES:NO</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss157"><term><ulink url="&clhs;/Issues/iss157.html">FILE-OPEN-ERROR:SIGNAL-FILE-ERROR</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss158"><term><ulink url="&clhs;/Issues/iss158.html">FIXNUM-NON-PORTABLE:TIGHTEN-DEFINITION</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss159"><term><ulink url="&clhs;/Issues/iss159.html">FLET-DECLARATIONS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss160"><term><ulink url="&clhs;/Issues/iss160.html">FLET-DECLARATIONS:ALLOW</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss161"><term><ulink url="&clhs;/Issues/iss161.html">FLET-IMPLICIT-BLOCK:YES</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss162"><term><ulink url="&clhs;/Issues/iss162.html">FLOAT-UNDERFLOW:ADD-VARIABLES</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss163"><term><ulink url="&clhs;/Issues/iss163.html">FLOATING-POINT-CONDITION-NAMES:X3J13-NOV-89</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss164"><term><ulink url="&clhs;/Issues/iss164.html">FORMAT-ATSIGN-COLON</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss165"><term><ulink url="&clhs;/Issues/iss165.html">FORMAT-COLON-UPARROW-SCOPE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss166"><term><ulink url="&clhs;/Issues/iss166.html">FORMAT-COMMA-INTERVAL</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss167"><term><ulink url="&clhs;/Issues/iss167.html">FORMAT-E-EXPONENT-SIGN:FORCE-SIGN</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss168"><term><ulink url="&clhs;/Issues/iss168.html">FORMAT-OP-C</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss169"><term><ulink url="&clhs;/Issues/iss169.html">FORMAT-PRETTY-PRINT:YES</ulink></term>
-     <listitem><simpara>yes, except that &format-f;, &format-e;,
-     &format-g;, &format-dollar; also bind &print-base-var; to 10 and
-     &print-radix-var; to &nil;</simpara></listitem></varlistentry>
- <varlistentry id="iss170"><term><ulink url="&clhs;/Issues/iss170.html">FORMAT-STRING-ARGUMENTS:SPECIFY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss171"><term><ulink url="&clhs;/Issues/iss171.html">FUNCTION-CALL-EVALUATION-ORDER:MORE-UNSPECIFIED</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss172"><term><ulink url="&clhs;/Issues/iss172.html">FUNCTION-COMPOSITION:JAN89-X3J13</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss173"><term><ulink url="&clhs;/Issues/iss173.html">FUNCTION-DEFINITION:JAN89-X3J13</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss174"><term><ulink url="&clhs;/Issues/iss174.html">FUNCTION-NAME:LARGE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss175"><term><ulink url="&clhs;/Issues/iss175.html">FUNCTION-TYPE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss176"><term><ulink url="&clhs;/Issues/iss176.html">FUNCTION-TYPE-ARGUMENT-TYPE-SEMANTICS:RESTRICTIVE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss177"><term><ulink url="&clhs;/Issues/iss177.html">FUNCTION-TYPE-KEY-NAME:SPECIFY-KEYWORD</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss178"><term><ulink url="&clhs;/Issues/iss178.html">FUNCTION-TYPE-REST-LIST-ELEMENT:USE-ACTUAL-ARGUMENT-TYPE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss179"><term><ulink url="&clhs;/Issues/iss179.html">FUNCTION-TYPE:X3J13-MARCH-88</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss180"><term><ulink url="&clhs;/Issues/iss180.html">GENERALIZE-PRETTY-PRINTER:UNIFY</ulink></term>&no;</varlistentry>
- <varlistentry id="iss181"><term><ulink url="&clhs;/Issues/iss181.html">GENERIC-FLET-POORLY-DESIGNED:DELETE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss182"><term><ulink url="&clhs;/Issues/iss182.html">GENSYM-NAME-STICKINESS:LIKE-TEFLON</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss183"><term><ulink url="&clhs;/Issues/iss183.html">GENTEMP-BAD-IDEA:DEPRECATE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss184"><term><ulink url="&clhs;/Issues/iss184.html">GET-MACRO-CHARACTER-READTABLE:NIL-STANDARD</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss185"><term><ulink url="&clhs;/Issues/iss185.html">GET-SETF-METHOD-ENVIRONMENT:ADD-ARG</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss186"><term><ulink url="&clhs;/Issues/iss186.html">HASH-TABLE-ACCESS:X3J13-MAR-89</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss187"><term><ulink url="&clhs;/Issues/iss187.html">HASH-TABLE-KEY-MODIFICATION:SPECIFY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss188"><term><ulink url="&clhs;/Issues/iss188.html">HASH-TABLE-PACKAGE-GENERATORS:ADD-WITH-WRAPPER</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss189"><term><ulink url="&clhs;/Issues/iss189.html">HASH-TABLE-REHASH-SIZE-INTEGER</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss190"><term><ulink url="&clhs;/Issues/iss190.html">HASH-TABLE-SIZE:INTENDED-ENTRIES</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss191"><term><ulink url="&clhs;/Issues/iss191.html">HASH-TABLE-TESTS:ADD-EQUALP</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss192"><term><ulink url="&clhs;/Issues/iss192.html">IEEE-ATAN-BRANCH-CUT:SPLIT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss193"><term><ulink url="&clhs;/Issues/iss193.html">IGNORE-USE-TERMINOLOGY:VALUE-ONLY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss194"><term><ulink url="&clhs;/Issues/iss194.html">IMPORT-SETF-SYMBOL-PACKAGE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss195"><term><ulink url="&clhs;/Issues/iss195.html">IN-PACKAGE-FUNCTIONALITY:MAR89-X3J13</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss196"><term><ulink url="&clhs;/Issues/iss196.html">IN-SYNTAX:MINIMAL</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss197"><term><ulink url="&clhs;/Issues/iss197.html">INITIALIZATION-FUNCTION-KEYWORD-CHECKING</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss198"><term><ulink url="&clhs;/Issues/iss198.html">ISO-COMPATIBILITY:ADD-SUBSTRATE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss199"><term><ulink url="&clhs;/Issues/iss199.html">JUN90-TRIVIAL-ISSUES:11</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss200"><term><ulink url="&clhs;/Issues/iss200.html">JUN90-TRIVIAL-ISSUES:14</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss201"><term><ulink url="&clhs;/Issues/iss201.html">JUN90-TRIVIAL-ISSUES:24</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss202"><term><ulink url="&clhs;/Issues/iss202.html">JUN90-TRIVIAL-ISSUES:25</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss203"><term><ulink url="&clhs;/Issues/iss203.html">JUN90-TRIVIAL-ISSUES:27</ulink></term>
-     <listitem><simpara>yes for &the;, no for &apply; (spec not clear)
-     </simpara></listitem></varlistentry>
- <varlistentry id="iss204"><term><ulink url="&clhs;/Issues/iss204.html">JUN90-TRIVIAL-ISSUES:3</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss205"><term><ulink url="&clhs;/Issues/iss205.html">JUN90-TRIVIAL-ISSUES:4</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss206"><term><ulink url="&clhs;/Issues/iss206.html">JUN90-TRIVIAL-ISSUES:5</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss207"><term><ulink url="&clhs;/Issues/iss207.html">JUN90-TRIVIAL-ISSUES:9</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss208"><term><ulink url="&clhs;/Issues/iss208.html">KEYWORD-ARGUMENT-NAME-PACKAGE:ANY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss209"><term><ulink url="&clhs;/Issues/iss209.html">LAST-N</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss210"><term><ulink url="&clhs;/Issues/iss210.html">LCM-NO-ARGUMENTS:1</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss211"><term><ulink url="&clhs;/Issues/iss211.html">LEXICAL-CONSTRUCT-GLOBAL-DEFINITION:UNDEFINED</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss212"><term><ulink url="&clhs;/Issues/iss212.html">LISP-PACKAGE-NAME:COMMON-LISP</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss213"><term><ulink url="&clhs;/Issues/iss213.html">LISP-SYMBOL-REDEFINITION-AGAIN:MORE-FIXES</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss214"><term><ulink url="&clhs;/Issues/iss214.html">LISP-SYMBOL-REDEFINITION:MAR89-X3J13</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss215"><term><ulink url="&clhs;/Issues/iss215.html">LOAD-OBJECTS:MAKE-LOAD-FORM</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss216"><term><ulink url="&clhs;/Issues/iss216.html">LOAD-TIME-EVAL:R**2-NEW-SPECIAL-FORM</ulink></term>
-    <listitem><simpara>obsolete</simpara></listitem></varlistentry>
- <varlistentry id="iss217"><term><ulink url="&clhs;/Issues/iss217.html">LOAD-TIME-EVAL:R**3-NEW-SPECIAL-FORM</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss218"><term><ulink url="&clhs;/Issues/iss218.html">LOAD-TRUENAME:NEW-PATHNAME-VARIABLES</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss219"><term><ulink url="&clhs;/Issues/iss219.html">LOCALLY-TOP-LEVEL:SPECIAL-FORM</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss220"><term><ulink url="&clhs;/Issues/iss220.html">LOOP-AND-DISCREPANCY:NO-REITERATION</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss221"><term><ulink url="&clhs;/Issues/iss221.html">LOOP-FOR-AS-ON-TYPO:FIX-TYPO</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss222"><term><ulink url="&clhs;/Issues/iss222.html">LOOP-INITFORM-ENVIRONMENT:PARTIAL-INTERLEAVING-VAGUE</ulink></term>&no;</varlistentry>
- <varlistentry id="iss223"><term><ulink url="&clhs;/Issues/iss223.html">LOOP-MISCELLANEOUS-REPAIRS:FIX</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss224"><term><ulink url="&clhs;/Issues/iss224.html">LOOP-NAMED-BLOCK-NIL:OVERRIDE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss225"><term><ulink url="&clhs;/Issues/iss225.html">LOOP-PRESENT-SYMBOLS-TYPO:FLUSH-WRONG-WORDS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss226"><term><ulink url="&clhs;/Issues/iss226.html">LOOP-SYNTAX-OVERHAUL:REPAIR</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss227"><term><ulink url="&clhs;/Issues/iss227.html">MACRO-AS-FUNCTION:DISALLOW</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss228"><term><ulink url="&clhs;/Issues/iss228.html">MACRO-DECLARATIONS:MAKE-EXPLICIT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss229"><term><ulink url="&clhs;/Issues/iss229.html">MACRO-ENVIRONMENT-EXTENT:DYNAMIC</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss230"><term><ulink url="&clhs;/Issues/iss230.html">MACRO-FUNCTION-ENVIRONMENT</ulink></term>
-    <listitem><simpara>obsolete</simpara></listitem></varlistentry>
- <varlistentry id="iss231"><term><ulink url="&clhs;/Issues/iss231.html">MACRO-FUNCTION-ENVIRONMENT:YES</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss232"><term><ulink url="&clhs;/Issues/iss232.html">MACRO-SUBFORMS-TOP-LEVEL-P:ADD-CONSTRAINTS</ulink></term>&no;</varlistentry>
- <varlistentry id="iss233"><term><ulink url="&clhs;/Issues/iss233.html">MACROEXPAND-HOOK-DEFAULT:EXPLICITLY-VAGUE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss234"><term><ulink url="&clhs;/Issues/iss234.html">MACROEXPAND-HOOK-INITIAL-VALUE:IMPLEMENTATION-DEPENDENT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss235"><term><ulink url="&clhs;/Issues/iss235.html">MACROEXPAND-RETURN-VALUE:TRUE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss236"><term><ulink url="&clhs;/Issues/iss236.html">MAKE-LOAD-FORM-CONFUSION:REWRITE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss237"><term><ulink url="&clhs;/Issues/iss237.html">MAKE-LOAD-FORM-SAVING-SLOTS:NO-INITFORMS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss238"><term><ulink url="&clhs;/Issues/iss238.html">MAKE-PACKAGE-USE-DEFAULT:IMPLEMENTATION-DEPENDENT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss239"><term><ulink url="&clhs;/Issues/iss239.html">MAP-INTO:ADD-FUNCTION</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss240"><term><ulink url="&clhs;/Issues/iss240.html">MAPPING-DESTRUCTIVE-INTERACTION:EXPLICITLY-VAGUE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss241"><term><ulink url="&clhs;/Issues/iss241.html">METACLASS-OF-SYSTEM-CLASS:UNSPECIFIED</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss242"><term><ulink url="&clhs;/Issues/iss242.html">METHOD-COMBINATION-ARGUMENTS:CLARIFY</ulink></term>&no;</varlistentry>
- <varlistentry id="iss243"><term><ulink url="&clhs;/Issues/iss243.html">METHOD-INITFORM:FORBID-CALL-NEXT-METHOD</ulink></term>&no;</varlistentry>
- <varlistentry id="iss244"><term><ulink url="&clhs;/Issues/iss244.html">MUFFLE-WARNING-CONDITION-ARGUMENT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss245"><term><ulink url="&clhs;/Issues/iss245.html">MULTIPLE-VALUE-SETQ-ORDER:LIKE-SETF-OF-VALUES</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss246"><term><ulink url="&clhs;/Issues/iss246.html">MULTIPLE-VALUES-LIMIT-ON-VARIABLES:UNDEFINED</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss247"><term><ulink url="&clhs;/Issues/iss247.html">NINTERSECTION-DESTRUCTION</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss248"><term><ulink url="&clhs;/Issues/iss248.html">NINTERSECTION-DESTRUCTION:REVERT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss249"><term><ulink url="&clhs;/Issues/iss249.html">NOT-AND-NULL-RETURN-VALUE:X3J13-MAR-93</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss250"><term><ulink url="&clhs;/Issues/iss250.html">NTH-VALUE:ADD</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss251"><term><ulink url="&clhs;/Issues/iss251.html">OPTIMIZE-DEBUG-INFO:NEW-QUALITY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss252"><term><ulink url="&clhs;/Issues/iss252.html">PACKAGE-CLUTTER:REDUCE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss253"><term><ulink url="&clhs;/Issues/iss253.html">PACKAGE-DELETION:NEW-FUNCTION</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss254"><term><ulink url="&clhs;/Issues/iss254.html">PACKAGE-FUNCTION-CONSISTENCY:MORE-PERMISSIVE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss255"><term><ulink url="&clhs;/Issues/iss255.html">PARSE-ERROR-STREAM:SPLIT-TYPES</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss256"><term><ulink url="&clhs;/Issues/iss256.html">PATHNAME-COMPONENT-CASE:KEYWORD-ARGUMENT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss257"><term><ulink url="&clhs;/Issues/iss257.html">PATHNAME-COMPONENT-VALUE:SPECIFY</ulink></term>&no;</varlistentry>
- <varlistentry id="iss258"><term><ulink url="&clhs;/Issues/iss258.html">PATHNAME-HOST-PARSING:RECOGNIZE-LOGICAL-HOST-NAMES</ulink></term>
-    <listitem><simpara>yes when &parsename; is non-&nil;
-    </simpara></listitem></varlistentry>
- <varlistentry id="iss259"><term><ulink url="&clhs;/Issues/iss259.html">PATHNAME-LOGICAL:ADD</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss260"><term><ulink url="&clhs;/Issues/iss260.html">PATHNAME-PRINT-READ:SHARPSIGN-P</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss261"><term><ulink url="&clhs;/Issues/iss261.html">PATHNAME-STREAM</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss262"><term><ulink url="&clhs;/Issues/iss262.html">PATHNAME-STREAM:FILES-OR-SYNONYM</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss263"><term><ulink url="&clhs;/Issues/iss263.html">PATHNAME-SUBDIRECTORY-LIST:NEW-REPRESENTATION</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss264"><term><ulink url="&clhs;/Issues/iss264.html">PATHNAME-SYMBOL</ulink></term>
+ <varlistentry id="iss001"><term>&iss001;</term>&yes;</varlistentry>
+ <varlistentry id="iss002"><term>&iss002;</term>&yes;</varlistentry>
+ <varlistentry id="iss003"><term>&iss003;</term>&yes;</varlistentry>
+ <varlistentry id="iss004"><term>&iss004;</term>&yes;</varlistentry>
+ <varlistentry id="iss005"><term>&iss005;</term>&yes;</varlistentry>
+ <varlistentry id="iss006"><term>&iss006;</term>&yes;</varlistentry>
+ <varlistentry id="iss007"><term>&iss007;</term>&yes;</varlistentry>
+ <varlistentry id="iss008"><term>&iss008;</term>&yes;</varlistentry>
+ <varlistentry id="iss009"><term>&iss009;</term>&yes;</varlistentry>
+ <varlistentry id="iss010"><term>&iss010;</term>&yes;</varlistentry>
+ <varlistentry id="iss011"><term>&iss011;</term>&yes;</varlistentry>
+ <varlistentry id="iss012"><term>&iss012;</term>
+  <listitem><simpara>yes, except for argument list checking in
+    &call-next-method; in compiled code (items 11,12)
+ </simpara></listitem></varlistentry>
+ <varlistentry id="iss013"><term>&iss013;</term>&yes;</varlistentry>
+ <varlistentry id="iss014"><term>&iss014;</term>&yes;</varlistentry>
+ <varlistentry id="iss015"><term>&iss015;</term>&yes;</varlistentry>
+ <varlistentry id="iss016"><term>&iss016;</term>&yes;</varlistentry>
+ <varlistentry id="iss017"><term>&iss017;</term>&yes;</varlistentry>
+ <varlistentry id="iss018"><term>&iss018;</term>&yes;</varlistentry>
+ <varlistentry id="iss019"><term>&iss019;</term>&yes;</varlistentry>
+ <varlistentry id="iss020"><term>&iss020;</term>&yes;</varlistentry>
+ <varlistentry id="iss021"><term>&iss021;</term>&yes;</varlistentry>
+ <varlistentry id="iss022"><term>&iss022;</term>&yes;</varlistentry>
+ <varlistentry id="iss023"><term>&iss023;</term>&yes;</varlistentry>
+ <varlistentry id="iss024"><term>&iss024;</term>&yes;</varlistentry>
+ <varlistentry id="iss025"><term>&iss025;</term>&yes;</varlistentry>
+ <varlistentry id="iss026"><term>&iss026;</term>&yes;</varlistentry>
+ <varlistentry id="iss027"><term>&iss027;</term>&yes;</varlistentry>
+ <varlistentry id="iss028"><term>&iss028;</term>&yes;</varlistentry>
+ <varlistentry id="iss029"><term>&iss029;</term>&yes;</varlistentry>
+ <varlistentry id="iss030"><term>&iss030;</term>&yes;</varlistentry>
+ <varlistentry id="iss031"><term>&iss031;</term>&yes;</varlistentry>
+ <varlistentry id="iss032"><term>&iss032;</term>&yes;</varlistentry>
+ <varlistentry id="iss033"><term>&iss033;</term>&yes;</varlistentry>
+ <varlistentry id="iss034"><term>&iss034;</term>&yes;</varlistentry>
+ <varlistentry id="iss035"><term>&iss035;</term>&yes;</varlistentry>
+ <varlistentry id="iss036"><term>&iss036;</term>&yes;</varlistentry>
+ <varlistentry id="iss037"><term>&iss037;</term>&yes;</varlistentry>
+ <varlistentry id="iss038"><term>&iss038;</term>&yes;</varlistentry>
+ <varlistentry id="iss039"><term>&iss039;</term>&yes;</varlistentry>
+ <varlistentry id="iss040"><term>&iss040;</term>&yes;</varlistentry>
+ <varlistentry id="iss041"><term>&iss041;</term>&yes;</varlistentry>
+ <varlistentry id="iss042"><term>&iss042;</term>&yes;</varlistentry>
+ <varlistentry id="iss043"><term>&iss043;</term>&yes;</varlistentry>
+ <varlistentry id="iss044"><term>&iss044;</term>&yes;</varlistentry>
+ <varlistentry id="iss045"><term>&iss045;</term>&yes;</varlistentry>
+ <varlistentry id="iss046"><term>&iss046;</term>&yes;</varlistentry>
+ <varlistentry id="iss047"><term>&iss047;</term>&yes;</varlistentry>
+ <varlistentry id="iss048"><term>&iss048;</term>&yes;</varlistentry>
+ <varlistentry id="iss049"><term>&iss049;</term>&yes;</varlistentry>
+ <varlistentry id="iss050"><term>&iss050;</term>&yes;</varlistentry>
+ <varlistentry id="iss051"><term>&iss051;</term>&yes;</varlistentry>
+ <varlistentry id="iss052"><term>&iss052;</term>&yes;</varlistentry>
+ <varlistentry id="iss053"><term>&iss053;</term>&yes;</varlistentry>
+ <varlistentry id="iss054"><term>&iss054;</term>&yes;</varlistentry>
+ <varlistentry id="iss055"><term>&iss055;</term>&yes;</varlistentry>
+ <varlistentry id="iss056"><term>&iss056;</term>&yes;</varlistentry>
+ <varlistentry id="iss057"><term>&iss057;</term>&yes;</varlistentry>
+ <varlistentry id="iss058"><term>&iss058;</term>&yes;</varlistentry>
+ <varlistentry id="iss059"><term>&iss059;</term>&yes;</varlistentry>
+ <varlistentry id="iss060"><term>&iss060;</term>&yes;</varlistentry>
+ <varlistentry id="iss061"><term>&iss061;</term>&yes;</varlistentry>
+ <varlistentry id="iss062"><term>&iss062;</term>&yes;</varlistentry>
+ <varlistentry id="iss063"><term>&iss063;</term>&yes;</varlistentry>
+ <varlistentry id="iss064"><term>&iss064;</term>&yes;</varlistentry>
+ <varlistentry id="iss065"><term>&iss065;</term>&no;</varlistentry>
+ <varlistentry id="iss066"><term>&iss066;</term>&yes;</varlistentry>
+ <varlistentry id="iss067"><term>&iss067;</term>&yes;</varlistentry>
+ <varlistentry id="iss068"><term>&iss068;</term>&yes;</varlistentry>
+ <varlistentry id="iss069"><term>&iss069;</term>&yes;</varlistentry>
+ <varlistentry id="iss070"><term>&iss070;</term>&yes;</varlistentry>
+ <varlistentry id="iss071"><term>&iss071;</term>&yes;</varlistentry>
+ <varlistentry id="iss072"><term>&iss072;</term>&yes;</varlistentry>
+ <varlistentry id="iss073"><term>&iss073;</term>&yes;</varlistentry>
+ <varlistentry id="iss074"><term>&iss074;</term>&yes;</varlistentry>
+ <varlistentry id="iss075"><term>&iss075;</term>&yes;</varlistentry>
+ <varlistentry id="iss076"><term>&iss076;</term>&yes;</varlistentry>
+ <varlistentry id="iss077"><term>&iss077;</term>&yes;</varlistentry>
+ <varlistentry id="iss078"><term>&iss078;</term>&yes;</varlistentry>
+ <varlistentry id="iss079"><term>&iss079;</term>&yes;</varlistentry>
+ <varlistentry id="iss080"><term>&iss080;</term>&yes;</varlistentry>
+ <varlistentry id="iss081"><term>&iss081;</term>&yes;</varlistentry>
+ <varlistentry id="iss082"><term>&iss082;</term>&no;</varlistentry>
+ <varlistentry id="iss083"><term>&iss083;</term>&yes;</varlistentry>
+ <varlistentry id="iss084"><term>&iss084;</term>&yes;</varlistentry>
+ <varlistentry id="iss085"><term>&iss085;</term>&yes;</varlistentry>
+ <varlistentry id="iss086"><term>&iss086;</term>&yes;</varlistentry>
+ <varlistentry id="iss087"><term>&iss087;</term>&yes;</varlistentry>
+ <varlistentry id="iss088"><term>&iss088;</term>&yes;</varlistentry>
+ <varlistentry id="iss089"><term>&iss089;</term>&yes;</varlistentry>
+ <varlistentry id="iss090"><term>&iss090;</term>&yes;</varlistentry>
+ <varlistentry id="iss091"><term>&iss091;</term>&yes;</varlistentry>
+ <varlistentry id="iss092"><term>&iss092;</term>&yes;</varlistentry>
+ <varlistentry id="iss093"><term>&iss093;</term>&yes;</varlistentry>
+ <varlistentry id="iss094"><term>&iss094;</term>&yes;</varlistentry>
+ <varlistentry id="iss095"><term>&iss095;</term>&yes;</varlistentry>
+ <varlistentry id="iss096"><term>&iss096;</term>&yes;</varlistentry>
+ <varlistentry id="iss097"><term>&iss097;</term>
+  <listitem><simpara>??</simpara></listitem></varlistentry>
+ <varlistentry id="iss098"><term>&iss098;</term>&yes;</varlistentry>
+ <varlistentry id="iss099"><term>&iss099;</term>&yes;</varlistentry>
+ <varlistentry id="iss100"><term>&iss100;</term>&yes;</varlistentry>
+ <varlistentry id="iss101"><term>&iss101;</term>&yes;</varlistentry>
+ <varlistentry id="iss102"><term>&iss102;</term>&yes;</varlistentry>
+ <varlistentry id="iss103"><term>&iss103;</term>&no;</varlistentry>
+ <varlistentry id="iss104"><term>&iss104;</term>&yes;</varlistentry>
+ <varlistentry id="iss105"><term>&iss105;</term>&yes;</varlistentry>
+ <varlistentry id="iss106"><term>&iss106;</term>&yes;</varlistentry>
+ <varlistentry id="iss107"><term>&iss107;</term>&yes;</varlistentry>
+ <varlistentry id="iss108"><term>&iss108;</term>&yes;</varlistentry>
+ <varlistentry id="iss109"><term>&iss109;</term>&yes;</varlistentry>
+ <varlistentry id="iss110"><term>&iss110;</term>&yes;</varlistentry>
+ <varlistentry id="iss111"><term>&iss111;</term>&yes;</varlistentry>
+ <varlistentry id="iss112"><term>&iss112;</term>&yes;</varlistentry>
+ <varlistentry id="iss113"><term>&iss113;</term>&yes;</varlistentry>
+ <varlistentry id="iss114"><term>&iss114;</term>&yes;</varlistentry>
+ <varlistentry id="iss115"><term>&iss115;</term>&yes;</varlistentry>
+ <varlistentry id="iss116"><term>&iss116;</term>&yes;</varlistentry>
+ <varlistentry id="iss117"><term>&iss117;</term>&yes;</varlistentry>
+ <varlistentry id="iss118"><term>&iss118;</term>&yes;</varlistentry>
+ <varlistentry id="iss119"><term>&iss119;</term>&yes;</varlistentry>
+ <varlistentry id="iss120"><term>&iss120;</term>&yes;</varlistentry>
+ <varlistentry id="iss121"><term>&iss121;</term>&yes;</varlistentry>
+ <varlistentry id="iss122"><term>&iss122;</term>&yes;</varlistentry>
+ <varlistentry id="iss123"><term>&iss123;</term>&yes;</varlistentry>
+ <varlistentry id="iss124"><term>&iss124;</term>&yes;</varlistentry>
+ <varlistentry id="iss125"><term>&iss125;</term>&yes;</varlistentry>
+ <varlistentry id="iss126"><term>&iss126;</term>&yes;</varlistentry>
+ <varlistentry id="iss127"><term>&iss127;</term>&yes;</varlistentry>
+ <varlistentry id="iss128"><term>&iss128;</term>&yes;</varlistentry>
+ <varlistentry id="iss129"><term>&iss129;</term>&yes;</varlistentry>
+ <varlistentry id="iss130"><term>&iss130;</term>&yes;</varlistentry>
+ <varlistentry id="iss131"><term>&iss131;</term>&yes;</varlistentry>
+ <varlistentry id="iss132"><term>&iss132;</term>&yes;</varlistentry>
+ <varlistentry id="iss133"><term>&iss133;</term>&yes;</varlistentry>
+ <varlistentry id="iss134"><term>&iss134;</term>&yes;</varlistentry>
+ <varlistentry id="iss135"><term>&iss135;</term>&yes;</varlistentry>
+ <varlistentry id="iss136"><term>&iss136;</term>&yes;</varlistentry>
+ <varlistentry id="iss137"><term>&iss137;</term>&yes;</varlistentry>
+ <varlistentry id="iss138"><term>&iss138;</term>&yes;</varlistentry>
+ <varlistentry id="iss139"><term>&iss139;</term>&yes;</varlistentry>
+ <varlistentry id="iss140"><term>&iss140;</term>&yes;</varlistentry>
+ <varlistentry id="iss141"><term>&iss141;</term>&yes;</varlistentry>
+ <varlistentry id="iss142"><term>&iss142;</term>&yes;</varlistentry>
+ <varlistentry id="iss143"><term>&iss143;</term>&yes;</varlistentry>
+ <varlistentry id="iss144"><term>&iss144;</term>&yes;</varlistentry>
+ <varlistentry id="iss145"><term>&iss145;</term>&yes;</varlistentry>
+ <varlistentry id="iss146"><term>&iss146;</term>&yes;</varlistentry>
+ <varlistentry id="iss147"><term>&iss147;</term>&yes;</varlistentry>
+ <varlistentry id="iss148"><term>&iss148;</term>&no;</varlistentry>
+ <varlistentry id="iss149"><term>&iss149;</term>&yes;</varlistentry>
+ <varlistentry id="iss150"><term>&iss150;</term>&yes;</varlistentry>
+ <varlistentry id="iss151"><term>&iss151;</term>&yes;</varlistentry>
+ <varlistentry id="iss152"><term>&iss152;</term>
+  <listitem><simpara>yes, actually implement MEDIUM
+ </simpara></listitem></varlistentry>
+ <varlistentry id="iss153"><term>&iss153;</term>&yes;</varlistentry>
+ <varlistentry id="iss154"><term>&iss154;</term>&yes;</varlistentry>
+ <varlistentry id="iss155"><term>&iss155;</term>&yes;</varlistentry>
+ <varlistentry id="iss156"><term>&iss156;</term>&yes;</varlistentry>
+ <varlistentry id="iss157"><term>&iss157;</term>&yes;</varlistentry>
+ <varlistentry id="iss158"><term>&iss158;</term>&yes;</varlistentry>
+ <varlistentry id="iss159"><term>&iss159;</term>&yes;</varlistentry>
+ <varlistentry id="iss160"><term>&iss160;</term>&yes;</varlistentry>
+ <varlistentry id="iss161"><term>&iss161;</term>&yes;</varlistentry>
+ <varlistentry id="iss162"><term>&iss162;</term>&yes;</varlistentry>
+ <varlistentry id="iss163"><term>&iss163;</term>&yes;</varlistentry>
+ <varlistentry id="iss164"><term>&iss164;</term>&yes;</varlistentry>
+ <varlistentry id="iss165"><term>&iss165;</term>&yes;</varlistentry>
+ <varlistentry id="iss166"><term>&iss166;</term>&yes;</varlistentry>
+ <varlistentry id="iss167"><term>&iss167;</term>&yes;</varlistentry>
+ <varlistentry id="iss168"><term>&iss168;</term>&yes;</varlistentry>
+ <varlistentry id="iss169"><term>&iss169;</term>
+  <listitem><simpara>yes, except that &format-f;, &format-e;,
+    &format-g;, &format-dollar; also bind &print-base-var; to 10 and
+    &print-radix-var; to &nil;</simpara></listitem></varlistentry>
+ <varlistentry id="iss170"><term>&iss170;</term>&yes;</varlistentry>
+ <varlistentry id="iss171"><term>&iss171;</term>&yes;</varlistentry>
+ <varlistentry id="iss172"><term>&iss172;</term>&yes;</varlistentry>
+ <varlistentry id="iss173"><term>&iss173;</term>&yes;</varlistentry>
+ <varlistentry id="iss174"><term>&iss174;</term>&yes;</varlistentry>
+ <varlistentry id="iss175"><term>&iss175;</term>&yes;</varlistentry>
+ <varlistentry id="iss176"><term>&iss176;</term>&yes;</varlistentry>
+ <varlistentry id="iss177"><term>&iss177;</term>&yes;</varlistentry>
+ <varlistentry id="iss178"><term>&iss178;</term>&yes;</varlistentry>
+ <varlistentry id="iss179"><term>&iss179;</term>&yes;</varlistentry>
+ <varlistentry id="iss180"><term>&iss180;</term>&no;</varlistentry>
+ <varlistentry id="iss181"><term>&iss181;</term>&yes;</varlistentry>
+ <varlistentry id="iss182"><term>&iss182;</term>&yes;</varlistentry>
+ <varlistentry id="iss183"><term>&iss183;</term>&yes;</varlistentry>
+ <varlistentry id="iss184"><term>&iss184;</term>&yes;</varlistentry>
+ <varlistentry id="iss185"><term>&iss185;</term>&yes;</varlistentry>
+ <varlistentry id="iss186"><term>&iss186;</term>&yes;</varlistentry>
+ <varlistentry id="iss187"><term>&iss187;</term>&yes;</varlistentry>
+ <varlistentry id="iss188"><term>&iss188;</term>&yes;</varlistentry>
+ <varlistentry id="iss189"><term>&iss189;</term>&yes;</varlistentry>
+ <varlistentry id="iss190"><term>&iss190;</term>&yes;</varlistentry>
+ <varlistentry id="iss191"><term>&iss191;</term>&yes;</varlistentry>
+ <varlistentry id="iss192"><term>&iss192;</term>&yes;</varlistentry>
+ <varlistentry id="iss193"><term>&iss193;</term>&yes;</varlistentry>
+ <varlistentry id="iss194"><term>&iss194;</term>&yes;</varlistentry>
+ <varlistentry id="iss195"><term>&iss195;</term>&yes;</varlistentry>
+ <varlistentry id="iss196"><term>&iss196;</term>&yes;</varlistentry>
+ <varlistentry id="iss197"><term>&iss197;</term>&yes;</varlistentry>
+ <varlistentry id="iss198"><term>&iss198;</term>&yes;</varlistentry>
+ <varlistentry id="iss199"><term>&iss199;</term>&yes;</varlistentry>
+ <varlistentry id="iss200"><term>&iss200;</term>&yes;</varlistentry>
+ <varlistentry id="iss201"><term>&iss201;</term>&yes;</varlistentry>
+ <varlistentry id="iss202"><term>&iss202;</term>&yes;</varlistentry>
+ <varlistentry id="iss203"><term>&iss203;</term>
+  <listitem><simpara>yes for &the;, no for &apply; (spec not clear)
+ </simpara></listitem></varlistentry>
+ <varlistentry id="iss204"><term>&iss204;</term>&yes;</varlistentry>
+ <varlistentry id="iss205"><term>&iss205;</term>&yes;</varlistentry>
+ <varlistentry id="iss206"><term>&iss206;</term>&yes;</varlistentry>
+ <varlistentry id="iss207"><term>&iss207;</term>&yes;</varlistentry>
+ <varlistentry id="iss208"><term>&iss208;</term>&yes;</varlistentry>
+ <varlistentry id="iss209"><term>&iss209;</term>&yes;</varlistentry>
+ <varlistentry id="iss210"><term>&iss210;</term>&yes;</varlistentry>
+ <varlistentry id="iss211"><term>&iss211;</term>&yes;</varlistentry>
+ <varlistentry id="iss212"><term>&iss212;</term>&yes;</varlistentry>
+ <varlistentry id="iss213"><term>&iss213;</term>&yes;</varlistentry>
+ <varlistentry id="iss214"><term>&iss214;</term>&yes;</varlistentry>
+ <varlistentry id="iss215"><term>&iss215;</term>&yes;</varlistentry>
+ <varlistentry id="iss216"><term>&iss216;</term>
+  <listitem><simpara>obsolete</simpara></listitem></varlistentry>
+ <varlistentry id="iss217"><term>&iss217;</term>&yes;</varlistentry>
+ <varlistentry id="iss218"><term>&iss218;</term>&yes;</varlistentry>
+ <varlistentry id="iss219"><term>&iss219;</term>&yes;</varlistentry>
+ <varlistentry id="iss220"><term>&iss220;</term>&yes;</varlistentry>
+ <varlistentry id="iss221"><term>&iss221;</term>&yes;</varlistentry>
+ <varlistentry id="iss222"><term>&iss222;</term>&no;</varlistentry>
+ <varlistentry id="iss223"><term>&iss223;</term>&yes;</varlistentry>
+ <varlistentry id="iss224"><term>&iss224;</term>&yes;</varlistentry>
+ <varlistentry id="iss225"><term>&iss225;</term>&yes;</varlistentry>
+ <varlistentry id="iss226"><term>&iss226;</term>&yes;</varlistentry>
+ <varlistentry id="iss227"><term>&iss227;</term>&yes;</varlistentry>
+ <varlistentry id="iss228"><term>&iss228;</term>&yes;</varlistentry>
+ <varlistentry id="iss229"><term>&iss229;</term>&yes;</varlistentry>
+ <varlistentry id="iss230"><term>&iss230;</term>
+  <listitem><simpara>obsolete</simpara></listitem></varlistentry>
+ <varlistentry id="iss231"><term>&iss231;</term>&yes;</varlistentry>
+ <varlistentry id="iss232"><term>&iss232;</term>&no;</varlistentry>
+ <varlistentry id="iss233"><term>&iss233;</term>&yes;</varlistentry>
+ <varlistentry id="iss234"><term>&iss234;</term>&yes;</varlistentry>
+ <varlistentry id="iss235"><term>&iss235;</term>&yes;</varlistentry>
+ <varlistentry id="iss236"><term>&iss236;</term>&yes;</varlistentry>
+ <varlistentry id="iss237"><term>&iss237;</term>&yes;</varlistentry>
+ <varlistentry id="iss238"><term>&iss238;</term>&yes;</varlistentry>
+ <varlistentry id="iss239"><term>&iss239;</term>&yes;</varlistentry>
+ <varlistentry id="iss240"><term>&iss240;</term>&yes;</varlistentry>
+ <varlistentry id="iss241"><term>&iss241;</term>&yes;</varlistentry>
+ <varlistentry id="iss242"><term>&iss242;</term>&no;</varlistentry>
+ <varlistentry id="iss243"><term>&iss243;</term>&no;</varlistentry>
+ <varlistentry id="iss244"><term>&iss244;</term>&yes;</varlistentry>
+ <varlistentry id="iss245"><term>&iss245;</term>&yes;</varlistentry>
+ <varlistentry id="iss246"><term>&iss246;</term>&yes;</varlistentry>
+ <varlistentry id="iss247"><term>&iss247;</term>&yes;</varlistentry>
+ <varlistentry id="iss248"><term>&iss248;</term>&yes;</varlistentry>
+ <varlistentry id="iss249"><term>&iss249;</term>&yes;</varlistentry>
+ <varlistentry id="iss250"><term>&iss250;</term>&yes;</varlistentry>
+ <varlistentry id="iss251"><term>&iss251;</term>&yes;</varlistentry>
+ <varlistentry id="iss252"><term>&iss252;</term>&yes;</varlistentry>
+ <varlistentry id="iss253"><term>&iss253;</term>&yes;</varlistentry>
+ <varlistentry id="iss254"><term>&iss254;</term>&yes;</varlistentry>
+ <varlistentry id="iss255"><term>&iss255;</term>&yes;</varlistentry>
+ <varlistentry id="iss256"><term>&iss256;</term>&yes;</varlistentry>
+ <varlistentry id="iss257"><term>&iss257;</term>&no;</varlistentry>
+ <varlistentry id="iss258"><term>&iss258;</term>
   <listitem><simpara>yes when &parsename; is non-&nil;
  </simpara></listitem></varlistentry>
- <varlistentry id="iss265"><term><ulink url="&clhs;/Issues/iss265.html">PATHNAME-SYNTAX-ERROR-TIME:EXPLICITLY-VAGUE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss266"><term><ulink url="&clhs;/Issues/iss266.html">PATHNAME-UNSPECIFIC-COMPONENT:NEW-TOKEN</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss267"><term><ulink url="&clhs;/Issues/iss267.html">PATHNAME-WILD:NEW-FUNCTIONS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss268"><term><ulink url="&clhs;/Issues/iss268.html">PEEK-CHAR-READ-CHAR-ECHO:FIRST-READ-CHAR</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss269"><term><ulink url="&clhs;/Issues/iss269.html">PLIST-DUPLICATES:ALLOW</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss270"><term><ulink url="&clhs;/Issues/iss270.html">PRETTY-PRINT-INTERFACE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss271"><term><ulink url="&clhs;/Issues/iss271.html">PRINC-READABLY:X3J13-DEC-91</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss272"><term><ulink url="&clhs;/Issues/iss272.html">PRINT-CASE-BEHAVIOR:CLARIFY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss273"><term><ulink url="&clhs;/Issues/iss273.html">PRINT-CASE-PRINT-ESCAPE-INTERACTION:VERTICAL-BAR-RULE-NO-UPCASE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss274"><term><ulink url="&clhs;/Issues/iss274.html">PRINT-CIRCLE-SHARED:RESPECT-PRINT-CIRCLE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss275"><term><ulink url="&clhs;/Issues/iss275.html">PRINT-CIRCLE-STRUCTURE:USER-FUNCTIONS-WORK</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss276"><term><ulink url="&clhs;/Issues/iss276.html">PRINT-READABLY-BEHAVIOR:CLARIFY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss277"><term><ulink url="&clhs;/Issues/iss277.html">PRINTER-WHITESPACE:JUST-ONE-SPACE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss278"><term><ulink url="&clhs;/Issues/iss278.html">PROCLAIM-ETC-IN-COMPILE-FILE:NEW-MACRO</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss279"><term><ulink url="&clhs;/Issues/iss279.html">PUSH-EVALUATION-ORDER:FIRST-ITEM</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss280"><term><ulink url="&clhs;/Issues/iss280.html">PUSH-EVALUATION-ORDER:ITEM-FIRST</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss281"><term><ulink url="&clhs;/Issues/iss281.html">PUSHNEW-STORE-REQUIRED:UNSPECIFIED</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss282"><term><ulink url="&clhs;/Issues/iss282.html">QUOTE-SEMANTICS:NO-COPYING</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss283"><term><ulink url="&clhs;/Issues/iss283.html">RANGE-OF-COUNT-KEYWORD:NIL-OR-INTEGER</ulink></term>
-     <listitem><simpara>yes, when &count-ansi; is non-&nil;;
-     otherwise negative &count-k; values are not allowed.
-     </simpara></listitem></varlistentry>
- <varlistentry id="iss284"><term><ulink url="&clhs;/Issues/iss284.html">RANGE-OF-START-AND-END-PARAMETERS:INTEGER-AND-INTEGER-NIL</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss285"><term><ulink url="&clhs;/Issues/iss285.html">READ-AND-WRITE-BYTES:NEW-FUNCTIONS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss286"><term><ulink url="&clhs;/Issues/iss286.html">READ-CASE-SENSITIVITY:READTABLE-KEYWORDS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss287"><term><ulink url="&clhs;/Issues/iss287.html">READ-MODIFY-WRITE-EVALUATION-ORDER:DELAYED-ACCESS-STORES</ulink></term>&no;</varlistentry>
- <varlistentry id="iss288"><term><ulink url="&clhs;/Issues/iss288.html">READ-SUPPRESS-CONFUSING:GENERALIZE</ulink></term>
-     <listitem><simpara>yes, except that &read-delimited-list; still
-     constructs a &list-t;</simpara></listitem></varlistentry>
- <varlistentry id="iss289"><term><ulink url="&clhs;/Issues/iss289.html">READER-ERROR:NEW-TYPE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss290"><term><ulink url="&clhs;/Issues/iss290.html">REAL-NUMBER-TYPE:X3J13-MAR-89</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss291"><term><ulink url="&clhs;/Issues/iss291.html">RECURSIVE-DEFTYPE:EXPLICITLY-VAGUE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss292"><term><ulink url="&clhs;/Issues/iss292.html">REDUCE-ARGUMENT-EXTRACTION</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss293"><term><ulink url="&clhs;/Issues/iss293.html">REMF-DESTRUCTION-UNSPECIFIED:X3J13-MAR-89</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss294"><term><ulink url="&clhs;/Issues/iss294.html">REQUIRE-PATHNAME-DEFAULTS-AGAIN:X3J13-DEC-91</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss295"><term><ulink url="&clhs;/Issues/iss295.html">REQUIRE-PATHNAME-DEFAULTS-YET-AGAIN:RESTORE-ARGUMENT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss296"><term><ulink url="&clhs;/Issues/iss296.html">REQUIRE-PATHNAME-DEFAULTS:ELIMINATE</ulink></term>
-     <listitem><simpara>superseded by <ulink url="&clhs;/Issues/iss294.html">REQUIRE-PATHNAME-DEFAULTS-AGAIN:X3J13-DEC-91</ulink></simpara></listitem></varlistentry>
- <varlistentry id="iss297"><term><ulink url="&clhs;/Issues/iss297.html">REST-LIST-ALLOCATION:MAY-SHARE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss298"><term><ulink url="&clhs;/Issues/iss298.html">RESULT-LISTS-SHARED:SPECIFY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss299"><term><ulink url="&clhs;/Issues/iss299.html">RETURN-VALUES-UNSPECIFIED:SPECIFY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss300"><term><ulink url="&clhs;/Issues/iss300.html">ROOM-DEFAULT-ARGUMENT:NEW-VALUE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss301"><term><ulink url="&clhs;/Issues/iss301.html">SELF-MODIFYING-CODE:FORBID</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss302"><term><ulink url="&clhs;/Issues/iss302.html">SEQUENCE-TYPE-LENGTH:MUST-MATCH</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss303"><term><ulink url="&clhs;/Issues/iss303.html">SETF-APPLY-EXPANSION:IGNORE-EXPANDER</ulink></term>&no;</varlistentry>
- <varlistentry id="iss304"><term><ulink url="&clhs;/Issues/iss304.html">SETF-FIND-CLASS:ALLOW-NIL</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss305"><term><ulink url="&clhs;/Issues/iss305.html">SETF-FUNCTIONS-AGAIN:MINIMAL-CHANGES</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss306"><term><ulink url="&clhs;/Issues/iss306.html">SETF-GET-DEFAULT:EVALUATED-BUT-IGNORED</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss307"><term><ulink url="&clhs;/Issues/iss307.html">SETF-MACRO-EXPANSION:LAST</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss308"><term><ulink url="&clhs;/Issues/iss308.html">SETF-METHOD-VS-SETF-METHOD:RENAME-OLD-TERMS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss309"><term><ulink url="&clhs;/Issues/iss309.html">SETF-MULTIPLE-STORE-VARIABLES:ALLOW</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss310"><term><ulink url="&clhs;/Issues/iss310.html">SETF-OF-APPLY:ONLY-AREF-AND-FRIENDS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss311"><term><ulink url="&clhs;/Issues/iss311.html">SETF-OF-VALUES:ADD</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss312"><term><ulink url="&clhs;/Issues/iss312.html">SETF-SUB-METHODS:DELAYED-ACCESS-STORES</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss313"><term><ulink url="&clhs;/Issues/iss313.html">SHADOW-ALREADY-PRESENT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss314"><term><ulink url="&clhs;/Issues/iss314.html">SHADOW-ALREADY-PRESENT:WORKS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss315"><term><ulink url="&clhs;/Issues/iss315.html">SHARP-COMMA-CONFUSION:REMOVE</ulink></term>&no;</varlistentry>
- <varlistentry id="iss316"><term><ulink url="&clhs;/Issues/iss316.html">SHARP-O-FOOBAR:CONSEQUENCES-UNDEFINED</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss317"><term><ulink url="&clhs;/Issues/iss317.html">SHARP-STAR-DELIMITER:NORMAL-DELIMITER</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss318"><term><ulink url="&clhs;/Issues/iss318.html">SHARPSIGN-PLUS-MINUS-PACKAGE:KEYWORD</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss319"><term><ulink url="&clhs;/Issues/iss319.html">SLOT-MISSING-VALUES:SPECIFY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss320"><term><ulink url="&clhs;/Issues/iss320.html">SLOT-VALUE-METACLASSES:LESS-MINIMAL</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss321"><term><ulink url="&clhs;/Issues/iss321.html">SPECIAL-FORM-P-MISNOMER:RENAME</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss322"><term><ulink url="&clhs;/Issues/iss322.html">SPECIAL-TYPE-SHADOWING:CLARIFY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss323"><term><ulink url="&clhs;/Issues/iss323.html">STANDARD-INPUT-INITIAL-BINDING:DEFINED-CONTRACTS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss324"><term><ulink url="&clhs;/Issues/iss324.html">STANDARD-REPERTOIRE-GRATUITOUS:RENAME</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss325"><term><ulink url="&clhs;/Issues/iss325.html">STEP-ENVIRONMENT:CURRENT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss326"><term><ulink url="&clhs;/Issues/iss326.html">STEP-MINIMAL:PERMIT-PROGN</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss327"><term><ulink url="&clhs;/Issues/iss327.html">STREAM-ACCESS:ADD-TYPES-ACCESSORS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss328"><term><ulink url="&clhs;/Issues/iss328.html">STREAM-CAPABILITIES:INTERACTIVE-STREAM-P</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss329"><term><ulink url="&clhs;/Issues/iss329.html">STRING-COERCION:MAKE-CONSISTENT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss330"><term><ulink url="&clhs;/Issues/iss330.html">STRING-OUTPUT-STREAM-BASHING:UNDEFINED</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss331"><term><ulink url="&clhs;/Issues/iss331.html">STRUCTURE-READ-PRINT-SYNTAX:KEYWORDS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss332"><term><ulink url="&clhs;/Issues/iss332.html">SUBSEQ-OUT-OF-BOUNDS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss333"><term><ulink url="&clhs;/Issues/iss333.html">SUBSEQ-OUT-OF-BOUNDS:IS-AN-ERROR</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss334"><term><ulink url="&clhs;/Issues/iss334.html">SUBSETTING-POSITION:NONE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss335"><term><ulink url="&clhs;/Issues/iss335.html">SUBTYPEP-ENVIRONMENT:ADD-ARG</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss336"><term><ulink url="&clhs;/Issues/iss336.html">SUBTYPEP-TOO-VAGUE:CLARIFY-MORE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss337"><term><ulink url="&clhs;/Issues/iss337.html">SXHASH-DEFINITION:SIMILAR-FOR-SXHASH</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss338"><term><ulink url="&clhs;/Issues/iss338.html">SYMBOL-MACROLET-DECLARE:ALLOW</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss339"><term><ulink url="&clhs;/Issues/iss339.html">SYMBOL-MACROLET-SEMANTICS:SPECIAL-FORM</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss340"><term><ulink url="&clhs;/Issues/iss340.html">SYMBOL-MACROLET-TYPE-DECLARATION:NO</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss341"><term><ulink url="&clhs;/Issues/iss341.html">SYMBOL-MACROS-AND-PROCLAIMED-SPECIALS:SIGNALS-AN-ERROR</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss342"><term><ulink url="&clhs;/Issues/iss342.html">SYMBOL-PRINT-ESCAPE-BEHAVIOR:CLARIFY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss343"><term><ulink url="&clhs;/Issues/iss343.html">SYNTACTIC-ENVIRONMENT-ACCESS:RETRACTED-MAR91</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss344"><term><ulink url="&clhs;/Issues/iss344.html">TAGBODY-TAG-EXPANSION:NO</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss345"><term><ulink url="&clhs;/Issues/iss345.html">TAILP-NIL:T</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss346"><term><ulink url="&clhs;/Issues/iss346.html">TEST-NOT-IF-NOT:FLUSH-ALL</ulink></term>
-    <listitem><simpara>yes, but no warning</simpara></listitem></varlistentry>
- <varlistentry id="iss347"><term><ulink url="&clhs;/Issues/iss347.html">THE-AMBIGUITY:FOR-DECLARATION</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss348"><term><ulink url="&clhs;/Issues/iss348.html">THE-VALUES:RETURN-NUMBER-RECEIVED</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss349"><term><ulink url="&clhs;/Issues/iss349.html">TIME-ZONE-NON-INTEGER:ALLOW</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss350"><term><ulink url="&clhs;/Issues/iss350.html">TYPE-DECLARATION-ABBREVIATION:ALLOW-ALL</ulink></term>&no;</varlistentry>
- <varlistentry id="iss351"><term><ulink url="&clhs;/Issues/iss351.html">TYPE-OF-AND-PREDEFINED-CLASSES:TYPE-OF-HANDLES-FLOATS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss352"><term><ulink url="&clhs;/Issues/iss352.html">TYPE-OF-AND-PREDEFINED-CLASSES:UNIFY-AND-EXTEND</ulink></term>
-     <listitem><simpara>yes, except for class &method-combination-t;
-     </simpara></listitem></varlistentry>
- <varlistentry id="iss353"><term><ulink url="&clhs;/Issues/iss353.html">TYPE-OF-UNDERCONSTRAINED:ADD-CONSTRAINTS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss354"><term><ulink url="&clhs;/Issues/iss354.html">TYPE-SPECIFIER-ABBREVIATION:X3J13-JUN90-GUESS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss355"><term><ulink url="&clhs;/Issues/iss355.html">UNDEFINED-VARIABLES-AND-FUNCTIONS:COMPROMISE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss356"><term><ulink url="&clhs;/Issues/iss356.html">UNINITIALIZED-ELEMENTS:CONSEQUENCES-UNDEFINED</ulink></term>
-     <listitem><simpara>yes, could add error checking
-     </simpara></listitem></varlistentry>
- <varlistentry id="iss357"><term><ulink url="&clhs;/Issues/iss357.html">UNREAD-CHAR-AFTER-PEEK-CHAR:DONT-ALLOW</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss358"><term><ulink url="&clhs;/Issues/iss358.html">UNSOLICITED-MESSAGES:NOT-TO-SYSTEM-USER-STREAMS</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss359"><term><ulink url="&clhs;/Issues/iss359.html">VARIABLE-LIST-ASYMMETRY:SYMMETRIZE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss360"><term><ulink url="&clhs;/Issues/iss360.html">WITH-ADDED-METHODS:DELETE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss361"><term><ulink url="&clhs;/Issues/iss361.html">WITH-COMPILATION-UNIT:NEW-MACRO</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss362"><term><ulink url="&clhs;/Issues/iss362.html">WITH-OPEN-FILE-DOES-NOT-EXIST:STREAM-IS-NIL</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss363"><term><ulink url="&clhs;/Issues/iss363.html">WITH-OPEN-FILE-SETQ:EXPLICITLY-VAGUE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss364"><term><ulink url="&clhs;/Issues/iss364.html">WITH-OPEN-FILE-STREAM-EXTENT:DYNAMIC-EXTENT</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss365"><term><ulink url="&clhs;/Issues/iss365.html">WITH-OUTPUT-TO-STRING-APPEND-STYLE:VECTOR-PUSH-EXTEND</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss366"><term><ulink url="&clhs;/Issues/iss366.html">WITH-STANDARD-IO-SYNTAX-READTABLE:X3J13-MAR-91</ulink></term>&yes;</varlistentry>
+ <varlistentry id="iss259"><term>&iss259;</term>&yes;</varlistentry>
+ <varlistentry id="iss260"><term>&iss260;</term>&yes;</varlistentry>
+ <varlistentry id="iss261"><term>&iss261;</term>&yes;</varlistentry>
+ <varlistentry id="iss262"><term>&iss262;</term>&yes;</varlistentry>
+ <varlistentry id="iss263"><term>&iss263;</term>&yes;</varlistentry>
+ <varlistentry id="iss264"><term>&iss264;</term>
+  <listitem><simpara>yes when &parsename; is non-&nil;
+ </simpara></listitem></varlistentry>
+ <varlistentry id="iss265"><term>&iss265;</term>&yes;</varlistentry>
+ <varlistentry id="iss266"><term>&iss266;</term>&yes;</varlistentry>
+ <varlistentry id="iss267"><term>&iss267;</term>&yes;</varlistentry>
+ <varlistentry id="iss268"><term>&iss268;</term>&yes;</varlistentry>
+ <varlistentry id="iss269"><term>&iss269;</term>&yes;</varlistentry>
+ <varlistentry id="iss270"><term>&iss270;</term>&yes;</varlistentry>
+ <varlistentry id="iss271"><term>&iss271;</term>&yes;</varlistentry>
+ <varlistentry id="iss272"><term>&iss272;</term>&yes;</varlistentry>
+ <varlistentry id="iss273"><term>&iss273;</term>&yes;</varlistentry>
+ <varlistentry id="iss274"><term>&iss274;</term>&yes;</varlistentry>
+ <varlistentry id="iss275"><term>&iss275;</term>&yes;</varlistentry>
+ <varlistentry id="iss276"><term>&iss276;</term>&yes;</varlistentry>
+ <varlistentry id="iss277"><term>&iss277;</term>&yes;</varlistentry>
+ <varlistentry id="iss278"><term>&iss278;</term>&yes;</varlistentry>
+ <varlistentry id="iss279"><term>&iss279;</term>&yes;</varlistentry>
+ <varlistentry id="iss280"><term>&iss280;</term>&yes;</varlistentry>
+ <varlistentry id="iss281"><term>&iss281;</term>&yes;</varlistentry>
+ <varlistentry id="iss282"><term>&iss282;</term>&yes;</varlistentry>
+ <varlistentry id="iss283"><term>&iss283;</term>
+  <listitem><simpara>yes, when &count-ansi; is non-&nil;;
+    otherwise negative &count-k; values are not allowed.
+ </simpara></listitem></varlistentry>
+ <varlistentry id="iss284"><term>&iss284;</term>&yes;</varlistentry>
+ <varlistentry id="iss285"><term>&iss285;</term>&yes;</varlistentry>
+ <varlistentry id="iss286"><term>&iss286;</term>&yes;</varlistentry>
+ <varlistentry id="iss287"><term>&iss287;</term>&no;</varlistentry>
+ <varlistentry id="iss288"><term>&iss288;</term>
+  <listitem><simpara>yes, except that &read-delimited-list; still
+    constructs a &list-t;</simpara></listitem></varlistentry>
+ <varlistentry id="iss289"><term>&iss289;</term>&yes;</varlistentry>
+ <varlistentry id="iss290"><term>&iss290;</term>&yes;</varlistentry>
+ <varlistentry id="iss291"><term>&iss291;</term>&yes;</varlistentry>
+ <varlistentry id="iss292"><term>&iss292;</term>&yes;</varlistentry>
+ <varlistentry id="iss293"><term>&iss293;</term>&yes;</varlistentry>
+ <varlistentry id="iss294"><term>&iss294;</term>&yes;</varlistentry>
+ <varlistentry id="iss295"><term>&iss295;</term>&yes;</varlistentry>
+ <varlistentry id="iss296"><term>&iss296;</term>
+  <listitem><simpara>superseded by &iss294;</simpara></listitem></varlistentry>
+ <varlistentry id="iss297"><term>&iss297;</term>&yes;</varlistentry>
+ <varlistentry id="iss298"><term>&iss298;</term>&yes;</varlistentry>
+ <varlistentry id="iss299"><term>&iss299;</term>&yes;</varlistentry>
+ <varlistentry id="iss300"><term>&iss300;</term>&yes;</varlistentry>
+ <varlistentry id="iss301"><term>&iss301;</term>&yes;</varlistentry>
+ <varlistentry id="iss302"><term>&iss302;</term>&yes;</varlistentry>
+ <varlistentry id="iss303"><term>&iss303;</term>&no;</varlistentry>
+ <varlistentry id="iss304"><term>&iss304;</term>&yes;</varlistentry>
+ <varlistentry id="iss305"><term>&iss305;</term>&yes;</varlistentry>
+ <varlistentry id="iss306"><term>&iss306;</term>&yes;</varlistentry>
+ <varlistentry id="iss307"><term>&iss307;</term>&yes;</varlistentry>
+ <varlistentry id="iss308"><term>&iss308;</term>&yes;</varlistentry>
+ <varlistentry id="iss309"><term>&iss309;</term>&yes;</varlistentry>
+ <varlistentry id="iss310"><term>&iss310;</term>&yes;</varlistentry>
+ <varlistentry id="iss311"><term>&iss311;</term>&yes;</varlistentry>
+ <varlistentry id="iss312"><term>&iss312;</term>&yes;</varlistentry>
+ <varlistentry id="iss313"><term>&iss313;</term>&yes;</varlistentry>
+ <varlistentry id="iss314"><term>&iss314;</term>&yes;</varlistentry>
+ <varlistentry id="iss315"><term>&iss315;</term>&no;</varlistentry>
+ <varlistentry id="iss316"><term>&iss316;</term>&yes;</varlistentry>
+ <varlistentry id="iss317"><term>&iss317;</term>&yes;</varlistentry>
+ <varlistentry id="iss318"><term>&iss318;</term>&yes;</varlistentry>
+ <varlistentry id="iss319"><term>&iss319;</term>&yes;</varlistentry>
+ <varlistentry id="iss320"><term>&iss320;</term>&yes;</varlistentry>
+ <varlistentry id="iss321"><term>&iss321;</term>&yes;</varlistentry>
+ <varlistentry id="iss322"><term>&iss322;</term>&yes;</varlistentry>
+ <varlistentry id="iss323"><term>&iss323;</term>&yes;</varlistentry>
+ <varlistentry id="iss324"><term>&iss324;</term>&yes;</varlistentry>
+ <varlistentry id="iss325"><term>&iss325;</term>&yes;</varlistentry>
+ <varlistentry id="iss326"><term>&iss326;</term>&yes;</varlistentry>
+ <varlistentry id="iss327"><term>&iss327;</term>&yes;</varlistentry>
+ <varlistentry id="iss328"><term>&iss328;</term>&yes;</varlistentry>
+ <varlistentry id="iss329"><term>&iss329;</term>&yes;</varlistentry>
+ <varlistentry id="iss330"><term>&iss330;</term>&yes;</varlistentry>
+ <varlistentry id="iss331"><term>&iss331;</term>&yes;</varlistentry>
+ <varlistentry id="iss332"><term>&iss332;</term>&yes;</varlistentry>
+ <varlistentry id="iss333"><term>&iss333;</term>&yes;</varlistentry>
+ <varlistentry id="iss334"><term>&iss334;</term>&yes;</varlistentry>
+ <varlistentry id="iss335"><term>&iss335;</term>&yes;</varlistentry>
+ <varlistentry id="iss336"><term>&iss336;</term>&yes;</varlistentry>
+ <varlistentry id="iss337"><term>&iss337;</term>&yes;</varlistentry>
+ <varlistentry id="iss338"><term>&iss338;</term>&yes;</varlistentry>
+ <varlistentry id="iss339"><term>&iss339;</term>&yes;</varlistentry>
+ <varlistentry id="iss340"><term>&iss340;</term>&yes;</varlistentry>
+ <varlistentry id="iss341"><term>&iss341;</term>&yes;</varlistentry>
+ <varlistentry id="iss342"><term>&iss342;</term>&yes;</varlistentry>
+ <varlistentry id="iss343"><term>&iss343;</term>&yes;</varlistentry>
+ <varlistentry id="iss344"><term>&iss344;</term>&yes;</varlistentry>
+ <varlistentry id="iss345"><term>&iss345;</term>&yes;</varlistentry>
+ <varlistentry id="iss346"><term>&iss346;</term>
+  <listitem><simpara>yes, but no warning</simpara></listitem></varlistentry>
+ <varlistentry id="iss347"><term>&iss347;</term>&yes;</varlistentry>
+ <varlistentry id="iss348"><term>&iss348;</term>&yes;</varlistentry>
+ <varlistentry id="iss349"><term>&iss349;</term>&yes;</varlistentry>
+ <varlistentry id="iss350"><term>&iss350;</term>&no;</varlistentry>
+ <varlistentry id="iss351"><term>&iss351;</term>&yes;</varlistentry>
+ <varlistentry id="iss352"><term>&iss352;</term>&yes</varlistentry>
+ <varlistentry id="iss353"><term>&iss353;</term>&yes;</varlistentry>
+ <varlistentry id="iss354"><term>&iss354;</term>&yes;</varlistentry>
+ <varlistentry id="iss355"><term>&iss355;</term>&yes;</varlistentry>
+ <varlistentry id="iss356"><term>&iss356;</term>
+  <listitem><simpara>yes, could add error checking
+ </simpara></listitem></varlistentry>
+ <varlistentry id="iss357"><term>&iss357;</term>&yes;</varlistentry>
+ <varlistentry id="iss358"><term>&iss358;</term>&yes;</varlistentry>
+ <varlistentry id="iss359"><term>&iss359;</term>&yes;</varlistentry>
+ <varlistentry id="iss360"><term>&iss360;</term>&yes;</varlistentry>
+ <varlistentry id="iss361"><term>&iss361;</term>&yes;</varlistentry>
+ <varlistentry id="iss362"><term>&iss362;</term>&yes;</varlistentry>
+ <varlistentry id="iss363"><term>&iss363;</term>&yes;</varlistentry>
+ <varlistentry id="iss364"><term>&iss364;</term>&yes;</varlistentry>
+ <varlistentry id="iss365"><term>&iss365;</term>&yes;</varlistentry>
+ <varlistentry id="iss366"><term>&iss366;</term>&yes;</varlistentry>
 </variablelist>
 
 </chapter>
