@@ -2920,15 +2920,7 @@ local void print_banner ()
             }
           quit();
         }
-      if (!(argv_expr == NULL))
-        # *STANDARD-INPUT* auf einen Stream setzen, der argv_expr produziert:
-        { pushSTACK(asciz_to_string(argv_expr,O(misc_encoding)));
-          funcall(L(make_string_input_stream),1);
-          Symbol_value(S(standard_input)) = value1;
-          argv_execute_file = "-";
-          # Dann den Driver aufrufen. Stringende -> EOF -> Programmende.
-        }
-      if (!(argv_execute_file == NULL) || (argv_expr != NULL))
+      if (!(argv_execute_file == NULL))
         # (PROGN
         #   #+UNIX (SET-DISPATCH-MACRO-CHARACTER #\# #\!
         #            #'SYS::UNIX-EXECUTABLE-READER)
@@ -2974,6 +2966,29 @@ local void print_banner ()
             eval_noenv(form); # ausführen
           }
           quit();
+        }
+      if (!(argv_expr == NULL))
+        {
+          # *STANDARD-INPUT* auf einen Stream setzen, der argv_expr produziert:
+          pushSTACK(asciz_to_string(argv_expr,O(misc_encoding)));
+          funcall(L(make_string_input_stream),1);
+          Symbol_value(S(standard_input)) = value1;
+          # During bootstrapping, *DRIVER* has no value and SYS::BATCHMODE-ERRORS
+          # is undefined. Don't set an error handler in that case.
+          if (!nullp(Symbol_value(S(driverstern))))
+            {
+              # (PROGN
+              #   (EXIT-ON-ERROR (APPEASE-CERRORS (FUNCALL *DRIVER*)))
+              #   ; Normally this will exit by itself once the string has reached EOF,
+              #   ; but to be sure:
+              #   (EXIT)
+              # )
+              var object form;
+              pushSTACK(S(funcall)); pushSTACK(S(driverstern)); form = listof(2);
+              pushSTACK(S(batchmode_errors)); pushSTACK(form); form = listof(2);
+              eval_noenv(form);
+              quit();
+            }
         }
       # Read-Eval-Print-Schleife aufrufen:
       driver();
