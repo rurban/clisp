@@ -85,7 +85,8 @@
             }   }});
           end_arith_call();
         }
-      RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-      return NUDS_to_I(erg_MSDptr,erg_len);
-    }
+     {var object result = NUDS_to_I(erg_MSDptr,erg_len);
+      RESTORE_NUM_STACK # num_stack zurück
+      return result;
+    }}
 

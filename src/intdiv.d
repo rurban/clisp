@@ -123,6 +123,7 @@
         { # beta^(m-1) <= a < beta^m, beta^(n-1) <= b < beta^n  ==>
           # beta^(m-n-1) <= a/b < beta^(m-n+1).
           var uintL s;
+          SAVE_NUM_STACK # num_stack retten
           # s bestimmen:
           { var uintD msd = b_MSDptr[0]; # b[n-1]
             #if 0
@@ -139,11 +140,9 @@
           # Kopiere b und schiebe es dabei um s Bits nach links:
           if (!(s==0))
             shift:
-            { SAVE_NUM_STACK # num_stack retten
-              var uintD* old_b_LSDptr = b_LSDptr;
+            { var uintD* old_b_LSDptr = b_LSDptr;
               num_stack_need(b_len,b_MSDptr=,b_LSDptr=);
               shiftleftcopy_loop_down(old_b_LSDptr,b_LSDptr,b_len,s);
-              RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
             }
           shift_ok:
           # Wieder b = b_MSDptr/b_len/b_LSDptr.
@@ -255,6 +254,7 @@
            # r normalisieren und ablegen:
            while ((b_len>0) && (r_MSDptr[0]==0)) { r_MSDptr++; b_len--; }
            r_->MSDptr = r_MSDptr; r_->len = b_len; r_->LSDptr = r_LSDptr;
+           RESTORE_NUM_STACK # num_stack zurück
            return;
         }}}
     }
@@ -308,8 +308,7 @@
         }
         else
         # x Bignum -> allgemeine Division:
-        { SAVE_NUM_STACK # num_stack retten
-          var uintD* x_MSDptr;
+        { var uintD* x_MSDptr;
           var uintC x_len;
           var uintD* x_LSDptr;
           var uintD* y_MSDptr;
@@ -320,16 +319,17 @@
           # y in NDS umwandeln, als UDS auffassen:
          {I_to_NDS_nocopy(y, y_MSDptr=,y_len=,y_LSDptr=);
           # dividieren:
-          {var DS q;
+          {SAVE_NUM_STACK # num_stack retten
+           var DS q;
            var DS r;
            begin_arith_call();
            UDS_divide(x_MSDptr,x_len,x_LSDptr,y_MSDptr,y_len,y_LSDptr, &q,&r);
            end_arith_call();
-           RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
            # q in Integer umwandeln:
            pushSTACK(NUDS_to_I(q.MSDptr,q.len));
            # r in Integer umwandeln (jetzt erst, nachdem q verwertet ist!):
            pushSTACK(NUDS_to_I(r.MSDptr,r.len));
+           RESTORE_NUM_STACK # num_stack zurück
         }}}
     }
 

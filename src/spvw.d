@@ -19,7 +19,6 @@
 # Version
 
 #include "lispbibl.c"
-#include "aridecl.c" # für NUM_STACK
 
 #include "version.h" # für O(lisp_implementation_version_{month,year}_string)
 
@@ -2233,12 +2232,7 @@ local void print_banner ()
         #define teile_SP         2  # 2/16 (1/16 reicht oft nicht)
         #endif
         #define teile_STACK      2  # 2/16
-        #ifdef HAVE_NUM_STACK
-        #define teile_NUM_STACK  1  # 1/16
-        #else
-        #define teile_NUM_STACK  0
-        #endif
-        #define teile_stacks     (teile_SP + teile_STACK + teile_NUM_STACK)
+        #define teile_stacks     (teile_SP + teile_STACK)
         #ifdef SPVW_MIXED_BLOCKS
         #define teile_objects    (teile - teile_stacks)  # Rest
         #else
@@ -2489,7 +2483,6 @@ local void print_banner ()
         #define min_for_SP  40000 # minimale SP-Stack-Größe
         #endif
         var uintL for_STACK; # Anzahl Bytes für Lisp-STACK
-        var uintL for_NUM_STACK; # Anzahl Bytes für Zahlen-STACK
         var uintL for_objects; # Anzahl Bytes für Lisp-Objekte
         # Der STACK braucht Alignment, da bei Frame-Pointern das letzte Bit =0 sein muss:
         #define STACK_alignment  bit(addr_shift+1)
@@ -2580,21 +2573,6 @@ local void print_banner ()
           ptr += for_STACK = teile_STACK*teil; # 2/16 für Lisp-STACK
           STACK_bound = (object*)ptr - 0x40; # 64 Pointer Sicherheitsmarge
         #endif
-        #endif
-        #ifdef HAVE_NUM_STACK
-        # NUM_STACK allozieren:
-        #ifdef NUM_STACK_DOWN
-          NUM_STACK_bound = (uintD*)ptr;
-          ptr += for_NUM_STACK = teile_NUM_STACK*teil; # 1/16 für Zahlen-STACK
-          NUM_STACK = NUM_STACK_normal = (uintD*)round_down(ptr,sizeof(uintD)); # NUM_STACK initialisieren
-        #endif
-        #ifdef NUM_STACK_UP
-          NUM_STACK = NUM_STACK_normal = (uintD*)round_up(ptr,sizeof(uintD)); # NUM_STACK initialisieren
-          ptr += for_NUM_STACK = teile_NUM_STACK*teil; # 1/16 für Zahlen-STACK
-          NUM_STACK_bound = (uintD*)ptr;
-        #endif
-        #else
-        for_NUM_STACK = 0; # kein Zahlen-Stack vorhanden
         #endif
         #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && !defined(TRIVIALMAP_MEMORY)
         # Nun fangen die Lisp-Objekte an:

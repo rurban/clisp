@@ -387,15 +387,7 @@ LISPFUNN(subr_info,1)
                   # UNWIND_PROTECT_FRAME oder DRIVER_FRAME liegt vor
                   if (frame_info & bit(driver_bit_t))
                     # DRIVER_FRAME liegt vor
-                    {
-                      #ifdef HAVE_NUM_STACK
-                      # NUM_STACK_normal muss wieder den Wert bekommen, den es vor
-                      # Aufbau des Driver-Frames hatte:
-                      NUM_STACK =
-                      NUM_STACK_normal =
-                        ((DRIVER_frame_data*)(STACK_(frame_SP)))->old_NUM_STACK_normal;
-                      #endif
-                    }
+                    {}
                     else
                     # UNWIND_PROTECT_FRAME liegt vor
                     { enter_frame_at_STACK(); }

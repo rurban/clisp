@@ -363,13 +363,11 @@
         # b = b_MSDptr/n/b_ptr ist fertig, eine NUDS.
         end_arith_call();
         b_->MSDptr = b_MSDptr; b_->len = n; b_->LSDptr = b_ptr;
-        RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-        # Teste, ob alle a[n],...,a[0]=0 sind:
-        if (test_loop_up(a_mptr,n+1))
-          { return FALSE; }
-          else
-          { return TRUE; } # ja -> Wurzel exakt
-    }}}}
+        # Teste, ob alle a[n],...,a[0]=0 sind. Ja -> Wurzel exakt
+        {var boolean result = (test_loop_up(a_mptr,n+1) ? FALSE : TRUE);
+         RESTORE_NUM_STACK # num_stack zurück
+         return result;
+    }}}}}
 
 # Zieht die Wurzel (ISQRT x) aus einem Integer.
 # I_isqrt_I(x)
@@ -390,16 +388,16 @@
                  GETTEXT("~ applied to negative number ~")
                 );
         }
-      { SAVE_NUM_STACK # num_stack retten
-        var uintD* x_MSDptr;
+      { var uintD* x_MSDptr;
         var uintC x_len;
         var uintD* x_LSDptr;
         I_to_NDS_nocopy(x, x_MSDptr=,x_len=,x_LSDptr=); # Digit sequence >=0 zu x
-       {var DS y;
+       {SAVE_NUM_STACK # num_stack retten
+        var DS y;
         var boolean squarep;
         UDS_sqrt(x_MSDptr,x_len,x_LSDptr, &y, squarep=); # Wurzel ziehen
-        RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
         pushSTACK(NUDS_to_I(y.MSDptr,y.len)); # als Integer
+        RESTORE_NUM_STACK # num_stack zurück
         return squarep;
     } }}
 
@@ -416,20 +414,18 @@
     var object x;
     { if (I_I_logbitp(Fixnum_1,x)) # Bit 1 von x gesetzt?
         { return nullobj; } # ja -> x==2,3 mod 4, also kein Quadrat
-      { SAVE_NUM_STACK # num_stack retten
-        var uintD* x_MSDptr;
+      { var uintD* x_MSDptr;
         var uintC x_len;
         var uintD* x_LSDptr;
         I_to_NDS_nocopy(x, x_MSDptr=,x_len=,x_LSDptr=); # Digit sequence >=0 zu x
-       {var DS y;
+       {SAVE_NUM_STACK # num_stack retten
+        var DS y;
         var boolean squarep;
         UDS_sqrt(x_MSDptr,x_len,x_LSDptr, &y, squarep=); # Wurzel ziehen
-        RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-        if (squarep)
-          { return NUDS_to_I(y.MSDptr,y.len); } # als Integer
-          else
-          { return nullobj; }
-    } }}
+        {var object result = (squarep ? NUDS_to_I(y.MSDptr,y.len) : nullobj); # als Integer
+         RESTORE_NUM_STACK # num_stack zurück
+         return result;
+    } }}}
 
 # Stellt fest, ob ein Integer >=0 eine n-te Potenz ist.
 # I_rootp(x,n)
@@ -596,8 +592,8 @@
               end_arith_call();
              }
              # y mit y^n == x mod beta^m ist gefunden.
-             RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
              {var object y = UDS_to_I(&y_LSDptr[-(uintP)m],m); # y als Integer >=0
+              RESTORE_NUM_STACK # num_stack zurück
               pushSTACK(y);
        # Stackaufbau: x, y.
        # y^n (mit n ungerade) bilden:

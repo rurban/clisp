@@ -93,9 +93,10 @@
           { var uintD* yptr; I_to_DS_n(y,n,yptr=); # Pointer in DS zu y
            {var uintD* zptr = xptr; # Pointer aufs Ergebnis
             or_loop_up(xptr,yptr,n); # mit OR verknüpfen
-            RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-            return DS_to_I(zptr,n); # Ergebnis als Integer
-    }   }}}}
+            {var object result = DS_to_I(zptr,n); # Ergebnis als Integer
+             RESTORE_NUM_STACK # num_stack zurück
+             return result;
+    }   }}}}}
 
 # (LOGXOR x y), wenn x, y Integers sind.
 # Ergebnis Integer.
@@ -119,9 +120,10 @@
           { var uintD* yptr; I_to_DS_n(y,n,yptr=); # Pointer in DS zu y
            {var uintD* zptr = xptr; # Pointer aufs Ergebnis
             xor_loop_up(xptr,yptr,n); # mit XOR verknüpfen
-            RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-            return DS_to_I(zptr,n); # Ergebnis als Integer
-    }   }}}}
+            {var object result = DS_to_I(zptr,n); # Ergebnis als Integer
+             RESTORE_NUM_STACK # num_stack zurück
+             return result;
+    }   }}}}}
 
 # (LOGAND x y), wenn x, y Integers sind.
 # Ergebnis Integer.
@@ -159,9 +161,10 @@
           { var uintD* yptr; I_to_DS_n(y,n,yptr=); # Pointer in DS zu y
            {var uintD* zptr = xptr; # Pointer aufs Ergebnis
             and_loop_up(xptr,yptr,n); # mit AND verknüpfen
-            RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-            return DS_to_I(zptr,n); # Ergebnis als Integer
-    }   }}}}
+            {var object result = DS_to_I(zptr,n); # Ergebnis als Integer
+             RESTORE_NUM_STACK # num_stack zurück
+             return result;
+    }   }}}}}
 
 # (LOGEQV x y), wenn x, y Integers sind.
 # Ergebnis Integer.
@@ -187,9 +190,10 @@
           { var uintD* yptr; I_to_DS_n(y,n,yptr=); # Pointer in DS zu y
            {var uintD* zptr = xptr; # Pointer aufs Ergebnis
             eqv_loop_up(xptr,yptr,n); # mit NOT XOR verknüpfen
-            RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-            return DS_to_I(zptr,n); # Ergebnis als Integer
-    }   }}}}
+            {var object result = DS_to_I(zptr,n); # Ergebnis als Integer
+             RESTORE_NUM_STACK # num_stack zurück
+             return result;
+    }   }}}}}
 
 # (LOGNAND x y), wenn x, y Integers sind.
 # Ergebnis Integer.
@@ -227,9 +231,10 @@
           { var uintD* yptr; I_to_DS_n(y,n,yptr=); # Pointer in DS zu y
            {var uintD* zptr = xptr; # Pointer aufs Ergebnis
             nand_loop_up(xptr,yptr,n); # mit NOT AND verknüpfen
-            RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-            return DS_to_I(zptr,n); # Ergebnis als Integer
-    }   }}}}
+            {var object result = DS_to_I(zptr,n); # Ergebnis als Integer
+             RESTORE_NUM_STACK # num_stack zurück
+             return result;
+    }   }}}}}
 
 # (LOGNOR x y), wenn x, y Integers sind.
 # Ergebnis Integer.
@@ -253,9 +258,10 @@
           { var uintD* yptr; I_to_DS_n(y,n,yptr=); # Pointer in DS zu y
            {var uintD* zptr = xptr; # Pointer aufs Ergebnis
             nor_loop_up(xptr,yptr,n); # mit NOT OR verknüpfen
-            RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-            return DS_to_I(zptr,n); # Ergebnis als Integer
-    }   }}}}
+            {var object result = DS_to_I(zptr,n); # Ergebnis als Integer
+             RESTORE_NUM_STACK # num_stack zurück
+             return result;
+    }   }}}}}
 
 # (LOGANDC2 x y), wenn x, y Integers sind.
 # Ergebnis Integer.
@@ -286,9 +292,10 @@
           { var uintD* yptr; I_to_DS_n(y,n,yptr=); # Pointer in DS zu y
            {var uintD* zptr = xptr; # Pointer aufs Ergebnis
             andc2_loop_up(xptr,yptr,n); # mit AND NOT verknüpfen
-            RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-            return DS_to_I(zptr,n); # Ergebnis als Integer
-    }   }}}}
+            {var object result = DS_to_I(zptr,n); # Ergebnis als Integer
+             RESTORE_NUM_STACK # num_stack zurück
+             return result;
+    }   }}}}}
 
 # (LOGANDC1 x y), wenn x, y Integers sind.
 # Ergebnis Integer.
@@ -327,9 +334,10 @@
           { var uintD* yptr; I_to_DS_n(y,n,yptr=); # Pointer in DS zu y
            {var uintD* zptr = xptr; # Pointer aufs Ergebnis
             orc2_loop_up(xptr,yptr,n); # mit OR NOT verknüpfen
-            RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-            return DS_to_I(zptr,n); # Ergebnis als Integer
-    }   }}}}
+            {var object result = DS_to_I(zptr,n); # Ergebnis als Integer
+             RESTORE_NUM_STACK # num_stack zurück
+             return result;
+    }   }}}}}
 
 # (LOGORC1 x y), wenn x, y Integers sind.
 # Ergebnis Integer.
@@ -366,9 +374,10 @@
                           # wegen n>0 wird auch das Vorzeichenbit umgedreht
           # MSDptr/n/LSDptr ist immer noch eine NDS, da n>=bn_minlength
           # und die ersten intDsize+1 Bit nicht alle gleich sind.
-          RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-          return NDS_to_I(MSDptr,n); # Ergebnis als Integer
-    }   }
+         {var object result = NDS_to_I(MSDptr,n); # Ergebnis als Integer
+          RESTORE_NUM_STACK # num_stack zurück
+          return result;
+    }   }}
 
 # Konstanten für BOOLE:
 # Bit-wert in 'integer1' + 2 * Bit-wert in 'integer2' = k
@@ -675,6 +684,7 @@
       RESTORE_NUM_STACK # num_stack zurück
       return x;
       badamount:
+        RESTORE_NUM_STACK # num_stack zurück
         pushSTACK(y); pushSTACK(S(ash));
         fehler(arithmetic_error,
                GETTEXT("~: too large shift amount ~")
