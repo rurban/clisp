@@ -1,5 +1,10 @@
 2002-11-15  Sam Steingold  <sds@gnu.org>
 
+	* loop.lisp (expand-loop): fixed a bug: package argument for
+	symbol iteration is not required and defaults to *PACKAGE*
+
+2002-11-15  Sam Steingold  <sds@gnu.org>
+
 	replaced subr_self with back_trace
 	* lispbibl.d, genclisph.d, spvw.d: (backtrace_t): new struct
 	(*back_trace_reg*): renamed from *subr_self_reg*
