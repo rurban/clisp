@@ -16,7 +16,8 @@ CCMP2C = ../../ccmp2c
 COMMENT5 = ../../comment5
 ANSIDECL = ../../ansidecl
 RM = rm -f
-WANTS = -DWANT_XSHAPE=1 -DWANT_XPM=1
+WANTS = @WANTS@
+X_CFLAGS = @X_CFLAGS@
 
 all : clx.fas image.fas clx.o
 
@@ -46,7 +47,7 @@ clx.c: clx.d
 	$(COMMENT5) clx.d | $(ANSIDECL) > clx.c
 
 clx.o: clx.c
-	$(CC) $(CFLAGS) -I$(INCLUDES) -c clx.c
+	$(CC) $(CFLAGS) $(X_CFLAGS) -I$(INCLUDES) -c clx.c
 
 # Make a module
 clisp-module : clx.fas image.fas clx.o
