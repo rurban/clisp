@@ -788,8 +788,13 @@ local Values do_allocate_instance (object clas) {
      allocate-instance: Is (class-shared-slots class) a vector or NIL, or
      is (class-names class) a cons? */
   if (matomp(TheClass(clas)->shared_slots)) { /* <standard-class>. */
+    pushSTACK(clas); /* save for ALLOCATE-STD-INSTANCE */
+    if (nullp(TheClass(clas)->precedence_list)) { /* finalize */
+      pushSTACK(clas); pushSTACK(T);
+      funcall(S(class_finalize),2);
+    }
     /* (CLOS::ALLOCATE-STD-INSTANCE class (class-instance-size class)) */
-    pushSTACK(clas); pushSTACK(TheClass(clas)->instance_size);
+    pushSTACK(TheClass(clas)->instance_size);
     C_allocate_std_instance();
   } else { /* <structure-class>. */
     /* (SYS::%MAKE-STRUCTURE (class-names class) (class-instance-size class))*/
@@ -1398,6 +1403,11 @@ LISPFUN(pmake_instance,seclass_default,1,0,rest,nokey,0,NIL) {
   /* stack layout: class, argcount Initarg/Value-pairs. */
   { /* add default-initargs: */
     var object clas = Before(rest_args_pointer);
+    if (nullp(TheClass(clas)->precedence_list)) { /* finalize */
+      pushSTACK(clas); pushSTACK(T);
+      funcall(S(class_finalize),2);
+      clas = Before(rest_args_pointer);
+    }
     var object l = TheClass(clas)->default_initargs;
     while (consp(l)) {
       var object default_initarg = Car(l);

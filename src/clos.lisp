@@ -83,7 +83,7 @@
    standard-object structure-object
    generic-function standard-generic-function method standard-method
    ;; MOP -- _NOT_ in init.lisp!
-   class-prototype
+   class-prototype class-finalized-p finalize-inheritance
    ;; other symbols:
    standard)) ; method combination
 
@@ -470,18 +470,18 @@
       (TEXT "~S: class name ~S should be a symbol")
       'defclass name))
   (let* ((superclass-forms
-           (progn
-             (unless (listp superclass-specs)
-               (error-of-type 'sys::source-program-error
-                 (TEXT "~S ~S: expecting list of superclasses instead of ~S")
-                 'defclass name superclass-specs))
-             (mapcar #'(lambda (superclass)
-                         (unless (symbolp superclass)
-                           (error-of-type 'sys::source-program-error
-                             (TEXT "~S ~S: superclass name ~S should be a symbol")
-                             'defclass name superclass))
-                         `(FIND-CLASS ',superclass))
-                     superclass-specs)))
+          (progn
+            (unless (listp superclass-specs)
+              (error-of-type 'sys::source-program-error
+                (TEXT "~S ~S: expecting list of superclasses instead of ~S")
+                'defclass name superclass-specs))
+            (mapcar (lambda (superclass)
+                      (unless (symbolp superclass)
+                        (error-of-type 'sys::source-program-error
+                          (TEXT "~S ~S: superclass name ~S should be a symbol")
+                          'defclass name superclass))
+                      `(or (FIND-CLASS ',superclass nil) ',superclass))
+                    superclass-specs)))
          (accessor-def-forms '())
          (slot-forms
            (let ((slot-names '()))
@@ -730,6 +730,29 @@
           (set-difference (class-slots new-class)
                           (class-slots old-class)
                           :test #'eq :key #'slotdef-name)))
+
+;; try to finalize the class, return the finalized class object on success
+;; or nil when the class could not yet be finalized;
+;; when force-p is non-nil, signal an error when finalization is impossible
+(defvar *finalizing-now* nil) ; the stack of classed being finalized now
+(defun class-finalize (class &optional force-p)
+  (when (or (class-p class) (setq class (find-class class force-p)))
+    (if (class-precedence-list class) class
+      (do ((*finalizing-now*
+            (if (memq class *finalizing-now*)
+              (error-of-type 'sys::source-program-error
+                (TEXT "~S: class definition circularity: ~S depends on itself")
+                'defclass class)
+              (cons class *finalizing-now*)))
+           (cds (class-direct-superclasses class) (cdr cds)) (ready t))
+          ((or (not ready) (endp cds))
+           ;; if FORCE-P was non-NIL, then READY is T, otherwise
+           ;; an error has been signaled already
+           (when ready
+             ;; BUILT-IN-CLASS and STRUCTURE-CLASS are already finalized
+             (finalize-instance-standard-class class)))
+        (let ((fin (class-finalize (car cds) force-p)))
+          (if fin (setf (car cds) fin) (setq ready nil)))))))
 (defun ensure-class (name &rest all-keys
                           &key (metaclass <standard-class>)
                                (direct-superclasses '())
@@ -740,7 +763,7 @@
   ;; store new documentation:
   (when documentation (sys::%set-documentation name 'TYPE documentation))
   (let ((class (find-class name nil)))
-    (if class
+    (if (and class (class-precedence-list class))
       ;; trivial changes (that can occur when doubly loading the same code)
       ;; do not require updating the instances:
       ;; changed slot-options :initform, :documentation,
@@ -855,18 +878,25 @@
   (let ((class (make-standard-class :classname name :metaclass metaclass)))
     (apply #'initialize-instance-standard-class class args)))
 (defun initialize-instance-standard-class
-    (class &key name (direct-superclasses '()) (direct-slots '())
+    (class &key (direct-superclasses '()) (direct-slots '())
      (direct-default-initargs '()) &allow-other-keys)
+  (setf (class-direct-superclasses class) (copy-list direct-superclasses))
+  (setf (class-direct-slots class) direct-slots)
+  (setf (class-direct-default-initargs class) direct-default-initargs)
+  (setf (class-precedence-list class) nil)
+  (class-finalize class nil)
+  class)
+(defun finalize-instance-standard-class
+    (class &aux (direct-superclasses (class-direct-superclasses class))
+     (name (class-name class)))
   ;; metaclass <= <standard-class>
   (check-metaclass-mix name direct-superclasses
                        #'standard-class-p 'STANDARD-CLASS)
-  (setf (class-direct-superclasses class) (copy-list direct-superclasses))
   (setf (class-precedence-list class)
         (std-compute-cpl class
           (add-default-superclass direct-superclasses <standard-object>)))
   (setf (class-all-superclasses class)
         (std-compute-superclasses (class-precedence-list class)))
-  (setf (class-direct-slots class) direct-slots)
   (setf (class-slots class) (std-compute-slots class))
   (setf (class-slot-location-table class) (make-hash-table :test #'eq))
   (dolist (cl direct-superclasses)
@@ -887,7 +917,6 @@
                           (incf i)))
                     (class-slots class))
               v))))
-  (setf (class-direct-default-initargs class) direct-default-initargs)
   (setf (class-default-initargs class) ; 28.1.3.3.
         (remove-duplicates
           (mapcan
@@ -1218,7 +1247,7 @@
           (add-default-superclass
             (add-default-superclass direct-superclasses
                                     <structure-object>)
-                                    <t>)))
+            <t>)))
   (setf (class-all-superclasses class)
         (std-compute-superclasses (class-precedence-list class)))
   ;; When called via ENSURE-CLASS, we have to do inheritance of slots.
@@ -3120,7 +3149,16 @@
                 `(find-class ',(class-classname object)))
                :stream stream)
         (print-unreadable-object (object stream :type t)
-          (write (class-classname object) :stream stream))))
+          (write (class-classname object) :stream stream)
+          (when (standard-class-p object)
+            (unless (class-precedence-list object)
+              (write-string " " stream)
+              (write :incomplete :stream stream))
+            (when (and (slot-boundp object 'id) (/= 0 (class-id object)))
+              (write-string " " stream)
+              (write :version :stream stream)
+              (write-string " " stream)
+              (write (class-id object) :stream stream))))))
   (:method ((object standard-method) stream)
     (print-std-method object stream)))
 
@@ -3452,6 +3490,7 @@
 #||
  (defgeneric allocate-instance (class)
   (:method ((class standard-class))
+    (unless (class-precedence-list class) (class-finalize class t))
     (allocate-std-instance class (class-instance-size class)))
   (:method ((class structure-class))
     (sys::%make-structure (class-names class) (class-instance-size class)
@@ -3463,7 +3502,8 @@
   ;; Quick and dirty dispatch among <standard-class> and <structure-class>.
   ;; (class-shared-slots class) is a simple-vector, (class-names class) a cons.
   (if (atom (class-shared-slots class))
-    (allocate-std-instance class (class-instance-size class))
+    (progn (unless (class-precedence-list class) (class-finalize class t))
+      (allocate-std-instance class (class-instance-size class)))
     (sys::%make-structure (class-names class) (class-instance-size class)
                           :initial-element unbound)))
 ||#
@@ -3649,8 +3689,14 @@
   (:method ((class standard-class))
     (or (class-proto class)
         (setf (class-proto class) (clos::%allocate-instance class))))
-  (:method ((name symbol))
-    (class-prototype (find-class name))))
+  (:method ((name symbol)) (class-prototype (find-class name))))
+;;; class finalization (MOP)
+(defgeneric class-finalized-p (class)
+  (:method ((class standard-class)) (not (null (class-precedence-list class))))
+  (:method ((name symbol)) (class-finalized-p (find-class name))))
+(defgeneric finalize-inheritance (class)
+  (:method ((class standard-class)) (class-finalize class t))
+  (:method ((name symbol)) (finalize-inheritance (find-class name))))
 
 ;;; Utility functions
 
