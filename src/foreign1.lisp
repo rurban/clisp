@@ -14,7 +14,7 @@
 (export '(def-c-type def-c-var parse-c-type deparse-c-type
           def-c-call-out def-call-out #+AMIGA def-lib-call-out
           def-c-call-in def-call-in default-foreign-language
-          c-lines
+          c-lines *output-c-functions* *output-c-variables*
           nil boolean character char uchar short ushort int uint long ulong
           uint8 sint8 uint16 sint16 uint32 sint32 uint64 sint64
           single-float double-float
@@ -604,6 +604,9 @@
              (t (error (TEXT "illegal foreign data type ~S")
                        c-type))))))))
 
+(defvar *output-c-functions* nil)
+(defvar *output-c-variables* nil)
+
 (defun prepare-module ()
   (unless *ffi-module*
     (setq *ffi-module*
@@ -641,28 +644,30 @@
     (setq *variable-list*
           (nreverse (delete-duplicates
                      *variable-list* :key #'first :test #'equal)))
-    (dolist (variable *variable-list*)
-      ;;(prepare-c-typedecl (second variable))
-      (format *coutput-stream* "extern ~A;~%"
-              (to-c-typedecl (second variable) (first variable))))
+    (when *output-c-variables*
+      (dolist (variable *variable-list*)
+        ;;(prepare-c-typedecl (second variable))
+        (format *coutput-stream* "extern ~A;~%"
+                (to-c-typedecl (second variable) (first variable)))))
     (setq *function-list*
           (nreverse (delete-duplicates
                      *function-list* :key #'first :test #'equal)))
-    (dolist (function *function-list*)
-      ;;(prepare-c-typedecl (svref (second function) 1))
-      (format *coutput-stream* "extern ~A"
-              (to-c-typedecl (svref (second function) 1)
-                             (format nil "(~A)(" (first function))))
-      (when (third function)    ; built-in, requires full arglist
-        (do* ((parameters (svref (second function) 2))
-              (length (length parameters)) (i 0 (+ 2 i))
-              (parameter (svref parameters i)))
-             ((>= i length))
-          (unless (zerop i)
-            (write-string ", " *coutput-stream*))
-          (write-string (to-c-typedecl parameter "")
-                        *coutput-stream*)))
-      (format *coutput-stream* ");~%"))
+    (when *output-c-functions*
+      (dolist (function *function-list*)
+        ;;(prepare-c-typedecl (svref (second function) 1))
+        (format *coutput-stream* "extern ~A"
+                (to-c-typedecl (svref (second function) 1)
+                               (format nil "(~A)(" (first function))))
+        (when (third function)    ; built-in, requires full arglist
+          (do* ((parameters (svref (second function) 2))
+                (length (length parameters)) (i 0 (+ 2 i))
+                (parameter (svref parameters i)))
+               ((>= i length))
+            (unless (zerop i)
+              (write-string ", " *coutput-stream*))
+            (write-string (to-c-typedecl parameter "")
+                          *coutput-stream*)))
+        (format *coutput-stream* ");~%")))
     (format *coutput-stream*
             "~%void module__~A__init_function_1 (module_t* module)~%{ }~2%~
             void module__~A__init_function_2 (module_t* module)~%{~%"
