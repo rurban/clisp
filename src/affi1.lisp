@@ -3,25 +3,17 @@
 
 (in-package "SYSTEM")
 
-#| ;; This should work, really!
 (defpackage "AFFI"
   (:import-from "SYSTEM"
-    sys::mem-read sys::mem-write sys::mem-write-vector sys::nzero-pointer-p
-) )
-|#
+                sys::mem-read sys::mem-write sys::mem-write-vector
+                sys::nzero-pointer-p)
+  (:export "DECLARE-LIBRARY-BASE" "REQUIRE-LIBRARY-FUNCTIONS"
+           "OPEN-LIBRARY" "CLOSE-LIBRARY" "WITH-OPEN-LIBRARY"
+           "DEFFLIBFUN" "DECLARE-LIBRARY-FUNCTION" "FLIBCALL" "MLIBCALL"
+           "NZERO-POINTER-P" "MEM-READ" "MEM-WRITE" "MEM-WRITE-VECTOR"
+           #+UNICODE "*FOREIGN-ENCODING*"))
 
 (in-package "AFFI")
-
-(eval-when (eval load compile)
-  (dolist (symbol '("MEM-READ" "MEM-WRITE" "MEM-WRITE-VECTOR" "NZERO-POINTER-P"))
-    (import (intern symbol "SYSTEM"))))
-
-(export '(declare-library-base require-library-functions
-          open-library close-library with-open-library
-          defflibfun declare-library-function flibcall mlibcall
-          nzero-pointer-p mem-read mem-write mem-write-vector
-          #+UNICODE *foreign-encoding*
-)        )
 
 ;; The libraries a-list associates the symbol used to denote the library
 ;; (e.g. SysBase for exec.library) with an opencount and the OS name (as a
