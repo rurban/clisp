@@ -3828,7 +3828,7 @@ T
   (foo115 3 4))
 (3 4)
 
-#¦
+#|
 ;; Check that invalid print-object methods yield a warning.
 (progn
   (defclass foo128 () ())
