@@ -157,46 +157,48 @@
   #define wr_ch(strm)  (*(wr_ch_Pseudofun)(ThePseudofun(TheStream(strm)->strm_wr_ch)))
   #define wr_ss(strm)  (*(wr_ss_Pseudofun)(ThePseudofun(TheStream(strm)->strm_wr_ss)))
 
-#  Mögliche Typen von Streams                 Zusatzkomponenten
-#  --------------------------                 -----------------
-#  1. Keyboard-Stream
-#  2. Interaktiver Terminalstream             Eingabebuffer, Zeichenzähler
-#  3. File-Stream für Characters              Handle, Pathname, File-Position,
-#     (Input, Output, I/O, Closed=Probe)      Buffer
-#  4. File-Stream für Unsigned-Bytes          Handle, Pathname, File-Position,
-#     (Input, Output, I/O, Closed=Probe)      Buffer, Bit-Buffer
-#  5. File-Stream für Signed-Bytes            Handle, Pathname, File-Position,
-#     (Input, Output, I/O, Closed=Probe)      Buffer, Bit-Buffer
-#  6. Synonym-Stream                          Symbol
-#  7. Broadcast-(Output-)Stream               Liste von Streams
-#  8. Concatenated-(Input-)Stream             Liste von Streams
-#  9. Two-Way-Stream                          Stream für Input, Stream für Output
-# 10. Echo-Stream                             Stream für Input, Stream für Output
-# 11. String-Input-Stream                     Gesamtstring, Zeichenzähler
-# 12. String-Output-Stream                    Buffer (Semi-Simple-String)
-# 13. String-Push-Stream                      String mit Fill-Pointer
-# 14. Pretty-Printer-Hilfs-Stream             Liste von Buffers, Modus
-# 15. Buffered-Input-Stream                   fun, mode, String, Zeichenzähler
-# 16. Buffered-Output-Stream                  fun, Buffer (Semi-Simple-String)
-# 17. Window-Stream                           ---
+#  Mögliche Typen von Streams              Zusatzkomponenten
+#  --------------------------              -----------------
+#
+#  Synonym-Stream                          Symbol
+#  Broadcast-(Output-)Stream               Liste von Streams
+#  Concatenated-(Input-)Stream             Liste von Streams
+#  Two-Way-Stream                          Stream für Input, Stream für Output
+#  Echo-Stream                             Stream für Input, Stream für Output
+#  String-Input-Stream                     Gesamtstring, Zeichenzähler
+#  String-Output-Stream                    Buffer (Semi-Simple-String)
+#  String-Push-Stream                      String mit Fill-Pointer
+#  Pretty-Printer-Hilfs-Stream             Liste von Buffers, Modus
+#  Buffered-Input-Stream                   fun, mode, String, Zeichenzähler
+#  Buffered-Output-Stream                  fun, Buffer (Semi-Simple-String)
+#ifdef GENERIC_STREAMS
+#  Generic-Stream                          Private Controller Object
+#endif
+#
+#  Keyboard-Stream
+#  Interaktiver Terminalstream             Eingabebuffer, Zeichenzähler
+#  File-Stream für Characters              Handle, Pathname, File-Position,
+#  (Input, Output, I/O, Closed=Probe)      Buffer
+#  File-Stream für Unsigned-Bytes          Handle, Pathname, File-Position,
+#  (Input, Output, I/O, Closed=Probe)      Buffer, Bit-Buffer
+#  File-Stream für Signed-Bytes            Handle, Pathname, File-Position,
+#  (Input, Output, I/O, Closed=Probe)      Buffer, Bit-Buffer
+#  Window-Stream                           ---
 #ifdef PRINTER
-# 18. Printer-Stream
+#  Printer-Stream
 #endif
 #ifdef HANDLES
-# 19. File-Handle-Stream                      Handle, Pathname
+#  File-Handle-Stream                      Handle, Pathname
 #endif
 #ifdef PIPES
-# 20. Pipe-Input-Stream                       Pid, Handle
-# 21. Pipe-Output-Stream                      Pid, Handle
+#  Pipe-Input-Stream                       Pid, Handle
+#  Pipe-Output-Stream                      Pid, Handle
 #endif
 #ifdef X11SOCKETS
-# 22. X11-Socket-Stream                       Info, Handle
+#  X11-Socket-Stream                       Info, Handle
 #endif
 #ifdef SOCKET_STREAMS
-# 23. Socket-Stream                           Host, Port
-#endif
-#ifdef GENERIC_STREAMS
-# 24. Generic-Stream                          Private Controller Object
+#  Socket-Stream                           Host, Port
 #endif
 
 # Zusätzlich wird (sicherheitshalber) eine Liste aller offenen File-Streams
@@ -533,7 +535,6 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     mv_count=1;
   }
 
-#if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
 # Fehler, wenn aus einem obskuren Grunde ein WRITE nicht gehen sollte:
   nonreturning_function(local, fehler_unwritable, (object caller, object stream));
   local void fehler_unwritable(caller,stream)
@@ -549,7 +550,6 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
              ""
             );
     }
-#endif
 
 # Fehler, wenn ein Objekt kein Character ist:
 # fehler_wr_char(stream,obj);
@@ -691,6 +691,1851 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
         });                                          \
     }
 
+
+# Synonym-Stream
+# ==============
+
+# Zusätzliche Komponenten:
+  # define strm_synonym_symbol  strm_other[0]  # Symbol, auf dessen Wert verwiesen wird
+
+# Macro: Liefert den Wert eines Symbols, ein Stream.
+# get_synonym_stream(sym)
+# > sym: Symbol
+# < ergebnis: sein Wert, ein Stream
+  #define get_synonym_stream(sym)  \
+    ((!streamp(Symbol_value(sym))) ?         \
+       (fehler_value_stream(sym), unbound) : \
+       Symbol_value(sym)                     \
+    )
+
+# READ-BYTE - Pseudofunktion für Synonym-Streams:
+  local object rd_by_synonym (object stream);
+  local object rd_by_synonym(stream)
+    var object stream;
+    { check_SP();
+     {var object symbol = TheStream(stream)->strm_synonym_symbol;
+      return read_byte(get_synonym_stream(symbol));
+    }}
+
+# WRITE-BYTE - Pseudofunktion für Synonym-Streams:
+  local void wr_by_synonym (object stream, object obj);
+  local void wr_by_synonym(stream,obj)
+    var object stream;
+    var object obj;
+    { check_SP();
+     {var object symbol = TheStream(stream)->strm_synonym_symbol;
+      write_byte(get_synonym_stream(symbol),obj);
+    }}
+
+# READ-CHAR - Pseudofunktion für Synonym-Streams:
+  local object rd_ch_synonym (const object* stream_);
+  local object rd_ch_synonym(stream_)
+    var const object* stream_;
+    {  check_SP(); check_STACK();
+     { var object stream = *stream_;
+       var object symbol = TheStream(stream)->strm_synonym_symbol;
+       pushSTACK(get_synonym_stream(symbol));
+      {var object ergebnis = read_char(&STACK_0);
+       skipSTACK(1);
+       return ergebnis;
+    }}}
+
+# PEEK-CHAR - Pseudofunktion für Synonym-Streams:
+  local object pk_ch_synonym (const object* stream_);
+  local object pk_ch_synonym(stream_)
+    var const object* stream_;
+    {  check_SP(); check_STACK();
+     { var object stream = *stream_;
+       var object symbol = TheStream(stream)->strm_synonym_symbol;
+       pushSTACK(get_synonym_stream(symbol));
+      {var object ergebnis = peek_char(&STACK_0);
+       skipSTACK(1);
+       return ergebnis;
+    }}}
+
+# WRITE-CHAR - Pseudofunktion für Synonym-Streams:
+  local void wr_ch_synonym (const object* stream_, object obj);
+  local void wr_ch_synonym(stream_,obj)
+    var const object* stream_;
+    var object obj;
+    { check_SP(); check_STACK();
+     {var object stream = *stream_;
+      var object symbol = TheStream(stream)->strm_synonym_symbol;
+      pushSTACK(get_synonym_stream(symbol));
+      write_char(&STACK_0,obj);
+      skipSTACK(1);
+    }}
+
+# WRITE-SIMPLE-STRING - Pseudofunktion für Synonym-Streams:
+  local void wr_ss_synonym (const object* stream_, object string, uintL start, uintL len);
+  local void wr_ss_synonym(stream_,string,start,len)
+    var const object* stream_;
+    var object string;
+    var uintL start;
+    var uintL len;
+    { check_SP(); check_STACK();
+     {var object symbol = TheStream(*stream_)->strm_synonym_symbol;
+      pushSTACK(get_synonym_stream(symbol));
+      wr_ss(STACK_0)(&STACK_0,string,start,len);
+      skipSTACK(1);
+      # Line-Position aktualisieren kann hier entfallen.
+    }}
+
+# Schließt einen Synonym-Stream.
+# close_synonym(stream);
+# > stream : Synonym-Stream
+#ifdef X3J13_014
+  #define close_synonym(stream)
+#else
+  local void close_synonym (object stream);
+  local void close_synonym(stream)
+    var object stream;
+    { check_SP(); check_STACK();
+     {var object symbol = TheStream(stream)->strm_synonym_symbol;
+      pushSTACK(get_synonym_stream(symbol));
+      stream_close(&STACK_0);
+      skipSTACK(1);
+    }}
+#endif
+
+# Stellt fest, ob ein Synonym-Stream ein Zeichen verfügbar hat.
+# listen_synonym(stream)
+# > stream : Synonym-Stream
+# < ergebnis:  0 falls Zeichen verfügbar,
+#             -1 falls bei EOF angelangt,
+#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# kann GC auslösen
+  local signean listen_synonym (object stream);
+  local signean listen_synonym(stream)
+    var object stream;
+    { check_SP();
+     {var object symbol = TheStream(stream)->strm_synonym_symbol;
+      return stream_listen(get_synonym_stream(symbol));
+    }}
+
+# UP: Löscht bereits eingegebenen interaktiven Input von einem Synonym-Stream.
+# clear_input_synonym(stream)
+# > stream: Synonym-Stream
+# < ergebnis: TRUE falls Input gelöscht wurde
+# kann GC auslösen
+  local boolean clear_input_synonym (object stream);
+  local boolean clear_input_synonym(stream)
+    var object stream;
+    { check_SP();
+     {var object symbol = TheStream(stream)->strm_synonym_symbol;
+      return clear_input(get_synonym_stream(symbol));
+    }}
+
+# UP: Wartenden Output eines Synonym-Stream ans Ziel bringen.
+# finish_output_synonym(stream);
+# > stream: Synonym-Stream
+# kann GC auslösen
+  local void finish_output_synonym (object stream);
+  local void finish_output_synonym(stream)
+    var object stream;
+    { check_SP();
+     {var object symbol = TheStream(stream)->strm_synonym_symbol;
+      finish_output(get_synonym_stream(symbol));
+    }}
+
+# UP: Wartenden Output eines Synonym-Stream ans Ziel bringen.
+# force_output_synonym(stream);
+# > stream: Synonym-Stream
+# kann GC auslösen
+  local void force_output_synonym (object stream);
+  local void force_output_synonym(stream)
+    var object stream;
+    { check_SP();
+     {var object symbol = TheStream(stream)->strm_synonym_symbol;
+      force_output(get_synonym_stream(symbol));
+    }}
+
+# UP: Löscht den wartenden Output eines Synonym-Stream.
+# clear_output_synonym(stream);
+# > stream: Synonym-Stream
+# kann GC auslösen
+  local void clear_output_synonym (object stream);
+  local void clear_output_synonym(stream)
+    var object stream;
+    { check_SP();
+     {var object symbol = TheStream(stream)->strm_synonym_symbol;
+      clear_output(get_synonym_stream(symbol));
+    }}
+
+# Liefert einen Synonym-Stream zu einem Symbol.
+# make_synonym_stream(symbol)
+# > symbol : Symbol
+# < ergebnis : neuer Synonym-Stream
+# kann GC auslösen
+  local object make_synonym_stream (object symbol);
+  local object make_synonym_stream(symbol)
+    var object symbol;
+    { pushSTACK(symbol); # Symbol retten
+     {var object stream = # neuer Stream, alle Operationen erlaubt
+        allocate_stream(strmflags_open_B,strmtype_synonym,strm_len+1,0);
+      TheStream(stream)->strm_rd_by = P(rd_by_synonym);
+      TheStream(stream)->strm_wr_by = P(wr_by_synonym);
+      TheStream(stream)->strm_rd_ch = P(rd_ch_synonym);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_synonym);
+      TheStream(stream)->strm_rd_ch_last = NIL;
+      TheStream(stream)->strm_wr_ch = P(wr_ch_synonym);
+      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
+      TheStream(stream)->strm_wr_ss = P(wr_ss_synonym);
+      TheStream(stream)->strm_synonym_symbol = popSTACK();
+      return stream;
+    }}
+
+LISPFUNN(make_synonym_stream,1)
+# (MAKE-SYNONYM-STREAM symbol), CLTL S. 329
+  { var object arg = popSTACK();
+    if (!symbolp(arg))
+      { pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
+        pushSTACK(S(symbol)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
+        fehler(type_error,
+               DEUTSCH ? "~: Argument muss ein Symbol sein, nicht ~" :
+               ENGLISH ? "~: argument should be a symbol, not ~" :
+               FRANCAIS ? "~ : L'argument doit être un symbole et non ~":
+               ""
+              );
+      }
+    value1 = make_synonym_stream(arg); mv_count=1;
+  }
+
+LISPFUNN(synonym_stream_p,1)
+# (SYS::SYNONYM-STREAM-P stream) == (TYPEP stream 'SYNONYM-STREAM)
+  { var object arg = popSTACK();
+    value1 = (streamp(arg) && (TheStream(arg)->strmtype == strmtype_synonym)
+              ? T
+              : NIL
+             );
+    mv_count=1;
+  }
+
+LISPFUNN(synonym_stream_symbol,1)
+# (SYNONYM-STREAM-SYMBOL stream), CLtL2 S. 507
+  { var object stream = popSTACK();
+    if (!streamp(stream)) { fehler_stream(stream); }
+    if (!(TheStream(stream)->strmtype == strmtype_synonym))
+      { fehler_streamtype(stream,S(synonym_stream)); }
+    value1 = TheStream(stream)->strm_synonym_symbol; mv_count=1;
+  }
+
+
+# Broadcast-Stream
+# ================
+
+# Zusätzliche Komponenten:
+  # define strm_broad_list  strm_other[0] # Liste von Streams
+
+# WRITE-BYTE - Pseudofunktion für Broadcast-Streams:
+  local void wr_by_broad (object stream, object obj);
+  local void wr_by_broad(stream,obj)
+    var object stream;
+    var object obj;
+    { check_SP(); check_STACK();
+      pushSTACK(obj);
+      { var object streamlist = TheStream(stream)->strm_broad_list; # Liste von Streams
+        # obj auf jeden Stream aus der Liste ausgeben:
+        while (consp(streamlist))
+          { pushSTACK(Cdr(streamlist)); # restliche Streams
+            write_byte(Car(streamlist),STACK_1); # obj ausgeben
+            streamlist = popSTACK();
+      }   }
+      skipSTACK(1);
+    }
+
+# WRITE-CHAR - Pseudofunktion für Broadcast-Streams:
+  local void wr_ch_broad (const object* stream_, object obj);
+  local void wr_ch_broad(stream_,obj)
+    var const object* stream_;
+    var object obj;
+    { check_SP(); check_STACK();
+      pushSTACK(obj);
+      pushSTACK(NIL); # dummy
+      pushSTACK(TheStream(*stream_)->strm_broad_list); # Liste von Streams
+      # obj auf jeden Stream aus der Liste ausgeben:
+      while (mconsp(STACK_0))
+        { # Stackaufbau: obj, dummy, streamlistr.
+          STACK_1 = Car(STACK_0); # ein Stream aus der Liste
+          write_char(&STACK_1,STACK_2); # obj ausgeben
+          STACK_0 = Cdr(STACK_0);
+        }
+      skipSTACK(3);
+    }
+
+# WRITE-CHAR - Pseudofunktion für Broadcast-Streams:
+  local void wr_ss_broad (const object* stream_, object string, uintL start, uintL len);
+  local void wr_ss_broad(stream_,string,start,len)
+    var const object* stream_;
+    var object string;
+    var uintL start;
+    var uintL len;
+    { check_SP(); check_STACK();
+      pushSTACK(string);
+      pushSTACK(NIL); # dummy
+      pushSTACK(TheStream(*stream_)->strm_broad_list); # Liste von Streams
+      # string auf jeden Stream aus der Liste ausgeben:
+      while (mconsp(STACK_0))
+        { # Stackaufbau: string, dummy, streamlistr.
+          STACK_1 = Car(STACK_0); # ein Stream aus der Liste
+          wr_ss(STACK_1)(&STACK_1,STACK_2,start,len); # string-Stück ausgeben
+          STACK_0 = Cdr(STACK_0);
+        }
+      skipSTACK(3);
+      # Line-Position aktualisieren kann hier entfallen.
+    }
+
+# UP: Bringt den wartenden Output eines Broadcast-Stream ans Ziel.
+# finish_output_broad(stream);
+# > stream: Broadcast-Stream
+# kann GC auslösen
+  local void finish_output_broad (object stream);
+  local void finish_output_broad(stream)
+    var object stream;
+    { check_SP(); check_STACK();
+      { var object streamlist = TheStream(stream)->strm_broad_list; # Liste von Streams
+        # Jeden Stream aus der Liste einzeln behandeln:
+        while (consp(streamlist))
+          { pushSTACK(Cdr(streamlist)); # restliche Streams
+            finish_output(Car(streamlist));
+            streamlist = popSTACK();
+      }   }
+    }
+
+# UP: Bringt den wartenden Output eines Broadcast-Stream ans Ziel.
+# force_output_broad(stream);
+# > stream: Broadcast-Stream
+# kann GC auslösen
+  local void force_output_broad (object stream);
+  local void force_output_broad(stream)
+    var object stream;
+    { check_SP(); check_STACK();
+      { var object streamlist = TheStream(stream)->strm_broad_list; # Liste von Streams
+        # Jeden Stream aus der Liste einzeln behandeln:
+        while (consp(streamlist))
+          { pushSTACK(Cdr(streamlist)); # restliche Streams
+            force_output(Car(streamlist));
+            streamlist = popSTACK();
+      }   }
+    }
+
+# UP: Löscht den wartenden Output eines Broadcast-Stream.
+# clear_output_broad(stream);
+# > stream: Broadcast-Stream
+# kann GC auslösen
+  local void clear_output_broad (object stream);
+  local void clear_output_broad(stream)
+    var object stream;
+    { check_SP(); check_STACK();
+      { var object streamlist = TheStream(stream)->strm_broad_list; # Liste von Streams
+        # Jeden Stream aus der Liste einzeln behandeln:
+        while (consp(streamlist))
+          { pushSTACK(Cdr(streamlist)); # restliche Streams
+            clear_output(Car(streamlist));
+            streamlist = popSTACK();
+      }   }
+    }
+
+# Liefert einen Broadcast-Stream zu einer Streamliste.
+# make_broadcast_stream(list)
+# > list : Liste von Streams
+# < ergebnis : Broadcast-Stream
+# Die Liste list wird dabei zerstört.
+# kann GC auslösen
+  local object make_broadcast_stream (object list);
+  local object make_broadcast_stream(list)
+    var object list;
+    { pushSTACK(list); # list retten
+     {var object stream = # neuer Stream, nur WRITEs erlaubt
+        allocate_stream(strmflags_wr_B,strmtype_broad,strm_len+1,0);
+      TheStream(stream)->strm_rd_by = P(rd_by_dummy);
+      TheStream(stream)->strm_wr_by = P(wr_by_broad);
+      TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+      TheStream(stream)->strm_rd_ch_last = NIL;
+      TheStream(stream)->strm_wr_ch = P(wr_ch_broad);
+      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
+      TheStream(stream)->strm_wr_ss = P(wr_ss_broad);
+      TheStream(stream)->strm_broad_list = popSTACK();
+      return stream;
+    }}
+
+# Liefert einen Broadcast-Stream zum Stream stream.
+# make_broadcast1_stream(stream)
+# > stream : Stream
+# < ergebnis : Broadcast-Stream
+# kann GC auslösen
+  global object make_broadcast1_stream (object stream);
+  global object make_broadcast1_stream(oldstream)
+    var object oldstream;
+    {  pushSTACK(oldstream);
+       # oldstream in eine einelementige Liste packen:
+     { var object new_cons = allocate_cons();
+       Car(new_cons) = STACK_0;
+      {var object stream = make_broadcast_stream(new_cons); # neuer Stream
+       oldstream = popSTACK();
+       # Line-Position übernehmen:
+       TheStream(stream)->strm_wr_ch_lpos = TheStream(oldstream)->strm_wr_ch_lpos;
+       return stream;
+    }}}
+
+LISPFUN(make_broadcast_stream,0,0,rest,nokey,0,NIL)
+# (MAKE-BROADCAST-STREAM {stream}), CLTL S. 329
+  { # Überprüfen, ob alle Argumente Streams sind:
+    test_output_stream_args(rest_args_pointer,argcount);
+    # zu einer Liste zusammenfassen:
+   {var object list = listof(argcount);
+    # Stream bauen:
+    value1 = make_broadcast_stream(list); mv_count=1;
+  }}
+
+LISPFUNN(broadcast_stream_p,1)
+# (SYS::BROADCAST-STREAM-P stream) == (TYPEP stream 'BROADCAST-STREAM)
+  { var object arg = popSTACK();
+    value1 = (streamp(arg) && (TheStream(arg)->strmtype == strmtype_broad)
+              ? T
+              : NIL
+             );
+    mv_count=1;
+  }
+
+LISPFUNN(broadcast_stream_streams,1)
+# (BROADCAST-STREAM-STREAMS stream), CLtL2 S. 507
+  { var object stream = popSTACK();
+    if (!streamp(stream)) { fehler_stream(stream); }
+    if (!(TheStream(stream)->strmtype == strmtype_broad))
+      { fehler_streamtype(stream,S(broadcast_stream)); }
+    # Liste der Streams sicherheitshalber kopieren
+    value1 = copy_list(TheStream(stream)->strm_broad_list); mv_count=1;
+  }
+
+
+# Concatenated-Stream
+# ===================
+
+# Zusätzliche Komponenten:
+  # define strm_concat_list   strm_other[0]  # Liste von Streams
+  #define strm_concat_list2  strm_other[1]  # Liste der verbrauchten Streams
+
+# READ-BYTE - Pseudofunktion für Concatenated-Streams:
+  local object rd_by_concat (object stream);
+  local object rd_by_concat(stream)
+    var object stream;
+    { check_SP(); check_STACK();
+      pushSTACK(stream);
+     {var object streamlist = TheStream(stream)->strm_concat_list; # Liste von Streams
+      var object ergebnis;
+      while (consp(streamlist))
+        { ergebnis = read_byte(Car(streamlist)); # Integer lesen
+          if (!eq(ergebnis,eof_value)) { goto OK; } # nicht EOF ?
+          # EOF erreicht -> verbrauchten Stream aus der Liste nehmen
+          # und in die zweite Liste stecken:
+          stream = STACK_0;
+         {var object first_cons = TheStream(stream)->strm_concat_list;
+          streamlist = Cdr(first_cons);
+          Cdr(first_cons) = TheStream(stream)->strm_concat_list2;
+          TheStream(stream)->strm_concat_list2 = first_cons;
+          TheStream(stream)->strm_concat_list = streamlist;
+        }}
+      # alle Streams verbraucht -> liefere EOF:
+      ergebnis = eof_value;
+      OK: # ergebnis fertig
+      skipSTACK(1);
+      return ergebnis;
+    }}
+
+# READ-CHAR - Pseudofunktion für Concatenated-Streams:
+  local object rd_ch_concat (const object* stream_);
+  local object rd_ch_concat(stream_)
+    var const object* stream_;
+    { check_SP(); check_STACK();
+     {var object streamlist = TheStream(*stream_)->strm_concat_list; # Liste von Streams
+      while (consp(streamlist))
+        { pushSTACK(Car(streamlist));
+         {var object ergebnis = read_char(&STACK_0); # Character lesen
+          skipSTACK(1);
+          if (!eq(ergebnis,eof_value)) { return ergebnis; }
+          # EOF erreicht -> verbrauchten Stream aus der Liste nehmen
+          # und in die zweite Liste stecken:
+          {var object stream = *stream_;
+           var object first_cons = TheStream(stream)->strm_concat_list;
+           streamlist = Cdr(first_cons);
+           Cdr(first_cons) = TheStream(stream)->strm_concat_list2;
+           TheStream(stream)->strm_concat_list2 = first_cons;
+           TheStream(stream)->strm_concat_list = streamlist;
+        }}}
+      # alle Streams verbraucht -> liefere EOF:
+      return eof_value;
+    }}
+
+# PEEK-CHAR - Pseudofunktion für Concatenated-Streams:
+  local object pk_ch_concat (const object* stream_);
+  local object pk_ch_concat(stream_)
+    var const object* stream_;
+    { check_SP(); check_STACK();
+     {var object streamlist = TheStream(*stream_)->strm_concat_list; # Liste von Streams
+      while (consp(streamlist))
+        { pushSTACK(Car(streamlist));
+         {var object ergebnis = peek_char(&STACK_0); # Character lesen
+          skipSTACK(1);
+          if (!eq(ergebnis,eof_value)) { return ergebnis; }
+          # EOF erreicht -> verbrauchten Stream aus der Liste nehmen
+          # und in die zweite Liste stecken:
+          {var object stream = *stream_;
+           var object first_cons = TheStream(stream)->strm_concat_list;
+           streamlist = Cdr(first_cons);
+           Cdr(first_cons) = TheStream(stream)->strm_concat_list2;
+           TheStream(stream)->strm_concat_list2 = first_cons;
+           TheStream(stream)->strm_concat_list = streamlist;
+        }}}
+      # alle Streams verbraucht -> liefere EOF:
+      return eof_value;
+    }}
+
+# Stellt fest, ob ein Concatenated-Stream ein Zeichen verfügbar hat.
+# listen_concat(stream)
+# > stream : Concatenated-Stream
+# < ergebnis:  0 falls Zeichen verfügbar,
+#             -1 falls bei EOF angelangt,
+#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# kann GC auslösen
+  local signean listen_concat (object stream);
+  local signean listen_concat(stream)
+    var object stream;
+    { pushSTACK(stream);
+     {var object streamlist = TheStream(stream)->strm_concat_list; # Liste von Streams
+      var signean ergebnis;
+      while (consp(streamlist))
+        { ergebnis = stream_listen(Car(streamlist));
+          if (ergebnis>=0) { goto OK; } # nicht EOF ?
+          # EOF erreicht -> verbrauchten Stream aus der Liste nehmen
+          # und in die zweite Liste stecken:
+          stream = STACK_0;
+         {var object first_cons = TheStream(stream)->strm_concat_list;
+          streamlist = Cdr(first_cons);
+          Cdr(first_cons) = TheStream(stream)->strm_concat_list2;
+          TheStream(stream)->strm_concat_list2 = first_cons;
+          TheStream(stream)->strm_concat_list = streamlist;
+        }}
+      # alle Streams verbraucht -> liefere EOF:
+      ergebnis = signean_minus;
+      OK: # ergebnis fertig
+      skipSTACK(1);
+      return ergebnis;
+    }}
+
+# UP: Löscht bereits eingegebenen interaktiven Input von einem
+# Concatenated-Stream.
+# clear_input_concat(stream)
+# > stream: Concatenated-Stream
+# < ergebnis: TRUE falls Input gelöscht wurde
+# kann GC auslösen
+  local boolean clear_input_concat (object stream);
+  local boolean clear_input_concat(stream)
+    var object stream;
+    { var boolean ergebnis = FALSE; # noch kein Input gelöscht
+      # alle Streams einzeln behandeln:
+      var object streamlist = TheStream(stream)->strm_concat_list; # Liste von Streams
+      while (consp(streamlist))
+        { pushSTACK(Cdr(streamlist)); # restliche Streamliste
+          ergebnis |= clear_input(Car(streamlist)); # allen Input des Teilstreams löschen
+          streamlist = popSTACK();
+        }
+      return ergebnis;
+    }
+
+# Liefert einen Concatenated-Stream zu einer Streamliste.
+# make_concatenated_stream(list)
+# > list : Liste von Streams
+# < ergebnis : Concatenated-Stream
+# Die Liste list wird dabei zerstört.
+# kann GC auslösen
+  local object make_concatenated_stream (object list);
+  local object make_concatenated_stream(list)
+    var object list;
+    { pushSTACK(list); # list retten
+     {var object stream = # neuer Stream, nur READs erlaubt
+        allocate_stream(strmflags_rd_B,strmtype_concat,strm_len+2,0);
+      TheStream(stream)->strm_rd_by = P(rd_by_concat);
+      TheStream(stream)->strm_wr_by = P(wr_by_dummy);
+      TheStream(stream)->strm_rd_ch = P(rd_ch_concat);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_concat);
+      TheStream(stream)->strm_rd_ch_last = NIL;
+      TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
+      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
+      TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
+      TheStream(stream)->strm_concat_list = popSTACK();
+      TheStream(stream)->strm_concat_list2 = NIL;
+      return stream;
+    }}
+
+LISPFUN(make_concatenated_stream,0,0,rest,nokey,0,NIL)
+# (MAKE-CONCATENATED-STREAM {stream}), CLTL S. 329
+  { # Überprüfen, ob alle Argumente Streams sind:
+    test_input_stream_args(rest_args_pointer,argcount);
+    # zu einer Liste zusammenfassen:
+   {var object list = listof(argcount);
+    # Stream bauen:
+    value1 = make_concatenated_stream(list); mv_count=1;
+  }}
+
+LISPFUNN(concatenated_stream_p,1)
+# (SYS::CONCATENATED-STREAM-P stream) == (TYPEP stream 'CONCATENATED-STREAM)
+  { var object arg = popSTACK();
+    value1 = (streamp(arg) && (TheStream(arg)->strmtype == strmtype_concat)
+              ? T
+              : NIL
+             );
+    mv_count=1;
+  }
+
+LISPFUNN(concatenated_stream_streams,1)
+# (CONCATENATED-STREAM-STREAMS stream), CLtL2 S. 507
+  { var object stream = popSTACK();
+    if (!streamp(stream)) { fehler_stream(stream); }
+    if (!(TheStream(stream)->strmtype == strmtype_concat))
+      { fehler_streamtype(stream,S(concatenated_stream)); }
+    # Liste der Streams sicherheitshalber kopieren:
+    # (revappend list2 (copy-list list))
+    pushSTACK(TheStream(stream)->strm_concat_list);
+    pushSTACK(copy_list(TheStream(stream)->strm_concat_list2));
+    funcall(L(revappend),2);
+  }
+
+
+# Two-Way-Stream, Echo-Stream
+# ===========================
+
+# Zusätzliche Komponenten:
+  #define strm_twoway_input   strm_other[0]  # Stream für Input
+  #define strm_twoway_output  strm_other[1]  # Stream für Output
+
+# WRITE-BYTE - Pseudofunktion für Two-Way- und Echo-Streams:
+  local void wr_by_twoway (object stream, object obj);
+  local void wr_by_twoway(stream,obj)
+    var object stream;
+    var object obj;
+    { check_SP();
+      write_byte(TheStream(stream)->strm_twoway_output,obj);
+    }
+
+# WRITE-CHAR - Pseudofunktion für Two-Way- und Echo-Streams:
+  local void wr_ch_twoway (const object* stream_, object obj);
+  local void wr_ch_twoway(stream_,obj)
+    var const object* stream_;
+    var object obj;
+    { check_SP(); check_STACK();
+      pushSTACK(TheStream(*stream_)->strm_twoway_output);
+      write_char(&STACK_0,obj);
+      skipSTACK(1);
+    }
+
+# WRITE-SIMPLE-STRING - Pseudofunktion für Two-Way- und Echo-Streams:
+  local void wr_ss_twoway (const object* stream_, object string, uintL start, uintL len);
+  local void wr_ss_twoway(stream_,string,start,len)
+    var const object* stream_;
+    var object string;
+    var uintL start;
+    var uintL len;
+    { check_SP(); check_STACK();
+      pushSTACK(TheStream(*stream_)->strm_twoway_output);
+      wr_ss(STACK_0)(&STACK_0,string,start,len);
+      skipSTACK(1);
+      # Line-Position aktualisieren kann hier entfallen.
+    }
+
+# Stellt fest, ob ein Two-Way- oder Echo-Stream ein Zeichen verfügbar hat.
+# listen_twoway(stream)
+# > stream : Two-Way- oder Echo-Stream
+# < ergebnis:  0 falls Zeichen verfügbar,
+#             -1 falls bei EOF angelangt,
+#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# kann GC auslösen
+  local signean listen_twoway (object stream);
+  local signean listen_twoway(stream)
+    var object stream;
+    { check_SP();
+      return stream_listen(TheStream(stream)->strm_twoway_input);
+    }
+
+# UP: Löscht bereits eingegebenen interaktiven Input von einem Two-Way-
+# oder Echo-Stream.
+# clear_input_twoway(stream)
+# > stream: Two-Way- oder Echo-Stream
+# < ergebnis: TRUE falls Input gelöscht wurde
+# kann GC auslösen
+  local boolean clear_input_twoway (object stream);
+  local boolean clear_input_twoway(stream)
+    var object stream;
+    { check_SP();
+      return clear_input(TheStream(stream)->strm_twoway_input);
+    }
+
+# UP: Bringt den wartenden Output eines Two-Way- oder Echo-Stream ans Ziel.
+# finish_output_twoway(stream);
+# > stream: Two-Way- oder Echo-Stream
+# kann GC auslösen
+  local void finish_output_twoway (object stream);
+  local void finish_output_twoway(stream)
+    var object stream;
+    { check_SP();
+      finish_output(TheStream(stream)->strm_twoway_output);
+    }
+
+# UP: Bringt den wartenden Output eines Two-Way- oder Echo-Stream ans Ziel.
+# force_output_twoway(stream);
+# > stream: Two-Way- oder Echo-Stream
+# kann GC auslösen
+  local void force_output_twoway (object stream);
+  local void force_output_twoway(stream)
+    var object stream;
+    { check_SP();
+      force_output(TheStream(stream)->strm_twoway_output);
+    }
+
+# UP: Löscht den wartenden Output eines Two-Way- oder Echo-Stream.
+# clear_output_twoway(stream);
+# > stream: Two-Way- oder Echo-Stream
+# kann GC auslösen
+  local void clear_output_twoway (object stream);
+  local void clear_output_twoway(stream)
+    var object stream;
+    { check_SP();
+      clear_output(TheStream(stream)->strm_twoway_output);
+    }
+
+
+# Two-Way-Stream
+# ==============
+
+# READ-BYTE - Pseudofunktion für Two-Way-Streams:
+  local object rd_by_twoway (object stream);
+  local object rd_by_twoway(stream)
+    var object stream;
+    { check_SP();
+      return read_byte(TheStream(stream)->strm_twoway_input);
+    }
+
+# READ-CHAR - Pseudofunktion für Two-Way-Streams:
+  local object rd_ch_twoway (const object* stream_);
+  local object rd_ch_twoway(stream_)
+    var const object* stream_;
+    { check_SP(); check_STACK();
+      pushSTACK(TheStream(*stream_)->strm_twoway_input);
+     {var object ergebnis = read_char(&STACK_0);
+      skipSTACK(1);
+      return ergebnis;
+    }}
+
+# PEEK-CHAR - Pseudofunktion für Two-Way-Streams:
+  local object pk_ch_twoway (const object* stream_);
+  local object pk_ch_twoway(stream_)
+    var const object* stream_;
+    { check_SP(); check_STACK();
+      pushSTACK(TheStream(*stream_)->strm_twoway_input);
+     {var object ergebnis = peek_char(&STACK_0);
+      skipSTACK(1);
+      return ergebnis;
+    }}
+
+# Liefert einen Two-Way-Stream zu einem Input-Stream und einem Output-Stream.
+# make_twoway_stream(input_stream,output_stream)
+# > input_stream : Input-Stream
+# > output_stream : Output-Stream
+# < ergebnis : Two-Way-Stream
+# kann GC auslösen
+  global object make_twoway_stream (object input_stream, object output_stream);
+  global object make_twoway_stream(input_stream,output_stream)
+    var object input_stream;
+    var object output_stream;
+    { pushSTACK(input_stream); pushSTACK(output_stream); # Streams retten
+     {var object stream = # neuer Stream, alle Operationen erlaubt
+        allocate_stream(strmflags_open_B,strmtype_twoway,strm_len+2,0);
+      TheStream(stream)->strm_rd_by = P(rd_by_twoway);
+      TheStream(stream)->strm_wr_by = P(wr_by_twoway);
+      TheStream(stream)->strm_rd_ch = P(rd_ch_twoway);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_twoway);
+      TheStream(stream)->strm_rd_ch_last = NIL;
+      TheStream(stream)->strm_wr_ch = P(wr_ch_twoway);
+      output_stream = popSTACK(); input_stream = popSTACK(); # Streams zurück
+      TheStream(stream)->strm_wr_ch_lpos = TheStream(output_stream)->strm_wr_ch_lpos;
+      TheStream(stream)->strm_wr_ss = P(wr_ss_twoway);
+      TheStream(stream)->strm_twoway_input = input_stream;
+      TheStream(stream)->strm_twoway_output = output_stream;
+      return stream;
+    }}
+
+LISPFUNN(make_two_way_stream,2)
+# (MAKE-TWO-WAY-STREAM input-stream output-stream), CLTL S. 329
+  { # Überprüfen, ob beides Streams sind:
+    test_stream_args(args_end_pointer STACKop 2, 2);
+   {var object output_stream = popSTACK();
+    var object input_stream = popSTACK();
+    test_input_stream(input_stream);
+    test_output_stream(output_stream);
+    # Stream bauen:
+    value1 = make_twoway_stream(input_stream,output_stream); mv_count=1;
+  }}
+
+LISPFUNN(two_way_stream_p,1)
+# (SYS::TWO-WAY-STREAM-P stream) == (TYPEP stream 'TWO-WAY-STREAM)
+  { var object arg = popSTACK();
+    value1 = (streamp(arg) && (TheStream(arg)->strmtype == strmtype_twoway)
+              ? T
+              : NIL
+             );
+    mv_count=1;
+  }
+
+LISPFUNN(two_way_stream_input_stream,1)
+# (TWO-WAY-STREAM-INPUT-STREAM stream), CLtL2 S. 507
+  { var object stream = popSTACK();
+    if (!streamp(stream)) { fehler_stream(stream); }
+    if (!(TheStream(stream)->strmtype == strmtype_twoway))
+      { fehler_streamtype(stream,S(two_way_stream)); }
+    value1 = TheStream(stream)->strm_twoway_input; mv_count=1;
+  }
+
+LISPFUNN(two_way_stream_output_stream,1)
+# (TWO-WAY-STREAM-OUTPUT-STREAM stream), CLtL2 S. 507
+  { var object stream = popSTACK();
+    if (!streamp(stream)) { fehler_stream(stream); }
+    if (!(TheStream(stream)->strmtype == strmtype_twoway))
+      { fehler_streamtype(stream,S(two_way_stream)); }
+    value1 = TheStream(stream)->strm_twoway_output; mv_count=1;
+  }
+
+
+# Echo-Stream
+# ===========
+
+# READ-BYTE - Pseudofunktion für Echo-Streams:
+  local object rd_by_echo (object stream);
+  local object rd_by_echo(stream)
+    var object stream;
+    { check_SP(); check_STACK();
+      pushSTACK(stream);
+     {var object obj = read_byte(TheStream(stream)->strm_twoway_input);
+      stream = popSTACK();
+      if (!eq(obj,eof_value))
+        { pushSTACK(obj);
+          write_byte(TheStream(stream)->strm_twoway_output,obj);
+          obj = popSTACK();
+        }
+      return obj;
+    }}
+
+# READ-CHAR - Pseudofunktion für Echo-Streams:
+  local object rd_ch_echo (const object* stream_);
+  local object rd_ch_echo(stream_)
+    var const object* stream_;
+    { check_SP(); check_STACK();
+      pushSTACK(TheStream(*stream_)->strm_twoway_input);
+     {var object obj = read_char(&STACK_0);
+      if (!eq(obj,eof_value))
+        { STACK_0 = TheStream(*stream_)->strm_twoway_output;
+          pushSTACK(obj);
+          write_char(&STACK_1,obj);
+          obj = popSTACK();
+        }
+      skipSTACK(1);
+      return obj;
+    }}
+
+# Liefert einen Echo-Stream zu einem Input-Stream und einem Output-Stream.
+# make_echo_stream(input_stream,output_stream)
+# > input_stream : Input-Stream
+# > output_stream : Output-Stream
+# < ergebnis : Echo-Stream
+# kann GC auslösen
+  local object make_echo_stream (object input_stream, object output_stream);
+  local object make_echo_stream(input_stream,output_stream)
+    var object input_stream;
+    var object output_stream;
+    { pushSTACK(input_stream); pushSTACK(output_stream); # Streams retten
+     {var uintB flags = strmflags_open_B;
+      var object stream = # neuer Stream, alle Operationen erlaubt
+        allocate_stream(flags,strmtype_echo,strm_len+2,0);
+      TheStream(stream)->strm_rd_by = P(rd_by_echo);
+      TheStream(stream)->strm_wr_by = P(wr_by_twoway);
+      TheStream(stream)->strm_rd_ch = P(rd_ch_echo);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_twoway);
+      TheStream(stream)->strm_rd_ch_last = NIL;
+      TheStream(stream)->strm_wr_ch = P(wr_ch_twoway);
+      output_stream = popSTACK(); input_stream = popSTACK(); # Streams zurück
+      TheStream(stream)->strm_wr_ch_lpos = TheStream(output_stream)->strm_wr_ch_lpos;
+      TheStream(stream)->strm_wr_ss = P(wr_ss_twoway);
+      TheStream(stream)->strm_twoway_input = input_stream;
+      TheStream(stream)->strm_twoway_output = output_stream;
+      return stream;
+    }}
+
+LISPFUNN(make_echo_stream,2)
+# (MAKE-ECHO-STREAM input-stream output-stream), CLTL S. 330
+  { # Überprüfen, ob beides Streams sind:
+    test_stream_args(args_end_pointer STACKop 2, 2);
+   {var object output_stream = popSTACK();
+    var object input_stream = popSTACK();
+    test_input_stream(input_stream);
+    test_output_stream(output_stream);
+    # Stream bauen:
+    value1 = make_echo_stream(input_stream,output_stream); mv_count=1;
+  }}
+
+LISPFUNN(echo_stream_p,1)
+# (SYS::ECHO-STREAM-P stream) == (TYPEP stream 'ECHO-STREAM)
+  { var object arg = popSTACK();
+    value1 = (streamp(arg) && (TheStream(arg)->strmtype == strmtype_echo)
+              ? T
+              : NIL
+             );
+    mv_count=1;
+  }
+
+LISPFUNN(echo_stream_input_stream,1)
+# (ECHO-STREAM-INPUT-STREAM stream), CLtL2 S. 507
+  { var object stream = popSTACK();
+    if (!streamp(stream)) { fehler_stream(stream); }
+    if (!(TheStream(stream)->strmtype == strmtype_echo))
+      { fehler_streamtype(stream,S(echo_stream)); }
+    value1 = TheStream(stream)->strm_twoway_input; mv_count=1;
+  }
+
+LISPFUNN(echo_stream_output_stream,1)
+# (ECHO-STREAM-OUTPUT-STREAM stream), CLtL2 S. 507
+  { var object stream = popSTACK();
+    if (!streamp(stream)) { fehler_stream(stream); }
+    if (!(TheStream(stream)->strmtype == strmtype_echo))
+      { fehler_streamtype(stream,S(echo_stream)); }
+    value1 = TheStream(stream)->strm_twoway_output; mv_count=1;
+  }
+
+
+# String-Input-Stream
+# ===================
+
+# Zusätzliche Komponenten:
+  #define strm_str_in_string    strm_other[0]  # String für Input
+  #define strm_str_in_index     strm_other[1]  # Index in den String (Fixnum >=0)
+  #define strm_str_in_endindex  strm_other[2]  # Endindex (Fixnum >= index >=0)
+
+# Fehlermeldung, wenn index >= length(string):
+# fehler_str_in_adjusted(stream);
+# > stream: problematischer String-Input-Stream
+  nonreturning_function(local, fehler_str_in_adjusted, (object stream));
+  local void fehler_str_in_adjusted(stream)
+    var object stream;
+    { pushSTACK(stream); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(TheStream(stream)->strm_str_in_string);
+      pushSTACK(stream);
+      fehler(stream_error,
+             DEUTSCH ? "~ hinterm Stringende angelangt, weil String ~ adjustiert wurde." :
+             ENGLISH ? "~ is beyond the end because the string ~ has been adjusted" :
+             FRANCAIS ? "~ est arrivé après la fin de la chaîne, parce que la chaîne ~ a été ajustée." :
+             ""
+            );
+    }
+
+# READ-CHAR - Pseudofunktion für String-Input-Streams:
+  local object rd_ch_str_in (const object* stream_);
+  local object rd_ch_str_in(stream_)
+    var const object* stream_;
+    { var object stream = *stream_;
+      var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index); # Index
+      var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
+      if (index >= endindex)
+        { return eof_value; } # EOF erreicht
+        else
+        # index < eofindex
+        { var uintL len;
+          var const chart* charptr = unpack_string(TheStream(stream)->strm_str_in_string,&len);
+          # Ab charptr kommen len Zeichen.
+          if (index >= len) # Index zu groß ?
+            { fehler_str_in_adjusted(stream); }
+         {var object ch = code_char(charptr[index]); # Zeichen aus dem String holen
+          # Index erhöhen:
+          TheStream(stream)->strm_str_in_index = fixnum_inc(TheStream(stream)->strm_str_in_index,1);
+          return ch;
+        }}
+    }
+
+# Schließt einen String-Input-Stream.
+# close_str_in(stream);
+# > stream : String-Input-Stream
+  local void close_str_in (object stream);
+  local void close_str_in(stream)
+    var object stream;
+    { TheStream(stream)->strm_str_in_string = NIL; } # String := NIL
+
+# Stellt fest, ob ein String-Input-Stream ein Zeichen verfügbar hat.
+# listen_str_in(stream)
+# > stream : String-Input-Stream
+# < ergebnis:  0 falls Zeichen verfügbar,
+#             -1 falls bei EOF angelangt,
+#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# kann GC auslösen
+  local signean listen_str_in (object stream);
+  local signean listen_str_in(stream)
+    var object stream;
+    { var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index); # Index
+      var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
+      if (index >= endindex)
+        { return signean_minus; } # EOF erreicht
+        else
+        { return signean_null; }
+    }
+
+LISPFUN(make_string_input_stream,1,2,norest,nokey,0,NIL)
+# (MAKE-STRING-INPUT-STREAM string [start [end]]), CLTL S. 330
+  { # String holen und Grenzen überprüfen:
+    var object string;
+    var uintL start;
+    var uintL len;
+    test_string_limits(&string,&start,&len);
+   {var object start_arg = fixnum(start); # start-Argument (Fixnum >=0)
+    var object end_arg = fixnum_inc(start_arg,len); # end-Argument (Fixnum >=0)
+    pushSTACK(string); # String retten
+    { var object stream = # neuer Stream, nur READ-CHAR erlaubt
+        allocate_stream(strmflags_rd_ch_B,strmtype_str_in,strm_len+3,0);
+      TheStream(stream)->strm_rd_by = P(rd_by_dummy);
+      TheStream(stream)->strm_wr_by = P(wr_by_dummy);
+      TheStream(stream)->strm_rd_ch = P(rd_ch_str_in);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+      TheStream(stream)->strm_rd_ch_last = NIL;
+      TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
+      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
+      TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
+      TheStream(stream)->strm_str_in_string = popSTACK();
+      TheStream(stream)->strm_str_in_index = start_arg; # Index := start-Argument
+      TheStream(stream)->strm_str_in_endindex = end_arg; # Endindex := end-Argument
+      value1 = stream; mv_count=1; # stream als Wert
+  }}}
+
+LISPFUNN(string_input_stream_index,1)
+# (SYSTEM::STRING-INPUT-STREAM-INDEX string-input-stream) liefert den Index
+  { var object stream = popSTACK(); # Argument
+    # muss ein String-Input-Stream sein:
+    if (!(streamp(stream) && (TheStream(stream)->strmtype == strmtype_str_in)))
+      { pushSTACK(stream);
+        pushSTACK(TheSubr(subr_self)->name);
+        fehler(error,
+               DEUTSCH ? "~: ~ ist kein String-Input-Stream." :
+               ENGLISH ? "~: ~ is not a string input stream" :
+               FRANCAIS ? "~ : ~ n'est pas un «stream» lisant d'une chaîne." :
+               ""
+              );
+      }
+   {var object index = TheStream(stream)->strm_str_in_index;
+    # Falls ein Character mit UNREAD-CHAR zurückgeschoben wurde,
+    # verwende (1- index), ein Fixnum >=0, als Wert:
+    if (TheStream(stream)->strmflags & strmflags_unread_B)
+      { index = fixnum_inc(index,-1); }
+    value1 = index; mv_count=1;
+  }}
+
+
+# String-Output-Stream
+# ====================
+
+# Zusätzliche Komponenten:
+  #define strm_str_out_string  strm_other[0]  # Semi-Simple-String für Output
+
+# WRITE-CHAR - Pseudofunktion für String-Output-Streams:
+  local void wr_ch_str_out (const object* stream_, object ch);
+  local void wr_ch_str_out(stream_,ch)
+    var const object* stream_;
+    var object ch;
+    { var object stream = *stream_;
+      # obj sollte Character sein:
+      if (!charp(ch)) { fehler_wr_char(stream,ch); }
+      # Character in den String schieben:
+      ssstring_push_extend(TheStream(stream)->strm_str_out_string,char_code(ch));
+    }
+
+# WRITE-SIMPLE-STRING - Pseudofunktion für String-Output-Streams:
+  local void wr_ss_str_out (const object* stream_, object string, uintL start, uintL len);
+  local void wr_ss_str_out(stream_,srcstring,start,len)
+    var const object* stream_;
+    var object srcstring;
+    var uintL start;
+    var uintL len;
+    { if (len==0) return;
+     {var object ssstring = TheStream(*stream_)->strm_str_out_string; # Semi-Simple-String
+      var uintL old_len = TheIarray(ssstring)->dims[1]; # jetzige Länge = Fill-Pointer
+      if (old_len + len > TheIarray(ssstring)->dims[0]) # passen keine len Bytes mehr hinein
+        { pushSTACK(srcstring);
+          ssstring = ssstring_extend(ssstring,old_len+len); # dann länger machen
+          srcstring = popSTACK();
+        }
+      # Zeichen hineinschieben:
+      {var const chart* srcptr = &TheSstring(srcstring)->data[start];
+       var uintL count;
+       {var chart* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
+        dotimespL(count,len, { *ptr++ = *srcptr++; } );
+       }
+       # und Fill-Pointer erhöhen:
+       TheIarray(ssstring)->dims[1] = old_len + len;
+       wr_ss_lpos(*stream_,srcptr,len); # Line-Position aktualisieren
+    }}}
+
+# Liefert einen String-Output-Stream.
+# make_string_output_stream()
+# kann GC auslösen
+  global object make_string_output_stream (void);
+  global object make_string_output_stream()
+    { # kleinen Semi-Simple-String der Länge 50 allozieren:
+      pushSTACK(make_ssstring(50));
+     {var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
+        allocate_stream(strmflags_wr_ch_B,strmtype_str_out,strm_len+1,0);
+      TheStream(stream)->strm_rd_by = P(rd_by_dummy);
+      TheStream(stream)->strm_wr_by = P(wr_by_dummy);
+      TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+      TheStream(stream)->strm_rd_ch_last = NIL;
+      TheStream(stream)->strm_wr_ch = P(wr_ch_str_out);
+      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
+      TheStream(stream)->strm_wr_ss = P(wr_ss_str_out);
+      TheStream(stream)->strm_str_out_string = popSTACK(); # String eintragen
+      return stream;
+    }}
+
+LISPFUN(make_string_output_stream,0,0,norest,key,2, (kw(element_type),kw(line_position)))
+# (MAKE-STRING-OUTPUT-STREAM [:element-type] [:line-position])
+  { # line-position überprüfen:
+    if (eq(STACK_0,unbound))
+      { STACK_0 = Fixnum_0; } # Defaultwert 0
+      else
+      # line-position angegeben, sollte ein Fixnum >=0 sein:
+      { if (!posfixnump(STACK_0)) { fehler_posfixnum(STACK_0); } }
+    # element-type überprüfen:
+    if (!eq(STACK_1,unbound))
+      { var object eltype = STACK_1;
+        if (!eq(eltype,S(character)))
+          { # Verify (SUBTYPEP eltype 'CHARACTER):
+            pushSTACK(eltype); pushSTACK(S(character)); funcall(S(subtypep),2);
+            if (nullp(value1))
+              { pushSTACK(STACK_1); # eltype
+                pushSTACK(S(character)); # CHARACTER
+                pushSTACK(S(Kelement_type)); # :ELEMENT-TYPE
+                pushSTACK(S(make_string_output_stream));
+                fehler(error,
+                       DEUTSCH ? "~: ~-Argument muss ein Untertyp von ~ sein, nicht ~" :
+                       ENGLISH ? "~: ~ argument must be a subtype of ~, not ~" :
+                       FRANCAIS ? "~ : L'argument ~ doit être un sous-type de ~, et non ~" :
+                       ""
+                      );
+      }   }   }
+   {var object stream = make_string_output_stream(); # String-Output-Stream
+    TheStream(stream)->strm_wr_ch_lpos = popSTACK(); # Line Position eintragen
+    value1 = stream; mv_count=1; # stream als Wert
+    skipSTACK(1);
+  }}
+
+# UP: Liefert das von einem String-Output-Stream Angesammelte.
+# get_output_stream_string(&stream)
+# > stream: String-Output-Stream
+# < stream: geleerter Stream
+# < ergebnis: Angesammeltes, ein Simple-String
+# kann GC auslösen
+  global object get_output_stream_string (const object* stream_);
+  global object get_output_stream_string(stream_)
+    var const object* stream_;
+    { var object string = TheStream(*stream_)->strm_str_out_string; # alter String
+      string = coerce_ss(string); # in Simple-String umwandeln (erzwingt ein Kopieren)
+      # alten String durch Fill-Pointer:=0 leeren:
+      TheIarray(TheStream(*stream_)->strm_str_out_string)->dims[1] = 0;
+      return string;
+    }
+
+LISPFUNN(get_output_stream_string,1)
+# (GET-OUTPUT-STREAM-STRING string-output-stream), CLTL S. 330
+  { var object stream = STACK_0; # Argument
+    # muss ein String-Output-Stream sein:
+    if (!(streamp(stream) && (TheStream(stream)->strmtype == strmtype_str_out)))
+      { # stream in STACK_0
+        pushSTACK(TheSubr(subr_self)->name);
+        fehler(error,
+               DEUTSCH ? "~: ~ ist kein String-Output-Stream." :
+               ENGLISH ? "~: ~ is not a string output stream" :
+               FRANCAIS ? "~ : ~ n'est pas un «stream» écrivant dans une chaîne." :
+               ""
+              );
+      }
+   {value1 = get_output_stream_string(&STACK_0); mv_count=1; # Angesammeltes als Wert
+    skipSTACK(1);
+  }}
+
+
+# String-Push-Stream
+# ==================
+
+# Zusätzliche Komponenten:
+  #define strm_str_push_string  strm_other[0]  # String mit Fill-Pointer für Output
+
+# WRITE-CHAR - Pseudofunktion für String-Push-Streams:
+  local void wr_ch_str_push (const object* stream_, object ch);
+  local void wr_ch_str_push(stream_,ch)
+    var const object* stream_;
+    var object ch;
+    { var object stream = *stream_;
+      # ch sollte Character sein:
+      if (!charp(ch)) { fehler_wr_char(stream,ch); }
+      # Character in den String schieben:
+      pushSTACK(ch); pushSTACK(TheStream(stream)->strm_str_push_string);
+      funcall(L(vector_push_extend),2); # (VECTOR-PUSH-EXTEND ch string)
+    }
+
+# (SYSTEM::MAKE-STRING-PUSH-STREAM string) liefert einen Stream, dessen
+# WRITE-CHAR-Operation mit einem VECTOR-PUSH-EXTEND auf den gegebenen String
+# äquivalent ist.
+LISPFUNN(make_string_push_stream,1)
+  { {var object arg = STACK_0; # Argument
+     # muss ein String mit Fill-Pointer sein:
+     if (!(stringp(arg) && array_has_fill_pointer_p(arg)))
+       { pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
+         pushSTACK(O(type_string_with_fill_pointer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+         pushSTACK(S(with_output_to_string));
+         fehler(type_error,
+                DEUTSCH ? "~: Argument muss ein String mit Fill-Pointer sein, nicht ~" :
+                ENGLISH ? "~: argument ~ should be a string with fill pointer" :
+                FRANCAIS ? "~ : L'argument doit être une chaîne munie d'un pointeur de remplissage et non ~." :
+                ""
+               );
+    }  }
+    {var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
+       allocate_stream(strmflags_wr_ch_B,strmtype_str_push,strm_len+1,0);
+     TheStream(stream)->strm_rd_by = P(rd_by_dummy);
+     TheStream(stream)->strm_wr_by = P(wr_by_dummy);
+     TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+     TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+     TheStream(stream)->strm_rd_ch_last = NIL;
+     TheStream(stream)->strm_wr_ch = P(wr_ch_str_push);
+     TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
+     TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
+     TheStream(stream)->strm_str_push_string = popSTACK(); # String eintragen
+     value1 = stream; mv_count=1; # stream als Wert
+  } }
+
+
+# String-Stream allgemein
+# =======================
+
+LISPFUNN(string_stream_p,1)
+# (SYS::STRING-STREAM-P stream) == (TYPEP stream 'STRING-STREAM)
+  { var object arg = popSTACK();
+    if (streamp(arg))
+      { switch (TheStream(arg)->strmtype)
+          { case strmtype_str_in:   # String-Input-Stream
+            case strmtype_str_out:  # String-Output-Stream
+            case strmtype_str_push: # String-Push-Stream
+              value1 = T; break;
+            default:
+              value1 = NIL; break;
+      }   }
+      else
+      { value1 = NIL; }
+    mv_count=1;
+  }
+
+
+# Pretty-Printer-Hilfs-Stream
+# ===========================
+
+# Zusätzliche Komponenten:
+  # define strm_pphelp_strings  strm_other[0]   # Semi-Simple-Strings für Output
+  # define strm_pphelp_modus    strm_other[1]   # Modus (NIL=Einzeiler, T=Mehrzeiler)
+
+# WRITE-CHAR - Pseudofunktion für Pretty-Printer-Hilfs-Streams:
+  local void wr_ch_pphelp (const object* stream_, object ch);
+  local void wr_ch_pphelp(stream_,ch)
+    var const object* stream_;
+    var object ch;
+    { var object stream = *stream_;
+      # ch sollte Character sein:
+      if (!charp(ch)) { fehler_wr_char(stream,ch); }
+     {var chart c = char_code(ch); # Character
+      # Bei NL: Ab jetzt  Modus := Mehrzeiler
+      if (chareq(c,ascii(NL))) { TheStream(stream)->strm_pphelp_modus = T; }
+      # Character in den ersten String schieben:
+      ssstring_push_extend(Car(TheStream(stream)->strm_pphelp_strings),c);
+    }}
+
+# WRITE-SIMPLE-STRING - Pseudofunktion für Pretty-Printer-Hilfs-Streams:
+  local void wr_ss_pphelp (const object* stream_, object string, uintL start, uintL len);
+  local void wr_ss_pphelp(stream_,srcstring,start,len)
+    var const object* stream_;
+    var object srcstring;
+    var uintL start;
+    var uintL len;
+    { if (len==0) return;
+     {var object ssstring = Car(TheStream(*stream_)->strm_pphelp_strings); # Semi-Simple-String
+      var uintL old_len = TheIarray(ssstring)->dims[1]; # jetzige Länge = Fill-Pointer
+      if (old_len + len > TheIarray(ssstring)->dims[0]) # passen keine len Bytes mehr hinein
+        { pushSTACK(srcstring);
+          ssstring = ssstring_extend(ssstring,old_len+len); # dann länger machen
+          srcstring = popSTACK();
+        }
+      # Zeichen hineinschieben:
+      {var const chart* srcptr = &TheSstring(srcstring)->data[start];
+       var uintL count;
+       {var chart* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
+        dotimespL(count,len, { *ptr++ = *srcptr++; } );
+       }
+       # und Fill-Pointer erhöhen:
+       TheIarray(ssstring)->dims[1] = old_len + len;
+       if (wr_ss_lpos(*stream_,srcptr,len)) # Line-Position aktualisieren
+         { TheStream(*stream_)->strm_pphelp_modus = T; } # Nach NL: Modus := Mehrzeiler
+    }}}
+
+# UP: Liefert einen Pretty-Printer-Hilfs-Stream.
+# make_pphelp_stream()
+# kann GC auslösen
+  global object make_pphelp_stream (void);
+  global object make_pphelp_stream()
+    { # kleinen Semi-Simple-String der Länge 50 allozieren:
+      pushSTACK(make_ssstring(50));
+      # einelementige Stringliste bauen:
+     {var object new_cons = allocate_cons();
+      Car(new_cons) = popSTACK();
+      pushSTACK(new_cons);
+     }
+     {var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
+        allocate_stream(strmflags_wr_ch_B,strmtype_pphelp,strm_len+2,0);
+      TheStream(stream)->strm_rd_by = P(rd_by_dummy);
+      TheStream(stream)->strm_wr_by = P(wr_by_dummy);
+      TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+      TheStream(stream)->strm_rd_ch_last = NIL;
+      TheStream(stream)->strm_wr_ch = P(wr_ch_pphelp);
+      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
+      TheStream(stream)->strm_wr_ss = P(wr_ss_pphelp);
+      TheStream(stream)->strm_pphelp_strings = popSTACK(); # String-Liste eintragen
+      TheStream(stream)->strm_pphelp_modus = NIL; # Modus := Einzeiler
+      return stream;
+    }}
+
+
+# Buffered-Input-Stream
+# =====================
+
+# Elementtyp: character
+# Richtungen: nur input
+# (make-buffered-input-stream fun mode) liefert einen solchen.
+#   Dabei ist fun eine Funktion von 0 Argumenten, die bei Aufruf
+#   entweder NIL (steht für EOF) oder bis zu drei Werte string, start, end
+#   zurückliefert.
+#   Funktionsweise: (read-char ...) liefert nacheinander die Zeichen des
+#   aktuellen Strings; ist der zu Ende, wird fun aufgerufen, und ist der
+#   Wert davon ein String, so wird der neue aktuelle String gegeben durch
+#     (multiple-value-bind (str start end) (funcall fun)
+#       (subseq str (or start 0) (or end 'NIL))
+#     )
+#   Der von fun zurückgegebene String sollte nicht verändert werden.
+#   (Ansonsten sollte fun vorher den String mit COPY-SEQ kopieren.)
+#   mode bestimmt, wie sich der Stream bezüglich LISTEN verhält.
+#   mode = NIL: Stream verhält sich wie ein File-Stream, d.h. bei LISTEN
+#               und leerem aktuellen String wird fun aufgerufen.
+#   mode = T: Stream verhält sich wie ein interaktiver Stream ohne EOF,
+#             d.h. man kann davon ausgehen, das stets noch weitere Zeichen
+#             kommen, auch ohne fun aufzurufen.
+#   mode eine Funktion: Diese Funktion teilt, wenn aufgerufen, mit, ob
+#             noch weitere nichtleere Strings zu erwarten sind.
+#   (clear-input ...) beendet die Bearbeitung des aktuellen Strings.
+
+# Zusätzliche Komponenten:
+  # define strm_buff_in_fun      strm_other[0]  # Lesefunktion
+  #define strm_buff_in_mode      strm_other[1]  # Modus oder Listen-Funktion
+  #define strm_buff_in_string    strm_other[2]  # aktueller String für Input
+  #define strm_buff_in_index     strm_other[3]  # Index in den String (Fixnum >=0)
+  #define strm_buff_in_endindex  strm_other[4]  # Endindex (Fixnum >= index >=0)
+
+# READ-CHAR - Pseudofunktion für Buffered-Input-Streams:
+  local object rd_ch_buff_in (const object* stream_);
+  local object rd_ch_buff_in(stream_)
+    var const object* stream_;
+    { var object stream = *stream_;
+      var uintL index = posfixnum_to_L(TheStream(stream)->strm_buff_in_index); # Index
+      var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_buff_in_endindex);
+      loop
+        { if (index < endindex) break; # noch was im aktuellen String?
+          # String-Ende erreicht
+          # fun aufrufen:
+          funcall(TheStream(stream)->strm_buff_in_fun,0);
+          if (!stringp(value1))
+            { return eof_value; } # EOF erreicht
+          # neuen String holen und Grenzen überprüfen:
+          pushSTACK(value1); # String
+          pushSTACK(mv_count >= 2 ? value2 : unbound); # start
+          pushSTACK(mv_count >= 3 ? value3 : unbound); # end
+         {var object string;
+          var uintL start;
+          var uintL len;
+          subr_self = L(read_char);
+          test_string_limits(&string,&start,&len);
+          stream = *stream_;
+          index = start;
+          endindex = index+len;
+          TheStream(stream)->strm_buff_in_string = string;
+          TheStream(stream)->strm_buff_in_index = fixnum(index);
+          TheStream(stream)->strm_buff_in_endindex = fixnum(endindex);
+        }}
+      # index < eofindex
+      { var uintL len;
+        var const chart* charptr = unpack_string(TheStream(stream)->strm_buff_in_string,&len);
+        # Ab charptr kommen len Zeichen.
+        if (index >= len) # Index zu groß ?
+          { pushSTACK(stream); # Wert für Slot STREAM von STREAM-ERROR
+            pushSTACK(TheStream(stream)->strm_buff_in_string);
+            pushSTACK(stream);
+            fehler(stream_error,
+                   DEUTSCH ? "~ hinterm Stringende angelangt, weil String ~ adjustiert wurde." :
+                   ENGLISH ? "~ is beyond the end because the string ~ has been adjusted" :
+                   FRANCAIS ? "~ est arrivé après la fin de la chaîne, parce que la chaîne ~ a été ajustée." :
+                   ""
+                  );
+          }
+       {var object ch = code_char(charptr[index]); # Zeichen aus dem String holen
+        # Index erhöhen:
+        TheStream(stream)->strm_buff_in_index = fixnum_inc(TheStream(stream)->strm_buff_in_index,1);
+        return ch;
+      }}
+    }
+
+# Schließt einen Buffered-Input-Stream.
+# close_buff_in(stream);
+# > stream : Buffered-Input-Stream
+  local void close_buff_in (object stream);
+  local void close_buff_in(stream)
+    var object stream;
+    { TheStream(stream)->strm_buff_in_fun = NIL; # Funktion := NIL
+      TheStream(stream)->strm_buff_in_mode = NIL; # Mode := NIL
+      TheStream(stream)->strm_buff_in_string = NIL; # String := NIL
+    }
+
+# Stellt fest, ob ein Buffered-Input-Stream ein Zeichen verfügbar hat.
+# listen_buff_in(stream)
+# > stream : Buffered-Input-Stream
+# < ergebnis:  0 falls Zeichen verfügbar,
+#             -1 falls bei EOF angelangt,
+#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# kann GC auslösen
+  local signean listen_buff_in (object stream);
+  local signean listen_buff_in(stream)
+    var object stream;
+    { var uintL index = posfixnum_to_L(TheStream(stream)->strm_buff_in_index); # Index
+      var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_buff_in_endindex);
+      if (index < endindex) { return signean_null; }
+     {var object mode = TheStream(stream)->strm_buff_in_mode;
+      if (eq(mode,S(nil)))
+        { pushSTACK(stream);
+          mode = peek_char(&STACK_0); # peek_char macht read_char, ruft fun auf
+          skipSTACK(1);
+          if (eq(mode,eof_value))
+            { return signean_minus; } # EOF erreicht
+            else
+            { return signean_null; }
+        }
+      elif (eq(mode,S(t)))
+        { return signean_null; }
+      else
+        { funcall(mode,0); # mode aufrufen
+          if (nullp(value1)) # keine Strings mehr zu erwarten?
+            { return signean_minus; } # ja -> EOF erreicht
+            else
+            { return signean_null; }
+        }
+    }}
+
+# UP: Löscht bereits eingegebenen interaktiven Input von einem Buffered-Input-Stream.
+# clear_input_buff_in(stream)
+# > stream: Buffered-Input-Stream
+# < ergebnis: TRUE falls Input gelöscht wurde
+# kann GC auslösen
+  local boolean clear_input_buff_in (object stream);
+  local boolean clear_input_buff_in(stream)
+    var object stream;
+    { # Bearbeitung des aktuellen Strings beenden:
+      var object index = TheStream(stream)->strm_buff_in_index; # Index
+      var object endindex = TheStream(stream)->strm_buff_in_endindex;
+      TheStream(stream)->strm_buff_in_index = endindex; # index := endindex
+      if (eq(index,endindex)) { return FALSE; } else { return TRUE; }
+    }
+
+LISPFUNN(make_buffered_input_stream,2)
+# (MAKE-BUFFERED-INPUT-STREAM fun mode)
+  { var object stream = # neuer Stream, nur READ-CHAR erlaubt
+      allocate_stream(strmflags_rd_ch_B,strmtype_buff_in,strm_len+5,0);
+    TheStream(stream)->strm_rd_by = P(rd_by_dummy);
+    TheStream(stream)->strm_wr_by = P(wr_by_dummy);
+    TheStream(stream)->strm_rd_ch = P(rd_ch_buff_in);
+    TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+    TheStream(stream)->strm_rd_ch_last = NIL;
+    TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
+    TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
+    TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
+    TheStream(stream)->strm_buff_in_mode = popSTACK();
+    TheStream(stream)->strm_buff_in_fun = popSTACK();
+    TheStream(stream)->strm_buff_in_string = O(leer_string); # String := ""
+    TheStream(stream)->strm_buff_in_index = Fixnum_0; # Index := 0
+    TheStream(stream)->strm_buff_in_endindex = Fixnum_0; # Endindex := 0
+    value1 = stream; mv_count=1; # stream als Wert
+  }
+
+LISPFUNN(buffered_input_stream_index,1)
+# (SYSTEM::BUFFERED-INPUT-STREAM-INDEX buffered-input-stream) liefert den Index
+  { var object stream = popSTACK(); # Argument
+    # muss ein Buffered-Input-Stream sein:
+    if (!(streamp(stream) && (TheStream(stream)->strmtype == strmtype_buff_in)))
+      { pushSTACK(stream);
+        pushSTACK(TheSubr(subr_self)->name);
+        fehler(error,
+               DEUTSCH ? "~: ~ ist kein Buffered-Input-Stream." :
+               ENGLISH ? "~: ~ is not a buffered input stream" :
+               FRANCAIS ? "~ : ~ n'est pas un «stream» d'entrée bufferisé." :
+               ""
+              );
+      }
+   {var object index = TheStream(stream)->strm_buff_in_index;
+    # Falls ein Character mit UNREAD-CHAR zurückgeschoben wurde,
+    # verwende (1- index), ein Fixnum >=0, als Wert:
+    if (TheStream(stream)->strmflags & strmflags_unread_B)
+      { index = fixnum_inc(index,-1); }
+    value1 = index; mv_count=1;
+  }}
+
+
+# Buffered-Output-Stream
+# ======================
+
+# Elementtyp: character
+# Richtungen: nur output
+# (make-buffered-output-stream fun) liefert einen solchen.
+#   Dabei ist fun eine Funktion von einem Argument, die, mit einem
+#   Simple-String als Argument aufgerufen, dessen Inhalt in Empfang nimmt.
+#   Funktionsweise: (write-char ...) sammelt die geschriebenen Zeichen in
+#   einem String, bis ein #\Newline oder eine FORCE-/FINISH-OUTPUT-
+#   Anforderung kommt, und ruft dann fun mit einem Simple-String, der das
+#   bisher Angesammelte enthält, als Argument auf.
+#   (clear-output ...) wirft die bisher angesammelten Zeichen weg.
+
+# Zusätzliche Komponenten:
+  # define strm_buff_out_fun    strm_other[0]  # Ausgabefunktion
+  #define strm_buff_out_string  strm_other[1]  # Semi-Simple-String für Output
+
+# UP: Bringt den wartenden Output eines Buffered-Output-Stream ans Ziel.
+# finish_output_buff_out(stream);
+# > stream: Buffered-Output-Stream
+# kann GC auslösen
+  local void finish_output_buff_out (object stream);
+  local void finish_output_buff_out(stream)
+    var object stream;
+    { pushSTACK(stream);
+     {var object string = TheStream(stream)->strm_buff_out_string; # String
+      string = coerce_ss(string); # in Simple-String umwandeln (erzwingt ein Kopieren)
+      stream = STACK_0; STACK_0 = string;
+      # String durch Fill-Pointer:=0 leeren:
+      TheIarray(TheStream(stream)->strm_buff_out_string)->dims[1] = 0;
+      funcall(TheStream(stream)->strm_buff_out_fun,1); # Funktion aufrufen
+    }}
+
+# UP: Bringt den wartenden Output eines Buffered-Output-Stream ans Ziel.
+# force_output_buff_out(stream);
+# > stream: Buffered-Output-Stream
+# kann GC auslösen
+  #define force_output_buff_out  finish_output_buff_out
+
+# UP: Löscht den wartenden Output eines Buffered-Output-Stream.
+# clear_output_buff_out(stream);
+# > stream: Buffered-Output-Stream
+# kann GC auslösen
+  local void clear_output_buff_out (object stream);
+  local void clear_output_buff_out(stream)
+    var object stream;
+    { # String durch Fill-Pointer:=0 leeren:
+      TheIarray(TheStream(stream)->strm_buff_out_string)->dims[1] = 0;
+      # Line-Position unverändert lassen??
+    }
+
+# WRITE-CHAR - Pseudofunktion für Buffered-Output-Streams:
+  local void wr_ch_buff_out (const object* stream_, object ch);
+  local void wr_ch_buff_out(stream_,ch)
+    var const object* stream_;
+    var object ch;
+    { var object stream = *stream_;
+      # obj sollte Character sein:
+      if (!charp(ch)) { fehler_wr_char(stream,ch); }
+      # Character in den String schieben:
+      ssstring_push_extend(TheStream(stream)->strm_buff_out_string,char_code(ch));
+      # Nach #\Newline den Buffer durchreichen:
+      if (chareq(char_code(ch),ascii(NL))) { force_output_buff_out(*stream_); }
+    }
+
+# Schließt einen Buffered-Output-Stream.
+# close_buff_out(stream);
+# > stream : Buffered-Output-Stream
+# kann GC auslösen
+  local void close_buff_out (object stream);
+  local void close_buff_out(stream)
+    var object stream;
+    { pushSTACK(stream); # stream retten
+      finish_output_buff_out(stream);
+      stream = popSTACK(); # stream zurück
+      TheStream(stream)->strm_buff_out_fun = NIL; # Funktion := NIL
+      TheStream(stream)->strm_buff_out_string = NIL; # String := NIL
+    }
+
+LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
+# (MAKE-BUFFERED-OUTPUT-STREAM fun [line-position])
+  { # line-position überprüfen:
+    if (eq(STACK_0,unbound))
+      { STACK_0 = Fixnum_0; } # Defaultwert 0
+      else
+      # line-position angegeben, sollte ein Fixnum >=0 sein:
+      { if (!posfixnump(STACK_0)) { fehler_posfixnum(STACK_0); } }
+    # kleinen Semi-Simple-String der Länge 50 allozieren:
+    pushSTACK(make_ssstring(50));
+   {var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
+      allocate_stream(strmflags_wr_ch_B,strmtype_buff_out,strm_len+2,0);
+    TheStream(stream)->strm_rd_by = P(rd_by_dummy);
+    TheStream(stream)->strm_wr_by = P(wr_by_dummy);
+    TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+    TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+    TheStream(stream)->strm_rd_ch_last = NIL;
+    TheStream(stream)->strm_wr_ch = P(wr_ch_buff_out);
+    TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
+    TheStream(stream)->strm_buff_out_string = popSTACK(); # String eintragen
+    TheStream(stream)->strm_wr_ch_lpos = popSTACK(); # Line Position eintragen
+    TheStream(stream)->strm_buff_out_fun = popSTACK(); # Funktion eintragen
+    value1 = stream; mv_count=1; # stream als Wert
+  }}
+
+
+#ifdef GENERIC_STREAMS
+
+# Generic Streams
+# ===============
+
+  # Contains a "controller object".
+  # define strm_controller_object  strm_other[0]  # see lispbibl.d
+
+  # The function GENERIC-STREAM-CONTROLLER will return some
+  # object c associated with the stream s.
+
+  #   (GENERIC-STREAM-READ-CHAR c)                      --> character or NIL
+  #   (GENERIC-STREAM-PEEK-CHAR c)                      --> character or NIL
+  #   (GENERIC-STREAM-LISTEN c)                         --> {0,1,-1}
+  #   (GENERIC-STREAM-CLEAR-INPUT c)                    --> {T,NIL}
+  #   (GENERIC-STREAM-WRITE-CHAR c ch)                  -->
+  #   (GENERIC-STREAM-WRITE-STRING c string start len)  -->
+  #   (GENERIC-STREAM-FINISH-OUTPUT c)                  -->
+  #   (GENERIC-STREAM-FORCE-OUTPUT c)                   -->
+  #   (GENERIC-STREAM-CLEAR-OUTPUT c)                   -->
+  #   (GENERIC-STREAM-READ-BYTE c)                      --> integer or NIL
+  #   (GENERIC-STREAM-WRITE-BYTE c i)                   -->
+  #   (GENERIC-STREAM-CLOSE c)                          -->
+
+  # (READ-CHAR s) ==
+  # (GENERIC-STREAM-READ-CHAR c)
+  local object rd_ch_generic (const object* stream_);
+  local object rd_ch_generic(stream_)
+    var const object* stream_;
+    { pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
+      pushSTACK(value1); funcall(S(generic_stream_rdch),1);
+      return nullp(value1) ? eof_value : value1;
+    }
+
+  # (PEEK-CHAR s) ==
+  # (GENERIC-STREAM-PEEK-CHAR c)
+  local object pk_ch_generic (const object* stream_);
+  local object pk_ch_generic(stream_)
+    var const object* stream_;
+    { pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
+      pushSTACK(value1); funcall(S(generic_stream_pkch),1);
+      if (nullp(value1)) { value1 = eof_value; }
+      if ((mv_count >= 2) && !nullp(value2))
+        { # READ-CHAR schon ausgeführt -> muss ein implizites UNREAD-CHAR
+          # ausführen (d.h. das Ergebnis für das nächste READ-CHAR/PEEK-CHAR
+          # aufheben).
+          TheStream(*stream_)->strm_rd_ch_last = value1;
+          if (!eq(value1,eof_value))
+            { TheStream(*stream_)->strmflags |= strmflags_unread_B; }
+        }
+      return value1;
+    }
+
+  # (LISTEN s) ==
+  # (GENERIC-STREAM-LISTEN c)
+  local signean listen_generic (object stream);
+  local signean listen_generic(stream)
+    var object stream;
+    { pushSTACK(stream); funcall(L(generic_stream_controller),1);
+      pushSTACK(value1); funcall(S(generic_stream_listen),1);
+      if (eq (value1, S(Keof))) return -1;
+      if (eq (value1, S(Kinput_available))) return 0;
+      if (eq (value1, S(Kwait))) return 1;
+      # For compatibility with old code -1,0,+1 are still accepted -- depreciated!
+      if (eq (value1, Fixnum_minus1) ||
+          eq (value1, fixnum (0)) ||
+          eq (value1, fixnum (1)))
+        return I_to_L(value1);
+      # Otherwise raise error:
+      pushSTACK (value1);               # DATUM
+        pushSTACK (S(member));
+        pushSTACK (S(Keof));
+        pushSTACK (S(Kinput_available));
+        pushSTACK (S(Kwait));
+        funcall (L(list),4);
+      pushSTACK (value1);               # EXPECTED-TYPE
+      pushSTACK (value1);               # once again for the error message.
+      pushSTACK (S(generic_stream_listen));
+      pushSTACK (STACK_3);              # DATUM
+      fehler (type_error, "Return value, ~, of call to ~ is not of type ~.");
+    }
+
+  # (CLEAR-INPUT s) ==
+  # (GENERIC-STREAM-CLEAR-INPUT c)
+  local boolean clear_input_generic (object stream);
+  local boolean clear_input_generic(stream)
+    var object stream;
+    { pushSTACK(stream); funcall(L(generic_stream_controller),1);
+      pushSTACK(value1); funcall(S(generic_stream_clear_input),1);
+      return !nullp(value1);
+    }
+
+  # (WRITE-CHAR ch s) ==
+  # (GENERIC-STREAM-WRITE-CHAR c ch)
+  local void wr_ch_generic (const object* stream_, object ch);
+  local void wr_ch_generic(stream_,ch)
+    var const object* stream_;
+    var object ch;
+    { # ch is a character, need not save it
+      pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
+      pushSTACK(value1); pushSTACK(ch); funcall(S(generic_stream_wrch),2);
+    }
+
+  # (WRITE-SIMPLE-STRING s string start len) ==
+  # (GENERIC-STREAM-WRITE-STRING c string start len)
+  local void wr_ss_generic (const object* stream_, object string, uintL start, uintL len);
+  local void wr_ss_generic(stream_,string,start,len)
+    var const object* stream_;
+    var object string;
+    var uintL start;
+    var uintL len;
+    { pushSTACK(string); # save string
+      pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
+      pushSTACK(value1); pushSTACK(STACK_(0+1));
+      pushSTACK(UL_to_I(start)); pushSTACK(UL_to_I(len));
+      funcall(S(generic_stream_wrss),4);
+      string = popSTACK();
+      wr_ss_lpos(*stream_,&TheSstring(string)->data[start],len);
+    }
+
+  # (FINISH-OUTPUT s) ==
+  # (GENERIC-STREAM-FINISH-OUTPUT c)
+  local void finish_output_generic (object stream);
+  local void finish_output_generic(stream)
+    var object stream;
+    { pushSTACK(stream); funcall(L(generic_stream_controller),1);
+      pushSTACK(value1); funcall(S(generic_stream_finish_output),1);
+    }
+
+  # (FORCE-OUTPUT s) ==
+  # (GENERIC-STREAM-FORCE-OUTPUT c)
+  local void force_output_generic (object stream);
+  local void force_output_generic(stream)
+    var object stream;
+    { pushSTACK(stream); funcall(L(generic_stream_controller),1);
+      pushSTACK(value1); funcall(S(generic_stream_force_output),1);
+    }
+
+  # (CLEAR-OUTPUT s) ==
+  # (GENERIC-STREAM-CLEAR-OUTPUT c)
+  local void clear_output_generic (object stream);
+  local void clear_output_generic(stream)
+    var object stream;
+    { pushSTACK(stream); funcall(L(generic_stream_controller),1);
+      pushSTACK(value1); funcall(S(generic_stream_clear_output),1);
+    }
+
+  # (READ-BYTE s) ==
+  # (GENERIC-STREAM-READ-BYTE c)
+  local object rd_by_generic (object stream);
+  local object rd_by_generic(stream)
+    var object stream;
+    { pushSTACK(stream); funcall(L(generic_stream_controller),1);
+      pushSTACK(value1); funcall(S(generic_stream_rdby),1);
+      return (nullp(value1) ? eof_value : value1);
+    }
+
+  # (WRITE-BYTE s i) ==
+  # (GENERIC-STREAM-WRITE-BYTE c i)
+  local void wr_by_generic (object stream, object obj);
+  local void wr_by_generic(stream,obj)
+    var object stream;
+    var object obj;
+    { pushSTACK(obj); # save obj
+      pushSTACK(stream); funcall(L(generic_stream_controller),1);
+      obj = STACK_0;
+      STACK_0 = value1; pushSTACK(obj); funcall(S(generic_stream_wrby),2);
+    }
+
+  # (CLOSE s) ==
+  # (GENERIC-STREAM-CLOSE c)
+  local void close_generic(stream)
+    var object stream;
+    { pushSTACK(stream); funcall(L(generic_stream_controller),1);
+      pushSTACK(value1); funcall(S(generic_stream_close),1);
+    }
+
+LISPFUNN(generic_stream_controller,1)
+  { var object stream = popSTACK();
+    if (!streamp(stream)) { fehler_stream(stream); }
+    if (!(   eq(TheStream(stream)->strm_rd_by,P(rd_by_generic))
+          && eq(TheStream(stream)->strm_wr_by,P(wr_by_generic))))
+      { pushSTACK(stream);
+        pushSTACK(TheSubr(subr_self)->name);
+        fehler(error,
+               DEUTSCH ? "~: Stream muss ein Generic-Stream sein, nicht ~" :
+               ENGLISH ? "~: stream must be a generic-stream, not ~" :
+               FRANCAIS ? "~ : Le stream doit être un «generic-stream» et non ~" :
+               ""
+              );
+      }
+    value1=TheStream(stream)->strm_controller_object;
+    mv_count=1;
+  }
+
+LISPFUNN(make_generic_stream,1)
+  { var object stream =
+      allocate_stream(strmflags_open_B,strmtype_generic,strm_len+1,0);
+    TheStream(stream)->strm_rd_by = P(rd_by_generic);
+    TheStream(stream)->strm_wr_by = P(wr_by_generic);
+    TheStream(stream)->strm_rd_ch = P(rd_ch_generic);
+    TheStream(stream)->strm_pk_ch = P(pk_ch_generic);
+    TheStream(stream)->strm_rd_ch_last = NIL;
+    TheStream(stream)->strm_wr_ch = P(wr_ch_generic);
+    TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
+    TheStream(stream)->strm_wr_ss = P(wr_ss_generic);
+    TheStream(stream)->strm_controller_object = popSTACK();
+    value1 = stream; mv_count=1; # stream als Wert
+  }
+
+LISPFUNN(generic_stream_p,1)
+  { var object stream = popSTACK();
+    if (!streamp(stream)) { fehler_stream(stream); }
+    if ((eq(TheStream(stream)->strm_rd_by,P(rd_by_generic))
+      && eq(TheStream(stream)->strm_wr_by,P(wr_by_generic))))
+      { value1 = T; mv_count=1; }
+    else
+      { value1 = NIL; mv_count=1; }
+  }
+
+#endif
+
+
+# Streams communicating with the exterior world, based on bytes
+# =============================================================
 
 #if defined(UNIX) || defined(EMUNIX) || defined(DJUNIX) || defined(WATCOM) || defined(RISCOS)
 
@@ -9158,1625 +11003,6 @@ LISPFUNN(file_stream_p,1)
   }
 
 
-# Synonym-Stream
-# ==============
-
-# Zusätzliche Komponenten:
-  # define strm_synonym_symbol  strm_other[0]  # Symbol, auf dessen Wert verwiesen wird
-
-# Macro: Liefert den Wert eines Symbols, ein Stream.
-# get_synonym_stream(sym)
-# > sym: Symbol
-# < ergebnis: sein Wert, ein Stream
-  #define get_synonym_stream(sym)  \
-    ((!streamp(Symbol_value(sym))) ?         \
-       (fehler_value_stream(sym), unbound) : \
-       Symbol_value(sym)                     \
-    )
-
-# READ-BYTE - Pseudofunktion für Synonym-Streams:
-  local object rd_by_synonym (object stream);
-  local object rd_by_synonym(stream)
-    var object stream;
-    { check_SP();
-     {var object symbol = TheStream(stream)->strm_synonym_symbol;
-      return read_byte(get_synonym_stream(symbol));
-    }}
-
-# WRITE-BYTE - Pseudofunktion für Synonym-Streams:
-  local void wr_by_synonym (object stream, object obj);
-  local void wr_by_synonym(stream,obj)
-    var object stream;
-    var object obj;
-    { check_SP();
-     {var object symbol = TheStream(stream)->strm_synonym_symbol;
-      write_byte(get_synonym_stream(symbol),obj);
-    }}
-
-# READ-CHAR - Pseudofunktion für Synonym-Streams:
-  local object rd_ch_synonym (const object* stream_);
-  local object rd_ch_synonym(stream_)
-    var const object* stream_;
-    {  check_SP(); check_STACK();
-     { var object stream = *stream_;
-       var object symbol = TheStream(stream)->strm_synonym_symbol;
-       pushSTACK(get_synonym_stream(symbol));
-      {var object ergebnis = read_char(&STACK_0);
-       skipSTACK(1);
-       return ergebnis;
-    }}}
-
-# PEEK-CHAR - Pseudofunktion für Synonym-Streams:
-  local object pk_ch_synonym (const object* stream_);
-  local object pk_ch_synonym(stream_)
-    var const object* stream_;
-    {  check_SP(); check_STACK();
-     { var object stream = *stream_;
-       var object symbol = TheStream(stream)->strm_synonym_symbol;
-       pushSTACK(get_synonym_stream(symbol));
-      {var object ergebnis = peek_char(&STACK_0);
-       skipSTACK(1);
-       return ergebnis;
-    }}}
-
-# WRITE-CHAR - Pseudofunktion für Synonym-Streams:
-  local void wr_ch_synonym (const object* stream_, object obj);
-  local void wr_ch_synonym(stream_,obj)
-    var const object* stream_;
-    var object obj;
-    { check_SP(); check_STACK();
-     {var object stream = *stream_;
-      var object symbol = TheStream(stream)->strm_synonym_symbol;
-      pushSTACK(get_synonym_stream(symbol));
-      write_char(&STACK_0,obj);
-      skipSTACK(1);
-    }}
-
-# WRITE-SIMPLE-STRING - Pseudofunktion für Synonym-Streams:
-  local void wr_ss_synonym (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_synonym(stream_,string,start,len)
-    var const object* stream_;
-    var object string;
-    var uintL start;
-    var uintL len;
-    { check_SP(); check_STACK();
-     {var object symbol = TheStream(*stream_)->strm_synonym_symbol;
-      pushSTACK(get_synonym_stream(symbol));
-      wr_ss(STACK_0)(&STACK_0,string,start,len);
-      skipSTACK(1);
-      # Line-Position aktualisieren kann hier entfallen.
-    }}
-
-# Schließt einen Synonym-Stream.
-# close_synonym(stream);
-# > stream : Synonym-Stream
-#ifdef X3J13_014
-  #define close_synonym(stream)
-#else
-  local void close_synonym (object stream);
-  local void close_synonym(stream)
-    var object stream;
-    { check_SP(); check_STACK();
-     {var object symbol = TheStream(stream)->strm_synonym_symbol;
-      pushSTACK(get_synonym_stream(symbol));
-      stream_close(&STACK_0);
-      skipSTACK(1);
-    }}
-#endif
-
-# Stellt fest, ob ein Synonym-Stream ein Zeichen verfügbar hat.
-# listen_synonym(stream)
-# > stream : Synonym-Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
-# kann GC auslösen
-  local signean listen_synonym (object stream);
-  local signean listen_synonym(stream)
-    var object stream;
-    { check_SP();
-     {var object symbol = TheStream(stream)->strm_synonym_symbol;
-      return stream_listen(get_synonym_stream(symbol));
-    }}
-
-# UP: Löscht bereits eingegebenen interaktiven Input von einem Synonym-Stream.
-# clear_input_synonym(stream)
-# > stream: Synonym-Stream
-# < ergebnis: TRUE falls Input gelöscht wurde
-# kann GC auslösen
-  local boolean clear_input_synonym (object stream);
-  local boolean clear_input_synonym(stream)
-    var object stream;
-    { check_SP();
-     {var object symbol = TheStream(stream)->strm_synonym_symbol;
-      return clear_input(get_synonym_stream(symbol));
-    }}
-
-# UP: Wartenden Output eines Synonym-Stream ans Ziel bringen.
-# finish_output_synonym(stream);
-# > stream: Synonym-Stream
-# kann GC auslösen
-  local void finish_output_synonym (object stream);
-  local void finish_output_synonym(stream)
-    var object stream;
-    { check_SP();
-     {var object symbol = TheStream(stream)->strm_synonym_symbol;
-      finish_output(get_synonym_stream(symbol));
-    }}
-
-# UP: Wartenden Output eines Synonym-Stream ans Ziel bringen.
-# force_output_synonym(stream);
-# > stream: Synonym-Stream
-# kann GC auslösen
-  local void force_output_synonym (object stream);
-  local void force_output_synonym(stream)
-    var object stream;
-    { check_SP();
-     {var object symbol = TheStream(stream)->strm_synonym_symbol;
-      force_output(get_synonym_stream(symbol));
-    }}
-
-# UP: Löscht den wartenden Output eines Synonym-Stream.
-# clear_output_synonym(stream);
-# > stream: Synonym-Stream
-# kann GC auslösen
-  local void clear_output_synonym (object stream);
-  local void clear_output_synonym(stream)
-    var object stream;
-    { check_SP();
-     {var object symbol = TheStream(stream)->strm_synonym_symbol;
-      clear_output(get_synonym_stream(symbol));
-    }}
-
-# Liefert einen Synonym-Stream zu einem Symbol.
-# make_synonym_stream(symbol)
-# > symbol : Symbol
-# < ergebnis : neuer Synonym-Stream
-# kann GC auslösen
-  local object make_synonym_stream (object symbol);
-  local object make_synonym_stream(symbol)
-    var object symbol;
-    { pushSTACK(symbol); # Symbol retten
-     {var object stream = # neuer Stream, alle Operationen erlaubt
-        allocate_stream(strmflags_open_B,strmtype_synonym,strm_len+1,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_synonym);
-      TheStream(stream)->strm_wr_by = P(wr_by_synonym);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_synonym);
-      TheStream(stream)->strm_pk_ch = P(pk_ch_synonym);
-      TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_synonym);
-      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_synonym);
-      TheStream(stream)->strm_synonym_symbol = popSTACK();
-      return stream;
-    }}
-
-LISPFUNN(make_synonym_stream,1)
-# (MAKE-SYNONYM-STREAM symbol), CLTL S. 329
-  { var object arg = popSTACK();
-    if (!symbolp(arg))
-      { pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(S(symbol)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-        pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,
-               DEUTSCH ? "~: Argument muss ein Symbol sein, nicht ~" :
-               ENGLISH ? "~: argument should be a symbol, not ~" :
-               FRANCAIS ? "~ : L'argument doit être un symbole et non ~":
-               ""
-              );
-      }
-    value1 = make_synonym_stream(arg); mv_count=1;
-  }
-
-LISPFUNN(synonym_stream_p,1)
-# (SYS::SYNONYM-STREAM-P stream) == (TYPEP stream 'SYNONYM-STREAM)
-  { var object arg = popSTACK();
-    value1 = (streamp(arg) && (TheStream(arg)->strmtype == strmtype_synonym)
-              ? T
-              : NIL
-             );
-    mv_count=1;
-  }
-
-LISPFUNN(synonym_stream_symbol,1)
-# (SYNONYM-STREAM-SYMBOL stream), CLtL2 S. 507
-  { var object stream = popSTACK();
-    if (!streamp(stream)) { fehler_stream(stream); }
-    if (!(TheStream(stream)->strmtype == strmtype_synonym))
-      { fehler_streamtype(stream,S(synonym_stream)); }
-    value1 = TheStream(stream)->strm_synonym_symbol; mv_count=1;
-  }
-
-
-# Broadcast-Stream
-# ================
-
-# Zusätzliche Komponenten:
-  # define strm_broad_list  strm_other[0] # Liste von Streams
-
-# WRITE-BYTE - Pseudofunktion für Broadcast-Streams:
-  local void wr_by_broad (object stream, object obj);
-  local void wr_by_broad(stream,obj)
-    var object stream;
-    var object obj;
-    { check_SP(); check_STACK();
-      pushSTACK(obj);
-      { var object streamlist = TheStream(stream)->strm_broad_list; # Liste von Streams
-        # obj auf jeden Stream aus der Liste ausgeben:
-        while (consp(streamlist))
-          { pushSTACK(Cdr(streamlist)); # restliche Streams
-            write_byte(Car(streamlist),STACK_1); # obj ausgeben
-            streamlist = popSTACK();
-      }   }
-      skipSTACK(1);
-    }
-
-# WRITE-CHAR - Pseudofunktion für Broadcast-Streams:
-  local void wr_ch_broad (const object* stream_, object obj);
-  local void wr_ch_broad(stream_,obj)
-    var const object* stream_;
-    var object obj;
-    { check_SP(); check_STACK();
-      pushSTACK(obj);
-      pushSTACK(NIL); # dummy
-      pushSTACK(TheStream(*stream_)->strm_broad_list); # Liste von Streams
-      # obj auf jeden Stream aus der Liste ausgeben:
-      while (mconsp(STACK_0))
-        { # Stackaufbau: obj, dummy, streamlistr.
-          STACK_1 = Car(STACK_0); # ein Stream aus der Liste
-          write_char(&STACK_1,STACK_2); # obj ausgeben
-          STACK_0 = Cdr(STACK_0);
-        }
-      skipSTACK(3);
-    }
-
-# WRITE-CHAR - Pseudofunktion für Broadcast-Streams:
-  local void wr_ss_broad (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_broad(stream_,string,start,len)
-    var const object* stream_;
-    var object string;
-    var uintL start;
-    var uintL len;
-    { check_SP(); check_STACK();
-      pushSTACK(string);
-      pushSTACK(NIL); # dummy
-      pushSTACK(TheStream(*stream_)->strm_broad_list); # Liste von Streams
-      # string auf jeden Stream aus der Liste ausgeben:
-      while (mconsp(STACK_0))
-        { # Stackaufbau: string, dummy, streamlistr.
-          STACK_1 = Car(STACK_0); # ein Stream aus der Liste
-          wr_ss(STACK_1)(&STACK_1,STACK_2,start,len); # string-Stück ausgeben
-          STACK_0 = Cdr(STACK_0);
-        }
-      skipSTACK(3);
-      # Line-Position aktualisieren kann hier entfallen.
-    }
-
-# UP: Bringt den wartenden Output eines Broadcast-Stream ans Ziel.
-# finish_output_broad(stream);
-# > stream: Broadcast-Stream
-# kann GC auslösen
-  local void finish_output_broad (object stream);
-  local void finish_output_broad(stream)
-    var object stream;
-    { check_SP(); check_STACK();
-      { var object streamlist = TheStream(stream)->strm_broad_list; # Liste von Streams
-        # Jeden Stream aus der Liste einzeln behandeln:
-        while (consp(streamlist))
-          { pushSTACK(Cdr(streamlist)); # restliche Streams
-            finish_output(Car(streamlist));
-            streamlist = popSTACK();
-      }   }
-    }
-
-# UP: Bringt den wartenden Output eines Broadcast-Stream ans Ziel.
-# force_output_broad(stream);
-# > stream: Broadcast-Stream
-# kann GC auslösen
-  local void force_output_broad (object stream);
-  local void force_output_broad(stream)
-    var object stream;
-    { check_SP(); check_STACK();
-      { var object streamlist = TheStream(stream)->strm_broad_list; # Liste von Streams
-        # Jeden Stream aus der Liste einzeln behandeln:
-        while (consp(streamlist))
-          { pushSTACK(Cdr(streamlist)); # restliche Streams
-            force_output(Car(streamlist));
-            streamlist = popSTACK();
-      }   }
-    }
-
-# UP: Löscht den wartenden Output eines Broadcast-Stream.
-# clear_output_broad(stream);
-# > stream: Broadcast-Stream
-# kann GC auslösen
-  local void clear_output_broad (object stream);
-  local void clear_output_broad(stream)
-    var object stream;
-    { check_SP(); check_STACK();
-      { var object streamlist = TheStream(stream)->strm_broad_list; # Liste von Streams
-        # Jeden Stream aus der Liste einzeln behandeln:
-        while (consp(streamlist))
-          { pushSTACK(Cdr(streamlist)); # restliche Streams
-            clear_output(Car(streamlist));
-            streamlist = popSTACK();
-      }   }
-    }
-
-# Liefert einen Broadcast-Stream zu einer Streamliste.
-# make_broadcast_stream(list)
-# > list : Liste von Streams
-# < ergebnis : Broadcast-Stream
-# Die Liste list wird dabei zerstört.
-# kann GC auslösen
-  local object make_broadcast_stream (object list);
-  local object make_broadcast_stream(list)
-    var object list;
-    { pushSTACK(list); # list retten
-     {var object stream = # neuer Stream, nur WRITEs erlaubt
-        allocate_stream(strmflags_wr_B,strmtype_broad,strm_len+1,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_dummy);
-      TheStream(stream)->strm_wr_by = P(wr_by_broad);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
-      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-      TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_broad);
-      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_broad);
-      TheStream(stream)->strm_broad_list = popSTACK();
-      return stream;
-    }}
-
-# Liefert einen Broadcast-Stream zum Stream stream.
-# make_broadcast1_stream(stream)
-# > stream : Stream
-# < ergebnis : Broadcast-Stream
-# kann GC auslösen
-  global object make_broadcast1_stream (object stream);
-  global object make_broadcast1_stream(oldstream)
-    var object oldstream;
-    {  pushSTACK(oldstream);
-       # oldstream in eine einelementige Liste packen:
-     { var object new_cons = allocate_cons();
-       Car(new_cons) = STACK_0;
-      {var object stream = make_broadcast_stream(new_cons); # neuer Stream
-       oldstream = popSTACK();
-       # Line-Position übernehmen:
-       TheStream(stream)->strm_wr_ch_lpos = TheStream(oldstream)->strm_wr_ch_lpos;
-       return stream;
-    }}}
-
-LISPFUN(make_broadcast_stream,0,0,rest,nokey,0,NIL)
-# (MAKE-BROADCAST-STREAM {stream}), CLTL S. 329
-  { # Überprüfen, ob alle Argumente Streams sind:
-    test_output_stream_args(rest_args_pointer,argcount);
-    # zu einer Liste zusammenfassen:
-   {var object list = listof(argcount);
-    # Stream bauen:
-    value1 = make_broadcast_stream(list); mv_count=1;
-  }}
-
-LISPFUNN(broadcast_stream_p,1)
-# (SYS::BROADCAST-STREAM-P stream) == (TYPEP stream 'BROADCAST-STREAM)
-  { var object arg = popSTACK();
-    value1 = (streamp(arg) && (TheStream(arg)->strmtype == strmtype_broad)
-              ? T
-              : NIL
-             );
-    mv_count=1;
-  }
-
-LISPFUNN(broadcast_stream_streams,1)
-# (BROADCAST-STREAM-STREAMS stream), CLtL2 S. 507
-  { var object stream = popSTACK();
-    if (!streamp(stream)) { fehler_stream(stream); }
-    if (!(TheStream(stream)->strmtype == strmtype_broad))
-      { fehler_streamtype(stream,S(broadcast_stream)); }
-    # Liste der Streams sicherheitshalber kopieren
-    value1 = copy_list(TheStream(stream)->strm_broad_list); mv_count=1;
-  }
-
-
-# Concatenated-Stream
-# ===================
-
-# Zusätzliche Komponenten:
-  # define strm_concat_list   strm_other[0]  # Liste von Streams
-  #define strm_concat_list2  strm_other[1]  # Liste der verbrauchten Streams
-
-# READ-BYTE - Pseudofunktion für Concatenated-Streams:
-  local object rd_by_concat (object stream);
-  local object rd_by_concat(stream)
-    var object stream;
-    { check_SP(); check_STACK();
-      pushSTACK(stream);
-     {var object streamlist = TheStream(stream)->strm_concat_list; # Liste von Streams
-      var object ergebnis;
-      while (consp(streamlist))
-        { ergebnis = read_byte(Car(streamlist)); # Integer lesen
-          if (!eq(ergebnis,eof_value)) { goto OK; } # nicht EOF ?
-          # EOF erreicht -> verbrauchten Stream aus der Liste nehmen
-          # und in die zweite Liste stecken:
-          stream = STACK_0;
-         {var object first_cons = TheStream(stream)->strm_concat_list;
-          streamlist = Cdr(first_cons);
-          Cdr(first_cons) = TheStream(stream)->strm_concat_list2;
-          TheStream(stream)->strm_concat_list2 = first_cons;
-          TheStream(stream)->strm_concat_list = streamlist;
-        }}
-      # alle Streams verbraucht -> liefere EOF:
-      ergebnis = eof_value;
-      OK: # ergebnis fertig
-      skipSTACK(1);
-      return ergebnis;
-    }}
-
-# READ-CHAR - Pseudofunktion für Concatenated-Streams:
-  local object rd_ch_concat (const object* stream_);
-  local object rd_ch_concat(stream_)
-    var const object* stream_;
-    { check_SP(); check_STACK();
-     {var object streamlist = TheStream(*stream_)->strm_concat_list; # Liste von Streams
-      while (consp(streamlist))
-        { pushSTACK(Car(streamlist));
-         {var object ergebnis = read_char(&STACK_0); # Character lesen
-          skipSTACK(1);
-          if (!eq(ergebnis,eof_value)) { return ergebnis; }
-          # EOF erreicht -> verbrauchten Stream aus der Liste nehmen
-          # und in die zweite Liste stecken:
-          {var object stream = *stream_;
-           var object first_cons = TheStream(stream)->strm_concat_list;
-           streamlist = Cdr(first_cons);
-           Cdr(first_cons) = TheStream(stream)->strm_concat_list2;
-           TheStream(stream)->strm_concat_list2 = first_cons;
-           TheStream(stream)->strm_concat_list = streamlist;
-        }}}
-      # alle Streams verbraucht -> liefere EOF:
-      return eof_value;
-    }}
-
-# PEEK-CHAR - Pseudofunktion für Concatenated-Streams:
-  local object pk_ch_concat (const object* stream_);
-  local object pk_ch_concat(stream_)
-    var const object* stream_;
-    { check_SP(); check_STACK();
-     {var object streamlist = TheStream(*stream_)->strm_concat_list; # Liste von Streams
-      while (consp(streamlist))
-        { pushSTACK(Car(streamlist));
-         {var object ergebnis = peek_char(&STACK_0); # Character lesen
-          skipSTACK(1);
-          if (!eq(ergebnis,eof_value)) { return ergebnis; }
-          # EOF erreicht -> verbrauchten Stream aus der Liste nehmen
-          # und in die zweite Liste stecken:
-          {var object stream = *stream_;
-           var object first_cons = TheStream(stream)->strm_concat_list;
-           streamlist = Cdr(first_cons);
-           Cdr(first_cons) = TheStream(stream)->strm_concat_list2;
-           TheStream(stream)->strm_concat_list2 = first_cons;
-           TheStream(stream)->strm_concat_list = streamlist;
-        }}}
-      # alle Streams verbraucht -> liefere EOF:
-      return eof_value;
-    }}
-
-# Stellt fest, ob ein Concatenated-Stream ein Zeichen verfügbar hat.
-# listen_concat(stream)
-# > stream : Concatenated-Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
-# kann GC auslösen
-  local signean listen_concat (object stream);
-  local signean listen_concat(stream)
-    var object stream;
-    { pushSTACK(stream);
-     {var object streamlist = TheStream(stream)->strm_concat_list; # Liste von Streams
-      var signean ergebnis;
-      while (consp(streamlist))
-        { ergebnis = stream_listen(Car(streamlist));
-          if (ergebnis>=0) { goto OK; } # nicht EOF ?
-          # EOF erreicht -> verbrauchten Stream aus der Liste nehmen
-          # und in die zweite Liste stecken:
-          stream = STACK_0;
-         {var object first_cons = TheStream(stream)->strm_concat_list;
-          streamlist = Cdr(first_cons);
-          Cdr(first_cons) = TheStream(stream)->strm_concat_list2;
-          TheStream(stream)->strm_concat_list2 = first_cons;
-          TheStream(stream)->strm_concat_list = streamlist;
-        }}
-      # alle Streams verbraucht -> liefere EOF:
-      ergebnis = signean_minus;
-      OK: # ergebnis fertig
-      skipSTACK(1);
-      return ergebnis;
-    }}
-
-# UP: Löscht bereits eingegebenen interaktiven Input von einem
-# Concatenated-Stream.
-# clear_input_concat(stream)
-# > stream: Concatenated-Stream
-# < ergebnis: TRUE falls Input gelöscht wurde
-# kann GC auslösen
-  local boolean clear_input_concat (object stream);
-  local boolean clear_input_concat(stream)
-    var object stream;
-    { var boolean ergebnis = FALSE; # noch kein Input gelöscht
-      # alle Streams einzeln behandeln:
-      var object streamlist = TheStream(stream)->strm_concat_list; # Liste von Streams
-      while (consp(streamlist))
-        { pushSTACK(Cdr(streamlist)); # restliche Streamliste
-          ergebnis |= clear_input(Car(streamlist)); # allen Input des Teilstreams löschen
-          streamlist = popSTACK();
-        }
-      return ergebnis;
-    }
-
-# Liefert einen Concatenated-Stream zu einer Streamliste.
-# make_concatenated_stream(list)
-# > list : Liste von Streams
-# < ergebnis : Concatenated-Stream
-# Die Liste list wird dabei zerstört.
-# kann GC auslösen
-  local object make_concatenated_stream (object list);
-  local object make_concatenated_stream(list)
-    var object list;
-    { pushSTACK(list); # list retten
-     {var object stream = # neuer Stream, nur READs erlaubt
-        allocate_stream(strmflags_rd_B,strmtype_concat,strm_len+2,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_concat);
-      TheStream(stream)->strm_wr_by = P(wr_by_dummy);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_concat);
-      TheStream(stream)->strm_pk_ch = P(pk_ch_concat);
-      TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
-      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
-      TheStream(stream)->strm_concat_list = popSTACK();
-      TheStream(stream)->strm_concat_list2 = NIL;
-      return stream;
-    }}
-
-LISPFUN(make_concatenated_stream,0,0,rest,nokey,0,NIL)
-# (MAKE-CONCATENATED-STREAM {stream}), CLTL S. 329
-  { # Überprüfen, ob alle Argumente Streams sind:
-    test_input_stream_args(rest_args_pointer,argcount);
-    # zu einer Liste zusammenfassen:
-   {var object list = listof(argcount);
-    # Stream bauen:
-    value1 = make_concatenated_stream(list); mv_count=1;
-  }}
-
-LISPFUNN(concatenated_stream_p,1)
-# (SYS::CONCATENATED-STREAM-P stream) == (TYPEP stream 'CONCATENATED-STREAM)
-  { var object arg = popSTACK();
-    value1 = (streamp(arg) && (TheStream(arg)->strmtype == strmtype_concat)
-              ? T
-              : NIL
-             );
-    mv_count=1;
-  }
-
-LISPFUNN(concatenated_stream_streams,1)
-# (CONCATENATED-STREAM-STREAMS stream), CLtL2 S. 507
-  { var object stream = popSTACK();
-    if (!streamp(stream)) { fehler_stream(stream); }
-    if (!(TheStream(stream)->strmtype == strmtype_concat))
-      { fehler_streamtype(stream,S(concatenated_stream)); }
-    # Liste der Streams sicherheitshalber kopieren:
-    # (revappend list2 (copy-list list))
-    pushSTACK(TheStream(stream)->strm_concat_list);
-    pushSTACK(copy_list(TheStream(stream)->strm_concat_list2));
-    funcall(L(revappend),2);
-  }
-
-
-# Two-Way-Stream, Echo-Stream
-# ===========================
-
-# Zusätzliche Komponenten:
-  #define strm_twoway_input   strm_other[0]  # Stream für Input
-  #define strm_twoway_output  strm_other[1]  # Stream für Output
-
-# WRITE-BYTE - Pseudofunktion für Two-Way- und Echo-Streams:
-  local void wr_by_twoway (object stream, object obj);
-  local void wr_by_twoway(stream,obj)
-    var object stream;
-    var object obj;
-    { check_SP();
-      write_byte(TheStream(stream)->strm_twoway_output,obj);
-    }
-
-# WRITE-CHAR - Pseudofunktion für Two-Way- und Echo-Streams:
-  local void wr_ch_twoway (const object* stream_, object obj);
-  local void wr_ch_twoway(stream_,obj)
-    var const object* stream_;
-    var object obj;
-    { check_SP(); check_STACK();
-      pushSTACK(TheStream(*stream_)->strm_twoway_output);
-      write_char(&STACK_0,obj);
-      skipSTACK(1);
-    }
-
-# WRITE-SIMPLE-STRING - Pseudofunktion für Two-Way- und Echo-Streams:
-  local void wr_ss_twoway (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_twoway(stream_,string,start,len)
-    var const object* stream_;
-    var object string;
-    var uintL start;
-    var uintL len;
-    { check_SP(); check_STACK();
-      pushSTACK(TheStream(*stream_)->strm_twoway_output);
-      wr_ss(STACK_0)(&STACK_0,string,start,len);
-      skipSTACK(1);
-      # Line-Position aktualisieren kann hier entfallen.
-    }
-
-# Stellt fest, ob ein Two-Way- oder Echo-Stream ein Zeichen verfügbar hat.
-# listen_twoway(stream)
-# > stream : Two-Way- oder Echo-Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
-# kann GC auslösen
-  local signean listen_twoway (object stream);
-  local signean listen_twoway(stream)
-    var object stream;
-    { check_SP();
-      return stream_listen(TheStream(stream)->strm_twoway_input);
-    }
-
-# UP: Löscht bereits eingegebenen interaktiven Input von einem Two-Way-
-# oder Echo-Stream.
-# clear_input_twoway(stream)
-# > stream: Two-Way- oder Echo-Stream
-# < ergebnis: TRUE falls Input gelöscht wurde
-# kann GC auslösen
-  local boolean clear_input_twoway (object stream);
-  local boolean clear_input_twoway(stream)
-    var object stream;
-    { check_SP();
-      return clear_input(TheStream(stream)->strm_twoway_input);
-    }
-
-# UP: Bringt den wartenden Output eines Two-Way- oder Echo-Stream ans Ziel.
-# finish_output_twoway(stream);
-# > stream: Two-Way- oder Echo-Stream
-# kann GC auslösen
-  local void finish_output_twoway (object stream);
-  local void finish_output_twoway(stream)
-    var object stream;
-    { check_SP();
-      finish_output(TheStream(stream)->strm_twoway_output);
-    }
-
-# UP: Bringt den wartenden Output eines Two-Way- oder Echo-Stream ans Ziel.
-# force_output_twoway(stream);
-# > stream: Two-Way- oder Echo-Stream
-# kann GC auslösen
-  local void force_output_twoway (object stream);
-  local void force_output_twoway(stream)
-    var object stream;
-    { check_SP();
-      force_output(TheStream(stream)->strm_twoway_output);
-    }
-
-# UP: Löscht den wartenden Output eines Two-Way- oder Echo-Stream.
-# clear_output_twoway(stream);
-# > stream: Two-Way- oder Echo-Stream
-# kann GC auslösen
-  local void clear_output_twoway (object stream);
-  local void clear_output_twoway(stream)
-    var object stream;
-    { check_SP();
-      clear_output(TheStream(stream)->strm_twoway_output);
-    }
-
-
-# Two-Way-Stream
-# ==============
-
-# READ-BYTE - Pseudofunktion für Two-Way-Streams:
-  local object rd_by_twoway (object stream);
-  local object rd_by_twoway(stream)
-    var object stream;
-    { check_SP();
-      return read_byte(TheStream(stream)->strm_twoway_input);
-    }
-
-# READ-CHAR - Pseudofunktion für Two-Way-Streams:
-  local object rd_ch_twoway (const object* stream_);
-  local object rd_ch_twoway(stream_)
-    var const object* stream_;
-    { check_SP(); check_STACK();
-      pushSTACK(TheStream(*stream_)->strm_twoway_input);
-     {var object ergebnis = read_char(&STACK_0);
-      skipSTACK(1);
-      return ergebnis;
-    }}
-
-# PEEK-CHAR - Pseudofunktion für Two-Way-Streams:
-  local object pk_ch_twoway (const object* stream_);
-  local object pk_ch_twoway(stream_)
-    var const object* stream_;
-    { check_SP(); check_STACK();
-      pushSTACK(TheStream(*stream_)->strm_twoway_input);
-     {var object ergebnis = peek_char(&STACK_0);
-      skipSTACK(1);
-      return ergebnis;
-    }}
-
-# Liefert einen Two-Way-Stream zu einem Input-Stream und einem Output-Stream.
-# make_twoway_stream(input_stream,output_stream)
-# > input_stream : Input-Stream
-# > output_stream : Output-Stream
-# < ergebnis : Two-Way-Stream
-# kann GC auslösen
-  global object make_twoway_stream (object input_stream, object output_stream);
-  global object make_twoway_stream(input_stream,output_stream)
-    var object input_stream;
-    var object output_stream;
-    { pushSTACK(input_stream); pushSTACK(output_stream); # Streams retten
-     {var object stream = # neuer Stream, alle Operationen erlaubt
-        allocate_stream(strmflags_open_B,strmtype_twoway,strm_len+2,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_twoway);
-      TheStream(stream)->strm_wr_by = P(wr_by_twoway);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_twoway);
-      TheStream(stream)->strm_pk_ch = P(pk_ch_twoway);
-      TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_twoway);
-      output_stream = popSTACK(); input_stream = popSTACK(); # Streams zurück
-      TheStream(stream)->strm_wr_ch_lpos = TheStream(output_stream)->strm_wr_ch_lpos;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_twoway);
-      TheStream(stream)->strm_twoway_input = input_stream;
-      TheStream(stream)->strm_twoway_output = output_stream;
-      return stream;
-    }}
-
-LISPFUNN(make_two_way_stream,2)
-# (MAKE-TWO-WAY-STREAM input-stream output-stream), CLTL S. 329
-  { # Überprüfen, ob beides Streams sind:
-    test_stream_args(args_end_pointer STACKop 2, 2);
-   {var object output_stream = popSTACK();
-    var object input_stream = popSTACK();
-    test_input_stream(input_stream);
-    test_output_stream(output_stream);
-    # Stream bauen:
-    value1 = make_twoway_stream(input_stream,output_stream); mv_count=1;
-  }}
-
-LISPFUNN(two_way_stream_p,1)
-# (SYS::TWO-WAY-STREAM-P stream) == (TYPEP stream 'TWO-WAY-STREAM)
-  { var object arg = popSTACK();
-    value1 = (streamp(arg) && (TheStream(arg)->strmtype == strmtype_twoway)
-              ? T
-              : NIL
-             );
-    mv_count=1;
-  }
-
-LISPFUNN(two_way_stream_input_stream,1)
-# (TWO-WAY-STREAM-INPUT-STREAM stream), CLtL2 S. 507
-  { var object stream = popSTACK();
-    if (!streamp(stream)) { fehler_stream(stream); }
-    if (!(TheStream(stream)->strmtype == strmtype_twoway))
-      { fehler_streamtype(stream,S(two_way_stream)); }
-    value1 = TheStream(stream)->strm_twoway_input; mv_count=1;
-  }
-
-LISPFUNN(two_way_stream_output_stream,1)
-# (TWO-WAY-STREAM-OUTPUT-STREAM stream), CLtL2 S. 507
-  { var object stream = popSTACK();
-    if (!streamp(stream)) { fehler_stream(stream); }
-    if (!(TheStream(stream)->strmtype == strmtype_twoway))
-      { fehler_streamtype(stream,S(two_way_stream)); }
-    value1 = TheStream(stream)->strm_twoway_output; mv_count=1;
-  }
-
-
-# Echo-Stream
-# ===========
-
-# READ-BYTE - Pseudofunktion für Echo-Streams:
-  local object rd_by_echo (object stream);
-  local object rd_by_echo(stream)
-    var object stream;
-    { check_SP(); check_STACK();
-      pushSTACK(stream);
-     {var object obj = read_byte(TheStream(stream)->strm_twoway_input);
-      stream = popSTACK();
-      if (!eq(obj,eof_value))
-        { pushSTACK(obj);
-          write_byte(TheStream(stream)->strm_twoway_output,obj);
-          obj = popSTACK();
-        }
-      return obj;
-    }}
-
-# READ-CHAR - Pseudofunktion für Echo-Streams:
-  local object rd_ch_echo (const object* stream_);
-  local object rd_ch_echo(stream_)
-    var const object* stream_;
-    { check_SP(); check_STACK();
-      pushSTACK(TheStream(*stream_)->strm_twoway_input);
-     {var object obj = read_char(&STACK_0);
-      if (!eq(obj,eof_value))
-        { STACK_0 = TheStream(*stream_)->strm_twoway_output;
-          pushSTACK(obj);
-          write_char(&STACK_1,obj);
-          obj = popSTACK();
-        }
-      skipSTACK(1);
-      return obj;
-    }}
-
-# Liefert einen Echo-Stream zu einem Input-Stream und einem Output-Stream.
-# make_echo_stream(input_stream,output_stream)
-# > input_stream : Input-Stream
-# > output_stream : Output-Stream
-# < ergebnis : Echo-Stream
-# kann GC auslösen
-  local object make_echo_stream (object input_stream, object output_stream);
-  local object make_echo_stream(input_stream,output_stream)
-    var object input_stream;
-    var object output_stream;
-    { pushSTACK(input_stream); pushSTACK(output_stream); # Streams retten
-     {var uintB flags = strmflags_open_B;
-      var object stream = # neuer Stream, alle Operationen erlaubt
-        allocate_stream(flags,strmtype_echo,strm_len+2,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_echo);
-      TheStream(stream)->strm_wr_by = P(wr_by_twoway);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_echo);
-      TheStream(stream)->strm_pk_ch = P(pk_ch_twoway);
-      TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_twoway);
-      output_stream = popSTACK(); input_stream = popSTACK(); # Streams zurück
-      TheStream(stream)->strm_wr_ch_lpos = TheStream(output_stream)->strm_wr_ch_lpos;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_twoway);
-      TheStream(stream)->strm_twoway_input = input_stream;
-      TheStream(stream)->strm_twoway_output = output_stream;
-      return stream;
-    }}
-
-LISPFUNN(make_echo_stream,2)
-# (MAKE-ECHO-STREAM input-stream output-stream), CLTL S. 330
-  { # Überprüfen, ob beides Streams sind:
-    test_stream_args(args_end_pointer STACKop 2, 2);
-   {var object output_stream = popSTACK();
-    var object input_stream = popSTACK();
-    test_input_stream(input_stream);
-    test_output_stream(output_stream);
-    # Stream bauen:
-    value1 = make_echo_stream(input_stream,output_stream); mv_count=1;
-  }}
-
-LISPFUNN(echo_stream_p,1)
-# (SYS::ECHO-STREAM-P stream) == (TYPEP stream 'ECHO-STREAM)
-  { var object arg = popSTACK();
-    value1 = (streamp(arg) && (TheStream(arg)->strmtype == strmtype_echo)
-              ? T
-              : NIL
-             );
-    mv_count=1;
-  }
-
-LISPFUNN(echo_stream_input_stream,1)
-# (ECHO-STREAM-INPUT-STREAM stream), CLtL2 S. 507
-  { var object stream = popSTACK();
-    if (!streamp(stream)) { fehler_stream(stream); }
-    if (!(TheStream(stream)->strmtype == strmtype_echo))
-      { fehler_streamtype(stream,S(echo_stream)); }
-    value1 = TheStream(stream)->strm_twoway_input; mv_count=1;
-  }
-
-LISPFUNN(echo_stream_output_stream,1)
-# (ECHO-STREAM-OUTPUT-STREAM stream), CLtL2 S. 507
-  { var object stream = popSTACK();
-    if (!streamp(stream)) { fehler_stream(stream); }
-    if (!(TheStream(stream)->strmtype == strmtype_echo))
-      { fehler_streamtype(stream,S(echo_stream)); }
-    value1 = TheStream(stream)->strm_twoway_output; mv_count=1;
-  }
-
-
-# String-Input-Stream
-# ===================
-
-# Zusätzliche Komponenten:
-  #define strm_str_in_string    strm_other[0]  # String für Input
-  #define strm_str_in_index     strm_other[1]  # Index in den String (Fixnum >=0)
-  #define strm_str_in_endindex  strm_other[2]  # Endindex (Fixnum >= index >=0)
-
-# Fehlermeldung, wenn index >= length(string):
-# fehler_str_in_adjusted(stream);
-# > stream: problematischer String-Input-Stream
-  nonreturning_function(local, fehler_str_in_adjusted, (object stream));
-  local void fehler_str_in_adjusted(stream)
-    var object stream;
-    { pushSTACK(stream); # Wert für Slot STREAM von STREAM-ERROR
-      pushSTACK(TheStream(stream)->strm_str_in_string);
-      pushSTACK(stream);
-      fehler(stream_error,
-             DEUTSCH ? "~ hinterm Stringende angelangt, weil String ~ adjustiert wurde." :
-             ENGLISH ? "~ is beyond the end because the string ~ has been adjusted" :
-             FRANCAIS ? "~ est arrivé après la fin de la chaîne, parce que la chaîne ~ a été ajustée." :
-             ""
-            );
-    }
-
-# READ-CHAR - Pseudofunktion für String-Input-Streams:
-  local object rd_ch_str_in (const object* stream_);
-  local object rd_ch_str_in(stream_)
-    var const object* stream_;
-    { var object stream = *stream_;
-      var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index); # Index
-      var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
-      if (index >= endindex)
-        { return eof_value; } # EOF erreicht
-        else
-        # index < eofindex
-        { var uintL len;
-          var const chart* charptr = unpack_string(TheStream(stream)->strm_str_in_string,&len);
-          # Ab charptr kommen len Zeichen.
-          if (index >= len) # Index zu groß ?
-            { fehler_str_in_adjusted(stream); }
-         {var object ch = code_char(charptr[index]); # Zeichen aus dem String holen
-          # Index erhöhen:
-          TheStream(stream)->strm_str_in_index = fixnum_inc(TheStream(stream)->strm_str_in_index,1);
-          return ch;
-        }}
-    }
-
-# Schließt einen String-Input-Stream.
-# close_str_in(stream);
-# > stream : String-Input-Stream
-  local void close_str_in (object stream);
-  local void close_str_in(stream)
-    var object stream;
-    { TheStream(stream)->strm_str_in_string = NIL; } # String := NIL
-
-# Stellt fest, ob ein String-Input-Stream ein Zeichen verfügbar hat.
-# listen_str_in(stream)
-# > stream : String-Input-Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
-# kann GC auslösen
-  local signean listen_str_in (object stream);
-  local signean listen_str_in(stream)
-    var object stream;
-    { var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index); # Index
-      var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
-      if (index >= endindex)
-        { return signean_minus; } # EOF erreicht
-        else
-        { return signean_null; }
-    }
-
-LISPFUN(make_string_input_stream,1,2,norest,nokey,0,NIL)
-# (MAKE-STRING-INPUT-STREAM string [start [end]]), CLTL S. 330
-  { # String holen und Grenzen überprüfen:
-    var object string;
-    var uintL start;
-    var uintL len;
-    test_string_limits(&string,&start,&len);
-   {var object start_arg = fixnum(start); # start-Argument (Fixnum >=0)
-    var object end_arg = fixnum_inc(start_arg,len); # end-Argument (Fixnum >=0)
-    pushSTACK(string); # String retten
-    { var object stream = # neuer Stream, nur READ-CHAR erlaubt
-        allocate_stream(strmflags_rd_ch_B,strmtype_str_in,strm_len+3,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_dummy);
-      TheStream(stream)->strm_wr_by = P(wr_by_dummy);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_str_in);
-      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-      TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
-      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
-      TheStream(stream)->strm_str_in_string = popSTACK();
-      TheStream(stream)->strm_str_in_index = start_arg; # Index := start-Argument
-      TheStream(stream)->strm_str_in_endindex = end_arg; # Endindex := end-Argument
-      value1 = stream; mv_count=1; # stream als Wert
-  }}}
-
-LISPFUNN(string_input_stream_index,1)
-# (SYSTEM::STRING-INPUT-STREAM-INDEX string-input-stream) liefert den Index
-  { var object stream = popSTACK(); # Argument
-    # muss ein String-Input-Stream sein:
-    if (!(streamp(stream) && (TheStream(stream)->strmtype == strmtype_str_in)))
-      { pushSTACK(stream);
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
-               DEUTSCH ? "~: ~ ist kein String-Input-Stream." :
-               ENGLISH ? "~: ~ is not a string input stream" :
-               FRANCAIS ? "~ : ~ n'est pas un «stream» lisant d'une chaîne." :
-               ""
-              );
-      }
-   {var object index = TheStream(stream)->strm_str_in_index;
-    # Falls ein Character mit UNREAD-CHAR zurückgeschoben wurde,
-    # verwende (1- index), ein Fixnum >=0, als Wert:
-    if (TheStream(stream)->strmflags & strmflags_unread_B)
-      { index = fixnum_inc(index,-1); }
-    value1 = index; mv_count=1;
-  }}
-
-
-# String-Output-Stream
-# ====================
-
-# Zusätzliche Komponenten:
-  #define strm_str_out_string  strm_other[0]  # Semi-Simple-String für Output
-
-# WRITE-CHAR - Pseudofunktion für String-Output-Streams:
-  local void wr_ch_str_out (const object* stream_, object ch);
-  local void wr_ch_str_out(stream_,ch)
-    var const object* stream_;
-    var object ch;
-    { var object stream = *stream_;
-      # obj sollte Character sein:
-      if (!charp(ch)) { fehler_wr_char(stream,ch); }
-      # Character in den String schieben:
-      ssstring_push_extend(TheStream(stream)->strm_str_out_string,char_code(ch));
-    }
-
-# WRITE-SIMPLE-STRING - Pseudofunktion für String-Output-Streams:
-  local void wr_ss_str_out (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_str_out(stream_,srcstring,start,len)
-    var const object* stream_;
-    var object srcstring;
-    var uintL start;
-    var uintL len;
-    { if (len==0) return;
-     {var object ssstring = TheStream(*stream_)->strm_str_out_string; # Semi-Simple-String
-      var uintL old_len = TheIarray(ssstring)->dims[1]; # jetzige Länge = Fill-Pointer
-      if (old_len + len > TheIarray(ssstring)->dims[0]) # passen keine len Bytes mehr hinein
-        { pushSTACK(srcstring);
-          ssstring = ssstring_extend(ssstring,old_len+len); # dann länger machen
-          srcstring = popSTACK();
-        }
-      # Zeichen hineinschieben:
-      {var const chart* srcptr = &TheSstring(srcstring)->data[start];
-       var uintL count;
-       {var chart* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
-        dotimespL(count,len, { *ptr++ = *srcptr++; } );
-       }
-       # und Fill-Pointer erhöhen:
-       TheIarray(ssstring)->dims[1] = old_len + len;
-       wr_ss_lpos(*stream_,srcptr,len); # Line-Position aktualisieren
-    }}}
-
-# Liefert einen String-Output-Stream.
-# make_string_output_stream()
-# kann GC auslösen
-  global object make_string_output_stream (void);
-  global object make_string_output_stream()
-    { # kleinen Semi-Simple-String der Länge 50 allozieren:
-      pushSTACK(make_ssstring(50));
-     {var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
-        allocate_stream(strmflags_wr_ch_B,strmtype_str_out,strm_len+1,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_dummy);
-      TheStream(stream)->strm_wr_by = P(wr_by_dummy);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
-      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-      TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_str_out);
-      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_str_out);
-      TheStream(stream)->strm_str_out_string = popSTACK(); # String eintragen
-      return stream;
-    }}
-
-LISPFUN(make_string_output_stream,0,0,norest,key,2, (kw(element_type),kw(line_position)))
-# (MAKE-STRING-OUTPUT-STREAM [:element-type] [:line-position])
-  { # line-position überprüfen:
-    if (eq(STACK_0,unbound))
-      { STACK_0 = Fixnum_0; } # Defaultwert 0
-      else
-      # line-position angegeben, sollte ein Fixnum >=0 sein:
-      { if (!posfixnump(STACK_0)) { fehler_posfixnum(STACK_0); } }
-    # element-type überprüfen:
-    if (!eq(STACK_1,unbound))
-      { var object eltype = STACK_1;
-        if (!eq(eltype,S(character)))
-          { # Verify (SUBTYPEP eltype 'CHARACTER):
-            pushSTACK(eltype); pushSTACK(S(character)); funcall(S(subtypep),2);
-            if (nullp(value1))
-              { pushSTACK(STACK_1); # eltype
-                pushSTACK(S(character)); # CHARACTER
-                pushSTACK(S(Kelement_type)); # :ELEMENT-TYPE
-                pushSTACK(S(make_string_output_stream));
-                fehler(error,
-                       DEUTSCH ? "~: ~-Argument muss ein Untertyp von ~ sein, nicht ~" :
-                       ENGLISH ? "~: ~ argument must be a subtype of ~, not ~" :
-                       FRANCAIS ? "~ : L'argument ~ doit être un sous-type de ~, et non ~" :
-                       ""
-                      );
-      }   }   }
-   {var object stream = make_string_output_stream(); # String-Output-Stream
-    TheStream(stream)->strm_wr_ch_lpos = popSTACK(); # Line Position eintragen
-    value1 = stream; mv_count=1; # stream als Wert
-    skipSTACK(1);
-  }}
-
-# UP: Liefert das von einem String-Output-Stream Angesammelte.
-# get_output_stream_string(&stream)
-# > stream: String-Output-Stream
-# < stream: geleerter Stream
-# < ergebnis: Angesammeltes, ein Simple-String
-# kann GC auslösen
-  global object get_output_stream_string (const object* stream_);
-  global object get_output_stream_string(stream_)
-    var const object* stream_;
-    { var object string = TheStream(*stream_)->strm_str_out_string; # alter String
-      string = coerce_ss(string); # in Simple-String umwandeln (erzwingt ein Kopieren)
-      # alten String durch Fill-Pointer:=0 leeren:
-      TheIarray(TheStream(*stream_)->strm_str_out_string)->dims[1] = 0;
-      return string;
-    }
-
-LISPFUNN(get_output_stream_string,1)
-# (GET-OUTPUT-STREAM-STRING string-output-stream), CLTL S. 330
-  { var object stream = STACK_0; # Argument
-    # muss ein String-Output-Stream sein:
-    if (!(streamp(stream) && (TheStream(stream)->strmtype == strmtype_str_out)))
-      { # stream in STACK_0
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
-               DEUTSCH ? "~: ~ ist kein String-Output-Stream." :
-               ENGLISH ? "~: ~ is not a string output stream" :
-               FRANCAIS ? "~ : ~ n'est pas un «stream» écrivant dans une chaîne." :
-               ""
-              );
-      }
-   {value1 = get_output_stream_string(&STACK_0); mv_count=1; # Angesammeltes als Wert
-    skipSTACK(1);
-  }}
-
-
-# String-Push-Stream
-# ==================
-
-# Zusätzliche Komponenten:
-  #define strm_str_push_string  strm_other[0]  # String mit Fill-Pointer für Output
-
-# WRITE-CHAR - Pseudofunktion für String-Push-Streams:
-  local void wr_ch_str_push (const object* stream_, object ch);
-  local void wr_ch_str_push(stream_,ch)
-    var const object* stream_;
-    var object ch;
-    { var object stream = *stream_;
-      # ch sollte Character sein:
-      if (!charp(ch)) { fehler_wr_char(stream,ch); }
-      # Character in den String schieben:
-      pushSTACK(ch); pushSTACK(TheStream(stream)->strm_str_push_string);
-      funcall(L(vector_push_extend),2); # (VECTOR-PUSH-EXTEND ch string)
-    }
-
-# (SYSTEM::MAKE-STRING-PUSH-STREAM string) liefert einen Stream, dessen
-# WRITE-CHAR-Operation mit einem VECTOR-PUSH-EXTEND auf den gegebenen String
-# äquivalent ist.
-LISPFUNN(make_string_push_stream,1)
-  { {var object arg = STACK_0; # Argument
-     # muss ein String mit Fill-Pointer sein:
-     if (!(stringp(arg) && array_has_fill_pointer_p(arg)))
-       { pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-         pushSTACK(O(type_string_with_fill_pointer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-         pushSTACK(S(with_output_to_string));
-         fehler(type_error,
-                DEUTSCH ? "~: Argument muss ein String mit Fill-Pointer sein, nicht ~" :
-                ENGLISH ? "~: argument ~ should be a string with fill pointer" :
-                FRANCAIS ? "~ : L'argument doit être une chaîne munie d'un pointeur de remplissage et non ~." :
-                ""
-               );
-    }  }
-    {var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
-       allocate_stream(strmflags_wr_ch_B,strmtype_str_push,strm_len+1,0);
-     TheStream(stream)->strm_rd_by = P(rd_by_dummy);
-     TheStream(stream)->strm_wr_by = P(wr_by_dummy);
-     TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
-     TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-     TheStream(stream)->strm_rd_ch_last = NIL;
-     TheStream(stream)->strm_wr_ch = P(wr_ch_str_push);
-     TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-     TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
-     TheStream(stream)->strm_str_push_string = popSTACK(); # String eintragen
-     value1 = stream; mv_count=1; # stream als Wert
-  } }
-
-
-# String-Stream allgemein
-# =======================
-
-LISPFUNN(string_stream_p,1)
-# (SYS::STRING-STREAM-P stream) == (TYPEP stream 'STRING-STREAM)
-  { var object arg = popSTACK();
-    if (streamp(arg))
-      { switch (TheStream(arg)->strmtype)
-          { case strmtype_str_in:   # String-Input-Stream
-            case strmtype_str_out:  # String-Output-Stream
-            case strmtype_str_push: # String-Push-Stream
-              value1 = T; break;
-            default:
-              value1 = NIL; break;
-      }   }
-      else
-      { value1 = NIL; }
-    mv_count=1;
-  }
-
-
-# Pretty-Printer-Hilfs-Stream
-# ===========================
-
-# Zusätzliche Komponenten:
-  # define strm_pphelp_strings  strm_other[0]   # Semi-Simple-Strings für Output
-  # define strm_pphelp_modus    strm_other[1]   # Modus (NIL=Einzeiler, T=Mehrzeiler)
-
-# WRITE-CHAR - Pseudofunktion für Pretty-Printer-Hilfs-Streams:
-  local void wr_ch_pphelp (const object* stream_, object ch);
-  local void wr_ch_pphelp(stream_,ch)
-    var const object* stream_;
-    var object ch;
-    { var object stream = *stream_;
-      # ch sollte Character sein:
-      if (!charp(ch)) { fehler_wr_char(stream,ch); }
-     {var chart c = char_code(ch); # Character
-      # Bei NL: Ab jetzt  Modus := Mehrzeiler
-      if (chareq(c,ascii(NL))) { TheStream(stream)->strm_pphelp_modus = T; }
-      # Character in den ersten String schieben:
-      ssstring_push_extend(Car(TheStream(stream)->strm_pphelp_strings),c);
-    }}
-
-# WRITE-SIMPLE-STRING - Pseudofunktion für Pretty-Printer-Hilfs-Streams:
-  local void wr_ss_pphelp (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_pphelp(stream_,srcstring,start,len)
-    var const object* stream_;
-    var object srcstring;
-    var uintL start;
-    var uintL len;
-    { if (len==0) return;
-     {var object ssstring = Car(TheStream(*stream_)->strm_pphelp_strings); # Semi-Simple-String
-      var uintL old_len = TheIarray(ssstring)->dims[1]; # jetzige Länge = Fill-Pointer
-      if (old_len + len > TheIarray(ssstring)->dims[0]) # passen keine len Bytes mehr hinein
-        { pushSTACK(srcstring);
-          ssstring = ssstring_extend(ssstring,old_len+len); # dann länger machen
-          srcstring = popSTACK();
-        }
-      # Zeichen hineinschieben:
-      {var const chart* srcptr = &TheSstring(srcstring)->data[start];
-       var uintL count;
-       {var chart* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
-        dotimespL(count,len, { *ptr++ = *srcptr++; } );
-       }
-       # und Fill-Pointer erhöhen:
-       TheIarray(ssstring)->dims[1] = old_len + len;
-       if (wr_ss_lpos(*stream_,srcptr,len)) # Line-Position aktualisieren
-         { TheStream(*stream_)->strm_pphelp_modus = T; } # Nach NL: Modus := Mehrzeiler
-    }}}
-
-# UP: Liefert einen Pretty-Printer-Hilfs-Stream.
-# make_pphelp_stream()
-# kann GC auslösen
-  global object make_pphelp_stream (void);
-  global object make_pphelp_stream()
-    { # kleinen Semi-Simple-String der Länge 50 allozieren:
-      pushSTACK(make_ssstring(50));
-      # einelementige Stringliste bauen:
-     {var object new_cons = allocate_cons();
-      Car(new_cons) = popSTACK();
-      pushSTACK(new_cons);
-     }
-     {var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
-        allocate_stream(strmflags_wr_ch_B,strmtype_pphelp,strm_len+2,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_dummy);
-      TheStream(stream)->strm_wr_by = P(wr_by_dummy);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
-      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-      TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_pphelp);
-      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_pphelp);
-      TheStream(stream)->strm_pphelp_strings = popSTACK(); # String-Liste eintragen
-      TheStream(stream)->strm_pphelp_modus = NIL; # Modus := Einzeiler
-      return stream;
-    }}
-
-
-# Buffered-Input-Stream
-# =====================
-
-# Elementtyp: character
-# Richtungen: nur input
-# (make-buffered-input-stream fun mode) liefert einen solchen.
-#   Dabei ist fun eine Funktion von 0 Argumenten, die bei Aufruf
-#   entweder NIL (steht für EOF) oder bis zu drei Werte string, start, end
-#   zurückliefert.
-#   Funktionsweise: (read-char ...) liefert nacheinander die Zeichen des
-#   aktuellen Strings; ist der zu Ende, wird fun aufgerufen, und ist der
-#   Wert davon ein String, so wird der neue aktuelle String gegeben durch
-#     (multiple-value-bind (str start end) (funcall fun)
-#       (subseq str (or start 0) (or end 'NIL))
-#     )
-#   Der von fun zurückgegebene String sollte nicht verändert werden.
-#   (Ansonsten sollte fun vorher den String mit COPY-SEQ kopieren.)
-#   mode bestimmt, wie sich der Stream bezüglich LISTEN verhält.
-#   mode = NIL: Stream verhält sich wie ein File-Stream, d.h. bei LISTEN
-#               und leerem aktuellen String wird fun aufgerufen.
-#   mode = T: Stream verhält sich wie ein interaktiver Stream ohne EOF,
-#             d.h. man kann davon ausgehen, das stets noch weitere Zeichen
-#             kommen, auch ohne fun aufzurufen.
-#   mode eine Funktion: Diese Funktion teilt, wenn aufgerufen, mit, ob
-#             noch weitere nichtleere Strings zu erwarten sind.
-#   (clear-input ...) beendet die Bearbeitung des aktuellen Strings.
-
-# Zusätzliche Komponenten:
-  # define strm_buff_in_fun      strm_other[0]  # Lesefunktion
-  #define strm_buff_in_mode      strm_other[1]  # Modus oder Listen-Funktion
-  #define strm_buff_in_string    strm_other[2]  # aktueller String für Input
-  #define strm_buff_in_index     strm_other[3]  # Index in den String (Fixnum >=0)
-  #define strm_buff_in_endindex  strm_other[4]  # Endindex (Fixnum >= index >=0)
-
-# READ-CHAR - Pseudofunktion für Buffered-Input-Streams:
-  local object rd_ch_buff_in (const object* stream_);
-  local object rd_ch_buff_in(stream_)
-    var const object* stream_;
-    { var object stream = *stream_;
-      var uintL index = posfixnum_to_L(TheStream(stream)->strm_buff_in_index); # Index
-      var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_buff_in_endindex);
-      loop
-        { if (index < endindex) break; # noch was im aktuellen String?
-          # String-Ende erreicht
-          # fun aufrufen:
-          funcall(TheStream(stream)->strm_buff_in_fun,0);
-          if (!stringp(value1))
-            { return eof_value; } # EOF erreicht
-          # neuen String holen und Grenzen überprüfen:
-          pushSTACK(value1); # String
-          pushSTACK(mv_count >= 2 ? value2 : unbound); # start
-          pushSTACK(mv_count >= 3 ? value3 : unbound); # end
-         {var object string;
-          var uintL start;
-          var uintL len;
-          subr_self = L(read_char);
-          test_string_limits(&string,&start,&len);
-          stream = *stream_;
-          index = start;
-          endindex = index+len;
-          TheStream(stream)->strm_buff_in_string = string;
-          TheStream(stream)->strm_buff_in_index = fixnum(index);
-          TheStream(stream)->strm_buff_in_endindex = fixnum(endindex);
-        }}
-      # index < eofindex
-      { var uintL len;
-        var const chart* charptr = unpack_string(TheStream(stream)->strm_buff_in_string,&len);
-        # Ab charptr kommen len Zeichen.
-        if (index >= len) # Index zu groß ?
-          { pushSTACK(stream); # Wert für Slot STREAM von STREAM-ERROR
-            pushSTACK(TheStream(stream)->strm_buff_in_string);
-            pushSTACK(stream);
-            fehler(stream_error,
-                   DEUTSCH ? "~ hinterm Stringende angelangt, weil String ~ adjustiert wurde." :
-                   ENGLISH ? "~ is beyond the end because the string ~ has been adjusted" :
-                   FRANCAIS ? "~ est arrivé après la fin de la chaîne, parce que la chaîne ~ a été ajustée." :
-                   ""
-                  );
-          }
-       {var object ch = code_char(charptr[index]); # Zeichen aus dem String holen
-        # Index erhöhen:
-        TheStream(stream)->strm_buff_in_index = fixnum_inc(TheStream(stream)->strm_buff_in_index,1);
-        return ch;
-      }}
-    }
-
-# Schließt einen Buffered-Input-Stream.
-# close_buff_in(stream);
-# > stream : Buffered-Input-Stream
-  local void close_buff_in (object stream);
-  local void close_buff_in(stream)
-    var object stream;
-    { TheStream(stream)->strm_buff_in_fun = NIL; # Funktion := NIL
-      TheStream(stream)->strm_buff_in_mode = NIL; # Mode := NIL
-      TheStream(stream)->strm_buff_in_string = NIL; # String := NIL
-    }
-
-# Stellt fest, ob ein Buffered-Input-Stream ein Zeichen verfügbar hat.
-# listen_buff_in(stream)
-# > stream : Buffered-Input-Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
-# kann GC auslösen
-  local signean listen_buff_in (object stream);
-  local signean listen_buff_in(stream)
-    var object stream;
-    { var uintL index = posfixnum_to_L(TheStream(stream)->strm_buff_in_index); # Index
-      var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_buff_in_endindex);
-      if (index < endindex) { return signean_null; }
-     {var object mode = TheStream(stream)->strm_buff_in_mode;
-      if (eq(mode,S(nil)))
-        { pushSTACK(stream);
-          mode = peek_char(&STACK_0); # peek_char macht read_char, ruft fun auf
-          skipSTACK(1);
-          if (eq(mode,eof_value))
-            { return signean_minus; } # EOF erreicht
-            else
-            { return signean_null; }
-        }
-      elif (eq(mode,S(t)))
-        { return signean_null; }
-      else
-        { funcall(mode,0); # mode aufrufen
-          if (nullp(value1)) # keine Strings mehr zu erwarten?
-            { return signean_minus; } # ja -> EOF erreicht
-            else
-            { return signean_null; }
-        }
-    }}
-
-# UP: Löscht bereits eingegebenen interaktiven Input von einem Buffered-Input-Stream.
-# clear_input_buff_in(stream)
-# > stream: Buffered-Input-Stream
-# < ergebnis: TRUE falls Input gelöscht wurde
-# kann GC auslösen
-  local boolean clear_input_buff_in (object stream);
-  local boolean clear_input_buff_in(stream)
-    var object stream;
-    { # Bearbeitung des aktuellen Strings beenden:
-      var object index = TheStream(stream)->strm_buff_in_index; # Index
-      var object endindex = TheStream(stream)->strm_buff_in_endindex;
-      TheStream(stream)->strm_buff_in_index = endindex; # index := endindex
-      if (eq(index,endindex)) { return FALSE; } else { return TRUE; }
-    }
-
-LISPFUNN(make_buffered_input_stream,2)
-# (MAKE-BUFFERED-INPUT-STREAM fun mode)
-  { var object stream = # neuer Stream, nur READ-CHAR erlaubt
-      allocate_stream(strmflags_rd_ch_B,strmtype_buff_in,strm_len+5,0);
-    TheStream(stream)->strm_rd_by = P(rd_by_dummy);
-    TheStream(stream)->strm_wr_by = P(wr_by_dummy);
-    TheStream(stream)->strm_rd_ch = P(rd_ch_buff_in);
-    TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-    TheStream(stream)->strm_rd_ch_last = NIL;
-    TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
-    TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-    TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
-    TheStream(stream)->strm_buff_in_mode = popSTACK();
-    TheStream(stream)->strm_buff_in_fun = popSTACK();
-    TheStream(stream)->strm_buff_in_string = O(leer_string); # String := ""
-    TheStream(stream)->strm_buff_in_index = Fixnum_0; # Index := 0
-    TheStream(stream)->strm_buff_in_endindex = Fixnum_0; # Endindex := 0
-    value1 = stream; mv_count=1; # stream als Wert
-  }
-
-LISPFUNN(buffered_input_stream_index,1)
-# (SYSTEM::BUFFERED-INPUT-STREAM-INDEX buffered-input-stream) liefert den Index
-  { var object stream = popSTACK(); # Argument
-    # muss ein Buffered-Input-Stream sein:
-    if (!(streamp(stream) && (TheStream(stream)->strmtype == strmtype_buff_in)))
-      { pushSTACK(stream);
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
-               DEUTSCH ? "~: ~ ist kein Buffered-Input-Stream." :
-               ENGLISH ? "~: ~ is not a buffered input stream" :
-               FRANCAIS ? "~ : ~ n'est pas un «stream» d'entrée bufferisé." :
-               ""
-              );
-      }
-   {var object index = TheStream(stream)->strm_buff_in_index;
-    # Falls ein Character mit UNREAD-CHAR zurückgeschoben wurde,
-    # verwende (1- index), ein Fixnum >=0, als Wert:
-    if (TheStream(stream)->strmflags & strmflags_unread_B)
-      { index = fixnum_inc(index,-1); }
-    value1 = index; mv_count=1;
-  }}
-
-
-# Buffered-Output-Stream
-# ======================
-
-# Elementtyp: character
-# Richtungen: nur output
-# (make-buffered-output-stream fun) liefert einen solchen.
-#   Dabei ist fun eine Funktion von einem Argument, die, mit einem
-#   Simple-String als Argument aufgerufen, dessen Inhalt in Empfang nimmt.
-#   Funktionsweise: (write-char ...) sammelt die geschriebenen Zeichen in
-#   einem String, bis ein #\Newline oder eine FORCE-/FINISH-OUTPUT-
-#   Anforderung kommt, und ruft dann fun mit einem Simple-String, der das
-#   bisher Angesammelte enthält, als Argument auf.
-#   (clear-output ...) wirft die bisher angesammelten Zeichen weg.
-
-# Zusätzliche Komponenten:
-  # define strm_buff_out_fun    strm_other[0]  # Ausgabefunktion
-  #define strm_buff_out_string  strm_other[1]  # Semi-Simple-String für Output
-
-# UP: Bringt den wartenden Output eines Buffered-Output-Stream ans Ziel.
-# finish_output_buff_out(stream);
-# > stream: Buffered-Output-Stream
-# kann GC auslösen
-  local void finish_output_buff_out (object stream);
-  local void finish_output_buff_out(stream)
-    var object stream;
-    { pushSTACK(stream);
-     {var object string = TheStream(stream)->strm_buff_out_string; # String
-      string = coerce_ss(string); # in Simple-String umwandeln (erzwingt ein Kopieren)
-      stream = STACK_0; STACK_0 = string;
-      # String durch Fill-Pointer:=0 leeren:
-      TheIarray(TheStream(stream)->strm_buff_out_string)->dims[1] = 0;
-      funcall(TheStream(stream)->strm_buff_out_fun,1); # Funktion aufrufen
-    }}
-
-# UP: Bringt den wartenden Output eines Buffered-Output-Stream ans Ziel.
-# force_output_buff_out(stream);
-# > stream: Buffered-Output-Stream
-# kann GC auslösen
-  #define force_output_buff_out  finish_output_buff_out
-
-# UP: Löscht den wartenden Output eines Buffered-Output-Stream.
-# clear_output_buff_out(stream);
-# > stream: Buffered-Output-Stream
-# kann GC auslösen
-  local void clear_output_buff_out (object stream);
-  local void clear_output_buff_out(stream)
-    var object stream;
-    { # String durch Fill-Pointer:=0 leeren:
-      TheIarray(TheStream(stream)->strm_buff_out_string)->dims[1] = 0;
-      # Line-Position unverändert lassen??
-    }
-
-# WRITE-CHAR - Pseudofunktion für Buffered-Output-Streams:
-  local void wr_ch_buff_out (const object* stream_, object ch);
-  local void wr_ch_buff_out(stream_,ch)
-    var const object* stream_;
-    var object ch;
-    { var object stream = *stream_;
-      # obj sollte Character sein:
-      if (!charp(ch)) { fehler_wr_char(stream,ch); }
-      # Character in den String schieben:
-      ssstring_push_extend(TheStream(stream)->strm_buff_out_string,char_code(ch));
-      # Nach #\Newline den Buffer durchreichen:
-      if (chareq(char_code(ch),ascii(NL))) { force_output_buff_out(*stream_); }
-    }
-
-# Schließt einen Buffered-Output-Stream.
-# close_buff_out(stream);
-# > stream : Buffered-Output-Stream
-# kann GC auslösen
-  local void close_buff_out (object stream);
-  local void close_buff_out(stream)
-    var object stream;
-    { pushSTACK(stream); # stream retten
-      finish_output_buff_out(stream);
-      stream = popSTACK(); # stream zurück
-      TheStream(stream)->strm_buff_out_fun = NIL; # Funktion := NIL
-      TheStream(stream)->strm_buff_out_string = NIL; # String := NIL
-    }
-
-LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
-# (MAKE-BUFFERED-OUTPUT-STREAM fun [line-position])
-  { # line-position überprüfen:
-    if (eq(STACK_0,unbound))
-      { STACK_0 = Fixnum_0; } # Defaultwert 0
-      else
-      # line-position angegeben, sollte ein Fixnum >=0 sein:
-      { if (!posfixnump(STACK_0)) { fehler_posfixnum(STACK_0); } }
-    # kleinen Semi-Simple-String der Länge 50 allozieren:
-    pushSTACK(make_ssstring(50));
-   {var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
-      allocate_stream(strmflags_wr_ch_B,strmtype_buff_out,strm_len+2,0);
-    TheStream(stream)->strm_rd_by = P(rd_by_dummy);
-    TheStream(stream)->strm_wr_by = P(wr_by_dummy);
-    TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
-    TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-    TheStream(stream)->strm_rd_ch_last = NIL;
-    TheStream(stream)->strm_wr_ch = P(wr_ch_buff_out);
-    TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
-    TheStream(stream)->strm_buff_out_string = popSTACK(); # String eintragen
-    TheStream(stream)->strm_wr_ch_lpos = popSTACK(); # Line Position eintragen
-    TheStream(stream)->strm_buff_out_fun = popSTACK(); # Funktion eintragen
-    value1 = stream; mv_count=1; # stream als Wert
-  }}
-
-
 #ifdef PRINTER_AMIGAOS
 
 # Printer-Stream
@@ -12176,229 +12402,6 @@ LISPFUNN(socket_stream_handle,1)
 #endif
 
 
-#ifdef GENERIC_STREAMS
-
-# Generic Streams
-# ===============
-
-  # Contains a "controller object".
-  # define strm_controller_object  strm_other[0]  # see lispbibl.d
-
-  # The function GENERIC-STREAM-CONTROLLER will return some
-  # object c associated with the stream s.
-
-  #   (GENERIC-STREAM-READ-CHAR c)                      --> character or NIL
-  #   (GENERIC-STREAM-PEEK-CHAR c)                      --> character or NIL
-  #   (GENERIC-STREAM-LISTEN c)                         --> {0,1,-1}
-  #   (GENERIC-STREAM-CLEAR-INPUT c)                    --> {T,NIL}
-  #   (GENERIC-STREAM-WRITE-CHAR c ch)                  -->
-  #   (GENERIC-STREAM-WRITE-STRING c string start len)  -->
-  #   (GENERIC-STREAM-FINISH-OUTPUT c)                  -->
-  #   (GENERIC-STREAM-FORCE-OUTPUT c)                   -->
-  #   (GENERIC-STREAM-CLEAR-OUTPUT c)                   -->
-  #   (GENERIC-STREAM-READ-BYTE c)                      --> integer or NIL
-  #   (GENERIC-STREAM-WRITE-BYTE c i)                   -->
-  #   (GENERIC-STREAM-CLOSE c)                          -->
-
-  # (READ-CHAR s) ==
-  # (GENERIC-STREAM-READ-CHAR c)
-  local object rd_ch_generic (const object* stream_);
-  local object rd_ch_generic(stream_)
-    var const object* stream_;
-    { pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); funcall(S(generic_stream_rdch),1);
-      return nullp(value1) ? eof_value : value1;
-    }
-
-  # (PEEK-CHAR s) ==
-  # (GENERIC-STREAM-PEEK-CHAR c)
-  local object pk_ch_generic (const object* stream_);
-  local object pk_ch_generic(stream_)
-    var const object* stream_;
-    { pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); funcall(S(generic_stream_pkch),1);
-      if (nullp(value1)) { value1 = eof_value; }
-      if ((mv_count >= 2) && !nullp(value2))
-        { # READ-CHAR schon ausgeführt -> muss ein implizites UNREAD-CHAR
-          # ausführen (d.h. das Ergebnis für das nächste READ-CHAR/PEEK-CHAR
-          # aufheben).
-          TheStream(*stream_)->strm_rd_ch_last = value1;
-          if (!eq(value1,eof_value))
-            { TheStream(*stream_)->strmflags |= strmflags_unread_B; }
-        }
-      return value1;
-    }
-
-  # (LISTEN s) ==
-  # (GENERIC-STREAM-LISTEN c)
-  local signean listen_generic (object stream);
-  local signean listen_generic(stream)
-    var object stream;
-    { pushSTACK(stream); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); funcall(S(generic_stream_listen),1);
-      if (eq (value1, S(Keof))) return -1;
-      if (eq (value1, S(Kinput_available))) return 0;
-      if (eq (value1, S(Kwait))) return 1;
-      # For compatibility with old code -1,0,+1 are still accepted -- depreciated!
-      if (eq (value1, Fixnum_minus1) ||
-          eq (value1, fixnum (0)) ||
-          eq (value1, fixnum (1)))
-        return I_to_L(value1);
-      # Otherwise raise error:
-      pushSTACK (value1);               # DATUM
-        pushSTACK (S(member));
-        pushSTACK (S(Keof));
-        pushSTACK (S(Kinput_available));
-        pushSTACK (S(Kwait));
-        funcall (L(list),4);
-      pushSTACK (value1);               # EXPECTED-TYPE
-      pushSTACK (value1);               # once again for the error message.
-      pushSTACK (S(generic_stream_listen));
-      pushSTACK (STACK_3);              # DATUM
-      fehler (type_error, "Return value, ~, of call to ~ is not of type ~.");
-    }
-
-  # (CLEAR-INPUT s) ==
-  # (GENERIC-STREAM-CLEAR-INPUT c)
-  local boolean clear_input_generic (object stream);
-  local boolean clear_input_generic(stream)
-    var object stream;
-    { pushSTACK(stream); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); funcall(S(generic_stream_clear_input),1);
-      return !nullp(value1);
-    }
-
-  # (WRITE-CHAR ch s) ==
-  # (GENERIC-STREAM-WRITE-CHAR c ch)
-  local void wr_ch_generic (const object* stream_, object ch);
-  local void wr_ch_generic(stream_,ch)
-    var const object* stream_;
-    var object ch;
-    { # ch is a character, need not save it
-      pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); pushSTACK(ch); funcall(S(generic_stream_wrch),2);
-    }
-
-  # (WRITE-SIMPLE-STRING s string start len) ==
-  # (GENERIC-STREAM-WRITE-STRING c string start len)
-  local void wr_ss_generic (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_generic(stream_,string,start,len)
-    var const object* stream_;
-    var object string;
-    var uintL start;
-    var uintL len;
-    { pushSTACK(string); # save string
-      pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); pushSTACK(STACK_(0+1));
-      pushSTACK(UL_to_I(start)); pushSTACK(UL_to_I(len));
-      funcall(S(generic_stream_wrss),4);
-      string = popSTACK();
-      wr_ss_lpos(*stream_,&TheSstring(string)->data[start],len);
-    }
-
-  # (FINISH-OUTPUT s) ==
-  # (GENERIC-STREAM-FINISH-OUTPUT c)
-  local void finish_output_generic (object stream);
-  local void finish_output_generic(stream)
-    var object stream;
-    { pushSTACK(stream); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); funcall(S(generic_stream_finish_output),1);
-    }
-
-  # (FORCE-OUTPUT s) ==
-  # (GENERIC-STREAM-FORCE-OUTPUT c)
-  local void force_output_generic (object stream);
-  local void force_output_generic(stream)
-    var object stream;
-    { pushSTACK(stream); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); funcall(S(generic_stream_force_output),1);
-    }
-
-  # (CLEAR-OUTPUT s) ==
-  # (GENERIC-STREAM-CLEAR-OUTPUT c)
-  local void clear_output_generic (object stream);
-  local void clear_output_generic(stream)
-    var object stream;
-    { pushSTACK(stream); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); funcall(S(generic_stream_clear_output),1);
-    }
-
-  # (READ-BYTE s) ==
-  # (GENERIC-STREAM-READ-BYTE c)
-  local object rd_by_generic (object stream);
-  local object rd_by_generic(stream)
-    var object stream;
-    { pushSTACK(stream); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); funcall(S(generic_stream_rdby),1);
-      return (nullp(value1) ? eof_value : value1);
-    }
-
-  # (WRITE-BYTE s i) ==
-  # (GENERIC-STREAM-WRITE-BYTE c i)
-  local void wr_by_generic (object stream, object obj);
-  local void wr_by_generic(stream,obj)
-    var object stream;
-    var object obj;
-    { pushSTACK(obj); # save obj
-      pushSTACK(stream); funcall(L(generic_stream_controller),1);
-      obj = STACK_0;
-      STACK_0 = value1; pushSTACK(obj); funcall(S(generic_stream_wrby),2);
-    }
-
-  # (CLOSE s) ==
-  # (GENERIC-STREAM-CLOSE c)
-  local void close_generic(stream)
-    var object stream;
-    { pushSTACK(stream); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); funcall(S(generic_stream_close),1);
-    }
-
-LISPFUNN(generic_stream_controller,1)
-  { var object stream = popSTACK();
-    if (!streamp(stream)) { fehler_stream(stream); }
-    if (!(   eq(TheStream(stream)->strm_rd_by,P(rd_by_generic))
-          && eq(TheStream(stream)->strm_wr_by,P(wr_by_generic))))
-      { pushSTACK(stream);
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
-               DEUTSCH ? "~: Stream muss ein Generic-Stream sein, nicht ~" :
-               ENGLISH ? "~: stream must be a generic-stream, not ~" :
-               FRANCAIS ? "~ : Le stream doit être un «generic-stream» et non ~" :
-               ""
-              );
-      }
-    value1=TheStream(stream)->strm_controller_object;
-    mv_count=1;
-  }
-
-LISPFUNN(make_generic_stream,1)
-  { var object stream =
-      allocate_stream(strmflags_open_B,strmtype_generic,strm_len+1,0);
-    TheStream(stream)->strm_rd_by = P(rd_by_generic);
-    TheStream(stream)->strm_wr_by = P(wr_by_generic);
-    TheStream(stream)->strm_rd_ch = P(rd_ch_generic);
-    TheStream(stream)->strm_pk_ch = P(pk_ch_generic);
-    TheStream(stream)->strm_rd_ch_last = NIL;
-    TheStream(stream)->strm_wr_ch = P(wr_ch_generic);
-    TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-    TheStream(stream)->strm_wr_ss = P(wr_ss_generic);
-    TheStream(stream)->strm_controller_object = popSTACK();
-    value1 = stream; mv_count=1; # stream als Wert
-  }
-
-LISPFUNN(generic_stream_p,1)
-  { var object stream = popSTACK();
-    if (!streamp(stream)) { fehler_stream(stream); }
-    if ((eq(TheStream(stream)->strm_rd_by,P(rd_by_generic))
-      && eq(TheStream(stream)->strm_wr_by,P(wr_by_generic))))
-      { value1 = T; mv_count=1; }
-    else
-      { value1 = NIL; mv_count=1; }
-  }
-
-#endif
-
-
 # Streams allgemein
 # =================
 
@@ -12661,6 +12664,14 @@ LISPFUNN(stream_element_type,1)
       # Stream offen
       { switch (TheStream(stream)->strmtype)
           { # erst die Streamtypen mit eingeschränkten Element-Typen:
+            case strmtype_str_in:
+            case strmtype_str_out:
+            case strmtype_str_push:
+            case strmtype_pphelp:
+            case strmtype_buff_in:
+            case strmtype_buff_out:
+              # CHARACTER
+              eltype = S(character); break;
             #ifdef KEYBOARD
             case strmtype_keyboard:
               eltype = T;
@@ -12668,12 +12679,6 @@ LISPFUNN(stream_element_type,1)
             #endif
             case strmtype_terminal:
             case strmtype_ch_file:
-            case strmtype_str_in:
-            case strmtype_str_out:
-            case strmtype_str_push:
-            case strmtype_pphelp:
-            case strmtype_buff_in:
-            case strmtype_buff_out:
             #ifdef SCREEN
             case strmtype_window:
             #endif
@@ -12695,6 +12700,9 @@ LISPFUNN(stream_element_type,1)
               eltype = listof(2);
               break;
             # dann die allgemeinen Streams:
+            #ifdef GENERIC_STREAMS
+            case strmtype_generic:
+            #endif
             #ifdef HANDLES
             case strmtype_handle:
             #endif
@@ -12707,9 +12715,6 @@ LISPFUNN(stream_element_type,1)
             #endif
             #ifdef SOCKET_STREAMS
             case strmtype_socket:
-            #endif
-            #ifdef GENERIC_STREAMS
-            case strmtype_generic:
             #endif
             default:
               { var uintB flags = TheStream(stream)->strmflags;
@@ -12773,38 +12778,6 @@ LISPFUNN(stream_external_format,1)
       # Stream offen
       switch (TheStream(stream)->strmtype)
         {
-          #if !(defined(NEXTAPP)) || defined(HANDLES)
-          #if !defined(NEXTAPP)
-          case strmtype_terminal:
-          #endif
-          #ifdef HANDLES
-          case strmtype_handle:
-            if (nullp(TheStream(stream)->strm_isatty))
-              # Reguläre Files sind sicher nicht interaktiv.
-              if (regular_handle_p(TheHandle(TheStream(stream)->strm_ihandle)))
-                return FALSE;
-          #endif
-          #endif
-          #ifdef KEYBOARD
-          case strmtype_keyboard:
-          #endif
-          #if defined(NEXTAPP)
-          case strmtype_terminal:
-          #endif
-          case strmtype_buff_in:
-          #ifdef PIPES
-          case strmtype_pipe_in:
-          #endif
-          #ifdef X11SOCKETS
-          case strmtype_x11socket:
-          #endif
-          #ifdef SOCKET_STREAMS
-          case strmtype_socket:
-          #endif
-          #ifdef GENERIC_STREAMS
-          case strmtype_generic:
-          #endif
-            return TRUE;
           case strmtype_synonym:
             # Synonym-Stream: weiterverfolgen
             { var object symbol = TheStream(stream)->strm_synonym_symbol;
@@ -12833,10 +12806,44 @@ LISPFUNN(stream_external_format,1)
               /* return interactive_stream_p(stream); */ # entrekursiviert:
               goto start;
             }
+          case strmtype_str_in:
+            return FALSE;
+          case strmtype_buff_in:
+          #ifdef GENERIC_STREAMS
+          case strmtype_generic:
+          #endif
+            return TRUE;
+          #if !(defined(NEXTAPP)) || defined(HANDLES)
+          #if !defined(NEXTAPP)
+          case strmtype_terminal:
+          #endif
+          #ifdef HANDLES
+          case strmtype_handle:
+            if (nullp(TheStream(stream)->strm_isatty))
+              # Reguläre Files sind sicher nicht interaktiv.
+              if (regular_handle_p(TheHandle(TheStream(stream)->strm_ihandle)))
+                return FALSE;
+          #endif
+          #endif
+          #ifdef KEYBOARD
+          case strmtype_keyboard:
+          #endif
+          #if defined(NEXTAPP)
+          case strmtype_terminal:
+          #endif
+          #ifdef PIPES
+          case strmtype_pipe_in:
+          #endif
+          #ifdef X11SOCKETS
+          case strmtype_x11socket:
+          #endif
+          #ifdef SOCKET_STREAMS
+          case strmtype_socket:
+          #endif
+            return TRUE;
           case strmtype_ch_file:
           case strmtype_iu_file:
           case strmtype_is_file:
-          case strmtype_str_in:
           default:
             return FALSE;
     }   }
@@ -12863,14 +12870,6 @@ LISPFUNN(interactive_stream_p,1)
       # Typspezifische Routine aufrufen (darf GC auslösen):
       switch (TheStream(stream)->strmtype)
         {
-          #ifdef KEYBOARD
-          case strmtype_keyboard: break;
-          #endif
-          case strmtype_terminal: break;
-          case strmtype_ch_file:
-          case strmtype_iu_file:
-          case strmtype_is_file:
-            close_file(stream); break;
           case strmtype_synonym:
             close_synonym(stream); break; # X3J13_014 sagt: nichtrekursiv
           case strmtype_broad: break; # nichtrekursiv
@@ -12886,6 +12885,18 @@ LISPFUNN(interactive_stream_p,1)
             close_buff_in(stream); break;
           case strmtype_buff_out:
             close_buff_out(stream); break;
+          #ifdef GENERIC_STREAMS
+          case strmtype_generic:
+            close_generic(stream); break;
+          #endif
+          #ifdef KEYBOARD
+          case strmtype_keyboard: break;
+          #endif
+          case strmtype_terminal: break;
+          case strmtype_ch_file:
+          case strmtype_iu_file:
+          case strmtype_is_file:
+            close_file(stream); break;
           #ifdef SCREEN
           case strmtype_window:
             close_window(stream); break;
@@ -12911,10 +12922,6 @@ LISPFUNN(interactive_stream_p,1)
           #ifdef SOCKET_STREAMS
           case strmtype_socket:
             close_socket(stream); break;
-          #endif
-          #ifdef GENERIC_STREAMS
-          case strmtype_generic:
-            close_generic(stream); break;
           #endif
           default: NOTREACHED
         }
@@ -12995,6 +13002,20 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
         # oder Terminal-Stream handelt es sich um einen reinen EOF-Test.
         { switch (TheStream(stream)->strmtype)
             {
+              case strmtype_synonym:  return listen_synonym(stream);
+              case strmtype_broad:    return signean_minus; # kein READ-CHAR
+              case strmtype_concat:   return listen_concat(stream);
+              case strmtype_twoway:   return listen_twoway(stream);
+              case strmtype_echo:     return listen_twoway(stream);
+              case strmtype_str_in:   return listen_str_in(stream);
+              case strmtype_str_out:  return signean_minus; # kein READ-CHAR
+              case strmtype_str_push: return signean_minus; # kein READ-CHAR
+              case strmtype_pphelp:   return signean_minus; # kein READ-CHAR
+              case strmtype_buff_in:  return listen_buff_in(stream);
+              case strmtype_buff_out: return signean_minus; # kein READ-CHAR
+              #ifdef GENERIC_STREAMS
+              case strmtype_generic:  return listen_generic(stream);
+              #endif
               #ifdef KEYBOARD
               case strmtype_keyboard: return listen_keyboard(stream);
               #endif
@@ -13017,17 +13038,6 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                   { return signean_minus; } # kein READ-CHAR
               case strmtype_iu_file:  return signean_minus; # kein READ-CHAR
               case strmtype_is_file:  return signean_minus; # kein READ-CHAR
-              case strmtype_synonym:  return listen_synonym(stream);
-              case strmtype_broad:    return signean_minus; # kein READ-CHAR
-              case strmtype_concat:   return listen_concat(stream);
-              case strmtype_twoway:   return listen_twoway(stream);
-              case strmtype_echo:     return listen_twoway(stream);
-              case strmtype_str_in:   return listen_str_in(stream);
-              case strmtype_str_out:  return signean_minus; # kein READ-CHAR
-              case strmtype_str_push: return signean_minus; # kein READ-CHAR
-              case strmtype_pphelp:   return signean_minus; # kein READ-CHAR
-              case strmtype_buff_in:  return listen_buff_in(stream);
-              case strmtype_buff_out: return signean_minus; # kein READ-CHAR
               #ifdef SCREEN
               case strmtype_window:   return signean_minus; # kein READ-CHAR
               #endif
@@ -13050,9 +13060,6 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               #endif
               #ifdef SOCKET_STREAMS
               case strmtype_socket:   return listen_socket(stream);
-              #endif
-              #ifdef GENERIC_STREAMS
-              case strmtype_generic:  return listen_generic(stream);
               #endif
               default: # Allgemein: nur EOF abfragen
                 if (TheStream(stream)->strmflags & strmflags_rd_ch_B)
@@ -13083,6 +13090,19 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
      {var boolean ergebnis;
       switch (TheStream(stream)->strmtype)
         {
+          case strmtype_synonym:
+            ergebnis = clear_input_synonym(stream); break;
+          case strmtype_concat:
+            ergebnis = clear_input_concat(stream); break;
+          case strmtype_twoway:
+          case strmtype_echo:
+            ergebnis = clear_input_twoway(stream); break;
+          case strmtype_buff_in:
+            ergebnis = clear_input_buff_in(stream); break;
+          #ifdef GENERIC_STREAMS
+          case strmtype_generic:
+            ergebnis = clear_input_generic(stream); break;
+          #endif
           #ifdef KEYBOARD
           case strmtype_keyboard:
             ergebnis = clear_input_keyboard(stream); break;
@@ -13099,15 +13119,6 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                         );
             #endif
             break;
-          case strmtype_synonym:
-            ergebnis = clear_input_synonym(stream); break;
-          case strmtype_concat:
-            ergebnis = clear_input_concat(stream); break;
-          case strmtype_twoway:
-          case strmtype_echo:
-            ergebnis = clear_input_twoway(stream); break;
-          case strmtype_buff_in:
-            ergebnis = clear_input_buff_in(stream); break;
           #ifdef HANDLES
           case strmtype_handle:
             if (TheStream(stream)->strmflags & strmflags_rd_ch_B)
@@ -13115,10 +13126,6 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               else
               { ergebnis = FALSE; }
             break;
-          #endif
-          #ifdef GENERIC_STREAMS
-          case strmtype_generic:
-            ergebnis = clear_input_generic(stream); break;
           #endif
           #ifdef PIPES
           case strmtype_pipe_in: # Pipe: nichts löschen??
@@ -13152,12 +13159,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
     { if (TheStream(stream)->strmflags & strmflags_wr_B) # Output-Stream?
         # nein -> fertig, ja -> nach Streamtyp verzweigen:
         { switch (TheStream(stream)->strmtype)
-            { case strmtype_terminal:
-                finish_output_terminal(stream); break;
-              case strmtype_ch_file:
-              case strmtype_iu_file:
-              case strmtype_is_file:
-                finish_output_file(stream); break;
+            {
               case strmtype_synonym:
                 finish_output_synonym(stream); break;
               case strmtype_broad:
@@ -13167,6 +13169,16 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                 finish_output_twoway(stream); break;
               case strmtype_buff_out:
                 finish_output_buff_out(stream); break;
+              #ifdef GENERIC_STREAMS
+              case strmtype_generic:
+                finish_output_generic(stream); break;
+              #endif
+              case strmtype_terminal:
+                finish_output_terminal(stream); break;
+              case strmtype_ch_file:
+              case strmtype_iu_file:
+              case strmtype_is_file:
+                finish_output_file(stream); break;
               #ifdef PRINTER_AMIGAOS
               case strmtype_printer: # Printer:
                 # Schließen und neu aufmachen würde vermutlich einen
@@ -13176,10 +13188,6 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               #ifdef HANDLES
               case strmtype_handle:
                 finish_output_handle(stream); break;
-              #endif
-              #ifdef GENERIC_STREAMS
-              case strmtype_generic:
-                finish_output_generic(stream); break;
               #endif
               #ifdef PIPES
               case strmtype_pipe_out: # Pipe: kann nichts tun
@@ -13205,12 +13213,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
     { if (TheStream(stream)->strmflags & strmflags_wr_B) # Output-Stream?
         # nein -> fertig, ja -> nach Streamtyp verzweigen:
         { switch (TheStream(stream)->strmtype)
-            { case strmtype_terminal:
-                force_output_terminal(stream); break;
-              case strmtype_ch_file:
-              case strmtype_iu_file:
-              case strmtype_is_file:
-                force_output_file(stream); break;
+            {
               case strmtype_synonym:
                 force_output_synonym(stream); break;
               case strmtype_broad:
@@ -13220,6 +13223,16 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                 force_output_twoway(stream); break;
               case strmtype_buff_out:
                 force_output_buff_out(stream); break;
+              #ifdef GENERIC_STREAMS
+              case strmtype_generic:
+                force_output_generic(stream); break;
+              #endif
+              case strmtype_terminal:
+                force_output_terminal(stream); break;
+              case strmtype_ch_file:
+              case strmtype_iu_file:
+              case strmtype_is_file:
+                force_output_file(stream); break;
               #ifdef PRINTER_AMIGAOS
               case strmtype_printer: # Printer:
                 # Schließen und neu aufmachen würde vermutlich einen
@@ -13229,10 +13242,6 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               #ifdef HANDLES
               case strmtype_handle:
                 force_output_handle(stream); break;
-              #endif
-              #ifdef GENERIC_STREAMS
-              case strmtype_generic:
-                force_output_generic(stream); break;
               #endif
               #ifdef PIPES
               case strmtype_pipe_out: # Pipe: kann nichts tun
@@ -13261,7 +13270,22 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
       if (TheStream(stream)->strmflags & strmflags_wr_B) # Output-Stream?
         # nein -> fertig, ja -> nach Streamtyp verzweigen:
         { switch (TheStream(stream)->strmtype)
-            { case strmtype_terminal:
+            {
+              case strmtype_synonym:
+                clear_output_synonym(stream); break;
+              case strmtype_broad:
+                clear_output_broad(stream); break;
+              case strmtype_twoway:
+              case strmtype_echo:
+                clear_output_twoway(stream); break;
+              case strmtype_buff_out:
+                clear_output_buff_out(stream); break;
+              #ifdef GENERIC_STREAMS
+              case strmtype_generic:
+                clear_output_generic(stream);
+                break;
+              #endif
+              case strmtype_terminal:
                 #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
                 terminalcase(stream,
                              { clear_output_terminal1(stream); },
@@ -13275,15 +13299,6 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               case strmtype_is_file:
                 # File: nichts tun (würde die File-Verwaltung durcheinanderbringen)
                 break;
-              case strmtype_synonym:
-                clear_output_synonym(stream); break;
-              case strmtype_broad:
-                clear_output_broad(stream); break;
-              case strmtype_twoway:
-              case strmtype_echo:
-                clear_output_twoway(stream); break;
-              case strmtype_buff_out:
-                clear_output_buff_out(stream); break;
               #ifdef PRINTER_AMIGAOS
               case strmtype_printer: # Printer: ungebuffert, also nichts zu tun
                 break;
@@ -13302,11 +13317,6 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               #endif
               #ifdef SOCKET_STREAMS
               case strmtype_socket: # Socket: geht nicht
-                break;
-              #endif
-              #ifdef GENERIC_STREAMS
-              case strmtype_generic:
-                clear_output_generic(stream);
                 break;
               #endif
               default: # nichts tun

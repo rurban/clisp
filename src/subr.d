@@ -801,26 +801,6 @@ LISPFUN(read_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
 LISPFUN(write_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
 # ---------- STREAM ----------
 LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
-LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
-#ifdef KEYBOARD
-LISPFUNN(make_keyboard_stream,0)
-#endif
-#ifdef SCREEN
-LISPFUNN(make_window,0)
-LISPFUNN(window_size,1)
-LISPFUNN(window_cursor_position,1)
-LISPFUNN(set_window_cursor_position,3)
-LISPFUNN(clear_window,1)
-LISPFUNN(clear_window_to_eot,1)
-LISPFUNN(clear_window_to_eol,1)
-LISPFUNN(delete_window_line,1)
-LISPFUNN(insert_window_line,1)
-LISPFUNN(highlight_on,1)
-LISPFUNN(highlight_off,1)
-LISPFUNN(window_cursor_on,1)
-LISPFUNN(window_cursor_off,1)
-#endif
-LISPFUNN(file_stream_p,1)
 LISPFUNN(make_synonym_stream,1)
 LISPFUNN(synonym_stream_p,1)
 LISPFUNN(synonym_stream_symbol,1)
@@ -847,6 +827,31 @@ LISPFUNN(string_stream_p,1)
 LISPFUNN(make_buffered_input_stream,2)
 LISPFUNN(buffered_input_stream_index,1)
 LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
+#ifdef GENERIC_STREAMS
+LISPFUNN(generic_stream_controller,1)
+LISPFUNN(make_generic_stream,1)
+LISPFUNN(generic_stream_p,1)
+#endif
+#ifdef KEYBOARD
+LISPFUNN(make_keyboard_stream,0)
+#endif
+LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
+#ifdef SCREEN
+LISPFUNN(make_window,0)
+LISPFUNN(window_size,1)
+LISPFUNN(window_cursor_position,1)
+LISPFUNN(set_window_cursor_position,3)
+LISPFUNN(clear_window,1)
+LISPFUNN(clear_window_to_eot,1)
+LISPFUNN(clear_window_to_eol,1)
+LISPFUNN(delete_window_line,1)
+LISPFUNN(insert_window_line,1)
+LISPFUNN(highlight_on,1)
+LISPFUNN(highlight_off,1)
+LISPFUNN(window_cursor_on,1)
+LISPFUNN(window_cursor_off,1)
+#endif
+LISPFUNN(file_stream_p,1)
 #ifdef PRINTER_AMIGAOS
 LISPFUNN(make_printer_stream,0)
 #endif
@@ -878,11 +883,6 @@ LISPFUNN(socket_stream_local,1)
 #ifndef WIN32_NATIVE
 LISPFUNN(socket_stream_handle,1)
 #endif
-#endif
-#ifdef GENERIC_STREAMS
-LISPFUNN(generic_stream_controller,1)
-LISPFUNN(make_generic_stream,1)
-LISPFUNN(generic_stream_p,1)
 #endif
 LISPFUNN(open_stream_p,1)
 LISPFUNN(input_stream_p,1)

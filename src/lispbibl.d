@@ -5198,6 +5198,7 @@ typedef struct {
   #define strmflags_wr_ch_B  bit(strmflags_wr_ch_bit_B)
 # Nähere Typinfo:
   enum { # Die Werte dieser Aufzählung sind der Reihe nach 0,1,2,...
+  # These come first, for the if_strm_file_p macro.
                               enum_strmtype_ch_file,
   #define strmtype_ch_file    (uintB)enum_strmtype_ch_file
                               enum_strmtype_iu_file,
@@ -5208,12 +5209,7 @@ typedef struct {
                               enum_strmtype_handle,
   #define strmtype_handle     (uintB)enum_strmtype_handle
   #endif
-  #ifdef KEYBOARD
-                              enum_strmtype_keyboard,
-  #define strmtype_keyboard   (uintB)enum_strmtype_keyboard
-  #endif
-                              enum_strmtype_terminal,
-  #define strmtype_terminal   (uintB)enum_strmtype_terminal
+  # First the OS independent streams.
                               enum_strmtype_synonym,
   #define strmtype_synonym    (uintB)enum_strmtype_synonym
                               enum_strmtype_broad,
@@ -5236,6 +5232,17 @@ typedef struct {
   #define strmtype_buff_in    (uintB)enum_strmtype_buff_in
                               enum_strmtype_buff_out,
   #define strmtype_buff_out   (uintB)enum_strmtype_buff_out
+  #ifdef GENERIC_STREAMS
+                              enum_strmtype_generic,
+  #define strmtype_generic    (uintB)enum_strmtype_generic
+  #endif
+  # Then the OS dependent streams.
+  #ifdef KEYBOARD
+                              enum_strmtype_keyboard,
+  #define strmtype_keyboard   (uintB)enum_strmtype_keyboard
+  #endif
+                              enum_strmtype_terminal,
+  #define strmtype_terminal   (uintB)enum_strmtype_terminal
   #ifdef SCREEN
                               enum_strmtype_window,
   #define strmtype_window     (uintB)enum_strmtype_window
@@ -5257,10 +5264,6 @@ typedef struct {
   #ifdef SOCKET_STREAMS
                               enum_strmtype_socket,
   #define strmtype_socket     (uintB)enum_strmtype_socket
-  #endif
-  #ifdef GENERIC_STREAMS
-                              enum_strmtype_generic,
-  #define strmtype_generic    (uintB)enum_strmtype_generic
   #endif
                               enum_strmtype_dummy
   };
