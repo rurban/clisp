@@ -78,7 +78,7 @@
 
 
 # diese Maschine: AMIGA oder ACORN oder OS2 oder WIN32 oder GENERIC_UNIX
-#if (defined(__unix) || defined(__unix__) || defined(_AIX) || defined(sinix) || defined(__MACH__) || defined(__POSIX__) || defined(__BEOS__)) && !defined(unix)
+#if (defined(__unix) || defined(__unix__) || defined(_AIX) || defined(sinix) || defined(__MACH__) || defined(__POSIX__) || defined(__NetBSD__) || defined(__BEOS__)) && !defined(unix)
   #define unix
 #endif
 #if (defined(amiga) || defined(AMIGA))
