@@ -18,7 +18,7 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
   #+UNIX (:method ((object string) &rest junk)
            (declare (ignore junk))
            (disassemble-machine-code
-            (sys::program-name) (sys::program-id) nil object))
+            (sys::program-name) (sys::process-id) nil object))
   (:method ((object method) &key &allow-other-keys)
     (disassemble (method-function object)))
   (:method ((object clos::standard-method) &key &allow-other-keys)
@@ -50,7 +50,7 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
     #+UNIX (when (sys::code-address-of object)
              (return-from disassemble
                (disassemble-machine-code
-                (sys::program-name) (sys::program-id) object
+                (sys::program-name) (sys::process-id) object
                 (format nil "0x~X" (sys::code-address-of object)))))
     (unless (sys::closurep object)
       (warn (TEXT "Cannot disassemble natively compiled function ~S") object)

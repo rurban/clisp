@@ -545,7 +545,7 @@ LISPSYM(identity,"IDENTITY",lisp)
 LISPSYM(address_of,"ADDRESS-OF",system)
 #ifdef HAVE_DISASSEMBLER
 LISPSYM(code_address_of,"CODE-ADDRESS-OF",system)
-LISPSYM(program_id,"PROGRAM-ID",system)
+LISPSYM(process_id,"PROCESS-ID",system)
 #endif
 LISPSYM(ansi,"ANSI",system) /* ABI */
 LISPSYM(set_ansi,"SET-ANSI",system) /* ABI */

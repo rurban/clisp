@@ -671,7 +671,7 @@ LISPFUNNF(identity,1)
 LISPFUNN(address_of,1)
 #ifdef HAVE_DISASSEMBLER
 LISPFUNN(code_address_of,1)
-LISPFUNN(program_id,0)
+LISPFUNN(process_id,0)
 #endif
 LISPFUNNF(ansi,0)
 LISPFUNN(set_ansi,1)

@@ -553,8 +553,8 @@ LISPFUNN(code_address_of,1)
       VALUES1(NIL);
   }
 
-/* (SYS::PROGRAM-ID) returns the pid */
-LISPFUNN(program_id,0) {
+/* (SYS::PROCESS-ID) returns the pid */
+LISPFUNN(process_id,0) {
   begin_system_call();
 #if defined(UNIX)
   var int pid = getpid();
@@ -565,7 +565,7 @@ LISPFUNN(program_id,0) {
   end_system_call();
   VALUES1(uint32_to_I(pid));
 #else
-  #error "What is program-ID on your system?"
+  #error "What is process-ID on your system?"
 #endif
 }
 

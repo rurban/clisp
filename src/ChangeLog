@@ -1,5 +1,12 @@
 2005-03-01  Sam Steingold  <sds@gnu.org>
 
+	* misc.d (PROCESS-ID): renamed from PROGRAM-ID for semantic
+	compatibility with getpid and GetCurrentProcessId
+	* constsym.d, subr.d: ditto
+	* disassem.lisp (disassemble): ditto
+
+2005-03-01  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d [__MINGW32__]: include unixconf.h
 
 2005-03-01  Sam Steingold  <sds@gnu.org>
