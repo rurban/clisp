@@ -1,5 +1,9 @@
 1999-02-22  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * clos.lsp, init.lsp: Do export GENERIC-LABELS and GENERIC-FLET here.
+
+1999-02-22  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * compiler.lsp (compile-file): Output the SYSTEM::VERSION form in
           upper case.
         * unix/MAGIC.add: Revert last change.
