@@ -10,13 +10,51 @@
            "get-beliefs" "enter-finding"))
 
 (in-package "SYS")
-(eval-when (compile eval load) (setf (package-lock "SYS") nil))
+(eval-when (compile load) (setf (package-lock "SYS") nil))
 (pushnew :netica *features*)
 
+;;; low level wrappers
+
+(eval-when (compile eval)
+  (defmacro make-node-wrapper (func &rest more-args)
+    (let* ((fun (if (consp func) (first func) func))
+           (orig (symbol-name fun)) (node (gensym orig)) (vec (gensym orig))
+           (length-form (if (consp func)
+                            (subst node '<node> (second func))
+                            `(netica::GetNodeNumberStates_bn ,node)))
+           (name (intern (subseq orig 0 (position #\_ orig)) "NETICA")))
+      `(progn
+         (export ',name "NETICA")
+         (defun ,name (,node ,@more-args)
+           ,(concatenate 'string "A low-level wrapper for " orig)
+           (ffi:with-c-var (,vec 'ffi:c-pointer (,fun ,node ,@more-args))
+             (ffi:cast ,vec `(ffi:c-ptr (ffi:c-array netica::prob_bn
+                                                     ,,length-form)))))))))
+
+(defun adjust-number-of-states (num-states type)
+  (+ num-states
+     (gethash type
+              (load-time-value
+               (let ((ht (make-hash-table)))
+                 (setf (gethash netica::CONTINUOUS_TYPE ht) 1)
+                 (setf (gethash netica::DISCRETE_TYPE ht) 0)
+                 ht)))))
+
+(make-node-wrapper netica::GetNodeBeliefs_bn)
+(make-node-wrapper netica::GetNodeExpectedUtils_bn)
+(make-node-wrapper netica::GetNodeLikelihood_bn)
+(make-node-wrapper netica::GetNodeProbs_bn parent-states)
+(make-node-wrapper (netica::GetNodeLevels_bn
+                    (adjust-number-of-states
+                     (netica::GetNodeNumberStates_bn <node>)
+                     (netica::GetNodeType_bn <node>))))
+
+;;; user interface variables
 (defvar netica:*verbose* *standard-output* "the netica log stream")
 (defvar netica:*env* nil "the current netica environment")
 (defvar netica:*license* "" "the netica license key - ask norsys")
 
+;;; helpers
 (defun netica:error-category (err)
   "return the list of categories where the error belongs"
   (mapcan (lambda (c)
@@ -30,8 +68,9 @@
 
 (defun netica:error-message (err)
   "Convert netica error to a string"
-  (format nil "~s/~s ~s: ~s~%"
-          (netica::ErrorSeverity_ns err)
+  (format nil "~s(~s)~@[ ~s~]: ~s~%"
+          (ffi:enum-from-value 'netica::errseverity_ns
+                               (netica::ErrorSeverity_ns err))
           (netica::ErrorNumber_ns err)
           (netica::error-category err)
           (netica::ErrorMessage_ns err)))
@@ -42,13 +81,12 @@
   (let ((err nil))
     (loop (setq err (netica::GetError_ns netica:*env* severity err))
       (unless err (return))
-      (print err)
       (if (>= (netica::ErrorSeverity_ns err) netica::ERROR_ERR)
           (cerror (if clear "clear and proceed" "show next error")
                   (netica:error-message err))
           (warn (netica:error-message err)))
       (when clear
-        (netica::ClearError_ns err)
+        (netica::ClearError_ns err) (setq err nil)
         (format *error-output* "~&...cleared~%")))))
 
 (defun netica:start-netica (&key ((:license netica:*license*) netica:*license*)
@@ -118,32 +156,42 @@ Sets netica:*env* to NIL when it was closed."
   (let ((file-name (netica::GetNetFileName_bn net)))
     (unless (zerop (length file-name))
       (format t "file-name: ~s~%" file-name)))
+  (let* ((nodes (netica::GetNetNodes_bn net))
+         (count (netica::LengthNodeList_bn nodes)))
+    (dotimes (ii count)
+      (format t " * [~:d] " ii)
+      (netica:node-info (netica::NthNode_bn nodes ii))))
   (netica:check-errors))
 
 (defun netica:make-node (&key (name (symbol-name (gensym)))
                          (net (required-argument 'netica:make-node :net))
                          (kind netica::NATURE_NODE)
-                         (states nil) (num-states (length states))
+                         (levels nil) (states nil)
+                         (num-states (if levels 0 (length states)))
                          (title nil) (comment nil)
                          (parents nil) (cpt nil)
                          ((:env netica:*env*) netica:*env*)
                          ((:verbose netica:*verbose*) netica:*verbose*))
   "Make a network node with the given parameters and return it.
 The parameters are: name, net, kind, states (state name list),
-number of states, parents list, cpt.\
-CMP (conditional probability table) is a list of conses:
+levels (vector), number of states, parents list, cpt.
+CPT (conditional probability table) is a list of conses:
  ((parent-state-vector . node-state-probability-vector) ...)
 one cons for each combination of possible parent states,
 where parent-state-vector is a vector of parent states,
  its length being (length parents);
 and node-state-probability-vector is a vector of corresponding node state
- probabilities, its length being (length states)."
+ probabilities, its length being (length states).
+When LEVELS is supplied, the node is continuous."
   (let ((node (netica::NewNode_bn name num-states net)))
     (when netica:*verbose*
       (format netica:*verbose* "~&;; new node ~s: ~s~%" name node))
     (netica:check-errors)
     (when (/= kind netica::NATURE_NODE)
       (netica::SetNodeKind_bn node kind)
+      (netica:check-errors))
+    (when levels
+      (netica::SetNodeLevels_bn node (1- (length levels)) levels)
       (netica:check-errors))
     (loop :for state :in states :and idx :upfrom 0
       :do (if (consp state)
@@ -174,7 +222,8 @@ and node-state-probability-vector is a vector of corresponding node state
   "Print information about the node."
   (format t "~&node: ~s (net: ~s)~%name: ~s~%type: ~s~%" node
           (netica::GetNodeNet_bn node) (netica::GetNodeName_bn node)
-          (netica::GetNodeType_bn node))
+          (ffi:enum-from-value 'netica::nodetype_bn
+                               (netica::GetNodeType_bn node)))
   (let ((title (netica::GetNodeTitle_bn node)))
     (unless (zerop (length title))
       (format t "title: ~s~%" title)))
@@ -184,25 +233,10 @@ and node-state-probability-vector is a vector of corresponding node state
       (format t "[~d] name: ~s  title: ~s~%" state
               (netica::GetNodeStateName_bn node state)
               (netica::GetNodeStateTitle_bn node state))))
+  (let ((levels (netica::GetNodeLevels node)))
+    (dotimes (ii (length levels))
+      (format t "[~d] level: ~s~%" ii (aref levels ii))))
   (netica:check-errors))
-
-(eval-when (compile eval)
-  (defmacro make-node-wrapper (fun &rest add-args)
-    (let* ((orig (symbol-name fun)) (node (gensym orig)) (vec (gensym orig))
-           (name (intern (subseq orig 0 (position #\_ orig)) "NETICA")))
-      `(progn
-         (export ',name "NETICA")
-         (defun ,name (,node ,@add-args)
-           ,(concatenate 'string "A low-level wrapper for " orig)
-           (ffi:with-c-var (,vec 'ffi:c-pointer (,fun ,node ,@add-args))
-             (ffi:cast ,vec `(ffi:c-ptr (ffi:c-array netica::prob_bn
-                                           ,(netica::GetNodeNumberStates_bn
-                                             ,node))))))))))
-
-(make-node-wrapper netica::GetNodeBeliefs_bn)
-(make-node-wrapper netica::GetNodeExpectedUtils_bn)
-(make-node-wrapper netica::GetNodeLikelihood_bn)
-(make-node-wrapper netica::GetNodeProbs_bn parent-states)
 
 (defun netica:get-beliefs (node &key
                            ((:env netica:*env*) netica:*env*)
@@ -234,7 +268,9 @@ and node-state-probability-vector is a vector of corresponding node state
                         ((:verbose netica:*verbose*) netica:*verbose*))
   "Save the network to the file."
   (let ((out (netica::NewStreamFile_ns
-              (namestring (merge-pathnames file #.(make-pathname :type "dne")))
+              (namestring (translate-logical-pathname
+                           (merge-pathnames
+                            file #.(make-pathname :type "dne"))))
               netica:*env* nil)))
     (when netica:*verbose*
       (format netica:*verbose* "~&;; new stream: ~s~&" out))
@@ -242,8 +278,9 @@ and node-state-probability-vector is a vector of corresponding node state
     (netica::WriteNet_bn net out)
     (netica:check-errors)
     (when netica:*verbose*
-      (format netica:*verbose* ";; saved ~s to ~s (~s)~%" net
-              (netica::GetNetFileName_bn net) out))))
+      (format netica:*verbose* ";; saved ~s to ~s~%" net
+              (netica::GetNetFileName_bn net)))))
 
-(push "NETICA" *system-package-list*)
-(eval-when (compile eval load) (setf (package-lock *system-package-list*) t))
+(push "NETICA" ext:*system-package-list*)
+(eval-when (compile load)
+  (setf (ext:package-lock ext:*system-package-list*) t))
