@@ -6,7 +6,7 @@ User visible changes
   GNU libc 2.2 iconv and a GNU libiconv when it is independently installed.
 
 * Strings can now hold UCS-4 characters, instead of only UCS-2 characters.
-  CHAR-CODE-LIMIT increases from 65536 to 1114112.
+  CHAR-CODE-LIMIT increased from 65536 to 1114112.
 
 * New user variable CUSTOM:*PARSE-NAMESTRING-DOT-FILE* controls
   how the file names starting with a dot are parsed.
@@ -1093,8 +1093,8 @@ User visible changes
   New macros DEFLANGUAGE, DEFINTERNATIONAL, DEFLOCALIZED. New function
   LOCALIZED. The macros ENGLISH, DEUTSCH, FRANCAIS now work only for strings.
   Removed the macro LANGUAGE-CASE.
-  The implementation uses the GNU gettext library. Thanks to Ulrich Drepper
-  and Marcus Daniels.
+  The implementation uses the GNU gettext library.
+  Thanks to Ulrich Drepper and Marcus Daniels.
 
 * New user-interface language ESPANOL.
   Thanks to Carlos Linares López <clinares@delicias.dia.fi.upm.es> who has
@@ -1369,11 +1369,11 @@ Important note
 User visible changes
 --------------------
 
-* X3J13 vote <106> is implemented: LAST has an optional argument. Thanks to
-  Pierpaolo Bernardi.
+* X3J13 vote <106> is implemented: LAST has an optional argument.
+  Thanks to Pierpaolo Bernardi.
 
-* X3J13 vote <87> is implemented: New function COMPLEMENT. Thanks to Pierpaolo
-  Bernardi.
+* X3J13 vote <87> is implemented: New function COMPLEMENT.
+  Thanks to Pierpaolo Bernardi.
 
 * X3J13 vote <40> is partially implemented: New macro WITH-STANDARD-IO-SYNTAX.
   Thanks to Pierpaolo Bernardi.
@@ -1417,19 +1417,19 @@ User visible changes
   produced a warning. Thanks to Pierpaolo Bernardi.
 
 * Fixed a bug in the compiler: Some CASE form with duplicate keys, when
-  compiled, chose the wrong clause to be executed. Thanks to Pierpaolo
-  Bernardi.
+  compiled, chose the wrong clause to be executed.
+  Thanks to Pierpaolo Bernardi.
 
-* Fixed a bug in the #+/#- reader macros. (LIST #+FOO #-BAR 1 2 3) now returns
-  (2 3), not (3).
+* Fixed a bug in the #+/#- reader macros. (LIST #+FOO #-BAR 1 2 3) now
+  returns (2 3), not (3).
 
 * Fixed a bug in LOG: (LOG x^n x^m), where n, m are integers, |m| > 1, and
   x is a rational number /= 1, now correctly returns n/m. Previously,
   (LOG 2 4) returned 1/0.
 
 * Fixed a CLOS bug: Using the :DOCUMENTATION option in DEFGENERIC declarations
-  for function names of the form (SETF symbol) signalled an error. Thanks to
-  Pierpaolo Bernardi.
+  for function names of the form (SETF symbol) signalled an error.
+  Thanks to Pierpaolo Bernardi.
 
 * Fixed a bug in DEFSETF: An IGNORE declaration for the store variable had
   no effect. Thanks to Pierpaolo Bernardi.
@@ -1449,8 +1449,8 @@ Portability
 Other modifications
 -------------------
 
-* A couple of bug fixes and new functions in the STDWIN package. Thanks to
-  Pierpaolo Bernardi.
+* A couple of bug fixes and new functions in the STDWIN package.
+  Thanks to Pierpaolo Bernardi.
 
 * The structure of external modules has changed a bit.
 
@@ -1527,8 +1527,8 @@ Portability
   expressions used as initializers, e.g. gcc-2.5.8.
 
 * Foreign function interface: Fixed a couple of possible bugs in the low-level
-  foreign function call routine for i386/486/586, m680x0, SPARC CPUs. Thanks
-  to Jörg Höhle.
+  foreign function call routine for i386/486/586, m680x0, SPARC CPUs.
+  Thanks to Jörg Höhle.
 
 * Small fixes for SCO.
 
@@ -2054,8 +2054,8 @@ Portability
 
 * Unix version only: Getting the time zone should be more robust.
 
-* Added support for NeXT (68k or i386 CPU) running NeXTstep 3.2. Thanks to
-  Marcus Daniels.
+* Added support for NeXT (68k or i386 CPU) running NeXTstep 3.2.
+  Thanks to Marcus Daniels.
 
 * Added support for Sequent PTX. Thanks to Marcus Daniels.
 
@@ -2082,8 +2082,8 @@ Other modifications
 
 * Speedup SUBLIS and NSUBLIS.
 
-* Let all known versions of gcc2 emit dbra instructions for loops. Thanks
-  to Jörg Höhle.
+* Let all known versions of gcc2 emit dbra instructions for loops.
+  Thanks to Jörg Höhle.
 
 * Renamed condition.lsp to conditio.lsp.
 
@@ -2951,7 +2951,7 @@ Other modifications
 1 January 1993
 ==============
 
-Release of first portable version of CLISP.
+Release of the first portable version of CLISP.
 It now compiles and runs under
 * Atari ST
 * Amiga 500-2000
@@ -2965,3 +2965,7 @@ It now compiles and runs under
 Now that the tests passed, I hope I'll never again have to remove a serious
 bug.
 
+Local Variables:
+mode: text
+coding: utf-8
+end:
