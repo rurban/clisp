@@ -2002,12 +2002,12 @@ global maygc void init_arith (void)
   }
   /* SYS::*INHIBIT-FLOATING-POINT-UNDERFLOW* := NIL */
   define_variable(S(inhibit_floating_point_underflow),NIL);
-  /* *WARN-ON-FLOATING-POINT-CONTAGION* := T */
-  define_variable(S(warn_on_floating_point_contagion),T);
+  /* *WARN-ON-FLOATING-POINT-CONTAGION* := NIL */
+  define_variable(S(warn_on_floating_point_contagion),NIL);
   /* *FLOATING-POINT-CONTAGION-ANSI* := NIL */
   define_variable(S(floating_point_contagion_ansi),NIL);
-  /* *WARN-ON-FLOATING-POINT-RATIONAL-CONTAGION* := T */
-  define_variable(S(warn_on_floating_point_rational_contagion),T);
+  /* *WARN-ON-FLOATING-POINT-RATIONAL-CONTAGION* := NIL */
+  define_variable(S(warn_on_floating_point_rational_contagion),NIL);
   /* *FLOATING-POINT-RATIONAL-CONTAGION-ANSI* := NIL */
   define_variable(S(floating_point_rational_contagion_ansi),NIL);
   /* *PHASE-ANSI* := NIL */
