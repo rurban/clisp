@@ -174,7 +174,7 @@
  interpreted code and is not compilable!</para></formalpara>
 
 <formalpara><title><literal role="sexp">(ext:eval-env
- <replaceable>form</replaceable> &optional-amp;
+ &form-r; &optional-amp;
  <replaceable>env</replaceable>)</literal></title>
 <para>evaluates a form in a given lexical environment, just as if the
  form had been a part of the program that the environment came from.
@@ -189,7 +189,8 @@
 <section><title>Compiler Terminology
   <ulink url="&clhs;/Body/sec_3-2-1.html">[CLHS-3.2.1]</ulink></title>
 
-<para>&clisp; compiles to platform-independent byte-code.</para>
+<para>&clisp; compiles to platform-independent
+ <link linkend="bytecode">byte-code</link>.</para>
 
 </section>
 
@@ -215,20 +216,19 @@ ignored by the interpreter.</para>
   <ulink url="&clhs;/Body/sec_3-3.html">[CLHS-3.3]</ulink></title>
 
 <para>The declarations
- <literal role="sexp">(&type-dec; <replaceable>type</replaceable>
-        <replaceable>var</replaceable> ...)</literal>,
- <literal role="sexp">(&ftype-dec; <replaceable>type</replaceable>
-        <replaceable>fun</replaceable> ...)</literal>,
+ <literal role="sexp">(&type-dec; &type-r; &var-r; ...)</literal>,
+ <literal role="sexp">(&ftype-dec; &type-r;
+        &func-r; ...)</literal>,
  <literal role="sexp">(&optimize-dec; (<replaceable>quality</replaceable>
-        <replaceable>value</replaceable>) ...)</literal>
+        &value-r;) ...)</literal>
    are ignored by the interpreter and the compiler.</para>
 
 <para>The &ansi-cl; declaration <literal role="sexp">(&optimize-dec;
  (debug ...))</literal> is legal.</para>
 
 <para>The &ansi-cl; declaration <literal role="sexp">(&ignorable-dec;
- <replaceable>var</replaceable> ...)</literal> affects the variable
- binding for the variable <replaceable>var</replaceable>.  The compiler
+ &var-r; ...)</literal> affects the variable
+ binding for the variable &var-r;.  The compiler
  will not warn about the variable, regardless whether it is used or
  not.</para>
 
@@ -238,23 +238,22 @@ ignored by the interpreter.</para>
  effect that the current form is compiled prior to execution.
  Examples:
 <programlisting>
- (locally (declare (compile)) <replaceable>form</replaceable>)
+ (&locally; (&declare; (compile)) &form-r;)
 </programlisting>
 executes a compiled version of form.</para>
 
 <para><programlisting>
-(let ((x 0))
-  (flet ((inc () (declare (compile)) (incf x))
-         (dec () (decf x)))
-    (values #'inc #'dec)))
+(&let; ((x 0))
+  (&flet; ((inc () (&declare; (compile)) (&incf; x))
+         (dec () (&decf; x)))
+    (&values; #'inc #'dec)))
 </programlisting>
- returns two functions.  The first is compiled and increments
- <replaceable>x</replaceable>, the second is interpreted (slower) and
- decrements the same <replaceable>x</replaceable>.</para>
+ returns two functions.  The first is compiled and increments &x-r;, the
+ second is interpreted (slower) and decrements the same &x-r;.</para>
 
 <para>The type assertion <literal role="sexp">(&the;
  <replaceable>value-type</replaceable>
- <replaceable>form</replaceable>)</literal> enforces a type check in
+ &form-r;)</literal> enforces a type check in
  interpreted code.  No type check is done in compiled code.  See also
  the <link linkend="ethe"><function>ext:ethe</function></link>
  macro.</para>
@@ -280,7 +279,7 @@ executes a compiled version of form.</para>
 <section><title>Declaration &special-dec;</title>
 
 <para><literal role="sexp">(&proclaim; '(&special-dec;
- <replaceable>var</replaceable>))</literal> declarations may not be
+ &var-r;))</literal> declarations may not be
  undone.  The same holds for &defvar;, &defparameter; and &defconstant;
  declarations.</para>
 
@@ -318,9 +317,9 @@ executes a compiled version of form.</para>
  <replaceable>type-of-real-part</replaceable>
  <replaceable>type-of-imaginary-part</replaceable>)</literal>.  The type
  specifier <literal role="sexp">(&complex-class;
- <replaceable>type</replaceable>)</literal> is equivalent to <literal
- role="sexp">(&complex-class; <replaceable>type</replaceable>
- <replaceable>type</replaceable>)</literal>.</para>
+ &type-r;)</literal> is equivalent to <literal
+ role="sexp">(&complex-class; &type-r;
+ &type-r;)</literal>.</para>
 
 <para>The &ansi-cl; type specifier <literal role="sexp">(&real-class;
  <replaceable>low</replaceable>
@@ -364,11 +363,9 @@ executes a compiled version of form.</para>
   &short-float-type;, &single-float-type;, &double-float-type;,
   &long-float-type;, &complex-class;</simpara></listitem>
  <listitem><simpara>&character-class;, &base-char-type;</simpara></listitem>
- <listitem><simpara><literal role="type">(&array-class;
-  <replaceable>element-type</replaceable>
+ <listitem><simpara><literal role="type">(&array-class; &eltype-r;
   <replaceable>dimensions</replaceable>)</literal>,
-  <literal role="type">(&simple-array-type;
-  <replaceable>element-type</replaceable>
+  <literal role="type">(&simple-array-type; &eltype-r;
   <replaceable>dimensions</replaceable>)</literal></simpara></listitem>
  <listitem><simpara><literal role="type">(&vector-class; &t;
   <replaceable>size</replaceable>)</literal>, <literal
@@ -554,22 +551,21 @@ executes a compiled version of form.</para>
 
 <section><title>Function &eq;</title>
 
-<para>&eq; compares characters and fixnums as &eql; does.  No
- unnecessary copies are made of characters and numbers.  Nevertheless,
- one should use &eql; as it is more portable across CL
+<para>&eq; compares &character-class;s and &fixnum-type;s as &eql; does.
+ No unnecessary copies are made of &character-class;s and &number-class;s.
+ Nevertheless, one should use &eql; as it is more portable across &cl;
  implementations.</para>
 
 <para><literal role="sexp">(let ((x y)) (eq x x))</literal> always
- returns &t;, regardless of <replaceable>y</replaceable>.</para>
+ returns &t;, regardless of &y-r;.</para>
 
 </section>
 
 <section><title>Function &symbol-function;</title>
 
-<para><literal role="sexp">(&setf; (&symbol-function;
- <replaceable>symbol</replaceable>)
- <replaceable>object</replaceable>)</literal> requires
- <replaceable>object</replaceable> to be either a function, a
+<para><literal role="sexp">(&setf; (&symbol-function; &symbol-r;)
+ &object-r;)</literal> requires
+ &object-r; to be either a function, a
  &symbol-function; return value or a &lambda-expr;.  The &lambda-expr;
  is thereby immediately converted to a function.</para>
 
@@ -580,32 +576,27 @@ executes a compiled version of form.</para>
 <para>Additional places:
 <variablelist>
  <varlistentry><term>&funcall;</term>
-  <listitem><simpara><literal role="sexp">(&setf; (&funcall;
-   #'<replaceable>symbol</replaceable> ...)
-     <replaceable>object</replaceable>)</literal>
+  <listitem><simpara><literal role="sexp">(&setf; (&funcall; #'&symbol-r; ...)
+     &object-r;)</literal>
     and
-   <literal role="sexp">(&setf; (&funcall;
-   '<replaceable>symbol</replaceable> ...)
-    <replaceable>object</replaceable>)</literal>
+   <literal role="sexp">(&setf; (&funcall; '&symbol-r; ...)
+     &object-r;)</literal>
    are equivalent to
-   <literal role="sexp">(&setf; (<replaceable>symbol</replaceable> ...)
-               <replaceable>object</replaceable>)</literal>.
+   <literal role="sexp">(&setf; (&symbol-r; ...) &object-r;)</literal>.
   </simpara></listitem></varlistentry>
 
  <varlistentry><term>&progn;</term>
   <listitem><simpara>
-   <literal role="sexp">(&setf; (&progn; <replaceable>form</replaceable> ...
+   <literal role="sexp">(&setf; (&progn; &form-r; ...
                                          <replaceable>place</replaceable>)
-                                <replaceable>object</replaceable>)</literal>
+                                &object-r;)</literal>
   </simpara></listitem></varlistentry>
 
  <varlistentry><term>&locally;</term>
   <listitem><simpara>
-   <literal role="sexp">(&setf; (&locally;
-                                 <replaceable>declaration</replaceable> ...
-                                 <replaceable>form</replaceable> ...
+   <literal role="sexp">(&setf; (&locally; &declaration-r; ... &form-r; ...
                                  <replaceable>place</replaceable>)
-                                <replaceable>object</replaceable>)</literal>
+                                &object-r;)</literal>
   </simpara></listitem></varlistentry>
 
  <varlistentry><term>&if;</term>
@@ -613,7 +604,7 @@ executes a compiled version of form.</para>
    <literal role="sexp">(&setf; (&if; <replaceable>condition</replaceable>
                                   <replaceable>place1</replaceable>
                                   <replaceable>place2</replaceable>)
-                                <replaceable>object</replaceable>)</literal>
+                                &object-r;)</literal>
   </simpara></listitem></varlistentry>
 
  <varlistentry><term>&get-dispatch-macro-character;</term>
@@ -632,25 +623,22 @@ executes a compiled version of form.</para>
  <varlistentry><term>&values-list;</term>
   <listitem><simpara>
    <literal role="sexp">(&setf; (&values-list;
-       <replaceable>list</replaceable>)
-       <replaceable>form</replaceable>)</literal>
+       <replaceable>list</replaceable>) &form-r;)</literal>
     is equivalent to
    <literal role="sexp">(&values-list; (&setf;
        <replaceable>list</replaceable>
-    (&multiple-value-list; <replaceable>form</replaceable>)))</literal>
+    (&multiple-value-list; &form-r;)))</literal>
   </simpara></listitem></varlistentry>
 </variablelist></para>
 
 <para>&key-amp; markers in &defsetf; &lalist;s are supported, but the
  corresponding keywords must appear literally in the program text.</para>
 
-<para><literal role="sexp">(&get-setf-expansion;
- <replaceable>form</replaceable> &optional-amp;
+<para><literal role="sexp">(&get-setf-expansion; &form-r; &optional-amp;
  <replaceable>env</replaceable>)</literal>, <literal
- role="sexp">(ext:get-setf-method <replaceable>form</replaceable>
- &optional-amp; <replaceable>env</replaceable>)</literal>, and <literal
- role="sexp">(ext:get-setf-method-multiple-value
- <replaceable>form</replaceable> &optional-amp;
+ role="sexp">(ext:get-setf-method &form-r; &optional-amp;
+ <replaceable>env</replaceable>)</literal>, and <literal
+ role="sexp">(ext:get-setf-method-multiple-value &form-r; &optional-amp;
  <replaceable>env</replaceable>)</literal> receive as optional argument
  the environment necessary for macro expansions.  In
  &define-setf-expander; and <function>ext:define-setf-method</function>
@@ -674,16 +662,14 @@ executes a compiled version of form.</para>
 
 <section><title>Special Operator &function;</title>
 
-<para><literal role="sexp">(&function;
- <replaceable>symbol</replaceable>)</literal> returns the local function
- definition established by &flet; or &labels;, if it exists, otherwise
- the global function definition.</para>
+<para><literal role="sexp">(&function; &symbol-r;)</literal> returns the
+ local function definition established by &flet; or &labels;, if it
+ exists, otherwise the global function definition.</para>
 
-<para><literal role="sexp">(&special-operator-p;
- <replaceable>symbol</replaceable>)</literal> returns &nil; or &t;.
- If it returns &t;, then <literal role="sexp">(&symbol-function;
- <replaceable>symbol</replaceable>)</literal> returns the (useless)
- special operator handler.</para>
+<para><literal role="sexp">(&special-operator-p; &symbol-r;)</literal>
+ returns &nil; or &t;.  If it returns &t;, then <literal
+ role="sexp">(&symbol-function; &symbol-r;)</literal> returns the
+ (useless) special operator handler.</para>
 
 </section>
 
@@ -692,14 +678,14 @@ executes a compiled version of form.</para>
 <para>The macro &define-symbol-macro; establishes &symbol-macro;s with
  global scope (as opposed to &symbol-macro;s defined with
  &symbol-macrolet;, which have local scope):
- <literal role="sexp">(&define-symbol-macro; <replaceable>symbol</replaceable>
+ <literal role="sexp">(&define-symbol-macro; &symbol-r;
  <replaceable>expansion</replaceable>)</literal>.</para>
 
 <para>The function <emphasis
  role="strong"><function>ext:symbol-macro-expand</function></emphasis>
- tests for a &symbol-macro;: If <replaceable>symbol</replaceable> is defined as
+ tests for a &symbol-macro;: If &symbol-r; is defined as
  a &symbol-macro;, <literal role="sexp">(ext:symbol-macro-expand
- <replaceable>symbol</replaceable>)</literal> returns two values, &t; and the
+ &symbol-r;)</literal> returns two values, &t; and the
  expansion, otherwise it returns &nil;.</para>
 
 <para>Calling &boundp; on a symbol defined as a &symbol-macro; returns
@@ -748,7 +734,7 @@ executes a compiled version of form.</para>
 <section><title>Macros &defun; &amp; &defmacro;</title>
 
 <para>&defun; and &defmacro; are allowed in non-toplevel positions. As
- an example, consider the old (CLtL1) definition of &gensym;:</para>
+ an example, consider the old (&cltl1;) definition of &gensym;:</para>
 
 <programlisting>
 (let ((gensym-prefix "G")
@@ -818,7 +804,7 @@ executes a compiled version of form.</para>
  <listitem><simpara>The value of &print-pretty-var; should not and
   cannot be respected, since the pretty-print mechanism is not
   accessible from outside.</simpara></listitem>
- <listitem><simpara>The value of &print-circle-var; need not to be
+ <listitem><simpara>The value of &print-circle-var; need not be
   respected.  This is managed by the system.  (But the print-circle
   mechanism handles only those objects that are (direct or indirect)
   components of structure.)</simpara></listitem>
@@ -870,26 +856,26 @@ executes a compiled version of form.</para>
 <formalpara><title><function>ext:muffle-cerrors</function></title>
 <para>The macro <literal
  role="sexp">(<function>ext:muffle-cerrors</function>
- {<replaceable>form</replaceable>}*)</literal> executes the
- <replaceable>form</replaceable>s.  When a continuable error occurs, no
+ {&form-r;}*)</literal> executes the
+ &form-r;s.  When a continuable error occurs, no
  message is printed.  Instead, the &continue; restart is invoked.
 </para></formalpara>
 
 <formalpara><title><function>ext:appease-cerrors</function></title>
 <para>The macro <literal
  role="sexp">(<function>ext:appease-cerrors</function>
- {<replaceable>form</replaceable>}*)</literal> executes the
- <replaceable>form</replaceable>s.  When a continuable error occurs, the
+ {&form-r;}*)</literal> executes the
+ &form-r;s.  When a continuable error occurs, the
  error is printed as a warning and the &continue; restart is invoked.
 </para></formalpara>
 
 <formalpara><title><function>ext:exit-on-error</function></title>
 <para>The macro <literal
  role="sexp">(<function>ext:exit-on-error</function>
- {<replaceable>form</replaceable>}*)</literal> executes the
- <replaceable>form</replaceable>s.  When a non-continuable error or a
+ {&form-r;}*)</literal> executes the
+ &form-r;s.  When a non-continuable error or a
  <keycombo><keycap>Ctrl</keycap><keysym>C</keysym></keycombo> interrupt
- occurs, the error is printed and &clisp; terminates with error status.
+ occurs, the error is printed and &clisp; terminates with an error status.
 </para></formalpara>
 
 <formalpara><title><function>ext:with-restarts</function></title>
@@ -899,9 +885,9 @@ executes a compiled version of form.</para>
  implicitly associated to any condition.
  <literal role="sexp">(<function>ext:with-restarts</function>
  ({<varname>restart-clause</varname>}*)
- {<replaceable>form</replaceable>}*)</literal>
+ {&form-r;}*)</literal>
  is therefore equivalent to <literal role="sexp">(&restart-case;
- (&progn; {<replaceable>form</replaceable>}*)
+ (&progn; {&form-r;}*)
  {<varname>restart-clause</varname>}*)</literal>.
 </para></formalpara>
 
@@ -923,13 +909,12 @@ executes a compiled version of form.</para>
  after the keyword/value pairs instead of before them.  The syntax
  therefore is
 
-<variablelist><title><literal role="sexp">(&restart-case;
- <replaceable>form</replaceable>
+<variablelist><title><literal role="sexp">(&restart-case; &form-r;
  {<varname>restart-clause</varname>}*)</literal></title>
  <varlistentry><term><varname>restart-clause</varname> ::==</term><listitem>
   <programlisting>
-   (<varname>restart-name</varname> <replaceable>arglist</replaceable> {<varname>keyword value</varname>}* {<replaceable>form</replaceable>}*)
-   | (<varname>restart-name</varname> {<varname>keyword value</varname>}* <replaceable>arglist</replaceable> {<replaceable>form</replaceable>}*)
+   (<varname>restart-name</varname> <replaceable>arglist</replaceable> {<varname>keyword value</varname>}* {&form-r;}*)
+   | (<varname>restart-name</varname> {<varname>keyword value</varname>}* <replaceable>arglist</replaceable> {&form-r;}*)
 </programlisting></listitem></varlistentry></variablelist>
 </para></formalpara>
 
@@ -1093,7 +1078,7 @@ executes a compiled version of form.</para>
    <ulink url="&clhs;/Body/sec_12-1-1-3-2.html">[CLHS-12.1.1.3.2]</ulink></title>
 
 <para>Byte specifiers are objects of type <classname>byte</classname>,
- not integers.</para>
+ not &integer-class;s.</para>
 
 </section>
 
@@ -1130,8 +1115,8 @@ executes a compiled version of form.</para>
  (1981), except that &clisp; does not support features like
  <literal>+0</literal>, <literal>-0</literal>, <literal>+inf</literal>,
  <literal>-inf</literal>, gradual underflow, <literal>NaN</literal>,
- etc. (&cl; does not make use of these features.)  This is why
- &features-var; does not contain the
+ etc. (&cl; does not make use of these features.)
+ This is why &features-var; does not contain the
  <constant>:IEEE-FLOATING-POINT</constant> keyword.</para>
 
 <para id="lfd">Long floats have variable mantissa length, which is a
@@ -1158,7 +1143,7 @@ executes a compiled version of form.</para>
  <listitem><simpara>See it pragmatically: save what you can and let
   others worry about the rest.</simpara></listitem></varlistentry>
 <varlistentry><term>Brief:</term>
- <listitem><simpara>CL knows the number's precision, not accuracy, so
+ <listitem><simpara>&cl; knows the number's precision, not accuracy, so
   preserving the precision can be accomplished reliably, while anything
   relating to the accuracy is just a speculation - only the user
   (programmer) knows what it is in each case.
@@ -1173,13 +1158,13 @@ executes a compiled version of form.</para>
   return <literal>3.25</literal>, while traditional &clisp; would return
   <literal>3.3</literal>.  The implied random variables are:
   <literal>3.25+-0.005</literal> and <literal>3.3+-0.05</literal>.  Note
-  that the &clisp;'s way <emphasis role="strong">does</emphasis> lie
-  about the mean: the mean <emphasis role="strong">is</emphasis>
+  that the traditional &clisp; way <emphasis role="strong">does</emphasis>
+  lie about the mean: the mean <emphasis role="strong">is</emphasis>
   <literal>3.25</literal> and nothing else, while the standard way
   <emphasis role="strong">could</emphasis> be lying about the deviation
   (accuracy): if the implied accuracy of <literal>1.5 (0.05)</literal>
   is its actual accuracy, then the accuracy of the result cannot be
-  smaller that that.  Therefore, since CL has no way of knowing the
+  smaller that that.  Therefore, since &cl; has no way of knowing the
   actual accuracy, &ansi-cl; (and all the other standard engineering
   programming languages, like &c-lang;, FORTRAN etc) decides that
   keeping the accuracy correct is the business of the programmer, while
@@ -1246,12 +1231,10 @@ executes a compiled version of form.</para>
 <formalpara><title><function>ext:without-floating-point-underflow</function></title>
 <para>The macro <literal
  role="sexp">(<function>ext:without-floating-point-underflow</function>
- {<replaceable>form</replaceable>}*)</literal> executes the
- <replaceable>form</replaceable>s, with errors of type
- &floating-point-underflow-type; inhibited.
- Floating point operations will silently return zero instead of
- signalling an error of type &floating-point-underflow-type;.
- </para></formalpara>
+ {&form-r;}*)</literal> executes the &form-r;s, with errors of type
+ &floating-point-underflow-type; inhibited.  Floating point operations
+ will silently return zero instead of signalling an error of type
+ &floating-point-underflow-type;.</para></formalpara>
 
 </section>
 </section>
@@ -1272,9 +1255,8 @@ executes a compiled version of form.</para>
  <varname>type-of-imaginary-part</varname>)</literal> in general.</para>
 
 <para>The type specifier <literal role="sexp">(&complex-class;
- <replaceable>type</replaceable>)</literal> is equivalent to <literal
- role="sexp">(&complex-class; <replaceable>type</replaceable>
- <replaceable>type</replaceable>)</literal>.</para>
+ &type-r;)</literal> is equivalent to <literal
+ role="sexp">(&complex-class; &type-r; &type-r;)</literal>.</para>
 
 </section>
 
@@ -1289,9 +1271,9 @@ executes a compiled version of form.</para>
 <para>This has the advantage that
    <literal role="sexp">(let ((x (sqrt -9.0))) (* x x))</literal>
  - instead of evaluating to <literal>#C(-9.0 0.0)</literal>,
- with <replaceable>x</replaceable> = <literal>#C(0.0 3.0)</literal>
- - evaluates to <literal>#C(-9.0 0)</literal> = <literal>-9.0</literal>,
- with <replaceable>x</replaceable> = <literal>#C(0 3.0)</literal>.</para>
+ with &x-r; = <literal>#C(0.0 3.0)</literal> - evaluates to
+ <literal>#C(-9.0 0)</literal> = <literal>-9.0</literal>,
+ with &x-r; = <literal>#C(0 3.0)</literal>.</para>
 
 </section>
 </section>
@@ -1308,38 +1290,27 @@ executes a compiled version of form.</para>
 <section><title>Additional Integer Functions</title>
 
 <formalpara><title><function>ext:!</function></title>
-<para><literal role="sexp">(<function>ext:!</function>
- <replaceable>n</replaceable>)</literal> returns the factorial of
- <replaceable>n</replaceable>, <replaceable>n</replaceable> a
- nonnegative integer.
-</para></formalpara>
+<para><literal role="sexp">(<function>ext:!</function> &n-r;)</literal>
+ returns the factorial of &n-r;, &n-r; being a nonnegative
+ &integer-class;.</para></formalpara>
 
 <formalpara><title><function>ext:exquo</function></title>
-<para><literal role="sexp">(<function>ext:exquo</function>
- <replaceable>x</replaceable> <replaceable>y</replaceable>)</literal>
- returns the integer quotient <varname>x/y</varname> of two integers
- <replaceable>x</replaceable>,<replaceable>y</replaceable>, and signals
- an error when the quotient is not integer.  (This is more efficient
- than &slash;.)
+<para><literal role="sexp">(<function>ext:exquo</function> &x-r;
+ &y-r;)</literal> returns the integer quotient <varname>x/y</varname> of
+ two integers &x-r;,&y-r;, and signals an error when the quotient is not
+ integer.  (This is more efficient than &slash;.)
 </para></formalpara>
 
 <formalpara><title><function>ext:xgcd</function></title>
 <para><literal role="sexp">(<function>ext:xgcd</function>
- <replaceable>x<subscript>1</subscript></replaceable>
- ... <replaceable>x<subscript>n</subscript></replaceable>)</literal>
- returns the values <replaceable>g</replaceable>,
- <replaceable>c<subscript>1</subscript></replaceable>, ...,
- <replaceable>c<subscript>n</subscript></replaceable>, where
- <replaceable>g</replaceable> is the greatest common divisor of the integers
- <replaceable>x<subscript>1</subscript></replaceable>, ...,
- <replaceable>x<subscript>n</subscript></replaceable>, and
- <replaceable>c<subscript>1</subscript></replaceable>, ...,
- <replaceable>c<subscript>n</subscript></replaceable> are the integer
- coefficients such that
+ &x1-r; ... &xn-r;)</literal>
+ returns the values <replaceable>g</replaceable>, &k1-r;, ..., &kn-r;,
+ where <replaceable>g</replaceable> is the greatest common divisor of
+ the integers &x1-r;, ..., &xn-r;, and &k1-r;, ..., &kn-r; are the
+ integer coefficients such that
 <programlisting>
- g = (&gcd; x<subscript>1</subscript> ... x<subscript>n</subscript>)
-   = (+ (* c<subscript>1</subscript> x<subscript>1</subscript>) ...
-        (* c<subscript>n</subscript> x<subscript>n</subscript>))
+ g = (&gcd; &x1-r; ... &xn-r;)
+   = (+ (* &k1-r; &x1-r;) ... (* &kn-r; &xn-r;))
 </programlisting></para></formalpara>
 
 </section>
@@ -1890,7 +1861,7 @@ blank here cannot be represented in this character set).
  character with font and bits, or a keystroke.
  The following functions work with objects of types &character-class;
  and <classname>sys::input-character</classname>.
- Note that &eql; or &equal; can not be used to compare objects of type
+ Note that &eql; or &equal; cannot be used to compare objects of type
  <classname>sys::input-character</classname>.</para>
 
 <variablelist>
@@ -1910,12 +1881,12 @@ blank here cannot be represented in this character set).
              <seg><varname>ext:char-hyper-bit</varname></seg></seglistitem>
   </segmentedlist></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(<function>ext:char-font</function>
-  <replaceable>object</replaceable>)</literal> </term>
+  &object-r;)</literal> </term>
  <listitem><simpara>returns the font of a character or
   <classname>sys::input-character</classname>.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(<function>ext:char-bits</function>
-  <replaceable>object</replaceable>)</literal> </term>
+  &object-r;)</literal> </term>
  <listitem><simpara>returns the bits of a character or
   <classname>sys::input-character</classname>.
   </simpara></listitem></varlistentry>
@@ -1926,14 +1897,14 @@ blank here cannot be represented in this character set).
   or &nil; if such a character cannot be created.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(<function>ext:char-bit</function>
-  <replaceable>object</replaceable>
-  <replaceable>name</replaceable>)</literal></term>
+  &object-r;
+  &name-r;)</literal></term>
  <listitem><simpara>returns &t; if the named bit is set in
-  <replaceable>object</replaceable>, else &nil;.
+  &object-r;, else &nil;.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
    role="sexp">(<function>ext:set-char-bit</function>
-  <replaceable>object</replaceable> <replaceable>name</replaceable>
+  &object-r; &name-r;
   <replaceable>newvalue</replaceable>)</literal></term>
  <listitem><simpara>returns a new
   <classname>sys::input-character</classname> with the named bit set or
@@ -1994,16 +1965,14 @@ are simple characters.</para>
 <section><title>Case of Implementation-Defined Characters
    <ulink url="&clhs;/Body/sec_13-1-4-3-4.html">[CLHS-13.1.4.3.4]</ulink></title>
 
-<para>The characters with case are those Unicode characters
- <replaceable>c</replaceable>, for
+<para>The characters with case are those Unicode characters &c-r;, for
  which the upper case mapping <replaceable>uc</replaceable> and the
  lower case mapping <replaceable>lc</replaceable> have the following
  properties:
 <itemizedlist>
   <listitem><simpara><replaceable>uc</replaceable> and
    <replaceable>lc</replaceable> are different</simpara></listitem>
-  <listitem><simpara><replaceable>c</replaceable> is one of
-   <replaceable>uc</replaceable> and
+  <listitem><simpara>&c-r; is one of <replaceable>uc</replaceable> and
    <replaceable>lc</replaceable></simpara></listitem>
   <listitem><simpara>the upper case mapping of
    <replaceable>uc</replaceable> and of <replaceable>lc</replaceable>
@@ -2375,19 +2344,15 @@ and the international alphabetic characters from the character set:
 
 <section><title>Functions &mapcar;, &mapcan;, &maplist;, &mapcon;, ...</title>
 
-<para>The constant <emphasis
+<para>The function <emphasis
  role="strong"><function>ext:mapcap</function></emphasis> is like
  &mapcan;, except that it concatenates the resulting lists with &append;
  instead of &nconc;:</para>
 
-<para><literal role="sexp">(<function>ext:mapcap</function>
- <replaceable>fun</replaceable>
- <replaceable>x<subscript>1</subscript></replaceable>
- ... <replaceable>x<subscript>n</subscript></replaceable>)</literal> ==
- <literal role="sexp">(apply #'&append; (&mapcar;
- <replaceable>fun</replaceable>
- <replaceable>x<subscript>1</subscript></replaceable>
- ... <replaceable>x<subscript>n</subscript></replaceable>))</literal></para>
+<para><literal role="sexp">(<function>ext:mapcap</function> &func-r;
+ &x1-r; ... &xn-r;)</literal> ==
+ <literal role="sexp">(&apply; #'&append; (&mapcar; &func-r; &x1-r;
+ ... &xn-r;))</literal></para>
 
 <para>(Actually a bit more efficient that this would be.)</para>
 
@@ -2396,14 +2361,10 @@ and the international alphabetic characters from the character set:
  &mapcon;, except that it concatenates the resulting lists with &append;
  instead of &nconc;:</para>
 
-<para><literal role="sexp">(<function>ext:maplap</function>
- <replaceable>fun</replaceable>
- <replaceable>x<subscript>1</subscript></replaceable>
- ... <replaceable>x<subscript>n</subscript></replaceable>)</literal> ==
- <literal role="sexp">(apply #'&append; (&maplist;
- <replaceable>fun</replaceable>
- <replaceable>x<subscript>1</subscript></replaceable>
- ... <replaceable>x<subscript>n</subscript></replaceable>))</literal></para>
+<para><literal role="sexp">(<function>ext:maplap</function> &func-r;
+ &x1-r; ... &xn-r;)</literal> ==
+ <literal role="sexp">(&apply; #'&append; (&maplist; &func-r; &x1-r;
+ ... &xn-r;))</literal></para>
 
 <para>(Actually a bit more efficient that this would be.)</para>
 
@@ -2416,7 +2377,8 @@ and the international alphabetic characters from the character set:
    <ulink url="&clhs;/Body/chap-15.html">[CLHS-15]</ulink></title>
 
 <formalpara><title>&make-array;</title>
-<para>&make-array; can return specialized arrays for the element types
+<para>&make-array; can return specialized arrays for the
+ &array-element-type;s
  <literal role="type">(&unsigned-byte-type; 2)</literal>,
  <literal role="type">(&unsigned-byte-type; 4)</literal>,
  <literal role="type">(&unsigned-byte-type; 8)</literal>,
@@ -2481,12 +2443,11 @@ and the international alphabetic characters from the character set:
 <section id="string-width"><title>Functions on strings</title>
 
 <formalpara><title><literal role="sexp">(<function>ext:string-width</function>
- <replaceable>string</replaceable>)</literal></title>
- <para>returns the number of screen columns occupied by
- <replaceable>string</replaceable>.
+ &string-r;)</literal></title>
+ <para>returns the number of screen columns occupied by &string-r;.
  This is computed as the sum of all <link
  linkend="char-width"><function>ext:char-width</function></link>s
- of all of the string's characters.</para></formalpara></section>
+ of all of the &string-r;'s characters.</para></formalpara></section>
 
 </section>
 </chapter>
@@ -2505,8 +2466,8 @@ and the international alphabetic characters from the character set:
  similar to &dolist;, may be used instead of &map;:</para>
 
 <programlisting>
-(<function>ext:doseq</function> (<replaceable>var</replaceable> <replaceable>seqform</replaceable> [<replaceable>resultform</replaceable>])
-  {<replaceable>declaration</replaceable>}*
+(<function>ext:doseq</function> (&var-r; <replaceable>seqform</replaceable> [<replaceable>resultform</replaceable>])
+  {&declaration-r;}*
   {<replaceable>tag</replaceable>|<replaceable>statement</replaceable>}*)
 </programlisting>
 
@@ -2556,14 +2517,14 @@ and the international alphabetic characters from the character set:
 and &end-k;:</para>
 
 <programlisting>
-(&sort; <replaceable>sequence</replaceable> <replaceable>predicate</replaceable> &key-amp; &key-k; &start-k; &end-k;)
-(&stable-sort; <replaceable>sequence</replaceable> <replaceable>predicate</replaceable> &key-amp; &key-k; &start-k; &end-k;)
+(&sort; &sequence-r; <replaceable>predicate</replaceable> &key-amp; &key-k; &start-k; &end-k;)
+(&stable-sort; &sequence-r; <replaceable>predicate</replaceable> &key-amp; &key-k; &start-k; &end-k;)
 </programlisting>
 
 <para>&sort; and &stable-sort; are identical.  They implement the
  mergesort algorithm.  Worst case complexity:
  <varname>O(n*log(n))</varname> comparisons, where
- <replaceable>n</replaceable> is the &length; of the subsequence bounded
+ &n-r; is the &length; of the subsequence bounded
  by the &start-k; and &end-k; arguments.</para>
 
 </section>
@@ -2601,7 +2562,7 @@ and &end-k;:</para>
 
 <programlisting>
 (ext:dohash (<replaceable>key-var</replaceable> <replaceable>value-var</replaceable> <replaceable>hash-table-form</replaceable> [<replaceable>resultform</replaceable>])
-  {<replaceable>declaration</replaceable>}*
+  {&declaration-r;}*
   {<replaceable>tag</replaceable>|<replaceable>statement</replaceable>}*)
 </programlisting>
 
@@ -2615,7 +2576,7 @@ and &end-k;:</para>
    <ulink url="&clhs;/Body/chap-19.html">[CLHS-19]</ulink></title>
 
 <para>For most operations, pathnames denoting files and pathnames
- denoting directories can not be used interchangeably.</para>
+ denoting directories cannot be used interchangeably.</para>
 
 <variablelist>
 <!-- #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) -->
@@ -2682,7 +2643,7 @@ and &end-k;:</para>
 <para>When a pathname is to be fully specified (no wildcards), that
  means that no &wild-k;, &wild-inferiors-k; is allowed, no wildcard
  characters are allowed in the strings, and
- <replaceable>name</replaceable> &eq; &nil; may not be allowed
+ &name-r; &eq; &nil; may not be allowed
  either.</para>
 
 <!-- #ifdef PATHNAME_AMIGAOS -->
@@ -2719,11 +2680,11 @@ and &end-k;:</para>
     characters <filename>?</filename> and
     <filename>*</filename></seg></seglistitem>
   </segmentedlist></listitem></varlistentry>
-<varlistentry><term><replaceable>name</replaceable></term>
+<varlistentry><term>&name-r;</term>
  <listitem><simpara>&nil; or &simple-string-type;, may contain
   wildcard characters <filename>?</filename> and <filename>*</filename>
   (may also be specified as &wild-k;)</simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>type</replaceable></term>
+<varlistentry><term>&type-r;</term>
  <listitem><simpara>&nil; or &simple-string-type;, may contain
   wildcard characters <filename>?</filename> and <filename>*</filename>
   (may also be specified as &wild-k;)</simpara></listitem></varlistentry>
@@ -2741,11 +2702,11 @@ and &end-k;:</para>
 
 <itemizedlist>
  <listitem><simpara>if there is no <filename>.</filename> in the
-  filename, then the <replaceable>name</replaceable> is everything,
-  <replaceable>type</replaceable> is &nil;;</simpara></listitem>
+  filename, then the &name-r; is everything,
+  &type-r; is &nil;;</simpara></listitem>
  <listitem><simpara>if there is a <filename>.</filename>, then
-  <replaceable>name</replaceable> is the part before and
-  <replaceable>type</replaceable> the part after the last dot.
+  &name-r; is the part before and
+  &type-r; the part after the last dot.
   </simpara></listitem>
 </itemizedlist>
 
@@ -2846,8 +2807,8 @@ and &end-k;:</para>
 
 <para>We interpret any path string that is empty or ends with
  <filename>':'</filename> or <filename>'/'</filename> as pathname of a
- directory (with both <replaceable>name</replaceable> and
- <replaceable>type</replaceable> being &nil;).</para>
+ directory (with both &name-r; and
+ &type-r; being &nil;).</para>
 </listitem></varlistentry></variablelist>
 <!-- #endif -->
 
@@ -2879,11 +2840,11 @@ and &end-k;:</para>
   <filename>?</filename> and <filename>*</filename></seg>
   <seg/></seglistitem>
   </segmentedlist></listitem></varlistentry>
-<varlistentry><term><replaceable>name</replaceable></term>
+<varlistentry><term>&name-r;</term>
  <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
   characters <filename>?</filename> and <filename>*</filename> (may also
   be specified as &wild-k;)</simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>type</replaceable></term>
+<varlistentry><term>&type-r;</term>
  <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
   characters <filename>?</filename> and <filename>*</filename> (may also
   be specified as &wild-k;)</simpara></listitem></varlistentry>
@@ -2897,11 +2858,11 @@ and &end-k;:</para>
 
 <itemizedlist>
  <listitem><simpara>if there is no <filename>'.'</filename> in the
-  filename, then the <replaceable>name</replaceable> is everything,
-  <replaceable>type</replaceable> is &nil;;</simpara></listitem>
+  filename, then the &name-r; is everything,
+  &type-r; is &nil;;</simpara></listitem>
  <listitem><simpara>if there is a <filename>'.'</filename>, then
-  <replaceable>name</replaceable> is the part before and
-  <replaceable>type</replaceable> the part after the last
+  &name-r; is the part before and
+  &type-r; the part after the last
   dot.</simpara></listitem>
 </itemizedlist>
 
@@ -2950,11 +2911,11 @@ and &end-k;:</para>
    <filename>?</filename> and <filename>*</filename></seg>
    <seg/></seglistitem>
  </segmentedlist></listitem></varlistentry>
-<varlistentry><term><replaceable>name</replaceable></term>
+<varlistentry><term>&name-r;</term>
  <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
   characters <filename>?</filename> and <filename>*</filename> (may also
   be specified as &wild-k;)</simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>type</replaceable></term>
+<varlistentry><term>&type-r;</term>
  <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
   characters <filename>?</filename> and <filename>*</filename> (may also
   be specified as &wild-k;)</simpara></listitem></varlistentry>
@@ -2967,11 +2928,11 @@ and &end-k;:</para>
  following rule:
 <itemizedlist>
  <listitem><simpara>if there is no <filename>'.'</filename> in the
-  filename, then the <replaceable>name</replaceable> is everything,
-  <replaceable>type</replaceable> is &nil;;</simpara></listitem>
+  filename, then the &name-r; is everything,
+  &type-r; is &nil;;</simpara></listitem>
  <listitem><simpara>if there is a <filename>'.'</filename>, then
-  <replaceable>name</replaceable> is the part before and
-  <replaceable>type</replaceable> the part after the last dot.
+  &name-r; is the part before and
+  &type-r; the part after the last dot.
   </simpara></listitem>
 </itemizedlist></para>
 
@@ -3024,11 +2985,11 @@ and &end-k;:</para>
    <filename>?</filename> and <filename>*</filename></seg>
    <seg/></seglistitem>
  </segmentedlist></listitem></varlistentry>
-<varlistentry><term><replaceable>name</replaceable></term>
+<varlistentry><term>&name-r;</term>
  <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
   characters <filename>?</filename> and <filename>*</filename> (may also
   be specified as &wild-k;)</simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>type</replaceable></term>
+<varlistentry><term>&type-r;</term>
  <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
   characters <filename>?</filename> and <filename>*</filename> (may also
   be specified as &wild-k;)</simpara></listitem></varlistentry>
@@ -3044,11 +3005,11 @@ and &end-k;:</para>
  following rule:
 <itemizedlist>
  <listitem><simpara>if there is no <filename>'.'</filename> in the
-  filename, then the <replaceable>name</replaceable> is everything,
-  <replaceable>type</replaceable> is &nil;;</simpara></listitem>
+  filename, then the &name-r; is everything,
+  &type-r; is &nil;;</simpara></listitem>
  <listitem><simpara>if there is a <filename>'.'</filename>, then
-  <replaceable>name</replaceable> is the part before and
-  <replaceable>type</replaceable> the part after the last dot.
+  &name-r; is the part before and
+  &type-r; the part after the last dot.
   </simpara></listitem>
 </itemizedlist></para>
 
@@ -3582,12 +3543,12 @@ and &end-k;:</para>
    <filename>?</filename>,<filename>#</filename> and
    <filename>*</filename></seg></seglistitem>
  </segmentedlist></listitem></varlistentry>
-<varlistentry><term><replaceable>name</replaceable></term>
+<varlistentry><term>&name-r;</term>
  <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
  characters <filename>?</filename>,<filename>#</filename> and
  <filename>*</filename> (may also be specified as &wild-k;)
  </simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>type</replaceable></term>
+<varlistentry><term>&type-r;</term>
  <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
  characters <filename>?</filename>,<filename>#</filename> and
  <filename>*</filename> (may also be specified as &wild-k;)
@@ -3659,11 +3620,11 @@ and &end-k;:</para>
   <seglistitem><seg>[ <filename>/</filename> ]</seg>
    <seg><filename>/</filename> denotes absolute
      pathnames</seg></seglistitem>
-  <seglistitem><seg>{ <replaceable>name</replaceable>
+  <seglistitem><seg>{ &name-r;
       <filename>/</filename> }</seg>
    <seg>each one a subdirectory</seg></seglistitem>
-  <seglistitem><seg>[ <replaceable>name</replaceable>
-      [<filename>.</filename> <replaceable>type</replaceable>] ]</seg>
+  <seglistitem><seg>[ &name-r;
+      [<filename>.</filename> &type-r;] ]</seg>
    <seg>filename with type (extension)</seg></seglistitem>
 </segmentedlist>
 
@@ -3681,12 +3642,12 @@ and &end-k;:</para>
    <seg>a letter <filename>*</filename>|
      <filename>a</filename>|...|<filename>z</filename>|
      <filename>A</filename>|...|<filename>Z</filename></seg></seglistitem>
-  <seglistitem><seg>{ <replaceable>name</replaceable>
-      [. <replaceable>type</replaceable>] \ }</seg>
+  <seglistitem><seg>{ &name-r;
+      [. &type-r;] \ }</seg>
    <seg>each one a subdirectory, <filename>\</filename> may be
      replaced by <filename>/</filename></seg></seglistitem>
-  <seglistitem><seg>[ <replaceable>name</replaceable>
-      [. <replaceable>type</replaceable>] ]</seg>
+  <seglistitem><seg>[ &name-r;
+      [. &type-r;] ]</seg>
    <seg>filename with type (extension)</seg></seglistitem>
 </segmentedlist>
 
@@ -3767,10 +3728,9 @@ and &end-k;:</para>
 
 <section id="parsename"><title>Function &parse-namestring;</title>
 
-<para><literal role="sexp">(&parse-namestring;
-   <replaceable>string</replaceable> &optional-amp;
+<para><literal role="sexp">(&parse-namestring; &string-r; &optional-amp;
    <replaceable>host</replaceable> <replaceable>defaults</replaceable>
-   &key-amp; <replaceable>start</replaceable> <replaceable>end</replaceable>
+   &key-amp; &start-r; &end-r;
    <replaceable>junk-allowed</replaceable>)</literal>
  returns a logical pathname only if <replaceable>host</replaceable> is a
  <ulink url="&clhs;/Body/glo_l.html#logical_host">logical host</ulink>
@@ -3780,7 +3740,7 @@ and &end-k;:</para>
  &logical-pathname; can be used.</para>
 
 <para>The ANSI-mandated behavior of recognizing logical pathnames when
-the <replaceable>string</replaceable> begins with some alphanumeric
+the &string-r; begins with some alphanumeric
 characters followed by a colon (<keysym>#\:</keysym>) is very confusing
 (cf. <literal>"c:/autoexec.bat"</literal>,
 <literal>"home:.clisprc"</literal> and
@@ -3853,7 +3813,7 @@ non-&nil;.</para>
  its first value.</para></formalpara>
 
 <formalpara><title>&probe-file;</title>
-<para>&probe-file; can not be used to check whether a directory
+<para>&probe-file; cannot be used to check whether a directory
  exists. Use the function <link
  linkend="probe-dir"><function>ext:probe-directory</function></link> or
  the function &directory; for this purpose.</para></formalpara>
@@ -4134,25 +4094,23 @@ non-&nil;.</para>
 
 <section><title>Function &stream-element-type;</title>
 
-<para>&stream-element-type; is &setf;able. The element type of streams
-  created by the functions &open;,
+<para>&stream-element-type; is &setf;able. The &stream-element-type; of
+  &stream-class;s created by the functions &open;,
 <link linkend="pipe"><function>ext:make-pipe-input-stream</function></link>,
 <link linkend="pipe"><function>ext:make-pipe-output-stream</function></link>,
 <link linkend="pipe"><function>ext:make-pipe-io-stream</function></link>,
 <link linkend="socket"><function>socket:socket-accept</function></link>,
 <link linkend="socket"><function>socket:socket-connect</function></link>
-  can be modified, if the old and the new element type are either
+  can be modified, if the old and the new &stream-element-type;s are either
 <itemizedlist>
   <listitem><simpara>both equivalent to &character-class; or
       <literal role="sexp">(&unsigned-byte-type; 8)</literal> or
       <literal role="sexp">(&signed-byte-type; 8)</literal>, or
     </simpara></listitem>
   <listitem><simpara>both equivalent to
-      <literal role="sexp">(&unsigned-byte-type;
-        <replaceable>n</replaceable>)</literal> or
-      <literal role="sexp">(&signed-byte-type;
-        <replaceable>n</replaceable>)</literal>,
-      with the same <replaceable>n</replaceable>.</simpara></listitem>
+      <literal role="sexp">(&unsigned-byte-type; &n-r;)</literal> or
+      <literal role="sexp">(&signed-byte-type; &n-r;)</literal>,
+      with the same &n-r;.</simpara></listitem>
 </itemizedlist></para>
 
 </section>
@@ -4163,26 +4121,22 @@ non-&nil;.</para>
 
 <para>The function <literal
     role="sexp">(<function>ext:read-integer</function>
-    <replaceable>stream</replaceable>
-    <replaceable>element-type</replaceable> &optional-amp;
-    &endianness; <replaceable>eof-error-p</replaceable>
+    &stream-r; &eltype-r; &optional-amp; &endianness;
+    <replaceable>eof-error-p</replaceable>
     <replaceable>eof-value</replaceable>)</literal>
- reads a multi-byte integer from <replaceable>stream</replaceable>.
- <replaceable>stream</replaceable> should be a stream with element-type
+ reads a multi-byte &integer-class; from &stream-r;.
+ &stream-r; should be a stream with &stream-element-type;
  <literal role="sexp">(&unsigned-byte-type; 8)</literal>.
- <replaceable>element-type</replaceable> should be a type equivalent to
- <literal role="sexp">(&unsigned-byte-type;
- <replaceable>n</replaceable>)</literal>, where
- <replaceable>n</replaceable> is a multiple of 8.</para>
+ &eltype-r; should be a type equivalent to
+ <literal role="sexp">(&unsigned-byte-type; &n-r;)</literal>, where
+ &n-r; is a multiple of 8.</para>
 
 <para><literal role="sexp">(<function>ext:read-integer</function>
- <replaceable>stream</replaceable>
- <replaceable>element-type</replaceable>)</literal> is like <literal
- role="sexp">(&read-byte; <replaceable>stream</replaceable>)</literal>
- if <replaceable>stream</replaceable>'s element type were set to
- <replaceable>element-type</replaceable>, except that
- <replaceable>stream</replaceable>'s &file-position; will increase by
- <superscript><replaceable>n</replaceable></superscript>/<subscript>8</subscript>
+ &stream-r; &eltype-r;)</literal> is like <literal
+ role="sexp">(&read-byte; &stream-r;)</literal> if &stream-r;'s
+ &stream-element-type; were set to &eltype-r;, except that &stream-r;'s
+ &file-position; will increase by
+ <superscript>&n-r;</superscript>/<subscript>8</subscript>
  instead of 1.</para>
 
 <para id="endianness">&endianness; can be <constant>:little</constant>
@@ -4195,15 +4149,13 @@ non-&nil;.</para>
  character/binary input from a stream.</para>
 
 <para>The function <literal role="sexp">(<function>ext:read-float</function>
-    <replaceable>stream</replaceable>
-    <replaceable>element-type</replaceable> &optional-amp;
-    &endianness; <replaceable>eof-error-p</replaceable>
+    &stream-r; &eltype-r; &optional-amp; &endianness;
+    <replaceable>eof-error-p</replaceable>
     <replaceable>eof-value</replaceable>)</literal>
- reads a floating-point number in IEEE binary representation from
- <replaceable>stream</replaceable>.  <replaceable>stream</replaceable>
- should be a stream with element-type <literal
- role="sexp">(&unsigned-byte-type; 8)</literal>.
- <replaceable>element-type</replaceable> should be a type equivalent to
+ reads a floating-point number in IEEE binary representation from &stream-r;.
+ &stream-r; should be a &stream-class; with &stream-element-type;
+ <literal role="sexp">(&unsigned-byte-type; 8)</literal>.
+ &eltype-r; should be a type equivalent to
  &single-float-type; or &double-float-type;.</para>
 
 </section>
@@ -4214,43 +4166,34 @@ non-&nil;.</para>
 
 <para>The function <literal
     role="sexp">(<function>ext:write-integer</function>
-    <replaceable>integer</replaceable> <replaceable>stream</replaceable>
-    <replaceable>element-type</replaceable> &optional-amp;
-    &endianness;)</literal>
- writes a multi-byte integer to <replaceable>stream</replaceable>.
- <replaceable>stream</replaceable> should be a stream with element-type
+    &int-r; &stream-r; &eltype-r; &optional-amp; &endianness;)</literal>
+ writes a multi-byte integer to &stream-r;.
+ &stream-r; should be a &stream-class; with &stream-element-type;
  <literal role="sexp">(&unsigned-byte-type; 8)</literal>.
- <replaceable>element-type</replaceable> should be a type equivalent to
- <literal role="sexp">(&unsigned-byte-type;
- <replaceable>n</replaceable>)</literal>, where
- <replaceable>n</replaceable> is a multiple of 8.</para>
+ &eltype-r; should be a type equivalent to
+ <literal role="sexp">(&unsigned-byte-type; &n-r;)</literal>, where
+ &n-r; is a multiple of 8.</para>
 
 <para><literal role="sexp">(<function>ext:write-integer</function>
-    <replaceable>integer</replaceable> <replaceable>stream</replaceable>
-    <replaceable>element-type</replaceable>)</literal>
- is like <literal role="sexp">(&write-byte;
- <replaceable>integer</replaceable>
- <replaceable>stream</replaceable>)</literal> if
- <replaceable>stream</replaceable>'s element type were set to
- <replaceable>element-type</replaceable>, except that
- <replaceable>stream</replaceable>'s &file-position; will increase by
- <superscript><replaceable>n</replaceable></superscript>/<subscript>8</subscript>
+    &int-r; &stream-r; &eltype-r;)</literal>
+ is like <literal role="sexp">(&write-byte; &int-r; &stream-r;)</literal> if
+ &stream-r;'s &stream-element-type; were set to &eltype-r;, except that
+ &stream-r;'s &file-position; will increase by
+ <superscript>&n-r;</superscript>/<subscript>8</subscript>
  instead of 1.</para>
 
 <para>Together with <literal role="sexp">(&setf;
   &stream-element-type;)</literal>, this function permits mixed
-  character/binary output to a stream.</para>
+  character/binary output to a &stream-class;.</para>
 
 <para>The function <literal
     role="sexp">(<function>ext:write-float</function>
-    <replaceable>float</replaceable> <replaceable>stream</replaceable>
-    <replaceable>element-type</replaceable> &optional-amp;
-    &endianness;)</literal>
- writes a floating-point number in IEEE binary representation to
- <replaceable>stream</replaceable>.  <replaceable>stream</replaceable>
- should be a stream with element-type <literal
- role="sexp">(&unsigned-byte-type; 8)</literal>.
- <replaceable>element-type</replaceable> should be a type equivalent to
+    <replaceable>float</replaceable> &stream-r;
+    &eltype-r; &optional-amp; &endianness;)</literal>
+ writes a floating-point number in IEEE binary representation to &stream-r;.
+ &stream-r; should be a &stream-class; with &stream-element-type;
+ <literal role="sexp">(&unsigned-byte-type; 8)</literal>.
+ &eltype-r; should be a type equivalent to
  &single-float-type; or &double-float-type;.</para>
 
 </section>
@@ -4266,21 +4209,17 @@ non-&nil;.</para>
    performs multiple &read-byte; operations:</term>
 
  <listitem><simpara><literal
-   role="sexp">(<function>ext:read-byte-sequence</function>
-   <replaceable>sequence</replaceable> <replaceable>stream</replaceable>
-   &key-amp; &start-k; &end-k;)</literal> fills the subsequence of
-   <replaceable>sequence</replaceable> specified by &start-k; and
-   &end-k; with integers consecutively read from
-   <replaceable>stream</replaceable>.  It returns the index of the first
-   element of <replaceable>sequence</replaceable> that was not updated
-   (= <replaceable>end</replaceable> or &lt;
-   <replaceable>end</replaceable> if the stream reached its end).</simpara>
+   role="sexp">(<function>ext:read-byte-sequence</function> &sequence-r;
+   &stream-r; &key-amp; &start-k; &end-k;)</literal> fills the
+   subsequence of &sequence-r; specified by &start-k; and &end-k; with
+   &integer-class;s consecutively read from &stream-r;.  It returns the
+   index of the first element of &sequence-r; that was not updated (=
+   &end-r; or &lt; &end-r; if the &stream-r; reached its end).</simpara>
 
- <simpara>This function is especially efficient if
-  <replaceable>sequence</replaceable> is a <literal
-  role="sexp">(&vector-class; (&unsigned-byte-type; 8))</literal> and
-  <replaceable>stream</replaceable> is a &file-pipe-socket; stream with
-  element type <literal role="sexp">(&unsigned-byte-type;
+ <simpara>This function is especially efficient if &sequence-r; is a
+  <literal role="sexp">(&vector-class; (&unsigned-byte-type;
+  8))</literal> and &stream-r; is a &file-pipe-socket; stream with
+  &stream-element-type; <literal role="sexp">(&unsigned-byte-type;
   8)</literal>.</simpara></listitem></varlistentry>
 
  <varlistentry><term><emphasis
@@ -4288,20 +4227,16 @@ non-&nil;.</para>
    performs multiple &read-char; operations:</term>
 
  <listitem><simpara><literal
-  role="sexp">(<function>read-char-sequence</function>
-  <replaceable>sequence</replaceable> <replaceable>stream</replaceable>
-  &key-amp; &start-k; &end-k;)</literal> fills the subsequence of
-  <replaceable>sequence</replaceable> specified by &start-k; and &end-k;
-  with characters consecutively read from
-  <replaceable>stream</replaceable>.  It returns the index of the first
-  element of <replaceable>sequence</replaceable> that was not updated (=
-  <replaceable>end</replaceable> or &lt; <replaceable>end</replaceable>
-  if the stream reached its end).</simpara>
+  role="sexp">(<function>read-char-sequence</function> &sequence-r;
+  &stream-r; &key-amp; &start-k; &end-k;)</literal> fills the
+  subsequence of &sequence-r; specified by &start-k; and &end-k; with
+  characters consecutively read from &stream-r;.  It returns the index
+  of the first element of &sequence-r; that was not updated (= &end-r;
+  or &lt; &end-r; if the &stream-r; reached its end).</simpara>
 
- <simpara>This function is especially efficient if
-  <replaceable>sequence</replaceable> is a &string-class; and
-  <replaceable>stream</replaceable> is a &file-pipe-socket; stream with
-  element type &character-class; or an <ulink
+ <simpara>This function is especially efficient if &sequence-r; is a
+  &string-class; and &stream-k; is a &file-pipe-socket; stream with
+  &stream-element-type; &character-class; or an <ulink
   url="&clhs;/Body/glo_i.html#input">input</ulink> <ulink
   url="&clhs;/Body/glo_s.html#string_stream">string stream</ulink>.
   </simpara></listitem></varlistentry>
@@ -4320,18 +4255,16 @@ functions are provided:</para>
    performs multiple &write-byte; operations:</term>
 
  <listitem><simpara><literal
-  role="sexp">(<function>ext:write-byte-sequence</function>
-  <replaceable>sequence</replaceable> <replaceable>stream</replaceable>
-  &key-amp; &start-k; &end-k;)</literal> outputs the integers of the
-  subsequence of <replaceable>sequence</replaceable> specified by
-  &start-k; and &end-k; to <replaceable>stream</replaceable>. It returns
-  <replaceable>sequence</replaceable>.</simpara>
+  role="sexp">(<function>ext:write-byte-sequence</function> &sequence-r;
+  &stream-k; &key-amp; &start-k; &end-k;)</literal> outputs the
+  &integer-class;s of the subsequence of &sequence-r; specified by
+  &start-k; and &end-k; to &stream-k;. It returns
+  &sequence-r;.</simpara>
 
- <simpara>This function is especially efficient if
- <replaceable>sequence</replaceable> is a <literal
- role="sexp">(&vector-class; (&unsigned-byte-type; 8))</literal> and
- <replaceable>stream</replaceable> is a &file-pipe-socket; stream with
- element type <literal role="sexp">(&unsigned-byte-type;
+ <simpara>This function is especially efficient if &sequence-r; is a
+ <literal role="sexp">(&vector-class; (&unsigned-byte-type;
+ 8))</literal> and &stream-k; is a &file-pipe-socket; &stream-class;
+ with &stream-element-type; <literal role="sexp">(&unsigned-byte-type;
  8)</literal>.</simpara></listitem></varlistentry>
 
 <varlistentry><term><emphasis
@@ -4340,20 +4273,20 @@ functions are provided:</para>
 
  <listitem><simpara><literal
    role="sexp">(<function>ext:write-char-sequence</function>
-   <replaceable>sequence</replaceable> <replaceable>stream</replaceable>
-   &key-amp; &start-k; &end-k;)</literal> outputs the characters of the
-   subsequence of <replaceable>sequence</replaceable> specified by
-   &start-k; and &end-k; to <replaceable>stream</replaceable>.  It
-   returns <replaceable>sequence</replaceable>.</simpara>
+   &sequence-r; &stream-k; &key-amp; &start-k; &end-k;)</literal>
+   outputs the characters of the subsequence of &sequence-r; specified
+   by &start-k; and &end-k; to &stream-k;.  It returns
+   &sequence-r;.</simpara>
 
- <simpara>This function is especially efficient if
-  <replaceable>sequence</replaceable> is a &string-class; and
-  <replaceable>stream</replaceable> is a &file-pipe-socket; stream with
-  element type &character-class;.</simpara></listitem></varlistentry>
+ <simpara>This function is especially efficient if &sequence-r; is a
+  &string-class; and &stream-k; is a &file-pipe-socket; &stream-class;
+  with &stream-element-type; &character-class;.
+  </simpara></listitem></varlistentry>
 </variablelist>
 </section>
 
-<!-- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0)) -->
+<!-- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY
+!= 0)) -->
 <section><title>Function &file-position;</title>
 
 <variablelist>
@@ -4379,17 +4312,15 @@ functions are provided:</para>
    &file-pipe-socket; functions</title>
  <varlistentry id="eltype"><term><constant>:element-type</constant></term>
   <listitem><simpara>types equivalent to &character-class; or
-   <literal role="sexp">(&unsigned-byte-type;
-   <replaceable>n</replaceable>)</literal>,
-   <literal role="sexp">(&signed-byte-type;
-   <replaceable>n</replaceable>)</literal>; if the stream is to be
-   unbuffered, <replaceable>n</replaceable> must be a multiple of 8.
+   <literal role="sexp">(&unsigned-byte-type; &n-r;)</literal>,
+   <literal role="sexp">(&signed-byte-type; &n-r;)</literal>; if the
+   stream is to be unbuffered, &n-r; must be a multiple of 8.
    </simpara></listitem></varlistentry>
  <varlistentry id="extfmt"><term><constant>:external-format</constant></term>
   <listitem><simpara>encodings, (constant) symbols in the <link
    linkend="encoding"><function>CHARSET</function></link> package,
    strings (denoting <link linkend="iconv">iconv()</link> based
-   encodings), the symbol <constant>:default</constant>, and the <link
+   encodings), the symbol &default-k;, and the <link
    linkend="newline">line terminator</link> keywords
    <constant>:unix</constant>, <constant>:mac</constant>,
    <constant>:dos</constant>.  The default encoding is
@@ -4397,13 +4328,13 @@ functions are provided:</para>
      ><varname>custom:*default-file-encoding*</varname></link>.
   </simpara></listitem></varlistentry>
  <varlistentry id="buffered"><term><constant>:buffered</constant></term>
-  <listitem><para>&nil;, &t;, or <constant>:default</constant>.
+  <listitem><para>&nil;, &t;, or &default-k;.
   <itemizedlist>
    <listitem><simpara>for functions that create &socket-stream;s and
-    <link linkend="pipe">pipes</link>, <constant>:default</constant> is
+    <link linkend="pipe">pipes</link>, &default-k; is
     equivalent to &nil;;</simpara></listitem>
    <listitem><simpara>for functions that <link
-    linkend="open">open</link> files, <constant>:default</constant>
+    linkend="open">open</link> files, &default-k;
     means that buffered file streams will be returned for regular files
     and (on Unix) block-devices, and unbuffered file streams for special
     files.</simpara></listitem>
@@ -4464,11 +4395,10 @@ functions are provided:</para>
    <ulink url="&clhs;/Body/sec_22-1-3-7.html">[CLHS-22.1.3.7]</ulink></title>
 
 <para>When &print-readably-var; is true, other vectors are written as
- follows: if the element-type is &t-class;, the syntax <literal
+ follows: if the &array-element-type; is &t-class;, the syntax <literal
  role="sexp">#(<replaceable>x<subscript>0</subscript></replaceable>
  ... <replaceable>x<subscript>n-1</subscript></replaceable>)</literal>
- is used.  Otherwise, the syntax <literal
- role="sexp">#A(<replaceable>element-type</replaceable>
+ is used.  Otherwise, the syntax <literal role="sexp">#A(&eltype-r;
  <replaceable>dimensions</replaceable>
  <replaceable>contents</replaceable>)</literal> is used.</para>
 
@@ -4478,10 +4408,10 @@ functions are provided:</para>
    <ulink url="&clhs;/Body/sec_22-1-3-8.html">[CLHS-22.1.3.8]</ulink></title>
 
 <para>When &print-readably-var; is true, other arrays are written as
- follows: if the element-type is &t-class;, the syntax <literal
+ follows: if the &array-element-type; is &t-class;, the syntax <literal
  role="sexp">#<replaceable>rank</replaceable>A
  <replaceable>contents</replaceable></literal> is used.  Otherwise, the
- syntax <literal role="sexp">#A(<replaceable>element-type</replaceable>
+ syntax <literal role="sexp">#A(&eltype-r;
  <replaceable>dimensions</replaceable>
  <replaceable>contents</replaceable>)</literal> is used.</para>
 
@@ -4506,11 +4436,9 @@ functions are provided:</para>
 
 <para>The &format; instruction &format-w; is similar to &format-a; and
  &format-s;, but avoids binding of &print-escape-var;.
- <literal role="sexp">(&format; <replaceable>stream</replaceable>
- "~W" <replaceable>object</replaceable>)</literal> is equivalent to
- <literal role="sexp">(&write;
- <replaceable>object</replaceable> :stream
- <replaceable>stream</replaceable>)</literal>.</para>
+ <literal role="sexp">(&format; &stream-k; "~W" &object-r;)</literal> is
+ equivalent to <literal role="sexp">(&write; &object-r; :stream
+ &stream-k;)</literal>.</para>
 
 <para>The &format; instruction <emphasis
  role="strong"><literal>~!</literal></emphasis> is similar to
@@ -4518,11 +4446,9 @@ functions are provided:</para>
  Thus, even if the function is not interned in the &clu-pac; package,
  you might not need to specify the package.</para>
 
-<para><literal role="sexp">(&format; <replaceable>stream</replaceable>
- "~args!" <replaceable>function</replaceable>
- <replaceable>object</replaceable>)</literal> is equivalent to <literal
- role="sexp">(&funcall; <replaceable>function</replaceable>
- <replaceable>stream</replaceable> <replaceable>object</replaceable>
+<para><literal role="sexp">(&format; &stream-k; "~args!" &func-r;
+ &object-r;)</literal> is equivalent to <literal role="sexp">(&funcall;
+ &func-r; &stream-k; &object-r;
  <replaceable>colon-modifier-p</replaceable>
  <replaceable>atsign-modifier-p</replaceable>
  <replaceable>args</replaceable>)</literal>.</para>
@@ -4607,30 +4533,29 @@ functions are provided:</para>
 <chapter id="reader"><title>Reader
    <ulink url="&clhs;/Body/chap-23.html">[CLHS-23]</ulink></title>
 
-<para>This is the list of objects whose external representation can not
+<para>This is the list of objects whose external representation cannot
   be meaningfully read in:
 <segmentedlist><title>unreadable objects</title>
   <segtitle>format</segtitle><segtitle>meaning</segtitle>
- <seglistitem><seg><literal>#&lt;<replaceable>type</replaceable>
-     ...&gt;</literal></seg>
+ <seglistitem><seg><literal>#&lt;&type-r; ...&gt;</literal></seg>
     <seg>all structures lacking a keyword constructor</seg></seglistitem>
- <seglistitem><seg><literal>#&lt;ARRAY <replaceable>type</replaceable>
+ <seglistitem><seg><literal>#&lt;ARRAY &type-r;
        <replaceable>dimensions</replaceable>&gt;</literal></seg>
     <seg>all arrays except strings, if &print-array-var; is
        &nil;</seg></seglistitem>
  <seglistitem><seg><literal>#&lt;SYSTEM-FUNCTION
-       <replaceable>name</replaceable>&gt;</literal></seg>
+       &name-r;&gt;</literal></seg>
     <seg>built-in function written in &c-lang;</seg></seglistitem>
  <seglistitem><seg><literal>#&lt;ADD-ON-SYSTEM-FUNCTION
-       <replaceable>name</replaceable>&gt;</literal></seg>
+       &name-r;&gt;</literal></seg>
     <seg>other function written in &c-lang;</seg></seglistitem>
  <seglistitem><seg><literal>#&lt;SPECIAL-OPERATOR
-       <replaceable>name</replaceable>&gt;</literal></seg>
+       &name-r;&gt;</literal></seg>
     <seg>special operator handler</seg></seglistitem>
  <seglistitem><seg><literal>#&lt;COMPILED-CLOSURE
-       <replaceable>name</replaceable>&gt;</literal></seg>
+       &name-r;&gt;</literal></seg>
     <seg>compiled function, if &pr-closure; is &nil;</seg></seglistitem>
- <seglistitem><seg><literal>#&lt;CLOSURE <replaceable>name</replaceable>
+ <seglistitem><seg><literal>#&lt;CLOSURE &name-r;
        ...&gt;</literal></seg>
     <seg>interpreted function</seg></seglistitem>
  <seglistitem><seg><literal>#&lt;FRAME-POINTER #x...&gt;</literal></seg>
@@ -4641,14 +4566,13 @@ functions are provided:</para>
  <seglistitem><seg><literal>#&lt;...-STREAM ...&gt;</literal></seg>
     <seg>stream</seg></seglistitem>
  <seglistitem><seg><literal>#&lt;PACKAGE
-       <replaceable>name</replaceable>&gt;</literal></seg>
+       &name-r;&gt;</literal></seg>
     <seg>package</seg></seglistitem>
  <seglistitem><seg><literal>#&lt;HASH-TABLE #x...&gt;</literal></seg>
     <seg>hash table, if &print-array-var; is &nil;</seg></seglistitem>
  <seglistitem><seg><literal>#&lt;READTABLE #x...&gt;</literal></seg>
     <seg>readtable</seg></seglistitem>
- <seglistitem><seg><literal>#&lt;SYMBOL-MACRO
-       <replaceable>form</replaceable>&gt;</literal></seg>
+ <seglistitem><seg><literal>#&lt;SYMBOL-MACRO &form-r;&gt;</literal></seg>
     <seg>&symbol-macro; handler</seg></seglistitem>
 <!-- #ifdef FOREIGN -->
  <seglistitem><seg><literal>#&lt;FOREIGN-POINTER #x...&gt;</literal></seg>
@@ -4663,12 +4587,12 @@ functions are provided:</para>
      <emphasis>(Platform dependent: &unix;, &win32; platforms only.)</emphasis>
     </seg></seglistitem>
  <seglistitem><seg><literal>#&lt;FOREIGN-VARIABLE
-       <replaceable>name</replaceable> #x...&gt;</literal></seg>
+       &name-r; #x...&gt;</literal></seg>
     <seg>foreign variable
      <emphasis>(Platform dependent: &unix;, &win32; platforms only.)</emphasis>
     </seg></seglistitem>
  <seglistitem><seg><literal>#&lt;FOREIGN-FUNCTION
-       <replaceable>name</replaceable> #x...&gt;</literal></seg>
+       &name-r; #x...&gt;</literal></seg>
     <seg>foreign function
      <emphasis>(Platform dependent: &unix;, &win32; platforms only.)</emphasis>
     </seg></seglistitem>
@@ -4747,22 +4671,22 @@ functions are provided:</para>
 <variablelist>
  <varlistentry><term><literal
   role="sexp">(<function>ext:read-char-will-hang-p</function>
-              <replaceable>stream</replaceable>)</literal></term>
+              &stream-r;)</literal></term>
   <listitem><simpara><function>ext:read-char-will-hang-p</function>
   queries the stream's input status. It returns &nil; if &read-char; and
   &peek-char; with a <replaceable>peek-type</replaceable> of &nil; will return
   immediately. Otherwise it returns true. (In the latter case the standard
   &listen; function would return &nil;.)</simpara>
-  <simpara>Note the difference with <literal role="sexp">(not (listen
-  <replaceable>stream</replaceable>))</literal>: When the &eos; is reached,
-  &listen; returns &nil;, whereas
-  <function>ext:read-char-will-hang-p</function> returns &nil;.</simpara>
-  <simpara>Note also that
-  <function>ext:read-char-will-hang-p</function> is not a good mean to
-  test for &eos;: If <function>ext:read-char-will-hang-p</function>
-  returns &t;, this does not mean that the stream will deliver more
-  characters. It only means that it is not known at this moment whether
-  the stream is already at &eos;, or will deliver more characters.
+  <simpara>Note the difference with <literal role="sexp">(&not;
+  (&listen; &stream-r;))</literal>: When the &eos; is reached, &listen;
+  returns &nil;, whereas <function>ext:read-char-will-hang-p</function>
+  returns &nil;.</simpara>
+  <simpara>Note also that <function>ext:read-char-will-hang-p</function>
+  is not a good mean to test for &eos;: If
+  <function>ext:read-char-will-hang-p</function> returns &t;, this does
+  not mean that the &stream-r; will deliver more characters.  It only
+  means that it is not known at this moment whether the &stream-r; is
+  already at &eos;, or will deliver more characters.
   </simpara></listitem></varlistentry>
 </variablelist>
 
@@ -4773,38 +4697,35 @@ functions are provided:</para>
 <variablelist>
  <varlistentry><term><literal
     role="sexp">(<function>ext:read-byte-lookahead</function>
-                 <replaceable>stream</replaceable>)</literal></term>
-  <listitem><simpara>To be called only if
-   <replaceable>stream</replaceable>'s element-type is
-   <literal role="sexp">(unsigned-byte 8)</literal> or
-   <literal role="sexp">(signed-byte 8)</literal>. Returns &t; if
-   &read-byte; would return immediately with an integer result.
+                 &stream-r;)</literal></term>
+  <listitem><simpara>To be called only if &stream-r;'s &stream-element-type; is
+   <literal role="sexp">(&unsigned-byte-type; 8)</literal> or
+   <literal role="sexp">(&signed-byte-type; 8)</literal>.
+   Returns &t; if &read-byte; would return immediately with an
+   &integer-class; result.
    Returns &eof-k; if the &eos; is already known to be reached.
    If &read-byte;'s value is not available immediately, returns &nil;
-   instead of waiting.
-  </simpara></listitem></varlistentry>
+   instead of waiting.</simpara></listitem></varlistentry>
  <varlistentry><term><literal
   role="sexp">(<function>ext:read-byte-will-hang-p</function>
-              <replaceable>stream</replaceable>)</literal></term>
-  <listitem><simpara>To be called only if
-   <replaceable>stream</replaceable>'s element-type is
-   <literal role="sexp">(unsigned-byte 8)</literal> or
-   <literal role="sexp">(signed-byte 8)</literal>. Returns &nil; if
-   &read-byte; will return immediately. Otherwise it returns true.
-  </simpara></listitem></varlistentry>
+              &stream-r;)</literal></term>
+  <listitem><simpara>To be called only if &stream-r;'s &stream-element-type; is
+   <literal role="sexp">(&unsigned-byte-type; 8)</literal> or
+   <literal role="sexp">(&signed-byte-type; 8)</literal>.
+   Returns &nil; if &read-byte; will return immediately.
+   Otherwise it returns true.</simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>ext:read-byte-no-hang</function>
-                 <replaceable>stream</replaceable> &optional-amp;
+                 &stream-r; &optional-amp;
                  <replaceable>eof-error-p</replaceable>
                  <replaceable>eof-value</replaceable>)</literal></term>
-  <listitem><simpara>To be called only if
-   <replaceable>stream</replaceable>'s element-type is
-   <literal role="sexp">(unsigned-byte 8)</literal> or
-   <literal role="sexp">(signed-byte 8)</literal>. Returns an integer or
-   does &eos; handling, like &read-byte;, if that would return immediately.
+  <listitem><simpara>To be called only if &stream-r;'s &stream-element-type; is
+   <literal role="sexp">(&unsigned-byte-type; 8)</literal> or
+   <literal role="sexp">(&signed-byte-type; 8)</literal>.
+   Returns an &integer-class; or does &eos; handling, like &read-byte;,
+   if that would return immediately.
    If &read-byte;'s value is not available immediately, returns &nil;
-   instead of waiting.
-   </simpara></listitem></varlistentry>
+   instead of waiting.</simpara></listitem></varlistentry>
 </variablelist>
 
 </section>
@@ -5209,7 +5130,7 @@ compiles a file to platform-independent bytecode.</para>
 
 <para>The stepper is usually used like this: If some form returns a
  strange value or results in an error, call <literal role="sexp">(&step;
- <replaceable>form</replaceable>)</literal> and navigate using the
+ &form-r;)</literal> and navigate using the
  commands <command>Step</command> and <command>Next</command> until you
  reach the form you regard as responsible.  If you are too fast (execute
  <command>Next</command> once and get the error), there is no way back;
@@ -5245,83 +5166,68 @@ compiles a file to platform-independent bytecode.</para>
 <para>The function <emphasis
  role="strong"><function>ext:uncompile</function></emphasis> does the
  converse of &compile;: <literal
- role="sexp">(<function>ext:uncompile</function>
- <replaceable>function-name</replaceable>)</literal> reverts an
- interpreted function that has been entered or loaded in the same
- session and then compiled back to its interpreted form.</para>
+ role="sexp">(<function>ext:uncompile</function> &func-r;)</literal>
+ reverts an interpreted &func-r; (name), that has been entered or loaded
+ in the same session and then compiled, back to its interpreted
+ form.</para>
 
 </section>
 
 <section><title>Function &documentation;</title>
 
 <para>No on-line documentation is available for the system functions
- (yet).  &documentation; still has the CLtL1 implementation.</para>
+ (yet).  &documentation; still has the &cltl1; implementation.</para>
 
 <formalpara id="browser"><title><function>ext:clhs</function></title>
 <para>&hyperspec; access is provided via <literal
-  role="sexp">(<function>ext:clhs</function>
-  <replaceable>symbol</replaceable> &key-amp;
-  <literal>:browser</literal>
-  <replaceable>browser</replaceable>)</literal> function which uses
-  your web browser.  <replaceable>browser</replaceable> should be a
-  valid keyword in the <varname>custom:*browsers*</varname> alist.
+  role="sexp">(<function>ext:clhs</function> &symbol-r; &key-amp;
+  <literal>:browser</literal> <replaceable>browser</replaceable>)</literal>
+  function which uses your web browser.
+  <replaceable>browser</replaceable> should be a valid
+  keyword in the <varname>custom:*browsers*</varname> alist.
 </para></formalpara>
 
 </section>
 
 <section><title>Macro &trace;</title>
 
-<para><literal role="sexp">(&trace; <replaceable>fun</replaceable>
- ...)</literal> makes the functions <replaceable>fun</replaceable>,
- ... traced.  <replaceable>fun</replaceable> should be either a symbol
- or a list <literal role="sexp">(<replaceable>symbol</replaceable>
- &key-amp; <constant>:suppress-if</constant> <constant>:step-if</constant>
+<para><literal role="sexp">(&trace; &func-r; ...)</literal> makes the
+ functions &func-r;, ... traced.  &func-r; should be either a symbol or
+ a list <literal role="sexp">(&symbol-r; &key-amp;
+ <constant>:suppress-if</constant> <constant>:step-if</constant>
  <constant>:pre</constant> <constant>:post</constant>
  <constant>:pre-break-if</constant> <constant>:post-break-if</constant>
  <constant>:pre-print</constant> <constant>:post-print</constant>
  &print-k;)</literal>, where</para>
 
 <variablelist>
- <varlistentry><term><constant>:suppress-if</constant>
-   <replaceable>form</replaceable></term>
+ <varlistentry><term><constant>:suppress-if</constant> &form-r;</term>
   <listitem><simpara>no trace output as long as
-   <replaceable>form</replaceable> is true</simpara></listitem></varlistentry>
- <varlistentry><term><constant>:step-if</constant>
-   <replaceable>form</replaceable></term>
+   &form-r; is true</simpara></listitem></varlistentry>
+ <varlistentry><term><constant>:step-if</constant> &form-r;</term>
   <listitem><simpara>invokes the stepper as soon as
-   <replaceable>form</replaceable> is true</simpara></listitem></varlistentry>
- <varlistentry><term><constant>:pre</constant>
-   <replaceable>form</replaceable></term>
-  <listitem><simpara>evaluates <replaceable>form</replaceable> before
-   calling the function </simpara></listitem></varlistentry>
- <varlistentry><term><constant>:post</constant>
-   <replaceable>form</replaceable></term>
-  <listitem><simpara>evaluates <replaceable>form</replaceable> after
-   return from the function </simpara></listitem></varlistentry>
- <varlistentry><term><constant>:pre-break-if</constant>
-   <replaceable>form</replaceable></term>
+   &form-r; is true</simpara></listitem></varlistentry>
+ <varlistentry><term><constant>:pre</constant> &form-r;</term>
+  <listitem><simpara>evaluates &form-r; before
+   calling the function</simpara></listitem></varlistentry>
+ <varlistentry><term><constant>:post</constant> &form-r;</term>
+  <listitem><simpara>evaluates &form-r; after
+   return from the function</simpara></listitem></varlistentry>
+ <varlistentry><term><constant>:pre-break-if</constant> &form-r;</term>
   <listitem><simpara>goes into the break loop before calling the
-   function if <replaceable>form</replaceable> is true
-   </simpara></listitem></varlistentry>
- <varlistentry><term><constant>:post-break-if</constant>
-   <replaceable>form</replaceable></term>
+   function if &form-r; is true</simpara></listitem></varlistentry>
+ <varlistentry><term><constant>:post-break-if</constant> &form-r;</term>
   <listitem><simpara>goes into the break loop after return from the
-   function if <replaceable>form</replaceable> is true
-   </simpara></listitem></varlistentry>
- <varlistentry><term><constant>:pre-print</constant>
-   <replaceable>form</replaceable></term>
-  <listitem><simpara>prints the values of
-   <replaceable>form</replaceable> before calling the function
-   </simpara></listitem></varlistentry>
- <varlistentry><term><constant>:post-print</constant>
-   <replaceable>form</replaceable></term>
-  <listitem><simpara>prints the values of
-   <replaceable>form</replaceable> after return from the function
-   </simpara></listitem></varlistentry>
- <varlistentry><term>&print-k; <replaceable>form</replaceable></term>
-  <listitem><simpara>prints the values of
-   <replaceable>form</replaceable> both before calling and after return
-   from the function</simpara></listitem></varlistentry>
+   function if &form-r; is true </simpara></listitem></varlistentry>
+ <varlistentry><term><constant>:pre-print</constant> &form-r;</term>
+  <listitem><simpara>prints the values of &form-r; before calling the
+   function</simpara></listitem></varlistentry>
+ <varlistentry><term><constant>:post-print</constant> &form-r;</term>
+  <listitem><simpara>prints the values of &form-r; after return from the
+   function</simpara></listitem></varlistentry>
+ <varlistentry><term>&print-k; &form-r;</term>
+  <listitem><simpara>prints the values of &form-r; both before calling
+   and after return from the function</simpara></listitem></varlistentry>
 </variablelist>
 
 <para>In all these forms you can access the following variables:
@@ -5345,8 +5251,8 @@ and you can leave the function call with specified values by using
 &return;.</para>
 
 <para>&trace; and &untrace; are also applicable to functions <literal
- role="sexp">(&setf; <replaceable>symbol</replaceable>)</literal> and to
- macros, but not to locally defined functions and macros.</para>
+ role="sexp">(&setf; &symbol-r;)</literal> and to macros, but not to
+ locally defined functions and macros.</para>
 
 </section>
 
@@ -5382,8 +5288,8 @@ and you can leave the function call with specified values by using
 <para>The macro <emphasis
  role="strong"><function>ext:space</function></emphasis> is like the
  macro &time;: <literal role="sexp">(<function>ext:space</function>
- <replaceable>form</replaceable>)</literal> evaluates the
- <replaceable>form</replaceable>, and, as a side effect, outputs
+ &form-r;)</literal> evaluates the
+ &form-r;, and, as a side effect, outputs
  information about the memory allocations caused by this evaluation.  It
  also prints everything printed by <link
  linkend="time"><function>time</function></link>.</para>
