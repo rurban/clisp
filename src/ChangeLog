@@ -1,5 +1,14 @@
 2004-10-03  Bruno Haible  <bruno@clisp.org>
 
+	* pathname.d (ABSOLUTE-PATHNAME): New function.
+	(physical_namestring): Call check_no_wildcards.
+	* edit.lisp (edit-file): Use absolute-pathname instead of
+	translate-pathname.
+	* cfgwin32.lisp (edit-file): Likewise.
+	* runprog.lisp (xstring): Likewise.
+
+2004-10-03  Bruno Haible  <bruno@clisp.org>
+
 	* modules/syscalls/calls.c (POSIX::MKNOD): Don't use two popSTACK()s
 	in the same expression, as it has undefined behaviour.
 

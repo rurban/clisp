@@ -4907,6 +4907,8 @@ LISPFUN(translate_pathname,seclass_default,3,0,norest,key,3,
     /* step 4: merge in default pathname */
    #if defined(PATHNAME_UNIX) || defined(PATHNAME_WIN32)
     if (absolute_p) {
+      /* FIXME: If PATHNAME_WIN32, you have to ensure that the pathname has a
+         device != :WILD. */
       STACK_0 = use_default_dir(STACK_0); /* insert default-directory */
       /* (because Unix does not know the default-directory of LISP
          and Win32 is multitasking) */
@@ -4937,11 +4939,26 @@ LISPFUN(translate_pathname,seclass_default,3,0,norest,key,3,
   skipSTACK(5+1);
 }
 
+/* (ABSOLUTE-PATHNAME pathname) converts pathname to a physical pathname, if
+   necessary, and makes it absolute (using clisp's notion of default
+   directory). */
+LISPFUNN(absolute_pathname,1)
+{
+  var object thing = popSTACK();
+  var object pathname = coerce_pathname(thing);
+  check_no_wildcards(pathname); /* with wildcards -> error */
+  pathname = use_default_dir(pathname); /* insert default-directory */
+  VALUES1(pathname);
+}
+
 /* for modules: coerce to an absolute physical pathname and
    return its namestring
  can trigger GC */
 global object physical_namestring (object thing) {
-  return whole_namestring(use_default_dir(coerce_pathname(thing)));
+  var object pathname = coerce_pathname(thing);
+  check_no_wildcards(pathname); /* with wildcards -> error */
+  pathname = use_default_dir(pathname); /* insert default-directory */
+  return whole_namestring(pathname);
 }
 
 /* UP: tests, if the name of a pathname is =NIL.
