@@ -233,8 +233,8 @@ global int main()
 # printf("#define elif  else if\n");
 # printf("#define loop  while (1)\n");
 # printf("#define until(expression)  while(!(expression))\n");
-# printf("#define NOTREACHED  fehler_notreached(__FILE__,__LINE__);\n");
-# printf("#define ASSERT(expr)  { if (!(expr)) { NOTREACHED } }\n");
+# printf("#define NOTREACHED  fehler_notreached(__FILE__,__LINE__)\n");
+# printf("#define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)\n");
 # #if defined(GNU) && !defined(RISCOS) && !defined(CONVEX)
 #   printf("#define alloca  __builtin_alloca\n");
 # #elif defined(MICROSOFT)

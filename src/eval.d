@@ -473,7 +473,7 @@ LISPFUNN(subr_info,1)
                   aktenv.go_env = *ptr; ptr skipSTACKop 1;
                   aktenv.decl_env = *ptr; ptr skipSTACKop 1;
                   break;
-                default: NOTREACHED
+                default: NOTREACHED;
               }
             } else {
               # DYNBIND_FRAME
@@ -665,7 +665,7 @@ global void invoke_handlers (object cond) {
               inactive_handlers = saved_inactive_handlers;
               # and jump ahead:
               fun(arg);
-              NOTREACHED
+              NOTREACHED;
             });
             # deactivate Handler:
             inactive_handlers = &new_range;
@@ -2245,8 +2245,7 @@ nonreturning_function(local, fehler_undefined, (object caller, object funname)) 
               fehler_specialform(TheSubr(subr_self)->name,obj);
             case Rectype_Macro:
               fehler_macro(TheSubr(subr_self)->name,obj);
-            default:
-              NOTREACHED
+            default: NOTREACHED;
           }
         } else
           fehler_undefined(TheSubr(subr_self)->name,obj);
@@ -3212,7 +3211,7 @@ global Values eval_no_hooks (object form) {
           # FSUBR with 0 required-Parameters and Body-Parameter
           pushSTACK(args); # remaining body into STACK
           break;
-        default: NOTREACHED
+        default: NOTREACHED;
         fehler_zuwenig: # argument-list args is an atom, prematurely
           if (!nullp(args)) goto fehler_dotted;
           # clean up STACK up to the calling EVAL-Frame:
@@ -3520,7 +3519,7 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
           }
           if (!nullp(args)) goto fehler_dotted;
           goto apply_subr_norest;
-        default: NOTREACHED
+        default: NOTREACHED;
         #undef OPT_ARG
         #undef REQ_ARG
       }
@@ -3858,7 +3857,7 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
           case (uintB)cclos_argtype_default:
             # General Version
             break;
-          default: NOTREACHED
+          default: NOTREACHED;
           #undef OPT_ARG
           #undef REQ_ARG
         }
@@ -4106,8 +4105,7 @@ local Values apply_closure(object fun, uintC args_on_stack, object other_args);
               fehler_specialform(S(apply),fun);
             case Rectype_Macro:
               fehler_macro(S(apply),fun);
-            default:
-              NOTREACHED
+            default: NOTREACHED;
           }
         } else
           # if no SUBR, no Closure, no FSUBR, no Macro:
@@ -4377,7 +4375,7 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
             dotimesC(count,TheSubr(fun)->key_anz, { pushSTACK(unbound); } );
           }
           goto apply_subr_norest;
-        default: NOTREACHED
+        default: NOTREACHED;
         #undef OPT_ARG
         #undef REQ_ARG
       }
@@ -4772,7 +4770,7 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
           case (uintB)cclos_argtype_default:
             # General Version
             break;
-          default: NOTREACHED
+          default: NOTREACHED;
           #undef OPT_ARG
           #undef REQ_ARG
         }
@@ -5024,8 +5022,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               fehler_specialform(S(funcall),fun);
             case Rectype_Macro:
               fehler_macro(S(funcall),fun);
-            default:
-              NOTREACHED
+            default: NOTREACHED;
           }
         } else
           # if no SUBR, no Closure, no FSUBR, no Macro:
@@ -5327,7 +5324,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             dotimesC(count,TheSubr(fun)->key_anz, { pushSTACK(unbound); } );
           }
           goto apply_subr_norest;
-        default: NOTREACHED
+        default: NOTREACHED;
         #undef OPT_ARG
         #undef REQ_ARG
       }
@@ -5753,7 +5750,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           case (uintB)cclos_argtype_default:
             # General Version
             break;
-          default: NOTREACHED
+          default: NOTREACHED;
         }
         # Now the general version:
         {
@@ -7662,7 +7659,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             # return to uwp_continue or uwp_jmpback or unwind_upto:
             if (!(fun == (restart)NULL)) {
               (*fun)(arg); # return to unwind_upto or similar.
-              NOTREACHED
+              NOTREACHED;
             }
             if (arg == (object*)NULL) {
               # uwp_continue:

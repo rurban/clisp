@@ -2210,7 +2210,7 @@ LISPFUN(convert_string_from_bytes,2,0,norest,key,2, (kw(start),kw(end)) )
       funcall(L(coerced_subseq),6);
       subr_self = old_subr_self;
       array = value1;
-      if (!bit_vector_p(Atype_8Bit,array)) { NOTREACHED }
+      if (!bit_vector_p(Atype_8Bit,array)) { NOTREACHED; }
       STACK_0 = I_I_minus_I(STACK_0,STACK_1); # end := (- end start)
       STACK_1 = Fixnum_0; # start := 0
     }

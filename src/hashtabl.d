@@ -215,7 +215,7 @@
               var uint32 code2 = hashcode2(TheComplex(obj)->c_imag);
               return misch(code1,code2);
             }
-          default: NOTREACHED
+          default: NOTREACHED;
         }
       }
       #else
@@ -722,7 +722,7 @@
           return hashcode4_vector_32Bit(dv,index,count,bish_code);
         case Array_type_sstring: # Simple-String
           return hashcode4_vector_Char(dv,index,count,bish_code);
-        default: NOTREACHED
+        default: NOTREACHED;
       }
     }
   # Atom -> Fallunterscheidung nach Typ
@@ -866,7 +866,7 @@
         case_instance: # Instance
           # EQ-Hashcode nehmen
           return hashcode1(obj);
-        default: NOTREACHED
+        default: NOTREACHED;
       }
     }
 # Cons -> Inhalt bis zur Tiefe 4 ansehen:
@@ -1819,7 +1819,7 @@ LISPFUNN(class_gethash,2)
             case 1: code1 = rotate_left(7,code1); break; # vgl. hashcode3_cons3
             case 2: code1 = rotate_left(5,code1); break; # vgl. hashcode3_cons2
             case 3: code1 = rotate_left(3,code1); break; # vgl. hashcode3_cons1
-            default: NOTREACHED
+            default: NOTREACHED;
           }
           return code1 ^ code2;
         } else {

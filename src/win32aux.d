@@ -248,7 +248,7 @@
             }
             ResumeThread(main_thread);
             break;
-          default: NOTREACHED
+          default: NOTREACHED;
         }
     }
 

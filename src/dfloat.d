@@ -1243,7 +1243,7 @@
         end_arith_call();
         # Es ist 2^53 <= q < 2^55, also q.len = ceiling(54/intDsize)=ceiling(55/intDsize),
         # und r=0 genau dann, wenn r.len=0.
-        ASSERT(q.len==ceiling(54,intDsize))
+        ASSERT(q.len==ceiling(54,intDsize));
         {
           var uintD* ptr = q.MSDptr;
           manthi = get_max32_Dptr(23,ptr);

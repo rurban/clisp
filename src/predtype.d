@@ -778,7 +778,7 @@
               return elt_compare_T_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
               return elt_compare_T_Char(dv1,index1,dv2,index2,count);
-            default: NOTREACHED
+            default: NOTREACHED;
           }
         case Array_type_sbvector: # Simple-Bit-Vector
           switch (Array_type(dv2)) {
@@ -798,7 +798,7 @@
               return elt_compare_Bit_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
               return false; # because count > 0
-            default: NOTREACHED
+            default: NOTREACHED;
           }
         case Array_type_sb2vector:
           switch (Array_type(dv2)) {
@@ -818,7 +818,7 @@
               return elt_compare_2Bit_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
               return false; # because count > 0
-            default: NOTREACHED
+            default: NOTREACHED;
           }
         case Array_type_sb4vector:
           switch (Array_type(dv2)) {
@@ -838,7 +838,7 @@
               return elt_compare_4Bit_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
               return false; # because count > 0
-            default: NOTREACHED
+            default: NOTREACHED;
           }
         case Array_type_sb8vector:
           switch (Array_type(dv2)) {
@@ -858,7 +858,7 @@
               return elt_compare_8Bit_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
               return false; # because count > 0
-            default: NOTREACHED
+            default: NOTREACHED;
           }
         case Array_type_sb16vector:
           switch (Array_type(dv2)) {
@@ -878,7 +878,7 @@
               return elt_compare_16Bit_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
               return false; # because count > 0
-            default: NOTREACHED
+            default: NOTREACHED;
           }
         case Array_type_sb32vector:
           switch (Array_type(dv2)) {
@@ -898,7 +898,7 @@
               return elt_compare_32Bit_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
               return false; # because count > 0
-            default: NOTREACHED
+            default: NOTREACHED;
           }
         case Array_type_sstring: # Simple-String
           switch (Array_type(dv2)) {
@@ -913,9 +913,9 @@
               return false; # because count > 0
             case Array_type_sstring: # Simple-String
               return elt_compare_Char_Char(dv1,index1,dv2,index2,count);
-            default: NOTREACHED
+            default: NOTREACHED;
           }
-        default: NOTREACHED
+        default: NOTREACHED;
       }
     }
   # Now EQUALP itself.
@@ -1098,7 +1098,7 @@
           case_machine: # Maschinenpointer
             goto no; # hätte schon EQ sein müssen
           #endif
-          default: NOTREACHED
+          default: NOTREACHED;
         }
       }
      no: return false;

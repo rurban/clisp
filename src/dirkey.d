@@ -311,7 +311,7 @@ local void open_reg_key (HKEY hkey, char* path, direction_t dir,
           status = RegCreateKey(hkey,path,p_hkey);
           if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); }
           break;
-        default: NOTREACHED
+        default: NOTREACHED;
       }
     } else { SetLastError(status); OS_error(); }
   }
@@ -693,7 +693,7 @@ LISPFUNN(dkey_search_next_key,1)
         skipSTACK(1);
       }
       break;
-    default: NOTREACHED
+    default: NOTREACHED;
   }
   skipSTACK(1);
   mv_count = 2;

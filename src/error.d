@@ -298,7 +298,7 @@ nonreturning_function(local, signal_and_debug, (object condition)) {
         signal_and_debug(value1);
       }
     }
-    NOTREACHED
+    NOTREACHED;
   }
 
 # Fehlermeldung mit Errorstring. Kehrt nicht zurück.
@@ -410,7 +410,7 @@ LISPFUN(error,1,0,rest,nokey,0,NIL)
       funcall(S(coerce_to_condition),4); # (SYS::COERCE-TO-CONDITION ...)
       signal_and_debug(value1);
     }
-    NOTREACHED
+    NOTREACHED;
   }
 
 LISPFUNN(defclcs,1)
@@ -595,7 +595,7 @@ LISPFUN(error_of_type,2,0,rest,nokey,0,NIL)
       funcall(S(coerce_to_condition),4+keyword_argcount); # (SYS::COERCE-TO-CONDITION ...)
       signal_and_debug(value1);
     }
-    NOTREACHED
+    NOTREACHED;
   }
 
 LISPFUNN(invoke_debugger,1)
@@ -621,7 +621,7 @@ LISPFUNN(invoke_debugger,1)
     pushSTACK(NIL); pushSTACK(STACK_(0+1)); pushSTACK(T);
     funcall(Symbol_value(S(break_driver)),3); # Break-Driver aufrufen
     reset(); # kehrt wider Erwarten zurück -> zur nächsten Schleife zurück
-    NOTREACHED
+    NOTREACHED;
   }
 
 # UP: Führt eine Break-Schleife wegen Tastaturunterbrechung aus.
