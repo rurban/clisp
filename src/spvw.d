@@ -136,22 +136,22 @@
   # break_sem_5 == break_sems.einzeln[5]
   #   gesetzt, solange (UNIX) ein Signal-Handler aufgerufen wird.
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                          Modulverwaltung
 
 #include "spvw_module.c"
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                            Debug-Hilfen
 
 #include "spvw_debug.c"
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                          Eigenes alloca()
 
 #include "spvw_alloca.c"
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                         Schnelles Programm-Ende
 
 # jmp_buf zur Rückkehr zum Original-Wert des SP beim Programmstart:
@@ -167,7 +167,7 @@
   local int exitcode;
   #define quit_sofort(xcode)  exitcode = xcode; longjmp(&!original_context,1)
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                         Speicherverwaltung allgemein
 
 /*
@@ -392,7 +392,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
   #endif
   # Es gilt canonaddr(obj) == canon((aint)ThePointer(obj)).
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                          Page-Allozierung
 
 #if defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || defined(MULTITHREAD)
@@ -424,7 +424,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 
 #endif # SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                           Multithreading
 
 #ifndef MULTITHREAD
@@ -613,7 +613,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 
 #endif
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                           Page-Verwaltung
 
 #include "spvw_page.c"
@@ -638,7 +638,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 
 #endif
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bei Überlauf eines der Stacks:
   nonreturning_function(global, SP_ueber, (void));
@@ -660,32 +660,32 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       reset();
     }
 
-# ------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 #                       GC-Statistik
 
 #include "spvw_gcstat.c"
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                       Speichergröße
 
 #include "spvw_space.c"
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                       Markierungen
 
 #include "spvw_mark.c"
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                   Speicherlängenbestimmung
 
 #include "spvw_objsize.c"
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                    Speicher-Aktualisierung
 
 #include "spvw_update.c"
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                      Page Fault and Protection handling
 
 #if defined(SELFMADE_MMAP) || defined(GENERATIONAL_GC)
@@ -694,7 +694,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 
 #endif # SELFMADE_MMAP || GENERATIONAL_GC
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                      Signal handlers
 
 #include "spvw_sigsegv.c"
@@ -702,28 +702,28 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 #include "spvw_sigint.c"
 #include "spvw_sigwinch.c"
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                       Garbage-Collector
 
 #include "spvw_garcol.c"
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                 Speicherbereitstellungsfunktionen
 
 #include "spvw_allocate.c"
 #include "spvw_typealloc.c"
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                   Zirkularitätenfeststellung
 
 #include "spvw_circ.c"
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                     Speicher durchlaufen
 
 #include "spvw_walk.c"
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                  Elementare Stringfunktionen
 
 # UP: Liefert einen LISP-String mit vorgegebenem Inhalt.
@@ -820,7 +820,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       return newasciz;
     }}
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                  Andere globale Hilfsfunktionen
 
 #if (int_bitsize < long_bitsize)
@@ -865,7 +865,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 
 #include "spvw_language.c"
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                        Initialisierung
 
 # Name des Programms (für Fehlermeldungszwecke)
@@ -1669,18 +1669,104 @@ local void usage (int exit_code)
 {
   asciz_out("Usage:  ");
   asciz_out(program_name);
-  asciz_out(" [-h] [-m memsize]");
+  asciz_out(" [options] [lispfile [argument ...]]" NLstring
+            " When `lispfile' is given, it is loaded and `*ARGS*' is set"
+            NLstring " to the list of argument strings." NLstring
+            "Options:" NLstring);
+  asciz_out(" -h, --help  - print this help and exit" NLstring
+            " -m size     - memory size (size = xxxxxxxB oder xxxxKB oder xMB)"
+            NLstring);
   #ifndef NO_SP_MALLOC
-  asciz_out(" [-s stacksize]");
+  asciz_out(" -s size     - stack size (size = xxxxxxxB oder xxxxKB oder xMB)"
+            NLstring);
   #endif
   #ifdef MULTIMAP_MEMORY_VIA_FILE
-  asciz_out(" [-t tmpdir]");
+  asciz_out(" -t tmpdir   - temporary directory for memmap" NLstring);
   #endif
-  asciz_out(" [-F] [-W] [-M memfile] [-L language] [-N nlsdir] [-q] [-I] [-C]"
-            " [-norc] [-i initfile ...] [-c [-l] lispfile [-o outputfile] ...]"
-            " [-p packagename] [-a] [-x expression] [lispfile [argument ...]]"
-            NLstring);
+  asciz_out(" -M memfile  - use this memory image" NLstring
+            " -L language - set user language" NLstring
+            " -N nlsdir   - NLS catalog directory" NLstring
+            " -C          - set *LOAD-COMPILING* to T" NLstring
+            " -I          - be ILISP-friendly" NLstring
+            " -norc       - do not load the user ~/.clisprc file" NLstring
+            " -i file     - load initfile (can be repeated)" NLstring
+            " -c [-l] lispfile [-o outputfile] - compile LISPFILE" NLstring
+            " -p package  - start in the package" NLstring
+            " -a          - more ANSI CL compliance" NLstring
+            " -x sexp     - execute the expression and exit" NLstring
+            " --license   - print the licensing information" NLstring
+            " --version   - print the version information" NLstring
+            " -q, --silent, --quiet - do not print the banner" NLstring);
   quit_sofort (exit_code); # anormales Programmende
+}
+
+# print the banner
+local void print_banner ()
+{ const char * const banner[] = { # einige Zeilen à 66 Zeichen
+ #  |Column 0           |Column 20                                    |Col 66
+ # "012345678901234567890123456789012345678901234567890123456789012345678901"
+   "  i i i i i i i       ooooo    o        ooooooo   ooooo   ooooo " NLstring,
+   "  I I I I I I I      8     8   8           8     8     o  8    8" NLstring,
+   "  I I I I I I I      8         8           8     8        8    8" NLstring,
+   "  I I I I I I I      8         8           8      ooooo   8oooo" NLstring,
+   "  I \\  `+' /  I      8         8           8           8  8" NLstring,
+   "   \\  `-+-'  /       8     o   8           8     o     8  8" NLstring,
+   "    `-__|__-'         ooooo    8oooooo  ooo8ooo   ooooo   8" NLstring,
+   "        |" NLstring,
+   "  ------+------     Copyright (c) Bruno Haible, Michael Stoll 1992, 1993"
+   NLstring,
+   "                    Copyright (c) Bruno Haible, Marcus Daniels 1994-1997"
+   NLstring,
+   "                    Copyright (c) Pierpaolo Bernardi, Sam Steingold 1998"
+   NLstring,
+   };
+  #ifdef AMIGA
+  var const char * banner2 =
+    DEUTSCH ?
+    "                    Amiga-Version: Jörg Höhle" NLstring :
+    ENGLISH ?
+    "                    Amiga version: Jörg Höhle" NLstring :
+    FRANCAIS ?
+    "                    version Amiga: Jörg Höhle" NLstring :
+    "";
+  #endif
+  #ifdef RISCOS
+  var const char * banner2 =
+    DEUTSCH ?
+    "                    RISCOS-Portierung: Peter Burwood, Bruno Haible"
+    NLstring :
+    ENGLISH ?
+    "                    RISCOS port: Peter Burwood, Bruno Haible" NLstring :
+    FRANCAIS ?
+    "                    portage RISCOS: Peter Burwood et Bruno Haible"
+    NLstring :
+    "";
+  #endif
+  #ifdef DJUNIX
+  var const char * banner2 =
+    DEUTSCH ?
+    "                    DOS-Portierung: Jürgen Weber, Bruno Haible" NLstring :
+    ENGLISH ?
+    "                    DOS port: Jürgen Weber, Bruno Haible" NLstring :
+    FRANCAIS ?
+    "                    adapté à DOS par Jürgen Weber et Bruno Haible"
+    NLstring :
+    "";
+  #endif
+  var const char * banner3 = NLstring ;
+  var uintL offset = (posfixnum_to_L(Symbol_value(S(prin_linelength))) >= 73 ?
+                      0 : 20);
+  var const char * const * ptr = &banner[0];
+  var uintC count;
+  pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # auf *STANDARD-OUTPUT*
+  dotimesC(count,sizeof(banner)/sizeof(banner[0]),
+           { write_sstring(&STACK_0,asciz_to_string(&(*ptr++)[offset])); }
+           );
+  #if defined(AMIGA) || defined(RISCOS) || defined(DJUNIX)
+  write_sstring(&STACK_0,asciz_to_string(&banner2[offset]));
+  #endif
+  write_sstring(&STACK_0,asciz_to_string(&banner3[offset]));
+  skipSTACK(1);
 }
 
 # Hauptprogramm trägt den Namen 'main'.
@@ -1693,6 +1779,7 @@ local void usage (int exit_code)
   #endif
   global int main (argc_t argc, char* argv[]);
   local boolean argv_quiet = FALSE; # ob beim Start Quiet-Option angegeben
+  local boolean argv_license = FALSE;
   global int main(argc,argv)
     var argc_t argc;
     var char* * argv;
@@ -1817,17 +1904,17 @@ local void usage (int exit_code)
       #   -t directory    temporäres Directory
       #   -W              WIDE-Version wählen
       #   -M file         MEM-File laden
-      #   -L language     sets the user language
+      #   -L language     set the user language
       #   -N directory    NLS catalog directory
-      #   -q              quiet: keine Copyright-Meldung
+      #   -q              quiet: no splash-screen
       #   -norc           do not load the user ~/.clisprc file
-      #   -I              ILISP-freundlich
-      #   -C              *LOAD-COMPILING* setzen
+      #   -I              ILISP-friendly
+      #   -C              set *LOAD-COMPILING* to T
       #   -i file ...     LISP-File zur Initialisierung laden
       #   -c file ...     LISP-Files compilieren, dann LISP verlassen
       #   -l              Beim Compilieren: Listings anlegen
-      #   -p package      *PACKAGE* setzen
-      #   -a              ANSI CL Compliance
+      #   -p package      set *PACKAGE*
+      #   -a              more ANSI CL Compliance
       #   -x expr         LISP-Expressions ausführen, dann LISP verlassen
       #   --help          print usage and exit (should be the only option)
       #   --version       print version and exit (should be the only option)
@@ -2002,7 +2089,7 @@ local void usage (int exit_code)
                     if (!(argv_expr == NULL)) usage (1);
                     argv_expr = arg;
                     break;
-                  case '-': # -- Optionen im GNU-Stil
+                  case '-': # -- GNU-style long options
                     if (asciz_equal(&arg[2],"help"))
                       usage (0);
                     elif (asciz_equal(&arg[2],"version"))
@@ -2012,12 +2099,15 @@ local void usage (int exit_code)
                         argv_expr = "(PROGN (FORMAT T \"CLISP ~A\" (LISP-IMPLEMENTATION-VERSION)) (LISP:EXIT))";
                         break;
                       }
-                    elif (asciz_equal(&arg[2],"quiet") || asciz_equal(&arg[2],"silent"))
+                    elif (asciz_equal(&arg[2],"quiet") ||
+                          asciz_equal(&arg[2],"silent"))
                       { argv_quiet = TRUE; break; }
+                    elif (asciz_equal(&arg[2],"license"))
+                      { argv_license = TRUE; break; }
                     else
-                      usage (1); # Unbekannte Option
+                      usage (1); # unknown option
                     break;
-                  default: # Unbekannte Option
+                  default: # unknown option
                     usage (1);
             }   }
             else
@@ -2688,7 +2778,7 @@ local void usage (int exit_code)
         { argv_quiet = TRUE; } # verhindert die Begrüßung
       if (!(argv_execute_file == NULL)) # Batch-Modus ?
         { argv_quiet = TRUE; } # verhindert die Begrüßung
-      if (!argv_quiet)
+      if (!argv_quiet || argv_license)
         { local const char * const banner[] = { # einige Zeilen à 66 Zeichen
           #  |Spalte 0           |Spalte 20                                    |Spalte 66
           # "012345678901234567890123456789012345678901234567890123456789012345678901"
@@ -2734,8 +2824,7 @@ local void usage (int exit_code)
             "                    adapté à DOS par Jürgen Weber et Bruno Haible " NLstring :
             "";
           #endif
-          var const char * banner3 =
-            "                                                                  " NLstring ;
+          var const char * banner3 = NLstring ;
           var uintL offset = (posfixnum_to_L(Symbol_value(S(prin_linelength))) >= 73 ? 0 : 20);
           var const char * const * ptr = &banner[0];
           var uintC count;
@@ -2746,9 +2835,40 @@ local void usage (int exit_code)
           #if defined(AMIGA) || defined(RISCOS) || defined(DJUNIX)
           write_sstring(&STACK_0,asciz_to_string(&banner2[offset]));
           #endif
-          write_sstring(&STACK_0,asciz_to_string(&banner3[offset]));
+          write_sstring(&STACK_0,asciz_to_string(banner3));
           skipSTACK(1);
         }
+      if (argv_license) {
+        local const char * const license [] = {
+         "This program is free software; you can redistribute it and/or modify"
+         NLstring,
+         "it under the terms of the GNU General Public License as published by"
+         NLstring,
+         "the Free Software Foundation; either version 2, or (at your option)"
+         NLstring,
+         "any later version." NLstring, NLstring,
+         "This program is distributed in the hope that it will be useful, but"
+         NLstring,
+         "WITHOUT ANY WARRANTY; without even the implied warranty of"
+         NLstring,
+         "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU"
+         NLstring,
+         "General Public License for more details." NLstring, NLstring,
+         "You should have received a copy of the GNU General Public License"
+         NLstring,
+         "along with this program; if not, write to the Free Software"
+         NLstring,
+         "Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA."
+          NLstring, NLstring,
+        };
+        var const char * const * ptr = license;
+        var uintC count;
+        pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
+        dotimesC(count,sizeof(license)/sizeof(license[0]),
+                 { write_sstring(&STACK_0,asciz_to_string(*ptr++));});
+        skipSTACK(1);
+        quit_sofort (0);
+      }
       if ((argv_memfile == NULL) && (argv_expr == NULL))
         # Warnung für Anfänger
         { pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # auf *STANDARD-OUTPUT*
@@ -3025,12 +3145,12 @@ local void usage (int exit_code)
       quit_sofort(final_exitcode); # Programm verlassen
     }
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                  Speichern und Laden von MEM-Files
 
 #include "spvw_memfile.c"
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                       Dynamisches Laden von Modulen
 
 #ifdef DYNAMIC_MODULES
@@ -3209,7 +3329,7 @@ local void usage (int exit_code)
 
 #endif
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                                Version
 #ifdef AMIGAOS
 # Es gibt eine Utility, die ein Executable nach einem Versionsstring absucht.
@@ -3231,26 +3351,5 @@ local void usage (int exit_code)
     " (" VERSION ")\r\n"; # Datum in Klammern
 #endif
 
-static const char * const copyright_notice[] = {
-  "                                                                    \n"
-  "Copyright (c) Bruno Haible, Michael Stoll, Marcus Daniels 1992-1998 \n"
-  "                                                                    \n"
-  "This program is free software; you can redistribute it and/or modify\n"
-  "it under the terms of the GNU General Public License as published by\n"
-  "the Free Software Foundation; either version 2, or (at your option) \n"
-  "any later version.                                                  \n"
-  "                                                                    \n"
-  "This program is distributed in the hope that it will be useful, but \n"
-  "WITHOUT ANY WARRANTY; without even the implied warranty of          \n"
-  "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU   \n"
-  "General Public License for more details.                            \n"
-  "                                                                    \n"
-  "You should have received a copy of the GNU General Public License   \n"
-  "along with this program; if not, write to the Free Software         \n"
-  "Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.\n"
-  "                                                                    ",
-  (const char *) &copyright_notice
-};
-
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
