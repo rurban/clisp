@@ -1,5 +1,12 @@
 1999-04-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * clos.lsp (*allow-mixing-metaclasses*): New variable.
+          (initialize-instance-standard-class, make-instance-built-in-class,
+           initialize-instance-structure-class): Don't check the metaclass
+          of the direct superclasses if *allow-mixing-metaclasses* is true.
+
+1999-04-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * reploop.lsp: Set *use-clcs* to t here.
         * conditio.lsp: Not here.
 
