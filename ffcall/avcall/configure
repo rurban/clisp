@@ -974,13 +974,13 @@ if test -z "$INSTALL_DATA"; then
   esac
 fi
 
- echo $ac_n "checking host system type""... $ac_c" 1>&6
-echo "configure:979: checking host system type" >&5
+ ac_aux_dir=${srcdir}/../autoconf
+echo $ac_n "checking host system type""... $ac_c" 1>&6
+echo "configure:980: checking host system type" >&5
 if eval "test \"`echo '$''{'cl_cv_host'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   
-ac_aux_dir=${srcdir}/../autoconf
 ac_config_guess=$ac_aux_dir/config.guess
 ac_config_sub=$ac_aux_dir/config.sub
 # Make sure we can run config.sub.
