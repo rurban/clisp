@@ -1181,8 +1181,12 @@ typedef signed int  signean;
 
 # alignof(type) is a constant expression, returning the alignment of type.
 #ifdef __cplusplus
-  template <class type> struct alignof_helper { char slot1; type slot2; };
-  #define alignof(type)  offsetof(alignof_helper<type>, slot2)
+  #ifdef GNU
+    #define alignof(type)  __alignof__(type)
+  #else
+    template <class type> struct alignof_helper { char slot1; type slot2; };
+    #define alignof(type)  offsetof(alignof_helper<type>, slot2)
+  #endif
 #else
   #define alignof(type)  offsetof(struct { char slot1; type slot2; }, slot2)
 #endif
