@@ -478,9 +478,8 @@ Arguments: none
 					  ; (which is irrelevant for floats).  In this case, map to "FLOAT"
 					  ; for type name and NIL for scale.  Precision will be given in bits
 					  ; as ANSI specifies
-					  (when (and (equal (sqlcol-type col) "NUMBER") (= (sqlcol-scale col) -127))
-							(setf (sqlcol-scale col) nil
-								  (sqlcol-type col) "FLOAT"))
+					  (when (and (equal (sqlcol-type col) "NUMBER") (= (sqlcol-scale col) -127) (not (= 0 (sqlcol-precision col))))
+						    (setf (sqlcol-type col) "FLOAT"))
                       (setf (sqlcol-null_ok col) (lisp-truth (sqlcol-null_ok col)))
                       col)
                   result)
