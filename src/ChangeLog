@@ -1,5 +1,9 @@
 1999-07-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * makemake.in: Treat gcc version 3.* like gcc version 2.95.
+
+1999-07-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * arisparc.d (compare_loop_up) [COUNTER_LOOPS]: Bug fix.
           (shiftright_loop_up): Save 1 cycle if count==0.
 
