@@ -1,5 +1,10 @@
 2003-04-22  Sam Steingold  <sds@gnu.org>
 
+	* _distmakefile, makemake.in: distribute clisp.ps and put it into
+	lispdocdir together with clisp.html and clisp.dvi
+
+2003-04-22  Sam Steingold  <sds@gnu.org>
+
 	implemented adjusting of non-adjustable arrays (Issue 5)
 	* lispbibl.d (X3J13_003): removed undef
 	* array.d (array_atype): new function
