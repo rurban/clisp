@@ -1380,8 +1380,8 @@ DEFUN(POSIX::SYSTEM-INFO,)
     default: pushSTACK(UL_to_I(si.wProcessorArchitecture));
   }
   pushSTACK(UL_to_I(si.dwPageSize));
-  pushSTACK(UL_to_I(si.lpMinimumApplicationAddress));
-  pushSTACK(UL_to_I(si.lpMaximumApplicationAddress));
+  pushSTACK(UL_to_I((DWORD)si.lpMinimumApplicationAddress));
+  pushSTACK(UL_to_I((DWORD)si.lpMaximumApplicationAddress));
   pushSTACK(UL_to_I(si.dwActiveProcessorMask));
   pushSTACK(UL_to_I(si.dwNumberOfProcessors));
   pushSTACK(UL_to_I(si.dwAllocationGranularity));
@@ -1395,7 +1395,7 @@ DEFUN(POSIX::VERSION,)
   OSVERSIONINFOEX vi;
   vi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
   begin_system_call();
-  if (!GetVersionEx(&vi)) OS_error();
+  if (!GetVersionEx((OSVERSIONINFO*)&vi)) OS_error();
   end_system_call();
 
   pushSTACK(UL_to_I(vi.dwMajorVersion));
