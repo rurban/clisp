@@ -405,6 +405,23 @@
 # wird verwendet von SPVW, EVAL, IO
 
 
+# Memory allocation, AMIGA specific.
+  extern uintL default_allocmemflag;
+  extern uintL retry_allocmemflag;
+  extern void* allocmem (uintL amount, uintL allocmemflag);
+  extern void freemem (void* address);
+# Memory allocation, ANSI C compliant.
+  extern void* malloc (uintL amount);
+  extern void free (void* address);
+# wird verwendet von SPVW
+
+
+# Init and exit.
+  global void init_amiga (void);
+  nonreturning_function(global, exit_amiga, (sintL code));
+# wird verwendet von SPVW
+
+
 # STREAM.D : Terminal-Stream, finish_output_file, Pipe-Streams?
 # PATHNAME.D : Wildcards mit regular expressions
 # PATHNAME.D : assure_dir_exists mit symlinks
