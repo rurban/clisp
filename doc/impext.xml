@@ -1504,8 +1504,8 @@ N. Gray to X3J13.</para>
 
 <section id="macros3"><title>Extensions-1.10. Additional Fancy Macros</title>
 
-<para>&clisp; comes with some extension macros, defined in the file
- <filename>macros3.lisp</filename> and loaded from the file
+<para>&clisp; comes with some extension macros, mostly defined in the
+ file <filename>macros3.lisp</filename> and loaded from the file
  <filename>init.lisp</filename> during <command>make</command>:</para>
 
 <formalpara id="ethe"><title>Macro &ethe;</title>
@@ -1559,6 +1559,24 @@ is approximately equivalent to
 
 returns two lists <literal role="sexp">(1 3 5 7 9)</literal> and
 <literal role="sexp">(0 2 4 6 8)</literal> as multiple values.
+</para></formalpara>
+
+<formalpara id="with-gensyms">
+     <title>Macro <function>EXT:WITH-GENSYMS</function></title>
+<para>Similar to its namesake from
+ <ulink url="http://www.paulgraham.com/">Paul Graham</ulink>'s book
+ <ulink url="http://www.paulgraham.com/onlisp.html"><quote>On
+  Lisp</quote></ulink>, this macro is useful for writing other macros:
+<programlisting>
+ (with-gensyms ("FOO-" bar baz zot) ...)
+</programlisting>
+expands to
+<programlisting>
+ (let ((bar (gensym "FOO-BAR-"))
+       (baz (gensym "FOO-BAZ-"))
+       (zot (gensym "FOO-ZOT-")))
+   ...)
+</programlisting>
 </para></formalpara>
 
 </section>
