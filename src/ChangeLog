@@ -1,5 +1,10 @@
 2004-02-27  Bruno Haible  <bruno@clisp.org>
 
+	* predtype.d (TYPE-OF): For vectors, return (SIMPLE-ARRAY NIL (n))
+	or (VECTOR NIL n), depending on whether the vector is simple.
+
+2004-02-27  Bruno Haible  <bruno@clisp.org>
+
 	* time.d (get_real_time): Take care of the case when struct timeval is
 	not the same thing as internal_time_t.
 

@@ -1410,8 +1410,16 @@ LISPFUNNR(type_of,1)
         value1 = new_cons;
       }
       break;
-    case_ovector: /* other general-vector -> (VECTOR eltype dim0) */
+    case_ovector: /* other general-vector */
+      /* -> (SIMPLE-ARRAY eltype (dim0)) or (VECTOR eltype dim0) */
       {
+        var bool simple =
+          ((Iarray_flags(arg)
+            & (bit(arrayflags_adjustable_bit)
+               | bit(arrayflags_fillp_bit)
+               | bit(arrayflags_displaced_bit)
+               | bit(arrayflags_dispoffset_bit) ))
+           == 0);
         var object eltype;
         switch (Iarray_flags(arg) & arrayflags_atype_mask) {
           case Atype_NIL: eltype = NIL; break;
@@ -1419,15 +1427,33 @@ LISPFUNNR(type_of,1)
           default: NOTREACHED;
         }
         pushSTACK(array_dimensions(arg)); /* list of dimensions */
-        {
-          var object new_cons = allocate_cons();
-          Cdr(new_cons) = popSTACK(); Car(new_cons) = eltype;
-          pushSTACK(new_cons);
-        }
-        {
-          var object new_cons = allocate_cons();
-          Cdr(new_cons) = popSTACK(); Car(new_cons) = S(vector);
-          value1 = new_cons;
+        if (simple) {
+          {
+            var object new_cons = allocate_cons();
+            Cdr(new_cons) = NIL; Car(new_cons) = popSTACK();
+            pushSTACK(new_cons);
+          }
+          {
+            var object new_cons = allocate_cons();
+            Cdr(new_cons) = popSTACK(); Car(new_cons) = eltype;
+            pushSTACK(new_cons);
+          }
+          {
+            var object new_cons = allocate_cons();
+            Cdr(new_cons) = popSTACK(); Car(new_cons) = S(simple_array);
+            value1 = new_cons;
+          }
+        } else {
+          {
+            var object new_cons = allocate_cons();
+            Cdr(new_cons) = popSTACK(); Car(new_cons) = eltype;
+            pushSTACK(new_cons);
+          }
+          {
+            var object new_cons = allocate_cons();
+            Cdr(new_cons) = popSTACK(); Car(new_cons) = S(vector);
+            value1 = new_cons;
+          }
         }
       }
       break;
