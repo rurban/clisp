@@ -1,5 +1,5 @@
-# stdbool.m4 serial 2 (gettext-0.11.3)
-dnl Copyright (C) 2001-2002 Free Software Foundation, Inc.
+# stdbool.m4 serial 2.1
+dnl Copyright (C) 2001-2004 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -24,6 +24,7 @@ int A[-1];
 #define b 1
 #endif
 int B[b];
+bool c;
 ], [], gt_cv_header_stdbool_h=yes, gt_cv_header_stdbool_h=no)])
 AC_MSG_RESULT([$gt_cv_header_stdbool_h])
 if test $gt_cv_header_stdbool_h = yes; then
