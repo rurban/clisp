@@ -1150,11 +1150,11 @@
                                         (apply (car return) (cdr return)))
                                       #'default-restart-interactive)
                        :invoke-function
-                       (if (consp return)
-                         (lambda (value) ; get `value' from :INTERACTIVE
-                           (return-from correctable-error value))
-                         (lambda ()
-                           (return-from correctable-error return))))))
+                         (if (consp return)
+                           (lambda (value) ; get `value' from :INTERACTIVE
+                             (return-from correctable-error value))
+                           (lambda ()
+                             (return-from correctable-error return))))))
                   options)
           *active-restarts*)))
     (error condition)))
@@ -1166,29 +1166,31 @@
           (list (make-restart
                  :name 'use-value
                  :report
-                 (lambda (stream)
-                   (format stream (report-one-new-value-string-instead)
-                           place))
+                   (lambda (stream)
+                     (format stream (report-one-new-value-string-instead)
+                             place))
                  :interactive (lambda () (prompt-for-new-value place t))
                  :invoke-function
-                 (lambda (val) (return-from check-value (values val nil)))))
+                   (lambda (val) (return-from check-value (values val nil)))))
           (when (and (consp place) (eq 'fdefinition (car place)))
             (list (make-restart ; for check_fdefinition() only!
                    :name 'continue
                    :report (lambda (stream)
                              (format stream (report-no-new-value-string)))
                    :interactive #'assert-restart-no-prompts
-                   :interactive
-                   (lambda (val) (return-from check-value (values nil 0))))))
+                   :invoke-function
+                     (lambda (val)
+                       (declare (ignore val))
+                       (return-from check-value (values nil 0))))))
           (when place
             (list (make-restart
                    :name 'store-value
                    :report
-                   (lambda (stream)
-                     (format stream (report-one-new-value-string) place))
+                     (lambda (stream)
+                       (format stream (report-one-new-value-string) place))
                    :interactive (lambda () (prompt-for-new-value place))
                    :invoke-function
-                   (lambda (val) (return-from check-value (values val t))))))
+                     (lambda (val) (return-from check-value (values val t))))))
           *active-restarts*)))
     (error condition)))
 
