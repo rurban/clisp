@@ -1,3 +1,21 @@
+1998-07-29  Sam Steingold  <sds@goems.com>
+
+        Implemented ANSI CL issue SETF-MULTIPLE-STORE-VARIABLES:ALLOW:
+        * places.lsp (get-setf-method-multiple-value): renamed into
+          `get-setf-expansion'; made it treat multiple value `defsetf'
+          properly.
+          (simple-assignment-p, simple-use-p): use `=' to compare numbers,
+          not `eql'.
+          (push, pop, psetf, psetf, rotatef, shiftf, the): rewrote from
+          scratch to accept multiple value places.
+          (define-setf-method): renamed into `define-setf-expander'.
+          (defsetf): made it accept multiple values.
+          (setf): minor code simplification.
+        * init.lsp (export): added `get-setf-expansion' and
+          `define-setf-expander'.
+        * defs3.lsp (export): added `get-setf-expansion' and
+          `define-setf-expander'.
+
 1998-08-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d: Add a lot of `const' qualifiers.
