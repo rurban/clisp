@@ -10617,9 +10617,15 @@ LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
    and listlength (if the pointer is not NULL)
  adds one element to STACK
  can trigger GC */
+#if !defined(UNICODE)
+#define stringlist_to_asciizlist(s,e,l) stringlist_to_asciizlist_(s,l)
+local int stringlist_to_asciizlist_ (object stringlist,uintL *listlength)
+#else
 local int stringlist_to_asciizlist (object stringlist,
                                     gcv_object_t *encoding_,
-                                    uintL *listlength) {
+                                    uintL *listlength)
+#endif
+{
   var int length = 0;
   var int listlen = 0;
   pushSTACK(NIL)/*result head*/; pushSTACK(NIL)/*result tail*/;
