@@ -531,8 +531,13 @@ to print the corresponding values, or T for all of them.")
             (format stream "~&~s:~%~s" (car tail) (cadr tail)))))))
   (finish-output stream))
 
+;; A private class through which we can distinguish recursive describe calls
+;; from top-level calls.
+(defclass describe-stream (fill-stream)
+  ())
+
 (defun describe (obj &optional stream)
-  (cond ((typep stream 'fill-stream) ; Recursive call
+  (cond ((typep stream 'describe-stream) ; Recursive call
          ;; flush the pending output _before_ increasing indentation
          (force-output stream)
          (let ((*describe-nesting* (1+ *describe-nesting*))
@@ -547,8 +552,8 @@ to print the corresponding values, or T for all of them.")
          (let ((*print-circle* t)
                (*describe-nesting* 0)
                (*describe-done* nil))
-           (describe1 obj (clos:make-instance
-                           'fill-stream :stream stream
+           (describe1 obj (clos:make-instance 'describe-stream
+                           :stream stream
                            :text-indent '*describe-nesting*)))))
   (values))
 
