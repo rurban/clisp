@@ -2341,318 +2341,301 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
         }                                                                 \
     }
 
-# UP: Applies an interpreted closure to arguments.
-# funcall_iclosure(closure,args_pointer,argcount);
-# > closure: Closure
-# > args_pointer: Pointer to the arguments (in Stack)
-# > argcount: Number of Arguments
-# < mv_count/mv_space: values
-# < STACK: cleaned up, = args_pointer
-# can trigger GC
-  local Values funcall_iclosure (object closure, gcv_object_t* args_pointer, uintC argcount);
-  local Values funcall_iclosure(closure,args_pointer,argcount)
-    var object closure;
-    var gcv_object_t* args_pointer;
-    var uintC argcount;
+/* UP: Applies an interpreted closure to arguments.
+ funcall_iclosure(closure,args_pointer,argcount);
+ > closure: Closure
+ > args_pointer: Pointer to the arguments (in Stack)
+ > argcount: Number of Arguments
+ < mv_count/mv_space: values
+ < STACK: cleaned up, = args_pointer
+ can trigger GC */
+local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
+                               uintC argcount)
+{
+  /* 1st step: finish building of APPLY-frame: */
+  var sp_jmp_buf my_jmp_buf;
+ #ifdef DEBUG_EVAL
+  if (streamp(Symbol_value(S(funcall_trace_output)))) {
+    pushSTACK(closure); trace_call(closure,'F','I'); closure = popSTACK();
+  }
+ #endif
+  {
+    var gcv_object_t* top_of_frame = args_pointer; /* Pointer to frame */
+    pushSTACK(closure);
+    finish_entry_frame(APPLY,&!my_jmp_buf,,{
+      if (mv_count==0) { /* after reentry: pass form? */
+        closure = STACK_(frame_closure); /* try the same APPLY again */
+        args_pointer = topofframe(STACK_0);
+        argcount = STACK_item_count(STACK STACKop frame_args,args_pointer);
+      } else {
+        setSTACK(STACK = topofframe(STACK_0)); /* clean STACK ?or unwind()?*/
+        eval_noenv(value1); return; /* evaluate passed form */
+      }
+    });
+  }
+  var gcv_object_t* closure_ = &STACK_(frame_closure); /* &closure */
+  var gcv_object_t* frame_pointer; /* pointer to the frame */
+  { /* 2nd step: build variable-binding-frame: */
+    var gcv_object_t* top_of_frame = STACK; /* Pointer to Frame */
+    var object vars = TheIclosure(closure)->clos_vars; /* Vector of variable-names */
+    var uintL var_count = Svector_length(vars); /* number of variables */
+    get_space_on_STACK(var_count*2*sizeof(gcv_object_t)); /* reserve space */
     {
-      # 1. step: finish building ofAPPLY-frame:
-      var sp_jmp_buf my_jmp_buf;
-      #ifdef DEBUG_EVAL
-      if (streamp(Symbol_value(S(funcall_trace_output)))) {
-        pushSTACK(closure); trace_call(closure,'F','I'); closure = popSTACK();
+      var gcv_object_t* varptr = &TheSvector(vars)->data[0]; /* Pointer to variables in vector */
+      var uintC spec_count = posfixnum_to_L(TheIclosure(closure)->clos_spec_anz);
+      var uintC count;
+      /* the special-references first: */
+      dotimesC(count,spec_count, {
+        /* binding with "value" specdecl: */
+        pushSTACK(specdecl);
+        pushSTACK_symbolwithflags(*varptr++,wbit(active_bit_o)); /* make a note of binding as being active */
+      });
+      frame_pointer = args_end_pointer;
+      if (var_count-spec_count > 0) {
+        var uintB* varflagsptr = &TheSbvector(TheIclosure(closure)->clos_varflags)->data[0];
+        dotimespC(count,var_count-spec_count, {
+          pushSTACK(NIL); /* NIL as preliminary value */
+          var object next_var = *varptr++; /* next variable */
+          var oint next_varflags = (oint)(*varflagsptr++)<<oint_symbolflags_shift; /* with poss. dynam_bit, svar_bit */
+          if (special_var_p(TheSymbol(next_var))) /* proclaimed SPECIAL? */
+            next_varflags |= wbit(dynam_bit_o); /* -> bind dynamically */
+          pushSTACK_symbolwithflags(next_var,next_varflags);
+        });
       }
-      #endif
-      {
-        var gcv_object_t* top_of_frame = args_pointer; # Pointer to frame
-        pushSTACK(closure);
-        finish_entry_frame(APPLY,&!my_jmp_buf,,{
-            if (mv_count==0) { # after reentry: pass form?
-              closure = STACK_(frame_closure); # try the same APPLY again
-              args_pointer = topofframe(STACK_0);
-              argcount = STACK_item_count(STACK STACKop frame_args,args_pointer);
-            } else {
-              setSTACK(STACK = topofframe(STACK_0)); # clean STACK # or unwind() ??
-              eval_noenv(value1); return; # evaluate passed form
-            }
-          });
+    }
+    /* VAR_ENV of closure becomes NEXT_ENV in frame: */
+    pushSTACK(TheIclosure(closure)->clos_var_env);
+    pushSTACK(fake_gcv_object(var_count)); /* var_count bindungs, all still un-nested */
+    finish_frame(VAR);
+  }
+  /* STACK now points below the variable-binding-frame.
+     frame_pointer = Pointer in the variable-binding-frame, above the first
+     still inactive binding, below the already active SPECIAL-references. */
+  { /* 3rd step: bind current environments: */
+    var object new_var_env = make_framepointer(STACK);
+    /* this frame will become the new VAR_ENV later. */
+    make_ENV5_frame();
+    /* activate the closure-environment: */
+    aktenv.var_env   = new_var_env; /* variable-binding-frame */
+    aktenv.fun_env   = TheIclosure(closure)->clos_fun_env;
+    aktenv.block_env = TheIclosure(closure)->clos_block_env;
+    aktenv.go_env    = TheIclosure(closure)->clos_go_env;
+    aktenv.decl_env  = TheIclosure(closure)->clos_decl_env;
+  }
+  /* stack layout: APPLY-frame, variable-binding-frame, ENV-frame */
+  { /* 4th step: process parameters: */
+    check_SP();
+    /* Macro for binding of variables in variable-frame:
+       binds the next variable to value, decreases frame_pointer by 2 resp. 3.
+       (takes advantage of varframe_binding_mark = 0 !) */
+   #define bind_next_var(value,markptr_zuweisung)                       \
+    { frame_pointer skipSTACKop -varframe_binding_size;                 \
+     {var gcv_object_t* markptr = markptr_zuweisung &Before(frame_pointer); \
+      if (as_oint(*markptr) & wbit(dynam_bit_o)) {                      \
+        /* activate dynamic Binding: */                                 \
+        var object sym = *(markptr STACKop varframe_binding_sym); /* var */ \
+        *(markptr STACKop varframe_binding_value) = /* old value in frame */ \
+          TheSymbolflagged(sym)->symvalue;                              \
+        /* activate binding: */                                         \
+        *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o));   \
+        /* new value in value-cell: */                                  \
+        TheSymbolflagged(sym)->symvalue = (value);                      \
+      } else { /* activate static binding: */                           \
+        /* new value in frame: */                                       \
+        *(markptr STACKop varframe_binding_value) = (value);            \
+        /* activate binding: */                                         \
+        *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o));   \
+      }                                                                 \
+     }}
+    { /* process required parameters: fetch next argument and bind in stack */
+      var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_req_anz);
+      if (count>0) {
+        if (argcount < count) {
+          pushSTACK(TheIclosure(closure)->clos_name);
+          fehler(program_error,
+                 GETTEXT("EVAL/APPLY: too few arguments given to ~"));
+        }
+        argcount -= count;
+        dotimespC(count,count, {
+          var object next_arg = NEXT(args_pointer); /* next argument */
+          bind_next_var(next_arg,); /* bind next variable */
+        });
       }
-      var gcv_object_t* closure_ = &STACK_(frame_closure); # Pointer to the closure
-      var gcv_object_t* frame_pointer; # Pointer to Frame
-      # 2. Schritt: build variable-binding-frame:
+    }
+    { /* process optional parameters:
+         fetch next argument; if there is none,
+         execute an Init-form; then bind in stack. */
+      var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_opt_anz);
+      if (count==0)
+        goto optional_ende;
       {
-        var gcv_object_t* top_of_frame = STACK; # Pointer to Frame
-        var object vars = TheIclosure(closure)->clos_vars; # Vector of variable-names
-        var uintL var_count = Svector_length(vars); # number of variables
-        get_space_on_STACK(var_count * 2 * sizeof(gcv_object_t)); # reserve space
-        {
-          var gcv_object_t* varptr = &TheSvector(vars)->data[0]; # Pointer to variables in vector
-          var uintC spec_count = posfixnum_to_L(TheIclosure(closure)->clos_spec_anz);
+        var object inits = TheIclosure(closure)->clos_opt_inits; /*init forms*/
+        do {
+          if (argcount==0)
+            goto optional_aus;
+          argcount--;
+          var object next_arg = NEXT(args_pointer); /* next argument */
+          var gcv_object_t* optmarkptr;
+          bind_next_var(next_arg,optmarkptr=); /* bind next variable */
+          if (as_oint(*optmarkptr) & wbit(svar_bit_o)) {
+            /* supplied-p-Parameter follows? */
+            *optmarkptr = as_object(as_oint(*optmarkptr) & ~wbit(svar_bit_o));
+            bind_next_var(T,); /* yes -> bind to T */
+          }
+          inits = Cdr(inits); /* shorten Init-Forms-List */
+          count--;
+        } while (count);
+        goto optional_ende;
+       optional_aus: /* no more optional arguments here. */
+        pushSTACK(inits);
+      }
+      /* execute all Init-forms of the optional parameters here: */
+      dotimespC(count,count, {
+        var object inits = STACK_0; /* remaining Initforms */
+        STACK_0 = Cdr(inits);
+        inits = (eval(Car(inits)),value1); /* next Initform, evaluated */
+        var gcv_object_t* optmarkptr;
+        bind_next_var(inits,optmarkptr=); /* bind next variable */
+        if (as_oint(*optmarkptr) & wbit(svar_bit_o)) {
+          /* supplied-p-Parameter follows? */
+          *optmarkptr = as_object(as_oint(*optmarkptr) & ~wbit(svar_bit_o));
+          bind_next_var(NIL,); /* yes -> bind to NIL */
+        }
+      });
+      closure = *closure_;
+      /* initialize &REST-parameters without arguments: */
+      if (!nullp(TheIclosure(closure)->clos_rest_flag)) /* Rest-Flag? */
+        bind_next_var(NIL,); /* yes -> bind to NIL */
+      /* initialize &KEY-parameters without arguments : */
+      count = posfixnum_to_L(TheIclosure(closure)->clos_key_anz); /* number of Keyword-parameters */
+      if (count>0) {
+        STACK_0 = TheIclosure(closure)->clos_key_inits; /* their Init-forms */
+        dotimespC(count,count, {
+          var object inits = STACK_0; /* remaining Initforms */
+          STACK_0 = Cdr(inits);
+          inits = (eval(Car(inits)),value1); /* next Initform, evaluated */
+          var gcv_object_t* keymarkptr;
+          bind_next_var(inits,keymarkptr=); /* bind next Variable */
+          if (as_oint(*keymarkptr) & wbit(svar_bit_o)) {
+            /* supplied-p-Parameter follows? */
+            *keymarkptr = as_object(as_oint(*keymarkptr) & ~wbit(svar_bit_o));
+            bind_next_var(NIL,); /* yes -> bind to NIL */
+          }
+        });
+        closure = *closure_;
+      }
+      skipSTACK(1); /* remaining Init-forms forgotten */
+      goto aux; /* go to the AUX-variables */
+    }
+   optional_ende:
+    /* prepare &KEY-parameters and &REST-parameters: */
+    if (numberp(TheIclosure(closure)->clos_keywords) /* is keyword a number? */
+        && nullp(TheIclosure(closure)->clos_rest_flag)) { /* and no Rest-parameter? */
+      /* yes -> neither &KEY nor &REST specified */
+      if (argcount>0) { /* still arguments there? -> Error */
+        pushSTACK(TheIclosure(closure)->clos_name);
+        fehler(program_error,
+               GETTEXT("EVAL/APPLY: too many arguments given to ~"));
+      }
+    } else { /* &KEY or &REST present. */
+      /* process &REST-parameters: */
+      if (!nullp(TheIclosure(closure)->clos_rest_flag)) { /* &rest? */
+        /* yes -> collect residual arguments in a list: */
+        pushSTACK(NIL); /* start of list */
+        if (argcount>0) {
+          var gcv_object_t* ptr = args_pointer STACKop -(uintP)argcount;
           var uintC count;
-          # the special-references first:
-          dotimesC(count,spec_count, {
-            # binding with "value" specdecl:
-            pushSTACK(specdecl);
-            pushSTACK_symbolwithflags(*varptr++,wbit(active_bit_o)); # make a note of binding as being active
-          });
-          frame_pointer = args_end_pointer;
-          if (var_count-spec_count > 0) {
-            var uintB* varflagsptr = &TheSbvector(TheIclosure(closure)->clos_varflags)->data[0];
-            dotimespC(count,var_count-spec_count, {
-              pushSTACK(NIL); # NIL as preliminary value
-              var object next_var = *varptr++; # next variable
-              var oint next_varflags = (oint)(*varflagsptr++)<<oint_symbolflags_shift; # with poss. dynam_bit, svar_bit
-              if (special_var_p(TheSymbol(next_var))) # proclaimed as SPECIAL?
-                next_varflags |= wbit(dynam_bit_o); # -> bind dynamically
-              pushSTACK_symbolwithflags(next_var,next_varflags);
-            });
-          }
-        }
-        # VAR_ENV of closure becomes NEXT_ENV in frame:
-        pushSTACK(TheIclosure(closure)->clos_var_env);
-        pushSTACK(fake_gcv_object(var_count)); # var_count bindungs, all still un-nested
-        finish_frame(VAR);
-      }
-      # STACK now points below the variable-binding-frame.
-      # frame_pointer = Pointer in the variable-binding-frame, above the first
-      # still inactive binding, below the already active SPECIAL-references.
-      {
-        var object new_var_env = make_framepointer(STACK);
-        # this frame will become the new VAR_ENV later.
-      # third step: bind current environments:
-        make_ENV5_frame();
-      # activate the closure-environment:
-        aktenv.var_env   = new_var_env; # variable-binding-frame
-        aktenv.fun_env   = TheIclosure(closure)->clos_fun_env;
-        aktenv.block_env = TheIclosure(closure)->clos_block_env;
-        aktenv.go_env    = TheIclosure(closure)->clos_go_env;
-        aktenv.decl_env  = TheIclosure(closure)->clos_decl_env;
-      }
-      # stack layout:
-      #   APPLY-frame
-      #   variable-binding-frame
-      #   ENV-frame
-      # 4. step: process parameters:
-      {
-        check_SP();
-        # Macro for binding of variables in variable-frame:
-        # binds the next variable to value, decreases frame_pointer by 2 resp. 3.
-        # (takes advantage of varframe_binding_mark = 0 !)
-        #define bind_next_var(value,markptr_zuweisung)  \
-          { frame_pointer skipSTACKop -varframe_binding_size;                                  \
-           {var gcv_object_t* markptr = markptr_zuweisung &Before(frame_pointer);              \
-            if (as_oint(*markptr) & wbit(dynam_bit_o))                                         \
-              # activate dynamic Binding:                                                      \
-              { var object sym = *(markptr STACKop varframe_binding_sym); # variable           \
-                *(markptr STACKop varframe_binding_value) = TheSymbolflagged(sym)->symvalue; # old value in frame \
-                *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); # activate binding \
-                TheSymbolflagged(sym)->symvalue = (value); # new value in value-cell           \
-              }                                                                                \
-              else                                                                             \
-              # activate static binding:                                                       \
-              { *(markptr STACKop varframe_binding_value) = (value); # new value in frame      \
-                *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); # activate binding \
-              }                                                                                \
-          }}
-        # process required-parameters:
-        # fetch next argument and bind in stack.
-        {
-          var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_req_anz);
-          if (count>0) {
-            if (argcount < count) {
-              pushSTACK(TheIclosure(closure)->clos_name);
-              fehler(program_error,
-                     GETTEXT("EVAL/APPLY: too few arguments given to ~"));
-            }
-            argcount -= count;
-            dotimespC(count,count, {
-              var object next_arg = NEXT(args_pointer); # next argument
-              bind_next_var(next_arg,); # bind next variable
-            });
-          }
-        }
-        # process optional parameters:
-        # fetch next argument; if there is none,
-        # execute an Init-form; then bind in stack.
-        {
-          var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_opt_anz);
-          if (count==0)
-            goto optional_ende;
-          {
-            var object inits = TheIclosure(closure)->clos_opt_inits; # Init-forms
-            do {
-              if (argcount==0)
-                goto optional_aus;
-              argcount--;
-              var object next_arg = NEXT(args_pointer); # next argument
-              var gcv_object_t* optmarkptr;
-              bind_next_var(next_arg,optmarkptr=); # bind next variable
-              if (as_oint(*optmarkptr) & wbit(svar_bit_o)) { # supplied-p-Parameter follows?
-                *optmarkptr = as_object(as_oint(*optmarkptr) & ~wbit(svar_bit_o));
-                bind_next_var(T,); # yes -> bind to T
-              }
-              inits = Cdr(inits); # shorten Init-Forms-List
-              count--;
-            } until (count==0);
-            goto optional_ende;
-           optional_aus: # no more optional arguments here.
-            pushSTACK(inits);
-          }
-          # execute all Init-forms of the optional parameters here:
-          dotimespC(count,count, {
-            var object inits = STACK_0; # remaining Initforms
-            STACK_0 = Cdr(inits);
-            inits = (eval(Car(inits)),value1); # next Initform, evaluated
-            var gcv_object_t* optmarkptr;
-            bind_next_var(inits,optmarkptr=); # bind next variable
-            if (as_oint(*optmarkptr) & wbit(svar_bit_o)) { # supplied-p-Parameter follows?
-              *optmarkptr = as_object(as_oint(*optmarkptr) & ~wbit(svar_bit_o));
-              bind_next_var(NIL,); # yes -> bind to NIL
-            }
+          dotimespC(count,argcount, {
+            var object new_cons = allocate_cons();
+            Car(new_cons) = BEFORE(ptr);
+            Cdr(new_cons) = STACK_0;
+            STACK_0 = new_cons;
           });
           closure = *closure_;
-          # initialize &REST-parameters without arguments:
-          if (!nullp(TheIclosure(closure)->clos_rest_flag)) # Rest-Flag?
-            bind_next_var(NIL,); # yes -> bind to NIL
-          # initialize &KEY-parameters without arguments :
-          count = posfixnum_to_L(TheIclosure(closure)->clos_key_anz); # number of Keyword-parameters
-          if (count>0) {
-            STACK_0 = TheIclosure(closure)->clos_key_inits; # belonging Init-forms
-            dotimespC(count,count, {
-              var object inits = STACK_0; # remaining Initforms
-              STACK_0 = Cdr(inits);
-              inits = (eval(Car(inits)),value1); # next Initform, evaluated
-              var gcv_object_t* keymarkptr;
-              bind_next_var(inits,keymarkptr=); # bind next Variable
-              if (as_oint(*keymarkptr) & wbit(svar_bit_o)) { # supplied-p-Parameter follows?
-                *keymarkptr = as_object(as_oint(*keymarkptr) & ~wbit(svar_bit_o));
-                bind_next_var(NIL,); # yes -> bind to NIL
-              }
-            });
-            closure = *closure_;
-          }
-          skipSTACK(1); # remaining Init-forms forgotten
-          goto aux; # go to the AUX-variables
         }
-       optional_ende:
-        # prepare &KEY-parameters and &REST-parameters:
-        if (numberp(TheIclosure(closure)->clos_keywords) # is keyword a number?
-            && nullp(TheIclosure(closure)->clos_rest_flag)) { # and no Rest-parameter?
-          # yes -> neither &KEY nor &REST specified
-          if (argcount>0) { # still arguments there? -> Error
-            pushSTACK(TheIclosure(closure)->clos_name);
-            fehler(program_error,
-                   GETTEXT("EVAL/APPLY: too many arguments given to ~"));
-          }
-        } else {
-          # &KEY or &REST present.
-          # process &REST-parameters:
-          if (!nullp(TheIclosure(closure)->clos_rest_flag)) { # Rest-parameters present?
-            # yes -> collect residual arguments in a list:
-            pushSTACK(NIL); # start of list
-            if (argcount>0) {
-              var gcv_object_t* ptr = args_pointer STACKop -(uintP)argcount;
-              var uintC count;
-              dotimespC(count,argcount, {
-                var object new_cons = allocate_cons();
-                Car(new_cons) = BEFORE(ptr);
-                Cdr(new_cons) = STACK_0;
-                STACK_0 = new_cons;
-              });
-              closure = *closure_;
-            }
-            var object list = popSTACK(); # entire list
-            bind_next_var(list,); # bind &REST-parameter to this list
-          }
-          # process &KEY-parameters:
-          if (!numberp(TheIclosure(closure)->clos_keywords)) {
-            # Keyword-parameters present
-            var gcv_object_t* rest_args_pointer = args_pointer;
-            # argcount = number of remaining arguments
-            # halve argcount --> number of pairs Key.Value:
-            if (!((argcount%2)==0))
-              # number was odd ->  not paired:
-              fehler_key_unpaarig(TheIclosure(closure)->clos_name);
-            argcount = argcount/2;
-            # test for illegal keywords:
-            {
-              var object keywords = TheIclosure(closure)->clos_keywords;
-              #define for_every_keyword(statement)         \
-                { var object keywordsr = keywords;         \
-                  while (consp(keywordsr))                 \
-                    { var object keyword = Car(keywordsr); \
-                      statement;                           \
-                      keywordsr = Cdr(keywordsr);          \
-                }   }
-              check_for_illegal_keywords(
-                !nullp(TheIclosure(closure)->clos_allow_flag),
-                { fehler_key_badkw(TheIclosure(closure)->clos_name,
-                                   bad_keyword,
-                                   TheIclosure(closure)->clos_keywords);
-                });
-              #undef for_every_keyword
-              # Now assign the Key-values and evaluate the Key-Inits:
-              var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_key_anz);
-              if (count > 0) {
-                var object key_inits = TheIclosure(closure)->clos_key_inits;
-                dotimespC(count,count, {
-                  var object keyword = Car(keywords); # Keyword
-                  var object var_value;
-                  var object svar_value;
-                  # Find the pair Key.Value for Keyword:
-                  find_keyword_value(
-                    # not found, mus evaluate the Init:
-                    {
-                      pushSTACK(keywords); pushSTACK(key_inits);
-                      var_value = (eval(Car(key_inits)),value1);
-                      key_inits = popSTACK(); keywords = popSTACK();
-                      svar_value = NIL; # NIL for poss. supplied-p-Parameter
-                    },
-                    # found -> take value:
-                    {
-                      var_value = value;
-                      svar_value = T; # T for poss. supplied-p-Parameter
-                    }
-                    );
-                  {
-                    var gcv_object_t* keymarkptr;
-                    bind_next_var(var_value,keymarkptr=); # bind Keyword-Variable
-                    if (as_oint(*keymarkptr) & wbit(svar_bit_o)) { # supplied-p-Parameter follows?
-                      *keymarkptr = as_object(as_oint(*keymarkptr) & ~wbit(svar_bit_o));
-                      bind_next_var(svar_value,); # yes -> bind to NIL resp. T
-                    }
-                  }
-                  keywords = Cdr(keywords);
-                  key_inits = Cdr(key_inits);
-                });
-              }
-            }
-            closure = *closure_;
-          }
-        }
-       aux: # process &AUX-parameter:
-        {
-          var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_aux_anz);
-          if (count>0) {
-            pushSTACK(TheIclosure(closure)->clos_aux_inits); # Init-forms for &AUX-variables
-            dotimespC(count,count, {
-              var object inits = STACK_0;
-              STACK_0 = Cdr(inits);
-              inits = (eval(Car(inits)),value1); # evaluate nnext Init
-              bind_next_var(inits,); # and bind next variable to it
-            });
-            skipSTACK(1); # forget remaining Init-forms
-            closure = *closure_;
-          }
-        }
-        #undef bind_next_var
+        var object list = popSTACK(); /* entire list */
+        bind_next_var(list,); /* bind &REST-parameter to this list */
       }
-      # 5. step: evaluate Body:
-      implicit_progn(TheIclosure(closure)->clos_body,NIL);
-      unwind(); # unwind ENV-frame
-      unwind(); # unwind variable-binding-frame
-      unwind(); # unwind APPLY-frame
-      # finished
+      /* process &KEY-parameters: */
+      if (!numberp(TheIclosure(closure)->clos_keywords)) {
+        /* Keyword-parameters present */
+        var gcv_object_t* rest_args_pointer = args_pointer;
+        /* argcount = number of remaining arguments */
+        /* halve argcount --> number of pairs Key.Value: */
+        if (argcount%2) /* number was odd ->  not paired: */
+          fehler_key_unpaarig(TheIclosure(closure)->clos_name);
+        argcount = argcount/2;
+        { /* test for illegal keywords: */
+          var object keywords = TheIclosure(closure)->clos_keywords;
+         #define for_every_keyword(statement)           \
+            { var object keywordsr = keywords;          \
+              while (consp(keywordsr)) {                \
+                var object keyword = Car(keywordsr);    \
+                statement;                              \
+                keywordsr = Cdr(keywordsr);             \
+              }}
+          check_for_illegal_keywords
+            (!nullp(TheIclosure(closure)->clos_allow_flag),
+             { fehler_key_badkw(TheIclosure(closure)->clos_name,
+                                bad_keyword,
+                                TheIclosure(closure)->clos_keywords);});
+         #undef for_every_keyword
+          /* Now assign the Key-values and evaluate the Key-Inits: */
+          var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_key_anz);
+          if (count > 0) {
+            var object key_inits = TheIclosure(closure)->clos_key_inits;
+            dotimespC(count,count, {
+              var object keyword = Car(keywords); /* Keyword */
+              var object var_value;
+              var object svar_value;
+              /* Find the pair Key.Value for Keyword: */
+              find_keyword_value({ /* not found, must evaluate the Init: */
+                pushSTACK(keywords); pushSTACK(key_inits);
+                var_value = (eval(Car(key_inits)),value1);
+                key_inits = popSTACK(); keywords = popSTACK();
+                svar_value = NIL; /* NIL for poss. supplied-p-Parameter */
+              },{ /* found -> take value: */
+                var_value = value;
+                svar_value = T; /* T for poss. supplied-p-Parameter */
+              });
+              {
+                var gcv_object_t* keymarkptr;
+                bind_next_var(var_value,keymarkptr=); /* bind keyword-var */
+                if (as_oint(*keymarkptr) & wbit(svar_bit_o)) { /* supplied-p-Parameter follows? */
+                  *keymarkptr = as_object(as_oint(*keymarkptr) & ~wbit(svar_bit_o));
+                  bind_next_var(svar_value,); /* yes -> bind to NIL resp. T */
+                }
+              }
+              keywords = Cdr(keywords);
+              key_inits = Cdr(key_inits);
+            });
+          }
+        }
+        closure = *closure_;
+      }
     }
+   aux: { /* process &AUX-parameter: */
+      var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_aux_anz);
+      if (count>0) {
+        pushSTACK(TheIclosure(closure)->clos_aux_inits); /* Init-forms for &AUX-variables */
+        dotimespC(count,count, {
+          var object inits = STACK_0;
+          STACK_0 = Cdr(inits);
+          inits = (eval(Car(inits)),value1); /* evaluate nnext Init */
+          bind_next_var(inits,); /* and bind next variable to it */
+        });
+        skipSTACK(1); /* forget remaining Init-forms */
+        closure = *closure_;
+      }
+    }
+   #undef bind_next_var
+  }
+  /* 5th step: evaluate Body: */
+  implicit_progn(TheIclosure(closure)->clos_body,NIL);
+  unwind(); /* unwind ENV-frame */
+  unwind(); /* unwind variable-binding-frame */
+  unwind(); /* unwind APPLY-frame */
+}
 
 # UP: provides the assignment of the Key-arguments for SUBRs.
 # call only, if key_flag /= subr_nokey.
@@ -4003,7 +3986,7 @@ local Values apply_closure(object fun, uintC args_on_stack, object other_args);
           }
         } else
           # if no SUBR, no Closure, no FSUBR, no Macro:
-          # Symbol_function(fun) mus be #<UNBOUND> .
+          # Symbol_function(fun) must be #<UNBOUND> .
           goto undef;
       } elif (funnamep(fun)) { # List (SETF symbol) ?
         # global Definition (symbol-function (get-setf-symbol symbol)) applies.
