@@ -210,6 +210,8 @@ NIL
 
 (show-db *db*) NIL
 
+(= (bdb:db-get-options *db* :errfile) (bdb:dbe-get-options *dbe* :errfile)) T
+
 (defvar *cursor* (print (bdb:make-dbc *db*))) *cursor*
 
 (let ((li ()))
