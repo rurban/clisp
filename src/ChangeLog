@@ -1,3 +1,9 @@
+2005-02-28  Sam Steingold  <sds@gnu.org>
+
+	* modules/i18n/gettext.c (SET-LOCALE, LOCALE-CONV, res_to_obj)
+	(locale_string_to_STACK): use *MISC-ENCODING* instead of UTF-8
+	(get_locale_info) [WIN32_NATIVE]: do not use LOCALE_USE_CP_ACP
+
 2005-02-27  Sam Steingold  <sds@gnu.org>
 
 	* clisp-link.in (link): rm $2 to avoid an error on Solaris
