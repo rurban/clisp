@@ -454,3 +454,12 @@ dm2b
     (dm2b x1 (((segundo x2) x3 x4)) x5 x6)))
 ((DM2B X1 (((SEGUNDO X2) X3 X4)) X5 X6)
  5 (((SEGUNDO X2) X3 X4)) (CADR X2) (X3 X4) 5 (X5 X6))
+
+;; -C test
+#+CLISP
+(loop :for a :in
+  (funcall
+   (sys::compile-form-in-toplevel-environment
+    '(list (list #'equal 2 2) (list #'equal 2 3))))
+  :collect (funcall (car a) (cadr a) (caddr a)))
+#+CLISP (T NIL)
