@@ -1,5 +1,10 @@
 2004-10-17  Bruno Haible  <bruno@clisp.org>
 
+	* defstruct.lisp (defstruct): Set the readers and writers slot of the
+	structure-direct-slot-definition instances to empty.
+
+2004-10-17  Bruno Haible  <bruno@clisp.org>
+
 	* clos-class3.lisp (install-class-direct-accessors): Optimize the
 	accessors also in the case of structure-class.
 
