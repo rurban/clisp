@@ -847,20 +847,27 @@ LISPFUNNF(delta4,5) {
   var uintL n2 = posfixnum_to_L(STACK_3);
   if (!posfixnump(STACK_4)) fehler_posfixnum(STACK_4);
   var uintL n1 = posfixnum_to_L(STACK_4);
-  if ((o1 > n1) /* use the arguments on the stack for error reporting */
-      || ((o1 == n1) && (o2 > n2))) {
-    skipSTACK(1); pushSTACK(S(delta4));
+  if ((o1 > n1) || ((o1 == n1) && (o2 > n2))) {
+    pushSTACK(STACK_3);     /* n2 */
+    pushSTACK(STACK_(4+1)); /* n1 */
+    pushSTACK(STACK_(1+2)); /* o2 */
+    pushSTACK(STACK_(2+3)); /* o1 */
+    pushSTACK(S(delta4));
     fehler(arithmetic_error,"~S: negative difference: [~S ~S] > [~S ~S]");
   }
   var uintL del = n1 - o1;
-  if (shift + I_integer_length(fixnum(del)) > 64) {
+  if (shift >= 32 || shift + I_integer_length(fixnum(del)) > 64) {
     pushSTACK(STACK_0); pushSTACK(S(ash));
     fehler(arithmetic_error,GETTEXT("~S: too large shift amount ~S"));
   }
  #ifdef intQsize
-  VALUES1(UQ_to_I((del << shift) + n2 - o2));
+  VALUES1(UQ_to_I(((uintQ)del << shift) + n2 - o2));
  #else
-  VALUES1(UL2_to_I(del >> (32-shift), (del << shift) + n2 - o2));
+  var uint32 hi = del >> (32-shift);
+  var uint32 lo = del << shift;
+  if ((lo += n2) < n2) hi++;
+  if (lo < o2) hi--; lo -= o2;
+  VALUES1(UL2_to_I(hi, lo));
  #endif
   skipSTACK(5);
 }
