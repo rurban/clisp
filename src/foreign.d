@@ -3656,18 +3656,36 @@ local void * open_library (object name, uintL version)
   return handle;
 }
 
+#if defined(WIN32_NATIVE)
+/* support older woe32 incarnations:
+   fEnumProcessModules is 1 until the first call,
+   it is NULL if this woe32 does not have EnumProcessModules(),
+   and it points to EnumProcessModules() when it is present */
+typedef BOOL (WINAPI * EnumProcessModules_t)
+  (HANDLE hProcess,HMODULE* lphModule,DWORD cb,LPDWORD lpcbNeeded);
+static EnumProcessModules_t fEnumProcessModules = (EnumProcessModules_t)1;
+#endif
+
 local inline void* find_name (void *handle, char *name)
 { /* find the name in the library handle  ==  dlsym()*/
   var void *ret = NULL;
   begin_system_call();
  #if defined(WIN32_NATIVE)
   if (handle == NULL) { /* RTLD_DEFAULT -- search all modules */
-    HANDLE cur_proc = GetCurrentProcess();
+    HANDLE cur_proc;
     HMODULE *modules;
     DWORD needed, i;
-    if (!EnumProcessModules(cur_proc,NULL,0,&needed)) OS_error();
+    if ((EnumProcessModules_t)1 == fEnumProcessModules) {
+      /* first call: try to load EnumProcessModules */
+      HMODULE psapi = LoadLibrary("psapi.dll");
+      if (psapi == NULL) fEnumProcessModules = NULL;
+      else fEnumProcessModules = GetProcAddress(psapi,"EnumProcessModules");
+    }
+    if (NULL == fEnumProcessModules) return NULL;
+    cur_proc = GetCurrentProcess();
+    if (!fEnumProcessModules(cur_proc,NULL,0,&needed)) OS_error();
     modules = (HMODULE*)alloca(needed);
-    if (!EnumProcessModules(cur_proc,modules,needed,&needed)) OS_error();
+    if (!fEnumProcessModules(cur_proc,modules,needed,&needed)) OS_error();
     for (i=0; i < needed/sizeof(HMODULE); i++)
       if ((ret = (void*)GetProcAddress(modules[i],name)))
         break;
