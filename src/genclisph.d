@@ -757,9 +757,9 @@ global int main()
     #endif
   #endif
  printf("#define fixnum_inc(obj,delta)  objectplus(obj, (soint)(delta) << %d)\n",oint_data_shift);
-# printf("#define posfixnum(x)  fixnum_inc(Fixnum_0,x)\n");
-# printf("#define negfixnum(x)  fixnum_inc(fixnum_inc(Fixnum_minus1,1),x)\n");
-# printf("#define sfixnum(x) ((x)>=0 ? posfixnum(x) : negfixnum(x))\n");
+ printf("#define posfixnum(x)  fixnum_inc(Fixnum_0,x)\n");
+ printf("#define negfixnum(x)  fixnum_inc(fixnum_inc(Fixnum_minus1,1),x)\n");
+ printf("#define sfixnum(x) ((x)>=0 ? posfixnum(x) : negfixnum(x))\n");
   #ifdef TYPECODES
     printf("typedef struct { VAROBJECT_HEADER uintC length; uintD data[unspecified]; } bignum_;\n");
   #else
@@ -1670,6 +1670,7 @@ global int main()
   printf("extern void check_value (condition_t errortype, const char * errorstring);\n");
   printf("extern object check_posfixnum (object obj);\n");
   printf("extern object check_string (object obj);\n");
+  printf("extern object check_fpointer (object obj, bool restart_p);\n");
   printf("extern object check_uint8 (object obj);\n");
   printf("extern object check_sint8 (object obj);\n");
   printf("extern object check_uint16 (object obj);\n");
@@ -1843,6 +1844,7 @@ global int main()
       printf("#define TheFpointer(obj)  ((Fpointer)(ngci_pointable(obj)-%d))\n",varobject_bias);
     #endif
     printf("extern object allocate_fpointer (FOREIGN foreign);\n");
+    printf("#define fp_validp(ptr)  ((record_flags(ptr) & bit(7)) == 0)\n");
   #endif
     printf("enum { seclass_foldable, seclass_no_se, seclass_read, seclass_write, seclass_default};\n");
 /* Additional stuff for modules. */

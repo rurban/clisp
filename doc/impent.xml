@@ -227,8 +227,8 @@
 <!ENTITY rd-ch-seq "<link linkend='rd-ch-seq'><function>EXT:READ-CHAR-SEQUENCE</function></link>">
 <!ENTITY rd-float "<link linkend='bin-input'><function>EXT:READ-FLOAT</function></link>">
 <!ENTITY rd-integer "<link linkend='bin-input'><function>EXT:READ-INTEGER</function></link>">
-<!ENTITY re-cflags-opts "<link linkend='re-cflags'><constant>:EXTENDED</constant> (&case-sensitive-k; <constant>T</constant>) <constant>:NEWLINE</constant> <constant>:NOSUB</constant> <constant>:CFLAGS</constant></link>">
-<!ENTITY re-eflags-opts "<link linkend='re-eflags'><constant>:NOTBOL</constant> <constant>:NOTEOL</constant> <constant>:EFLAGS</constant></link>">
+<!ENTITY re-cflags-opts "<link linkend='re-cflags'><constant>:EXTENDED</constant> <constant>:IGNORE-CASE</constant> <constant>:NEWLINE</constant> <constant>:NOSUB</constant></link>">
+<!ENTITY re-eflags-opts "<link linkend='re-eflags'><constant>:NOTBOL</constant> <constant>:NOTEOL</constant></link>">
 <!ENTITY re-export "<link linkend='re-export'><function>EXT:RE-EXPORT</function></link>">
 <!ENTITY re-match "<link linkend='re-match'><function>REGEXP:MATCH</function></link>">
 <!ENTITY re-match-end "<link linkend='re-match-end'><function>REGEXP:MATCH-END</function></link>">

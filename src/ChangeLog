@@ -1,3 +1,15 @@
+2003-08-07  Sam Steingold  <sds@gnu.org>
+
+	regexp module does not use FFI - 25% speedup
+	* modules/regexp/preload.lisp: new file
+	* modules/regexp/link.sh.in: preload it, don't look for regexp.c
+	* modules/regexp/regexp.lisp: removed FFI forms
+	* modules/regexp/regexi.c (REGEXP-COMPILE, REGEXP-EXEC)
+	(REGEXP-FREE): implemented here
+	* foreign.d (check_fpointer): replaces fehler_fpointer_invalid()
+	* genclisph.d (posfixnum, negfixnum, sfixnum, fp_validp)
+	(check_fpointer): export
+
 2003-08-06  Sam Steingold  <sds@gnu.org>
 
 	added a bindings/win32 module with a couple of rudimentary functions
