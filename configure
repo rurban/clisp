@@ -273,7 +273,7 @@ else
   if [ ! -d $DIRNAME ] ; then
     mkdir $DIRNAME
   fi
-  if test `abs_path_pwd "$DIRNAME"` = `abs_path_pwd "$srcdir"` ; then
+  if test `abs_path_pwd "$DIRNAME"/..` = `abs_path_pwd "$srcdir"` ; then
     REL_SRCDIR='..'
   else
     REL_SRCDIR="$ABS_SRCDIR"
