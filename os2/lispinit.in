@@ -1,3 +1,3 @@
 (load "init.fas")
-(sys::%saveinitmem)
+(%saveinitmem)
 (exit)
