@@ -2121,7 +2121,7 @@ LISPFUN(make_string_input_stream,1,2,norest,nokey,0,NIL) {
   # fetch String and check range:
   var stringarg arg;
   var object string = test_string_limits_ro(&arg);
-  var object start_arg = fixnum(arg.index); # start-Argument (Fixnum >=0)
+  var object start_arg = fixnum(arg.offset+arg.index); /* start-Argument (Fixnum >=0) */
   var object end_arg = fixnum_inc(start_arg,arg.len); # end-Argument (Fixnum >=0)
   pushSTACK(string); # save String
   var object stream = # new Stream, only READ-CHAR allowed
@@ -2268,7 +2268,7 @@ local void wr_ch_str_push (const gcv_object_t* stream_, object ch) {
 }
 
 # (SYSTEM::MAKE-STRING-PUSH-STREAM string) returns a Stream, whose
-# WRITE-CHAR-Operation is equivalent to a VECTOR-PUSH-EXTEND
+# WRITE-CHAR operation is equivalent to a VECTOR-PUSH-EXTEND
 # on the given String.
 LISPFUNN(make_string_push_stream,1) {
   {
@@ -2452,7 +2452,7 @@ local object rd_ch_buff_in (const gcv_object_t* stream_) {
     var stringarg val;
     var object string = test_string_limits_ro(&val);
     stream = *stream_;
-    index = val.index;
+    index = val.index; /* val.offset==0 since the buffer is simple! */
     endindex = index+val.len;
     TheStream(stream)->strm_buff_in_string = string;
     TheStream(stream)->strm_buff_in_index = fixnum(index);
