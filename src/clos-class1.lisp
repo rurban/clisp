@@ -481,13 +481,19 @@
                            ; (name_1 ... name_i-1 name_i) with name=name_1,
         :type cons)        ; name_1 contains name_2, ..., name_i-1 contains name_i.
       ($kconstructor       ; name of keyword constructor function
-        :type symbol))
+        :type symbol)
+      ($boa-constructors   ; list of all BOA constructor functions
+       :type list)
+      ($copier             ; name of the copier
+       :type symbol))
      (:fixed-slot-locations t)))
 (defvar *<structure-class>-class-version* (make-class-version))
 
 ;; Fixed slot locations.
 (defconstant *<structure-class>-names-location* 21)
 (defconstant *<structure-class>-kconstructor-location* 22)
+(defconstant *<structure-class>-boa-constructors-location* 23)
+(defconstant *<structure-class>-copier-location* 24)
 
 ;; Preliminary accessors.
 (predefun class-names (object)
@@ -498,8 +504,16 @@
   (sys::%record-ref object *<structure-class>-kconstructor-location*))
 (predefun (setf class-kconstructor) (new-value object)
   (setf (sys::%record-ref object *<structure-class>-kconstructor-location*) new-value))
+(predefun class-boa-constructors (object)
+  (sys::%record-ref object *<structure-class>-boa-constructors-location*))
+(predefun (setf class-boa-constructors) (new-value object)
+  (setf (sys::%record-ref object *<structure-class>-boa-constructors-location*) new-value))
+(predefun class-copier (object)
+  (sys::%record-ref object *<structure-class>-copier-location*))
+(predefun (setf class-copier) (new-value object)
+  (setf (sys::%record-ref object *<structure-class>-copier-location*) new-value))
 
-(defconstant *<structure-class>-instance-size* 23)
+(defconstant *<structure-class>-instance-size* 25)
 
 ;;; ===========================================================================
 

@@ -10,7 +10,8 @@
    For structure types (but not for structure classes!):
 
    (get name 'DEFSTRUCT-DESCRIPTION) =
-     #(type size keyword-constructor slotlist defaultfun0 defaultfun1 ...)
+     #(type size keyword-constructor slotlist boa-constructors copier
+       defaultfun0 defaultfun1 ...)
 
    type (if the type of the whole structure is meant):
       = LIST                   storage as list
@@ -20,6 +21,8 @@
    size is the list length / vector length.
 
    keyword-constructor = NIL or the name of the keyword-constructor
+   boa-constructors = list of BOA constructors
+   copier = NIL or the copier
 
    slotlist is a packed description of the slots of a structure:
    slotlist = ({slot}*)
@@ -62,6 +65,13 @@
    ALLOCATE-INSTANCE, without need for corresponding effective-slot-definition.
 |#
 
+(defconstant *defstruct-description-type-location* 1)
+(defconstant *defstruct-description-size-location* 1)
+(defconstant *defstruct-description-kconstructor-location* 2)
+(defconstant *defstruct-description-slots-location* 3)
+(defconstant *defstruct-description-boa-constructors-location* 4)
+(defconstant *defstruct-description-copier-location* 5)
+
 (defun make-ds-slot (name initargs offset initer type readonly)
   (clos::make-instance-<structure-effective-slot-definition>
     clos::<structure-effective-slot-definition>
@@ -93,11 +103,11 @@
 |#
 (defun ds-typep (object symbol desc)
   (declare (ignore symbol))
-  (let ((type (svref desc 0))
-        (size (svref desc 1)))
+  (let ((type (svref desc *defstruct-description-type-location*))
+        (size (svref desc *defstruct-description-size-location*)))
     (if (eq type 'LIST)
       (and (conses-p size object)
-           (dolist (slot (svref desc 3) t)
+           (dolist (slot (svref desc *defstruct-description-slots-location*) t)
              (unless (ds-real-slot-p slot)
                (unless (eq (nth (clos:slot-definition-location slot) object)
                            (ds-pseudo-slot-default slot))
@@ -108,7 +118,7 @@
                   (if (consp type)
                     (upgraded-array-element-type (second type))
                     'T))
-           (dolist (slot (svref desc 3) t)
+           (dolist (slot (svref desc *defstruct-description-slots-location*) t)
              (unless (ds-real-slot-p slot)
                (unless (and (simple-vector-p object)
                             (eq (svref object (clos:slot-definition-location slot))
@@ -118,8 +128,8 @@
 #| Type test expansion, for TYPEP compiler macro. |#
 (defun ds-typep-expansion (objform symbol desc)
   (declare (ignore symbol))
-  (let ((type (svref desc 0))
-        (size (svref desc 1))
+  (let ((type (svref desc *defstruct-description-type-location*))
+        (size (svref desc *defstruct-description-size-location*))
         (tmp (gensym)))
     `(LET ((,tmp ,objform))
        ,(if (eq type 'LIST)
@@ -131,7 +141,7 @@
                               (unless (ds-real-slot-p slot)
                                 `((EQ (NTH ,(clos:slot-definition-location slot) ,tmp)
                                       ',(ds-pseudo-slot-default slot)))))
-                          (svref desc 3)))
+                          (svref desc *defstruct-description-slots-location*)))
           (let ((eltype (if (consp type)
                           (upgraded-array-element-type (second type))
                           'T)))
@@ -147,15 +157,15 @@
                                 (unless (ds-real-slot-p slot)
                                   `((EQ (SVREF ,tmp ,(clos:slot-definition-location slot))
                                         ',(ds-pseudo-slot-default slot)))))
-                            (svref desc 3))))))))
+                            (svref desc *defstruct-description-slots-location*))))))))
 
 #| Type canonicalization, for SUBTYPEP. |#
 (defun ds-canonicalize-type (symbol)
   (let ((desc (get symbol 'DEFSTRUCT-DESCRIPTION)))
     (if desc
-      (let ((type (svref desc 0))
-            (size (svref desc 1))
-            (slotlist (svref desc 3)))
+      (let ((type (svref desc *defstruct-description-type-location*))
+            (size (svref desc *defstruct-description-size-location*))
+            (slotlist (svref desc *defstruct-description-slots-location*)))
         (if (eq type 'LIST)
           (let ((resulttype 'T))
             ;; Start with T, not (MEMBER NIL), because of the possibility
@@ -528,7 +538,7 @@
                name)
         (error (TEXT "The structure type ~S has not been defined.")
                name)))
-    (let* ((slots (svref desc 3))
+    (let* ((slots (svref desc *defstruct-description-slots-location*))
            (slot
              ; (find slotname (the list) slots :test #'clos:slot-definition-name)
              (dolist (s slots)
@@ -548,6 +558,10 @@
   (declare (ignore name))
   nil)
 
+(predefun clos::structure-undefine-accessories (name) ; preliminary
+  (declare (ignore name))
+  nil)
+
 (defmacro defstruct (&whole whole-form
                      name-and-options . docstring-and-slotargs)
   (let ((name                              name-and-options)
@@ -555,6 +569,7 @@
         (conc-name-option                  t)
         (constructor-option-list           nil)
         (keyword-constructor               nil)
+        (boa-constructors                  '())
         (copier-option                     t)
         (predicate-option                  0)
         (include-option                    nil)
@@ -760,7 +775,7 @@
                   (list
                     (setq namesform (gensym))
                     `(CONS ',name (CLOS::CLASS-NAMES (GET ',subname 'CLOS::CLOSCLASS)))))))
-        (unless (equalp (if incl-class 't (svref incl-desc 0)) type-option)
+        (unless (equalp (if incl-class 't (svref incl-desc *defstruct-description-type-location*)) type-option)
           (error-of-type 'source-program-error
             :form whole-form
             :detail subname
@@ -774,11 +789,11 @@
                                 (clos:slot-definition-name slot))))
                     (if incl-class
                       (clos:class-slots incl-class)
-                      (svref incl-desc 3)))))
+                      (svref incl-desc *defstruct-description-slots-location*)))))
         ;; slotlist is the reversed list of the inherited slots.
         (setq include-skip (if incl-class
                              (clos::class-instance-size incl-class)
-                             (svref incl-desc 1)))
+                             (svref incl-desc *defstruct-description-size-location*)))
         (when slotlist
           (assert (> include-skip (clos:slot-definition-location (car (first slotlist))))))
         ;; include-skip >=0 is the number of slots that are already consumend
@@ -1030,6 +1045,11 @@
                   constructor-option type-option name namesform size
                   slotlist))))
         constructor-option-list))
+    (setq boa-constructors
+          (mapcan #'(lambda (constructor-option)
+                      (when (consp constructor-option)
+                        (list (first constructor-option))))
+                  constructor-option-list))
     ;; constructor-forms = list of forms, that define the constructors.
     (mapc #'(lambda (slot+initff directslot+initff)
               (let* ((slot (car slot+initff))
@@ -1043,11 +1063,12 @@
     `(EVAL-WHEN (LOAD COMPILE EVAL)
        (LET ()
          (LET ,(append namesbinding (mapcar #'list slotdefaultvars slotdefaultfuns))
-           ,@constructor-forms
+           (CLOS::STRUCTURE-UNDEFINE-ACCESSORIES ',name)
            ,(if (eq type-option 'T)
               `(REMPROP ',name 'DEFSTRUCT-DESCRIPTION)
               `(%PUT ',name 'DEFSTRUCT-DESCRIPTION
                      (VECTOR ',type-option ,size ',keyword-constructor
+                             ',boa-constructors ',copier-option
                              (LIST
                                ,@(mapcar #'(lambda (slot+initff)
                                              (let ((slot (car slot+initff)))
@@ -1059,7 +1080,7 @@
            ,(if (eq type-option 'T)
               `(CLOS::DEFINE-STRUCTURE-CLASS ',name
                  ,namesform
-                 ',keyword-constructor
+                 ',keyword-constructor ',boa-constructors ',copier-option
                  (LIST
                    ,@(mapcar #'(lambda (slot+initff)
                                  (let ((slot (car slot+initff)))
@@ -1076,7 +1097,8 @@
                                      (let ((i (position directslot+initff slotdefaultdirectslots)))
                                        (if i (nth i slotdefaultvars) (cdr directslot+initff))))))
                              directslotlist)))
-              `(CLOS::UNDEFINE-STRUCTURE-CLASS ',name)))
+              `(CLOS::UNDEFINE-STRUCTURE-CLASS ',name))
+           ,@constructor-forms)
          ,@(if (and named-option predicate-option)
              (ds-make-pred predicate-option type-option name slotlist size))
          ,@(if copier-option (ds-make-copier copier-option name type-option))

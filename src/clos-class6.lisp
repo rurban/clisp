@@ -249,12 +249,25 @@
   (setf (sys::%record-ref class *<slotted-class>-valid-initargs-from-slots-location*) new-value))
 
 ;; Not in MOP.
-(defun class-instance-size (class)
-  (accessor-typecheck class 'slotted-class 'class-instance-size)
-  (sys::%record-ref class *<slotted-class>-instance-size-location*))
-(defun (setf class-instance-size) (new-value class)
-  (accessor-typecheck class 'slotted-class '(setf class-instance-size))
-  (setf (sys::%record-ref class *<slotted-class>-instance-size-location*) new-value))
+(defgeneric class-instance-size (class)
+  (:method ((class defined-class))
+    (accessor-typecheck class 'slotted-class 'class-instance-size)
+    (sys::%record-ref class *<slotted-class>-instance-size-location*))
+  (:method ((class symbol))
+    (let ((descriptor (get class 'SYS::DEFSTRUCT-DESCRIPTION)))
+      (if descriptor
+          (svref descriptor sys::*defstruct-description-size-location*)
+          (class-instance-size (find-class class))))))
+(defgeneric (setf class-instance-size) (new-value class)
+  (:method (new-value (class defined-class))
+    (accessor-typecheck class 'slotted-class '(setf class-instance-size))
+    (setf (sys::%record-ref class *<slotted-class>-instance-size-location*) new-value))
+  (:method (new-value (class symbol))
+    (let ((descriptor (get class 'SYS::DEFSTRUCT-DESCRIPTION)))
+      (setf (if descriptor
+                (svref descriptor sys::*defstruct-description-size-location*)
+                (class-instance-size (find-class class)))
+            new-value))))
 
 ;; Not in MOP.
 (defun class-names (class)
@@ -265,12 +278,67 @@
   (setf (sys::%record-ref class *<structure-class>-names-location*) new-value))
 
 ;; Not in MOP.
-(defun class-kconstructor (class)
-  (accessor-typecheck class 'structure-class 'class-kconstructor)
-  (sys::%record-ref class *<structure-class>-kconstructor-location*))
-(defun (setf class-kconstructor) (new-value class)
-  (accessor-typecheck class 'structure-class '(setf class-kconstructor))
-  (setf (sys::%record-ref class *<structure-class>-kconstructor-location*) new-value))
+(defgeneric class-kconstructor (class)
+  (:method ((class defined-class))
+    (accessor-typecheck class 'structure-class 'class-kconstructor)
+    (sys::%record-ref class *<structure-class>-kconstructor-location*))
+  (:method ((class symbol))
+    (let ((descriptor (get class 'SYS::DEFSTRUCT-DESCRIPTION)))
+      (if descriptor
+          (svref descriptor sys::*defstruct-description-kconstructor-location*)
+          (class-kconstructor (find-class class))))))
+(defgeneric (setf class-kconstructor) (new-value class)
+  (:method (new-value (class defined-class))
+    (accessor-typecheck class 'structure-class '(setf class-kconstructor))
+    (setf (sys::%record-ref class *<structure-class>-kconstructor-location*) new-value))
+  (:method (new-value (class symbol))
+    (let ((descriptor (get class 'SYS::DEFSTRUCT-DESCRIPTION)))
+      (setf (if descriptor
+                (svref descriptor sys::*defstruct-description-kconstructor-location*)
+                (class-kconstructor (find-class class)))
+            new-value))))
+
+;; Not in MOP.
+(defgeneric class-boa-constructors (class)
+  (:method ((class defined-class))
+    (accessor-typecheck class 'structure-class 'class-boa-constructors)
+    (sys::%record-ref class *<structure-class>-boa-constructors-location*))
+  (:method ((class symbol))
+    (let ((descriptor (get class 'SYS::DEFSTRUCT-DESCRIPTION)))
+      (if descriptor
+          (svref descriptor sys::*defstruct-description-boa-constructors-location*)
+          (class-boa-constructors (find-class class))))))
+(defgeneric (setf class-boa-constructors) (new-value class)
+  (:method (new-value (class defined-class))
+    (accessor-typecheck class 'structure-class '(setf class-boa-constructors))
+    (setf (sys::%record-ref class *<structure-class>-boa-constructors-location*) new-value))
+  (:method (new-value (class symbol))
+    (let ((descriptor (get class 'SYS::DEFSTRUCT-DESCRIPTION)))
+      (setf (if descriptor
+                (svref descriptor sys::*defstruct-description-boa-constructors-location*)
+                (class-boa-constructors (find-class class)))
+            new-value))))
+
+;; Not in MOP.
+(defgeneric class-copier (class)
+  (:method ((class defined-class))
+    (accessor-typecheck class 'structure-class 'class-copier)
+    (sys::%record-ref class *<structure-class>-copier-location*))
+  (:method ((class symbol))
+    (let ((descriptor (get class 'SYS::DEFSTRUCT-DESCRIPTION)))
+      (if descriptor
+          (svref descriptor sys::*defstruct-description-copier-location*)
+          (class-copier (find-class class))))))
+(defgeneric (setf class-copier) (new-value class)
+  (:method (new-value (class defined-class))
+    (accessor-typecheck class 'structure-class '(setf class-copier))
+    (setf (sys::%record-ref class *<structure-class>-copier-location*) new-value))
+  (:method (new-value (class symbol))
+    (let ((descriptor (get class 'SYS::DEFSTRUCT-DESCRIPTION)))
+      (setf (if descriptor
+                (svref descriptor sys::*defstruct-description-copier-location*)
+                (class-copier (find-class class)))
+            new-value))))
 
 ;; Not in MOP.
 (defun class-current-version (class)

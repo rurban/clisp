@@ -1,3 +1,41 @@
+2005-01-04  Sam Steingold  <sds@gnu.org>
+
+	carry BOA-constructors and copier with the structure metaobject
+	* clos-class1.lisp (*<structure-class>-defclass*): new slots:
+	$boa-constructors and $copier
+	(*<structure-class>-boa-constructors-location*)
+	(*<structure-class>-copier-location*): new constants
+	(class-boa-constructors, (setf class-boa-constructors))
+	(class-copier, (setf class-copier)): new predefuns
+	(*<structure-class>-instance-size*): increased by 2
+	* clos-class3.lisp (make-instance-<structure-class>):
+	accept and ignore 'boa-constructors and 'copier arguments
+	(shared-initialize-<structure-class>): accept and use
+	'boa-constructors and 'copier arguments
+	(define-structure-class): accept and use
+	boa-constructors and copier arguments
+	(structure-undefine-accessories): new ABI function
+	* clos-class4.lisp (shared-initialize@structure-class):
+	accept and ignore 'boa-constructors and 'copier arguments
+	* clos-class6.lisp (class-instance-size, (setf class-instance-size)):
+	(class-kconstructor, (setf class-kconstructor)):
+	turned into generic functions
+	(class-boa-constructors, (setf class-boa-constructors))
+	(class-copier, (setf class-copier)): added
+	* constobj.d (version): bumped
+	* defstruct.lisp (*defstruct-description-type-location*)
+	(*defstruct-description-size-location*)
+	(*defstruct-description-kconstructor-location*)
+	(*defstruct-description-slots-location*)
+	(*defstruct-description-boa-constructors-location*)
+	(*defstruct-description-copier-location*): added constants
+	(ds-typep, ds-typep-expansion, ds-canonicalize-type)
+	(find-structure-slot-initfunction): use them
+	(clos::structure-undefine-accessories): added a predefun
+	(defstruct): call it; pass copier and boa-constructors to
+	DEFINE-STRUCTURE-CLASS
+	* io.d (STRUCTURE-READER): structure descriptors have length 6
+
 2005-01-03  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp (symbol-keyword): new function
