@@ -118,9 +118,9 @@ nonreturning_function(static, error_bdb, (int status, char *caller)) {
 /* check whether the OBJ has type TYPE and return its handle
  can trigger GC */
 typedef enum {
-  OH_VALID,                     /* return a valid handle */
-  OH_ADDRESS,                   /* return the address */
-  OH_NIL_IS_NULL                /* return NULL for NIL or valid handle */
+  OH_VALID,         /* return a valid handle */
+  OH_INVALIDATE,    /* invalidate and return handle, NULL for invalid FP */
+  OH_NIL_IS_NULL    /* return NULL for NIL or valid handle */
 } object_handle_t;
 static void* object_handle (object obj, object type, object_handle_t oh) {
  object_handle_restart:
@@ -134,18 +134,19 @@ static void* object_handle (object obj, object type, object_handle_t oh) {
     check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
     obj = value1; type = popSTACK(); /* restore */
   }
-  if (oh == OH_ADDRESS)
-    return &(TheFpointer(*(TheStructure(obj)->recdata+1))->fp_pointer); /* FIXME for derived structs! */
-  if (oh == OH_VALID &&
-      TheFpointer(*(TheStructure(obj)->recdata+1))->fp_pointer == NULL) {
-    pushSTACK(type);            /* save */
-    pushSTACK(NIL);             /* no PLACE */
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S has been closed"));
-    obj = value1; type = popSTACK(); /* restore */
-    goto object_handle_restart;
+  { Fpointer fp = TheFpointer(TheStructure(obj)->recdata[1]);
+    if (!fp_validp(fp)) {
+      if (oh == OH_INVALIDATE) return NULL;
+      pushSTACK(type);            /* save */
+      pushSTACK(NIL);             /* no PLACE */
+      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+      check_value(type_error,GETTEXT("~S: ~S has been closed or comes from a previous Lisp session"));
+      obj = value1; type = popSTACK(); /* restore */
+      goto object_handle_restart;
+    }
+    if (oh == OH_INVALIDATE) mark_fp_invalid(fp);
+    return fp->fp_pointer;
   }
-  return TheFpointer(*(TheStructure(obj)->recdata+1))->fp_pointer;
 }
 
 /* allocate a wrapper for the pointer and add a finalizer to it
@@ -227,13 +228,13 @@ DEFUN(BDB:ENV-CREATE,&key :PASSWORD :ENCRYPT    \
 
 DEFUN(BDB:ENV-CLOSE, dbe)
 { /* close DB environment */
-  DB_ENV **dbe = (DB_ENV**)object_handle(popSTACK(),`BDB::ENV`,OH_ADDRESS);
-  if (*dbe) {
+  DB_ENV *dbe = object_handle(popSTACK(),`BDB::ENV`,OH_INVALIDATE);
+  if (dbe) {
     /* FIXME: if you do this before closing all dependents,
        this will lead to a crash (error now, segfault later),
        so FINALIZEing DBE with ENV-CLOSE is dangerous !!
        Looks like we will need to cross-link parents and children!! */
-    SYSCALL1((*dbe)->close,(*dbe,0),{*dbe=NULL;});
+    SYSCALL(dbe->close,(dbe,0));
     VALUES1(T);
   } else VALUES1(NIL);
 }
@@ -766,9 +767,9 @@ DEFUN(BDB:DB-CREATE, dbe &key :XA)
 DEFUN(BDB:DB-CLOSE, db &key :NOSYNC)
 { /* Close a database */
   u_int32_t flags = missingp(STACK_0) ? 0 : DB_NOSYNC;
-  DB **db = (DB**)object_handle(STACK_1,`BDB::DB`,OH_ADDRESS);
-  if (*db) {
-    SYSCALL1((*db)->close,(*db,flags),{*db=NULL;});
+  DB *db = object_handle(STACK_1,`BDB::DB`,OH_INVALIDATE);
+  if (db) {
+    SYSCALL(db->close,(db,flags));
     VALUES1(T);
   } else VALUES1(NIL);
   skipSTACK(2);
@@ -1566,9 +1567,9 @@ DEFUN(BDB:MAKE-CURSOR,db &key :DIRTY_READ :WRITECURSOR :TRANSACTION)
 
 DEFUN(BDB:CURSOR-CLOSE, cursor)
 { /* close a cursor */
-  DBC **cursor = (DBC**)object_handle(popSTACK(),`BDB::CURSOR`,OH_ADDRESS);
-  if (*cursor) {
-    SYSCALL1((*cursor)->c_close,(*cursor),{*cursor=NULL;});
+  DBC *cursor = object_handle(popSTACK(),`BDB::CURSOR`,OH_INVALIDATE);
+  if (cursor) {
+    SYSCALL(cursor->c_close,(cursor));
     VALUES1(T);
   } else VALUES1(NIL);
 }
@@ -1674,9 +1675,9 @@ DEFUN(BDB:TXN-BEGIN, dbe &key :PARENT :DIRTY_READ :NOSYNC :NOWAIT :SYNC)
 
 DEFUN(BDB:TXN-ABORT, txn)
 { /* Abort a transaction */
-  DB_TXN **txn = (DB_TXN **)object_handle(popSTACK(),`BDB::TXN`,OH_ADDRESS);
-  if (*txn) {
-    SYSCALL1((*txn)->abort,(*txn),{*txn=NULL;});
+  DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,OH_INVALIDATE);
+  if (txn) {
+    SYSCALL(txn->abort,(txn));
     VALUES1(T);
   } else VALUES1(NIL);
 }
@@ -1685,18 +1686,18 @@ DEFCHECKER(txn_check_sync, DB_TXN_NOSYNC DB_TXN_SYNC)
 DEFUN(BDB:TXN-COMMIT, txn &key :SYNC)
 { /* Commit a transaction */
   u_int32_t flags = txn_check_sync(popSTACK());
-  DB_TXN **txn = (DB_TXN **)object_handle(popSTACK(),`BDB::TXN`,OH_ADDRESS);
-  if (*txn) {
-    SYSCALL1((*txn)->commit,(*txn,flags),{*txn=NULL;});
+  DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,OH_INVALIDATE);
+  if (txn) {
+    SYSCALL(txn->commit,(txn,flags));
     VALUES1(T);
   } else VALUES1(NIL);
 }
 
 DEFUN(BDB:TXN-DISCARD, txn)
 { /* Discard a transaction */
-  DB_TXN **txn = (DB_TXN **)object_handle(popSTACK(),`BDB::TXN`,OH_ADDRESS);
-  if (*txn) {
-    SYSCALL1((*txn)->discard,(*txn,0),{*txn=NULL;});
+  DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,OH_INVALIDATE);
+  if (txn) {
+    SYSCALL(txn->discard,(txn,0));
     VALUES1(T);
   } else VALUES1(NIL);
 }
