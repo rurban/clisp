@@ -2676,7 +2676,11 @@ LISPFUNN(call_with_foreign_string,6)
   if (!posfixnump(STACK_0)) fehler_posfixnum(STACK_0);
   var uintL zeroes = posfixnum_to_L(popSTACK());
   if (!functionp(STACK_4)) fehler_function(STACK_4);
-  if (!encodingp(STACK_3)) fehler_encoding(STACK_3);
+ #ifdef UNICODE
+  STACK_3 = check_encoding(STACK_3,&O(foreign_encoding),false);
+ #else
+  STACK_3 = check_encoding(STACK_3,&O(default_file_encoding),false);
+ #endif
   /* Stack layout: ... string start end. - as needed for test_limits
      the following code inspired by with_string() and substring(): */
   var stringarg arg;

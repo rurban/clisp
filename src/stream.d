@@ -3051,47 +3051,8 @@ local object canon_eltype (const decoded_el_t* decoded) {
 # > arg: argument
 # < result: an encoding
 # can trigger GC
-local object test_external_format_arg (object arg) {
-  if (!boundp(arg) || eq(arg,S(Kdefault)))
-    return O(default_file_encoding);
-  if (encodingp(arg))
-    return arg;
- #ifdef UNICODE
-  if (symbolp(arg) && constantp(TheSymbol(arg))
-      && encodingp(Symbol_value(arg)))
-    return Symbol_value(arg);
-  #ifdef HAVE_GOOD_ICONV
-  if (stringp(arg)) {           /* (make-encoding :charset arg) */
-    pushSTACK(arg);             /* :charset */
-    pushSTACK(unbound);         /* :line-terminator */
-    pushSTACK(unbound);         /* :input-error-action */
-    pushSTACK(unbound);         /* :output-error-action */
-    pushSTACK(unbound);         /* :if-does-not-exist */
-    C_make_encoding();
-    return value1;
-  }
-  #endif
- #else
-  # This is a hack to get away without an error.
-  if (symbolp(arg) && eq(Symbol_package(arg),O(charset_package)))
-    return O(default_file_encoding);
- #endif
-  if (eq(arg,S(Kunix)) || eq(arg,S(Kmac)) || eq(arg,S(Kdos))) {
-    /* (make-encoding :charset default-file-encoding :line-terminator arg) */
-    pushSTACK(O(default_file_encoding)); /* :charset */
-    pushSTACK(arg);             /* :line-terminator */
-    pushSTACK(unbound);         /* :input-error-action */
-    pushSTACK(unbound);         /* :output-error-action */
-    pushSTACK(unbound);         /* :if-does-not-exist */
-    C_make_encoding();
-    return value1;
-  }
-  pushSTACK(arg);                     # TYPE-ERROR slot DATUM
-  pushSTACK(O(type_external_format)); # TYPE-ERROR slot EXPECTED-TYPE
-  pushSTACK(arg); pushSTACK(S(Kexternal_format));
-  pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
-}
+#define test_external_format_arg(arg)                   \
+  check_encoding(arg,&O(default_file_encoding),true)
 
 #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
 
@@ -13882,15 +13843,16 @@ local inline void create_io_pipe (const char* command) {
     memcpy(command_data,command,command_length);
     begin_want_sigcld();
     # build Pipes:
-    if (!( pipe(in_handles) ==0)) {
-      FREE_DYNAMIC_ARRAY(command_data);
-      end_want_sigcld(); OS_error();
-    }
-    if (!( pipe(out_handles) ==0))
-      end_want_sigcld();
+    if (pipe(in_handles))
       OS_error_saving_errno({
-        CLOSE(in_handles[1]); CLOSE(in_handles[0]);
         FREE_DYNAMIC_ARRAY(command_data);
+        end_want_sigcld();
+      });
+    if (pipe(out_handles))
+      OS_error_saving_errno({
+        FREE_DYNAMIC_ARRAY(command_data);
+        end_want_sigcld();
+        CLOSE(in_handles[1]); CLOSE(in_handles[0]);
       });
     # Everything, that is stuffed in handles[1], resurfaces at handles[0]
     # again. We will utilize this as follows:
