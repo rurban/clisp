@@ -1,5 +1,13 @@
 2005-01-30  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (activate_specdecl, specdecled_p): moved here from
+	* control.d: here
+	(specdecled_): global
+	* eval.d (funcall_iclosure): activate SPECDECL bindings together
+	with the variable bindings
+
+2005-01-30  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (SET_BIT, CLR_BIT): moved here from ...
 	* control.d: here
 	* eval.d: use SET_BIT & CLR_BIT
