@@ -1968,8 +1968,13 @@ local inline int parse_options (int argc, const char* const* argv,
       if ((arg[0] == '-') && !(arg[1] == '\0')) {
         switch (arg[1]) {
           case 'h': # help
-            usage();
-            return (arg[2] != 0);
+            if (arg[2] != 0) {
+              INVALID_ARG(arg);
+              return 1;
+            } else {
+              usage();
+              return 0;
+            }
             # returns after a one-character token the rest of the
             # option in arg. poss. space is skipped.
             #define OPTION_ARG                  \
@@ -2238,7 +2243,7 @@ local inline int parse_options (int argc, const char* const* argv,
             if (arg[2] == 0) /* "--" ==> end of options */
               goto done_with_argv;
             else if (asciz_equal(&arg[2],"help")) {
-              INVALID_ARG(arg);
+              usage();
               return 0;
             } else if (asciz_equal(&arg[2],"version")) {
               p2->argv_expr_count = 0;  /* discard previous -x */
