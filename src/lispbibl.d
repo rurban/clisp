@@ -1098,7 +1098,7 @@ typedef signed int  signean;
 # Null pointers
 #ifdef __cplusplus
   #define NULL  0
-#elif !defined(INTEL)
+#elif !(defined(INTEL) || defined(_AIX))
   #define NULL  ((void*) 0L)
 #endif
 

@@ -26,7 +26,9 @@
 #define void
 #endif
 
-typedef int boolean_t;
+/* Boolean type.  */
+/* Not a typedef because AIX <sys/types.h> already defines boolean_t.  */
+#define boolean_t int
 #define TRUE  1
 #define FALSE 0
 
