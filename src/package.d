@@ -2391,8 +2391,8 @@ LISPFUN(pin_package,seclass_default,1,0,norest,key,4,
     if (boundp(STACK_1)) { /* check the case-sensitivity: */
       var bool value = !nullp(STACK_1);
       if (pack_casesensitivep(pack) != value) {
-        pushSTACK(pack);
         pushSTACK(CLSTEXT("One should not change the case sensitiveness of ~S."));
+        pushSTACK(pack);
         funcall(S(warn),2);
       }
       if (value) mark_pack_casesensitive(pack);
@@ -2401,8 +2401,8 @@ LISPFUN(pin_package,seclass_default,1,0,norest,key,4,
     if (boundp(STACK_0)) { /* check the case-inverted: */
       var bool value = !nullp(STACK_0);
       if (pack_caseinvertedp(pack) != value) {
-        pushSTACK(pack);
         pushSTACK(CLSTEXT("One should not change the case inversion of ~S."));
+        pushSTACK(pack);
         funcall(S(warn),2);
       }
       if (value) mark_pack_caseinverted(pack);
