@@ -319,73 +319,64 @@
 (defun ds-make-boa-constructor (descriptor type name names size slotlist)
   (let ((constructorname (first descriptor))
         (arglist (second descriptor)))
-    ;; gather supplied arguments:
-    (let* ((argnames
-             (let ((L nil))
-               (dolist (arg arglist)
-                 (unless (memq arg lambda-list-keywords)
-                   (let ((var (if (listp arg) (first arg) arg)))
-                     (push (if (consp var) (second var) var) L))))
-               (nreverse L)))
-           ;; argnames is the list of all arguments that are already
-           ;; supplied with values in the parameter list.
-           (new-arglist ; new argument list
-            `(;; required args:
-              ,@(do ((arglistr arglist (cdr arglistr))
-                     (arg)
-                     (required-args nil))
-                    ((or (endp arglistr)
-                         (memq (setq arg (car arglistr))
-                               lambda-list-keywords))
-                     (nreverse required-args))
-                    (push arg required-args))
-              ;; optional args:
-              ,@(do ((arglistr (cdr (memq '&optional arglist)) (cdr arglistr))
-                     (arg)
-                     (optionals nil))
-                    ((or (endp arglistr)
-                         (memq (setq arg (car arglistr))
-                               lambda-list-keywords))
-                     (if (null optionals) nil
-                         (cons '&optional (nreverse optionals))))
-                    (push (ds-arg-with-default arg slotlist) optionals))
-              ;; rest arg:
-              ,@(let ((arglistr (memq '&rest arglist)))
-                  (if arglistr `(&rest ,(second arglistr)) '()))
-              ;; key args:
-              ,@(do ((arglistr (cdr (memq '&key arglist)) (cdr arglistr))
-                     (arg)
-                     (keys nil))
-                    ((or (endp arglistr)
-                         (memq (setq arg (car arglistr))
-                               lambda-list-keywords))
-                     (setq keys (nreverse keys))
-                     (if (and (consp arglistr)
-                              (eq (car arglistr) '&allow-other-keys))
-                       (progn (pop arglistr) `(&key ,@keys &allow-other-keys))
-                       (if (null keys) nil `(&key ,@keys))))
-                    (push (ds-arg-with-default arg slotlist) keys))
-              ;; aux args:
-              &aux
-              ,@(do ((aux-args-r (cdr (memq '&aux arglist)) (cdr aux-args-r))
-                     (aux-arg)
-                     (new-aux-args nil))
-                    ((or (null aux-args-r)
-                         (memq (setq aux-arg (car aux-args-r))
-                               lambda-list-keywords))
-                     (nreverse new-aux-args))
-                    (push (ds-arg-with-default aux-arg slotlist) new-aux-args))
-              ,@(let ((slotinitlist nil))
-                  (dolist (slot slotlist)
-                    (when (ds-real-slot-p slot)
-                      (unless (memq (clos::slot-definition-name slot) argnames)
-                        (push (ds-arg-with-default
-                                (clos::slot-definition-name slot) slotlist)
-                              slotinitlist))))
-                  (nreverse slotinitlist)))))
-      `(DEFUN ,constructorname ,new-arglist
-         ,(ds-make-constructor-body type name names size slotlist
-                                    (mapcar #'clos::slot-definition-name slotlist))))))
+    (multiple-value-bind (reqs optvars optinits optsvars rest
+                          keyflag keywords keyvars keyinits keysvars
+                          allow-other-keys auxvars auxinits)
+        (analyze-lambdalist arglist
+          #'(lambda (errorstring &rest arguments)
+              (error (TEXT "~S ~S: In ~S argument list: ~A")
+                     'defstruct name ':constructor
+                     (apply #'format nil errorstring arguments))))
+      (let* ((argnames
+               ; The list of all arguments that are already supplied with
+               ; values through the parameter list.
+               (append reqs optvars (if (not (eql rest 0)) (list rest))
+                       keyvars auxvars))
+             (new-arglist ; new argument list
+               `(;; required args:
+                 ,@reqs
+                 ;; optional args:
+                 ,@(if optvars
+                     (cons '&optional
+                           (mapcar #'(lambda (arg var init svar)
+                                       (declare (ignore var init svar))
+                                       (ds-arg-with-default arg slotlist))
+                                   (cdr (memq '&optional arglist))
+                                   optvars optinits optsvars))
+                     '())
+                 ;; &rest arg:
+                 ,@(if (not (eql rest 0))
+                     (list '&rest rest)
+                     '())
+                 ;; &key args:
+                 ,@(if keyflag
+                     (cons '&key
+                           (append
+                             (mapcar #'(lambda (arg symbol var init svar)
+                                         (declare (ignore symbol var init svar))
+                                         (ds-arg-with-default arg slotlist))
+                                     (cdr (memq '&key arglist))
+                                     keywords keyvars keyinits keysvars)
+                             (if allow-other-keys '(&allow-other-keys) '())))
+                     '())
+                 ;; &aux args:
+                 &aux
+                 ,@(mapcar #'(lambda (arg var init)
+                               (declare (ignore var init))
+                               (ds-arg-with-default arg slotlist))
+                           (cdr (memq '&aux arglist))
+                           auxvars auxinits)
+                 ,@(let ((slotinitlist nil))
+                     (dolist (slot slotlist)
+                       (when (ds-real-slot-p slot)
+                         (unless (memq (clos::slot-definition-name slot) argnames)
+                           (push (ds-arg-with-default
+                                   (clos::slot-definition-name slot) slotlist)
+                                 slotinitlist))))
+                     (nreverse slotinitlist)))))
+        `(DEFUN ,constructorname ,new-arglist
+           ,(ds-make-constructor-body type name names size slotlist
+                                      (mapcar #'clos::slot-definition-name slotlist)))))))
 
 #| (ds-make-keyword-constructor descriptor type name names size slotlist)
    returns the form, that defines the keyword-constructor. |#

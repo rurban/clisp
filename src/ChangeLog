@@ -1,3 +1,20 @@
+2004-06-03  Bruno Haible  <bruno@clisp.org>
+
+	Improved lambda list checking in DEFSTRUCT and DEFMETHOD.
+	* lambdalist.lisp: New file, extracted from compiler.lisp.
+	* init.lisp: Load it.
+	* compiler.lisp (analyze-lambdalist, lambdalist-error): Moved to
+	lambdalist.lisp.
+	(c-analyze-lambdalist): New function.
+	(lambda-list-to-signature, c-LAMBDABODY, c-LABELS, c-FUNCALL-INLINE):
+	Use it instead of analyze-lambdalist.
+	* defstruct.lisp (ds-make-boa-constructor): Use analyze-lambdalist.
+	* clos-method2.lisp (analyze-method-description): Likewise.
+	* clos-methcomb2.lisp (compute-effective-method-function): Update.
+	* clos-package.lisp: Update.
+	* makemake.in (LPARTS): Add lambdalist.
+	* po/Makefile.devel (LISPSOURCES): Add lambdalist.
+
 2004-05-15  Bruno Haible  <bruno@clisp.org>
 
 	* spvw.d (init_symbol_values): Initialize

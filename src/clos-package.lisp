@@ -34,6 +34,7 @@
     sys::function-block-name    ; defined in eval.d
     sys::memq                   ; defined in list.d
     sys::gensym-list            ; defined in macros2.lisp
+    sys::analyze-lambdalist     ; defined in lambdalist.lisp
     sys::make-signature         ; defined in functions.lisp
     sys::sig-req-num sys::sig-opt-num sys::sig-rest-p ; likewise
     sys::sig-keys-p sys::sig-keywords sys::sig-allow-p ; likewise
@@ -50,7 +51,6 @@
     sys::*keyword-package*      ; defined in init.lisp, compiler.lisp
     compiler::%generic-function-lambda ; defined in compiler.lisp
     compiler::%optimize-function-lambda ; defined in compiler.lisp
-    compiler::analyze-lambdalist ; FIXME: shouldn't be used
     ;; clos:generic-flet clos:generic-labels ; treated in compiler.lisp
     ;; Export:
     ;; clos::closclass ; property in predtype.d, type.lisp, compiler.lisp
