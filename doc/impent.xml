@@ -41,6 +41,7 @@
 <!ENTITY count-k "<constant>:COUNT</constant>">
 <!ENTITY current-k "<constant>:CURRENT</constant>">
 <!ENTITY declarations-k "<constant>:DECLARATIONS</constant>">
+<!ENTITY declare-k "<constant>:DECLARE</constant>">
 <!ENTITY default-k "<constant>:DEFAULT</constant>">
 <!ENTITY direct-default-initargs-k "<constant>:DIRECT-DEFAULT-INITARGS</constant>">
 <!ENTITY direct-slots-k "<constant>:DIRECT-SLOTS</constant>">
