@@ -3308,7 +3308,11 @@ if [ $CROSS = false ] ; then
     echol
     echol "uninstall-bin : force"
     echotab "\$(RMRF) \$(DESTDIR)\$(lisplibdir)"
-    echotab "\$(RM) \$(DESTDIR)\$(bindir)/clisp"
+    if [ ${HSYSOS} = cygwin ]; then
+      echotab "\$(RM) \$(DESTDIR)\$(docdir)/Cygwin/clisp-\`cat VERSION\`.README"
+      echotab "\$(RM) \$(DESTDIR)\$(bindir)/clisp.exe"
+    else echotab "\$(RM) \$(DESTDIR)\$(bindir)/clisp"
+    fi
     if [ -n "$USE_GETTEXT" ] ; then
       echotab "cd po && \$(MAKE) uninstall prefix='\$(DESTDIR)\$(prefix)' exec_prefix='\$(DESTDIR)\$(exec_prefix)'"
     fi
