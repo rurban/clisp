@@ -202,10 +202,7 @@
             pushSTACK(O(type_uint32)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
             pushSTACK(obj);
             fehler(type_error,
-                   DEUTSCH ? "Das ist keine 32-Bit-Zahl: ~" :
-                   ENGLISH ? "not a 32-bit integer: ~" :
-                   FRANCAIS ? "Ceci n'est pas un nombre à 32 bits : ~" :
-                   ""
+                   GETTEXT("not a 32-bit integer: ~")
                   );
     }   }
 
@@ -290,10 +287,7 @@
             pushSTACK(O(type_sint32)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
             pushSTACK(obj);
             fehler(type_error,
-                   DEUTSCH ? "Das ist keine 32-Bit-Zahl: ~" :
-                   ENGLISH ? "not a 32-bit integer: ~" :
-                   FRANCAIS ? "Ceci n'est pas un nombre à 32 bits : ~" :
-                   ""
+                   GETTEXT("not a 32-bit integer: ~")
                   );
     }   }
 
@@ -377,10 +371,7 @@
             pushSTACK(O(type_uint64)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
             pushSTACK(obj);
             fehler(type_error,
-                   DEUTSCH ? "Das ist keine 64-Bit-Zahl: ~" :
-                   ENGLISH ? "not a 64-bit integer: ~" :
-                   FRANCAIS ? "Ceci n'est pas un nombre à 64 bits : ~" :
-                   ""
+                   GETTEXT("not a 64-bit integer: ~")
                   );
     }   }
 
@@ -515,10 +506,7 @@
             pushSTACK(O(type_sint64)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
             pushSTACK(obj);
             fehler(type_error,
-                   DEUTSCH ? "Das ist keine 64-Bit-Zahl: ~" :
-                   ENGLISH ? "not a 64-bit integer: ~" :
-                   FRANCAIS ? "Ceci n'est pas un nombre à 64 bits : ~" :
-                   ""
+                   GETTEXT("not a 64-bit integer: ~")
                   );
     }   }
 
@@ -1417,10 +1405,7 @@
   nonreturning_function(local, BN_ueberlauf, (void));
   local void BN_ueberlauf()
     { fehler(arithmetic_error,
-             DEUTSCH ? "Überlauf von Bignums" :
-             ENGLISH ? "bignum overflow" :
-             FRANCAIS ? "Dépassage de capacité des entiers BIGNUM" :
-             ""
+             GETTEXT("bignum overflow")
             );
     }
 

@@ -12,10 +12,7 @@
           pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(position); pushSTACK(size);
           fehler(type_error,
-                 DEUTSCH ? "Die Argumente zu BYTE müssen Fixnums >=0 sein: ~, ~" :
-                 ENGLISH ? "The arguments to BYTE must be fixnums >=0: ~, ~" :
-                 FRANCAIS ? "Les arguments de BYTE doivent être des entiers FIXNUM >=0 : ~, ~" :
-                 ""
+                 GETTEXT("The arguments to BYTE must be fixnums >=0: ~, ~")
                 );
         }
       elif (!(I_fixnump(position) && !R_minusp(position)))
@@ -39,10 +36,7 @@
       pushSTACK(S(byte)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(bad);
       fehler(type_error,
-             DEUTSCH ? "~ ist kein BYTE-Specifier." :
-             ENGLISH ? "~ is not a BYTE specifier" :
-             FRANCAIS ? "~ n'est pas une spécification de BYTE." :
-             ""
+             GETTEXT("~ is not a BYTE specifier")
             );
     }
 

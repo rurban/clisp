@@ -67,9 +67,7 @@
 (defun format-parse-cs (control-string startindex csdl stop-at)
   (declare (fixnum startindex))
   (macrolet ((errorstring ()
-               (DEUTSCH "Kontrollstring endet mitten in einer Direktive."
-                ENGLISH "The control string terminates within a directive."
-                FRANCAIS "La chaîne de contrôle se termine en plein milieu d'une directive.")
+               (ENGLISH "The control string terminates within a directive.")
             ))
     (prog* ((index startindex) ; cs-index des nächsten Zeichens
             ch ; current character
@@ -136,9 +134,7 @@
           )
           (unless intparam
             (format-error control-string index
-                          (DEUTSCH "~A muss eine Zahl einleiten."
-                           ENGLISH "~A must introduce a number."
-                           FRANCAIS "~A doit introduire un nombre.")
+                          (ENGLISH "~A must introduce a number.")
                           ch
           ) )
           (push intparam (csd-parm-list newcsd))
@@ -148,9 +144,7 @@
           (incf index)
           (when (>= index (length control-string))
             (format-error control-string index
-              (DEUTSCH "Kontrollstring endet mitten in einem '-Parameter."
-               ENGLISH "The control string terminates in the middle of a parameter."
-               FRANCAIS "La chaîne de contrôle se termine au milieu d'un paramètre.")
+              (ENGLISH "The control string terminates in the middle of a parameter.")
             )
             (go string-ended)
           )
@@ -230,9 +224,7 @@
             (if directive-name
               (setf (csd-data newcsd) directive-name)
               (format-error control-string index
-                (DEUTSCH "Diese Direktive gibt es nicht."
-                 ENGLISH "Non-existent directive"
-                 FRANCAIS "Directive non reconnue.")
+                (ENGLISH "Non-existent directive")
           ) ) )
           (incf index)
           (case ch
@@ -240,9 +232,7 @@
              (let* ((start index)
                     (end (or (position #\/ control-string :start start)
                              (format-error control-string index
-                               (DEUTSCH "Abschließendes '/' fehlt"
-                                ENGLISH "Closing '/' is missing"
-                                FRANCAIS "'/' fermant manque")
+                               (ENGLISH "Closing '/' is missing")
                     )    )   )
                     (pos (position #\: control-string :start start :end end))
                     (name (string-upcase
@@ -255,9 +245,7 @@
                             (let ((packname (string-upcase (subseq control-string start pos))))
                               (or (find-package packname)
                                   (format-error control-string index
-                                    (DEUTSCH "Eine Package mit Namen ~S gibt es nicht."
-                                     ENGLISH "There is no package with name ~S"
-                                     FRANCAIS "Il n'y a pas de paquetage de nom ~S.")
+                                    (ENGLISH "There is no package with name ~S")
                                     packname )))
                             *common-lisp-user-package* )))
                (push (list (intern name pack)) (csd-parm-list newcsd))
@@ -272,16 +260,12 @@
             (( #\) #\] #\} #\> )
              (unless stop-at
                (format-error control-string index
-                 (DEUTSCH "Schließende Klammer '~A' ohne vorherige öffnende Klammer"
-                  ENGLISH "The closing directive '~A' does not have a corresponding opening one."
-                  FRANCAIS "Parenthèse fermante '~A' sans parenthèse ouvrante correspondante.")
+                 (ENGLISH "The closing directive '~A' does not have a corresponding opening one.")
                  ch
              ) )
              (unless (eql ch stop-at)
                (format-error control-string index
-                 (DEUTSCH "Schließende Klammer '~A' passt nicht; sollte '~A' lauten."
-                  ENGLISH "The closing directive '~A' does not match the corresponding opening one. It should read '~A'."
-                  FRANCAIS "La parenthèse fermante '~A' ne correspond pas à celle ouvrante. Il devrait y avoir '~A'.")
+                 (ENGLISH "The closing directive '~A' does not match the corresponding opening one. It should read '~A'.")
                  ch stop-at
              ) )
              (setf (csd-clause-chain last-separator-csd) csdl)
@@ -290,9 +274,7 @@
             (#\;
              (unless (or (eql stop-at #\]) (eql stop-at #\>))
                (format-error control-string index
-                 (DEUTSCH "Hier ist keine ~~;-Direktive möglich."
-                  ENGLISH "The ~~; directive is not allowed at this point."
-                  FRANCAIS "La directive ~~; n'est pas permise ici.")
+                 (ENGLISH "The ~~; directive is not allowed at this point.")
              ) )
              (setf (csd-clause-chain last-separator-csd) csdl)
              (setq last-separator-csd newcsd)
@@ -302,9 +284,7 @@
              (if (csd-colon-p newcsd)
                (if (csd-atsign-p newcsd)
                  (format-error control-string index
-                   (DEUTSCH "Die ~~Newline-Direktive ist mit : und @ sinnlos."
-                    ENGLISH "The ~~newline directive cannot take both modifiers."
-                    FRANCAIS "La directive ~~Newline est insensée avec les deux qualificateurs : et @.")
+                   (ENGLISH "The ~~newline directive cannot take both modifiers.")
                  )
                  nil ; ~:<newline> -> Newline ignorieren, Whitespace dalassen
                )
@@ -325,9 +305,7 @@
       string-ended
       (when stop-at
         (format-error control-string index
-          (DEUTSCH "Schließende Klammer '~A' fehlt."
-           ENGLISH "An opening directive is never closed; expecting '~A'."
-           FRANCAIS "Il manque la borne fermante '~A'.")
+          (ENGLISH "An opening directive is never closed; expecting '~A'.")
           stop-at
       ) )
 
@@ -352,9 +330,7 @@
     (unless errorpos (setq errorpos (csd-cs-index (car *FORMAT-CSDL*))))
     (setq errorstring
       (string-concat errorstring
-        (DEUTSCH "~%Stelle im Kontrollstring:"
-         ENGLISH "~%Current point in control string:"
-         FRANCAIS "~%Position dans la chaîne de contrôle :")
+        (ENGLISH "~%Current point in control string:")
     ) )
     (let ((pos1 0) (pos2 0))
       (declare (simple-string errorstring) (fixnum pos1 pos2))
@@ -404,18 +380,14 @@
              (format-apply stream control-string arguments)
            )
            (error-of-type 'error
-             (DEUTSCH "String zum Vollschreiben ~S hat keinen Fill-Pointer."
-              ENGLISH "The destination string ~S should have a fill pointer."
-              FRANCAIS "La chaîne destination n'a pas de pointeur de remplissage.")
+             (ENGLISH "The destination string ~S should have a fill pointer.")
              destination
          ) )
          nil
         )
         (t (error-of-type 'type-error
              :datum destination :expected-type '(or boolean stream string)
-             (DEUTSCH "Das ist weder NIL noch T noch ein Stream noch ein String: ~S"
-              ENGLISH "The destination argument ~S is invalid (not NIL or T or a stream or a string)."
-              FRANCAIS "L'argument de destination n'est ni NIL, ni T, ni un «stream» ni une chaîne : ~S")
+             (ENGLISH "The destination argument ~S is invalid (not NIL or T or a stream or a string).")
              destination
         )  )
 ) )
@@ -444,9 +416,7 @@
 (defun format-cs-error (control-string)
   (error-of-type 'type-error
     :datum control-string :expected-type '(or string function)
-    (DEUTSCH "~S: Kontrollstring muss ein String sein, nicht ~S"
-     ENGLISH "~S: The control-string must be a string, not ~S"
-     FRANCAIS "~S : La chaîne de contrôle doit être une chaîne et non ~S")
+    (ENGLISH "~S: The control-string must be a string, not ~S")
     'format control-string
 ) )
 
@@ -457,9 +427,7 @@
 (defun next-arg ()
   (if (atom *FORMAT-NEXT-ARG*)
     (format-error *FORMAT-CS* nil
-      (DEUTSCH "Nicht genügend Argumente für diese Direktive übrig."
-       ENGLISH "There are not enough arguments left for this directive."
-       FRANCAIS "Il ne reste pas assez d'arguments pour cette directive.")
+      (ENGLISH "There are not enough arguments left for this directive.")
     )
     (pop *FORMAT-NEXT-ARG*)
 ) )
@@ -557,9 +525,7 @@
 (defun format-old-roman (arg stream)
   (unless (and (integerp arg) (<= 1 arg 4999))
     (format-error *FORMAT-CS* nil
-      (DEUTSCH "Die ~~:@R-Direktive erwartet ein Integer zwischen 1 und 4999, nicht ~S"
-       ENGLISH "The ~~:@R directive requires an integer in the range 1 - 4999, not ~S"
-       FRANCAIS "La directive ~~:@R requiert un entier compris entre 1 et 4999 et non ~S")
+      (ENGLISH "The ~~:@R directive requires an integer in the range 1 - 4999, not ~S")
       arg
   ) )
   (do ((charlistr  '(#\M  #\D #\C #\L #\X #\V #\I) (cdr charlistr))
@@ -578,9 +544,7 @@
 (defun format-new-roman (arg stream)
   (unless (and (integerp arg) (<= 1 arg 3999))
     (format-error *FORMAT-CS* nil
-      (DEUTSCH "Die ~~@R-Direktive erwartet ein Integer zwischen 1 und 3999, nicht ~S"
-       ENGLISH "The ~~@R directive requires an integer in the range 1 - 3999, not ~S"
-       FRANCAIS "La directive ~~@R requiert un entier compris entre 1 et 3999 et non ~S")
+      (ENGLISH "The ~~@R directive requires an integer in the range 1 - 3999, not ~S")
       arg
   ) )
   (do ((charlistr       '(#\M #\D #\C #\L #\X #\V #\I) (cdr charlistr))
@@ -644,9 +608,7 @@
         ((blocks1000 (illions-list arg) ; Zerlegung in 1000er-Blöcke
            (when (null illions-list)
              (format-error *FORMAT-CS* nil
-               (DEUTSCH "Zu großes Argument für ~~R-Direktive."
-                ENGLISH "The argument for the ~~R directive is too large."
-                FRANCAIS "L'argument pour la directive ~~R est trop grand.")
+               (ENGLISH "The argument for the ~~R directive is too large.")
            ) )
            (multiple-value-bind (thousands small) (truncate arg 1000)
              (when (> thousands 0) (blocks1000 (cdr illions-list) thousands))
@@ -1366,9 +1328,7 @@
           (format-new-roman arg stream)
         )
         (format-error *FORMAT-CS* nil
-          (DEUTSCH "Die ~~R- und ~~:R-Direktiven erwarten ein Integer als Argument, nicht ~S"
-           ENGLISH "The ~~R and ~~:R directives require an integer argument, not ~S"
-           FRANCAIS "Les directives ~~R et ~~:R nécessitent un argument de type entier et non ~S")
+          (ENGLISH "The ~~R and ~~:R directives require an integer argument, not ~S")
           arg
       ) )
       (if colon-modifier
@@ -1390,9 +1350,7 @@
                   (arg)
   (unless (characterp arg)
     (format-error *FORMAT-CS* nil
-      (DEUTSCH "Die ~~C-Direktive erwartet ein Character, nicht ~S"
-       ENGLISH "The ~~C directive requires a character argument, not ~S"
-       FRANCAIS "La directive ~~C requiert un caractère et non ~S")
+      (ENGLISH "The ~~C directive requires a character argument, not ~S")
       arg
   ) )
   (if (not colon-modifier)
@@ -1615,16 +1573,12 @@
 ) ) )
 (defun format-indirection-cserror (csarg)
   (format-error *FORMAT-CS* nil
-    (DEUTSCH "Als Kontrollstring für ~~? ist das untauglich: ~S"
-     ENGLISH "The control string argument for the ~~? directive is invalid: ~S"
-     FRANCAIS "~S ne convient pas comme chaîne de contrôle pour ~~?.")
+    (ENGLISH "The control string argument for the ~~? directive is invalid: ~S")
     csarg
 ) )
 (defun format-indirection-lerror (arguments)
   (format-error *FORMAT-CS* nil
-    (DEUTSCH "Das ist keine passende Argumentliste für die ~~?-Direktive: ~S"
-     ENGLISH "The argument list argument for the ~~? directive is invalid: ~S"
-     FRANCAIS "Ceci n'est pas une liste d'arguments convenable pour la directive ~~? : ~S")
+    (ENGLISH "The argument list argument for the ~~? directive is invalid: ~S")
     arguments
 ) )
 
@@ -1681,16 +1635,12 @@
         (format-interpret stream 'FORMAT-CONDITIONAL-END)
         (unless (null (csd-clause-chain (car *FORMAT-CSDL*)))
           (format-error *FORMAT-CS* nil
-            (DEUTSCH "Hier ist keine ~~;-Direktive möglich."
-             ENGLISH "The ~~; directive is not allowed at this point."
-             FRANCAIS "La directive ~~; n'est pas permise ici.")
+            (ENGLISH "The ~~; directive is not allowed at this point.")
       ) ) )
       (let ((index (or prefix (next-arg))))
         (unless (integerp index)
           (format-error *FORMAT-CS* nil
-            (DEUTSCH "Argument für ~~[ muss ein Integer sein, nicht ~S"
-             ENGLISH "The ~~[ parameter must be an integer, not ~S"
-             FRANCAIS "L'argument pour ~~[ doit être un entier et non ~S")
+            (ENGLISH "The ~~[ parameter must be an integer, not ~S")
             index
         ) )
         (dotimes (i (if (minusp index) most-positive-fixnum index))
@@ -1709,9 +1659,7 @@
 )
 (defun format-conditional-error ()
   (format-error *FORMAT-CS* nil
-    (DEUTSCH "~~[ geht nicht mit : und @ gleichzeitig."
-     ENGLISH "The ~~[ directive cannot take both modifiers."
-     FRANCAIS "La directive ~~[ ne peut pas accepter les deux qualificateurs : et @ en même temps.")
+    (ENGLISH "The ~~[ directive cannot take both modifiers.")
 ) )
 
 ; ~{, CLTL S.403-404, CLtL2 S. 602-604
@@ -1737,9 +1685,7 @@
                             (let ((arg (next-arg)))
                               (unless (listp arg)
                                 (format-error *FORMAT-CS* nil
-                                  (DEUTSCH "Das Argument zu ~~{ muss eine Liste sein, nicht ~S"
-                                   ENGLISH "The ~~{ directive requires a list argument, not ~S"
-                                   FRANCAIS "L'argument de ~~{ doit être une liste et non ~S")
+                                  (ENGLISH "The ~~{ directive requires a list argument, not ~S")
                                   arg
                               ) )
                               arg
@@ -2227,9 +2173,7 @@
                  (labels ((simple-arglist (n)
                             (unless (<= (length arglist) n)
                               (format-error *format-cs* nil
-                                (DEUTSCH "Zu viele Argumente für diese Direktive."
-                                 ENGLISH "Too many arguments for this directive"
-                                 FRANCAIS "Trop d'arguments pour cette directive.")
+                                (ENGLISH "Too many arguments for this directive")
                             ) )
                             (setq arglist
                                   (append arglist
@@ -2495,9 +2439,7 @@
                              )
                              (unless (null (csd-clause-chain (car *format-csdl*)))
                                (format-error *format-cs* nil
-                                 (DEUTSCH "Hier ist keine ~~;-Direktive möglich."
-                                  ENGLISH "The ~~; directive is not allowed at this point."
-                                  FRANCAIS "La directive ~~; n'est pas permise ici.")
+                                 (ENGLISH "The ~~; directive is not allowed at this point.")
                            ) ) )
                            (progn
                              (simple-arglist 1)
@@ -2770,9 +2712,7 @@
   (unless (stringp control-string)
     (error-of-type 'type-error
       :datum control-string :expected-type 'string
-      (DEUTSCH "Kontrollstring muss ein String sein, nicht ~S"
-       ENGLISH "The control-string must be a string, not ~S"
-       FRANCAIS "La chaîne de contrôle doit être une chaîne et non ~S")
+      (ENGLISH "The control-string must be a string, not ~S")
       control-string
   ) )
   ; evtl. noch control-string zu einem Simple-String machen ??

@@ -355,10 +355,7 @@
         pushSTACK(unbound); # "Wert" für Slot PACKAGE von PACKAGE-ERROR
         pushSTACK(sym);
         fehler(package_error,
-               DEUTSCH ? "Symbol ~ kann nicht aus der Symboltabelle entfernt werden." :
-               ENGLISH ? "symbol ~ cannot be deleted from symbol table" :
-               FRANCAIS ? "Le symbole ~ ne peux pas être retiré de la table des symboles." :
-               ""
+               GETTEXT("symbol ~ cannot be deleted from symbol table")
               );
     }
 
@@ -729,10 +726,7 @@
           # Widerspruch zur Konsistenzregel 5.
           pushSTACK(*sym_); pushSTACK(pack);
           fehler(serious_condition,
-                 DEUTSCH ? "Inkonsistenz in ~ : Symbol ~ ist zwar unter SHADOWING-SYMBOLS vorhanden, aber nicht präsent." :
-                 ENGLISH ? "~ inconsistent: symbol ~ is a shadowing symbol but not present" :
-                 FRANCAIS ? "Inconsistence dans ~ : Le symbole ~ est énuméré parmi les SHADOWING-SYMBOLS mais n'est pas présent." :
-                 ""
+                 GETTEXT("~ inconsistent: symbol ~ is a shadowing symbol but not present")
                 );
         }
         else
@@ -1194,10 +1188,7 @@
             { pushSTACK(pack); # Wert für Slot PACKAGE von PACKAGE-ERROR
               pushSTACK(pack);
               fehler(package_error,
-                     DEUTSCH ? "UNEXPORT ist in ~ nicht zulässig." :
-                     ENGLISH ? "UNEXPORT in ~ is illegal" :
-                     FRANCAIS ? "UNEXPORT n'est pas permis dans ~." :
-                     ""
+                     GETTEXT("UNEXPORT in ~ is illegal")
                     );
             }
           set_break_sem_2();
@@ -1221,10 +1212,7 @@
           { pushSTACK(pack); # Wert für Slot PACKAGE von PACKAGE-ERROR
             pushSTACK(pack); pushSTACK(sym);
             fehler(package_error,
-                   DEUTSCH ? "UNEXPORT ist nur auf accessiblen Symbolen möglich, nicht auf Symbol ~ in ~." :
-                   ENGLISH ? "UNEXPORT works only on accessible symbols, not on ~ in ~" :
-                   FRANCAIS ? "UNEXPORT n'est possible que pour des symboles accessibles mais pas pour le symbole ~ dans ~." :
-                   ""
+                   GETTEXT("UNEXPORT works only on accessible symbols, not on ~ in ~")
                   );
           }
           found: # gefunden unter den nicht-externen accessiblen Symbolen
@@ -1826,10 +1814,7 @@ local void use_package_aux(data,sym)
           pushSTACK(S(package)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(newpack); pushSTACK(pack);
           fehler(type_error,
-                 DEUTSCH ? "Der Wert von *PACKAGE* war keine Package. Alter Wert: ~. Neuer Wert: ~." :
-                 ENGLISH ? "The value of *PACKAGE* was not a package. Old value ~. New value ~." :
-                 FRANCAIS ? "La valeur de *PACKAGE* n'était pas un paquetage. Ancienne valeur : ~. Nouvelle valeur : ~." :
-                 ""
+                 GETTEXT("The value of *PACKAGE* was not a package. Old value ~. New value ~.")
                 );
     }   }
 
@@ -1848,10 +1833,7 @@ local void use_package_aux(data,sym)
           pushSTACK(obj); # Wert für Slot PACKAGE von PACKAGE-ERROR
           pushSTACK(obj);
           fehler(package_error,
-                 DEUTSCH ? "Package ~ wurde gelöscht." :
-                 ENGLISH ? "Package ~ has been deleted." :
-                 FRANCAIS ? "Le paquetage ~ a été éliminé." :
-                 ""
+                 GETTEXT("Package ~ has been deleted.")
                 );
         }
       if (stringp(obj))
@@ -1861,10 +1843,7 @@ local void use_package_aux(data,sym)
           pushSTACK(obj); # Wert für Slot PACKAGE von PACKAGE-ERROR
           pushSTACK(obj);
           fehler(package_error,
-                 DEUTSCH ? "Eine Package mit Namen ~ gibt es nicht." :
-                 ENGLISH ? "There is no package with name ~" :
-                 FRANCAIS ? "Il n'y a pas de paquetage de nom ~." :
-                 ""
+                 GETTEXT("There is no package with name ~")
                 );
         }
       if (symbolp(obj)) # Symbol ->
@@ -1873,10 +1852,7 @@ local void use_package_aux(data,sym)
       pushSTACK(O(type_packname)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "Argument zu ~ muss eine Package oder ein Packagename sein, nicht ~" :
-             ENGLISH ? "~: argument should be a package or a package name, not ~" :
-             FRANCAIS ? "L'argument de ~ doit être un paquetage ou un nom de paquetage et non ~." :
-             ""
+             GETTEXT("~: argument should be a package or a package name, not ~")
             );
     }
 
@@ -1887,10 +1863,7 @@ LISPFUNN(make_symbol,1) # (MAKE-SYMBOL printname), CLTL S. 168
         pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Argument muss ein String sein, nicht ~." :
-               ENGLISH ? "~: argument should be a string, not ~" :
-               FRANCAIS ? "~ : L'argument doit être une chaîne et non ~." :
-               ""
+               GETTEXT("~: argument should be a string, not ~")
               );
       }
     # Simple-String draus machen und Symbol bauen:
@@ -1910,10 +1883,7 @@ LISPFUNN(make_symbol,1) # (MAKE-SYMBOL printname), CLTL S. 168
       pushSTACK(O(type_stringsym)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument muss ein String oder Symbol sein, nicht ~." :
-             ENGLISH ? "~: argument ~ should be a string or a symbol" :
-             FRANCAIS ? "~ : L'argument doit être un symbole ou une chaîne et non ~." :
-             ""
+             GETTEXT("~: argument ~ should be a string or a symbol")
             );
     }
 
@@ -2011,10 +1981,7 @@ LISPFUN(rename_package,2,1,norest,nokey,0,NIL)
               pushSTACK(pack); # Wert für Slot PACKAGE von PACKAGE-ERROR
               pushSTACK(name); pushSTACK(TheSubr(subr_self)->name);
               fehler(package_error,
-                     DEUTSCH ? "~: Eine Package mit dem Namen ~ gibt es schon." :
-                     ENGLISH ? "~: there is already a package named ~" :
-                     FRANCAIS ? "~ : Il y a déjà un paquetage de nom ~." :
-                     ""
+                     GETTEXT("~: there is already a package named ~")
                     );
             }
           # Keine oder nur die gegebene Package hat den Namen name ->
@@ -2135,10 +2102,7 @@ LISPFUN(unintern,1,1,norest,nokey,0,NIL)
         pushSTACK(S(symbol)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(STACK_(1+2)); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Argument ~ ist kein Symbol." :
-               ENGLISH ? "~: argument ~ is not a symbol" :
-               FRANCAIS ? "~ : L'argument ~ n'est pas un symbole." :
-               ""
+               GETTEXT("~: argument ~ is not a symbol")
               );
       }
     # Package überprüfen:
@@ -2187,10 +2151,7 @@ LISPFUN(unintern,1,1,norest,nokey,0,NIL)
         not_ok:
           pushSTACK(STACK_1); pushSTACK(TheSubr(subr_self)->name);
           fehler(error,
-                 DEUTSCH ? "Argument zu ~ muss ein Symbol oder eine Symbolliste sein, nicht ~" :
-                 ENGLISH ? "~: argument should be a symbol or a list of symbols, not ~" :
-                 FRANCAIS ? "~ : L'argument de ~ doit être un symbole ou une liste de symboles et non ~." :
-                 ""
+                 GETTEXT("~: argument should be a symbol or a list of symbols, not ~")
                 );
         ok: ;
       }
@@ -2402,10 +2363,7 @@ LISPFUN(pin_package,1,0,norest,key,3, (kw(nicknames),kw(use),kw(case_sensitive))
               { pushSTACK(pack); # Wert für Slot PACKAGE von PACKAGE-ERROR
                 pushSTACK(pack);
                 fehler(package_error,
-                       DEUTSCH ? "Kann Groß-/Kleinschreibung von ~ nicht verändern." :
-                       ENGLISH ? "Cannot change the case sensitiveness of ~." :
-                       FRANCAIS ? "On ne peut pas changer la distinction majuscules/minuscules de ~." :
-                       ""
+                       GETTEXT("Cannot change the case sensitiveness of ~.")
                       );
           }   }
         # Die Nicknames anpassen:

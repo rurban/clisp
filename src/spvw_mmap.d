@@ -61,10 +61,7 @@
     { if (!(vm_allocate(task_self(), (vm_address_t*) &map_addr, map_len, FALSE)
             == KERN_SUCCESS
          ) )
-        { asciz_out_1(DEUTSCH ? "Kann keinen Speicher an Adresse 0x%x legen." :
-                      ENGLISH ? "Cannot map memory to address 0x%x ." :
-                      FRANCAIS ? "Ne peux pas placer de la mémoire à l'adresse 0x%x ." :
-                      "",
+        { asciz_out_1(GETTEXT("Cannot map memory to address 0x%x ."),
                       map_addr
                      );
           asciz_out(NLstring);
@@ -173,10 +170,7 @@
               addr += info.RegionSize;
             }}
           if (largest_len < 0x10000)
-            { asciz_out_1(DEUTSCH ? "Kann Adressbereich ab 0x%x nicht reservieren." :
-                          ENGLISH ? "Cannot reserve address range at 0x%x ." :
-                          FRANCAIS ? "Ne peux pas réserver les adresses à partir de 0x%x ." :
-                          "",
+            { asciz_out_1(GETTEXT("Cannot reserve address range at 0x%x ."),
                           *map_addr
                          );
               # DumpProcessMemoryMap();
@@ -187,10 +181,7 @@
         }
       if (!VirtualAlloc((void*)start_addr,end_addr-start_addr,MEM_RESERVE,PAGE_NOACCESS/*dummy*/))
         { var DWORD errcode = GetLastError();
-          asciz_out_2(DEUTSCH ? "Kann Adressbereich 0x%x-0x%x nicht reservieren." :
-                      ENGLISH ? "Cannot reserve address range 0x%x-0x%x ." :
-                      FRANCAIS ? "Ne peux pas réserver les adresses 0x%x-0x%x ." :
-                      "",
+          asciz_out_2(GETTEXT("Cannot reserve address range 0x%x-0x%x ."),
                       start_addr,end_addr-1
                      );
           errno_out(errcode);
@@ -209,10 +200,7 @@
     var uintL map_len;
     { if (!VirtualAlloc(map_addr,map_len,MEM_COMMIT,PAGE_READWRITE))
         { var DWORD errcode = GetLastError();
-          asciz_out_1(DEUTSCH ? "Kann keinen Speicher an Adresse 0x%x legen." :
-                      ENGLISH ? "Cannot map memory to address 0x%x ." :
-                      FRANCAIS ? "Ne peux pas placer de la mémoire à l'adresse 0x%x ." :
-                      "",
+          asciz_out_1(GETTEXT("Cannot map memory to address 0x%x ."),
                       map_addr
                      );
           errno_out(errcode);
@@ -243,31 +231,21 @@
       { var HANDLE maphandle = CreateFileMapping(fd,NULL,PAGE_WRITECOPY,0,0,NULL);
         if (maphandle == NULL)
           { var DWORD errcode = GetLastError();
-            asciz_out(DEUTSCH ? "CreateFileMapping() scheiterte." :
-                      ENGLISH ? "CreateFileMapping() failed." :
-                      FRANCAIS ? "CreateFileMapping() a échoué." :
-                      ""
-                     );
+            asciz_out(GETTEXT("CreateFileMapping() failed."));
             errno_out(errcode);
             return (void*)(-1);
           }
        {var void* resultaddr = MapViewOfFileEx(maphandle,FILE_MAP_COPY,0,(DWORD)offset,map_len,map_addr);
         if (resultaddr == NULL)
           { var DWORD errcode = GetLastError();
-            asciz_out_2(DEUTSCH ? "MapViewOfFileEx(addr=0x%x,off=0x%x) scheiterte." :
-                        ENGLISH ? "MapViewOfFileEx(addr=0x%x,off=0x%x) failed." :
-                        FRANCAIS ? "MapViewOfFileEx(addr=0x%x,off=0x%x) a échoué." :
-                        "",
+            asciz_out_2(GETTEXT("MapViewOfFileEx(addr=0x%x,off=0x%x) failed."),
                         map_addr,offset
                        );
             errno_out(errcode);
             return (void*)(-1);
           }
         if (!(resultaddr == map_addr))
-          { asciz_out_2(DEUTSCH ? "MapViewOfFileEx() lieferte 0x%x statt 0x%x." NLstring :
-                        ENGLISH ? "MapViewOfFileEx() returned 0x%x instead of 0x%x." NLstring :
-                        FRANCAIS ? "MapViewOfFileEx() rend 0x%x au lieu de 0x%x." NLstring :
-                        "",
+          { asciz_out_2(GETTEXT("MapViewOfFileEx() returned 0x%x instead of 0x%x." NLstring),
                         resultaddr, map_addr
                        );
             UnmapViewOfFile(resultaddr);
@@ -283,11 +261,7 @@
     var MMAP_SIZE_T len;
     { if (!VirtualFree(addr,len,MEM_DECOMMIT))
         { var DWORD errcode = GetLastError();
-          asciz_out(DEUTSCH ? "VirtualFree() scheiterte." :
-                    ENGLISH ? "VirtualFree() failed." :
-                    FRANCAIS ? "VirtualFree() a échoué." :
-                    ""
-                   );
+          asciz_out(GETTEXT("VirtualFree() failed."));
           errno_out(errcode);
           return -1;
         }
@@ -302,11 +276,7 @@
     { var DWORD oldprot;
       if (!VirtualProtect(addr,len,prot,&oldprot))
         { var DWORD errcode = GetLastError();
-          asciz_out(DEUTSCH ? "VirtualProtect() scheiterte." :
-                    ENGLISH ? "VirtualProtect() failed." :
-                    FRANCAIS ? "VirtualProtect() a échoué." :
-                    ""
-                   );
+          asciz_out(GETTEXT("VirtualProtect() failed."));
           errno_out(errcode);
           return -1;
         }
@@ -372,11 +342,7 @@
       #ifdef HAVE_MMAP_DEVZERO
       { var int fd = OPEN("/dev/zero",O_RDONLY,my_open_mask);
         if (fd<0)
-          { asciz_out(DEUTSCH ? "Kann /dev/zero nicht öffnen." :
-                      ENGLISH ? "Cannot open /dev/zero ." :
-                      FRANCAIS ? "Ne peux pas ouvrir /dev/zero ." :
-                      ""
-                     );
+          { asciz_out(GETTEXT("Cannot open /dev/zero ."));
             errno_out(errno);
             return -1; # error
           }
@@ -400,10 +366,7 @@
                        )
            == (void*)(-1)
          )
-        { asciz_out_1(DEUTSCH ? "Kann keinen Speicher an Adresse 0x%x legen." :
-                      ENGLISH ? "Cannot map memory to address 0x%x ." :
-                      FRANCAIS ? "Ne peux pas placer de la mémoire à l'adresse 0x%x ." :
-                      "",
+        { asciz_out_1(GETTEXT("Cannot map memory to address 0x%x ."),
                       map_addr
                      );
           errno_out(errno);

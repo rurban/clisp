@@ -387,10 +387,7 @@
           pushSTACK(x);
           pushSTACK(S(isqrt));
           fehler(type_error,
-                 DEUTSCH ? "~ auf negative Zahl ~ angewandt" :
-                 ENGLISH ? "~ applied to negative number ~" :
-                 FRANCAIS ? "~ appliqué au nombre négatif ~" :
-                 ""
+                 GETTEXT("~ applied to negative number ~")
                 );
         }
       { SAVE_NUM_STACK # num_stack retten

@@ -16,9 +16,7 @@
     (if file
       (progn
         (if dribble-file
-          (warn (DEUTSCH "Es wird bereits auf ~S protokolliert."
-                 ENGLISH "Already dribbling to ~S"
-                 FRANCAIS "Le protocole est déjà écrit sur ~S.")
+          (warn (ENGLISH "Already dribbling to ~S")
                 dribble-file
           )
           ;; Dribbling means to redirect all screen output to the file.
@@ -104,7 +102,5 @@
             (close *dribble-stream*)
             (setq *dribble-stream* (make-broadcast-stream))
         ) )
-        (warn (DEUTSCH "Es wird zur Zeit nicht protokolliert."
-               ENGLISH "Currently not dribbling."
-               FRANCAIS "Aucun protocole n'est couramment écrit.")
-) ) ) ) )
+        (warn (ENGLISH "Currently not dribbling."))
+) ) ) )

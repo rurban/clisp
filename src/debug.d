@@ -684,10 +684,7 @@ local const kletterfun frame_down_table[] =
           pushSTACK(arg);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: Ungültiger Frame-Kletter-Modus ~" :
-                 ENGLISH ? "~: bad frame climbing mode ~" :
-                 FRANCAIS ? "~: Mauvais mode de saut d'environnement ~." :
-                 ""
+                 GETTEXT("~: bad frame climbing mode ~")
                 );
         }
       return table[mode-1];
@@ -706,10 +703,7 @@ local const kletterfun frame_down_table[] =
         { pushSTACK(arg);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(error,
-                 DEUTSCH ? "~: ~ ist kein Stackpointer." :
-                 ENGLISH ? "~: ~ is not a stack pointer" :
-                 FRANCAIS ? "~: ~ n'est pas un pointeur de pile." :
-                 ""
+                 GETTEXT("~: ~ is not a stack pointer")
                 );
         }
       return uTheFramepointer(arg);
@@ -887,10 +881,7 @@ LISPFUNN(driver_frame_p,1)
     { pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(error,
-             DEUTSCH ? "~: ~ ist kein Pointer auf einen EVAL/APPLY-Frame." :
-             ENGLISH ? "~: ~ is not a pointer to an EVAL/APPLY frame" :
-             FRANCAIS ? "~: ~ n'est pas une pointeur vers un environnement EVAL/APPLY." :
-             ""
+             GETTEXT("~: ~ is not a pointer to an EVAL/APPLY frame")
             );
     }
 
@@ -1141,10 +1132,7 @@ LISPFUNN(return_from_eval_frame,2)
                          if (atomp(env))
                            { pushSTACK(S(show_stack));
                              fehler(error,
-                                    DEUTSCH ? "~: Environment ist keine Aliste" :
-                                    ENGLISH ? "~: environment is not an alist" :
-                                    FRANCAIS ? "~: L'environnement n'est pas une liste d'association." :
-                                    ""
+                                    GETTEXT("~: environment is not an alist")
                                    );
                            }
                          pushSTACK(Cdr(env));
@@ -1237,10 +1225,7 @@ LISPFUNN(return_from_eval_frame,2)
               default:
                 pushSTACK(S(show_stack));
                 fehler(serious_condition,
-                       DEUTSCH ? "~: Unbekannter Frame-Typ" :
-                       ENGLISH ? "~: unknown frame type" :
-                       FRANCAIS ? "~: Type d'environnement inconnu." :
-                       ""
+                       GETTEXT("~: unknown frame type")
                       );
             }
           return FRAME_top; # Pointer übern Frame

@@ -163,18 +163,14 @@
   (unless (symbolp symbol)
     (error-of-type 'type-error
       :datum symbol :expected-type 'symbol
-      (DEUTSCH "~S: Argument ~S ist kein Symbol."
-       ENGLISH "~S: argument ~S is not a symbol"
-       FRANCAIS "~S : L'argument ~S n'est pas un symbole.")
+      (ENGLISH "~S: argument ~S is not a symbol")
       'find-class symbol
   ) )
   (let ((class (get symbol 'CLOSCLASS)))
     (if (not (class-p class))
       (if errorp
         (error-of-type 'error
-          (DEUTSCH "~S: ~S benennt keine Klasse."
-           ENGLISH "~S: ~S does not name a class"
-           FRANCAIS "~S : ~S n'est pas le nom d'une classe.")
+          (ENGLISH "~S: ~S does not name a class")
           'find-class symbol
         )
         nil
@@ -188,35 +184,25 @@
   (unless (symbolp symbol)
     (error-of-type 'type-error
       :datum symbol :expected-type 'symbol
-      (DEUTSCH "~S: Argument ~S ist kein Symbol."
-       ENGLISH "~S: argument ~S is not a symbol"
-       FRANCAIS "~S : L'argument ~S n'est pas un symbole.")
+      (ENGLISH "~S: argument ~S is not a symbol")
       '(setf find-class) symbol
   ) )
   (unless (class-p new-value)
     (error-of-type 'type-error
       :datum new-value :expected-type 'class
-      (DEUTSCH "~S: ~S ist keine Klasse."
-       ENGLISH "~S: ~S is not a class"
-       FRANCAIS "~S : ~S n'est pas une classe.")
+      (ENGLISH "~S: ~S is not a class")
       '(setf find-class) new-value
   ) )
   (let ((h (get symbol 'CLOSCLASS)))
     (when (class-p h)
       (when (and (built-in-class-p h) (eq (class-name h) symbol)) ; auch Structure-Klassen schützen??
         (error-of-type 'error
-          (DEUTSCH "~S: Built-In-Klasse ~S kann nicht umdefiniert werden."
-           ENGLISH "~S: cannot redefine built-in class ~S"
-           FRANCAIS "~S : La classe prédéfinie ~S ne peut être redéfinie.")
+          (ENGLISH "~S: cannot redefine built-in class ~S")
           '(setf find-class) h
       ) )
       (when (sys::exported-lisp-symbol-p symbol)
-        (cerror (DEUTSCH "Die alte Definition wird weggeworfen."
-                 ENGLISH "The old definition will be lost"
-                 FRANCAIS "L'ancienne définition sera perdue.")
-                (DEUTSCH "~S: Die COMMON-LISP-Klasse ~S wird umdefiniert."
-                 ENGLISH "~S: Redefining the COMMON LISP class ~S"
-                 FRANCAIS "~S : La classe ~S de COMMON-LISP va être redéfinie.")
+        (cerror (ENGLISH "The old definition will be lost")
+                (ENGLISH "~S: Redefining the COMMON LISP class ~S")
                 '(setf find-class) symbol
       ) )
       ; Sollte man (setf (class-name h) nil) machen??
@@ -371,9 +357,7 @@
 (defun no-slot-error (class object slot-name)
   (declare (ignore slot-name))
   (error-of-type 'error
-    (DEUTSCH "Instanz ~S der Klasse ~S hat keine Slots (falsche Metaklasse)"
-     ENGLISH "instance ~S of class ~S has no slots (wrong metaclass)"
-     FRANCAIS "L'objet ~S appartenant à la classe ~S n'a pas de composants (mauvaise classe méta)")
+    (ENGLISH "instance ~S of class ~S has no slots (wrong metaclass)")
     object class
 ) )
 |#
@@ -394,9 +378,7 @@
         (slots '()))
     (unless (listp slot-entries)
       (error-of-type 'sys::source-program-error
-        (DEUTSCH "~S: Das ist keine Liste von Slots: ~S"
-         ENGLISH "~S: not a list of slots: ~S"
-         FRANCAIS "~S : Pas une liste de composants: ~S")
+        (ENGLISH "~S: not a list of slots: ~S")
         'with-slots slot-entries
     ) )
     (dolist (slot slot-entries)
@@ -404,25 +386,19 @@
         (when (consp slot)
           (unless (eql (length slot) 2)
             (error-of-type 'sys::source-program-error
-              (DEUTSCH "~S: unzulässige Slot/Variablen-Bezeichnung ~S"
-               ENGLISH "~S: invalid slot and variable specification ~S"
-               FRANCAIS "~S : spécification invalide de composant et variable: ~S")
+              (ENGLISH "~S: invalid slot and variable specification ~S")
               'with-slots slot
           ) )
           (setq var (first slot) slot (second slot))
           (unless (symbolp var)
             (error-of-type 'sys::source-program-error
-              (DEUTSCH "~S: Variable ~S sollte ein Symbol sein."
-               ENGLISH "~S: variable ~S should be a symbol"
-               FRANCAIS "~S : La variable ~S devrait être un symbole.")
+              (ENGLISH "~S: variable ~S should be a symbol")
               'with-slots var
           ) )
         )
         (unless (symbolp slot)
           (error-of-type 'sys::source-program-error
-            (DEUTSCH "~S: Slot-Name ~S sollte ein Symbol sein."
-             ENGLISH "~S: slot name ~S should be a symbol"
-             FRANCAIS "~S : Le nom de composant ~S devrait être un symbole.")
+            (ENGLISH "~S: slot name ~S should be a symbol")
             'with-slots slot
         ) )
         (push var vars)
@@ -447,31 +423,23 @@
 (defmacro with-accessors (slot-entries instance-form &body body &environment env)
   (unless (listp slot-entries)
     (error-of-type 'sys::source-program-error
-      (DEUTSCH "~S: Das ist keine Liste von Slots: ~S"
-       ENGLISH "~S: not a list of slots: ~S"
-       FRANCAIS "~S : Pas une liste de composants: ~S")
+      (ENGLISH "~S: not a list of slots: ~S")
       'with-accessors slot-entries
   ) )
   (dolist (slot-entry slot-entries)
     (unless (and (consp slot-entry) (eql (length slot-entry) 2))
       (error-of-type 'sys::source-program-error
-        (DEUTSCH "~S: unzulässige Slot/Accessor-Bezeichnung ~S"
-         ENGLISH "~S: invalid slot and accessor specification ~S"
-         FRANCAIS "~S : spécification invalide de composant et accesseur: ~S")
+        (ENGLISH "~S: invalid slot and accessor specification ~S")
         'with-accessors slot-entry
     ) )
     (unless (symbolp (first slot-entry))
       (error-of-type 'sys::source-program-error
-        (DEUTSCH "~S: Variable ~S sollte ein Symbol sein."
-         ENGLISH "~S: variable ~S should be a symbol"
-         FRANCAIS "~S : La variable ~S devrait être un symbole.")
+        (ENGLISH "~S: variable ~S should be a symbol")
         'with-accessors (first slot-entry)
     ) )
     (unless (symbolp (second slot-entry))
       (error-of-type 'sys::source-program-error
-        (DEUTSCH "~S: Accessor-Name ~S sollte ein Symbol sein."
-         ENGLISH "~S: accessor name ~S should be a symbol"
-         FRANCAIS "~S : Le nom d'accesseur ~S devrait être un symbole.")
+        (ENGLISH "~S: accessor name ~S should be a symbol")
         'with-accessors (second slot-entry)
     ) )
   )
@@ -562,26 +530,20 @@
 (defmacro defclass (name superclass-specs slot-specs &rest options)
   (unless (symbolp name)
     (error-of-type 'sys::source-program-error
-      (DEUTSCH "~S: Klassenname muss ein Symbol sein, nicht ~S"
-       ENGLISH "~S: class name ~S should be a symbol"
-       FRANCAIS "~S : Le nom de classe ~S devrait être un symbole.")
+      (ENGLISH "~S: class name ~S should be a symbol")
       'defclass name
   ) )
   (let* ((superclass-forms
            (progn
              (unless (listp superclass-specs)
                (error-of-type 'sys::source-program-error
-                 (DEUTSCH "~S ~S: Superklassen-Liste erwartet statt ~S"
-                  ENGLISH "~S ~S: expecting list of superclasses instead of ~S"
-                  FRANCAIS "~S ~S : on s'attend à une liste de classes supérieures au lieu de ~S")
+                 (ENGLISH "~S ~S: expecting list of superclasses instead of ~S")
                  'defclass name superclass-specs
              ) )
              (mapcar #'(lambda (superclass)
                          (unless (symbolp superclass)
                            (error-of-type 'sys::source-program-error
-                             (DEUTSCH "~S ~S: Oberklassenname muss ein Symbol sein, nicht ~S"
-                              ENGLISH "~S ~S: superclass name ~S should be a symbol"
-                              FRANCAIS "~S ~S : Le nom d'une classe supérieure doit être un symbole et non ~S")
+                             (ENGLISH "~S ~S: superclass name ~S should be a symbol")
                              'defclass name superclass
                          ) )
                          `(FIND-CLASS ',superclass)
@@ -593,9 +555,7 @@
            (let ((slot-names '()))
              (unless (listp slot-specs)
                (error-of-type 'sys::source-program-error
-                 (DEUTSCH "~S ~S: Slotspezifikationen-Liste erwartet statt ~S"
-                  ENGLISH "~S ~S: expecting list of slot specifications instead of ~S"
-                  FRANCAIS "~S ~S : on s'attend à une liste de spécifications de composants au lieu de ~S")
+                 (ENGLISH "~S ~S: expecting list of slot specifications instead of ~S")
                  'defclass name slot-specs
              ) )
              (mapcar #'(lambda (slot-spec)
@@ -605,16 +565,12 @@
                            )
                            (unless (symbolp slot-name)
                              (error-of-type 'sys::source-program-error
-                               (DEUTSCH "~S ~S: Slotname muss ein Symbol sein, nicht ~S"
-                                ENGLISH "~S ~S: slot name ~S should be a symbol"
-                                FRANCAIS "~S ~S : Le nom de composant ~S doit être un symbole et non ~S")
+                               (ENGLISH "~S ~S: slot name ~S should be a symbol")
                                'defclass name slot-name
                            ) )
                            (if (member slot-name slot-names :test #'eq)
                              (error-of-type 'sys::source-program-error
-                               (DEUTSCH "~S ~S: Es kann nicht mehrere direkte Slots mit demselben Namen ~S geben."
-                                ENGLISH "~S ~S: There may be only one direct slot with the name ~S."
-                                FRANCAIS "~S ~S : Il ne peut pas y avoir plusieurs composants directs avec le même nom ~S.")
+                               (ENGLISH "~S ~S: There may be only one direct slot with the name ~S.")
                                'defclass name slot-name
                              )
                              (push slot-name slot-names)
@@ -629,9 +585,7 @@
                                  (documentation nil))
                              (when (oddp (length slot-options))
                                (error-of-type 'sys::source-program-error
-                                 (DEUTSCH "~S ~S: Slot-Optionen zu Slot ~S sind nicht paarig."
-                                  ENGLISH "~S ~S: slot options for slot ~S don't come in pairs"
-                                  FRANCAIS "~S ~S : Les options pour le composant ~S ne viennent pas deux à deux.")
+                                 (ENGLISH "~S ~S: slot options for slot ~S don't come in pairs")
                                  'defclass name slot-name
                              ) )
                              (do ((optionsr slot-options (cddr optionsr)))
@@ -642,9 +596,7 @@
                                    ((:READER :WRITER)
                                     (unless (function-name-p argument)
                                       (error-of-type 'sys::source-program-error
-                                        (DEUTSCH "~S ~S, Slot-Option zu Slot ~S: ~S ist kein Funktionsname."
-                                         ENGLISH "~S ~S, slot option for slot ~S: ~S is not a function name"
-                                         FRANCAIS "~S ~S, option pour composant ~S : ~S n'est pas le nom d'une fonction.")
+                                        (ENGLISH "~S ~S, slot option for slot ~S: ~S is not a function name")
                                         'defclass name slot-name argument
                                     ) )
                                     (case optionkey
@@ -654,9 +606,7 @@
                                    (:ACCESSOR
                                     (unless (symbolp argument)
                                       (error-of-type 'sys::source-program-error
-                                        (DEUTSCH "~S ~S, Slot-Option zu Slot ~S: ~S ist kein Symbol."
-                                         ENGLISH "~S ~S, slot option for slot ~S: ~S is not a symbol"
-                                         FRANCAIS "~S ~S, option pour composant ~S : ~S n'est pas un symbole.")
+                                        (ENGLISH "~S ~S, slot option for slot ~S: ~S is not a symbol")
                                         'defclass name slot-name argument
                                     ) )
                                     (push argument accessors)
@@ -666,25 +616,19 @@
                                    (:ALLOCATION
                                     (when allocation
                                       (error-of-type 'sys::source-program-error
-                                        (DEUTSCH "~S ~S, Slot-Option ~S zu Slot ~S darf nur einmal angegeben werden."
-                                         ENGLISH "~S ~S, slot option ~S for slot ~S may only be given once"
-                                         FRANCAIS "~S ~S, l'option ~S pour le composant ~S ne peut être spécifiée qu'une seule fois.")
+                                        (ENGLISH "~S ~S, slot option ~S for slot ~S may only be given once")
                                         'defclass name ':allocation slot-name
                                     ) )
                                     (case argument
                                       ((:INSTANCE :CLASS) (setq allocation argument))
                                       (t (error-of-type 'sys::source-program-error
-                                           (DEUTSCH "~S ~S, Slot-Option zu Slot ~S muss den Wert ~S oder ~S haben, nicht ~S"
-                                            ENGLISH "~S ~S, slot option for slot ~S must have the value ~S or ~S, not ~S"
-                                            FRANCAIS "~S ~S, l'option ~S pour le composant ~S doit avoir la valeur ~S ou ~S et non ~S")
+                                           (ENGLISH "~S ~S, slot option for slot ~S must have the value ~S or ~S, not ~S")
                                            'defclass name slot-name ':instance ':class argument
                                    )) )  )
                                    (:INITARG
                                     (unless (symbolp argument)
                                       (error-of-type 'sys::source-program-error
-                                        (DEUTSCH "~S ~S, Slot-Option zu Slot ~S: ~S ist kein Symbol."
-                                         ENGLISH "~S ~S, slot option for slot ~S: ~S is not a symbol"
-                                         FRANCAIS "~S ~S, option pour composant ~S : ~S n'est pas un symbole.")
+                                        (ENGLISH "~S ~S, slot option for slot ~S: ~S is not a symbol")
                                         'defclass name slot-name argument
                                     ) )
                                     (push argument initargs)
@@ -692,9 +636,7 @@
                                    (:INITFORM
                                     (when initform
                                       (error-of-type 'sys::source-program-error
-                                        (DEUTSCH "~S ~S, Slot-Option ~S zu Slot ~S darf nur einmal angegeben werden."
-                                         ENGLISH "~S ~S, slot option ~S for slot ~S may only be given once"
-                                         FRANCAIS "~S ~S, l'option ~S pour le composant ~S ne peut être spécifiée qu'une seule fois.")
+                                        (ENGLISH "~S ~S, slot option ~S for slot ~S may only be given once")
                                         'defclass name ':initform slot-name
                                     ) )
                                     (setq initform `(QUOTE ,argument)
@@ -703,9 +645,7 @@
                                    (:TYPE
                                     (when types
                                       (error-of-type 'sys::source-program-error
-                                        (DEUTSCH "~S ~S, Slot-Option ~S zu Slot ~S darf nur einmal angegeben werden."
-                                         ENGLISH "~S ~S, slot option ~S for slot ~S may only be given once"
-                                         FRANCAIS "~S ~S, l'option ~S pour le composant ~S ne peut être spécifiée qu'une seule fois.")
+                                        (ENGLISH "~S ~S, slot option ~S for slot ~S may only be given once")
                                         'defclass name ':type slot-name
                                     ) )
                                     (setq types (list argument))
@@ -713,25 +653,19 @@
                                    (:DOCUMENTATION
                                     (when documentation
                                       (error-of-type 'sys::source-program-error
-                                        (DEUTSCH "~S ~S, Slot-Option ~S zu Slot ~S darf nur einmal angegeben werden."
-                                         ENGLISH "~S ~S, slot option ~S for slot ~S may only be given once"
-                                         FRANCAIS "~S ~S, l'option ~S pour le composant ~S ne peut être spécifiée qu'une seule fois.")
+                                        (ENGLISH "~S ~S, slot option ~S for slot ~S may only be given once")
                                         'defclass name ':documentation slot-name
                                     ) )
                                     (unless (stringp argument)
                                       (error-of-type 'sys::source-program-error
-                                        (DEUTSCH "~S ~S, Slot-Option zu Slot ~S: ~S ist kein String."
-                                         ENGLISH "~S ~S, slot option for slot ~S: ~S is not a string"
-                                         FRANCAIS "~S ~S, option pour composant ~S : ~S n'est pas une chaîne.")
+                                        (ENGLISH "~S ~S, slot option for slot ~S: ~S is not a string")
                                         'defclass name slot-name argument
                                     ) )
                                     (setq documentation argument)
                                    )
                                    (t
                                      (error-of-type 'sys::source-program-error
-                                       (DEUTSCH "~S ~S, Slot-Option zu Slot ~S: ~S ist keine gültige Slot-Option."
-                                        ENGLISH "~S ~S, slot option for slot ~S: ~S is not a valid slot option"
-                                        FRANCAIS "~S ~S, option pour composant ~S : ~S n'est pas une option valable.")
+                                       (ENGLISH "~S ~S, slot option for slot ~S: ~S is not a valid slot option")
                                        'defclass name slot-name optionkey
                                    ) )
                              ) ) )
@@ -782,9 +716,7 @@
                                (:DOCUMENTATION documentation)
                              )
                          (error-of-type 'sys::source-program-error
-                           (DEUTSCH "~S ~S, Option ~S darf nur einmal angegeben werden."
-                            ENGLISH "~S ~S, option ~S may only be given once"
-                            FRANCAIS "~S ~S, l'option ~S ne peut être spécifiée qu'une seule fois.")
+                           (ENGLISH "~S ~S, option ~S may only be given once")
                            'defclass name optionkey
                        ) )
                        (case optionkey
@@ -793,9 +725,7 @@
                             (let ((argument (second option)))
                               (unless (symbolp argument)
                                 (error-of-type 'sys::source-program-error
-                                  (DEUTSCH "~S ~S, Option ~S: ~S ist kein Symbol."
-                                   ENGLISH "~S ~S, option ~S: ~S is not a symbol"
-                                   FRANCAIS "~S ~S, option ~S : ~S n'est pas un symbole.")
+                                  (ENGLISH "~S ~S, option ~S: ~S is not a symbol")
                                   'defclass name option argument
                               ) )
                               (setq metaclass `(:METACLASS (FIND-CLASS ',argument)))
@@ -806,16 +736,12 @@
                           (let ((list (rest option)))
                             (when (and (consp list) (null (cdr list)) (listp (car list)))
                               (setq list (car list))
-                              (warn (DEUTSCH "~S ~S: Option ~S sollte als ~S geschrieben werden."
-                                     ENGLISH "~S ~S: option ~S should be written ~S"
-                                     FRANCAIS "~S ~S : L'option ~S devrait être écrite ~S.")
+                              (warn (ENGLISH "~S ~S: option ~S should be written ~S")
                                     'defclass name option (cons ':DEFAULT-INITARGS list)
                             ) )
                             (when (oddp (length list))
                               (error-of-type 'sys::source-program-error
-                                (DEUTSCH "~S ~S, Option ~S: Argumente sind nicht paarig."
-                                 ENGLISH "~S ~S, option ~S: arguments don't come in pairs"
-                                 FRANCAIS "~S ~S, option ~S : Les arguments ne viennent pas deux à deux.")
+                                (ENGLISH "~S ~S, option ~S: arguments don't come in pairs")
                                 'defclass name option
                             ) )
                             (setq direct-default-initargs
@@ -826,16 +752,12 @@
                                              ((atom list))
                                            (unless (symbolp (first list))
                                              (error-of-type 'sys::source-program-error
-                                               (DEUTSCH "~S ~S, Option ~S: ~S ist kein Symbol."
-                                                ENGLISH "~S ~S, option ~S: ~S is not a symbol"
-                                                FRANCAIS "~S ~S, option ~S : ~S n'est pas un symbole.")
+                                               (ENGLISH "~S ~S, option ~S: ~S is not a symbol")
                                                'defclass name option (first list)
                                            ) )
                                            (when (member (first list) arglist)
                                              (error-of-type 'sys::source-program-error
-                                               (DEUTSCH "~S ~S, Option ~S: ~S darf nur einmal angegeben werden."
-                                                ENGLISH "~S ~S, option ~S: ~S may only be given once"
-                                                FRANCAIS "~S ~S, option ~S : ~S ne peut être spécifié qu'une seule fois.")
+                                               (ENGLISH "~S ~S, option ~S: ~S may only be given once")
                                                'defclass name option (first list)
                                            ) )
                                            (push (first list) arglist)
@@ -855,9 +777,7 @@
                             (let ((argument (second option)))
                               (unless (stringp argument)
                                 (error-of-type 'sys::source-program-error
-                                  (DEUTSCH "~S ~S, Option ~S: ~S ist kein String."
-                                   ENGLISH "~S ~S, option ~S: ~S is not a string"
-                                   FRANCAIS "~S ~S, option ~S : ~S n'est pas une chaîne.")
+                                  (ENGLISH "~S ~S, option ~S: ~S is not a string")
                                   'defclass name option argument
                               ) )
                               (setq documentation `(:DOCUMENTATION ',argument))
@@ -866,9 +786,7 @@
                          ))
                    ) ) )
                    (error-of-type 'sys::source-program-error
-                     (DEUTSCH "~S ~S: Ungültige Option ~S"
-                      ENGLISH "~S ~S: invalid option ~S"
-                      FRANCAIS "~S ~S : option invalide ~S")
+                     (ENGLISH "~S ~S: invalid option ~S")
                      'defclass name option
                ) ) )
                `(,@metaclass ,@direct-default-initargs ,@documentation)
@@ -975,9 +893,7 @@
           (return-from ensure-class class)
         )
         (progn
-          (warn (DEUTSCH "~S: Klasse ~S wird umdefiniert, Instanzen sind veraltet."
-                 ENGLISH "~S: Class ~S is being redefined, instances are obsolete"
-                 FRANCAIS "~S : La classe ~S est redéfinie, les instances sont obsolètes.")
+          (warn (ENGLISH "~S: Class ~S is being redefined, instances are obsolete")
                 'defclass name
           )
           ; Durch alle Symbole durchlaufen, um die Unterklassen abzugrasen.
@@ -1059,9 +975,7 @@
   ; metaclass <= <standard-class>
   (unless (every #'standard-class-p direct-superclasses)
     (error-of-type 'error
-      (DEUTSCH "~S ~S: Oberklasse ~S sollte zur Klasse STANDARD-CLASS gehören."
-       ENGLISH "~S ~S: superclass ~S should belong to class STANDARD-CLASS"
-       FRANCAIS "~S ~S : La classe supérieure ~S n'appartient pas à la classe STANDARD-CLASS.")
+      (ENGLISH "~S ~S: superclass ~S should belong to class STANDARD-CLASS")
       'defclass name (find-if-not #'standard-class-p direct-superclasses)
   ) )
   (setf (class-direct-superclasses class) (copy-list direct-superclasses))
@@ -1231,9 +1145,7 @@
         ) )
         (when (null M)
           (error-of-type 'error
-            (DEUTSCH "~S ~S: Inkonsistenter Präzedenz-Graph, Zyklus ~S"
-             ENGLISH "~S ~S: inconsistent precedence graph, cycle ~S"
-             FRANCAIS "~S ~S : graphe de précédences contradictoire, cycle ~S")
+            (ENGLISH "~S ~S: inconsistent precedence graph, cycle ~S")
             'defclass (class-classname class)
             ; Zyklus finden: mit Hilfe der Restriktionen zu immer
             ; kleineren Elementen voranschreiten.
@@ -1272,9 +1184,7 @@
                     ((null DL) t)
                   (when (null (setq CL (member (car DL) CL))) (return nil))
                 )
-                (warn (DEUTSCH "(class-precedence-list ~S) und (class-precedence-list ~S) sind nicht verträglich."
-                       ENGLISH "(class-precedence-list ~S) and (class-precedence-list ~S) are inconsistent"
-                       FRANCAIS "(class-precedence-list ~S) et (class-precedence-list ~S) sont contradictoires.")
+                (warn (ENGLISH "(class-precedence-list ~S) and (class-precedence-list ~S) are inconsistent")
                       class D
             ) ) )
           direct-superclasses
@@ -1430,9 +1340,7 @@
   ; metaclass = <built-in-class>
   (unless (every #'built-in-class-p direct-superclasses)
     (error-of-type 'error
-      (DEUTSCH "~S: Oberklasse ~S sollte zur Klasse BUILT-IN-CLASS gehören."
-       ENGLISH "~S: superclass ~S should belong to class BUILT-IN-CLASS"
-       FRANCAIS "~S : La classe supérieure ~S n'appartient pas à la classe BUILT-IN-CLASS.")
+      (ENGLISH "~S: superclass ~S should belong to class BUILT-IN-CLASS")
       name (find-if-not #'built-in-class-p direct-superclasses)
   ) )
   (let ((class (make-built-in-class :classname name :metaclass metaclass)))
@@ -1474,16 +1382,12 @@
   ; metaclass <= <structure-class>
   (unless (null (cdr direct-superclasses))
     (error-of-type 'error
-      (DEUTSCH "~S: Metaklasse STRUCTURE-CLASS lässt nur eine direkte Oberklasse zu."
-       ENGLISH "~S: metaclass STRUCTURE-CLASS forbids more than one direct superclass"
-       FRANCAIS "~S : La classe méta STRUCTURE-CLASS ne permet qu'une seule classe supérieure.")
+      (ENGLISH "~S: metaclass STRUCTURE-CLASS forbids more than one direct superclass")
       name
   ) )
   (unless (every #'structure-class-p direct-superclasses)
     (error-of-type 'error
-      (DEUTSCH "~S: Oberklasse ~S sollte zur Klasse STRUCTURE-CLASS gehören."
-       ENGLISH "~S: superclass ~S should belong to class STRUCTURE-CLASS"
-       FRANCAIS "~S : La classe supérieure ~S n'appartient pas à la classe STRUCTURE-CLASS.")
+      (ENGLISH "~S: superclass ~S should belong to class STRUCTURE-CLASS")
       name (first direct-superclasses)
   ) )
   (setf (class-direct-superclasses class) (copy-list direct-superclasses))
@@ -1523,9 +1427,7 @@
            (shared-index (std-layout-slots class more-slots)))
       (when (plusp shared-index)
         (error-of-type 'error
-          (DEUTSCH "~S: Metaklasse STRUCTURE-CLASS lässt nur keine Shared Slots zu."
-           ENGLISH "~S: metaclass STRUCTURE-CLASS does not support shared slots"
-           FRANCAIS "~S : La classe méta STRUCTURE-CLASS ne supporte pas les slots partagés.")
+          (ENGLISH "~S: metaclass STRUCTURE-CLASS does not support shared slots")
           name
       ) )
       (setf (class-slots class) (append (class-slots class) more-slots))
@@ -1798,9 +1700,7 @@
     (loop
       (when (atom description)
         (error-of-type 'sys::source-program-error
-          (DEUTSCH "~S ~S: Lambdaliste fehlt."
-           ENGLISH "~S ~S: missing lambda list"
-           FRANCAIS "~S ~S : la lambda-liste manque.")
+          (ENGLISH "~S ~S: missing lambda list")
           caller funname
       ) )
       (when (listp (car description)) (return))
@@ -1812,9 +1712,7 @@
           ((equal qualifiers '(:after)))
           ((equal qualifiers '(:around)))
           (t (error-of-type 'sys::source-program-error
-               (DEUTSCH "Bei STANDARD Methodenkombination dürfen die Methodenbestimmer nicht ~S lauten."
-                ENGLISH "STANDARD method combination doesn't allow the method qualifiers to be ~S"
-                FRANCAIS "La combinaison STANDARD de méthodes ne permet pas de qualifier des méthodes comme ~S.")
+               (ENGLISH "STANDARD method combination doesn't allow the method qualifiers to be ~S")
                (nreverse qualifiers)
     )     )  )
     ; Lambdaliste bilden, Parameter-Specializer und Signatur extrahieren:
@@ -1967,16 +1865,12 @@
                            (MACROLET
                              ((CALL-NEXT-METHOD ()
                                 (ERROR-OF-TYPE 'PROGRAM-ERROR
-                                  (DEUTSCH "~S ~S: ~S ist in ~S-Methoden nicht erlaubt."
-                                   ENGLISH "~S ~S: ~S is invalid within ~S methods"
-                                   FRANCAIS "~S ~S : ~S n'est pas permit dans des méthodes ~S.")
+                                  (ENGLISH "~S ~S: ~S is invalid within ~S methods")
                                   ',caller ',funname 'CALL-NEXT-METHOD ',(first qualifiers)
                               ) )
                               (NEXT-METHOD-P ()
                                 (ERROR-OF-TYPE 'PROGRAM-ERROR
-                                  (DEUTSCH "~S ~S: ~S ist in ~S-Methoden nicht erlaubt."
-                                   ENGLISH "~S ~S: ~S is invalid within ~S methods"
-                                   FRANCAIS "~S ~S : ~S n'est pas permit dans des méthodes ~S.")
+                                  (ENGLISH "~S ~S: ~S is invalid within ~S methods")
                                   ',caller ',funname 'NEXT-METHOD-P ',(first qualifiers)
                              )) )
                              ,@lambdabody-part2
@@ -2226,9 +2120,7 @@
         (methods (gf-methods gf)))
     (unless (>= (length args) reqanz)
       (error-of-type 'program-error
-        (DEUTSCH "Zu wenig Argumente für ~S: ~S"
-         ENGLISH "Too few arguments to ~S: ~S"
-         FRANCAIS "Trop peu d'arguments pour ~S : ~S")
+        (ENGLISH "Too few arguments to ~S: ~S")
         gf args
     ) )
     (let ((req-args (subseq args 0 reqanz)))
@@ -2356,9 +2248,7 @@
                (not (member (sys::%record-ref gf 0)
                             *dynamically-modifiable-generic-function-names*
                             :test #'eq)))
-      (warn (DEUTSCH "Die generische Funktion ~S wird modifiziert, wurde aber bereits aufgerufen."
-             ENGLISH "The generic function ~S is being modified, but has already been called."
-             FRANCAIS "On change la fonction générique ~S qui a déjà été appelée.")
+      (warn (ENGLISH "The generic function ~S is being modified, but has already been called.")
             gf
   ) ) )
 )
@@ -2921,9 +2811,7 @@
     (if (eq original-em new-em)
       (apply next-methods new-args)
       (error-of-type 'error
-        (DEUTSCH "~S in ~S: die neuen Argumente ~S haben eine andere effektive Methode als die alten Argumente ~S"
-         ENGLISH "~S in ~S: the new arguments ~S have a different effective method than the old arguments ~S"
-         FRANCAIS "~S dans ~S : les nouveaux arguments ~S ont une méthode effective différentes des anciens arguments ~S")
+        (ENGLISH "~S in ~S: the new arguments ~S have a different effective method than the old arguments ~S")
         'call-next-method gf new-args original-args
 ) ) ) )
 
@@ -2945,30 +2833,22 @@
         (m-sign (std-method-signature method))) ; (reqanz optanz restp keyp keywords allowp)
     (unless (= (first m-sign) (first gf-sign))
       (error-of-type 'error
-        (DEUTSCH "~S hat ~S, ~S hat aber ~S Required-Parameter."
-         ENGLISH "~S has ~S, but ~S has ~S required parameters"
-         FRANCAIS "~S reçoit ~S arguments obligatoires, mais ~S en reçoit ~S.")
+        (ENGLISH "~S has ~S, but ~S has ~S required parameters")
         method (first m-sign) gf (first gf-sign)
     ) )
     (unless (= (second m-sign) (second gf-sign))
       (error-of-type 'error
-        (DEUTSCH "~S hat ~S, ~S hat aber ~S optionale Parameter."
-         ENGLISH "~S has ~S, but ~S has ~S optional parameters"
-         FRANCAIS "~S reçoit ~S arguments facultatifs, mais ~S en reçoit ~S.")
+        (ENGLISH "~S has ~S, but ~S has ~S optional parameters")
         method (second m-sign) gf (second gf-sign)
     ) )
     (when (and (third m-sign) (not (third gf-sign)))
       (error-of-type 'error
-        (DEUTSCH "~S hat &REST oder &KEY, ~S jedoch nicht."
-         ENGLISH "~S has &REST or &KEY, but ~S hasn't."
-         FRANCAIS "~S spécifie &REST ou &KEY, mais ~S pas.")
+        (ENGLISH "~S has &REST or &KEY, but ~S hasn't.")
         method gf
     ) )
     (when (and (third gf-sign) (not (third m-sign)))
       (error-of-type 'error
-        (DEUTSCH "~S hat &REST oder &KEY, ~S jedoch nicht."
-         ENGLISH "~S has &REST or &KEY, but ~S hasn't."
-         FRANCAIS "~S spécifie &REST ou &KEY, mais ~S pas.")
+        (ENGLISH "~S has &REST or &KEY, but ~S hasn't.")
         gf method
     ) )
     (when (fourth gf-sign) ; gf hat Keywords?
@@ -2980,9 +2860,7 @@
                 (third m-sign) ; Methode muss &rest haben!
               )
         (error-of-type 'error
-          (DEUTSCH "~S akzeptiert die Keywords ~S von ~S nicht."
-           ENGLISH "~S doesn't accept the keywords ~S of ~S"
-           FRANCAIS "~S n'accepte pas les mots clé ~S de ~S.")
+          (ENGLISH "~S doesn't accept the keywords ~S of ~S")
           method (fourth gf-sign) gf
     ) ) )
   )
@@ -3011,9 +2889,7 @@
                 (if old-method
                   (progn
                     (when *gf-warn-on-replacing-method*
-                      (warn (DEUTSCH "Methode ~S in ~S wird ersetzt."
-                             ENGLISH "Replacing method ~S in ~S"
-                             FRANCAIS "On remplace la méthode ~S dans ~S.")
+                      (warn (ENGLISH "Replacing method ~S in ~S")
                             old-method gf
                     ) )
                     (remove old-method (gf-methods gf))
@@ -3031,9 +2907,7 @@
                           :key #'std-method-initfunction)))
     (when old-method
       (warn-if-gf-already-called gf)
-      (warn (DEUTSCH "Methode ~S in ~S wird entfernt."
-             ENGLISH "Removing method ~S in ~S"
-             FRANCAIS "On retire la méthode ~S de ~S.")
+      (warn (ENGLISH "Removing method ~S in ~S")
             old-method gf
       )
       (cond ((eq gf |#'initialize-instance|) (note-ii-change method))
@@ -3060,9 +2934,7 @@
   ) )
   (if errorp
     (error-of-type 'error
-      (DEUTSCH "~S hat keine Methode mit Bestimmern ~:S und Spezialierung ~S."
-       ENGLISH "~S has no method with qualifiers ~:S and specializers ~S"
-       FRANCAIS "~S n'a pas de méthode qualifiée ~:S qui est spécialisée sur ~S.")
+      (ENGLISH "~S has no method with qualifiers ~:S and specializers ~S")
       gf qualifiers specializers
     )
     nil
@@ -3074,9 +2946,7 @@
 (defmacro defmethod (funname &rest method-description &environment env)
   (unless (function-name-p funname)
     (error-of-type 'sys::source-program-error
-      (DEUTSCH "~S: Der Name einer Funktion muss ein Symbol sein, nicht: ~S"
-       ENGLISH "~S: the name of a function must be a symbol, not ~S"
-       FRANCAIS "~S : Le nom d'une fonction doit être un symbole et non ~S")
+      (ENGLISH "~S: the name of a function must be a symbol, not ~S")
       'defmethod funname
   ) )
   `(LET ()
@@ -3093,9 +2963,7 @@
         (if (clos::generic-function-p gf)
           gf
           (error-of-type 'error
-            (DEUTSCH "~S bezeichnet keine generische Funktion."
-             ENGLISH "~S doesn't name a generic function"
-             FRANCAIS "~S n'est pas le nom d'une fonction générique.")
+            (ENGLISH "~S doesn't name a generic function")
             funname
       ) ) )
       (setf (fdefinition funname)
@@ -3135,9 +3003,7 @@
 (defun analyze-defgeneric (caller funname lambdalist options env)
   (unless (function-name-p funname)
     (error-of-type 'sys::source-program-error
-      (DEUTSCH "~S: Der Name einer Funktion muss ein Symbol sein, nicht: ~S"
-       ENGLISH "~S: the name of a function must be a symbol, not ~S"
-       FRANCAIS "~S : Le nom d'une fonction doit être un symbole et non ~S")
+      (ENGLISH "~S: the name of a function must be a symbol, not ~S")
       caller funname lambdalist
   ) )
   ; Lambdaliste parsen:
@@ -3150,9 +3016,7 @@
       (dolist (option options)
         (unless (listp option)
           (error-of-type 'sys::source-program-error
-            (DEUTSCH "~S ~S: Das ist keine ~S-Option: ~S"
-             ENGLISH "~S ~S: not a ~S option: ~S"
-             FRANCAIS "~S ~S : Ceci n'est pas une option ~S: ~S")
+            (ENGLISH "~S ~S: not a ~S option: ~S")
             caller funname 'defgeneric option
         ) )
         (case (first option)
@@ -3161,9 +3025,7 @@
                        #'(lambda (x) (and (consp x) (eq (first x) 'OPTIMIZE)))
                        (rest option)
                     )
-              (warn (DEUTSCH "~S ~S: Erlaubt sind nur ~S-Deklarationen: ~S"
-                     ENGLISH "~S ~S: Only ~S declarations are permitted: ~S"
-                     FRANCAIS "~S ~S : Seules les déclarations ~S sont permises: ~S")
+              (warn (ENGLISH "~S ~S: Only ~S declarations are permitted: ~S")
                     caller funname 'optimize option
             ) )
             ; Die Deklaration wird ignoriert.
@@ -3172,9 +3034,7 @@
           (:ARGUMENT-PRECEDENCE-ORDER
             (when argorders
               (error-of-type 'sys::source-program-error
-                (DEUTSCH "~S ~S: ~S darf nur einmal angegeben werden."
-                 ENGLISH "~S ~S: ~S may only be specified once."
-                 FRANCAIS "~S ~S : ~S ne peut être spécifié qu'une seule fois.")
+                (ENGLISH "~S ~S: ~S may only be specified once.")
                 caller funname ':argument-precedence-order
             ) )
             (setq argorders option)
@@ -3182,16 +3042,12 @@
           (:DOCUMENTATION
             (unless (and (eql (length option) 2) (stringp (second option)))
               (error-of-type 'sys::source-program-error
-                (DEUTSCH "~S ~S: Nach ~S muss ein String angegeben werden: ~S"
-                 ENGLISH "~S ~S: A string must be specified after ~S : ~S"
-                 FRANCAIS "~S ~S : Il faut une chaîne après ~S : ~S")
+                (ENGLISH "~S ~S: A string must be specified after ~S : ~S")
                 caller funname ':documentation option
             ) )
             (when docstrings
               (error-of-type 'sys::source-program-error
-                (DEUTSCH "~S ~S: Es ist höchstens ein ~S-String erlaubt."
-                 ENGLISH "~S ~S: Only one ~S string is allowed"
-                 FRANCAIS "~S ~S : Il faut qu'une seule chaîne ~S.")
+                (ENGLISH "~S ~S: Only one ~S string is allowed")
                 caller funname ':documentation
             ) )
             (setq docstrings (rest option))
@@ -3199,9 +3055,7 @@
           (:METHOD-COMBINATION
             (unless (equal (rest option) '(STANDARD))
               (error-of-type 'sys::source-program-error
-                (DEUTSCH "~S ~S: Als Methodenkombination ist nur ~S zugelassen: ~S"
-                 ENGLISH "~S ~S: The only valid method combination is ~S : ~S"
-                 FRANCAIS "~S ~S : La seule combinaison de méthodes valable est ~S : ~S")
+                (ENGLISH "~S ~S: The only valid method combination is ~S : ~S")
                 caller funname 'standard option
             ) )
             ; Die Methodenkombination wird ignoriert.
@@ -3209,9 +3063,7 @@
           (:GENERIC-FUNCTION-CLASS
             (unless (equal (rest option) '(STANDARD-GENERIC-FUNCTION))
               (error-of-type 'sys::source-program-error
-                (DEUTSCH "~S ~S: Als Name der Klasse der generischen Funktion ist nur ~S zugelassen: ~S"
-                 ENGLISH "~S ~S: The only valid generic function class name is ~S : ~S"
-                 FRANCAIS "~S ~S : Le seul nom valable d'une classe de fonction générique est ~S : ~S")
+                (ENGLISH "~S ~S: The only valid generic function class name is ~S : ~S")
                 caller funname 'standard-generic-function option
             ) )
             ; Die Klasse der generischen Funktion wird ignoriert.
@@ -3219,9 +3071,7 @@
           (:METHOD-CLASS
             (unless (equal (rest option) '(STANDARD-METHOD))
               (error-of-type 'sys::source-program-error
-                (DEUTSCH "~S ~S: Als Name der Klasse der Methoden ist nur ~S zugelassen: ~S"
-                 ENGLISH "~S ~S: The only valid method class name is ~S : ~S"
-                 FRANCAIS "~S ~S : Le seul nom valable d'une classe de méthodes est ~S : ~S")
+                (ENGLISH "~S ~S: The only valid method class name is ~S : ~S")
                 caller funname 'standard-method option
             ) )
             ; Die Klasse der Methoden wird ignoriert.
@@ -3231,9 +3081,7 @@
                   method-forms
           ) )
           (t (error-of-type 'sys::source-program-error
-               (DEUTSCH "~S ~S: Falsche Syntax in ~S-Option: ~S"
-                ENGLISH "~S ~S: invalid syntax in ~S option: ~S"
-                FRANCAIS "~S ~S : Mauvaise syntaxe dans l'option ~S: ~S")
+               (ENGLISH "~S ~S: invalid syntax in ~S option: ~S")
                caller funname 'defstruct option
       ) ) )  )
       ; :argument-precedence-order überprüfen:
@@ -3242,9 +3090,7 @@
                 (let ((l (mapcar #'(lambda (x)
                                      (or (position x req-vars)
                                          (error-of-type 'sys::source-program-error
-                                           (DEUTSCH "~S ~S: ~S ist keiner der notwendigen Parameter: ~S"
-                                            ENGLISH "~S ~S: ~S is not one of the required parameters: ~S"
-                                            FRANCAIS "~S ~S : ~S n'est pas parmi les noms d'arguments obligatoires: ~S")
+                                           (ENGLISH "~S ~S: ~S is not one of the required parameters: ~S")
                                            caller funname x argorders
                                    ) )   )
                                  (rest argorders)
@@ -3256,16 +3102,12 @@
                   ; bijektiv?
                   (unless (apply #'/= l) ; injektiv?
                     (error-of-type 'sys::source-program-error
-                      (DEUTSCH "~S ~S: eine Variable taucht in ~S doppelt auf."
-                       ENGLISH "~S ~S: some variable occurs twice in ~S"
-                       FRANCAIS "~S ~S : une variable apparaît plusieurs fois dans ~S.")
+                      (ENGLISH "~S ~S: some variable occurs twice in ~S")
                       caller funname argorders
                   ) )
                   (unless (eql (length l) reqanz) ; surjektiv?
                     (error-of-type 'sys::source-program-error
-                      (DEUTSCH "~S ~S: ~S enthält nicht alle notwendigen Parameter."
-                       ENGLISH "~S ~S: ~S is missing some required parameter"
-                       FRANCAIS "~S ~S : ~S ne contient pas tous les noms d'arguments obligatoires.")
+                      (ENGLISH "~S ~S: ~S is missing some required parameter")
                       caller funname argorders
                   ) )
                   l
@@ -3294,24 +3136,18 @@
         (allowp nil))
     (when (some #'(lambda (item) (and (consp item) (cdr item))) lambdalist)
       (error-of-type 'sys::source-program-error
-        (DEUTSCH "~S ~S: In der Lambda-Liste einer generischen Funktion sind keine Initialisierungen erlaubt: ~S"
-         ENGLISH "~S ~S: No initializations are allowed in a generic function lambda-list: ~S"
-         FRANCAIS "~S ~S : Des initialisations ne sont pas permises dans la lambda-liste d'une fonction générique: ~S")
+        (ENGLISH "~S ~S: No initializations are allowed in a generic function lambda-list: ~S")
         caller funname lambdalist
     ) )
     (flet ((check-varname (var)
              (unless (symbolp var)
                (error-of-type 'sys::source-program-error
-                 (DEUTSCH "~S ~S: Variablenname muss ein Symbol sein, nicht ~S"
-                  ENGLISH "~S ~S: variable name ~S should be a symbol"
-                  FRANCAIS "~S ~S : le nom de variable ~S devrait être un symbole.")
+                 (ENGLISH "~S ~S: variable name ~S should be a symbol")
                  caller funname var
              ) )
              (when (member var req-vars :test #'eq)
                (error-of-type 'sys::source-program-error
-                 (DEUTSCH "~S ~S: Variablenname ~S darf nicht mehrfach auftreten."
-                  ENGLISH "~S ~S: duplicate variable name ~S"
-                  FRANCAIS "~S ~S : le nom de variable ~S apparaît plusieurs fois.")
+                 (ENGLISH "~S ~S: duplicate variable name ~S")
                  caller funname var
              ) )
              var
@@ -3362,9 +3198,7 @@
     )
     (when lambdalist
       (error-of-type 'sys::source-program-error
-        (DEUTSCH "~S ~S: Lambda-Liste enthält Unzulässiges: ~S"
-         ENGLISH "~S ~S: invalid lambda list portion: ~S"
-         FRANCAIS "~S ~S : lambda-liste partiellement invalide: ~S")
+        (ENGLISH "~S ~S: invalid lambda list portion: ~S")
         caller funname lambdalist
     ) )
     (values (length req-vars) (nreverse req-vars) optanz
@@ -3417,9 +3251,7 @@
         (progn
           (warn-if-gf-already-called gf)
           (when (and *gf-warn-on-removing-all-methods* (gf-methods gf))
-            (warn (DEUTSCH "Alle Methoden von ~S werden entfernt."
-                   ENGLISH "Removing all methods of ~S"
-                   FRANCAIS "On enlève toutes les méthodes de ~S.")
+            (warn (ENGLISH "Removing all methods of ~S")
                   gf
             )
             (setf (gf-methods gf) nil)
@@ -3427,9 +3259,7 @@
           (unless (and (equal signature (gf-signature gf))
                        (equal argorder (gf-argorder gf))
                   )
-            (warn (DEUTSCH "Das Parameter-Profil von ~S wird modifiziert."
-                   ENGLISH "Modifying the parameter profile of ~S"
-                   FRANCAIS "On change le nombre / l'ordre des arguments de ~S.")
+            (warn (ENGLISH "Modifying the parameter profile of ~S")
                   gf
             )
             (setf (gf-signature gf) signature)
@@ -3440,9 +3270,7 @@
           gf
         )
         (error-of-type 'program-error
-          (DEUTSCH "~S bezeichnet keine generische Funktion."
-           ENGLISH "~S doesn't name a generic function"
-           FRANCAIS "~S n'est pas le nom d'une fonction générique.")
+          (ENGLISH "~S doesn't name a generic function")
           funname
     ) ) )
     (setf (fdefinition funname)
@@ -3487,9 +3315,7 @@
     (dolist (fundef fundefs)
       (unless (and (consp fundef) (consp (cdr fundef)))
         (error-of-type 'sys::source-program-error
-          (DEUTSCH "~S: ~S ist keine Spezifikation einer generischen Funktion."
-           ENGLISH "~S: ~S is not a generic function specification"
-           FRANCAIS "~S: ~S n'est pas une spécification de fonction générique.")
+          (ENGLISH "~S: ~S is not a generic function specification")
           caller fundef
       ) )
       (push (first fundef) names)
@@ -3552,16 +3378,12 @@
     (unless (symbolp new-value)
       (error-of-type 'type-error
         :datum new-value :expected-type 'symbol
-        (DEUTSCH "~S: Der Name einer Klasse muss ein Symbol sein, nicht ~S"
-         ENGLISH "~S: The name of a class must be a symbol, not ~S"
-         FRANCAIS "~S : Le nom d'une classe doit être un symbole et non ~S.")
+        (ENGLISH "~S: The name of a class must be a symbol, not ~S")
         '(setf class-name) new-value
     ) )
     (when (built-in-class-p class)
       (error-of-type 'error
-        (DEUTSCH "~S: Der Name der Built-In-Klasse ~S kann nicht verändert werden."
-         ENGLISH "~S: The name of the built-in class ~S cannot be modified"
-         FRANCAIS "~S : Le nom de la classe prédéfinie ~S ne peut pas être changée.")
+        (ENGLISH "~S: The name of the built-in class ~S cannot be modified")
         '(setf class-name) class
     ) )
     (setf (class-classname class) new-value)
@@ -3570,18 +3392,14 @@
 (defgeneric no-applicable-method (gf &rest args)
   (:method ((gf t) &rest args)
     (error-of-type 'error
-      (DEUTSCH "~S: Beim Aufruf von ~S mit Argumenten ~S ist keine Methode anwendbar."
-       ENGLISH "~S: When calling ~S with arguments ~S, no method is applicable."
-       FRANCAIS "~S : À l'appel de ~S avec les arguments ~S, aucune méthode ne s'applique.")
+      (ENGLISH "~S: When calling ~S with arguments ~S, no method is applicable.")
       'no-applicable-method gf args
 ) ) )
 
 (defgeneric no-primary-method (gf &rest args)
   (:method ((gf t) &rest args)
     (error-of-type 'error
-      (DEUTSCH "~S: Beim Aufruf von ~S mit Argumenten ~S ist keine primäre Methode anwendbar."
-       ENGLISH "~S: When calling ~S with arguments ~S, no primary method is applicable."
-       FRANCAIS "~S : À l'appel de ~S avec les arguments ~S, aucune méthode primaire ne s'applique.")
+      (ENGLISH "~S: When calling ~S with arguments ~S, no primary method is applicable.")
       'no-primary-method gf args
 ) ) )
 
@@ -3591,9 +3409,7 @@
 (defgeneric no-next-method (gf method &rest args)
   (:method ((gf standard-generic-function) (method standard-method) &rest args)
     (error-of-type 'error
-      (DEUTSCH "~S: Beim Aufruf von ~S mit Argumenten ~S gibt es nach ~S keine weitere Methode, und ~S wurde aufgerufen."
-       ENGLISH "~S: When calling ~S with arguments ~S, there is no next method after ~S, and ~S was called."
-       FRANCAIS "~S : À l'appel de ~S avec les arguments ~S, il n'y a plus de méthode après ~S, et ~S a été appelé.")
+      (ENGLISH "~S: When calling ~S with arguments ~S, there is no next method after ~S, and ~S was called.")
       'no-next-method gf args method '(call-next-method)
 ) ) )
 
@@ -3644,9 +3460,7 @@
   (:method ((class t) instance slot-name operation &optional new-value)
     (declare (ignore instance new-value))
     (error-of-type 'error
-      (DEUTSCH "~S: Die Klasse ~S hat keinen Slot mit Namen ~S."
-       ENGLISH "~S: The class ~S has no slot named ~S"
-       FRANCAIS "~S : La classe ~S n'a pas de composant de nom ~S.")
+      (ENGLISH "~S: The class ~S has no slot named ~S")
       operation class slot-name
 ) ) )
 
@@ -3656,9 +3470,7 @@
     (error-of-type 'unbound-slot
       :name slot-name
       :instance instance
-      (DEUTSCH "~S: Der Slot ~S von ~S hat keinen Wert."
-       ENGLISH "~S: The slot ~S of ~S has no value"
-       FRANCAIS "~S : Le composant ~S de ~S n'a pas de valeur.")
+      (ENGLISH "~S: The slot ~S of ~S has no value")
       'slot-value slot-name instance
 ) ) )
 

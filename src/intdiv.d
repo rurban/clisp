@@ -344,10 +344,7 @@
       pushSTACK(STACK_(1+2)); # x
       pushSTACK(STACK_(0+3)); # y
       fehler(arithmetic_error,
-             DEUTSCH ? "Quotient ~ / ~ ist keine ganze Zahl." :
-             ENGLISH ? "quotient ~ / ~ is not an integer" :
-             FRANCAIS ? "Le quotient de ~ par ~ n'est pas un entier." :
-             ""
+             GETTEXT("quotient ~ / ~ is not an integer")
             );
     }
 

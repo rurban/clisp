@@ -157,8 +157,6 @@ global int main()
   # schon includet wurden. (intparam.h z.Zt. nicht nötig, aber was soll's.)
 # #ifdef LANGUAGE_STATIC
 #   printf1("#define ENGLISH  %d\n",ENGLISH);
-#   printf1("#define DEUTSCH  %d\n",DEUTSCH);
-#   printf1("#define FRANCAIS  %d\n",FRANCAIS);
 # #endif
 # printf1("#define BIG_ENDIAN_P  %d\n",BIG_ENDIAN_P);
   #ifdef HAVE_SAVED_REGISTERS
@@ -1221,13 +1219,9 @@ global int main()
 #   #ifndef GNU_GETTEXT
 #     printf("extern uintL language;\n");
 #     printf1("#define ENGLISH  (language==%d)\n",language_english);
-#     printf1("#define DEUTSCH  (language==%d)\n",language_deutsch);
-#     printf1("#define FRANCAIS  (language==%d)\n",language_francais);
 #   #else
 #     printf("extern const char * clgettext (const char * msgid);\n");
-#     printf("#define ENGLISH  1 ? clgettext ( 1\n");
-#     printf("#define DEUTSCH  0\n");
-#     printf("#define FRANCAIS  \"\" ) : 0\n");
+#     printf("#define GETTEXT clgettext\n");
 #   #endif
 # #endif
 # printf("extern void asciz_out (const char * asciz);\n");

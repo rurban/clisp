@@ -13,14 +13,8 @@ case "$lang" in
       language="Template"
       authors="Bruno Haible, Michael Stoll, Marcus Daniels"
       ;;
-  de) language="German"
-      authors="Bruno Haible, Michael Stoll"
-      ;;
   en) language="English"
       authors="Bruno Haible, Marcus Daniels"
-      ;;
-  fr) language="French"
-      authors="Bruno Haible, Jörg Höhle"
       ;;
   *) echo "Language $lang not built-in." 1>&2
      exit 1
@@ -38,8 +32,8 @@ fi
 
 cat << EOF
 # ${language} messages for CLISP
-# Copyright (C) 1992-1998 ${authors}
-# Bruno Haible <haible@clisp.cons.org>, 1998.
+# Copyright (C) 1992-1999 ${authors}
+# Bruno Haible <haible@clisp.cons.org>, 1999.
 #
 msgid ""
 msgstr ""

@@ -2,24 +2,29 @@
 
 ;;; Extraction of internationalized messages (normally done by "xgettext")
 ;;; for clisp.
-;;; Bruno Haible 26.3.1997
+;;; Bruno Haible 26.3.1997, 5.4.1999
 
 ;; In the clisp sources internationalized messages are recognized through
 ;; the following constructs:
 ;;
 ;; 1. In .d files,
-;;    DEUTSCH ? string :
-;;    ENGLISH ? string :
-;;    FRANCAIS ? string :
-;;    ""
+;;       DEUTSCH ? string :
+;;       ENGLISH ? string :
+;;       FRANCAIS ? string :
+;;       ""
 ;;    The three alternatives may appear in any order.
 ;;    The string may consist of multiple pieces (ANSI C string concatenation),
 ;;    and some of the pieces may be the token NLstring (to be replaced by "\n").
 ;;
+;;    Alternatively,
+;;       GETTEXT(string)
+;;    is treated as equivalent to
+;;       ENGLISH ? string : ""
+;;
 ;; 2. In .lsp files,
-;;    (DEUTSCH string
-;;     ENGLISH string
-;;     FRANCAIS string)
+;;       (DEUTSCH string
+;;        ENGLISH string
+;;        FRANCAIS string)
 ;;    The three alternatives may appear in any order.
 ;;    The strings may cross lines; in that case, "\n" is to be inserted.
 ;;
@@ -35,13 +40,13 @@
  (with-open-file (file filename :direction :input)
   (with-open-file (pot (concatenate 'string destdir "/" filename ".pot")
                        :direction :output)
-   (with-open-file (de (concatenate 'string destdir "/" filename ".de")
-                       :direction :output)
     (with-open-file (en (concatenate 'string destdir "/" filename ".en")
                         :direction :output)
-     (with-open-file (fr (concatenate 'string destdir "/" filename ".fr")
-                         :direction :output)
-      (let ((all (make-broadcast-stream pot de en fr))
+    ;(with-open-file (de (concatenate 'string destdir "/" filename ".de")
+    ;                    :direction :output)
+    ;(with-open-file (fr (concatenate 'string destdir "/" filename ".fr")
+    ;                    :direction :output)
+      (let ((all (make-broadcast-stream pot en #|de fr|#))
             (lineno 0) ; number of the line (usually = (1- (sys::line-number file)))
             (line nil) (pos nil))
        (labels ((goto-line (no)
@@ -147,19 +152,19 @@
                   (unless (and (plusp l) (eql (char string (1- l)) #\Newline))
                     (write-char #\" stream)
                 ) )
-                (output-hunk (no de-string en-string fr-string)
+                (output-hunk (no en-string #|de-string fr-string|#)
                   (format all "~%#: ~A:~D~%" filename no)
                   (format all "msgid ")
                   (output-string en-string all)
                   (format all "~%msgstr ")
                   (output-string "" pot)
-                  (output-string de-string de)
                   (output-string en-string en)
-                  (output-string fr-string fr)
+                  ;(output-string de-string de)
+                  ;(output-string fr-string fr)
                   (format all "~%")
                 )
                 (do-one-file (&key all-grepper
-                                   de-key en-key fr-key
+                                   gettext-key en-key #|de-key fr-key|#
                                    string-parser
                              )
                   (let ((grep
@@ -167,20 +172,21 @@
                             (concatenate 'string all-grepper filename)
                         ) )
                         (no nil)
-                        (de-string nil)
+                        (gettext-string nil)
                         (en-string nil)
-                        (fr-string nil)
+                        ;(de-string nil)
+                        ;(fr-string nil)
                         (eof "EOF"))
                     (flet ((finish-hunk ()
-                             (when (or de-string en-string fr-string)
-                               (unless de-string
-                                 (warn "DEUTSCH missing at ~A:~S" filename no))
-                               (unless en-string
+                             (when (or gettext-string en-string #|de-string fr-string|#)
+                               (unless (or gettext-string en-string)
                                  (warn "ENGLISH missing at ~A:~S" filename no))
-                               (unless fr-string
-                                 (warn "FRANCAIS missing at ~A:~S" filename no))
-                               (output-hunk no (or de-string "") (or en-string "") (or fr-string ""))
-                               (setq de-string nil en-string nil fr-string nil)
+                               ;(unless de-string
+                               ;  (warn "DEUTSCH missing at ~A:~S" filename no))
+                               ;(unless fr-string
+                               ;  (warn "FRANCAIS missing at ~A:~S" filename no))
+                               (output-hunk no (or gettext-string en-string "") #|(or de-string "") (or fr-string "")|#)
+                               (setq gettext-string nil en-string nil #|de-string nil fr-string nil|#)
                           )) )
                       (loop
                         (let ((grep-line (read-line grep nil eof)))
@@ -188,34 +194,43 @@
                           (let* ((colon (position #\: grep-line))
                                  (grep-no (parse-integer grep-line :end colon))
                                  (grep-line (subseq grep-line (1+ colon)))
-                                 (de-p (search de-key grep-line))
+                                 (gettext-p (and gettext-key (search gettext-key grep-line)))
                                  (en-p (search en-key grep-line))
-                                 (fr-p (search fr-key grep-line)))
-                            (assert (or de-p en-p fr-p))
-                            (when (or (and de-p de-string)
+                                 ;(de-p (search de-key grep-line))
+                                 ;(fr-p (search fr-key grep-line))
+                                )
+                            (assert (or gettext-p en-p #|de-p fr-p|#))
+                            (when (or (and gettext-p (or gettext-string en-string #|de-string fr-string|#))
+                                      (and (or en-p #|de-p fr-p|#) gettext-string)
                                       (and en-p en-string)
-                                      (and fr-p fr-string))
+                                      ;(and de-p de-string)
+                                      ;(and fr-p fr-string)
+                                  )
                               (finish-hunk)
                             )
-                            (if (and de-p en-p fr-p)
+                            (if (> (+ (if en-p 1 0) #|(if de-p 1 0) (if fr-p 1 0)|#) 1)
                               (warn "skipping ~A:~S" filename grep-no)
                               (progn
-                                (unless (or de-string en-string fr-string)
+                                (unless (or gettext-string en-string #|de-string fr-string|#)
                                   (setq no grep-no)
                                 )
                                 (goto-line grep-no)
-                                (when de-p
-                                  (setq pos (+ de-p (length de-key)))
-                                  (setq de-string (funcall string-parser))
+                                (when gettext-p
+                                  (setq pos (+ gettext-p (length gettext-key)))
+                                  (setq gettext-string (funcall string-parser))
                                 )
                                 (when en-p
                                   (setq pos (+ en-p (length en-key)))
                                   (setq en-string (funcall string-parser))
                                 )
-                                (when fr-p
-                                  (setq pos (+ fr-p (length fr-key)))
-                                  (setq fr-string (funcall string-parser))
-                                )
+                                ;(when de-p
+                                ;  (setq pos (+ de-p (length de-key)))
+                                ;  (setq de-string (funcall string-parser))
+                                ;)
+                                ;(when fr-p
+                                ;  (setq pos (+ fr-p (length fr-key)))
+                                ;  (setq fr-string (funcall string-parser))
+                                ;)
                       ) ) ) ) )
                       (finish-hunk)
                     )
@@ -224,22 +239,29 @@
                )
          (cond ((search ".d$" (concatenate 'string filename "$"))
                 ;; Extract strings from a .d file
-                (do-one-file :all-grepper "grep -n '\\(DEUTSCH\\|ENGLISH\\|FRANCAIS\\) \\(?\\|\\*/\\)' "
-                             :de-key "DEUTSCH "
+                (do-one-file :all-grepper ;"grep -n '\\(DEUTSCH\\|ENGLISH\\|FRANCAIS\\) \\(?\\|\\*/\\)' "
+                                          "grep -n '\\(GETTEXT(\\|ENGLISH \\*/\\)' "
+                             :gettext-key "GETTEXT("
                              :en-key "ENGLISH "
-                             :fr-key "FRANCAIS "
+                             ;:de-key "DEUTSCH "
+                             ;:fr-key "FRANCAIS "
                              :string-parser #'d-parse-string
                ))
                ((search ".lsp$" (concatenate 'string filename "$"))
                 ;; Extract strings from a .lsp file
-                (do-one-file :all-grepper "grep -n '\\(DEUTSCH\\|ENGLISH\\|FRANCAIS\\) ' "
-                             :de-key "DEUTSCH "
+                (do-one-file :all-grepper ;"grep -n '\\(DEUTSCH\\|ENGLISH\\|FRANCAIS\\) ' "
+                                          "grep -n 'ENGLISH ' "
                              :en-key "ENGLISH "
-                             :fr-key "FRANCAIS "
+                             ;:de-key "DEUTSCH "
+                             ;:fr-key "FRANCAIS "
                              :string-parser #'lsp-parse-string
                ))
                (t (error "unknown file type: ~S" filename))
          )
-))))))))
+      ))
+    ;)
+    ;)
+    )
+)))
 
 (main (first *args*) (second *args*))

@@ -8,16 +8,12 @@
 (defmacro defvar (symbol &optional (initial-value nil svar) docstring)
   (unless (symbolp symbol)
     (error-of-type 'source-program-error
-      (DEUTSCH "~S: Nur Symbole können Variablen sein, nicht ~S"
-       ENGLISH "~S: non-symbol ~S can't be a variable"
-       FRANCAIS "~S : Seuls les symboles peuvent servir de variable et non ~S.")
+      (ENGLISH "~S: non-symbol ~S can't be a variable")
       'defvar symbol
   ) )
   (if (constantp symbol)
     (error-of-type 'source-program-error
-      (DEUTSCH "~S: Die Konstante ~S darf nicht zu einer Variablen umdefiniert werden."
-       ENGLISH "~S: the constant ~S must not be redefined to be a variable"
-       FRANCAIS "~S : La constante ~S ne peut pas être redéfinie en variable.")
+      (ENGLISH "~S: the constant ~S must not be redefined to be a variable")
       'defvar symbol
   ) )
   `(LET ()
@@ -35,16 +31,12 @@
 (defmacro defparameter (symbol initial-value &optional docstring)
   (unless (symbolp symbol)
     (error-of-type 'source-program-error
-      (DEUTSCH "~S: Nur Symbole können Variablen sein, nicht ~S"
-       ENGLISH "~S: non-symbol ~S can't be a variable"
-       FRANCAIS "~S : Seuls les symboles peuvent servir de variable et non ~S.")
+      (ENGLISH "~S: non-symbol ~S can't be a variable")
       'defparameter symbol
   ) )
   (if (constantp symbol)
     (error-of-type 'source-program-error
-      (DEUTSCH "~S: Die Konstante ~S darf nicht zu einer Variablen umdefiniert werden."
-       ENGLISH "~S: the constant ~S must not be redefined to be a variable"
-       FRANCAIS "~S : La constante ~S ne peut pas être redéfinie en variable.")
+      (ENGLISH "~S: the constant ~S must not be redefined to be a variable")
       'defparameter symbol
   ) )
   `(LET ()
@@ -58,9 +50,7 @@
 (defmacro defconstant (&whole form symbol initial-value &optional docstring)
   (unless (symbolp symbol)
     (error-of-type 'source-program-error
-      (DEUTSCH "~S: Nur Symbole können als Konstanten definiert werden, nicht ~S"
-       ENGLISH "~S: non-symbol ~S can't be a defined constant"
-       FRANCAIS "~S : Seuls les symboles peuvent servir de constante et non ~S.")
+      (ENGLISH "~S: non-symbol ~S can't be a defined constant")
       'defconstant symbol
   ) )
   (let ((initial-var (gensym)))
@@ -93,9 +83,7 @@
 ) )
 ; The redefinition warning.
 (defun constant-warning (symbol form)
-  (warn (DEUTSCH "In ~S wird die Konstante ~S umdefiniert. Ihr alter Wert war ~S."
-         ENGLISH "~S redefines the constant ~S. Its old value was ~S."
-         FRANCAIS "~S redéfinit la constante ~S. Son ancienne valeur était ~S.")
+  (warn (ENGLISH "~S redefines the constant ~S. Its old value was ~S.")
         form symbol (symbol-value symbol)
 ) )
 
@@ -157,16 +145,12 @@
 (defun do/do*-expand (varclauselist exitclause body env do let psetq)
   (when (atom exitclause)
     (error-of-type 'source-program-error
-      (DEUTSCH "Exitclause in ~S muss Liste sein."
-       ENGLISH "exit clause in ~S must be a list"
-       FRANCAIS "La clause de sortie dans ~S doit être une liste.")
+      (ENGLISH "exit clause in ~S must be a list")
       do
   ) )
   (flet ((bad-syntax (formpiece)
            (error-of-type 'source-program-error
-             (DEUTSCH "Ungültige Syntax in ~S-Form: ~S."
-              ENGLISH "Invalid syntax in ~S form: ~S."
-              FRANCAIS "Syntax invalide dans forme ~S : ~S.")
+             (ENGLISH "Invalid syntax in ~S form: ~S.")
              do
              formpiece ) ))
     (let ((bindlist nil)
@@ -282,9 +266,7 @@
          )
       (if (null (cdr arglist))
         (error-of-type 'source-program-error
-          (DEUTSCH "~S mit einer ungeraden Anzahl von Argumenten aufgerufen: ~S"
-           ENGLISH "~S called with an odd number of arguments: ~S"
-           FRANCAIS "~S fut appelé avec un nombre impair d'arguments : ~S")
+          (ENGLISH "~S called with an odd number of arguments: ~S")
           'psetq form
       ) )
       (let ((g (gensym)))
@@ -336,18 +318,14 @@
                          (remaining-clauses (rest remaining-clauses)))
                      (unless (consp clause)
                        (error-of-type 'source-program-error
-                         (DEUTSCH "~S: Keylist fehlt."
-                          ENGLISH "~S: missing key list"
-                          FRANCAIS "~S : la liste d'objects-clé manque.")
+                         (ENGLISH "~S: missing key list")
                          'case
                      ) )
                      (let ((keys (first clause)))
                        `(,(cond ((or (eq keys 'T) (eq keys 'OTHERWISE))
                                  (if remaining-clauses
                                    (error-of-type 'source-program-error
-                                     (DEUTSCH "~S: Die ~S-Klausel muss die letzte sein."
-                                      ENGLISH "~S: the ~S clause must be the last one"
-                                      FRANCAIS "~S : La clause ~S doit être la dernière.")
+                                     (ENGLISH "~S: the ~S clause must be the last one")
                                      'case keys
                                    )
                                    'T
@@ -400,16 +378,12 @@
   (cond ((null clauselist) NIL)
         ((atom clauselist)
          (error-of-type 'source-program-error
-           (DEUTSCH "Das ist keine Liste von COND-Klauseln: ~S"
-            ENGLISH "Not a list of COND clauses: ~S"
-            FRANCAIS "Ceci n'est pas une liste de clauses COND : ~S")
+           (ENGLISH "Not a list of COND clauses: ~S")
            clauselist
         ))
         ((atom (car clauselist))
          (error-of-type 'source-program-error
-           (DEUTSCH "Das ist ein Atom und daher nicht als COND-Klausel verwendbar: ~S"
-            ENGLISH "The atom ~S must not be used as a COND clause."
-            FRANCAIS "Ceci est une atome et n'est donc pas utilisable comme clause COND : ~S")
+           (ENGLISH "The atom ~S must not be used as a COND clause.")
            (car clauselist)
         ))
         (t (let ((ifif (ifify (cdr clauselist))))
@@ -445,17 +419,13 @@
     (cond ((null clauses) 'NIL)
           ((atom clauses)
            (error-of-type 'source-program-error
-             (DEUTSCH "Dotted List im Code von COND, endet mit ~S"
-              ENGLISH "COND code contains a dotted list, ending with ~S"
-              FRANCAIS "Occurence d'une paire pointée dans le code de COND, terminée en : ~S.")
+             (ENGLISH "COND code contains a dotted list, ending with ~S")
              clauses
           ))
           (t (let ((clause (car clauses)))
                (if (atom clause)
                  (error-of-type 'source-program-error
-                   (DEUTSCH "COND-Klausel ohne Test: ~S"
-                    ENGLISH "COND clause without test: ~S"
-                    FRANCAIS "Clause COND sans aucun test : ~S")
+                   (ENGLISH "COND clause without test: ~S")
                    clause
                  )
                  (let ((test (car clause)))
@@ -481,16 +451,12 @@
   (cond ((null clauselist) (values NIL nil))
         ((atom clauselist)
          (error-of-type 'source-program-error
-           (DEUTSCH "Das ist keine Liste von COND-Klauseln: ~S"
-            ENGLISH "Not a list of COND clauses: ~S"
-            FRANCAIS "Ceci n'est pas une liste de clauses COND : ~S")
+           (ENGLISH "Not a list of COND clauses: ~S")
            clauselist
         ))
         ((atom (car clauselist))
          (error-of-type 'source-program-error
-           (DEUTSCH "Das ist ein Atom und daher nicht als COND-Klausel verwendbar: ~S"
-            ENGLISH "The atom ~S must not be used as a COND clause."
-            FRANCAIS "Ceci est une atome et n'est donc pas utilisable comme clause COND : ~S")
+           (ENGLISH "The atom ~S must not be used as a COND clause.")
            (car clauselist)
         ))
         (t (multiple-value-bind (ifif needed-g) (ifify (cdr clauselist) g)

@@ -23,10 +23,7 @@
     var object obj;
     { pushSTACK(obj);
       fehler(error,
-             DEUTSCH ? "~ stammt aus einer früheren Lisp-Sitzung und ist jetzt ungültig." :
-             ENGLISH ? "~ comes from a previous Lisp session and is invalid" :
-             FRANCAIS ? "~ provient d'une séance Lisp passée et est inadmissible" :
-             ""
+             GETTEXT("~ comes from a previous Lisp session and is invalid")
             );
     }
 
@@ -95,10 +92,7 @@ LISPFUNN(validp,1)
           if (fp_validp(TheFpointer(obj)))
             { pushSTACK(name);
               fehler(error,
-                     DEUTSCH ? "Eine Foreign-Variable ~ gibt es schon." :
-                     ENGLISH ? "A foreign variable ~ already exists" :
-                     FRANCAIS ? "Il y a déjà une variable étrangère ~." :
-                     ""
+                     GETTEXT("A foreign variable ~ already exists")
                     );
             }
             else
@@ -137,10 +131,7 @@ LISPFUNN(validp,1)
           if (fp_validp(TheFpointer(obj)))
             { pushSTACK(name);
               fehler(error,
-                     DEUTSCH ? "Eine Foreign-Funktion ~ gibt es schon." :
-                     ENGLISH ? "A foreign function ~ already exists" :
-                     FRANCAIS ? "Il y a déjà une fonction étrangère ~." :
-                     ""
+                     GETTEXT("A foreign function ~ already exists")
                     );
             }
             else
@@ -181,10 +172,7 @@ local void fehler_foreign_type(fvd)
   { dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
     pushSTACK(fvd);
     fehler(error,
-           DEUTSCH ? "ungültiger Typ für externe Daten: ~" :
-           ENGLISH ? "illegal foreign data type ~" :
-           FRANCAIS ? "type invalide de données externes : ~" :
-           ""
+           GETTEXT("illegal foreign data type ~")
           );
   }
 
@@ -197,10 +185,7 @@ local void fehler_convert(fvd,obj)
     pushSTACK(fvd);
     pushSTACK(obj);
     fehler(error,
-           DEUTSCH ? "~ kann nicht in den Foreign-Typ ~ umgewandelt werden." :
-           ENGLISH ? "~ cannot be converted to the foreign type ~" :
-           FRANCAIS ? "~ ne peut être transformé en type étranger ~." :
-           ""
+           GETTEXT("~ cannot be converted to the foreign type ~")
           );
   }
 
@@ -212,10 +197,7 @@ local void fehler_64bit(fvd)
   { dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
     pushSTACK(fvd);
     fehler(error,
-           DEUTSCH ? "64-Bit-Ganzzahlen werden auf dieser Plattform und mit diesem C-Compiler nicht unterstützt: ~" :
-           ENGLISH ? "64 bit integers are not supported on this platform and with this C compiler: ~" :
-           FRANCAIS ? "Des nombres à 64 bits ne sont pas supportés sur cette machine et avec ce compilateur C : ~" :
-           ""
+           GETTEXT("64 bit integers are not supported on this platform and with this C compiler: ~")
           );
   }
 #endif
@@ -354,10 +336,7 @@ local void callback (void* data, va_alist args);
             else
             { pushSTACK(fun);
               fehler(error,
-                     DEUTSCH ? "~ kann nicht in eine Foreign-Funktion mit anderer Aufrufkonvention umgewandelt werden." :
-                     ENGLISH ? "~ cannot be converted to a foreign function with another calling convention." :
-                     FRANCAIS ? "~ ne peut être converti en une fonction étrangère avec une autre convention d'appel." :
-                     ""
+                     GETTEXT("~ cannot be converted to a foreign function with another calling convention.")
                     );
         }   }
       # Look it up in the hash table, alist:
@@ -506,10 +485,7 @@ local void callback (void* data, va_alist args);
             else
             { pushSTACK(ffun);
               fehler(error,
-                     DEUTSCH ? "~ kann nicht in eine Foreign-Funktion mit anderer Aufrufkonvention umgewandelt werden." :
-                     ENGLISH ? "~ cannot be converted to a foreign function with another calling convention." :
-                     FRANCAIS ? "~ ne peut être converti en une fonction étrangère avec une autre convention d'appel." :
-                     ""
+                     GETTEXT("~ cannot be converted to a foreign function with another calling convention.")
                     );
             }
         }}
@@ -553,10 +529,7 @@ local void* xmalloc(size)
     end_system_call();
     if (ptr) return ptr;
     fehler(storage_condition,
-           DEUTSCH ? "Speicherplatz reicht nicht für die Fremdsprachen-Schnittstelle." :
-           ENGLISH ? "No more room for foreign language interface" :
-           FRANCAIS ? "Il n'y a pas assez de place pour l'interface aux langages étrangers." :
-           ""
+           GETTEXT("No more room for foreign language interface")
           );
   }
 #else # defined(AMIGAOS)
@@ -564,10 +537,7 @@ local void* xmalloc(size)
 nonreturning_function(local, fehler_malloc_free, (void));
 local void fehler_malloc_free()
   { fehler(error,
-           DEUTSCH ? ":MALLOC-FREE ist unter AMIGAOS nicht verfügbar." :
-           ENGLISH ? ":MALLOC-FREE is not available under AMIGAOS." :
-           FRANCAIS ? ":MALLOC-FREE n'est pas applicable sous AMIGAOS." :
-           ""
+           GETTEXT(":MALLOC-FREE is not available under AMIGAOS.")
           );
   }
 #define malloc(amount)  (fehler_malloc_free(), NULL)
@@ -1117,10 +1087,7 @@ global object convert_from_foreign(fvd,data)
                 if (eltype_size == 0)
                   { pushSTACK(fvd);
                     fehler(error,
-                           DEUTSCH ? "Elementtyp hat Größe 0: ~" :
-                           ENGLISH ? "element type has size 0: ~" :
-                           FRANCAIS ? "Le type des éléments est de grandeur 0 : ~" :
-                           ""
+                           GETTEXT("element type has size 0: ~")
                           );
                   }
                 # Determine length of array:
@@ -1179,10 +1146,7 @@ global object convert_from_foreign(fvd,data)
                     if (eltype_size == 0)
                       { pushSTACK(fvd);
                         fehler(error,
-                               DEUTSCH ? "Elementtyp hat Größe 0: ~" :
-                               ENGLISH ? "element type has size 0: ~" :
-                               FRANCAIS ? "Le type des éléments est de grandeur 0 : ~" :
-                               ""
+                               GETTEXT("element type has size 0: ~")
                               );
                       }
                     # Determine length of array:
@@ -1325,10 +1289,7 @@ local void walk_foreign_pointers(fvd,data)
                 if (eltype_size == 0)
                   { pushSTACK(fvd);
                     fehler(error,
-                           DEUTSCH ? "Elementtyp hat Größe 0: ~" :
-                           ENGLISH ? "element type has size 0: ~" :
-                           FRANCAIS ? "Le type des éléments est de grandeur 0 : ~" :
-                           ""
+                           GETTEXT("element type has size 0: ~")
                           );
                   }
                 { var uintL maxdim = I_to_UL(TheSvector(fvd)->data[2]);
@@ -1364,10 +1325,7 @@ local void walk_foreign_pointers(fvd,data)
                   if (eltype_size == 0)
                     { pushSTACK(fvd);
                       fehler(error,
-                             DEUTSCH ? "Elementtyp hat Größe 0: ~" :
-                             ENGLISH ? "element type has size 0: ~" :
-                             FRANCAIS ? "Le type des éléments est de grandeur 0 : ~" :
-                             ""
+                             GETTEXT("element type has size 0: ~")
                             );
                     }
                  {var void* ptr = *(void**)data;
@@ -2107,10 +2065,7 @@ local void fehler_foreign_variable(obj)
   { pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,
-           DEUTSCH ? "~: Argument ist keine Foreign-Variable: ~" :
-           ENGLISH ? "~: argument is not a foreign variable: ~" :
-           FRANCAIS ? "~ : l'argument n'est pas une variable étrangère: ~" :
-           ""
+           GETTEXT("~: argument is not a foreign variable: ~")
           );
   }
 nonreturning_function(local, fehler_variable_no_fvd, (object obj));
@@ -2119,10 +2074,7 @@ local void fehler_variable_no_fvd(obj)
   { pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,
-           DEUTSCH ? "~: Foreign-Variable mit unbekanntem Typ, DEF-C-VAR fehlt: ~" :
-           ENGLISH ? "~: foreign variable with unknown type, missing DEF-C-VAR: ~" :
-           FRANCAIS ? "~ : variable étrangère de type inconnu, DEF-C-VAR manquant: ~" :
-           ""
+           GETTEXT("~: foreign variable with unknown type, missing DEF-C-VAR: ~")
           );
   }
 
@@ -2135,10 +2087,7 @@ LISPFUNN(lookup_foreign_variable,2)
     if (eq(fvar,nullobj))
       { pushSTACK(name);
         fehler(error,
-               DEUTSCH ? "Eine Foreign-Variable ~ gibt es nicht." :
-               ENGLISH ? "A foreign variable ~ does not exist" :
-               FRANCAIS ? "Il n'y a pas de variable étrangère ~." :
-               ""
+               GETTEXT("A foreign variable ~ does not exist")
               );
       }
     # The first LOOKUP-FOREIGN-VARIABLE determines the variable's type.
@@ -2150,10 +2099,7 @@ LISPFUNN(lookup_foreign_variable,2)
           { pushSTACK(fvar);
             pushSTACK(TheSubr(subr_self)->name);
             fehler(error,
-                   DEUTSCH ? "~: Foreign-Variable ~ hat nicht die geforderte Größe oder Alignment." :
-                   ENGLISH ? "~: foreign variable ~ does not have the required size or alignment" :
-                   FRANCAIS ? "~ : la variable étrangère ~ n'a pas la taille ou le placement nécessaire." :
-                   ""
+                   GETTEXT("~: foreign variable ~ does not have the required size or alignment")
                   );
           }
         TheFvariable(fvar)->fv_type = fvd;
@@ -2167,10 +2113,7 @@ LISPFUNN(lookup_foreign_variable,2)
             pushSTACK(fvar);
             pushSTACK(TheSubr(subr_self)->name);
             fehler(error,
-                   DEUTSCH ? "~: Typangaben für Foreign-Variable ~ widersprechen sich: ~ und ~" :
-                   ENGLISH ? "~: type specifications for foreign variable ~ conflict: ~ and ~" :
-                   FRANCAIS ? "~ : types contradictoires pour la variable étrangère ~ : ~ et ~" :
-                   ""
+                   GETTEXT("~: type specifications for foreign variable ~ conflict: ~ and ~")
                   );
           }
         # If the types are not exactly the same but still compatible,
@@ -2213,10 +2156,7 @@ LISPFUNN(set_foreign_value,2)
       { pushSTACK(fvar);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
-               DEUTSCH ? "~: Foreign-Variable ~ darf nicht verändert werden." :
-               ENGLISH ? "~: foreign variable ~ may not be modified" :
-               FRANCAIS ? "~ : la variable étrangère ~ n'est pas modifiable." :
-               ""
+               GETTEXT("~: foreign variable ~ may not be modified")
               );
       }
     if (record_flags(TheFvariable(fvar)) & fv_malloc)
@@ -2269,10 +2209,7 @@ LISPFUN(element,1,0,rest,nokey,0,NIL)
         pushSTACK(fvar);
         pushSTACK(S(element));
         fehler(error,
-               DEUTSCH ? "~: Foreign-Variable ~ vom Typ ~ ist kein Array." :
-               ENGLISH ? "~: foreign variable ~ of type ~ is not an array" :
-               FRANCAIS ? "~ : la variable étrangère ~ de type ~ n'est pas une matrice." :
-               ""
+               GETTEXT("~: foreign variable ~ of type ~ is not an array")
               );
       }
     # Check the subscript count:
@@ -2282,10 +2219,7 @@ LISPFUN(element,1,0,rest,nokey,0,NIL)
         pushSTACK(fixnum(argcount));
         pushSTACK(S(element));
         fehler(error,
-               DEUTSCH ? "~: Es wurden ~ Subscripts angegeben, ~ hat aber den Rang ~." :
-               ENGLISH ? "~: got ~ subscripts, but ~ has rank ~" :
-               FRANCAIS ? "~: ~ indices donnés mais ~ est de rang ~." :
-               ""
+               GETTEXT("~: got ~ subscripts, but ~ has rank ~")
               );
       }
     # Check the subscripts:
@@ -2302,10 +2236,7 @@ LISPFUN(element,1,0,rest,nokey,0,NIL)
                  pushSTACK(list);
                  pushSTACK(S(element));
                  fehler(error,
-                        DEUTSCH ? "~: Subscripts ~ für ~ sind nicht vom Typ `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))." :
-                        ENGLISH ? "~: subscripts ~ for ~ are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))" :
-                        FRANCAIS ? "~: Les indices ~ pour ~ ne sont pas de type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))." :
-                        ""
+                        GETTEXT("~: subscripts ~ for ~ are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))")
                        );
                }
             {var uintL subscript = posfixnum_to_L(subscriptobj);
@@ -2316,10 +2247,7 @@ LISPFUN(element,1,0,rest,nokey,0,NIL)
                  pushSTACK(list);
                  pushSTACK(S(element));
                  fehler(error,
-                        DEUTSCH ? "~: Subscripts ~ für ~ liegen nicht im erlaubten Bereich." :
-                        ENGLISH ? "~: subscripts ~ for ~ are out of range" :
-                        FRANCAIS ? "~: Les indices ~ pour ~ ne sont pas dans l'intervalle permis." :
-                        ""
+                        GETTEXT("~: subscripts ~ for ~ are out of range")
                        );
                }
              # Compute row_major_index := row_major_index*dim+subscript:
@@ -2365,10 +2293,7 @@ LISPFUNN(deref,1)
         pushSTACK(fvar);
         pushSTACK(S(element));
         fehler(error,
-               DEUTSCH ? "~: Foreign-Variable ~ vom Typ ~ ist kein Pointer." :
-               ENGLISH ? "~: foreign variable ~ of type ~ is not a pointer" :
-               FRANCAIS ? "~ : la variable étrangère ~ de type ~ n'est pas un pointeur." :
-               ""
+               GETTEXT("~: foreign variable ~ of type ~ is not a pointer")
               );
       }
     fvd = TheSvector(fvd)->data[1]; # the target's foreign type
@@ -2468,10 +2393,7 @@ LISPFUNN(slot,2)
     pushSTACK(fvar);
     pushSTACK(S(slot));
     fehler(error,
-           DEUTSCH ? "~: Foreign-Variable ~ vom Typ ~ ist kein Struct oder Union." :
-           ENGLISH ? "~: foreign variable ~ of type ~ is not a struct or union" :
-           FRANCAIS ? "~ : la variable étrangère ~ de type ~ n'est pas un «struct» ou «union»." :
-           ""
+           GETTEXT("~: foreign variable ~ of type ~ is not a struct or union")
           );
     bad_slot:
     dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
@@ -2480,10 +2402,7 @@ LISPFUNN(slot,2)
     pushSTACK(fvar);
     pushSTACK(S(slot));
     fehler(error,
-           DEUTSCH ? "~: Foreign-Variable ~ vom Typ ~ hat keine Komponente namens ~." :
-           ENGLISH ? "~: foreign variable ~ of type ~ has no component with name ~" :
-           FRANCAIS ? "~ : la variable étrangère ~ de type ~ n'a pas de composante de nom ~." :
-           ""
+           GETTEXT("~: foreign variable ~ of type ~ has no component with name ~")
           );
   }}
 
@@ -2545,10 +2464,7 @@ LISPFUNN(offset,3)
         { pushSTACK(new_fvar);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(error,
-                 DEUTSCH ? "~: Foreign-Variable ~ hat nicht das geforderte Alignment." :
-                 ENGLISH ? "~: foreign variable ~ does not have the required alignment" :
-                 FRANCAIS ? "~ : la variable étrangère ~ n'a pas le placement nécessaire." :
-                 ""
+                 GETTEXT("~: foreign variable ~ does not have the required alignment")
                 );
         }
      value1 = new_fvar; mv_count=1;
@@ -2563,10 +2479,7 @@ local void fehler_foreign_function(obj)
   { pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,
-           DEUTSCH ? "~: Argument ist keine Foreign-Funktion: ~" :
-           ENGLISH ? "~: argument is not a foreign function: ~" :
-           FRANCAIS ? "~ : l'argument n'est pas une fonction étrangère: ~" :
-           ""
+           GETTEXT("~: argument is not a foreign function: ~")
           );
   }
 nonreturning_function(local, fehler_function_no_fvd, (object obj, object caller));
@@ -2576,10 +2489,7 @@ local void fehler_function_no_fvd(obj,caller)
   { pushSTACK(obj);
     pushSTACK(caller);
     fehler(error,
-           DEUTSCH ? "~: Foreign-Funktion mit unbekannter Aufrufkonvention, DEF-CALL-OUT fehlt: ~" :
-           ENGLISH ? "~: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~" :
-           FRANCAIS ? "~ : convention d'appel inconnue pour fonction étrangère, DEF-CALL-OUT manquant: ~" :
-           ""
+           GETTEXT("~: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~")
           );
   }
 
@@ -2596,10 +2506,7 @@ LISPFUNN(lookup_foreign_function,2)
         pushSTACK(fvd);
         pushSTACK(S(lookup_foreign_function));
         fehler(error,
-               DEUTSCH ? "~: ungültiger Typ für externe Funktion: ~" :
-               ENGLISH ? "~: illegal foreign function type ~" :
-               FRANCAIS ? "~ : type invalide de fonction externe : ~" :
-               ""
+               GETTEXT("~: illegal foreign function type ~")
               );
       }
    {var object oldffun = gethash(name,O(foreign_function_table));
@@ -2607,20 +2514,14 @@ LISPFUNN(lookup_foreign_function,2)
       { pushSTACK(name);
         pushSTACK(S(lookup_foreign_function));
         fehler(error,
-               DEUTSCH ? "~: Eine Foreign-Funktion ~ gibt es nicht." :
-               ENGLISH ? "~: A foreign function ~ does not exist" :
-               FRANCAIS ? "~ : Il n'y a pas de fonction étrangère ~." :
-               ""
+               GETTEXT("~: A foreign function ~ does not exist")
               );
       }
     if (!eq(TheFfunction(oldffun)->ff_flags,TheSvector(fvd)->data[3]))
       { pushSTACK(oldffun);
         pushSTACK(S(lookup_foreign_function));
         fehler(error,
-               DEUTSCH ? "~: Aufrufkonventionen für Foreign-Funktion ~ widersprechen sich." :
-               ENGLISH ? "~: calling conventions for foreign function ~ conflict" :
-               FRANCAIS ? "~ : conventions d'appel de fonction étrangère ~ se contredisent." :
-               ""
+               GETTEXT("~: calling conventions for foreign function ~ conflict")
               );
       }
     TheFfunction(ffun)->ff_name = TheFfunction(oldffun)->ff_name;
@@ -2890,10 +2791,7 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL)
                         pushSTACK(fixnum(argcount));
                         pushSTACK(S(foreign_call_out));
                         fehler(program_error,
-                               DEUTSCH ? "~: Zu wenig Argumente (~ statt mindestens ~) für ~." :
-                               ENGLISH ? "~: Too few arguments (~ instead of at least ~) to ~" :
-                               FRANCAIS ? "~ : Trop peu d'arguments (~ au lieu d'au moins ~) pour ~." :
-                               ""
+                               GETTEXT("~: Too few arguments (~ instead of at least ~) to ~")
                               );
                   }   }
                 if (arg_flags & (ff_out | ff_inout))
@@ -2904,10 +2802,7 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL)
                         pushSTACK(arg_fvd);
                         pushSTACK(S(foreign_call_out));
                         fehler(error,
-                               DEUTSCH ? "~: :OUT-Argument ist kein Pointer: ~" :
-                               ENGLISH ? "~: :OUT argument is not a pointer: ~" :
-                               FRANCAIS ? "~ : paramètre :OUT n'est pas indirecte: ~" :
-                               ""
+                               GETTEXT("~: :OUT argument is not a pointer: ~")
                               );
                       }
                     outargcount++;
@@ -2950,10 +2845,7 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL)
                 pushSTACK(fixnum(argcount));
                 pushSTACK(S(foreign_call_out));
                 fehler(program_error,
-                       DEUTSCH ? "~: Zu viele Argumente (~ statt ~) für ~." :
-                       ENGLISH ? "~: Too many arguments (~ instead of ~) to ~" :
-                       FRANCAIS ? "~ : Trop d'arguments (~ au lieu de ~) pour ~." :
-                       ""
+                       GETTEXT("~: Too many arguments (~ instead of ~) to ~")
                       );
               }
           }
@@ -3512,10 +3404,7 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL)
         { pushSTACK(name);
           pushSTACK(S(foreign_library));
           fehler(error,
-                 DEUTSCH ? "~: Kann Bibliothek ~ nicht öffnen." :
-                 ENGLISH ? "~: Cannot open library ~" :
-                 FRANCAIS ? "~ : Ne peux ouvrir bibliothèque ~." :
-                 ""
+                 GETTEXT("~: Cannot open library ~")
                 );
         }
       return libaddr;
@@ -3601,10 +3490,7 @@ LISPFUN(foreign_library,1,1,norest,nokey,0,NIL)
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(error,
-             DEUTSCH ? "~: ~ ist keine Bibliothek." :
-             ENGLISH ? "~: ~ is not a library" :
-             FRANCAIS ? "~ : ~ n'est pas une bibliothèque." :
-             ""
+             GETTEXT("~: ~ is not a library")
             );
     }
 
@@ -3628,10 +3514,7 @@ LISPFUNN(foreign_library_variable,4)
         { pushSTACK(fvar);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(error,
-                 DEUTSCH ? "~: Foreign-Variable ~ hat nicht das geforderte Alignment." :
-                 ENGLISH ? "~: foreign variable ~ does not have the required alignment" :
-                 FRANCAIS ? "~ : la variable étrangère ~ n'a pas le placement nécessaire." :
-                 ""
+                 GETTEXT("~: foreign variable ~ does not have the required alignment")
                 );
         }
       value1 = fvar; mv_count=1; skipSTACK(4+1);
@@ -3654,10 +3537,7 @@ LISPFUNN(foreign_library_function,4)
           pushSTACK(fvd);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(error,
-                 DEUTSCH ? "~: ungültiger Typ für externe Funktion: ~" :
-                 ENGLISH ? "~: illegal foreign function type ~" :
-                 FRANCAIS ? "~ : type invalide de fonction externe : ~" :
-                 ""
+                 GETTEXT("~: illegal foreign function type ~")
                 );
         }
     }

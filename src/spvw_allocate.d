@@ -29,10 +29,7 @@
       if (posfixnump(Symbol_value(S(gc_statistics_stern))))
         { dynamic_bind(S(gc_statistics_stern),Fixnum_0); } # SYS::*GC-STATISTICS* an 0 binden
       fehler(storage_condition,
-             DEUTSCH ? "Speicherplatz für LISP-Objekte ist voll." :
-             ENGLISH ? "No more room for LISP objects" :
-             FRANCAIS ? "Il n'y a plus de place pour des objets LISP." :
-             ""
+             GETTEXT("No more room for LISP objects")
             );
     }
 
@@ -52,12 +49,8 @@
         }
         else
         # ja -> harte Fehlermeldung
-        { asciz_out(DEUTSCH ? NLstring "*** - " "Speicherplatz für LISP-Objekte ist voll: RESET" :
-                    ENGLISH ? NLstring "*** - " "No more room for LISP objects: RESET" :
-                    FRANCAIS ? NLstring "*** - " "Il n'y a plus de place pour des objets LISP : RAZ" :
-                    ""
-                   );
-           reset(); # und zum letzten Driver-Frame zurück
+        { asciz_out(GETTEXT(NLstring "*** - " "No more room for LISP objects: RESET"));
+          reset(); # und zum letzten Driver-Frame zurück
     }   }
 
 # Bei entspannter Situation: Reserve wieder auffüllen.
@@ -259,11 +252,7 @@
            {var int ergebnis = zeromap((void*)(heapptr->heap_limit),needed_limit - heapptr->heap_limit);
             end_system_call();
             if (ergebnis >= 0) goto sufficient;
-            asciz_out(DEUTSCH ? "Versuche, durch eine GC Platz zu schaffen..." NLstring :
-                      ENGLISH ? "Trying to make room through a GC..." NLstring :
-                      FRANCAIS ? "Essayons de faire de la place par un GC..." NLstring :
-                      ""
-                     );
+            asciz_out(GETTEXT("Trying to make room through a GC..." NLstring));
           }}
         # nicht erfolgreich
         if (!done_gc)
@@ -322,11 +311,7 @@
            {var int ergebnis = zeromap((void*)needed_limit,heapptr->heap_limit - needed_limit);
             end_system_call();
             if (ergebnis >= 0) goto sufficient;
-            asciz_out(DEUTSCH ? "Versuche, durch eine GC Platz zu schaffen..." NLstring :
-                      ENGLISH ? "Trying to make room through a GC..." NLstring :
-                      FRANCAIS ? "Essayons de faire de la place par un GC..." NLstring :
-                      ""
-                     );
+            asciz_out(GETTEXT("Trying to make room through a GC..." NLstring));
           }}
         # nicht erfolgreich
         failed:
@@ -401,11 +386,7 @@
            {var int ergebnis = zeromap((void*)(heapptr->heap_limit),needed_limit - heapptr->heap_limit);
             end_system_call();
             if (ergebnis >= 0) goto sufficient;
-            asciz_out(DEUTSCH ? "Versuche, durch eine GC Platz zu schaffen..." NLstring :
-                      ENGLISH ? "Trying to make room through a GC..." NLstring :
-                      FRANCAIS ? "Essayons de faire de la place par un GC..." NLstring :
-                      ""
-                     );
+            asciz_out(GETTEXT("Trying to make room through a GC..." NLstring));
           }}
         # nicht erfolgreich
         if (!done_gc)

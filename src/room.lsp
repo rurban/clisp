@@ -6,27 +6,15 @@
 ;; ROOM
 
 (definternational room-format (t ENGLISH))
-(deflocalized room-format DEUTSCH
-  (list (formatter "Klasse~VT Instanzen   Größe (Bytes)   ø-Größe~%")
-        (formatter "------~VT ---------   -------------  ---------~%")
-        (formatter       "~VT~8D     ~9D  ~13,3F~%")
-) )
 (deflocalized room-format ENGLISH
   (list (formatter "Class~VT# Instances  Size (bytes)  Average size~%")
         (formatter "-----~VT-----------  ------------  ------------~%")
         (formatter      "~VT~8D     ~9D  ~13,3F~%")
 ) )
-(deflocalized room-format FRANCAIS
-  (list (formatter "Classe~VT instances  taille (octets)  t. moyenne~%")
-        (formatter "------~VT ---------  ---------------  ----------~%")
-        (formatter       "~VT~8D     ~9D  ~13,3F~%")
-) )
 
 (defun room (&optional (kind :default))
   (unless (or (eq kind 'nil) (eq kind ':default) (eq kind 't))
-    (error (DEUTSCH "~S: Argument muss ~S, ~S oder ~S sein, nicht ~S"
-            ENGLISH "~S: argument must be ~S, ~S or ~S, not ~S"
-            FRANCAIS "~S : L'argument doit être ~S, ~S ou ~S et non ~S")
+    (error (ENGLISH "~S: argument must be ~S, ~S or ~S, not ~S")
            'room 'nil 't ':default kind
   ) )
   ; Get the figures now, because (heap-statistics) causes heap allocation.
@@ -60,9 +48,7 @@
                 (incf total-bytes bytes)
           ) ) )
           (format t separator-line midcol)
-          (write-string (DEUTSCH "Gesamt"
-                         ENGLISH "Total"
-                         FRANCAIS "total")
+          (write-string (ENGLISH "Total")
           )
           (format t data-line midcol
                     total-instances total-bytes
@@ -70,9 +56,7 @@
           )
     ) ) )
     (unless (eq kind 'nil)
-      (format t (DEUTSCH "~%Dauerhaft allozierte Bytes:    ~9D~%Gegenwärtig benutzte Bytes:    ~9D~%Bis zur nächsten GC verfügbar: ~9D~%"
-                 ENGLISH "~%Bytes permanently allocated:   ~9D~%Bytes currently in use:        ~9D~%Bytes available until next GC: ~9D~%"
-                 FRANCAIS "~%Allocation permanente:                   ~9D~%Octets couramment utilisés:              ~9D~%Octets disponibles jusqu'au prochain GC: ~9D~%")
+      (format t (ENGLISH "~%Bytes permanently allocated:   ~9D~%Bytes currently in use:        ~9D~%Bytes available until next GC: ~9D~%")
                 static used room
     ) )
     (values used room)
@@ -183,23 +167,11 @@
 ) ) ) )
 
 (definternational space-format (t ENGLISH))
-(deflocalized space-format DEUTSCH
-  (list (formatter       "~VT     dauerhaft             temporär~%")
-        (formatter "Klasse~VTInstanzen   Bytes    Instanzen   Bytes~%")
-        (formatter "------~VT--------- ---------  --------- ---------~%")
-        (formatter       "~VT~9D ~9D  ~9D ~9D~%")
-) )
 (deflocalized space-format ENGLISH
   (list (formatter      "~VT     Permanent            Temporary~%")
         (formatter "Class~VTinstances   bytes    instances   bytes~%")
         (formatter "-----~VT--------- ---------  --------- ---------~%")
         (formatter      "~VT~9D ~9D  ~9D ~9D~%")
-) )
-(deflocalized space-format FRANCAIS
-  (list (formatter       "~VT     permanent            temporaire~%")
-        (formatter "Classe~VTinstances   octets   instances   octets~%")
-        (formatter "------~VT--------- ---------  --------- ---------~%")
-        (formatter       "~VT~9D ~9D  ~9D ~9D~%")
 ) )
 
 (defun space-tabulate (statlist)
@@ -240,9 +212,7 @@
           (incf total-temp-bytes temp-bytes)
     ) ) )
     (format stream separator-line midcol)
-    (write-string (DEUTSCH "Gesamt"
-                   ENGLISH "Total"
-                   FRANCAIS "total")
+    (write-string (ENGLISH "Total")
                   stream
     )
     (format stream data-line midcol

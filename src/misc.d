@@ -37,10 +37,7 @@ LISPFUN(version,0,1,norest,nokey,0,NIL)
           { value1 = NIL; mv_count=0; }
           else
           { fehler(error,
-                   DEUTSCH ? "Dieses File stammt von einer anderen Lisp-Version, muss neu compiliert werden." :
-                   ENGLISH ? "This file was produced by another lisp version, must be recompiled." :
-                   FRANCAIS ? "Ce fichier provient d'une autre version de LISP et doit être recompilé." :
-                   ""
+                   GETTEXT("This file was produced by another lisp version, must be recompiled.")
                   );
   }   }   }
 
@@ -222,10 +219,7 @@ LISPFUNN(registry,2)
                   pushSTACK(path_name);
                   pushSTACK(TheSubr(subr_self)->name);
                   fehler(error,
-                         DEUTSCH ? "~: Typ des Attributs ~ ist nicht unterstützt." :
-                         ENGLISH ? "~: type of attribute ~ is unsupported" :
-                         FRANCAIS ? "~ : Le type de l'attribut ~ n'est pas supporté." :
-                         ""
+                         GETTEXT("~: type of attribute ~ is unsupported")
                         );
                 }
             }
@@ -263,11 +257,7 @@ LISPFUNN(current_language,0)
 # (SYS::CURRENT-LANGUAGE) liefert die aktuelle Sprache.
   {
     #ifndef GNU_GETTEXT
-      value1 = (ENGLISH ? S(english) :
-                DEUTSCH ? S(deutsch) :
-                FRANCAIS ? S(francais) :
-                NIL
-               );
+      value1 = (ENGLISH ? S(english) : NIL);
     #else # GNU_GETTEXT
       if (nullp(O(current_language_cache)))
         { O(current_language_cache) = OL(current_language); }
@@ -281,11 +271,7 @@ LISPFUNN(language,3)
 # Sprache das entsprechende Argument.
   {
     #ifndef GNU_GETTEXT
-      value1 = (ENGLISH ? STACK_2 :
-                DEUTSCH ? STACK_1 :
-                FRANCAIS ? STACK_0 :
-                NIL
-               );
+      value1 = (ENGLISH ? STACK_2 : NIL);
     #else
       if (!stringp(STACK_2)) { fehler_string(STACK_2); }
       value1 = localized_string(STACK_2);

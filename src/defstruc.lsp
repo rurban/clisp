@@ -60,9 +60,7 @@
 (defun ds-symbol-or-error (x)
   (unless (symbolp x)
     (error-of-type 'source-program-error
-      (DEUTSCH "~S: Das ist kein Symbol: ~S"
-       ENGLISH "~S: this is not a symbol: ~S"
-       FRANCAIS "~S : Ceci n'est pas un symbole: ~S")
+      (ENGLISH "~S: this is not a symbol: ~S")
       'defstruct x
 ) ) )
 
@@ -424,9 +422,7 @@
     ) ; andernfalls sind name und options schon korrekt.
     (unless (and (symbolp name) (not (keywordp name)))
       (error-of-type 'source-program-error
-        (DEUTSCH "~S: Falsche Syntax für Name und Optionen: ~S"
-         ENGLISH "~S: invalid syntax for name and options: ~S"
-         FRANCAIS "~S : Mauvaise syntaxe pour un nom et des options: ~S")
+        (ENGLISH "~S: invalid syntax for name and options: ~S")
         'defstruct name-and-options
     ) )
     ; name ist ein Symbol, options die Liste der Optionen.
@@ -450,9 +446,7 @@
                        arg ; Keyword-Constructor
                        (if (not (listp (third option)))
                          (error-of-type 'source-program-error
-                           (DEUTSCH "~S ~S: Argumentliste muss eine Liste sein: ~S"
-                            ENGLISH "~S ~S: argument list should be a list: ~S"
-                            FRANCAIS "~S ~S : La liste d'arguments doit être une liste: ~S")
+                           (ENGLISH "~S ~S: argument list should be a list: ~S")
                            'defstruct name (third option)
                          )
                          (rest option) ; BOA-Constructor
@@ -475,9 +469,7 @@
                (if (null include-option)
                  (setq include-option option)
                  (error-of-type 'source-program-error
-                   (DEUTSCH "~S ~S: Es darf nur ein :INCLUDE-Argument geben: ~S"
-                    ENGLISH "~S ~S: At most one :INCLUDE argument may be specified: ~S"
-                    FRANCAIS "~S ~S : Il ne peut y avoir qu'un argument :INCLUDE: ~S")
+                   (ENGLISH "~S ~S: At most one :INCLUDE argument may be specified: ~S")
                    'defstruct name options
             )  ) )
             ((:PRINT-FUNCTION :PRINT-OBJECT)
@@ -485,12 +477,8 @@
                  (setq print-object-option '(PRINT-STRUCTURE STRUCT STREAM))
                  (let ((arg (second option)))
                    (when (and (consp arg) (eq (first arg) 'FUNCTION))
-                     (warn (DEUTSCH "~S: Bei ~S ist FUNCTION bereits implizit.~@
-                                     Verwende daher ~S statt ~S."
-                            ENGLISH "~S: Use of ~S implicitly applies FUNCTION.~@
-                                     Therefore using ~S instead of ~S."
-                            FRANCAIS "~S : FUNCTION est déjà implicite avec ~S.~@
-                                      C'est pourquoi ~S est utilisé au lieu de ~S.")
+                     (warn (ENGLISH "~S: Use of ~S implicitly applies FUNCTION.~@
+                                     Therefore using ~S instead of ~S.")
                            'defstruct (first option) (second arg) arg
                      )
                      (setq arg (second arg))
@@ -502,21 +490,15 @@
             (:NAMED (setq named-option t))
             (:INITIAL-OFFSET (setq initial-offset-option (or (second option) 0)))
             (T (error-of-type 'source-program-error
-                 (DEUTSCH "~S ~S: Die Option ~S gibt es nicht."
-                  ENGLISH "~S ~S: unknown option ~S"
-                  FRANCAIS "~S ~S : Option ~S non reconnue.")
+                 (ENGLISH "~S ~S: unknown option ~S")
                  'defstruct name (first option)
           ) )  )
           (error-of-type 'source-program-error
-            (DEUTSCH "~S ~S: Falsche Syntax in ~S-Option: ~S"
-             ENGLISH "~S ~S: invalid syntax in ~S option: ~S"
-             FRANCAIS "~S ~S : Mauvaise syntaxe dans l'option ~S: ~S")
+            (ENGLISH "~S ~S: invalid syntax in ~S option: ~S")
             'defstruct name 'defstruct option
         ) )
         (error-of-type 'source-program-error
-          (DEUTSCH "~S ~S: Das ist keine ~S-Option: ~S"
-           ENGLISH "~S ~S: not a ~S option: ~S"
-           FRANCAIS "~S ~S : Ceci n'est pas une option ~S: ~S")
+          (ENGLISH "~S ~S: not a ~S option: ~S")
           'defstruct name 'defstruct option
     ) ) )
     ; conc-name-option ist entweder T oder "" oder das :CONC-NAME-Argument.
@@ -540,9 +522,7 @@
       )
       (unless (or (eql predicate-option 0) (eq predicate-option 'NIL))
         (error-of-type 'source-program-error
-          (DEUTSCH "~S ~S: Bei unbenannten Structures kann es kein :PREDICATE geben."
-           ENGLISH "~S ~S: There is no :PREDICATE on unnamed structures."
-           FRANCAIS "~S ~S : Il ne peut pas y avoir de :PREDICATE avec des structures anonymes.")
+          (ENGLISH "~S ~S: There is no :PREDICATE on unnamed structures.")
           'defstruct name
     ) ) )
     ; predicate-option ist
@@ -568,25 +548,19 @@
                 (and (consp type-option) (eq (first type-option) 'VECTOR))
             )
       (error-of-type 'source-program-error
-        (DEUTSCH "~S ~S: Unzulässige :TYPE-Option ~S"
-         ENGLISH "~S ~S: invalid :TYPE option ~S"
-         FRANCAIS "~S ~S : Option :TYPE inadmissible: ~S")
+        (ENGLISH "~S ~S: invalid :TYPE option ~S")
         'defstruct name type-option
     ) )
     ; type-option ist entweder T oder LIST oder VECTOR oder (VECTOR ...)
     (unless (and (integerp initial-offset-option) (>= initial-offset-option 0))
       (error-of-type 'source-program-error
-        (DEUTSCH "~S ~S: Der :INITIAL-OFFSET muss ein Integer >=0 sein, nicht ~S"
-         ENGLISH "~S ~S: The :INITIAL-OFFSET must be a nonnegative integer, not ~S"
-         FRANCAIS "~S ~S : :INITIAL-OFFSET doit être un entier positif ou zéro et non ~S")
+        (ENGLISH "~S ~S: The :INITIAL-OFFSET must be a nonnegative integer, not ~S")
         'defstruct name initial-offset-option
     ) )
     ; initial-offset-option ist ein Integer >=0.
     (when (and (plusp initial-offset-option) (eq type-option 'T))
       (error-of-type 'source-program-error
-        (DEUTSCH "~S ~S: :INITIAL-OFFSET darf nur zusammen mit :TYPE angegeben werden: ~S"
-         ENGLISH "~S ~S: :INITIAL-OFFSET must not be specified without :TYPE : ~S"
-         FRANCAIS "~S ~S : :INITIAL-OFFSET ne peut être précisé qu'ensemble avec :TYPE: ~S")
+        (ENGLISH "~S ~S: :INITIAL-OFFSET must not be specified without :TYPE : ~S")
         'defstruct name options
     ) )
     ; Bei type-option=T ist initial-offset-option=0.
@@ -604,9 +578,7 @@
              (incl-desc (get subname 'DEFSTRUCT-DESCRIPTION)))
         (when (null incl-desc)
           (error-of-type 'source-program-error
-            (DEUTSCH "~S ~S: Teilstruktur ~S ist nicht definiert."
-             ENGLISH "~S ~S: included structure ~S has not been defined."
-             FRANCAIS "~S ~S : La structure incluse ~S n'est pas définie.")
+            (ENGLISH "~S ~S: included structure ~S has not been defined.")
             'defstruct name subname
         ) )
         (setq names (cons name (svref incl-desc 0)))
@@ -618,9 +590,7 @@
         )     ) )
         (unless (equalp (svref incl-desc 1) type-option)
           (error-of-type 'source-program-error
-            (DEUTSCH "~S ~S: Teilstruktur ~S muss vom selben Typ ~S sein."
-             ENGLISH "~S ~S: included structure ~S must be of the same type ~S."
-             FRANCAIS "~S ~S : La structure incluse ~S doit être du même type ~S.")
+            (ENGLISH "~S ~S: included structure ~S must be of the same type ~S.")
             'defstruct name subname type-option
         ) )
         (setq slotlist
@@ -645,9 +615,7 @@
                  (slot (find slotname slotlist :key #'ds-slot-name :test #'eq)))
             (when (null slot)
               (error-of-type 'source-program-error
-                (DEUTSCH "~S ~S: Teilstruktur ~S hat keine Komponente namens ~S."
-                 ENGLISH "~S ~S: included structure ~S has no component with name ~S."
-                 FRANCAIS "~S ~S : La structure incluse ~S n'a pas de composante de nom ~S.")
+                (ENGLISH "~S ~S: included structure ~S has no component with name ~S.")
                 'defstruct name subname slotname
             ) )
             (if (atom slotarg)
@@ -676,9 +644,7 @@
                              (setf (ds-slot-readonly slot) t)
                              (if (ds-slot-readonly slot)
                                (error-of-type 'source-program-error
-                                 (DEUTSCH "~S ~S: Der READ-ONLY-Slot ~S von Teilstruktur ~S muss auch in ~S READ-ONLY bleiben."
-                                  ENGLISH "~S ~S: The READ-ONLY slot ~S of the included structure ~S must remain READ-ONLY in ~S."
-                                  FRANCAIS "~S ~S : Le composant READ-ONLY ~S de la structure incluse ~S doit rester READ-ONLY dans ~S.")
+                                 (ENGLISH "~S ~S: The READ-ONLY slot ~S of the included structure ~S must remain READ-ONLY in ~S.")
                                  'defstruct name slotname subname name
                                )
                                (setf (ds-slot-readonly slot) nil)
@@ -688,17 +654,13 @@
                                              (type-for-discrimination (ds-slot-type slot))
                                    )
                              (error-of-type 'source-program-error
-                               (DEUTSCH "~S ~S: Der Typ ~S von Slot ~S muss ein Untertyp des in Teilstruktur ~S definierten Typs ~S sein."
-                                ENGLISH "~S ~S: The type ~S of slot ~S should be a subtype of the type defined for the included strucure ~S, namely ~S."
-                                FRANCAIS "~S ~S : Le type ~S du composant ~S doit être un sous-type du type défini dans la structure incluse ~S, c'est-à-dire ~S.")
+                               (ENGLISH "~S ~S: The type ~S of slot ~S should be a subtype of the type defined for the included strucure ~S, namely ~S.")
                                'defstruct name slot-key-value slotname subname (ds-slot-type slot)
                            ) )
                            (setf (ds-slot-type slot) slot-key-value)
                           )
                           (t (error-of-type 'source-program-error
-                               (DEUTSCH "~S ~S: ~S ist keine Slot-Option."
-                                ENGLISH "~S ~S: ~S is not a slot option."
-                                FRANCAIS "~S ~S : ~S n'est pas une option de composant.")
+                               (ENGLISH "~S ~S: ~S is not a slot option.")
                                'defstruct name slot-keyword
                           )  )
                 ) ) )
@@ -730,9 +692,7 @@
                (not (typep names (type-for-discrimination (second type-option))))
           )
       (error-of-type 'source-program-error
-        (DEUTSCH "~S ~S: Structure vom Typ ~S kann den Namen nicht enthalten."
-         ENGLISH "~S ~S: structure of type ~S can't hold the name."
-         FRANCAIS "~S ~S : Une structure de type ~S ne peut pas contenir le nom.")
+        (ENGLISH "~S ~S: structure of type ~S can't hold the name.")
         'defstruct name type-option
     ) )
     ; Aufbau der Structure:
@@ -784,9 +744,7 @@
                       :test #'string=
                 )
             (error-of-type 'source-program-error
-              (DEUTSCH "~S ~S: Es kann nicht mehrere Slots mit demselben Namen ~S geben."
-               ENGLISH "~S ~S: There may be only one slot with the name ~S."
-               FRANCAIS "~S ~S : Il ne peut pas y avoir plusieurs composants avec le même nom ~S.")
+              (ENGLISH "~S ~S: There may be only one slot with the name ~S.")
               'defstruct name slotname
           ) )
           (let ((type t) (read-only nil))
@@ -800,9 +758,7 @@
                         )
                         ((eq slot-keyword ':TYPE) (setq type slot-key-value))
                         (t (error-of-type 'source-program-error
-                             (DEUTSCH "~S ~S: ~S ist keine Slot-Option."
-                              ENGLISH "~S ~S: ~S is not a slot option."
-                              FRANCAIS "~S ~S : ~S n'est pas une option de composant.")
+                             (ENGLISH "~S ~S: ~S is not a slot option.")
                              'defstruct name slot-keyword
                         )  )
             ) ) ) )

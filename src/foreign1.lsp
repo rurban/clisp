@@ -83,9 +83,7 @@
     (write-char #\" s)
     (map nil #'(lambda (c)
                  (cond ((eql c #\Null)
-                        (error (DEUTSCH "Kann String ~S nicht nach C abbilden, denn es enthält ein Zeichen ~S."
-                                ENGLISH "Cannot map string ~S to C since it contains a character ~S"
-                                FRANCAIS "Ne peux convertir la chaîne ~S en langage C à cause d'un caractère ~S.")
+                        (error (ENGLISH "Cannot map string ~S to C since it contains a character ~S")
                                string c
                        ))
                        ((eq c #\Newline)
@@ -127,23 +125,17 @@
     (if (symbolp typespec)
       (multiple-value-bind (c-type found) (gethash typespec *c-type-table*)
         (unless found
-          (error (DEUTSCH "Unvollständiger FFI-Typ ~S ist hier nicht erlaubt."
-                  ENGLISH "Incomplete FFI type ~S is not allowed here."
-                  FRANCAIS "Le type de FFI ~S n'est pas complet, ce qui n'est pas permis ici.")
+          (error (ENGLISH "Incomplete FFI type ~S is not allowed here.")
                  typespec
         ) )
         (when name (setf (gethash name *c-type-table*) c-type))
         c-type
       )
-      (error (DEUTSCH "FFI-Typ muss ein Symbol sein, nicht ~S."
-              ENGLISH "FFI type should be a symbol, not ~S"
-              FRANCAIS "Un type FFi doit être un symbole et non ~S")
+      (error (ENGLISH "FFI type should be a symbol, not ~S")
              typespec
     ) )
     (flet ((invalid (typespec)
-             (error (DEUTSCH "Ungültiger FFI-Typ: ~S"
-                     ENGLISH "Invalid FFI type: ~S"
-                     FRANCAIS "Type FFI inadmissible: ~S")
+             (error (ENGLISH "Invalid FFI type: ~S")
                     typespec
           )) )
       (case (first typespec)
@@ -160,9 +152,7 @@
                                                (eql (length subspec) 2)
                                                (symbolp (first subspec))
                                           )
-                                    (error (DEUTSCH "Ungültige ~S-Komponente: ~S"
-                                            ENGLISH "Invalid ~S component: ~S"
-                                            FRANCAIS "Composant de ~S inadmissible: ~S")
+                                    (error (ENGLISH "Invalid ~S component: ~S")
                                            'c-struct subspec
                                   ) )
                                   (parse-c-type (second subspec))
@@ -227,9 +217,7 @@
                                                (eql (length subspec) 2)
                                                (symbolp (first subspec))
                                           )
-                                    (error (DEUTSCH "Ungültige ~S-Komponente: ~S"
-                                            ENGLISH "Invalid ~S component: ~S"
-                                            FRANCAIS "Composant de ~S inadmissible: ~S")
+                                    (error (ENGLISH "Invalid ~S component: ~S")
                                            'c-union subspec
                                   ) )
                                   (parse-c-type (second subspec))
@@ -338,15 +326,11 @@
   (let ((alist '()))
     (dolist (option options)
       (unless (and (consp option) (member (first option) keywords))
-        (error (DEUTSCH "Ungültige Option in ~S: ~S"
-                ENGLISH "Invalid option in ~S: ~S"
-                FRANCAIS "Option invalide dans ~S: ~S")
+        (error (ENGLISH "Invalid option in ~S: ~S")
                whole option
       ) )
       (when (assoc (first option) alist)
-        (error (DEUTSCH "Nur eine ~S-Option ist erlaubt: ~S"
-                ENGLISH "Only one ~S option is allowed: ~S"
-                FRANCAIS "Une seule option ~S est permise: ~S")
+        (error (ENGLISH "Only one ~S option is allowed: ~S")
               (first option) whole
       ) )
       (push option alist)
@@ -363,9 +347,7 @@
                                      (symbolp (first argspec))
                                      (<= 2 (length argspec) #-AMIGA 4 #+AMIGA 5)
                                 )
-                          (error (DEUTSCH "Ungültige Parameter-Spezifikation in ~S: ~S"
-                                  ENGLISH "Invalid parameter specification in ~S: ~S"
-                                  FRANCAIS "Spécification invalide d'argument dans ~S: ~S")
+                          (error (ENGLISH "Invalid parameter specification in ~S: ~S")
                                  whole argspec
                         ) )
                         (let* ((argtype (parse-c-type (second argspec)))
@@ -426,25 +408,19 @@
 
 (defun parse-foreign-name (name)
   (unless (stringp name)
-    (error (DEUTSCH "Der Name muss ein String sein, nicht ~S."
-            ENGLISH "The name must be a string, not ~S"
-            FRANCAIS "Le nom doit être une chaîne et non ~S.")
+    (error (ENGLISH "The name must be a string, not ~S")
            name
   ) )
   (if (c-ident-p name)
     name
-    (error (DEUTSCH "Der Name ~S ist kein gültiger C-Identifier."
-            ENGLISH "The name ~S is not a valid C identifier"
-            FRANCAIS "Le nom ~S n'est pas valable en langage C.")
+    (error (ENGLISH "The name ~S is not a valid C identifier")
            name
 ) ) )
 
 (defun check-symbol (whole &optional (name (second whole)))
   (unless (symbolp name)
     (sys::error-of-type 'sys::source-program-error
-      (DEUTSCH "~S: Das ist kein Symbol: ~S"
-       ENGLISH "~S: this is not a symbol: ~S"
-       FRANCAIS "~S : Ceci n'est pas un symbole: ~S")
+      (ENGLISH "~S: this is not a symbol: ~S")
       (first whole) name
 ) ) )
 
@@ -692,9 +668,7 @@
             (to-c-typedecl (svref c-type 1) (format nil "* ~A" name)))
            (c-function
             (to-c-typedecl (svref c-type 1) (format nil "~A ()" name)))
-           (t (error (DEUTSCH "ungültiger Typ für externe Daten: ~S"
-                      ENGLISH "illegal foreign data type ~S"
-                      FRANCAIS "type invalide de données externes : ~S")
+           (t (error (ENGLISH "illegal foreign data type ~S")
                      c-type)))))))
 
 (defun prepare-module ()
@@ -824,9 +798,7 @@ void module__~A__init_function_2(module)
          (c-name (foreign-name name (assoc ':name alist)))
          (type (second (or (assoc ':type alist)
                            (sys::error-of-type 'sys::source-program-error
-                                  (DEUTSCH "~S: ~S-Option fehlt in ~S."
-                                   ENGLISH "~S: ~S option missing in ~S"
-                                   FRANCAIS "~S: option ~S manque dans ~S")
+                                  (ENGLISH "~S: ~S option missing in ~S")
                                   'def-c-var ':type whole
          )     )       )   )
          (read-only (second (assoc ':read-only alist)))
@@ -1021,9 +993,7 @@ void module__~A__init_function_2(module)
           (mapc #'(lambda (argtype argflag argname)
                     (unless (zerop (logand argflag (logior ff-flag-out ff-flag-in-out)))
                       (unless (and (simple-vector-p argtype) (eql (length argtype) 2) (eq (svref argtype 0) 'C-PTR))
-                        (error (DEUTSCH "~S: :OUT-Argument ist kein Pointer: ~S"
-                                ENGLISH "~S: :OUT argument is not a pointer: ~S"
-                                FRANCAIS "~S : paramètre :OUT n'est pas indirecte: ~S")
+                        (error (ENGLISH "~S: :OUT argument is not a pointer: ~S")
                                'DEF-CALL-IN argtype
                       ) )
                       (format *coutput-stream* "  ~A~A(~A,~A,~A);~%"
@@ -1087,9 +1057,7 @@ void module__~A__init_function_2(module)
 ; (slot (foreign-value x) ...)    --> (foreign-value (%slot x ...))
 (flet ((err (whole)
          (sys::error-of-type 'sys::source-program-error
-           (DEUTSCH "~S ist nur nach ~S erlaubt: ~S"
-            ENGLISH "~S is only allowed after ~S: ~S"
-            FRANCAIS "~S n'est permis qu'après ~S: ~S")
+           (ENGLISH "~S is only allowed after ~S: ~S")
            (first whole) 'FOREIGN-VALUE whole
       )) )
   (defmacro element (place &rest indices &environment env)

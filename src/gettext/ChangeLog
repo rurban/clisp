@@ -1,3 +1,19 @@
+1999-04-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Stop storing german and french translations in the source files.
+        * po/Makefile.devel (PREDEF_LINGUAS): Remove de, fr.
+          (OTHER_LINGUAS): Add de, fr.
+          (SOURCES_DE, SOURCES_FR): Remove variables.
+          (de.po, fr.po): Remove rules.
+          (LINGUA): Remove variable.
+          (%.po.merged): New rule.
+        * po/clisp-xgettext (main): Comment out support for languages de and
+          fr. In do-one-file, add support for searching the "GETTEXT" key.
+        * po/po_header: Remove de, fr. Update copyright year.
+        * po/Makefile.trans: Remove file.
+        * po/Makefile.trans.de, po/Makefile.trans.fr, po/Makefile.trans.es:
+          New files.
+
 1999-03-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * intl/dcgettext.c: Define _GNU_SOURCE before including any system

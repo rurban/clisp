@@ -28,9 +28,7 @@
 (defun edit-file (file)
   (unless (editor-name)
     (error-of-type 'error
-      (DEUTSCH "Kein externer Editor installiert."
-       ENGLISH "No external editor installed."
-       FRANCAIS "Un éditeur externe n'est pas installé.")
+      (ENGLISH "No external editor installed.")
   ) )
   ; Damit TRUENAME keinen Fehler liefert, wenn das File noch nicht existiert,
   ; stellen wir sicher, dass das File existiert:
@@ -102,9 +100,7 @@
           funname
         )
         (error-of-type 'error
-          (DEUTSCH "~S ist nicht editierbar."
-           ENGLISH "~S cannot be edited."
-           FRANCAIS "~S ne peut pas être édité.")
+          (ENGLISH "~S cannot be edited.")
           arg
 ) ) ) ) )
 
@@ -123,9 +119,7 @@
       )
     (evalhook (car def) nil nil (cdr def))
     (error-of-type 'error
-      (DEUTSCH "~S: Quellcode zu ~S nicht verfügbar."
-       ENGLISH "~S: source code for ~S not available."
-       FRANCAIS "~S : Les sources de ~S ne sont pas présentes.")
+      (ENGLISH "~S: source code for ~S not available.")
       'uncompile funname
     )
 ) )

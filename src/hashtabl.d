@@ -1062,10 +1062,7 @@
         pushSTACK(O(type_hashtable_size)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(maxcount);
         fehler(type_error,
-               DEUTSCH ? "Zu große Hashtabellengröße ~" :
-               ENGLISH ? "Hash table size ~ too large" :
-               FRANCAIS ? "La taille ~ est trop grande pour une table de hachage." :
-               ""
+               GETTEXT("Hash table size ~ too large")
               );
     }
 
@@ -1110,10 +1107,7 @@
                   # Der Platz reicht nicht!!
                   { pushSTACK(ht); # Hash-Table
                     fehler(serious_condition,
-                           DEUTSCH ? "Interner Fehler beim Reorganisieren von ~." :
-                           ENGLISH ? "internal error occured while resizing ~" :
-                           FRANCAIS ? "Une erreur interne s'est produite au moment de la réorganisation de ~." :
-                           ""
+                           GETTEXT("internal error occured while resizing ~")
                           );
                   }
                 count--;
@@ -1219,10 +1213,7 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
           pushSTACK(test);
           pushSTACK(S(make_hash_table));
           fehler(type_error,
-                 DEUTSCH ? "~: Unzulässiges :TEST-Argument ~" :
-                 ENGLISH ? "~: illegal :TEST argument ~" :
-                 FRANCAIS ? "~: Argument pour :TEST illicite : ~" :
-                 ""
+                 GETTEXT("~: illegal :TEST argument ~")
                 );
     }   }
     # flags enthält die Flags zum Test.
@@ -1237,10 +1228,7 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
               pushSTACK(size);
               pushSTACK(S(make_hash_table));
               fehler(type_error,
-                     DEUTSCH ? "~: :SIZE-Argument sollte ein Fixnum >=0 sein, nicht ~" :
-                     ENGLISH ? "~: :SIZE argument should be a fixnum >=0, not ~" :
-                     FRANCAIS ? "~: L'argument :SIZE doit être de type FIXNUM positif ou zéro et non ~." :
-                     ""
+                     GETTEXT("~: :SIZE argument should be a fixnum >=0, not ~")
                     );
             }
           # size ist ein Fixnum >=0
@@ -1260,10 +1248,7 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
                   pushSTACK(STACK_(1+2));
                   pushSTACK(S(make_hash_table));
                   fehler(type_error,
-                         DEUTSCH ? "~: :REHASH-SIZE-Argument sollte ein Float > 1 sein, nicht ~" :
-                         ENGLISH ? "~: :REHASH-SIZE argument should be a float > 1, not ~" :
-                         FRANCAIS ? "~: L'argument :REHASH-SIZE devrait être un nombre à virgule flottante supérieur à 1 et non ~." :
-                         ""
+                         GETTEXT("~: :REHASH-SIZE argument should be a float > 1, not ~")
                         );
                 }
               # Da es sinnlos ist, eine Tabelle immer nur um eine feste
@@ -1306,10 +1291,7 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
               pushSTACK(STACK_1);
               pushSTACK(S(make_hash_table));
               fehler(type_error,
-                     DEUTSCH ? "~: :REHASH-THRESHOLD-Argument sollte ein Float zwischen 0 und 1 sein, nicht ~" :
-                     ENGLISH ? "~: :REHASH-THRESHOLD argument should be a float between 0 and 1, not ~" :
-                     FRANCAIS ? "~: L'argument :REHASH-THRESHOLD devrait être un nombre à virgule flottante compris entre 0 et 1 et non ~." :
-                     ""
+                     GETTEXT("~: :REHASH-THRESHOLD argument should be a float between 0 and 1, not ~")
                     );
             }
           pushSTACK(Fixnum_1);
@@ -1380,10 +1362,7 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
                       { pushSTACK(ht); # Hash-Tabelle
                         pushSTACK(S(make_hash_table));
                         fehler(serious_condition,
-                               DEUTSCH ? "~: Interner Fehler beim Aufbauen von ~" :
-                               ENGLISH ? "~: internal error while building ~" :
-                               FRANCAIS ? "~: Une erreur interne s'est produite lors de la construction de ~." :
-                               ""
+                               GETTEXT("~: internal error while building ~")
                               );
                       }
                     hash_store(key,Cdr(next)); # Eintrag basteln
@@ -1424,10 +1403,7 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument ~ ist keine Hash-Table." :
-             ENGLISH ? "~: argument ~ is not a hash-table" :
-             FRANCAIS ? "~: L'argument ~ n'est pas une table de hachage." :
-             ""
+             GETTEXT("~: argument ~ is not a hash-table")
             );
     }
 

@@ -403,10 +403,7 @@
             pushSTACK(O(type_boole)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
             pushSTACK(op); pushSTACK(S(boole));
             fehler(type_error,
-                   DEUTSCH ? "~: ~ ist keine gültige Boolesche Operation." :
-                   ENGLISH ? "~: ~ is not a valid boolean operation" :
-                   FRANCAIS ? "~ : ~ n'est pas une opération booléenne admise." :
-                   ""
+                   GETTEXT("~: ~ is not a valid boolean operation")
                   );
     }   }
 
@@ -523,10 +520,7 @@
           pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(x); pushSTACK(S(logbitp));
           fehler(type_error,
-                 DEUTSCH ? "~: Index ~ ist negativ." :
-                 ENGLISH ? "~: index ~ is negative" :
-                 FRANCAIS ? "~ : L'index ~ est négatif." :
-                 ""
+                 GETTEXT("~: index ~ is negative")
                 );
     }   }
 
@@ -648,10 +642,7 @@
       badamount:
         pushSTACK(y); pushSTACK(S(ash));
         fehler(arithmetic_error,
-               DEUTSCH ? "~: Zu große Schiebezahl ~" :
-               ENGLISH ? "~: too large shift amount ~" :
-               FRANCAIS ? "~ : Décalage ~ trop grand." :
-               ""
+               GETTEXT("~: too large shift amount ~")
               );
     }}
 

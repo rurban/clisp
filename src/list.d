@@ -496,10 +496,7 @@ LISPFUNN(list_length,1) # (LIST-LENGTH list), CLTL S. 265
       pushSTACK(STACK_(0+2));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist kein erlaubter Index, da kein Fixnum>=0." :
-             ENGLISH ? "~: ~ is not a nonnegative fixnum and therefore not a valid index" :
-             FRANCAIS ? "~ : ~, n'étant pas de type FIXNUM positif ou zéro, n'est pas un index valide." :
-             ""
+             GETTEXT("~: ~ is not a nonnegative fixnum and therefore not a valid index")
             );
     }
 
@@ -572,10 +569,7 @@ LISPFUNN(nthcdr,2) # (NTHCDR integer list), CLTL S. 267
       pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(badindex); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist keine erlaubte Abschnittlänge, da kein Integer >=0." :
-             ENGLISH ? "~: ~ is not a nonnegative integer and therefore not a valid argument" :
-             FRANCAIS ? "~ : ~, n'etant pas un nombre entier positif ou zéro, ne désigne pas une bonne longueur." :
-             ""
+             GETTEXT("~: ~ is not a nonnegative integer and therefore not a valid argument")
             );
     }
 
@@ -692,10 +686,7 @@ LISPFUN(make_list,1,0,norest,key,1, (kw(initial_element)) )
         pushSTACK(STACK_(1+2)); # size
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: ~ ist als Listengröße nicht geeignet, da kein Fixnum >= 0" :
-               ENGLISH ? "~: ~ is not a nonnegative fixnum and therefore not a valid list length" :
-               FRANCAIS ? "~ : ~, n'étant pas de type FIXNUM positif ou zéro, n'est pas acceptable comme longueur de liste." :
-               ""
+               GETTEXT("~: ~ is not a nonnegative fixnum and therefore not a valid list length")
               );
   }   }
 
@@ -966,10 +957,7 @@ LISPFUNN(ldiff,2) # (LDIFF list sublist), CLTL S. 272
       pushSTACK(S(cons)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(badobject); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist kein Paar." :
-             ENGLISH ? "~: ~ is not a pair" :
-             FRANCAIS ? "~ : ~ n'est pas une paire." :
-             ""
+             GETTEXT("~: ~ is not a pair")
             );
     }
 
@@ -1615,10 +1603,7 @@ LISPFUN(pairlis,2,1,norest,nokey,0,NIL)
         var object keys_list = popSTACK();
         pushSTACK(data_list); pushSTACK(keys_list); pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
-               DEUTSCH ? "~: Listen ~ und ~ sind verschieden lang." :
-               ENGLISH ? "~: lists ~ and ~ are not of same length" :
-               FRANCAIS ? "~ : Les listes ~ et ~ sont de longueurs distinctes." :
-               ""
+               GETTEXT("~: lists ~ and ~ are not of same length")
               );
       }
     end: value1 = STACK_2; mv_count=1; skipSTACK(5); # alist als Wert
@@ -1810,10 +1795,7 @@ LISPFUNN(list_llength,1)
           STACK_3 = tmp; # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         }
         fehler(type_error,
-               DEUTSCH ? "~: Index ~ zu groß für ~" :
-               ENGLISH ? "~: index ~ too large for ~" :
-               FRANCAIS ? "~ : L'index ~ est trop grand pour ~." :
-               ""
+               GETTEXT("~: index ~ too large for ~")
               );
     }
 
@@ -1869,10 +1851,7 @@ LISPFUNN(list_init_start,2)
         pushSTACK(STACK_2); # index
         pushSTACK(S(list_init_start));
         fehler(type_error,
-               DEUTSCH ? "~: START-Index ~ zu groß für ~" :
-               ENGLISH ? "~: start index ~ too large for ~" :
-               FRANCAIS ? "~ : L'index :START ~ est trop grand pour ~." :
-               ""
+               GETTEXT("~: start index ~ too large for ~")
               );
     }}
 
@@ -1915,10 +1894,7 @@ LISPFUNN(list_fe_init_end,2)
       pushSTACK(STACK_(3+3));
       pushSTACK(S(list_fe_init_end));
       fehler(type_error,
-             DEUTSCH ? "~: END-Index ~ zu groß für ~" :
-             ENGLISH ? "~: end index ~ too large for ~" :
-             FRANCAIS ? "~ : L'index :END ~ est trop grand pour ~." :
-             ""
+             GETTEXT("~: end index ~ too large for ~")
             );
     end:
       value1 = STACK_2; mv_count=1; # L1 als Wert
