@@ -26,7 +26,7 @@ fi
 AC_MSG_NOTICE([* PostgreSQL (Functions)])
 AC_LIB_APPENDTOVAR([LIBS], [$LTLIBPQ])
 AC_SEARCH_LIBS(encrypt, crypt)
-AC_SEARCH_LIBS(PQconnectdb)
+AC_SEARCH_LIBS(PQconnectdb, pq)
 if test "$ac_cv_search_PQconnectdb" = "no"; then
   AC_MSG_ERROR([cannot find PostgreSQL library])
 fi
