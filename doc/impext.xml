@@ -2247,20 +2247,20 @@ within Lisp (using &setq; or similar).</simpara>
 
 <varlistentry id="element">
    <term><literal role="sexp">(<function>element</function>
-     &cplace-r; <replaceable>index<subscript>1</subscript></replaceable> ...
-     <replaceable>index<subscript>n</subscript></replaceable>)</literal></term>
+     &cplace-r; <replaceable>index&sub-1;</replaceable> ...
+     <replaceable>index&sub-n;</replaceable>)</literal></term>
 <listitem><simpara>Array element: If &cplace-r; is of foreign type
   <literal role="sexp">(c-array &ctype-r;
-  <replaceable>dim<subscript>1</subscript></replaceable>
-  ... <replaceable>dim<subscript>n</subscript></replaceable>)</literal>
-  and 0 &le; <replaceable>index<subscript>1</subscript></replaceable>
-  &lt; <replaceable>dim<subscript>1</subscript></replaceable>, ..., 0
-  &le; <replaceable>index<subscript>n</subscript></replaceable> &lt;
-  <replaceable>dim<subscript>n</subscript></replaceable>, this will be
+  <replaceable>dim&sub-1;</replaceable>
+  ... <replaceable>dim&sub-n;</replaceable>)</literal>
+  and 0 &le; <replaceable>index&sub-1;</replaceable>
+  &lt; <replaceable>dim&sub-1;</replaceable>, ..., 0
+  &le; <replaceable>index&sub-n;</replaceable> &lt;
+  <replaceable>dim&sub-n;</replaceable>, this will be
   the place corresponding to <literal role="sexp">(&aref;
-  &cplace-r; <replaceable>index<subscript>1</subscript></replaceable>
-  ... <replaceable>index<subscript>n</subscript></replaceable>)</literal> or
-  <varname>&cplace-r;[<replaceable>index<subscript>1</subscript></replaceable>]...[<replaceable>index<subscript>n</subscript></replaceable>]</varname>.
+  &cplace-r; <replaceable>index&sub-1;</replaceable>
+  ... <replaceable>index&sub-n;</replaceable>)</literal> or
+  <varname>&cplace-r;[<replaceable>index&sub-1;</replaceable>]...[<replaceable>index&sub-n;</replaceable>]</varname>.
   It is a place of type &ctype-r;.
   If &cplace-r; is of foreign type <literal role="sexp">(c-array-max
   &ctype-r; <replaceable>dim</replaceable>)</literal> and 0 &le;
@@ -2426,45 +2426,45 @@ within Lisp (using &setq; or similar).</simpara>
 
 <varlistentry id="c-struct"><term><literal role="sexp">(<type>c-struct</type>
      <replaceable>class</replaceable>
-  (<replaceable>ident<subscript>1</subscript></replaceable>
-   <replaceable>c-type<subscript>1</subscript></replaceable>) ...
-  (<replaceable>ident<subscript>n</subscript></replaceable>
-   <replaceable>c-type<subscript>n</subscript></replaceable>))</literal></term>
+  (<replaceable>ident&sub-1;</replaceable>
+   <replaceable>c-type&sub-1;</replaceable>) ...
+  (<replaceable>ident&sub-n;</replaceable>
+   <replaceable>c-type&sub-n;</replaceable>))</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
- <type>struct { <replaceable>c-type<subscript>1</subscript></replaceable>
- <replaceable>ident<subscript>1</subscript></replaceable>; ...;
- <replaceable>c-type<subscript>n</subscript></replaceable>
- <replaceable>ident<subscript>n</subscript></replaceable>; }</type>.
+ <type>struct { <replaceable>c-type&sub-1;</replaceable>
+ <replaceable>ident&sub-1;</replaceable>; ...;
+ <replaceable>c-type&sub-n;</replaceable>
+ <replaceable>ident&sub-n;</replaceable>; }</type>.
  Its Lisp equivalent is: if <replaceable>class</replaceable> is
  &vector-class;, a &simple-vector-type;; if
  <replaceable>class</replaceable> is &list-class;, a list; if
  <replaceable>class</replaceable> is a symbol naming a structure or
  &clos; class, an instance of this class, with slots of names
- <replaceable>ident<subscript>1</subscript></replaceable>,
- ... ,<replaceable>ident<subscript>n</subscript></replaceable>.
+ <replaceable>ident&sub-1;</replaceable>,
+ ... ,<replaceable>ident&sub-n;</replaceable>.
  </simpara></listitem></varlistentry>
 
 <varlistentry id="c-union"><term><literal role="sexp">(<type>c-union</type>
-  (<replaceable>ident<subscript>1</subscript></replaceable>
-   <replaceable>c-type<subscript>1</subscript></replaceable>) ...
-  (<replaceable>ident<subscript>n</subscript></replaceable>
-   <replaceable>c-type<subscript>n</subscript></replaceable>))</literal></term>
+  (<replaceable>ident&sub-1;</replaceable>
+   <replaceable>c-type&sub-1;</replaceable>) ...
+  (<replaceable>ident&sub-n;</replaceable>
+   <replaceable>c-type&sub-n;</replaceable>))</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
-  <type>union { <replaceable>c-type<subscript>1</subscript></replaceable>
-  <replaceable>ident<subscript>1</subscript></replaceable>; ...;
-  <replaceable>c-type<subscript>n</subscript></replaceable>
-  <replaceable>ident<subscript>n</subscript></replaceable>;
+  <type>union { <replaceable>c-type&sub-1;</replaceable>
+  <replaceable>ident&sub-1;</replaceable>; ...;
+  <replaceable>c-type&sub-n;</replaceable>
+  <replaceable>ident&sub-n;</replaceable>;
   }</type>.
   Conversion to and from Lisp assumes that a value is to be viewed as
-  being of <replaceable>c-type<subscript>1</subscript></replaceable>.
+  being of <replaceable>c-type&sub-1;</replaceable>.
  </simpara></listitem></varlistentry>
 
 <varlistentry id="c-array"><term><literal role="sexp">(<type>c-array</type>
-   &ctype-r; <replaceable>dim<subscript>1</subscript></replaceable> ...
-   <replaceable>dim<subscript>n</subscript></replaceable>)</literal></term>
+   &ctype-r; <replaceable>dim&sub-1;</replaceable> ...
+   <replaceable>dim&sub-n;</replaceable>)</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
-  <type>&ctype-r; [<replaceable>dim<subscript>1</subscript></replaceable>]
-  ... [<replaceable>dim<subscript>n</subscript></replaceable>]</type>.
+  <type>&ctype-r; [<replaceable>dim&sub-1;</replaceable>]
+  ... [<replaceable>dim&sub-n;</replaceable>]</type>.
   Note that when an array is passed as an argument to a function in
   &c-lang;, it is actually passed as a pointer; you therefore have to
   write <literal role="sexp">(&c-ptr; (&c-array; ...))</literal> for this
@@ -2496,8 +2496,7 @@ within Lisp (using &setq; or similar).</simpara>
  <listitem><simpara>This type designates a &c-lang; function that can be
   called according to the given prototype <literal
   role="sexp">(<replaceable>r-c-type</replaceable> (*)
-  (<replaceable>a-c-type<subscript>1</subscript></replaceable>,
-  ...))</literal>.
+  (<replaceable>a-c-type&sub-1;</replaceable>, ...))</literal>.
   The <replaceable>language</replaceable> is either
   <constant>:c</constant> (denotes K&amp;R &c-lang;) or
   <constant>:stdc</constant> (denotes ANSI &c-lang;) or
@@ -4056,14 +4055,14 @@ bash$
 <varlistentry><term>Platform dependent: &unix;, &acorn;, &dos;, &os2;,
    platforms only.</term>
  <listitem><simpara><literal
-   role="sexp">(<function>ext:execute</function>
+   role="sexp">(<function>EXT:EXECUTE</function>
        <replaceable>programfile</replaceable>
-       <replaceable>arg<subscript>1</subscript></replaceable>
-       <replaceable>arg<subscript>2</subscript></replaceable> ...)</literal>
+       <replaceable>arg&sub-1;</replaceable>
+       <replaceable>arg&sub-2;</replaceable> ...)</literal>
    executes an external program.  Its name is
    <replaceable>programfile</replaceable>.  It is
-   given the strings <replaceable>arg<subscript>1</subscript></replaceable>,
-   <replaceable>arg<subscript>2</subscript></replaceable>, ... as arguments.
+   given the strings <replaceable>arg&sub-1;</replaceable>,
+   <replaceable>arg&sub-2;</replaceable>, ... as arguments.
  </simpara></listitem></varlistentry>
 <!-- #endif -->
 <!-- #ifdef AMIGAOS -->

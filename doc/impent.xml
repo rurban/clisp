@@ -199,6 +199,9 @@
 <!ENTITY other-const "<link linkend='comp-fun'><literal>other-const</literal></link>">
 
 <!-- *** variable names *** -->
+<!ENTITY sub-1 "<subscript>1</subscript>">
+<!ENTITY sub-2 "<subscript>2</subscript>">
+<!ENTITY sub-n "<subscript>n</subscript>">
 <!ENTITY b-r "<replaceable>b</replaceable>">
 <!ENTITY bc-r "<replaceable>block-cons</replaceable>">
 <!ENTITY body-r "<replaceable>body</replaceable>">
@@ -220,9 +223,9 @@
 <!ENTITY i-r "<replaceable>i</replaceable>">
 <!ENTITY int-r "<replaceable>integer</replaceable>">
 <!ENTITY k-r "<replaceable>k</replaceable>">
-<!ENTITY k1-r "<replaceable>k<subscript>1</subscript></replaceable>">
-<!ENTITY k2-r "<replaceable>k<subscript>2</subscript></replaceable>">
-<!ENTITY kn-r "<replaceable>k<subscript>n</subscript></replaceable>">
+<!ENTITY k1-r "<replaceable>k&sub-1;</replaceable>">
+<!ENTITY k2-r "<replaceable>k&sub-2;</replaceable>">
+<!ENTITY kn-r "<replaceable>k&sub-n;</replaceable>">
 <!ENTITY l-r "<replaceable>l</replaceable>">
 <!ENTITY lab-r "<replaceable>label</replaceable>">
 <!ENTITY len-r "<replaceable>length</replaceable>">
@@ -247,9 +250,10 @@
 <!ENTITY var-r "<replaceable>variable</replaceable>">
 <!ENTITY value-r "<replaceable>value</replaceable>">
 <!ENTITY x-r "<replaceable>x</replaceable>">
-<!ENTITY x1-r "<replaceable>x<subscript>1</subscript></replaceable>">
-<!ENTITY xn-r "<replaceable>x<subscript>n</subscript></replaceable>">
+<!ENTITY x1-r "<replaceable>x&sub-1;</replaceable>">
+<!ENTITY xn-r "<replaceable>x&sub-n;</replaceable>">
 <!ENTITY y-r "<replaceable>y</replaceable>">
+
 <!ENTITY cmd-abbrev-oper-header
  " <thead><row><entry>command</entry><entry>abbreviation</entry>
          <entry>operation</entry></row></thead>">
