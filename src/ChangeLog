@@ -1,3 +1,8 @@
+2000-12-19  Bruno Haible  <haible@clisp.cons.org>
+
+        * time.d (SYS::DEFAULT-TIME-ZONE) [WIN32]: Don't produce time_t values
+          >= 2^31.
+
 2000-12-13  Sam Steingold  <sds@gnu.org>
 
 	Remote registry access:

@@ -846,15 +846,20 @@ LISPFUN(default_time_zone,0,1,norest,nokey,0,NIL)
     if (integerp(arg)) {
       # bestimmter Zeitpunkt
       # Annahme: time_t ist die Anzahl der Sekunden seit 1.1.1970. ??
+      #ifdef WIN32
+      const uintL time_max = 1210131; # Win32 crashes for values greater than that
+      #else
+      const uintL time_max = 1314888; # 1.1.2050, quite arbitrary
+      #endif
       if (posfixnump(arg)
           && (posfixnum_to_L(arg) >= 613608) # arg >= 1.1.1970
-          && (posfixnum_to_L(arg) < 1314888) # arg < 1.1.2050
+          && (posfixnum_to_L(arg) <= time_max) # arg < time_max
          ) {
         now = (posfixnum_to_L(arg) - 613608) * 3600;
       } elif (R_minusp(arg) || (posfixnump(arg) && (posfixnum_to_L(arg) < 613608))) {
         now = 0; # < 1.1.1970 -> treat like 1.1.1970
       } else {
-        now = (uintL)(1314888 - 613608) * 3600; # >= 1.1.2050 -> treat like 1.1.2050
+        now = (uintL)(time_max - 613608) * 3600; # > max -> treat like max
       }
     } else {
       # jetzt
