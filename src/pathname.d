@@ -8334,10 +8334,16 @@ LISPFUNN(rename_file,2)
         return make_file_stream(direction,append_flag);
     } }
 
-LISPFUN(open,1,0,norest,key,5,\
+LISPFUN(old_open,1,0,norest,key,5,\
         (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format)) )
-# (OPEN filename :direction :element-type :if-exists :if-does-not-exist :external-format)
-  { var object filename = STACK_5; # filename
+# (SYS::OLD-OPEN filename :direction :element-type :if-exists :if-does-not-exist :external-format)
+# for binary backward compatibility only.
+  { pushSTACK(unbound); C_open(); }
+
+LISPFUN(open,1,0,norest,key,6,\
+        (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format),kw(buffered)) )
+# (OPEN filename :direction :element-type :if-exists :if-does-not-exist :external-format :buffered)
+  { var object filename = STACK_6; # filename
     if (streamp(filename))
       { # muss File-Stream sein:
         filename = as_file_stream(filename);
@@ -8352,7 +8358,7 @@ LISPFUN(open,1,0,norest,key,5,\
     var uintB if_exists;
     var uintB if_not_exists;
     # :direction überprüfen und in direction übersetzen:
-    { var object arg = STACK_4;
+    { var object arg = STACK_5;
       if (eq(arg,unbound) || eq(arg,S(Kinput))) { direction = 1; }
       elif (eq(arg,S(Kinput_immutable))) { direction = 3; }
       elif (eq(arg,S(Koutput))) { direction = 4; }
@@ -8371,7 +8377,7 @@ LISPFUN(open,1,0,norest,key,5,\
     } }
     # :element-type wird später überprüft.
     # :if-exists überprüfen und in if_exists übersetzen:
-    { var object arg = STACK_2;
+    { var object arg = STACK_3;
       if (eq(arg,unbound)) { if_exists = 0; }
       elif (eq(arg,S(Kerror))) { if_exists = 1; }
       elif (eq(arg,NIL)) { if_exists = 2; }
@@ -8392,7 +8398,7 @@ LISPFUN(open,1,0,norest,key,5,\
               );
     } }
     # :if-does-not-exist überprüfen und in if_not_exists übersetzen:
-    { var object arg = STACK_1;
+    { var object arg = STACK_2;
       if (eq(arg,unbound)) { if_not_exists = 0; }
       elif (eq(arg,S(Kerror))) { if_not_exists = 1; }
       elif (eq(arg,NIL)) { if_not_exists = 2; }
@@ -8409,7 +8415,7 @@ LISPFUN(open,1,0,norest,key,5,\
               );
     } }
     # :external-format überprüfen:
-    { var object arg = STACK_0;
+    { var object arg = STACK_1;
       if (!(eq(arg,unbound) || eq(arg,S(Kdefault))))
         { pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
           pushSTACK(O(type_external_format)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
@@ -8421,8 +8427,9 @@ LISPFUN(open,1,0,norest,key,5,\
                  ""
                 );
     }   }
+    # :buffered wird später überprüft.
     # File öffnen:
-    STACK_5 = STACK_3; skipSTACK(5);
+    STACK_6 = STACK_4; skipSTACK(6);
     value1 = open_file(filename,direction,if_exists,if_not_exists);
     mv_count=1;
   }}

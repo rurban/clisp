@@ -906,7 +906,7 @@ for-value   NIL oder T
        pathname-directory pathname-name pathname-type pathname-version
        file-namestring directory-namestring host-namestring merge-pathnames
        enough-namestring make-pathname namestring truename probe-file
-       delete-file rename-file open directory cd make-dir delete-dir
+       delete-file rename-file system::old-open directory cd make-dir delete-dir
        file-write-date file-author savemem
        #| eq |# eql equal equalp consp atom symbolp stringp numberp
        compiled-function-p #| null not |# system::closurep listp integerp
@@ -1363,9 +1363,9 @@ for-value   NIL oder T
           (system::make-load-time-eval 1 0 nil nil nil)
           (make-package 1 0 nil (:nicknames :use :case-sensitive) nil)
           (make-pathname 0 0 nil (:defaults :case :host :device :directory :name :type :version) nil)
-          #+(or UNIX OS/2 WIN32) (make-pipe-input-stream 1 0 nil nil nil)
-          #+(or UNIX OS/2 WIN32) (make-pipe-output-stream 1 0 nil nil nil)
-          #+(or UNIX OS/2 WIN32) (make-pipe-io-stream 1 0 nil nil nil)
+          #+(or UNIX OS/2 WIN32) (make-pipe-input-stream 1 0 nil (:element-type :external-format :buffered) nil)
+          #+(or UNIX OS/2 WIN32) (make-pipe-output-stream 1 0 nil (:element-type :external-format :buffered) nil)
+          #+(or UNIX OS/2 WIN32) (make-pipe-io-stream 1 0 nil (:element-type :external-format :buffered) nil)
           (make-random-state 0 1 nil nil nil)
           (make-sequence 2 0 nil (:initial-element :update) nil)
           (make-string 1 0 nil (:initial-element :element-type) nil)
@@ -1428,7 +1428,7 @@ for-value   NIL oder T
           (numerator 1 0 nil nil nil)
           (system::octal-reader 3 0 nil nil nil)
           (oddp 1 0 nil nil nil)
-          (open 1 0 nil (:direction :element-type :if-exists :if-does-not-exist :external-format) nil)
+          (open 1 0 nil (:direction :element-type :if-exists :if-does-not-exist :external-format :buffered) nil)
           (output-stream-p 1 0 nil nil nil)
           (package-name 1 0 nil nil nil)
           (package-nicknames 1 0 nil nil nil)

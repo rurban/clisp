@@ -12032,12 +12032,14 @@ LISPFUNN(make_printer_stream,0)
 # kann GC auslösen
   #define listen_pipe_in  listen_handle
 
-LISPFUNN(make_pipe_input_stream,1)
-# (MAKE-PIPE-INPUT-STREAM command)
+LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
+        (kw(element_type),kw(external_format),kw(buffered)) )
+# (MAKE-PIPE-INPUT-STREAM command [:element-type] [:external-format] [:buffered])
 # ruft eine Shell auf, die command ausführt, wobei deren Standard-Output
 # in unsere Pipe hinein geht.
   { # command überprüfen:
     var object command;
+    skipSTACK(3);
     funcall(L(string),1); # (STRING command)
     command = string_to_asciz(value1); # als ASCIZ-String
    {var int child;
@@ -12218,12 +12220,14 @@ LISPFUNN(make_pipe_input_stream,1)
     #define close_pipe_out  close_ohandle
   #endif
 
-LISPFUNN(make_pipe_output_stream,1)
-# (MAKE-PIPE-OUTPUT-STREAM command)
+LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
+        (kw(element_type),kw(external_format),kw(buffered)) )
+# (MAKE-PIPE-OUTPUT-STREAM command [:element-type] [:external-format] [:buffered])
 # ruft eine Shell auf, die command ausführt, wobei unsere Pipe in deren
 # Standard-Input hinein geht.
   { # command überprüfen:
     var object command;
+    skipSTACK(3);
     funcall(L(string),1); # (STRING command)
     command = string_to_asciz(value1); # als ASCIZ-String
    {var int child;
@@ -12354,13 +12358,15 @@ LISPFUNN(make_pipe_output_stream,1)
 # Bidirektionale Pipes
 # ====================
 
-LISPFUNN(make_pipe_io_stream,1)
-# (MAKE-PIPE-IO-STREAM command)
+LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
+        (kw(element_type),kw(external_format),kw(buffered)) )
+# (MAKE-PIPE-IO-STREAM command [:element-type] [:external-format] [:buffered])
 # ruft eine Shell auf, die command ausführt, wobei der Output unserer Pipe
 # in deren Standard-Input hinein und deren Standard-Output wiederum in
 # unsere Pipe hinein geht.
   { # command überprüfen:
     var object command;
+    skipSTACK(3);
     funcall(L(string),1); # (STRING command)
     command = string_to_asciz(value1); # als ASCIZ-String
    {var int child;
@@ -13126,22 +13132,23 @@ LISPFUNN(socket_server_host,1)
 
 extern SOCKET accept_connection (SOCKET socket_handle);
 
-LISPFUNN(socket_accept,1)
-# (SOCKET-ACCEPT socket-server)
+LISPFUN(socket_accept,1,0,norest,key,3,\
+        (kw(element_type),kw(external_format),kw(buffered)) )
+# (SOCKET-ACCEPT socket-server [:element-type] [:external-format] [:buffered])
   {
     var SOCKET sock;
     var SOCKET handle;
 
-    test_socket_server(STACK_0);
-    sock = TheSocket(TheSocketServer(STACK_0)->socket_handle);
+    test_socket_server(STACK_3);
+    sock = TheSocket(TheSocketServer(STACK_3)->socket_handle);
     begin_system_call();
     handle = accept_connection (sock);
     end_system_call();
     if (handle == INVALID_SOCKET) { SOCK_error(); }
-    value1 = make_socket_stream(handle,TheSocketServer(STACK_0)->host,
-                                TheSocketServer(STACK_0)->port);
+    value1 = make_socket_stream(handle,TheSocketServer(STACK_3)->host,
+                                TheSocketServer(STACK_3)->port);
     mv_count = 1;
-    skipSTACK(1);
+    skipSTACK(4);
   }
 
 LISPFUN(socket_wait,1,2,norest,nokey,0,NIL)
@@ -13188,27 +13195,28 @@ LISPFUN(socket_wait,1,2,norest,nokey,0,NIL)
 
 extern SOCKET create_client_socket (const char* host, int port);
 
-LISPFUN(socket_connect,1,1,norest,nokey,0,NIL)
-# (SOCKET-CONNECT port [host])
+LISPFUN(socket_connect,1,1,norest,key,3,\
+        (kw(element_type),kw(external_format),kw(buffered)) )
+# (SOCKET-CONNECT port [host] [:element-type] [:external-format] [:buffered])
   {
     var SOCKET handle;
     var char *hostname;
 
-    if (eq(STACK_0,unbound))
+    if (eq(STACK_3,unbound))
       hostname = "localhost";
-    elif (stringp(STACK_0))
-      hostname = TheAsciz(string_to_asciz(STACK_0));
+    elif (stringp(STACK_3))
+      hostname = TheAsciz(string_to_asciz(STACK_3));
     else
-      fehler_string(STACK_0);
+      fehler_string(STACK_3);
 
-    if (!posfixnump(STACK_1)) { fehler_posfixnum(STACK_1); }
+    if (!posfixnump(STACK_4)) { fehler_posfixnum(STACK_4); }
 
     begin_system_call();
-    handle = create_client_socket(hostname,posfixnum_to_L(STACK_1));
+    handle = create_client_socket(hostname,posfixnum_to_L(STACK_4));
     if (handle == INVALID_SOCKET) { SOCK_error(); }
     end_system_call();
-    value1 = make_socket_stream(handle,asciz_to_string(hostname),STACK_1);
-    skipSTACK(2);
+    value1 = make_socket_stream(handle,asciz_to_string(hostname),STACK_4);
+    skipSTACK(5);
     mv_count = 1;
   }
 

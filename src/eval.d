@@ -95,7 +95,7 @@
     _(pathnameversion), _(file_namestring), _(directory_namestring),
     _(host_namestring), _(merge_pathnames), _(enough_namestring),
     _(make_pathname), _(namestring), _(truename), _(probe_file),
-    _(delete_file), _(rename_file), _(open), _(directory), _(cd),
+    _(delete_file), _(rename_file), _(old_open), _(directory), _(cd),
     _(make_dir), _(delete_dir), _(file_write_date), _(file_author),
     _(savemem),
     # PREDTYPE : 46-3 SUBRs
