@@ -58,14 +58,8 @@
 /* Define to 1 if 'float' underflow raises an exception. */
 #undef FLOAT_UNDERFLOW_EXCEPTION
 
-/* does fstat() function have C linkage? */
-#undef FSTAT_INLINE
-
 /* the type of `bufsize' in getcwd() */
 #undef GETCWD_SIZE_T
-
-/* type of `namelen' in gethostname() declaration */
-#undef GETHOSTNAME_SIZE_T
 
 /* declaration of gettimeofday() needs dots */
 #undef GETTIMEOFDAY_DOTS
@@ -444,12 +438,6 @@
 /* longjmp() may return */
 #undef LONGJMP_RETURNS
 
-/* declaration of lstat() needs const */
-#undef LSTAT_CONST
-
-/* does lstat() function have C linkage? */
-#undef LSTAT_INLINE
-
 /* address range of malloc() memory */
 #undef MALLOC_ADDRESS_RANGE
 
@@ -458,9 +446,6 @@
 
 /* type of `len' in mmap() declaration */
 #undef MMAP_SIZE_T
-
-/* declaration of mprotect() needs const */
-#undef MPROTECT_CONST
 
 /* no <dirent.h>, use <ndir.h> */
 #undef NDIR
@@ -503,15 +488,6 @@
    rl_filename_completion_function() or filename_completion_function() */
 #undef READLINE_FILE_COMPLETE
 
-/* type of `buf' in readlink() declaration */
-#undef READLINK_BUF_T
-
-/* declaration of readlink() needs const */
-#undef READLINK_CONST
-
-/* type of `bufsiz' in readlink() declaration */
-#undef READLINK_SIZE_T
-
 /* abort() return type */
 #undef RETABORTTYPE
 
@@ -524,15 +500,6 @@
 /* return type of mmap() */
 #undef RETMMAPTYPE
 
-/* return type of readlink() */
-#undef RETREADLINKTYPE
-
-/* return type of read(), write() */
-#undef RETRWTYPE
-
-/* return type of shmat() */
-#undef RETSHMATTYPE
-
 /* return type of signal handlers (int or void) */
 #undef RETSIGTYPE
 
@@ -544,12 +511,6 @@
 
 /* type of `who' in getrusage() declaration */
 #undef RUSAGE_WHO_T
-
-/* type of `buf' in read(), write() declaration */
-#undef RW_BUF_T
-
-/* type of `count' in read(), write() declaration */
-#undef RW_SIZE_T
 
 /* declaration of select() needs const in the fifth argument */
 #undef SELECT_CONST
@@ -574,9 +535,6 @@
 
 /* address range of shared library code */
 #undef SHLIB_ADDRESS_RANGE
-
-/* declaration of shmat() needs const */
-#undef SHMAT_CONST
 
 /* attaching removed (but alive!) shared memory segments works */
 #undef SHM_RMID_VALID
@@ -609,9 +567,6 @@
    when signal handlers are left */
 #undef SIGNAL_NEED_UNBLOCK_OTHERS
 
-/* declaration of sigprocmask() needs const */
-#undef SIGPROCMASK_CONST
-
 /* declaration of the signal handler function type needs dots */
 #undef SIGTYPE_DOTS
 
@@ -627,12 +582,6 @@
 /* address range of the C stack */
 #undef STACK_ADDRESS_RANGE
 
-/* declaration of stat() needs const */
-#undef STAT_CONST
-
-/* does stat() function have C linkage? */
-#undef STAT_INLINE
-
 /* Define to 1 if the `S_IS*' macros in <sys/stat.h> do not work properly. */
 #undef STAT_MACROS_BROKEN
 
@@ -644,9 +593,6 @@
 
 /* no <dirent.h>, use <sys/ndir.h> */
 #undef SYSNDIR
-
-/* declaration of tcsetattr() needs const */
-#undef TCSETATTR_CONST
 
 /* Define to 1 if your <sys/time.h> declares `struct tm'. */
 #undef TM_IN_SYS_TIME
@@ -662,9 +608,6 @@
 
 /* have <termios.h> but need <sys/ptem.h> for `struct winsize' */
 #undef WINSIZE_NEED_SYS_PTEM_H
-
-/* declaration of write() needs const */
-#undef WRITE_CONST
 
 /* Define to 1 if on AIX 3.
    System headers sometimes define this.
