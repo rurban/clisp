@@ -1864,6 +1864,7 @@ if [ $XCC_NEED_DEEMA = true -a $HOS != unix ] ; then
 fi
 UTILS=$UTILS' txt2c'
 UTILS=$UTILS' ccmp2c' # needed by clx module
+UTILS=$UTILS' modprep'
 if [ "$CHSCONVERT" = "./cv_lt_at" ] ; then
   UTILS=$UTILS' cv_lt_at'
 fi
@@ -1955,7 +1956,7 @@ for util in $UTILS ; do
     echol
     OBSOLETE=$OBSOLETE" ${util}.c"
   fi
-  if [ $util = ccmp2c ] ; then
+  if [ $util = ccmp2c -o $util = modprep ] ; then
     flags=''
     if [ $util = ccmp2c ] ; then
       flags=' -I.'
