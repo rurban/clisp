@@ -1,3 +1,6 @@
+2002-09-21  John Hinsdale <hin@alma.com>
+	* module/oracle/Makefile.in: better Oracle -I path for v8.0.5
+
 2002-09-20  Sam Steingold  <sds@gnu.org>
 
 	* control.d (UNWIND-TO-DRIVER): accept a TOP-P argument
