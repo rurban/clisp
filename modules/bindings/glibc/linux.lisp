@@ -80,13 +80,8 @@
 (def-c-type __swblk_t long)
 
 (def-c-type __fd_mask ulong)
-(eval-when (load compile eval)
-  (defconstant __FD_SETSIZE 1024)
-)
-
-(eval-when (load compile eval)
-  (defconstant __NFDBITS (* 8 (sizeof '__fd_mask)))
-)
+(defconstant __FD_SETSIZE 1024)
+(defconstant __NFDBITS (* 8 (sizeof '__fd_mask)))
 (defmacro __FDELT (d) `(floor ,d __NFDBITS))
 (defmacro __FDMASK (d) `(ash 1 (mod ,d __NFDBITS)))
 
@@ -1435,8 +1430,7 @@
 (def-c-var optarg (:type c-string))
 
 ;; defined in <asm/param.h>
-(eval-when (load compile eval)
-  (defconstant MAXHOSTNAMELEN 64))
+(defconstant MAXHOSTNAMELEN 64)
 (def-call-out gethostname
     (:arguments (name (c-ptr (c-array-max character #.MAXHOSTNAMELEN))
                       :out :alloca)
@@ -2033,16 +2027,12 @@
 
 ;;; ---------------------------- <utsnamelen.h> ------------------------------
 
-(eval-when (load compile eval)
-  (defconstant _UTSNAME_LENGTH 65)
-  (defconstant _UTSNAME_DOMAIN_LENGTH _UTSNAME_LENGTH)
-)
+(defconstant _UTSNAME_LENGTH 65)
+(defconstant _UTSNAME_DOMAIN_LENGTH _UTSNAME_LENGTH)
 
 ;;; ---------------------------- <sys/utsname.h> -----------------------------
 
-(eval-when (load compile eval)
-  (defconstant _UTSNAME_NODENAME_LENGTH _UTSNAME_LENGTH)
-)
+(defconstant _UTSNAME_NODENAME_LENGTH _UTSNAME_LENGTH)
 
 (def-c-struct utsname
   (sysname (c-array-max character #._UTSNAME_LENGTH))
@@ -2067,9 +2057,7 @@
 (def-c-type speed_t uint)
 (def-c-type tcflag_t uint)
 
-(eval-when (load compile eval)
-  (defconstant NCCS 32)
-)
+(defconstant NCCS 32)
 (def-c-struct termios
   (c_iflag tcflag_t)
   (c_oflag tcflag_t)
@@ -2286,9 +2274,7 @@
   (ws_ypixel ushort)
 )
 
-(eval-when (load compile eval)
-  (defconstant NCC 8)
-)
+(defconstant NCC 8)
 (def-c-struct termio
   (c_iflag ushort)
   (c_oflag ushort)
@@ -2389,10 +2375,9 @@ and SIG_IGN do anyway, by other means ... They are just sugar, really.
 
 |#
 ;;; --------------------------------- <bits/sigset.h> -----------------------
-(eval-when (load compile eval)
-  (defconstant SIGSET_NWORDS
-    ;; #.(cl:/ 1024 #.(cl:* 8 (ffi:sizeof 'ffi:uint)))
-    32))
+(defconstant SIGSET_NWORDS
+  ;; #.(cl:/ 1024 #.(cl:* 8 (ffi:sizeof 'ffi:uint)))
+  32)
 
 (def-c-struct sigset_t
   (val (c-array-max uint #.SIGSET_NWORDS)))
