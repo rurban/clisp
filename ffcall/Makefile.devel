@@ -35,7 +35,7 @@ m4/ffcall-codeexec.m4 : $(CLISP_DIR)/src/m4/ffcall-codeexec.m4 ; cp -p $< $@-t &
 m4/libtool.m4 : $(CLISP_DIR)/src/m4/libtool.m4
 	sed -e 's,AC_CANONICAL_HOST,CL_CANONICAL_HOST,g' -e 's,AC_PROG_RANLIB,CL_PROG_RANLIB,g' -e 's,AC_PROG_LN_S,CL_PROG_LN_S,g' < $< > $@-t && mv $@-t $@
 
-autoconf/aclocal.m4 : m4/general.m4 m4/proto.m4 m4/cc-gcc.m4 m4/as-underscore.m4 m4/ranlib.m4 m4/install.m4 m4/cp.m4 m4/ln.m4 m4/ffcall-pccstruct.m4 m4/ffcall-smallstruct.m4 m4/ffcall-ireg.m4 m4/longlong.m4 m4/cc-void.m4 m4/stdc-headers.m4 m4/malloc.m4 m4/free.m4 m4/abort.m4 m4/open.m4 m4/getpagesize.m4 m4/mach-vm.m4 m4/openflags.m4 m4/mmap.m4 m4/mprotect.m4 m4/shm.m4 m4/shmget.m4 m4/shmat.m4 m4/shmdt.m4 m4/shmctl.m4 m4/ffcall-codeexec.m4 m4/libtool.m4
+autoconf/aclocal.m4 : m4/general.m4 m4/proto.m4 m4/cc-gcc.m4 m4/as-underscore.m4 m4/ranlib.m4 m4/install.m4 m4/cp.m4 m4/ln.m4 m4/ffcall-pccstruct.m4 m4/ffcall-smallstruct.m4 m4/ffcall-ireg.m4 m4/longlong.m4 m4/cc-void.m4 m4/stdc-headers.m4 m4/getpagesize.m4 m4/mach-vm.m4 m4/openflags.m4 m4/mmap.m4 m4/mprotect.m4 m4/shm.m4 m4/ffcall-codeexec.m4 m4/libtool.m4
 	cat $(CONFIGURES_IN) > autoconf/configure.in
 	cd autoconf && aclocal --output=aclocal.m4 --acdir=../m4
 	rm -f autoconf/configure.in
