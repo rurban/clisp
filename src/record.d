@@ -912,8 +912,7 @@ LISPFUNN(set_slot_value,3) {
 
 LISPFUNN(slot_boundp,2) {
   var gcv_object_t* slot = slot_up();
-  if (slot) { value1 = (boundp(*slot) ? T : NIL); }
-  mv_count=1;
+  VALUES_IF(slot && boundp(*slot));
   skipSTACK(2);
 }
 
