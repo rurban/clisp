@@ -133,9 +133,12 @@ CONFIG_H_IN = modules/wildcard/config.h.in modules/regexp/config.h.in    \
 
 configures : ffcall/autoconf/aclocal.m4 $(CONFIGURES) $(CONFIG_H_IN)
 
-src/autoconf/aclocal.m4 : $(wildcard src/m4/*.m4)
-	cd src ; aclocal --acdir=m4 --output=autoconf/aclocal.m4
-	cat src/m4/fnmatch.m4 src/m4/mbstate_t.m4 >> src/autoconf/aclocal.m4
+src/autoconf/aclocal.m4 : $(wildcard src/m4/*.m4) $(addsuffix .in,$(CONFIGURES))
+	grep AC_INIT src/configure.in > configure.ac
+	cat $(addsuffix .in,$(CONFIGURES)) | grep -v AC_INIT | grep -v AC_OUTPUT >> configure.ac
+	echo AC_OUTPUT >> configure.ac
+	aclocal -I src/m4 --output=src/autoconf/aclocal.m4
+	$(RM) configure.ac
 
 AUTOCONF_FILES = src/autoconf/aclocal.m4
 AUTOCONF = autoconf
