@@ -3040,18 +3040,15 @@ is not a defined logical host yet, we proceed as follows:
 </section>
 
 <section id="absolute-pathname"><title>Function &absolute-pathname;</title>
-<para><term><literal role="sexp">(<function>EXT:ABSOLUTE-PATHNAME</function>
- <replaceable>pathname</replaceable>)</literal></term>
- converts the <replaceable>pathname</replaceable> to a physical pathname,
- verifies that is has no wildcards, and then - if its directory component
- is not absolute - converts it to an absolute pathname, by merging in the
- current process' directory. This is like &truename;, except that it
- doesn't verify that a file named by the <replaceable>pathname</replaceable>
- exists, not even that its directory exists. It does no filesystem accesses,
- except to determine the current directory. This function is useful when
- you want to save a pathname over time, or pass a pathname to an external
- program.</para>
-</section>
+<para><term><literal role="sexp">(&absolute-pathname; &path-r;)</literal></term>
+ converts the &path-r; to a physical pathname, verifies that is has no
+ wildcards, and then - if its directory component is not absolute -
+ converts it to an absolute pathname, by merging in the current process'
+ directory. This is like &truename;, except that it does not verify that
+ a file named by the &path-r; exists, not even that its directory
+ exists. It does no filesystem accesses, except to determine the current
+ directory. This function is useful when you want to save a pathname
+ over time, or pass a pathname to an external program.</para></section>
 
 </section>
 </chapter>
