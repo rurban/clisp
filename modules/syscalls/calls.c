@@ -6,6 +6,19 @@
 
 #include "config.h"
 
+#if defined(_WIN32)
+/* need this for CreateHardLink to work */
+# define WINVER 0x0500
+/* get ASCII functions */
+# undef UNICODE
+#endif
+#if defined(__CYGWIN__)
+# define UNIX_CYGWIN32
+# undef UNICODE
+#endif
+
+#include "clisp.h"
+
 #if defined(TIME_WITH_SYS_TIME)
 # include <sys/time.h>
 # include <time.h>
@@ -36,19 +49,6 @@
 #endif
 
 #include <stdio.h>             /* for BUFSIZ */
-
-#if defined(_WIN32)
-/* need this for CreateHardLink to work */
-# define WINVER 0x0500
-/* get ASCII functions */
-# undef UNICODE
-#endif
-#if defined(__CYGWIN__)
-# define UNIX_CYGWIN32
-# undef UNICODE
-#endif
-
-#include "clisp.h"
 
 /* #define DEBUG */
 #if defined(DEBUG)
@@ -878,7 +878,7 @@ static BOOL OldHardLink( LPCTSTR source, LPCTSTR dest ) {
         &lpContext);
    CloseHandle( hFileSource );
    return bSuccess;
-} 
+}
 #endif
 
 void module__syscalls__init_function_2 (module_t* module) {
