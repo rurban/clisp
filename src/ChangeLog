@@ -1,5 +1,9 @@
 2002-12-01  Bruno Haible  <bruno@clisp.org>
 
+	* spvw_debug.d (nobject_out): Fix compilation error when !DYNAMIC_FFI.
+
+2002-12-01  Bruno Haible  <bruno@clisp.org>
+
 	Make it buildable with CC=g++.
 
 	* m4/proto.m4 (CL_PROTO_RET): Add an argument, the ANSI-DECL.
