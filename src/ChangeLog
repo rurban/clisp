@@ -1,5 +1,19 @@
 1999-12-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (iconv_wcslen): At the end, call iconv with NULL input.
+          (iconv_wcstombs): At the end of the standalone case, call iconv with
+          NULL input.
+          (oconv_unshift_output_unbuffered): New macro.
+          (oconv_unshift_output_unbuffered_): New function.
+          (finish_output_unbuffered, force_output_unbuffered, close_ochannel):
+          Call oconv_unshift_output_unbuffered.
+          (oconv_unshift_output_buffered): New macro.
+          (oconv_unshift_output_buffered_): New function.
+          (finish_output_buffered, close_buffered): Call
+          oconv_unshift_output_buffered.
+
+1999-12-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * autoconf/aclocal.m4 (CL_WORDS_LITTLEENDIAN): Update for
           autoconf-2.12. Use AC_CACHE_CHECK instead of AC_CHECK_VAL.
 
