@@ -1655,33 +1655,31 @@
         }
         gc_mark(O(open_files)); gc_mark(O(files_to_close)); # Beide Listen jetzt markieren
         #endif
-        # (noch unmarkierte) Liste all_weakpointers verkürzen:
-        { var object Lu = all_weakpointers;
+        { # (still unmarked) shorten the all_weakpointers list:
+          var object Lu = all_weakpointers;
           var object* L1 = &O(all_weakpointers);
-          until (eq(Lu,Fixnum_0))
-            { if (!alive(Lu))
-                # The weak-pointer itself is being GCed. Don't care about its
-                # contents. Remove it from the list.
-                { Lu = TheWeakpointer(Lu)->wp_cdr; }
-                else
-                { if (!alive(TheWeakpointer(Lu)->wp_value))
-                    # The referenced value is being GCed. Break the
-                    # weak-pointer and remove it from the list.
-                    { var object next = TheWeakpointer(Lu)->wp_cdr;
-                      TheWeakpointer(Lu)->wp_cdr = unbound;
-                      TheWeakpointer(Lu)->wp_value = unbound;
-                      Lu = next;
-                    }
-                    else
-                    # The referenced value is still alive. Keep the
-                    # weak-pointer in the list.
-                    { *L1 = Lu; L1 = &TheWeakpointer(Lu)->wp_cdr; Lu = *L1; }
-                }
+          while (!eq(Lu,Fixnum_0)) {
+            if (!alive(Lu)) {
+              # The weak-pointer itself is being GCed. Don't care about its
+              # contents. Remove it from the list.
+              Lu = TheWeakpointer(Lu)->wp_cdr;
+            } else if (!alive(TheWeakpointer(Lu)->wp_value)) {
+              # The referenced value is being GCed. Break the
+              # weak-pointer and remove it from the list.
+              var object next = TheWeakpointer(Lu)->wp_cdr;
+              TheWeakpointer(Lu)->wp_cdr = unbound;
+              TheWeakpointer(Lu)->wp_value = unbound;
+              Lu = next;
+            } else {
+              # The referenced value is still alive. Keep the
+              # weak-pointer in the list.
+              *L1 = Lu; L1 = &TheWeakpointer(Lu)->wp_cdr; Lu = *L1;
             }
+          }
           *L1 = Fixnum_0;
         }
         { var object L = O(all_weakpointers); # mark the list
-          until (eq(L,Fixnum_0))
+          while (!eq(L,Fixnum_0))
             { gc_mark(L); L = TheWeakpointer(L)->wp_cdr; }
         }
       # Jetzt sind alle aktiven Objekte markiert:
