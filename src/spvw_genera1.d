@@ -1102,6 +1102,10 @@ local uintC generation;
       #endif
       abort();
     }
+    # Likewise, with a 'void' result.
+    local void gc_check_ptr_at (gcv_object_t* objptr) {
+      gc_check_at(objptr);
+    }
   local void gc_overall_check()
   {
     var uintL heapnr;
@@ -1112,7 +1116,7 @@ local uintC generation;
         var aint gen0_end = heap->heap_gen0_end;
         if (gen0_start < gen0_end)
           if (heap->physpages==NULL) {
-            walk_area_(heapnr,gen0_start,gen0_end,gc_check_at); # fallback
+            walk_area_(heapnr,gen0_start,gen0_end,gc_check_ptr_at); # fallback
           } else {
             var physpage_state_t* physpage = heap->physpages;
             gen0_start &= -physpagesize;
@@ -1143,7 +1147,7 @@ local uintC generation;
                 }
               } else {
                 # traverse the whole page-content:
-                walk_physpage_(heapnr,physpage,gen0_start,gen0_end,gc_check_at);
+                walk_physpage_(heapnr,physpage,gen0_start,gen0_end,gc_check_ptr_at);
               }
               physpage++;
             } while (gen0_start < gen0_end);
