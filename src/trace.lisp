@@ -63,7 +63,7 @@
                 (nm (compiler::symbol-suffix (closure-name closure) name))
                 (pos 2 (1+ pos)) obj)
                ((= pos length)
-                (error (ENGLISH "~s: no local name ~s in ~s")
+                (error (TEXT "~s: no local name ~s in ~s")
                        'local name closure))
              (setq obj (sys::%record-ref closure pos))
              (when (and (closurep obj) (eq nm (closure-name obj)))
@@ -73,7 +73,7 @@
              (unless (closurep closure)
                (error-of-type 'type-error
                  :datum closure :expected-type 'closure
-                 (ENGLISH "~S: ~S must name a closure") 'local name))
+                 (TEXT "~S: ~S must name a closure") 'local name))
              (if (compiled-function-p closure) closure
                  (compile name closure))))
          (local-helper (spec)
@@ -132,7 +132,7 @@ This will not work with closures that use lexical variables!"
                        &aux (old-function (gensym)) (macro-flag (gensym)))
   (unless (function-name-p funname)
     (error-of-type 'source-program-error
-      (ENGLISH "~S: function name should be a symbol, not ~S")
+      (TEXT "~S: function name should be a symbol, not ~S")
       'trace funname))
   (check-redefinition funname 'trace "function")
   (let ((symbolform
@@ -141,11 +141,11 @@ This will not work with closures that use lexical variables!"
             `(load-time-value (get-setf-symbol ',(second funname))))))
     `(block nil
        (unless (fboundp ,symbolform) ; function defined at all?
-         (warn (ENGLISH "~S: undefined function ~S")
+         (warn (TEXT "~S: undefined function ~S")
                'trace ',funname)
          (return nil))
        (when (special-operator-p ,symbolform) ; Special-Form: not traceable
-         (warn (ENGLISH "~S: cannot trace special operator ~S")
+         (warn (TEXT "~S: cannot trace special operator ~S")
                'trace ',funname)
          (return nil))
        (let* ((,old-function (symbol-function ,symbolform))
@@ -154,7 +154,7 @@ This will not work with closures that use lexical variables!"
            ;; already traced?
            (setf (get ,symbolform 'sys::traced-definition) ,old-function)
            (pushnew ',funname *traced-functions* :test #'equal))
-         (format t (ENGLISH "~&;; Tracing ~:[function~;macro~] ~S.")
+         (format t (TEXT "~&;; Tracing ~:[function~;macro~] ~S.")
                    ,macro-flag ',funname)
          (setf (get ,symbolform 'sys::tracing-definition)
            (setf (symbol-function ,symbolform)
@@ -270,7 +270,7 @@ This will not work with closures that use lexical variables!"
 (defun untrace1 (funname)
   (unless (function-name-p funname)
     (error-of-type 'source-program-error
-      (ENGLISH "~S: function name should be a symbol, not ~S")
+      (TEXT "~S: function name should be a symbol, not ~S")
       'untrace funname))
   (check-redefinition funname 'untrace "function")
   (let* ((symbol (get-funname-symbol funname))
@@ -283,7 +283,7 @@ This will not work with closures that use lexical variables!"
                    (eq (symbol-function symbol)
                        (get symbol 'sys::tracing-definition)))
             (setf (symbol-function symbol) old-definition)
-            (warn (ENGLISH "~S: ~S was traced and has been redefined!")
+            (warn (TEXT "~S: ~S was traced and has been redefined!")
                   'untrace funname))
           `(,funname))
         ;; funname was not traced

@@ -38,6 +38,11 @@ User visible changes
   See the impnotes <http://clisp.cons.org/impnotes.html#pack-lock> for details.
 
 * CLISP now supports internationalized Lisp programs, via GNU gettext.
+  Macros ENGLISH, FRANCAIS and DEUTSCH have been removed.
+  See the impnotes <http://clisp.cons.org/impnotes.html#language> for details.
+
+* The UI language can now be changed dynamically,
+  via symbol-macro *CURRENT-LANGUAGE*.
   See the impnotes <http://clisp.cons.org/impnotes.html#i18n> for details.
 
 * Fixed a bug: LDIFF now handles dotted lists correctly.

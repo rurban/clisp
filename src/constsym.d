@@ -4,7 +4,9 @@
 # Der Macro LISPSYM deklariert ein LISP-Symbol.
 # LISPSYM(name,printname,package)
 # > name: C-Name des Symbols.
-# > printname: Printname des Symbols (ein C-String).
+# > printname: the printname of the symbol (a C string),
+#     if the string is not an ASCII string, the first character must be a space
+#     (thus no symbol name can start with a space -- see init_symbol_tab_*())
 # > package: Home-Package des Symbols, entweder lisp oder system oder keyword.
 # >          Aus der Package lisp wird es automatisch exportiert.
 
@@ -506,7 +508,8 @@ LISPSYM(ansi,"ANSI",system)
 LISPSYM(set_ansi,"SET-ANSI",system)
 # ---------- I18N ----------
 LISPSYM(current_language,"CURRENT-LANGUAGE",system)
-LISPSYM(language,"LANGUAGE",system)
+LISPSYM(set_current_language,"SET-CURRENT-LANGUAGE",system)
+LISPSYM(text,"TEXT",system)
 LISPSYM(gettext,"GETTEXT",i18n)
 LISPSYM(ngettext,"NGETTEXT",i18n)
 LISPSYM(textdomain,"TEXTDOMAIN",i18n)
@@ -1749,7 +1752,13 @@ LISPSYM(utf_16,"UTF-16",charset) #                          |
 LISPSYM(utf_7,"UTF-7",charset) # ---------------------------+
 #endif
 #endif
-LISPSYM(english,"ENGLISH",i18n) # als Language für MISC
+LISPSYM(english,"ENGLISH",i18n) # a language for MISC
+#ifdef UNICODE
+LISPSYM(german,"DEUTSCH",i18n) # a language for MISC
+LISPSYM(french," FRAN\303\207AIS",i18n) # a language for MISC [' ' => utf8]
+LISPSYM(spanish," ESPA\303\221OL",i18n) # a language for MISC [' ' => utf8]
+LISPSYM(dutch,"NEDERLANDS",i18n) # a language for MISC
+#endif
 LISPSYM(init_hooks,"*INIT-HOOKS*",system) # als Variable für SPVW
 LISPSYM(quiet,"*QUIET*",system) # als Variable für SPVW
 LISPSYM(Klisting,"LISTING",keyword) # als Argument für SPVW

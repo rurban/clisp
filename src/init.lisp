@@ -256,8 +256,7 @@
                 ((symbolp package-name)
                  (setq package-name (symbol-name package-name)))
                 (t (error-of-type 'source-program-error
-                     (i18n::ENGLISH
-                      "~S: argument ~S should be a string or a symbol")
+                     (TEXT "~S: argument ~S should be a string or a symbol")
                      'common-lisp:in-package package-name)))
           (list 'EVAL-WHEN '(COMPILE LOAD EVAL)
                 (list 'SETQ 'COMMON-LISP::*PACKAGE*
@@ -321,7 +320,7 @@
 (common-lisp:export
  '(*load-paths* *editor* *clhs-root-default*
    *load-echo* *applyhook* *evalhook* *load-compiling* *compile-warnings*
-   *ansi* *default-file-encoding* ; places.lisp
+   *ansi* *current-language* *default-file-encoding* ; places.lisp
    #+UNICODE *misc-encoding*
    #+UNICODE *terminal-encoding*
    #+UNICODE *pathname-encoding*
@@ -390,33 +389,12 @@
 
 (use-package '("COMMON-LISP" "EXT") "CL-USER")
 
-(export '(i18n::english i18n::deutsch i18n::francais) "I18N")
-(use-package '("I18N") "EXT")
-(ext:re-export "I18N" "EXT")
-
-;; Handling for internationalized strings. New translations are not defined
-;; through `deflocalized'; instead, they are produced using GNU gettext and
-;; retrieved using SYS::LANGUAGE, which calls the C function gettext().
-(let ((h (sys::make-macro
-           (function
-             (lambda (form env)
-               (declare (ignore env))
-               (apply #'(lambda (&key &allow-other-keys)) form)
-               (list 'SYS::LANGUAGE
-                     (getf form 'ENGLISH)
-                     (getf form 'DEUTSCH)
-                     (getf form 'FRANCAIS)))))))
-  (sys::%putd 'ENGLISH h)
-  (sys::%putd 'DEUTSCH h)
-  (sys::%putd 'FRANCAIS h)
-)
-
 (sys::%putd 'sys::fbound-string
   (function sys::fbound-string
     (lambda (sym)
-      (cond ((special-operator-p sym) (ENGLISH "special operator"))
-            ((macro-function sym)     (ENGLISH "macro"))
-            ((fboundp sym)            (ENGLISH "function"))))))
+      (cond ((special-operator-p sym) (TEXT "special operator"))
+            ((macro-function sym)     (TEXT "macro"))
+            ((fboundp sym)            (TEXT "function"))))))
 
 (sys::%putd 'sys::check-redefinition
   (function sys::check-redefinition
@@ -438,7 +416,7 @@
     (lambda (symbol) ; removes the old function-definitions of a symbol
       (if (special-operator-p symbol)
         (error-of-type 'error
-          (ENGLISH "~S is a special operator and may not be redefined.")
+          (TEXT "~S is a special operator and may not be redefined.")
           symbol))
       (sys::check-redefinition symbol "DEFUN/DEFMACRO"
                                (sys::fbound-string symbol))
@@ -452,7 +430,7 @@
       (when (get symbol 'sys::inline-expansion)
         (sys::%put symbol 'sys::inline-expansion t))
       (when (get symbol 'sys::traced-definition) ; discard Trace
-        (warn (ENGLISH "DEFUN/DEFMACRO: redefining ~S; it was traced!")
+        (warn (TEXT "DEFUN/DEFMACRO: redefining ~S; it was traced!")
               symbol)
         (untrace2 symbol)))))
 
@@ -467,7 +445,7 @@
   (function %the-environment-error
     (lambda ()
       (error-of-type 'source-program-error
-        (ENGLISH "~S is impossible in compiled code")
+        (TEXT "~S is impossible in compiled code")
         'the-environment))))
 (sys::%putd 'the-environment
   (sys::make-macro
@@ -549,7 +527,7 @@
               (go 1))))
       (error-of-type 'type-error
         :datum fenv :expected-type '(or null simple-vector)
-        (ENGLISH "~S is an invalid function environment")
+        (TEXT "~S is an invalid function environment")
         fenv))
     'T)) ; not found
 ;; Determines, if a function-name S in function-environment FENV is not
@@ -591,7 +569,7 @@
               (go 1))))
       (error-of-type 'type-error
         :datum venv :expected-type '(or null simple-vector)
-        (ENGLISH "~S is an invalid variable environment")
+        (TEXT "~S is an invalid variable environment")
         venv))
     (and (boundp s) (%symbol-value s)))) ; not found
 
@@ -651,14 +629,14 @@
                               (values (rest form) nil))
                              ((macrop h)
                               (error-of-type 'source-program-error
-                                (ENGLISH "~S: ~S is illegal since ~S is a local macro")
+                                (TEXT "~S: ~S is illegal since ~S is a local macro")
                                 '%expand form (second form)))
                              (t (error-of-type 'error
-                                  (ENGLISH "~S: invalid function environment ~S")
+                                  (TEXT "~S: invalid function environment ~S")
                                   '%expand *fenv*))))
                      (if (atom (second form))
                        (error-of-type 'source-program-error
-                         (ENGLISH "~S: ~S is invalid since ~S is not a symbol")
+                         (TEXT "~S: ~S is invalid since ~S is not a symbol")
                          '%expand form (second form))
                        (multiple-value-call #'%expand-cons (rest form)
                          (%expand-lambda (second form))
@@ -812,7 +790,7 @@
                    ((atom L1)
                     (if L1
                       (error-of-type 'source-program-error
-                        (ENGLISH "code after MACROLET contains a dotted list, ending with ~S")
+                        (TEXT "code after MACROLET contains a dotted list, ending with ~S")
                         L1)
                       (let ((*fenv* (apply #'vector
                                            (nreverse (cons *fenv* L2)))))
@@ -824,7 +802,7 @@
                      (setq L2 (cons (make-macro-expander macrodef)
                                     (cons (car macrodef) L2)))
                      (error-of-type 'source-program-error
-                       (ENGLISH "illegal syntax in MACROLET: ~S")
+                       (TEXT "illegal syntax in MACROLET: ~S")
                        macrodef)))))
               ((FUNCTION-MACRO-LET)
                ;; expand function-definitions,
@@ -844,7 +822,7 @@
                    ((atom L1)
                     (if L1
                       (error-of-type 'source-program-error
-                        (ENGLISH "code after SYMBOL-MACROLET contains a dotted list, ending with ~S")
+                        (TEXT "code after SYMBOL-MACROLET contains a dotted list, ending with ~S")
                         L1)
                       (let ((*venv* (apply #'vector
                                            (nreverse (cons *venv* L2)))))
@@ -854,7 +832,7 @@
                               ((atom L3))
                             (if (member (caar L3) specials :test #'eq)
                               (error-of-type 'source-program-error
-                                (ENGLISH "~S: symbol ~S must not be declared SPECIAL and a macro at the same time")
+                                (TEXT "~S: symbol ~S must not be declared SPECIAL and a macro at the same time")
                                 'symbol-macrolet (caar L3)))))
                         (values (%expand-form (cons 'LOCALLY (cddr form)))
                                 t))))
@@ -867,12 +845,12 @@
                            (expansion (cadr symdef)))
                        (if (special-variable-p symbol)
                          (error-of-type 'program-error
-                           (ENGLISH "~S: symbol ~S is declared special and must not be declared a macro")
+                           (TEXT "~S: symbol ~S is declared special and must not be declared a macro")
                            'symbol-macrolet symbol)
                          (setq L2 (cons (make-symbol-macro expansion)
                                         (cons symbol L2)))))
                      (error-of-type 'source-program-error
-                       (ENGLISH "illegal syntax in SYMBOL-MACROLET: ~S")
+                       (TEXT "illegal syntax in SYMBOL-MACROLET: ~S")
                        symdef)))))
               ((%HANDLER-BIND)  ; expand handler-list and body
                (multiple-value-call #'%expand-cons form
@@ -908,14 +886,14 @@
                                                   (vector *venv* *fenv*)))
                            t)) ; call expander
                   (t (error-of-type 'error
-                       (ENGLISH "bad function environment occurred in ~S: ~S")
+                       (TEXT "bad function environment occurred in ~S: ~S")
                        '%expand-form *fenv*)))))
         (if (consp f)
           (multiple-value-call #'%expand-cons form
             (%expand-lambda f)
             (%expand-list (rest form)))
           (error-of-type 'source-program-error
-            (ENGLISH "~S: invalid form ~S")
+            (TEXT "~S: invalid form ~S")
             '%expand-form form))))))
 
 ;; Auxiliary functions for the the expansion:
@@ -925,7 +903,7 @@
   (if (atom l)
     (if l
       (error-of-type 'source-program-error
-        (ENGLISH "code contains a dotted list, ending with ~S")
+        (TEXT "code contains a dotted list, ending with ~S")
         l)
       (values nil nil))
     (multiple-value-call #'%expand-cons l
@@ -963,7 +941,7 @@
 (defun %expand-lambda (l)
   (unless (eq (first l) 'lambda)
     (error-of-type 'source-program-error
-      (ENGLISH "~S: ~S should be a lambda expression")
+      (TEXT "~S: ~S should be a lambda expression")
       '%expand-form l))
   (multiple-value-call #'%expand-cons l
       'lambda nil ; LAMBDA
@@ -999,7 +977,7 @@
   (if (atom ll)
     (if ll
       (error-of-type 'source-program-error
-        (ENGLISH "lambda list must not end with the atom ~S")
+        (TEXT "lambda list must not end with the atom ~S")
         ll)
       (values nil nil))
     (multiple-value-call #'%expand-cons ll
@@ -1026,7 +1004,7 @@
   (if (atom vs)
     (if vs
       (error-of-type 'source-program-error
-        (ENGLISH "~S: variable list ends with the atom ~S")
+        (TEXT "~S: variable list ends with the atom ~S")
         'let vs)
       (progn
         (setq *venv* (apply #'vector (nreverse (cons *venv* nvenv))))
@@ -1041,7 +1019,7 @@
   (if (atom vs)
     (if vs
       (error-of-type 'source-program-error
-        (ENGLISH "~S: variable list ends with the atom ~S")
+        (TEXT "~S: variable list ends with the atom ~S")
         'let* vs)
       (values nil nil))
     (multiple-value-call #'%expand-cons vs
@@ -1135,7 +1113,7 @@
   (if (atom fundefs)
     (if fundefs
       (error-of-type 'source-program-error
-        (ENGLISH "FLET/LABELS: code contains a dotted list, ending with ~S")
+        (TEXT "FLET/LABELS: code contains a dotted list, ending with ~S")
         fundefs)
       (list *fenv*))
     (let ((fundef (car fundefs)))
@@ -1143,7 +1121,7 @@
                (consp (cdr fundef)))
         (list* (car fundef) nil (%expand-fundefs-1 (cdr fundefs)))
         (error-of-type 'source-program-error
-          (ENGLISH "illegal syntax in FLET/LABELS: ~S")
+          (TEXT "illegal syntax in FLET/LABELS: ~S")
           fundef)))))
 ;; (%expand-fundefs-2 fundefs) expands a function-definition-list,
 ;; like in FLET, LABELS. returns 2 values.
@@ -1161,7 +1139,7 @@
   (if (atom funmacdefs)
     (if funmacdefs
       (error-of-type 'source-program-error
-        (ENGLISH "FUNCTION-MACRO-LET: code contains a dotted list, ending with ~S")
+        (TEXT "FUNCTION-MACRO-LET: code contains a dotted list, ending with ~S")
         funmacdefs)
       (list *fenv*))
     (let ((funmacdef (car funmacdefs)))
@@ -1172,7 +1150,7 @@
                (null (cdddr funmacdef)))
         (list* (car funmacdef) nil (%expand-funmacdefs-1 (cdr funmacdefs)))
         (error-of-type 'source-program-error
-          (ENGLISH "illegal syntax in FUNCTION-MACRO-LET: ~S")
+          (TEXT "illegal syntax in FUNCTION-MACRO-LET: ~S")
           funmacdef)))))
 ;; (%expand-funmacdefs-2 funmacdefs) expands a function-macro-
 ;; definition-list, like in FUNCTION-MACRO-LET. returns 2 values.
@@ -1317,9 +1295,9 @@
           (fresh-line)
           (write-string ";;")
           (write-string indent)
-          (write-string (ENGLISH "Loading file "))
+          (write-string (TEXT "Loading file "))
           (princ filename)
-          (write-string (ENGLISH " ...")))
+          (write-string (TEXT " ...")))
         (sys::allow-read-eval input-stream t)
         (block nil
           (unwind-protect
@@ -1341,14 +1319,14 @@
           (fresh-line)
           (write-string ";;")
           (write-string indent)
-          (write-string (ENGLISH "Loading of file "))
+          (write-string (TEXT "Loading of file "))
           (princ filename)
-          (write-string (ENGLISH " is finished.")))
+          (write-string (TEXT " is finished.")))
         t)
       (if if-does-not-exist
         (error-of-type 'file-error
           :pathname filename
-          (ENGLISH "A file with name ~A does not exist")
+          (TEXT "A file with name ~A does not exist")
           filename)
         nil))))
 
@@ -1358,18 +1336,18 @@
       (lambda (form env)
         (unless (and (consp (cdr form)) (consp (cddr form)))
           (error-of-type 'source-program-error
-            (ENGLISH "~S: missing function name and/or parameter list")
+            (TEXT "~S: missing function name and/or parameter list")
             'defun))
         (let ((name (cadr form))
               (lambdalist (caddr form))
               (body (cdddr form)))
           (unless (symbolp name)
             (error-of-type 'source-program-error
-              (ENGLISH "~S: ~S is not a symbol.")
+              (TEXT "~S: ~S is not a symbol.")
               'defun name))
           (when (special-operator-p name)
             (error-of-type 'source-program-error
-              (ENGLISH "~S: special operator ~S cannot be redefined.")
+              (TEXT "~S: special operator ~S cannot be redefined.")
               'defun name))
           (multiple-value-bind (body-rest declarations docstring)
                                (sys::parse-body body t env)
@@ -1405,7 +1383,7 @@
               (body (cdddr form)))
           (when (atom exitclause)
             (error-of-type 'source-program-error
-              (ENGLISH "exit clause in ~S must be a list")
+              (TEXT "exit clause in ~S must be a list")
               'do))
           (let ((bindlist nil)
                 (reinitlist nil)
@@ -1543,15 +1521,15 @@
       (lambda (form env)
         (if (atom (cdr form))
           (error-of-type 'source-program-error
-            (ENGLISH "~S: cannot define a function from that: ~S")
+            (TEXT "~S: cannot define a function from that: ~S")
             'defun (cdr form)))
         (unless (function-name-p (cadr form))
           (error-of-type 'source-program-error
-            (ENGLISH "~S: the name of a function must be a symbol, not ~S")
+            (TEXT "~S: the name of a function must be a symbol, not ~S")
             'defun (cadr form)))
         (if (atom (cddr form))
           (error-of-type 'source-program-error
-            (ENGLISH "~S: function ~S is missing a lambda list")
+            (TEXT "~S: function ~S is missing a lambda list")
             'defun (cadr form)))
         (let ((name (cadr form))
               (lambdalist (caddr form))
@@ -1756,7 +1734,7 @@
       (terpri *debug-io*)
       (if (and (interactive-stream-p *debug-io*) *break-driver*)
         (progn
-          (write-string (ENGLISH "If you continue (by typing 'continue'): ")
+          (write-string (TEXT "If you continue (by typing 'continue'): ")
                         *debug-io*)
           (apply #'format *debug-io* continue-format-string args)
           (funcall *break-driver* t))
@@ -1874,7 +1852,7 @@
 #+syscalls (load "posix")
 
 #+GETTEXT (LOAD "german")       ; German messages
-#+GETTEXT (LOAD "french")       ; French messages
+#+(and GETTEXT UNICODE) (LOAD "french") ; French messages
 #+(and GETTEXT UNICODE) (LOAD "spanish") ; Spanish messages
 #+GETTEXT (LOAD "dutch")        ; Dutch messages
 

@@ -32,7 +32,7 @@
 (defun fehler-char-arg (arg caller)
   (error-of-type 'type-error
     :datum arg :expected-type 'character
-    (ENGLISH "~: argument ~S is not a character")
+    (TEXT "~: argument ~S is not a character")
     caller arg
 ) )
 
@@ -53,7 +53,7 @@
     arg
     (error-of-type 'type-error
       :datum arg :expected-type 'integer
-      (ENGLISH "~S: the font argument should be an integer, not ~S")
+      (TEXT "~S: the font argument should be an integer, not ~S")
       caller arg
 ) ) )
 
@@ -62,7 +62,7 @@
     arg
     (error-of-type 'type-error
       :datum arg :expected-type 'integer
-      (ENGLISH "~S: the bits argument should be an integer, not ~S")
+      (TEXT "~S: the bits argument should be an integer, not ~S")
       caller arg
 ) ) )
 
@@ -84,7 +84,7 @@
     (:HYPER   char-hyper-bit)
     (t (error-of-type 'type-error
          :datum arg :expected-type '(MEMBER :CONTROL :META :SUPER :HYPER)
-         (ENGLISH "~S: the only bit names are ~S, ~S, ~S, ~S, not ~S")
+         (TEXT "~S: the only bit names are ~S, ~S, ~S, ~S, not ~S")
          caller ':CONTROL ':META ':SUPER ':HYPER arg
 ) ) )  )
 

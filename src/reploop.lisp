@@ -61,7 +61,7 @@
                         (prompt-new-package))
                   (package-short-name *package*))
                 (incf *command-index*))
-        (ENGLISH "[*package* invalid]")))
+        (TEXT "[*package* invalid]")))
   "The top level prompt.  If a function, the return value is used.
 If anything else, printed.")
 
@@ -88,7 +88,7 @@ If anything else, printed.")
 (defun debug-reset-io ()
   (rotatef *package* *saved-debug-package*)
   (rotatef *readtable* *saved-debug-readtable*)
-  (format *debug-io* (ENGLISH "~&Reset *PACKAGE* to ~s") *package*)
+  (format *debug-io* (TEXT "~&Reset *PACKAGE* to ~s") *package*)
   (throw 'debug 'continue))
 
 ;; Components of the Break-Loop:
@@ -152,12 +152,12 @@ If anything else, printed.")
 (defun get-frame-limit ()
   (let (number)
     (loop
-     (write-string (ENGLISH "
+     (write-string (TEXT "
 Enter the limit for max. frames to print or ':all' for all: ") *debug-io*)
      (setq number (read-from-string (read-line *debug-io* nil nil)))
      (if (or (integerp number) (eq number :all))
        (return)
-       (format *debug-io* (ENGLISH "~&~A is not a number. Try again.")
+       (format *debug-io* (TEXT "~&~A is not a number. Try again.")
                number)))
     (unless (eq number :all)
       number)))
@@ -179,7 +179,7 @@ Enter the limit for max. frames to print or ':all' for all: ") *debug-io*)
         ((and local-limit (>= i local-limit)) nil)
       (describe-frame *standard-output* frame)
       (when (eq frame (setq frame (frame-up-1 frame mode)))
-        (format *debug-io* (ENGLISH "~&Printed ~D frames") i)
+        (format *debug-io* (TEXT "~&Printed ~D frames") i)
         (return)))
     (throw 'debug 'continue)))
 
@@ -204,7 +204,7 @@ Enter the limit for max. frames to print or ':all' for all: ") *debug-io*)
 
 (defun debug-return ()
   (return-from-eval-frame *debug-frame*
-                          (read-form (ENGLISH "Values: ")))
+                          (read-form (TEXT "Values: ")))
   (throw 'debug 'continue))
 (defun debug-continue () (throw 'debug 'quit))
 
@@ -215,14 +215,14 @@ Enter the limit for max. frames to print or ':all' for all: ") *debug-io*)
 
 ;;; print it
 (defun print-error (condition)
-  (format *debug-io* (ENGLISH "~%Recent Error is: >> ~A <<")
+  (format *debug-io* (TEXT "~%Recent Error is: >> ~A <<")
           (print-condition condition nil)))
 
 
 ;; extended commands
 (defun commands0 ()
   (list
-   (ENGLISH "
+   (TEXT "
 Help (abbreviated :h) = this list
 Use the usual editing capabilities.
 (quit) or (exit) leaves CLISP.")
@@ -232,7 +232,7 @@ Use the usual editing capabilities.
 
 (defun commands1 ()
   (list
-   (ENGLISH "
+   (TEXT "
 Commands may be abbreviated as shown in the second column.
 COMMAND        ABBR             DESCRIPTION
 Help           :h (or ?)        this command list
@@ -326,14 +326,14 @@ Return         :rt              leave EVAL frame, prescribing the return values"
 
 (defun commands3 ()
   (list
-   (ENGLISH "
+   (TEXT "
 Continue       :c       continue evaluation")
    (cons "Continue"     #'debug-continue)
    (cons ":c"           #'debug-continue)))
 
 (defun commands4 ()
   (list
-   (ENGLISH "
+   (TEXT "
 Continue       :c       continue evaluation
 Step           :s       step into form: evaluate this form in single step mode
 Next           :n       step over form: evaluate this form at once
@@ -414,7 +414,7 @@ Continue       :c      switch off single step mode, continue evaluation
       (if (> *recursive-error-count* 3)
         (progn
           (setq *recursive-error-count* 0)
-          (write-string (ENGLISH "Unprintable error message.")
+          (write-string (TEXT "Unprintable error message.")
                         *error-output*))
         (sys::print-condition condition *error-output*)))
 
@@ -425,12 +425,12 @@ Continue       :c      switch off single step mode, continue evaluation
       (if continuable
         (when interactive-p
           (terpri *debug-io*)
-          (write-string (ENGLISH "You can continue (by typing 'continue').")
+          (write-string (TEXT "You can continue (by typing 'continue').")
                         *debug-io*))
         (progn
           (terpri *debug-io*)
           (when interactive-p
-            (write-string (ENGLISH "If you continue (by typing 'continue'): ")
+            (write-string (TEXT "If you continue (by typing 'continue'): ")
                           *debug-io*))
           (princ may-continue *debug-io*)))))
 
@@ -441,8 +441,8 @@ Continue       :c      switch off single step mode, continue evaluation
           (terpri *debug-io*)
           (write-string
             (if may-continue
-              (ENGLISH "The following restarts are available, too:")
-              (ENGLISH "The following restarts are available:"))
+              (TEXT "The following restarts are available, too:")
+              (TEXT "The following restarts are available:"))
             *debug-io*))
         (let ((counter 0))
           (dolist (restart restarts)
@@ -539,15 +539,15 @@ Continue       :c      switch off single step mode, continue evaluation
 (defun step-values (values)
   (let ((*standard-output* *debug-io*))
     (terpri #|*debug-io*|#)
-    (write-string (ENGLISH "step ") #|*debug-io*|#)
+    (write-string (TEXT "step ") #|*debug-io*|#)
     (write *step-level* #|:stream *debug-io*|#)
     (write-string " ==> " #|*debug-io*|#)
     (case (length values)
-      (0 (write-string (ENGLISH "no values") #|*debug-io*|#))
-      (1 (write-string (ENGLISH "value: ") #|*debug-io*|#)
+      (0 (write-string (TEXT "no values") #|*debug-io*|#))
+      (1 (write-string (TEXT "value: ") #|*debug-io*|#)
          (write (car values) #|:stream *debug-io*|#))
       (t (write (length values) #|:stream *debug-io*|#)
-         (write-string (ENGLISH " values: ") #|*debug-io*|#)
+         (write-string (TEXT " values: ") #|*debug-io*|#)
          (do ((L values))
              ((endp L))
            (write (pop L) #|:stream *debug-io*|#)
@@ -578,7 +578,7 @@ Continue       :c      switch off single step mode, continue evaluation
              (*debug-mode* 4)
              (*debug-frame* (frame-down-1 (frame-up-1 *frame-limit1* *debug-mode*) *debug-mode*)))
         (fresh-line #|*debug-io*|#)
-        (write-string (ENGLISH "step ") #|*debug-io*|#)
+        (write-string (TEXT "step ") #|*debug-io*|#)
         (write *step-level* #|:stream *debug-io*|#)
         (write-string " --> " #|*debug-io*|#)
         (write form #|:stream *debug-io*|# :length 4 :level 3)
@@ -613,7 +613,7 @@ Continue       :c      switch off single step mode, continue evaluation
                         (t )		; other cases, especially continue
                         ))))
             (when watchp
-              (let ((form (read-form (ENGLISH "condition when to stop: "))))
+              (let ((form (read-form (TEXT "condition when to stop: "))))
                 (setq *step-watch*
                         ;; Funktion, that evaluates 'form' in/with *debug-frame*
                         (eval-at *debug-frame*

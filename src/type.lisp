@@ -27,7 +27,7 @@
 
 (defun typespec-error (fun type)
   (error-of-type 'error
-    (ENGLISH "~S: invalid type specification ~S")
+    (TEXT "~S: invalid type specification ~S")
     fun type
 ) )
 
@@ -59,7 +59,7 @@
          ((and (eq (first y) 'SATISFIES) (eql (length y) 2))
             (unless (symbolp (second y))
               (error-of-type 'error
-                (ENGLISH "~S: argument to SATISFIES must be a symbol: ~S")
+                (TEXT "~S: argument to SATISFIES must be a symbol: ~S")
                 'typep (second y)
             ) )
             (if (funcall (symbol-function (second y)) x) t nil)
@@ -327,7 +327,7 @@
                 (< (first low) x)
              )
              (t (error-of-type 'error
-                  (ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
+                  (TEXT "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
                   'typep type type type low
        )     )  )
        (cond ((eq high '*))
@@ -336,7 +336,7 @@
                 (> (first high) x)
              )
              (t (error-of-type 'error
-                  (ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
+                  (TEXT "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
                   'typep type type type high
 ) )    )     )  )
 (defun c-typep-number (caller tester low high x)
@@ -346,7 +346,7 @@
                 ((and (consp low) (null (rest low)) (funcall tester (first low)))
                  `((< ,(first low) ,x))
                 )
-                (t (c-warn (ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
+                (t (c-warn (TEXT "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
                            'typep caller caller caller low
                    )
                    (throw 'c-TYPEP nil)
@@ -356,7 +356,7 @@
                 ((and (consp high) (null (rest high)) (funcall tester (first high)))
                  `((> ,(first high) ,x))
                 )
-                (t (c-warn (ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
+                (t (c-warn (TEXT "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
                            'typep caller caller caller high
                    )
                    (throw 'c-TYPEP nil)
@@ -443,7 +443,7 @@
 )
 (def-compound-type MOD (n) (x)
   (unless (integerp n)
-    (error (ENGLISH "~S: argument to MOD must be an integer: ~S")
+    (error (TEXT "~S: argument to MOD must be an integer: ~S")
            'typep n
   ) )
   (and (integerp x) (<= 0 x) (< x n))
@@ -451,7 +451,7 @@
 )
 (def-compound-type SIGNED-BYTE (&optional (n '*)) (x)
   (unless (or (eq n '*) (integerp n))
-    (error (ENGLISH "~S: argument to SIGNED-BYTE must be an integer or * : ~S")
+    (error (TEXT "~S: argument to SIGNED-BYTE must be an integer or * : ~S")
            'typep n
   ) )
   (and (integerp x) (or (eq n '*) (< (integer-length x) n)))
@@ -461,7 +461,7 @@
 )
 (def-compound-type UNSIGNED-BYTE (&optional (n '*)) (x)
   (unless (or (eq n '*) (integerp n))
-    (error (ENGLISH "~S: argument to UNSIGNED-BYTE must be an integer or * : ~S")
+    (error (TEXT "~S: argument to UNSIGNED-BYTE must be an integer or * : ~S")
            'typep n
   ) )
   (and (integerp x)
@@ -635,7 +635,7 @@
     (if (and (consp type) (eq (car type) 'VALUES))
       (macrolet ((typespec-error ()
                    '(error-of-type 'error
-                      (ENGLISH "Invalid type specifier ~S")
+                      (TEXT "Invalid type specifier ~S")
                       type
                 ))  )
         (let ((vals values)

@@ -45,10 +45,10 @@ Bind `att-iter' (if non-nil)  to a macro (using `macrolet'),
  returns `nil' when no more attributes is available.
 The search is done according to the `scope', in the sub-`path' of `dkey'."
   (unless (symbolp key-iter)
-    (error (ENGLISH "~S: macro name should be a symbol, not ~S")
+    (error (TEXT "~S: macro name should be a symbol, not ~S")
            'with-dir-key-search key-iter))
   (unless (symbolp att-iter)
-    (error (ENGLISH "~S: macro name should be a symbol, not ~S")
+    (error (TEXT "~S: macro name should be a symbol, not ~S")
            'with-dir-key-search att-iter))
   (let ((k-it (gensym "WDKS-")))
     `(let ((,k-it (dkey-search-iterator ,dkey ,path ,scope)))

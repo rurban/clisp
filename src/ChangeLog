@@ -1,5 +1,46 @@
 2002-02-22  Sam Steingold  <sds@gnu.org>
 
+	UI language can now be changed at run time
+	* constobj.d (current_language_cache): removed
+	(current_language): language-independent object now
+	* constsym.d (german, french, spanish, dutch): added
+	* constsym.d, subr.d (language): removed
+	(set_current_language, text): added
+	* encoding.d (init_encodings): split into init_encodings_1() and
+	init_encodings_2() to accomodate non-ASCII symbol names
+	* i18n.d (SET-CURRENT-LANGUAGE): new function
+	(LANGUAGE): replaced with TEXT
+	* lispbibl.d (init_encodings_1, init_encodings_2):
+	replace init_encodings()
+	(init_language): global now (called by SET-CURRENT-LANGUAGE)
+	* spvw.d (init_symbol_tab_2): accomodate non-ASCII symbols
+	(initmem): call init_encodings_1() and init_encodings_2()
+	around init_symbol_tab_2()
+	(main): init O(current_language)
+	* spvw_language.d (current_language_o): new function:
+	map language number to its symbol name
+	(init_language): use it to init O(current_language)
+	* spvw_memfile.d (loadmem_from_handle): removed
+	O(current_language_cache)
+	* places.lisp (*CURRENT-LANGUAGE*): define
+	* init.lisp (*CURRENT-LANGUAGE*): export
+	* clos.lisp, affi1.lisp, foreign1.lisp: import SYS::TEXT
+	* french.lisp: spell FRANCAIS with a cedilla
+	* international.lisp: export ENGLISH here
+	* affi1.lisp, amigasock.lisp, backquote.lisp, beossock.lisp
+	* cfgacorn.lisp, cfgamiga.lisp, cfgdos.lisp, cfgsunux.lisp
+	* cfgunix.lisp, cfgwin32.lisp, clos.lisp, cmacros.lisp,
+	* compiler.lisp, condition.lisp, defmacro.lisp, defs1.lisp
+	* defs2.lisp, defstruct.lisp, describe.lisp, dirkey.lisp
+	* disassem.lisp, dribble.lisp, edit.lisp, floatprint.lisp
+	* foreign1.lisp, format.lisp, init.lisp, international.lisp
+	* loop.lisp, macros1.lisp, macros2.lisp, macros3.lisp
+	* places.lisp, pprint.lisp, query.lisp, reploop.lisp, rexx1.lisp,
+	* room.lisp, runprog.lisp, screen.lisp, trace.lisp, type.lisp,
+	* xcharin.lisp: use TEXT instead of ENGLISH
+
+2002-02-22  Sam Steingold  <sds@gnu.org>
+
 	* install.lisp (*clisp-base-cmd*, *clisp-cmd*): surround
 	pathnames with quotes to accomodate "c://Program Files//CLISP//" &c
 

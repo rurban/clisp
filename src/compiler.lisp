@@ -63,7 +63,7 @@
 
 #-CROSS (in-package "COMPILER")
 #+CROSS (in-package "CROSS" :nicknames '("CLISP"))
-#-CLISP (defmacro ENGLISH (x) x)
+#-CLISP (defmacro TEXT (x) x)
 ;; Convention: Write SYSTEM::PNAME for a Symbol, that is "accidentally" in
 ;; #<PACKAGE SYSTEM>, but which we don't use any further.
 ;; Write SYS::PNAME, if we assume any properties for the Symbol.
@@ -209,7 +209,7 @@
            (apply #'lisp:macroexpand-1 (cons dummysym (cdr form)) env)))))
   ;; see <init.lisp> :
   (defun date-format ()
-    (ENGLISH "~1{~5@*~D/~4@*~D/~3@*~D ~2@*~2,'0D.~1@*~2,'0D.~0@*~2,'0D~:}"))
+    (TEXT "~1{~5@*~D/~4@*~D/~3@*~D ~2@*~2,'0D.~1@*~2,'0D.~0@*~2,'0D~:}"))
   (defun sys::line-number (stream) nil)
 )
 
@@ -369,8 +369,7 @@ and <http://clisp.cons.org/impnotes.html#bytecode>.
         ;; read codevector
         (let ((obj (let ((*read-base* 16.)) (read stream t nil t))))
           (unless (= (length obj) arg)
-            (error (ENGLISH "Bad length of closure vector: ~S")
-                   arg))
+            (error (TEXT "Bad length of closure vector: ~S") arg))
           obj)
         ;; read closure
         (let ((obj (read stream t nil t)))
@@ -1709,7 +1708,7 @@ for-value   NIL or T
 
 ;; error message function
 (defun compiler-error (caller &optional where)
-  (error (ENGLISH "Compiler bug!! Occurred in ~A~@[ at ~A~].")
+  (error (TEXT "Compiler bug!! Occurred in ~A~@[ at ~A~].")
          caller where))
 
 
@@ -2358,7 +2357,7 @@ for-value   NIL or T
   (setq declspeclist (nreverse declspeclist))
   (dolist (declspec declspeclist)
     (if (or (atom declspec) (cdr (last declspec)))
-      (c-warn (ENGLISH "Bad declaration syntax: ~S~%Will be ignored.")
+      (c-warn (TEXT "Bad declaration syntax: ~S~%Will be ignored.")
               declspec)
       (let ((declspectype (car declspec)))
         (if (and (symbolp declspectype)
@@ -2377,31 +2376,31 @@ for-value   NIL or T
                    (if (symbolp x)
                      (push x specials)
                      (c-warn
-                      (ENGLISH "Non-symbol ~S may not be declared SPECIAL.")
+                      (TEXT "Non-symbol ~S may not be declared SPECIAL.")
                       x))))
                 ((eq declspectype 'IGNORE)
                  (dolist (x (cdr declspec))
                    (if (symbolp x)
                      (push x ignores)
                      (c-warn
-                      (ENGLISH "Non-symbol ~S may not be declared IGNORE.")
+                      (TEXT "Non-symbol ~S may not be declared IGNORE.")
                       x))))
                 ((eq declspectype 'IGNORABLE)
                  (dolist (x (cdr declspec))
                    (if (symbolp x)
                      (push x ignorables)
                      (c-warn
-                      (ENGLISH "Non-symbol ~S may not be declared IGNORABLE.")
+                      (TEXT "Non-symbol ~S may not be declared IGNORABLE.")
                       x))))
                 ((eq declspectype 'SYS::READ-ONLY)
                  (dolist (x (cdr declspec))
                    (if (symbolp x)
                      (push x readonlys)
                      (c-warn
-                      (ENGLISH "Non-symbol ~S may not be declared READ-ONLY.")
+                      (TEXT "Non-symbol ~S may not be declared READ-ONLY.")
                       x))))
                 (t (push declspec *denv*)))
-          (c-warn (ENGLISH "Unknown declaration ~S.~%The whole declaration will be ignored.")
+          (c-warn (TEXT "Unknown declaration ~S.~%The whole declaration will be ignored.")
                   declspectype declspec)))))
   (values specials ignores ignorables readonlys))
 
@@ -2760,10 +2759,10 @@ for-value   NIL or T
        ;; (to pass the right value to this function!)
        (format nil (if (and *compile-file-pathname*
                             (equalp file *compile-file-truename*))
-                       "" (format nil (ENGLISH " in file ~S") file)))
+                       "" (format nil (TEXT " in file ~S") file)))
        (format nil (if (= lineno1 lineno2)
-                       (ENGLISH " in line ~D")
-                       (ENGLISH " in lines ~D..~D"))
+                       (TEXT " in line ~D")
+                       (TEXT " in lines ~D..~D"))
                lineno1 lineno2))
       ""))
 
@@ -2786,7 +2785,7 @@ for-value   NIL or T
 (defun c-warn (cstring &rest args)
   (incf *warning-count*)
   (apply #'c-comment
-         (concatenate 'string (ENGLISH "~%WARNING~@[ in function ~S~]~A :~%")
+         (concatenate 'string (TEXT "~%WARNING~@[ in function ~S~]~A :~%")
                       cstring)
          (current-function) (c-source-location)
          args))
@@ -2808,7 +2807,7 @@ for-value   NIL or T
       (when *compiling-from-file*
         (pushnew in-function *functions-with-errors*)))
     (format *c-error-output*
-            (ENGLISH "~%ERROR~@[ in function ~S~]~A :~%~?")
+            (TEXT "~%ERROR~@[ in function ~S~]~A :~%~?")
             in-function (c-source-location) cstring args))
   (throw 'c-error
     (make-anode :source NIL
@@ -2938,15 +2937,12 @@ for-value   NIL or T
 ;; and has at least l1, but at most l2 elements. Else: Error.
 (defun test-list (L &optional (l1 0) (l2 nil))
   (unless (and (listp L) (null (cdr (last L))))
-    (c-error (ENGLISH "Code contains dotted list ~S")
-             L))
+    (c-error (TEXT "Code contains dotted list ~S") L))
   (unless (>= (length L) l1)
-    (c-error (ENGLISH "Form too short, too few arguments: ~S")
-             L))
+    (c-error (TEXT "Form too short, too few arguments: ~S") L))
   (when l2
     (unless (<= (length L) l2)
-      (c-error (ENGLISH "Form too long, too many arguments: ~S")
-               L))))
+      (c-error (TEXT "Form too long, too many arguments: ~S") L))))
 
 ;; c-form-table contains the handler function (to be called without arguments)
 ;; for all functions/specialforms/macros, that have to be treated specially.
@@ -3172,8 +3168,7 @@ for-value   NIL or T
             (if (lambda-form-p fun)
               (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
               #| not: (c-LAMBDA-FUNCTION-CALL fun (cdr *form*)) |#
-              (c-error (ENGLISH "Not the name of a function: ~S")
-                       fun))))))))
+              (c-error (TEXT "Not the name of a function: ~S") fun))))))))
   #+COMPILER-DEBUG (setf (anode-source anode) *form*)
   ;; If no values are needed and no side effects are produced,
   ;; the appendant code can be discarded completely:
@@ -3237,8 +3232,8 @@ for-value   NIL or T
   ;; search the variable in *venv* :
   (multiple-value-bind (a b c) (venv-search symbol)
     (when (eq a 'NIL)
-      (c-warn (ENGLISH "~S is neither declared nor bound,~@
-                        it will be treated as if it were declared SPECIAL.")
+      (c-warn (TEXT "~S is neither declared nor bound,~@
+                     it will be treated as if it were declared SPECIAL.")
               symbol)
       (when *compiling-from-file*
         (pushnew symbol *unknown-free-vars* :test #'eq))
@@ -3299,8 +3294,8 @@ for-value   NIL or T
   ;; search the variable in *venv* :
   (multiple-value-bind (a b c) (venv-search symbol)
     (when (eq a 'NIL)
-      (c-warn (ENGLISH "~S is neither declared nor bound,~@
-                        it will be treated as if it were declared SPECIAL.")
+      (c-warn (TEXT "~S is neither declared nor bound,~@
+                     it will be treated as if it were declared SPECIAL.")
               symbol)
       (setq a 'SPECIAL))
     (case a
@@ -3313,8 +3308,9 @@ for-value   NIL or T
                                          'NIL (list symbol)))
                       :code (if (var-constantp var)
                               (progn
-                                (c-warn (ENGLISH "The constant ~S may not be assigned to.~@
-                                                  The assignment will be ignored.")
+                                (c-warn
+                                 (TEXT "The constant ~S may not be assigned to.~@
+                                        The assignment will be ignored.")
                                         symbol)
                                 '((VALUES1)))
                               `((SETVALUE , symbol))))))
@@ -3439,7 +3435,7 @@ for-value   NIL or T
                (values name req-num opt-num rest-p keywords keywords allow-p)
                (if no-error
                  (values)
-                 (error (ENGLISH "~S: ~S is not a function.")
+                 (error (TEXT "~S: ~S is not a function.")
                         'function-signature obj))))))))
 
 (defun get-signature (obj)
@@ -3511,14 +3507,14 @@ for-value   NIL or T
 (defun test-argument-syntax (args applyargs fun req opt rest-p key-p keylist
                              allow-p)
   (unless (and (listp args) (null (cdr (last args))))
-    (c-error (ENGLISH "argument list to function ~S is dotted: ~S")
+    (c-error (TEXT "argument list to function ~S is dotted: ~S")
              fun args))
   (let ((n (length args))
         (reqopt (+ req opt)))
     (unless (and (or applyargs (<= req n)) (or rest-p key-p (<= n reqopt)))
-      (c-warn (ENGLISH "~S was called with ~S~:[~; or more~] arguments, ~
-                        but it requires ~:[~:[from ~S to ~S~;~S~]~;~
-                        at least ~*~S~] argument~:p.")
+      (c-warn (TEXT "~S was called with ~S~:[~; or more~] arguments, ~
+                     but it requires ~:[~:[from ~S to ~S~;~S~]~;~
+                     at least ~*~S~] argument~:p.")
               fun n applyargs
               (or rest-p key-p) (eql req reqopt) req reqopt)
       (return-from test-argument-syntax 'NIL))
@@ -3529,7 +3525,7 @@ for-value   NIL or T
     (setq n (- n reqopt) args (nthcdr reqopt args))
     (unless (evenp n)
       (c-warn
-       (ENGLISH "keyword arguments to function ~S should occur pairwise: ~S")
+       (TEXT "keyword arguments to function ~S should occur pairwise: ~S")
        fun args)
       (return-from test-argument-syntax 'NIL))
     (do ((keyargs args (cddr keyargs))
@@ -3537,8 +3533,8 @@ for-value   NIL or T
          (wrong-key nil))
         ((null keyargs)
          (cond (wrong-key
-                (c-warn (ENGLISH "keyword ~S is not allowed for function ~S.~
-                                  ~%The only allowed keyword~:[s are ~{~S~#[~; and ~S~:;, ~]~}~; is ~{~S~}~].")
+                (c-warn (TEXT "keyword ~S is not allowed for function ~S.~
+                             ~%The only allowed keyword~:[s are ~{~S~#[~; and ~S~:;, ~]~}~; is ~{~S~}~].")
                         wrong-key fun (eql (length keylist) 1) keylist)
                 NIL)
                (t 'STATIC-KEYS)))
@@ -3547,7 +3543,7 @@ for-value   NIL or T
           (return-from test-argument-syntax 'DYNAMIC-KEYS))
         (setq key (c-constant-value key))
         (unless (symbolp key)
-          (c-warn (ENGLISH "argument ~S to function ~S is not a symbol")
+          (c-warn (TEXT "argument ~S to function ~S is not a symbol")
                   (first keyargs) fun)
           (return-from test-argument-syntax 'DYNAMIC-KEYS))
         (when (eq key ':ALLOW-OTHER-KEYS)
@@ -4213,11 +4209,11 @@ for-value   NIL or T
           (match-known-unknown-functions uf kf)
           (push uf *unknown-functions*)))
       (unless (in-defun-p name)
-        (c-warn (ENGLISH "Function ~s is not defined") name))))
+        (c-warn (TEXT "Function ~s is not defined") name))))
   (when (memq name *deprecated-functions-list*)
     (if *compiling-from-file*
         (pushnew name *deprecated-functions* :test #'eq)
-        (c-warn (ENGLISH "Function ~s is deprecated~@[, use ~s instead~]")
+        (c-warn (TEXT "Function ~s is deprecated~@[, use ~s instead~]")
                 name (get name 'deprecated)))))
 
 ;; auxiliary function: PROCLAIM on file-compilation, cf. function PROCLAIM
@@ -4281,7 +4277,7 @@ for-value   NIL or T
           ;;   but misses `:method's in `defgeneric' forms
           ;; - the above check works only for already defined generic
           ;;   functions but not for generic functions defined in this file
-          (c-warn (ENGLISH "Function ~s~% was already defined~a~:[~% with the signature~%~a~% it is being re-defined with a new signature~%~a~;~2*~]")
+          (c-warn (TEXT "Function ~s~% was already defined~a~:[~% with the signature~%~a~% it is being re-defined with a new signature~%~a~;~2*~]")
                   symbol (c-source-point-location (second kf))
                   (equalp signature (cddr kf))
                   (sig-to-list (cddr kf))
@@ -4333,7 +4329,7 @@ for-value   NIL or T
                 (or (null (cdar L))
                     (and (consp (cdar L)) (null (cddar L)))))
            (push (caar L) symbols) (push (cadar L) forms))
-          (t (c-error-c (ENGLISH "Illegal syntax in LET/LET*: ~S")
+          (t (c-error-c (TEXT "Illegal syntax in LET/LET*: ~S")
                         (car L))))))
 
 ;;; analyzes a lambda-list of a function (CLTL p. 60), returns 13 values:
@@ -4367,16 +4363,14 @@ for-value   NIL or T
         (auxinit nil))
     ;; all in reversed order
     (macrolet ((err-illegal (item)
-                 `(c-error-c
-                   (ENGLISH "Lambda list marker ~S not allowed here.")
+                 `(c-error-c (TEXT "Lambda list marker ~S not allowed here.")
                    ,item))
                (check-item (item permissible)
                  `(if (memq ,item ,permissible)
                    (return)
                    (err-illegal ,item)))
                (err-norest ()
-                 `(c-error-c
-                   (ENGLISH "Missing &REST parameter in lambda list ~S")
+                 `(c-error-c (TEXT "Missing &REST parameter in lambda list ~S")
                    lambdalist))
                (push-opt (v i s)
                  `(progn (push ,v optvar) (push ,i optinit) (push ,s optsvar)))
@@ -4387,7 +4381,7 @@ for-value   NIL or T
                      (if (memq item lambda-list-keywords)
                          (check-item item ,items)
                          (c-error-c
-                          (ENGLISH "Lambda list element ~S is superfluous.")
+                          (TEXT "Lambda list element ~S is superfluous.")
                           item)))
                    (setq L (cdr L)))))
       ;; Required Parameters:
@@ -4512,7 +4506,7 @@ for-value   NIL or T
           (setq L (cdr L))))
       ;; (atom L) applies.
       (if L
-          (c-error-c (ENGLISH "Lambda lists with dots are only allowed in macros, not here: ~S")
+          (c-error-c (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
                      lambdalist)))
     (values
      (nreverse req)
@@ -4524,8 +4518,7 @@ for-value   NIL or T
      (nreverse auxvar) (nreverse auxinit))))
 
 (defun lambdalist-error (item)
-  (c-error-c (ENGLISH "Illegal lambda list element ~S")
-             item))
+  (c-error-c (TEXT "Illegal lambda list element ~S") item))
 
 (defun lambda-list-to-signature (lambda-list)
   (multiple-value-bind (req opt opt-i opt-p rest
@@ -4612,10 +4605,10 @@ for-value   NIL or T
     (if (member sym *ignores* :test #'eq)
       ;; var ignore-declared
       (if (var-specialp var)
-        (c-warn (ENGLISH "Binding variable ~S can cause side effects despite of IGNORE declaration~%since it is declared SPECIAL.")
+        (c-warn (TEXT "Binding variable ~S can cause side effects despite of IGNORE declaration~%since it is declared SPECIAL.")
                 sym)
         (if (var-for-value-usedp var)
-          (c-style-warn (ENGLISH "variable ~S is used despite of IGNORE declaration.")
+          (c-style-warn (TEXT "variable ~S is used despite of IGNORE declaration.")
                         sym)))
       ;; var not ignore-declared
       (unless (member sym *ignorables* :test #'eq)
@@ -4625,12 +4618,12 @@ for-value   NIL or T
           (unless (null (symbol-package sym)) ; sym a (gensym) ?
             ;; (symbols without Home-Package do not originate from the user,
             ;; the warning would only cause confusion).
-            (c-style-warn (ENGLISH "variable ~S is not used.~%Misspelled or missing IGNORE declaration?")
+            (c-style-warn (TEXT "variable ~S is not used.~%Misspelled or missing IGNORE declaration?")
                           sym)))))
     (when (member sym *readonlys* :test #'eq)
       (unless (var-specialp var)
         (when (var-assignedp var)
-          (c-warn (ENGLISH "The variable ~S is assigned to, despite of READ-ONLY declaration.")
+          (c-warn (TEXT "The variable ~S is assigned to, despite of READ-ONLY declaration.")
                   sym))))))
 
 ;; returns the Code, that is necessary for the new construction of a
@@ -4671,7 +4664,7 @@ for-value   NIL or T
     ;; must bind symbol dynamically:
     (progn
       (when (l-constantp symbol)
-        (c-error-c (ENGLISH "Constant ~S cannot be bound.")
+        (c-error-c (TEXT "Constant ~S cannot be bound.")
                    symbol))
       (make-special-var symbol))
     ;; must bind symbol lexically :
@@ -4786,8 +4779,7 @@ for-value   NIL or T
     (progn
       (if (l-constantp symbol)
         (progn
-          (c-error-c (ENGLISH "Constant ~S cannot be bound.")
-                     symbol)
+          (c-error-c (TEXT "Constant ~S cannot be bound.") symbol)
           (push 0 *stackz*))
         (push '(BIND 1) *stackz*))
       (make-special-var symbol))
@@ -5464,8 +5456,7 @@ for-value   NIL or T
 ;; compile (DECLARE {declspec}*)
 (defun c-DECLARE ()
   (test-list *form* 1)
-  (c-error (ENGLISH "Misplaced declaration: ~S")
-           *form*))
+  (c-error (TEXT "Misplaced declaration: ~S") *form*))
 
 ;; compile (LOAD-TIME-VALUE form [read-only-p])
 (defun c-LOAD-TIME-VALUE ()
@@ -5649,8 +5640,7 @@ for-value   NIL or T
 (defun c-SETQ ()
   (test-list *form* 1)
   (when (evenp (length *form*))
-    (c-error (ENGLISH "Odd number of arguments to SETQ: ~S")
-             *form*))
+    (c-error (TEXT "Odd number of arguments to SETQ: ~S") *form*))
   (if (null (cdr *form*))
     (c-NIL) ; (SETQ) == (PROGN) == NIL
     (if (setqlist-macrop (cdr *form*))
@@ -5679,7 +5669,7 @@ for-value   NIL or T
                 (push setteri codelist)
                 (seclass-or-f seclass setteri)))
             (progn
-              (c-error-c (ENGLISH "Cannot assign to non-symbol ~S.")
+              (c-error-c (TEXT "Cannot assign to non-symbol ~S.")
                          symboli)
               (push '(VALUES1) codelist))))))))
 
@@ -5688,8 +5678,7 @@ for-value   NIL or T
 (defun c-PSETQ ()
   (test-list *form* 1)
   (when (evenp (length *form*))
-    (c-error (ENGLISH "Odd number of arguments to PSETQ: ~S")
-             *form*))
+    (c-error (TEXT "Odd number of arguments to PSETQ: ~S") *form*))
   (if (null (cdr *form*))
     (c-NIL) ; (PSETQ) == (PROGN) == NIL
     (if (setqlist-macrop (cdr *form*))
@@ -5708,7 +5697,7 @@ for-value   NIL or T
                 (push anodei anodelist)
                 (push (c-VARSET symboli anodei nil) setterlist)
                 (push 0 *stackz*))
-              (c-error-c (ENGLISH "Cannot assign to non-symbol ~S.")
+              (c-error-c (TEXT "Cannot assign to non-symbol ~S.")
                          symboli))))
         ;; try to reorganize them in a fashion, that as few  (PUSH)'s and
         ;; (POP)'s as possible are necessary:
@@ -5791,7 +5780,7 @@ for-value   NIL or T
                               (and *for-value* (null codelist)))))
                 (push setter codelist)
                 (seclass-or-f seclass setter))
-              (c-error-c (ENGLISH "Cannot assign to non-symbol ~S.")
+              (c-error-c (TEXT "Cannot assign to non-symbol ~S.")
                          symbol)))
           (push '(POP) codelist)
           (push 1 *stackz*))))))
@@ -5913,7 +5902,7 @@ for-value   NIL or T
   (let ((symbols (second *form*)))
     (dolist (sym symbols)
       (unless (symbolp sym)
-        (c-error (ENGLISH "Only symbols may be used as variables, not ~S")
+        (c-error (TEXT "Only symbols may be used as variables, not ~S")
                  sym)))
     (if (= (length symbols) 1)
       (c-form `(LET ((,(first symbols) ,(third *form*))) ,@(cdddr *form*)))
@@ -6003,12 +5992,12 @@ for-value   NIL or T
                 (or (null (cdar L))
                     (and (consp (cdar L)) (null (cddar L)))))
            (push (caar L) varlist) (push (eval (cadar L)) valueslist))
-          (t (c-error-c (ENGLISH "Illegal syntax in COMPILER-LET: ~S")
+          (t (c-error-c (TEXT "Illegal syntax in COMPILER-LET: ~S")
                         (car L))))))
 
 (macrolet ((check-blockname (name)
              `(unless (symbolp ,name)
-                (c-error-c (ENGLISH "Block name must be a symbol, not ~S")
+                (c-error-c (TEXT "Block name must be a symbol, not ~S")
                            ,name)
                 (setq ,name NIL)))) ; Default-Blockname
 
@@ -6050,7 +6039,7 @@ for-value   NIL or T
     (check-blockname name)
     (let ((a (benv-search name)))
       (cond ((null a) ; this Blockname is invisible
-             (c-error (ENGLISH "RETURN-FROM block ~S is impossible from here.")
+             (c-error (TEXT "RETURN-FROM block ~S is impossible from here.")
                       name))
             ((block-p a) ; visible in *benv* without %benv%
              (let ((anode (c-form (third *form*) (block-for-value a))))
@@ -6108,7 +6097,7 @@ for-value   NIL or T
               (push item taglist)
               (push (make-label 'NIL) labellist))
             (c-error-c
-             (ENGLISH "Only numbers and symbols are valid tags, not ~S")
+             (TEXT "Only numbers and symbols are valid tags, not ~S")
              item)))))
     (let* ((*stackz* (cons 0 *stackz*)) ; poss. TAGBODY-Frame
            (tagbody (make-tagbody :fnode *func* :labellist labellist
@@ -6175,12 +6164,10 @@ for-value   NIL or T
   (test-list *form* 2 2)
   (let ((tag (second *form*)))
     (unless (or (symbolp tag) (numberp tag))
-      (c-error (ENGLISH "Tag must be a symbol or a number, not ~S")
-               tag))
+      (c-error (TEXT "Tag must be a symbol or a number, not ~S") tag))
     (multiple-value-bind (a b) (genv-search tag)
       (cond ((null a) ; this Tag is invisible
-             (c-error (ENGLISH "GO to tag ~S is impossible from here.")
-                      tag))
+             (c-error (TEXT "GO to tag ~S is impossible from here.") tag))
             ((tagbody-p a) ; visible in *genv* without %genv%
              (if (and (eq (tagbody-fnode a) *func*)
                       (may-UNWIND *stackz* (tagbody-stackz a)))
@@ -6255,7 +6242,7 @@ for-value   NIL or T
                  :code `((FCONST ,(const-value f2))))
                (c-VAR (var-name f2))))
             (t (if (and (null f1) m)
-                 (c-error (ENGLISH "~S is not a function. It is a locally defined macro.")
+                 (c-error (TEXT "~S is not a function. It is a locally defined macro.")
                           name)
                  (compiler-error 'c-FUNCTION))))))
       (let ((funname (car (last *form*))))
@@ -6270,7 +6257,7 @@ for-value   NIL or T
                      (cdr funname))))
             (unless *no-code* (propagate-far-used fnode))
             (c-fnode-function fnode))
-          (c-error (ENGLISH "Only symbols and lambda expressions are function names, not ~S")
+          (c-error (TEXT "Only symbols and lambda expressions are function names, not ~S")
                    funname))))))
 
 ;; compile (%GENERIC-FUNCTION-LAMBDA . lambdabody)
@@ -6326,7 +6313,7 @@ for-value   NIL or T
 
 (macrolet ((err-syntax (specform fdef)
              `(c-error-c
-               (ENGLISH "Illegal function definition syntax in ~S: ~S")
+               (TEXT "Illegal function definition syntax in ~S: ~S")
                ,specform ,fdef))
            (get-anode (type)
              `(let* ((closurevars (checking-movable-var-list
@@ -6759,7 +6746,7 @@ for-value   NIL or T
                    (consp (cdr symdef)) (null (cddr symdef)))
               (progn (push (first symdef) symbols)
                      (push (second symdef) expansions))
-              (c-error-c (ENGLISH "~S: Illegal syntax: ~S")
+              (c-error-c (TEXT "~S: Illegal syntax: ~S")
                          'symbol-macrolet symdef))))
     (let ((*denv* *denv*)
           (*venv*
@@ -6779,9 +6766,9 @@ for-value   NIL or T
           (push-specials)
           (dolist (symbol symbols)
             (if (or (constantp symbol) (proclaimed-special-p symbol))
-                (c-error-c (ENGLISH "~S: symbol ~S is declared special and must not be declared a macro") 'symbol-macrolet symbol)
+                (c-error-c (TEXT "~S: symbol ~S is declared special and must not be declared a macro") 'symbol-macrolet symbol)
                 (when (member symbol *specials* :test #'eq)
-                  (c-error-c (ENGLISH "~S: symbol ~S must not be declared SPECIAL and a macro at the same time")
+                  (c-error-c (TEXT "~S: symbol ~S must not be declared SPECIAL and a macro at the same time")
                              'symbol-macrolet symbol))))
           (funcall c `(PROGN ,@body-rest)))))))
 
@@ -6804,7 +6791,7 @@ for-value   NIL or T
                   (setq load-flag t))
                  (t
                   (c-error
-                   (ENGLISH "~s situation must be ~s, ~s or ~s, but not ~s")
+                   (TEXT "~s situation must be ~s, ~s or ~s, but not ~s")
                    'eval-when :load-toplevel :compile-toplevel :execute
                    situation))))))
     (let ((form `(PROGN ,@(cddr *form*))))
@@ -6821,7 +6808,7 @@ for-value   NIL or T
         'NIL
         (let ((clause (car clauses)))
           (if (atom clause)
-            (c-error (ENGLISH "COND clause without test: ~S")
+            (c-error (TEXT "COND clause without test: ~S")
                      clause)
             (let ((test (car clause)))
               (if (cdr clause)
@@ -6841,7 +6828,7 @@ for-value   NIL or T
           ((endp clauses))
         (let ((clause (pop clauses)))
           (if (atom clause)
-            (c-error (ENGLISH "CASE clause without objects: ~S")
+            (c-error (TEXT "CASE clause without objects: ~S")
                      clause)
             (let ((keys (car clause)))
               (if default-passed ; was the Default already there?
@@ -6850,7 +6837,7 @@ for-value   NIL or T
                   (progn
                     (when clauses
                       (c-error-c
-                       (ENGLISH "~S: the ~S clause must be the last one: ~S")
+                       (TEXT "~S: the ~S clause must be the last one: ~S")
                        'case keys *form*))
                     (setq keys 'T)
                     (setq default-passed t))
@@ -6858,7 +6845,7 @@ for-value   NIL or T
                     (dolist (key (if (listp keys) keys (list keys)))
                       (if (not (member key allkeys :test #'eql)) ; remove-duplicates
                         (progn (push key allkeys) (push key newkeys))
-                        (c-style-warn (ENGLISH "Duplicate ~S label ~S : ~S")
+                        (c-style-warn (TEXT "Duplicate ~S label ~S : ~S")
                                       'case key *form*)))
                     (setq keys (nreverse newkeys)))))
               (push (cons keys (cdr clause)) newclauses)))))
@@ -7075,8 +7062,7 @@ for-value   NIL or T
       (when (and (null restvar) (> |t| (+ r s)))
         ;; too many arguments specified. Is redressed by introduction
         ;; of several additional optional arguments:
-        (c-error-c (ENGLISH "Too many arguments to ~S")
-                   funform)
+        (c-error-c (TEXT "Too many arguments to ~S") funform)
         (dotimes (i (- |t| (+ r s)))
           (let ((var (gensym)))
             (setq optvar (append optvar (list var)))
@@ -7087,8 +7073,7 @@ for-value   NIL or T
       (when (and (null applyarglist) (< |t| r))
         ;; too few arguments specified. Is redressed by introduction
         ;; of additional arguments:
-        (c-error-c (ENGLISH "Too few arguments to ~S")
-                   funform)
+        (c-error-c (TEXT "Too few arguments to ~S") funform)
         (setq arglist (append arglist
                               (make-list (- r |t|) :initial-element nil)))
         (setq |t| r))
@@ -7481,7 +7466,7 @@ for-value   NIL or T
       (let ((val (c-constant-value expanded)))
         (if (numberp val) (values val t)
           (c-error-c
-           (ENGLISH "Arithmetic operand ~s must evaluate to a number, not ~s")
+           (TEXT "Arithmetic operand ~s must evaluate to a number, not ~s")
            form val)))
       (values expanded nil))))
 
@@ -7860,7 +7845,7 @@ for-value   NIL or T
                               (eql (length type) 2))
                          (let ((fun (second type)))
                            (unless (symbolp (second type))
-                             (c-warn (ENGLISH "~S: argument to SATISFIES must be a symbol: ~S")
+                             (c-warn (TEXT "~S: argument to SATISFIES must be a symbol: ~S")
                                      'typep (second type))
                               (throw 'c-TYPEP nil))
                             (return-from c-TYPEP
@@ -7922,7 +7907,7 @@ for-value   NIL or T
                   (streamp destination)
                   (and (stringp destination)
                        (array-has-fill-pointer-p destination)))
-        (c-error (ENGLISH "The ~S destination is invalid (not NIL or T or a stream or a string with fill-pointer): ~S")
+        (c-error (TEXT "The ~S destination is invalid (not NIL or T or a stream or a string with fill-pointer): ~S")
                  (car *form*) destination)))
     (if (and (stringp (third *form*)) (not (fenv-search 'FORMATTER)))
       ;; precompile the format-string at compile-time.
@@ -10984,7 +10969,7 @@ The function make-closure is required.
                      &aux (macro-flag nil) (trace-flag nil) (save-flag nil))
   (unless (function-name-p name)
     (error-of-type 'error
-      (ENGLISH "Name of function to be compiled must be a symbol, not ~S")
+      (TEXT "Name of function to be compiled must be a symbol, not ~S")
       name))
   (let ((symbol (get-funname-symbol name)))
     (if svar
@@ -10994,12 +10979,12 @@ The function make-closure is required.
         (when (and name (setq svar (get symbol 'sys::traced-definition)))
           (if (consp svar)
             (progn
-              (warn (ENGLISH "~S: redefining ~S; it was traced!")
+              (warn (TEXT "~S: redefining ~S; it was traced!")
                     'compile name)
               (sys::untrace2 name))
             (setq trace-flag t)))
         (when (compiled-function-p definition)
-          (warn (ENGLISH "~S is already compiled.")
+          (warn (TEXT "~S is already compiled.")
                 definition)
           (when name
             (if trace-flag
@@ -11015,7 +11000,7 @@ The function make-closure is required.
         (unless (fboundp symbol)
           (error-of-type 'undefined-function
             :name name
-            (ENGLISH "Undefined function ~S")
+            (TEXT "Undefined function ~S")
             name))
         (if (setq definition (get symbol 'sys::traced-definition))
           (setq trace-flag t)
@@ -11024,13 +11009,12 @@ The function make-closure is required.
           (setq macro-flag t)
           (setq definition (macro-expander definition)))
         (when (compiled-function-p definition)
-          (warn (ENGLISH "~S is already compiled.")
-                name)
+          (warn (TEXT "~S is already compiled.") name)
           (return-from compile name))))
     (unless (or (and (consp definition) (eq (car definition) 'lambda))
                 (sys::closurep definition))
       (error-of-type 'error
-        (ENGLISH "Not a lambda expression nor a function: ~S")
+        (TEXT "Not a lambda expression nor a function: ~S")
         definition))
     (flet ((closure-slot (obj num)
              (if (sys::closurep obj)
@@ -11200,20 +11184,20 @@ The function make-closure is required.
                                         (sig-keys-p   known-sig)
                                         (sig-keywords known-sig)
                                         (sig-allow-p  known-sig)))
-        (c-comment (ENGLISH "~%[~s was defined~a]")
+        (c-comment (TEXT "~%[~s was defined~a]")
                    (car kf) (c-source-point-location (second kf))))
       t)))
 
 ;; report the compilation problems accumulated so far and reset them
 (defun c-report-problems ()
   (when *functions-with-errors*
-    (c-comment (ENGLISH "~%There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}")
+    (c-comment (TEXT "~%There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}")
                (nreverse *functions-with-errors*)))
   (setq *unknown-functions*
         (nset-difference *unknown-functions* *known-functions*
                          :test #'match-known-unknown-functions))
   (when *unknown-functions*
-    (c-comment (ENGLISH "~%The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}")
+    (c-comment (TEXT "~%The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}")
                (delete-duplicates
                 (mapcar #'car (nreverse *unknown-functions*)))))
   (let ((unknown-vars (set-difference *unknown-free-vars*
@@ -11221,17 +11205,17 @@ The function make-closure is required.
         (too-late-vars (intersection *unknown-free-vars*
                                      *known-special-vars*)))
     (when unknown-vars
-      (c-comment (ENGLISH "~%The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}")
+      (c-comment (TEXT "~%The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}")
                  (nreverse unknown-vars)))
     (when too-late-vars
-      (c-comment (ENGLISH "~%The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}")
+      (c-comment (TEXT "~%The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}")
                  (nreverse too-late-vars))))
   (when *deprecated-functions*
-    (c-comment (ENGLISH "~%The following functions were used but are deprecated:~%~:{~<~%~:; ~S~@[ (use ~S instead)~]~>~^~}")
+    (c-comment (TEXT "~%The following functions were used but are deprecated:~%~:{~<~%~:; ~S~@[ (use ~S instead)~]~>~^~}")
                (mapcar (lambda (f) (list f (get f 'deprecated)))
                        (nreverse *deprecated-functions*))))
   (when (boundp '*error-count*) ; then `*warning-count*' is bound too
-    (c-comment (ENGLISH "~%~D error~:P, ~D warning~:P")
+    (c-comment (TEXT "~%~D error~:P, ~D warning~:P")
                *error-count* *warning-count*)
     (c-comment "~%"))
   ;; clean-up for the next compilation unit
@@ -11365,7 +11349,7 @@ The function make-closure is required.
             (with-compilation-unit ()
               (when listing-stream
                 (format listing-stream
-                  (ENGLISH "~&Listing of compilation of file ~A~%on ~@? by ~A, version ~A")
+                  (TEXT "~&Listing of compilation of file ~A~%on ~@? by ~A, version ~A")
                   file
                   (date-format)
                   (multiple-value-list (get-decoded-time))
@@ -11392,8 +11376,7 @@ The function make-closure is required.
                     (*toplevel-for-value* t)
                     (eof-value "EOF")
                     (form-count 0))
-                (c-comment (ENGLISH "~%Compiling file ~A ...")
-                           file)
+                (c-comment (TEXT "~%Compiling file ~A ...") file)
                 (when *fasoutput-stream*
                   (let ((*package* *keyword-package*))
                     (write `(SYSTEM::VERSION ',(version))
@@ -11436,7 +11419,7 @@ The function make-closure is required.
                     (compile-toplevel-form form
                       (symbol-suffix '#:TOP-LEVEL-FORM (incf form-count)))))
                 (finalize-coutput-file)
-                (c-comment (ENGLISH "~&~%Compilation of file ~A is finished.")
+                (c-comment (TEXT "~&~%Compilation of file ~A is finished.")
                            file)
                 (setq compilation-successful (zerop *error-count*))
                 (values (if compilation-successful output-file nil)
@@ -11473,7 +11456,7 @@ The function make-closure is required.
 
 #-CLISP
 (defun disassemble-closure (closure &optional (stream *standard-output*))
-  (format stream (ENGLISH "~%~%Disassembly of function ~S")
+  (format stream (TEXT "~%~%Disassembly of function ~S")
                  (closure-name closure))
   (multiple-value-bind (req-anz opt-anz rest-p key-p keyword-list
                         allow-other-keys-p byte-list const-list)
@@ -11482,19 +11465,16 @@ The function make-closure is required.
          (i 0 (1+ i)))
         ((null L))
       (format stream "~%(CONST ~S) = ~S" i (car L)))
-    (format stream (ENGLISH "~%~S required arguments")
-                   req-anz)
-    (format stream (ENGLISH "~%~S optional arguments")
-                   opt-anz)
-    (format stream (ENGLISH "~%~:[No rest parameter~;Rest parameter~]")
-                   rest-p)
+    (format stream (TEXT "~%~S required arguments") req-anz)
+    (format stream (TEXT "~%~S optional arguments") opt-anz)
+    (format stream (TEXT "~%~:[No rest parameter~;Rest parameter~]") rest-p)
     (if key-p
       (let ((kw-count (length keyword-list)))
-        (format stream (ENGLISH "~%~S keyword parameter~:P: ~{~S~^, ~}.")
+        (format stream (TEXT "~%~S keyword parameter~:P: ~{~S~^, ~}.")
                        kw-count keyword-list)
         (when allow-other-keys-p
-          (format stream (ENGLISH "~%Other keywords are allowed."))))
-      (format stream (ENGLISH "~%No keyword parameters")))
+          (format stream (TEXT "~%Other keywords are allowed."))))
+      (format stream (TEXT "~%No keyword parameters")))
     (let ((const-string-list (mapcar #'write-to-string const-list)))
       (do ((L (disassemble-LAP byte-list const-list) (cdr L)))
           ((null L))
@@ -11514,8 +11494,7 @@ The function make-closure is required.
 (defun disassemble-closure (closure &optional (stream *standard-output*))
   (terpri stream)
   (terpri stream)
-  (write-string (ENGLISH "Disassembly of function ")
-                stream)
+  (write-string (TEXT "Disassembly of function ") stream)
   (prin1 (closure-name closure) stream)
   (multiple-value-bind (req-anz opt-anz rest-p
                         key-p keyword-list allow-other-keys-p
@@ -11531,36 +11510,29 @@ The function make-closure is required.
       (prin1 (car L) stream))
     (terpri stream)
     (prin1 req-anz stream)
-    (write-string (ENGLISH " required arguments")
-                  stream)
+    (write-string (TEXT " required arguments") stream)
     (terpri stream)
     (prin1 opt-anz stream)
-    (write-string (ENGLISH " optional arguments")
-                  stream)
+    (write-string (TEXT " optional arguments") stream)
     (terpri stream)
     (if rest-p
-      (write-string (ENGLISH "Rest parameter")
-                    stream)
-      (write-string (ENGLISH "No rest parameter")
-                    stream))
+      (write-string (TEXT "Rest parameter") stream)
+      (write-string (TEXT "No rest parameter") stream))
     (if key-p
       (let ((kw-count (length keyword-list)))
         (terpri stream)
         (prin1 kw-count stream)
-        (format stream (ENGLISH " keyword parameter~P: ")
-                       kw-count)
+        (format stream (TEXT " keyword parameter~P: ") kw-count)
         (do ((L keyword-list))
             ((endp L))
           (prin1 (pop L) stream)
           (if (endp L) (write-string "." stream) (write-string ", " stream)))
         (when allow-other-keys-p
           (terpri stream)
-          (write-string (ENGLISH "Other keywords are allowed.")
-                        stream)))
+          (write-string (TEXT "Other keywords are allowed.") stream)))
       (progn
         (terpri stream)
-        (write-string (ENGLISH "No keyword parameters")
-                      stream)))
+        (write-string (TEXT "No keyword parameters") stream)))
     (let ((const-string-list
             (mapcar #'(lambda (x) (sys::write-to-short-string x 35))
                     const-list)))

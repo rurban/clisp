@@ -44,7 +44,7 @@
 
 ;; (loop-syntax-error loop-keyword) reports a syntax error.
 (defun loop-syntax-error (loop-keyword)
-  (error (ENGLISH "~S: syntax error after ~A in ~S")
+  (error (TEXT "~S: syntax error after ~A in ~S")
          'loop (symbol-name loop-keyword) *whole*))
 
 ;; destructuring:
@@ -251,7 +251,7 @@
        (parse-var-typespec () ;; parse var [typespec]
          ;; return the variable pattern and the list of declspecs
          (unless (consp body-rest)
-           (error (ENGLISH "~S: missing variable.")
+           (error (TEXT "~S: missing variable.")
                   'loop))
          (let ((pattern (pop body-rest))
                (typedecl nil))
@@ -261,7 +261,7 @@
                ((NIL)           ; no loop keyword ->interpret as typespec
                 (setq typedecl (pop body-rest))
                 (unless (simple-type-p typedecl)
-                  (warn (ENGLISH "~S: After ~S, ~S is interpreted as a type specification")
+                  (warn (TEXT "~S: After ~S, ~S is interpreted as a type specification")
                         'loop pattern typedecl)))
                ((OF-TYPE)       ; OF-TYPE -> expect a typespec
                 (pop body-rest)
@@ -517,7 +517,7 @@
                 ((WITH FOR AS REPEAT)
                  (pop body-rest)
                  (when already-within-main
-                   (warn (ENGLISH "~S: ~A clauses should occur before the loop's main body")
+                   (warn (TEXT "~S: ~A clauses should occur before the loop's main body")
                          'loop (symbol-name kw)))
                  (case kw
                    ((WITH)
@@ -658,12 +658,12 @@
                                        ((HASH-KEY HASH-VALUE
                                          SYMBOL PRESENT-SYMBOL INTERNAL-SYMBOL EXTERNAL-SYMBOL)
                                         (when (eq plural 'THE)
-                                          (warn (ENGLISH "~S: After ~S a plural loop keyword is required, not ~A")
+                                          (warn (TEXT "~S: After ~S a plural loop keyword is required, not ~A")
                                                 'loop plural (symbol-name preposition))))
                                        ((HASH-KEYS HASH-VALUES
                                          SYMBOLS PRESENT-SYMBOLS INTERNAL-SYMBOLS EXTERNAL-SYMBOLS)
                                         (when (eq plural 'EACH)
-                                          (warn (ENGLISH "~S: After ~S a singular loop keyword is required, not ~A")
+                                          (warn (TEXT "~S: After ~S a singular loop keyword is required, not ~A")
                                                 'loop plural (symbol-name preposition))))
                                        (t (loop-syntax-error plural)))
                                      (pop body-rest)
@@ -805,7 +805,7 @@
                                    (let ((step-direction
                                            (if (or (eq step-start-p 'down) (eq step-end-p 'down))
                                              (if (or (eq step-start-p 'up) (eq step-end-p 'up))
-                                               (error (ENGLISH "~S: questionable iteration direction after ~A")
+                                               (error (TEXT "~S: questionable iteration direction after ~A")
                                                       'loop (symbol-name kw))
                                                'down)
                                              'up)))
@@ -814,7 +814,7 @@
                                        (when (eq step-direction 'down)
                                          ; Abwärtsiteration ohne Startwert ist nicht erlaubt.
                                          ; Die zweite optionale Klausel (d.h. preposition) muss abwärts zeigen.
-                                         (error (ENGLISH "~S: specifying ~A requires FROM or DOWNFROM")
+                                         (error (TEXT "~S: specifying ~A requires FROM or DOWNFROM")
                                                 'loop (symbol-name preposition)))
                                        ; Aufwärtsiteration -> Startwert 0
                                        (setq step-start-form '0)
@@ -872,12 +872,12 @@
                       (push `(SETQ ,var (1- ,var)) stepafter-code)
                       (note-initialization
                        (make-endtest `(UNLESS (PLUSP ,var) (LOOP-FINISH))))))))
-                (t (error (ENGLISH "~S: illegal syntax near ~S in ~S")
+                (t (error (TEXT "~S: illegal syntax near ~S in ~S")
                           'loop (first body-rest) *whole*)))))))
       ; Noch einige semantische Tests:
       (setq results (delete-duplicates results :test #'equal))
       (when (> (length results) 1)
-        (error (ENGLISH "~S: ambiguous result of loop ~S")
+        (error (TEXT "~S: ambiguous result of loop ~S")
                'loop *whole*))
       (unless (null results)
         (push `(RETURN-FROM ,block-name ,@results) finally-code))
@@ -1009,13 +1009,13 @@
     (let ((tag (gensym)))
       `(BLOCK NIL (TAGBODY ,tag ,@body (GO ,tag))))))
 (defmacro loop-finish (&whole whole)
-  (error (ENGLISH "~S is possible only from within ~S")
+  (error (TEXT "~S is possible only from within ~S")
          whole 'loop))
 (defun loop-finish-warn ()
-  (warn (ENGLISH "Use of ~S in FINALLY clauses is deprecated because it can lead to infinite loops.")
+  (warn (TEXT "Use of ~S in FINALLY clauses is deprecated because it can lead to infinite loops.")
         '(loop-finish)))
 (defun loop-finish-error ()
-  (error (ENGLISH "~S is not possible here")
+  (error (TEXT "~S is not possible here")
          '(loop-finish)))
 
 )

@@ -10,7 +10,7 @@
          (IF (SYS::%THE ,g ',(type-for-discrimination typespec))
            (VALUES-LIST ,g)
            (ERROR-OF-TYPE 'ERROR ; 'TYPE-ERROR ??
-             (ENGLISH "The form ~S yielded ~:[no values~;~:*~{~S~^ ; ~}~] ,~@
+             (TEXT "The form ~S yielded ~:[no values~;~:*~{~S~^ ; ~}~] ,~@
                        that's not of type ~S.")
              ',form ,g ',typespec
 ) )  ) ) ) )
@@ -61,7 +61,7 @@
   (if (atom bindlist)
     (if bindlist
       (error-of-type 'source-program-error
-        (ENGLISH "LETF* code contains a dotted list, ending with ~S")
+        (TEXT "LETF* code contains a dotted list, ending with ~S")
         bindlist
       )
       (values `(LET* () ,@declare ,@body) t)
@@ -80,7 +80,7 @@
                 (return)
           ) ) )
           (error-of-type 'source-program-error
-            (ENGLISH "illegal syntax in LETF* binding: ~S")
+            (TEXT "illegal syntax in LETF* binding: ~S")
             bind
       ) ) )
       (multiple-value-bind (rest-expanded flag)
@@ -224,7 +224,7 @@
   (if (atom bindlist)
     (if bindlist
       (error-of-type 'source-program-error
-        (ENGLISH "LETF code contains a dotted list, ending with ~S")
+        (TEXT "LETF code contains a dotted list, ending with ~S")
         bindlist
       )
       (values '() '() '() '())
@@ -243,7 +243,7 @@
                 (return)
           ) ) )
           (error-of-type 'source-program-error
-            (ENGLISH "illegal syntax in LETF binding: ~S")
+            (TEXT "illegal syntax in LETF binding: ~S")
             bind
       ) ) )
       (multiple-value-bind (L1 L2 L3 L4) (expand-LETF (cdr bindlist))

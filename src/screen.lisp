@@ -233,7 +233,7 @@ string of a special file to be OPENed, e.g. \"RAW:0/11/581/231/Window Title\"."
          ) )
          (response (parse-csi (coerce chars 'string))))
     (unless (string= expected (first response))
-      (error (ENGLISH "Got bad response from ~S: ~S")
+      (error (TEXT "Got bad response from ~S: ~S")
              stream chars
     ) )
     (cdr response)

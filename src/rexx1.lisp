@@ -145,7 +145,7 @@
   (let ((index (rexx-find-index handle)))
     (unless index
       (error-of-type 'error
-        (ENGLISH "No waiting for ~S possible.")
+        (TEXT "No waiting for ~S possible.")
          handle
     ) )
     (loop
