@@ -162,15 +162,39 @@ global object nobject_out (FILE* out, object obj) {
    #define SLOT(s) fputc(' ',out); nobject_out(out,S(K##s)); fputc(' ',out); \
      nobject_out(out,TheLogpathname(obj)->pathname_##s)
     SLOT(host); SLOT(directory); SLOT(name); SLOT(type); SLOT(version);
-    fputs(")",out);
+   #undef SLOT
+    fputc(')',out);
    #endif
+  } else if (hash_table_p(obj)) {
+    fputs("#(",out); nobject_out(out,S(hash_table));
+    fprintf(out," size=%d maxcount=%d count=%d mincount=%d free=",
+            posfixnum_to_L(TheHashtable(obj)->ht_size),
+            posfixnum_to_L(TheHashtable(obj)->ht_maxcount),
+            posfixnum_to_L(TheHashtable(obj)->ht_count),
+            posfixnum_to_L(TheHashtable(obj)->ht_mincount));
+    nobject_out(out,TheHashtable(obj)->ht_freelist);
+    fputs("\n  test=",out);
+    switch (ht_test_code(record_flags(TheHashtable(obj)))) {
+      case bit(0): nobject_out(out,S(eq)); break;
+      case bit(1): nobject_out(out,S(eql)); break;
+      case bit(2): nobject_out(out,S(equal)); break;
+      case bit(3): nobject_out(out,S(equalp)); break;
+      default:
+        nobject_out(out,TheHashtable(obj)->ht_test); fputc('/',out);
+        nobject_out(out,TheHashtable(obj)->ht_hash);
+        break;
+    }
+    fputs("\n  I=",out); nobject_out(out,TheHashtable(obj)->ht_itable);
+    fputs("\n  N=",out); nobject_out(out,TheHashtable(obj)->ht_ntable);
+    fputs("\n  KV=",out); nobject_out(out,TheHashtable(obj)->ht_kvtable);
+    fputc(')',out);
   } else if (fixnump(obj)) fprintf(out,"%d",fixnum_to_L(obj));
-  else if (eq(obj,unbound))   fputs("#<UNBOUND>",out);
+  else if (eq(obj,unbound))   string_out(out,O(printstring_unbound));
   else if (eq(obj,nullobj))   fputs("#<NULLOBJ>",out);
-  else if (eq(obj,disabled))  fputs("#<DISABLED>",out);
-  else if (eq(obj,specdecl))  fputs("#<SPECDECL>",out);
-  else if (eq(obj,eof_value)) fputs("#<EOF>",out);
-  else if (eq(obj,dot_value)) fputs("#<DOT>",out);
+  else if (eq(obj,disabled))  string_out(out,O(printstring_disabled_pointer));
+  else if (eq(obj,specdecl))  string_out(out,O(printstring_special_reference));
+  else if (eq(obj,eof_value)) string_out(out,O(printstring_eof));
+  else if (eq(obj,dot_value)) string_out(out,O(printstring_dot));
   else if (as_oint(obj) & wbit(frame_bit_o)) {
     fputs("#<frame ",out);
     switch (framecode(obj)) {
