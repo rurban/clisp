@@ -152,6 +152,7 @@ LISPFUNN(vector_init_start,2)
 LISPFUNN(vector_fe_init_end,2)
 LISPFUNN(make_bit_vector,1)
 # ---------- CHARSTRG ----------
+LISPFUNN(string_info,1)
 LISPFUNN(standard_char_p,1)
 LISPFUNN(graphic_char_p,1)
 LISPFUNN(char_width,1)
