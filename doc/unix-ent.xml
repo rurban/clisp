@@ -107,6 +107,11 @@
 <!ENTITY setlogmask "<ulink url='&unix-f;/setlogmask.html'><function>setlogmask</function></ulink>">
 <!ENTITY syslog "<ulink url='&unix-f;/syslog.html'><function>syslog</function></ulink>">
 <!ENTITY closelog "<ulink url='&unix-f;/closelog.html'><function>closelog</function></ulink>">
+<!ENTITY kill "<ulink url='&unix-f;/kill.html'><function>kill</function></ulink>">
+<!ENTITY getpgrp "<ulink url='&unix-f;/getpgrp.html'><function>getpgrp</function></ulink>">
+<!ENTITY setpgrp "<ulink url='&unix-f;/setpgrp.html'><function>setpgrp</function></ulink>">
+<!ENTITY getsid "<ulink url='&unix-f;/getsid.html'><function>getsid</function></ulink>">
+<!ENTITY setsid "<ulink url='&unix-f;/setsid.html'><function>setsid</function></ulink>">
 
 <!-- header files -->
 <!ENTITY unix-b "&unix-top;/basedefs">

@@ -16,7 +16,7 @@ AC_HEADER_STDC
 AC_HEADER_TIME
 CL_UTSNAME
 AC_CHECK_HEADERS(errno.h fcntl.h netdb.h sys/resource.h utime.h wchar.h dnl
-pwd.h sys/stat.h sys/time.h sys/unistd.h time.h unistd.h syslog.h)
+pwd.h sys/stat.h sys/time.h sys/unistd.h time.h unistd.h syslog.h signal.h)
 AC_CHECK_HEADERS(shlobj.h)
 if test "$ac_cv_header_shlobj_h" = yes ; then
    LIBS=${LIBS}' -luser32 -lole32 -loleaut32 -luuid';
@@ -37,6 +37,7 @@ CL_RLIMIT
 AC_CHECK_FUNCS(clock confstr fcntl gethostent sysconf uname dnl
 getlogin getpwent getpwnam getpwuid getuid dnl
 openlog setlogmask syslog closelog dnl
+getpgid setpgrp getsid setsid kill dnl
 fchmod fchown fstat link stat symlink utime mknod chmod umask)
 AC_FUNC_CHOWN
 AC_SEARCH_LIBS(erf, m)

@@ -440,6 +440,16 @@
   <listitem><simpara>calls &syslog;</simpara></listitem></varlistentry>
  <varlistentry id="closelog"><term><code>(POSIX:CLOSELOG)</code></term>
   <listitem><simpara>calls &closelog;</simpara></listitem></varlistentry>
+ <varlistentry id="kill"><term><code>(POSIX:KILL &pid-r; &sig-r;)</code></term>
+  <listitem><simpara>calls &kill;</simpara></listitem></varlistentry>
+ <varlistentry id="getpgrp"><term><code>(POSIX:GETPGRP &pid-r;)</code></term>
+  <listitem><simpara>calls &getpgrp;</simpara></listitem></varlistentry>
+ <varlistentry id="setpgrp"><term><code>(POSIX:SETPGRP)</code></term>
+  <listitem><simpara>calls &setpgrp;</simpara></listitem></varlistentry>
+ <varlistentry id="getsid"><term><code>(POSIX:GETSID &pid-r;)</code></term>
+  <listitem><simpara>calls &getsid;</simpara></listitem></varlistentry>
+ <varlistentry id="setsid"><term><code>(POSIX:SETSID)</code></term>
+  <listitem><simpara>calls &setsid;</simpara></listitem></varlistentry>
 </variablelist>
 
 </section>

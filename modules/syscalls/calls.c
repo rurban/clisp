@@ -223,6 +223,60 @@ DEFUN(POSIX:CLOSELOG,) {
 #endif
 #endif  /* HAVE_SYSLOG */
 
+/* ========================= processes & signals ========================= */
+#if defined(HAVE_GETSID)
+DEFUN(POSIX:GETSID, pid) {
+  pid_t pid = posfixnum_to_L(check_posfixnum(popSTACK()));
+  pid_t ret;
+  begin_system_call(); ret=getsid(pid); end_system_call();
+  if (ret==(pid_t)-1) OS_error();
+  VALUES1(fixnum(ret));
+}
+#endif
+#if defined(HAVE_SETSID)
+DEFUN(POSIX:SETSID,) {
+  pid_t ret;
+  begin_system_call(); ret=setsid(); end_system_call();
+  if (ret==(pid_t)-1) OS_error();
+  VALUES1(fixnum(ret));
+}
+#endif
+#if defined(HAVE_GETPGRP)
+DEFUN(POSIX:GETPGRP, pid) {
+  pid_t pid = posfixnum_to_L(check_posfixnum(popSTACK()));
+  pid_t ret;
+  begin_system_call(); ret=getpgrp(pid); end_system_call();
+  if (ret==(pid_t)-1) OS_error();
+  VALUES1(fixnum(ret));
+}
+#endif
+#if defined(HAVE_SETPGRP)
+DEFUN(POSIX:SETPGRP,) {
+  pid_t ret;
+  begin_system_call(); ret=setpgrp(); end_system_call();
+  if (ret==(pid_t)-1) OS_error();
+  VALUES1(fixnum(ret));
+}
+#endif
+#if defined(HAVE_SIGNAL_H)
+/* http://www.opengroup.org/onlinepubs/009695399/basedefs/signal.h.html */
+# include <signal.h>
+#endif
+DEFCHECKER(check_signal,SIGABRT SIGALRM SIGBUS SIGCHLD SIGCONT SIGFPE SIGHUP \
+           SIGILL SIGINT SIGKILL SIGPIPE SIGQUIT SIGSEGV SIGSTOP SIGTERM \
+           SIGTSTP SIGTTIN SIGTTOU SIGUSR1 SIGUSR2 SIGPOLL SIGPROF SIGSYS \
+           SIGTRAP SIGURG SIGVTALRM SIGXCPU SIGXFSZ)
+#if defined(HAVE_KILL)
+DEFUN(POSIX:KILL, pid sig) {
+  int sig = check_signal(popSTACK());
+  pid_t pid = posfixnum_to_L(check_posfixnum(popSTACK()));
+  int ret;
+  begin_system_call(); ret=kill(pid,sig); end_system_call();
+  if (ret==-1) OS_error();
+  VALUES0;
+}
+#endif
+
 /* ========================== process priority ========================== */
 #if defined(WIN32_NATIVE)
 DEFCHECKER(check_priority_value,suffix=PRIORITY_CLASS,default=0,        \
