@@ -24,6 +24,8 @@
 (setf (fdefinition 'make-instance-<structure-class>) #'make-instance)
 (setf (fdefinition 'initialize-instance-<standard-class>) #'initialize-instance)
 (setf (fdefinition 'make-instance-<standard-class>) #'make-instance)
+(setf (fdefinition 'initialize-instance-<funcallable-standard-class>) #'initialize-instance)
+(setf (fdefinition 'make-instance-<funcallable-standard-class>) #'make-instance)
 
 ;;; ===========================================================================
 
@@ -233,43 +235,51 @@
 
 ;; Not in MOP.
 (defun class-current-version (class)
-  (accessor-typecheck class 'standard-class 'class-current-version)
-  (sys::%record-ref class *<standard-class>-current-version-location*))
+  (accessor-typecheck class 'semi-standard-class 'class-current-version)
+  (sys::%record-ref class *<semi-standard-class>-current-version-location*))
 (defun (setf class-current-version) (new-value class)
-  (accessor-typecheck class 'standard-class '(setf class-current-version))
-  (setf (sys::%record-ref class *<standard-class>-current-version-location*) new-value))
+  (accessor-typecheck class 'semi-standard-class '(setf class-current-version))
+  (setf (sys::%record-ref class *<semi-standard-class>-current-version-location*) new-value))
+
+;; Not in MOP.
+(defun class-funcallablep (class)
+  (accessor-typecheck class 'semi-standard-class 'class-instantiated)
+  (sys::%record-ref class *<semi-standard-class>-funcallablep-location*))
+(defun (setf class-funcallablep) (new-value class)
+  (accessor-typecheck class 'semi-standard-class '(setf class-instantiated))
+  (setf (sys::%record-ref class *<semi-standard-class>-funcallablep-location*) new-value))
 
 ;; Not in MOP.
 (defun class-fixed-slot-locations (class)
-  (accessor-typecheck class 'standard-class 'class-fixed-slot-locations)
-  (sys::%record-ref class *<standard-class>-fixed-slot-locations-location*))
+  (accessor-typecheck class 'semi-standard-class 'class-fixed-slot-locations)
+  (sys::%record-ref class *<semi-standard-class>-fixed-slot-locations-location*))
 (defun (setf class-fixed-slot-locations) (new-value class)
-  (accessor-typecheck class 'standard-class '(setf class-fixed-slot-locations))
-  (setf (sys::%record-ref class *<standard-class>-fixed-slot-locations-location*) new-value))
+  (accessor-typecheck class 'semi-standard-class '(setf class-fixed-slot-locations))
+  (setf (sys::%record-ref class *<semi-standard-class>-fixed-slot-locations-location*) new-value))
 
 ;; Not in MOP.
 (defun class-instantiated (class)
-  (accessor-typecheck class 'standard-class 'class-instantiated)
-  (sys::%record-ref class *<standard-class>-instantiated-location*))
+  (accessor-typecheck class 'semi-standard-class 'class-instantiated)
+  (sys::%record-ref class *<semi-standard-class>-instantiated-location*))
 (defun (setf class-instantiated) (new-value class)
-  (accessor-typecheck class 'standard-class '(setf class-instantiated))
-  (setf (sys::%record-ref class *<standard-class>-instantiated-location*) new-value))
+  (accessor-typecheck class 'semi-standard-class '(setf class-instantiated))
+  (setf (sys::%record-ref class *<semi-standard-class>-instantiated-location*) new-value))
 
 ;; Not in MOP.
 (defun class-finalized-direct-subclasses-table (class)
-  (accessor-typecheck class 'standard-class 'class-finalized-direct-subclasses-table)
-  (sys::%record-ref class *<standard-class>-finalized-direct-subclasses-location*))
+  (accessor-typecheck class 'semi-standard-class 'class-finalized-direct-subclasses-table)
+  (sys::%record-ref class *<semi-standard-class>-finalized-direct-subclasses-location*))
 (defun (setf class-finalized-direct-subclasses-table) (new-value class)
-  (accessor-typecheck class 'standard-class '(setf class-finalized-direct-subclasses-table))
-  (setf (sys::%record-ref class *<standard-class>-finalized-direct-subclasses-location*) new-value))
+  (accessor-typecheck class 'semi-standard-class '(setf class-finalized-direct-subclasses-table))
+  (setf (sys::%record-ref class *<semi-standard-class>-finalized-direct-subclasses-location*) new-value))
 
 ;; MOP p. 77
 (fmakunbound 'class-prototype)
 (defgeneric class-prototype (class)
-  (:method ((class standard-class))
+  (:method ((class semi-standard-class))
     (check-class-finalized class)
-    (or (sys::%record-ref class *<standard-class>-prototype-location*)
-        (setf (sys::%record-ref class *<standard-class>-prototype-location*)
+    (or (sys::%record-ref class *<semi-standard-class>-prototype-location*)
+        (setf (sys::%record-ref class *<semi-standard-class>-prototype-location*)
               (let ((old-instantiated (class-instantiated class)))
                 (prog1
                   (clos::%allocate-instance class)
@@ -281,8 +291,8 @@
                   (setf (class-instantiated class) old-instantiated)))))))
 ;; Not in MOP.
 (defun (setf class-prototype) (new-value class)
-  (accessor-typecheck class 'standard-class '(setf class-prototype))
-  (setf (sys::%record-ref class *<standard-class>-prototype-location*) new-value))
+  (accessor-typecheck class 'semi-standard-class '(setf class-prototype))
+  (setf (sys::%record-ref class *<semi-standard-class>-prototype-location*) new-value))
 
 ;;; ===========================================================================
 
@@ -299,7 +309,7 @@
 
 ;; MOP p. 54
 (defgeneric finalize-inheritance (class)
-  (:method ((class standard-class))
+  (:method ((class semi-standard-class))
     (finalize-class class t))
   ;; CLISP extension: No-op method on other classes.
   (:method ((class class))
@@ -323,9 +333,9 @@
 ;; MOP p. 43
 (fmakunbound 'compute-slots)
 (defgeneric compute-slots (class)
-  (:method ((class standard-class))
+  (:method ((class semi-standard-class))
     (compute-slots-<class>-primary class))
-  (:method :around ((class standard-class))
+  (:method :around ((class semi-standard-class))
     (compute-slots-<slotted-class>-around class
       #'(lambda (c) (call-next-method c)))))
 
@@ -361,6 +371,18 @@
   (:method ((class class) (superclass class))
     (or (eq superclass <t>)
         (eq (class-of class) (class-of superclass))
+        (and (eq (class-of class) <funcallable-standard-class>)
+             (eq (class-of superclass) <standard-class>))
+        ;; This makes no sense: If the superclass is a
+        ;; funcallable-standard-class, it is a subclass of FUNCTION,
+        ;; therefore class will become a subclass of FUNCTION too, but there
+        ;; is no way to FUNCALL or APPLY it. Where did the MOP authors have
+        ;; their brain here?
+        (and (eq (class-of class) <standard-class>)
+             (eq (class-of superclass) <funcallable-standard-class>))
+        ;; Needed for clos-genfun1.lisp:
+        (and (eq superclass <function>)
+             (eq (class-classname class) 'funcallable-standard-object))
         ;; CLISP specific extension:
         (subclassp (class-of class) (class-of superclass)))))
 

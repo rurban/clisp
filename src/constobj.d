@@ -145,6 +145,7 @@
   LISPOBJ(type_weak_ht,"(MEMBER :BOTH :EITHER :VALUE :KEY NIL)")
 # for RECORD.D:
   LISPOBJ(constant_initfunction_code,".")
+  LISPOBJ(endless_loop_code,".")
 # for WEAK.D:
   LISPOBJ(type_weak_alist,"(MEMBER :BOTH :EITHER :VALUE :KEY)")
 # for SEQUENCE.D:

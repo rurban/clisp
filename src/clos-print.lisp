@@ -24,7 +24,7 @@
              :stream stream)
       (print-unreadable-object (object stream :type t)
         (write (class-classname object) :stream stream)
-        (when (standard-class-p object)
+        (when (semi-standard-class-p object)
           (if (and (slot-boundp object '$current-version)
                    (class-version-p (class-current-version object))
                    (slot-boundp object '$precedence-list))

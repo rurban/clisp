@@ -1564,7 +1564,10 @@ LISPFUNNR(type_of,1)
       value1 = listof(3);
       break;
     case_closure: /* Closure */
-      /* -> COMPILED-FUNCTION or STANDARD-GENERIC-FUNCTION or FUNCTION */
+      /* -> COMPILED-FUNCTION or STANDARD-GENERIC-FUNCTION or FUNCTION or
+            a subclass of FUNCALLABLE-STANDARD-OBJECT */
+      if (Closure_instancep(arg))
+        goto instances;
       if (simple_bit_vector_p(Atype_8Bit,TheClosure(arg)->clos_codevec)) {
         # compiled Closure
         if (TheCodevec(TheClosure(arg)->clos_codevec)->ccv_flags & bit(4))
@@ -1708,6 +1711,7 @@ LISPFUNNR(type_of,1)
         default: goto unknown;
       }
       break;
+    instances:
     case_instance: { /* Instance -> name of the class or the class itself */
         /* (CLtL2 p. 781 top) */
         var object arg_forwarded = arg;
@@ -1843,6 +1847,7 @@ LISPFUNNR(class_of,1)
   switch (0)
  #endif
   {
+    instances:
     case_instance: { /* instance -> its class */
       var object arg_forwarded = arg;
       instance_un_realloc(arg_forwarded);
@@ -1879,7 +1884,10 @@ LISPFUNNR(class_of,1)
       value1 = O(class_vector); break;
     case_mdarray: /* other Array -> <array> */
       value1 = O(class_array); break;
-    case_closure: /* Closure -> <function> resp. <standard-generic-function> */
+    case_closure: /* Closure -> <function> or <standard-generic-function> or
+                     a subclass of <funcallable-standard-object> */
+      if (Closure_instancep(arg))
+        goto instances;
       if (genericfunctionp(arg)) {
         value1 = O(class_standard_generic_function); break;
       }
@@ -2057,11 +2065,11 @@ global bool typep_class (object obj, object clas) {
   var object objclass = value1;
   /* Look whether clas is a superclass of objclass.
      Equivalent to (CLOS::SUBCLASSP objclass clas), just a bit faster. */
-  /* Make a distinction between <standard-class> and <structure-class>:
-     Is (class-shared-slots class) a vector or NIL, or is (class-names class)
+  /* Make a distinction between <semi-standard-class> and <structure-class>:
+     Is (class-current-version class) a vector, or is (class-names class)
      a cons? */
   if (matomp(TheClass(objclass)->current_version)) {
-    /* <standard-class>. */
+    /* <semi-standard-class>. */
     if (nullp(TheClass(objclass)->precedence_list)) /* not yet finalized? */
       NOTREACHED; /* shouldn't happen because obj is already an instance */
     var object superclasses_table = TheClass(objclass)->all_superclasses;
@@ -2103,11 +2111,11 @@ global bool typep_classname (object obj, object classname) {
   /* Look whether classname names a superclass of objclass.
      Equivalent to (CLOS::SUBCLASSP objclass (find-class classname)),
      just a bit faster. */
-  /* Make a distinction between <standard-class> and <structure-class>:
-     Is (class-shared-slots class) a vector or NIL, or is (class-names class)
+  /* Make a distinction between <semi-standard-class> and <structure-class>:
+     Is (class-current-version class) a vector, or is (class-names class)
      a cons? */
   if (matomp(TheClass(objclass)->current_version)) {
-    /* <standard-class>. */
+    /* <semi-standard-class>. */
     if (nullp(TheClass(objclass)->precedence_list)) /* not yet finalized? */
       NOTREACHED; /* shouldn't happen because obj is already an instance */
     var object superclasses_table = TheClass(objclass)->all_superclasses;
@@ -2699,6 +2707,7 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
     switch (0)
  #endif
   {
+    instances:
     case_instance: { /* instance */
       if (record_flags(TheInstance(obj)) & instflags_forwarded_B) {
         pighole = &locals->builtins[(int)enum_hs_realloc_instance];
@@ -2828,6 +2837,8 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
         pighole = &locals->builtins[(int)enum_hs_array];
       break;
     case_closure: /* Closure */
+      if (Closure_instancep(obj))
+        goto instances;
       if (genericfunctionp(obj))
         pighole = &locals->builtins[(int)enum_hs_standard_generic_function];
       else

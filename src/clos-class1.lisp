@@ -18,8 +18,10 @@
 
 ;;; see RECORD.D :
 ;; (STD-INSTANCE-P obj) tests, if an object is a CLOS-instance.
-;; (ALLOCATE-STD-INSTANCE class n) returns a CLOS-instance with Class class
-;; and n-1 additional slots.
+;; (ALLOCATE-STD-INSTANCE class n) returns a non-funcallable CLOS-instance
+;; with Class class and n-1 additional slots.
+;; (ALLOCATE-FUNCALLABLE-INSTANCE class n) returns a funcallable CLOS-instance
+;; with Class class and n-3 additional slots.
 
 ;;; see IO.D :
 ;; CLOS-instances are printed via (PRINT-OBJECT object stream).
@@ -375,15 +377,18 @@
 
 ;;; ===========================================================================
 
-;;; The class <standard-class> represents classes with the "default" CLOS
+;;; The class <semi-standard-class> is a common superclass of <standard-class>
+;;; and <funcallable-standard-class>. Both implement the "default" CLOS
 ;;; behaviour.
 
-(defvar <standard-class> 'standard-class)
-(defvar *<standard-class>-defclass*
-  '(defclass standard-class (slotted-class)
+(defvar <semi-standard-class> 'semi-standard-class)
+(defvar *<semi-standard-class>-defclass*
+  '(defclass semi-standard-class (slotted-class)
      (($current-version    ; most recent class-version, points back to this
                            ; class
         :type simple-vector)
+      ($funcallablep       ; flag whether direct instances are funcallable
+        :type boolean)
       ($fixed-slot-locations ; flag whether to guarantee same slot locations
                            ; in all subclasses
         )
@@ -397,38 +402,63 @@
       ($prototype          ; class prototype - an instance or NIL
         :type (or standard-object null)))
      (:fixed-slot-locations)))
-(defvar *<standard-class>-class-version* (make-class-version))
 
 ;; Fixed slot locations.
-(defconstant *<standard-class>-current-version-location* 21)
-(defconstant *<standard-class>-fixed-slot-locations-location* 22)
-(defconstant *<standard-class>-instantiated-location* 23)
-(defconstant *<standard-class>-finalized-direct-subclasses-location* 24)
-(defconstant *<standard-class>-prototype-location* 25)
+(defconstant *<semi-standard-class>-current-version-location* 21)
+(defconstant *<semi-standard-class>-funcallablep-location* 22)
+(defconstant *<semi-standard-class>-fixed-slot-locations-location* 23)
+(defconstant *<semi-standard-class>-instantiated-location* 24)
+(defconstant *<semi-standard-class>-finalized-direct-subclasses-location* 25)
+(defconstant *<semi-standard-class>-prototype-location* 26)
 
 ;; Preliminary accessors.
 (defun class-current-version (object)
-  (sys::%record-ref object *<standard-class>-current-version-location*))
+  (sys::%record-ref object *<semi-standard-class>-current-version-location*))
 (defun (setf class-current-version) (new-value object)
-  (setf (sys::%record-ref object *<standard-class>-current-version-location*) new-value))
+  (setf (sys::%record-ref object *<semi-standard-class>-current-version-location*) new-value))
+(defun class-funcallablep (object)
+  (sys::%record-ref object *<semi-standard-class>-funcallablep-location*))
+(defun (setf class-funcallablep) (new-value object)
+  (setf (sys::%record-ref object *<semi-standard-class>-funcallablep-location*) new-value))
 (defun class-fixed-slot-locations (object)
-  (sys::%record-ref object *<standard-class>-fixed-slot-locations-location*))
+  (sys::%record-ref object *<semi-standard-class>-fixed-slot-locations-location*))
 (defun (setf class-fixed-slot-locations) (new-value object)
-  (setf (sys::%record-ref object *<standard-class>-fixed-slot-locations-location*) new-value))
+  (setf (sys::%record-ref object *<semi-standard-class>-fixed-slot-locations-location*) new-value))
 (defun class-instantiated (object)
-  (sys::%record-ref object *<standard-class>-instantiated-location*))
+  (sys::%record-ref object *<semi-standard-class>-instantiated-location*))
 (defun (setf class-instantiated) (new-value object)
-  (setf (sys::%record-ref object *<standard-class>-instantiated-location*) new-value))
+  (setf (sys::%record-ref object *<semi-standard-class>-instantiated-location*) new-value))
 (defun class-finalized-direct-subclasses-table (object)
-  (sys::%record-ref object *<standard-class>-finalized-direct-subclasses-location*))
+  (sys::%record-ref object *<semi-standard-class>-finalized-direct-subclasses-location*))
 (defun (setf class-finalized-direct-subclasses-table) (new-value object)
-  (setf (sys::%record-ref object *<standard-class>-finalized-direct-subclasses-location*) new-value))
+  (setf (sys::%record-ref object *<semi-standard-class>-finalized-direct-subclasses-location*) new-value))
 (defun class-prototype (object)
-  (sys::%record-ref object *<standard-class>-prototype-location*))
+  (sys::%record-ref object *<semi-standard-class>-prototype-location*))
 (defun (setf class-prototype) (new-value object)
-  (setf (sys::%record-ref object *<standard-class>-prototype-location*) new-value))
+  (setf (sys::%record-ref object *<semi-standard-class>-prototype-location*) new-value))
 
-(defconstant *<standard-class>-instance-size* 26)
+;;; ===========================================================================
+
+;;; The class <standard-class> represents classes with the "default" CLOS
+;;; behaviour.
+
+(defvar <standard-class> 'standard-class)
+(defvar *<standard-class>-defclass*
+  '(defclass standard-class (semi-standard-class)
+     ()
+     (:fixed-slot-locations)))
+(defvar *<standard-class>-class-version* (make-class-version))
+
+(defconstant *<standard-class>-instance-size* 27)
+
+;;; ===========================================================================
+
+;;; The classes <funcallable-standard-class> and <funcallable-standard-object>
+;;; can be defined later.
+
+(defvar <funcallable-standard-class> nil)
+(defvar *<funcallable-standard-class>-class-version* nil)
+(defvar <funcallable-standard-object> nil)
 
 ;;; ===========================================================================
 
@@ -454,6 +484,17 @@
                ((eq cv *<built-in-class>-class-version*) nil)
                (t ; Now a slow, but general instanceof test.
                  (gethash <structure-class>
+                          (class-all-superclasses (class-of object))))))))
+
+(defun semi-standard-class-p (object)
+  (and (std-instance-p object)
+       (let ((cv (sys::%record-ref object 0)))
+         ; Treat the most frequent cases first, for speed and bootstrapping.
+         (cond ((eq cv *<standard-class>-class-version*) t)
+               ((eq cv *<structure-class>-class-version*) nil)
+               ((eq cv *<built-in-class>-class-version*) nil)
+               (t ; Now a slow, but general instanceof test.
+                 (gethash <semi-standard-class>
                           (class-all-superclasses (class-of object))))))))
 
 (defun standard-class-p (object)

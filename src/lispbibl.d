@@ -5568,7 +5568,7 @@ typedef struct {
   gcv_object_t slotdef_allocation         _attribute_aligned_object_;
   gcv_object_t slotdef_inheritable_initer _attribute_aligned_object_;
   gcv_object_t slotdef_inheritable_doc    _attribute_aligned_object_;
-  # from here on only for class = <effective-slot-definition>
+  # from here on only for class ⊆ <effective-slot-definition>
   gcv_object_t slotdef_location           _attribute_aligned_object_;
 } *  SlotDefinition;
 
@@ -5591,18 +5591,20 @@ typedef struct {
   gcv_object_t default_initargs         _attribute_aligned_object_;
   gcv_object_t documentation            _attribute_aligned_object_; # string or NIL
   gcv_object_t initialized              _attribute_aligned_object_; # set to true when the class is initialized
-  # from here on only for metaclass = <standard-class> or metaclass = <structure-class>
+  # from here on only for metaclass ⊆ <standard-class> or metaclass ⊆ <funcallable-standard-class> or metaclass ⊆ <structure-class>
   gcv_object_t subclass_of_stablehash_p _attribute_aligned_object_; /* true if <standard-stablehash> or <structure-stablehash> is among the superclasses */
   gcv_object_t generic_accessors        _attribute_aligned_object_;
   gcv_object_t direct_accessors         _attribute_aligned_object_;
   gcv_object_t valid_initargs           _attribute_aligned_object_;
   gcv_object_t instance_size            _attribute_aligned_object_;
-  # from here on only for metaclass = <standard-class>
+  # from here on only for metaclass ⊆ <standard-class> or metaclass ⊆ <funcallable-standard-class>
   gcv_object_t current_version          _attribute_aligned_object_; /* most recent class-version, points back to this class */
+  gcv_object_t funcallablep             _attribute_aligned_object_;
   gcv_object_t fixed_slot_locations     _attribute_aligned_object_;
   gcv_object_t instantiated             _attribute_aligned_object_;
   gcv_object_t finalized_direct_subclasses _attribute_aligned_object_; /* weak-list or weak-hash-table of all finalized direct subclasses */
   gcv_object_t prototype                _attribute_aligned_object_; /* class prototype - an instance or NIL */
+  # from here on only for metaclass ⊆ <standard-class>
   gcv_object_t other[unspecified]       _attribute_aligned_object_;
 } *  Class;
 
@@ -5649,18 +5651,27 @@ typedef struct {
 } *  Cclosure;
 #define cclosure_length(ptr)  srecord_length(ptr)
 #define Cclosure_length(obj)  cclosure_length(TheCclosure(obj))
+# Flags in a closure. They must be disjoint from the instflags_* bits.
 #ifdef TYPECODES
-  #define cclosure_flags(ptr)  ((ptr)->recflags)
+  #define closure_flags(ptr)  ((ptr)->recflags)
 #else
-  #define cclosure_flags(ptr)  record_flags(ptr)
+  #define closure_flags(ptr)  record_flags(ptr)
 #endif
-#define Cclosure_flags(obj)  cclosure_flags(TheCclosure(obj))
-#define Cclosure_seclass(obj)  Cclosure_flags(obj)
-#define Cclosure_set_seclass(cc,se)  record_flags_replace(TheCclosure(cc),se)
+#define Closure_flags(obj)  closure_flags(TheClosure(obj))
+#define Cclosure_seclass(obj)  ((Closure_flags(obj) >> 4) & 0x07)
+#define Cclosure_set_seclass(obj,se)  \
+  (record_flags_clr(TheCclosure(obj),0x07<<4), \
+   record_flags_set(TheCclosure(obj),(se)<<4))
+#define closflags_instance_B  bit(7)
+#define closure_instancep(ptr)  (closure_flags(ptr) & closflags_instance_B)
+#define Closure_instancep(obj)  closure_instancep(TheClosure(obj))
 # Closed-over environment, as a set of nested simple-vectors.
 #define clos_venv  clos_consts[0]
-# The function's name.
-#define Closure_name(obj)  TheClosure(obj)->clos_name_or_class_version
+# The function's name. Depends on whether instancep or not.
+#define Closure_name(obj)  \
+  (Closure_instancep(obj)             \
+   ? TheCclosure(obj)->clos_consts[1] \
+   : TheClosure(obj)->clos_name_or_class_version)
 typedef struct {
   VRECORD_HEADER # self-pointer for GC, length in bits
   # Here: Content of the Bitvector.
@@ -6022,7 +6033,7 @@ typedef enum {
   #define TheClosure(obj)  ((Closure)(type_pointable(closure_type,obj)))
   #define TheIclosure(obj)  ((Iclosure)(type_pointable(closure_type,obj)))
   #define TheCclosure(obj)  ((Cclosure)(type_pointable(closure_type,obj)))
-  #define TheInstance(obj)  ((Instance)(type_pointable(instance_type,obj)))
+  #define TheInstance(obj)  ((Instance)(types_pointable(instance_type|closure_type,obj)))
   #define TheSubr(obj)  ((Subr)(type_pointable(subr_type,obj)))
   #define TheFramepointer(obj)  ((gcv_object_t*)(type_pointable(system_type,obj)))
   #define TheMachine(obj)  ((void*)(type_pointable(machine_type,obj)))
@@ -6560,11 +6571,25 @@ typedef enum {
 
 # Test for CLOS-Instance
 #ifdef TYPECODES
-  #define instancep(obj)  (typecode(obj)==instance_type)
+  #define instancep(obj)  \
+    (typecode(obj)==instance_type                                \
+     || (typecode(obj)==closure_type && Closure_instancep(obj)))
 #else
   #define instancep(obj)  \
+    (varobjectp(obj)                                                  \
+     && (Record_type(obj) == Rectype_Instance                         \
+         || (Record_type(obj) == Rectype_Closure && Closure_instancep(obj))))
+#endif
+# Test for non-funcallable CLOS-Instance
+#ifdef TYPECODES
+  #define regular_instance_p(obj)  (typecode(obj)==instance_type)
+#else
+  #define regular_instance_p(obj)  \
     (varobjectp(obj) && (Record_type(obj) == Rectype_Instance))
 #endif
+# Test for funcallable CLOS-Instance
+#define funcallable_instance_p(obj)  \
+  (closurep(obj) && Closure_instancep(obj))
 
 # Test for CLOS-class
 # Our CLOS implements all classes as instances of a
@@ -8666,7 +8691,7 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 # newclos = allocate_cclosure_copy(oldclos);
 # can trigger GC
 #define allocate_cclosure_copy(oldclos)  \
-  allocate_closure(Cclosure_length(oldclos),Cclosure_flags(oldclos))
+  allocate_closure(Cclosure_length(oldclos),Closure_flags(oldclos))
 # do_cclosure_copy(newclos,oldclos);
 #define do_cclosure_copy(newclos,oldclos)               \
   copy_mem_o(((Srecord)TheCclosure(newclos))->recdata,  \

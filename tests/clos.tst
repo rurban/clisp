@@ -3661,3 +3661,38 @@ DEF-USER-METHOD
     (list* 'around-real x (not (null (next-method-p))) (call-next-method)))
   (test-um13 17))
 (AROUND-INTEGER 17 T AROUND-RATIONAL 17 T AROUND-REAL 17 T INTEGER 17 T RATIONAL 17 T REAL 17 NIL)
+
+
+;; Funcallable instances
+
+; Check set-funcallable-instance-function with a SUBR.
+(let ((f (make-instance 'funcallable-standard-object)))
+  (set-funcallable-instance-function f #'cons)
+  (funcall f 'a 'b))
+(A . B)
+
+; Check set-funcallable-instance-function with a small compiled-function.
+(let ((f (make-instance 'funcallable-standard-object)))
+  (set-funcallable-instance-function f #'(lambda (x y) (declare (compile)) (cons x y)))
+  (funcall f 'a 'b))
+(A . B)
+
+; Check set-funcallable-instance-function with a large compiled-function.
+(let ((f (make-instance 'funcallable-standard-object)))
+  (set-funcallable-instance-function f #'(lambda (x y) (declare (compile)) (list 'start x y 'end)))
+  (funcall f 'a 'b))
+(START A B END)
+
+; Check set-funcallable-instance-function with an interpreted function.
+(let ((f (make-instance 'funcallable-standard-object)))
+  (set-funcallable-instance-function f #'(lambda (x y) (cons x y)))
+  (funcall f 'a 'b))
+(A . B)
+
+; Check set-funcallable-instance-function with a generic.
+(let ((f (make-instance 'funcallable-standard-object)))
+  (defgeneric test-funcallable-01 (x y)
+    (:method (x y) (cons x y)))
+  (set-funcallable-instance-function f #'test-funcallable-01)
+  (funcall f 'a 'b))
+(A . B)
