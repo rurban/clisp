@@ -75,7 +75,7 @@ RSXDIR = /c:/rsx
 TEMPDIR = /tmp/clispdos
 
 
-all : makefiles configures potfiles src/FILES src/VERSION src/intparam.c src/uninames.h src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c ffcall/avcall/avcall.h.msvc ffcall/vacall/config.h.msvc ffcall/vacall/vacall.h.msvc ffcall/trampoline/config.h.msvc ffcall/callback/vacall_r/config.h.msvc ffcall/callback/vacall_r/vacall_r.h.msvc ffcall/callback/trampoline_r/config.h.msvc acorn/pathname.txt htmldoc
+all : makefiles configures potfiles src/FILES src/VERSION src/uninames.h src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c ffcall/avcall/avcall.h.msvc ffcall/vacall/config.h.msvc ffcall/vacall/vacall.h.msvc ffcall/trampoline/config.h.msvc ffcall/callback/vacall_r/config.h.msvc ffcall/callback/vacall_r/vacall_r.h.msvc ffcall/callback/trampoline_r/config.h.msvc acorn/pathname.txt htmldoc
 
 ffcall-i386 : ffcall/avcall/avcall-i386-msvc.c ffcall/vacall/vacall-i386-msvc.c ffcall/callback/vacall_r/vacall-i386-msvc.c
 
