@@ -34,7 +34,7 @@
   (TEXT "You may input a value to be used instead~@[ of ~S~]."))
 (defun prompt-for-new-value-string () ; ABI
   (concatenate 'string "~%" (TEXT "New ~S: ")))
-(defmacro check-type (place typespec &optional (string nil))
+(predefmacro check-type (place typespec &optional (string nil))
   (let ((tag1 (gensym))
         (tag2 (gensym)))
     `(TAGBODY
@@ -57,7 +57,7 @@
   (format nil
     (TEXT "~S must evaluate to a non-NIL value.")
     test-form))
-(defmacro assert (test-form &optional (place-list nil) (string nil) &rest args)
+(predefmacro assert (test-form &optional (place-list nil) (string nil) &rest args)
   (let ((tag1 (gensym))
         (tag2 (gensym)))
     `(TAGBODY
@@ -148,22 +148,22 @@
                                 ',place)
                         (SETF ,place (READ *QUERY-IO*))
                         (GO ,h)))))))))
-    (defmacro etypecase (keyform &rest keyclauselist)
+    (predefmacro etypecase (keyform &rest keyclauselist)
       (if (assoc t keyclauselist)
           `(typecase ,keyform ,@keyclauselist)
           (simply-error 'TYPECASE keyform keyclauselist
                         (typecase-errorstring keyform keyclauselist)
                         (typecase-expected-type keyclauselist))))
-    (defmacro ctypecase (keyplace &rest keyclauselist)
+    (predefmacro ctypecase (keyplace &rest keyclauselist)
       (if (assoc t keyclauselist)
           `(typecase ,keyplace ,@keyclauselist)
           (retry-loop 'TYPECASE keyplace keyclauselist
                       (typecase-errorstring keyplace keyclauselist))))
-    (defmacro ecase (keyform &rest keyclauselist)
+    (predefmacro ecase (keyform &rest keyclauselist)
       (simply-error 'CASE keyform keyclauselist
                     (case-errorstring keyform keyclauselist)
                     (case-expected-type keyclauselist)))
-    (defmacro ccase (keyform &rest keyclauselist)
+    (predefmacro ccase (keyform &rest keyclauselist)
       (retry-loop 'CASE keyform keyclauselist
                   (case-errorstring keyform keyclauselist)))))
 ;; ----------------------------------------------------------------------------

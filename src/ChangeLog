@@ -1,3 +1,39 @@
+2004-10-17  Bruno Haible  <bruno@clisp.org>
+
+	Notion of preliminary function and macro definitions.
+	* record.d ((setf sys::closure-name)): New function.
+	* init.lisp: Export ext:preliminary.
+	(sys::make-preliminary): New function.
+	(format, cerror): Define as preliminary.
+	(sys::preliminary-p): New function.
+	(sys::fbound-string): Return nil for preliminary functions and for
+	preliminary macros.
+	(sys::remove-old-definitions): Accept an optional argument. Don't call
+	sys::check-redefinition when defining a preliminary entity.
+	(global-in-fenv-p, warn, eval-when-compile): Define as preliminary.
+	(sys::predefmacro, sys::predefun): New macros.
+	* macros1.lisp (loop): Define using predefmacro.
+	* macros2.lisp (check-type, assert, etypecase, ctypecase, ecase,
+	ccase): Define using predefmacro.
+	* places.lisp (system::closure-name): Add setf definition.
+	* clos-package.lisp: Import sys::predefun.
+	* clos-class0.lisp (print-object): Define using predefun.
+	* clos-slotdef1.lisp (slot-definition-*,
+	structure-effective-slot-definition-readonly,
+	direct-slot-definition-class, equal-direct-slot,
+	effective-slot-definition-class): Define using predefun.
+	* clos-specializer1.lisp (specializer-direct-methods-table,
+	eql-specializer-singleton, specializer-direct-generic-functions,
+	add-direct-method, remove-direct-method, specializer-direct-methods):
+	Define using predefun.
+	* clos-class1.lisp (class-*, print-object): Define using predefun.
+	* defstruct.lisp (clos::defstruct-remove-print-object-method): Define
+	using predefun.
+	* compiler.lisp (closure-name): Remove setf definition.
+	(finalize-coutput-file): Define using predefun.
+	* edit.lisp (editor-name, editor-tempfile, edit-file): Define using
+	predefun.
+
 2004-10-31  Bruno Haible  <bruno@clisp.org>
 
 	* unixaux.d (fd_read, fd_write, sock_read, sock_write): When returning

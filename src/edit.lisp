@@ -14,15 +14,15 @@
 (defparameter *editor* nil)
 
 ;; Liefert den Namen des Editors:
-(defun editor-name () *editor*)
+(predefun editor-name () *editor*)
 
 ;; Das temporäre File, das LISP beim Editieren anlegt:
-(defun editor-tempfile ()
+(predefun editor-tempfile ()
   #+(or UNIX WIN32) (merge-pathnames "lisptemp.lisp" (user-homedir-pathname))
 )
 
 ;; (edit-file file) editiert ein File.
-(defun edit-file (file)
+(predefun edit-file (file)
   (unless (editor-name)
     (error-of-type 'error
       (TEXT "No external editor installed.")
