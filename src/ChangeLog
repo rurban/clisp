@@ -1,5 +1,10 @@
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
+	* foreign.d (convert_function_to_foreign): Fix long-standing GC-safety
+	bug.
+
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
 	* foreign.d (SET-FOREIGN-POINTER): Fix GC-safety bug introduced on
 	2003-03-14.
 
