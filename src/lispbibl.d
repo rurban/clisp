@@ -4576,7 +4576,7 @@ typedef iarray_ *  Iarray;
   #define iarray_flags_set(ptr,bits)  record_flags_set(ptr,bits)
   #define iarray_flags_replace(ptr,newflags) record_flags_replace(ptr,newflags)
 #endif
-# Bits in den Flags:
+# Bits in the Flags:
 #define arrayflags_adjustable_bit  7 # set, if array is adjustable
 #define arrayflags_fillp_bit       6 # set, if a fill-pointer exists (only possible for n=1)
 #define arrayflags_displaced_bit   5 # set, if array is displaced
