@@ -1554,7 +1554,7 @@ interpreter compiler
                  ,@(if ; Is name declared inline?
                        (if (and compiler::*compiling* compiler::*compiling-from-file*)
                          (member name compiler::*inline-functions* :test #'equal)
-                         (eq (get (get-funname-symbol name) 'inlinable) 'inline)
+                         (eq (get (if (atom name) name (get-setf-symbol (second name))) 'inlinable) 'inline)
                        )
                      ; Is the lexical environment the top-level environment?
                      ; If yes, save the lambdabody for inline compilation.
