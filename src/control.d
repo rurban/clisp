@@ -413,6 +413,9 @@ local maygc object check_varspec (object varspec, object caller) {
   return value1;
 }
 
+/* add a bit to the object */
+#define SET_BIT(o,b)  as_object(as_oint(o) | wbit(b));
+
 /* UP for LET, LET*, LOCALLY, MULTIPLE-VALUE-BIND, SYMBOL-MACROLET:
  Analyzes the variables and declarations, builds up a variable binding-
  frame and extends VENV and poss. also DENV by a frame.
@@ -520,7 +523,7 @@ local /*maygc*/ void make_variable_frame
               }
             } while (--count);
            #else
-            var object to_compare = as_object(as_oint(symbol) | wbit(active_bit_o));
+            var object to_compare = SET_BIT(symbol,active_bit_o);
             var gcv_object_t* ptr = spec_pointer;
             var uintL count = spec_anz;
             do {
@@ -560,9 +563,9 @@ local /*maygc*/ void make_variable_frame
             if (specdecled || special_var_p(TheSymbol(symbol))) {
               /* bind dynamically */
               #if (varframe_binding_mark == varframe_binding_sym)
-              STACK_(varframe_binding_mark) = as_object(as_oint(symbol) | wbit(dynam_bit_o));
+              STACK_(varframe_binding_mark) = SET_BIT(symbol,dynam_bit_o);
               #else
-              STACK_(varframe_binding_mark) = as_object(as_oint(Fixnum_0) | wbit(dynam_bit_o));
+              STACK_(varframe_binding_mark) = SET_BIT(Fixnum_0,dynam_bit_o);
               #endif
             } else {
               /* bind statically */
@@ -635,7 +638,7 @@ local void activate_bindings (gcv_object_t* frame_pointer, uintC count) {
       *(markptr STACKop varframe_binding_value) = TheSymbolflagged(symbol)->symvalue; /* save old value in frame */
       TheSymbolflagged(symbol)->symvalue = newval; /* new value */
     }
-    *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); /* activate binding */
+    *markptr = SET_BIT(*markptr,active_bit_o); /* activate binding */
   } while (--count);
 }
 
@@ -701,7 +704,7 @@ LISPSPECFORM(letstern, 1,0,body)
         } else {
           *initptr = newval; /* new value into the frame */
         }
-        *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); /* activate binding */
+        *markptr = SET_BIT(*markptr,active_bit_o); /* activate binding */
       } while (--count);
     }
     /* interpret body: */
@@ -1115,7 +1118,7 @@ LISPSPECFORM(symbol_macrolet, 1,0,body)
         TheSymbolmacro(sm)->symbolmacro_expansion = *initptr;
         *initptr = sm;
         frame_pointer skipSTACKop -(varframe_binding_size-1);
-        Before(frame_pointer) = as_object(as_oint(Before(frame_pointer)) | wbit(active_bit_o));
+        Before(frame_pointer) = SET_BIT(Before(frame_pointer),active_bit_o);
       } while (--count);
     }
     /* interpret body: */
@@ -1759,7 +1762,7 @@ LISPSPECFORM(multiple_value_bind, 2,0,body)
         TheSymbolflagged(sym)->symvalue = (value); /* new value into the value cell */ \
       } else /* static binding : */                                     \
         *valptr = (value); /* new value into the frame */               \
-      *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); /* activate binding */ \
+      *markptr = SET_BIT(*markptr,active_bit_o); /* activate binding */ \
      }}
     /* bind the r:=bind_count variables to the s:=mv_count values:
        (if there are not enough variables: discard remaining values;
