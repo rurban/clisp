@@ -46,7 +46,7 @@ some platforms can be found in file unix/PLATFORMS.
    Note that the argument to configure can be an absolute pathname.
    For example, the following command will also work.
 
-         ./configure /tmp/with-gcc-wall 
+         ./configure /tmp/with-gcc-wall
 
 3. The previous step printed a recommendation how to continue. Follow
    the recommendation: Go to this directory
@@ -97,6 +97,8 @@ some platforms can be found in file unix/PLATFORMS.
                                   if --with-noreadline was specified)
          make lisp.run            makes the executable
          make interpreted.mem     a memory image with everything uncompiled
+         make halfcompiled.mem    a memory image with compiler.fas and
+                                  the rest uncompiled
          make lispinit.mem        makes all *.fas files and
                                   a memory image with everything compiled
          make manual              makes the documentation
@@ -107,7 +109,7 @@ some platforms can be found in file unix/PLATFORMS.
 
    If something goes wrong, check and optionally modify the contents of
    the file unixconf.h and retry this step. Yes, there are many warnings,
-   I know. Most of them are harmless.
+   we know. Most of them are harmless.
 
    If you need to switch to a different compiler, execute a
          make distclean
@@ -130,19 +132,24 @@ some platforms can be found in file unix/PLATFORMS.
 
    If `prefix' is /usr/local, then this will install the CLISP binaries
    into /usr/local/bin and /usr/local/lib (creating a directory
-   /usr/local/lib/lisp) and the manual page into /usr/local/man/man1.
+   /usr/local/lib/clisp) and the manual page into /usr/local/man/man1.
    You may need superuser privileges for this step when installing into
    public directories.
+   If you built with modules (e.g., ./configure --with-module=regexp)
+   there will be two "linking sets" in /usr/local/lib/clisp/ - "base"
+   and "full" (see <http://clisp.cons.org/impnotes.html#modules>).
+   You can chose which liking set to run by using "-K" option of clisp
+   (see <http://clisp.cons.org/clisp.html#opt-link-set>)
 
-9. If you want other people to profit from your work, you can make a binary
-   distribution of CLISP for your platform which I will distribute.
+9. If you want other people to benefit from your work, you can make a binary
+   distribution of CLISP for your platform which we will distribute.
    To do this, make sure you have executed step 6 above, adjust the definitions
    of ROFF_MAN, PACK, PACKOPT, PACKEXT in the makefile, then type
 
           make distrib
 
-   to create a binary distribution in /tmp/clisp.tar.gz. Tell me about your
-   success, and ftp that file to a location I will indicate you.
+   to create a binary distribution in a clisp-*.tar.gz file.
+   Tell us about your success, and make that file available to us.
 
    If you want to distribute the binaries, recall that you have to accompany
    them with full source; see the files COPYING and GNU-GPL.
@@ -150,7 +157,6 @@ some platforms can be found in file unix/PLATFORMS.
 10. The last thing to do:
 
          cd ..
-
 
 Authors:
 --------
