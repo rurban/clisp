@@ -1798,6 +1798,7 @@ struct argv_actions {
   bool argv_developer;
   bool argv_load_compiling;
   uintL argv_init_filecount;
+  const char **argv_init_files;
   bool argv_compile;
   bool argv_compile_listing;
   bool argv_norc;
@@ -1808,11 +1809,11 @@ struct argv_actions {
   int argv_ansi; # 0: default; 1: ANSI; 2: traditional
   bool argv_repl;
   uintL argv_expr_count;
+  const char **argv_exprs; # stored backwards!
   const char* argv_execute_file;
   const char** argv_execute_args;
   uintL argv_execute_arg_count;
   bool argv_batchmode_p;
-  const char** argv_selection_array;
   bool argv_license;
   bool argv_wait_keypress;
 };
@@ -1836,6 +1837,7 @@ local inline int parse_options (int argc, const char* argv[],
   p2->argv_developer = false;
   p2->argv_load_compiling = false;
   p2->argv_init_filecount = 0;
+  p2->argv_init_files = (const char**) malloc((uintL)argc*sizeof(const char*)); # max argc -x/-i options
   p2->argv_compile = false;
   p2->argv_compile_listing = false;
   p2->argv_norc = false;
@@ -1846,11 +1848,11 @@ local inline int parse_options (int argc, const char* argv[],
   p2->argv_ansi = 0;
   p2->argv_repl = false;
   p2->argv_expr_count = 0;
+  p2->argv_exprs = p2->argv_init_files + argc; # put -x and -i arguments into the same array
   p2->argv_execute_file = NULL;
   p2->argv_execute_args = NULL;
   p2->argv_execute_arg_count = 0;
   p2->argv_batchmode_p = false;
-  p2->argv_selection_array = (const char**) malloc((uintL)argc*sizeof(const char*)); # max argc -x/-i options
   p2->argv_license = false;
   p2->argv_wait_keypress = false;
 
@@ -2231,7 +2233,7 @@ local inline int parse_options (int argc, const char* argv[],
         # no option is interpreted as file to be loaded / compiled / executed
         switch (argv_for) {
           case for_init:
-            p2->argv_selection_array[p2->argv_init_filecount++] = arg;
+            p2->argv_init_files[p2->argv_init_filecount++] = arg;
             break;
           case for_compile:
             p2->argv_compile_files[p2->argv_compile_filecount].input_file = arg;
@@ -2250,7 +2252,7 @@ local inline int parse_options (int argc, const char* argv[],
             argptr = argptr_limit; # abort loop
             break;
           case for_expr:
-            p2->argv_selection_array[argc-1-(p2->argv_expr_count++)] = arg;
+            p2->argv_exprs[-1-(sintP)(p2->argv_expr_count++)] = arg;
             break;
           default: NOTREACHED;
         }
@@ -2307,7 +2309,7 @@ local inline int parse_options (int argc, const char* argv[],
 local inline void free_argv_initparams (struct argv_initparams *p) {
 }
 local inline void free_argv_actions (struct argv_actions *p) {
-  free(p->argv_selection_array);
+  free(p->argv_init_files);
   free(p->argv_compile_files);
 }
 
@@ -2773,6 +2775,277 @@ local inline int init_memory (const struct argv_initparams *p) {
   return 0;
 }
 
+# Perform the main actions as specified by the command-line arguments.
+local inline void main_actions (struct argv_actions *p) {
+  /* print greeting: */
+  if (!nullpSv(quiet))           /* SYS::*QUIET* /= NIL ? */
+    { p->argv_verbose = 1; }        /* prevents the greeting */
+  if (p->argv_execute_file != NULL) /* batch-mode ? */
+    { p->argv_verbose = 1; }        /* prevents the greeting */
+  if (p->argv_verbose>=2 || p->argv_license)
+    print_banner();
+  if (p->argv_license)
+    print_license();
+  if (p->argv_execute_arg_count > 0) {
+    var const char** execute_arg_ptr = p->argv_execute_args;
+    var uintL count = p->argv_execute_arg_count;
+    do { pushSTACK(asciz_to_string(*execute_arg_ptr++,O(misc_encoding))); }
+    while (--count);
+    Symbol_value(S(args)) = listof(p->argv_execute_arg_count);
+  }
+  if ((p->argv_memfile == NULL) && (p->argv_expr_count == 0)) {
+    # warning for beginners
+    pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # auf *STANDARD-OUTPUT*
+    terpri(&STACK_0);
+    write_sstring(&STACK_0,CLSTEXT("WARNING: No initialization file specified."));
+    terpri(&STACK_0);
+    write_sstring(&STACK_0,CLSTEXT("Please try: "));
+    write_string(&STACK_0,asciz_to_string(program_name,O(pathname_encoding)));
+    write_string(&STACK_0,ascii_to_string(" -M lispinit.mem\n"));
+    skipSTACK(1);
+  }
+  if (p->argv_lisplibdir == NULL) {
+    if (nullp(O(lib_dir))) {
+      # warning for beginners and careless developers
+      pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # on *STANDARD-OUTPUT*
+      terpri(&STACK_0);
+      write_sstring(&STACK_0,CLSTEXT("WARNING: No installation directory specified."));
+      terpri(&STACK_0);
+      write_sstring(&STACK_0,CLSTEXT("Please try: "));
+      write_string(&STACK_0,asciz_to_string(program_name,O(pathname_encoding)));
+      write_string(&STACK_0,ascii_to_string(" -B /usr/local/lib/clisp\n"));
+      skipSTACK(1);
+    }
+  } else { # set it
+    pushSTACK(asciz_to_string(p->argv_lisplibdir,O(pathname_encoding)));
+    funcall(L(set_lib_directory),1);
+  }
+  if (p->argv_batchmode_p) {
+    /* (setq *debug-io*
+         (make-two-way-stream (make-string-input-stream "") *query-io*)) */
+    funcall(L(make_concatenated_stream),0); # (MAKE-CONCATENATED-STREAM)
+    pushSTACK(value1); # empty input-stream
+    var object stream = var_stream(S(query_io),strmflags_wr_ch_B);
+    Symbol_value(S(debug_io)) = make_twoway_stream(popSTACK(),stream);
+  }
+  switch (p->argv_ansi) {
+    case 1: # Maximum ANSI CL compliance
+      pushSTACK(T); funcall(L(set_ansi),1); break;
+    case 2: # The traditional CLISP behavior
+      pushSTACK(NIL); funcall(L(set_ansi),1); break;
+    default: # use the settings from the memory image
+      break;
+  }
+  if (p->argv_load_compiling) # (SETQ *LOAD-COMPILING* T) :
+    { Symbol_value(S(load_compiling)) = T; }
+  if (p->argv_verbose < 1) /* (setq *load-verbose* nil *compile-verbose* nil) */
+    Symbol_value(S(load_verbose)) = Symbol_value(S(compile_verbose)) = NIL;
+  if (p->argv_verbose > 2) /* (setq *load-print* t *compile-print* t) */
+    Symbol_value(S(load_print)) = Symbol_value(S(compile_print)) = T;
+  if (p->argv_developer) { /* developer mode */
+    /* unlock all packages */
+    var object packlist = O(all_packages);
+    while (consp(packlist)) {
+      mark_pack_unlocked(Car(packlist));
+      packlist = Cdr(packlist);
+    }
+  }
+  # load RC file ~/.clisprc
+  if (!p->argv_norc) {
+    # (LOAD (MAKE-PATHNAME :NAME ".clisprc"
+    #                      :DEFAULTS (USER-HOMEDIR-PATHNAME))
+    #       :IF-DOES-NOT-EXIST NIL
+    # )
+    pushSTACK(S(Kname));
+   #ifdef PATHNAME_UNIX
+    pushSTACK(ascii_to_string(".clisprc"));
+   #endif
+   #ifdef PATHNAME_WIN32
+    pushSTACK(ascii_to_string("_clisprc"));
+   #endif
+    pushSTACK(S(Kdefaults));
+    funcall(S(user_homedir_pathname),0);
+    pushSTACK(value1);
+    funcall(L(make_pathname),4);
+    pushSTACK(value1);
+    pushSTACK(S(Kif_does_not_exist));
+    pushSTACK(S(nil));
+    funcall(S(load),3);
+  }
+  # execute (LOAD initfile) for each initfile:
+  if (p->argv_init_filecount > 0) {
+    var const char* const* fileptr = &p->argv_init_files[0];
+    var uintL count = p->argv_init_filecount;
+    if (interactive_stream_p(Symbol_value(S(debug_io))))
+      do {
+        pushSTACK(asciz_to_string(*fileptr++,O(misc_encoding)));
+        funcall(S(load),1);
+      } while (--count);
+    else { /* non-interactive - guard with SYS::BATCHMODE-ERRORS */
+      pushSTACK(S(batchmode_errors));
+      do {
+        pushSTACK(S(load));
+        pushSTACK(asciz_to_string(*fileptr++,O(misc_encoding)));
+        { object tmp = listof(2); pushSTACK(tmp); }
+      } while (--count);
+      eval_noenv(listof(p->argv_init_filecount+1));
+    }
+  }
+  if (p->argv_compile) {
+    # execute
+    #   (EXIT-ON-ERROR
+    #     (APPEASE-CERRORS
+    #       (COMPILE-FILE (setq file (MERGE-PATHNAMES file (MERGE-PATHNAMES '#".lisp" (CD))))
+    #                     [:OUTPUT-FILE (setq output-file (MERGE-PATHNAMES (MERGE-PATHNAMES output-file (MERGE-PATHNAMES '#".fas" (CD))) file))]
+    #                     [:LISTING (MERGE-PATHNAMES '#".lis" (or output-file file))]
+    #   ) ) )
+    # for each file:
+    if (p->argv_compile_filecount > 0) {
+      var const argv_compile_file_t* fileptr = &p->argv_compile_files[0];
+      var uintL count;
+      dotimespL(count,p->argv_compile_filecount,{
+        var uintC argcount = 1;
+        var object filename = asciz_to_string(fileptr->input_file,O(misc_encoding));
+        pushSTACK(S(compile_file));
+        pushSTACK(filename);
+        pushSTACK(O(source_file_type)); # #".lisp"
+        funcall(L(cd),0); pushSTACK(value1); # (CD)
+        funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES '#".lisp" (CD))
+        pushSTACK(value1);
+        funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES file ...)
+        pushSTACK(value1);
+        if (fileptr->output_file) {
+          filename = asciz_to_string(fileptr->output_file,O(misc_encoding));
+          pushSTACK(S(Koutput_file));
+          pushSTACK(filename);
+          pushSTACK(O(compiled_file_type)); # #".fas"
+          funcall(L(cd),0); pushSTACK(value1); # (CD)
+          funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES '#".fas" (CD))
+          pushSTACK(value1);
+          funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES output-file ...)
+          pushSTACK(value1);
+          pushSTACK(STACK_2); # file
+          funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES ... file)
+          pushSTACK(value1);
+          argcount += 2;
+        }
+        if (p->argv_compile_listing) {
+          pushSTACK(S(Klisting));
+          pushSTACK(O(listing_file_type)); # #".lis"
+          pushSTACK(STACK_2); # (or output-file file)
+          funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES '#".lis" ...)
+          pushSTACK(value1);
+          argcount += 2;
+        }
+        # quote all arguments:
+        if (argcount > 0) {
+          var gcv_object_t* ptr = args_end_pointer;
+          var uintC c;
+          dotimespC(c,argcount,{
+            pushSTACK(S(quote)); pushSTACK(Before(ptr));
+            BEFORE(ptr) = listof(2);
+          });
+        }
+        var object form = listof(1+argcount); # `(COMPILE-FILE ',...)
+        if (!p->argv_repl)
+          form = appease_form(p->argv_interactive_debug,form);
+        eval_noenv(form); # execute
+        fileptr++;
+      });
+    }
+    if (!p->argv_repl)
+      return;
+  }
+  if (p->argv_package != NULL) { # (IN-PACKAGE packagename)
+    var object packname = asciz_to_string(p->argv_package,O(misc_encoding));
+    var object package = find_package(packname);
+    if (!nullp(package)) {
+      Symbol_value(S(packagestern)) = package;
+    } else {
+      pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
+      terpri(&STACK_0);
+      write_sstring(&STACK_0,CLSTEXT("WARNING: no such package: "));
+      write_sstring(&STACK_0,packname);
+      terpri(&STACK_0);
+      skipSTACK(1);
+    }
+  }
+  if (p->argv_execute_file != NULL) {
+    #  execute:
+    # (PROGN
+    #   #+UNIX (SET-DISPATCH-MACRO-CHARACTER #\# #\!
+    #           (FUNCTION SYS::UNIX-EXECUTABLE-READER))
+    #   (SETQ *LOAD-VERBOSE* NIL)
+    #   (EXIT-ON-ERROR
+    #    (APPEASE-CERRORS
+    #     (LOAD argv_execute_file :EXTRA-FILE-TYPES ...)))
+    #   (UNLESS argv_repl (EXIT)))
+   #if defined(UNIX) || defined(WIN32_NATIVE)
+    # Make clisp ignore the leading #! line.
+    pushSTACK(ascii_char('#')); pushSTACK(ascii_char('!'));
+    pushSTACK(L(unix_executable_reader));
+    funcall(L(set_dispatch_macro_character),3);
+   #endif
+    Symbol_value(S(load_verbose)) = NIL;
+    var object form;
+    pushSTACK(S(load));
+    if (asciz_equal(p->argv_execute_file,"-")) {
+      pushSTACK(S(standard_input)); # *STANDARD-INPUT*
+    } else {
+      pushSTACK(asciz_to_string(p->argv_execute_file,O(misc_encoding)));
+    }
+    pushSTACK(S(Kextra_file_types));
+   #ifdef WIN32_NATIVE
+    pushSTACK(S(quote));
+    pushSTACK(O(load_extra_file_types));
+    form = listof(2); # (QUOTE (".BAT"))
+    pushSTACK(form);
+   #else
+    pushSTACK(NIL);
+   #endif
+    form = listof(4);
+    if (!p->argv_repl)
+      form = appease_form(p->argv_interactive_debug,form);
+    eval_noenv(form); # execute
+    if (!p->argv_repl)
+      return;
+  }
+  if (p->argv_expr_count) {
+    # set *STANDARD-INPUT* to a stream, that produces argv_exprs:
+    var const char* const* exprs = &p->argv_exprs[-1];
+    if (p->argv_expr_count > 1) {
+      var uintL count = p->argv_expr_count;
+      do { pushSTACK(asciz_to_string(*exprs--,O(misc_encoding))); }
+      while (--count);
+      var object total = string_concat(p->argv_expr_count);
+      pushSTACK(total);
+    } else
+      pushSTACK(asciz_to_string(*exprs--,O(misc_encoding)));
+    funcall(L(make_string_input_stream),1);
+    # During bootstrapping, *DRIVER* has no value and SYS::BATCHMODE-ERRORS
+    # is undefined. Do not set an error handler in that case.
+    if (!nullpSv(driverstern)) {
+      dynamic_bind(S(standard_input),value1);
+      # (PROGN
+      #   (EXIT-ON-ERROR (APPEASE-CERRORS (FUNCALL *DRIVER*)))
+      #   ; Normally this will exit by itself once the string has reached EOF,
+      #   ; but to be sure:
+      #   (UNLESS argv_repl (EXIT)))
+      var object form;
+      pushSTACK(S(funcall)); pushSTACK(S(driverstern)); form = listof(2);
+      if (!p->argv_repl)
+        form = appease_form(p->argv_interactive_debug,form);
+      eval_noenv(form);
+      if (!p->argv_repl)
+        return;
+      dynamic_unbind(S(standard_input));
+    } else /* no *DRIVER* => bootstrap, no -repl */
+      Symbol_value(S(standard_input)) = value1;
+  }
+  # call read-eval-print-loop:
+  driver();
+}
+
 static struct argv_initparams argv1;
 static struct argv_actions argv2;
 
@@ -2842,15 +3115,15 @@ global int main (argc_t argc, char* argv[]) {
   update_linelength();
  #endif
  #if defined(WIN32_NATIVE)
- # cannot do it in init_win32 - too early
- if (isatty(stdout_handle)) {
-   var HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
-   if (handle!=INVALID_HANDLE_VALUE) {
-     var CONSOLE_SCREEN_BUFFER_INFO info;
-     if (GetConsoleScreenBufferInfo(handle,&info))
-       Symbol_value(S(prin_linelength)) = fixnum(info.dwSize.X - 1);
-   }
- }
+  # cannot do it in init_win32 - too early
+  if (isatty(stdout_handle)) {
+    var HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (handle!=INVALID_HANDLE_VALUE) {
+      var CONSOLE_SCREEN_BUFFER_INFO info;
+      if (GetConsoleScreenBufferInfo(handle,&info))
+        Symbol_value(S(prin_linelength)) = fixnum(info.dwSize.X - 1);
+    }
+  }
  #endif
  #if (defined(HAVE_SIGNALS) && defined(UNIX)) || defined(WIN32_NATIVE)
   # install Ctrl-C-Handler:
@@ -2902,272 +3175,8 @@ global int main (argc_t argc, char* argv[]) {
     }
     skipSTACK(1);
   }
-  /* print greeting: */
-  if (!nullpSv(quiet))           /* SYS::*QUIET* /= NIL ? */
-    { argv2.argv_verbose = 1; }        /* prevents the greeting */
-  if (argv2.argv_execute_file != NULL) /* batch-mode ? */
-    { argv2.argv_verbose = 1; }        /* prevents the greeting */
-  if (argv2.argv_verbose>=2 || argv2.argv_license)
-    print_banner();
-  if (argv2.argv_license)
-    print_license();
-  if (argv2.argv_execute_arg_count > 0) {
-    var uintL count = argv2.argv_execute_arg_count;
-    do { pushSTACK(asciz_to_string(*argv2.argv_execute_args++,O(misc_encoding))); }
-    while (--count);
-    Symbol_value(S(args)) = listof(argv2.argv_execute_arg_count);
-  }
-  if ((argv2.argv_memfile == NULL) && (argv2.argv_expr_count == 0)) {
-    # warning for beginners
-    pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # auf *STANDARD-OUTPUT*
-    terpri(&STACK_0);
-    write_sstring(&STACK_0,CLSTEXT("WARNING: No initialization file specified."));
-    terpri(&STACK_0);
-    write_sstring(&STACK_0,CLSTEXT("Please try: "));
-    write_string(&STACK_0,asciz_to_string(program_name,O(pathname_encoding)));
-    write_string(&STACK_0,ascii_to_string(" -M lispinit.mem\n"));
-    skipSTACK(1);
-  }
-  if (argv2.argv_lisplibdir == NULL) {
-    if (nullp(O(lib_dir))) {
-      # warning for beginners and careless developers
-      pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # on *STANDARD-OUTPUT*
-      terpri(&STACK_0);
-      write_sstring(&STACK_0,CLSTEXT("WARNING: No installation directory specified."));
-      terpri(&STACK_0);
-      write_sstring(&STACK_0,CLSTEXT("Please try: "));
-      write_string(&STACK_0,asciz_to_string(program_name,O(pathname_encoding)));
-      write_string(&STACK_0,ascii_to_string(" -B /usr/local/lib/clisp\n"));
-      skipSTACK(1);
-    }
-  } else { # set it
-    pushSTACK(asciz_to_string(argv2.argv_lisplibdir,O(pathname_encoding)));
-    funcall(L(set_lib_directory),1);
-  }
-  if (argv2.argv_batchmode_p) {
-    /* (setq *debug-io*
-         (make-two-way-stream (make-string-input-stream "") *query-io*)) */
-    funcall(L(make_concatenated_stream),0); # (MAKE-CONCATENATED-STREAM)
-    pushSTACK(value1); # empty input-stream
-    var object stream = var_stream(S(query_io),strmflags_wr_ch_B);
-    Symbol_value(S(debug_io)) = make_twoway_stream(popSTACK(),stream);
-  }
-  switch (argv2.argv_ansi) {
-    case 1: # Maximum ANSI CL compliance
-      pushSTACK(T); funcall(L(set_ansi),1); break;
-    case 2: # The traditional CLISP behavior
-      pushSTACK(NIL); funcall(L(set_ansi),1); break;
-    default: # use the settings from the memory image
-      break;
-  }
-  if (argv2.argv_load_compiling) # (SETQ *LOAD-COMPILING* T) :
-    { Symbol_value(S(load_compiling)) = T; }
-  if (argv2.argv_verbose < 1) /* (setq *load-verbose* nil *compile-verbose* nil) */
-    Symbol_value(S(load_verbose)) = Symbol_value(S(compile_verbose)) = NIL;
-  if (argv2.argv_verbose > 2) /* (setq *load-print* t *compile-print* t) */
-    Symbol_value(S(load_print)) = Symbol_value(S(compile_print)) = T;
-  if (argv2.argv_developer) { /* developer mode */
-    /* unlock all packages */
-    var object packlist = O(all_packages);
-    while (consp(packlist)) {
-      mark_pack_unlocked(Car(packlist));
-      packlist = Cdr(packlist);
-    }
-  }
-  # load RC file ~/.clisprc
-  if (!argv2.argv_norc) {
-    # (LOAD (MAKE-PATHNAME :NAME ".clisprc"
-    #                      :DEFAULTS (USER-HOMEDIR-PATHNAME))
-    #       :IF-DOES-NOT-EXIST NIL
-    # )
-    pushSTACK(S(Kname));
-   #ifdef PATHNAME_UNIX
-    pushSTACK(ascii_to_string(".clisprc"));
-   #endif
-   #ifdef PATHNAME_WIN32
-    pushSTACK(ascii_to_string("_clisprc"));
-   #endif
-    pushSTACK(S(Kdefaults));
-    funcall(S(user_homedir_pathname),0);
-    pushSTACK(value1);
-    funcall(L(make_pathname),4);
-    pushSTACK(value1);
-    pushSTACK(S(Kif_does_not_exist));
-    pushSTACK(S(nil));
-    funcall(S(load),3);
-  }
-  # execute (LOAD initfile) for each initfile:
-  if (argv2.argv_init_filecount > 0) {
-    var const char** fileptr = &argv2.argv_selection_array[0];
-    var uintL count = argv2.argv_init_filecount;
-    if (interactive_stream_p(Symbol_value(S(debug_io))))
-      do {
-        pushSTACK(asciz_to_string(*fileptr++,O(misc_encoding)));
-        funcall(S(load),1);
-      } while (--count);
-    else { /* non-interactive - guard with SYS::BATCHMODE-ERRORS */
-      pushSTACK(S(batchmode_errors));
-      do {
-        pushSTACK(S(load));
-        pushSTACK(asciz_to_string(*fileptr++,O(misc_encoding)));
-        { object tmp = listof(2); pushSTACK(tmp); }
-      } while (--count);
-      eval_noenv(listof(argv2.argv_init_filecount+1));
-    }
-  }
-  if (argv2.argv_compile) {
-    # execute
-    #   (EXIT-ON-ERROR
-    #     (APPEASE-CERRORS
-    #       (COMPILE-FILE (setq file (MERGE-PATHNAMES file (MERGE-PATHNAMES '#".lisp" (CD))))
-    #                     [:OUTPUT-FILE (setq output-file (MERGE-PATHNAMES (MERGE-PATHNAMES output-file (MERGE-PATHNAMES '#".fas" (CD))) file))]
-    #                     [:LISTING (MERGE-PATHNAMES '#".lis" (or output-file file))]
-    #   ) ) )
-    # for each file:
-    if (argv2.argv_compile_filecount > 0) {
-      var argv_compile_file_t* fileptr = &argv2.argv_compile_files[0];
-      var uintL count;
-      dotimespL(count,argv2.argv_compile_filecount,{
-        var uintC argcount = 1;
-        var object filename = asciz_to_string(fileptr->input_file,O(misc_encoding));
-        pushSTACK(S(compile_file));
-        pushSTACK(filename);
-        pushSTACK(O(source_file_type)); # #".lisp"
-        funcall(L(cd),0); pushSTACK(value1); # (CD)
-        funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES '#".lisp" (CD))
-        pushSTACK(value1);
-        funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES file ...)
-        pushSTACK(value1);
-        if (fileptr->output_file) {
-          filename = asciz_to_string(fileptr->output_file,O(misc_encoding));
-          pushSTACK(S(Koutput_file));
-          pushSTACK(filename);
-          pushSTACK(O(compiled_file_type)); # #".fas"
-          funcall(L(cd),0); pushSTACK(value1); # (CD)
-          funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES '#".fas" (CD))
-          pushSTACK(value1);
-          funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES output-file ...)
-          pushSTACK(value1);
-          pushSTACK(STACK_2); # file
-          funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES ... file)
-          pushSTACK(value1);
-          argcount += 2;
-        }
-        if (argv2.argv_compile_listing) {
-          pushSTACK(S(Klisting));
-          pushSTACK(O(listing_file_type)); # #".lis"
-          pushSTACK(STACK_2); # (or output-file file)
-          funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES '#".lis" ...)
-          pushSTACK(value1);
-          argcount += 2;
-        }
-        # quote all arguments:
-        if (argcount > 0) {
-          var gcv_object_t* ptr = args_end_pointer;
-          var uintC c;
-          dotimespC(c,argcount,{
-            pushSTACK(S(quote)); pushSTACK(Before(ptr));
-            BEFORE(ptr) = listof(2);
-          });
-        }
-        var object form = listof(1+argcount); # `(COMPILE-FILE ',...)
-        if (!argv2.argv_repl)
-          form = appease_form(argv2.argv_interactive_debug,form);
-        eval_noenv(form); # execute
-        fileptr++;
-      });
-    }
-    if (!argv2.argv_repl)
-      quit();
-  }
-  if (argv2.argv_package != NULL) { # (IN-PACKAGE packagename)
-    var object packname = asciz_to_string(argv2.argv_package,O(misc_encoding));
-    var object package = find_package(packname);
-    if (!nullp(package)) {
-      Symbol_value(S(packagestern)) = package;
-    } else {
-      pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
-      terpri(&STACK_0);
-      write_sstring(&STACK_0,CLSTEXT("WARNING: no such package: "));
-      write_sstring(&STACK_0,packname);
-      terpri(&STACK_0);
-      skipSTACK(1);
-    }
-  }
-  if (argv2.argv_execute_file != NULL) {
-    #  execute:
-    # (PROGN
-    #   #+UNIX (SET-DISPATCH-MACRO-CHARACTER #\# #\!
-    #           (FUNCTION SYS::UNIX-EXECUTABLE-READER))
-    #   (SETQ *LOAD-VERBOSE* NIL)
-    #   (EXIT-ON-ERROR
-    #    (APPEASE-CERRORS
-    #     (LOAD argv_execute_file :EXTRA-FILE-TYPES ...)))
-    #   (UNLESS argv_repl (EXIT)))
-   #if defined(UNIX) || defined(WIN32_NATIVE)
-    # Make clisp ignore the leading #! line.
-    pushSTACK(ascii_char('#')); pushSTACK(ascii_char('!'));
-    pushSTACK(L(unix_executable_reader));
-    funcall(L(set_dispatch_macro_character),3);
-   #endif
-    Symbol_value(S(load_verbose)) = NIL;
-    var object form;
-    pushSTACK(S(load));
-    if (asciz_equal(argv2.argv_execute_file,"-")) {
-      pushSTACK(S(standard_input)); # *STANDARD-INPUT*
-    } else {
-      pushSTACK(asciz_to_string(argv2.argv_execute_file,O(misc_encoding)));
-    }
-    pushSTACK(S(Kextra_file_types));
-   #ifdef WIN32_NATIVE
-    pushSTACK(S(quote));
-    pushSTACK(O(load_extra_file_types));
-    form = listof(2); # (QUOTE (".BAT"))
-    pushSTACK(form);
-   #else
-    pushSTACK(NIL);
-   #endif
-    form = listof(4);
-    if (!argv2.argv_repl)
-      form = appease_form(argv2.argv_interactive_debug,form);
-    eval_noenv(form); # execute
-    if (!argv2.argv_repl)
-      quit();
-  }
-  if (argv2.argv_expr_count) {
-    # set *STANDARD-INPUT* to a stream, that produces argv_exprs:
-    var const char** exprs = &argv2.argv_selection_array[argc-1];
-    if (argv2.argv_expr_count > 1) {
-      var uintL count = argv2.argv_expr_count;
-      do { pushSTACK(asciz_to_string(*exprs--,O(misc_encoding))); }
-      while (--count);
-      var object total = string_concat(argv2.argv_expr_count);
-      pushSTACK(total);
-    } else
-      pushSTACK(asciz_to_string(*exprs--,O(misc_encoding)));
-    funcall(L(make_string_input_stream),1);
-    # During bootstrapping, *DRIVER* has no value and SYS::BATCHMODE-ERRORS
-    # is undefined. Do not set an error handler in that case.
-    if (!nullpSv(driverstern)) {
-      dynamic_bind(S(standard_input),value1);
-      # (PROGN
-      #   (EXIT-ON-ERROR (APPEASE-CERRORS (FUNCALL *DRIVER*)))
-      #   ; Normally this will exit by itself once the string has reached EOF,
-      #   ; but to be sure:
-      #   (UNLESS argv_repl (EXIT)))
-      var object form;
-      pushSTACK(S(funcall)); pushSTACK(S(driverstern)); form = listof(2);
-      if (!argv2.argv_repl)
-        form = appease_form(argv2.argv_interactive_debug,form);
-      eval_noenv(form);
-      if (!argv2.argv_repl)
-        quit();
-      dynamic_unbind(S(standard_input));
-    } else /* no *DRIVER* => bootstrap, no -repl */
-      Symbol_value(S(standard_input)) = value1;
-  }
-  # call read-eval-print-loop:
-  driver();
+  # Perform the desired actions (compilations, read-eval-print loop etc.):
+  main_actions(&argv2);
   quit();
   /*NOTREACHED*/
  } # end var bt
