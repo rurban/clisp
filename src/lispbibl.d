@@ -710,7 +710,7 @@
   #if defined(DECALPHA)
     #define STACK_register  "$9"    # one of the general registers $9..$14
   #endif
-  #if defined(S390) && (__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1 ))
+  #if defined(S390) && ((__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
     # global register assignment did not work on s390 until gcc 3.1
     #define STACK_register  "9"     # one of the general registers %r8..%r9
   #endif
