@@ -1,3 +1,8 @@
+2004-09-23  Sam Steingold  <sds@gnu.org>
+
+	* describe.lisp (describe-object): fixed bignum/fixnum classification
+	Reported by Jörg Höhle
+
 2004-09-23  Bruno Haible  <bruno@clisp.org>
 
 	* sequence.d (REVERSE): Fix wrong index check when the argument is a
