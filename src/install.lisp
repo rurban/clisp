@@ -71,10 +71,10 @@
           (setf (dir-key-value cmd "")
                 (concatenate 'string *clisp-base-cmd* " \"%1\"")))))))
 
-(when (y-or-no-p "Associate types~:{ <~a>,~} with CLISP?" *lisp-type-map*)
+(when (y-or-n-p "Associate types~:{ <~a>,~} with CLISP?" *lisp-type-map*)
   (with-dir-key-open (c1 :win32 "HKEY_CLASSES_ROOT")
     (loop :for (type . key) :in *lisp-type-map* :do
-       (with-dir-key-open (lf dkey type :direction :output)
+       (with-dir-key-open (lf c1 type :direction :output)
          (setf (dir-key-value lf "") key)))
     (add-lisp-file c1)
     (add-fas-file c1)
@@ -83,7 +83,7 @@
 (let ((bat-file (concatenate 'string
                              (dir-key-single-value :win32 "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders" "Common Desktop")
                              "\\clisp.bat")))
-  (when (y-or-no-p "Create CLISP bat file on your desktop <~s>?" bat-file)
+  (when (y-or-n-p "Create CLISP bat file on your desktop <~s>?" bat-file)
     (with-open-file (bat bat-file :direction :output)
       (format t "~&writing <~a>..." bat-file) (force-output)
       (format bat "@echo off~%~a %1 %2 %3 %4 %5 %6 %7 %8 %9~%" *clisp-cmd*)
