@@ -1267,6 +1267,7 @@ if [ $TOS = unix ] ; then
 else
   EVERY_INCLUDES_H=$EVERY_INCLUDES_H' stdbool.h stdint.h'
 fi
+# ./ contains libcharset.h, localcharset.h, stdbool.h, stdint.h
 XCFLAGS=${XCFLAGS}' -I.'
 if [ -n "$USE_LIBCHARSET" ] ; then
   EVERY_INCLUDES_H=$EVERY_INCLUDES_H' libcharset.h'
