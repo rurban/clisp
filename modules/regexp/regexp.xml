@@ -4,7 +4,7 @@
 
 <para>The &regexp-pac; module implements the
  <ulink url="regexp.html">POSIX regular expressions</ulink>
-via an &ffi-pac; call to the standard &c-lang; system facilities.
+by calling the standard &c-lang; system facilities.
 The syntax of these regular expressions is described in many places,
 such as your local &regex-h; manual and &emacs; info pages.</para>
 
