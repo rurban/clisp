@@ -2091,7 +2091,7 @@ and the international alphabetic characters from the character set:
 <!-- #ifdef UNIX_CHARNAMES -->
 <table id="unix-chars-table" frame="all">
   <title>Platform dependent characters:
-    &unix;, &acorn;, platforms only.</title>
+    &unix;, &acorn; platforms only.</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   &code-char-header;<tbody>
  <row><entry><literal role="sexp">(&code-char; #x00)</literal></entry>
@@ -2299,11 +2299,11 @@ and the international alphabetic characters from the character set:
 
 <section id="string-width"><title>Functions on strings</title>
 
-<formalpara><title><literal role="sexp">(&string-width;
- &string-r;)</literal></title>
- <para>returns the number of screen columns occupied by &string-r;.
- This is computed as the sum of all &char-width;s
- of all of the &string-r;'s characters.</para></formalpara></section>
+<formalpara><title>Function &string-width;</title>
+ <para><literal role="sexp">(&string-width; &string-r;)</literal>
+  returns the number of screen columns occupied by &string-r;.
+  This is computed as the sum of all &char-width;s
+  of all of the &string-r;'s characters.</para></formalpara></section>
 
 </section>
 </chapter>
@@ -2363,8 +2363,8 @@ and the international alphabetic characters from the character set:
 <para>Contrary to the &ansi-cl; issue 283 <ulink
  url="&clhs;/Issues/iss283.html">RANGE-OF-COUNT-KEYWORD:NIL-OR-INTEGER</ulink>,
  negative &count-k; keyword arguments are not allowed unless you set
- &count-ansi; to a non-&nil; value, in hich case <quote>using a negative
- integer value is functionally equivalent to using a value of
+ &count-ansi; to a non-&nil; value, in which case <quote>using a
+ negative integer value is functionally equivalent to using a value of
  zero</quote>, as per the &ansi-cl; issue.</para></formalpara>
 
 </section>
@@ -2414,7 +2414,7 @@ and &end-k;:</para>
 <para>The boolean <constant>:weak</constant> argument defaults to &nil;
 and specifies whether the &hash-table-t; is <emphasis>weak</emphasis>:
 the key is not considered accessible for the &gc;ion purposes, i.e., if
-is is only accessible in the weak &hash-table-t;, it is &gc;ed and
+it is only accessible in the weak &hash-table-t;, it is &gc;ed and
 removed from the weak &hash-table-t;.</para>
 
 <para>The &setf;able predicate <function>EXT:HASH-TABLE-WEAK-P</function>
@@ -3486,8 +3486,8 @@ is not a defined logical host yet, we proceed as follows:
 <orderedlist numeration="arabic">
  <listitem><simpara>If both environment variables
   <envar>LOGICAL_HOST_&host-r;_FROM</envar> and
-  <envar>LOGICAL_HOST_&host-r;_TO</envar> exist, then they define the
-  map of the &host-r;.</simpara></listitem>
+  <envar>LOGICAL_HOST_&host-r;_TO</envar> exist, then their values
+  define the map of the &host-r;.</simpara></listitem>
  <listitem><simpara>If the environment variable
   <envar>LOGICAL_HOST_&host-r;</envar> exists, its value is read from,
   and the result is passed to <literal role="sexp">(&setf;
@@ -3649,17 +3649,20 @@ use <literal role="sexp">(&nconc; (&directory; "**/")
 
 <!-- #ifdef GNU_READLINE -->
 <variablelist><title>&readline;</title>
- <varlistentry><term>Platform dependent: &unix;, &dos;, &os2;
-    platforms only, and only in &clisp; built &without; compile-time
-    flag &noreadline;.</term>
+ <varlistentry><term>Platform dependent: &unix;, &dos;, &os2; platforms
+    only, and only in &clisp; built &without; compile-time flag &noreadline;
+    (and when &readline; is installed on your machine already).</term>
  <listitem><simpara>Input through &terminal-io-var; uses the &readline;
-  library.  Arrow keys can be used to move within the input history. The
-  Tab key completes the symbol's name that is being typed.  See
-  <ulink url="clreadline.html">clreadline.html</ulink> for a complete
-  description of the key bindings.  The &readline; library is not used
-  if standard input and standard output do not both refer to the same
-  terminal.</simpara></listitem></varlistentry>
-</variablelist>
+  library.  Arrow keys can be used to move within the input history.
+  The <keysym>#\Tab</keysym> key completes the &symbol-t; name or
+  &pathname-t; that is being typed.
+  See <ulink url="http://cnswww.cns.cwru.edu/~chet/readline/rluserman.html"
+  >readline user manual</ulink> for general details and
+  <ulink url="clisp.html#completion">CLISP manual</ulink> for
+  &clisp;-specific extensions.
+  The &readline; library is not used if standard input and standard
+  output do not both refer to the same terminal.</simpara></listitem>
+ </varlistentry></variablelist>
 <!-- #endif -->
 
 <!-- #if defined(KEYBOARD) || defined(AMIGAOS) -->

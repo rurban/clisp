@@ -170,7 +170,7 @@ Discussion:
      be a good starting point.
 
   2. Get rid of tabs. When you cut & paste some lisp text to clisp, tabs in
-     it will make the readline library think that use want completion of
+     it will make the readline library think that user want completion of
      a symbol, thus causing delays, beeps and general annoyance. Therefore
      don't use tabs at all, except in Makefiles where they are syntactically
      required.
@@ -179,14 +179,6 @@ Discussion:
 
          ;; Tabs are anachronistic.
          (setq-default indent-tabs-mode nil)
-
-     and add the following to all the Makefiles which you intend to edit
-     with Emacs:
-
-         # This is for Emacs.
-         # Local Variables:
-         # indent-tabs-mode: t
-         # End:
 
   3. Set the path for "info" documentation. If "M-x info" gives an error,
      it is most likely that you have to set a the list of directories

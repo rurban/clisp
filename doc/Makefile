@@ -31,7 +31,7 @@ XALAN=$(JAVAXML)/xalan-j_2_0_0
 SAXON=$(JAVAXML)/saxon
 CLASSPATH=$(XALAN)/bin/xerces.jar$(SEP)$(XALAN)/bin/xalan.jar$(SEP)$(SAXON)/saxon.jar
 
-TEXI2HTML=../src/readline/doc/texi2html
+TEXI2HTML=texi2html
 
 # this is the original DTD
 # when processing with a tool which can get the DTD from the net,
@@ -84,11 +84,11 @@ html: impnotes.xml $(IMPNOTES)
 	cd html && sed 's/^/ln -vfs /' .symlinks | sh -
 	time docbook2html --dsl impnotes.dsl -o $@ $<
 
-regexp.html: ../modules/regexp/regexp.texinfo $(TEXI2HTML)
-	perl $(TEXI2HTML) -monolithic -verbose $<
+regexp.html: ../modules/regexp/regexp.texinfo
+	$(TEXI2HTML) -monolithic -verbose $<
 
-wildcard.html: ../modules/wildcard/wildcard.texinfo $(TEXI2HTML)
-	perl $(TEXI2HTML) -monolithic -verbose $<
+wildcard.html: ../modules/wildcard/wildcard.texinfo
+	$(TEXI2HTML) -monolithic -verbose $<
 
 clean: force
 	$(RM) impnotes.xml impnotes.texi impnotes.html impnotes.pdf html
