@@ -533,7 +533,7 @@ LISPFUN(sublis,seclass_default,2,0,norest,key,3,
         (kw(test),kw(test_not),kw(key)) )
 LISPFUN(nsublis,seclass_default,2,0,norest,key,3,
         (kw(test),kw(test_not),kw(key)) )
-LISPFUNN(memq,2)
+LISPFUNNR(memq,2)
 LISPFUN(member,seclass_default,2,0,norest,key,3,
         (kw(test),kw(test_not),kw(key)) )
 LISPFUN(member_if,seclass_default,2,0,norest,key,1, (kw(key)) )

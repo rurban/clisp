@@ -32,17 +32,20 @@
  fehler_sym_plist_odd(symbol);
  > symbol: Symbol */
 nonreturning_function(local, fehler_sym_plist_odd, (object symbol)) {
-  pushSTACK(symbol);
-  pushSTACK(S(get));
-  fehler(error,GETTEXT("~: the property list of ~ has an odd length"));
+  pushSTACK(Symbol_plist(symbol)); /* TYPE-ERROR slot DATUM */
+  pushSTACK(S(plist));          /* TYPE-ERROR slot EXPECTED-TYPE*/
+  pushSTACK(symbol); pushSTACK(S(get));
+  fehler(type_error,GETTEXT("~: the property list of ~ has an odd length"));
 }
 /* Error when the property list has odd length
  fehler_plist_odd(caller,plist);
  > caller: Subr
  > plist: bad plist */
 nonreturning_function(local, fehler_plist_odd, (object caller, object plist)) {
+  pushSTACK(plist);             /* TYPE-ERROR slot DATUM */
+  pushSTACK(S(plist));     /* TYPE-ERROR slot EXPECTED-TYPE*/
   pushSTACK(plist); pushSTACK(caller);
-  fehler(error,GETTEXT("~: the property list ~ has an odd length"));
+  fehler(type_error,GETTEXT("~: the property list ~ has an odd length"));
 }
 
 /* UP: find the key in the property list
@@ -64,21 +67,6 @@ local inline gcv_object_t* plist_find (gcv_object_t *plist_, object key) {
   }
 }
 
-/* UP: remove the first value of key in plist
- > plist_: the address of the plist
- > key: indicator
- < 0: if odd length (error); 1: found; -1: not found */
-local inline int plist_rem (gcv_object_t *plist_, object key) {
-  var gcv_object_t *tail = plist_find(plist_,key);
-  if (tail == NULL) return 0; /* odd length --> error */
-  var object plistr = *tail;
-  if (atomp(plistr)) return -1; /* key not found */
-  plistr = Cdr(plistr);
-  if (atomp(plistr)) return 0; /* odd length --> error */
-  *tail = Cdr(plistr); /* shorten the property list by 2 elements */
-  return 1;
-}
-
 /* UP: find a property in the property list of the symbol.
  get(symbol,key)
  > symbol: a Symbol
@@ -89,7 +77,7 @@ global object get (object symbol, object key) {
   if (plistr_ == NULL) /* property list has odd length */
     fehler_sym_plist_odd(symbol);
   var object plistr = *plistr_;
-  if (atomp(plistr)) /* not found */
+  if (endp(plistr)) /* not found */
     return unbound;
   /* key found */
   plistr = Cdr(plistr);
@@ -167,7 +155,7 @@ LISPFUN(getf,seclass_read,2,1,norest,nokey,0,NIL)
   if (plistr_ == NULL) /* property list has odd length */
     fehler_plist_odd(S(getf),STACK_2);
   var object plistr = *plistr_;
-  if (atomp(plistr)) { /* key not found */
+  if (endp(plistr)) { /* key not found */
     if (eq( value1 = STACK_0, unbound)) /* default value is not-found */
       value1 = NIL; /* if not supplied, then NIL. */
     mv_count=1; skipSTACK(3); return;
@@ -187,7 +175,7 @@ LISPFUNN(putf,3)
   var gcv_object_t *tail = plist_find(&STACK_2,STACK_1);
   if (tail == NULL) fehler_plist_odd(S(putf),STACK_2);
   var object plistr = *tail;
-  if (atomp(plistr)) { /* key not found => extend plist with 2 conses */
+  if (endp(plistr)) { /* key not found => extend plist with 2 conses */
     pushSTACK(allocate_cons());
     var object cons1 = allocate_cons();
     var object cons2 = popSTACK();
@@ -222,7 +210,7 @@ LISPFUNN(remf,2)
   var gcv_object_t *tail = plist_find(&STACK_1,STACK_0);
   if (tail == NULL) fehler_plist_odd(S(remf),STACK_1);
   var object plistr = *tail;
-  if (atomp(plistr)) value2 = NIL; /* key not found => not removed */
+  if (endp(plistr)) value2 = NIL; /* key not found => not removed */
   else {
     plistr = Cdr(plistr);
     if (atomp(plistr)) fehler_plist_odd(S(remf),STACK_1);
@@ -243,7 +231,7 @@ LISPFUNNR(get_properties,2)
   var object plist = popSTACK();
   var object plistr = plist;
   loop {
-    if (atomp(plistr))
+    if (endp(plistr))
       goto notfound;
     var object item = Car(plistr);
     if (!nullp(memq(item,keylist)))
@@ -282,7 +270,7 @@ LISPFUNN(put,3)
   if (tail == NULL) /* property list has odd length */
     fehler_sym_plist_odd(symbol);
   var object plistr = *tail;
-  if (atomp(plistr)) { /* key not found => extend plist with 2 conses */
+  if (endp(plistr)) { /* key not found => extend plist with 2 conses */
     pushSTACK(allocate_cons());
     var object cons1 = allocate_cons();
     var object cons2 = popSTACK();
@@ -307,7 +295,7 @@ LISPFUNN(remprop,2)
   var gcv_object_t *tail = plist_find(&Symbol_plist(symbol),key);
   if (tail == NULL) fehler_sym_plist_odd(symbol);
   var object plistr = *tail;
-  if (atomp(plistr)) value1 = NIL; /* key not found */
+  if (endp(plistr)) value1 = NIL; /* key not found */
   else { /* key found */
     plistr = Cdr(plistr);
     if (atomp(plistr)) fehler_sym_plist_odd(symbol);
