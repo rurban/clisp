@@ -15,7 +15,10 @@
 (defmacro with-gensyms (syms &body body)
   "Bind symbols to gensyms.  First sym is a string - the GENSYM prefix.
 Inspired by Paul Graham, <On Lisp>, p. 145."
-  `(let (,@(mapcar (lambda (sy) `(,sy (gensym ,(car syms)))) (cdr syms)))
+  `(let (,@(mapcar (lambda (sy)
+                     `(,sy (gensym ,(concatenate 'string (car syms)
+                                                 (symbol-name sy) "-"))))
+                   (cdr syms)))
     ,@body))
 
 (export '(with-gensyms) "EXT")
