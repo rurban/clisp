@@ -3494,15 +3494,15 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define case_symbol     case symbol_type # Symbol
   #define case_record     case_closure: _case_structure _case_stream _case_ratio _case_complex case_orecord: case_instance # Record general
   #if /* !defined(NO_symbolflags) && */ (oint_symbolflags_shift==oint_type_shift)
-  #define case_symbolflagged  # Symbol with Flags \
-                          case symbol_type: \
-                          case symbol_type|bit(active_bit): \
-                          case symbol_type|bit(dynam_bit): \
-                          case symbol_type|bit(dynam_bit)|bit(active_bit): \
-                          case symbol_type|bit(svar_bit): \
-                          case symbol_type|bit(svar_bit)|bit(active_bit): \
-                          case symbol_type|bit(svar_bit)|bit(dynam_bit): \
-                          case symbol_type|bit(svar_bit)|bit(dynam_bit)|bit(active_bit)
+  #define case_symbolflagged  # Symbol with Flags                       \
+          case symbol_type:                                             \
+          case symbol_type|bit(active_bit):                             \
+          case symbol_type|bit(dynam_bit):                              \
+          case symbol_type|bit(dynam_bit)|bit(active_bit):              \
+          case symbol_type|bit(svar_bit):                               \
+          case symbol_type|bit(svar_bit)|bit(active_bit):               \
+          case symbol_type|bit(svar_bit)|bit(dynam_bit):                \
+          case symbol_type|bit(svar_bit)|bit(dynam_bit)|bit(active_bit)
   #else
   #define case_symbolflagged  case_symbol # Symbol with flags
   #endif
@@ -3690,10 +3690,10 @@ typedef lrecord_ *  Lrecord;
 #endif
 
 #ifdef TYPECODES
-  #define SRECORD_HEADER  \
-                 VAROBJECT_HEADER # self-pointer GC      \
-                 uintB recflags;  # flags                     \
-                 sintB rectype;   # subtype, < rectype_limit \
+  #define SRECORD_HEADER                                        \
+                 VAROBJECT_HEADER # self-pointer GC             \
+                 uintB recflags;  # flags                       \
+                 sintB rectype;   # subtype, < rectype_limit    \
                  uintW reclength; # lengths in objects
 #else
   #define SRECORD_HEADER  \
@@ -3712,11 +3712,11 @@ typedef srecord_ *  Srecord;
 #define Srecord_length(obj)  srecord_length(TheSrecord(obj))
 
 #ifdef TYPECODES
-  #define XRECORD_HEADER  \
-                 VAROBJECT_HEADER  # self-pointer for GC       \
-                 uintB recflags;   # flags                      \
-                 sintB rectype;    # subtype, >= rectype_limit \
-                 uintB reclength;  # lengths in objects          \
+  #define XRECORD_HEADER                                                \
+                 VAROBJECT_HEADER  # self-pointer for GC                \
+                 uintB recflags;   # flags                              \
+                 sintB rectype;    # subtype, >= rectype_limit          \
+                 uintB reclength;  # lengths in objects                 \
                  uintB recxlength; # lengths of the extra objects
 #else
   #define XRECORD_HEADER  \
@@ -4000,7 +4000,8 @@ typedef unsigned_int_with_n_bits(small_char_int_len)  scint;
 # Base characters.
 #define base_char_int_len char_int_len
 #define base_char_code_limit  char_code_limit
-# The BASE-CHAR type is defined as (upgraded-array-element-type 'standard-char),
+# The BASE-CHAR type is defined as
+#     (upgraded-array-element-type 'standard-char),
 # i.e. the element-type of arrays created with (make-array 'standard-char ...).
 # Since it defeats the purpose of UNICODE to have different 8-bit and 16-bit
 # character types, we define BASE-CHAR=CHARACTER.
@@ -9957,7 +9958,8 @@ extern object coerce_function (object obj);
 
 # Executes "implicit PROGN" .
 # implicit_progn(body,default)
-# Executes body as implicit PROGN. If the body is empty, the value is the default one.
+# Executes body as implicit PROGN.
+#  If the body is empty, the value is the default one.
 # can trigger GC
 #define implicit_progn(body,default)                                      \
   do { var object rest = (body);                                          \
@@ -10803,7 +10805,8 @@ extern object string_downcase (object string);
 # > uintL start: start index
 # > uintL end: end index
 # with 0 <= start <= end <= Sstring_length(string)
-# < object result: (subseq string start end), a freshly created normal-simple-string
+# < object result: (subseq string start end),
+#                  a freshly created normal-simple-string
 extern object subsstring (object string, uintL start, uintL end);
 # is used by CHARSTRG, PATHNAME
 
@@ -10989,7 +10992,7 @@ extern object reverse (object list);
 # llength(obj)
 # > obj: object
 # < uintL result: length of obj, interpreted as list
-# Does not test for cyclic lists.
+# Does not test for circular lists.
 extern uintL llength (object obj);
 # is used by CONTROL, EVAL, SEQUENCE, RECORD, IO, PACKAGE, HASHTABL, STREAM
 
@@ -11658,8 +11661,9 @@ extern void set_terminalstream_external_format (object stream, object encoding);
 # used by ENCODING
 #endif
 
-# UP: Determines whether a stream is "interactive", ie. whether the input from the stream
-# depends from a promt that has propably just been printed.
+# UP: Determines whether a stream is "interactive",
+#     ie. whether the input from the stream
+#     depends from a promt that has propably just been printed.
 # interactive_stream_p(stream)
 # > stream: Stream
 extern bool interactive_stream_p (object stream);
@@ -11810,7 +11814,8 @@ extern object var_stream (object sym, uintB strmflags);
 # > STACK_2: :EXTERNAL-FORMAT argument
 # > STACK_1: :ELEMENT-TYPE argument
 # > STACK_0: Handle of the open file
-# > direction: Mode (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
+# > direction: Mode (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO,
+#                    3 = :INPUT-IMMUTABLE)
 # > append_flag: true if the stream should immediately be positioned at the end
 #                ,else false
 # > handle_fresh: whether the handle is freshly created.
