@@ -3791,7 +3791,8 @@ LISPFUNN(subr_info,1)
 # can trigger GC
   local Values eval_closure(closure)
     var object closure;
-    { var object args = popSTACK(); # Argumentliste
+    {
+      var object args = popSTACK(); # Argumentliste
       skipSTACK(1); # Wert von *APPLYHOOK* vergessen
       # STACK-Aufbau: EVAL-Frame.
       check_SP(); check_STACK();

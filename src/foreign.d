@@ -3507,7 +3507,8 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL)
 # (FFI::FOREIGN-LIBRARY name [required-version])
 # returns a foreign library specifier.
 LISPFUN(foreign_library,1,1,norest,nokey,0,NIL)
-  { var object name = STACK_1;
+  {
+    var object name = STACK_1;
     if (!stringp(name))
       fehler_string(name);
     var uintL v;

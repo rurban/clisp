@@ -736,7 +736,8 @@
     var object dv2;
     var uintL index2;
     var uintL count;
-    { var const uint32* ptr1 = &((uint32*)&TheSbvector(dv1)->data[0])[index1];
+    {
+      var const uint32* ptr1 = &((uint32*)&TheSbvector(dv1)->data[0])[index1];
       var const uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
       dotimespL(count,count, {
         if (!(*ptr1++ == *ptr2++)) goto no;
