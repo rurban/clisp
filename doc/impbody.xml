@@ -542,16 +542,10 @@ executes a compiled version of form.</para>
  &unless;, &cond;, &case;, &multiple-value-list;, &multiple-value-bind;,
  &multiple-value-setq;</title>
 <para>are implemented as special operators and, as
- such, rather efficient.</para></formalpara>
+ such, are rather efficient.</para></formalpara>
 
 <formalpara><title>&destructuring-bind;</title>
 <para>does not perform full error checking.</para></formalpara>
-
-<formalpara><title>&compiled-function-p;</title>
-<para>returns &t; on built-in functions written in &c-lang;, compiled
- functions and special operator handlers.  Therefore
- &compiled-function-type; is not a subtype of &function-class;.</para>
-</formalpara>
 
 <section><title>Function &eq;</title>
 
