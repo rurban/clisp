@@ -13002,7 +13002,8 @@ local object make_socket_stream(handle,host,port)
   var SOCKET handle;
   var object host; # string
   var object port; # fixnum >=0
-  { pushSTACK(allocate_socket(handle));
+  { pushSTACK(host);
+    pushSTACK(allocate_socket(handle));
     # Stream allozieren:
    {var object stream = # neuer Stream, alles erlaubt
       allocate_stream(strmflags_open_B,strmtype_socket,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
@@ -13019,7 +13020,7 @@ local object make_socket_stream(handle,host,port)
     TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
     TheStream(stream)->strm_wr_ss = P(wr_ss_handle);
     TheStream(stream)->strm_socket_port = port;
-    TheStream(stream)->strm_socket_host = host;
+    TheStream(stream)->strm_socket_host = popSTACK();
     TheStream(stream)->strm_ihandle =
     TheStream(stream)->strm_ohandle = popSTACK(); # Handle eintragen
     TheStream(stream)->strm_isatty = NIL;

@@ -1,5 +1,10 @@
 1999-01-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (make_socket_stream): Fix a potential GC crash: host was
+          not GC-safe.
+
+1999-01-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Prepare for making socket streams either binary or character, not both.
         * stream.d (SYS::LISTEN-BYTE): New function.
         * modules/clx/mit-clx/depdefs.lsp (:have-listen-byte): Define
