@@ -1,5 +1,9 @@
 1999-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (GENERATIONAL_GC): Don't define on IRIX.
+
+1999-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * makemake.in (NLS_INCLUDES): Add nls_iso8859_10, nls_iso8859_13.
         * encoding.d: Include them.
           (nls_tables): Refer to them.
