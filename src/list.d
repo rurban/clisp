@@ -415,7 +415,7 @@ LISPFUN(cons,seclass_no_se,2,0,norest,nokey,0,NIL)
 # can trigger GC
 local bool up2_test (const gcv_object_t* stackptr, object arg1, object arg2) {
   var object fun = *(stackptr STACKop 1);
-  # Special case the most frequent cases,
+  # Special case the most frequent cases
   if (eq(fun,L(eq)))
     return eq(arg1,arg2);
   if (eq(fun,L(eql)))
@@ -423,10 +423,7 @@ local bool up2_test (const gcv_object_t* stackptr, object arg1, object arg2) {
   if (eq(fun,L(equal)))
     return equal(arg1,arg2);
   pushSTACK(arg1); pushSTACK(arg2); funcall(fun,2);
-  if (nullp(value1))
-    return false;
-  else
-    return true;
+  return !nullp(value1);
 }
 
 # Unterprogramm zum Ausführen des Tests :TEST-NOT
@@ -437,10 +434,7 @@ local bool up2_test (const gcv_object_t* stackptr, object arg1, object arg2) {
 # can trigger GC
 local bool up2_test_not (const gcv_object_t* stackptr, object arg1, object arg2) {
   pushSTACK(arg1); pushSTACK(arg2); funcall(*(stackptr STACKop 0),2);
-  if (nullp(value1))
-    return true;
-  else
-    return false;
+  return nullp(value1);
 }
 
 # UP: Überprüft die :TEST, :TEST-NOT - Argumente
@@ -1176,10 +1170,7 @@ local bool up_test (const gcv_object_t* stackptr, object x) {
   pushSTACK(item);
   pushSTACK(x); # x
   funcall(fun,2);
-  if (nullp(value1))
-    return false;
-  else
-    return true;
+  return !nullp(value1);
 }
 
 # Unterprogramm zum Ausführen des Tests :TEST-NOT
@@ -1194,10 +1185,7 @@ local bool up_test_not (const gcv_object_t* stackptr, object x) {
   pushSTACK(*(stackptr STACKop 3)); # item
   pushSTACK(x); # x
   funcall(*(stackptr STACKop 0),2);
-  if (nullp(value1))
-    return true;
-  else
-    return false;
+  return nullp(value1);
 }
 
 # Unterprogramm zum Ausführen des Tests -IF
@@ -1209,10 +1197,7 @@ local bool up_test_not (const gcv_object_t* stackptr, object x) {
 local bool up_if (const gcv_object_t* stackptr, object x) {
   # nach CLTL S. 247 ein (funcall predicate x) ausführen:
   pushSTACK(x); funcall(*(stackptr STACKop 1),1);
-  if (nullp(value1))
-    return false;
-  else
-    return true;
+  return !nullp(value1);
 }
 
 # Unterprogramm zum Ausführen des Tests -IF-NOT
@@ -1224,10 +1209,7 @@ local bool up_if (const gcv_object_t* stackptr, object x) {
 local bool up_if_not (const gcv_object_t* stackptr, object x) {
   # nach CLTL S. 247 ein (not (funcall predicate x)) ausführen:
   pushSTACK(x); funcall(*(stackptr STACKop 1),1);
-  if (nullp(value1))
-    return true;
-  else
-    return false;
+  return nullp(value1);
 }
 
 # UP: Überprüft das :KEY-Argument
