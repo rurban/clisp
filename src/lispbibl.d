@@ -5270,6 +5270,8 @@ typedef struct {
   #ifdef SOCKET_STREAMS
                               enum_strmtype_socket,
   #define strmtype_socket     (uintB)enum_strmtype_socket
+                              enum_strmtype_twoway_socket,
+  #define strmtype_twoway_socket (uintB)enum_strmtype_twoway_socket
   #endif
                               enum_strmtype_dummy
   };
@@ -5303,6 +5305,7 @@ typedef struct {
   #ifdef SOCKET_STREAMS
   #define strm_socket_port     strm_other[5] # port, a fixnum >=0
   #define strm_socket_host     strm_other[6] # host, NIL or a string
+  #define strm_twoway_socket_input  strm_other[0] # input side, a socket stream
   #endif
   #ifdef GENERIC_STREAMS
   #define strm_controller_object strm_other[0] # Controller (meist CLOS-Instanz)
@@ -11521,19 +11524,28 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # wird verwendet von IO, PACKAGE, ERROR, DEBUG, SPVW
 
 # UP: erzeugt ein File-Stream
-# make_file_stream(direction,append_flag)
-# > STACK_3: :ELEMENT-TYPE argument
-# > STACK_2: Filename, ein Pathname oder NIL
-# > STACK_1: Truename, ein Pathname oder NIL
+# make_file_stream(direction,append_flag,handle_fresh)
+# > STACK_4: Filename, ein Pathname oder NIL
+# > STACK_3: Truename, ein Pathname oder NIL
+# > STACK_2: :BUFFERED argument
+# > STACK_1: :ELEMENT-TYPE argument
 # > STACK_0: Handle des geöffneten Files
 # > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
 # > append_flag: TRUE falls der Stream gleich ans Ende positioniert werden
 #         soll, FALSE sonst
+# > handle_fresh: whether the handle is freshly created.
+#                 This means 1. that it is currently positioned at position 0,
+#                 2. if (direction & bit(2)), it is opened for read/write, not
+#                 only for write.
+#                 If the handle refers to a regular file, this together means
+#                 that it supports file_lseek, reading/repositioning/writing
+#                 and close/reopen.
 # > subr_self: calling function
+# If direction==5, handle_fresh must be TRUE.
 # < ergebnis: File-Stream (oder evtl. File-Handle-Stream)
 # < STACK: aufgeräumt
 # kann GC auslösen
-  extern object make_file_stream (uintB direction, boolean append_flag);
+  extern object make_file_stream (uintB direction, boolean append_flag, boolean handle_at_pos_0);
 # wird verwendet von PATHNAME
 
 # Liefert einen Broadcast-Stream zum Stream stream.

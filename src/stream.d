@@ -2933,6 +2933,26 @@ LISPFUNN(generic_stream_p,1)
 # Streams communicating with the exterior world, based on bytes
 # =============================================================
 
+# UP: Check a :BUFFERED argument.
+# test_buffered_arg(arg)
+# > object arg: argument
+# > subr_self: calling function
+# < signean buffered: +1 for T, -1 for NIL, 0 for :DEFAULT
+  local signean test_buffered_arg (object arg);
+  local signean test_buffered_arg(arg)
+    var object arg;
+    { if (eq(arg,unbound) || eq(arg,S(Kdefault))) { return 0; }
+      if (eq(arg,NIL)) { return -1; }
+      if (eq(arg,T)) { return 1; }
+      pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,
+             DEUTSCH ? "~: Als :BUFFERED-Argument ist ~ unzulässig." :
+             ENGLISH ? "~: illegal :BUFFERED argument ~" :
+             FRANCAIS ? "~ : ~ n'est pas permis comme argument pour :BUFFERED." :
+             ""
+            );
+    }
+
 # Classification of possible :ELEMENT-TYPEs.
   typedef enum {
                 eltype_ch,    # CHARACTER
@@ -3393,6 +3413,7 @@ LISPFUNN(generic_stream_p,1)
 typedef struct strm_handle_extrafields_struct {
   boolean buffered;                    # FALSE for unbuffered streams,
                                        # TRUE for buffered streams
+  void (* low_close) (object stream, object handle);
   # Fields used if the element-type is CHARACTER:
   uintL lineno;                        # line number during read, >0
   # Fields used if the element-type is ([UN]SIGNED-BYTE n):
@@ -3431,6 +3452,7 @@ typedef struct strm_u_file_extrafields_struct {
 #define HandleStream_ihandle(stream)  TheStream(stream)->strm_ihandle
 #define HandleStream_ohandle(stream)  TheStream(stream)->strm_ohandle
 #define HandleStream_buffered(stream)   ((strm_handle_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->buffered
+#define HandleStreamLow_close(stream)   ((strm_handle_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_close
 #define HandleStream_lineno(stream)   ((strm_handle_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->lineno
 #define HandleStream_bitsize(stream)   ((strm_handle_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->bitsize
 #define FileStreamLow_read(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_read
@@ -3460,6 +3482,24 @@ typedef struct strm_u_file_extrafields_struct {
              FRANCAIS ? "~ : Ctrl-C : Interruption clavier" :
              ""
             );
+    }
+
+# General Subroutines
+# ===================
+
+# Closes a handle.
+  local void low_close_handle (object stream, object handle);
+  local void low_close_handle(stream,handle)
+    var object stream;
+    var object handle;
+    { begin_system_call();
+      #if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS)
+      if (!( CLOSE(TheHandle(handle)) ==0)) { end_system_call(); OS_filestream_error(stream); }
+      #endif
+      #ifdef WIN32_NATIVE
+      if (!CloseHandle(TheHandle(handle))) { end_system_call(); OS_filestream_error(stream); }
+      #endif
+      end_system_call();
     }
 
 # Subroutines for Integer-Streams
@@ -4387,15 +4427,7 @@ typedef struct strm_u_file_extrafields_struct {
   local void close_ihandle (object stream);
   local void close_ihandle(stream)
     var object stream;
-    { var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
-      begin_system_call();
-      #if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS)
-      if (!( CLOSE(handle) ==0)) { OS_error(); }
-      #endif
-      #ifdef WIN32_NATIVE
-      if (!CloseHandle(handle)) { OS_error(); }
-      #endif
-      end_system_call();
+    { HandleStreamLow_close(stream)(stream,TheStream(stream)->strm_ihandle);
       if (TheStream(stream)->strmflags & strmflags_i_B)
         { HandleStream_bitsize(stream) = 0; # bitsize löschen (unnötig)
           TheStream(stream)->strm_bitbuffer = NIL; # Bitbuffer freimachen
@@ -4628,15 +4660,7 @@ typedef struct strm_u_file_extrafields_struct {
   local void close_ohandle (object stream);
   local void close_ohandle(stream)
     var object stream;
-    { var Handle handle = TheHandle(TheStream(stream)->strm_ohandle);
-      begin_system_call();
-      #if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS)
-      if (!( CLOSE(handle) ==0)) { OS_error(); }
-      #endif
-      #ifdef WIN32_NATIVE
-      if (!CloseHandle(handle)) { OS_error(); }
-      #endif
-      end_system_call();
+    { HandleStreamLow_close(stream)(stream,TheStream(stream)->strm_ohandle);
       if (TheStream(stream)->strmflags & strmflags_i_B)
         { HandleStream_bitsize(stream) = 0; # bitsize löschen (unnötig)
           TheStream(stream)->strm_bitbuffer = NIL; # Bitbuffer freimachen
@@ -4741,7 +4765,7 @@ typedef struct strm_u_file_extrafields_struct {
     }
 
 # UP: erzeugt ein File-Handle-Stream
-# make_unbuffered_stream(type,handle_tty,direction,&eltype)
+# make_unbuffered_stream(type,direction,&eltype,handle_tty)
 # > STACK_1: Element-Type
 # > STACK_0: Handle des geöffneten Files
 # > type: stream type
@@ -4817,20 +4841,26 @@ typedef struct strm_u_file_extrafields_struct {
 # Additional binary (not GCed) fields:
 typedef struct strm_file_extrafields_struct {
   strm_handle_extrafields_struct _parent;
+  uintL (* low_fill)  (object stream);
+  void  (* low_flush) (object stream, uintL bufflen);
   uintL buffstart;              # start position of buffer
   sintL eofindex;               # index up to which the data is valid
                                 # (for recognizing EOF)
   #define eofindex_all_invalid  (-1)
   #define eofindex_all_valid    (-2)
   uintL index;                  # index into buffer (>=0, <=strm_file_bufflen)
-  boolean modified;             # TRUE if the buffer contains modified data, else FALSE
+  boolean modified : 8;         # TRUE if the buffer contains modified data, else FALSE
+  boolean regular : 8;          # whether the handle refers to a regular file
+  boolean blockpositioning : 8; # whether the handle refers to a regular file
+                                # and permits to position the buffer at
+                                # buffstart = (sector number) * strm_file_bufflen
   # Three cases:
   #  eofindex = eofindex_all_invalid: buffer contents completely invalid,
   #                                   index = 0.
   #  eofindex >= 0: 0 <= index <= eofindex <= strm_file_bufflen.
   #  eofindex = eofindex_all_valid: buffer contents completely valid,
   #                                 0 <= index <= strm_file_bufflen.
-  # buffstart = (sector number) * strm_file_bufflen, if read access permitted.
+  # buffstart = (sector number) * strm_file_bufflen, if blockpositioning permitted.
   # The position of handle, known to the OS, set via lseek, is normally (but
   # not always!) the end of the current buffer:
   #   if eofindex = eofindex_all_valid: buffstart + strm_file_bufflen,
@@ -4860,6 +4890,10 @@ typedef struct strm_i_file_extrafields_struct {
 #define FileStream_truename(stream)  TheStream(stream)->strm_file_truename
 #define FileStream_handle(stream)  TheStream(stream)->strm_file_handle
 #define FileStream_buffer(stream)  TheStream(stream)->strm_file_buffer
+#define FileStreamLow_fill(stream)  \
+  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_fill
+#define FileStreamLow_flush(stream)  \
+  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_flush
 #define FileStream_buffstart(stream)  \
   ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->buffstart
 #define FileStream_eofindex(stream)  \
@@ -4868,6 +4902,10 @@ typedef struct strm_i_file_extrafields_struct {
   ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->index
 #define FileStream_modified(stream)  \
   ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->modified
+#define FileStream_regular(stream)  \
+  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->regular
+#define FileStream_blockpositioning(stream)  \
+  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->blockpositioning
 #define FileStream_position(stream)  \
   ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->position
 #define FileStream_bitindex(stream)  \
@@ -4883,6 +4921,14 @@ typedef struct strm_i_file_extrafields_struct {
 # genannt) passen in ein uintW.
 # Begründung: Bekanntlich ist 0 <= fd < getdtablesize() .
 #endif
+
+# Note about regular and non-regular files:
+# - For regular files that were opened with O_RDONLY or O_RDWR but not O_WRONLY,
+#   we assume that it makes sense to read a block, modify it, reposition the
+#   handle back to the beginning of the block and write it back.
+# - For regular files opened with O_WRONLY, we use a simple output buffer.
+# - For non-regular files, we don't call file_lseek. Therefore mixed I/O is
+#   not possible. Only input-only and output-only modes are possible.
 
 # Handle positionieren:
 # file_lseek(stream,offset,mode,ergebnis_zuweisung);
@@ -4938,6 +4984,34 @@ typedef struct strm_i_file_extrafields_struct {
        }
   #endif
 
+# UP: Fills the buffer, up to strm_file_bufflen bytes.
+# b_file_fill(stream)
+# > stream: (open) byte-based file stream
+# < result: number of bytes read
+  local uintL b_file_fill (object stream);
+  local uintL b_file_fill(stream)
+    var object stream;
+    { var sintL result;
+      begin_system_call();
+      result = # Buffer füllen
+        full_read(TheHandle(TheStream(stream)->strm_file_handle), # Handle
+                  &TheSbvector(TheStream(stream)->strm_file_buffer)->data[0], # Bufferadresse
+                  strm_file_bufflen
+                 );
+      end_system_call();
+      if (result<0) { OS_filestream_error(stream); } # Fehler aufgetreten?
+      return result;
+    }
+
+# Functions for writing the buffer.
+# b_file_finish_flush(stream,bufflen);
+# b_file_full_flush(stream);
+# b_file_half_flush(stream);
+# b_half_flush(stream);
+# These are called only if the buffer is modified.
+# Of course, the buffer is modified only by the WRITE-BYTE/WRITE-CHAR
+# operations.
+
 # UP: Beendet das Zurückschreiben des Buffers.
 # b_file_finish_flush(stream,bufflen);
 # > stream : (offener) Byte-basierter File-Stream.
@@ -4992,6 +5066,11 @@ typedef struct strm_i_file_extrafields_struct {
                 );
     }}  }
 
+#define HandleStream_init(stream)  \
+  { FileStreamLow_fill(stream) = &b_file_fill;          \
+    FileStreamLow_flush(stream) = &b_file_finish_flush; \
+  }
+
 # UP: Schreibt den vollen, modifizierten Buffer zurück.
 # b_file_full_flush(stream);
 # > stream : (offener) Byte-basierter File-Stream.
@@ -5001,29 +5080,29 @@ typedef struct strm_i_file_extrafields_struct {
   local void b_file_full_flush(stream)
     var object stream;
     { # erst zurückpositionieren, dann schreiben.
-      if (!((TheStream(stream)->strmflags & strmflags_rd_B) == 0))
+      if (FileStream_blockpositioning(stream))
         { begin_system_call();
           file_lseek(stream,-(long)strm_file_bufflen,SEEK_CUR,); # Zurückpositionieren
           end_system_call();
         }
-      b_file_finish_flush(stream,strm_file_bufflen);
+      FileStreamLow_flush(stream)(stream,strm_file_bufflen);
     }
 
 # UP: Schreibt den halbvollen, modifizierten Buffer zurück.
-# b_file_full_flush(stream);
+# b_file_half_flush(stream);
 # > stream : (offener) Byte-basierter File-Stream.
 # < modified_flag von stream : gelöscht
 # verändert in stream: index
   local void b_file_half_flush (object stream);
   local void b_file_half_flush(stream)
     var object stream;
-    { if (!((TheStream(stream)->strmflags & strmflags_rd_B) == 0))
+    { if (FileStream_blockpositioning(stream))
         { begin_system_call();
           file_lseek(stream,FileStream_buffstart(stream),SEEK_SET,); # Zurückpositionieren
           end_system_call();
         }
       # eofindex Bytes schreiben:
-      b_file_finish_flush(stream,FileStream_eofindex(stream));
+      FileStreamLow_flush(stream)(stream,FileStream_eofindex(stream));
     }
 
 # UP: Schreibt den modifizierten Buffer zurück.
@@ -5072,16 +5151,10 @@ typedef struct strm_i_file_extrafields_struct {
       FileStream_buffstart(stream) += strm_file_bufflen;
       reread: # Ab hier den Buffer neu lesen:
       { var sintL ergebnis;
-        if ((TheStream(stream)->strmflags & strmflags_rd_B) == 0)
-          { ergebnis = 0; }
-          else
-          { begin_system_call();
-            ergebnis = # Buffer füllen
-              full_read(TheHandle(TheStream(stream)->strm_file_handle), # Handle
-                        &TheSbvector(TheStream(stream)->strm_file_buffer)->data[0], # Bufferadresse
-                        strm_file_bufflen
-                       );
-            end_system_call();
+        if (FileStream_blockpositioning(stream)
+            || !((TheStream(stream)->strmflags & strmflags_rd_B) == 0)
+           )
+          { ergebnis = FileStreamLow_fill(stream)(stream);
             if (ergebnis==strm_file_bufflen)
               # der ganze Buffer wurde gefüllt
               { FileStream_index(stream) = 0; # Index := 0
@@ -5089,8 +5162,9 @@ typedef struct strm_i_file_extrafields_struct {
                 FileStream_eofindex(stream) = eofindex_all_valid; # eofindex := all_valid
                 return &TheSbvector(TheStream(stream)->strm_file_buffer)->data[0];
               }
-            if (ergebnis<0) { OS_filestream_error(stream); } # Fehler aufgetreten?
           }
+          else
+          { ergebnis = 0; }
         # Es wurden ergebnis (< strm_file_bufflen) Bytes gelesen.
         # Nicht der ganze Buffer wurde gefüllt -> EOF ist erreicht.
         FileStream_index(stream) = index = 0; # Index := 0
@@ -5193,7 +5267,7 @@ typedef struct strm_i_file_extrafields_struct {
       # evtl. Buffer hinausschreiben:
       if (FileStream_modified(stream)) { b_file_flush(stream); }
       # Nun ist modified_flag gelöscht.
-      if ((TheStream(stream)->strmflags & strmflags_rd_B) == 0)
+      if (!FileStream_blockpositioning(stream))
         { # Positionieren:
           begin_system_call();
           file_lseek(stream,position,SEEK_SET,);
@@ -6062,11 +6136,8 @@ typedef struct strm_i_file_extrafields_struct {
           { # Character-Stream
             position = eofbytes;
           }
-        if ((TheStream(stream)->strmflags & strmflags_rd_B) == 0)
-          { # Positionieren:
-            begin_system_call();
-            file_lseek(stream,eofbytes,SEEK_SET,);
-            end_system_call();
+        if (!FileStream_blockpositioning(stream))
+          { # Jetzt am Ende positioniert:
             FileStream_buffstart(stream) = eofbytes;
             FileStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
             FileStream_index(stream) = 0; # index := 0
@@ -6186,121 +6257,60 @@ typedef struct strm_i_file_extrafields_struct {
         }
     }
 
-# UP: erzeugt ein File-Stream
-# make_file_stream(direction,append_flag)
-# > STACK_3: :ELEMENT-TYPE argument
-# > STACK_2: Filename, ein Pathname oder NIL
-# > STACK_1: Truename, ein Pathname oder NIL
-# > STACK_0: Handle des geöffneten Files
-# > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
-# > append_flag: TRUE falls der Stream gleich ans Ende positioniert werden
-#         soll, FALSE sonst
-# > subr_self: calling function
-# < ergebnis: File-Stream (oder evtl. File-Handle-Stream)
-# < STACK: aufgeräumt
+# UP: creates a buffered file stream
+# make_buffered_stream(type,direction,&eltype,handle_regular,handle_blockpositioning)
+# > STACK_1: Element-Type
+# > STACK_0: open file handle
+# > type: stream type
+# > direction: mode (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
+# > eltype: Element-Type in decoded form
+# > handle_regular: whether the handle refers to a regular file
+# > handle_blockpositioning: whether the handle refers to a regular file which
+#                            can be positioned at n*strm_file_bufflen
+# If direction==5, handle_blockpositioning must be TRUE.
+# < result: buffered file stream, Handle_{input,output}_init still to be called,
+#           for eltype.size<8 also eofposition still to be to determined
+# < STACK: cleaned up
 # kann GC auslösen
-  global object make_file_stream (uintB direction, boolean append_flag);
-  global object make_file_stream(direction,append_flag)
+  local object make_buffered_stream (uintB type, uintB direction, const decoded_eltype* eltype, boolean handle_regular, boolean handle_blockpositioning);
+  local object make_buffered_stream(type,direction,eltype,handle_regular,handle_blockpositioning)
+    var uintB type;
     var uintB direction;
-    var boolean append_flag;
-    { var decoded_eltype eltype;
-      # Check and canonicalize the :ELEMENT-TYPE argument:
-      test_eltype_arg(&STACK_3,&eltype);
-      STACK_3 = canon_eltype(&eltype);
-      # Stackaufbau: eltype, filename, truename, handle.
-     {var object handle = popSTACK();
-      # Nur reguläre Files zu gebufferten File-Streams machen.
-      # Alles andere gibt File-Handle-Streams, weil vermutlich lseek() nicht geht.
-      if (!nullp(handle))
-        { if (!regular_handle_p(TheHandle(handle)))
-            { if (((eltype.kind == eltype_ch)
-                   ? TRUE
-                   : ((eltype.size % 8) == 0)
-                  )
-                  && !append_flag
-                 )
-                { pushSTACK(STACK_2); pushSTACK(handle);
-                  { var boolean handle_tty = FALSE;
-                    if (direction & bit(0))
-                      { begin_system_call();
-                        handle_tty = isatty(TheHandle(handle));
-                        end_system_call();
-                      }
-                   {var object stream = make_unbuffered_stream(strmtype_file,direction,&eltype,handle_tty);
-                    # File-Handle-Streams werden für Pathname-Zwecke wie File-Streams behandelt.
-                    # Daher ist (vgl. file_write_date) strm_file_handle == strm_ohandle,
-                    # und wir tragen nun die Pathnames ein:
-                    TheStream(stream)->strm_file_truename = STACK_0; # Truename eintragen
-                    TheStream(stream)->strm_file_name = STACK_1; # Filename eintragen
-                    skipSTACK(3);
-                    if (direction & bit(0)) { HandleStream_input_init(stream); }
-                    if (direction & bit(2)) { HandleStream_output_init(stream); }
-                    # Liste der offenen Streams um stream erweitern:
-                    pushSTACK(stream);
-                    {var object new_cons = allocate_cons();
-                     Car(new_cons) = stream = popSTACK();
-                     Cdr(new_cons) = O(open_files);
-                     O(open_files) = new_cons;
-                    }
-                    return stream;
-                } }}
+    var const decoded_eltype* eltype;
+    var boolean handle_regular;
+    var boolean handle_blockpositioning;
+    { var uintB flags =
+          ((direction & bit(0)) ? strmflags_rd_B : 0) # evtl. READ-CHAR, READ-BYTE erlaubt
+        | ((direction & bit(2)) ? strmflags_wr_B : 0) # evtl. WRITE-CHAR, WRITE-BYTE erlaubt
+        ;
+      var uintC xlen = sizeof(strm_file_extrafields_struct); # Das haben alle File-Streams
+      if (eltype->kind == eltype_ch)
+        { flags &= strmflags_ch_B; }
+        else
+        { flags &= strmflags_by_B;
+          if ((eltype->size % 8) == 0)
+            { flags |= strmflags_ia_B; } # Art a
+            else
+            { xlen = sizeof(strm_i_file_extrafields_struct); # Das haben die File-Streams für Integers maximal
+              if (eltype->size<8)
+                { flags |= strmflags_ib_B; } # Art b
                 else
-                { pushSTACK(STACK_0); # Truename, Wert für Slot PATHNAME von FILE-ERROR
-                  pushSTACK(STACK_0);
-                  pushSTACK(TheSubr(subr_self)->name);
-                  fehler(file_error,
-                         DEUTSCH ? "~: ~ ist kein reguläres File." :
-                         ENGLISH ? "~: ~ is not a regular file." :
-                         FRANCAIS ? "~: ~ n'est pas un fichier régulier." :
-                         ""
-                        );
-        }   }   }
-      { # Flags:
-        var uintB flags =
-          (direction==0 ? 0 : # bei Modus :PROBE sind alle Flags =0
-            # sonst:
-            (direction<4 ? strmflags_rd_B : # Modus :INPUT[-IMMUTABLE] -> nur Read
-             direction==4 && nullp(STACK_0) ? strmflags_wr_B : # Modus :OUTPUT ohne Filename -> nur Write
-             strmflags_open_B # sonst Read/Write
-            )
-            &
-            (eltype.kind==eltype_ch ? strmflags_ch_B : strmflags_by_B) # on characters or integers
-          );
-        # Art von Integer-Streams:
-        var uintB art;
-        # Länge:
-        var uintC xlen = sizeof(strm_file_extrafields_struct); # Das haben alle File-Streams
-        if (!(eltype.kind==eltype_ch))
-          { xlen = sizeof(strm_i_file_extrafields_struct); # Das haben die File-Streams für Integers maximal
-            if ((eltype.size%8)==0)
-              { art = strmflags_ia_B; } # Art a
-              else
-              { if (eltype.size<8)
-                  { art = strmflags_ib_B; } # Art b
-                  else
-                  { art = strmflags_ic_B; } # Art c
-              }
-            flags |= art; # Art in die Flags mit aufnehmen
-          }
-        #if defined(FOREIGN_HANDLE) || !NIL_IS_CONSTANT
-        pushSTACK(handle); # Handle retten
-        #endif
-       {# Stream allozieren:
-        var object stream = allocate_stream(flags,strmtype_file,strm_handle_len,xlen);
-        # und füllen:
-        fill_pseudofuns_buffered(stream,&eltype);
-        TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
-        TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
-        # Komponenten von File-Streams:
-        #if defined(FOREIGN_HANDLE) || !NIL_IS_CONSTANT
-        handle = popSTACK(); # Handle zurück
-        #endif
-        TheStream(stream)->strm_file_truename = popSTACK(); # Truename eintragen
-        TheStream(stream)->strm_file_name = popSTACK(); # Filename eintragen
+                { flags |= strmflags_ic_B; } # Art c
+        }   }
+     {# Stream allozieren:
+      var object stream = allocate_stream(flags,type,strm_handle_len,xlen);
+      # und füllen:
+      fill_pseudofuns_buffered(stream,eltype);
+      TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
+      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
+      # Komponenten von File-Streams:
+      { var object handle = popSTACK(); # Handle zurück
         TheStream(stream)->strm_eltype = popSTACK(); # Element-Type eintragen
         HandleStream_buffered(stream) = TRUE;
         if (!nullp(handle)) # Handle=NIL -> Rest bereits mit NIL initialisiert, fertig
           { TheStream(stream)->strm_file_handle = handle; # Handle eintragen
+            FileStream_regular(stream) = handle_regular;
+            FileStream_blockpositioning(stream) = handle_blockpositioning;
             FileStream_buffstart(stream) = 0; # buffstart := 0
             # Buffer allozieren:
             pushSTACK(stream);
@@ -6313,71 +6323,204 @@ typedef struct strm_i_file_extrafields_struct {
             FileStream_modified(stream) = FALSE; # Buffer unmodifiziert
             FileStream_position(stream) = 0; # position := 0
             HandleStream_lineno(stream) = 1; # initialize always (cf. set-stream-element-type)
-            if (!(eltype.kind==eltype_ch))
+            if (!(eltype->kind == eltype_ch))
               # File-Stream für Integers
-              { HandleStream_bitsize(stream) = eltype.size;
+              { HandleStream_bitsize(stream) = eltype->size;
                 # Bitbuffer allozieren:
                 pushSTACK(stream);
-               {var object bitbuffer = allocate_bit_vector(ceiling(eltype.size,8)*8);
+               {var object bitbuffer = allocate_bit_vector(ceiling(eltype->size,8)*8);
                 stream = popSTACK();
                 TheStream(stream)->strm_bitbuffer = bitbuffer;
                }
-                if (!(art==strmflags_ia_B))
+                if (!((eltype->size % 8) == 0))
                   # Arten b,c
-                  { FileStream_bitindex(stream) = 0; # bitindex := 0
-                    if (art==strmflags_ib_B)
-                      # Art b
-                      { # eofposition lesen:
-                        var uintL eofposition = 0;
-                        var uintC count;
-                        for (count=0; count < 8*sizeof(uintL); count += 8 )
-                          { var uintB* ptr = b_file_nextbyte(stream);
-                            if (ptr == (uintB*)NULL) goto too_short;
-                            eofposition |= ((*ptr) << count);
-                            # index incrementieren, da gerade *ptr verarbeitet:
-                            FileStream_index(stream) += 1;
-                          }
-                        if (FALSE)
-                          { too_short:
-                            # File zu kurz (< sizeof(uintL) Bytes)
-                            if ((TheStream(stream)->strmflags & strmflags_wr_by_B) == 0) # Read-Only-Stream?
-                              goto bad_eofposition;
-                            # File Read/Write -> setze eofposition := 0
-                            eofposition = 0;
-                            position_b_file(stream,0); # an Position 0 positionieren
-                           {var uintC count; # und eofposition = 0 herausschreiben
-                            dotimespC(count,sizeof(uintL), { b_file_writebyte(stream,0); } );
-                          }}
-                        elif (eofposition > (uintL)(bitm(oint_data_len)-1))
-                          { bad_eofposition:
-                            # Keine gültige EOF-Position.
-                            # File schließen und Error melden:
-                            TheStream(stream)->strmflags &= ~strmflags_wr_by_B; # Stream Read-Only machen
-                            pushSTACK(stream);
-                            stream_close(&STACK_0);
-                            # STACK_0 = Wert für Slot STREAM von STREAM-ERROR
-                            pushSTACK(!nullp(TheStream(STACK_0)->strm_file_truename) ? TheStream(STACK_0)->strm_file_truename : STACK_0);
-                            fehler(stream_error,
-                                   DEUTSCH ? "File ~ hat nicht das Format eines Integer-Files." :
-                                   ENGLISH ? "file ~ is not an integer file" :
-                                   FRANCAIS ? "Le fichier ~ n'a pas le format d'un fichier d'entiers." :
-                                   ""
-                                  );
-                          }
-                        # Auf die gelesene EOF-Position verlassen wir uns jetzt!
-                        FileStream_eofposition(stream) = eofposition;
-              }   }   }
-            # Liste der offenen File-Streams um stream erweitern:
-            pushSTACK(stream);
-           {var object new_cons = allocate_cons();
-            Car(new_cons) = stream = popSTACK();
-            Cdr(new_cons) = O(open_files);
-            O(open_files) = new_cons;
-           }# Modus :APPEND behandeln:
-            if (append_flag) { position_file_end(stream); }
-          }
-        return stream;
-    }}}}
+                  { FileStream_bitindex(stream) = 0; } # bitindex := 0
+      }   }   }
+      return stream;
+    }}
+
+# UP: erzeugt ein File-Stream
+# make_file_stream(direction,append_flag,handle_fresh)
+# > STACK_4: Filename, ein Pathname oder NIL
+# > STACK_3: Truename, ein Pathname oder NIL
+# > STACK_2: :BUFFERED argument
+# > STACK_1: :ELEMENT-TYPE argument
+# > STACK_0: Handle des geöffneten Files
+# > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
+# > append_flag: TRUE falls der Stream gleich ans Ende positioniert werden
+#         soll, FALSE sonst
+# > handle_fresh: whether the handle is freshly created.
+#                 This means 1. that it is currently positioned at position 0,
+#                 2. if (direction & bit(2)), it is opened for read/write, not
+#                 only for write.
+#                 If the handle refers to a regular file, this together means
+#                 that it supports file_lseek, reading/repositioning/writing
+#                 and close/reopen.
+# > subr_self: calling function
+# If direction==5, handle_fresh must be TRUE.
+# < ergebnis: File-Stream (oder evtl. File-Handle-Stream)
+# < STACK: aufgeräumt
+# kann GC auslösen
+  global object make_file_stream (uintB direction, boolean append_flag, boolean handle_fresh);
+  global object make_file_stream(direction,append_flag,handle_fresh)
+    var uintB direction;
+    var boolean append_flag;
+    var boolean handle_fresh;
+    { var decoded_eltype eltype;
+      var signean buffered;
+      # Check and canonicalize the :ELEMENT-TYPE argument:
+      test_eltype_arg(&STACK_1,&eltype);
+      STACK_1 = canon_eltype(&eltype);
+      # Stackaufbau: filename, truename, buffered, eltype, handle.
+     {var object stream;
+      var object handle = STACK_0;
+      var boolean handle_regular = TRUE;
+      if (!nullp(handle))
+        { handle_regular = regular_handle_p(TheHandle(handle)); }
+      # Check and canonicalize the :BUFFERED argument:
+      # Default is T for regular files, NIL for non-regular files because they
+      # probably don't support lseek().
+      buffered = test_buffered_arg(STACK_2);
+      if (buffered == 0) { buffered = (handle_regular ? 1 : -1); }
+      if (buffered < 0)
+        { if (!(eltype.kind == eltype_ch) && !((eltype.size % 8) == 0))
+            { pushSTACK(STACK_3); # Truename, Wert für Slot PATHNAME von FILE-ERROR
+              pushSTACK(STACK_0);
+              pushSTACK(STACK_(1+2));
+              pushSTACK(S(Kelement_type));
+              pushSTACK(TheSubr(subr_self)->name);
+              fehler(file_error,
+                     DEUTSCH ? "~: Argument ~ ~ wurde spezifiziert, aber ~ ist kein reguläres File." :
+                     ENGLISH ? "~: argument ~ ~ was specified, but ~ is not a regular file." :
+                     FRANCAIS ? "~ : L'argument ~ ~ a été donné, mais ~ n'est pas un fichier régulier." :
+                     ""
+                    );
+            }
+         {var boolean handle_tty = FALSE;
+          if (direction & bit(0)) # only needed for input handles
+            if (!handle_regular) # regular files are certainly not ttys
+              { begin_system_call();
+                handle_tty = isatty(TheHandle(handle));
+                end_system_call();
+              }
+          stream = make_unbuffered_stream(strmtype_file,direction,&eltype,handle_tty);
+          # File-Handle-Streams werden für Pathname-Zwecke wie File-Streams behandelt.
+          # Daher ist (vgl. file_write_date) strm_file_handle == strm_ohandle,
+          # und wir tragen nun die Pathnames ein:
+          TheStream(stream)->strm_file_truename = STACK_1; # Truename eintragen
+          TheStream(stream)->strm_file_name = STACK_2; # Filename eintragen
+          if (direction & bit(0)) { HandleStream_input_init(stream); }
+          if (direction & bit(2)) { HandleStream_output_init(stream); }
+          HandleStreamLow_close(stream) = &low_close_handle;
+        }}
+        else
+        { if (direction==5 && !handle_regular)
+            { # FIXME: Instead of signalling an error, we could return some kind
+              # of two-way-stream (cf. make_socket_stream).
+              pushSTACK(STACK_3); # Truename, Wert für Slot PATHNAME von FILE-ERROR
+              pushSTACK(STACK_0);
+              pushSTACK(T);
+              pushSTACK(S(Kbuffered));
+              pushSTACK(S(Kio));
+              pushSTACK(S(Kdirection));
+              pushSTACK(TheSubr(subr_self)->name);
+              fehler(file_error,
+                     DEUTSCH ? "~: Argumente ~ ~ und ~ ~ wurden spezifiziert, aber ~ ist kein reguläres File." :
+                     ENGLISH ? "~: arguments ~ ~ and ~ ~ were specified, but ~ is not a regular file." :
+                     FRANCAIS ? "~ : Les arguments ~ ~ et ~ ~ ont été donnés, mais ~ n'est pas un fichier régulier." :
+                     ""
+                    );
+            }
+         {# Positioning the buffer on block boundaries is possible only if
+          # 1. the handle refers to a regular file (otherwise read() and
+          #    write() on the handle may be unrelated),
+          # 2. if write access is requested, the handle is known to have
+          #    read access as well (O_RDWR vs. O_WRONLY).
+          var boolean handle_blockpositioning =
+            (handle_regular && (direction & bit(2) ? handle_fresh : TRUE));
+          # Now, if direction==5, handle_blockpositioning is TRUE.
+          # Stream allozieren:
+          stream = make_buffered_stream(strmtype_file,direction,&eltype,
+                                        handle_regular,handle_blockpositioning);
+          TheStream(stream)->strm_file_truename = STACK_1; # Truename eintragen
+          TheStream(stream)->strm_file_name = STACK_2; # Filename eintragen
+          HandleStream_init(stream);
+          HandleStreamLow_close(stream) = &low_close_handle;
+          if (handle_regular && !handle_fresh)
+            { var uintL position;
+              file_lseek(stream,0,SEEK_CUR,position=);
+              position_b_file(stream,position);
+            }
+          if (!nullp(TheStream(stream)->strm_file_handle)
+              && !(eltype.kind == eltype_ch)
+              && (eltype.size < 8)
+             )
+            # Art b
+            { # eofposition lesen:
+              var uintL eofposition = 0;
+              var uintC count;
+              for (count=0; count < 8*sizeof(uintL); count += 8 )
+                { var uintB* ptr = b_file_nextbyte(stream);
+                  if (ptr == (uintB*)NULL) goto too_short;
+                  eofposition |= ((*ptr) << count);
+                  # index incrementieren, da gerade *ptr verarbeitet:
+                  FileStream_index(stream) += 1;
+                }
+              if (FALSE)
+                { too_short:
+                  # File zu kurz (< sizeof(uintL) Bytes)
+                  if ((TheStream(stream)->strmflags & strmflags_wr_by_B) == 0) # Read-Only-Stream?
+                    goto bad_eofposition;
+                  # File Read/Write -> setze eofposition := 0
+                  eofposition = 0;
+                  position_b_file(stream,0); # an Position 0 positionieren
+                 {var uintC count; # und eofposition = 0 herausschreiben
+                  dotimespC(count,sizeof(uintL), { b_file_writebyte(stream,0); } );
+                }}
+              elif (eofposition > (uintL)(bitm(oint_data_len)-1))
+                { bad_eofposition:
+                  # Keine gültige EOF-Position.
+                  # File schließen und Error melden:
+                  TheStream(stream)->strmflags &= ~strmflags_wr_by_B; # Stream Read-Only machen
+                  pushSTACK(stream);
+                  stream_close(&STACK_0);
+                  # STACK_0 = Wert für Slot STREAM von STREAM-ERROR
+                  pushSTACK(!nullp(TheStream(STACK_0)->strm_file_truename) ? TheStream(STACK_0)->strm_file_truename : STACK_0);
+                  fehler(stream_error,
+                         DEUTSCH ? "File ~ hat nicht das Format eines Integer-Files." :
+                         ENGLISH ? "file ~ is not an integer file" :
+                         FRANCAIS ? "Le fichier ~ n'a pas le format d'un fichier d'entiers." :
+                         ""
+                        );
+                }
+              # Auf die gelesene EOF-Position verlassen wir uns jetzt!
+              FileStream_eofposition(stream) = eofposition;
+        }}  }
+      skipSTACK(3);
+      # Liste der offenen File-Streams um stream erweitern:
+      pushSTACK(stream);
+      {var object new_cons = allocate_cons();
+       Car(new_cons) = stream = popSTACK();
+       Cdr(new_cons) = O(open_files);
+       O(open_files) = new_cons;
+      }
+      # Modus :APPEND behandeln:
+      # CLHS says that :APPEND implies that "the file pointer is _initially_
+      # positioned at the end of the file". Note that this is different from
+      # the Unix O_APPEND semantics.
+      if (append_flag)
+        { if (buffered < 0)
+            { # ans Ende positionieren:
+              begin_system_call();
+              file_lseek(stream,0,SEEK_END,);
+              end_system_call();
+            }
+            else
+            { position_file_end(stream); }
+        }
+      # Done.
+      return stream;
+    }}
 
 # UP: Bereitet das Schließen eines File-Streams vor.
 # Dabei wird der Buffer und evtl. eofposition hinausgeschrieben.
@@ -6419,98 +6562,105 @@ typedef struct strm_i_file_extrafields_struct {
       # evtl. Buffer und evtl. eofposition hinausschreiben:
       file_flush(stream);
       # Nun ist das modified_flag gelöscht.
-      #ifdef UNIX
-       #ifdef HAVE_FSYNC
-        begin_system_call();
-        if (!( fsync(TheHandle(TheStream(stream)->strm_file_handle)) ==0))
-          { end_system_call(); OS_filestream_error(stream); }
-        end_system_call();
-       #endif
-      #else
-        if (!nullp(TheStream(stream)->strm_file_truename)) # avoid closing stdout_handle
-          {
-            #ifdef MSDOS
-              # File-Handle duplizieren und schließen:
-              { var uintW handle = TheHandle(TheStream(stream)->strm_file_handle);
-                begin_system_call();
-               {var sintW handle2 = dup(handle);
-                if (handle2 < 0) { end_system_call(); OS_filestream_error(stream); } # Error melden
-                if ( CLOSE(handle2) <0) { end_system_call(); OS_filestream_error(stream); }
-                end_system_call();
-              }}
-            #endif
-            #ifdef RISCOS # || MSDOS, wenn wir da nicht schon was besseres hätten
-              # File schließen (DOS schreibt physikalisch):
-              begin_system_call();
-              if ( CLOSE(TheHandle(TheStream(stream)->strm_file_handle)) <0)
-                { end_system_call(); OS_filestream_error(stream); }
-              end_system_call();
-              # File neu öffnen:
-              pushSTACK(stream); # stream retten
-              pushSTACK(TheStream(stream)->strm_file_truename); # Filename
-             {# Directory existiert schon:
-              var object namestring = assume_dir_exists(); # Filename als ASCIZ-String
-              var sintW handle;
-              with_sstring_0(namestring,namestring_asciz,
-                { begin_system_call();
-                  handle = OPEN(namestring_asciz,O_RDWR); # Datei neu öffnen
-                  if (handle < 0) # Error melden
-                    { end_system_call(); OS_filestream_error(STACK_1); }
+      if (FileStream_regular(stream))
+        {
+          #ifdef UNIX
+           #ifdef HAVE_FSYNC
+            begin_system_call();
+            if (!( fsync(TheHandle(TheStream(stream)->strm_file_handle)) ==0))
+              { end_system_call(); OS_filestream_error(stream); }
+            end_system_call();
+           #endif
+          #else
+            if (!nullp(TheStream(stream)->strm_file_truename)) # avoid closing stdout_handle
+              {
+                #ifdef MSDOS
+                  # File-Handle duplizieren und schließen:
+                  { var uintW handle = TheHandle(TheStream(stream)->strm_file_handle);
+                    begin_system_call();
+                   {var sintW handle2 = dup(handle);
+                    if (handle2 < 0) { end_system_call(); OS_filestream_error(stream); } # Error melden
+                    if ( CLOSE(handle2) <0) { end_system_call(); OS_filestream_error(stream); }
+                    end_system_call();
+                  }}
+                #endif
+                #ifdef RISCOS # || MSDOS, wenn wir da nicht schon was besseres hätten
+                  # File schließen (DOS schreibt physikalisch):
+                  begin_system_call();
+                  if ( CLOSE(TheHandle(TheStream(stream)->strm_file_handle)) <0)
+                    { end_system_call(); OS_filestream_error(stream); }
                   end_system_call();
-                });
-              #ifdef MSDOS
-              begin_system_call();
-              setmode(handle,O_BINARY);
-              end_system_call();
-              #endif
-              # Nun enthält handle das Handle des geöffneten Files.
-              {var object handlobj = allocate_handle(handle);
-               skipSTACK(1);
-               stream = popSTACK(); # stream zurück
-               # neues Handle eintragen:
-               TheStream(stream)->strm_file_handle = handlobj;
-             }}
-            #endif
-            #ifdef AMIGAOS
-              #if 0 # Manche Devices vertragen es nicht, wenn man geöffnete Dateien
-                    # zu- und wieder aufmacht. Z.B. bei Pipes hat das eine besondere
-                    # Bedeutung.
-              begin_system_call();
-              {var Handle handle = TheHandle(TheStream(stream)->strm_file_handle);
-               if (!IsInteractive(handle))
-                 { # File schließen (OS schreibt physikalisch):
-                   Close(handle);
-                   end_system_call();
-                   # File neu öffnen:
-                   pushSTACK(stream); # stream retten
-                   pushSTACK(TheStream(stream)->strm_file_truename); # Filename
-                  {# Directory existiert schon, Datei neu öffnen:
-                   var object namestring = assume_dir_exists(); # Filename als ASCIZ-String
-                   with_sstring_0(namestring,namestring_asciz,
-                     { begin_system_call();
-                       handle = Open(namestring_asciz,MODE_OLDFILE);
-                       end_system_call();
-                     });
-                   if (handle==NULL) # Error melden
-                     { OS_filestream_error(STACK_1); }
+                  # File neu öffnen:
+                  pushSTACK(stream); # stream retten
+                  pushSTACK(TheStream(stream)->strm_file_truename); # Filename
+                 {# Directory existiert schon:
+                  var object namestring = assume_dir_exists(); # Filename als ASCIZ-String
+                  var sintW handle;
+                  with_sstring_0(namestring,namestring_asciz,
+                    { begin_system_call();
+                      handle = OPEN(namestring_asciz,O_RDWR); # Datei neu öffnen
+                      if (handle < 0) # Error melden
+                        { end_system_call(); OS_filestream_error(STACK_1); }
+                      end_system_call();
+                    });
+                  #ifdef MSDOS
+                  begin_system_call();
+                  setmode(handle,O_BINARY);
+                  end_system_call();
+                  #endif
+                  # Nun enthält handle das Handle des geöffneten Files.
+                  {var object handlobj = allocate_handle(handle);
                    skipSTACK(1);
                    stream = popSTACK(); # stream zurück
                    # neues Handle eintragen:
-                   TheHandle(TheStream(stream)->strm_file_handle) = handle;
+                   TheStream(stream)->strm_file_handle = handlobj;
                  }}
-                 else
-                 { end_system_call(); }
+                #endif
+                #ifdef AMIGAOS
+                  #if 0 # Manche Devices vertragen es nicht, wenn man geöffnete Dateien
+                        # zu- und wieder aufmacht. Z.B. bei Pipes hat das eine besondere
+                        # Bedeutung.
+                  begin_system_call();
+                  {var Handle handle = TheHandle(TheStream(stream)->strm_file_handle);
+                   if (!IsInteractive(handle))
+                     { # File schließen (OS schreibt physikalisch):
+                       Close(handle);
+                       end_system_call();
+                       # File neu öffnen:
+                       pushSTACK(stream); # stream retten
+                       pushSTACK(TheStream(stream)->strm_file_truename); # Filename
+                      {# Directory existiert schon, Datei neu öffnen:
+                       var object namestring = assume_dir_exists(); # Filename als ASCIZ-String
+                       with_sstring_0(namestring,namestring_asciz,
+                         { begin_system_call();
+                           handle = Open(namestring_asciz,MODE_OLDFILE);
+                           end_system_call();
+                         });
+                       if (handle==NULL) # Error melden
+                         { OS_filestream_error(STACK_1); }
+                       skipSTACK(1);
+                       stream = popSTACK(); # stream zurück
+                       # neues Handle eintragen:
+                       TheHandle(TheStream(stream)->strm_file_handle) = handle;
+                     }}
+                     else
+                     { end_system_call(); }
+                  }
+                  #endif
+                #endif
               }
-              #endif
-            #endif
-          }
-      #endif
+          #endif
+        }
       # und neu positionieren:
      {var uintL position = FileStream_buffstart(stream) + FileStream_index(stream);
-      FileStream_buffstart(stream) = 0; # buffstart := 0
       FileStream_index(stream) = 0; # index := 0
       FileStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
-      position_b_file(stream,position);
+      if (!FileStream_blockpositioning(stream))
+        { FileStream_buffstart(stream) = position; }
+        else
+        { FileStream_buffstart(stream) = 0; # buffstart := 0
+          position_b_file(stream,position);
+        }
      }# Komponenten position, ..., lastchar bleiben unverändert
     }
 
@@ -6555,23 +6705,7 @@ typedef struct strm_i_file_extrafields_struct {
       file_flush(stream);
       # Nun ist das modified_flag gelöscht.
       # File schließen:
-      #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
-      begin_system_call();
-      if (!( CLOSE(TheHandle(TheStream(stream)->strm_file_handle)) ==0))
-        { end_system_call(); OS_filestream_error(stream); }
-      end_system_call();
-      #endif
-      #ifdef AMIGAOS
-      begin_system_call();
-      Close(TheHandle(TheStream(stream)->strm_file_handle));
-      end_system_call();
-      #endif
-      #ifdef WIN32_NATIVE
-      begin_system_call();
-      if (!CloseHandle(TheHandle(TheStream(stream)->strm_file_handle)))
-        { end_system_call(); OS_filestream_error(stream); }
-      end_system_call();
-      #endif
+      HandleStreamLow_close(stream)(stream,TheStream(stream)->strm_file_handle);
       # Komponenten ungültig machen (close_dummys kommt später):
       closed_file(stream);
       # stream aus der Liste aller offenen File-Streams streichen:
@@ -12263,34 +12397,27 @@ LISPFUNN(make_printer_stream,0)
 
 #ifdef PIPES
 
-# Pipe-Input-Stream
-# =================
+# Pipe-Input-Stream, Pipe-Output-Stream
+# =====================================
 
 # Zusätzliche Komponenten:
-  # define strm_pipe_pid       strm_field1   # Prozess-Id, ein Fixnum >=0
+  # define strm_pipe_pid  strm_field1   # Prozess-Id, ein Fixnum >=0
   #if defined(EMUNIX) && defined(PIPES2)
-  #define strm_pipe_in_other   strm_ohandle  # Pipe-Stream in Gegenrichtung
-  #define strm_pipe_out_other  strm_ihandle  # Pipe-Stream in Gegenrichtung
+  #define strm_pipe_other strm_field2   # Pipe-Stream in Gegenrichtung
   #endif
 
-# Low-level.
-
-  #define PipeStream_input_init(stream)  HandleStream_input_init(stream)
-
-# Schließt einen Pipe-Input-Stream.
-# close_pipe_in(stream);
-# > stream : Pipe-Input-Stream
   #ifdef EMUNIX
-    local void close_pipe_in (object stream);
-    local void close_pipe_in(stream)
+    local void low_close_pipe (object stream, object handlobj);
+    local void low_close_pipe(stream,handlobj)
       var object stream;
-      { var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
+      var object handlobj;
+      { var Handle handle = TheHandle(handlobj);
         #ifdef PIPES2
-        if (streamp(TheStream(stream)->strm_pipe_in_other))
+        if (streamp(TheStream(stream)->strm_pipe_other))
           # Der andere Pipe-Stream ist noch offen. Wir dürfen nicht pclose()
           # aufrufen, da das ein waitpid() ausführt.
-          { TheStream(TheStream(stream)->strm_pipe_in_other)->strm_pipe_out_other = NIL;
-            TheStream(stream)->strm_pipe_in_other = NIL;
+          { TheStream(TheStream(stream)->strm_pipe_other)->strm_pipe_other = NIL;
+            TheStream(stream)->strm_pipe_other = NIL;
             begin_system_call();
             if ( fclose(&_streamv[handle]) != 0) { OS_error(); }
             end_system_call();
@@ -12305,8 +12432,15 @@ LISPFUNN(make_printer_stream,0)
       }
   #endif
   #if defined(UNIX) || defined(WIN32_NATIVE)
-    #define close_pipe_in  close_ihandle
+    #define low_close_pipe  low_close_handle
   #endif
+
+# Pipe-Input-Stream
+# =================
+
+# Low-level.
+
+  #define PipeStream_input_init(stream)  HandleStream_input_init(stream)
 
 LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
         (kw(element_type),kw(external_format),kw(buffered)) )
@@ -12315,13 +12449,16 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
 # in unsere Pipe hinein geht.
   { var object command;
     var decoded_eltype eltype;
+    var signean buffered;
     # command überprüfen:
     pushSTACK(STACK_3); funcall(L(string),1); # (STRING command)
     STACK_3 = value1;
+    # Check and canonicalize the :BUFFERED argument:
+    buffered = test_buffered_arg(STACK_0); # default is NIL
     # Check and canonicalize the :ELEMENT-TYPE argument:
     test_eltype_arg(&STACK_2,&eltype);
     STACK_2 = canon_eltype(&eltype);
-    check_unbuffered_eltype(&eltype);
+    if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
     # Now create the pipe.
     command = string_to_asciz(STACK_3); # command als ASCIZ-String
    {var int child;
@@ -12428,8 +12565,16 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
     pushSTACK(STACK_(2+1));
     pushSTACK(allocate_handle(handles[0]));
     # Stream allozieren:
-    { var object stream = make_unbuffered_stream(strmtype_pipe_in,1,&eltype,FALSE);
-      PipeStream_input_init(stream);
+    { var object stream;
+      if (!eq(STACK_(0+3),T)) # (buffered <= 0) ?
+        { stream = make_unbuffered_stream(strmtype_pipe_in,1,&eltype,FALSE);
+          PipeStream_input_init(stream);
+        }
+        else
+        { stream = make_buffered_stream(strmtype_pipe_in,1,&eltype,FALSE,FALSE);
+          HandleStream_init(stream);
+        }
+      HandleStreamLow_close(stream) = &low_close_pipe;
       TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
       skipSTACK(4);
       value1 = stream; mv_count=1; # stream als Wert
@@ -12438,12 +12583,6 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
 
 # Pipe-Output-Stream
 # ==================
-
-# Zusätzliche Komponenten:
-  # define strm_pipe_pid          strm_field1   # Prozess-Id, ein Fixnum >=0
-  #if defined(EMUNIX) && defined(PIPES2)
-  # define strm_pipe_out_other    strm_ihandle  # Pipe-Stream in Gegenrichtung
-  #endif
 
 # Low-level.
 
@@ -12470,37 +12609,6 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
       FileStreamLow_clear_output(stream) = &pipe_low_clear_output;   \
     }
 
-# Schließt einen Pipe-Output-Stream.
-# close_pipe_out(stream);
-# > stream : Pipe-Output-Stream
-  #ifdef EMUNIX
-    local void close_pipe_out (object stream);
-    local void close_pipe_out(stream)
-      var object stream;
-      { var Handle handle = TheHandle(TheStream(stream)->strm_ohandle);
-        #ifdef PIPES2
-        if (streamp(TheStream(stream)->strm_pipe_out_other))
-          # Der andere Pipe-Stream ist noch offen. Wir dürfen nicht pclose()
-          # aufrufen, da das ein waitpid() ausführt.
-          { TheStream(TheStream(stream)->strm_pipe_out_other)->strm_pipe_in_other = NIL;
-            TheStream(stream)->strm_pipe_out_other = NIL;
-            begin_system_call();
-            if ( fclose(&_streamv[handle]) != 0) { OS_error(); }
-            end_system_call();
-            # Die Pipes sind nun getrennt, so dass beim Schließen der anderen
-            # Pipe das pclose() ausgeführt werden wird.
-            return;
-          }
-        #endif
-        begin_system_call();
-        if ( pclose(&_streamv[handle]) == -1) { OS_error(); }
-        end_system_call();
-      }
-  #endif
-  #if defined(UNIX) || defined(WIN32_NATIVE)
-    #define close_pipe_out  close_ohandle
-  #endif
-
 LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
         (kw(element_type),kw(external_format),kw(buffered)) )
 # (MAKE-PIPE-OUTPUT-STREAM command [:element-type] [:external-format] [:buffered])
@@ -12508,13 +12616,16 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
 # Standard-Input hinein geht.
   { var object command;
     var decoded_eltype eltype;
+    var signean buffered;
     # command überprüfen:
     pushSTACK(STACK_3); funcall(L(string),1); # (STRING command)
     STACK_3 = value1;
+    # Check and canonicalize the :BUFFERED argument:
+    buffered = test_buffered_arg(STACK_0); # default is NIL
     # Check and canonicalize the :ELEMENT-TYPE argument:
     test_eltype_arg(&STACK_2,&eltype);
     STACK_2 = canon_eltype(&eltype);
-    check_unbuffered_eltype(&eltype);
+    if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
     # Now create the pipe.
     command = string_to_asciz(STACK_3); # command als ASCIZ-String
    {var int child;
@@ -12620,8 +12731,16 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
     pushSTACK(STACK_(2+1));
     pushSTACK(allocate_handle(handles[1]));
     # Stream allozieren:
-    { var object stream = make_unbuffered_stream(strmtype_pipe_out,4,&eltype,FALSE);
-      PipeStream_output_init(stream);
+    { var object stream;
+      if (!eq(STACK_(0+3),T)) # (buffered <= 0) ?
+        { stream = make_unbuffered_stream(strmtype_pipe_out,4,&eltype,FALSE);
+          PipeStream_output_init(stream);
+        }
+        else
+        { stream = make_buffered_stream(strmtype_pipe_out,4,&eltype,FALSE,FALSE);
+          HandleStream_init(stream);
+        }
+      HandleStreamLow_close(stream) = &low_close_pipe;
       TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
       skipSTACK(4);
       value1 = stream; mv_count=1; # stream als Wert
@@ -12640,13 +12759,16 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
 # unsere Pipe hinein geht.
   { var object command;
     var decoded_eltype eltype;
+    var signean buffered;
     # command überprüfen:
     pushSTACK(STACK_3); funcall(L(string),1); # (STRING command)
     STACK_3 = value1;
+    # Check and canonicalize the :BUFFERED argument:
+    buffered = test_buffered_arg(STACK_0); # default is NIL
     # Check and canonicalize the :ELEMENT-TYPE argument:
     test_eltype_arg(&STACK_2,&eltype);
     STACK_2 = canon_eltype(&eltype);
-    check_unbuffered_eltype(&eltype);
+    if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
     # Now create the pipe.
     command = string_to_asciz(STACK_3); # command als ASCIZ-String
    {var int child;
@@ -12792,23 +12914,39 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
     # Input-Stream allozieren:
     { pushSTACK(STACK_(2+3)); # eltype
       pushSTACK(STACK_(1+1));
-     {var object stream = make_unbuffered_stream(strmtype_pipe_in,1,&eltype,FALSE);
-      PipeStream_input_init(stream);
+     {var object stream;
+      if (!eq(STACK_(0+5),T)) # (buffered <= 0) ?
+        { stream = make_unbuffered_stream(strmtype_pipe_in,1,&eltype,FALSE);
+          PipeStream_input_init(stream);
+        }
+        else
+        { stream = make_buffered_stream(strmtype_pipe_in,1,&eltype,FALSE,FALSE);
+          HandleStream_init(stream);
+        }
+      HandleStreamLow_close(stream) = &low_close_pipe;
       TheStream(stream)->strm_pipe_pid = STACK_2; # Child-Pid
       STACK_1 = stream;
     }}
     # Output-Stream allozieren:
     { pushSTACK(STACK_(2+3)); # eltype
       pushSTACK(STACK_(0+1));
-     {var object stream = make_unbuffered_stream(strmtype_pipe_out,4,&eltype,FALSE);
-      PipeStream_output_init(stream);
+     {var object stream;
+      if (!eq(STACK_(0+5),T)) # (buffered <= 0) ?
+        { stream = make_unbuffered_stream(strmtype_pipe_out,4,&eltype,FALSE);
+          PipeStream_output_init(stream);
+        }
+        else
+        { stream = make_buffered_stream(strmtype_pipe_out,4,&eltype,FALSE,FALSE);
+          HandleStream_init(stream);
+        }
+      HandleStreamLow_close(stream) = &low_close_pipe;
       TheStream(stream)->strm_pipe_pid = STACK_2; # Child-Pid
       STACK_0 = stream;
     }}
     #ifdef EMUNIX
     # Beide Pipes miteinander verknüpfen, zum reibungslosen close:
-    TheStream(STACK_1)->strm_pipe_in_other = STACK_0;
-    TheStream(STACK_0)->strm_pipe_out_other = STACK_1;
+    TheStream(STACK_1)->strm_pipe_other = STACK_0;
+    TheStream(STACK_0)->strm_pipe_other = STACK_1;
     #endif
     # 3 Werte:
     # (make-two-way-stream input-stream output-stream), input-stream, output-stream.
@@ -12829,6 +12967,23 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
 
 # Socket streams are just like handle streams (unbuffered file streams),
 # except that on WIN32_NATIVE, the low-level functions are different.
+
+# Both sides
+# ----------
+
+# Closes a socket handle.
+  #ifdef WIN32_NATIVE
+    local void low_close_socket (object stream, object handle);
+    local void low_close_socket(stream,handle)
+      var object stream;
+      var object handle;
+      { begin_system_call();
+        if (!( closesocket(TheSocket(handle)) ==0)) { SOCK_error(); }
+        end_system_call();
+      }
+  #else
+    #define low_close_socket  low_close_handle
+  #endif
 
 # Input side
 # ----------
@@ -13044,22 +13199,6 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
   local signean listen_socket (object stream);
   #define listen_socket  listen_handle
 
-# Schließt einen Socket-Stream.
-# close_socket(stream);
-# > stream : Socket-Stream
-  #ifdef WIN32_NATIVE
-    local void close_socket (object stream);
-    local void close_socket(stream)
-      var object stream;
-      { var SOCKET handle = TheSocket(TheStream(stream)->strm_ihandle);
-        begin_system_call();
-        if (!( closesocket(handle) ==0)) { SOCK_error(); }
-        end_system_call();
-      }
-  #else
-    #define close_socket  close_ihandle
-  #endif
-
 #endif
 
 
@@ -13115,6 +13254,7 @@ LISPFUNN(make_x11socket_stream,2)
      var object stream = make_unbuffered_stream(strmtype_x11socket,5,&eltype,FALSE);
      SocketStream_input_init(stream);
      SocketStream_output_init(stream);
+     HandleStreamLow_close(stream) = &low_close_socket;
      TheStream(stream)->strm_x11socket_connect = popSTACK(); # zweielementige Liste
      value1 = stream; mv_count=1; # stream als Wert
   }}}
@@ -13254,23 +13394,145 @@ LISPFUNN(write_n_bytes,4)
   # define strm_socket_port strm_field1 # port, a fixnum >=0
   # define strm_socket_host strm_field2 # host, NIL or a string
 
+# Low-level functions for buffered socket streams.
+
+#ifdef WIN32_NATIVE
+
+# UP: Fills the buffer, up to strm_file_bufflen bytes.
+# b_socket_fill(stream)
+# > stream: (open) byte-based socket stream
+# < result: number of bytes read
+  local uintL b_socket_fill (object stream);
+  local uintL b_socket_fill(stream)
+    var object stream;
+    { var sintL result;
+      begin_system_call();
+      result = # Buffer füllen
+        sock_read(TheSocket(TheStream(stream)->strm_file_handle), # Handle
+                  &TheSbvector(TheStream(stream)->strm_file_buffer)->data[0], # Bufferadresse
+                  strm_file_bufflen
+                 );
+      if (result<0)
+        { if (WSAGetLastError()==WSAEINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
+            { end_system_call(); fehler_interrupt(); }
+          OS_error(); # Error melden
+        }
+      end_system_call();
+      return result;
+    }
+
+# UP: Beendet das Zurückschreiben des Buffers.
+# b_socket_finish_flush(stream,bufflen);
+# > stream : (offener) Byte-basierter File-Stream.
+# > bufflen : Anzahl der zu schreibenden Bytes
+# < modified_flag von stream : gelöscht
+# verändert in stream: index
+  local void b_socket_finish_flush (object stream, uintL bufflen);
+  local void b_socket_finish_flush(stream,bufflen)
+    var object stream;
+    var uintL bufflen;
+    { begin_system_call();
+     {var sintL result = # Buffer hinausschreiben
+        full_write(TheSocket(TheStream(stream)->strm_file_handle), # Handle
+                   &TheSbvector(TheStream(stream)->strm_file_buffer)->data[0], # Bufferadresse
+                   bufflen
+                  );
+      if (result==bufflen)
+        # alles korrekt geschrieben
+        { end_system_call(); FileStream_modified(stream) = FALSE; }
+        else
+        # Nicht alles geschrieben
+        { if (result<0)
+            { if (WSAGetLastError()==WSAEINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
+                { end_system_call(); fehler_interrupt(); }
+              SOCK_error(); # Error melden
+            }
+          end_system_call();
+          fehler_unwritable(TheSubr(subr_self)->name,stream);
+    }}  }
+
+#else
+
+  #define b_socket_fill  b_file_fill
+  #define b_socket_finish_flush  b_file_finish_flush
+
+#endif
+
+#define SocketStream_init(stream)  \
+  { FileStreamLow_fill(stream) = &b_socket_fill;          \
+    FileStreamLow_flush(stream) = &b_socket_finish_flush; \
+  }
+
+# Twoway-Socket-Streams are twoway streams with both input and output side
+# being socket streams. (They are needed because the input and output side
+# need different buffers. Sockets are not regular files.)
+  # define strm_twoway_socket_input  strm_twoway_input  # input side, a socket stream
+  #define strm_twoway_socket_output  strm_twoway_output # output side, a socket stream
+
+# Hack for avoiding that the handle is closed twice.
+  local void low_close_socket_nop (object stream, object handle);
+  local void low_close_socket_nop(stream,handle)
+    var object stream;
+    var object handle;
+    { }
+
 # Creates a socket stream.
 # > STACK_2: element-type
-local object make_socket_stream (SOCKET handle, decoded_eltype* eltype, object host, object port);
-local object make_socket_stream(handle,eltype,host,port)
+local object make_socket_stream (SOCKET handle, decoded_eltype* eltype, signean buffered, object host, object port);
+local object make_socket_stream(handle,eltype,buffered,host,port)
   var SOCKET handle;
   var decoded_eltype* eltype;
+  var signean buffered;
   var object host; # string
   var object port; # fixnum >=0
   { pushSTACK(host);
     pushSTACK(STACK_(2+1)); # eltype
     pushSTACK(allocate_socket(handle));
     # Stream allozieren:
-   {var object stream = make_unbuffered_stream(strmtype_socket,5,eltype,FALSE);
-    SocketStream_input_init(stream);
-    SocketStream_output_init(stream);
-    TheStream(stream)->strm_socket_port = port;
-    TheStream(stream)->strm_socket_host = popSTACK();
+   {var object stream;
+    if (buffered <= 0)
+      { stream = make_unbuffered_stream(strmtype_socket,5,eltype,FALSE);
+        SocketStream_input_init(stream);
+        SocketStream_output_init(stream);
+        HandleStreamLow_close(stream) = &low_close_socket;
+        TheStream(stream)->strm_socket_port = port;
+        TheStream(stream)->strm_socket_host = popSTACK();
+      }
+      else
+      { # Input-Stream allozieren:
+        pushSTACK(STACK_1); pushSTACK(STACK_(0+1));
+        stream = make_buffered_stream(strmtype_socket,1,eltype,FALSE,FALSE);
+        TheStream(stream)->strm_socket_port = port;
+        TheStream(stream)->strm_socket_host = STACK_2;
+        SocketStream_init(stream);
+        HandleStreamLow_close(stream) = &low_close_socket;
+        pushSTACK(stream);
+        # Output-Stream allozieren:
+        pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
+        stream = make_buffered_stream(strmtype_socket,4,eltype,FALSE,FALSE);
+        TheStream(stream)->strm_socket_port = port;
+        TheStream(stream)->strm_socket_host = STACK_(2+1);
+        SocketStream_init(stream);
+        HandleStreamLow_close(stream) = &low_close_socket;
+        pushSTACK(stream);
+        # Allocate a Two-Way-Socket-Stream:
+        stream = allocate_stream(strmflags_open_B,strmtype_twoway_socket,strm_len+2,0);
+        TheStream(stream)->strm_rd_by = P(rd_by_twoway);
+        TheStream(stream)->strm_rd_by_array = P(rd_by_array_twoway);
+        TheStream(stream)->strm_wr_by = P(wr_by_twoway);
+        TheStream(stream)->strm_wr_by_array = P(wr_by_array_twoway);
+        TheStream(stream)->strm_rd_ch = P(rd_ch_twoway);
+        TheStream(stream)->strm_pk_ch = P(pk_ch_twoway);
+        TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_twoway);
+        TheStream(stream)->strm_rd_ch_last = NIL;
+        TheStream(stream)->strm_wr_ch = P(wr_ch_twoway);
+        TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_twoway);
+        TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
+        TheStream(stream)->strm_wr_ss = P(wr_ss_twoway);
+        TheStream(stream)->strm_twoway_socket_input = STACK_1;
+        TheStream(stream)->strm_twoway_socket_output = STACK_0;
+        skipSTACK(5);
+      }
     return stream;
   }}
 
@@ -13312,45 +13574,59 @@ extern SOCKET create_server_socket (host_data *hd, SOCKET sock, unsigned int por
 LISPFUN(socket_server,0,1,norest,nokey,0,NIL)
 # (SOCKET-SERVER [port-or-sock])
   {
-    var SOCKET sk;
-    var SOCKET sock = (socket_stream_p(STACK_0) ?
-                       TheSocket(TheStream(STACK_0)->strm_ihandle) :
-                       INVALID_SOCKET);
-    var host_data myname;
+    var SOCKET sock;        # a hint for create_server_socket
+    var unsigned int port;  # another hint for create_server_socket
 
-    if (posfixnump(STACK_0) || eq(STACK_0,unbound) ||
-        socket_stream_p(STACK_0)) {
-      var unsigned int port = (posfixnump(STACK_0) ? posfixnum_to_L(STACK_0) : 0);
-      begin_system_call();
-      sk = create_server_socket(&myname, sock, port);
-      end_system_call();
-      if (sk == INVALID_SOCKET) { SOCK_error(); }
-    } else {
-      pushSTACK(STACK_0);
-      pushSTACK(S(stream));
-      pushSTACK(STACK_0);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             DEUTSCH ? "~: Argument ~ ist kein SOCKET-STREAM oder positive FIXNUM" :
-             ENGLISH ? "~: argument ~ is neither a SOCKET-STREAM nor a positive FIXNUM" :
-             FRANCAIS ? "~ : L'argument ~ n'est pas un SOCKET-STREAM ou FIXNUM positif" :
-             ""
-             );
-    }
+    if (eq(STACK_0,unbound))
+      { sock = INVALID_SOCKET; port = 0; goto doit; }
+    if (posfixnump(STACK_0))
+      { sock = INVALID_SOCKET; port = posfixnum_to_L(STACK_0); goto doit; }
+    if (streamp(STACK_0))
+      { var object stream = STACK_0;
+        switch (TheStream(stream)->strmtype)
+          { case strmtype_twoway_socket:
+              stream = TheStream(stream)->strm_twoway_socket_input;
+              /*FALLTHROUGH*/
+            case strmtype_socket:
+              if (TheStream(stream)->strmflags & strmflags_open_B)
+                { sock = TheSocket(TheStream(stream)->strm_ihandle); port = 0; goto doit; }
+              break;
+            default:
+              break;
+      }   }
+    pushSTACK(STACK_0);
+    pushSTACK(S(stream)); # ??
+    pushSTACK(STACK_0);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           DEUTSCH ? "~: Argument ~ ist kein offener SOCKET-STREAM oder positive FIXNUM" :
+           ENGLISH ? "~: argument ~ is neither an open SOCKET-STREAM nor a positive FIXNUM" :
+           FRANCAIS ? "~ : L'argument ~ n'est pas un SOCKET-STREAM ouvert ou FIXNUM positif" :
+           ""
+          );
+
+   doit:
+   {var SOCKET sk;
+    var host_data myname;
+    begin_system_call();
+    sk = create_server_socket(&myname, sock, port);
+    end_system_call();
+    if (sk == INVALID_SOCKET) { SOCK_error(); }
 
     pushSTACK(allocate_socket(sk));
     pushSTACK(allocate_socket_server());
     TheSocketServer(STACK_0)->socket_handle = STACK_1;
     TheSocketServer(STACK_0)->port = fixnum(myname.port);
     { var object host = asciz_to_string(myname.hostname); # for GC-safety
-      TheSocketServer(STACK_0)->host = host;}
+      TheSocketServer(STACK_0)->host = host;
+    }
     pushSTACK(STACK_0);
     pushSTACK(L(socket_server_close));
     funcall(L(finalize),2); # (FINALIZE socket-server #'socket-server-close)
     value1 = popSTACK();
     mv_count = 1;
     skipSTACK(2);
-  }
+  }}
 
 LISPFUNN(socket_server_port,1)
 # (SOCKET-SERVER-PORT socket-server)
@@ -13376,21 +13652,25 @@ LISPFUN(socket_accept,1,0,norest,key,3,\
   {
     var SOCKET sock;
     var decoded_eltype eltype;
+    var signean buffered;
     var SOCKET handle;
 
     test_socket_server(STACK_3);
 
+    # Check and canonicalize the :BUFFERED argument:
+    buffered = test_buffered_arg(STACK_0); # default is NIL
+
     # Check and canonicalize the :ELEMENT-TYPE argument:
     test_eltype_arg(&STACK_2,&eltype);
     STACK_2 = canon_eltype(&eltype);
-    check_unbuffered_eltype(&eltype);
+    if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
 
     sock = TheSocket(TheSocketServer(STACK_3)->socket_handle);
     begin_system_call();
     handle = accept_connection (sock);
     end_system_call();
     if (handle == INVALID_SOCKET) { SOCK_error(); }
-    value1 = make_socket_stream(handle,&eltype,
+    value1 = make_socket_stream(handle,&eltype,buffered,
                                 TheSocketServer(STACK_3)->host,
                                 TheSocketServer(STACK_3)->port);
     mv_count = 1;
@@ -13447,14 +13727,18 @@ LISPFUN(socket_connect,1,1,norest,key,3,\
   {
     var char *hostname;
     var decoded_eltype eltype;
+    var signean buffered;
     var SOCKET handle;
 
     if (!posfixnump(STACK_4)) { fehler_posfixnum(STACK_4); }
 
+    # Check and canonicalize the :BUFFERED argument:
+    buffered = test_buffered_arg(STACK_0); # default is NIL
+
     # Check and canonicalize the :ELEMENT-TYPE argument:
     test_eltype_arg(&STACK_2,&eltype);
     STACK_2 = canon_eltype(&eltype);
-    check_unbuffered_eltype(&eltype);
+    if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
 
     if (eq(STACK_3,unbound))
       hostname = "localhost";
@@ -13467,7 +13751,7 @@ LISPFUN(socket_connect,1,1,norest,key,3,\
     handle = create_client_socket(hostname,posfixnum_to_L(STACK_4));
     if (handle == INVALID_SOCKET) { SOCK_error(); }
     end_system_call();
-    value1 = make_socket_stream(handle,&eltype,
+    value1 = make_socket_stream(handle,&eltype,buffered,
                                 asciz_to_string(hostname),STACK_4);
     skipSTACK(5);
     mv_count = 1;
@@ -13493,30 +13777,51 @@ LISPFUNN(socket_service_port,1)
     mv_count=1;
   }
 
-local void test_socket_stream (object obj);
-local void test_socket_stream(obj)
+local object test_socket_stream (object obj, boolean check_open);
+local object test_socket_stream(obj,check_open)
   var object obj;
+  var boolean check_open;
   {
-    if (!socket_stream_p(obj))
-      {
-        pushSTACK(obj);
-        pushSTACK(S(stream));
-        pushSTACK(obj);
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,
-               DEUTSCH ? "~: Argument ~ ist kein SOCKET-STREAM" :
-               ENGLISH ? "~: argument ~ is not a SOCKET-STREAM" :
-               FRANCAIS ? "~ : L'argument ~ n'est pas un SOCKET-STREAM" :
-               ""
-              );
-      }
+    if (streamp(obj))
+      { switch (TheStream(obj)->strmtype)
+          { case strmtype_twoway_socket:
+              obj = TheStream(obj)->strm_twoway_socket_input;
+              /*FALLTHROUGH*/
+            case strmtype_socket:
+              if (check_open && ((TheStream(obj)->strmflags & strmflags_open_B) == 0))
+                {
+                  pushSTACK(obj);
+                  pushSTACK(S(stream)); # ??
+                  pushSTACK(obj);
+                  pushSTACK(TheSubr(subr_self)->name);
+                  fehler(type_error,
+                         DEUTSCH ? "~: Argument ~ ist kein offener SOCKET-STREAM" :
+                         ENGLISH ? "~: argument ~ is not an open SOCKET-STREAM" :
+                         FRANCAIS ? "~ : L'argument ~ n'est pas un SOCKET-STREAM ouvert" :
+                         ""
+                        );
+                }
+              return obj;
+            default:
+              break;
+      }   }
+    pushSTACK(obj);
+    pushSTACK(S(stream)); # ??
+    pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           DEUTSCH ? "~: Argument ~ ist kein SOCKET-STREAM" :
+           ENGLISH ? "~: argument ~ is not a SOCKET-STREAM" :
+           FRANCAIS ? "~ : L'argument ~ n'est pas un SOCKET-STREAM" :
+           ""
+          );
   }
 
 LISPFUNN(socket_stream_port,1)
 # (SOCKET-STREAM-PORT socket-stream)
   {
-    test_socket_stream(STACK_0);
-    value1 = TheStream(STACK_0)->strm_socket_port;
+    var object stream = test_socket_stream(STACK_0,FALSE);
+    value1 = TheStream(stream)->strm_socket_port;
     skipSTACK(1);
     mv_count=1;
   }
@@ -13524,8 +13829,8 @@ LISPFUNN(socket_stream_port,1)
 LISPFUNN(socket_stream_host,1)
 # (SOCKET-STREAM-HOST socket-stream)
   {
-    test_socket_stream(STACK_0);
-    value1 = TheStream(STACK_0)->strm_socket_host;
+    var object stream = test_socket_stream(STACK_0,FALSE);
+    value1 = TheStream(stream)->strm_socket_host;
     skipSTACK(1);
     mv_count=1;
   }
@@ -13540,8 +13845,8 @@ local void publish_host_data (func)
     var SOCKET sk;
     var host_data hd;
 
-    test_socket_stream(STACK_0);
-    sk = TheSocket(TheStream(STACK_0)->strm_ihandle);
+    var object stream = test_socket_stream(STACK_0,TRUE);
+    sk = TheSocket(TheStream(stream)->strm_ihandle);
 
     begin_system_call();
     if (NULL == (*func)(sk, &hd)) { SOCK_error(); }
@@ -13579,8 +13884,8 @@ LISPFUNN(socket_stream_local,1)
 LISPFUNN(socket_stream_handle,1)
 # (SOCKET-STREAM-HANDLE socket-stream)
   {
-    test_socket_stream(STACK_0);
-    value1 = fixnum(TheHandle(TheStream(STACK_0)->strm_ihandle));
+    var object stream = test_socket_stream(STACK_0,TRUE);
+    value1 = fixnum(TheHandle(TheStream(stream)->strm_ihandle));
     skipSTACK(1);
     mv_count=1;
   }
@@ -13604,10 +13909,9 @@ LISPFUNN(socket_stream_handle,1)
       var boolean stdout_file = regular_handle_p(stdout_handle);
       if (stdin_file || stdout_file)
         { var object stream;
-          var uintL position;
           # Allocate stream for stdin:
           if (stdin_file)
-            { pushSTACK(S(character));
+            {
               #ifdef UNIX
               pushSTACK(asciz_to_string("/dev/fd/0")); funcall(L(pathname),1);
               pushSTACK(value1);
@@ -13615,17 +13919,17 @@ LISPFUNN(socket_stream_handle,1)
               pushSTACK(NIL);
               #endif
               pushSTACK(NIL);
+              pushSTACK(S(Kdefault));
+              pushSTACK(S(character));
               pushSTACK(allocate_handle(stdin_handle));
-              stream = make_file_stream(1,FALSE);
-              file_lseek(stream,0,SEEK_CUR,position=);
-              position_b_file(stream,position);
+              stream = make_file_stream(1,FALSE,FALSE);
             }
             else
             { stream = make_terminal_stream(); }
           pushSTACK(stream);
           # Allocate stream for stdout:
           if (stdout_file)
-            { pushSTACK(S(character));
+            {
               #ifdef UNIX
               pushSTACK(asciz_to_string("/dev/fd/1")); funcall(L(pathname),1);
               pushSTACK(value1);
@@ -13633,10 +13937,10 @@ LISPFUNN(socket_stream_handle,1)
               pushSTACK(NIL);
               #endif
               pushSTACK(NIL);
+              pushSTACK(S(Kdefault));
+              pushSTACK(S(character));
               pushSTACK(allocate_handle(stdout_handle));
-              stream = make_file_stream(4,FALSE);
-              file_lseek(stream,0,SEEK_CUR,position=);
-              position_b_file(stream,position);
+              stream = make_file_stream(4,FALSE,FALSE);
             }
             else
             { stream = make_terminal_stream(); }
@@ -13696,6 +14000,7 @@ LISPFUNN(socket_stream_handle,1)
          {var decoded_eltype eltype = { eltype_ch };
           stream = make_unbuffered_stream(strmtype_file,4,&eltype,FALSE);
           HandleStream_output_init(stream);
+          HandleStreamLow_close(stream) = &low_close_handle;
           TheStream(stream)->strm_file_name =
           TheStream(stream)->strm_file_truename = popSTACK();
         }}
@@ -13894,6 +14199,12 @@ LISPFUNN(stream_element_type,1)
             #endif
               # CHARACTER or ([UN]SIGNED-BYTE n)
               eltype = TheStream(stream)->strm_eltype; break;
+            #ifdef SOCKET_STREAMS
+            case strmtype_twoway_socket:
+              # CHARACTER or ([UN]SIGNED-BYTE n)
+              stream = TheStream(stream)->strm_twoway_socket_input;
+              eltype = TheStream(stream)->strm_eltype; break;
+            #endif
             # dann die allgemeinen Streams:
             #ifdef GENERIC_STREAMS
             case strmtype_generic:
@@ -14034,6 +14345,15 @@ LISPFUNN(set_stream_element_type,2)
               TheStream(stream)->strm_eltype = STACK_0;
             }
           break;
+        #ifdef SOCKET_STREAMS
+        case strmtype_twoway_socket:
+          # Apply to the input and output side individually.
+          pushSTACK(TheStream(STACK_1)->strm_twoway_socket_input); pushSTACK(STACK_(0+1));
+          funcall(L(set_stream_element_type),2);
+          pushSTACK(TheStream(STACK_1)->strm_twoway_socket_output); pushSTACK(STACK_(0+1));
+          funcall(L(set_stream_element_type),2);
+          break;
+        #endif
         default:
           fehler_illegal_streamop(S(set_stream_element_type),stream);
       }
@@ -14137,6 +14457,7 @@ LISPFUNN(stream_external_format,1)
           #endif
           #ifdef SOCKET_STREAMS
           case strmtype_socket:
+          case strmtype_twoway_socket:
           #endif
             return TRUE;
           default:
@@ -14185,6 +14506,16 @@ LISPFUNN(interactive_stream_p,1)
             close_generic(stream); break;
           #endif
           case strmtype_file:
+          #ifdef PIPES
+          case strmtype_pipe_in:
+          case strmtype_pipe_out:
+          #endif
+          #ifdef X11SOCKETS
+          case strmtype_x11socket:
+          #endif
+          #ifdef SOCKET_STREAMS
+          case strmtype_socket:
+          #endif
             if (HandleStream_buffered(stream))
               { close_file(stream); }
               else
@@ -14194,6 +14525,17 @@ LISPFUNN(interactive_stream_p,1)
                   close_ihandle(stream);
               }
             break;
+          #ifdef SOCKET_STREAMS
+          case strmtype_twoway_socket:
+            # Close the two substreams, but close the handle once only.
+            HandleStreamLow_close(TheStream(stream)->strm_twoway_socket_input) = &low_close_socket_nop;
+            pushSTACK(TheStream(stream)->strm_twoway_socket_input);
+            pushSTACK(TheStream(stream)->strm_twoway_socket_output);
+            stream_close(&STACK_1);
+            stream_close(&STACK_0);
+            skipSTACK(2);
+            break;
+          #endif
           #ifdef KEYBOARD
           case strmtype_keyboard: break;
           #endif
@@ -14205,20 +14547,6 @@ LISPFUNN(interactive_stream_p,1)
           #ifdef PRINTER_AMIGAOS
           case strmtype_printer:
             close_printer(stream); break;
-          #endif
-          #ifdef PIPES
-          case strmtype_pipe_in:
-            close_pipe_in(stream); break;
-          case strmtype_pipe_out:
-            close_pipe_out(stream); break;
-          #endif
-          #ifdef X11SOCKETS
-          case strmtype_x11socket:
-            close_socket(stream); break;
-          #endif
-          #ifdef SOCKET_STREAMS
-          case strmtype_socket:
-            close_socket(stream); break;
           #endif
           default: NOTREACHED
         }
@@ -14301,8 +14629,12 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               case strmtype_synonym:  return listen_synonym(stream);
               case strmtype_broad:    return ls_eof; # kein READ-CHAR
               case strmtype_concat:   return listen_concat(stream);
-              case strmtype_twoway:   return listen_twoway(stream);
-              case strmtype_echo:     return listen_twoway(stream);
+              case strmtype_twoway:
+              case strmtype_echo:
+              #ifdef SOCKET_STREAMS
+              case strmtype_twoway_socket:
+              #endif
+                return listen_twoway(stream);
               case strmtype_str_in:   return listen_str_in(stream);
               case strmtype_str_out:  return ls_eof; # kein READ-CHAR
               case strmtype_str_push: return ls_eof; # kein READ-CHAR
@@ -14387,6 +14719,9 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
             ergebnis = clear_input_concat(stream); break;
           case strmtype_twoway:
           case strmtype_echo:
+          #ifdef SOCKET_STREAMS
+          case strmtype_twoway_socket:
+          #endif
             ergebnis = clear_input_twoway(stream); break;
           case strmtype_buff_in:
             ergebnis = clear_input_buff_in(stream); break;
@@ -14458,6 +14793,9 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                 finish_output_broad(stream); break;
               case strmtype_twoway:
               case strmtype_echo:
+              #ifdef SOCKET_STREAMS
+              case strmtype_twoway_socket:
+              #endif
                 finish_output_twoway(stream); break;
               case strmtype_buff_out:
                 finish_output_buff_out(stream); break;
@@ -14511,6 +14849,9 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                 force_output_broad(stream); break;
               case strmtype_twoway:
               case strmtype_echo:
+              #ifdef SOCKET_STREAMS
+              case strmtype_twoway_socket:
+              #endif
                 force_output_twoway(stream); break;
               case strmtype_buff_out:
                 force_output_buff_out(stream); break;
@@ -14567,6 +14908,9 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                 clear_output_broad(stream); break;
               case strmtype_twoway:
               case strmtype_echo:
+              #ifdef SOCKET_STREAMS
+              case strmtype_twoway_socket:
+              #endif
                 clear_output_twoway(stream); break;
               case strmtype_buff_out:
                 clear_output_buff_out(stream); break;
@@ -14641,6 +14985,9 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
             }
           case strmtype_twoway:
           case strmtype_echo:
+          #ifdef SOCKET_STREAMS
+          case strmtype_twoway_socket:
+          #endif
             { # Two-Way-Stream oder Echo-Stream: Output-Stream anschauen
               stream = TheStream(stream)->strm_twoway_output;
               /* return get_line_position(stream); */ # entrekursiviert:
@@ -14834,8 +15181,26 @@ LISPFUNN(file_string_length,2)
   global boolean stream_isbuffered (object stream);
   global boolean stream_isbuffered(stream)
     var object stream;
-    { return (TheStream(stream)->strmtype == strmtype_file)
-              && HandleStream_buffered(stream);
+    { switch (TheStream(stream)->strmtype)
+        { case strmtype_file:
+          #ifdef PIPES
+          case strmtype_pipe_in:
+          case strmtype_pipe_out:
+          #endif
+          #ifdef X11SOCKETS
+          case strmtype_x11socket:
+          #endif
+          #ifdef SOCKET_STREAMS
+          case strmtype_socket:
+          #endif
+            return HandleStream_buffered(stream);
+          #ifdef SOCKET_STREAMS
+          case strmtype_twoway_socket:
+            return TRUE;
+          #endif
+          default:
+            return FALSE;
+        }
     }
 
 # UP: Returns the line current number of a stream.
@@ -14924,4 +15289,8 @@ LISPFUN(allow_read_eval,1,1,norest,nokey,0,NIL)
 
 # filestatus/if_file_exists, file_datetime durch break_sem_4 schützen??
 # Signalbehandlung bei EXECUTE, SHELL, MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM, MAKE-PIPE-IO-STREAM ??
+# naming of file/handle/buffered/b_file/unbuffered stuff
+# do not access strm_file_truename on pipe and socket streams
+# implement FILE-POSITION for unbuffered file-streams (regular handle, direction != 5)
+# LISTEN on unbuffered (non-regular) file and socket streams can cause the process to block
 

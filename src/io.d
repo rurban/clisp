@@ -8988,12 +8988,27 @@ LISPFUNN(print_structure,2)
         { write_sstring_case(stream_,O(printstring_closed)); }
       # if a file stream, print "BUFFERED " or "UNBUFFERED ":
       {var uintL type = TheStream(*obj_)->strmtype;
-       if (type == strmtype_file)
-         { write_sstring_case(stream_,
-                              stream_isbuffered(*obj_)
-                              ? O(printstring_buffered)
-                              : O(printstring_unbuffered)
-                             );
+       switch (type)
+         { case strmtype_file:
+           #ifdef PIPES
+           case strmtype_pipe_in:
+           case strmtype_pipe_out:
+           #endif
+           #ifdef X11SOCKETS
+           case strmtype_x11socket:
+           #endif
+           #ifdef SOCKET_STREAMS
+           case strmtype_socket:
+           case strmtype_twoway_socket:
+           #endif
+             write_sstring_case(stream_,
+                                stream_isbuffered(*obj_)
+                                ? O(printstring_buffered)
+                                : O(printstring_unbuffered)
+                               );
+             break;
+           default:
+             break;
          }
       # Streamtyp ausgeben:
        {var const object* stringtable = &O(printstring_strmtype_synonym);
@@ -9060,6 +9075,9 @@ LISPFUNN(print_structure,2)
               break;
             #endif
             #ifdef SOCKET_STREAMS
+            case strmtype_twoway_socket:
+              *obj_ = TheStream(*obj_)->strm_twoway_socket_input;
+              /*FALLTHROUGH*/
             case strmtype_socket:
               # Socket-Stream
               JUSTIFY_SPACE;

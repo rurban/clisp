@@ -8119,6 +8119,7 @@ LISPFUNN(rename_file,2)
 
 # UP: erzeugt ein File-Stream
 # open_file(filename,direction,if_exists,if_not_exists)
+# > STACK_1: :BUFFERED argument
 # > STACK_0: :ELEMENT-TYPE argument
 # > filename: Filename, ein Pathname
 # > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
@@ -8306,7 +8307,7 @@ LISPFUNN(rename_file,2)
                 break;
               }
             ergebnis_NIL: # Ergebnis NIL
-              skipSTACK(3); # beide Pathnames und eltype vergessen
+              skipSTACK(4); # beide Pathnames und beide Argument vergessen
               return NIL;
             fehler_notfound: # Fehler, da Datei nicht gefunden
               # STACK_0 = Truename, Wert für Slot PATHNAME von FILE-ERROR
@@ -8330,9 +8331,13 @@ LISPFUNN(rename_file,2)
         handle_ok:
         # handle und append_flag sind jetzt fertig.
         # Stream erzeugen:
+        pushSTACK(STACK_3); # :BUFFERED argument
+        pushSTACK(STACK_3); # :ELEMENT-TYPE argument
         pushSTACK(handle);
-        return make_file_stream(direction,append_flag);
-    } }
+       {var object stream = make_file_stream(direction,append_flag,TRUE);
+        skipSTACK(2);
+        return stream;
+    } }}
 
 LISPFUN(old_open,1,0,norest,key,5,\
         (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format)) )
@@ -8429,7 +8434,7 @@ LISPFUN(open,1,0,norest,key,6,\
     }   }
     # :buffered wird später überprüft.
     # File öffnen:
-    STACK_6 = STACK_4; skipSTACK(6);
+    STACK_6 = STACK_0; STACK_5 = STACK_4; skipSTACK(5);
     value1 = open_file(filename,direction,if_exists,if_not_exists);
     mv_count=1;
   }}

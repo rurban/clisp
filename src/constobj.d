@@ -879,6 +879,7 @@
     #endif
     #ifdef SOCKET_STREAMS
     LISPOBJ_S(printstring_strmtype_socket,"SOCKET")
+    LISPOBJ_S(printstring_strmtype_twoway_socket,"SOCKET")
     #endif
   LISPOBJ_S(printstring_stream,"-STREAM")
 # zu LISPARIT.D:

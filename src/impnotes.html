@@ -1431,20 +1431,24 @@ printer.
 <DL>
 <DT><EM>Platform dependent: UNIX, OS/2, Win32 platforms only.</EM></DT>
 <DD>
-<CODE>(<STRONG>make-pipe-input-stream</STRONG> <VAR>command</VAR> [:element-type])</CODE> returns an input stream that will supply the
+<CODE>(<STRONG>make-pipe-input-stream</STRONG> <VAR>command</VAR> [:element-type] [:buffered])</CODE> returns an input stream that will supply the
 output from the execution of the given operating system command.
 Possible <CODE>:element-type</CODE> values are types equivalent to <CODE>character</CODE> or
 <CODE>(unsigned-byte <VAR>n</VAR>)</CODE>, <CODE>(signed-byte <VAR>n</VAR>)</CODE>, where <VAR>n</VAR> is a multiple of 8.
+Possible <CODE>:buffered</CODE> values are <CODE>nil</CODE>, <CODE>t</CODE>, or <CODE>:default</CODE>; <CODE>:default</CODE> is equivalent to
+<CODE>nil</CODE>.
 See also <A HREF="#shell"><CODE>(shell <VAR>command</VAR>)</CODE></A>.
 <P>
-<CODE>(<STRONG>make-pipe-output-stream</STRONG> <VAR>command</VAR> [:element-type])</CODE> returns an output stream that will pass its
+<CODE>(<STRONG>make-pipe-output-stream</STRONG> <VAR>command</VAR> [:element-type] [:buffered])</CODE> returns an output stream that will pass its
 output as input to the execution of the given operating system command.
 Possible <CODE>:element-type</CODE> values are types equivalent to <CODE>character</CODE> or
 <CODE>(unsigned-byte <VAR>n</VAR>)</CODE>, <CODE>(signed-byte <VAR>n</VAR>)</CODE>, where <VAR>n</VAR> is a multiple of 8.
+Possible <CODE>:buffered</CODE> values are <CODE>nil</CODE>, <CODE>t</CODE>, or <CODE>:default</CODE>; <CODE>:default</CODE> is equivalent to
+<CODE>nil</CODE>.
 See also <A HREF="#shell"><CODE>(shell <VAR>command</VAR>)</CODE></A>.
 <!-- #ifdef PIPES2 -->
 <P>
-<CODE>(<STRONG>make-pipe-io-stream</STRONG> <VAR>command</VAR> [:element-type])</CODE> returns three values. The first value is a
+<CODE>(<STRONG>make-pipe-io-stream</STRONG> <VAR>command</VAR> [:element-type] [:buffered])</CODE> returns three values. The first value is a
 bidirectional stream that will simultaneously pass its output as input to
 the execution of the given operating system command and supply the output
 from this command as input. The second and third value will be the input
@@ -1453,6 +1457,9 @@ Note that they must be closed individually.
 <BR>
 Possible <CODE>:element-type</CODE> values are types equivalent to <CODE>character</CODE> or
 <CODE>(unsigned-byte <VAR>n</VAR>)</CODE>, <CODE>(signed-byte <VAR>n</VAR>)</CODE>, where <VAR>n</VAR> is a multiple of 8.
+<BR>
+Possible <CODE>:buffered</CODE> values are <CODE>nil</CODE>, <CODE>t</CODE>, or <CODE>:default</CODE>; <CODE>:default</CODE> is equivalent to
+<CODE>nil</CODE>.
 <BR>
 Warning: Improper use of this function can lead to deadlocks. You use it at
 your own risk!
@@ -2453,8 +2460,11 @@ the function <CODE>logical-pathname</CODE> can be used.
 
 <CODE>open</CODE> cannot handle files of size &gt;= 4 GB.
 <P>
-The file streams returned by <CODE>open</CODE> are buffered for regular files and (on Unix)
-block-devices, and unbuffered for special files.
+<CODE>open</CODE> has an additional keyword argument <CODE>:buffered</CODE>. It determines whether the
+file stream returned is buffered or not. Possible values for it are <CODE>nil</CODE>, <CODE>t</CODE>,
+or <CODE>:default</CODE>. If it is <CODE>:default</CODE>, buffered file streams will be returned for
+regular files and (on Unix) block-devices, and unbuffered file streams for
+special files.
 
 <H3>23.3.</H3>
 
@@ -4529,11 +4539,11 @@ Returns the port which was bound using <CODE>socket-server</CODE>.
 Given time argument(s), waits for (possibly zero) fixed duration for a connect
 on the socket-server.  Without an argument, <CODE>socket-wait</CODE> blocks indefinitely.
 <DT>
-<CODE>(<STRONG>socket-accept</STRONG> <VAR>socket-server</VAR> [:element-type])</CODE>
+<CODE>(<STRONG>socket-accept</STRONG> <VAR>socket-server</VAR> [:element-type] [:buffered])</CODE>
 <DD>
 Creates the server-side two-way stream for the connection.
 <DT>
-<CODE>(<STRONG>socket-connect</STRONG> <VAR>port</VAR> [<VAR>host</VAR>] [:element-type])</CODE>
+<CODE>(<STRONG>socket-connect</STRONG> <VAR>port</VAR> [<VAR>host</VAR>] [:element-type] [:buffered])</CODE>
 <DD>
 Attempts to create a client-side two-way stream.  Blocks until
 the server accepts the connections.
