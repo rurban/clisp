@@ -45,11 +45,10 @@
 <section><title>Symbols in the Package &cl-pac;
   <ulink url="&clhs;/Body/sec_1-9.html">[CLHS-1.9]</ulink></title>
 
-<para>The 28 symbols missing from the &cl-pac; package
+<para>The 25 symbols missing from the &cl-pac; package
  (out of 978 specified by the &ansi-cl;):</para>
 
 <simplelist type="horiz" columns="3">
- <member>&print-lines-var;</member>
  <member>&print-miser-width-var;</member>
  <member>&print-pprint-dispatch-var;</member>
  <member>&call-method;</member>
@@ -59,8 +58,6 @@
  <member>&ensure-generic-function;</member>
  <member>&invalid-method-error;</member>
  <member>&make-instances-obsolete;</member>
- <member>&make-load-form-saving-slots;</member>
- <member>&make-load-form;</member>
  <member>&make-method;</member>
  <member>&method-combination-error;</member>
  <member>&method-combination-class;</member>
