@@ -1,5 +1,21 @@
 2002-01-16  Sam Steingold  <sds@gnu.org>
 
+	* inspect.lisp (close) [html-stream-out]: new method
+	(*with-html-output-doctype*): new user variable, defaults to XHTML
+	(with-html-output): use it; close the HTML stream too
+	(crlf): removed (we create an :EXTERNAL-FORMAT :DOS socket)
+	(with-http-output): new keyword args: RETURN-NAME and RETURN-CODE
+	do not call CRLF, rely on the socket to provide proper EOL
+	(http-error): new function
+	(http-command): reconnect when a KEEP-ALIVE connection times out;
+	handle invalid requests (e.g., for favicon.ico) and ":"->"%3a"
+	[FIXME: disabled KEEP-ALIVE connections because it appears that
+	 content length in WITH-HTTP-OUTPUT is computed incorrectly]
+	(inspect-frontend) [http]: handle NIL ID returned by HTTP-COMMAND
+	due to an invalid request
+
+2002-01-16  Sam Steingold  <sds@gnu.org>
+
 	* describe.lisp (describe-stream-flush-buffer, stream-line-column)
 	(stream-start-line-p): check the return value of
 	SYS::LINE-POSITION (it may be NIL!)
