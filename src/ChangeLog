@@ -1,5 +1,11 @@
 2001-06-27  Sam Steingold  <sds@gnu.org>
 
+	Fixed the win32/emacs bug when commands were ignored because of ^M
+	* debug.d (read_form): use string_eqcomp_ci() instead of
+	string_equal() and skip the extra chars in the line
+
+2001-06-27  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (strip_white): new local function
 	(rd_ch_terminal3): use it to trim the line
 

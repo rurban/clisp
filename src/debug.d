@@ -135,14 +135,14 @@
         if (nullp(line)) { # EOF am Zeilenanfang?
           dynamic_unbind(); goto eof;
         }
-        # line in *KEY-BINDINGS* suchen:
+        # search for line in *KEY-BINDINGS*:
         {
           var object alist = Symbol_value(S(key_bindings));
           while (consp(alist)) {
-            if (mconsp(Car(alist)) && simple_string_p(Car(Car(alist)))
-                && string_equal(line,Car(Car(alist)))
-               ) {
-              # gefunden -> Funktion dazu aufrufen:
+            if (mconsp(Car(alist)) && simple_string_p(Car(Car(alist))) &&
+                string_eqcomp_ci(line,0,Car(Car(alist)),0,
+                                 Sstring_length(Car(Car(alist))))) {
+              # found -> call the appropriate function:
               funcall(Cdr(Car(alist)),0); dynamic_unbind(); goto eof;
             }
             alist = Cdr(alist);
