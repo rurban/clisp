@@ -150,7 +150,7 @@ and
      <entry><code>(&cons; 1 2)</code></entry></row>
     <row><entry>Data (&clisp; is likely to print it)</entry>
      <entry><literal role="data">#(1 2 3)</literal></entry></row>
-    <row><entry>Code sample</entry><entry><programlisting role="lisp">
+    <row><entry>Code sample</entry><entry><programlisting language="lisp">
 (defun cycle-length (n &optional-amp; (len 1) (top 0))
   (cond ((= n 1) (values len top))
         ((evenp n) (cycle-length (ash n -1) (1+ len) (max top n)))
