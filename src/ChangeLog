@@ -1,3 +1,7 @@
+2003-10-19  Sam Steingold  <sds@gnu.org>
+
+	* w32shell.c (real-path): avoid gcc -Wall warnings
+
 2003-10-18  Sam Steingold  <sds@gnu.org>
 
 	* complete.lisp (completion): when completing in a case-sensitive
