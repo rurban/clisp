@@ -353,11 +353,11 @@ dnl gettext po files
 dnl
 AC_SUBST(PACKAGE)dnl
 PACKAGE="clisp"
-AC_OUTPUT([po/Makefile.in])
+AC_CONFIG_FILES([po/Makefile.in])
 dnl
 dnl           other checks for UNIX variants
 dnl
-AC_CONFIG_COMMANDS([makemake],[
+AC_CONFIG_FILES([makemake],[
   echo "#!$SHELL" > makemake.tmp
   echo "# Generated from makemake.in by configure." >> makemake.tmp
   cat makemake >> makemake.tmp
