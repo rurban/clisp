@@ -416,8 +416,6 @@
 
 ; ============================== <stdlib.h> ===================================
 
-(c-lines "#include <stdlib.h>~%")
-
 (def-c-struct div_t
   (quot int)
   (rem int)
@@ -706,9 +704,8 @@
 (def-c-call-out ldiv (:arguments (numer long) (denom long))
                      (:return-type ldiv_t)
 )
-(def-c-call-out ldiv (:arguments (numer longlong) (denom longlong))
-                     (:return-type lldiv_t)
-)
+(def-c-call-out lldiv (:arguments (numer longlong) (denom longlong))
+                      (:return-type lldiv_t))
 
 (def-c-call-out ecvt (:arguments (value double-float) (ndigit size_t) (decpt (c-ptr int) :out) (sign (c-ptr int) :out))
                      (:return-type c-string :none)
@@ -744,10 +741,6 @@
 ;(def-c-call-out getsubopt (:arguments (optionp (c-ptr c-string)) (tokens (c-array-ptr c-string)) (valuep (c-ptr c-string))) ; ??
 ;                          (:return-type int)
 ;)
-
-(def-c-call-out setkey (:arguments (key c-string))
-                       (:return-type nil)
-)
 
 ; ============================== <ctype.h> ====================================
 
@@ -1985,15 +1978,13 @@
                           (:return-type int)
 )
 
-(def-c-call-out crypt (:arguments (key c-string) (salt c-string))
-                      (:return-type c-string)
-)
-(def-c-call-out setkey (:arguments (key c-string))
-                       (:return-type nil)
-)
-(def-c-call-out encrypt (:arguments (block (c-ptr (c-array character 64))) (edflag boolean))
-                        (:return-type nil)
-)
+;(def-c-call-out crypt (:arguments (key c-string) (salt c-string))
+;                      (:return-type c-string))
+;(def-c-call-out setkey (:arguments (key c-string))
+;                       (:return-type nil))
+;(def-c-call-out encrypt (:arguments (block (c-ptr (c-array character 64)))
+;                                    (edflag boolean))
+;                        (:return-type nil))
 
 ;(def-c-call-out swab (:arguments (from c-pointer) (to c-pointer) (n ssize_t)) ; ??
 ;                     (:return-type nil)
@@ -2540,24 +2531,21 @@
   (pw_shell c-string)
 )
 
-(def-c-call-out __pwdopen (:arguments)
-                          (:return-type c-pointer)
-)
+;(def-c-call-out __pwdopen (:arguments)
+;                          (:return-type c-pointer))
 
 ;(def-c-call-out __pwdread (:arguments (stream c-pointer) (p c-pointer))
-;                          (:return-type (c-ptr passwd))
-;)
+;                          (:return-type (c-ptr passwd)))
 
-(def-c-call-out __pwdalloc (:arguments)
-                           (:return-type c-pointer)
-)
+;(def-c-call-out __pwdalloc (:arguments)
+;                           (:return-type c-pointer))
 
-(def-c-call-out __pwdscan (:arguments (p c-pointer)
-                                      (selector (c-function (:arguments (pwd (c-ptr passwd)))
-                                                            (:return-type int)
-                          )           )         )
-                          (:return-type (c-ptr passwd))
-)
+;(def-c-call-out __pwdscan (:arguments (p c-pointer)
+;                                      (selector
+;                                       (c-function
+;                                        (:arguments (pwd (c-ptr passwd)))
+;                                        (:return-type int))))
+;                          (:return-type (c-ptr passwd)))
 
 (def-c-call-out setpwent (:arguments)
                          (:return-type nil)
@@ -2598,24 +2586,21 @@
   (gr_mem (c-ptr c-string)) ; ??
 )
 
-(def-c-call-out __grpopen (:arguments)
-                          (:return-type c-pointer)
-)
+;(def-c-call-out __grpopen (:arguments)
+;                          (:return-type c-pointer))
 
 ;(def-c-call-out __grpread (:arguments (stream c-pointer) (p c-pointer))
-;                          (:return-type (c-ptr group))
-;)
+;                          (:return-type (c-ptr group)))
 
-(def-c-call-out __grpalloc (:arguments)
-                           (:return-type c-pointer)
-)
+;(def-c-call-out __grpalloc (:arguments)
+;                           (:return-type c-pointer))
 
-(def-c-call-out __grpscan (:arguments (p c-pointer)
-                                      (selector (c-function (:arguments (grp (c-ptr passwd)))
-                                                            (:return-type int)
-                          )           )         )
-                          (:return-type (c-ptr group))
-)
+;(def-c-call-out __grpscan (:arguments (p c-pointer)
+;                                      (selector
+;                                       (c-function
+;                                        (:arguments (grp (c-ptr passwd)))
+;                                        (:return-type int))))
+;                          (:return-type (c-ptr group)))
 
 (def-c-call-out setgrent (:arguments)
                          (:return-type nil)

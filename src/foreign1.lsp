@@ -10,8 +10,10 @@
           nil boolean character char uchar short ushort int uint long ulong
           uint8 sint8 uint16 sint16 uint32 sint32 uint64 sint64
           single-float double-float
-          c-pointer c-string c-struct c-union c-array c-array-max c-function c-ptr c-ptr-null c-array-ptr
-          def-c-enum def-c-struct element deref slot cast typeof sizeof bitsizeof
+          c-pointer c-string c-struct c-union c-array c-array-max
+          c-function c-ptr c-ptr-null c-array-ptr
+          def-c-enum def-c-struct element deref slot cast typeof
+          sizeof bitsizeof
           validp
 )        )
 
@@ -653,50 +655,46 @@
     (uint (format nil "unsigned int ~A" name))
     (long (format nil "long ~A" name))
     (ulong (format nil "unsigned long ~A" name))
-    (sint32 (format nil "sint32 ~A" name))
-    (uint32 (format nil "uint32 ~A" name))
-    (sint64 (format nil "sint64 ~A" name))
-    (uint64 (format nil "uint64 ~A" name))
+    (sint32 (format nil "int32_t ~A" name))
+    (uint32 (format nil "u_int32_t ~A" name))
+    (sint64 (format nil "int64_t ~A" name))
+    (uint64 (format nil "u_int64_t ~A" name))
     (single-float (format nil "float ~A" name))
     (double-float (format nil "double ~A" name))
-    ((c-pointer c-string) (format nil "void* ~A" name))
+    ((c-pointer c-string) (format nil "char* ~A" name))
     (t (if (gethash c-type *type-table*)
          (format nil "~A ~A" (gethash c-type *type-table*) name)
          (case (and (simple-vector-p c-type) (plusp (length c-type))
-                    (svref c-type 0)
-               )
+                    (svref c-type 0))
            (c-struct
              (format nil "struct { ~{~A; ~}} ~A"
                          (mapcar #'(lambda (subtype)
-                                     (to-c-typedecl subtype (symbol-name (gensym "g")))
-                                   )
-                                 (cdddr (coerce c-type 'list))
-                         )
-                         name
-           ) )
+                                (to-c-typedecl subtype
+                                               (symbol-name (gensym "g"))))
+                            (cdddr (coerce c-type 'list)))
+                    name))
            (c-union
              (format nil "union { ~{~A; ~}} ~A"
                          (mapcar #'(lambda (subtype)
-                                     (to-c-typedecl subtype (symbol-name (gensym "g")))
-                                   )
-                                 (cddr (coerce c-type 'list))
-                         )
-                         name
-           ) )
+                                (to-c-typedecl subtype
+                                               (symbol-name (gensym "g"))))
+                            (cddr (coerce c-type 'list)))
+                    name))
            (c-array
              (to-c-typedecl (svref c-type 1)
-                            (format nil "(~A)~{[~D]~}" name (cddr (coerce c-type 'list)))
-           ) )
+                           (format nil "(~A)~{[~D]~}" name
+                                   (cddr (coerce c-type 'list)))))
            (c-array-max
              (to-c-typedecl (svref c-type 1)
-                            (format nil "(~A)[~D]" name (svref c-type 2))
-           ) )
-           ((c-function c-ptr c-ptr-null c-array-ptr) (format nil "void* ~A" name))
+                           (format nil "(~A)[~D]" name (svref c-type 2))))
+           ((c-ptr c-ptr-null c-array-ptr)
+            (to-c-typedecl (svref c-type 1) (format nil "* ~A" name)))
+           (c-function
+            (to-c-typedecl (svref c-type 1) (format nil "~A ()" name)))
            (t (error (DEUTSCH "ungültiger Typ für externe Daten: ~S"
                       ENGLISH "illegal foreign data type ~S"
                       FRANCAIS "type invalide de données externes : ~S")
-                     c-type
-) ) )  ) ) )  )
+                     c-type)))))))
 
 (defun prepare-module ()
   (unless *ffi-module*
