@@ -2157,6 +2157,9 @@
 	Symbols in FAS files remember their home packages and do not
 	depend as much on the special treatment of the package tasks,
 	which is now optional.
+	This constitutes a switch from the "current-package" model to the
+	"home-package" model as described in COMPILE-FILE-SYMBOL-HANDLING
+	<http://www.lisp.org/HyperSpec/Issues/iss063.html>
 	* constsym.d (*print-symbols-long*): new variable
 	* spvw.d (init_symbol_values): define it
 	* io.d (pr_symbol): respect it
@@ -2168,6 +2171,8 @@
 2001-03-23  Sam Steingold  <sds@gnu.org>
 
 	Removed the obsolete `COMMON' type (not in ANSI)
+	See issue COMMON-TYPE:REMOVE
+	<http://www.lisp.org/HyperSpec/Issues/iss057.html>
 	* constsym.d (commonp): removed
 	* eval.d (FUNTAB): removed `commonp'
 	* predtype.d (commonp): removed
