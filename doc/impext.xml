@@ -110,15 +110,13 @@
 <variablelist>
 <!-- #ifndef UNICODE -->
 <varlistentry><term>Platform dependent: Only in &clisp; built
-  <emphasis role="strong">without</emphasis> compile-time flag
-  <emphasis role="strong"><option>UNICODE</option></emphasis>.</term>
+  &without; compile-time flag &unicode;.</term>
 <listitem><simpara>Only one character set is understood: the platform's
  native (8-bit) character set.  See <link linkend="characters">Chapter
  13</link>.</simpara></listitem></varlistentry>
 <!-- #else -->
 <varlistentry><term>Platform dependent: Only in &clisp; built
-  <emphasis role="strong">with</emphasis> compile-time flag
-  <emphasis role="strong"><option>UNICODE</option></emphasis>.</term>
+  &with; compile-time flag &unicode;.</term>
 <listitem><para>The following character sets are supported, as values
  of the corresponding (constant) symbol in the <quote>CHARSET</quote>
  package:
@@ -517,10 +515,8 @@
    &clisp; comes with it own implementation of
    <function>iconv()</function>, so the following is more or less
    obsolete now.
-    (Platform dependent: Only on
-    <emphasis role="strong">Unix</emphasis> systems having the &c-lang;
-    library function <emphasis
-    role="strong">iconv()</emphasis>).</term>
+    (Platform dependent: Only on &unix; systems having the &c-lang;
+    library function <emphasis role="strong">iconv()</emphasis>).</term>
 <listitem><simpara>The character sets provided by the library function
  iconv() can also be used as encodings.  To create such an encoding,
  call <function>make-encoding</function> with the character set name (a
@@ -667,8 +663,7 @@
 <!-- #ifdef UNICODE -->
 <variablelist>
 <varlistentry><term>Platform dependent: Only in &clisp; built
-  <emphasis role="strong">with</emphasis> compile-time flag
-  <emphasis role="strong"><option>UNICODE</option></emphasis>.</term>
+  &with; compile-time flag &unicode;.</term>
 <listitem>
 <variablelist>
 <varlistentry><term><varname>lisp:*pathname-encoding*</varname></term>
@@ -699,11 +694,11 @@
 user-defined behavior:
 <itemizedlist>
   <listitem><simpara>You can create a new subclass of
-    <function>lisp:fundamental-stream</function> and define methods for
+    <classname>lisp:fundamental-stream</classname> and define methods for
     the elementary stream operations on it.  These generic functions all
     have a name starting with the prefix "stream-".</simpara></listitem>
   <listitem><simpara>You can create a new subclass of
-    <function>lisp:generic-stream-controller</function> and define
+    <classname>lisp:generic-stream-controller</classname> and define
     methods for the elementary stream operations on it.  These generic
     functions all have a name starting with the prefix
     "generic-stream-".  The stream itself is a different object, created
@@ -713,16 +708,15 @@ user-defined behavior:
 
 <para>The <function>fundamental-stream</function> API is based on a
  proposal by David N. Gray and is supported by most &cl; implementations
- currently in use.  The <function>generic-stream-controller</function>
+ currently in use.  The <classname>generic-stream-controller</classname>
  API is &clisp; specific and is now obsolete.</para>
 
 <section><title>Gray streams</title>
 
-<para>This interface permits the definition of new classes of streams, and
-to program their behavior by defining methods for the elementary stream
-operations. It is based on a proposal of David N Gray to X3J13,
-available from <ulink
-url="ftp://parcftp.xerox.com/pub/cl/cleanup/mail/stream-definition-by-user.mail">ftp://parcftp.xerox.com/pub/cl/cleanup/mail/stream-definition-by-user.mail</ulink>.</para>
+<para>This interface permits the definition of new classes of streams,
+and programming their behavior by defining methods for the elementary
+stream operations.  It is based on the proposal &gray-streams; of David
+N. Gray to X3J13.</para>
 
 <para>All symbols defined by this interface, starting with the prefix
  "fundamental-" or "stream-", are exported from the package
@@ -730,8 +724,8 @@ url="ftp://parcftp.xerox.com/pub/cl/cleanup/mail/stream-definition-by-user.mail"
 
 <variablelist><title>Defined classes</title>
  <varlistentry><term><classname>lisp:fundamental-stream</classname></term>
-  <listitem><simpara>This is a superclass of all user-defined
-   streams. It is a subclass of &stream-class; and of &standard-object;.
+  <listitem><simpara>This is a superclass of all user-defined streams.
+   It is a subclass of &stream-class; and of &standard-object-class;.
    Its metaclass is &standard-class;.</simpara></listitem></varlistentry>
  <varlistentry>
      <term><classname>lisp:fundamental-input-stream</classname></term>
@@ -1243,7 +1237,7 @@ url="ftp://parcftp.xerox.com/pub/cl/cleanup/mail/stream-definition-by-user.mail"
 <section id="weak"><title>Extensions-1.6. Weak Pointers</title>
 
 <para>A weak pointer is an object holding a reference to a given object,
- without keeping the latter from being garbage-collected.</para>
+ without keeping the latter from being &gc;ed.</para>
 
 <variablelist>
 <varlistentry><term><literal
@@ -1262,7 +1256,7 @@ url="ftp://parcftp.xerox.com/pub/cl/cleanup/mail/stream-definition-by-user.mail"
     role="sexp">(<function>lisp:weak-pointer-value</function>
     <replaceable>weak-pointer</replaceable>)</literal></term>
  <listitem><simpara> returns two values: The original value and &t;, if
-    the value has not yet been garbage collected, else &nil; and &nil;.
+    the value has not yet been &gc;ed, else &nil; and &nil;.
   </simpara></listitem></varlistentry>
 </variablelist>
 
@@ -1274,24 +1268,24 @@ url="ftp://parcftp.xerox.com/pub/cl/cleanup/mail/stream-definition-by-user.mail"
 <para>Calling <literal role="sexp">(&finalize;
  <replaceable>object</replaceable>
  <replaceable>function</replaceable>)</literal> has the effect that when
- the specified object is being garbage collected, <literal
+ the specified object is being &gc;ed, <literal
  role="sexp">(&funcall; <replaceable>function</replaceable>
  <replaceable>object</replaceable>)</literal> will be executed.</para>
 
 <para>Calling <literal role="sexp">(&finalize;
  <replaceable>object</replaceable> <replaceable>function</replaceable>
  <replaceable>guardian</replaceable>)</literal> has a similar effect,
- but only as long as the "guardian" has not been garbage collected: When
- <replaceable>object</replaceable> is being garbage collected, <literal
+ but only as long as the "guardian" has not been &gc;ed: When
+ <replaceable>object</replaceable> is being &gc;ed, <literal
  role="sexp">(&funcall; <replaceable>function</replaceable>
  <replaceable>object</replaceable>
  <replaceable>guardian</replaceable>)</literal> will be executed.  If
- the guardian is garbage collected before
- <replaceable>object</replaceable> is, nothing happens.</para>
+ the guardian is &gc;ed before <replaceable>object</replaceable> is,
+ nothing happens.</para>
 
 <para>Note: The time when <quote>the <replaceable>object</replaceable>
- is being garbage collected</quote> is not defined deterministically.
- (Actually, it possibly never occurs.)  It denotes a moment at which no
+ is being &gc;ed</quote> is not defined deterministically.
+ (Actually, it might possibly never occur.)  It denotes a moment at which no
  references to <replaceable>object</replaceable> exist from other Lisp
  objects.  When the <replaceable>function</replaceable> is called,
  <replaceable>object</replaceable> (and possibly
@@ -1336,12 +1330,10 @@ url="ftp://parcftp.xerox.com/pub/cl/cleanup/mail/stream-definition-by-user.mail"
 
 <section id="ansi"><title>Extensions-1.9. Maximum ANSI CL compliance</title>
 
-<para>A few ANSI CL features are turned off by default, because they
+<para>A few &ansi-cl; features are turned off by default, because they
  would hurt in every-day use.  They can be switched on, all at once by
- setting the &symbol-macro; <emphasis
- role="strong"><varname>lisp:*ansi*</varname></emphasis> to &t;, or they
- can be switched on individually.  Setting
- <varname>lisp:*ansi*</varname> to &t; implies the following:</para>
+ setting the &symbol-macro; &ansi; to &t;, or they can be switched on
+ individually.  Setting &ansi; to &t; implies the following:</para>
 
 <itemizedlist>
  <listitem><simpara>Setting &pathprint; to &t; for &ansi-cl; compliant
@@ -1359,19 +1351,17 @@ url="ftp://parcftp.xerox.com/pub/cl/cleanup/mail/stream-definition-by-user.mail"
  <listitem><simpara>Setting &pathmerge; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &flocont; to &t;.</simpara></listitem>
  <listitem><simpara>Adding <emphasis
-  role="strong"><constant>:ansi-cl</constant></emphasis> to <link
-  linkend="features">&features-var;</link>.</simpara></listitem>
+  role="strong"><constant>:ansi-cl</constant></emphasis> to
+  &features-var;.</simpara></listitem>
 </itemizedlist>
 
 <para>Please note that if you run &clisp; with the <option>-a</option>
- switch or set the &symbol-macro; <emphasis
- role="strong"><varname>lisp:*ansi*</varname></emphasis> to &t; and
+ switch or set the &symbol-macro; &ansi; to &t; and
  <link linkend="image">save image</link>, then all subsequent
  invocations of &clisp; with this image will be as if with
  <option>-a</option> (regardless whether you actually supply the
  <option>-a</option> switch).  You can always set the &symbol-macro;
- <emphasis role="strong"><varname>lisp:*ansi*</varname></emphasis> to
- &nil;, reversing the above settings, i.e.,</para>
+ &ansi; to &nil;, reversing the above settings, i.e.,</para>
 
 <itemizedlist>
  <listitem><simpara>Setting &pathprint; to &nil; for readable
@@ -1388,8 +1378,7 @@ url="ftp://parcftp.xerox.com/pub/cl/cleanup/mail/stream-definition-by-user.mail"
  <listitem><simpara>Setting &flocont; to &nil;.</simpara></listitem>
  <listitem><simpara>Deleting <emphasis
   role="strong"><constant>:ansi-cl</constant></emphasis> from
-  <link linkend="features">&features-var;</link>.
- </simpara></listitem>
+  &features-var;.</simpara></listitem>
 </itemizedlist>
 
 </section>
@@ -1411,7 +1400,7 @@ url="ftp://parcftp.xerox.com/pub/cl/cleanup/mail/stream-definition-by-user.mail"
 
 <formalpara id="letf"><title><function>lisp:letf</function> &amp;
                              <function>lisp:letf*</function></title>
-<para>These macros are similar to &let; and &let-s;, respectively,
+<para>These macros are similar to &let; and &let-star;, respectively,
  except that they can bind places, even places with multiple values.
  Example:
 
@@ -1434,9 +1423,9 @@ while
 is approximately equivalent to
 
 <programlisting>
- (&let-s; ((#:g1 l) (#:g2 (first #:g1)))
+ (&let-star; ((#:g1 l) (#:g2 (first #:g1)))
    (&unwind-protect; (&progn; (&setf; (first #:g1) 7) ...)
-                              (&setf; (first #:g1) #:g2)))
+      (&setf; (first #:g1) #:g2)))
 </programlisting>
 </para></formalpara>
 
@@ -1472,22 +1461,17 @@ returns two lists <literal role="sexp">(1 3 5 7 9)</literal> and
 <!-- #if defined(SCREEN) || defined(AMIGAOS) -->
 
 <section id="screen"><title>Extensions-2.1. Random Screen Access</title>
-<subtitle>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis>,
-   <emphasis role="strong">DOS</emphasis>,
-   <emphasis role="strong">OS/2</emphasis>,
-   <emphasis role="strong">Amiga</emphasis> platforms only.</subtitle>
+<subtitle>Platform dependent: &unix;, &amiga;, &dos;, &os2;
+   platforms only.</subtitle>
 
 <variablelist>
  <varlistentry><term><literal
     role="sexp">(<function>screen:make-window</function>)</literal></term>
   <listitem><simpara>returns a "window stream".  As long as this stream
    is open, the terminal is in cbreak/noecho mode.  &terminal-io-var;
-   should not be used for input or output during this time.  (Use <link
-   linkend="terminal"><function>lisp:with-keyboard</function></link> and
-   <link
-   linkend="terminal"><function>lisp:*keyboard-input*</function></link>
-   instead.)</simpara></listitem></varlistentry>
+   should not be used for input or output during this time.
+   (Use &with-kbd; and &kbd-in; instead.)
+  </simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>screen:with-window</function>
                  . <replaceable>body</replaceable>)</literal></term>
@@ -1576,18 +1560,19 @@ returns two lists <literal role="sexp">(1 3 5 7 9)</literal> and
 
 <!-- #ifdef UNIX -->
 <section id="modules"><title>Extensions-2.2. External Modules</title>
-<subtitle>Platform dependent:
-  <emphasis role="strong">UNIX</emphasis> platforms only.</subtitle>
+<subtitle>Platform dependent: &unix; platforms only.</subtitle>
 
 <para>&clisp; has a facility for adding external modules (written in
  &c-lang;, for example).  It is invoked through
  <command>clisp-link</command>.</para>
 
 <para>A module is a piece of external code which defines extra Lisp
- objects, symbols and functions. A module name must consist of the
- characters A-Z,a-z,_,0-9. The module name <function>"clisp"</function>
- is reserved. Normally a module name is derived from the corresponding
- file name.</para>
+ objects, symbols and functions.  A module name must consist of the
+ characters <filename>A</filename>-<filename>Z</filename>,
+ <filename>a</filename>-<filename>z</filename>, <filename>_</filename>,
+ <filename>0</filename>-<filename>9</filename>.  The module name
+ <quote>clisp</quote> is reserved.  Normally a module name is derived
+ from the corresponding file name.</para>
 
 <para><command>clisp-link</command> needs a directory containing:
 <itemizedlist>
@@ -1855,9 +1840,7 @@ for my $kk (keys(%hash)) {
 <!-- #ifdef DYNAMIC_FFI -->
 <section id="dffi">
   <title>Extensions-2.3. The Foreign Function Call Facility</title>
-<subtitle>Platform dependent: many
-   <emphasis role="strong">UNIX</emphasis>,
-   <emphasis role="strong">Win32</emphasis> platforms only.</subtitle>
+<subtitle>Platform dependent: many &unix;, &win32; platforms only.</subtitle>
 
 <para>A foreign function description is written as a Lisp file, and when
  compiled it produces a <filename>.c</filename> file which is then
@@ -2198,31 +2181,31 @@ within Lisp (using &setq; or similar).</simpara>
 <seglistitem><seg><type>ulong</type></seg><seg>&integer-class;</seg>
    <seg><type>unsigned long</type></seg></seglistitem>
 <seglistitem><seg><type>uint8</type></seg>
-   <seg><literal role="sexp">(&unsigned-byte; 8)</literal></seg>
+   <seg><literal role="sexp">(&unsigned-byte-type; 8)</literal></seg>
    <seg><type>uint8</type></seg><seg><type>BYTE</type></seg></seglistitem>
 <seglistitem><seg><type>sint8</type></seg>
-   <seg><literal role="sexp">(&signed-byte; 8)</literal></seg>
+   <seg><literal role="sexp">(&signed-byte-type; 8)</literal></seg>
    <seg><type>sint8</type></seg></seglistitem>
 <seglistitem><seg><type>uint16</type></seg>
-   <seg><literal role="sexp">(&unsigned-byte; 16)</literal></seg>
+   <seg><literal role="sexp">(&unsigned-byte-type; 16)</literal></seg>
    <seg><type>uint16</type></seg>
    <seg><type>SHORT CARDINAL</type></seg></seglistitem>
 <seglistitem><seg><type>sint16</type></seg>
-   <seg><literal role="sexp">(&signed-byte; 16)</literal></seg>
+   <seg><literal role="sexp">(&signed-byte-type; 16)</literal></seg>
    <seg><type>sint16</type></seg>
    <seg><type>SHORT INTEGER</type></seg></seglistitem>
 <seglistitem><seg><type>uint32</type></seg>
-   <seg><literal role="sexp">(&unsigned-byte; 32)</literal></seg>
+   <seg><literal role="sexp">(&unsigned-byte-type; 32)</literal></seg>
    <seg><type>uint32</type></seg><seg><type>CARDINAL</type></seg></seglistitem>
 <seglistitem><seg><type>sint32</type></seg>
-   <seg><literal role="sexp">(&signed-byte; 32)</literal></seg>
+   <seg><literal role="sexp">(&signed-byte-type; 32)</literal></seg>
    <seg><type>sint32</type></seg><seg><type>INTEGER</type></seg></seglistitem>
 <seglistitem><seg><type>uint64</type></seg>
-   <seg><literal role="sexp">(&unsigned-byte; 64)</literal></seg>
+   <seg><literal role="sexp">(&unsigned-byte-type; 64)</literal></seg>
    <seg><type>uint64</type></seg><seg><type>LONG CARDINAL</type></seg>
    <seg>does not work on all platforms</seg></seglistitem>
 <seglistitem><seg><type>sint64</type></seg>
-   <seg><literal role="sexp">(&signed-byte; 64)</literal></seg>
+   <seg><literal role="sexp">(&signed-byte-type; 64)</literal></seg>
    <seg><type>sint64</type></seg><seg><type>LONG INTEGER</type></seg>
    <seg>does not work on all platforms</seg></seglistitem>
 <seglistitem><seg>&single-float-type;</seg><seg>&single-float-type;</seg>
@@ -2509,8 +2492,7 @@ within Lisp (using &setq; or similar).</simpara>
  with &allocation; = &alloca-k;.]</para>
 
 <variablelist>
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">Amiga</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &amiga; platforms only.</term>
 <listitem><simpara>&allocation; may not be &malloc-free-k; because there
  is no commonly used <function>malloc()/free()</function> library
  function.</simpara>
@@ -2535,9 +2517,8 @@ within Lisp (using &setq; or similar).</simpara>
 
 <!-- #ifdef UNICODE -->
 <variablelist>
-<varlistentry><term>Platform dependent: Only in &clisp; built
-  <emphasis role="strong">with</emphasis> compile-time flag
-  <emphasis role="strong"><option>UNICODE</option></emphasis>.</term>
+<varlistentry><term>Platform dependent: only in &clisp; built
+  &with; compile-time flag &unicode;.</term>
 <listitem><simpara>A &symbol-macro; place <emphasis
  role="strong"><varname>lisp:*foreign-encoding*</varname></emphasis>
  contains the encoding for characters and strings passed through the
@@ -2822,8 +2803,7 @@ $ rm -r base+sort
 
 <section id="affi">
   <title>Extensions-2.4. The Amiga Foreign Function Call Facility</title>
-<subtitle>Platform dependent: <emphasis role="strong">Amiga</emphasis>
- platforms only.</subtitle>
+<subtitle>Platform dependent: &amiga; platforms only.</subtitle>
 
 <formalpara><title>Another Foreign Function Interface</title>
 <para>All symbols relating to the simple foreign function interface are
@@ -2947,12 +2927,12 @@ offset for structure references) and returns the given type.</para>
 
 <para><function>mem-write</function> writes an arbitrary
 address. <function>mem-write-vector</function> copies the content of a
-Lisp &string-class; or &unsigned-byte; &vector-class; into
+Lisp &string-class; or &unsigned-byte-type; &vector-class; into
 memory.</para>
 
 <para><function>nzero-pointer-p</function> tests for
 non-<constant>NULL</constant> pointers in all recognized representations
-(&null-class;, &unsigned-byte; and
+(&null-class;, &unsigned-byte-type; and
 <function>foreign-pointer</function>).</para>
 
 </section>
@@ -2992,22 +2972,22 @@ exit functions.]  Programmers, watch
 <seglistitem><seg>&nil;</seg><seg>&nil;</seg><seg><type>void</type></seg>
   <seg>as a result type for functions only</seg></seglistitem>
 <seglistitem><seg><type>4</type></seg>
-  <seg><literal role="sexp">(&unsigned-byte; 32)</literal></seg>
+  <seg><literal role="sexp">(&unsigned-byte-type; 32)</literal></seg>
   <seg><type>unsigned long</type></seg><seg></seg></seglistitem>
 <seglistitem><seg><type>2</type></seg>
-  <seg><literal role="sexp">(&unsigned-byte; 16)</literal></seg>
+  <seg><literal role="sexp">(&unsigned-byte-type; 16)</literal></seg>
   <seg><type>unsigned short</type></seg><seg></seg></seglistitem>
 <seglistitem><seg><type>1</type></seg>
-  <seg><literal role="sexp">(&unsigned-byte; 8)</literal></seg>
+  <seg><literal role="sexp">(&unsigned-byte-type; 8)</literal></seg>
   <seg><type>unsigned char</type></seg><seg></seg></seglistitem>
 <seglistitem><seg><type>-4</type></seg>
-  <seg><literal role="sexp">(&signed-byte; 32)</literal></seg>
+  <seg><literal role="sexp">(&signed-byte-type; 32)</literal></seg>
   <seg><type>long</type></seg><seg></seg></seglistitem>
 <seglistitem><seg><type>-2</type></seg>
-  <seg><literal role="sexp">(&signed-byte; 16)</literal></seg>
+  <seg><literal role="sexp">(&signed-byte-type; 16)</literal></seg>
   <seg><type>short</type></seg><seg></seg></seglistitem>
 <seglistitem><seg><type>-1</type></seg>
-  <seg><literal role="sexp">(&signed-byte; 8)</literal></seg>
+  <seg><literal role="sexp">(&signed-byte-type; 8)</literal></seg>
   <seg><type>signed char</type></seg><seg></seg></seglistitem>
 <seglistitem><seg><type>0</type></seg><seg>&boolean-type;</seg>
   <seg><type>BOOL</type></seg>
@@ -3039,8 +3019,7 @@ array at a constant address longer than the dynamic extent of the call
 <!-- #ifdef UNICODE -->
 <variablelist>
 <varlistentry><term>Platform dependent: Only in &clisp; built
-   <emphasis role="strong">with</emphasis> compile-time flag
-   <emphasis role="strong"><option>UNICODE</option></emphasis>.</term>
+   &with; compile-time flag &unicode;.</term>
 <listitem><simpara>A &symbol-macro; place <emphasis
 role="strong"><varname>lisp:*foreign-encoding*</varname></emphasis>
 contains the encoding for characters and strings passed through the FFI.
@@ -3082,7 +3061,7 @@ between <function>*</function> and &external-k; is the following:
 <function>*</function> uses integers, &external-k; uses
 <function>foreign-pointer</function> as function result-type (except
 from &nil; for a NULL pointer) and refuses objects of type
-&string-class; or &unsigned-byte; &vector-class; as input. Thus
+&string-class; or &unsigned-byte-type; &vector-class; as input.  Thus
 &external-k; provides some security on the input and the ability to use
 &finalize; for resource-tracking on the output side.</para>
 
@@ -3127,9 +3106,9 @@ signed or unsigned integers (AFFI types <type>-4</type>,
 <type>-2</type>, <type>-1</type>, <type>1</type>, <type>2</type>,
 <type>4</type>), a pointer (<type>*</type>), a NUL-terminated string
 (<type>string</type>) or, if the type argument is of type &string-class;
-or &unsigned-byte; &vector-class;, it can fill this vector. &external-k;
-is not an acceptable type as no object can be created by using
-<function>mem-read</function>.</para>
+or &unsigned-byte-type; &vector-class;, it can fill this vector.
+&external-k; is not an acceptable type as no object can be created by
+using <function>mem-read</function>.</para>
 
 <para><literal role="sexp">(mem-write <replaceable>address</replaceable>
 <replaceable>type</replaceable> <replaceable>value</replaceable>
@@ -3295,8 +3274,7 @@ have inlined the library function calls.
 
 <!-- #ifdef AMIGAOS -->
 <section id="rexx"><title>Extensions-2.5. ARexx</title>
-<subtitle>Platform dependent: <emphasis role="strong">Amiga</emphasis>
- platforms only.</subtitle>
+<subtitle>Platform dependent: &amiga; platforms only.</subtitle>
 
 <para>&clisp; comes with a small yet extensible and powerful ARexx
  interface.</para>
@@ -3363,8 +3341,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
 
 <!-- #ifdef SOCKET_STREAMS -->
 <section id="socket"><title>Extensions-2.6. Socket Streams</title>
-<subtitle>Platform dependent: <emphasis role="strong">UNIX</emphasis>,
-    <emphasis role="strong">Win32</emphasis> platforms only.</subtitle>
+<subtitle>Platform dependent: &unix;, &win32; platforms only.</subtitle>
 
 <variablelist>
  <varlistentry><term><literal
@@ -3588,8 +3565,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
 
 <variablelist>
 <!-- #ifdef UNIX -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &unix; platforms only.</term>
 <listitem><para>On Unix, a text file (<filename>fas</filename> or
  <filename>lsp</filename>) can be made executable by adding a first line
  of the form
@@ -3670,8 +3646,7 @@ input will be available.</para>
 <!-- #endif -->
 
 <!-- #ifdef WIN32 -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">Windows</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &win32; platforms only.</term>
 
 <listitem><simpara>There are two different ways to make &clisp;
  "executables" for Windows platforms.</simpara>
@@ -3700,8 +3675,7 @@ input will be available.</para>
 </listitem></varlistentry>
 <!-- #endif -->
 
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">Linux</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &linux; platforms only.</term>
 
 <listitem><para>You have to build your kernel with
  <option>CONFIG_BINFMT_MISC=y</option> and
@@ -3835,11 +3809,8 @@ bash$
 
 <variablelist>
 <!-- #if defined(UNIX) || defined(MSDOS) || defined(RISCOS) -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis>,
-   <emphasis role="strong">DOS</emphasis>,
-   <emphasis role="strong">OS/2</emphasis>,
-   <emphasis role="strong">Acorn</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &unix;, &acorn;, &dos;, &os2;,
+   platforms only.</term>
  <listitem><simpara><literal
    role="sexp">(<function>lisp:execute</function>
        <replaceable>programfile</replaceable>
@@ -3852,8 +3823,7 @@ bash$
  </simpara></listitem></varlistentry>
 <!-- #endif -->
 <!-- #ifdef AMIGAOS -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">Amiga</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &amiga; platforms only.</term>
  <listitem><simpara><literal
    role="sexp">(<function>lisp:execute</function>
        <replaceable>command</replaceable>)</literal>
@@ -3863,13 +3833,8 @@ bash$
 <!-- #endif -->
 
 <!-- #ifdef HAVE_SHELL -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis>,
-   <emphasis role="strong">DOS</emphasis>,
-   <emphasis role="strong">OS/2</emphasis>,
-   <emphasis role="strong">Win32</emphasis>,
-   <emphasis role="strong">Amiga</emphasis>,
-   <emphasis role="strong">Acorn</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &unix;, &amiga;, &acorn;, &dos;,
+   &os2;, &win32; platforms only.</term>
  <listitem><simpara><literal
     role="sexp">(<function>lisp:shell</function>
         [<replaceable>command</replaceable>])</literal>
@@ -3884,10 +3849,8 @@ bash$
 <!-- #endif -->
 
 <!-- #ifdef PIPES2 -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis>,
-   <emphasis role="strong">OS/2</emphasis>,
-   <emphasis role="strong">Win32</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &unix;, &os2;, &win32;
+   platforms only.</term>
  <listitem><simpara>The functions <emphasis
    role="strong"><function>lisp:run-shell-command</function></emphasis>
    and <emphasis
@@ -3902,16 +3865,16 @@ bash$
    &if-output-exists;)</literal> runs a shell command.</simpara>
 
    <simpara><literal role="sexp">(<function>lisp:run-program</function>
-   <replaceable>program</replaceable> :arguments &input-k; &output-k;
-   &if-output-exists;)</literal> runs an external program.</simpara>
+   <replaceable>program</replaceable> <constant>:arguments</constant>
+   &input-k; &output-k; &if-output-exists;)</literal> runs an external
+   program.</simpara>
 
   <variablelist>
    <varlistentry><term><replaceable>command</replaceable></term>
     <listitem><simpara>the shell command.</simpara>
 <!-- #ifdef UNIX -->
      <variablelist>
-      <varlistentry><term>Platform dependent:
-       <emphasis role="strong">UNIX</emphasis> platforms only.</term>
+      <varlistentry><term>Platform dependent: &unix; platforms only.</term>
       <listitem><simpara>The shell the command is passed to is the value
        of the environment variable <envar>SHELL</envar>, which normally
        is <filename>/bin/sh</filename>.  The command should be a
@@ -3962,8 +3925,7 @@ bash$
 <section id="other"><title>Extensions-2.11. Other</title>
 
 <variablelist>
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">Amiga</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &amiga; platforms only.</term>
 <listitem><para>To have &debug-io-var; and &error-output-var; point
  to separate console windows (thus keeping your standard console window
  clean from error messages) you can use
