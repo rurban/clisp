@@ -57,7 +57,8 @@
 [ <A HREF="#Option -q"><CODE>-q</CODE></A> | <A HREF="#Option -q"><CODE>--quiet</CODE></A> | <A HREF="#Option -q"><CODE>--silent</CODE></A> ]
 [ <A HREF="#Option -w"><CODE>-w</CODE></A> ]
 [ <A HREF="#Option -I"><CODE>-I</CODE></A> ]
-[ <A HREF="#Option -a"><CODE>-a</CODE></A> ]
+[ <A HREF="#Option -ansi"><CODE>-ansi</CODE></A> ]
+[ <a href="#Option -traditional"><code>-traditional</code></a> ]
 [ <A HREF="#Option -p"><CODE>-p</CODE> <EM>packagename</EM></A> ]
 [ <A HREF="#Option -C"><CODE>-C</CODE></A> ]
 [ <A HREF="#Option -norc"><CODE>-norc</CODE></A> ]
@@ -72,8 +73,9 @@
 Invokes the common lisp interpreter and compiler. Invoked without
 arguments, executes a read-eval-print loop, in which expressions are in
 turn read from standard input, evaluated by the lisp interpreter, and
-their results output to standard output. Invoked with <A HREF="#Option -c"><CODE>-c</CODE></A>,
-the specified lisp files are compiled to a bytecode that can be executed
+their results output to standard output.
+Invoked with <A HREF="#Option -c"><CODE>-c</CODE></A>, compiles
+the specified lisp files to a bytecode that can be executed
 more efficiently.
 
 <H2><A NAME="Options">Options</A></H2>
@@ -224,24 +226,25 @@ character.
 #endif
 <P>
 
-<DT> <A NAME="Option -a"> <B><CODE>-a</CODE></B> </A>
+<DT> <A NAME="Option -ansi"> <B><CODE>-ansi</CODE></B> </A>
 <DD> ANSI CL compliant: Comply with the ANSI CL specification even on
 those issues where ANSI CL is broken. This option is provided for maximum
 portability of Lisp programs, and is not useful for actual everyday work.
-It sets the variable <CODE>*package*</CODE> to
-<A HREF="impnotes.html#imppack"><CODE>COMMON-LISP-USER</CODE></A>
-and the symbol macro <CODE>*ansi*</CODE> to <CODE>t</CODE>.
+It sets the symbol macro <CODE>*ansi*</CODE> to <CODE>t</CODE>.
 See <A HREF="impnotes.html#ansi">impnotes.html,
 section "Maximum ANSI CL compliance"</A>, for details.
 <P>
+
+<dt><a name="Option -traditional"><b><code>-traditional</code></b></a></dt>
+<dd>Traditional: reverses the residual effects of
+    <a href="#Option -ansi"><code>-ansi</code></a>
+    in the saved image.</dd><p>
 
 <DT> <A NAME="Option -p"> <B><CODE>-p</CODE> <EM>packagename</EM></B> </A>
 <DD> At startup the value of the variable <CODE>*package*</CODE> will
 be set to the package named <EM>packagename</EM>. The default is the package
 which was active when the image was <A HREF="impnotes.html#image">saved</A>,
-normally <A HREF="impnotes.html#imppack"><CODE>USER</CODE></A>, or
-<A HREF="impnotes.html#imppack"><CODE>COMMON-LISP-USER</CODE></A> if the option
-<A HREF="#Option -a"><CODE>-a</CODE></A> was specified.
+normally <A HREF="impnotes.html#imppack"><CODE>USER</CODE></A>.
 <P>
 
 <DT> <A NAME="Option -C"> <B><CODE>-C</CODE></B> </A>
@@ -569,7 +572,7 @@ The value may begin with a two-letter ISO 639 language code, for example
 #ifdef EMUNIX_PORTABEL
 <DT> <CODE>TERM</CODE>
 <DD> specifies the terminal emulation <CODE>clisp</CODE>
-relies on. If you have ANSI.SYS loaded, possible values are
+relies on. If you have <code>ANSI.SYS</code> loaded, possible values are
 <CODE>ansi</CODE>, <CODE>ansi-color-2</CODE>, <CODE>ansi-color-3</CODE>
 and <CODE>mono</CODE>.
 <P>
@@ -594,11 +597,8 @@ and <CODE>mono</CODE>.
 
 <A HREF="impnotes.html">impnotes.html</A>,
 <CODE>cmucl</CODE>(1),
-#ifdef UNIX
-<CODE>xemacs</CODE>(1).
-#else
-<CODE>emacs</CODE>(1).
-#endif
+<CODE>emacs</CODE>(1),
+<CODE>xemacs</CODE>(1)
 
 
 <H2><A NAME="Bugs">Bugs</A></H2>
@@ -608,8 +608,8 @@ and <CODE>mono</CODE>.
 <LI> The memory management scheme is not very flexible.
 #endif
 <LI> Not all extensions from CLtL2 are supported.
-<LI> No on-line documentation beyond <CODE>apropos</CODE> and <CODE>describe</CODE>
-is available.
+<LI> No on-line documentation beyond <CODE>apropos</CODE>
+ and <CODE>describe</CODE> is available.
 #ifdef EMUNIX
 <LI> Stack overflow aborts the program ungracefully, with a register dump.
 <LI> Pressing Control-C may not interrupt <CODE>clisp</CODE> in every situation.
@@ -624,7 +624,7 @@ is available.
 
 <UL>
 <LI> Writing on-line documentation.
-<LI> Enhance the compiler such that it can inline local functions.
+<LI> Enhance the compiler so that it can inline local functions.
 <LI> Specify a portable set of window and graphics operations.
 </UL>
 
