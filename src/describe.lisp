@@ -74,54 +74,43 @@ to print the corresponding values, or T for all of them.")
 (clos:defclass describe-stream (fundamental-character-output-stream)
   ((target-stream :initarg :stream :type stream)
    (indent :initform 0 :type integer) ; current line's indentation
-   (pending-indent :initform nil :type (or null integer))
-) )
+   (pending-indent :initform nil :type (or null integer))))
 (clos:defmethod stream-write-char ((stream describe-stream) ch)
   (clos:with-slots (target-stream indent pending-indent) stream
-    (if (eql ch #\Newline)
-      (progn
-        (write-char ch target-stream)
-        (setq indent (* *describe-nesting* *print-indent-lists*))
-        (setq pending-indent indent)
-      )
-      (progn
-        (when pending-indent
-          (dotimes (i pending-indent) (write-char #\Space target-stream))
-          (setq pending-indent nil)
-        )
-        (write-char ch target-stream)
-) ) ) )
+    (case ch
+      (#\Newline
+       (write-char ch target-stream)
+       (setq indent (* *describe-nesting* *print-indent-lists*))
+       (setq pending-indent indent))
+      (t
+       (when pending-indent
+         (sys::write-spaces pending-indent target-stream)
+         (setq pending-indent nil))
+       (write-char ch target-stream)))))
 (clos:defmethod stream-line-column ((stream describe-stream))
   (clos:with-slots (target-stream indent) stream
     (let ((pos (sys::line-position target-stream)))
-      (if pos (max (- pos indent) 0) nil)
-) ) )
+      (if pos (max (- pos indent) 0) nil))))
 (clos:defmethod stream-start-line-p ((stream describe-stream))
   (clos:with-slots (target-stream indent) stream
     (let ((pos (sys::line-position target-stream)))
-      (if pos (<= pos indent) nil)
-) ) )
+      (if pos (<= pos indent) nil))))
 (clos:defmethod stream-finish-output ((stream describe-stream))
   (clos:with-slots (target-stream pending-indent) stream
     (when pending-indent
-      (dotimes (i pending-indent) (write-char #\Space target-stream))
-      (setq pending-indent nil)
-    )
-    (finish-output target-stream)
-) )
+      (sys::write-spaces pending-indent target-stream)
+      (setq pending-indent nil))
+    (finish-output target-stream)))
 (clos:defmethod stream-force-output ((stream describe-stream))
   (clos:with-slots (target-stream pending-indent) stream
     (when pending-indent
-      (dotimes (i pending-indent) (write-char #\Space target-stream))
-      (setq pending-indent nil)
-    )
-    (force-output target-stream)
-) )
+      (sys::write-spaces pending-indent target-stream)
+      (setq pending-indent nil))
+    (force-output target-stream)))
 (clos:defmethod stream-clear-output ((stream describe-stream))
   (clos:with-slots (target-stream pending-indent) stream
     (setq pending-indent nil)
-    (clear-output target-stream)
-) )
+    (clear-output target-stream)))
 
 ;; Returns the length of the list, or nil if circular.
 ;; The second value is the last atom (i.e., `dotted-p').

@@ -12635,9 +12635,9 @@ Die Funktion make-closure wird dazu vorausgesetzt.
 ) )
 #+CLISP
 (defun stream-tab (stream tab)
-  (dotimes (i (let ((pos (sys::line-position stream)))
-                (if pos (max 1 (- tab pos)) 2)))
-    (write-char #\Space stream)))
+  (sys::write-spaces (let ((pos (sys::line-position stream)))
+                       (if pos (max 1 (- tab pos)) 2))
+                     stream))
 #+CLISP
 (defun disassemble-closure (closure &optional (stream *standard-output*))
   (terpri stream)
