@@ -2648,13 +2648,13 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
         check_for_illegal_keywords(
           TheSubr(fun)->key_flag == subr_key_allow,
           { pushSTACK(bad_keyword); # save bad Keyword
+            pushSTACK(fun); /* save the function */
             # convert Keyword-Vector to a List:
             # (SYS::COERCE-SEQUENCE kwvec 'LIST)
             coerce_sequence(TheSubr(fun)->keywords,S(list),true);
-           {var object kwlist = value1;
-            fehler_key_badkw(fun,popSTACK(),kwlist);
-          }}
-          );
+            fun = popSTACK(); bad_keyword = popSTACK();
+            fehler_key_badkw(fun,bad_keyword,value1);
+          });
         #undef for_every_keyword
       # now assign Arguments and Parameters:
         if (key_anz > 0) {
@@ -2731,14 +2731,14 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
         check_for_illegal_keywords(
           !((TheCodevec(codevec)->ccv_flags & bit(6)) == 0),
           { pushSTACK(bad_keyword); # save
+            pushSTACK(closure); /* save the closure */
             # build list of legal Keywords:
             for_every_keyword( { pushSTACK(keyword); } );
-            var object kwlist = listof(key_anz);
-            bad_keyword = popSTACK();
+           {var object kwlist = listof(key_anz);
+            closure = popSTACK(); bad_keyword = popSTACK();
             # report errors:
             fehler_key_badkw(closure,bad_keyword,kwlist);
-          }
-          );
+           }});
         #undef for_every_keyword
       # now assign Arguments and Parameters:
         if (key_anz > 0) {
