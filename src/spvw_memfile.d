@@ -17,7 +17,7 @@ local void loadmem (const char* filename);
 /* --------------------------- Implementation --------------------------- */
 
 /* Flags, that influence the format of a MEM-file: */
-local uint32 memflags =
+local const uint32 memflags =
   /* typecode allocation: */
  #ifdef WIDE
   bit(0) |

@@ -1,7 +1,7 @@
 /* Debugging utilities. */
 
 /* Output a memory range in hexadecimal notation */
-local char hex_table[] = "0123456789ABCDEF";
+local const char hex_table[] = "0123456789ABCDEF";
 local void mem_hex_out (const void* buf, uintL count) {
   if (count > 0) {
     var DYNAMIC_ARRAY(cbuf,char,3*count+1);
