@@ -1,6 +1,8 @@
-# Internationalization for CLISP
-# Bruno Haible 1990-2004
-# Sam Steingold 1998-2002
+/*
+ * Internationalization for CLISP
+ * Bruno Haible 1990-2004
+ * Sam Steingold 1998-2004
+ */
 
 #include "lispbibl.c"
 
