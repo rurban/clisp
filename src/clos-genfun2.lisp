@@ -60,8 +60,7 @@
                          (TEXT "Incorrect ~S argument: Some variable occurs twice in ~S")
                          ':argument-precedence-order argument-precedence-order))
               (unless (eql (length indices) reqnum) ; surjective?
-                (let ((missing (set-difference
-                                reqvars argument-precedence-order)))
+                (let ((missing (set-difference reqvars argument-precedence-order)))
                   (funcall errfunc missing
                            (TEXT "Incorrect ~S argument: The variables ~S are missing in ~S")
                            ':argument-precedence-order
@@ -568,16 +567,21 @@
 ;;   )        )
 
 #||
- (defun make-gf (generic-function-class name lambdabody signature argorder methods)
-  (let ((preliminary
+(defun make-gf (generic-function-class name lambdabody lambda-list argument-precedence-order method-combination methods)
+  (let ((final
+          (make-generic-function-instance generic-function-class
+            :name name
+            :lambda-list lambda-list
+            :argument-precedence-order argument-precedence-order
+            :method-combination method-combination))
+        (preliminary
          (eval `(LET ()
                   (DECLARE (COMPILE))
                   (%GENERIC-FUNCTION-LAMBDA ,@lambdabody)))))
-    (sys::%make-closure
-     name (sys::closure-codevec preliminary)
-     (list (sys::%record-ref preliminary 2)
-           signature argorder methods)
-     nil)))
+    (assert (<= (sys::%record-length preliminary) 3))
+    (set-funcallable-instance-function final preliminary)
+    (setf (std-gf-methods final) methods)
+    final))
 ||#
 
 
@@ -598,101 +602,34 @@
                     (%GENERIC-FUNCTION-LAMBDA (&REST ARGS)
                       (DECLARE (INLINE APPLY))
                       (APPLY 'SLOW-FUNCALL-GF GF ARGS))))))
-    (setf (sys::%record-ref final 1) (sys::closure-codevec preliminary))
-    (setf (sys::%record-ref final 2) (sys::%record-ref preliminary 2))
+    (assert (<= (sys::%record-length preliminary) 3))
+    (set-funcallable-instance-function final preliminary)
     (setf (std-gf-methods final) methods)
     final))
 
- (let* ((prototype
-         (let ((gf 'magic))
+(flet ((prototype-factory (gf)
            (declare (compile))
            (%generic-function-lambda (&rest args)
              (declare (inline apply))
              (apply 'slow-funcall-gf gf args))))
-       (prototype-code (sys::%record-ref prototype 1))
-       (prototype-consts (sys::%record-ref prototype 2)))
+  (assert (<= (sys::%record-length (prototype-factory 'dummy)) 3))
+  (let ((prototype-code (sys::closure-codevec (prototype-factory 'dummy))))
   (defun finalize-slow-gf (gf)
-    (setf (sys::%record-ref gf 1) prototype-code)
-    (setf (sys::%record-ref gf 2)
-          (let ((v (copy-seq prototype-consts)))
-            (setf (svref v 0) (substitute gf 'magic (svref v 0)))
-            v)))
-  (defun gf-never-called-p (gf) (eq (sys::%record-ref gf 1) prototype-code))
-  (defun warn-if-gf-already-called (gf) ))
+      (set-funcallable-instance-function gf (prototype-factory gf)))
+    (defun gf-never-called-p (gf)
+      (eq (sys::closure-codevec gf) prototype-code))
+    (defun warn-if-gf-already-called (gf) )))
 
- ;; call of a generic function
+;; Call of a generic function.
+;; Without any caching: Compute the effective method at each call.
  (defun slow-funcall-gf (gf &rest args)
-  (let ((reqanz (sig-req-num (std-gf-signature gf)))
-        (arg-order (std-gf-argorder gf))
-        (methods (std-gf-methods gf)))
-    (unless (>= (length args) reqanz)
+  (unless (>= (length args) (sig-req-num (std-gf-signature gf)))
       (error-of-type 'program-error
         (TEXT "Too few arguments to ~S: ~S")
         gf args))
-    (let ((req-args (subseq args 0 reqanz)))
-      ;; Determine the effective method:
-      ;; 1. Select the applicable methods:
-      (setq methods
-        (remove-if-not
-         #'(lambda (method) (method-applicable-p method req-args))
-         methods))
-      (when (null methods)
-        (return-from slow-funcall-gf
-          (no-method-caller 'no-applicable-method gf)))
-      ;; 2. Sort the applicable methods by precedence order:
-      (setq methods (sort-applicable-methods methods req-args arg-order))
-      ;; 3. Apply method combination:
-      ;; Only STANDARD method-combination is implemented.
-      ;; partition into the distinct method-types:
-      (multiple-value-bind
-            (primary-methods before-methods after-methods around-methods)
-          (partition-method-list methods)
-        (when (null primary-methods)
-          (return-from slow-funcall-gf
-            (no-method-caller 'no-primary-method gf)))
-        ;; combine methods into an "effective method" :
-        (labels ((ef-1 (primary-methods before-methods after-methods around-methods)
-                   (if (null around-methods)
-                     (ef-2 primary-methods before-methods after-methods)
-                     (let* ((1method (first around-methods))
-                            (1function (std-method-fast-function 1method)))
-                       (if (std-method-wants-next-method-p 1method)
-                         (let ((next-ef
-                                 (ef-1 primary-methods before-methods after-methods (rest around-methods))))
-                           #'(lambda (&rest args) (apply 1function next-ef args)))
-                         #'(lambda (&rest args) (apply 1function args))))))
-                 (ef-2 (primary-methods before-methods after-methods)
-                   (if (null after-methods)
-                     (ef-3 primary-methods before-methods)
-                     (let* ((1method (first after-methods))
-                            (1function (std-method-fast-function 1method)))
-                       (let ((next-ef (ef-2 primary-methods before-methods (rest after-methods))))
-                         #'(lambda (&rest args) (multiple-value-prog1 (apply next-ef args) (apply 1function args)))))))
-                 (ef-3 (primary-methods before-methods)
-                   (if (null before-methods)
-                     (ef-4 primary-methods)
-                     (let* ((1method (first before-methods))
-                            (1function (std-method-fast-function 1method)))
-                       (let ((next-ef (ef-3 primary-methods (rest before-methods))))
-                         #'(lambda (&rest args) (progn (apply 1function args) (apply next-ef args)))
-                 ) ) ) )
-                 (ef-4 (primary-methods)
-                   (if (null primary-methods)
-                     nil ; no function, NEXT-METHOD-P reacts on it
-                     (let* ((1method (first primary-methods))
-                            (1function (std-method-fast-function 1method)))
-                       (if (std-method-wants-next-method-p 1method)
-                         (let ((next-ef (ef-4 (rest primary-methods))))
-                           #'(lambda (&rest args) (apply 1function next-ef args))
-                         )
-                         #'(lambda (&rest args) (apply 1function args))
-                )) ) ) )
-          (let ((ef (ef-1 primary-methods before-methods after-methods
-                          around-methods)))
-            ;; keyword-check (CLtL2 28.1.6.4., 28.1.6.5., ANSI CL 7.6.4., 7.6.5.) ??
-            ;; return effective method.
-            ;; It will then be applied to the arguments:
-            ef))))))
+  ;; Determine the effective method.
+  ;; Return the effective method. It will then be applied to the arguments.
+  (apply #'compute-applicable-methods-effective-method gf args))
 
 ||#
 
@@ -700,6 +637,10 @@
   (or (sig-rest-p sig) (> (sig-opt-num sig) 0)))
 
 ;; Generic functions with optimized dispatch:
+
+;; First optimization: When the generic function is called, the required
+;; arguments are not consed up into an argument list, but rather passed on
+;; the stack.
 
 (let ((prototype-factory-table
         (make-hash-table :key-type '(cons fixnum boolean) :value-type '(cons function (simple-array (unsigned-byte 8) (*)))
@@ -767,10 +708,11 @@
 ) ; let
 
 
-;; The actual dispatch-code is calculated at the first call of the function,
-;; in order to make successive method definitions not too expensive.
+;; Second optimization: The actual dispatch-code is calculated at the first
+;; call of the function, in order to make successive method definitions not
+;; too expensive.
 
-;; first call of a generic function:
+;; First call of a generic function:
 (defun initial-funcall-gf (gf)
   (install-dispatch gf)
   gf)
@@ -815,7 +757,6 @@
 ;;   method is located:
 ;;   (LET ((EM (GETHASH (CONS (CLASS-OF ...) ...) ht1)))
 ;;     (WHEN EM (RETURN-FROM block (APPLY EM Arguments))))
-
 ;;   If that failed:
 ;;   (APPLY 'COMPUTE-AND-ADD-EFFECTIVE-METHOD gf Arguments)
 ;; )
@@ -1426,7 +1367,7 @@
   (let ((ef-fun (compute-effective-method-as-function-form gf combination methods)))
     ;; Evaluate or compile the resulting form:
     (if (constantp ef-fun) ; constant or self-evaluating form?
-      ;; No need to invoke the compile for a constant form.
+      ;; No need to invoke the compiler for a constant form.
       ef-fun
       ;; For a general form:
       ;; (eval ef-fun)                                 ; interpreted
