@@ -304,8 +304,8 @@
 	* constsym.d (set_hash_table_weak_p, set_package_lock, setelt)
 	(set_hash_table_warn_if_needs_rehash_after_gc, set_long_float_digits):
 	use "(SETF FOO)" instead of "%SET-FOO"
-	* hashtabl.d ((SETF HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC),
-	(SETF HASH-TABLE-WEAK-P)): updated calling conventions
+	* hashtabl.d ((SETF HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC))
+	((SETF HASH-TABLE-WEAK-P)): updated calling conventions
 	* package.d ((SETF EXT:PACKAGE-LOCK)): ditto
 	* sequence.d ((SETF ELT)): ditto
 	* places.lisp (package-lock, hash-table-weak-p, elt, long-float-digits)
