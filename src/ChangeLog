@@ -1,3 +1,7 @@
+2004-12-24  Bruno Haible  <bruno@clisp.org>
+
+	* clx/mit-clx/dependent.lisp (open-x-stream): Fix when display /= 0.
+
 2005-01-15  Bruno Haible  <bruno@clisp.org>
 
 	* clos-class1.lisp (print-object-<potential-class>): Improve
