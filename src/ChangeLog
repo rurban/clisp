@@ -1,3 +1,8 @@
+2004-03-21  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (installcheck): pass "-E utf-8 -norc" to CLISP
+	Reported by Pascal J.Bourguignon <pjb@informatimago.com>
+
 2004-03-21  Bruno Haible  <bruno@clisp.org>
 
 	* error.d (check_string): Remove special handling of nil-vectors.
