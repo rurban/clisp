@@ -16,7 +16,7 @@ AC_HEADER_STDC
 AC_HEADER_TIME
 CL_UTSNAME
 AC_CHECK_HEADERS(errno.h fcntl.h netdb.h sys/resource.h utime.h wchar.h dnl
-pwd.h sys/stat.h sys/time.h sys/unistd.h time.h unistd.h)
+pwd.h sys/stat.h sys/time.h sys/unistd.h time.h unistd.h limits.h)
 AC_CHECK_HEADERS(shlobj.h)
 if test "$ac_cv_header_shlobj_h" = yes ; then
    LIBS=${LIBS}' -luser32 -lole32 -loleaut32 -luuid';
