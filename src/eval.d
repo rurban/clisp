@@ -546,10 +546,7 @@ global void progv (object symlist, object vallist) {
       fehler(program_error,
              GETTEXT("~: ~ is a constant, cannot be bound dynamically"));
     }
-    pushSTACK(symlistr);
-    symbol_value_check_lock(S(progv),sym);
-    symlistr = STACK_0;
-    STACK_0 = Symbol_value(sym); # old value of the variables
+    pushSTACK(Symbol_value(sym)); # old value of the variables
     pushSTACK(sym); # variable
     symlistr = Cdr(symlistr);
   }
