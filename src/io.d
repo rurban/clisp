@@ -7027,7 +7027,12 @@ local void pr_character (const gcv_object_t* stream_, object ch) {
     write_ascii_char(stream_,'#');
     write_ascii_char(stream_,'\\');
     var chart code = char_code(ch); # code
-    if (as_cint(code) > 0x20 && as_cint(code) < 0x7F) {
+    # The printing of #\Space depends on CUSTOM:*PRINT-SPACE-CHAR-ANSI*. The
+    # default is to print it in the traditional way "#\Space" because "#\ "
+    # may 1. confuse users, 2. cause problems with editors which automatically
+    # remove whitespace from the end of lines.
+    if (as_cint(code) >= (nullpSv(print_space_char_ansi) ? 0x21 : 0x20)
+        && as_cint(code) < 0x7F) {
       # graphic standard character -> don't even lookup the name
       write_code_char(stream_,code);
     } else {

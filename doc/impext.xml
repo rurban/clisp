@@ -1525,6 +1525,7 @@ N. Gray to X3J13.</para>
 
 <itemizedlist>
  <listitem><simpara>Setting &pathprint; to &t;.</simpara></listitem>
+ <listitem><simpara>Setting &spacecharprint; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &fixnum-char-ansi; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &count-ansi; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &pathmerge; to &t;.</simpara></listitem>
@@ -1543,6 +1544,7 @@ N. Gray to X3J13.</para>
 
 <itemizedlist>
  <listitem><simpara>Setting &pathprint; to &nil;.</simpara></listitem>
+ <listitem><simpara>Setting &spacecharprint; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &fixnum-char-ansi; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &count-ansi; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &pathmerge; to &nil;.</simpara></listitem>
@@ -1711,6 +1713,7 @@ here <function>WITH-FOO</function> does not receive the
   <member>&pathprint;</member>
   <member><varname>CUSTOM:*PRINT-PRETTY-FILL*</varname></member>
   <member>&pr-rpars;</member>
+  <member>&spacecharprint;</member>
   <member>&prompt-body;</member>
   <member>&prompt-break;</member>
   <member>&prompt-finish;</member>
