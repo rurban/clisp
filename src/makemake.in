@@ -1055,7 +1055,6 @@ else
   case $TSYS in mips | ip*)
     # IRIX 4 "cc -ansi" sometimes barfs when a string constant contains one
     # or more quotes('). They must be written as \047.
-    ANSIDECLFLAGS="${ANSIDECLFLAGS} -DQUOTE_QUOTES"
     TXT2CFLAGS="${TXT2CFLAGS} -DQUOTE_QUOTES"
   esac
   if [ $TSYS = sun4 ] ; then
@@ -1990,10 +1989,9 @@ if [ $CC_NEED_CCPAUX = true -o $XCC_NEED_CCPAUX = true -o $XASM_NEED_CCPAUX = tr
 else
   NEED_CCPAUX=false
 fi
-XDECL_FILTER="| \$(ANSIDECL) | \$(VARBRACE)"
-XDECL_DEPENDENCIES=" ansidecl${HEXE} varbrace${HEXE}"
+XDECL_FILTER="| \$(VARBRACE)"
+XDECL_DEPENDENCIES=" varbrace${HEXE}"
 
-echol "ANSIDECL = ${HERE}ansidecl"
 echol "VARBRACE = ${HERE}varbrace"
 if [ $CC_NEED_CCPAUX = true ] ; then
   CCPAUX='ccpaux'$HEXE
@@ -2113,7 +2111,6 @@ if [ $NEED_CCPAUX = true ] ; then
   UTILS=$UTILS' ccpaux'
 fi
 UTILS=$UTILS' comment5'
-UTILS=$UTILS' ansidecl'
 UTILS=$UTILS' varbrace'
 if [ $XCC_NEED_DEEMA = true -a $HOS != unix ] ; then
   UTILS=$UTILS' deema'
@@ -2216,19 +2213,9 @@ for util in ${UTILS} ; do
         echol
       fi
       ;;
-    ansidecl )
-      flags="${ANSIDECLFLAGS}"
-      echol "${util}${HEXE} : ${UTILDIR_M}${util}.d comment5${HEXE}"
-      echotab "\$(LN_S) ${UTILDIR_}${util}.d ${util}.d"
-      echotab "\$(COMMENT5) ${util}.d ${util}.c"
-      echotab "\$(RM) ${util}.d"
-      echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)${flags}" "${util}.c" "${util}"
-      echotab "\$(RM) ${util}.c"
-      echol
-      OBSOLETE=$OBSOLETE" ${util}.c" ;;
     varbrace )
-      echol "${util}${HEXE} : ${UTILDIR_M}${util}.d comment5${HEXE} ansidecl${HEXE}"
-      echotabpipe "\$(COMMENT5) ${UTILDIR_CC}${util}.d | \$(ANSIDECL) > ${util}.c"
+      echol "${util}${HEXE} : ${UTILDIR_M}${util}.d comment5${HEXE}"
+      echotabpipe "\$(COMMENT5) ${UTILDIR_CC}${util}.d > ${util}.c"
       echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${util}.c" "${util}"
       echotab "\$(RM) ${util}.c"
       echol
