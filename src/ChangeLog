@@ -1,3 +1,8 @@
+2001-06-25  Bruno Haible  <haible@clisp.cons.org>
+
+	* condition.lisp (handler-case): After signalling a warning for
+	duplicated :NO-ERROR clause, don't treat it like a regular clause.
+
 2001-06-16  Bruno Haible  <haible@clisp.cons.org>
 
 	Back out unneeded 2001-04-06 patch.

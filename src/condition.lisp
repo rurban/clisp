@@ -573,7 +573,7 @@ abort continue muffle-warning store-value use-value
 (defmacro handler-case (form &rest clauses)
   ;; split off the :NO-ERROR clause and
   ;; add a GO tag to the other clauses (type varlist . body)
-  (let ((no-error-clause nil)
+  (let ((no-error-clause nil) ; the :no-error clause, if found
         (extended-clauses '())) ; ((tag type varlist . body) ...)
     (do ()
         ((endp clauses))
@@ -586,13 +586,10 @@ abort continue muffle-warning store-value use-value
                            'handler-case clause))
           (when (eq (first clause) ':no-error)
             (if (null no-error-clause)
-              (progn (setq no-error-clause clause)
-                     ;;(when clauses
-                     ;;  (warn (ENGLISH "~S: ~S is not the last clause: ~S")
-                     ;;        'handler-case ':no-error clause))
-                     (return-from check-clause))
+              (setq no-error-clause clause)
               (warn (ENGLISH "~S: multiple ~S clauses: ~S and ~S")
-                    'handler-case ':no-error clause no-error-clause)))
+                    'handler-case ':no-error clause no-error-clause))
+            (return-from check-clause))
           (let ((varlist (second clause))) ; known to be a list
             (unless (null (cdr varlist))
               (error-of-type 'source-program-error
