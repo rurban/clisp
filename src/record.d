@@ -597,7 +597,8 @@ LISPFUN(make_load_time_eval,seclass_no_se,1,0,norest,nokey,0,NIL) {
  variables, however.
 
  (SYMBOL-MACRO-EXPAND symbol) tests if a symbol represents a symbol-macro
- and returns T and the expansion if true, NIL if false.
+ in the global environment and returns T and the expansion if true, NIL if
+ false.
 */
 /* (SYS::MAKE-SYMBOL-MACRO expansion) returns a symbol-macro-object,
    that represents the given expansion. */

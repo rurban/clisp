@@ -687,9 +687,13 @@ is the same as
  <firstterm>&symbol-mex;<indexterm id="symbol-mex" significance="preferred">
    <primary id="symbol-mex-i"><function>SYMBOL-MACRO-EXPAND</function>
  </primary></indexterm></firstterm>
- tests for a &symbol-macro;: If &symbol-r; is defined as a &symbol-macro;,
- <code>(&symbol-mex; &symbol-r;)</code> returns two
+ tests for a &symbol-macro;: If &symbol-r; is defined as a &symbol-macro;
+ in the &glo-env;, <code>(&symbol-mex; &symbol-r;)</code> returns two
  values, &t; and the expansion; otherwise it returns &nil;.</para>
+
+<para>&symbol-mex; is a special case of &macroexpand-1;. &macroexpand-1;
+ can also test whether a symbol is defined as a &symbol-macro; in &lex-env;s
+ other than the &glo-env;.</para>
 
 <para>Calling &boundp; on a symbol defined as a &symbol-macro; returns
  &t;.</para>
