@@ -1019,7 +1019,7 @@ is the same as
  <literal role="sexp">(&readtable-case; &readtable-var;)</literal>,
  though.</para>
 
-<section id="re-export"><title><function>EXT:RE-EXPORT</function></title>
+<section id="re-export"><title>Function &re-export;</title>
 
 <para>The function <literal role="sexp"
  >(&re-export; <replaceable>FROM-PACK</replaceable>
@@ -1027,7 +1027,7 @@ is the same as
  re-exports all external symbols from
  <replaceable>FROM-PACK</replaceable> also from
  <replaceable>TO-PACK</replaceable>, provided it already uses
- <replaceable>FROM-PACK</replaceable>.
+ <replaceable>FROM-PACK</replaceable>; and signals an error otherwise.
 </para></section>
 
 </section>
@@ -1107,12 +1107,10 @@ is the same as
  <constant>:IEEE-FLOATING-POINT</constant> keyword.</para>
 
 <para id="lfd">Long floats have variable mantissa length, which is a
- multiple of 16 (or 32, depending on the word size of the
- processor).  The default length used when long floats are read is given
- by the place <literal role="sexp">(&lfd;)</literal>.  It can be set by
- <literal role="sexp">(&setf; (&lfd;)
- <replaceable>nnn</replaceable>)</literal>, where
- <replaceable>nnn</replaceable> is a positive integer.  E.g., <literal
+ multiple of 16 (or 32, depending on the word size of the processor).
+ The default length used when long floats are read is given by the place
+ &lfd-l;.  It can be set by <literal role="sexp">(&setf; (&lfd;)
+ &n-r;)</literal>, where &n-r; is a positive integer.  E.g., <literal
  role="sexp">(&setf; (&lfd;) 3322)</literal> sets the default precision
  of long floats to 1000 decimal digits.</para>
 
@@ -1303,7 +1301,8 @@ is the same as
 <formalpara><title>&expt;</title>
 <para><literal role="sexp">(&expt; &base-r;
  <replaceable>exponent</replaceable>)</literal> is not very precise if
- exponent has large absolute value.</para></formalpara>
+ <replaceable>exponent</replaceable> has a large absolute
+ value.</para></formalpara>
 
 <formalpara><title>&log;</title>
 <para><literal role="sexp">(&log; &number-r; &base-r;)</literal> signals
@@ -1311,9 +1310,9 @@ is the same as
 
 <formalpara><title>&pi;</title>
 <para>The value of &pi; is a &long-float-type; with the precision given
- by <literal role="sexp">(&lfd;)</literal>.  When this precision is
- changed, the value of &pi; is automatically recomputed.  Therefore &pi;
- is a variable, not a constant.</para></formalpara>
+ by &lfd-l;.  When this precision is changed, the value of &pi; is
+ automatically recomputed.  Therefore &pi; is a variable, not a
+ constant.</para></formalpara>
 
 </section>
 
@@ -1384,8 +1383,7 @@ is the same as
  &least-positive-long-float; &least-positive-normalized-long-float;
  &long-float-epsilon; &long-float-negative-epsilon;
  &most-negative-long-float; &most-positive-long-float; are recomputed
- whenever <literal role="sexp">(&lfd;)</literal> is
- changed.  They are variables, not constants.</para>
+ whenever &lfd-l; is &setf;ed.  They are variables, not constants.</para>
 
 </section>
 
