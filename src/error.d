@@ -686,12 +686,13 @@ nonreturning_function(global, fehler_list, (object obj)) {
 
 /* error-message, if an object is not a true list.
  fehler_proper_list(obj);
- > obj: end of the list, non-list
- > caller: the caller (a SUBR) */
-nonreturning_function(global, fehler_proper_list,(object obj, object caller)){
+ > caller: the caller (a symbol)
+ > obj: end of the list, non-list */
+nonreturning_function(global, fehler_proper_list, (object caller, object obj))
+{
   pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
   pushSTACK(S(list)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(caller)->name);
+  pushSTACK(obj); pushSTACK(caller);
   fehler(type_error,GETTEXT("~: A true list must not end with ~"));
 }
 
