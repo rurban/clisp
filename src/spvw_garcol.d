@@ -139,6 +139,16 @@
         { dies = objectplus(vorg,-(soint)offsetofa(svector_,data)<<(oint_addr_shift-addr_shift)); # Svector wird aktuelles Objekt \
           vorg = vorvorg; goto up; # weiter aufsteigen          \
         }
+      #define down_weakkvt()                                      \
+        if (in_old_generation(dies,typecode(dies),0)) goto up;    \
+        { var object* dies_ = (object*)TheSvector(dies);          \
+          if (marked(dies_)) goto up;                             \
+          mark(dies_);                                            \
+        } goto up; # no elements to "sub-mark"
+      #define up_weakkvt()  \
+        { dies = objectplus(vorg,-(soint)offsetofa(svector_,data)<<(oint_addr_shift-addr_shift)); # Svector wird aktuelles Objekt \
+          vorg = vorvorg; goto up; # weiter aufsteigen          \
+        }
       #define down_record()  \
         if (in_old_generation(dies,typecode(dies),0))           \
           goto up; # ältere Generation nicht markieren          \
@@ -216,6 +226,8 @@
                   down_iarray();
                 case_svector: # simple-vector
                   down_svector();
+                case_weakkvt: # weak-key-value-table
+                  down_weakkvt();
                 case_record: # Srecord/Xrecord
                   down_record();
                 case_machine: # Maschinenadresse
@@ -257,6 +269,8 @@
                         down_nopointers(TheRecord);
                       case Rectype_Svector:
                         down_svector();
+                      case Rectype_WeakKVT:
+                        down_weakkvt();
                       case Rectype_mdarray:
                       case Rectype_bvector:
                       case Rectype_b2vector:
@@ -313,6 +327,8 @@
                     up_pair();
                   case_symbol: # Symbol
                     up_varobject(symbol_objects_offset);
+                  case_weakkvt: # weak-key-value-table
+                    up_weakkvt();
                   case_svector: # simple-vector with at least 1 component
                     up_svector();
                   case_mdarray: case_obvector: case_ob2vector:
@@ -373,6 +389,8 @@
       #undef down_record
       #undef up_svector
       #undef down_svector
+      #undef up_weakkvt
+      #undef down_weakkvt
       #undef up_iarray
       #undef down_iarray
       #undef down_nopointers
