@@ -755,7 +755,7 @@ for-value   NIL or T
     ;; current SP is SP+4*kd (for k=NIL) resp. SP+4*(k+kd).
     (when (eq stackz1 stackz2) (return))
     (when (atom stackz1) (compiler-error 'access-in-stack "STACKZ-END"))
-    (let ((item (car stackz1)))
+    (let ((item (pop stackz1)))
       (cond ((integerp item) (setq n (+ n item)))
             ((consp item)
              (case (first item)
@@ -773,8 +773,7 @@ for-value   NIL or T
                (MVCALLP        (setq kd (spd+ kd (spd 1 0)) n (+ n 1)))
                ((MVCALL ANYTHING)
                                (setq k (if k (spd+ k kd) kd) kd (spd 1 0) n 0))
-               (t (compiler-error 'access-in-stack "STACKZ-ITEM"))))))
-    (setq stackz1 (cdr stackz1)))
+               (t (compiler-error 'access-in-stack "STACKZ-ITEM")))))))
   (when (and (consp stackz2) ; on access to BLOCK- resp. TAGBODY-consvar:
              (or (eq (car stackz2) 'BLOCK)
                  (and (consp (car stackz2))
@@ -1211,18 +1210,22 @@ for-value   NIL or T
   ;; coarse loop, determines the Closure-depth k at VenvConst:
   (loop
     (when (eq venvc (var-venvc var)) (return))
-    (let ((item (car venvc)))
+    (when (atom venvc)
+      (compiler-error 'access-in-closure (list 'loop (var-name var))))
+    (let ((item (pop venvc)))
       (if (null k)
         ;; start of count, (not (listp item)) == (fnode-p item)
         (when (not (listp item)) (setq k 0))
-        (when (consp item) (incf k)))) ; count
-    (setq venvc (cdr venvc)))
+        (when (consp item) (incf k))))) ; count
   (if k
     (setq n nil)
     (multiple-value-setq (k n) (access-in-stack stackz (cdr (first venvc)))))
   (let ((m (do ((L (car (first venvc)) (cdr L))
                 (i 0 (1+ i)))
-               ((eq (car L) var) i))))
+               ((eq (car L) var) i)
+             (when (null L)
+               (compiler-error 'access-in-closure
+                               (list 'do (var-name var)))))))
     (values k n m)))
 
 (define-compiler-macro ext:special-variable-p (var &optional env &whole form)
@@ -4032,7 +4035,7 @@ for-value   NIL or T
                   (prog1 ; Venv has to be passed on construction
                       `((VENV ,(fnode-venvc fnode) ,*stackz*)
                         (PUSH))
-                    (setq *stackz* (cons 1 *stackz*))))
+                    (push 1 *stackz*)))
               ,@(mapcap ; Block-Conses have to be passed on construction
                   #'(lambda (block)
                       (prog1
@@ -4040,7 +4043,7 @@ for-value   NIL or T
                              `(BCONST ,block)
                              `(GET ,(block-consvar block) ,*venvc* ,*stackz*))
                            (PUSH))
-                        (setq *stackz* (cons 1 *stackz*))))
+                        (push 1 *stackz*)))
                   (fnode-Blocks fnode))
               ,@(mapcap ; Tagbody-Conses have to be passed on construction
                   #'(lambda (tagbody)
@@ -4050,7 +4053,7 @@ for-value   NIL or T
                                `(GET ,(tagbody-consvar tagbody)
                                      ,*venvc* ,*stackz*))
                             (PUSH))
-                        (setq *stackz* (cons 1 *stackz*))))
+                        (push 1 *stackz*)))
                   (fnode-Tagbodys fnode))
               ,@(if (fnode-gf-p fnode)
                   (progn
@@ -8679,6 +8682,8 @@ Optimizations that might apply after this one are retried.
 ;; Debugging hints:
  (in-package "SYSTEM")
  (setq *print-circle* t *suppress-check-redefinition* t)
+ (setq *print-length* 10 *print-level* 3)
+ (setq *print-length* nil *print-level* nil)
  (setf (package-lock *system-package-list*) nil)
 ;; avoid stack overflow in trace output (calls CLOS::INSTALL-DISPATCH)
 ;; by adding all needed PRINT-OBJECT methods before tracing begins:
