@@ -89,7 +89,7 @@ User visible changes
       ADD-DEPENDENT, REMOVE-DEPENDENT, UPDATE-DEPENDENT.
   See <http://clisp.cons.org/impnotes.html#mop-chap> for details,
   and <http://clisp.cons.org/impnotes.html#mop-clisp> for a list
-  of differences between CLISP and "The Art of MetaObject Protocol".
+  of differences between CLISP and "The Art of the Metaobject Protocol".
 
 * Several new datatypes that manage weak references:
     WEAK-LIST, WEAK-AND-RELATION, WEAK-OR-RELATION,
