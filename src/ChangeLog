@@ -1,3 +1,8 @@
+2004-05-21  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (BT_CHECK, unwind_back_trace): Depend on DEBUG_BACKTRACE,
+	not DEBUG_SPVW.
+
 2004-05-15  Bruno Haible  <bruno@clisp.org>
 
 	Let DEFSTRUCT generate regular (SETF FOO-BAR) functions instead of

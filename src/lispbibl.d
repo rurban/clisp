@@ -25,6 +25,7 @@
      DEBUG_OS_ERROR
      DEBUG_SPVW
      DEBUG_BYTECODE
+     DEBUG_BACKTRACE
  Flags that may be set through CFLAGS, in order to override the defaults:
    Object representation (on 32-bit platforms only):
      TYPECODES, HEAPCODES, STANDARD_HEAPCODES, LINUX_NOEXEC_HEAPCODES, WIDE
@@ -4899,7 +4900,6 @@ typedef struct {
   #ifdef GENERATIONAL_GC
   gcv_object_t ht_lastrehash         _attribute_aligned_object_;
   #endif
-  gcv_object_t ht_size               _attribute_aligned_object_;
   gcv_object_t ht_maxcount           _attribute_aligned_object_;
   gcv_object_t ht_itable             _attribute_aligned_object_;
   gcv_object_t ht_ntable             _attribute_aligned_object_;
@@ -4911,8 +4911,14 @@ typedef struct {
   gcv_object_t ht_mincount           _attribute_aligned_object_;
   gcv_object_t ht_test               _attribute_aligned_object_; /* hash-table-test - for define-hash-table-test */
   gcv_object_t ht_hash               _attribute_aligned_object_; /* hash function */
+  uintL ht_size;
 } *  Hashtable;
-#define hashtable_length  ((sizeof(*(Hashtable)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
+#ifdef GENERATIONAL_GC
+  #define hashtable_length  12
+#else
+  #define hashtable_length  11
+#endif
+#define hashtable_xlength  (sizeof(*(Hashtable)0)-offsetofa(record_,recdata)-hashtable_length*sizeof(gcv_object_t))
 # Mark a Hash Table as new to reorganize
 # mark_ht_invalid(TheHashtable(ht));
 #ifdef GENERATIONAL_GC
@@ -7831,7 +7837,7 @@ struct backtrace_t {
 };
 extern void back_trace_check (const struct backtrace_t *bt,
                               const char* label, const char* file, int line);
-#ifdef DEBUG_SPVW
+#ifdef DEBUG_BACKTRACE
 #define BT_CHECK(b,l) back_trace_check(b,l,__FILE__,__LINE__)
 #else
 #define BT_CHECK(b,l)
@@ -7873,7 +7879,7 @@ typedef const struct backtrace_t* p_backtrace_t;
 #define bt_beyond_stack_p(bt,st) \
   (bt && !((aint)st cmpSTACKop (aint)(bt->bt_stack)))
 /* unwind backtrace to the stack location */
-#ifdef DEBUG_SPVW
+#ifdef DEBUG_BACKTRACE
 #define unwind_back_trace(bt,st)                                        \
   do { BT_CHECK(bt,"unwind_back_trace");                                \
     while (bt_beyond_stack_p(bt,st)) bt=bt->bt_next;                    \
@@ -8608,7 +8614,8 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 # < result: LISP-object Hash-Table
 # can trigger GC
 #define allocate_hash_table()  \
-  allocate_xrecord(0,Rectype_Hashtable,hashtable_length,0,orecord_type)
+  allocate_xrecord(0,Rectype_Hashtable,hashtable_length,hashtable_xlength, \
+                   orecord_type)
 # is used by
 
 # UP: allocates  Readtable
