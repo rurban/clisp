@@ -1,3 +1,11 @@
+2001-06-22  Sam Steingold  <sds@gnu.org>
+
+	New debug command "Reset"(:re)
+	to restore the i/o - *PACKAGE* and *READTABLE*
+	* reploop.lisp (debug-reset-io): new function
+	(*saved-debug-package*, *saved-debug-readtable*): new variables
+	(commands1): bind "Reset" and ":re" to `debug-reset-io'
+
 2001-06-21  Sam Steingold  <sds@gnu.org>
 
 	SOCKET-STATUS now accepts SOCKET-SERVERs too
