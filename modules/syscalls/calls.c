@@ -4,8 +4,6 @@
  * GPL2
  */
 
-#include "config.h"
-
 #if defined(_WIN32)
 /* need this for CreateHardLink to work */
 # define WINVER 0x0500
@@ -18,6 +16,7 @@
 #endif
 
 #include "clisp.h"
+#include "config.h"
 
 #if defined(TIME_WITH_SYS_TIME)
 # include <sys/time.h>
