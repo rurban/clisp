@@ -1,5 +1,20 @@
 2004-05-13  Bruno Haible  <bruno@clisp.org>
 
+	Make the hashcode of classes GC-invariant.
+	* lispbibl.d (Class): New field 'hashcode'.
+	* hashtabl.d (CLOS::CLASS-GETHASH): Inline hash_lookup and
+	hashcode1stable. Use the class' hashcode directly.
+	* clos-class2.lisp (class): Inherit from structure-stablehash.
+	(std-compute-superclasses, add-direct-subclass, list-all-subclasses):
+	Use a hash table with test STABLEHASH-EQ.
+	* clos-class5.lisp (*make-instance-table*,
+	*reinitialize-instance-table*,
+	*update-instance-for-redefined-class-table*): Likewise.
+	* clos-genfun2.lisp (compute-dispatch): When the number of dispatching
+	arguments is 1, use a hash table with test STABLEHASH-EQ.
+
+2004-05-13  Bruno Haible  <bruno@clisp.org>
+
 	Use FASTHASH-EQ as test for hash tables indexed by characters.
 	* io.d (allocate_perchar_table, copy_perchar_table,
 	allocate_syntax_table, copy_readtable_contents): Use FASTHASH-EQ as

@@ -5513,6 +5513,7 @@ typedef Srecord  Structure;
 typedef struct {
   SRECORD_HEADER
   gcv_object_t structure_types_2       _attribute_aligned_object_; # list (metaclass <class>)
+  gcv_object_t hashcode                _attribute_aligned_object_; # GC invariant hash code
   gcv_object_t metaclass               _attribute_aligned_object_; # a subclass of <class>
   gcv_object_t classname               _attribute_aligned_object_; # a symbol
   gcv_object_t direct_superclasses     _attribute_aligned_object_; # direct superclasses

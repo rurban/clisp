@@ -26,7 +26,7 @@
 
 ;; Definition of <class> and its subclasses.
 
-(defstruct (class (:predicate nil))
+(defstruct (class (:inherit structure-stablehash) (:predicate nil))
   metaclass                ; (class-of class) = (class-metaclass class), a class
   classname                ; (class-name class) = (class-classname class), a symbol
   direct-superclasses      ; list of all direct superclasses (or their names,
@@ -793,7 +793,7 @@
 ;; Stuff all superclasses (from the precedence-list) into a hash-table.
 (defun std-compute-superclasses (precedence-list)
   (let ((ht (make-hash-table :key-type 'class :value-type '(eql t)
-                             :test #'eq)))
+                             :test 'ext:stablehash-eq :warn-if-needs-rehash-after-gc t)))
     (mapc #'(lambda (superclass) (setf (gethash superclass ht) t))
           precedence-list)
     ht))
@@ -1156,7 +1156,8 @@
                  (setf (ext:weak-list-list direct-subclasses) list)
                  (setf (class-direct-subclasses class)
                        (let ((ht (make-hash-table :key-type 'class :value-type '(eql t)
-                                                  :test #'eq :weak :key)))
+                                                  :test 'ext:stablehash-eq :warn-if-needs-rehash-after-gc t
+                                                  :weak :key)))
                          (dolist (x list) (setf (gethash x ht) t))
                          ht))))))
           (t (setf (gethash subclass direct-subclasses) t)))))
@@ -1189,7 +1190,8 @@
   ; Use a breadth-first search which removes duplicates.
   (let ((as-list '())
         (as-set (make-hash-table :key-type 'class :value-type '(eql t)
-                                 :test #'eq :rehash-size 2s0))
+                                 :test 'ext:stablehash-eq :warn-if-needs-rehash-after-gc t
+                                 :rehash-size 2s0))
         (pending (list class)))
     (loop
       (unless pending (return))
