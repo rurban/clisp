@@ -384,6 +384,23 @@ global void correctable_error (condition_t errortype, const char* errorstring)
   funcall(S(correctable_error),2);
 }
 
+/* Check that OBJ is of type TYPE and return it.
+ used only by modules at this time, thus not declared in lispbibl.d
+ can trigger GC */
+global object check_classname (object obj, object type) {
+  while (!typep_classname(obj,type)) {
+    pushSTACK(type);            /* save type */
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
+    pushSTACK(type);            /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(type); pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
+    obj = value1; type = popSTACK();
+  }
+  return obj;
+}
+
 #undef OS_error
 #undef OS_file_error
 #undef OS_filestream_error
