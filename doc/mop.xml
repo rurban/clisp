@@ -219,16 +219,13 @@ slot in instances of the class is available.
 <listitem><simpara>The argument precedence order is available as a
   permutation of those symbols from the &lalist; which name the
   required arguments of the generic function.</simpara></listitem>
-<listitem><simpara>The declarations are available as a list of declarations.
+<listitem><simpara>The &ldquo;declarations&rdquo; are available as a list
+ of &declaration-specifier-glo;s.
 </simpara>
-<note><simpara>There is some ambiguity in &cl; about the terms used to
-  identify the various parts of &declare; special forms.
-  In this document, the term <firstterm>declaration</firstterm> is used to
-  refer to an object that could be an argument to a &declare; special form.
-  For example, in the special form
-  <literal role="sexp">(&declare; (&special-dec; *g1*))</literal>,
-  the list <literal role="sexp">(&special-dec; *g1*)</literal>
-  is a declaration.</simpara></note></listitem>
+<note><simpara>There is a slight misnomer in the naming of functions and
+ options in this document: Where the term &ldquo;declaration&rdquo; is
+ used, actually a &declaration-specifier-glo; is meant.
+</simpara></note></listitem>
 &doc-li;</itemizedlist></para>
 <simpara>See also <xref linkend="mop-gf"/></simpara>
 </section><!-- mop-mo-gen-funs -->
@@ -2512,8 +2509,8 @@ initialization or reinitialization.
  <subtitle><literal role="sexp">(&gf-declarations;
    &gf-r;)</literal></subtitle>
 
-<para>Returns a possibly empty list of the declarations of the generic
-function.  The elements of this list are declarations.  This list is the
+<para>Returns a possibly empty list of the &ldquo;declarations&rdquo; of the generic
+function.  The elements of this list are &declaration-specifier-glo;s.  This list is the
 defaulted value of the &declarations-k; initialization argument that was
 associated with the generic function metaobject during initialization or
 reinitialization.</para></simplesect>
@@ -2595,7 +2592,7 @@ keyword argument with the same name.  If the option does not appear in
 the macro form, the keyword argument does not appear in the resulting
 call to &ensure-gf;.</simpara></listitem>
 <listitem><simpara>For the option <replaceable>declare</replaceable>,
-the list of declarations becomes the value of the &declarations-k;
+the list of &ldquo;declarations&rdquo; becomes the value of the &declarations-k;
 keyword argument.  If the <replaceable>declare</replaceable> option does
 not appear in the macro form, the &declarations-k; keyword argument does
 not appear in the call to &ensure-gf;.</simpara></listitem>
@@ -2718,9 +2715,9 @@ previously stored value is left unchanged.</para>
    argument, in the order they appear in that argument.  If neither
    argument is supplied, neither are initialized (see the description of
    &lambda-list-k;.)</simpara></listitem>
- <listitem><simpara>The &declarations-k; argument is a list of declarations.
+ <listitem><simpara>The &declarations-k; argument is a list of &declaration-specifier-glo;s.
   </simpara><simpara>An &err-sig; if this value is not a proper list or
-   if each of its elements is not a legal declaration.</simpara>
+   if each of its elements is not a legal &declaration-specifier-glo;.</simpara>
   <simpara>When the generic function is being initialized, and this
    argument is not supplied, it defaults to the empty list.
  </simpara></listitem>
@@ -3600,7 +3597,7 @@ environment of the &defmethod; form.</simpara></listitem>
 <listitem><simpara>The value of the &function-k; initialization
 argument is the method function.</simpara></listitem>
 <listitem><simpara>The value of the &declarations-k; initialization
-argument is a list of the declarations from the &defmethod; form.  If
+argument is a list of the &declaration-specifier-glo;s from the &defmethod; form.  If
 there are no declarations in the macro form, this initialization
 argument either doesn't appear, or appears with a value of the empty
 list.</simpara></listitem>
