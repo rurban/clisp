@@ -1,3 +1,9 @@
+1998-10-22  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * charstrg.d (coerce_char): An integer is coercible to a character
+          only if *ansi* is false.
+        * defs2.lsp (DESIGNATOR): Likewise.
+
 1998-10-30  Sam Steingold  <sds@goems.com>
 
 	* init.lsp (date-format): use ISO date/time format for English.

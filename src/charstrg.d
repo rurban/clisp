@@ -511,7 +511,7 @@
                 if (len==1) return code_char(ptr[0]);
             } }
             else
-            if (posfixnump(obj))
+            if (nullp(Symbol_value(S(ansi))) && posfixnump(obj))
               { var uintL code = posfixnum_to_L(obj);
                 if (code < char_int_limit)
                   # obj ist ein Fixnum >=0, < char_int_limit
