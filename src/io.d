@@ -8430,7 +8430,6 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
       pr_array(stream_,obj); break;
     case Rectype_Closure: # Closure
       pr_closure(stream_,obj); break;
-    case Rectype_realloc_Instance:
     case Rectype_Instance: # CLOS-Instance
       pr_instance(stream_,obj); break;
     case Rectype_Complex: case Rectype_Ratio:

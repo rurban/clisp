@@ -1,6 +1,6 @@
 /*
  * Functions for records and structures in CLISP
- * Bruno Haible 1990-2002
+ * Bruno Haible 1990-2004
  * Sam Steingold 1998-2002
  * German comments translated into English: Stefan Kain 2002-04-16
  */
@@ -752,7 +752,7 @@ LISPFUNNF(std_instance_p,1)
 local inline object class_of (object obj) {
   if (instancep(obj)) {
     instance_un_realloc(obj);
-    check_instance(obj);
+    instance_update(obj);
     return (object)TheInstance(obj)->inst_class;
   } else {
     pushSTACK(obj); C_class_of(); return value1;
@@ -951,28 +951,14 @@ LISPFUNN(pchange_class,3) {
   } else
     VALUES1(NIL);
   /* STACK: instance, new-class, new-instance */
-  { /* turn instance into a realloc (see reallocate_small_string
-       in spvw_typealloc.d for inspiration) */
+  { /* Turn instance into a realloc (see the instance_un_realloc macro): */
     set_break_sem_1(); /* forbid interrupts */
-    var Instance ptr;
-   #ifdef TYPECODES
-    ptr = (Instance)upointer(STACK_2);
-   #else
-    ptr = (Instance)TheRecord(STACK_2);
-   #endif
-    var object mutated_instance = /* mutation! */
-      bias_type_pointer_object(varobject_bias,instance_type,ptr);
-    ptr->GCself = mutated_instance;
-   #ifdef TYPECODES
-    ptr->rectype = Rectype_realloc_Instance;
-   #else
-    ptr->tfl = xrecord_tfl(Rectype_realloc_Instance,0,xrecord_length(ptr),
-                           xrecord_xlength(ptr));
-   #endif
+    var Instance ptr = TheInstance(STACK_2);
+    record_flags_set(ptr,instflags_forwarded_B);
     ptr->inst_class = STACK_0;
     clr_break_sem_1(); /* permit interrupts again */
   }
-  ASSERT(Record_type(STACK_2) == Rectype_realloc_Instance);
+  ASSERT(Record_flags(STACK_2) == 1);
   skipSTACK(3);
 }
 

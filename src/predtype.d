@@ -1552,7 +1552,7 @@ LISPFUNNR(type_of,1)
     case_instance: { /* Instance -> name of the class or the class itself */
         /* (CLtL2 p. 781 top) */
         instance_un_realloc(arg);
-        check_instance(arg);
+        instance_update(arg);
         var object clas = TheInstance(arg)->inst_class;
         var object name = TheClass(clas)->classname;
         value1 = (eq(get(name,S(closclass)),clas)
@@ -1673,7 +1673,7 @@ LISPFUNNR(class_of,1)
   {
     case_instance: /* instance -> its class */
       instance_un_realloc(arg);
-      check_instance(arg);
+      instance_update(arg);
       value1 = TheInstance(arg)->inst_class; break;
     case_structure: { /* Structure -> type of the structure or <t> */
       var object type = TheStructure(arg)->structure_types;

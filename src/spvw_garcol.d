@@ -52,27 +52,36 @@ local void move_conses (sintL delta);
   - Character, Short-Float, Fixnum etc.: always.
 Use GC_MARK when the argument might be a reallocated object */
 #ifdef DEBUG_SPVW
- #define UNREALLOC(o)  do { if (orecordp(o))                  \
-   switch (Record_type(o)) {                                  \
-     case Rectype_realloc_Instance:                           \
-       fprintf(stderr,"[%s:%d] realloc instance: %d",         \
-               __FILE__,__LINE__,as_oint(o));                 \
-       instance_un_realloc(o);                                \
-       fprintf(stderr," --> %d\n",as_oint(o));                \
-       break;                                                 \
-     case Rectype_reallocstring:                              \
-       fprintf(stderr,"[%s:%d] realloc string: %d",           \
-               __FILE__,__LINE__,as_oint(o));                 \
-       simple_array_to_storage(o);                            \
-       fprintf(stderr," --> %d\n",as_oint(o));                \
-       break;                                                 \
-   }} while(0)
+ #define UNREALLOC(o)  do {                                   \
+   if (orecordp(o))                                           \
+     switch (Record_type(o)) {                                \
+       case Rectype_Instance:                                 \
+         if (Record_flags(o) & instflags_forwarded_B) {       \
+           fprintf(stderr,"[%s:%d] realloc instance: %d",     \
+                   __FILE__,__LINE__,as_oint(o));             \
+           instance_un_realloc(o);                            \
+           fprintf(stderr," --> %d\n",as_oint(o));            \
+         }                                                    \
+         break;                                               \
+       case Rectype_reallocstring:                            \
+         fprintf(stderr,"[%s:%d] realloc string: %d",         \
+                 __FILE__,__LINE__,as_oint(o));               \
+         simple_array_to_storage(o);                          \
+         fprintf(stderr," --> %d\n",as_oint(o));              \
+         break;                                               \
+     }                                                        \
+   } while(0)
 #else
- #define UNREALLOC(o)  do { if (orecordp(o))                            \
-   switch (Record_type(o)) {                                            \
-     case Rectype_realloc_Instance: instance_un_realloc(o); break;      \
-     case Rectype_reallocstring: simple_array_to_storage(o); break;     \
-   }} while(0)
+ #define UNREALLOC(o)  do {                                           \
+   if (orecordp(o))                                                   \
+     switch (Record_type(o)) {                                        \
+       case Rectype_realloc_Instance:                                 \
+         if (Record_flags(o) & instflags_forwarded_B)                 \
+           instance_un_realloc(o);                                    \
+         break;                                                       \
+       case Rectype_reallocstring: simple_array_to_storage(o); break; \
+     }                                                                \
+   } while(0)
 #endif
 /* do we want GC to un-realloc strings and instances? */
 #define GC_UNREALLOC 0
@@ -336,10 +345,12 @@ local void gc_mark (object obj)
         case Rectype_string:
         case Rectype_vector:
           down_iarray();
-        case Rectype_realloc_Instance:
+        case Rectype_Instance:
          #if GC_UNREALLOC && 0
-          /* this breaks the relationship between dies & vorg */
-          instance_un_realloc(dies);
+          if (Record_flags(dies) & 1) {
+            /* this breaks the relationship between dies & vorg */
+            instance_un_realloc(dies);
+          }
          #endif
           /*FALLTHROUGH*/
         default: /* Srecord/Xrecord */
