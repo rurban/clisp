@@ -134,7 +134,6 @@ do
         passnextm=yes ;;
 
       --fsstnd=* | --fsstn=* | --fsst=* | --fss=* | --fs=* | --f=*)
-        subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --fsstnd="`echo "$arg" | sed 's,^[-_a-zA-Z0-9]*=,,'` ;;
 
       --host=* | --hos=* | --ho=* | --h=* | \
