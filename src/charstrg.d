@@ -1391,6 +1391,12 @@ static const char jamo_final_short_name[28][3] = {
         TheSstring(name)->data[4] = ascii(hex_table[c&0x0F]);
         return name;
       }
+      #else # no UNICODE
+      {
+        var object name = allocate_string(1);
+        TheSstring(name)->data[0] = ascii(c);
+        return name;
+      }
       #endif
       return NIL;
     }
@@ -1578,6 +1584,8 @@ static const char jamo_final_short_name[28][3] = {
           }
         }
       }
+      #else # no UNICODE
+      return coerce_char(string);
       #endif
       return NIL;
     }
