@@ -1309,10 +1309,9 @@
                   stream))
 
 (defun format-pprint-indent (stream colon-modifier atsign-modifier
-                             &optional (count t))
+                             &optional (count 1))
   (declare (ignore atsign-modifier))
-  (if (null count) (setq count 1))
-  (pprint-indent (if colon-modifier :current :block) count stream))
+  (pprint-indent (if colon-modifier :current :block) (or count 1) stream))
 
 ;; ~&, CLTL p.397, CLtL2 p. 596
 (defun format-fresh-line (stream colon-modifier atsign-modifier
@@ -1981,7 +1980,7 @@
                          (setq forms (revappend (remove 'NIL arglist) forms))
                          (push `(WRITE ,(formatter-next-arg) :STREAM STREAM)
                                forms))
-                         (simple-call)))
+                       (simple-call)))
                     (FORMAT-DECIMAL                ; #\D
                      (simple 4))
                     (FORMAT-BINARY                 ; #\B
@@ -2026,6 +2025,19 @@
                      (if (member (first arglist) '(nil 1))
                          (push #\Newline forms) ; equiv. to `(TERPRI STREAM)
                          (trivial-call)))
+                    (FORMAT-PPRINT-NEWLINE         ; #\_
+                     (simple-arglist 0)
+                     (push '(pprint-newline (if colon-p
+                                                (if atsign-p :mandatory :fill)
+                                                (if atsign-p :miser :linear))
+                                            stream)
+                           forms))
+                    (FORMAT-PPRINT-INDENT          ; #\I
+                     (simple-arglist 1)
+                     (push `(pprint-indent (if colon-p :current :block)
+                                           (or ,(formatter-next-arg) 1)
+                                           stream)
+                           forms))
                     (FORMAT-FRESH-LINE             ; #\&
                      (simple-arglist 1)
                      (if (member (first arglist) '(nil 1))

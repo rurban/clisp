@@ -1,3 +1,11 @@
+2001-09-21  Sam Steingold  <sds@gnu.org>
+
+	some bugfixes to the Pretty-Printer
+	* io.d (FORMAT-TABULATE): check the optional arguments
+	* format.lisp (formatter-main-1): added FORMAT-PPRINT-NEWLINE and
+	FORMAT-PPRINT-INDENT
+	(format-pprint-indent): fixed COUNT default value
+
 2001-09-20  Sam Steingold  <sds@gnu.org>
 
 	fixed WITH-COMPILATION-UNIT
