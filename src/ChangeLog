@@ -13,7 +13,7 @@
 	* lispbibl.d: Disable the use of global register variables for
 	gcc >= 3.0.
 
-2004-04-10  Bruno Haible  <bruno@clisp.org>
+2004-04-19  Bruno Haible  <bruno@clisp.org>
 
 	Fix the return value of NSTRING-UPCASE/DOWNCASE/CAPITALIZE,
 	WRITE-STRING, WRITE-LINE, when the argument is a displaced string.
@@ -26,6 +26,7 @@
 	* foreign.d (FFI::CALL-WITH-FOREIGN-STRING): Likewise.
 	* stream.d (MAKE-STRING-INPUT-STREAM, FILE-POSITION): Ignore
 	arg.offset.
+	* io.d (write_string_up): Undo last patch.
 
 2004-04-10  Bruno Haible  <bruno@clisp.org>
 
