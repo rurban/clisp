@@ -1,5 +1,15 @@
 2002-11-01  Sam Steingold  <sds@gnu.org>
 
+	* package.d (shadow): accept characters too
+	(test_stringsym_arg): removed
+	(FIND-PACKAGE, test_names_args, %IN-PACKAGE, FIND-ALL-SYMBOLS):
+	use test_stringsymchar_arg() instead of test_stringsym_arg()
+	(apply_symbols) [X3J13_161]: pass characters to shadow()
+	* constobj.d (type_stringsym): removed
+	* charstrg.d, lispbibl.d (test_stringsymchar_arg): declare global
+
+2002-11-01  Sam Steingold  <sds@gnu.org>
+
 	* package.d (FIND-PACKAGE): package object is a package designator too
 
 2002-11-01  Sam Steingold  <sds@gnu.org>
