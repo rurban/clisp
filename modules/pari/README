@@ -1,0 +1,3 @@
+To install the pari-bindings, do the following:
+
+$ /configure --with-module=pari --with-pari-home=path-to-pari-dir

@@ -1,0 +1,23 @@
+dnl AUTOCONF configuration for PARI
+dnl Sam Steingold 2004
+
+AC_PREREQ(2.57)
+AC_INIT(pari, 1.0, clisp-list)
+AC_CONFIG_SRCDIR(pari.lisp)
+AC_CONFIG_HEADERS(config.h)
+AC_ARG_WITH([pari-home],
+AC_HELP_STRING([--with-pari-home],
+[the location of the PARI source tree (default ../../../../pari)]),
+[PARI_HOME=$withval], [PARI_HOME=../../../../pari])
+AC_SUBST(PARI_HOME)
+
+AC_MSG_NOTICE([* PARI (Checks)])
+AC_PROG_CC
+AC_PROG_CPP
+AC_HEADER_STDC
+AC_CHECK_HEADERS(string.h sys/types.h)
+AC_MSG_NOTICE([* PARI (Output)])
+AC_CONFIG_FILES(Makefile link.sh)
+AC_OUTPUT
+
+AC_MSG_NOTICE([* PARI (Done)])

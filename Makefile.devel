@@ -129,7 +129,7 @@ CONFIGURES = src/configure                                               \
 	modules/wildcard/configure modules/regexp/configure              \
 	modules/clx/new-clx/configure modules/postgresql/configure       \
 	modules/dirkey/configure modules/syscalls/configure              \
-	modules/i18n/configure                                           \
+	modules/i18n/configure modules/pari/configure                    \
 	modules/oracle/configure modules/fastcgi/configure               \
 	modules/berkeley-db/configure modules/pcre/configure             \
 	modules/rawsock/configure modules/zlib/configure                 \
@@ -141,7 +141,7 @@ CONFIGURES = src/configure                                               \
 	libcharset/configure
 CONFIG_H_IN = modules/wildcard/config.h.in modules/regexp/config.h.in    \
 	modules/dirkey/config.h.in modules/syscalls/config.h.in          \
-	modules/i18n/config.h.in                                         \
+	modules/i18n/config.h.in modules/pari/config.h.in                \
 	modules/clx/new-clx/config.h.in modules/postgresql/config.h.in   \
 	modules/berkeley-db/config.h.in modules/pcre/config.h.in         \
 	modules/rawsock/config.h.in modules/zlib/config.h.in             \
