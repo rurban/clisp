@@ -1,6 +1,6 @@
 # Garbage collector.
 
-# ------------------------------ Specification ---------------------------------
+# ------------------------------ Specification ------------------------------
 
 # Execute a simple garbage collection.
 # can trigger GC
@@ -21,7 +21,7 @@
   local void move_conses (sintL delta);
 #endif
 
-# ------------------------------ Implementation --------------------------------
+# ------------------------------ Implementation -----------------------------
 
 # Gesamtstrategie:
 # 1. Pseudorekursives Markieren durch Setzen von garcol_bit.
@@ -313,11 +313,12 @@
                     up_pair();
                   case_symbol: # Symbol
                     up_varobject(symbol_objects_offset);
-                  case_svector:
-                    # simple-vector mit mindestens 1 Komponente
+                  case_svector: # simple-vector with at least 1 component
                     up_svector();
-                  case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector:
-                    # Nicht-simple Arrays:
+                  case_mdarray: case_obvector: case_ob2vector:
+                  case_ob4vector: case_ob8vector: case_ob16vector:
+                  case_ob32vector: case_ostring: case_ovector:
+                    # non-simple arrays:
                     up_iarray();
                   case_record: # Srecord/Xrecord
                     up_record();
