@@ -1,3 +1,19 @@
+2003-10-05  Bruno Haible  <bruno@clisp.org>
+
+	Enhance ccmp2c with ability to emit line numbers.
+	* utils/ccmp2c.c (line_number): New variable.
+	(get_line): Increment line_number.
+	(emit_literal): Add argument lineno. Emit lineno as second argument
+	of TEXT_addstring if the argument string represents a complete line
+	from input source file. Otherwise use 0 as second argument.
+	(emit_expansion): Add argument lineno.
+	(main): Emit code to parse command line arguments, recognizing -l,
+	-i INFILENAME, -o OUTFILENAME. Emit code to generate #line information
+	if desired. Initialize line_number.
+	* modules/clx/new-clx/Makefile.in (clx.e): Generate with line number
+	information.
+	(clx.c): Drop bogus #line 1 "clx.f".
+
 2003-10-01  Don Cohen  <don-sourceforge@isis.cs3-inc.com>
 	    Sam Steingold  <sds@gnu.org>
 
