@@ -660,8 +660,8 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
         #ifdef HAVE_SMALL_SSTRING
         case Rectype_SmallSstring: # mutable Simple-String
           if (charp(element)) {
-            if (char_code(element) < small_char_int_limit)
-              TheSmallSstring(datenvektor)->data[index] = char_code(element);
+            if (as_cint(char_code(element)) < small_char_int_limit)
+              TheSmallSstring(datenvektor)->data[index] = as_cint(char_code(element));
             else if (maygc) {
               datenvektor = reallocate_small_string(datenvektor);
               TheSstring(TheIarray(datenvektor)->data)->data[index] = char_code(element);
