@@ -5,6 +5,8 @@
 
 (multiple-value-bind (family total) (rawsock:sockaddr-family-size)
   (defun to-bytes (string) (ext:convert-string-to-bytes string charset:ascii))
+  (defun from-bytes (vec &optional size)
+    (ext:convert-string-from-bytes vec charset:ascii :end size))
   (defun host->sa (host &optional (port 0))
     ;; note that sockaddr must be of TOTAL size!
     (let* ((he (posix:resolve-host-ipaddr host)) sa
@@ -34,7 +36,7 @@
   (defvar *sa-remote*) (defvar *sa-local*)
   (defvar *buffer* (make-array 1024 :element-type '(unsigned-byte 8)))
   (defvar *sock*) (defvar *sock1*) (defvar *sock2*)
-  (defvar *recv-ret*) (defvar *read-ret*)
+  (defvar *recv-ret*) #-:win32 (defvar *read-ret*)
   (print (list 'rawsock:sockaddr-family-size
                (multiple-value-list (rawsock:sockaddr-family-size))))
   T) T
@@ -50,9 +52,7 @@
 (equalp (rawsock:getpeername *sock* T) *sa-remote*) T
 
 (let ((size (rawsock:recv *sock* *buffer*)))
-  (print (setq *recv-ret*
-               (list size (ext:convert-string-from-bytes *buffer* charset:ascii
-                                                         :end size))))
+  (print (setq *recv-ret* (list size (from-bytes *buffer* size))))
   T) T
 
 (rawsock:shutdown *sock* :io) 0
@@ -68,22 +68,22 @@ T
 (rawsock:connect *sock* *sa-remote*) NIL
 (equalp (rawsock:getpeername *sock* T) *sa-remote*) T
 
+#-:win32 ;; on win32, read() cannot be called on a socket!
 (let ((size (rawsock:sock-read *sock* *buffer*)))
-  (print (setq *read-ret*
-               (list size (ext:convert-string-from-bytes *buffer* charset:ascii
-                                                         :end size))))
+  (print (setq *read-ret* (list size (from-bytes *buffer* size))))
   T) T
 
-(equal *recv-ret* *read-ret*) T
+#-:win32 (equal *recv-ret* *read-ret*) T
 
-(progn
+;; no socketpair() on win32
+#-:win32 (progn
   (setf (values *sock1* *sock2*)
         (rawsock:socketpair :AF_INET :SOCK_STREAM nil))
   (print (list *sock1* *sock2*))
-  T) T
+  T) #-:win32 T
 
-(rawsock:sock-close *sock1*) 0
-(rawsock:sock-close *sock2*) 0
+#-:win32 (rawsock:sock-close *sock1*) 0
+#-:win32 (rawsock:sock-close *sock2*) 0
 
 (rawsock:sock-write 1 (to-bytes "foo"))
 3
