@@ -116,7 +116,7 @@ T
       (when start-p (format stream prefix))
       (loop
         ; Hier ist parts /= NIL
-        (let ((pos (#+CLISP sys::line-position #+ALLEGRO excl::charpos #+CMU cl::charpos #+SBCL sb-kernel:charpos stream))
+        (let ((pos (#+CLISP sys::line-position #+ALLEGRO excl::charpos #+CMU lisp::charpos #+SBCL sb-kernel:charpos stream))
               (parts-now '()))
           (let ((pos-now pos))
             (loop
@@ -793,10 +793,10 @@ freshline:
 (FORMAT NIL "char normal:~c, as # would read:~@c, human read:~:c-*"
 #\SPACE
 #\SPACE #\SPACE)
-#+(or XCL CMU CLISP) "char normal: , as # would read:#\\Space, human read:Space-*"
-#+SBCL               "char normal: , as # would read:#\\ , human read:Space-*"
-#+(or AKCL LUCID)    "char normal:Space, as # would read:#\\Space, human read:Space-*"
-#+ALLEGRO            "char normal: , as # would read:#\\space, human read:space-*"
+#+(or XCL CMU18 CLISP) "char normal: , as # would read:#\\Space, human read:Space-*"
+#+(or CMU19 SBCL)      "char normal: , as # would read:#\\ , human read:Space-*"
+#+(or AKCL LUCID)      "char normal:Space, as # would read:#\\Space, human read:Space-*"
+#+ALLEGRO              "char normal: , as # would read:#\\space, human read:space-*"
 #-(or XCL CMU SBCL CLISP AKCL LUCID ALLEGRO) UNKNOWN
 
 (FORMAT NIL
@@ -992,8 +992,8 @@ NIL
 "**Space**"
 
 (FORMAT NIL "**~@c**" #\SPACE)
-#+SBCL "**#\\ **"
-#-SBCL "**#\\Space**"
+#+(or CMU19 SBCL) "**#\\ **"
+#-(or CMU19 SBCL) "**#\\Space**"
 
 (FORMAT NIL "**~c**" #\A)
 "**A**"

@@ -39,7 +39,7 @@ clrvar
 
 #+(or XCL CLISP ALLEGRO CMU SBCL)
 (progn (setf (symbol-function 'setf-get)
-             (symbol-function #+XCL 'sys::setf-get #+CLISP 'sys::%put #+ALLEGRO 'excl::.inv-get #+CMU 'cl::%put #+SBCL 'sb-kernel:%put)) t)
+             (symbol-function #+XCL 'sys::setf-get #+CLISP 'sys::%put #+ALLEGRO 'excl::.inv-get #+CMU 'lisp::%put #+SBCL 'sb-kernel:%put)) t)
 #+(or XCL CLISP ALLEGRO CMU SBCL)
 T
 
