@@ -9425,10 +9425,17 @@ typedef struct {
   object go_env;    # Tagbody/Go-Environment
   object decl_env;  # Declarations-Environment
 } environment_t;
+typedef struct {
+  gcv_object_t var_env;   # Variable-Bindings-Environment
+  gcv_object_t fun_env;   # Function-Bindings-Environment
+  gcv_object_t block_env; # Block-Environment
+  gcv_object_t go_env;    # Tagbody/Go-Environment
+  gcv_object_t decl_env;  # Declarations-Environment
+} gcv_environment_t;
 
 # The current Environment:
 #ifndef MULTITHREAD
-  extern environment_t aktenv;
+  extern gcv_environment_t aktenv;
 #else
   #define aktenv  (current_thread()->_aktenv)
 #endif
@@ -9437,18 +9444,18 @@ typedef struct {
 # and makes a single Environment out of them.
 # make_STACK_env(venv,fenv,benv,genv,denv, env5 = );
 # > object venv,fenv,benv,genv,denv: 5 single Environments
-# < environment_t* env5: pointer to the Environment on the Stack
+# < gcv_environment_t* env5: pointer to the Environment on the Stack
 #ifdef STACK_UP
-  #define make_STACK_env(venv,fenv,benv,genv,denv,env5_allocation)      \
+  #define make_STACK_env(venv,fenv,benv,genv,denv,env5_assignment)      \
     do { pushSTACK(venv); pushSTACK(fenv); pushSTACK(benv);             \
          pushSTACK(genv); pushSTACK(denv);                              \
-         env5_allocation &STACKblock_(environment_t,0); } while(0)
+         env5_assignment &STACKblock_(gcv_environment_t,0); } while(0)
 #endif
 #ifdef STACK_DOWN
-  #define make_STACK_env(venv,fenv,benv,genv,denv,env5_allocation)      \
+  #define make_STACK_env(venv,fenv,benv,genv,denv,env5_assignment)      \
     do { pushSTACK(denv); pushSTACK(genv); pushSTACK(benv);             \
          pushSTACK(fenv); pushSTACK(venv);                              \
-         env5_allocation &STACKblock_(environment_t,0); } while(0)
+         env5_assignment &STACKblock_(gcv_environment_t,0); } while(0)
 #endif
 
 # Frameinfobits in Frames:
@@ -10082,10 +10089,10 @@ extern object nest_fun (object env);
 # UP: Nests the Environments in *env (ie. write all information
 # to Stack-independent structures) and pushes it onto the STACK.
 # nest_env(env)
-# > environment* env: Pointer to five single Environments
-# < environment* result: Pointer to the Environments on the STACK
+# > gcv_environment* env: Pointer to five single Environments
+# < gcv_environment* result: Pointer to the Environments on the STACK
 # modifies STACK, can trigger GC
-extern environment_t* nest_env (environment_t* env);
+extern gcv_environment_t* nest_env (gcv_environment_t* env);
 # is used by Macro nest_aktenv
 
 # UP: Nests the current environments (ie. writes all information
@@ -10094,9 +10101,9 @@ extern environment_t* nest_env (environment_t* env);
 # modified, since there might be inactive bindings in frames that cannot
 # be activated without modifying VAR_ENV .)
 # nest_aktenv()
-# < environment* result: Pointer to the Environments on the STACK
+# < gcv_environment* result: Pointer to the Environments on the STACK
 # modifies STACK, can trigger GC
-# extern environment* nest_aktenv (void);
+# extern gcv_environment* nest_aktenv (void);
 #define nest_aktenv()  nest_env(&aktenv)
 # is used by CONTROL
 
@@ -10157,10 +10164,10 @@ extern bool parse_dd (object formlist, object venv, object fenv);
 # > env: Pointer to the five individual environments:
 #        env->var_env = VENV, env->fun_env = FENV,
 #        env->block_env = BENV, env->go_env = GENV,
-#        end->decl_env = DENV.
+#        env->decl_env = DENV.
 # < result: Closure
 # can trigger GC
-extern object get_closure (object lambdabody, object name, bool blockp, environment_t* env);
+extern object get_closure (object lambdabody, object name, bool blockp, gcv_environment_t* env);
 # is used by CONTROL, SYMBOL, PREDTYPE
 
 # UP: Converts an argument to a function.
@@ -12897,7 +12904,7 @@ extern object decimal_string (object x);
       # The Lisp object representing this thread:
       object _lthread;
       # The lexical environment:
-      environment_t _aktenv;
+      gcv_environment_t _aktenv;
       # The values of per-thread symbols:
       object _symvalues[unspecified];
   } thread_t;

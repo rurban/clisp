@@ -1890,7 +1890,7 @@ LISPFUNN(coerce,2)
         goto fehler_object;
       }
       /* empty environment for get_closure: */
-      var environment_t* env;
+      var gcv_environment_t* env;
       make_STACK_env(NIL,NIL,NIL,NIL,O(top_decl_env), env = );
       /* build closure with lambdabody = (cdr fun), name = :LAMBDA : */
       VALUES1(get_closure(Cdr(fun),S(Klambda),false,env));

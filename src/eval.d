@@ -1088,12 +1088,12 @@ global Values eval_noenv (object form) {
 # be changed, because inactive bindings might poss. still sit in the frames.
 # It has to be feasible, to activate these bindings without change of VAR_ENV.)
 # nest_env(env)
-# > environment_t* env: Pointer to five Environments
-# < environment_t* result: Pointer to the Environments in the STACK
+# > gcv_environment_t* env: Pointer to five Environments
+# < gcv_environment_t* result: Pointer to the Environments in the STACK
 # changes STACK, can trigger GC
-  global environment_t* nest_env (environment_t* env);
-  global environment_t* nest_env(env5)
-    var environment_t* env5;
+  global gcv_environment_t* nest_env (gcv_environment_t* env);
+  global gcv_environment_t* nest_env(env5)
+    var gcv_environment_t* env5;
     {
       # First copy all Environments in the STACK:
       make_STACK_env(env5->var_env,env5->fun_env,env5->block_env,env5->go_env,env5->decl_env,
@@ -1222,7 +1222,7 @@ global Values eval_noenv (object form) {
 # modified, because inactive bindings might poss. still sit in the Frames.
 # It has to be feasible, to activate these bindings without change of VAR_ENV.)
 # nest_aktenv()
-# < environment* result: Pointer to the Environments in the STACK
+# < gcv_environment* result: Pointer to the Environments in the STACK
 # changes STACK, can trigger GC
 #define nest_aktenv()  nest_env(&aktenv)
 
@@ -1619,15 +1619,15 @@ local object lambdabody_source (object lambdabody) {
 # > env: Pointer to the five distinct environments:
 #        env->var_env = VENV, env->fun_env = FENV,
 #        env->block_env = BENV, env->go_env = GENV,
-#        end->decl_env = DENV.
+#        env->decl_env = DENV.
 # < result: Closure
 # can trigger GC
-  global object get_closure (object lambdabody, object name, bool blockp, environment_t* env);
+  global object get_closure (object lambdabody, object name, bool blockp, gcv_environment_t* env);
   global object get_closure(lambdabody,name,blockp,env)
     var object lambdabody;
     var object name;
     var bool blockp;
-    var environment_t* env;
+    var gcv_environment_t* env;
     {
       # Lambdabody must be a Cons:
       if (atomp(lambdabody)) {
@@ -1663,16 +1663,20 @@ local object lambdabody_source (object lambdabody) {
         }
         # nest environments:
         {
-          var environment_t* stack_env = nest_env(env); # nest, push on STACK
+          var gcv_environment_t* stack_env = nest_env(env); # nest, push on STACK
           #if !defined(STACK_UP)
-          var environment_t my_env;
-          my_env = *stack_env; # and transfer over here
+          # and transfer over here
+          var object my_var_env = stack_env->var_env;
+          var object my_fun_env = stack_env->fun_env;
+          var object my_block_env = stack_env->block_env;
+          var object my_go_env = stack_env->go_env;
+          var object my_decl_env = stack_env->decl_env;
           skipSTACK(5); # and pop from STACK again
-          pushSTACK(my_env.var_env);
-          pushSTACK(my_env.fun_env);
-          pushSTACK(my_env.block_env);
-          pushSTACK(my_env.go_env);
-          pushSTACK(my_env.decl_env);
+          pushSTACK(my_var_env);
+          pushSTACK(my_fun_env);
+          pushSTACK(my_block_env);
+          pushSTACK(my_go_env);
+          pushSTACK(my_decl_env);
           #endif
           # stack structure: name, lambdabody, venv, fenv, benv, genv, denv.
         }
@@ -1725,7 +1729,7 @@ local object lambdabody_source (object lambdabody) {
       }
       # nest Environments and put them nested in the closure:
       {
-        var environment_t* stack_env = nest_env(env);
+        var gcv_environment_t* stack_env = nest_env(env);
         var object closure = *closure_;
         TheIclosure(closure)->clos_var_env   = stack_env->var_env  ;
         TheIclosure(closure)->clos_fun_env   = stack_env->fun_env  ;
@@ -2883,9 +2887,9 @@ local Values eval_ffunction (object fun);
           # execute (FUNCALL *EVALHOOK* form env) :
           pushSTACK(form); # Form as 1. Argument
           pushSTACK(evalhook_value); # save Function
-          var environment_t* stack_env = nest_aktenv(); # Environments in the Stack,
+          var gcv_environment_t* stack_env = nest_aktenv(); # Environments in the Stack,
           var object env = allocate_vector(5); # in newly allocated Vector
-          *(environment_t*)(&TheSvector(env)->data[0]) = *stack_env; # push in
+          *(gcv_environment_t*)(&TheSvector(env)->data[0]) = *stack_env; # push in
           skipSTACK(5);
           evalhook_value = popSTACK(); # return Function
           pushSTACK(env); # entire Environment as 2. Argument
@@ -3176,9 +3180,9 @@ local Values eval_applyhook(object fun) {
   pushSTACK(args); # argument-list as 2. Argument
   pushSTACK(applyhook_value); # save function
   {
-    var environment_t* stack_env = nest_aktenv(); # Environments into Stack,
+    var gcv_environment_t* stack_env = nest_aktenv(); # Environments into Stack,
     var object env = allocate_vector(5); # in newly allocated Vector
-    *(environment_t*)(&TheSvector(env)->data[0]) = *stack_env; # push in
+    *(gcv_environment_t*)(&TheSvector(env)->data[0]) = *stack_env; # push in
     skipSTACK(5);
   }
   applyhook_value = popSTACK(); # function back
