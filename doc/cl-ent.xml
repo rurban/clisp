@@ -80,6 +80,10 @@
 <!ENTITY acl "<ulink url='http://www.franz.com'><command>Allegro CL</command></ulink>">
 <!ENTITY lispworks "<ulink url='http://www.xanalys.com/software_tools/products/index.html'><command>LispWorks</command></ulink>">
 
+<!-- *** Editors *** -->
+<!ENTITY emacs "<ulink url='http://www.gnu.org/software/emacs/emacs.html'>Emacs</ulink>">
+<!ENTITY xemacs "<ulink url='http://www.xemacs.org'>XEmacs</ulink>">
+
 <!-- *** platforms *** -->
 <!ENTITY acorn "<ulink url='http://www.acorn.com/'><emphasis role='strong'>Acorn</emphasis></ulink>">
 <!ENTITY amiga "<ulink url='http://www.amiga.org/'><emphasis role='strong'>Amiga</emphasis></ulink>">
