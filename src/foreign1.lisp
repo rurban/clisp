@@ -21,8 +21,8 @@
           c-pointer c-string c-struct c-union c-array c-array-max
           c-function c-ptr c-ptr-null c-array-ptr
           def-c-enum def-c-struct element deref slot cast typeof
-          sizeof bitsizeof c-var-address offset
-          validp foreign-address-null foreign-value
+          sizeof bitsizeof c-var-object c-var-address offset
+          validp with-c-place foreign-address-null foreign-value
           foreign-address foreign-address-unsigned unsigned-foreign-address
           with-foreign-object with-c-var with-foreign-string
           foreign-allocate allocate-deep allocate-shallow foreign-free
@@ -752,6 +752,11 @@
 (defsetf foreign-pointer set-foreign-pointer)
 (defsetf validp set-validp)
 
+(defmacro with-c-place ((var fvar) &body body)
+  (let ((fv (gensym (symbol-name var))))
+    `(LET ((,fv ,fvar))
+       (SYMBOL-MACROLET ((,var (FOREIGN-VALUE ,fv))) ,@body))))
+
 (defun foreign-address-null (fadr)
   (zerop (foreign-address-unsigned fadr)))
 
@@ -775,6 +780,15 @@
                   (PARSE-C-TYPE ,c-type)
                   . ,(if init-p (list init))))
 
+;; symbol-macro based interface (like DEF-C-VAR)
+; WITH-C-VAR appears as a composition of WITH-FOREIGN-OBJECT and WITH-C-PLACE
+(defmacro with-c-var ((var c-type &optional (init nil init-p)) &body body)
+  (let ((fv (gensym (symbol-name var))))
+    `(EXEC-ON-STACK
+      (LAMBDA (,fv) (SYMBOL-MACROLET ((,var (FOREIGN-VALUE ,fv))) ,@body))
+      (PARSE-C-TYPE ,c-type)
+      . ,(if init-p (list init)))))
+
 (defmacro with-foreign-string ((foreign-variable char-count byte-count string
                                 &rest keywords
                                 &key encoding null-terminated-p start end)
@@ -787,14 +801,6 @@
                                     (sys::encoding-zeroes encoding) 0)))
     (lambda (,foreign-variable ,char-count ,byte-count) ,@body)
     ,string .,keywords))
-
-;; symbol-macro based interface (like DEF-C-VAR)
-(defmacro with-c-var ((var c-type &optional (init nil init-p)) &body body)
-  (let ((fv (gensym (symbol-name var))))
-    `(EXEC-ON-STACK
-      (LAMBDA (,fv) (SYMBOL-MACROLET ((,var (FOREIGN-VALUE ,fv))) ,@body))
-      (PARSE-C-TYPE ,c-type)
-      . ,(if init-p (list init)))))
 
 ;; ============================ heep allocation ============================
 
@@ -1043,6 +1049,12 @@
     (if (foreign-place-p place 'FOREIGN-VALUE)
       `(FOREIGN-VALUE (%OFFSET ,(second place) ,offset (PARSE-C-TYPE ,type)))
       (err `(offset ,place ,offset ,type))))
+  ;; Extract FOREIGN-VARIABLE object underlying the place
+  (defmacro c-var-object (place &environment env)
+    (setq place (macroexpand place env))
+    (if (foreign-place-p place 'FOREIGN-VALUE)
+      (second place)
+      (err `(c-var-object ,place))))
   ;; The equivalent of (FOREIGN-ADDRESS fvar) for c-places:
   ;; (c-var-address (foreign-value x)) --> (foreign-address x)
   (defmacro c-var-address (place &environment env)
