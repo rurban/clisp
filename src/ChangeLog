@@ -1,5 +1,11 @@
 2004-09-18  Bruno Haible  <bruno@clisp.org>
 
+	* pathname.d (parse_as_logical): Fix incorrect comments.
+	(LOGICAL-PATHNAME): Signal an error if the argument refers to a stream
+	opened with a physical pathname.
+
+2004-09-18  Bruno Haible  <bruno@clisp.org>
+
 	Avoid floating-point overflow in comparison of floats with rational
 	numbers.
 	* sfloat.d (I_to_SF, RA_to_SF): Add signal_overflow argument.

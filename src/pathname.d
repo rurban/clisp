@@ -2112,9 +2112,12 @@ LISPFUNNR(pathnameversion,1) {
 
 #ifdef LOGICAL_PATHNAMES
 
+/* Converts obj to a pathname. If obj is a string, it is even converted to a
+   logical pathname.
+ can trigger GC */
 local object parse_as_logical (object obj) {
-  /* the value of (PARSE-NAMESTRING obj nil empty-logical-pathname)
-   is always a logical pathname. */
+  /* The value of (PARSE-NAMESTRING obj nil empty-logical-pathname) is always
+     a logical pathname, if obj is a string. (But not if it is a stream!) */
   pushSTACK(obj); pushSTACK(NIL);
   pushSTACK(O(empty_logical_pathname));
   funcall(L(parse_namestring),3);
@@ -2134,6 +2137,18 @@ LISPFUNNR(logical_pathname,1)
     pushSTACK(thing);
     pushSTACK(S(logical_pathname));
     fehler(type_error,GETTEXT("~S: argument ~S is not a logical pathname, string, stream or symbol"));
+  } else if (builtin_stream_p(thing)) { /* Stream? */
+    thing = as_file_stream(thing);
+    test_file_stream_named(thing);
+    var object pathname = TheStream(thing)->strm_file_name;
+    if (!logpathnamep(pathname)) {
+      /* Normal pathnames cannot be converted into logical pathnames. */
+      pushSTACK(pathname);                 /* TYPE-ERROR slot DATUM */
+      pushSTACK(O(type_logical_pathname)); /* TYPE-ERROR slot EXPECTED-TYPE */
+      pushSTACK(thing); pushSTACK(S(logical_pathname));
+      fehler(type_error,GETTEXT("~S: the stream ~S was not opened with a logical pathname"));
+    }
+    VALUES1(pathname);
   } else {
     var object pathname = parse_as_logical(thing);
     /* Check that a host was given. This makes it hard to create relative
@@ -2144,7 +2159,7 @@ LISPFUNNR(logical_pathname,1)
       pushSTACK(STACK_(0+2)); pushSTACK(S(logical_pathname));
       fehler(type_error,GETTEXT("~S: argument ~S does not contain a host specification"));
     }
-    VALUES1(parse_as_logical(thing));
+    VALUES1(pathname);
   }
   skipSTACK(1);
 }
