@@ -1,3 +1,8 @@
+2004-08-25  Bruno Haible  <bruno@clisp.org>
+
+	* clos-class6.lisp (initialize-instance@class): Avoid compiler warning.
+	* clos-methcomb2.lisp (make-method): Avoid compiler warning.
+
 2004-08-26  Bruno Haible  <bruno@clisp.org>
 
 	Make instance_of_stablehash_p work during bootstrapping.

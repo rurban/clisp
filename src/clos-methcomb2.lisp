@@ -307,6 +307,7 @@
 
 (defmacro make-method (&whole whole-form
                        form)
+  (declare (ignore form))
   (error-of-type 'ext:source-program-error
     :form whole-form
     :detail whole-form
