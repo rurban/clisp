@@ -1,3 +1,8 @@
+1998-09-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * spvw_mmap.d (mprotect): Declare with MPROTECT_CONST.
+        * win32.d (MPROTECT_CONST): Define.
+
 1998-08-31  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * spvw.d (init_object_tab:features_initstring): Replace CLTL1 by
