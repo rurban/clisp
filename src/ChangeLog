@@ -1,5 +1,14 @@
 2002-05-21  Sam Steingold  <sds@gnu.org>
 
+	* encoding.d (MAKE-ENCODING): when the iconv charset is already
+	built-in, use it if the name is given in UPPER case (to let the
+	user a way to access iconv nevertheless)
+	(ENCODING-CHARSET): new function
+	* constsym.d, subr.d: added encoding_charset
+	* init.lisp: export ENCODING-CHARSET
+
+2002-05-21  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (XCFLAGS) [GCC]: no optimization with GCC-3.1
 
 2002-05-20  Bruno Haible  <bruno@clisp.org>

@@ -1327,8 +1327,10 @@ LISPFUN(make_encoding,0,0,norest,key,4,
         (kw(charset),kw(line_terminator),
          kw(input_error_action),kw(output_error_action))) {
   var object arg;
+  var object sym;
   # Check the :CHARSET argument.
   arg = STACK_3;
+  # string -> symbol in CHARSET
   if (eq(arg,unbound) || eq(arg,S(Kdefault))) {
     arg = O(default_file_encoding);
   } else if (encodingp(arg)) {
@@ -1337,6 +1339,9 @@ LISPFUN(make_encoding,0,0,norest,key,4,
   else if (symbolp(arg) && constantp(TheSymbol(arg))
            && encodingp(Symbol_value(arg))) {
     arg = Symbol_value(arg);
+  } else if (stringp(arg) && find_external_symbol(arg,O(charset_package),&sym)
+             && constantp(TheSymbol(sym)) && encodingp(Symbol_value(sym))) {
+    arg = Symbol_value(sym);
   }
   #if defined(GNU_LIBICONV) || defined(HAVE_ICONV)
   else if (stringp(arg)) {
@@ -1461,6 +1466,15 @@ LISPFUNN(charset_typep,2) {
     value1 = NIL; mv_count=1;
   }
   skipSTACK(2);
+}
+
+# (EXT:ENCODING-CHARSET encoding) --> charset
+LISPFUNN(encoding_charset,1) {
+  var object encoding = popSTACK();
+  if (!encodingp(encoding))
+    fehler_encoding(encoding);
+  value1 = TheEncoding(encoding)->enc_charset;
+  mv_count = 1;
 }
 
 #ifdef UNICODE
