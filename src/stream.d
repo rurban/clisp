@@ -15742,7 +15742,7 @@ LISPFUN(socket_server,0,1,norest,nokey,0,NIL)
     var SOCKET sock;        # a hint for create_server_socket
     var unsigned int port;  # another hint for create_server_socket
 
-    if (eq(STACK_0,unbound)) {
+    if (eq(STACK_0,unbound) || eq(STACK_0,NIL)) {
       sock = INVALID_SOCKET; port = 0; goto doit;
     }
     if (posfixnump(STACK_0)) {
