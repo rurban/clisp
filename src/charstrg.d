@@ -2061,9 +2061,8 @@ LISPFUNNR(schar,2)
 }
 
 LISPFUNN(store_char,3)
-/* (SYSTEM::STORE-CHAR string index newchar)
- = (SETF (CHAR string index) newchar), CLTL p. 300 */
-{
+{ /* (SYSTEM::STORE-CHAR string index newchar)
+   = (SETF (CHAR string index) newchar), CLTL p. 300 */
   STACK_2 = check_string(STACK_2); /* string-argument */
   var object newchar = check_char(popSTACK()); /* newchar-Argument */
   var object string = STACK_1; /* string-argument */
@@ -2086,9 +2085,8 @@ LISPFUNN(store_char,3)
 }
 
 LISPFUNN(store_schar,3)
-/* (SYSTEM::STORE-SCHAR simple-string index newchar)
- = (SETF (SCHAR simple-string index) newchar), CLTL p. 300 */
-{
+{ /* (SYSTEM::STORE-SCHAR simple-string index newchar)
+   = (SETF (SCHAR simple-string index) newchar), CLTL p. 300 */
   var object newchar = check_char(popSTACK()); /* newchar-argument */
   var object string = STACK_1; /* string-argument */
   if (!simple_string_p(string)) /* must be a simple-string */
@@ -3297,10 +3295,9 @@ global object string_concat (uintC argcount) {
     var gcv_object_t* argptr = args_pointer;
     var uintC count = argcount;
     do {
-      var object arg = NEXT(argptr); /* next argument */
-      if (!stringp(arg))
-        NEXT(argptr) = arg = check_string(arg);
-      total_length += vector_length(arg);
+      var gcv_object_t *arg = &(NEXT(argptr)); /* next argument */
+      if (!stringp(*arg)) *arg = check_string(*arg);
+      total_length += vector_length(*arg);
     } while (--count);
   }
   /* total_length is now the total length. */
