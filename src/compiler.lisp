@@ -11300,7 +11300,7 @@ The function make-closure is required.
   (let ((input-file
          (or (and (not (logical-pathname-p (pathname file)))
                   (first (search-file file *source-file-types*)))
-             (merge-pathnames file (merge-extension "lisp" nil)))))
+             (merge-pathnames file (make-pathname :type "lisp")))))
     (values
       (if (or (null output-file) (streamp output-file))
         output-file
