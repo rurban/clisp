@@ -633,12 +633,15 @@ lisp code, compiled by
 .I *.lib
 lisp source library information, generated and used by the
 .B clisp
-compiler
+compiler when compiling
+.B require
+forms
 
 .TP
 .I *.c
 C code, compiled from lisp source by
 .B clisp
+for the FFI
 
 #ifdef HAVE_ENVIRONMENT
 
@@ -649,7 +652,7 @@ C code, compiled from lisp source by
 specifies the language
 .B clisp
 uses to communicate with the user. The value may be
-.BR english ", " deutsch ", " francais
+.BR english ", " german ", " french ", " dutch ", " spanish
 and defaults to
 .BR english .
 The
@@ -766,6 +769,61 @@ impnotes.html,
 
 .SH BUGS
 
+.PP
+When you encounter a bug in
+.B clisp
+, please report it to the mailing list (see
+.IR http://lists.sf.net/lists/listinfo/clisp-list
+) or the SourceForge bug tracker (see
+.IR http://sf.net/tracker/?func=add&group_id=1355&atid=101355
+).
+
+.PP
+When submitting a bug report, please specify the following information:
+
+.PP
+1. What is your platform? (
+.B 'uname -a'
+on a Unix system) compiler version?  libc (on Linux)?
+
+.PP
+2. Where did you get the sources?  When?
+(Absolute dates are preferred over the relative ones)
+
+.PP
+3. How did you build
+.B clisp
+? (What command, options etc.)
+Please do a clean build (remove your build directory and build
+.BB clisp
+with
+.B './configure --build build'
+or at least do a
+.B 'make distclean'
+before
+.B 'make'
+). If you are reporting a crash (segmentation fault, bus error, core
+dump etc), please do
+.B './configure --with-debug --build build-g'
+and report the backtrace.
+
+.PP
+4. If you are using pre-built binaries, the problem is likely
+to be in the incompatibilities between the platform on which
+the binary was built and yours; please try compiling the sources.
+
+.PP
+5. What is the output of
+.B 'clisp --version'
+?
+
+.PP
+6. Please supply the full output (copy and paste) of all the error
+messages, as well as detailed instructions on how to reproduce them.
+
+.PP
+Known bugs, some of which may be platform-dependent, include
+
 #ifdef SPVW_MIXED_BLOCKS
 .PP
 The memory management scheme is not very flexible.
@@ -816,3 +874,6 @@ Specify a portable set of window and graphics operations.
 .SH AUTHORS
 
 Bruno Haible and Michael Stoll.
+See file
+.B COPYRIGHT
+for the list of the other contributors and the license.
