@@ -1,5 +1,14 @@
 2003-02-14  Sam Steingold  <sds@gnu.org>
 
+	never compare types using EQUAL!
+	* type.lisp (interval-mix): handle integers better by making AND
+	intervals inclusive and OR intervals exclusive
+	(interval-mix-not, simplify-and-or): new functions
+	(canonicalize-type): (MEMBER 1 2 3) --> (INTEGER 1 3)
+	(subtypep): types staring with AND, OR &c are undecidable
+
+2003-02-14  Sam Steingold  <sds@gnu.org>
+
 	* macros2.lisp (typecase): OTHERWISE must be the last clause to
 	be considered a an "otherwise clause"
 
