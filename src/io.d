@@ -5016,7 +5016,7 @@ nonreturning_function(local, fehler_print_case, (void)) {
 
 # UP: prints a part of a simple-string elementwise to stream.
 # write_sstring_ab(&stream,string,start,len);
-# > string: simple-string
+# > string: not-reallocated simple-string
 # > start: startindex
 # > len: number of to-be-printed characters
 # > stream: Stream
@@ -5037,6 +5037,7 @@ local void write_sstring_ab (const gcv_object_t* stream_, object string,
 # < stream: Stream
 # can trigger GC
 global void write_sstring (const gcv_object_t* stream_, object string) {
+  sstring_un_realloc(string);
   write_sstring_ab(stream_,string,0,Sstring_length(string));
 }
 
@@ -5067,6 +5068,7 @@ global void write_string (const gcv_object_t* stream_, object string) {
 # can trigger GC
 local void write_sstring_case (const gcv_object_t* stream_, object string) {
 # retrieve (READTABLE-CASE *READTABLE*):
+  sstring_un_realloc(string);
   var object readtable;
   get_readtable(readtable = ); # current readtable
   switch (RTCase(readtable)) {
@@ -6872,6 +6874,7 @@ local void pr_symbol_part (const gcv_object_t* stream_, object string,
   # 4. if it contains no lower-/upper-case letters
   #    (depending on readtable_case) and no colons and
   # 5. if it does not have Potential-Number Syntax (with *PRINT-BASE* as base).
+  sstring_un_realloc(string);
   var uintL len = Sstring_length(string); # length
   # check condition 1:
   if (len==0)
@@ -7033,7 +7036,7 @@ local void pr_character (const gcv_object_t* stream_, object ch) {
 
 # UP: prints part of a simple-string to stream.
 # pr_sstring_ab(&stream,string,start,len);
-# > string: simple-string
+# > string: not-reallocated simple-string
 # > start: startindex
 # > len: number of characters to be printed
 # > stream: stream
@@ -7081,7 +7084,7 @@ local void pr_sstring_ab (const gcv_object_t* stream_, object string,
 #endif
     write_ascii_char(stream_,'"'); # append a quotation mark
     skipSTACK(1);
-  } else # witout escape-character: only write_sstring_ab
+  } else # without escape-character: only write_sstring_ab
     write_sstring_ab(stream_,string,start,len);
 }
 
@@ -7735,7 +7738,7 @@ local void pr_array_elt_bvector (const gcv_object_t* stream_, object obj,
 }
 
 local void pr_array_elt_string (const gcv_object_t* stream_, object obj,
-                                  pr_array_info_t* info) { # simple-string
+                                pr_array_info_t* info) { # simple-string
   # print sub-string:
   pr_sstring_ab(stream_,obj,info->index,info->count);
   info->index += info->count;

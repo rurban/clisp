@@ -142,7 +142,7 @@ global object allocate_bit_vector (uintB atype, uintL len) {
 
 # UP, provides 8-bit character string
 # allocate_s8string(len)
-# > len: length of the string (in characters)
+# > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new 8-bit character simple-string (LISP-object)
 # can trigger GC
 global object allocate_s8string (uintL len) {
@@ -161,7 +161,7 @@ global object allocate_s8string (uintL len) {
 
 # UP, provides immutable 8-bit character string
 # allocate_imm_s8string(len)
-# > len: length of the string (in characters)
+# > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new immutable 8-bit character simple-string (LISP-object)
 # can trigger GC
 global object allocate_imm_s8string (uintL len) {
@@ -178,7 +178,7 @@ global object allocate_imm_s8string (uintL len) {
 
 # UP, provides 16-bit character string
 # allocate_s16string(len)
-# > len: length of the string (in characters)
+# > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new 16-bit character simple-string (LISP-object)
 # can trigger GC
 global object allocate_s16string (uintL len) {
@@ -195,7 +195,7 @@ global object allocate_s16string (uintL len) {
 
 # UP, provides immutable 16-bit character string
 # allocate_imm_s16string(len)
-# > len: length of the string (in characters)
+# > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new immutable 16-bit character simple-string (LISP-object)
 # can trigger GC
 global object allocate_imm_s16string (uintL len) {
@@ -212,7 +212,7 @@ global object allocate_imm_s16string (uintL len) {
 
 # UP, provides 32-bit character string
 # allocate_s32string(len)
-# > len: length of the string (in characters)
+# > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new 32-bit character simple-string (LISP-object)
 # can trigger GC
 global object allocate_s32string (uintL len) {
@@ -225,7 +225,7 @@ global object allocate_s32string (uintL len) {
 
 # UP, provides immutable 32-bit character string
 # allocate_imm_s32string(len)
-# > len: length of the string (in characters)
+# > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new immutable 32-bit character simple-string (LISP-object)
 # can trigger GC
 global object allocate_imm_s32string (uintL len) {

@@ -4404,6 +4404,12 @@ typedef sstring_ *  Sstring;
   #define sstring_length(ptr)  ((ptr)->tfl >> 10)
 #endif
 #define Sstring_length(obj)  sstring_length(TheSstring(obj))
+# Maximum allowed simple-string length:
+#ifdef TYPECODES
+  #define stringsize_limit_1  ((uintL)(bit(intLsize-6)-1))
+#else
+  #define stringsize_limit_1  ((uintL)(bit(intLsize-10)-1))
+#endif
 # Constructing the tfl word:
 #ifdef TYPECODES
   #define sstring_tfl(eltype,imm,flags,length)  \
@@ -7873,7 +7879,7 @@ extern object allocate_bit_vector (uintB atype, uintL len);
 #if !defined(UNICODE) || defined(HAVE_SMALL_SSTRING)
 # UP, provides 8-bit character string
 # allocate_s8string(len)
-# > len: length of the string (in characters)
+# > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new 8-bit character simple-string (LISP-object)
 # can trigger GC
 extern object allocate_s8string (uintL len);
@@ -7886,7 +7892,7 @@ extern object allocate_s8string (uintL len);
 #if !defined(UNICODE) || defined(HAVE_SMALL_SSTRING)
 # UP, provides immutable 8-bit character string
 # allocate_imm_s8string(len)
-# > len: length of the string (in characters)
+# > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new immutable 8-bit character simple-string (LISP-object)
 # can trigger GC
 extern object allocate_imm_s8string (uintL len);
@@ -7896,7 +7902,7 @@ extern object allocate_imm_s8string (uintL len);
 #ifdef HAVE_SMALL_SSTRING
 # UP, provides 16-bit character string
 # allocate_s16string(len)
-# > len: length of the string (in characters)
+# > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new 16-bit character simple-string (LISP-object)
 # can trigger GC
 extern object allocate_s16string (uintL len);
@@ -7909,7 +7915,7 @@ extern object allocate_s16string (uintL len);
 #ifdef HAVE_SMALL_SSTRING
 # UP, provides immutable 16-bit character string
 # allocate_imm_s16string(len)
-# > len: length of the string (in characters)
+# > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new immutable 16-bit character simple-string (LISP-object)
 # can trigger GC
 extern object allocate_imm_s16string (uintL len);
@@ -7919,7 +7925,7 @@ extern object allocate_imm_s16string (uintL len);
 #ifdef UNICODE
 # UP, provides 32-bit character string
 # allocate_s32string(len)
-# > len: length of the string (in characters)
+# > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new 32-bit character simple-string (LISP-object)
 # can trigger GC
 extern object allocate_s32string (uintL len);
@@ -7928,7 +7934,7 @@ extern object allocate_s32string (uintL len);
 #ifdef UNICODE
 # UP, provides immutable 32-bit character string
 # allocate_imm_s32string(len)
-# > len: length of the string (in characters)
+# > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new immutable 32-bit character simple-string (LISP-object)
 # can trigger GC
 extern object allocate_imm_s32string (uintL len);
@@ -7936,7 +7942,7 @@ extern object allocate_imm_s32string (uintL len);
 
 # UP: allocates String
 # allocate_string(len)
-# > len: length of the Strings (in Characters)
+# > len: length of the Strings (in Characters), must be <= stringsize_limit_1
 # < result: new Normal-Simple-String (LISP-object)
 # can trigger GC
 #ifdef UNICODE
@@ -7961,8 +7967,11 @@ extern object allocate_imm_s32string (uintL len);
     uintL objvar##_len = (len);               \
     var object objvar = O(dynamic_string);    \
     O(dynamic_string) = NIL;                  \
-    if (!(simple_string_p(objvar) && (Sstring_length(objvar) >= objvar##_len))) \
-      objvar = allocate_string(objvar##_len);
+    if (!(simple_string_p(objvar) && (Sstring_length(objvar) >= objvar##_len))) { \
+      if (objvar##_len > stringsize_limit_1)  \
+        fehler_stringsize(objvar##_len);      \
+      objvar = allocate_string(objvar##_len); \
+    }
   #define FREE_DYNAMIC_STRING(objvar)  \
     O(dynamic_string) = objvar;
 #else
@@ -8006,6 +8015,19 @@ extern object allocate_imm_s32string (uintL len);
 # can trigger GC
   extern object reallocate_small_string (object string, uintB newtype);
 # is used by ARRAY
+#endif
+
+# Attempts to reallocate a simple-string, for debugging purposes.
+# DBGREALLOC(string);
+#if defined(DEBUG_SMALL_SSTRING) && defined(HAVE_SMALL_SSTRING)
+  #define DBGREALLOC(string)  \
+    if (simple_string_p(string) && !sstring_reallocatedp(TheSstring(string)) \
+        && !sstring_immutable(TheSstring(string))                            \
+        && sstring_eltype(TheSstring(string)) != Sstringtype_32Bit           \
+        && sstring_length(TheSstring(string)) > 0)                           \
+      string = reallocate_small_string(string,sstring_eltype(TheSstring(string))+1)/*;*/
+#else
+  #define DBGREALLOC(string)  (void)0 /*nop*/
 #endif
 
 # UP: allocates indirect array
@@ -11463,7 +11485,7 @@ extern object name_char (object string);
  increases STACK by 3
  can trigger GC */
 typedef struct stringarg {
-  object string; # data vector, a simple-string
+  object string; # data vector, a not-reallocated simple-string
   uintL offset;  # offset into this string
   uintL index;   # :start index
   uintL len;     # :end - :start
@@ -12038,6 +12060,16 @@ nonreturning_function(extern, fehler_sstring, (object obj));
 # Error message, if an argument is not of type (OR STRING INTEGER).
 # fehler_string_integer(obj);
 nonreturning_function(extern, fehler_string_integer, (object obj));
+
+# Error message, if a string size is too big.
+# fehler_stringsize(size);
+# > size: the desired string length
+nonreturning_function(extern, fehler_stringsize, (uintL size));
+
+# Check a string size, reporting an error when it's too big.
+#define check_stringsize(size)  \
+  if ((size) > stringsize_limit_1) \
+    fehler_stringsize(size)/*;*/
 
 # Error message, if an argument isn't a stream:
 # fehler_stream(obj);
@@ -12721,7 +12753,7 @@ extern uintL read_char_array (const gcv_object_t* stream_, const gcv_object_t* c
 # Function: Writes several characters to a stream.
 # write_char_array(&stream,&chararray,start,len)
 # > stream: stream (on the STACK)
-# > object chararray: simple-string (on the STACK)
+# > object chararray: not-reallocated simple-string (on the STACK)
 # > uintL start: start index of character sequence to be written
 # > uintL len: length of character sequence to be written
 extern void write_char_array (const gcv_object_t* stream_, const gcv_object_t* chararray_, uintL start, uintL len);

@@ -419,6 +419,7 @@ global object decimal_string (object x) {
   var DIGITS erg; erg.LSBptr = &ziffern[need];
   UDS_to_DIGITS(MSDptr,len,10,&erg); /* conversion into digits */
   /* write digits into normal-simple-string: */
+  check_stringsize(erg.len);
   var object string = allocate_string(erg.len);
   if (erg.len > 0) {
     var const chart* p = erg.MSBptr;

@@ -1979,6 +1979,7 @@ global object n_char_to_string (const char* srcptr, uintL blen,
   var const uintB* bendptr = bptr+blen;
   var uintL clen = Encoding_mblen(encoding)(encoding,bptr,bendptr);
   pushSTACK(encoding);
+  check_stringsize(clen);
   var object obj = allocate_string(clen);
   encoding = popSTACK();
   {
@@ -1992,6 +1993,7 @@ global object n_char_to_string (const char* srcptr, uintL blen,
 #else
 global object n_char_to_string_ (const char* srcptr, uintL len) {
   var const uintB* bptr = (const uintB*)srcptr;
+  check_stringsize(len);
   var object obj = allocate_string(len);
   if (len > 0) {
     var chart* ptr = &TheSnstring(obj)->data[0];
@@ -2021,6 +2023,7 @@ global object asciz_to_string_ (const char * asciz) {
 global object ascii_to_string (const char * asciz) {
   var const uintB* bptr = (const uintB*)asciz;
   var uintL len = asciz_length(asciz);
+  check_stringsize(len);
   var object obj = allocate_s8string(len); /* allocate string */
   if (len > 0) {
     var cint8* ptr = &TheS8string(obj)->data[0];
@@ -2031,6 +2034,7 @@ global object ascii_to_string (const char * asciz) {
       *ptr++ = (cint8)b;
     });
   }
+  DBGREALLOC(obj);
   return obj;
 }
 
@@ -2512,6 +2516,7 @@ LISPFUN(convert_string_from_bytes,seclass_read,2,0,norest,key,2,
   var uintL clen = end-start;
  #endif
   /* Allocate and fill the result string: */
+  check_stringsize(clen);
   var object string = allocate_string(clen);
   if (clen > 0) {
     array = STACK_0;
