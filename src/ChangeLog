@@ -1,3 +1,13 @@
+2004-10-17  Bruno Haible  <bruno@clisp.org>
+
+	* clos-class3.lisp (shared-initialize-<structure-class>): Don't use
+	the superclass' slots unmodified, since the initform may be different
+	in the class being defined than in the superclass.
+	* defstruct.lisp (defstruct): Create direct-slot-definitions also for
+	the slot descriptions in the :include option. Create the
+	direct-slot-definitions with the right initff. Reverse the list of
+	direct-slot-definitions finally.
+
 2004-10-31  Sam Steingold  <sds@gnu.org>
 
 	* defs1.lisp (list-to-ht): use a heuristic to decide whether
