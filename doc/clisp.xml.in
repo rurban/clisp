@@ -427,7 +427,7 @@ compiles the specified lisp files to a platform-independent
 <refsection id="reference"><title>Reference</title>
 
 <para id="ansi-cl">The language implemented mostly conforms to the
- <olink targetdoc="impnotes" targetptr="references">ANSI Common Lisp
+ <olink targetdoc="impnotes" targetptr="ref-ansi">ANSI Common Lisp
   standard</olink>.</para>
 
 </refsection>
@@ -646,8 +646,7 @@ compiles the specified lisp files to a platform-independent
 <refsection id="bugs"><title>Bugs</title>
 
 <para>When you encounter a bug in &clisp;, please report it to the
- <ulink url="http://lists.sourceforge.net/lists/listinfo/clisp-list">CLISP
-  mailing list</ulink> or the
+ CLISP user mailing list &clisp-list; or the
  <ulink url="http://sourceforge.net/tracker/?func=add&amp;group_id=1355&amp;atid=101355">SourceForge bug tracker</ulink>.</para>
 
 <para><emphasis>Before</emphasis> submitting a bug report, please take
