@@ -649,54 +649,36 @@ static const cint nop_page[256] = {
     }
 #endif
 
-# UP: verfolgt einen String.
-# unpack_string(string,&tot_len,&fil_len,&offset)
-# > object string: the string.
-# < uintL tot_len: the total length of the string
-# < uintL fil_len: the fill-pointer length of the string
-# < uintL offset: offset in the data vector.
-# < object return: data vector
-local object unpack_string (object string, uintL* tot_len, uintL* fil_len,
-                            uintL* offset) {
-  if (simple_string_p(string)) {
-    var uintL len = Sstring_length(string);
-    if (tot_len) *tot_len = len;
-    if (fil_len) *fil_len = len;
-    *offset = 0;
-    return string;
-  } else {
-   # string, but not simple-string => follow the displacement
-   # determine the length (like vector_length() in array.d):
-    var uintL tot_size;
-    var uintL fil_size;
-    {
-      var Iarray addr = TheIarray(string);
-      var uintL offset_fil = offsetofa(iarray_,dims);
-      if (iarray_flags(addr) & bit(arrayflags_dispoffset_bit))
-        offset_fil += sizeof(uintL);
-      var uintL offset_tot = offset_fil;
-      if (iarray_flags(addr) & bit(arrayflags_fillp_bit))
-        offset_fil += sizeof(uintL);
-      fil_size = *(uintL*)pointerplus(addr,offset_fil);
-      tot_size = *(uintL*)pointerplus(addr,offset_tot);
-    }
-    if (tot_len) *tot_len = tot_size;
-    if (fil_len) *fil_len = fil_size;
-    # follow the displacement:
-    *offset = 0;
-    return iarray_displace_check(string,fil_size,offset);
-  }
-}
-
 # UP: unpack a string
 # unpack_string_ro(string,&len,&offset)  [for read-only access]
 # > object string: a string
 # < uintL len: the fill-pointer length of the string
 # < uintL offset: offset into the datastorage vector
 # < object result: datastorage vector
-global object unpack_string_ro (object string, uintL* len, uintL* offset) {
-  return unpack_string(string,NULL,len,offset);
-}
+  global object unpack_string_ro (object string, uintL* len, uintL* offset) {
+    if (simple_string_p(string)) {
+      *len = Sstring_length(string);
+      *offset = 0;
+      return string;
+    } else {
+      # string, but not simple-string => follow the displacement
+      # determine the length (like vector_length() in array.d):
+      var uintL size;
+      {
+        var Iarray addr = TheIarray(string);
+        var uintL offset_fil = offsetofa(iarray_,dims);
+        if (iarray_flags(addr) & bit(arrayflags_dispoffset_bit))
+          offset_fil += sizeof(uintL);
+        if (iarray_flags(addr) & bit(arrayflags_fillp_bit))
+          offset_fil += sizeof(uintL);
+        size = *(uintL*)pointerplus(addr,offset_fil);
+      }
+      *len = size;
+      # follow the displacement:
+      *offset = 0;
+      return iarray_displace_check(string,size,offset);
+    }
+  }
 
 # UP: unpack a string
 # unpack_string_rw(string,&len)  [for read-write access]
@@ -705,7 +687,7 @@ global object unpack_string_ro (object string, uintL* len, uintL* offset) {
 # < chart* result: the beginning of the characters
 global chart* unpack_string_rw (object string, uintL* len) {
   var uintL index = 0;
-  var object unpacked = unpack_string(string,NULL,len,&index);
+  var object unpacked = unpack_string_ro(string,len,&index);
   check_sstring_mutable(unpacked);
   return &TheSstring(unpacked)->data[index];
 }
@@ -2386,9 +2368,15 @@ LISPFUNN(char,2) # (CHAR string index), CLTL S. 300
     if (!stringp(string))
       fehler_string(string);
     var uintL len;
-    var uintL offset;
-    # almost unpack_string_ro() -- but need tot_len, not fil_len
-    string = unpack_string(string,&len,NULL,&offset);
+    var uintL offset = 0;
+    # Don't use unpack_string_ro() -- we need (array-dimension string 0),
+    # not (length string).
+    if (simple_string_p(string))
+      len = Sstring_length(string);
+    else {
+      len = TheIarray(string)->totalsize;
+      string = iarray_displace_check(string,len,&offset);
+    }
     var uintL index = test_index_arg(len);
     var chart ch;
     SstringDispatch(string,
@@ -2444,11 +2432,17 @@ LISPFUNN(store_char,3) # (SYSTEM::STORE-CHAR string index newchar)
     if (!stringp(string)) # muss ein String sein
       fehler_string(string);
     var uintL len;
-    # almost unpack_string_rw() -- but need tot_len, not fil_len
     var uintL offset = 0;
-    var object unpacked = unpack_string(string,&len,NULL,&offset);
-    check_sstring_mutable(unpacked);
-    var chart* charptr = &TheSstring(unpacked)->data[offset];
+    # Don't use unpack_string_rw() -- we need (array-dimension string 0),
+    # not (length string).
+    if (simple_string_p(string))
+      len = Sstring_length(string);
+    else {
+      len = TheIarray(string)->totalsize;
+      string = iarray_displace_check(string,len,&offset);
+    }
+    check_sstring_mutable(string);
+    var chart* charptr = &TheSstring(string)->data[offset];
     charptr += test_index_arg(len); # go to the element addressed by index
     *charptr = char_code(newchar); # put in the character
     value1 = newchar; mv_count=1;

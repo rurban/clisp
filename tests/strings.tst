@@ -1155,8 +1155,22 @@ error
 (elt x 7)
 error
 
+(setf (char x 7) #\H)
+#\H
+
+(char x 7)
+#\H
+
 (reverse x)   "edcba"
 
 (nreverse x)  "edcba"
 
 x             "edcba"
+
+(let* ((x (make-array 10 :fill-pointer 4 :element-type 'character
+                         :initial-element #\space :adjustable t))
+       (y (make-array 10 :fill-pointer 4 :element-type 'character
+                         :displaced-to x)))
+  (adjust-array x '(5))
+  (char y 5))
+error

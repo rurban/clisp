@@ -1,5 +1,13 @@
 2002-05-20  Bruno Haible  <bruno@clisp.org>
 
+	* charstrg.d (CHAR, SYSTEM::STORE-CHAR): Correct checking of validity
+	of index. Don't use unpack_string here.
+	(unpack_string): Remove function.
+	(unpack_string_ro): Inline old unpack_string.
+	(unpack_string_rw): Call unpack_string_ro, not unpack_string.
+
+2002-05-20  Bruno Haible  <bruno@clisp.org>
+
 	Remove gcc-3.0.4 warning.
 	* eval.d (LD, LR): Don't use CONCAT to paste strings; justaposing the
 	strings is sufficient.
