@@ -213,3 +213,15 @@ test12
 
 (test12)
 nil
+
+;; a crash compiling sbcl, reported by Christophe Rhodes
+;; (Corrupted STACK in #<COMPILED-CLOSURE STEM> at byte 45)
+;; the bug was fixed by bruno in compiler.lisp 1.80
+(progn
+  (defun stem (&key (obj (error "missing OBJ")))
+    (with-open-file (stream obj :direction :output)
+      (truename stream)))
+  (compile 'stem)
+  (delete-file (stem :obj "foo-bar-zot"))
+  t)
+t
