@@ -1,3 +1,11 @@
+1998-12-20  Sam Steingold  <sds@goems.com>
+
+	* _clisp.c (main): accept an '-F' argument to run the full version
+	of CLISP (with modules).
+	* spvw.d (usage): metion -F.
+	* makemake.in: install the full CLISP version too.
+	* _distmakefile: ditto.
+
 1998-12-18  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
         * makemake.in (clean7): Add "rm -f -r bindings clx queens regexp

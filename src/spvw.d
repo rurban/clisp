@@ -1668,7 +1668,7 @@ local void usage (int exit_code)
   #ifdef MULTIMAP_MEMORY_VIA_FILE
   asciz_out(" [-t tmpdir]");
   #endif
-  asciz_out(" [-W] [-M memfile] [-L language] [-N nlsdir] [-q] [-I] [-C]"
+  asciz_out(" [-F] [-W] [-M memfile] [-L language] [-N nlsdir] [-q] [-I] [-C]"
             " [-norc] [-i initfile ...] [-c [-l] lispfile [-o outputfile] ...]"
             " [-p packagename] [-a] [-x expression] [lispfile [argument ...]]"
             NLstring);
