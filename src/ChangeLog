@@ -1,5 +1,9 @@
 2003-09-17  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (f-side-effect): NOTINLINE ==> seclass (t . t)
+
+2003-09-17  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in: respect LDFLAGS
 	Mac OS X (Darwin) is a BINARY_DISTRIB system
 
