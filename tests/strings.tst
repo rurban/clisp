@@ -1141,9 +1141,19 @@ error
 (NSTRING-CAPITALIZE  "fg hgf fgh")   "Fg Hgf Fgh"
 
 (LET ((X "ABCDEF"))
-     (NSTRING-DOWNCASE X)
-     X)
+  (NSTRING-DOWNCASE X)
+  X)
 "abcdef"
+
+#+CLISP
+(let ((s (format nil "A~CB" (code-char 0))))
+  (list (ext:string-width s :start 0 :end 1)
+        (ext:string-width s :start 1 :end 2)
+        (ext:string-width s :start 2 :end 3)
+        (ext:string-width s :start 0 :end 2)
+        (ext:string-width s :start 0 :end 3)
+        (ext:string-width s :start 1 :end 3)))
+#+CLISP (1 0 1 1 2 1)
 
 (setq x (make-array 10 :fill-pointer 5 :element-type 'character
                     :initial-contents "abcdefghij"))
