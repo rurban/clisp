@@ -1979,10 +1979,14 @@ LISPSYM(compile_print,"*COMPILE-PRINT*",lisp) /* variable for SPVW */
 LISPSYM(compile_verbose,"*COMPILE-VERBOSE*",lisp) /* variable for SPVW */
 LISPSYM(report_error_print_backtrace,"*REPORT-ERROR-PRINT-BACKTRACE*",custom) /* variable for SPVW */
 LISPSYM(args,"*ARGS*",ext) /* variable in SPVW */
-LISPSYM(appease_cerrors,"APPEASE-CERRORS",ext) /* macro for SPVW */
-LISPSYM(batchmode_errors,"BATCHMODE-ERRORS",system) /* macro for SPVW */
-LISPSYM(abort_errors,"ABORT-ERRORS",system) /* macro for SPVW */
-LISPSYM(lloop,"LOOP",lisp) /* macro for SPVW */
+LISPSYM(appease_cerror,"APPEASE-CERROR",system) /* function for SPVW */
+LISPSYM(exitunconditionally,"EXITUNCONDITIONALLY",system) /* function for SPVW*/
+LISPSYM(exitonerror,"EXITONERROR",system) /* function for SPVW */
+LISPSYM(abortonerror,"ABORTONERROR",system) /* function for SPVW */
+LISPSYM(interrupt_condition,"INTERRUPT-CONDITION",system) /*condition for SPVW*/
+LISPSYM(serious_condition,"SERIOUS-CONDITION",lisp) /* condition for SPVW */
+LISPSYM(set_global_handler,"SET-GLOBAL-HANDLER",ext) /* function for SPVW */
+LISPSYM(global_handler,"GLOBAL-HANDLER",system) /* gf for EVAL */
 LISPSYM(wait_keypress,"WAIT-KEYPRESS",system) /* function for SPVW */
 #ifdef UNIX
 LISPSYM(disassemble_use_live_process,"*DISASSEMBLE-USE-LIVE-PROCESS*",system) /* variable in SPVW */

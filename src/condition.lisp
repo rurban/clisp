@@ -35,7 +35,7 @@
 (in-package "EXT")
 (export
  '(muffle-cerrors appease-cerrors exit-on-error with-restarts os-error
-   abort-on-error
+   abort-on-error set-global-handler
    source-program-error source-program-error-form source-program-error-detail
    simple-condition-format-string simple-charset-type-error retry)
  "EXT")
@@ -1688,12 +1688,6 @@ non-continuable error or a Ctrl-C interrupt occurs."
                   (SERIOUS-CONDITION #'EXITONERROR))
     ,@body))
 
-(defmacro batchmode-errors (&body body)
-  "(SYSTEM::BATCHMODE-ERRORS {form}*) executes the forms, but handles errors
-just as a batch program should do: continuable errors are signalled as
-warnings, non-continuable errors and Ctrl-C interrupts cause Lisp to exit."
-  `(EXIT-ON-ERROR (APPEASE-CERRORS ,@body)))
-
 (defun abortonerror (condition) ; ABI
   (report-error condition)
   (invoke-restart (find-restart 'abort condition)))
@@ -1703,7 +1697,51 @@ warnings, non-continuable errors and Ctrl-C interrupts cause Lisp to exit."
   `(HANDLER-BIND ((SERIOUS-CONDITION #'ABORTONERROR))
      ,@body))
 
-(defmacro abort-errors (&body body)
-  "(ABORT-ERRORS {form}*) executes the forms
-and aborts all errors that it cannot appease."
-  `(ABORT-ON-ERROR (APPEASE-CERRORS ,@body)))
+(defgeneric global-handler (condition)
+  (:method-combination progn)
+  (:documentation "the global error handler, methods should not return")
+  (:method progn ((condition t)) nil))
+
+(defun set-global-handler (condition-name handler)
+  "Make HANDLER handle CONDITION globally.
+HANDLER should be funcallable (symbol or function).
+When HANDLER is nil, remove the global handler for CONDITION.
+Returns the added or removed method(s)."
+  (let ((clos::*warn-if-gf-already-called* nil)
+        (clos::*gf-warn-on-replacing-method* nil))
+    (cond (handler              ; install handler
+           (clos::do-defmethod 'global-handler
+             (lambda (backpointer)
+               (declare (ignore backpointer)) ; ?!
+               (list
+                (lambda (condition)
+                  ;; avoid infinite recursion by disabling the handler
+                  (let ((clos::*gf-warn-on-replacing-method* nil)
+                        (clos::*warn-if-gf-already-called* nil)
+                        (old-handler (set-global-handler condition-name nil)))
+                    (unwind-protect (funcall handler condition)
+                      (when old-handler
+                        (clos:add-method #'global-handler old-handler)))))
+                t))             ; wants-next-method-p == NIL
+             (list :qualifiers '(progn) :lambda-list '(condition)
+                   'clos::signature #(1 0 NIL NIL NIL NIL)
+                   :specializers (list (find-class condition-name)))))
+          ((consp condition-name) ; install all these handlers
+           (dolist (handler condition-name)
+             (clos:add-method #'global-handler handler)))
+          ((null condition-name) ; remove all global handlers
+           (let ((handlers '()))
+             (dolist (method (clos::generic-function-methods #'global-handler))
+               (unless (equal '#.(list (find-class 't))
+                              (clos::method-specializers method))
+                 (push method handlers)
+                 (clos:remove-method #'global-handler method)))
+             handlers))
+          ((symbolp condition-name) ; remove handler for this condition
+           (let ((method (find-method #'global-handler '(progn)
+                                      (list (find-class condition-name)) nil)))
+             (when method
+               (clos:remove-method #'global-handler method)
+               method)))
+          (t (error "~S(~S ~S): invalid arguments"
+                    'set-global-handler condition-name handler)))))

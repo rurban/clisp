@@ -725,6 +725,10 @@ global maygc void invoke_handlers (object cond) {
       FRAME skipSTACKop 1;
     }
   }
+  var object handler = Symbol_function(S(global_handler));
+  if (boundp(handler)) {                 /* unbound during bootstrap */
+    pushSTACK(cond); funcall(handler,1); /* (GLOBAL-HANDLER cond) */
+  }
 }
 
 /* UP: finds out, if an object is a function name, i.e. a Symbol or

@@ -1805,21 +1805,32 @@ typedef enum {
   ON_ERROR_EXIT
 } on_error_t;
 
-/* Returns `(BATCHMODE-ERRORS ,form) or `(APPEASE-CERRORS ,form), as
- appropriate.
+/* install the appropriate global handglers
  can trigger GC */
-local maygc object appease_form (on_error_t on_error, object form)
+local maygc void install_global_handlers (on_error_t on_error)
 {
+  /* do nothing if there is no memory image */
+  if (!boundp(Symbol_function(S(set_global_handler)))) return;
   switch (on_error) {
-    case ON_ERROR_EXIT: case ON_ERROR_DEFAULT:
-      pushSTACK(S(batchmode_errors)); break;
-    case ON_ERROR_APPEASE: pushSTACK(S(appease_cerrors)); break;
-    case ON_ERROR_ABORT: pushSTACK(S(abort_errors)); break;
-    case ON_ERROR_DEBUG: return form;
+    case ON_ERROR_EXIT:
+      pushSTACK(S(interrupt_condition));
+      pushSTACK(Symbol_function(S(exitunconditionally)));
+      funcall(S(set_global_handler),2);
+      pushSTACK(S(serious_condition));
+      pushSTACK(Symbol_function(S(exitonerror)));
+      funcall(S(set_global_handler),2);
+      goto appease;
+    case ON_ERROR_ABORT:
+      pushSTACK(S(serious_condition));
+      pushSTACK(Symbol_function(S(abortonerror)));
+      funcall(S(set_global_handler),2);
+      /*FALLTHROUGH*/
+    case ON_ERROR_APPEASE: appease:
+      pushSTACK(S(error)); pushSTACK(Symbol_function(S(appease_cerror)));
+      funcall(S(set_global_handler),2); return;
+    case ON_ERROR_DEBUG: return;
     default: NOTREACHED;
   }
-  pushSTACK(form);
-  return listof(2);
 }
 
 # Very early initializations.
@@ -2951,6 +2962,12 @@ local inline void main_actions (struct argv_actions *p) {
     var object stream = var_stream(S(query_io),strmflags_wr_ch_B);
     Symbol_value(S(debug_io)) = make_twoway_stream(popSTACK(),stream);
   }
+  if (p->argv_on_error == ON_ERROR_DEFAULT)
+    p->argv_on_error =
+      (!p->argv_repl
+       && (p->argv_compile || p->argv_execute_file || p->argv_expr_count))
+      ? ON_ERROR_EXIT : ON_ERROR_DEBUG;
+  install_global_handlers(p->argv_on_error);
   switch (p->argv_ansi) {
     case 1: # Maximum ANSI CL compliance
       pushSTACK(T); funcall(L(set_ansi),1); break;
@@ -3032,37 +3049,23 @@ local inline void main_actions (struct argv_actions *p) {
   if (p->argv_init_filecount > 0) {
     var const char* const* fileptr = &p->argv_init_files[0];
     var uintL count = p->argv_init_filecount;
-    if (interactive_stream_p(Symbol_value(S(debug_io))))
-      do {
-        pushSTACK(asciz_to_string(*fileptr++,O(misc_encoding)));
-        funcall(S(load),1);
-      } while (--count);
-    else { /* non-interactive - guard with SYS::BATCHMODE-ERRORS */
-      pushSTACK(S(batchmode_errors));
-      do {
-        pushSTACK(S(load));
-        pushSTACK(asciz_to_string(*fileptr++,O(misc_encoding)));
-        { object tmp = listof(2); pushSTACK(tmp); }
-      } while (--count);
-      eval_noenv(listof(p->argv_init_filecount+1));
-    }
+    do {
+      pushSTACK(asciz_to_string(*fileptr++,O(misc_encoding)));
+      funcall(S(load),1);
+    } while (--count);
   }
   if (p->argv_compile) {
-    # execute
-    #   (EXIT-ON-ERROR
-    #     (APPEASE-CERRORS
-    #       (COMPILE-FILE (setq file (MERGE-PATHNAMES file (MERGE-PATHNAMES '#".lisp" (CD))))
-    #                     [:OUTPUT-FILE (setq output-file (MERGE-PATHNAMES (MERGE-PATHNAMES output-file (MERGE-PATHNAMES '#".fas" (CD))) file))]
-    #                     [:LISTING (MERGE-PATHNAMES '#".lis" (or output-file file))]
-    #   ) ) )
-    # for each file:
+    /* execute
+     (COMPILE-FILE (setq file (MERGE-PATHNAMES file (MERGE-PATHNAMES #".lisp" (CD))))
+                   [:OUTPUT-FILE (setq output-file (MERGE-PATHNAMES (MERGE-PATHNAMES output-file (MERGE-PATHNAMES #".fas" (CD))) file))]
+                   [:LISTING (MERGE-PATHNAMES #".lis" (or output-file file))])
+     for each file: */
     if (p->argv_compile_filecount > 0) {
       var const argv_compile_file_t* fileptr = &p->argv_compile_files[0];
       var uintL count;
       dotimespL(count,p->argv_compile_filecount,{
         var uintC argcount = 1;
         var object filename = asciz_to_string(fileptr->input_file,O(misc_encoding));
-        pushSTACK(S(compile_file));
         pushSTACK(filename);
         pushSTACK(O(source_file_type)); # #".lisp"
         funcall(L(cd),0); pushSTACK(value1); # (CD)
@@ -3093,27 +3096,14 @@ local inline void main_actions (struct argv_actions *p) {
           pushSTACK(value1);
           argcount += 2;
         }
-        # quote all arguments:
-        if (argcount > 0) {
-          var gcv_object_t* ptr = args_end_pointer;
-          var uintC c;
-          dotimespC(c,argcount,{
-            pushSTACK(S(quote)); pushSTACK(Before(ptr));
-            BEFORE(ptr) = listof(2);
-          });
-        }
-        var object form = listof(1+argcount); # `(COMPILE-FILE ',...)
-        if (!p->argv_repl)
-          form = appease_form(p->argv_on_error,form);
-        eval_noenv(form); # execute
+        funcall(S(compile_file),argcount);
         fileptr++;
       });
     }
     if (!p->argv_repl)
       return;
   }
-  if (p->argv_package != NULL) {
-    # (IN-PACKAGE packagename)
+  if (p->argv_package != NULL) { /* (IN-PACKAGE packagename) */
     var object packname = asciz_to_string(p->argv_package,O(misc_encoding));
     pushSTACK(packname);
     var object package = find_package(packname);
@@ -3130,15 +3120,13 @@ local inline void main_actions (struct argv_actions *p) {
     skipSTACK(1);
   }
   if (p->argv_execute_file != NULL) {
-    #  execute:
-    # (PROGN
-    #   #+UNIX (SET-DISPATCH-MACRO-CHARACTER #\# #\!
-    #           (FUNCTION SYS::UNIX-EXECUTABLE-READER))
-    #   (SETQ *LOAD-VERBOSE* NIL)
-    #   (EXIT-ON-ERROR
-    #    (APPEASE-CERRORS
-    #     (LOAD argv_execute_file :EXTRA-FILE-TYPES ...)))
-    #   (UNLESS argv_repl (EXIT)))
+    /*  execute:
+     (PROGN
+       #+UNIX (SET-DISPATCH-MACRO-CHARACTER #\# #\!
+               (FUNCTION SYS::UNIX-EXECUTABLE-READER))
+       (SETQ *LOAD-VERBOSE* NIL)
+       (LOAD argv_execute_file :EXTRA-FILE-TYPES ...)
+       (UNLESS argv_repl (EXIT))) */
    #if defined(UNIX) || defined(WIN32_NATIVE)
     # Make clisp ignore the leading #! line.
     pushSTACK(ascii_char('#')); pushSTACK(ascii_char('!'));
@@ -3146,26 +3134,18 @@ local inline void main_actions (struct argv_actions *p) {
     funcall(L(set_dispatch_macro_character),3);
    #endif
     Symbol_value(S(load_verbose)) = NIL;
-    var object form;
-    pushSTACK(S(load));
     if (asciz_equal(p->argv_execute_file,"-")) {
-      pushSTACK(S(standard_input)); # *STANDARD-INPUT*
+      pushSTACK(S(standard_input)); /* *STANDARD-INPUT* */
     } else {
       pushSTACK(asciz_to_string(p->argv_execute_file,O(misc_encoding)));
     }
-    pushSTACK(S(Kextra_file_types));
    #ifdef WIN32_NATIVE
-    pushSTACK(S(quote));
+    pushSTACK(S(Kextra_file_types));
     pushSTACK(O(load_extra_file_types));
-    form = listof(2); # (QUOTE (".BAT"))
-    pushSTACK(form);
+    funcall(S(load),3);
    #else
-    pushSTACK(NIL);
+    funcall(S(load),1);
    #endif
-    form = listof(4);
-    if (!p->argv_repl)
-      form = appease_form(p->argv_on_error,form);
-    eval_noenv(form); # execute
     if (!p->argv_repl)
       return;
   }
@@ -3185,16 +3165,12 @@ local inline void main_actions (struct argv_actions *p) {
     # is undefined. Do not set an error handler in that case.
     if (!nullpSv(driverstern)) {
       dynamic_bind(S(standard_input),value1);
-      # (PROGN
-      #   (EXIT-ON-ERROR (APPEASE-CERRORS (FUNCALL *DRIVER*)))
-      #   ; Normally this will exit by itself once the string has reached EOF,
-      #   ; but to be sure:
-      #   (UNLESS argv_repl (EXIT)))
-      var object form;
-      pushSTACK(S(funcall)); pushSTACK(S(driverstern)); form = listof(2);
-      if (!p->argv_repl)
-        form = appease_form(p->argv_on_error,form);
-      eval_noenv(form);
+      /* (PROGN
+           (FUNCALL *DRIVER*)
+           ; Normally this will exit by itself once the string has reached EOF,
+           ; but to be sure:
+           (UNLESS argv_repl (EXIT))) */
+      funcall(Symbol_value(S(driverstern)),0);
       if (!p->argv_repl)
         return;
       dynamic_unbind(S(standard_input));
@@ -3202,16 +3178,6 @@ local inline void main_actions (struct argv_actions *p) {
       Symbol_value(S(standard_input)) = value1;
   }
   # call read-eval-print-loop:
-  if (!nullpSv(driverstern) && p->argv_on_error != ON_ERROR_DEFAULT
-      && p->argv_on_error != ON_ERROR_DEBUG) {
-    /* (LOOP (FUNCALL *DRIVER*)) */
-    pushSTACK(S(lloop));
-    pushSTACK(S(funcall));
-    pushSTACK(Symbol_value(S(driverstern)));
-    { object tmp = listof(2); pushSTACK(tmp); }
-    { object tmp = appease_form(p->argv_on_error,listof(2));
-      eval_noenv(tmp); }
-  }
   driver();
 }
 
