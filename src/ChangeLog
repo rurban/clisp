@@ -150,7 +150,8 @@
 	* pathname.d (common_case, test_optional_host, copy_upcase, all_digits,
 	PARSE-NAMESTRING, wildcard_match): Update.
 	* stream.d (read_char_array, rd_ch_array_str_in, wr_ch_array_str_out,
-	wr_ch_array_pphelp, rd_ch_array_buffered, lisp_completion): Update.
+	wr_ch_array_pphelp, rd_ch_array_buffered, lisp_completion,
+	rd_ch_terminal3, wr_ch_array_terminal3): Update.
 	* io.d (sstring_printf, test_potential_number_syntax, upcase_token,
 	case_convert_token, char_reader, radix_2, bit_vector_reader,
 	write_string, pphelp_string_width, klammer_zu, pr_enter_1): Update.
