@@ -184,7 +184,7 @@
     # In  x * y = x1*y1*2^32 + (x1*y0+x0*y1)*2^16 + x0*y0
     # bestimmen die ersten beiden Summanden und das High-Word des dritten
     # Summanden die beiden höherwertigen Words des Ergebnisses (und
-    # hierbei gibt es keinen Überlauf, da das Produkt in 3 Words paßt!),
+    # hierbei gibt es keinen Überlauf, da das Produkt in 3 Words passt!),
     # das Low-Word des dritten Summanden ist auch das des Ergebnisses.
     #define mulu24(x,y,hi_zuweisung,lo_zuweisung)  \
       { var uint32 _x = (x);                                       \
@@ -354,7 +354,7 @@
 # mulu32_unchecked(arg1,arg2)
 # > arg1, arg2 : zwei 32-Bit-Zahlen
 # < ergebnis : eine 32-Bit-Zahl
-# Es wird vorausgesetzt, daß arg1*arg2 < 2^32.
+# Es wird vorausgesetzt, dass arg1*arg2 < 2^32.
   #if (defined(GNU) && defined(MC680X0) && !defined(MC680Y0))
     extern uint32 mulu32_unchecked (uint32 x, uint32 y);
     #ifdef LISPARIT
@@ -406,7 +406,7 @@
 # divu_3216_1616(x,y,q=,r=);
 # > uint32 x: Zähler
 # > uint16 y: Nenner
-# > Es sei bekannt, daß 0 <= x < 2^16*y .
+# > Es sei bekannt, dass 0 <= x < 2^16*y .
 # < uint16 q: floor(x/y)
 # < uint16 r: x mod y
 # < x = q*y+r
@@ -503,7 +503,7 @@
 # divu_3216_3216(x,y,q=,r=);
 # > uint32 x: Zähler
 # > uint16 y: Nenner
-# Es sei bekannt, daß y>0.
+# Es sei bekannt, dass y>0.
 # < uint32 q: floor(x/y)
 # < uint16 r: x mod y
 # < x = q*y+r
@@ -594,7 +594,7 @@
 # divu_3232_3232(x,y,q=,r=);
 # > uint32 x: Zähler
 # > uint32 y: Nenner
-# Es sei bekannt, daß y>0.
+# Es sei bekannt, dass y>0.
 # < uint32 q: floor(x/y)
 # < uint32 r: x mod y
 # < x = q*y+r
@@ -625,7 +625,7 @@
     # gilt  floor(x1/(y1+1)) <= floor(x/y) <= floor(x1/(y1+1)) + 2  .
     # Man bildet also  q:=floor(x1/(y1+1))  (ein Shift um n Bit oder
     # eine (2n)-durch-n-Bit-Division, mit Ergebnis q <= floor(x/y) < beta)
-    # und x-q*y und muß hiervon noch höchstens 2 mal y abziehen und q
+    # und x-q*y und muss hiervon noch höchstens 2 mal y abziehen und q
     # incrementieren, um den Quotienten  q = floor(x/y)  und den Rest
     # x-floor(x/y)*y  der Division zu bekommen.
     #define divu_3232_3232(x,y,q_zuweisung,r_zuweisung)  \
@@ -700,7 +700,7 @@
 # divu_6432_3232(xhi,xlo,y,q=,r=);
 # > uint32 xhi,xlo: x = 2^32*xhi+xlo = Zähler
 # > uint32 y: Nenner
-# > Es sei bekannt, daß 0 <= x < 2^32*y .
+# > Es sei bekannt, dass 0 <= x < 2^32*y .
 # < uint32 q: floor(x/y)
 # < uint32 r: x mod y
 # < x = q*y+r
@@ -834,7 +834,7 @@
           # gilt  floor(x1/(y1+1)) <= floor(x/y) <= floor(x1/(y1+1)) + 2  .
           # Man bildet also  q:=floor(x1/(y1+1))  (ein Shift um n Bit oder
           # eine (2n)-durch-n-Bit-Division, mit Ergebnis q <= floor(x/y) < beta)
-          # und x-q*y und muß hiervon noch höchstens 2 mal y abziehen und q
+          # und x-q*y und muss hiervon noch höchstens 2 mal y abziehen und q
           # incrementieren, um den Quotienten  q = floor(x/y)  und den Rest
           # x-floor(x/y)*y  der Division zu bekommen.
           { var uint16 y1_1 = high16(y)+1; # y1+1
@@ -910,7 +910,7 @@
   #  2. Stets gilt y >= floor(sqrt(x)) (denn für alle y>0 ist
   #     y + x/y >= 2*sqrt(x) und daher  floor((y + floor(x/y))/2) =
   #     floor(y/2 + x/(2*y)) >= floor(sqrt(x)) ).
-  #  3. Am Schluß gilt x >= y^2.
+  #  3. Am Schluss gilt x >= y^2.
   # )
   #define isqrt_32_16(x,y_zuweisung,sqrtp_zuweisung)  \
     { var uint32 _x = (x);                                               \
@@ -924,7 +924,7 @@
           divu_3216_1616(_x,_y, _z=,_r=); # Dividiere _x/_y              \
           if (_z >= _y)                                                  \
             { unused (sqrtp_zuweisung (_z == _y) && (_r == 0)); break; } \
-          _y = floor((uint16)(_z+_y),2) | bit(16-1); # _y muß >= 2^15 bleiben  \
+          _y = floor((uint16)(_z+_y),2) | bit(16-1); # _y muss >= 2^15 bleiben \
         }                                                                \
       y_zuweisung _y;                                                    \
     }
@@ -946,7 +946,7 @@
     #  2. Stets gilt y >= floor(sqrt(x)) (denn für alle y>0 ist
     #     y + x/y >= 2*sqrt(x) und daher  floor((y + floor(x/y))/2) =
     #     floor(y/2 + x/(2*y)) >= floor(sqrt(x)) ).
-    #  3. Am Schluß gilt x >= y^2.
+    #  3. Am Schluss gilt x >= y^2.
     # )
     #define isqrt_64_32(xhi,xlo,y_zuweisung,sqrtp_zuweisung)  \
       { var uint32 _xhi = (xhi);                                        \
@@ -960,7 +960,7 @@
             divu_6432_3232(_xhi,_xlo,_y, _z=,_rest=); # Dividiere _x/_y \
             if (_z >= _y)                                               \
               { sqrtp_zuweisung (_z == _y) && (_rest == 0); break; }    \
-            _y = floor(_z+_y,2) | bit(32-1); # _y muß >= 2^31 bleiben   \
+            _y = floor(_z+_y,2) | bit(32-1); # _y muss >= 2^31 bleiben  \
           }                                                             \
         y_zuweisung _y;                                                 \
       }
@@ -968,7 +968,7 @@
     # Methode:
     # Wie bei UDS_sqrt mit n=2.
     # y = 2^16*yhi + ylo ansetzen.
-    # Dann muß
+    # Dann muss
     #   yhi = floor(y/2^16) = floor(floor(sqrt(x))/2^16)
     #       = floor(sqrt(x)/2^16) = floor(sqrt(x/2^32)) = isqrt(xhi)
     # sein. Es folgt yhi >= 2^15.
@@ -981,7 +981,7 @@
     # erfüllt ylo'-1 <= ylo <= ylo', ist also um höchstens 1 zu groß.
     # (Beweis: Rechte Ungleichung klar, da  ylo < 2^16  und
     #   xhi*2^32+xlo >= 2*2^16*yhi*ylo + ylo^2 >= 2*2^16*yhi*ylo
-    #   ==> (xhi*2^32+xlo)/(2*2^16*yhi) >= ylo  gelten muß.
+    #   ==> (xhi*2^32+xlo)/(2*2^16*yhi) >= ylo  gelten muss.
     #   Linke Ungleichung: Falls floor(...)>=2^16, ist
     #   xhi*2^32+xlo >= 2*2^16*2^16*yhi >= 2*2^16*yhi*(2^16-1) + 2^32
     #                >= 2*2^16*yhi*(2^16-1) + (2^16-1)^2
@@ -1016,7 +1016,7 @@
         # Versuche vom Rest 2^32*floor(r/2^15) + xlo  z zu subtrahieren.    \
         # Falls Rest >= z (d.h. r>=2^15 oder xlo>=z), ist ylo fertig,       \
         # und es gilt x=y^2 genau dann, wenn r<2^15 und xlo=z.              \
-        # Sonst (d.h. r<2^15 und xlo<z), muß man ylo erniedrigen. Dazu      \
+        # Sonst (d.h. r<2^15 und xlo<z), muss man ylo erniedrigen. Dazu     \
         # setzt man  ylo := ylo-1, z := z-(2*ylo+1),                        \
         # Rest := Rest + 2^17*yhi = xlo + 2^17*yhi >= 2^32 > z, also x>y^2. \
         if (_r < bit(15))                                                   \

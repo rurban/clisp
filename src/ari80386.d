@@ -139,7 +139,7 @@ C(mulu32_:)
 #ifndef __GNUC__ /* mit GNU-C machen wir divu_6432_3232() als Macro, der inline dividiert */
 
 # extern struct { uint32 q; uint32 r; } divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
-# x = 2^32*xhi+xlo = q*y+r schreiben. Sei bekannt, daß 0 <= x < 2^32*y .
+# x = 2^32*xhi+xlo = q*y+r schreiben. Sei bekannt, dass 0 <= x < 2^32*y .
             ALIGN
             .globl C(divu_6432_3232_)
 C(divu_6432_3232_:)
@@ -451,7 +451,7 @@ C(compare_loop_up:)
                                     # und weiterschleifen, falls Z, d.h. (%edi)=(%esi).
             dir0end
             # Flags -> Ergebnis:
-            # Z,NC -> bis zum Schluß (%esi)-(%edi) = 0 -> x=y -> Ergebnis 0
+            # Z,NC -> bis zum Schluss (%esi)-(%edi) = 0 -> x=y -> Ergebnis 0
             # NZ,C -> schließlich (%esi)-(%edi) < 0 -> x<y -> Ergebnis -1
             # NZ,NC -> schließlich (%esi)-(%edi) > 0 -> x>y -> Ergebnis +1
             movl    %eax,%edi       # %edi zurück

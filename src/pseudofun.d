@@ -11,7 +11,7 @@
 # Expander für die Initialisierung der Tabelle:
   #define PSEUDOFUN_B(fun)  (Pseudofun)(&fun),
 
-# Welcher Expander benutzt wird, muß vom Hauptfile aus eingestellt werden.
+# Welcher Expander benutzt wird, muss vom Hauptfile aus eingestellt werden.
 
 PSEUDOFUN(rd_by_dummy) PSEUDOFUN(wr_by_dummy) PSEUDOFUN(rd_ch_dummy) PSEUDOFUN(pk_ch_dummy) PSEUDOFUN(wr_ch_dummy)
 PSEUDOFUNSS(wr_ss_dummy) PSEUDOFUNSS(wr_ss_dummy_nogc)

@@ -425,7 +425,7 @@ interpreter compiler
 ;;; wird so   #'(lambda expanded-lambdalist
 ;;;               (declare (source (lambdalist . body))) . expanded-body
 ;;;             )
-;;; Durch diese Deklaration ist gew‰hrleistet, daﬂ eine bereits einmal
+;;; Durch diese Deklaration ist gew‰hrleistet, dass eine bereits einmal
 ;;; durchlaufene Funktion als solche erkannt und nicht unnˆtigerweise ein
 ;;; zweites Mal durchlaufen wird.
 
@@ -945,7 +945,7 @@ interpreter compiler
       specials
 ) ) )
 
-; expandiert einen Funktionsnamen, der ein Cons ist (das muﬂ ein
+; expandiert einen Funktionsnamen, der ein Cons ist (das muss ein
 ; Lambda-Ausdruck sein). 2 Werte.
 (defun %expand-lambda (l)
   (unless (eq (first l) 'lambda)
@@ -1139,7 +1139,7 @@ interpreter compiler
             (%expand-setqlist (cddr l))
 ) ) )   )
 
-; (%expand-tagbody list) expandiert die Elemente einer Liste und l‰ﬂt dabei
+; (%expand-tagbody list) expandiert die Elemente einer Liste und l‰sst dabei
 ; entstehende Atome fest (damit keine neuen Tags entstehen, die andere Tags
 ; verdecken kˆnnten). 2 Werte.
 (defun %expand-tagbody (body)
@@ -1427,7 +1427,7 @@ interpreter compiler
               (body (cdddr form)))
           (when (atom exitclause)
             (error-of-type 'source-program-error
-              (DEUTSCH "Exitclause in ~S muﬂ Liste sein."
+              (DEUTSCH "Exitclause in ~S muss Liste sein."
                ENGLISH "exit clause in ~S must be a list"
                FRANCAIS "La clause de sortie dans ~S doit Ítre une liste.")
               'do
@@ -1587,7 +1587,7 @@ interpreter compiler
         ) )
         (unless (function-name-p (cadr form))
           (error-of-type 'source-program-error
-            (DEUTSCH "~S: Der Name einer Funktion muﬂ ein Symbol sein, nicht: ~S"
+            (DEUTSCH "~S: Der Name einer Funktion muss ein Symbol sein, nicht: ~S"
              ENGLISH "~S: the name of a function must be a symbol, not ~S"
              FRANCAIS "~S : Le nom d'une fonction doit Ítre un symbole et non ~S")
             'defun (cadr form)

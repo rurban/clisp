@@ -640,7 +640,7 @@
             {
               #if (machine_type==0)
               var void* addr = (void*)ThePseudofun(*objptr);
-              #else # muﬂ zum Vergleichen die Typinfo wegnehmen
+              #else # muss zum Vergleichen die Typinfo wegnehmen
               var void* addr = (void*)upointer(*objptr);
               #endif
               { var uintC i = pseudofun_anz;

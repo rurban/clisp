@@ -123,13 +123,13 @@
                    ((empty-tree-p (cdr pattern))
                     (destructure-tree (car pattern) `(CAR ,form) helpvar-count)
                    )
-                   (t ; muﬂ form zwischendurch einer Hilfsvariablen zuweisen
+                   (t ; muss form zwischendurch einer Hilfsvariablen zuweisen
                      (let ((helpvar (helpvar helpvar-count)))
                        (nconc (destructure-tree (car pattern) `(CAR (SETQ ,helpvar ,form)) (1+ helpvar-count))
                               (destructure-tree (cdr pattern) `(CDR ,helpvar) helpvar-count)
           )) )     ) ) )
     (or (destructure-tree pattern form 0)
-        ; keine Variablen -> muﬂ trotzdem form auswerten!
+        ; keine Variablen -> muss trotzdem form auswerten!
         (list (list (helpvar 0) form))
 ) ) )
 
@@ -137,7 +137,7 @@
 ; die Bindungsliste ((var var-init) ...), wobei var-init mit den declspecs
 ; vertr‰glich ist.
 (defun default-bindings (vars declspecs)
-  ; Verwende NIL oder 0 oder 0.0 - falls das paﬂt -
+  ; Verwende NIL oder 0 oder 0.0 - falls das passt -
   ; oder verwende NIL und erweitere die Typdeklaration.
   (let ((bindings (mapcar #'(lambda (var) (list var 'NIL)) vars)))
     (dolist (declspec declspecs)
@@ -225,7 +225,7 @@
         (stepbefore-code nil) ; Code zum Abbruch vor dem Schleifendurchlauf (umgedrehte Liste)
         (main-code nil) ; Code im Hauptteil der Schleife (umgedrehte Liste)
         (stepafter-code nil) ; Code zur Vorbereitung des n‰chsten Schleifendurchlaufs (umgedrehte Liste)
-        (accu-vars-nreverse nil) ; Akkumulationsvariablen, die am Schluﬂ umzudrehen sind
+        (accu-vars-nreverse nil) ; Akkumulationsvariablen, die am Schluss umzudrehen sind
         (finally-code nil) ; finally-Code (umgedrehte Liste)
         (results nil) ; Liste von Ergebnisformen (hˆchstens eine!)
        )
@@ -888,8 +888,8 @@
                                      (unless step-start-p
                                        (if (eq step-direction 'down)
                                          ; Abw‰rtsiteration ohne Startwert ist nicht erlaubt.
-                                         ; Die zweite optionale Klausel (d.h. preposition) muﬂ abw‰rts zeigen.
-                                         (error (DEUTSCH "~S: Zusammen mit ~A muﬂ FROM oder DOWNFROM angegeben werden."
+                                         ; Die zweite optionale Klausel (d.h. preposition) muss abw‰rts zeigen.
+                                         (error (DEUTSCH "~S: Zusammen mit ~A muss FROM oder DOWNFROM angegeben werden."
                                                  ENGLISH "~S: specifying ~A requires FROM or DOWNFROM"
                                                  FRANCAIS "~S : ~A ne va qu'avec FROM ou DOWNFROM")
                                                 'loop (symbol-name preposition)

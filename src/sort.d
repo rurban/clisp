@@ -40,8 +40,8 @@
     var uintL n;
     { var SORT_ELEMENT* w = &v[-1];
       # w[1]..w[n] ist dasselbe wie v[0]..v[n-1] .
-      # Man faßt die Zahlen 1,...,n so zu einem balancierten Binärbaum
-      # zusammen, daß k die Söhne 2*k und 2*k+1 habe.
+      # Man fasst die Zahlen 1,...,n so zu einem balancierten Binärbaum
+      # zusammen, dass k die Söhne 2*k und 2*k+1 habe.
       # Ein Teilstück w[r]..w[s] heißt sortiert, wenn für alle
       # k mit r <= k <= s gilt:
       #   Falls 2*k <= s, gilt w[k] >= w[2*k], und
@@ -61,7 +61,7 @@
                 if (less(w[i],w[j])) # Falls w[i] < w[j],                         \
                   { swap(SORT_ELEMENT, w[i], w[j]); } # w[i] und w[j] vertauschen \
                 # w[i] ist nun der größere der drei Werte w[i],w[2*i],w[2*i+1].   \
-                # Jetzt haben wir aber w[j] verkleinert, so daß ein               \
+                # Jetzt haben wir aber w[j] verkleinert, so dass ein              \
                 # tail-rekursives adjust(j,s) nötig wird:                         \
                 i = j;                                                            \
           }   }

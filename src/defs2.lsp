@@ -76,7 +76,7 @@
            (cond ((stringp name) name)
                  ((symbolp name) (symbol-name name))
                  (t (error-of-type 'source-program-error
-                      (DEUTSCH "~S: Package-Name muﬂ ein String oder Symbol sein, nicht ~S."
+                      (DEUTSCH "~S: Package-Name muss ein String oder Symbol sein, nicht ~S."
                        ENGLISH "~S: package name ~S should be a string or a symbol"
                        FRANCAIS "~S : Le nom d'un paquetage doit Ítre une chaÓne ou un symbole et non ~S.")
                       'defpackage name
@@ -85,7 +85,7 @@
            (cond ((stringp name) name)
                  ((symbolp name) (symbol-name name))
                  (t (error-of-type 'source-program-error
-                      (DEUTSCH "~S ~A: Symbol-Name muﬂ ein String oder Symbol sein, nicht ~S."
+                      (DEUTSCH "~S ~A: Symbol-Name muss ein String oder Symbol sein, nicht ~S."
                        ENGLISH "~S ~A: symbol name ~S should be a string or a symbol"
                        FRANCAIS "~S ~A : Le nom d'un symbole doit Ítre une chaÓne ou un symbole et non ~S.")
                       'defpackage packname name
@@ -282,7 +282,7 @@
 (defmacro define-symbol-macro (symbol expansion)
   (unless (symbolp symbol)
     (error-of-type 'source-program-error
-      (DEUTSCH "~S: Der Name eines Symbol-Macros muﬂ ein Symbol sein, nicht: ~S"
+      (DEUTSCH "~S: Der Name eines Symbol-Macros muss ein Symbol sein, nicht: ~S"
        ENGLISH "~S: the name of a symbol macro must be a symbol, not ~S"
        FRANCAIS "~S : Le nom d'un macro symbole doit Ítre un symbole et non ~S")
       'define-symbol-macro symbol
@@ -431,7 +431,7 @@
 
 (defmacro with-hash-table-iterator ((macroname hashtable) &body body)
   (unless (symbolp macroname)
-    (error (DEUTSCH "~S: Macroname muﬂ ein Symbol sein, nicht ~S"
+    (error (DEUTSCH "~S: Macroname muss ein Symbol sein, nicht ~S"
             ENGLISH "~S: macro name should be a symbol, not ~S"
             FRANCAIS "~S : le nom de macro n'est pas un symbole: ~S")
            'with-hash-table-iterator macroname

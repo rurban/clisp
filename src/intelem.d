@@ -1326,7 +1326,7 @@
       # Weniger als bn_minlength Digits -> Fixnum.
       # Genau bn_minlength Digits -> Bignum oder Fixnum.
       if (len < bn_minlength)
-        { # 0..bn_minlength-1 Digits, paßt in ein Fixnum:
+        { # 0..bn_minlength-1 Digits, passt in ein Fixnum:
           if (bn_minlength>1 ? (len==0) : TRUE)
             # 0 Digits
             { return Fixnum_0; }
@@ -1386,7 +1386,7 @@
       if (len == bn_minlength)
         # bn_minlength Digits, also (incl. Vorzeichen) zwischen
         # (bn_minlength-1)*intDsize+1 und bn_minlength*intDsize Bits.
-        # Höchstens oint_data_len+1 Bits -> paßt in ein Fixnum:
+        # Höchstens oint_data_len+1 Bits -> passt in ein Fixnum:
         { if (  (MSDptr[0] <= (uintD)(bit(oint_data_len-(bn_minlength-1)*intDsize)-1)) # Fixnum >=0 ?
               ||(MSDptr[0] >= (uintD)(-bit(oint_data_len-(bn_minlength-1)*intDsize))) # Fixnum <0 ?
              )
@@ -1427,7 +1427,7 @@
 # Normalized Unsigned Digit Sequence to Integer
 # NUDS_to_I(MSDptr,len)
 # Normalized UDS MSDptr/len/.. in Integer >=0 umwandeln.
-# Unterhalb von MSDptr muß 1 Digit Platz sein.
+# Unterhalb von MSDptr muss 1 Digit Platz sein.
 # kann GC auslösen
   local object NUDS_to_I (uintD* MSDptr, uintC len);
   local object NUDS_to_I(MSDptr,len)
@@ -1446,7 +1446,7 @@
 # Unsigned Digit Sequence to Integer
 # UDS_to_I(MSDptr,len)
 # UDS MSDptr/len/.. in Integer >=0 umwandeln.
-# Unterhalb von MSDptr muß 1 Digit Platz sein.
+# Unterhalb von MSDptr muss 1 Digit Platz sein.
 # kann GC auslösen
   local object UDS_to_I (uintD* MSDptr, uintC len);
   local object UDS_to_I(MSDptr,len)
@@ -1533,7 +1533,7 @@
 #else # FN_maxlength<5
   #define FN_LSD4(obj)  0; NOTREACHED  # sollte nicht aufgerufen werden!
 #endif
-# FN_MSD: insgesamt muß um (FN_maxlength-1)*intDsize+oint_data_shift Bits
+# FN_MSD: insgesamt muss um (FN_maxlength-1)*intDsize+oint_data_shift Bits
 # nach rechts geshiftet werden.
 #if defined(WIDE)
   #define FN_MSD(obj)  \
@@ -1586,14 +1586,14 @@
         LSDptr_zuweisung &UDS_from_FN_to_NDS[len];  \
       }
   #elif !defined(NEED_MALLOCA)
-    # Alloziere einen Array, der bis Funktionsende existieren muß, mit alloca().
+    # Alloziere einen Array, der bis Funktionsende existieren muss, mit alloca().
     #define alloc_FNDS_nocopy(len,MSDptr_zuweisung,LSDptr_zuweisung)  \
       { LSDptr_zuweisung                                                \
           (MSDptr_zuweisung (uintD*)alloca(FN_maxlength*sizeof(uintD))) \
           + (len);                                                      \
       }
   #else
-    # Benutze malloca(), siehe SPVW.D. Hoffen wir, daß das Fehlen von
+    # Benutze malloca(), siehe SPVW.D. Hoffen wir, dass das Fehlen von
     # freea()-Aufrufen sich nicht zu stark bemerkbar macht.
     #define alloc_FNDS_nocopy(len,MSDptr_zuweisung,LSDptr_zuweisung)  \
       { LSDptr_zuweisung                                                 \

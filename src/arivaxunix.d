@@ -109,7 +109,7 @@ _m2:       # 2^32*r1 + r0 = r2 * r3 (unsigned multiplication)
 #
            .align 1
 # extern struct { uint32 q; uint32 r; } divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
-# x = 2^32*xhi+xlo = q*y+r schreiben. Sei bekannt, daﬂ 0 <= x < 2^32*y .
+# x = 2^32*xhi+xlo = q*y+r schreiben. Sei bekannt, dass 0 <= x < 2^32*y .
 _divu_6432_3232_: # Input in d1,d0,d2, Output in d0,divu_32_rest
            .word 0
            ??

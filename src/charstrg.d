@@ -618,7 +618,7 @@ LISPFUNN(standard_char_p,1) # (STANDARD-CHAR-P char), CLTL S. 234
 # Standard-Chars sind die mit einem Code c, mit
 #       $20 <= c <= $7E oder c = NL.
   { var object arg = popSTACK(); # Argument
-    if (!(charp(arg))) fehler_char(arg); # muﬂ ein Character sein
+    if (!(charp(arg))) fehler_char(arg); # muss ein Character sein
     { var uintB ch = char_code(arg);
       if ((('~' >= ch) && (ch >= ' ')) || (ch == NL))
         { value1 = T; mv_count=1; }
@@ -628,7 +628,7 @@ LISPFUNN(standard_char_p,1) # (STANDARD-CHAR-P char), CLTL S. 234
 
 LISPFUNN(graphic_char_p,1) # (GRAPHIC-CHAR-P char), CLTL S. 234
   { var object arg = popSTACK(); # Argument
-    if (!charp(arg)) fehler_char(arg); # muﬂ ein Character sein
+    if (!charp(arg)) fehler_char(arg); # muss ein Character sein
     if (graphic_char_p(char_code(arg))) goto yes; else goto no;
     yes: value1 = T; mv_count=1; return;
     no: value1 = NIL; mv_count=1; return;
@@ -637,14 +637,14 @@ LISPFUNN(graphic_char_p,1) # (GRAPHIC-CHAR-P char), CLTL S. 234
 LISPFUNN(string_char_p,1) # (STRING-CHAR-P char), CLTL S. 235
 # Alle Characters sind String-Chars.
   { var object arg = popSTACK(); # Argument
-    if (!charp(arg)) fehler_char(arg); # muﬂ ein Character sein
+    if (!charp(arg)) fehler_char(arg); # muss ein Character sein
     yes: value1 = T; mv_count=1; return;
   }
 
 LISPFUNN(alpha_char_p,1) # (ALPHA-CHAR-P char), CLTL S. 235
 # Teste mit ALPHAP.
   { var object arg = popSTACK(); # Argument
-    if (!(charp(arg))) fehler_char(arg); # muﬂ ein Character sein
+    if (!(charp(arg))) fehler_char(arg); # muss ein Character sein
     if (alphap(char_code(arg))) goto yes; else goto no;
     yes: value1 = T; mv_count=1; return;
     no: value1 = NIL; mv_count=1; return;
@@ -654,7 +654,7 @@ LISPFUNN(upper_case_p,1) # (UPPER-CASE-P char), CLTL S. 235
 # Upper-case-Characters sind die mit einem Code c mit 0 <= c < $100, die
 # von (downcase char) verschieden sind.
   { var object arg = popSTACK(); # Argument
-    if (!charp(arg)) fehler_char(arg); # muﬂ ein Character sein
+    if (!charp(arg)) fehler_char(arg); # muss ein Character sein
     { var uintB ch = char_code(arg);
       if (!(down_case(ch)==ch)) goto yes; else goto no;
     }
@@ -666,7 +666,7 @@ LISPFUNN(lower_case_p,1) # (LOWER-CASE-P char), CLTL S. 235
 # Lower-case-Characters sind die mit einem Code c mit 0 <= c < $100, die
 # von (upcase char) verschieden sind.
   { var object arg = popSTACK(); # Argument
-    if (!charp(arg)) fehler_char(arg); # muﬂ ein Character sein
+    if (!charp(arg)) fehler_char(arg); # muss ein Character sein
     { var uintB ch = char_code(arg);
       if (!(up_case(ch)==ch)) goto yes; else goto no;
     }
@@ -679,7 +679,7 @@ LISPFUNN(both_case_p,1) # (BOTH-CASE-P char), CLTL S. 235
 # Both-case-Characters sind die mit einem Code c mit 0 <= c < $100, bei denen
 # (downcase char) und (upcase char) verschieden sind.
   { var object arg = popSTACK(); # Argument
-    if (!charp(arg)) fehler_char(arg); # muﬂ ein Character sein
+    if (!charp(arg)) fehler_char(arg); # muss ein Character sein
     { var uintB ch = char_code(arg);
       if (!(down_case(ch)==up_case(ch))) goto yes; else goto no;
     }
@@ -717,13 +717,13 @@ LISPFUN(digit_char_p,1,1,norest,nokey,0,NIL)
 # (DIGIT-CHAR-P char [radix]), CLTL S. 236
 # Methode:
 # Test, ob radix ein Integer >=2 und <=36 ist.
-# char muﬂ ein Character <= 'z' sein, sonst NIL als Ergebnis.
-# Falls radix<=10: c muﬂ >= '0' und < '0'+radix sein, sonst NIL.
-# Falls radix>=10: c muﬂ >= '0' und <= '9' oder
-#                  (upcase c) muﬂ >= 'A' und < 'A'-10+radix sein, sonst NIL.
+# char muss ein Character <= 'z' sein, sonst NIL als Ergebnis.
+# Falls radix<=10: c muss >= '0' und < '0'+radix sein, sonst NIL.
+# Falls radix>=10: c muss >= '0' und <= '9' oder
+#                  (upcase c) muss >= 'A' und < 'A'-10+radix sein, sonst NIL.
   { var uintWL radix = test_radix_arg(); # Zahlbasis, >=2, <=36
     var object arg = popSTACK(); # Argument
-    if (!charp(arg)) fehler_char(arg); # muﬂ ein Character sein
+    if (!charp(arg)) fehler_char(arg); # muss ein Character sein
     { var uintB ch = char_code(arg);
       if (ch > 'z') goto no; # zu groﬂ -> nein
       if (ch >= 'a') { ch -= 'a'-'A'; } # Character >='a',<='z' in Groﬂbuchstaben wandeln
@@ -745,7 +745,7 @@ LISPFUNN(alphanumericp,1) # (ALPHANUMERICP char), CLTL S. 236
 # Alphanumerische Characters sind die Ziffern '0',...,'9' und die
 # alphabetischen Characters.
   { var object arg = popSTACK(); # Argument
-    if (!charp(arg)) fehler_char(arg); # muﬂ ein Character sein
+    if (!charp(arg)) fehler_char(arg); # muss ein Character sein
     if (alphanumericp(char_code(arg))) goto yes; else goto no;
     yes: value1 = T; mv_count=1; return;
     no: value1 = NIL; mv_count=1; return;
@@ -768,7 +768,7 @@ LISPFUNN(alphanumericp,1) # (ALPHANUMERICP char), CLTL S. 236
     var const object* args_pointer;
     { dotimespC(argcount,argcount+1,
         { var object arg = NEXT(args_pointer); # n‰chstes Argument
-          if (!(charp(arg))) fehler_char(arg); # muﬂ ein Character sein
+          if (!(charp(arg))) fehler_char(arg); # muss ein Character sein
         });
     }
 
@@ -785,7 +785,7 @@ LISPFUNN(alphanumericp,1) # (ALPHANUMERICP char), CLTL S. 236
     { dotimespC(argcount,argcount+1,
         { var object* argptr = &NEXT(args_pointer);
           var object arg = *argptr; # n‰chstes Argument
-          if (!(charp(arg))) fehler_char(arg); # muﬂ ein Character sein
+          if (!(charp(arg))) fehler_char(arg); # muss ein Character sein
           *argptr = code_char(up_case(char_code(arg))); # durch Groﬂbuchstaben ersetzen
         });
     }
@@ -982,7 +982,7 @@ LISPFUN(char_not_lessp,1,0,rest,nokey,0,NIL) # (CHAR-NOT-LESSP char {char}), CLT
 
 LISPFUNN(char_code,1) # (CHAR-CODE char), CLTL S. 239
   { var object arg = popSTACK(); # Argument
-    if (!(charp(arg))) fehler_char(arg); # muﬂ ein Character sein
+    if (!(charp(arg))) fehler_char(arg); # muss ein Character sein
     value1 = fixnum(char_code(arg)); # Ascii-Code als Fixnum
     mv_count=1;
   }
@@ -996,7 +996,7 @@ LISPFUNN(code_char,1)
         pushSTACK(S(integer)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(codeobj); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Code-Argument muﬂ ein Integer sein, nicht ~." :
+               DEUTSCH ? "~: Code-Argument muss ein Integer sein, nicht ~." :
                ENGLISH ? "~: the code argument should be an integer, not ~" :
                FRANCAIS ? "~: L'argument code doit Ítre un entier et non ~." :
                ""
@@ -1031,14 +1031,14 @@ LISPFUNN(character,1) # (CHARACTER object), CLTL S. 241
 
 LISPFUNN(char_upcase,1) # (CHAR-UPCASE char), CLTL S. 241
   { var object arg = popSTACK(); # char-Argument
-    if (!charp(arg)) fehler_char(arg); # muﬂ ein Character sein
+    if (!charp(arg)) fehler_char(arg); # muss ein Character sein
     value1 = code_char(up_case(char_code(arg))); # in Groﬂbuchstaben umwandeln
     mv_count=1;
   }
 
 LISPFUNN(char_downcase,1) # (CHAR-DOWNCASE char), CLTL S. 241
   { var object arg = popSTACK(); # char-Argument
-    if (!charp(arg)) fehler_char(arg); # muﬂ ein Character sein
+    if (!charp(arg)) fehler_char(arg); # muss ein Character sein
     value1 = code_char(down_case(char_code(arg))); # in Kleinbuchstaben umwandeln
     mv_count=1;
   }
@@ -1058,7 +1058,7 @@ LISPFUN(digit_char,1,1,norest,nokey,0,NIL)
         pushSTACK(S(integer)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(weightobj); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Weight-Argument muﬂ ein Integer sein, nicht ~." :
+               DEUTSCH ? "~: Weight-Argument muss ein Integer sein, nicht ~." :
                ENGLISH ? "~: the weight argument should be an integer, not ~" :
                FRANCAIS ? "~ : L'argument poids doit Ítre un entier et non ~." :
                ""
@@ -1079,7 +1079,7 @@ LISPFUN(digit_char,1,1,norest,nokey,0,NIL)
 
 LISPFUNN(char_int,1) # (CHAR-INT char), CLTL S. 242
   { var object arg = popSTACK(); # char-Argument
-    if (!charp(arg)) fehler_char(arg); # muﬂ ein Character sein
+    if (!charp(arg)) fehler_char(arg); # muss ein Character sein
     value1 = fixnum(char_code(arg)); mv_count=1;
   }
 
@@ -1099,7 +1099,7 @@ LISPFUNN(int_char,1) # (INT-CHAR integer), CLTL S. 242
         pushSTACK(S(integer)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Argument muﬂ ein Integer sein, nicht ~." :
+               DEUTSCH ? "~: Argument muss ein Integer sein, nicht ~." :
                ENGLISH ? "~: argument should be an integer, not ~" :
                FRANCAIS ? "~: L'argument doit Ítre un entier et non ~." :
                ""
@@ -1109,7 +1109,7 @@ LISPFUNN(int_char,1) # (INT-CHAR integer), CLTL S. 242
 
 LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
   { var object arg = popSTACK(); # char-Argument
-    if (!charp(arg)) fehler_char(arg); # muﬂ ein Character sein
+    if (!charp(arg)) fehler_char(arg); # muss ein Character sein
     value1 = char_name(char_code(arg));
     mv_count=1;
   }
@@ -1126,7 +1126,7 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
       if (eq(kw,nullobj))
         { pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: Index muﬂ ein Integer sein, nicht ~." :
+                 DEUTSCH ? "~: Index muss ein Integer sein, nicht ~." :
                  ENGLISH ? "~: index should be an integer, not ~" :
                  FRANCAIS ? "~: L'index doit Ítre un entier et non ~." :
                  ""
@@ -1135,7 +1135,7 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
         else
         { pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: ~-Index muﬂ ein Integer sein, nicht ~." :
+                 DEUTSCH ? "~: ~-Index muss ein Integer sein, nicht ~." :
                  ENGLISH ? "~: ~-index should be an integer, not ~" :
                  FRANCAIS ? "~: L'index ~ doit Ítre un entier et non ~." :
                  ""
@@ -1153,7 +1153,7 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
       if (eq(kw,nullobj))
         { pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: Index muﬂ NIL oder ein Integer sein, nicht ~." :
+                 DEUTSCH ? "~: Index muss NIL oder ein Integer sein, nicht ~." :
                  ENGLISH ? "~: index should be NIL or an integer, not ~" :
                  FRANCAIS ? "~: L'index doit Ítre NIL ou un entier et non ~." :
                  ""
@@ -1162,7 +1162,7 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
         else
         { pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: ~-Index muﬂ NIL oder ein Integer sein, nicht ~." :
+                 DEUTSCH ? "~: ~-Index muss NIL oder ein Integer sein, nicht ~." :
                  ENGLISH ? "~: ~-index should be NIL or an integer, not ~" :
                  FRANCAIS ? "~: L'index ~ doit Ítre NIL ou un entier et non ~." :
                  ""
@@ -1180,7 +1180,7 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
       if (eq(kw,nullobj))
         { pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: Index muﬂ >=0 sein, nicht ~." :
+                 DEUTSCH ? "~: Index muss >=0 sein, nicht ~." :
                  ENGLISH ? "~: index should not be negative: ~" :
                  FRANCAIS ? "~: L'index doit Ítre positif ou zÈro et non ~." :
                  ""
@@ -1189,7 +1189,7 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
         else
         { pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: ~-Index muﬂ >=0 sein, nicht ~." :
+                 DEUTSCH ? "~: ~-Index muss >=0 sein, nicht ~." :
                  ENGLISH ? "~: ~-index should not be negative: ~" :
                  FRANCAIS ? "~: L'index ~ doit Ítre positif ou zÈro et non ~." :
                  ""
@@ -1246,7 +1246,7 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
       if (eq(kw,nullobj))
         { pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: Index ~ muﬂ kleiner als die Stringl‰nge sein." :
+                 DEUTSCH ? "~: Index ~ muss kleiner als die Stringl‰nge sein." :
                  ENGLISH ? "~: index ~ should be less than the length of the string" :
                  FRANCAIS ? "~: L'index ~ doit Ítre plus petit que la longueur de la chaÓne." :
                  ""
@@ -1255,7 +1255,7 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
         else
         { pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: ~-Index ~ muﬂ kleiner als die Stringl‰nge sein." :
+                 DEUTSCH ? "~: ~-Index ~ muss kleiner als die Stringl‰nge sein." :
                  ENGLISH ? "~: ~-index ~ should be less than the length of the string" :
                  FRANCAIS ? "~: L'index ~ = ~ doit Ítre plus petit que la longueur de la chaÓne." :
                  ""
@@ -1278,7 +1278,7 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
       if (def && ((eq(index,unbound)) || ((def==2) && (eq(index,NIL)))))        \
         { wohin_zuweisung default; }                                            \
         else                                                                    \
-        { # muﬂ ein Integer sein:                                               \
+        { # muss ein Integer sein:                                              \
           if (!integerp(index))                                                 \
             { if (def==2) fehler_int_null(kw,index); else fehler_int(kw,index); } \
           # index ist ein Integer.                                              \
@@ -1308,14 +1308,14 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
     var uintB* charptr;
     var uintL len;
     { var uintL i;
-      # i := Index STACK_0, kein Defaultwert nˆtig, muﬂ <len sein:
+      # i := Index STACK_0, kein Defaultwert nˆtig, muss <len sein:
       test_index(STACK_0,i=,0,0,<,len,nullobj);
       return &charptr[i];
     }
 
 LISPFUNN(char,2) # (CHAR string index), CLTL S. 300
   { var object string = STACK_1; # string-Argument
-    if (!(stringp(string))) fehler_string(string); # muﬂ ein String sein
+    if (!(stringp(string))) fehler_string(string); # muss ein String sein
    {var uintL len;
     var uintB* charptr = unpack_string(string,&len); # zu den Characters vorr¸cken
     charptr = test_index_arg(charptr,len); # zum vom Index angesprochenen Element gehen
@@ -1325,7 +1325,7 @@ LISPFUNN(char,2) # (CHAR string index), CLTL S. 300
 
 LISPFUNN(schar,2) # (SCHAR string integer), CLTL S. 300
   { var object string = STACK_1; # string-Argument
-    if (!(simple_string_p(string))) fehler_sstring(string); # muﬂ ein Simple-String sein
+    if (!(simple_string_p(string))) fehler_sstring(string); # muss ein Simple-String sein
     # zum vom Index angesprochenen Element gehen
    {var uintB* charptr = test_index_arg(&TheSstring(string)->data[0],Sstring_length(string));
     value1 = code_char(*charptr); mv_count=1; # Character herausgreifen
@@ -1348,7 +1348,7 @@ LISPFUNN(schar,2) # (SCHAR string integer), CLTL S. 300
           pushSTACK(S(character)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: Argument muﬂ ein Character sein, nicht ~." :
+                 DEUTSCH ? "~: Argument muss ein Character sein, nicht ~." :
                  ENGLISH ? "~: argument should be a character, not ~" :
                  FRANCAIS ? "~: L'argument doit Ítre un caractËre et non ~." :
                  ""
@@ -1360,7 +1360,7 @@ LISPFUNN(store_char,3) # (SYSTEM::STORE-CHAR string index newchar)
                        # = (SETF (CHAR string index) newchar), CLTL S. 300
   { var object newchar = test_newchar_arg(); # newchar-Argument
     var object string = STACK_1; # string-Argument
-    if (!(stringp(string))) fehler_string(string); # muﬂ ein String sein
+    if (!(stringp(string))) fehler_string(string); # muss ein String sein
    {var uintL len;
     var uintB* charptr = unpack_string(string,&len); # zu den Characters vorr¸cken
     charptr = test_index_arg(charptr,len); # zum vom Index angesprochenen Element gehen
@@ -1373,7 +1373,7 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
                         # = (SETF (SCHAR simple-string index) newchar), CLTL S. 300
   { var object newchar = test_newchar_arg(); # newchar-Argument
     var object string = STACK_1; # string-Argument
-    if (!(simple_string_p(string))) fehler_sstring(string); # muﬂ ein Simple-String sein
+    if (!(simple_string_p(string))) fehler_sstring(string); # muss ein Simple-String sein
     # zum vom Index angesprochenen Element gehen
    {var uintB* charptr = test_index_arg(&TheSstring(string)->data[0],Sstring_length(string));
     *charptr = char_code(newchar); # Character eintragen
@@ -1409,11 +1409,11 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
       }
       # Nun ist len die L‰nge (<2^oint_data_len), und ab charptr kommen die Zeichen.
       # :START-Argument ¸berpr¸fen:
-        # start := Index STACK_1, Defaultwert 0, muﬂ <=len sein:
+        # start := Index STACK_1, Defaultwert 0, muss <=len sein:
         test_index(STACK_1,start=,1,0,<=,len,S(Kstart));
       # start ist jetzt der Wert des :START-Arguments.
       # :END-Argument ¸berpr¸fen:
-        # end := Index STACK_0, Defaultwert len, muﬂ <=len sein:
+        # end := Index STACK_0, Defaultwert len, muss <=len sein:
         test_index(STACK_0,end=,2,len,<=,len,S(Kend));
       # end ist jetzt der Wert des :END-Arguments.
       # Vergleiche :START und :END Argumente:
@@ -1452,7 +1452,7 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
       pushSTACK(O(type_stringsymchar)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument muﬂ ein String, Symbol oder Character sein, nicht ~." :
+             DEUTSCH ? "~: Argument muss ein String, Symbol oder Character sein, nicht ~." :
              ENGLISH ? "~: argument ~ should be a string, a symbol or a character" :
              FRANCAIS ? "~: L'argument ~ doit Ítre de type STRING, SYMBOL ou CHARACTER et non ~." :
              ""
@@ -1483,11 +1483,11 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
       len = vector_length(string);
       # Nun ist len die L‰nge (<2^oint_data_len).
       # :START-Argument ¸berpr¸fen:
-        # start := Index STACK_1, Defaultwert 0, muﬂ <=len sein:
+        # start := Index STACK_1, Defaultwert 0, muss <=len sein:
         test_index(STACK_1,start=,1,0,<=,len,S(Kstart));
       # start ist jetzt der Wert des :START-Arguments.
       # :END-Argument ¸berpr¸fen:
-        # end := Index STACK_0, Defaultwert len, muﬂ <=len sein:
+        # end := Index STACK_0, Defaultwert len, muss <=len sein:
         test_index(STACK_0,end=,2,len,<=,len,S(Kend));
       # end ist jetzt der Wert des :END-Arguments.
       # Vergleiche :START und :END Argumente:
@@ -1547,11 +1547,11 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
       { var uintL start1;
         var uintL end1;
         # :START1-Argument ¸berpr¸fen:
-          # start1 := Index STACK_3, Defaultwert 0, muﬂ <=len1 sein:
+          # start1 := Index STACK_3, Defaultwert 0, muss <=len1 sein:
           test_index(STACK_3,start1=,1,0,<=,len1,S(Kstart1));
         # start1 ist jetzt der Wert des :START1-Arguments.
         # :END1-Argument ¸berpr¸fen:
-          # end1 := Index STACK_2, Defaultwert len1, muﬂ <=len1 sein:
+          # end1 := Index STACK_2, Defaultwert len1, muss <=len1 sein:
           test_index(STACK_2,end1=,2,len1,<=,len1,S(Kend1));
         # end1 ist jetzt der Wert des :END1-Arguments.
         # Vergleiche :START1 und :END1 Argumente:
@@ -1573,11 +1573,11 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
       { var uintL start2;
         var uintL end2;
         # :START2-Argument ¸berpr¸fen:
-          # start2 := Index STACK_1, Defaultwert 0, muﬂ <=len2 sein:
+          # start2 := Index STACK_1, Defaultwert 0, muss <=len2 sein:
           test_index(STACK_1,start2=,1,0,<=,len2,S(Kstart2));
         # start2 ist jetzt der Wert des :START2-Arguments.
         # :END2-Argument ¸berpr¸fen:
-          # end2 := Index STACK_0, Defaultwert len2, muﬂ <=len2 sein:
+          # end2 := Index STACK_0, Defaultwert len2, muss <=len2 sein:
           test_index(STACK_0,end2=,2,len2,<=,len2,S(Kend2));
         # end2 ist jetzt der Wert des :END2-Arguments.
         # Vergleiche :START2 und :END2 Argumente:
@@ -1955,7 +1955,7 @@ LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
 # (MAKE-STRING size :initial-element :element-type)
   { var uintL size;
     # size ¸berpr¸fen:
-    if (!(posfixnump(STACK_2))) # size muﬂ Fixnum >= 0 sein
+    if (!(posfixnump(STACK_2))) # size muss Fixnum >= 0 sein
       { pushSTACK(STACK_2); # Wert f¸r Slot DATUM von TYPE-ERROR
         pushSTACK(O(type_posfixnum)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(STACK_(2+2)); pushSTACK(TheSubr(subr_self)->name);
@@ -1991,7 +1991,7 @@ LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
     if (eq(initial_element,unbound))
       ; # nicht angegeben -> nichts zu tun
       else
-      if (!charp(initial_element)) # sonst: muﬂ ein Character sein
+      if (!charp(initial_element)) # sonst: muss ein Character sein
         { pushSTACK(initial_element); # Wert f¸r Slot DATUM von TYPE-ERROR
           pushSTACK(S(character)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(initial_element); pushSTACK(TheSubr(subr_self)->name);
@@ -2228,11 +2228,11 @@ LISPFUN(substring,2,1,norest,nokey,0,NIL)
     len = vector_length(string);
     # Nun ist len die L‰nge (<2^oint_data_len).
     # :START-Argument ¸berpr¸fen:
-      # start := Index STACK_1, Defaultwert 0, muﬂ <=len sein:
+      # start := Index STACK_1, Defaultwert 0, muss <=len sein:
       test_index(STACK_1,start=,1,0,<=,len,S(Kstart));
     # start ist jetzt der Wert des :START-Arguments.
     # :END-Argument ¸berpr¸fen:
-      # end := Index STACK_0, Defaultwert len, muﬂ <=len sein:
+      # end := Index STACK_0, Defaultwert len, muss <=len sein:
       test_index(STACK_0,end=,2,len,<=,len,S(Kend));
     # end ist jetzt der Wert des :END-Arguments.
     # Vergleiche :START und :END Argumente:

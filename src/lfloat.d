@@ -645,7 +645,7 @@
         x2 = popSTACK(); x1 = popSTACK();
        {var uintL i = floor(expdiff,intDsize); # e1-e2 div 16 (>=0, <=n)
         var uintL j = expdiff % intDsize; # e1-e2 mod 16 (>=0, <16)
-        # Mantisse von x2 muß um intDsize*i+j Bits nach rechts geschoben werden.
+        # Mantisse von x2 muss um intDsize*i+j Bits nach rechts geschoben werden.
         var uintC x2_len = len - i; # n-i Digits von x2 gebraucht
         # x2_len Digits um j Bits nach rechts schieben und dabei kopieren:
         SAVE_NUM_STACK # num_stack retten
@@ -796,7 +796,7 @@
               integerlengthD(y_mantMSDptr[0], s = intDsize - );
               # s = Anzahl der führenden Nullbits im ersten Word (>=0, <intDsize)
               if (s > 0)
-                { # Muß die NUDS y_mantMSDptr/len/y_mantLSDptr/rounding_bits
+                { # Muss die NUDS y_mantMSDptr/len/y_mantLSDptr/rounding_bits
                   # um s Bits nach links schieben.
                   # (Bei e1-e2>1 ist dabei zwangsläufig s=1.)
                   if (s==1)
@@ -1351,7 +1351,7 @@
 # Methode:
 # x ganz -> klar.
 # x = +/- a/b mit Integers a,b>0:
-#   Sei k,m so gewählt, daß
+#   Sei k,m so gewählt, dass
 #     2^(k-1) <= a < 2^k, 2^(m-1) <= b < 2^m.
 #   Dann ist 2^(k-m-1) < a/b < 2^(k-m+1).
 #   Ergebnis-Vorzeichen := Vorzeichen von x.

@@ -29,7 +29,7 @@ BYTECODE(cod_pop)
 BYTECODE(cod_skip)
 BYTECODE(cod_skipi)
 BYTECODE(cod_skipsp)
-# (5) Programmfluß und Sprünge
+# (5) Programmfluss und Sprünge
 BYTECODE(cod_skip_ret)
 BYTECODE(cod_skip_retgf)
 BYTECODE(cod_jmp)

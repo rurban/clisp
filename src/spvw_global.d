@@ -55,7 +55,7 @@
 
         # Statistical data, used for deciding when to start a GC.
         #if defined(SPVW_PURE_BLOCKS) || defined(TRIVIALMAP_MEMORY) || defined(GENERATIONAL_GC)
-          uintL total_room; # wieviel Platz belegt werden darf, ohne daß GC nötig wird
+          uintL total_room; # wieviel Platz belegt werden darf, ohne dass GC nötig wird
           #ifdef GENERATIONAL_GC
             boolean last_gc_full; # ob die letzte GC eine volle war
             uintL last_gcend_space0; # wieviel Platz am Ende der letzten GC belegt war
@@ -86,7 +86,7 @@
   #endif
   #define MINIMUM_SPACE 0x10000L  # 64 KByte als minimaler Speicherplatz für LISP-Daten
   #ifdef TRIVIALMAP_MEMORY
-    #define RESERVE_FOR_MALLOC 0x100000L  # lasse 1 MByte Adreßraum frei, für malloc
+    #define RESERVE_FOR_MALLOC 0x100000L  # lasse 1 MByte Adressraum frei, für malloc
   #endif
 
 # Iteration through all heaps.
@@ -143,7 +143,7 @@
 #    4b. Objekte variabler Länge. (Unverschieblich).
 #    4c. Conses u.ä. Verschieblich mit move_conses.
 #    Speicher hierfür wird vom Betriebssystem angefordert (hat den Vorteil,
-#    daß bei EXECUTE dem auszuführenden Fremdprogramm der ganze Speicher
+#    dass bei EXECUTE dem auszuführenden Fremdprogramm der ganze Speicher
 #    zur Verfügung gestellt werden kann, den LISP gerade nicht braucht).
 #    Auf eine Unterteilung in einzelne Pages wird hier verzichtet.
 #          || LISP-      |Objekte         |->    leer  <-|Conses| Reserve |

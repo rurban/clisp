@@ -92,7 +92,7 @@
 ;; wertet sie aus und schickt die Antwort zurück (oder Return-Code 5 im Falle
 ;; eines Fehlers). Die Schleife wird beendet, wenn eine Antwort auf Handle
 ;; wait-for kommt.
-;; Wir möchten: daß rexx-loop in eine Endlosschleife geht und möglicherweise
+;; Wir möchten: dass rexx-loop in eine Endlosschleife geht und möglicherweise
 ;; in den Debugger springt. unwind/abort soll dabei zurück in die Schleife
 ;; springen (oder doch rexx-loop verlassen? (dann loop statt driver
 ;; benutzen)), damit falsche ARexx-Eingaben nicht zum Abbruch von rexx-loop

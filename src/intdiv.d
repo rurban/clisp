@@ -352,7 +352,7 @@
     }
 
 # Dividiert zwei Integers x,y >=0 und liefert den Quotienten x/y >=0.
-# Bei y=0 Error. Die Division muß aufgehen, sonst Error.
+# Bei y=0 Error. Die Division muss aufgehen, sonst Error.
 # I_I_exquopos_I(x,y)
 # > x,y: Integers >=0
 # < ergebnis: Quotient x/y, ein Integer >=0
@@ -378,7 +378,7 @@
     }}
 
 # Dividiert zwei Integers x,y und liefert den Quotienten x/y.
-# Bei y=0 Error. Die Division muß aufgehen, sonst Error.
+# Bei y=0 Error. Die Division muss aufgehen, sonst Error.
 # I_I_exquo_I(x,y)
 # > x,y: Integers
 # < ergebnis: Quotient x/y, ein Integer

@@ -76,8 +76,8 @@ global long full_write(handle,bufarea,nbyte)
   global uintL default_allocmemflag = MEMF_ANY;
   global uintL retry_allocmemflag;  # wird in init_amiga() gesetzt.
   #if !(defined(WIDE) || defined(MC68000) || !defined(TYPECODES))
-    # Es kann sein, daß wir mit MEMF_ANY Speicher außerhalb des
-    # 24/26-Bit-Adreßraums bekommen, den wir nicht nutzen können.
+    # Es kann sein, dass wir mit MEMF_ANY Speicher außerhalb des
+    # 24/26-Bit-Adressraums bekommen, den wir nicht nutzen können.
     # Dann versuchen wir's nochmal.
   #endif
 
@@ -177,13 +177,13 @@ global long full_write(handle,bufarea,nbyte)
         # Abfrage, ob Workbench-Aufruf ohne besonderen Startup:
         if ((stdin_handle==Handle_NULL) || (stdout_handle==Handle_NULL))
           { exit(RETURN_FAIL); }
-        # Benutzter Speicher muß in [0..2^oint_addr_len-1] liegen:
+        # Benutzter Speicher muss in [0..2^oint_addr_len-1] liegen:
         #if defined(TYPECODES) && !defined(WIDE_SOFT)
         #define pointable_usable_test(a)  ((void*)pointable(type_pointer_object(0,a)) == (void*)(a))
         if (!(pointable_usable_test((aint)&init_amiga) # Code-Segment überprüfen
               && pointable_usable_test((aint)&symbol_tab) # Daten-Segment überprüfen
            ) )
-          { asciz_out(DEUTSCH ? "Diese CLISP-Version muß in Speicher mit niedrigen Adressen ablaufen." NLstring :
+          { asciz_out(DEUTSCH ? "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen." NLstring :
                       ENGLISH ? "This version of CLISP runs only in low address memory." NLstring :
                       FRANCAIS ? "Cette version de CLISP ne marche qu'en mémoire à adresse basse." NLstring :
                       ""
@@ -195,7 +195,7 @@ global long full_write(handle,bufarea,nbyte)
         #endif
         # Ein Flag, das uns hilft, Speicher mit niedrigen Adressen zu bekommen:
         retry_allocmemflag =
-          (CPU_IS_68000              # der 68000 hat nur 24 Bit Adreßbereich,
+          (CPU_IS_68000              # der 68000 hat nur 24 Bit Adressbereich,
            ? MEMF_ANY                # nie ein zweiter Versuch nötig
            : MEMF_24BITDMA           # sonst Flag MEMF_24BITDMA
           );

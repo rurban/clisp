@@ -161,7 +161,7 @@
   # Wir müssen den SP auf den ursprünglichen Wert setzen.
   # (Bei manchen Betriebssystemen wird erst der vom Programm belegte
   # Speicher mit free() zurückgegeben, bevor ihm die Kontrolle entzogen
-  # wird. Für diese kurze Zeit muß man den SP vernünftig setzen.)
+  # wird. Für diese kurze Zeit muss man den SP vernünftig setzen.)
   local int exitcode;
   #define quit_sofort(xcode)  exitcode = xcode; longjmp(&!original_context,1)
 
@@ -793,7 +793,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 # UP: Wandelt einen String in einen ASCIZ-String um.
 # string_to_asciz(obj)
 # > object obj: String
-# < ergebnis: Simple-String mit denselben Zeichen und einem Nullbyte mehr am Schluß
+# < ergebnis: Simple-String mit denselben Zeichen und einem Nullbyte mehr am Schluss
 # kann GC auslösen
   global object string_to_asciz (object obj);
   global object string_to_asciz (obj)
@@ -1760,7 +1760,7 @@ local void usage (int exit_code)
       #ifdef UNIX
       user_uid = getuid();
       #ifdef GRAPHICS_SWITCH
-      # Programm muß mit "setuid root"-Privileg installiert werden:
+      # Programm muss mit "setuid root"-Privileg installiert werden:
       # (chown root, chmod 4755). Vom root-Privileg befreien wir uns so schnell
       # wie möglich - sicherheitshalber.
       { extern uid_t root_uid;
@@ -1900,7 +1900,7 @@ local void usage (int exit_code)
                              "",
                              argv_memneed,100000,
                              (oint_addr_len+addr_shift < intLsize-1 # memory size begrenzt durch
-                              ? bitm(oint_addr_len+addr_shift)      # Adreßraum in oint_addr_len+addr_shift Bits
+                              ? bitm(oint_addr_len+addr_shift)      # Adressraum in oint_addr_len+addr_shift Bits
                               : (uintL)bit(intLsize-1)-1            # (bzw. große Dummy-Grenze)
                             ))
                     break;
@@ -2210,7 +2210,7 @@ local void usage (int exit_code)
         }
       #endif
       #ifdef MULTIMAP_MEMORY
-      # Wir brauchen zwar nur diesen Adreßraum und nicht seinen Inhalt, dürfen
+      # Wir brauchen zwar nur diesen Adressraum und nicht seinen Inhalt, dürfen
       # ihn aber nicht freigeben, da er in unserer Kontrolle bleiben soll.
       #endif
       # Aufrunden zur nächsten Speicherseitengrenze:
@@ -2274,7 +2274,7 @@ local void usage (int exit_code)
                 if ( prepare_zeromap(&heapptr->heap_limit,&heapptr->heap_hardlimit,TRUE) <0) goto no_mem;
         }   }
         # Dazu noch symbol_tab, subr_tab an die Adresse 0 legen:
-        # (Hierzu muß case_symbolflagged mit case_symbol äquivalent sein!)
+        # (Hierzu muss case_symbolflagged mit case_symbol äquivalent sein!)
         #define map_tab(tab,size)  \
           { var uintL map_len = round_up(size,map_pagesize); \
             if ( zeromap(&tab,map_len) <0) goto no_mem;      \
@@ -2287,7 +2287,7 @@ local void usage (int exit_code)
         # Alle Heaps als leer initialisieren.
         # Dabei den gesamten zur Verfügung stehenden Platz im Verhältnis
         # 1:1 aufteilen, falls er knapp ist. Sonst die beiden Heaps bei
-        # 1/5 bzw. 2/5 des Adreßbereiches ansetzen. (Ein "krummer" Nenner,
+        # 1/5 bzw. 2/5 des Adressbereiches ansetzen. (Ein "krummer" Nenner,
         # um diversen Shared-Library-Regionen aus dem Weg zu gehen.)
         { var void* malloc_addr = malloc(1);
           var aint start = round_up((aint)malloc_addr+RESERVE_FOR_MALLOC,map_pagesize); # Reserve für malloc()
@@ -2392,7 +2392,7 @@ local void usage (int exit_code)
         var uintL for_STACK; # Anzahl Bytes für Lisp-STACK
         var uintL for_NUM_STACK; # Anzahl Bytes für Zahlen-STACK
         var uintL for_objects; # Anzahl Bytes für Lisp-Objekte
-        # Der STACK braucht Alignment, da bei Frame-Pointern das letzte Bit =0 sein muß:
+        # Der STACK braucht Alignment, da bei Frame-Pointern das letzte Bit =0 sein muss:
         #define STACK_alignment  bit(addr_shift+1)
         #define alignment  (varobject_alignment>STACK_alignment ? varobject_alignment : STACK_alignment)
         free_reserved = memneed;

@@ -266,7 +266,7 @@
       var RETRWTYPE retval;
       var RW_SIZE_T done = 0;
       #if ((defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)) && defined(UNIX_SUNOS4)
-      # Unter SunOS4 muﬂ der Speicher-Schreibschutz vorher behandelt werden,
+      # Unter SunOS4 muss der Speicher-Schreibschutz vorher behandelt werden,
       # ansonsten verf‰ngt sich der read()-Aufruf in einer Endlosschleife,
       # statt mit EFAULT abzubrechen.
       handle_fault_range(PROT_READ_WRITE,(aint)buf,(aint)buf+nbyte);
@@ -334,13 +334,13 @@
             { if (ergebnis<0)
                 { if (errno==EINTR) continue;
                   #ifdef ECHILD
-                  if (errno==ECHILD) # Wenn der Child-Prozeﬂ nicht mehr da ist,
+                  if (errno==ECHILD) # Wenn der Child-Prozess nicht mehr da ist,
                     { status = 0; break; } # ist er wohl korrekt beendet worden.
                   #endif
                 }
               OS_error();
             }
-          if (!((status & 0xFF) == 0177)) break; # Child-Prozeﬂ beendet?
+          if (!((status & 0xFF) == 0177)) break; # Child-Prozess beendet?
         }
       #else
       loop
@@ -348,12 +348,12 @@
           if (ergebnis < 0)
             { if (errno==EINTR) continue;
               #ifdef ECHILD
-              if (errno==ECHILD) # Wenn der Child-Prozeﬂ nicht mehr da ist,
+              if (errno==ECHILD) # Wenn der Child-Prozess nicht mehr da ist,
                 { status = 0; break; } # ist er wohl korrekt beendet worden.
               #endif
               OS_error();
             }
-          if ((ergebnis == child) && !((status & 0xFF) == 0177)) break; # Child-Prozeﬂ beendet?
+          if ((ergebnis == child) && !((status & 0xFF) == 0177)) break; # Child-Prozess beendet?
         }
       #endif
       return status;

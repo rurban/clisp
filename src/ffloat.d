@@ -211,7 +211,7 @@
                   }
               }
             elif (uexp == FF_exp_mid+1) # e=1 ?
-              # Wie bei 1 < e <= 23, nur daﬂ Bit 24-e stets gesetzt ist.
+              # Wie bei 1 < e <= 23, nur dass Bit 24-e stets gesetzt ist.
               { if ((x_ & bit(FF_mant_len-1)) ==0) # Bit 23-e =0 -> abrunden
                   # abrunden
                   { return allocate_ffloat( x_ & ~(bit(FF_mant_len)-1) ); }
@@ -224,7 +224,7 @@
                   }
               }
             else # e=0 ?
-              # Wie bei 1 < e <= 23, nur daﬂ Bit 23-e stets gesetzt
+              # Wie bei 1 < e <= 23, nur dass Bit 23-e stets gesetzt
               # und Bit 24-e stets gelˆscht ist.
               { if ((x_ & (bit(FF_mant_len)-1)) ==0)
                   # abrunden von +-0.5 zu 0.0
@@ -788,7 +788,7 @@
 # Methode:
 # x ganz -> klar.
 # x = +/- a/b mit Integers a,b>0:
-#   Seien n,m so gew‰hlt, daﬂ
+#   Seien n,m so gew‰hlt, dass
 #     2^(n-1) <= a < 2^n, 2^(m-1) <= b < 2^m.
 #   Dann ist 2^(n-m-1) < a/b < 2^(n-m+1).
 #   Berechne n=(integer-length a) und m=(integer-length b) und

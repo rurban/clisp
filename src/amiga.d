@@ -166,7 +166,7 @@
 # Dateizeiger positionieren.
 # Seek(handle,pos,mode)
 # > Handle handle : Handle eines (offenen) Files.
-# > LONG pos : Position in Bytes (muß >=0 bei Modus OFFSET_BEGINNING
+# > LONG pos : Position in Bytes (muss >=0 bei Modus OFFSET_BEGINNING
 #                                 bzw. <=0 bei Modus OFFSET_END sein)
 # > LONG mode : Modus (OFFSET_BEGINNING = ab Fileanfang,
 #                      OFFSET_CURRENT = ab momentan, OFFSET_END = ab Fileende)
@@ -197,7 +197,7 @@
   #define Lock(name,mode)  (Lock)((CONST ASTRING)(name),mode)
 # wird verwendet von PATHNAME
 
-# Läßt eine Datei oder ein Directory wieder los.
+# Lässt eine Datei oder ein Directory wieder los.
 # UnLock(lock);
 # > struct FileLock BCPL* lock: Lock oder NULL.
   extern void UnLock (BPTR lock); # siehe dos.library/UnLock
@@ -220,7 +220,7 @@
 # ergebnis = ExNext(lock,&fib);
 # > struct FileLock BCPL* lock: Lock auf ein Directory.
 # > struct FileInfoBlock fib: Platz für die Informationen, wie bei Examine()
-# < ergebnis: NULL bei Fehler, und IoErr()=ERROR_NO_MORE_ENTRIES am Schluß.
+# < ergebnis: NULL bei Fehler, und IoErr()=ERROR_NO_MORE_ENTRIES am Schluss.
   extern LONG ExNext (BPTR lock, struct FileInfoBlock * fib); # siehe dos.library/ExNext
 # wird verwendet von PATHNAME
 
@@ -275,7 +275,7 @@
 # CurrentDir(lock)
 # > FileLock BCPL* lock: Lock auf ein Directory, wird zum neuen current directory
 # < FileLock BCPL* ergebnis: Lock aufs alte current directory
-# Beim Programmende muß das Current Directory Lock wieder dasselbe wie beim
+# Beim Programmende muss das Current Directory Lock wieder dasselbe wie beim
 # Programmstart sein. Alle anderen Locks sind freizugeben.
   extern BPTR CurrentDir (BPTR lock); # siehe dos.library/CurrentDir
 # wird verwendet von PATHNAME, SPVW
@@ -363,7 +363,7 @@
 # SystemTagList(command,tags)
 # SystemTags(command,tags...)
 # > command: Kommandozeile, wie man sie im Kommandozeilen-Interpreter eintippt
-# > tags: Array von ULONG (vgl. dostags.h), am Schluß TAG_DONE
+# > tags: Array von ULONG (vgl. dostags.h), am Schluss TAG_DONE
 #         SYS_Input: Handle für Eingabestrom, Default Input()
 #         SYS_Output: Handle für Ausgabestrom, Default Output()
 #                     wenn 0 und Input interaktiv ist, wird es geklont

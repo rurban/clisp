@@ -39,7 +39,7 @@
             errormsg_table[i].msg = sys_errlist[i];
           }
         # Tabelle initialisieren:
-        # Obacht: Auf sys_nerr ist kein Verlaß. (Bei IRIX 5.2 ist EDQUOT >= sys_nerr !)
+        # Obacht: Auf sys_nerr ist kein Verlass. (Bei IRIX 5.2 ist EDQUOT >= sys_nerr !)
         /* allgemein verbreitete UNIX-Errors: */
         #ifdef EPERM
         if (EPERM < sys_nerr) {
@@ -66,7 +66,7 @@
         errormsg_table[ESRCH].name = "ESRCH";
         errormsg_table[ESRCH].msg =
           ENGLISH ? "No such process" :
-          DEUTSCH ? "Dieser Prozeß existiert nicht (mehr)" :
+          DEUTSCH ? "Dieser Prozess existiert nicht (mehr)" :
           FRANCAIS ? "Processus inexistant" :
           "";
         }
@@ -146,7 +146,7 @@
         errormsg_table[EAGAIN].name = "EAGAIN";
         errormsg_table[EAGAIN].msg =
           ENGLISH ? "No more processes" :
-          DEUTSCH ? "Kann keinen weiteren Prozeß erzeugen" :
+          DEUTSCH ? "Kann keinen weiteren Prozess erzeugen" :
           FRANCAIS ? "Essayez encore" :
           "";
         }
@@ -388,7 +388,7 @@
         errormsg_table[EWOULDBLOCK].name = "EWOULDBLOCK";
         errormsg_table[EWOULDBLOCK].msg =
           ENGLISH ? "Operation would block" :
-          DEUTSCH ? "Darauf müßte gewartet werden" :
+          DEUTSCH ? "Darauf müsste gewartet werden" :
           FRANCAIS ? "L'opération devrait bloquer" :
           "";
         }
@@ -501,7 +501,7 @@
         errormsg_table[EPROTOTYPE].name = "EPROTOTYPE";
         errormsg_table[EPROTOTYPE].msg =
           ENGLISH ? "Protocol wrong type for socket" :
-          DEUTSCH ? "Dieses Protokoll paßt nicht zu diesem Socket" :
+          DEUTSCH ? "Dieses Protokoll passt nicht zu diesem Socket" :
           FRANCAIS ? "Mauvais type de protocole pour un socket" :
           "";
         }
@@ -561,7 +561,7 @@
         errormsg_table[EAFNOSUPPORT].name = "EAFNOSUPPORT";
         errormsg_table[EAFNOSUPPORT].msg =
           ENGLISH ? "Address family not supported by protocol family" :
-          DEUTSCH ? "Adressen-Familie paßt nicht zu diesem Protokoll" :
+          DEUTSCH ? "Adressen-Familie passt nicht zu diesem Protokoll" :
           FRANCAIS ? "Famille d'adresses non supportée par le protocole" :
           "";
         }
@@ -621,7 +621,7 @@
         errormsg_table[ECONNABORTED].name = "ECONNABORTED";
         errormsg_table[ECONNABORTED].msg =
           ENGLISH ? "Software caused connection abort" :
-          DEUTSCH ? "Mußte diese Verbindung kappen" :
+          DEUTSCH ? "Musste diese Verbindung kappen" :
           FRANCAIS ? "Echec de connection à cause du logiciel" :
           "";
         }

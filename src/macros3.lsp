@@ -2,7 +2,7 @@
 (export '(ethe letf letf*))
 (in-package "SYSTEM")
 ;-------------------------------------------------------------------------------
-; Wie THE, nur daß auch im compilierten Code der Typtest durchgeführt wird.
+; Wie THE, nur dass auch im compilierten Code der Typtest durchgeführt wird.
 (defmacro ethe (typespec form)
   (let ((g (gensym)))
     `(THE ,typespec
@@ -19,7 +19,7 @@
              ',form ,g ',typespec
 ) )  ) ) ) )
 ;-------------------------------------------------------------------------------
-; Macro LETF / LETF* wie LET, LET*, nur daß als "Variable" beliebige Places
+; Macro LETF / LETF* wie LET, LET*, nur dass als "Variable" beliebige Places
 ; (wie bei SETF) zugelassen sind, inklusive VALUES, VALUES-LIST.
 
 ; (LETF ((A form)) ...) --> (LET ((A form)) ...)
@@ -184,7 +184,7 @@
             (return)
         ) )
         (setq let*-list (nreverse let*-list))
-        ; Nun muß folgendes gemacht werden:
+        ; Nun muss folgendes gemacht werden:
         ; 1. Die Bindungen von let*-list mit LETF* aktivieren,
         ; 2. die Bindungen von let-list mit LET aktivieren,
         ; 3. in beliebiger Reihenfolge:

@@ -42,7 +42,7 @@
   # karatsuba_threshold = Länge, ab der die Karatsuba-Multiplikation bevorzugt
   # wird. Der Break-Even-Point bestimmt sich aus Zeitmessungen.
   # Als Test dient (progn (time (! 5000)) nil), das viele kleine und einige
-  # ganz große Multiplikationen durchführt. Miß die Runtime.
+  # ganz große Multiplikationen durchführt. Miss die Runtime.
   # Unter Linux mit einem 80486:      Auf einer Sparc 2:
   # threshold  time in 0.01 sec.
   #      5        125
@@ -342,9 +342,9 @@
           # prodmid_LSDptr[-prodmid_len..-1] enthält nun x0*y1+x1*y0.
           # Dies ist < b^k_lo * b^k_hi + b^x1_len * b^k_lo
           #          = b^len2 + b^len1 <= 2 * b^len2,
-          # paßt also in len2+1 Digits.
+          # passt also in len2+1 Digits.
           # Im Fall x1_len=0 ist es sogar < b^k_lo * b^k_hi = b^len2,
-          # es paßt also in len2 Digits.
+          # es passt also in len2 Digits.
           # prodmid_len, wenn möglich, um maximal 2 verkleinern:
           # (benutzt prodmid_len >= 2*k_lo >= len2 >= 2)
           if (prodmid_MSDptr[0]==0)
@@ -398,10 +398,10 @@
     { var uintD* LSDptr0;                                           \
       UDS_UDS_mal_UDS(len1,LSDptr1,len2,LSDptr2, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung LSDptr0 = ); \
       if ((sintD)(MSDptr1[0]) < 0) # n<0 ?                          \
-        # muß m bzw. m+b^l subtrahieren, um k Digits verschoben:    \
+        # muss m bzw. m+b^l subtrahieren, um k Digits verschoben:   \
         { subfrom_loop_down(LSDptr2,&LSDptr0[-(uintP)len1],len2); } \
       if ((sintD)(MSDptr2[0]) < 0) # m<0 ?                          \
-        # muß n bzw. n+b^k subtrahieren, um l Digits verschoben:    \
+        # muss n bzw. n+b^k subtrahieren, um l Digits verschoben:   \
         { subfrom_loop_down(LSDptr1,&LSDptr0[-(uintP)len2],len1); } \
     }
 
@@ -511,7 +511,7 @@
   # Methode:
   # n <= 10 -> Ergebnis (Fixnum) aus Tabelle
   # Sonst:
-  #   Zweierpotenzen extra am Schluß durch einen Shift um
+  #   Zweierpotenzen extra am Schluss durch einen Shift um
   #   ord2(n!) = sum(k>=1, floor(n/2^k) ) = n - logcount(n)  Bits.
   #   Für k>=1 wird jede ungerade Zahl m im Intervall n/2^k < m <= n/2^(k-1)
   #   genau k mal gebraucht (als ungerader Anteil von m*2^0,...,m*2^(k-1) ).
@@ -519,7 +519,7 @@
   #   a < m <= b verwenden wir eine rekursive Funktion, die nach Divide-and-
   #   Conquer das Produkt über die Intervalle a < m <= c und c < m <= b
   #   (c := floor((a+b)/2)) bestimmt und beide zusammenmultipliziert. Dies
-  #   vermeidet, daß oft große Zahlen mit ganz kleinen Zahlen multipliziert
+  #   vermeidet, dass oft große Zahlen mit ganz kleinen Zahlen multipliziert
   #   werden.
   local object FN_fak_I (object n);
   # UP für Fakultät:

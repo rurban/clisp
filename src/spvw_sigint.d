@@ -76,13 +76,13 @@
       # Wir springen jetzt aus dem signal-Handler heraus, weder mit 'return'
       # noch mit 'longjmp'.
       #
-      # Hans-J. Boehm <boehm@parc.xerox.com> weist darauf hin, daﬂ dies
+      # Hans-J. Boehm <boehm@parc.xerox.com> weist darauf hin, dass dies
       # Probleme bringen kann, wenn das Signal ein laufendes malloc() oder
       # free() unterbrochen hat und die malloc()-Library nicht reentrant ist.
       # Abhilfe: statt malloc() stets xmalloc() verwenden, das eine Break-
       # Semaphore setzt? Aber was ist mit malloc()-Aufrufen, die von Routinen
       # wie opendir(), getpwnam(), tgetent(), ... abgesetzt werden? Soll man
-      # malloc() selber definieren und darauf hoffen, daﬂ es von allen Library-
+      # malloc() selber definieren und darauf hoffen, dass es von allen Library-
       # funktionen aufgerufen wird (statisch gelinkt oder per DLL)??
       #
       #ifdef RISCOS

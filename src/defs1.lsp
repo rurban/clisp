@@ -254,8 +254,8 @@
     (if (not (apply #'sys::member1 (car l) list2 rest)) (return nil))
 ) )
 
-; Wie SUBST-IF, nur daß das Ersatz-Element durch eine Funktion gegeben wird
-; und nicht konstant sein muß.
+; Wie SUBST-IF, nur dass das Ersatz-Element durch eine Funktion gegeben wird
+; und nicht konstant sein muss.
 (defun subst-if-then (newfun testfun tree &key (key #'identity))
   (labels ((subst (tree)
              (if (funcall testfun (funcall key tree))
@@ -454,7 +454,7 @@
     )
     (error-of-type 'type-error
       :datum time :expected-type '(REAL 0 *)
-      (DEUTSCH "~S: Argument muß eine Zahl >=0 sein, nicht ~S"
+      (DEUTSCH "~S: Argument muss eine Zahl >=0 sein, nicht ~S"
        ENGLISH "~S: argument ~S should be a nonnegative number"
        FRANCAIS "~S : L'argument doit être un nombre positif ou zéro et non ~S")
       'sleep time
@@ -515,14 +515,14 @@
     (values Jahr (- UTTag Jahresanfang))
 ) )
 
-; Bei vielen Betriebssystemen (nicht bei UNIX, WIN32) muß die Zeitzone beim
+; Bei vielen Betriebssystemen (nicht bei UNIX, WIN32) muss die Zeitzone beim
 ; Installieren in timezone.lsp eingetragen werden. Hier stehen nur
 ; Defaultwerte.
 
 #-(or UNIX WIN32)
 ; lokale Zeitzone
 (defvar *default-time-zone* -1) ; Default: 1 h östlich GMT = MEZ
-; NB: Zeitzone muß nicht ganzzahlig sein, sollte aber Vielfaches
+; NB: Zeitzone muss nicht ganzzahlig sein, sollte aber Vielfaches
 ; einer Sekunde sein.
 
 #-(or UNIX WIN32)
@@ -538,7 +538,7 @@
 ;  und März=0,...,Dezember=9,Januar=10,Februar=11).
 ; Dann ist
 ;                Monat = floor(a*Jahrtag+b)
-; sofern a und b so gewählt sind, daß die Ungleichungen
+; sofern a und b so gewählt sind, dass die Ungleichungen
 ;   122*a+b >= 4, 275*a+b >= 9, 30*a+b < 1, 336*a+b < 11
 ; gelten. Dies ist ein Viereck im Bereich
 ; 0.032653... = 8/245 <= a <= 7/214 = 0.032710...,
@@ -556,7 +556,7 @@
 ;      Jahrtag 0 31 61 92 122 153 184 214 245 275 306 337
 ; kann man schreiben
 ;                Jahrtag = floor(a*Monat+b)
-; sofern a und b so gewählt sind, daß die Ungleichungen
+; sofern a und b so gewählt sind, dass die Ungleichungen
 ;   a+b >= 31, 11*a+b >= 337, 4*a+b < 123, 9*a+b < 276
 ; gelten. Dies ist ein Viereck im Bereich
 ; 30.5714... = 214/7 <= a <= 245/8 = 30.625,

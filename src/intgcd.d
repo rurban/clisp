@@ -249,8 +249,8 @@
 #       )
 #     3 {a,b >0, a gerade, b ungerade}
 #       (repeat (when (or (oddp ua) (oddp va))
-#                 { Falls ua gerade, muß (da Bj*va==0 mod 2) Bj==0, Aj==1 sein.
-#                   Falls va gerade, muß (da Aj*ua==0 mod 2) Aj==0, Bj==1 sein.
+#                 { Falls ua gerade, muss (da Bj*va==0 mod 2) Bj==0, Aj==1 sein.
+#                   Falls va gerade, muss (da Aj*ua==0 mod 2) Aj==0, Bj==1 sein.
 #                   Falls ua,va beide ungerade, müssen (da Aj*1-Bj*1==0 mod 2)
 #                                               Aj und Bj beide ungerade sein.}
 #                 (setq ua (+ ua Bj) va (+ va Aj))
@@ -262,8 +262,8 @@
 #       (go 2)
 #     4 {a,b >0, a ungerade, b gerade}
 #       (repeat (when (or (oddp ub) (oddp vb))
-#                 { Falls ub gerade, muß (da Bj*vb==0 mod 2) Bj==0, Aj==1 sein.
-#                   Falls vb gerade, muß (da Aj*ub==0 mod 2) Aj==0, Bj==1 sein.
+#                 { Falls ub gerade, muss (da Bj*vb==0 mod 2) Bj==0, Aj==1 sein.
+#                   Falls vb gerade, muss (da Aj*ub==0 mod 2) Aj==0, Bj==1 sein.
 #                   Falls ub,vb beide ungerade, müssen (da -Aj*1+Bj*1==0 mod 2)
 #                                               Aj und Bj beide ungerade sein.}
 #                 (setq ub (+ ub Bj) vb (+ vb Aj))
@@ -426,7 +426,7 @@
 #   (2^(intDsize-1) <= a' < 2^intDsize) und b' die entsprechenden Bits von b
 #   (2^(intDsize/2) <= b' <= a' < 2^intDsize).
 #   Rechne den Euklid-Algorithmus mit Beifaktoren für ALLE Zahlen (a,b) aus,
-#   die mit a' bzw. b' anfangen; das liefert x1,y1,x2,y2, so daß
+#   die mit a' bzw. b' anfangen; das liefert x1,y1,x2,y2, so dass
 #   ggT(a,b) = ggT(x1*a-y1*b,-x2*a+y2*b) und x1*a-y1*b>=0,-x2*a+y2*b>=0.
 #   Genauer: Mit offensichtlicher Skalierung betrachten wir
 #            a als beliebiges Element des Intervalls [a',a'+1) und
@@ -441,7 +441,7 @@
 #              (x1,y1,z1) := (x1+x2,y1+y2,z1-z2), goto Schleife.
 #            Falls z2-x2>=z1+x1:
 #              (x2,y2,z2) := (x2+x1,y2+y1,z2-z1), goto Schleife.
-#            Sonst muß man abbrechen.
+#            Sonst muss man abbrechen.
 #            {Zu den Schleifeninvarianten:
 #             1. Die Gleichungen x1*a'-y1*b'=z1, -x2*a'+y2*b'=z2,
 #                x1*y2-x2*y1=1, x1*z2+x2*z1=b', y1*z2+y2*z1=a' mit Induktion.
@@ -468,7 +468,7 @@
 #              (x1,y1,z1) := (x1+q*x2,y1+q*y2,z1-q*z2), goto Schleife.
 #            Falls q := floor((z2-x2)/(z1+x1)) > 0 :
 #              (x2,y2,z2) := (x2+q*x1,y2+q*y1,z2-q*z1), goto Schleife.
-#            {Am Schluß gilt -(x1+x2) < z1-z2 < y1+y2 und daher
+#            {Am Schluss gilt -(x1+x2) < z1-z2 < y1+y2 und daher
 #             z2-x2 <= b'/(x1+x2) < z1+x1, z1-y1 <= a'/(y1+y2) < z2+y2,
 #             und - unter Berücksichtigung von x1*y2-x2*y1=1 -
 #             z1-y1 <= b'/(x1+x2) < z2+y2, z2-x2 <= a'/(y1+y2) < z1+x1,
@@ -627,7 +627,7 @@
                       )
                      goto divide;
                    # Entscheidung für Linearkombination ist gefallen.
-                   # a_msd und b_msd so erweitern, daß a_msd die führenden
+                   # a_msd und b_msd so erweitern, dass a_msd die führenden
                    # intDsize Bits von a enthält:
                   {var uintC shiftcount = intDsize-a_msd_size; # Shiftcount nach links (>=0, <intDsize)
                    if (shiftcount>0)
@@ -647,7 +647,7 @@
                       )
                      goto divide;
                    # Entscheidung für Linearkombination ist gefallen.
-                   # a_msd und b_msd so erweitern, daß a_msd die führenden
+                   # a_msd und b_msd so erweitern, dass a_msd die führenden
                    # intDsize Bits von a enthält:
                    # 0 < a_msd_size < b_msd_size + bitlendiff_limit - intDsize <= bitlendiff_limit < intDsize.
                    a_msd = (a_msd << (intDsize-a_msd_size)) | (a_MSDptr[1] >> a_msd_size);
@@ -664,14 +664,14 @@
                if (likobi.x2==0)
                  { # Ersetze (a,b) := (a-y1*b,b).
                    if (likobi.y1==1) goto subtract; # einfacherer Fall
-                   # Dazu evtl. a um 1 Digit erweitern, so daß a_len=b_len+1:
+                   # Dazu evtl. a um 1 Digit erweitern, so dass a_len=b_len+1:
                    if (a_len == b_len) { *--a_MSDptr = 0; a_len++; }
                    # und y1*b von a subtrahieren:
                    a_MSDptr[0] -= mulusub_loop_down(likobi.y1,b_LSDptr,a_LSDptr,b_len);
                  }
                  else
                  { # Ersetze (a,b) := (x1*a-y1*b,-x2*a+y2*b).
-                   # Dazu evtl. b um 1 Digit erweitern, so daß a_len=b_len:
+                   # Dazu evtl. b um 1 Digit erweitern, so dass a_len=b_len:
                    if (!(a_len==b_len)) { *--b_MSDptr = 0; b_len++; }
                    # c := x1*a-y1*b bilden:
                    mulu_loop_down(likobi.x1,a_LSDptr,c_LSDptr,a_len);
@@ -681,7 +681,7 @@
                    mulu_loop_down(likobi.y2,b_LSDptr,d_LSDptr,a_len);
                    /* d_LSDptr[-(uintP)a_len-1] -= */
                      mulusub_loop_down(likobi.x2,a_LSDptr,d_LSDptr,a_len);
-                   # Wir wissen, daß 0 < c < b und 0 < d < a. Daher müßten
+                   # Wir wissen, dass 0 < c < b und 0 < d < a. Daher müssten
                    # c_LSDptr[-a_len-1] und d_LSDptr[-a_len-1] =0 sein.
                    # a := c und b := d kopieren:
                    copy_loop_down(c_LSDptr,a_LSDptr,a_len);
@@ -692,7 +692,7 @@
              if (FALSE)
                { subtract: # Ersetze (a,b) := (a-b,b).
                  if (!( subfrom_loop_down(b_LSDptr,a_LSDptr,b_len) ==0))
-                   # Übertrag nach b_len Stellen, muß also a_len=b_len+1 sein.
+                   # Übertrag nach b_len Stellen, muss also a_len=b_len+1 sein.
                    { a_MSDptr[0] -= 1; }
                }
              # a normalisieren:
@@ -741,7 +741,7 @@
 # Beim Ersetzen (a,b) := (b,a-q*b)
 #   ersetzt man (uAa,uBa,uAb,uBb) := (uAb,uBb,uAa+q*uAb,uBa+q*uBb),
 #               sk := -sk, (sA,sB) := (-sA,-sB).
-# Zum Schluß ist a der ggT und a = uAa*sA * A + -uBa*sB * B
+# Zum Schluss ist a der ggT und a = uAa*sA * A + -uBa*sB * B
 # die gewünschte Linearkombination.
 # Da stets gilt sk*sA*A = |A|, sk*sB*B = |B|, a>=1, b>=1,
 # folgt 0 <= uAa <= |B|, 0 <= uAb <= |B|, 0 <= uBa <= |A|, 0 <= uBb <= |A|.
@@ -986,7 +986,7 @@
                       )
                      goto divide;
                    # Entscheidung für Linearkombination ist gefallen.
-                   # a_msd und b_msd so erweitern, daß a_msd die führenden
+                   # a_msd und b_msd so erweitern, dass a_msd die führenden
                    # intDsize Bits von a enthält:
                   {var uintC shiftcount = intDsize-a_msd_size; # Shiftcount nach links (>=0, <intDsize)
                    if (shiftcount>0)
@@ -1006,7 +1006,7 @@
                       )
                      goto divide;
                    # Entscheidung für Linearkombination ist gefallen.
-                   # a_msd und b_msd so erweitern, daß a_msd die führenden
+                   # a_msd und b_msd so erweitern, dass a_msd die führenden
                    # intDsize Bits von a enthält:
                    # 0 < a_msd_size < b_msd_size + bitlendiff_limit - intDsize <= bitlendiff_limit < intDsize.
                    a_msd = (a_msd << (intDsize-a_msd_size)) | (a_MSDptr[1] >> a_msd_size);
@@ -1023,7 +1023,7 @@
                if (likobi.x2==0)
                  { # Ersetze (a,b) := (a-y1*b,b).
                    if (likobi.y1==1) goto subtract; # einfacherer Fall
-                   # Dazu evtl. a um 1 Digit erweitern, so daß a_len=b_len+1:
+                   # Dazu evtl. a um 1 Digit erweitern, so dass a_len=b_len+1:
                    if (a_len == b_len) { *--a_MSDptr = 0; a_len++; }
                    # und y1*b von a subtrahieren:
                    a_MSDptr[0] -= mulusub_loop_down(likobi.y1,b_LSDptr,a_LSDptr,b_len);
@@ -1036,7 +1036,7 @@
                    # Ersetze (uBa,uBb) := (x1*uBa+y1*uBb,x2*uBa+y2*uBb) :
                    NUDS_likobi2_NUDS(&uBa,&uBb,&likobi,c_LSDptr,d_LSDptr);
                    # Ersetze (a,b) := (x1*a-y1*b,-x2*a+y2*b).
-                   # Dazu evtl. b um 1 Digit erweitern, so daß a_len=b_len:
+                   # Dazu evtl. b um 1 Digit erweitern, so dass a_len=b_len:
                    if (!(a_len==b_len)) { *--b_MSDptr = 0; b_len++; }
                    # c := x1*a-y1*b bilden:
                    mulu_loop_down(likobi.x1,a_LSDptr,c_LSDptr,a_len);
@@ -1046,7 +1046,7 @@
                    mulu_loop_down(likobi.y2,b_LSDptr,d_LSDptr,a_len);
                    /* d_LSDptr[-(uintP)a_len-1] -= */
                      mulusub_loop_down(likobi.x2,a_LSDptr,d_LSDptr,a_len);
-                   # Wir wissen, daß 0 < c < b und 0 < d < a. Daher müßten
+                   # Wir wissen, dass 0 < c < b und 0 < d < a. Daher müssten
                    # c_LSDptr[-a_len-1] und d_LSDptr[-a_len-1] =0 sein.
                    # a := c und b := d kopieren:
                    copy_loop_down(c_LSDptr,a_LSDptr,a_len);
@@ -1059,7 +1059,7 @@
                  NUDS_likobi0_NUDS(&uAa,&uAb); # uAa := uAa + uAb
                  NUDS_likobi0_NUDS(&uBa,&uBb); # uBa := uBa + uBb
                  if (!( subfrom_loop_down(b_LSDptr,a_LSDptr,b_len) ==0))
-                   # Übertrag nach b_len Stellen, muß also a_len=b_len+1 sein.
+                   # Übertrag nach b_len Stellen, muss also a_len=b_len+1 sein.
                    { a_MSDptr[0] -= 1; }
                }
              # a normalisieren:

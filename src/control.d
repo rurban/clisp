@@ -5,7 +5,7 @@
 
 
 LISPFUN(exit,0,1,norest,nokey,0,NIL)
-# (SYSTEM::%EXIT [errorp]) verläßt das System
+# (SYSTEM::%EXIT [errorp]) verlässt das System
   { var object errorp = STACK_0;
     final_exitcode = ((eq(errorp,unbound) || nullp(errorp)) ? 0 : 1);
     quit();
@@ -374,7 +374,7 @@ LISPFUNN(makunbound,1)
       { pushSTACK(symbol);
         pushSTACK(S(makunbound));
         fehler(error,
-               DEUTSCH ? "~: Der Wert der Konstanten ~ muß erhalten bleiben." :
+               DEUTSCH ? "~: Der Wert der Konstanten ~ muss erhalten bleiben." :
                ENGLISH ? "~: the value of the constant ~ must not be removed" :
                FRANCAIS ? "~: La valeur de la constante ~ doit être conservée." :
                ""
@@ -664,7 +664,7 @@ LISPSPECFORM(prog2, 2,0,body)
         *bind_count_ = var_anz;
         var_anz += spec_anz; # Gesamtzahl Symbol/Wert-Paare
         #ifndef UNIX_DEC_ULTRIX_GCCBUG
-        if (var_anz > (uintC)(~(uintC)0)) # paßt es in ein uintC ?
+        if (var_anz > (uintC)(~(uintC)0)) # passt es in ein uintC ?
           { pushSTACK(caller);
             fehler(source_program_error,
                    DEUTSCH ? "~: Zuviele Variablen und/oder Deklarationen." :
@@ -1196,7 +1196,7 @@ LISPSPECFORM(cond, 0,0,body)
           { pushSTACK(clause);
             pushSTACK(S(cond));
             fehler(source_program_error,
-                   DEUTSCH ? "~: Klausel ~ muß Liste sein." :
+                   DEUTSCH ? "~: Klausel ~ muss Liste sein." :
                    ENGLISH ? "~: clause ~ should be a list" :
                    FRANCAIS ? "~: La clause ~ doit être une liste." :
                    ""
@@ -1242,7 +1242,7 @@ LISPSPECFORM(case, 1,0,body)
             pushSTACK(keys);
             pushSTACK(S(case));
             fehler(source_program_error,
-                   DEUTSCH ? "~: Die ~-Klausel muß die letzte sein." :
+                   DEUTSCH ? "~: Die ~-Klausel muss die letzte sein." :
                    ENGLISH ? "~: the ~ clause must be the last one" :
                    FRANCAIS ? "~ : La clause ~ doit être la dernière." :
                    ""
@@ -1360,7 +1360,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
   }}}
 
 # Die Funktionen MAPCAR, MAPLIST, MAPCAN, MAPCON bauen wir in zwei Versionen:
-# Die erste baut die Liste im umgekehrter Reihenfolge, muß sie dann umdrehen.
+# Die erste baut die Liste im umgekehrter Reihenfolge, muss sie dann umdrehen.
 # Die zweite arbeitet vorwärtsherum, braucht dafür aber ein Cons zuviel.
   #define MAP_REVERSES
 
@@ -1937,7 +1937,7 @@ LISPSPECFORM(unwind_protect, 1,0,body)
     return;
     throw_save: # Hierher wird gesprungen, wenn der oben aufgebaute
                 # Unwind-Protect-Frame einen Throw aufgehalten hat.
-                # unwind_protect_to_save ist zu retten und am Schluß anzuspringen.
+                # unwind_protect_to_save ist zu retten und am Schluss anzuspringen.
     { var restart fun = unwind_protect_to_save.fun;
       var object* arg = unwind_protect_to_save.upto_frame;
     # Cleanup:
@@ -2076,7 +2076,7 @@ LISPSPECFORM(the, 2,0,nobody)
     pushSTACK(STACK_(2+1)); funcall(S(type_for_discrimination),1); pushSTACK(value1);
     funcall(S(pthe),2);
     if (nullp(value1))
-      # Typ-Check mißlang
+      # Typ-Check misslang
       { pushSTACK(STACK_(2+0)); # value-type
         pushSTACK(STACK_(0+1)); # values
         pushSTACK(STACK_(1+2)); # form
@@ -2471,7 +2471,7 @@ LISPSPECFORM(and, 0,0,body)
         { pushSTACK(Cdr(body));
           eval(Car(body)); # form auswerten
           body = popSTACK();
-          if (atomp(body)) break; # am Schluß: Werte der letzten Form zurück
+          if (atomp(body)) break; # am Schluss: Werte der letzten Form zurück
           if (nullp(value1)) { mv_count=1; break; } # vorzeitig: 1 Wert NIL
         }
   }
@@ -2486,7 +2486,7 @@ LISPSPECFORM(or, 0,0,body)
         { pushSTACK(Cdr(body));
           eval(Car(body)); # form auswerten
           body = popSTACK();
-          if (atomp(body)) break; # am Schluß: Werte der letzten Form zurück
+          if (atomp(body)) break; # am Schluss: Werte der letzten Form zurück
           if (!nullp(value1)) { mv_count=1; break; } # vorzeitig: 1 Wert /=NIL
         }
   }

@@ -17,7 +17,7 @@
   #  2. Stets gilt y >= floor(sqrt(x)) (denn f¸r alle y>0 ist
   #     y + x/y >= 2*sqrt(x) und daher  floor((y + floor(x/y))/2) =
   #     floor(y/2 + x/(2*y)) >= floor(sqrt(x)) ).
-  #  3. Am Schluﬂ gilt x >= y^2.
+  #  3. Am Schluss gilt x >= y^2.
   # )
   local uintWL UL_sqrt_UW(x)
     var uintL x;
@@ -45,7 +45,7 @@
                divu_3216_1616(x,y, z=,); # Dividiere x/y
                if (z >= y) break;
                y = floor(z+y,2);
-               if (intWLsize<=16) { y |= bit(16-1); } # y muﬂ >= 2^(k-1) bleiben
+               if (intWLsize<=16) { y |= bit(16-1); } # y muss >= 2^(k-1) bleiben
              }
            return y;
          }
@@ -69,7 +69,7 @@
   #  2. Stets gilt y >= floor(sqrt(x)) (denn f¸r alle y>0 ist
   #     y + x/y >= 2*sqrt(x) und daher  floor((y + floor(x/y))/2) =
   #     floor(y/2 + x/(2*y)) >= floor(sqrt(x)) ).
-  #  3. Am Schluﬂ gilt x >= y^2.
+  #  3. Am Schluss gilt x >= y^2.
   # )
   local uintL UL2_sqrt_UL(x1,x0)
     var uintL x1;
@@ -96,7 +96,7 @@
                if (x1 >= y) break; # Division x/y erg‰be ‹berlauf -> z > y
                divu_6432_3232(x1,x0,y, z=,); # Dividiere x/y
                if (z >= y) break;
-               y = floor(z+y,2) | bit(32-1); # y muﬂ >= 2^(k-1) bleiben
+               y = floor(z+y,2) | bit(32-1); # y muss >= 2^(k-1) bleiben
              }
            return y;
          }
@@ -121,8 +121,8 @@
   local boolean UDS_sqrt_ (uintD* a_MSDptr, uintC a_len, uintD* a_LSDptr, DS* b_);
 # Methode:
 # erst A normalisieren. A=0 --> B=0, fertig.
-# W‰hle n so, daﬂ beta^(2n-2) <= A < beta^(2n).
-# W‰hle s (0<=s<16) so, daﬂ beta^(2n)/4 <= A*2^(2s) < beta^(2n).
+# W‰hle n so, dass beta^(2n-2) <= A < beta^(2n).
+# W‰hle s (0<=s<16) so, dass beta^(2n)/4 <= A*2^(2s) < beta^(2n).
 # Setze A:=A*2^(2s) und kopiere dabei A. Suche B=floor(sqrt(A)).
 # Mache Platz f¸r B=[0,b[n-1],...,b[0]], (mit einem Nulldigit Platz davor,
 # da dort nicht B, sondern 2*B abgespeichert werden wird).
@@ -225,7 +225,7 @@
               if (d >= x) break; # d>=x -> fertig
               # N‰chste Iteration: x := floor((x+d)/2)
               # (Da die Folge der x bekanntlich monoton fallend ist
-              # und bei b[n-1] >= beta/2 endet, muﬂ x >= beta/2 werden,
+              # und bei b[n-1] >= beta/2 endet, muss x >= beta/2 werden,
               # d.h. x+d>=beta.)
               #if HAVE_DD
                 x = (uintD)(floor((uintDD)x + (uintDD)d, 2));
@@ -325,7 +325,7 @@
             }}
             #endif
             if (TRUE)
-              { # muﬂ noch [a[2n-j],...,a[2n-2j]] um 1 erniedrigen:
+              { # muss noch [a[2n-j],...,a[2n-2j]] um 1 erniedrigen:
                 if ( dec_loop_down(&a_lptr[-2],j+1) ==0) goto b_stern_ok;
                 # Subtraktion von b*^2 lieferte negativen Carry
                 b_stern = b_stern-1; # b* := b* - 1
@@ -413,8 +413,8 @@
 # kann GC auslˆsen
   local object I_sqrtp (object x);
 # Methode:
-# Damit x eine Quadratzahl ist, muﬂ es ==0,1 mod 4 sein, und
-# bei ISQRT muﬂ ein Rest 0 herauskommen.
+# Damit x eine Quadratzahl ist, muss es ==0,1 mod 4 sein, und
+# bei ISQRT muss ein Rest 0 herauskommen.
   local object I_sqrtp(x)
     var object x;
     { if (I_I_logbitp(Fixnum_1,x)) # Bit 1 von x gesetzt?
@@ -444,13 +444,13 @@
 # Methode:
 # Falls x=0 oder x=1: x = x^n -> JA, x als Ergebnis.
 # Hier also x>1. Suche ein Integer y > 1 mit x=y^n.
-# Falls n >= integer_length(x): NEIN. (Da y>=2, m¸ﬂte x>=2^n gelten.)
+# Falls n >= integer_length(x): NEIN. (Da y>=2, m¸sste x>=2^n gelten.)
 # Hier also n>0 klein.
 # Solange n gerade ist: x := (sqrt x), n := (/ n 2). x nicht ganz -> NEIN.
 # Hier also n>0 ungerade.
 # Falls n=1: x = x^n -> JA, x als Ergebnis.
 # Falls o := ord2(x) nicht durch n teilbar ist: NEIN.
-# Sonst dividiere x durch 2^o, am Schluﬂ y mit 2^(o/n) multiplizieren.
+# Sonst dividiere x durch 2^o, am Schluss y mit 2^(o/n) multiplizieren.
 # Hier also n>0 ungerade, x ungerade.
 # beta := 2^intDsize, m := ceiling(integer_length(x)/(intDsize*n)).
 # Suche ein y mit y>=0, y<beta^m mit  x == y^n mod beta^m :
@@ -462,10 +462,10 @@
 #   Multiplikation nicht zum Zuge kommt.
 #   Sei  y0 mod beta^k  mit  y0^n == x mod beta^k  bekannt. k=m -> fertig.
 #   Setze  y == y0 + beta^k*y1 mod beta^2k  an, wobei 2k := min(2*k,m).
-#   Dabei wird y1 mod beta^(2k-k) so gew‰hlt, daﬂ mod beta^2k
+#   Dabei wird y1 mod beta^(2k-k) so gew‰hlt, dass mod beta^2k
 #   x == y^n == y0^n + n * y0^(n-1) * beta^k*y1. Dazu wird
 #   (x - y0^n) mod beta^2k errechnet, durch beta^k dividiert (die Division
-#   muﬂ nach Voraussetzung an y0 aufgehen) und
+#   muss nach Voraussetzung an y0 aufgehen) und
 #   y1 := ((x-y0^n)/beta^k) / (n*y0^(n-1)) mod beta^(2k-k) gebildet.
 #   Damit hat man  (y0 + beta^k*y1)^n == x mod beta^2k . 2k=m -> fertig.
 #   Den Anfang (k=1) bekommt man analog, mit beta:=2 und k=1,k=2,k=4,...
@@ -481,7 +481,7 @@
        if (I_I_comp(STACK_0,l) >= 0) # n >= (integer-length x) ?
          { skipSTACK(2); return nullobj; }
       }
-      # Nun ist n < (integer-length x). Also paﬂt n in ein uintL.
+      # Nun ist n < (integer-length x). Also passt n in ein uintL.
      {var uintL n = I_to_UL(popSTACK());
       var object x = popSTACK();
       while ((n % 2) == 0) # n gerade?
@@ -491,7 +491,7 @@
         }
       # Nun ist n ungerade.
       if (n==1) { return x; } # n=1 -> x als Ergebnis
-      {var uintL oq = 0; # Shift von y am Schluﬂ
+      {var uintL oq = 0; # Shift von y am Schluss
        {var uintL o = I_ord2(x);
         if (!(o==0))
           {var uintL o_r; divu_3232_3232(o,n, oq=,o_r=); # o_r = o mod n

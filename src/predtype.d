@@ -16,7 +16,7 @@
       # sonst ist EQL-Gleichheit nur möglich, wenn beides Zahlen sind:
       #ifdef TYPECODES
       if (!(numberp(obj1) && numberp(obj2))) { return FALSE; }
-      # und der Typ von beiden muß übereinstimmen:
+      # und der Typ von beiden muss übereinstimmen:
       if (!(typecode(obj1) == typecode(obj2))) { return FALSE; }
       switch (typecode(obj1))
       #else
@@ -348,7 +348,7 @@
                 } }}
                 # Inhalt vergleichen:
                 len1 = TheIarray(obj1)->totalsize;
-                # muß als Produkt der Dimensionen auch = TheIarray(obj2)->totalsize sein.
+                # muss als Produkt der Dimensionen auch = TheIarray(obj2)->totalsize sein.
                 index1 = 0; index2 = 0;
                 dv1 = iarray_displace_check(obj1,len1,&index1);
                 dv2 = iarray_displace_check(obj2,len1,&index2);
@@ -372,7 +372,7 @@
               #endif
               case_orecord:
                 # Record, Structure, aber nicht Closure, Instance.
-                # obj2 muß vom selben Typ wie obj1, also ein Record, sein
+                # obj2 muss vom selben Typ wie obj1, also ein Record, sein
                 # und in rectype und recflags und reclength mit obj1 überein-
                 # stimmen, und alle Komponenten müssen EQUALP sein.
                 switch (Record_type(obj1))
@@ -1258,7 +1258,7 @@ LISPFUNN(coerce,2)
             skipSTACK(2); return;
           }
         if (eq(result_type,S(complex))) # COMPLEX ?
-          { if (!numberp(STACK_1)) # object muß eine Zahl sein
+          { if (!numberp(STACK_1)) # object muss eine Zahl sein
               { pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
                 pushSTACK(S(number)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
                 goto fehler_object;
@@ -1275,7 +1275,7 @@ LISPFUNN(coerce,2)
                 mv_count=1;
                 skipSTACK(2); return;
               }
-            if (!(consp(fun) && eq(Car(fun),S(lambda)))) # object muß ein Lambda-Ausdruck sein
+            if (!(consp(fun) && eq(Car(fun),S(lambda)))) # object muss ein Lambda-Ausdruck sein
               { pushSTACK(fun); # Wert für Slot DATUM von TYPE-ERROR
                 pushSTACK(O(type_designator_function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
                 goto fehler_object;
@@ -1334,7 +1334,7 @@ LISPFUNN(coerce,2)
       # result-type ist ein Cons.
       { var object result_type = STACK_0;
         var object type = Car(result_type);
-        if (!symbolp(type)) goto fehler_type; # muß ein Symbol sein
+        if (!symbolp(type)) goto fehler_type; # muss ein Symbol sein
         if (eq(type,S(and))) # (AND ...) ?
           { if (matomp(Cdr(result_type))) # (AND)
               goto return_object; # wie T behandeln
@@ -1371,12 +1371,12 @@ LISPFUNN(coerce,2)
             goto check_return; # und auf result-type überprüfen
           }
         if (eq(type,S(complex))) # COMPLEX ?
-          { if (!numberp(STACK_1)) # object muß eine Zahl sein
+          { if (!numberp(STACK_1)) # object muss eine Zahl sein
               { pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
                 pushSTACK(S(number)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
                 goto fehler_object;
               }
-            if (!mconsp(Cdr(result_type))) goto fehler_type; # (rest result-type) muß ein Cons sein
+            if (!mconsp(Cdr(result_type))) goto fehler_type; # (rest result-type) muss ein Cons sein
             result_type = Cdr(result_type);
            {var object rtype = Car(result_type); # Typ für den Realteil
             var object itype = # Typ für den Imaginärteil, Default ist rtype

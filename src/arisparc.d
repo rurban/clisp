@@ -215,7 +215,7 @@ C(mulu32_unchecked:) # Input in %o0,%o1, Output in %o0
 #endif
 
 # extern struct { uint32 q; uint32 r; } divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
-# x = 2^32*xhi+xlo = q*y+r schreiben. Sei bekannt, daß 0 <= x < 2^32*y .
+# x = 2^32*xhi+xlo = q*y+r schreiben. Sei bekannt, dass 0 <= x < 2^32*y .
 C(divu_6432_3232_:) # Input in %o0,%o1,%o2, Output in %o0,%g1
 #if defined(sparcv8)
         # Problem: Is udiv worth using (gmp-2.0.2 doesn't use it) ??
@@ -233,7 +233,7 @@ C(divu_6432_3232_:) # Input in %o0,%o1,%o2, Output in %o0,%g1
 # %o0|%o1  wird jeweils um 1 Bit nach links geschoben,
 # dafür wird rechts in %o1 ein Ergebnisbit (negiert!) reingeschoben.
 # Je nachdem wird mit %o3|%o1 statt %o0|%o1 weitergemacht (spart 1 'mov').
-# Deswegen muß man den Code doppelt vorsehen: einmal mit %o0, einmal mit %o3.
+# Deswegen muss man den Code doppelt vorsehen: einmal mit %o0, einmal mit %o3.
 #define SA0(label) # Vergleichsschritt mit %o0 \
         subcc   %o0,%o2,%o3; \
         bcc     label;       \
@@ -259,7 +259,7 @@ C(divu_6432_3232_:) # Input in %o0,%o1,%o2, Output in %o0,%g1
         add     %o2,1,%o2       # %o2 = ceiling(y/2) = y'
         # Man spart im Vergleich zu Lsmalldiv
         # zu Beginn eine Verdoppelung von %o0|%o1 : addcc %o1,%o1,%o1; SB0()
-        # dafür am Schluß mehr zu tun...
+        # dafür am Schluss mehr zu tun...
         SA0(Lb01)               # Bit 31 des Quotienten bestimmen
 La01:   SB0(); SA0(Lb02)        # Bit 30 des Quotienten bestimmen
 La02:   SB0(); SA0(Lb03)        # Bit 29 des Quotienten bestimmen
@@ -303,7 +303,7 @@ La32:   SB0()                   # %o0 = x mod (2*y')
         addcc   %o1,%o0,%o0     # Rest mod y bestimmen
         bcc     1f              # Additions-Überlauf -> Quotient erhöhen
        _ subcc   %o0,%o2,%o3
-        subcc   %o3,%o2,%o0     # muß der Quotient nochmals erhöht werden?
+        subcc   %o3,%o2,%o0     # muss der Quotient nochmals erhöht werden?
         bcs     2f
        _ mov     %o3,%g1
         # Quotient 2 mal erhöhen, Rest %o0
@@ -311,7 +311,7 @@ La32:   SB0()                   # %o0 = x mod (2*y')
         retl
        _ add     %o1,2,%o0
 1:      # kein Additions-Überlauf.
-        # Wegen y>=2^31 muß der Quotient noch höchstens 1 mal erhöht werden:
+        # Wegen y>=2^31 muss der Quotient noch höchstens 1 mal erhöht werden:
         bcs     3f              # %o0 < %o2 -> Rest %o0 und Quotient %o1 OK
        _ mov     %o3,%g1
 2:      # Quotient %o1 erhöhen, Rest = %o0-%o2 = %o3
@@ -364,7 +364,7 @@ Lb32:   SB1()                   # %o3 = x mod (2*y')
         addcc   %o1,%o3,%o3     # Rest mod y bestimmen
         bcc     1f              # Additions-Überlauf -> Quotient erhöhen
        _ subcc   %o3,%o2,%o0
-        subcc   %o0,%o2,%o3     # muß der Quotient nochmals erhöht werden?
+        subcc   %o0,%o2,%o3     # muss der Quotient nochmals erhöht werden?
         bcs     2f
        _ mov     %o0,%g1
         # Quotient 2 mal erhöhen, Rest %o3
@@ -372,7 +372,7 @@ Lb32:   SB1()                   # %o3 = x mod (2*y')
         retl
        _ add     %o1,2,%o0
 1:      # kein Additions-Überlauf.
-        # Wegen y>=2^31 muß der Quotient noch höchstens 1 mal erhöht werden:
+        # Wegen y>=2^31 muss der Quotient noch höchstens 1 mal erhöht werden:
         bcs     3f              # %o3 < %o2 -> Rest %o3 und Quotient %o1 OK
        _ mov     %o0,%g1
 2:      # Quotient %o1 erhöhen, Rest = %o3-%o2 = %o0
@@ -459,7 +459,7 @@ Levendiv: # Division durch gerades y.
         # Es ist schon %o2 = y/2.
         # Man spart im Vergleich zu Lsmalldiv
         # zu Beginn eine Verdoppelung von %o0|%o1 : addcc %o1,%o1,%o1; SB0()
-        # dafür am Schluß Bit 0 von x zum Rest dazuschieben.
+        # dafür am Schluss Bit 0 von x zum Rest dazuschieben.
         SA0(Lf01)               # Bit 31 des Quotienten bestimmen
 Le01:   SB0(); SA0(Lf02)        # Bit 30 des Quotienten bestimmen
 Le02:   SB0(); SA0(Lf03)        # Bit 29 des Quotienten bestimmen
@@ -535,7 +535,7 @@ Lf32:   SB1()
 #endif
 
 # extern struct { uint16 q; uint16 r; } divu_3216_1616_ (uint32 x, uint16 y);
-# x = q*y+r schreiben. Sei bekannt, daß 0 <= x < 2^16*y .
+# x = q*y+r schreiben. Sei bekannt, dass 0 <= x < 2^16*y .
 C(divu_3216_1616_:) # Input in %o0,%o1, Output in %o0 (Rest und Quotient).
 #if defined(sparcv8)
         # Problem: Is udiv worth using (gmp-2.0.2 doesn't use it) ??
@@ -554,14 +554,14 @@ C(divu_3216_1616_:) # Input in %o0,%o1, Output in %o0 (Rest und Quotient).
 # %o0  wird jeweils um 1 Bit nach links geschoben,
 # dafür wird rechts in %o1 ein Ergebnisbit (negiert!) reingeschoben.
 # Dann wird auf >= 2^15*y verglichen (nicht auf >= 2^16*y, weil man dann das
-# links herausgeschobene Bit mit vergleichen müßte!)
+# links herausgeschobene Bit mit vergleichen müsste!)
         sll %o1,16,%o1
         srl %o1,1,%o1           # 2^15*y
         sub %g0,%o1,%o2         # zum Addieren statt Subtrahieren: -2^15*y
         # SC0(label) subtrahiert y, schiebt Carry-Bit rechts in %o0 rein
         # (1 falls Subtraktion aufging, 0 sonst).
-        # Ging die Subtraktion nicht auf, so müßte man noch 2*y addieren.
-        # Das faßt man mit der nächsten Operation zusammen, indem man - statt
+        # Ging die Subtraktion nicht auf, so müsste man noch 2*y addieren.
+        # Das fasst man mit der nächsten Operation zusammen, indem man - statt
         # y zu subtrahieren - y addiert:
         # SC1(label) addiert y, schiebt Carry-Bit rechts in %o0 rein
         # (1 falls Subtraktion aufgegangen wäre, man also wieder im

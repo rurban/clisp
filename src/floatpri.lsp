@@ -56,19 +56,19 @@
           ; nur 1/4 Einheit: (x+x1)/2 = 2^(binexpo-2) * (4*binmant-1)
           (setq unten (1- (ash 2*binmant 1)) untenshift 1)
         )
-        ; Bestimme d (ganz) und a1,a2 (ganz, >0) so, daß
+        ; Bestimme d (ganz) und a1,a2 (ganz, >0) so, dass
         ; die ganzen a mit (x+x1)/2 < 10^d * a < (x+x2)/2 genau
         ; die ganzen a mit a1 <= a <= a2 sind und 0 <= a2-a1 < 20 gilt.
         ; Wandle dazu 2^e := 2^(binexpo-1) ins Dezimalsystem um.
         (let* ((e (- binexpo 1))
                (e-gross (> (abs e) (ash l 1))) ; Ist |e| recht groß, >2*l ?
-               g f     ; Hilfsvariablen für den Fall, daß |e| groß ist
-               zehn-d  ; Hilfsvariable 10^|d| für den Fall, daß |e| klein ist
+               g f     ; Hilfsvariablen für den Fall, dass |e| groß ist
+               zehn-d  ; Hilfsvariable 10^|d| für den Fall, dass |e| klein ist
                d a1 a2 ; Ergebnisvariablen
               )
           (if e-gross ; Ist |e| recht groß ?
             ; Da 2^e nur näherungsweise gehen kann, braucht man Schutzbits.
-            (prog ((h 16)) ; Anzahl der Schutzbits, muß >= 3 sein
+            (prog ((h 16)) ; Anzahl der Schutzbits, muss >= 3 sein
               neue-schutzbits
               ; Ziel: 2^e ~= 10^d * f/2^g, wobei 1 <= f/2^g < 10.
               (setq g (+ l h)) ; Anzahl der gültigen Bits von f
@@ -84,7 +84,7 @@
               ;        dann ist d <= floor(e*a/b) <= d+1 .
               ; e<0  : wähle lg(2) - 1/abs(e) < a/b < lg(2),
               ;        dann ist d <= floor(e*a/b) <= d+1 .
-              ; Es ist bekannt, daß abs(e) <= 2^31 + 2^20 .
+              ; Es ist bekannt, dass abs(e) <= 2^31 + 2^20 .
               ; Unser d sei := floor(e*a/b)-1.
               (setq d (1- (if (minusp e)
                             (if (>= e -970)
@@ -139,7 +139,7 @@
               ; mit a1 <= a <= a2, wobei a2 = floor((f-1)*oben/2^g) und
               ; a1 = ceiling((f+1)*unten/2^(g+untenshift))
               ;    = floor(((f+1)*unten-1)/2^(g+untenshift))+1 .
-              ; Wir haben eben gesehen, daß a1 <= a2 sein muß.
+              ; Wir haben eben gesehen, dass a1 <= a2 sein muss.
               (setq a1 (1+ (ash (1- (* (+ f 1) unten)) (- (+ g untenshift)))))
               (setq a2 (ash (* (- f 1) oben) (- g)))
               ; Wir können auch das offene Intervall
@@ -278,14 +278,14 @@
               ; Noch eine durch 10 teilbare Zahl -> durch 10 teilen.
               (setq d (+ d 1)) ; noch d erhöhen, zehn-d wird nicht mehr gebraucht
               ; Nun a in einen Dezimalstring umwandeln
-              ; und dann Nullen am Schluß streichen:
+              ; und dann Nullen am Schluss streichen:
               (let* ((as (sys::decimal-string a)) ; Ziffernfolge zu a>0
                      (las (length as)) ; Länge der Ziffernfolge
-                     (k las) ; Länge ohne die gestrichenen Nullen am Schluß
+                     (k las) ; Länge ohne die gestrichenen Nullen am Schluss
                      (ee (+ k d))) ; a * 10^d = a * 10^(-k+ee)
                 (loop
                   (let ((k-1 (- k 1)))
-                    (unless (eql (schar as k-1) #\0) (return)) ; eine 0 am Schluß?
+                    (unless (eql (schar as k-1) #\0) (return)) ; eine 0 am Schluss?
                     ; ja -> a := a / 10 (wird aber nicht mehr gebraucht),
                     ; d := d+1 (wird aber nicht mehr gebraucht),
                     (setq k k-1) ; k := k-1.

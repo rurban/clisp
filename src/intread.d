@@ -78,7 +78,7 @@
               # multipliziere erg mit base und addiere ch:
              {var uintD carry = mulusmall_loop_down(base,erg_LSDptr,erg_len,ch);
               if (!(carry==0))
-                # muß NUDS vergrößern:
+                # muss NUDS vergrößern:
                 { *--erg_MSDptr = carry; erg_len++; }
         }   }});
       end_arith_call();

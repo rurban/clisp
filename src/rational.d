@@ -719,7 +719,7 @@
   local object RA_sqrtp (object x);
 # Methode:
 # Bei Integers: klar.
-# Bei Brüchen a/b : muß a=c^2 und b=d^2 sein. Dann ist die Wurzel = c/d
+# Bei Brüchen a/b : muss a=c^2 und b=d^2 sein. Dann ist die Wurzel = c/d
 # (mit ggT(c,d)=1 und d>1).
   local object RA_sqrtp(x)
     var object x;
@@ -748,7 +748,7 @@
   local object RA_rootp (object x, object n);
 # Methode:
 # Bei Integers: klar.
-# Bei Brüchen a/b : muß a=c^n und b=d^n sein. Dann ist die Wurzel = c/d
+# Bei Brüchen a/b : muss a=c^n und b=d^n sein. Dann ist die Wurzel = c/d
 # (mit ggT(c,d)=1 und d>1).
   local object RA_rootp(x,n)
     var object x;

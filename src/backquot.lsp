@@ -2,7 +2,7 @@
 ;;;; Michael Stoll
 ;;;; umgeschrieben im Juli/August von Bruno Haible
 ;;;; rekursives Backquote 16.-17.8.1989
-;;;; an die übliche Semantik für rekursives Backquote angepaßt am 24.5.1992
+;;;; an die übliche Semantik für rekursives Backquote angepasst am 24.5.1992
 
 (in-package "SYSTEM")
 

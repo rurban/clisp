@@ -47,7 +47,7 @@ INIT          (lambda (seq) ...) -> pointer
               liefert den Pointer zu SEQ, der ganz links steht.
 UPD           (lambda (seq pointer) ...) -> pointer
               liefert zu einem Pointer den Pointer eins weiter rechts.
-              SEQ-UPD kann voraussetzen, daß dabei der rechte Rand von
+              SEQ-UPD kann voraussetzen, dass dabei der rechte Rand von
               SEQ nicht überschritten wird.
 ENDTEST       (lambda (seq pointer) ...) -> boolean
               testet, ob dieser Pointer am rechten Rand von SEQ steht.
@@ -56,7 +56,7 @@ FE-INIT       (lambda (seq) ...) -> pointer
               liefert den Pointer zu SEQ, der ganz rechts steht.
 FE-UPD        (lambda (seq pointer) ...) -> pointer
               liefert zu einem Pointer den Pointer eins weiter links.
-              SEQ-FE-UPD kann voraussetzen, daß dabei der linke Rand von
+              SEQ-FE-UPD kann voraussetzen, dass dabei der linke Rand von
               SEQ nicht überschritten wird.
 FE-ENDTEST    (lambda (seq pointer) ...) -> boolean
               testet, ob dieser Pointer am linken Rand von SEQ steht.
@@ -83,10 +83,10 @@ SET-ELT       (lambda (seq index value) ...) ->
               setzt (ELT SEQ index) auf value.
 INIT-START    (lambda (seq index) ...) -> pointer
               liefert einen nach rechts laufenden Pointer in SEQ
-              ab Position index. Muß den Range-test selbst durchführen.
+              ab Position index. Muss den Range-test selbst durchführen.
 FE-INIT-END   (lambda (seq index) ...) -> pointer
               liefert einen nach links laufenden Pointer in SEQ
-              an Position index. Muß den Range-test selbst durchführen.
+              an Position index. Muss den Range-test selbst durchführen.
 
 */
 
@@ -304,7 +304,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
       pushSTACK(kw);
       pushSTACK(fun);
       fehler(type_error,
-             DEUTSCH ? "~: ~ muß ein Integer >=0 sein, nicht ~" :
+             DEUTSCH ? "~: ~ muss ein Integer >=0 sein, nicht ~" :
              ENGLISH ? "~: ~ should be an integer >=0, not ~" :
              FRANCAIS ? "~ : ~ doit être un entier positif ou zéro et non ~" :
              ""
@@ -343,11 +343,11 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
   local void test_start_end(kwptr,argptr)
     var const object* kwptr;
     var const object* argptr;
-    { # START-Argument muß ein Integer >= 0 sein:
+    { # START-Argument muss ein Integer >= 0 sein:
       var object start = *(argptr STACKop 1);
       if (!(integerp(start) && positivep(start)))
         { fehler_posint(TheSubr(subr_self)->name,kwptr[0],start); }
-      # END-Argument muß ein Integer >= 0 sein:
+      # END-Argument muss ein Integer >= 0 sein:
      {var object end = *(argptr STACKop 0);
       if (!(integerp(end) && positivep(end)))
         { fehler_posint(TheSubr(subr_self)->name,kwptr[1],end); }
@@ -376,11 +376,11 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
   local void test_start_end_1(kwptr,argptr)
     var const object* kwptr;
     var const object* argptr;
-    { # START-Argument muß ein Integer >= 0 sein:
+    { # START-Argument muss ein Integer >= 0 sein:
       var object start = *(argptr STACKop 1);
       if (!(integerp(start) && positivep(start)))
         { fehler_posint(TheSubr(subr_self)->name,kwptr[0],start); }
-      # END-Argument muß NIL oder ein Integer >= 0 sein:
+      # END-Argument muss NIL oder ein Integer >= 0 sein:
      {var object end = *(argptr STACKop 0);
       if (nullp(end)) { return; } # end=NIL -> OK, fertig
       if (!(integerp(end) && positivep(end)))
@@ -418,7 +418,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
 
 # Macro: Rückt einen Vorwärts-Pointer (im Stack) weiter.
 # pointer_update(pointer,sequence,typdescr);
-# pointer muß von der Form STACK_i sein!
+# pointer muss von der Form STACK_i sein!
 # kann GC auslösen
   #define pointer_update(pointer,sequence,typdescr)  \
     { var object updatefun = seq_upd(typdescr);          \
@@ -430,7 +430,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
 
 # Macro: Rückt einen Rückwärts-Pointer (im Stack) weiter.
 # pointer_fe_update(pointer,sequence,typdescr);
-# pointer muß von der Form STACK_i sein!
+# pointer muss von der Form STACK_i sein!
 # kann GC auslösen
   #define pointer_fe_update(pointer,sequence,typdescr)  \
     { var object updatefun = seq_fe_upd(typdescr);          \
@@ -488,7 +488,7 @@ LISPFUNN(sequencep,1)
 
 LISPFUNN(defseq,1)
 # (SYSTEM::%DEFSEQ typdescr) erweitert die Liste der Sequencetypen um
-# typdescr (muß ein Simple-Vector der Länge 16 sein).
+# typdescr (muss ein Simple-Vector der Länge 16 sein).
   { # (list typdescr) bilden:
     var object new_cons = allocate_cons();
     Car(new_cons) = STACK_0;
@@ -508,7 +508,7 @@ LISPFUNN(elt,2) # (ELT sequence index), CLTL S. 248
         pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(STACK_(0+2)); pushSTACK(S(elt));
         fehler(type_error,
-               DEUTSCH ? "~: Der Index muß ein Fixnum >=0 sein, nicht ~" :
+               DEUTSCH ? "~: Der Index muss ein Fixnum >=0 sein, nicht ~" :
                ENGLISH ? "~: the index should be a fixnum >=0, not ~" :
                FRANCAIS ? "~ : L'index doit être de type FIXNUM positif ou zéro et non ~" :
                ""
@@ -528,7 +528,7 @@ LISPFUNN(setelt,3) # (SYSTEM::%SETELT sequence index value), vgl. CLTL S. 248
         pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(STACK_(1+2)); pushSTACK(S(elt)); pushSTACK(S(setf));
         fehler(type_error,
-               DEUTSCH ? "~ ~: Der Index muß ein Fixnum >=0 sein, nicht ~" :
+               DEUTSCH ? "~ ~: Der Index muss ein Fixnum >=0 sein, nicht ~" :
                ENGLISH ? "~ ~: the index should be a fixnum >=0, not ~" :
                FRANCAIS ? "~ ~ : L'index doit être de type FIXNUM positif ou zéro et non ~" :
                ""
@@ -597,7 +597,7 @@ LISPFUN(subseq,2,1,norest,nokey,0,NIL)
         #endif
        )
       { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefährdet!
-        # end nicht angegeben -> muß end:=(length sequence) setzen:
+        # end nicht angegeben -> muss end:=(length sequence) setzen:
         pushSTACK(STACK_3); funcall(seq_length(typdescr),1); # (SEQ-LENGTH sequence)
         STACK_1 = value1;
         subr_self = old_subr_self;
@@ -873,14 +873,14 @@ LISPFUN(make_sequence,2,0,norest,key,2,\
     var object typdescr = valid_type(STACK_3);
     # Stackaufbau: type, size, initial-element, updatefun, type-len.
     STACK_4 = typdescr;
-    # size überprüfen, muß Integer >=0 sein:
+    # size überprüfen, muss Integer >=0 sein:
    {var object size = STACK_3;
     if (!(integerp(size) && positivep(size)))
       { pushSTACK(size); # Wert für Slot DATUM von TYPE-ERROR
         pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(size); pushSTACK(S(make_sequence));
         fehler(type_error,
-               DEUTSCH ? "~: SIZE muß ein Integer >=0 sein, nicht ~" :
+               DEUTSCH ? "~: SIZE muss ein Integer >=0 sein, nicht ~" :
                ENGLISH ? "~: size should be an integer >=0, not ~" :
                FRANCAIS ? "~ : SIZE doit être un entier positif ou zéro et non ~" :
                ""
@@ -1107,10 +1107,10 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
 # > Stackaufbau: [args_pointer] ... predicate sequence,
 #                [rest_args_pointer] {sequence} [STACK].
 # > fun: Routine, die das predicate-Ergebnis abtestet und
-#        TRUE liefert (und in value1 ihr Ergebnis hinterläßt),
+#        TRUE liefert (und in value1 ihr Ergebnis hinterlässt),
 #        falls vorzeitig herausgesprungen werden soll.
 # > argcount: Anzahl der Sequence-Argumente - 1
-# > default: Defaultwert am Schluß
+# > default: Defaultwert am Schluss
 # < 1 Wert: wie von fun beim Hinausspringen vorgegeben, oder default.
 # < STACK: aufgeräumt (= args_pointer beim Einsprung)
 # kann GC auslösen
@@ -1730,7 +1730,7 @@ LISPFUN(replace,2,0,norest,key,4,\
     # Stackaufbau: sequence1, sequence2, start1, count, start2, end2,
     #              typdescr1, typdescr2.
     # Falls beide Sequences dieselben sind und die Bereiche sich
-    # überschneiden, muß die Source erst herauskopiert werden:
+    # überschneiden, muss die Source erst herauskopiert werden:
     if (eq(STACK_(5+2),STACK_(4+2)) # (eq sequence1 sequence2)
         && (I_I_comp(STACK_(1+2),STACK_(3+2))<0) # (< start2 start1)
         && (I_I_comp(STACK_(3+2),STACK_(0+2))<0) # (< start1 end2)
@@ -1842,7 +1842,7 @@ LISPFUN(replace,2,0,norest,key,4,\
       if (eq(count,unbound))
         { STACK_1 = NIL; } # Defaultwert NIL
         else
-        # COUNT-Argument muß NIL oder ein Integer >= 0 sein:
+        # COUNT-Argument muss NIL oder ein Integer >= 0 sein:
         if (!(nullp(count) || (integerp(count) && positivep(count))))
           { fehler_posint(TheSubr(subr_self)->name,S(Kcount),count); }
     }
@@ -1959,7 +1959,7 @@ LISPFUN(replace,2,0,norest,key,4,\
     var object* stackptr;
     var up_function up_fun;
     var help_function help_fun;
-    { # COUNT-Argument muß NIL oder ein Integer >= 0 sein:
+    { # COUNT-Argument muss NIL oder ein Integer >= 0 sein:
       test_count_arg();
      {var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefährdet!
       # l = (SEQ-LENGTH sequence) bestimmen:
@@ -2525,7 +2525,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
                                 # value1 =: item2
                                 # item1 und item2 vergleichen:
                                 if ((*up2_fun)(stackptr,STACK_1,value1)) # Testroutine aufrufen
-                                  # Test erfüllt -> vermerke, daß item2 zu streichen ist:
+                                  # Test erfüllt -> vermerke, dass item2 zu streichen ist:
                                   { sbvector_bset(STACK_(0+3),bvi2); # (setf (sbit bv bvi2) 1)
                                     dl = dl+1; # dl:=dl+1
                                   }
@@ -2601,7 +2601,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
                                 # value1 =: item1
                                 # item1 und item2 vergleichen:
                                 if ((*up2_fun)(stackptr,value1,STACK_1)) # Testroutine aufrufen
-                                  # Test erfüllt -> vermerke, daß item1 zu streichen ist:
+                                  # Test erfüllt -> vermerke, dass item1 zu streichen ist:
                                   { sbvector_bset(STACK_(0+4),bvi1); # (setf (sbit bv bvi1) 1)
                                     dl = dl+1; # dl:=dl+1
                                   }
@@ -2938,7 +2938,7 @@ LISPFUN(substitute_if_not,3,0,norest,key,5,\
         { return_Values seq_filterop(stackptr,up_fun,&nsubstitute_fe_help); }
         else
         # from-end ist nicht angegeben
-        { # COUNT-Argument muß NIL oder ein Integer >= 0 sein:
+        { # COUNT-Argument muss NIL oder ein Integer >= 0 sein:
           test_count_arg();
           # Nun sind alle Argumente überprüft.
           pushSTACK(*(stackptr STACKop 0)); # sequence

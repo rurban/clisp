@@ -827,7 +827,7 @@
 
 # EQUALP-Hash-Code einer reellen Zahl:
 # Mischung aus Exponent, L‰nge, erste 32 Bit,
-# aber so gemacht, daﬂ (hashcode (rational x)) = (hashcode x)
+# aber so gemacht, dass (hashcode (rational x)) = (hashcode x)
 # und (hashcode 0.0) = 0 (wichtig wegen "complex canonicalization").
   global uint32 hashcode4_real (object obj);
   #define hashcode4_(msd,exp,sign)  \
@@ -1083,7 +1083,7 @@
   #              k:=c-1 ; k=floor(a), k < a < b <= k+1
   #              return y = k + 1/(Bruch zwischen 1/(b-k) und 1/(a-k))
   #                                ; wobei 1 <= 1/(b-k) < 1/(a-k)
-  # Man sieht, daﬂ hierbei eine Kettenbruchentwicklung auftritt.
+  # Man sieht, dass hierbei eine Kettenbruchentwicklung auftritt.
   # Methode (iterativ):
   # Falls x rational: x.
   # (Integer-Decode-Float x) liefert m,e,s.

@@ -593,7 +593,7 @@
                    object* abbruch_STACK;
                  }
           get_circ_global;
-  # Darauf muﬂ man aus den zwei lokalen Routinen heraus zugreifen.
+  # Darauf muss man aus den zwei lokalen Routinen heraus zugreifen.
   local void get_circ_mark (object obj, get_circ_global* env);
   local void get_circ_unmark (object obj, get_circ_global* env);
   global object get_circularities(obj,pr_array,pr_closure)

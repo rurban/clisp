@@ -562,7 +562,7 @@
 (defmacro defclass (name superclass-specs slot-specs &rest options)
   (unless (symbolp name)
     (error-of-type 'sys::source-program-error
-      (DEUTSCH "~S: Klassenname muﬂ ein Symbol sein, nicht ~S"
+      (DEUTSCH "~S: Klassenname muss ein Symbol sein, nicht ~S"
        ENGLISH "~S: class name ~S should be a symbol"
        FRANCAIS "~S : Le nom de classe ~S devrait Ítre un symbole.")
       'defclass name
@@ -579,7 +579,7 @@
              (mapcar #'(lambda (superclass)
                          (unless (symbolp superclass)
                            (error-of-type 'sys::source-program-error
-                             (DEUTSCH "~S ~S: Oberklassenname muﬂ ein Symbol sein, nicht ~S"
+                             (DEUTSCH "~S ~S: Oberklassenname muss ein Symbol sein, nicht ~S"
                               ENGLISH "~S ~S: superclass name ~S should be a symbol"
                               FRANCAIS "~S ~S : Le nom d'une classe supÈrieure doit Ítre un symbole et non ~S")
                              'defclass name superclass
@@ -605,7 +605,7 @@
                            )
                            (unless (symbolp slot-name)
                              (error-of-type 'sys::source-program-error
-                               (DEUTSCH "~S ~S: Slotname muﬂ ein Symbol sein, nicht ~S"
+                               (DEUTSCH "~S ~S: Slotname muss ein Symbol sein, nicht ~S"
                                 ENGLISH "~S ~S: slot name ~S should be a symbol"
                                 FRANCAIS "~S ~S : Le nom de composant ~S doit Ítre un symbole et non ~S")
                                'defclass name slot-name
@@ -674,7 +674,7 @@
                                     (case argument
                                       ((:INSTANCE :CLASS) (setq allocation argument))
                                       (t (error-of-type 'sys::source-program-error
-                                           (DEUTSCH "~S ~S, Slot-Option zu Slot ~S muﬂ den Wert ~S oder ~S haben, nicht ~S"
+                                           (DEUTSCH "~S ~S, Slot-Option zu Slot ~S muss den Wert ~S oder ~S haben, nicht ~S"
                                             ENGLISH "~S ~S, slot option for slot ~S must have the value ~S or ~S, not ~S"
                                             FRANCAIS "~S ~S, l'option ~S pour le composant ~S doit avoir la valeur ~S ou ~S et non ~S")
                                            'defclass name slot-name ':instance ':class argument
@@ -910,7 +910,7 @@
 )
 
 #| ; In defstruc.lsp ist im wesentlichen das Folgende enthalten.
-; In record.d und hier wird benutzt, daﬂ die ersten 4 Attribute ¸bereinstimmen!
+; In record.d und hier wird benutzt, dass die ersten 4 Attribute ¸bereinstimmen!
 (defstruct (structure-slot-definition (:include slot-definition)
             (:conc-name "DS-SLOT-")
             (:type vector) (:predicate nil)
@@ -1170,7 +1170,7 @@
 ;              CPL(C) = (C ... C1 ... C2 ... ... Cn ...).
 ; Beweis: (a) Klar nach Konstruktion.
 ;         (b) Wenn Ci in die CPL aufgenommen wird, kann die Restriktion
-;             C{i-1} < Ci nicht mehr in R sein, also muﬂ C{i-1} schon in
+;             C{i-1} < Ci nicht mehr in R sein, also muss C{i-1} schon in
 ;             der CPL sein.
 ;
 ; Folgende Aussage ist falsch:
@@ -1474,7 +1474,7 @@
   ; metaclass <= <structure-class>
   (unless (null (cdr direct-superclasses))
     (error-of-type 'error
-      (DEUTSCH "~S: Metaklasse STRUCTURE-CLASS l‰ﬂt nur eine direkte Oberklasse zu."
+      (DEUTSCH "~S: Metaklasse STRUCTURE-CLASS l‰sst nur eine direkte Oberklasse zu."
        ENGLISH "~S: metaclass STRUCTURE-CLASS forbids more than one direct superclass"
        FRANCAIS "~S : La classe mÈta STRUCTURE-CLASS ne permet qu'une seule classe supÈrieure.")
       name
@@ -1523,7 +1523,7 @@
            (shared-index (std-layout-slots class more-slots)))
       (when (plusp shared-index)
         (error-of-type 'error
-          (DEUTSCH "~S: Metaklasse STRUCTURE-CLASS l‰ﬂt nur keine Shared Slots zu."
+          (DEUTSCH "~S: Metaklasse STRUCTURE-CLASS l‰sst nur keine Shared Slots zu."
            ENGLISH "~S: metaclass STRUCTURE-CLASS does not support shared slots"
            FRANCAIS "~S : La classe mÈta STRUCTURE-CLASS ne supporte pas les slots partagÈs.")
           name
@@ -1758,7 +1758,7 @@
                          ; (nur f¸r den Bedarf von ADD-METHOD)
 )
 
-; Bei CALL-NEXT-METHOD und NO-NEXT-METHOD muﬂ die generische Funktion bekannt
+; Bei CALL-NEXT-METHOD und NO-NEXT-METHOD muss die generische Funktion bekannt
 ; sein. Da allerdings im Prinzip Methoden nicht bestimmten generischen
 ; Funktionen zugehˆrig sind (wegen ADD-METHOD), m¸ssen wir die Methode bei
 ; ADD-METHOD kopieren. Die Identit‰t zweier Kopien derselben Methode stellen
@@ -2078,7 +2078,7 @@
 ; - die Liste aller Methoden.
 
 ; Der Compiler benutzt (bei GENERIC-FLET, GENERIC-LABELS) und der Evaluator
-; setzt ebenfalls voraus, daﬂ eine generische Funktion ihre Aufrufkonvention
+; setzt ebenfalls voraus, dass eine generische Funktion ihre Aufrufkonvention
 ; nicht ‰ndert.
 ; Eine generische Funktion mit Signatur (reqanz optanz restp keywords allowp)
 ; ist von Anfang an (!) eine compilierte Funktion mit
@@ -2135,7 +2135,7 @@
 ;   )        )
 ; Das Ergebnis ist nicht(!) als eigenst‰ndige Funktion aufrufbar, sondern
 ; bedarf der Nachbearbeitung: Die Konstanten C_0 ... C_(k-1) C_k m¸ssen zu
-; #(C_0 ... C_(k-1) . [Rest von C_k]) zusammengefaﬂt werden, k = 0 oder 1.
+; #(C_0 ... C_(k-1) . [Rest von C_k]) zusammengefasst werden, k = 0 oder 1.
 
 ; Liefert eine generische Funktion ohne Dispatch-Code. Nicht aufrufbar!!
 (let* ((prototype ; eine sinnlose Funktion
@@ -2598,10 +2598,10 @@
                        )
                      (labels
                         ((built-in-subtree (class remaining-classes remaining-methods)
-                           ; behandelt die F‰lle, daﬂ das Argument der Klasse
+                           ; behandelt die F‰lle, dass das Argument der Klasse
                            ; class angehˆrt und auf Zugehˆrigkeit zu einer der
-                           ; remaining-classes abgepr¸ft werden muﬂ.
-                           ; (Man kann voraussetzen, daﬂ (bc-and class x) /= nil
+                           ; remaining-classes abgepr¸ft werden muss.
+                           ; (Man kann voraussetzen, dass (bc-and class x) /= nil
                            ; f¸r alle x aus remaining-classes.)
                            (if (null remaining-classes)
                              ; Keine Fallunterscheidung mehr nˆtig
@@ -2926,9 +2926,9 @@
 
 
 ; Grausamer Hack (28.1.9.2.):
-; MAKE-INSTANCE muﬂ ¸ber die Methoden von INITIALIZE-INSTANCE und
+; MAKE-INSTANCE muss ¸ber die Methoden von INITIALIZE-INSTANCE und
 ; SHARED-INITIALIZE Bescheid wissen.
-; REINITIALIZE-INSTANCE muﬂ ¸ber die Methoden von REINITIALIZE-INSTANCE und
+; REINITIALIZE-INSTANCE muss ¸ber die Methoden von REINITIALIZE-INSTANCE und
 ; SHARED-INITIALIZE Bescheid wissen.
 (defvar |#'initialize-instance| nil)
 (defvar |#'reinitialize-instance| nil)
@@ -2968,12 +2968,12 @@
         gf method
     ) )
     (when (fourth gf-sign) ; gf hat Keywords?
-      ; ja -> Methode muﬂ sie akzeptieren:
+      ; ja -> Methode muss sie akzeptieren:
       (unless (if (fourth m-sign) ; Methode hat &key ?
-                (or (sixth m-sign) ; Methode muﬂ &allow-other-keys haben oder
+                (or (sixth m-sign) ; Methode muss &allow-other-keys haben oder
                     (subsetp (fourth gf-sign) (fifth m-sign)) ; die Keywords aufz‰hlen
                 )
-                (third m-sign) ; Methode muﬂ &rest haben!
+                (third m-sign) ; Methode muss &rest haben!
               )
         (error-of-type 'error
           (DEUTSCH "~S akzeptiert die Keywords ~S von ~S nicht."
@@ -3069,7 +3069,7 @@
 (defmacro defmethod (funname &rest method-description &environment env)
   (unless (function-name-p funname)
     (error-of-type 'sys::source-program-error
-      (DEUTSCH "~S: Der Name einer Funktion muﬂ ein Symbol sein, nicht: ~S"
+      (DEUTSCH "~S: Der Name einer Funktion muss ein Symbol sein, nicht: ~S"
        ENGLISH "~S: the name of a function must be a symbol, not ~S"
        FRANCAIS "~S : Le nom d'une fonction doit Ítre un symbole et non ~S")
       'defmethod funname
@@ -3130,7 +3130,7 @@
 (defun analyze-defgeneric (caller funname lambdalist options env)
   (unless (function-name-p funname)
     (error-of-type 'sys::source-program-error
-      (DEUTSCH "~S: Der Name einer Funktion muﬂ ein Symbol sein, nicht: ~S"
+      (DEUTSCH "~S: Der Name einer Funktion muss ein Symbol sein, nicht: ~S"
        ENGLISH "~S: the name of a function must be a symbol, not ~S"
        FRANCAIS "~S : Le nom d'une fonction doit Ítre un symbole et non ~S")
       caller funname lambdalist
@@ -3177,7 +3177,7 @@
           (:DOCUMENTATION
             (unless (and (eql (length option) 2) (stringp (second option)))
               (error-of-type 'sys::source-program-error
-                (DEUTSCH "~S ~S: Nach ~S muﬂ ein String angegeben werden: ~S"
+                (DEUTSCH "~S ~S: Nach ~S muss ein String angegeben werden: ~S"
                  ENGLISH "~S ~S: A string must be specified after ~S : ~S"
                  FRANCAIS "~S ~S : Il faut une chaÓne aprËs ~S : ~S")
                 caller funname ':documentation option
@@ -3297,7 +3297,7 @@
     (flet ((check-varname (var)
              (unless (symbolp var)
                (error-of-type 'sys::source-program-error
-                 (DEUTSCH "~S ~S: Variablenname muﬂ ein Symbol sein, nicht ~S"
+                 (DEUTSCH "~S ~S: Variablenname muss ein Symbol sein, nicht ~S"
                   ENGLISH "~S ~S: variable name ~S should be a symbol"
                   FRANCAIS "~S ~S : le nom de variable ~S devrait Ítre un symbole.")
                  caller funname var
@@ -3446,7 +3446,7 @@
 #|
 ;; F¸r GENERIC-FLET, GENERIC-LABELS
 
-; Wie make-generic-function, nur daﬂ der Dispatch-Code gleich installiert wird.
+; Wie make-generic-function, nur dass der Dispatch-Code gleich installiert wird.
 (defun make-generic-function-now (funname signature argorder &rest methods)
   (let ((gf (make-fast-gf funname signature argorder)))
     (dolist (method methods) (std-add-method gf method))
@@ -3545,7 +3545,7 @@
     (unless (symbolp new-value)
       (error-of-type 'type-error
         :datum new-value :expected-type 'symbol
-        (DEUTSCH "~S: Der Name einer Klasse muﬂ ein Symbol sein, nicht ~S"
+        (DEUTSCH "~S: Der Name einer Klasse muss ein Symbol sein, nicht ~S"
          ENGLISH "~S: The name of a class must be a symbol, not ~S"
          FRANCAIS "~S : Le nom d'une classe doit Ítre un symbole et non ~S.")
         '(setf class-name) new-value
@@ -3712,9 +3712,9 @@
 ;; 28.1.9. Object creation and initialization
 
 ; Grausamer Hack (28.1.9.2.):
-; MAKE-INSTANCE muﬂ ¸ber die Methoden von INITIALIZE-INSTANCE und
+; MAKE-INSTANCE muss ¸ber die Methoden von INITIALIZE-INSTANCE und
 ; SHARED-INITIALIZE Bescheid wissen.
-; REINITIALIZE-INSTANCE muﬂ ¸ber die Methoden von REINITIALIZE-INSTANCE und
+; REINITIALIZE-INSTANCE muss ¸ber die Methoden von REINITIALIZE-INSTANCE und
 ; SHARED-INITIALIZE Bescheid wissen.
 
 (defparameter *make-instance-table* (make-hash-table :test #'eq))
@@ -3897,7 +3897,7 @@
         (if (not (eq (cdr h) #'clos::%shared-initialize))
           ; effektive Methode von shared-initialize anwenden:
           (apply (cdr h) instance 'NIL initargs)
-          ; clos::%shared-initialize mit slot-names=NIL l‰ﬂt sich vereinfachen:
+          ; clos::%shared-initialize mit slot-names=NIL l‰sst sich vereinfachen:
           (progn
             (dolist (slot (class-slots (class-of instance)))
               (let ((slotname (slotdef-name slot)))
@@ -3976,7 +3976,7 @@
       (if (not (eq (cddr h) #'clos::%shared-initialize))
         ; effektive Methode von shared-initialize anwenden:
         (apply (cddr h) instance 'T initargs)
-        ; clos::%shared-initialize mit slot-names=T l‰ﬂt sich vereinfachen:
+        ; clos::%shared-initialize mit slot-names=T l‰sst sich vereinfachen:
         (progn
           (dolist (slot (class-slots (class-of instance)))
             (let ((slotname (slotdef-name slot)))
@@ -4088,7 +4088,7 @@
           (if (not (eq (cadr h) #'clos::%initialize-instance))
             ; effektive Methode von initialize-instance anwenden:
             (apply (cadr h) instance initargs)
-            ; clos::%initialize-instance l‰ﬂt sich vereinfachen (man braucht
+            ; clos::%initialize-instance l‰sst sich vereinfachen (man braucht
             ; nicht nochmal in *make-instance-table* nachzusehen):
             (if (not (eq (cddr h) #'clos::%shared-initialize))
               ; effektive Methode von shared-initialize anwenden:

@@ -713,7 +713,7 @@
   ; level = 2: length = 2,...,6
   ; usw. bis maximal level = 16.
   ; Dabei level möglichst groß, und bei festem level length möglichst groß.
-  (if (or (numberp object) (symbolp object)) ; von length und level unbeeinflußt?
+  (if (or (numberp object) (symbolp object)) ; von length und level unbeeinflusst?
     (write-to-string object)
     (macrolet ((minlength (level) `,level)
                (maxlength (level) `(* 2 (+ ,level 1))))
@@ -724,8 +724,8 @@
                    (when (= (- level2 level1) 1) (return))
                    (let ((levelm (floor (+ level1 level2) 2)))
                      (if (<= (length (write-to-string object :level levelm :length (minlength levelm))) max)
-                       (setq level1 levelm) ; levelm paßt, probiere größere
-                       (setq level2 levelm) ; levelm paßt nicht, probiere kleinere
+                       (setq level1 levelm) ; levelm passt, probiere größere
+                       (setq level2 levelm) ; levelm passt nicht, probiere kleinere
                  ) ) )
                  level1
              ) )
@@ -735,8 +735,8 @@
                    (when (= (- length2 length1) 1) (return))
                    (let ((lengthm (floor (+ length1 length2) 2)))
                      (if (<= (length (write-to-string object :level level :length lengthm)) max)
-                       (setq length1 lengthm) ; lengthm paßt, probiere größere
-                       (setq length2 lengthm) ; lengthm paßt nicht, probiere kleinere
+                       (setq length1 lengthm) ; lengthm passt, probiere größere
+                       (setq length2 lengthm) ; lengthm passt nicht, probiere kleinere
                  ) ) )
                  length1
             )) )
@@ -1128,7 +1128,7 @@
        FRANCAIS "Un éditeur externe n'est pas installé.")
   ) )
   ; Damit TRUENAME keinen Fehler liefert, wenn das File noch nicht existiert,
-  ; stellen wir sicher, daß das File existiert:
+  ; stellen wir sicher, dass das File existiert:
   #+(or UNIX AMIGA ACORN-RISCOS)
   (unless (probe-file file)
     (close (open file :direction :output))
@@ -1559,7 +1559,7 @@
       )
       (if (eq output ':STREAM)
         (make-pipe-input-stream command)
-        (shell command) ; unter UNIX evtl. " &" anfügen, um Hintergrund-Prozeß zu bekommen
+        (shell command) ; unter UNIX evtl. " &" anfügen, um Hintergrund-Prozess zu bekommen
     ) )
   )
   (defun run-program (program &key (arguments '())

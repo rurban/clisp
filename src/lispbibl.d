@@ -57,9 +57,9 @@
 # IBM-PC/386   beliebig           LINUX (freies UNIX)           GNU           unix, linux, i386, __GNUC__
 # IBM-PC/386   beliebig           386BSD 0.1 (UNIX BSD 4.2)     GNU           unix, __386BSD__, i386, __GNUC__
 # IBM-PC/386   beliebig           NetBSD 0.9 (UNIX BSD 4.3)     GNU           unix, __NetBSD__, i386, __GNUC__
-# IBM-PC/386   beliebig           DJUNIX (UNIXlike auf MSDOS)   GNU           unix, i386, [__MSDOS__,] __GNUC__, __GO32__; __GO32__ muß man evtl. selbst definieren!
+# IBM-PC/386   beliebig           DJUNIX (UNIXlike auf MSDOS)   GNU           unix, i386, [__MSDOS__,] __GNUC__, __GO32__; __GO32__ muss man evtl. selbst definieren!
 # IBM-PC/386   beliebig           EMX 0.9c (UNIXlike auf MSDOS) GNU           [unix,] i386, __GNUC__, __EMX__
-# IBM-PC/386   beliebig           EMX 0.9c (UNIXlike auf OS/2)  GNU           [unix,] i386, __GNUC__, __EMX__, OS2; OS2 muß man selbst definieren!
+# IBM-PC/386   beliebig           EMX 0.9c (UNIXlike auf OS/2)  GNU           [unix,] i386, __GNUC__, __EMX__, OS2; OS2 muss man selbst definieren!
 # IBM-PC/386   beliebig           MSDOS                         WATCOM        MSDOS, __386__, M_I386, __WATCOMC__, __FLAT__
 # IBM-PC/386   beliebig           Cygwin32 auf WinNT/Win95      GNU           _WIN32, __WINNT__, __CYGWIN32__, __POSIX__, _X86_, i386, __GNUC__
 # IBM-PC/386   beliebig           Mingw32 auf WinNT/Win95       GNU           _WIN32, __WINNT__, __MINGW32__, _X86_, i386, __GNUC__
@@ -667,7 +667,7 @@
     #
     # Register for STACK.
       #if defined(MC680X0)
-        #define STACK_register  "a4"  # höchstes Adreßregister nach sp=A7,fp=A6/A5
+        #define STACK_register  "a4"  # höchstes Adressregister nach sp=A7,fp=A6/A5
       #endif
       #if defined(I80386) && !defined(DYNAMIC_MODULES)
         # Ist DYNAMIC_MODULES definiert, werden externe Module als PIC
@@ -971,7 +971,7 @@
   #define var
 
 # Adresse des ersten Elements eines Arrays: &!array
-# (Wenn klar werden soll, daß man die Adresse des ganzen Arrays übergibt.
+# (Wenn klar werden soll, dass man die Adresse des ganzen Arrays übergibt.
 # Wenn man &array schreibt, ist das genau genommen ein Typfehler.)
 
 # Verallgemeinerte if-Anweisung:
@@ -1127,11 +1127,11 @@
 
 # Unspezifizierte Länge von Arrays in Structures:
 # struct { ...; ...; type x[unspecified]; }
-# Statt sizeof(..) muß man dann aber immer offsetof(..,x) schreiben.
+# Statt sizeof(..) muss man dann aber immer offsetof(..,x) schreiben.
   #if defined(GNU) # GNU-C kann Arrays der Länge 0
     #define unspecified 0
   #elif 0
-    # Üblicherweise läßt man die Arraygrenze weg:
+    # Üblicherweise lässt man die Arraygrenze weg:
     #define unspecified
   #else
     # Jedoch die HP-UX- und IRIX-Compiler lassen sich nur damit befriedigen:
@@ -1144,8 +1144,8 @@
     # Billige Methode:
     #define pointerplus(pointer,offset)  ((void*)((ULONG)(pointer)+(offset)))
   #else
-    # Für GNU-C beim Initialisieren von static-Variablen unerläßlich
-    # (muß ein Bug in 'c-typeck.c' in 'initializer_constant_valid_p' sein):
+    # Für GNU-C beim Initialisieren von static-Variablen unerlässlich
+    # (muss ein Bug in 'c-typeck.c' in 'initializer_constant_valid_p' sein):
     # Das einzig Richtige, falls sizeof(ULONG) < sizeof(void*):
     #define pointerplus(pointer,offset)  ((UBYTE*)(pointer)+(offset))
   #endif
@@ -1183,12 +1183,12 @@
   #define ceiling(a_from_ceiling,b_from_ceiling)  \
     (((a_from_ceiling) + (b_from_ceiling) - 1) / (b_from_ceiling))
 
-# round_down(a,b) rundet a>=0 so ab, daß es durch b>0 teilbar ist.
+# round_down(a,b) rundet a>=0 so ab, dass es durch b>0 teilbar ist.
 # b sollte eine 'constant expression' sein.
   #define round_down(a_from_round,b_from_round)  \
     (floor(a_from_round,b_from_round)*(b_from_round))
 
-# round_up(a,b) rundet a>=0 so auf, daß es durch b>0 teilbar ist.
+# round_up(a,b) rundet a>=0 so auf, dass es durch b>0 teilbar ist.
 # b sollte eine 'constant expression' sein.
   #define round_up(a_from_round,b_from_round)  \
     (ceiling(a_from_round,b_from_round)*(b_from_round))
@@ -1419,19 +1419,19 @@
   typedef signed_int_with_n_bits(intBWLsize)    sintBWL;
   typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
 # Verwende 'uintXY' und 'sintXY' für Integers mit vorgegebener Mindestbreite,
-# mit denen sich leicht rechnen läßt.
+# mit denen sich leicht rechnen lässt.
 
 # Schleife, die ein Statement eine gewisse Anzahl mal ausführt:
-# dotimesW(countvar,count,statement);  falls count in ein uintW paßt,
-# dotimesL(countvar,count,statement);  falls count nur in ein uintL paßt,
-# dotimespW(countvar,count,statement);  falls count in ein uintW paßt und >0 ist,
-# dotimespL(countvar,count,statement);  falls count nur in ein uintL paßt und >0 ist.
-# Die Variable countvar muß bereits deklariert sein, vom Typ uintW bzw. uintL
+# dotimesW(countvar,count,statement);  falls count in ein uintW passt,
+# dotimesL(countvar,count,statement);  falls count nur in ein uintL passt,
+# dotimespW(countvar,count,statement);  falls count in ein uintW passt und >0 ist,
+# dotimespL(countvar,count,statement);  falls count nur in ein uintL passt und >0 ist.
+# Die Variable countvar muss bereits deklariert sein, vom Typ uintW bzw. uintL
 # und wird durch diese Anweisung verändert!
 # Sie darf in statement nicht verwendet werden!
 # Die Expression count wird nur einmal (zu Beginn) ausgewertet.
   #if defined(GNU) && defined(MC680X0) && !defined(HPUX_ASSEMBLER)
-    # GNU-C auf einem 680X0 läßt sich dazu überreden, den DBRA-Befehl zu verwenden:
+    # GNU-C auf einem 680X0 lässt sich dazu überreden, den DBRA-Befehl zu verwenden:
     #define fast_dotimesW
     # Um zu entscheiden, wie man GNU-C am besten dazu überredet, betrachte man
     # den Code, der für spvw.d:gc_markphase() produziert wird.
@@ -1475,7 +1475,7 @@
       }
   #endif
   #if defined(GNU) && defined(MC680X0) && !defined(HPUX_ASSEMBLER)
-    # GNU-C auf einem 680X0 läßt sich dazu überreden, den DBRA-Befehl
+    # GNU-C auf einem 680X0 lässt sich dazu überreden, den DBRA-Befehl
     # auf intelligente Weise zu verwenden:
     #define fast_dotimesL
     #define dotimesL_(countvar_from_dotimesL,count_from_dotimesL,statement_from_dotimesL)  \
@@ -1502,7 +1502,7 @@
       }
   #endif
   #if defined(GNU) && defined(__OPTIMIZE__)
-    # Es ist mir nun schon zweimal passiert, daß ich dotimesL auf eine
+    # Es ist mir nun schon zweimal passiert, dass ich dotimesL auf eine
     # Variable vom Typ uintC angewandt habe. Damit Jörg und Marcus nicht
     # mehr suchen müssen, überprüfe ich das jetzt.
     # Der Dummy-Aufruf wird, wenn's gut geht, von gcc wegoptimiert.
@@ -1558,7 +1558,7 @@
     }
 
 # Ab hier bedeutet uintC einen unsigned-Integer-Typ, mit dem sich besonders
-# leicht zählen läßt. Teilmengenrelation: uintW <= uintC <= uintL.
+# leicht zählen lässt. Teilmengenrelation: uintW <= uintC <= uintL.
   #define intCsize intWLsize
   #define uintC uintWL
   #define sintC sintWL
@@ -1607,13 +1607,13 @@
 # Üblicherweise ist sizeof(oint) = sizeof(aint) = sizeof(uintL) = 32 Bit.
 # Bei Modell WIDE ist sizeof(oint) > sizeof(uintL).
 # Modell WIDE_HARD steht für sizeof(aint) > sizeof(uintL).
-#   Dieses Modell muß dann gewählt werden, wenn
+#   Dieses Modell muss dann gewählt werden, wenn
 #   sizeof(void*) > sizeof(uintL) = 32 Bit ist. Es setzt
 #   sizeof(long) = sizeof(void*) = 64 Bit voraus, denn einige 64-Bit-Zahlen
 #   tauchen als Präprozessor-Konstanten auf.
 # Modell WIDE_SOFT steht für sizeof(oint) = 64 Bit und sizeof(aint) = 32 Bit.
 #   Dieses Modell kann auf jeder 32-Bit-Maschine gewählt werden, wenn der
-#   Compiler (soft- oder hardwaremäßige) 64-Bit-Zahlen hat. Es muß dann
+#   Compiler (soft- oder hardwaremäßige) 64-Bit-Zahlen hat. Es muss dann
 #   gewählt werden, wenn ansonsten nicht genug Platz für die Typbits in einem
 #   32-Bit-Pointer wäre.
 # Model NO_TYPECODES stands for sizeof(oint) = sizeof(aint), and only minimal
@@ -1808,7 +1808,7 @@
   #if !defined(LANGUAGE_STATIC) && !defined(__cplusplus) && (defined(ISOLATIN_CHS) || defined(IBMPC_CHS)) && !defined(NO_GETTEXT)
     # Wenn nur eine Sprache gewünscht ist, brauchen wir kein gettext.
     # Mit einem C++-Compiler ist die gettext-Library nicht compilierbar.
-    # Ist der Zeichensatz nicht ISOLATIN oder IBMPC, läßt sich spanish.lsp
+    # Ist der Zeichensatz nicht ISOLATIN oder IBMPC, lässt sich spanish.lsp
     # weder laden noch compilieren.
     #define GNU_GETTEXT
   #endif
@@ -1855,8 +1855,8 @@
 
 # Ob es Socket-Streams gibt:
   #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME)
-    # Damit Socket-Streams sinnvoll sind, muß socket.d compilierbar sein.
-    # Dazu muß netdb.h oder sun/netdb.h existieren, was zufällig auch der
+    # Damit Socket-Streams sinnvoll sind, muss socket.d compilierbar sein.
+    # Dazu muss netdb.h oder sun/netdb.h existieren, was zufällig auch der
     # Existenz von gethostbyname() entspricht.
     #define X11SOCKETS
     #if defined(HAVE_NETINET_IN_H) || defined(WIN32_NATIVE) # see socket.d
@@ -1972,7 +1972,7 @@
     #define TIME_WIN32
   #endif
   #if defined(TIME_MSDOS) || defined(TIME_AMIGAOS) || defined(TIME_UNIX_TIMES) || defined(TIME_RISCOS)
-    # Die Zeitauflösung ist nur mittel, so daß man für Zeitdifferenz-Messungen
+    # Die Zeitauflösung ist nur mittel, so dass man für Zeitdifferenz-Messungen
     # ohne weiteres eine 32-Bit-Zahl nehmen kann.
     #define TIME_1
     # Wir holen die Uhrzeit einmal beim System-Start. Alle weiteren
@@ -1980,7 +1980,7 @@
     #define TIME_RELATIVE
   #endif
   #if defined(TIME_UNIX) || defined(TIME_WIN32)
-    # Die Zeitauflösung ist so hoch, daß man für Zeitdifferenz-Messungen gleich
+    # Die Zeitauflösung ist so hoch, dass man für Zeitdifferenz-Messungen gleich
     # zwei 32-Bit-Zahlen braucht: Sekunden und Sekundenbruchteile.
     #define TIME_2
     # In diesem Fall können wir auch gleich immer mit absoluten und genauen
@@ -2074,7 +2074,7 @@
   #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
     #define PATHNAME_NOEXT  # Keine explizite Extension.
   #endif
-# Ob "//" am Anfang eines Pathname erhalten bleiben muß (nicht zu "/" verkürzen):
+# Ob "//" am Anfang eines Pathname erhalten bleiben muss (nicht zu "/" verkürzen):
   #ifdef UNIX_CYGWIN32
     #define PATHNAME_UNIX_UNC
   #endif
@@ -2105,7 +2105,7 @@
   #if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !defined(WATCOM)
     #define INIT_SUBR_TAB
   #endif
-# NB: Das muß definiert sein, damit externe Module funktionieren.
+# NB: Das muss definiert sein, damit externe Module funktionieren.
 # Bei Veränderung: Nichts weiter zu tun.
 
 # Ob symbol_tab statisch zu initialisieren versucht wird.
@@ -2268,7 +2268,7 @@ Ratio and Complex (only if SPVW_MIXED).
 
 #endif
 
-# Es muß sizeof(object) = sizeof(oint) gelten!
+# Es muss sizeof(object) = sizeof(oint) gelten!
 
 # Umwandlungen zwischen object und oint:
 # as_oint(expr)   object --> oint
@@ -2682,7 +2682,7 @@ Ratio and Complex (only if SPVW_MIXED).
 
 # Typinfo:
 # typecode(object) und mtypecode(object) liefern den Typcode eines
-# Objektes obj. Bei mtypecode muß er dazu im Speicher liegen.
+# Objektes obj. Bei mtypecode muss er dazu im Speicher liegen.
   #if !(exact_uint_size_p(oint_type_len) && (tint_type_mask == bit(oint_type_len)-1))
     #define typecode(expr)  \
       ((tint)(as_oint(expr) >> oint_type_shift) & (oint_type_mask >> oint_type_shift))
@@ -2738,7 +2738,7 @@ Ratio and Complex (only if SPVW_MIXED).
       #endif
   #endif
 
-# Extraktion des Adreßfelds ohne Typinfo:
+# Extraktion des Adressfelds ohne Typinfo:
 # untype(obj)
   #if defined(WIDE) && defined(WIDE_STRUCT)
     #define untype(expr)  ((expr).both.addr)
@@ -2752,7 +2752,7 @@ Ratio and Complex (only if SPVW_MIXED).
       ((aint)((as_oint(expr) << (32-oint_addr_len-oint_addr_shift)) >> (32-oint_addr_len)))
   #endif
 
-# Objekt aus Typinfo und Adreßfeld:
+# Objekt aus Typinfo und Adressfeld:
 # type_untype_object(type,address)
   #if defined(WIDE) && defined(WIDE_STRUCT)
     #if BIG_ENDIAN_P==WIDE_ENDIANNESS
@@ -2775,7 +2775,7 @@ Ratio and Complex (only if SPVW_MIXED).
     #else # Normalfall
       # Damit das für gcc-2.5.8 ein gültiger Initialisierer ist (NIL_IS_CONSTANT),
       # darf man nicht vom Pointer zum oint und dann wieder zum Pointer casten,
-      # sondern muß im Bereich der Pointer bleiben.
+      # sondern muss im Bereich der Pointer bleiben.
       #define type_untype_object(type,address)              \
         as_object(pointerplus((address),(oint)(tint)(type)<<oint_type_shift))
     #endif
@@ -2819,7 +2819,7 @@ Ratio and Complex (only if SPVW_MIXED).
     #define type_pointer_object(type,address)  \
       type_untype_object(type,(aint)(address)>>addr_shift)
   #else # effizienter,
-    # setzt aber voraus, daß address durch 2^addr_shift teilbar ist:
+    # setzt aber voraus, dass address durch 2^addr_shift teilbar ist:
     #define type_pointer_object(type,address)  \
       (as_object(  ((oint)(tint)(type) << oint_type_shift) + \
                    ((oint)(aint)(address) << (oint_addr_shift-addr_shift)) ))
@@ -2917,7 +2917,7 @@ Ratio and Complex (only if SPVW_MIXED).
 # ist evtl. Memory-Mapping möglich.
 
   #if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)) && !defined(MULTIMAP_MEMORY) && !(defined(UNIX_SINIX) || defined(UNIX_AIX)) && !defined(NO_SINGLEMAP)
-    # Zugriff auf Lisp-Objekte wird vereinfacht dadurch, daß jedes Lisp-Objekt
+    # Zugriff auf Lisp-Objekte wird vereinfacht dadurch, dass jedes Lisp-Objekt
     # an eine Adresse gelegt wird, das seine Typinformation bereits enthält.
     # Funktioniert aber nicht auf SINIX und AIX.
       #define SINGLEMAP_MEMORY
@@ -2965,7 +2965,7 @@ Ratio and Complex (only if SPVW_MIXED).
   # seitenweise, nach Bedarf, eingelesen. Ohne mmap() geht das, wenn man
   # SIGSEGV selber abfängt.
   # Das funktioniert mit SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY, bringt aber
-  # nur bei SINGLEMAP_MEMORY etwas. (Bei TRIVIALMAP_MEMORY muß loadmem
+  # nur bei SINGLEMAP_MEMORY etwas. (Bei TRIVIALMAP_MEMORY muss loadmem
   # das ganze mem-File einlesen, um alle Pointer zu relozieren.)
   #define SELFMADE_MMAP
 #endif
@@ -2990,7 +2990,7 @@ Ratio and Complex (only if SPVW_MIXED).
 # Der Typ `object' liegt nun vollständig fest.
 #ifdef WIDE_STRUCT
   #ifdef GENERATIONAL_GC
-    # Die Generational GC kann es nicht brauchen, daß ein einzelner
+    # Die Generational GC kann es nicht brauchen, dass ein einzelner
     # Objektpointer sich auf zwei Seiten erstreckt.
     # Erzwinge daher  alignof(object) = sizeof(object).
     #define _attribute_aligned_object_  __attribute__ ((aligned(8)))
@@ -3067,7 +3067,7 @@ Ratio and Complex (only if SPVW_MIXED).
 
 # Wir haben 6 bis 8 Typbits zur Verfügung: TB7, [TB6,] [TB5,] TB4, ..., TB0.
 # Alle müssen in tint_allowed_type_mask und damit auch in tint_type_mask
-# gesetzt sein. Wir verteilen sie unter der Annahme, daß in tint_type_mask
+# gesetzt sein. Wir verteilen sie unter der Annahme, dass in tint_type_mask
 # höchstens ein Bit fehlt. TB6 und TB5 werden, falls nicht benutzbar,
 # auf -1 gesetzt.
 #if ((0xFF & ~tint_allowed_type_mask) == 0)
@@ -3534,7 +3534,7 @@ Ratio and Complex (only if SPVW_MIXED).
 #endif
 
 #if defined(UNIX_CONVEX) && defined(MAP_MEMORY)
-# Bei UNIX_CONVEX liegt der Adreßraum der Prozesse ab 0x80000000.
+# Bei UNIX_CONVEX liegt der Adressraum der Prozesse ab 0x80000000.
 # mmap() funktioniert allerdings nur unterhalb von 0xC000000. Daher
 # gehört Bit 31 zur Adresse, und Bit 30 müssen wir aus dem Weg gehen.
 #endif
@@ -3958,7 +3958,7 @@ Ratio and Complex (only if SPVW_MIXED).
 #endif
 
 
-# Was von einer Adresse auch wirklich auf den Adreßbus geschickt wird:
+# Was von einer Adresse auch wirklich auf den Adressbus geschickt wird:
 #if defined(MC68000)
   #define hardware_addressbus_mask  0x00FFFFFFUL  # 68000 wirft 8 Bits weg
 #elif defined(SUN3) && !defined(UNIX_SUNOS4)
@@ -4040,7 +4040,7 @@ Ratio and Complex (only if SPVW_MIXED).
   # MC68000 oder SUN3 -> type_pointable(...) kostet nichts oder nur wenig.
   # AMIGA -> nur endlich viel Speicher, Mixed Pages nutzen ihn besser.
   # SPVW_BLOCKS -> SPVW_PURE_BLOCKS nur für SINGLEMAP_MEMORY implementiert.
-  # TRIVIALMAP_MEMORY -> Nicht viele Blöcke möglich, da wenig Adreßraum.
+  # TRIVIALMAP_MEMORY -> Nicht viele Blöcke möglich, da wenig Adressraum.
   #define SPVW_MIXED
 #elif 1 # vorläufig! ??
   #define SPVW_MIXED
@@ -4555,7 +4555,7 @@ typedef symbol_ *  Symbol;
 
 # Characters
 
-# Integer, der die Daten eines Character ganz faßt:
+# Integer, der die Daten eines Character ganz fasst:
   #define char_int_len 8
   #define char_int_limit  (1UL<<char_int_len)
   typedef unsigned_int_with_n_bits(char_int_len)  cint;
@@ -4789,7 +4789,7 @@ typedef lfloat_ *  Lfloat;
 #endif
 #define Lfloat_length(obj)  lfloat_length(TheLfloat(obj))
 
-# Simple-Array (umfaßt einfache eindimensionale Arrays:
+# Simple-Array (umfasst einfache eindimensionale Arrays:
 # Simple-Bit-Vector, Simple-String, Simple-Vector)
 typedef struct { LRECORD_HEADER } # Selbstpointer für GC, Länge in Elementen
         sarray_;
@@ -4873,7 +4873,7 @@ typedef iarray_ *  Iarray;
   #define arrayflags_notbytep_bit    3 # gelöscht bei Byte-Vektoren
   #define arrayflags_atype_mask  0x07  # Maske für Elementtyp
 # Elementtypen von Arrays in Bits 2..0 der flags:
-  # Die ersten sind so gewählt, daß 2^Atype_nBit = n ist.
+  # Die ersten sind so gewählt, dass 2^Atype_nBit = n ist.
   #define Atype_Bit    0         # arrayflags_notbytep_bit gesetzt!
   #define Atype_2Bit   1
   #define Atype_4Bit   2
@@ -5125,7 +5125,7 @@ typedef struct {
                  uintB reclength; # Länge in Objekten
                  uintB recxlength; # Länge der Extra-Elemente
                  #else
-                 # Muß strmflags und strmtype aus Platzgründen in einem Fixnum
+                 # Muss strmflags und strmtype aus Platzgründen in einem Fixnum
                  # in recdata[0] unterbringen.
                  #if !((oint_addr_len+oint_addr_shift>=24) && (8>=oint_addr_shift))
                  #error "No room for stream flags -- Stream-Flags neu unterbringen!!"
@@ -5249,7 +5249,7 @@ typedef struct {
   #define strm_buff_in_fun     strm_other[0] # Lesefunktion
   #define strm_buff_out_fun    strm_other[0] # Ausgabefunktion
   #ifdef PIPES
-  #define strm_pipe_pid        strm_other[3] # Prozeß-Id, ein Fixnum >=0
+  #define strm_pipe_pid        strm_other[3] # Prozess-Id, ein Fixnum >=0
   #endif
   #ifdef X11SOCKETS
   #define strm_x11socket_connect  strm_other[3] # Liste (host display)
@@ -5516,7 +5516,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 
 #ifdef TYPECODES
 
-# Um auf die Komponenten eines Objekts zugreifen zu können, muß man erst
+# Um auf die Komponenten eines Objekts zugreifen zu können, muss man erst
 # die Typbits entfernen:
   #if !((oint_addr_shift==0) && (addr_shift==0))
     #define pointable(obj)  ((void*)upointer(obj))
@@ -5527,14 +5527,14 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
         ((void*)((aint)as_oint(obj) & ((aint)oint_addr_mask | ~addressbus_mask)))
     #else
       # Ist ferner oint_type_mask von addressbus_mask disjunkt, so werden
-      # sowieso keine Typbits auf den Adreßbus geschickt.
+      # sowieso keine Typbits auf den Adressbus geschickt.
       # Also ist gar nichts zu tun:
       #define pointable(obj)  ((void*)(aint)as_oint(obj))
     #endif
   #endif
 
 # Wenn man auf ein Objekt zugreifen will, das eine bekannte Typinfo hat,
-# dessen gesetzte Typbits vom Adreßbus verschluckt werden (auf die
+# dessen gesetzte Typbits vom Adressbus verschluckt werden (auf die
 # Typbits, die =0 sind, kommt es nicht an), so kann man auf das 'untype'
 # verzichten:
   #if defined(WIDE_STRUCT)
@@ -5547,7 +5547,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
          : (void*)(aint)pointable(obj)                                           \
         )
     #elif !(addr_shift==0)
-      # Analog, nur dass der Macro 'optimized_upointer' die Rolle des Adreßbus übernimmt:
+      # Analog, nur dass der Macro 'optimized_upointer' die Rolle des Adressbus übernimmt:
       #define type_pointable(type,obj)  \
         ((optimized_upointer(type_data_object(type,0)) == 0) \
          ? (void*)(aint)optimized_upointer(obj)              \
@@ -5567,7 +5567,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 #endif
 
 # TheCons(object) liefert das zu object äquivalente Cons.
-# Die Information, daß es Cons darstellt, muß hineingesteckt werden.
+# Die Information, dass es Cons darstellt, muss hineingesteckt werden.
 # Analog die anderen Typumwandlungen.
 #ifdef TYPECODES
   #define TheCons(obj)  ((Cons)(types_pointable(cons_type,obj)))
@@ -6909,7 +6909,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   extern void run_time_stop (void);
 # wird verwendet von STREAM
 
-# UP: Läßt die Run-Time-Stoppuhr weiterlaufen
+# UP: Lässt die Run-Time-Stoppuhr weiterlaufen
 # run_time_restart();
   extern void run_time_restart (void);
 # wird verwendet von STREAM
@@ -7180,8 +7180,8 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
     register __volatile__ aint __SP __asm__(SP_register);
     #define SP()  __SP
     #if defined(SPARC)
-      # Wir dürfen hier kein setSP() durchführen, ohne zu beachten, daß
-      # 1. %sp ein Alignment von 8 Byte beachten muß,
+      # Wir dürfen hier kein setSP() durchführen, ohne zu beachten, dass
+      # 1. %sp ein Alignment von 8 Byte beachten muss,
       # 2. oberhalb von %sp immer 92 Byte frei bleiben müssen (dorthin kommen
       #    die Registerinhalte, wenn durch ein 'save' in einem Unterprogramm
       #    ein 'register window overflow trap' ausgelöst wird).
@@ -7320,7 +7320,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   #error "Unknown STACK direction -- STACK_DOWN/STACK_UP neu einstellen!"
 #endif
 
-# Jeder Aufruf einer externen Funktion (oder eine Folge von solchen) muß
+# Jeder Aufruf einer externen Funktion (oder eine Folge von solchen) muss
 # zwischen
 #   begin_call();
 # und
@@ -7390,7 +7390,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   #define end_callback()  SAVE_GLOBALS(); RESTORE_REGISTERS(;)
 #endif
 
-# Jeder Betriebsystem-Aufruf (oder eine Folge von solchen) muß zwischen
+# Jeder Betriebsystem-Aufruf (oder eine Folge von solchen) muss zwischen
 #   begin_system_call();
 # und
 #   end_system_call();
@@ -7416,14 +7416,14 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # Während eine Break-Semaphore gesetzt ist, kann man sich die Benutzung
 # dieser Macros sparen.
 #if 0
-  # Disassembly von setjmp() und longjmp() zeigt, daß das STACK-Register
+  # Disassembly von setjmp() und longjmp() zeigt, dass das STACK-Register
   # nicht willkürlich benutzt wird.
   #define begin_setjmp_call()
   #define end_setjmp_call()
   #define begin_longjmp_call()
   #define end_longjmp_call()
 #elif (defined(I80386) && defined(UNIX_LINUX))
-  # Disassembly von setjmp() zeigt, daß das STACK-Register %ebx
+  # Disassembly von setjmp() zeigt, dass das STACK-Register %ebx
   # nicht willkürlich benutzt wird.
   #define begin_setjmp_call()
   #define end_setjmp_call()
@@ -7983,8 +7983,8 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 
 # UP, erzeugt Bruch
 # make_ratio(num,den)
-# > object num: Zähler (muß Integer /= 0 sein, relativ prim zu den)
-# > object den: Nenner (muß Integer > 1 sein)
+# > object num: Zähler (muss Integer /= 0 sein, relativ prim zu den)
+# > object den: Nenner (muss Integer > 1 sein)
 # < ergebnis: Bruch
 # kann GC auslösen
   extern object make_ratio (object num, object den);
@@ -7992,8 +7992,8 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 
 # UP, erzeugt komplexe Zahl
 # make_complex(real,imag)
-# > real: Realteil (muß reelle Zahl sein)
-# > imag: Imaginärteil (muß reelle Zahl /= Fixnum 0 sein)
+# > real: Realteil (muss reelle Zahl sein)
+# > imag: Imaginärteil (muss reelle Zahl /= Fixnum 0 sein)
 # < ergebnis: komplexe Zahl
 # kann GC auslösen
   extern object make_complex (object real, object imag);
@@ -8037,7 +8037,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
     # Kann nicht strlen() statt asciz_length() benutzen, denn das würde
     # ein begin_system_call()/end_system_call() erfordern.
   #else
-    # Gehen wir davon aus, daß strlen() effizient implementiert ist.
+    # Gehen wir davon aus, dass strlen() effizient implementiert ist.
     #ifdef STDC_HEADERS
       #include <string.h> # deklariert strlen()
     #endif
@@ -8051,7 +8051,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   #if 1
     # strcmp() ist vermutlich Overkill für asciz_equal().
   #else
-    # Gehen wir davon aus, daß strcmp() es auch tut.
+    # Gehen wir davon aus, dass strcmp() es auch tut.
     #ifdef STDC_HEADERS
       #include <string.h> # deklariert strcmp()
     #else
@@ -8073,7 +8073,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP: Wandelt einen String in einen ASCIZ-String um.
 # string_to_asciz(obj)
 # > object obj: String
-# < ergebnis: Simple-String mit denselben Zeichen und einem Nullbyte mehr am Schluß
+# < ergebnis: Simple-String mit denselben Zeichen und einem Nullbyte mehr am Schluss
 # < TheAsciz(ergebnis): Adresse der darin enthaltenen Zeichenfolge
 # kann GC auslösen
   extern object string_to_asciz (object obj);
@@ -8469,7 +8469,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   #endif
 
 #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
-# handle_fault_range(PROT_READ,start,end) macht einen Adreßbereich lesbar,
+# handle_fault_range(PROT_READ,start,end) macht einen Adressbereich lesbar,
 # handle_fault_range(PROT_READ_WRITE,start,end) macht ihn schreibbar.
   extern boolean handle_fault_range (int prot, aint start_address, aint end_address);
 #endif
@@ -8541,8 +8541,8 @@ Sie werden konstruiert mit
   LISPFUN             für allgemeine LISP-Funktionen,
   LISPFUNN            für normale LISP-Funktionen (nur required-Parameter),
   LISPSPECFORM        für Special-Forms (FSUBRs).
-Beachte, daß SUBRs mit KEY_ANZ=0 vom Evaluator als SUBRs ohne Keyword-
-Parameter betrachtet werden (was zur Folge hat, daß in diesem Fall das
+Beachte, dass SUBRs mit KEY_ANZ=0 vom Evaluator als SUBRs ohne Keyword-
+Parameter betrachtet werden (was zur Folge hat, dass in diesem Fall das
 ALLOW_FLAG bedeutungslos ist und kein Keyword, auch nicht :ALLOW-OTHER-KEYS,
 akzeptiert wird)!
 
@@ -8580,10 +8580,10 @@ einzeln, und es werden übergeben: die Anzahl dieser Argumente und ein Pointer
 übers erste dieser Argumente. (Dann ist die Anzahl der LISP-Objekte auf dem
 Stack also nicht immer dieselbe!)
 Beim Rücksprung müssen alle Argumente vom LISP-Stack entfernt sein
-(d.h. z.B. bei SUBRs mit &REST: der Stackpointer STACK muß den Wert
+(d.h. z.B. bei SUBRs mit &REST: der Stackpointer STACK muss den Wert
 args_pointer = rest_args_pointer STACKop (feste Argumentezahl)
 = Pointer übers erste Argument überhaupt) haben, und mv_count/mv_space
-muß die Werte enthalten.
+muss die Werte enthalten.
 
 Parameterübergabe an FSUBRs
 ===========================
@@ -8597,8 +8597,8 @@ nämlich  reqParameterZahl + optParameterZahl + (0 oder 1 falls Body-Flag).
 Beim Aufruf enthält subr_self das FSUBR-Objekt, und die gesamte Form befindet
 sich im EVAL-Frame, direkt über den Parametern.
 Beim Rücksprung müssen alle Parameter vom LISP-Stack entfernt sein
-(d.h. der Stackpointer STACK muß um Objektezahl erhöht worden sein),
-und mv_count/mv_space muß die Werte enthalten.
+(d.h. der Stackpointer STACK muss um Objektezahl erhöht worden sein),
+und mv_count/mv_space muss die Werte enthalten.
 
 Environments
 ============
@@ -8703,7 +8703,7 @@ Abbau des Frame) enthält.
 In der Frame-Info sind die Bits
   SKIP2_BIT      gelöscht, falls darüber noch ein weiteres Langwort kommt,
                    das kein LISP-Objekt ist und deswegen von der GC
-                   übersprungen werden muß,
+                   übersprungen werden muss,
   EXITPOINT_BIT  gesetzt bei allen außer VAR und FUN,
   NESTED_BIT     bei IBLOCK und ITAGBODY gesetzt, wenn Exitpoint bzw.
                    Go-Marken bereits in eine Aliste gesteckt wurden.
@@ -8868,7 +8868,7 @@ enthalten (z.B. DO, DO*, LOOP, PROG, PROG*, ...). Der Aufbau ist folgender:
   0        Frame-Info; Pointer über Frame
 NAME ist der Name des Blocks. NEXT_ENV ist das nächsthöhere Block-Environment.
 SP ist ein Pointer in den Programmstack, (SP).L ist eine Routine, die den
-Block-Frame auflöst und den Block mit den Werten A0-A2/... verläßt.
+Block-Frame auflöst und den Block mit den Werten A0-A2/... verlässt.
 Frame-Info ist IBLOCK_FRAME_INFO, evtl. mit gesetztem NESTED_BIT (dann zeigt
 NEXT_ENV auf eine Aliste, deren erstes Element das Paar (NAME . <Framepointer>)
 ist, weil der Block noch nicht DISABLED ist).
@@ -8883,7 +8883,7 @@ Aufbau:
    0        Frame-Info; Pointer über Frame
 NAME ist der Name des Blocks.
 SP ist ein Pointer in den Programmstack, (SP).L ist eine Routine, die den
-Block-Frame auflöst und den Block mit den Werten A0-A2/... verläßt.
+Block-Frame auflöst und den Block mit den Werten A0-A2/... verlässt.
 Frame-Info ist CBLOCK_FRAME_INFO.
 
 Interpretierte Tagbody-Frames
@@ -8952,7 +8952,7 @@ SP ist ein Pointer in den Programmstack. (SP).L ist eine Routine, die den
 Frame auflöst, die aktuellen Werte A0-A2/... rettet, den Cleanup durchführt,
 die geretteten Werte zurückschreibt und schließlich die Adresse anspringt
 (mit RTS), die anstelle ihrer eigenen im Programmstack eingetragen wurde,
-und dabei D6 unverändert läßt.
+und dabei D6 unverändert lässt.
 
 Handler-Frames
 --------------
@@ -9111,12 +9111,12 @@ wieder in die zugehörige Top-Level-Schleife einsteigt.
     #else
       # Der erste Wert mv_space[0] wird an den Anfang von struct thread_ verschoben:
       #define value1  (current_thread()->_value1)
-      #define VALUE1_EXTRA # und muß deswegen immer extra behandelt werden...
+      #define VALUE1_EXTRA # und muss deswegen immer extra behandelt werden...
     #endif
   #else
     # Der erste Wert mv_space[0] wird permanent in einem Register gelagert:
     register object value1 __asm__(value1_register);
-    #define VALUE1_EXTRA # und muß deswegen immer extra behandelt werden...
+    #define VALUE1_EXTRA # und muss deswegen immer extra behandelt werden...
   #endif
   #define value2  mv_space[1]
   #define value3  mv_space[2]
@@ -9400,7 +9400,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   #endif
 # davon abhängig:
   #define frame_bit_t    FB7  # garcol_bit als FRAME-Kennzeichen
-  #define skip2_bit_t    FB6  # gelöscht wenn GC zwei Langworte überspringen muß
+  #define skip2_bit_t    FB6  # gelöscht wenn GC zwei Langworte überspringen muss
   #define unwind_bit_t   FB5  # gesetzt, wenn beim Auflösen (UNWIND) des Frames
                               # etwas zu tun ist
   # skip2-Bit=1 ==> unwind-Bit=1.
@@ -9504,7 +9504,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   #endif
 # davon abhängig:
   #define frame_bit_t    FB6  # garcol_bit als FRAME-Kennzeichen
-  #define skip2_bit_t    FB5  # gelöscht wenn GC zwei Langworte überspringen muß
+  #define skip2_bit_t    FB5  # gelöscht wenn GC zwei Langworte überspringen muss
   # define unwind_limit_t  ...  # darüber:
                               # ist beim Auflösen (UNWIND) des Frames etwas zu tun
   # skip2-Bit=1 ==> >= unwind-limit.
@@ -9771,7 +9771,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # wird verwendet von EVAL, CONTROL, DEBUG
 
 # Springt einen Frame mit Entrypoint an, der bei STACK beginnt.
-# (Wichtig: Beim Einsprung muß der STACK denselben Wert haben wie beim Aufbau
+# (Wichtig: Beim Einsprung muss der STACK denselben Wert haben wie beim Aufbau
 # des Frames, da der STACK bei setjmp/longjmp vielleicht gerettet wird!)
 # Kehrt nie zurück und räumt den SP auf!!
 # Die multiple values werden übergeben.
@@ -10180,11 +10180,11 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 
 # ####################### ARRBIBL zu ARRAY.D ############################## #
 
-# ARRAY-TOTAL-SIZE-LIMIT wird so groß gewählt, daß die Total-Size eines
+# ARRAY-TOTAL-SIZE-LIMIT wird so groß gewählt, dass die Total-Size eines
 # jeden Arrays ein Fixnum (>=0, <2^oint_data_len) ist:
   #define arraysize_limit_1  ((uintL)(bitm(oint_data_len)-1))
 
-# ARRAY-RANK-LIMIT wird so groß gewählt, daß der Rang eines jeden Arrays
+# ARRAY-RANK-LIMIT wird so groß gewählt, dass der Rang eines jeden Arrays
 # ein uintWC ist:
   #define arrayrank_limit_1  ((uintL)(bitm(intWCsize)-1))
 
@@ -10372,7 +10372,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # Das sind CHARACTER-Arrays mit FILL-POINTER, die aber nicht adjustierbar
 # und nicht displaced sind und deren Datenvektor ein Simple-String ist.
 # Beim Überschreiten der Länge wird ihre Länge verdoppelt
-# (so daß der Aufwand fürs Erweitern nicht sehr ins Gewicht fällt).
+# (so dass der Aufwand fürs Erweitern nicht sehr ins Gewicht fällt).
 
 # UP: Liefert einen Semi-Simple String gegebener Länge, Fill-Pointer =0.
 # make_ssstring(len)
@@ -10393,7 +10393,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # wird verwendet von STREAM, IO
 
 #ifdef STRM_WR_SS
-# UP: Stellt sicher, daß ein Semi-Simple String eine bestimmte Länge hat
+# UP: Stellt sicher, dass ein Semi-Simple String eine bestimmte Länge hat
 # und erweitert ihn dazu eventuell.
 # ssstring_extend(ssstring,size)
 # > ssstring: Semi-Simple String
@@ -10723,7 +10723,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # UP: Bestimmt die Länge einer Liste
 # llength(obj)
 # > obj: Objekt
-# < uintL ergebnis: Länge von obj, als Liste aufgefaßt
+# < uintL ergebnis: Länge von obj, als Liste aufgefasst
 # Testet nicht auf zyklische Listen.
   extern uintL llength (object obj);
 # wird verwendet von CONTROL, EVAL, SEQUENCE, RECORD, IO, PACKAGE, HASHTABL, STREAM
@@ -11127,14 +11127,14 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # ##################### PATHBIBL zu PATHNAME.D ############################ #
 
 # UP: Liefert den Directory-Namestring eines halbwegs überprüften Pathname
-#     unter der Annahme, daß das Directory dieses Pathname existiert,
+#     unter der Annahme, dass das Directory dieses Pathname existiert,
 #     im Betriebssystem-Format.
 # assume_dir_exists()
 # > STACK_0: absoluter Pathname, halbwegs überprüft
 # < STACK_0: (evtl. derselbe) Pathname, noch besser aufgelöst
 # < ergebnis:
 #     falls Name=NIL: Directory-Namestring (fürs BS)
-#     falls Name/=NIL: Namestring (für BS, mit Nullbyte am Schluß)
+#     falls Name/=NIL: Namestring (für BS, mit Nullbyte am Schluss)
 # kann GC auslösen
   extern object assume_dir_exists (void);
 # wird verwendet von STREAM
@@ -11623,7 +11623,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 
 #if defined(HAVE_FFI) || defined(HAVE_AFFI)
 # Wandelt ein Integer in ein C-Integer gegebenen Typs um.
-# I_to_xintyy(obj) setzt voraus, daß xintyy_p(obj) schon abgeprüft wurde.
+# I_to_xintyy(obj) setzt voraus, dass xintyy_p(obj) schon abgeprüft wurde.
   #define I_to_uint8(obj)  (uint8)(as_oint(obj) >> oint_data_shift)
   #define I_to_sint8(obj)  (sint8)(as_oint(obj) >> oint_data_shift)
   #define I_to_uint16(obj)  (uint16)(as_oint(obj) >> oint_data_shift)
@@ -11725,7 +11725,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > string: Simple-String (enthält Ziffern mit Wert <base und evtl. Punkt)
 # > index1: Index der ersten Ziffer
 # > index2: Index nach der letzten Ziffer
-#   (also index2-index1 Ziffern, incl. evtl. Dezimalpunkt am Schluß)
+#   (also index2-index1 Ziffern, incl. evtl. Dezimalpunkt am Schluss)
 # < ergebnis: Integer
 # kann GC auslösen
   extern object read_integer (uintWL base,

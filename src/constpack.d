@@ -14,7 +14,7 @@
   #define LISPPACK_B(abbrev,packname)  \
     make_package(asciz_to_string(packname),NIL,FALSE);
 
-# Welcher Expander benutzt wird, muﬂ vom Hauptfile aus eingestellt werden.
+# Welcher Expander benutzt wird, muss vom Hauptfile aus eingestellt werden.
 
 
 LISPPACK(clos,"CLOS")

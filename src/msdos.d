@@ -143,7 +143,7 @@
 # wird verwendet von PATHNAME
 
 # Working Directory abfragen:
-  # Maximale Pfadl‰nge (incl. Nullbyte am Schluﬂ), die von getwd geliefert wird:
+  # Maximale Pfadl‰nge (incl. Nullbyte am Schluss), die von getwd geliefert wird:
     #define MAXPATHLEN  1024  # siehe <sys/param.h>
   #ifdef DJUNIX
     extern char* getwd (char* pathname); # siehe GETWD(3)

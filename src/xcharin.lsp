@@ -56,7 +56,7 @@
     arg
     (error-of-type 'type-error
       :datum arg :expected-type 'integer
-      (DEUTSCH "~S: Font-Argument muﬂ ein Integer sein, nicht ~S."
+      (DEUTSCH "~S: Font-Argument muss ein Integer sein, nicht ~S."
        ENGLISH "~S: the font argument should be an integer, not ~S"
        FRANCAIS "~S : L'argument fonte doit Ítre un entier et non ~S.")
       caller arg
@@ -67,7 +67,7 @@
     arg
     (error-of-type 'type-error
       :datum arg :expected-type 'integer
-      (DEUTSCH "~S: Bits-Argument muﬂ ein Integer sein, nicht ~S."
+      (DEUTSCH "~S: Bits-Argument muss ein Integer sein, nicht ~S."
        ENGLISH "~S: the bits argument should be an integer, not ~S"
        FRANCAIS "~S : L'argument bits doit Ítre un entier et non ~S.")
       caller arg
