@@ -1695,7 +1695,7 @@
     (setq extensions ; convert case of the extensions
           (mapcar #'pathname-type extensions)))
   ;; merge in the defaults:
-  (setq filename (merge-pathnames filename '#".*"))
+  (setq filename (merge-pathnames filename '#"*.*"))
   ;; search:
   (let ((already-searched nil))
     (dolist (dir (cons '#""
@@ -1710,7 +1710,13 @@
       (let ((search-filename (merge-pathnames (merge-pathnames filename dir))))
         (unless (member search-filename already-searched :test #'equal)
           (let ((xpathnames (directory search-filename :full t :circle t)))
-            (when use-extensions
+            (when (eq :wild (pathname-type search-filename))
+              (setq xpathnames
+                    (nconc xpathnames
+                           (directory (make-pathname :type nil
+                                                     :defaults search-filename)
+                                      :full t :circle t))))
+            (when (and use-extensions extensions)
               ;; filter the extensions
               (setq xpathnames
                 (delete-if-not ; does xpathname have the given extensions?
