@@ -16,7 +16,7 @@ config.log
 unixconf.h
 config.cache
 config.status
-Makefile
+makefile*
 makemake
 comment5
 intparam.h
@@ -39,7 +39,6 @@ clisp.1
 clisp.man
 clisp.html
 impnotes.html
-Makefile.readline
 ansidecl
 txt2c
 ccmp2c
