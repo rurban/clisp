@@ -1918,13 +1918,7 @@ LISPFUN(find_class,1,2,norest,nokey,0,NIL)
 #       class
 # ) ) )
   {
-    if (!symbolp(STACK_2)) {
-      pushSTACK(STACK_2); # TYPE-ERROR slot DATUM
-      pushSTACK(S(symbol)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(STACK_(2+2));
-      pushSTACK(S(find_class));
-      fehler(type_error,GETTEXT("~: argument ~ is not a symbol"));
-    }
+    if (!symbolp(STACK_2)) fehler_symbol(STACK_2);
     var object clas = get(STACK_2,S(closclass)); # (GET symbol 'CLOS::CLOSCLASS)
     if_classp(clas, { value1 = clas; } , {
       if (!nullp(STACK_1)) {

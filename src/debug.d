@@ -158,8 +158,7 @@
                 SstringDispatch(line,
                  { ch = as_cint(TheSstring(line)->data[len]); },
                  { ch = as_cint(as_chart(TheSmallSstring(line)->data[len])); });
-                if (ch == '\t' || ch == '\n' || ch == ' ' ||
-                    ch == '\r' || ch == '\f' || ch == '\v') {
+                if (cint_white_p(ch)) {
                  found:
                   funcall(Cdr(Car(alist)),0); # call the appropriate function
                   dynamic_unbind(); # S(key_bindings)

@@ -367,6 +367,12 @@ local void symtab_delete (object sym, object symtab) {
          GETTEXT("symbol ~ cannot be deleted from symbol table"));
 }
 
+# lookup the STRING among the EXTernal (resp. INTernal) symbols of PACK
+#define package_lookup_ext(string,pack,res_)                            \
+  symtab_lookup(string,ThePackage(pack)->pack_external_symbols,res_)
+#define package_lookup_int(string,pack,res_)                            \
+  symtab_lookup(string,ThePackage(pack)->pack_internal_symbols,res_)
+
 # Check whether there is an inherited symbol with the given name.
 # inherited_lookup(string,pack,symb)
 # Return true if string is found in (package-use-list pack).
@@ -377,8 +383,7 @@ local bool inherited_lookup (object string, object pack, object* sym_) {
   var object packlistr = ThePackage(pack)->pack_use_list;
   while (consp(packlistr)) {
     var object usedpack = Car(packlistr);
-    if (symtab_lookup(string,
-                      ThePackage(usedpack)->pack_external_symbols,sym_))
+    if (package_lookup_ext(string,usedpack,sym_))
       return true;
     packlistr = Cdr(packlistr);
   }
@@ -607,7 +612,17 @@ global bool externalp (object sym, object pack) {
 # < result: true, if an external symbol of this printname is found in pack.
 # < sym: this symbol, if found.
 global bool find_external_symbol (object string, object pack, object* sym_) {
-  return symtab_lookup(string,ThePackage(pack)->pack_external_symbols,sym_);
+  return package_lookup_ext(string,pack,sym_);
+}
+
+# push the stream *QUERY-IO* on the stack and TERPRI it.
+# returns &STACK_0
+# can trigger GC
+local object* prepare_query_user (void) {
+  var object s = var_stream(S(query_io),strmflags_rd_ch_B|strmflags_wr_ch_B);
+  pushSTACK(s);
+  terpri(&STACK_0);
+  return &STACK_0;
 }
 
 # UP: query-function to the user.
@@ -619,11 +634,7 @@ global bool find_external_symbol (object string, object pack, object* sym_) {
 # can trigger GC
 local object query_user (object ml) {
   pushSTACK(ml);
-  var object stream = var_stream(S(query_io),strmflags_rd_ch_B|strmflags_wr_ch_B); # Stream *QUERY-IO*
-  var object* stream_;
-  pushSTACK(stream);
-  stream_ = &STACK_0;
-  terpri(stream_);
+  var object* stream_ = prepare_query_user(); # Stream *QUERY-IO*
   write_sstring(stream_,OLS(query_string1));
   { # print options:
     var object mlistr = STACK_1; # remaining options
@@ -741,10 +752,10 @@ local sintBWL find_symbol (object string, object pack, object* sym_) {
   } else {
     # symbol not yet found
     # search among the internal symbols:
-    if (symtab_lookup(string,ThePackage(pack)->pack_internal_symbols,sym_))
+    if (package_lookup_int(string,pack,sym_))
       return 3; # found among the internal symbols
     # search among the external symbols:
-    if (symtab_lookup(string,ThePackage(pack)->pack_external_symbols,sym_))
+    if (package_lookup_ext(string,pack,sym_))
       return 1; # found among the external symbols
     # search among the external packages from the use-list:
     if (inherited_lookup(string,pack,sym_))
@@ -843,6 +854,14 @@ global object intern_keyword (object string) {
   return sym;
 }
 
+# lookup the string among the internal and, if not found,
+# external symbols of the package PACK
+# tab, if supplied, is the assignment that will set the table in which the
+# STRINNG was found
+#define package_lookup(string,pack,res_,tab)                                 \
+  (symtab_lookup(string,tab ThePackage(pack)->pack_internal_symbols,res_) || \
+   symtab_lookup(string,tab ThePackage(pack)->pack_external_symbols,res_))
+
 # UP: Imports a symbol into a package and turns it into a shadowing-symbol.
 # Possibly another present symbol in this package
 # of the same name is uninterned.
@@ -860,24 +879,16 @@ local void shadowing_import (const object* sym_, const object* pack_) {
     var object pack = *pack_;
     # Searches an internal or external symbol of the same name:
     var object othersym;
-    var bool i_found;
+    var object tab_found;
     var object string = Symbol_name(sym);
     pushSTACK(string); # save string
-    if ( (i_found =
-          symtab_lookup(string,
-                        ThePackage(pack)->pack_internal_symbols,
-                        &othersym)) ||
-         (symtab_lookup(string,
-                        ThePackage(pack)->pack_external_symbols,
-                        &othersym))) {
+    if (package_lookup(string,pack,&othersym,tab_found=)) {
       # a symbol othersym of the same name was
       # already present in the package
       if (!eq(othersym,sym)) { # was it the to be imported symbol itself?
         # no -> have to take othersym away from the internal resp.
         # from the external symbols:
-        symtab_delete(othersym,
-                      i_found ? ThePackage(pack)->pack_internal_symbols
-                      : ThePackage(pack)->pack_external_symbols);
+        symtab_delete(othersym,tab_found);
         # Was this symbol taken away from its home-package,
         # its home-package must be set to NIL:
         if (eq(Symbol_package(othersym),pack))
@@ -885,8 +896,7 @@ local void shadowing_import (const object* sym_, const object* pack_) {
         # symbol sym must be added to the package pack.
         make_present(sym,pack);
       }
-    } else {
-      # symbol sym must be added to the package pack.
+    } else { # symbol sym must be added to the package pack.
       make_present(sym,pack);
     }
   }
@@ -922,9 +932,7 @@ local void shadow (const object* sym_, const object* pack_) {
   var object pack = *pack_;
   pushSTACK(NIL); # make room for othersym
   pushSTACK(string); # save string
-  if (!(symtab_lookup(string,ThePackage(pack)->pack_internal_symbols,&STACK_1)
-        || symtab_lookup(string,ThePackage(pack)->pack_external_symbols,
-                         &STACK_1))) {
+  if (!package_lookup(string,pack,&STACK_1,)) {
     # not found -> create new symbol of the same name:
     var object othersym = make_symbol(string); # new symbol
     STACK_1 = othersym;
@@ -972,9 +980,7 @@ local object unintern (const object* sym_, const object* pack_) {
         pack = Car(STACK_0); # package from the use-list
         STACK_0 = Cdr(STACK_0);
         # search inherited symbol of the same name:
-        if (symtab_lookup(Symbol_name(*sym_),
-                          ThePackage(pack)->pack_external_symbols,
-                          &othersym)) {
+        if (package_lookup_ext(Symbol_name(*sym_),pack,&othersym)) {
           # othersym is a symbol of the same name, inherited from pack
           var object temp;
           pushSTACK(temp=ThePackage(pack)->pack_name); # name of pack
@@ -1084,10 +1090,7 @@ global void import (const object* sym_, const object* pack_) {
   var object othersymtab;
   # search symbol of the same name among the internal
   # and the external symbols:
-  if (symtab_lookup(string,othersymtab=ThePackage(pack)->pack_internal_symbols,
-                    &othersym) ||
-      symtab_lookup(string,othersymtab=ThePackage(pack)->pack_external_symbols,
-                    &othersym)) {
+  if (package_lookup(string,pack,&othersym,othersymtab=)) {
     # othersym = symbol of the same name, found in othersymtab
     if (eq(othersym,sym)) # the same symbol -> nothing to do
       return;
@@ -1326,15 +1329,12 @@ global void export (const object* sym_, const object* pack_) {
         # (CERROR "..." 'PACKAGE-ERROR :PACKAGE pack "..." sym pack
         # othersym usingpack)
         funcall(L(cerror_of_type),9);
-        { # print introduction:
-          var object stream = var_stream(S(query_io),strmflags_rd_ch_B|strmflags_wr_ch_B); # Stream *QUERY-IO*
-          pushSTACK(stream);
-          terpri(&STACK_0); # new line
-          # "Which symbol should take precedence in ~S?"
-          pushSTACK(OLS(export_string5));
-          pushSTACK(STACK_2); # usingpack
-          funcall(S(format),3); # (FORMAT stream "..." usingpack)
-        }
+        # print introduction:
+        prepare_query_user(); # pushSTACK(stream *QUERY-IO*)
+        # "Which symbol should take precedence in ~S?"
+        pushSTACK(OLS(export_string5));
+        pushSTACK(STACK_2); # usingpack
+        funcall(S(format),3); # (FORMAT stream "..." usingpack)
         { # construct options-list:
           var object temp;
           pushSTACK(O(export_string6)); # "1"
@@ -1619,18 +1619,14 @@ local void use_package (object packlist, object pack) {
         pushSTACK(STACK_1); # traverse conflicts
         while (mconsp(STACK_0)) {
           pushSTACK(Car(STACK_0)); # conflict
-          {
-            var object stream = var_stream(S(query_io),strmflags_rd_ch_B|strmflags_wr_ch_B); # stream *QUERY-IO*
-            pushSTACK(stream);
-            terpri(&STACK_0); # new line
-            pushSTACK(OLS(usepack_string3));
-            # (cdr (cdr (car conflict))) =
-            # (cdr (cdr '("1" packname1 . sym1))) = sym1
-            # print its name
-            pushSTACK(Symbol_name(Cdr(Cdr(Car(STACK_(0+2))))));
-            pushSTACK(STACK_(5+3)); # print pack
-            funcall(S(format),4); # (FORMAT stream "..." sym1 pack)
-          }
+          prepare_query_user(); # pushSTACK(stream *QUERY-IO*)
+          pushSTACK(OLS(usepack_string3));
+          # (cdr (cdr (car conflict))) =
+          # (cdr (cdr '("1" packname1 . sym1))) = sym1
+          # print its name
+          pushSTACK(Symbol_name(Cdr(Cdr(Car(STACK_(0+2))))));
+          pushSTACK(STACK_(5+3)); # print pack
+          funcall(S(format),4); # (FORMAT stream "..." sym1 pack)
           # query user,
           # with conflict as option list:
           {
@@ -1754,8 +1750,7 @@ local void use_package_aux (void* data, object sym) {
       var object pack_to_use = Car(packlistr);
       packlistr = Cdr(packlistr);
       var object othersym;
-      if (symtab_lookup(STACK_1,ThePackage(pack_to_use)->pack_external_symbols,
-                        &othersym)) {
+      if (package_lookup_ext(STACK_1,pack_to_use,&othersym)) {
         # othersym has the printname = string and is
         # external in pack_to_use.
         # push (pack_to_use . othersym) on conflict:
@@ -1904,12 +1899,7 @@ local object test_package_arg (object obj) {
 
 LISPFUNN(make_symbol,1) { # (MAKE-SYMBOL printname), CLTL p. 168
   var object arg = popSTACK();
-  if (!stringp(arg)) {
-    pushSTACK(arg); # TYPE-ERROR slot DATUM
-    pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: argument should be a string, not ~"));
-  }
+  if (!stringp(arg)) fehler_string(arg);
   value1 = make_symbol(coerce_imm_ss(arg)); mv_count=1;
 }
 
@@ -2194,12 +2184,7 @@ LISPFUN(find_symbol,1,1,norest,nokey,0,NIL) {
 # (UNINTERN symbol [package]), CLTL p. 185
 LISPFUN(unintern,1,1,norest,nokey,0,NIL) {
   # test symbol:
-  if (!symbolp(STACK_1)) {
-    pushSTACK(STACK_1); # TYPE-ERROR slot DATUM
-    pushSTACK(S(symbol)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(STACK_(1+2)); pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: argument ~ is not a symbol"));
-  }
+  if (!symbolp(STACK_1)) fehler_symbol(STACK_1);
   # test package:
   test_optional_package_arg();
   # unintern:
@@ -2367,14 +2352,10 @@ local object correct_packname (object name) {
     # (SYS::CERROR-OF-TYPE "You may ..." 'PACKAGE-ERROR :PACKAGE name
     # "package ~S exists" name)
     funcall(L(cerror_of_type),6);
-    {
-      var object stream = var_stream(S(query_io),strmflags_rd_ch_B|strmflags_wr_ch_B); # Stream *QUERY-IO*
-      pushSTACK(stream);
-      terpri(&STACK_0); # new line
-      write_sstring(&STACK_0,STACK_1); # "Please enter ... :"
-      funcall(L(read_line),1); # (READ-LINE stream)
-      name = value1;
-    }
+    prepare_query_user(); # pushSTACK(stream *QUERY-IO*)
+    write_sstring(&STACK_0,STACK_1); # "Please enter ... :"
+    funcall(L(read_line),1); # (READ-LINE stream)
+    name = value1;
   }
   return coerce_imm_ss(name);
 }
@@ -2604,8 +2585,7 @@ LISPFUNN(find_all_symbols,1) {
     var object pack = Car(STACK_0); # next package
     # search in its internal and external symbols:
     var object sym;
-    if (symtab_lookup(STACK_2,ThePackage(pack)->pack_internal_symbols,&sym) ||
-        symtab_lookup(STACK_2,ThePackage(pack)->pack_external_symbols,&sym)) {
+    if (package_lookup(STACK_2,pack,&sym,)) {
       # found: symbol sym is present in package pack,
       # cons with (pushnew sym STACK_1 :test #'eq) on the symbol-list:
       # Search, if the found symbol sym occurs in STACK_1:

@@ -1943,14 +1943,7 @@ LISPFUNN(fakultaet,1)
   {
     var object x = popSTACK();
     check_integer(x);
-    if (!posfixnump(x)) {
-      pushSTACK(x); # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(x); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~ : argument should be a fixnum >=0, not ~")
-            );
-    }
+    if (!posfixnump(x)) fehler_posfixnum(x);
     # x ist ein Fixnum >=0.
     value1 = FN_fak_I(x); mv_count=1;
   }
