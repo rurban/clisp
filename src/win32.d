@@ -267,6 +267,12 @@
   #define SETSOCKOPT_ARG_T char*
   #define SETSOCKOPT_OPTLEN_T int
   #define RETMEMSETTYPE void*
+  #define HAVE_SHUTDOWN
+  #ifdef HAVE_SHUTDOWN
+    #define SHUT_RD   SD_RECEIVE
+    #define SHUT_WR   SD_SEND
+    #define SHUT_RDWR SD_BOTH
+  #endif
   # Do not define HAVE_SELECT because select() works on sockets only.
 # used by error.d, misc.d, socket.d, stream.d
 # requires linking with wsock32.lib
