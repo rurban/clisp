@@ -19,6 +19,10 @@ User visible changes
 * New user variable CUSTOM:*TRACE-INDENT* controls TRACE output indentation.
   See <http://clisp.cons.org/impnotes.html#trace> for details.
 
+* SOCKET:SOCKET-ACCEPT and SOCKET:SOCKET-CONNECT now accept a :TIMEOUT
+  keyword argument.
+  See <http://clisp.cons.org/impnotes.html#timeout-k> for details.
+
 * You can now shutdown a socket for input or output separately
   using SOCKET:SOCKET-STREAM-SHUTDOWN.
   See <http://clisp.cons.org/impnotes.html#sost-shut> for details.
