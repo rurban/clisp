@@ -1,5 +1,9 @@
 2004-01-20  Bruno Haible  <bruno@clisp.org>
 
+	* charstrg.d (test_stringsymchar_arg): Remove redundant code.
+
+2004-01-20  Bruno Haible  <bruno@clisp.org>
+
 	* utils/clispload.lsp (*expected-failures*): Update.
 
 2005-01-20  Bruno Haible  <bruno@clisp.org>
