@@ -594,15 +594,16 @@ LISPSPECFORM(prog2, 2,0,body)
               pushSTACK_symbolwithflags(symbol,0); # Variable ablegen
               check_STACK();
               # feststellen, ob statische oder dynamische Bindung:
-              if (!special_var_p(TheSymbol(symbol)) || eq(caller,S(symbol_macrolet)))
-                { # Variable unter den Special-deklarierten?
+             {var boolean specdecled = FALSE; # Variable unter den Special-deklarierten?
+              if (spec_anz > 0)
+                {
                   #ifdef NO_symbolflags
                   var object* ptr = spec_pointer;
                   var uintL count;
-                  dotimesL(count,spec_anz,
+                  dotimespL(count,spec_anz,
                     { NEXT(ptr);
                       if (eq(NEXT(ptr),symbol))
-                        { if (eq(NEXT(ptr),fixnum(bit(active_bit)))) goto dynamic; }
+                        { if (eq(NEXT(ptr),fixnum(bit(active_bit)))) { specdecled = TRUE; break; } }
                         else
                         { NEXT(ptr); }
                     });
@@ -610,33 +611,56 @@ LISPSPECFORM(prog2, 2,0,body)
                   var object to_compare = as_object(as_oint(symbol) | wbit(active_bit_o));
                   var object* ptr = spec_pointer;
                   var uintL count;
-                  dotimesL(count,spec_anz,
+                  dotimespL(count,spec_anz,
                     { NEXT(ptr);
-                      if (eq(NEXT(ptr),to_compare))
-                        goto dynamic;
+                      if (eq(NEXT(ptr),to_compare)) { specdecled = TRUE; break; }
                     });
                   #endif
-                  # Nein -> statische Bindung
+                }
+              if (eq(caller,S(symbol_macrolet)))
+                { if (constantp(TheSymbol(symbol)) || special_var_p(TheSymbol(symbol)))
+                    { pushSTACK(symbol);
+                      pushSTACK(caller);
+                      fehler(program_error,
+                             DEUTSCH ? "~: Symbol ~ ist SPECIAL deklariert und darf nicht Makro deklariert werden." :
+                             ENGLISH ? "~: symbol ~ is declared special and must not be declared a macro" :
+                             FRANCAIS ? "~ : Le symbole ~ est déclaré SPECIAL et ne peut être déclaré macro." :
+                             ""
+                            );
+                    }
+                  if (specdecled)
+                    { pushSTACK(symbol);
+                      pushSTACK(caller);
+                      fehler(source_program_error,
+                             DEUTSCH ? "~: Symbol ~ darf nicht gleichzeitig SPECIAL und Makro deklariert werden." :
+                             ENGLISH ? "~: symbol ~ must not be declared SPECIAL and a macro at the same time" :
+                             FRANCAIS ? "~ : Le symbole ~ ne peut être déclaré SPECIAL et macro en même temps." :
+                             ""
+                            );
+                    }
+                  # statische Bindung
                 }
                 else
-                { # dynamisch binden
-                  if (FALSE)
-                    { dynamic:
-                      if (eq(caller,S(symbol_macrolet)))
-                        { pushSTACK(symbol);
-                          pushSTACK(caller);
-                          fehler(source_program_error,
-                                 DEUTSCH ? "~: Symbol ~ darf nicht gleichzeitig SPECIAL und Makro deklariert werden." :
-                                 ENGLISH ? "~: symbol ~ must not be declared SPECIAL and a macro at the same time" :
-                                 FRANCAIS ? "~ : Le symbole ~ ne peut être déclaré SPECIAL et macro en même temps." :
-                                 ""
-                                );
-                    }   }
-                  *(oint*)(&STACK_0) |= wbit(dynam_bit_o);
+                { if (constantp(TheSymbol(symbol)))
+                    { pushSTACK(symbol);
+                      pushSTACK(caller);
+                      fehler(program_error,
+                             DEUTSCH ? "~: ~ ist eine Konstante und kann nicht dynamisch gebunden werden." :
+                             ENGLISH ? "~: ~ is a constant, cannot be bound" :
+                             FRANCAIS ? "~: ~ est une constante et ne peut pas être liée." :
+                             ""
+                            );
+                    }
+                  if (special_var_p(TheSymbol(symbol)))
+                    # dynamisch binden
+                    { *(oint*)(&STACK_0) |= wbit(dynam_bit_o); }
+                    else
+                    # statisch binden
+                    {}
                 }
               varspecs = Cdr(varspecs);
               var_anz++;
-        }   }
+        }   }}
         *bind_count_ = var_anz;
         var_anz += spec_anz; # Gesamtzahl Symbol/Wert-Paare
         #ifndef UNIX_DEC_ULTRIX_GCCBUG
