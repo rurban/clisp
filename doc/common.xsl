@@ -71,7 +71,9 @@ set       toc,title
   <xsl:text>&#10;</xsl:text></xsl:if>
 </xsl:template>
 
-<xsl:param name="generate.section.toc.level" select="3"/>
+<xsl:param name="generate.section.toc.level" select="10"/>
+<xsl:param name="toc.section.depth" select="10"/>
+<xsl:param name="toc.max.depth" select="3"/>
 <xsl:param name="generate.index" select="1"/>
 <xsl:param name="refentry.generate.title" select="1"/>
 <xsl:param name="use.id.as.filename" select="1"/>
