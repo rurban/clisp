@@ -5852,6 +5852,13 @@ typedef enum {
                          <= Rectype_string - Rectype_S8string))
 #endif
 
+/* test for (VECTOR NIL) */
+#define nil_vector_p(obj)                         \
+  (vectorp(obj)                                   \
+   && (Array_type(obj) == Array_type_nilvector || \
+       Array_type(obj) == Array_type_snilvector))
+#define nil_vector_0_p(obj)  (nil_vector_p(obj) && vector_length(obj) == 0)
+
 # Test for simple-bit[n]-vector
 #ifdef TYPECODES
   #define simple_bit_vector_p(atype,obj)  \
