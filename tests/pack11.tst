@@ -44,8 +44,8 @@ T
 "SYSTEM"
 (package-name 'system)
 "SYSTEM"
-(package-name "USER")
-"USER"
+(package-name "COMMON-LISP-USER")
+"COMMON-LISP-USER"
 (package-name "SYS")
 "SYSTEM"
 
@@ -56,7 +56,7 @@ T
 
 ;falls test1 bereits existiert
 (and (find-package 'test1)
-     (in-package 'test1)
+     (in-package "TEST1")
      (rename-package (find-package 'test1) 'test1-old)
      nil)
 nil
@@ -70,7 +70,7 @@ nil
 ;("LISP")
 
 
-(and (in-package 'test1) T)
+(and (in-package "TEST1") T)
 T
 
 
@@ -97,77 +97,80 @@ T
         nil)
 nil
 
-(package-name (in-package 'test2 :nicknames '("T2" "TST2") :use '(test1)))
+(package-name (defpackage test2 (:nicknames "T2" "TST2") (:use test1)))
 "TEST2"
 
-(lisp:package-name (lisp:find-package 'test2))
-"TEST2"
-
-(lisp:package-name lisp:*package*)
-"TEST2"
-
-(lisp:import '(lisp:error) (lisp:find-package 'test2))
+(progn (in-package "TEST2") t)
 LISP:T
 
-(lisp:and (lisp:boundp 'test1-x) test1-x)
-LISP:NIL
+(cl:package-name (cl:find-package 'test2))
+"TEST2"
 
-(lisp:unintern 'test1-x)
-LISP:T
+(cl:package-name cl:*package*)
+"TEST2"
 
-(eval (read-from-string "(lisp:and (lisp:boundp 'test1:test1-x) test1:test1-x)"))
+(cl:import '(cl:error) (cl:find-package 'test2))
+CL:T
+
+(cl:and (cl:boundp 'test1-x) test1-x)
+CL:NIL
+
+(cl:unintern 'test1-x)
+CL:T
+
+(eval (read-from-string "(cl:and (cl:boundp 'test1:test1-x) test1:test1-x)"))
 #+XCL 1 #-XCL ERROR
 
-(lisp:and (lisp:boundp 'test1::test1-x) test1::test1-x)
+(cl:and (cl:boundp 'test1::test1-x) test1::test1-x)
 1
 
-(lisp:and (lisp:boundp 'test1-y) test1-y)
-#+XCL LISP:NIL #-XCL 2
+(cl:and (cl:boundp 'test1-y) test1-y)
+#+XCL CL:NIL #-XCL 2
 
-(lisp:unintern 'test1-y)
-#+XCL LISP:T #-XCL LISP:NIL
+(cl:unintern 'test1-y)
+#+XCL CL:T #-XCL CL:NIL
 
-(lisp:and (lisp:boundp 'test1:test1-y) test1:test1-y)
+(cl:and (cl:boundp 'test1:test1-y) test1:test1-y)
 #+XCL ERROR #-XCL 2
 
-(lisp:and (lisp:boundp 'test1::test1-y) test1::test1-y)
+(cl:and (cl:boundp 'test1::test1-y) test1::test1-y)
 2
 
-(lisp:import  '(test1::test1-x test1::test1-y) (lisp:find-package 'test2))
-LISP:T
+(cl:import  '(test1::test1-x test1::test1-y) (cl:find-package 'test2))
+CL:T
 
-(lisp:and (lisp:boundp 'test1-x) test1-x)
+(cl:and (cl:boundp 'test1-x) test1-x)
 1
 
-(eval (read-from-string "(lisp:and (lisp:boundp 'test1:test1-x) test1:test1-x)"))
+(eval (read-from-string "(cl:and (cl:boundp 'test1:test1-x) test1:test1-x)"))
 #+XCL 1 #-XCL ERROR
 
-(lisp:and (lisp:boundp 'test1::test1-x) test1::test1-x)
+(cl:and (cl:boundp 'test1::test1-x) test1::test1-x)
 1
 
-(lisp:and (lisp:boundp 'test1-z) test1-z)
-#+XCL LISP:NIL #-XCL 3
+(cl:and (cl:boundp 'test1-z) test1-z)
+#+XCL CL:NIL #-XCL 3
 
-(lisp:unintern 'test1-z (lisp:find-package 'test2))
-#+XCL LISP:T #-XCL LISP:NIL
+(cl:unintern 'test1-z (cl:find-package 'test2))
+#+XCL CL:T #-XCL CL:NIL
 
-(lisp:and (lisp:boundp 'test1:test1-z) test1:test1-z)
+(cl:and (cl:boundp 'test1:test1-z) test1:test1-z)
 #+XCL ERROR #-XCL 3
 
 test1::test1-z
 3
 
-(lisp:unexport  '(test1::test1-x test1::test1-y) (lisp:find-package 'test1))
-LISP:T
+(cl:unexport  '(test1::test1-x test1::test1-y) (cl:find-package 'test1))
+CL:T
 
-(lisp:and (lisp:boundp 'test1-x) test1-x)
+(cl:and (cl:boundp 'test1-x) test1-x)
 1
 
-(lisp:and (lisp:boundp 'test1-y) test1-y)
-#+XCL LISP:NIL #-XCL 2
+(cl:and (cl:boundp 'test1-y) test1-y)
+#+XCL CL:NIL #-XCL 2
 
-(lisp:unintern 'test1-x (lisp:find-package 'test2))
-LISP:T
+(cl:unintern 'test1-x (cl:find-package 'test2))
+CL:T
 
 (eval (read-from-string "test1:test1-x"))
 ERROR
@@ -178,8 +181,8 @@ test1::test1-x
 test1-z
 3
 
-(lisp:unintern 'test1-z (lisp:find-package 'test2))
-#+XCL LISP:T #-XCL LISP:NIL
+(cl:unintern 'test1-z (cl:find-package 'test2))
+#+XCL CL:T #-XCL CL:NIL
 
 test1:test1-z
 3
@@ -187,8 +190,8 @@ test1:test1-z
 test1::test1-z
 3
 
-(lisp:import 'test1::test1-z (lisp:find-package 'test2))
-LISP:T
+(cl:import 'test1::test1-z (cl:find-package 'test2))
+CL:T
 
 test1-z
 3
@@ -202,8 +205,8 @@ test1::test1-z
 test1-c
 #+XCL ERROR #-XCL 0
 
-(lisp:unintern 'test-c (lisp:find-package 'test2))
-LISP:T
+(cl:unintern 'test-c (cl:find-package 'test2))
+CL:T
 
 test1:test1-c
 0
@@ -211,9 +214,9 @@ test1:test1-c
 test1::test1-c
 0
 
-(lisp:import '(test1::test1-a test1::test1-b test1::test1-c)
-             (lisp:find-package 'test2))
-LISP:T
+(cl:import '(test1::test1-a test1::test1-b test1::test1-c)
+             (cl:find-package 'test2))
+CL:T
 
 test1-c
 0
@@ -224,8 +227,8 @@ test1:test1-c
 test1::test1-c
 0
 
-(lisp:eq 'test1-c 'test1::test1-c)
-LISP:T
+(cl:eq 'test1-c 'test1::test1-c)
+CL:T
 
   ;Ende nutzerdefinierte Pakete
 
@@ -233,13 +236,16 @@ LISP:T
 
 ; export | import | unintern
 
-(lisp:and (lisp:in-package 'user) lisp:T)
-LISP:T
+(cl:and (cl:in-package "CL-USER") cl:T)
+CL:T
 
 (setf x 1 y 2 z 3)
 3
 
-(and(in-package 'editor)T)
+(and (defpackage "EDITOR") T)
+T
+
+(and (in-package "EDITOR") T)
 T
 
 (unintern 'x)
@@ -298,13 +304,13 @@ t
 
 ;; unexport
 
-(and (in-package 'user) T)
+(and (in-package "CL-USER") T)
 T
 
 (unexport 'y)
 T
 
-(and (in-package 'editor) T)
+(and (in-package "EDITOR") T)
 T
 
 y
@@ -318,8 +324,8 @@ user::y
 
 ;; shadowing-import -- zunaechst ohne geerbte symbole!!
 
-(and (in-package 'user)(package-name *package*))
-"USER"
+(and (in-package "CL-USER") (package-name *package*))
+"COMMON-LISP-USER"
 
 (setf d 4 e 5 f 6 y 111 x 222)
 222
@@ -330,7 +336,7 @@ T
 (import '(user::a user::b user::c user::y) (find-package 'editor))
 ERROR
 
-(and (make-package 'shadow-test)(in-package 'shadow-test)t)
+(and (make-package 'shadow-test) (in-package "SHADOW-TEST") t)
 T
 
 (setf x 'shadow-test)
@@ -367,7 +373,7 @@ user::e
 
 ; use-package | unuse-package
 
-(and (make-package 'use-test)(in-package 'use-test) t)
+(and (make-package 'use-test) (in-package "USE-TEST") t)
 t
 
 (use-package '(user))
@@ -396,7 +402,7 @@ ERROR
 
 ;make-package mit beutzung eines paketes, dass geerbte symbole enthaelt
 
-(and (make-package 'inherit :nicknames '(inh i) )(in-package 'inherit) T)
+(and (make-package 'inherit :nicknames '(inh i)) (in-package "INHERIT") T)
 T
 
 (setf a 'inherita b 'inheritb)
@@ -405,7 +411,7 @@ inheritb
 (export '(a b) (find-package 'inherit))
 T
 
-(and (make-package 'inherit1 :use '(inherit)) (in-package 'inherit1) T)
+(and (make-package 'inherit1 :use '(inherit)) (in-package "INHERIT1") T)
 T
 
 a
@@ -414,44 +420,44 @@ inherit::inherita
 b
 inherit::inheritb
 
-(lisp:setf c 'inherit1c)
+(cl:setf c 'inherit1c)
 inherit1c
 
-(lisp:and (lisp:make-package 'inherit2 :use '(inherit1))
-          (lisp:in-package 'inherit2) lisp:T)
-LISP:T
+(cl:and (cl:make-package 'inherit2 :use '(inherit1))
+        (cl:in-package "INHERIT2") cl:T)
+CL:T
 
 a
-#+XCL inherita #-XCL LISP:ERROR
+#+XCL inherita #-XCL CL:ERROR
 
 b
-#+XCL inheritb #-XCL LISP:ERROR
+#+XCL inheritb #-XCL CL:ERROR
 
 c
-#+XCL inherit1c #-XCL LISP:ERROR
+#+XCL inherit1c #-XCL CL:ERROR
 
-(eval (read-from-string "(lisp:eq 'c 'inherit1:c)"))
-#+XCL LISP:T #-XCL LISP:ERROR
+(eval (read-from-string "(cl:eq 'c 'inherit1:c)"))
+#+XCL CL:T #-XCL CL:ERROR
 
-(eval (read-from-string "(lisp:eq 'a 'inherit:a)"))
-#+XCL LISP:T #-XCL LISP:ERROR
+(eval (read-from-string "(cl:eq 'a 'inherit:a)"))
+#+XCL CL:T #-XCL CL:ERROR
 
-(eval (read-from-string "(lisp:eq 'b 'inherit:b)"))
-#+XCL LISP:T #-XCL LISP:ERROR
+(eval (read-from-string "(cl:eq 'b 'inherit:b)"))
+#+XCL CL:T #-XCL CL:ERROR
 
-(lisp:eq 'c 'inherit1::c)
-#+XCL LISP:T #-XCL LISP:NIL
+(cl:eq 'c 'inherit1::c)
+#+XCL CL:T #-XCL CL:NIL
 
-(lisp:eq 'a 'inherit::a)
-#+XCL LISP:T #-XCL LISP:NIL
+(cl:eq 'a 'inherit::a)
+#+XCL CL:T #-XCL CL:NIL
 
-(lisp:eq 'b 'inherit::b)
-#+XCL LISP:T #-XCL LISP:NIL
+(cl:eq 'b 'inherit::b)
+#+XCL CL:T #-XCL CL:NIL
 
 ;find-all-symbols
 
-(lisp:and (lisp:in-package 'user) lisp:T)
-LISP:T
+(cl:and (cl:in-package "CL-USER") cl:T)
+CL:T
 
 ; find-all-symbols fehlerhaft
 (and (member 'user::x (setf s (find-all-symbols 'x)))T)
@@ -512,17 +518,17 @@ t
      (setq package (find-package package)))
    (let ((all-entries '())
          (generated-entries '()))
-     (do-symbols (x package) 
-       (multiple-value-bind (symbol accessibility) 
+     (do-symbols (x package)
+       (multiple-value-bind (symbol accessibility)
            (find-symbol (symbol-name x) package)
          (push (list symbol accessibility) all-entries)))
-     (with-package-iterator (generator-fn package 
+     (with-package-iterator (generator-fn package
                              :internal :external :inherited)
-       (loop     
+       (loop
          (multiple-value-bind (more? symbol accessibility pkg)
              (generator-fn)
            (unless more? (return))
-           (let ((l (multiple-value-list (find-symbol (symbol-name symbol) 
+           (let ((l (multiple-value-list (find-symbol (symbol-name symbol)
                                                       package))))
              (unless (equal l (list symbol accessibility))
                (error "Symbol ~S not found as ~S in package ~A [~S]"
@@ -534,10 +540,10 @@ t
      t))
 test-package-iterator
 
-(test-package-iterator :user)
+(test-package-iterator :common-lisp-user)
 t
 
-(test-package-iterator :lisp)
+(test-package-iterator :common-lisp)
 t
 
 (format t "End of file")
