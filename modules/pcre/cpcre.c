@@ -37,24 +37,34 @@ DEFUN(PCRE::PCRE-CONFIG,what)
   object arg = popSTACK();
  pcre_config_restart:
   if (eq(arg,`:UTF8`)) {
-    int ret;
+    int ret=0;
+#  if defined(PCRE_CONFIG_UTF8)
     pcre_config(PCRE_CONFIG_UTF8,&ret);
+#  endif
     VALUES_IF(ret==1);
   } else if (eq(arg,`:NEWLINE`)) {
-    int ret;
+    int ret=10;                 /* #\Newline */
+#  if defined(PCRE_CONFIG_NEWLINE)
     pcre_config(PCRE_CONFIG_NEWLINE,&ret);
+#  endif
     VALUES1(int_char(ret));
   } else if (eq(arg,`:LINK-SIZE`)) {
-    int ret;
+    int ret=0;
+#  if defined(PCRE_CONFIG_LINK_SIZE)
     pcre_config(PCRE_CONFIG_LINK_SIZE,&ret);
+#  endif
     VALUES1(fixnum(ret));
   } else if (eq(arg,`:POSIX-MALLOC-THRESHOLD`)) {
-    int ret;
+    int ret=0;
+#  if defined(PCRE_CONFIG_POSIX_MALLOC_THRESHOLD)
     pcre_config(PCRE_CONFIG_POSIX_MALLOC_THRESHOLD,&ret);
+#  endif
     VALUES1(fixnum(ret));
   } else if (eq(arg,`:MATCH-LIMIT`)) {
-    int ret;
+    int ret=0;
+#  if defined(PCRE_CONFIG_MATCH_LIMIT)
     pcre_config(PCRE_CONFIG_MATCH_LIMIT,&ret);
+#  endif
     VALUES1(fixnum(ret));
   } else {
     pushSTACK(NIL);             /* no PLACE */
@@ -81,19 +91,22 @@ DEFUN(PCRE:PCRE-COMPILE,string &key :STUDY :IGNORE-CASE :MULTILINE :DOTALL \
       :EXTENDED :ANCHORED :DOLLAR-ENDONLY :EXTRA :NOTBOL :NOTEOL :UNGREADY \
       :NOTEMPTY :NO-AUTO-CAPTURE)
 { /* compile the pattern, return PATTERN struct */
-  int options = PCRE_UTF8 |
-    (missingp(STACK_(11)) ? 0 : PCRE_CASELESS) |
-    (missingp(STACK_10)   ? 0 : PCRE_MULTILINE) |
-    (missingp(STACK_9)    ? 0 : PCRE_DOTALL) |
-    (missingp(STACK_8)    ? 0 : PCRE_EXTENDED) |
-    (missingp(STACK_7)    ? 0 : PCRE_ANCHORED) |
-    (missingp(STACK_6)    ? 0 : PCRE_DOLLAR_ENDONLY) |
-    (missingp(STACK_5)    ? 0 : PCRE_EXTRA) |
-    (missingp(STACK_4)    ? 0 : PCRE_NOTBOL) |
-    (missingp(STACK_3)    ? 0 : PCRE_NOTEOL) |
-    (missingp(STACK_2)    ? 0 : PCRE_UNGREEDY) |
-    (missingp(STACK_1)    ? 0 : PCRE_NOTEMPTY) |
-    (missingp(STACK_0)    ? 0 : PCRE_NO_AUTO_CAPTURE);
+  int options = PCRE_UTF8
+    | (missingp(STACK_(11)) ? 0 : PCRE_CASELESS)
+    | (missingp(STACK_10)   ? 0 : PCRE_MULTILINE)
+    | (missingp(STACK_9)    ? 0 : PCRE_DOTALL)
+    | (missingp(STACK_8)    ? 0 : PCRE_EXTENDED)
+    | (missingp(STACK_7)    ? 0 : PCRE_ANCHORED)
+    | (missingp(STACK_6)    ? 0 : PCRE_DOLLAR_ENDONLY)
+    | (missingp(STACK_5)    ? 0 : PCRE_EXTRA)
+    | (missingp(STACK_4)    ? 0 : PCRE_NOTBOL)
+    | (missingp(STACK_3)    ? 0 : PCRE_NOTEOL)
+    | (missingp(STACK_2)    ? 0 : PCRE_UNGREEDY)
+    | (missingp(STACK_1)    ? 0 : PCRE_NOTEMPTY)
+#  if defined(PCRE_NO_AUTO_CAPTURE)
+    | (missingp(STACK_0)    ? 0 : PCRE_NO_AUTO_CAPTURE)
+#  endif
+    ;
   bool study = !missingp(STACK_(12));
   const char *error_message;
   int error_offset;
@@ -168,16 +181,21 @@ nonreturning_function(static, pcre_error, (int status)) {
     case PCRE_ERROR_UNKNOWN_NODE:   fehler(error,"~S/~S (~S ~S): UNKNOWN_NODE");
     case PCRE_ERROR_NOMEMORY:       fehler(error,"~S/~S (~S ~S): NOMEMORY");
     case PCRE_ERROR_NOSUBSTRING:    fehler(error,"~S/~S (~S ~S): NOSUBSTRING");
+#  if defined(PCRE_ERROR_MATCHLIMIT)
     case PCRE_ERROR_MATCHLIMIT:     fehler(error,"~S/~S (~S ~S): MATCHLIMIT");
+#  endif
+#  if defined(PCRE_ERROR_CALLOUT)
     case PCRE_ERROR_CALLOUT:        fehler(error,"~S/~S (~S ~S): CALLOUT");
+#  endif
+#  if defined(PCRE_ERROR_BADUTF8)
     case PCRE_ERROR_BADUTF8:        fehler(error,"~S/~S (~S ~S): BADUTF8");
+#  endif
 #  if defined(PCRE_ERROR_BADUTF8_OFFSET)
     case PCRE_ERROR_BADUTF8_OFFSET: fehler(error,"~S/~S (~S ~S): BADUTF8_OFFSET");
 #  endif
     default: fehler(error,"~S/~S (~S ~S): UNKNOWN ERROR");
   }
 }
-
 
 DEFUN(PCRE:PATTERN-INFO,pattern request)
 {
@@ -208,8 +226,12 @@ DEFUN(PCRE:PATTERN-INFO,pattern request)
     if (options & PCRE_UNGREEDY)  { nn++; pushSTACK(`:UNGREEDY`); }
     if (options & PCRE_NOTEMPTY)  { nn++; pushSTACK(`:NOTEMPTY`); }
     if (options & PCRE_UTF8)      { nn++; pushSTACK(`:UTF8`); }
+#  if defined(PCRE_NO_AUTO_CAPTURE)
     if (options & PCRE_NO_AUTO_CAPTURE) {nn++; pushSTACK(`:NO_AUTO_CAPTURE`);}
+#  endif
+#  if defined(PCRE_NO_UTF8_CHECK)
     if (options & PCRE_NO_UTF8_CHECK) { nn++; pushSTACK(`:NO_UTF8_CHECK`); }
+#  endif
     VALUES1(listof(nn));
   } else if (eq(STACK_0,`:SIZE`)) {
     unsigned long int length;
@@ -223,12 +245,14 @@ DEFUN(PCRE:PATTERN-INFO,pattern request)
     int ref;
     INFO(PCRE_INFO_BACKREFMAX,&ref,0);
     VALUES1(fixnum(ref));
+#if defined(PCRE_INFO_FIRSTBYTE)
   } else if (eq(STACK_0,`:FIRSTBYTE`)) {
     int value;
     INFO(PCRE_INFO_FIRSTBYTE,&value,-2);
     if (status == 0) VALUES1(int_char(value));
     else if (status == -1) VALUES1(`:BOL`);
     else if (status == -2) VALUES1(NIL);
+#endif
   } else if (eq(STACK_0,`:FIRSTTABLE`)) {
     unsigned char table[256/sizeof(char)];
     VALUES1(allocate_bit_vector(Atype_Bit,256));
@@ -242,14 +266,19 @@ DEFUN(PCRE:PATTERN-INFO,pattern request)
     INFO(PCRE_INFO_LASTLITERAL,&value,0);
     if (status == 0) VALUES1(int_char(value));
     else VALUES1(NIL);
+#if defined(PCRE_INFO_NAMEENTRYSIZE)
   } else if (eq(STACK_0,`:NAMEENTRYSIZE`)) {
     int value;
     INFO(PCRE_INFO_NAMEENTRYSIZE,&value,0);
     VALUES1(fixnum(value));
+#endif
+#if defined(PCRE_INFO_NAMECOUNT)
   } else if (eq(STACK_0,`:NAMECOUNT`)) {
     int value;
     INFO(PCRE_INFO_NAMECOUNT,&value,0);
     VALUES1(fixnum(value));
+#endif
+#if defined(PCRE_INFO_NAMECOUNT) && defined(PCRE_INFO_NAMEENTRYSIZE) && defined(PCRE_INFO_NAMETABLE)
   } else if (eq(STACK_0,`:NAMETABLE`)) {
     int count, size, pos;
     char *table;
@@ -267,10 +296,13 @@ DEFUN(PCRE:PATTERN-INFO,pattern request)
       Cdr(STACK_0) = fixnum((table[0]<<1) + table[1]);
     }
     VALUES1(listof(count));
+#endif
+#if defined(PCRE_INFO_STUDYSIZE)
   } else if (eq(STACK_0,`:STUDYSIZE`)) {
     size_t value;
     INFO(PCRE_INFO_STUDYSIZE,&value,0);
     VALUES1(fixnum(value));
+#endif
   } else {                      /* error */
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(STACK_1); pushSTACK(TheSubr(subr_self)->name);
