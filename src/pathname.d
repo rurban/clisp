@@ -5510,9 +5510,10 @@ local object use_default_dir (object pathname) {
       temp = ThePathname(temp)->pathname_directory;
       temp = reverse(temp);
       subdirs = nreconc(temp,popSTACK());
+      subdirs = simplify_directory(subdirs);
       pathname = popSTACK();
-      ThePathname(pathname)->pathname_directory =
-        simplify_directory(subdirs); /* enter into the pathname: */
+      /* enter into the pathname: */
+      ThePathname(pathname)->pathname_directory = subdirs;
     }
   }
   return pathname;
