@@ -382,8 +382,12 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
         #endif
         # allocate new memory:
         if (needed_limit-1 <= heapptr->heap_hardlimit-1) {
+          var aint mapstart = heapptr->heap_limit;
+          #if varobjects_misaligned
+          mapstart &= -map_pagesize;
+          #endif
           begin_system_call();
-          var int ergebnis = zeromap((void*)(heapptr->heap_limit),needed_limit - heapptr->heap_limit);
+          var int ergebnis = zeromap((void*)mapstart,needed_limit - mapstart);
           end_system_call();
           if (ergebnis >= 0)
             goto sufficient;

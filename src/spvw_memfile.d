@@ -1486,8 +1486,10 @@ local void loadmem_from_handle (Handle handle, const char* filename)
           heap->heap_limit = heap->heap_end;
         }
        #else /* defined(SPVW_PURE_BLOCKS) || defined(SPVW_MIXED_BLOCKS_STAGGERED) */
-        heap->heap_gen1_start = heap->heap_end = heap->heap_limit;
-        /* FIXME: varobjects_misaligned ? */
+        heap->heap_gen1_start = heap->heap_end
+          = ((heap->heap_end + (physpagesize-1)) & -physpagesize)
+            + (is_varobject_heap(heapnr) ? varobjects_misaligned : 0);
+        heap->heap_limit = heap->heap_end;
        #endif  /* SPVW_MIXED_BLOCKS_OPPOSITE */
        #ifdef SPVW_PURE_BLOCKS
         /* Don't need to rebuild the cache. */
