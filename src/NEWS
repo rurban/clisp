@@ -192,6 +192,7 @@ User visible changes
   optional arguments (this is not backwards compatible).
   When the system library provides a regexp implementation,
   it is used instead of the GNU regexp distributed with CLISP.
+  The number of subexpressions is now unlimited (the limit was 10).
   See <http://clisp.cons.org/impnotes.html#regexp> for details.
 
 * The BACKQUOTE reader has been reimplemented from scratch by
