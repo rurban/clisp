@@ -547,7 +547,7 @@
 <!ENTITY mem-file "<filename>#P&quot;.mem&quot;</filename>">
 <!ENTITY c-file "<filename>#P&quot;.c&quot;</filename>">
 <!ENTITY lib-file "<link linkend='require'><filename>#P&quot;.lib&quot;</filename></link>">
-<!ENTITY config-file "<filename>#P&quot;config.lisp&quot;</filename>">
+<!ENTITY config-file "<link linkend='customize'><filename>#P&quot;config.lisp&quot;</filename></link>">
 <!ENTITY make-file "<filename>#P&quot;Makefile&quot;</filename>">
 <!ENTITY lispinit "<link linkend='image'><filename>#P&quot;lispinit.mem&quot;</filename></link>">
 

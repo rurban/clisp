@@ -1685,6 +1685,18 @@ here <function>WITH-FOO</function> does not receive the
  </simplelist>
  Note that some of these variables are platform-specific.</para>
 
+<para>You should set these variables (and do whatever other
+ customization you see fit) in the file &config-file; in the build
+ directory before building &clisp;.
+ Alternatively, after building &clisp;, or if you are using a binary
+ distribution of &clisp;, you can modify &config-file;, compile and load
+ it, and then save the &mem-image;.
+ Finally, you can create an <quote>RC</quote> (run control) file which
+ is loaded whenever &clisp; is started (see the documentation for option
+ <ulink url="clisp.html#opt-norc"><option>-norc</option></ulink> in your
+ platform-specific copy of the manual page).
+</para>
+
 </section>
 
 <section id="code-walk"><title>Extensions-1.12. Code Walker</title>
