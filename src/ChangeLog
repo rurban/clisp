@@ -229,6 +229,10 @@
 
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
+	* stream.d (SYSTEM::SET-STREAM-EXTERNAL-FORMAT): Use the encoding
+	provided by test_external_format_arg, not the original argument; fixes
+	bug introduced on 2003-05-07.
+
 	* stream.d (SYSTEM::SET-STREAM-EXTERNAL-FORMAT): Fix GC-safety bug
 	introduced on 2002-01-17.
 
