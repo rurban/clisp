@@ -1,5 +1,10 @@
 2004-03-13  Bruno Haible  <bruno@clisp.org>
 
+	* dribble.lisp: Use variable names 'source' and 'target' instead of
+	'so' and 'ta'.
+
+2004-03-13  Bruno Haible  <bruno@clisp.org>
+
 	* package.d (SYS::SYMBOL-VALUE-LOCK): Check the argument.
 
 2004-03-14  Bruno Haible  <bruno@clisp.org>
