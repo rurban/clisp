@@ -294,11 +294,11 @@
                (TEXT "~S: variable ~S is used in incompatible clauses~{ ~A ~S~} and~{ ~A ~S~}")
                *whole* var clause bad))
            (setf (gethash var accu-table) (cons clause others))))
-       (new-result (var clause)
-         (let ((pair (assoc var results)))
+       (new-result (form clause)
+         (let ((pair (assoc form results :test #'equal)))
            (if pair
                (push clause (cdr pair))
-               (push (list var clause) results))
+               (push (list form clause) results))
            results))
        (acculist-var (keyword form)
          (or acculist-var
@@ -311,7 +311,7 @@
                     acculist-var)))
        (cons-backward (keyword form) ; accuvar is NIL, accufuncsym is CONS
          (let ((accuvar (acculist-var keyword form)))
-           (push `((SYS::LIST-NREVERSE ,accuvar) (,keyword ,form)) results)
+           (new-result `(SYS::LIST-NREVERSE ,accuvar) `(,keyword ,form))
            `(SETQ ,accuvar (CONS ,form ,accuvar))))
        (parse-kw-p (kw) ; Schaut, ob als nächstes das Keyword kw kommt.
                         ; Wenn ja, wird es übergangen. Wenn nein, Ergebnis NIL.
