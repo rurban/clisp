@@ -1,5 +1,9 @@
 2001-04-09  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (*features*): added :LISP=CL to denote the re-packaging
+
+2001-04-09  Sam Steingold  <sds@gnu.org>
+
 	* type.lisp (upgraded-complex-part-type): ANSI CL compliance -
 	trivial function, always returns T
 	* init.lisp (upgraded-complex-part-type): exported
