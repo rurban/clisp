@@ -1,5 +1,9 @@
 2004-03-17  Sam Steingold  <sds@gnu.org>
 
+	* configure.in (AC_INIT): release 2.33
+
+2004-03-17  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (src/autoconf/aclocal.m4): get all configure
 	files together before running aclocal
 
