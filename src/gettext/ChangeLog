@@ -1,3 +1,11 @@
+2000-06-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * po/pt_BR.po: New translation, from
+          Ricardo Soares Guimarães <ricardo@conectiva.com.br>.
+        * po/Makefile.trans.pt_BR: New file.
+        * configure.in (ALL_LINGUAS): Add nl.
+        * po/Makefile.devel (OTHER_LINGUAS): Add nl.
+
 2000-03-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * po/nl.po: New translation, from Tijs van Bakel <smoke@casema.net>.
