@@ -1943,7 +1943,7 @@
 	   (type int16 src-x src-y)
 	   (type (or null card16) width height)
 	   ;(type boolean bitmap-p)  Better use a generalized boolean.
-           )
+	   )
   (let* ((format
 	   (etypecase image
 	     (image-x (image-x-format (the image-x image)))

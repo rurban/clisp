@@ -363,7 +363,6 @@
                   (case-errorstring keyform keyclauselist)
     ) )
 ) )
-
 ;-------------------------------------------------------------------------------
 (defmacro deftype (name lambdalist &body body &environment env)
   (unless (symbolp name)
