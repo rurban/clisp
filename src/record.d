@@ -1023,7 +1023,8 @@ global object update_instance (object obj) {
   if (saved_stack != STACK) abort();
  #endif
   /* obj is a reallocated instance, so we need to unrealloc it */
-  return TheInstance(obj)->inst_class; /* return the argument */
+  instance_un_realloc(obj);
+  return obj; /* return the argument */
 }
 
 /* UP: check keywords, cf. SYSTEM::KEYWORD-TEST
