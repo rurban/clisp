@@ -356,6 +356,10 @@ extern void __TR_clear_cache();
 #define TRAMP_LENGTH 40
 #define TRAMP_ALIGN 16
 #endif
+#ifdef __s390__
+#define TRAMP_LENGTH 36
+#define TRAMP_ALIGN 2
+#endif
 
 #ifndef TRAMP_BIAS
 #define TRAMP_BIAS 0
@@ -563,6 +567,53 @@ __TR_function alloc_trampoline (address, variable, data)
   *(unsigned int *) (function +24)
 #define tramp_data(function)  \
   *(unsigned int *) (function +28)
+#endif
+#ifdef __s390__
+  /* function:
+
+	lr	%r0,%r13
+        bras    %r13,.LTN0_0
+.LT0_0:
+.LC0:
+        .long   0x73554711
+.LC1:
+        .long   0x12345678
+.LC2:
+        .long   0xbabebec0
+.LTN0_0:
+        l       %r1,.LC0-.LT0_0(%r13)
+        mvc     0(4,%r1),.LC1-.LT0_0(%r13)
+        l       %r1,.LC2-.LT1_0(%r13)
+	lr	%r13,%r0
+        br      %r1
+  */
+  /* What about big endian / little endian ?? */
+  *(unsigned short *) (function + 0) = 0x180D;
+  *(unsigned int *) (function + 2) = 0xA7D50008;
+  *(unsigned int *) (function + 6) = (unsigned int) variable;
+  *(unsigned int *) (function +10) = (unsigned int) data;
+  *(unsigned int *) (function +14) = (unsigned int) address;
+  *(unsigned int *) (function +18) = 0x5810D000;
+  *(unsigned int *) (function +22) = 0xd2031000;
+  *(unsigned short *) (function +26) = 0xD004;
+  *(unsigned int *) (function +28) = 0x5810D008;
+  *(unsigned short *) (function +32) = 0x18D0;
+  *(unsigned short *) (function +34) = 0x07f1;
+#define is_tramp(function)  \
+  *(unsigned short *)   (function + 0) == 0x180D && \
+  *(unsigned int *)     (function + 2) == 0xA7D50008 && \
+  *(unsigned int *)     (function +18) == 0x5810D000 && \
+  *(unsigned int *)     (function +22) == 0xd2031000 && \
+  *(unsigned short *)   (function +26) == 0xD004 && \
+  *(unsigned int *)     (function +28) == 0x5810D008 && \
+  *(unsigned short *)   (function +32) == 0x18D0 && \
+  *(unsigned short *)   (function +34) == 0x07f1
+#define tramp_address(function)  \
+  *(unsigned int *) (function +14)
+#define tramp_variable(function)  \
+  *(unsigned int *) (function +6)
+#define tramp_data(function)  \
+  *(unsigned int *) (function +10)
 #endif
 #ifdef __mips64old__
   /* function:

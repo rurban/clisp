@@ -356,6 +356,10 @@ extern void __TR_clear_cache();
 #define TRAMP_LENGTH 32
 #define TRAMP_ALIGN 16
 #endif
+#ifdef __s390__
+#define TRAMP_LENGTH 22
+#define TRAMP_ALIGN 2
+#endif
 
 #ifndef TRAMP_BIAS
 #define TRAMP_BIAS 0
@@ -559,6 +563,37 @@ __TR_function alloc_trampoline_r (address, data0, data1)
   *(unsigned int *) (function +20)
 #define tramp_data(function)  \
   *(unsigned int *) (function +16)
+#endif
+#ifdef __s390__
+  /* function:
+
+        bras    %r1,.LTN0_0
+.LT0_0:
+.LC0:
+        .long   0x73554711
+.LC1:
+        .long   0xbabebec0
+.LTN0_0:
+        l       %r0,.LC0-.LT0_0(%r1)
+        l       %r1,.LC1-.LT1_0(%r1)
+        br      %r1
+  */
+  /* What about big endian / little endian ?? */
+  *(unsigned int *) (function + 0) = 0xA7150006;
+  *(unsigned int *) (function + 4) = (unsigned int) data;
+  *(unsigned int *) (function + 8) = (unsigned int) address;
+  *(unsigned int *) (function +12) = 0x58001000;
+  *(unsigned int *) (function +16) = 0x58101004;
+  *(unsigned short *) (function +20) = 0x07f1;
+#define is_tramp(function)  \
+  *(unsigned int *)    (function + 0) == 0xA7150006 && \
+  *(unsigned int *)    (function +12) == 0x58001000 && \
+  *(unsigned int *)    (function +16) == 0x58101004 && \
+  *(unsigned short *)  (function +20) == 0x07f1
+#define tramp_address(function)  \
+  *(unsigned int *) (function +8)
+#define tramp_data(function)  \
+  *(unsigned int *) (function +4)
 #endif
 #ifdef __mips64old__
   /* function:

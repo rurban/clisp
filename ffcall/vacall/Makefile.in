@@ -98,6 +98,9 @@ vacall-alpha.o : $(srcdir)/vacall-alpha.s
 vacall-hppa.o : $(srcdir)/vacall-hppa.s
 	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-hppa.s
 
+vacall-s390.o : $(srcdir)/vacall-s390.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-s390.s
+
 vacall-arm.o : vacall-arm.s
 	$(CC) @GCC_X_NONE@ -c vacall-arm.s
 

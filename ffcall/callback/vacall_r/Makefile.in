@@ -107,6 +107,9 @@ vacall-alpha.lo : $(srcdir)/vacall-alpha.s
 vacall-hppa.lo : $(srcdir)/vacall-hppa.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-hppa.s
 
+vacall-s390.lo : $(srcdir)/vacall-s390.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-s390.s
+
 vacall-arm.lo : vacall-arm.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c vacall-arm.s
 
