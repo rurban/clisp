@@ -79,6 +79,6 @@
 
 ;; since we have no herald, simply dump it:
 (format T "~& CLX-DEMOS:QIX :host :width :height :delay~
-           ~%   The famous swirling vectors.")
+           ~%   The famous swirling vectors.~
            ~% Call (clx-demos:qix) or (clx-demos:qix :delay 0).")
 
