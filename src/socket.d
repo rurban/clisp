@@ -109,6 +109,11 @@ extern int errno;
     #ifdef IPV6_NEED_LINUX_IN6_H
       #include <linux/in6.h> # defines struct in6_addr, struct sockaddr_in6
     #endif
+    #if defined(HAVE_IPV6) && defined(UNIX_DARWIN)
+      # Access the internals of a 'struct in6_addr'.
+      #define in6_u __u6_addr
+      #define u6_addr16 __u6_addr16
+    #endif
   #endif
   #ifdef HAVE_GETHOSTBYNAME
     # include <sys/types.h>

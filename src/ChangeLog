@@ -1,3 +1,12 @@
+2001-04-10  Bruno Haible  <haible@clisp.cons.org>
+
+	Support for MacOS X.
+	* lispbibl.d (RS6000): Define if __ppc__ is defined.
+	(TIME_ABSOLUTE, TIME_RELATIVE): Undefine after pulling in the system
+	headers.
+	* socket.d (in6_u, u6_addr16) [UNIX_DARWIN]: Define as aliases.
+	Thanks to Daniel Buenzli and Sunil Mishra for feedback.
+
 2001-04-09  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (*features*): added :LISP=CL to denote the re-packaging
