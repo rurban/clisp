@@ -67,27 +67,26 @@
       }
     }
 
-# UP: Gibt ein Error-Objekt aus.
-  local void write_errorobject (object obj);
-  local void write_errorobject(obj)
-    var object obj;
-    {
-      if (nullp(STACK_1)) {
-        dynamic_bind(S(prin_stream),unbound); # SYS::*PRIN-STREAM* an #<UNBOUND> binden
-        dynamic_bind(S(print_escape),T); # *PRINT-ESCAPE* an T binden
-        prin1(&STACK_(0+3+3),obj); # direkt ausgeben
-        dynamic_unbind();
-        dynamic_unbind();
-      } else {
-        # obj auf die Argumentliste schieben:
-        pushSTACK(obj);
-        obj = allocate_cons();
-        Car(obj) = popSTACK();
-        Cdr(obj) = STACK_2; STACK_2 = obj;
-        # und "~S" in den Format-String schreiben:
-        write_ascii_char(&STACK_0,'~'); write_ascii_char(&STACK_0,'S');
-      }
-    }
+# UP: output an error-object.
+local void write_errorobject (object obj) {
+  if (nullp(STACK_1)) {
+    dynamic_bind(S(prin_stream),unbound); # bind SYS::*PRIN-STREAM* to #<UNBOUND>
+    dynamic_bind(S(print_escape),T); # bind *PRINT-ESCAPE* to T
+    dynamic_bind(S(print_readably),NIL); # bind *PRINT-READABLY* to NIL
+    prin1(&STACK_(0+3+3+3),obj); # output directly
+    dynamic_unbind();
+    dynamic_unbind();
+    dynamic_unbind();
+  } else {
+    # push obj onto the argument list:
+    pushSTACK(obj);
+    obj = allocate_cons();
+    Car(obj) = popSTACK();
+    Cdr(obj) = STACK_2; STACK_2 = obj;
+    # and write "~S" into the format string:
+    write_ascii_char(&STACK_0,'~'); write_ascii_char(&STACK_0,'S');
+  }
+}
 
 # UP: Gibt ein Error-Character aus.
   local void write_errorchar (object obj);
@@ -196,6 +195,17 @@
       return argptr;
     }
 
+# SIGNAL the CONDITION and INVOKE the debugger
+nonreturning_function(local, signal_and_debug, (object condition)) {
+  pushSTACK(condition); # save condition
+  dynamic_bind(S(print_escape),T); # bind *PRINT-ESCAPE* to NIL
+  dynamic_bind(S(print_readably),NIL); # bind *PRINT-READABLY* to NIL
+  pushSTACK(condition); funcall(L(clcs_signal),1); # (SIGNAL condition)
+  dynamic_bind(S(prin_stream),unbound); # bind SYS::*PRIN-STREAM* to #<UNBOUND>
+  pushSTACK(STACK_(0+3+3+3)); # condition
+  funcall(L(invoke_debugger),1); # (INVOKE-DEBUGGER condition)
+}
+
 # Beendet die Ausgabe einer Fehlermeldung und startet neuen Driver.
 # end_error();
   nonreturning_function(local, end_error, (object* stackptr)) {
@@ -285,11 +295,7 @@
         }
         funcall(S(coerce_to_condition),argcount); # (SYS::COERCE-TO-CONDITION ...)
         # set_args_end_pointer(stackptr); # wozu? macht das Debuggen nur schwieriger!
-        pushSTACK(value1); # condition retten
-        pushSTACK(value1); funcall(L(clcs_signal),1); # (SIGNAL condition)
-        dynamic_bind(S(prin_stream),unbound); # SYS::*PRIN-STREAM* an #<UNBOUND> binden
-        pushSTACK(STACK_(0+3)); # condition
-        funcall(L(invoke_debugger),1); # (INVOKE-DEBUGGER condition)
+        signal_and_debug(value1);
       }
     }
     NOTREACHED
@@ -402,11 +408,7 @@ LISPFUN(error,1,0,rest,nokey,0,NIL)
       pushSTACK(S(error));
       pushSTACK(S(simple_error));
       funcall(S(coerce_to_condition),4); # (SYS::COERCE-TO-CONDITION ...)
-      pushSTACK(value1); # condition retten
-      pushSTACK(value1); funcall(L(clcs_signal),1); # (SIGNAL condition)
-      dynamic_bind(S(prin_stream),unbound); # SYS::*PRIN-STREAM* an #<UNBOUND> binden
-      pushSTACK(STACK_(0+3)); # condition
-      funcall(L(invoke_debugger),1); # (INVOKE-DEBUGGER condition)
+      signal_and_debug(value1);
     }
     NOTREACHED
   }
@@ -591,11 +593,7 @@ LISPFUN(error_of_type,2,0,rest,nokey,0,NIL)
       }
       # Stackaufbau: errorstring, args, ERROR, type, {keyword, value}*.
       funcall(S(coerce_to_condition),4+keyword_argcount); # (SYS::COERCE-TO-CONDITION ...)
-      pushSTACK(value1); # condition retten
-      pushSTACK(value1); funcall(L(clcs_signal),1); # (SIGNAL condition)
-      dynamic_bind(S(prin_stream),unbound); # SYS::*PRIN-STREAM* an #<UNBOUND> binden
-      pushSTACK(STACK_(0+3)); # condition
-      funcall(L(invoke_debugger),1); # (INVOKE-DEBUGGER condition)
+      signal_and_debug(value1);
     }
     NOTREACHED
   }
