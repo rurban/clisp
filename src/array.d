@@ -3950,6 +3950,13 @@ LISPFUNN(vector_pop,1) # (VECTOR-POP vector), CLTL S. 296
     }
   }
 
+# Vector will be too long -> error
+nonreturning_function(local, fehler_extension, (object extension)) {
+  pushSTACK(extension); pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,
+         GETTEXT("~: extending the vector by ~ elements makes it too long"));
+}
+
 LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
 # (VECTOR-PUSH-EXTEND new-element vector [extension]), CLTL S. 296
   {
@@ -4007,13 +4014,8 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       }
       var uintL newlen = len + inc; # neue Länge
       #ifndef UNIX_DEC_ULTRIX_GCCBUG
-      if (newlen > arraysize_limit_1) {
-        # Vektor würde zu lang -> Fehlermeldung
-        pushSTACK(extension); pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
-               GETTEXT("~: extending the vector by ~ elements makes it too long")
-              );
-      }
+      if (newlen > arraysize_limit_1)
+        fehler_extension(extension);
       #endif
       # Neuen Datenvektor holen. Dazu Fallunterscheidung je nach Typ:
       var object neuer_datenvektor;
@@ -4153,6 +4155,17 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
 
 #endif
 
+# Error reporting
+# > dim: wrong dimension
+# > subr_self: caller (a SUBR)
+nonreturning_function(local, fehler_dim_type, (object dim)) {
+  pushSTACK(dim); # TYPE-ERROR slot DATUM
+  pushSTACK(O(type_array_index)); # TYPE-ERROR slot EXPECTED-TYPE
+  pushSTACK(dim);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: dimension ~ is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"));
+}
+
 # ============================================================================
 #                    Semi-simple strings
 
@@ -4169,18 +4182,20 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
 # < fresh: fresh semi-simple-string of the given length
 # can trigger GC
 global object make_ssstring (uintL len) {
+  if (len > arraysize_limit_1)
+    fehler_dim_type(UL_to_I(len));
   pushSTACK(allocate_string(len));
   var object new_array =
     allocate_iarray(bit(arrayflags_fillp_bit)|Atype_Char,1,Array_type_string);
-  # Flags: nur FILL_POINTER_BIT, Elementtyp CHARACTER, Rang=1
-  TheIarray(new_array)->dims[1] = 0; # Fill-Pointer := 0
+  # Flags: only FILL_POINTER_BIT, element type CHARACTER, rank=1
+  TheIarray(new_array)->dims[1] = 0; # fill-pointer := 0
   TheIarray(new_array)->totalsize =
-    TheIarray(new_array)->dims[0] = len; # Länge und Total-Size eintragen
-  TheIarray(new_array)->data = popSTACK(); # Datenvektor eintragen
+    TheIarray(new_array)->dims[0] = len; # length and total-size
+  TheIarray(new_array)->data = popSTACK(); # data vector
   return new_array;
 }
 
-# Function: extend the string to the given length
+# Function: extend the string to length <= arraysize_limit_1 (not checked!)
 # > ssstring: a semi-simple-string
 # > size:     how much to allocate
 # < returns:  the same semi-simple-string
@@ -4208,13 +4223,18 @@ local object ssstring_extend_low (object ssstring, uintL size) {
 # can trigger GC
 global object ssstring_push_extend (object ssstring, chart ch) {
   var object sstring = TheIarray(ssstring)->data; # normal-simple-string
-  if (TheIarray(ssstring)->dims[1] # fill-pointer
-      >= Sstring_length(sstring) ) { # >= length ?
-    ssstring = ssstring_extend_low(ssstring,2 * Sstring_length(sstring));
+  var uintL len = Sstring_length(sstring);
+  if (TheIarray(ssstring)->dims[1] >= len) { # fill-pointer >= length ?
+    len *= 2;
+    if (len > arraysize_limit_1) # cannot extend beyond arraysize_limit_1
+      len = arraysize_limit_1;
+    if (TheIarray(ssstring)->dims[1] >= len) # still no good!
+      fehler_extension(Fixnum_1);
+    ssstring = ssstring_extend_low(ssstring,len);
     sstring = TheIarray(ssstring)->data;
   }
   # now sstring is still the data vector, and we have
-  # Fill-Pointer < Length(data vector).
+  # fill-pointer < length(data vector).
   # push the character in and increase the fill-pointer:
   TheSstring(sstring)->data[ TheIarray(ssstring)->dims[1]++ ] = ch;
   return ssstring;
@@ -4230,10 +4250,14 @@ global object ssstring_push_extend (object ssstring, chart ch) {
 global object ssstring_extend (object ssstring, uintL needed_len) {
   var object sstring = TheIarray(ssstring)->data; # normal simple string
   var uintL now_len = Sstring_length(sstring); # current maximal lenth
+  if (needed_len > arraysize_limit_1) # cannot extend beyond arraysize_limit_1
+    fehler_extension(UL_to_I(needed_len-TheIarray(ssstring)->dims[1]));
   if (needed_len > now_len) {
     # yes -> lengthen the string at least by a factor of 2:
     now_len *= 2;
-    if (needed_len > now_len)
+    if (now_len > arraysize_limit_1) # cannot extend beyond arraysize_limit_1
+      now_len = arraysize_limit_1;
+    else if (needed_len > now_len)
       now_len = needed_len; # increase now_len
     ssstring = ssstring_extend_low(ssstring,now_len);
   }
@@ -4257,14 +4281,14 @@ global object ssstring_append_extend (object ssstring, object srcstring,
     ssstring = ssstring_extend(ssstring,old_len+len);
     srcstring = popSTACK();
   }
-  # push the characters in:
-  var chart* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
-  SstringDispatch(srcstring,
-  { chartcopy(&TheSstring(srcstring)->data[start],ptr,len); },
-  { scintcopy(&TheSmallSstring(srcstring)->data[start],ptr,len); }
-  );
+  { # push the characters in:
+    var chart* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
+    SstringDispatch(srcstring,
+      { chartcopy(&TheSstring(srcstring)->data[start],ptr,len); },
+      { scintcopy(&TheSmallSstring(srcstring)->data[start],ptr,len); });
+  }
   # increase the fill-pointer:
-  TheIarray(ssstring)->dims[1] = old_len + len;
+  TheIarray(ssstring)->dims[1] += len;
   return ssstring;
 }
 
@@ -4283,20 +4307,19 @@ global object ssstring_append_extend (object ssstring, object srcstring,
 # > uintL len: length (number of bytes!), must be >0
 # < result: fresh semi-simple byte-vector of the given length
 # can trigger GC
-  global object make_ssbvector (uintL len);
-  global object make_ssbvector(len)
-    var uintL len;
-    {
-      pushSTACK(allocate_bit_vector(Atype_8Bit,len));
-      var object new_array =
-        allocate_iarray(bit(arrayflags_fillp_bit)|Atype_8Bit,1,Array_type_b8vector);
-        # Flags: nur FILL_POINTER_BIT, Elementtyp BIT, Rang=1
-      TheIarray(new_array)->dims[1] = 0; # Fill-Pointer := 0
-      TheIarray(new_array)->totalsize =
-        TheIarray(new_array)->dims[0] = len; # Länge und Total-Size eintragen
-      TheIarray(new_array)->data = popSTACK(); # Datenvektor eintragen
-      return new_array;
-    }
+global object make_ssbvector (uintL len) {
+  if (len > arraysize_limit_1)
+    fehler_dim_type(UL_to_I(len));
+  pushSTACK(allocate_bit_vector(Atype_8Bit,len));
+  var object new_array =
+    allocate_iarray(bit(arrayflags_fillp_bit)|Atype_8Bit,1,Array_type_b8vector);
+  # Flags: only FILL_POINTER_BIT, element type BIT, rank=1
+  TheIarray(new_array)->dims[1] = 0; # fill-pointer := 0
+  TheIarray(new_array)->totalsize =
+    TheIarray(new_array)->dims[0] = len; # length and total-size
+  TheIarray(new_array)->data = popSTACK(); # data vector
+  return new_array;
+}
 
 # Function: Adds a byte to a semi-simple byte vector, thereby possibly
 # extending it.
@@ -4305,36 +4328,37 @@ global object ssstring_append_extend (object ssstring, object srcstring,
 # > b: byte
 # < result: the same semi-simple byte-vector
 # can trigger GC
-  global object ssbvector_push_extend (object ssbvector, uintB b);
-  global object ssbvector_push_extend(ssbvector,b)
-    var object ssbvector;
-    var uintB b;
-    {
-      var object sbvector = TheIarray(ssbvector)->data; # Datenvektor (ein Simple-8Bit-Vektor)
-      if (TheIarray(ssbvector)->dims[1] # Fill-Pointer
-          >= Sbvector_length(sbvector) ) { # >= Länge ?
-        # ja -> Bit-Vektor wird um den Faktor 2 länger gemacht
-        pushSTACK(ssbvector); # ssbvector retten
-        pushSTACK(sbvector); # Datenvektor ebenfalls retten
-        var object neuer_sbvector = allocate_bit_vector(Atype_8Bit,2*Sbvector_length(sbvector));
-        # neuer Simple-8Bit-Vektor der doppelten Länge
-        sbvector = popSTACK(); # sbvector zurück
-        # Inhalt von sbvector nach neuer_sbvector kopieren:
-        elt_copy_8Bit_8Bit(sbvector,0,neuer_sbvector,0,Sbvector_length(sbvector));
-        ssbvector = popSTACK(); # ssbvector zurück
-        set_break_sem_1(); # forbid interrupts
-        TheIarray(ssbvector)->data = neuer_sbvector; # neuen Bit-Vektor als Datenvektor abspeichern
-        TheIarray(ssbvector)->totalsize =
-          TheIarray(ssbvector)->dims[0] = Sbvector_length(neuer_sbvector); # neue Länge eintragen
-        clr_break_sem_1(); # permit interrupts again
-        sbvector = neuer_sbvector;
-      }
-      # Nun ist wieder sbvector der Datenvektor, und es gilt
-      # Fill-Pointer < Länge(Datenvektor).
-      # Character hineinschieben und Fill-Pointer erhöhen:
-      TheSbvector(sbvector)->data[ TheIarray(ssbvector)->dims[1]++ ] = b;
-      return ssbvector;
-    }
+global object ssbvector_push_extend (object ssbvector, uintB b) {
+  var object sbvector = TheIarray(ssbvector)->data; # simple-8bit-vektor
+  var uintL len = Sbvector_length(sbvector);
+  if (TheIarray(ssbvector)->dims[1] >= len) { # fill-pointer >= length ?
+    # yes -> double the length of data vector
+    len *= 2;
+    if (len > arraysize_limit_1) # cannot extend beyond arraysize_limit_1
+      len = arraysize_limit_1;
+    if (TheIarray(ssbvector)->dims[1] >= len) # still no good!
+      fehler_extension(Fixnum_1);
+    pushSTACK(ssbvector); # save ssbvector
+    pushSTACK(sbvector); # save data vector
+    var object new_sbvector = allocate_bit_vector(Atype_8Bit,len);
+    # new simple-8bit-vector of double length
+    sbvector = popSTACK(); # restore sbvector
+    # copy the contents of sbvector into new_sbvector:
+    elt_copy_8Bit_8Bit(sbvector,0,new_sbvector,0,Sbvector_length(sbvector));
+    ssbvector = popSTACK(); # restore ssbvector
+    set_break_sem_1(); # forbid interrupts
+    TheIarray(ssbvector)->data = new_sbvector; # new bit-vektor as the data
+    TheIarray(ssbvector)->totalsize = # new length
+      TheIarray(ssbvector)->dims[0] = Sbvector_length(new_sbvector);
+    clr_break_sem_1(); # permit interrupts again
+    sbvector = new_sbvector;
+  }
+  # now sbvector is still the data vector, and we have
+  # fill-pointer < length(data vector).
+  # push the byte in and increase the fill-pointer:
+  TheSbvector(sbvector)->data[ TheIarray(ssbvector)->dims[1]++ ] = b;
+  return ssbvector;
+}
 
 # ============================================================================
 #                            MAKE-ARRAY
@@ -4345,19 +4369,6 @@ global object ssstring_append_extend (object ssstring, object srcstring,
 # Stackaufbau bei ADJUST-ARRAY :
 #   dims, array, element-type, initial-element, initial-contents,
 #   fill-pointer, displaced-to, displaced-index-offset.
-
-# Fehlermeldung
-# > dim: fehlerhafte Dimension
-# > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_dim_type, (object dim)) {
-    pushSTACK(dim); # TYPE-ERROR slot DATUM
-    pushSTACK(O(type_array_index)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(dim);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
-           GETTEXT("~: dimension ~ is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))")
-          );
-  }
 
 # Hilfsroutine für MAKE-ARRAY und ADJUST-ARRAY:
 # Überprüft die Dimensionen und liefert den Rang und die Gesamtgröße.
