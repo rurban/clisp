@@ -5,11 +5,9 @@
   (let ((b (gensym)))
     `(BLOCK ,b
        (LET ((*ERROR-HANDLER*
-               #'(LAMBDA (&REST ARGS) (RETURN-FROM ,b 'ERROR))
-            ))
-         ,@forms
-     ) )
-) )
+              #'(LAMBDA (&REST ARGS)
+                  (DECLARE (IGNORE ARGS)) (RETURN-FROM ,b 'ERROR))))
+         ,@forms))))
 
 #+(or AKCL ECL)
 (defmacro with-ignored-errors (&rest forms)
@@ -111,7 +109,7 @@
 ) ) ) ) ) ) )
 
 (defun run-test (testname
-                 &optional (tester #'do-test)
+                 &optional (tester #'do-test) (ignore-errors t)
                  &aux (logname (merge-extension ".erg" testname))
                       log-empty-p)
   (with-open-file (s (merge-extension ".tst" testname) :direction :input)
@@ -119,8 +117,7 @@
                                  #+ANSI-CL :if-exists #+ANSI-CL :new-version)
       (let ((*package* *package*)
             (*print-pretty* nil))
-        (funcall tester s log)
-      )
+        (funcall tester s log ignore-errors))
       #+CMU (finish-output log) ; otherwise (file-length log) may be less than (file-position log)
       (setq log-empty-p (zerop (file-length log)))
   ) )
