@@ -110,7 +110,7 @@
     #ifdef HAVE_MSYNC
       #ifdef MS_INVALIDATE
         # Getestet nur auf UNIX_LINUX, nicht UNIX_SUNOS4, nicht UNIX_SUNOS5. ??
-        # Für MULTIMAP_MEMORY_FILE:
+        # Für MULTIMAP_MEMORY_VIA_FILE:
           extern_C int msync (MMAP_ADDR_T addr, MMAP_SIZE_T len, int flags);
       #else
         # NetBSD has a 2-argument msync(), unusable for our purposes.
