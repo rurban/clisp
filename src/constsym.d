@@ -501,7 +501,9 @@ LISPSYM(set_ansi,"SET-ANSI",system)
 LISPSYM(machine_instance,"MACHINE-INSTANCE",lisp)
 #endif
 #ifdef HAVE_GETHOSTBYNAME
+#ifndef UNIX_BEOS
 LISPSYM(socket_service_port,"SOCKET-SERVICE-PORT",lisp)
+#endif
 #ifdef EXPORT_SYSCALLS
 LISPSYM(resolve_host_ipaddr_,"RESOLVE-HOST-IPADDR-INTERNAL",posix)
 #endif

@@ -1830,6 +1830,8 @@ interpreter compiler
 
 #+AMIGA
 (LOAD "amigasock") ;; sockets, optional
+#+BEOS
+(LOAD "beossock")  ;; sockets, optional
 
 (LOAD "runprog")   ;; run-program and friends, optional
 

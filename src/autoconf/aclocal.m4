@@ -3065,6 +3065,10 @@ AC_TRY_COMPILE([
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#ifdef __BEOS__
+#include <sys/socket.h>
+#include <netdb.h>
+#endif
 ]AC_LANG_EXTERN[
 #if defined(__STDC__) || defined(__cplusplus)
 int gethostname (char* name, $x namelen);
@@ -3185,6 +3189,10 @@ CL_PROTO_TRY([
 #include <netinet/in.h>
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
+#endif
+#ifdef __BEOS__
+#include <sys/socket.h>
+#include <netdb.h>
 #endif
 ], [$y inet_addr ($x char *);], [$y inet_addr();], [
 cl_cv_proto_inet_addr_ret="$y"

@@ -68,7 +68,7 @@
 # IBM-PC/386   beliebig           WinNT/Win95                   MSVC4.0,5.0   _WIN32, _M_IX86, _MSC_VER
 # IBM-PC/386   beliebig           WinNT/Win95                   Borland 5.0   __WIN32__, _M_IX86, __TURBOC__, __BORLANDC__
 # IBM-PC/386   beliebig           WinNT/Win95 und Cygwin32      GNU           _WIN32, __WINNT__, __CYGWIN32__, __POSIX__, __i386__, _X86_, __GNUC__
-# Alpha        DEC                WinNT                         ??
+# IBM-PC/586   beliebig           BeOS 5                        GNU           __BEOS__, __INTEL__, __i386__, _X86_, __GNUC__
 # RM400        Siemens-Nixdorf    SINIX-N 5.42                  c89           unix, mips, MIPSEB, host_mips, sinix, SNI, _XPG_IV
 # Acorn        Risc PC            RISC OS 3.x                   GNU           [__]arm, [__]riscos, __GNUC__
 # Acorn        Risc PC            RISC OS 3.x                   Norcroft      [__]arm, [__]riscos
@@ -648,7 +648,8 @@
       #if defined(MC680X0)
         #define STACK_register  "a4"  # höchstes Adressregister nach sp=A7,fp=A6/A5
       #endif
-      #if defined(I80386) && !defined(DYNAMIC_MODULES)
+      #if defined(I80386) && !defined(UNIX_BEOS) && !defined(DYNAMIC_MODULES)
+        # On BeOS, everything is compiled as PIC, whence %ebx is already booked.
         # Ist DYNAMIC_MODULES definiert, werden externe Module als PIC
         # compiliert, weswegen dann %ebx schon verbraucht ist.
         #if (__GNUC__ >= 2) # Die Namen der Register haben sich verändert
@@ -2291,7 +2292,7 @@ Ratio and Complex (only if SPVW_MIXED).
     # For pointers, the address takes the full word (with type info in the
     # lowest two bits). For immediate objects, we use 24 bits for the data
     # (but exclude the highest available bit, which is the garcol_bit).
-    #if !(defined(SPARC) && defined(UNIX_LINUX))
+    #if !((defined(I80386) && defined(UNIX_BEOS)) || (defined(SPARC) && defined(UNIX_LINUX)))
       #define oint_type_shift 0
       #define oint_type_len 8
       #define oint_type_mask 0x0000007FUL
@@ -2299,6 +2300,16 @@ Ratio and Complex (only if SPVW_MIXED).
       #define oint_data_len 24
       #define oint_data_mask 0x7FFFFF80UL
       #define garcol_bit_o 31
+    #elif defined(I80386) && defined(UNIX_BEOS)
+      # On BeOS 5, malloc()ed addresses are of the form 0x80...... Bit 31
+      # is therefore part of an address and cannot be used as garcol_bit.
+      #define oint_type_shift 0
+      #define oint_type_len 8
+      #define oint_type_mask 0x0000003FUL
+      #define oint_data_shift 6
+      #define oint_data_len 24
+      #define oint_data_mask 0x3FFFFFC0UL
+      #define garcol_bit_o 30
     #elif defined(SPARC) && defined(UNIX_LINUX)
       # On Sparc-Linux, malloc()ed addresses are of the form 0x0....... or
       # 0xe........ Bits 31..29 are therefore part of an address and cannot
