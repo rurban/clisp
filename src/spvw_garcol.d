@@ -1450,7 +1450,6 @@ local void gc_unmarkcheck (void) {
     var uintL gcstart_space; # occupied memory at GC-start
     var uintL gcend_space; # occupied memory at GC-end
     var object all_weakpointers; # list of active Weak-pointers
-    var object all_weakkvtables; # list of active weak key-value tables
     var object all_finalizers; # list of finalizers
     #ifdef GC_CLOSES_FILES
     var object files_to_close; # list of files to be closed
@@ -1495,7 +1494,6 @@ local void gc_unmarkcheck (void) {
     CHECK_GC_GENERATIONAL();
     # mark phase:
     all_weakpointers = O(all_weakpointers); O(all_weakpointers) = Fixnum_0;
-    all_weakkvtables = O(all_weakkvtables); O(all_weakkvtables) = Fixnum_0;
     all_finalizers = O(all_finalizers); O(all_finalizers) = Fixnum_0;
     #ifdef GC_CLOSES_FILES
     files_to_close = O(open_files); O(open_files) = NIL; # O(files_to_close) = NIL;
@@ -1557,79 +1555,6 @@ local void gc_unmarkcheck (void) {
     #endif
     # No more gc_mark operations from here on.
     clean_weakpointers(all_weakpointers);
-    {
-      /* (still unmarked) shorten the all_weakkvtables list: */
-      var object Lu = all_weakkvtables;
-      var gcv_object_t* L1 = &O(all_weakkvtables);
-      while (!eq(Lu,Fixnum_0)) {
-        ASSERT(weakkvtp(Lu));
-        if (!alive(Lu)) {
-          /* The weak key-value table itself is being GCed.
-             Don't care about its contents. Remove it from the list. */
-          Lu = TheWeakKVT(Lu)->wkvt_cdr;
-        } else {
-          /* kill the key/value pairs where either the key or the value is
-             dead */
-          var uintL len = Weakkvt_length(Lu);
-          var uintL index = 0;
-          var WeakKVT wt = TheWeakKVT(Lu);
-          var gcv_object_t* data = wt->data;
-          if (eq(S(Kkey),wt->wkvt_type)) { /* :KEY */
-            for (; index < len; index += 2) {
-              var object key = data[index];
-              if (boundp(key)) {
-                if (alive(key)) /* mark value */
-                  gc_mark(data[index+1]);
-                else /* drop both key and value from the table */
-                  data[index] = data[index+1] = unbound;
-              }
-            }
-          } else if (eq(S(Kvalue),wt->wkvt_type)) { /* :VALUE */
-            for (; index < len; index += 2) {
-              var object value = data[index+1];
-              if (boundp(value)) {
-                if (alive(value)) /* mark key */
-                  gc_mark(data[index]);
-                else /* drop both key and value from the table */
-                  data[index] = data[index+1] = unbound;
-              }
-            }
-          } else if (eq(S(Keither),wt->wkvt_type)) { /* :EITHER */
-            for (; index < len; index += 2) {
-              var object key = data[index];
-              var object val = data[index+1];
-              if ((boundp(key) && !alive(key))
-                  || (boundp(val) && !alive(val)))
-                /* drop both key and value from the table */
-                data[index] = data[index+1] = unbound;
-            }
-          } else if (eq(S(Kboth),wt->wkvt_type)) { /* :BOTH */
-            for (; index < len; index += 2) {
-              var object key = data[index];
-              var object val = data[index+1];
-              if ((boundp(key) && !alive(key))
-                  && (boundp(val) && !alive(val)))
-                /* drop both key and value from the table */
-                data[index] = data[index+1] = unbound;
-              else {
-                gc_mark(key);
-                gc_mark(val);
-              }
-            }
-          } else
-            /*NOTREACHED*/ abort();
-          /* Keep the WeakKVT in the list. */
-          *L1 = Lu; L1 = &TheWeakKVT(Lu)->wkvt_cdr; Lu = *L1;
-        }
-      }
-      *L1 = Fixnum_0;
-    }
-    {
-      var object L = O(all_weakkvtables); # mark the list
-      while (!eq(L,Fixnum_0)) {
-        gc_mark(L); L = TheWeakKVT(L)->wkvt_cdr;
-      }
-    }
     # All active objects are marked now:
     # active objects of variable length and active two-pointer-objects carry
     # in their first byte a set mark bit, active SUBRs carry

@@ -3437,7 +3437,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define stream_type     (               BTB3     |BTB1|BTB0) # 0x0B  # %00001011  ; stream
   #define orecord_type    (               BTB3|BTB2          ) # 0x0C  # %00001100  ; OtherRecord (Package, Byte, ...)
   #define instance_type   (               BTB3|BTB2     |BTB0) # 0x0D  # %00001101  ; CLOS instance
-  #define lrecord_type    (               BTB3|BTB2|BTB1     ) # 0x0E  # %00001110  ; LongRecord (WeakKVT, ...)
+  #define lrecord_type    (               BTB3|BTB2|BTB1     ) # 0x0E  # %00001110  ; LongRecord (WeakList, WeakAlist, ...)
   #define mdarray_type    (               BTB3|BTB2|BTB1|BTB0) # 0x0F  # %00001111  ; other array (rank/=1 or other eltype)
   #define sbvector_type   (          BTB4                    ) # 0x10  # %00010000  ; simple-bit-vector
   #define sb2vector_type  (          BTB4               |BTB0) # 0x11  # %00010001  ; simple (VECTOR (UNSIGNED-BYTE 2))
@@ -4163,7 +4163,6 @@ typedef xrecord_ *  Xrecord;
          Rectype_WeakAlist_Value,
          Rectype_WeakAlist_Either,
          Rectype_WeakAlist_Both,
-         Rectype_WeakKVT,
          rectype_for_broken_compilers_that_dont_like_trailing_commas
        };
 
@@ -5222,19 +5221,6 @@ typedef struct {
 } * MutableWeakAlist;
 #define mutableweakalist_length  ((sizeof(*(MutableWeakAlist)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
-# weak key-value table for weak hashtables
-typedef struct {
-  VRECORD_HEADER
-  gcv_object_t wkvt_cdr  _attribute_aligned_object_; # active weak-kvts form a chained list
-  gcv_object_t wkvt_type _attribute_aligned_object_; /* :KEY :VALUE :EITHER or :BOTH */
-  gcv_object_t data[unspecified] _attribute_aligned_object_; # elements
-} weakkvt_t;
-typedef weakkvt_t* WeakKVT;
-# All of wkvt_cdr, wkvt_type and data are invisible to gc_mark routines.
-# Weakkvt_length(obj) returns the length of the data[] part only.
-#define weakkvt_length(ptr)  (sarray_length(ptr)-2)
-#define Weakkvt_length(obj)  weakkvt_length(TheWeakKVT(obj))
-
 # Finalizer
 typedef struct {
   XRECORD_HEADER
@@ -5889,7 +5875,6 @@ typedef enum {
   #define TheSistring(obj)  ((Sistring)(types_pointable(sstring_type,obj)))
   #define TheSstring(obj)  ((Sstring)(types_pointable(sstring_type,obj)))
   #define TheSvector(obj)  ((Svector)(types_pointable(svector_type,obj)))
-  #define TheWeakKVT(obj)  ((WeakKVT)(types_pointable(lrecord_type,obj)))
   #define TheIarray(obj)  ((Iarray)(types_pointable(mdarray_type|bvector_type|b2vector_type|b4vector_type|b8vector_type|b16vector_type|b32vector_type|string_type|vector_type,obj)))
   #define TheRecord(obj)  ((Record)(types_pointable(closure_type|structure_type|stream_type|orecord_type|instance_type|lrecord_type,obj)))
   #define TheLrecord(obj)  ((Lrecord)(types_pointable(lrecord_type,obj)))
@@ -6044,7 +6029,6 @@ typedef enum {
   #define TheSistring(obj)  ((Sistring)(ngci_pointable(obj)-varobject_bias))
   #define TheSstring(obj)  ((Sstring)(ngci_pointable(obj)-varobject_bias))
   #define TheSvector(obj)  ((Svector)(ngci_pointable(obj)-varobject_bias))
-  #define TheWeakKVT(obj)  ((WeakKVT)(ngci_pointable(obj)-varobject_bias))
   #define TheIarray(obj)  ((Iarray)(ngci_pointable(obj)-varobject_bias))
   #define TheRecord(obj)  ((Record)(ngci_pointable(obj)-varobject_bias))
   #define TheLrecord(obj)  ((Lrecord)(ngci_pointable(obj)-varobject_bias))
@@ -6146,9 +6130,9 @@ typedef enum {
       : Xrecord_length(obj)))
 # Length of an Lrecord, ignoring weak pointers:
 #define Lrecord_nonweak_length(obj)  \
-  ((Record_type(obj) >= Rectype_WeakList    \
-    && Record_type(obj) <= Rectype_WeakKVT) \
-   ? 0                                      \
+  ((Record_type(obj) >= Rectype_WeakList           \
+    && Record_type(obj) <= Rectype_WeakAlist_Both) \
+   ? 0                                             \
    : Lrecord_length(obj))
 # Length (number of objects) of a record, obj has to be a Record:
 #define Record_length(obj)  \
@@ -6440,7 +6424,7 @@ typedef enum {
           case Rectype_S8string: case Rectype_Imm_S8string:                  \
           case Rectype_S16string: case Rectype_Imm_S16string:                \
           case Rectype_S32string: case Rectype_Imm_S32string:                \
-          case Rectype_Svector: case Rectype_WeakKVT:                        \
+          case Rectype_Svector:                                              \
           case Rectype_mdarray:                                              \
           case Rectype_bvector: case Rectype_string: case Rectype_vector:    \
           case Rectype_reallocstring:                                        \
@@ -6630,16 +6614,6 @@ typedef enum {
 # Test for Weakpointer
 #define weakpointerp(obj)  \
   (orecordp(obj) && (Record_type(obj) == Rectype_Weakpointer))
-
-# Test for WeakKVT
-#ifdef TYPECODES
-  #define weakkvtp(obj)  \
-    (lrecordp(obj) && (Record_type(obj) == Rectype_WeakKVT))
-#else
-  # cases: Rectype_WeakKVT
-  #define weakkvtp(obj)  \
-    (varobjectp(obj) && (Record_type(obj) == Rectype_WeakKVT))
-#endif
 
 # test for socket-server and for socket-stream
 #ifdef SOCKET_STREAMS
@@ -8758,15 +8732,6 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 #define allocate_ffunction()  \
   allocate_xrecord(0,Rectype_Ffunction,ffunction_length,0,orecord_type)
 # is used by FOREIGN
-
-# UP: allocates a WeakKVT of the given length
-# allocate_weakkvt(len,type)
-# > len:    the length of the data vector
-# > type:   :KEY or :VALUE or :EITHER or :BOTH
-# < result: a fresh weak key-value table
-# can trigger GC
-extern object allocate_weakkvt (uintL len, object type);
-# is used by HASHTABL
 
 # UP: allocates finalizer
 # allocate_finalizer()
