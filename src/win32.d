@@ -317,15 +317,8 @@
 # used by misc.d
 # requires linking with advapi32.lib
 
-# Repairing SIGSEGV signals and stack overflows.
-  # extern LPTOP_LEVEL_EXCEPTION_FILTER SetUnhandledExceptionFilter (LPTOP_LEVEL_EXCEPTION_FILTER TopLevelExceptionFilter);
+# Examining the memory map.
   # extern DWORD VirtualQuery (LPCVOID Address, PMEMORY_BASIC_INFORMATION Buffer, DWORD Length);
-  # extern BOOL VirtualProtect (LPVOID Address, DWORD Size, DWORD NewProtect, PDWORD OldProtect);
-  #if !defined(BORLAND)
-    # Apparently doesn't work with Borland C 5.0. The exception handler
-    # installed with SetUnhandledExceptionFilter() is apparently not called.
-    #define CAN_HANDLE_WP_FAULT
-  #endif
   extern void DumpProcessMemoryMap (void); # see win32aux.d
 # used by spvw.d
 
