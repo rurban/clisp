@@ -216,7 +216,7 @@ The vector is freshly constructed, but the strings are shared"
 (defvar *module-all-packages*)
 (defvar *init-1-name* nil "Did the module define its own init1?")
 (defvar *init-2-name* nil "Did the module define its own init2?")
-(defvar *exit-name* nil "Did the module define its own exit function?")
+(defvar *fini-name* nil "Did the module define its own fini?")
 
 (defun defmodule-p (line)
   (let* ((pos (next-non-blank line 0))
@@ -231,7 +231,7 @@ The vector is freshly constructed, but the strings are shared"
                                   *module-name*)
             *init-2-name* (format nil "module__~A__init_function_2"
                                   *module-name*)
-            *exit-name* (format nil "module__~A__exit_function"
+            *fini-name* (format nil "module__~A__fini_function"
                                 *module-name*))
       (assert pos () "no comma in DEFMODULE directive")
       (setq *module-package*
@@ -806,8 +806,8 @@ commas and parentheses."
         (setq *init-1-name* (ext:string-concat *init-1-name* "__modprep")))
       (when (and *init-2-name* (search *init-2-name* line))
         (setq *init-2-name* nil)) ; module defines its own init2
-      (when (and *exit-name* (search *exit-name* line))
-        (setq *exit-name* nil)) ; module defines its own exit-func
+      (when (and *fini-name* (search *fini-name* line))
+        (setq *fini-name* nil)) ; module defines its own fini-func
       (when (or (null status) (eql status #\;)) (return)))
     (setf (line-contents ln) line)))
 
@@ -1036,9 +1036,9 @@ commas and parentheses."
       (format out "void ~A (module_t* module)" *init-2-name*)
       (newline out) (write-string "{" out) (newline out)
       (write-string "}" out) (newline out))
-    (when *exit-name*         ; no exit-func => define a dummy
+    (when *fini-name*           ; no fini-func => define a dummy
       (newline out)
-      (format out "void ~A (module_t* module)" *exit-name*)
+      (format out "void ~A (module_t* module)" *fini-name*)
       (newline out) (write-string "{" out) (newline out)
       (write-string "}" out) (newline out))))
 
