@@ -73,9 +73,6 @@
  syntax but cannot be interpreted as a &number-t;, is interpreted as
  &symbol-t; when being read.</para>
 
-<para>When creating a &symbol-t; from a token, no character attributes
- are removed.</para>
-
 </section>
 
 <section id="valid-patterns"><title>Valid Patterns for Tokens
@@ -86,13 +83,6 @@
  number syntax. (What's the purpose of this check?) So we consider
  tokens like <token>USER::</token> or <token>:1</token> or
  <token>LISP::4711</token> or <token>21:3</token> as symbols.</para>
-
-</section>
-
-<section id="double-quote"><title>Double-Quote
-  <ulink url="&clhs;/Body/sec_2-4-5.html">[CLHS-2.4.5]</ulink></title>
-
-<para>When a string is read, no character attributes are removed.</para>
 
 </section>
 
@@ -1821,22 +1811,34 @@ performance considerations.
 
 <para>See also <xref linkend="chario"/>.</para>
 
+<section id="char-script"><title>Character Scripts
+   <ulink url="&clhs;/Body/sec_13-1-2-1.html">[CLHS-13.1.2.1]</ulink></title>
 
-<section id="input-char"><title>Attributes</title>
+<para>The only defined character script is the type &character-t;
+ itself.</para>
 
-<para>Characters do not have the &cltl1; font and bits attributes.
- For backward compatibility, there is a class &input-char; representing
- either a character with font and bits, or a keystroke.
+</section>
+
+<section id="char-attrib"><title>Character Attributes
+   <ulink url="&clhs;/Body/sec_13-1-3.html">[CLHS-13.1.3]</ulink></title>
+
+<para>Characters have no implementation-defined or &cltl1; font and bit
+ attributes.  All characters are simple characters.</para>
+
+<section id="input-char"><title>Input Characters</title>
+
+<para>For backward compatibility, there is a class &input-char;
+ representing either a character with font and bits, or a keystroke.
  The following functions work with objects of types &character-t;
  and &input-char;.
  Note that &eql; or &equal; are equivalent to &eq; on objects of type
  &input-char;.</para>
 
 <variablelist>
- <varlistentry><term><constant>ext:char-font-limit</constant> = 16</term>
+ <varlistentry><term><constant>EXT:CHAR-FONT-LIMIT</constant> = 16</term>
   <listitem><simpara>The system uses only font 0.
   </simpara></listitem></varlistentry>
- <varlistentry><term><constant>ext:char-bits-limit</constant> = 16</term>
+ <varlistentry><term><constant>EXT:CHAR-BITS-LIMIT</constant> = 16</term>
   <listitem><para>Character bits:
     <informaltable id="bit-table" frame="all">
      <tgroup cols="2" colsep="1" rowsep="1" align="center">
@@ -1871,6 +1873,9 @@ performance considerations.
   </simpara></listitem></varlistentry>
 </variablelist>
 
+<warning><para>&input-char; is &not-e; a subtype of
+  &character-t;.</para></warning>
+
 <!-- #ifdef KEYBOARD -->
 <variablelist>
 <varlistentry><term>Platform dependent: &unix;, &win32;
@@ -1883,20 +1888,6 @@ performance considerations.
 <!-- #endif -->
 
 </section>
-
-<section id="char-script"><title>Character Scripts
-   <ulink url="&clhs;/Body/sec_13-1-2-1.html">[CLHS-13.1.2.1]</ulink></title>
-
-<para>The only defined character script is the type &character-t;
- itself.</para>
-
-</section>
-
-<section id="char-attrib"><title>Character Attributes
-   <ulink url="&clhs;/Body/sec_13-1-3.html">[CLHS-13.1.3]</ulink></title>
-
-<para>Characters have no implementation-defined attributes.
- All characters are simple characters.</para>
 
 </section>
 
@@ -3232,10 +3223,10 @@ pointing to non-existent files and can take the following values:
 <listitem><para>&terminal-io-var; is not the only stream that
  communicates directly with the user: During execution of the body of a
  <literal role="sexp">(&with-kbd; . &body-r;)</literal> form,
- <firstterm>&kbd-in;</firstterm> is the stream that reads the
+ <firstterm>&kbd-in;</firstterm> is the &stream-t; that reads the
  keystrokes from the keyboard.
- It returns every keystroke in detail, as &character-t; or
- &input-char; with the following bits:
+ It returns every keystroke in detail as an &input-char; with the
+ following bits:
 <variablelist>
 <!-- #ifdef WIN32 -->
  <varlistentry><term><constant>:hyper</constant></term>
@@ -3302,10 +3293,11 @@ pointing to non-existent files and can take the following values:
   </simpara></listitem></varlistentry>
 <!-- #endif -->
 </variablelist>
-
  This keyboard input is not echoed on the screen.  During execution of a
  <literal role="sexp">(&with-kbd; . &body-r;)</literal> form, no input from
  &terminal-io-var; or any synonymous stream should be requested.</para>
+ <warning><para>Since &input-char; is &not-e; a subtype of
+   &character-t;, &read-line; on &kbd-in; is illegal.</para></warning>
 </listitem></varlistentry>
 </variablelist>
 <!-- #endif -->
