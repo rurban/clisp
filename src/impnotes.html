@@ -2439,19 +2439,9 @@ the function <CODE>logical-pathname</CODE> can be used.
 <H3>23.2.</H3>
 
 <CODE>open</CODE> cannot handle files of size &gt;= 4 GB.
-
-<DL>
-<!-- #ifdef HANDLES -->
-<DT><EM>Platform dependent: UNIX, DOS, OS/2, Win32, Amiga platforms only.</EM></DT>
-<DD>
+<P>
 The file streams returned by <CODE>open</CODE> are buffered for regular files and
 unbuffered for special files.
-<!-- #else -->
-<DT><EM>Platform dependent: Acorn platforms only.</EM></DT>
-<DD>
-The file streams returned by <CODE>open</CODE> are always buffered.
-<!-- #endif -->
-</DL>
 
 <H3>23.3.</H3>
 

@@ -210,9 +210,7 @@
 #ifdef PRINTER
 #  Printer-Stream
 #endif
-#ifdef HANDLES
 #  File-Handle-Stream                      Handle, Pathname
-#endif
 #ifdef PIPES
 #  Pipe-Input-Stream                       Pid, Handle
 #  Pipe-Output-Stream                      Pid, Handle
@@ -3196,9 +3194,6 @@ LISPFUNN(generic_stream_p,1)
     }
 
 
-#if (defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)) && (!defined(TERMINAL_USES_KEYBOARD) || defined(HANDLES) || defined(PIPES) || ((defined(X11SOCKETS) || defined(SOCKET_STREAMS)) && !defined(WIN32_NATIVE)))
-#define XHANDLES
-
 # Handle-Streams
 # ==============
 
@@ -3896,8 +3891,6 @@ LISPFUNN(generic_stream_p,1)
     var object stream;
     { clear_tty_output(TheHandle(TheStream(stream)->strm_ohandle)); }
 
-#if defined(HANDLES) || (defined(PIPES) && (defined(UNIX) || defined(WIN32_NATIVE))) || ((defined(X11SOCKETS) || defined(SOCKET_STREAMS)) && !defined(WIN32_NATIVE))
-
 # READ-BYTE - Pseudofunktion für Handle-Streams:
   local object rd_by_handle (object stream);
   local object rd_by_handle(stream)
@@ -3922,10 +3915,6 @@ LISPFUNN(generic_stream_p,1)
       wr_ch_handle(&STACK_0,fixnum_to_char(obj));
       skipSTACK(1);
     }
-
-#endif
-
-#if defined(HANDLES) || (defined(PIPES) && (defined(UNIX) || defined(WIN32_NATIVE))) || ((defined(X11SOCKETS) || defined(SOCKET_STREAMS)) && !defined(WIN32_NATIVE))
 
 # Schließt einen Handle-Stream.
 # close_ihandle(stream);
@@ -3957,10 +3946,6 @@ LISPFUNN(generic_stream_p,1)
       #endif
       end_system_call();
     }
-
-#endif
-
-#if defined(HANDLES)
 
 #define close_handle  close_ihandle
 
@@ -4051,10 +4036,6 @@ LISPFUNN(generic_stream_p,1)
       }
       return stream;
     }}
-
-#endif
-
-#endif # (UNIX || DJUNIX || EMUNIX || WATCOM || AMIGAOS || RISCOS || WIN32_NATIVE) && (brauche Handle-Streams)
 
 
 #ifdef KEYBOARD
@@ -11256,7 +11237,6 @@ typedef struct strm_i_file_extrafields_struct {
         pushSTACK(eltype);
       }
       # Stackaufbau: filename, truename, eltype.
-      #if defined(HANDLES)
       # Nur reguläre Files zu gebufferten File-Streams machen.
       # Alles andere gibt File-Handle-Streams, weil vermutlich lseek() nicht geht.
       if (!nullp(handle))
@@ -11278,7 +11258,6 @@ typedef struct strm_i_file_extrafields_struct {
                          ""
                         );
         }   }   }
-      #endif
      { # Flags:
        var uintB flags =
          (direction==0 ? 0 : # bei Modus :PROBE sind alle Flags =0
@@ -13497,9 +13476,7 @@ LISPFUNN(stream_element_type,1)
               # CHARACTER
               eltype = S(character); break;
             case strmtype_file:
-            #ifdef HANDLES
             case strmtype_handle:
-            #endif
               # CHARACTER or ([UN]SIGNED-BYTE n)
               eltype = TheStream(stream)->strm_eltype; break;
             # dann die allgemeinen Streams:
@@ -13613,18 +13590,14 @@ LISPFUNN(stream_external_format,1)
           case strmtype_generic:
           #endif
             return TRUE;
-          #if !(defined(NEXTAPP)) || defined(HANDLES)
           #if !defined(NEXTAPP)
           case strmtype_terminal:
           #endif
-          #ifdef HANDLES
           case strmtype_handle:
             if (nullp(TheStream(stream)->strm_isatty))
               # Reguläre Files sind sicher nicht interaktiv.
               if (regular_handle_p(TheHandle(TheStream(stream)->strm_ihandle)))
                 return FALSE;
-          #endif
-          #endif
           #ifdef KEYBOARD
           case strmtype_keyboard:
           #endif
@@ -13701,10 +13674,8 @@ LISPFUNN(interactive_stream_p,1)
           case strmtype_printer:
             close_printer(stream); break;
           #endif
-          #ifdef HANDLES
           case strmtype_handle:
             close_handle(stream); break;
-          #endif
           #ifdef PIPES
           case strmtype_pipe_in:
             close_pipe_in(stream); break;
@@ -13837,13 +13808,11 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               #ifdef PRINTER
               case strmtype_printer:  return signean_minus; # kein READ-CHAR
               #endif
-              #ifdef HANDLES
               case strmtype_handle:
                 if (TheStream(stream)->strmflags & strmflags_rd_ch_B)
                   { return listen_handle(stream); }
                   else
                   { return signean_minus; } # kein READ-CHAR
-              #endif
               #ifdef PIPES
               case strmtype_pipe_in:  return listen_pipe_in(stream);
               case strmtype_pipe_out: return signean_minus; # kein READ-CHAR
@@ -13912,14 +13881,12 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                         );
             #endif
             break;
-          #ifdef HANDLES
           case strmtype_handle:
             if (TheStream(stream)->strmflags & strmflags_rd_ch_B)
               { ergebnis = clear_input_handle(stream); }
               else
               { ergebnis = FALSE; }
             break;
-          #endif
           #ifdef PIPES
           case strmtype_pipe_in: # Pipe: nichts löschen??
           #endif
@@ -13976,10 +13943,8 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                 # Seitenvorschub ausgeben, und das ist ja wohl nicht erwünscht.
                 break; # Daher nichts tun.
               #endif
-              #ifdef HANDLES
               case strmtype_handle:
                 finish_output_handle(stream); break;
-              #endif
               #ifdef PIPES
               case strmtype_pipe_out: # Pipe: kann nichts tun
               #endif
@@ -14028,10 +13993,8 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                 # Seitenvorschub ausgeben, und das ist ja wohl nicht erwünscht.
                 break; # Daher nichts tun.
               #endif
-              #ifdef HANDLES
               case strmtype_handle:
                 force_output_handle(stream); break;
-              #endif
               #ifdef PIPES
               case strmtype_pipe_out: # Pipe: kann nichts tun
               #endif
@@ -14090,10 +14053,8 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               case strmtype_printer: # Printer: ungebuffert, also nichts zu tun
                 break;
               #endif
-              #ifdef HANDLES
               case strmtype_handle:
                 clear_output_handle(stream); break;
-              #endif
               #ifdef PIPES
               case strmtype_pipe_out: # Pipe: geht nicht
                 break;

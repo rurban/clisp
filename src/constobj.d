@@ -844,9 +844,7 @@
   LISPOBJ_S(printstring_closed,"CLOSED ")
     # Namensstring zu jedem Streamtyp, adressiert durch Streamtyp:
     LISPOBJ_S(printstring_strmtype_file,"BUFFERED FILE")
-    #ifdef HANDLES
     LISPOBJ_S(printstring_strmtype_handle,"UNBUFFERED FILE")
-    #endif
     LISPOBJ_S(printstring_strmtype_synonym,"SYNONYM")
     LISPOBJ_S(printstring_strmtype_broad,"BROADCAST")
     LISPOBJ_S(printstring_strmtype_concat,"CONCATENATED")
