@@ -1,3 +1,11 @@
+2002-03-28  Sam Steingold  <sds@gnu.org>
+
+	when COMPILE-FILE with :OUTPUT-FILE arg causes REQUIRE to compile
+	a file, place the compiled file in the same directory
+	* compiler.lisp (*compile-file-directory*): new variable
+	(compile-file): bind it when given :OUTPUT-FILE
+	(c-REQUIRE): when it is non-NIL, give COMPILE-FILE :OUTPUT-FILE
+
 2002-03-27  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 	    Sam Steingold  <sds@gnu.org>
 
