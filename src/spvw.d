@@ -8650,8 +8650,9 @@ local uintC generation;
             *(uintW*)pointerplus(ptr,offsetof(record_,recflags)) = ((uintW)Rectype_Ratio << (BIG_ENDIAN_P ? 0 : 8)); \
             ptr->reclength = 2; ptr->recxlength = 0;
         #else
+          var uintL tfl = xrecord_tfl(Rectype_Ratio,(positivep(num) ? 0 : 0xFF),2,0);
           #define SETTFL  \
-            ptr->tfl = xrecord_tfl(Rectype_Ratio,(positivep(num) ? 0 : 0xFF),2,0);
+            ptr->tfl = tfl;
         #endif
         allocate(type,TRUE,size_xrecord(2,0),Ratio,ptr,
                  { SETTFL; FILL; }
