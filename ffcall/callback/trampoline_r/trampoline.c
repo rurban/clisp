@@ -402,6 +402,13 @@ __TR_function alloc_trampoline_r (address, data0, data1)
   /* 1. Allocate room */
 
 #if !defined(CODE_EXECUTABLE) && !defined(EXECUTABLE_VIA_MPROTECT)
+  /* Note: This memory allocation is not multithread-safe. We might need
+   * to add special (platform dependent) code for locking.
+   * Fortunately, most modern systems where multithread-safety matters
+   * have EXECUTABLE_VIA_MPROTECT, and those which don't (AIX on rs6000 and
+   * HP-UX on hppa) have CODE_EXECUTABLE. Thus no locking code is needed
+   * for the moment.
+   */
   if (freelist == NULL)
     { /* Get a new page. */
       char* page;
