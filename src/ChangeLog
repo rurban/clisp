@@ -1,5 +1,15 @@
 2004-03-10  Bruno Haible  <bruno@clisp.org>
 
+	Don't use features unique to GCC. Needed for Solaris cc and HP-UX cc.
+	* stream.d (key_ascii, key_special): Use portable initializer syntax.
+	(add_keybinding): Renamed from keybinding. Change argument type from
+	key_event_t to 'const key_event_t *'.
+	(keybinding): New macro.
+	(make_keyboard_stream): Remove macros BIND_KEY, CHECK_CAP. Use macro
+	keybinding instead.
+
+2004-03-10  Bruno Haible  <bruno@clisp.org>
+
 	* Makefile.devel (src/autoconf/aclocal.m4): Append also mbstate_t.m4
 	and fnmatch.m4, needed by modules/wildcard/configure.in.
 
