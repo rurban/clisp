@@ -859,6 +859,9 @@ Argument: none
 
 ; =-=-=-=-=-=-=-   C WRAPPER FUNCTIONS  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+(c-lines "#include <oci.h>~%")
+(c-lines "#include \"oiface.h\"~%")
+
 ; CONNECT
 (def-call-out oracle_connect (:arguments (user           c-string)
                                          (schema         c-string)
