@@ -10788,16 +10788,19 @@ inline Handle MyDupHandle (Handle h0) {
   return h1;
 }
 
-# shell_quote - surrounds dangerous strings with double quotes. quotes quotes.
-# dest should be twice as large as source + 2 (for quotes)
-local int shell_quote (char * dest, const char * source, const char * source_end) {
+/* shell_quote - surrounds dangerous strings with double quotes. quotes quotes.
+ dest should be twice as large as source + 2 (for quotes) */
+local int shell_quote (char * dest, const char * source,
+                       const char * source_end) {
   var const char * characters = " &<>|^\t";
-  # Chars other than command separators are actual only when command interpreter is used
-  var int quote = !(*source) || source >= source_end; # quote empty arguments
+  /* Chars other than command separators are actual only when command
+     interpreter is used */
+  var bool quote = !(*source) || source >= source_end; # quote empty arguments
   var int escaped = 0;
   var char * dcp = dest;
   *dcp++ = ' ';
-  var int ech;
+  var bool ech;
+  begin_system_call();
   while (*source && source_end && source < source_end) {
     quote = quote || strchr(characters,*source);
     ech = *source == '\\';
@@ -10805,6 +10808,7 @@ local int shell_quote (char * dest, const char * source, const char * source_end
     *dcp++ = *source++;
     escaped = !escaped && ech;
   }
+  end_system_call();
   if (quote) {
     if (escaped) *dcp++ = '\\'; # double ending slash
     *dcp++ = '"'; *dest = '"'; }
