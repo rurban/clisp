@@ -1,3 +1,10 @@
+2004-04-24  Bruno Haible  <bruno@clisp.org>
+
+	* clos-print.lisp: Renamed from clos-class4.lisp.
+	* clos.lisp: Update.
+	* makemake.in (LPARTS): Add clos-print, remove clos-class4.
+	* po/Makefile.devel (LISPSOURCES): Add clos-print, remove clos-class4.
+
 2004-05-05  Sam Steingold  <sds@gnu.org>
 
 	* hashtabl.d (hashcode_string): use all string elements
