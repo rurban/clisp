@@ -2012,7 +2012,7 @@ global int main (argc_t argc, char* argv[]) {
               usage (0);
             else if (asciz_equal(&arg[2],"version")) {
               argv_expr_count = 0;  /* discard previous -x */
-              argv_verbose = 2;
+              argv_verbose = 1;
               argv_norc = true;
               argv_repl = false;
               /* force processing this argument again,
@@ -2726,7 +2726,7 @@ global int main (argc_t argc, char* argv[]) {
     { argv_verbose = 1; }        /* prevents the greeting */
   if (argv_execute_file != NULL) /* batch-mode ? */
     { argv_verbose = 1; }        /* prevents the greeting */
-  if (argv_verbose<2 || argv_license) print_banner();
+  if (argv_verbose>=2 || argv_license) print_banner();
   if (argv_license) print_license();
   if (argv_execute_arg_count > 0) {
     var uintL count = argv_execute_arg_count;
