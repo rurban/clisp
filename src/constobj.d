@@ -464,7 +464,7 @@
   LISPOBJ(memory_image_host,"NIL") # the host on which this image was dumped
   # The date of the last change of the bytecode interpreter
   # or the arglist of any built-in function in FUNTAB
-  LISPOBJ(version,"(20010723)")
+  LISPOBJ(version,"(20010726)")
   #ifdef MACHINE_KNOWN
     LISPOBJ(machine_type_string,"NIL")
     LISPOBJ(machine_version_string,"NIL")
@@ -544,6 +544,8 @@
   LISPOBJ(type_rtcase,"(MEMBER :UPCASE :DOWNCASE :PRESERVE :INVERT)")
   LISPOBJ(type_peektype,"(OR BOOLEAN CHARACTER)")
   LISPOBJ(type_printcase,"(MEMBER :UPCASE :DOWNCASE :CAPITALIZE)")
+  LISPOBJ(type_pprint_newline,"(MEMBER :LINEAR :FILL :MISER :MANDATORY)")
+  LISPOBJ(type_pprint_indent,"(MEMBER :BLOCK :CURRENT)")
   LISPOBJ(type_random_arg,"(OR (INTEGER (0) *) (FLOAT (0.0) *))")
   LISPOBJ(type_packname,"(OR PACKAGE STRING SYMBOL)")
   LISPOBJ(type_stringsym,"(OR STRING SYMBOL)")
