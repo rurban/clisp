@@ -1,0 +1,102 @@
+HOST = i486-linux
+CPU = i386
+GCC = gcc
+GCCFLAGS = -O2 -fomit-frame-pointer
+ASPREFIX = /usr1/gnu/lib
+RM = rm -f
+ROFF_MAN = groff -Tascii -mandoc
+
+all : proto-i386.s proto-m68k.s proto-mips.s proto-mips64.s proto-sparc.s proto-alpha.s proto-hppa.s proto-arm.s proto-rs6000.s proto-m88k.s proto-convex.s \
+      cache-sparc.S cache-alpha.s cache-hppa.s cache-rs6000.s cache-convex.s \
+      trampoline.man \
+      config.h.msvc
+
+proto-i386.s : proto.c
+	$(GCC) -V 2.7.2 -b i486-linuxaout $(GCCFLAGS) -D__i386__ -S proto.c -o $@
+
+proto-m68k.s : proto.c
+	$(GCC) -V 2.6.3 -b m68k-sun $(GCCFLAGS) -D__m68k__ -S proto.c -o $@
+
+proto-mips.s : proto.c
+	$(GCC) -V 2.6.3 -b mips-sgi $(GCCFLAGS) -D__mips__ -S proto.c -o $@ -mabicalls
+
+proto-mips64.s : proto64.c
+	$(GCC) -V 2.6.3 -b mips-sgi -mips3 -mlong64 $(GCCFLAGS) -D__mips64__ -S proto64.c -o $@ -mabicalls
+
+proto-sparc.s : proto.c
+	$(GCC) -V 2.6.3 -b sparc-sun $(GCCFLAGS) -D__sparc__ -S proto.c -o $@
+
+proto-alpha.s : proto.c
+	$(GCC) -V 2.7.2 -b alpha-dec-osf $(GCCFLAGS) -D__alpha__ -S proto64.c -o $@
+
+proto-hppa.s : proto.c
+	$(GCC) -V 2.6.3 -b hppa1.0-hpux $(GCCFLAGS) -D__hppa__ -S proto.c -o $@
+
+proto-arm.s : proto.c
+	$(GCC) -V 2.6.3 -b arm-acorn-riscix $(GCCFLAGS) -D__arm__ -S proto.c -o $@
+
+proto-rs6000.s : proto.c
+	$(GCC) -V 2.6.3 -b rs6000 $(GCCFLAGS) -D__rs6000__ -S proto.c -o $@
+
+proto-m88k.s : proto.c
+	$(GCC) -V 2.6.3 -b m88k-dgux $(GCCFLAGS) -D__m88k__ -S proto.c -o $@
+
+proto-convex.s : proto.c
+	$(GCC) -V 2.6.3 -b convex-c2 $(GCCFLAGS) -D__convex__ -S proto.c -o $@
+
+cache-sparc.S : cache-sparc.c
+	$(GCC) -V 2.6.3 -b sparc-sun $(GCCFLAGS) -D__sparc__ -S $< -o cache-sparc.s
+	(cat underscore.h ; sed -e 's/_\(_[A-Za-z_:]*\)/C(\1)/' cache-sparc.s) > cache-sparc.S
+	$(RM) cache-sparc.s
+
+cache-alpha.s : cache-alpha.c
+	$(GCC) -V 2.7.2 -b alpha-dec-osf $(GCCFLAGS) -D__alpha__ -S $< -o $@
+
+cache-hppa.s : cache-hppa.c
+	$(GCC) -V 2.6.3 -b hppa1.0-hpux $(GCCFLAGS) -D__hppa__ -S $< -o $@
+
+cache-rs6000.s : cache-rs6000.c
+	$(GCC) -V 2.6.3 -b rs6000 $(GCCFLAGS) -D__rs6000__ -S $< -o $@
+
+cache-convex.s : cache-convex.c
+	$(GCC) -V 2.6.3 -b convex-c2 $(GCCFLAGS) -D__convex__ -S $< -o $@
+
+trampoline.man : trampoline.3
+	$(ROFF_MAN) trampoline.3 > trampoline.man
+
+config.h.msvc : config.h.in
+	sed -e 's,^#undef __i386__$$,#define __i386__ 1,' -e 's,^#undef STDC_HEADERS$$,#define STDC_HEADERS 1,' -e 's,^#undef HAVE_STDLIB_H$$,#define HAVE_STDLIB_H 1,' -e 's,^#undef RETMALLOCTYPE$$,#define RETMALLOCTYPE void*,' -e 's,^#undef MALLOC_SIZE_T$$,#define MALLOC_SIZE_T size_t,' -e 's,^#undef RETFREETYPE$$,#define RETFREETYPE void,' -e 's,^#undef RETABORTTYPE$$,#define RETABORTTYPE void,' -e 's,^#undef HAVE_GETPAGESIZE$$,#define HAVE_GETPAGESIZE 1 /* fake */,' -e 's,^#undef RETGETPAGESIZETYPE$$,#define RETGETPAGESIZETYPE unsigned long,' -e 's,^#undef CODE_EXECUTABLE$$,#define CODE_EXECUTABLE 1,' < config.h.in > config.h.msvc
+
+tramp-i386.o : tramp-i386.s
+	$(ASPREFIX)/i486-linux/bin/as tramp-i386.s -o $@
+
+tramp-m68k.o : tramp-m68k.s
+	$(ASPREFIX)/m68k-sun/bin/as tramp-m68k.s -o $@
+
+tramp-mips.o : tramp-mips.s
+	$(ASPREFIX)/mips-sgi/bin/as tramp-mips.s -o $@
+
+tramp-mips64.o : tramp-mips64.s
+	$(ASPREFIX)/mips-sgi/bin/as -mips3 -membedded-pic tramp-mips64.s -o $@
+
+tramp-sparc.o : tramp-sparc.s
+	$(ASPREFIX)/sparc-sun/bin/as tramp-sparc.s -o $@
+
+tramp-alpha.o : tramp-alpha.s
+	$(ASPREFIX)/alpha-dec-osf/bin/as tramp-alpha.s -o $@
+
+tramp-hppa.o : tramp-hppa.s
+	$(ASPREFIX)/hppa1.0-hpux/bin/as tramp-hppa.s -o $@
+
+tramp-arm.o : tramp-arm.s
+	$(ASPREFIX)/arm-acorn-riscix/bin/as tramp-arm.s -o $@
+
+tramp-rs6000-old.o : tramp-rs6000-old.s
+	$(ASPREFIX)/rs6000/bin/as tramp-rs6000-old.s -o $@
+
+tramp-m88k.o : tramp-m88k.s
+	$(ASPREFIX)/m88k-coff/bin/as tramp-m88k.s -o $@
+
+tramp-convex.o : tramp-convex.s
+	$(ASPREFIX)/convex-c2/bin/as tramp-convex.s -o $@
+

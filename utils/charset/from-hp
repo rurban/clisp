@@ -1,0 +1,8 @@
+#!/bin/sh
+# Usage: from-hp <hp-file> <isolatin-file>
+if test $# != 2; then
+  echo "Usage: ${CHARSETBINDIR}from-hp <hp-file> <isolatin-file>"
+  exit 1
+fi
+${CHARSETBINDIR}cv-fr-hp < "$1" > "$2"
+${CHARSETBINDIR}touchr "$1" "$2"

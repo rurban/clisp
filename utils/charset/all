@@ -1,0 +1,9 @@
+#!/bin/sh
+# Usage: all-CONVERTER [file ...]
+for f in $*; do
+  if test -f "$f"; then
+    echo "converting $f"
+    ${CHARSETBINDIR}CONVERTER "$f" CONVERT.TMP
+    mv CONVERT.TMP "$f"
+  fi
+done

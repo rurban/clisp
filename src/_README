@@ -1,0 +1,5 @@
+#if DEUTSCH
+#include <src/_README.de>
+#else /* englische Übersetzung */
+#include <src/_README.en>
+#endif /* DEUTSCH / ENGLISH */

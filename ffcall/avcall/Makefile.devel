@@ -1,0 +1,122 @@
+HOST = i486-linux
+CPU = i386
+GCC = gcc
+GCCFLAGS = -O2 -fomit-frame-pointer
+LN = ln -s
+RM = rm -f
+SED = sed
+ROFF_MAN = groff -Tascii -mandoc
+
+all : avcall-i386.S avcall-i386-msvc.c avcall.h.msvc avcall-m68k.s avcall-m68k-amiga.s avcall-mips.s avcall-mips64.s avcall-sparc.S avcall-alpha.s avcall-hppa.s avcall-arm.s avcall-rs6000.s avcall-m88k.s avcall-convex.s avcall.man
+
+avcall-i386.S : avcall-i386.c avcall.h.in
+	$(GCC) -V 2.7.2 -b i486-linuxaout $(GCCFLAGS) -D__i386__ -fno-omit-frame-pointer -S avcall-i386.c -o avcall-i386.s
+	(echo '#include "asmi386.h"' ; sed -e 's/_\(_[A-Za-z_:]*\)/C(\1)/' -e '/\.align.*,0x90$$/d' avcall-i386.s) > avcall-i386.S
+	$(RM) avcall-i386.s
+
+avcall-i386-msvc.c : avcall-i386.S asmi386.sh
+	./asmi386.sh < avcall-i386.S > avcall-i386-msvc.c
+
+avcall.h.msvc : avcall.h.in
+	sed -e 's,^#undef __i386__$$,#define __i386__ 1,' -e 's,^#undef __SMALL_STRUCT_RETURN__$$,#define __SMALL_STRUCT_RETURN__ 1,' < avcall.h.in > avcall.h.msvc
+
+avcall-m68k.s : avcall-m68k.c avcall.h.in
+	$(GCC) -V 2.6.3 -b m68k-sun $(GCCFLAGS) -D__m68k__ -S avcall-m68k.c -o avcall-m68k.s
+
+avcall-m68k-amiga.s : avcall-m68k-amiga.c avcall.h.in
+	$(GCC) -V 2.6.3 -b m68k-sun -m68000 $(GCCFLAGS) -D__m68k__ -DAMIGA -S avcall-m68k-amiga.c -o avcall-m68k-amiga.s
+
+avcall-mips.s : avcall-mips.c avcall.h.in
+	$(GCC) -V 2.6.3 -b mips-sgi $(GCCFLAGS) -D__mips__ -fno-omit-frame-pointer -S avcall-mips.c -o avcall-mips.s
+
+avcall-mips64.s : avcall-mips64.c avcall.h.in
+	$(GCC) -V 2.6.3 -b mips-sgi -mips3 -mlong64 $(GCCFLAGS) -U__mips__ -D__mips64__ -fno-omit-frame-pointer -S avcall-mips64.c -o avcall-mips64-temp.s
+	grep -v '_compiled' < avcall-mips64-temp.s > avcall-mips64.s
+	$(RM) avcall-mips64-temp.s
+
+avcall-sparc.S : avcall-sparc.c avcall.h.in
+	$(GCC) -V 2.6.3 -b sparc-sun $(GCCFLAGS) -D__sparc__ -S avcall-sparc.c -o avcall-sparc.s
+	(cat underscore.h ; sed -e 's/_\(_[A-Za-z_:]*\)/C(\1)/' avcall-sparc.s) > avcall-sparc.S
+	$(RM) avcall-sparc.s
+
+# Patrick Bridges says that on Linux/Alpha, avcall-alpha.s compiled with "-O"
+# works but compiled with "-O2" doesn't work.
+avcall-alpha.s : avcall-alpha.c avcall.h.in
+	$(GCC) -V 2.7.2 -b alpha-dec-osf $(GCCFLAGS) -O1 -D__alpha__ -S avcall-alpha.c -o avcall-alpha-temp.s
+	$(SED) -e 's/\.rdata/\.data/g' < avcall-alpha-temp.s > avcall-alpha.s
+	$(RM) avcall-alpha-temp.s
+
+avcall-hppa.s : avcall-hppa.c avcall.h.in
+	$(GCC) -V 2.6.3 -b hppa1.0-hpux $(GCCFLAGS) -D__hppa__ -S avcall-hppa.c -o avcall-hppa-temp.s
+	$(SED) -e 's/120/1060/g' < avcall-hppa-temp.s > avcall-hppa.s
+	$(RM) avcall-hppa-temp.s
+
+avcall-arm.s : avcall-arm.c avcall.h.in
+	$(GCC) -V 2.6.3 -b arm-acorn-riscix $(GCCFLAGS) -D__arm__ -S avcall-arm.c -o avcall-arm.s
+
+avcall-rs6000.s : avcall-rs6000.c avcall.h.in
+	$(GCC) -V 2.6.3 -b rs6000 $(GCCFLAGS) -D__rs6000__ -S avcall-rs6000.c -o avcall-rs6000.s
+
+avcall-m88k.s : avcall-m88k.c avcall.h.in
+	$(GCC) -V 2.6.3 -b m88k-dgux $(GCCFLAGS) -D__m88k__ -S avcall-m88k.c -o avcall-m88k.s
+
+avcall-convex.s : avcall-convex.c avcall.h.in
+	$(GCC) -V 2.6.3 -b convex-c2 $(GCCFLAGS) -D__convex__ -S avcall-convex.c -o avcall-convex.s
+
+avcall.man : avcall.3
+	$(ROFF_MAN) avcall.3 > avcall.man
+
+
+tests : tests-i386.s tests-m68k.s tests-mips.s tests-sparc.s tests-alpha.s tests-hppa.s tests-arm.s tests-rs6000.s tests-m88k.s tests-convex.s
+	true
+
+tests-i386.s : tests.c avcall.h.in
+	$(LN) avcall.h.in avcall.h
+	$(GCC) -V 2.7.2 -b i486-linuxaout $(GCCFLAGS) -I/usr/include -D__i386__ -S tests.c -o tests-i386.s
+	$(RM) avcall.h
+
+tests-m68k.s : tests.c avcall.h.in
+	$(LN) avcall.h.in avcall.h
+	$(GCC) -V 2.6.3 -b m68k-sun $(GCCFLAGS) -I/usr/include -D__m68k__ -S tests.c -o tests-m68k.s
+	$(RM) avcall.h
+
+tests-mips.s : tests.c avcall.h.in
+	$(LN) avcall.h.in avcall.h
+	$(GCC) -V 2.6.3 -b mips-sgi $(GCCFLAGS) -I/usr/include -D__mips__ -S tests.c -o tests-mips.s
+	$(RM) avcall.h
+
+tests-sparc.s : tests.c avcall.h.in
+	$(LN) avcall.h.in avcall.h
+	$(GCC) -V 2.6.3 -b sparc-sun $(GCCFLAGS) -I/usr/include -D__sparc__ -S tests.c -o tests-sparc.s
+	$(RM) avcall.h
+
+tests-alpha.s : tests.c avcall.h.in
+	$(LN) avcall.h.in avcall.h
+	$(GCC) -V 2.7.2 -b alpha-dec-osf $(GCCFLAGS) -I/usr/include -D__alpha__ -S tests.c -o tests-alpha.s
+	$(RM) avcall.h
+
+tests-hppa.s : tests.c avcall.h.in
+	$(LN) avcall.h.in avcall.h
+	$(GCC) -V 2.6.3 -b hppa1.0-hpux $(GCCFLAGS) -I/usr/include -D__hppa__ -S tests.c -o tests-hppa.s
+	$(RM) avcall.h
+
+tests-arm.s : tests.c avcall.h.in
+	$(LN) avcall.h.in avcall.h
+	$(GCC) -V 2.6.3 -b arm-acorn-riscix $(GCCFLAGS) -I/usr/include -D__arm__ -S tests.c -o tests-arm.s
+	$(RM) avcall.h
+
+tests-rs6000.s : tests.c avcall.h.in
+	$(LN) avcall.h.in avcall.h
+	$(GCC) -V 2.6.3 -b rs6000 $(GCCFLAGS) -I/usr/include -D__rs6000__ -S tests.c -o tests-rs6000.s
+	$(RM) avcall.h
+
+tests-m88k.s : tests.c avcall.h.in
+	$(LN) avcall.h.in avcall.h
+	$(GCC) -V 2.6.3 -b m88k-dgux $(GCCFLAGS) -I/usr/include -D__m88k__ -S tests.c -o tests-m88k.s
+	$(RM) avcall.h
+
+tests-convex.s : tests.c avcall.h.in
+	$(LN) avcall.h.in avcall.h
+	$(GCC) -V 2.6.3 -b convex-c2 $(GCCFLAGS) -I/usr/include -D__convex__ -S tests.c -o tests-convex.s
+	$(RM) avcall.h
+

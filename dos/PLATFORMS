@@ -1,0 +1,31 @@
+List of platforms
+-----------------
+
+The following is a list of successful compiles, in the format
+
+
+hardware              OS             compiled by
+date                  test-time      email address
+
+(Test-time is the time needed for "make test". Measure real time.)
+
+
+PC 486/33, 8 MB RAM   MSDOS 5.0      Bruno Haible
+15.11.1992            667 s          <haible@ma2s2.mathematik.uni-karlsruhe.de>
+10.1.1993             621 s
+10.1.1993             604 s
+9.1.1993              793 s
+
+PC 386/40, 8 MB RAM   MSDOS 6.2      Marcus Daniels
+24.3.1994                            <marcus@ee.pdx.edu>
+
+PC                    MS Windows     Ralf Muschall
+??.7.1993                            <prm@rz.uni-jena.de>
+
+
+
+When you install CLISP on a machine not mentioned here, please send us a short
+note containing the information mentioned above. If you didn't succeed in
+building CLISP, please tell us the problems: we will try to make CLISP as
+portable as possible.
+

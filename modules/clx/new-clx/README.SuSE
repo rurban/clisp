@@ -1,0 +1,38 @@
+
+#
+# (C) 1997, S.u.S.E. GmbH, Fürth
+#
+
+Aufruf von clx
+
+
+   Da (n)clx X11 benötigt, wurde das entsprechende lisp.run und
+lispinit.mem als clx.run bzw. als clxinit.mem unter /usr/lib/lisp/
+installiert.  Das sich (n)clx nicht als wide-Version übersetzten
+werden konnte, gibt es keine dementsprechend keine wide-Version.
+
+Für den schnelleren Aufruf ist unter /usr/bin/ ein Skript clx
+installiert. So können die Demonstrationen unter demo/ mit
+
+       clx -q -i sokoban
+
+bzw. mit
+
+       clx -q -i qix
+
+gestartet werden.  Die herkömmliche LISP-Version starten Sie
+einfach mit dem Aufruf
+
+       clisp
+
+näheres findet sich in der Manual-Seite von clisp (Aufruf: man clisp).
+
+
+Anmerkung: Es gibt eine in LISP implementierten, älteren CLX-Version.
+  Diese Version beherrscht jedoch keine Authentifizierung beim X-Server
+  (vgl. mit der Manual-Seite Xsecurity).
+  Der Quelltext zu dieser Version gibt es unter
+  ftp://ftp2.cons.org/pub/lisp/clisp/packages/
+  und ist im Archive clx.sept92f.clisp+gcl.tar.z enthalten.
+
+

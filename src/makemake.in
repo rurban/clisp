@@ -1,0 +1,3572 @@
+# Konstruktion des Makefiles fürs Compilieren von CLISP
+# Bruno Haible 2.9.1991, 14.7.1992, 13.9.1992, 12.10.1992, 27.11.1992
+
+# Simple usage:
+#        ./makemake [--with-PACKAGE] [debug] > Makefile
+
+info_help () {
+cat << \EOP
+Usage: ./makemake [options] [debug] > Makefile
+options:
+    The following general options are recognized:
+       --help                  print this message and exit
+       --version               print the CLISP version and exit
+    The following options set installation parameters:
+       --srcdir=SRCDIR         sets the source directory to SRCDIR
+       --prefix=PREFIX         sets the installation directory prefix to PREFIX
+       --exec-prefix=EXECPREFIX  sets the architecture dependent installation
+                                  directory prefix to EXECPREFIX
+       --fsstnd=suse           installation according to SuSE-Linux conventions
+    The following options add support for specific separate packages. See the
+    main INSTALL file for how to get them.
+       --with-readline         the good old (gdb-4.13 based) readline library
+       --with-newreadline      the new (bash-1.14.7 based) readline library
+       --with-noreadline       no readline library at all
+       --with-gettext          internationalization library gettext-0.10.27
+       --with-nogettext        static internationalization (en,de,fr only)
+       --with-termcap          termcap-1.3 library (needed only on cygwin32)
+       --with-dynamic-ffi      a foreign language interface
+       --with-dynamic-modules  dynamic loading of foreign language modules
+       --with-wide             build wide-mode binaries as well
+debug: Specify this if you expect that you will need to debug the sources.
+Example:
+       ./makemake --with-readline --with-dynamic-ffi > Makefile
+EOP
+}
+
+# Advanced usage:
+#        ./makemake [--with-PACKAGE] TARGET COMPILER [debug] > Makefile
+#  where PACKAGE is one of
+#        newreadline      the new (bash-1.14.7 based) readline library
+#        readline         the old (gdb-4.13 based) readline library
+#        noreadline       no readline library at all
+#        gettext          internationalization library gettext-0.10.27
+#        nogettext        static internationalization (en,de,fr only)
+#        termcap          termcap-1.3 library (needed only on cygwin32)
+#        dynamic-ffi      a dynamic foreign language interface
+#        dynamic-modules  dynamic loading of foreign language modules
+#  where TARGET is one of
+#        sun3
+#        sun4
+#        i386      (any other 386 machine, e.g. Linux boxes or Sun386i)
+#        i486      (any other 486 machine)
+#        mips
+#        amiga     (Amiga 500/1000/2000 microcomputers)
+#        acorn     (Acorn Archimedes running RiscOS)
+#        dos       (PC or compatible running DOS, using EMX)
+#        dosdjgpp  (PC or compatible running DOS, using DJGPP)
+#        doswatcom (PC or compatible running DOS, using WATCOM)
+#        windows   (PC or compatible running Windows, using EMX and RSXW32)
+#        windowswatcom (PC or compatible running Windows, using WATCOM)
+#        os2       (PC or compatible running OS/2 2.0)
+#  and COMPILER is one of
+#        gcc       (GNU C under the name gcc)
+#        ansi      (any other ANSI compliant cc)
+
+# Examples:
+#   makemake > Makefile
+#   makemake debug > Makefile
+#   makemake --with-noreadline debug > Makefile
+#   makemake i386 gcc > make.gcc/makefile
+#   makemake i486 gcc > make.gcc/makefile
+#   makemake sun4 gcc > make.gcc/makefile
+#   makemake amiga gcc > make.amiga/makefile
+#   makemake acorn ansi > make.acorn.cc/makefile
+#   makemake acorn gcc > make.acorn.gcc/makefile
+#   makemake dos gcc > make.dos/makefile
+#   makemake dosdjgpp gcc > make.dosdjgpp/makefile
+#   makemake doswatcom wcl386 > make.doswatcom/makefile
+#   makemake windows gcc > make.windows/makefile
+#   makemake windowswatcom wcl386 > make.windowswatcom/makefile
+#   makemake os2 gcc > make.os2/makefile
+#   makemake win32gcc gcc > make.win32gcc/makefile
+#   makemake --with-dynamic-ffi win32msvc msvc4 > make.win32msvc/makefile.msvc4
+#   makemake --with-dynamic-ffi win32msvc msvc5 > make.win32msvc/makefile.msvc5
+#   makemake win32bc bcc32i > make.win32bc/makefile
+
+
+# Fix the "echo" command. The SysV /bin/sh (and also ksh, and also bash if
+# built with --enable-usg-echo-default, and also GNU sh-utils-1.16) are broken:
+# They have an echo command which interprets backslashes in the string to be
+# output. We cannot fix this by defining a function called "echo", because the
+# HP/UX, OSF/1, AIX /bin/sh would nevertheless call the builtin, broken "echo".
+# `echol' stands for "echo line".
+if echo 'rs\tuv' | grep t > /dev/null 2> /dev/null; then
+  # Uff. Found a BSD or POSIX compliant "echo" command.
+  echol () {
+    echo "$*"
+  }
+else
+  # The "Single Unix Specification" (which also adheres to this broken "echo")
+  # recommends the following workaround.
+  echol () {
+    printf '%s\n' "$*"
+  }
+  # But this one would work, too.
+#echol () {
+#cat <<ECHOVAL_END
+#$*
+#ECHOVAL_END
+#}
+fi
+
+# Handle --help and --version arguments.
+for arg do
+  case "$arg" in
+    --help | --hel | --he | --h)
+      info_help
+      exit 0 ;;
+    --version | --versio | --versi | --vers | --ver | --ve | --v)
+      version="CLISP version "`cat ../src/VERSION`
+      echol $version
+      exit 0 ;;
+  esac
+done
+
+# Save the argument list for reference.
+makemake_args=''
+for arg do
+  # Approximate a shell-quote.
+  case "$arg" in
+    *" "* | *"	"* | *[\[\]\~\#\$\^\&\*\(\)\{\}\\\|\;\<\>\?]* ) makemake_args="$makemake_args '$arg'" ;;
+    * ) makemake_args="$makemake_args $arg" ;;
+  esac
+done
+hostname=`(hostname || uname -n) 2>/dev/null | sed 1q`
+
+srcdir=''
+prefix=''
+exec_prefix=''
+fsstnd=gnu_ext # supported styles: gnu, gnu_ext, suse
+CP='cp -p'
+LN_S='ln -s'
+LN='ln'
+GOOD_SH='/bin/sh'
+
+# NLS nuisances.
+# Needed e.g. for some versions of `tr' so that character classes in `[]' work.
+if test "${LC_ALL+set}" = 'set'; then LC_ALL=C ; export LC_ALL ; fi
+if test "${LANG+set}"   = 'set'; then LANG=C   ; export LANG   ; fi
+if [ `echo ABC | tr '[A-Z]' '[a-z]'` = "abc" ] ; then
+  tolower="tr '[A-Z]' '[a-z]'"
+else
+  tolower="tr A-Z a-z"
+fi
+
+# Handle --with-... arguments
+while test -z "$endofargs"; do
+  case "$1" in
+    -with-* | --with-*)
+      package=`echol "$1"|sed 's/-*with-//'`
+      # Delete all the valid chars; see if any are left.
+      if test -n "`echol $package|sed 's/[-a-zA-Z0-9_]*//g'`"; then
+        echol "makemake: $package: invalid package name" >&2; exit 1
+      fi
+      eval "with_`echol $package|sed s/-/_/g`=1"
+      shift
+      ;;
+    -without-* | --without-*)
+      package=`echol "$1"|sed 's/-*without-//'`
+      # Delete all the valid chars; see if any are left.
+      if test -n "`echol $package|sed 's/[-a-zA-Z0-9_]*//g'`"; then
+        echol "makemake: $package: invalid package name" >&2; exit 1
+      fi
+      eval "with_no`echol $package|sed s/-/_/g`=1"
+      shift
+      ;;
+    -srcdir* | --srcdir*)
+      srcdir=`echol "$1" | sed 's/-*srcdir=*//'`
+      shift
+      if test -z "$srcdir" ; then
+        srcdir=$1
+        shift
+      fi
+      ;;
+    -prefix* | --prefix*)
+      prefix=`echol "$1" | sed 's/-*prefix=*//'`
+      shift
+      if test -z "$prefix" ; then
+        prefix=$1
+        shift
+      fi
+      ;;
+    -exec-prefix* | --exec-prefix*)
+      exec_prefix=`echol "$1" | sed 's/-*exec-prefix=*//'`
+      shift
+      if test -z "$exec_prefix" ; then
+        exec_prefix=$1
+        shift
+      fi
+      ;;
+    --fsstnd=*)
+      fsstnd=`echol "$1" | sed 's/-*fsstnd=//'`
+      shift
+      ;;
+    *) endofargs=1 ;;
+  esac
+done
+
+if test -z "$srcdir" ; then
+  # srcdir defaults to the value given at `makemake' construction time.
+  if echol '@srcdir@' | grep '^@' > /dev/null ; then
+    srcdir=.
+  else
+    srcdir='@srcdir@'
+  fi
+fi
+
+# HSYS, HSYSOS = host system
+# HOS  = host operating system
+# TSYS, TSYSOS = target system
+# TOS  = target operating system
+# CC, CFLAGS, CLFLAGS, CPP = compiler on host, for host
+# XCC, XCFLAGS, XCLFLAGS, XCPP = cross-compiler on host, for target
+
+case $# in
+  0 | 1)
+     # Assume we are on Unix, and target=host (not cross-compiling).
+     CROSS=false
+     # Some shells (A/UX and OSF/1) need the parentheses around "arch" below.
+     HSYS=`((arch) 2>/dev/null || uname -m 2>/dev/null) | $tolower` # system name in lowercase
+     HSYSOS=`((uname) 2>/dev/null || arch 2>/dev/null) | $tolower` # OS name in lowercase
+     if [ "$HSYS" = 386bsd -o "$HSYS" = sun386 -o "$HSYS" = "386/at" -o "$HSYS" = i86pc ] ; then
+       HSYS='i386'
+     fi
+     if [ "$HSYS" = sun4m ] ; then
+       HSYS='sun4'
+     fi
+     case "$HSYSOS" in
+       # Canonicalize cygwin32/nt and cygwin32/95 to plain cygwin32.
+       cygwin32*) HSYSOS=cygwin32 ;;
+     esac
+     HOS='unix'
+     TSYS="$HSYS"
+     TSYSOS="$HSYSOS"
+     TOS="$HOS"
+     COMPILER=??
+     # These variables are set by configure:
+     # srcdir='@srcdir@'                 # either '.' or '../src', see above
+     CP='@CP@'                           # either 'cp -p' or 'cp'
+     LN_S='@LN_S@'                       # either 'ln -s' or 'ln'
+     LN='@LN@'                           # either 'ln' or 'hln'
+     GOOD_SH='@GOOD_SH@'                 # either '/bin/sh' or '/bin/ksh' or ''
+     CC="@CC@"                           # either 'gcc -O' or 'cc'
+     CPP="@CPP@"                         # either $CC' -E' or '/lib/cpp'
+     CC_GCC='@CC_GCC@'                   # either true or false
+     CC_ANSI='@CC_ANSI@'                 # either true or false
+     CC_NEED_CCPAUX='@CC_NEED_CCPAUX@'   # either true or false
+     CC_NEED_DEEMA='@CC_NEED_DEEMA@'     # either true or false
+     AS_UNDERSCORE='@AS_UNDERSCORE@'     # either true or false
+     RANLIB='@RANLIB@'                   # either 'ranlib' or 'true'
+     INSTALL='@INSTALL@'                 # either 'install -c' or 'cp'
+     INSTALL_PROGRAM='@INSTALL_PROGRAM@' # either 'install -c' or 'cp'
+     INSTALL_DATA='@INSTALL_DATA@'       # either 'install -c -m 644' or 'cp'
+     GMALLOC='@GMALLOC@'                 # either 'gmalloc' or ''
+     LIBS='@LIBS@'                       # list of system libraries
+     LIBTERMCAP='@LIBTERMCAP@'           # either '-ltermcap' or '-lncurses'
+     LIBDL='@LIBDL@'                     # either '-ldl' or ''
+     X_INCLUDES='@X_INCLUDES@'           # either '-I/usr/somewhere/include' or ''
+     X_LIBS='@X_LIBS@'                   # either '-L/usr/somewhere/lib -lX11' or ''
+     host='@host@'                       # something like 'sparc-sun-sunos4'
+     host_cpu='@host_cpu@'               # something like 'sparc'
+     host_vendor='@host_vendor@'         # something like 'sun'
+     host_os='@host_os@'                 # something like 'sunos4'
+     # Important: Don't rely on this host classification.
+     # 1. GNU's database config.guess is not always up to date.
+     # 2. New operating systems are emerging at every corner.
+     # 3. People tend to change their systems locally.
+     # Use this classification ONLY if we know no better way to check for a
+     # feature or bug than to look at various `uname ...` results and list
+     # the buggy systems explicitly. ONLY in this case!
+     ;;
+  *) if [ "$1" = cross ] ; then
+       CROSS=true
+       shift
+       srcdir='../src'
+     else
+       CROSS=false
+     fi
+     TSYS=$1
+     COMPILER=$2
+     # TSYS should be master or sun3 or sun4 or i[3456]86 or mips or vax or amiga or acorn or dos or dosdjgpp or doswatcom or windows or windowswatcom or os2 or win32gcc or win32msvc or win32bc.
+     # COMPILER should be gcc or ansi or cc
+     if [ $TSYS = amiga -o $TSYS = acorn -o $TSYS = dos -o $TSYS = os2 ] ; then
+       TOS=$TSYS
+     else
+       if [ $TSYS = dosdjgpp -o $TSYS = doswatcom -o $TSYS = windows -o $TSYS = windowswatcom ] ; then
+         TOS='dos'
+       else
+         if [ $TSYS = win32gcc -o $TSYS = win32msvc -o $TSYS = win32bc ] ; then
+           TOS='win32'
+         else
+           TOS='unix'
+         fi
+       fi
+     fi
+     TSYSOS=$TSYS
+     if [ $CROSS = true ] ; then
+       HOS='unix'
+       HSYS=irrelevant
+       HSYSOS=irrelevant
+     else
+       HOS="$TOS"
+       HSYS="$TSYS"
+       HSYSOS="$TSYSOS"
+     fi
+     if [ $TSYS = doswatcom -o $TSYS = windowswatcom -o $TSYS = win32msvc -o $TSYS = win32bc ] ; then
+       if [ $TSYS = doswatcom -o $TSYS = windowswatcom ] ; then
+         CC=$COMPILER # should be wcl386
+         CC_GCC=false
+         # CFLAGS='-d2 -ox -j -w4' # full debug info, optimize, char signed!, many warnings
+         CFLAGS='-3r -oxet -j -zq -w0 -zp4' # Blake McBride prefers these settings
+         CLFLAGS=''
+         CPP="${CC} -p -zq" # preprocess, quietly
+         CC_ANSI=true
+         CC_NEED_CCPAUX=false
+         AS_UNDERSCORE=false
+         CC_NEED_DEEMA=true
+       fi
+       if [ $TSYS = win32msvc ] ; then
+         CC='cl'
+         CC_GCC=false
+         # -G5 means to optimize for i586.
+         # "-Od -Z7" means to compile for debugging.
+         # "-O1" means to optimize on msvc4,
+         # "-Os -Oy -Ob1 -Gs -Gf -Gy" means to optimize on msvc5
+         # ("-O1" and "-O2" are buggy in msvc5.0).
+         if [ $COMPILER = msvc5 ] ; then
+           CFLAGS='-G5 -Os -Oy -Ob1 -Gs -Gf -Gy'
+         else
+           CFLAGS='-G5 -O1'
+         fi
+         CLFLAGS=''
+         CC_ANSI=true
+         CC_NEED_CCPAUX=false
+         AS_UNDERSCORE=false
+         CC_NEED_DEEMA=false
+       fi
+       if [ $TSYS = win32bc ] ; then
+         CC=$COMPILER # should be bcc32 or bcc32i
+         CC_GCC=false
+         # "-Od -v -R" means to compile for debugging.
+         # "-O2" means to optimize.
+         # "-g0" means not to treat 100 warnings as an error.
+         CFLAGS='-O2 -g0 -w-rch'
+         CLFLAGS=''
+         CPP='cpp32 -P-' # buggy!
+         CC_ANSI=true
+         CC_NEED_CCPAUX=false
+         AS_UNDERSCORE=true
+         CC_NEED_DEEMA=false
+       fi
+     else
+       if [ $COMPILER = gcc ] ; then
+         CC=gcc
+         CC_GCC=true
+       else
+         CC=cc
+         CC_GCC=false
+       fi
+       CFLAGS='-O'
+       CLFLAGS=''
+       CPP="${CC} -E"
+       if [ $COMPILER = gcc -o $COMPILER = ansi ] ; then
+         CC_ANSI=true
+         CC_NEED_CCPAUX=false
+       else
+         CC_ANSI=false
+         CC_NEED_CCPAUX=false
+       fi
+       if [ $COMPILER = gcc ] ; then
+         # guess that if cross-compiling using gcc, then as preprends underscore
+         AS_UNDERSCORE=true
+       else
+         AS_UNDERSCORE=false
+       fi
+       CC_NEED_DEEMA=false
+     fi
+     GMALLOC=''
+     LIBS=''
+     LIBTERMCAP='-ltermcap'
+     LIBDL=''
+     X_INCLUDES=''
+     X_LIBS=''
+     shift 2
+     ;;
+esac
+
+if [ $CROSS = true ] ; then
+  # We can cross-compile only with GCC 2
+  XCC="gcc-${TSYS}"
+  XCPP="${XCC} -E"
+  XCC_GCC=true
+  XCC_ANSI=true
+  XCC_NEED_CCPAUX=false
+  XCC_NEED_DEEMA=false
+else
+  TSYS="$HSYS"
+  TOS="$HOS"
+  XCC="${CC}"
+  XCPP="${CPP}"
+  XCC_GCC="${CC_GCC}"
+  XCC_ANSI="${CC_ANSI}"
+  XCC_NEED_CCPAUX="${CC_NEED_CCPAUX}"
+  XCC_NEED_DEEMA="${CC_NEED_DEEMA}"
+fi
+XCC_UNUSABLE_CPP=false
+
+# DEBUGGING should be debug or nothing
+DEBUGGING=$1
+
+if [ "$srcdir" = . ] ; then
+  SRCDIR=''
+else
+  SRCDIR="${srcdir}/"
+fi
+
+# SRCTOPDIR is the parent directory of $srcdir, ending in a slash.
+case "$srcdir" in
+  *"/src" ) SRCTOPDIR=`echol "$srcdir" | sed -e 's,src$,,'` ;;
+  "." )     SRCTOPDIR="../" ;;
+  * )       SRCTOPDIR="$srcdir/../" ;;
+esac
+case "$SRCTOPDIR" in
+  /*) PARENT_SRCTOPDIR="${SRCTOPDIR}" ;;
+  *)  PARENT_SRCTOPDIR="../${SRCTOPDIR}" ;;
+esac
+
+TESTDIR=stage
+TESTSDIR=suite
+
+# Main host OS dependencies:
+
+# HEXE = extension for executable files on host
+if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
+  HEXE='.exe'
+else
+  HEXE=''
+fi
+
+# HERE = prefix to ensure that executables are looked up in current directory
+if [ $HOS = unix ] ; then
+  HERE='./'
+else
+  if [ $HOS = acorn ] ; then
+    HERE='/@.'
+  else
+    HERE=''
+  fi
+fi
+
+# PREFIX = prefix for installation directories
+# (This should not end in a backslash. Add a space to avoid this.)
+if [ $HOS = unix ] ; then
+  if [ -n "$prefix" ] ; then
+    PREFIX="${prefix}"
+  else
+    PREFIX='/usr/local'
+  fi
+else
+  PREFIX=''
+fi
+
+# EXEC_PREFIX = prefix for architecture dependent installation directories
+if [ -n "$exec_prefix" ] ; then
+  EXEC_PREFIX="${exec_prefix}"
+else
+  EXEC_PREFIX='$(prefix)'
+fi
+
+# PARENT = piece of path for parent directory
+# NEXT = piece of path for next subdirectory
+# PARENT, NEXT: For interpretation by CLISP.
+# PARENT_, NEXT_: For interpretation by the system's shell (called by make).
+# PARENT_M, NEXT_M: For interpretation by the make program.
+if [ $HOS = amiga ] ; then
+  PARENT='/'
+else
+  if [ $HOS = acorn ] ; then
+    PARENT='^.'
+  else
+    PARENT='../'
+  fi
+fi
+if [ $HOS = acorn ] ; then
+  NEXT='.'
+else
+  NEXT='/'
+fi
+if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
+  # Replace '/' by '\':
+  PARENT_=`echol $PARENT | sed -e 's,/,\\\\,g'`
+  NEXT_=`echol $NEXT | sed -e 's,/,\\\\,g'`
+else
+  PARENT_=$PARENT
+  NEXT_=$NEXT
+fi
+# Replace '\' by '\\':
+#PARENT_2=`echol $PARENT_ | sed -e 's,\\\\,\\\\\\\\,g'`
+if [ $HSYS = win32gcc ] ; then
+  PARENT_M="$PARENT"
+  NEXT_M="$NEXT"
+else
+  PARENT_M="$PARENT_"
+  NEXT_M="$NEXT_"
+fi
+
+UTILDIR="${SRCTOPDIR}utils${NEXT}"
+DOCDIR="${SRCTOPDIR}doc${NEXT}"
+if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
+  # Replace '/' by '\':
+  SRCTOPDIR_=`echol $SRCTOPDIR | sed -e 's,/,\\\\,g'`
+  UTILDIR_=`echol $UTILDIR | sed -e 's,/,\\\\,g'`
+  DOCDIR_=`echol $DOCDIR | sed -e 's,/,\\\\,g'`
+else
+  SRCTOPDIR_=$SRCTOPDIR
+  UTILDIR_=$UTILDIR
+  DOCDIR_=$DOCDIR
+fi
+if [ $HSYS = win32gcc ] ; then
+  SRCTOPDIR_M="$SRCTOPDIR"
+  UTILDIR_M="$UTILDIR"
+  DOCDIR_M="$DOCDIR"
+else
+  SRCTOPDIR_M="$SRCTOPDIR_"
+  UTILDIR_M="$UTILDIR_"
+  DOCDIR_M="$DOCDIR_"
+fi
+if [ $CROSS = false ] && [ $HSYS = doswatcom -o $HSYS = windowswatcom -o $HSYS = win32msvc -o $HSYS = win32bc ] ; then
+  NEXT_CC="$NEXT_"
+  UTILDIR_CC="$UTILDIR_"
+else
+  NEXT_CC="$NEXT"
+  UTILDIR_CC="$UTILDIR"
+fi
+
+# Some operating systems cripple filenames.
+if [ $HOS = acorn ] ; then
+  interpreted=interpre
+  halfcompiled=halfcomp
+  txt=text
+else
+  interpreted=interpreted
+  halfcompiled=halfcompiled
+  txt=txt
+fi
+
+# RM = command for deleting files
+if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
+  RM='del'
+else
+  if [ $HOS = acorn ] ; then
+    RM='remove'
+  else
+    RM='rm -f'
+  fi
+fi
+
+# CP = command for copying files
+if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
+  CP='copy'
+else
+  if [ $HOS = acorn ] ; then
+    CP='cp ~A~CNF'
+# else see above
+  fi
+fi
+
+# LN_S = command for copying read-only files
+if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
+  LN_S='copy'
+else
+  if [ $HOS = acorn ] ; then
+    LN_S='cp ~A~CNF'
+# else see above
+  fi
+fi
+
+# LN = command for making hard links ($HOS = unix only)
+if [ "$LN" = hln ] ; then
+  LN="${HERE}hln"
+fi
+
+# MV = command for renaming files
+if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
+  MV='ren'
+else
+  if [ $HOS = acorn ] ; then
+    MV='cp ~A~CDF' # not 'rename' because rename does not overwrite
+  else
+    MV='mv'
+  fi
+fi
+
+# CAT = command for typing files to stdout
+if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
+  CAT='type'
+else
+  CAT='cat'
+fi
+
+# TOUCH = command for pretending files are new
+TOUCH='touch'
+
+# GREP = command for filtering text according to regular expressions
+if [ $HOS = acorn ] ; then
+  GREP='egrep'
+else
+  GREP='grep'
+fi
+
+# RANLIB = command for finishing libraries
+if [ -z "$RANLIB" ] ; then
+  RANLIB='ranlib'
+fi
+
+# INSTALL = command for installing binaries/data
+if [ -z "$INSTALL" ] ; then
+  INSTALL=$CP
+  INSTALL_PROGRAM='$(INSTALL)'
+  INSTALL_DATA='$(INSTALL)'
+fi
+
+# Main target OS dependencies:
+
+OS_INCLUDES=''
+if [ $TSYS = master -o $TOS = unix ] ; then
+  OS_INCLUDES=$OS_INCLUDES' unix'
+  LIBS=$LIBS' '$LIBTERMCAP' '$LIBDL
+fi
+if [ $TSYS = master -o $TOS = amiga ] ; then
+  OS_INCLUDES=$OS_INCLUDES' amiga'
+fi
+if [ $TSYS = master -o $TOS = acorn ] ; then
+  OS_INCLUDES=$OS_INCLUDES' acorn'
+fi
+if [ $TSYS = master -o $TOS = dos -o $TOS = os2 ] ; then
+  OS_INCLUDES=$OS_INCLUDES' msdos'
+  if [ $TSYS = dos -o $TSYS = os2 ] ; then
+    LIBS=$LIBS' -ltermcap -lgraph'
+    if [ $TSYS = os2 ] ; then
+      LIBS=$LIBS' -lvideo'
+    fi
+  fi
+  if [ $TSYS = dosdjgpp ] ; then
+    LIBS=$LIBS' -lpc'
+  fi
+  if [ $TSYS = windows ] ; then
+    LIBS=$LIBS' /rsxwin/lib/libwin.a'
+  fi
+fi
+SYSLIBS=''
+if [ $TSYS = master -o $TOS = win32 ] ; then
+  OS_INCLUDES=$OS_INCLUDES' win32'
+  if [ $TSYS = win32gcc ] ; then
+    # I don't know why advapi32 is not needed here.
+    LIBS=$LIBS' -luser32 -lwsock32 -lole32'
+  else
+    if [ $TSYS = win32msvc ] ; then
+      LIBS=$LIBS' user32.lib wsock32.lib advapi32.lib'
+    fi
+    LIBS=$LIBS' ole32.lib'
+    # With Borland C++, we must generate stub libraries for system DLLs
+    # ourselves.
+    if [ $TSYS = win32bc ] ; then
+      SYSLIBS=' ole32.lib'
+    fi
+  fi
+fi
+
+if [ $CROSS = true ] ; then
+  if [ $TOS = dos -o $TOS = os2 ] ; then
+    # CHSCONVERT='$(HOME)/cc/convert-to-ibmpc'
+    # CHSCONVERT='/usr/local/utils/cv-to-ibmpc'
+    # CHSCONVERT='recode latin1:ibmpc | crlf-to-nl'
+    CHSCONVERT='./cv_lt_pc'
+  fi
+fi
+
+# TEXE = extension for executable files on target
+# LEXE = extension for executable file LISP on target
+if [ $TOS = dos -o $TOS = os2 -o $TOS = win32 ] ; then
+  TEXE='.exe'
+  LEXE='.exe'
+else
+if [ $TOS = acorn ] ; then
+  TEXE=''
+  LEXE=''
+else
+  TEXE=''
+  LEXE='.run'
+fi
+fi
+
+# TOBJ = extension for compiled modules on target
+if [ $TSYS = doswatcom -o $TSYS = windowswatcom -o $TSYS = win32msvc -o $TSYS = win32bc ] ; then
+  TOBJ='.obj'
+else
+  TOBJ='.o'
+fi
+
+# Main cpu dependencies:
+
+cpu=''
+if [ "$host_cpu" = m68k -o $TSYS = sun3 -o $TSYS = m68k -o $TSYS = mc68040 -o $TSYS = amiga ] ; then
+# was: if [ "$host_cpu" = m68k -o $TSYS = sun3 -o $TSYS = hp300 -o $TSYS = m68k -o $TSYS = mc68040 -o $TSYS = amiga ] ; then
+  cpu=m68k
+fi
+if [ "$host_cpu" = sparc -o $TSYS = sun4 ] ; then
+  cpu=sparc
+fi
+case $TSYS in mips | r4000)
+# was: case $TSYS in mips | ip* | sgi | risc | r4000)
+  cpu=mips ;;
+esac
+if [ "$host_cpu" = mips ] ; then
+  cpu=mips
+fi
+if [ "$host_cpu" = mips64 ] ; then
+  cpu=mips64
+fi
+if [ "$host_cpu" = i386 -o "$host_cpu" = i486 -o "$host_cpu" = i586 -o "$host_cpu" = i686 -o $TSYS = i386 -o $TSYS = i486 -o $TSYS = i586 -o $TSYS = i686 -o $TSYS = dos -o $TSYS = dosdjgpp -o $TSYS = windows -o $TSYS = os2 -o $TOS = win32 ] ; then
+  cpu=i386
+fi
+case "$host_cpu" in hppa*)
+  cpu=hppa ;;
+esac
+# Probably obsolete.
+# case $TSYS in 9000/7* | 9000/8* | hp7*)
+#   # HP 9000 Series 700, 800
+#   cpu=hppa ;;
+# esac
+if [ "$host_cpu" = arm -o $TSYS = acorn ] ; then
+  cpu=arm
+fi
+
+# Main compiler dependencies:
+
+# INCLUDEDIR = option that specifies another include file directory
+if [ $TSYS = doswatcom -o $TSYS = windowswatcom ] ; then
+  INCLUDEDIR='-i='
+else
+  INCLUDEDIR='-I'
+fi
+
+if [ $XCC_GCC = true ] ; then
+
+  XCFLAGS='-W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type '
+  if [ $HOS = dos -o $HOS = os2 ] ; then
+    # DOS has a very limited command line length
+    XCFLAGS=''
+  fi
+  if [ "$DEBUGGING" != debug ] ; then
+    # Frame-Pointer brauchen wir nicht. Da, wo wir ihn brauchen (in eval.d:
+    # interpret_bytecode_()), erzwingen wir ihn durch Benutzung von alloca().
+    # Unter Windows darf -fomit-frame-pointer i.a. nicht verwendet werden (da
+    # sonst gcc womöglich Daten-Pointer nach %ebp legt, was wegen inkompatibler
+    # Segmentregister nicht zulässig ist). Glücklicherweise ist das bei rsxw32
+    # kein Problem, da dort %cs = 0x185F, %ds = %es = %fs = %gs = %ss = 0x1867,
+    # insbesondere %ds = %ss.
+    XCFLAGS=$XCFLAGS'-fomit-frame-pointer '
+  fi
+  if [ $TSYS = amiga ] ; then
+    # Register A4 enthält den Stack.
+    # Die GCC-Strength-Reduction ist auf dem 68000 nicht problemlos.
+    XCFLAGS=$XCFLAGS'-ffixed-a4 -fno-strength-reduce '
+  fi
+  if [ $TSYS = windows ] ; then
+    # Die Include-Files für MS-Windows 3.1
+    XCFLAGS=$XCFLAGS'-I/emx/include.win '
+  fi
+  if [ $TSYS = acorn ] ; then
+    # Acorn/RISCOS specific gcc option??
+    XCFLAGS=$XCFLAGS'-mthrowback '
+  fi
+  if [ $TOS = unix -a $CROSS = false ] ; then
+    XCC_GCC_VERSION=`$XCC -v 2>&1 | tail -1 | sed -e 's/.*version //g'`
+    case "$XCC_GCC_VERSION" in
+      # gcc 2.7 introduced an annoying warning, but gcc 2.8 has a workaround:
+      2.[8-9]* | egcs-2.*)
+        XCFLAGS=$XCFLAGS'-Wno-sign-compare '
+        ;;
+      * ) ;;
+    esac
+  fi
+  if [ "$cpu" = i386 ] ; then
+    # gcc <= 2.3.2 may crash when compiling lisparit with -O2
+    # gcc 2.3.3 may produce incorrect code when compiling spvw(SPVW_PURE) with -O -fomit-frame-pointer
+    if [ $CROSS = false ] ; then
+      XCC_GCC_VERSION=`$XCC -v 2>&1 | tail -1 | sed -e 's/.*version //g'`
+      case "$XCC_GCC_VERSION" in
+        2.7.[0-2] )
+          # gcc-2.7.2 has a strength-reduction bug (fixed in gcc-2.7.2.1,
+          # also fixed through the specs file of some Linux distributions).
+          XCFLAGS=$XCFLAGS'-O2 -fexpensive-optimizations -fno-strength-reduce' ;;
+        2.3.[3-9]* | 2.[4-9]* | egcs-2.*)
+          # XCFLAGS=$XCFLAGS'-O2 -fno-omit-frame-pointer' ;;
+          # Let's try it nevertheless!
+          XCFLAGS=$XCFLAGS'-O2 -fexpensive-optimizations' ;;
+        * )
+          XCFLAGS=$XCFLAGS'-O' ;;
+      esac
+    else
+      XCFLAGS=$XCFLAGS'-O'
+    fi
+  elif [ "$cpu" = hppa ] ; then
+    # gcc-2.7.2 produces incorrect code when compiling spvw (loadmem routine).
+    XCFLAGS=$XCFLAGS'-O2 -fno-strength-reduce'
+  else
+    XCFLAGS=$XCFLAGS'-O2'
+  fi
+  if [ $TSYS = win32gcc ] ; then
+    # Avoid a declaration of sleep() in stdlib.h which clashes with ours.
+    XCFLAGS=$XCFLAGS' -D_NO_OLDNAMES'
+  fi
+  if [ $TSYS = sun4 -o $TSYS = acorn ] ; then
+    XCLFLAGS='-static'
+  else
+    XCLFLAGS=''
+  fi
+  # Override any "-x c++" options which may be present in $XCC or $XCFLAGS.
+  XCLFLAGS=$XCLFLAGS' -x none'
+  XCC_NOOPTFLAGS=' -O0'
+
+else
+
+  if [ "$TSYSOS" = ultrix -o $TSYS = win32msvc -o $TSYS = win32bc ] ; then
+    # If one cannot use the default cc preprocessor: Use GNU cpp instead.
+    # The Coherent386 cc preprocessor is not usable
+    # 1. because of "macro expansion buffer overflow", 2. because it is an
+    # ANSI like preprocessor (## and the like) in front of a K&R C compiler.
+    # The Ultrix cc preprocessor is not usable because it does not
+    # expand the `alloc_FNDS_nocopy' macro in lisparit.
+    # The MSVC4 preprocessor is not usable because of its treatment of empty
+    # macro arguments.
+    # The BC5 preprocessor is not usable because of a macro argument expansion
+    # bug.
+    XCC_UNUSABLE_CPP=true
+    XCPP="${UTILDIR_}gcc-cccp${NEXT_}cccp -U__GNUC__"
+    XCC_NEED_CCPAUX=false
+    XCC_NEED_DEEMA=false
+    if [ "$TSYSOS" = ultrix ] ; then
+      # Add some flags for the Ultrix include files.
+      XCPP="$XCPP -traditional -P -Dunix -Dmips -Dultrix -D__mips -D__MIPSEB -D__LANGUAGE_C -D_CFE"
+    fi
+    if [ $TSYS = win32msvc ] ; then
+      # -+ means to accept C++ comments in MSVC's include files.
+      # _MSC_VER=1000 _M_IX86=500 means to simulate msvc4 on i586.
+      # _MSC_VER=1100 _M_IX86=500 means to simulate msvc5 on i586.
+      # DEBUG_OS_ERROR is for debugging. ??
+      if [ $COMPILER = msvc4 ] ; then
+        XCPP="$XCPP -+ -D_MSC_VER=1000 -D_M_IX86=500 -D_WIN32 -DDEBUG_OS_ERROR -I\$(MSVCDIR)/include"
+      fi
+      if [ $COMPILER = msvc5 ] ; then
+        XCPP="$XCPP -+ -D_MSC_VER=1100 -D_M_IX86=500 -D_WIN32 -D_INTEGRAL_MAX_BITS=64 -DDEBUG_OS_ERROR -I\$(MSVCDIR)/include"
+      fi
+    fi
+    if [ $TSYS = win32bc ] ; then
+      # -+ means to accept C++ comments in BC's include files.
+      # -D__BORLANDC__=0x460 -D__TURBOC__=0x460 -D_M_IX86=300 -D__WIN32__ -D__FLAT__ means to simulate BC5 on i386.
+      # DEBUG_OS_ERROR is for debugging. ??
+      XCPP="$XCPP -+ -D__BORLANDC__=0x460 -D__TURBOC__=0x460 -D_M_IX86=300 -D__WIN32__ -D__FLAT__ -DDEBUG_OS_ERROR -I\$(BCDIR)/include"
+    fi
+  fi
+  if [ $TSYS = sun4 -a $CROSS = false ] ; then
+    # Detect SUNWspro C compiler.
+    if $CC -flags 2> /dev/null | grep SunSoft > /dev/null ; then
+      # SUNWspro cc, defines __SUNPRO_C
+      XCC_SUNPRO=true
+    fi
+  fi
+  if [ $TSYS = doswatcom -o $TSYS = windowswatcom -o $TSYS = win32msvc -o $TSYS = win32bc ] ; then
+    XCFLAGS="$CFLAGS"
+  else
+    if [ $TSYS = sun4 -a -n "$XCC_SUNPRO" ] ; then
+      # SUNWspro cc flags:
+      XCFLAGS='-O -xstrconst'
+    else
+      if [ "$HSYSOS" = hp-ux -o $TSYS = sun4 -o $TSYS = acorn ] ; then
+        # HP's HPPA compilers crash when optimizing.
+        # SUN's cc is buggy when optimizing spvw.d, even with only -O1.
+        # No -O for Acorn/Norcroft cc.
+        XCFLAGS=''
+      else
+        XCFLAGS='-O'
+      fi
+    fi
+  fi
+  if [ "$TSYSOS" = ultrix ] ; then
+    # Ultrix cc needs this for compiling spvw.d.
+    XCFLAGS="$XCFLAGS -Olimit 1000"
+  fi
+  if [ $XCC_UNUSABLE_CPP = true ] ; then
+    # GNU cpp has restricted command line flags. Pass them only to XCC.
+    XCC="$XCC $XCFLAGS"
+    XCFLAGS=''
+  fi
+  XCLFLAGS=''
+  case $TSYS in mips | ip*)
+    # IRIX 4 "cc -ansi" sometimes barfs when a string constant contains one
+    # or more quotes('). They must be written as \047.
+    ANSIDECLFLAGS="${ANSIDECLFLAGS} -DQUOTE_QUOTES"
+    TXT2CFLAGS="${TXT2CFLAGS} -DQUOTE_QUOTES"
+  esac
+  if [ $TSYS = sun4 ] ; then
+    XCFLAGS=$XCFLAGS' -dalign -fsingle'
+    XCLFLAGS=$XCLFLAGS' -Bstatic'
+  fi
+  if [ $TSYS = acorn ] ; then
+    XCFLAGS=$XCFLAGS' -D__arm -D__riscos -wanp -throwback -JUnix: -IUnix:'
+  fi
+  XCC_NOOPTFLAGS=''
+
+fi
+
+if test -n "$with_dynamic_modules"; then
+  # Support for dynamic loading. Taken from libtool's ltconfig.in.
+  if [ $XCC_GCC = true ] ; then
+    XCC_LINKER_FLAG_PREFIX='-Wl,'
+    case "$host_os" in
+      irix5* | irix6*)
+        # PIC is the default for these OSes.
+        XCC_PICFLAG=''
+        ;;
+      *)
+        XCC_PICFLAG='-fPIC'
+        ;;
+    esac
+  else
+    case "$host_os" in
+      hpux9* | hpux10* | irix5* | irix6* | osf3* | osf4* | solaris2*)
+        XCC_LINKER_FLAG_PREFIX='-Wl,'
+        ;;
+      sunos4*)
+        XCC_LINKER_FLAG_PREFIX='-Qoption ld '
+        ;;
+      *)
+        XCC_LINKER_FLAG_PREFIX=''
+        ;;
+    esac
+    case "$host_os" in
+      sco3.2v5*)
+        XCC_PICFLAG='-Kpic'
+        ;;
+      solaris2*)
+        XCC_PICFLAG='-KPIC'
+        ;;
+      sunos4*)
+        XCC_PICFLAG='-PIC'
+        ;;
+    esac
+  fi
+  case "$cpu" in
+    alpha | rs6000)
+      # All code for these CPUs is position-independent.
+      XCC_PICFLAG=''
+      ;;
+  esac
+  XCC_DLOPENABLE_EXE_FLAG="${XCC_LINKER_FLAG_PREFIX}-export-dynamic"
+  # Support for creating a shared library. Taken from libtool's ltconfig.in,
+  # much simplified: no support for weird systems like AIX, no support for
+  # GNU ld on non-GNU systems, don't care about where we find ld.
+  XCC_CREATESHARED='create-shared-lib -o $lib $libs' # dummy command
+  case "$host_os" in
+    freebsd2.2*)
+      XCC_CREATESHARED='ld -Bshareable -o $lib $libs /usr/lib/c++rt0.o'
+      ;;
+    freebsd2* | netbsd* | openbsd*)
+      XCC_CREATESHARED='ld -Bshareable -o $lib $libs'
+      ;;
+    freebsd3* | gnu* | linux*)
+      XCC_CREATESHARED='$CC $CFLAGS $CLFLAGS -shared -o $lib $libs'
+      ;;
+    hpux9* | hpux10*)
+      XCC_CREATESHARED='ld -b +s -o $lib $libs'
+      ;;
+    irix5* | irix6*)
+      case " $CC $CFLAGS " in
+        *" -32 "*)  XCC_CREATESHARED='ld -32 -shared -o $lib $libs' ;;
+        *" -n32 "*) XCC_CREATESHARED='ld -n32 -shared -o $lib $libs' ;;
+        *" -64 "*)  XCC_CREATESHARED='ld -64 -shared -o $lib $libs' ;;
+        *)          XCC_CREATESHARED='ld -shared -o $lib $libs' ;;
+      esac
+      ;;
+    osf3* | osf4*)
+      XCC_CREATESHARED='ld -shared -expect_unresolved -o $lib $libs -lc'
+      ;;
+    sco3.2v5*)
+      XCC_CREATESHARED='ld -G -o $lib $libs'
+      ;;
+    solaris2*)
+      XCC_CREATESHARED='ld -G -z text -o $lib $libs'
+      ;;
+    sunos4*)
+      XCC_CREATESHARED='ld -assert pure-text -Bstatic -o $lib $libs'
+      ;;
+  esac
+fi
+
+if [ "$DEBUGGING" = debug ] ; then
+  if [ $TSYS = sun4 -a $XCC_GCC = true ] ; then
+    XCFLAGS=$XCFLAGS' -gstabs'
+  else
+    XCFLAGS=$XCFLAGS' -g'
+  fi
+fi
+
+if [ $TSYS = windows ] ; then
+  XCFLAGS=$XCFLAGS' -DWINDOWS'
+fi
+
+if [ $TSYS = os2 ] ; then
+  XCFLAGS=$XCFLAGS' -DOS2'
+fi
+
+if [ $HSYS = acorn ] ; then
+  CLFLAGS=$CLFLAGS' -LUnix:o.Unixlib'
+fi
+if [ $TSYS = acorn ] ; then
+  XCLFLAGS=$XCLFLAGS' -LUnix:o.Unixlib'
+fi
+
+if [ "$cpu" = i386 -a "$TSYSOS" = "sinix-z" ] ; then # SINIX-Z V5.41
+  XCFLAGS=$XCFLAGS' -DSNI -DSVR4' # maybe add -DUSL
+fi
+if [ "$cpu" = mips -a "$TSYSOS" = "sysv4" ] ; then # mips-sni-sysv4
+  XCFLAGS=$XCFLAGS'' # maybe add -DUSL
+fi
+if [ "$cpu" = i386 -a "$TSYSOS" = "unix_sv" ] ; then # Onsite SVR4.2
+  XCFLAGS=$XCFLAGS'' # maybe add -DUSL
+fi
+if [ "$cpu" = i386 -a "$TSYSOS" = "sunos" ] ; then # Solaris 2
+  XCFLAGS=$XCFLAGS'' # maybe add -DUSL
+fi
+if [ "$cpu" = i386 -a "$TSYSOS" = linux -a $CROSS = false ] ; then # Linux
+  # Generational GC requires Linux 1.1.52 or newer
+  UNAME_R=`uname -r | $tolower`
+  case "$UNAME_R" in
+    0.* | 1.0.* | 1.1.[0-9] | 1.1.[1-4][0-9] | 1.1.5[0-1] )
+      XCFLAGS=$XCFLAGS' -DNO_GENERATIONAL_GC' ;;
+    *) ;;
+  esac
+fi
+
+if [ $TSYS = sun4 -a $CROSS = false ] ; then
+  ARCH_K=`(arch -k) 2>/dev/null || uname -m 2>/dev/null` # kernel architecture, see arch(1)
+  if [ "$ARCH_K" = sun4 -o "$ARCH_K" = sun4c -o "$ARCH_K" = sun4e ] ; then
+    # sun4, sun4c, sun4e support only 29 bit addresses,
+    # sun4m supports 32 bit addresses.
+    XCFLAGS=$XCFLAGS' -DSUN4_29'
+  fi
+fi
+if [ "$cpu" = i386 -o $TSYS = sun4 ] && [ $CROSS = false ] ; then
+  # Distinguish good SunOS 4 from the SunOS 5 garbage called "Solaris 2":
+  case "$host_os" in
+    solaris*)
+      if [ "$cpu" = i386 ] ; then
+        # The Solaris assembler /usr/ccs/bin/as seems incompatible.
+        if [ $XCC_GCC = true ] ; then
+          echol > conftest.c
+          if $XCC $XCFLAGS -v -c conftest.c 2>&1 | grep 'GNU assembler' > /dev/null; then
+            : # gcc with gas - this is ok
+          else
+            NOASM=true
+          fi
+          rm -f conftest*
+        else
+          NOASM=true
+        fi
+        if test -n "$NOASM"; then
+          XCFLAGS=$XCFLAGS' -DNO_ASM -DNO_ARI_ASM'
+        fi
+      fi
+      # We need a lot of libraries. To check which libraries are necessary, do
+      #   % cd /usr/lib
+      #   % foreach f (lib*.a)
+      #   % echo $f ; nm $f | grep gethostbyname
+      #   % end
+      # We conclude that
+      # - for gethostname() we need libnsl.a,
+      # - for connect() and socket() we need libsocket.a,
+      # - for these we need libdl_stubs.a and everything required by this one,
+      # - a second pass through the libraries is needed to satisfy cyclic
+      #   dependencies.
+      if test -f /usr/lib/libdl_stubs.a; then
+        LIBS=$LIBS' -lnsl -lsocket -ldl_stubs -lnswfiles -lnswnis -lnswnisplus -ltcpip -lswitch -lnswcompat -lstraddr -lintl'
+        LIBS=$LIBS' -lnsl -lsocket -ldl_stubs -lnswfiles -lnswnis -lnswnisplus -ltcpip -lswitch -lnswcompat -lstraddr -lintl'
+      else
+        # Newer versions of Solaris (Solaris 2.2 and newer) don't have
+        # libdl_stubs.a any more. This means that you cannot link -static !
+        XCLFLAGS=`echol "$XCLFLAGS" | sed -e 's/-B*static//g'`
+        SOLARIS_LINKING=1 # Even more hacks needed??
+      fi
+      BINARY_DISTRIB=1
+    ;;
+  esac
+fi
+if test -n "$BINARY_DISTRIB"; then
+  XCFLAGS=$XCFLAGS' -DUNIX_BINARY_DISTRIB'
+fi
+
+
+# Other dependencies:
+
+FILES='lisp.a'
+if [ -n "$with_wide" ] ; then
+  FILES=$FILES' wlisp.a'
+fi
+
+if test -n "$with_dynamic_ffi"; then
+  XCFLAGS="$XCFLAGS -DDYNAMIC_FFI"
+  if [ $HOS = win32 ] ; then
+    XCL_FFILIBS='avcall.lib callback.lib'
+  else
+    XCL_FFILIBS='libavcall.a libcallback.a'
+  fi
+  LIBS=$XCL_FFILIBS' '$LIBS
+  FILES=$FILES' '$XCL_FFILIBS
+else
+  XCL_FFILIBS=''
+fi
+
+if test -n "$with_dynamic_modules"; then
+  XCFLAGS="$XCFLAGS -DDYNAMIC_MODULES"
+fi
+
+TERMINAL='generic'
+READLINELIB=''
+XCL_READLINELIB=''
+if [ $TOS = unix -o $TOS = dos -a $TSYS != doswatcom -a $TSYS != windows -a $TSYS != windowswatcom -o $TOS = os2 ] ; then
+  if test -n "$with_noreadline"; then
+    XCFLAGS=$XCFLAGS' -DNO_READLINE'
+  else
+    TERMINAL='readline'
+    READLINELIB='libreadline.a'
+    if test -n "$with_newreadline"; then
+      READLINEDIR='newreadline'
+    else
+      READLINEDIR='readline'
+    fi
+    READLINELIB=$READLINEDIR'/'$READLINELIB
+    # Don't put "-lreadline" into LIBS for two reasons:
+    # 1. The system may have its own libreadline.a.
+    # 2. EMX 0.8h would be looking for readline.a instead of libreadline.a.
+    if [ $HOS = unix ] ; then
+      # use symbolic link
+      XCL_READLINELIB='libreadline.a'
+      FILES=$FILES' libnoreadline.a libreadline.a'
+    else
+      XCL_READLINELIB=$READLINELIB
+    fi
+    LIBS=$XCL_READLINELIB' '$LIBS
+  fi
+fi
+
+USE_GETTEXT=''
+GETTEXTLIB=''
+XCL_GETTEXTLIB=''
+if [ $TOS = unix ] || [ $TOS = dos -a $TSYS != dosdjgpp -a $TSYS != doswatcom -a $TSYS != windowswatcom ] || [ $TOS = os2 ] ; then
+  if test -n "$with_nogettext"; then
+    XCFLAGS=$XCFLAGS' -DNO_GETTEXT'
+  else
+    USE_GETTEXT=yes
+    if [ -f gettext/config.status ] ; then
+      if grep '@USE_INCLUDED_LIBINTL@.*yes' gettext/config.status > /dev/null; then
+        use_included_libintl=yes
+      else
+        use_included_libintl=''
+      fi
+      gettext_datadirname_sedcommand=`grep @DATADIRNAME@ gettext/config.status`
+    else
+      use_included_libintl=yes
+      gettext_datadirname_sedcommand='s%@DATADIRNAME@%share%g'
+    fi
+    # Do we build libintl.a, or is it already contained in the system libraries?
+    if [ -n "$use_included_libintl" ] ; then
+      # Don't put "-lintl" into LIBS for the same reasons as above.
+      GETTEXTLIB='gettext/intl/libintl.a'
+      if [ $HOS = unix ] ; then
+        # use symbolic link
+        XCL_GETTEXTLIB='libintl.a'
+        FILES=$FILES' libintl.a'
+      else
+        XCL_GETTEXTLIB=$GETTEXTLIB
+      fi
+      LIBS=$XCL_GETTEXTLIB' '$LIBS
+    fi
+    XCL_GETTEXTLIB=$XCL_GETTEXTLIB' locale'
+  fi
+fi
+if [ $TOS = win32 ] ; then
+  XCFLAGS=$XCFLAGS' -DNO_GETTEXT'
+fi
+
+USE_TERMCAP=''
+TERMCAPLIB=''
+XCL_TERMCAPLIB=''
+if [ $TOS = unix ] ; then
+  if [ "$TSYSOS" = cygwin32 ] ; then
+    # Cygwin32 has tgetent(), but lacks the other termcap functions.
+    USE_TERMCAP=yes
+  fi
+fi
+if test -n "$with_termcap" ; then
+  USE_TERMCAP=yes
+fi
+if [ -n "$USE_TERMCAP" ] ; then
+  TERMCAPLIB='termcap/libtermcap.a'
+  if [ $HOS = unix ] ; then
+    # use symbolic link
+    XCL_TERMCAPLIB='libtermcap.a'
+    FILES=$FILES' libtermcap.a'
+  else
+    XCL_TERMCAPLIB=$TERMCAPLIB
+  fi
+  LIBS=$XCL_TERMCAPLIB' '$LIBS
+fi
+
+CPARTS='        spvw spvwtabf spvwtabs spvwtabo'
+CPARTS=$CPARTS' eval control'
+CPARTS=$CPARTS' pathname stream'
+if [ $TSYS = master -o $TOS = unix -o $TOS = win32 ] ; then
+  CPARTS=$CPARTS' socket'
+fi
+CPARTS=$CPARTS' io'
+CPARTS=$CPARTS' array hashtabl list package record sequence'
+CPARTS=$CPARTS' charstrg debug error misc time predtype symbol lisparit'
+if [ $TSYS = master -o $TSYS = amiga ] ; then
+  CPARTS=$CPARTS' rexx'
+fi
+if [ $TSYS = master -o $TOS = unix -o $TSYS = dos -o $TSYS = dosdjgpp -o $TSYS = doswatcom -o $TSYS = windows -o $TSYS = windowswatcom -o $TSYS = os2 ] ; then
+  CPARTS=$CPARTS' graph'
+fi
+if [ $TSYS = master -o -n "$with_dynamic_ffi" ] ; then
+  CPARTS=$CPARTS' foreign'
+fi
+if [ $TSYS = master -o $TSYS = sun4 -a "$DEBUGGING" = debug ] ; then
+  CPARTS=$CPARTS' dbxtypes'
+fi
+if [ $TSYS = master -o $TOS = unix -o $TSYS = dos -o $TSYS = os2 -o $TSYS = windows -o $TSYS = acorn ] ; then
+  CPARTS=$CPARTS' unixaux'
+fi
+if [ $TSYS = master -o $TOS = win32 ] ; then
+  CPARTS=$CPARTS' win32aux'
+fi
+if [ $TSYS = master -o $TOS = acorn ] ; then
+  CPARTS=$CPARTS' acornaux acornsig'
+fi
+if [ $TSYS = master -o $TSYS = windows -o $TSYS = windowswatcom ] ; then
+  CPARTS=$CPARTS' windows'
+fi
+
+if [ -n "$with_wide" ] ; then
+  WCPARTS=''
+  for f in $CPARTS ; do
+    WCPARTS=$WCPARTS' w'$f
+  done
+fi
+
+EVERY_INCLUDES='lispbibl fsubr subr pseudofun constsym constobj '$OS_INCLUDES
+
+EVERY_INCLUDES_C=''
+for f in $EVERY_INCLUDES ; do
+  EVERY_INCLUDES_C=$EVERY_INCLUDES_C' '$f'.c'
+done
+
+EVERY_INCLUDES_H=''
+if [ -n "$GETTEXTLIB" ] ; then
+  EVERY_INCLUDES_H=$EVERY_INCLUDES_H' libintl.h'
+fi
+
+OTHER_INCLUDES=' constpack avl sort subrkw bytecode'
+if [ $TSYS = master -o $TSYS = amiga ] ; then
+  OTHER_INCLUDES=$OTHER_INCLUDES' amiga2'
+fi
+if [ $TSYS = master -o $TSYS = windows -o $TSYS = windowswatcom ] ; then
+  OTHER_INCLUDES=$OTHER_INCLUDES' wintext winstat winmain winaux'
+fi
+
+ERROR_INCLUDES=''
+if [ $TSYS = master -o $TSYS = amiga ] ; then
+  ERROR_INCLUDES=$ERROR_INCLUDES' erramiga'
+fi
+if [ $TSYS = master -o $TSYS = dosdjgpp ] ; then
+  ERROR_INCLUDES=$ERROR_INCLUDES' errdjgpp'
+fi
+if [ $TSYS = master -o $TOS = unix -o $TSYS = dos -o $TSYS = doswatcom -o $TSYS = windows -o $TSYS = windowswatcom -o $TSYS = os2 -o $TOS = acorn ] ; then
+  ERROR_INCLUDES=$ERROR_INCLUDES' errunix'
+fi
+if [ $TSYS = master -o $TOS = win32 ] ; then
+  ERROR_INCLUDES=$ERROR_INCLUDES' errwin32'
+fi
+
+LISPARIT_SUBFILES=' aridecl arilev0 arilev1 intelem intlog intplus intcomp intbyte intmal intdiv intgcd int2adic intsqrt intprint intread rational'
+LISPARIT_SUBFILES=$LISPARIT_SUBFILES' sfloat ffloat dfloat lfloat flo_konv flo_rest realelem realrand realtran compelem comptran'
+LISPARIT_INCLUDES=$LISPARIT_SUBFILES' arilev1c arilev1e arilev1i'
+
+EXTRA_CPARTS='noreadline'
+
+DFILES="$CPARTS $EVERY_INCLUDES $OTHER_INCLUDES $ERROR_INCLUDES $LISPARIT_INCLUDES genclisph modules $EXTRA_CPARTS"
+
+ARI_ASMD=''
+ARI_ASMC=''
+ARI_ASMS=''
+if [ "$cpu" = m68k ] ; then
+  ARI_ASMD=$ARI_ASMD' ari68000 ari68020'
+  if [ $TSYS = sun3 -o $TSYS = hp300 -o $TSYS = m68k -o $TSYS = mc68040 -o $TSYS = amiga -a "$TSYSOS" = netbsd ] ; then
+    ARI_ASMS=$ARI_ASMS' ari68020'
+  else
+    ARI_ASMS=$ARI_ASMS' ari68000'
+  fi
+  ARI_ASMC=$ARI_ASMS
+fi
+if [ "$cpu" = sparc ] ; then
+  ARI_ASMD=$ARI_ASMD' arisparc'
+  ARI_ASMS=$ARI_ASMS' arisparc'
+fi
+if [ "$cpu" = mips ] ; then
+  ARI_ASMD=$ARI_ASMD' arimips'
+  ARI_ASMS=$ARI_ASMS' arimips'
+fi
+if [ "$cpu" = mips64 ] ; then
+  ARI_ASMD=$ARI_ASMD' arimips64'
+  ARI_ASMS=$ARI_ASMS' arimips64'
+fi
+if [ "$cpu" = i386 ] ; then
+  if [ $TSYS != win32bc ] ; then
+    case "$NOASM $host_os" in
+      "true solaris"*) ;; # The Solaris assembler /usr/ccs/bin/as chokes on it.
+      *)
+        ARI_ASMD=$ARI_ASMD' ari80386'
+        ARI_ASMS=$ARI_ASMS' ari80386'
+        ;;
+    esac
+  fi
+fi
+if [ "$cpu" = hppa ] ; then
+  ARI_ASMD=$ARI_ASMD' arihppa'
+  ARI_ASMS=$ARI_ASMS' arihppa'
+fi
+if [ "$cpu" = arm ] ; then
+  ARI_ASMD=$ARI_ASMD' ariarm'
+  ARI_ASMS=$ARI_ASMS' ariarm'
+fi
+
+SP_ASMD=''
+SP_ASMS=''
+if [ $XCC_GCC = false ] ; then
+  if [ "$cpu" = m68k ] ; then
+    SP_ASMD=$SP_ASMD' sp68000'
+    SP_ASMS=$SP_ASMS' sp68000'
+  fi
+  if [ "$cpu" = sparc ] ; then
+    # durch cc_sparc.il überflüssig:
+    if [ $TSYS != sun4 -o -n "$XCC_SUNPRO" ] ; then
+      SP_ASMD=$SP_ASMD' spsparc'
+      SP_ASMS=$SP_ASMS' spsparc'
+    fi
+  fi
+  if [ "$cpu" = mips -o "$cpu" = mips64 ] ; then
+    SP_ASMD=$SP_ASMD' spmips'
+    SP_ASMS=$SP_ASMS' spmips'
+  fi
+  if [ "$cpu" = i386 ] ; then
+    if [ $TSYS != win32bc ] ; then
+      case "$NOASM $host_os" in
+        "true solaris"*) ;; # The Solaris assembler /usr/ccs/bin/as chokes on it.
+        *)
+          SP_ASMD=$SP_ASMD' sp80386'
+          SP_ASMS=$SP_ASMS' sp80386'
+          ;;
+      esac
+    fi
+  fi
+fi
+
+COMMENTS=''
+
+LPARTS='        init defseq backquot defmacro macros1 macros2 defs1 timezone'
+LPARTS=$LPARTS' places floatpri type defstruc format user1 user2 trace macros3'
+LPARTS=$LPARTS' config compiler disassem defs2 loop clos conditio defs3'
+LPARTS=$LPARTS' gstream foreign1 screen rexx1 editor spanish'
+
+DOC='LISP-tutorial CLOS-guide cltl2 editors'
+
+TXT_FILES='README README.de README.en README.es clisp.1 clisp.html impnotes.txt'
+if [ $CROSS = false -a $HOS = unix ] ; then
+  TXT_FILES=$TXT_FILES' clisp.c distmakefile'
+fi
+
+OBSOLETE=''
+
+# Output the makefile:
+
+# echotab line
+# outputs a line, preceding it with a tab. cat is needed to output tabs.
+if [ $HSYS != win32msvc ] ; then
+echotab () {
+cat <<!!
+	$1
+!!
+}
+else
+# Win32 "nmake" stupidly passes the command lines through `printf', thus
+# interpreting % characters.
+echotab () {
+cmd=`echol "$1" | sed -e 's,%,%%,g'`
+cat <<!!
+	$cmd
+!!
+}
+fi
+
+# echotabpipe line
+# outputs a line, split along pipe symbols, preceding with tabs.
+if [ $HSYS != acorn -a $HSYS != win32bc ] ; then
+echotabpipe() {
+echotab "$1"
+}
+else
+echotabpipe() {
+line="$1"
+junk=''
+i=1
+while
+  linefirst=`echol "$line" | sed -e 's/|.*$//'`
+  test "$linefirst" != "$line"
+do
+  linefirst=`echol "$linefirst" | sed -e 's/[ 	]*$//'`
+  linerest=`echol "$line" | sed -e 's/^[^|]*|//' | sed -e 's/^[ 	]*//'`
+  tempfile='TMPPIPE'"$i"
+  echotab "$linefirst"" > $tempfile"
+  if test -n "$junk"; then
+    echotab "\$(RM) $junk"
+  fi
+  junk="$tempfile"
+  i=`expr "$i" + 1`
+  line=`echol "$linerest" | sed -e 's/[<>|].*$//' | sed -e 's/[ 	]*$//'`" < $tempfile "`echol "$linerest" | sed -e 's/^[^<>|]*//'`
+done
+echotab "$line"
+if test -n "$junk"; then
+  echotab "\$(RM) $junk"
+fi
+}
+fi
+
+# echolist prefix list suffix prefix
+# outputs a list of items, prefixed by backslashes and newlines to break long
+# lines.
+echolist () {
+line="$1"
+for f in $2 ; do
+  echol $line" \\"
+  line="$4${f}$3"
+done
+echol $line
+}
+
+# echodummyrule target
+# outputs a dummy rule for the given target.
+if [ $HSYS != acorn ] ; then
+case "$host_os" in
+  aix*) # GNU make on AIX starts an interactive shell for every empty rule
+echodummyrule () {
+echotab "true"
+}
+  ;;
+  *)
+echodummyrule () {
+:
+}
+  ;;
+esac
+else
+echodummyrule () {
+echotab "\$(TOUCH) $1"
+}
+fi
+
+echol "# Makefile for the CLISP binaries"
+echol "# DO NOT EDIT! GENERATED AUTOMATICALLY!"
+echol "# This file was created on host $hostname as the output of the command:"
+echol "# $0$makemake_args"
+echol
+echol '# -------------- Start of configurable section --------------------'
+echol
+echol '# Directories used by "make install":'
+echol "prefix = ${PREFIX}"
+echol "exec_prefix = ${EXEC_PREFIX}"
+echol "bindir = \$(exec_prefix)${NEXT_}bin"
+echol "mandir = \$(exec_prefix)${NEXT_}man"
+case "$fsstnd" in
+  suse)
+    echol "docdir = \$(exec_prefix)${NEXT_}doc${NEXT_}packages${NEXT_}clisp"
+    ;;
+esac
+echol "libdir = \$(exec_prefix)${NEXT_}lib"
+echol "lisplibdir = \$(libdir)${NEXT_}lisp"
+if [ -n "$USE_GETTEXT" ] ; then
+  echol "datadir = \$(prefix)/@DATADIRNAME@" | sed -e "$gettext_datadirname_sedcommand"
+  echol "localedir = \$(datadir)/locale"
+fi
+echol
+echol     "# List of add-on modules:"
+echol     "# queens               the queens function as a separate module"
+if test -n "$with_dynamic_ffi"; then
+  echol   "# wildcard             wildcard matching"
+  echol   "# regexp               Unix-style regular expression matching and searching"
+  if [ "$cpu" = i386 -a "$TSYSOS" = linux ] ; then
+    echol "# bindings/linuxlibc5  Linux libc/libm bindings (lib[cm]4, lib[cm]5 only)"
+    echol "# bindings/linuxlibc6  Linux libc/libm bindings (lib[cm]6 only)"
+  fi
+fi
+if [ $TOS = unix -o $TOS = win32 ] ; then
+  echol   "# clx/mit-clx          classical X11 interface"
+fi
+if [ $TOS = unix ] ; then
+  echol   "# clx/new-clx          faster X11 interface (replaces clx/mit-clx)"
+fi
+echol '# If you change this after doing "make", you have to "rm -r full; make".'
+echol "MODULES = "`set | grep '^with_module_' | sed -e 's,^with_module_,,' -e 's,=.*$,,'`
+echol
+echol '# Programs used by "make":'
+if [ $CROSS = true ] ; then
+  echol "CC = ${CC}"
+  echol "CFLAGS = ${CFLAGS}"
+  echol "CLFLAGS = ${CLFLAGS}"
+  echol "CPP = ${CPP}"
+  echol "XCC = ${XCC}"
+  echol "XCFLAGS = ${XCFLAGS}"
+  echol "XCPP = ${XCPP}"
+  echol "XCLFLAGS = ${XCLFLAGS}"
+  echol "XLIBS = ${LIBS}"
+  XCC="\$(XCC)"
+  XCFLAGS="\$(XCFLAGS)"
+  XCPP="\$(XCPP)"
+  XCLFLAGS="\$(XCLFLAGS)"
+  LIBS="\$(XLIBS)"
+else
+  echol "CC = ${XCC}"
+  echol "CFLAGS = ${XCFLAGS}"
+  echol "CPP = ${XCPP}"
+  echol "CLFLAGS = ${XCLFLAGS}"
+  echol "LIBS = ${LIBS}"
+  XCC="\$(CC)"
+  XCFLAGS="\$(CFLAGS)"
+  XCPP="\$(CPP)"
+  XCLFLAGS="\$(CLFLAGS)"
+  LIBS="\$(LIBS)"
+fi
+echol "X_LIBS = ${X_LIBS}"
+X_LIBS="\$(X_LIBS)"
+if test -n "$with_dynamic_modules"; then
+  echol 'MODULE_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
+  echol 'MODULE_CLFLAGS = $(CLFLAGS) '"${XCC_DLOPENABLE_EXE_FLAG}"
+  MODULE_CFLAGS_VAR='MODULE_CFLAGS'
+  MODULE_CLFLAGS_VAR='MODULE_CLFLAGS'
+  XCLFLAGS="\$(MODULE_CLFLAGS)"
+else
+  MODULE_CFLAGS_VAR='CFLAGS'
+  MODULE_CLFLAGS_VAR='CLFLAGS'
+fi
+# if [ $TSYS = sun4 -a "$CC" = cc ] ; then
+#   echol "INLINE = /usr/lib/inline"
+# fi
+if [ $HSYS = doswatcom -o $HSYS = windowswatcom ] ; then
+  echol "DISASM = wdisasm -au -s" # -au: Intel/Unix syntax, -s: include source
+fi
+if [ $HSYS = dos -o $HSYS = dosdjgpp -o $TSYS = windows -o $HSYS = os2 ] ; then
+  echol "LD = ld"
+fi
+if [ $HSYS = dos -o $HSYS = os2 ] ; then
+  # Putting emx.exe allows one to get away with less installation problems.
+  # Putting emxl.exe causes rsx.exe to be used if running under Windows.
+  echol 'EMX = c:\emx\bin\emxl.exe'
+fi
+if [ $TSYS = windows -o $TSYS = windowswatcom ] ; then
+  echol 'RC = wrc -i=d:\watcom95\h\win'
+fi
+if [ $TSYS = windows ] ; then
+  echol 'RSXW32 = \rsxwin\rsxw32.exe'
+fi
+if [ $HSYS = win32msvc ] ; then
+  if [ $COMPILER = msvc4 ] ; then
+    echol "MSVCDIR = d:/msdev"
+  fi
+  if [ $COMPILER = msvc5 ] ; then
+    echol "MSVCDIR = d:/devstudio/vc"
+  fi
+fi
+if [ $HSYS = win32bc ] ; then
+  echol "BCDIR = d:/bc5"
+  echol "WIN32DIR = c:\\winnt35\\system32"
+fi
+# echotab_to_HEXE command source target
+# outputs a `make' statement that executes "command source" and creates
+# target${HEXE}.
+if [ $HSYS != dosdjgpp -a $HSYS != doswatcom -a $HSYS != windowswatcom -a $HSYS != win32msvc -a $HSYS != win32bc ] ; then
+  echotab_to_HEXE () {
+  echotab "$1 $2 -o $3${HEXE}"
+  }
+else
+  if [ $HSYS = dosdjgpp ] ; then
+    # echol "COFF2EXE = coff2exe"
+    # would work too, but then all the programs would depend on the environment
+    # variable GO32 and the existence of go32.exe. We prefer to do it this way:
+    echol "COFF2EXE = copy /b c:\djgpp\bin\go32.exe +"
+    echotab_to_HEXE () {
+    echotab "$1 $2 -o $3"
+    echotab "\$(COFF2EXE) $3 $3${HEXE}"
+    echotab "\$(RM) $3"
+    }
+  fi
+  if [ $HSYS = doswatcom -o $HSYS = windowswatcom ] ; then
+    echotab_to_HEXE () {
+    echotab "$1 $2 -fo=$3${HEXE}"
+    }
+  fi
+  if [ $HSYS = win32msvc ] ; then
+    echotab_to_HEXE () {
+    echotab "$1 $2 /Fe$3${HEXE}"
+    }
+  fi
+  if [ $HSYS = win32bc ] ; then
+    echotab_to_HEXE () {
+    echotab "$1 -e$3${HEXE} $2"
+    }
+  fi
+fi
+if [ -n "$CHSCONVERT" ] ; then
+  echol "CHARSETCONVERT = ${CHSCONVERT}"
+  CHSCONVERT_FILTER=" | \$(CHARSETCONVERT)"
+else
+  CHSCONVERT_FILTER=''
+fi
+echol
+if [ $HOS = win32 -a $HSYS != win32gcc ] ; then
+  if [ $HSYS = win32msvc ] ; then
+    echol "MAKE = nmake"
+  else
+    echol "MAKE = amake"
+  fi
+else
+  echol "MAKE = make"
+fi
+echol "RM = ${RM}"
+echol "CP = ${CP}"
+echol "LN = ${LN_S}"
+echol "MV = ${MV}"
+echol "CAT = ${CAT}"
+echol "TOUCH = ${TOUCH}"
+echol "GREP = ${GREP}"
+if [ $HOS = acorn ] ; then
+  echol "SED = sed"
+fi
+echol "AR = ar"
+echol "RANLIB = ${RANLIB}"
+echol
+echol '# Programs used by "make install":'
+echol "INSTALL = ${INSTALL}"
+echol "INSTALL_PROGRAM = ${INSTALL_PROGRAM}"
+echol "INSTALL_DATA = ${INSTALL_DATA}"
+echol
+echol '# Programs used by "make distrib":'
+echol
+# Auxiliary routines for linking lisp.a:
+if [ $HOS = unix -a $XCC_GCC = true ] ; then
+  # We need the full libgcc.a in general. But we don't know its location.
+  LIBGCC='`'"${XCC} -print-libgcc-file-name"'` # something like /usr/somewhere/libgcc.a'
+  if [ $CROSS = false ] ; then
+    if [ "$HSYSOS" = linux -o "$HSYSOS" = cygwin32 ] ; then
+      # gcc2 is cc on Linux and Cygwin32. Don't need libgcc.a
+      LIBGCC=''
+    fi
+  fi
+else
+  LIBGCC=''
+fi
+if test -n "$LIBGCC"; then
+  echol "LIBGCC = ${LIBGCC}"
+fi
+if [ "$HSYSOS" = linux -o "$HSYSOS" = 386bsd -o "$HSYSOS" = netbsd ] ; then
+  ROFF_MAN="groff -Tascii -mandoc"
+  ROFF_DVI="groff -Tdvi -mandoc"
+else
+  if [ $HSYS = acorn ] ; then
+    ROFF_MAN="xfmt -m"
+  else
+    ROFF_MAN="nroff -man"
+    if [ $HSYS = sun4 -a $CROSS = false ] ; then
+      if [ "$UNAME_S" = sunos ] ; then
+        case "$UNAME_R" in 4*)
+          # SunOS 4
+          ROFF_MAN="nroff -a -man" ;;
+        esac
+      fi
+    fi
+  fi
+fi
+echol '# formatter for manual page'
+echol "ROFF_MAN = ${ROFF_MAN}"' # try "groff -Tascii -mandoc" or "nroff -man"'
+echol "ROFF_DVI = ${ROFF_DVI}"' # try "groff -Tdvi -mandoc"'
+echol
+echol '# -------------- End of configurable section --------------------'
+echol
+cat <<\!!
+# 
+#                       Requirements for add-on modules
+#                       -------------------------------
+# 
+# The general layout of add-on modules is described in ../doc/module.txt.
+# The requirements made there (i.e. the existence of a "link.sh" file
+# which defines certain variables) make sure that such an add-on module
+# can be distributed with CLISP.
+# 
+# If you want an add-on module to be _built_ automatically with CLISP,
+# the following additional requirements have to be obeyed.
+# 
+#   1. The module must be located in a subdirectory of clisp's source
+#      directory.
+#      Examples: clisp/src/ wildcard/
+#                clisp/src/ bindings/linuxlibc5/
+# 
+#   2. If the module contains a file called "configure", it is assumed
+#      to be a GNU autoconf generated configuration file, and is called
+#      with a "--cache-file=..." argument. It should generate platform
+#      dependent header files, Makefiles and the like.
+# 
+#   3. The module should contain a Makefile (maybe generated by requirement 2),
+#      which defines the following targets:
+# 
+#        clisp-module
+# 
+#           This target builds the file mentioned by the link.sh file.
+#           The following makefile variables can be used:
+#             CC                 the C compiler used to compile the CLISP source
+#             CFLAGS             the C compiler flags
+#             INCLUDES           a directory containing CLISP header files
+#             LISPBIBL_INCLUDES  if you #include "lispbibl.c", put this onto
+#                                the dependency line
+#             CLFLAGS            the C compiler flags when linking an executable
+#             LIBS               the libraries used when linking an executable
+#             RANLIB             the name of the "ranlib" command
+#             CLISP              a command which calls the already built
+#                                "base" clisp.
+#           Typically, you will have rules like this in your Makefile:
+#               foo.o : foo.c
+#                       $(CC) $(CFLAGS) -I$(INCLUDES) -c foo.c
+#               foo.fas : foo.lsp
+#                       $(CLISP) -c foo.lsp
+# 
+#        clisp-module-wide
+# 
+#           This target does the same as clisp-module, plus it builds the
+#           object files in wide mode as well.
+#           Typically, you will have rules like this in your Makefile:
+#               wfoo.o : foo.c
+#                       $(CC) $(CFLAGS) -DWIDE -I$(INCLUDES) -c foo.c -o wfoo.o
+# 
+#        clisp-module-distrib
+# 
+#           This target copies the module into a temporary distribution
+#           directory, on the same disk.
+#           The following makefile variables can be used:
+#             distribdir       the name of temporary distribution directory
+#             LN               command to make hard links (works also for
+#                              symbolic links)
+#           Typically, this target will look like this:
+#
+#               DISTRIBFILES = <the non-wide NEW_FILES mentioned in link.sh> \
+#                              <doc files>
+#               clisp-module-distrib : clisp-module force
+#                       $(LN) $(DISTRIBFILES) $(distribdir)
+# 
+#        clisp-module-distrib-wide
+# 
+#           This target does the same as clisp-module-distrib, but including
+#           the wide mode object files.
+#           Typically, this target will look like this:
+#
+#               WDISTRIBFILES = $(DISTRIBFILES) <the wide NEW_FILES in link.sh>
+#               clisp-module-distrib-wide : clisp-module-wide force
+#                       $(LN) $(WDISTRIBFILES) $(distribdir)
+# 
+# If these requirements are obeyed, this Makefile will automatically build
+# the add-on module and make it part of the "full" distribution -- all you
+# need to do is to add its name to the MODULES definition line above.
+# 
+!!
+echol
+if [ $HOS = unix ] ; then
+  # On some systems (IRIX SVR3 and others) the default shell is csh.
+  echol "SHELL = /bin/sh"
+  echol
+fi
+echol "COMMENT5 = ${HERE}comment5"
+
+if [ -n "$XCC_SUNPRO" ] ; then
+  XASM_NEED_CCPAUX=true
+else
+  XASM_NEED_CCPAUX=$XCC_NEED_CCPAUX
+fi
+
+if [ $CC_NEED_CCPAUX = true -o $XCC_NEED_CCPAUX = true -o $XASM_NEED_CCPAUX = true ] ; then
+  NEED_CCPAUX=true
+else
+  NEED_CCPAUX=false
+fi
+if [ $XCC_ANSI = false ] ; then
+  echo "Pre-ANSI-C compilers are not supported." 1>&2
+  exit 1
+fi
+NEED_ANSIDECL=true
+XDECL_FILTER="| \$(ANSIDECL)"
+XDECL_DEPENDENCIES=" ansidecl${HEXE}"
+
+if [ $NEED_ANSIDECL = true ] ; then
+  echol "ANSIDECL = ${HERE}ansidecl"
+fi
+if [ $CC_NEED_CCPAUX = true ] ; then
+  CCPAUX='ccpaux'$HEXE
+  CCPAUX_FILTER=' | '$HERE'ccpaux'
+else
+  CCPAUX=''
+  CCPAUX_FILTER=''
+fi
+if [ $XCC_NEED_CCPAUX = true ] ; then
+  XCCPAUX='ccpaux'$HEXE
+  XCCPAUX_FILTER=' | '$HERE'ccpaux'
+else
+  XCCPAUX=''
+  XCCPAUX_FILTER=''
+fi
+if [ $XASM_NEED_CCPAUX = true ] ; then
+  XASMCCPAUX='ccpaux'$HEXE
+  XASMCCPAUX_FILTER=' | '$HERE'ccpaux'
+else
+  XASMCCPAUX=''
+  XASMCCPAUX_FILTER=''
+fi
+if [ $XCC_NEED_DEEMA = true ] ; then
+  if [ $HOS = unix ] ; then
+    echol "DEEMA = sed -e 's/,)/,_EMA_)/g'"
+  else
+    echol "DEEMA = deema"
+    XDECL_DEPENDENCIES="${XDECL_DEPENDENCIES} deema${HEXE}"
+  fi
+  XDECL_FILTER="${XDECL_FILTER} | \$(DEEMA)"
+fi
+
+if [ $TOS = unix ] ; then
+  TXT2CINCL="-I'${SRCTOPDIR}'"
+else
+  TXT2CINCL="-I${SRCTOPDIR}"
+fi
+echol "TXT2C = ${HERE}txt2c ${TXT2CINCL}"
+if [ $CROSS = true ] ; then
+  TXT2CFLAGS="${TXT2CFLAGS} -DCROSS"
+  TXT_INCLUDES=' lispbibl.h'
+else
+  TXT2CFLAGS="${TXT2CFLAGS}"
+  TXT_INCLUDES="${EVERY_INCLUDES_C}${EVERY_INCLUDES_H}"
+fi
+
+echol
+
+echolist "DFILES =" "$DFILES $ARI_ASMD $SP_ASMD" ".d"
+echol
+
+echolist "CFILES =" "$DFILES $ARI_ASMD $ARI_ASMC $SP_ASMD" ".c"
+echol
+
+echolist "OBJECTS =" "$CPARTS $ARI_ASMS $SP_ASMS $GMALLOC" "${TOBJ}"
+echol
+
+if [ -n "$with_wide" ] ; then
+  echolist "wOBJECTS =" "$WCPARTS $ARI_ASMS $SP_ASMS $GMALLOC" "${TOBJ}"
+  echol
+fi
+
+echolist "LSPFILES =" "$LPARTS" ".lsp"
+echol
+
+echolist "FASFILES =" "$LPARTS" ".fas"
+echol
+
+echolist "TXTFILES =" "$DOC" ".txt"
+echol
+
+echolist "TESTLSPFILES =" "$LPARTS" ".lsp" "${TESTDIR}${NEXT_M}"
+echol
+echolist "TESTFASFILES =" "$LPARTS" ".fas" "${TESTDIR}${NEXT_M}"
+echol
+
+if [ -n "$with_wide" ] ; then
+  echolist "wTESTLSPFILES =" "$LPARTS" ".lsp" "w${TESTDIR}${NEXT_M}"
+  echol
+  echolist "wTESTFASFILES =" "$LPARTS" ".fas" "w${TESTDIR}${NEXT_M}"
+  echol
+fi
+
+echol
+
+if [ $HOS = acorn ] ; then
+  echol "# The Acorn Make Utility has problems with $halfcompiled.mem."
+  echol "# If you have this problem, either swap $halfcompiled.mem and lispinit.mem in the next line, or use GNU make."
+fi
+needs="init allc allo lisp${LEXE} $interpreted.mem $halfcompiled.mem lispinit.mem manual"
+if [ -n "$with_wide" ] ; then
+  needs=$needs" wlisp${LEXE} wlispinit.mem"
+fi
+if [ $HOS = unix -a $CROSS = false ] ; then
+  needs=$needs' modular $(MODULES) full clisp.c'
+fi
+echol "all : $needs"
+echodummyrule all
+echol
+
+echol
+
+UTILS=''
+if [ $NEED_CCPAUX = true ] ; then
+  UTILS=$UTILS' ccpaux'
+fi
+UTILS=$UTILS' comment5'
+UTILS=$UTILS' ansidecl'
+if [ $XCC_NEED_DEEMA = true -a $HOS != unix ] ; then
+  UTILS=$UTILS' deema'
+fi
+UTILS=$UTILS' txt2c'
+UTILS=$UTILS' ccmp2c' # needed by clx module
+if [ "$CHSCONVERT" = "./cv_lt_at" ] ; then
+  UTILS=$UTILS' cv_lt_at'
+fi
+if [ "$CHSCONVERT" = "./cv_lt_pc" ] ; then
+  UTILS=$UTILS' cv_lt_pc'
+fi
+
+line="init :"
+if [ $TOS = unix ] ; then
+  line=$line" intparam.h"
+fi
+if [ $XCC_UNUSABLE_CPP = true ] ; then
+  line=$line" ${SRCTOPDIR}utils/gcc-cccp/cccp${HEXE}"
+fi
+if [ $CROSS = true ] ; then
+  line=$line" unixconf.h"
+fi
+for util in $UTILS ; do
+  line=$line" ${util}${HEXE}"
+done
+line=$line" \$(DFILES) modules.h"
+if [ $TSYS = sun4 -a "$CC" = cc -a -z "$XCC_SUNPRO" ] ; then
+  line=$line" cc_sparc.il"
+fi
+echol $line
+if [ $HOS = unix -a $CROSS = false ] ; then
+  echotab "test -d linkkit || \$(LN) . linkkit"
+  echotab "test -d base || \$(LN) . base"
+  echotab "test -d bindings || mkdir bindings"
+else
+  echodummyrule init
+fi
+echol
+if [ $TOS = unix ] ; then
+  echol "intparam.h : ${SRCDIR}intparam.c"
+  echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${SRCDIR}intparam.c" "intparam"
+  echotab "${HERE}intparam${HEXE} > intparam.h"
+  echotab "\$(RM) intparam${HEXE}"
+  echol
+fi
+if [ $XCC_UNUSABLE_CPP = true ] ; then
+  echol "${SRCTOPDIR}utils/gcc-cccp/cccp${HEXE} :"
+  if [ $HOS = unix ] ; then
+    echotab "cd ${SRCTOPDIR}utils/gcc-cccp && \$(MAKE)"
+  fi
+  echol
+fi
+if [ $CROSS = true ] ; then
+  echol "unixconf.h :"
+  echotab "if [ ! -f unixconf.h ] ; then \$(TOUCH) unixconf.h ; fi"
+  echol
+fi
+for util in $UTILS ; do
+  if [ $util = ccpaux -o $util = deema ] ; then
+    echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
+    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}${util}.c" "${util}"
+    echol
+  fi
+  if [ $util = cv_lt_pc ] ; then
+    # Only used when $CROSS = true
+    echol "${util}${HEXE} : ${SRCTOPDIR}dos/${util}.c"
+    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${SRCTOPDIR}dos/${util}.c" "${util}"
+    echol
+  fi
+  if [ $util = comment5 ] ; then
+    if [ $CC_NEED_CCPAUX = true ] ; then
+      echol "${util}${HEXE} : ${UTILDIR_M}${util}.c ${CCPAUX}"
+      echotab "${HERE}ccpaux${HEXE} < ${UTILDIR_}${util}.c > ${util}.c"
+      echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${util}.c" "${util}"
+      echotab "\$(RM) ${util}.c"
+      echol
+      OBSOLETE=$OBSOLETE" ${util}.c"
+    else
+      echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
+      echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}${util}.c" "${util}"
+      echol
+    fi
+  fi
+  if [ $util = ansidecl ] ; then
+    if [ $util = ansidecl ] ; then
+      flags="${ANSIDECLFLAGS}"
+    fi
+    echol "${util}${HEXE} : ${UTILDIR_M}${util}.d comment5${HEXE}"
+    echotab "\$(LN) ${UTILDIR_}${util}.d ${util}.d"
+    echotab "\$(COMMENT5) ${util}.d ${util}.c"
+    echotab "\$(RM) ${util}.d"
+    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)${flags}" "${util}.c" "${util}"
+    echotab "\$(RM) ${util}.c"
+    echol
+    OBSOLETE=$OBSOLETE" ${util}.c"
+  fi
+  if [ $util = ccmp2c ] ; then
+    flags=''
+    if [ $util = ccmp2c ] ; then
+      flags=' -I.'
+    fi
+    echol "${util}${HEXE} : ${UTILDIR_M}${util}.d comment5${HEXE} ansidecl${HEXE}"
+    echotabpipe "\$(COMMENT5) ${UTILDIR_CC}${util}.d | \$(ANSIDECL) > ${util}.c"
+    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)${flags}" "${util}.c" "${util}"
+    echotab "\$(RM) ${util}.c"
+    echol
+    OBSOLETE=$OBSOLETE" ${util}.c"
+  fi
+  if [ $util = txt2c ] ; then
+    echol "${util}${HEXE} : ${UTILDIR_M}${util}.c ansidecl${HEXE}"
+    echotab "\$(ANSIDECL) < ${UTILDIR_}${util}.c > ${util}.c"
+    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)${TXT2CFLAGS}" "${util}.c" "${util}"
+    echotab "\$(RM) ${util}.c"
+    echol
+  fi
+done
+
+echol
+
+if [ $HOS = unix ] ; then
+  echol "${SRCDIR}version.h : ${SRCDIR}VERSION"
+  echotab "cd ${SRCTOPDIR} && \$(MAKE) -f Makefile.devel src/version.h"
+  echol
+fi
+
+if [ -n "${SRCDIR}" ] ; then
+  if [ $HOS = unix ] ; then
+    for f in $DFILES $ARI_ASMD $SP_ASMD ; do
+      echol "${f}.d : ${SRCDIR}${f}.d"
+      echotab "-\$(LN) ${SRCDIR}${f}.d ${f}.d"
+      echol
+    done
+    for f in version.h modules.h ; do
+      echol "${f} : ${SRCDIR}${f}"
+      echotab "-\$(LN) ${SRCDIR}${f} ${f}"
+      echol
+    done
+    if [ $TSYS = sun4 -a "$CC" = cc -a -z "$XCC_SUNPRO" ] ; then
+      echol "cc_sparc.il : ${SRCDIR}cc_sparc.il"
+      echotab "-\$(LN) ${SRCDIR}cc_sparc.il cc_sparc.il"
+      echol
+    fi
+    echol
+  fi
+fi
+
+echol "allc : init \$(CFILES)"
+echodummyrule allc
+echol
+
+for f in $DFILES ; do
+  echol "${f}.c : ${f}.d comment5${HEXE}${XDECL_DEPENDENCIES}"
+  echotabpipe "\$(COMMENT5) ${f}.d${CHSCONVERT_FILTER} ${XDECL_FILTER} > ${f}.c"
+  echol
+done
+
+for f in $ARI_ASMD $SP_ASMD ; do
+  echol "${f}.c : ${f}.d comment5${HEXE} ${XCCPAUX}"
+  echotabpipe "\$(COMMENT5) ${f}.d${XASMCCPAUX_FILTER} > ${f}.c"
+  echol
+done
+
+if [ $TSYS != win32msvc ] ; then
+  if [ $AS_UNDERSCORE = true ] ; then
+    ASMFLAGS=' -DASM_UNDERSCORE'
+  else
+    ASMFLAGS=''
+  fi
+  if [ -n "$XCC_SUNPRO" ] ; then
+    # SUNPRO cc preprocessor does too much checking in ANSI C mode, choose K&R mode
+    ASMFLAGS="$ASMFLAGS"' -Xs'
+  fi
+  if [ $XCC_GCC = false -a $HOS != acorn ] ; then
+    # Remove the line number information etc. and convert "% ecx" back to "%ecx":
+    ASM_FILTER=" | \$(GREP) -v '^#' | \$(GREP) -v '^ *#line' | sed 's,% ,%,g'"
+  else
+    if [ $HOS = acorn ] ; then
+      ASM_FILTER=" | \$(SED) -f ${PARENT}acorn${NEXT}asmfilter.sed"
+    else
+      if [ $AS_UNDERSCORE = false ] ; then
+        # These are the less modern assemblers or SYSV assemblers.
+        # Remove the line number information etc.
+        ASM_FILTER=" | \$(GREP) -v '^#'"
+      else
+        ASM_FILTER=''
+      fi
+      if [ "$cpu" = m68k ] ; then
+        # SunOS 4.0 "as" doesn't understand ! comments.
+        ASM_FILTER="$ASM_FILTER | sed -e 's,!.*\$\$,,'"
+      fi
+    fi
+  fi
+  for f in $ARI_ASMS $SP_ASMS ; do
+    # The preprocessor barfs on arihppa: "unterminated character constant".
+    # We ignore this:
+    case $f in
+      *hppa) g='-' ;;
+      *)     g='' ;;
+    esac
+    # In ari68020.d the dollars must be replaced, and \# replaced by # :
+    case $f in
+      ari68020*)
+        if [ $AS_UNDERSCORE = false ] ; then
+          h=' | sed -e '"'"'s/\\#/#/g'"'"' -e '"'"'s/\$$/%/g'"'"
+        else
+          h=' | sed -e '"'"'s/\\#/#/g'"'"' -e '"'"'s/\$$//g'"'"
+        fi
+        ;;
+      *) h='' ;;
+    esac
+    echol "${f}.s : ${f}.c"
+    echotabpipe "${g}${XCPP}${ASMFLAGS} ${f}.c${h}${ASM_FILTER} > ${f}.s"
+    echol
+  done
+fi
+
+if [ -n "$with_dynamic_ffi" -a $HOS = unix ] ; then
+  echol "trampoline${NEXT}trampoline.h :"
+  echotab "cd trampoline && \$(MAKE) && \$(MAKE) check"
+  echol
+fi
+
+line="allo : allc"
+for f in $CPARTS ; do
+  line=$line" ${f}${TOBJ}"
+done
+echol $line
+echodummyrule allo
+echol
+
+line="alls : allc"
+for f in $CPARTS ; do
+  line=$line" ${f}.s"
+done
+echol $line
+echodummyrule alls
+echol
+
+echol "# Normally not used (just for debugging)."
+line="alli : allc"
+for f in $CPARTS ; do
+  line=$line" ${f}.i"
+done
+echol $line
+echodummyrule alli
+echol
+
+if [ -n "$with_wide" ] ; then
+
+  line="allwo : allc"
+  for f in $CPARTS ; do
+    line=$line" w${f}${TOBJ}"
+  done
+  echol $line
+  echodummyrule allwo
+  echol
+
+  line="allws : allc"
+  for f in $CPARTS ; do
+    line=$line" w${f}.s"
+  done
+  echol $line
+  echodummyrule allws
+  echol
+
+  echol "# Normally not used (just for debugging)."
+  line="allwi : allc"
+  for f in $CPARTS ; do
+    line=$line" w${f}.i"
+  done
+  echol $line
+  echodummyrule allwi
+  echol
+
+fi
+
+for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
+  depends=$EVERY_INCLUDES
+  if [ $f = spvw -o $f = package ] ; then
+    depends=$depends' constpack'
+  fi
+  if [ $f = spvw -o $f = predtype ] ; then
+    depends=$depends' avl'
+  fi
+  if [ $f = spvw ] ; then
+    depends=$depends' sort subrkw'
+  fi
+  if [ $f = eval ] ; then
+    depends=$depends' bytecode'
+  fi
+  if [ $f = array -o $f = hashtabl -o $f = io -o $f = time -o $f = package -o $f = spvw -o $f = stream -o $f = graph -o $f = foreign ] ; then
+    depends=$depends' arilev0'
+  fi
+  if [ $f = spvw -o $f = hashtabl ] ; then
+    depends=$depends' aridecl'
+  fi
+  if [ $f = error ] ; then
+    depends=$depends''$ERROR_INCLUDES
+  fi
+  if [ $f = lisparit ] ; then
+    depends=$depends''$LISPARIT_INCLUDES''$ARI_ASMS
+  fi
+  if [ $f = rexx ] ; then
+    depends=$depends' amiga2'
+  fi
+  if [ $f = windows ] ; then
+    depends=$depends' wintext winstat winmain winaux'
+  fi
+  dependsc=''
+  for g in $depends ; do
+    dependsc=$dependsc' '$g'.c'
+  done
+  dependsc=$dependsc''$EVERY_INCLUDES_H
+  if [ $f = spvw ] ; then
+    dependsc=$dependsc' version.h'
+  fi
+  if [ $f = foreign -a $HOS != win32 ] ; then
+    dependsc=$dependsc" avcall${NEXT}avcall.h callback${NEXT}callback.h"
+  fi
+  flags=$XCFLAGS
+  if [ $f = stream -o $f = noreadline ] ; then
+    if [ $TERMINAL = readline ] ; then
+      flags=$flags" ${INCLUDEDIR}${SRCDIR}${READLINEDIR}"
+    fi
+  fi
+  if [ $f = foreign ] ; then
+    if [ $HOS = win32 ] ; then
+      flags=$flags" ${INCLUDEDIR}${SRCTOPDIR}ffcall${NEXT}avcall ${INCLUDEDIR}${SRCTOPDIR}ffcall${NEXT}callback"
+    else
+      flags=$flags" ${INCLUDEDIR}avcall ${INCLUDEDIR}callback"
+    fi
+  fi
+  if [ $f = graph ] ; then
+    flags=$flags' '$X_INCLUDES
+  fi
+  if [ $f = modules ] ; then
+    if [ $HOS = unix ] && [ $CROSS = false ] ; then
+      dependsc=$dependsc' clisp.h'
+    else
+      flags=$flags' -DNO_CLISP_H'
+    fi
+    dependsc=$dependsc' modules.h'
+  fi
+  if [ $TSYS = sun4 -a "$CC" = cc -a -z "$XCC_SUNPRO" ] ; then
+    flags2=$flags' cc_sparc.il'
+    dependsc2=' cc_sparc.il'
+  else
+    flags2=$flags
+    dependsc2=''
+  fi
+  if [ $f = genclisph -a $XCC_GCC = true ] ; then
+    flags2=$flags2' -O0' # no need to optimize this
+  fi
+  echol "${f}.i : ${f}.c${dependsc}"
+  echotab "${XCPP} ${flags} ${f}.c > ${f}.i"
+  echol
+  if [ -n "$with_wide" ] ; then
+    echol "w${f}.i : ${f}.c${dependsc}"
+    echotab "${XCPP} ${flags} -DWIDE ${f}.c > w${f}.i"
+    echol
+  fi
+  if [ $XCC_UNUSABLE_CPP = true ] ; then
+    if [ $HSYS = win32msvc -o $HSYS = win32bc ] ; then
+      echol "${f}.s : ${f}.c${dependsc}${dependsc2}"
+      echotab "${XCPP} ${flags} ${f}.c > ${f}.i.c"
+      echotab "${XCC} ${flags2} -c ${f}.i.c /FAs /Fa${f}.s"
+      echotab "\$(RM) ${f}.i${TOBJ}"
+      echotab "\$(RM) ${f}.i.c"
+      echol
+      echol "${f}${TOBJ} : ${f}.c${dependsc}${dependsc2}"
+      echotab "${XCPP} ${flags} ${f}.c > ${f}.i.c"
+      echotab "${XCC} ${flags2} -c ${f}.i.c"
+      echotab "\$(RM) ${f}${TOBJ}"
+      echotab "\$(MV) ${f}.i${TOBJ} ${f}${TOBJ}"
+      echotab "\$(RM) ${f}.i.c"
+      echol
+      if [ -n "$with_wide" ] ; then
+        echol "w${f}.s : ${f}.c${dependsc}${dependsc2}"
+        echotab "${XCPP} ${flags} -DWIDE ${f}.c > w${f}.i.c"
+        echotab "${XCC} ${flags2} -c w${f}.i.c /FAs /Faw${f}.s"
+        echotab "\$(RM) w${f}.i${TOBJ}"
+        echotab "\$(RM) w${f}.i.c"
+        echol
+        echol "w${f}${TOBJ} : ${f}.c${dependsc}${dependsc2}"
+        echotab "${XCPP} ${flags} -DWIDE ${f}.c > w${f}.i.c"
+        echotab "${XCC} ${flags2} -c w${f}.i.c"
+        echotab "\$(MV) w${f}.i${TOBJ} w${f}${TOBJ}"
+        echotab "\$(RM) w${f}.i.c"
+        echol
+      fi
+    else
+      echol "${f}.s : ${f}.c${dependsc}${dependsc2}"
+      echotab "${XCPP} ${flags} ${f}.c > ${f}.i.c"
+      echotab "${XCC} ${flags2} -S ${f}.i.c"
+      echotab "\$(MV) ${f}.i.s ${f}.s"
+      echotab "\$(RM) ${f}.i.c"
+      echol
+      echol "${f}${TOBJ} : ${f}.c${dependsc}${dependsc2}"
+      echotab "${XCPP} ${flags} ${f}.c > ${f}.i.c"
+      echotab "${XCC} ${flags2} -c ${f}.i.c"
+      echotab "\$(MV) ${f}.i${TOBJ} ${f}${TOBJ}"
+      echotab "\$(RM) ${f}.i.c"
+      echol
+      if [ -n "$with_wide" ] ; then
+        echol "w${f}.s : ${f}.c${dependsc}${dependsc2}"
+        echotab "${XCPP} ${flags} -DWIDE ${f}.c > w${f}.i.c"
+        echotab "${XCC} ${flags2} -S w${f}.i.c"
+        echotab "\$(MV) w${f}.i.s w${f}.s"
+        echotab "\$(RM) w${f}.i.c"
+        echol
+        echol "w${f}${TOBJ} : ${f}.c${dependsc}${dependsc2}"
+        echotab "${XCPP} ${flags} -DWIDE ${f}.c > w${f}.i.c"
+        echotab "${XCC} ${flags2} -c w${f}.i.c"
+        echotab "\$(MV) w${f}.i${TOBJ} w${f}${TOBJ}"
+        echotab "\$(RM) w${f}.i.c"
+        echol
+      fi
+    fi
+  else
+    if [ $HSYS = doswatcom -o $HSYS = windowswatcom ] ; then
+      echol "${f}.s : ${f}${TOBJ}"
+      echotab "\$(DISASM) ${f}${TOBJ} -l=${f}.s"
+      echol
+    else
+      echol "${f}.s : ${f}.c${dependsc}${dependsc2}"
+      echotab "${XCC} ${flags2} -S ${f}.c"
+      echol
+      if [ -n "$with_wide" ] ; then
+        echol "w${f}.s : ${f}.c${dependsc}${dependsc2}"
+        echotab "${XCC} ${flags2} -DWIDE -S ${f}.c -o w${f}.s"
+        echol
+      fi
+    fi
+    echol "${f}${TOBJ} : ${f}.c${dependsc}${dependsc2}"
+    echotab "${XCC} ${flags2} -c ${f}.c"
+    echol
+    if [ -n "$with_wide" ] ; then
+      echol "w${f}${TOBJ} : ${f}.c${dependsc}${dependsc2}"
+      echotab "${XCC} ${flags2} -DWIDE -c ${f}.c -o w${f}${TOBJ}"
+      echol
+    fi
+  fi
+done
+
+if test -n "$GMALLOC"; then
+  for f in $GMALLOC ; do
+    echol "${f}${TOBJ} : ${SRCDIR}malloc${NEXT_M}${f}.c"
+    # gmalloc.c needs -DUSG on Solaris and then needs -DMEMMOVE_MISSING for SunOS 4.
+    echotab "${XCC} ${XCFLAGS} -DUSG -DMEMMOVE_MISSING -c ${SRCDIR}malloc${NEXT_}${f}.c -o ${f}${TOBJ}"
+    echol
+  done
+fi
+
+for f in $ARI_ASMS $SP_ASMS ; do
+  if [ $TSYS = win32msvc ] ; then
+    echol "${f}.i : ${f}.msvc.c"
+    echotab "${XCPP} ${XCFLAGS} ${f}.msvc.c > ${f}.i"
+    echol
+    echol "${f}.s : ${f}.msvc.c"
+    echotab "${XCPP} ${XCFLAGS} ${f}.msvc.c > ${f}.i.c"
+    echotab "${XCC} ${XCFLAGS} -c ${f}.i.c /FAs /Fa${f}.s"
+    echotab "\$(RM) ${f}.i${TOBJ}"
+    echotab "\$(RM) ${f}.i.c"
+    echol
+    echol "${f}${TOBJ} : ${f}.msvc.c"
+    echotab "${XCPP} ${XCFLAGS} ${f}.msvc.c > ${f}.i.c"
+    echotab "${XCC} ${XCFLAGS} -c ${f}.i.c"
+    echotab "\$(RM) ${f}${TOBJ}"
+    echotab "\$(MV) ${f}.i${TOBJ} ${f}${TOBJ}"
+    echotab "\$(RM) ${f}.i.c"
+    echol
+  else
+    echol "${f}${TOBJ} : ${f}.s"
+    # Call the assembler, preferrably through the C compiler:
+    if [ $TSYS = acorn ] ; then
+      echotab "objasm -Stamp -Quit -CloseExec -from ${f}.s -o ${f}${TOBJ}"
+    else
+      if [ $f = arihppa ] ; then
+        # Only the native as groks the .SHORTDATA statements in arihppa.d
+        echotab "${XCC} ${XCFLAGS} -c ${f}.s || /usr/ccs/bin/as ${f}.s -o ${f}${TOBJ} || /bin/as ${f}.s -o ${f}${TOBJ}"
+      else
+        if [ $f = arimips ] ; then
+          # Avoid problem during incremental linking of lisp.o.
+          echotab "/bin/as -KPIC ${f}.s -o ${f}${TOBJ} || /usr/ccs/bin/as -KPIC ${f}.s -o ${f}${TOBJ}"
+        else
+          if [ $XCC_GCC = true ] ; then
+            echotab "${XCC} ${XCFLAGS} -x assembler -c ${f}.s"
+          else
+            echotab "${XCC} ${XCFLAGS} -c ${f}.s"
+          fi
+        fi
+      fi
+    fi
+    echol
+  fi
+done
+
+if [ $HOS = unix ] ; then
+  echol "lisp.a : \$(OBJECTS) modules.o"
+  if [ "$HSYSOS" = cygwin32 ] ; then
+    # "ld -r" doesn't work right on Cygwin32 v18.
+    echotab "\$(AR) rcv lisp.a \$(OBJECTS) modules.o"
+  else
+    echotab "ld -r -o lisp.o \$(OBJECTS)"
+    echotab "chmod a-x lisp.o"
+    if test -z "$LIBGCC"; then
+      echotab "\$(AR) rcv lisp.a lisp.o modules.o"
+    else
+      # Test for libgcc.a because NeXT cc does not have it.
+      echotab "if test -f \$(LIBGCC) ; then mkdir libgcc ; (cd libgcc ; \$(AR) xv \$(LIBGCC)) ; \$(AR) rcv lisp.a lisp.o modules.o libgcc/*.o ; \$(RM) -r libgcc ; else \$(AR) rcv lisp.a lisp.o modules.o ; fi"
+    fi
+    echotab "\$(RM) lisp.o"
+  fi
+  echotab "\$(RANLIB) lisp.a"
+  echol
+  if [ -n "$with_wide" ] ; then
+    echol "wlisp.a : \$(wOBJECTS) wmodules.o"
+    if [ "$HSYSOS" = cygwin32 ] ; then
+      echotab "\$(AR) rcv wlisp.a \$(wOBJECTS) wmodules.o"
+    else
+      echotab "ld -r -o wlisp.o \$(wOBJECTS)"
+      echotab "chmod a-x wlisp.o"
+      if test -z "$LIBGCC"; then
+        echotab "\$(AR) rcv wlisp.a wlisp.o wmodules.o"
+      else
+        # Test for libgcc.a because NeXT cc does not have it.
+        echotab "if test -f \$(LIBGCC) ; then mkdir libgcc ; (cd libgcc ; \$(AR) xv \$(LIBGCC)) ; \$(AR) rcv wlisp.a wlisp.o wmodules.o libgcc/*.o ; \$(RM) -r libgcc ; else \$(AR) rcv wlisp.a wlisp.o wmodules.o ; fi"
+      fi
+      echotab "\$(RM) wlisp.o"
+    fi
+    echotab "\$(RANLIB) wlisp.a"
+    echol
+  fi
+  echol "libnoreadline.a : noreadline.o"
+  echotab "\$(AR) rcv libnoreadline.a noreadline.o"
+  echotab "\$(RANLIB) libnoreadline.a"
+  echol
+fi
+
+if [ -n "$with_dynamic_ffi" ] ; then
+  for f in avcall callback; do
+    if [ $HOS = unix ] ; then
+      echol "$f/lib$f.a :"
+      echotab "cd $f && \$(MAKE) && \$(MAKE) check"
+      echol
+      echol "lib$f.a : $f/lib$f.a"
+      echotab "-\$(LN) $f/lib$f.a lib$f.a"
+      echol
+    fi
+    if [ $HOS = win32 ] ; then
+      echol "$f.lib : ${SRCTOPDIR_M}ffcall${NEXT_M}$f${NEXT_M}$f.lib"
+      echotab "-\$(LN) ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}$f.lib $f.lib"
+      echol
+    fi
+  done
+fi
+
+if [ $TERMINAL = readline -a $HOS = unix ] ; then
+
+  echol "${READLINELIB} :"
+  echotab "cd ${READLINEDIR} && \$(MAKE) -r CC='${XCC}' CFLAGS='${XCFLAGS} -DCLISP' RANLIB='\$(RANLIB)'"
+  echol
+  echol "libreadline.a : ${READLINELIB}"
+  echotab "-\$(LN) ${READLINELIB} libreadline.a"
+  echol
+
+  echol
+
+fi
+
+if [ -n "$USE_GETTEXT" ] ; then
+
+  if [ -n "$GETTEXTLIB" ] ; then
+    echol "libintl.h :"
+    echotab "-\$(LN) gettext${NEXT_}intl${NEXT_}intlh.inst libintl.h"
+    echol
+    if [ $HOS = unix ] ; then
+      echol "${GETTEXTLIB} :"
+      echotab "cd gettext/intl && \$(MAKE) -r CC='${XCC}' CFLAGS='${XCFLAGS}' RANLIB='\$(RANLIB)'"
+      echol
+      echol "libintl.a : ${GETTEXTLIB}"
+      echotab "-\$(LN) ${GETTEXTLIB} libintl.a"
+      echol
+    fi
+  fi
+  echol "locale :"
+  if [ $HOS = unix ] ; then
+    echotab "if test -d locale; then rm -rf locale; fi"
+    echotab "mkdir locale"
+    echotab "(cd gettext/po && \$(MAKE) && \$(MAKE) install datadir=../.. localedir='\$\$(datadir)/locale' INSTALL_DATA=ln) || (rm -rf locale ; exit 1)"
+  else
+    echotab "mkdir locale"
+    eval `grep ALL_LINGUAS= src/gettext/configure.in`
+    for lang in ${ALL_LINGUAS-en de fr}; do
+      echotab "mkdir locale${NEXT_}${lang}"
+      echotab "mkdir locale${NEXT_}${lang}${NEXT_}LC_MESSAGES"
+      echotab "\$(LN) gettext${NEXT_}po${NEXT_}${lang}.gmo locale${NEXT_}${lang}${NEXT_}LC_MESSAGES${NEXT_}clisp.mo"
+    done
+  fi
+  echol
+
+  echol
+
+fi
+
+if [ -n "$USE_TERMCAP" ] ; then
+
+  echol "${TERMCAPLIB} :"
+  echotab "cd termcap && ./configure --srcdir=${PARENT_SRCTOPDIR}src/termcap && \$(MAKE) -r CC='${XCC}' CFLAGS='${XCFLAGS}' RANLIB='\$(RANLIB)'"
+  echol
+  echol "libtermcap.a : ${TERMCAPLIB}"
+  echotab "-\$(LN) ${TERMCAPLIB} libtermcap.a"
+  echol
+
+  echol
+
+fi
+
+if [ $TOS = win32 ] ; then
+  for f in $SYSLIBS ; do
+    echol "$f :"
+    echotab "implib $f \$(WIN32DIR)\\"`basename $f .lib`".dll"
+    echol
+  done
+fi
+
+if [ $TSYS = windows -o $TSYS = windowswatcom ] ; then
+  RESOURCE='lisp.res'
+  echol "lisp.res : clispwin.rc clispwin.ico clispwin.cur"
+  echotab "\$(RC) -r clispwin.rc -fo=lisp.res"
+  echol
+else
+  RESOURCE=''
+fi
+
+for w in `if test -n "$with_wide"; then echol "'' 'w'"; else echol "''"; fi` ; do
+  eval "w=$w"
+  echol "${w}lisp${LEXE} : \$(${w}OBJECTS) ${w}modules${TOBJ} ${XCL_FFILIBS} ${XCL_READLINELIB} ${XCL_GETTEXTLIB} ${XCL_TERMCAPLIB}${SYSLIBS} ${RESOURCE}"
+  if [ $HOS != dos -a $HOS != os2 -a $HOS != win32 ] ; then
+    if [ $XCC_GCC = true -a -n "$SOLARIS_LINKING" ] ; then
+      # Dynamically linking on Solaris 2.[23] is a pain.
+      LIBGCC_DIR='`'"${XCC} -print-libgcc-file-name"' | sed -e '"'"'s,[^/]*$$,,'"'"'`'
+      echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(${w}OBJECTS) ${w}modules${TOBJ} ${LIBS} ${X_LIBS} -o ${w}lisp${LEXE} || /usr/ccs/bin/ld -V -dy -Bdynamic -Y P,/usr/ccs/lib:/usr/lib -Qy -o ${w}lisp${LEXE} ${LIBGCC_DIR}crt1.o ${LIBGCC_DIR}crti.o /usr/ccs/lib/values-Xa.o ${LIBGCC_DIR}crtbegin.o \$(${w}OBJECTS) ${w}modules${TOBJ} -L${LIBGCC_DIR} -L/usr/ccs/bin ${LIBS} ${X_LIBS} -lgcc -lc ${LIBGCC_DIR}crtend.o ${LIBGCC_DIR}crtn.o -lgcc"
+    else
+      echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(${w}OBJECTS) ${w}modules${TOBJ} ${LIBS} ${X_LIBS} -o ${w}lisp${LEXE}"
+    fi
+    if [ $HOS = unix ] ; then
+      echotab "-sync"
+    fi
+    echol
+  else
+    if [ $HSYS = win32gcc -o $HSYS = win32msvc -o $HSYS = win32bc ] ; then
+      if [ $HSYS = win32gcc ] ; then
+        echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(${w}OBJECTS) ${w}modules${TOBJ} ${LIBS} ${X_LIBS} -o ${w}lisp${LEXE}"
+      fi
+      if [ $HSYS = win32msvc ] ; then
+        # MSVC's incremental linking is buggy, avoid it.
+        echotab "\$(RM) ${w}lisp.ilk"
+        echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} /MD \$(${w}OBJECTS) ${w}modules${TOBJ} ${LIBS} ${X_LIBS} /link /out:${w}lisp${LEXE}"
+        # Need at least 1200 KB stack for creating the first interpreted.mem,
+        # but the default stack size is only 1 MB.
+        echotab "editbin /stack:2097152 ${w}lisp${LEXE}"
+      fi
+      if [ $HSYS = win32bc ] ; then
+        echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} -e${w}lisp${LEXE} \$(${w}OBJECTS) ${w}modules${TOBJ} ${LIBS} ${X_LIBS}"
+      fi
+    else
+      # DOS has a very limited command line length
+      if [ $HSYS = doswatcom -o $HSYS = windowswatcom ] ; then
+        echotab "\$(RM) lisp${LEXE}"
+        if [ $HSYS = doswatcom ] ; then
+          echotab "${XCC} ${XCFLAGS} -fe=lisp${LEXE} -fd=wcclink.lnk" # generate linker commands
+          echotab "wlink @wcclink.lnk @wcclink.in" # execute linker commands
+        fi
+        if [ $HSYS = windowswatcom ] ; then
+          echotab "${XCC} ${XCFLAGS} -l=win386 -fe=lisp -fd=wcclink.lnk" # generate linker commands
+          echotab "wlink @wcclink.lnk @wcclink.in" # execute linker commands, generate lisp.rex
+          echotab "wbind lisp${LEXE} -R lisp.res" # generate lisp.exe from lisp.rex and lisp.res
+          echotab "\$(RM) lisp.rex"
+        fi
+        echotab "\$(RM) wcclink.lnk"
+      else
+        # XCLFLAGS=$XCLFLAGS' -s' # strip, geht unter emx0.8f nicht mehr
+        if [ $TSYS = windows ] ; then
+          LAOUT='.w32'
+        else
+          LAOUT=''
+        fi
+        echotab "\$(RM) ${w}lisp${LAOUT}"
+        echotab "\$(RM) ${w}lisp${LEXE}"
+        if [ $TOS = dos ] ; then
+          # Keine überlangen ${XCFLAGS} in die Link-Kommandozeile nehmen.
+          echotab "${XCC} -o ${w}lisp${LAOUT} @${w}gcclink.in ${XCLFLAGS} ${LIBS}"
+        else
+          echotab "${XCC} ${XCFLAGS} -o ${w}lisp${LAOUT} @${w}gcclink.in ${XCLFLAGS} ${LIBS}"
+        fi
+        if [ $TSYS = windows ] ; then
+          # Strippen, da wir sowieso nicht debuggen können.
+          echotab "strip ${w}lisp${LAOUT}"
+          # ${w}lisp.exe enthält den Extender und die Ressource und startet ${w}lisp.w32.
+          echotab "copy /b \$(RSXW32) ${w}lisp${LEXE}"
+          echotab "\$(RC) -t ${w}lisp.res ${w}lisp${LEXE}"
+        else
+          if [ $HSYS = dosdjgpp ] ; then
+            echotab "strip ${w}lisp"
+            echotab "\$(COFF2EXE) ${w}lisp ${w}lisp${HEXE}"
+          else
+            if [ $TSYS = dos ] ; then
+              # Nicht strippen, sonst meckert der emxbind.
+              # echotab "strip ${w}lisp"
+              # emx-Option -p hält das untere Megabyte frei, damit EXECUTE geht.
+              #   Bei ${w}lisp_1mb.exe nutzen wir dagegen soviel RAM wie möglich.
+              # emx-Option -C0 bewirkt, daß malloc() bei fehlendem Speicher und
+              #   Plattenplatz NULL liefert, statt es später auf einen Programm-Ausstieg
+              #   wegen "Out of swap space" ankommen zu lassen.
+              # emx-Option -aim bewirkt, daß der Zugriff auf die Grafikkarte und
+              #   den Bildschirmspeicher funktioniert.
+              echotab "emxbind -q \$(EMX) ${w}lisp ${w}lisp${LEXE} -p -C0 -aim"
+              echotab "emxbind -q \$(EMX) ${w}lisp ${w}lisp_1mb${LEXE} -C0 -aim"
+            else
+              # emx-Option -acmi bewirkt, daß unter DOS der Zugriff auf den Bildschirm-
+              #   speicher und die Grafikkarten-Ports funktioniert.
+              echotab "emxbind -q \$(EMX) ${w}lisp ${w}lisp${LEXE} -p -acmi"
+              # Strippen darf man wegen -lvideo erst hinterher.
+              echotab "emxbind -s ${w}lisp${LEXE}"
+            fi
+          fi
+        fi
+      fi
+    fi
+    echol
+  fi
+done
+
+echol
+
+echol "alllsp : \$(LSPFILES)"
+echodummyrule alllsp
+echol
+
+if [ $TOS = amiga ] ; then
+  CONFIG=cfgamiga
+fi
+if [ $TOS = acorn ] ; then
+  CONFIG=cfgacorn
+fi
+if [ $TOS = dos -o $TOS = os2 ] ; then
+  CONFIG=cfgdos
+fi
+if [ $TOS = win32 ] ; then
+  CONFIG=cfgwin32
+fi
+if [ $TOS = unix -a $CROSS = false ] ; then
+  if [ "$HSYSOS" = sunos ] ; then
+    CONFIG=cfgsunux
+  fi
+  if test -z "$CONFIG"; then
+    CONFIG=cfgunix
+  fi
+fi
+for f in $LPARTS ; do
+  if [ $f = config ] ; then
+    echol "${f}.lsp : ${SRCDIR}${CONFIG}.lsp"
+    echotab "\$(CP) ${SRCDIR}${CONFIG}.lsp ${f}.lsp"
+    echol
+  else
+    if [ -n "${SRCDIR}" ] ; then
+      echol "${f}.lsp : ${SRCDIR}${f}.lsp"
+      echotab "-\$(LN) ${SRCDIR}${f}.lsp ${f}.lsp"
+      echol
+    fi
+  fi
+done
+
+if [ -n "$USE_GETTEXT" ] ; then
+  localeflags=' -N locale'
+else
+  localeflags=''
+fi
+
+if [ $CROSS = false ] ; then
+
+  echol "$interpreted.mem : lisp${LEXE} \$(LSPFILES)"
+  if [ $HOS != unix ] ; then
+    echotab "-\$(RM) $interpreted.mem"
+  fi
+  if [ $HOS != dos -a $HOS != os2 ] ; then
+    echotab "${HERE}lisp${LEXE} -m 750KW$localeflags"' -x "(load \"init.lsp\") (sys::%saveinitmem) (exit)"'
+  else
+    echotab "${HERE}lisp${LEXE} -m 750KW$localeflags < interpreted.in"
+  fi
+  echotab "\$(MV) lispimag.mem $interpreted.mem"
+  echol
+
+fi
+
+if [ $CROSS = false ] ; then
+
+  for f in $LPARTS ; do
+    echol "${f}.fas : ${f}.lsp lisp${LEXE} $interpreted.mem"
+    # The strict minimum needed for compiling compiler.lsp is between 750KW
+    # and 800KW. To reduce GCs, we spend 20% more than this.
+    echotab "${HERE}lisp${LEXE} -m 1000KW -M $interpreted.mem$localeflags -q -c ${f}.lsp"
+    echol
+  done
+
+else
+
+  for f in $LPARTS ; do
+    echol "${f}.fas : ${f}.lsp"
+    echotab 'clisp -M cross.mem$localeflags -q -x "(cross:compile-file \"'"${f}.lsp"'\")"'
+    echol
+  done
+
+fi
+
+if [ $CROSS = false ] ; then
+
+  echol "$halfcompiled.mem : lisp${LEXE} \$(LSPFILES) compiler.fas"
+  if [ $HOS != unix ] ; then
+    echotab "-\$(RM) $interpreted.mem"
+  fi
+  if [ $HOS != dos -a $HOS != os2 ] ; then
+    echotab "${HERE}lisp${LEXE} -m 750KW$localeflags"' -x "(load \"init.lsp\") (sys::%saveinitmem) (exit)"'
+  else
+    echotab "${HERE}lisp${LEXE} -m 750KW$localeflags < interpreted.in"
+  fi
+  echotab "\$(MV) lispimag.mem $interpreted.mem"
+  # We touch $interpreted.mem only to avoid timestamp problems over NFS.
+  echotab "\$(TOUCH) $interpreted.mem"
+  echotab "\$(TOUCH) compiler.fas"
+  echotab "\$(TOUCH) $halfcompiled.mem"
+  echol
+
+  for w in `if test -n "$with_wide"; then echol "'' 'w'"; else echol "''"; fi` ; do
+    eval "w=$w"
+    echol "${w}lispinit.mem : ${w}lisp${LEXE} \$(FASFILES)"
+    if [ $HOS != unix ] ; then
+      echotab "-\$(RM) ${w}lispinit.mem"
+    fi
+    if [ $HOS != dos -a $HOS != os2 ] ; then
+      echotab "${HERE}${w}lisp${LEXE}$localeflags"' -x "(load \"init.fas\") (sys::%saveinitmem) (exit)"'
+    else
+      echotab "${HERE}${w}lisp${LEXE}$localeflags < lispinit.in"
+    fi
+    echotab "\$(MV) lispimag.mem ${w}lispinit.mem"
+    echol
+  done
+
+fi
+
+echol
+
+if [ $CROSS = false ] ; then
+
+  echol "# Perform self-tests."
+  if [ -n "$with_wide" ] ; then
+    if [ $HOS = unix ] ; then
+      echol "check : test testsuite wtest wtestsuite"
+    else
+      echol "check : test wtest"
+    fi
+  else
+    if [ $HOS = unix ] ; then
+      echol "check : test testsuite"
+    else
+      echol "check : test"
+    fi
+  fi
+  echodummyrule check
+  echol
+
+  echol "# Test: recompile \$(LSPFILES) and compare their contents."
+  for w in `if test -n "$with_wide"; then echol "'' 'w'"; else echol "''"; fi` ; do
+    eval "w=$w"
+
+    echol "${w}test : ${w}lispinit.mem ${w}${TESTDIR} \$(${w}TESTLSPFILES) \$(${w}TESTFASFILES)"
+    if [ $HOS = unix ] ; then
+      for f in $LPARTS ; do
+        echotab "cmp -s ${f}.fas ${w}${TESTDIR}/${f}.fas"' || (echo "Test failed." ; exit 1)'
+      done
+      echotab 'echo "Test passed."'
+      echol
+    else
+      if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
+        echotab "comp *.fas ${w}${TESTDIR}"
+        echotab "REM The test passed if no differences were found."
+        echol
+      else
+        echotab 'echo "Compare the .fas files by hand."'
+        echol
+      fi
+    fi
+
+    echol "${w}${TESTDIR} :"
+    echotab "-mkdir ${w}${TESTDIR}"
+    echol
+
+    for f in $LPARTS ; do
+      echol "${w}${TESTDIR}${NEXT_M}${f}.lsp : ${f}.lsp"
+      if [ $HOS = unix ] ; then
+        echotab "cd ${w}${TESTDIR} && \$(LN) ${PARENT_}${f}.lsp ${f}.lsp"
+      else
+        echotab "\$(LN) ${f}.lsp ${w}${TESTDIR}"
+      fi
+      echol
+    done
+
+    for f in $LPARTS ; do
+      echol "${w}${TESTDIR}${NEXT_M}${f}.fas : ${w}${TESTDIR}${NEXT_M}${f}.lsp ${w}lisp${LEXE} ${w}lispinit.mem"
+      echotab "${HERE}${w}lisp${LEXE} -M ${w}lispinit.mem$localeflags -q -c ${w}${TESTDIR}${NEXT}${f}.lsp"
+      echol
+    done
+
+    echol "${w}lispinit2.mem : ${w}lisp${LEXE} \$(${w}TESTFASFILES)"
+    echotab "${HERE}${w}lisp${LEXE}$localeflags"' -x "(cd \"'"${w}${TESTDIR}${NEXT}"'\") (load \"init.fas\") (cd \"'"${PARENT}"'\") (sys::%saveinitmem) (exit)"'
+    echotab "-\$(RM) ${w}lispinit2.mem"
+    echotab "\$(MV) lispimag.mem ${w}lispinit2.mem"
+    echol
+
+  done
+
+  echol
+
+  if [ $HOS = unix ] ; then
+
+    if [ -n "$USE_GETTEXT" ] ; then
+      localeflags=' -N `pwd`/locale'
+    else
+      localeflags=''
+    fi
+    for w in `if test -n "$with_wide"; then echol "'' 'w'"; else echol "''"; fi` ; do
+      eval "w=$w"
+      echol "${w}testsuite : ${w}${TESTSDIR} ${w}lisp${LEXE} ${w}lispinit.mem"
+      echotab "LISP=\""'`pwd`'"/${w}lisp${LEXE} -M "'`pwd`'"/${w}lispinit.mem$localeflags\"; export LISP; cd ${w}${TESTSDIR}; \$(MAKE) LISP=\"\$\$LISP\""
+      echol
+      echol "${w}${TESTSDIR} :"
+      echotab "-mkdir ${w}${TESTSDIR}"
+      echotab "cd ${w}${TESTSDIR} && \$(LN) ${PARENT_SRCTOPDIR}tests/Makefile ."
+      echotab "cd ${w}${TESTSDIR} && \$(LN) ${PARENT_SRCTOPDIR}tests/*.lsp ."
+      echotab "cd ${w}${TESTSDIR} && \$(LN) ${PARENT_SRCTOPDIR}tests/*.tst ."
+      echol
+    done
+    echol
+
+  fi
+
+fi
+
+if [ $HOS = unix ] && [ $XCC_GCC = true ] ; then
+  echol "lispbibl.h :${EVERY_INCLUDES_C}${EVERY_INCLUDES_H}"
+  echotab "((${XCPP} ${XCFLAGS} -P lispbibl.c | \$(GREP) -v \"^ *\$\$\") ; (${XCPP} ${XCFLAGS} -P -dM lispbibl.c | sort) ) > lispbibl.h"
+  echol
+  if [ -n "$with_wide" ] ; then
+    echol "wlispbibl.h :${EVERY_INCLUDES_C}${EVERY_INCLUDES_H}"
+    echotab "((${XCPP} ${XCFLAGS} -DWIDE -P lispbibl.c | \$(GREP) -v \"^ *\$\$\") ; (${XCPP} ${XCFLAGS} -DWIDE -P -dM lispbibl.c | sort) ) > wlispbibl.h"
+    echol
+  fi
+  echol
+fi
+
+if [ $HOS = unix ] && [ $CROSS = false ] ; then
+  if [ -n "$with_wide" ] ; then
+    echol "clisp.h : genclisph.o wgenclisph.o unixconf.h intparam.h"
+    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "genclisph.o" "genclisph"
+    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "wgenclisph.o" "wgenclisph"
+    echotab "(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo ; grep '^#' unixconf.h ; echo ; grep '^#' intparam.h ; echo ; echo '#ifdef WIDE' ; echo ; ${HERE}wgenclisph ; echo ; echo '#else /* !WIDE */' ; echo ; ${HERE}genclisph ; echo ; echo '#endif /* WIDE */' ; echo ; echo '#endif /* _CLISP_H */') > clisp.h"
+    echotab "\$(RM) genclisph${HEXE}"
+    echotab "\$(RM) wgenclisph${HEXE}"
+    echol
+  else
+    echol "clisp.h : genclisph.o unixconf.h intparam.h"
+    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "genclisph.o" "genclisph"
+    echotab "(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo ; grep '^#' unixconf.h ; echo ; grep '^#' intparam.h ; echo ; ${HERE}genclisph ; echo ; echo '#endif /* _CLISP_H */') > clisp.h"
+    echotab "\$(RM) genclisph${HEXE}"
+    echol
+  fi
+  echol
+  echol "modular : ${FILES} clisp-link modules.d modules.c clisp.h modules.h makevars"
+  echodummyrule modular
+  echol
+  echol "makevars :"
+  echotab "(echo 'CC='\"'\"'\$(CC)'\"'\" ; echo 'CFLAGS='\"'\"'\$(${MODULE_CFLAGS_VAR})'\"'\" ; echo 'CLFLAGS='\"'\"'\$(${MODULE_CLFLAGS_VAR})'\"'\" ; echo 'LIBS='\"'\"'lisp.a \$(LIBS)'\"'\" ; echo 'WLIBS='\"'\"'wlisp.a \$(LIBS)'\"'\" ; echo 'X_LIBS='\"'\"'\$(X_LIBS)'\"'\" ; echo 'RANLIB='\"'\"'\$(RANLIB)'\"'\" ; echo 'FILES='\"'\"'${FILES}'\"'\") > makevars"
+  echol
+  for f in clisp-link ; do
+    echol "${f} : ${SRCDIR}${f}.in"
+    XCC_CREATESHARED_=`echo "$XCC_CREATESHARED" | sed -e 's,\\$,$$,g'`
+    if [ "$TSYSOS" = cygwin32 ] ; then
+      # Cygwin32 doesn't mark real executables as being executables,
+      # so replace "test -x " by "test -r ".
+      echotab "sed -e 's%@with_dynamic_modules@%$with_dynamic_modules%' -e 's%@createsharedlib@%$XCC_CREATESHARED_%' -e 's, -x \"\\\$\$, -r \"\$\$,g' < ${SRCDIR}${f}.in > ${f}"
+    else
+      echotab "sed -e 's%@with_dynamic_modules@%$with_dynamic_modules%' -e 's%@createsharedlib@%$XCC_CREATESHARED_%' < ${SRCDIR}${f}.in > ${f}"
+    fi
+    echotab "chmod a+x ${f}"
+    echol
+  done
+  # Some "make"s don't support empty target lists. Hence the "anymodule".
+  echol "anymodule \$(MODULES) : lisp${LEXE} lispinit.mem force"
+  echotab "test -d \$@ || ${SRCDIR}lndir ${SRCTOPDIR}modules/\$@ \$@"
+  echotab "if test -f \$@/configure -a '!' -f \$@/config.status ; then cd \$@ ; ./configure --cache-file="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache ; fi"
+  EVERY_INCLUDES_DOTS_C=''
+  for f in $EVERY_INCLUDES_C $EVERY_INCLUDES_H ; do
+    EVERY_INCLUDES_DOTS_C=$EVERY_INCLUDES_DOTS_C' $${dots}'$f
+  done
+  if [ -n "$USE_GETTEXT" ] ; then
+    localeflags=' -N `pwd`/locale'
+  else
+    localeflags=''
+  fi
+  echotab "CLISP=\""'`pwd`'"/lisp${LEXE} -M "'`pwd`'"/lispinit.mem$localeflags\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) "`if [ -n "$with_wide" ] ; then echo clisp-module-wide; else echo clisp-module; fi`" CC=\"\$(CC)\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" LISPBIBL_INCLUDES=\"$EVERY_INCLUDES_DOTS_C\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
+  echol
+  echol "full : modular \$(MODULES)"
+  echotab "test -d full || CLISP_LINKKIT=. ./clisp-link add-module-sets base full \$(MODULES) || (\$(RM) -r full ; exit 1)"
+  echol
+fi
+OBSOLETE=$OBSOLETE" genclisph${HEXE} wgenclisph${HEXE} linkkit"
+
+if [ $TERMINAL = readline ] ; then
+  manual_readline=' clreadline.3 clreadline.html clreadline.dvi readline.dvi'
+  manualx_readline=' clreadline.man'
+else
+  manual_readline=''
+  manualx_readline=''
+fi
+echol "READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.en README.es"`if [ $TOS = unix ] ; then echol ' MAGIC.add' ; fi`
+echol "MANUALS = clisp.1 clisp.html impnotes.txt \$(TXTFILES) impnotes.html clisp.gif${manual_readline}"
+echol
+echol "manual : \$(READMES) \$(MANUALS)"
+echodummyrule manual
+echol
+echol "manualx : manual clisp.man${manualx_readline}"
+echodummyrule manualx
+echol
+
+for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY ; do
+  echol "${f} : ${SRCTOPDIR_M}${f}"
+  echotab "-\$(LN) ${SRCTOPDIR_}${f} ${f}"
+  echol
+done
+
+for f in NEWS impnotes.html clisp.gif ; do
+  if [ -n "${SRCDIR}" ] ; then
+    echol "${f} : ${SRCDIR}${f}"
+    echotab "-\$(LN) ${SRCDIR}${f} ${f}"
+    echol
+  fi
+done
+
+if [ $TOS = unix ] ; then
+  for f in MAGIC.add ; do
+    echol "${f} : ${SRCTOPDIR}unix${NEXT}${f}"
+    echotab "-\$(LN) ${SRCTOPDIR}unix${NEXT}${f} ${f}"
+    echol
+  done
+fi
+
+for f in $TXT_FILES ; do
+  depends=''
+  flags=''
+  if [ $f = README ] ; then
+    depends=$depends" ${SRCDIR}_${f}.de ${SRCDIR}_${f}.en"
+  fi
+  if [ $f = distmakefile -a -n "$with_wide" ] ; then
+    flags=$flags" -DWITH_WIDE"
+  fi
+  echol "${f} : ${SRCDIR}_${f}${TXT_INCLUDES}${depends} txt2c${HEXE}"
+  echotab "\$(TXT2C) < ${SRCDIR}_${f} > $txt.c"
+  if [ $CROSS = false -a $XCC_UNUSABLE_CPP = true ] ; then
+    echotab "${XCPP} ${XCFLAGS}${flags} $txt.c > $txt.i.c"
+    echotab_to_HEXE "${XCC} ${XCFLAGS} ${XCLFLAGS}${XCC_NOOPTFLAGS}" "$txt.i.c" "$txt"
+    echotab "\$(RM) $txt.i.c"
+    if [ $HSYS = win32msvc ] ; then
+      echotab "\$(RM) $txt.i${TOBJ}"
+    fi
+  else
+    echotab_to_HEXE "\$(CC) \$(CFLAGS)${flags} \$(CLFLAGS)${XCC_NOOPTFLAGS}" "$txt.c" "$txt"
+  fi
+  line="${HERE}$txt"
+  if [ $f = clisp.1 ] ; then
+    if [ $HOS != dos -a $HOS != os2 -a $HOS != win32 -a $HOS != acorn ] ; then
+      line=$line" | \$(GREP) -v '^ *\$\$'"
+    else
+      if [ $HOS = dos -o $HOS = os2 ] ; then
+        # DOS command line args may not contain spaces. grep.in contains "^ *$"
+        line=$line" | \$(GREP) -v -f grep.in"
+      fi
+      if [ $HOS = acorn ] ; then
+        line=$line" | \$(GREP) -v -f ${PARENT}acorn${NEXT}grep.in"
+      fi
+      # On Win32, no grep installed. The blank lines don't hurt.
+    fi
+  fi
+  if [ $f = distmakefile ] ; then
+    if [ -n "$USE_GETTEXT" ] ; then
+      localesed=" -e '${gettext_datadirname_sedcommand}'"
+    else
+      localesed=""
+    fi
+    line=$line" | (libs=''; for f in lisp.a \$(LIBS); do case \$\$f in -*) libs=\"\$\$libs \$\$f\";; *) libs=\"\$\$libs\"' base/'\"\$\$f\";; esac; done; wlibs=''; for f in wlisp.a \$(LIBS); do case \$\$f in -*) wlibs=\"\$\$wlibs \$\$f\";; *) wlibs=\"\$\$wlibs\"' base/'\"\$\$f\";; esac; done; files=''; for f in ${FILES}; do files=\"\$\$files\"' base/'\"\$\$f\"; done; sed$localesed -e \"s,@@BASE_LIBS@@,\$\$libs,g\" -e \"s,@@BASE_WLIBS@@,\$\$wlibs,g\" -e \"s,@@BASE_FILES@@,\$\$files,g\")"
+  fi
+  echotabpipe "${line} > ${f}"
+  echotab "\$(RM) $txt.c"
+  echotab "\$(RM) $txt${HEXE}"
+  echol
+done
+OBSOLETE=$OBSOLETE" $txt.c $txt${HEXE}"
+if [ $CROSS = false -a $XCC_UNUSABLE_CPP = true ] ; then
+  OBSOLETE=$OBSOLETE" $txt.i.c"
+fi
+
+if [ $TERMINAL = readline ] ; then
+  echol "clreadline.3 : ${SRCDIR}${READLINEDIR}${NEXT_M}doc${NEXT_M}clreadline.3"
+  echotab "-\$(LN) ${SRCDIR}${READLINEDIR}${NEXT_}doc${NEXT_}clreadline.3 clreadline.3"
+  echol
+  echol "clreadline.html : ${SRCDIR}${READLINEDIR}${NEXT_M}doc${NEXT_M}clreadline.html"
+  echotab "-\$(LN) ${SRCDIR}${READLINEDIR}${NEXT_}doc${NEXT_}clreadline.html clreadline.html"
+  echol
+  echol "clreadline.dvi : ${SRCDIR}${READLINEDIR}${NEXT_M}doc${NEXT_M}clreadline.dvi"
+  echotab "-\$(LN) ${SRCDIR}${READLINEDIR}${NEXT_}doc${NEXT_}clreadline.dvi clreadline.dvi"
+  echol
+fi
+
+echol "clisp.man : clisp.1"
+echotab "\$(ROFF_MAN) clisp.1 > clisp.man"
+echol
+echol "clisp.dvi : clisp.1"
+echotab "\$(ROFF_DVI) clisp.1 > clisp.dvi"
+echol
+
+if [ $TERMINAL = readline ] ; then
+  echol "clreadline.man : clreadline.3"
+  echotab "\$(ROFF_MAN) clreadline.3 > clreadline.man"
+  echol
+fi
+
+for f in $DOC ; do
+  echol "${f}.txt : ${DOCDIR_M}${f}.txt"
+  echotab "-\$(LN) ${DOCDIR_}${f}.txt ${f}.txt"
+  echol
+done
+
+if [ $TERMINAL = readline ] ; then
+  echol "${SRCDIR}readline${NEXT_M}doc${NEXT_M}rluserman.dvi :"
+  echotab "cd ${SRCDIR}readline${NEXT_}doc && \$(MAKE) rluserman.dvi"
+  echol
+  echol "readline.dvi : ${SRCDIR}readline${NEXT_M}doc${NEXT_M}rluserman.dvi"
+  echotab "-\$(LN) ${SRCDIR}readline${NEXT_}doc${NEXT_}rluserman.dvi readline.dvi"
+  echol
+fi
+
+echol
+
+if [ $CROSS = false ] ; then
+  if [ $HOS = unix ] ; then
+    echol "install : install-bin install-man"
+    echodummyrule install
+    echol
+    echol "installdirs : force"
+    echotab "if [ ! -d \$(libdir) ] ; then mkdir \$(libdir) ; fi"
+    echotab "if [ ! -d \$(lisplibdir) ] ; then mkdir \$(lisplibdir) ; fi"
+    echotab "if [ ! -d \$(bindir) ] ; then mkdir \$(bindir) ; fi"
+    if [ -n "$USE_GETTEXT" ] ; then
+      echotab "cd gettext/po && \$(MAKE) installdirs prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
+    fi
+    echotab "if [ ! -d \$(mandir) ] ; then mkdir \$(mandir) ; fi"
+    echotab "if [ ! -d \$(mandir)/man1 ] ; then mkdir \$(mandir)/man1 ; fi"
+    if [ $TERMINAL = readline ] ; then
+      echotab "if [ ! -d \$(mandir)/man3 ] ; then mkdir \$(mandir)/man3 ; fi"
+    fi
+    case "$fsstnd" in
+      gnu_ext)
+        echotab "if [ ! -d \$(mandir)/html ] ; then mkdir \$(mandir)/html ; fi"
+        ;;
+      suse)
+        echotab "if [ ! -d \$(docdir) ] ; then mkdir \$(docdir) ; fi"
+        echotab "if [ ! -d \$(docdir)/doc ] ; then mkdir \$(docdir)/doc ; fi"
+        ;;
+    esac
+    echol
+    if [ -n "$with_wide" ] ; then
+      echol "install-bin : lisp${LEXE} lispinit.mem wlisp${LEXE} wlispinit.mem clisp.c force"
+    else
+      echol "install-bin : lisp${LEXE} lispinit.mem clisp.c force"
+    fi
+    echotab "if [ ! -d \$(libdir) ] ; then mkdir \$(libdir) ; fi"
+    echotab "if [ ! -d \$(lisplibdir) ] ; then mkdir \$(lisplibdir) ; fi"
+    echotab "\$(INSTALL_PROGRAM) lisp${LEXE} \$(lisplibdir)/lisp${LEXE}"
+    # Don't strip the executable, otherwise (disassemble #'cons) won't work.
+    # echotab "strip \$(lisplibdir)/lisp${LEXE}"
+    echotab "\$(RM) \$(lisplibdir)/lispinit.mem"
+    echotab "\$(INSTALL_DATA) lispinit.mem \$(lisplibdir)/lispinit.mem"
+    if [ -n "$with_wide" ] ; then
+      echotab "\$(INSTALL_PROGRAM) wlisp${LEXE} \$(lisplibdir)/wlisp${LEXE}"
+      # Don't strip the executable, otherwise (disassemble #'cons) won't work.
+      # echotab "strip \$(lisplibdir)/wlisp${LEXE}"
+      echotab "\$(RM) \$(lisplibdir)/wlispinit.mem"
+      echotab "\$(INSTALL_DATA) wlispinit.mem \$(lisplibdir)/wlispinit.mem"
+    fi
+    if [ -n "$USE_GETTEXT" ] ; then
+      echotab "cd gettext/po && \$(MAKE) install prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
+      localeflags=" -N \$(localedir)"
+    else
+      localeflags=''
+    fi
+    echotab "if [ ! -d \$(bindir) ] ; then mkdir \$(bindir) ; fi"
+    if false; then
+      if test -n "${GOOD_SH}" ; then
+        echotab "(echo '#!${GOOD_SH}' ; echo 'exec \$(lisplibdir)/lisp${LEXE} -M \$(lisplibdir)/lispinit.mem$localeflags \"\$\$@\"') > \$(bindir)/clisp"
+      else
+        echotab "(echo '#!/bin/sh' ; echo 'if test \$\$# = 0; then' ; echo '  exec \$(lisplibdir)/lisp${LEXE} -M \$(lisplibdir)/lispinit.mem$localeflags' ; echo 'else' ; echo '  exec \$(lisplibdir)/lisp${LEXE} -M \$(lisplibdir)/lispinit.mem$localeflags \"\$\$@\"' ; echo 'fi') > \$(bindir)/clisp"
+      fi
+      echotab "chmod a+x \$(bindir)/clisp"
+    else
+      echotab "\$(CC) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c -o \$(bindir)/clisp"
+    fi
+    echol
+    if [ "$fsstnd" = suse ] ; then
+      echol "install-man : \$(READMES) \$(MANUALS) force"
+    else
+      if [ $TERMINAL = readline ] ; then
+        echol "install-man : clisp.1 clisp.html clreadline.3 clreadline.html force"
+      else
+        echol "install-man : clisp.1 clisp.html force"
+      fi
+    fi
+    echotab "if [ ! -d \$(mandir) ] ; then mkdir \$(mandir) ; fi"
+    echotab "if [ ! -d \$(mandir)/man1 ] ; then mkdir \$(mandir)/man1 ; fi"
+    echotab "\$(INSTALL_DATA) clisp.1 \$(mandir)/man1/clisp.1"
+    if [ $TERMINAL = readline ] ; then
+      echotab "if [ ! -d \$(mandir)/man3 ] ; then mkdir \$(mandir)/man3 ; fi"
+      echotab "\$(INSTALL_DATA) clreadline.3 \$(mandir)/man3/clreadline.3"
+    fi
+    case "$fsstnd" in
+      gnu_ext)
+        echotab "if [ ! -d \$(mandir)/html ] ; then mkdir \$(mandir)/html ; fi"
+        echotab "\$(INSTALL_DATA) clisp.html \$(mandir)/html/clisp.html"
+        if [ $TERMINAL = readline ] ; then
+          echotab "\$(INSTALL_DATA) clreadline.html \$(mandir)/html/clreadline.html"
+        fi
+        ;;
+      suse)
+        echotab "if [ ! -d \$(docdir) ] ; then mkdir \$(docdir) ; fi"
+        echotab "if [ ! -d \$(docdir)/doc ] ; then mkdir \$(docdir)/doc ; fi"
+        echotab "\$(INSTALL_DATA) \$(READMES) \$(docdir)/"
+        echotab "\$(INSTALL_DATA) \$(MANUALS) \$(docdir)/doc/"
+        ;;
+    esac
+    echol
+    echol
+    echol "installcheck : ${TESTSDIR} force"
+    echotab "cd ${TESTSDIR} && \$(MAKE) LISP=\"\$(bindir)/clisp\""
+    echol
+    echol
+    echol "uninstall : uninstall-bin uninstall-man"
+    echodummyrule uninstall
+    echol
+    echol "uninstall-bin : force"
+    echotab "\$(RM) \$(lisplibdir)/lisp${LEXE}"
+    echotab "\$(RM) \$(lisplibdir)/lispinit.mem"
+    echotab "\$(RM) \$(bindir)/clisp"
+    if [ -n "$USE_GETTEXT" ] ; then
+      echotab "cd gettext/po && \$(MAKE) uninstall prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
+    fi
+    echol
+    echol "uninstall-man : force"
+    echotab "\$(RM) \$(mandir)/man1/clisp.1"
+    if [ $TERMINAL = readline ] ; then
+      echotab "\$(RM) \$(mandir)/man3/clreadline.3"
+    fi
+    case "$fsstnd" in
+      gnu_ext)
+        echotab "\$(RM) \$(mandir)/html/clisp.html"
+        if [ $TERMINAL = readline ] ; then
+          echotab "\$(RM) \$(mandir)/html/clreadline.html"
+        fi
+        ;;
+      suse)
+        echotab "for f in \$(READMES); do \$(RM) \$(docdir)/\$\$f; done"
+        echotab "for f in \$(MANUALS); do \$(RM) \$(docdir)/doc/\$\$f; done"
+        ;;
+    esac
+    echol
+    echol
+  fi
+  if [ $HOS = dos -o $HOS = os2 ] ; then
+    echol "install : install-bin"
+    echodummyrule install
+    echol
+    echol "installdirs : force"
+    echotab "-mkdir \$(libdir)"
+    echotab "-mkdir \$(lisplibdir)"
+    echotab "-mkdir \$(bindir)"
+    echol
+    echol "install-bin : lisp${LEXE} lispinit.mem force"
+    echotab "-mkdir \$(libdir)"
+    echotab "-mkdir \$(lisplibdir)"
+    echotab "\$(INSTALL_PROGRAM) lisp${LEXE} \$(lisplibdir)\lisp${LEXE}"
+    echotab "\$(INSTALL_DATA) lispinit.mem \$(lisplibdir)\lispinit.mem"
+    echotab "-mkdir \$(bindir)"
+    if [ $HOS = dos ] ; then
+      echotab "echo \$(lisplibdir)\lisp${LEXE} -M \$(lisplibdir)\lispinit.mem %1 %2 %3 %4 %5 %6 %7 %8 %9 > \$(bindir)\clisp.bat"
+    fi
+    if [ $HOS = os2 ] ; then
+      echotab "echo \$(lisplibdir)\lisp${LEXE} -M \$(lisplibdir)\lispinit.mem %1 %2 %3 %4 %5 %6 %7 %8 %9 > \$(bindir)\clisp.cmd"
+    fi
+    echol
+    echol "uninstall : uninstall-bin"
+    echodummyrule uninstall
+    echol
+    echol "uninstall-bin : force"
+    echotab "\$(RM) \$(lisplibdir)/lisp${LEXE}"
+    echotab "\$(RM) \$(lisplibdir)/lispinit.mem"
+    if [ $HOS = dos ] ; then
+      echotab "\$(RM) \$(bindir)/clisp.bat"
+    fi
+    if [ $HOS = os2 ] ; then
+      echotab "\$(RM) \$(bindir)/clisp.cmd"
+    fi
+    echol
+  fi
+fi
+
+if [ $HOS = unix ] ; then
+cat <<!!
+# Choose one of the packers:
+
+# Standard Unix packer. Compress afterwards.
+#PACK = tar
+#PACKOPT = -cvf
+#PACKEXT = .tar
+
+# GNU tar together with compress.
+#PACK = tar
+#PACKOPT = cvfhz
+#PACKEXT = .tar.Z
+
+# GNU tar together with GNU gzip. Excellent performance.
+PACK = tar
+PACKOPT = cvfhz
+PACKEXT = .tar.gz
+
+# Popular Amiga packer. Good performance.
+#PACK = lha
+#PACKOPT = a
+#PACKEXT = .lzh
+
+# Popular DOS packer.
+#PACK = zip
+#PACKOPT = -r
+#PACKEXT = .zip
+
+# Popular Atari packer.
+#PACK = zoo
+#PACKOPT = -add
+#PACKEXT = .zoo
+
+# Temporary directory for packing
+PACKDIR = /tmp
+
+!!
+echol "# The distribution's top directory"
+if test -f "${SRCDIR}VERSION"; then
+  echol "TOPDIR=clisp-`cat ${SRCDIR}VERSION`"
+else
+  if test -f "src/VERSION"; then
+    echol "TOPDIR=clisp-`cat src/VERSION`"
+  else
+    echol "TOPDIR=clisp"
+  fi
+fi
+echol
+needs='all'
+if test "$LN" != ln; then
+  needs=$needs' hln'
+  echol "hln :"
+  echotab "mkdir buildhln"
+  echotab "cd buildhln && ${PARENT_SRCTOPDIR}utils/hln/configure --srcdir=${PARENT_SRCTOPDIR}utils/hln && \$(MAKE)"
+  echotab "ln buildhln/hln${TEXE} hln${TEXE}"
+  echol
+fi
+if test -z "$BINARY_DISTRIB"; then
+  needs=$needs' modular manualx clisp.c distmakefile'
+  echol "distrib : force $needs"
+  echotab "\$(RM) \$(PACKDIR)/clisp\$(PACKEXT)"
+  echotab "mkdir \$(TOPDIR)"
+  echotab "${LN} ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es MAGIC.add \$(TOPDIR)"
+  echotab ". full/makevars ; full_files='' ; for f in modules.o \$\$FILES ; do full_files=\"\$\$full_files\"' full/'\"\$\$f\" ; done ; full_libs='' ; for f in modules.o \$\$LIBS ; do case \$\$f in -*) full_libs=\"\$\$full_libs \$\$f\";; *) full_libs=\"\$\$full_libs\"' full/'\"\$\$f\";; esac ; done ; full_wlibs='' ; for f in wmodules.o \$\$WLIBS ; do case \$\$f in -*) full_wlibs=\"\$\$full_wlibs \$\$f\";; *) full_wlibs=\"\$\$full_wlibs\"' full/'\"\$\$f\";; esac ; done ; sed -e \"s,@@FULL_FILES@@,\$\$full_files,\" -e \"s,@@FULL_LIBS@@,\$\$full_libs,\" -e \"s,@@FULL_WLIBS@@,\$\$full_wlibs,\" < distmakefile > \$(TOPDIR)/Makefile"
+  echotab "mkdir \$(TOPDIR)/base"
+  echotab "${LN} ${FILES} modules.h makevars lispinit.mem "`if [ -n "$with_wide" ] ; then echo wlispinit.mem; fi`" \$(TOPDIR)/base"
+  if [ -n "$USE_GETTEXT" ] ; then
+    echotab "for f in \`find locale -type d -print\`; do mkdir \$(TOPDIR)/\$\$f; done"
+    echotab "for f in \`find locale -type f -print\`; do ${LN} \$\$f \$(TOPDIR)/\$\$f; done"
+  fi
+  echotab "mkdir \$(TOPDIR)/doc"
+  echotab "${LN} clisp.1 clisp.man clisp.html impnotes.txt \$(TXTFILES) impnotes.html clisp.gif${manual_readline}${manualx_readline} \$(TOPDIR)/doc"
+  echotab "mkdir \$(TOPDIR)/emacs"
+  echotab "${LN} ${SRCTOPDIR}emacs/*.el \$(TOPDIR)/emacs"
+  echotab "mkdir \$(TOPDIR)/src"
+  echotab "${LN} \$(LSPFILES) \$(FASFILES) \$(TOPDIR)/src"
+  echotab "${LN} clisp.c \$(TOPDIR)/src"
+  echotab "${LN} clisp-link \$(TOPDIR)"
+  echotab "mkdir \$(TOPDIR)/linkkit"
+  echotab "${LN} modules.d modules.c clisp.h \$(TOPDIR)/linkkit"
+  echotab "for module in '' \$(MODULES); do if test -n \"\$\$module\"; then \\"
+  echotab "  (dir=\$(TOPDIR)/ ; for subdir in "'`'"echo \$\$module/ | sed -e 's,/, ,g'"'`'" ; do dir=\$\${dir}\$\${subdir} ; test -d \$\${dir} || mkdir \$\${dir} ; dir=\$\${dir}/ ; done ; cd \$\$module ; dots="'`'"echo \$\$module/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) "`if [ -n "$with_wide" ] ; then echo clisp-module-distrib-wide; else echo clisp-module-distrib; fi`" distribdir=\$\${dots}\$(TOPDIR)/\$\$module LN="`if test "$LN" = ln; then echo 'ln'; else echo '$${dots}hln'; fi`") \\"
+  echotab "fi; done"
+  echotab "mkdir \$(TOPDIR)/full"
+  # The next line is split into three parts to work around a bash-1.14.7 bug.
+  linepart1="${LN} "'`'". full/makevars ; for f in \$\$FILES modules.o modules.h makevars lispinit.mem "
+  linepart2=`if [ -n "$with_wide" ] ; then echo wmodules.o wlispinit.mem; fi`
+  linepart3=" ; do echo full/\$\$f ; done"'`'" \$(TOPDIR)/full"
+  echotab "${linepart1}${linepart2}${linepart3}"
+  echotab "chmod a+r \$(TOPDIR) \$(TOPDIR)/* \$(TOPDIR)/*/*"
+  echotab "chmod a+x \$(TOPDIR)/. \$(TOPDIR)/*/."
+  echotab "\$(PACK) \$(PACKOPT) \$(PACKDIR)/clisp\$(PACKEXT) \$(TOPDIR)"
+  echotab "\$(RM) -r \$(TOPDIR)"
+  echol
+else
+  needs=$needs' manualx distmakefile'
+  echol "distrib : force $needs"
+  echotab "\$(RM) \$(PACKDIR)/clisp\$(PACKEXT)"
+  echotab "mkdir \$(TOPDIR)"
+  echotab "${LN} ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es MAGIC.add \$(TOPDIR)"
+  echotab "${LN} distmakefile \$(TOPDIR)/Makefile"
+  echotab "mkdir \$(TOPDIR)/base"
+  echotab "cp lisp.run \$(TOPDIR)/base/lisp.run"
+  # Don't strip the executable, otherwise (disassemble #'cons) won't work.
+  # echotab "strip \$(TOPDIR)/base/lisp.run"
+  echotab "chmod a+x \$(TOPDIR)/base/lisp.run"
+  echotab "${LN} lispinit.mem \$(TOPDIR)/base"
+  if [ -n "$with_wide" ] ; then
+    echotab "cp wlisp.run \$(TOPDIR)/base/wlisp.run"
+    # Don't strip the executable, otherwise (disassemble #'cons) won't work.
+    # echotab "strip \$(TOPDIR)/base/wlisp.run"
+    echotab "chmod a+x \$(TOPDIR)/base/wlisp.run"
+    echotab "${LN} wlispinit.mem \$(TOPDIR)/base"
+  fi
+  if [ -n "$USE_GETTEXT" ] ; then
+    echotab "for f in \`find locale -type d -print\`; do mkdir \$(TOPDIR)/\$\$f; done"
+    echotab "for f in \`find locale -type f -print\`; do ${LN} \$\$f \$(TOPDIR)/\$\$f; done"
+  fi
+  echotab "mkdir \$(TOPDIR)/doc"
+  echotab "${LN} clisp.1 clisp.man clisp.html impnotes.txt \$(TXTFILES) impnotes.html clisp.gif${manual_readline}${manualx_readline} \$(TOPDIR)/doc"
+  echotab "mkdir \$(TOPDIR)/emacs"
+  echotab "${LN} ${SRCTOPDIR}emacs/*.el \$(TOPDIR)/emacs"
+  echotab "mkdir \$(TOPDIR)/src"
+  echotab "${LN} \$(LSPFILES) \$(FASFILES) \$(TOPDIR)/src"
+  echotab "chmod a+r \$(TOPDIR) \$(TOPDIR)/* \$(TOPDIR)/*/*"
+  echotab "chmod a+x \$(TOPDIR)/. \$(TOPDIR)/*/."
+  echotab "\$(PACK) \$(PACKOPT) \$(PACKDIR)/clisp\$(PACKEXT) \$(TOPDIR)"
+  echotab "\$(RM) -r \$(TOPDIR)"
+  echol
+fi
+echol
+fi
+if [ $HSYS = acorn ] ; then
+  echol "distrib : force all manualx"
+  echotab "-cdir ^.!Clisp"
+  echotab "\$(CP) lisp ^.!Clisp.lisp"
+  echotab "squeeze ^.!Clisp.lisp"
+  echotab "-cdir ^.!Clisp.mem"
+  echotab "\$(CP) mem.lispinit ^.!Clisp.mem.lispinit"
+  for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es; do
+    echotab "\$(CP) $f ^.!Clisp.$f"
+  done
+  echotab "-cdir ^.!Clisp.1"
+  echotab "\$(CP) 1.clisp ^.!Clisp.1.clisp"
+  echotab "-cdir ^.!Clisp.man"
+  echotab "\$(CP) man.clisp ^.!Clisp.man.clisp"
+  echotab "-cdir ^.!Clisp.html"
+  echotab "\$(CP) html.clisp ^.!Clisp.html.clisp"
+  echotab "\$(CP) html.impnotes ^.!Clisp.html.impnotes"
+  echotab "settype ^.!Clisp.html.clisp FAF"
+  echotab "-cdir ^.!Clisp.txt"
+  for f in impnotes $DOC; do
+    f=`echol $f | cut -c 1-10`
+    echotab "\$(CP) txt.$f ^.!Clisp.txt.$f"
+  done
+  echotab "-cdir ^.!Clisp.lsp"
+  for f in config timezone; do
+    echotab "\$(CP) lsp.$f ^.!Clisp.lsp.$f"
+  done
+  echotab "\$(CP) ^.acorn.!Run ^.!Clisp.!Run"
+  echotab "settype ^.!Clisp.!Run Obey"
+  echotab "\$(CP) ^.acorn.!Sprites ^.!Clisp.!Sprites"
+  echotab "settype ^.!Clisp.!Sprites Sprite"
+  echol
+fi
+if [ $HOS = win32 ] ; then
+  echol "# Distribution, to be executed on the NFS host (a Unix host)."
+  echol "distrib : force"
+  echotab "nroff -man clisp.1 > clisp.man"
+  echotab "version=\`cat VERSION\` ; \\"
+  echotab "distdir=clisp-\$\$version ; \\"
+  echotab "distfile=/tmp/clisp-win32.zip ; \\"
+  echotab "mkdir \$\$distdir ; \\"
+  echotab "for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es ; do \\"
+  echotab "  if test -f \$\$f ; then cp -p \$\$f \$\$distdir/\$\$f ; else cp -p \`echo \$\$f | tr '[A-Z]' '[a-z]'\` \$\$distdir/\$\$f ; fi ; \\"
+  echotab "done ; \\"
+  echotab "for f in lisp.exe lispinit.mem ; do \\"
+  echotab "  cp -p \$\$f \$\$distdir/\$\$f ; \\"
+  echotab "done ; \\"
+  echotab "mkdir \$\$distdir/doc ; \\"
+  echotab "for f in clisp.1 clisp.man clisp.html impnotes.txt \$(TXTFILES) impnotes.html clisp.gif ; do \\"
+  echotab "  if test -f \$\$f ; then cp -p \$\$f \$\$distdir/doc/\$\$f ; else cp -p \`echo \$\$f | tr '[A-Z]' '[a-z]'\` \$\$distdir/doc/\$\$f ; fi ; \\"
+  echotab "done ; \\"
+  echotab "mkdir \$\$distdir/emacs ; \\"
+  echotab "cp -p ../emacs/*.el \$\$distdir/emacs/ ; \\"
+  echotab "mkdir \$\$distdir/src ; \\"
+  echotab "cp -p \$(LSPFILES) \$\$distdir/src/ ; \\"
+  echotab "chmod 755 \$\$distdir/. \$\$distdir/*/. ; \\"
+  echotab "chmod 644 \`find \$\$distdir -type f -print\` ; \\"
+  echotab "rm -f \$\$distfile ; \\"
+  echotab "(echo \"CLISP version \$\$version for Win32.\"; echo \".\") | zip -r -9 -z \$\$distfile \$\$distdir ; \\"
+  echotab "rm -rf \$\$distdir"
+  echol
+fi
+
+cat <<!!
+# clean0 is harmless: removes only superfluous things: temporary files.
+clean0 : force
+	-\$(RM) core${OBSOLETE}
+
+# clean1 removes everything that becomes obsolete once lisp${LEXE} is recompiled
+# without changing the bytecode format and the tables in
+# constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
+clean1 : clean0
+	-\$(RM) lispbibl.h wlispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} wlisp${LEXE} clisp-link makevars ${TESTDIR}${NEXT}* ${TESTSDIR}${NEXT}* w${TESTDIR}${NEXT}* w${TESTSDIR}${NEXT}*
+	-rmdir ${TESTDIR}
+	-rmdir ${TESTSDIR}
+	-rmdir w${TESTDIR}
+	-rmdir w${TESTSDIR}
+	-\$(RM) README README.de README.en README.es clisp.1 clisp.man clisp.html impnotes.txt clisp.c distmakefile \$(TXTFILES) clreadline.3 clreadline.man clreadline.html clreadline.dvi readline.dvi
+
+# clean2 removes everything that becomes obsolete once lisp${LEXE} is recompiled
+# without changing the bytecode format.
+clean2 : clean1
+	-\$(RM) $interpreted.mem $halfcompiled.mem lispinit.mem lispinit2.mem wlispinit.mem wlispinit2.mem
+
+# clean3 removes everything that becomes obsolete once lisp${LEXE} is recompiled.
+# It leaves everything generated by "make allc".
+clean3 : clean2
+	-\$(RM) \$(FASFILES) *.lib
+
+# clean4 removes everything that becomes obsolete
+# when switching to a new version of the C compiler.
+# It leaves everything generated by "make init".
+clean4 : clean3
+	-\$(RM) \$(CFILES)
+!!
+if [ $TERMINAL = readline ] ; then
+cat <<!!
+	cd ${READLINEDIR} && \$(MAKE) clean
+!!
+fi
+if [ -n "$USE_GETTEXT" ] ; then
+cat <<!!
+	cd gettext/intl && \$(MAKE) clean
+	cd gettext/po && \$(MAKE) clean
+	-\$(RM) -r locale
+!!
+fi
+if [ -n "$USE_TERMCAP" ] ; then
+cat <<!!
+	cd termcap && \$(MAKE) clean
+!!
+fi
+cat <<!!
+
+# clean5 even undoes "make init".
+!!
+echol "clean5 : clean4"
+if [ -n "${SRCDIR}" ] ; then
+  echotab "-\$(RM) \$(DFILES) modules.h \$(LSPFILES) COPYRIGHT"
+else
+  echotab "-\$(RM) config.lsp"
+fi
+echotab "-\$(RM) comment5${HEXE} ansidecl${HEXE} ccpaux${HEXE} deema${HEXE} txt2c${HEXE}"
+echol
+cat <<!!
+# clean6 lets us go back to "makemake > Makefile".
+clean6 : clean5
+	-\$(RM) Makefile
+
+# clean7 lets us go back to the main "configure".
+clean7 : clean6
+	-\$(RM) config.status config.log config.cache intparam.h unixconf.h makemake
+!!
+if [ $TERMINAL = readline ] ; then
+cat <<!!
+	cd ${READLINEDIR} && \$(MAKE) distclean
+!!
+fi
+if [ -n "$USE_GETTEXT" ] ; then
+cat <<!!
+	cd gettext/intl && \$(MAKE) distclean
+	cd gettext/po && \$(MAKE) distclean
+	-\$(RM) -r locale
+!!
+fi
+if [ -n "$USE_TERMCAP" ] ; then
+cat <<!!
+	cd termcap && \$(MAKE) distclean
+!!
+fi
+cat <<!!
+
+# clean8 moreover cleans up the SRCDIR.
+clean8 : clean7
+
+# The normal "start over" command:
+mostlyclean : clean4
+
+# Clear all files that are built by "make ...":
+clean : clean5
+
+# Make "clear for distribution":
+distclean : clean7
+
+# Remove everything that can be generated otherwise:
+maintainer-clean : clean8
+
+!!
+
+echol
+
+# Without this NeXT's make program tries to compile via c -> s -> o
+echol ".SUFFIXES:"
+echodummyrule .SUFFIXES
+echol
+
+echol "force:"
+echodummyrule force
+
+echol
+

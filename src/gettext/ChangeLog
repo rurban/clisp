@@ -1,0 +1,3 @@
+1998-04-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+	
+	* Makefile.devel (GMSGFMT): Add --statistics.

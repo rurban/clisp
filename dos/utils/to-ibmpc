@@ -1,0 +1,8 @@
+#!/bin/sh
+# Usage: to-ibmpc <isolatin-file> <ibmpc-file>
+if test $# != 2; then
+  echo "Usage: ${CHARSETBINDIR}to-ibmpc <isolatin-file> <ibmpc-file>"
+  exit 1
+fi
+cat "$1" | ${CHARSETBINDIR}cv-to-ibmpc | ${CHARSETBINDIR}nl-to-crlf > "$2"
+${CHARSETBINDIR}touchr "$1" "$2"

@@ -1,0 +1,568 @@
+<HEAD>
+<TITLE> CLISP manual page </TITLE>
+</HEAD>
+<BODY>
+<H1>CLISP manual page</H1>
+
+<UL>
+<LI> <A HREF="#Name">Name</A>
+<LI> <A HREF="#Synopsis">Synopsis</A>
+<LI> <A HREF="#Description">Description</A>
+<LI> <A HREF="#Options">Options</A>
+#ifdef AMIGAOS
+<LI> <A HREF="#Workbench">Workbench</A>
+#endif
+<LI> <A HREF="#Reference">Reference</A>
+<LI> <A HREF="#Use">Use</A>
+<LI> <A HREF="#Files">Files</A>
+#ifdef HAVE_ENVIRONMENT
+<LI> <A HREF="#Environment">Environment</A>
+#endif
+<LI> <A HREF="#See also">See also</A>
+<LI> <A HREF="#Bugs">Bugs</A>
+<LI> <A HREF="#Projects">Projects</A>
+<LI> <A HREF="#Authors">Authors</A>
+</UL>
+<P>
+
+<HR>
+
+<A NAME="Name">
+<H2>Name</H2>
+</A>
+
+<CODE>clisp</CODE> - Common Lisp language interpreter and compiler
+
+<A NAME="Synopsis">
+<H2>Synopsis</H2>
+</A>
+
+<CODE>clisp</CODE>
+[ <A HREF="#Option -h"><CODE>-h</CODE></A> ]
+[ <A HREF="#Option -m"><CODE>-m</CODE> <EM>memsize</EM></A> ]
+#ifndef NO_SP_MALLOC
+[ <A HREF="#Option -s"><CODE>-s</CODE> <EM>stacksize</EM></A> ]
+#endif
+#ifdef MULTIMAP_MEMORY_VIA_FILE
+[ <A HREF="#Option -t"><CODE>-t</CODE> <EM>tempdir</EM></A> ]
+#endif
+[ <A HREF="#Option -W"><CODE>-W</CODE></A> ]
+[ <A HREF="#Option -M"><CODE>-M</CODE> <EM>memfile</EM></A> ]
+[ <A HREF="#Option -L"><CODE>-L</CODE> <EM>language</EM></A> ]
+[ <A HREF="#Option -N"><CODE>-N</CODE> <EM>localedir</EM></A> ]
+[ <A HREF="#Option -q"><CODE>-q</CODE></A> ]
+[ <A HREF="#Option -I"><CODE>-I</CODE></A> ]
+[ <A HREF="#Option -C"><CODE>-C</CODE></A> ]
+[ <A HREF="#Option -i"><CODE>-i</CODE> <EM>initfile</EM> ...</A> ]
+[ <A HREF="#Option -c"><CODE>-c</CODE> [ <CODE>-l</CODE> ] <EM>lispfile</EM> [ <CODE>-o</CODE> <EM>outputfile</EM> ] ...</A> ]
+[ <A HREF="#Option -p"><CODE>-p</CODE> <EM>packagename</EM></A> ]
+[ <A HREF="#Option -x"><CODE>-x</CODE> <EM>expression</EM></A> ]
+[ <A HREF="#Option exec"><EM>lispfile</EM></A>
+  [ <A HREF="#Option exec"><EM>argument</EM> ...</A> ] ]
+
+<A NAME="Description">
+<H2>Description</H2>
+</A>
+
+Invokes the common lisp interpreter and compiler. Invoked without
+arguments, executes a read-eval-print loop, in which expressions are in
+turn read from standard input, evaluated by the lisp interpreter, and
+their results output to standard output. Invoked with <A HREF="#Option -c"><CODE>-c</CODE></A>,
+the specified lisp files are compiled to a bytecode that can be executed
+more efficiently.
+
+<A NAME="Options">
+<H2>Options</H2>
+</A>
+
+<DL>
+
+<DT> <A NAME="Option -h"> <CODE>-h</CODE> </A>
+<DD> Displays a help message on how to use <CODE>clisp</CODE>.
+<P>
+
+<DT> <A NAME="Option -m"> <CODE>-m</CODE> <EM>memsize</EM> </A>
+<DD> Sets the amount of memory <CODE>clisp</CODE> tries to grab
+on startup. The amount may be given as <EM>nnnnnnn</EM> (measured in bytes),
+<EM>nnnn</EM> <CODE>K</CODE> or <EM>nnnn</EM> <CODE>KB</CODE> (measured in kilobytes) or
+<EM>n</EM> <CODE>M</CODE> or <EM>n</EM> <CODE>MB</CODE> (measured in megabytes).
+#ifdef WIDE
+Default is 4 megabytes.
+#else
+Default is 2 megabytes.
+#endif
+#if (oint_addr_len+addr_shift==24)
+The argument is constrained between 100 KB and 16 MB.
+#elif (oint_addr_len+addr_shift==26)
+The argument is constrained between 100 KB and 64 MB.
+#elif (oint_addr_len+addr_shift==28)
+The argument is constrained between 100 KB and 256 MB.
+#else
+The argument is constrained above 100 KB.
+#endif
+-- This version of <CODE>clisp</CODE>
+#if defined(SPVW_MIXED) && defined(SPVW_BLOCKS)
+#ifdef GENERATIONAL_GC
+is not likely to actually use the entire <EM>memsize</EM>
+since garbage collection will periodically reduce the amount of used memory.
+It is therefore common to specify 10 MB even if only 2 MB are going to be used.
+#else
+eventually uses the entire <EM>memsize</EM>.
+#endif
+#else
+allocates memory dynamically.
+<EM>memsize</EM> is essentially ignored.
+#endif
+#ifndef WIDE
+Nevertheless, the memory size is limited to 16 MB per Lisp type (cons, string,
+structure, etc.), unless the <A HREF="#Option -W"><CODE>-W</CODE></A> option
+is given.
+#endif
+<P>
+
+#ifndef NO_SP_MALLOC
+<DT> <A NAME="Option -s"> <CODE>-s</CODE> <EM>stacksize</EM> </A>
+<DD> Sets the size of the stack <CODE>clisp</CODE>
+allocates for itself. The syntax is the same as for <EM>memsize</EM>.
+Default is one eighth of <EM>memsize</EM>.
+The argument is constrained between 40 KB and 8 MB.
+<P>
+#endif
+
+#ifdef MULTIMAP_MEMORY_VIA_FILE
+<DT> <A NAME="Option -t"> <CODE>-t</CODE> <EM>tempdir</EM> </A>
+<DD> Specifies the directory where the temporary core file is to be held.
+This option takes precedence over the environment variable
+<CODE>TMPDIR</CODE>.
+<P>
+#endif
+
+<DT> <A NAME="Option -W"> <CODE>-W</CODE> </A>
+<DD> Specifies to call the wide-mode version of <CODE>clisp</CODE>.
+It uses a 64-bit object representation instead of the usual 32-bit
+representation. This version of <CODE>clisp</CODE> is slower, but has no
+memory size limitations.
+#ifdef WIDE_HARD
+-- This flag is not needed on this architecture.
+#endif
+<P>
+
+<DT> <A NAME="Option -M"> <CODE>-M</CODE> <EM>memfile</EM> </A>
+<DD> Specifies the initial memory image.
+This must be a memory dump produced by the <EM>saveinitmem</EM> function.
+#ifdef UNIX
+It may have been compressed using GNU gzip.
+<EM>memfile</EM> may have the syntax
+<EM>memfile32</EM><CODE>:</CODE><EM>memfile64</EM>
+thus denoting two separate memory images,
+one for use without and one for use with the
+<A HREF="#Option -W"><CODE>-W</CODE></A> option.
+This option is normally already set by the driver program
+<CODE>/usr/local/bin/clisp</CODE>.
+#endif
+<P>
+
+<DT> <A NAME="Option -L"> <CODE>-L</CODE> <EM>language</EM> </A>
+<DD> Specifies the language <CODE>clisp</CODE>
+uses to communicate with the user. This may be
+#ifndef GNU_GETTEXT
+<CODE>english</CODE>, <CODE>deutsch</CODE>, <CODE>francais</CODE>.
+#endif
+#ifdef GNU_GETTEXT
+<CODE>english</CODE>, <CODE>deutsch</CODE>, <CODE>francais</CODE>,
+<CODE>espanol</CODE>.
+Other languages may be specified through the environment variable
+<CODE>LANG</CODE>,
+provided the corresponding message catalog is installed.
+#endif
+<P>
+
+<DT> <A NAME="Option -N"> <CODE>-N</CODE> <EM>localedir</EM> </A>
+<DD> Specifies the base directory of locale files. <CODE>clisp</CODE>
+will search its message catalogs in
+<EM>localedir</EM><CODE>/</CODE><EM>language</EM><CODE>/LC_MESSAGES/clisp.</CODE><EM>ext</EM>.
+<P>
+
+<DT> <A NAME="Option -q"> <CODE>-q</CODE> </A>
+<DD> Quiet: <CODE>clisp</CODE>
+displays no banner at startup and no good-bye message when quitting.
+<P>
+
+<DT> <A NAME="Option -I"> <CODE>-I</CODE> </A>
+<DD> ILISP friendly: <CODE>clisp</CODE>
+interacts in a way that ILISP (a popular Emacs LISP interface) can deal with.
+Currently the only effect of this is that unnecessary prompts are not
+suppressed.
+#ifdef GNU_READLINE
+Furthermore, the GNU readline library treats Tab as a normal self-inserting
+character.
+#endif
+<P>
+
+<DT> <A NAME="Option -C"> <CODE>-C</CODE> </A>
+<DD> Compile when load: At startup the value of the variable
+<CODE>*load-compiling*</CODE> will be set to <CODE>t</CODE>.
+Code being <CODE>load</CODE>ed will then be compiled on the fly. This results
+in slower loading, but faster execution.
+<P>
+
+<DT> <A NAME="Option -i"> <CODE>-i</CODE> <EM>initfile</EM> ... </A>
+<DD> Specifies initialization files to be <CODE>load</CODE>ed
+at startup. These should be lisp files (source or compiled).
+<P>
+
+<DT> <A NAME="Option -c"> <CODE>-c</CODE> <EM>lispfile</EM> ... </A>
+<DD> Compiles the specified <EM>lispfile</EM>s to bytecode. The compiled files
+can then be <CODE>load</CODE>ed instead of the sources to gain efficiency.
+<P>
+
+<DT> <A NAME="Option -o"> <CODE>-o</CODE> <EM>outputfile</EM> </A>
+<DD> Specifies the output file or directory for the compilation of the last
+specified <EM>lispfile</EM>.
+<P>
+
+<DT> <A NAME="Option -l"> <CODE>-l</CODE> </A>
+<DD> A bytecode listing of the files being compiled will be produced.
+Useful only for debugging purposes.
+<P>
+
+<DT> <A NAME="Option -p"> <CODE>-p</CODE> <EM>packagename</EM> </A>
+<DD> At startup the value of the variable <CODE>*package*</CODE> will
+be set to the package named <EM>packagename</EM>.
+<P>
+
+<DT> <A NAME="Option -x"> <CODE>-x</CODE> <EM>expressions</EM> </A>
+<DD> Executes a series of arbitrary expressions instead of a read-eval-print loop.
+The values of the expressions will be output to standard output.
+Due to the argument processing done by the shell, the <EM>expressions</EM>
+must be enclosed in double quotes, and double quotes and backslashes must
+be preceded by backslashes.
+<P>
+
+<DT> <A NAME="Option exec"> <EM>lispfile</EM> [ <EM>argument</EM> ... ]</A>
+<DD> Loads and executes a <EM>lispfile</EM>. There will be no read-eval-print
+loop. Before <EM>lispfile</EM> is loaded, the variable <CODE>*args*</CODE>
+will be bound to a list of strings, representing the <EM>argument</EM>s.
+#ifdef UNIX
+The first line of <EM>lispfile</EM> may start with <CODE>#!</CODE>,
+thus permitting <CODE>clisp</CODE> to be used as a script interpreter.
+#endif
+If <EM>lispfile</EM> is <CODE>-</CODE>, the standard input is used instead of
+a file.
+This option must be the last one.
+<P>
+
+#ifdef EMUNIX
+<DT> <CODE>@</CODE><EM>optionfile</EM>
+<DD> substitutes the contents of <EM>optionfile</EM> as arguments. Each line of
+<EM>optionfile</EM> is treated as a separate argument to
+<CODE>clisp</CODE>.
+<P>
+#endif
+</DL>
+
+#ifdef AMIGAOS
+
+<A NAME="Workbench">
+<H2>Workbench</H2>
+</A>
+
+Two kinds of tooltypes are supported:
+
+<DL>
+
+<DT> <CODE>WINDOW=</CODE><EM>windowspec</EM>
+<DD> <CODE>clisp</CODE>
+will communicate with the console window or pipe specified by
+<EM>windowspec</EM>.
+<P>
+
+<DT> <CODE>ARGS=</CODE><EM>arguments</EM>
+<DD> Specifies the command line arguments for <CODE>clisp</CODE>.
+Within <EM>arguments</EM>
+the token <CODE> * </CODE> may be used to denote the project's filename.
+<EM>arguments</EM>
+defaults to <CODE> -i * </CODE> which means that the file will be
+<CODE>load</CODE>ed (see above).
+<P>
+
+</DL>
+
+#endif
+
+<A NAME="Reference">
+<H2>Reference</H2>
+</A>
+
+The language implemented conforms to
+
+<BLOCKQUOTE>
+      Guy L. Steele Jr.: Common Lisp - The Language.
+      Digital Press. 1st edition 1984, 465 pages.
+      ("CLtL1" for short)
+</BLOCKQUOTE>
+
+and to the older parts of
+<BLOCKQUOTE>
+      Guy L. Steele Jr.: Common Lisp - The Language.
+      Digital Press. 2nd edition 1990, 1032 pages.
+      ("CLtL2" for short)
+</BLOCKQUOTE>
+
+<A NAME="Use">
+<H2>Use</H2>
+</A>
+
+<DL>
+
+<DT> <CODE>help</CODE>
+<DD> to get some on-line help.
+<P>
+
+<DT> <CODE>(apropos </CODE><EM>name</EM><CODE>)</CODE>
+<DD> lists the symbols relating to <EM>name</EM>.
+<P>
+
+<DT> <CODE>(exit)</CODE> or <CODE>(quit)</CODE> or <CODE>(bye)</CODE>
+<DD> to quit <CODE>clisp</CODE>.
+<P>
+
+#if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS)
+<DT>
+#if (defined(UNIX) && !defined(UNIX_CYGWIN32)) || defined(RISCOS)
+EOF (Ctrl-D)
+#endif
+#if defined(MSDOS) || defined(UNIX_CYGWIN32)
+EOF (Ctrl-Z)
+#endif
+#ifdef AMIGAOS
+EOF (Ctrl-\e)
+#endif
+<DD> to leave the current read-eval-print loop.
+<P>
+#endif
+
+#ifdef GNU_READLINE
+<DT> arrow keys
+<DD> for editing and viewing the input history.
+<P>
+
+<DT> Tab key
+<DD> to complete the symbol's name you are just typing.
+<P>
+#endif
+
+</DL>
+
+<A NAME="Files">
+<H2>Files</H2>
+</A>
+
+<DL>
+
+#ifdef UNIX
+<DT> <CODE>clisp</CODE>
+<DD> startup script
+<P>
+#endif
+
+<DT>
+#if defined(UNIX)
+<CODE>lisp.run</CODE>
+#endif
+#if defined(MSDOS)
+<CODE>lisp.exe</CODE>
+#endif
+#if defined(AMIGAOS)
+<CODE>lisp.run</CODE>
+#endif
+#if defined(RISCOS)
+<CODE>lisp</CODE>
+#endif
+<DD> main executable
+<P>
+
+<DT>
+<CODE>lispinit.mem</CODE>
+<DD> initial memory image
+<P>
+
+<DT>
+<CODE>config.lsp</CODE>
+<DD> site-dependent configuration
+<P>
+
+<DT>
+<CODE>*.lsp</CODE>
+<DD> lisp source
+<P>
+
+<DT>
+<CODE>*.fas</CODE>
+<DD> lisp code, compiled by <CODE>clisp</CODE>
+<P>
+
+<DT>
+<CODE>*.lib</CODE>
+<DD> lisp source library information, generated and used by the
+<CODE>clisp</CODE> compiler
+<P>
+
+<DT>
+<CODE>*.c</CODE>
+<DD> C code, compiled from lisp source by <CODE>clisp</CODE>
+<P>
+
+</DL>
+
+#ifdef HAVE_ENVIRONMENT
+
+<A NAME="Environment">
+<H2>Environment</H2>
+</A>
+
+<DT> <CODE>CLISP_LANGUAGE</CODE>
+<DD> specifies the language
+<CODE>clisp</CODE>
+uses to communicate with the user. The value may be
+<CODE>english</CODE>, <CODE>deutsch</CODE>, <CODE>francais</CODE>
+and defaults to <CODE>english</CODE>.
+The <A HREF="#Option -L"><CODE>-L</CODE></A> option can be used to override this environment variable.
+<P>
+
+#ifdef AMIGAOS
+<DT> <CODE>Language</CODE>
+<DD> specifies the language
+<CODE>clisp</CODE>
+uses to communicate with the user, unless it is already specified through
+the environment variable <CODE>CLISP_LANGUAGE</CODE> or the
+<A HREF="#Option -L"><CODE>-L</CODE></A> option. The value may be as above.
+<P>
+#endif
+
+<DT> <CODE>LANG</CODE>
+<DD> specifies the language
+<CODE>clisp</CODE>
+uses to communicate with the user, unless it is already specified through
+the environment variable <CODE>CLISP_LANGUAGE</CODE> or the
+<A HREF="#Option -L"><CODE>-L</CODE></A> option. The value may begin with
+a two-letter ISO 639 language code, for example
+<CODE>en</CODE>, <CODE>de</CODE>, <CODE>fr</CODE>.
+<P>
+
+#ifdef UNIX
+<DT> <CODE>HOME</CODE> and <CODE>USER</CODE>
+<DD> are used for determining the value of the function
+<CODE>user-homedir-pathname</CODE>. (Unix implementation only.)
+<P>
+#endif
+
+#if defined(UNIX) || defined(MSDOS)
+<DT>
+#ifdef UNIX
+<CODE>SHELL</CODE> (Unix implementation only)
+<DD> is used to find the interactive command interpreter called by
+<CODE>(shell)</CODE>.
+#endif
+#ifdef MSDOS
+<CODE>COMSPEC</CODE> (DOS, OS/2 implementations only)
+<DD> is used to find the command interpreter called by the function
+<CODE>(shell)</CODE>.
+#endif
+<P>
+#endif
+
+#ifdef UNIX
+<DT> <CODE>TERM</CODE>
+<DD> determines the screen size recognized by the pretty printer.
+This environment variable is also mandatory for the built-in screen editor.
+<P>
+#endif
+
+#ifdef EMUNIX_PORTABEL
+<DT> <CODE>TERM</CODE>
+<DD> specifies the terminal emulation <CODE>clisp</CODE>
+relies on. If you have ANSI.SYS loaded, possible values are
+<CODE>ansi</CODE>, <CODE>ansi-color-2</CODE>, <CODE>ansi-color-3</CODE>
+and <CODE>mono</CODE>.
+<P>
+
+<DT> <CODE>TERMCAP</CODE>
+<DD> should be set to the slashified file name of the terminal capabilities database
+<CODE>termcap.dat</CODE>.
+<P>
+#endif
+
+#ifdef MULTIMAP_MEMORY_VIA_FILE
+<DT> <CODE>TMPDIR</CODE> (Sparc implementation only)
+<DD> specifies the directory where the temporary core file is to be held.
+<P>
+#endif
+
+</DL>
+
+#endif
+
+<A NAME="See also">
+<H2>See also</H2>
+</A>
+
+<CODE>cmucl</CODE>(1),
+#ifdef UNIX
+<CODE>xemacs</CODE>(1).
+#else
+<CODE>emacs</CODE>(1).
+#endif
+
+
+<A NAME="Bugs">
+<H2>Bugs</H2>
+</A>
+
+<UL>
+<LI> The function <CODE>inspect</CODE> is not implemented.
+#ifdef SPVW_MIXED_BLOCKS
+<LI> The memory management scheme is not very flexible.
+#endif
+<LI> Not all extensions from CLtL2 are supported.
+<LI> No on-line documentation beyond <CODE>apropos</CODE> and <CODE>describe</CODE>
+is available.
+#ifdef EMUNIX
+<LI> Stack overflow aborts the program ungracefully, with a register dump.
+<LI> Pressing Control-C may not interrupt <CODE>clisp</CODE> in every situation.
+<LI> Calling the function <CODE>execute</CODE> on batch files crashes the machine.
+#endif
+#ifdef UNIX_COHERENT
+<CODE>*keyboard-input*</CODE> does not recognize Ctrl-S and Ctrl-Q.
+#endif
+</UL>
+
+<A NAME="Projects">
+<H2>Projects</H2>
+</A>
+
+<UL>
+<LI> Writing on-line documentation.
+<LI> Write <CODE>inspect</CODE>.
+<LI> Enhance the compiler such that it can inline local functions.
+<LI> Specify a portable set of window and graphics operations.
+</UL>
+
+<A NAME="Authors">
+<H2>Authors</H2>
+</A>
+
+Bruno Haible <TT>&lt;haible@clisp.cons.org&gt;</TT>
+and Michael Stoll.
+<P>
+
+<HR>
+
+<ADDRESS>CLISP manual page<BR>
+Bruno Haible &lt;haible@clisp.cons.org&gt;
+</ADDRESS>
+<P>
+Last modified: 11 January 1998.
+
+</BODY>
+

@@ -1,0 +1,39 @@
+/* Trampoline test */
+
+/*
+ * Copyright 1995 Bruno Haible, <haible@clisp.cons.org>
+ *
+ * This is free software distributed under the GNU General Public Licence
+ * described in the file COPYING. Contact the author if you don't have this
+ * or can't live with it. There is ABSOLUTELY NO WARRANTY, explicit or implied,
+ * on this software.
+ */
+
+#include <stdio.h>
+
+#include "trampoline.h"
+
+#define MAGIC1  0x9db9af42
+#define MAGIC2  0x614a13c9
+
+static int magic = MAGIC1;
+
+typedef int (*function)();
+
+void* function_data;
+
+int f (x)
+  int x;
+{ return *(int*)function_data + x; }
+
+int main ()
+{
+  function cf = alloc_trampoline(&f, &function_data, &magic);
+  /* calling cf shall set  function_data = &magic  and then call f(x),
+   * thus returning  magic + x.
+   */
+  if (((*cf)(MAGIC2) == MAGIC1+MAGIC2) && (function_data == &magic))
+    { free_trampoline(cf); printf("Works, test1 passed.\n"); exit(0); }
+  else
+    { printf("Doesn't work!\n"); exit(1); }
+}

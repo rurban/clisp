@@ -1,0 +1,398 @@
+# This is the developer's makefile, not the user's makefile.
+# Don't use it unless you know exactly what you do!
+
+
+# Some important programs:
+SHELL = /bin/sh
+MAKE = make
+
+
+# Choose one of the packers:
+
+# Standard Unix packer. Compress afterwards.
+#PACK = tar
+#PACKOPT = -cvf
+#PACKEXT = .tar
+
+# GNU tar together with compress.
+#PACK = tar
+#PACKOPT = cvfhz
+#PACKEXT = .tar.Z
+
+# GNU tar together with GNU gzip. Excellent performance.
+PACK = tar
+PACKOPT = cvfhz
+PACKEXT = .tar.gz
+
+# Popular Amiga packer. Good performance.
+#PACK = lha
+#PACKOPT = a
+#PACKEXT = .lzh
+
+# Popular DOS packer.
+#PACK = zip
+#PACKOPT = -r
+#PACKEXT = .zip
+
+# Popular Atari packer.
+#PACK = zoo
+#PACKOPT = -add
+#PACKEXT = .zoo
+
+# The distribution's top directory is called TOPDIR here.
+# Use clisp-YYYY-MM-DD where DD.MM.YYYY is the date.
+TOPDIR = clisp
+T = $(TOPDIR)
+
+SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/configure #$T/HTML-index.html
+#SOURCES2 = $T/src/*
+# exclude $T/src/g*t $T/src/*ne = $T/src/gettext $T/src/readline $T/src/newreadline
+SOURCES2 = $T/src/*[^et] $T/src/[^g]*t $T/src/*[^n]e $T/src/.??*
+# exclude $T/src/gettext/*o/*p = $T/src/gettext/po/tmp
+SOURCES3 = $T/src/gettext/*[^o] $T/src/gettext/po/*[^p]
+#SOURCES4 = $T/modules/*
+# exclude $T/modules/[cqrw]* = $T/modules/queens $T/modules/wildcard $T/modules/regexp $T/modules/clx
+SOURCES4 = $T/modules/[^cqrw]*
+SOURCES5 = $T/ffcall $T/utils $T/unix $T/dos $T/dosdjgpp $T/doswatcom $T/windows $T/windowswatcom $T/os2 $T/cygwin32 $T/win32gcc $T/win32msvc $T/win32bc $T/amiga $T/acorn $T/nextapp
+SOURCES6 = $T/tests $T/emacs $T/doc/*.txt $T/Makefile.devel
+
+SOURCES = $(SOURCES1) $(SOURCES2) $(SOURCES3) $(SOURCES4) $(SOURCES5) $(SOURCES6)
+
+DOSDIR = /c:/clisp/src
+EMXDIR = /c:/emx
+RSXDIR = /c:/rsx
+TEMPDIR = /tmp/clispdos
+
+
+all : makefiles configures potfiles src/FILES src/version.h utils/comment5.c src/intparam.c src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c ffcall/avcall/avcall.h.msvc ffcall/avcall/avcall-i386-msvc.c ffcall/vacall/config.h.msvc ffcall/vacall/vacall.h.msvc ffcall/vacall/vacall-i386-msvc.c ffcall/trampoline/config.h.msvc src/winabout.c src/wincopyr.c doc/vgagraph.txt acorn/pathname.txt hardlink-surrogate-hack
+
+makefiles : dos/makefile dosdjgpp/makefile doswatcom/makefile windows/makefile windowswatcom/makefile os2/makefile win32gcc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc5 win32bc/makefile acorn/makefile.cc acorn/makefile.gcc src/readline/Makefile.dos src/readline/Makefile.os2 src/readline/Makefile.go32 src/newreadline/Makefile.dos src/newreadline/Makefile.os2 src/newreadline/Makefile.go32
+
+dos/makefile : makemake
+	makemake dos gcc > dos/makefile.tmp
+	utils/move-if-change dos/makefile.tmp dos/makefile
+
+dosdjgpp/makefile : makemake
+	makemake dosdjgpp gcc > dosdjgpp/makefile.tmp
+	utils/move-if-change dosdjgpp/makefile.tmp dosdjgpp/makefile
+
+doswatcom/makefile : makemake
+	makemake doswatcom wcl386 > doswatcom/makefile.tmp
+	utils/move-if-change doswatcom/makefile.tmp doswatcom/makefile
+
+windows/makefile : makemake
+	makemake windows gcc > windows/makefile.tmp
+	utils/move-if-change windows/makefile.tmp windows/makefile
+
+windowswatcom/makefile : makemake
+	makemake windowswatcom wcl386 > windowswatcom/makefile.tmp
+	utils/move-if-change windowswatcom/makefile.tmp windowswatcom/makefile
+
+os2/makefile : makemake
+	makemake os2 gcc > os2/makefile.tmp
+	utils/move-if-change os2/makefile.tmp os2/makefile
+
+win32gcc/makefile : makemake
+	makemake win32gcc gcc > win32gcc/makefile.tmp
+	utils/move-if-change win32gcc/makefile.tmp win32gcc/makefile
+
+win32msvc/makefile.msvc4 : makemake
+	makemake --with-dynamic-ffi win32msvc msvc4 > win32msvc/makefile.tmp
+	utils/move-if-change win32msvc/makefile.tmp win32msvc/makefile.msvc4
+
+win32msvc/makefile.msvc5 : makemake
+	makemake --with-dynamic-ffi win32msvc msvc5 > win32msvc/makefile.tmp
+	utils/move-if-change win32msvc/makefile.tmp win32msvc/makefile.msvc5
+
+win32bc/makefile : makemake
+	makemake win32bc bcc32i > win32bc/makefile.tmp
+	utils/move-if-change win32bc/makefile.tmp win32bc/makefile
+
+acorn/makefile.cc : makemake src/VERSION
+	makemake acorn ansi | acorn/swap-ext.pl > acorn/makefile.tmp
+	utils/move-if-change acorn/makefile.tmp acorn/makefile.cc
+
+acorn/makefile.gcc : makemake src/VERSION
+	makemake acorn gcc | acorn/swap-ext.pl > acorn/makefile.tmp
+	utils/move-if-change acorn/makefile.tmp acorn/makefile.gcc
+
+makemake : src/makemake.in
+	(echo "#!/bin/sh" ; cat src/makemake.in) > makemake
+	chmod a+x makemake
+
+src/readline/Makefile.dos : src/readline/Makefile.in
+	sed -e 's/@srcdir@/./' -e 's/@CC@/gcc/' -e 's/@ALLOCA@//' -e 's/@RANLIB@/ar s/' -e 's/@LIBS@//' -e 's/@LIBTERMCAP@/-ltermcap/' -e 's/^RM =.*$$/RM = del/' -e 's/^CP =.*$$/CP = copy/' -e 's/config.h//' -e 's/\(^	.*\)\$$(OBJECTS)/\1@objects/' < src/readline/Makefile.in > src/readline/Makefile.dos
+
+src/readline/Makefile.os2 : src/readline/Makefile.in
+	sed -e 's/@srcdir@/./' -e 's/@CC@/gcc/' -e 's/@ALLOCA@//' -e 's/@RANLIB@/ar s/' -e 's/@LIBS@//' -e 's/@LIBTERMCAP@/-ltermcap/' -e 's/^RM =.*$$/RM = del/' -e 's/^CP =.*$$/CP = copy/' -e 's/config.h//' < src/readline/Makefile.in > src/readline/Makefile.os2
+
+src/readline/Makefile.go32 : src/readline/Makefile.in
+	sed -e 's/@srcdir@/./' -e 's/@CC@/gcc/' -e 's/@ALLOCA@//' -e 's/@RANLIB@/ranlib/' -e 's/@LIBS@//' -e 's/@LIBTERMCAP@/-ltermcap/' -e 's/^RM =.*$$/RM = del/' -e 's/^CP =.*$$/CP = copy/' -e 's/config.h//' -e 's/\(^	.*\)\$$(OBJECTS)/\1@objects/' < src/readline/Makefile.in > src/readline/Makefile.go32
+
+src/newreadline/Makefile.dos : src/newreadline/Makefile.in
+	sed -e 's/@srcdir@/./' -e 's/@CC@/gcc/' -e 's/@CFLAGS@/-g -O/' -e 's/@LDFLAGS@//' -e 's/@DEFS@/-DHAVE_CONFIG_H/' -e 's/@ALLOCA@//' -e 's/@RANLIB@/ar s/' -e 's/@LIBS@//' -e 's/@LIBTERMCAP@/-ltermcap/' -e 's/^RM =.*$$/RM = del/' -e 's/^CP =.*$$/CP = copy/' -e 's/^MV =.*$$/MV = ren/' -e 's/ config.h//' -e 's/\(^	.*\)\$$(OBJECTS)/\1@objects/' < src/newreadline/Makefile.in > src/newreadline/Makefile.dos
+
+src/newreadline/Makefile.os2 : src/newreadline/Makefile.in
+	sed -e 's/@srcdir@/./' -e 's/@CC@/gcc/' -e 's/@CFLAGS@/-g -O/' -e 's/@LDFLAGS@//' -e 's/@DEFS@/-DHAVE_CONFIG_H/' -e 's/@ALLOCA@//' -e 's/@RANLIB@/ar s/' -e 's/@LIBS@//' -e 's/@LIBTERMCAP@/-ltermcap/' -e 's/^RM =.*$$/RM = del/' -e 's/^CP =.*$$/CP = copy/' -e 's/^MV =.*$$/MV = ren/' -e 's/ config.h//' < src/newreadline/Makefile.in > src/newreadline/Makefile.os2
+
+src/newreadline/Makefile.go32 : src/newreadline/Makefile.in
+	sed -e 's/@srcdir@/./' -e 's/@CC@/gcc/' -e 's/@CFLAGS@/-g -O/' -e 's/@LDFLAGS@//' -e 's/@DEFS@/-DHAVE_CONFIG_H/' -e 's/@ALLOCA@//' -e 's/@RANLIB@/ranlib/' -e 's/@LIBS@//' -e 's/@LIBTERMCAP@/-ltermcap/' -e 's/^RM =.*$$/RM = del/' -e 's/^CP =.*$$/CP = copy/' -e 's/^MV =.*$$/MV = ren/' -e 's/ config.h//' -e 's/\(^	.*\)\$$(OBJECTS)/\1@objects/' < src/newreadline/Makefile.in > src/newreadline/Makefile.go32
+
+
+CONFIGURES = src/configure src/readline/configure src/newreadline/configure src/gettext/configure modules/wildcard/configure modules/regexp/configure ffcall/configure ffcall/avcall/configure ffcall/vacall/configure ffcall/trampoline/configure ffcall/callback/configure ffcall/callback/vacall_r/configure ffcall/callback/trampoline_r/configure utils/hln/configure
+
+configures : ffcall/autoconf/aclocal.m4 $(CONFIGURES) src/gettext/config.h.in
+
+AUTOCONF_FILES = src/autoconf/aclocal.m4 src/autoconf/acgeneral.m4 src/autoconf/acspecific.m4
+
+src/configure : src/configure.in $(AUTOCONF_FILES)
+	cd src ; autoconf/autoconf -m autoconf
+
+src/readline/configure : src/readline/configure.in $(AUTOCONF_FILES)
+	cd src/readline ; ../autoconf/autoconf -m ../autoconf
+
+src/newreadline/configure : src/newreadline/configure.in $(AUTOCONF_FILES)
+	cd src/newreadline ; ../autoconf/autoconf -m ../autoconf
+
+src/gettext/configure : src/gettext/configure.in src/gettext/aclocal.m4
+	cd src/gettext ; $(MAKE) -f Makefile.devel configure
+
+src/gettext/config.h.in : src/gettext/configure.in src/gettext/aclocal.m4 src/gettext/acconfig.h
+	cd src/gettext ; $(MAKE) -f Makefile.devel config.h.in
+
+modules/wildcard/configure : modules/wildcard/configure.in $(AUTOCONF_FILES)
+	cd modules/wildcard ; ../../src/autoconf/autoconf -m ../../src/autoconf
+
+modules/regexp/configure : modules/regexp/configure.in $(AUTOCONF_FILES)
+	cd modules/regexp ; ../../src/autoconf/autoconf -m ../../src/autoconf
+
+ffcall/autoconf/aclocal.m4 : src/autoconf/aclocal.m4
+	cd ffcall ; $(MAKE) -f Makefile.devel autoconf/aclocal.m4
+
+ffcall/configure : ffcall/configure.in ffcall/autoconf/aclocal.m4 $(AUTOCONF_FILES)
+	cd ffcall ; $(MAKE) -f Makefile.devel configure
+
+ffcall/avcall/configure : ffcall/avcall/configure.in ffcall/autoconf/aclocal.m4 $(AUTOCONF_FILES)
+	cd ffcall ; $(MAKE) -f Makefile.devel avcall/configure
+
+ffcall/vacall/configure : ffcall/vacall/configure.in ffcall/autoconf/aclocal.m4 $(AUTOCONF_FILES)
+	cd ffcall ; $(MAKE) -f Makefile.devel vacall/configure
+
+ffcall/trampoline/configure : ffcall/trampoline/configure.in ffcall/autoconf/aclocal.m4 $(AUTOCONF_FILES)
+	cd ffcall ; $(MAKE) -f Makefile.devel trampoline/configure
+
+ffcall/callback/configure : ffcall/callback/configure.in ffcall/autoconf/aclocal.m4 $(AUTOCONF_FILES)
+	cd ffcall ; $(MAKE) -f Makefile.devel callback/configure
+
+ffcall/callback/vacall_r/configure : ffcall/callback/vacall_r/configure.in ffcall/autoconf/aclocal.m4 $(AUTOCONF_FILES)
+	cd ffcall ; $(MAKE) -f Makefile.devel callback/vacall_r/configure
+
+ffcall/callback/trampoline_r/configure : ffcall/callback/trampoline_r/configure.in ffcall/autoconf/aclocal.m4 $(AUTOCONF_FILES)
+	cd ffcall ; $(MAKE) -f Makefile.devel callback/trampoline_r/configure
+
+utils/hln/configure : utils/hln/configure.in $(AUTOCONF_FILES)
+	cd utils/hln ; ../../src/autoconf/autoconf -m ../../src/autoconf
+
+
+# Syntaxcheck
+check-configures : $(CONFIGURES)
+	set -e; for f in $(CONFIGURES); do bash -x -n $$f; done
+
+
+potfiles :
+	cd src/gettext/po ; $(MAKE) -f Makefile.devel
+
+
+view-man :
+	grep -v '^#[ie]' src/_clisp.1 | groff -Tascii -mandoc | less
+
+view-html :
+	grep -v '^#[ie]' src/_clisp.html > /tmp/clisp.html
+	netscape /tmp/clisp.html &
+	lynx /tmp/clisp.html
+
+
+src/FILES : src/FILES.1
+	groff -Tascii -mandoc src/FILES.1 > src/FILES
+
+src/version.h : src/VERSION
+	(echo '/* Generated automatically from src/VERSION. */' ; sed -e 's/^/#define VERSION "/' -e 's/$$/"/' src/VERSION ; sed -e 's/^\(.*\)-\(.*\)-\(.*\)$$/#define VERSION_YYYY \1/' src/VERSION ; sed -e 's/^\(.*\)-\(.*\)-\(.*\)$$/#define VERSION_YYYY_STRING "\1"/' src/VERSION ; sed -e 's/^\(.*\)-0*\(.*\)-0*\(.*\)$$/#define VERSION_MM \2/' src/VERSION ; sed -e 's/^\(.*\)-0*\(.*\)-0*\(.*\)$$/#define VERSION_DD \3/' src/VERSION) > src/version.h
+
+utils/comment5.c : utils/comment5.d
+	cd utils && comment5 comment5
+
+src/intparam.c : src/intparam.d
+	cd src && comment5 intparam
+
+src/asmi386.h : src/asmi386.hh
+	sed -e 's,//.*$$,,' < src/asmi386.hh > src/asmi386.h
+
+src/ari80386.msvc.c : src/ari80386.d src/asmi386.sh
+	src/asmi386.sh < src/ari80386.d > src/ari80386.msvc.c
+
+src/sp80386.msvc.c : src/sp80386.d src/asmi386.sh
+	src/asmi386.sh < src/sp80386.d > src/sp80386.msvc.c
+
+ffcall/avcall/avcall.h.msvc : ffcall/avcall/avcall.h.in
+	cd ffcall ; $(MAKE) -f Makefile.devel avcall/avcall.h.msvc
+
+ffcall/avcall/avcall-i386-msvc.c : ffcall/avcall/avcall-i386.S ffcall/avcall/asmi386.sh
+	cd ffcall ; $(MAKE) -f Makefile.devel avcall/avcall-i386-msvc.c
+
+ffcall/vacall/config.h.msvc : ffcall/vacall/config.h.in
+	cd ffcall ; $(MAKE) -f Makefile.devel vacall/config.h.msvc
+
+ffcall/vacall/vacall.h.msvc : ffcall/vacall/vacall.h.in
+	cd ffcall ; $(MAKE) -f Makefile.devel vacall/vacall.h.msvc
+
+ffcall/vacall/vacall-i386-msvc.c : ffcall/vacall/vacall-i386.S ffcall/vacall/asmi386.sh
+	cd ffcall ; $(MAKE) -f Makefile.devel vacall/vacall-i386-msvc.c
+
+ffcall/trampoline/config.h.msvc : ffcall/trampoline/config.h.in
+	cd ffcall ; $(MAKE) -f Makefile.devel trampoline/config.h.msvc
+
+src/winabout.c : src/winabout.txt
+	sed -e 's/"/\\"/g' -e 's/^/"/' -e 's/$$/" CRLFstring/' < src/winabout.txt > src/winabout.c
+
+src/wincopyr.c : COPYRIGHT
+	sed -e 's/"/\\"/g' -e 's/^/"/' -e 's/$$/" CRLFstring/' < COPYRIGHT > src/wincopyr.c
+
+doc/vgagraph.txt : src/graph.d
+	cat src/graph.d | sed -e '1,/^\/\*$$/d' | sed -e '/^\*\//,$$d' > doc/vgagraph.txt
+
+acorn/pathname.txt : src/pathname.d
+	cat src/pathname.d | sed -e '1,/Burwood/d' | sed -e '/Komponenten/,$$d' | sed -e 's/^# //g' -e 's/^#$$//g' > acorn/pathname.txt
+
+
+distrib : linux-distrib dos-distrib src-distrib
+
+# Before doing a "make src-distrib", don't forget
+# * update src/VERSION,
+# * update src/CHANGES.LOG and src/NEWS,
+# * "make",
+# * "make check-configures",
+# * check that src/genclisph.d is up to date.
+
+src-distrib : src/FILES src/version.h potfiles force
+	$(MAKE) src--distrib TOPDIR=clisp-`cat src/VERSION`
+
+src--distrib : force
+	ln -s . $(TOPDIR)
+	$(PACK) $(PACKOPT) /tmp/clispsrc$(PACKEXT) $(SOURCES)
+	$(PACK) $(PACKOPT) /tmp/clispsrc-readline$(PACKEXT) $T/src/readline
+	$(PACK) $(PACKOPT) /tmp/clispsrc-newreadline$(PACKEXT) $T/src/newreadline
+	$(PACK) $(PACKOPT) /tmp/clispsrc-queens$(PACKEXT) $T/modules/queens
+	$(PACK) $(PACKOPT) /tmp/clispsrc-wildcard$(PACKEXT) $T/modules/wildcard
+	$(PACK) $(PACKOPT) /tmp/clispsrc-regexp$(PACKEXT) $T/modules/regexp
+	$(PACK) $(PACKOPT) /tmp/clispsrc-clx$(PACKEXT) $T/modules/clx
+	rm -f $(TOPDIR)
+# No need for this. François Pinard doesn't like CLISP's submissions any more.
+# Doesn't matter; the KDE project's translations work independently too.
+#	cd src/gettext/po && $(PACK) $(PACKOPT) /tmp/$(TOPDIR)-potfiles$(PACKEXT) *.po*
+
+linux-distrib : force
+	$(MAKE) linux--distrib
+
+linux--distrib : force
+	cd make.gcc && $(MAKE) PACK="$(PACK)" PACKOPT="$(PACKOPT)" PACKEXT="$(PACKEXT)" distrib
+
+dos-distrib : force
+	$(MAKE) dos--distrib PACK="zip" PACKOPT="-r" PACKEXT=".zip"
+
+dos--distrib : force
+	mkdir $(TEMPDIR)
+	cp -p $(DOSDIR)/ANNOUNCE $(DOSDIR)/COPYRIGHT $(DOSDIR)/GNU-GPL $(DOSDIR)/SUMMARY $(DOSDIR)/NEWS $(TEMPDIR)
+	cp -p $(DOSDIR)/lisp.exe $(TEMPDIR)
+	cp -p $(DOSDIR)/lisp_1mb.exe $(TEMPDIR)
+	cp -p $(DOSDIR)/lispinit.mem $(TEMPDIR)
+	cp -p $(DOSDIR)/*.lsp $(TEMPDIR)
+	# cp -p $(DOSDIR)/*.fas $(TEMPDIR)
+	mkdir $(TEMPDIR)/locale
+	for lang in en de fr es; do mkdir $(TEMPDIR)/locale/$$lang; mkdir $(TEMPDIR)/locale/$$lang/LC_MESSAGES; cp -p $(DOSDIR)/locale/$$lang/LC_MESSAGES/clisp.mo $(TEMPDIR)/locale/$$lang/LC_MESSAGES/clisp.mo; done
+	cp -p $(DOSDIR)/README $(DOSDIR)/README.de $(DOSDIR)/README.en $(DOSDIR)/README.es $(DOSDIR)/clisp.1 $(DOSDIR)/clisp.html $(DOSDIR)/impnotes.txt $(DOSDIR)/impnotes.html $(DOSDIR)/clisp.gif $(DOSDIR)/clreadline.3 $(DOSDIR)/clreadline.html $(TEMPDIR)
+	from-ibmpc $(TEMPDIR)/clisp.1 dos/clisp.1
+	from-ibmpc $(TEMPDIR)/clisp.html dos/clisp.html
+	from-ibmpc $(TEMPDIR)/impnotes.txt dos/impnotes.txt
+	from-ibmpc $(TEMPDIR)/clreadline.3 dos/clreadline.3
+	from-ibmpc $(TEMPDIR)/clreadline.html dos/clreadline.html
+	cd dos ; groff -Tascii -mandoc clisp.1 > clisp.man
+	cd dos ; groff -Tdvi -mandoc clisp.1 > clisp.dvi
+	cd dos ; groff -Tascii -mandoc clreadline.3 > clreadline.man
+	cd dos ; groff -Tdvi -mandoc clreadline.3 > clreadline.dvi
+	to-ibmpc dos/clisp.man $(TEMPDIR)/clisp.man
+	cp -p dos/clisp.dvi $(TEMPDIR)/clisp.dvi
+	to-ibmpc dos/clreadline.man $(TEMPDIR)/clreadline.man
+	cp -p dos/clreadline.dvi $(TEMPDIR)/clreadline.dvi
+	cd doc ; for f in CLOS-guide.txt LISP-tutorial.txt cltl2.txt editors.txt; do to-ibmpc $$f $(TEMPDIR)/$$f; done
+	cd src/readline/doc ; $(MAKE) rluserman.dvi
+	cp -p src/readline/doc/rluserman.dvi $(TEMPDIR)/readline.dvi
+	cp -p $(EMXDIR)/bin/emx.exe $(TEMPDIR)/emx.exe
+	to-ibmpc dos/emx-faq.doc $(TEMPDIR)/emx-faq.doc
+	cp -p $(EMXDIR)/doc/emxrt.doc $(TEMPDIR)/emx-user.doc
+	cp -p $(EMXDIR)/etc/termcap.dat $(TEMPDIR)
+	cp -p $(RSXDIR)/bin/rsx.exe $(TEMPDIR)/rsx.exe
+#	cp -p $(RSXDIR)/bin/csx.exe $(TEMPDIR)/csx.exe
+	cp -p $(RSXDIR)/doc/readme.txt $(TEMPDIR)/rsx-read.txt
+	cp -p $(RSXDIR)/doc/rsx.hlp $(TEMPDIR)/rsx.hlp
+	cp -p dos/delay.exe $(TEMPDIR)/delay.exe
+	cd $(TEMPDIR) ; $(PACK) $(PACKOPT) /tmp/clisp$(PACKEXT) *
+	rm -rf $(TEMPDIR)
+
+os2-distrib : force
+	$(MAKE) os2--distrib PACK="zip" PACKOPT="-r" PACKEXT=".zip"
+
+os2--distrib : force
+	mkdir $(TEMPDIR)
+	cp -p $(DOSDIR)/ANNOUNCE $(DOSDIR)/COPYRIGHT $(DOSDIR)/GNU-GPL $(DOSDIR)/SUMMARY $(DOSDIR)/NEWS $(TEMPDIR)
+	cp -p $(DOSDIR)/lisp.exe $(TEMPDIR)
+	cp -p $(DOSDIR)/lispinit.mem $(TEMPDIR)
+	cp -p $(DOSDIR)/*.lsp $(TEMPDIR)
+	# cp -p $(DOSDIR)/*.fas $(TEMPDIR)
+	mkdir $(TEMPDIR)/locale
+	for lang in en de fr es; do mkdir $(TEMPDIR)/locale/$$lang; mkdir $(TEMPDIR)/locale/$$lang/LC_MESSAGES; cp -p $(DOSDIR)/locale/$$lang/LC_MESSAGES/clisp.mo $(TEMPDIR)/locale/$$lang/LC_MESSAGES/clisp.mo; done
+	cp -p $(DOSDIR)/README $(DOSDIR)/README.de $(DOSDIR)/README.en $(DOSDIR)/README.es $(DOSDIR)/clisp.1 $(DOSDIR)/clisp.html $(DOSDIR)/impnotes.txt $(DOSDIR)/impnotes.html $(DOSDIR)/clisp.gif $(DOSDIR)/clreadline.3 $(DOSDIR)/clreadline.html $(TEMPDIR)
+	from-ibmpc $(TEMPDIR)/clisp.1 os2/clisp.1
+	from-ibmpc $(TEMPDIR)/clisp.html os2/clisp.html
+	from-ibmpc $(TEMPDIR)/impnotes.txt os2/impnotes.txt
+	from-ibmpc $(TEMPDIR)/clreadline.3 os2/clreadline.3
+	from-ibmpc $(TEMPDIR)/clreadline.html os2/clreadline.html
+	cd os2 ; groff -Tascii -mandoc clisp.1 > clisp.man
+	cd os2 ; groff -Tdvi -mandoc clisp.1 > clisp.dvi
+	cd os2 ; groff -Tascii -mandoc clreadline.3 > clreadline.man
+	cd os2 ; groff -Tdvi -mandoc clreadline.3 > clreadline.dvi
+	to-ibmpc os2/clisp.man $(TEMPDIR)/clisp.man
+	cp -p os2/clisp.dvi $(TEMPDIR)/clisp.dvi
+	to-ibmpc os2/clreadline.man $(TEMPDIR)/clreadline.man
+	cp -p os2/clreadline.dvi $(TEMPDIR)/clreadline.dvi
+	cd doc ; for f in CLOS-guide.txt LISP-tutorial.txt cltl2.txt editors.txt; do to-ibmpc $$f $(TEMPDIR)/$$f; done
+	cd src/readline/doc ; $(MAKE) rluserman.dvi
+	cp -p src/readline/doc/rluserman.dvi $(TEMPDIR)/readline.dvi
+	cp -p $(EMXDIR)/bin/emx.exe $(TEMPDIR)/emx.exe
+	to-ibmpc dos/emx-faq.doc $(TEMPDIR)/emx-faq.doc
+	cp -p $(EMXDIR)/doc/emxrt.doc $(TEMPDIR)/emx-user.doc
+	cp -p $(EMXDIR)/dll/emx.dll $(TEMPDIR)
+	cp -p $(EMXDIR)/dll/emxlibc.dll $(TEMPDIR)
+	cp -p $(EMXDIR)/etc/termcap.dat $(TEMPDIR)
+	cd $(TEMPDIR) ; $(PACK) $(PACKOPT) /tmp/clisp$(PACKEXT) *
+	rm -rf $(TEMPDIR)
+
+hardlink-surrogate-hack : force
+	cp -f src/autoconf/acspecific.m4 src/gettext/autoconf/acspecific.m4
+	chmod a-w src/gettext/autoconf/acspecific.m4
+	cp -f src/asmi386.h ffcall/avcall/asmi386.h
+	chmod a-w ffcall/avcall/asmi386.h
+	cp -f src/asmi386.sh ffcall/avcall/asmi386.sh
+	chmod a-w ffcall/avcall/asmi386.sh
+	cp -f src/asmi386.sh ffcall/vacall/asmi386.sh
+	chmod a-w ffcall/vacall/asmi386.sh
+	cp -f src/asmi386.sh ffcall/callback/vacall_r/asmi386.sh
+	chmod a-w ffcall/callback/vacall_r/asmi386.sh
+
+update-version : force
+	date +%Y-%m-%d >src/VERSION
+	date "+%e %B %Y" >CHANGES.LOG
+	cat src/CHANGES.LOG >>CHANGES.LOG
+	mv CHANGES.LOG src
+	echo "Remember to fix src/CHANGES.LOG and src/NEWS"
+
+force :

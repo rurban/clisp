@@ -1,0 +1,277 @@
+This file contains suggestions for further work.
+
+URGENT PROBLEMS
+===============
+
+Should handle these soon.
+
+
+IMMUTABLE & WIDE_SOFT: With or without MORRIS_GC, the immutable bit of
+objects gets lost during GC.
+
+
+clisp-link: don't copy modules.o, instead compile it freshly.
+
+
+MAYBE
+=====
+
+Still have to think about these, whether they are good ideas or not.
+
+
+CR/LF -> NL conversion in pipe streams and socket streams (Unix and Win32)?
+
+
+Emacs interface: How to customize (or fix?) ILISP?
+
+
+Install .dvi man page as well, not only .[13] and .html man page.
+
+
+Having two different handlings of Ctrl-C (once as a serious-condition, once
+directly through tast_break(), bypassing ERROR and SIGNAL) is horrible.
+Introduce a class of SERIOUS-CONDITION and then remove BATCHMODE-BREAK-DRIVER.
+
+
+On HP-UX (9|10), with (readline|newreadline), there has been the problem
+that Ctrl-C at the line prompt works once, but not a second time. This
+appears fixed on HP-UX 9 with readline.
+
+
+upgrade to newest CLN, but still big-endian and without gmp
+
+
+Distribute impnotes.txt as a patch against Harlequin's HyperSpec.
+(We cannot distribute the patched HyperSpec because the copyright
+forbids this.)
+
+
+Add Unicode (ISO 10646-1) support. Extend the CHARACTER type to have 24 bits
+instead of 16: 4 "bits", 4 "font", 16 "unicode". A Latin-1 character will
+consist of the following 32 bits:  |typecode|bits|font|00000000|Latin-1code|
+Problem: Streams of type CHARACTER - shall they transmit their characters in
+24 bit chunks or in UTF-8 format?
+
+
+If you (TRACE generic-function) and then reload the file defining that
+function, you get an error saying that #<CLOSURE TRACED-xxx> is not a generic
+function.
+
+
+FFI: Introduce a macro like CMU's FFI:ADDR
+
+
+FFI: Actually support :language :cc/:gcc by passing appropriate flags
+to the avcall/vacall macros. The default should be the same compiler
+as the one used to compile clisp.
+
+
+(read-char *keyboard-input*) is still not perfect. Under Linux, it
+returns the following key sequences for some keystrokes:
+
+Under xterm:
+Shift F1 --> F11
+Shift F2 --> F12
+Shift F3 --> Escape [ 2 5 ~
+Shift F4 --> Escape [ 2 6 ~
+Shift F5 --> Escape [ 2 8 ~
+Shift F6 --> Escape [ 2 9 ~
+Shift F7 --> Escape [ 3 1 ~
+Shift F8 --> Escape [ 3 2 ~
+Shift F9 --> F9
+Shift F10 --> F10
+Shift F11 --> F11
+Shift F12 --> F12
+Home -> Escape [ 7
+End -> Escape [ 8
+
+Under console:
+Home -> Escape [ 1
+End -> Escape [ 4
+F6, F7, F8 -> Escape [ 1
+F9 -> Escape [ 2 0
+F10 -> Escape [ 2 1
+F11, Sh-F11 -> Escape [ 2 3
+F12, Sh-F12 -> Escape [ 2 4
+Shift F1 --> Escape [ 2 3
+Shift F2 --> Escape [ 2 4
+Shift F3 --> Escape [ 2 5
+Shift F4 --> Escape [ 2 6
+Shift F5 --> Escape [ 2 8
+Shift F6 --> Escape [ 2 9
+Shift F7 --> Escape [ 3 1
+Shift F8 --> Escape [ 3 2
+Shift F9 --> Escape [ 3 3
+Shift F10 --> Escape [ 3 4
+Ctrl-Alt-Q --> nothing at all
+NumLock doesn't work
+
+
+Browse in dpANS to see which situations require the following conditions:
+    # all kinds of conditions
+    condition,
+      # conditions that require interactive intervention
+      serious_condition,
+        # serious conditions that occur deterministically
+        error,
+          # when some datum does not belong to the expected type
+          type_error,
+          # errors while doing stream I/O
+          stream_error,
+          # errors with pathnames, OS level errors with streams
+          file_error,
+        # "Virtual memory exhausted"
+        storage_condition,
+      # conditions for which user notification is appropriate
+      warning,
+CLISP always issues a condition type that makes sense, but in some case
+dpANS may force us it to switch to a more specific condition type.
+
+
+Looks at GCL CLCS (debugger.lsp top-patches.lsp condition-definitions.lsp)
+whether it contains something clisp could profit from.
+
+
+Debugger (user1.lsp, debug.d): Implement backtrace-? commands with a limit,
+such that  BACKTRACE-1 20  will show the 20 newest frames. Good for people
+without a "cmdtool" or an xterm with logging.
+
+
+More CLtL2 compliance:
+; List of X3J13 votes that may be implemented in CLISP
+;
+; Number: from CLtL2, Index of X3J13 Votes.
+; Status: indicates whether CLISP currently supports code that makes use of
+; this vote.
+;
+; Number Title                               Status          Files affected
+;
+;   <3>  ADJUST-ARRAY not adjustable         no              array.d
+;   <8>  array type/element type semantics   yes for arrays  type.lsp
+;                                            no for complex numbers
+;  <11>  character proposal                  no
+;  <24>  compiler diagnostics                no              compiler.lsp
+;  <49>  DEFINE-COMPILER-MACRO               no              defs2.lsp
+;  <55>  DEFSTRUCT :PRINT-FUNCTION inheritance
+;                                            no              defstruc.lsp
+;  <57>  DEFSTRUCT slots constraints: name   no              defstruc.lsp
+;  <73>  EVAL-WHEN non top-level             no              control.d, init.lsp, compiler.lsp
+;  <76>  FIXNUM non-portable                 no              array.d
+;  <85>  FORMAT & pretty print               yes             format.lsp
+;                                            no: ~E, ~F, ~G, ~$ also bind *PRINT-BASE* to 10 and *PRINT-RADIX* to NIL
+;  <98>  hash-table & package generators     no              hashtabl.d, package.d, defs2.lsp
+; <102>  IMPORT & SETF SYMBOL-PACKAGE        no              package.d
+; <103>  IN-PACKAGE functionality            no              package.d, compiler.lsp
+; <105>  keyword argument name package       no
+; <110>  LOAD & objects                      no
+; <118>  MACRO-FUNCTION environment          no              control.d, compiler.lsp
+; <122>  more character proposal             no              charstrg.d, stream.d
+; <125>  package clutter                     no              init.lsp
+; <127>  package function consistency        no              package.d
+; <129>  pathname: component value           no              pathname.d
+; <131>  pathname: print & read              no              io.d
+; <133>  pathname: subdirectory list         no              pathname.d
+; <134>  pathname: symbol                    no              pathname.d, stream.d
+; <136>  pathname: unspecific component      no              pathname.d
+; <138>  PEEK-CHAR, READ-CHAR & echo         no              io.d, stream.d
+; <139>  pretty-print interface              no              xp.lsp
+; <141>  *PRINT-CASE* / *PRINT-ESCAPE* interaction
+;                                            no              io.d
+; <148>  range of :COUNT keyword             no              sequence.d
+; <152>  REDUCE argument extraction          no              sequence.d
+; <153>  REMF & destruction: unspecified     no for NRECONC  list.d
+;                                            yes for anything else
+; <158>  sequence type & length              no              sequence.d, predtype.d
+; <159>  SETF & multiple store variables     yes for SETF    places.lsp
+;                                            no for SHIFTF, ROTATEF, ASSERT
+; <162>  sharp-comma confusion               no              io.d
+; <163>  sharpsign-plus/minus package        no              io.d, spvw.d, init.lsp, compiler.lsp
+; <174>  syntactic environment access        no
+; <176>  :TEST-NOT, -IF-NOT                  no              sequence.d, list.d
+; <183>  WITH-COMPILATION-UNIT               no              compiler.lsp
+
+The general rule:
+If it hurts CLtL1 programs, don't do it. Or put a CLtL1 symbol into
+the LISP package and a CLtL2 symbol into the COMMON-LISP package. (There's
+precedent for it: FLET, LABELS, IN-PACKAGE.)
+If it doesn't hurt CLtL1 programs:
+  If it makes sense and people want it, do it.
+  If it is a bad idea, explain to people.
+  If it is a good idea and people want it, maybe do it.
+  If noone bothers, why?
+
+
+The completion in user2.lsp does bad things with respect to upper case and
+lower case of symbols. Assume the symbols |TMP|, |TMP structure class|
+are interned. Then type a tab in the following situations:
+> (symbol-plist '\tmp
+> 'tm
+> '|
+> '"tm
+
+
+user1.lsp: provide a hook to extend commands1.
+Rick Taube does the following in his Common Music package:
+    (setf (symbol-function '.oldcommands1.)
+       (symbol-function 'sys::commands1))
+    (setf (symbol-function 'sys::commands1)
+       #'(lambda ()
+           (append (funcall (symbol-function '.oldcommands1.))
+                   (list (cons "TL" #'tl)))))))
+"The ugliest hack I have ever written", he writes. And he is probably right.
+
+
+NOT TO DO
+=========
+
+These have been in my mind, but are probably bad ideas.
+
+
+Declaration  extern maygc ...
+
+You can't put this declaration into a C macro definition. Therefore the
+right place for it is still the comment.
+
+
+Amiga: handling of Ctrl-C in stream.d
+
+I think we have fixed this finally.
+
+
+Block the signals SIGHUP SIGPIPE SIGTERM SIGXCPU SIGXFSZ during GC, and
+when they occur outside of GC, do a quit(1); .
+
+Programs that deal too much with signals tend to be unfriendly. I hate
+programs which stay alive when I try to kill them.
+
+
+The APPLY package wants a variable *print-right-margin*.
+
+What for? XP is broken, and I don't want to support it. Not even a single
+variable of it.
+
+
+arivaxvms.d: WCL's BigNum/vaxKerN.s says that under VMS only r0-r1, not
+r0-r5, can be freely used. Therefore save r2-r5 by modifying the .word
+statement at the entry point.
+
+The VMS port has been stopped. Noone is interested in it.
+
+
+Punimax has been reported to dump core on Linux by 2 people.
+
+I haven't been able to reproduce it.
+
+
+New memory management model for Sun3: a mixture between SPVW_MIXED_BLOCKS
+and SPVW_PURE_BLOCKS, a mixture between SINGLEMAP_MEMORY and MULTIMAP_MEMORY.
+
+What's the point? Who is using Sun3's any more?
+
+
+The ONCE-ONLY macro from Norvig's book code does not work in clisp.
+The backquote macro is the problem.
+
+I think Norvig's code is broken because it will only work in Steele's
+backquote implementation (CLtL2 appendix).
+

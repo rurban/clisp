@@ -1,0 +1,52 @@
+;;; ENGLISH: Site specific definitions, to be modified on installation
+;;; DEUTSCH: Funktionen, die beim Transportieren zu ändern sind
+;;; FRANCAIS: Fonctions dépendantes de l'installation
+
+(in-package "LISP")
+(mapcar #'fmakunbound '(short-site-name long-site-name
+                        editor-name edit-file editor-tempfile))
+
+(defun short-site-name () "Uni Karlsruhe")
+(defun long-site-name () "Mathematisches Institut II, Universität Karlsruhe, Englerstraße 2, D - 76131 Karlsruhe")
+
+;; ENGLISH: The name of the editor:
+;; DEUTSCH: Der Name des Editors:
+;; FRANCAIS: Nom de l'éditeur :
+(defparameter *editor* "vi")
+(defun editor-name () (or (sys::getenv "EDITOR") *editor*))
+
+;; ENGLISH: (edit-file file) edits a file.
+;; DEUTSCH: (edit-file file) editiert eine Datei.
+;; FRANCAIS: (edit-file file) permet l'édition d'un fichier.
+(defun edit-file (file)
+  (open file :direction :probe :if-does-not-exist :create)
+  (shell
+    (format nil "~A ~A"
+                (if (sys::getenv "WINDOW_PARENT") ; Suntools aktiv?
+                  "textedit"
+                  (editor-name)              ; sonst: Default-Editor
+                )
+                (truename file)
+) ) )
+
+;; ENGLISH: The temporary file LISP creates for editing:
+;; DEUTSCH: Das temporäre File, das LISP beim Editieren anlegt:
+;; FRANCAIS: Fichier temporaire créé par LISP pour l'édition :
+(defun editor-tempfile ()
+  (merge-pathnames "lisptemp.lsp" (user-homedir-pathname))
+)
+
+;; ENGLISH: The list of directories where programs are searched on LOAD etc.:
+;; DEUTSCH: Die Liste von Directories, in denen Programme bei LOAD etc. gesucht
+;;          werden:
+;; FRANCAIS: Liste de répertoires où chercher un fichier programme:
+(defparameter *load-paths*
+  '(#"./"           ; in the current directory
+    "~/lisp/**/"    ; in all directories below $HOME/lisp
+)  )
+
+;; ENGLISH: This makes screen output prettier:
+;; DEUTSCH: Dadurch sehen Bildschirmausgaben besser aus:
+;; FRANCAIS: Pour que les sorties sur l'écran soient plus lisibles:
+(setq *print-pretty* t)
+

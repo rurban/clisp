@@ -1,0 +1,30 @@
+# OS/2 bindings in Emacs mode of Readline library
+# Ilya Zakharevich <ilya@math.ohio-state.edu>
+# The conversion table key<-->scancode is in the file emacs_keymap.c.
+# Then convert the scancode to Ascii and prepend Ctrl-@.
+
+# 19: <Alt>+<R>
+"\C-@\C-S": revert-line
+# 20: <Alt>+<T>
+"\C-@\C-T": transpose-words
+# 21: <Alt>+<Y>
+"\C-@\C-U": yank-pop
+# 22: <Alt>+<U>
+"\C-@\C-V": upcase-word
+# 25: <Alt>+<P>
+"\C-@\C-Y": non-incremental-reverse-search-history
+# 32: <Alt>+<D>
+"\C-@ ": kill-word
+# 33: <Alt>+<F>
+"\C-@!": forward-word
+# 38: <Alt>+<L>
+"\C-@&": downcase-word
+# 41: <Alt>+<`>
+"\C-@)": tilde-expand
+# 46: <Alt>+<C>
+"\C-@.": capitalize-word
+# 48: <Alt>+<B>
+"\C-@0": backward-word
+# 49: <Alt>+<N>
+"\C-@1": non-incremental-forward-search-history
+

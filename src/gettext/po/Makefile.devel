@@ -1,0 +1,115 @@
+# This is the developer's makefile, not the user's makefile.
+# Don't use it unless you know exactly what you do!
+
+# This Makefile needs GNU make.
+
+SHELL = /bin/sh
+RM = rm -f
+
+# From: Bruno Haible <haible@ilog.fr>
+# my reason for writing "gmsgfmt" (although GNU gettext installs it as
+# "msgfmt") is to force an error if Solaris msgfmt would be used. Either
+# this, or one should put a comment in the Makefile.devel saying
+# "This Makefile needs GNU make and GNU msgfmt (from the GNU gettext package)."
+GMSGFMT = gmsgfmt --statistics
+
+all : tmp pot gmo
+
+# This is hardwired. (See clisp-xgettext.)
+PREDEF_LINGUAS = de en fr
+# Other languages must be translated by hand. They must also be added
+# to the variable ALL_LINGUAS in ../configure.in.
+OTHER_LINGUAS = es
+
+LINGUAS = $(PREDEF_LINGUAS) $(OTHER_LINGUAS)
+
+DSOURCES = lispbibl fsubr subr pseudofun constsym constobj constpack avl sort subrkw bytecode unix amiga amiga2 acorn msdos win32 spvw spvwtabf spvwtabs spvwtabo eval control pathname stream socket io array hashtabl list package record sequence charstrg debug error erramiga errdjgpp errunix errwin32 misc time predtype symbol lisparit aridecl arilev0 arilev1 arilev1c arilev1e arilev1i intelem intlog intplus intcomp intbyte intmal intdiv intgcd int2adic intsqrt intprint intread rational sfloat ffloat dfloat lfloat flo_konv flo_rest realelem realrand realtran compelem comptran rexx affi graph foreign dbxtypes unixaux win32aux acornaux acornsig windows wintext winstat winmain winaux
+
+LSPSOURCES = init defseq backquot defmacro macros1 macros2 defs1 timezone places floatpri type defstruc format user1 user2 trace macros3 compiler disassem defs2 loop clos conditio defs3 gstream foreign1 screen rexx1 affi1 editor
+
+SOURCES := $(patsubst %,%.d,$(DSOURCES)) $(patsubst %,%.lsp,$(LSPSOURCES))
+
+# Lots of small catalog pieces. This will help reduce the building time
+# for the catalogs, since most often only a few source files change.
+SOURCES_POT := $(patsubst %,tmp/%.pot,$(SOURCES))
+SOURCES_DE := $(patsubst %,tmp/%.de,$(SOURCES))
+SOURCES_EN := $(patsubst %,tmp/%.en,$(SOURCES))
+SOURCES_FR := $(patsubst %,tmp/%.fr,$(SOURCES))
+
+tmp :
+	test -d tmp || mkdir tmp
+
+$(SOURCES_POT) : tmp/%.pot : ../../% clisp-xgettext
+	(cd ../.. ; gettext/po/clisp-xgettext $* gettext/po/tmp)
+
+# When a .pot file is built, it automatically builds also the .de,.en,.fr files.
+$(SOURCES_DE) : tmp/%.de : tmp/%.pot
+$(SOURCES_EN) : tmp/%.en : tmp/%.pot
+$(SOURCES_FR) : tmp/%.fr : tmp/%.pot
+
+pot : clisp.pot $(patsubst %,%.po,$(LINGUAS))
+
+# We build the .pot file by simple concatenation. No sorting!!
+clisp.pot : $(SOURCES_POT) ../../VERSION po_header clisp-msguniq
+	(./po_header t ; cat $(SOURCES_POT)) > clisp.pox
+	./clisp-msguniq clisp.pox $@
+	$(RM) clisp.pox
+
+de.po : $(SOURCES_DE) ../../VERSION po_header clisp-msguniq
+	(./po_header de ; cat $(SOURCES_DE)) > de.pox
+	./clisp-msguniq de.pox $@
+	$(RM) de.pox
+
+en.po : $(SOURCES_EN) ../../VERSION po_header clisp-msguniq
+	(./po_header en ; cat $(SOURCES_EN)) > en.pox
+	./clisp-msguniq en.pox $@
+	$(RM) en.pox
+
+fr.po : $(SOURCES_FR) ../../VERSION po_header clisp-msguniq
+	(./po_header fr ; cat $(SOURCES_FR)) > fr.pox
+	./clisp-msguniq fr.pox $@
+	$(RM) fr.pox
+
+
+PACKAGE = clisp
+MSGMERGE = msgmerge -v -w 1000
+update-po : force
+	for lang in $(OTHER_LINGUAS); do \
+	  echo "$$lang:"; \
+	  if $(MSGMERGE) $$lang.po $(PACKAGE).pot -o $$lang.pox; then \
+	    cp -p $$lang.pox $$lang.po; \
+	  else \
+	    echo "msgmerge for $$lang.po failed!"; \
+	  fi; \
+	  rm -f $$lang.pox; \
+	done
+
+$(patsubst %,%.po,$(OTHER_LINGUAS)) : %.po : $(PACKAGE).pot
+	$(MSGMERGE) $*.po $(PACKAGE).pot -o $*.pox
+	cp -p $*.pox $*.po
+	rm -f $*.pox
+
+# A single "$(MSGMERGE) $(LINGUA).po.new $(PACKAGE).pot" throws away old
+# translations. Two separate $(MSGMERGE) runs don't do this.
+LINGUA = es
+$(LINGUA).po.merged : $(LINGUA).po.new $(LINGUA).po $(PACKAGE).pot
+	$(MSGMERGE) $(LINGUA).po.new $(LINGUA).po -o $(LINGUA).po.tmp
+	$(MSGMERGE) $(LINGUA).po.tmp $(PACKAGE).pot -o $(LINGUA).po.merged
+	$(RM) $(LINGUA).po.tmp
+
+
+# We must generate and distribute the .gmo files, because on the machine
+# where clisp is built, GNU's [g]msgfmt might not be available.
+
+GMOFILES = $(patsubst %,%.gmo, $(LINGUAS))
+
+gmo : $(GMOFILES)
+
+$(GMOFILES) : %.gmo : %.po
+	$(GMSGFMT) -o $@ $<
+
+
+clean :
+	$(RM) *.pox
+
+force :

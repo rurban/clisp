@@ -1,0 +1,344 @@
+dnl  AUTOCONF configuration for CLISP
+dnl  Bruno Haible 16.7.1997
+dnl
+dnl  configure.in ---<autoconf>--->> configure
+dnl
+dnl  configure    ---<sh>--->> config.status
+dnl                      --->> unixconf.h
+dnl          intparam.c  --->> intparam.h
+dnl          makemake.in --->> makemake
+dnl
+dnl  makemake     ---<sh>--->> Makefile
+dnl
+dnl  Makefile     ---<make>--->> lisp.run, lispinit.mem
+dnl
+dnl
+AC_INIT(lispbibl.d)
+AC_CONFIG_HEADER(unixconf.h)
+dnl
+dnl           checks for programs
+dnl
+AC_PROG_CC
+                      dnl sets variable CC
+AC_PROG_CPP
+                      dnl sets variable CPP
+dnl
+dnl           checks for UNIX variants that set DEFS
+dnl
+AC_AIX
+                      dnl DEFS _ALL_SOURCE
+AC_ISC_POSIX
+                      dnl DEFS _POSIX_SOURCE, LIBS
+AC_MINIX
+                      dnl DEFS _POSIX_SOURCE, _POSIX_1_SOURCE, _MINIX
+CL_CC_GCC
+                      dnl sets variable CC_GCC
+CL_CC_CPLUSPLUS
+                      dnl sets variable CC_CPLUSPLUS
+CL_CC_ANSI
+                      dnl sets variable CC_ANSI
+CL_CC_NEED_CCPAUX
+                      dnl sets variable CC_NEED_CCPAUX
+CL_CC_NEED_DEEMA
+                      dnl sets variable CC_NEED_DEEMA
+CL_AS_UNDERSCORE
+                      dnl sets variable AS_UNDERSCORE, DEFS ASM_UNDERSCORE
+dnl
+dnl           checks for programs
+dnl
+CL_PROG_RANLIB
+                      dnl sets variable RANLIB
+CL_PROG_INSTALL
+                      dnl sets variables INSTALL, INSTALL_DATA, INSTALL_PROGRAM
+CL_CP
+                      dnl sets variable CP
+AC_PROG_LN_S
+                      dnl sets variable LN_S
+CL_PROG_LN
+                      dnl sets variable LN
+dnl
+dnl           checks for UNIX variants that set DEFS
+dnl
+CL_IRIX_SUN
+                      dnl LIBS -lsun
+CL_DYNIX_SEQ
+                      dnl LIBS -lseq, -lsocket
+CL_SOCKET
+                      dnl LIBS -lsocket
+CL_CC_WORKS
+                      dnl final CC check
+CL_SHELLARGS
+                      dnl DEFS UNIX_USE_KSH, UNIX_BROKEN_SH, sets variable GOOD_SH
+dnl
+dnl           check for host type
+dnl
+CL_CANONICAL_HOST(autoconf)
+CL_CANONICAL_HOST_CPU
+                      dnl sets variables host, host_cpu, host_vendor, host_os
+dnl
+dnl           checks for compiler characteristics
+dnl
+AC_C_CONST
+                      dnl DEFS const
+AC_C_INLINE
+                      dnl DEFS inline
+CL_NOWARN
+                      dnl DEFS __nowarn__
+CL_VOID
+                      dnl DEFS void
+CL_LONGLONG
+                      dnl DEFS HAVE_LONGLONG
+dnl
+dnl           checks for header files
+dnl
+CL_STDC_HEADERS
+                      dnl DEFS STDC_HEADERS if exist stdlib.h, stdarg.h, ...
+CL_STDLIB_H
+                      dnl DEFS HAVE_STDLIB_H if exist stdlib.h
+CL_STDDEF_H
+                      dnl DEFS HAVE_STDDEF_H if exist stddef.h
+CL_OFFSETOF
+                      dnl DEFS HAVE_OFFSETOF if offsetof in stddef.h
+CL_LOCALE_H
+                      dnl DEFS HAVE_LOCALE_H if exist locale.h
+CL_UNISTD_H
+                      dnl DEFS HAVE_UNISTD_H if exist unistd.h
+CL_ACCESSFLAGS
+                      dnl DEFS ACCESS_NEEDS_SYS_FILE_H if sys/file.h is needed for the access() flags
+CL_OPENFLAGS
+                      dnl DEFS OPEN_NEEDS_SYS_FILE_H if sys/file.h is needed for the open() flags
+CL_DIR_HEADER
+                      dnl directory reading functions
+CL_UTSNAME
+                      dnl DEFS HAVE_SYS_UTSNAME_H
+CL_NETDB
+                      dnl DEFS HAVE_NETDB_H if exist netdb.h
+CL_SHM_H
+                      dnl DEFS HAVE_SYS_IPC_H, HAVE_SYS_SHM_H
+CL_TERM
+                      dnl DEFS HAVE_TERMIOS_H, HAVE_TERMIO_H, ..., HAVE_SGTTY_H
+CL_FIND_X
+                      dnl sets variables X_INCLUDES, X_LIBS, DEFS HAVE_X11
+dnl
+dnl           checks for typedefs
+dnl
+AC_TYPE_SIZE_T
+                      dnl DEFS size_t
+AC_TYPE_PID_T
+                      dnl DEFS pid_t
+AC_TYPE_UID_T
+                      dnl DEFS uid_t, gid_t
+AC_TYPE_OFF_T
+                      dnl DEFS off_t
+CL_CADDR_T
+                      dnl DEFS CADDR_T
+CL_CLOCK_T
+                      dnl DEFS CLOCK_T
+dnl
+dnl           checks for structure members
+dnl
+CL_DIRENT_WITHOUT_NAMLEN
+                      dnl DEFS DIRENT_WITHOUT_NAMLEN
+CL_STRUCT_TM
+                      dnl DEFS TM_IN_SYS_TIME
+dnl
+dnl           checks for functions and declarations
+dnl
+CL_STRLEN
+                      dnl DEFS RETSTRLENTYPE, STRLEN_CONST
+CL_MEMSET
+                      dnl DEFS HAVE_MEMSET, RETMEMSETTYPE
+CL_GMALLOC
+                      dnl set variable GMALLOC
+CL_MALLOC
+                      dnl DEFS RETMALLOCTYPE, MALLOC_SIZE_T
+CL_FREE
+                      dnl DEFS RETFREETYPE
+CL_ALLOCA
+                      dnl set variable ALLOCA, DEFS NO_ALLOCA
+CL_SETJMP
+                      dnl DEFS HAVE__JMP, LONGJMP_RETURNS
+CL_TYPE_SIGNAL
+                      dnl DEFS RETSIGTYPE, SIGTYPE_DOTS
+CL_SIGNALBLOCK
+                      dnl DEFS SIGNALBLOCK_POSIX, SIGNALBLOCK_SYSV, SIGNALBLOCK_BSD
+CL_SIGPROCMASK
+                      dnl DEFS SIGPROCMASK_CONST
+CL_SIGNAL_REINSTALL
+                      dnl DEFS SIGNAL_NEED_REINSTALL
+CL_SIGNAL_UNBLOCK
+                      dnl DEFS SIGNAL_NEED_UNBLOCK
+CL_SIGNAL_BLOCK_OTHERS
+                      dnl DEFS SIGNAL_NEED_UNBLOCK_OTHERS
+CL_SIGACTION
+                      dnl DEFS HAVE_SIGACTION
+CL_SIGACTION_REINSTALL
+                      dnl DEFS SIGACTION_NEED_REINSTALL
+CL_SIGACTION_UNBLOCK
+                      dnl DEFS SIGACTION_NEED_UNBLOCK
+CL_SIGINTERRUPT
+                      dnl DEFS HAVE_SIGINTERRUPT, HAVE_SIGVEC
+CL_FPU_CONTROL
+                      dnl DEFS HAVE_SETFPUCW
+CL_ABORT
+                      dnl DEFS RETABORTTYPE, ABORT_VOLATILE
+CL_PERROR
+                      dnl DEFS HAVE_PERROR_DECL
+CL_SYS_ERRLIST
+                      dnl DEFS SYS_ERRLIST_CONST
+CL_GETENV
+                      dnl DEFS GETENV_CONST
+CL_PUTENV
+                      dnl DEFS HAVE_PUTENV, PUTENV_CONST, HAVE_SETENV
+CL_SETLOCALE
+                      dnl DEFS SETLOCALE_CONST
+CL_RLIMIT
+                      dnl DEFS HAVE_SETRLIMIT, RLIMIT_RESOURCE_T, SETRLIMIT_CONST
+AC_FUNC_VFORK
+                      dnl DEFS HAVE_VFORK_H, vfork
+CL_VFORK
+                      dnl DEFS RETVFORKTYPE
+CL_SETSID
+                      dnl DEFS HAVE_SETSID, HAVE_SETPGID
+CL_EXECV
+                      dnl DEFS EXECV_CONST, EXECV1_CONST, EXECV2_CONST
+CL_EXECL
+                      dnl DEFS EXECL_DOTS, EXECL_CONST
+CL_WAITPID
+                      dnl DEFS HAVE_WAITPID, PID_T, HAVE_SYS_WAIT_H
+CL_RUSAGE
+                      dnl DEFS HAVE_SYS_RESOURCE_H, HAVE_GETRUSAGE, RUSAGE_WHO_T, HAVE_SYS_TIMES_H
+CL_GETWD
+                      dnl DEFS HAVE_GETWD
+CL_GETCWD
+                      dnl DEFS GETCWD_SIZE_T
+CL_CHDIR
+                      dnl DEFS CHDIR_CONST
+CL_MKDIR
+                      dnl DEFS MKDIR_CONST, MODE_T
+CL_RMDIR
+                      dnl DEFS RMDIR_CONST
+AC_HEADER_STAT
+                      dnl DEFS STAT_MACROS_BROKEN
+CL_FSTAT
+                      dnl DEFS FSTAT_INLINE
+CL_STAT
+                      dnl DEFS STAT_CONST, STAT_INLINE
+CL_LSTAT
+                      dnl DEFS HAVE_LSTAT, LSTAT_CONST, LSTAT_INLINE
+CL_READLINK
+                      dnl DEFS HAVE_READLINK, READLINK_CONST, READLINK_BUF_T, READLINK_SIZE_T
+CL_ELOOP
+                      dnl DEFS ELOOP_VALUE
+CL_OPENDIR
+                      dnl DEFS OPENDIR_CONST
+CL_CLOSEDIR
+                      dnl DEFS RETCLOSEDIRTYPE, VOID_CLOSEDIR
+CL_OPEN
+                      dnl DEFS OPEN_CONST, OPEN_DOTS
+CL_READ_WRITE
+                      dnl DEFS RETRWTYPE, RW_BUF_T, RW_SIZE_T
+CL_WRITE
+                      dnl DEFS WRITE_CONST
+CL_RENAME
+                      dnl DEFS HAVE_RENAME, RENAME_CONST
+CL_UNLINK
+                      dnl DEFS UNLINK_CONST
+CL_FSYNC
+                      dnl DEFS HAVE_FSYNC
+CL_IOCTL
+                      dnl DEFS IOCTL_REQUEST_T, IOCTL_DOTS, HAVE_FIONREAD, NEED_SYS_FILIO_H, NEED_SYS_IOCTL_H, HAVE_RELIABLE_FIONREAD
+CL_FCNTL
+                      dnl DEFS FCNTL_DOTS
+CL_SELECT
+                      dnl DEFS HAVE_SELECT, SELECT_WIDTH_T, SELECT_SET_T, SELECT_CONST, HAVE_POLL
+CL_UALARM
+                      dnl DEFS HAVE_UALARM
+CL_SETITIMER
+                      dnl DEFS HAVE_SETITIMER, SETITIMER_CONST
+CL_USLEEP
+                      dnl DEFS HAVE_USLEEP
+CL_LOCALTIME
+                      dnl DEFS LOCALTIME_CONST
+CL_GETTIMEOFDAY
+                      dnl DEFS HAVE_GETTIMEOFDAY, GETTIMEOFDAY_DOTS, GETTIMEOFDAY_TZP_T
+CL_FTIME
+                      dnl DEFS HAVE_FTIME
+CL_TIMES_CLOCK
+                      dnl DEFS HAVE_TIMES_CLOCK
+CL_GETPWNAM
+                      dnl DEFS GETPWNAM_CONST
+CL_GETPWUID
+                      dnl DEFS GETPWUID_UID_T
+CL_GETHOSTNAME
+                      dnl DEFS HAVE_GETHOSTNAME, GETHOSTNAME_SIZE_T
+CL_GETHOSTBYNAME
+                      dnl DEFS HAVE_GETHOSTBYNAME, GETHOSTBYNAME_CONST
+CL_CONNECT
+                      dnl DEFS CONNECT_NAME_T, CONNECT_CONST, CONNECT_ADDRLEN_T
+CL_UNIXCONN
+                      dnl DEFS HAVE_SYS_UN_H, HAVE_SOCKADDR_UN_LEN
+CL_TCPCONN
+                      dnl DEFS HAVE_NETINET_IN_H, HAVE_ARPA_INET_H, RET_INET_ADDR_TYPE, INET_ADDR_SUFFIX, INET_ADDR_CONST, HAVE_NETINET_TCP_H, SETSOCKOPT_CONST, SETSOCKOPT_ARG_T, SETSOCKOPT_OPTLEN_T
+CL_ADDRESS_RANGE
+                      dnl DEFS CODE_ADDRESS_RANGE, MALLOC_ADDRESS_RANGE, SHLIB_ADDRESS_RANGE
+CL_GETPAGESIZE
+                      dnl DEFS HAVE_GETPAGESIZE, RETGETPAGESIZETYPE
+CL_VADVISE
+                      dnl DEFS HAVE_VADVISE
+CL_MACH_VM
+                      dnl DEFS HAVE_MACH_VM
+CL_MMAP
+                      dnl DEFS HAVE_MMAP, RETMMAPTYPE, MMAP_ADDR_T, MMAP_SIZE_T, HAVE_MMAP_ANON, HAVE_MMAP_ANONYMOUS, HAVE_MMAP_DEVZERO, HAVE_MMAP_DEVZERO_SUN4_29
+CL_MUNMAP
+                      dnl DEFS HAVE_MUNMAP
+CL_MSYNC
+                      dnl DEFS HAVE_MSYNC
+CL_MPROTECT
+                      dnl DEFS HAVE_MPROTECT, HAVE_WORKING_MPROTECT, MPROTECT_CONST
+CL_SHMGET
+                      dnl DEFS SHMGET_SIZE_T
+CL_SHMAT
+                      dnl DEFS RETSHMATTYPE, SHMAT_CONST
+CL_SHMDT
+                      dnl DEFS SHMDT_ADDR_T
+CL_SHMCTL
+                      dnl DEFS SHMCTL_DOTS
+CL_SHM
+                      dnl DEFS HAVE_SHM if shm works
+CL_SHM_RMID
+                      dnl DEFS SHM_RMID_VALID
+CL_DYNLOAD
+                      dnl DEFS HAVE_DLOPEN, DLERROR_CONST, set variable LIBDL
+dnl
+dnl           checks for libraries
+dnl
+CL_TERMCAP
+                      dnl set variable LIBTERMCAP
+dnl
+dnl           checks for OS services
+dnl
+CL_FILECHARSET
+                      dnl DEFS VALID_FILENAME_CHAR
+dnl
+dnl           checks for compiler characteristics
+dnl
+CL_BUILTIN_STRLEN
+                      dnl DEFS HAVE_BUILTIN_STRLEN
+CL_BUILTIN_STRCMP
+                      dnl DEFS HAVE_BUILTIN_STRCMP
+CL_CHAR_UNSIGNED
+                      dnl DEFS __CHAR_UNSIGNED__ if char is unsigned
+CL_MACHINE([integer types and behaviour],${srcdir}/intparam.c,intparam.h,cl_cv_file_intparam_h)
+                      dnl builds intparam.h
+dnl
+dnl           other checks for UNIX variants
+dnl
+AC_OUTPUT(makemake,
+[echo '#!/bin/sh' > makemake.tmp
+echo '# Generated automatically from makemake.in by configure.' >> makemake.tmp
+cat makemake >> makemake.tmp
+mv makemake.tmp makemake
+chmod a+x makemake
+])
+
