@@ -1,5 +1,9 @@
 1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * macros2.lsp (with-output-to-printer): Declare arg as IGNORE.
+
+1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Introduce space-efficient immutable strings.
         * lispbibl.d (Rectype_Imm_SmallSstring): New enumeration item.
           (Rectype_mdarray, Rectype_Sbvector, Rectype_bvector, Rectype_Svector,
