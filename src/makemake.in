@@ -2405,18 +2405,18 @@ for f in $ARI_ASMS $SP_ASMS ; do
 done
 
 if [ $HOS = unix ] ; then
-  echol "lisp.a : \$(OBJECTS) modules.o"
+  echol "lisp.a : \$(OBJECTS)"
   if [ "$HSYSOS" = cygwin32 ] ; then
     # "ld -r" doesn't work right on Cygwin32 v18.
-    echotab "\$(AR) rcv lisp.a \$(OBJECTS) modules.o"
+    echotab "\$(AR) rcv lisp.a \$(OBJECTS)"
   else
     echotab "ld -r -o lisp.o \$(OBJECTS)"
     echotab "chmod a-x lisp.o"
     if test -z "$LIBGCC"; then
-      echotab "\$(AR) rcv lisp.a lisp.o modules.o"
+      echotab "\$(AR) rcv lisp.a lisp.o"
     else
       # Test for libgcc.a because NeXT cc does not have it.
-      echotab "if test -f \$(LIBGCC) ; then mkdir libgcc ; (cd libgcc ; \$(AR) xv \$(LIBGCC)) ; \$(AR) rcv lisp.a lisp.o modules.o libgcc/*.o ; \$(RM) -r libgcc ; else \$(AR) rcv lisp.a lisp.o modules.o ; fi"
+      echotab "if test -f \$(LIBGCC) ; then mkdir libgcc ; (cd libgcc ; \$(AR) xv \$(LIBGCC)) ; \$(AR) rcv lisp.a lisp.o libgcc/*.o ; \$(RM) -r libgcc ; else \$(AR) rcv lisp.a lisp.o ; fi"
     fi
     echotab "\$(RM) lisp.o"
   fi
@@ -2834,7 +2834,7 @@ if [ $HOS = unix ] && [ $CROSS = false ] ; then
   echotab "\$(RM) genclisph${HEXE}"
   echol
   echol
-  echol "modular : ${FILES} clisp-link modules.d modules.c clisp.h modules.h makevars"
+  echol "modular : ${FILES} clisp-link modules.d modules.c clisp.h modules.h modules.o makevars"
   echodummyrule modular
   echol
   echol "makevars :"
@@ -2854,7 +2854,7 @@ if [ $HOS = unix ] && [ $CROSS = false ] ; then
     echol
   done
   echol "base : modular lispinit.mem"
-  echotab "test -d base || (mkdir base && cd base && for f in ${FILES} modules.h makevars lisp.run lispinit.mem; do \$(LN) ../\$\$f \$\$f; done) || (\$(RM) -r base ; exit 1)"
+  echotab "test -d base || (mkdir base && cd base && for f in ${FILES} modules.h modules.o makevars lisp.run lispinit.mem; do \$(LN) ../\$\$f \$\$f; done) || (\$(RM) -r base ; exit 1)"
   echol
   # Some "make"s don't support empty target lists. Hence the "anymodule".
   echol "anymodule \$(MODULES) : lisp${LEXE} lispinit.mem force"
@@ -2958,7 +2958,7 @@ for f in $TXT_FILES ; do
     else
       localesed=""
     fi
-    line=$line" | (libs=''; for f in lisp.a \$(LIBS); do case \$\$f in -*) libs=\"\$\$libs \$\$f\";; *) libs=\"\$\$libs\"' base/'\"\$\$f\";; esac; done; files=''; for f in ${FILES}; do files=\"\$\$files\"' base/'\"\$\$f\"; done; sed$localesed -e \"s,@@BASE_LIBS@@,\$\$libs,g\" -e \"s,@@BASE_FILES@@,\$\$files,g\")"
+    line=$line" | (libs=''; for f in modules.o lisp.a \$(LIBS); do case \$\$f in -*) libs=\"\$\$libs \$\$f\";; *) libs=\"\$\$libs\"' base/'\"\$\$f\";; esac; done; files=''; for f in modules.o ${FILES}; do files=\"\$\$files\"' base/'\"\$\$f\"; done; sed$localesed -e \"s,@@BASE_LIBS@@,\$\$libs,g\" -e \"s,@@BASE_FILES@@,\$\$files,g\")"
   fi
   echotabpipe "${line} > ${f}"
   echotab "\$(RM) $txt.c"
@@ -3254,7 +3254,7 @@ if test -z "$BINARY_DISTRIB"; then
   echotab "${LN} ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es MAGIC.add \$(TOPDIR)"
   echotab ". full/makevars ; full_files='' ; for f in modules.o \$\$FILES ; do full_files=\"\$\$full_files\"' full/'\"\$\$f\" ; done ; full_libs='' ; for f in modules.o \$\$LIBS ; do case \$\$f in -*) full_libs=\"\$\$full_libs \$\$f\";; *) full_libs=\"\$\$full_libs\"' full/'\"\$\$f\";; esac ; done ; sed -e \"s,@@FULL_FILES@@,\$\$full_files,\" -e \"s,@@FULL_LIBS@@,\$\$full_libs,\" < distmakefile > \$(TOPDIR)/Makefile"
   echotab "mkdir \$(TOPDIR)/base"
-  echotab "${LN} ${FILES} modules.h makevars lispinit.mem \$(TOPDIR)/base"
+  echotab "${LN} ${FILES} modules.h modules.o makevars lispinit.mem \$(TOPDIR)/base"
   if [ -n "$USE_GETTEXT" ] ; then
     echotab "for f in \`find locale -type d -print\`; do mkdir \$(TOPDIR)/\$\$f; done"
     echotab "for f in \`find locale -type f -print\`; do ${LN} \$\$f \$(TOPDIR)/\$\$f; done"
