@@ -60,11 +60,10 @@
     `(TAGBODY
        ,tag1
        (WHEN ,test-form (GO ,tag2))
-       (CERROR (format nil ,(case (length place-list)
-                                  (0 (REPORT-NO-NEW-VALUE-STRING))
-                                  (1 (REPORT-ONE-NEW-VALUE-STRING))
-                                  (t (REPORT-NEW-VALUES-STRING)))
-                       place-list)
+       (CERROR ,(case (length place-list)
+                  (0 `(REPORT-NO-NEW-VALUE-STRING))
+                  (1 `(FORMAT NIL (REPORT-ONE-NEW-VALUE-STRING) ',place-list))
+                  (t `(FORMAT NIL (REPORT-NEW-VALUES-STRING) ',place-list)))
                ',(or string "~A")
                ,@(if string
                    args
