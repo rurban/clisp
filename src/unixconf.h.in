@@ -441,12 +441,6 @@
 /* address range of malloc() memory */
 #undef MALLOC_ADDRESS_RANGE
 
-/* type of `addr' in mmap() declaration */
-#undef MMAP_ADDR_T
-
-/* type of `len' in mmap() declaration */
-#undef MMAP_SIZE_T
-
 /* no <dirent.h>, use <ndir.h> */
 #undef NDIR
 
@@ -496,9 +490,6 @@
 
 /* return type of getpagesize() */
 #undef RETGETPAGESIZETYPE
-
-/* return type of mmap() */
-#undef RETMMAPTYPE
 
 /* return type of signal handlers (int or void) */
 #undef RETSIGTYPE
