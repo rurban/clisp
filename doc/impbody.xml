@@ -3987,18 +3987,40 @@ pointing to non-existent files and can take the following values:
 <programlisting>
  (let ((buf (&make-array; (&parse-integer; (&getenv; "CONTENT_LENGTH"))
                         :element-type &unsigned-byte-8;)))
-   (&with-open-file; (in "/dev/fd/0" :direction :input
-                       &eltype; &unsigned-byte-8;)
+   (&with-open-stream; (in (&make-stream; &input-k; &eltype; &unsigned-byte-8;))
      (&read-sequence; buf in))
    buf)
-</programlisting>
-This should work on a modern &unix; systems.
-You will need to replace <filename>"/dev/fd/0"</filename> with the
-value appropriate for your platform, e.g., <filename>"con"</filename>
-for &win32;.</para>
+</programlisting></para>
+</section>
 </section>
 
-</section>
+<section id="make-stream"><title>Function &make-stream;</title>
+<para>Function &make-stream; creates a Lisp stream out of an OS handle:
+ <programlisting>(&make-stream; &object-r; &direction-k; &eltype;
+        &extfmt; &buffered;)</programlisting></para>
+<para>&object-r; designates an OS handle (a &file-des;),
+ and should be one of the following:
+ <variablelist>
+  <varlistentry><term>number</term>
+   <listitem><simpara>denotes the &file-des; of this value
+  </simpara></listitem></varlistentry>
+  <varlistentry><term>&input-k;</term>
+   <listitem><simpara>denotes &clisp; process standard input
+  </simpara></listitem></varlistentry>
+  <varlistentry><term>&output-k;</term>
+  <listitem><simpara>denotes &clisp; process standard output
+  </simpara></listitem></varlistentry>
+  <varlistentry><term>&error-k;</term>
+  <listitem><simpara>denotes &clisp; process standard error
+  </simpara></listitem></varlistentry>
+  <varlistentry><term>&stream-t;</term>
+  <listitem><simpara>denotes the handle of this stream, which should be
+    a &file-stream-t; or a &socket-stream;
+  </simpara></listitem></varlistentry>
+</variablelist></para>
+
+<para>The handle is duplicated (with &dup;), so it is safe to &close;
+ a &stream-t; returned by &make-stream;.</para></section>
 
 <section id="bin-input"><title>Binary input, &read-byte;,
   &rd-integer; &amp; &rd-float;</title>
