@@ -1,5 +1,10 @@
 2004-11-03  Sam Steingold  <sds@gnu.org>
 
+	* clos-slotdef3.lisp (slot-equal-using-class):
+	avoid a compilation warning
+
+2004-11-03  Sam Steingold  <sds@gnu.org>
+
 	* foreign1.lisp, lispbibl.d, genclisph.d, spvw.d, utils/modprep.lisp:
 	renamed exitfunction to finifunction for consistency
 

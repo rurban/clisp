@@ -319,7 +319,7 @@
 ;;            value2 = (slot-value object2 (slot-definition-name slot)).
 (defgeneric slot-equal-using-class (class object1 object2 slot value1 value2)
   (:method (class (object1 standard-direct-slot-definition) (object2 standard-direct-slot-definition) slot value1 value2)
-    (declare (ignore object1 object2 slot))
+    (declare (ignore class object1 object2 slot))
     (equal value1 value2)))
 
 ;; Test two direct slots for equality, except for the inheritable slots,
