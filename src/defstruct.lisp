@@ -688,7 +688,7 @@
                (not (typep names (type-for-discrimination (second type-option))))
           )
       (error-of-type 'source-program-error
-        (ENGLISH "~S ~S: structure of type ~S can't hold the name.")
+        (ENGLISH "~S ~S: structure of type ~S cannot hold the name.")
         'defstruct name type-option
     ) )
     ; Aufbau der Structure:

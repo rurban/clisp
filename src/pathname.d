@@ -185,7 +185,7 @@ local char* realpath (const char* path, char* resolved_path) {
             # symbolischen Link lesen:
             to_ptr[-1]=0; # '/' durch 0 ersetzen
             #ifdef UNIX_CYGWIN32 # needed for Win95 only
-            # readlink() doesn't work right on NFS mounted directories
+            # readlink() does not work right on NFS mounted directories
             # (it returns -1,ENOENT or -1,EIO).
             # So check for a directory first.
             var struct stat statbuf;
@@ -1155,7 +1155,7 @@ local bool legal_hostchar (chart ch) {
           && !chareq(ch,ascii('"'))
           && !chareq(ch,ascii('|')));
 #elif defined(PATHNAME_WIN32)
-  # This is just a guess. I don't know which characters are allowed in
+  # This is just a guess. I do not know which characters are allowed in
   # Windows host names.
   var cint c = as_cint(ch);
   if ((c >= ' ') && (c <= '~')
@@ -1297,7 +1297,7 @@ local bool legal_namechar (chart ch) {
 #ifdef UNICODE
   # Check whether ch fits into a single byte in O(pathname_encoding).
   if (!(cslen(O(pathname_encoding),&ch,1) == 1)) return false;
-  cstombs(O(pathname_encoding),&ch,1,&c,1); # causes error message if it doesn't fit
+  cstombs(O(pathname_encoding),&ch,1,&c,1); # causes error message if it does not fit
 #else
   c = as_cint(ch);
 #endif
@@ -3534,7 +3534,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
 #
 #    (This question actually matters because in Common Lisp there is
 #    no distinction between "pathnames with defaults merged-in" and
-#    "pathnames with defaults not yet applied". For example, you don't
+#    "pathnames with defaults not yet applied". For example, you do not
 #    know whether COMPILE-FILE will merge in some defaults.)
 #
 #    Now, (MERGE-PATHNAMES (MERGE-PATHNAMES '#"x/" '#"y/") '#"y/")
@@ -5949,7 +5949,7 @@ local object OSnamestring (object dir_namestring) {
       # 3. get current drive  (INT 0x21,0x19)
       # 4. if current drive == drive requested
       #       then drive exists
-      #       else drive doesn't exist
+      #       else drive does not exist
       # 5. reset original drive  (INT 0x21,0xE)
       var bool result;
       begin_system_call();
@@ -6120,7 +6120,7 @@ local object use_default_dir (object pathname) {
       pushSTACK(Cdr(subdirs));
 #if HAS_HOST # PATHNAME_WIN32
       if (!nullp(ThePathname(pathname)->pathname_host)) {
-        # We don't have the concept of a current directory on a
+        # We do not have the concept of a current directory on a
         # remote host. Simply use :ABSOLUTE instead of :RELATIVE.
         subdirs = allocate_cons();
         Car(subdirs) = S(Kabsolute);
@@ -6717,7 +6717,8 @@ local object use_default_dir (object pathname) {
         with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
           begin_system_call();
           if (!( lstat(namestring_asciz,&status) ==0)) {
-            if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_0); }
+            if (!(errno==ENOENT))
+              { end_system_call(); OS_file_error(STACK_0); }
             # File existiert nicht.
             end_system_call();
             FREE_DYNAMIC_ARRAY(namestring_asciz);
@@ -10597,7 +10598,7 @@ global int find_executable (const char * program_name);
 global int find_executable(program_name)
   var const char * program_name;
   {
-    # Don't need to execute this more than once.
+    # Do not need to execute this more than once.
     if (!(executable_name == NULL)) return 0;
     #ifdef UNIX_LINUX
     # The executable is accessible as /proc/<pid>/exe. We try this first

@@ -405,7 +405,7 @@
     /* ENGLISH */ "symbol ~S should be imported into ~S before being exported.")
   LISPOBJ_L(export_list1,
     /* ENGLISH */ "((\"I\" \"import the symbol first\" T)"
-                  " (\"N\" \"do nothing, don't export the symbol\" NIL))")
+                  " (\"N\" \"do nothing, do not export the symbol\" NIL))")
   LISPOBJ_LS(export_string3,
     /* ENGLISH */ "You may choose in favour of which symbol to resolve the conflict.")
   LISPOBJ_LS(export_string4,

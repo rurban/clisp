@@ -1,5 +1,6 @@
 # Template messages for CLISP
-# Copyright (C) 1992-2001 Bruno Haible, Michael Stoll, Marcus Daniels
+# Copyright (C) 1992-2001 Bruno Haible, Michael Stoll,
+#                         Marcus Daniels, Sam Steingold
 # Bruno Haible <haible@clisp.cons.org>, 2001.
 #
 msgid ""
@@ -204,7 +205,7 @@ msgid "Only %d bytes available.\n"
 msgstr ""
 
 #: spvw.d:2403
-msgid "Couldn't determine the end of the SP stack!\n"
+msgid "Could not determine the end of the SP stack!\n"
 msgstr ""
 
 #: spvw.d:2624
@@ -594,7 +595,7 @@ msgid "Address already in use"
 msgstr ""
 
 #: errunix.d:390
-msgid "Can't assign requested address"
+msgid "Cannot assign requested address"
 msgstr ""
 
 #: errunix.d:396
@@ -630,11 +631,11 @@ msgid "Socket is not connected"
 msgstr ""
 
 #: errunix.d:444
-msgid "Can't send after socket shutdown"
+msgid "Cannot send after socket shutdown"
 msgstr ""
 
 #: errunix.d:450
-msgid "Too many references: can't splice"
+msgid "Too many references: cannot splice"
 msgstr ""
 
 #: errunix.d:456

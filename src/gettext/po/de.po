@@ -62,7 +62,7 @@ msgid "symbol ~S should be imported into ~S before being exported."
 msgstr "Symbol ~S müsste erst in ~S importiert werden, bevor es exportiert werden kann."
 
 #: constobj.d:407
-msgid "((\"I\" \"import the symbol first\" T) (\"N\" \"do nothing, don't export the symbol\" NIL))"
+msgid "((\"I\" \"import the symbol first\" T) (\"N\" \"do nothing, do not export the symbol\" NIL))"
 msgstr "((\"I\" \"Symbol erst importieren\" T) (\"N\" \"Nichts tun, Symbol nicht exportieren\" NIL))"
 
 #: constobj.d:410
@@ -594,7 +594,7 @@ msgid "Only %d bytes available.\n"
 msgstr "Nur %d Bytes verfügbar.\n"
 
 #: spvw.d:2403
-msgid "Couldn't determine the end of the SP stack!\n"
+msgid "Could not determine the end of the SP stack!\n"
 msgstr "Konnte das Ende des SP-Stacks nicht herausfinden!\n"
 
 #: spvw.d:2624
@@ -1298,7 +1298,7 @@ msgid "\"..\\\\\" after \"...\\\\\" is invalid: ~"
 msgstr "\"..\\\\\" nach \"...\\\\\" ist unzulässig: ~"
 
 #: pathname.d:6721
-msgid "Couldn't access current directory"
+msgid "Could not access current directory"
 msgstr "Zugriff auf aktuelles Verzeichnis nicht möglich."
 
 #: pathname.d:6871
@@ -1805,7 +1805,7 @@ msgid "~ from ~: bad syntax for array: #A~"
 msgstr "~ von ~: Falsche Syntax für Array: #A~"
 
 #: io.d:3776
-msgid "~ from ~: ~ = ~ doesn't allow the evaluation of ~"
+msgid "~ from ~: ~ = ~ does not allow the evaluation of ~"
 msgstr "~ von ~: ~ = ~ erlaubt nicht die Evaluierung von ~"
 
 #: io.d:3903
@@ -2026,7 +2026,7 @@ msgstr "~: Dimension ~ ist nicht vom Typ `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))."
 
 #: array.d:4528
 msgid "~: dimensions ~ produce too large total-size"
-msgstr "~: Dimensionen ~ ergeben zu große Gesamtgröße."
+msgstr "~: Dimensionen ~ ergeben zu große GesamtgröÂße."
 
 #: array.d:4570
 msgid "~: ambiguous, more than one initialisation specified"
@@ -2058,7 +2058,7 @@ msgstr "~: ~-Argument ~ ist nicht vom Typ `(INTEGER 0 (,ARRAY-TOTAL-SIZE-LIMIT))
 
 #: array.d:4823
 msgid "~: array-total-size + displaced-offset (= ~) exceeds total size ~ of ~-argument"
-msgstr "~: Array-Gesamtgröße mit Displaced-Offset (~) > Gesamtgröße ~ des ~-Arguments"
+msgstr "~: Array-GesamtgröÂße mit Displaced-Offset (~) > GesamtgröÂße ~ des ~-Arguments"
 
 #: array.d:4849
 msgid "~: fill-pointer ~ should be a nonnegative fixnum"
@@ -2066,7 +2066,7 @@ msgstr "~: Gewünschter Fill-Pointer ~ sollte ein Fixnum >=0 sein."
 
 #: array.d:4858
 msgid "~: fill-pointer argument ~ is larger than the length ~"
-msgstr "~: Gewünschter Fill-Pointer ~ ist größer als die Länge ~"
+msgstr "~: Gewünschter Fill-Pointer ~ ist gröÂßer als die Länge ~"
 
 #: array.d:4928
 msgid "~: attempted rank ~ is too large"
@@ -2114,7 +2114,7 @@ msgstr "~: Als Bit-Vektoren-Länge ist ~ ungeeignet."
 
 #: hashtabl.d:1148
 msgid "Hash table size ~ too large"
-msgstr "Zu große Hashtabellengröße ~"
+msgstr "Zu große HashtabellengröÂße ~"
 
 #: hashtabl.d:1194
 msgid "internal error occured while resizing ~"
@@ -2150,7 +2150,7 @@ msgstr "~: ~ ist keine erlaubte Abschnittlänge, da kein Integer >=0."
 
 #: list.d:865
 msgid "~: ~ is not a nonnegative fixnum and therefore not a valid list length"
-msgstr "~: ~ ist als Listengröße nicht geeignet, da kein Fixnum >= 0"
+msgstr "~: ~ ist als ListengröÂße nicht geeignet, da kein Fixnum >= 0"
 
 #: list.d:1174
 msgid "~: ~ is not a pair"
@@ -3018,7 +3018,7 @@ msgid "Address already in use"
 msgstr "Adresse schon belegt"
 
 #: errunix.d:390
-msgid "Can't assign requested address"
+msgid "Cannot assign requested address"
 msgstr "Adresse nicht (auf diesem Rechner) verfügbar"
 
 #: errunix.d:396
@@ -3054,11 +3054,11 @@ msgid "Socket is not connected"
 msgstr "Socket hat keine Verbindung"
 
 #: errunix.d:444
-msgid "Can't send after socket shutdown"
+msgid "Cannot send after socket shutdown"
 msgstr "Shutdown hat den Socket schon deaktiviert"
 
 #: errunix.d:450
-msgid "Too many references: can't splice"
+msgid "Too many references: cannot splice"
 msgstr ""
 
 #: errunix.d:456
@@ -3350,7 +3350,7 @@ msgid "floating point NaN occurred"
 msgstr "Floating-Point NaN aufgetreten"
 
 #: rexx.d:34
-msgid "Communication with ARexx isn't possible."
+msgid "Communication with ARexx is not possible."
 msgstr "Keine Kommunikation mit ARexx möglich."
 
 #: rexx.d:116
@@ -3439,7 +3439,7 @@ msgstr ":MALLOC-FREE ist unter AMIGAOS nicht verfügbar."
 
 #: foreign.d:1100 foreign.d:1161 foreign.d:1316 foreign.d:1362
 msgid "element type has size 0: ~"
-msgstr "Elementtyp hat Größe 0: ~"
+msgstr "Elementtyp hat GröÂße 0: ~"
 
 #: foreign.d:2112
 msgid "~: argument is not a foreign variable: ~"
@@ -3455,7 +3455,7 @@ msgstr "Eine Foreign-Variable ~ gibt es nicht."
 
 #: foreign.d:2148
 msgid "~: foreign variable ~ does not have the required size or alignment"
-msgstr "~: Foreign-Variable ~ hat nicht die geforderte Größe oder Alignment."
+msgstr "~: Foreign-Variable ~ hat nicht die geforderte GröÂße oder Alignment."
 
 #: foreign.d:2162
 msgid "~: type specifications for foreign variable ~ conflict: ~ and ~"
@@ -3836,7 +3836,7 @@ msgid "Macro ~S is missing a lambda list."
 msgstr "Der Macro ~S hat keine Lambdaliste."
 
 #: macros1.lisp:20 macros1.lisp:43
-msgid "~S: non-symbol ~S can't be a variable"
+msgid "~S: non-symbol ~S cannot be a variable"
 msgstr "~S: Nur Symbole können Variablen sein, nicht ~S"
 
 #: macros1.lisp:25 macros1.lisp:48
@@ -3844,7 +3844,7 @@ msgid "~S: the constant ~S must not be redefined to be a variable"
 msgstr "~S: Die Konstante ~S darf nicht zu einer Variablen umdefiniert werden."
 
 #: macros1.lisp:62
-msgid "~S: non-symbol ~S can't be a defined constant"
+msgid "~S: non-symbol ~S cannot be a defined constant"
 msgstr "~S: Nur Symbole können als Konstanten definiert werden, nicht ~S"
 
 #: macros1.lisp:95
@@ -4200,7 +4200,7 @@ msgid "~S ~S: ~S is not a slot option."
 msgstr "~S ~S: ~S ist keine Slot-Option."
 
 #: defstruct.lisp:695
-msgid "~S ~S: structure of type ~S can't hold the name."
+msgid "~S ~S: structure of type ~S cannot hold the name."
 msgstr "~S ~S: Structure vom Typ ~S kann den Namen nicht enthalten."
 
 #: defstruct.lisp:746
@@ -4917,7 +4917,7 @@ msgid "~S ~S: There may be only one direct slot with the name ~S."
 msgstr "~S ~S: Es kann nicht mehrere direkte Slots mit demselben Namen ~S geben."
 
 #: clos.lisp:591
-msgid "~S ~S: slot options for slot ~S don't come in pairs"
+msgid "~S ~S: slot options for slot ~S must come in pairs"
 msgstr "~S ~S: Slot-Optionen zu Slot ~S sind nicht paarig."
 
 #: clos.lisp:602
@@ -4957,7 +4957,7 @@ msgid "~S ~S: option ~S should be written ~S"
 msgstr "~S ~S: Option ~S sollte als ~S geschrieben werden."
 
 #: clos.lisp:747
-msgid "~S ~S, option ~S: arguments don't come in pairs"
+msgid "~S ~S, option ~S: arguments must come in pairs"
 msgstr "~S ~S, Option ~S: Argumente sind nicht paarig."
 
 #: clos.lisp:763
@@ -5780,7 +5780,7 @@ msgstr ", adjustierbar"
 
 #: describe.lisp:420
 msgid ", of size ~{~S~^ x ~}"
-msgstr ", der Größe ~{~S~^ x ~}"
+msgstr ", der GröÂße ~{~S~^ x ~}"
 
 #: describe.lisp:423
 msgid " and current length (fill-pointer) ~S"
@@ -6096,7 +6096,7 @@ msgstr "~S: ~S ist kein SOCKET-SERVER"
 #~ msgid "Attempt to remove the current directory"
 #~ msgstr "Das aktuelle Verzeichnis kann nicht entfernt werden"
 
-#~ msgid "Can't move to other than the same device"
+#~ msgid "Cannot move to other than the same device"
 #~ msgstr "Verschieben geht nicht über Laufwerksgrenzen hinweg"
 
 #~ msgid "No more files"

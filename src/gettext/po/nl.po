@@ -71,7 +71,7 @@ msgstr "((\"I\" \"Importeer het en unintern het andere symbool\" T) (\"N\" \"nie
 #: constobj.d:398
 #, fuzzy
 msgid "((\"I\" \"import it, unintern one other symbol and shadow the other symbols\" T) (\"N\" \"do not import it, leave undone\" NIL))"
-msgstr "(\"I\" \"importeer het, unintern één ander symbool en schaduw de andere symbolen\" T) (\"N\" \"niet importeren, alles laten zoals het was\" NIL))"
+msgstr "(\"I\" \"importeer het, unintern éÂén ander symbool en schaduw de andere symbolen\" T) (\"N\" \"niet importeren, alles laten zoals het was\" NIL))"
 
 #: constobj.d:401
 msgid "((\"I\" \"import it and shadow the other symbol\" T) (\"N\" \"do nothing\" NIL))"
@@ -82,7 +82,7 @@ msgid "symbol ~S should be imported into ~S before being exported."
 msgstr "symbool ~S zou in ~S moeten worden geïmporteerd voordat het geëxporteerd wordt."
 
 #: constobj.d:407
-msgid "((\"I\" \"import the symbol first\" T) (\"N\" \"do nothing, don't export the symbol\" NIL))"
+msgid "((\"I\" \"import the symbol first\" T) (\"N\" \"do nothing, do not export the symbol\" NIL))"
 msgstr "(\"I\" \"importeer het symbool eerst\" T) (\"N\" \"doe niets, exporteer het symbool niet\" NIL))"
 
 #: constobj.d:410
@@ -618,7 +618,7 @@ msgid "Only %d bytes available.\n"
 msgstr "Nog maar %d bytes beschikbaar.\n"
 
 #: spvw.d:2403
-msgid "Couldn't determine the end of the SP stack!\n"
+msgid "Could not determine the end of the SP stack!\n"
 msgstr "Kan het einde van de SP stack niet bepalen!\n"
 
 #: spvw.d:2624
@@ -1322,7 +1322,7 @@ msgid "\"..\\\\\" after \"...\\\\\" is invalid: ~"
 msgstr "\"..\\\\\" na \"...\\\\\" is ongeldig: ~"
 
 #: pathname.d:6721
-msgid "Couldn't access current directory"
+msgid "Could not access current directory"
 msgstr "Kan geen toegang krijgen tot huidige map"
 
 #: pathname.d:6871
@@ -1711,7 +1711,7 @@ msgstr "~ uit ~: ~ heeft geen macroteken definitie"
 
 #: io.d:2020
 msgid "~ from ~: macro character definition for ~ may not return ~ values, only one value."
-msgstr "~ uit ~: macroteken definitie voor ~ mag niet ~ waarden teruggeven, uitsluitend één waarde."
+msgstr "~ uit ~: macroteken definitie voor ~ mag niet ~ waarden teruggeven, uitsluitend éÂén waarde."
 
 #: io.d:2044
 msgid "~: input stream ~ ends within read macro beginning to ~"
@@ -1723,7 +1723,7 @@ msgstr "~ uit ~: Na ~ is ~ een niet gedefiniëerd `dispatch-macro' teken"
 
 #: io.d:2092
 msgid "~ from ~: dispatch macro character definition for ~ after ~ may not return ~ values, only one value."
-msgstr "~ uit ~: `dispatch-macro' teken definitie voor ~ na ~ mag niet ~ waarden teruggeven, uitsluitend één waarde."
+msgstr "~ uit ~: `dispatch-macro' teken definitie voor ~ na ~ mag niet ~ waarden teruggeven, uitsluitend éÂén waarde."
 
 #: io.d:2168
 msgid "~ from ~: a token consisting only of dots cannot be meaningfully read in"
@@ -1831,7 +1831,7 @@ msgid "~ from ~: bad syntax for array: #A~"
 msgstr "~ uit ~: foutieve syntaxis voor array: #A~"
 
 #: io.d:3776
-msgid "~ from ~: ~ = ~ doesn't allow the evaluation of ~"
+msgid "~ from ~: ~ = ~ does not allow the evaluation of ~"
 msgstr "~ uit ~: ~ = ~ laat de evaluatie van ~ niet toe"
 
 #: io.d:3903
@@ -2058,7 +2058,7 @@ msgstr "~: dimensies ~ geven een te grote gezamelijke grootte"
 
 #: array.d:4570
 msgid "~: ambiguous, more than one initialisation specified"
-msgstr "~: dubbelzinnig, meer dan één initialisering opgegeven"
+msgstr "~: dubbelzinnig, meer dan éÂén initialisering opgegeven"
 
 #: array.d:4582
 msgid "~: ~ must not be specified without ~"
@@ -3052,7 +3052,7 @@ msgid "Address already in use"
 msgstr "Adres is al in gebruik"
 
 #: errunix.d:390
-msgid "Can't assign requested address"
+msgid "Cannot assign requested address"
 msgstr "Kan aangevraagd adres niet toekennen"
 
 #: errunix.d:396
@@ -3088,11 +3088,11 @@ msgid "Socket is not connected"
 msgstr "Socket is niet verbonden"
 
 #: errunix.d:444
-msgid "Can't send after socket shutdown"
+msgid "Cannot send after socket shutdown"
 msgstr "Kan niet naar gesloten socket zenden"
 
 #: errunix.d:450
-msgid "Too many references: can't splice"
+msgid "Too many references: cannot splice"
 msgstr "Te veel verwijzingen; kan niet verbinden"
 
 #: errunix.d:456
@@ -3387,7 +3387,7 @@ msgid "floating point NaN occurred"
 msgstr "NaN (geen getal) opgetreden bij drijvende komma bewerking"
 
 #: rexx.d:34
-msgid "Communication with ARexx isn't possible."
+msgid "Communication with ARexx is not possible."
 msgstr "Communicatie met ARexx is niet mogelijk."
 
 #: rexx.d:116
@@ -3879,7 +3879,7 @@ msgstr "Macro ~S heeft geen lambdalijst."
 
 #: macros1.lisp:20 macros1.lisp:43
 #, fuzzy
-msgid "~S: non-symbol ~S can't be a variable"
+msgid "~S: non-symbol ~S cannot be a variable"
 msgstr "~S: niet-symbool ~S kan geen variabele zijn"
 
 #: macros1.lisp:25 macros1.lisp:48
@@ -3887,7 +3887,7 @@ msgid "~S: the constant ~S must not be redefined to be a variable"
 msgstr "~S: de constante ~S mag niet opnieuw worden gedefiniëerd als variabele"
 
 #: macros1.lisp:62
-msgid "~S: non-symbol ~S can't be a defined constant"
+msgid "~S: non-symbol ~S cannot be a defined constant"
 msgstr "~S: niet-symbool ~S kan niet als constante worden gedefiniëerd"
 
 #: macros1.lisp:95
@@ -3979,11 +3979,11 @@ msgstr "~S moet evalueren tot een niet-NIL waarde."
 
 #: macros2.lisp:236
 msgid "The value of ~S must be of one of the types ~{~S~^, ~}"
-msgstr "De waarde van ~S moet van één van de typen ~{~S~^, ~} zijn"
+msgstr "De waarde van ~S moet van éÂén van de typen ~{~S~^, ~} zijn"
 
 #: macros2.lisp:241
 msgid "The value of ~S must be one of ~{~S~^, ~}"
-msgstr "De waarde van ~S moet één van ~{~S~^, ~} zijn"
+msgstr "De waarde van ~S moet éÂén van ~{~S~^, ~} zijn"
 
 #: condition.lisp:1304 macros2.lisp:257
 #, fuzzy
@@ -4016,7 +4016,7 @@ msgstr "symbooltypen (~S/~S/~S) ontbreken in ~S"
 
 #: defs1.lisp:110
 msgid "~S: flag must be one of the symbols ~S, ~S, ~S, not ~S"
-msgstr "~S: vlag moet één van de symbolen ~S, ~S, ~S zijn, niet ~S"
+msgstr "~S: vlag moet éÂén van de symbolen ~S, ~S, ~S zijn, niet ~S"
 
 #: defs1.lisp:423
 #, fuzzy
@@ -4049,7 +4049,7 @@ msgstr "Argument ~S moet een `SETF place' zijn, maar is dat niet."
 
 #: places.lisp:153
 msgid "SETF place ~S produces more than one store variable."
-msgstr "`SETF place' ~S produceert meer dan één `store' variabelen."
+msgstr "`SETF place' ~S produceert meer dan éÂén `store' variabelen."
 
 #: places.lisp:177 places.lisp:185
 msgid "~S: first argument ~S is illegal, not a symbol"
@@ -4097,7 +4097,7 @@ msgstr "In de definitie voor ~S: &REST variabele ~S moet een symbol zijn."
 
 #: places.lisp:561
 msgid "Only one variable is allowed after &REST, not ~S"
-msgstr "Na &REST is slechts één variabele toegestaan, niet ~S"
+msgstr "Na &REST is slechts éÂén variabele toegestaan, niet ~S"
 
 #: places.lisp:566
 msgid "Illegal in a DEFINE-MODIFY-MACRO lambda list: ~S"
@@ -4186,7 +4186,7 @@ msgstr "~S ~S: argumentenlijst moet een lijst zijn: ~S "
 
 #: defstruct.lisp:472
 msgid "~S ~S: At most one :INCLUDE argument may be specified: ~S"
-msgstr "~S ~S: Er mag maximaal één :INCLUDE argument worden opgegeven: ~S"
+msgstr "~S ~S: Er mag maximaal éÂén :INCLUDE argument worden opgegeven: ~S"
 
 #: defstruct.lisp:480
 msgid ""
@@ -4250,12 +4250,12 @@ msgstr "~S ~S: ~S is geen slot-optie"
 
 #: defstruct.lisp:695
 #, fuzzy
-msgid "~S ~S: structure of type ~S can't hold the name."
+msgid "~S ~S: structure of type ~S cannot hold the name."
 msgstr "~S ~S: structure van type ~S kan de naam niet bevatten."
 
 #: defstruct.lisp:746
 msgid "~S ~S: There may be only one slot with the name ~S."
-msgstr "~S ~S: Er mag maar één slot zijn met de naam ~S."
+msgstr "~S ~S: Er mag maar éÂén slot zijn met de naam ~S."
 
 #: defstruct.lisp:750
 msgid "~S ~S: Slot ~S accessor will shadow the predicate."
@@ -4801,11 +4801,11 @@ msgstr "~S ~A: symbol-naam ~S moet een string of een symbol zijn"
 
 #: defs2.lisp:103
 msgid "~S ~A: the symbol ~A must not be specified more than once"
-msgstr "~S ~A: het symbol ~A mag maar één keer worden gespecificeerd"
+msgstr "~S ~A: het symbol ~A mag maar éÂén keer worden gespecificeerd"
 
 #: defs2.lisp:115 defs2.lisp:123
 msgid "~S ~A: the ~S option must not be given more than once"
-msgstr "~S ~A: de ~S-optie mag maar één keer worden opgegeven"
+msgstr "~S ~A: de ~S-optie mag maar éÂén keer worden opgegeven"
 
 #: defs2.lisp:181
 msgid "~S ~A: unknown option ~S"
@@ -4866,7 +4866,7 @@ msgstr "~S: Na ~S wordt ~S geïnterpreteerd als een type-specificatie"
 
 #: loop.lisp:520
 msgid "~S: ~A clauses should occur before the loop's main body"
-msgstr "~S: ~A-clausules moeten vóór de inhoud van de lus staan"
+msgstr "~S: ~A-clausules moeten vóÂór de inhoud van de lus staan"
 
 #: loop.lisp:660
 msgid "~S: After ~S a plural loop keyword is required, not ~A"
@@ -4974,10 +4974,10 @@ msgstr "~S ~S: slot-naam ~S moet een symbol zijn"
 
 #: clos.lisp:576
 msgid "~S ~S: There may be only one direct slot with the name ~S."
-msgstr "~S ~S: Er mag hooguit één direct slot zijn met de naam ~S."
+msgstr "~S ~S: Er mag hooguit éÂén direct slot zijn met de naam ~S."
 
 #: clos.lisp:591
-msgid "~S ~S: slot options for slot ~S don't come in pairs"
+msgid "~S ~S: slot options for slot ~S must come in pairs"
 msgstr "~S ~S: slot-opties voor slot ~S zijn niet paarsgewijs gegeven"
 
 #: clos.lisp:602
@@ -4990,7 +4990,7 @@ msgstr "~S ~S, slot-optie voor slot ~S: ~S is geen symbol"
 
 #: clos.lisp:622 clos.lisp:642 clos.lisp:651 clos.lisp:659
 msgid "~S ~S, slot option ~S for slot ~S may only be given once"
-msgstr "~S ~S, slot-optie ~S voor slot ~S mag maar één keer worden opgegeven"
+msgstr "~S ~S, slot-optie ~S voor slot ~S mag maar éÂén keer worden opgegeven"
 
 #: clos.lisp:628
 msgid "~S ~S, slot option for slot ~S must have the value ~S or ~S, not ~S"
@@ -5006,7 +5006,7 @@ msgstr "~S ~S, slot-optie voor slot ~S: ~S is geen geldige slot-optie"
 
 #: clos.lisp:722
 msgid "~S ~S, option ~S may only be given once"
-msgstr "~S ~S, optie ~S mag maar één keer worden opgegeven"
+msgstr "~S ~S, optie ~S mag maar éÂén keer worden opgegeven"
 
 #: clos.lisp:731 clos.lisp:758
 msgid "~S ~S, option ~S: ~S is not a symbol"
@@ -5017,12 +5017,12 @@ msgid "~S ~S: option ~S should be written ~S"
 msgstr "~S ~S: optie ~S moet als ~S geschreven worden"
 
 #: clos.lisp:747
-msgid "~S ~S, option ~S: arguments don't come in pairs"
+msgid "~S ~S, option ~S: arguments must come in pairs"
 msgstr "~S ~S, optie ~S: argumenten zijn niet paarsgewijs gegeven"
 
 #: clos.lisp:763
 msgid "~S ~S, option ~S: ~S may only be given once"
-msgstr "~S ~S, optie ~S: ~S mag maar één keer worden opgegeven"
+msgstr "~S ~S, optie ~S: ~S mag maar éÂén keer worden opgegeven"
 
 #: clos.lisp:783
 msgid "~S ~S, option ~S: ~S is not a string"
@@ -5054,7 +5054,7 @@ msgstr "~S: superklasse ~S moet toebehoren aan klasse BUILT-IN-CLASS"
 
 #: clos.lisp:1394
 msgid "~S: metaclass STRUCTURE-CLASS forbids more than one direct superclass"
-msgstr "~S: metaklasse STRUCTURE-CLASS verbiedt meer dan één directe superklasse"
+msgstr "~S: metaklasse STRUCTURE-CLASS verbiedt meer dan éÂén directe superklasse"
 
 #: clos.lisp:1400
 msgid "~S: superclass ~S should belong to class STRUCTURE-CLASS"
@@ -5133,7 +5133,7 @@ msgstr "~S ~S: Alleen ~S-declaraties zijn toegestaan: ~S"
 
 #: clos.lisp:3078
 msgid "~S ~S: ~S may only be specified once."
-msgstr "~S ~S: ~S mag maar één keer worden opgegeven."
+msgstr "~S ~S: ~S mag maar éÂén keer worden opgegeven."
 
 #: clos.lisp:3086
 msgid "~S ~S: A string must be specified after ~S : ~S"
@@ -5141,7 +5141,7 @@ msgstr "~S ~S: Na ~S moet een string worden opgegeven: ~S "
 
 #: clos.lisp:3091
 msgid "~S ~S: Only one ~S string is allowed"
-msgstr "~S ~S: Ten hoogste één ~S-string is toegestaan"
+msgstr "~S ~S: Ten hoogste éÂén ~S-string is toegestaan"
 
 #: clos.lisp:3099
 msgid "~S ~S: The only valid method combination is ~S : ~S"
@@ -5157,7 +5157,7 @@ msgstr "~S ~S: De enige geldige klassenaam voor de method is ~S : ~S"
 
 #: clos.lisp:3134
 msgid "~S ~S: ~S is not one of the required parameters: ~S"
-msgstr "~S ~S: ~S is niet één van de vereiste parameters: ~S"
+msgstr "~S ~S: ~S is niet éÂén van de vereiste parameters: ~S"
 
 #: clos.lisp:3146
 msgid "~S ~S: some variable occurs twice in ~S"
@@ -5442,10 +5442,10 @@ msgid ""
 "           same as above, specify a condition when to stop"
 msgstr ""
 "\n"
-"Step     = stap form binnen: evalueer deze form in één-stapsmodus\n"
+"Step     = stap form binnen: evalueer deze form in éÂén-stapsmodus\n"
 "Next     = stap over form heen: evalueer deze form een enkele keer\n"
 "Over     = stap over dit level heen: evalueer tot aan de volgende return?\n"
-"Continue = schakel één-stapsmodus uit, vervolg evaluatie\n"
+"Continue = schakel éÂén-stapsmodus uit, vervolg evaluatie\n"
 "Step-until, Next-until, Over-until, Continue-until:\n"
 "           als hierboven, maar dan met een opgegeven stop-conditie"
 
@@ -5956,7 +5956,7 @@ msgstr "Ongeldige optie in ~S: ~S"
 
 #: foreign1.lisp:245
 msgid "Only one ~S option is allowed: ~S"
-msgstr "Er is maar één ~S-optie is toegestaan: ~S"
+msgstr "Er is maar éÂén ~S-optie is toegestaan: ~S"
 
 #: foreign1.lisp:285
 msgid "Invalid parameter specification in ~S: ~S"
@@ -6159,7 +6159,7 @@ msgstr "~S: ~S is geen SOCKET-SERVER"
 #~ msgid "Attempt to remove the current directory"
 #~ msgstr "Poging om huidige map te verwijderen"
 
-#~ msgid "Can't move to other than the same device"
+#~ msgid "Cannot move to other than the same device"
 #~ msgstr "Verschuiven kan enkel over het huidige apparaat"
 
 #~ msgid "No more files"

@@ -1663,8 +1663,8 @@ local void print_banner ()
       # Disable save/restore of floating-point registers in setjmp(), longjmp().
       # This gives a substantial performance increase, especially in the
       # interpreter. However, it is extremely hairy: It relies on the fact
-      # that we don't use floating-point operations (except possibly in ffloat.d
-      # or dfloat.d - where we don't use longjmp() and don't call any C code
+      # that we do not use floating-point operations (except possibly in ffloat.d
+      # or dfloat.d - where we do not use longjmp() and do not call any C code
       # which could perform a longjmp()). This optimization is not possible
       # if we intend to call foreign functions (and maybe longjmp out of a
       # Lisp callback, thus unwinding the stack of a C function which uses
@@ -1994,7 +1994,7 @@ local void print_banner ()
                     argv_execute_args = argptr;
                     argv_execute_arg_count = argptr_limit - argptr;
                     # Simulate -norc. Batch scripts should be executed in an
-                    # environment which doesn't depend on files in $HOME, for
+                    # environment which does not depend on files in $HOME, for
                     # maximum portability.
                     argv_norc = true;
                     argptr = argptr_limit; # Schleife abbrechen
@@ -2133,7 +2133,7 @@ local void print_banner ()
       #endif
       #if defined(TRIVIALMAP_MEMORY) && defined(WIN32_NATIVE)
       # Somehow the RESERVE_FOR_MALLOC limit for mallocs after prepare_zeromap() seems
-      # also to encompass the mallocs before prepare_zeromap(). Don't know why.
+      # also to encompass the mallocs before prepare_zeromap(). Do not know why.
       if (memneed > RESERVE_FOR_MALLOC*3/4) { memneed = RESERVE_FOR_MALLOC*3/4; }
       #endif
       #if defined(MULTIMAP_MEMORY_VIA_SHM) && (defined(UNIX_SUNOS4) || defined(UNIX_SUNOS5))
@@ -2400,7 +2400,7 @@ local void print_banner ()
             # page is 0x32000-0x32FFF, hence we can set SP_bound = 0x34000.
             { var MEMORY_BASIC_INFORMATION info;
               if (!(VirtualQuery((void*)SP(),&info,sizeof(info)) == sizeof(info)))
-                { asciz_out(GETTEXTL("Couldn't determine the end of the SP stack!" NLstring));
+                { asciz_out(GETTEXTL("Could not determine the end of the SP stack!" NLstring));
                   SP_bound = 0;
                 }
                 else
@@ -2836,7 +2836,7 @@ local void print_banner ()
           funcall(L(make_string_input_stream),1);
           Symbol_value(S(standard_input)) = value1;
           # During bootstrapping, *DRIVER* has no value and SYS::BATCHMODE-ERRORS
-          # is undefined. Don't set an error handler in that case.
+          # is undefined. Do not set an error handler in that case.
           if (!nullp(Symbol_value(S(driverstern))))
             {
               # (PROGN
@@ -2906,7 +2906,7 @@ local void print_banner ()
       }
     # Dann eine Abschiedsmeldung:
     if (quit_retry==0)
-      { quit_retry++; # If this fails, don't retry it. For robustness.
+      { quit_retry++; # If this fails, do not retry it. For robustness.
         funcall(L(fresh_line),0); # (FRESH-LINE [*standard-output*])
         if (!argv_quiet)
           { # (WRITE-LINE "Bye." [*standard-output*]) :
@@ -2917,7 +2917,7 @@ local void print_banner ()
       }
     # Then wait for a keypress:
     if (argv_wait_keypress)
-      { argv_wait_keypress = false; # If this fails, don't retry it. For robustness.
+      { argv_wait_keypress = false; # If this fails, do not retry it. For robustness.
         # (WRITE-LINE "Press a key." [*standard-output*]) :
         pushSTACK(OLS(keypress_string)); funcall(L(write_line),1);
         funcall(S(wait_keypress),0); # (SYS::WAIT-KEYPRESS)
