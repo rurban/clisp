@@ -458,16 +458,21 @@ int main(int argc, char* argv[])
   printf("typedef enum { persev_full, persev_partial, persev_immediate, persev_bonus } perseverance_t;\n");
   printf("#include <stdlib.h>\n");
   printf("#include <sys/types.h>\n");
-#if defined(WIN32_NATIVE)
+#if defined(UNIX)
+  printf("#define Handle uintW\n");
+#elif defined(WIN32_NATIVE)
   printf("#include <windows.h>\n");
   printf("#define Handle HANDLE\n");
-#elif defined(UNIX)
-  printf("#define Handle uintW\n");
 #else
   printf("#error \"what is Handle on your platform?!\"\n");
 #endif
+#if defined(UNIX)
+  printf("extern ssize_t fd_read (int fd, void* buf, size_t nbyte, perseverance_t persev);\n");
+  printf("extern ssize_t fd_write (int fd, const void* buf, size_t nbyte, perseverance_t persev);\n");
+#elif defined(WIN32_NATIVE)
   printf("extern ssize_t fd_read (Handle fd, void* buf, size_t nbyte, perseverance_t persev);\n");
   printf("extern ssize_t fd_write (Handle fd, const void* buf, size_t nbyte, perseverance_t persev);\n");
+#endif
 #if notused
  #ifdef WIDE_HARD
    printf("#define WIDE_HARD\n");

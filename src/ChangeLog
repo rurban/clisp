@@ -1,3 +1,30 @@
+2004-12-04  Bruno Haible  <bruno@clisp.org>
+
+	Make it possible to use CC=g++ with modules.
+	* genclisph.d (main): Fix the declaration of fd_read, fd_write on Unix.
+	* utils/modprep.lisp (print-tables-1): Use "extern" in the forward
+	declaration on the subr-tab.
+	* modules/clx/new-clx/clx.f (pop_display): Add a cast.
+	(get_font_info_and_display): Likewise.
+	(make_visual_info): Use field name 'c_class' in C++ mode.
+	(XLIB:SCREEN-DEPTHS): Don't use 'template' as an identifier.
+	(XLIB:CREATE-WINDOW): Don't use 'class' as an identifier.
+	(XLIB:WINDOW-CLASS): Use field name 'c_class' in C++ mode.
+	(handle_image_z, XLIB:PUT-IMAGE): Add a cast.
+	(XLIB:DISCARD-FONT-INFO, XLIB:SET-FONT-PATH): Likewise.
+	(XLIB:GET-PROPERTY): Don't use 'delete' as an identifier.
+	(DEF_EVENT COLORMAP-NOTIFY): Use field name 'c_new' in C++ mode.
+	(XLIB:PROCESS-EVENT): Add a cast.
+	(grasp): New function, extracted out of encode_event.
+	(encode_event): Update.
+	(XLIB:QUERY-KEYMAP): Add casts.
+	(XVisualIDToVisual): Don't use 'template' as an identifier.
+	* modules/queens/queens.c (queens): Use ANSI C declaration syntax.
+	Don't use 'try' as an identifier.
+	* modules/rawsock/rawsock.c (RAWSOCK:MAKE-SOCKADDR): Add a cast.
+	* modules/syscalls/calls.c (POSIX::CONFSTR): Add a cast.
+	(POSIX::CONVERT-MODE): Move error-signalling code out of inner block.
+
 2004-12-02  Bruno Haible  <bruno@clisp.org>
 
 	Fix compilation errors with DEBUG_GCSAFETY.

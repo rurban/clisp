@@ -664,7 +664,7 @@ static Display *pop_display (void)
   if (!ensure_living_display(&(STACK_0)))
     closed_display_error(TheSubr(subr_self)->name,STACK_0);
   STACK_0 = TheStructure (STACK_0)->recdata[slot_DISPLAY_FOREIGN_POINTER];
-  return TheFpointer(popSTACK())->fp_pointer;
+  return (Display*) TheFpointer(popSTACK())->fp_pointer;
 }
 
 
@@ -955,7 +955,7 @@ XFontStruct *get_font_info_and_display (object obj, object* fontf,
   pushSTACK(obj); pushSTACK(`XLIB::FONT-INFO`);
   funcall(L(slot_value),2); /* (slot-value obj 'font-info) */
   value1 = check_fpointer(value1,false);
-  info = TheFpointer(value1)->fp_pointer;
+  info = (XFontStruct*) TheFpointer(value1)->fp_pointer;
   if (!info) {
     /* We have no font information already, so go and ask the server for it. */
 
@@ -1009,7 +1009,7 @@ XFontStruct *get_font_info_and_display (object obj, object* fontf,
             /* this encoding canonicalization was requested by
                Pascal J.Bourguignon <pjb@informatimago.com>
                in <http://article.gmane.org/gmane.lisp.clisp.general:7794> */
-            char* whole = alloca(strlen(names[0])+strlen(names[1])+3);
+            char* whole = (char*) alloca(strlen(names[0])+strlen(names[1])+3);
             if (!strncasecmp(names[0],"iso",3) && names[0][3] != '-') {
               strcpy(whole,"ISO-");
               strcat(whole,names[0]+3);
@@ -1469,7 +1469,11 @@ object make_visual_info (Visual *vis)
   pushSTACK(`(XLIB::VISUAL-INFO)`); pushSTACK(fixnum(8));
   funcall(L(make_structure),2); pushSTACK(value1);
   TheStructure(STACK_0)->recdata[1] = make_uint29 (vis->visualid); /* id */
+ #ifdef __cplusplus
+  TheStructure(STACK_0)->recdata[2] = make_V_class (vis->c_class); /* class */
+ #else
   TheStructure(STACK_0)->recdata[2] = make_V_class (vis->class); /* class */
+ #endif
   TheStructure(STACK_0)->recdata[3] = make_pixel (vis->red_mask); /* red-mask */
   TheStructure(STACK_0)->recdata[4] = make_pixel (vis->green_mask); /* green-mask */
   TheStructure(STACK_0)->recdata[5] = make_pixel (vis->blue_mask); /* blue-mask */
@@ -2153,16 +2157,16 @@ DEFUN(XLIB:SCREEN-DEPTHS, screen)
   end_x_call();
 
   for (i = 0; i < ndepths; i++) {
-    XVisualInfo template, *visual_infos;
+    XVisualInfo templeight, *visual_infos;
     int n_visual_infos, j;
 
     pushSTACK(make_uint8 (depths[i]));
 
     /* Now enumerate the visual infos ... */
-    template.depth = depths[i];
+    templeight.depth = depths[i];
     n_visual_infos = 0;
 
-    X_CALL(visual_infos = XGetVisualInfo (dpy, VisualDepthMask, &template,
+    X_CALL(visual_infos = XGetVisualInfo (dpy, VisualDepthMask, &templeight,
                                           &n_visual_infos));
 
     if (visual_infos) {
@@ -2248,7 +2252,7 @@ DEFUN(XLIB:CREATE-WINDOW, &key WINDOW PARENT X Y WIDTH HEIGHT           \
   XSetWindowAttributes attr;
   unsigned long valuemask = 0;
   Visual *visual = CopyFromParent;
-  int class = CopyFromParent;
+  int c_class = CopyFromParent;
   int border_width = 0;
   int depth = CopyFromParent;
   Window parent;
@@ -2315,7 +2319,7 @@ DEFUN(XLIB:CREATE-WINDOW, &key WINDOW PARENT X Y WIDTH HEIGHT           \
   }
 
   if (!missingp(STACK_(14))) /* :class */
-    class = get_W_class (STACK_(14));
+    c_class = get_W_class (STACK_(14));
   if (!missingp(STACK_(15))) /* :border-width */
     border_width = get_uint16 (STACK_(15));
   if (!missingp(STACK_(16))) /* :depth */
@@ -2357,7 +2361,7 @@ DEFUN(XLIB:CREATE-WINDOW, &key WINDOW PARENT X Y WIDTH HEIGHT           \
 #undef SLOT
 
   X_CALL(win = XCreateWindow (dpy, parent, x,y, width,height, border_width,
-                              depth, class, visual, valuemask, &attr));
+                              depth, c_class, visual, valuemask, &attr));
 
   VALUES1(make_window_2 (STACK_1, win, STACK_0));
   skipSTACK(23 + 2);
@@ -2493,7 +2497,11 @@ DEF_WIN_ATTR (SAVE-UNDER,            generic_switch,  save_under,        save_un
 DEF_WIN_ATTR_2 (COLORMAP,                  colormap, colormap, colormap, CWColormap)
 DEF_WIN_ATTR_WRITER (CURSOR,               cursor, cursor, CWCursor)
 DEF_WIN_ATTR_READER (MAP-STATE,            map_state, map_state)
+#ifdef __cplusplus
+DEF_WIN_ATTR_READER (CLASS,                W_class, c_class)
+#else
 DEF_WIN_ATTR_READER (CLASS,                W_class, class)
+#endif
 DEF_WIN_ATTR_READER (COLORMAP-INSTALLED-P, bool, map_installed)
 DEF_WIN_ATTR_READER (VISUAL,               visual, visual)
 DEF_WIN_ATTR_READER (VISUAL-INFO,          visual_info, visual)/* NIM */
@@ -4018,7 +4026,7 @@ static void handle_image_z (int src_x, int src_y, int x, int y, int w, int h,
   }
 
   /* Allocate memory */
-  data = my_malloc (bytes_per_line * height);
+  data = (char*) my_malloc (bytes_per_line * height);
 
   /* Actually create the image */
   X_CALL(im = XCreateImage (dpy, 0, depth,
@@ -4199,7 +4207,7 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
           goto fake;
       }
 
-      data = my_malloc (bytes_per_line * height);
+      data = (char*) my_malloc (bytes_per_line * height);
 
       X_CALL(im = XCreateImage (dpy, 0, depth,
                                 (bitmap_p && depth == 1) ? XYBitmap : ZPixmap,
@@ -4308,7 +4316,7 @@ DEFUN(XLIB:DISCARD-FONT-INFO, font)
   pushSTACK(STACK_0); pushSTACK(`XLIB::FONT-INFO`);
   funcall(L(slot_value), 2);    /* (slot-value obj `font-info) */
   value1 = check_fpointer(value1,false);
-  info = TheFpointer(value1)->fp_pointer;
+  info = (XFontStruct*) TheFpointer(value1)->fp_pointer;
   TheFpointer(value1)->fp_pointer = NULL; /* No longer valid */
 
   X_CALL(if (info) XFreeFontInfo (NULL, info, 1));
@@ -4355,7 +4363,7 @@ DEFUN(XLIB:SET-FONT-PATH, arg1 arg2)
     if (stringp (value1)) {
       with_string_0 (value1, GLO(misc_encoding), frob, {
         uintL j = asciz_length (frob)+1; /* das ist bloed, denn laenge ist ja schon bekannt 8-( */
-        pathen [i] = my_malloc (j);
+        pathen [i] = (char*) my_malloc (j);
         while (j--) pathen[i][j] = frob[j];
       });
     } else my_type_error(S(string),value1);
@@ -5387,7 +5395,7 @@ DEFUN(XLIB:GET-PROPERTY,window property                         \
   Window w;
   Atom property;
   long long_offset, long_length;
-  Bool delete;
+  Bool delete_p;
   Atom req_type;
   /* output: */
   Atom actual_type_return;
@@ -5404,11 +5412,11 @@ DEFUN(XLIB:GET-PROPERTY,window property                         \
    CLX counts the same way libX counts [This should be documented.] */
   long_offset = (missingp(STACK_4) ? 0 : get_uint32 (STACK_4));
   long_length = (missingp(STACK_3) ? 0x7FFFFFFF : (get_uint32(STACK_3) - long_offset));
-  delete = (missingp(STACK_2) ? 0 : 1);
+  delete_p = (missingp(STACK_2) ? 0 : 1);
   req_type = (missingp(STACK_5) ? AnyPropertyType : get_xatom (display, STACK_5));
 
   X_CALL(r = XGetWindowProperty (display, w, property,long_offset,long_length,
-                                 delete, req_type,
+                                 delete_p, req_type,
                                  &actual_type_return, &actual_format_return,
                                  &nitems_return, &bytes_after_return,
                                  &prop_return));
@@ -5725,7 +5733,7 @@ DEFUN(XLIB:SET-SELECTION-OWNER, owner display selection &optional time)
   DEF_EVENT (`:COLORMAP-NOTIFY`, ColormapNotify, XColormapEvent, xcolormap) \
     ESLOT2(`:WINDOW`,           window,                 window)         \
     ESLOT2(`:COLORMAP`,         colormap,               colormap)       \
-    ESLOT (`:NEW-P`,            bool,                   new)            \
+    ESLOT (`:NEW-P`,            bool,                   c_new)          \
     ESLOT (`:INSTALLED-P`,      bool,                   state)          \
                                                                         \
   DEF_EVENT (`:CONFIGURE-REQUEST`, ConfigureRequest, XConfigureRequestEvent, xconfigurerequest) \
@@ -5777,6 +5785,10 @@ DEFUN(XLIB:SET-SELECTION-OWNER, owner display selection &optional time)
     ESLOT4(`:PROPERTY`,         xatom,                  property)       \
     ESLOT (`:TIME`,             uint32,                 time)           \
   /* vacuous comment to signify the end of the #define */
+/* Some field names differ between C and C++. */
+#ifndef __cplusplus
+  #define c_new new
+#endif
 
 static int disassemble_event_on_stack (XEvent *ev, gcv_object_t *dpy_objf)
 /* Disassembles an X event onto the stack and returns the number of elements
@@ -5936,7 +5948,7 @@ DEFUN(XLIB:PROCESS-EVENT, display &key HANDLER TIMEOUT PEEK-P DISCARD-P \
   Display *dpy = (pushSTACK(STACK_5), pop_display());
   int force_output_p = (boundp(STACK_0) ? get_bool(STACK_0) : 1);
   int discard_p = !missingp(STACK_1), peek_p = !missingp(STACK_2);
-  int timeout = integerp(STACK_3) ? get_uint32(STACK_3) : -1;
+  int timeout = integerp(STACK_3) ? (int) get_uint32(STACK_3) : -1;
 
   if (!boundp(STACK_4))
     NOTIMPLEMENTED;
@@ -5953,18 +5965,19 @@ DEFUN(XLIB:PROCESS-EVENT, display &key HANDLER TIMEOUT PEEK-P DISCARD-P \
 
 /* 12.4  Managing the Event Queue */
 
+static int grasp (object slot, uintC n) {
+  uintC o;
+  for (o = 1 ; o < n; o += 2)
+    if (eq (STACK_(o+1), slot))
+      return o;
+  return 0;
+}
+
 static void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
 { /* encodes an event, which lies in the top /n/ stack locations into ev
  event-key is an optional event key to use, it may also be unbound.
  But hey! Without an event key we could not assemble an event?! */
   int ofs;
-  int grasp (object slot) {
-    uintC o;
-    for (o = 1 ; o < n; o += 2)
-      if (eq (STACK_(o+1), slot))
-        return o;
-    return 0;
-  }
 
   pushSTACK(event_key);
 
@@ -5974,7 +5987,7 @@ static void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
 
 #define ESLOT(lnam, type, cslot)                        \
     {                                                   \
-      if ((ofs = grasp (lnam)))                         \
+      if ((ofs = grasp (lnam, n)))                      \
         event->cslot = get_##type (STACK_(ofs));        \
       else                                              \
         event->cslot = 0;                               \
@@ -5983,7 +5996,7 @@ static void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
 #define ESLOT2(lnam, type, cslot) ESLOT(lnam,type,cslot)
 #define ESLOT3(lnam, type, cslot)                       \
     {                                                   \
-      if ((ofs = grasp (lnam)))                         \
+      if ((ofs = grasp (lnam, n)))                      \
         get_##type (STACK_(ofs), (event->cslot));       \
       else                                              \
         { /* ??? */ }                                   \
@@ -5991,7 +6004,7 @@ static void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
 
 #define ESLOT4(lnam, type, cslot)                       \
     {                                                   \
-      if ((ofs = grasp (lnam)))                         \
+      if ((ofs = grasp (lnam, n)))                      \
         event->cslot = get_##type (dpy, STACK_(ofs));   \
       else                                              \
         event->cslot = 0;                               \
@@ -6831,8 +6844,8 @@ DEFUN(XLIB:QUERY-KEYMAP, display &optional bit-vector)
     STACK_0 = allocate_bit_vector (Atype_Bit, 256);
 
   {
-    unsigned char *ptr = TheSbvector(STACK_0)->data;
-    X_CALL(XQueryKeymap (dpy, ptr)); /* beam it right into the bit-vector! */
+    unsigned char *ptr = (unsigned char *) TheSbvector(STACK_0)->data;
+    X_CALL(XQueryKeymap (dpy, (char*) ptr)); /* beam it right into the bit-vector! */
   }
 
   VALUES1(STACK_0);
@@ -7586,12 +7599,12 @@ DEFUN(XLIB:SET-STANDARD-COLORMAP, a1 a2 a3 a4 a5 a6) {UNDEFINED;}
 
 static Visual *XVisualIDToVisual (Display *dpy, VisualID vid)
 { /*PORTABLE-P?*/
-  XVisualInfo template, *r;
+  XVisualInfo templeight, *r;
   Visual *result;
   int n;
 
-  template.visualid = vid;
-  X_CALL(r = XGetVisualInfo (dpy, VisualIDMask, &template, &n));
+  templeight.visualid = vid;
+  X_CALL(r = XGetVisualInfo (dpy, VisualIDMask, &templeight, &n));
   if (n == 1) {
     result = r->visual;
     X_CALL(XFree (r));

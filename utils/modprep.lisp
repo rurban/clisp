@@ -913,7 +913,9 @@ commas and parentheses."
       :do (with-conditional (out (fundef-cond-stack fd))
             (format out "  subr_t _~A;" (fundef-tag fd))))
     (write-string "  int _dummy_to_avoid_trailing_comma_in_initializer;" out)
-    (newline out) (format out "} ~A;" subr-tab) (newline out) (newline out)
+    (newline out) (format out "};") (newline out)
+    (format out "extern struct ~A_t ~A;" subr-tab subr-tab) (newline out)
+    (newline out)
     (loop :for fs :across *flag-sets*
       :do (with-conditional (out (flag-set-cond-stack fs))
             (format out "static uintL ~A (void) {" (flag-set-name fs))
