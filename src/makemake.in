@@ -1488,12 +1488,12 @@ COMMENTS=''
 LPARTS='        init defseq backquote defmacro macros1 macros2 defs1 timezone'
 LPARTS=$LPARTS' places floatprint type defstruct format savemem trace compiler'
 LPARTS=$LPARTS' disassem defs2 loop clos condition gstream xcharin keyboard'
-LPARTS=$LPARTS' screen beossock runprog query reploop dribble complete describe'
-LPARTS=$LPARTS' room edit macros3 foreign1 clhs inspect gray'
-LPARTS=$LPARTS' german french'
+LPARTS=$LPARTS' screen beossock runprog query reploop dribble complete'
+LPARTS=$LPARTS' describe room edit macros3 foreign1 clhs inspect gray'
 if [ -n "$with_export_syscalls" ]; then
   LPARTS=$LPARTS' posix';
 fi
+LPARTS=$LPARTS' german french'
 if [ -z "$with_nounicode" ] ; then
   LPARTS=$LPARTS' spanish'
 fi
