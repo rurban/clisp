@@ -31,10 +31,6 @@
     fun type
 ) )
 
-#+UNICODE
-; Return the character set of an encoding (a symbol or string).
-(defun encoding-charset (encoding) (sys::%record-ref encoding 3))
-
 ;; ============================================================================
 
 ;; return the CLOS class named by TYPESPEC or NIL
