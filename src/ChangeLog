@@ -1,3 +1,8 @@
+2005-03-19  Arseny Slobodyuk  <ampy@users.sourceforge.net>
+
+	* modules/syscalls/calls.c (OS:PRIORITY): fixed compilation
+	on cygwin without HAVE_GETPRIORITY.
+
 2005-03-18  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (EMACS_FILES): added clhs.el and clisp-ffi.el
