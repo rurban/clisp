@@ -11,7 +11,7 @@
 (defparameter <funcallable-standard-class>
   (defclass funcallable-standard-class (semi-standard-class)
     ()
-    (:fixed-slot-locations)))
+    (:fixed-slot-locations t)))
 (defparameter *<funcallable-standard-class>-class-version*
   (class-current-version <funcallable-standard-class>))
 
@@ -91,7 +91,7 @@
               ; interfere with the forwarded-instance mechanism.
          :accessor funcallable-name))
       (:metaclass funcallable-standard-class)
-      (:fixed-slot-locations)
+      (:fixed-slot-locations t)
       (:generic-accessors nil))
     |#
     (ensure-class 'funcallable-standard-object
@@ -143,7 +143,7 @@
        :type list
        :accessor gf-listeners))
     (:metaclass funcallable-standard-class)
-    (:fixed-slot-locations)
+    (:fixed-slot-locations t)
     (:generic-accessors nil))
   |#
   (ensure-class 'generic-function
@@ -208,7 +208,7 @@
        :type boolean
        :accessor std-gf-initialized))
     (:metaclass funcallable-standard-class)
-    (:fixed-slot-locations)
+    (:fixed-slot-locations t)
     (:generic-accessors nil))
   |#
   (ensure-class 'standard-generic-function

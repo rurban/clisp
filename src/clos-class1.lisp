@@ -99,7 +99,7 @@
                             ; 5 = likewise, plus class-slots
                             ; 6 = likewise, plus slot-location-table, default-initargs
         :initform 0))
-     (:fixed-slot-locations)))
+     (:fixed-slot-locations t)))
 
 ;; Fixed slot locations.
 (defconstant *<class>-classname-location* 3)
@@ -296,7 +296,7 @@
 (defvar *<built-in-class>-defclass*
   '(defclass built-in-class (class)
      ()
-     (:fixed-slot-locations)))
+     (:fixed-slot-locations t)))
 (defvar *<built-in-class>-class-version* (make-class-version))
 
 (defconstant *<built-in-class>-instance-size* 16)
@@ -323,7 +323,7 @@
         :type list)        ; (not including those declared valid by methods!)
       ($instance-size      ; number of local slots of the direct instances + 1
         :type (integer 1 *)))
-     (:fixed-slot-locations)))
+     (:fixed-slot-locations t)))
 
 ;; Fixed slot locations.
 (defconstant *<slotted-class>-subclass-of-stablehash-p-location* 16)
@@ -381,7 +381,7 @@
   '(defclass structure-class (slotted-class)
      (($names              ; encoding of the include-nesting, a list
         :type cons))
-     (:fixed-slot-locations)))
+     (:fixed-slot-locations t)))
 (defvar *<structure-class>-class-version* (make-class-version))
 
 ;; Fixed slot locations.
@@ -421,7 +421,7 @@
         :initform '())
       ($prototype          ; class prototype - an instance or NIL
         :type (or standard-object null)))
-     (:fixed-slot-locations)))
+     (:fixed-slot-locations t)))
 
 ;; Fixed slot locations.
 (defconstant *<semi-standard-class>-current-version-location* 21)
@@ -466,7 +466,7 @@
 (defvar *<standard-class>-defclass*
   '(defclass standard-class (semi-standard-class)
      ()
-     (:fixed-slot-locations)))
+     (:fixed-slot-locations t)))
 (defvar *<standard-class>-class-version* (make-class-version))
 
 (defconstant *<standard-class>-instance-size* 27)

@@ -106,7 +106,7 @@
        :type list
        :accessor method-combination-options))
 
-    (:fixed-slot-locations)
+    (:fixed-slot-locations t)
     (:generic-accessors nil)))
 
 (defun initialize-instance-<method-combination> (combination &rest args

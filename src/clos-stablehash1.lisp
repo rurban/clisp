@@ -14,7 +14,7 @@
 (defvar *<standard-stablehash>-defclass*
   '(defclass standard-stablehash ()
      (($hashcode :initform (sys::random-posfixnum))) ; GC invariant hash code
-     (:fixed-slot-locations)))
+     (:fixed-slot-locations t)))
 
 ;; Fixed slot locations.
 (defconstant *<standard-stablehash>-hashcode-location* 1)

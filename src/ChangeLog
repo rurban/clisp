@@ -1,3 +1,26 @@
+2004-09-20  Bruno Haible  <bruno@clisp.org>
+
+	Change syntax of DEFCLASS :fixed-slot-locations option.
+	* clos-slotdef1.lisp (slot-definition, direct-slot-definition,
+	effective-slot-definition, standard-slot-definition,
+	standard-direct-slot-definition, standard-effective-slot-definition,
+	structure-direct-slot-definition, structure-effective-slot-definition):
+	Provide a boolean argument to the :fixed-slot-locations option.
+	* clos-stablehash1.lisp (standard-stablehash): Likewise.
+	* clos-specializer1.lisp (specializer, eql-specializer): Likewise.
+	* clos-class1.lisp (class, built-in-class, slotted-class,
+	structure-class, semi-standard-class, standard-class): Likewise.
+	* clos-class3.lisp (reinitialize-instance-<class>,
+	shared-initialize-<semi-standard-class>): Convert the option, a list,
+	to a boolean.
+	* clos-method1.lisp (standard-method, standard-accessor-method,
+	standard-reader-method, standard-writer-method): Provide a boolean
+	argument to the :fixed-slot-locations option.
+	* clos-methcomb1.lisp (method-combination): Likewise.
+	* clos-genfun1.lisp (funcallable-standard-class,
+	funcallable-standard-object, generic-function,
+	standard-generic-function): Likewise.
+
 2004-09-22  Sam Steingold  <sds@gnu.org>
 
 	* fill-out.lisp (stream-write-char-sequence): use COUNT-IF to

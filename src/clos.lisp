@@ -113,18 +113,18 @@
 ; (In particular, it allows the operations in record.d to use fixed indices
 ; for the slot-location-table.)
 ; To this effect, DEFCLASS with metaclass STANDARD-CLASS supports an option
-; (:FIXED-SLOT-LOCATIONS) that specifies that all local slots listed in this
+; (:FIXED-SLOT-LOCATIONS T) that specifies that all local slots listed in this
 ; class will be accessible under the same slot locations in _all_ subclasses.
 ; Effectively this disallows some kinds of multiple inheritance; an error
 ; is signalled during the computation of the slot locations of subclasses if
 ; the constraints cannot be fulfilled.
-; If a class has (:FIXED-SLOT-LOCATIONS), it makes sense to mark all its
-; superclasses that have slots as (:FIXED-SLOT-LOCATIONS) as well.
+; If a class has (:FIXED-SLOT-LOCATIONS T), it makes sense to mark all its
+; superclasses that have slots as (:FIXED-SLOT-LOCATIONS T) as well.
 ; So, after
 ;
 ;   (defclass foo ()
 ;     (slot1 slot2 ... slotN)
-;     (:fixed-slot-locations))
+;     (:fixed-slot-locations t))
 ;
 ; we know that slot1 will be at index 1, slot2 at index 2, etc. in all
 ; subclasses.
@@ -211,7 +211,7 @@
 ; 5) generic-accessors
 ; Once CLASS and SLOT-DEFINITION and its subclasses are defined, we can already
 ; use DEFCLASS to define classes like METHOD or METHOD-COMBINATION. The use of
-; (:FIXED-SLOT-LOCATIONS) guarantees fast accessors if we write them by hand,
+; (:FIXED-SLOT-LOCATIONS T) guarantees fast accessors if we write them by hand,
 ; one by one. As a shorthand, to automate the creation of accessors at a moment
 ; when generic functions don't yet work, the DEFCLASS option
 ; (:GENERIC-ACCESSORS NIL) allows to create the accessors as plain functions.
@@ -234,11 +234,11 @@
 ;     (accessor-typecheck instance 'foo '(setf foo-slot1))
 ;     (setf (slot-value instance 'slot1) new-value))
 ;
-; This can be combined with (:FIXED-SLOT-LOCATIONS):
+; This can be combined with (:FIXED-SLOT-LOCATIONS T):
 ;
 ;   (defclass foo ()
 ;     ((slot1 :accessor foo-slot1) ...)
-;     (:fixed-slot-locations))
+;     (:fixed-slot-locations t)
 ;     (:generic-accessors nil))
 ;
 ; is equivalent to

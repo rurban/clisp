@@ -1210,7 +1210,7 @@ T
 ; Single class.
 #+CLISP
 (progn
-  (defclass foo100 () (a b c) (:fixed-slot-locations))
+  (defclass foo100 () (a b c) (:fixed-slot-locations t))
   (mapcar #'(lambda (name)
               (let ((slot (find name (clos::class-slots (find-class 'foo100))
                                 :key #'clos:slot-definition-name)))
@@ -1222,8 +1222,8 @@ T
 ; Simple subclass.
 #+CLISP
 (progn
-  (defclass foo101a () (a b c) (:fixed-slot-locations))
-  (defclass foo101b (foo101a) (d e f) (:fixed-slot-locations))
+  (defclass foo101a () (a b c) (:fixed-slot-locations t))
+  (defclass foo101b (foo101a) (d e f) (:fixed-slot-locations t))
   (mapcar #'(lambda (name)
               (let ((slot (find name (clos::class-slots (find-class 'foo101b))
                                 :key #'clos:slot-definition-name)))
@@ -1235,7 +1235,7 @@ T
 ; Subclass with multiple inheritance.
 #+CLISP
 (progn
-  (defclass foo102a () (a b c) (:fixed-slot-locations))
+  (defclass foo102a () (a b c) (:fixed-slot-locations t))
   (defclass foo102b () (d e f))
   (defclass foo102c (foo102a foo102b) (g h i))
   (mapcar #'(lambda (name)
@@ -1250,7 +1250,7 @@ T
 #+CLISP
 (progn
   (defclass foo103a () (a b c))
-  (defclass foo103b () (d e f) (:fixed-slot-locations))
+  (defclass foo103b () (d e f) (:fixed-slot-locations t))
   (defclass foo103c (foo103a foo103b) (g h i))
   (mapcar #'(lambda (name)
               (let ((slot (find name (clos::class-slots (find-class 'foo103c))
@@ -1263,8 +1263,8 @@ T
 ; Subclass with multiple inheritance and collision.
 #+CLISP
 (progn
-  (defclass foo104a () (a b c) (:fixed-slot-locations))
-  (defclass foo104b () (d e f) (:fixed-slot-locations))
+  (defclass foo104a () (a b c) (:fixed-slot-locations t))
+  (defclass foo104b () (d e f) (:fixed-slot-locations t))
   (defclass foo104c (foo104a foo104b) (g h i))
   t)
 #+CLISP
@@ -1273,8 +1273,8 @@ ERROR
 ; Subclass with multiple inheritance and no collision.
 #+CLISP
 (progn
-  (defclass foo105a () (a b c) (:fixed-slot-locations))
-  (defclass foo105b () () (:fixed-slot-locations))
+  (defclass foo105a () (a b c) (:fixed-slot-locations t))
+  (defclass foo105b () () (:fixed-slot-locations t))
   (defclass foo105c (foo105a foo105b) (g h i))
   (mapcar #'(lambda (name)
               (let ((slot (find name (clos::class-slots (find-class 'foo105c))
@@ -1287,8 +1287,8 @@ ERROR
 ; Subclass with multiple inheritance and no collision.
 #+CLISP
 (progn
-  (defclass foo106a () () (:fixed-slot-locations))
-  (defclass foo106b () (d e f) (:fixed-slot-locations))
+  (defclass foo106a () () (:fixed-slot-locations t))
+  (defclass foo106b () (d e f) (:fixed-slot-locations t))
   (defclass foo106c (foo106a foo106b) (g h i))
   (mapcar #'(lambda (name)
               (let ((slot (find name (clos::class-slots (find-class 'foo106c))
@@ -1307,7 +1307,7 @@ ERROR
      (c :allocation :class)
      (d :allocation :class)
      (e :allocation :class))
-    (:fixed-slot-locations))
+    (:fixed-slot-locations t))
   (defclass foo107b (foo107a)
     ((b :allocation :class)))
   t)
@@ -1323,7 +1323,7 @@ ERROR
      (c :allocation :class)
      (d :allocation :class)
      (e :allocation :class))
-    (:fixed-slot-locations))
+    (:fixed-slot-locations t))
   (defclass foo108b (foo108a)
     (; (b :allocation :class) ; gives error, see above
      (c :allocation :instance)

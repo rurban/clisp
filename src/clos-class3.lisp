@@ -562,6 +562,10 @@
       (when direct-slots-p
         ;; Convert the direct-slots to <direct-slot-definition> instances.
         (setq direct-slots (convert-direct-slots class direct-slots)))
+      (when fixed-slot-locations-p
+        ;; Convert from list to boolean.
+        (when (consp fixed-slot-locations)
+          (setq fixed-slot-locations (car fixed-slot-locations))))
       ;; Trivial changes (that can occur when loading the same code twice)
       ;; do not require updating the instances:
       ;; changed slot-options :initform, :documentation,
@@ -1717,6 +1721,9 @@
   ; Initialize the remaining <slotted-class> slots:
   ; Initialize the remaining <semi-standard-class> slots:
   (when (or (eq situation 't) fixed-slot-locations-p)
+    ;; Convert from list to boolean.
+    (when (consp fixed-slot-locations)
+      (setq fixed-slot-locations (car fixed-slot-locations)))
     (setf (class-fixed-slot-locations class) fixed-slot-locations))
   (setf (class-prototype class) nil)
   ; Try to finalize it.
