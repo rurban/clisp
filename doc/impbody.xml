@@ -45,17 +45,8 @@
 <section id="cl-symb"><title>Symbols in the Package &cl-pac;
   <ulink url="&clhs;/Body/sec_1-9.html">[CLHS-1.9]</ulink></title>
 
-<para>The 6 symbols missing from the &cl-pac; package
- (out of 978 specified by the &ansi-cl;):</para>
-
-<simplelist type="horiz" columns="3">
- <member>&call-method;</member>
- <member>&define-method-combination;</member>
- <member>&invalid-method-error;</member>
- <member>&make-method;</member>
- <member>&method-combination-error;</member>
- <member>&method-combination-t;</member>
-</simplelist>
+<para>All 978 symbols in the &cl-pac; package specified by the
+ &ansi-cl; are implemented.</para>
 
 </section>
 
@@ -538,13 +529,6 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
 
 </section>
 
-<section id="type-class-int"><title>Integrating Types and Classes
-  <ulink url="&clhs;/Body/sec_4-3-7.html">[CLHS-4.3.7]</ulink></title>
-
-<para>The class &method-combination-t; is not implemented.</para>
-
-</section>
-
 <section id="type-class-dict"><title>The Types and Classes Dictionary
   <ulink url="&clhs;/Body/sec_the_types_s_dictionary.html"
          >[CLHS-4.4]</ulink></title>
@@ -833,8 +817,6 @@ is the same as
 <chapter id="objects"><title>Objects
    <ulink url="&clhs;/Body/chap-7.html">[CLHS-7]</ulink></title>
 
-<para>Only the &standard; method combination is implemented.</para>
-
 <section id="std-meth-combo"><title>Standard Method Combination
   <ulink url="&clhs;/Body/sec_7-6-6-2.html">[CLHS-7.6.6.2]</ulink></title>
 
@@ -869,13 +851,6 @@ is the same as
   &type-error-expected-type; available.</para>
 
 </section>
-
-<section id="meth-combo"><title>Declarative Method Combination
-  <ulink url="&clhs;/Body/sec_7-6-6-3.html">[CLHS-7.6.6.3]</ulink></title>
-<para>User-defined method combination is not supported.
- The macros &define-method-combination;, &call-method; and the
- functions &invalid-method-error;, &method-combination-error; are
- not implemented.</para></section>
 
 <section id="obj-dict"><title>The Objects Dictionary
   <ulink url="&clhs;/Body/sec_7-7.html">[CLHS-7.7]</ulink></title>

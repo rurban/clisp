@@ -722,9 +722,6 @@ following information:</para>
 <listitem><simpara>The memory management scheme is not very
   flexible.</simpara></listitem>
 <!-- #endif -->
-<listitem><simpara><olink targetdoc="impnotes"
-  targetptr="cl-symb">Some</olink> <link linkend="ansi-cl">ANSI
-  CL</link> features are not supported yet.</simpara></listitem>
 <listitem><simpara>No on-line documentation beyond &apropos;
   and &describe; is available.</simpara></listitem>
 <!-- #ifdef UNIX_COHERENT -->
