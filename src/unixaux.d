@@ -698,52 +698,152 @@ global int __ap$sigstack (struct sigstack *ss, struct sigstack *oss) { return 0;
 
 #ifdef EXPORT_SYSCALLS
 
-# in posixmath.d:
-global object bogomips();
+#include <sys/utsname.h>
 
-#include <sys/systeminfo.h>
-
-# Lisp interface to sysinfo(2) & sysconf(3c)
+# Lisp interface to uname(2) & sysconf(3c)
 LISPFUN(sysinfo_,0,0,norest,nokey,0,NIL)
 # (POSIX:SYSINFO)
 {
-  var char buffer[BUFSIZ];
-  var long res;
+  var long res, count=0;
+  struct utsname utsname;
 
-#define SI_S(cmd) \
-  begin_system_call(); res = sysinfo(cmd,buffer,BUFSIZ); end_system_call(); \
-  if (-1 == res) OS_error(); \
-  pushSTACK(asciz_to_string(buffer,O(misc_encoding)))
+  begin_system_call(); uname(&utsname); end_system_call();
 
-  SI_S(SI_SYSNAME);             #  1
-  SI_S(SI_HOSTNAME);            #  2
-  SI_S(SI_RELEASE);             #  3
-  SI_S(SI_VERSION);             #  4
-  SI_S(SI_MACHINE);             #  5
-  SI_S(SI_ARCHITECTURE);        #  6
-  SI_S(SI_PLATFORM);            #  7
-  SI_S(SI_HW_PROVIDER);         #  8
-  SI_S(SI_HW_SERIAL);           #  9
-  SI_S(SI_SRPC_DOMAIN);         # 10
+#define UN(str) pushSTACK(asciz_to_string(str,O(misc_encoding))); count++
 
-#undef SI_S
+  UN(utsname.sysname);
+  UN(utsname.nodename);
+  UN(utsname.release);
+  UN(utsname.version);
+  UN(utsname.machine);
+
+#undef UN
 
 #define SC_S(cmd) \
   begin_system_call(); res = sysconf(cmd); end_system_call(); \
   if (-1 == res) OS_error(); \
-  pushSTACK(L_to_I(res))
+  pushSTACK(L_to_I(res)); count++
 
-  SC_S(_SC_PAGESIZE);           # 11
-  SC_S(_SC_PHYS_PAGES);         # 12
-  SC_S(_SC_AVPHYS_PAGES);       # 13
-  SC_S(_SC_NPROCESSORS_CONF);   # 14
-  SC_S(_SC_NPROCESSORS_ONLN);   # 15
+#ifdef _SC_PAGESIZE
+  SC_S(_SC_PAGESIZE);
+#else
+  pushSTACK(NIL); count++;
+#endif
+#ifdef _SC_PHYS_PAGES
+  SC_S(_SC_PHYS_PAGES);
+#else
+  pushSTACK(NIL); count++;
+#endif
+#ifdef _SC_AVPHYS_PAGES
+  SC_S(_SC_AVPHYS_PAGES);
+#else
+  pushSTACK(NIL); count++;
+#endif
+#ifdef _SC_NPROCESSORS_CONF
+  SC_S(_SC_NPROCESSORS_CONF);
+#else
+  pushSTACK(NIL); count++;
+#endif
+#ifdef _SC_NPROCESSORS_ONLN
+  SC_S(_SC_NPROCESSORS_ONLN);
+#else
+  pushSTACK(NIL); count++;
+#endif
 
 #undef SC_S
 
-  pushSTACK(bogomips());        # 16
+  funcall(L(values),count);
+}
 
-  funcall(L(values),16);
+#include <sys/resource.h>
+
+#define RU_S \
+  pushSTACK(L_to_I(ru.ru_utime.tv_sec));  count++; \
+  pushSTACK(L_to_I(ru.ru_utime.tv_usec)); count++; \
+  pushSTACK(L_to_I(ru.ru_stime.tv_sec));  count++; \
+  pushSTACK(L_to_I(ru.ru_stime.tv_usec)); count++; \
+  pushSTACK(L_to_I(ru.ru_maxrss));        count++; \
+  pushSTACK(L_to_I(ru.ru_idrss));         count++; \
+  pushSTACK(L_to_I(ru.ru_minflt));        count++; \
+  pushSTACK(L_to_I(ru.ru_majflt));        count++; \
+  pushSTACK(L_to_I(ru.ru_nswap));         count++; \
+  pushSTACK(L_to_I(ru.ru_inblock));       count++; \
+  pushSTACK(L_to_I(ru.ru_oublock));       count++; \
+  pushSTACK(L_to_I(ru.ru_msgsnd));        count++; \
+  pushSTACK(L_to_I(ru.ru_msgrcv));        count++; \
+  pushSTACK(L_to_I(ru.ru_nsignals));      count++; \
+  pushSTACK(L_to_I(ru.ru_nvcsw));         count++; \
+  pushSTACK(L_to_I(ru.ru_nivcsw));        count++
+
+#define GETRU(who) \
+ begin_system_call(); getrusage(who,&ru); end_system_call(); RU_S
+
+#define RLIM(what) \
+ begin_system_call(); getrlimit(what,&rl); end_system_call(); count+=2; \
+ pushSTACK(UL_to_I(rl.rlim_cur)); pushSTACK(UL_to_I(rl.rlim_max))
+
+LISPFUN(resource_usage_limits_,0,0,norest,nokey,0,NIL)
+# (POSIX::RESOURCE-USAGE-LIMITS-INTERNAL)
+{
+  var long count=0;
+  struct rlimit rl;
+  struct rusage ru;
+
+  GETRU(RUSAGE_SELF);
+  GETRU(RUSAGE_CHILDREN);
+
+#undef GETRU
+#undef RU_S
+
+#ifdef RLIMIT_CORE
+  RLIM(RLIMIT_CORE);
+#else
+  pushSTACK(NIL); pushSTACK(NIL); count+=2;
+#endif
+#ifdef RLIMIT_CPU
+  RLIM(RLIMIT_CPU);
+#else
+  pushSTACK(NIL); pushSTACK(NIL); count+=2;
+#endif
+#ifdef RLIMIT_DATA
+  RLIM(RLIMIT_DATA);
+#else
+  pushSTACK(NIL); pushSTACK(NIL); count+=2;
+#endif
+#ifdef RLIMIT_FSIZE
+  RLIM(RLIMIT_FSIZE);
+#else
+  pushSTACK(NIL); pushSTACK(NIL); count+=2;
+#endif
+#ifdef RLIMIT_NOFILE
+  RLIM(RLIMIT_NOFILE);
+#else
+  pushSTACK(NIL); pushSTACK(NIL); count+=2;
+#endif
+#ifdef RLIMIT_STACK
+  RLIM(RLIMIT_STACK);
+#else
+  pushSTACK(NIL); pushSTACK(NIL); count+=2;
+#endif
+#ifdef RLIMIT_VMEM
+  RLIM(RLIMIT_VMEM);
+#else
+  pushSTACK(NIL); pushSTACK(NIL); count+=2;
+#endif
+#ifdef RLIMIT_RSS
+  RLIM(RLIMIT_RSS);
+#else
+  pushSTACK(NIL); pushSTACK(NIL); count+=2;
+#endif
+#ifdef RLIMIT_MEMLOCK
+  RLIM(RLIMIT_MEMLOCK);
+#else
+  pushSTACK(NIL); pushSTACK(NIL); count+=2;
+#endif
+
+#undef RLIM
+
+  funcall(L(values),count);
 }
 
 #endif

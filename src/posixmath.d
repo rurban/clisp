@@ -4,9 +4,29 @@
 
 #ifdef EXPORT_SYSCALLS
 
+## trying to include math.h
+
+#ifdef __sun__
 #define decimal_string solaris_decimal_string
+#endif
+
+#ifdef __linux__
+#define floor_save floor
+#undef floor
+#endif
+
 #include <math.h>
+
+#ifdef __sun__
 #undef decimal_string
+#endif
+
+#ifdef __linux__
+#define floor floor_save
+#undef floor_save
+#endif
+
+## done with math.h
 
 local double to_double (object x);
 local double to_double(x)
@@ -65,28 +85,29 @@ LISPFUNN(lgamma,1)
   N_D(res,value1); mv_count=2;
 }
 
-# BogoMIPS
-
 #include <time.h>
 
-global object bogomips()
+LISPFUNN(bogomips,0)
+# (POSIX:BOGOMIPS)
 {
-  var unsigned long loops_per_sec = 1;
-  var unsigned long ticks, ii;
-  var object res;
+  var unsigned long loops = 1, ticks, ii;
 
-  while ((loops_per_sec <<= 1)) {
+  mv_count=1;
+  if ((clock_t)-1 == clock()) {
+    N_D(-1.0,value1);
+    return;
+  }
+  while ((loops <<= 1)) {
     ticks = clock();
-    for (ii = loops_per_sec; ii > 0; ii--);
+    for (ii = loops; ii > 0; ii--);
     ticks = clock() - ticks;
     if (ticks >= CLOCKS_PER_SEC) {
-      double bogo = (loops_per_sec / ticks) * (CLOCKS_PER_SEC / 500000.0);
-      N_D(bogo,res);
-      return res;
+      double bogo = (1.0 * loops / ticks) * (CLOCKS_PER_SEC / 500000.0);
+      N_D(bogo,value1);
+      return;
     }
   }
-  N_D(-1.0,res);
-  return res;
+  N_D(-1.0,value1);
 }
 
 #undef D_S
