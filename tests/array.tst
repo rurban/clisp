@@ -695,3 +695,37 @@ error
 
 (setq nil-vec nil nil-arr nil)
 nil
+
+;; <http://www.lisp.org/HyperSpec/Body/fun_adjust-array.html>
+(adjustable-array-p
+ (setq ada (adjust-array
+            (make-array '(2 3)
+                        :adjustable t
+                        :initial-contents '((a b c) (1 2 3)))
+            '(4 6))))
+T
+(array-dimensions ada)   (4 6)
+(aref ada 1 1)           2
+(setq beta (make-array '(2 3) :adjustable t))
+#2A((NIL NIL NIL) (NIL NIL NIL))
+(adjust-array beta '(4 6) :displaced-to ada)
+#2A((A B C NIL NIL NIL)
+    (1 2 3 NIL NIL NIL)
+    (NIL NIL NIL NIL NIL NIL)
+    (NIL NIL NIL NIL NIL NIL))
+(array-dimensions beta)  (4 6)
+(aref beta 1 1)          2
+
+(adjust-array
+ #2A(( alpha     beta      gamma     delta )
+     ( epsilon   zeta      eta       theta )
+     ( iota      kappa     lambda    mu    )
+     ( nu        xi        omicron   pi    ))
+ '(3 5) :initial-element 'baz)
+#2A(( alpha     beta      gamma     delta     baz )
+    ( epsilon   zeta      eta       theta     baz )
+    ( iota      kappa     lambda    mu        baz ))
+
+
+(adjust-array #(1 2 3 4) '(6))
+#(1 2 3 4 NIL NIL)
