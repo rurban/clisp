@@ -41,35 +41,23 @@
 ;;   - poss. better Optimization by data-flow-analysis
 ;;   - Inline-Compilation of calls of local functions
 
-;; Sam Steingold 1999-2001
+;; Sam Steingold 1999-2002
 ;; German comments translated into English: Stefan Kain 2001-12-18
 ;; "z" at the end of a variable name stands for "zustand" (German for "state")
 
-;; For Cross-Compilation (selectively with #+CLISP or #-CLISP):
-;; add CROSS, the language and the machine identifier into the list
-;; *features*, take other machine identifiers out of *features* .
-;; Then load the Compiler (maybe compile and load).
-;; Then take out CROSS out of the list *features* again, and
-;; compile files with (cross:compile-file ...).
+(in-package "COMMON-LISP")
+(export '(ext::eval-env) "EXT")
+(export '(custom::*package-tasks-treat-specially*) "CUSTOM")
+(ext:re-export "CUSTOM" "EXT")
+(export '(compile compile-file disassemble))
+(pushnew ':compiler *features*)
 
-;; #-CROSS implies #+CLISP.
-
-#-CROSS (in-package "COMMON-LISP")
-#-CROSS (export '(ext::eval-env) "EXT")
-#-CROSS (export '(custom::*package-tasks-treat-specially*) "CUSTOM")
-#-CROSS (ext:re-export "CUSTOM" "EXT")
-#-CROSS (export '(compile compile-file disassemble))
-#-CROSS (pushnew ':compiler *features*)
-
-#-CROSS (in-package "COMPILER")
-#+CROSS (in-package "CROSS" :nicknames '("CLISP"))
-#-CLISP (defmacro TEXT (x) x)
+(in-package "COMPILER")
 ;; Convention: Write SYSTEM::PNAME for a Symbol, that is "accidentally" in
 ;; #<PACKAGE SYSTEM>, but which we don't use any further.
 ;; Write SYS::PNAME, if we assume any properties for the Symbol.
 ;; Write COMPILER::PNAME, if the Compiler declares the Symbol
 ;; and it is used by other program parts.
-#+CLISP
 (import '(sys::function-name-p sys::parse-body sys::add-implicit-block
           sys::make-load-time-eval sys::make-macro-expander
           sys::closure-name sys::closure-codevec sys::closure-consts
@@ -83,150 +71,12 @@
           COMPILER::C-PROCLAIM COMPILER::C-PROCLAIM-CONSTANT
           COMPILER::EVAL-WHEN-COMPILE
           COMPILER::C-DEFUN COMPILER::C-PROVIDE COMPILER::C-REQUIRE))
-#-CROSS (import '(sys::version sys::subr-info))
-
-#+CROSS (shadow '(compile-file))
-#+CROSS (export '(compile-file))
 
 ;; some auxilliary functions
 (proclaim '(inline env mac-exp))
 (defun env () (vector *venv* *fenv*))
 (defun mac-exp (mac form &optional (env (env)))
   (funcall *macroexpand-hook* mac form env))
-
-#-CLISP (shadow '(macroexpand-1 macroexpand))
-#-CLISP
-(progn
-  (defun function-name-p (form)
-    (or (symbolp form)
-        (and (consp form) (eq (car form) 'SETF)
-             (consp (setq form (cdr form))) (null (cdr form))
-             (symbolp (car form)))))
-  (defstruct (macro
-              (:predicate macrop)
-              (:constructor make-macro (expander)))
-    (expander nil :type function))
-  (defstruct (function-macro
-              (:predicate function-macro-p)
-              (:constructor make-function-macro (function expander)))
-    (function nil :type function)
-    (expander nil :type function))
-  (defun macroexpand-1 (form &optional (env (vector nil nil)))
-    (if (and (consp form) (symbolp (car form)))
-      (multiple-value-bind (a m)
-          (fenv-search (car form) (svref env 1))
-        (when (null a) (setq m (macro-function (car form))))
-        (if m
-          (values (mac-exp m form env) t)
-          (values form nil)))
-      (if (symbolp form)
-        (multiple-value-bind (macrop expansion)
-            (venv-search-macro form (svref env 0))
-          (if macrop
-            (values expansion t)
-            (values form nil)))
-        (values form nil))))
-  (defun macroexpand (form &optional (env (vector nil nil)))
-    (multiple-value-bind (a b) (macroexpand-1 form env)
-      (if b
-        (loop
-          (multiple-value-setq (a b) (macroexpand-1 a env))
-          (unless b (return (values a t))))
-        (values form nil))))
-  (defun parse-body (body &optional docstring-allowed env)
-    (do ((bodyr body (cdr bodyr))
-         (declarations nil)
-         (docstring nil)
-         (form nil))
-        ((null bodyr) (values bodyr declarations docstring))
-      (cond ((and (stringp (car bodyr)) (cdr bodyr) (null docstring)
-                  docstring-allowed)
-             (setq docstring (car bodyr)))
-            ((not (listp (setq form (macroexpand (car bodyr) env))))
-             (return (values bodyr declarations docstring)))
-            ((eq (car form) 'DECLARE)
-             (dolist (decl (cdr form)) (push decl declarations)))
-            (t (return (values bodyr declarations docstring))))))
-  (defun function-block-name (funname)
-    (if (atom funname) funname (second funname)))
-  (defun add-implicit-block (name body)
-    (multiple-value-bind (body-rest declarations docstring)
-        (parse-body body t (env))
-      (append (if declarations (cons 'DECLARE declarations))
-              (if docstring (list docstring))
-              (list (list* 'BLOCK (function-block-name name) body-rest)))))
-  (defstruct (load-time-eval
-              (:print-function
-                (lambda (object stream depth)
-                  (declare (ignore depth))
-                  (write-string "#." stream)
-                  (write (load-time-eval-form object) :stream stream)))
-              (:constructor make-load-time-eval (form)))
-    form)
-  (defstruct (symbol-macro (:constructor make-symbol-macro (expansion)))
-    expansion)
-  (defun symbol-macro-expand (v)
-    (and (boundp v) (symbol-macro-p (symbol-value v))
-         (values t (symbol-macro-expansion (symbol-value v)))))
-  (defparameter c-typep-alist1 nil)
-  (defparameter c-typep-alist2 nil)
-  (defparameter c-typep-alist3 nil)
-  ;; Searches a program-file. see <init.lisp> :
-  (defun search-file (filename extensions
-                      &aux (use-extensions (null (pathname-type filename))))
-    (when use-extensions
-      (setq extensions ; execute Case-conversions on the Extensions
-        (mapcar #'pathname-type extensions)))
-    ;; merge in defaults:
-    (setq filename (merge-pathnames filename #.(make-pathname :type :wild)))
-    ;; search:
-    (let ((already-searched nil))
-      (dolist (dir (cons '#"" '()))
-        (let ((search-filename
-                (merge-pathnames (merge-pathnames filename dir))))
-          (unless (member search-filename already-searched :test #'equal)
-            (let ((xpathnames (directory search-filename :full t :circle t)))
-              (when use-extensions
-                ;; filter for suitable extensions:
-                (setq xpathnames
-                  (delete-if-not ; select xpathnames with the given extensions
-                   #'(lambda (xpathname)
-                       (member (pathname-type (first xpathname)) extensions
-                               :test #'string=))
-                   xpathnames)))
-              (when xpathnames
-                ;; return back, sorted by date:
-                (dolist (xpathname xpathnames)
-                  (setf (rest xpathname)
-                        (apply #'encode-universal-time (third xpathname))))
-                (return (mapcar #'first (sort xpathnames #'> :key #'rest)))))
-            (push search-filename already-searched))))))
-  (defun make-macro-expander (macrodef)
-    (let ((dummysym (make-symbol (symbol-name (car macrodef)))))
-      (eval `(DEFMACRO ,dummysym ,@(cdr macrodef)))
-      (make-macro
-       #'(lambda (form &rest env)
-           (apply #'lisp:macroexpand-1 (cons dummysym (cdr form)) env)))))
-  ;; see <init.lisp> :
-  (defun date-format ()
-    (TEXT "~1{~5@*~D/~4@*~D/~3@*~D ~2@*~2,'0D.~1@*~2,'0D.~0@*~2,'0D~:}"))
-  (defun sys::line-number (stream) nil)
-)
-
-
-;; version of the evaluator:
-#+CROSS
-(defconstant *big-endian*
-  ;; When cross-compiling within CLISP, we generate compiled closures
-  ;; in memory with CLISP's endianness. They will be written out to file
-  ;; as little-endian.
-  #+CLISP system::*big-endian*
-  ;; When cross-compiling outside CLISP, we have no endianness reversion code
-  ;; in the #Y printer. So let's generate little-endian compiled closures.
-  #-CLISP nil
-)
-#+CROSS
-(defun version () (list '20010726))
 
 (defconstant *keyword-package* (find-package "KEYWORD"))
 (defconstant *lisp-package* (find-package "COMMON-LISP"))
@@ -322,60 +172,11 @@ and <http://clisp.cons.org/impnotes.html#bytecode>.
     further constants)
 |#
 
-#-CLISP
-(progn
-  (defstruct (closure (:print-function print-closure))
-    name    ; name of the closure
-    codevec ; list of bytes of the codevector
-    consts) ; list of constants
-  (defun print-closure (closure stream depth)
-    (declare (ignore depth))
-    (write-string "#Y(" stream)
-    (write (closure-name closure) :stream stream)
-    (write-char #\space stream)
-    (write-char #\# stream)
-    (write (length (closure-codevec closure)) :stream stream :base 10.
-           :radix nil :readably nil)
-    (write-char #\Y stream)
-    ;; (write (closure-codevec closure) :stream stream :base 16.) ; instead:
-    (write-char #\( stream)
-    (do ((i 0 (1- i))
-         (L (closure-codevec closure) (cdr L)))
-        ((endp L))
-      (when (zerop i) (write-char #\newline stream) (setq i 25))
-      (write-char #\space stream)
-      (write (car L) :stream stream :base 16. :radix nil :readably nil))
-    (write-char #\) stream)
-    (write-char #\newline stream)
-    (dolist (x (closure-consts closure))
-      (write-char #\space stream)
-      (write x :stream stream))
-    (write-char #\) stream))
-)
-
-#+CLISP
-(progn
-  (defsetf sys::%record-ref sys::%record-store)
-  (defsetf closure-name (closure) (new-name)
-    `(sys::%record-store ,closure 0 ,new-name))
-  (defun make-closure (&key name codevec consts)
-    (sys::%make-closure name (sys::make-code-vector codevec) consts))
-)
-
-#-CLISP
-(set-dispatch-macro-character #\# #\Y
-  #'(lambda (stream subchar arg)
-      (declare (ignore subchar))
-      (if arg
-        ;; read codevector
-        (let ((obj (let ((*read-base* 16.)) (read stream t nil t))))
-          (unless (= (length obj) arg)
-            (error (TEXT "Bad length of closure vector: ~S") arg))
-          obj)
-        ;; read closure
-        (let ((obj (read stream t nil t)))
-          (make-closure :name (first obj) :codevec (second obj)
-                        :consts (cddr obj))))))
+(defsetf sys::%record-ref sys::%record-store)
+(defsetf closure-name (closure) (new-name)
+  `(sys::%record-store ,closure 0 ,new-name))
+(defun make-closure (&key name codevec consts)
+  (sys::%make-closure name (sys::make-code-vector codevec) consts))
 
 ;; The instruction list is in <doc/impbyte.xml>.
 
@@ -819,826 +620,6 @@ for-value   NIL or T
 
 |#
 
-#-CLISP ; The Function-Table is located in EVAL.
-(eval-when (compile load eval)
-  ;; the function table with a max. of 3*256 Functions
-  ;; (saves constants in FUNC) :
-  (defconstant funtab
-    '#(system::%funtabref system::subr-info
-       sys::%copy-simple-vector #| svref system::%svstore |# row-major-aref
-       system::row-major-store array-element-type array-rank array-dimension
-       array-dimensions array-total-size adjustable-array-p bit-and bit-ior
-       bit-xor bit-eqv bit-nand bit-nor bit-andc1 bit-andc2 bit-orc1 bit-orc2
-       bit-not array-has-fill-pointer-p fill-pointer system::set-fill-pointer
-       vector-push vector-pop vector-push-extend make-array adjust-array
-       standard-char-p graphic-char-p string-char-p alpha-char-p upper-case-p
-       lower-case-p both-case-p digit-char-p alphanumericp char-code code-char
-       character char-upcase char-downcase digit-char char-int int-char
-       char-name char schar system::store-char system::store-schar string=
-       string/= string< string> string<= string>= string-equal string-not-equal
-       string-lessp string-greaterp string-not-greaterp string-not-lessp
-       system::search-string= system::search-string-equal make-string
-       system::string-both-trim nstring-upcase string-upcase nstring-downcase
-       string-downcase nstring-capitalize string-capitalize string name-char
-       substring symbol-value #| symbol-function |# boundp fboundp
-       special-operator-p system::set-symbol-value makunbound
-       fmakunbound #| values-list |# system::driver system::unwind-to-driver
-       macro-function macroexpand macroexpand-1 proclaim eval evalhook
-       applyhook constantp system::parse-body system::keyword-test
-       invoke-debugger
-       make-hash-table gethash system::puthash remhash maphash clrhash
-       hash-table-count system::hash-table-iterator system::hash-table-iterate
-       clos::class-gethash sxhash
-       copy-readtable set-syntax-from-char set-macro-character
-       get-macro-character make-dispatch-macro-character
-       set-dispatch-macro-character get-dispatch-macro-character read
-       read-preserving-whitespace read-delimited-list read-line read-char
-       unread-char peek-char listen read-char-no-hang clear-input
-       read-from-string parse-integer write prin1 print pprint princ
-       write-to-string prin1-to-string princ-to-string write-char write-string
-       write-line terpri fresh-line finish-output force-output clear-output
-       system::line-position
-       #| car cdr caar cadr cdar cddr caaar caadr cadar caddr cdaar cdadr cddar
-       cdddr caaaar caaadr caadar caaddr cadaar cadadr caddar cadddr cdaaar
-       cdaadr cdadar cdaddr cddaar cddadr cdddar cddddr cons |# tree-equal endp
-       list-length nth #| first second third fourth |# fifth sixth seventh
-       eighth ninth tenth #| rest |# nthcdr last make-list copy-list copy-alist
-       copy-tree revappend nreconc system::list-nreverse butlast nbutlast ldiff
-       rplaca system::%rplaca rplacd system::%rplacd subst subst-if
-       subst-if-not nsubst nsubst-if nsubst-if-not sublis nsublis member
-       member-if member-if-not tailp adjoin acons pairlis assoc assoc-if
-       assoc-if-not rassoc rassoc-if rassoc-if-not
-       lisp-implementation-type lisp-implementation-version software-type
-       software-version identity get-universal-time get-internal-run-time
-       get-internal-real-time system::%sleep system::%%time
-       make-symbol find-package package-name package-nicknames rename-package
-       package-use-list package-used-by-list package-shadowing-symbols
-       list-all-packages intern find-symbol unintern export unexport import
-       shadowing-import shadow use-package unuse-package
-       make-package system::%in-package in-package
-       find-all-symbols system::map-symbols
-       system::map-external-symbols system::map-all-symbols
-       parse-namestring pathname pathname-host pathname-device
-       pathname-directory pathname-name pathname-type pathname-version
-       file-namestring directory-namestring host-namestring merge-pathnames
-       enough-namestring make-pathname namestring truename probe-file
-       delete-file rename-file open directory cd make-dir delete-dir
-       file-write-date file-author savemem
-       #| eq |# eql equal equalp consp atom symbolp stringp numberp
-       compiled-function-p #| null not |# system::closurep listp integerp
-       system::fixnump rationalp floatp system::short-float-p
-       system::single-float-p system::double-float-p system::long-float-p
-       realp complexp streamp random-state-p readtablep hash-table-p pathnamep
-       system::logical-pathname-p characterp functionp clos::generic-function-p
-       packagep arrayp system::simple-array-p bit-vector-p vectorp
-       simple-vector-p simple-string-p simple-bit-vector-p type-of
-       clos:class-of clos:find-class coerce
-       system::%record-ref system::%record-store system::%record-length
-       system::%structure-ref system::%structure-store system::%make-structure
-       copy-structure system::%structure-type-p system::closure-name
-       system::closure-codevec system::closure-consts system::make-code-vector
-       system::%make-closure system::%copy-generic-function
-       system::make-load-time-eval system::function-macro-function
-       clos::structure-object-p clos::std-instance-p clos:slot-value
-       clos::set-slot-value clos:slot-boundp clos:slot-makunbound
-       clos:slot-exists-p
-       system::sequencep elt system::%setelt subseq copy-seq length reverse
-       nreverse make-sequence reduce fill replace remove remove-if
-       remove-if-not delete delete-if delete-if-not remove-duplicates
-       delete-duplicates substitute substitute-if substitute-if-not nsubstitute
-       nsubstitute-if nsubstitute-if-not find find-if find-if-not position
-       position-if position-if-not count count-if count-if-not mismatch search
-       sort stable-sort merge
-       system::file-stream-p make-synonym-stream system::synonym-stream-p
-       system::broadcast-stream-p system::concatenated-stream-p
-       make-two-way-stream system::two-way-stream-p make-echo-stream
-       system::echo-stream-p make-string-input-stream
-       system::string-input-stream-index make-string-output-stream
-       get-output-stream-string system::make-string-push-stream
-       system::string-stream-p input-stream-p output-stream-p
-       system::built-in-stream-element-type stream-external-format
-       system::built-in-stream-close read-byte write-byte file-position
-       file-length
-       system::%putd system::%proclaim-constant get getf get-properties
-       system::%putplist system::%put remprop symbol-package symbol-plist
-       symbol-name keywordp gensym system::special-variable-p gensym
-       system::decimal-string zerop plusp minusp oddp evenp 1+ 1- conjugate exp
-       expt log sqrt isqrt abs phase signum sin cos tan cis asin acos atan sinh
-       cosh tanh asinh acosh atanh float rational rationalize numerator
-       denominator floor ceiling truncate round mod rem ffloor fceiling
-       ftruncate fround decode-float scale-float float-radix float-sign
-       float-digits float-precision integer-decode-float complex realpart
-       imagpart lognand lognor logandc1 logandc2 logorc1 logorc2 boole lognot
-       logtest logbitp ash logcount integer-length byte byte-size byte-position
-       ldb ldb-test mask-field dpb deposit-field random make-random-state !
-       exquo long-float-digits system::%set-long-float-digits system::log2
-       system::log10
-       vector aref system::store array-in-bounds-p array-row-major-index bit
-       sbit char= char/= char< char> char<= char>= char-equal char-not-equal
-       char-lessp char-greaterp char-not-greaterp char-not-lessp string-concat
-       apply system::%funcall funcall mapcar maplist mapc mapl mapcan mapcon
-       values error system::error-of-type clos::class-tuple-gethash list list*
-       append nconc clos::%allocate-instance concatenate map some every notany
-       notevery make-broadcast-stream make-concatenated-stream = /= < > <= >=
-       max min + - * / gcd lcm logior logxor logand logeqv))
-  (defun %funtabref (index)
-    (if (and (<= 0 index) (< index (length funtab))) (svref funtab index) nil))
-)
-#+CROSS
-(eval-when (compile load eval)
-  (defun subr-info (sym)
-    (values-list
-      (assoc sym
-        '(;; This is the the Table of all SUBRs, as in <subr.d>.
-          ;; SUBRs, that have different signatures in different
-          ;; implementations and/or whose Specification still might
-          ;; change, are commented out.
-          (! 1 0 nil nil nil)
-          (system::%%time 0 0 nil nil nil)
-          (system::%defseq 1 0 nil nil nil)
-          (system::%exit 0 1 nil nil nil)
-          (system::%funcall 1 0 t nil nil)
-          (system::%funtabref 1 0 nil nil nil)
-          (system::%in-package 1 0 nil (:nicknames :use :case-sensitive) nil)
-          (system::%make-closure 3 0 nil nil nil)
-          (system::%make-structure 2 0 nil nil nil)
-          (system::%proclaim-constant 2 0 nil nil nil)
-          (system::%put 3 0 nil nil nil)
-          (system::%putd 2 0 nil nil nil)
-          (system::%putplist 2 0 nil nil nil)
-          (system::%record-length 1 0 nil nil nil)
-          (system::%record-ref 2 0 nil nil nil)
-          (system::%record-store 3 0 nil nil nil)
-          (system::%rplaca 2 0 nil nil nil)
-          (system::%rplacd 2 0 nil nil nil)
-          (system::%set-long-float-digits 1 0 nil nil nil)
-          (system::%setelt 3 0 nil nil nil)
-          ;;(system::%sleep 1 0 nil nil nil)
-          ;;(system::%sleep 2 0 nil nil nil)
-          (system::%structure-ref 3 0 nil nil nil)
-          (system::%structure-store 4 0 nil nil nil)
-          (system::%structure-type-p 2 0 nil nil nil)
-          (system::%svstore 3 0 nil nil nil)
-          (* 0 0 t nil nil)
-          (+ 0 0 t nil nil)
-          (- 1 0 t nil nil)
-          (/ 1 0 t nil nil)
-          (/= 1 0 t nil nil)
-          (1+ 1 0 nil nil nil)
-          (1- 1 0 nil nil nil)
-          (< 1 0 t nil nil)
-          (<= 1 0 t nil nil)
-          (= 1 0 t nil nil)
-          (> 1 0 t nil nil)
-          (>= 1 0 t nil nil)
-          (abs 1 0 nil nil nil)
-          (acons 3 0 nil nil nil)
-          (acos 1 0 nil nil nil)
-          (acosh 1 0 nil nil nil)
-          (adjoin 2 0 nil (:test :test-not :key) nil)
-          (adjust-array 2 0 nil (:element-type :initial-element :initial-contents :fill-pointer :displaced-to :displaced-index-offset) nil)
-          (adjustable-array-p 1 0 nil nil nil)
-          (alpha-char-p 1 0 nil nil nil)
-          (alphanumericp 1 0 nil nil nil)
-          (append 0 0 t nil nil)
-          (apply 2 0 t nil nil)
-          (applyhook 4 1 nil nil nil)
-          (aref 1 0 t nil nil)
-          (array-dimension 2 0 nil nil nil)
-          (array-dimensions 1 0 nil nil nil)
-          (array-element-type 1 0 nil nil nil)
-          (array-has-fill-pointer-p 1 0 nil nil nil)
-          (array-in-bounds-p 1 0 t nil nil)
-          (array-rank 1 0 nil nil nil)
-          (system::array-reader 3 0 nil nil nil)
-          (array-row-major-index 1 0 t nil nil)
-          (array-total-size 1 0 nil nil nil)
-          (arrayp 1 0 nil nil nil)
-          (ash 2 0 nil nil nil)
-          (asin 1 0 nil nil nil)
-          (asinh 1 0 nil nil nil)
-          (assoc 2 0 nil (:test :test-not :key) nil)
-          (assoc-if 2 0 nil (:key) nil)
-          (assoc-if-not 2 0 nil (:key) nil)
-          (atan 1 1 nil nil nil)
-          (atanh 1 0 nil nil nil)
-          (atom 1 0 nil nil nil)
-          (system::binary-reader 3 0 nil nil nil)
-          (bit 1 0 t nil nil)
-          (bit-and 2 1 nil nil nil)
-          (bit-andc1 2 1 nil nil nil)
-          (bit-andc2 2 1 nil nil nil)
-          (bit-eqv 2 1 nil nil nil)
-          (bit-ior 2 1 nil nil nil)
-          (bit-nand 2 1 nil nil nil)
-          (bit-nor 2 1 nil nil nil)
-          (bit-not 1 1 nil nil nil)
-          (bit-orc1 2 1 nil nil nil)
-          (bit-orc2 2 1 nil nil nil)
-          (bit-vector-p 1 0 nil nil nil)
-          (system::bit-vector-reader 3 0 nil nil nil)
-          (bit-xor 2 1 nil nil nil)
-          (boole 3 0 nil nil nil)
-          (both-case-p 1 0 nil nil nil)
-          (boundp 1 0 nil nil nil)
-          (system::broadcast-stream-p 1 0 nil nil nil)
-          (system::built-in-stream-close 1 0 nil (:abort) nil)
-          (system::built-in-stream-element-type 1 0 nil nil nil)
-          (butlast 1 1 nil nil nil)
-          (byte 2 0 nil nil nil)
-          (byte-position 1 0 nil nil nil)
-          (byte-size 1 0 nil nil nil)
-          (caaaar 1 0 nil nil nil)
-          (caaadr 1 0 nil nil nil)
-          (caaar 1 0 nil nil nil)
-          (caadar 1 0 nil nil nil)
-          (caaddr 1 0 nil nil nil)
-          (caadr 1 0 nil nil nil)
-          (caar 1 0 nil nil nil)
-          (cadaar 1 0 nil nil nil)
-          (cadadr 1 0 nil nil nil)
-          (cadar 1 0 nil nil nil)
-          (caddar 1 0 nil nil nil)
-          (cadddr 1 0 nil nil nil)
-          (caddr 1 0 nil nil nil)
-          (cadr 1 0 nil nil nil)
-          (car 1 0 nil nil nil)
-          (cd 0 1 nil nil nil)
-          (cdaaar 1 0 nil nil nil)
-          (cdaadr 1 0 nil nil nil)
-          (cdaar 1 0 nil nil nil)
-          (cdadar 1 0 nil nil nil)
-          (cdaddr 1 0 nil nil nil)
-          (cdadr 1 0 nil nil nil)
-          (cdar 1 0 nil nil nil)
-          (cddaar 1 0 nil nil nil)
-          (cddadr 1 0 nil nil nil)
-          (cddar 1 0 nil nil nil)
-          (cdddar 1 0 nil nil nil)
-          (cddddr 1 0 nil nil nil)
-          (cdddr 1 0 nil nil nil)
-          (cddr 1 0 nil nil nil)
-          (cdr 1 0 nil nil nil)
-          (ceiling 1 1 nil nil nil)
-          (char 2 0 nil nil nil)
-          (char-code 1 0 nil nil nil)
-          (char-downcase 1 0 nil nil nil)
-          (char-equal 1 0 t nil nil)
-          (char-greaterp 1 0 t nil nil)
-          (char-int 1 0 nil nil nil)
-          (char-lessp 1 0 t nil nil)
-          (char-name 1 0 nil nil nil)
-          (char-not-equal 1 0 t nil nil)
-          (char-not-greaterp 1 0 t nil nil)
-          (char-not-lessp 1 0 t nil nil)
-          (system::char-reader 3 0 nil nil nil)
-          (char-upcase 1 0 nil nil nil)
-          (char-width 1 0 nil nil nil)
-          (char/= 1 0 t nil nil)
-          (char< 1 0 t nil nil)
-          (char<= 1 0 t nil nil)
-          (char= 1 0 t nil nil)
-          (char> 1 0 t nil nil)
-          (char>= 1 0 t nil nil)
-          (character 1 0 nil nil nil)
-          (characterp 1 0 nil nil nil)
-          (cis 1 0 nil nil nil)
-          (clos::class-gethash 2 0 nil nil nil)
-          (clos:class-of 1 0 nil nil nil)
-          (clos::class-p 1 0 nil nil nil)
-          (clos::class-tuple-gethash 2 0 t nil nil)
-          (clear-input 0 1 nil nil nil)
-          (clear-output 0 1 nil nil nil)
-          (system::closure-codevec 1 0 nil nil nil)
-          (system::closure-consts 1 0 nil nil nil)
-          (system::closure-name 1 0 nil nil nil)
-          (system::closure-reader 3 0 nil nil nil)
-          (system::closurep 1 0 nil nil nil)
-          (clrhash 1 0 nil nil nil)
-          (code-char 1 0 nil nil nil)
-          (coerce 2 0 nil nil nil)
-          (system::comment-reader 3 0 nil nil nil)
-          (compiled-function-p 1 0 nil nil nil)
-          (complex 1 1 nil nil nil)
-          (system::complex-reader 3 0 nil nil nil)
-          (complexp 1 0 nil nil nil)
-          (concatenate 1 0 t nil nil)
-          (system::concatenated-stream-p 1 0 nil nil nil)
-          (conjugate 1 0 nil nil nil)
-          (cons 2 0 nil nil nil)
-          (consp 1 0 nil nil nil)
-          (constantp 1 0 nil nil nil)
-          (copy-alist 1 0 nil nil nil)
-          (system::%copy-generic-function 2 0 nil nil nil)
-          (copy-list 1 0 nil nil nil)
-          (copy-readtable 0 2 nil nil nil)
-          (copy-seq 1 0 nil nil nil)
-          (system::%copy-simple-vector 1 0 nil nil nil)
-          (copy-structure 1 0 nil nil nil)
-          (copy-tree 1 0 nil nil nil)
-          (cos 1 0 nil nil nil)
-          (cosh 1 0 nil nil nil)
-          (count 2 0 nil (:from-end :start :end :key :test :test-not) nil)
-          (count-if 2 0 nil (:from-end :start :end :key) nil)
-          (count-if-not 2 0 nil (:from-end :start :end :key) nil)
-          (system::debug 0 0 nil nil nil)
-          (system::decimal-string 1 0 nil nil nil)
-          (decode-float 1 0 nil nil nil)
-          (delete 2 0 nil (:from-end :start :end :key :test :test-not :count) nil)
-          (delete-dir 1 0 nil nil nil)
-          (delete-duplicates 1 0 nil (:from-end :start :end :key :test :test-not) nil)
-          (delete-file 1 0 nil nil nil)
-          (delete-if 2 0 nil (:from-end :start :end :key :count) nil)
-          (delete-if-not 2 0 nil (:from-end :start :end :key :count) nil)
-          (denominator 1 0 nil nil nil)
-          (deposit-field 3 0 nil nil nil)
-          (system::describe-frame 2 0 nil nil nil)
-          (digit-char 1 1 nil nil nil)
-          (digit-char-p 1 1 nil nil nil)
-          (directory 0 1 nil (:circle :full) nil)
-          (directory-namestring 1 0 nil nil nil)
-          (system::double-float-p 1 0 nil nil nil)
-          (dpb 3 0 nil nil nil)
-          (system::driver 1 0 nil nil nil)
-          (system::echo-stream-p 1 0 nil nil nil)
-          (eighth 1 0 nil nil nil)
-          (elt 2 0 nil nil nil)
-          (endp 1 0 nil nil nil)
-          (enough-namestring 1 1 nil nil nil)
-          (eq 2 0 nil nil nil)
-          (eql 2 0 nil nil nil)
-          (equal 2 0 nil nil nil)
-          (equalp 2 0 nil nil nil)
-          (error 1 0 t nil nil)
-          (system::error-of-type 2 0 t nil nil)
-          (eval 1 0 nil nil nil)
-          (system::eval-at 2 0 nil nil nil)
-          (system::eval-frame-p 1 0 nil nil nil)
-          (evalhook 3 1 nil nil nil)
-          (evenp 1 0 nil nil nil)
-          (every 2 0 t nil nil)
-          ;(execute 1 2 nil nil nil)
-          ;(execute 1 0 t nil nil)
-          (exp 1 0 nil nil nil)
-          (export 1 1 nil nil nil)
-          (expt 2 0 nil nil nil)
-          (exquo 2 0 nil nil nil)
-          (fboundp 1 0 nil nil nil)
-          (fceiling 1 1 nil nil nil)
-          (system::feature-reader 3 0 nil nil nil)
-          (ffloor 1 1 nil nil nil)
-          (fifth 1 0 nil nil nil)
-          (file-author 1 0 nil nil nil)
-          (file-length 1 0 nil nil nil)
-          (file-namestring 1 0 nil nil nil)
-          (file-position 1 1 nil nil nil)
-          (system::file-stream-p 1 0 nil nil nil)
-          (file-string-length 2 0 nil nil nil)
-          (file-write-date 1 0 nil nil nil)
-          (fill 2 0 nil (:start :end) nil)
-          (fill-pointer 1 0 nil nil nil)
-          (find 2 0 nil (:from-end :start :end :key :test :test-not) nil)
-          (find-all-symbols 1 0 nil nil nil)
-          (clos:find-class 1 2 nil nil nil)
-          (find-if 2 0 nil (:from-end :start :end :key) nil)
-          (find-if-not 2 0 nil (:from-end :start :end :key) nil)
-          (find-package 1 0 nil nil nil)
-          (find-symbol 1 1 nil nil nil)
-          (finish-output 0 1 nil nil nil)
-          (first 1 0 nil nil nil)
-          (system::fixnump 1 0 nil nil nil)
-          (float 1 1 nil nil nil)
-          (float-digits 1 1 nil nil nil)
-          (float-precision 1 0 nil nil nil)
-          (float-radix 1 0 nil nil nil)
-          (float-sign 1 1 nil nil nil)
-          (floatp 1 0 nil nil nil)
-          (floor 1 1 nil nil nil)
-          (fmakunbound 1 0 nil nil nil)
-          (force-output 0 1 nil nil nil)
-          (fourth 1 0 nil nil nil)
-          (system::frame-down 2 0 nil nil nil)
-          (system::frame-down-1 2 0 nil nil nil)
-          (system::frame-up 2 0 nil nil nil)
-          (system::frame-up-1 2 0 nil nil nil)
-          (fresh-line 0 1 nil nil nil)
-          (fround 1 1 nil nil nil)
-          (ftruncate 1 1 nil nil nil)
-          (funcall 1 0 t nil nil)
-          (system::function-reader 3 0 nil nil nil)
-          (functionp 1 0 nil nil nil)
-          (gc 0 0 nil nil nil)
-          (gcd 0 0 t nil nil)
-          (clos::generic-function-p 1 0 nil nil nil)
-          (gensym 0 1 nil nil nil)
-          (get 2 1 nil nil nil)
-          (get-dispatch-macro-character 2 1 nil nil nil)
-          (get-internal-real-time 0 0 nil nil nil)
-          (get-internal-run-time 0 0 nil nil nil)
-          (get-macro-character 1 1 nil nil nil)
-          (get-output-stream-string 1 0 nil nil nil)
-          (get-properties 2 0 nil nil nil)
-          (get-universal-time 0 0 nil nil nil)
-          (getf 2 1 nil nil nil)
-          (gethash 2 1 nil nil nil)
-          (graphic-char-p 1 0 nil nil nil)
-          (hash-table-count 1 0 nil nil nil)
-          (hash-table-rehash-size 1 0 nil nil nil)
-          (hash-table-rehash-threshold 1 0 nil nil nil)
-          (hash-table-size 1 0 nil nil nil)
-          (hash-table-test 1 0 nil nil nil)
-          (system::hash-table-iterate 1 0 nil nil nil)
-          (system::hash-table-iterator 1 0 nil nil nil)
-          (hash-table-p 1 0 nil nil nil)
-          (system::hexadecimal-reader 3 0 nil nil nil)
-          (host-namestring 1 0 nil nil nil)
-          (identity 1 0 nil nil nil)
-          (imagpart 1 0 nil nil nil)
-          (import 1 1 nil nil nil)
-          (system::initial-contents-aux 1 0 nil nil nil)
-          (input-stream-p 1 0 nil nil nil)
-          (int-char 1 0 nil nil nil)
-          (integer-decode-float 1 0 nil nil nil)
-          (integer-length 1 0 nil nil nil)
-          (integerp 1 0 nil nil nil)
-          (intern 1 1 nil nil nil)
-          (invoke-debugger 1 0 nil nil nil)
-          (isqrt 1 0 nil nil nil)
-          (system::keyword-test 2 0 nil nil nil)
-          (keywordp 1 0 nil nil nil)
-          (system::label-definiion-reader 3 0 nil nil nil)
-          (system::label-reference-reader 3 0 nil nil nil)
-          (last 1 1 nil nil nil)
-          (lcm 0 0 t nil nil)
-          (ldb 2 0 nil nil nil)
-          (ldb-test 2 0 nil nil nil)
-          (ldiff 2 0 nil nil nil)
-          (length 1 0 nil nil nil)
-          (system::line-comment-reader 2 0 nil nil nil)
-          (system::line-number 1 0 nil nil nil)
-          (system::line-position 0 1 nil nil nil)
-          (lisp-implementation-type 0 0 nil nil nil)
-          (lisp-implementation-version 0 0 nil nil nil)
-          (list 0 0 t nil nil)
-          (list* 1 0 t nil nil)
-          (system::list-access 2 0 nil nil nil)
-          (system::list-access-set 3 0 nil nil nil)
-          (list-all-packages 0 0 nil nil nil)
-          (system::list-elt 2 0 nil nil nil)
-          (system::list-endtest 2 0 nil nil nil)
-          (system::list-fe-init 1 0 nil nil nil)
-          (system::list-fe-init-end 2 0 nil nil nil)
-          (system::list-init-start 2 0 nil nil nil)
-          (list-length 1 0 nil nil nil)
-          (system::list-llength 1 0 nil nil nil)
-          (system::list-nreverse 1 0 nil nil nil)
-          (system::list-set-elt 3 0 nil nil nil)
-          (system::list-upd 2 0 nil nil nil)
-          (listen 0 1 nil nil nil)
-          (listp 1 0 nil nil nil)
-          (system::load-eval-reader 3 0 nil nil nil)
-          (log 1 1 nil nil nil)
-          (system::log10 1 0 nil nil nil)
-          (system::log2 1 0 nil nil nil)
-          (logand 0 0 t nil nil)
-          (logandc1 2 0 nil nil nil)
-          (logandc2 2 0 nil nil nil)
-          (logbitp 2 0 nil nil nil)
-          (logcount 1 0 nil nil nil)
-          (logeqv 0 0 t nil nil)
-          (system::logical-pathname-p 1 0 nil nil nil)
-          (logior 0 0 t nil nil)
-          (lognand 2 0 nil nil nil)
-          (lognor 2 0 nil nil nil)
-          (lognot 1 0 nil nil nil)
-          (logorc1 2 0 nil nil nil)
-          (logorc2 2 0 nil nil nil)
-          (logtest 2 0 nil nil nil)
-          (logxor 0 0 t nil nil)
-          (long-float-digits 0 0 nil nil nil)
-          (system::long-float-p 1 0 nil nil nil)
-          (lower-case-p 1 0 nil nil nil)
-          (system::lpar-reader 2 0 nil nil nil)
-          ;(machine-instance 0 0 nil nil nil)
-          ;(machine-type 0 0 nil nil nil)
-          ;(machine-version 0 0 nil nil nil)
-          (macro-function 1 1 nil nil nil)
-          (macroexpand 1 1 nil nil nil)
-          (macroexpand-1 1 1 nil nil nil)
-          (make-array 1 0 nil (:adjustable :element-type :initial-element :initial-contents :fill-pointer :displaced-to :displaced-index-offset) nil)
-          (system::make-bit-vector 1 0 nil nil nil)
-          (make-broadcast-stream 0 0 t nil nil)
-          (make-buffered-input-stream 2 0 nil nil nil)
-          (make-buffered-output-stream 1 0 nil nil nil)
-          (system::make-code-vector 1 0 nil nil nil)
-          (make-concatenated-stream 0 0 t nil nil)
-          (make-dir 1 0 nil nil nil)
-          (make-dispatch-macro-character 1 2 nil nil nil)
-          (make-echo-stream 2 0 nil nil nil)
-          (make-hash-table 0 0 nil (:initial-contents :test :size :rehash-size :rehash-threshold) nil)
-          (make-list 1 0 nil (:initial-element) nil)
-          (system::make-load-time-eval 1 0 nil nil nil)
-          (make-package 1 0 nil (:nicknames :use :case-sensitive) nil)
-          (make-pathname 0 0 nil (:defaults :case :host :device :directory :name :type :version) nil)
-          #+(or UNIX OS/2 WIN32) (make-pipe-input-stream 1 0 nil (:element-type :external-format :buffered) nil)
-          #+(or UNIX OS/2 WIN32) (make-pipe-output-stream 1 0 nil (:element-type :external-format :buffered) nil)
-          #+(or UNIX OS/2 WIN32) (make-pipe-io-stream 1 0 nil (:element-type :external-format :buffered) nil)
-          (make-random-state 0 1 nil nil nil)
-          (make-sequence 2 0 nil (:initial-element :update) nil)
-          (make-string 1 0 nil (:initial-element :element-type) nil)
-          (make-string-input-stream 1 2 nil nil nil)
-          (make-string-output-stream 0 0 nil (:element-type :line-position) nil)
-          (system::make-string-push-stream 1 0 nil nil nil)
-          (make-symbol 1 0 nil nil nil)
-          (make-synonym-stream 1 0 nil nil nil)
-          (make-two-way-stream 2 0 nil nil nil)
-          (make-weak-pointer 1 0 nil nil nil)
-          (makunbound 1 0 nil nil nil)
-          (map 3 0 t nil nil)
-          (system::map-all-symbols 1 0 nil nil nil)
-          (system::map-external-symbols 2 0 nil nil nil)
-          (system::map-symbols 2 0 nil nil nil)
-          (mapc 2 0 t nil nil)
-          (mapcan 2 0 t nil nil)
-          (mapcar 2 0 t nil nil)
-          (mapcon 2 0 t nil nil)
-          (maphash 2 0 nil nil nil)
-          (mapl 2 0 t nil nil)
-          (maplist 2 0 t nil nil)
-          (mask-field 2 0 nil nil nil)
-          (max 1 0 t nil nil)
-          (member 2 0 nil (:test :test-not :key) nil)
-          (member-if 2 0 nil (:key) nil)
-          (member-if-not 2 0 nil (:key) nil)
-          (merge 4 0 nil (:key) nil)
-          (merge-pathnames 1 2 nil (:wild) nil)
-          (min 1 0 t nil nil)
-          (minusp 1 0 nil nil nil)
-          (mismatch 2 0 nil (:from-end :start1 :end1 :start2 :end2 :key :test :test-not) nil)
-          (mod 2 0 nil nil nil)
-          (name-char 1 0 nil nil nil)
-          (namestring 1 1 nil nil nil)
-          (nbutlast 1 1 nil nil nil)
-          (nconc 0 0 t nil nil)
-          (ninth 1 0 nil nil nil)
-          (not 1 0 nil nil nil)
-          (system::not-feature-reader 3 0 nil nil nil)
-          (system::not-readable-reader 3 0 nil nil nil)
-          (notany 2 0 t nil nil)
-          (notevery 2 0 t nil nil)
-          (nreconc 2 0 nil nil nil)
-          (nreverse 1 0 nil nil nil)
-          (nstring-capitalize 1 0 nil (:start :end) nil)
-          (nstring-downcase 1 0 nil (:start :end) nil)
-          (nstring-upcase 1 0 nil (:start :end) nil)
-          (nsublis 2 0 nil (:test :test-not :key) nil)
-          (nsubst 3 0 nil (:test :test-not :key) nil)
-          (nsubst-if 3 0 nil (:key) nil)
-          (nsubst-if-not 3 0 nil (:key) nil)
-          (nsubstitute 3 0 nil (:from-end :start :end :key :test :test-not :count) nil)
-          (nsubstitute-if 3 0 nil (:from-end :start :end :key :count) nil)
-          (nsubstitute-if-not 3 0 nil (:from-end :start :end :key :count) nil)
-          (nth 2 0 nil nil nil)
-          (nthcdr 2 0 nil nil nil)
-          (null 1 0 nil nil nil)
-          (numberp 1 0 nil nil nil)
-          (numerator 1 0 nil nil nil)
-          (system::octal-reader 3 0 nil nil nil)
-          (oddp 1 0 nil nil nil)
-          (open 1 0 nil (:direction :element-type :if-exists :if-does-not-exist :external-format :buffered) nil)
-          (output-stream-p 1 0 nil nil nil)
-          (package-name 1 0 nil nil nil)
-          (package-nicknames 1 0 nil nil nil)
-          (package-shadowing-symbols 1 0 nil nil nil)
-          (package-use-list 1 0 nil nil nil)
-          (package-used-by-list 1 0 nil nil nil)
-          (packagep 1 0 nil nil nil)
-          (pairlis 2 1 nil nil nil)
-          (system::parse-body 1 2 nil nil nil)
-          (parse-integer 1 0 nil (:start :end :radix :junk-allowed) nil)
-          (parse-namestring 1 2 nil (:start :end :junk-allowed) nil)
-          (pathname 1 0 nil nil nil)
-          (pathname-device 1 0 nil (:case) nil)
-          (pathname-directory 1 0 nil (:case) nil)
-          (pathname-host 1 0 nil (:case) nil)
-          (pathname-match-p 2 0 nil nil nil)
-          (pathname-name 1 0 nil (:case) nil)
-          (system::pathname-reader 3 0 nil nil nil)
-          (pathname-type 1 0 nil (:case) nil)
-          (pathname-version 1 0 nil nil nil)
-          (pathnamep 1 0 nil nil nil)
-          (peek-char 0 5 nil nil nil)
-          (phase 1 0 nil nil nil)
-          (plusp 1 0 nil nil nil)
-          (position 2 0 nil (:from-end :start :end :key :test :test-not) nil)
-          (position-if 2 0 nil (:from-end :start :end :key) nil)
-          (position-if-not 2 0 nil (:from-end :start :end :key) nil)
-          (pprint 1 1 nil nil nil)
-          (prin1 1 1 nil nil nil)
-          (prin1-to-string 1 0 nil nil nil)
-          (princ 1 1 nil nil nil)
-          (princ-to-string 1 0 nil nil nil)
-          (print 1 1 nil nil nil)
-          (probe-file 1 0 nil nil nil)
-          (proclaim 1 0 nil nil nil)
-          (system::puthash 3 0 nil nil nil)
-          (system::quote-reader 2 0 nil nil nil)
-          (system::radix-reader 3 0 nil nil nil)
-          (random 1 1 nil nil nil)
-          (random-state-p 1 0 nil nil nil)
-          (rassoc 2 0 nil (:test :test-not :key) nil)
-          (rassoc-if 2 0 nil (:key) nil)
-          (rassoc-if-not 2 0 nil (:key) nil)
-          (rational 1 0 nil nil nil)
-          (rationalize 1 0 nil nil nil)
-          (rationalp 1 0 nil nil nil)
-          (read 0 4 nil nil nil)
-          (read-byte 1 2 nil nil nil)
-          (read-char 0 4 nil nil nil)
-          (read-char-no-hang 0 4 nil nil nil)
-          (read-delimited-list 1 2 nil nil nil)
-          (system::read-eval-print 1 1 nil nil nil)
-          (system::read-eval-reader 3 0 nil nil nil)
-          (system::read-form 1 1 nil nil nil)
-          (read-from-string 1 2 nil (:preserve-whitespace :start :end) nil)
-          (read-integer 2 3 nil nil nil)
-          (read-line 0 4 nil nil nil)
-          (read-preserving-whitespace 0 4 nil nil nil)
-          (readtablep 1 0 nil nil nil)
-          (realp 1 0 nil nil nil)
-          (realpart 1 0 nil nil nil)
-          (system::redo-eval-frame 1 0 nil nil nil)
-          (reduce 2 0 nil (:from-end :start :end :key :initial-value) nil)
-          (rem 2 0 nil nil nil)
-          (remhash 2 0 nil nil nil)
-          (remove 2 0 nil (:from-end :start :end :key :test :test-not :count) nil)
-          (remove-duplicates 1 0 nil (:from-end :start :end :key :test :test-not) nil)
-          (remove-if 2 0 nil (:from-end :start :end :key :count) nil)
-          (remove-if-not 2 0 nil (:from-end :start :end :key :count) nil)
-          (remprop 2 0 nil nil nil)
-          (rename-file 2 0 nil nil nil)
-          (rename-package 2 1 nil nil nil)
-          (replace 2 0 nil (:start1 :end1 :start2 :end2) nil)
-          (rest 1 0 nil nil nil)
-          (system::return-from-eval-frame 2 0 nil nil nil)
-          (revappend 2 0 nil nil nil)
-          (reverse 1 0 nil nil nil)
-          (round 1 1 nil nil nil)
-          (row-major-aref 2 0 nil nil nil)
-          (system::row-major-store 3 0 nil nil nil)
-          (system::rpar-reader 2 0 nil nil nil)
-          (rplaca 2 0 nil nil nil)
-          (rplacd 2 0 nil nil nil)
-          (system::same-env-as 2 0 nil nil nil)
-          (savemem 1 0 nil nil nil)
-          (sbit 1 0 t nil nil)
-          (scale-float 2 0 nil nil nil)
-          (schar 2 0 nil nil nil)
-          (search 2 0 nil (:from-end :start1 :end1 :start2 :end2 :key :test :test-not) nil)
-          (system::search-string-equal 2 0 nil (:start1 :end1 :start2 :end2) nil)
-          (system::search-string= 2 0 nil (:start1 :end1 :start2 :end2) nil)
-          (second 1 0 nil nil nil)
-          (system::sequencep 1 0 nil nil nil)
-          (set 2 0 nil nil nil)
-          (set-dispatch-macro-character 3 1 nil nil nil)
-          (system::set-fill-pointer 2 0 nil nil nil)
-          (set-macro-character 2 2 nil nil nil)
-          (system::set-symbol-value 2 0 nil nil nil)
-          (set-syntax-from-char 2 2 nil nil nil)
-          (seventh 1 0 nil nil nil)
-          (shadow 1 1 nil nil nil)
-          (shadowing-import 1 1 nil nil nil)
-          ;(shell 0 1 nil nil nil)
-          (system::short-float-p 1 0 nil nil nil)
-          (show-stack 0 0 nil nil nil)
-          (signum 1 0 nil nil nil)
-          (system::simple-array-p 1 0 nil nil nil)
-          (simple-bit-vector-p 1 0 nil nil nil)
-          (simple-string-p 1 0 nil nil nil)
-          (simple-vector-p 1 0 nil nil nil)
-          (sin 1 0 nil nil nil)
-          (system::single-float-p 1 0 nil nil nil)
-          (sinh 1 0 nil nil nil)
-          (sixth 1 0 nil nil nil)
-          (clos:slot-value 2 0 nil nil nil)
-          (clos::set-slot-value 3 0 nil nil nil)
-          (clos:slot-boundp 2 0 nil nil nil)
-          (clos:slot-makunbound 2 0 nil nil nil)
-          (clos:slot-exists-p 2 0 nil nil nil)
-          (software-type 0 0 nil nil nil)
-          (software-version 0 0 nil nil nil)
-          (some 2 0 t nil nil)
-          (sort 2 0 nil (:key :start :end) nil)
-          (special-operator-p 1 0 nil nil nil)
-          (system::special-variable-p 1 1 nil nil nil)
-          (sqrt 1 0 nil nil nil)
-          (stable-sort 2 0 nil (:key :start :end) nil)
-          (standard-char-p 1 0 nil nil nil)
-          (clos::std-instance-p 1 0 nil nil nil)
-          (system::store 2 0 t nil nil)
-          (system::store-char 3 0 nil nil nil)
-          (system::store-schar 3 0 nil nil nil)
-          (stream-external-format 1 0 nil nil nil)
-          (streamp 1 0 nil nil nil)
-          (string 1 0 nil nil nil)
-          (system::string-both-trim 3 0 nil nil nil)
-          (string-capitalize 1 0 nil (:start :end) nil)
-          (string-char-p 1 0 nil nil nil)
-          (string-concat 0 0 t nil nil)
-          (string-downcase 1 0 nil (:start :end) nil)
-          (string-equal 2 0 nil (:start1 :end1 :start2 :end2) nil)
-          (string-greaterp 2 0 nil (:start1 :end1 :start2 :end2) nil)
-          (system::string-input-stream-index 1 0 nil nil nil)
-          (string-lessp 2 0 nil (:start1 :end1 :start2 :end2) nil)
-          (string-not-equal 2 0 nil (:start1 :end1 :start2 :end2) nil)
-          (string-not-greaterp 2 0 nil (:start1 :end1 :start2 :end2) nil)
-          (string-not-lessp 2 0 nil (:start1 :end1 :start2 :end2) nil)
-          (system::string-reader 2 0 nil nil nil)
-          (system::string-stream-p 1 0 nil nil nil)
-          (string-upcase 1 0 nil (:start :end) nil)
-          (string-width 1 0 nil (:start :end) nil)
-          (string/= 2 0 nil (:start1 :end1 :start2 :end2) nil)
-          (string< 2 0 nil (:start1 :end1 :start2 :end2) nil)
-          (string<= 2 0 nil (:start1 :end1 :start2 :end2) nil)
-          (string= 2 0 nil (:start1 :end1 :start2 :end2) nil)
-          (string> 2 0 nil (:start1 :end1 :start2 :end2) nil)
-          (string>= 2 0 nil (:start1 :end1 :start2 :end2) nil)
-          (stringp 1 0 nil nil nil)
-          (clos::structure-object-p 1 0 nil nil nil)
-          (system::structure-reader 3 0 nil nil nil)
-          (sublis 2 0 nil (:test :test-not :key) nil)
-          (system::subr-info 1 0 nil nil nil)
-          (subseq 2 1 nil nil nil)
-          (subst 3 0 nil (:test :test-not :key) nil)
-          (subst-if 3 0 nil (:key) nil)
-          (subst-if-not 3 0 nil (:key) nil)
-          (substitute 3 0 nil (:from-end :start :end :key :test :test-not :count) nil)
-          (substitute-if 3 0 nil (:from-end :start :end :key :count) nil)
-          (substitute-if-not 3 0 nil (:from-end :start :end :key :count) nil)
-          (substring 2 1 nil nil nil)
-          (svref 2 0 nil nil nil)
-          (system::svstore 3 0 nil nil nil)
-          (sxhash 1 0 nil nil nil)
-          (symbol-function 1 0 nil nil nil)
-          (symbol-name 1 0 nil nil nil)
-          (symbol-package 1 0 nil nil nil)
-          (symbol-plist 1 0 nil nil nil)
-          (symbol-value 1 0 nil nil nil)
-          (symbolp 1 0 nil nil nil)
-          (system::synonym-stream-p 1 0 nil nil nil)
-          (system::syntax-error-reader 3 0 nil nil nil)
-          (tailp 2 0 nil nil nil)
-          (tan 1 0 nil nil nil)
-          (tanh 1 0 nil nil nil)
-          (tenth 1 0 nil nil nil)
-          (terpri 0 1 nil nil nil)
-          (system::the-frame 0 0 nil nil nil)
-          (third 1 0 nil nil nil)
-          (translate-pathname 3 0 nil (:all :merge) nil)
-          (tree-equal 2 0 nil (:test :test-not) nil)
-          (truename 1 0 nil nil nil)
-          (truncate 1 1 nil nil nil)
-          (system::two-way-stream-p 1 0 nil nil nil)
-          (type-of 1 0 nil nil nil)
-          (unexport 1 1 nil nil nil)
-          (unintern 1 1 nil nil nil)
-          (system::uninterned-reader 3 0 nil nil nil)
-          (unread-char 1 1 nil nil nil)
-          (unuse-package 1 1 nil nil nil)
-          (system::unwind-to-driver 1 0 nil nil nil)
-          (upper-case-p 1 0 nil nil nil)
-          (use-package 1 1 nil nil nil)
-          #+(or UNIX ACORN-RISCOS WIN32) (user-homedir-pathname 0 1 nil nil nil)
-          (values 0 0 t nil nil)
-          (values-list 1 0 nil nil nil)
-          (vector 0 0 t nil nil)
-          (system::vector-endtest 2 0 nil nil nil)
-          (system::vector-fe-endtest 2 0 nil nil nil)
-          (system::vector-fe-init 1 0 nil nil nil)
-          (system::vector-fe-init-end 2 0 nil nil nil)
-          (system::vector-fe-upd 2 0 nil nil nil)
-          (system::vector-init 1 0 nil nil nil)
-          (system::vector-init-start 2 0 nil nil nil)
-          (system::vector-length 1 0 nil nil nil)
-          (vector-pop 1 0 nil nil nil)
-          (vector-push 2 0 nil nil nil)
-          (vector-push-extend 2 1 nil nil nil)
-          (system::vector-reader 3 0 nil nil nil)
-          (system::vector-upd 2 0 nil nil nil)
-          (vectorp 1 0 nil nil nil)
-          (system::version 0 1 nil nil nil)
-          (weak-pointer-p 1 0 nil nil nil)
-          (weak-pointer-value 1 0 nil nil nil)
-          (wild-pathname-p 1 1 nil nil nil)
-          (write 1 0 nil (:case :level :length :gensym :escape :radix :base :array :circle :pretty :closure :readably :right-margin :stream) nil)
-          (write-byte 2 0 nil nil nil)
-          (write-char 1 1 nil nil nil)
-          (write-integer 3 1 nil nil nil)
-          (write-line 1 1 nil (:start :end) nil)
-          (write-string 1 1 nil (:start :end) nil)
-          (write-to-string 1 0 nil (:case :level :length :gensym :escape :radix :base :array :circle :pretty :closure :readably :right-margin) nil)
-          (xgcd 0 0 t nil nil)
-          (zerop 1 0 nil nil nil))))))
 (defconstant function-codes
   (let ((hashtable (make-hash-table :test #'eq)))
     (dotimes (i (* 3 256))
@@ -1656,63 +637,10 @@ for-value   NIL or T
     `(CALLS1 ,funtab-index)
     `(CALLS2 ,(- funtab-index 256))))
 
-;; auxiliary function: mapcan, but with append instead of nconc:
-#|
-#-CLISP
- (defun mapcap (fun &rest lists &aux (L nil))
-  (loop
-    (setq L
-      (nconc
-        (reverse
-          (apply fun
-            (maplist #'(lambda (listsr)
-                         (if (atom (car listsr))
-                           (return)
-                           (pop (car listsr))))
-                     lists)))
-        L)))
-  (nreverse L))
-|#
-#-CLISP
-(defun mapcap (fun &rest lists)
-  (apply #'append (apply #'mapcar fun lists)))
-
-;; auxiliary function: mapcon, but with append instead of nconc:
-#|
-#-CLISP
- (defun maplap (fun &rest lists &aux (L nil))
-  (loop
-    (setq L
-      (nconc
-        (reverse
-          (apply fun
-            (maplist #'(lambda (listsr)
-                         (if (atom (car listsr))
-                           (return)
-                           (prog1
-                             (car listsr)
-                             (setf (car listsr) (cdr (car listsr))))))
-                     lists)))
-        L)))
-  (nreverse L))
-|#
-#-CLISP
-(defun maplap (fun &rest lists)
-  (apply #'append (apply #'maplist fun lists)))
-
-;; (memq item const-symbollist) == (member item const-symbollist :test #'eq),
-;; only the boolean value.
-#-CLISP
-(defmacro memq (item list)
-  (if (and (constantp list) (listp (eval list)))
-    `(case ,item (,(eval list) t) (t nil))
-    `(member ,item ,list :test #'eq)))
-
 ;; error message function
 (defun compiler-error (caller &optional where)
   (error (TEXT "Compiler bug!! Occurred in ~A~@[ at ~A~].")
          caller where))
-
 
 
 ;;;;****                      STACK   MANAGEMENT
@@ -2059,7 +987,7 @@ for-value   NIL or T
   for-value         ; specifies, if the whole block-construction has to
                     ; return values.
 )
-#+CLISP (remprop 'block 'sys::defstruct-description)
+(remprop 'block 'sys::defstruct-description)
 
 ;; Searches for a block with Name name and returns:
 ;; NIL                          if not found,
@@ -2103,7 +1031,7 @@ for-value   NIL or T
                     ; that are jumped at with GO from
                     ; within another function.
 )
-#+CLISP (remprop 'tagbody 'sys::defstruct-description)
+(remprop 'tagbody 'sys::defstruct-description)
 
 ;; Searches for a tag with Namen name and returns:
 ;; NIL                                         if not found,
@@ -2130,33 +1058,20 @@ for-value   NIL or T
 ;; %venv% = NIL or #(v1 val1 ... vn valn NEXT-ENV),
 ;; NEXT-ENV of the same shape.
 (defparameter specdecl
-  #+CLISP (eval
-            '(let ((*evalhook*
-                    #'(lambda (form env)
-                        (declare (ignore form))
-                        ;; The Evalhook-Mechanism passes the Environment.
-                        ;; (svref...0) thereof is the Variable-Environment,
-                        ;; (svref...1) thereof is the associated "value"
-                        ;; #<SPECIAL REFERENCE> from the *evalhook*-binding.
-                        (svref (svref env 0) 1))))
-              0))
-  #-CLISP (cons nil nil))
+  (eval
+   '(let ((*evalhook*
+           #'(lambda (form env)
+               (declare (ignore form))
+               ;; The Evalhook-Mechanism passes the Environment.
+               ;; (svref...0) thereof is the Variable-Environment,
+               ;; (svref...1) thereof is the associated "value"
+               ;; #<SPECIAL REFERENCE> from the *evalhook*-binding.
+               (svref (svref env 0) 1))))
+     0)))
 ;; determines, if the Symbol var represents a Special-Variable
-#+CLISP
 (defun proclaimed-special-p (var)
   (or (sys::special-variable-p var)
       (not (null (memq var *known-special-vars*)))))
-#-CLISP
-(defun proclaimed-special-p (var)
-  (or
-    (eq var '*evalhook*)
-    (eq var '*applyhook*)
-    (eq var '*macroexpand-hook*)
-    (let ((obj (cons nil nil)))
-      (eval
-        `(let ((,var ',obj))
-           (and (boundp ',var) (eq (symbol-value ',var) ',obj)))))
-    (not (null (member var *known-special-vars* :test #'eq)))))
 
 ;; newly constructed:
 (defvar *venv*)                  ; Variable-Environment, fine-grained
@@ -2217,7 +1132,7 @@ for-value   NIL or T
                            ;   Variable occurs.
   (fnode nil :read-only t) ; function containing this variable, an FNODE
 )
-#+CLISP (remprop 'var 'sys::defstruct-description)
+(remprop 'var 'sys::defstruct-description)
 
 ;; (venv-search v) searches in *venv* for a Variable with the Symbol v.
 ;; result:
@@ -2307,7 +1222,7 @@ for-value   NIL or T
   ;;   For *compiling-from-file* /= nil:
   ;;     If (eq horizon ':value), value, else form.
 )
-#+CLISP (remprop 'const 'sys::defstruct-description)
+(remprop 'const 'sys::defstruct-description)
 ;; In the 2nd Pass Variables with constantp=T are treated as Constants.
 
 
@@ -2494,7 +1409,7 @@ for-value   NIL or T
   far-used-tagbodys ; list of (tagbody . tag) defined in enclosing
                     ; functions but used by this function
 )
-#+CLISP (remprop 'fnode 'sys::defstruct-description)
+(remprop 'fnode 'sys::defstruct-description)
 
 ;; the current function, an FNODE:
 (defvar *func*)
@@ -2581,7 +1496,7 @@ for-value   NIL or T
   code          ; generated LAP-Code, a List of LAP-statements and ANODEs
   #+COMPILER-DEBUG
   stackz)       ; state of the Stacks on entry into the belonging LAP-Code
-#+CLISP (remprop 'anode 'sys::defstruct-description)
+(remprop 'anode 'sys::defstruct-description)
 ;; (make-anode ...) is the same as mk-anode, only that the arguments
 ;; are marked with keywords and unnecessary components
 ;; may stand there nevertheless because of #+COMPILER-DEBUG.
@@ -2758,7 +1673,7 @@ for-value   NIL or T
   (lineno1 *compile-file-lineno1*)
   (lineno2 *compile-file-lineno2*)
   (file *compile-file-truename*))
-#+CLISP (remprop 'c-source-point 'sys::defstruct-description)
+(remprop 'c-source-point 'sys::defstruct-description)
 
 ;; (C-SOURCE-LOCATION)
 ;; returns a description of the location in the source.
@@ -5610,10 +4525,9 @@ for-value   NIL or T
                    :seclass (anodes-seclass-or anode1 anode2)
                    :code
                    (if (cdr (anode-seclass anode2))
-                     `((CONST , #+CLISP (make-const :horizon ':all
-                                         :value #'values
-                                         :form '(function values))
-                        #-CLISP (new-const 'values))
+                     `((CONST ,(make-const :horizon ':all
+                                           :value #'values
+                                           :form '(function values)))
                        (MVCALLP)
                        ,anode1
                        (MV-TO-STACK)
@@ -7887,16 +6801,13 @@ for-value   NIL or T
                                 nil
                                 lambdabody
                                 nil)))))
-                      #+CLISP ; Test for Property DEFTYPE-EXPANDER:
                       ((setq h (get type 'SYS::DEFTYPE-EXPANDER))
                         (return-from c-TYPEP
                           (c-form `(TYPEP ,objform
                                     ',(funcall h (list type))))))
-                      #+CLISP ; Test for Property DEFSTRUCT-DESCRIPTION:
                       ((get type 'SYS::DEFSTRUCT-DESCRIPTION)
                         (return-from c-TYPEP
                           (c-form `(SYS::%STRUCTURE-TYPE-P ',type ,objform))))
-                      #+CLISP ; Test for Property CLOS::CLOSCLASS:
                       ((and (setq h (get type 'CLOS::CLOSCLASS))
                             (clos::class-p h)
                             (eq (clos:class-name h) type))
@@ -10963,9 +9874,7 @@ The function make-closure is required.
 (defun pass3 ()
   (dolist (pair *fnode-fixup-table*)
     (let ((code (fnode-code (first pair))) (n (second pair)))
-      (macrolet ((closure-const (code n)
-                   #-CLISP `(nth ,n (closure-consts ,code))
-                   #+CLISP `(sys::%record-ref ,code (+ 2 ,n))))
+      (macrolet ((closure-const (code n) `(sys::%record-ref ,code (+ 2 ,n))))
         (setf (closure-const code n) (fnode-code (closure-const code n)))))))
 
 
@@ -11016,23 +9925,20 @@ The function make-closure is required.
                     `(() ,form)
                     %venv% %fenv% %benv% %genv% %denv%)))
 
-#+CLISP
-(progn
-  ;; Evaluates a form in an environment
-  (defun eval-env (form &optional (env *toplevel-environment*))
-    (evalhook form nil nil env))
-  ;; compiles a form in the Toplevel-Environment
-  (defun compile-form-in-toplevel-environment
-      (form &aux (env *toplevel-environment*))
-    (compile-form form
-                  (svref env 0)    ; %venv%
-                  (svref env 1)    ; %fenv%
-                  (svref env 2)    ; %benv%
-                  (svref env 3)    ; %genv%
-                  (svref env 4)))) ; %denv%
+;; Evaluates a form in an environment
+(defun eval-env (form &optional (env *toplevel-environment*))
+  (evalhook form nil nil env))
+;; compiles a form in the Toplevel-Environment
+(defun compile-form-in-toplevel-environment
+    (form &aux (env *toplevel-environment*))
+  (compile-form form
+                (svref env 0)    ; %venv%
+                (svref env 1)    ; %fenv%
+                (svref env 2)    ; %benv%
+                (svref env 3)    ; %genv%
+                (svref env 4)))  ; %denv%
 
 ;; Common-Lisp-Function COMPILE
-#-CROSS
 (defun compile (name &optional (definition nil svar)
                      &aux (macro-flag nil) (trace-flag nil) (save-flag nil))
   (unless (function-name-p name)
@@ -11525,50 +10431,16 @@ The function make-closure is required.
     (labels ((mark (cl) ; enters a Closure cl (recursive) in closures.
                (push cl closures) ; mark cl
                (dolist (c (closure-consts cl)) ; and all Sub-Closures
-                 (when #+CLISP (and (sys::closurep c) (compiled-function-p c))
-                       #-CLISP (closure-p c)
+                 (when (and (sys::closurep c) (compiled-function-p c))
                    (unless (member c closures) (mark c)))))) ; mark likewise
       (mark closure)) ; mark Main-Closure
     (dolist (c (nreverse closures)) ; disassemble all Closures
       (disassemble-closure c stream))))
 
-#-CLISP
-(defun disassemble-closure (closure &optional (stream *standard-output*))
-  (format stream (TEXT "~%~%Disassembly of function ~S")
-                 (closure-name closure))
-  (multiple-value-bind (req-anz opt-anz rest-p key-p keyword-list
-                        allow-other-keys-p byte-list const-list)
-      (signature closure)
-    (do ((L const-list (cdr L))
-         (i 0 (1+ i)))
-        ((null L))
-      (format stream "~%(CONST ~S) = ~S" i (car L)))
-    (format stream (TEXT "~%~S required arguments") req-anz)
-    (format stream (TEXT "~%~S optional arguments") opt-anz)
-    (format stream (TEXT "~%~:[No rest parameter~;Rest parameter~]") rest-p)
-    (if key-p
-      (let ((kw-count (length keyword-list)))
-        (format stream (TEXT "~%~S keyword parameter~:P: ~{~S~^, ~}.")
-                       kw-count keyword-list)
-        (when allow-other-keys-p
-          (format stream (TEXT "~%Other keywords are allowed."))))
-      (format stream (TEXT "~%No keyword parameters")))
-    (let ((const-string-list (mapcar #'write-to-string const-list)))
-      (do ((L (disassemble-LAP byte-list const-list) (cdr L)))
-          ((null L))
-        (let ((PC (caar L))
-              (instr (cdar L)))
-          (format stream "~%~S~6T~A" PC instr)
-          (multiple-value-bind ... ; see below
-            ...
-            ))))
-    (format stream "~%")))
-#+CLISP
 (defun stream-tab (stream tab)
   (sys::write-spaces (let ((pos (sys::line-position stream)))
                        (if pos (max 1 (- tab pos)) 2))
                      stream))
-#+CLISP
 (defun disassemble-closure (closure &optional (stream *standard-output*))
   (terpri stream)
   (terpri stream)
@@ -11639,6 +10511,5 @@ The function make-closure is required.
 
 ;; The compilation of code using symbol-macros requires venv-search in
 ;; compiled form.
-#-CROSS
 (unless (compiled-function-p #'venv-search)
   (compile 'venv-search))
