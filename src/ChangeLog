@@ -1,5 +1,12 @@
 2005-01-22  Bruno Haible  <bruno@clisp.org>
 
+	* compiler.lisp (c-FUNCALL-INLINE): Fix long-standing bug in the
+	handling of SPECIAL-declared optional variables: If the initforms
+	of these variables come from the lambdalist, use sequential calls to
+	c-bind-movable-var-anode instead of c-parallel-bind-movable-var-anode.
+
+2005-01-22  Bruno Haible  <bruno@clisp.org>
+
 	Allow bignums as read-label values.
 	* lispbibl.d (Rectype_BigReadLabel): New enum item.
 	(BigReadLabel): New type.
