@@ -2480,14 +2480,11 @@ LISPFUNN(set_misc_encoding,1) {
 LISPFUN(convert_string_from_bytes,2,0,norest,key,2, (kw(start),kw(end)) ) {
   /* Stack layout: array, encoding, start, end. */
   var object array = STACK_3;
-  /* Check array: */
-  if (!vectorp(array)) fehler_vector(array);
-  /* Check encoding: */
-  if (!encodingp(STACK_2)) fehler_encoding(STACK_2);
-  /* Check start: */
-  if (!boundp(STACK_1)) STACK_1 = Fixnum_0;
-  /* Check end: */
-  if (missingp(STACK_0))
+  if (!vectorp(array)) fehler_vector(array); /* check array */
+  if (!encodingp(STACK_2)) fehler_encoding(STACK_2); /* check encoding */
+  STACK_3 = STACK_2; /* encoding */ STACK_2 = array; /* array */
+  if (!boundp(STACK_1)) STACK_1 = Fixnum_0; /* check start */
+  if (missingp(STACK_0)) /* check end */
     STACK_0 = fixnum(vector_length(array));
   /* Convert array to a vector with element type (UNSIGNED-BYTE 8): */
   if (!bit_vector_p(Atype_8Bit,array)) {
@@ -2503,63 +2500,57 @@ LISPFUN(convert_string_from_bytes,2,0,norest,key,2, (kw(start),kw(end)) ) {
     STACK_1 = Fixnum_0; /* start := 0 */
   }
   /* Determine size of result string: */
-  var uintL start = posfixnum_to_L(STACK_1);
-  var uintL end = posfixnum_to_L(STACK_0);
-  var uintL index = 0;
-  STACK_3 = array = array_displace_check(array,end,&index);
+  var stringarg sa = {array, 0, 0, vector_length(array)};
+  STACK_2 = array = array_displace_check(array,sa.len,&(sa.offset));
+  array = test_vector_limits(&sa);
+  pushSTACK(array);
+  /* stack layout: encoding, array */
+  var uintL start = sa.offset + sa.index;
+  var uintL end = start + sa.len;
  #ifdef UNICODE
   var uintL clen =
-    Encoding_mblen(STACK_2)(STACK_2,&TheSbvector(array)->data[index+start],
-                            &TheSbvector(array)->data[index+end]);
+    Encoding_mblen(STACK_1)(STACK_1,&TheSbvector(array)->data[start],
+                            &TheSbvector(array)->data[end]);
  #else
   var uintL clen = end-start;
  #endif
   /* Allocate and fill the result string: */
   var object string = allocate_string(clen);
   if (clen > 0) {
-    array = STACK_3;
+    array = STACK_0;
     var chart* cptr = &TheSstring(string)->data[0];
-    var const uintB* bptr = &TheSbvector(array)->data[index+start];
+    var const uintB* bptr = &TheSbvector(array)->data[start];
    #ifdef UNICODE
-    var const uintB* bendptr = &TheSbvector(array)->data[index+end];
+    var const uintB* bendptr = &TheSbvector(array)->data[end];
     var chart* cendptr = cptr+clen;
-    Encoding_mbstowcs(STACK_2)(STACK_2,nullobj,&bptr,bendptr,&cptr,cendptr);
+    Encoding_mbstowcs(STACK_1)(STACK_1,nullobj,&bptr,bendptr,&cptr,cendptr);
     ASSERT(cptr == cendptr);
    #else
     dotimespL(clen,clen, { *cptr++ = as_chart(*bptr++); } );
    #endif
   }
-  VALUES1(string); skipSTACK(4);
+  VALUES1(string); skipSTACK(2);
 }
 
 /* (CONVERT-STRING-TO-BYTES string encoding [:start] [:end]) */
 LISPFUN(convert_string_to_bytes,2,0,norest,key,2, (kw(start),kw(end)) ) {
   /* Stack layout: string, encoding, start, end. */
   var object string = STACK_3;
-  /* Check string: */
-  if (!stringp(string)) fehler_string(string);
-  /* Check encoding: */
-  if (!encodingp(STACK_2)) fehler_encoding(STACK_2);
-  /* Check start: */
-  if (!boundp(STACK_1)) STACK_1 = Fixnum_0;
-  /* Check end: */
-  if (missingp(STACK_0))
-    STACK_0 = fixnum(vector_length(string));
-  /* Determine size of result string: */
-  var uintL start = posfixnum_to_L(STACK_1);
-  var uintL end = posfixnum_to_L(STACK_0);
-  var uintL clen = end-start;
-  var uintL index = 0;
-  STACK_3 = string = array_displace_check(string,end,&index);
+  if (!encodingp(STACK_2)) fehler_encoding(STACK_2); /* check encoding */
+  STACK_3 = STACK_2; /* encoding */ STACK_2 = string; /* string */
+  var stringarg sa;
+  string = test_string_limits_ro(&sa); /* check string */
+  pushSTACK(string);
+  /* Stack layout: encoding, string */
   var const chart* srcptr;
-  unpack_sstring_alloca(string,clen,index+start, srcptr=);
-  var uintL blen = cslen(STACK_2,srcptr,clen);
+  unpack_sstring_alloca(string,sa.len,sa.offset+sa.index, srcptr=);
+  var uintL blen = cslen(STACK_1,srcptr,sa.len);
   /* Allocate and fill the result vector: */
   var object array = allocate_bit_vector(Atype_8Bit,blen);
   if (blen > 0) {
-    string = STACK_3;
-    unpack_sstring_alloca(string,clen,index+start, srcptr=);
-    cstombs(STACK_2,srcptr,clen,&TheSbvector(array)->data[0],blen);
+    string = STACK_0;
+    unpack_sstring_alloca(string,sa.len,sa.offset+sa.index, srcptr=);
+    cstombs(STACK_1,srcptr,sa.len,&TheSbvector(array)->data[0],blen);
   }
-  VALUES1(array); skipSTACK(4);
+  VALUES1(array); skipSTACK(2);
 }

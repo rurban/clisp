@@ -2202,6 +2202,38 @@ LISPFUNN(store_schar,3)
   skipSTACK(2);
 }
 
+/* UP: checks the limits for a vector argument
+ > STACK_2: vector-argument
+ > STACK_1: optional :start-argument
+ > STACK_0: optional :end-argument
+ < stringarg arg: description of the argument
+     (string, len & offset must be pre-set!)
+ < result: vector-argument
+ increases STACK by 3 */
+global object test_vector_limits (stringarg* arg) {
+  var uintL start, end;
+  /* arg->len is the length (<2^oint_data_len).
+     check :START-argument:
+     start := Index STACK_1, default value 0, must be <=len : */
+  test_index(STACK_1,start=,1,0,<=,arg->len,S(Kstart));
+  /* start is now the value of the :START-argument.
+     check :END-argument:
+     end := Index STACK_0, default value len, musst be <=len : */
+  test_index(STACK_0,end=,2,arg->len,<=,arg->len,S(Kend));
+  /* end is now the value of the :END-argument.
+     compare :START and :END arguments: */
+  if (start > end) {
+    pushSTACK(STACK_0); /* :END index */
+    pushSTACK(STACK_2); /* :START index */
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,GETTEXT("~: :START-index ~ must not be greater than :END-index ~"));
+  }
+  skipSTACK(3);
+  /* fill results: */
+  arg->index = start; arg->len = end-start;
+  return arg->string;
+}
+
 /* UP: checks the limits for a string-argument
  test_string_limits_ro(&arg)  [for read-only access]
  > STACK_2: string-argument
@@ -2211,34 +2243,12 @@ LISPFUNN(store_schar,3)
  < result: string-argument
  increases STACK by 3 */
 global object test_string_limits_ro (stringarg* arg) {
-  var uintL len;
-  var uintL start;
-  var uintL end;
   /* check string-argument: */
   var object string = STACK_2;
   if (!stringp(string))
     fehler_string(string);
-  arg->string = unpack_string_ro(string,&len,&arg->offset);
-  /* now, len is the length (<2^oint_data_len).
-     check :START-argument:
-     start := Index STACK_1, default value 0, must be <=len : */
-  test_index(STACK_1,start=,1,0,<=,len,S(Kstart));
-  /* start is now the value of the :START-argument.
-     check :END-argument:
-     end := Index STACK_0, default value len, musst be <=len : */
-  test_index(STACK_0,end=,2,len,<=,len,S(Kend));
-  /* end is now the value of the :END-argument.
-     compare :START and :END arguments: */
-  if (!(start <= end)) {
-    pushSTACK(STACK_0); /* :END-Index */
-    pushSTACK(STACK_2); /* :START-Index */
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~: :start-index ~ must not be greater than :end-index ~"));
-  }
-  skipSTACK(3);
-  /* issue results: */
-  arg->index = start; arg->len = end-start;
-  return string;
+  arg->string = unpack_string_ro(string,&arg->len,&arg->offset);
+  return test_vector_limits(arg);
 }
 
 /* UP: checks the limits for a string-argument

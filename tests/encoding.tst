@@ -38,3 +38,17 @@ ERROR
 ;          (e (make-encoding :charset "ISO-2022-JP-2")))
 ;      (equalp z (convert-string-to-bytes (convert-string-from-bytes z e) e))))
 ;t
+
+(let ((z (coerce #(97 98 99) '(vector (unsigned-byte 8)))))
+  (list (ext:convert-string-from-bytes z charset:ascii :start 0 :end 2)
+        (ext:convert-string-from-bytes z charset:ascii :start 0 :end 3)
+        (ext:convert-string-from-bytes z charset:ascii :start 1 :end 3)
+        (ext:convert-string-from-bytes z charset:ascii :start 1 :end 2)))
+("ab" "abc" "bc" "b")
+
+(let ((z "abc"))
+  (list (ext:convert-string-to-bytes z charset:ascii :start 0 :end 2)
+        (ext:convert-string-to-bytes z charset:ascii :start 0 :end 3)
+        (ext:convert-string-to-bytes z charset:ascii :start 1 :end 3)
+        (ext:convert-string-to-bytes z charset:ascii :start 1 :end 2)))
+(#(97 98) #(97 98 99) #(98 99) #(98))
