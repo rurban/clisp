@@ -6161,20 +6161,23 @@ local void double_dots (const object* stream_) {
 
 # UP: finds out, if an object has to be printed in #n= or #n# -
 # notation because of *PRINT-CIRCLE*.
-# circle_p(obj)
+# circle_p(obj,circle_info_p)
 # > obj: object
-# < result: NULL, if obj is to be printed normally
-#      else: result->flag: true, if obj is to be printed as #n=...
-#                          false, if obj is to be printed as #n#
-#             result->n: n
-#             result->ptr: in case of #n=... the fixnum *ptr has to be
+# < circle_info_p:
+# < return: false, if obj is to be printed normally
+#            true, if obj is to be printed ABnormally
+# in the latter case, circle_info_p, if non-NULL, will contain
+#      else: circle_info_p->flag: true, if obj is to be printed as #n=...
+#                                false, if obj is to be printed as #n#
+#            circle_info_p->n: n
+#            circle_info_p->ptr: in case of #n=... the fixnum *ptr has to be
 #                            incremented before output takes place.
 typedef struct {
   bool flag;
   uintL n;
   object* ptr;
 } circle_info_t;
-local circle_info_t* circle_p (object obj) {
+local bool circle_p (object obj,circle_info_t* ci) {
   # check *PRINT-CIRCLE*:
   if (test_value(S(print_circle))) {
     var object table = Symbol_value(S(print_circle_table)); # SYS::*PRINT-CIRCLE-TABLE*
@@ -6191,7 +6194,6 @@ local circle_info_t* circle_p (object obj) {
     # if obj is among the elements i+1,...,m -> move
     # obj to position i+1, case true, n:=i+1, afterwards i:=i+1.
     # else case NULL.
-    var local circle_info_t info; # space for returning the values
     var uintL m1 = Svector_length(table); # length m+1
     if (m1==0) goto bad_table; # should be >0!
     var object* ptr = &TheSvector(table)->data[0]; # pointer in the vector
@@ -6207,7 +6209,8 @@ local circle_info_t* circle_p (object obj) {
   found: # foundobj as vector-element index, 1 <= index <= m,
     # ptr = &TheSvector(table)->data[index+1] .
     if (index <= i) { # obj is to be printed as #n#, n=index.
-      info.flag = false; info.n = index; return &info;
+      if (ci) { ci->flag = false; ci->n = index; }
+      return true;
     } else { # move obj to position i+1:
       i = i+1;
       # (rotatef (svref Vektor i) (svref Vektor index)) :
@@ -6216,13 +6219,15 @@ local circle_info_t* circle_p (object obj) {
         *--ptr = *ptr_i; *ptr_i = obj;
       }
       # obj is to be printed as #n=..., n=i.
-      info.flag = true; info.n = i;
-      info.ptr = &TheSvector(table)->data[0]; # increase i in the vector, afterwards
-      return &info;
+      if (ci) {
+        ci->flag = true; ci->n = i;
+        ci->ptr = &TheSvector(table)->data[0]; # increase i in the vector, afterwards
+      }
+      return true;
     }
   }
  normal: # obj is to be printed normally
-  return (circle_info_t*)NULL;
+  return false;
 }
 
 # UP: verifies, if an object is circular, and prints it in
@@ -6235,17 +6240,17 @@ local circle_info_t* circle_p (object obj) {
 # can trigger GC
 local void pr_circle (const object* stream_,object obj,pr_routine_t* pr_xxx) {
   # determine, if circular:
-  var circle_info_t* info = circle_p(obj);
-  if (info == (circle_info_t*)NULL) { # not circular, print obj normally:
+  var circle_info_t info;
+  if (!circle_p(obj,&info)) { # not circular, print obj normally:
     (*pr_xxx)(stream_,obj);
   } else { # circular
-    if (info->flag) { # print obj as #n=...:
+    if (info.flag) { # print obj as #n=...:
       { # first increment the fixnum in the vector for circle_p:
-        var object* ptr = info->ptr;
+        var object* ptr = info.ptr;
         *ptr = fixnum_inc(*ptr,1);
       }
       {
-        var uintL n = info->n;
+        var uintL n = info.n;
         pushSTACK(obj); # save obj
         # print prefix and calculate indentation depth:
         INDENTPREP_START;
@@ -6262,7 +6267,7 @@ local void pr_circle (const object* stream_,object obj,pr_routine_t* pr_xxx) {
         INDENT_END;
       }
     } else { # print obj as #n#:
-      var uintL n = info->n;
+      var uintL n = info.n;
       write_ascii_char(stream_,'#');
       pr_uint(stream_,n);
       write_ascii_char(stream_,'#');
@@ -7128,7 +7133,7 @@ local void pr_cons (const object* stream_,object list) {
       CHECK_LINES_LIMIT(goto end_of_list);
       # check, if dotted-list-notation is necessary:
       list = *list_;
-      if (!(circle_p(list) == (circle_info_t*)NULL)) # necessary because of circularity?
+      if (circle_p(list,NULL)) # necessary because of circularity?
         goto dotted_list;
       if (!(special_list_p(list) == (pr_routine_t*)NULL)) # necessary because of QUOTE or similar stuff?
         goto dotted_list;
