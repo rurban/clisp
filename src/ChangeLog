@@ -1,3 +1,8 @@
+2002-12-04  Bruno Haible  <bruno@clisp.org>
+
+	* foreign.d (convert_function_to_foreign, init_ffi): Add casts to make
+	it compile in C++ mode.
+
 2002-12-04  Sam Steingold  <sds@gnu.org>
 
 	* loop.lisp (expand-loop): removed the `initializations2'

@@ -372,7 +372,7 @@ local object convert_function_to_foreign (object fun, object resulttype,
     }
     { # Next allocate the trampoline.
       begin_system_call();
-      var void* trampoline = alloc_callback(&callback,(void*)(uintP)index);
+      var void* trampoline = (void*) alloc_callback(&callback,(void*)(uintP)index);
       end_system_call();
       pushSTACK(make_faddress(O(fp_zero),(uintP)trampoline));
       # Now allocate the foreign-function.
@@ -3664,7 +3664,7 @@ global void init_ffi (void) {
   ffi_user_pointer = NULL;
   register_foreign_variable(&ffi_user_pointer,"ffi_user_pointer",
                             0,sizeof(ffi_user_pointer));
-  register_foreign_function(&ffi_identity,"ffi_identity",ff_lang_ansi_c);
+  register_foreign_function((void*)&ffi_identity,"ffi_identity",ff_lang_ansi_c);
 }
 
 # De-Initialize the FFI.
