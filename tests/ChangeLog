@@ -1,3 +1,8 @@
+1999-03-16    Sam Steingold  <sds@gnu.org>
+
+	* hash.tst: added `test-hash-table-iterator'.
+	* pack11.tst: added `test-package-iterator'.
+
 1999-03-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * excepsit.tst: Add tests for READER-ERROR.
