@@ -76,7 +76,7 @@
                 (handler-bind
                   ((missing-load-form
                      #'(lambda (err)
-                         (when (eq (missing-load-form-object err) object)
+                         (when (eql (missing-load-form-object err) object)
                            (return-from compute-init-form nil)))))
                   ; TODO: Explain why it's worth invoking the compiler here.
                   `(funcall ,(compile nil (mlf-init-function object))))))))))
