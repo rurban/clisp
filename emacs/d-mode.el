@@ -127,7 +127,7 @@ The point should be on the prototype and the definition should follow."
     (forward-line 1)
     (while (looking-at d-comment-start-block)
       (replace-match " " t t nil 1) (forward-line 1))
-    (forward-char -1) (skip-chars-backward "\\") (just-one-space)
+    (forward-char -1) (skip-chars-backward "\\\\") (just-one-space)
     (insert "*/ ")))
 
 (defun d-mode-convert-next-comment ()
