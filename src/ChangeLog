@@ -1,3 +1,8 @@
+1999-01-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * pathname.d (READDIR_*): New macros.
+          (subdirs, directory_search): Use them.
+
 1999-01-07  Sam Steingold  <sds@goems.com>
 
         * clisp.spec: this is the first truly working version. (fixed
