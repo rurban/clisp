@@ -177,8 +177,10 @@ DISCONNECT              Disconnect from Oracle server
 RUN-SQL                 Execute SQL statement
 DO-ROWS                 (Macro) Loop over SELECT result
 FETCH                   Retrieve one row of SELECT result
+FETCH-ALL               Retrieve all/some rows of SELECT result
 PEEK                    Look-ahead to next row of SELECT result
 COLUMNS                 Get name, type, size of SELECT columns
+SQLCOL-*                Accessor functions for COLUMNS items
 EOF                     Test if at end of SELECT result
 INSERT-ROW              Add a row to a table
 UPDATE-ROW              Update row(s) in a table
