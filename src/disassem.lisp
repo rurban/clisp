@@ -74,8 +74,6 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
 ;; Bruno Haible 1995
 ;; you may customize it to your needs.
 #+UNIX
-(defvar *disassemble-use-live-process* (and #+(or WIN32 CYGWIN) nil))
-#+UNIX
 (defun disassemble-machine-code (program-name pid function address)
   ;; This uses gdb.
   (unless (= (shell "gdb --version > /dev/null 2>&1") 0)

@@ -1,3 +1,9 @@
+2004-10-31  Bruno Haible  <bruno@clisp.org>
+
+	* spvw.d (init_symbol_values): Initialize *disassemble-use-live-process*
+	with support for FreeBSD.
+	* disassem.lisp (*disassemble-use-live-process*): Remove variable.
+
 2004-10-30  Bruno Haible  <bruno@clisp.org>
 
 	* stream.d (SYSCALL): Use the first argument, not the variable that
