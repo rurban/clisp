@@ -1,3 +1,8 @@
+2001-11-29  Sam Steingold  <sds@gnu.org>
+
+	* configure (link): remove the target ($2) first
+	(maybe_mkdir): new function
+
 2001-11-28  Sam Steingold  <sds@gnu.org>
 
 	* configure, makemake.in, lndir: the idiom `cd $path; pwd` breaks
