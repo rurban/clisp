@@ -695,11 +695,11 @@
                                      ; depends on the order of the steppings, which forbids
                                      ; moving some code from initially-code + stepafter-code
                                      ; to stepbefore-code.
-                                     (setq depends-preceding t)
-                                   )
-                                   (unless (and (eql first-form then-form) (constantp then-form))
-                                     (setq stepafter (revappend (destructure pattern then-form) stepafter))
-                                )) )
+                                     (setq depends-preceding t))
+                                   (setq stepafter
+                                         (revappend (destructure
+                                                     pattern then-form)
+                                                    stepafter))))
                                 (ACROSS
                                  (pop body-rest)
                                  (let ((vector-form (parse-form preposition))
