@@ -2006,15 +2006,15 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
  #endif
   {
     var object string; # String thing
-    # check boundaries, with thing, start, end as arguments:
-    var stringarg arg;
-    pushSTACK(thing); pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
-    test_string_limits_ro(&arg);
-    string = arg.string;
-    z.index = arg.index;         # z.index = value of the start-argument,
-    z.count = arg.len;           # z.count = number of characters.
-    z.FNindex = fixnum(z.index); # z.FNindex = start-Index as Fixnum.
-    z.index += arg.offset;
+    { /* check boundaries, with thing, start, end as arguments: */
+      var stringarg arg;
+      pushSTACK(thing); pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
+      test_string_limits_ro(&arg);
+      string = arg.string;
+      z.index = arg.offset+arg.index; /* z.index = start-argument, */
+      z.count = arg.len;           # z.count = number of characters.
+      z.FNindex = fixnum(z.index); # z.FNindex = start-Index as Fixnum.
+    }
    #ifdef LOGICAL_PATHNAMES
     if (!parse_logical) {
       # Check whether *PARSE-NAMESTRING-ANSI* is true and the string
