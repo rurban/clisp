@@ -4,11 +4,6 @@
 	the default.
 	* i18n/gettext.c (check_locale_category): Use LC_MESSAGES as default.
 
-2005-02-18  Bruno Haible  <bruno@clisp.org>
-
-	* utils/modprep.lisp (print-tables-1): For DEFCHECKER converter,
-	test for unbound before the loop, not inside.
-
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
 	* compiler.lisp (c-MULTIPLE-VALUE-SETQ): Eliminate assignments to

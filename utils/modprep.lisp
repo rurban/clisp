@@ -56,9 +56,9 @@ The input file is normal C code, modified like this:
   static struct { int c_const, gcv_object_t *l_const; } c_name_table[] = ...
   static [enum_]type c_name (object arg) {
     unsigned int index;
-    if (missingp(arg)) return default;
    restart_c_name:
     if (integerp(arg)) return I_to_L(arg);
+    else if (missingp(arg)) return default;
     else {
       for (index = 0; index < c_name_table_size; index++)
         if (eq(a,*c_name_table[index].l_const))
@@ -1009,12 +1009,12 @@ commas and parentheses."
             (formatln out "static const uintL ~A_table_size = (sizeof(~A_table)/sizeof(struct c_lisp_pair))-1;" c-name c-name)
             (formatln out "static ~A ~A (object a) {" (or c-type "int") c-name)
             (formatln out "  unsigned int index;")
-            (when default
-              (when (stringp default) (formatln out " #ifdef ~A" default))
-              (formatln out "  if (missingp(a)) return ~A;" default)
-              (when (stringp default) (formatln out " #endif")))
             (formatln out " restart_~A:" c-name)
             (formatln out "  if (integerp(a)) return I_to_L(a);")
+            (when default
+              (when (stringp default) (formatln out " #ifdef ~A" default))
+              (formatln out "  else if (missingp(a)) return ~A;" default)
+              (when (stringp default) (formatln out " #endif")))
             (formatln out "  else {")
             (formatln out "    for (index = 0; index < ~A_table_size; index++)"
                       c-name)
