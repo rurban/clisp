@@ -2518,11 +2518,9 @@ printed readably.</para>
 
 </section>
 
-<section id="hash-ext"><title>Additional Macros</title>
-
 <section id="dohash"><title>Macro &dohash;</title>
 
-<para>For iteration through a hash table, a macro &dohash;
+<para>For iteration through a hash table, a macro &dohash;,
  similar to &dolist;, can be used instead of &maphash;:</para>
 
 <programlisting>
@@ -2533,7 +2531,6 @@ printed readably.</para>
 
 <para>&dohash; forms are &iter-forms;.</para>
 
-</section>
 </section>
 </section>
 </chapter>
@@ -2611,7 +2608,8 @@ printed readably.</para>
    <replaceable>yy</replaceable></entry></row>
  <row><entry><filename>".yy"</filename></entry>
    <entry>for a pathname with type <replaceable>yy</replaceable> and no
-   name specified</entry></row>
+    name or with name <replaceable>.yy</replaceable> and no type,
+    depending on the value of &parsedot;.</entry></row>
 </tbody></tgroup></table>
 
 <para>Hereby <replaceable>xxx</replaceable> denotes 1 to 8 characters,
@@ -2891,8 +2889,7 @@ printed readably.</para>
    before and &type-r; the part after the last dot.</simpara></listitem>
   <listitem><para>if the only &file-dot; is the first character, then
    the behavior depends on the value of the user variable
-   <emphasis role="strong"><varname
-     >CUSTOM:*PARSE-NAMESTRING-DOT-FILE*</varname></emphasis>
+    <emphasis role="strong">&parsedot;</emphasis>
    which can be either
    <variablelist><varlistentry><term>&type-k;</term>
     <listitem><simpara>&nil; &name-r;, everything after the &file-dot;
@@ -3967,6 +3964,10 @@ pointing to non-existent files and can take the following values:
       &signed-byte-n;, with the same &n-r;.</simpara></listitem>
 </itemizedlist></para>
 
+<para>Functions &stream-element-type; and <literal role="sexp">(&setf;
+ &stream-element-type;)</literal> are &generic-function-t;s, see
+ section <link linkend="gray">"Gray streams"</link>.</para>
+
 <section id="bin-stdio"><title>Binary input from &standard-input-var;</title>
 
 <para>Note that you cannot change &stream-element-type; for some
@@ -4267,6 +4268,9 @@ functions are provided:
 
 <section id="close"><title>Function &close;</title>
 
+<para>Function &close; is a &generic-function-t;, see section
+ <link linkend="gray">"Gray streams"</link>.</para>
+
 <para>&close; ignores its &abort-k; argument.</para>
 
 <para>&get-output-stream-string; returns the same value after
@@ -4280,6 +4284,11 @@ functions are provided:
  This is not recommended though because &gc;ion is not deterministic.
  Please use &with-open-stream; etc.</para>
 
+</section>
+
+<section id="open-stream-p"><title>Function &open-stream-p;</title>
+<para>Function &open-stream-p; is a &generic-function-t;, see section
+ <link linkend="gray">"Gray streams"</link>.</para>
 </section>
 
 <section id="broadcast-stream"><title>Class &broadcast-stream-t;</title>
@@ -5329,8 +5338,8 @@ exhaust the available line length.</para></formalpara>
  <member>the number of &gc;ions performed, if any.</member>
 </simplelist></para>
 
-<para>The macro &times; (mnemonic: "TIME and Space") is like the macro
- &time;: <literal role="sexp">(&times; &form-r;)</literal>
+<para>The macro &ts; (mnemonic: "TIME and Space") is like the macro
+ &time;: <literal role="sexp">(&ts; &form-r;)</literal>
  evaluates the &form-r;, and, as a side effect, outputs detailed
  information about the memory allocations caused by this evaluation.
  It also prints everything printed by &time;.</para>
