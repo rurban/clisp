@@ -7944,6 +7944,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, beschafft Handle-Verpackung
 # allocate_handle(handle)
 # < ergebnis: LISP-Objekt, das handle enthält
+# kann GC auslösen
   #ifdef FOREIGN_HANDLE
     # kann GC auslösen
     extern object allocate_handle (Handle handle);

@@ -298,6 +298,7 @@
 # UP, beschafft Handle-Verpackung
 # allocate_handle(handle)
 # < ergebnis: LISP-Objekt, das handle enthält
+# kann GC auslösen
   global object allocate_handle (Handle handle);
   global object allocate_handle(handle)
     var Handle handle;
