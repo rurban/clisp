@@ -466,7 +466,7 @@
 # wird verwendet von PATHNAME
 
 # Directory anlegen:
-  extern_C int mkdir (MKDIR_CONST char* path, MODE_T mode); # siehe MKDIR(2V)
+  extern_C int mkdir (MKDIR_CONST char* path, mode_t mode); # siehe MKDIR(2V)
 # wird verwendet von PATHNAME
 
 # Directory löschen:
@@ -483,7 +483,7 @@
   #ifdef OPEN_DOTS
     extern_C int open (OPEN_CONST char* path, int flags, ...); # siehe OPEN(2V)
   #else
-    extern_C int open (OPEN_CONST char* path, int flags, MODE_T mode); # siehe OPEN(2V)
+    extern_C int open (OPEN_CONST char* path, int flags, mode_t mode); # siehe OPEN(2V)
   #endif
   # Only a few Unices (like UNIX_CYGWIN32) have O_TEXT and O_BINARY.
   #ifndef O_BINARY
@@ -551,7 +551,7 @@
   #endif
   #ifdef EINTR
     # Wrapper um die System-Aufrufe, die EINTR abfangen und behandeln:
-    extern int nonintr_open (OPEN_CONST char* path, int flags, MODE_T mode);
+    extern int nonintr_open (OPEN_CONST char* path, int flags, mode_t mode);
     extern int nonintr_close (int fd);
     #define OPEN nonintr_open
     #define CLOSE nonintr_close

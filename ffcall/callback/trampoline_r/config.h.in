@@ -98,12 +98,6 @@
 /* Define as __volatile__ if the declaration of abort() needs it. */
 #define ABORT_VOLATILE
 
-/* CL_MKDIR */
-/* Define as const if the declaration of mkdir() needs const. */
-#define MKDIR_CONST
-/* Define as the type of `mode' in mkdir(), open() declaration. */
-#undef MODE_T
-
 /* CL_OPEN */
 /* Define as const if the declaration of open() needs const. */
 #define OPEN_CONST

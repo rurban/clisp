@@ -96,11 +96,11 @@
 #ifdef UNIX # EMUNIX und RISCOS brauchen das nicht
 
 # Ein Wrapper um die open-Funktion.
-  global int nonintr_open (OPEN_CONST char* path, int flags, MODE_T mode);
+  global int nonintr_open (OPEN_CONST char* path, int flags, mode_t mode);
   global int nonintr_open(path,flags,mode)
     var OPEN_CONST char* path;
     var int flags;
-    var MODE_T mode;
+    var mode_t mode;
     { var int retval;
       do { retval = open(path,flags,mode); } while ((retval < 0) && (errno == EINTR));
       return retval;
