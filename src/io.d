@@ -2645,13 +2645,18 @@ LISPFUNN(string_reader,2) { # reads "
 # can trigger GC
 local maygc Values list2_reader (const gcv_object_t* stream_) {
   var object obj = read_recursive_no_dot(stream_); # read Object
-  pushSTACK(obj);
-  pushSTACK(allocate_cons()); # second List-cons
-  var object new_cons1 = allocate_cons(); # first List-cons
-  var object new_cons2 = popSTACK(); # second List-cons
-  Car(new_cons2) = popSTACK(); # new_cons2 = (cons obj nil)
-  Cdr(new_cons1) = new_cons2; Car(new_cons1) = STACK_0; # new_cons1 = (cons symbol new_cons2)
-  VALUES1(new_cons1); skipSTACK(2);
+  if (!nullpSv(read_suppress)) { /* *READ-SUPPRESS* /= NIL ? */
+    VALUES1(NIL); /* yes -> don't cons up a list, just return NIL */
+  } else {
+    pushSTACK(obj);
+    pushSTACK(allocate_cons()); # second List-cons
+    var object new_cons1 = allocate_cons(); # first List-cons
+    var object new_cons2 = popSTACK(); # second List-cons
+    Car(new_cons2) = popSTACK(); # new_cons2 = (cons obj nil)
+    Cdr(new_cons1) = new_cons2; Car(new_cons1) = STACK_0; # new_cons1 = (cons symbol new_cons2)
+    VALUES1(new_cons1);
+  }
+  skipSTACK(2);
 }
 
 # (set-macro-character #\'
