@@ -3045,32 +3045,11 @@ mprotect_prog='
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifndef malloc
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-RETMALLOCTYPE malloc (MALLOC_SIZE_T size);
-#else
-RETMALLOCTYPE malloc();
-#endif
-#endif
 /* declare getpagesize() and mprotect() */
 #include <sys/mman.h>
 #ifndef HAVE_GETPAGESIZE
 #include <sys/param.h>
 #define getpagesize() PAGESIZE
-#else
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-RETGETPAGESIZETYPE getpagesize (void);
-#else
-RETGETPAGESIZETYPE getpagesize();
-#endif
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-int mprotect (MPROTECT_CONST MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot);
-#else
-int mprotect();
 #endif
 char foo;
 int main () {
@@ -3313,18 +3292,6 @@ AC_TRY_RUN([
 #endif
 /* Declare opendir(), closedir(). */
 #include <$ac_header_dirent>
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-DIR* opendir (OPENDIR_CONST char* dirname);
-#else
-DIR* opendir();
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-RETCLOSEDIRTYPE closedir (DIR* dirp);
-#else
-RETCLOSEDIRTYPE closedir();
-#endif
 int main() { exit(closedir(opendir(".")) != 0); }],
 cl_cv_func_closedir_retval=yes, cl_cv_func_closedir_retval=no,
 # When cross-compiling, don't assume a return value.
@@ -3359,28 +3326,16 @@ cat > conftest.c <<EOF
 #include "confdefs.h"
 #include <sys/types.h>
 #include <stdlib.h>
+/* Declare chdir(). */
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #include <string.h>
 #include <stdio.h>
-/* Declare chdir(). */
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-int chdir (CHDIR_CONST char* path);
-#else
-int chdir();
-#endif
 /* Declare open(). */
 #include <fcntl.h>
 #ifdef OPEN_NEEDS_SYS_FILE_H
 #include <sys/file.h>
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-int open ($cl_cv_proto_open_args);
-#else
-int open();
 #endif
 /* Declare opendir(), readdir(), closedir(). */
 #include <$ac_header_dirent>
@@ -3388,24 +3343,6 @@ int open();
 #define SDIRENT struct dirent
 #else
 #define SDIRENT struct direct
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-DIR* opendir (OPENDIR_CONST char* dirname);
-#else
-DIR* opendir();
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-SDIRENT* readdir (DIR* dirp);
-#else
-SDIRENT* readdir();
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-RETCLOSEDIRTYPE closedir (DIR* dirp);
-#else
-RETCLOSEDIRTYPE closedir();
 #endif
 changequote(,)dnl
 /* A small program which checks for each character whether or not it is
@@ -3516,7 +3453,7 @@ else
 fi
 AC_MSG_RESULT($cl_cv_os_valid_filename_charset)
 if test -n "$cl_cv_os_valid_filename_char"; then
-  AC_DEFINE(VALID_FILENAME_CHAR,$cl_cv_os_valid_filename_char,[expression in ch which is true if ch is a valid character in filenames])
+  AC_DEFINE_UNQUOTED(VALID_FILENAME_CHAR,$cl_cv_os_valid_filename_char,[expression in ch which is true if ch is a valid character in filenames])
 fi
 ])
 
@@ -3615,37 +3552,14 @@ fi
 ])
 
 AC_DEFUN([CL_SHM],
-[AC_BEFORE([$0], [CL_SHM_RMID])dnl
+[AC_REQUIRE([CL_SHMAT])dnl
+AC_BEFORE([$0], [CL_SHM_RMID])dnl
 if test "$ac_cv_header_sys_shm_h" = yes -a "$ac_cv_header_sys_ipc_h" = yes; then
 # This test is from Marcus Daniels
 AC_CACHE_CHECK(for working shared memory, cl_cv_sys_shm_works, [
 AC_TRY_RUN([#include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-int shmget (key_t key, $cl_cv_proto_shmget_arg2 size, int shmflg);
-#else
-int shmget();
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-$cl_cv_proto_shmat_ret shmat (int shmid, $cl_cv_proto_shmat_arg2 $cl_cv_proto_shmat_ret shmaddr, int shmflg);
-#else
-$cl_cv_proto_shmat_ret shmat();
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-int shmdt ($cl_cv_proto_shmdt_arg1 shmaddr);
-#else
-int shmdt();
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-int shmctl ($cl_cv_proto_shmctl_args);
-#else
-int shmctl();
-#endif
 /* try attaching a single segment to multiple addresses */
 #define segsize 0x10000
 #define attaches 128
@@ -3700,20 +3614,6 @@ AC_TRY_RUN([
 #ifdef HAVE_SYS_SYSMACROS_H
 #include <sys/sysmacros.h>
 #endif
-#if defined(__STDC__) || defined(__cplusplus)
-]AC_LANG_EXTERN[int shmget (key_t key, SHMGET_SIZE_T size, int shmflg);
-]AC_LANG_EXTERN[RETSHMATTYPE shmat (int shmid, SHMAT_CONST RETSHMATTYPE shmaddr, int shmflg);
-]AC_LANG_EXTERN[
-#ifdef SHMCTL_DOTS
-int shmctl (int shmid, int cmd, ...);
-#else
-int shmctl (int shmid, int cmd, struct shmid_ds * buf);
-#endif
-#else
-extern int shmget();
-extern RETSHMATTYPE shmat();
-extern int shmctl();
-#endif
 int main ()
 { unsigned int pagesize = 8192; /* should be a multiple of SHMLBA */
   unsigned long addr = (unsigned long) malloc(2*pagesize);
@@ -3740,6 +3640,55 @@ case "$cl_cv_func_shmctl_attachable" in
   *yes) AC_DEFINE(SHM_RMID_VALID,,[attaching removed (but alive!) shared memory segments works]) ;;
   *no)  ;;
 esac
+fi
+])
+
+dnl -*- Autoconf -*-
+dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl This file is free software, distributed under the terms of the GNU
+dnl General Public License.  As a special exception to the GNU General
+dnl Public License, this file may be distributed as part of a program
+dnl that contains a configuration script generated by Autoconf, under
+dnl the same distribution terms as the rest of that program.
+
+dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
+
+AC_PREREQ(2.57)
+
+AC_DEFUN([CL_SHMAT],
+[AC_REQUIRE([CL_SHM_H])dnl
+AC_BEFORE([$0], [CL_SHM])dnl
+if test "$ac_cv_header_sys_shm_h" = yes -a "$ac_cv_header_sys_ipc_h" = yes; then
+CL_PROTO([shmat], [
+CL_PROTO_RET([
+#include <stdlib.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+], [
+#ifdef __cplusplus
+void* shmat(int, const void *, int);
+#else
+void* shmat();
+#endif
+], [void* shmat();],
+cl_cv_proto_shmat_ret, [void*], [char*])
+CL_PROTO_CONST([
+#include <stdlib.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+], [$cl_cv_proto_shmat_ret shmat (int shmid, $cl_cv_proto_shmat_ret shmaddr, int shmflg);],
+[$cl_cv_proto_shmat_ret shmat();], cl_cv_proto_shmat_arg2)
+], [extern $cl_cv_proto_shmat_ret shmat (int, $cl_cv_proto_shmat_arg2 $cl_cv_proto_shmat_ret, int);])
+AC_DEFINE_UNQUOTED(RETSHMATTYPE,$cl_cv_proto_shmat_ret,[return type of shmat()])
+AC_DEFINE_UNQUOTED(SHMAT_CONST,$cl_cv_proto_shmat_arg2,[declaration of shmat() needs const])
 fi
 ])
 
@@ -3979,22 +3928,10 @@ AC_TRY_RUN([
 #ifdef NEED_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-int ioctl ($cl_cv_proto_ioctl_args);
-#else
-int ioctl();
-#endif
 /* Declare open(). */
 #include <fcntl.h>
 #ifdef OPEN_NEEDS_SYS_FILE_H
 #include <sys/file.h>
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-int open ($cl_cv_proto_open_args);
-#else
-int open();
 #endif
 int main ()
 { int fd = open("conftest.c",O_RDONLY,0644);
@@ -5856,14 +5793,6 @@ cat > conftest.c <<EOF
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
-#ifndef malloc
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-RETMALLOCTYPE malloc (MALLOC_SIZE_T size);
-#else
-RETMALLOCTYPE malloc();
-#endif
 #endif
 $address_range_prog
 int main() { printf_address(chop_address(malloc(10000))); exit(0); }

@@ -35,32 +35,11 @@ mprotect_prog='
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifndef malloc
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-RETMALLOCTYPE malloc (MALLOC_SIZE_T size);
-#else
-RETMALLOCTYPE malloc();
-#endif
-#endif
 /* declare getpagesize() and mprotect() */
 #include <sys/mman.h>
 #ifndef HAVE_GETPAGESIZE
 #include <sys/param.h>
 #define getpagesize() PAGESIZE
-#else
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-RETGETPAGESIZETYPE getpagesize (void);
-#else
-RETGETPAGESIZETYPE getpagesize();
-#endif
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-int mprotect (MPROTECT_CONST MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot);
-#else
-int mprotect();
 #endif
 char foo;
 int main () {
