@@ -684,9 +684,9 @@ global void invoke_handlers (object cond) {
               /* call Handler: */
               var object closure = FRAME_(frame_closure);
               var object codevec = TheCclosure(closure)->clos_codevec;
-              var uintL idx = (TheCodevec(codevec)->ccv_flags & bit(7) ? CCV_START_KEY : CCV_START_NONKEY)
+              var uintL index = (TheCodevec(codevec)->ccv_flags & bit(7) ? CCV_START_KEY : CCV_START_NONKEY)
                 + posfixnum_to_L(TheSvector(Car(FRAME_(frame_handlers)))->data[i+1]);
-              interpret_bytecode(closure,codevec,idx);
+              interpret_bytecode(closure,codevec,index);
             } else {
               /* call C-Handler: */
               void* handler_fn = TheMachineCode(FRAME_(frame_closure));
@@ -1406,7 +1406,6 @@ global gcv_environment_t* nest_env (gcv_environment_t* env5)
 global bool parse_dd (object formlist)
 {
   pushSTACK(formlist); /* store formlist for error message */
-  var gcv_object_t *formlist_ = &STACK_0;
   pushSTACK(NIL); /* preliminary Doc-String */
   pushSTACK(NIL); /* start of decl-spec-Liste */
   /* stack layout: formlist, docstring, declspecs. */
@@ -1420,7 +1419,7 @@ global bool parse_dd (object formlist)
         goto fertig; /* yes -> last form can't be a Doc-String! */
       if (!nullp(STACK_1)) { /* preceding Doc-String? */
         /* yes -> more than one Doc-String is too much: */
-        pushSTACK(*formlist_);
+        pushSTACK(STACK_2);
         fehler(source_program_error,
                GETTEXT("Too many documentation strings in ~"));
       }
@@ -1595,6 +1594,7 @@ LISPFUNNR(add_implicit_block,2)
   VALUES1(STACK_0);
   skipSTACK(2);
 }
+
 LISPFUNNR(function_block_name,1)
 { /* returns the name of the implicit block for a function-name */
   var object funname =
@@ -6222,11 +6222,11 @@ global Values funcall (object fun, uintC args_on_stack)
       # If sth. is called, that can trigger a GC, this must be built into a
       # with_saved_context( ... ) .
         #define with_saved_context(statement)  \
-          { var uintL idx = byteptr - CODEPTR;                         \
+          { var uintL index = byteptr - CODEPTR;                       \
             statement;                                                 \
             closure = *closureptr; # fetch Closure from Stack          \
             codeptr = TheSbvector(TheCclosure(closure)->clos_codevec); \
-            byteptr = CODEPTR + idx;                                   \
+            byteptr = CODEPTR + index;                                 \
           }
       #
       # ------------------- (1) Constants -----------------------
@@ -6818,25 +6818,37 @@ global Values funcall (object fun, uintC args_on_stack)
       #define CALLS1()  \
         { var uintL n;                                              \
           B_operand(n);                                             \
-          # The compiler has already done the argument-check. \
+          # The compiler has already done the argument-check.       \
          {var Subr fun = FUNTAB1[n];                                \
-          with_saved_back_trace(subr_tab_ptr_as_object(fun),-1,with_saved_context((*(subr_norest_function_t*)(fun->function))();));}}
+          with_saved_back_trace(subr_tab_ptr_as_object(fun),-1,     \
+            with_saved_context(                                     \
+              (*(subr_norest_function_t*)(fun->function))();        \
+            ));                                                     \
+        }}
       # executes (CALLS2 n)-command.
       #define CALLS2()  \
         { var uintL n;                                              \
           B_operand(n);                                             \
-          # The compiler has already done the argument-check. \
+          # The compiler has already done the argument-check.       \
          {var Subr fun = FUNTAB2[n];                                \
-          with_saved_back_trace(subr_tab_ptr_as_object(fun),-1,with_saved_context((*(subr_norest_function_t*)(fun->function))();));}}
+          with_saved_back_trace(subr_tab_ptr_as_object(fun),-1,     \
+            with_saved_context(                                     \
+              (*(subr_norest_function_t*)(fun->function))();        \
+            ));                                                     \
+        }}
       # executes (CALLSR m n)-command.
       #define CALLSR()  \
         { var uintL m;                                              \
           var uintL n;                                              \
           U_operand(m);                                             \
           B_operand(n);                                             \
-          # The compiler has already done the argument-check. \
+          # The compiler has already done the argument-check.       \
          {var Subr fun = FUNTABR[n];                                \
-          with_saved_back_trace(subr_tab_ptr_as_object(fun),m,with_saved_context((*(subr_rest_function_t*)(fun->function))(m,args_end_pointer STACKop m);)); }}
+          with_saved_back_trace(subr_tab_ptr_as_object(fun),m,      \
+            with_saved_context(                                     \
+              (*(subr_rest_function_t*)(fun->function))(m,args_end_pointer STACKop m); \
+            ));                                                     \
+        }}
       CASE cod_call:                   # (CALL k n)
         CALL();
         goto next_byte;
@@ -7101,7 +7113,7 @@ global Values funcall (object fun, uintC args_on_stack)
           var object block_cons;
           with_saved_context(
             block_cons = allocate_cons();
-            label_dist += idx; # CODEPTR+label_dist is the jump destination
+            label_dist += index; # CODEPTR+label_dist is the jump destination
           );
           # fill Block-Cons: (CONST n) as CAR
           Car(block_cons) = TheCclosure(closure)->clos_consts[n];
@@ -7124,12 +7136,12 @@ global Values funcall (object fun, uintC args_on_stack)
           FREE_JMPBUF_on_SP();
           skipSTACK(2); # unwind CBLOCK-Frame and mark
           Cdr(popSTACK()) = disabled; # Block-Cons as Disabled
-          var uintL idx;
+          var uintL index;
           # get closure back, byteptr:=label_byteptr :
-          popSP(closureptr = (gcv_object_t*) ); popSP(idx = );
+          popSP(closureptr = (gcv_object_t*) ); popSP(index = );
           closure = *closureptr; # fetch Closure from Stack
           codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
-          byteptr = CODEPTR + idx;
+          byteptr = CODEPTR + index;
         }
         goto next_byte; # continue interpretation at Label
       CASE cod_block_close:            # (BLOCK-CLOSE)
@@ -7220,12 +7232,12 @@ global Values funcall (object fun, uintC args_on_stack)
           var uintL m = Svector_length(Car(STACK_2)); # Number of Labels
           # (I could also declare the m above as 'auto' and use it here.)
           var uintL i = posfixnum_to_L(value1); # Number of Labels
-          var uintL idx = posfixnum_to_L(STACK_((m-i)+3)); # labeli
+          var uintL index = posfixnum_to_L(STACK_((m-i)+3)); # labeli
           # get closure back, byteptr:=labeli_byteptr :
           closureptr = (gcv_object_t*) SP_(jmpbufsize+0);
           closure = *closureptr; # fetch Closure from Stack
           codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
-          byteptr = CODEPTR + idx;
+          byteptr = CODEPTR + index;
         }
         goto next_byte; # continue interpretation at Label i
       CASE cod_tagbody_close_nil:      # (TAGBODY-CLOSE-NIL)
@@ -7327,12 +7339,12 @@ global Values funcall (object fun, uintC args_on_stack)
         {
           FREE_JMPBUF_on_SP();
           skipSTACK(3); # unwind CATCH-Frame
-          var uintL idx;
+          var uintL index;
           # get closure back, byteptr:=label_byteptr :
-          popSP(closureptr = (gcv_object_t*) ); popSP(idx = );
+          popSP(closureptr = (gcv_object_t*) ); popSP(index = );
           closure = *closureptr; # fetch Closure from Stack
           codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
-          byteptr = CODEPTR + idx;
+          byteptr = CODEPTR + index;
         }
         goto next_byte; # continue interpretation at Label
       CASE cod_catch_close:            # (CATCH-CLOSE)
@@ -7385,10 +7397,10 @@ global Values funcall (object fun, uintC args_on_stack)
         FREE_JMPBUF_on_SP();
         skipSTACK(2);
         {
-          var uintL idx;
+          var uintL index;
           # get closure back, byteptr:=label_byteptr :
           popSP(closureptr = (gcv_object_t*) );
-          popSP(idx = );
+          popSP(index = );
           # save unwind_protect_to_save:
           pushSP((aint)unwind_protect_to_save.fun);
           pushSP((aint)unwind_protect_to_save.upto_frame);
@@ -7398,7 +7410,7 @@ global Values funcall (object fun, uintC args_on_stack)
           # execute Cleanup-Forms:
           closure = *closureptr; # fetch Closure from Stack
           codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
-          byteptr = CODEPTR + idx;
+          byteptr = CODEPTR + index;
         }
         goto next_byte;
       CASE cod_uwp_normal_exit:        # (UNWIND-PROTECT-NORMAL-EXIT)
@@ -7463,7 +7475,7 @@ global Values funcall (object fun, uintC args_on_stack)
         #endif
         # closure remains, byteptr:=label_byteptr :
         {
-          var uintL idx = SP_(jmpbufsize+1);
+          var uintL index = SP_(jmpbufsize+1);
           # unwind Frame:
           FREE_JMPBUF_on_SP(); skipSP(2);
           skipSTACK(2);
@@ -7474,7 +7486,7 @@ global Values funcall (object fun, uintC args_on_stack)
           # move all values to the Stack:
           mv_to_STACK();
           # execute Cleanup-Forms:
-          byteptr = CODEPTR + idx;
+          byteptr = CODEPTR + index;
         }
         goto next_byte;
       # ------------------- (14) HANDLER-BIND -----------------------
@@ -7701,17 +7713,17 @@ global Values funcall (object fun, uintC args_on_stack)
         }
         goto next_byte;
       }
-      {var object vec; var object idx;
+      {var object vec; var object index;
       CASE cod_svref:                  # (SVREF)
         # STACK_0 must be a Simple-Vector:
         if (!simple_vector_p(STACK_0)) goto svref_kein_svector;
         vec = popSTACK(); # Simple-Vector
-        idx = value1;
+        index = value1;
         # and the Index must be Fixnum >= 0, < length(vec) :
         {
           var uintL i;
-          if (!(posfixnump(idx)
-                && ((i = posfixnum_to_L(idx)) < Svector_length(vec))))
+          if (!(posfixnump(index)
+                && ((i = posfixnum_to_L(index)) < Svector_length(vec))))
             goto svref_kein_index;
           VALUES1(TheSvector(vec)->data[i]); # indexed Element as value
         }
@@ -7720,12 +7732,12 @@ global Values funcall (object fun, uintC args_on_stack)
         # STACK_0 must be a Simple-Vector:
         if (!simple_vector_p(STACK_0)) goto svref_kein_svector;
         vec = popSTACK(); # Simple-Vector
-        idx = value1;
+        index = value1;
         # and the Index must be a Fixnum >=0, <Length(vec) :
         {
           var uintL i;
-          if (!(posfixnump(idx)
-                && ((i = posfixnum_to_L(idx)) < Svector_length(vec))))
+          if (!(posfixnump(index)
+                && ((i = posfixnum_to_L(index)) < Svector_length(vec))))
             goto svref_kein_index;
           value1 = TheSvector(vec)->data[i] = popSTACK(); # put in new element
           mv_count = 1;
@@ -7733,10 +7745,10 @@ global Values funcall (object fun, uintC args_on_stack)
         goto next_byte;
       svref_kein_svector: # Non-Simple-Vector in STACK_0
         fehler_kein_svector(S(svref),STACK_0);
-      svref_kein_index: # unsuitable Index in idx, for Vector vec
+      svref_kein_index: # unsuitable Index in index, for Vector vec
         pushSTACK(vec);
-        pushSTACK(idx);
-        pushSTACK(idx); # TYPE-ERROR slot DATUM
+        pushSTACK(index);
+        pushSTACK(index); # TYPE-ERROR slot DATUM
         {
           var object tmp;
           pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(Svector_length(vec)));
@@ -8348,6 +8360,11 @@ global Values funcall (object fun, uintC args_on_stack)
       default:
       #endif
         /* undefined Code */
+        #if defined(GNU) && defined(FAST_SP)
+          /* Undo the effect of -fomit-frame-pointer for this function,
+             hereby allowing utilization of %sp resp. %esp as private_SP: */
+          alloca(1);
+        #endif
         pushSTACK(fixnum(byteptr-&codeptr->data[0]-1)); /* bad byte number */
         pushSTACK(closure); # Closure
         fehler(serious_condition,
