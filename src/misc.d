@@ -620,3 +620,6 @@ LISPFUN(module_info,seclass_no_se,0,2,norest,nokey,0,NIL)
       VALUES3(arg,fixnum(*(mod->stab_size)),fixnum(*(mod->otab_size)));
   }
 }
+
+LISPFUN(argv,seclass_no_se,0,0,norest,nokey,0,NIL)
+{ VALUES1(copy_svector(O(argv))); }

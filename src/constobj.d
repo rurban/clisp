@@ -319,6 +319,7 @@
  #if defined(GNU)
   LISPOBJ_S(c_compiler_version,__VERSION__)
  #endif
+  LISPOBJ(argv,"NIL")
 # for I18N.D:
   LISPOBJ(current_language,".")
  #ifdef GNU_GETTEXT
