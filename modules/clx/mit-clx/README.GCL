@@ -16,5 +16,5 @@ To test it:
 To install it, edit Makefile and do
   make install
 
-Bruno Haible <haible@clisp.cons.org> 22.8.1994
+Bruno Haible 1994-08-22
 
