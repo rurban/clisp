@@ -17126,6 +17126,12 @@ rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
 done
 done
+if test -z "$have_ioctl"; then
+  echo "*** Missing autoconfiguration support for this platform." 1>&2
+  echo "*** Please report this as a bug to the CLISP developers." 1>&2
+  echo "*** When doing this, please also show your system's ioctl() declaration." 1>&2
+  exit 1
+fi
 
 cl_cv_proto_ioctl="extern int ioctl ($cl_cv_proto_ioctl_args);"
 fi
@@ -17141,7 +17147,7 @@ cat >>confdefs.h <<_ACEOF
 #define IOCTL_REQUEST_T $cl_cv_proto_ioctl_arg2
 _ACEOF
 
-if test "$cl_cv_proto_ioctl_dots" = yes; then
+if test $cl_cv_proto_ioctl_dots = yes; then
 
 cat >>confdefs.h <<\_ACEOF
 #define IOCTL_DOTS
@@ -17659,6 +17665,12 @@ fi
 done
 done
 done
+if test -z "$have_select"; then
+  echo "*** Missing autoconfiguration support for this platform." 1>&2
+  echo "*** Please report this as a bug to the CLISP developers." 1>&2
+  echo "*** When doing this, please also show your system's select() declaration." 1>&2
+  exit 1
+fi
 
 cl_cv_proto_select="extern int select ($cl_cv_proto_select_arg1, $cl_cv_proto_select_arg2 *, $cl_cv_proto_select_arg2 *, $cl_cv_proto_select_arg2 *, $cl_cv_proto_select_arg5 struct timeval *);"
 fi
@@ -18656,6 +18668,12 @@ fi
 done
 done
 done
+if test -z "$have_connect_decl"; then
+  echo "*** Missing autoconfiguration support for this platform." 1>&2
+  echo "*** Please report this as a bug to the CLISP developers." 1>&2
+  echo "*** When doing this, please also show your system's connect() declaration." 1>&2
+  exit 1
+fi
 
 cl_cv_proto_connect="extern int connect (int, $cl_cv_proto_connect_arg2a $cl_cv_proto_connect_arg2b, $cl_cv_proto_connect_arg3);"
 fi
@@ -19440,6 +19458,12 @@ rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
 done
 done
+if test -z "$have_inet_addr"; then
+  echo "*** Missing autoconfiguration support for this platform." 1>&2
+  echo "*** Please report this as a bug to the CLISP developers." 1>&2
+  echo "*** When doing this, please also show your system's inet_addr() declaration." 1>&2
+  exit 1
+fi
 
 cl_cv_proto_inet_addr="extern $cl_cv_proto_inet_addr_ret inet_addr ($cl_cv_proto_inet_addr_arg1 char*);"
 fi
@@ -19613,6 +19637,12 @@ fi
 done
 done
 done
+if test -z "$have_setsockopt_decl"; then
+  echo "*** Missing autoconfiguration support for this platform." 1>&2
+  echo "*** Please report this as a bug to the CLISP developers." 1>&2
+  echo "*** When doing this, please also show your system's setsockopt() declaration." 1>&2
+  exit 1
+fi
 
 cl_cv_proto_setsockopt="extern int setsockopt (int, int, int, $cl_cv_proto_setsockopt_const $cl_cv_proto_setsockopt_arg_t, $cl_cv_proto_setsockopt_optlen_t);"
 fi

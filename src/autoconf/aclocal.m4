@@ -604,7 +604,7 @@ AC_DEFUN([AM_LANGINFO_CODESET],
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -636,6 +636,12 @@ fi
 done
 done
 done
+if test -z "$have_connect_decl"; then
+  echo "*** Missing autoconfiguration support for this platform." 1>&2
+  echo "*** Please report this as a bug to the CLISP developers." 1>&2
+  echo "*** When doing this, please also show your system's connect() declaration." 1>&2
+  exit 1
+fi
 ], [extern int connect (int, $cl_cv_proto_connect_arg2a $cl_cv_proto_connect_arg2b, $cl_cv_proto_connect_arg3);])
 AC_DEFINE_UNQUOTED(CONNECT_CONST,$cl_cv_proto_connect_arg2a,[does declaration of connect() need const?])
 AC_DEFINE_UNQUOTED(CONNECT_NAME_T,$cl_cv_proto_connect_arg2b,[type of `name' in connect() declaration])
@@ -3005,9 +3011,15 @@ have_ioctl=1])
 fi
 done
 done
+if test -z "$have_ioctl"; then
+  echo "*** Missing autoconfiguration support for this platform." 1>&2
+  echo "*** Please report this as a bug to the CLISP developers." 1>&2
+  echo "*** When doing this, please also show your system's ioctl() declaration." 1>&2
+  exit 1
+fi
 ], [extern int ioctl ($cl_cv_proto_ioctl_args);])
 AC_DEFINE_UNQUOTED(IOCTL_REQUEST_T,$cl_cv_proto_ioctl_arg2,[type of `request' in ioctl() declaration])
-if test "$cl_cv_proto_ioctl_dots" = yes; then
+if test $cl_cv_proto_ioctl_dots = yes; then
 AC_DEFINE(IOCTL_DOTS,,[declaration of ioctl() needs dots])
 else
 AC_DEFINE_UNQUOTED(IOCTL_ARGUMENT_T,$cl_cv_proto_ioctl_arg3,[type of `argument' in ioctl() declaration, if not superseded by dots])
@@ -8555,6 +8567,12 @@ fi
 done
 done
 done
+if test -z "$have_select"; then
+  echo "*** Missing autoconfiguration support for this platform." 1>&2
+  echo "*** Please report this as a bug to the CLISP developers." 1>&2
+  echo "*** When doing this, please also show your system's select() declaration." 1>&2
+  exit 1
+fi
 ], [extern int select ($cl_cv_proto_select_arg1, $cl_cv_proto_select_arg2 *, $cl_cv_proto_select_arg2 *, $cl_cv_proto_select_arg2 *, $cl_cv_proto_select_arg5 struct timeval *);])
 AC_DEFINE_UNQUOTED(SELECT_WIDTH_T,$cl_cv_proto_select_arg1,[type of `width' in select() declaration])
 AC_DEFINE_UNQUOTED(SELECT_SET_T,$cl_cv_proto_select_arg2,[type of `* readfds', `* writefds', `* exceptfds' in select() declaration])
@@ -9532,6 +9550,12 @@ have_inet_addr=1])
 fi
 done
 done
+if test -z "$have_inet_addr"; then
+  echo "*** Missing autoconfiguration support for this platform." 1>&2
+  echo "*** Please report this as a bug to the CLISP developers." 1>&2
+  echo "*** When doing this, please also show your system's inet_addr() declaration." 1>&2
+  exit 1
+fi
 ], [extern $cl_cv_proto_inet_addr_ret inet_addr ($cl_cv_proto_inet_addr_arg1 char*);])
 AC_DEFINE_UNQUOTED(RET_INET_ADDR_TYPE,$cl_cv_proto_inet_addr_ret,[return type of inet_addr()])
 AC_DEFINE_UNQUOTED(INET_ADDR_CONST,$cl_cv_proto_inet_addr_arg1,[declaration of inet_addr() needs const])
@@ -9563,6 +9587,12 @@ fi
 done
 done
 done
+if test -z "$have_setsockopt_decl"; then
+  echo "*** Missing autoconfiguration support for this platform." 1>&2
+  echo "*** Please report this as a bug to the CLISP developers." 1>&2
+  echo "*** When doing this, please also show your system's setsockopt() declaration." 1>&2
+  exit 1
+fi
 ], [extern int setsockopt (int, int, int, $cl_cv_proto_setsockopt_const $cl_cv_proto_setsockopt_arg_t, $cl_cv_proto_setsockopt_optlen_t);])
 AC_DEFINE_UNQUOTED(SETSOCKOPT_CONST,$cl_cv_proto_setsockopt_const,[declaration of setsockopt() needs const])
 AC_DEFINE_UNQUOTED(SETSOCKOPT_ARG_T,$cl_cv_proto_setsockopt_arg_t,[type of `optval' in setsockopt() declaration])
