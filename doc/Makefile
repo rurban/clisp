@@ -144,7 +144,7 @@ impnotes.pdf: impnotes.xml $(IMPNOTES)
 
 html: impnotes.xml $(IMPNOTES) common.xsl chunk.xsl pile.xsl clisp.xml $(OLINK)
 	if [ ! -h $@ ]; then $(RM) -r $@; ln -s ../../sf/www/impnotes $@; fi
-	cd html && sed 's/^/ln -vfs /' .symlinks | sh -
+	cd html && sed 's/^/ln -vf /' .symlinks | sh -
 	$(XMLOUT) "olink-chunk.xml" --stringparam current.docid "impnotes" \
 		-o $@/ chunk.xsl $<
 	$(XMLOUT) "olink-chunk.xml" --stringparam current.docid "man" \
