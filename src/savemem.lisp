@@ -55,7 +55,6 @@
                      *condition-restarts* nil
                      *command-index* 0
                      *home-package* nil)
-               (dribble-reset)
                (setq *driver* old-driver)
                (when init-function (funcall init-function))
                (funcall *driver*))))
