@@ -11984,6 +11984,10 @@ extern bool terminal_stream_p(object stream);
 #endif # UNIX
 #endif # EXPORT_SYSCALLS
 
+# check whether the charset is valid
+global void check_charset (const char * code, object charset);
+# used in encoding.d
+
 # ####################### SYMBIBL for SYMBOL.D ############################# #
 
 # UP: Returns the gobal definition of a symbol's function,
