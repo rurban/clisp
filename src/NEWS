@@ -187,7 +187,7 @@ User visible changes
   See <http://clisp.cons.org/impnotes.html#ffi-extern-output> for details.
 
 * Regexp module functions now support more options, e.g., :EXTENDED to
-  use extended regular expressions.
+  use extended regular expressions, and do not rely on FFI.
   In particular, REGEXP:REGEXP-COMPILE now accepts keyword and not
   optional arguments (this is not backwards compatible).
   When the system library provides a regexp implementation,
