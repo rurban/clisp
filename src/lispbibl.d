@@ -1050,11 +1050,11 @@
     swap_temp = swap_var1; swap_var1 = swap_var2; swap_var2 = swap_temp; \
   } while (0)
 
-# Marking a program line that has not been reached: NOTREACHED
-#define NOTREACHED  fehler_notreached(__FILE__,__LINE__);
+# Marking a program line that may not be reached: NOTREACHED;
+#define NOTREACHED  fehler_notreached(__FILE__,__LINE__)
 
-# Asserting an arithmetic expression: ASSERT(expr)
-#define ASSERT(expr)  { if (!(expr)) { NOTREACHED } }
+# Asserting an arithmetic expression: ASSERT(expr);
+#define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)
 
 # alloca()
 #if defined(GNU) && !defined(RISCOS) && !defined(CONVEX)
@@ -9580,7 +9580,7 @@ typedef struct {
     LONGJMP_SAVE_value1(); LONGJMP_SAVE_mv_count(); \
     begin_longjmp_call(); \
     longjmpspl(&!*returner,(aint)returner); # jump to there, pass own addess (/=0) \
-    NOTREACHED \
+    NOTREACHED; \
   }
 # is used by EVAL
 

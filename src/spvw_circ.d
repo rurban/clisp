@@ -1194,7 +1194,7 @@
           case_symbol: # Symbol
             # Objekt enthält keine Referenzen -> nichts zu tun
             return;
-          default: NOTREACHED
+          default: NOTREACHED;
         }
       }
     }
@@ -1376,7 +1376,7 @@
           case_symbol: # Symbol
             # Objekt enthält keine Referenzen -> nichts zu tun
             break;
-          default: NOTREACHED
+          default: NOTREACHED;
         }
       }
     }
@@ -1561,7 +1561,7 @@
           case_symbol: # Symbol
             # Objekt enthält keine Referenzen -> nichts zu tun
             return;
-          default: NOTREACHED
+          default: NOTREACHED;
         }
       }
     }
@@ -1662,7 +1662,7 @@
           case_symbol: # Symbol
             # Objekt enthält keine Referenzen -> nichts zu tun
             return;
-          default: NOTREACHED
+          default: NOTREACHED;
         }
       }
     }

@@ -2200,7 +2200,7 @@ LISPFUNN(list_all_packages,0)
         case 1: return S(Kexternal);  # 1 -> :EXTERNAL
         case 2: return S(Kinherited); # 2 -> :INHERITED
         case 3: return S(Kinternal);  # 3 -> :INTERNAL
-        default: NOTREACHED
+        default: NOTREACHED;
       }
     }
 

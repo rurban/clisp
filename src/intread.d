@@ -56,7 +56,7 @@
         case 34: need = 1303*need; break;
         case 35: need = 1314*need; break;
         case 36: need = 1324*need; break;
-        default: NOTREACHED
+        default: NOTREACHED;
       }
       # Nun gilt need >= len*log(base)/(intDsize*log(2)).
       need += 1;

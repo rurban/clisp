@@ -554,7 +554,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
             { return code_char(TheSstring(datenvektor)->data[index]); },
             { return code_char(as_chart(TheSmallSstring(datenvektor)->data[index])); }
             );
-        default: NOTREACHED
+        default: NOTREACHED;
       }
     }
 
@@ -656,7 +656,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
             return;
           }
           break;
-        default: NOTREACHED
+        default: NOTREACHED;
       }
       # Objekt war vom falschen Typ.
       fehler_store(STACK_0,element);
@@ -823,10 +823,10 @@ LISPFUNN(row_major_store,3)
             case Atype_16Bit:       # (UNSIGNED-BYTE 16)
             case Atype_32Bit:       # (UNSIGNED-BYTE 32)
               break;
-            default: NOTREACHED
+            default: NOTREACHED;
           }
           break;
-        default: NOTREACHED
+        default: NOTREACHED;
       }
       pushSTACK(S(unsigned_byte));
       pushSTACK(fixnum(bit(atype)));
@@ -3010,7 +3010,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
               elt_copy_T_32Bit(dv1,index1,dv2,index2,count); return;
             case Array_type_sstring: # Simple-String
               elt_copy_T_Char(dv1,index1,dv2,index2,count); return;
-            default: NOTREACHED
+            default: NOTREACHED;
           }
           break;
         case Array_type_sbvector: # Simple-Bit-Vector
@@ -3031,7 +3031,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
               elt_copy_Bit_32Bit(dv1,index1,dv2,index2,count); return;
             case Array_type_sstring: # Simple-String
               break; # fehler_store because count > 0
-            default: NOTREACHED
+            default: NOTREACHED;
           }
           break;
         case Array_type_sb2vector:
@@ -3052,7 +3052,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
               elt_copy_2Bit_32Bit(dv1,index1,dv2,index2,count); return;
             case Array_type_sstring: # Simple-String
               break; # fehler_store because count > 0
-            default: NOTREACHED
+            default: NOTREACHED;
           }
           break;
         case Array_type_sb4vector:
@@ -3073,7 +3073,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
               elt_copy_4Bit_32Bit(dv1,index1,dv2,index2,count); return;
             case Array_type_sstring: # Simple-String
               break; # fehler_store because count > 0
-            default: NOTREACHED
+            default: NOTREACHED;
           }
           break;
         case Array_type_sb8vector:
@@ -3094,7 +3094,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
               elt_copy_8Bit_32Bit(dv1,index1,dv2,index2,count); return;
             case Array_type_sstring: # Simple-String
               break; # fehler_store because count > 0
-            default: NOTREACHED
+            default: NOTREACHED;
           }
           break;
         case Array_type_sb16vector:
@@ -3115,7 +3115,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
               elt_copy_16Bit_32Bit(dv1,index1,dv2,index2,count); return;
             case Array_type_sstring: # Simple-String
               break; # fehler_store because count > 0
-            default: NOTREACHED
+            default: NOTREACHED;
           }
           break;
         case Array_type_sb32vector:
@@ -3136,7 +3136,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
               elt_copy_32Bit_32Bit(dv1,index1,dv2,index2,count); return;
             case Array_type_sstring: # Simple-String
               break; # fehler_store because count > 0
-            default: NOTREACHED
+            default: NOTREACHED;
           }
           break;
         case Array_type_sstring: # Simple-String
@@ -3152,10 +3152,10 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
               break; # fehler_store because count > 0
             case Array_type_sstring: # Simple-String
               elt_copy_Char_Char(dv1,index1,dv2,index2,count); return;
-            default: NOTREACHED
+            default: NOTREACHED;
           }
           break;
-        default: NOTREACHED
+        default: NOTREACHED;
       }
       pushSTACK(dv2);
       var object elt1 = storagevector_aref(dv1,index1);
@@ -3439,7 +3439,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
         case Array_type_sstring: # Simple-String
           elt_move_Char(dv1,index1,dv2,index2,count);
           break;
-        default: NOTREACHED
+        default: NOTREACHED;
       }
     }
 
@@ -3666,7 +3666,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
             });
           }
           break;
-        default: NOTREACHED
+        default: NOTREACHED;
       }
       return false;
     }
@@ -3787,7 +3787,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
               );
           }
           break;
-        default: NOTREACHED
+        default: NOTREACHED;
       }
     }
 
@@ -3900,7 +3900,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
             });
           }
           break;
-        default: NOTREACHED
+        default: NOTREACHED;
       }
     }
 
@@ -4069,7 +4069,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
           case Atype_2Bit: case Atype_4Bit: case Atype_8Bit:
           case Atype_16Bit: case Atype_32Bit: # bei Byte-Vektoren: entsprechend
                            inc = bit(floor(14-atype,2)); break;
-          default: NOTREACHED
+          default: NOTREACHED;
         }
         # mindestens jedoch die bisherige Länge:
         if (inc<len)
@@ -4138,13 +4138,13 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
               case Atype_32Bit:
                 elt_copy_32Bit_32Bit(datenvektor,index,neuer_datenvektor,0,len);
                 break;
-              default: NOTREACHED
+              default: NOTREACHED;
             }
           }
           # new-element eintragen:
           storagevector_store(neuer_datenvektor,len,STACK_1);
           break;
-        default: NOTREACHED
+        default: NOTREACHED;
         fehler_type:
           {
             # Stackaufbau: new-element, vector.
@@ -4581,7 +4581,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
         case Atype_32Bit: # simplen Bit/Byte-Vektor erzeugen
           vector = allocate_bit_vector(eltype,len);
           break;
-        default: NOTREACHED
+        default: NOTREACHED;
       }
       if (!eq(STACK_4,unbound)) # initial-element angegeben?
         if (!(len==0)) { # und Länge > 0 ?
@@ -4746,7 +4746,7 @@ local void initial_contents_aux(arg,obj)
           case Array_type_vector:
           case Array_type_svector:
             displaced_eltype = Atype_T; break;
-          default: NOTREACHED
+          default: NOTREACHED;
         }
         # displaced_eltype ist der ATYPE des :displaced-to-Arguments.
         # Gegebenen Elementtyp damit vergleichen:

@@ -805,7 +805,7 @@
             if ( dec_loop_down(ptr,i) ) {
               # Übertrag über das erste Digit hinaus, also e1=e2
               #if !(defined(SPVW_MIXED) && defined(TYPECODES))
-              NOTREACHED # diesen Fall haben wir schon behandelt
+              NOTREACHED; # diesen Fall haben wir schon behandelt
               #else
               # Negieren:
               y = as_object(as_oint(y) ^ wbit(vorz_bit_o));
@@ -837,7 +837,7 @@
           end_arith_call();
           RESTORE_NUM_STACK # num_stack zurück
           #if !(defined(SPVW_MIXED) && defined(TYPECODES))
-          NOTREACHED # diesen Fall haben wir schon behandelt
+          NOTREACHED; # diesen Fall haben wir schon behandelt
           #else
           TheLfloat(y)->expo = 0; # 0.0 als Ergebnis
           return as_object(as_oint(y) & ~wbit(vorz_bit_o));

@@ -2948,9 +2948,8 @@ local object coerce_pathname (object obj) {
     pushSTACK(obj); funcall(L(translate_logical_pathname),1);
     subr_self = popSTACK();
     return value1;
-  } else {
-    NOTREACHED
-  }
+  } else
+    NOTREACHED;
 }
 
 #endif
@@ -3109,9 +3108,8 @@ local uintC directory_namestring_parts (object pathname) {
         pushSTACK(O(library_string)); stringcount++; # "%."
       } else if (eq(firstdir,S(Kprevious))) {
         pushSTACK(O(previous_string)); stringcount++; # "\\."
-      } else {
-        NOTREACHED
-      }
+      } else
+        NOTREACHED;
      #endif
    }}
     directory = Cdr(directory); # übergehen
@@ -6936,9 +6934,8 @@ local object canonicalise_filename (object filename) {
             defaults = canonicalise_dirname(pathname,O(library_string));
           } else if (eq(next,S(Kprevious))) { # :PREVIOUS -> "\\."
             defaults = canonicalise_dirname(pathname,O(previous_string));
-          } else {
-            NOTREACHED
-          }
+          } else
+            NOTREACHED;
         }
         # Stackaufbau: pathname, rest-subdirs.
         # Nicht ganz so wie bei MERGE-PATHNAMES verfahren:
@@ -10404,8 +10401,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
         OS_error();
       case WAIT_OBJECT_0:
         break;
-      default:
-        NOTREACHED
+      default: NOTREACHED;
     }
     if (!GetExitCodeProcess(prochandle,&exitcode)) { OS_error(); }
     if (!CloseHandle(prochandle)) { OS_error(); }
