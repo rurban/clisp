@@ -5112,8 +5112,8 @@ exhaust the available line length.</para></formalpara>
  <varlistentry><term><constant>:http</constant></term>
   <listitem><simpara>A window in your Web browser (specified by the
    &browser; keyword argument) is opened and it is controlled by
-   &clisp; via a &socket-stream;, using the HTTP protocol.  You should be
-   able to use all the standard browser features.</simpara>
+   &clisp; via a &socket-stream;, using the &http; protocol.
+   You should be able to use all the standard browser features.</simpara>
    <simpara>Since &clisp; is not multitasking at this time, you will not
    be able to do anything else during an &inspect; session.  Please click on
    the <userinput>quit</userinput> link to terminate the session.</simpara>
