@@ -3769,7 +3769,7 @@ global void elt_nreverse (object dv, uintL index, uintL count) {
   count = floor(count,2);
   switch (Array_type(dv)) {
     case Array_type_svector: # Simple-Vector
-      SIMPLE_NREVERSE(object,dv,index1,index1,count);
+      SIMPLE_NREVERSE(object,dv,index1,index2,count);
       break;
     case Array_type_sbvector: # Simple-Bit-Vector
       if (count > 0) {
@@ -3820,17 +3820,17 @@ global void elt_nreverse (object dv, uintL index, uintL count) {
       }
       break;
     case Array_type_sb8vector:
-      SIMPLE_NREVERSE(uint8,dv,index1,index1,count);
+      SIMPLE_NREVERSE(uint8,dv,index1,index2,count);
       break;
     case Array_type_sb16vector:
-      SIMPLE_NREVERSE(uint16,dv,index1,index1,count);
+      SIMPLE_NREVERSE(uint16,dv,index1,index2,count);
       break;
     case Array_type_sb32vector:
-      SIMPLE_NREVERSE(uint32,dv,index1,index1,count);
+      SIMPLE_NREVERSE(uint32,dv,index1,index2,count);
       break;
     case Array_type_sstring: # Simple-String
       check_sstring_mutable(dv);
-      SIMPLE_NREVERSE(chart,dv,index1,index1,count);
+      SIMPLE_NREVERSE(chart,dv,index1,index2,count);
       break;
     default: NOTREACHED;
   }
