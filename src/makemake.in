@@ -2524,10 +2524,10 @@ for f in sigsegv; do
   fi
   if [ $HOS = win32 ] ; then
     echol "$f.h : ${SRCTOPDIR_M}$f${NEXT_M}$f.h"
-    echotab "-\$(LN) ${SRCTOPDIR_M}$f${NEXT_M}$f.h $f.h"
+    echotab "-\$(LN) ${SRCTOPDIR_}$f${NEXT_}$f.h $f.h"
     echol
     echol "$f.lib : ${SRCTOPDIR_M}$f${NEXT_M}$f.lib"
-    echotab "-\$(LN) ${SRCTOPDIR_M}$f${NEXT_M}$f.lib $f.lib"
+    echotab "-\$(LN) ${SRCTOPDIR_}$f${NEXT_}$f.lib $f.lib"
     echol
   fi
 done
@@ -2549,7 +2549,7 @@ if [ $TOS = unix ] ; then
   XCL_DATA='data'
 else
   echol "UnicodeData.txt :"
-  echotab "\$(LN) ${SRCTOPDIR_M}utils${NEXT_M}unicode${NEXT_M}ftp.unicode.org${NEXT_M}UnicodeData.txt UnicodeData.txt"
+  echotab "\$(LN) ${SRCTOPDIR_M}utils${NEXT_}unicode${NEXT_}ftp.unicode.org${NEXT_}UnicodeData.txt UnicodeData.txt"
   XCL_DATA='UnicodeData.txt'
 fi
 

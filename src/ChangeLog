@@ -1,5 +1,9 @@
 1999-05-29  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * makemake.in: Change a few occurrences of ${NEXT_M} to ${NEXT_}.
+
+1999-05-29  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Make --with-unicode the default.
         * makemake.in (info_help): Mention --without-unicode instead of
           --with-unicode.
