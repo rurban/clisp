@@ -1,3 +1,8 @@
+2004-08-02  Sam Steingold  <sds@gnu.org>
+
+	* modules/berkeley-db/bdb.c (object_handle): renamed to ...
+	(bdb_handle): ... to avoid a non-existent conflict with foreign.d
+
 2004-06-10  Bruno Haible  <bruno@clisp.org>
 
 	* clos.lisp: Load clos-methcomb3, clos-methcomb4.
