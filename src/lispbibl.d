@@ -10534,7 +10534,7 @@ typedef struct {
     #define sstring_normal_p(string)  \
       (!(Record_type(string) == Rectype_Imm_SmallSstring))
   #else
-    #define sstring_normal_p(string)  0
+    #define sstring_normal_p(string)  1
   #endif
 
 # Makes a string contents available.
