@@ -6189,7 +6189,6 @@ local const uintB* write_byte_array_buffered (object stream,
                                               uintL len, bool no_hang) {
   var uintL remaining = len;
   var uintB* ptr;
-  // if(no_hang)printf("write_byte_array_buffered\n");
   do { # still remaining>0 Bytes to be filed.
     ptr = buffered_nextbyte(stream,no_hang);
     if (ptr == (uintB*)NULL)
@@ -7154,7 +7153,6 @@ local void wr_by_iau8_buffered (object stream, object obj) {
 local uintL wr_by_array_iau8_buffered (const gcv_object_t* stream_,
                                       const gcv_object_t* bytearray_,
                                       uintL start, uintL len, bool no_hang) {
-  // if(no_hang)printf("wr_by_array_iau8_buffered\n");
   write_byte_array_buffered(*stream_,TheSbvector(*bytearray_)->data+start,len,false);
   # increment position:
   BufferedStream_position(*stream_) += len;
