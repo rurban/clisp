@@ -1703,7 +1703,7 @@ typedef enum {
                        May hang. */
   persev_immediate, /* Act immediately. Perform I/O only if we know in advance
                        that it will not block. In case of doubt, perform it
-                       anway. May return with 0 bytes handled. Does usually
+                       anyway. May return with 0 bytes handled. Does usually
                        not hang. */
   persev_bonus      /* Act immediately. Perform I/O only if we know in advance
                        that it will not block. In case of doubt, don't perform
