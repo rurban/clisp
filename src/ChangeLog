@@ -1,5 +1,12 @@
 1999-08-14  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Assume waitpid() is available.
+        * aclocal.m4 (CL_WAITPID): Don't test for waitpid or <sys/wait.h>.
+        * unix.d: Assume waitpid exists.
+        * unixaux.d (wait2): Likewise.
+        * sigcld.d (end_want_sigcld): Likewise.
+        * unixconf.h.in: Don't define HAVE_WAITPID and HAVE_SYS_WAIT_H.
+
         Assume memset() is available.
         * aclocal.m4 (CL_MEMSET): Don't test for memset.
           (CL_SIGACTION_REINSTALL, CL_SIGACTION_UNBLOCK): Assume memset exists.
