@@ -2161,7 +2161,7 @@ local object correct_packname (object name, bool nickname_p) {
     /* fill OPTIONS */
     pushSTACK(S(continue));     /* restart name */
     pushSTACK(nickname_p ? CLSTEXT("discard this nickname")
-              : CLSTEXT("return the exiting package"));
+              : CLSTEXT("return the existing package"));
     var object tmp = listof(2);
     pushSTACK(tmp);
     pushSTACK(S(read));         /* restart name */
