@@ -145,25 +145,27 @@
 
 ;;; changing signal handlers:
 
-(setf oldsigact (linux:signal-action-retrieve linux:SIGINT))
+ (setf oldsigact (linux:signal-action-retrieve linux:SIGINT))
 #S(LINUX:sigaction :|sa_handler| #<FOREIGN-FUNCTION #x080711D4>
    :|sa_mask| #S(LINUX:sigset_t :|val| #(2)) :|sa_flags| 335544320
    :|sa_restorer| #<FOREIGN-FUNCTION #x401F1868>)
-(setf savehandler (linux:sa-handler oldsigact))
+ (setf savehandler (linux:sa-handler oldsigact))
 #<FOREIGN-FUNCTION #x080711D4>
-(defun test-handler (s) (format t "~&~s: signal ~d~%" 'test-handler s))
-(setf (linux:sa-handler oldsigact) #'test-handler)
-(linux:signal-action-install linux:SIGINT oldsigact)
+;; this is example is _BAD_ because one cannot do i/o in handlers
+;; <https://sourceforge.net/mailarchive/message.php?msg_id=3599878>
+ (defun test-handler (s) (format t "~&~s: signal ~d~%" 'test-handler s))
+ (setf (linux:sa-handler oldsigact) #'test-handler)
+ (linux:signal-action-install linux:SIGINT oldsigact)
 ;; Now Ctrl-C invokes TEST-HANDLER
-(setf (linux:sa-handler oldsigact) savehandler)
-(linux:signal-action-install linux:SIGINT oldsigact)
+ (setf (linux:sa-handler oldsigact) savehandler)
+ (linux:signal-action-install linux:SIGINT oldsigact)
 ;; the standard behavior is restored
 
 ;; this is packaged into linux:set-signal-handler:
-(setf savehandler (linux:set-signal-handler linux:SIGINT #'test-handler))
-(linux:raise linux:SIGINT)
+ (setf savehandler (linux:set-signal-handler linux:SIGINT #'test-handler))
+ (linux:raise linux:SIGINT)
 ;; TEST-HANDLER is called
-(linux:set-signal-handler linux:SIGINT savehandler)
+ (linux:set-signal-handler linux:SIGINT savehandler)
 ;; the standard behavior is restored
 
 ;; Please note that if you use SA_RESETHAND, you reset the handler to
@@ -172,19 +174,19 @@
 
 ;;; sigprocmask & sigpending
 
-(setf sigact (linux:signal-action-retrieve linux:SIGINT))
-(linux:raise linux:SIGINT)
+ (setf sigact (linux:signal-action-retrieve linux:SIGINT))
+ (linux:raise linux:SIGINT)
 ;; ** - Continuable Error/PRINT: User break
-(linux:set-sigprocmask linux:SIG_BLOCK (linux:sa-mask sigact))
-(linux:raise linux:SIGINT)
+ (linux:set-sigprocmask linux:SIG_BLOCK (linux:sa-mask sigact))
+ (linux:raise linux:SIGINT)
 ;; nothing
-(linux:sigset-pending)
+ (linux:sigset-pending)
 #S(LINUX:sigset_t :|val| #(2))
-(linux:set-sigprocmask linux:SIG_UNBLOCK (linux:sa-mask sigact))
+ (linux:set-sigprocmask linux:SIG_UNBLOCK (linux:sa-mask sigact))
 ;; ** - Continuable Error/EVAL: User break
-(linux:sigset-pending)
+ (linux:sigset-pending)
 #S(LINUX:sigset_t :|val| #())
-(linux:raise linux:SIGINT)
+ (linux:raise linux:SIGINT)
 ;; ** - Continuable Error/PRINT: User break
 ;; |#
 
