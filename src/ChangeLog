@@ -1,6 +1,7 @@
 2002-03-21  Sam Steingold  <sds@gnu.org>
 
 	* configure (--with-debug): new option: pass "debug" to makemake
+	* clisp.spec: updated
 
 2002-03-21  Will Newton  <will@misconception.org.uk>
 
