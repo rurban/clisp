@@ -1727,17 +1727,20 @@
  #endif
 # wird verwendet von EVAL, IO, SPVW, STREAM
 
-# Consensys macht "#define DS 3". Grr...
-  #undef DS
-# 386BSD macht "#define CBLOCK 64". Grr...
-  #undef CBLOCK
-
 #endif # UNIX || DJUNIX || EMUNIX || WATCOM || WIN32
 
 #if defined(UNIX) || defined(WIN32_NATIVE)
   # Support for fault handling.
   #include "sigsegv.h"
 #endif
+
+# Consensys und Solaris: "#define DS 3", "#define SP ESP", "#define EAX 11".
+# Grr...
+  #undef DS
+  #undef SP
+  #undef EAX
+# 386BSD macht "#define CBLOCK 64". Grr...
+  #undef CBLOCK
 
 #ifdef AMIGAOS
   # Behandlung von AMIGAOS-Fehlern
