@@ -1,3 +1,7 @@
+1998-05-17  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
+        * lfloat.d (LF_decode): Declare a subexpression as possibly unused.
+
 1998-08-14  Jörg Höhle  <hoehle@tzd.telekom.de>
 
         * affi.d (C_mem_write): accept Foreign-Pointer as address.
