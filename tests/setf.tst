@@ -449,3 +449,12 @@ pl
   (fmakunbound 'frobozz)
   (fmakunbound 'foo-a) (fmakunbound 'foo-b) (fmakunbound 'foo-c))
 ((1 2 10 20) (1 2 10 20))
+
+(unwind-protect
+     (progn
+       (defstruct (foo (:type list)) a b c)
+       (funcall
+        (compile nil (lambda (f) (setf (foo-c f) (+ (foo-a f) (foo-b f))) f))
+        (make-foo :a 10 :b 100)))
+  (fmakunbound 'foo-a) (fmakunbound 'foo-b) (fmakunbound 'foo-c))
+(10 100 110)

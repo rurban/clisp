@@ -1975,6 +1975,8 @@ for-value   NIL or T
        (MAPLAP . c-MAPLAP)
        (TYPEP . c-TYPEP)
        (FORMAT . c-FORMAT)
+       (NTH . c-NTH)
+       (SYSTEM::%SETNTH . c-SETNTH)
        ;; COMPLEMENT tricks
        (REMOVE-IF . c-REMOVE-IF)
        (REMOVE-IF-NOT . c-REMOVE-IF-NOT)
@@ -6828,6 +6830,38 @@ for-value   NIL or T
               `(FORMAT ,(second *form*) (FORMATTER ,(third *form*))
                        ,@(cdddr *form*)))))
       (c-GLOBAL-FUNCTION-CALL 'FORMAT))))
+
+;; c-NTH for NTH; c-SETNTH for (SETF NTH)==SYSTEM::%SETNTH
+;; mostly for (defstruct (foo (:type list))) accessors
+(macrolet ((simple-index-p (ival func)
+             `(and ,ival (or (integerp ,ival)
+                              (error-of-type 'source-program-error
+                                (TEXT "~S: index must be an integer, not ~S")
+                                ',func ,ival))
+                   (<= 0 ,ival 9))))
+(defun c-NTH ()
+  (test-list *form* 3 3)
+  (let* ((index (macroexpand-form (second *form*)))
+         (list (macroexpand-form (third *form*)))
+         (i-val (and (c-constantp index) (c-constant-value index))))
+    (if (simple-index-p i-val 'NTH)
+        (c-GLOBAL-FUNCTION-CALL-form
+         `(,(svref #(FIRST SECOND THIRD FOURTH FIFTH SIXTH SEVENTH EIGHTH
+                     NINTH TENTH) i-val)
+           ,list))
+        (c-GLOBAL-FUNCTION-CALL-form `(nth ,(or i-val index) ,list)))))
+(defun c-SETNTH ()
+  (test-list *form* 4 4)
+  (let* ((index (macroexpand-form (second *form*)))
+         (list (macroexpand-form (third *form*)))
+         (value (macroexpand-form (fourth *form*)))
+         (i-val (and (c-constantp index) (c-constant-value index))))
+    (if (simple-index-p i-val '(SETF NTH))
+        (c-form
+         `(setf (,(svref #(FIRST SECOND THIRD FOURTH FIFTH SIXTH SEVENTH
+                           EIGHTH NINTH TENTH) i-val) ,list) ,value))
+        (c-GLOBAL-FUNCTION-CALL 'SYSTEM::%SETNTH))))
+)
 
 ;; c-REMOVE-IF, c-REMOVE-IF-NOT etc.
 (macrolet ((c-seqop (op n)
