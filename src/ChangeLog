@@ -1,5 +1,23 @@
 2001-06-07  Sam Steingold  <sds@gnu.org>
 
+	Print (c-ptr (c-function)) with arguments and correct "()"
+	* foreign1.lisp (element, deref, slot, cast, typeof, sizeof,
+	bitsizeof): new local (flet) function `foreign-place-p'
+	(ctype-type): new function
+	(parse-c-function, prepare-c-typedecl, to-c-typedecl,
+	note-c-call-in): use it
+	(flag-set-p): new function
+	(deparse-c-type, note-c-call-in, count-inarguments): use it
+	(flag-to-language, language-to-flag): new functions
+	(deparse-c-type, parse-c-function): use them, respectively
+	(deparse-c-type): new labels: `new-type' and `deparse-slot'
+	(split-c-fun-arglist): new function
+	(note-c-call-in): use it
+	(to-c-typedecl): print the function name in () for c-prt
+	and also print the arglist
+
+2001-06-07  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/mit-clx/clx.lisp (boolean): built-in CLISP type
 	since 1998-04-08, do not redefine
 	* modules/clx/mit-clx/package.lisp (boolean): do not shadow
