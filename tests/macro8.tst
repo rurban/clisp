@@ -398,6 +398,15 @@ FEXPAND-1
     (bar 10)))
 22
 
+(progn
+  (eval
+   '(defun func124 ()
+     (let ((a 1) (b 2))
+       (symbol-macrolet ((a 5))
+         (symbol-macrolet ((b a)) b)))))
+  (func124))
+5
+
 ;; <https://sourceforge.net/tracker/index.php?func=detail&aid=678194&group_id=1355&atid=101355>
 (defvar *my-typeof-counter* 0)
 *my-typeof-counter*
