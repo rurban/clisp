@@ -70,6 +70,89 @@ T
 #-(or OpenMCL LISPWORKS)
 (t 17 18)
 
+;; Check that defstruct and defclass interoperate with each other.
+(progn
+  (defstruct structure02a
+    slot1
+    (slot2 t)
+    (slot3 (floor pi))
+    (slot4 44))
+  (defclass structure02b (structure02a)
+    ((slot4 :initform -44)
+     (slot5)
+     (slot6 :initform t)
+     (slot7 :initform (floor (* pi pi)))
+     (slot8 :initform 88))
+    (:metaclass structure-class))
+  (defstruct (structure02c (:include structure02b (slot8 -88)))
+    slot9 
+    (slot10 t)
+    (slot11 (floor (exp 3))))
+  (let ((a (make-structure02c))
+        (b (make-instance 'structure02c)))
+    (list (structure02c-slot1 a)
+          (structure02c-slot2 a)
+          (structure02c-slot3 a)
+          (structure02c-slot4 a)
+          (structure02c-slot5 a)
+          (structure02c-slot6 a)
+          (structure02c-slot7 a)
+          (structure02c-slot8 a)
+          (structure02c-slot9 a)
+          (structure02c-slot10 a)
+          (structure02c-slot11 a)
+          ;(structure02c-slot1 b) ; may be #<UNBOUND>
+          (structure02c-slot2 b)
+          (structure02c-slot3 b)
+          (structure02c-slot4 b)
+          ;(structure02c-slot5 b) ; #<UNBOUND>
+          (structure02c-slot6 b)
+          (structure02c-slot7 b)
+          (structure02c-slot8 b)
+          ;(structure02c-slot9 b) ; may be #<UNBOUND>
+          (structure02c-slot10 b)
+          (structure02c-slot11 b)
+          (equalp a (copy-structure a))
+          (equalp b (copy-structure b))
+          (equalp a b))))
+(nil t 3 -44 nil t 9 -88 nil t 20
+     t 3 -44     t 9 -88     t 20
+ t t nil)
+
+;; Check that defstruct and defclass interoperate with each other.
+(progn
+  (defclass structure03a ()
+    ((slot1)
+     (slot2 :initform t)
+     (slot3 :initform (floor pi))
+     (slot4 :initform 44))
+    (:metaclass structure-class))
+  (defstruct (structure03b (:include structure03a (slot4 -44)))
+    slot5
+    (slot6 t)
+    (slot7 (floor (* pi pi)))
+    (slot8 88))
+  (defclass structure03c (structure03b)
+    ((slot8 :initform -88)
+     (slot9)
+     (slot10 :initform t)
+     (slot11 :initform (floor (exp 3))))
+    (:metaclass structure-class))
+  (let ((b (make-instance 'structure03c)))
+    (list ;(slot-value b 'slot1) ; #<UNBOUND>
+          (slot-value b 'slot2)
+          (slot-value b 'slot3)
+          (slot-value b 'slot4)
+          ;(slot-value b 'slot5) ; may be #<UNBOUND>
+          (slot-value b 'slot6)
+          (slot-value b 'slot7)
+          (slot-value b 'slot8)
+          ;(slot-value b 'slot9) ; #<UNBOUND>
+          (slot-value b 'slot10)
+          (slot-value b 'slot11)
+          (equalp b (copy-structure b)))))
+(    t 3 -44     t 9 -88     t 20
+ t)
 
 ;; Check that print-object can print all kinds of uninitialized metaobjects.
 (defun as-string (obj)

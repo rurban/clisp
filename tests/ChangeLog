@@ -1,3 +1,8 @@
+2004-10-17  Bruno Haible  <bruno@clisp.org>
+
+	* type.tst: Add a defstruct test.
+	* mop.tst: Add tests for interoperability of defstruct with defclass.
+
 2004-10-29  Bruno Haible  <bruno@clisp.org>
 
 	* tests.lisp (do-test): Fix out-of-bounds array access introduced on
