@@ -9573,8 +9573,12 @@ local maygc void wr_ch_array_terminal3 (const gcv_object_t* stream_,
 # > stream: Terminal-Stream
 # can trigger GC
 local maygc void clear_output_terminal3 (object stream) {
+ #if TERMINAL_OUTBUFFERED
+  pushSTACK(stream);            /* save */
+ #endif
   clear_output_unbuffered(stream);
  #if TERMINAL_OUTBUFFERED
+  stream = popSTACK();          /* restore */
   TheIarray(TheStream(stream)->strm_terminal_outbuff)->dims[1] = 0; # Fill-Pointer := 0
  #endif
 }
