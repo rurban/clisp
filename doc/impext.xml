@@ -1437,8 +1437,8 @@ N. Gray to X3J13.</para>
 <para>If you uncomment the <literal role="sexp">(&load;
  "macros3")</literal> line in the file <filename>init.lisp</filename>
  before doing <command>make</command>, or load the file
- <filename>macros3.lisp</filename>into a running &clisp;, you gain access
- to the following macros:</para>
+ <filename>macros3.lisp</filename> into a running &clisp;, you can
+ use the following macros:</para>
 
 <formalpara id="ethe"><title><function>ext:ethe</function></title>
 <para><literal role="sexp">(<function>ext:ethe</function>
@@ -1932,7 +1932,7 @@ for my $kk (keys(%hash)) {
 <varlistentry id="def-c-var">
   <term><literal role="sexp">(<function>def-c-var</function>
         &name-r; {&option-r;}*)</literal></term>
-<listitem><table frame="all"><title/>
+<listitem><table frame="all" role="bnf"><title/>
  <tgroup cols="3" colsep="1" rowsep="1" align="left"><thead><row>
  <entry>&option-r; ::==</entry><entry/><entry/></row></thead><tbody>
 <row><entry/><entry/><entry><literal role="sexp">(:name
@@ -1978,15 +1978,15 @@ within Lisp (using &setq; or similar).</simpara>
 <varlistentry id="def-call-out">
   <term><literal role="sexp">(<function>def-call-out</function>
         &name-r; {&option-r;}*)</literal></term>
-<listitem><table frame="all"><title/>
+<listitem><table frame="all" role="bnf"><title/>
  <tgroup cols="3" colsep="1" rowsep="1" align="left">
  <thead><row><entry>&option-r; ::==</entry>
  <entry/><entry/></row></thead><tbody>
 <row><entry/><entry/><entry><literal role="sexp">(:name
    <replaceable>c-name</replaceable>)</literal></entry></row>
-<row><entry/><entry><literal role="sexp">(:arguments
+<row><entry/><entry>|</entry><entry><literal role="sexp">(:arguments
    {(<replaceable>arg-name</replaceable> &ctype-r;
-    [&param-mode; [&allocation;]])}*)</literal> |</entry></row>
+    [&param-mode; [&allocation;]])}*)</literal></entry></row>
 <row><entry/><entry>|</entry><entry><literal role="sexp">(:return-type
    &ctype-r;
    [&allocation;])</literal></entry></row>
@@ -2010,13 +2010,13 @@ within Lisp (using &setq; or similar).</simpara>
 <varlistentry id="def-call-in">
   <term><literal role="sexp">(<function>def-call-in</function>
         &name-r; {&option-r;}*)</literal></term>
-<listitem><table frame="all"><title/>
+<listitem><table frame="all" role="bnf"><title/>
  <tgroup cols="3" colsep="1" rowsep="1" align="left">
  <thead><row><entry>&option-r; ::==</entry>
  <entry/><entry/></row></thead><tbody>
-<row><entry/><entry><literal role="sexp">(:name
-   <replaceable>c-name</replaceable>)</literal> |</entry></row>
-<row><entry/><entry/><entry><literal role="sexp">(:arguments
+<row><entry/><entry/><entry><literal role="sexp">(:name
+   <replaceable>c-name</replaceable>)</literal></entry></row>
+<row><entry/><entry>|</entry><entry><literal role="sexp">(:arguments
    {(<replaceable>arg-name</replaceable> &ctype-r;
     [&param-mode; [&allocation;]])}*)</literal></entry></row>
 <row><entry/><entry>|</entry><entry><literal role="sexp">(:return-type
@@ -3121,7 +3121,7 @@ from &nil; for a NULL pointer) and refuses objects of type
 
 <variablelist>
  <varlistentry><term>&option-r; ::==</term>
- <listitem><table frame="all"><title/>
+ <listitem><table frame="all" role="bnf"><title/>
   <tgroup cols="3" colsep="1" rowsep="1" align="left"><tbody>
   <row><entry/><entry><literal role="sexp">(:offset
     <replaceable>library-offset</replaceable>)</literal></entry></row>
