@@ -1,5 +1,26 @@
 2004-04-04  Bruno Haible  <bruno@clisp.org>
 
+	Compile things like (remove-if #'(lambda ...) (the list ...)) inline.
+	* compiler.lisp (c-form-table): Add entries for MAP, MAP-INTO, SOME,
+	EVERY, NOTANY, NOTEVERY.
+	(c-MAP-on-CARs-inner): Add endp-value argument.
+	(c-MAP-on-CARs, c-MAPC): Update.
+	(c-NTH, c-SETNTH): Use c-GLOBAL-FUNCTION-CALL-form instead of
+	c-GLOBAL-FUNCTION-CALL, to reuse the already macroexpanded subforms.
+	(declared-list-form-p, c-MAP, c-MAP-INTO, c-SOME, c-EVERY, c-NOTANY,
+	c-NOTEVERY): New functions.
+	(c-REMOVE-IF, c-DELETE-IF, c-SUBSTITUTE-IF, c-NSUBSTITUTE-IF,
+	c-FIND-IF, c-POSITION-IF, c-COUNT-IF): Expand inline if the sequence
+	argument is declared as list. Handle the inverted case as well.
+	(c-REMOVE-IF-NOT, c-DELETE-IF-NOT, c-SUBSTITUTE-IF-NOT,
+	c-NSUBSTITUTE-IF-NOT, c-FIND-IF-NOT, c-POSITION-IF-NOT,
+	c-COUNT-IF-NOT): Invoke the corresponding -IF function.
+	(c-seqop, c-LDB, c-LDB-TEST, c-MASK-FIELD, c-DPB, c-DEPOSIT-FIELD): Use
+	c-GLOBAL-FUNCTION-CALL-form instead of c-GLOBAL-FUNCTION-CALL, to reuse
+	the already macroexpanded subforms.
+
+2004-04-04  Bruno Haible  <bruno@clisp.org>
+
 	Make DEFSTRUCT :INITIAL-OFFSET option work correctly even in structure
 	types with no slots.
 	* defstruct.lisp (ds-make-constructor-body): Don't use the optimized
