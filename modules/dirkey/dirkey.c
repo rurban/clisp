@@ -3,6 +3,8 @@
  * Copyright (C) 2000-2003 by Sam Steingold
  */
 
+/* have to undefing UNICODE _here_ because clisp.h will #include <windows.h> */
+#undef UNICODE
 #include "clisp.h"
 
 #include "config.h"
@@ -13,10 +15,6 @@
 
 #define WIN32_LEAN_AND_MEAN  /* avoid including junk */
 #if defined(UNIX_CYGWIN32) || defined(__MINGW32__)
-# if defined(UNICODE)
-#  define SAVED_UNICODE
-#  undef UNICODE
-# endif
 /* `unused' is used in function declarations. */
 # undef unused
 # define ULONGLONG OS_ULONGLONG
@@ -95,15 +93,10 @@ extern object nobject_out (FILE* stream, object obj);
 
 DEFMODULE(dirkey,"LDAP");
 
-#if defined(SAVED_UNICODE)
+#if CLISP_UNICODE
 DEFVAR(misc_encoding, (funcall(L(misc_encoding),0),value1));
 # if defined(GNOME)
 DEFVAR(pathname_encoding, (funcall(L(pathname_encoding),0),value1));
-# endif
-#else
-DEFVAR(misc_encoding, (funcall(L(default_file_encoding),0),value1));
-# if defined(GNOME)
-DEFVAR(pathname_encoding, O(misc_encoding));
 # endif
 #endif
 
