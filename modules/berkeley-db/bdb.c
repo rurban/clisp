@@ -1051,21 +1051,9 @@ static object dbt_to_object (DBT *p_dbt, dbt_o_t type) {
     }
     case DBT_INTEGER:
       if (p_dbt->size > sizeof(uintL)) {
-        uintL bn_size = ceiling(p_dbt->size,sizeof(uintD));
-        uintD total = bn_size * sizeof(uintD);
-        void *data = p_dbt->size == total ? p_dbt->data : alloca(total);
-        if (data != p_dbt->data) {
-          begin_system_call();
-          memset(data,0,total);
-          memcpy((char*)data + total - p_dbt->size,p_dbt->data,p_dbt->size);
-          free(p_dbt->data); p_dbt->data = NULL;
-          end_system_call();
-          return UDS_to_I(data,bn_size);
-        } else {
-          object ret = UDS_to_I(data,bn_size);
-          free_dbt(p_dbt);
-          return ret;
-        }
+        object ret = udigits_to_I(p_dbt->data,p_dbt->size);
+        free_dbt(p_dbt);
+        return ret;
       } else if (p_dbt->size == sizeof(uintL)) {
         object ret = UL_to_I(*(uintL*)p_dbt->data);
         free_dbt(p_dbt);

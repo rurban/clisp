@@ -1,5 +1,11 @@
 2005-01-11  Sam Steingold  <sds@gnu.org>
 
+	* intelem.d (udigits_to_I): new helper function for modules
+	* lispbibl.d, genclisph.d (udigits_to_I): export
+	* modules/berkeley-db/bdb.c (dbt_to_object): use it
+
+2005-01-11  Sam Steingold  <sds@gnu.org>
+
 	unified cygwin/woe32 time conversion
 	* unixaux.d (time_t_to_filetime) [UNIX_CYGWIN32]: new function
 	(time_t_from_filetime) [UNIX_CYGWIN32]: renamed from to_time_t_()
