@@ -173,7 +173,8 @@ static const unsigned char * const uni2charset[256] = {
 struct nls_table nls_iso8859_6_table = {
   "iso8859-6",
   uni2charset,
-  charset2uni
+  charset2uni,
+  0
 };
 
 #undef uni2charset
