@@ -1,3 +1,14 @@
+2004-05-09  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (Hashtable): Add fields ht_hashcodefn, ht_testfn.
+	(hashtable_length): Increment by 2.
+	* hashtabl.d (hashcode2, hashcode3, hashcode4): Make global.
+	(hashcode_Pseudofun, test_Pseudofun): New types.
+	(hashcodefn, testfn): New macros.
+	(hashcode_raw, hash_lookup): Use the pseudofuns.
+	(MAKE-HASH-TABLE): Initialize ht_hashcodefn and ht_testfn.
+	* pseudofun.d: Declare pseudofuns eql, equal, equalp, hashcode[234].
+
 2004-05-27  Sam Steingold  <sds@gnu.org>
 
 	an improper docstring does not warrant an error

@@ -133,7 +133,7 @@ local uint32 hashcode1 (object obj);
  (eql X Y) implies (= (hashcode2 X) (hashcode2 Y)).
  > obj: an object
  < result: hashcode, a 32-Bit-number */
-local uint32 hashcode2 (object obj);
+global uint32 hashcode2 (object obj);
 /* auxiliary functions for known type:
  Fixnum: fixnum-value */
 local uint32 hashcode_fixnum (object obj);
@@ -182,7 +182,7 @@ local uint32 hashcode_dfloat (object obj) {
 /* Long-Float: mixture of exponent, length, first 32 bits */
 extern uint32 hashcode_lfloat (object obj); /* see LFLOAT.D */
 /* in general: */
-local uint32 hashcode2 (object obj) {
+global uint32 hashcode2 (object obj) {
  #ifdef TYPECODES
   if (!numberp(obj)) {          /* a number? */
     /* no -> take EQ-hashcode (for characters, EQL == EQ) : */
@@ -257,7 +257,7 @@ local uint32 hashcode2 (object obj) {
  (equal X Y) implies (= (hashcode3 X) (hashcode3 Y)).
  > obj: an object
  < result: hashcode, a 32-Bit-number */
-local uint32 hashcode3 (object obj);
+global uint32 hashcode3 (object obj);
 /* auxiliary functions for known type:
  String -> length, first max. 31 characters, utilize last character */
 local uint32 hashcode_string (object obj) {
@@ -479,7 +479,7 @@ local uint32 hashcode3_cons3 (object obj) {
   }
 }
 /* object, at cons only up to depth 4 */
-local uint32 hashcode3 (object obj) {
+global uint32 hashcode3 (object obj) {
   if (atomp(obj)) {
     return hashcode3_atom(obj);
   } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
@@ -494,7 +494,7 @@ local uint32 hashcode3 (object obj) {
  Is is valid onyl until the next GC or the next modification
  of the object.
  (equalp X Y) implies (= (hashcode4 X) (hashcode4 Y)). */
-local uint32 hashcode4 (object obj);
+global uint32 hashcode4 (object obj);
 /* auxiliary functions for known type:
  character -> case-insensitive. */
 #define hashcode4_char(c)  (0xCAAEACEFUL + (uint32)as_cint(up_case(c)))
@@ -834,7 +834,7 @@ local uint32 hashcode4_cons3 (object obj) {
   }
 }
 /* object, at cons only up to depth 4 */
-local uint32 hashcode4 (object obj) {
+global uint32 hashcode4 (object obj) {
   if (atomp(obj)) {
     return hashcode4_atom(obj);
   } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
@@ -851,6 +851,27 @@ local uint32 hashcode5 (object fun, object obj) {
   return I_to_UL(value1);
 }
 
+# Specification of the two types of Pseudo-Functions:
+
+  # Specification for HASHCODE - Pseudo-Function:
+  # hashcode(obj)
+  # > obj: object
+  # < result: its hash code
+    typedef uint32 (* hashcode_Pseudofun) (object obj);
+
+  # Specification for TEST - Pseudo-Function:
+  # test(obj1,obj2)
+  # > obj1: object
+  # > obj2: object
+  # < result: true if they are considered equal
+    typedef bool (* test_Pseudofun) (object obj1, object obj2);
+
+# Extract Pseudo-Functions of a hash-table:
+#define hashcodefn(ht)  \
+  (*(hashcode_Pseudofun)ThePseudofun(TheHashtable(ht)->ht_hashcodefn))
+#define testfn(ht)  \
+  (*(test_Pseudofun)ThePseudofun(TheHashtable(ht)->ht_testfn))
+
 /* UP: Calculates the hashcode of an object with reference to a hashtable.
  hashcode(ht,obj)
  > ht: hash-table
@@ -859,12 +880,9 @@ local uint32 hashcode5 (object fun, object obj) {
  can trigger GC - for user-defined ht_test */
 local inline uintL hashcode_raw (object ht, object obj) {
   var uintB flags = record_flags(TheHashtable(ht));
-  return /* raw hashcode according to the hashtable-type: */
-    (flags & bit(0) ? hashcode1(obj) : /* EQ-hashcode */
-     flags & bit(1) ? hashcode2(obj) : /* EQL-hashcode */
-     flags & bit(2) ? hashcode3(obj) : /* EQUAL-hashcode */
-     flags & bit(3) ? hashcode4(obj) : /* EQUALP-hashcode */
-     hashcode5(TheHashtable(ht)->ht_hash,obj));
+  return (flags & bit(0) ? hashcode1(obj) : /* EQ-hashcode */
+          flags & (bit(0)|bit(1)|bit(2)|bit(3)) ? hashcodefn(ht)(obj) :
+          hashcode5(TheHashtable(ht)->ht_hash,obj));
 }
 local inline uintL hashcode_cook (uint32 code, uintL size) {
   /* divide raw hashcode CODE by SIZE: */
@@ -994,9 +1012,7 @@ local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
     }
     /* compare key with obj: */
     if (flags & bit(0) ? eq(key,obj) :  /* compare with EQ */
-        flags & bit(1) ? eql(key,obj) :   /* compare with EQL */
-        flags & bit(2) ? equal(key,obj) :  /* compare with EQUAL */
-        flags & bit(3) ? equalp(key,obj) : /* compare with EQUALP */
+        flags & (bit(0)|bit(1)|bit(2)|bit(3)) ? testfn(ht)(key,obj) :
         (/* here again we favor built-in HTs over user-defined ones */
          pushSTACK(ht), pushSTACK(obj), i_n = Iptr - Nptr,
          pushSTACK(key),pushSTACK(obj),funcall(TheHashtable(ht)->ht_test,2),
@@ -1312,34 +1328,42 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
    stack-layout:
       weak, initial-contents, test, size, rehash-size, rehash-threshold. */
   var uintB flags;
+  var object hashcodepfn;
+  var object testpfn;
  check_test_restart: { /* check test-argument: */
     var object test = STACK_3;
-    if (!boundp(test))
-      flags = bit(1);           /* EQL as Default */
-    else if (eq(test,S(eq)) || eq(test,L(eq)))
+    if (!boundp(test) || eq(test,S(eql)) || eq(test,L(eql))) {
+      flags = bit(1);           /* EQL as default */
+      hashcodepfn = P(hashcode2); testpfn = P(eql);
+    } else if (eq(test,S(eq)) || eq(test,L(eq))) {
       flags = bit(0);           /* EQ */
-    else if (eq(test,S(eql)) || eq(test,L(eql)))
-      flags = bit(1);           /* EQL */
-    else if (eq(test,S(equal)) || eq(test,L(equal)))
+      hashcodepfn = unbound; testpfn = unbound;
+    } else if (eq(test,S(equal)) || eq(test,L(equal))) {
       flags = bit(2);           /* EQUAL */
-    else if (eq(test,S(equalp)) || eq(test,L(equalp)))
+      hashcodepfn = P(hashcode3); testpfn = P(equal);
+    } else if (eq(test,S(equalp)) || eq(test,L(equalp))) {
       flags = bit(3);           /* EQUALP */
-    else if (symbolp(test)) {
-      var object ht_test = get(test,S(hash_table_test));
-      if (!consp(ht_test)) goto test_error;
-      STACK_3 = ht_test;
-      flags = 0; /* user-defined ht_test */
-    } else if (consp(test)) {
-      flags = 0; /* ad hoc (user-defined ht_test) */
-    } else { test_error:
-      pushSTACK(NIL); /* no PLACE */
-      pushSTACK(test); /* TYPE-ERROR slot DATUM */
-      pushSTACK(O(type_hashtable_test)); /* TYPE-ERROR slot EXPECTED-TYPE */
-      pushSTACK(test); pushSTACK(S(Ktest));
-      pushSTACK(S(make_hash_table));
-      check_value(type_error,GETTEXT("~S: illegal ~S argument ~S"));
-      STACK_3 = value1;
-      goto check_test_restart;
+      hashcodepfn = P(hashcode4); testpfn = P(equalp);
+    } else {
+      hashcodepfn = unbound; testpfn = unbound;
+      if (symbolp(test)) {
+        var object ht_test = get(test,S(hash_table_test));
+        if (!consp(ht_test)) goto test_error;
+        STACK_3 = ht_test;
+        flags = 0; /* user-defined ht_test */
+      } else if (consp(test)) {
+        flags = 0; /* ad hoc (user-defined ht_test) */
+      } else {
+       test_error:
+        pushSTACK(NIL); /* no PLACE */
+        pushSTACK(test); /* TYPE-ERROR slot DATUM */
+        pushSTACK(O(type_hashtable_test)); /* TYPE-ERROR slot EXPECTED-TYPE */
+        pushSTACK(test); pushSTACK(S(Ktest));
+        pushSTACK(S(make_hash_table));
+        check_value(type_error,GETTEXT("~S: illegal ~S argument ~S"));
+        STACK_3 = value1;
+        goto check_test_restart;
+      }
     }
   } /* flags contains the flags for the test. */
  check_size: { /* check size-argument: */
@@ -1466,6 +1490,8 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
   TheHashtable(ht)->ht_mincount_threshold = popSTACK(); /*MINCOUNT-THRESHOLD*/
   TheHashtable(ht)->ht_rehash_size = popSTACK(); /* REHASH-SIZE */
   TheHashtable(ht)->ht_freelist = nix; /* dummy as free-list */
+  TheHashtable(ht)->ht_hashcodefn = hashcodepfn;
+  TheHashtable(ht)->ht_testfn = testpfn;
   if (flags==0) { /* user-defined ht_test */
     STACK_0 = ht;
     var object test = coerce_function(Car(STACK_1)); pushSTACK(test);
