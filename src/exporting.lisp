@@ -1,7 +1,7 @@
 ;;; Macros that export their definiendum
 ;;; Bruno Haible 2004-12-15
 
-(defpackage "EXPORTING" (:nicknames "XP")
+(defpackage "EXPORTING"
   (:use "COMMON-LISP")
   (:shadow . #1=(defconstant defparameter defvar define-symbol-macro
                  defun defgeneric defmethod define-compiler-macro defsetf
@@ -10,7 +10,8 @@
                  define-method-combination
                  #+FFI def-c-type #+FFI def-c-enum #+FFI def-c-struct
                  #+FFI def-c-var
-                 #+FFI def-c-call-out #+FFI def-call-out #+AFFI def-lib-call-out))
+                 #+FFI def-c-call-out #+FFI def-call-out
+                 #+AFFI def-lib-call-out))
   (:export . #1#))
 
 (in-package "EXPORTING")
@@ -231,17 +232,17 @@
      (EXPORT ',(or name '(NIL)))
      (FFI:DEF-LIB-CALL-OUT ,name ,library ,@options)))
 
-#| ;; def-c-call-in and def-call-in don't actually define anything; they are
-   ;; more like declarations.
+#| ;; def-c-call-in and def-call-in don't actually define anything;
+   ;; they are more like declarations.
 
 #+FFI
-(cl:defmacro def-c-call-in (name &rest options)
+ (cl:defmacro def-c-call-in (name &rest options)
   `(PROGN
      (EXPORT ',(or name '(NIL)))
      (FFI:DEF-C-CALL-IN ,name ,@options)))
 
 #+FFI
-(cl:defmacro def-call-in (name &rest options)
+ (cl:defmacro def-call-in (name &rest options)
   `(PROGN
      (EXPORT ',(or name '(NIL)))
      (FFI:DEF-CALL-IN ,name ,@options)))
