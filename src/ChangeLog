@@ -1,3 +1,8 @@
+2000-02-22  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * arimips.d (subx_loop_down): If compiling for n32 ABI, the fifth
+          argument comes in a register, not from the stack.
+
 2000-02-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d (oint_symbolflags_shift): Remove obsolete definition.
