@@ -1889,9 +1889,10 @@ if [ $CC_NEED_CCPAUX = true -o $XCC_NEED_CCPAUX = true -o $XASM_NEED_CCPAUX = tr
 else
   NEED_CCPAUX=false
 fi
-XDECL_FILTER="| \$(VARBRACE)"
-XDECL_DEPENDENCIES=" varbrace${HEXE}"
+XDECL_FILTER="| \$(GCTRIGGER) | \$(VARBRACE)"
+XDECL_DEPENDENCIES=" gctrigger${HEXE} varbrace${HEXE}"
 
+echol "GCTRIGGER = ${HERE}gctrigger"
 echol "VARBRACE = ${HERE}varbrace"
 if [ $CC_NEED_CCPAUX = true ] ; then
   CCPAUX='ccpaux'$HEXE
@@ -2037,6 +2038,7 @@ if [ $NEED_CCPAUX = true ] ; then
   UTILS=$UTILS' ccpaux'
 fi
 UTILS=$UTILS' comment5'
+UTILS=$UTILS' gctrigger'
 UTILS=$UTILS' varbrace'
 if [ $XCC_NEED_DEEMA = true -a $HOS != unix ] ; then
   UTILS=$UTILS' deema'
@@ -2126,7 +2128,7 @@ for util in ${UTILS} ; do
         echol
       fi
       ;;
-    varbrace )
+    gctrigger | varbrace )
       echol "${util}${HEXE} : ${UTILDIR_M}${util}.d comment5${HEXE}"
       echotabpipe "\$(COMMENT5) ${UTILDIR_CC}${util}.d > ${util}.c"
       echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)" "${util}.c" "${util}"

@@ -7,7 +7,7 @@
  > object stream: open file output stream
  As a side effect, the stream is closed.
  can trigger GC */
-global void savemem (object stream);
+global maygc void savemem (object stream);
 
 /* UP: Restores a memory image from disk.
  loadmem(filename);
@@ -207,7 +207,7 @@ typedef struct {
  savemem(stream);
  > object stream: open File-Output-Stream, will be closed
  can trigger GC */
-global void savemem (object stream)
+global maygc void savemem (object stream)
 {
   /* We need the stream only because of the handle provided by it.
      In case of an error we have to close it (the caller makes no

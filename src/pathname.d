@@ -578,7 +578,7 @@ local inline void rename_existing_file (char* old_pathstring,
  < result: converted Normal-Simple-String or the same Symbol/Number
  can trigger GC
  Operating System with preference for small letters or Capitalize */
-local object common_case (object string) {
+local maygc object common_case (object string) {
   if (!simple_string_p(string))
     return string;
   var uintL len = Sstring_length(string);
@@ -663,7 +663,7 @@ local bool legal_hostchar (chart ch) {
  > convert: Flag, if case-conversion is undesired
  < result: valid host-component
  can trigger GC */
-local object test_optional_host (object host, bool convert) {
+local maygc object test_optional_host (object host, bool convert) {
   if (!boundp(host))
     return NIL;
   if (nullp(host))
@@ -706,7 +706,7 @@ local object test_optional_host (object host, bool convert) {
  > host: Host-Argument
  < result: valid host-component
  can trigger GC */
-local object test_optional_host (object host) {
+local maygc object test_optional_host (object host) {
   if (!boundp(host))
     return NIL; /* not specified -> NIL */
   if (nullp(host))
@@ -845,7 +845,7 @@ local object defaults_pathname (void); /* later */
  > defaults: defaults-argument
  < result: value of the defaults-argument, a pathname
  can trigger GC */
-local object test_default_pathname (object defaults) {
+local maygc object test_default_pathname (object defaults) {
   if (missingp(defaults))
     /* not specified -> take value of *DEFAULT-PATHNAME-DEFAULTS* : */
     return defaults_pathname();
@@ -870,7 +870,7 @@ local object test_default_pathname (object defaults) {
  < result: a pathname derived from it, with *DEFAULT-PATHNAME-DEFAULTS* merged
            in.
  can trigger GC */
-local object merge_defaults (object pathname) {
+local maygc object merge_defaults (object pathname) {
   pushSTACK(pathname); pushSTACK(defaults_pathname());
   funcall(L(merge_pathnames),2);
   return value1;
@@ -949,13 +949,18 @@ nonreturning_function(local, fehler_file_stream_unnamed, (object stream)) {
 /* UP: add a character to an ASCII string and return as a Lisp string
  can trigger GC */
 #ifdef UNICODE
-local object asciz_add_char (const char* chars, uintL len, char ch,
-                             object encoding)
+local /*maygc*/ object asciz_add_char (const char* chars, uintL len, char ch,
+                                       object encoding)
 #else
 #define asciz_add_char(chars,len,ch,encoding)  asciz_add_char_(chars,len,ch)
-local object asciz_add_char_ (const char* chars, uintL len, char ch)
+local /*maygc*/ object asciz_add_char_ (const char* chars, uintL len, char ch)
 #endif
 {
+  #ifdef UNICODE
+  GCTRIGGER1(encoding);
+  #else
+  GCTRIGGER();
+  #endif
   var DYNAMIC_ARRAY(buf,char,len+1);
   begin_system_call(); memcpy(buf,chars,len); end_system_call();
   buf[len] = ch;
@@ -971,12 +976,17 @@ local object asciz_add_char_ (const char* chars, uintL len, char ch)
  < result: as a pathname without name and type
  can trigger GC */
 #ifdef UNICODE
-local object asciz_dir_to_pathname(const char* path, object encoding)
+local /*maygc*/ object asciz_dir_to_pathname(const char* path, object encoding)
 #else
 #define asciz_dir_to_pathname(path,encoding)  asciz_dir_to_pathname_(path)
-local object asciz_dir_to_pathname_(const char* path)
+local /*maygc*/ object asciz_dir_to_pathname_(const char* path)
 #endif
 {
+  #ifdef UNICODE
+  GCTRIGGER1(encoding);
+  #else
+  GCTRIGGER();
+  #endif
   var object pathname;
   var uintL len = asciz_length(path); /* string length */
   /* if the String does not end with a '/' already, a '/' is added: */
@@ -1040,7 +1050,7 @@ local void copy_upcase (object dest, uintL dest_offset,
  < zustand z: updated
  < result: a normal-simple-string or :WILD or :WILD-INFERIORS or NIL
  can trigger GC */
-local object parse_logical_word (zustand* z, bool subdirp) {
+local maygc object parse_logical_word (zustand* z, bool subdirp) {
   ASSERT(sstring_normal_p(STACK_2));
   var zustand startz = *z; /* start-state */
   var chart ch;
@@ -1138,7 +1148,7 @@ local bool looks_logical_p (object string) {
  < state z: updated to point past the colon after the logical host
  < result: logical host, or NIL
  can trigger GC */
-local object parse_logical_host_prefix (zustand* zp, object string) {
+local maygc object parse_logical_host_prefix (zustand* zp, object string) {
   ASSERT(sstring_normal_p(string));
   var object host;
   var uintL startindex = zp->index;
@@ -1181,7 +1191,7 @@ local object parse_logical_host_prefix (zustand* zp, object string) {
          :absolute :up         ==> error
          :wild-inferiors :up   ==> error
  can trigger GC */
-local object simplify_directory (object dir) {
+local maygc object simplify_directory (object dir) {
   if (!consp(dir)) return dir;
   DOUT("simplify_directory:< ",dir);
   pushSTACK(dir);
@@ -1264,7 +1274,7 @@ local object simplify_directory (object dir) {
  < STACK_0: same logical pathname, filled
  < result: number of remaining characters
  can trigger GC */
-local uintL parse_logical_pathnamestring (zustand z) {
+local maygc uintL parse_logical_pathnamestring (zustand z) {
   DOUT("parse_logical_pathnamestring:<0",STACK_0);
   DOUT("parse_logical_pathnamestring:<1",STACK_1);
   { /* parse Host-Specification: */
@@ -1378,7 +1388,7 @@ local bool logical_host_p (object host) {
 
 #ifdef PATHNAME_NOEXT
 /* can trigger GC */
-local void fix_parse_namestring_dot_file()
+local maygc void fix_parse_namestring_dot_file()
 { /* make sure *PARSE-NAMESTRING-DOT-FILE* is valid */
   Symbol_value(S(parse_namestring_dot_file)) = S(Ktype); /*CLISP default*/
   pushSTACK(NIL);
@@ -1399,7 +1409,7 @@ local void fix_parse_namestring_dot_file()
  < STACK_0: Type
  decrements STACK by 1
  can trigger GC */
-local void split_name_type (uintL skip) {
+local maygc void split_name_type (uintL skip) {
   if (skip == 0) {
     if (eq(Symbol_value(S(parse_namestring_dot_file)),S(Ktype))) { /* OK */
     } else if (eq(Symbol_value(S(parse_namestring_dot_file)),S(Kname))) {
@@ -2003,7 +2013,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
  > object: object
  < result: (PATHNAME Objekt)
  can trigger GC */
-local object coerce_xpathname (object obj) {
+local maygc object coerce_xpathname (object obj) {
   if (xpathnamep(obj)) {
     /* nothing to do for pathnames. */
     return obj;
@@ -2115,7 +2125,7 @@ LISPFUNNR(pathnameversion,1) {
 /* Converts obj to a pathname. If obj is a string, it is even converted to a
    logical pathname.
  can trigger GC */
-local object parse_as_logical (object obj) {
+local maygc object parse_as_logical (object obj) {
   /* The value of (PARSE-NAMESTRING obj nil empty-logical-pathname) is always
      a logical pathname, if obj is a string. (But not if it is a stream!) */
   pushSTACK(obj); pushSTACK(NIL);
@@ -2295,7 +2305,7 @@ LISPFUN(translate_logical_pathname,seclass_default,1,0,norest,key,1,
  > object: object
  < return: (TRANSLATE-LOGICAL-PATHNAME (PATHNAME Objekt))
  can trigger GC */
-local object coerce_pathname (object obj) {
+local maygc object coerce_pathname (object obj) {
   obj = coerce_xpathname(obj);
   if (pathnamep(obj)) {
     return obj;
@@ -2439,7 +2449,7 @@ local uintC directory_namestring_parts (object pathname) {
  < result: number of the strings pushed on the stack
  can trigger GC
  changes STACK */
-local uintC nametype_namestring_parts (object name, object type, object version)
+local maygc uintC nametype_namestring_parts (object name, object type, object version)
 {
   var uintC stringcount = 0;
   /* Name: */
@@ -2479,7 +2489,7 @@ local uintC nametype_namestring_parts (object name, object type, object version)
  < result: number of the strings pushed on the stack
  can trigger GC
  changes STACK */
-local uintC file_namestring_parts (object pathname) {
+local maygc uintC file_namestring_parts (object pathname) {
  #if defined(LOGICAL_PATHNAMES)
   if (logpathnamep(pathname))
     return nametype_namestring_parts
@@ -2500,7 +2510,7 @@ local uintC file_namestring_parts (object pathname) {
  > pathname: non-logical pathname
  < result: Normal-Simple-String
  can trigger GC */
-local object whole_namestring (object pathname) {
+local maygc object whole_namestring (object pathname) {
   var uintC stringcount = 0;
   stringcount += directory_namestring_parts(pathname);
   stringcount += file_namestring_parts(pathname);
@@ -2512,7 +2522,7 @@ local object whole_namestring (object pathname) {
  > pathname: non-logical pathname
  < result: Normal-Simple-String
  can trigger GC */
-local object directory_namestring (object pathname) {
+local maygc object directory_namestring (object pathname) {
   /* The function DIRECTORY-NAMESTRING is totally underspecified.
    It could return
    a. just the string for the directory portion,
@@ -2531,7 +2541,7 @@ local object directory_namestring (object pathname) {
  > pathname: non-logical pathname
  < result: normal-simple-string
  can trigger GC */
-local inline object file_namestring (object pathname) {
+local maygc inline object file_namestring (object pathname) {
   return string_concat(file_namestring_parts(pathname));
 }
 
@@ -2624,7 +2634,7 @@ local object test_optional_version (object def) {
 /* recalc_defaults_pathname();
  < result: value of *DEFAULT-PATHNAME-DEFAULTS*, a pathname
  can trigger GC */
-local object recalc_defaults_pathname (void) {
+local maygc object recalc_defaults_pathname (void) {
  #ifdef PATHNAME_WIN32
   /* execute (MAKE-PATHNAME :DEVICE default-drive) : */
   pushSTACK(S(Kdevice)); pushSTACK(O(default_drive));
@@ -2642,7 +2652,7 @@ local object recalc_defaults_pathname (void) {
  defaults_pathname()
  < result: value of *DEFAULT-PATHNAME-DEFAULTS*, a pathname
  can trigger GC */
-local object defaults_pathname (void) {
+local maygc object defaults_pathname (void) {
   var object pathname = Symbol_value(S(default_pathname_defaults)); /* value of *DEFAULT-PATHNAME-DEFAULTS* */
   if (xpathnamep(pathname)) { /* is a pathname -> OK */
     return pathname;
@@ -2663,8 +2673,8 @@ local object defaults_pathname (void) {
  > called_from_make_pathname: flag, from MERGE-PATHNAMES
  < result: merges directory list
  can trigger GC */
-local object merge_dirs (object p_directory, object d_directory, bool p_log,
-                         bool wildp, bool called_from_make_pathname) {
+local maygc object merge_dirs (object p_directory, object d_directory, bool p_log,
+                               bool wildp, bool called_from_make_pathname) {
   var object new_subdirs = p_directory;
  #if DEBUG_TRANSLATE_PATHNAME
   printf("[%d] merge_dirs: log: %d; wild: %d; cfmp: %d\n",
@@ -3214,7 +3224,7 @@ local bool legal_type (object obj) {
 /* Check that the namestring for path will be parsed into a similar object
  used by pr_orecord() in io.d
  can trigger GC */
-global bool namestring_correctly_parseable_p (gcv_object_t *path_)
+global maygc bool namestring_correctly_parseable_p (gcv_object_t *path_)
 {
   /* #p".foo" can be either :name ".foo" or :type "foo" */
   var object name = ThePathname(*path_)->pathname_name;
@@ -3644,7 +3654,7 @@ LISPFUN(user_homedir_pathname,seclass_default,0,1,norest,nokey,0,NIL) {
  > pathname: non-logical pathname
  < result: copy of the pathname, with the same components
  can trigger GC */
-local object copy_pathname (object pathname) {
+local maygc object copy_pathname (object pathname) {
   pushSTACK(pathname);
   var object newp = allocate_pathname();
   pathname = popSTACK();
@@ -4159,10 +4169,10 @@ LISPFUNNR(pathname_match_p,2)
 #if defined(PATHNAME_NOEXT) || defined(LOGICAL_PATHNAMES)
 
 /* recursive implementation because of backtracking: */
-local void wildcard_diff_ab (object pattern, object sample,
-                             uintL m_index, uintL b_index,
-                             const gcv_object_t* previous,
-                             gcv_object_t* solutions) {
+local maygc void wildcard_diff_ab (object pattern, object sample,
+                                   uintL m_index, uintL b_index,
+                                   const gcv_object_t* previous,
+                                   gcv_object_t* solutions) {
   var chart cc;
   loop {
     if (m_index == Sstring_length(pattern)) {
@@ -4224,9 +4234,9 @@ local void wildcard_diff_ab (object pattern, object sample,
   }
 }
 
-local void wildcard_diff (object pattern, object sample,
-                          const gcv_object_t* previous,
-                          gcv_object_t* solutions) {
+local maygc void wildcard_diff (object pattern, object sample,
+                                const gcv_object_t* previous,
+                                gcv_object_t* solutions) {
   ASSERT(sstring_normal_p(pattern));
   ASSERT(sstring_normal_p(sample));
   wildcard_diff_ab(pattern,sample,0,0,previous,solutions);
@@ -4245,23 +4255,23 @@ local void wildcard_diff (object pattern, object sample,
 /* UPs: compares a pathname-component ("Sample") and
  a pathname-component ("Pattern") at a time.
  can trigger GC */
-local void host_diff      (object pattern, object sample, bool logical,
-                           const gcv_object_t* previous,
-                           gcv_object_t* solutions);
-local void device_diff    (object pattern, object sample, bool logical,
-                           const gcv_object_t* previous,
-                           gcv_object_t* solutions);
-local void directory_diff (object pattern, object sample, bool logical,
-                           const gcv_object_t* previous,
-                           gcv_object_t* solutions);
-local void nametype_diff  (object pattern, object sample, bool logical,
-                           const gcv_object_t* previous,
-                           gcv_object_t* solutions);
-local void version_diff   (object pattern, object sample, bool logical,
-                           const gcv_object_t* previous,
-                           gcv_object_t* solutions);
-local void host_diff (object pattern, object sample, bool logical,
-                      const gcv_object_t* previous, gcv_object_t* solutions) {
+local maygc void host_diff      (object pattern, object sample, bool logical,
+                                 const gcv_object_t* previous,
+                                 gcv_object_t* solutions);
+local maygc void device_diff    (object pattern, object sample, bool logical,
+                                 const gcv_object_t* previous,
+                                 gcv_object_t* solutions);
+local maygc void directory_diff (object pattern, object sample, bool logical,
+                                 const gcv_object_t* previous,
+                                 gcv_object_t* solutions);
+local maygc void nametype_diff  (object pattern, object sample, bool logical,
+                                 const gcv_object_t* previous,
+                                 gcv_object_t* solutions);
+local maygc void version_diff   (object pattern, object sample, bool logical,
+                                 const gcv_object_t* previous,
+                                 gcv_object_t* solutions);
+local maygc void host_diff (object pattern, object sample, bool logical,
+                            const gcv_object_t* previous, gcv_object_t* solutions) {
   DEBUG_DIFF(host_diff);
  #ifdef LOGICAL_PATHNAMES
   if (logical) {
@@ -4285,8 +4295,8 @@ local void host_diff (object pattern, object sample, bool logical,
   push_solution();
  #endif
 }
-local void device_diff (object pattern, object sample, bool logical,
-                        const gcv_object_t* previous, gcv_object_t* solutions) {
+local maygc void device_diff (object pattern, object sample, bool logical,
+                              const gcv_object_t* previous, gcv_object_t* solutions) {
   DEBUG_DIFF(device_diff);
  #ifdef LOGICAL_PATHNAMES
   if (logical) {
@@ -4322,9 +4332,9 @@ local void device_diff (object pattern, object sample, bool logical,
   push_solution();
  #endif
 }
-local void nametype_diff_aux (object pattern, object sample, bool logical,
-                              const gcv_object_t* previous,
-                              gcv_object_t* solutions) {
+local maygc void nametype_diff_aux (object pattern, object sample, bool logical,
+                                    const gcv_object_t* previous,
+                                    gcv_object_t* solutions) {
  #if defined(LOGICAL_PATHNAMES) || defined(PATHNAME_NOEXT)
   unused(logical);
   if (eq(pattern,S(Kwild))) {
@@ -4343,8 +4353,8 @@ local void nametype_diff_aux (object pattern, object sample, bool logical,
   wildcard_diff(pattern,sample,previous,solutions);
  #endif
 }
-local void subdir_diff (object pattern, object sample, bool logical,
-                        const gcv_object_t* previous, gcv_object_t* solutions)
+local maygc void subdir_diff (object pattern, object sample, bool logical,
+                              const gcv_object_t* previous, gcv_object_t* solutions)
 {
   DEBUG_DIFF(subdir_diff);
   if (eq(pattern,sample)) {
@@ -4367,9 +4377,9 @@ local void subdir_diff (object pattern, object sample, bool logical,
  #endif
 }
 /* recursive implementation because of backtracking: */
-local void directory_diff_ab (object m_list, object b_list, bool logical,
-                              const gcv_object_t* previous,
-                              gcv_object_t* solutions) {
+local maygc void directory_diff_ab (object m_list, object b_list, bool logical,
+                                    const gcv_object_t* previous,
+                                    gcv_object_t* solutions) {
   /* algorithm analogous to wildcard_diff_ab. */
   var object item;
   if (atomp(m_list)) {
@@ -4426,9 +4436,9 @@ local void directory_diff_ab (object m_list, object b_list, bool logical,
 }
 #define SAMPLE_UNBOUND_CHECK \
   if (!boundp(sample)) { push_solution_with(pattern); return; }
-local void directory_diff (object pattern, object sample, bool logical,
-                           const gcv_object_t* previous,
-                           gcv_object_t* solutions) {
+local maygc void directory_diff (object pattern, object sample, bool logical,
+                                 const gcv_object_t* previous,
+                                 gcv_object_t* solutions) {
   DEBUG_DIFF(directory_diff);
   SAMPLE_UNBOUND_CHECK;
   /* compare pattern with O(directory_default) : */
@@ -4445,9 +4455,9 @@ local void directory_diff (object pattern, object sample, bool logical,
   /* compare subdirs: */
   directory_diff_ab(pattern,sample,logical,previous,solutions);
 }
-local void nametype_diff (object pattern, object sample, bool logical,
-                          const gcv_object_t* previous,
-                          gcv_object_t* solutions) {
+local maygc void nametype_diff (object pattern, object sample, bool logical,
+                                const gcv_object_t* previous,
+                                gcv_object_t* solutions) {
   DEBUG_DIFF(nametype_diff);
   SAMPLE_UNBOUND_CHECK;
   if (nullp(pattern)) {
@@ -4457,8 +4467,8 @@ local void nametype_diff (object pattern, object sample, bool logical,
   }
   nametype_diff_aux(pattern,sample,logical,previous,solutions);
 }
-local void version_diff (object pattern, object sample, bool logical,
-                         const gcv_object_t* previous, gcv_object_t* solutions)
+local maygc void version_diff (object pattern, object sample, bool logical,
+                               const gcv_object_t* previous, gcv_object_t* solutions)
 { /* logical is ignored */
   DEBUG_DIFF(version_diff);
   SAMPLE_UNBOUND_CHECK;
@@ -4489,14 +4499,13 @@ local void version_diff (object pattern, object sample, bool logical,
  > string: Normal-Simple-String or Symbol/Number
  < result: converted Normal-Simple-String or the same Symbol/Number
  can trigger GC */
-local object logical_case (object string) {
+local maygc object logical_case (object string) {
   if (!simple_string_p(string))
     return string;
   return string_upcase(string);
 }
 /* The same, recursive like with SUBST: */
-local object subst_logical_case (object obj);
-local object subst_logical_case (object obj) {
+local maygc object subst_logical_case (object obj) {
   SUBST_RECURSE(logical_case(obj),subst_logical_case);
 }
 
@@ -4506,7 +4515,7 @@ local object subst_logical_case (object obj) {
  > string: Normal-Simple-String or Symbol/Number
  < result: converted Normal-Simple-String or the same Symbol/Number
  can trigger GC */
-local object customary_case (object string) {
+local maygc object customary_case (object string) {
   if (!simple_string_p(string))
     return string;
  #if defined(PATHNAME_UNIX) || defined(PATHNAME_WIN32)
@@ -4515,7 +4524,7 @@ local object customary_case (object string) {
  #endif
 }
 /* The same, recursive like with SUBST: */
-local object subst_customary_case (object obj) {
+local maygc object subst_customary_case (object obj) {
   SUBST_RECURSE(customary_case(obj),subst_customary_case);
 }
 
@@ -4536,19 +4545,19 @@ local object translate_pathname (object* subst, object pattern);
 /* translate_host(&subst,pattern,logical) etc.
  returns the appropriate replacement for host etc.; shortens subst;
  returns nullobj on failure
- may trigger GC */
-local object translate_host (gcv_object_t* subst, object pattern,
-                             bool logical);
-local object translate_device (gcv_object_t* subst, object pattern,
-                               bool logical);
-local object translate_subdir (gcv_object_t* subst, object pattern,
-                               bool logical);
-local object translate_directory (gcv_object_t* subst, object pattern,
-                                  bool logical);
-local object translate_nametype (gcv_object_t* subst, object pattern,
-                                 bool logical);
-local object translate_version (gcv_object_t* subst, object pattern,
-                                bool logical);
+ can trigger GC */
+local maygc object translate_host (gcv_object_t* subst, object pattern,
+                                   bool logical);
+local maygc object translate_device (gcv_object_t* subst, object pattern,
+                                     bool logical);
+local maygc object translate_subdir (gcv_object_t* subst, object pattern,
+                                     bool logical);
+local maygc object translate_directory (gcv_object_t* subst, object pattern,
+                                        bool logical);
+local maygc object translate_nametype (gcv_object_t* subst, object pattern,
+                                       bool logical);
+local maygc object translate_version (gcv_object_t* subst, object pattern,
+                                      bool logical);
 #if DEBUG_TRANSLATE_PATHNAME
 /* all arguments to translate_* should be on stack - this should be safe */
 #define DEBUG_TRAN(f)                                         \
@@ -4557,8 +4566,8 @@ local object translate_version (gcv_object_t* subst, object pattern,
 #else
 #define DEBUG_TRAN(f)
 #endif
-local object translate_host (gcv_object_t* subst, object pattern,
-                             bool logical) {
+local maygc object translate_host (gcv_object_t* subst, object pattern,
+                                   bool logical) {
   DEBUG_TRAN(translate_host);
 #define TRAN_HOST(subst,pattern)                        \
         if (nullp(pattern) && mconsp(*subst)) {         \
@@ -4587,8 +4596,8 @@ local object translate_host (gcv_object_t* subst, object pattern,
   return pattern;
  #undef TRAN_HOST
 }
-local object translate_device (gcv_object_t* subst, object pattern,
-                               bool logical) {
+local maygc object translate_device (gcv_object_t* subst, object pattern,
+                                     bool logical) {
   DEBUG_TRAN(translate_device);
  #if HAS_DEVICE
   #ifdef LOGICAL_PATHNAMES
@@ -4617,8 +4626,8 @@ local object translate_device (gcv_object_t* subst, object pattern,
  #endif
   return pattern;
 }
-local object translate_nametype_aux (gcv_object_t* subst, object pattern,
-                                     bool logical) {
+local maygc object translate_nametype_aux (gcv_object_t* subst, object pattern,
+                                           bool logical) {
   DEBUG_TRAN(translate_nametype_aux);
   if (eq(pattern,S(Kwild)) && mconsp(*subst)) {
     if (TRIVIAL_P(Car(*subst))) {
@@ -4668,15 +4677,15 @@ local object translate_nametype_aux (gcv_object_t* subst, object pattern,
   }
   return pattern;
 }
-local object translate_subdir (gcv_object_t* subst, object pattern,
-                               bool logical) {
+local maygc object translate_subdir (gcv_object_t* subst, object pattern,
+                                     bool logical) {
   DEBUG_TRAN(translate_subdir);
  #if defined(LOGICAL_PATHNAMES) || defined(PATHNAME_NOEXT)
   return translate_nametype_aux(subst,pattern,logical);
  #endif
 }
-local object translate_directory (gcv_object_t* subst, object pattern,
-                                  bool logical) {
+local maygc object translate_directory (gcv_object_t* subst, object pattern,
+                                        bool logical) {
   DEBUG_TRAN(translate_directory);
   /* compare pattern with O(directory_default): */
   if (eq(Car(pattern),S(Krelative)) && nullp(Cdr(pattern))
@@ -4723,8 +4732,8 @@ local object translate_directory (gcv_object_t* subst, object pattern,
   }
   return listof(itemcount);
 }
-local object translate_nametype (gcv_object_t* subst, object pattern,
-                                 bool logical) {
+local maygc object translate_nametype (gcv_object_t* subst, object pattern,
+                                       bool logical) {
   DEBUG_TRAN(translate_nametype);
   if (nullp(pattern) && mconsp(*subst)) {
     if (SIMPLE_P(Car(*subst))) {
@@ -4753,7 +4762,7 @@ local object translate_version (gcv_object_t* subst, object pattern,
 #undef TRIVIAL_P
 #undef RET_POP
 #undef DEBUG_TRAN
-local object translate_pathname (gcv_object_t* subst, object pattern) {
+local maygc object translate_pathname (gcv_object_t* subst, object pattern) {
   var bool logical = false;
   var object item;
   pushSTACK(*subst); /* save subst for the error message */
@@ -4952,7 +4961,7 @@ LISPFUNN(absolute_pathname,1)
 /* for modules: coerce to an absolute physical pathname and
    return its namestring
  can trigger GC */
-global object physical_namestring (object thing) {
+global maygc object physical_namestring (object thing) {
   var object pathname = coerce_pathname(thing);
   pathname = use_default_dir(pathname); /* insert default-directory */
   return whole_namestring(pathname);
@@ -4999,7 +5008,7 @@ nonreturning_function(local, fehler_file_exists, (void)) {
  > dir_namestring: directory-namestring (for DOS)
  < result: namestring (for DOS)
  can trigger GC */
-local object OSnamestring (object dir_namestring) {
+local maygc object OSnamestring (object dir_namestring) {
   var uintC stringcount;
   pushSTACK(dir_namestring); /* Directory-Namestring as the first String */
   stringcount = file_namestring_parts(STACK_(0+1)); /* filename Strings */
@@ -5077,7 +5086,7 @@ local char default_drive (void) {
  > object pathname: pathname (for error-reporting purposes)
  < result: current directory (as pathname)
  can trigger GC */
-local object default_directory_of (uintB drive, object pathname) {
+local maygc object default_directory_of (uintB drive, object pathname) {
 /* working directory (of DOS) is the current directory: */
  #if defined(WIN32_NATIVE)
   var char currpath[4];
@@ -5135,7 +5144,7 @@ local object default_directory_of (uintB drive, object pathname) {
  > pathname: non-logical pathname with Device /= :WILD
  < result: new absolute pathname
  can trigger GC */
-local object use_default_dir (object pathname) {
+local maygc object use_default_dir (object pathname) {
   /* first copy the pathname: */
   pathname = copy_pathname(pathname);
   pushSTACK(pathname);
@@ -5376,7 +5385,7 @@ BOOL FullName (LPCSTR shortname, LPSTR fullname) {
      if tolerantp, maybe: nullobj
  can trigger GC */
 #ifdef WIN32_NATIVE
-local object assure_dir_exists (bool links_resolved, bool tolerantp) {
+local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
   var bool nnullp = namenullp(STACK_0);
   if (nnullp && links_resolved) return directory_namestring(STACK_0);
   with_sstring_0(whole_namestring(STACK_0),O(pathname_encoding),path, {
@@ -5456,7 +5465,7 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
      if Name=NIL: directory-namestring (for DOS)
      if Name/=NIL: namestring (for DOS)
  can trigger GC */
-global object assume_dir_exists (void) {
+global maygc object assume_dir_exists (void) {
   return assure_dir_exists(true,false);
 }
 
@@ -5467,7 +5476,7 @@ global object assume_dir_exists (void) {
 /* UP: Return the current Directory.
  < result: current Directory (as Pathname)
  can trigger GC */
-local object default_directory (void) {
+local maygc object default_directory (void) {
   var char path_buffer[MAXPATHLEN]; /* cf. GETWD(3) */
   /* store Working Directory in path_buffer: */
   begin_system_call();
@@ -5494,7 +5503,7 @@ local object default_directory (void) {
  < result: new pathname, whose directory contains no :RELATIVE .
              (short: "absolute pathname")
  can trigger GC */
-local object use_default_dir (object pathname) {
+local maygc object use_default_dir (object pathname) {
   /* copy the pathname first: */
   pathname = copy_pathname(pathname);
   { /* then build the default-directory into the pathname: */
@@ -5545,7 +5554,7 @@ local object use_default_dir (object pathname) {
 #endif
 
 local var struct stat * filestatus;
-local object assure_dir_exists (bool links_resolved, bool tolerantp) {
+local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
   var uintC allowed_links = MAXSYMLINKS; /* number of allowed symbolic links */
   if (links_resolved)
     goto dir_exists;
@@ -5670,7 +5679,7 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
 /* the same under the assumption, that the directory already exists.
    (only a little simplification, as the file can be a symbolic link into a
    different directory, and this must be tested to exist.) */
-global object assume_dir_exists (void) {
+global maygc object assume_dir_exists (void) {
   var object ret;
   with_saved_back_trace(L(open),-1,ret=assure_dir_exists(true,false));
   return ret;
@@ -5687,7 +5696,7 @@ global object assume_dir_exists (void) {
  < result: namestring for this directory, in DOS-Format: last '\'
              discarded, if superfluous, a normal-simple-string
  can trigger GC */
-local object OSdirnamestring (object namestring) {
+local maygc object OSdirnamestring (object namestring) {
   var uintL len = Sstring_length(namestring);
   if (len==0) goto ok; /* empty string -> do not discard anything */
   var chart ch = TheSnstring(namestring)->data[len-1];
@@ -5708,7 +5717,7 @@ local object OSdirnamestring (object namestring) {
  > STACK_0: absolute pathname, whose device is a string and directory
      contains no :RELATIVE, :CURRENT, :PARENT, and name and type are =NIL.
  can trigger GC */
-local void change_default (void) {
+local maygc void change_default (void) {
   { /* change default-directory for this drive: */
     var object pathname = STACK_0;
     var uintC stringcount = directory_namestring_parts(pathname);
@@ -5734,7 +5743,7 @@ local void change_default (void) {
  > STACK_0: absolute pathname, whose directory contains no :RELATIVE,
       :CURRENT, :PARENT , and name and Type are =NIL.
  can trigger GC */
-local void change_default (void) {
+local maygc void change_default (void) {
   var object string = directory_namestring(STACK_0);
   with_sstring_0(string,O(pathname_encoding),asciz, {
     /* change default-directory: */
@@ -5819,7 +5828,7 @@ nonreturning_function(local, fehler_file_not_exists, (void)) {
    pushes pathname on the stack and
    returns the truename (filename for the operating system) or nullobj
    can trigger GC */
-local object true_namestring (object pathname, bool noname_p, bool tolerantp) {
+local maygc object true_namestring (object pathname, bool noname_p, bool tolerantp) {
   check_no_wildcards(pathname); /* with wildcards -> error */
   pathname = use_default_dir(pathname); /* insert default-directory */
   if (noname_p) check_noname(pathname);
@@ -5894,7 +5903,7 @@ LISPFUNNR(probe_file,1)
  > pathname: an absolute pathname without wildcards, with Name=NIL and Type=NIL
  < result: true, if it denotes an existing directory
  can trigger GC */
-local bool directory_exists (object pathname) {
+local maygc bool directory_exists (object pathname) {
   pushSTACK(pathname); /* save pathname */
   var object dir_namestring = directory_namestring(pathname);
   /* existence test, see assure_dir_exists(): */
@@ -5956,7 +5965,7 @@ LISPFUNNR(probe_directory,1)
  > use_default: whether to use the current default directory
  < result: a simple-bit-vector containing an ASCIZ string in OS format
  can trigger GC */
-global object pathname_to_OSdir (object pathname, bool use_default) {
+global maygc object pathname_to_OSdir (object pathname, bool use_default) {
   pathname = coerce_pathname(pathname); /* convert to pathname */
   check_no_wildcards(pathname); /* if it has wildcards -> error */
   if (use_default)
@@ -5982,7 +5991,7 @@ global object pathname_to_OSdir (object pathname, bool use_default) {
  > path: a pathname referring to a directory
  < result: a pathname without name and type
  can trigger GC */
-global object OSdir_to_pathname (const char* path) {
+global maygc object OSdir_to_pathname (const char* path) {
   return asciz_dir_to_pathname(path,O(pathname_encoding));
 }
 
@@ -6283,8 +6292,8 @@ local inline Handle open_output_file (char* pathstring,
  > delete_backup_file: if true, delete the backup file
  > STACK_0: pathname
 Can trigger GC */
-local inline void create_backup_file (char* pathstring,
-                                      bool delete_backup_file) {
+local inline maygc void create_backup_file (char* pathstring,
+                                            bool delete_backup_file) {
   var object filename = STACK_0;
   if (openp(filename))
     fehler_rename_open(filename); /* do not rename open files! */
@@ -6414,9 +6423,9 @@ global object if_exists_symbol (if_exists_t if_exists) {
  < result: Stream or NIL
  < STACK: cleaned up
  can trigger GC */
-local object open_file (object filename, direction_t direction,
-                        if_exists_t if_exists,
-                        if_does_not_exist_t if_not_exists) {
+local maygc object open_file (object filename, direction_t direction,
+                              if_exists_t if_exists,
+                              if_does_not_exist_t if_not_exists) {
   pushSTACK(STACK_3); /* save filename */
   /* Directory must exist: */
   var object namestring = /* File name for the operating system */
@@ -6605,7 +6614,7 @@ typedef struct {
   bool full_p;
   bool circle_p;
 } dir_search_param_t;
-local object directory_search (object pathname, dir_search_param_t *dsp);
+local maygc object directory_search (object pathname, dir_search_param_t *dsp);
 
 #ifdef WIN32_NATIVE
   /* Set of macros for directory search. */
@@ -6663,7 +6672,7 @@ local inline int stat_for_search (char* pathstring, struct stat * statbuf) {
  < result: new pathname with directory lengthened by subdir
  increases STACK by 2
  can trigger GC */
-local object pathname_add_subdir (void) {
+local maygc object pathname_add_subdir (void) {
   /* copy pathname and lengthen its directory according to
    (append x (list y)) = (nreverse (cons y (reverse x))) : */
   var object pathname = copy_pathname(STACK_1);
@@ -6758,7 +6767,7 @@ local void with_stat_info (void) {
  can trigger GC */
 
 #if !defined(WIN32_NATIVE)
-local void directory_search_1subdir (object subdir, object namestring) {
+local maygc void directory_search_1subdir (object subdir, object namestring) {
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
     check_stat_directory(namestring_asciz,
     { OS_file_error(STACK_0); },
@@ -6778,7 +6787,7 @@ local void directory_search_1subdir (object subdir, object namestring) {
   });
 }
 #else
-local void directory_search_1subdir (object subdir, object namestring) {
+local maygc void directory_search_1subdir (object subdir, object namestring) {
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
     char resolved[MAX_PATH];
     if (real_path(namestring_asciz,resolved)) {
@@ -6809,7 +6818,7 @@ local void directory_search_1subdir (object subdir, object namestring) {
 
 #ifdef UNIX
 /* return (cons drive inode) */
-local object directory_search_hashcode (void) {
+local maygc object directory_search_hashcode (void) {
   pushSTACK(STACK_0); /* Directory-Name */
   pushSTACK(O(dot_string)); /* and "." */
   var object namestring = string_concat(2); /* concatenate */
@@ -6837,7 +6846,7 @@ local object directory_search_hashcode (void) {
 #else
 /* win32 - there is stat but no inodes
  using directory truenames as hashcodes */
-local object directory_search_hashcode (void) {
+local maygc object directory_search_hashcode (void) {
   return STACK_0;
 }
 #endif
@@ -6849,8 +6858,8 @@ local object directory_search_hashcode (void) {
  directory_search_direntry_ok(namestring,&statbuf)
  STACK_2 = pathname
  < result: true and statbuf filled, or false. */
-local bool directory_search_direntry_ok (object namestring,
-                                         struct stat * statbuf) {
+local maygc bool directory_search_direntry_ok (object namestring,
+                                               struct stat * statbuf) {
   var bool exists = true;
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
     begin_system_call();
@@ -6877,8 +6886,8 @@ local bool directory_search_direntry_ok (object namestring,
  stack layout: result-list, pathname, name&type, subdir-list, pathname-list,
               new-pathname-list, ht, pathname-list-rest, pathnames-to-insert,
               pathname, dir_namestring. */
-local void directory_search_scandir (bool recursively, signean next_task,
-                                     dir_search_param_t *dsp) {
+local maygc void directory_search_scandir (bool recursively, signean next_task,
+                                           dir_search_param_t *dsp) {
  #ifdef UNIX
   {
     var object namestring;
@@ -7281,7 +7290,7 @@ local void directory_search_scandir (bool recursively, signean next_task,
  #endif
 }
 
-local object directory_search (object pathname, dir_search_param_t *dsp) {
+local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
   pathname = use_default_dir(pathname); /* insert default-directory */
   /* pathname is now new and an absolute pathname. */
   pushSTACK(NIL); /* result-list := NIL */
@@ -7561,7 +7570,7 @@ LISPFUN(directory,seclass_read,1,0,norest,key,3,
 /* UP: make sure that the supposed directory namestring ends with a slash
  returns a new string with a slash appended or the same stirng
  can trigger GC */
-local object ensure_last_slash (object dir_string) {
+local maygc object ensure_last_slash (object dir_string) {
   ASSERT(stringp(dir_string));
   var uintL len, offset;
   var object str = unpack_string_ro(dir_string,&len,&offset);
@@ -7607,7 +7616,7 @@ LISPFUN(cd,seclass_default,0,1,norest,nokey,0,NIL) {
 #endif
 /* decrements STACK by 1.
  can trigger GC */
-local object shorter_directory (object pathname, bool resolve_links) {
+local maygc object shorter_directory (object pathname, bool resolve_links) {
   pathname = merge_defaults(coerce_pathname(pathname)); /* --> pathname */
   check_no_wildcards(pathname); /* with wildcards -> error */
   pathname = use_default_dir(pathname); /* insert default-directory */
@@ -7766,7 +7775,7 @@ local struct passwd * unix_user_pwd (void) {
 /* UP: Initializes the pathname-system.
  init_pathnames();
  can trigger GC */
-global void init_pathnames (void) {
+global maygc void init_pathnames (void) {
  #ifdef PATHNAME_WIN32
   { /* initialize default-drive: */
     var char drive = default_drive();
@@ -8176,11 +8185,11 @@ LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
  can trigger GC */
 #if !defined(UNICODE)
 #define stringlist_to_asciizlist(s,e,l) stringlist_to_asciizlist_(s,l)
-local int stringlist_to_asciizlist_ (object stringlist,uintL *listlength)
+local maygc int stringlist_to_asciizlist_ (object stringlist,uintL *listlength)
 #else
-local int stringlist_to_asciizlist (object stringlist,
-                                    gcv_object_t *encoding_,
-                                    uintL *listlength)
+local maygc int stringlist_to_asciizlist (object stringlist,
+                                          gcv_object_t *encoding_,
+                                          uintL *listlength)
 #endif
 {
   var int length = 0;
@@ -8282,8 +8291,8 @@ LISPFUN(shell_execute,seclass_default,0,4,norest,nokey,0,NIL) {
 
 #if defined(UNIX) || defined (WIN32_NATIVE)
 
-extern void mkops_from_handles (Handle opipe, int process_id);
-extern void mkips_from_handles (Handle ipipe, int process_id);
+extern maygc void mkops_from_handles (Handle opipe, int process_id);
+extern maygc void mkips_from_handles (Handle ipipe, int process_id);
 
 #ifdef UNIX
 
@@ -8338,9 +8347,9 @@ local void mkpipe (Handle * hin, bool dupinp, Handle * hout, bool dupoutp) {
 
 #endif
 
-local bool init_launch_streamarg (int istack, bool child_inputp,
-                                  Handle stdhandle, Handle * h, Handle * ph,
-                                  Handle * hnull, bool * wait_p)
+local maygc bool init_launch_streamarg (int istack, bool child_inputp,
+                                        Handle stdhandle, Handle * h, Handle * ph,
+                                        Handle * hnull, bool * wait_p)
 {
   var int handletype = 0;
   *h = INVALID_HANDLE_VALUE;
@@ -8368,8 +8377,8 @@ local bool init_launch_streamarg (int istack, bool child_inputp,
   return !HNULLP(*h);
 }
 
-local void make_launch_pipe (int istack, bool parent_inputp,
-  Handle hparent_pipe, int childpid)
+local maygc void make_launch_pipe (int istack, bool parent_inputp,
+                                   Handle hparent_pipe, int childpid)
 {
   if (!HNULLP(hparent_pipe)) {
     pushSTACK(STACK_7);     /* encoding */
@@ -8397,7 +8406,7 @@ local void make_launch_pipe (int istack, bool parent_inputp,
 /* paranoidal close */
 #define ParaClose(h) if (!CloseHandle(h)) { end_system_call(); OS_error(); }
 
-local sintL interpret_launch_priority () {
+local maygc sintL interpret_launch_priority () {
   var sintL pry = NORMAL_PRIORITY_CLASS;
   if (!boundp(STACK_0)) return NORMAL_PRIORITY_CLASS;
   var object priority_arg = STACK_0;

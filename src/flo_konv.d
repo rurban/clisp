@@ -4,7 +4,7 @@
 
 # SF_to_FF(x) wandelt ein Short-Float x in ein Single-Float um.
 # can trigger GC
-  local object SF_to_FF (object x)
+  local maygc object SF_to_FF (object x)
   {
     # Falls
     # 1. Keine Konversion im Exponenten nötig,
@@ -33,7 +33,7 @@
 
 # SF_to_DF(x) wandelt ein Short-Float x in ein Double-Float um.
 # can trigger GC
-  local object SF_to_DF (object x)
+  local maygc object SF_to_DF (object x)
   {
     # x entpacken:
     var signean sign;
@@ -51,7 +51,7 @@
 # SF_to_LF(x,len) wandelt ein Short-Float x in ein Long-Float mit len Digits um.
 # > uintC len: gewünschte Anzahl Digits, >=LF_minlen
 # can trigger GC
-  local object SF_to_LF (object x, uintC len)
+  local maygc object SF_to_LF (object x, uintC len)
   {
     # x entpacken:
     var signean sign;
@@ -71,7 +71,7 @@
 
 # FF_to_DF(x) wandelt ein Single-Float x in ein Double-Float um.
 # can trigger GC
-  local object FF_to_DF (object x)
+  local maygc object FF_to_DF (object x)
   {
     # x entpacken:
     var signean sign;
@@ -89,7 +89,7 @@
 # FF_to_LF(x,len) wandelt ein Single-Float x in ein Long-Float mit len Digits um.
 # > uintC len: gewünschte Anzahl Digits, >=LF_minlen
 # can trigger GC
-  local object FF_to_LF (object x, uintC len)
+  local maygc object FF_to_LF (object x, uintC len)
   {
     # x entpacken:
     var signean sign;
@@ -110,7 +110,7 @@
 # DF_to_LF(x,len) wandelt ein Double-Float x in ein Long-Float mit len Digits um.
 # > uintC len: gewünschte Anzahl Digits, >=LF_minlen
 # can trigger GC
-  local object DF_to_LF (object x, uintC len)
+  local maygc object DF_to_LF (object x, uintC len)
   {
     # x entpacken:
     var signean sign;
@@ -270,7 +270,7 @@
 
 # DF_to_FF(x) wandelt ein Double-Float x in ein Single-Float um.
 # can trigger GC
-  local object DF_to_FF (object x)
+  local maygc object DF_to_FF (object x)
   {
     # x entpacken:
     var signean sign;
@@ -326,7 +326,7 @@
 
 # LF_to_FF(x) wandelt ein Long-Float x in ein Single-Float um.
 # can trigger GC
-  local object LF_to_FF (object x)
+  local maygc object LF_to_FF (object x)
   {
     # x entpacken:
     var signean sign;
@@ -363,7 +363,7 @@
 
 # LF_to_DF(x) wandelt ein Long-Float x in ein Double-Float um.
 # can trigger GC
-  local object LF_to_DF (object x)
+  local maygc object LF_to_DF (object x)
   {
     # x entpacken:
     var signean sign;
@@ -449,7 +449,7 @@
 
 # c_float_to_FF(&val) wandelt ein IEEE-Single-Float val in ein Single-Float um.
 # can trigger GC
-  global object c_float_to_FF (const ffloatjanus* val_)
+  global maygc object c_float_to_FF (const ffloatjanus* val_)
   {
     var ffloat val = val_->eksplicit;
     var uintBWL exp = (val >> FF_mant_len) & (bit(FF_exp_len)-1); # e
@@ -509,7 +509,7 @@
 
 # c_double_to_DF(&val) wandelt ein IEEE-Double-Float val in ein Double-Float um.
 # can trigger GC
-  global object c_double_to_DF (const dfloatjanus* val_)
+  global maygc object c_double_to_DF (const dfloatjanus* val_)
   {
     var dfloat val; val = val_->eksplicit;
     #ifdef intQsize

@@ -28,7 +28,7 @@ local bool R_plusp (object x)
  > y: a Float
  < result: (float x y)
  can trigger GC */
-local object I_F_float_F (object x, object y)
+local maygc object I_F_float_F (object x, object y)
 { floatcase(y,
             { return I_to_SF(x,true); },
             { return I_to_FF(x,true); },
@@ -42,7 +42,7 @@ local object I_F_float_F (object x, object y)
  > y: a float
  < result: (float x y)
  can trigger GC */
-local object RA_F_float_F (object x, object y, bool signal_overflow)
+local maygc object RA_F_float_F (object x, object y, bool signal_overflow)
 { floatcase(y,
             { return RA_to_SF(x,signal_overflow); },
             { return RA_to_FF(x,signal_overflow); },
@@ -56,37 +56,37 @@ local object RA_F_float_F (object x, object y, bool signal_overflow)
  > y: a float
  < result: (float x y)
  can trigger GC */
-local object R_F_float_F (object x, object y)
+local maygc object R_F_float_F (object x, object y)
 { return (R_rationalp(x) ? RA_F_float_F(x,y,true) : F_F_float_F(x,y)); }
 
 /* R_to_SF(x) converts a real number x into a short-float.
  < result: (coerce x 'short-float)
  can trigger GC */
-local object R_to_SF (object x)
+local maygc object R_to_SF (object x)
 { return (R_rationalp(x) ? RA_to_SF(x,true) : F_to_SF(x)); }
 
 /* R_to_FF(x) converts a real number x into a single-float.
  < result: (coerce x 'single-float)
  can trigger GC */
-local object R_to_FF (object x)
+local maygc object R_to_FF (object x)
 { return (R_rationalp(x) ? RA_to_FF(x,true) : F_to_FF(x)); }
 
 /* R_to_DF(x) converts a real number x into a double-float.
  < result: (coerce x 'double-float)
  can trigger GC */
-local object R_to_DF (object x)
+local maygc object R_to_DF (object x)
 { return (R_rationalp(x) ? RA_to_DF(x,true) : F_to_DF(x)); }
 
 /* R_to_LF(x,len) converts a real number x into a long-float with len digits.
  > uintC len: desired number of digits, >=LF_minlen
  < result: (coerce x `(long-float ,len))
  can trigger GC */
-local object R_to_LF (object x, uintC len)
+local maygc object R_to_LF (object x, uintC len)
 { return (R_rationalp(x) ? RA_to_LF(x,len,true) : F_to_LF(x,len)); }
 
 /* R_R_contagion_R(x,y) returns a real number, that is as imprecise as the
  more imprecise one of both real numbers x and y. */
-local object R_R_contagion_R (object x, object y)
+local maygc object R_R_contagion_R (object x, object y)
 {
 #define X  { return x; }
 #define Y  { return y; }
@@ -128,7 +128,7 @@ local object R_R_contagion_R (object x, object y)
 #undef X
 }
 
-local object N_N_contagion_R (object x, object y)
+local maygc object N_N_contagion_R (object x, object y)
 {
   pushSTACK(y);
   if (complexp(x))
@@ -144,7 +144,7 @@ local object N_N_contagion_R (object x, object y)
  mathematical result could be a rational number.
  warn_floating_point_rational_contagion();
  can trigger GC */
-local void warn_floating_point_rational_contagion (void) {
+local maygc void warn_floating_point_rational_contagion (void) {
   pushSTACK(CLSTEXT("Numerical operation combines exact and inexact numbers "
                     "(rational numbers and floating-point numbers), "
                     "and the mathematical result is exact. "
@@ -162,7 +162,7 @@ local void warn_floating_point_rational_contagion (void) {
  mathematical result is a rational number, this returns the actual result.
  RA_F_exact_contagion_R(result,float_argument)
  can trigger GC */
-local object RA_F_exact_contagion_R (object result, object float_argument) {
+local maygc object RA_F_exact_contagion_R (object result, object float_argument) {
   if (!nullpSv(floating_point_rational_contagion_ansi))
     result = RA_F_float_F(result,float_argument,true);
   if (!nullpSv(warn_on_floating_point_rational_contagion)) {
@@ -211,7 +211,7 @@ local object RA_F_exact_contagion_R (object result, object float_argument) {
  > x: an Integer
  < result: (float x)
  can trigger GC */
-local object I_float_F (object x) {
+local maygc object I_float_F (object x) {
   defaultfloatcase(S(default_float_format),Fixnum_0,
                    return I_to_SF(x,true),
                    return I_to_FF(x,true),
@@ -224,7 +224,7 @@ local object I_float_F (object x) {
  > x: a rational number
  < result: (float x)
  can trigger GC */
-local object RA_float_F (object x) {
+local maygc object RA_float_F (object x) {
   defaultfloatcase(S(default_float_format),Fixnum_0,
                    return RA_to_SF(x,true),
                    return RA_to_FF(x,true),
@@ -238,14 +238,14 @@ local object RA_float_F (object x) {
  > x: a real number
  < result: (float x)
  can trigger GC */
-local object R_float_F (object x)
+local maygc object R_float_F (object x)
 { return (R_rationalp(x) ? RA_float_F(x) : x); }
 
 /* convert a float(rational) X to the appropriate format for Y
  same as F_F_float_F(x,R_float_F(y)) but without consing
  an intermediate float
  can trigger GC */
-local object F_R_float_F (object x, object y)
+local maygc object F_R_float_F (object x, object y)
 {
  #if SAFETY>=1
   if (!floatp(x)) abort();
@@ -259,7 +259,7 @@ local object F_R_float_F (object x, object y)
                                      : I_to_UL(O(LF_digits)))),
                    pushSTACK(x), x = popSTACK());
 }
-local object RA_R_float_F (object x, object y)
+local maygc object RA_R_float_F (object x, object y)
 {
   defaultfloatcase(S(default_float_format),y,
                    return RA_to_SF(x,true),
@@ -270,12 +270,12 @@ local object RA_R_float_F (object x, object y)
                                    true),
                    pushSTACK(x), x = popSTACK());
 }
-local object R_R_float_F (object x, object y)
+local maygc object R_R_float_F (object x, object y)
 {
   if (floatp(x)) return F_R_float_F(x,y);
   return RA_R_float_F(x,y);
 }
-local object C_R_float_C (object c, object y)
+local maygc object C_R_float_C (object c, object y)
 {
   pushSTACK(c); pushSTACK(y);
   var object realpart = R_R_float_F(TheComplex(c)->c_real,y);
@@ -285,7 +285,7 @@ local object C_R_float_C (object c, object y)
   realpart = popSTACK();
   return make_complex(realpart,imagpart);
 }
-local object N_N_float_N (object x, object y)
+local maygc object N_N_float_N (object x, object y)
 {
   if (complexp(y)) {
     pushSTACK(x);
@@ -309,36 +309,37 @@ local object N_N_float_N (object x, object y)
  method:
  x rational -> RA_rounding_I_RA(x)
  x float -> F_rounding_I_F(x) */
-#define GEN_R_round(rounding)                           \
-    local void CONCAT3(R_,rounding,_I_R) (object x)     \
-      { if (R_rationalp(x))                             \
-          { CONCAT3(RA_,rounding,_I_RA) (x); }          \
-          else                                          \
-          { CONCAT3(F_,rounding,_I_F) (x); }            \
-      }
+#define GEN_R_round(rounding)                             \
+  local maygc void CONCAT3(R_,rounding,_I_R) (object x) { \
+    GCTRIGGER1(x);                                        \
+    if (R_rationalp(x))                                   \
+      { CONCAT3(RA_,rounding,_I_RA) (x); }                \
+      else                                                \
+      { CONCAT3(F_,rounding,_I_F) (x); }                  \
+  }
 
 /* R_floor_I_R(x) => (floor x), with x being a real number.
  Both values into the stack.
  can trigger GC */
-local void R_floor_I_R (object x);
+local maygc void R_floor_I_R (object x);
 GEN_R_round(floor)
 
 /* R_ceiling_I_R(x) => (ceiling x), with x being a real number.
  Both values into the stack.
  can trigger GC */
-local void R_ceiling_I_R (object x);
+local maygc void R_ceiling_I_R (object x);
 GEN_R_round(ceiling)
 
 /* R_truncate_I_R(x) => (truncate x), with x being a real number.
  Both values into the stack.
  can trigger GC */
-local void R_truncate_I_R (object x);
+local maygc void R_truncate_I_R (object x);
 GEN_R_round(truncate)
 
 /* R_round_I_R(x) => (round x), with x being a real number.
  Both values into the stack.
  can trigger GC */
-local void R_round_I_R (object x);
+local maygc void R_round_I_R (object x);
 GEN_R_round(round)
 
 /* Generates a function like R_ffloor_F_R *
@@ -354,7 +355,8 @@ GEN_R_round(round)
  x rational -> RA_rounding_I_RA(x), convert quotient into Float.
  x Float -> F_frounding_F_F(x). */
 #define GEN_R_fround(rounding)                                          \
-  local void CONCAT3(R_f,rounding,_F_R) (object x) {                    \
+  local maygc void CONCAT3(R_f,rounding,_F_R) (object x) {              \
+    GCTRIGGER1(x);                                                      \
     if (R_rationalp(x)) {                                               \
       CONCAT3(RA_,rounding,_I_RA) (x); /* rational-routine */           \
       STACK_1 = I_float_F(STACK_1); /* convert 1. value into in Float */ \
@@ -365,25 +367,25 @@ GEN_R_round(round)
 /* R_ffloor_F_R(x) => (ffloor x), with x being a real number.
  Both values into the stack.
  can trigger GC */
-local void R_ffloor_F_R (object x);
+local maygc void R_ffloor_F_R (object x);
 GEN_R_fround(floor)
 
 /* R_fceiling_F_R(x) => (fceiling x), with x being a real number.
  Both values into the stack.
  can trigger GC */
-local void R_fceiling_F_R (object x);
+local maygc void R_fceiling_F_R (object x);
 GEN_R_fround(ceiling)
 
 /* R_ftruncate_F_R(x) => (ftruncate x), with x being a real number.
  Both values into the stack.
  can trigger GC */
-local void R_ftruncate_F_R (object x);
+local maygc void R_ftruncate_F_R (object x);
 GEN_R_fround(truncate)
 
 /* R_fround_F_R(x) => (fround x), with x being a real number.
  Both values into the stack.
  can trigger GC */
-local void R_fround_F_R (object x);
+local maygc void R_fround_F_R (object x);
 GEN_R_fround(round)
 
 /* Generates a function like R_R_plus_R */
@@ -408,17 +410,17 @@ GEN_R_fround(round)
 
 /* R_minus_R(x) => (- x), with x being a real number.
  can trigger GC */
-local object R_minus_R (object x)
+local maygc object R_minus_R (object x)
 { return (R_rationalp(x) ? RA_minus_RA(x) : F_minus_F(x)); }
 
 /* R_abs_R(x) => (abs x), with x being a real number.
  can trigger GC */
-local object R_abs_R (object x)
+local maygc object R_abs_R (object x)
 { return (R_minusp(x) ? R_minus_R(x) : x); } /* x<0 -> (- x), x>=0 -> x */
 
 /* R_R_plus_R(x,y) => (+ x y), with x and y being real numbers.
  can trigger GC */
-local object R_R_plus_R (object x, object y)
+local maygc object R_R_plus_R (object x, object y)
 {
   if (eq(y,Fixnum_0))
     return x;
@@ -430,7 +432,7 @@ local object R_R_plus_R (object x, object y)
 
 /* R_R_minus_R(x,y) => (- x y), with x and y being real numbers.
  can trigger GC */
-local object R_R_minus_R (object x, object y)
+local maygc object R_R_minus_R (object x, object y)
 {
   if (eq(y,Fixnum_0))
     return x;
@@ -442,12 +444,12 @@ local object R_R_minus_R (object x, object y)
 
 /* R_square_R(x) => (* x x), with x being a real number.
  can trigger GC */
-local object R_square_R (object x)
+local maygc object R_square_R (object x)
 { return (R_rationalp(x) ? RA_square_RA(x) : F_square_F(x)); }
 
 /* R_R_mal_R(x,y) => (* x y), with x and y being real numbers.
  can trigger GC */
-local object R_R_mal_R (object x, object y)
+local maygc object R_R_mal_R (object x, object y)
 {
   if (eq(x,Fixnum_0)) {
     /* 0 * y = exact 0 */
@@ -467,12 +469,12 @@ local object R_R_mal_R (object x, object y)
 
 /* R_durch_R(x) => (/ x), with x being a real number.
  can trigger GC */
-local object R_durch_R (object x)
+local maygc object R_durch_R (object x)
 { return (R_rationalp(x) ? RA_durch_RA(x) : F_durch_F(x)); }
 
 /* R_R_durch_R(x,y) => (/ x y), with x and y being real numbers.
  can trigger GC */
-local object R_R_durch_R (object x, object y)
+local maygc object R_R_durch_R (object x, object y)
 {
   if (eq(x,Fixnum_0)) { /* 0 / y = exact 0, except if y=0 */
     if (R_zerop(y)) { divide_0(); }
@@ -498,7 +500,8 @@ local object R_R_durch_R (object x, object y)
  both integers -> I_I_rounding_I_I(x,y).
  Else: R_rounding_I_R(x/y) -> (q,r). Return q and x-y*q=y*r. */
 #define GEN_R_R_round(rounding)                                         \
-  local void CONCAT3(R_R_,rounding,_I_R) (object x, object y) {         \
+  local maygc void CONCAT3(R_R_,rounding,_I_R) (object x, object y) {   \
+    GCTRIGGER2(x,y);                                                    \
     if (N_integerp(x) && N_integerp(y)) { /* both integers? */          \
       CONCAT3(I_I_,rounding,_I_I) (x,y);  /* yes -> integer-routine */  \
     } else {                                                            \
@@ -515,26 +518,26 @@ local object R_R_durch_R (object x, object y)
 /* R_R_floor_I_R(x,y) => (floor x y), with x and y being real numbers.
  Both values into the stack.
  can trigger GC */
-local void R_R_floor_I_R (object x, object y);
+local maygc void R_R_floor_I_R (object x, object y);
 GEN_R_R_round(floor)
 
 /* R_R_ceiling_I_R(x,y) => (ceiling x y), with x and y being real numbers.
  Both values into the stack.
  can trigger GC */
-local void R_R_ceiling_I_R (object x, object y);
+local maygc void R_R_ceiling_I_R (object x, object y);
 GEN_R_R_round(ceiling)
 
 /* R_R_truncate_I_R(x,y) => (truncate x y), with x and y being real numbers.
  Both values into the stack.
  can trigger GC */
-local void R_R_truncate_I_R (object x, object y);
+local maygc void R_R_truncate_I_R (object x, object y);
 GEN_R_R_round(truncate)
 
 /* R_R_round_I_R(x,y) => (round x y), with x and y being real numbers.
  Both values into the stack.
  can trigger GC */
-  local void R_R_round_I_R (object x, object y);
-  GEN_R_R_round(round)
+local maygc void R_R_round_I_R (object x, object y);
+GEN_R_R_round(round)
 
 /* Generates a function like R_R_mod_R
  Returns the remainder of a division of real numbers.
@@ -548,7 +551,8 @@ GEN_R_R_round(truncate)
  both integers -> I_I_remainder_I(x,y).
  else: R_rounding_I_R(x/y) -> (q,r). return x-y*q=y*r.  */
 #define GEN_R_R_mod(remainder,rounding)                                 \
-  local object CONCAT3(R_R_,remainder,_R) (object x, object y) {        \
+  local maygc object CONCAT3(R_R_,remainder,_R) (object x, object y) {  \
+    GCTRIGGER2(x,y);                                                    \
     if (N_integerp(x) && N_integerp(y)) { /* both integers? */          \
       return CONCAT3(I_I_,remainder,_I) (x,y);  /* yes -> integer-routine */ \
     } else {                                                            \
@@ -562,12 +566,12 @@ GEN_R_R_round(truncate)
 
 /* R_R_mod_R(x,y) = (mod x y), with x and y being real numbers.
  can trigger GC */
-local object R_R_mod_R (object x, object y);
+local maygc object R_R_mod_R (object x, object y);
 GEN_R_R_mod(mod,floor)
 
 /* R_R_rem_R(x,y) = (rem x y), with x and y being real numbers.
  can trigger GC */
-local object R_R_rem_R (object x, object y);
+local maygc object R_R_rem_R (object x, object y);
 GEN_R_R_mod(rem,truncate)
 
 /* Generates a function like R_R_ffloor_F_R
@@ -586,7 +590,8 @@ GEN_R_R_mod(rem,truncate)
  else:                                                               \
    R_frounding_F_R(x/y) -> q,r. Return the values q and x-y*q = y*r. \ */
 #define GEN_R_R_fround(rounding)                                        \
-  local void CONCAT3(R_R_f,rounding,_F_R) (object x, object y) {        \
+  local maygc void CONCAT3(R_R_f,rounding,_F_R) (object x, object y) {  \
+    GCTRIGGER2(x,y);                                                    \
     if (R_rationalp(x) && R_rationalp(y)) { /* both rational numbers? */ \
       CONCAT3(R_R_,rounding,_I_R) (x,y); /* division with remainder */  \
       STACK_1 = I_float_F(STACK_1); /* turn quotient into a float */    \
@@ -604,35 +609,35 @@ GEN_R_R_mod(rem,truncate)
 /* R_R_ffloor_F_R(x,y) => (ffloor x y), with x and y being real numbers.
  Both values into the stack.
  can trigger GC */
-local void R_R_ffloor_F_R (object x, object y);
+local maygc void R_R_ffloor_F_R (object x, object y);
 GEN_R_R_fround(floor)
 
 /* R_R_fceiling_F_R(x,y) => (fceiling x y), with x and y being real numbers.
  Both values into the stack.
  can trigger GC */
-local void R_R_fceiling_F_R (object x, object y);
+local maygc void R_R_fceiling_F_R (object x, object y);
 GEN_R_R_fround(ceiling)
 
 /* R_R_ftruncate_F_R(x,y) => (ftruncate x y), with x and y being real numbers.
  Both values into the stack.
  can trigger GC */
-local void R_R_ftruncate_F_R (object x, object y);
+local maygc void R_R_ftruncate_F_R (object x, object y);
 GEN_R_R_fround(truncate)
 
 /* R_R_fround_F_R(x,y) => (fround x y), with x and y being real numbers.
  Both values into the stack.
  can trigger GC */
-local void R_R_fround_F_R (object x, object y);
+local maygc void R_R_fround_F_R (object x, object y);
 GEN_R_R_fround(round)
 
 /* R_1_plus_R(x) => (1+ x), with x being a real number.
  can trigger GC */
-local object R_1_plus_R (object x)
+local maygc object R_1_plus_R (object x)
 { return (R_rationalp(x) ? RA_1_plus_RA(x) : R_R_plus_R(x,Fixnum_1)); }
 
 /* R_minus1_plus_R(x) => (1- x), with x being a real number.
  can trigger GC */
-local object R_minus1_plus_R (object x)
+local maygc object R_minus1_plus_R (object x)
 { return R_rationalp(x) ? RA_minus1_plus_RA(x) : R_R_plus_R(x,Fixnum_minus1); }
 
 /* F_rational_RA(x) => (rational x), wo x ein Float ist.
@@ -644,7 +649,7 @@ local object R_minus1_plus_R (object x)
  n:=m. If s<0, set n:=-m.
  if e>=0, the result is (ash n e) ,
  else the result is the rational number (/ n (ash 1 (- e))) . */
-local object F_rational_RA (object x)
+local maygc object F_rational_RA (object x)
 { F_integer_decode_float_I_I_I(x);
   /* stack layout: m, e, s. */
  {var object n = STACK_2;
@@ -662,7 +667,7 @@ local object F_rational_RA (object x)
 
 /* R_rational_RA(x) => (rational x), with x being a real number.
  can trigger GC */
-local object R_rational_RA (object x)
+local maygc object R_rational_RA (object x)
 { return (R_rationalp(x) ? x : F_rational_RA(x)); }
 
 /* R_R_comp(x,y) compares two real numbers x and y.
@@ -674,7 +679,7 @@ local object R_rational_RA (object x)
    Turnt the rational number into a float, compare.
    different? -> that's it.
    equal -> turn the float with RATIONAL into a rational, compare again. */
-local signean R_R_comp (object x, object y)
+local maygc signean R_R_comp (object x, object y)
 {
   if (R_rationalp(x)) {
     if (R_rationalp(y)) /* both rational numbers */
@@ -1027,7 +1032,7 @@ global uint32 hashcode4_uint4 [16] = {
 
 /* R_R_max_R(x,y) => (max x y), with x and y being real numbers.
  can trigger GC */
-local object R_R_max_R (object x, object y)
+local maygc object R_R_max_R (object x, object y)
 { pushSTACK(x); pushSTACK(y); /* save both */
  {var object erg =
      (R_R_comp(x,y) >= 0 /* compare */
@@ -1039,7 +1044,7 @@ local object R_R_max_R (object x, object y)
 
 /* R_R_min_R(x,y) => (min x y), with x and y being real numbers.
  can trigger GC */
-local object R_R_min_R (object x, object y)
+local maygc object R_R_min_R (object x, object y)
 { pushSTACK(x); pushSTACK(y); /* save both */
  {var object erg =
      (R_R_comp(x,y) <= 0 /* compare */
@@ -1051,7 +1056,7 @@ local object R_R_min_R (object x, object y)
 
 /* R_signum_R(x) return (signum x), with x being a real number.
  can trigger GC */
-local object R_signum_R (object x)
+local maygc object R_signum_R (object x)
 {
   if (R_rationalp(x)) { /* x rational */
     if (R_minusp(x)) return Fixnum_minus1; /* x<0 -> -1 */
@@ -1080,7 +1085,7 @@ local object R_signum_R (object x)
 
 /* R_sqrt_R(x) = (sqrt x) calculates the root of a real number x >=0.
  can trigger GC */
-local object R_sqrt_R (object x)
+local maygc object R_sqrt_R (object x)
 {
   if (R_rationalp(x)) { /* x rational number >=0 */
     pushSTACK(x); /* save x */
@@ -1107,7 +1112,7 @@ local object R_sqrt_R (object x)
    result c.
  For y=0: result 1.
  Forr y<0: (/ (expt x (- y))). */
-local object R_I_expt_R (object x, object y)
+local maygc object R_I_expt_R (object x, object y)
 {
   if (eq(y,Fixnum_0)) {
     /* y=0 -> result 1 */
@@ -1197,7 +1202,7 @@ local object R_I_expt_R (object x, object y)
    At the end, return s * (p[i]/q[i]).
    This rational number is already in lowest terms because
    p[i]*q[i-1]-p[i-1]*q[i] = (-1)^i. */
-local object R_rationalize_RA (object x)
+local maygc object R_rationalize_RA (object x)
 { if (R_rationalp(x)) { return x; } /* x rational -> x as result. */
   F_integer_decode_float_I_I_I(x);
   /* stack layout: m, e, s. */

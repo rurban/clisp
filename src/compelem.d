@@ -8,16 +8,16 @@
 # Liefert zu reellen Zahlen a und b die komplexe Zahl a+bi.
 # R_R_complex_N(a,b)
 # can trigger GC
-  local object R_R_complex_N (object a, object b);
+  local maygc object R_R_complex_N (object a, object b);
 # Methode:
 # Falls b=0, nur a. sonst komplexe Zahl erzeugen.
-  local object R_R_complex_N (object a, object b)
+  local maygc object R_R_complex_N (object a, object b)
   {
     return (eq(b,Fixnum_0) ? a : R_R_complex_C(a,b));
   }
 
 /* (complex x (float 0 x)) */
-global object F_complex_C (object x) {
+global maygc object F_complex_C (object x) {
  #if SAFETY>=1
   if (!floatp(x)) abort();
  #endif
@@ -51,7 +51,7 @@ global object F_complex_C (object x) {
 
 # N_conjugate_N(x) liefert die konjugiert komplexe Zahl zur Zahl x.
 # can trigger GC
-  local object N_conjugate_N (object x)
+  local maygc object N_conjugate_N (object x)
   {
     if (N_realp(x)) {
       return x;
@@ -65,11 +65,11 @@ global object F_complex_C (object x) {
 
 # N_minus_N(x) liefert (- x), wo x eine Zahl ist.
 # can trigger GC
-  local object N_minus_N (object x);
+  local maygc object N_minus_N (object x);
 # Methode:
 # x reell -> klar.
 # x=a+bi -> (-a) + (-b) i
-  local object N_minus_N (object x)
+  local maygc object N_minus_N (object x)
   {
     if (N_realp(x)) {
       return R_minus_R(x);
@@ -84,13 +84,13 @@ global object F_complex_C (object x) {
 
 # N_N_plus_N(x) liefert (+ x y), wo x und y Zahlen sind.
 # can trigger GC
-  local object N_N_plus_N (object x, object y);
+  local maygc object N_N_plus_N (object x, object y);
 # Methode:
 # x,y beide reell -> klar.
 # x=a, y=b+ci -> (a+b)+ci
 # x=a+bi, y=c -> (a+c)+bi
 # x=a+bi, y=c+di -> (a+c)+(b+d)i
-  local object N_N_plus_N (object x, object y)
+  local maygc object N_N_plus_N (object x, object y)
   {
     if (N_realp(x)) {
       if (N_realp(y)) {
@@ -123,13 +123,13 @@ global object F_complex_C (object x) {
 
 # N_N_minus_N(x) liefert (- x y), wo x und y Zahlen sind.
 # can trigger GC
-  local object N_N_minus_N (object x, object y);
+  local maygc object N_N_minus_N (object x, object y);
 # Methode:
 # x,y beide reell -> klar.
 # x=a, y=b+ci -> (a-b)+(-c)i
 # x=a+bi, y=c -> (a-c)+bi
 # x=a+bi, y=c+di -> (a-c)+(b-d)i
-  local object N_N_minus_N (object x, object y)
+  local maygc object N_N_minus_N (object x, object y)
   {
     if (N_realp(x)) {
       if (N_realp(y)) {
@@ -164,11 +164,11 @@ global object F_complex_C (object x) {
 
 # N_1_plus_N(x) liefert (1+ x), wo x eine Zahl ist.
 # can trigger GC
-  local object N_1_plus_N (object x);
+  local maygc object N_1_plus_N (object x);
 # Methode:
 # x reell -> klar.
 # x=a+bi -> (a+1)+bi
-  local object N_1_plus_N (object x)
+  local maygc object N_1_plus_N (object x)
   {
     if (N_realp(x))
       return R_1_plus_R(x);
@@ -181,11 +181,11 @@ global object F_complex_C (object x) {
 
 # N_minus1_plus_N(x) liefert (1- x), wo x eine Zahl ist.
 # can trigger GC
-  local object N_minus1_plus_N (object x);
+  local maygc object N_minus1_plus_N (object x);
 # Methode:
 # x reell -> klar.
 # x=a+bi -> (a-1)+bi
-  local object N_minus1_plus_N (object x)
+  local maygc object N_minus1_plus_N (object x)
   {
     if (N_realp(x))
       return R_minus1_plus_R(x);
@@ -198,11 +198,11 @@ global object F_complex_C (object x) {
 
 # N_square_N(x) liefert (* x x), wo x eine Zahl ist.
 # can trigger GC
-  local object N_square_N (object x);
+  local maygc object N_square_N (object x);
 # Methode:
 # x reell -> klar.
 # x=a+bi -> (a^2-b^2)+(2*a*b)i
-  local object N_square_N (object x)
+  local maygc object N_square_N (object x)
   {
     if (N_realp(x))
       return R_square_R(x);
@@ -224,13 +224,13 @@ global object F_complex_C (object x) {
 
 # N_N_mal_N(x) liefert (* x y), wo x und y Zahlen sind.
 # can trigger GC
-  local object N_N_mal_N (object x, object y);
+  local maygc object N_N_mal_N (object x, object y);
 # Methode:
 # x,y beide reell -> klar.
 # x=a, y=b+ci -> (a*b)+(a*c)i
 # x=a+bi, y=c -> (a*c)+(b*c)i
 # x=a+bi, y=c+di -> (a*c-b*d)+(a*d+b*c)i
-  local object N_N_mal_N (object x, object y)
+  local maygc object N_N_mal_N (object x, object y)
   {
     if (N_realp(x)) {
       if (N_realp(y)) {
@@ -290,7 +290,7 @@ global object F_complex_C (object x) {
 
 # N_durch_N(x) liefert (/ x), wo x eine Zahl ist.
 # can trigger GC
-  local object N_durch_N (object x);
+  local maygc object N_durch_N (object x);
 # Methode:
 # Falls x reell, klar.
 # Falls x=a+bi:
@@ -315,11 +315,11 @@ global object F_complex_C (object x) {
 #      d.h. exponent(a)-exponent(b)>floor((exp_mid-exp_low-1)/2) ).
 #  c':=a'*a'+b'*b',
 #  liefere die beiden Komponenten 2^(-e)*a'/c' und -2^(-e)*b'/c'.
-  local void SFC_durch_SFC (object a, object b);
-  local void FFC_durch_FFC (object a, object b);
-  local void DFC_durch_DFC (object a, object b);
-  local void LFC_durch_LFC (object a, object b);
-  local void SFC_durch_SFC (object a, object b)
+  local maygc void SFC_durch_SFC (object a, object b);
+  local maygc void FFC_durch_FFC (object a, object b);
+  local maygc void DFC_durch_DFC (object a, object b);
+  local maygc void LFC_durch_LFC (object a, object b);
+  local maygc void SFC_durch_SFC (object a, object b)
   {
     var sintWL a_exp;
     var sintWL b_exp;
@@ -349,7 +349,7 @@ global object F_complex_C (object x) {
     b = SF_I_scale_float_SF(SF_minus_SF(SF_SF_durch_SF(b,c)),delta); # -2^(-e)*b'/c'
     pushSTACK(a); pushSTACK(b); return;
   }
-  local void FFC_durch_FFC (object a, object b)
+  local maygc void FFC_durch_FFC (object a, object b)
   {
     var sintWL a_exp;
     var sintWL b_exp;
@@ -385,7 +385,7 @@ global object F_complex_C (object x) {
     STACK_1 = FF_I_scale_float_FF(FF_minus_FF(FF_FF_durch_FF(STACK_1,STACK_0)),delta); # -2^(-e)*b'/c'
     skipSTACK(1); return;
   }
-  local void DFC_durch_DFC (object a, object b)
+  local maygc void DFC_durch_DFC (object a, object b)
   {
     var sintWL a_exp;
     var sintWL b_exp;
@@ -421,7 +421,7 @@ global object F_complex_C (object x) {
     STACK_1 = DF_I_scale_float_DF(DF_minus_DF(DF_DF_durch_DF(STACK_1,STACK_0)),delta); # -2^(-e)*b'/c'
     skipSTACK(1); return;
   }
-  local void LFC_durch_LFC (object a, object b)
+  local maygc void LFC_durch_LFC (object a, object b)
   {
     var uintL a_exp;
     var uintL b_exp;
@@ -465,7 +465,7 @@ global object F_complex_C (object x) {
     temp = LF_minus_LF(LF_LF_durch_LF(STACK_2,STACK_0)); STACK_2 = LF_I_scale_float_LF(temp,STACK_1); # -2^(-e)*b'/c'
     skipSTACK(2); return;
   }
-  local object N_durch_N (object x)
+  local maygc object N_durch_N (object x)
   {
     if (N_realp(x))
       return R_durch_R(x);
@@ -523,12 +523,12 @@ global object F_complex_C (object x) {
 
 # N_N_durch_N(x,y) liefert (/ x y), wo x und y Zahlen sind.
 # can trigger GC
-  local object N_N_durch_N (object x, object y);
+  local maygc object N_N_durch_N (object x, object y);
 # Methode:
 # x,y beide reell -> klar.
 # x=a+bi, y=c reell -> (a/c)+(b/c)i
 # y komplex -> (* x (/ y))
-  local object N_N_durch_N (object x, object y)
+  local maygc object N_N_durch_N (object x, object y)
   {
     if (N_realp(y)) {
       # y reell
@@ -553,7 +553,7 @@ global object F_complex_C (object x) {
 
 # R_R_hypot_R(a,b) liefert sqrt(a^2+b^2), wo a und b reelle Zahlen sind.
 # can trigger GC
-  local object R_R_hypot_R (object a, object b);
+  local maygc object R_R_hypot_R (object a, object b);
 # Methode:
 # Falls a=0: (abs b).
 # Falls b=0: (abs a).
@@ -576,11 +576,11 @@ global object F_complex_C (object x) {
 #      oder beim Quadrieren b'*b':  2*(e-exponent(b))>exp_mid-exp_low-1
 #      d.h. exponent(a)-exponent(b)>floor((exp_mid-exp_low-1)/2) ).
 #  c':=a'*a'+b'*b', c':=sqrt(c'), liefere 2^e*c'.
-  local object SF_SF_hypot_SF (object a, object b);
-  local object FF_FF_hypot_FF (object a, object b);
-  local object DF_DF_hypot_DF (object a, object b);
-  local object LF_LF_hypot_LF (object a, object b);
-  local object SF_SF_hypot_SF (object a, object b)
+  local maygc object SF_SF_hypot_SF (object a, object b);
+  local maygc object FF_FF_hypot_FF (object a, object b);
+  local maygc object DF_DF_hypot_DF (object a, object b);
+  local maygc object LF_LF_hypot_LF (object a, object b);
+  local maygc object SF_SF_hypot_SF (object a, object b)
   {
     var sintWL a_exp;
     var sintWL b_exp;
@@ -607,7 +607,7 @@ global object F_complex_C (object x) {
     c = SF_sqrt_SF(c); # c':=2^e*c'
     return SF_I_scale_float_SF(c,L_to_FN((sintL)e)); # 2^e*c'
   }
-  local object FF_FF_hypot_FF (object a, object b)
+  local maygc object FF_FF_hypot_FF (object a, object b)
   {
     var sintWL a_exp;
     var sintWL b_exp;
@@ -641,7 +641,7 @@ global object F_complex_C (object x) {
     temp = FF_sqrt_FF(temp); # c':=2^e*c'
     return FF_I_scale_float_FF(temp,L_to_FN((sintL)e)); # 2^e*c'
   }
-  local object DF_DF_hypot_DF (object a, object b)
+  local maygc object DF_DF_hypot_DF (object a, object b)
   {
     var sintWL a_exp;
     var sintWL b_exp;
@@ -675,7 +675,7 @@ global object F_complex_C (object x) {
     temp = DF_sqrt_DF(temp); # c':=2^e*c'
     return DF_I_scale_float_DF(temp,L_to_FN((sintL)e)); # 2^e*c'
   }
-  local object LF_LF_hypot_LF (object a, object b)
+  local maygc object LF_LF_hypot_LF (object a, object b)
   {
     var uintL a_exp;
     var uintL b_exp;
@@ -719,7 +719,7 @@ global object F_complex_C (object x) {
     temp = LF_I_scale_float_LF(temp,STACK_2); # 2^e*c'
     skipSTACK(5); return temp;
   }
-  local object R_R_hypot_R (object a, object b)
+  local maygc object R_R_hypot_R (object a, object b)
   {
     if (R_rationalp(a)) {
       if (eq(a,Fixnum_0)) # a=0 -> (abs b)
@@ -766,11 +766,11 @@ global object F_complex_C (object x) {
 
 # N_abs_R(x) liefert (abs x), wo x eine Zahl ist.
 # can trigger GC
-  local object N_abs_R (object x);
+  local maygc object N_abs_R (object x);
 # Methode:
 # Falls x reell: klar
 # Falls x=a+bi: sqrt(a^2+b^2)
-  local object N_abs_R (object x)
+  local maygc object N_abs_R (object x)
   {
     if (N_realp(x))
       return R_abs_R(x);
@@ -781,11 +781,11 @@ global object F_complex_C (object x) {
 
 # N_signum_N(x) liefert (signum x), wo x eine Zahl ist.
 # can trigger GC
-  local object N_signum_N (object x);
+  local maygc object N_signum_N (object x);
 # Methode:
 # x reell -> klar.
 # x komplex -> falls (zerop x), x als Ergebnis, sonst (/ x (abs x)).
-  local object N_signum_N (object x)
+  local maygc object N_signum_N (object x)
   {
     if (N_realp(x))
       return R_signum_R(x);
@@ -799,7 +799,7 @@ global object F_complex_C (object x) {
 
 # N_sqrt_N(x) liefert (sqrt x), wo x eine beliebige Zahl ist.
 # can trigger GC
-  local object N_sqrt_N (object x);
+  local maygc object N_sqrt_N (object x);
 # Methode:
 # x reell -> Für x>=0 klar, für x<0: sqrt(-x)*i.
 # x=a+bi ->
@@ -808,7 +808,7 @@ global object F_complex_C (object x) {
 #   Falls a<0: Setze d:=sqrt((r-a)/2)*(1 falls b>=0, -1 falls b<0), c:=b/(2*d).
 #   Damit ist c>=0, 2*c*d=b, c*c=(r+a)/2, d*d=(r-a)/2, c*c-d*d=a, c*c+d*d=r,
 #   also c+di die gesuchte Wurzel.
-  local object N_sqrt_N (object x)
+  local maygc object N_sqrt_N (object x)
   {
     if (N_realp(x)) {
       # x reell

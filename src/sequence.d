@@ -128,7 +128,7 @@ local object find_seq_type (object name) {
 #                    type (if the length constraint is more complicated) or
 #                    unbound (means the length is unconstrained)
 # can trigger GC
-local object valid_type1 (gcv_object_t* type_) {
+local maygc object valid_type1 (gcv_object_t* type_) {
   var object name = *type_;
   # Unsere elementaren Sequence-Typen sind LIST, VECTOR, STRING, BIT-VECTOR.
   # Wir erkennen aber auch gewisse Alias-Namen:
@@ -258,7 +258,7 @@ local object valid_type1 (gcv_object_t* type_) {
 
 # same as valid_type1, but signal an error instead of returning NIL
 # when name does not name a sequence
-local object valid_type (gcv_object_t* type_) {
+local maygc object valid_type (gcv_object_t* type_) {
   var object typedescr = valid_type1(type_);
   if (!nullp(typedescr))
     return typedescr;
@@ -500,7 +500,7 @@ nonreturning_function(local, fehler_posint, (object kw, object obj)) {
 # kopiert count Elemente von sequence1 nach sequence2 und rückt dabei
 # pointer1 und pointer2 um count Stellen weiter (mit SEQ-UPD), setzt count:=0.
 # can trigger GC
-  local void copy_seqpart_into (void)
+  local maygc void copy_seqpart_into (void)
   {
     # Optimization for vectors:
     if (vectorp(STACK_6) && vectorp(STACK_4) && posfixnump(STACK_2)) {
@@ -1049,8 +1049,8 @@ LISPFUN(make_sequence,seclass_default,2,0,norest,key,2,
 #              when true, signal an error; when false, return nullobj
 # < Wert: Sequence vom Typ result_type
 # can trigger GC
-global Values coerce_sequence (object sequence, object result_type,
-                               bool error_p) {
+global maygc Values coerce_sequence (object sequence, object result_type,
+                                     bool error_p) {
   pushSTACK(sequence);
   pushSTACK(result_type);
   { # check result-type:
@@ -1311,7 +1311,7 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
 # > fun: Funktion, fun(arg,element) darf GC auslösen
 # > arg: beliebiges vorgegebenes Argument
 # can trigger GC
-  global void map_sequence (object obj, map_sequence_function_t* fun, void* arg)
+  global maygc void map_sequence (object obj, map_sequence_function_t* fun, void* arg)
   {
     var object typdescr = get_valid_seq_type(obj);
     pushSTACK(typdescr);
@@ -1347,11 +1347,11 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
 # < STACK: aufgeräumt (= args_pointer beim Einsprung)
 # can trigger GC
   typedef bool seq_boolop_fun (object pred_ergebnis);
-  local Values seq_boolop (seq_boolop_fun* boolop_fun,
-                           gcv_object_t* args_pointer,
-                           gcv_object_t* rest_args_pointer,
-                           uintC argcount,
-                           object defolt)
+  local maygc Values seq_boolop (seq_boolop_fun* boolop_fun,
+                                 gcv_object_t* args_pointer,
+                                 gcv_object_t* rest_args_pointer,
+                                 uintC argcount,
+                                 object defolt)
   {
     BEFORE(rest_args_pointer);
     {
@@ -1769,6 +1769,7 @@ LISPFUN(notevery,seclass_default,2,0,rest,nokey,0,NIL)
 # can trigger GC
   #define funcall_key(key)  \
     { var object _key = (key);                                                  \
+      GCTRIGGER2(_key,value1);                                                  \
       if (!eq(_key,L(identity))) { # :KEY #'IDENTITY ist sehr häufig, Abkürzung \
         pushSTACK(value1); funcall(_key,1);                                     \
       }                                                                         \
@@ -2040,7 +2041,7 @@ LISPFUN(replace,seclass_default,2,0,norest,key,4,
 # > x: Argument
 # < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local bool up_test (const gcv_object_t* stackptr, object x)
+  local maygc bool up_test (const gcv_object_t* stackptr, object x)
   {
     # nach CLTL S. 247 ein (funcall testfun item x) ausführen:
     pushSTACK(*(stackptr STACKop 1)); # item
@@ -2056,7 +2057,7 @@ LISPFUN(replace,seclass_default,2,0,norest,key,4,
 # > x: Argument
 # < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local bool up_test_not (const gcv_object_t* stackptr, object x)
+  local maygc bool up_test_not (const gcv_object_t* stackptr, object x)
   {
     # nach CLTL S. 247 ein (not (funcall testfun item x)) ausführen:
     pushSTACK(*(stackptr STACKop 1)); # item
@@ -2071,7 +2072,7 @@ LISPFUN(replace,seclass_default,2,0,norest,key,4,
 # > x: Argument
 # < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local bool up_if (const gcv_object_t* stackptr, object x)
+  local maygc bool up_if (const gcv_object_t* stackptr, object x)
   {
     # nach CLTL S. 247 ein (funcall predicate x) ausführen:
     pushSTACK(x); funcall(*(stackptr STACKop 1),1);
@@ -2084,7 +2085,7 @@ LISPFUN(replace,seclass_default,2,0,norest,key,4,
 # > x: Argument
 # < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local bool up_if_not (const gcv_object_t* stackptr, object x)
+  local maygc bool up_if_not (const gcv_object_t* stackptr, object x)
   {
     # nach CLTL S. 247 ein (not (funcall predicate x)) ausführen:
     pushSTACK(x); funcall(*(stackptr STACKop 1),1);
@@ -2134,7 +2135,7 @@ nonreturning_function(global, fehler_both_tests, (void)) {
 #       > x: Argument
 #       < true, falls der Test erfüllt ist, false sonst.
   # up_function sei der Typ der Adresse einer solchen Testfunktion:
-  typedef bool (*up_function) (const gcv_object_t* stackptr, object x);
+  typedef maygc bool (*up_function) (const gcv_object_t* stackptr, object x);
   local up_function test_test_args (gcv_object_t* stackptr)
   {
     var object test_arg = *(stackptr STACKop -5);
@@ -2194,7 +2195,7 @@ nonreturning_function(global, fehler_both_tests, (void)) {
 #     ... sequence [stackptr] from-end start end key ... count typdescr,
 #     l [STACK].
 # can trigger GC
-  local void seq_prepare_filterop (gcv_object_t* stackptr)
+  local maygc void seq_prepare_filterop (gcv_object_t* stackptr)
   {
     # COUNT argument must be NIL oder an integer >= 0:
     test_count_arg();
@@ -2233,8 +2234,8 @@ nonreturning_function(global, fehler_both_tests, (void)) {
 # < mv_space/mv_count: values
 # can trigger GC
   # help_function is defined to be the type of such a helper function:
-  typedef object (*help_function) (gcv_object_t* stackptr, uintL bvl, uintL dl);
-  local Values seq_filterop (gcv_object_t* stackptr, up_function up_fun, help_function help_fun)
+  typedef maygc object (*help_function) (gcv_object_t* stackptr, uintL bvl, uintL dl);
+  local maygc Values seq_filterop (gcv_object_t* stackptr, up_function up_fun, help_function help_fun)
   {
     pushSTACK(*(stackptr STACKop 0)); # sequence
     pushSTACK(*(stackptr STACKop -4)); # key
@@ -2340,7 +2341,7 @@ nonreturning_function(global, fehler_both_tests, (void)) {
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 # < ergebnis: Ergebnis
 # can trigger GC
-  local object remove_help (gcv_object_t* stackptr, uintL bvl, uintL dl)
+  local maygc object remove_help (gcv_object_t* stackptr, uintL bvl, uintL dl)
   {
     # dl=0 -> sequence unverändert zurückgeben:
     if (dl==0)
@@ -2456,7 +2457,7 @@ nonreturning_function(global, fehler_both_tests, (void)) {
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 # < ergebnis: Ergebnis
 # can trigger GC
-  local object delete_help (gcv_object_t* stackptr, uintL bvl, uintL dl)
+  local maygc object delete_help (gcv_object_t* stackptr, uintL bvl, uintL dl)
   {
     # dl=0 -> sequence unverändert zurückgeben:
     if (dl==0)
@@ -2788,7 +2789,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
 # > x,y: Argumente
 # < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local bool up2_test (const gcv_object_t* stackptr, object x, object y)
+  local maygc bool up2_test (const gcv_object_t* stackptr, object x, object y)
     {
       # ein (funcall testfun x y) ausführen:
       pushSTACK(x); # x
@@ -2803,7 +2804,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
 # > x,y: Argumente
 # < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local bool up2_test_not (const gcv_object_t* stackptr, object x, object y)
+  local maygc bool up2_test_not (const gcv_object_t* stackptr, object x, object y)
     {
       # ein (not (funcall testfun x y)) ausführen:
       pushSTACK(x); # x
@@ -2825,7 +2826,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
 #       > x,y: arguments
 #       < true, if the test is satisfied, false otherwise.
   # up2_function sei der Typ der Adresse einer solchen Testfunktion:
-  typedef bool (*up2_function) (const gcv_object_t* stackptr, object x, object y);
+  typedef maygc bool (*up2_function) (const gcv_object_t* stackptr, object x, object y);
   local up2_function test_test2_args (gcv_object_t* stackptr)
   {
     var object test_arg = *(stackptr STACKop -5);
@@ -2861,7 +2862,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
 # > bvl: = end - start
 # < mv_space/mv_count: values
 # can trigger GC
-  local Values remove_duplicates_list_from_start (up2_function up2_fun, uintL bvl)
+  local maygc Values remove_duplicates_list_from_start (up2_function up2_fun, uintL bvl)
   {
     var gcv_object_t* stackptr = &STACK_(6+2);
     pushSTACK(NIL); # result1 := NIL
@@ -2940,7 +2941,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
 # > bvl: = end - start
 # < mv_space/mv_count: values
 # can trigger GC
-  local Values delete_duplicates_list_from_start (up2_function up2_fun, uintL bvl)
+  local maygc Values delete_duplicates_list_from_start (up2_function up2_fun, uintL bvl)
   {
     var gcv_object_t* stackptr = &STACK_(6+2);
     pushSTACK(STACK_(6+2)); # result := sequence
@@ -3029,7 +3030,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
 # > bvl: = end - start
 # < mv_space/mv_count: values
 # can trigger GC
-  local Values delete_duplicates_list_from_end (up2_function up2_fun, uintL bvl)
+  local maygc Values delete_duplicates_list_from_end (up2_function up2_fun, uintL bvl)
   {
     var gcv_object_t* stackptr = &STACK_(6+2);
     pushSTACK(STACK_(6+2)); # sequence
@@ -3113,7 +3114,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
 #       can trigger GC
 # < mv_space/mv_count: values
 # can trigger GC
-  local Values seq_duplicates (help_function help_fun)
+  local maygc Values seq_duplicates (help_function help_fun)
   {
     var gcv_object_t* stackptr = &STACK_6;
     # Stack layout:
@@ -3475,7 +3476,7 @@ LISPFUN(delete_duplicates,seclass_default,1,0,norest,key,6,
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 # < ergebnis: Ergebnis
 # can trigger GC
-  local object substitute_help (gcv_object_t* stackptr, uintL bvl, uintL dl)
+  local maygc object substitute_help (gcv_object_t* stackptr, uintL bvl, uintL dl)
   {
     # dl=0 -> sequence unverändert zurückgeben:
     if (dl==0)
@@ -3722,7 +3723,7 @@ LISPFUN(substitute_if_not,seclass_default,3,0,norest,key,5,
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 # < ergebnis: Ergebnis
 # can trigger GC
-  local object nsubstitute_fe_help (gcv_object_t* stackptr, uintL bvl, uintL dl)
+  local maygc object nsubstitute_fe_help (gcv_object_t* stackptr, uintL bvl, uintL dl)
   {
     {
       pushSTACK(*(stackptr STACKop 0)); # sequence
@@ -3781,7 +3782,7 @@ LISPFUN(substitute_if_not,seclass_default,3,0,norest,key,5,
 #           < true, falls der Test erfüllt ist, false sonst.
 # < mv_space/mv_count: Werte
 # can trigger GC
-  local Values nsubstitute_op (gcv_object_t* stackptr, up_function up_fun)
+  local maygc Values nsubstitute_op (gcv_object_t* stackptr, up_function up_fun)
   {
     if (!(nullp(*(stackptr STACKop -1)))) { # from-end abfragen
       # from-end ist angegeben -> Bit-Vector erzeugen und dann ersetzen:
@@ -3887,7 +3888,7 @@ LISPFUN(nsubstitute_if_not,seclass_default,3,0,norest,key,5,
 #           < true, falls der Test erfüllt ist, false sonst.
 # < mv_space/mv_count: Werte
 # can trigger GC
-  local Values find_op (gcv_object_t* stackptr, up_function up_fun)
+  local maygc Values find_op (gcv_object_t* stackptr, up_function up_fun)
   {
     pushSTACK(*(stackptr STACKop 0)); # sequence
     # Stackaufbau: ..., typdescr, sequence.
@@ -4011,7 +4012,7 @@ LISPFUN(find_if_not,seclass_default,2,0,norest,key,4,
 #           < true, falls der Test erfüllt ist, false sonst.
 # < mv_space/mv_count: Werte
 # can trigger GC
-  local Values position_op (gcv_object_t* stackptr, up_function up_fun)
+  local maygc Values position_op (gcv_object_t* stackptr, up_function up_fun)
   {
     pushSTACK(*(stackptr STACKop 0)); # sequence
     # Stackaufbau: ..., typdescr, sequence.
@@ -4137,7 +4138,7 @@ LISPFUN(position_if_not,seclass_default,2,0,norest,key,4,
 #           < true, falls der Test erfüllt ist, false sonst.
 # < mv_space/mv_count: Werte
 # can trigger GC
-  local Values count_op (gcv_object_t* stackptr, up_function up_fun)
+  local maygc Values count_op (gcv_object_t* stackptr, up_function up_fun)
   {
     pushSTACK(*(stackptr STACKop 0)); # sequence
     pushSTACK(Fixnum_0); # total := 0
@@ -4694,7 +4695,7 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
 #            pointer3 genau  count1+count2  mal weitergerückt (mit SEQ-UPD).
 # count1 und count2 werden auf 0 gesetzt.
 # can trigger GC
-  local void merge (gcv_object_t* stackptr)
+  local maygc void merge (gcv_object_t* stackptr)
   {
     loop {
       if (eq(STACK_4,Fixnum_0)) # count1 = 0 -> seq1 zu Ende
@@ -4792,7 +4793,7 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
 #       sequence, predicate [stackptr], key, start, end, typdescr, seq2
 # < ergebnis: Pointer nach den k Elementen
 # can trigger GC
-  local object sort_part (object pointer_left, object k, gcv_object_t* stackptr)
+  local maygc object sort_part (object pointer_left, object k, gcv_object_t* stackptr)
   {
     if (eq(k,Fixnum_1)) {
       # k=1. Fast nichts zu tun
@@ -4876,7 +4877,7 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
 # > Stackaufbau: sequence, predicate, key, start, end
 # < mv_space/mv_count: Werte
 # can trigger GC
-  local Values stable_sort (void)
+  local maygc Values stable_sort (void)
   {
     # Stackaufbau: sequence, predicate, key, start, end.
     # sequence überprüfen:

@@ -104,7 +104,7 @@
  < STACK_0: Input-Stream *standard-input*
  < mv_space/mv_count: value = form, NIL or (on EOF) T, T
  can trigger GC */
-local Values read_form(void)
+local maygc Values read_form(void)
 { /*
  (defun read-form (ostream istream prompt &optional (command-list nil))
    (loop
@@ -485,7 +485,7 @@ global void driver (void)
  break_driver(continuable_p);
  > continuable_p == can be continued after the driver finishes
  can trigger GC */
-global void break_driver (bool continuable_p) {
+global maygc void break_driver (bool continuable_p) {
   var object driverfun = Symbol_value(S(break_driver)); /* *BREAK-DRIVER* */
   if (!nullp(driverfun)) {
     pushSTACK(continuable_p ? T : NIL);
@@ -1113,8 +1113,8 @@ local void print_back_trace (const gcv_object_t* stream_,
  and returns the next higher stackptr.
  print_stackitem(&stream,FRAME)
  can trigger GC */
-local gcv_object_t* print_stackitem (const gcv_object_t* stream_,
-                                     gcv_object_t* FRAME)
+local maygc gcv_object_t* print_stackitem (const gcv_object_t* stream_,
+                                           gcv_object_t* FRAME)
 {
   if (!frame_p()) {
     /* no frame, normal LISP-object */
@@ -1454,8 +1454,8 @@ LISPFUNN(describe_frame,2)
  starting with start_frame or STACK if that is NULL
  In debugger, use 'print show_stack(0,0,0)'.
  can trigger GC */
-local inline uintL show_stack (climb_fun_t frame_up_x, uintL frame_limit,
-                               gcv_object_t* start_frame)
+local inline maygc uintL show_stack (climb_fun_t frame_up_x, uintL frame_limit,
+                                     gcv_object_t* start_frame)
 { /* run along the stack upwards */
   var gcv_object_t* FRAME = (start_frame == NULL ? STACK : start_frame);
   pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));

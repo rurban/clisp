@@ -64,7 +64,7 @@ local uintD* I_to_DS_n_ (object obj, uintC n, uintD* destptr) {
 /* (LOGIOR x y), with x, y being integers.
  result: integer.
  can trigger GC */
-local object I_I_logior_I (object x, object y) {
+local maygc object I_I_logior_I (object x, object y) {
   if (I_fixnump(x) && I_fixnump(y)) { /* both fixnums -> very simple: */
     return as_object /* return bitwise as fixnum */
       (as_oint(x) | as_oint(y));
@@ -89,7 +89,7 @@ local object I_I_logior_I (object x, object y) {
 /* (LOGXOR x y), with x, y being integers.
  result: Integer.
  can trigger GC */
-local object I_I_logxor_I (object x, object y) {
+local maygc object I_I_logxor_I (object x, object y) {
   if (I_fixnump(x) && I_fixnump(y)) { /* both fixnums -> very simple: */
     return as_object /* return bitwise as fixnum */
       ((as_oint(x) ^ as_oint(y)) | ((oint)fixnum_type << oint_type_shift));
@@ -114,7 +114,7 @@ local object I_I_logxor_I (object x, object y) {
 /* (LOGAND x y), with x, y being integers.
  result: integer.
  can trigger GC */
-local object I_I_logand_I (object x, object y) {
+local maygc object I_I_logand_I (object x, object y) {
   if (I_fixnump(x) && I_fixnump(y)) { /* both fixnums -> very simple: */
     return as_object /* return bitwise as fixnum */
       (as_oint(x) & as_oint(y));
@@ -157,7 +157,7 @@ local object I_I_logand_I (object x, object y) {
 /* (LOGEQV x y), with x, y being integers.
  result: integer.
  can trigger GC */
-local object I_I_logeqv_I (object x, object y) {
+local maygc object I_I_logeqv_I (object x, object y) {
   if (I_fixnump(x) && I_fixnump(y)) { /* both fixnums -> very simple: */
     return as_object /* return bitwise as fixnum */
       ( ~(as_oint(x) ^ as_oint(y))
@@ -183,7 +183,7 @@ local object I_I_logeqv_I (object x, object y) {
 /* (LOGNAND x y), with x, y being integers.
  result: integer.
  can trigger GC */
-local object I_I_lognand_I (object x, object y) {
+local maygc object I_I_lognand_I (object x, object y) {
   if (I_fixnump(x) && I_fixnump(y)) { /* both fixnums -> very simple: */
     return as_object /* return bitwise as fixnum */
       ((as_oint(x) & as_oint(y)) ^ FN_value_vz_mask);
@@ -228,7 +228,7 @@ local object I_I_lognand_I (object x, object y) {
 /* (LOGNOR x y), with x, y being integers.
  result: Integer.
  can trigger GC */
-local object I_I_lognor_I (object x, object y) {
+local maygc object I_I_lognor_I (object x, object y) {
   if (I_fixnump(x) && I_fixnump(y)) { # both fixnums -> very simple:
     return as_object # return bitwise as fixnum
       ((as_oint(x) | as_oint(y)) ^ FN_value_vz_mask);
@@ -253,7 +253,7 @@ local object I_I_lognor_I (object x, object y) {
 /* (LOGANDC2 x y), with x, y being integers.
  result: Integer.
  can trigger GC */
-local object I_I_logandc2_I (object x, object y) {
+local maygc object I_I_logandc2_I (object x, object y) {
   if (I_fixnump(x) && I_fixnump(y)) { /* both fixnums -> very simple: */
     return as_object /* return bitwise as fixnum */
       ((as_oint(x) & ~as_oint(y)) | ((oint)fixnum_type << oint_type_shift));
@@ -291,7 +291,7 @@ local object I_I_logandc2_I (object x, object y) {
 #if 1 /* macro spares code */
   #define I_I_logandc1_I(x,y)  I_I_logandc2_I(y,x)
 #else
-local object I_I_logandc1_I (object x, object y) {
+local maygc object I_I_logandc1_I (object x, object y) {
   return I_I_logandc2_I(y,x);
 }
 #endif
@@ -299,7 +299,7 @@ local object I_I_logandc1_I (object x, object y) {
 /* (LOGORC2 x y), with x, y being integers.
  result: Integer.
  can trigger GC */
-local object I_I_logorc2_I (object x, object y) {
+local maygc object I_I_logorc2_I (object x, object y) {
   if (I_fixnump(x) && I_fixnump(y)) { /* both fixnums -> very simple: */
     return as_object /* return bitwise as fixnum */
       ((as_oint(x) | ~as_oint(y))
@@ -328,7 +328,7 @@ local object I_I_logorc2_I (object x, object y) {
 #if 1 /* macro spares code */
   #define I_I_logorc1_I(x,y)  I_I_logorc2_I(y,x)
 #else
-local object I_I_logorc1_I (object x, object y) {
+local maygc object I_I_logorc1_I (object x, object y) {
   return I_I_logorc2_I(y,x);
 }
 #endif
@@ -336,7 +336,7 @@ local object I_I_logorc1_I (object x, object y) {
 /* (LOGNOT x), with x being an integer.
  result: Integer.
  can trigger GC */
-local object I_lognot_I (object x) {
+local maygc object I_lognot_I (object x) {
   if (I_fixnump(x)) { /* fixnum -> very simple: */
     return as_object /* return bitwise as fixnum */
       (as_oint(x) ^ FN_value_vz_mask);
@@ -383,7 +383,7 @@ local object I_lognot_I (object x) {
  result: Integer.
  OP_I_I_boole_I(op,x,y)
  can trigger GC */
-local object OP_I_I_boole_I (object op, object x, object y) {
+local maygc object OP_I_I_boole_I (object op, object x, object y) {
   switch (as_oint(op) ^ as_oint(Fixnum_0)) {
     case (oint)( boole_clr )<<oint_data_shift:
       return Fixnum_0;
@@ -555,7 +555,7 @@ local bool I_oddp (object x) {
 /* (ASH x y), with x and y being integers. result: Integer.
  I_I_ash_I(x,y)
  can trigger GC */
-global object I_I_ash_I (object x, object y)
+global maygc object I_I_ash_I (object x, object y)
 /* method:
  x = 0 -> 0 as result
  y = 0 -> x as result
@@ -659,7 +659,7 @@ global object I_I_ash_I (object x, object y)
 /* (LOGCOUNT x), with x being an integer. result: Integer >=0.
  I_logcount_I(x)
  can trigger GC */
-local object I_logcount_I (object x);
+local maygc object I_logcount_I (object x);
 /* count bits of x8: (input x8, output x8) */
 #define logcount_8()                                            \
     (                                                           \
@@ -702,7 +702,7 @@ local object I_logcount_I (object x);
 #if (intWLsize==intLsize)
   #define x16  x32
 #endif
-local object I_logcount_I (object x)
+local maygc object I_logcount_I (object x)
 {
   if (I_fixnump(x)) {
     var uint16 x16; /* auxiliary variable */
@@ -994,7 +994,7 @@ global uintL I_integer_length (object x) {
 /* (INTEGER-LENGTH x), with x being an integer. result: Integer >=0.
  I_integer_length_I(x)
  can trigger GC */
-local object I_integer_length_I (object x) {
+local maygc object I_integer_length_I (object x) {
   if (I_fixnump(x)) {
     var uintL bitcount = 0;
     var uint32 x_ = FN_to_L(x); /* x as 32-bit-number */

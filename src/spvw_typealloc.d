@@ -3,40 +3,40 @@
 # ------------------------------ Specification --------------------------------
 
 # All these are declared in lispbibl.d.
-  global object allocate_cons (void);
-  global object make_symbol (object string);
-  global object allocate_vector (uintL len);
-  global object allocate_bit_vector (uintB atype, uintL len);
-  global object allocate_string (uintL len);
-  global object allocate_iarray (uintB flags, uintC rank, tint type);
+  global maygc object allocate_cons (void);
+  global maygc object make_symbol (object string);
+  global maygc object allocate_vector (uintL len);
+  global maygc object allocate_bit_vector (uintB atype, uintL len);
+  global maygc object allocate_string (uintL len);
+  global maygc object allocate_iarray (uintB flags, uintC rank, tint type);
   #ifdef TYPECODES
-  global object allocate_lrecord (uintB rectype, uintL reclen, tint type);
-  global object allocate_srecord_ (uintW flags_rectype, uintC reclen, tint type);
-  global object allocate_xrecord_ (uintW flags_rectype, uintC reclen, uintC recxlen, tint type);
+  global maygc object allocate_lrecord (uintB rectype, uintL reclen, tint type);
+  global maygc object allocate_srecord_ (uintW flags_rectype, uintC reclen, tint type);
+  global maygc object allocate_xrecord_ (uintW flags_rectype, uintC reclen, uintC recxlen, tint type);
   #else
-  global object allocate_lrecord_ (uintB rectype, uintL reclen);
-  global object allocate_srecord_ (uintW flags_rectype, uintC reclen);
-  global object allocate_xrecord_ (uintW flags_rectype, uintC reclen, uintC recxlen);
+  global maygc object allocate_lrecord_ (uintB rectype, uintL reclen);
+  global maygc object allocate_srecord_ (uintW flags_rectype, uintC reclen);
+  global maygc object allocate_xrecord_ (uintW flags_rectype, uintC reclen, uintC recxlen);
   #endif
   #ifndef case_stream
-  global object allocate_stream (uintB strmflags, uintB strmtype, uintC reclen, uintC recxlen);
+  global maygc object allocate_stream (uintB strmflags, uintB strmtype, uintC reclen, uintC recxlen);
   #endif
   #ifdef FOREIGN
-  global object allocate_fpointer (FOREIGN foreign);
+  global maygc object allocate_fpointer (FOREIGN foreign);
   #endif
   #ifdef FOREIGN_HANDLE
-  global object allocate_handle (Handle handle);
+  global maygc object allocate_handle (Handle handle);
   #endif
-  global object allocate_bignum (uintC len, sintB sign);
-  global object allocate_ffloat (ffloat value);
+  global maygc object allocate_bignum (uintC len, sintB sign);
+  global maygc object allocate_ffloat (ffloat value);
   #ifdef intQsize
-  global object allocate_dfloat (dfloat value);
+  global maygc object allocate_dfloat (dfloat value);
   #else
-  global object allocate_dfloat (uint32 semhi, uint32 mlo);
+  global maygc object allocate_dfloat (uint32 semhi, uint32 mlo);
   #endif
-  global object allocate_lfloat (uintC len, uintL expo, signean sign);
-  global object make_ratio (object num, object den);
-  global object make_complex (object real, object imag);
+  global maygc object allocate_lfloat (uintC len, uintL expo, signean sign);
+  global maygc object make_ratio (object num, object den);
+  global maygc object make_complex (object real, object imag);
 
 # ------------------------------ Implementation -------------------------------
 
@@ -44,7 +44,7 @@
 # allocate_cons()
 # < result: pointer to a new CONS, with CAR and CDR =NIL
 # can trigger GC
-global object allocate_cons (void) {
+global maygc object allocate_cons (void) {
   allocate(cons_type,false,sizeof(cons_),Cons,ptr,
     { ptr->cdr = NIL; ptr->car = NIL; });
 }
@@ -54,7 +54,7 @@ global object allocate_cons (void) {
 # > string: immutable Simple-String
 # < result: new symbol with this name, with home-package=NIL.
 # can trigger GC
-global object make_symbol (object string) {
+global maygc object make_symbol (object string) {
   pushSTACK(string); # save string
   #define FILL  \
     do { ptr->symvalue = unbound; # empty value cell        \
@@ -79,7 +79,7 @@ global object make_symbol (object string) {
 # > len: length of the vector
 # < result: new vector (elements are initialized with NIL)
 # can trigger GC
-global object allocate_vector (uintL len) {
+global maygc object allocate_vector (uintL len) {
   var uintM need = size_svector(len); # needed memory
  #ifdef TYPECODES
   #define SETTFL  ptr->length = len
@@ -102,7 +102,7 @@ global object allocate_vector (uintL len) {
 # > uintL len: length (number of n-bit blocks)
 # < result: fresh simple bit/byte-vector of the given length
 # can trigger GC
-global object allocate_bit_vector (uintB atype, uintL len) {
+global maygc object allocate_bit_vector (uintB atype, uintL len) {
   var uintL need = size_sbvector(len<<atype); # needed memory in bytes
  #ifdef TYPECODES
   #define SETTFL  ptr->length = len
@@ -121,7 +121,7 @@ global object allocate_bit_vector (uintB atype, uintL len) {
 # > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new 8-bit character simple-string (LISP-object)
 # can trigger GC
-global object allocate_s8string (uintL len) {
+global maygc object allocate_s8string (uintL len) {
   var uintL need = size_s8string(len); # needed memory in bytes
   #ifdef HAVE_SMALL_SSTRING
   # Some uprounding, for reallocate_small_string to work.
@@ -140,7 +140,7 @@ global object allocate_s8string (uintL len) {
 # > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new immutable 8-bit character simple-string (LISP-object)
 # can trigger GC
-global object allocate_imm_s8string (uintL len) {
+global maygc object allocate_imm_s8string (uintL len) {
   var uintL need = size_s8string(len); # needed memory in bytes
   #define SETTFL  ptr->tfl = sstring_tfl(Sstringtype_8Bit,1,0,len)
   allocate(sstring_type,true,need,S8string,ptr,
@@ -157,7 +157,7 @@ global object allocate_imm_s8string (uintL len) {
 # > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new 16-bit character simple-string (LISP-object)
 # can trigger GC
-global object allocate_s16string (uintL len) {
+global maygc object allocate_s16string (uintL len) {
   var uintL need = size_s16string(len); # needed memory in bytes
   # Some uprounding, for reallocate_small_string to work.
   if (size_s16string(1) < size_sistring(0)
@@ -174,7 +174,7 @@ global object allocate_s16string (uintL len) {
 # > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new immutable 16-bit character simple-string (LISP-object)
 # can trigger GC
-global object allocate_imm_s16string (uintL len) {
+global maygc object allocate_imm_s16string (uintL len) {
   var uintL need = size_s16string(len); # needed memory in bytes
   #define SETTFL  ptr->tfl = sstring_tfl(Sstringtype_16Bit,1,0,len)
   allocate(sstring_type,true,need,S16string,ptr,
@@ -191,7 +191,7 @@ global object allocate_imm_s16string (uintL len) {
 # > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new 32-bit character simple-string (LISP-object)
 # can trigger GC
-global object allocate_s32string (uintL len) {
+global maygc object allocate_s32string (uintL len) {
   var uintL need = size_s32string(len); # needed memory in bytes
   #define SETTFL  ptr->tfl = sstring_tfl(Sstringtype_32Bit,0,0,len)
   allocate(sstring_type,true,need,S32string,ptr,
@@ -204,7 +204,7 @@ global object allocate_s32string (uintL len) {
 # > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new immutable 32-bit character simple-string (LISP-object)
 # can trigger GC
-global object allocate_imm_s32string (uintL len) {
+global maygc object allocate_imm_s32string (uintL len) {
   var uintL need = size_s32string(len); # needed memory in bytes
   #define SETTFL  ptr->tfl = sstring_tfl(Sstringtype_32Bit,1,0,len)
   allocate(sstring_type,true,need,S32string,ptr,
@@ -223,7 +223,7 @@ global object allocate_imm_s32string (uintL len) {
 # > newtype: new wider string type, Sstringtype_16Bit or Sstringtype_32Bit
 # < result: an Sistring pointing to a wider String
 # can trigger GC
-global object reallocate_small_string (object string, uintB newtype) {
+global maygc object reallocate_small_string (object string, uintB newtype) {
   var uintL len = Sstring_length(string); # known to be > 0
  #ifdef DEBUG_SPVW
   var uintL size = objsize(TheSstring(string));
@@ -292,7 +292,7 @@ global object reallocate_small_string (object string, uintB newtype) {
 # > tint type: typeinfo
 # < result: LISP-Object array
 # can trigger GC
-global object allocate_iarray (uintB flags, uintC rank, tint type) {
+global maygc object allocate_iarray (uintB flags, uintC rank, tint type) {
   var uintL need = rank;
   if (flags & bit(arrayflags_fillp_bit))
     need += 1;
@@ -319,7 +319,7 @@ global object allocate_iarray (uintB flags, uintC rank, tint type) {
 # < result: LISP-object Record (elements are initialized with NIL)
 # can trigger GC
 #ifdef TYPECODES
-global object allocate_lrecord (uintB rectype, uintL reclen, tint type)
+global maygc object allocate_lrecord (uintB rectype, uintL reclen, tint type)
 {
   ASSERT((sintB)rectype >= rectype_longlimit);
   var uintL need = size_lrecord(reclen);
@@ -332,7 +332,7 @@ global object allocate_lrecord (uintB rectype, uintL reclen, tint type)
   });
 }
 #else
-global object allocate_lrecord_ (uintB rectype, uintL reclen)
+global maygc object allocate_lrecord_ (uintB rectype, uintL reclen)
 {
   ASSERT((sintB)rectype >= rectype_longlimit);
   var uintL need = size_lrecord(reclen);
@@ -354,7 +354,7 @@ global object allocate_lrecord_ (uintB rectype, uintL reclen)
 # < result: LISP-Object record (elements are initialized with NIL)
 # can trigger GC
 #ifdef TYPECODES
-global object allocate_srecord_ (uintW flags_rectype, uintC reclen, tint type)
+global maygc object allocate_srecord_ (uintW flags_rectype, uintC reclen, tint type)
 {
   ASSERT((sintB)(flags_rectype >> (BIG_ENDIAN_P ? 8 : 0)) < rectype_limit);
   var uintL need = size_srecord(reclen);
@@ -367,7 +367,7 @@ global object allocate_srecord_ (uintW flags_rectype, uintC reclen, tint type)
   });
 }
 #else
-global object allocate_srecord_ (uintW flags_rectype, uintC reclen) {
+global maygc object allocate_srecord_ (uintW flags_rectype, uintC reclen) {
   var uintL need = size_srecord(reclen);
   allocate(type,true,need,Srecord,ptr,{
     ptr->tfl = (uintL)flags_rectype + ((uintL)reclen << 16);
@@ -386,8 +386,8 @@ global object allocate_srecord_ (uintW flags_rectype, uintC reclen) {
 # < result: LISP-Object Record (elements are initialized with NIL resp. 0)
 # can trigger GC
 #ifdef TYPECODES
-global object allocate_xrecord_ (uintW flags_rectype, uintC reclen,
-                                 uintC recxlen, tint type) {
+global maygc object allocate_xrecord_ (uintW flags_rectype, uintC reclen,
+                                       uintC recxlen, tint type) {
   ASSERT((sintB)(flags_rectype >> (BIG_ENDIAN_P ? 8 : 0)) >= rectype_limit
          && (sintB)(flags_rectype >> (BIG_ENDIAN_P ? 8 : 0)) < rectype_longlimit);
   var uintL need = size_xrecord(reclen,recxlen);
@@ -405,8 +405,8 @@ global object allocate_xrecord_ (uintW flags_rectype, uintC reclen,
   });
 }
 #else
-global object allocate_xrecord_ (uintW flags_rectype, uintC reclen,
-                                 uintC recxlen) {
+global maygc object allocate_xrecord_ (uintW flags_rectype, uintC reclen,
+                                       uintC recxlen) {
   var uintL need = size_xrecord(reclen,recxlen);
   allocate(type,true,need,Xrecord,ptr,{
     ptr->tfl = # store flags, type, lengths
@@ -432,8 +432,8 @@ global object allocate_xrecord_ (uintW flags_rectype, uintC reclen,
 # > uintC recxlen: extra-length in bytes
 # < result: LISP-object stream (Elements are initialized with NIL)
 # can trigger GC
-global object allocate_stream (uintB strmflags, uintB strmtype,
-                               uintC reclen, uintC recxlen) {
+global maygc object allocate_stream (uintB strmflags, uintB strmtype,
+                                     uintC reclen, uintC recxlen) {
   var object obj =
     allocate_xrecord(0,Rectype_Stream,reclen,recxlen,orecord_type);
   # Fixnum as place for strmflags and strmtype:
@@ -452,7 +452,7 @@ global object allocate_stream (uintB strmflags, uintB strmtype,
 # > foreign: of type FOREIGN
 # < result: LISP-object, that contains the foreign pointer
 # can trigger GC
-global object allocate_fpointer (FOREIGN foreign) {
+global maygc object allocate_fpointer (FOREIGN foreign) {
   var object result = allocate_xrecord(0,Rectype_Fpointer,fpointer_length,
                                        fpointer_xlength,orecord_type);
   TheFpointer(result)->fp_pointer = foreign;
@@ -467,7 +467,7 @@ global object allocate_fpointer (FOREIGN foreign) {
 # allocate_handle(handle)
 # < result: LISP-object, that contains the handle
 # can trigger GC
-global object allocate_handle (Handle handle) {
+global maygc object allocate_handle (Handle handle) {
   var object result = allocate_bit_vector(Atype_Bit,sizeof(Handle)*8);
   TheHandle(result) = handle;
   return result;
@@ -481,7 +481,7 @@ global object allocate_handle (Handle handle) {
 # > sintB sign: flag for the sign (0 = +, -1 = -)
 # < result: new bignum (LISP-object)
 # can trigger GC
-global object allocate_bignum (uintC len, sintB sign) {
+global maygc object allocate_bignum (uintC len, sintB sign) {
   var uintL need = size_bignum(len); # needed memory in bytes
  #ifdef TYPECODES
   #define SETTFL  ptr->length = len
@@ -498,7 +498,7 @@ global object allocate_bignum (uintC len, sintB sign) {
 # > ffloat value: number value (bit 31 = sign)
 # < result: new single-float (LISP-object)
 # can trigger GC
-global object allocate_ffloat (ffloat value) {
+global maygc object allocate_ffloat (ffloat value) {
  #if !defined(IMMEDIATE_FFLOAT)
   #ifdef TYPECODES
    #define SETTFL
@@ -523,7 +523,7 @@ global object allocate_ffloat (ffloat value) {
 # > dfloat value: number value (bit 63 = sign)
 # < result: new double-float (LISP-object)
 # can trigger GC
-global object allocate_dfloat (dfloat value) {
+global maygc object allocate_dfloat (dfloat value) {
  #ifdef TYPECODES
   #define SETTFL
  #else
@@ -540,7 +540,7 @@ global object allocate_dfloat (dfloat value) {
 # > semhi,mlo: number value (bit 31 from semhi = sign)
 # < result: new double-float (LISP-object)
 # can trigger GC
-global object allocate_dfloat (uint32 semhi, uint32 mlo) {
+global maygc object allocate_dfloat (uint32 semhi, uint32 mlo) {
  #ifdef TYPECODES
   #define SETTFL
  #else
@@ -562,7 +562,7 @@ global object allocate_dfloat (uint32 semhi, uint32 mlo) {
 # < result: new long-float, still without mantissa
 # A LISP-object is there, only if the mantissa is stored!
 # can trigger GC
-global object allocate_lfloat (uintC len, uintL expo, signean sign) {
+global maygc object allocate_lfloat (uintC len, uintL expo, signean sign) {
   var uintL need = size_lfloat(len); # needed memory in bytes
  #ifdef TYPECODES
   #define SETTFL  ptr->len = len
@@ -580,7 +580,7 @@ global object allocate_lfloat (uintC len, uintL expo, signean sign) {
 # > object den: denominator (must be integer > 1 )
 # < result: ratio
 # can trigger GC
-global object make_ratio (object num, object den) {
+global maygc object make_ratio (object num, object den) {
   pushSTACK(den); pushSTACK(num); # save arguments
  #ifdef TYPECODES
   var tint type = # take over sign from num
@@ -619,7 +619,7 @@ global object make_ratio (object num, object den) {
 # > imag: imaginary part (must be a real number /= Fixnum 0)
 # < result: complex number
 # can trigger GC
-global object make_complex (object real, object imag) {
+global maygc object make_complex (object real, object imag) {
   pushSTACK(imag); pushSTACK(real);
   #define FILL  \
     ptr->c_real = popSTACK(); # store real part \

@@ -16,7 +16,7 @@
  > vector: simple-vector
  < result: fresh simple-vector with the same contents
  can trigger GC */
-global object copy_svector (object vector) {
+global maygc object copy_svector (object vector) {
   var uintL length = Svector_length(vector);
   pushSTACK(vector);
   var object newvector = allocate_vector(length); /* vector of same length */
@@ -37,7 +37,7 @@ global object copy_svector (object vector) {
  > vector: simple-bit/byte-vector
  < result: fresh simple-bit/byte-vector with the same contents
  can trigger GC */
-global object copy_sbvector (object vector) {
+global maygc object copy_sbvector (object vector) {
   var uintB atype = sbNvector_atype(vector);
   var uintL length = Sbvector_length(vector);
   pushSTACK(vector);
@@ -96,7 +96,7 @@ global uintL vector_length (object vector) {
  (symbols T, BIT, CHARACTER and lists (UNSIGNED-BYTE n)).
  The result type is a supertype of element_type.
  can trigger GC */
-global uintB eltype_code (object obj)
+global maygc uintB eltype_code (object obj)
 { /* (cond ((eq obj 'BIT) Atype_Bit)
            ((eq obj 'CHARACTER) Atype_Char)
            ((eq obj 'T) Atype_T)
@@ -166,7 +166,7 @@ global uintB eltype_code (object obj)
  < result: simple-vector containing these objects
  Pops n objects off STACK.
  can trigger GC */
-global object vectorof (uintC len) {
+global maygc object vectorof (uintC len) {
   var object new_vector = allocate_vector(len);
   if (len > 0) {
     var gcv_object_t* topargptr = STACK STACKop len;
@@ -520,8 +520,10 @@ nonreturning_function(global, fehler_nilarray_access, (void)) {
  > storagevector: a storage vector (simple vector or semi-simple byte vector)
  > index: (already checked) index into the storage vector
  < result: (AREF storagevector index)
- can trigger GC (only for element type (UNSIGNED-BYTE 32)) */
-global object storagevector_aref (object datenvektor, uintL index) {
+ can trigger GC - if the element type is (UNSIGNED-BYTE 32) */
+global /*maygc*/ object storagevector_aref (object datenvektor, uintL index) {
+  GCTRIGGER_IF(Array_type(datenvektor) == Array_type_sb32vector,
+               GCTRIGGER1(datenvektor));
   switch (Array_type(datenvektor)) {
     case Array_type_svector: /* Simple-Vector */
       return TheSvector(datenvektor)->data[index];
@@ -572,8 +574,9 @@ nonreturning_function(global, fehler_store, (object array, object value)) {
  > STACK_0 : array (for error-message)
  < datenvektor: possibly reallocated storage vector
  can trigger GC, if datenvektor is a string and element is a character */
-local object storagevector_store (object datenvektor, uintL index,
-                                  object element, bool allowgc) {
+local /*maygc*/ object storagevector_store (object datenvektor, uintL index,
+                                            object element, bool allowgc) {
+  GCTRIGGER_IF(allowgc, GCTRIGGER2(datenvektor,element));
   switch (Array_type(datenvektor)) {
     case Array_type_svector: /* Simple-Vector */
       TheSvector(datenvektor)->data[index] = element;
@@ -857,7 +860,7 @@ global uintBWL array_atype (object array)
  > array: an array
  < result: element-type, one of the symbols T, BIT, CHARACTER, or a list
  can trigger GC */
-global object array_element_type (object array) {
+global maygc object array_element_type (object array) {
   var uintBWL atype = array_atype(array);
   switch (atype) {
     case Atype_T:           return S(t);         /* T */
@@ -979,7 +982,7 @@ global void get_array_dimensions (object array, uintL rank, uintL* dimensions) {
  > array: an array
  < result: list of its dimensions
  can trigger GC */
-global object array_dimensions (object array) {
+global maygc object array_dimensions (object array) {
   if (array_simplep(array)) { /* simple vector, form (LIST length) */
     var object len; /* length as fixnum (non endangered by GC) */
     if (simple_string_p(array)) {
@@ -2062,9 +2065,10 @@ LISPFUN(bit_not,seclass_default,1,1,norest,nokey,0,NIL)
  > dv2: destination storage-vector
  > index2: start index in dv2
  > count: number of elements to be copied, > 0
- can trigger GC */
-global void elt_copy (object dv1, uintL index1,
-                      object dv2, uintL index2, uintL count);
+ can trigger GC - if dv1 and dv2 have different element types or
+                  if both are strings and dv1 is wider than dv2 */
+global /*maygc*/ void elt_copy (object dv1, uintL index1,
+                                object dv2, uintL index2, uintL count);
 local void elt_copy_Bit_Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
 local void elt_copy_2Bit_2Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
 local void elt_copy_4Bit_4Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
@@ -2132,8 +2136,8 @@ local void elt_copy_16Bit_T (object dv1, uintL index1,
     *ptr2++ = fixnum(*ptr1++);
   });
 }
-local void elt_copy_32Bit_T (object dv1, uintL index1,
-                             object dv2, uintL index2, uintL count) {
+local maygc void elt_copy_32Bit_T (object dv1, uintL index1,
+                                   object dv2, uintL index2, uintL count) {
  #if (intLsize<=oint_data_len)
   /* UL_to_I(x) = fixnum(x), cannot trigger GC */
   var const uint32* ptr1 = &((uint32*)&TheSbvector(dv1)->data[0])[index1];
@@ -2151,8 +2155,8 @@ local void elt_copy_32Bit_T (object dv1, uintL index1,
   skipSTACK(2);
  #endif
 }
-local void elt_copy_T_Char (object dv1, uintL index1,
-                            object dv2, uintL index2, uintL count) {
+local maygc void elt_copy_T_Char (object dv1, uintL index1,
+                                  object dv2, uintL index2, uintL count) {
   if (simple_nilarray_p(dv2)) fehler_nilarray_store();
   check_sstring_mutable(dv2);
  restart_it:
@@ -2192,8 +2196,10 @@ local void elt_copy_T_Char (object dv1, uintL index1,
     NOTREACHED;
   });
 }
-local void elt_copy_Char_Char (object dv1, uintL index1,
-                               object dv2, uintL index2, uintL count) {
+local /*maygc*/ void elt_copy_Char_Char (object dv1, uintL index1,
+                                         object dv2, uintL index2, uintL count) {
+  GCTRIGGER_IF(sstring_eltype(TheSstring(dv1)) > sstring_eltype(TheSstring(dv2)),
+               GCTRIGGER2(dv1,dv2));
   if (simple_nilarray_p(dv2)) fehler_nilarray_store();
   check_sstring_mutable(dv2);
   SstringCase(dv1,{
@@ -2745,8 +2751,12 @@ local void elt_copy_32Bit_32Bit (object dv1, uintL index1,
     *ptr2++ = *ptr1++;
   });
 }
-global void elt_copy (object dv1, uintL index1,
-                      object dv2, uintL index2, uintL count) {
+global /*maygc*/ void elt_copy (object dv1, uintL index1,
+                                object dv2, uintL index2, uintL count) {
+  GCTRIGGER_IF(Array_type(dv1) != Array_type(dv2)
+               || (simple_string_p(dv1) && simple_string_p(dv2)
+                   && sstring_eltype(TheSstring(dv1)) > sstring_eltype(TheSstring(dv2))),
+               GCTRIGGER2(dv1,dv2));
   switch (Array_type(dv1)) {
     case Array_type_svector: /* Simple-Vector */
       switch (Array_type(dv2)) {
@@ -2950,9 +2960,9 @@ global void elt_copy (object dv1, uintL index1,
  > dv2: destination storage-vector
  > index2: start index in dv2
  > count: number of elements to be copied, > 0
- can trigger GC */
-global void elt_move (object dv1, uintL index1,
-                      object dv2, uintL index2, uintL count);
+ can trigger GC - if both are strings and dv1 is wider than dv2 */
+global /*maygc*/ void elt_move (object dv1, uintL index1,
+                                object dv2, uintL index2, uintL count);
 local void elt_move_T (object dv1, uintL index1,
                        object dv2, uintL index2, uintL count) {
   if (eq(dv1,dv2) && index1 < index2 && index2 < index1+count) {
@@ -2969,8 +2979,10 @@ local void elt_move_T (object dv1, uintL index1,
     });
   }
 }
-local void elt_move_Char (object dv1, uintL index1,
-                          object dv2, uintL index2, uintL count) {
+local /*maygc*/ void elt_move_Char (object dv1, uintL index1,
+                                    object dv2, uintL index2, uintL count) {
+  GCTRIGGER_IF(sstring_eltype(TheSstring(dv1)) > sstring_eltype(TheSstring(dv2)),
+               GCTRIGGER2(dv1,dv2));
   if (simple_nilarray_p(dv2)) fehler_nilarray_store();
   check_sstring_mutable(dv2);
   if (eq(dv1,dv2) && index1 < index2 && index2 < index1+count) {
@@ -3127,8 +3139,12 @@ local void elt_move_32Bit (object dv1, uintL index1,
     });
   }
 }
-global void elt_move (object dv1, uintL index1,
-                      object dv2, uintL index2, uintL count) {
+global /*maygc*/ void elt_move (object dv1, uintL index1,
+                                object dv2, uintL index2, uintL count) {
+  GCTRIGGER_IF(simple_string_p(dv1) && simple_string_p(dv2)
+               && sstring_eltype(TheSstring(dv1)) > sstring_eltype(TheSstring(dv2)),
+               GCTRIGGER2(dv1,dv2));
+  ASSERT(Array_type(dv1) == Array_type(dv2));
   switch (Array_type(dv1)) {
     case Array_type_svector: /* Simple-Vector */
       elt_move_T(dv1,index1,dv2,index2,count);
@@ -3167,7 +3183,7 @@ global void elt_move (object dv1, uintL index1,
  > count: number of elements to be filled
  < result: true if element does not fit, false when done
  can trigger GC */
-global bool elt_fill (object dv, uintL index, uintL count, object element) {
+global maygc bool elt_fill (object dv, uintL index, uintL count, object element) {
 #define SIMPLE_FILL(p,c,e)    dotimespL(c,c, { *p++ = e; })
   switch (Array_type(dv)) {
     case Array_type_svector: /* Simple-Vector */
@@ -3392,8 +3408,8 @@ global bool elt_fill (object dv, uintL index, uintL count, object element) {
  > index2: start index in dv2
  > count: number of elements to be copied, > 0
  can trigger GC */
-global void elt_reverse (object dv1, uintL index1, object dv2, uintL index2,
-                         uintL count) {
+global maygc void elt_reverse (object dv1, uintL index1, object dv2, uintL index2,
+                               uintL count) {
 #define SIMPLE_REVERSE(p1,p2,c)   dotimespL(c,c, { *p2-- = *p1++; })
   index2 += count-1;
   switch (Array_type(dv1)) {
@@ -3929,7 +3945,7 @@ LISPFUN(vector_push_extend,seclass_default,2,1,norest,nokey,0,NIL)
  > uintL len: length of the desired bit-vector (number of bits)
  < result: fresh simple-bit-vector, filled with zeroes
  can trigger GC */
-global object allocate_bit_vector_0 (uintL len) {
+global maygc object allocate_bit_vector_0 (uintL len) {
   var object newvec = allocate_bit_vector(Atype_Bit,len); /* new bit-vector */
   var uintL count = ceiling(len,bitpack); /* fill ceiling(len/bitpack) words with zeroes */
   if (count!=0) {
@@ -3988,7 +4004,7 @@ nonreturning_function(local, fehler_dim_type, (object dim)) {
  > uintL len: desired length, must be >0
  < fresh: fresh semi-simple-string of the given length
  can trigger GC */
-global object make_ssstring (uintL len) {
+global maygc object make_ssstring (uintL len) {
   if (len > arraysize_limit_1)
     fehler_dim_type(UL_to_I(len));
   if (len > stringsize_limit_1)
@@ -4009,7 +4025,7 @@ global object make_ssstring (uintL len) {
  > size:     how much to allocate
  < returns:  the same semi-simple-string
  can trigger GC */
-local object ssstring_extend_low (object ssstring, uintL size) {
+local maygc object ssstring_extend_low (object ssstring, uintL size) {
   if (size > arraysize_limit_1)
     fehler_dim_type(UL_to_I(size));
   if (size > stringsize_limit_1)
@@ -4040,7 +4056,7 @@ local object ssstring_extend_low (object ssstring, uintL size) {
  > ch: a character
  < result: the same semi-simple-string
  can trigger GC */
-global object ssstring_push_extend (object ssstring, chart ch) {
+global maygc object ssstring_push_extend (object ssstring, chart ch) {
   var object sstring = TheIarray(ssstring)->data; /* normal-simple-string */
   var uintL len = Sstring_length(sstring);
   if (TheIarray(ssstring)->dims[1] >= len) { /* fill-pointer >= length ? */
@@ -4066,7 +4082,7 @@ global object ssstring_push_extend (object ssstring, chart ch) {
  > size: desired minimum length
  < result: the same semi-simple-string
  can trigger GC */
-global object ssstring_extend (object ssstring, uintL needed_len) {
+global maygc object ssstring_extend (object ssstring, uintL needed_len) {
   var object sstring = TheIarray(ssstring)->data; /* normal simple string */
   var uintL now_len = Sstring_length(sstring); /* current maximal lenth */
   if (needed_len > arraysize_limit_1) /* cannot extend beyond arraysize_limit_1 */
@@ -4092,8 +4108,8 @@ global object ssstring_extend (object ssstring, uintL needed_len) {
  > len: the number of characters to be pushed, starting from start; >0
  < result: the same semi-simple-string
  can trigger GC */
-global object ssstring_append_extend (object ssstring, object srcstring,
-                                      uintL start, uintL len) {
+global maygc object ssstring_append_extend (object ssstring, object srcstring,
+                                            uintL start, uintL len) {
   var uintL old_len = TheIarray(ssstring)->dims[1]; /* length = fill-pointer */
   if (old_len + len > TheIarray(ssstring)->dims[0]) { /* len bytes will not fit */
     pushSTACK(srcstring);
@@ -4132,7 +4148,7 @@ global object ssstring_append_extend (object ssstring, object srcstring,
  > uintL len: length (number of bytes!), must be >0
  < result: fresh semi-simple byte-vector of the given length
  can trigger GC */
-global object make_ssbvector (uintL len) {
+global maygc object make_ssbvector (uintL len) {
   if (len > arraysize_limit_1)
     fehler_dim_type(UL_to_I(len));
   pushSTACK(allocate_bit_vector(Atype_8Bit,len));
@@ -4153,7 +4169,7 @@ global object make_ssbvector (uintL len) {
  > b: byte
  < result: the same semi-simple byte-vector
  can trigger GC */
-global object ssbvector_push_extend (object ssbvector, uintB b) {
+global maygc object ssbvector_push_extend (object ssbvector, uintB b) {
   var object sbvector = TheIarray(ssbvector)->data; /* simple-8bit-vector */
   var uintL len = Sbvector_length(sbvector);
   if (TheIarray(ssbvector)->dims[1] >= len) { /* fill-pointer >= length ? */
@@ -4287,7 +4303,7 @@ local void test_otherkeys (void) {
  > STACK_4: initial-element
  < result: simple vector of given type, poss. filled.
  can trigger GC */
-local object make_storagevector (uintL len, uintB eltype) {
+local maygc object make_storagevector (uintL len, uintB eltype) {
   var object vector;
   switch (eltype) {
     case Atype_T: /* create simple-vector */
@@ -4362,8 +4378,8 @@ typedef struct {
   uintL depth; /* recursion depth */
 } initial_contents_locals_t;
 local map_sequence_function_t initial_contents_aux;
-local object initial_contents (object datenvektor, object dims, uintL rank,
-                               object contents) {
+local maygc object initial_contents (object datenvektor, object dims, uintL rank,
+                                     object contents) {
   /* put all dimensions on the stack: */
   get_space_on_STACK(rank*sizeof(gcv_object_t));
   if (listp(dims)) {
@@ -4386,7 +4402,7 @@ local object initial_contents (object datenvektor, object dims, uintL rank,
 
 /* auxiliary routine for initial_contents:
  processes the sequence-structure recursively. */
-local void initial_contents_aux (void* arg, object obj) {
+local maygc void initial_contents_aux (void* arg, object obj) {
   var initial_contents_locals_t* locals = (initial_contents_locals_t*)arg;
   /* the following is passed:
      locals->depth = recursion depth,

@@ -7,7 +7,7 @@
 #     und Ziffern/Buchstaben mit Wert < base.
 # < ergebnis: der dargestellte Integer >=0
 # can trigger GC
-  local object DIGITS_to_I (const chart* MSBptr, uintL len, uintD base)
+  local maygc object DIGITS_to_I (const chart* MSBptr, uintL len, uintD base)
   {
     SAVE_NUM_STACK # num_stack retten
     var uintD* erg_MSDptr;

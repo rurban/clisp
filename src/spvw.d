@@ -1750,7 +1750,7 @@ local void print_banner ()
 /* Returns `(BATCHMODE-ERRORS ,form) or `(APPEASE-CERRORS ,form), as
  appropriate.
  can trigger GC */
-local object appease_form (bool interactive_debug, object form)
+local maygc object appease_form (bool interactive_debug, object form)
 {
   pushSTACK(interactive_debug ? S(appease_cerrors) : S(batchmode_errors));
   pushSTACK(form);
@@ -2797,7 +2797,7 @@ local inline int init_memory (const struct argv_initparams *p) {
 
 /* run all functions in the list
  can trigger GC */
-void run_hooks (object hooks) {
+local void maygc run_hooks (object hooks) {
   pushSTACK(hooks);
   while (mconsp(STACK_0)) {     /* process */
     var object obj = STACK_0;

@@ -1,3 +1,70 @@
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
+	* utils/gctrigger.d: New file.
+	* makemake.in (GCTRIGGER): New variable.
+	(XDECL_FILTER, XDECL_DEPENDENCIES): Invoke gctrigger.
+	(UTILS): Add gctrigger.
+	* lispbibl.d (maygc): New macro.
+	(inc_allocstamp): New overloaded function.
+	(GCTRIGGER, GCTRIGGER1, GCTRIGGER2, GCTRIGGER3, GCTRIGGER4, GCTRIGGER5,
+	GCTRIGGER6, GCTRIGGER_IF): New macros.
+	* lispbibl.d: Use maygc declaration where possible.
+	* spvw.d: Likewise.
+	* spvw_circ.d: Likewise.
+	* spvw_debug.d: Likewise.
+	* spvw_garcol.d: Likewise.
+	* spvw_memfile.d: Likewise.
+	* spvw_module.d: Likewise.
+	* spvw_typealloc.d: Likewise.
+	* array.d: Likewise.
+	* charstrg.d: Likewise.
+	* control.d: Likewise.
+	* debug.d: Likewise.
+	* encoding.d: Likewise.
+	* error.d: Likewise.
+	* eval.d: Likewise.
+	* foreign.d: Likewise.
+	* hashtabl.d: Likewise.
+	* io.d: Likewise.
+	* list.d: Likewise.
+	* misc.d: Likewise.
+	* package.d: Likewise.
+	* pathname.d: Likewise.
+	* predtype.d: Likewise.
+	* record.d: Likewise.
+	* sequence.d: Likewise.
+	* socket.d: Likewise.
+	* stream.d: Likewise.
+	* time.d: Likewise.
+	* weak.d: Likewise.
+	* zthread.d: Likewise.
+	* lisparit.d: Likewise.
+	* compelem.d: Likewise.
+	* comptran.d: Likewise.
+	* dfloat.d: Likewise.
+	* ffloat.d: Likewise.
+	* flo_konv.d: Likewise.
+	* flo_rest.d: Likewise.
+	* intbyte.d: Likewise.
+	* intdiv.d: Likewise.
+	* intelem.d: Likewise.
+	* intgcd.d: Likewise.
+	* intlog.d: Likewise.
+	* intmal.d: Likewise.
+	* intplus.d: Likewise.
+	* intread.d: Likewise.
+	* intsqrt.d: Likewise.
+	* lfloat.d: Likewise.
+	* rational.d: Likewise.
+	* realelem.d: Likewise.
+	* realrand.d: Likewise.
+	* realtran.d: Likewise.
+	* sfloat.d: Likewise.
+	* lispbibl.d (subsstring): Mark as "can trigger GC".
+	* io.d (syntax_table_get, syntax_table_put): Turn into inline
+	functions.
+	* hashtabl.d (sxhash): Cannot trigger GC.
+
 2004-12-10  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (maygc): expand to nothing

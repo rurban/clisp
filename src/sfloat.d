@@ -599,11 +599,11 @@
 # SF_to_I(x) wandelt ein Short-Float x, das eine ganze Zahl darstellt,
 # in ein Integer um.
 # can trigger GC
-  local object SF_to_I (object x);
+  local maygc object SF_to_I (object x);
 # Methode:
 # Falls x=0.0, Ergebnis 0.
 # Sonst (ASH Vorzeichen*Mantisse (e-17)).
-  local object SF_to_I (object x)
+  local maygc object SF_to_I (object x)
   {
     # x entpacken:
     var signean sign;
@@ -635,7 +635,7 @@
    Dabei um ein Bit nach rechts schieben.
    Bei Aufrundung auf 2^17 (rounding overflow) Mantisse um 1 Bit nach rechts
      schieben und Exponent incrementieren. */
-local object I_to_SF (object x, bool signal_overflow)
+local maygc object I_to_SF (object x, bool signal_overflow)
 {
   if (eq(x,Fixnum_0))
     return SF_0;
@@ -695,7 +695,7 @@ local object I_to_SF (object x, bool signal_overflow)
 # RA_to_SF(x,signal_overflow) converts a rational number x to a short-float,
 # and rounds thereby.
 # can trigger GC
-  local object RA_to_SF (object x, bool signal_overflow);
+  local maygc object RA_to_SF (object x, bool signal_overflow);
 # Methode:
 # x ganz -> klar.
 # x = +/- a/b mit Integers a,b>0:
@@ -709,7 +709,7 @@ local object I_to_SF (object x, bool signal_overflow)
 #   Der erste Wert ist >=2^17, <2^19.
 #   Falls er >=2^18 ist, runde 2 Bits weg,
 #   falls er <2^18 ist, runde 1 Bit weg.
-  local object RA_to_SF (object x, bool signal_overflow)
+  local maygc object RA_to_SF (object x, bool signal_overflow)
   {
     if (RA_integerp(x))
       return I_to_SF(x,signal_overflow);

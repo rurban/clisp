@@ -24,7 +24,7 @@ struct call_data_t {
 
 /* execute the call specified by the call_data_t argument
  can trigger GC */
-local void *exec_call (void *arg)
+local maygc void *exec_call (void *arg)
 {
   struct call_data_t *pcd = (struct call_data_t*)arg;
   uintC argcount = pcd->argcount;

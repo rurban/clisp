@@ -210,8 +210,8 @@ nonreturning_function(local, signal_and_debug, (object condition)) {
 
 /* finishes the output of an error message and starts a new driver,
  (when start_driver_p is true)
- may trigger GC */
-local void end_error (gcv_object_t* stackptr, bool start_driver_p) {
+ can trigger GC */
+local maygc void end_error (gcv_object_t* stackptr, bool start_driver_p) {
   if (nullp(STACK_1)) {
     /* *ERROR-HANDER* = NIL, SYS::*USE-CLCS* = NIL */
     skipSTACK(4); /* error message has already been printed */
@@ -359,7 +359,7 @@ nonreturning_function(global, fehler, (condition_t errortype,
    value2 = indicates whether PLACE should be filled
  < STACK: cleaned up
  can trigger GC */
-global void check_value (condition_t errortype, const char* errorstring)
+global maygc void check_value (condition_t errortype, const char* errorstring)
 {
   prepare_error(errortype,errorstring,nullpSv(use_clcs));
   /* if SYS::*USE-CLCS* /= NIL, use CHECK-VALUE */
@@ -381,7 +381,7 @@ global void check_value (condition_t errortype, const char* errorstring)
    alternatives
  < STACK: cleaned up
  can trigger GC */
-global void correctable_error (condition_t errortype, const char* errorstring)
+global maygc void correctable_error (condition_t errortype, const char* errorstring)
 {
   prepare_error(errortype,errorstring,nullpSv(use_clcs));
   /* if SYS::*USE-CLCS* /= NIL, use CORRECTABLE-ERROR */
@@ -392,7 +392,7 @@ global void correctable_error (condition_t errortype, const char* errorstring)
 /* Check that OBJ is of type TYPE and return it.
  used only by modules at this time, thus not declared in lispbibl.d
  can trigger GC */
-global object check_classname (object obj, object type) {
+global maygc object check_classname (object obj, object type) {
   while (!typep_classname(obj,type)) {
     pushSTACK(type);            /* save type */
     pushSTACK(NIL);             /* no PLACE */
@@ -691,7 +691,7 @@ LISPFUNN(invoke_debugger,1)
 /* UP: Executes a break-loop because of keyboard interrupt.
  > STACK_0 : calling function
  changes STACK, can trigger GC */
-global void tast_break (void)
+global maygc void tast_break (void)
 {
   cancel_interrupts();
  #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
@@ -768,7 +768,7 @@ LISPFUN(clcs_signal,seclass_default,1,0,rest,nokey,0,NIL)
  > restart_p: flag whether to allow entering a replacement
  < result: a valid foreign pointer, either the same as obj or a replacement
  can trigger GC */
-global object check_fpointer_replacement (object obj, bool restart_p) {
+global maygc object check_fpointer_replacement (object obj, bool restart_p) {
   for (;;) {
     if (!fpointerp(obj)) {
       pushSTACK(NIL);                /* no PLACE */
@@ -813,7 +813,7 @@ nonreturning_function(global, fehler_list, (object obj)) {
  > obj: not a list
  < result: a list, a replacement
  can trigger GC */
-global object check_list_replacement (object obj) {
+global maygc object check_list_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
@@ -854,7 +854,7 @@ nonreturning_function(global, fehler_proper_list_circular, (object caller, objec
  > obj: not a symbol
  < result: a symbol, a replacement
  can trigger GC */
-global object check_symbol_replacement (object obj) {
+global maygc object check_symbol_replacement (object obj) {
   do {
     var object caller = subr_self;
     caller = (subrp(caller) ? TheSubr(caller)->name : TheFsubr(caller)->name);
@@ -873,7 +873,7 @@ global object check_symbol_replacement (object obj) {
  > caller: a symbol
  < result: a non-constant symbol, a replacement
  can trigger GC */
-global object check_symbol_non_constant_replacement (object obj, object caller)
+global maygc object check_symbol_non_constant_replacement (object obj, object caller)
 {
   for (;;) {
     obj = check_symbol(obj);
@@ -893,7 +893,7 @@ global object check_symbol_non_constant_replacement (object obj, object caller)
 /* UP: signal an error if a non-symbol was declared special
  returns the symbol
  can trigger GC */
-global object check_symbol_special (object obj, object caller)
+global maygc object check_symbol_special (object obj, object caller)
 {
   while (!symbolp(obj)) {
     pushSTACK(caller);
@@ -934,7 +934,7 @@ nonreturning_function(global, fehler_vector, (object obj)) {
  > obj: not an array
  < result: an array, a replacement
  can trigger GC */
-global object check_array_replacement (object obj) {
+global maygc object check_array_replacement (object obj) {
   do {
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
@@ -970,7 +970,7 @@ nonreturning_function(global, fehler_posfixnum, (object obj)) {
  > obj: not a fixnum >= 0
  < result: a fixnum >= 0, a replacement
  can trigger GC */
-global object check_posfixnum_replacement (object obj) {
+global maygc object check_posfixnum_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);               /* TYPE-ERROR slot DATUM */
@@ -986,7 +986,7 @@ global object check_posfixnum_replacement (object obj) {
  > obj: not an integer
  < result: an integer, a replacement
  can trigger GC */
-global object check_integer_replacement (object obj) {
+global maygc object check_integer_replacement (object obj) {
   do {
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
@@ -1003,7 +1003,7 @@ global object check_integer_replacement (object obj) {
  > obj: not an integer >= 0
  < result: an integer >= 0, a replacement
  can trigger GC */
-global object check_pos_integer_replacement (object obj) {
+global maygc object check_pos_integer_replacement (object obj) {
   do {
     pushSTACK(NIL);                /* no PLACE */
     pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
@@ -1031,7 +1031,7 @@ nonreturning_function(global, fehler_char, (object obj)) {
  > obj: not a character
  < result: a character, a replacement
  can trigger GC */
-global object check_char_replacement (object obj) {
+global maygc object check_char_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);          /* TYPE-ERROR slot DATUM */
@@ -1048,7 +1048,7 @@ global object check_char_replacement (object obj) {
  > obj: not a string
  < result: a string, a replacement
  can trigger GC */
-global object check_string_replacement (object obj) {
+global maygc object check_string_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
@@ -1116,7 +1116,7 @@ nonreturning_function(global, fehler_class, (object obj)) {
  > obj: not a stream
  < obj: a stream
  can trigger GC */
-global object check_stream_replacement (object obj) {
+global maygc object check_stream_replacement (object obj) {
   do {
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
@@ -1134,8 +1134,8 @@ global object check_stream_replacement (object obj) {
  > keyword_p: true if the object comes from the :EXTERNAL-FORMAT argument
  < result: an encoding
  can trigger GC */
-global object check_encoding (object arg, const gcv_object_t *e_default,
-                              bool keyword_p) {
+global maygc object check_encoding (object arg, const gcv_object_t *e_default,
+                                    bool keyword_p) {
  restart:
   if (!boundp(arg) || eq(arg,S(Kdefault)))
     return *e_default;
@@ -1241,7 +1241,7 @@ nonreturning_function(global, fehler_key_badkw,
  > obj: not a function
  < result: a function, a replacement
  can trigger GC */
-global object check_function_replacement (object obj) {
+global maygc object check_function_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);         /* TYPE-ERROR slot DATUM */
@@ -1270,7 +1270,7 @@ global object check_function_replacement (object obj) {
  > caller: symbol
  < a function object, possibly also installed as (FDEFINITION funname)
  can trigger GC */
-global object check_fdefinition (object funname, object caller)
+global maygc object check_fdefinition (object funname, object caller)
 {
   var object name = (symbolp(funname) ? funname
                      : get(Car(Cdr(funname)),S(setf_function)));
@@ -1324,7 +1324,7 @@ global object check_fdefinition (object funname, object caller)
  > obj: not a function name
  < result: a function name, either the same as obj or a replacement
  can trigger GC */
-global object check_funname_replacement (condition_t errtype, object caller, object obj) {
+global maygc object check_funname_replacement (condition_t errtype, object caller, object obj) {
   pushSTACK(caller); /* save */
   do {
     caller = STACK_0;
@@ -1404,7 +1404,7 @@ nonreturning_function(global, fehler_too_few_args,
  > obj: not an integer in the range of uint8
  < obj: an integer in the range of uint8
  can trigger GC */
-global object check_uint8_replacement (object obj) {
+global maygc object check_uint8_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
@@ -1421,7 +1421,7 @@ global object check_uint8_replacement (object obj) {
  > obj: not an integer in the range of sint8
  < obj: an integer in the range of sint8
  can trigger GC */
-global object check_sint8_replacement (object obj) {
+global maygc object check_sint8_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
@@ -1438,7 +1438,7 @@ global object check_sint8_replacement (object obj) {
  > obj: not an integer in the range of uint16
  < obj: an integer in the range of uint16
  can trigger GC */
-global object check_uint16_replacement (object obj) {
+global maygc object check_uint16_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
@@ -1455,7 +1455,7 @@ global object check_uint16_replacement (object obj) {
  > obj: not an integer in the range of sint16
  < obj: an integer in the range of sint16
  can trigger GC */
-global object check_sint16_replacement (object obj) {
+global maygc object check_sint16_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
@@ -1472,7 +1472,7 @@ global object check_sint16_replacement (object obj) {
  > obj: not an integer in the range of uint32
  < obj: an integer in the range of uint32
  can trigger GC */
-global object check_uint32_replacement (object obj) {
+global maygc object check_uint32_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
@@ -1489,7 +1489,7 @@ global object check_uint32_replacement (object obj) {
  > obj: not an integer in the range of sint32
  < obj: an integer in the range of sint32
  can trigger GC */
-global object check_sint32_replacement (object obj) {
+global maygc object check_sint32_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
@@ -1506,7 +1506,7 @@ global object check_sint32_replacement (object obj) {
  > obj: not an integer in the range of uint64
  < obj: an integer in the range of uint64
  can trigger GC */
-global object check_uint64_replacement (object obj) {
+global maygc object check_uint64_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
@@ -1523,7 +1523,7 @@ global object check_uint64_replacement (object obj) {
  > obj: not an integer in the range of sint64
  < obj: an integer in the range of sint64
  can trigger GC */
-global object check_sint64_replacement (object obj) {
+global maygc object check_sint64_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
@@ -1540,7 +1540,7 @@ global object check_sint64_replacement (object obj) {
  > obj: not an integer in the range of uint
  < obj: an integer in the range of uint
  can trigger GC */
-global object check_uint_replacement (object obj) {
+global maygc object check_uint_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
@@ -1561,7 +1561,7 @@ global object check_uint_replacement (object obj) {
  > obj: not an integer in the range of sint
  < obj: an integer in the range of sint
  can trigger GC */
-global object check_sint_replacement (object obj) {
+global maygc object check_sint_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
@@ -1582,7 +1582,7 @@ global object check_sint_replacement (object obj) {
  > obj: not an integer in the range of ulong
  < obj: an integer in the range of ulong
  can trigger GC */
-global object check_ulong_replacement (object obj) {
+global maygc object check_ulong_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
@@ -1603,7 +1603,7 @@ global object check_ulong_replacement (object obj) {
  > obj: not an integer in the range of slong
  < obj: an integer in the range of slong
  can trigger GC */
-global object check_slong_replacement (object obj) {
+global maygc object check_slong_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
@@ -1624,7 +1624,7 @@ global object check_slong_replacement (object obj) {
  > obj: not a single-float
  < obj: a single-float
  can trigger GC */
-global object check_ffloat_replacement (object obj) {
+global maygc object check_ffloat_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
@@ -1641,7 +1641,7 @@ global object check_ffloat_replacement (object obj) {
  > obj: not a double-float
  < obj: a double-float
  can trigger GC */
-global object check_dfloat_replacement (object obj) {
+global maygc object check_dfloat_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
