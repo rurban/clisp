@@ -1,3 +1,10 @@
+2002-05-26  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in (FILES): List the additional .a files in the same order
+	as in LIBS, not in the reverse order.
+	(LIBS): Add libreadline.a in front of libcharset.a. This avoids a link
+	error for 'locale_charset' when compiling without -DUNICODE.
+
 2002-05-26  Sam Steingold  <sds@gnu.org>
 
 	timeout on connecting, see <http://cr.yp.to/docs/connect.html>
