@@ -604,7 +604,7 @@
 (defun compute-effective-method (gf combination methods)
   (compute-effective-method-<generic-function> gf combination methods))
 
-(defun compute-effective-method-as-function-form (gf combination methods)
+(defun compute-effective-method-as-function-form (gf combination methods *method-combination-arguments*)
   ;; Call the customizable compute-effective-method from the MOP. (No need to
   ;; verify that it produces exactly two values: Many user-defined methods
   ;; probably return just the first value, letting the second value default

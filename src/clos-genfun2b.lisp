@@ -39,9 +39,6 @@
                                  (t #'compute-applicable-methods))
                            gf args)
                   'compute-applicable-methods)))
-          (when (null methods)
-            (return-from compute-applicable-methods-effective-method
-              (no-method-caller 'no-applicable-method gf)))
           ; Some checks, to guarantee that user-defined methods on
           ; compute-applicable-methods or compute-applicable-methods-using-classes
           ; don't break our CLOS.
@@ -55,8 +52,7 @@
           ;; Combine the methods to an effective method:
           (or (cdr (assoc methods (std-gf-effective-method-cache gf) :test #'equal))
               (let ((effective-method
-                      (let ((*method-combination-arguments* args))
-                        (compute-effective-method-as-function gf (safe-gf-method-combination gf) methods))))
+                      (compute-effective-method-as-function gf methods args)))
                 (push (cons methods effective-method) (std-gf-effective-method-cache gf))
                 effective-method))))
       (error (TEXT "~S: ~S has ~S required argument~:P, but only ~S arguments were passed to ~S: ~S")
@@ -83,22 +79,21 @@
           (compute-applicable-methods-for-set gf req-arg-specs)
         (unless certain
           (return-from compute-applicable-methods-effective-method-for-set gf))
-        (when (null methods)
-          (return-from compute-applicable-methods-effective-method-for-set
-            (no-method-caller 'no-applicable-method gf)))
         ;; Combine the methods to an effective method:
         (or (cdr (assoc methods (std-gf-effective-method-cache gf) :test #'equal))
             (let ((effective-method
-                    (let ((*method-combination-arguments* tentative-args))
-                      (compute-effective-method-as-function gf (safe-gf-method-combination gf) methods))))
+                    (compute-effective-method-as-function gf methods tentative-args)))
               (push (cons methods effective-method) (std-gf-effective-method-cache gf))
               effective-method)))
       (error (TEXT "~S: ~S has ~S required argument~:P")
              'compute-applicable-methods-effective-method-for-set gf req-num))))
 
-(defun compute-effective-method-as-function (gf combination methods)
+(defun compute-effective-method-as-function (gf methods args)
+  (when (null methods)
+    (return-from compute-effective-method-as-function
+      (no-method-caller 'no-applicable-method gf)))
   ;; Apply method combination:
-  (let ((ef-fun (compute-effective-method-as-function-form gf combination methods)))
+  (let ((ef-fun (compute-effective-method-as-function-form gf (safe-gf-method-combination gf) methods args)))
     ;; Evaluate or compile the resulting form:
     (if (constantp ef-fun) ; constant or self-evaluating form?
       ;; No need to invoke the compiler for a constant form.
