@@ -99,7 +99,7 @@ Installation on DOS:
    Don't forget the documentation:
 
          copy ..\DOS\CLISP.* D:\LIB\LISP
-         copy ..\DOS\IMPNOTES.TXT D:\LIB\LISP
+         copy ..\DOS\IMPNOTES.HTML D:\LIB\LISP
 
    You can now remove directory \CLISP and all its contents.
 

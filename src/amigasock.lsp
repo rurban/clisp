@@ -1,6 +1,6 @@
 ;;; Sockets on Amiga
 ;;; This is not a complete implementation of the socket interface
-;;; documented in impnotes.txt, but sufficient for a simple HTTP server.
+;;; documented in impnotes.html, but sufficient for a simple HTTP server.
 
 (in-package "LISP")
 (export '(socket-server socket-server-close socket-server-port

@@ -292,10 +292,10 @@ dos--distrib : force
 	# cp -p $(DOSDIR)/*.fas $(TEMPDIR)
 	mkdir $(TEMPDIR)/locale
 	for lang in en de fr es; do mkdir $(TEMPDIR)/locale/$$lang; mkdir $(TEMPDIR)/locale/$$lang/LC_MESSAGES; cp -p $(DOSDIR)/locale/$$lang/LC_MESSAGES/clisp.mo $(TEMPDIR)/locale/$$lang/LC_MESSAGES/clisp.mo; done
-	cp -p $(DOSDIR)/README $(DOSDIR)/README.de $(DOSDIR)/README.en $(DOSDIR)/README.es $(DOSDIR)/clisp.1 $(DOSDIR)/clisp.html $(DOSDIR)/impnotes.txt $(DOSDIR)/impnotes.html $(DOSDIR)/clisp.gif $(DOSDIR)/clreadline.3 $(DOSDIR)/clreadline.html $(TEMPDIR)
+	cp -p $(DOSDIR)/README $(DOSDIR)/README.de $(DOSDIR)/README.en $(DOSDIR)/README.es $(DOSDIR)/clisp.1 $(DOSDIR)/clisp.html $(DOSDIR)/impnotes.html $(DOSDIR)/clisp.gif $(DOSDIR)/clreadline.3 $(DOSDIR)/clreadline.html $(TEMPDIR)
 	from-ibmpc $(TEMPDIR)/clisp.1 dos/clisp.1
 	from-ibmpc $(TEMPDIR)/clisp.html dos/clisp.html
-	from-ibmpc $(TEMPDIR)/impnotes.txt dos/impnotes.txt
+	from-ibmpc $(TEMPDIR)/impnotes.html dos/impnotes.html
 	from-ibmpc $(TEMPDIR)/clreadline.3 dos/clreadline.3
 	from-ibmpc $(TEMPDIR)/clreadline.html dos/clreadline.html
 	cd dos ; groff -Tascii -mandoc clisp.1 > clisp.man
@@ -333,10 +333,10 @@ os2--distrib : force
 	# cp -p $(DOSDIR)/*.fas $(TEMPDIR)
 	mkdir $(TEMPDIR)/locale
 	for lang in en de fr es; do mkdir $(TEMPDIR)/locale/$$lang; mkdir $(TEMPDIR)/locale/$$lang/LC_MESSAGES; cp -p $(DOSDIR)/locale/$$lang/LC_MESSAGES/clisp.mo $(TEMPDIR)/locale/$$lang/LC_MESSAGES/clisp.mo; done
-	cp -p $(DOSDIR)/README $(DOSDIR)/README.de $(DOSDIR)/README.en $(DOSDIR)/README.es $(DOSDIR)/clisp.1 $(DOSDIR)/clisp.html $(DOSDIR)/impnotes.txt $(DOSDIR)/impnotes.html $(DOSDIR)/clisp.gif $(DOSDIR)/clreadline.3 $(DOSDIR)/clreadline.html $(TEMPDIR)
+	cp -p $(DOSDIR)/README $(DOSDIR)/README.de $(DOSDIR)/README.en $(DOSDIR)/README.es $(DOSDIR)/clisp.1 $(DOSDIR)/clisp.html $(DOSDIR)/impnotes.html $(DOSDIR)/clisp.gif $(DOSDIR)/clreadline.3 $(DOSDIR)/clreadline.html $(TEMPDIR)
 	from-ibmpc $(TEMPDIR)/clisp.1 os2/clisp.1
 	from-ibmpc $(TEMPDIR)/clisp.html os2/clisp.html
-	from-ibmpc $(TEMPDIR)/impnotes.txt os2/impnotes.txt
+	from-ibmpc $(TEMPDIR)/impnotes.html os2/impnotes.html
 	from-ibmpc $(TEMPDIR)/clreadline.3 os2/clreadline.3
 	from-ibmpc $(TEMPDIR)/clreadline.html os2/clreadline.html
 	cd os2 ; groff -Tascii -mandoc clisp.1 > clisp.man

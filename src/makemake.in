@@ -1,5 +1,6 @@
 # Konstruktion des Makefiles fürs Compilieren von CLISP
 # Bruno Haible 2.9.1991, 14.7.1992, 13.9.1992, 12.10.1992, 27.11.1992
+# $Id$
 
 # Simple usage:
 #        ./makemake [--with-PACKAGE] [debug] > Makefile
@@ -20,6 +21,8 @@ options:
                                suse - SuSE-Linux conventions
                                redhat - RedHat
                                debian - Debian, Slackware.
+       --hyperspec=URL         the path to the CLHS (the default is
+                   http://www.harlequin.com/education/books/HyperSpec).
     The following options add support for specific separate packages. See the
     main INSTALL file for how to get them.
        --with-readline         the good old (gdb-4.17 based) readline library
@@ -149,6 +152,7 @@ srcdir=''
 prefix=''
 exec_prefix=''
 fsstnd=gnu_ext # supported styles: gnu, gnu_ext, suse, redhat, debian
+hyperspec=http://www.harlequin.com/education/books/HyperSpec
 MODULES=''
 CP='cp -p'
 LN_S='ln -s'
@@ -216,6 +220,10 @@ while test -z "$endofargs"; do
       ;;
     --fsstnd=*)
       fsstnd=`echol "$1" | sed 's/-*fsstnd=//'`
+      shift
+      ;;
+    --hyperspec=*)
+      hyperspec=`echol "$1" | sed 's/-*hyperspec=//'`
       shift
       ;;
     *) endofargs=1 ;;
@@ -1414,7 +1422,7 @@ LPARTS=$LPARTS' edit macros3 foreign1 defs3 spanish config'
 
 DOC='LISP-tutorial CLOS-guide cltl2 editors'
 
-TXT_FILES='README README.de README.en README.es clisp.1 clisp.html impnotes.txt'
+TXT_FILES='README README.de README.en README.es clisp.1 clisp.html'
 if [ $CROSS = false -a $HOS = unix ] ; then
   TXT_FILES=$TXT_FILES' clisp.c distmakefile'
 fi
@@ -2825,7 +2833,10 @@ else
   manualx_readline=''
 fi
 echol "READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.en README.es"`if [ $TOS = unix ] ; then echol ' MAGIC.add' ; fi`
-echol "MANUALS = clisp.1 clisp.html impnotes.txt \$(TXTFILES) impnotes.html clisp.gif${manual_readline}"
+echol "MANUALS = clisp.1 clisp.html \$(TXTFILES) impnotes.html clisp.gif${manual_readline}"
+echol
+echol "impnotes.html: ${SRCDIR}_impnotes.html"
+echotab "sed -e 's,<HS>,${hyperspec},' ${SRCDIR}_impnotes.html > impnotes.html"
 echol
 echol "manual : \$(READMES) \$(MANUALS)"
 echodummyrule manual
@@ -2840,7 +2851,7 @@ for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY ; do
   echol
 done
 
-for f in NEWS impnotes.html clisp.gif ; do
+for f in NEWS lisp.gif ; do
   if [ -n "${SRCDIR}" ] ; then
     echol "${f} : ${SRCDIR}${f}"
     echotab "-\$(LN) ${SRCDIR}${f} ${f}"
@@ -3189,7 +3200,7 @@ if test -z "$BINARY_DISTRIB"; then
     echotab "for f in \`find locale -type f -print\`; do ${LN} \$\$f \$(TOPDIR)/\$\$f; done"
   fi
   echotab "mkdir \$(TOPDIR)/doc"
-  echotab "${LN} clisp.1 clisp.man clisp.html impnotes.txt \$(TXTFILES) impnotes.html clisp.gif${manual_readline}${manualx_readline} \$(TOPDIR)/doc"
+  echotab "${LN} clisp.1 clisp.man clisp.html \$(TXTFILES) impnotes.html clisp.gif${manual_readline}${manualx_readline} \$(TOPDIR)/doc"
   echotab "mkdir \$(TOPDIR)/emacs"
   echotab "${LN} ${SRCTOPDIR}emacs/*.el \$(TOPDIR)/emacs"
   echotab "mkdir \$(TOPDIR)/src"
@@ -3226,7 +3237,7 @@ else
     echotab "for f in \`find locale -type f -print\`; do ${LN} \$\$f \$(TOPDIR)/\$\$f; done"
   fi
   echotab "mkdir \$(TOPDIR)/doc"
-  echotab "${LN} clisp.1 clisp.man clisp.html impnotes.txt \$(TXTFILES) impnotes.html clisp.gif${manual_readline}${manualx_readline} \$(TOPDIR)/doc"
+  echotab "${LN} clisp.1 clisp.man clisp.html \$(TXTFILES) impnotes.html clisp.gif${manual_readline}${manualx_readline} \$(TOPDIR)/doc"
   echotab "mkdir \$(TOPDIR)/emacs"
   echotab "${LN} ${SRCTOPDIR}emacs/*.el \$(TOPDIR)/emacs"
   echotab "mkdir \$(TOPDIR)/src"
@@ -3258,7 +3269,7 @@ if [ $HSYS = acorn ] ; then
   echotab "\$(CP) html.impnotes ^.!Clisp.html.impnotes"
   echotab "settype ^.!Clisp.html.clisp FAF"
   echotab "-cdir ^.!Clisp.txt"
-  for f in impnotes $DOC; do
+  for f in $DOC; do
     f=`echol $f | cut -c 1-10`
     echotab "\$(CP) txt.$f ^.!Clisp.txt.$f"
   done
@@ -3287,7 +3298,7 @@ if [ $HOS = win32 ] ; then
   echotab "  cp -p \$\$f \$\$distdir/\$\$f ; \\"
   echotab "done ; \\"
   echotab "mkdir \$\$distdir/doc ; \\"
-  echotab "for f in clisp.1 clisp.man clisp.html impnotes.txt \$(TXTFILES) impnotes.html clisp.gif ; do \\"
+  echotab "for f in clisp.1 clisp.man clisp.html \$(TXTFILES) impnotes.html clisp.gif ; do \\"
   echotab "  if test -f \$\$f ; then cp -p \$\$f \$\$distdir/doc/\$\$f ; else cp -p \`echo \$\$f | tr '[A-Z]' '[a-z]'\` \$\$distdir/doc/\$\$f ; fi ; \\"
   echotab "done ; \\"
   echotab "mkdir \$\$distdir/emacs ; \\"
@@ -3316,7 +3327,7 @@ clean1 : clean0
 	-rmdir ${TESTSDIR}
 	-rmdir w${TESTDIR}
 	-rmdir w${TESTSDIR}
-	-\$(RM) README README.de README.en README.es clisp.1 clisp.man clisp.html impnotes.txt clisp.c distmakefile \$(TXTFILES) clreadline.3 clreadline.man clreadline.html clreadline.dvi readline.dvi
+	-\$(RM) README README.de README.en README.es clisp.1 clisp.man clisp.html impnotes.html clisp.c distmakefile \$(TXTFILES) clreadline.3 clreadline.man clreadline.html clreadline.dvi readline.dvi
 
 # clean2 removes everything that becomes obsolete once lisp${LEXE} is recompiled
 # without changing the bytecode format.

@@ -98,7 +98,7 @@ Installation on OS/2:
    Don't forget the documentation:
 
          copy ..\OS2\CLISP.* D:\LIB\LISP
-         copy ..\OS2\IMPNOTES.TXT D:\LIB\LISP
+         copy ..\OS2\IMPNOTES.HTML D:\LIB\LISP
 
    You can now remove directory \CLISP and all its contents.
 

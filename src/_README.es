@@ -58,7 +58,7 @@ Consta de los siguientes ficheros:
    doc/clisp.1            manual en formato man de Unix
    doc/clisp.man          manual
    doc/clisp.html         manual en format HTML
-   doc/impnotes.txt       notas de la implementación
+   doc/impnotes.html      notas de la implementación
    doc/cltl2.txt          notas a propósito de la relación entre CLISP y CLtL2
 #ifdef GNU_READLINE
    doc/clreadline.3       manual de edición de línea en formato man de Unix
@@ -125,7 +125,6 @@ o
 #ifdef MSDOS
       clisp.dvi          manual en formato DVI
 #endif
-      impnotes.txt       notas de la implementación
       impnotes.html      notas de la implementación en format HTML
       cltl2.txt          notas a propósito de la relación entre CLISP y CLtL2
 #ifdef GNU_READLINE

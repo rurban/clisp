@@ -126,6 +126,7 @@ d.spvwtabs \
 d.spvwtabo \
 d.eval \
 d.control \
+d.encoding \
 d.pathname \
 d.stream \
 d.io \
@@ -230,6 +231,7 @@ c.spvwtabs \
 c.spvwtabo \
 c.eval \
 c.control \
+c.encoding \
 c.pathname \
 c.stream \
 c.io \
@@ -334,6 +336,7 @@ o.spvwtabs \
 o.spvwtabo \
 o.eval \
 o.control \
+o.encoding \
 o.pathname \
 o.stream \
 o.io \
@@ -370,24 +373,31 @@ lsp.floatpri \
 lsp.type \
 lsp.defstruc \
 lsp.format \
-lsp.user1 \
-lsp.user2 \
+lsp.savemem \
 lsp.trace \
-lsp.macros3 \
-lsp.config \
 lsp.compiler \
 lsp.disassem \
 lsp.defs2 \
 lsp.loop \
 lsp.clos \
 lsp.conditio \
-lsp.defs3 \
 lsp.gstream \
 lsp.xcharin \
-lsp.foreign1 \
+lsp.keyboard \
 lsp.screen \
-lsp.rexx1 \
-lsp.spanish
+lsp.runprog \
+lsp.query \
+lsp.reploop \
+lsp.dribble \
+lsp.complete \
+lsp.describe \
+lsp.room \
+lsp.edit \
+lsp.macros3 \
+lsp.foreign1 \
+lsp.defs3 \
+lsp.spanish \
+lsp.config
 
 FASFILES = \
 fas.init \
@@ -403,24 +413,31 @@ fas.floatpri \
 fas.type \
 fas.defstruc \
 fas.format \
-fas.user1 \
-fas.user2 \
+fas.savemem \
 fas.trace \
-fas.macros3 \
-fas.config \
 fas.compiler \
 fas.disassem \
 fas.defs2 \
 fas.loop \
 fas.clos \
 fas.conditio \
-fas.defs3 \
 fas.gstream \
 fas.xcharin \
-fas.foreign1 \
+fas.keyboard \
 fas.screen \
-fas.rexx1 \
-fas.spanish
+fas.runprog \
+fas.query \
+fas.reploop \
+fas.dribble \
+fas.complete \
+fas.describe \
+fas.room \
+fas.edit \
+fas.macros3 \
+fas.foreign1 \
+fas.defs3 \
+fas.spanish \
+fas.config
 
 TXTFILES = \
 txt.LISP-tutorial \
@@ -442,24 +459,31 @@ stage.lsp.floatpri \
 stage.lsp.type \
 stage.lsp.defstruc \
 stage.lsp.format \
-stage.lsp.user1 \
-stage.lsp.user2 \
+stage.lsp.savemem \
 stage.lsp.trace \
-stage.lsp.macros3 \
-stage.lsp.config \
 stage.lsp.compiler \
 stage.lsp.disassem \
 stage.lsp.defs2 \
 stage.lsp.loop \
 stage.lsp.clos \
 stage.lsp.conditio \
-stage.lsp.defs3 \
 stage.lsp.gstream \
 stage.lsp.xcharin \
-stage.lsp.foreign1 \
+stage.lsp.keyboard \
 stage.lsp.screen \
-stage.lsp.rexx1 \
-stage.lsp.spanish
+stage.lsp.runprog \
+stage.lsp.query \
+stage.lsp.reploop \
+stage.lsp.dribble \
+stage.lsp.complete \
+stage.lsp.describe \
+stage.lsp.room \
+stage.lsp.edit \
+stage.lsp.macros3 \
+stage.lsp.foreign1 \
+stage.lsp.defs3 \
+stage.lsp.spanish \
+stage.lsp.config
 
 TESTFASFILES = \
 stage.fas.init \
@@ -475,24 +499,31 @@ stage.fas.floatpri \
 stage.fas.type \
 stage.fas.defstruc \
 stage.fas.format \
-stage.fas.user1 \
-stage.fas.user2 \
+stage.fas.savemem \
 stage.fas.trace \
-stage.fas.macros3 \
-stage.fas.config \
 stage.fas.compiler \
 stage.fas.disassem \
 stage.fas.defs2 \
 stage.fas.loop \
 stage.fas.clos \
 stage.fas.conditio \
-stage.fas.defs3 \
 stage.fas.gstream \
 stage.fas.xcharin \
-stage.fas.foreign1 \
+stage.fas.keyboard \
 stage.fas.screen \
-stage.fas.rexx1 \
-stage.fas.spanish
+stage.fas.runprog \
+stage.fas.query \
+stage.fas.reploop \
+stage.fas.dribble \
+stage.fas.complete \
+stage.fas.describe \
+stage.fas.room \
+stage.fas.edit \
+stage.fas.macros3 \
+stage.fas.foreign1 \
+stage.fas.defs3 \
+stage.fas.spanish \
+stage.fas.config
 
 
 # The Acorn Make Utility has problems with halfcomp.mem.
@@ -565,6 +596,11 @@ c.eval : d.eval comment5 ansidecl
 c.control : d.control comment5 ansidecl
 	$(COMMENT5) control.d TMPPIPE1
 	$(ANSIDECL) < TMPPIPE1 > control.c
+	$(RM) TMPPIPE1
+
+c.encoding : d.encoding comment5 ansidecl
+	$(COMMENT5) encoding.d TMPPIPE1
+	$(ANSIDECL) < TMPPIPE1 > encoding.c
 	$(RM) TMPPIPE1
 
 c.pathname : d.pathname comment5 ansidecl
@@ -1050,14 +1086,14 @@ s.ariarm : c.ariarm
 	$(SED) -f ^.acorn.sed.asmfilter < TMPPIPE1 > s.ariarm
 	$(RM) TMPPIPE1
 
-allo : allc o.spvw o.spvwtabf o.spvwtabs o.spvwtabo o.eval o.control o.pathname o.stream o.io o.array o.hashtabl o.list o.package o.record o.sequence o.charstrg o.debug o.error o.misc o.time o.predtype o.symbol o.lisparit o.unixaux o.acornaux o.acornsig
+allo : allc o.spvw o.spvwtabf o.spvwtabs o.spvwtabo o.eval o.control o.encoding o.pathname o.stream o.io o.array o.hashtabl o.list o.package o.record o.sequence o.charstrg o.debug o.error o.misc o.time o.predtype o.symbol o.lisparit o.unixaux o.acornaux o.acornsig
 	$(TOUCH) allo
 
-alls : allc s.spvw s.spvwtabf s.spvwtabs s.spvwtabo s.eval s.control s.pathname s.stream s.io s.array s.hashtabl s.list s.package s.record s.sequence s.charstrg s.debug s.error s.misc s.time s.predtype s.symbol s.lisparit s.unixaux s.acornaux s.acornsig
+alls : allc s.spvw s.spvwtabf s.spvwtabs s.spvwtabo s.eval s.control s.encoding s.pathname s.stream s.io s.array s.hashtabl s.list s.package s.record s.sequence s.charstrg s.debug s.error s.misc s.time s.predtype s.symbol s.lisparit s.unixaux s.acornaux s.acornsig
 	$(TOUCH) alls
 
 # Normally not used (just for debugging).
-alli : allc i.spvw i.spvwtabf i.spvwtabs i.spvwtabo i.eval i.control i.pathname i.stream i.io i.array i.hashtabl i.list i.package i.record i.sequence i.charstrg i.debug i.error i.misc i.time i.predtype i.symbol i.lisparit i.unixaux i.acornaux i.acornsig
+alli : allc i.spvw i.spvwtabf i.spvwtabs i.spvwtabo i.eval i.control i.encoding i.pathname i.stream i.io i.array i.hashtabl i.list i.package i.record i.sequence i.charstrg i.debug i.error i.misc i.time i.predtype i.symbol i.lisparit i.unixaux i.acornaux i.acornsig
 	$(TOUCH) alli
 
 i.spvw : c.spvw c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.constpack c.avl c.spvw_module c.spvw_debug c.spvw_alloca c.spvw_mmap c.spvw_multimap c.spvw_singlemap c.spvw_page c.spvw_heap c.spvw_global c.spvw_gcstat c.spvw_space c.spvw_mark c.spvw_objsize c.spvw_update c.spvw_fault c.spvw_sigsegv c.spvw_sigcld c.spvw_sigint c.spvw_sigwinch c.spvw_garcol c.spvw_genera1 c.spvw_genera2 c.spvw_genera3 c.spvw_allocate c.spvw_typealloc c.spvw_circ c.spvw_walk c.spvw_language c.spvw_memfile c.sort c.subrkw c.arilev0 c.aridecl h.version
@@ -1113,6 +1149,15 @@ s.control : c.control c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constob
 
 o.control : c.control c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
 	$(CC) $(CFLAGS) -c c.control
+
+i.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+	$(CPP) $(CFLAGS) c.encoding > i.encoding
+
+s.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+	$(CC) $(CFLAGS) -S c.encoding
+
+o.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+	$(CC) $(CFLAGS) -c c.encoding
 
 i.pathname : c.pathname c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
 	$(CPP) $(CFLAGS) c.pathname > i.pathname
@@ -1378,20 +1423,11 @@ fas.defstruc : lsp.defstruc lisp mem.interpre
 fas.format : lsp.format lisp mem.interpre
 	/@.lisp -m 1000KW -M mem.interpre -norc -q -c format.lsp
 
-fas.user1 : lsp.user1 lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -norc -q -c user1.lsp
-
-fas.user2 : lsp.user2 lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -norc -q -c user2.lsp
+fas.savemem : lsp.savemem lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -norc -q -c savemem.lsp
 
 fas.trace : lsp.trace lisp mem.interpre
 	/@.lisp -m 1000KW -M mem.interpre -norc -q -c trace.lsp
-
-fas.macros3 : lsp.macros3 lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -norc -q -c macros3.lsp
-
-fas.config : lsp.config lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -norc -q -c config.lsp
 
 fas.compiler : lsp.compiler lisp mem.interpre
 	/@.lisp -m 1000KW -M mem.interpre -norc -q -c compiler.lsp
@@ -1411,26 +1447,56 @@ fas.clos : lsp.clos lisp mem.interpre
 fas.conditio : lsp.conditio lisp mem.interpre
 	/@.lisp -m 1000KW -M mem.interpre -norc -q -c conditio.lsp
 
-fas.defs3 : lsp.defs3 lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -norc -q -c defs3.lsp
-
 fas.gstream : lsp.gstream lisp mem.interpre
 	/@.lisp -m 1000KW -M mem.interpre -norc -q -c gstream.lsp
 
 fas.xcharin : lsp.xcharin lisp mem.interpre
 	/@.lisp -m 1000KW -M mem.interpre -norc -q -c xcharin.lsp
 
-fas.foreign1 : lsp.foreign1 lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -norc -q -c foreign1.lsp
+fas.keyboard : lsp.keyboard lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -norc -q -c keyboard.lsp
 
 fas.screen : lsp.screen lisp mem.interpre
 	/@.lisp -m 1000KW -M mem.interpre -norc -q -c screen.lsp
 
-fas.rexx1 : lsp.rexx1 lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -norc -q -c rexx1.lsp
+fas.runprog : lsp.runprog lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -norc -q -c runprog.lsp
+
+fas.query : lsp.query lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -norc -q -c query.lsp
+
+fas.reploop : lsp.reploop lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -norc -q -c reploop.lsp
+
+fas.dribble : lsp.dribble lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -norc -q -c dribble.lsp
+
+fas.complete : lsp.complete lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -norc -q -c complete.lsp
+
+fas.describe : lsp.describe lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -norc -q -c describe.lsp
+
+fas.room : lsp.room lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -norc -q -c room.lsp
+
+fas.edit : lsp.edit lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -norc -q -c edit.lsp
+
+fas.macros3 : lsp.macros3 lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -norc -q -c macros3.lsp
+
+fas.foreign1 : lsp.foreign1 lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -norc -q -c foreign1.lsp
+
+fas.defs3 : lsp.defs3 lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -norc -q -c defs3.lsp
 
 fas.spanish : lsp.spanish lisp mem.interpre
 	/@.lisp -m 1000KW -M mem.interpre -norc -q -c spanish.lsp
+
+fas.config : lsp.config lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -norc -q -c config.lsp
 
 mem.halfcomp : lisp $(LSPFILES) fas.compiler
 	-$(RM) mem.interpre
@@ -1496,20 +1562,11 @@ stage.lsp.defstruc : lsp.defstruc
 stage.lsp.format : lsp.format
 	$(LN) lsp.format stage
 
-stage.lsp.user1 : lsp.user1
-	$(LN) lsp.user1 stage
-
-stage.lsp.user2 : lsp.user2
-	$(LN) lsp.user2 stage
+stage.lsp.savemem : lsp.savemem
+	$(LN) lsp.savemem stage
 
 stage.lsp.trace : lsp.trace
 	$(LN) lsp.trace stage
-
-stage.lsp.macros3 : lsp.macros3
-	$(LN) lsp.macros3 stage
-
-stage.lsp.config : lsp.config
-	$(LN) lsp.config stage
 
 stage.lsp.compiler : lsp.compiler
 	$(LN) lsp.compiler stage
@@ -1529,26 +1586,56 @@ stage.lsp.clos : lsp.clos
 stage.lsp.conditio : lsp.conditio
 	$(LN) lsp.conditio stage
 
-stage.lsp.defs3 : lsp.defs3
-	$(LN) lsp.defs3 stage
-
 stage.lsp.gstream : lsp.gstream
 	$(LN) lsp.gstream stage
 
 stage.lsp.xcharin : lsp.xcharin
 	$(LN) lsp.xcharin stage
 
-stage.lsp.foreign1 : lsp.foreign1
-	$(LN) lsp.foreign1 stage
+stage.lsp.keyboard : lsp.keyboard
+	$(LN) lsp.keyboard stage
 
 stage.lsp.screen : lsp.screen
 	$(LN) lsp.screen stage
 
-stage.lsp.rexx1 : lsp.rexx1
-	$(LN) lsp.rexx1 stage
+stage.lsp.runprog : lsp.runprog
+	$(LN) lsp.runprog stage
+
+stage.lsp.query : lsp.query
+	$(LN) lsp.query stage
+
+stage.lsp.reploop : lsp.reploop
+	$(LN) lsp.reploop stage
+
+stage.lsp.dribble : lsp.dribble
+	$(LN) lsp.dribble stage
+
+stage.lsp.complete : lsp.complete
+	$(LN) lsp.complete stage
+
+stage.lsp.describe : lsp.describe
+	$(LN) lsp.describe stage
+
+stage.lsp.room : lsp.room
+	$(LN) lsp.room stage
+
+stage.lsp.edit : lsp.edit
+	$(LN) lsp.edit stage
+
+stage.lsp.macros3 : lsp.macros3
+	$(LN) lsp.macros3 stage
+
+stage.lsp.foreign1 : lsp.foreign1
+	$(LN) lsp.foreign1 stage
+
+stage.lsp.defs3 : lsp.defs3
+	$(LN) lsp.defs3 stage
 
 stage.lsp.spanish : lsp.spanish
 	$(LN) lsp.spanish stage
+
+stage.lsp.config : lsp.config
+	$(LN) lsp.config stage
 
 stage.fas.init : stage.lsp.init lisp mem.lispinit
 	/@.lisp -M mem.lispinit -norc -q -c stage.init.lsp
@@ -1589,20 +1676,11 @@ stage.fas.defstruc : stage.lsp.defstruc lisp mem.lispinit
 stage.fas.format : stage.lsp.format lisp mem.lispinit
 	/@.lisp -M mem.lispinit -norc -q -c stage.format.lsp
 
-stage.fas.user1 : stage.lsp.user1 lisp mem.lispinit
-	/@.lisp -M mem.lispinit -norc -q -c stage.user1.lsp
-
-stage.fas.user2 : stage.lsp.user2 lisp mem.lispinit
-	/@.lisp -M mem.lispinit -norc -q -c stage.user2.lsp
+stage.fas.savemem : stage.lsp.savemem lisp mem.lispinit
+	/@.lisp -M mem.lispinit -norc -q -c stage.savemem.lsp
 
 stage.fas.trace : stage.lsp.trace lisp mem.lispinit
 	/@.lisp -M mem.lispinit -norc -q -c stage.trace.lsp
-
-stage.fas.macros3 : stage.lsp.macros3 lisp mem.lispinit
-	/@.lisp -M mem.lispinit -norc -q -c stage.macros3.lsp
-
-stage.fas.config : stage.lsp.config lisp mem.lispinit
-	/@.lisp -M mem.lispinit -norc -q -c stage.config.lsp
 
 stage.fas.compiler : stage.lsp.compiler lisp mem.lispinit
 	/@.lisp -M mem.lispinit -norc -q -c stage.compiler.lsp
@@ -1622,26 +1700,56 @@ stage.fas.clos : stage.lsp.clos lisp mem.lispinit
 stage.fas.conditio : stage.lsp.conditio lisp mem.lispinit
 	/@.lisp -M mem.lispinit -norc -q -c stage.conditio.lsp
 
-stage.fas.defs3 : stage.lsp.defs3 lisp mem.lispinit
-	/@.lisp -M mem.lispinit -norc -q -c stage.defs3.lsp
-
 stage.fas.gstream : stage.lsp.gstream lisp mem.lispinit
 	/@.lisp -M mem.lispinit -norc -q -c stage.gstream.lsp
 
 stage.fas.xcharin : stage.lsp.xcharin lisp mem.lispinit
 	/@.lisp -M mem.lispinit -norc -q -c stage.xcharin.lsp
 
-stage.fas.foreign1 : stage.lsp.foreign1 lisp mem.lispinit
-	/@.lisp -M mem.lispinit -norc -q -c stage.foreign1.lsp
+stage.fas.keyboard : stage.lsp.keyboard lisp mem.lispinit
+	/@.lisp -M mem.lispinit -norc -q -c stage.keyboard.lsp
 
 stage.fas.screen : stage.lsp.screen lisp mem.lispinit
 	/@.lisp -M mem.lispinit -norc -q -c stage.screen.lsp
 
-stage.fas.rexx1 : stage.lsp.rexx1 lisp mem.lispinit
-	/@.lisp -M mem.lispinit -norc -q -c stage.rexx1.lsp
+stage.fas.runprog : stage.lsp.runprog lisp mem.lispinit
+	/@.lisp -M mem.lispinit -norc -q -c stage.runprog.lsp
+
+stage.fas.query : stage.lsp.query lisp mem.lispinit
+	/@.lisp -M mem.lispinit -norc -q -c stage.query.lsp
+
+stage.fas.reploop : stage.lsp.reploop lisp mem.lispinit
+	/@.lisp -M mem.lispinit -norc -q -c stage.reploop.lsp
+
+stage.fas.dribble : stage.lsp.dribble lisp mem.lispinit
+	/@.lisp -M mem.lispinit -norc -q -c stage.dribble.lsp
+
+stage.fas.complete : stage.lsp.complete lisp mem.lispinit
+	/@.lisp -M mem.lispinit -norc -q -c stage.complete.lsp
+
+stage.fas.describe : stage.lsp.describe lisp mem.lispinit
+	/@.lisp -M mem.lispinit -norc -q -c stage.describe.lsp
+
+stage.fas.room : stage.lsp.room lisp mem.lispinit
+	/@.lisp -M mem.lispinit -norc -q -c stage.room.lsp
+
+stage.fas.edit : stage.lsp.edit lisp mem.lispinit
+	/@.lisp -M mem.lispinit -norc -q -c stage.edit.lsp
+
+stage.fas.macros3 : stage.lsp.macros3 lisp mem.lispinit
+	/@.lisp -M mem.lispinit -norc -q -c stage.macros3.lsp
+
+stage.fas.foreign1 : stage.lsp.foreign1 lisp mem.lispinit
+	/@.lisp -M mem.lispinit -norc -q -c stage.foreign1.lsp
+
+stage.fas.defs3 : stage.lsp.defs3 lisp mem.lispinit
+	/@.lisp -M mem.lispinit -norc -q -c stage.defs3.lsp
 
 stage.fas.spanish : stage.lsp.spanish lisp mem.lispinit
 	/@.lisp -M mem.lispinit -norc -q -c stage.spanish.lsp
+
+stage.fas.config : stage.lsp.config lisp mem.lispinit
+	/@.lisp -M mem.lispinit -norc -q -c stage.config.lsp
 
 mem.lispinit2 : lisp $(TESTFASFILES)
 	/@.lisp -norc -x "(cd \"stage.\") (load \"init.fas\") (cd \"^.\") (sys::%saveinitmem) (exit)"
@@ -1650,7 +1758,10 @@ mem.lispinit2 : lisp $(TESTFASFILES)
 
 
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README_de README_en README_es
-MANUALS = 1.clisp html.clisp txt.impnotes $(TXTFILES) html.impnotes clisp.gif
+MANUALS = 1.clisp html.clisp $(TXTFILES) html.impnotes clisp.gif
+
+impnotes.html: html._impnotes
+	sed -e 's,<HS>,http://www.harlequin.com/education/books/HyperSpec,' html._impnotes > html.impnotes
 
 manual : $(READMES) $(MANUALS)
 	$(TOUCH) manual
@@ -1714,13 +1825,6 @@ html.clisp : html._clisp c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.cons
 	$(RM) c.text
 	$(RM) text
 
-txt.impnotes : txt._impnotes c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn txt2c
-	$(TXT2C) < txt._impnotes > text.c
-	$(CC) $(CFLAGS) $(CLFLAGS) -O0 c.text -o text
-	/@.text > txt.impnotes
-	$(RM) c.text
-	$(RM) text
-
 man.clisp : 1.clisp
 	$(ROFF_MAN) 1.clisp > man.clisp
 
@@ -1763,7 +1867,6 @@ distrib : force all manualx
 	$(CP) html.impnotes ^.!Clisp.html.impnotes
 	settype ^.!Clisp.html.clisp FAF
 	-cdir ^.!Clisp.txt
-	$(CP) txt.impnotes ^.!Clisp.txt.impnotes
 	$(CP) txt.LISP-tutor ^.!Clisp.txt.LISP-tutor
 	$(CP) txt.CLOS-guide ^.!Clisp.txt.CLOS-guide
 	$(CP) txt.cltl2 ^.!Clisp.txt.cltl2
@@ -1789,7 +1892,7 @@ clean1 : clean0
 	-rmdir suite
 	-rmdir wstage
 	-rmdir wsuite
-	-$(RM) README README_de README_en README_es 1.clisp man.clisp html.clisp txt.impnotes c.clisp distmakefile $(TXTFILES) clreadline.3 man.clreadline html.clreadline dvi.clreadline dvi.readline
+	-$(RM) README README_de README_en README_es 1.clisp man.clisp html.clisp html.impnotes c.clisp distmakefile $(TXTFILES) clreadline.3 man.clreadline html.clreadline dvi.clreadline dvi.readline
 
 # clean2 removes everything that becomes obsolete once lisp is recompiled
 # without changing the bytecode format.

@@ -20,7 +20,7 @@ wide, signed or unsigned, pointers) and defines no new types or classes.
 Foreign functions are not first-class objects (you can define a lambda
 yourself), name spaces are separate.
 
-The AFFI does no tracking of resources. Use FINALIZE (see impnotes.txt).
+The AFFI does no tracking of resources. Use FINALIZE (see impnotes.html).
 
                           Overview
                           --------
