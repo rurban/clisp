@@ -255,11 +255,11 @@ executes a compiled version of form.</para>
  &the-env; (interpreted code only).
  This function will always return &t; for global special
  variables and &constant;s.
- Note that this function will not work in compiled code as you expect:
- when called with &nil; &env-r;, it will be called at &exec-time;
- and check for globally special variables,
- but when &env-r; is &t;, it will be called at &compile-time; and the
- value will be used as a constant in the code.</para></formalpara>
+ <warning><simpara>This function will not work in compiled code as you
+ might expect: when called with &nil; &env-r;, it will be called at
+ &exec-time; and check for globally special variables, but when &env-r;
+ is &t;, it will be called at &compile-time; and the value will be used
+ as a constant in the code.</simpara></warning></para></formalpara>
 
 </section>
 
@@ -274,7 +274,7 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
 <para>&eval-when; also accepts the situations <code>(NOT EVAL)</code>
  and <code>(NOT COMPILE)</code>.</para>
 
-<warning><para>Note that the situations <constant>EVAL</constant>,
+<warning><para>The situations <constant>EVAL</constant>,
  <constant>LOAD</constant> and <constant>COMPILE</constant> are
  deprecated by the spec, and they are &not-e; equivalent to the new
  standard situations <constant>:EXECUTE</constant>,
@@ -582,8 +582,8 @@ is the same as
 <para><code>(&let; ((x y)) (&eq; x x))</code> always
  returns &t;, regardless of &y-r;.</para>
 
-<para>Note that <code>(&eq; x x)</code> might not be
- &t; for a &foreign-variable; &x-r;.</para>
+<warning><para><code>(&eq; x x)</code> might not be
+ &t; for a &foreign-variable; &x-r;.</para></warning>
 
 </section>
 
@@ -2895,7 +2895,7 @@ checks whether the &hash-table-t; is weak.</para>
  <filename>"prep:/pub/gnu"</filename>)
  and therefore is disabled by default. To enable the &ansi-cl; behavior,
  you should set &parsename; to non-&nil;.
- xNote that this also disables treating &symbol-t;s as &path-des;s.</para>
+ Note that this also disables treating &symbol-t;s as &path-des;s.</para>
 </section>
 
 <section id="pathmerge"><title>Function &merge-pathnames;</title>

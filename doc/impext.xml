@@ -117,7 +117,7 @@ English, German, French, Spanish, Dutch and Russian.
 
 <section id="language"><title>The Language</title>
 
- <warning><para>Note that the facilities described in this section will
+<warning><para>The facilities described in this section will
   work only for the languages for which &clisp; itself is already
   localized.</para></warning>
 
@@ -1439,14 +1439,14 @@ In other words, each pair is:
  <listitem><simpara>Setting &defun-accept-spelalist; to &nil;</simpara></listitem>
 </orderedlist>
 
-<para>Note that if you run &clisp; with the &ansi-opt; switch or set
+<note><para>If you run &clisp; with the &ansi-opt; switch or set
  the &symbol-macro; &ansi; to &t; and then save &mem-image;,
  then all subsequent invocations of &clisp; with this image
  will be as if with &ansi-opt;
  (regardless whether you actually supply the &ansi-opt; switch).
  You can always set the &symbol-macro; &ansi; to &nil;, or invoke
  &clisp; with the &traditional-opt; switch, reversing the above
- settings, i.e.,</para>
+ settings, i.e.,</para></note>
 
 <orderedlist>
  <listitem><simpara>Setting &pathprint; to &nil;.</simpara></listitem>
@@ -1876,7 +1876,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
  </simpara></listitem></varlistentry>
 </variablelist></para></formalpara>
 
-<para>Note that in &link-sh; the &modset; directory
+<para>In &link-sh; the &modset; directory
  is referred to as <varname>$modulename/</varname>.</para>
 
 <variablelist>
@@ -1935,11 +1935,9 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
  <replaceable>module-dir</replaceable> loaded.  More than one module can
  be specified.  If &clisp; has been built with the configuration option
  <option>--with-dynamic-modules</option>, the loading will be performed
- through dynamic loading.  Otherwise - this is much slower - a temporary
- &linkset; will be created and deleted afterwards.  Note that dynamic
- loading does not work on all operating systems, and that
- <option>--with-dynamic-modules</option> precludes some efficiency
- optimizations which are enabled by default.</para>
+ through <link linkend="mod-dynload">dynamic loading</link>.
+ Otherwise - this is much slower - a temporary &linkset; will be created
+ and deleted afterwards.</para>
 
 </section>
 
@@ -2009,9 +2007,10 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <subtitle>Platform dependent: some &unix; platforms only, compiled &with;
  compile-time flag <option>--with-dynamic-modules</option>.</subtitle>
 
-<note><para>Note that dynamic loading does not work on all operating systems
-(&dlopen; is required), and that <option>--with-dynamic-modules</option>
-precludes some efficiency optimizations which are on by default.</para></note>
+<note><para>Dynamic loading does not work on all operating systems
+(&dlopen; is required)</para></note>
+<note><para><option>--with-dynamic-modules</option> precludes some
+efficiency optimizations which are on by default.</para></note>
 
 <para>Function <code>(&mod-dynload; &filename-r; ({&name-r;}+))</code>
  loads a shared object file or library containing a number of named
@@ -3006,10 +3005,12 @@ If this macro has not been called in the current &comp-unit;
  foreign language module.  They can nevertheless be evaluated and
  modified through &setq;, just as normal variables can, except that the
  range of allowed values is limited according to the variable's foreign
- type.  Note that for a foreign variable &x-r; the form <code>(&eql;
- &x-r; &x-r;)</code> is not necessarily true, since every time &x-r; is
+ type.</para>
+
+<warning><para>For a foreign variable &x-r; the form <code>(&eql; &x-r;
+ &x-r;)</code> is not necessarily true, since every time &x-r; is
  evaluated its foreign value is converted to a &fresh; Lisp value.
- Foreign variables are defined using &def-c-var;.</para>
+ Foreign variables are defined using &def-c-var;.</para></warning>
 
 </section>
 
@@ -4424,10 +4425,10 @@ input will be available.</para></formalpara>
  file), while the clicking on a &clisp; &mem-image; (with &mem-file;
  extension) will start clisp with the given &mem-image;.</para>
 
-<para>Note that &clisp; is distributed with a file
+<note><para>Note that &clisp; is distributed with a file
  <filename>install.bat</filename>, which creates a file
  <filename>clisp.lnk</filename> on your desktop and also associates
- &fasl-file;, &lisp-file;, and &mem-file; files with &clisp;.</para>
+ &fasl-file;, &lisp-file;, and &mem-file; files with &clisp;.</para></note>
 
 </section>
 
@@ -4664,9 +4665,9 @@ bash$
   supply the output from this command as input.
   The second and third value will be the &in-s; and the &out-s; that
   make up the &bidi-s;, respectively.</simpara>
- <warning><simpara>Note that these three streams must be closed
+ <warning><simpara>These three streams must be closed
    individually.</simpara></warning>
- <warning id="deadlock"><simpara>Note that improper use of this function
+ <warning id="deadlock"><simpara>Improper use of this function
    can lead to <emphasis>deadlocks</emphasis>.
    Use it at your own risk!</simpara>
   <simpara>A deadlock occurs if the command and your Lisp program either
