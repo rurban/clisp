@@ -1,3 +1,16 @@
+2000-04-13  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
+
+        Support NO_TYPECODES on m68k.
+        * lispbibl.d (oint_type_*, oint_data_*): Define differently on
+          m68k-linux.
+          (subr_): Add a dummy field to force size a multiple of 4.
+          (TheMachineCode): After shifting right, add the missing leftmost
+          bits.
+        * spvw.d (main): When determining the heap bounds, compute 'end' with
+          garcol_bit set to 0, even if garcol_bit_o < oint_addr_len-1.
+        * encoding.d (nls_table) [NO_TYPECODES]: Force variables of this type,
+          defined in nls_*.c, to be 4-aligned.
+
 2000-04-04  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp (*source-file-types*): added #".cl"

@@ -845,7 +845,13 @@ typedef struct nls_table {
   const unsigned char* const* page_uni2charset;
   const unsigned short* charset2uni;
   int is_ascii_extension;
-} nls_table;
+}
+  #if defined(NO_TYPECODES) && (alignment_long < 4) && defined(GNU)
+    # Force all XPSEUDODATAs to be allocated with a 4-byte alignment.
+    # GC needs this.
+    __attribute__ ((aligned (4)))
+  #endif
+  nls_table;
 
 static const unsigned char nopage[256] = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* 0x00-0x07 */
