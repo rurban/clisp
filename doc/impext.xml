@@ -880,8 +880,8 @@ their corresponding byte vector representation according to that encoding.
       &key-amp; &start-k; &end-k;)</literal></term>
  <listitem><simpara>converts the subsequence of
   <replaceable>byte-vector</replaceable> from &start-r; to &end-r; to a
-  string, according to the given &encoding-r;, and returns the resulting
-  string.</simpara></listitem></varlistentry>
+  &string-t;, according to the given &encoding-r;, and returns the
+  resulting string.</simpara></listitem></varlistentry>
 
 <varlistentry><term><literal role="sexp"
     >(<function>EXT:CONVERT-STRING-TO-BYTES</function>
@@ -990,7 +990,7 @@ N. Gray to X3J13.</para>
   <listitem><simpara>Changes the stream's element type.</simpara>
    <simpara>The default method &signal;s an &error-t;.</simpara>
    <simpara>This function is a &clisp; extension (see <link
-    linkend="stream-eltype">setting &stream-element-type;</link>)</simpara>
+    linkend="stream-eltype">setting &stream-element-type;</link>).</simpara>
    </listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(&close;
     &stream-r; &key-amp; &abort-k;)</literal></term>
@@ -1058,27 +1058,28 @@ N. Gray to X3J13.</para>
   <listitem><simpara>Fills the subsequence of &sequence-r; specified by
    &start-k; and &end-k; with characters consecutively read from &stream-r;.
    Returns the index of the first element of &sequence-r; that was not
-   updated (= &end-r; or &lt; &end-r; if the stream reached its end).
-   </simpara><simpara>&sequence-r; is an array of characters, i.e. a
-   string.  &start-r; is a nonnegative integer and default to 0.
-   &end-r; is a nonnegative integer or &nil; and defaults to &nil;,
+   updated (= &end-r; or &lt; &end-r; if the stream reached its end).</simpara>
+  <simpara>&sequence-r; is an &array-t; of &character-t;s, i.e. a &string-t;.
+   &start-r; is a nonnegative &integer-t; and defaults to 0.
+   &end-r; is a nonnegative &integer-t; or &nil; and defaults to &nil;,
    which stands for <literal role="sexp">(&length; &sequence-r;)</literal>.
-   </simpara><simpara>The default method repeatedly calls &st-rc;; this
+  </simpara><simpara>The default method repeatedly calls &st-rc;; this
    is always sufficient if speed does not matter.</simpara>
-   <simpara>This function is a &clisp; extension (see
-    &rd-ch-seq;)</simpara></listitem></varlistentry>
+  <simpara>This function is a &clisp; extension (see
+   &rd-ch-seq;).</simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp"
    >(<function>GRAY:STREAM-READ-LINE</function> &stream-r;)</literal></term>
-  <listitem><simpara>Reads a line of characters, and return two values: the
-   line (a string, without the terminating &nl-c; character), and a boolean
-   value which is true if the line was terminated by &eos; instead of &nl-c;.
-   </simpara><simpara>The default method repeatedly calls &st-rc;; this
+  <listitem><simpara>Reads a line of characters, and return two values:
+   the line (a &string-t;, without the terminating &nl-c; character),
+   and a &boolean-t; value which is true if the line was terminated by
+   &eos; instead of &nl-c;.</simpara>
+  <simpara>The default method repeatedly calls &st-rc;; this
    is always sufficient.</simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>gray:stream-clear-input</function>
+    role="sexp">(<function>GRAY:STREAM-CLEAR-INPUT</function>
                  &stream-r;)</literal></term>
   <listitem><simpara>Clears all pending interactive input from the
-   stream, and returns true if some pending input was removed.</simpara>
+   &stream-r;, and returns true if some pending input was removed.</simpara>
   <simpara>The default method does nothing and returns &nil;; this is
    sufficient for non-interactive streams.</simpara></listitem></varlistentry>
 </variablelist>
@@ -1108,14 +1109,14 @@ N. Gray to X3J13.</para>
                  &optional-amp; [&start-r; [&end-r;]])</literal></term>
   <listitem><simpara>Outputs the subsequence of &sequence-r; specified
    by &start-k; and &end-k; to &stream-r;.</simpara>
-   <simpara>&sequence-r; is an array of characters, i.e. a string.
-   &start-r; is a nonnegative integer and default to 0.  &end-r; is a
-   nonnegative integer or &nil; and defaults to &nil;, which stands
-   for <literal role="sexp">(&length; &sequence-r;)</literal>.
-   </simpara><simpara>The default method repeatedly calls &st-wc;; this
+  <simpara>&sequence-r; is an &array-t; of &character-t;s, i.e. a &string-t;.
+   &start-r; is a nonnegative &integer-t; and defaults to 0.
+   &end-r; is a nonnegative integer or &nil; and defaults to &nil;,
+   which stands for <literal role="sexp">(&length; &sequence-r;)</literal>.
+  </simpara><simpara>The default method repeatedly calls &st-wc;; this
    is always sufficient if speed does not matter.
-   </simpara><simpara>This function is a &clisp; extension
-    (see &wr-ch-seq;)</simpara></listitem></varlistentry>
+  </simpara><simpara>This function is a &clisp; extension
+   (see &wr-ch-seq;).</simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>GRAY:STREAM-WRITE-STRING</function>
                  &stream-r; &string-r;
@@ -1214,17 +1215,16 @@ N. Gray to X3J13.</para>
                  &stream-r; &sequence-r;
                  &optional-amp; [&start-r; [&end-r;]])</literal></term>
   <listitem><simpara>Fills the subsequence of &sequence-r; specified by
-   &start-k; and &end-k; with integers consecutively read from
-   &stream-r;.  Returns the index of the first element of &sequence-r;
-   that was not updated (= &end-r; or &lt; &end-r; if the stream reached
-   its end).</simpara>
-   <simpara>&sequence-r; is an array of integers.  &start-r; is a
-   nonnegative integer and default to 0.  &end-r; is a nonnegative
-   integer or &nil; and defaults to &nil;, which stands for <literal
-   role="sexp">(&length; &sequence-r;)</literal>.</simpara>
-   <simpara>The default method repeatedly calls &st-rb;; this is always
-   sufficient if speed does not matter.</simpara>
-   <simpara>This function is a &clisp; extension (see
+   &start-k; and &end-k; with integers consecutively read from &stream-r;.
+   Returns the index of the first element of &sequence-r; that was not
+   updated (= &end-r; or &lt; &end-r; if the stream reached its end).</simpara>
+  <simpara>&sequence-r; is an &array-t; of &integer-t;s.
+   &start-r; is a nonnegative &integer-t; and defaults to 0.
+   &end-r; is a nonnegative &integer-t; or &nil; and defaults to &nil;,
+   which stands for <literal role="sexp">(&length; &sequence-r;)</literal>.
+  </simpara><simpara>The default method repeatedly calls &st-rb;; this
+   is always sufficient if speed does not matter.</simpara>
+  <simpara>This function is a &clisp; extension (see
    &rd-by-seq;).</simpara></listitem></varlistentry>
 </variablelist>
 
@@ -1240,11 +1240,11 @@ N. Gray to X3J13.</para>
                  &optional-amp; [&start-r; [&end-r;]])</literal></term>
   <listitem><simpara>Outputs the subsequence of &sequence-r; specified
    by &start-k; and &end-k; to &stream-r;</simpara>
-  <simpara>&sequence-r; is an array of integers.  &start-r; is a
-   nonnegative integer and default to 0.  &end-r; is a nonnegative
-   integer or &nil; and defaults to &nil;, which stands for <literal
-   role="sexp">(&length; &sequence-r;)</literal>.</simpara>
-  <simpara>The default method repeatedly calls
+  <simpara>&sequence-r; is an &array-t; of &integer-t;s.
+   &start-r; is a nonnegative &integer-t; and defaults to 0.
+   &end-r; is a nonnegative &integer-t; or &nil; and defaults to &nil;,
+   which stands for <literal role="sexp">(&length; &sequence-r;)</literal>.
+  </simpara><simpara>The default method repeatedly calls
    <function>GRAY:STREAM-WRITE-BYTE</function>; this is always
    sufficient if speed does not matter.</simpara>
   <simpara>This function is a &clisp; extension (see
@@ -1256,7 +1256,7 @@ N. Gray to X3J13.</para>
 <!-- #ifdef GENERIC_STREAMS -->
 <section id="gstream"><title>Generic streams</title>
 
-<para>This interface is &clisp; specific and now obsolete.  Please use
+<para>This interface is &clisp;-specific and now obsolete.  Please use
  the <link linkend="gray">Gray streams</link> interface instead.</para>
 
 <para>Generic streams are user programmable streams.
@@ -2019,7 +2019,7 @@ containing:</para>
  and ANSI &c-lang;.</para>
 
 <variablelist><title>special &ffi-pac; forms; &name-r; is any Lisp
-   symbol; &cname-r; is a string.</title>
+   &symbol-t;; &cname-r; is a &string-t;.</title>
 <varlistentry id="def-c-type">
   <term><literal role="sexp">(<function>def-c-type</function>
         &name-r; &ctype-r;)</literal></term>
