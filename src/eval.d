@@ -2213,48 +2213,6 @@ nonreturning_function(local, fehler_undefined, (object caller, object funname)) 
 
 #endif
 
-# error-message for non-paired keyword-arguments
-# fehler_key_unpaarig(fun); (transl.: error_key_non_paired)
-# > fun: function
-nonreturning_function(local, fehler_key_unpaarig, (object fun)) {
-  pushSTACK(fun);
-  fehler(program_error,
-         GETTEXT("EVAL/APPLY: keyword arguments for ~ should occur pairwise"));
-}
-
-# error-message for flawed keyword
-# fehler_key_notkw(kw);
-# > kw: Non-Symbol
-nonreturning_function(local, fehler_key_notkw, (object kw)) {
-  pushSTACK(kw); # KEYWORD-ERROR slot DATUM
-  pushSTACK(S(symbol)); # KEYWORD-ERROR slot EXPECTED-TYPE
-  pushSTACK(kw);
-  fehler(keyword_error,
-         GETTEXT("EVAL/APPLY: ~ is not a symbol"));
-}
-
-# error-message for flawed keyword
-# fehler_key_badkw(fun,kw,kwlist);
-# > fun: function
-# > kw: illegal keyword
-# > kwlist: list of legal keywords
-nonreturning_function(local, fehler_key_badkw,
-                      (object fun, object kw, object kwlist)) {
-  pushSTACK(kw); # KEYWORD-ERROR slot DATUM
-  pushSTACK(kwlist);
-  pushSTACK(kwlist);
-  pushSTACK(fun);
-  pushSTACK(kw);
-  {
-    var object type = allocate_cons();
-    Car(type) = S(member); Cdr(type) = STACK_3;
-    STACK_3 = type; # `(MEMBER ,@kwlist) = KEYWORD-ERROR slot EXPECTED-TYPE
-  }
-  fehler(keyword_error,
-         GETTEXT("EVAL/APPLY: keyword ~ is illegal for ~."
-                 NLstring "The allowed keywords are ~"));
-}
-
 # Test for illegal keywords
 # check_for_illegal_keywords(allow_flag,fehler_statement);
 # > uintC argcount: Number of Keyword/Value-pairs
@@ -2263,22 +2221,22 @@ nonreturning_function(local, fehler_key_badkw,
 # > for_every_keyword: Macro, which loops over all Keywords and assigns
 #                      them to 'keyword'.
 # > fehler_statement: Statement, that reports, that bad_keyword is illegal.
-  #define check_for_illegal_keywords(allow_flag_expr,fehler_statement)  \
+#define check_for_illegal_keywords(allow_flag_expr,caller,fehler_statement)   \
     { var gcv_object_t* argptr = rest_args_pointer; # Pointer to the arguments \
       var object bad_keyword = nullobj; # first illegal keyword or nullobj  \
+      var object bad_value = nullobj; /* its value */                 \
       var bool allow_flag = # Flag for allow-other-keys (if                 \
         # &ALLOW-OTHER-KEYS was specified or ':ALLOW-OTHER-KEY T' occurred) \
         (allow_flag_expr);                                                  \
       # But ':ALLOW-OTHER-KEYS NIL' hides a subsequent ':ALLOW-OTHER-KEYS T' \
       # (see CLHS 3.4.1.4.1.1).                                             \
       var bool allow_hidden = false; # true if seen ':ALLOW-OTHER-KEYS NIL' \
-      var uintC check_count;                                                \
-      dotimesC(check_count,argcount, {                                      \
+      var uintC check_count=argcount;                                 \
+      while (check_count--) {                                           \
         var object kw = NEXT(argptr); # next Argument                       \
         var object val = NEXT(argptr); # and value for it                   \
         # must be a symbol, should be a keyword:                            \
-        if (!symbolp(kw))                                                   \
-          fehler_key_notkw(kw);                                             \
+        if (!symbolp(kw)) fehler_key_notkw(kw,caller);                  \
         if (!allow_flag) { # other keywords allowed? yes -> ok              \
           if (eq(kw,S(Kallow_other_keys))) {                                \
             if (!allow_hidden) {                                            \
@@ -2291,16 +2249,15 @@ nonreturning_function(local, fehler_key_badkw,
             # up to now :ALLOW-OTHER-KEYS was not there, and NOALLOW        \
             if (eq(bad_keyword,nullobj)) { # all Keywords ok so far?        \
               # must test, if the keyword kw is allowed.                    \
-              for_every_keyword(                                            \
-                { if (eq(keyword,kw)) goto kw_ok; }                         \
-                );                                                          \
-              # keyword kw was not allowed.                                 \
+              for_every_keyword({ if (eq(keyword,kw)) goto kw_ok; });   \
+              # keyword kw was not allowed.                             \
               bad_keyword = kw;                                             \
+              bad_value = val;                                          \
               kw_ok: ;                                                      \
             }                                                               \
           }                                                                 \
         }                                                                   \
-      });                                                                   \
+      };                                                                \
       if (!allow_flag)                                                      \
         if (!eq(bad_keyword,nullobj))                                       \
           # wrong keyword occurred                                          \
@@ -2553,7 +2510,7 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
         /* argcount = number of remaining arguments */
         /* halve argcount --> number of pairs Key.Value: */
         if (argcount%2) /* number was odd ->  not paired: */
-          fehler_key_unpaarig(TheIclosure(closure)->clos_name);
+          fehler_key_odd(argcount,TheIclosure(closure)->clos_name);
         argcount = argcount/2;
         { /* test for illegal keywords: */
           var object keywords = TheIclosure(closure)->clos_keywords;
@@ -2566,8 +2523,9 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
               }}
           check_for_illegal_keywords
             (!nullp(TheIclosure(closure)->clos_allow_flag),
+             TheIclosure(closure)->clos_name,
              { fehler_key_badkw(TheIclosure(closure)->clos_name,
-                                bad_keyword,
+                                bad_keyword,bad_value,
                                 TheIclosure(closure)->clos_keywords);});
          #undef for_every_keyword
           /* Now assign the Key-values and evaluate the Key-Inits: */
@@ -2646,7 +2604,7 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
       # halve argcount --> the number of pairs Key.Value:
       if (!((argcount%2)==0))
         # number was odd -> not paired:
-        fehler_key_unpaarig(fun);
+        fehler_key_odd(argcount,fun);
       if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
         fehler_too_many_args(unbound,fun,argcount,ca_limit_1);
       # Due to argcount <= ca_limit_1, all count's fit in a uintC.
@@ -2655,25 +2613,26 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
       {
         var gcv_object_t* keywords_pointer = &TheSvector(TheSubr(fun)->keywords)->data[0];
         var uintC key_anz = TheSubr(fun)->key_anz;
-        #define for_every_keyword(statement)  \
-          if (key_anz > 0)                                     \
-            { var gcv_object_t* keywordptr = keywords_pointer; \
-              var uintC count;                                 \
-              dotimespC(count,key_anz,                         \
-                { var object keyword = *keywordptr++;          \
-                  statement;                                   \
-                });                                            \
-            }
-        check_for_illegal_keywords(
-          TheSubr(fun)->key_flag == subr_key_allow,
-          { pushSTACK(bad_keyword); # save bad Keyword
-            pushSTACK(fun); /* save the function */
-            # convert Keyword-Vector to a List:
-            # (SYS::COERCE-SEQUENCE kwvec 'LIST)
-            coerce_sequence(TheSubr(fun)->keywords,S(list),true);
-            fun = popSTACK(); bad_keyword = popSTACK();
-            fehler_key_badkw(fun,bad_keyword,value1);
-          });
+        #define for_every_keyword(statement)                    \
+          if (key_anz > 0) {                                    \
+            var gcv_object_t* keywordptr = keywords_pointer;    \
+            var uintC count = key_anz;                          \
+            do { var object keyword = *keywordptr++;            \
+              statement;                                        \
+            } while (--count);                                  \
+          }
+        check_for_illegal_keywords
+          (TheSubr(fun)->key_flag == subr_key_allow,TheSubr(fun)->name,
+           { pushSTACK(bad_keyword); /* save bad keyword */
+             pushSTACK(bad_value);  /* save bad value */
+             pushSTACK(fun); /* save the function */
+             # convert Keyword-Vector to a List:
+             # (SYS::COERCE-SEQUENCE kwvec 'LIST)
+             coerce_sequence(TheSubr(fun)->keywords,S(list),true);
+             fun = popSTACK(); bad_value = popSTACK();
+             bad_keyword = popSTACK();
+             fehler_key_badkw(fun,bad_keyword,bad_value,value1);
+           });
         #undef for_every_keyword
       # now assign Arguments and Parameters:
         if (key_anz > 0) {
@@ -2723,7 +2682,7 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
       # halve argcount --> number of pairs Key.Value:
       if (!((argcount%2)==0))
         # number was odd -> not paired:
-        fehler_key_unpaarig(closure);
+        fehler_key_odd(argcount,closure);
       if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
         fehler_too_many_args(unbound,closure,argcount,ca_limit_1);
       # Due to argcount <= ca_limit_1, all count's fit in a uintC.
@@ -2738,26 +2697,26 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
            : &TheCclosure(closure)->clos_consts[keywords_offset]
           );
       # test for illegal Keywords:
-        #define for_every_keyword(statement)  \
-          if (key_anz > 0)                                     \
-            { var gcv_object_t* keywordptr = keywords_pointer; \
-              var uintC count;                                 \
-              dotimespC(count,key_anz,                         \
-                { var object keyword = *keywordptr++;          \
-                  statement;                                   \
-                });                                            \
-            }
-        check_for_illegal_keywords(
-          !((TheCodevec(codevec)->ccv_flags & bit(6)) == 0),
-          { pushSTACK(bad_keyword); # save
-            pushSTACK(closure); /* save the closure */
-            # build list of legal Keywords:
-            for_every_keyword( { pushSTACK(keyword); } );
-           {var object kwlist = listof(key_anz);
-            closure = popSTACK(); bad_keyword = popSTACK();
-            # report errors:
-            fehler_key_badkw(closure,bad_keyword,kwlist);
-           }});
+        #define for_every_keyword(statement)                    \
+          if (key_anz > 0) {                                    \
+            var gcv_object_t* keywordptr = keywords_pointer;    \
+            var uintC count = key_anz;                          \
+            do { var object keyword = *keywordptr++;            \
+              statement;                                        \
+            } while (--count);                                  \
+          }
+        check_for_illegal_keywords
+          (!((TheCodevec(codevec)->ccv_flags & bit(6)) == 0),
+           TheClosure(closure)->clos_name,
+           { pushSTACK(bad_keyword); /* save */
+             pushSTACK(bad_value);  /* save */
+             pushSTACK(closure); /* save the closure */
+             /* build list of legal Keywords: */
+             for_every_keyword( { pushSTACK(keyword); } );
+            {var object kwlist = listof(key_anz);
+             closure = popSTACK(); bad_value = popSTACK();
+             bad_keyword = popSTACK(); /* report errors: */
+             fehler_key_badkw(closure,bad_keyword,bad_value,kwlist);}});
         #undef for_every_keyword
       # now assign Arguments and Parameters:
         if (key_anz > 0) {

@@ -764,14 +764,7 @@ LISPFUNN(allocate_std_instance,2) {
   VALUES1(instance); /* instance as value */
 }
 
-/* report un-paired keywords error */
-nonreturning_function(local, fehler_key_odd, (uintC argcount, object caller)) {
-  var object arglist = listof(argcount);
-  pushSTACK(arglist); pushSTACK(caller);
-  fehler(program_error,
-         GETTEXT("~: keyword arguments in ~ should occur pairwise"));
-}
-#define check_keywords(argcount,caller) \
+#define check_keywords(argcount,caller)                 \
   if (argcount%2 != 0) fehler_key_odd(argcount,caller);
 
 local Values do_allocate_instance (object clas);
@@ -1055,23 +1048,11 @@ local void keyword_test (object caller, gcv_object_t* rest_args_pointer,
     do {
       var object key = NEXT(ptr);
       var object val = NEXT(ptr);
+      if (!symbolp(key))
+        fehler_key_notkw(key,caller);
       if (!eq(key,S(Kallow_other_keys))
-          && nullp(memq(key,valid_keywords))) { /* not found */
-        pushSTACK(key); /* KEYWORD-ERROR slot DATUM */
-        pushSTACK(valid_keywords);
-        pushSTACK(valid_keywords);
-        pushSTACK(val);
-        pushSTACK(key);
-        pushSTACK(caller);
-        { /* `(MEMBER ,@valid_keywords) = KEYWORD-ERROR slot EXPECTED-TYPE */
-          var object type = allocate_cons();
-          Car(type) = S(member); Cdr(type) = STACK_4;
-          STACK_4 = type;
-        }
-        fehler(keyword_error,
-               GETTEXT("~: illegal keyword/value pair ~, ~ in argument list."
-                       NLstring "The allowed keywords are ~"));
-      }
+          && nullp(memq(key,valid_keywords))) /* not found */
+        fehler_key_badkw(caller,key,val,valid_keywords);
     } while(--count);
   }
 }

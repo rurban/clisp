@@ -12195,6 +12195,27 @@ nonreturning_function(extern, fehler_stream, (object obj));
 nonreturning_function(extern, fehler_streamtype, (object obj, object type));
 # is used by STREAM
 
+/* error-message for non-paired keyword-arguments
+ fehler_key_odd(argcount,caller);
+ > argcount: the number of arguments on the STACK
+ > caller: function */
+nonreturning_function(global, fehler_key_odd, (uintC argcount, object caller));
+
+/* error-message for flawed keyword
+ fehler_key_notkw(kw);
+ > key: Non-Symbol
+ > caller: function */
+nonreturning_function(global, fehler_key_notkw, (object key, object caller));
+
+/* error-message for flawed keyword
+ fehler_key_badkw(fun,kw,kwlist);
+ > fun: function
+ > key: illegal keyword
+ > val: its value
+ > kwlist: list of legal keywords */
+nonreturning_function(global, fehler_key_badkw,
+                      (object fun, object key, object val, object kwlist));
+
 # Error message, if an argument isn't a function:
 # fehler_function(obj);
 # obj: the faulty argument
