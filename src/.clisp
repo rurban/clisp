@@ -1,5 +1,0 @@
-#!/bin/sh
-# Usage: .clisp [args...]
-# Runs CLISP within the build directory.
-# This script MUST NOT be installed. It is only for the developers.
-exec ./lisp.run -B . -M lispinit.mem -N locale "$@"
