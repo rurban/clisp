@@ -196,18 +196,21 @@ local Values read_form(void)
     var object obj = stream_read(inputstream_,NIL,NIL);
     dynamic_unbind(S(read_suppress));
    #if !defined(TERMINAL_USES_KEYBOARD)
-    if (streamp(Symbol_value(S(terminal_read_stream)))) {
-      var object stream = Symbol_value(S(terminal_read_stream));
-      var object strm_l = TheStream(stream)->strm_concat_list;
-      if (terminal_read_stream_bound)
-        dynamic_unbind(S(terminal_read_stream));
+    if (terminal_read_stream_bound) {
+      var object old_trs = Symbol_value(S(terminal_read_stream));
+      var object strm_list;
+      if (streamp(old_trs))
+        strm_list = TheStream(old_trs)->strm_concat_list;
+      dynamic_unbind(S(terminal_read_stream));
+      pushSTACK(old_trs); /* save before PEEK-CHAR */
       Symbol_value(S(terminal_read_stream)) =
-        (consp(strm_l) && !nullp(Cdr(strm_l))
+        (consp(strm_list) && !nullp(Cdr(strm_list))
          /* some input on the first line was not processed ? */
-         && (pushSTACK(T), pushSTACK(Car(strm_l)),
+         && (pushSTACK(T), pushSTACK(Car(strm_list)),
              pushSTACK(NIL), pushSTACK(eof_value),
              funcall(L(peek_char),4), !eq(value1,eof_value)))
-        ? stream : unbound;
+        ? STACK_0 : unbound;
+      skipSTACK(1); /* drop old_trs */
     }
    #endif
     dynamic_unbind(S(key_bindings));
