@@ -7,7 +7,8 @@
 	* utils/gen-uninames: Update for Unicode 3.2.0.
 	* uninames.h: Regenerated for Unicode 3.2.0 by gen-uninames.
 	* uniname.c: Assume ANSI C.
-	(unicode_character_name): Update for Unicode 3.2.0.
+	(unicode_character_name, unicode_name_character): Update for Unicode
+	3.2.0.
 
 	* utils/unicode/UnicodeDataFull.txt: Upgrade to Unicode 3.2.
 	* describe.lisp (unicode-attributes-line): Lines in
