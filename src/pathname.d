@@ -3018,11 +3018,10 @@ local uintC host_namestring_parts (object pathname) {
       pushSTACK(host);
       return 2;
     }
-#else
+#endif
     pushSTACK(host);
     pushSTACK(O(colon_string)); # ":"
     return 2;
-#endif
   }
 }
 #else
