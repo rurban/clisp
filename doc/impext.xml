@@ -2195,29 +2195,7 @@ bash$ ./configure --with-module=syscalls --with-module=clx/new-clx --build build
 bash$ ./build-dir/clisp &opt-K; full
 </screen></para>
 
-&matlab;
-
-&netica;
-
-&dirkey;
-
-&berkeley-db;
-
-&regexp;
-
-&pcre;
-
-&i18n;
-
-&syscalls;
-
-&oracle;
-
-&fastcgi;
-
-&rawsock;
-
-&zlib;
+<para>See <xref linkend="ext-modules"/> for details.</para>
 
 </section>
 
