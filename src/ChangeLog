@@ -1,3 +1,7 @@
+2005-01-03  Sam Steingold  <sds@gnu.org>
+
+	* clos-package.lisp (*features*): add :MOP
+
 2005-01-02  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (backtrace_t): Rename field bt_caller to bt_function.

@@ -1,10 +1,11 @@
 ;;;; Common Lisp Object System for CLISP
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2004
+;;;; Sam Steingold 1998 - 2005
 
 ;; to use it: (USE-PACKAGE "CLOS").
 
 (in-package "COMMON-LISP")
+(pushnew ':mop *features*)
 (pushnew ':clos *features*)
 
 (in-package "SYSTEM") ; necessary despite DEFPACKAGE!
