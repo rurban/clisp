@@ -424,50 +424,54 @@
         (dolist (funname readers)
           (setf (class-direct-accessors class)
                 (list* funname
-                       #|
-                       (eval
-                         `(DEFMETHOD ,funname ((OBJECT ,name))
-                            ; (:METHOD-CLASS STANDARD-READER-METHOD)
-                            (DECLARE (COMPILE))
-                            (SLOT-VALUE OBJECT ',slot-name)))
-                       |#
                        (do-defmethod funname
-                         (make-standard-reader-method
-                           :initfunction
-                             (eval
-                               `#'(LAMBDA (#:SELF)
-                                    (DECLARE (COMPILE))
-                                    (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION OBJECT)
-                                      (DECLARE (COMPILE))
-                                      (SLOT-VALUE OBJECT ',slot-name))))
-                           :wants-next-method-p t
-                           :parameter-specializers (list class)
-                           :qualifiers nil
-                           :signature (make-signature :req-num 1)))
+                         (let* ((args
+                                  (list
+                                    :initfunction
+                                      (eval
+                                        `#'(LAMBDA (#:SELF)
+                                             (DECLARE (COMPILE))
+                                             (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION OBJECT)
+                                               (DECLARE (COMPILE))
+                                               (SLOT-VALUE OBJECT ',slot-name))))
+                                    :wants-next-method-p t
+                                    :parameter-specializers (list class)
+                                    :qualifiers nil
+                                    :signature (make-signature :req-num 1)
+                                    :slot-definition slot))
+                                (method-class
+                                  (apply #'reader-method-class class slot args)))
+                           (unless (and (class-p method-class)
+                                        (subclassp method-class <standard-reader-method>))
+                             (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
+                                    'reader-method-class name 'standard-reader-method method-class))
+                           (apply #'make-instance method-class args)))
                        (class-direct-accessors class))))
         (dolist (funname writers)
           (setf (class-direct-accessors class)
                 (list* funname
-                       #|
-                       (eval
-                         `(DEFMETHOD ,funname (NEW-VALUE (OBJECT ,name))
-                            ; (:METHOD-CLASS STANDARD-WRITER-METHOD)
-                            (DECLARE (COMPILE))
-                            (SETF (SLOT-VALUE OBJECT ',slot-name) NEW-VALUE)))
-                       |#
                        (do-defmethod funname
-                         (make-standard-writer-method
-                           :initfunction
-                             (eval
-                               `#'(LAMBDA (#:SELF)
-                                    (DECLARE (COMPILE))
-                                    (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION NEW-VALUE OBJECT)
-                                      (DECLARE (COMPILE))
-                                      (SETF (SLOT-VALUE OBJECT ',slot-name) NEW-VALUE))))
-                           :wants-next-method-p t
-                           :parameter-specializers (list <t> class)
-                           :qualifiers nil
-                           :signature (make-signature :req-num 2)))
+                         (let* ((args
+                                  (list
+                                    :initfunction
+                                      (eval
+                                        `#'(LAMBDA (#:SELF)
+                                             (DECLARE (COMPILE))
+                                             (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION NEW-VALUE OBJECT)
+                                               (DECLARE (COMPILE))
+                                               (SETF (SLOT-VALUE OBJECT ',slot-name) NEW-VALUE))))
+                                    :wants-next-method-p t
+                                    :parameter-specializers (list <t> class)
+                                    :qualifiers nil
+                                    :signature (make-signature :req-num 2)
+                                    :slot-definition slot))
+                                (method-class
+                                  (apply #'writer-method-class class slot args)))
+                           (unless (and (class-p method-class)
+                                        (subclassp method-class <standard-writer-method>))
+                             (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
+                                    'writer-method-class name 'standard-writer-method method-class))
+                           (apply #'make-instance method-class args)))
                        (class-direct-accessors class))))))
     class))
 (defun equal-direct-slots (slots1 slots2)
@@ -480,6 +484,14 @@
       (and (consp initargs1) (consp initargs2)
            (eq (car (first initargs1)) (car (first initargs2)))
            (equal-default-initargs (cdr initargs1) (cdr initargs2)))))
+
+;; Preliminary.
+(defun reader-method-class (class direct-slot &rest initargs)
+  (declare (ignore class direct-slot initargs))
+  <standard-reader-method>)
+(defun writer-method-class (class direct-slot &rest initargs)
+  (declare (ignore class direct-slot initargs))
+  <standard-writer-method>)
 
 ;; ----------------------- General routines for <class> -----------------------
 

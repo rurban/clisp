@@ -330,3 +330,21 @@
 (defgeneric remove-direct-subclass (class subclass)
   (:method ((class class) (subclass class))
     (remove-direct-subclass-internal class subclass)))
+
+;;; ===========================================================================
+
+;;; Accessor definition customization
+
+;; MOP p. 86
+(fmakunbound 'reader-method-class)
+(defgeneric reader-method-class (class direct-slot &rest initargs)
+  (:method ((class class) direct-slot &rest initargs)
+    (declare (ignore direct-slot initargs))
+    <standard-reader-method>))
+
+;; MOP p. 103
+(fmakunbound 'writer-method-class)
+(defgeneric writer-method-class (class direct-slot &rest initargs)
+  (:method ((class class) direct-slot &rest initargs)
+    (declare (ignore direct-slot initargs))
+    <standard-writer-method>))
