@@ -1,7 +1,11 @@
+2005-01-21  Sam Steingold  <sds@gnu.org>
+
+	* clisp-link.in (CDPATH): unset
+
 2005-01-20  Bruno Haible  <bruno@clisp.org>
 
-	* stream.d (get_standard_output_file_stream,
-	get_standard_error_file_stream): Return *terminal-io* if this is
+	* stream.d (get_standard_output_file_stream)
+	(get_standard_error_file_stream): Return *terminal-io* if this is
 	needed to avoid a FRESH-LINE bug.
 	* makemake.in (check-fresh-line): New rule.
 	(check): Depend on it.
@@ -10,8 +14,8 @@
 
 	* init.lisp (symbol-to-keyword): Renamed from symbol-keyword.
 	* defmacro.lisp (analyze-key): Update.
-	* lambdalist.lisp (analyze-lambdalist,
-	analyze-generic-function-lambdalist, analyze-defsetf-lambdalist):
+	* lambdalist.lisp (analyze-lambdalist)
+	(analyze-generic-function-lambdalist, analyze-defsetf-lambdalist):
 	Update.
 	* type.lisp (%the): Update.
 	* defstruct.lisp (defstruct): Update.
