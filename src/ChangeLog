@@ -1,3 +1,8 @@
+2004-03-14  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in: For ia64 with gcc, reduce the optimization flags to -O
+	in general and -O0 for eval.d. Needed on Linux/ia64.
+
 2004-03-14  Sam Steingold  <sds@gnu.org>
 
 	* configure.in (AC_INIT): pre-release 2.32.94
