@@ -10,7 +10,22 @@
 
 (defparameter <method>
   (defclass method (standard-stablehash metaobject)
-    ()))
+    (($from-defgeneric     ; flag, if this method comes from a DEFGENERIC
+       :type boolean
+       :accessor method-from-defgeneric))
+    (:fixed-slot-locations t)
+    (:generic-accessors nil)))
+
+(defun initialize-instance-<method> (method &rest args
+                                     &key ((from-defgeneric from-defgeneric) nil)
+                                     &allow-other-keys)
+  (if *classes-finished*
+    (apply #'%initialize-instance method args) ; == (call-next-method)
+    ; Bootstrapping: Simulate the effect of #'%initialize-instance.
+    (apply #'shared-initialize-<standard-stablehash> method 't args))
+  ; Fill the slots.
+  (setf (method-from-defgeneric method) from-defgeneric)
+  method)
 
 ;;; ---------------------------------------------------------------------------
 
@@ -55,10 +70,7 @@
      ($initfunction        ; returns - if called - the fast-function
                            ; (only for the purpose of ADD-METHOD)
        :type function
-       :accessor std-method-initfunction)
-     ($from-defgeneric     ; flag, if this method comes from a DEFGENERIC
-       :type boolean
-       :accessor std-method-from-defgeneric))
+       :accessor std-method-initfunction))
     (:fixed-slot-locations t)
     (:generic-accessors nil)))
 
@@ -107,10 +119,8 @@
                                                    ((gf gf) nil)
                                                    ((from-defgeneric from-defgeneric) nil)
                                               &allow-other-keys)
-  (if *classes-finished*
-    (apply #'%initialize-instance method args) ; == (call-next-method)
-    ; Bootstrapping: Simulate the effect of #'%initialize-instance.
-    (apply #'shared-initialize-<standard-stablehash> method 't args))
+  (declare (ignore from-defgeneric))
+  (apply #'initialize-instance-<method> method args) ; == (call-next-method)
   ; Check the qualifiers.
   (unless (proper-list-p qualifiers)
     (error (TEXT "(~S ~S): The ~S argument should be a proper list, not ~S")
@@ -185,7 +195,6 @@
   (setf (std-method-documentation method) documentation)
   (setf (std-method-generic-function method) gf)
   (setf (std-method-initfunction method) initfunction)
-  (setf (std-method-from-defgeneric method) from-defgeneric)
   method)
 
 (defun make-instance-<standard-method> (class &rest args

@@ -1,5 +1,17 @@
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
+	Move the from-defgeneric slot from <standard-method> up to <method>.
+	* clos-method1.lisp (method): Add from-defgeneric slot.
+	(initialize-instance-<method>): New function.
+	(standard-method): Remove from-defgeneric slot.
+	(initialize-instance-<standard-method>): Refer to
+	initialize-instance-<method>. Don't initialize from-defgeneric.
+	* clos-genfun2.lisp (std-remove-method,
+	reinitialize-instance-<generic-function>): Update.
+	* clos-method3.lisp (initialize-instance@method): New method.
+
+2004-10-10  Bruno Haible  <bruno@clisp.org>
+
 	Prepare for non-standard methods.
 	* clos-methcomb2.lisp (method-list-to-continuation): Use
 	method-function instead of std-method-function.
