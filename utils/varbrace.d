@@ -984,7 +984,6 @@ local void out_char (int c)
   }
 }
 
-#ifdef unused
 # Output a line.
 local void out_line (const char* line)
 {
@@ -992,7 +991,6 @@ local void out_line (const char* line)
     out_char(*line);
   out_char('\n');
 }
-#endif
 
 
 # =============================== MAIN PROGRAM ==============================
@@ -1023,6 +1021,47 @@ local char* next_line (void)
   line[index] = '\0';
   return line;
 }
+
+
+# Sadly, #line directives output during a skipped portion of #if are ignored
+# by the C preprocessor. Therefore we must re-output them after every
+# #else/#elif/#endif line that belongs to a #if that was in effect when the
+# line directive was seen.
+
+# The maximum #if level that needs repeated #line directives.
+# This is always <= StackVectorString_length(ifdef_stack).
+local uintL ifdef_line_repeat;
+
+# Emit a #line note after the line number in the outfile has changed
+# differently from the line number in the infile.
+local inline void line_emit (void)
+{
+  fprintf(outfile,"#line %ld\n",input_line);
+  if (ifdef_line_repeat < StackVectorString_length(ifdef_stack))
+    ifdef_line_repeat = StackVectorString_length(ifdef_stack);
+}
+
+# #line treatment for the #if[def] stack.
+
+local inline void line_repeat_else ()
+{
+  if (ifdef_line_repeat == StackVectorString_length(ifdef_stack)) {
+    char buf[20];
+    sprintf(buf,"#line %ld",input_line);
+    out_line(buf);
+  }
+}
+
+local inline void line_repeat_endif ()
+{
+  if (ifdef_line_repeat > StackVectorString_length(ifdef_stack)) {
+    char buf[20];
+    sprintf(buf,"#line %ld",input_line);
+    out_line(buf);
+    ifdef_line_repeat--;
+  }
+}
+
 
 enum token_type { eof, ident, number, charconst, stringconst, sep, expr };
 typedef struct {
@@ -1103,15 +1142,18 @@ local Token next_token (void)
           {
             var const char* condition;
             var long line_directive;
-            if ((condition = is_if(line)) != NULL)
+            if ((condition = is_if(line)) != NULL) {
               do_if(condition);
-            else if (is_else(line))
+            } else if (is_else(line)) {
               do_else();
-            else if ((condition = is_elif(line)) != NULL)
+              line_repeat_else();
+            } else if ((condition = is_elif(line)) != NULL) {
               do_elif(condition);
-            else if (is_endif(line))
+              line_repeat_else();
+            } else if (is_endif(line)) {
               do_endif();
-            else if ((line_directive = decode_line_directive(line)) >= 0)
+              line_repeat_endif();
+            } else if ((line_directive = decode_line_directive(line)) >= 0)
               input_line = line_directive;
           }
           xfree(line);
@@ -1216,6 +1258,7 @@ void convert (FILE* infp, FILE* outfp, const char* infilename)
   outfile = outfp;
   # Initialize other variables.
   ifdef_stack = make_StackVectorString();
+  ifdef_line_repeat = 0;
   # Go!
   if (infilename != NULL)
     fprintf(outfile,"#line 1 \"%s\"\n",infilename);
@@ -1293,7 +1336,7 @@ void convert (FILE* infp, FILE* outfp, const char* infilename)
                         fprintf(outfile,"\n");
                         in_fresh_line = TRUE;
                       }
-                      fprintf(outfile,"#line %ld\n",input_line);
+                      line_emit();
                     }
                   } else {
                     fprintf(stderr,"Opening brace '%c' in line %lu: #if ",opening_ch,opening_line);

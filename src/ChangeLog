@@ -1,5 +1,15 @@
 2000-09-01  Bruno Haible  <haible@clisp.cons.org>
 
+        Fix line numbers in generated C code.
+        * utils/varbrace.d (out_line): New function.
+          (ifdef_line_repeat): New variable.
+          (line_emit, line_repeat_else, line_repeat_endif): New functions.
+          (next_token): Call them.
+          (convert): Initialize ifdef_line_repeat. Call line_emit to emit a
+          #line directive.
+
+2000-09-01  Bruno Haible  <haible@clisp.cons.org>
+
         * stream.d (lisp_completion): Put end_callback() at the right place,
           and protect malloc() and free() with begin/end_system_call().
           Fixes a crash in cstombs on i386 platforms, reported by
