@@ -1,3 +1,10 @@
+2002-12-08  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (backtrace_t): bt_caller is also a gcv_object_t(!)
+	prefix all slots of backtrace_t with `bt_'
+	(unwind_back_trace) [DEBUG_SPVW]: do circularity checking
+	* debug.d, genclisph.d, spvw_debug.d, spvw_garcol.d: updated
+
 2002-12-06  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (check-sources): check that there are no variables

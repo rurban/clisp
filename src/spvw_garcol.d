@@ -1738,8 +1738,9 @@ local void gc_unmarkcheck (void) {
        #ifdef DEBUG_SPVW
         { /* the callers in back_trace must all be already marked */
           var struct backtrace_t *bt = back_trace;
-          for (; bt; bt = bt->next)
-            if (!subrp(bt->caller) && !marked(ThePointer(bt->caller)))
+          for (; bt; bt = bt->bt_next)
+            if (!gcinvariant_object_p(bt->bt_caller) &&
+                !marked(ThePointer(bt->bt_caller)))
               abort();
         }
        #endif
@@ -1855,7 +1856,7 @@ local void gc_unmarkcheck (void) {
             update_tables();
           { /* update back_trace */
             var struct backtrace_t *bt = back_trace;
-            for (;bt; bt=bt->next) update(&(bt->caller));
+            for (;bt; bt=bt->bt_next) update(&(bt->bt_caller));
           }
           #ifndef MORRIS_GC
           # update pointers in the Cons-cells:

@@ -129,21 +129,22 @@ global void nobject_out (FILE* out, object obj) {
 
 local uintL back_trace_depth (struct backtrace_t *bt) {
   var uintL index = 1;
-  for (bt = (bt ? bt : back_trace); bt; bt=bt->next, index++);
-  return  index;
+  for (bt = (bt ? bt : back_trace); bt; bt=bt->bt_next, index++) BT_CHECK(bt);
+  return index;
 }
 
 local uintL back_trace_out (FILE* out, struct backtrace_t *bt) {
   var uintL index = 1;
   if (out == NULL) out = stdout;
-  if (bt == NULL) bt = back_trace;
-  for (; bt; bt=bt->next, index++) {
+  if (!bt) bt = back_trace;
+  for (; bt; bt=bt->bt_next, index++) {
     fprintf(out,"[%d]> ",index);
-    nobject_out(out,bt->caller);
-    if (bt->num_arg >= 0)
-      fprintf(out," %d args",bt->num_arg);
-    if (bt->next)
-      fprintf(out," %d STACK increment",STACK_diff(bt->stack,bt->next->stack));
+    nobject_out(out,bt->bt_caller);
+    if (bt->bt_num_arg >= 0)
+      fprintf(out," %d args",bt->bt_num_arg);
+    if (bt->bt_next)
+      fprintf(out," %d STACK increment",
+              STACK_diff(bt->bt_stack,bt->bt_next->bt_stack));
     fputc('\n',out);
   }
   return index;

@@ -997,8 +997,8 @@ LISPFUNN(return_from_eval_frame,2)
 # ------------------------------------------------------------------------- #
 #                                 Debug aux
 
-local void print_back_trace (const gcv_object_t* stream_, struct backtrace_t *bt,
-                             int index) {
+local void print_back_trace (const gcv_object_t* stream_,
+                             struct backtrace_t *bt, int index) {
   terpri(stream_);
   write_ascii_char(stream_,'[');
   if (index >= 0) prin1(stream_,fixnum(index));
@@ -1006,10 +1006,10 @@ local void print_back_trace (const gcv_object_t* stream_, struct backtrace_t *bt
   write_ascii_char(stream_,']');
   write_ascii_char(stream_,'>');
   write_ascii_char(stream_,' ');
-  prin1(stream_,bt->caller);
-  if (bt->num_arg >= 0) {
+  prin1(stream_,bt->bt_caller);
+  if (bt->bt_num_arg >= 0) {
     write_ascii_char(stream_,' ');
-    prin1(stream_,fixnum(bt->num_arg));
+    prin1(stream_,fixnum(bt->bt_num_arg));
   }
 }
 
@@ -1329,7 +1329,7 @@ LISPFUNN(describe_frame,2)
     if (!streamp(STACK_0)) fehler_stream(STACK_0);
     { var struct backtrace_t *bt = back_trace;
       unwind_back_trace(bt,FRAME);
-      if (bt->stack == FRAME) print_back_trace(&STACK_0,bt,0); }
+      if (bt->bt_stack == FRAME) print_back_trace(&STACK_0,bt,0); }
     print_stackitem(&STACK_0,FRAME); # Stack-Item ausgeben
     skipSTACK(1); VALUES0; /* no values */
   }
@@ -1351,7 +1351,7 @@ local inline uintL show_stack (climb_fun_t frame_up_x, uintL frame_limit,
          && (frame_limit==0 || count<frame_limit)) {
     while (bt_beyond_stack_p(bt,FRAME)) {
       print_back_trace(stream_,bt,++count);
-      bt = bt->next;
+      bt = bt->bt_next;
     }
     if (frame_up_x != NULL) {
       var gcv_object_t* next_frame = (*frame_up_x)(FRAME);
