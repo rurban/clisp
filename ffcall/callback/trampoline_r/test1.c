@@ -80,6 +80,10 @@ register void* env __asm__("s0");
 #ifdef __ia64__
 register void* env __asm__("r15");
 #endif
+#ifdef __s390__
+register void* env __asm__("r0");
+#endif
+
   return x + (int)((long*)env)[0] + (int)((long*)env)[1] + MAGIC3;
 #else
   return x + MAGIC3;
