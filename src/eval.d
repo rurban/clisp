@@ -7688,10 +7688,9 @@ global Values funcall (object fun, uintC args_on_stack)
                                 symbol = check_symbol(symbol));       \
         if (!boundp(Symbol_function(symbol)))                         \
           /* (symbol may be not the actual function-name, for e.g.    \
-             (FUNCTION FOO) shows as (SYMBOL-FUNCTION '#:|(SETF FOO)|), \
+             (FUNCTION (SETF FOO)) shows as (SYMBOL-FUNCTION '#:|(SETF FOO)|),\
              but that should be enough for the error message.) */     \
-          /* FIXME: The return value of check_fdefinition is ignored! */ \
-          check_fdefinition(symbol,S(symbol_function))
+          Symbol_function(symbol) = check_fdefinition(symbol,S(symbol_function))
       CASE cod_symbol_function:        # (SYMBOL-FUNCTION)
         symbol = value1;
         CHECK_FDEF();
