@@ -1,5 +1,13 @@
 2005-01-24  Bruno Haible  <bruno@clisp.org>
 
+	* syscalls/configure.in: Check whether lgamma_r is declared, assuming
+	that it is defined in this case.
+	* syscalls/calls.c (POSIX:LGAMMA): Use lgamma_r only if it's declared.
+	Needed for FreeBSD 4.0, which has lgamma and lgamma_r, but declares
+	lgamma_r only if _REENTRANT is defined.
+
+2005-01-24  Bruno Haible  <bruno@clisp.org>
+
 	* i18n/gettext.c (do_gettext, do_ngettext): Don't define if GNU_GETTEXT
 	is not defined. Needed for platforms without gettext().
 	* makemake.in (BASE_MODULES): Add i18n always.
