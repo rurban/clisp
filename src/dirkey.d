@@ -23,7 +23,7 @@
 #define DIR_KEY_OUTPUT 1
 #define DIR_KEY_IO     2
 #endif
-# :IF_DOES_NOT_EXISTS
+# :IF-DOES-NOT-EXIST
 #define IDNE_ERROR  0
 #define IDNE_NIL    1
 #define IDNE_CREATE 2
@@ -35,7 +35,7 @@
 #ifdef WIN32_NATIVE
 #define SYSCALL_WIN32(call)                                            \
   do {                                                                 \
-    uintL status;                                                      \
+    var uintL status;                                                  \
     begin_system_call();                                               \
     status = call;                                                     \
     if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); } \
@@ -46,7 +46,7 @@
 #ifdef LDAP
 #define SYSCALL_LDAP(call)                                             \
   do {                                                                 \
-    uintL status;                                                      \
+    var uintL status;                                                  \
     begin_system_call();                                               \
     status = call;                                                     \
     if (status != LDAP_SUCCESS) { SetLastError(status); OS_error(); }  \
@@ -251,7 +251,7 @@ local HKEY parse_registry_path (const char* path, const char** base_ret)
   var unsigned int ii;
   var unsigned int len;
   var HKEY hkey = NULL;
-  var char* base;
+  var const char* base;
   var char* host;
   # Path syntax HOSTNAME\\... denotes a remote registry access.
   host = NULL;
@@ -289,7 +289,7 @@ local HKEY parse_registry_path (const char* path, const char** base_ret)
   }
 }
 
-local void open_reg_key (HKEY hkey, char* path, REGSAM perms,
+local void open_reg_key (HKEY hkey, const char* path, REGSAM perms,
                          int if_not_exists, HKEY* p_hkey)
 {
   var DWORD status;
@@ -388,7 +388,7 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
       });
     } else {
       with_string_0(path,O(misc_encoding),pathz,{
-        var char* base;
+        var const char* base;
         HKEY hkey = parse_registry_path(pathz,&base);
         open_reg_key(hkey,base,direction,if_not_exists,(HKEY*)&ret_handle);
       });
@@ -460,20 +460,24 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
   end_system_call();                                                       \
   if (n_obj > 0) {                                                         \
     var unsigned int ii;                                                   \
-    var char* buf = (char*)alloca(++maxlen); /* one extra byte for '\0' */ \
+    var char* buf = (char*)alloca(maxlen+1); /* one extra byte for '\0' */ \
     pushSTACK(NIL);                                                        \
     for (ii = 0; ii < n_obj; ii++) {                                       \
-      DWORD len = maxlen;                                                  \
-      DWORD status;                                                        \
-      object new_cons;                                                     \
+      var DWORD len = maxlen+1;                                            \
+      var DWORD status;                                                    \
       begin_system_call();                                                 \
       status = (GET_NEXT_OBJ_EXPR);                                        \
       if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); }   \
       end_system_call();                                                   \
-      new_cons = allocate_cons();                                          \
-      Cdr(new_cons) = STACK_0;                                             \
-      STACK_0 = new_cons;                                                  \
-      Car(STACK_0) = asciz_to_string(buf,O(misc_encoding));                \
+      {                                                                    \
+        var object new_cons = allocate_cons();                             \
+        Cdr(new_cons) = STACK_0;                                           \
+        STACK_0 = new_cons;                                                \
+      }                                                                    \
+      {                                                                    \
+        var object string = asciz_to_string(buf,O(misc_encoding));         \
+        Car(STACK_0) = string;                                             \
+      }                                                                    \
     }                                                                      \
     value1 = nreverse(popSTACK());                                         \
   } else                                                                   \
@@ -546,7 +550,8 @@ local object itst_current (object state)
   return string_concat(depth);
 }
 
-local int parse_scope (object scope) {
+local int parse_scope (object scope)
+{
   if (eq(scope,S(Kself)))  return SCOPE_SELF;
   if (eq(scope,S(Klevel))) return SCOPE_KIDS;
   if (eq(scope,S(Ktree)))  return SCOPE_TREE;
@@ -557,8 +562,7 @@ local int parse_scope (object scope) {
   pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,
          GETTEXT("~: ~ is not a ~")
-         );
-  return -1;
+        );
 }
 
 LISPFUNN(dkey_search_iterator,3)
@@ -574,8 +578,6 @@ LISPFUNN(dkey_search_iterator,3)
   ITST_PATH(value1)  = STACK_1;
   ITST_SCOPE(value1) = STACK_0;
   ITST_STACK(value1) = T;
-  STACK_0 = value1;
-  value1 = STACK_0;
   mv_count = 1;
   skipSTACK(3);
 }
@@ -629,8 +631,7 @@ local object init_iteration_node (object state,object subkey)
   NODE_ATT_S(STACK_1) = fixnum(a_size+1); # node
   NODE_DAT_S(STACK_1) = fixnum(d_size+1); # node
   skipSTACK(5);
-  pushSTACK(full_path);
-  return popSTACK();
+  return full_path;
 }
 
 local object state_next_key (object state)
@@ -689,10 +690,12 @@ LISPFUNN(dkey_search_next_key,1)
         value1 = init_iteration_node(state,NIL); # first call
       else {                          # find the next node and return it
         pushSTACK(NIL); # STACK_0 == subkey; STACK_1 == state
-        do STACK_0 = state_next_key(STACK_1); # subkey==NIL ==> stack popped
+        do { STACK_0 = state_next_key(STACK_1); } # subkey==NIL ==> stack popped
         while (eq(STACK_0,NIL) && !eq(ITST_STACK(STACK_1),NIL));
-        if (eq(STACK_0,NIL)) value1 = NIL;
-        else value1 = init_iteration_node(STACK_1,STACK_0);
+        if (eq(STACK_0,NIL))
+          value1 = NIL;
+        else
+          value1 = init_iteration_node(STACK_1,STACK_0);
         skipSTACK(1);
       }
       break;
@@ -715,7 +718,7 @@ LISPFUNN(dkey_search_next_att,1)
     pushSTACK(S(dkey_search_next_att));
     fehler(error,
            GETTEXT("~ from ~ without ~ before it")
-           );
+          );
   }
   var object node = Car(stack);
   var Fpointer fp = TheFpointer(NODE_HANDLE(node));
@@ -780,16 +783,18 @@ LISPFUN(dir_key_value,2,1,norest,nokey,0,NILL)
         value1 = default_value;
         end_system_call();
         goto end;
+      } else {
+        SetLastError(status); OS_error();
       }
-      SetLastError(status); OS_error();
+    } else {
+      ++size; # one extra byte for 0
+      var char* buffer = (char*)alloca(size);
+      status = RegQueryValueEx((HKEY)(TheDirKey(dkey)->handle),namez,
+                               NULL,&type,buffer,&size);
+      if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); }
+      end_system_call();
+      value1 = registry_value_to_object(type,size,buffer);
     }
-    var char* buffer = (char*)alloca(++size); # one extra char for #\Null
-    status = RegQueryValueEx((HKEY)(TheDirKey(dkey)->handle),namez,
-                             NULL,&type,buffer,&size);
-    if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); }
-    end_system_call();
-    value1 = registry_value_to_object(type,size,buffer);
-  end:;
   });
   mv_count = 1;
 }
@@ -879,7 +884,7 @@ LISPFUNN(dkey_info,1)
   var FILETIME write_time;
   SYSCALL_WIN32(RegQueryInfoKey(hkey,NULL,&class_length,NULL,NULL,
                                 NULL,NULL,NULL,NULL,NULL,NULL,NULL));
-  class_name = (class_length>0 ? (char*)alloca(++class_length) : NULL);
+  class_name = (class_length>0 ? (++class_length, (char*)alloca(class_length)) : NULL);
   SYSCALL_WIN32(RegQueryInfoKey(hkey,class_name,&class_length,NULL,
                                 &num_sub_keys,&max_sub_key_length,
                                 &max_class_length,
