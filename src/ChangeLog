@@ -1,3 +1,7 @@
+2001-03-19  Bruno Haible  <haible@clisp.cons.org>
+
+	* pathname.d (find_executable): Use strcpy instead of sprintf.
+
 2001-03-18  Bruno Haible  <haible@clisp.cons.org>
 
 	* spvw_memfile.d (DUMPHOST_LEN): New macro.
