@@ -82,7 +82,7 @@ global long full_write(handle,bufarea,nbyte)
   # Flag für AllocMem().
   global uintL default_allocmemflag = MEMF_ANY;
   global uintL retry_allocmemflag;  # wird in init_amiga() gesetzt.
-  #if !(defined(WIDE) || defined(MC68000) || !defined(TYPECODES))
+  #if !(defined(WIDE_SOFT) || defined(MC68000) || !defined(TYPECODES))
     # Es kann sein, dass wir mit MEMF_ANY Speicher außerhalb des
     # 24/26-Bit-Adressraums bekommen, den wir nicht nutzen können.
     # Dann versuchen wir's nochmal.

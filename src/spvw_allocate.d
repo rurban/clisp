@@ -112,7 +112,7 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
       begin_system_call();
       free(addr);
       end_system_call();
-      #if defined(AMIGAOS) && !(defined(WIDE) || defined(MC68000) || !defined(TYPECODES))
+      #if defined(AMIGAOS) && !(defined(WIDE_SOFT) || defined(MC68000) || !defined(TYPECODES))
       # A second attempt with different flags.
       if (!(default_allocmemflag == retry_allocmemflag)) {
         begin_system_call();
