@@ -48,6 +48,8 @@ options: The following options are recognized:
            (the default is http://www.lisp.org/HyperSpec/
             or the value of the environment variable CLHSROOT, if set).
          --with-debug          pass "debug" to makemake (CFLAGS+=g &c)
+         --edit-config         edit config.lisp with ${EDITOR:-vi} before make
+                               (useful with --build and --install)
 Example:
          configure --build built-with-gcc
          su bin
@@ -66,7 +68,7 @@ Specifying the C compiler:
 Using GNU libiconv (only needed if you do not have GNU LIBC 2.2 or better):
          If you want to use GNU libiconv which is not installed system-wide,
          you may supply a --with-libiconv-prefix argument
-         (type \`./src/configure --help' for details).
+         (type './src/configure --help' for details).
          The same goes for non-standard locations of libintl and libsigsegv.
 EOP
 }
@@ -81,6 +83,7 @@ do_config=''
 do_build=''
 do_install=''
 argcount=0
+edit_config=''
 
 prev=''
 passnext=''
@@ -117,12 +120,16 @@ do
       --config | --confi | --conf | --con | --co | --c)
         do_config=1 ;;
 
+      --install | --instal | --insta | --inst | --ins | --in | --i)
+        do_install=1 ;;
+
+      --edit-config | --edit-confi | --edit-conf | --edit-con | --edit-co | \
+      --edit-c | --edit- | --edit | --edi | --ed)
+        edit_config=1 ;;
+
       --help | --hel | --he | --h)
         info_help
         exit 0 ;;
-
-      --install | --instal | --insta | --inst | --ins | --in | --i)
-        do_install=1 ;;
 
       --version | --versio | --versi | --vers | --ver | --ve | --v)
         version="CLISP version "`cat src/VERSION`
@@ -147,11 +154,11 @@ do
         passnext=yes
         passnextm=yes ;;
 
-      --exec_prefix=* | --exec-prefix=* | --exec-prefi=* | --exec-pref=* | --exec-pre=* | --exec-pr=* | --exec-p=* | --exec-=* | -exec=* | --exe=* | --ex=* | --e=*)
+      --exec_prefix=* | --exec-prefix=* | --exec-prefi=* | --exec-pref=* | --exec-pre=* | --exec-pr=* | --exec-p=* | --exec-=* | -exec=* | --exe=* | --ex=*)
         subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --exec-prefix="`echo "$arg" | sed 's,^[-_a-zA-Z0-9]*=,,'` ;;
 
-      --exec_prefix | --exec-prefix | --exec-prefi | --exec-pref | --exec-pre | --exec-pr | --exec-p | --exec- | -exec | --exe | --ex | --e)
+      --exec_prefix | --exec-prefix | --exec-prefi | --exec-pref | --exec-pre | --exec-pr | --exec-p | --exec- | -exec | --exe | --ex)
         subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --exec-prefix="
         prev=exec_prefix
@@ -465,7 +472,7 @@ if test -z "$do_build"; then
     cat <<EOF
 # The default stack size on your platform is insufficient
 # and must be increased to at least 8192.  You must do either
-#    'ulimit -s 8192' (for Bourne shell derivarives, e.g., bash and zsh) or
+#    'ulimit -s 8192' (for Bourne shell derivatives, e.g., bash and zsh) or
 #    'limit stacksize 8192' (for C shell derivarives, e.g., tcsh)
 EOF
   fi
@@ -476,6 +483,10 @@ else
 
   cd $ABS_DIRNAME
   ./makemake $makemake_args > Makefile
+  if [ -n "${edit_config}" ]; then
+    make config.lisp;
+    ${EDITOR:-vi} config.lisp;
+  fi
   # ulimit: just to make sure, should not hurt
   #         cygwin /bin/sh ulimit is broken
   set +e; ulimit -s 8192 2>/dev/null; set -e;
