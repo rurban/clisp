@@ -15,6 +15,32 @@
   (interactive (list (read-string "translate: " (thing-at-point 'word))))
   (shell-command (format "wordtrans -d de-en -i %s" word)))
 
+(defun d-mode-find-C-def (sym)
+  (interactive
+   (let ((sym (or (thing-at-point 'symbol)
+                  (save-excursion
+                    (skip-syntax-backward "^w")
+                    (unless (bobp) (backward-char 1))
+                    (thing-at-point 'symbol) ""))))
+     (list (read-string
+            "function name: "
+            (if (string-match ":\\([^:]+\\)$" sym)
+                (match-string 1 sym) sym)))))
+  (let* ((c-name
+          (with-current-buffer (find-file-noselect "constsym.d")
+            (goto-char (point-min))
+            (search-forward (concat "\"" (upcase sym) "\""))
+            (buffer-substring-no-properties
+             (scan-sexps (point) -2) (1- (scan-sexps (point) -1)))))
+         (c-def
+          (with-current-buffer (find-file-noselect "subr.d")
+            (goto-char (point-min))
+            (search-forward (concat "(" c-name ","))
+            (buffer-substring-no-properties
+             (line-beginning-position) (point)))))
+    (message "C-name: %s; c-def: %s" c-name c-def)
+    (tags-search (concat "^" c-def))))
+
 (defun d-mode-current-defun-function ()
   "Return the name of the current function."
   (save-excursion
