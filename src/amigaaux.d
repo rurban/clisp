@@ -73,11 +73,11 @@ global long full_write(handle,bufarea,nbyte)
 # Eigenes malloc(), free() nötig wegen Resource Tracking.
 
   # Flag, das anzeigt, ob der Prozessor ein 68000 ist.
-  local boolean cpu_is_68000;
+  local bool cpu_is_68000;
   #if defined(MC68000)
-    #define CPU_IS_68000  TRUE
+    #define CPU_IS_68000  true
   #elif defined(MC680Y0)
-    #define CPU_IS_68000  FALSE
+    #define CPU_IS_68000  false
   #else
     #define CPU_IS_68000  cpu_is_68000
   #endif

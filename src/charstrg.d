@@ -292,7 +292,7 @@ static const cint nop_page[256] = {
 # UP: Stellt fest, ob ein Character alphabetisch ist.
 # alphap(ch)
 # > ch: Character-Code
-# < ergebnis: TRUE falls alphabetisch, FALSE sonst.
+# < ergebnis: true falls alphabetisch, false sonst.
 # Alphabetische Characters sind die mit einem Code c, mit
 #if defined(UNICODE)
 # java.lang.Character.isLetter(c)
@@ -311,13 +311,13 @@ static const cint nop_page[256] = {
 #endif
 # Darin sind (siehe CLTL S. 236 oben) aller Uppercase- und alle Lowercase-
 # Characters enthalten.
-  local boolean alphap (chart ch);
-  local boolean alphap(ch)
+  local bool alphap (chart ch);
+  local bool alphap(ch)
     var chart ch;
     {
       var cint c = as_cint(ch);
       #ifdef UNICODE
-      return (unicode_attribute(c) == 3 ? TRUE : FALSE);
+      return (unicode_attribute(c) == 3 ? true : false);
       #else
       if (c < 0x41) goto no; if (c <= 0x5A) goto yes;
       if (c < 0x61) goto no; if (c <= 0x7A) goto yes;
@@ -340,16 +340,16 @@ static const cint nop_page[256] = {
       if (c < 0x80) goto no; if (c <= 0x9A) goto yes;
       if (c < 0x9F) goto no; if (c <= 0xA7) goto yes;
       #endif
-      no: return FALSE;
-      yes: return TRUE;
+      no: return false;
+      yes: return true;
       #endif
     }
 
 # Stellt fest, ob ein Character numerisch ist.
 # numericp(ch)
 # > ch: Character-Code
-# < ergebnis: TRUE falls numerisch, FALSE sonst.
-  local boolean numericp (chart ch);
+# < ergebnis: true falls numerisch, false sonst.
+  local bool numericp (chart ch);
   #ifdef UNICODE
     #define numericp(ch)  (unicode_attribute(as_cint(ch)) == 2)
   #else
@@ -359,17 +359,17 @@ static const cint nop_page[256] = {
 # Stellt fest, ob ein Character alphanumerisch ist.
 # alphanumericp(ch)
 # > ch: Character-Code
-# < ergebnis: TRUE falls alphanumerisch, FALSE sonst.
+# < ergebnis: true falls alphanumerisch, false sonst.
 # Alphanumerische Characters sind die alphabetischen und die Ziffern.
-  global boolean alphanumericp (chart ch);
-  global boolean alphanumericp(ch)
+  global bool alphanumericp (chart ch);
+  global bool alphanumericp(ch)
     var chart ch;
     {
       #ifdef UNICODE
       var cint c = as_cint(ch);
-      return (unicode_attribute(c) >= 2 ? TRUE : FALSE);
+      return (unicode_attribute(c) >= 2 ? true : false);
       #else
-      if (numericp(ch)) return TRUE;
+      if (numericp(ch)) return true;
       return alphap(ch);
       #endif
     }
@@ -377,7 +377,7 @@ static const cint nop_page[256] = {
 # Stellt fest, ob ein Character ein Graphic-Character ("druckend") ist.
 # graphic_char_p(ch)
 # > ch: Character-Code
-# < ergebnis: TRUE falls druckend, FALSE sonst.
+# < ergebnis: true falls druckend, false sonst.
 # Graphic-Characters sind die mit einem Code c, mit
 #if defined(UNICODE)
 #       (java.lang.Character.isDefined(c) || c == 0x20AC)
@@ -395,15 +395,15 @@ static const cint nop_page[256] = {
 #else # defined(ASCII_CHS)
 #       $20 <= c <= $7E.
 #endif
-  global boolean graphic_char_p (chart ch);
-  global boolean graphic_char_p(ch)
+  global bool graphic_char_p (chart ch);
+  global bool graphic_char_p(ch)
     var chart ch;
     {
       # This would be the same as iswprint(ch), assuming wide characters were
       # Unicode.
       var cint c = as_cint(ch);
       #ifdef UNICODE
-      return (unicode_attribute(c) == 0 ? FALSE : TRUE);
+      return (unicode_attribute(c) == 0 ? false : true);
       #else
       #if defined(ISOLATIN_CHS) || defined(HPROMAN8_CHS)
       if ((('~' >= c) && (c >= ' ')) || (c >= 0xA0)) goto yes; else goto no;
@@ -424,8 +424,8 @@ static const cint nop_page[256] = {
       #else # defined(ASCII_CHS)
       if (c >= ' ') goto yes; else goto no;
       #endif
-      no: return FALSE;
-      yes: return TRUE;
+      no: return false;
+      yes: return true;
       #endif
     }
 
@@ -743,8 +743,8 @@ static const cint nop_page[256] = {
 # > string1: String
 # > string2: simple-string
 # < ergebnis: /=0, wenn gleich
-  global boolean string_gleich (object string1, object string2);
-  global boolean string_gleich(string1,string2)
+  global bool string_gleich (object string1, object string2);
+  global bool string_gleich(string1,string2)
     var object string1;
     var object string2;
     {
@@ -795,8 +795,8 @@ static const cint nop_page[256] = {
           }
           );
       }
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
 
 # UP: vergleicht zwei Strings auf Gleichheit, case-insensitive
@@ -804,8 +804,8 @@ static const cint nop_page[256] = {
 # > string1: String
 # > string2: simple-string
 # < ergebnis: /=0, wenn gleich
-  global boolean string_equal (object string1, object string2);
-  global boolean string_equal(string1,string2)
+  global bool string_equal (object string1, object string2);
+  global bool string_equal(string1,string2)
     var object string1;
     var object string2;
     {
@@ -856,8 +856,8 @@ static const cint nop_page[256] = {
           }
           );
       }
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
 
 #ifdef UNICODE
@@ -1490,7 +1490,7 @@ static const char jamo_final_short_name[28][3] = {
               if (--len == 0)
                 goto filled_buf;
             }
-            if (FALSE) {
+            if (false) {
              filled_buf:
               # Convert the constituents to uint16 words.
               var uint16 words[UNICODE_CHARNAME_MAX_WORDS];
@@ -1564,7 +1564,7 @@ static const char jamo_final_short_name[28][3] = {
                   }
                 }
               }
-              if (FALSE) {
+              if (false) {
                filled_words:
                 # Multiply by 2, to simplify later comparisons.
                 var uintL words_length = wordptr - words;
@@ -2739,9 +2739,9 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
 # > string1,offset1: Ab hier kommen die angesprochenen Characters im String1
 # > string2,offset2: Ab hier kommen die angesprochenen Characters im String2
 # > len: Anzahl der angesprochenen Characters in String1 und in String2, > 0
-# < ergebnis: TRUE falls gleich, FALSE sonst.
-  global boolean string_eqcomp (object string1, uintL offset1, object string2, uintL offset2, uintL len);
-  global boolean string_eqcomp(string1,offset1,string2,offset2,len)
+# < ergebnis: true falls gleich, false sonst.
+  global bool string_eqcomp (object string1, uintL offset1, object string2, uintL offset2, uintL len);
+  global bool string_eqcomp(string1,offset1,string2,offset2,len)
     var object string1;
     var uintL offset1;
     var object string2;
@@ -2782,8 +2782,8 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
             );
         }
         );
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
 
 # UP: vergleicht zwei Strings
@@ -2989,9 +2989,9 @@ LISPFUN(string_grgleich,2,0,norest,key,4,\
 # > string1,offset1: Ab hier kommen die angesprochenen Characters im String1
 # > string2,offset2: Ab hier kommen die angesprochenen Characters im String2
 # > len: Anzahl der angesprochenen Characters in String1 und in String2, > 0
-# < ergebnis: TRUE falls gleich, FALSE sonst.
-  global boolean string_eqcomp_ci (object string1, uintL offset1, object string2, uintL offset2, uintL len);
-  global boolean string_eqcomp_ci(string1,offset1,string2,offset2,len)
+# < ergebnis: true falls gleich, false sonst.
+  global bool string_eqcomp_ci (object string1, uintL offset1, object string2, uintL offset2, uintL len);
+  global bool string_eqcomp_ci(string1,offset1,string2,offset2,len)
     var object string1;
     var uintL offset1;
     var object string2;
@@ -3031,8 +3031,8 @@ LISPFUN(string_grgleich,2,0,norest,key,4,\
             );
         }
         );
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
 
 # UP: vergleicht zwei Strings, case-insensitive
@@ -3233,7 +3233,7 @@ LISPFUN(string_not_lessp,2,0,norest,key,4,\
 # < ergebnis: NIL falls nicht gefunden,
 #             Position im String2 (als Fixnum) falls gefunden.
   # eqcomp_fun sei der Typ einer solchen Vergleichsfunktion:
-  typedef boolean (*eqcomp_fun) (object string1, uintL offset1, object string2, uintL offset2, uintL len);
+  typedef bool (*eqcomp_fun) (object string1, uintL offset1, object string2, uintL offset2, uintL len);
   local object string_search (const stringarg* arg1, const stringarg* arg2, eqcomp_fun eqcomp);
   local object string_search(arg1,arg2,eqcomp)
     var const stringarg* arg1;

@@ -7,16 +7,16 @@
 # A circularity is a sub-object, which can be reached from the given object
 # through more than one path.
 # > object obj: object
-# > boolean pr_array: if true, elements of arrays are considered sub-objects
+# > bool pr_array: if true, elements of arrays are considered sub-objects
 #                     during the recursive traversal.
-# > boolean pr_closure: if true, elements of closures are considered sub-objects
+# > bool pr_closure: if true, elements of closures are considered sub-objects
 #                       during the recursive traversal.
 # < result: T on stack overflow,
 #           NIL if there are no circularities,
 #           #(0 ...) a vector of length (n+1), containing the integer 0 and
 #                    the n circularities, n>0.
 # can trigger GC
-  global object get_circularities (object obj, boolean pr_array, boolean pr_closure);
+  global object get_circularities (object obj, bool pr_array, bool pr_closure);
 
 # subst_circ(ptr,alist)
 # Resolves #n# references in the object *ptr, using the alist as a replacement
@@ -98,8 +98,8 @@
   local void mlb_alloc (mlbitmap* bitmap);
 
 # Add an object to a bitmap.
-# Returns TRUE if the object was already present, else FALSE.
-  local boolean mlb_add (mlbitmap* bitmap, object obj);
+# Returns true if the object was already present, else false.
+  local bool mlb_add (mlbitmap* bitmap, object obj);
 
 # Free a multi-level bit map.
   local void mlb_free (mlbitmap* bitmap);
@@ -124,7 +124,7 @@
       var char* newbase = (bitmap->base==NULL ? malloc(newsize) : realloc((char*)bitmap->base,newsize));
       end_system_call();
       if (newbase==NULL)
-        longjmp(bitmap->oom_context,TRUE);
+        longjmp(bitmap->oom_context,true);
       var uintP delta = (uintP)newbase - (uintP)bitmap->base;
       bzero(newbase+bitmap->alloc_size,newsize-bitmap->alloc_size);
       if (bitmap->base)
@@ -179,7 +179,7 @@
       return delta;
     }
 
-  local boolean mlb_add(bitmap,obj)
+  local bool mlb_add(bitmap,obj)
     var mlbitmap* bitmap;
     var object obj;
     {
@@ -204,9 +204,9 @@
                                          & ((bit(mlbs0)-1) / (32*sizeof(object)))];
                   var uintL i0 = ((addr >> mlb0) / sizeof(object)) % 32;
                   if (*p0 & bit(i0))
-                    return TRUE;
+                    return true;
                   *p0 |= bit(i0);
-                    return FALSE;
+                    return false;
                 }
                 var const uintL need = bit(mlbs0)/(32*sizeof(object))*sizeof(uintL);
                 if (bitmap->used_size + need > bitmap->alloc_size) {
@@ -220,7 +220,7 @@
                 var uintL i0 = ((addr >> mlb0) / sizeof(object)) % 32;
                 *p0 = bit(i0);
                 bitmap->used_size += need;
-                return FALSE;
+                return false;
               }
               var const uintL need = bit(mlbs1)*sizeof(uintL*)
                                      + bit(mlbs0)/(32*sizeof(object))*sizeof(uintL);
@@ -237,7 +237,7 @@
               var uintL i0 = ((addr >> mlb0) / sizeof(object)) % 32;
               *p0 = bit(i0);
               bitmap->used_size += need;
-              return FALSE;
+              return false;
             }
             var const uintL need = bit(mlbs2)*sizeof(uintL**)
                                    + bit(mlbs1)*sizeof(uintL*)
@@ -257,7 +257,7 @@
             var uintL i0 = ((addr >> mlb0) / sizeof(object)) % 32;
             *p0 = bit(i0);
             bitmap->used_size += need;
-            return FALSE;
+            return false;
           }
           var const uintL need = bit(mlbs3)*sizeof(uintL***)
                                  + bit(mlbs2)*sizeof(uintL**)
@@ -280,7 +280,7 @@
           var uintL i0 = ((addr >> mlb0) / sizeof(object)) % 32;
           *p0 = bit(i0);
           bitmap->used_size += need;
-          return FALSE;
+          return false;
         }
         var const uintL need = bit(mlbs4)*sizeof(uintL****)
                                + bit(mlbs3)*sizeof(uintL***)
@@ -308,7 +308,7 @@
         var uintL i0 = ((addr >> mlb0) / sizeof(object)) % 32;
         *p0 = bit(i0);
         bitmap->used_size += need;
-        return FALSE;
+        return false;
       #if (mlb_levels >= 6)
       }
       var const uintL need = bit(mlbs5)*sizeof(uintL*****)
@@ -340,7 +340,7 @@
       var uintL i0 = ((addr >> mlb0) / sizeof(object)) % 32;
       *p0 = bit(i0);
       bitmap->used_size += need;
-      return FALSE;
+      return false;
       #endif
     }
 
@@ -372,8 +372,8 @@
 # Global variables during get_circularities.
   typedef struct {
     mlbitmap bitmap;
-    boolean pr_array;
-    boolean pr_closure;
+    bool pr_array;
+    bool pr_closure;
     uintL counter;
     jmp_buf abbruch_context;
     object* abbruch_STACK;
@@ -405,7 +405,7 @@
             var object obj_cdr = Cdr(obj); # Komponenten
             var object obj_car = Car(obj);
             if (SP_overflow()) # SP-Tiefe überprüfen
-              longjmp(env->abbruch_context,TRUE); # Abbruch
+              longjmp(env->abbruch_context,true); # Abbruch
             get_circ_mark(obj_car,env); # CAR markieren (rekursiv)
             obj = obj_cdr; goto entry; # CDR markieren (tail-end-rekursiv)
           }
@@ -443,7 +443,7 @@
               # markiere count>0 Komponenten
               var object* ptr = &TheSvector(obj)->data[0];
               if (SP_overflow()) # SP-Tiefe überprüfen
-                longjmp(env->abbruch_context,TRUE); # Abbruch
+                longjmp(env->abbruch_context,true); # Abbruch
               dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); # markiere Komponenten (rekursiv)
             }
           }
@@ -533,7 +533,7 @@
               # markiere count>0 Komponenten
               var object* ptr = &TheRecord(obj)->recdata[0];
               if (SP_overflow()) # SP-Tiefe überprüfen
-                longjmp(env->abbruch_context,TRUE); # Abbruch
+                longjmp(env->abbruch_context,true); # Abbruch
               dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); # markiere Komponenten (rekursiv)
             }
           }
@@ -542,7 +542,7 @@
           # Objekt wurde markiert, war aber schon markiert.
           # Es ist eine Zirkularität.
           if (STACK_overflow()) # STACK-Tiefe überprüfen
-            longjmp(env->abbruch_context,TRUE); # Abbruch
+            longjmp(env->abbruch_context,true); # Abbruch
           # Objekt im STACK ablegen:
           pushSTACK(obj);
           env->counter++; # und mitzählen
@@ -567,8 +567,8 @@
 
   global object get_circularities(obj,pr_array,pr_closure)
     var object obj;
-    var boolean pr_array;
-    var boolean pr_closure;
+    var bool pr_array;
+    var bool pr_closure;
     {
       var get_circ_global my_global; # Zähler und Kontext (incl. STACK-Wert)
                                      # für den Fall eines Abbruchs
@@ -617,8 +617,8 @@
 # alloziere Vektor für die Zirkularitäten (kann GC auslösen!),
 # fülle die Zirkularitäten vom STACK in den Vektor um.
   typedef struct {
-    boolean pr_array;
-    boolean pr_closure;
+    bool pr_array;
+    bool pr_closure;
     uintL counter;
     jmp_buf abbruch_context;
     object* abbruch_STACK;
@@ -628,8 +628,8 @@
   local void get_circ_unmark (object obj, get_circ_global* env);
   global object get_circularities(obj,pr_array,pr_closure)
     var object obj;
-    var boolean pr_array;
-    var boolean pr_closure;
+    var bool pr_array;
+    var bool pr_closure;
     {
       var get_circ_global my_global; # Zähler und Kontext (incl. STACK-Wert)
                                      # für den Fall eines Abbruchs
@@ -693,7 +693,7 @@
             var object obj_car = Car(obj);
             mark(TheCons(obj)); # markieren
             if (SP_overflow()) # SP-Tiefe überprüfen
-              longjmp(env->abbruch_context,TRUE); # Abbruch
+              longjmp(env->abbruch_context,true); # Abbruch
             get_circ_mark(obj_car,env); # CAR markieren (rekursiv)
             obj = obj_cdr; goto entry; # CDR markieren (tail-end-rekursiv)
           }
@@ -738,7 +738,7 @@
               # markiere count>0 Komponenten
               var object* ptr = &TheSvector(obj)->data[0];
               if (SP_overflow()) # SP-Tiefe überprüfen
-                longjmp(env->abbruch_context,TRUE); # Abbruch
+                longjmp(env->abbruch_context,true); # Abbruch
               dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); # markiere Komponenten (rekursiv)
             }
           }
@@ -835,7 +835,7 @@
               # markiere count>0 Komponenten
               var object* ptr = &TheRecord(obj)->recdata[0];
               if (SP_overflow()) # SP-Tiefe überprüfen
-                longjmp(env->abbruch_context,TRUE); # Abbruch
+                longjmp(env->abbruch_context,true); # Abbruch
               dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); # markiere Komponenten (rekursiv)
             }
           }
@@ -844,7 +844,7 @@
           # Objekt wurde markiert, war aber schon markiert.
           # Es ist eine Zirkularität.
           if (STACK_overflow()) # STACK-Tiefe überprüfen
-            longjmp(env->abbruch_context,TRUE); # Abbruch
+            longjmp(env->abbruch_context,true); # Abbruch
           # Objekt mit gelöschtem garcol_bit im STACK ablegen:
           pushSTACK(without_mark_bit(obj));
           env->counter++; # und mitzählen
@@ -1053,7 +1053,7 @@
     {
       #if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
       if (SP_overflow()) { # SP-Tiefe überprüfen
-        env->bad = nullobj; longjmp(env->abbruch_context,TRUE); # Abbruch
+        env->bad = nullobj; longjmp(env->abbruch_context,true); # Abbruch
       }
       #endif
      enter_subst:
@@ -1167,7 +1167,7 @@
                   }
                   # nicht gefunden -> Abbruch
                   env->bad = obj;
-                  longjmp(env->abbruch_context,TRUE);
+                  longjmp(env->abbruch_context,true);
                 }
             return;
           case_cons: # Cons
@@ -1350,7 +1350,7 @@
                   # nicht gefunden -> Abbruch
                   subst_circ_bad = obj;
                   begin_longjmp_call();
-                  longjmp(subst_circ_jmpbuf,TRUE);
+                  longjmp(subst_circ_jmpbuf,true);
                 }
             break;
           case_cons: # Cons
@@ -1416,7 +1416,7 @@
     {
       #if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
       if (SP_overflow()) { # SP-Tiefe überprüfen
-        subst_circ_bad = nullobj; longjmp(subst_circ_jmpbuf,TRUE); # Abbruch
+        subst_circ_bad = nullobj; longjmp(subst_circ_jmpbuf,true); # Abbruch
       }
       #endif
      enter_subst:
@@ -1533,7 +1533,7 @@
                   }
                   # nicht gefunden -> Abbruch
                   subst_circ_bad = obj;
-                  longjmp(subst_circ_jmpbuf,TRUE);
+                  longjmp(subst_circ_jmpbuf,true);
                 }
             return;
           case_cons: # Cons

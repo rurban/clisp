@@ -438,11 +438,11 @@
           }   }
         #endif
         #ifdef FOREIGN
-        #define update_fpointer_invalid  TRUE
+        #define update_fpointer_invalid  true
         #else
-        #define update_fpointer_invalid  FALSE
+        #define update_fpointer_invalid  false
         #endif
-        #define update_fsubr_function  TRUE
+        #define update_fsubr_function  true
         #define update(objptr)  \
           { switch (mtypecode(*(object*)objptr))                                     \
               { case_system:                                                         \
@@ -530,7 +530,7 @@
   #endif
   #ifdef SINGLEMAP_MEMORY_RELOCATE
   local var oint offset_heaps_o[heapcount];
-  local var boolean offset_heaps_all_zero;
+  local var bool offset_heaps_all_zero;
   #endif
   #ifdef SPVW_PAGES
   local var struct { aint old_page_start; oint offset_page_o; } *offset_pages;
@@ -774,7 +774,7 @@
       {
         #if (defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))
           #if defined(HAVE_MMAP) || defined(SELFMADE_MMAP)
-          local var boolean use_mmap = TRUE;
+          local var bool use_mmap = true;
           #endif
           var uintL file_offset;
           #define set_file_offset(x)  file_offset = (x)
@@ -808,7 +808,7 @@
             do { READ(&c,1); } until (c=='\n');
             end_system_call();
             #if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && (defined(HAVE_MMAP) || defined(SELFMADE_MMAP))
-            use_mmap = FALSE; # Die File-Offsets haben sich verschoben!
+            use_mmap = false; # Die File-Offsets haben sich verschoben!
             #endif
             goto begin_read;
           }
@@ -839,7 +839,7 @@
             if (!( CLOSE(handle) ==0)) goto abbruch1;
             end_system_call();
             #if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && (defined(HAVE_MMAP) || defined(SELFMADE_MMAP))
-            use_mmap = FALSE; # Von einer Pipe kann man kein mmap() machen!
+            use_mmap = false; # Von einer Pipe kann man kein mmap() machen!
             #endif
             loadmem_from_handle(handles[0]); # Wir lesen ab jetzt von der Pipe
             begin_system_call();
@@ -934,7 +934,7 @@
               goto abbruch2;
              found_module:
               # Das Lesen der Moduldaten vom File initialisiert das Modul.
-              module->initialized = TRUE;
+              module->initialized = true;
               *old_module++ = module;
               old_name += asciz_length(old_name)+1;
             });
@@ -996,7 +996,7 @@
               var memdump_page* old_page;
               var uintL heapnr;
               READ(&old_pages,sizeof(old_pages));
-              offset_heaps_all_zero = TRUE;
+              offset_heaps_all_zero = true;
               old_page = &old_pages[0];
               for (heapnr=0; heapnr<heapcount; heapnr++) {
                 var Heap* heapptr = &mem.heaps[heapnr];
@@ -1005,12 +1005,12 @@
                 heapptr->heap_end = heapptr->heap_limit + (old_page->_page_end - old_page->_page_start);
                 offset_heaps_o[heapnr] = (oint)heapptr->heap_start - (oint)old_page->_page_start;
                 if (!(offset_heaps_o[heapnr] == 0))
-                  offset_heaps_all_zero = FALSE;
+                  offset_heaps_all_zero = false;
                 old_page++;
               }
               #if defined(HAVE_MMAP) || defined(SELFMADE_MMAP)
               if (!offset_heaps_all_zero)
-                use_mmap = FALSE;
+                use_mmap = false;
               #endif
             }
           #else
@@ -1176,7 +1176,7 @@
         #if defined(SPVW_PURE_BLOCKS) || defined(SPVW_MIXED_BLOCKS_STAGGERED) # SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY && !SPVW_MIXED_BLOCKS_OPPOSITE
           #ifdef SELFMADE_MMAP
           mem.memfile_handle = handle;
-          mem.memfile_still_being_read = TRUE;
+          mem.memfile_still_being_read = true;
           #endif
           # Alignment verwirklichen:
           READ_page_alignment(file_offset);
@@ -1219,7 +1219,7 @@
                     #else
                     asciz_out(NLstring);
                     #endif
-                    use_mmap = FALSE;
+                    use_mmap = false;
                     # Bevor es mit READ(handle) weitergeht, ist evtl. ein lseek() nötig.
                     if ( lseek(handle,file_offset,SEEK_SET) <0) goto abbruch1;
                   }
@@ -1306,11 +1306,11 @@
             # Pointer in den Objekten variabler Länge aktualisieren:
               #define update_page  update_page_normal
               #ifdef FOREIGN
-                #define update_fpointer_invalid  TRUE
+                #define update_fpointer_invalid  true
               #else
-                #define update_fpointer_invalid  FALSE
+                #define update_fpointer_invalid  false
               #endif
-              #define update_fsubr_function  TRUE
+              #define update_fsubr_function  true
               #define update_ht_invalid  mark_ht_invalid
               #define update_fp_invalid  mark_fp_invalid
               #define update_fs_function  loadmem_update_fsubr
@@ -1382,7 +1382,7 @@
         # File schließen:
         #undef READ
         #ifdef SELFMADE_MMAP
-          mem.memfile_still_being_read = FALSE;
+          mem.memfile_still_being_read = false;
         #else
           begin_system_call();
           #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
@@ -1397,7 +1397,7 @@
         #endif
         #ifdef SPVW_PAGES
           begin_system_call(); free(offset_pages); end_system_call();
-          recalc_space(FALSE);
+          recalc_space(false);
         #endif
         #if defined(SPVW_PURE_BLOCKS) || defined(TRIVIALMAP_MEMORY) || defined(GENERATIONAL_GC) # SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY || GENERATIONAL_GC
           #ifdef GENERATIONAL_GC

@@ -10,7 +10,7 @@
 # Allocates a Lisp object.
 # allocate(type,flag,size,ptrtype,ptr,statement)
 # > type: the typecode
-# > flag: a literal boolean, TRUE for varobject, FALSE for two-pointer-object
+# > flag: a literal bool, true for varobject, false for two-pointer-object
 # > size: the needed memory size (including header and alignment). Must be
 #         a constant expression or a variable.
 # ptrtype: the C type of `ptr'
@@ -88,7 +88,7 @@
 
 # Stellt fest, ob eine Adresse im Intervall [0..2^oint_addr_len-1] liegt:
   #if !defined(TYPECODES) || ((oint_addr_len==32) && !defined(WIDE_HARD)) # d.h. !defined(TYPECODES) || defined(WIDE_SOFT)
-    #define pointable_usable_test(a)  TRUE
+    #define pointable_usable_test(a)  true
   #else
     #define pointable_usable_test(a)  \
       ((void*)pointable(type_pointer_object(0,a)) == (void*)(a))
@@ -152,8 +152,8 @@
 # > flag: ob Objekt variabler Länge oder nicht
 # > uintL need: angeforderter Platz in Bytes (eine Variable oder Konstante)
   # Der Test, ob Platz vorhanden ist, als Macro, der Rest als Funktion:
-  #define make_space_TRUE(need)  make_space(need)
-  #define make_space_FALSE(need)  make_space(need)
+  #define make_space_true(need)  make_space(need)
+  #define make_space_false(need)  make_space(need)
   #define make_space(need)  \
     { if (not_enough_room_p(need)) make_space_gc(need); }
   #if !defined(GENERATIONAL_GC)
@@ -214,27 +214,27 @@
 # > flag: ob Objekt variabler Länge oder nicht
 # > uintL need: angeforderter Platz in Bytes (eine Variable oder Konstante)
   # Der Test, ob Platz vorhanden ist, als Macro, der Rest als Funktion:
-  #define make_space_TRUE(need)  \
+  #define make_space_true(need)  \
     { if ((mem.total_room < (uintL)(need))                                         \
           || (mem.varobjects.heap_limit - mem.varobjects.heap_end < (uintP)(need)) \
          )                                                                         \
-        make_space_gc_TRUE(need,&mem.varobjects);                                  \
+        make_space_gc_true(need,&mem.varobjects);                                  \
     }
-  #define make_space_FALSE(need)  \
+  #define make_space_false(need)  \
     { if ((mem.total_room < (uintL)(need))                                   \
           || (mem.conses.heap_start - mem.conses.heap_limit < (uintP)(need)) \
          )                                                                   \
-        make_space_gc_FALSE(need,&mem.conses);                               \
+        make_space_gc_false(need,&mem.conses);                               \
     }
-  local void make_space_gc_TRUE (uintL need, Heap* heapptr);
-  local void make_space_gc_TRUE(need,heapptr)
+  local void make_space_gc_true (uintL need, Heap* heapptr);
+  local void make_space_gc_true(need,heapptr)
     var uintL need;
     var Heap* heapptr;
     { # (mem.total_room < need) || (heapptr->heap_limit - heapptr->heap_end < need)
       # ist schon abgeprüft, also nicht genügend Platz.
      not_enough_room:
       {
-        var boolean done_gc = FALSE;
+        var bool done_gc = false;
         if (mem.total_room < need) {
          do_gc:
           gar_col_simple(); # Garbage Collector aufrufen
@@ -247,7 +247,7 @@
             else
               return;
           });
-          done_gc = TRUE;
+          done_gc = true;
         }
         # Entweder ist jetzt (mem.total_room >= need), oder aber wir haben gerade
         # eine GC durchgeführt. In beiden Fällen konzentrieren wir uns nun
@@ -289,15 +289,15 @@
           mem.total_room = need;
       }
     }
-  local void make_space_gc_FALSE (uintL need, Heap* heapptr);
-  local void make_space_gc_FALSE(need,heapptr)
+  local void make_space_gc_false (uintL need, Heap* heapptr);
+  local void make_space_gc_false(need,heapptr)
     var uintL need;
     var Heap* heapptr;
     { # (mem.total_room < need) || (heapptr->heap_start - heapptr->heap_limit < need)
       # ist schon abgeprüft, also nicht genügend Platz.
      not_enough_room:
       {
-        var boolean done_gc = FALSE;
+        var bool done_gc = false;
         if (mem.total_room < need) {
          do_gc:
           gar_col_simple(); # Garbage Collector aufrufen
@@ -310,7 +310,7 @@
             else
               return;
           });
-          done_gc = TRUE;
+          done_gc = true;
         }
         # Entweder ist jetzt (mem.total_room >= need), oder aber wir haben gerade
         # eine GC durchgeführt. In beiden Fällen konzentrieren wir uns nun
@@ -380,7 +380,7 @@
       # ist schon abgeprüft, also nicht genügend Platz.
      not_enough_room:
       {
-        var boolean done_gc = FALSE;
+        var bool done_gc = false;
         if (mem.total_room < need) {
          do_gc:
           gar_col_simple(); # Garbage Collector aufrufen
@@ -393,7 +393,7 @@
             else
               return;
           });
-          done_gc = TRUE;
+          done_gc = true;
         }
         # Entweder ist jetzt (mem.total_room >= need), oder aber wir haben gerade
         # eine GC durchgeführt. In beiden Fällen konzentrieren wir uns nun
@@ -586,8 +586,8 @@
     #define allocate(type_expr,flag,size_expr,ptrtype,ptrvar,statement)  \
       allocate_##flag (type_expr,size_expr,ptrtype,ptrvar,statement)
     # Objekt variabler Länge:
-    #define allocate_TRUE(type_expr,size_expr,ptrtype,ptrvar,statement)  \
-      { make_space_TRUE(size_expr);                                                   \
+    #define allocate_true(type_expr,size_expr,ptrtype,ptrvar,statement)  \
+      { make_space_true(size_expr);                                                   \
         set_break_sem_1(); # Break sperren                                            \
        {var ptrtype ptrvar;                                                           \
         var object obj;                                                               \
@@ -601,8 +601,8 @@
         return obj;                                                                   \
       }}
     # Cons o.ä.:
-    #define allocate_FALSE(type_expr,size_expr,ptrtype,ptrvar,statement)  \
-      { make_space_FALSE(size_expr);                                                        \
+    #define allocate_false(type_expr,size_expr,ptrtype,ptrvar,statement)  \
+      { make_space_false(size_expr);                                                        \
         set_break_sem_1(); # Break sperren                                                  \
        {var ptrtype ptrvar;                                                                 \
         ptrvar = (ptrtype)(mem.conses.heap_start -= size_expr); # Pointer auf Speicherstück \
@@ -617,7 +617,7 @@
     #define allocate(type_expr,flag,size_expr,ptrtype,ptrvar,statement)  \
       allocate_##flag (type_expr,size_expr,ptrtype,ptrvar,statement)
     # Objekt variabler Länge:
-    #define allocate_TRUE(type_expr,size_expr,ptrtype,ptrvar,statement)  \
+    #define allocate_true(type_expr,size_expr,ptrtype,ptrvar,statement)  \
       { make_space(size_expr,&mem.varobjects);                                        \
         set_break_sem_1(); # Break sperren                                            \
        {var ptrtype ptrvar;                                                           \
@@ -632,7 +632,7 @@
         return obj;                                                                   \
       }}
     # Cons o.ä.:
-    #define allocate_FALSE(type_expr,size_expr,ptrtype,ptrvar,statement)  \
+    #define allocate_false(type_expr,size_expr,ptrtype,ptrvar,statement)  \
       { make_space(size_expr,&mem.conses);                                              \
         set_break_sem_1(); # Break sperren                                              \
        {var ptrtype ptrvar = (ptrtype) mem.conses.heap_end; # Pointer auf Speicherstück \
@@ -660,10 +660,10 @@
         return as_object((oint)ptrvar);                                    \
       }}
     # Objekt variabler Länge:
-    #define allocate_TRUE(ptrvar)  \
+    #define allocate_true(ptrvar)  \
       ptrvar->GCself = as_object((oint)ptrvar); # Selbstpointer eintragen
     # Cons o.ä.:
-    #define allocate_FALSE(ptrvar)
+    #define allocate_false(ptrvar)
    #endif
   #endif
   #ifdef SPVW_PAGES
@@ -671,7 +671,7 @@
       allocate_##flag (type_expr,size_expr,ptrtype,ptrvar,statement)
    #ifdef SPVW_MIXED
     # Objekt variabler Länge:
-    #define allocate_TRUE(type_expr,size_expr,ptrtype,ptrvar,statement)  \
+    #define allocate_true(type_expr,size_expr,ptrtype,ptrvar,statement)  \
       { # Suche nach der Page mit dem kleinsten page_room >= size_expr:               \
         var AVL(AVLID,stack) stack;                                                   \
         var Pages page;                                                               \
@@ -691,7 +691,7 @@
         return obj;                                                                   \
       }}
     # Cons o.ä.:
-    #define allocate_FALSE(type_expr,size_expr,ptrtype,ptrvar,statement)  \
+    #define allocate_false(type_expr,size_expr,ptrtype,ptrvar,statement)  \
       { # Suche nach der Page mit dem kleinsten page_room >= size_expr = 8: \
         var Pages page;                                                     \
         # 1. Versuch: letzte benutzte Page                                  \
@@ -719,7 +719,7 @@
    #endif
    #ifdef SPVW_PURE
     # Objekt variabler Länge:
-    #define allocate_TRUE(type_expr,size_expr,ptrtype,ptrvar,statement)  \
+    #define allocate_true(type_expr,size_expr,ptrtype,ptrvar,statement)  \
       { # Suche nach der Page mit dem kleinsten page_room >= size_expr:           \
         var AVL(AVLID,stack) stack;                                               \
         var Pages page;                                                           \
@@ -741,7 +741,7 @@
         return obj;                                                               \
       }}
     # Cons o.ä.:
-    #define allocate_FALSE(type_expr,size_expr,ptrtype,ptrvar,statement)  \
+    #define allocate_false(type_expr,size_expr,ptrtype,ptrvar,statement)  \
       { # Suche nach der Page mit dem kleinsten page_room >= size_expr = 8: \
         var Pages page;                                                     \
         var tint _type = (type_expr);                                       \

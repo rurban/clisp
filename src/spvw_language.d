@@ -143,24 +143,24 @@
     global uintL language;
 
   # Initialisiert die Sprache, gegeben die Sprachbezeichnung.
-    local boolean init_language_from (const char* langname);
+    local bool init_language_from (const char* langname);
     #ifdef GNU_GETTEXT
       #define language_deutsch   1
       #define language_francais  2
       #define language_spanish   3
       #define language_dutch     4
     #endif
-    local boolean init_language_from(langname)
+    local bool init_language_from(langname)
       var const char* langname;
       {
         if (asciz_equal(langname,"ENGLISH") || asciz_equal(langname,"english")) {
-          language = language_english; return TRUE;
+          language = language_english; return true;
         }
         #ifdef GNU_GETTEXT
         if (asciz_equal(langname,"DEUTSCH") || asciz_equal(langname,"deutsch")
             || asciz_equal(langname,"GERMAN") || asciz_equal(langname,"german")
            ) {
-          language = language_deutsch; return TRUE;
+          language = language_deutsch; return true;
         }
         if (asciz_equal(langname,"FRANCAIS") || asciz_equal(langname,"francais")
             #ifndef ASCII_CHS
@@ -169,7 +169,7 @@
             #endif
             || asciz_equal(langname,"FRENCH") || asciz_equal(langname,"french")
            ) {
-          language = language_francais; return TRUE;
+          language = language_francais; return true;
         }
         if (asciz_equal(langname,"ESPANOL") || asciz_equal(langname,"espanol")
             #ifndef ASCII_CHS
@@ -178,15 +178,15 @@
             #endif
             || asciz_equal(langname,"SPANISH") || asciz_equal(langname,"spanish")
            ) {
-          language = language_spanish; return TRUE;
+          language = language_spanish; return true;
         }
         if (asciz_equal(langname,"NEDERLANDS") || asciz_equal(langname,"nederlands")
             || asciz_equal(langname,"DUTCH") || asciz_equal(langname,"dutch")
            ) {
-          language = language_dutch; return TRUE;
+          language = language_dutch; return true;
         }
         #endif
-        return FALSE;
+        return false;
       }
 
   # Initialisiert die Sprache.

@@ -667,7 +667,7 @@ LISPFUNN(subr_info,1)
               cond = popSTACK(); # cond zurück
               i += 2;
             } while (i < m2);
-            if (FALSE) {
+            if (false) {
              found_handler:
               # CLtL2 S. 873, 884: "A handler is executed in the dynamic context
               # of the signaler, except that the set of available condition
@@ -732,19 +732,19 @@ LISPFUNN(subr_info,1)
 # eine Liste der Form (SETF symbol), ist.
 # funnamep(obj)
 # > obj: Objekt
-# < ergebnis: TRUE falls Funktionsname
-  global boolean funnamep (object obj);
-  global boolean funnamep(obj)
+# < ergebnis: true falls Funktionsname
+  global bool funnamep (object obj);
+  global bool funnamep(obj)
     var object obj;
     {
       if (symbolp(obj))
-        return TRUE;
+        return true;
       if (consp(obj) && eq(Car(obj),S(setf))) {
         obj = Cdr(obj);
         if (consp(obj) && nullp(Cdr(obj)) && symbolp(Car(obj)))
-          return TRUE;
+          return true;
       }
-      return FALSE;
+      return false;
     }
 
 # UP: Liefert den Wert eines Symbols in einem Environment.
@@ -827,13 +827,13 @@ LISPFUNN(subr_info,1)
 # UP: Stellt fest, ob ein Symbol im aktuellen Environment einen Macro darstellt.
 # sym_macrop(symbol)
 # > symbol: Symbol
-# < ergebnis: TRUE falls sym einen Symbol-Macro darstellt
-  global boolean sym_macrop (object sym);
-  global boolean sym_macrop(sym)
+# < ergebnis: true falls sym einen Symbol-Macro darstellt
+  global bool sym_macrop (object sym);
+  global bool sym_macrop(sym)
     var object sym;
     {
       var object val = sym_value(sym,aktenv.var_env);
-      return (symbolmacrop(val) ? TRUE : FALSE);
+      return (symbolmacrop(val) ? true : false);
     }
 
 # UP: Setzt den Wert eines Symbols im aktuellen Environment.
@@ -1483,10 +1483,10 @@ LISPFUNN(subr_info,1)
 # < value1: body
 # < value2: Liste der decl-specs
 # < value3: Doc-String oder NIL
-# < ergebnis: TRUE falls eine (COMPILE)-Deklaration vorkam, FALSE sonst
+# < ergebnis: true falls eine (COMPILE)-Deklaration vorkam, false sonst
 # can trigger GC
-  global boolean parse_dd (object formlist, object venv, object fenv);
-  global boolean parse_dd(formlist,venv,fenv)
+  global bool parse_dd (object formlist, object venv, object fenv);
+  global bool parse_dd(formlist,venv,fenv)
     var object formlist;
     var object venv;
     var object fenv;
@@ -1497,7 +1497,7 @@ LISPFUNN(subr_info,1)
       pushSTACK(NIL); # vorläufiger Doc-String
       pushSTACK(NIL); # Anfang decl-spec-Liste
       # Stackaufbau: formlist, venv, fenv, docstring, declspecs.
-      var boolean compile_decl = FALSE; # Flag, ob eine (COMPILE)-Deklaration vorkam
+      var bool compile_decl = false; # Flag, ob eine (COMPILE)-Deklaration vorkam
       var object body = formlist; # Rest der Formenliste
       while (consp(body)) {
         pushSTACK(body); # body retten
@@ -1533,7 +1533,7 @@ LISPFUNN(subr_info,1)
                   && eq(Car(declspec),S(compile))
                   && nullp(Cdr(declspec))
                  )
-                compile_decl = TRUE;
+                compile_decl = true;
             }
             # Diese Deklaration auf STACK_(0+2) consen:
             {
@@ -1716,11 +1716,11 @@ LISPFUNN(subr_info,1)
 #        end->decl_env = DENV.
 # < ergebnis: Closure
 # can trigger GC
-  global object get_closure (object lambdabody, object name, boolean blockp, environment* env);
+  global object get_closure (object lambdabody, object name, bool blockp, environment* env);
   global object get_closure(lambdabody,name,blockp,env)
     var object lambdabody;
     var object name;
-    var boolean blockp;
+    var bool blockp;
     var environment* env;
     {
       # Lambdabody muss ein Cons sein:
@@ -2465,14 +2465,14 @@ LISPFUNN(subr_info,1)
 # check_for_illegal_keywords(allow_flag,fehler_statement);
 # > uintC argcount: Anzahl der Keyword/Value-Paare
 # > object* rest_args_pointer: Pointer über die 2*argcount restlichen Argumente
-# > boolean allow_flag: Flag, ob &ALLOW-OTHER-KEYS angegeben war
+# > bool allow_flag: Flag, ob &ALLOW-OTHER-KEYS angegeben war
 # > for_every_keyword: Macro, der alle Keywords durchläuft und an 'keyword'
 #                      zuweist.
 # > fehler_statement: Statement, das meldet, dass bad_keyword illegal ist.
   #define check_for_illegal_keywords(allow_flag_expr,fehler_statement)  \
     { var object* argptr = rest_args_pointer; # Pointer in die Argumente    \
       var object bad_keyword = nullobj; # erstes unerlaubtes Keyword oder nullobj \
-      var boolean allow_flag = # Flag für allow-other-keys (ob              \
+      var bool allow_flag = # Flag für allow-other-keys (ob                 \
         # &ALLOW-OTHER-KEYS angegeben war oder ':ALLOW-OTHER-KEY T' vorkam) \
         (allow_flag_expr);                                                  \
       var uintC check_count;                                                \
@@ -2484,7 +2484,7 @@ LISPFUNN(subr_info,1)
           fehler_key_notkw(kw);                                             \
         if (!allow_flag) { # andere Keywords erlaubt? ja -> ok              \
           if (eq(kw,S(Kallow_other_keys))) { #  Kommt :ALLOW-OTHER-KEYS ?   \
-            if (!nullp(val)) { allow_flag = TRUE; }                         \
+            if (!nullp(val)) { allow_flag = true; }                         \
           } else {                                                          \
             # bis hierher war nicht :ALLOW-OTHER-KEYS da, und NOALLOW       \
             if (eq(bad_keyword,nullobj)) { # bisher alle Keywords ok?       \
@@ -2519,7 +2519,7 @@ LISPFUNN(subr_info,1)
         if (eq(NEXT(argptr),keyword)) goto kw_found; # richtiges Keyword? \
         NEXT(argptr);                                                     \
       });                                                                 \
-      if (TRUE)                                                           \
+      if (true)                                                           \
         # nicht gefunden                                                  \
         { notfound_statement }                                            \
         else                                                              \
@@ -3124,8 +3124,8 @@ LISPFUNN(subr_info,1)
     }
 
 # UP: Stellt fest, ob eine non-Standard Form self-evaluating ist.
-  local boolean other_self_evaluating_p (void);
-  local boolean other_self_evaluating_p()
+  local bool other_self_evaluating_p (void);
+  local bool other_self_evaluating_p()
     {
       # (member (find-package "COMMON-LISP") (package-use-list *package*))
       var object pack = find_package(O(common_lisp_string));
@@ -3133,11 +3133,11 @@ LISPFUNN(subr_info,1)
         var object list = ThePackage(get_current_package())->pack_use_list;
         while (consp(list)) {
           if (eq(Car(list),pack))
-            return TRUE;
+            return true;
           list = Cdr(list);
         }
       }
-      return FALSE;
+      return false;
     }
 
 # UP: Wertet eine Form im aktuellen Environment aus.
@@ -3265,7 +3265,7 @@ LISPFUNN(subr_info,1)
             }
           } elif (consp(fun) && eq(Car(fun),S(lambda))) { # Lambda-Ausdruck?
             pushSTACK(Cdr(form)); # Argumentliste
-            fun = get_closure(Cdr(fun),S(Klambda),FALSE,&aktenv); # Closure im aktuellen Environment erzeugen
+            fun = get_closure(Cdr(fun),S(Klambda),false,&aktenv); # Closure im aktuellen Environment erzeugen
             goto closure; # und diese auf die Argumente anwenden, wie oben
           } else {
             pushSTACK(fun);

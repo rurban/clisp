@@ -60,7 +60,7 @@
         # Hoffentlich enthält columns jetzt einen vernünftigen Wert.
         if (/* (lines > 0) && */ (columns > 0))
           goto OK;
-        if (FALSE) {
+        if (false) {
          OK:
           # Wert von SYS::*PRIN-LINELENGTH* verändern:
           Symbol_value(S(prin_linelength)) = fixnum(columns-1);

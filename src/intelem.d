@@ -721,7 +721,7 @@
       #if (bn_minlength <= 1) && (UL_maxlength >= 1)
       if ((1*intDsize-1 < 32)
           ? (wert <= (uint32)(bitc(1*intDsize-1)-1))
-          : TRUE
+          : true
          ) {
         # Bignum mit 1 Digit
         var object newnum = allocate_bignum(1,0);
@@ -732,7 +732,7 @@
       #if (bn_minlength <= 2) && (UL_maxlength >= 2)
       if ((2*intDsize-1 < 32)
           ? (wert <= (uint32)(bitc(2*intDsize-1)-1))
-          : TRUE
+          : true
          ) {
         # Bignum mit 2 Digits
         var object newnum = allocate_bignum(2,0);
@@ -749,7 +749,7 @@
       #if (bn_minlength <= 3) && (UL_maxlength >= 3)
       if ((3*intDsize-1 < 32)
           ? (wert <= (uint32)(bitc(3*intDsize-1)-1))
-          : TRUE
+          : true
          ) {
         # Bignum mit 3 Digits
         var object newnum = allocate_bignum(3,0);
@@ -767,7 +767,7 @@
       #if (bn_minlength <= 4) && (UL_maxlength >= 4)
       if ((4*intDsize-1 < 32)
           ? (wert <= (uint32)(bitc(4*intDsize-1)-1))
-          : TRUE
+          : true
          ) {
         # Bignum mit 4 Digits
         var object newnum = allocate_bignum(4,0);
@@ -784,7 +784,7 @@
       }
       #endif
       #if (bn_minlength <= 5) && (UL_maxlength >= 5)
-      if (TRUE) {
+      if (true) {
         # Bignum mit 5 Digits
         var object newnum = allocate_bignum(5,0);
         var uintD* ptr = &TheBignum(newnum)->data[4];
@@ -1153,7 +1153,7 @@
       #if (bn_minlength <= 1) && (UQ_maxlength >= 1)
       if ((1*intDsize-1 < 64)
           ? (wert <= (uint64)(bitc(1*intDsize-1)-1))
-          : TRUE
+          : true
          ) {
         # Bignum mit 1 Digit
         var object newnum = allocate_bignum(1,0);
@@ -1164,7 +1164,7 @@
       #if (bn_minlength <= 2) && (UQ_maxlength >= 2)
       if ((2*intDsize-1 < 64)
           ? (wert <= (uint64)(bitc(2*intDsize-1)-1))
-          : TRUE
+          : true
          ) {
         # Bignum mit 2 Digits
         var object newnum = allocate_bignum(2,0);
@@ -1181,7 +1181,7 @@
       #if (bn_minlength <= 3) && (UQ_maxlength >= 3)
       if ((3*intDsize-1 < 64)
           ? (wert <= (uint64)(bitc(3*intDsize-1)-1))
-          : TRUE
+          : true
          ) {
         # Bignum mit 3 Digits
         var object newnum = allocate_bignum(3,0);
@@ -1199,7 +1199,7 @@
       #if (bn_minlength <= 4) && (UQ_maxlength >= 4)
       if ((4*intDsize-1 < 64)
           ? (wert <= (uint64)(bitc(4*intDsize-1)-1))
-          : TRUE
+          : true
          ) {
         # Bignum mit 4 Digits
         var object newnum = allocate_bignum(4,0);
@@ -1218,7 +1218,7 @@
       #if (bn_minlength <= 5) && (UQ_maxlength >= 5)
       if ((5*intDsize-1 < 64)
           ? (wert <= (uint64)(bitc(5*intDsize-1)-1))
-          : TRUE
+          : true
          ) {
         # Bignum mit 5 Digits
         var object newnum = allocate_bignum(5,0);
@@ -1238,7 +1238,7 @@
       #if (bn_minlength <= 6) && (UQ_maxlength >= 6)
       if ((6*intDsize-1 < 64)
           ? (wert <= (uint64)(bitc(6*intDsize-1)-1))
-          : TRUE
+          : true
          ) {
         # Bignum mit 6 Digits
         var object newnum = allocate_bignum(6,0);
@@ -1259,7 +1259,7 @@
       #if (bn_minlength <= 7) && (UQ_maxlength >= 7)
       if ((7*intDsize-1 < 64)
           ? (wert <= (uint64)(bitc(7*intDsize-1)-1))
-          : TRUE
+          : true
          ) {
         # Bignum mit 7 Digits
         var object newnum = allocate_bignum(7,0);
@@ -1281,7 +1281,7 @@
       #if (bn_minlength <= 8) && (UQ_maxlength >= 8)
       if ((8*intDsize-1 < 64)
           ? (wert <= (uint64)(bitc(8*intDsize-1)-1))
-          : TRUE
+          : true
          ) {
         # Bignum mit 8 Digits
         var object newnum = allocate_bignum(8,0);
@@ -1302,7 +1302,7 @@
       }
       #endif
       #if (bn_minlength <= 9) && (UQ_maxlength >= 9)
-      if (TRUE) {
+      if (true) {
         # Bignum mit 9 Digits
         var object newnum = allocate_bignum(9,0);
         var uintD* ptr = &TheBignum(newnum)->data[8];
@@ -1350,38 +1350,38 @@
       # Genau bn_minlength Digits -> Bignum oder Fixnum.
       if (len < bn_minlength) {
         # 0..bn_minlength-1 Digits, passt in ein Fixnum:
-        if (bn_minlength>1 ? (len==0) : TRUE)
+        if (bn_minlength>1 ? (len==0) : true)
           # 0 Digits
           return Fixnum_0;
         #ifndef intQsize
         var sint32 wert;
-        if (bn_minlength>2 ? (len==1) : TRUE)
+        if (bn_minlength>2 ? (len==1) : true)
           # 1 Digit
           len_1:
           { wert = get_sint1D_Dptr(MSDptr); }
-        elif (bn_minlength>3 ? (len==2) : TRUE)
+        elif (bn_minlength>3 ? (len==2) : true)
           # 2 Digits
           len_2:
           { wert = get_sint2D_Dptr(MSDptr); }
-        elif (bn_minlength>4 ? (len==3) : TRUE)
+        elif (bn_minlength>4 ? (len==3) : true)
           # 3 Digits
           len_3:
           { wert = get_sint3D_Dptr(MSDptr); }
-        elif (TRUE)
+        elif (true)
           # 4 Digits
           len_4:
           { wert = get_sint4D_Dptr(MSDptr); }
-        elif (FALSE)
+        elif (false)
           # 5 Digits
           len_5:
           { wert = get_sint4D_Dptr(&MSDptr[1]); }
         #else # defined(intQsize) && (intDsize==32)
         var sint64 wert;
-        if (TRUE)
+        if (true)
           # 1 Digit
           len_1:
           { wert = (sint64)(sintD)MSDptr[0]; }
-        elif (TRUE)
+        elif (true)
           # 2 Digits
           len_2:
           { wert = ((sint64)(sintD)MSDptr[0] << intDsize) | (uint64)(uintD)MSDptr[1]; }

@@ -6,7 +6,7 @@
 
 # Variable to be set ONLY during write() calls to pipes directed to
 # subprocesses.
-  global boolean writing_to_subprocess = FALSE;
+  global bool writing_to_subprocess = false;
 
 # Install the signal handler for SIGPIPE.
   local void install_sigpipe_handler (void);

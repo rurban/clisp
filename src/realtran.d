@@ -382,9 +382,9 @@
           return z;                                                                 \
       }}}}
 # F_sinx_F : mit z -> z*(1-y^2*z), a = -x^2, -d/2
-  GEN_F_sinx(sinx,0,TRUE,R_R_minus_R)
+  GEN_F_sinx(sinx,0,true,R_R_minus_R)
 # F_sinhx_F : mit z -> z*(1+y^2*z), a = x^2, (1-d)/2
-  GEN_F_sinx(sinhx,1,FALSE,R_R_plus_R)
+  GEN_F_sinx(sinhx,1,false,R_R_plus_R)
 
 # F_pi_round_I_F(x) dividiert ein Float x mit Rest durch pi.
 # Beide Werte von (round x (float pi x)) auf den Stack.

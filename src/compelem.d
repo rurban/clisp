@@ -269,8 +269,8 @@
     }   }
 
 # N_zerop(x) stellt fest, ob (= x 0), wo x eine Zahl ist.
-  local boolean N_zerop (object x);
-  local boolean N_zerop(x)
+  local bool N_zerop (object x);
+  local bool N_zerop(x)
     var object x;
     { if (N_realp(x))
         { return R_zerop(x); }
@@ -839,14 +839,14 @@
     }
 
 # N_N_gleich(x,y) vergleicht zwei reelle Zahlen x und y.
-# Ergebnis: TRUE falls x=y, FALSE sonst.
-  global /* local */ boolean N_N_gleich (object x, object y);
+# Ergebnis: true falls x=y, false sonst.
+  global /* local */ bool N_N_gleich (object x, object y);
 # Methode:
 # Falls beide reell, klar.
 # Falls x reell, y komplex: (= x (realpart y)) und (zerop (imagpart y)).
 # Falls x komplex, y reell: analog
 # Falls beide komplex: Realteile und Imaginärteile jeweils gleich?
-  global /* local */ boolean N_N_gleich(x,y)
+  global /* local */ bool N_N_gleich(x,y)
     var object x;
     var object y;
     { if (N_realp(x))
@@ -856,7 +856,7 @@
             { return R_R_gleich(x,y); }
             else
             # x reell, y komplex
-            { if (!R_zerop(TheComplex(y)->c_imag)) return FALSE;
+            { if (!R_zerop(TheComplex(y)->c_imag)) return false;
               return R_R_gleich(x,TheComplex(y)->c_real);
             }
         }
@@ -864,16 +864,16 @@
         # x komplex
         { if (N_realp(y))
             # x komplex, y reell
-            { if (!R_zerop(TheComplex(x)->c_imag)) return FALSE;
+            { if (!R_zerop(TheComplex(x)->c_imag)) return false;
               return R_R_gleich(TheComplex(x)->c_real,y);
             }
             else
             # x,y beide komplex
             { if (!R_R_gleich(TheComplex(x)->c_real,TheComplex(y)->c_real)) # Realteile vergleichen
-                { return FALSE; }
+                { return false; }
               if (!R_R_gleich(TheComplex(x)->c_imag,TheComplex(y)->c_imag)) # Imaginärteile vergleichen
-                { return FALSE; }
-              return TRUE;
+                { return false; }
+              return true;
             }
         }
     }

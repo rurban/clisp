@@ -29,9 +29,9 @@
       stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
       # What to do if one of these is == INVALID_HANDLE_VALUE ??
       # Auxiliary events.
-      aux_event = CreateEvent(NULL, TRUE, FALSE, NULL);
-      sigint_event = CreateEvent(NULL, TRUE, FALSE, NULL);
-      sigbreak_event = CreateEvent(NULL, TRUE, FALSE, NULL);
+      aux_event = CreateEvent(NULL, true, false, NULL);
+      sigint_event = CreateEvent(NULL, true, false, NULL);
+      sigbreak_event = CreateEvent(NULL, true, false, NULL);
       # Translation table for console input.
       {
         var int i;
@@ -65,7 +65,7 @@
   # Call fn(arg), being able to abort it if Ctrl-C is pressed.
   # Not reentrant, hence fn() should be very simple and not invoke callbacks.
   # fn() should return 0 once it terminated successfully.
-  # Returns TRUE if successful, FALSE if interrupted.
+  # Returns true if successful, false if interrupted.
   local BOOL DoInterruptible (LPTHREAD_START_ROUTINE fn, LPVOID arg, BOOL socketp);
   local BOOL interruptible_active;
   local HANDLE interruptible_thread;
@@ -80,7 +80,7 @@
         if (interruptible_active) {
           # Set interruptible_active to false, so we won't get here a
           # second time and try to terminate the same thread twice.
-          interruptible_active = FALSE;
+          interruptible_active = false;
           # Terminate the interruptible operation, set the exitcode to 1.
           if (interruptible_socketp) {
             WSACancelBlockingCall();
@@ -90,10 +90,10 @@
           }
         }
         # Don't invoke the other handlers (in particular, the default handler)
-        return TRUE;
+        return true;
       } else {
         # Do invoke the other handlers.
-        return FALSE;
+        return false;
       }
     }
 
@@ -109,29 +109,29 @@
       if (thread==NULL) {
         OS_error();
       }
-      interruptible_active = FALSE;
+      interruptible_active = false;
       interruptible_thread = thread;
       interruptible_socketp = socketp;
-      SetConsoleCtrlHandler((PHANDLER_ROUTINE)temp_interrupt_handler,TRUE);
-      interruptible_active = TRUE;
+      SetConsoleCtrlHandler((PHANDLER_ROUTINE)temp_interrupt_handler,true);
+      interruptible_active = true;
       WaitForSingleObject(interruptible_thread,INFINITE);
-      interruptible_active = FALSE;
-      SetConsoleCtrlHandler((PHANDLER_ROUTINE)temp_interrupt_handler,FALSE);
+      interruptible_active = false;
+      SetConsoleCtrlHandler((PHANDLER_ROUTINE)temp_interrupt_handler,false);
       GetExitCodeThread(interruptible_thread,&thread_exitcode);
       CloseHandle(interruptible_thread);
       if (thread_exitcode==0) {
-        return TRUE; # successful termination
+        return true; # successful termination
       } else {
         if (thread_exitcode == 1+CTRL_BREAK_EVENT) {
           final_exitcode = 130; quit(); # aborted by Ctrl-Break
         }
-        return FALSE; # aborted by Ctrl-C
+        return false; # aborted by Ctrl-C
       }
     }
 
 
 # Sleep a certain time.
-# Return TRUE after normal termination, FALSE if interrupted by Ctrl-C.
+# Return true after normal termination, false if interrupted by Ctrl-C.
   global BOOL msleep (DWORD milliseconds);
   local DWORD WINAPI do_sleep (LPVOID arg);
   local DWORD WINAPI do_sleep(arg)
@@ -143,7 +143,7 @@
   global BOOL msleep(milliseconds)
     var DWORD milliseconds;
     {
-      return DoInterruptible(&do_sleep,(void*)milliseconds,FALSE);
+      return DoInterruptible(&do_sleep,(void*)milliseconds,false);
     }
 
 # Sleep a certain time.
@@ -182,7 +182,7 @@
     {
       if (CtrlType == CTRL_C_EVENT || CtrlType == CTRL_BREAK_EVENT) {
         # Send an event to the sigint_thread.
-        interrupt_pending = TRUE;
+        interrupt_pending = true;
         if (CtrlType == CTRL_C_EVENT) {
           if (!PulseEvent(sigint_event)) {
             OS_error();
@@ -193,10 +193,10 @@
           }
         }
         # Don't invoke the other handlers (in particular, the default handler)
-        return TRUE;
+        return true;
       } else {
         # Do invoke the other handlers.
-        return FALSE;
+        return false;
       }
     }
 
@@ -210,7 +210,7 @@
       waitfor[0] = sigint_event;
       waitfor[1] = sigbreak_event;
       for (;;)
-        switch (WaitForMultipleObjects(2,&waitfor[0],FALSE,wait_duration[waitstate])) {
+        switch (WaitForMultipleObjects(2,&waitfor[0],false,wait_duration[waitstate])) {
           case WAIT_OBJECT_0+0:
             # Got a sigint_event!
             if (!interrupt_pending) { # already being handled?
@@ -218,7 +218,7 @@
             }
             if (waitstate==0) {
               # Do not hyperjump right now. Wait a while - maybe
-              # interrupt_pending=TRUE causes a continuable interruption.
+              # interrupt_pending=true causes a continuable interruption.
               waitstate = 1; break;
             }
             goto try_hyperjump;
@@ -259,7 +259,7 @@
       # Get main_thread, assuming we are in the main thread.
       if (!DuplicateHandle(GetCurrentProcess(),GetCurrentThread(),
                            GetCurrentProcess(),&main_thread,
-                           0, FALSE, DUPLICATE_SAME_ACCESS)) {
+                           0, false, DUPLICATE_SAME_ACCESS)) {
         OS_error();
       }
       # Start sigint_thread.
@@ -272,7 +272,7 @@
         sigint_thread = thread;
       }
       # Install normal_interrupt_handler.
-      if (!SetConsoleCtrlHandler((PHANDLER_ROUTINE)normal_interrupt_handler,TRUE)) {
+      if (!SetConsoleCtrlHandler((PHANDLER_ROUTINE)normal_interrupt_handler,true)) {
         OS_error();
       }
     }
@@ -329,12 +329,12 @@
       params.NumberOfEventsRead = NumberOfEventsRead;
       params.retval             = 0;
       params.errcode            = 0;
-      if (DoInterruptible(&do_ReadConsoleInput,(void*)&params,FALSE)) {
+      if (DoInterruptible(&do_ReadConsoleInput,(void*)&params,false)) {
         if (!params.retval)
           SetLastError(params.errcode);
         return params.retval;
       } else {
-        SetLastError(ERROR_SIGINT); return FALSE;
+        SetLastError(ERROR_SIGINT); return false;
       }
     }
 
@@ -381,7 +381,7 @@
           break;
         if (err != ERROR_IO_PENDING)
           return -1;
-        if (!GetOverlappedResult(fd, &overlap, &nchars, TRUE)) {
+        if (!GetOverlappedResult(fd, &overlap, &nchars, true)) {
           if (GetLastError() == ERROR_HANDLE_EOF)
             break;
           return -1;
@@ -401,7 +401,7 @@
         }
         # No character found for which translation makes a difference,
         # hence no need to translate.
-        if (FALSE) {
+        if (false) {
          maybe_translate:
           var DWORD console_mode;
           if (GetConsoleMode(fd,&console_mode)) {
@@ -440,7 +440,7 @@
       params.nbyte   = nbyte;
       params.retval  = 0;
       params.errcode = 0;
-      if (DoInterruptible(&do_full_read,(void*)&params,FALSE)) {
+      if (DoInterruptible(&do_full_read,(void*)&params,false)) {
         if (params.retval < 0)
           SetLastError(params.errcode);
         return params.retval;
@@ -470,7 +470,7 @@
         }
         # No character found for which translation makes a difference,
         # hence no need to translate.
-        if (FALSE) {
+        if (false) {
          maybe_translate:
           var DWORD console_mode;
           if (GetConsoleMode(fd,&console_mode)) {
@@ -512,7 +512,7 @@
         }
         if (err != ERROR_IO_PENDING)
           return -1;
-        if (!GetOverlappedResult(fd, &overlap, &nchars, TRUE))
+        if (!GetOverlappedResult(fd, &overlap, &nchars, true))
           return -1;
        ok:
         buf += nchars; done += nchars; nbyte -= nchars;
@@ -573,7 +573,7 @@
       params.nbyte   = nbyte;
       params.retval  = 0;
       params.errcode = 0;
-      if (DoInterruptible(&do_sock_read,(void*)&params,TRUE)) {
+      if (DoInterruptible(&do_sock_read,(void*)&params,true)) {
         if (params.retval < 0)
           WSASetLastError(params.errcode);
         return params.retval;
@@ -635,7 +635,7 @@
       params.nbyte   = nbyte;
       params.retval  = 0;
       params.errcode = 0;
-      if (DoInterruptible(&do_sock_write,(void*)&params,TRUE)) {
+      if (DoInterruptible(&do_sock_write,(void*)&params,true)) {
         if (params.retval < 0)
           WSASetLastError(params.errcode);
         return params.retval;
@@ -675,11 +675,11 @@
       sinfo.hStdOutput = StdOutput;
       sinfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);
       if (sinfo.hStdError == INVALID_HANDLE_VALUE)
-        return FALSE;
-      if (!CreateProcess(NULL, CommandLine, NULL, NULL, TRUE, 0,
+        return false;
+      if (!CreateProcess(NULL, CommandLine, NULL, NULL, true, 0,
                          NULL, NULL, &sinfo, ProcessInformation))
-        return FALSE;
-      return TRUE;
+        return false;
+      return true;
     }
 
 

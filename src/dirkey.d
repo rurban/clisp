@@ -55,7 +55,7 @@
 #endif
 
 # check whether the OBJ is a DIR-KEY
-local object test_dir_key (object obj, boolean check_open)
+local object test_dir_key (object obj, bool check_open)
 {
   if (!dir_key_p(obj)) {
     pushSTACK(obj);        # slot DATUM         of TYPE-ERROR
@@ -147,7 +147,7 @@ LISPFUNN(dir_key_type,1)
 # (LISP:DIR-KEY-TYPE dkey)
 # return the type of the key (:win32 or :gnome-config or :ldap)
 {
-  var object dkey = test_dir_key(popSTACK(),FALSE);
+  var object dkey = test_dir_key(popSTACK(),false);
   value1 = TheDirKey(dkey)->type; mv_count = 1;
 }
 
@@ -155,7 +155,7 @@ LISPFUNN(dir_key_path,1)
 # (LISP:DIR-KEY-PATH dkey)
 # return the path of the key (a string)
 {
-  var object dkey = test_dir_key(popSTACK(),FALSE);
+  var object dkey = test_dir_key(popSTACK(),false);
   value1 = TheDirKey(dkey)->path; mv_count = 1;
 }
 
@@ -163,7 +163,7 @@ LISPFUNN(dir_key_direction,1)
 # (LISP:DIR-KEY-DIRECTION dkey)
 # return the direction of this key - :input :output or :io
 {
-  var object dkey = test_dir_key(popSTACK(),TRUE);
+  var object dkey = test_dir_key(popSTACK(),true);
   value1 = TheDirKey(dkey)->direction; mv_count = 1;
 }
 
@@ -171,7 +171,7 @@ LISPFUNN(dir_key_open_p,1)
 # (LISP:DIR-KEY-OPEN-P dkey)
 # return T if the key is open
 {
-  var object dkey = test_dir_key(popSTACK(),FALSE);
+  var object dkey = test_dir_key(popSTACK(),false);
   value1 = (TheDirKey(dkey)->closed_p ? NIL : T); mv_count = 1;
 }
 
@@ -187,7 +187,7 @@ LISPFUNN(dir_key_close,1)
   } else
   #endif
   {
-    test_dir_key(dkey,FALSE);
+    test_dir_key(dkey,false);
     if (!TheDirKey(dkey)->closed_p) {
       #ifdef WIN32_NATIVE
       if (eq(TheDirKey(dkey)->type,S(Kwin32))) {
@@ -208,7 +208,7 @@ LISPFUNN(dir_key_close,1)
       } else
       #endif
         /* noop */ ;
-      TheDirKey(dkey)->closed_p = TRUE;
+      TheDirKey(dkey)->closed_p = true;
     }
   }
   value1 = NIL; mv_count = 1;
@@ -381,7 +381,7 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
   #ifdef WIN32_NATIVE
   if (eq(type,S(Kwin32))) {
     if (dir_key_p(root)) {
-      test_dir_key(root,TRUE);
+      test_dir_key(root,true);
       with_string_0(path,O(misc_encoding),pathz,{
         open_reg_key((HKEY)(TheDirKey(root)->handle),pathz,direction,
                      if_not_exists,(HKEY*)&ret_handle);
@@ -433,7 +433,7 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
     pushSTACK(path);
   var object dkey = allocate_dir_key();
   TheDirKey(dkey)->type = S(Kwin32);
-  TheDirKey(dkey)->closed_p = FALSE;
+  TheDirKey(dkey)->closed_p = false;
   TheDirKey(dkey)->path = popSTACK();
   TheDirKey(dkey)->direction = popSTACK();
   TheDirKey(dkey)->handle = popSTACK();
@@ -766,7 +766,7 @@ LISPFUN(dir_key_value,2,1,norest,nokey,0,NILL)
 {
   var object default_value = popSTACK();
   var object name = popSTACK();
-  var object dkey = test_dir_key(popSTACK(),TRUE);
+  var object dkey = test_dir_key(popSTACK(),true);
   if (!stringp(name)) fehler_string(name);
   with_string_0(name,O(misc_encoding),namez,{
     var DWORD status;
@@ -800,7 +800,7 @@ LISPFUNN(set_dkey_value,3)
 {
   var object value = popSTACK();
   var object name = popSTACK();
-  var object dkey = test_dir_key(popSTACK(),TRUE);
+  var object dkey = test_dir_key(popSTACK(),true);
   if (!stringp(name)) fehler_string(name);
   with_string_0(name,O(misc_encoding),namez, {
     if (stringp(value)) {
@@ -834,7 +834,7 @@ LISPFUNN(set_dkey_value,3)
 
 #define REG_KEY_DEL(call)                                               \
   var object name = popSTACK();                                         \
-  var object dkey = test_dir_key(popSTACK(),TRUE);                      \
+  var object dkey = test_dir_key(popSTACK(),true);                      \
   if (!stringp(name)) fehler_string(name);                              \
   with_string_0(name,O(misc_encoding),namez,{                           \
     SYSCALL_WIN32(call((HKEY)(TheDirKey(dkey)->handle),namez));         \

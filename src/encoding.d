@@ -1341,7 +1341,7 @@ global object nls_range(encoding,start,end)
     var const unsigned char* const* cvtable = table->page_uni2charset;
     var uintL i1;
     var uintL i2;
-    var boolean have_i1_i2 = FALSE; # [i1,i2] = interval being built
+    var bool have_i1_i2 = false; # [i1,i2] = interval being built
     var uintL i;
     for (i = start;;) {
       var chart ch = as_chart(i);
@@ -1351,11 +1351,11 @@ global object nls_range(encoding,start,end)
           pushSTACK(code_char(as_chart(i1))); pushSTACK(code_char(as_chart(i2)));
           check_STACK(); count++;
         }
-        have_i1_i2 = FALSE;
+        have_i1_i2 = false;
       } else {
         # ch encodable -> extend the interval
         if (!have_i1_i2) {
-          have_i1_i2 = TRUE; i1 = i;
+          have_i1_i2 = true; i1 = i;
         }
         i2 = i;
       }

@@ -1,4 +1,4 @@
-/* Bruno Haible 1992-2000 */
+/* Bruno Haible 1992-2001 */
 
 #define UNIXCONF
 
@@ -44,6 +44,10 @@
 /* CL_OFFSETOF */
 /* Define if <stddef.h> defines the offsetof macro. */
 #undef HAVE_OFFSETOF
+
+/* CL_STDBOOL_H */
+/* Define if you have the ISO C 99 header file <stdbool.h>. */
+#undef HAVE_STDBOOL_H
 
 /* CL_LOCALE_H */
 /* Define if you have <locale.h>. */

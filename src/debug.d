@@ -470,21 +470,21 @@ LISPFUNN(load,1)
 # #define frame_p()  (!( (as_oint(FRAME_(0)) & wbit(frame_bit_o)) ==0))
 # in zweiter Näherung, unter Berücksichtigung der Frames mit Skip2-bit:
   #define frame_p()  framep(FRAME)
-  local boolean framep (object* FRAME);
-  local boolean framep(FRAME)
+  local bool framep (object* FRAME);
+  local bool framep(FRAME)
     var object* FRAME;
     {
       # Ein normales Lisp-Objekt ist kein Frame:
       if ((as_oint(FRAME_(0)) & wbit(frame_bit_o)) ==0)
-        return FALSE;
+        return false;
       # Beginnt bei FRAME_(-1) ein Frame ohne Skip2-Bit, so ist FRAME_(0)
       # Teil dieses Frames, also nicht selber Beginn eines Frames:
       if (   (!(FRAME==STACK)) # nicht die STACK-Grenzen überschreiten!
           && ((as_oint(FRAME_(-1)) & wbit(skip2_bit_o)) == 0)
           && framep(FRAME STACKop -1)
          )
-        return FALSE;
-      return TRUE; # Sonst beginnt hier ein Frame.
+        return false;
+      return true; # Sonst beginnt hier ein Frame.
     }
 
 # Macro: Erniedrigt FRAME bis zum nächsten Frame.

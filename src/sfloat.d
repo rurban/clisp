@@ -564,7 +564,7 @@
         # e gerade
         { mant = mant << (32-(SF_mant_len+1)); }
       exp = exp >> 1; # exp := exp/2
-     {var boolean exactp;
+     {var bool exactp;
       isqrt_64_32(mant,0, mant=,exactp=); # mant := isqrt(mant*2^32), eine 32-Bit-Zahl
       # Die hinteren 31-SF_mant_len Bits wegrunden:
       if ( ((mant & bit(30-SF_mant_len)) ==0) # Bit 14 =0 -> abrunden

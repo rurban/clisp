@@ -19,8 +19,8 @@
 #   local signean SORT_COMPARE (SORT_KEY key1, SORT_KEY key2);
 #   liefert >0 falls key1>key2, <0 falls key1<key2, 0 falls key1=key2.
 # Funktion SORT_LESS, mit
-#   local boolean SORT_LESS (SORT_KEY key1, SORT_KEY key2);
-#   liefert TRUE falls key1<key2, FALSE falls key1>=key2.
+#   local bool SORT_LESS (SORT_KEY key1, SORT_KEY key2);
+#   liefert true falls key1<key2, false falls key1>=key2.
 
 #ifndef SORT
   # Eine Art "SORT-Package"

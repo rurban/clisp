@@ -219,11 +219,11 @@
 # symtab_lookup(string,symtab,&sym)
 # > string: String
 # > symtab: Symboltabelle
-# < ergebnis: TRUE falls gefunden, FALSE falls nicht gefunden.
+# < ergebnis: true falls gefunden, false falls nicht gefunden.
 # falls gefunden:
 #   < sym: das Symbol aus der Symboltabelle, das den gegebenen Printnamen hat
-  local boolean symtab_lookup (object string, object symtab, object* sym_);
-  local boolean symtab_lookup(string,symtab,sym_)
+  local bool symtab_lookup (object string, object symtab, object* sym_);
+  local bool symtab_lookup(string,symtab,sym_)
     var object string;
     var object symtab;
     var object* sym_;
@@ -235,9 +235,9 @@
         # entry ist ein einzelnes Symbol
         # erster String und Printname des gefundenen Symbols gleich ?
         if (string_gleich(string,Symbol_name(entry))) {
-          *sym_ = entry; return TRUE;
+          *sym_ = entry; return true;
         } else {
-          return FALSE;
+          return false;
         }
       } else {
         # entry ist eine Symbolliste
@@ -247,9 +247,9 @@
             goto found;
           entry = Cdr(entry);
         }
-        return FALSE; # nicht gefunden
+        return false; # nicht gefunden
        found: # gefunden als CAR von entry
-        *sym_ = Car(entry); return TRUE;
+        *sym_ = Car(entry); return true;
       }
     }
 
@@ -257,9 +257,9 @@
 # symtab_find(sym,symtab)
 # > sym: Symbol
 # > symtab: Symboltabelle
-# < ergebnis: TRUE wenn gefunden
-  local boolean symtab_find (object sym, object symtab);
-  local boolean symtab_find(sym,symtab)
+# < ergebnis: true wenn gefunden
+  local bool symtab_find (object sym, object symtab);
+  local bool symtab_find(sym,symtab)
     var object sym;
     var object symtab;
     {
@@ -270,9 +270,9 @@
         # entry ist ein einzelnes Symbol
         # sym und gefundenes Symbol gleich ?
         if (eq(sym,entry))
-          return TRUE;
+          return true;
         else
-          return FALSE;
+          return false;
       } else {
         # entry ist eine Symbolliste
         while (consp(entry)) {
@@ -281,9 +281,9 @@
             goto found;
           entry = Cdr(entry);
         }
-        return FALSE; # nicht gefunden
+        return false; # nicht gefunden
        found: # gefunden als CAR von entry
-        return TRUE;
+        return true;
       }
     }
 
@@ -423,11 +423,11 @@
 # > case_sensitive_p: Flag, ob case-sensitive
 # < ergebnis: neue Package
 # can trigger GC
-  local object make_package (object name, object nicknames, boolean case_sensitive_p);
+  local object make_package (object name, object nicknames, bool case_sensitive_p);
   local object make_package(name,nicknames,case_sensitive_p)
     var object name;
     var object nicknames;
-    var boolean case_sensitive_p;
+    var bool case_sensitive_p;
     {
       set_break_sem_2();
       pushSTACK(nicknames); pushSTACK(name); # Nicknames und Namen retten
@@ -462,11 +462,11 @@
 # shadowing_lookup(string,pack,&sym)
 # > string: String
 # > pack: Package
-# < ergebnis: TRUE, falls gefunden.
+# < ergebnis: true, falls gefunden.
 # < sym: das Symbol aus der Shadowing-Liste, das den gegebenen Printnamen hat
 #        (falls gefunden)
-  local boolean shadowing_lookup (object string, object pack, object* sym_);
-  local boolean shadowing_lookup(string,pack,sym_)
+  local bool shadowing_lookup (object string, object pack, object* sym_);
+  local bool shadowing_lookup(string,pack,sym_)
     var object string;
     var object pack;
     var object* sym_;
@@ -478,18 +478,18 @@
           goto found;
         list = Cdr(list);
       }
-      return FALSE; # nicht gefunden
+      return false; # nicht gefunden
      found: # gefunden
-      *sym_ = Car(list); return TRUE;
+      *sym_ = Car(list); return true;
     }
 
 # UP: Sucht ein gegebenes Symbol in der Shadowing-Liste einer Package.
 # shadowing_find(sym,pack)
 # > sym: Symbol
 # > pack: Package
-# < ergebnis: TRUE falls gefunden.
-  local boolean shadowing_find (object sym, object pack);
-  local boolean shadowing_find(sym,pack)
+# < ergebnis: true falls gefunden.
+  local bool shadowing_find (object sym, object pack);
+  local bool shadowing_find(sym,pack)
     var object sym;
     var object pack;
     {
@@ -500,9 +500,9 @@
           goto found;
         list = Cdr(list);
       }
-      return FALSE; # nicht gefunden
+      return false; # nicht gefunden
      found: # gefunden
-      return TRUE;
+      return true;
     }
 
 # UP: Fügt ein Symbol zur Shadowing-Liste einer Package, die noch kein
@@ -558,10 +558,10 @@
 # accessiblep(sym,pack)
 # > sym: Symbol
 # > pack: Package
-# < ergebnis: TRUE falls sym in pack accessible und nicht verdeckt ist,
-#             FALSE sonst
-  global boolean accessiblep (object sym, object pack);
-  global boolean accessiblep(sym,pack)
+# < ergebnis: true falls sym in pack accessible und nicht verdeckt ist,
+#             false sonst
+  global bool accessiblep (object sym, object pack);
+  global bool accessiblep(sym,pack)
     var object sym;
     var object pack;
     {
@@ -597,10 +597,10 @@
               goto found;
             list = Cdr(list);
           }
-          return FALSE; # nicht gefunden
+          return false; # nicht gefunden
         }
        found: # gefunden
-        return TRUE;
+        return true;
       }
     }
 
@@ -610,13 +610,13 @@
 # > sym: Symbol
 # > pack: Package
 # < ergebnis:
-#     TRUE falls sym in pack als externes Symbol accessible ist,
+#     true falls sym in pack als externes Symbol accessible ist,
 #     (in diesem Falle ist sym nicht verdeckt, denn ein eventuell sym
 #      vedeckendes Symbol müsste in shadowing-symbols(pack) aufgeführt sein,
 #      nach den Konsistenzregeln 5 und 7 also mit sym identisch sein),
-#     FALSE sonst
-  global boolean externalp (object sym, object pack);
-  global boolean externalp(sym,pack)
+#     false sonst
+  global bool externalp (object sym, object pack);
+  global bool externalp(sym,pack)
     var object sym;
     var object pack;
     {
@@ -627,10 +627,10 @@
 # find_external_symbol(string,pack,&sym)
 # > string: String
 # > pack: Package
-# < ergebnis: TRUE, falls ein externes Symbol dieses Printnamens in pack gefunden.
+# < ergebnis: true, falls ein externes Symbol dieses Printnamens in pack gefunden.
 # < sym: dieses Symbol, falls gefunden.
-  global boolean find_external_symbol (object string, object pack, object* sym_);
-  global boolean find_external_symbol(string,pack,sym_)
+  global bool find_external_symbol (object string, object pack, object* sym_);
+  global bool find_external_symbol(string,pack,sym_)
     var object string;
     var object pack;
     var object* sym_;
@@ -901,7 +901,7 @@
         var object pack = *pack_;
         # Suche ein internes oder ein externes Symbol gleichen Namens:
         var object othersym;
-        var boolean i_found;
+        var bool i_found;
         var object string = Symbol_name(sym);
         pushSTACK(string); # String retten
         if ( (i_found = symtab_lookup(string,ThePackage(pack)->pack_internal_symbols,&othersym))
@@ -1134,7 +1134,7 @@
         pushSTACK(othersym);
         pushSTACK(othersymtab);
         # erst Inherited-Flag berechnen:
-        var boolean inheritedp = FALSE;
+        var bool inheritedp = false;
         {
           var object packlistr = ThePackage(pack)->pack_use_list; # Use-List wird abgesucht
           while (mconsp(packlistr)) {
@@ -1143,9 +1143,9 @@
             packlistr = Cdr(packlistr);
             # Symbol gleichen Namens in usedpack suchen:
             if (symtab_lookup(string,ThePackage(usedpack)->pack_external_symbols,&otherusedsym)) {
-              inheritedp = TRUE; break; # gefunden -> inherited-Flag := TRUE
+              inheritedp = true; break; # gefunden -> inherited-Flag := true
             }
-          } # sonst ist am Schluss inherited-Flag = FALSE
+          } # sonst ist am Schluss inherited-Flag = false
         }
         # Stackaufbau: Symbol-Name, othersym, othersymtab.
         # Continuable Error melden:
@@ -1153,7 +1153,7 @@
           pushSTACK(S(package_error)); # PACKAGE-ERROR
           pushSTACK(S(Kpackage)); # :PACKAGE
           pushSTACK(*pack_); # Package
-          pushSTACK(!inheritedp # bei inheritedp=FALSE die kurze Meldung
+          pushSTACK(!inheritedp # bei inheritedp=false die kurze Meldung
                     ? OLS(import_string2) # "Durch Importieren von ~S in ~S entsteht ein Namenskonflikt mit ~S."
                     : OLS(import_string3) # "Durch Importieren von ~S in ~S ... Namenskonflikt mit ~S und weiteren Symbolen."
                    );
@@ -1331,12 +1331,12 @@
       # sym unter den externen Symbolen von pack suchen:
       if (symtab_find(sym,ThePackage(pack)->pack_external_symbols))
         return; # gefunden -> fertig
-      var boolean import_it = FALSE;
+      var bool import_it = false;
       # import_it = Flag, ob Symbol erst noch importiert werden muss.
       # sym unter den internen Symbolen von pack suchen:
       if (!(symtab_find(sym,ThePackage(pack)->pack_internal_symbols))) {
         # Symbol sym ist nicht präsent in Package pack
-        import_it = TRUE;
+        import_it = true;
         # Suche, ob es wenigstens accessible ist:
         {
           var object list = ThePackage(pack)->pack_use_list;
@@ -1613,7 +1613,7 @@
               usedpacklistr = Cdr(usedpacklistr);
             }
           }
-          if (TRUE) {
+          if (true) {
             # nichts streichen, weiterrücken:
             packlistr_ = &Cdr(packlistr); packlistr = *packlistr_;
           } else {
@@ -2508,7 +2508,7 @@ LISPFUN(unuse_package,1,1,norest,nokey,0,NIL)
       # Package erzeugen:
       {
         var object pack = make_package(STACK_3,STACK_2,
-                                       (eq(STACK_0,unbound) || nullp(STACK_0) ? FALSE : TRUE)
+                                       (eq(STACK_0,unbound) || nullp(STACK_0) ? false : true)
                                      );
         STACK_3 = pack; # und retten
         # Stackaufbau: pack, nicknames, uselist-Argument, case-sensitive-Argument.
@@ -2851,7 +2851,7 @@ LISPFUNN(package_iterate,1)
       # state = #(entry index symtab inh-packages package flags)
       var object symtab = TheSvector(state)->data[2];
       if (simple_vector_p(symtab)) {
-        if (FALSE) {
+        if (false) {
          search1:
           TheSvector(state)->data[2] = symtab;
           TheSvector(state)->data[1] = Symtab_size(symtab);
@@ -2869,7 +2869,7 @@ LISPFUNN(package_iterate,1)
             TheSvector(state)->data[0] = NIL;
             value2 = entry; goto found;
           }
-          if (FALSE) {
+          if (false) {
            found:
             # Ein Symbol value2 gefunden.
             # Stelle sicher, dass es in pack accessible und nicht verdeckt
@@ -2949,22 +2949,22 @@ LISPFUNN(package_iterate,1)
       # Stackaufbau: "LISP", "SYSTEM", "SYS", "KEYWORD", "", "CHARSET".
       O(all_packages) = NIL; # ALL_PACKAGES := NIL
       # #<PACKAGE CHARSET> einrichten:
-      O(charset_package) = make_package(popSTACK(),NIL,FALSE); # "CHARSET",()
+      O(charset_package) = make_package(popSTACK(),NIL,false); # "CHARSET",()
       # #<PACKAGE KEYWORD> einrichten:
       {
         var object new_cons = allocate_cons();
         Car(new_cons) = popSTACK(); # ""
-        O(keyword_package) = make_package(popSTACK(),new_cons,FALSE); # "KEYWORD",("")
+        O(keyword_package) = make_package(popSTACK(),new_cons,false); # "KEYWORD",("")
       }
       # #<PACKAGE SYSTEM> einrichten:
       {
         var object new_cons = allocate_cons();
         Car(new_cons) = popSTACK(); # "SYS"
-        make_package(popSTACK(),new_cons,FALSE); # "SYSTEM",("SYS")
+        make_package(popSTACK(),new_cons,false); # "SYSTEM",("SYS")
       }
       # #<PACKAGE LISP> einrichten:
       O(default_package) = # und zur Default-Package machen
-      make_package(popSTACK(),NIL,FALSE); # "LISP",()
+      make_package(popSTACK(),NIL,false); # "LISP",()
       # Alle weiteren Packages einrichten, ans Ende der Liste ALL_PACKAGES hängen:
       nreverse(O(all_packages));
       #define LISPPACK  LISPPACK_B

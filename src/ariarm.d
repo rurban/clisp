@@ -912,7 +912,7 @@ LABEL(not_loop_up_l2)
 #               a2 = yptr
 #               a3 = count of words to be AND_TESTed
 #       exit
-#               a1 = TRUE if any words ANDed together are non-zero else FALSE
+#               a1 = true if any words ANDed together are non-zero else false
 #               a2 - a4, ip destroyed
         EXPORT(and_test_loop_up)        # word aligned and_test loop up
 GLABEL(and_test_loop_up)
@@ -922,7 +922,7 @@ GLABEL(and_test_loop_up)
         LDR     a4,[a2],#4              # AND_TEST the first 1-3 words
         LDR     ip,[a1],#4              # to align the total to a multiple
         TST     ip,a4                   # of 4 words
-        MOVNE   a1,#1                   # return TRUE if AND_TEST ok
+        MOVNE   a1,#1                   # return true if AND_TEST ok
         MOVNES  pc,lr
         BCC     and_test_loop_up_l1     # better to branch than skip instrs.
         LDRGE   a4,[a2],#4
@@ -940,11 +940,11 @@ GLABEL(and_test_loop_up)
         MOVNES  pc,lr
 LABEL(and_test_loop_up_l1)
         BICS    a4,a3,#3                # set counter to multiple of 4
-        MOVEQ   a1,#0                   # return FALSE
+        MOVEQ   a1,#0                   # return false
         MOVEQS  pc,lr                   # if zero then we're done
         STMFD   sp!,{v1-v6,lr}          # save work regs
         MOV     v6,a1                   # move xptr to v6
-        MOV     a1,#1                   # set result to TRUE
+        MOV     a1,#1                   # set result to true
 LABEL(and_test_loop_up_l2)
         LDMIA   a2!,{a3,v1,v2,ip}       # load 4 words in one go
         LDMIA   v6!,{v3,v4,v5,lr}       # load target words
@@ -963,17 +963,17 @@ LABEL(and_test_loop_up_l2)
 #               a1 = xptr
 #               a2 = count of words to be TESTed
 #       exit
-#               a1 = TRUE if any words are non-zero else FALSE
+#               a1 = true if any words are non-zero else false
 #               a2 - a4, ip destroyed
         EXPORT(test_loop_up)            # word aligned test loop up
 GLABEL(test_loop_up)
         MOV     ip,a1                   # move xptr to ip
-        MOV     a1,#1                   # set result to TRUE
+        MOV     a1,#1                   # set result to true
         ANDS    a3,a2,#3                # multiple of 4 words ?
         BEQ     test_loop_up_l1         # yup, so branch
         LDR     a4,[ip],#4              # TEST the first 1-3 words
         TEQ     a4,#0                   # align the total to a multiple of 4
-        MOVNES  pc,lr                   # return TRUE if AND_TEST ok
+        MOVNES  pc,lr                   # return true if AND_TEST ok
         CMP     a3,#2
         BLT     test_loop_up_l1         # need to branch 'cos PSR set
         LDRGE   a4,[ip],#4              # when checking against zero
@@ -986,7 +986,7 @@ GLABEL(test_loop_up)
         MOVNES  pc,lr
 LABEL(test_loop_up_l1)
         BICS    a4,a2,#3                # set counter to multiple of 4
-        MOVEQ   a1,#0                   # return FALSE
+        MOVEQ   a1,#0                   # return false
         MOVEQS  pc,lr                   # if zero then we're done
         STMFD   sp!,{v1,lr}             # save work regs
 LABEL(test_loop_up_l2)

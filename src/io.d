@@ -926,7 +926,7 @@ LISPFUNN(set_readtable_case,2)
 # =============================================================================
 
 # Testet den dynamischen Wert eines Symbols auf /=NIL
-# < TRUE, wenn /= NIL
+# < true, wenn /= NIL
 # #define test_value(sym)  (!nullp(Symbol_value(sym)))
   #define test_value(sym)  (!eq(NIL,Symbol_value(sym)))
 
@@ -1273,7 +1273,7 @@ LISPFUNN(set_readtable_case,2)
 
 # Flag. Zeigt an, ob im letztgelesenen Token
 # ein Single-Escape- oder Multiple-Escape-Zeichen vorkam:
-  local boolean token_escape_flag;
+  local bool token_escape_flag;
 
 # UP: Liefert zwei Buffer.
 # Falls im Reservoir O(token_buff_1), O(token_buff_2) zwei verfügbar sind,
@@ -1353,8 +1353,8 @@ LISPFUNN(set_readtable_case,2)
       # die Buffer in O(token_buff_1) und O(token_buff_2). Nach dem Ende von
       # read_internal ist ihr Inhalt wertlos, und sie können für weitere
       # read-Operationen benutzt werden.
-      var boolean multiple_escape_flag = FALSE;
-      var boolean escape_flag = FALSE;
+      var bool multiple_escape_flag = false;
+      var bool escape_flag = false;
       goto char_read;
       loop {
         # Hier wird das Token in STACK_1 (Semi-Simple-String für Characters)
@@ -1377,7 +1377,7 @@ LISPFUNN(set_readtable_case,2)
           case syntax_single_esc:
             # Single-Escape-Zeichen ->
             # nächstes Zeichen lesen und unverändert übernehmen
-            escape_flag = TRUE;
+            escape_flag = true;
             read_char_syntax(ch = ,scode = ,stream_); # nächstes Zeichen lesen
             if (scode==syntax_eof) { # EOF erreicht?
               pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
@@ -1396,7 +1396,7 @@ LISPFUNN(set_readtable_case,2)
           case syntax_multi_esc:
             # Multiple-Escape-Zeichen
             multiple_escape_flag = !multiple_escape_flag;
-            escape_flag = TRUE;
+            escape_flag = true;
             break;
           case syntax_constituent:
           case syntax_nt_macro:
@@ -1441,7 +1441,7 @@ LISPFUNN(set_readtable_case,2)
         }
       }
      ende:
-      # Nun ist Token zu Ende, multiple_escape_flag = FALSE.
+      # Nun ist Token zu Ende, multiple_escape_flag = false.
       token_escape_flag = escape_flag; # Escape-Flag abspeichern
       O(token_buff_2) = popSTACK(); # Attributcode-Buffer
       O(token_buff_1) = popSTACK(); # Character-Buffer
@@ -1461,15 +1461,15 @@ LISPFUNN(set_readtable_case,2)
 #     >=a_letter oberhalb der Ziffernsystembasis -> a_alpha
 #   Falls nicht potential number:
 #     Unterscheidung zwischen [a_pack_m | a_dot | sonstiges] bleibt erhalten.
-# < ergebnis: TRUE, falls potential number vorliegt
+# < ergebnis: true, falls potential number vorliegt
 #             (und dann ist token_info mit {charptr, attrptr, len} gefüllt)
   typedef struct {
     chart* charptr;
     uintB* attrptr;
     uintL len;
   } token_info;
-  local boolean test_potential_number_syntax (uintWL* base_, token_info* info);
-  local boolean test_potential_number_syntax(base_,info)
+  local bool test_potential_number_syntax (uintWL* base_, token_info* info);
+  local bool test_potential_number_syntax(base_,info)
     var uintWL* base_;
     var token_info* info;
     # Ein Token ist potential number, wenn (CLTL, S. 341)
@@ -1545,7 +1545,7 @@ LISPFUNN(set_readtable_case,2)
         var uintL count;
         dotimespL(count,len, {
           if (!(*attrptr++ >= a_ratio))
-            return FALSE; # nein -> kein potential number
+            return false; # nein -> kein potential number
         });
       }
       # 4. Teste, ob ein a_digit vorkommt:
@@ -1558,7 +1558,7 @@ LISPFUNN(set_readtable_case,2)
               goto digit_ok;
           });
         }
-        return FALSE; # kein potential number
+        return false; # kein potential number
        digit_ok: ;
       }
       # Länge len>0.
@@ -1569,24 +1569,24 @@ LISPFUNN(set_readtable_case,2)
         dotimespL(count,len-1, {
           if (*attrptr++ >= a_letter)
             if (*attrptr >= a_letter)
-              return FALSE;
+              return false;
         });
       }
       # 6. Teste, ob erster Attributcode >=a_dot, <=a_digit ist:
       {
         var uintB attr = attrptr0[0];
         if (!((attr >= a_dot) && (attr <= a_digit)))
-          return FALSE;
+          return false;
       }
       # 7. Teste, ob letzter Attributcode = a_plus oder a_minus ist:
       {
         var uintB attr = attrptr0[len-1];
         if ((attr == a_plus) || (attr == a_minus))
-          return FALSE;
+          return false;
       }
       # 8. Potential number liegt vor.
       info->charptr = charptr0; info->attrptr = attrptr0; info->len = len;
-      return TRUE;
+      return true;
     }
 
 # UP: Überprüft, ob der Token-Buffer eine Zahl enthält (Syntax gemäß CLTL
@@ -1869,9 +1869,9 @@ LISPFUNN(set_readtable_case,2)
 # test_dots()
 # > O(token_buff_1): gelesene Characters
 # > O(token_buff_2): ihre Attributcodes
-# < ergebnis: TRUE, falls Token leer ist oder nur aus Dots besteht
-  local boolean test_dots (void);
-  local boolean test_dots()
+# < ergebnis: true, falls Token leer ist oder nur aus Dots besteht
+  local bool test_dots (void);
+  local bool test_dots()
     {
       # Suche nach Attributcode /= a_dot:
       var object bvec = O(token_buff_2); # Semi-Simple-Byte-Vektor
@@ -1881,11 +1881,11 @@ LISPFUNN(set_readtable_case,2)
         var uintL count;
         dotimespL(count,len, {
           if (!(*attrptr++ == a_dot)) # Attributcode /= a_dot gefunden?
-            return FALSE; # ja -> fertig, FALSE
+            return false; # ja -> fertig, false
         });
       }
       # alles Dots.
-      return TRUE;
+      return true;
     }
 
 # UP: Wandelt ein Zahl-Token in Großbuchstaben um.
@@ -1950,8 +1950,8 @@ LISPFUNN(set_readtable_case,2)
           # alle nicht-escapten Characters in Großbuchstaben umwandeln.
           # Ansonsten nichts tun.
           {
-            var boolean seen_uppercase = FALSE;
-            var boolean seen_lowercase = FALSE;
+            var bool seen_uppercase = false;
+            var bool seen_lowercase = false;
             var const chart* cptr = charptr;
             var const uintB* aptr = attrptr;
             var uintL count;
@@ -1959,9 +1959,9 @@ LISPFUNN(set_readtable_case,2)
               if (!(*aptr == a_escaped)) {
                 var chart c = *cptr;
                 if (!chareq(c,up_case(c)))
-                  seen_lowercase = TRUE;
+                  seen_lowercase = true;
                 if (!chareq(c,down_case(c)))
-                  seen_uppercase = TRUE;
+                  seen_uppercase = true;
               }
               cptr++; aptr++;
             });
@@ -2042,7 +2042,7 @@ LISPFUNN(set_readtable_case,2)
         var chart subc; # sub-char
         # Ziffern des Argumentes lesen:
         {
-          var boolean flag = FALSE; # Flag, ob schon eine Ziffer kam
+          var bool flag = false; # Flag, ob schon eine Ziffer kam
           pushSTACK(Fixnum_0); # bisheriger Integer := 0
           loop {
             var object nextch = read_char(stream_); # Character lesen
@@ -2066,9 +2066,9 @@ LISPFUNN(set_readtable_case,2)
             }
             # Integer mal 10 nehmen und Ziffer addieren:
             STACK_0 = mal_10_plus_x(STACK_0,(c-'0'));
-            flag = TRUE;
+            flag = true;
           }
-          # Argument in STACK_0 fertig (nur falls flag=TRUE).
+          # Argument in STACK_0 fertig (nur falls flag=true).
           arg = popSTACK();
           if (!flag)
             arg = NIL; # kam keine Ziffer -> Argument := NIL
@@ -2242,7 +2242,7 @@ LISPFUNN(set_readtable_case,2)
         # Token wird in Packagenamen und Namen zerhackt:
         var uintL pack_end_index;
         var uintL name_start_index;
-        var boolean external_internal_flag = FALSE; # vorläufig external
+        var bool external_internal_flag = false; # vorläufig external
         loop {
           if (index>=len)
             goto current; # kein Doppelpunkt gefunden -> current package
@@ -2262,7 +2262,7 @@ LISPFUNN(set_readtable_case,2)
         if (*attrptr++ == a_pack_m) {
           # zwei Doppelpunkte nebeneinander
           name_start_index = index; # Symbolname fängt erst hier an
-          external_internal_flag = TRUE; # internal
+          external_internal_flag = true; # internal
         } else {
           # erster Doppelpunkt war isoliert
           # external
@@ -5112,13 +5112,13 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # (PARSE-INTEGER string [:start] [:end] [:radix] [:junk-allowed]), CLTL S. 381
   {
     # :junk-allowed-Argument verarbeiten:
-    var boolean junk_allowed;
+    var bool junk_allowed;
     {
       var object arg = popSTACK();
       if (eq(arg,unbound) || nullp(arg))
-        junk_allowed = FALSE;
+        junk_allowed = false;
       else
-        junk_allowed = TRUE;
+        junk_allowed = true;
     }
     # junk_allowed = Wert des :junk-allowed-Arguments.
     # :radix-Argument verarbeiten:
@@ -5612,13 +5612,13 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             {
               var uintL count = Sstring_length(string);
               if (count > 0) {
-                var boolean flag = FALSE;
+                var bool flag = false;
                 var uintL index = 0;
                 pushSTACK(string); # Simple-String retten
                 SstringDispatch(string,
                   { dotimespL(count,count, {
                       # flag zeigt an, ob gerade innerhalb eines Wortes
-                      var boolean oldflag = flag;
+                      var bool oldflag = flag;
                       var chart c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
                       if ((flag = alphanumericp(c)) && oldflag)
                         # alphanumerisches Zeichen im Wort:
@@ -5629,7 +5629,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                   },
                   { dotimespL(count,count, {
                       # flag zeigt an, ob gerade innerhalb eines Wortes
-                      var boolean oldflag = flag;
+                      var bool oldflag = flag;
                       var chart c = as_chart(TheSmallSstring(STACK_0)->data[index]); # nächstes Zeichen
                       if ((flag = alphanumericp(c)) && oldflag)
                         # alphanumerisches Zeichen im Wort:
@@ -5710,13 +5710,13 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             {
               var uintL count = Sstring_length(string);
               if (count > 0) {
-                var boolean flag = FALSE;
+                var bool flag = false;
                 var uintL index = 0;
                 pushSTACK(string); # Simple-String retten
                 SstringDispatch(string,
                   { dotimespL(count,count, {
                       # flag zeigt an, ob gerade innerhalb eines Wortes
-                      var boolean oldflag = flag;
+                      var bool oldflag = flag;
                       var chart c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
                       if ((flag = alphanumericp(c)) && !oldflag)
                         # alphanumerisches Zeichen am Wortanfang:
@@ -5727,7 +5727,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                   },
                   { dotimespL(count,count, {
                       # flag zeigt an, ob gerade innerhalb eines Wortes
-                      var boolean oldflag = flag;
+                      var bool oldflag = flag;
                       var chart c = as_chart(TheSmallSstring(STACK_0)->data[index]); # nächstes Zeichen
                       if ((flag = alphanumericp(c)) && !oldflag)
                         # alphanumerisches Zeichen am Wortanfang:
@@ -5749,8 +5749,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         case case_invert:
           # *PRINT-CASE* ignorieren.
           {
-            var boolean seen_uppercase = FALSE;
-            var boolean seen_lowercase = FALSE;
+            var bool seen_uppercase = false;
+            var bool seen_lowercase = false;
             var uintL count = Sstring_length(string);
             if (count > 0) {
               SstringDispatch(string,
@@ -5759,9 +5759,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                   dotimespL(count,count, {
                     var chart c = *cptr++;
                     if (!chareq(c,up_case(c)))
-                      seen_lowercase = TRUE;
+                      seen_lowercase = true;
                     if (!chareq(c,down_case(c)))
-                      seen_uppercase = TRUE;
+                      seen_uppercase = true;
                   });
                 },
                 {
@@ -5769,9 +5769,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                   dotimespL(count,count, {
                     var chart c = as_chart(*cptr++);
                     if (!chareq(c,up_case(c)))
-                      seen_lowercase = TRUE;
+                      seen_lowercase = true;
                     if (!chareq(c,down_case(c)))
-                      seen_uppercase = TRUE;
+                      seen_uppercase = true;
                   });
                 }
                 );
@@ -6537,8 +6537,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # Wenn ja: kann GC auslösen
 # Wenn nein: verändert STACK
-  local boolean level_check (const object* stream_);
-  local boolean level_check(stream_)
+  local bool level_check (const object* stream_);
+  local bool level_check(stream_)
     var const object* stream_;
     {
       var object level = Symbol_value(S(prin_level)); # SYS::*PRIN-LEVEL*, ein Fixnum >=0
@@ -6548,13 +6548,13 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           && (posfixnum_to_L(level) >= posfixnum_to_L(limit)) # und erreicht oder überschritten?
          ) {
         # ja -> '#' ausgeben und herausspringen:
-        pr_level(stream_); return TRUE;
+        pr_level(stream_); return true;
       } else {
         # nein -> *PRINT-LEVEL* noch unerreicht.
         # binde SYS::*PRIN-LEVEL* an (1+ SYS::*PRIN-LEVEL*) :
         level = fixnum_inc(level,1); # (incf level)
         dynamic_bind(S(prin_level),level);
-        return FALSE;
+        return false;
       }
     }
 
@@ -6596,13 +6596,13 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # circle_p(obj)
 # > obj: Objekt
 # < ergebnis: NULL, falls obj normal auszugeben ist
-#      sonst: ergebnis->flag: TRUE, falls obj als #n=... auszugeben ist
-#                             FALSE, falls obj als #n# auszugeben ist
+#      sonst: ergebnis->flag: true, falls obj als #n=... auszugeben ist
+#                             false, falls obj als #n# auszugeben ist
 #             ergebnis->n: n
 #             ergebnis->ptr: Im Fall #n=... ist vor der Ausgabe
 #                            das Fixnum *ptr zu incrementieren.
   typedef struct {
-    boolean flag;
+    bool flag;
     uintL n;
     object* ptr;
   } circle_info;
@@ -6624,9 +6624,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         }
         # Durch den Vektor table = #(i ...) mit m+1 (0<=i<=m) Elementen
         # durchlaufen:
-        # Kommt obj unter den Elementen 1,...,i vor -> Fall FALSE, n:=Index.
+        # Kommt obj unter den Elementen 1,...,i vor -> Fall false, n:=Index.
         # Kommt obj unter den Elementen i+1,...,m vor -> bringe
-        #   obj an die Stelle i+1, Fall TRUE, n:=i+1, nachher i:=i+1.
+        #   obj an die Stelle i+1, Fall true, n:=i+1, nachher i:=i+1.
         # Sonst Fall NULL.
         var local circle_info info; # Platz für die Rückgabe der Werte
         var uintL m1 = Svector_length(table); # Länge m+1
@@ -6645,7 +6645,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               # ptr = &TheSvector(table)->data[index+1] .
         if (index <= i) {
           # obj ist als #n# auszugeben, n=index.
-          info.flag = FALSE; info.n = index; return &info;
+          info.flag = false; info.n = index; return &info;
         } else {
           # obj an Position i+1 bringen:
           i = i+1;
@@ -6655,7 +6655,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             *--ptr = *ptr_i; *ptr_i = obj;
           }
           # obj ist als #n=... auszugeben, n=i.
-          info.flag = TRUE; info.n = i;
+          info.flag = true; info.n = i;
           info.ptr = &TheSvector(table)->data[0]; # nachher i im Vektor erhöhen
           return &info;
         }
@@ -6985,7 +6985,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
   local pr_routine prin_object;
   local pr_routine prin_object_dispatch;
   local pr_routine pr_symbol;
-  local void pr_symbol_part (const object* stream_, object string, boolean case_sensitive);
+  local void pr_symbol_part (const object* stream_, object string, bool case_sensitive);
   local pr_routine pr_like_symbol;
   local pr_routine pr_character;
   local pr_routine pr_string;
@@ -7143,7 +7143,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       # *PRINT-ESCAPE* abfragen:
       if (test_value(S(print_escape)) || test_value(S(print_readably))) {
         # mit Escape-Zeichen und evtl. Packagenamen:
-        var boolean case_sensitive = FALSE;
+        var bool case_sensitive = false;
         var object curr_pack = get_current_package();
         if (accessiblep(sym,curr_pack)) {
           # Falls Symbol accessible und nicht verdeckt,
@@ -7167,7 +7167,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           } else {
             # Symbol mit Packagenamen und 1 oder 2 Packagemarkern ausgeben
             pushSTACK(home); # Home-Package retten
-            pr_symbol_part(stream_,ThePackage(home)->pack_name,FALSE); # Packagenamen ausgeben
+            pr_symbol_part(stream_,ThePackage(home)->pack_name,false); # Packagenamen ausgeben
             home = popSTACK(); # Home-Package zurück
             case_sensitive = pack_casesensitivep(home);
             if (externalp(STACK_0,home)) # Symbol extern in seiner Home-Package?
@@ -7197,7 +7197,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
   local void pr_symbol_part(stream_,string,case_sensitive)
     var const object* stream_;
     var object string;
-    var boolean case_sensitive;
+    var bool case_sensitive;
     {
       # Feststellen, ob der Name ohne |...| außenrum ausgegeben werden kann:
       # Dies kann er dann, wenn er:
@@ -7704,14 +7704,14 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             goto dotted_list;
         }
        dotted_list: # Listenrest in Dotted-List-Schreibweise ausgeben:
-        JUSTIFY_LAST(FALSE);
+        JUSTIFY_LAST(false);
         write_ascii_char(stream_,'.');
         JUSTIFY_SPACE;
-        JUSTIFY_LAST(TRUE);
+        JUSTIFY_LAST(true);
         prin_object(stream_,*list_);
         goto end_of_list;
        dots: # Listenrest durch '...' abkürzen:
-        JUSTIFY_LAST(TRUE);
+        JUSTIFY_LAST(true);
         write_ascii_char(stream_,'.');
         write_ascii_char(stream_,'.');
         write_ascii_char(stream_,'.');
@@ -7924,10 +7924,10 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         KLAMMER_AUF;
         INDENT_START(3); # um 3 Zeichen einrücken, wegen '#C('
         JUSTIFY_START(1);
-        JUSTIFY_LAST(FALSE);
+        JUSTIFY_LAST(false);
         pr_real_number(stream_,TheComplex(*number_)->c_real); # Realteil ausgeben
         JUSTIFY_SPACE;
-        JUSTIFY_LAST(TRUE);
+        JUSTIFY_LAST(true);
         pr_real_number(stream_,TheComplex(*number_)->c_imag); # Imaginärteil ausgeben
         JUSTIFY_END_ENG;
         INDENT_END;
@@ -7953,10 +7953,10 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
       INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
       JUSTIFY_START(1);
-      JUSTIFY_LAST(FALSE);
+      JUSTIFY_LAST(false);
       write_sstring_case(stream_,O(printstring_array)); # "ARRAY" ausgeben
       JUSTIFY_SPACE;
-      JUSTIFY_LAST(FALSE);
+      JUSTIFY_LAST(false);
       prin_object_dispatch(stream_,array_element_type(*obj_)); # Elementtyp (Symbol oder Liste) ausgeben
       JUSTIFY_SPACE;
       JUSTIFY_LAST(!array_has_fill_pointer_p(*obj_));
@@ -7964,7 +7964,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       if (array_has_fill_pointer_p(*obj_)) {
         # Array mit Fill-Pointer -> auch den Fill-Pointer ausgeben:
         JUSTIFY_SPACE;
-        JUSTIFY_LAST(TRUE);
+        JUSTIFY_LAST(true);
         write_sstring_case(stream_,O(printstring_fill_pointer)); # "FILL-POINTER=" ausgeben
         pr_uint(stream_,vector_length(*obj_)); # Länge (=Fill-Pointer) ausgeben
       }
@@ -8043,8 +8043,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # v elementweise ausgeben:
         LEVEL_CHECK;
         {
-          var boolean readable = # Flag, ob Länge und Typ mit ausgegeben werden
-            (test_value(S(print_readably)) && !general_vector_p(v) ? TRUE : FALSE);
+          var bool readable = # Flag, ob Länge und Typ mit ausgegeben werden
+            (test_value(S(print_readably)) && !general_vector_p(v) ? true : false);
           var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-Begrenzung
           var uintL length = 0; # bisherige Länge := 0
           # Vektor elementweise abarbeiten:
@@ -8061,14 +8061,14 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             KLAMMER_AUF; # '(' ausgeben
             INDENT_START(3); # um 3 Zeichen einrücken, wegen '#A('
             JUSTIFY_START(1);
-            JUSTIFY_LAST(FALSE);
+            JUSTIFY_LAST(false);
             prin_object_dispatch(stream_,array_element_type(*sv_)); # Elementtyp ausgeben
             JUSTIFY_SPACE;
-            JUSTIFY_LAST(FALSE);
+            JUSTIFY_LAST(false);
             pushSTACK(fixnum(len));
             pr_list(stream_,listof(1)); # Liste mit der Länge ausgeben
             JUSTIFY_SPACE;
-            JUSTIFY_LAST(TRUE);
+            JUSTIFY_LAST(true);
             KLAMMER_AUF; # '('
             INDENT_START(1); # um 1 Zeichen einrücken, wegen '('
           } else {
@@ -8083,7 +8083,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               JUSTIFY_SPACE;
             # auf Erreichen von *PRINT-LENGTH* prüfen:
             if (length >= length_limit) {
-              JUSTIFY_LAST(TRUE);
+              JUSTIFY_LAST(true);
               # Rest durch '...' abkürzen:
               write_ascii_char(stream_,'.');
               write_ascii_char(stream_,'.');
@@ -8282,7 +8282,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             JUSTIFY_SPACE;
           # auf Erreichen von *PRINT-LENGTH* prüfen:
           if (length >= locals->length_limit) {
-            JUSTIFY_LAST(TRUE);
+            JUSTIFY_LAST(true);
             # Rest durch '...' abkürzen:
             write_ascii_char(stream_,'.');
             write_ascii_char(stream_,'.');
@@ -8326,7 +8326,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           iarray_dims_sizes(obj,dims_sizes); # füllen
           var uintL depth = r; # Tiefe der Rekursion
           var pr_array_locals locals; # lokale Variablen
-          var boolean readable = TRUE; # Flag, ob Dimensionen und Typ mit ausgegeben werden
+          var bool readable = true; # Flag, ob Dimensionen und Typ mit ausgegeben werden
           locals.stream_ = stream_;
           locals.dims_sizes = dims_sizes;
           locals.length_limit = get_print_length(); # Längenbegrenzung
@@ -8348,7 +8348,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                   depth--; # dafür depth := r-1
                   locals.info.count = dims_sizes[0].dim; # Dim_r als "Elementarlänge"
                   locals.dims_sizes++; # betrachte nur noch Dim_1, ..., Dim_(r-1)
-                  readable = FALSE; # automatisch wiedereinlesbar
+                  readable = false; # automatisch wiedereinlesbar
                   goto routine_ok;
                 default: ;
               }
@@ -8356,18 +8356,18 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             locals.pr_one_elt = &pr_array_elt_t;
             locals.info.count = 1; # 1 als "Elementarlänge"
             if (atype==Atype_T)
-              readable = FALSE; # automatisch wiedereinlesbar
+              readable = false; # automatisch wiedereinlesbar
            routine_ok:
             locals.info.index = 0; # Start-Index ist 0
           }
           if (!test_value(S(print_readably)))
-            readable = FALSE; # braucht nicht wiedereinlesbar zu sein
+            readable = false; # braucht nicht wiedereinlesbar zu sein
           pushSTACK(obj); # Array retten
           var object* obj_ = &STACK_0; # und merken, wo er sitzt
           # Datenvektor holen:
           var uintL size = TheIarray(obj)->totalsize;
           if (size == 0)
-            readable = TRUE; # sonst weiß man nicht einmal die Dimensionen
+            readable = true; # sonst weiß man nicht einmal die Dimensionen
           obj = iarray_displace_check(obj,size,&locals.info.index); # Datenvektor
           # locals.info.index = Offset vom Array in den Datenvektor
           pushSTACK(obj); locals.obj_ = &STACK_0; # obj im Stack unterbringen
@@ -8377,13 +8377,13 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             KLAMMER_AUF; # '(' ausgeben
             INDENT_START(3); # um 3 Zeichen einrücken, wegen '#A('
             JUSTIFY_START(1);
-            JUSTIFY_LAST(FALSE);
+            JUSTIFY_LAST(false);
             prin_object_dispatch(stream_,array_element_type(*obj_)); # Elementtyp (Symbol oder Liste) ausgeben
             JUSTIFY_SPACE;
-            JUSTIFY_LAST(FALSE);
+            JUSTIFY_LAST(false);
             pr_list(stream_,array_dimensions(*obj_)); # Dimensionsliste ausgeben
             JUSTIFY_SPACE;
-            JUSTIFY_LAST(TRUE);
+            JUSTIFY_LAST(true);
             pr_array_rekursion(&locals,depth); # Array-Elemente ausgeben
             JUSTIFY_END_ENG;
             INDENT_END;
@@ -8528,18 +8528,18 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # can trigger GC
   local void pr_structure_default (const object* stream_, object structure);
-  local boolean some_printable_slots (object slotlist);
-  local boolean some_printable_slots(slotlist)
+  local bool some_printable_slots (object slotlist);
+  local bool some_printable_slots(slotlist)
     var object slotlist;
     {
       while (consp(slotlist)) {
         var object slot = Car(slotlist);
         if (simple_vector_p(slot) && (Svector_length(slot) >= 7)
             && !nullp(TheSvector(slot)->data[0]))
-          return TRUE;
+          return true;
         slotlist = Cdr(slotlist);
       }
-      return FALSE;
+      return false;
     }
   local void pr_structure_default(stream_,structure)
     var const object* stream_;
@@ -8569,7 +8569,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                  GETTEXT("~: bad ~")
                 );
         }
-        var boolean readable = # TRUE falls (svref description 2) /= NIL
+        var bool readable = # true falls (svref description 2) /= NIL
           !nullp(TheSvector(description)->data[2]);
         if (readable) {
           # Structure wiedereinlesbar ausgeben:
@@ -8604,7 +8604,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               JUSTIFY_SPACE; # Space ausgeben
               # auf Erreichen von *PRINT-LENGTH* prüfen:
               if (length >= length_limit) {
-                JUSTIFY_LAST(TRUE);
+                JUSTIFY_LAST(true);
                 # Rest durch '...' abkürzen:
                 write_ascii_char(stream_,'.');
                 write_ascii_char(stream_,'.');
@@ -8615,7 +8615,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               JUSTIFY_LAST(!some_printable_slots(STACK_1));
               var object* slot_ = &STACK_0; # da sitzt der Slot
               JUSTIFY_START(0);
-              JUSTIFY_LAST(FALSE);
+              JUSTIFY_LAST(false);
               write_ascii_char(stream_,':'); # Keyword-Kennzeichen
               {
                 var object obj = TheSvector(*slot_)->data[0]; # (ds-slot-name slot)
@@ -8623,7 +8623,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                 pr_like_symbol(stream_,Symbol_name(obj)); # Symbolnamen der Komponente ausgeben
               }
               JUSTIFY_SPACE;
-              JUSTIFY_LAST(TRUE);
+              JUSTIFY_LAST(true);
               # (SYS::%%STRUCTURE-REF name Structure (ds-slot-offset slot)) ausführen:
               pushSTACK(*(structure_ STACKop -1)); # name als 1. Argument
               pushSTACK(*(structure_ STACKop 0)); # Structure als 2. Argument
@@ -8662,7 +8662,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           # auf Erreichen von *PRINT-LENGTH* prüfen:
           if (length >= length_limit) {
             # Rest durch '...' abkürzen:
-            JUSTIFY_LAST(TRUE);
+            JUSTIFY_LAST(true);
             write_ascii_char(stream_,'.');
             write_ascii_char(stream_,'.');
             write_ascii_char(stream_,'.');
@@ -8721,10 +8721,10 @@ LISPFUNN(print_structure,2)
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
       INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
       JUSTIFY_START(1);
-      JUSTIFY_LAST(FALSE);
+      JUSTIFY_LAST(false);
       write_sstring_case(stream_,*string_); # String ausgeben
       JUSTIFY_SPACE;
-      JUSTIFY_LAST(TRUE);
+      JUSTIFY_LAST(true);
       pr_hex6(stream_,obj); # obj als Adresse ausgeben
       JUSTIFY_END_ENG;
       INDENT_END;
@@ -8793,10 +8793,10 @@ LISPFUNN(print_structure,2)
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
       INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
       JUSTIFY_START(1);
-      JUSTIFY_LAST(FALSE);
+      JUSTIFY_LAST(false);
       write_sstring_case(stream_,O(printstring_read_label)); # "READ-LABEL"
       JUSTIFY_SPACE;
-      JUSTIFY_LAST(TRUE);
+      JUSTIFY_LAST(true);
       #ifdef TYPECODES
       pr_uint(stream_,(as_oint(obj) >> (oint_addr_shift+1)) & (bit(oint_data_len-2)-1)); # Bits 21..0 dezimal ausgeben
       #else
@@ -8848,7 +8848,7 @@ LISPFUNN(print_structure,2)
         JUSTIFY_SPACE; # Space ausgeben
         # auf Erreichen von *PRINT-LENGTH* prüfen:
         if (length >= length_limit) {
-          JUSTIFY_LAST(TRUE);
+          JUSTIFY_LAST(true);
           # Rest durch '...' abkürzen:
           write_ascii_char(stream_,'.');
           write_ascii_char(stream_,'.');
@@ -8884,7 +8884,7 @@ LISPFUNN(print_structure,2)
         JUSTIFY_SPACE; # Space ausgeben
         # auf Erreichen von *PRINT-LENGTH* prüfen:
         if (length >= length_limit) {
-          JUSTIFY_LAST(TRUE);
+          JUSTIFY_LAST(true);
           # Rest durch '...' abkürzen:
           write_ascii_char(stream_,'.');
           write_ascii_char(stream_,'.');
@@ -8911,12 +8911,12 @@ LISPFUNN(print_structure,2)
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-  local void pr_record_descr (const object* stream_, object obj, object name, boolean readable, object slotlist);
+  local void pr_record_descr (const object* stream_, object obj, object name, bool readable, object slotlist);
   local void pr_record_descr(stream_,obj,name,readable,slotlist)
     var const object* stream_;
     var object obj;
     var object name;
-    var boolean readable;
+    var bool readable;
     var object slotlist;
     {
       LEVEL_CHECK;
@@ -8959,7 +8959,7 @@ LISPFUNN(print_structure,2)
             # auf Erreichen von *PRINT-LENGTH* prüfen:
             if (length >= length_limit) {
               # Rest durch '...' abkürzen:
-              JUSTIFY_LAST(TRUE);
+              JUSTIFY_LAST(true);
               write_ascii_char(stream_,'.');
               write_ascii_char(stream_,'.');
               write_ascii_char(stream_,'.');
@@ -8969,12 +8969,12 @@ LISPFUNN(print_structure,2)
             JUSTIFY_LAST(matomp(STACK_1));
             var object* slot_ = &STACK_0; # da sitzt der Slot
             JUSTIFY_START(0);
-            JUSTIFY_LAST(FALSE);
+            JUSTIFY_LAST(false);
             write_ascii_char(stream_,':'); # Keyword-Kennzeichen
             # (first slot) sollte ein Symbol sein
             pr_like_symbol(stream_,Symbol_name(Car(*slot_))); # Symbolnamen der Komponente ausgeben
             JUSTIFY_SPACE;
-            JUSTIFY_LAST(TRUE);
+            JUSTIFY_LAST(true);
             pushSTACK(*(obj_ STACKop 0)); # obj als Argument
             funcall(Cdr(*slot_),1); # accessor aufrufen
             prin_object(stream_,value1); # Komponente ausgeben
@@ -9045,7 +9045,7 @@ LISPFUNN(print_structure,2)
               KLAMMER_AUF;
               INDENT_START(3); # um 3 Zeichen einrücken, wegen '#S('
               JUSTIFY_START(1);
-              JUSTIFY_LAST(FALSE);
+              JUSTIFY_LAST(false);
               prin_object(stream_,S(hash_table)); # Symbol HASH-TABLE ausgeben
               obj = *obj_;
               {
@@ -9085,7 +9085,7 @@ LISPFUNN(print_structure,2)
                   # auf Erreichen von *PRINT-LENGTH* prüfen:
                   if (length >= length_limit) {
                    dots:
-                    JUSTIFY_LAST(TRUE);
+                    JUSTIFY_LAST(true);
                     # Rest durch '...' abkürzen:
                     write_ascii_char(stream_,'.');
                     write_ascii_char(stream_,'.');
@@ -9126,12 +9126,12 @@ LISPFUNN(print_structure,2)
               write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
               INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
               JUSTIFY_START(1);
-              JUSTIFY_LAST(FALSE);
+              JUSTIFY_LAST(false);
               if (pack_deletedp(*obj_))
                 write_sstring_case(stream_,O(printstring_deleted)); # "DELETED "
               write_sstring_case(stream_,O(printstring_package)); # "PACKAGE"
               JUSTIFY_SPACE;
-              JUSTIFY_LAST(TRUE);
+              JUSTIFY_LAST(true);
               pr_like_symbol(stream_,ThePackage(*obj_)->pack_name); # Name ausgeben
               JUSTIFY_END_ENG;
               INDENT_END;
@@ -9145,10 +9145,10 @@ LISPFUNN(print_structure,2)
               KLAMMER_AUF; # '('
               INDENT_START(3); # um 3 Zeichen einrücken, wegen '#.('
               JUSTIFY_START(1);
-              JUSTIFY_LAST(FALSE);
+              JUSTIFY_LAST(false);
               pr_symbol(stream_,S(pfind_package)); # SYSTEM::%FIND-PACKAGE
               JUSTIFY_SPACE;
-              JUSTIFY_LAST(TRUE);
+              JUSTIFY_LAST(true);
               pr_string(stream_,ThePackage(*obj_)->pack_name); # Name ausgeben
               JUSTIFY_END_ENG;
               INDENT_END;
@@ -9173,28 +9173,28 @@ LISPFUNN(print_structure,2)
             pushSTACK(obj); # string
             var object* obj_ = &STACK_0;
             JUSTIFY_START(0);
-            JUSTIFY_LAST(FALSE);
+            JUSTIFY_LAST(false);
             {
               JUSTIFY_START(0);
-              JUSTIFY_LAST(FALSE);
+              JUSTIFY_LAST(false);
               write_ascii_char(stream_,'#'); write_ascii_char(stream_,'-');
               write_sstring(stream_,O(lisp_implementation_type_string));
               JUSTIFY_SPACE;
-              JUSTIFY_LAST(TRUE);
+              JUSTIFY_LAST(true);
               write_ascii_char(stream_,'#'); write_ascii_char(stream_,'P');
               pr_string(stream_,*obj_);
               JUSTIFY_END_ENG;
             }
             JUSTIFY_SPACE;
-            JUSTIFY_LAST(TRUE);
+            JUSTIFY_LAST(true);
             {
               JUSTIFY_START(0);
-              JUSTIFY_LAST(FALSE);
+              JUSTIFY_LAST(false);
               write_ascii_char(stream_,'#'); write_ascii_char(stream_,'+');
               write_sstring(stream_,O(lisp_implementation_type_string));
               JUSTIFY_SPACE;
-              JUSTIFY_LAST(TRUE);
-              pr_record_descr(stream_,*(obj_ STACKop 1),S(pathname),TRUE,
+              JUSTIFY_LAST(true);
+              pr_record_descr(stream_,*(obj_ STACKop 1),S(pathname),true,
                               O(pathname_slotlist));
               JUSTIFY_END_ENG;
             }
@@ -9213,7 +9213,7 @@ LISPFUNN(print_structure,2)
         #ifdef LOGICAL_PATHNAMES
         case Rectype_Logpathname:
           # #S(LOGICAL-PATHNAME :HOST host :DIRECTORY directory :NAME name :TYPE type :VERSION version)
-          pr_record_descr(stream_,obj,S(logical_pathname),TRUE,O(pathname_slotlist));
+          pr_record_descr(stream_,obj,S(logical_pathname),true,O(pathname_slotlist));
           break;
         #endif
         case Rectype_Random_State:
@@ -9226,7 +9226,7 @@ LISPFUNN(print_structure,2)
             KLAMMER_AUF;
             INDENT_START(3); # um 3 Zeichen einrücken, wegen '#S('
             JUSTIFY_START(1);
-            JUSTIFY_LAST(FALSE);
+            JUSTIFY_LAST(false);
             prin_object(stream_,S(random_state)); # Symbol RANDOM-STATE ausgeben
             pr_record_ab(stream_,obj_,0,0); # Komponente ausgeben
             JUSTIFY_END_ENG;
@@ -9256,7 +9256,7 @@ LISPFUNN(print_structure,2)
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
             INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
             JUSTIFY_START(1);
-            JUSTIFY_LAST(FALSE);
+            JUSTIFY_LAST(false);
             write_sstring_case(stream_,O(printstring_byte)); # "BYTE"
             pr_record_ab(stream_,obj_,0,0); # Komponenten ausgeben
             JUSTIFY_END_ENG;
@@ -9267,7 +9267,7 @@ LISPFUNN(print_structure,2)
           LEVEL_END;
           #else
           # #S(BYTE :SIZE size :POSITION position)
-          pr_record_descr(stream_,obj,S(byte),TRUE,O(byte_slotlist));
+          pr_record_descr(stream_,obj,S(byte),true,O(byte_slotlist));
           #endif
           break;
         case Rectype_Fsubr: # Fsubr
@@ -9296,7 +9296,7 @@ LISPFUNN(print_structure,2)
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
             INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
             JUSTIFY_START(1);
-            JUSTIFY_LAST(FALSE);
+            JUSTIFY_LAST(false);
             write_sstring_case(stream_,O(printstring_symbolmacro)); # "SYMBOL-MACRO"
             pr_record_ab(stream_,obj_,0,0); # Komponente ausgeben
             JUSTIFY_END_ENG;
@@ -9317,7 +9317,7 @@ LISPFUNN(print_structure,2)
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
             INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
             JUSTIFY_START(1);
-            JUSTIFY_LAST(FALSE);
+            JUSTIFY_LAST(false);
             write_sstring_case(stream_,O(printstring_macro)); # "MACRO"
             pr_record_ab(stream_,obj_,0,0); # Komponente ausgeben
             JUSTIFY_END_ENG;
@@ -9338,7 +9338,7 @@ LISPFUNN(print_structure,2)
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
             INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
             JUSTIFY_START(1);
-            JUSTIFY_LAST(FALSE);
+            JUSTIFY_LAST(false);
             write_sstring_case(stream_,O(printstring_functionmacro)); # "FUNCTION-MACRO"
             pr_record_ab(stream_,obj_,0,0); # Komponente ausgeben
             JUSTIFY_END_ENG;
@@ -9363,7 +9363,7 @@ LISPFUNN(print_structure,2)
             #ifdef UNICODE
             JUSTIFY_LAST(length_limit==0);
             #else
-            JUSTIFY_LAST(TRUE);
+            JUSTIFY_LAST(true);
             #endif
             write_sstring_case(stream_,O(printstring_encoding)); # "ENCODING"
             {
@@ -9380,7 +9380,7 @@ LISPFUNN(print_structure,2)
               # auf Erreichen von *PRINT-LENGTH* prüfen:
               if (length >= length_limit) goto encoding_end;
               JUSTIFY_SPACE; # Space ausgeben
-              JUSTIFY_LAST(TRUE);
+              JUSTIFY_LAST(true);
               # Line-Terminator ausgeben:
               prin_object(stream_,TheEncoding(*obj_)->enc_eol);
               length++; # bisherige Länge erhöhen
@@ -9400,7 +9400,7 @@ LISPFUNN(print_structure,2)
             fehler_print_readably(obj);
           LEVEL_CHECK;
           {
-            var boolean validp = fp_validp(TheFpointer(obj));
+            var bool validp = fp_validp(TheFpointer(obj));
             var uintP val = (uintP)(TheFpointer(obj)->fp_pointer); # Wert holen
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
             INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
@@ -9415,7 +9415,7 @@ LISPFUNN(print_structure,2)
               # auf Erreichen von *PRINT-LENGTH* prüfen:
               if (length >= length_limit) goto fpointer_end;
               JUSTIFY_SPACE; # Space ausgeben
-              JUSTIFY_LAST(TRUE);
+              JUSTIFY_LAST(true);
               # Adresse ausgeben:
               pr_hex8(stream_,val);
               length++; # bisherige Länge erhöhen
@@ -9450,7 +9450,7 @@ LISPFUNN(print_structure,2)
               # auf Erreichen von *PRINT-LENGTH* prüfen:
               if (length >= length_limit) goto faddress_end;
               JUSTIFY_SPACE; # Space ausgeben
-              JUSTIFY_LAST(TRUE);
+              JUSTIFY_LAST(true);
               # Adresse ausgeben, vgl. Macro Faddress_value():
               pr_hex8(stream_,(uintP)TheFpointer(TheFaddress(*obj_)->fa_base)->fp_pointer
                               +  TheFaddress(*obj_)->fa_offset
@@ -9492,7 +9492,7 @@ LISPFUNN(print_structure,2)
                 if (length >= length_limit) goto fvariable_end;
                 JUSTIFY_SPACE; # Space ausgeben
               }
-              JUSTIFY_LAST(TRUE);
+              JUSTIFY_LAST(true);
               # Adresse ausgeben:
               pr_hex8(stream_,(uintP)Faddress_value(TheFvariable(*obj_)->fv_address));
               length++; # bisherige Länge erhöhen
@@ -9532,7 +9532,7 @@ LISPFUNN(print_structure,2)
                 if (length >= length_limit) goto ffunction_end;
                 JUSTIFY_SPACE; # Space ausgeben
               }
-              JUSTIFY_LAST(TRUE);
+              JUSTIFY_LAST(true);
               # Adresse ausgeben:
               pr_hex8(stream_,(uintP)Faddress_value(TheFfunction(*obj_)->ff_address));
               length++; # bisherige Länge erhöhen
@@ -9566,7 +9566,7 @@ LISPFUNN(print_structure,2)
                 # auf Erreichen von *PRINT-LENGTH* prüfen:
                 if (length >= length_limit) goto weakpointer_end;
                 JUSTIFY_SPACE; # Space ausgeben
-                JUSTIFY_LAST(TRUE);
+                JUSTIFY_LAST(true);
                 prin_object(stream_,*value_); # output value
                 length++; # bisherige Länge erhöhen
               }
@@ -9610,7 +9610,7 @@ LISPFUNN(print_structure,2)
               # auf Erreichen von *PRINT-LENGTH* prüfen:
               if (length >= length_limit) goto socket_server_end;
               JUSTIFY_SPACE; # Space ausgeben
-              JUSTIFY_LAST(TRUE);
+              JUSTIFY_LAST(true);
               # output host
               write_string(stream_,TheSocketServer(*obj_)->host);
               write_ascii_char(stream_,':'); # Port ausgeben:
@@ -9658,7 +9658,7 @@ LISPFUNN(print_structure,2)
                 length++;
                 if (length >= length_limit) goto dir_key_end;
                 JUSTIFY_SPACE;
-                JUSTIFY_LAST(TRUE);
+                JUSTIFY_LAST(true);
                 pr_symbol(stream_,TheDirKey(*obj_)->direction);
               }
             }
@@ -9691,7 +9691,7 @@ LISPFUNN(print_structure,2)
               # auf Erreichen von *PRINT-LENGTH* prüfen:
               if (length >= length_limit) goto yetanother_end;
               JUSTIFY_SPACE; # Space ausgeben
-              JUSTIFY_LAST(TRUE);
+              JUSTIFY_LAST(true);
               # x ausgeben:
               pr_hex6(stream_,TheYetanother(*obj_)->yetanother_x);
               length++; # bisherige Länge erhöhen
@@ -9734,10 +9734,10 @@ LISPFUNN(print_structure,2)
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
       INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
       JUSTIFY_START(1);
-      JUSTIFY_LAST(FALSE);
+      JUSTIFY_LAST(false);
       write_sstring_case(stream_,*string_); # String ausgeben
       JUSTIFY_SPACE;
-      JUSTIFY_LAST(TRUE);
+      JUSTIFY_LAST(true);
       prin_object(stream_,*(string_ STACKop 1)); # other ausgeben
       JUSTIFY_END_ENG;
       INDENT_END;
@@ -9766,10 +9766,10 @@ LISPFUNN(print_structure,2)
         KLAMMER_AUF; # '('
         INDENT_START(3); # um 3 Zeichen einrücken, wegen '#.('
         JUSTIFY_START(1);
-        JUSTIFY_LAST(FALSE);
+        JUSTIFY_LAST(false);
         pr_symbol(stream_,S(find_subr)); # SYSTEM::%FIND-SUBR
         JUSTIFY_SPACE;
-        JUSTIFY_LAST(TRUE);
+        JUSTIFY_LAST(true);
         write_ascii_char(stream_,'\'');
         pr_symbol(stream_,TheSubr(*obj_)->name); # Name ausgeben
         JUSTIFY_END_ENG;
@@ -9829,7 +9829,7 @@ LISPFUNN(print_structure,2)
           write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
           INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
           JUSTIFY_START(1);
-          JUSTIFY_LAST(FALSE);
+          JUSTIFY_LAST(false);
           write_sstring_case(stream_,O(printstring_closure));
           if (test_value(S(print_closure))) { # *PRINT-CLOSURE* abfragen
             # *PRINT-CLOSURE* /= NIL -> #<CLOSURE komponente1 ...> ausgeben:
@@ -9919,7 +9919,7 @@ LISPFUNN(print_structure,2)
         KLAMMER_AUF;
         INDENT_START(3); # um 3 Zeichen einrücken, wegen '#Y('
         JUSTIFY_START(1);
-        JUSTIFY_LAST(FALSE);
+        JUSTIFY_LAST(false);
         prin_object(stream_,TheClosure(*obj_)->clos_name); # Name ausgeben
         JUSTIFY_SPACE;
         # Codevektor byteweise ausgeben, dabei Zirkularität behandeln:
@@ -9975,7 +9975,7 @@ LISPFUNN(print_structure,2)
               JUSTIFY_SPACE;
             # auf Erreichen von *PRINT-LENGTH* prüfen:
             if (length >= length_limit) {
-              JUSTIFY_LAST(TRUE);
+              JUSTIFY_LAST(true);
               # Rest durch '...' abkürzen:
               write_ascii_char(stream_,'.');
               write_ascii_char(stream_,'.');
@@ -10035,7 +10035,7 @@ LISPFUNN(print_structure,2)
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
       INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
       JUSTIFY_START(1);
-      JUSTIFY_LAST(FALSE);
+      JUSTIFY_LAST(false);
       # falls Stream geschlossen, "CLOSED " ausgeben:
       if ((TheStream(*obj_)->strmflags & strmflags_open_B) == 0)
         write_sstring_case(stream_,O(printstring_closed));
@@ -10075,7 +10075,7 @@ LISPFUNN(print_structure,2)
         case strmtype_synonym:
           # Synonym-Stream
           JUSTIFY_SPACE;
-          JUSTIFY_LAST(TRUE);
+          JUSTIFY_LAST(true);
           prin_object(stream_,TheStream(*obj_)->strm_synonym_symbol); # Symbol ausgeben
           break;
         case strmtype_broad:
@@ -10089,20 +10089,20 @@ LISPFUNN(print_structure,2)
         case strmtype_buff_in:
           # Buffered-Input-Stream
           JUSTIFY_SPACE;
-          JUSTIFY_LAST(TRUE);
+          JUSTIFY_LAST(true);
           prin_object(stream_,TheStream(*obj_)->strm_buff_in_fun); # Funktion ausgeben
           break;
         case strmtype_buff_out:
           # Buffered-Output-Stream
           JUSTIFY_SPACE;
-          JUSTIFY_LAST(TRUE);
+          JUSTIFY_LAST(true);
           prin_object(stream_,TheStream(*obj_)->strm_buff_out_fun); # Funktion ausgeben
           break;
         #ifdef GENERIC_STREAMS
         case strmtype_generic:
           # Generic Streams
           JUSTIFY_SPACE;
-          JUSTIFY_LAST(TRUE);
+          JUSTIFY_LAST(true);
           prin_object(stream_,TheStream(*obj_)->strm_controller_object); # Controller ausgeben
           break;
         #endif
@@ -10118,7 +10118,7 @@ LISPFUNN(print_structure,2)
           }
           if (eq(TheStream(*obj_)->strm_eltype,S(character))) {
             JUSTIFY_SPACE;
-            JUSTIFY_LAST(TRUE);
+            JUSTIFY_LAST(true);
             # Zeilennummer ausgeben, in der sich der Stream gerade befindet:
             write_ascii_char(stream_,'@');
             pr_number(stream_,stream_line_number(*obj_));
@@ -10129,10 +10129,10 @@ LISPFUNN(print_structure,2)
         case strmtype_pipe_out:
           # Pipe-In/Out-Stream
           JUSTIFY_SPACE;
-          JUSTIFY_LAST(FALSE);
+          JUSTIFY_LAST(false);
           prin_object(stream_,TheStream(*obj_)->strm_eltype); # Stream-Element-Type
           JUSTIFY_SPACE;
-          JUSTIFY_LAST(TRUE);
+          JUSTIFY_LAST(true);
           pr_uint(stream_,I_to_UL(TheStream(*obj_)->strm_pipe_pid)); # Prozess-Id ausgeben
           break;
         #endif
@@ -10140,7 +10140,7 @@ LISPFUNN(print_structure,2)
         case strmtype_x11socket:
           # X11-Socket-Stream
           JUSTIFY_SPACE;
-          JUSTIFY_LAST(TRUE);
+          JUSTIFY_LAST(true);
           prin_object(stream_,TheStream(*obj_)->strm_x11socket_connect); # Verbindungsziel ausgeben
           break;
         #endif
@@ -10151,10 +10151,10 @@ LISPFUNN(print_structure,2)
         case strmtype_socket:
           # Socket-Stream
           JUSTIFY_SPACE;
-          JUSTIFY_LAST(FALSE);
+          JUSTIFY_LAST(false);
           prin_object(stream_,TheStream(*obj_)->strm_eltype); # Stream-Element-Type
           JUSTIFY_SPACE;
-          JUSTIFY_LAST(TRUE);
+          JUSTIFY_LAST(true);
           {
             var object host = TheStream(*obj_)->strm_socket_host;
             if (!nullp(host))
@@ -10558,21 +10558,21 @@ LISPFUN(write_unreadable,3,0,norest,key,2, (kw(type),kw(identity)) )
 # (SYSTEM::WRITE-UNREADABLE function object stream [:type] [:identity]),
 # vgl. CLtL2 S. 580
   {
-    var boolean flag_fun = FALSE;
-    var boolean flag_type = FALSE;
-    var boolean flag_id = FALSE;
+    var bool flag_fun = false;
+    var bool flag_type = false;
+    var bool flag_id = false;
     {
       var object arg = popSTACK(); # :identity - Argument
       if (!(eq(arg,unbound) || nullp(arg)))
-        flag_id = TRUE;
+        flag_id = true;
     }
     {
       var object arg = popSTACK(); # :type - Argument
       if (!(eq(arg,unbound) || nullp(arg)))
-        flag_type = TRUE;
+        flag_type = true;
     }
     if (!nullp(STACK_2))
-      flag_fun = TRUE;
+      flag_fun = true;
     test_ostream(); # Output-Stream überprüfen
     if (test_value(S(print_readably)))
       fehler_print_readably(STACK_1);
@@ -10595,7 +10595,7 @@ LISPFUN(write_unreadable,3,0,norest,key,2, (kw(type),kw(identity)) )
     if (flag_id) {
       if (flag_fun)
         JUSTIFY_SPACE;
-      JUSTIFY_LAST(TRUE);
+      JUSTIFY_LAST(true);
       pr_hex6(stream_,*(stream_ STACKop 1));
     }
     JUSTIFY_END_ENG;

@@ -41,14 +41,14 @@ global var uintC module_count =
     { "clisp",
       (subr_*)&subr_tab_data, &subr_tab_data_size,
       (object*)&object_tab, &object_tab_size,
-      TRUE, NULL, NULL, NULL, NULL
+      true, NULL, NULL, NULL, NULL
       _NEXT_NULL
     },
     #define MODULE(module_name)  \
       { STRING(module_name), \
         &module__##module_name##__subr_tab[0], &module__##module_name##__subr_tab_size, \
         &module__##module_name##__object_tab[0], &module__##module_name##__object_tab_size, \
-        FALSE, \
+        false, \
         &module__##module_name##__subr_tab_initdata[0], \
         &module__##module_name##__object_tab_initdata[0], \
         &module__##module_name##__init_function_1, \
@@ -57,6 +57,6 @@ global var uintC module_count =
       },
     #include "modules.h"
     #undef MODULE
-    { NULL, NULL, NULL, NULL, NULL, FALSE, NULL, NULL, NULL, NULL _NEXT_NULL }
+    { NULL, NULL, NULL, NULL, NULL, false, NULL, NULL, NULL, NULL _NEXT_NULL }
     };
 

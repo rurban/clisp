@@ -249,7 +249,7 @@ _not_loop_up: | Input in a0,d0.W
     2:       dbra d0,1b
            rts
 
-| extern boolean and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
+| extern bool and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
 _and_test_loop_up: | Input in a0,a1,d0.W, verändert d1, Output in d0.W=d0.L
            movel sp@(4),a0
            movel sp@(8),a1
@@ -264,7 +264,7 @@ _and_test_loop_up: | Input in a0,a1,d0.W, verändert d1, Output in d0.W=d0.L
     3:     moveq #1,d0
            rts
 
-| extern boolean test_loop_up (uintD* ptr, uintC count);
+| extern bool test_loop_up (uintD* ptr, uintC count);
 _test_loop_up: | Input in a0,d0.W, Output in d0.W=d0.L
            movel sp@(4),a0
            movew sp@(8+2),d0

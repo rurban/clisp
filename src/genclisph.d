@@ -277,9 +277,19 @@ global int main()
     printf("typedef long long           SLONGLONG;\n");
     printf("typedef unsigned long long  ULONGLONG;\n");
   #endif
-  printf("#define TRUE   1\n");
-  printf("#define FALSE  0\n");
-  printf("typedef unsigned int  boolean;\n");
+  #ifdef HAVE_STDBOOL_H
+    printf("#include <stdbool.h>\n");
+  #else
+    {
+      char buf[1000];
+      FILE* includefile = fopen("stdbool.h","r");
+      char* line;
+      if (includefile == NULL) { exit(1); }
+      while ((line = fgets(buf,sizeof(buf),includefile)) != NULL)
+        fputs(line,stdout);
+      if (ferror(includefile) || fclose(includefile)) { exit(1); }
+    }
+  #endif
   printf("#undef NULL\n");
   #ifdef __cplusplus
     printf("#define NULL  0\n");
@@ -1238,7 +1248,7 @@ global int main()
 # #ifdef asciz_length
 #   printf("#define asciz_equal(a1,a2)  (__builtin_strcmp(a1,a2)==0)\n");
 # #else
-#   printf("extern boolean asciz_equal (const char * asciz1, const char * asciz2);\n");
+#   printf("extern bool asciz_equal (const char * asciz1, const char * asciz2);\n");
 # #endif
 # printf("typedef Values subr_norest_function (void);\n");
 # printf("typedef Values subr_rest_function (uintC argcount, object* rest_args_pointer);\n");
@@ -1292,7 +1302,7 @@ global int main()
   printf("extern uintC module_count;\n");
   printf("typedef struct { const char* packname; const char* symname; } subr_initdata;\n");
   printf("typedef struct { const char* initstring; } object_initdata;\n");
-  printf("typedef struct module_ { const char* name; subr_* stab; const uintC* stab_size; object* otab; const uintC* otab_size; boolean initialized; const subr_initdata* stab_initdata; const object_initdata* otab_initdata; void (*initfunction1) (struct module_ *); void (*initfunction2) (struct module_ *);");
+  printf("typedef struct module_ { const char* name; subr_* stab; const uintC* stab_size; object* otab; const uintC* otab_size; bool initialized; const subr_initdata* stab_initdata; const object_initdata* otab_initdata; void (*initfunction1) (struct module_ *); void (*initfunction2) (struct module_ *);");
   #ifdef DYNAMIC_MODULES
     printf(" struct module_ * next;");
   #endif
@@ -1468,9 +1478,9 @@ global int main()
 # printf("extern object find_package (object string);\n");
 # printf("extern uintBWL intern (object string, object pack, object* sym_);\n");
 # printf("extern object intern_keyword (object string);\n");
-# printf("extern boolean eql (object obj1, object obj2);\n");
-# printf("extern boolean equal (object obj1, object obj2);\n");
-# printf("extern boolean equalp (object obj1, object obj2);\n");
+# printf("extern bool eql (object obj1, object obj2);\n");
+# printf("extern bool equal (object obj1, object obj2);\n");
+# printf("extern bool equalp (object obj1, object obj2);\n");
 # printf("extern object get (object symbol, object key);\n");
   printf("extern object L_to_I (sint32 wert);\n");
   #if (intLsize<=oint_data_len)

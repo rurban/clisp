@@ -21,7 +21,7 @@
 # Returns 0 is successful, -1/errno on error.
 
 # Reserves an address range for use with mmap_zeromap().
-# local int prepare_zeromap (uintP* map_addr, uintP* map_endaddr, boolean shrinkp);
+# local int prepare_zeromap (uintP* map_addr, uintP* map_endaddr, bool shrinkp);
 
 #ifdef HAVE_MMAP
 # Fill a memory range [map_addr,map_addr+map_len-1] with pages mapped in from

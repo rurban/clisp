@@ -91,7 +91,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
     # > iop: Flag: E/A Kanäle übernehmen?
     # Es sind nicht alle Kombinationen sinvoll.
     var uintL fargs; # 1 + Zahl Funktionsargumente
-    var boolean functionp; # Funktions- statt Kommandoaufruf
+    var bool functionp; # Funktions- statt Kommandoaufruf
     var UBYTE* portname;
     if (rexxPort == NULL)
       fehler_norexx();
@@ -102,10 +102,10 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
     # Erstes Argument verarbeiten:
     if (stringp(STACK_(5+1))) {
       # String
-      functionp = FALSE;
+      functionp = false;
       STACK_(5+1) = coerce_ss(STACK_(5+1));
     } else {
-      functionp = TRUE;
+      functionp = true;
       # sollte (Simple-)Vector sein:
       # evtl.: STACK_(5+1) = coerce_sequence(STACK_(5+1),S(simple_vector));
       if (!simple_vector_p(STACK_(5+1))) {
@@ -172,7 +172,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
       end_system_call();
       if (!(rexxmsg == NULL)) {
         # vorerst erfolgreich
-        var boolean success;
+        var bool success;
         if (functionp) {
           # ARexx Funktionsaufruf
           debug_asciz_out("function ");
@@ -180,7 +180,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
           {
             var uintL i;
             var object* argptr = fargs_pointer;
-            success = TRUE;
+            success = true;
             with_sstring(NEXT(argptr),O(misc_encoding),asciz,len, {
               begin_system_call();
               for (i=0; i<fargs; i++) {
@@ -188,7 +188,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
                 if ((rexxmsg->rm_Args[i] = CreateArgstring(asciz,len)) == NULL) {
                   if (i>0)
                     ClearRexxMsg(rexxmsg,i);
-                  success = FALSE;
+                  success = false;
                   break;
                 }
               }
@@ -202,9 +202,9 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
           with_sstring(STACK_(5+1),O(misc_encoding),asciz,len, {
             begin_system_call();
             if (rexxmsg->rm_Args[0] = CreateArgstring(asciz,len))
-              success = TRUE;
+              success = true;
             else
-              success = FALSE;
+              success = false;
             end_system_call();
           });
         }
@@ -236,7 +236,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
               # Message abschicken:
               PutMsg(arexxport,(struct Message *)rexxmsg);
             else
-              success = FALSE;
+              success = false;
             Permit();
             end_system_call();
           }
@@ -276,8 +276,8 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
 
 # Warten, bis am Port eine Message eintrifft oder Ctrl-C.
 # Ergebnis ist ein Flag, das angibt, ob eine Message eintraf.
-  local boolean rexx_wait (void);
-  local boolean rexx_wait()
+  local bool rexx_wait (void);
+  local bool rexx_wait()
     {
      start:
       begin_system_call();
@@ -297,9 +297,9 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
         goto start;
       } else {
         if (wait_erg & rexxPortBit)
-          return TRUE;
+          return true;
         else
-          return FALSE; # eigentlich nicht möglich
+          return false; # eigentlich nicht möglich
       }
     }
 
@@ -316,7 +316,7 @@ LISPFUNN(rexx_wait_input,0)
 
 # Flag, ob sich das ARexx-Interface gerade in der Endphase befindet und
 # deswegen keine neuen Nachrichten entgegennimmt:
-  local boolean rexxShutdown = TRUE;
+  local bool rexxShutdown = true;
 
 # Empfängt ARexx Nachrichten.
 # Liefert eine Liste (MsgId ...) oder T, wenn eine Nachricht empfangen wurde.
@@ -504,7 +504,7 @@ LISPFUNN(rexx_reply,3)
 # Initialisiert das REXX-Interface.
 # < ergebnis: Flag, ob erfolgreich initialisiert.
 # Kann mehrfach aufgerufen werden.
-  global boolean init_rexx(void)
+  global bool init_rexx(void)
     {
       if (rexxPort == NULL) { # noch was zu tun?
         if (RexxSysBase == NULL) {
@@ -512,48 +512,48 @@ LISPFUNN(rexx_reply,3)
           RexxSysBase = (struct RxsLib *) OpenLibrary(RXSNAME,0L);
           end_system_call();
           if (RexxSysBase == NULL)
-            return FALSE;
+            return false;
         }
         var uintC nr = 1; # wir probieren verschiedene Ports
         loop {
           if (!(rexxPort == NULL))
             break;
-          var boolean existent;
+          var bool existent;
           rexxPortName[NRPOSITION] = '0' + nr;
           begin_system_call();
           Forbid();
           if (FindPort(rexxPortName) == NULL) {
             # Port existiert noch nicht, wir machen einen (öffentlichen):
             rexxPort = CreatePort(rexxPortName,0L);
-            existent = FALSE;
+            existent = false;
           } else {
-            existent = TRUE;
+            existent = true;
           }
           Permit();
           end_system_call();
           if (!existent) {
             # Wir haben's wenigstens probiert...
             if (rexxPort == NULL)
-              return FALSE;
+              return false;
             rexxPortBit = bit(rexxPort->mp_SigBit);
             rexxNeededReplies = 0;
-            rexxShutdown = FALSE;
+            rexxShutdown = false;
             break;
           }
           # Wir versuchen es mit einem anderem Namen erneut.
           nr++;
           if (nr==10)
-            return FALSE;
+            return false;
         }
       }
-      return TRUE;
+      return true;
     }
 
 # Schließt das REXX-Interface.
 # Kann nur einmal aufgerufen werden.
   global void close_rexx(void)
     {
-      rexxShutdown = TRUE;
+      rexxShutdown = true;
       debug_asciz_out_1("close_rexx: %d messages waiting." NLstring,rexxNeededReplies);
       if (!(rexxPort == NULL)) {
         # Port unbekannt machen (abmelden):

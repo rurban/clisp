@@ -11,8 +11,8 @@
 # UP: entscheidet auf Zahlgleichheit
 # number_gleich(x,y)
 # > x,y: zwei Zahlen
-# < ergebnis: TRUE, falls (= x y) gilt
-  global boolean number_gleich (object x, object y);
+# < ergebnis: true, falls (= x y) gilt
+  global bool number_gleich (object x, object y);
   #define N_N_gleich  number_gleich  # N_N_gleich wird später definiert
 
 

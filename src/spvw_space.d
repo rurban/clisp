@@ -14,8 +14,8 @@
 
 #ifdef SPVW_PAGES
 # Recomputes mem.used_space and mem.total_space.
-# > boolean check: if true, mem.used_space must remain the same.
-  local void recalc_space (boolean check);
+# > bool check: if true, mem.used_space must remain the same.
+  local void recalc_space (bool check);
 #endif
 
 # ------------------------------ Implementation --------------------------------
@@ -131,9 +131,9 @@
   #endif
 
 #ifdef SPVW_PAGES
-  local void recalc_space (boolean check);
+  local void recalc_space (bool check);
   local void recalc_space(check)
-    var boolean check;
+    var bool check;
     {
       var uintL sum_used = 0;
       var uintL sum_free = 0;

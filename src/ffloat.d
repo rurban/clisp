@@ -320,10 +320,10 @@
     var object x1;
     var object x2;
     { float_to_FF(FF_to_float(x1) + FF_to_float(x2), return ,
-                  TRUE, TRUE, # Overflow und subnormale Zahl abfangen
-                  FALSE, # kein Underflow mit Ergebnis +/- 0.0 möglich
+                  true, true, # Overflow und subnormale Zahl abfangen
+                  false, # kein Underflow mit Ergebnis +/- 0.0 möglich
                          # (nach Definition der subnormalen Zahlen)
-                  FALSE, FALSE # keine Singularität, kein NaN als Ergebnis möglich
+                  false, false # keine Singularität, kein NaN als Ergebnis möglich
                  );
     }
  #else
@@ -431,10 +431,10 @@
     var object x1;
     var object x2;
     { float_to_FF(FF_to_float(x1) - FF_to_float(x2), return ,
-                  TRUE, TRUE, # Overflow und subnormale Zahl abfangen
-                  FALSE, # kein Underflow mit Ergebnis +/- 0.0 möglich
+                  true, true, # Overflow und subnormale Zahl abfangen
+                  false, # kein Underflow mit Ergebnis +/- 0.0 möglich
                          # (nach Definition der subnormalen Zahlen)
-                  FALSE, FALSE # keine Singularität, kein NaN als Ergebnis möglich
+                  false, false # keine Singularität, kein NaN als Ergebnis möglich
                  );
     }
  #else
@@ -475,10 +475,10 @@
     var object x1;
     var object x2;
     { float_to_FF(FF_to_float(x1) * FF_to_float(x2), return ,
-                  TRUE, TRUE, # Overflow und subnormale Zahl abfangen
+                  true, true, # Overflow und subnormale Zahl abfangen
                   !(FF_zerop(x1) || FF_zerop(x2)), # ein Ergebnis +/- 0.0
                               # ist genau dann in Wirklichkeit ein Underflow
-                  FALSE, FALSE # keine Singularität, kein NaN als Ergebnis möglich
+                  false, false # keine Singularität, kein NaN als Ergebnis möglich
                  );
     }
  #else
@@ -568,11 +568,11 @@
     var object x1;
     var object x2;
     { float_to_FF(FF_to_float(x1) / FF_to_float(x2), return ,
-                  TRUE, TRUE, # Overflow und subnormale Zahl abfangen
+                  true, true, # Overflow und subnormale Zahl abfangen
                   !FF_zerop(x1), # ein Ergebnis +/- 0.0
                               # ist genau dann in Wirklichkeit ein Underflow
                   FF_zerop(x2), # Division durch Null abfangen
-                  FALSE # kein NaN als Ergebnis möglich
+                  false # kein NaN als Ergebnis möglich
                  );
     }
  #else
@@ -666,7 +666,7 @@
         # e gerade
         { mant = mant << (32-(FF_mant_len+1)); }
       exp = exp >> 1; # exp := exp/2
-     {var boolean exactp;
+     {var bool exactp;
       isqrt_64_32(mant,0, mant=,exactp=); # mant := isqrt(mant*2^32), eine 32-Bit-Zahl
       # Die hinteren 31-FF_mant_len Bits wegrunden:
       if ( ((mant & bit(30-FF_mant_len)) ==0) # Bit 7 =0 -> abrunden

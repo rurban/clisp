@@ -990,7 +990,7 @@
 # isqrt_32_16(x,y=,sqrtp=);
 # > uint32 x: Radikand, >= 2^30, < 2^32
 # < uint16 y: floor(sqrt(x)), >= 2^15, < 2^16
-# < boolean sqrtp: /=0, falls x=y^2
+# < bool sqrtp: /=0, falls x=y^2
   # Methode:
   # y := 2^16 als Anfangswert,
   # y := floor((y + floor(x/y))/2) als nächster Wert,
@@ -1011,7 +1011,7 @@
         { var uint16 _z;                                                 \
           var uint16 _r;                                                 \
           if (_x1 >= _y) # Division _x/_y ergäbe Überlauf -> _z > _y     \
-            { unused (sqrtp_zuweisung FALSE); break; }                   \
+            { unused (sqrtp_zuweisung false); break; }                   \
           divu_3216_1616(_x,_y, _z=,_r=); # Dividiere _x/_y              \
           if (_z >= _y)                                                  \
             { unused (sqrtp_zuweisung (_z == _y) && (_r == 0)); break; } \
@@ -1025,7 +1025,7 @@
 # isqrt_64_32(xhi,xlo,y=,sqrtp=);
 # > uint32 xhi,xlo: Radikand x = 2^32*xhi+xlo, >= 2^62, < 2^64
 # < uint32 y: floor(sqrt(x)), >= 2^31, < 2^32
-# < boolean sqrtp: /=0, falls x=y^2
+# < bool sqrtp: /=0, falls x=y^2
   #if (defined(SPARC) || defined(SPARC64) || defined(MC680Y0) || defined(HPPA))
     # Methode:
     # y := 2^32 als Anfangswert,
@@ -1047,7 +1047,7 @@
           { var uint32 _z;                                              \
             var uint32 _rest;                                           \
             if (_xhi >= _y) # Division _x/_y ergäbe Überlauf -> _z > _y \
-              { sqrtp_zuweisung FALSE; break; }                         \
+              { sqrtp_zuweisung false; break; }                         \
             divu_6432_3232(_xhi,_xlo,_y, _z=,_rest=); # Dividiere _x/_y \
             if (_z >= _y)                                               \
               { sqrtp_zuweisung (_z == _y) && (_rest == 0); break; }    \
@@ -1112,12 +1112,12 @@
         # Rest := Rest + 2^17*yhi = xlo + 2^17*yhi >= 2^32 > z, also x>y^2. \
         if (_r < bit(15))                                                   \
           { if (_xlo < _z)                                                  \
-              { _ylo -= 1; sqrtp_zuweisung FALSE; }                         \
+              { _ylo -= 1; sqrtp_zuweisung false; }                         \
               else                                                          \
               { sqrtp_zuweisung (_xlo == _z); }                             \
           }                                                                 \
           else                                                              \
-          { sqrtp_zuweisung FALSE; }                                        \
+          { sqrtp_zuweisung false; }                                        \
         y_zuweisung highlow32(_yhi,_ylo);                                   \
       }}
   #endif

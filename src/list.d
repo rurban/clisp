@@ -442,38 +442,38 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
 # up2_test(stackptr,arg1,arg2)
 # > *(stackptr+1): die Testfunktion
 # > arg1,arg2: Argumente
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local boolean up2_test (const object* stackptr, object arg1, object arg2);
-  local boolean up2_test(stackptr,arg1,arg2)
+  local bool up2_test (const object* stackptr, object arg1, object arg2);
+  local bool up2_test(stackptr,arg1,arg2)
     var const object* stackptr;
     var object arg1;
     var object arg2;
     {
       pushSTACK(arg1); pushSTACK(arg2); funcall(*(stackptr STACKop 1),2);
       if (nullp(value1))
-        return FALSE;
+        return false;
       else
-        return TRUE;
+        return true;
     }
 
 # Unterprogramm zum Ausführen des Tests :TEST-NOT
 # up2_test_not(stackptr,arg1,arg2)
 # > *(stackptr+0): die Testfunktion
 # > arg1,arg2: Argumente
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local boolean up2_test_not (const object* stackptr, object arg1, object arg2);
-  local boolean up2_test_not(stackptr,arg1,arg2)
+  local bool up2_test_not (const object* stackptr, object arg1, object arg2);
+  local bool up2_test_not(stackptr,arg1,arg2)
     var const object* stackptr;
     var object arg1;
     var object arg2;
     {
       pushSTACK(arg1); pushSTACK(arg2); funcall(*(stackptr STACKop 0),2);
       if (nullp(value1))
-        return TRUE;
+        return true;
       else
-        return FALSE;
+        return false;
     }
 
 # UP: Überprüft die :TEST, :TEST-NOT - Argumente
@@ -486,9 +486,9 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
 # < *(stackptr+0): verarbeitetes :TEST-NOT-Argument
 # < up2_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
 #       > stackptr: derselbe Pointer in den Stack, arg1, arg2: Argumente
-#       < TRUE, falls der Test erfüllt ist, FALSE sonst.
+#       < true, falls der Test erfüllt ist, false sonst.
   # up2_function sei der Typ der Adresse einer solchen Testfunktion:
-  typedef boolean (*up2_function) (const object* stackptr, object arg1, object arg2);
+  typedef bool (*up2_function) (const object* stackptr, object arg1, object arg2);
   local up2_function test_test2_args (object* stackptr);
   local up2_function test_test2_args(stackptr)
     var object* stackptr;
@@ -522,10 +522,10 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
 # > A5: Adresse einer Testfunktion, die arg1 und arg2 vergleicht und dabei auf
 #       die :TEST/:TEST-NOT-Argumente in *(stackptr+1).L bzw.
 #       *(stackprt+0).L zugreifen kann.
-# < ergebnis: TRUE, falls gleich, FALSE sonst
+# < ergebnis: true, falls gleich, false sonst
 # can trigger GC
-  local boolean tree_equal (const object* stackptr, up2_function up2_fun, object arg1, object arg2);
-  local boolean tree_equal(stackptr,up2_fun,arg1,arg2)
+  local bool tree_equal (const object* stackptr, up2_function up2_fun, object arg1, object arg2);
+  local bool tree_equal(stackptr,up2_fun,arg1,arg2)
     var const object* stackptr;
     var up2_function up2_fun;
     var object arg1;
@@ -537,10 +537,10 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
           # arg1 und arg2 sind beide Atome
           return(up2_fun(stackptr,arg1,arg2));
         else
-          return FALSE;
+          return false;
       else
         if (atomp(arg2))
-          return FALSE;
+          return false;
         else {
           # arg1 und arg2 sind beides Conses
           check_STACK(); check_SP();
@@ -549,7 +549,7 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
             # falls gleich, tail-end-rekursiv die CDRs vergleichen
             arg2 = popSTACK(); arg1 = popSTACK(); goto start;
           } else {
-            skipSTACK(2); return FALSE;
+            skipSTACK(2); return false;
           }
         }
     }
@@ -568,16 +568,16 @@ LISPFUN(tree_equal,2,0,norest,key,2, (kw(test),kw(test_not)) )
 # endp(obj)
 # > obj: Objekt
 # > subr_self: Aufrufer (ein SUBR)
-# < ergebnis: TRUE falls obj ein Listenende NIL ist,
-#             FALSE falls obj ein Cons ist.
-  local boolean endp (object obj);
-  local boolean endp(obj)
+# < ergebnis: true falls obj ein Listenende NIL ist,
+#             false falls obj ein Cons ist.
+  local bool endp (object obj);
+  local bool endp(obj)
     var object obj;
     {
       if (consp(obj))
-        return FALSE;
+        return false;
       elif (nullp(obj))
-        return TRUE;
+        return true;
       else
         fehler_proper_list(obj);
     }
@@ -1222,10 +1222,10 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
 # > *(stackptr+1): die Testfunktion
 # > *(stackptr+3): das zu vergleichende Item
 # > x: Argument
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local boolean up_test (const object* stackptr, object x);
-  local boolean up_test(stackptr,x)
+  local bool up_test (const object* stackptr, object x);
+  local bool up_test(stackptr,x)
     var const object* stackptr;
     var object x;
     {
@@ -1234,9 +1234,9 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
       pushSTACK(x); # x
       funcall(*(stackptr STACKop 1),2);
       if (nullp(value1))
-        return FALSE;
+        return false;
       else
-        return TRUE;
+        return true;
     }
 
 # Unterprogramm zum Ausführen des Tests :TEST-NOT
@@ -1244,10 +1244,10 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
 # > *(stackptr+0): die Testfunktion
 # > *(stackptr+3): das zu vergleichende Item
 # > x: Argument
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local boolean up_test_not (const object* stackptr, object x);
-  local boolean up_test_not(stackptr,x)
+  local bool up_test_not (const object* stackptr, object x);
+  local bool up_test_not(stackptr,x)
     var const object* stackptr;
     var object x;
     {
@@ -1256,47 +1256,47 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
       pushSTACK(x); # x
       funcall(*(stackptr STACKop 0),2);
       if (nullp(value1))
-        return TRUE;
+        return true;
       else
-        return FALSE;
+        return false;
     }
 
 # Unterprogramm zum Ausführen des Tests -IF
 # up_if(stackptr,x)
 # > *(stackptr+1): das Testprädikat
 # > x: Argument
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local boolean up_if (const object* stackptr, object x);
-  local boolean up_if(stackptr,x)
+  local bool up_if (const object* stackptr, object x);
+  local bool up_if(stackptr,x)
     var const object* stackptr;
     var object x;
     {
       # nach CLTL S. 247 ein (funcall predicate x) ausführen:
       pushSTACK(x); funcall(*(stackptr STACKop 1),1);
       if (nullp(value1))
-        return FALSE;
+        return false;
       else
-        return TRUE;
+        return true;
     }
 
 # Unterprogramm zum Ausführen des Tests -IF-NOT
 # up_if_not(stackptr,x)
 # > *(stackptr+1): das Testprädikat
 # > x: Argument
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local boolean up_if_not (const object* stackptr, object x);
-  local boolean up_if_not(stackptr,x)
+  local bool up_if_not (const object* stackptr, object x);
+  local bool up_if_not(stackptr,x)
     var const object* stackptr;
     var object x;
     {
       # nach CLTL S. 247 ein (not (funcall predicate x)) ausführen:
       pushSTACK(x); funcall(*(stackptr STACKop 1),1);
       if (nullp(value1))
-        return TRUE;
+        return true;
       else
-        return FALSE;
+        return false;
     }
 
 # UP: Überprüft das :KEY-Argument
@@ -1323,9 +1323,9 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
 #       > stackptr: derselbe Pointer in den Stack, *(stackptr+3) = item,
 #         *(stackptr+1) = :test-Argument, *(stackptr+0) = :test-not-Argument,
 #       > x: Argument
-#       < TRUE, falls der Test erfüllt ist, FALSE sonst.
+#       < true, falls der Test erfüllt ist, false sonst.
   # up_function sei der Typ der Adresse einer solchen Testfunktion:
-  typedef boolean (*up_function) (const object* stackptr, object x);
+  typedef bool (*up_function) (const object* stackptr, object x);
   local up_function test_test_args (void);
   local up_function test_test_args()
     {
@@ -1358,7 +1358,7 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
 # > stackptr: *(stackptr-2) = NEW, *(stackptr-1) = KEY
 # > up_fun: TESTFUN = Adresse der Testfunktion,
 #       wird selbem stackptr und mit (KEY x) als Argument angesprungen.
-#       Sie liefert TRUE, falls der Test erfüllt ist, FALSE sonst.
+#       Sie liefert true, falls der Test erfüllt ist, false sonst.
 # < ergebnis: (evtl. neuer) Baum
 # can trigger GC
   local object subst (object tree, object* stackptr, up_function up_fun);
@@ -1440,7 +1440,7 @@ LISPFUN(subst_if_not,3,0,norest,key,1, (kw(key)) )
 # > stackptr: *(stackptr-2) = NEW, *(stackptr-1) = KEY
 # > up_fun: TESTFUN = Adresse der Testfunktion,
 #       wird selbem stackptr und mit (KEY x) als Argument angesprungen.
-#       Sie liefert TRUE, falls der Test erfüllt ist, FALSE sonst.
+#       Sie liefert true, falls der Test erfüllt ist, false sonst.
 # < ergebnis: Baum
 # can trigger GC
   local object nsubst (object tree, object* stackptr, up_function up_fun);
@@ -1515,7 +1515,7 @@ LISPFUN(nsubst_if_not,3,0,norest,key,1, (kw(key)) )
 # > stackptr: *(stackptr-1) = KEY
 # > *(stackptr-3) = TESTFUN = Testfunktion, wird für alle Listenelemente
 #       (u . v) mit selbem stackptr und mit (KEY x) und u als Argumenten angesprungen.
-#       Sie liefert TRUE, falls der Test erfüllt ist, FALSE sonst.
+#       Sie liefert true, falls der Test erfüllt ist, false sonst.
 # < ergebnis: Listenelement (ein Cons) oder NIL
 # can trigger GC
   local object sublis_assoc (object* stackptr);
@@ -1543,7 +1543,7 @@ LISPFUN(nsubst_if_not,3,0,norest,key,1, (kw(key)) )
           # Testen, ob die zweiargumentige Testfunktion
           # *(stackptr-3) (eine Adresse!), angewandt auf u und das
           # vorher in *(stackptr-2) abgelegte Argument, erfüllt ist:
-          var boolean erg =
+          var bool erg =
             (*(up2_function)TheMachineCode(*(stackptr STACKop -3))) # zweiargumentige Testfunktion, wurde abgelegt
               ( stackptr, *(stackptr STACKop -2), Car(Car(alist)) ); # auf (KEY x) und u anwenden
           alist = popSTACK();
@@ -1613,7 +1613,7 @@ LISPFUN(sublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     var object* stackptr = &STACK_1;
     var up2_function up2_fun = test_test2_args(stackptr); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
     # up2_fun = Testfunktion, wird mit stackptr und (KEY x) und u als
-    # Argumenten angesprungen. Sie liefert TRUE, falls der Test erfüllt ist.
+    # Argumenten angesprungen. Sie liefert true, falls der Test erfüllt ist.
     if (nullp(STACK_4)) { # shortcut: nothing to do if alist = ()
       value1 = STACK_3; mv_count=1;
       skipSTACK(5);
@@ -1676,7 +1676,7 @@ LISPFUN(nsublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     var object* stackptr = &STACK_1;
     var up2_function up2_fun = test_test2_args(stackptr); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
     # up2_fun = Testfunktion, wird mit stackptr und (KEY x) und u als
-    # Argumenten angesprungen. Sie liefert TRUE, falls der Test erfüllt ist.
+    # Argumenten angesprungen. Sie liefert true, falls der Test erfüllt ist.
     if (nullp(STACK_4)) { # shortcut: nothing to do if alist = ()
       value1 = STACK_3; mv_count=1;
       skipSTACK(5);
@@ -1698,7 +1698,7 @@ LISPFUN(nsublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
 # > stackptr: *(stackptr-1) = KEY
 # > up_fun: TESTFUN = Adresse der Testfunktion,
 #       wird selbem stackptr und mit (KEY x) als Argument angesprungen.
-#       Sie liefert TRUE, falls der Test erfüllt ist, FALSE sonst.
+#       Sie liefert true, falls der Test erfüllt ist, false sonst.
 # < ergebnis: Listenrest
 # can trigger GC
   local object member (object list, object* stackptr, up_function up_fun);
@@ -1714,7 +1714,7 @@ LISPFUN(nsublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
         pushSTACK(list); # Listenrest retten
         pushSTACK(Car(list)); funcall(*(stackptr STACKop -1),1); # (KEY x)
         {
-          var boolean erg = up_fun(stackptr,value1); # TESTFUN aufrufen
+          var bool erg = up_fun(stackptr,value1); # TESTFUN aufrufen
           list = popSTACK();
           if (erg)
             return list; # Test erfüllt -> list als Ergebnis
@@ -1897,7 +1897,7 @@ LISPFUN(pairlis,2,1,norest,nokey,0,NIL)
 # > stackptr: *(stackptr-1) = KEY
 # > up_fun: TESTFUN = Adresse der Testfunktion, wird für alle Listenelemente
 #       (u . v) mit selbem stackptr und mit (KEY u) als Argument angesprungen.
-#       Sie liefert TRUE, falls der Test erfüllt ist, FALSE sonst.
+#       Sie liefert true, falls der Test erfüllt ist, false sonst.
 # < ergebnis: Listenelement (ein Cons) oder NIL
 # can trigger GC
   local object assoc (object alist, object* stackptr, up_function up_fun);
@@ -1914,7 +1914,7 @@ LISPFUN(pairlis,2,1,norest,nokey,0,NIL)
         if (mconsp(Car(alist))) { # atomare Listenelemente überspringen
           pushSTACK(alist); # Listenrest ((u . v) ...) retten
           pushSTACK(Car(Car(alist))); funcall(*(stackptr STACKop -1),1); # (KEY u)
-          var boolean erg = up_fun(stackptr,value1); # TESTFUN aufrufen
+          var bool erg = up_fun(stackptr,value1); # TESTFUN aufrufen
           alist = popSTACK();
           if (erg)
             # Test erfüllt -> x = (u . v) = (CAR alist) als Ergebnis
@@ -1960,7 +1960,7 @@ LISPFUN(assoc_if_not,2,0,norest,key,1, (kw(key)) )
 # > stackptr: *(stackptr-1) = KEY
 # > up_fun: TESTFUN = Adresse der Testfunktion, wird für alle Listenelemente
 #       (u . v) mit selbem stackptr und mit (KEY v) als Argument angesprungen.
-#       Sie liefert TRUE, falls der Test erfüllt ist, FALSE sonst.
+#       Sie liefert true, falls der Test erfüllt ist, false sonst.
 # < ergebnis: Listenelement (ein Cons) oder NIL
 # can trigger GC
   local object rassoc (object alist, object* stackptr, up_function up_fun);
@@ -1977,7 +1977,7 @@ LISPFUN(assoc_if_not,2,0,norest,key,1, (kw(key)) )
         if (mconsp(Car(alist))) { # atomare Listenelemente überspringen
           pushSTACK(alist); # Listenrest ((u . v) ...) retten
           pushSTACK(Cdr(Car(alist))); funcall(*(stackptr STACKop -1),1); # (KEY v)
-          var boolean erg = up_fun(stackptr,value1); # TESTFUN aufrufen
+          var bool erg = up_fun(stackptr,value1); # TESTFUN aufrufen
           alist = popSTACK();
           if (erg)
             # Test erfüllt -> x = (u . v) = (CAR alist) als Ergebnis
