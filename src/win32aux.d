@@ -31,7 +31,10 @@
   local HANDLE sigbreak_event;
 
 # Winsock library initialization flag
-  local bool winsock_initialized = 0;
+  local bool winsock_initialized = false;
+
+# COM library initialization flag
+  local bool com_initialized = false;
 
 /* Early/late error print function. The problem of early/late errors is
    complex, this is a simple kind of temporary solution */
@@ -71,13 +74,16 @@ local void earlylate_asciz_error (const char * description, bool fatal_p) {
         CharToOem(&ANSI2OEM_table[1],&ANSI2OEM_table[1]);
       }
       #endif
+      # Initialize COM for shell link resolution
+      if (CoInitialize(NULL) == S_OK) 
+        com_initialized = true;
       # Winsock.
       {
         var WSADATA data;
         if (WSAStartup(MAKEWORD(1,1),&data)) {
           winsock_initialized = 0;
           earlylate_asciz_error("\n*** - Failed to initialize winsock library\n",0);
-        } else winsock_initialized = 1;
+        } else winsock_initialized = true;
       }
     }
 
@@ -86,6 +92,10 @@ global void done_win32 (void) {
     earlylate_asciz_error("\n*** - Failed to shutdown winsock library\n",0);
   }
   winsock_initialized = 0;
+  if (com_initialized) {
+    CoUninitialize();
+    com_initialized = false;
+  }
 }
 
 # Ctrl-C-interruptibility.

@@ -6274,6 +6274,104 @@ local object use_default_dir (object pathname) {
   return pathname;
 }
 
+#ifdef WIN32_NATIVE
+
+# UP: translates short name to full name
+# > LPCSTR shortname: old DOS 8.3 pathname
+# < LPSTR fullname: buffer should be not less than MAX_PATH
+# < result: true on success
+bool FullName(LPCSTR shortname, LPSTR fullname) {
+  WIN32_FIND_DATA wfd;
+  char drive[_MAX_DRIVE];
+  char dir[_MAX_DIR];
+  char fname[_MAX_FNAME];
+  char ext[_MAX_EXT];
+  char current[_MAX_PATH];
+  HANDLE h = NULL;
+  *current = 0;*fullname = 0;
+  do {
+    _splitpath(*current?current:shortname,drive,dir,fname,ext);
+    h = FindFirstFile(*current?current:shortname,&wfd);
+    if (h != INVALID_HANDLE_VALUE) {
+      if (*current) strcat(fullname,"\\");
+      strrev(wfd.cFileName);
+      strcat(fullname,wfd.cFileName);
+      FindClose(h);
+    } else return false;
+    _makepath(current,drive,dir,NULL,NULL);
+    current[strlen(current) - 1] = 0;//remove trailing slash
+  } while (strcmp(dir,"\\")!=0);
+  strrev(drive);
+  strcat(fullname,"\\");
+  strcat(fullname,drive);
+  strrev(fullname);
+  return true;
+}
+
+# UP: substitutes filename of nonexisting file with windows
+# shortcut filename value when it is appropriate and possible.
+# If directory+filename exists doing nothing returns false
+# If it doesn't but direstory+filename+".lnk" exists then
+# tries to read it. On reading success returns true with lnk
+# filename value as resolved.
+# On resolving error returns false.
+# If ".lnk" doesn't exists returns false.
+# > LPCSTR directory: path to opening file (with ending /)
+# > LPCSTR filename: file name
+# < LPSTR resolved: buffer for resolved path and filename.
+# < result: true if substitution happened.
+bool resolve_shell_shortcut(LPCSTR directory,
+                            LPCSTR filename,
+                            LPSTR resolved) {
+  var char pathname[_MAX_PATH];
+  var DWORD fileattr;
+  var HRESULT hres;
+  var IShellLink* psl;
+  var WIN32_FIND_DATA wfd;
+  var bool result = false;
+  var IPersistFile* ppf;
+
+  strcpy(pathname,directory);
+  strcat(pathname,filename);
+  fileattr = GetFileAttributes(pathname);
+  if (fileattr != 0xFFFFFFFF) return false;
+  strcat(pathname,".lnk");
+  fileattr = GetFileAttributes(pathname);
+  if (fileattr == 0xFFFFFFFF) return false;
+  *resolved = 0;
+  # Get a pointer to the IShellLink interface.
+  hres = CoCreateInstance(&CLSID_ShellLink, NULL,
+      CLSCTX_INPROC_SERVER, &IID_IShellLink, (LPVOID *) &psl);
+  if (FAILED(hres)) return false;
+  # Get a pointer to the IPersistFile interface.
+  hres = psl->lpVtbl->QueryInterface(psl, &IID_IPersistFile, &ppf);
+  if (SUCCEEDED(hres)) {
+    var WCHAR wsz[MAX_PATH];
+    # Ensure that the string is Unicode.
+    MultiByteToWideChar(CP_ACP, 0, pathname, -1, wsz,MAX_PATH);
+    # Load the shortcut.
+    hres = ppf->lpVtbl->Load(ppf, wsz, STGM_READ);
+    if (SUCCEEDED(hres)) {
+      # Resolve the link.
+      hres = psl->lpVtbl->Resolve(psl, NULL, SLR_NO_UI );
+      if (SUCCEEDED(hres)) {
+        # Get the path to the link target.
+        hres = psl->lpVtbl->GetPath(psl, pathname,
+                 MAX_PATH, (WIN32_FIND_DATA *)&wfd,
+                      SLGP_SHORTPATH );
+        if (SUCCEEDED(hres) && FullName(pathname,resolved)) result = true;
+      }
+    }
+    # Release the pointer to the IPersistFile interface.
+    ppf->lpVtbl->Release(ppf);
+  }
+  # Release the pointer to the IShellLink interface.
+  psl->lpVtbl->Release(psl);
+  return result;
+}
+
+#endif
+
 # UP: guarantees that the Directory of the Pathname exists
 # (signals an error if it does not)
 # assure_dir_exists(links_resolved,tolerantp)
@@ -6353,8 +6451,19 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
   }
   if (namenullp(STACK_0))
     return dir_namestring;
-  else
+  else {
+    with_string_0(directory_namestring(STACK_0),O(pathname_encoding),dirname, {
+      with_string_0(file_namestring(STACK_0),O(pathname_encoding),filename, {
+        char resolved[MAX_PATH];
+        if (resolve_shell_shortcut(dirname,filename,resolved)) {
+          var object resolved_string = asciz_to_string(resolved,O(pathname_encoding));
+          STACK_0 = coerce_pathname(resolved_string);
+          dir_namestring = directory_namestring(STACK_0);
+        }
+      });
+    });
     return OSnamestring(dir_namestring);
+  }
 }
 
 # UP: returns the directory-namestring of a pathname under the assumption,
