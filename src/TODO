@@ -65,12 +65,6 @@ Make the *KEYBOARD-STREAM* recognize all kinds of function keys in Linux
 console and xterm again.
 
 
-Remove all unnecessary MACROEXPAND calls from compiler.lisp. When a macro
-is also a special form or a compiler macro, the special form handler or
-the compiler should be used, not the regular macro, for efficiency reasons.
-Use macroexpand-form instead.
-
-
 Reentrancy: remove the static filestatus variable from pathname.d.
 
 

@@ -5801,10 +5801,14 @@ for-value   NIL or T
   (test-list *form* 1)
   (let* ((pack-list (second *form*))
          (*compiler-unlocked-packages*
-          (nconc (mapcar #'find-package (or pack-list *system-package-list*))
-                 *compiler-unlocked-packages*)))
+           (nconc (mapcar #'find-package (or pack-list *system-package-list*))
+                  *compiler-unlocked-packages*)))
+    ;; Unlock the packages temporarily in the compilation environment.
     (with-no-package-lock-internal pack-list
-      (funcall c (macroexpand *form*)))))
+      ;; Process the form as if this handler would not exist. We cannot use
+      ;; macroexpand-form here, because macroexpand-form leaves this form
+      ;; invariant - we would get into an endless recursion.
+      (funcall c (macroexpand-1 *form*)))))
 
 
 ;;;;****   FIRST PASS :   INLINE   FUNCTIONS   (PRIMOPS)
