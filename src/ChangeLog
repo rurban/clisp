@@ -1,3 +1,10 @@
+2004-05-13  Bruno Haible  <bruno@clisp.org>
+
+	Use FASTHASH-EQ as test for hash tables indexed by characters.
+	* io.d (allocate_perchar_table, copy_perchar_table,
+	allocate_syntax_table, copy_readtable_contents): Use FASTHASH-EQ as
+	test for MAKE-HASH-TABLE.
+
 2004-05-14  Bruno Haible  <bruno@clisp.org>
 
 	New hash-table tests FASTHASH-EQL/EQUAL and STABLEHASH-EQL/EQUAL.
