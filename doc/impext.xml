@@ -765,7 +765,7 @@ localized.</para>
  </simpara>
 
 <simpara>When an encoding is available both as a &enc-built-in; and
- through &iconv;, the &enc-built-in; is recommended, because it is more
+ through &iconv;, the &enc-built-in; is used, because it is more
  efficient and available across all platforms.</simpara>
 
 <simpara>The reason we use only &gnu; glibc-2.2 or &gnu; libiconv is
@@ -816,7 +816,7 @@ localized.</para>
 
 </section>
 
-<section id="make-encoding"><title>Function &make-encoding;</title>
+<section id="make-encoding"><title>Function &make-encoding;.</title>
 
 <para>The function
   <literal role="sexp">(&make-encoding; &key-amp; :charset
@@ -845,6 +845,17 @@ localized.</para>
  characters are translated into raw bytes is ignored, and the line
  terminator mode is ignored as well.  &typep; and &subtypep; can be used
  on encodings.</para>
+
+</section>
+
+<formalpara id="enc-charset"><title>Function &enc-charset;.</title>
+<para>The function <literal role="sexp">(&enc-charset; &encoding-r;)
+ returns the charset of the &encoding-r;, as a symbol or a string.
+ Note that <literal role="sexp">(&string; (&enc-charset;
+ &encoding-r;))</literal> is not necessarily a valid MIME
+ name.</para></formalpara>
+
+<section id="enc-dflt"><title>Default encodings.</title>
 
 <para>Besides every &file-pipe-socket; stream containing an encoding,
  the following &symbol-macro; places contain global &encoding;s:</para>
