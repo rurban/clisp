@@ -142,7 +142,8 @@ Beware - this will modify the original C-mode too!"
   (setf (cdr (assq 'cpp-macro c-offsets-alist)) 'd-mode-indent-sharp)
   ;; (setq defun-prompt-regexp
   ;; "^\\(LISPFUNN?(.*) \\|\\(local\\|global\\|nonreturning_function\\) .*\\)")
-  (setq beginning-of-defun-function 'd-mode-beg-of-defun)
+  (set (make-local-variable 'beginning-of-defun-function)
+       'd-mode-beg-of-defun)
   (when (<= 21 emacs-major-version)
     (set (make-local-variable 'font-lock-defaults)
          d-mode-font-lock-defaults)))
