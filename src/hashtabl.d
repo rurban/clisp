@@ -2055,7 +2055,7 @@ local object get_equal_hashfunction () {
 
 /* check the :WEAK argument and return it
  can trigger GC */
-local gcv_object_t check_weak (gcv_object_t weak) {
+local object check_weak (object weak) {
  check_weak_restart:
   if (missingp(weak)) return NIL;
   if (eq(weak,S(Kkey)) || eq(weak,S(Kvalue))
