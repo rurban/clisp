@@ -315,7 +315,7 @@ global void savemem (object stream)
       WRITE(module->stab_size,sizeof(uintC));
       WRITE(module->otab_size,sizeof(uintC));
       WRITE(module->stab,*module->stab_size*sizeof(subr_t));
-      WRITE(module->otab,*module->otab_size*sizeof(object));
+      WRITE(module->otab,*module->otab_size*sizeof(gcv_object_t));
     });
   }
  #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
@@ -437,9 +437,9 @@ global void savemem (object stream)
         /* start <= address < end: */                                   \
         while (objptr != objptrend) {                                   \
           update((gcv_object_t*)objptr);                                \
-          objptr += sizeof(object);                                     \
+          objptr += sizeof(gcv_object_t);                               \
           update((gcv_object_t*)objptr);                                \
-          objptr += sizeof(object);                                     \
+          objptr += sizeof(gcv_object_t);                               \
         }} while(0)
      #define update_page(page,updater)  /* ignores page, uses heapnr */ \
       do { var aint ptr = mem.heaps[heapnr].heap_gen0_start;            \
@@ -1012,7 +1012,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
           FREE_DYNAMIC_ARRAY(old_subr_tab);
         }
         if (old_object_anz > 0) {
-          READ((*old_module)->otab,old_object_anz*sizeof(object));
+          READ((*old_module)->otab,old_object_anz*sizeof(gcv_object_t));
         }
         old_module++; offset_subrs_ptr++;
       });

@@ -105,7 +105,7 @@ local uintC generation;
     #define xfree(ptr)  if ((ptr)!=NULL) free(ptr);
 
   # For the following walking functions, it is essential that
-  # varobject_alignment is a multiple of sizeof(object).
+  # varobject_alignment is a multiple of sizeof(gcv_object_t).
 
   #define walk_area_cons(objptr,physpage_end,walkfun)          \
     do { var gcv_object_t* ptr = (gcv_object_t*)objptr;        \
@@ -115,7 +115,7 @@ local uintC generation;
   #define walk_area_symbol(objptr,physpage_end,walkfun)                       \
     do { var gcv_object_t* ptr = (gcv_object_t*)(objptr+symbol_objects_offset); \
       var uintC count;                                                        \
-      dotimespC(count,(sizeof(symbol_)-symbol_objects_offset)/sizeof(object),{ \
+      dotimespC(count,(sizeof(symbol_)-symbol_objects_offset)/sizeof(gcv_object_t),{ \
         if ((aint)ptr < physpage_end) { walkfun(*ptr); ptr++; }               \
         else break;                                                           \
       });                                                                     \
@@ -356,18 +356,18 @@ local uintC generation;
                 #   gen0_start = heap->heap_gen0_start + i*physpagesize
                 #   physpage = &heap->physpages[i]
                 physpage->continued_addr = (gcv_object_t*)gen0_start;
-                physpage->continued_count = physpagesize/sizeof(object);
+                physpage->continued_count = physpagesize/sizeof(gcv_object_t);
                 gen0_start += physpagesize;
                 physpage->firstobject = gen0_start;
                 physpage++;
               });
               physpage->continued_addr = (gcv_object_t*)gen0_start;
-              physpage->continued_count = (gen0_end-gen0_start)/sizeof(object);
+              physpage->continued_count = (gen0_end-gen0_start)/sizeof(gcv_object_t);
               physpage->firstobject = gen0_end;
               #else
               # all pages except the first are full, the first page is partly full.
               physpage->continued_addr = (gcv_object_t*)gen0_start;
-              physpage->continued_count = ((gen0_start_pa+physpagesize)-gen0_start)/sizeof(object);
+              physpage->continued_count = ((gen0_start_pa+physpagesize)-gen0_start)/sizeof(gcv_object_t);
               physpage->firstobject = gen0_start = gen0_start_pa+physpagesize;
               dotimesL(count,physpage_count-1, {
                 physpage++;
@@ -375,7 +375,7 @@ local uintC generation;
                 #   gen0_start = (heap->heap_gen0_start & -physpagesize) + i*physpagesize
                 #   physpage = &heap->physpages[i]
                 physpage->continued_addr = (gcv_object_t*)gen0_start;
-                physpage->continued_count = physpagesize/sizeof(object);
+                physpage->continued_count = physpagesize/sizeof(gcv_object_t);
                 gen0_start += physpagesize;
                 physpage->firstobject = gen0_start;
               });
@@ -393,7 +393,7 @@ local uintC generation;
               # and nextptr (pointer to the next object). Fortunately,
               # in all our objects the pointers are adjacent to each other:
               # starting at ptr, there are count pointers.
-              # the interval ptr...ptr+count*sizeof(object) will now be dissected.
+              # the interval ptr...ptr+count*sizeof(gcv_object_t) will now be dissected.
               #ifdef SPVW_PURE
               switch (heapnr) {
                 case_symbol: # symbol
@@ -406,10 +406,10 @@ local uintC generation;
                     # here is gen0_start-physpagesize <= objptr < gen0_start.
                     if (nextptr >= gen0_start) {
                       var aint ptr = objptr+symbol_objects_offset;
-                      var uintC count = (sizeof(symbol_)-symbol_objects_offset)/sizeof(object);
+                      var uintC count = (sizeof(symbol_)-symbol_objects_offset)/sizeof(gcv_object_t);
                       if (ptr < gen0_start) {
                         physpage->continued_addr = (gcv_object_t*)gen0_start;
-                        physpage->continued_count = count - (gen0_start-ptr)/sizeof(object);
+                        physpage->continued_count = count - (gen0_start-ptr)/sizeof(gcv_object_t);
                       } else {
                         physpage->continued_addr = (gcv_object_t*)ptr;
                         physpage->continued_count = count;
@@ -467,8 +467,8 @@ local uintC generation;
                     if (nextptr >= gen0_start) {
                       var aint ptr = (aint)&((Svector)objptr)->data[0];
                       if (ptr < gen0_start) {
-                        var uintL count_thispage = (gen0_start-ptr)/sizeof(object);
-                        if ((varobject_alignment == sizeof(object)) # this enforces count >= count_thispage
+                        var uintL count_thispage = (gen0_start-ptr)/sizeof(gcv_object_t);
+                        if ((varobject_alignment == sizeof(gcv_object_t)) # this enforces count >= count_thispage
                             || (count >= count_thispage)
                            )
                           count -= count_thispage;
@@ -479,7 +479,7 @@ local uintC generation;
                       do {
                         physpage->continued_addr = (gcv_object_t*)ptr;
                         gen0_start += physpagesize;
-                        var uintL count_thispage = (gen0_start-ptr)/sizeof(object);
+                        var uintL count_thispage = (gen0_start-ptr)/sizeof(gcv_object_t);
                         if (count >= count_thispage) {
                           physpage->continued_count = count_thispage;
                           count -= count_thispage;
@@ -513,7 +513,7 @@ local uintC generation;
                     if (nextptr >= gen0_start) {
                       var aint ptr = (aint)&((Record)objptr)->recdata[0];
                       if (ptr < gen0_start) {
-                        var uintL count_thispage = (gen0_start-ptr)/sizeof(object);
+                        var uintL count_thispage = (gen0_start-ptr)/sizeof(gcv_object_t);
                         if (count >= count_thispage)
                           count -= count_thispage;
                         else
@@ -523,7 +523,7 @@ local uintC generation;
                       do {
                         physpage->continued_addr = (gcv_object_t*)ptr;
                         gen0_start += physpagesize;
-                        var uintL count_thispage = (gen0_start-ptr)/sizeof(object);
+                        var uintL count_thispage = (gen0_start-ptr)/sizeof(gcv_object_t);
                         if (count >= count_thispage) {
                           physpage->continued_count = count_thispage;
                           count -= count_thispage;
@@ -563,10 +563,10 @@ local uintC generation;
                       # here is gen0_start-physpagesize <= objptr < gen0_start.
                       if (nextptr >= gen0_start) {
                         var aint ptr = objptr+symbol_objects_offset;
-                        var uintC count = (sizeof(symbol_)-symbol_objects_offset)/sizeof(object);
+                        var uintC count = (sizeof(symbol_)-symbol_objects_offset)/sizeof(gcv_object_t);
                         if (ptr < gen0_start) {
                           physpage->continued_addr = (gcv_object_t*)gen0_start;
-                          physpage->continued_count = count - (gen0_start-ptr)/sizeof(object);
+                          physpage->continued_count = count - (gen0_start-ptr)/sizeof(gcv_object_t);
                         } else {
                           physpage->continued_addr = (gcv_object_t*)ptr;
                           physpage->continued_count = count;
@@ -615,8 +615,8 @@ local uintC generation;
                       if (nextptr >= gen0_start) {
                         var aint ptr = (aint)&((Svector)objptr)->data[0];
                         if (ptr < gen0_start) {
-                          var uintL count_thispage = (gen0_start-ptr)/sizeof(object);
-                          if ((varobject_alignment == sizeof(object)) # that enforces count >= count_thispage
+                          var uintL count_thispage = (gen0_start-ptr)/sizeof(gcv_object_t);
+                          if ((varobject_alignment == sizeof(gcv_object_t)) # that enforces count >= count_thispage
                               || (count >= count_thispage)
                              )
                             count -= count_thispage;
@@ -627,7 +627,7 @@ local uintC generation;
                         do {
                           physpage->continued_addr = (gcv_object_t*)ptr;
                           gen0_start += physpagesize;
-                          var uintL count_thispage = (gen0_start-ptr)/sizeof(object);
+                          var uintL count_thispage = (gen0_start-ptr)/sizeof(gcv_object_t);
                           if (count >= count_thispage) {
                             physpage->continued_count = count_thispage;
                             count -= count_thispage;
@@ -684,7 +684,7 @@ local uintC generation;
                       if (nextptr >= gen0_start) {
                         var aint ptr = (aint)&((Record)objptr)->recdata[0];
                         if (ptr < gen0_start) {
-                          var uintL count_thispage = (gen0_start-ptr)/sizeof(object);
+                          var uintL count_thispage = (gen0_start-ptr)/sizeof(gcv_object_t);
                           if (count >= count_thispage)
                             count -= count_thispage;
                           else
@@ -694,7 +694,7 @@ local uintC generation;
                         do {
                           physpage->continued_addr = (gcv_object_t*)ptr;
                           gen0_start += physpagesize;
-                          var uintL count_thispage = (gen0_start-ptr)/sizeof(object);
+                          var uintL count_thispage = (gen0_start-ptr)/sizeof(gcv_object_t);
                           if (count >= count_thispage) {
                             physpage->continued_count = count_thispage;
                             count -= count_thispage;
@@ -739,7 +739,7 @@ local uintC generation;
         var aint gen0_start = heap->heap_gen0_start;
         var aint gen0_end = heap->heap_gen0_end;
         if ((gen0_start < gen0_end) && !(heap->physpages==NULL)) {
-          var DYNAMIC_ARRAY(cache_buffer,old_new_pointer,physpagesize/sizeof(object));
+          var DYNAMIC_ARRAY(cache_buffer,old_new_pointer,physpagesize/sizeof(gcv_object_t));
           var physpage_state* physpage = heap->physpages;
           gen0_start &= -physpagesize;
           do {
@@ -764,7 +764,7 @@ local uintC generation;
               walk_physpage(heapnr,physpage,gen0_start+physpagesize,gen0_end,cache_at);
               #undef cache_at
               var uintL cache_size = cache_ptr - &cache_buffer[0];
-              if (cache_size <= (physpagesize/sizeof(object))/4) {
+              if (cache_size <= (physpagesize/sizeof(gcv_object_t))/4) {
                 # we cache a page only, if at most 25% are occupied with pointers
                 # to the new generation. Else, creating a cache
                 # is a waste of space.
@@ -857,11 +857,11 @@ local uintC generation;
               var uintL count;
               #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
               ptr = (gcv_object_t*) heap->heap_gen1_end;
-              count = (heap->heap_gen0_start - heap->heap_gen1_end)/sizeof(object);
+              count = (heap->heap_gen0_start - heap->heap_gen1_end)/sizeof(gcv_object_t);
               dotimesL(count,count, { *ptr++ = nullobj; } );
               #else # SPVW_PURE_BLOCKS || SPVW_MIXED_BLOCKS_STAGGERED
               ptr = (gcv_object_t*) heap->heap_gen0_end;
-              count = (heap->heap_gen1_start - heap->heap_gen0_end)/sizeof(object);
+              count = (heap->heap_gen1_start - heap->heap_gen0_end)/sizeof(gcv_object_t);
               #ifndef SELFMADE_MMAP
               dotimesL(count,count, { *ptr++ = nullobj; } );
               #else
@@ -904,7 +904,7 @@ local uintC generation;
                 if (gen0_end < end) { end = gen0_end; }
                 if (physpage->firstobject < end) { end = physpage->firstobject; }
                 if (!(gen0_start <= (aint)physpage->continued_addr)) abort();
-                if (!((aint)physpage->continued_addr + physpage->continued_count*sizeof(object) <= end)) abort();
+                if (!((aint)physpage->continued_addr + physpage->continued_count*sizeof(gcv_object_t) <= end)) abort();
                 gen0_start &= -physpagesize;
                 gen0_start += physpagesize;
                 physpage++;

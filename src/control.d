@@ -253,7 +253,7 @@ LISPSPECFORM(psetq, 0,0,body)
     var object body = popSTACK();
     var uintL body_length = llength(body)/2; /* number of pairs (var form) */
     if (body_length > 0) {
-      get_space_on_STACK(body_length*2*sizeof(object));
+      get_space_on_STACK(body_length*2*sizeof(gcv_object_t));
       {
         var uintL count;
         dotimespL(count,body_length, {
@@ -722,7 +722,7 @@ LISPSPECFORM(compiler_let, 1,0,body)
   var gcv_object_t* varspecs_ = &STACK_1;
   var object varspecs = *varspecs_; /* list of variables */
   var uintL varcount = llength(varspecs); /* number of variables */
-  get_space_on_STACK(varcount*3*sizeof(object));
+  get_space_on_STACK(varcount*3*sizeof(gcv_object_t));
   /* evaluate varspecs: */
   var gcv_object_t* val_pointer = args_end_pointer; /* pointer to values */
   while (consp(varspecs)) {
@@ -1303,7 +1303,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
   { var gcv_object_t* args_pointer = rest_args_pointer STACKop 2;       \
     argcount++; /* argcount := number of lists on the stack */          \
     /* reserve space for the function call arguments: */                \
-    get_space_on_STACK(sizeof(object)*(uintL)argcount);                 \
+    get_space_on_STACK(sizeof(gcv_object_t)*(uintL)argcount);           \
     pushSTACK(NIL); /* start of the result list */                      \
    {var gcv_object_t* ergptr = &STACK_0; /* pointer to it */            \
     /* traverse all lists in parallel: */                               \
@@ -1335,7 +1335,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
   { var gcv_object_t* args_pointer = rest_args_pointer STACKop 2;       \
     argcount++; /* argcount := number of lists on the stack */          \
     /* reserve space for the function call arguments: */                \
-    get_space_on_STACK(sizeof(object)*(uintL)argcount);                 \
+    get_space_on_STACK(sizeof(gcv_object_t)*(uintL)argcount);           \
     /* start total list: */                                             \
    {var object new_cons = allocate_cons(); /* (CONS NIL NIL) */         \
     pushSTACK(new_cons); /* total list */                               \
@@ -1371,7 +1371,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
   { var gcv_object_t* args_pointer = rest_args_pointer STACKop 2;       \
     argcount++; /* argcount := number of lists on the stack */          \
     /* reserve space for the function call arguments: */                \
-    get_space_on_STACK(sizeof(object)*(uintL)argcount);                 \
+    get_space_on_STACK(sizeof(gcv_object_t)*(uintL)argcount);           \
     pushSTACK(BEFORE(rest_args_pointer)); /* save first list argument */ \
    {var gcv_object_t* ergptr = &STACK_0; /* pointer to it */            \
     /* traverse all lists in parallel: */                               \
@@ -1399,7 +1399,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
   { var gcv_object_t* args_pointer = rest_args_pointer STACKop 2;       \
     argcount++; /* argcount := number of lists on the stack */          \
     /* reserve space for the function call arguments: */                \
-    get_space_on_STACK(sizeof(object)*(uintL)argcount);                 \
+    get_space_on_STACK(sizeof(gcv_object_t)*(uintL)argcount);           \
     pushSTACK(NIL); /* start of the result list */                      \
    {var gcv_object_t* ergptr = &STACK_0; /* pointer to it */            \
     /* traverse all lists in parallel: */                               \
@@ -1428,7 +1428,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
   { var gcv_object_t* args_pointer = rest_args_pointer STACKop 2;       \
     argcount++; /* argcount := number of lists on the stack */          \
     /* reserve space for the function call arguments: */                \
-    get_space_on_STACK(sizeof(object)*(uintL)argcount);                 \
+    get_space_on_STACK(sizeof(gcv_object_t)*(uintL)argcount);           \
     /* start total list: */                                             \
    {var object new_cons = allocate_cons(); /* (CONS NIL NIL) */         \
     pushSTACK(new_cons); /* total list */                               \

@@ -64,7 +64,7 @@ local struct pseudofun_tab_ { object pointer[pseudofun_anz]; } pseudofun_tab;
 
 # table of all other fixed objects: moved to SPVWTABO
 # size of these tables:
-#define object_anz  (sizeof(object_tab)/sizeof(object))
+#define object_anz  (sizeof(object_tab)/sizeof(gcv_object_t))
 
 # looping over subr_tab:
 # (NB: subr_tab_ptr_as_object(ptr) turns a traversing pointer
@@ -314,11 +314,11 @@ local int exitcode;
   # low_limit <= handler < high_limit
   # is true for one of the regions listed in inactive_handlers:
 
-  #define for_all_threadobjs(statement)                         \
-    do { var gcv_object_t* objptr = (gcv_object_t*)&aktenv;     \
-         var uintC count;                                       \
-         dotimespC(count,sizeof(environment_t)/sizeof(object),  \
-           { statement; objptr++; });                           \
+  #define for_all_threadobjs(statement)                                  \
+    do { var gcv_object_t* objptr = (gcv_object_t*)&aktenv;              \
+         var uintC count;                                                \
+         dotimespC(count,sizeof(gcv_environment_t)/sizeof(gcv_object_t), \
+           { statement; objptr++; });                                    \
     } while(0)
 
   #define for_all_STACKs(statement)           \
@@ -341,7 +341,7 @@ local int exitcode;
   # Maximum number of symbol values in every thread before new thread-local
   # storage must be added.
   # = floor(round_up(thread_size(num_symvalues),mmap_pagesize)
-  #         -offsetofa(thread_t,_symvalues),sizeof(object))
+  #         -offsetofa(thread_t,_symvalues),sizeof(gcv_object_t))
   local uintL maxnum_symvalues;
 
   # Initialization.
@@ -349,7 +349,7 @@ local void init_multithread (void) {
   xthread_init();
   xmutex_init(&allthreads_lock);
   maxnum_symvalues = floor(((thread_size(0)+mmap_pagesize-1)&-mmap_pagesize)
-                           -offsetofa(thread_t,_symvalues),sizeof(object));
+                           -offsetofa(thread_t,_symvalues),sizeof(gcv_object_t));
 }
 
   # Create a new thread.
@@ -402,7 +402,7 @@ local uintL make_symvalue_perthread (object value) {
       if (mmap_zeromap((void*)((uintP)thread+((thread_size(num_symvalues)+mmap_pagesize-1)&-mmap_pagesize)),mmap_pagesize) < 0)
         goto failed;
     });
-    maxnum_symvalues += mmap_pagesize/sizeof(object);
+    maxnum_symvalues += mmap_pagesize/sizeof(gcv_object_t);
   }
   index = num_symvalues++;
   for_all_threads({ thread->_symvalues[index] = value; });
@@ -1798,7 +1798,7 @@ global int main (argc_t argc, char* argv[]) {
                 }                                                          \
                 switch (*arg) {                                            \
                   case 'w': case 'W': # in words                           \
-                    val = val * sizeof(object);                            \
+                    val = val * sizeof(gcv_object_t);                      \
                   case 'b': case 'B': # in bytes                           \
                     arg++; break;                                          \
                 }                                                          \
@@ -2025,10 +2025,10 @@ global int main (argc_t argc, char* argv[]) {
     if (argv_memneed == 0) {
      #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && defined(GENERATIONAL_GC)
       # Because of GENERATIONAL_GC the memory region is hardly exhausted.
-      argv_memneed = 3584*1024*sizeof(object); # 3584 KW = 14 MB Default
+      argv_memneed = 3584*1024*sizeof(gcv_object_t); # 3584 KW = 14 MB Default
      #else
       # normal
-      argv_memneed = 512*1024*sizeof(object); # 512 KW = 2 MB Default
+      argv_memneed = 512*1024*sizeof(gcv_object_t); # 512 KW = 2 MB Default
      #endif
     }
    #ifdef MULTIMAP_MEMORY_VIA_FILE

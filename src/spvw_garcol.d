@@ -59,7 +59,7 @@ local void gc_mark (object obj)
     if (marked(dies_)) goto up; /* marked -> go up */                   \
       mark(dies_); /* mark */                                           \
   }                                                                     \
-  { var object dies_ = objectplus(dies,(soint)(sizeof(cons_)-sizeof(object))<<(oint_addr_shift-addr_shift)); \
+  { var object dies_ = objectplus(dies,(soint)(sizeof(cons_)-sizeof(gcv_object_t))<<(oint_addr_shift-addr_shift)); \
     /* start with the last pointer */                                   \
     var object nachf = *(gcv_object_t*)ThePointer(dies_); /* successor */ \
     *(gcv_object_t*)ThePointer(dies_) = vorg; /* store predecessor */   \
@@ -129,8 +129,8 @@ local void gc_mark (object obj)
    {var object dies_ = objectplus(dies,((soint)offsetofa(svector_,data) << (oint_addr_shift-addr_shift)) \
     /* the "<< 1" and "/2" are a workaround against a gcc-2.7.2         \
        missed optimization in WIDE_SOFT mode */                         \
-      + (((soint)len << 1) * (soint)(sizeof(object)/2) << (oint_addr_shift-addr_shift)) \
-      - ((soint)sizeof(object) << (oint_addr_shift-addr_shift)) );      \
+      + (((soint)len << 1) * (soint)(sizeof(gcv_object_t)/2) << (oint_addr_shift-addr_shift)) \
+      - ((soint)sizeof(gcv_object_t) << (oint_addr_shift-addr_shift)) ); \
     /* start with the last pointer */                                   \
     var object nachf = *(gcv_object_t*)TheSvector(dies_); /* successor */ \
     *(gcv_object_t*)TheSvector(dies_) = vorg; /* store predecessor */   \
@@ -165,8 +165,8 @@ local void gc_mark (object obj)
    {var object dies_ = objectplus(dies,((soint)offsetofa(record_,recdata) << (oint_addr_shift-addr_shift)) \
     /* the "<< 1" and "/2" are a workaround against a gcc-2.7.2         \
        missed optimization in WIDE_SOFT mode */                         \
-      + (((soint)len << 1) * (soint)(sizeof(object)/2) << (oint_addr_shift-addr_shift)) \
-      - ((soint)sizeof(object) << (oint_addr_shift-addr_shift)) );      \
+      + (((soint)len << 1) * (soint)(sizeof(gcv_object_t)/2) << (oint_addr_shift-addr_shift)) \
+      - ((soint)sizeof(gcv_object_t) << (oint_addr_shift-addr_shift)) ); \
     /* start with the last pointer */                                   \
     var object nachf = *(gcv_object_t*)TheRecord(dies_); /* successor */ \
     *(gcv_object_t*)TheRecord(dies_) = vorg; /* store predecessor */    \
@@ -184,7 +184,7 @@ local void gc_mark (object obj)
     if (marked(dies_)) goto up; /* marked -> up */                      \
     /* mark later */                                                    \
   }                                                                     \
-  { var object dies_ = objectplus(dies,(soint)(subr_const_offset+(subr_const_anz-1)*sizeof(object))<<(oint_addr_shift-addr_shift)); \
+  { var object dies_ = objectplus(dies,(soint)(subr_const_offset+(subr_const_anz-1)*sizeof(gcv_object_t))<<(oint_addr_shift-addr_shift)); \
     /* start with the last pointer */                                   \
     var object nachf = *(gcv_object_t*)TheSubr(dies_); /* successor */  \
     *(gcv_object_t*)TheSubr(dies_) = vorg; /* store predecessor */      \
@@ -209,7 +209,7 @@ local void gc_mark (object obj)
     down_pair();
    case_symbol: /* Symbol */
     down_varobject(TheSymbol,symbol_objects_offset,
-                   sizeof(symbol_)-sizeof(object));
+                   sizeof(symbol_)-sizeof(gcv_object_t));
    case_sbvector: /* simple-bit-vector */
    case_sb2vector: /* simple-2bit-vector */
    case_sb4vector: /* simple-4bit-vector */
@@ -311,7 +311,7 @@ local void gc_mark (object obj)
        dies = currently marked  object, store in *vorg */
     var object vorvorg = *(gcv_object_t*)ThePointer(vorg); /* old predecessor */
     *(gcv_object_t*)ThePointer(vorg) = dies; /* write back component */
-    vorg = objectplus(vorg,-(soint)(sizeof(object))<<(oint_addr_shift-addr_shift)); /* go to next component */
+    vorg = objectplus(vorg,-(soint)(sizeof(gcv_object_t))<<(oint_addr_shift-addr_shift)); /* go to next component */
     if (marked(ThePointer(vorg))) { /* already marked? */
       dies = /* next component, without mark */
         without_mark_bit(*(gcv_object_t*)ThePointer(vorg));
@@ -738,9 +738,9 @@ local void gc_mark (object obj)
                   else
                   { *(gcv_object_t*)p1 = obj; }
               #endif
-              p2 += sizeof(object);
+              p2 += sizeof(gcv_object_t);
             }
-          p1 += sizeof(object);
+          p1 += sizeof(gcv_object_t);
         }
       if (!(p2==p1limit)) abort();
     }
@@ -760,26 +760,26 @@ local void gc_mark (object obj)
       var aint p2 = p1; # upper bound
       #ifdef DEBUG_SPVW
       until (p1==p1limit)
-        { p1 -= 2*sizeof(object);
-          if (eq(*(gcv_object_t*)p1,nullobj)+eq(*(gcv_object_t*)(p1^sizeof(object)),nullobj)==1)
+        { p1 -= 2*sizeof(gcv_object_t);
+          if (eq(*(gcv_object_t*)p1,nullobj)+eq(*(gcv_object_t*)(p1^sizeof(gcv_object_t)),nullobj)==1)
             abort();
         }
       p1 = page->page_end;
       #endif
       until (p1==p1limit) # always: p1limit <= p1 <= p2
         { # both cells of a cons are treated exactly the same.
-          p1 -= sizeof(object);
+          p1 -= sizeof(gcv_object_t);
           #ifdef DEBUG_SPVW
-          if (eq(*(gcv_object_t*)p1,nullobj)+eq(*(gcv_object_t*)(p1^sizeof(object)),nullobj)==1)
+          if (eq(*(gcv_object_t*)p1,nullobj)+eq(*(gcv_object_t*)(p1^sizeof(gcv_object_t)),nullobj)==1)
             abort();
-          if (!((p1 % (2*sizeof(object))) == 0))
-            { if (!((p2 % (2*sizeof(object))) == 0))
+          if (!((p1 % (2*sizeof(gcv_object_t))) == 0))
+            { if (!((p2 % (2*sizeof(gcv_object_t))) == 0))
                 abort();
             }
           #endif
          {var object obj = *(gcv_object_t*)p1;
           if (!eq(obj,nullobj))
-            { p2 -= sizeof(object);
+            { p2 -= sizeof(gcv_object_t);
               # p1 is moved to p2.
               #ifdef TYPECODES
                 # The newly registered pointers to this cell are updated:
@@ -878,22 +878,22 @@ local void gc_mark (object obj)
       var aint p1limit = page->page_start; # lower bound
       #ifdef DEBUG_SPVW
       until (p1==p1limit)
-        { p1 -= 2*sizeof(object);
-          if (eq(*(gcv_object_t*)p1,nullobj)+eq(*(gcv_object_t*)(p1^sizeof(object)),nullobj)==1)
+        { p1 -= 2*sizeof(gcv_object_t);
+          if (eq(*(gcv_object_t*)p1,nullobj)+eq(*(gcv_object_t*)(p1^sizeof(gcv_object_t)),nullobj)==1)
             abort();
         }
       p1 = page->page_end;
       #endif
       until (p1==p1limit) # always: p1limit <= p2 <= p1
         { # both cells of a cons are treated exactly the same.
-          p1 -= sizeof(object);
+          p1 -= sizeof(gcv_object_t);
           #ifdef DEBUG_SPVW
-          if (eq(*(gcv_object_t*)p1,nullobj)+eq(*(gcv_object_t*)(p1^sizeof(object)),nullobj)==1)
+          if (eq(*(gcv_object_t*)p1,nullobj)+eq(*(gcv_object_t*)(p1^sizeof(gcv_object_t)),nullobj)==1)
             abort();
           #endif
          {var object obj = *(gcv_object_t*)p1;
           if (!eq(obj,nullobj))
-            { p2 -= sizeof(object);
+            { p2 -= sizeof(gcv_object_t);
               # p1 is moved to p2.
               #ifdef TYPECODES
                 # the so far registered pointers to this cell are updated:
@@ -1053,9 +1053,9 @@ local void gc_mark (object obj)
                   else # un-movable or pointer into the old generation -> do nothing
                   { *(gcv_object_t*)p2 = obj; }
               #endif
-              p2 += sizeof(object);
+              p2 += sizeof(gcv_object_t);
             }
-          p1 += sizeof(object);
+          p1 += sizeof(gcv_object_t);
         }
       # p2 = new upper bound of the Cons-region
       if (!(p2 == page->page_end - page->page_gcpriv.d)) abort();
@@ -1084,10 +1084,10 @@ local void gc_mark (object obj)
       var aint p1limit = page->page_start; # lower bound
       until (p1==p1limit) # always: p1limit <= p2 <= p1
         { # both cells of a cons are treated exactly the same.
-          p1 -= sizeof(object);
+          p1 -= sizeof(gcv_object_t);
          {var object obj = *(gcv_object_t*)p1;
           if (!eq(obj,nullobj))
-            { p2 -= sizeof(object);
+            { p2 -= sizeof(gcv_object_t);
               # p1 is moved to p2.
               # the so far registered pointers to this cell are updated:
               until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) # process list
@@ -1165,9 +1165,9 @@ local void gc_mark (object obj)
                   else # un-movable or pointer into the old generation -> do nothing
                   { *(gcv_object_t*)p2 = obj; }
               }
-              p2 += sizeof(object);
+              p2 += sizeof(gcv_object_t);
             }
-          p1 += sizeof(object);
+          p1 += sizeof(gcv_object_t);
         }
       # p2 = new upper bound of the Cons-region
       if (!(p2 == page->page_end - page->page_gcpriv.d)) abort();

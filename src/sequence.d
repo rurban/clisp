@@ -1091,7 +1091,7 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
     # Stackaufbau: [args_pointer] typdescr2,
     #              [rest_args_pointer] {sequence}, result-type-len, [STACK].
     # Brauche 2*argcount STACK-Einträge:
-    get_space_on_STACK(sizeof(object) * 2*(uintL)argcount);
+    get_space_on_STACK(sizeof(gcv_object_t) * 2*(uintL)argcount);
    {var gcv_object_t* behind_args_pointer = args_end_pointer; # Pointer unter die Argumente
     # Stackaufbau: [args_pointer] typdescr2,
     #              [rest_args_pointer] {sequence}, result-type-len, [behind_args_pointer].
@@ -1238,7 +1238,7 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
       pushSTACK(defolt); # Defaultwert retten
       # 3*(argcount+1) Plätze auf dem STACK beanspruchen:
       # (2mal für Typdescriptoren und Pointer, 1mal für Funktionsaufruf)
-      get_space_on_STACK(sizeof(object)*3*(uintL)(argcount+1));
+      get_space_on_STACK(sizeof(gcv_object_t)*3*(uintL)(argcount+1));
      {var gcv_object_t* typdescr_pointer = args_end_pointer; # Pointer über die Typdescriptoren
       # Typdescriptoren und je einen Pointer zu jeder der argcount+1
       # Sequences bestimmen und im STACK ablegen:
@@ -1316,7 +1316,7 @@ LISPFUN(map,3,0,rest,nokey,0,NIL)
         # rest_args_pointer zeigt jetzt über alle argcount+1 Sequence-Argumente
         # 4*(argcount+1) Plätze auf dem STACK beanspruchen:
         # (3mal für Typdescriptoren und Pointer, 1mal für Funktionsaufruf)
-        get_space_on_STACK(sizeof(object)*4*(uintL)(argcount+1));
+        get_space_on_STACK(sizeof(gcv_object_t)*4*(uintL)(argcount+1));
         # result-type überprüfen:
         *result_type_ = valid_type(*result_type_);
        {var gcv_object_t* typdescr_pointer = args_end_pointer; # Pointer über die Typdescriptoren
@@ -1434,7 +1434,7 @@ LISPFUN(map_into,2,0,rest,nokey,0,NIL)
     # rest_args_pointer = Pointer über die argcount Sequence-Argumente.
     # 3*argcount Plätze auf dem STACK beanspruchen:
     # (2mal für Typdescriptoren und Pointer, 1mal für Funktionsaufruf)
-    get_space_on_STACK(sizeof(object)*3*(uintL)argcount);
+    get_space_on_STACK(sizeof(gcv_object_t)*3*(uintL)argcount);
     # result-sequence der Einfachheit halber nochmal in den STACK:
     pushSTACK(Next(args_pointer));
    {var gcv_object_t* typdescr_pointer = args_end_pointer; # Pointer über die Typdescriptoren

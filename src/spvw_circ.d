@@ -42,7 +42,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
 # Subdividing an address into bit packets.
 # Try to reduce the number of bit packets, thus reducing the number of
 # indirections. But the first one can bit large (because at the end of the
-# indirection chain, we have a single bit per sizeof(object), not a big
+# indirection chain, we have a single bit per sizeof(gcv_object_t), not a big
 # pointer. The last ones (>= 22) can be big, because it's not a problem
 # if the size of the bitmap grows linearly with process_size/4MB.
 #if (oint_addr_len <= 32)
@@ -76,9 +76,9 @@ global object subst_circ (gcv_object_t* ptr, object alist);
 
 # A multi-level bit map.
 # It is a hash set providing one bit for every possible object. The index into
-# the table is actually an aint which we begin by dividing by sizeof(object).
-# (Since any object on heap has a size >= sizeof(object), distinct objects
-# have addresses that differ by at least sizeof(object), this will be
+# the table is actually an aint which we begin by dividing by sizeof(gcv_object_t).
+# (Since any object on heap has a size >= sizeof(gcv_object_t), distinct objects
+# have addresses that differ by at least sizeof(gcv_object_t), this will be
 # represented by different bits.)
   #if (mlb_levels == 5)
     typedef uintL***** mlbitmap_base_t;
@@ -202,30 +202,30 @@ global object subst_circ (gcv_object_t* ptr, object alist);
               if (*p2) {
                 uintL** p1 = &(*p2)[(addr >> mlb1) & (bit(mlbs1)-1)];
                 if (*p1) {
-                  uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(object)))
-                                     & ((bit(mlbs0)-1)/(32*sizeof(object)))];
-                  uintL i0 = ((addr >> mlb0)/sizeof(object)) % 32;
+                  uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(gcv_object_t)))
+                                     & ((bit(mlbs0)-1)/(32*sizeof(gcv_object_t)))];
+                  uintL i0 = ((addr >> mlb0)/sizeof(gcv_object_t)) % 32;
                   if (*p0 & bit(i0))
                     return true;
                   *p0 |= bit(i0);
                     return false;
                 }
-                {const uintL need=bit(mlbs0)/(32*sizeof(object))*sizeof(uintL);
+                {const uintL need=bit(mlbs0)/(32*sizeof(gcv_object_t))*sizeof(uintL);
                 if (bitmap->used_size + need > bitmap->alloc_size) {
                   var uintP delta = mlb_expand(bitmap,bitmap->used_size+need);
                   p1 = (uintL**)((char*)p1 + delta);
                 }
                 var char* room = (char*)bitmap->base+bitmap->used_size;
                 *p1 = (uintL*)room;
-                var uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(object)))
-                                       & ((bit(mlbs0)-1)/(32*sizeof(object)))];
-                var uintL i0 = ((addr >> mlb0)/sizeof(object)) % 32;
+                var uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(gcv_object_t)))
+                                       & ((bit(mlbs0)-1)/(32*sizeof(gcv_object_t)))];
+                var uintL i0 = ((addr >> mlb0)/sizeof(gcv_object_t)) % 32;
                 *p0 = bit(i0);
                 bitmap->used_size += need;
                 return false;
                 }}
               { const uintL need = bit(mlbs1)*sizeof(uintL*)
-                  + bit(mlbs0)/(32*sizeof(object))*sizeof(uintL);
+                  + bit(mlbs0)/(32*sizeof(gcv_object_t))*sizeof(uintL);
               if (bitmap->used_size + need > bitmap->alloc_size) {
                 var uintP delta = mlb_expand(bitmap,bitmap->used_size+need);
                 p2 = (uintL***)((char*)p2 + delta);
@@ -234,16 +234,16 @@ global object subst_circ (gcv_object_t* ptr, object alist);
               *p2 = (uintL**)room; room += bit(mlbs1)*sizeof(uintL*);
               var uintL** p1 = &(*p2)[(addr >> mlb1) & (bit(mlbs1)-1)];
               *p1 = (uintL*)room;
-              var uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(object)))
-                                     & ((bit(mlbs0)-1)/(32*sizeof(object)))];
-              var uintL i0 = ((addr >> mlb0)/sizeof(object)) % 32;
+              var uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(gcv_object_t)))
+                                     & ((bit(mlbs0)-1)/(32*sizeof(gcv_object_t)))];
+              var uintL i0 = ((addr >> mlb0)/sizeof(gcv_object_t)) % 32;
               *p0 = bit(i0);
               bitmap->used_size += need;
               return false;
             }}
             { const uintL need = bit(mlbs2)*sizeof(uintL**)
               + bit(mlbs1)*sizeof(uintL*)
-              + bit(mlbs0)/(32*sizeof(object))*sizeof(uintL);
+              + bit(mlbs0)/(32*sizeof(gcv_object_t))*sizeof(uintL);
             if (bitmap->used_size + need > bitmap->alloc_size) {
               uintP delta = mlb_expand(bitmap,bitmap->used_size+need);
               p3 = (uintL****)((char*)p3 + delta);
@@ -254,9 +254,9 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             *p2 = (uintL**)room; room += bit(mlbs1)*sizeof(uintL*);
             { uintL** p1 = &(*p2)[(addr >> mlb1) & (bit(mlbs1)-1)];
             *p1 = (uintL*)room;
-            { uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(object)))
-                                  & ((bit(mlbs0)-1)/(32*sizeof(object)))];
-            var uintL i0 = ((addr >> mlb0)/sizeof(object)) % 32;
+            { uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(gcv_object_t)))
+                                  & ((bit(mlbs0)-1)/(32*sizeof(gcv_object_t)))];
+            var uintL i0 = ((addr >> mlb0)/sizeof(gcv_object_t)) % 32;
             *p0 = bit(i0);
             bitmap->used_size += need;
             return false;
@@ -264,7 +264,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           { const uintL need = bit(mlbs3)*sizeof(uintL***)
               + bit(mlbs2)*sizeof(uintL**)
               + bit(mlbs1)*sizeof(uintL*)
-              + bit(mlbs0)/(32*sizeof(object))*sizeof(uintL);
+              + bit(mlbs0)/(32*sizeof(gcv_object_t))*sizeof(uintL);
           if (bitmap->used_size + need > bitmap->alloc_size) {
             uintP delta = mlb_expand(bitmap,bitmap->used_size+need);
             p4 = (uintL*****)((char*)p4 + delta);
@@ -277,9 +277,9 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           *p2 = (uintL**)room; room += bit(mlbs1)*sizeof(uintL*);
           { uintL** p1 = &(*p2)[(addr >> mlb1) & (bit(mlbs1)-1)];
           *p1 = (uintL*)room;
-          { uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(object)))
-                               & ((bit(mlbs0)-1)/(32*sizeof(object)))];
-          uintL i0 = ((addr >> mlb0)/sizeof(object)) % 32;
+          { uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(gcv_object_t)))
+                               & ((bit(mlbs0)-1)/(32*sizeof(gcv_object_t)))];
+          uintL i0 = ((addr >> mlb0)/sizeof(gcv_object_t)) % 32;
           *p0 = bit(i0);
           bitmap->used_size += need;
           return false;
@@ -288,7 +288,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             + bit(mlbs3)*sizeof(uintL***)
             + bit(mlbs2)*sizeof(uintL**)
             + bit(mlbs1)*sizeof(uintL*)
-            + bit(mlbs0)/(32*sizeof(object))*sizeof(uintL);
+            + bit(mlbs0)/(32*sizeof(gcv_object_t))*sizeof(uintL);
         if (bitmap->used_size + need > bitmap->alloc_size) {
           uintP delta = mlb_expand(bitmap,bitmap->used_size+need);
           #if (mlb_levels > 5)
@@ -305,9 +305,9 @@ global object subst_circ (gcv_object_t* ptr, object alist);
         *p2 = (uintL**)room; room += bit(mlbs1)*sizeof(uintL*);
         { uintL** p1 = &(*p2)[(addr >> mlb1) & (bit(mlbs1)-1)];
         *p1 = (uintL*)room;
-        { uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(object)))
-                              & ((bit(mlbs0)-1)/(32*sizeof(object)))];
-        uintL i0 = ((addr >> mlb0)/sizeof(object)) % 32;
+        { uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(gcv_object_t)))
+                              & ((bit(mlbs0)-1)/(32*sizeof(gcv_object_t)))];
+        uintL i0 = ((addr >> mlb0)/sizeof(gcv_object_t)) % 32;
         *p0 = bit(i0);
         bitmap->used_size += need;
         return false;
@@ -319,7 +319,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           + bit(mlbs3)*sizeof(uintL***)
           + bit(mlbs2)*sizeof(uintL**)
           + bit(mlbs1)*sizeof(uintL*)
-          + bit(mlbs0)/(32*sizeof(object))*sizeof(uintL);
+          + bit(mlbs0)/(32*sizeof(gcv_object_t))*sizeof(uintL);
       if (bitmap->used_size + need > bitmap->alloc_size) {
         uintP delta = mlb_expand(bitmap,bitmap->used_size+need);
         #if (mlb_levels > 6)
@@ -338,9 +338,9 @@ global object subst_circ (gcv_object_t* ptr, object alist);
       *p2 = (uintL**)room; room += bit(mlbs1)*sizeof(uintL*);
       { uintL** p1 = &(*p2)[(addr >> mlb1) & (bit(mlbs1)-1)];
       *p1 = (uintL*)room;
-      { uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(object)))
-                           & ((bit(mlbs0)-1)/(32*sizeof(object)))];
-      { uintL i0 = ((addr >> mlb0)/sizeof(object)) % 32;
+      { uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(gcv_object_t)))
+                           & ((bit(mlbs0)-1)/(32*sizeof(gcv_object_t)))];
+      { uintL i0 = ((addr >> mlb0)/sizeof(gcv_object_t)) % 32;
       *p0 = bit(i0);
       bitmap->used_size += need;
       return false;
