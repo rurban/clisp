@@ -13,13 +13,15 @@ AC_PROG_CPP
 AC_MSG_NOTICE([ * RAWSOCK (Headers):])
 AC_HEADER_STDC
 AC_CHECK_HEADERS(sys/socket.h netinet/in.h arpa/inet.h linux/if_packet.h \
-                 netinet/if_ether.h net/if.h sys/ioctl.h errno.h)
+                 netinet/if_ether.h net/if.h sys/ioctl.h errno.h \
+                 stropts.h poll.h sys/un.h)
 
 AC_MSG_NOTICE([ * RAWSOCK (Functions):])
 AC_SEARCH_LIBS(socket, socket)
 if test "$ac_cv_search_socket" = "no"; then
   AC_MSG_ERROR([cannot find SOCKET library])
 fi
+AC_CHECK_FUNCS(poll)
 
 AC_MSG_NOTICE([ * RAWSOCK (Output)])
 AC_CONFIG_FILES(Makefile link.sh)

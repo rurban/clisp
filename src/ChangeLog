@@ -1,5 +1,15 @@
 2004-04-22  Sam Steingold  <sds@gnu.org>
 
+	* rawsock/sock.lisp (open-unix-socket): new function
+	(cmsghdr, linger): removed
+	* rawsock/rawsock.c (MAKE-SOCKADDR, SOCKETPAIR, ACCEPT, BIND)
+	(CONNECT, GETPEERNAME, GETSOCKNAME, LISTEN, RECV, RECVMSG)
+	(SOCK-READ, SEND, SENDMSG, SOCK-WRITE): added
+	* rawsock/link.sh.in: fixed TO_PRELOAD
+	* rawsock/configure.in: check for stropts.h, poll.h and sys/un.h
+
+2004-04-22  Sam Steingold  <sds@gnu.org>
+
 	SOCKET-OPTIONS now handles all 16 POSIX options
 	* stream.d (SOCKET-OPTIONS): accept SO_DEBUG, SO_ACCEPTCONN,
 	SO_BROADCAST, SO_REUSEADDR, SO_DONTROUTE
