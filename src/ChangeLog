@@ -1,3 +1,9 @@
+2004-09-02  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (StablehashStructure): Rename field structure_types
+	to _structure_types.
+	Reported by Jörg Höhle.
+
 2004-09-02  Sam Steingold  <sds@gnu.org>
 
 	new module for interface to ZLIB http://www.zlib.org
