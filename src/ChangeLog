@@ -1,5 +1,10 @@
 2001-07-20  Sam Steingold  <sds@gnu.org>
 
+	* package.d (export_symbol_from): made congruent to
+	`one_sym_function' to avoid a compiler warning
+
+2001-07-20  Sam Steingold  <sds@gnu.org>
+
 	mingw32 compilation
 	* dirkey.d: mingw32 does not have winldap.h
 	* lispbibl.d: mingw32 defined offsetof()
