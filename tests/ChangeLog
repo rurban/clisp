@@ -1,3 +1,7 @@
+2004-10-22  Bruno Haible  <bruno@clisp.org>
+
+	* mop.tst: Make the auto-accessors test portable.
+
 2004-10-20  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (do-test): when both the expected and actual results
