@@ -79,6 +79,9 @@
     #ifdef SOCKET_STREAMS
       bit(18) |
     #endif
+    #ifdef UNICODE
+      bit(19) |
+    #endif
     0;
 
 # Format:
@@ -641,15 +644,15 @@
             # Umsetzung old_pseudofun_tab -> pseudofun_tab :
             {
               #if (machine_type==0)
-              var void* addr = (void*)ThePseudofun(*objptr);
+              var Pseudofun addr = ThePseudofun(*objptr);
               #else # muss zum Vergleichen die Typinfo wegnehmen
-              var void* addr = (void*)upointer(*objptr);
+              var Pseudofun addr = (void*)upointer(*objptr);
               #endif
               { var uintC i = pseudofun_anz;
                 var Pseudofun* ptr = &((Pseudofun*)(&old_pseudofun_tab))[pseudofun_anz];
                 until (i==0)
                   { i--;
-                    if ((void*) *--ptr == addr)
+                    if (*--ptr == addr)
                       { # Pseudo-Funktion
                         *objptr = make_machine_code(((Pseudofun*)(&pseudofun_tab))[i]);
                         break;

@@ -3707,7 +3707,7 @@ LISPFUN(gr_init,0,3,norest,nokey,0,NIL)
       {  p--;
          pushSTACK(allocate_cons());
          pushSTACK(allocate_cons());
-       { var object name = intern_keyword(asciz_to_string(p->name));
+       { var object name = intern_keyword(ascii_to_string(p->name));
          var object acons = popSTACK();
          Car(acons) = name; Cdr(acons) = fixnum(p->color);
         {var object lcons = popSTACK();
@@ -3794,11 +3794,21 @@ LISPFUNN(gr_text,5)
   var sintL y = I_to_L(STACK_3);
   var sintL dir = I_to_L(STACK_2);
   var sintL c = I_to_L(color);
-  var uintL len;
-  var uintB* charptr = unpack_string(STACK_1,&len);
-  begin_system_call();
-  gr_text(c,&x,&y,dir,charptr,len);
-  end_system_call();
+  #ifdef UNICODE
+  var object encoding;
+  #if defined(GRAPHICS_SWITCH) && defined(ISOLATIN_CHS)
+  encoding = Symbol_value(S(iso8859_1));
+  #elif defined(GRAPHICS_SWITCH) && defined(IBMPC_CHS)
+  encoding = Symbol_value(S(cp437_ibm));
+  #else
+  encoding = O(terminal_encoding);
+  #endif
+  #endif
+  with_string(STACK_1,encoding,charptr,len,
+    { begin_system_call();
+      gr_text(c,&x,&y,dir,charptr,len);
+      end_system_call();
+    });
   pushSTACK(L_to_I(y)); value1 = L_to_I(x); value2 = popSTACK(); mv_count=2;
   skipSTACK(5);
 }

@@ -5,7 +5,10 @@
 
 
 # Character-Umwandlungstabellen:
-#if defined(ISOLATIN_CHS)
+#if defined(UNICODE)
+ # Darin sind eingetragen die bijektiven Klein<-->Groß-Umwandlungen
+ # von Unicodes.
+#elif defined(ISOLATIN_CHS)
  # Darin sind eingetragen die bijektiven Klein<-->Groß-Umwandlungen
  #  Klein 61 ... 7A E0 ... F6 F8 ... FE
  #  Groß  41 ... 5A C0 ... D6 D8 ... DE
@@ -35,12 +38,40 @@
  #  Beide aA ... zZ
 #endif
 
+#ifdef UNICODE
+# No-conversion table, used by up_case_table and down_case_table.
+static const cint nop_page[256] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};
+#endif
+
 # Wandelt Byte ch in einen Großbuchstaben
 # up_case(ch)
   global chart up_case (chart ch);
   global chart up_case(ch)
     var chart ch;
-    { # Tabelle für Umwandlung in Großbuchstaben:
+    {
+      #ifdef UNICODE
+      #include "uni_upcase.c"
+      var cint c = as_cint(ch);
+      return as_chart((c+up_case_table[c>>8][c&0xFF])&(bit(char_int_len)-1));
+      #else
+      # Tabelle für Umwandlung in Großbuchstaben:
       local const cint up_case_table[char_code_limit] =
         #if defined(ISOLATIN_CHS)
           { 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,
@@ -134,6 +165,7 @@
           };
         #endif
       return as_chart(up_case_table[as_cint(ch)]);
+      #endif
     }
 
 # Wandelt Byte ch in einen Kleinbuchstaben
@@ -141,7 +173,13 @@
   global chart down_case (chart ch);
   global chart down_case(ch)
     var chart ch;
-    { # Tabelle für Umwandlung in Kleinbuchstaben:
+    {
+      #ifdef UNICODE
+      #include "uni_downcase.c"
+      var cint c = as_cint(ch);
+      return as_chart((c+down_case_table[c>>8][c&0xFF])&(bit(char_int_len)-1));
+      #else
+      # Tabelle für Umwandlung in Kleinbuchstaben:
       local const cint down_case_table[char_code_limit] =
         #if defined(ISOLATIN_CHS)
           { 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,
@@ -235,13 +273,30 @@
           };
         #endif
       return as_chart(down_case_table[as_cint(ch)]);
+      #endif
     }
+
+#ifdef UNICODE
+# Table of Unicode character attributes.
+# unicode_attribute(c)
+# > cint c: a character code
+# < result: 0 = non-graphic
+#           1 = graphic, but not alphanumeric
+#           2 = graphic and numeric
+#           3 = graphic and alphabetic
+  #include "uni_attribute.c"
+  #define unicode_attribute(c)  \
+    ((unicode_attribute_table[(c)>>10][((c)>>2)&0xFF] >> (((c)&0x3)*2)) & 0x3)
+#endif
 
 # UP: Stellt fest, ob ein Character alphabetisch ist.
 # alphap(ch)
 # > ch: Character-Code
 # < ergebnis: TRUE falls alphabetisch, FALSE sonst.
 # Alphabetische Characters sind die mit einem Code c, mit
+#if defined(UNICODE)
+# java.lang.Character.isLetter(c)
+#else
 # $41 <= c <= $5A oder $61 <= c <= $7A
 #if defined(ISOLATIN_CHS)
 # oder $C0 <= c außer c=$D7,$F7.
@@ -253,12 +308,16 @@
 #elif defined(IBMPC_CHS)
 # oder $80 <= c <= $9A oder $9F <= c <= $A7.
 #endif
+#endif
 # Darin sind (siehe CLTL S. 236 oben) aller Uppercase- und alle Lowercase-
 # Characters enthalten.
   local boolean alphap (chart ch);
   local boolean alphap(ch)
     var chart ch;
     { var cint c = as_cint(ch);
+      #ifdef UNICODE
+      return (unicode_attribute(c) == 3 ? TRUE : FALSE);
+      #else
       if (c < 0x41) goto no; if (c <= 0x5A) goto yes;
       if (c < 0x61) goto no; if (c <= 0x7A) goto yes;
       #if defined(ISOLATIN_CHS)
@@ -281,7 +340,19 @@
       #endif
       no: return FALSE;
       yes: return TRUE;
+      #endif
     }
+
+# Stellt fest, ob ein Character numerisch ist.
+# numericp(ch)
+# > ch: Character-Code
+# < ergebnis: TRUE falls numerisch, FALSE sonst.
+  local boolean numericp (chart ch);
+  #ifdef UNICODE
+    #define numericp(ch)  (unicode_attribute(as_cint(ch)) == 2)
+  #else
+    #define numericp(ch)  (('0' <= as_cint(ch)) && (as_cint(ch) <= '9'))
+  #endif
 
 # Stellt fest, ob ein Character alphanumerisch ist.
 # alphanumericp(ch)
@@ -291,11 +362,14 @@
   global boolean alphanumericp (chart ch);
   global boolean alphanumericp(ch)
     var chart ch;
-    { var cint c = as_cint(ch);
-      if (('0' <= c) && (c <= '9'))
-        return TRUE; # '0' <= c <= '9' ist alphanumerisch
-        else
-        return alphap(ch);
+    {
+      #ifdef UNICODE
+      var cint c = as_cint(ch);
+      return (unicode_attribute(c) >= 2 ? TRUE : FALSE);
+      #else
+      if (numericp(ch)) return TRUE;
+      return alphap(ch);
+      #endif
     }
 
 # Stellt fest, ob ein Character ein Graphic-Character ("druckend") ist.
@@ -303,7 +377,10 @@
 # > ch: Character-Code
 # < ergebnis: TRUE falls druckend, FALSE sonst.
 # Graphic-Characters sind die mit einem Code c, mit
-#if defined(ISOLATIN_CHS) || defined(HPROMAN8_CHS)
+#if defined(UNICODE)
+#       (java.lang.Character.isDefined(c) || c == 0x20AC)
+#       && !(c < 0x0020 || (0x007F <= c <= 0x009F))
+#elif defined(ISOLATIN_CHS) || defined(HPROMAN8_CHS)
 #       $20 <= c <= $7E oder $A0 <= c < $100.
 #elif defined(NEXTSTEP_CHS)
 #       $20 <= c <= $7E oder $80 <= c <= $A5 oder c in {$A7,$A8,$AA,$AB,$AE..$B7}
@@ -320,6 +397,9 @@
   global boolean graphic_char_p(ch)
     var chart ch;
     { var cint c = as_cint(ch);
+      #ifdef UNICODE
+      return (unicode_attribute(c) == 0 ? FALSE : TRUE);
+      #else
       #if defined(ISOLATIN_CHS) || defined(HPROMAN8_CHS)
       if ((('~' >= c) && (c >= ' ')) || (c >= 0xA0)) goto yes; else goto no;
       #elif defined(NEXTSTEP_CHS)
@@ -341,6 +421,7 @@
       #endif
       no: return FALSE;
       yes: return TRUE;
+      #endif
     }
 
 # UP: verfolgt einen String.
@@ -649,7 +730,7 @@ LISPFUNN(base_char_p,1) # (SYSTEM::BASE-CHAR-P char)
   { var object arg = popSTACK(); # Argument
     if (!charp(arg)) fehler_char(arg); # muss ein Character sein
     #if (base_char_code_limit < char_code_limit)
-    if (char_code(arg) >= base_char_code_limit) goto no; else goto yes;
+    if (as_cint(char_code(arg)) >= base_char_code_limit) goto no; else goto yes;
     no: value1 = NIL; mv_count=1; return;
     #endif
     yes: value1 = T; mv_count=1; return;
@@ -740,14 +821,59 @@ LISPFUN(digit_char_p,1,1,norest,nokey,0,NIL)
     if (!charp(arg)) fehler_char(arg); # muss ein Character sein
     { var chart ch = char_code(arg);
       var cint c = as_cint(ch);
-      if (c > 'z') goto no; # zu groß -> nein
-      if (c >= 'a') { c -= 'a'-'A'; } # Character >='a',<='z' in Großbuchstaben wandeln
-      # Nun ist $00 <= ch <= $60.
-      if (c < '0') goto no;
-      # $30 <= c <= $60 in Zahlwert umwandeln:
-      if (c <= '9') { c = c - '0'; }
-      else if (c >= 'A') { c = c - 'A' + 10; }
-      else goto no;
+      #ifdef UNICODE
+        switch (c >> 8)
+          { case 0x00:
+              if ((c >= 0x0030) && (c <= 0x0039)) { c -= 0x0030; break; }
+              if ((c >= 0x0041) && (c <= 0x005a)) { c -= 0x0037; break; }
+              if ((c >= 0x0061) && (c <= 0x007a)) { c -= 0x0057; break; }
+              goto no;
+            case 0x06:
+              if ((c >= 0x0660) && (c <= 0x0669)) { c -= 0x0660; break; }
+              if ((c >= 0x06f0) && (c <= 0x06f9)) { c -= 0x06f0; break; }
+              goto no;
+            case 0x09:
+              if ((c >= 0x0966) && (c <= 0x096f)) { c -= 0x0966; break; }
+              if ((c >= 0x09e6) && (c <= 0x09ef)) { c -= 0x09e6; break; }
+              goto no;
+            case 0x0A:
+              if ((c >= 0x0a66) && (c <= 0x0a6f)) { c -= 0x0a66; break; }
+              if ((c >= 0x0ae6) && (c <= 0x0aef)) { c -= 0x0ae6; break; }
+              goto no;
+            case 0x0B:
+              if ((c >= 0x0b66) && (c <= 0x0b6f)) { c -= 0x0b66; break; }
+              if ((c >= 0x0be7) && (c <= 0x0bef)) { c -= 0x0be6; break; }
+              goto no;
+            case 0x0C:
+              if ((c >= 0x0c66) && (c <= 0x0c6f)) { c -= 0x0c66; break; }
+              if ((c >= 0x0ce6) && (c <= 0x0cef)) { c -= 0x0ce6; break; }
+              goto no;
+            case 0x0D:
+              if ((c >= 0x0d66) && (c <= 0x0d6f)) { c -= 0x0d66; break; }
+              goto no;
+            case 0x0E:
+              if ((c >= 0x0e50) && (c <= 0x0e59)) { c -= 0x0e50; break; }
+              if ((c >= 0x0ed0) && (c <= 0x0ed9)) { c -= 0x0ed0; break; }
+              goto no;
+            case 0x0F:
+              if ((c >= 0x0f20) && (c <= 0x0f29)) { c -= 0x0f20; break; }
+              goto no;
+            case 0xFF:
+              if ((c >= 0xff10) && (c <= 0xff19)) { c -= 0xff10; break; }
+              goto no;
+            default:
+              goto no;
+          }
+      #else
+        if (c > 'z') goto no; # zu groß -> nein
+        if (c >= 'a') { c -= 'a'-'A'; } # Character >='a',<='z' in Großbuchstaben wandeln
+        # Nun ist $00 <= ch <= $60.
+        if (c < '0') goto no;
+        # $30 <= c <= $60 in Zahlwert umwandeln:
+        if (c <= '9') { c = c - '0'; }
+        else if (c >= 'A') { c = c - 'A' + 10; }
+        else goto no;
+      #endif
       # Nun ist c der Zahlwert der Ziffer, >=0, <=41.
       if (c >= radix) goto no; # nur gültig, falls 0 <= c < radix.
       # Wert als Fixnum zurück:

@@ -74,6 +74,23 @@
   # Encodings for which both the charset and the line-terminator matter:
   # The default encoding for file streams, pipe streams, socket streams.
   LISPOBJ(default_file_encoding,".")
+  # Encodings for which only the charset matters:
+  #ifdef UNICODE
+    # The encoding of the C strings compiled into the executable.
+    LISPOBJ(internal_encoding,".")
+    # The encoding of pathnames on the file system.
+    LISPOBJ(pathname_encoding,".")
+    # The encoding of the terminal stream.
+    LISPOBJ(terminal_encoding,".")
+    #if defined(HAVE_FFI) || defined(HAVE_AFFI)
+      # The encoding of characters and strings passed through the FFI.
+      # Must be 1:1, i.e. one of the nls_* encodings.
+      LISPOBJ(foreign_encoding,".")
+    #endif
+    # The encoding for everything else (environment variables, command-line
+    # options etc.)
+    LISPOBJ(misc_encoding,".")
+  #endif
   LISPOBJ(type_line_terminator,"(MEMBER :DEFAULT :UNIX :MAC :DOS)")
 # zu CHARSTRG.D:
   # Bei Änderung der Character-Namen außer CONSTOBJ.D auch

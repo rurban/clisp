@@ -2744,11 +2744,11 @@ LISPFUNN(package_iterate,1)
 # init_packages();
   global void init_packages (void);
   global void init_packages()
-    { pushSTACK(asciz_to_string("LISP"));
-      pushSTACK(asciz_to_string("SYSTEM"));
-      pushSTACK(asciz_to_string("SYS"));
-      pushSTACK(asciz_to_string("KEYWORD"));
-      pushSTACK(asciz_to_string(""));
+    { pushSTACK(ascii_to_string("LISP"));
+      pushSTACK(ascii_to_string("SYSTEM"));
+      pushSTACK(ascii_to_string("SYS"));
+      pushSTACK(ascii_to_string("KEYWORD"));
+      pushSTACK(ascii_to_string(""));
       # Stackaufbau: "LISP", "SYSTEM", "SYS", "KEYWORD", "".
       O(all_packages) = NIL; # ALL_PACKAGES := NIL
       # #<PACKAGE KEYWORD> einrichten:
