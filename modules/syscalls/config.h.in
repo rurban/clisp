@@ -85,6 +85,10 @@
 /* Define to 1 if you have the <pwd.h> header file. */
 #undef HAVE_PWD_H
 
+/* Define to 1 if the f_fsid member of 'struct statvfs' has a integral type.
+   */
+#undef HAVE_SCALAR_FSID
+
 /* Define to 1 if you have the <shlobj.h> header file. */
 #undef HAVE_SHLOBJ_H
 
