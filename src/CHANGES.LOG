@@ -26,6 +26,19 @@ User visible changes
   the old and the new element type are equivalent to CHARACTER or
   (UNSIGNED-BYTE n), (SIGNED-BYTE n), where n is a positive multiple of 8.
 
+* The functions
+    OPEN, MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM, MAKE-PIPE-IO-STREAM,
+    SOCKET-ACCEPT, SOCKET-CONNECT
+  and the macro
+    WITH-OUTPUT-TO-PRINTER
+  accept a keyword argument :EXTERNAL-FORMAT. Possible values are encodings,
+  such as returned by the function MAKE-ENCODING, the line terminator keywords
+  :UNIX, :MAC, :DOS, and :DEFAULT. New function MAKE-ENCODING.
+
+* STREAM-EXTERNAL-FORMAT is SETFable. The external format of streams created
+  by the functions OPEN, MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM,
+  MAKE-PIPE-IO-STREAM, SOCKET-ACCEPT, SOCKET-CONNECT can be modified.
+
 * OPEN has a new keyword argument :BUFFERED. It determines whether the file
   stream returned is buffered or not. Possible values for it are NIL, T, or
   :DEFAULT. If it is :DEFAULT, buffered file streams will be returned for

@@ -70,6 +70,11 @@
   LISPOBJ(all_finalizers,"0")
   # Während der GC: die Liste der nach der GC zu bearbeitenden Finalisierer:
   LISPOBJ(pending_finalizers,"0")
+# zu ENCODING.D:
+  # Encodings for which both the charset and the line-terminator matter:
+  # The default encoding for file streams, pipe streams, socket streams.
+  LISPOBJ(default_file_encoding,".")
+  LISPOBJ(type_line_terminator,"(MEMBER :DEFAULT :UNIX :MAC :DOS)")
 # zu CHARSTRG.D:
   # Bei Änderung der Character-Namen außer CONSTOBJ.D auch
   # CHARSTRG.D, FORMAT.LSP, IMPNOTES.TXT anpassen!
@@ -301,6 +306,7 @@
   LISPOBJ(hs_special_form,"SPECIAL-FORM")
   LISPOBJ(hs_load_time_eval,"LOAD-TIME-EVAL")
   LISPOBJ(hs_symbol_macro,"SYMBOL-MACRO")
+  LISPOBJ(hs_encoding,"ENCODING")
   #ifdef FOREIGN
   LISPOBJ(hs_foreign_pointer,"FOREIGN-POINTER")
   #endif
@@ -663,7 +669,7 @@
   LISPOBJ(type_direction,"(MEMBER :INPUT :INPUT-IMMUTABLE :OUTPUT :IO :PROBE)")
   LISPOBJ(type_if_exists,"(MEMBER :ERROR :NEW-VERSION :RENAME :RENAME-AND-DELETE :OVERWRITE :APPEND :SUPERSEDE NIL)")
   LISPOBJ(type_if_does_not_exist,"(MEMBER :ERROR :CREATE NIL)")
-  LISPOBJ(type_external_format,"(MEMBER :DEFAULT)")
+  LISPOBJ(type_external_format,"(OR (MEMBER :DEFAULT) ENCODING (MEMBER :UNIX :MAC :DOS))")
   LISPOBJ(type_pathname_field_key,"(MEMBER :HOST :DEVICE :DIRECTORY :NAME :TYPE :VERSION NIL)")
  #ifdef LOGICAL_PATHNAMES
   LISPOBJ(type_logical_pathname,"(OR LOGICAL-PATHNAME STRING STREAM SYMBOL)")
@@ -817,6 +823,7 @@
   LISPOBJ(pathname_slotlist,"#.(list (cons :HOST #'pathname-host) (cons :DEVICE #'pathname-device) (cons :DIRECTORY #'pathname-directory) (cons :NAME #'pathname-name) (cons :TYPE #'pathname-type) (cons :VERSION #'pathname-version))")
   LISPOBJ(byte_slotlist,"#.(list (cons :SIZE #'byte-size) (cons :POSITION #'byte-position))")
   LISPOBJ_S(printstring_symbolmacro,"SYMBOL-MACRO")
+  LISPOBJ_S(printstring_encoding,"ENCODING")
   #ifdef FOREIGN
   LISPOBJ_S(printstring_invalid,"INVALID ")
   LISPOBJ_S(printstring_fpointer,"FOREIGN-POINTER")

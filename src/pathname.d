@@ -8119,7 +8119,8 @@ LISPFUNN(rename_file,2)
 
 # UP: erzeugt ein File-Stream
 # open_file(filename,direction,if_exists,if_not_exists)
-# > STACK_1: :BUFFERED argument
+# > STACK_2: :BUFFERED argument
+# > STACK_1: :EXTERNAL-FORMAT argument
 # > STACK_0: :ELEMENT-TYPE argument
 # > filename: Filename, ein Pathname
 # > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
@@ -8307,7 +8308,7 @@ LISPFUNN(rename_file,2)
                 break;
               }
             ergebnis_NIL: # Ergebnis NIL
-              skipSTACK(4); # beide Pathnames und beide Argument vergessen
+              skipSTACK(5); # beide Pathnames und drei Argumente vergessen
               return NIL;
             fehler_notfound: # Fehler, da Datei nicht gefunden
               # STACK_0 = Truename, Wert für Slot PATHNAME von FILE-ERROR
@@ -8331,11 +8332,12 @@ LISPFUNN(rename_file,2)
         handle_ok:
         # handle und append_flag sind jetzt fertig.
         # Stream erzeugen:
-        pushSTACK(STACK_3); # :BUFFERED argument
-        pushSTACK(STACK_3); # :ELEMENT-TYPE argument
+        pushSTACK(STACK_4); # :BUFFERED argument
+        pushSTACK(STACK_4); # :EXTERNAL-FORMAT argument
+        pushSTACK(STACK_4); # :ELEMENT-TYPE argument
         pushSTACK(handle);
        {var object stream = make_file_stream(direction,append_flag,TRUE);
-        skipSTACK(2);
+        skipSTACK(3);
         return stream;
     } }}
 
@@ -8419,22 +8421,10 @@ LISPFUN(open,1,0,norest,key,6,\
                ""
               );
     } }
-    # :external-format überprüfen:
-    { var object arg = STACK_1;
-      if (!(eq(arg,unbound) || eq(arg,S(Kdefault))))
-        { pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_external_format)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-          pushSTACK(arg); pushSTACK(S(open));
-          fehler(type_error,
-                 DEUTSCH ? "~: Als :EXTERNAL-FORMAT-Argument ist ~ unzulässig." :
-                 ENGLISH ? "~: illegal :EXTERNAL-FORMAT argument ~" :
-                 FRANCAIS ? "~ : ~ n'est pas permis comme argument pour :EXTERNAL-FORMAT." :
-                 ""
-                );
-    }   }
+    # :external-format wird später überprüft.
     # :buffered wird später überprüft.
     # File öffnen:
-    STACK_6 = STACK_0; STACK_5 = STACK_4; skipSTACK(5);
+    STACK_6 = STACK_0; STACK_5 = STACK_1; skipSTACK(4);
     value1 = open_file(filename,direction,if_exists,if_not_exists);
     mv_count=1;
   }}

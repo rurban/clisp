@@ -1,3 +1,83 @@
+1999-02-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Introduce encodings.
+        * lispbibl.d (Rectype_Encoding): New enum value.
+          (Encoding): New structure type.
+          (encoding_length): New macro.
+          (strm_file_name, strm_file_truename, strm_buffered_channel,
+           strm_pipe_pid, strm_x11socket_connect, strm_socket_port,
+           strm_socket_host): Offset by 1.
+          (TheEncoding, encodingp, allocate_encoding): New macros.
+          (init_encodings): New declaration.
+          (make_file_stream): Change calling convention.
+        * constobj.d (O(default_file_encoding)): New variable.
+        * encoding.d: New file.
+        * makemake.in (CPARTS): Add encoding.d.
+        * gettext/po/Makefile.devel (DSOURCES): Add encoding.d.
+        * spvw.d (initmem): Call init_encodings.
+        * io.d (pr_orecord): Treat Rectype_Encoding.
+        * predtype.d (TYPE-OF, CLOS:CLASS-OF): Treat Rectype_Encoding.
+          (enum_hs_encoding): New enum value.
+          (heap_statistics_mapper): Treat Rectype_Encoding.
+        * stream.d (test_external_format_arg): New function.
+          (strm_encoding): New macro.
+          (strm_bitbuffer, strm_buffer, strm_isatty, strm_ichannel,
+           strm_ochannel, strm_field1, strm_field2, strm_channel_extrafields,
+           strm_channel_len): Offset by 1.
+          (strm_unbuffered_extrafields_struct): New field ignore_next_LF.
+          (UnbufferedStream_ignore_next_LF): New macro.
+          (rd_ch_unbuffered): Perform CR/LF->NL and CR->NL conversion.
+          (listen_unbuffered): Likewise.
+          (clear_input_unbuffered): Update.
+          (rd_ch_array_unbuffered): Perform CR/LF->NL and CR->NL conversion.
+          (wr_ch_unbuffered_unix): Renamed from wr_ch_unbuffered.
+          (wr_ch_array_unbuffered_unix): Renamed from wr_ch_array_unbuffered.
+          (wr_ss_unbuffered_unix): Renamed from wr_ss_unbuffered.
+          (wr_ch_unbuffered_mac, wr_ch_array_unbuffered_mac,
+           wr_ss_unbuffered_mac): New functions.
+          (wr_ch_unbuffered_dos, wr_ch_array_unbuffered_dos,
+           wr_ss_unbuffered_dos): New functions.
+          (wr_ch_unbuffered_x, wr_ch_array_unbuffered_x, wr_ss_unbuffered_x):
+          Remove macros.
+          (fill_pseudofuns_unbuffered): Choose among the
+          wr_*_unbuffered_{unix,mac,dos} functions.
+          (make_unbuffered_stream): Change calling convention. Set the
+          stream's encoding.
+          (rd_ch_buffered): Perform CR/LF->NL and CR->NL conversion.
+          (rd_ch_array_buffered): Likewise.
+          (wr_ch_buffered_unix): Renamed from wr_ch_buffered.
+          (wr_ch_array_buffered_unix): Renamed from wr_ch_array_buffered.
+          (wr_ss_buffered_unix): Renamed from wr_ss_buffered.
+          (wr_ch_buffered_mac, wr_ch_array_buffered_mac, wr_ss_buffered_mac):
+          New functions.
+          (wr_ch_buffered_dos, wr_ch_array_buffered_dos, wr_ss_buffered_dos):
+          New functions.
+          (fill_pseudofuns_buffered): Choose among the
+          wr_*_buffered_{unix,mac,dos} functions.
+          (make_buffered_stream): Change calling convention. Set the stream's
+          encoding.
+          (make_file_stream): Change calling convention. Call
+          test_external_format_arg.
+          (strm_terminal_index): Offset by 1.
+          (rd_ch_terminal1): Remove CR/LF->NL conversion, already done by
+          rd_ch_unbuffered.
+          (wr_ch_terminal1, wr_ss_terminal1): Update.
+          (MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM,
+           MAKE-PIPE-IO-STREAM): Call test_external_format_arg.
+          (make_socket_stream): Change calling convention.
+          (SOCKET-ACCEPT, SOCKET-CONNECT): Call test_external_format_arg.
+          (make_terminal_io, init_streamvars): Update.
+          (SYSTEM::SET-STREAM-ELEMENT-TYPE): Reset the ignore_next_LF flag.
+          (STREAM-EXTERNAL-FORMAT): Rewritten.
+          (SYSTEM::SET-STREAM-EXTERNAL-FORMAT): New function.
+          (FILE-STRING-LENGTH): Update.
+        * pseudofun.d: Update.
+        * pathname.d (open_file): Change calling convention.
+          (OPEN): Don't check the :external-format argument here.
+        * places.lsp (stream-external-format): New defsetf.
+        * macros2.lsp (with-output-to-printer, make-printer-stream): Accept
+          a :external-format argument.
+
 1999-02-11  Christian Jullien  <eligis@wanadoo.fr>
 
         * time.d (get_run_time) [TIME_WIN32]: Add missing semicolon.

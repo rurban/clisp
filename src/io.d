@@ -8461,6 +8461,33 @@ LISPFUNN(print_structure,2)
               LEVEL_END;
             }}
             break;
+          case Rectype_Encoding:
+            # #<ENCODING [charset] line-terminator>
+            { if (test_value(S(print_readably))) { fehler_print_readably(obj); }
+              LEVEL_CHECK;
+              pushSTACK(obj); # Encoding retten
+             {var object* obj_ = &STACK_0; # und merken, wo es sitzt
+              write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
+              INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+              JUSTIFY_START;
+              write_sstring_case(stream_,O(printstring_encoding)); # "ENCODING"
+              {var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
+               var uintL length = 0; # bisherige Länge := 0
+               # auf Erreichen von *PRINT-LENGTH* prüfen:
+               if (length >= length_limit) goto encoding_end;
+               JUSTIFY_SPACE; # Space ausgeben
+               # Line-Terminator ausgeben:
+               prin_object(stream_,TheEncoding(*obj_)->enc_eol);
+               length++; # bisherige Länge erhöhen
+              }
+              encoding_end:
+              JUSTIFY_END_ENG;
+              INDENT_END;
+              write_ascii_char(stream_,'>');
+              skipSTACK(1);
+              LEVEL_END;
+            }}
+            break;
           #ifdef FOREIGN
           case Rectype_Fpointer:
             # #<FOREIGN-POINTER address>

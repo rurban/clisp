@@ -502,12 +502,13 @@
 (in-package "LISP")
 (export 'with-output-to-printer)
 (in-package "SYSTEM")
-(defmacro with-output-to-printer ((var) &body body &environment env)
+(defmacro with-output-to-printer ((var &rest options &key external-format)
+                                  &body body &environment env)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body nil env)
     (if declarations
       (setq declarations (list (cons 'DECLARE declarations)))
     )
-    `(LET ((,var (SYS::MAKE-PRINTER-STREAM)))
+    `(LET ((,var (SYS::MAKE-PRINTER-STREAM ,@options)))
        ,@declarations
        (UNWIND-PROTECT
          (PROGN ,@body-rest)
@@ -515,9 +516,13 @@
      ) )
 ) )
 #+UNIX
-(defun make-printer-stream () (make-pipe-output-stream "lpr"))
+(defun make-printer-stream (&key (external-format :default))
+  (make-pipe-output-stream "lpr" :external-format external-format)
+)
 #+(or DOS OS/2 WIN32)
-(defun make-printer-stream () (open "prn" :direction :output))
+(defun make-printer-stream (&key (external-format :default))
+  (open "prn" :direction :output :external-format external-format)
+)
 ;-------------------------------------------------------------------------------
 (in-package "LISP")
 (export 'without-floating-point-underflow)

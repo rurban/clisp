@@ -1586,6 +1586,8 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         init_packages();
         # symbol_tab fertig initialisieren:
         init_symbol_tab_2();
+        # Encodings initialisieren:
+        init_encodings();
         # SUBRs/FSUBRs in ihre Symbole eintragen:
         init_symbol_functions();
         # Konstanten/Variablen: Wert in die Symbole eintragen:

@@ -1472,6 +1472,8 @@ LISPFUNN(type_of,1)
                 value1 = S(load_time_eval); break;
               case Rectype_Symbolmacro: # Symbol-Macro
                 value1 = S(symbol_macro); break;
+              case Rectype_Encoding: # Encoding
+                value1 = S(encoding); break;
               #ifdef FOREIGN
               case Rectype_Fpointer: # Foreign-Pointer-Verpackung
                 value1 = S(foreign_pointer); break;
@@ -1686,6 +1688,7 @@ LISPFUNN(class_of,1)
               case Rectype_Fsubr: # Fsubr -> <t>
               case Rectype_Loadtimeeval: # Load-Time-Eval -> <t>
               case Rectype_Symbolmacro: # Symbol-Macro -> <t>
+              case Rectype_Encoding: # Encoding -> <t>
               #ifdef FOREIGN
               case Rectype_Fpointer: # Foreign-Pointer-Verpackung -> <t>
               #endif
@@ -2188,6 +2191,7 @@ enum { # The values of this enumeration are 0,1,2,...
   enum_hs_special_form,
   enum_hs_load_time_eval,
   enum_hs_symbol_macro,
+  enum_hs_encoding,
   #ifdef FOREIGN
   enum_hs_foreign_pointer,
   #endif
@@ -2443,6 +2447,8 @@ local void heap_statistics_mapper(arg,obj,bytelen)
                 pighole = &locals->builtins[(int)enum_hs_load_time_eval]; break;
               case Rectype_Symbolmacro: # Symbol-Macro
                 pighole = &locals->builtins[(int)enum_hs_symbol_macro]; break;
+              case Rectype_Encoding: # Encoding
+                pighole = &locals->builtins[(int)enum_hs_encoding]; break;
               #ifdef FOREIGN
               case Rectype_Fpointer: # Foreign-Pointer-Verpackung
                 pighole = &locals->builtins[(int)enum_hs_foreign_pointer]; break;
