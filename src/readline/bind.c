@@ -600,7 +600,7 @@ _rl_read_file (filename, sizep)
   struct stat finfo;
   size_t file_size;
   char *buffer;
-  int i, file;
+  int nread, file;
 
   if ((stat (filename, &finfo) < 0) || (file = open (filename, O_RDONLY, 0666)) < 0)
     return ((char *)NULL);
@@ -620,22 +620,18 @@ _rl_read_file (filename, sizep)
 
   /* Read the file into BUFFER. */
   buffer = (char *)xmalloc (file_size + 1);
-  i = read (file, buffer, file_size);
+  nread = read (file, buffer, file_size);
   close (file);
 
-#if 0
-  if (i < file_size)
-#else
-  if (i < 0)
-#endif
+  if (nread < 0)
     {
       free (buffer);
       return ((char *)NULL);
     }
 
-  buffer[file_size] = '\0';
+  buffer[nread] = '\0';
   if (sizep)
-    *sizep = file_size;
+    *sizep = nread;
   return (buffer);
 }
 
