@@ -423,11 +423,17 @@ DEFUN(POSIX::CONFSTR, &optional what)
   if (res == 0) pushSTACK(T);                                           \
   else if (res <= BUFSIZ) value1 = asciz_to_string(buf,GLO(misc_encoding)); \
   else {                                                                \
-    char *tmp = alloca(res);                                            \
+    /* Here we cannot use alloca(), because alloca() is generally unsafe \
+       for sizes > BUFSIZ. */                                           \
+    char *tmp;                                                          \
     begin_system_call();                                                \
+    tmp = malloc(res);                                                  \
     confstr(cmd,tmp,res);                                               \
     end_system_call();                                                  \
     value1 = asciz_to_string(tmp,GLO(misc_encoding));                   \
+    begin_system_call();                                                \
+    free(tmp);                                                          \
+    end_system_call();                                                  \
   }
 
   size_t res;
