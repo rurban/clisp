@@ -2373,7 +2373,7 @@ Ratio and Complex (only if SPVW_MIXED).
     #define oint_addr_len 32
     #define oint_addr_mask 0xFFFFFFFF00000000ULL
   #endif
-#elif (defined(MC680X0) && !defined(AMIGA3000) && !defined(UNIX_AMIX) && !defined(UNIX_NEXTSTEP)) || (defined(I80386) && !defined(WATCOM_BLAKE) && !defined(UNIX_SYSV_UHC_2) && !defined(UNIX_SYSV_UHC_1) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE) && !defined(UNIX_GNU) && !defined(UNIX_NEXTSTEP) && !defined(UNIX_SYSV_PTX) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN32) && !defined(WIN32_NATIVE)) || (defined(SPARC) && !defined(SUN4_29_2)) || (defined(MIPS) && !defined(UNIX_IRIX) && !defined(UNIX_DEC_ULTRIX)) || defined(M88000) || (defined(RS6000) && !defined(UNIX_AIX) && !defined(UNIX_LINUX)) || defined(VAX) || (defined(CONVEX) && !defined(UNIX_CONVEX)) || defined(ACORN_1)
+#elif (defined(MC680X0) && !defined(AMIGA3000) && !defined(UNIX_AMIX) && !defined(UNIX_NEXTSTEP) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE)) || (defined(I80386) && !defined(WATCOM_BLAKE) && !defined(UNIX_SYSV_UHC_2) && !defined(UNIX_SYSV_UHC_1) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE) && !defined(UNIX_GNU) && !defined(UNIX_NEXTSTEP) && !defined(UNIX_SYSV_PTX) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN32) && !defined(WIN32_NATIVE)) || (defined(SPARC) && !defined(SUN4_29_2)) || (defined(MIPS) && !defined(UNIX_IRIX) && !defined(UNIX_DEC_ULTRIX)) || defined(M88000) || (defined(RS6000) && !defined(UNIX_AIX) && !defined(UNIX_LINUX)) || defined(VAX) || (defined(CONVEX) && !defined(UNIX_CONVEX)) || defined(ACORN_1)
   # Bits 31..24 = Typcode, Bits 23..0 = Adresse
   #define oint_type_shift 24
   #define oint_type_len 8
@@ -2585,7 +2585,7 @@ Ratio and Complex (only if SPVW_MIXED).
   # address range of VM addresses by not using bit 28 in our typecode bit
   # encoding scheme.
   #define vm_addr_mask 0xEFFFFFFFUL
-#elif defined(CONVEX) && defined(UNIX_CONVEX)
+#elif (defined(CONVEX) && defined(UNIX_CONVEX)) || (defined(MC680X0) && defined(UNIX_LINUX) && CODE_ADDRESS_RANGE)
   # Bits 30..24 = Typcode, Bits 31,23..0 = Adresse
   #define oint_type_shift 24
   #define oint_type_len 8
@@ -2595,6 +2595,8 @@ Ratio and Complex (only if SPVW_MIXED).
   #define oint_addr_mask 0x80FFFFFFUL
   # UNIX_CONVEX user space addresses are in the range 0x80000000..0xFFFFFFFF.
   # Memory mapping works in the range 0x80000000..0xBFFFFFFFUL.
+  # UNIX_LINUX m68k user space (for ELF executables) is in the range
+  # 0x80000000..0xEFFFFFFF. Shared libraries start at 0xC0000000.
   #define vm_addr_mask 0xBFFFFFFFUL
 #else
   #error "How to split a pointer into type and address? -- Größen oint_type_shift, oint_addr_shift neu einstellen!"
