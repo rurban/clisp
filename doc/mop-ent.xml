@@ -24,23 +24,23 @@
 <!ENTITY compute-slots "<link linkend='compute-slots'><function>CLOS:COMPUTE-SLOTS</function></link>">
 <!ENTITY cpl "<link linkend='cpl'><function>CLOS:CLASS-PRECEDENCE-LIST</function></link>">
 <!ENTITY dsd-class "<link linkend='dsd-class'><function>CLOS:DIRECT-SLOT-DEFINITION-CLASS</function></link>">
-<!ENTITY dsd-t "<link linkend='inherit-struct'><classname>CLOS:DIRECT-SLOT-DEFINITION</classname></link>">
+<!ENTITY dsd-t "<link linkend='mop-inherit-struct'><classname>CLOS:DIRECT-SLOT-DEFINITION</classname></link>">
 <!ENTITY ensure-class "<link linkend='ensure-class'><function>CLOS:ENSURE-CLASS</function></link>">
 <!ENTITY ensure-class-UC "<link linkend='ensure-class-UC'><function>CLOS:ENSURE-CLASS-USING-CLASS</function></link>">
 <!ENTITY ensure-gf "<link linkend='ensure-gf'><function>ENSURE-GENERIC-FUNCTION</function></link>">
 <!ENTITY ensure-gf-UC "<link linkend='ensure-gf-UC'><function>CLOS:ENSURE-GENERIC-FUNCTION-USING-CLASS</function></link>">
 <!ENTITY eql-specializer-object "<link linkend='eql-specializer-object'><function>CLOS:EQL-SPECIALIZER-OBJECT</function></link>">
-<!ENTITY eql-specializer-t "<link linkend='inherit-struct'><classname>CLOS:EQL-SPECIALIZER</classname></link>">
+<!ENTITY eql-specializer-t "<link linkend='mop-inherit-struct'><classname>CLOS:EQL-SPECIALIZER</classname></link>">
 <!ENTITY esd-class "<link linkend='esd-class'><function>CLOS:EFFECTIVE-SLOT-DEFINITION-CLASS</function></link>">
-<!ENTITY esd-t "<link linkend='inherit-struct'><classname>CLOS:EFFECTIVE-SLOT-DEFINITION</classname></link>">
+<!ENTITY esd-t "<link linkend='mop-inherit-struct'><classname>CLOS:EFFECTIVE-SLOT-DEFINITION</classname></link>">
 <!ENTITY extract-lambda-list "<link linkend='extract-lambda-list'><function>CLOS:EXTRACT-LAMBDA-LIST</function></link>">
 <!ENTITY extract-specializer-names "<link linkend='extract-specializer-names'><function>CLOS:EXTRACT-SPECIALIZER-NAMES</function></link>">
 <!ENTITY finalize-inheritance "<link linkend='finalize-inheritance'><function>CLOS:FINALIZE-INHERITANCE</function></link>">
 <!ENTITY find-method-combination "<link linkend='find-method-combination'><function>CLOS:FIND-METHOD-COMBINATION</function></link>">
-<!ENTITY forward-referenced-class "<link linkend='inherit-struct'><classname>CLOS:FORWARD-REFERENCED-CLASS</classname></link>">
-<!ENTITY funcallable-standard-class "<link linkend='funcallable-inst'><classname>CLOS:FUNCALLABLE-STANDARD-CLASS</classname></link>">
+<!ENTITY forward-referenced-class "<link linkend='mop-inherit-struct'><classname>CLOS:FORWARD-REFERENCED-CLASS</classname></link>">
+<!ENTITY funcallable-standard-class "<link linkend='mop-sa-funcallable'><classname>CLOS:FUNCALLABLE-STANDARD-CLASS</classname></link>">
 <!ENTITY funcallable-standard-instance-access "<link linkend='funcallable-standard-instance-access'><function>CLOS:FUNCALLABLE-STANDARD-INSTANCE-ACCESS</function></link>">
-<!ENTITY funcallable-standard-object-t "<link linkend='funcallable-inst'><classname>CLOS:FUNCALLABLE-STANDARD-OBBJECT</classname></link>">
+<!ENTITY funcallable-standard-object-t "<link linkend='mop-sa-funcallable'><classname>CLOS:FUNCALLABLE-STANDARD-OBBJECT</classname></link>">
 <!ENTITY gf-argument-precedence-order "<link linkend='gf-argument-precedence-order'><function>CLOS:GENERIC-FUNCTION-ARGUMENT-PRECEDENCE-ORDER</function></link>">
 <!ENTITY gf-declarations "<link linkend='gf-declarations'><function>CLOS:GENERIC-FUNCTION-DECLARATIONS</function></link>">
 <!ENTITY gf-lambda-list "<link linkend='gf-lambda-list'><function>CLOS:GENERIC-FUNCTION-LAMBDA-LIST</function></link>">
@@ -52,7 +52,7 @@
 <!ENTITY intern-eql-specializer "<link linkend='intern-eql-specializer'><function>CLOS:INTERN-EQL-SPECIALIZER</function></link>">
 <!ENTITY make-method-lambda "<link linkend='make-method-lambda'><function>CLOS:MAKE-METHOD-LAMBDA</function></link>">
 <!ENTITY map-dependents "<link linkend='map-dependents'><function>CLOS:MAP-DEPENDENTS</function></link>">
-<!ENTITY metaobject-t "<link linkend='metaobjects'><classname>CLOS:METAOBJECT</classname></link>">
+<!ENTITY metaobject-t "<link linkend='mop-metaobjects'><classname>CLOS:METAOBJECT</classname></link>">
 <!ENTITY method-function "<link linkend='method-function'><function>CLOS:METHOD-FUNCTION</function></link>">
 <!ENTITY method-gf "<link linkend='method-gf'><function>CLOS:METHOD-GENERIC-FUNCTION</function></link>">
 <!ENTITY method-lambda-list "<link linkend='method-lambda-list'><function>CLOS:METHOD-LAMBDA-LIST</function></link>">
@@ -67,7 +67,7 @@
 <!ENTITY setf-slot-value "<literal role='sexp'>(&setf; &slot-value;)</literal>">
 <!ENTITY setf-slot-value-UC "<link linkend='setf-slot-value-UC'><literal role='sexp'>(SETF <function>CLOS:SLOT-VALUE-USING-CLASS</function>)</literal></link>">
 <!ENTITY slot-boundp-UC "<link linkend='slot-boundp-UC'><function>CLOS:SLOT-BOUNDP-USING-CLASS</function></link>">
-<!ENTITY slot-definition-t "<link linkend='slotdef'><classname>CLOS:SLOT-DEFINITION</classname></link>">
+<!ENTITY slot-definition-t "<link linkend='mop-sd'><classname>CLOS:SLOT-DEFINITION</classname></link>">
 <!ENTITY slot-makunbound-UC "<link linkend='slot-makunbound-UC'><function>CLOS:SLOT-MAKUNBOUND-USING-CLASS</function></link>">
 <!ENTITY slot-value-UC "<link linkend='slot-value-UC'><function>CLOS:SLOT-VALUE-USING-CLASS</function></link>">
 <!ENTITY slotdef-allocation "<link linkend='slotdef-allocation'><function>CLOS:SLOT-DEFINITION-ALLOCATION</function></link>">
@@ -77,18 +77,18 @@
 <!ENTITY slotdef-location "<link linkend='slotdef-location'><function>CLOS:SLOT-DEFINITION-LOCATION</function></link>">
 <!ENTITY slotdef-name "<link linkend='slotdef-name'><function>CLOS:SLOT-DEFINITION-NAME</function></link>">
 <!ENTITY slotdef-readers "<link linkend='slotdef-readers'><function>CLOS:SLOT-DEFINITION-READERS</function></link>">
-<!ENTITY slotdef-t "<link linkend='slotdef'><classname>CLOS:SLOT-DEFINITION</classname></link>">
+<!ENTITY slotdef-t "<link linkend='mop-sd'><classname>CLOS:SLOT-DEFINITION</classname></link>">
 <!ENTITY slotdef-type "<link linkend='slotdef-type'><function>CLOS:SLOT-DEFINITION-TYPE</function></link>">
 <!ENTITY slotdef-writers "<link linkend='slotdef-writers'><function>CLOS:SLOT-DEFINITION-WRITERS</function></link>">
 <!ENTITY specializer-direct-gfs "<link linkend='specializer-direct-gfs'><function>CLOS:SPECIALIZER-DIRECT-GENERIC-FUNCTIONS</function></link>">
 <!ENTITY specializer-direct-methods "<link linkend='specializer-direct-methods'><function>CLOS:SPECIALIZER-DIRECT-METHODS</function></link>">
-<!ENTITY specializer-t "<link linkend='mo-spec'><classname>CLOS:SPECIALIZER</classname></link>">
-<!ENTITY standard-accessor-method-t "<link linkend='init-meth-mo'><classname>CLOS:STANDARD-ACCESSOR-METHOD</classname></link>">
-<!ENTITY standard-dsd-t "<link linkend='inherit-struct'><classname>CLOS:STANDARD-DIRECT-SLOT-DEFINITION</classname></link>">
-<!ENTITY standard-esd-t "<link linkend='inherit-struct'><classname>CLOS:STANDARD-EFFECTIVE-SLOT-DEFINITION</classname></link>">
+<!ENTITY specializer-t "<link linkend='mop-mo-spec'><classname>CLOS:SPECIALIZER</classname></link>">
+<!ENTITY standard-accessor-method-t "<link linkend='mop-meth-init-mo'><classname>CLOS:STANDARD-ACCESSOR-METHOD</classname></link>">
+<!ENTITY standard-dsd-t "<link linkend='mop-inherit-struct'><classname>CLOS:STANDARD-DIRECT-SLOT-DEFINITION</classname></link>">
+<!ENTITY standard-esd-t "<link linkend='mop-inherit-struct'><classname>CLOS:STANDARD-EFFECTIVE-SLOT-DEFINITION</classname></link>">
 <!ENTITY standard-instance-access "<link linkend='standard-instance-access'><function>CLOS:STANDARD-INSTANCE-ACCESS</function></link>">
-<!ENTITY standard-reader-method-t "<link linkend='inherit-struct'><classname>CLOS:STANDARD-READER-METHOD</classname></link>">
-<!ENTITY standard-slotdef-t "<link linkend='inherit-struct'><classname>CLOS:STANDARD-SLOT-DEFINITION</classname></link>">
+<!ENTITY standard-reader-method-t "<link linkend='mop-inherit-struct'><classname>CLOS:STANDARD-READER-METHOD</classname></link>">
+<!ENTITY standard-slotdef-t "<link linkend='mop-inherit-struct'><classname>CLOS:STANDARD-SLOT-DEFINITION</classname></link>">
 <!ENTITY standard-writer-method-t "<link linkend='writer-method-class'><classname>CLOS:STANDARD-WRITER-METHOD</classname></link>">
 <!ENTITY update-dependent "<link linkend='update-dependent'><function>CLOS:UPDATE-DEPENDENT</function></link>">
 <!ENTITY validate-superclass "<link linkend='validate-superclass'><function>CLOS:VALIDATE-SUPERCLASS</function></link>">
@@ -143,3 +143,6 @@
  other than &instance-k; or &class-k; an &err-sig;.</simpara>">
 <!ENTITY overridable "<simpara>This method can be overridden.</simpara>">
 <!ENTITY overridables "<simpara>These methods can be overridden.</simpara>">
+<!ENTITY see-dep-maint "<formalpara><title>Remarks</title>
+ <para>See <xref linkend='mop-dep-maint'/> for remarks about the
+  use of this facility.</para></formalpara>">
