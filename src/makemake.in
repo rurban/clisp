@@ -3245,7 +3245,7 @@ if [ ${HSYSOS} = cygwin ]; then
   echotab "ln \$(CLISP_CYGWIN) \$(CLISP_VR).tar.bz2"
   echotab "\$(RMRF) \$(DEST_TMP)"
   echol
-  echol "TAR_SRC=\"../../archives/\$(CLISP_VERSION).tar.bz2\""
+  echol "TAR_SRC=\"../../archives/\$(VERSION)/\$(CLISP_VERSION).tar.bz2\""
   echol "cygwin-src : setup.hint force"
   echotab "touch \$(CLISP_VR).patch"
   echotab "echo '#!/bin/sh' > \$(CLISP_SCRIPT)"
@@ -3253,7 +3253,7 @@ if [ ${HSYSOS} = cygwin ]; then
   echotab "echo 'cd build-cygwin' >> \$(CLISP_SCRIPT)"
   echotab "echo 'make distrib' >> \$(CLISP_SCRIPT)"
   echotab "ln -s \$(TAR_SRC) ."
-  echotab "tar cvfjh \$(CLISP_VR)-src.tar.bz2 \$(CLISP_VERSION).tar.bz2 \$(CLISP_SCRIPT) \$(CLISP_VR).patch setup.hint cygwin.README"
+  echotab "tar cvfjh \$(CLISP_VR)-src.tar.bz2 \$(CLISP_SCRIPT) \$(CLISP_VR).patch setup.hint cygwin.README \$(CLISP_VERSION).tar.bz2"
   echotab "\$(RMRF) \$(CLISP_VERSION).tar.bz2 \$(CLISP_SCRIPT) \$(CLISP_VR).patch"
   echol
 elif [ ${HOS} = unix ] ; then   # but not cygwin!
