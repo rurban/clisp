@@ -2,15 +2,14 @@
 ;; Bruno Haible 14.4.1995, 18.4.1995
 ;; Sam Steingold 1999-10-28
 
-(defpackage regexp
-  (:nicknames re)
+(defpackage "REGEXP"
   (:documentation
    "POSIX Regular Expressions - matching, compiling, executing.")
-  (:use lisp ffi)
-  (:export match match-start match-end match-string regexp-quote
-           regexp-compile regexp-exec regexp-split with-loop-split))
+  (:use "LISP" "FFI")
+  (:export "MATCH" "MATCH-START" "MATCH-END" "MATCH-STRING" "REGEXP-QUOTE"
+           "REGEXP-COMPILE" "REGEXP-EXEC" "REGEXP-SPLIT" "WITH-LOOP-SPLIT"))
 
-(in-package :regexp)
+(in-package "REGEXP")
 
 ; Common OS definitions:
 (def-c-type size_t uint)
@@ -206,34 +205,38 @@ extern void mregfree (regex_t *preg);
 (setf (fdefinition '(setf match-end))
       (lambda (new-value match) (setf (regmatch_t-rm_eo match) new-value))))
 
-(defun regexp-exec (compiled-pattern string &key (start 0) end)
+(defun regexp-exec (compiled-pattern string &key (start 0) (end nil))
   (assert (stringp string) (string)
           "~s: the second argument must be a string, not ~s"
           'regexp-exec string)
-  (let* ((len (length string)) (end (or end len))
+  (let* ((len (length string))
+         (end (or end len))
          ;; Prepare the string.
-         (string (if (and (eql start 0) (eql end len)) string
-                     (make-array (- end start) :element-type 'character
-                                 :displaced-to string
-                                 :displaced-index-offset start))))
-    (declare (string string) (fixnum len))
+         (string
+           (if (and (eql start 0) (eql end len))
+             string
+             (make-array (- end start)
+                         :element-type 'character
+                         :displaced-to string
+                         :displaced-index-offset start))))
+    (declare (string string))
     (multiple-value-bind (errcode matches)
         (regexec compiled-pattern string #.num-matches 0)
       ;; Compute return values.
       (if (zerop errcode)
-          (values-list          ; the first value will be non-NIL
-           (map 'list (if (eql start 0)
-                          #'identity
-                          (lambda (match)
-                            (incf (match-start match) start)
-                            (incf (match-end match) start)
-                            match))
-                (delete-if #'minusp matches :key #'match-start)))
-          nil))))
+        (values-list          ; the first value will be non-NIL
+         (map 'list (if (eql start 0)
+                      #'identity
+                      (lambda (match)
+                        (incf (match-start match) start)
+                        (incf (match-end match) start)
+                        match))
+              (delete-if #'minusp matches :key #'match-start)))
+        nil))))
 
 ;; The following implementation of MATCH compiles the pattern
 ;; once for every search.
-(defun match-once (pattern string &key (start 0) end case-insensitive)
+(defun match-once (pattern string &key (start 0) (end nil) (case-insensitive nil))
   (regexp-exec (regexp-compile pattern case-insensitive)
                string :start start :end end))
 
@@ -256,25 +259,25 @@ extern void mregfree (regex_t *preg);
   ; cddr = compiled pattern, case insensitive.
 )
 
-(defun %match (patternbox string &key (start 0) end case-insensitive)
+(defun %match (patternbox string &key (start 0) (end nil) (case-insensitive nil))
   ;; Compile the pattern, if not already done.
   (let ((compiled-pattern
-         (if case-insensitive (cddr patternbox) (cadr patternbox))))
+          (if case-insensitive (cddr patternbox) (cadr patternbox))))
     (unless (and compiled-pattern (validp compiled-pattern))
-      (setq compiled-pattern
-            (regexp-compile (car patternbox) case-insensitive))
+      (setq compiled-pattern (regexp-compile (car patternbox) case-insensitive))
       (if case-insensitive
-          (setf (cddr patternbox) compiled-pattern)
-          (setf (cadr patternbox) compiled-pattern)))
+        (setf (cddr patternbox) compiled-pattern)
+        (setf (cadr patternbox) compiled-pattern)))
     (regexp-exec compiled-pattern string :start start :end end)))
 
 ; Convert a match (of type regmatch_t) to a substring.
 (defun match-string (string match)
   (let ((start (match-start match))
         (end (match-end match)))
-    (make-array (- end start) :element-type 'character
-                              :displaced-to string
-                              :displaced-index-offset start
+    (make-array (- end start)
+                :element-type 'character
+                :displaced-to string
+                :displaced-index-offset start
 ) ) )
 
 ; Utility function
@@ -284,31 +287,37 @@ extern void mregfree (regex_t *preg);
     (map nil (lambda (c)
                (case c
                  ((#\$ #\^ #\. #\* #\[ #\] #\\) ; #\+ #\?
-                  (vector-push-extend #\\ qstring)))
+                   (vector-push-extend #\\ qstring)))
                (vector-push-extend c qstring))
          string)
     qstring))
 
 (defun regexp-split (pattern string &key (start 0) end case-insensitive)
   "Split the STRING by the regexp PATTERN."
-  (loop :with compiled = (if (stringp pattern)
-                             (regexp-compile pattern case-insensitive) pattern)
-        :for match = (regexp-exec compiled string :start start :end end)
-        :collect
-        (make-array (- (if match (match-start match) (length string)) start)
-                    :element-type 'character :displaced-to string
-                    :displaced-index-offset start)
-        :while match
-        :do (setq start (match-end match))))
+  (loop
+    :with compiled =
+            (if (stringp pattern)
+              (regexp-compile pattern case-insensitive)
+              pattern)
+    :for match = (regexp-exec compiled string :start start :end end)
+    :collect
+      (make-array (- (if match (match-start match) (length string)) start)
+                  :element-type 'character
+                  :displaced-to string
+                  :displaced-index-offset start)
+    :while match
+    :do (setq start (match-end match))))
 
 (defmacro with-loop-split ((var stream pattern &optional case-insensitive)
                            &body forms)
   "Read from STREAM one line at a time, binding VAR to the split line."
-  (let ((comp (gensym "WLS-")) (stri (gensym "WLS-")))
-    `(loop :with ,comp =
-      (if (stringp ,pattern)
-          (regexp-compile ,pattern ,case-insensitive) ,pattern)
-      :and ,var
-      :for ,stri = (read-line ,stream nil nil)
-      :while ,stri
-      :do (setq ,var (regexp-split ,comp ,stri)) ,@forms)))
+  (let ((compiled-pattern (gensym "WLS-")) (line (gensym "WLS-")))
+    `(loop
+       :with ,compiled-pattern =
+         (if (stringp ,pattern)
+           (regexp-compile ,pattern ,case-insensitive)
+           ,pattern)
+       :and ,var
+       :for ,line = (read-line ,stream nil nil)
+       :while ,line
+       :do (setq ,var (regexp-split ,compiled-pattern ,line)) ,@forms)))
