@@ -3815,12 +3815,28 @@ local uintWL interpret_feature (object expr) {
     }
     # wrong (car expr) -> error
   }
- bad: # wrong structure of Feature-Expression
-  pushSTACK(STACK_1); # STREAM-ERROR slot STREAM
-  pushSTACK(expr); # Feature-Expression
-  pushSTACK(STACK_(1+2)); # Stream
-  pushSTACK(S(read));
-  fehler(reader_error,GETTEXT("~S from ~S: illegal feature ~S"));
+ bad: {                      /* wrong structure of Feature-Expression */
+    var bool called_from_read_p = streamp(STACK_1);
+    if (called_from_read_p) pushSTACK(STACK_1); /* STREAM-ERROR slot STREAM */
+    pushSTACK(expr);              /* Feature-Expression */
+    if (called_from_read_p) {
+      pushSTACK(STACK_(1+2)); /* Stream */
+      pushSTACK(S(read));
+      fehler(reader_error,GETTEXT("~S from ~S: illegal feature ~S"));
+    } else {
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,GETTEXT("~S: illegal feature ~S"));
+    }
+  }
+}
+
+/* run-time version of #+
+   <http://clrfi.alu.org/clrfi/clrfi-1-featurep> */
+LISPFUNNR(featurep,1) {
+  pushSTACK(STACK_0); /* interpret_feature checks STACK_1 */
+  STACK_1 = S(featurep);
+  VALUES_IF(!interpret_feature(STACK_0));
+  skipSTACK(2);
 }
 
 # UP: for #+ und #-

@@ -1,5 +1,13 @@
 2005-01-12  Sam Steingold  <sds@gnu.org>
 
+	added FEATUREP (http://clrfi.alu.org/clrfi/clrfi-1-featurep)
+	* io.d (interpret_feature): STACK_1 may not be a stream
+	(FEATUREP): implemented
+	* constsym.d, subr.d (featurep): added
+	* init.lisp (featurep): export
+
+2005-01-12  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (BASE_MODULES): added syscalls and regexp
 
 2005-01-09  Bruno Haible  <bruno@clisp.org>
