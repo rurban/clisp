@@ -1,3 +1,13 @@
+2004-08-05  Sam Steingold  <sds@gnu.org>
+
+	* modules/berkeley-db/bdb.c: use DB.dbenv when practical
+	(close_errfile, reset_errfile): functions, not macros
+	(close_errpfx): new function
+	(BDB:DBE-CLOSE, BDB:DB-CLOSE): call it
+	(dbe_get_errfile, dbe_get_errpfx): new functions
+	(BDB:DBE-SET-OPTIONS, BDB:DBE-GET-OPTIONS, BDB:DB-SET-OPTIONS)
+	(BDB:DB-GET-OPTIONS): accept :ERRPFX
+
 2004-06-13  Bruno Haible  <bruno@clisp.org>
 
 	Make GENERIC-FUNCTION a subclass of FUNCALLABLE-STANDARD-OBJECT.

@@ -75,7 +75,7 @@
 
 <variablelist>
 <varlistentry><term><literal role="sexp">(BDB:DBE-SET-OPTIONS dbe
-   &key-amp; ERRFILE PASSWORD ENCRYPT LOCK_TIMEOUT TXN_TIMEOUT SHM_KEY
+   &key-amp; ERRFILE ERRPFX PASSWORD ENCRYPT LOCK_TIMEOUT TXN_TIMEOUT SHM_KEY
    TAS_SPINS TX_TIMESTAMP TX_MAX DATA_DIR TMP_DIR LG_BSIZE LG_DIR LG_MAX
    LG_REGIONMAX LK_CONFLICTS LK_DETECT LK_MAX_LOCKERS LK_MAX_LOCKS
    LK_MAX_OBJECTS AUTO_COMMIT CDB_ALLDB DIRECT_DB DIRECT_LOG NOLOCKING
@@ -94,6 +94,7 @@
     <member>&DBE_set_timeout;</member>
     <member>&DBE_set_encrypt;</member>
     <member>&DBE_set_errfile;</member>
+    <member>&DBE_set_errpfx;</member>
     <member>&DBE_set_lg_bsize;</member>
     <member>&DBE_set_lg_dir;</member>
     <member>&DBE_set_lg_max;</member>
@@ -191,6 +192,9 @@
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:ERRFILE</constant></term>
      <listitem><simpara>&file-des; or &nil; (&DBE_get_errfile;).
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:ERRPFX</constant></term>
+     <listitem><simpara>&string-t; or &nil; (&DBE_get_errpfx;).
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:DB_XIDDATASIZE</constant></term>
      <listitem><simpara>the &length; of the globally unique
@@ -313,7 +317,6 @@
  DB->set_alloc	Set local space allocation functions
  DB->set_dup_compare	Set a duplicate comparison function
  DB->set_errcall	Set error message callback
- DB->set_errfile	Set error message FILE
  DB->set_errpfx	Set error message prefix
  DB->set_feedback	Set feedback callback
  DB->set_paniccall	Set panic callback
@@ -324,13 +327,14 @@
  -->
 <variablelist>
 <varlistentry><term><literal role="sexp">(BDB:DB-SET-OPTIONS db
-   &key-amp; ERRFILE PASSWORD ENCRYPTION NCACHE CACHESIZE CACHE
+   &key-amp; ERRFILE ERRPFX PASSWORD ENCRYPTION NCACHE CACHESIZE CACHE
    LORDER PAGESIZE BT_MINKEY H_FFACTOR H_NELEM Q_EXTENTSIZE
    RE_DELIM RE_LEN RE_PAD RE_SOURCE
    CHKSUM ENCRYPT TXN_NOT_DURABLE DUP DUPSORT RECNUM REVSPLITOFF
    RENUMBER SNAPSHOT)</literal></term>
  <listitem><para>Set some database options using <simplelist columns="4">
-    <member>&DB_set_errfile;</member>
+    <member>&DBE_set_errfile;</member>
+    <member>&DBE_set_errpfx;</member>
     <member>&DB_set_encrypt;</member>
     <member>&DB_set_cachesize;</member>
     <member>&DB_set_lorder;</member>
@@ -374,7 +378,10 @@
      <listitem><simpara>encryption flags (&DBE_get_encrypt_flags;).
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:ERRFILE</constant></term>
-     <listitem><simpara>&file-des; or &nil; (&DB_get_errfile;).
+     <listitem><simpara>&file-des; or &nil; (&DBE_get_errfile;).
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:ERRPFX</constant></term>
+     <listitem><simpara>&string-t; or &nil; (&DBE_get_errpfx;).
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:PAGESIZE</constant></term>
      <listitem><simpara>database page size (&DB_get_pagesize;).
