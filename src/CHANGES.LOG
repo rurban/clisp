@@ -10,11 +10,11 @@ Important notes
 User visible changes
 --------------------
 
-* "LISP" is now a nickname of the ANSI-CL package COMMON-LISP.
-  "USER" is now a nickname of the ANSI-CL package COMMON-LISP-USER.
+* "LISP" is now a nickname of the ANSI CL package COMMON-LISP.
+  "USER" is now a nickname of the ANSI CL package COMMON-LISP-USER.
   Support for CLtL1 has thus been removed.
 
-
+* ANSI CL compliance: UPGRADED-COMPLEX-PART-TYPE implemented
 
 2.25.1 (2001-04-06)
 ===================

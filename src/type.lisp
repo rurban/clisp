@@ -1130,6 +1130,12 @@
       ))
 ) ) )
 
+;; this function does not return anything useful,
+;; since CLISP complex numbers can always hold any number
+(defun upgraded-complex-part-type (spec)
+  (declare (ignore spec))
+  t)
+
 #-UNICODE
 (defun charset-subtypep (encoding1 encoding2)
   (declare (ignore encoding1 encoding2))
