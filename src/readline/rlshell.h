@@ -25,10 +25,10 @@
 
 #include "rlstdc.h"
 
-extern char *single_quote _PROTO((char *string));
-extern void set_lines_and_columns _PROTO((int lines, int cols));
-extern char *get_env_value _PROTO((char *varname));
-extern char *get_home_dir _PROTO((void));
-extern int unset_nodelay_mode _PROTO((int fd));
+extern char *sh_single_quote PARAMS((char *));
+extern void sh_set_lines_and_columns PARAMS((int, int));
+extern char *sh_get_env_value PARAMS((const char *));
+extern char *sh_get_home_dir PARAMS((void));
+extern int sh_unset_nodelay_mode PARAMS((int));
 
 #endif /* _RL_SHELL_H_ */

@@ -1,4 +1,4 @@
-/* config.h.in.  Generated automatically from configure.in by autoheader.  */
+/* config.h.in.  Maintained by hand. */
 
 /* Define if on MINIX.  */
 #undef _MINIX
@@ -6,10 +6,23 @@
 /* Define as the return type of signal handlers (int or void).  */
 #undef RETSIGTYPE
 
+/* Characteristics of the compiler. */
+#undef const
+
+#undef size_t
+
+#undef ssize_t
+
 /* Define if the `S_IS*' macros in <sys/stat.h> do not work properly.  */
 #undef STAT_MACROS_BROKEN
 
 #undef VOID_SIGHANDLER
+
+/* Define if you have the isascii function. */
+#undef HAVE_ISASCII
+
+/* Define if you have the isxdigit function. */
+#undef HAVE_ISXDIGIT
 
 /* Define if you have the lstat function. */
 #undef HAVE_LSTAT
@@ -26,14 +39,20 @@
 /* Define if you have the setenv function.  */
 #undef HAVE_SETENV
 
-/* Define if you have the strcasecmp function.  */
-#undef HAVE_STRCASECMP
-
 /* Define if you have the setlocale function. */
 #undef HAVE_SETLOCALE
 
+/* Define if you have the strcasecmp function.  */
+#undef HAVE_STRCASECMP
+
+/* Define if you have the strpbrk function.  */
+#undef HAVE_STRPBRK
+
 /* Define if you have the tcgetattr function.  */
 #undef HAVE_TCGETATTR
+
+/* Define if you have the vsnprintf function.  */
+#undef HAVE_VSNPRINTF
 
 /* Define if you have the strcoll function.  */
 #undef HAVE_STRCOLL
@@ -51,6 +70,9 @@
 
 /* Define if you have the <string.h> header file.  */
 #undef HAVE_STRING_H
+
+/* Define if you have the <strings.h> header file.  */
+#undef HAVE_STRINGS_H
 
 /* Define if you have the <sys/dir.h> header file.  */
 #undef HAVE_SYS_DIR_H
@@ -93,6 +115,10 @@
 
 #undef HAVE_LOCALE_H
 
+#undef HAVE_LIMITS_H
+
+#undef HAVE_MEMORY_H
+
 /* Definitions pulled in from aclocal.m4. */
 #undef VOID_SIGHANDLER
 
@@ -124,7 +150,6 @@
 
 #undef HAVE_POSIX_SIGSETJMP
 
-/* config.h.bot */
 /* modify settings or make new ones based on what autoconf tells us. */
 
 /* Ultrix botches type-ahead when switching from canonical to

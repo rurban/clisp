@@ -51,6 +51,8 @@
    string. */
 char *history_search_delimiter_chars = (char *)NULL;
 
+static int history_search_internal PARAMS((const char *, int, int));
+
 /* Search the history for STRING, starting at history_offset.
    If DIRECTION < 0, then the search is through previous entries, else
    through subsequent.  If ANCHORED is non-zero, the string must
@@ -63,7 +65,7 @@ char *history_search_delimiter_chars = (char *)NULL;
 
 static int
 history_search_internal (string, direction, anchored)
-     char *string;
+     const char *string;
      int direction, anchored;
 {
   register int i, reverse;
@@ -159,7 +161,7 @@ history_search_internal (string, direction, anchored)
 /* Do a non-anchored search for STRING through the history in DIRECTION. */
 int
 history_search (string, direction)
-     char *string;
+     const char *string;
      int direction;
 {
   return (history_search_internal (string, direction, NON_ANCHORED_SEARCH));
@@ -168,7 +170,7 @@ history_search (string, direction)
 /* Do an anchored search for string through the history in DIRECTION. */
 int
 history_search_prefix (string, direction)
-     char *string;
+     const char *string;
      int direction;
 {
   return (history_search_internal (string, direction, ANCHORED_SEARCH));
@@ -179,7 +181,7 @@ history_search_prefix (string, direction)
    which point to begin searching. */
 int
 history_search_pos (string, dir, pos)
-     char *string;
+     const char *string;
      int dir, pos;
 {
   int ret, old;

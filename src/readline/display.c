@@ -58,11 +58,15 @@
 extern char *strchr (), *strrchr ();
 #endif /* !strchr && !__STDC__ */
 
-static void update_line _PROTO((char *old, char *new, int current_line, int omax, int nmax, int inv_botlin));
-static void space_to_eol _PROTO((int count));
-static void insert_some_chars _PROTO((char *string, int count, int count_raw));
-static void delete_chars _PROTO((int count));
-static void cr _PROTO((void));
+#if defined (HACK_TERMCAP_MOTION)
+extern char *_rl_term_forward_char;
+#endif
+
+static void update_line PARAMS((char *, char *, int, int, int, int));
+static void space_to_eol PARAMS((int));
+static void delete_chars PARAMS((int));
+static void insert_some_chars PARAMS((char *, int, int));
+static void cr PARAMS((void));
 
 static int *inv_lbreaks, *vis_lbreaks;
 static int inv_lbsize, vis_lbsize;
@@ -99,7 +103,7 @@ static int inv_lbsize, vis_lbsize;
    RL_DISPLAY_FIXED variable.  This is good for efficiency. */
 
 /* Application-specific redisplay function. */
-VFunction *rl_redisplay_function = rl_redisplay;
+rl_voidfunc_t *rl_redisplay_function = rl_redisplay;
 
 /* Global variables declared here. */
 /* What YOU turn on when you have handled all redisplay yourself. */
@@ -138,18 +142,22 @@ static int forced_display;
 /* Default and initial buffer size.  Can grow. */
 static int line_size = 1024;
 
+/* Variables to keep track of the expanded prompt string, which may
+   include invisible characters. */
+
 static char *local_prompt, *local_prompt_prefix;
-static int visible_length, prefix_length;
+static int prompt_visible_length, prompt_prefix_length;
 
 /* The number of invisible characters in the line currently being
    displayed on the screen. */
 static int visible_wrap_offset;
 
-/* static so it can be shared between rl_redisplay and update_line */
+/* The number of invisible characters in the prompt string.  Static so it
+   can be shared between rl_redisplay and update_line */
 static int wrap_offset;
 
-/* The index of the last invisible_character in the prompt string. */
-static int last_invisible;
+/* The index of the last invisible character in the prompt string. */
+static int prompt_last_invisible;
 
 /* The length (buffer offset) of the first line of the last (possibly
    multi-line) buffer displayed on the screen. */
@@ -189,25 +197,35 @@ rl_count_raw_chars (string, count)
     return count;
 }
 
+
+/* Number of invisible characters on the first physical line of the prompt.
+   Only valid when the number of physical characters in the prompt exceeds
+   (or is equal to) _rl_screenwidth. */
+static int prompt_invis_chars_first_line;
+
+static int prompt_last_screen_line;
+
 /* Expand the prompt string S and return the number of visible
    characters in *LP, if LP is not null.  This is currently more-or-less
    a placeholder for expansion.  LIP, if non-null is a place to store the
-   index of the last invisible character in the returned string. */
+   index of the last invisible character in the returned string. NIFLP,
+   if non-zero, is a place to store the number of invisible characters in
+   the first prompt line. */
 
 /* Current implementation:
 	\001 (^A) start non-visible characters
 	\002 (^B) end non-visible characters
    all characters except \001 and \002 (following a \001) are copied to
    the returned string; all characters except those between \001 and
-   \002 are assumed to be `visible'. */	
+   \002 are assumed to be `visible'. */
 
 static char *
-expand_prompt (pmt, lp, lip)
+expand_prompt (pmt, lp, lip, niflp)
      char *pmt;
-     int *lp, *lip;
+     int *lp, *lip, *niflp;
 {
   char *r, *ret, *p;
-  int l, rl, last, ignoring;
+  int l, rl, last, ignoring, ninvis, invfl;
 
   /* Short-circuit if we can. */
   if (strchr (pmt, RL_PROMPT_START_IGNORE) == 0)
@@ -219,9 +237,11 @@ expand_prompt (pmt, lp, lip)
     }
 
   l = strlen (pmt);
-  r = ret = xmalloc (l + 1);
-  
-  for (rl = ignoring = last = 0, p = pmt; p && *p; p++)
+  r = ret = (char *)xmalloc (l + 1);
+
+  invfl = 0;	/* invisible chars in first line of prompt */
+
+  for (rl = ignoring = last = ninvis = 0, p = pmt; p && *p; p++)
     {
       /* This code strips the invisible character string markers
 	 RL_PROMPT_START_IGNORE and RL_PROMPT_END_IGNORE */
@@ -241,14 +261,23 @@ expand_prompt (pmt, lp, lip)
 	  *r++ = *p;
 	  if (!ignoring)
 	    rl += ADVANCES_CURSOR (*p);
+	  else
+	    ninvis++;
+	  if (rl == _rl_screenwidth)
+	    invfl = ninvis;
 	}
     }
+
+  if (rl < _rl_screenwidth)
+    invfl = ninvis;
 
   *r = '\0';
   if (lp)
     *lp = rl;
   if (lip)
     *lip = last;
+  if (niflp)
+    *niflp = invfl;
   return ret;
 }
 
@@ -260,7 +289,7 @@ _rl_strip_prompt (pmt)
 {
   char *ret;
 
-  ret = expand_prompt (pmt, (int *)NULL, (int *)NULL);
+  ret = expand_prompt (pmt, (int *)NULL, (int *)NULL, (int *)NULL);
   return ret;
 }
 
@@ -272,8 +301,8 @@ _rl_strip_prompt (pmt)
  *		  (portion after the final newline)
  * local_prompt_prefix = portion before last newline of rl_display_prompt,
  *			 expanded via expand_prompt
- * visible_length = number of visible characters in local_prompt
- * prefix_length = number of visible characters in local_prompt_prefix
+ * prompt_visible_length = number of visible characters in local_prompt
+ * prompt_prefix_length = number of visible characters in local_prompt_prefix
  *
  * This function is called once per call to readline().  It may also be
  * called arbitrarily to expand the primary prompt.
@@ -289,12 +318,11 @@ rl_expand_prompt (prompt)
   int c;
 
   /* Clear out any saved values. */
-  if (local_prompt)
-    free (local_prompt);
-  if (local_prompt_prefix)
-    free (local_prompt_prefix);
+  FREE (local_prompt);
+  FREE (local_prompt_prefix);
+
   local_prompt = local_prompt_prefix = (char *)0;
-  last_invisible = visible_length = 0;
+  prompt_last_invisible = prompt_visible_length = 0;
 
   if (prompt == 0 || *prompt == 0)
     return (0);
@@ -302,22 +330,28 @@ rl_expand_prompt (prompt)
   p = strrchr (prompt, '\n');
   if (!p)
     {
-      /* The prompt is only one line. */
-      local_prompt = expand_prompt (prompt, &visible_length, &last_invisible);
+      /* The prompt is only one logical line, though it might wrap. */
+      local_prompt = expand_prompt (prompt, &prompt_visible_length,
+					    &prompt_last_invisible,
+					    &prompt_invis_chars_first_line);
       local_prompt_prefix = (char *)0;
-      return (visible_length);
+      return (prompt_visible_length);
     }
   else
     {
       /* The prompt spans multiple lines. */
       t = ++p;
-      local_prompt = expand_prompt (p, &visible_length, &last_invisible);
+      local_prompt = expand_prompt (p, &prompt_visible_length,
+				       &prompt_last_invisible,
+				       &prompt_invis_chars_first_line);
       c = *t; *t = '\0';
       /* The portion of the prompt string up to and including the
 	 final newline is now null-terminated. */
-      local_prompt_prefix = expand_prompt (prompt, &prefix_length, (int *)NULL);
+      local_prompt_prefix = expand_prompt (prompt, &prompt_prefix_length,
+						   (int *)NULL,
+						   &prompt_invis_chars_first_line);
       *t = c;
-      return (prefix_length);
+      return (prompt_prefix_length);
     }
 }
 
@@ -336,16 +370,16 @@ init_line_structures (minsize)
     {
       if (line_size < minsize)
 	line_size = minsize;
-      visible_line = xmalloc (line_size);
-      invisible_line = xmalloc (line_size);
+      visible_line = (char *)xmalloc (line_size);
+      invisible_line = (char *)xmalloc (line_size);
     }
   else if (line_size < minsize)	/* ensure it can hold MINSIZE chars */
     {
       line_size *= 2;
       if (line_size < minsize)
 	line_size = minsize;
-      visible_line = xrealloc (visible_line, line_size);
-      invisible_line = xrealloc (invisible_line, line_size);
+      visible_line = (char *)xrealloc (visible_line, line_size);
+      invisible_line = (char *)xrealloc (invisible_line, line_size);
     }
 
   for (n = minsize; n < line_size; n++)
@@ -363,7 +397,7 @@ init_line_structures (minsize)
       inv_lbreaks[0] = vis_lbreaks[0] = 0;
     }
 }
-  
+
 /* Basic redisplay algorithm. */
 void
 rl_redisplay ()
@@ -424,14 +458,14 @@ rl_redisplay ()
 	  if (temp >= line_size)
 	    {
 	      line_size = (temp + 1024) - (temp % 1024);
-	      visible_line = xrealloc (visible_line, line_size);
-	      line = invisible_line = xrealloc (invisible_line, line_size);
+	      visible_line = (char *)xrealloc (visible_line, line_size);
+	      line = invisible_line = (char *)xrealloc (invisible_line, line_size);
 	    }
 	  strncpy (line + out, local_prompt, local_len);
 	  out += local_len;
 	}
       line[out] = '\0';
-      wrap_offset = rl_count_chars (local_prompt, local_len) - visible_length;
+      wrap_offset = local_len - prompt_visible_length;
     }
   else
     {
@@ -458,13 +492,13 @@ rl_redisplay ()
       if (temp >= line_size)
 	{
 	  line_size = (temp + 1024) - (temp % 1024);
-	  visible_line = xrealloc (visible_line, line_size);
-	  line = invisible_line = xrealloc (invisible_line, line_size);
+	  visible_line = (char *)xrealloc (visible_line, line_size);
+	  line = invisible_line = (char *)xrealloc (invisible_line, line_size);
 	}
       strncpy (line + out,  prompt_this_line, pmtlen);
       out += pmtlen;
       line[out] = '\0';
-      wrap_offset = 0;
+      wrap_offset = prompt_invis_chars_first_line = 0;
     }
 
 #define CHECK_INV_LBREAKS() \
@@ -475,11 +509,11 @@ rl_redisplay ()
 	    inv_lbreaks = (int *)xrealloc (inv_lbreaks, inv_lbsize * sizeof (int)); \
 	  } \
       } while (0)
-	  
+
 #define CHECK_LPOS() \
       do { \
 	lpos++; \
-	if (lpos >= screenwidth) \
+	if (lpos >= _rl_screenwidth) \
 	  { \
 	    if (newlines >= (inv_lbsize - 2)) \
 	      { \
@@ -495,21 +529,36 @@ rl_redisplay ()
   inv_lbreaks[newlines = 0] = 0;
   lpos = rl_count_chars (line, out) - wrap_offset;
 
-  /* XXX - what if lpos is already >= screenwidth before we start drawing the
+  /* prompt_invis_chars_first_line is the number of invisible characters in
+     the first physical line of the prompt.
+     wrap_offset - prompt_invis_chars_first_line is the number of invis
+     chars on the second line. */
+
+  /* what if lpos is already >= _rl_screenwidth before we start drawing the
      contents of the command line? */
-  while (lpos >= screenwidth)
+  while (lpos >= _rl_screenwidth)
     {
-      /* XXX - possible fix from Darin Johnson <darin@acuson.com> for prompt
-	 string with invisible characters that is longer than the screen
-	 width.  XXX - this doesn't work right if invisible characters have
-	 to be put on the second screen line -- it adds too much (the number
-	 of invisible chars after the screenwidth). */
-      temp = ((newlines + 1) * screenwidth) + ((newlines == 0) ? wrap_offset : 0);
+      /* fix from Darin Johnson <darin@acuson.com> for prompt string with
+         invisible characters that is longer than the screen width.  The
+         prompt_invis_chars_first_line variable could be made into an array
+         saying how many invisible characters there are per line, but that's
+         probably too much work for the benefit gained.  How many people have
+         prompts that exceed two physical lines? */
+      temp = ((newlines + 1) * _rl_screenwidth) +
+             ((newlines == 0) ? prompt_invis_chars_first_line : 0) +
+             ((newlines == 1) ? wrap_offset : 0);
 
       inv_lbreaks[++newlines] = rl_count_raw_chars (line, temp);
-      lpos -= screenwidth;
+      lpos -= _rl_screenwidth;
     }
 
+  prompt_last_screen_line = newlines;
+
+  /* Draw the rest of the line (after the prompt) into invisible_line, keeping
+     track of where the cursor is (c_pos), the number of the line containing
+     the cursor (lb_linenum), the last line number (lb_botlin and inv_botlin).
+     It maintains an array of line breaks for display (inv_lbreaks).
+     This handles expanding tabs for display and displaying meta characters. */
   lb_linenum = 0;
   for (in = 0; in < rl_end; in++)
     {
@@ -518,8 +567,8 @@ rl_redisplay ()
       if (out + 8 >= line_size)		/* XXX - 8 for \t */
 	{
 	  line_size *= 2;
-	  visible_line = xrealloc (visible_line, line_size);
-	  invisible_line = xrealloc (invisible_line, line_size);
+	  visible_line = (char *)xrealloc (visible_line, line_size);
+	  invisible_line = (char *)xrealloc (invisible_line, line_size);
 	  line = invisible_line;
 	}
 
@@ -535,9 +584,9 @@ rl_redisplay ()
 	    {
 	      sprintf (line + out, "\\%o", c);
 
-	      if (lpos + 4 >= screenwidth)
+	      if (lpos + 4 >= _rl_screenwidth)
 		{
-		  temp = screenwidth - lpos;
+		  temp = _rl_screenwidth - lpos;
 		  CHECK_INV_LBREAKS ();
 		  inv_lbreaks[++newlines] = out + temp;
 		  lpos = 4 - temp;
@@ -586,15 +635,15 @@ rl_redisplay ()
 		}
 	      else
 		{
-		  line[out++] = c;
-		  CHECK_LPOS();
-		}
-	    }
+                  line[out++] = c;
+                  CHECK_LPOS();
+                }
+            }
 	}
 #if defined (DISPLAY_TABS)
       else if (c == '\t')
 	{
-	  register int temp, newout;
+	  register int newout;
 
 #if 0
 	  newout = (out | (int)7) + 1;
@@ -602,10 +651,10 @@ rl_redisplay ()
 	  newout = out + 8 - lpos % 8;
 #endif
 	  temp = newout - out;
-	  if (lpos + temp >= screenwidth)
+	  if (lpos + temp >= _rl_screenwidth)
 	    {
 	      register int temp2;
-	      temp2 = screenwidth - lpos;
+	      temp2 = _rl_screenwidth - lpos;
 	      CHECK_INV_LBREAKS ();
 	      inv_lbreaks[++newlines] = out + temp2;
 	      lpos = temp - temp2;
@@ -620,7 +669,7 @@ rl_redisplay ()
 	    }
 	}
 #endif
-      else if (c == '\n' && _rl_horizontal_scroll_mode == 0 && term_up && *term_up)
+      else if (c == '\n' && _rl_horizontal_scroll_mode == 0 && _rl_term_up && *_rl_term_up)
 	{
 	  line[out++] = '\0';	/* XXX - sentinel */
 	  CHECK_INV_LBREAKS ();
@@ -652,7 +701,8 @@ rl_redisplay ()
   inv_lbreaks[newlines+1] = out;
   cursor_linenum = lb_linenum;
 
-  /* C_POS == position in buffer where cursor should be placed. */
+  /* C_POS == position in buffer where cursor should be placed.
+     CURSOR_LINENUM == line number where the cursor should be placed. */
 
   /* PWP: now is when things get a bit hairy.  The visible and invisible
      line buffers are really multiple lines, which would wrap every
@@ -663,7 +713,7 @@ rl_redisplay ()
      otherwise, let long lines display in a single terminal line, and
      horizontally scroll it. */
 
-  if (_rl_horizontal_scroll_mode == 0 && term_up && *term_up)
+  if (_rl_horizontal_scroll_mode == 0 && _rl_term_up && *_rl_term_up)
     {
       int nleft, pos, changed_screen_line;
 
@@ -674,8 +724,8 @@ rl_redisplay ()
 	  /* If we have more than a screenful of material to display, then
 	     only display a screenful.  We should display the last screen,
 	     not the first.  */
-	  if (rl_count_chars (line, out) >= screenchars)
-	    out = rl_count_raw_chars (line, screenchars - 1);
+	  if (rl_count_chars (line, out) >= _rl_screenchars)
+	    out = rl_count_raw_chars (line, _rl_screenchars - 1);
 
 	  /* The first line is at character position 0 in the buffer.  The
 	     second and subsequent lines start at inv_lbreaks[N], offset by
@@ -701,21 +751,20 @@ rl_redisplay ()
 		 and the new line is shorter than the old.  Make sure we are
 		 at the end of the new line before clearing. */
 	      if (linenum == 0 && inv_botlin == 0 &&
-		  _rl_last_c_pos == rl_count_raw_chars (line, out) &&
+                  _rl_last_c_pos == rl_count_raw_chars (line, out) &&
 		  (wrap_offset > visible_wrap_offset) &&
 		  (_rl_last_c_pos < visible_first_line_len))
 		{
-		  nleft = screenwidth + wrap_offset - _rl_last_c_pos;
+		  nleft = _rl_screenwidth + wrap_offset - _rl_last_c_pos;
 		  if (nleft)
 		    _rl_clear_to_eol (nleft);
 		}
 
 	      /* Since the new first line is now visible, save its length. */
 	      if (linenum == 0)
-		visible_first_line_len = (inv_botlin > 0) ?
-		  rl_count_chars (line, inv_lbreaks[1])
-		:
-		  rl_count_chars (line, out) - wrap_offset;
+		visible_first_line_len = (inv_botlin > 0)
+                  ? rl_count_chars (line, inv_lbreaks[1])
+                  : rl_count_chars (line, out) - wrap_offset;
 	    }
 
 	  /* We may have deleted some lines.  If so, clear the left over
@@ -728,11 +777,9 @@ rl_redisplay ()
 		  tt = VIS_CHARS (linenum);
 		  _rl_move_vert (linenum);
 		  _rl_move_cursor_relative (0, tt);
-		  _rl_clear_to_eol
-		    ((linenum == _rl_vis_botlin) ?
-		      rl_count_chars (tt, strlen (tt))
-		    :
-		      screenwidth);
+		  _rl_clear_to_eol((linenum == _rl_vis_botlin)
+                                   ? rl_count_chars (tt, strlen (tt))
+                                   : _rl_screenwidth);
 		}
 	    }
 	  _rl_vis_botlin = inv_botlin;
@@ -743,7 +790,7 @@ rl_redisplay ()
 	  if (changed_screen_line)
 	    {
 	      _rl_move_vert (cursor_linenum);
-	      /* If we moved up to the line with the prompt using term_up,
+	      /* If we moved up to the line with the prompt using _rl_term_up,
 		 the physical cursor position on the screen stays the same,
 		 but the buffer position needs to be adjusted to account
 		 for invisible characters. */
@@ -756,19 +803,20 @@ rl_redisplay ()
 	     the characters from the current cursor position.  But we
 	     only need to reprint it if the cursor is before the last
 	     invisible character in the prompt string. */
-	  nleft = visible_length + wrap_offset;
+	  nleft = prompt_visible_length + wrap_offset;
 	  if (cursor_linenum == 0 && wrap_offset > 0 && _rl_last_c_pos > 0 &&
-	      _rl_last_c_pos <= rl_count_chars (local_prompt, last_invisible)
+              _rl_last_c_pos <= rl_count_chars (local_prompt,
+                                                prompt_last_invisible)
 	      && local_prompt)
 	    {
 #if defined (__MSDOS__)
 	      putc ('\r', rl_outstream);
 #else
-	      if (term_cr)
-		tputs (term_cr, 1, _rl_output_character_function);
+	      if (_rl_term_cr)
+		tputs (_rl_term_cr, 1, _rl_output_character_function);
 #endif
 	      _rl_output_some_chars (local_prompt,
-				     rl_count_raw_chars (local_prompt, nleft));
+                                     rl_count_raw_chars (local_prompt, nleft));
 	      _rl_last_c_pos = nleft;
 	    }
 
@@ -779,8 +827,8 @@ rl_redisplay ()
 	     start of the line and the cursor position. */
 	  nleft = rl_count_chars (&invisible_line[pos], c_pos - pos);
 
-	  /* Since _rl_backspace() doesn't know about invisible characters in
-	     the prompt, and there's no good way to tell it, we compensate for
+	  /* Since _rl_backspace() doesn't know about invisible characters in the
+	     prompt, and there's no good way to tell it, we compensate for
 	     those characters here and call _rl_backspace() directly. */
 	  if (wrap_offset && cursor_linenum == 0 && nleft < _rl_last_c_pos)
 	    {
@@ -806,11 +854,11 @@ rl_redisplay ()
 
       /* The number of characters that will be displayed before the cursor. */
       ndisp = c_pos_char - wrap_offset;
-      nleft  = visible_length + wrap_offset;
+      nleft  = prompt_visible_length + wrap_offset;
       /* Where the new cursor position will be on the screen.  This can be
 	 longer than SCREENWIDTH; if it is, lmargin will be adjusted. */
       phys_c_pos = c_pos_char - (last_lmargin ? last_lmargin : wrap_offset);
-      t = screenwidth / 3;
+      t = _rl_screenwidth / 3;
 
       /* If the number of characters had already exceeded the screenwidth,
 	 last_lmargin will be > 0. */
@@ -818,7 +866,7 @@ rl_redisplay ()
       /* If the number of characters to be displayed is more than the screen
 	 width, compute the starting offset so that the cursor is about
 	 two-thirds of the way across the screen. */
-      if (phys_c_pos > screenwidth - 2)
+      if (phys_c_pos > _rl_screenwidth - 2)
 	{
 	  lmargin = c_pos_char - (2 * t);
 	  if (lmargin < 0)
@@ -828,7 +876,7 @@ rl_redisplay ()
 	  if (wrap_offset && lmargin > 0 && lmargin < nleft)
 	    lmargin = nleft;
 	}
-      else if (ndisp < screenwidth - 2)		/* XXX - was -1 */
+      else if (ndisp < _rl_screenwidth - 2)		/* XXX - was -1 */
 	lmargin = 0;
       else if (phys_c_pos < 1)
 	{
@@ -858,14 +906,14 @@ rl_redisplay ()
 	      line[lmargin_raw] = '<';
 	    }
 	  else
-	    line[lmargin] = '<';
-	}
+            line[lmargin] = '<';
+        }
 
       /* If SCREENWIDTH characters starting at LMARGIN do not encompass
 	 the whole line, indicate that with a special character at the
 	 right edge of the screen.  If LMARGIN is 0, we need to take the
 	 wrap offset into account. */
-      t = lmargin + M_OFFSET (lmargin, wrap_offset) + screenwidth;
+      t = lmargin + M_OFFSET (lmargin, wrap_offset) + _rl_screenwidth;
       if (t < out)
 	line[rl_count_raw_chars (line, t - 1)] = '>';
 
@@ -881,18 +929,18 @@ rl_redisplay ()
 	      update_line (visible,
 			   invisible,
 			   0,
-			   rl_count_raw_chars (visible, screenwidth),
-			   rl_count_raw_chars (invisible,
-			     screenwidth + M_OFFSET (lmargin, wrap_offset)),
+			   rl_count_raw_chars (visible, _rl_screenwidth),
+			   rl_count_raw_chars (invisible,_rl_screenwidth +
+                                               M_OFFSET (lmargin,wrap_offset)),
 			   0);
 	    }
 	  else
-	    update_line (&visible_line[last_lmargin],
-			 &invisible_line[lmargin],
-			 0,
-			 screenwidth,
-			 screenwidth + M_OFFSET (lmargin, wrap_offset),
-			 0);
+            update_line (&visible_line[last_lmargin],
+                         &invisible_line[lmargin],
+                         0,
+                         _rl_screenwidth,
+                         _rl_screenwidth + M_OFFSET(lmargin, wrap_offset),
+                         0);
 
 	  /* If the visible new line is shorter than the old, but the number
 	     of invisible characters is greater, and we are at the end of
@@ -902,12 +950,12 @@ rl_redisplay ()
 	      (_rl_last_c_pos == rl_count_chars (line, out)) &&
 	      t < visible_first_line_len)
 	    {
-	      nleft = screenwidth - t;
+	      nleft = _rl_screenwidth - t;
 	      _rl_clear_to_eol (nleft);
 	    }
 	  visible_first_line_len = rl_count_chars (line, out) - lmargin - M_OFFSET (lmargin, wrap_offset);
-	  if (visible_first_line_len > screenwidth)
-	    visible_first_line_len = screenwidth;
+	  if (visible_first_line_len > _rl_screenwidth)
+	    visible_first_line_len = _rl_screenwidth;
 
 	  _rl_move_cursor_relative (c_pos_char - lmargin, &invisible_line[rl_count_raw_chars (invisible_line, lmargin)]);
 	  last_lmargin = lmargin;
@@ -917,11 +965,11 @@ rl_redisplay ()
 
   /* Swap visible and non-visible lines. */
   {
-    char *temp = visible_line;
+    char *vtemp = visible_line;
     int *itemp = vis_lbreaks, ntemp = vis_lbsize;
 
     visible_line = invisible_line;
-    invisible_line = temp;
+    invisible_line = vtemp;
 
     vis_lbreaks = inv_lbreaks;
     inv_lbreaks = itemp;
@@ -973,7 +1021,7 @@ update_line (old, new, current_line, omax, nmax, inv_botlin)
      emulators.  In this calculation, TEMP is the physical screen
      position of the cursor. */
   temp = _rl_last_c_pos - W_OFFSET(_rl_last_v_pos, visible_wrap_offset);
-  if (temp == screenwidth && _rl_term_autowrap && !_rl_horizontal_scroll_mode
+  if (temp == _rl_screenwidth && _rl_term_autowrap && !_rl_horizontal_scroll_mode
       && _rl_last_v_pos == current_line - 1)
     {
       if (new[0])
@@ -981,8 +1029,8 @@ update_line (old, new, current_line, omax, nmax, inv_botlin)
 	  if (rl_utf8_mode)
 	    fwrite (new, 1, rl_count_raw_chars (new, 1), rl_outstream);
 	  else
-	    putc (new[0], rl_outstream);
-	}
+            putc (new[0], rl_outstream);
+        }
       else
 	putc (' ', rl_outstream);
       _rl_last_c_pos = 1;		/* XXX */
@@ -993,7 +1041,7 @@ update_line (old, new, current_line, omax, nmax, inv_botlin)
 	  nfd += rl_count_raw_chars (nfd, 1);
 	}
     }
-      
+
   /* Find first difference. */
   while (ofd - old < omax && *ofd && *ofd == *nfd)
     ofd++, nfd++;
@@ -1063,14 +1111,16 @@ update_line (old, new, current_line, omax, nmax, inv_botlin)
 
   lendiff = local_prompt ? strlen (local_prompt) : 0;
   od = ofd - old;	/* index of first difference in visible line */
-  if (current_line == 0 && !_rl_horizontal_scroll_mode &&
-      term_cr && rl_count_chars (local_prompt, lendiff) > visible_length && _rl_last_c_pos > 0 &&
-      rl_count_chars (old, od) > rl_count_chars (local_prompt, lendiff) && _rl_last_c_pos < rl_count_chars (local_prompt, last_invisible))
+  if (current_line == 0 && !_rl_horizontal_scroll_mode && _rl_term_cr &&
+      rl_count_chars (local_prompt, lendiff) > prompt_visible_length &&
+      _rl_last_c_pos > 0 &&
+      rl_count_chars (old, od) > rl_count_chars (local_prompt, lendiff) &&
+      _rl_last_c_pos <= rl_count_chars (local_prompt, prompt_last_invisible))
     {
 #if defined (__MSDOS__)
       putc ('\r', rl_outstream);
 #else
-      tputs (term_cr, 1, _rl_output_character_function);
+      tputs (_rl_term_cr, 1, _rl_output_character_function);
 #endif
       _rl_output_some_chars (local_prompt, lendiff);
       _rl_last_c_pos = rl_count_chars (local_prompt, lendiff);
@@ -1099,14 +1149,16 @@ update_line (old, new, current_line, omax, nmax, inv_botlin)
 	 use the terminal's capabilities.  If we're growing the number
 	 of lines, make sure we actually cause the new line to wrap
 	 around on auto-wrapping terminals. */
-      if (terminal_can_insert && ((2 * temp) >= lendiff_raw || term_IC) && (!_rl_term_autowrap || !gl))
+      if (_rl_terminal_can_insert &&
+          ((2 * temp) >= lendiff_raw || _rl_term_IC) &&
+          (!_rl_term_autowrap || !gl))
 	{
-	  /* If lendiff > visible_length and _rl_last_c_pos == 0 and
+	  /* If lendiff > prompt_visible_length and _rl_last_c_pos == 0 and
 	     _rl_horizontal_scroll_mode == 1, inserting the characters with
-	     term_IC or term_ic will screw up the screen because of the
+	     _rl_term_IC or _rl_term_ic will screw up the screen because of the
 	     invisible characters.  We need to just draw them. */
 	  if (*ols && (!_rl_horizontal_scroll_mode || _rl_last_c_pos > 0 ||
-			lendiff <= visible_length || !current_invis_chars))
+			lendiff <= prompt_visible_length || !current_invis_chars))
 	    {
 	      insert_some_chars (nfd, lendiff, lendiff_raw);
 	      _rl_last_c_pos += lendiff;
@@ -1133,7 +1185,7 @@ update_line (old, new, current_line, omax, nmax, inv_botlin)
 	  temp = nls - nfd;
 	  if ((temp - lendiff_raw) > 0)
 	    {
-	      _rl_output_some_chars (nfd + lendiff_raw, temp - lendiff_raw);
+              _rl_output_some_chars (nfd + lendiff_raw, temp - lendiff_raw);
 	      _rl_last_c_pos += rl_count_chars (nfd + lendiff_raw, temp - lendiff_raw);
 	    }
 	}
@@ -1141,13 +1193,13 @@ update_line (old, new, current_line, omax, nmax, inv_botlin)
 	{
 	  /* cannot insert chars, write to EOL */
 	  _rl_output_some_chars (nfd, temp);
-	  _rl_last_c_pos += rl_count_chars (nfd, temp);
+	  _rl_last_c_pos +=  rl_count_chars (nfd, temp);
 	}
     }
   else				/* Delete characters from line. */
     {
       /* If possible and inexpensive to use terminal deletion, then do so. */
-      if (term_dc && (2 * temp) >= -lendiff)
+      if (_rl_term_dc && (2 * temp) >= -lendiff)
 	{
 	  /* If all we're doing is erasing the invisible characters in the
 	     prompt string, don't bother.  It screws up the assumptions
@@ -1176,7 +1228,7 @@ update_line (old, new, current_line, omax, nmax, inv_botlin)
 	      _rl_last_c_pos += rl_count_chars (nfd, temp);
 	    }
 	  if (lendiff)
-	    {	  
+	    {
 	      if (_rl_term_autowrap && current_line < inv_botlin)
 		space_to_eol (-lendiff);
 	      else
@@ -1231,7 +1283,7 @@ rl_on_new_line_with_prompt ()
   /* Dissect prompt_last_line into screen lines. Note that here we have
      to use the real screenwidth. Readline's notion of screenwidth might be
      one less, see terminal.c. */
-  real_screenwidth = screenwidth + (_rl_term_autowrap ? 0 : 1);
+  real_screenwidth = _rl_screenwidth + (_rl_term_autowrap ? 0 : 1);
   _rl_last_v_pos = l / real_screenwidth;
   /* If the prompt length is a multiple of real_screenwidth, we don't know
      whether the cursor is at the end of the last line, or already at the
@@ -1276,7 +1328,7 @@ rl_forced_update_display ()
 void
 _rl_move_cursor_relative (new, data)
      int new;
-     char *data;
+     const char *data;
 {
   register int i;
 
@@ -1288,12 +1340,12 @@ _rl_move_cursor_relative (new, data)
   /* i == current physical cursor position. */
   i = _rl_last_c_pos - W_OFFSET(_rl_last_v_pos, visible_wrap_offset);
   if (new == 0 || CR_FASTER (new, _rl_last_c_pos) ||
-      (_rl_term_autowrap && i == screenwidth))
+      (_rl_term_autowrap && i == _rl_screenwidth))
     {
 #if defined (__MSDOS__)
       putc ('\r', rl_outstream);
 #else
-      tputs (term_cr, 1, _rl_output_character_function);
+      tputs (_rl_term_cr, 1, _rl_output_character_function);
 #endif /* !__MSDOS__ */
       _rl_last_c_pos = 0;
     }
@@ -1310,9 +1362,9 @@ _rl_move_cursor_relative (new, data)
 	 That kind of control is for people who don't know what the
 	 data is underneath the cursor. */
 #if defined (HACK_TERMCAP_MOTION)
-      if (term_forward_char)
+      if (_rl_term_forward_char)
 	for (i = _rl_last_c_pos; i < new; i++)
-	  tputs (term_forward_char, 1, _rl_output_character_function);
+	  tputs (_rl_term_forward_char, 1, _rl_output_character_function);
       else
 #endif /* HACK_TERMCAP_MOTION */
 	{
@@ -1333,7 +1385,7 @@ _rl_move_vert (to)
 {
   register int delta, i;
 
-  if (_rl_last_v_pos == to || to > screenheight)
+  if (_rl_last_v_pos == to || to > _rl_screenheight)
     return;
 
   if ((delta = to - _rl_last_v_pos) > 0)
@@ -1343,15 +1395,15 @@ _rl_move_vert (to)
 #if defined (__MSDOS__)
       putc ('\r', rl_outstream);
 #else
-      tputs (term_cr, 1, _rl_output_character_function);
+      tputs (_rl_term_cr, 1, _rl_output_character_function);
 #endif
       _rl_last_c_pos = 0;
     }
   else
     {			/* delta < 0 */
-      if (term_up && *term_up)
+      if (_rl_term_up && *_rl_term_up)
 	for (i = 0; i < -delta; i++)
-	  tputs (term_up, 1, _rl_output_character_function);
+	  tputs (_rl_term_up, 1, _rl_output_character_function);
     }
 
   _rl_last_v_pos = to;		/* Now TO is here */
@@ -1398,15 +1450,19 @@ rl_character_len (c, pos)
   if (META_CHAR (uc))
     return ((_rl_output_meta_chars == 0) ? 4 : ADVANCES_CURSOR (uc));
 
-#if defined (DISPLAY_TABS)
   if (uc == '\t')
-    return (((pos | 7) + 1) - pos);
-#endif /* DISPLAY_TABS */
+    {
+#if defined (DISPLAY_TABS)
+      return (((pos | 7) + 1) - pos);
+#else
+      return (2);
+#endif /* !DISPLAY_TABS */
+    }
 
   if (CTRL_CHAR (c) || c == RUBOUT)
     return (2);
 
-  return ((isprint (uc)) ? 1 : 2);
+  return ((ISPRINT (uc)) ? 1 : 2);
 }
 
 /* How to print things in the "echo-area".  The prompt is treated as a
@@ -1433,7 +1489,12 @@ rl_message (va_alist)
   format = va_arg (args, char *);
 #endif
 
+#if defined (HAVE_VSNPRINTF)
+  vsnprintf (msg_buf, sizeof (msg_buf) - 1, format, args);
+#else
   vsprintf (msg_buf, format, args);
+  msg_buf[sizeof(msg_buf) - 1] = '\0';	/* overflow? */
+#endif
   va_end (args);
 
   rl_display_prompt = msg_buf;
@@ -1446,6 +1507,7 @@ rl_message (format, arg1, arg2)
      char *format;
 {
   sprintf (msg_buf, format, arg1, arg2);
+  msg_buf[sizeof(msg_buf) - 1] = '\0';	/* overflow? */
   rl_display_prompt = msg_buf;
   (*rl_redisplay_function) ();
   return 0;
@@ -1481,25 +1543,23 @@ rl_save_prompt ()
 {
   saved_local_prompt = local_prompt;
   saved_local_prefix = local_prompt_prefix;
-  saved_last_invisible = last_invisible;
-  saved_visible_length = visible_length;
+  saved_last_invisible = prompt_last_invisible;
+  saved_visible_length = prompt_visible_length;
 
   local_prompt = local_prompt_prefix = (char *)0;
-  last_invisible = visible_length = 0;
+  prompt_last_invisible = prompt_visible_length = 0;
 }
 
 void
 rl_restore_prompt ()
 {
-  if (local_prompt)
-    free (local_prompt);
-  if (local_prompt_prefix)
-    free (local_prompt_prefix);
+  FREE (local_prompt);
+  FREE (local_prompt_prefix);
 
   local_prompt = saved_local_prompt;
   local_prompt_prefix = saved_local_prefix;
-  last_invisible = saved_last_invisible;
-  visible_length = saved_visible_length;
+  prompt_last_invisible = saved_last_invisible;
+  prompt_visible_length = saved_visible_length;
 }
 
 char *
@@ -1514,7 +1574,7 @@ _rl_make_prompt_for_search (pchar)
   if (saved_local_prompt == 0)
     {
       len = (rl_prompt && *rl_prompt) ? strlen (rl_prompt) : 0;
-      pmt = xmalloc (len + 2);
+      pmt = (char *)xmalloc (len + 2);
       if (len)
 	strcpy (pmt, rl_prompt);
       pmt[len] = pchar;
@@ -1523,14 +1583,14 @@ _rl_make_prompt_for_search (pchar)
   else
     {
       len = *saved_local_prompt ? strlen (saved_local_prompt) : 0;
-      pmt = xmalloc (len + 2);
+      pmt = (char *)xmalloc (len + 2);
       if (len)
 	strcpy (pmt, saved_local_prompt);
       pmt[len] = pchar;
       pmt[len+1] = '\0';
       local_prompt = savestring (pmt);
-      last_invisible = saved_last_invisible;
-      visible_length = saved_visible_length + 1;
+      prompt_last_invisible = saved_last_invisible;
+      prompt_visible_length = saved_visible_length + 1;
     }
   return pmt;
 }
@@ -1557,8 +1617,8 @@ void
 _rl_clear_to_eol (count)
      int count;
 {
-  if (term_clreol)
-    tputs (term_clreol, 1, _rl_output_character_function);
+  if (_rl_term_clreol)
+    tputs (_rl_term_clreol, 1, _rl_output_character_function);
   else if (count)
     space_to_eol (count);
 }
@@ -1580,23 +1640,24 @@ space_to_eol (count)
 void
 _rl_clear_screen ()
 {
-  if (term_clrpag)
-    tputs (term_clrpag, 1, _rl_output_character_function);
+  if (_rl_term_clrpag)
+    tputs (_rl_term_clrpag, 1, _rl_output_character_function);
   else
-    crlf ();
+    rl_crlf ();
 }
 
 /* Insert COUNT characters from STRING to the output stream. */
 static void
 insert_some_chars (string, count, count_raw)
      char *string;
-     int count, count_raw;
+     int count;
+     int count_raw;
 {
   /* If IC is defined, then we do not have to "enter" insert mode. */
-  if (term_IC)
+  if (_rl_term_IC)
     {
       char *buffer;
-      buffer = tgoto (term_IC, 0, count);
+      buffer = tgoto (_rl_term_IC, 0, count);
       tputs (buffer, 1, _rl_output_character_function);
       _rl_output_some_chars (string, count_raw);
     }
@@ -1605,15 +1666,15 @@ insert_some_chars (string, count, count_raw)
       register int i;
 
       /* If we have to turn on insert-mode, then do so. */
-      if (term_im && *term_im)
-	tputs (term_im, 1, _rl_output_character_function);
+      if (_rl_term_im && *_rl_term_im)
+	tputs (_rl_term_im, 1, _rl_output_character_function);
 
       /* If there is a special command for inserting characters, then
 	 use that first to open up the space. */
-      if (term_ic && *term_ic)
+      if (_rl_term_ic && *_rl_term_ic)
 	{
 	  for (i = count; i--; )
-	    tputs (term_ic, 1, _rl_output_character_function);
+	    tputs (_rl_term_ic, 1, _rl_output_character_function);
 	}
 
       /* Print the text. */
@@ -1621,8 +1682,8 @@ insert_some_chars (string, count, count_raw)
 
       /* If there is a string to turn off insert mode, we had best use
 	 it now. */
-      if (term_ei && *term_ei)
-	tputs (term_ei, 1, _rl_output_character_function);
+      if (_rl_term_ei && *_rl_term_ei)
+	tputs (_rl_term_ei, 1, _rl_output_character_function);
     }
 }
 
@@ -1631,20 +1692,20 @@ static void
 delete_chars (count)
      int count;
 {
-  if (count > screenwidth)	/* XXX */
+  if (count > _rl_screenwidth)	/* XXX */
     return;
 
-  if (term_DC && *term_DC)
+  if (_rl_term_DC && *_rl_term_DC)
     {
       char *buffer;
-      buffer = tgoto (term_DC, count, count);
+      buffer = tgoto (_rl_term_DC, count, count);
       tputs (buffer, count, _rl_output_character_function);
     }
   else
     {
-      if (term_dc && *term_dc)
+      if (_rl_term_dc && *_rl_term_dc)
 	while (count--)
-	  tputs (term_dc, 1, _rl_output_character_function);
+	  tputs (_rl_term_dc, 1, _rl_output_character_function);
     }
 }
 
@@ -1664,7 +1725,7 @@ _rl_update_final ()
     }
   _rl_move_vert (_rl_vis_botlin);
   /* If we've wrapped lines, remove the final xterm line-wrap flag. */
-  if (full_lines && _rl_term_autowrap && (rl_count_chars (VIS_CHARS (_rl_vis_botlin), VIS_LLEN(_rl_vis_botlin)) == screenwidth))
+  if (full_lines && _rl_term_autowrap && (rl_count_chars (VIS_LLEN(_rl_vis_botlin), VIS_LLEN(_rl_vis_botlin)) == _rl_screenwidth))
     {
       char *last_line;
 #if 0
@@ -1672,18 +1733,18 @@ _rl_update_final ()
 #else
       last_line = &visible_line[vis_lbreaks[_rl_vis_botlin]];
 #endif
-      _rl_move_cursor_relative (screenwidth - 1, last_line);
+      _rl_move_cursor_relative (_rl_screenwidth - 1, last_line);
       _rl_clear_to_eol (0);
       if (rl_utf8_mode)
 	{
-	  char *last = last_line + rl_count_raw_chars (last_line, screenwidth - 1);
+	  char *last = last_line + rl_count_raw_chars (last_line, _rl_screenwidth - 1);
 	  fwrite (last, 1, rl_count_raw_chars (last, 1), rl_outstream);
 	}
       else
-	putc (last_line[screenwidth - 1], rl_outstream);
+        putc (last_line[_rl_screenwidth - 1], rl_outstream);
     }
   _rl_vis_botlin = 0;
-  crlf ();
+  rl_crlf ();
   fflush (rl_outstream);
   rl_display_fixed++;
 }
@@ -1692,12 +1753,12 @@ _rl_update_final ()
 static void
 cr ()
 {
-  if (term_cr)
+  if (_rl_term_cr)
     {
 #if defined (__MSDOS__)
       putc ('\r', rl_outstream);
 #else
-      tputs (term_cr, 1, _rl_output_character_function);
+      tputs (_rl_term_cr, 1, _rl_output_character_function);
 #endif
       _rl_last_c_pos = 0;
     }
@@ -1711,29 +1772,33 @@ redraw_prompt (t)
      char *t;
 {
   char *oldp, *oldl, *oldlprefix;
-  int oldlen, oldlast, oldplen;
+  int oldlen, oldlast, oldplen, oldninvis;
 
   /* Geez, I should make this a struct. */
   oldp = rl_display_prompt;
   oldl = local_prompt;
   oldlprefix = local_prompt_prefix;
-  oldlen = visible_length;
-  oldplen = prefix_length;
-  oldlast = last_invisible;
+  oldlen = prompt_visible_length;
+  oldplen = prompt_prefix_length;
+  oldlast = prompt_last_invisible;
+  oldninvis = prompt_invis_chars_first_line;
 
   rl_display_prompt = t;
-  local_prompt = expand_prompt (t, &visible_length, &last_invisible);
+  local_prompt = expand_prompt (t, &prompt_visible_length,
+				   &prompt_last_invisible,
+				   &prompt_invis_chars_first_line);
   local_prompt_prefix = (char *)NULL;
   rl_forced_update_display ();
 
   rl_display_prompt = oldp;
   local_prompt = oldl;
   local_prompt_prefix = oldlprefix;
-  visible_length = oldlen;
-  prefix_length = oldplen;
-  last_invisible = oldlast;
+  prompt_visible_length = oldlen;
+  prompt_prefix_length = oldplen;
+  prompt_last_invisible = oldlast;
+  prompt_invis_chars_first_line = oldninvis;
 }
-      
+
 /* Redisplay the current line after a SIGWINCH is received. */
 void
 _rl_redisplay_after_sigwinch ()
@@ -1742,31 +1807,31 @@ _rl_redisplay_after_sigwinch ()
 
   /* Clear the current line and put the cursor at column 0.  Make sure
      the right thing happens if we have wrapped to a new screen line. */
-  if (term_cr)
+  if (_rl_term_cr)
     {
 #if defined (__MSDOS__)
       putc ('\r', rl_outstream);
 #else
-      tputs (term_cr, 1, _rl_output_character_function);
+      tputs (_rl_term_cr, 1, _rl_output_character_function);
 #endif
       _rl_last_c_pos = 0;
 #if defined (__MSDOS__)
-      space_to_eol (screenwidth);
+      space_to_eol (_rl_screenwidth);
       putc ('\r', rl_outstream);
 #else
-      if (term_clreol)
-	tputs (term_clreol, 1, _rl_output_character_function);
+      if (_rl_term_clreol)
+	tputs (_rl_term_clreol, 1, _rl_output_character_function);
       else
 	{
-	  space_to_eol (screenwidth);
-	  tputs (term_cr, 1, _rl_output_character_function);
+	  space_to_eol (_rl_screenwidth);
+	  tputs (_rl_term_cr, 1, _rl_output_character_function);
 	}
 #endif
       if (_rl_last_v_pos > 0)
 	_rl_move_vert (0);
     }
   else
-    crlf ();
+    rl_crlf ();
 
   /* Redraw only the last line of a multi-line prompt. */
   t = strrchr (rl_display_prompt, '\n');
@@ -1807,12 +1872,12 @@ _rl_current_display_line ()
   /* Find out whether or not there might be invisible characters in the
      editing buffer. */
   if (rl_display_prompt == rl_prompt)
-    nleft = _rl_last_c_pos - screenwidth - rl_visible_prompt_length;
+    nleft = _rl_last_c_pos - _rl_screenwidth - rl_visible_prompt_length;
   else
-    nleft = _rl_last_c_pos - screenwidth;
+    nleft = _rl_last_c_pos - _rl_screenwidth;
 
   if (nleft > 0)
-    ret = 1 + nleft / screenwidth;
+    ret = 1 + nleft / _rl_screenwidth;
   else
     ret = 0;
 

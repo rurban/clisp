@@ -1,3 +1,17 @@
+2002-04-24  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (init_object_tab) [UNIX_CYGWIN32]: add :CYGWIN to *FEATURES*
+
+2002-04-24  Sam Steingold  <sds@gnu.org>
+
+	upgraded to readline-4.2a
+	* stream.d (lisp_completion_matches, lisp_completion_more):
+	fixed the signature for the new readline
+	(rd_ch_terminal3): wrap multi-line history handling inside
+	begin_system_call()/end_system_call()
+	(init_streamvars): do not use readline internals
+	* noreadline.d: upgraded to the readline-4.2a API
+
 2002-04-24  Hoehle, Joerg-Cyril  <Joerg-Cyril.Hoehle@t-systems.com>
 	    Sam Steingold  <sds@gnu.org>
 
