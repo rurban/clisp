@@ -5,11 +5,17 @@
 (in-package "EXT")
 (mapcar #'fmakunbound '(short-site-name long-site-name))
 
-(defun short-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lisp"))
-(defun long-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lisp"))
+(defun short-site-name ()
+  (or (getenv "ORGANIZATION")
+      (with-open-stream (s (make-pipe-input-stream "uname -n"))
+        (read-line s))))
+(defun long-site-name ()
+  (or (getenv "ORGANIZATION")
+      (with-open-stream (s (make-pipe-input-stream "uname -a"))
+        (read-line s))))
 
 (defparameter *editor* "vi" "The name of the editor.")
-(defun editor-name () (or (sys::getenv "EDITOR") *editor*))
+(defun editor-name () (or (getenv "EDITOR") *editor*))
 
 (defun edit-file (file)
   "(edit-file file) edits a file."
@@ -41,4 +47,4 @@
   "This returns the root URL for the Common Lisp HyperSpec.
 You can set the environment variable `CLHSROOT' or redefine this function
 in ~/.clisprc.  On win32 you can also use the Registry."
-  (or (sys::getenv "CLHSROOT") *clhs-root-default*))
+  (or (getenv "CLHSROOT") *clhs-root-default*))
