@@ -18,12 +18,10 @@
 # Complain about an invalid foreign pointer.
 # fehler_fpointer_invalid(obj);
 # > obj: invalid Fpointer
-  nonreturning_function(local, fehler_fpointer_invalid, (object obj)) {
-    pushSTACK(obj);
-    fehler(error,
-           GETTEXT("~ comes from a previous Lisp session and is invalid")
-          );
-  }
+nonreturning_function(local, fehler_fpointer_invalid, (object obj)) {
+  pushSTACK(obj);
+  fehler(error,GETTEXT("~ comes from a previous Lisp session and is invalid"));
+}
 
 # (FFI::VALIDP foreign-entity) tests whether a foreign entity is still valid
 # or refers to an invalid foreign pointer.
@@ -93,9 +91,7 @@ LISPFUNN(validp,1)
         obj = TheFaddress(obj)->fa_base;
         if (fp_validp(TheFpointer(obj))) {
           pushSTACK(name);
-          fehler(error,
-                 GETTEXT("A foreign variable ~ already exists")
-                );
+          fehler(error,GETTEXT("A foreign variable ~ already exists"));
         } else {
           # Variable already existed in a previous Lisp session.
           # Update the address, and make it and any of its subvariables valid.
@@ -133,9 +129,7 @@ LISPFUNN(validp,1)
         obj = TheFaddress(obj)->fa_base;
         if (fp_validp(TheFpointer(obj))) {
           pushSTACK(name);
-          fehler(error,
-                 GETTEXT("A foreign function ~ already exists")
-                );
+          fehler(error,GETTEXT("A foreign function ~ already exists"));
         } else {
           # Function already existed in a previous Lisp session.
           # Update the address, and make it valid.
@@ -172,9 +166,7 @@ LISPFUNN(validp,1)
 nonreturning_function(local, fehler_foreign_type, (object fvd)) {
   dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
   pushSTACK(fvd);
-  fehler(error,
-         GETTEXT("illegal foreign data type ~")
-        );
+  fehler(error,GETTEXT("illegal foreign data type ~"));
 }
 
 # Error message.
@@ -182,9 +174,7 @@ nonreturning_function(local, fehler_convert, (object fvd, object obj)) {
   dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
   pushSTACK(fvd);
   pushSTACK(obj);
-  fehler(error,
-         GETTEXT("~ cannot be converted to the foreign type ~")
-        );
+  fehler(error,GETTEXT("~ cannot be converted to the foreign type ~"));
 }
 
 #if !defined(HAVE_LONGLONG)
@@ -192,9 +182,7 @@ nonreturning_function(local, fehler_convert, (object fvd, object obj)) {
 nonreturning_function(local, fehler_64bit, (object fvd)) {
   dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
   pushSTACK(fvd);
-  fehler(error,
-         GETTEXT("64 bit integers are not supported on this platform and with this C compiler: ~")
-        );
+  fehler(error,GETTEXT("64 bit integers are not supported on this platform and with this C compiler: ~"));
 }
 #endif
 
@@ -314,113 +302,107 @@ nonreturning_function(local, fehler_64bit, (object fvd)) {
 
 local void callback (void* data, va_alist args);
 
+# check whether the given Ffunction matches the given calling convention
+local void check_cc_match (object fun, object resulttype,
+                           object argtypes, object flags) {
+  if (!(equal_fvd(resulttype,TheFfunction(fun)->ff_resulttype)
+        && equal_argfvds(argtypes,TheFfunction(fun)->ff_argtypes)
+        && eq(flags,TheFfunction(fun)->ff_flags))) {
+    pushSTACK(fun);
+    fehler(error,GETTEXT("~ cannot be converted to a foreign function with another calling convention."));
+  }
+}
+
 # Convert a Lisp function to a C function.
 # convert_function_to_foreign(address,resulttype,argtypes,flags)
-# The real C function address is Faddress_value(TheFfunction(result)->ff_address).
+# The real C function address is
+#   Faddress_value(TheFfunction(result)->ff_address).
 # can trigger GC
-  local object convert_function_to_foreign (object fun, object resulttype, object argtypes, object flags);
-  local object convert_function_to_foreign(fun,resulttype,argtypes,flags)
-    var object fun;
-    var object resulttype;
-    var object argtypes;
-    var object flags;
-    {
-      # Convert to a function:
-      subr_self = L(coerce); fun = coerce_function(fun);
-      # If it is already a foreign function, return it immediately:
-      if (ffunctionp(fun)) {
-        if (equal_fvd(resulttype,TheFfunction(fun)->ff_resulttype)
-            && equal_argfvds(argtypes,TheFfunction(fun)->ff_argtypes)
-            && eq(flags,TheFfunction(fun)->ff_flags)
-           ) {
-          return fun;
-        } else {
-          pushSTACK(fun);
-          fehler(error,
-                 GETTEXT("~ cannot be converted to a foreign function with another calling convention.")
-                );
+local object convert_function_to_foreign (object fun, object resulttype,
+                                          object argtypes, object flags) {
+  # Convert to a function:
+  subr_self = L(coerce); fun = coerce_function(fun);
+  # If it is already a foreign function, return it immediately:
+  if (ffunctionp(fun)) {
+    check_cc_match(fun, resulttype, argtypes, flags);
+    return fun;
+  }
+  { # Look it up in the hash table, alist:
+    var object alist = gethash(fun,O(foreign_callin_table));
+    if (!eq(alist,nullobj)) {
+      while (consp(alist)) {
+        var object acons = Car(alist);
+        alist = Cdr(alist);
+        if (equal_fvd(resulttype,Car(acons))
+            && equal_argfvds(argtypes,Car(Cdr(acons)))
+            && eq(flags,Car(Cdr(Cdr(acons))))
+            ) {
+          var object index = Cdr(Cdr(Cdr(acons)));
+          var object* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*posfixnum_to_L(index)-2];
+          triple[2] = fixnum_inc(triple[2],1); # increment reference count
+          var object ffun = triple[1];
+          ASSERT(equal_fvd(resulttype,TheFfunction(ffun)->ff_resulttype));
+          ASSERT(equal_argfvds(argtypes,TheFfunction(ffun)->ff_argtypes));
+          ASSERT(eq(flags,TheFfunction(ffun)->ff_flags));
+          return ffun;
         }
-      }
-      # Look it up in the hash table, alist:
-      {
-        var object alist = gethash(fun,O(foreign_callin_table));
-        if (!eq(alist,nullobj)) {
-          while (consp(alist)) {
-            var object acons = Car(alist);
-            alist = Cdr(alist);
-            if (equal_fvd(resulttype,Car(acons))
-                && equal_argfvds(argtypes,Car(Cdr(acons)))
-                && eq(flags,Car(Cdr(Cdr(acons))))
-               ) {
-              var object index = Cdr(Cdr(Cdr(acons)));
-              var object* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*posfixnum_to_L(index)-2];
-              triple[2] = fixnum_inc(triple[2],1); # increment reference count
-              var object ffun = triple[1];
-              ASSERT(equal_fvd(resulttype,TheFfunction(ffun)->ff_resulttype));
-              ASSERT(equal_argfvds(argtypes,TheFfunction(ffun)->ff_argtypes));
-              ASSERT(eq(flags,TheFfunction(ffun)->ff_flags));
-              return ffun;
-            }
-          }
-        }
-      }
-      # Not already in the hash table -> allocate new:
-      pushSTACK(fun);
-      pushSTACK(NIL);
-      pushSTACK(resulttype);
-      pushSTACK(argtypes);
-      pushSTACK(flags);
-      # First grab an index.
-      {
-        var uintL index = posfixnum_to_L(TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[0]);
-        if (!(index == 0)) {
-          # remove first index from the free list
-          var object dv = TheIarray(O(foreign_callin_vector))->data;
-          TheSvector(dv)->data[0] = TheSvector(dv)->data[3*index];
-        } else {
-          # free list exhausted
-          var uintC i;
-          dotimesC(i,3, {
-            pushSTACK(NIL); pushSTACK(O(foreign_callin_vector));
-            funcall(L(vector_push_extend),2);
-          });
-          index = floor(vector_length(O(foreign_callin_vector)),3);
-        }
-        # Next allocate the trampoline.
-        {
-          begin_system_call();
-          var void* trampoline = alloc_callback(&callback,(void*)(uintP)index);
-          end_system_call();
-          pushSTACK(make_faddress(O(fp_zero),(uintP)trampoline));
-          # Now allocate the foreign-function.
-          var object obj = allocate_ffunction();
-          TheFfunction(obj)->ff_name = NIL;
-          TheFfunction(obj)->ff_address = popSTACK();
-          TheFfunction(obj)->ff_resulttype = STACK_2;
-          TheFfunction(obj)->ff_argtypes = STACK_1;
-          TheFfunction(obj)->ff_flags = STACK_0;
-          STACK_3 = obj;
-        }
-        pushSTACK(fixnum(index)); funcall(L(liststern),4); pushSTACK(value1);
-        # Stack layout: fun, obj, acons.
-        # Put it into the hash table.
-        {
-          var object new_cons = allocate_cons();
-          Car(new_cons) = popSTACK();
-          var object alist = gethash(STACK_1,O(foreign_callin_table));
-          if (eq(alist,nullobj))
-            alist = NIL;
-          Cdr(new_cons) = alist;
-          shifthash(O(foreign_callin_table),STACK_1,new_cons);
-        }
-        # Put it into the vector.
-        var object* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*index-2];
-        triple[1] = popSTACK(); # obj
-        triple[0] = popSTACK(); # fun
-        triple[2] = Fixnum_1; # refcount := 1
-        return triple[1];
       }
     }
+  }
+  # Not already in the hash table -> allocate new:
+  pushSTACK(fun);
+  pushSTACK(NIL);
+  pushSTACK(resulttype);
+  pushSTACK(argtypes);
+  pushSTACK(flags);
+  { # First grab an index.
+    var uintL index = posfixnum_to_L(TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[0]);
+    if (!(index == 0)) {
+      # remove first index from the free list
+      var object dv = TheIarray(O(foreign_callin_vector))->data;
+      TheSvector(dv)->data[0] = TheSvector(dv)->data[3*index];
+    } else {
+      # free list exhausted
+      var uintC i;
+      dotimesC(i,3, {
+        pushSTACK(NIL); pushSTACK(O(foreign_callin_vector));
+        funcall(L(vector_push_extend),2);
+      });
+      index = floor(vector_length(O(foreign_callin_vector)),3);
+    }
+    { # Next allocate the trampoline.
+      begin_system_call();
+      var void* trampoline = alloc_callback(&callback,(void*)(uintP)index);
+      end_system_call();
+      pushSTACK(make_faddress(O(fp_zero),(uintP)trampoline));
+      # Now allocate the foreign-function.
+      var object obj = allocate_ffunction();
+      TheFfunction(obj)->ff_name = NIL;
+      TheFfunction(obj)->ff_address = popSTACK();
+      TheFfunction(obj)->ff_resulttype = STACK_2;
+      TheFfunction(obj)->ff_argtypes = STACK_1;
+      TheFfunction(obj)->ff_flags = STACK_0;
+      STACK_3 = obj;
+    }
+    pushSTACK(fixnum(index)); funcall(L(liststern),4); pushSTACK(value1);
+    # Stack layout: fun, obj, acons.
+    { # Put it into the hash table.
+      var object new_cons = allocate_cons();
+      Car(new_cons) = popSTACK();
+      var object alist = gethash(STACK_1,O(foreign_callin_table));
+      if (eq(alist,nullobj))
+        alist = NIL;
+      Cdr(new_cons) = alist;
+      shifthash(O(foreign_callin_table),STACK_1,new_cons);
+    }
+    # Put it into the vector.
+    var object* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*index-2];
+    triple[1] = popSTACK(); # obj
+    triple[0] = popSTACK(); # fun
+    triple[2] = Fixnum_1; # refcount := 1
+    return triple[1];
+  }
+}
 
 # Undoes the allocation effect of convert_function_to_foreign().
   local void free_foreign_callin (void* address);
@@ -480,46 +462,32 @@ local void callback (void* data, va_alist args);
 
 # Convert a C function to a Lisp foreign function.
 # convert_function_from_foreign(address,resulttype,argtypes,flags)
-  local object convert_function_from_foreign (void* address, object resulttype, object argtypes, object flags);
-  local object convert_function_from_foreign(address,resulttype,argtypes,flags)
-    var void* address;
-    var object resulttype;
-    var object argtypes;
-    var object flags;
-    {
-      begin_system_call();
-      if (is_callback(address) # safety check
-          && (callback_address(address) == &callback)
-         ) {
-        var uintL index = (uintL)(uintP)callback_data(address);
-        end_system_call();
-        var object* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*index-2];
-        var object ffun = triple[1];
-        if (equal_fvd(resulttype,TheFfunction(ffun)->ff_resulttype)
-            && equal_argfvds(argtypes,TheFfunction(ffun)->ff_argtypes)
-            && eq(flags,TheFfunction(ffun)->ff_flags)
-           ) {
-          return ffun;
-        } else {
-          pushSTACK(ffun);
-          fehler(error,
-                 GETTEXT("~ cannot be converted to a foreign function with another calling convention.")
-                );
-        }
-      } else {
-        end_system_call();
-      }
-      pushSTACK(argtypes);
-      pushSTACK(resulttype);
-      pushSTACK(make_faddress(O(fp_zero),(uintP)address));
-      var object obj = allocate_ffunction();
-      TheFfunction(obj)->ff_name = NIL;
-      TheFfunction(obj)->ff_address = popSTACK();
-      TheFfunction(obj)->ff_resulttype = popSTACK();
-      TheFfunction(obj)->ff_argtypes = popSTACK();
-      TheFfunction(obj)->ff_flags = flags;
-      return obj;
-    }
+local object convert_function_from_foreign (void* address, object resulttype,
+                                            object argtypes, object flags) {
+  begin_system_call();
+  if (is_callback(address) # safety check
+      && (callback_address(address) == &callback)
+      ) {
+    var uintL index = (uintL)(uintP)callback_data(address);
+    end_system_call();
+    var object* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*index-2];
+    var object ffun = triple[1];
+    check_cc_match(ffun,resulttype,argtypes,flags);
+    return ffun;
+  } else {
+    end_system_call();
+  }
+  pushSTACK(argtypes);
+  pushSTACK(resulttype);
+  pushSTACK(make_faddress(O(fp_zero),(uintP)address));
+  var object obj = allocate_ffunction();
+  TheFfunction(obj)->ff_name = NIL;
+  TheFfunction(obj)->ff_address = popSTACK();
+  TheFfunction(obj)->ff_resulttype = popSTACK();
+  TheFfunction(obj)->ff_argtypes = popSTACK();
+  TheFfunction(obj)->ff_flags = flags;
+  return obj;
+}
 
 
 #if (long_bitsize<64)
@@ -548,15 +516,13 @@ local void* xmalloc(size)
     if (ptr)
       return ptr;
     fehler(storage_condition,
-           GETTEXT("No more room for foreign language interface")
-          );
+           GETTEXT("No more room for foreign language interface"));
   }
 #else # defined(AMIGAOS)
 # No malloc() is available. Disable malloc() and free() altogether.
 nonreturning_function(local, fehler_malloc_free, (void)) {
   fehler(error,
-         GETTEXT(":MALLOC-FREE is not available under AMIGAOS.")
-        );
+         GETTEXT(":MALLOC-FREE is not available under AMIGAOS."));
 }
 #define malloc(amount)  (fehler_malloc_free(), NULL)
 #define free(pointer)  fehler_malloc_free()
@@ -909,6 +875,12 @@ global object convert_from_foreign (object fvd, const void* data);
       else
         NOTREACHED;
     }
+# Error message
+nonreturning_function (local, fehler_eltype_zero_size, (object fvd)) {
+  pushSTACK(fvd);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,GETTEXT("~: element type has size 0: ~"));
+}
 global object convert_from_foreign(fvd,data)
   var object fvd;
   var const void* data;
@@ -1084,12 +1056,7 @@ global object convert_from_foreign(fvd,data)
         } elif (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
           var object eltype = TheSvector(fvd)->data[1];
           var uintL eltype_size = (foreign_layout(eltype), data_size);
-          if (eltype_size == 0) {
-            pushSTACK(fvd);
-            fehler(error,
-                   GETTEXT("element type has size 0: ~")
-                  );
-          }
+          if (eltype_size == 0) fehler_eltype_zero_size(fvd);
           # Determine length of array:
           var uintL len = 0;
           {
@@ -1145,12 +1112,7 @@ global object convert_from_foreign(fvd,data)
           else {
             var object eltype = TheSvector(fvd)->data[1];
             var uintL eltype_size = (foreign_layout(eltype), data_size);
-            if (eltype_size == 0) {
-              pushSTACK(fvd);
-              fehler(error,
-                     GETTEXT("element type has size 0: ~")
-                    );
-            }
+            if (eltype_size == 0) fehler_eltype_zero_size(fvd);
             # Determine length of array:
             var uintL len = 0;
             {
@@ -1300,12 +1262,7 @@ local void walk_foreign_pointers(fvd,data)
         } elif (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
           var object eltype = TheSvector(fvd)->data[1];
           var uintL eltype_size = (foreign_layout(eltype), data_size);
-          if (eltype_size == 0) {
-            pushSTACK(fvd);
-            fehler(error,
-                   GETTEXT("element type has size 0: ~")
-                  );
-          }
+          if (eltype_size == 0) fehler_eltype_zero_size(fvd);
           {
             var uintL maxdim = I_to_UL(TheSvector(fvd)->data[2]);
             var uintL len = 0;
@@ -1346,12 +1303,7 @@ local void walk_foreign_pointers(fvd,data)
           (*walk_foreign_pre_hook)(elfvd,(void**)data);
           {
             var uintL eltype_size = (foreign_layout(elfvd), data_size);
-            if (eltype_size == 0) {
-              pushSTACK(fvd);
-              fehler(error,
-                     GETTEXT("element type has size 0: ~")
-                    );
-            }
+            if (eltype_size == 0) fehler_eltype_zero_size(fvd);
             var void* ptr = *(void**)data;
             until (blockzerop(ptr,eltype_size)) {
               walk_foreign_pointers(elfvd,ptr);
@@ -2095,16 +2047,12 @@ global void convert_to_foreign_nomalloc(fvd,obj,data)
 nonreturning_function(local, fehler_foreign_variable, (object obj)) {
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,
-         GETTEXT("~: argument is not a foreign variable: ~")
-        );
+  fehler(error,GETTEXT("~: argument is not a foreign variable: ~"));
 }
 nonreturning_function(local, fehler_variable_no_fvd, (object obj)) {
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,
-         GETTEXT("~: foreign variable with unknown type, missing DEF-C-VAR: ~")
-        );
+  fehler(error,GETTEXT("~: foreign variable with unknown type, missing DEF-C-VAR: ~"));
 }
 
 # (FFI::LOOKUP-FOREIGN-VARIABLE foreign-variable-name foreign-type)
@@ -2116,9 +2064,7 @@ LISPFUNN(lookup_foreign_variable,2)
     var object fvar = gethash(name,O(foreign_variable_table));
     if (eq(fvar,nullobj)) {
       pushSTACK(name);
-      fehler(error,
-             GETTEXT("A foreign variable ~ does not exist")
-            );
+      fehler(error,GETTEXT("A foreign variable ~ does not exist"));
     }
     # The first LOOKUP-FOREIGN-VARIABLE determines the variable's type.
     if (nullp(TheFvariable(fvar)->fv_type)) {
@@ -2128,9 +2074,7 @@ LISPFUNN(lookup_foreign_variable,2)
          ) ) {
         pushSTACK(fvar);
         pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
-               GETTEXT("~: foreign variable ~ does not have the required size or alignment")
-              );
+        fehler(error,GETTEXT("~: foreign variable ~ does not have the required size or alignment"));
       }
       TheFvariable(fvar)->fv_type = fvd;
     }
@@ -2142,9 +2086,7 @@ LISPFUNN(lookup_foreign_variable,2)
         pushSTACK(TheFvariable(fvar)->fv_type);
         pushSTACK(fvar);
         pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
-               GETTEXT("~: type specifications for foreign variable ~ conflict: ~ and ~")
-              );
+        fehler(error,GETTEXT("~: type specifications for foreign variable ~ conflict: ~ and ~"));
       }
       # If the types are not exactly the same but still compatible,
       # allocate a new foreign variable with the given fvd.
@@ -2172,7 +2114,7 @@ LISPFUNN(foreign_address_value,1) {
   else {
     pushSTACK(arg);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~: not a foreign object: ~"));
+    fehler(error,GETTEXT("~: argument is not a foreign object: ~"));
   }
   mv_count = 1;
 }
@@ -2206,9 +2148,7 @@ LISPFUNN(set_foreign_value,2)
     if (record_flags(TheFvariable(fvar)) & fv_readonly) {
       pushSTACK(fvar);
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,
-             GETTEXT("~: foreign variable ~ may not be modified")
-            );
+      fehler(error,GETTEXT("~: foreign variable ~ may not be modified"));
     }
     if (record_flags(TheFvariable(fvar)) & fv_malloc) {
       # Protect this using a semaphore??
@@ -2266,9 +2206,7 @@ LISPFUN(element,1,0,rest,nokey,0,NIL)
       pushSTACK(fvd);
       pushSTACK(fvar);
       pushSTACK(S(element));
-      fehler(error,
-             GETTEXT("~: foreign variable ~ of type ~ is not an array")
-            );
+      fehler(error,GETTEXT("~: foreign variable ~ of type ~ is not an array"));
     }
     # Check the subscript count:
     if (!(argcount == fvdlen-2)) {
@@ -2276,9 +2214,7 @@ LISPFUN(element,1,0,rest,nokey,0,NIL)
       pushSTACK(fvar);
       pushSTACK(fixnum(argcount));
       pushSTACK(S(element));
-      fehler(error,
-             GETTEXT("~: got ~ subscripts, but ~ has rank ~")
-            );
+      fehler(error,GETTEXT("~: got ~ subscripts, but ~ has rank ~"));
     }
     # Check the subscripts:
     var uintL row_major_index = 0;
@@ -2293,9 +2229,7 @@ LISPFUN(element,1,0,rest,nokey,0,NIL)
           # STACK_0 is fvar now.
           pushSTACK(list);
           pushSTACK(S(element));
-          fehler(error,
-                 GETTEXT("~: subscripts ~ for ~ are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))")
-                );
+          fehler(error,GETTEXT("~: subscripts ~ for ~ are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"));
         }
         var uintL subscript = posfixnum_to_L(subscriptobj);
         var uintL dim = I_to_uint32(*dimptr);
@@ -2304,9 +2238,7 @@ LISPFUN(element,1,0,rest,nokey,0,NIL)
           # STACK_0 is fvar now.
           pushSTACK(list);
           pushSTACK(S(element));
-          fehler(error,
-                 GETTEXT("~: subscripts ~ for ~ are out of range")
-                );
+          fehler(error,GETTEXT("~: subscripts ~ for ~ are out of range"));
         }
         # Compute row_major_index := row_major_index*dim+subscript:
         row_major_index = mulu32_unchecked(row_major_index,dim)+subscript;
@@ -2352,9 +2284,7 @@ LISPFUNN(deref,1)
       pushSTACK(fvd);
       pushSTACK(fvar);
       pushSTACK(S(element));
-      fehler(error,
-             GETTEXT("~: foreign variable ~ of type ~ is not a pointer")
-            );
+      fehler(error,GETTEXT("~: foreign variable ~ of type ~ is not a pointer"));
     }
     fvd = TheSvector(fvd)->data[1]; # the target's foreign type
     pushSTACK(fvd);
@@ -2456,18 +2386,14 @@ LISPFUNN(slot,2)
     pushSTACK(fvd);
     pushSTACK(fvar);
     pushSTACK(S(slot));
-    fehler(error,
-           GETTEXT("~: foreign variable ~ of type ~ is not a struct or union")
-          );
+    fehler(error,GETTEXT("~: foreign variable ~ of type ~ is not a struct or union"));
    bad_slot:
     dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
     pushSTACK(slot);
     pushSTACK(fvd);
     pushSTACK(fvar);
     pushSTACK(S(slot));
-    fehler(error,
-           GETTEXT("~: foreign variable ~ of type ~ has no component with name ~")
-          );
+    fehler(error,GETTEXT("~: foreign variable ~ of type ~ has no component with name ~"));
   }
 
 # (FFI::%CAST foreign-variable c-type)
@@ -2535,9 +2461,7 @@ LISPFUNN(offset,3)
     if (!(((uintP)Faddress_value(TheFvariable(new_fvar)->fv_address) & (alignment-1)) == 0)) {
       pushSTACK(new_fvar);
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,
-             GETTEXT("~: foreign variable ~ does not have the required alignment")
-            );
+      fehler(error,GETTEXT("~: foreign variable ~ does not have the required alignment"));
     }
     value1 = new_fvar; mv_count=1;
     skipSTACK(3+1);
@@ -2548,16 +2472,12 @@ LISPFUNN(offset,3)
 nonreturning_function(local, fehler_foreign_function, (object obj)) {
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,
-         GETTEXT("~: argument is not a foreign function: ~")
-        );
+  fehler(error,GETTEXT("~: argument is not a foreign function: ~"));
 }
 nonreturning_function(local, fehler_function_no_fvd, (object obj, object caller)) {
   pushSTACK(obj);
   pushSTACK(caller);
-  fehler(error,
-         GETTEXT("~: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~")
-        );
+  fehler(error,GETTEXT("~: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~"));
 }
 
 # (FFI::LOOKUP-FOREIGN-FUNCTION foreign-function-name foreign-type)
@@ -2573,24 +2493,18 @@ LISPFUNN(lookup_foreign_function,2)
       dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
       pushSTACK(fvd);
       pushSTACK(S(lookup_foreign_function));
-      fehler(error,
-             GETTEXT("~: illegal foreign function type ~")
-            );
+      fehler(error,GETTEXT("~: illegal foreign function type ~"));
     }
     var object oldffun = gethash(name,O(foreign_function_table));
     if (eq(oldffun,nullobj)) {
       pushSTACK(name);
       pushSTACK(S(lookup_foreign_function));
-      fehler(error,
-             GETTEXT("~: A foreign function ~ does not exist")
-            );
+      fehler(error,GETTEXT("~: A foreign function ~ does not exist"));
     }
     if (!eq(TheFfunction(oldffun)->ff_flags,TheSvector(fvd)->data[3])) {
       pushSTACK(oldffun);
       pushSTACK(S(lookup_foreign_function));
-      fehler(error,
-             GETTEXT("~: calling conventions for foreign function ~ conflict")
-            );
+      fehler(error,GETTEXT("~: calling conventions for foreign function ~ conflict"));
     }
     TheFfunction(ffun)->ff_name = TheFfunction(oldffun)->ff_name;
     TheFfunction(ffun)->ff_address = TheFfunction(oldffun)->ff_address;
@@ -2883,9 +2797,7 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL)
               dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
               pushSTACK(arg_fvd);
               pushSTACK(S(foreign_call_out));
-              fehler(error,
-                     GETTEXT("~: :OUT argument is not a pointer: ~")
-                    );
+              fehler(error,GETTEXT("~: :OUT argument is not a pointer: ~"));
             }
             outargcount++;
           }
@@ -3497,9 +3409,7 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL)
       if (libaddr == NULL) {
         pushSTACK(name);
         pushSTACK(S(foreign_library));
-        fehler(error,
-               GETTEXT("~: Cannot open library ~")
-              );
+        fehler(error,GETTEXT("~: Cannot open library ~"));
       }
       return libaddr;
     }
@@ -3595,9 +3505,7 @@ LISPFUN(foreign_library,1,1,norest,nokey,0,NIL)
       }
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,
-             GETTEXT("~: ~ is not a library")
-            );
+      fehler(error,GETTEXT("~: ~ is not a library"));
     }
 
 # (FFI::FOREIGN-LIBRARY-VARIABLE name library offset c-type)
@@ -3621,9 +3529,7 @@ LISPFUNN(foreign_library_variable,4)
     if (!(((uintP)Faddress_value(TheFvariable(fvar)->fv_address) & (alignment-1)) == 0)) {
       pushSTACK(fvar);
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,
-             GETTEXT("~: foreign variable ~ does not have the required alignment")
-            );
+      fehler(error,GETTEXT("~: foreign variable ~ does not have the required alignment"));
     }
     value1 = fvar; mv_count=1; skipSTACK(4+1);
   }
@@ -3647,9 +3553,7 @@ LISPFUNN(foreign_library_function,4)
         dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
         pushSTACK(fvd);
         pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
-               GETTEXT("~: illegal foreign function type ~")
-              );
+        fehler(error,GETTEXT("~: illegal foreign function type ~"));
       }
     }
     pushSTACK(make_faddress(STACK_2,(sintP)I_to_sint32(STACK_1)));
