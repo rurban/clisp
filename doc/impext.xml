@@ -3887,12 +3887,14 @@ bash$
 <!-- #ifdef PIPES2 -->
 <varlistentry id="run-prog"><term>Platform dependent: &unix;, &os2;, &win32;
    platforms only.</term>
- <listitem><simpara>The functions <function>EXT:RUN-SHELL-COMMAND</function>
-   and &run-prog; are the general interface to &shell; and the above:</simpara>
+ <listitem><simpara>The functions &run-cmd; and &run-prog; are the
+   general interface to &shell; and the above:</simpara>
 
-   <simpara><literal role="sexp">(<function>EXT:RUN-SHELL-COMMAND</function>
-   &command-r; &key-amp; &input-k; &output-k; &if-output-exists;
-   &wait-k;)</literal> runs a shell command.</simpara>
+   <simpara><literal role="sexp">(&run-cmd; &command-r; &key-amp;
+   &input-k; &output-k; &if-output-exists; &wait-k;)</literal>
+   runs a shell command (including shell built-in commands,
+   like <command>DIR</command> on &win32;/&os2;
+   and <command>for/do/done</command> on &unix;).</simpara>
 
    <simpara><literal role="sexp">(&run-prog; &program-r; &key-amp;
    &arguments-k; &input-k; &output-k; &if-output-exists; &wait-k;)</literal>
@@ -3923,12 +3925,12 @@ bash$
      program.</simpara></listitem></varlistentry>
    <varlistentry><term>&input-k;</term>
     <listitem><simpara>where the program's input is to come from: either
-     <constant>:terminal</constant> (the standard input) or &stream-k;
+     <constant>:TERMINAL</constant> (the standard input) or &stream-k;
      (a Lisp stream to be created) or a pathname (an input file) or
      &nil; (no input at all).</simpara></listitem></varlistentry>
    <varlistentry><term>&output-k;</term>
     <listitem><simpara>where the program's output is to be sent to: either
-     <constant>:terminal</constant> (the standard output) or &stream-k;
+     <constant>:TERMINAL</constant> (the standard output) or &stream-k;
      (a Lisp stream to be created) or a pathname (an output file) or
      &nil; (ignore the output).</simpara></listitem></varlistentry>
    <varlistentry><term>&if-output-exists;</term>
@@ -3940,6 +3942,18 @@ bash$
     <listitem><simpara>wether to wait for program termination or not
      (this is useful when no i/o to the process is needed).
     </simpara></listitem></varlistentry>
+<!-- #ifdef UNIX -->
+   <varlistentry><term><constant>:MAY-EXEC</constant></term>
+    <listitem><simpara>pass <command>exec</command> to the underlying
+    shell (&unix; only).</simpara></listitem></varlistentry>
+<!-- #endif -->
+<!-- #ifdef WIN32 -->
+   <varlistentry><term><constant>:INDIRECTP</constant></term>
+    <listitem><simpara>use a shell to run the command, e.g.,
+    <literal role="sexp">(&run-prog; "dir" :indirectp &t;)</literal>
+    will run the shell built-in command <command>DIR</command>.
+    (&win32;/&os2; only).</simpara></listitem></varlistentry>
+<!-- #endif -->
   </variablelist>
 
 <para>If &stream-k; was specified for &input-k; or &output-k;, a Lisp
