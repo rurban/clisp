@@ -1037,6 +1037,17 @@ nonreturning_function(global, fehler_stringsize, (uintL size)) {
          GETTEXT("string too long: desired length ~S exceeds the supported maximum length"));
 }
 
+/* error message if an argument is not a class.
+ fehler_class(caller,obj);
+ > obj: the erroneous argument */
+nonreturning_function(global, fehler_class, (object obj)) {
+  pushSTACK(obj); /* TYPE-ERROR slot DATUM */
+  pushSTACK(S(class)); /* CLOS:CLASS, TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(obj);
+  pushSTACK(TheSubr(subr_self)->name); /* function name */
+  fehler(type_error,GETTEXT("~S: ~S is not a class"));
+}
+
 /* error-message, if an argument is not a Stream:
  fehler_stream(obj);
  > obj: the erroneous argument */

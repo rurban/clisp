@@ -774,17 +774,6 @@ local inline object class_of (object obj) {
   }
 }
 
-/* error-message if an object is not a class.
- fehler_keine_klasse(caller,obj);
- > obj: non-class */
-nonreturning_function(local, fehler_keine_klasse, (object obj)) {
-  pushSTACK(obj); /* TYPE-ERROR slot DATUM */
-  pushSTACK(S(class)); /* CLOS:CLASS, TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj);
-  pushSTACK(TheSubr(subr_self)->name); /* function name */
-  fehler(type_error,GETTEXT("~S: ~S is not a class"));
-}
-
 /* (CLOS::ALLOCATE-STD-INSTANCE class n) returns a CLOS-instance of length n,
  with Class class and n-1 additional slots. */
 LISPFUNN(allocate_std_instance,2) {
@@ -795,7 +784,7 @@ LISPFUNN(allocate_std_instance,2) {
   { /* Fetch the class-version now, before any possible GC, at which the
        user could redefine the class of which we are creating an instance. */
     var object clas = STACK_0;
-    if_classp(clas, ; , fehler_keine_klasse(clas); );
+    if_classp(clas, ; , fehler_class(clas); );
     TheClass(clas)->instantiated = T;
     STACK_0 = TheClass(clas)->current_version;
   }

@@ -35,7 +35,7 @@
            table))
 (defun note-i-meta-change (meta-specializer table)
   (maphash #'(lambda (class value) (declare (ignore value))
-               (when (subclassp (class-of class) meta-specializer) ; <==> (typep class meta-specializer)
+               (when (typep-class class meta-specializer) ; <==> (typep class meta-specializer)
                  (remhash class table)))
            table))
 
@@ -140,7 +140,7 @@
                  (first (std-method-parameter-specializers method))))
             (if (consp specializer)
               (eql class (second specializer))
-              (subclassp (class-of class) specializer)))) ; <==> (typep class specializer)
+              (typep-class class specializer)))) ; <==> (typep class specializer)
       (gf-methods |#'allocate-instance|)))))
 (defun make-instance-table-entry1 (class)
   (values (valid-make-instance-keywords class)
