@@ -302,7 +302,7 @@
 #   Bei jeder Tilde wird ein LISP-Objekt vom STACK genommen und statt der
 #   Tilde ausgegeben.
 # > auf dem STACK: Initialisierungswerte für die Condition, je nach errortype
-  nonreturning_function(global, fehler, (conditiontype errortype, const char* errorstring)) {
+  nonreturning_function(global, fehler, (condition_t errortype, const char* errorstring)) {
     begin_error(); # Fehlermeldung anfangen
     if (!nullp(STACK_3)) { # *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ?
       # Error-Typ-Symbol zu errortype auswählen:
