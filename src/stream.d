@@ -15153,7 +15153,8 @@ LISPFUNNR(built_in_stream_element_type,1) {
 # UP: reset the stream for the eltype and flush out the missing LF.
 # IF the stream is unbuffered, AND ignore_next_LF is true, THEN
 # this can block (we will try to read the next LF) and trigger GC
-# The stream must be a "basic" (non-composite) stream: no two-way &c
+# > stream: a channel-stream
+# < result: the same stream
 # can trigger GC
 local maygc object stream_reset_eltype (object stream, decoded_el_t* eltype_) {
   if (ChannelStream_buffered(stream)) {
