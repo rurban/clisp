@@ -4,6 +4,7 @@
 	(env_verbose, env_tmp_dir, env_data_dirs): new functions
 	(BDB:DB-CREATE): permit NIL environment, call MKDB correctly
 	(BDB:DB-FD): fixed STACK handling
+	(BDB:DB-OPEN): default mode to 0644
 
 2004-06-06  Bruno Haible  <bruno@clisp.org>
 
