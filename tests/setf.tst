@@ -496,5 +496,5 @@ pl
 3
 
 ;; <http://article.gmane.org/gmane.lisp.clisp.general:9034>
-(defsetf foo22 () () (values))
+(defsetf foo22 () () '(values))
 FOO22
