@@ -435,13 +435,10 @@ if test -n "$do_config"; then
   fi # do_ffi
   for subdir in libcharset; do
     if test -d $subdir; then
-      case `uname` in
-        # on cygwin and mingw, this is required to avoid the _WinMain@16 error
-        # this gross hack should be removed as soon as Bruno fixes libcharset
-        CYGWIN* )  NOSHARED=--enable-shared=no; ;;
-        *) NOSHARED=""; ;;
-      esac
-      conf_dir $subdir --srcdir="$RREL_SRCDIR/$subdir" ${NOSHARED} \
+      # We use --disable-shared because libtool support for shared libraries is
+      # flaky: On HP-UX 10 with gcc-2.95.2, libtool fails to pass -fPIC to gcc,
+      # and on cygwin and mingw it causes a link error regarding _WinMain@16.
+      conf_dir $subdir --srcdir="$RREL_SRCDIR/$subdir" --disable-shared \
         $subdir_configure_args --cache-file=../config.cache
     fi
   done
