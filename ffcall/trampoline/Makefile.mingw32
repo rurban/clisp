@@ -76,6 +76,8 @@ check : all test1.exe test2.exe
 	test2.exe
 	touch tests.passed.$(HOST)
 
+extracheck : check
+
 mostlyclean : clean
 
 clean : force

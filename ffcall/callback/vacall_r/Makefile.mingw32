@@ -71,6 +71,8 @@ libvacall.a : $(OBJECTS)
 
 check : all
 
+extracheck : all
+
 mostlyclean : clean
 
 clean : force
