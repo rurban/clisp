@@ -341,7 +341,7 @@ local inline object check_number (object obj) {
 /* check_real(obj) checks, if obj is a real number.
  < real number
  can trigger GC */
-global inline object check_real (object obj) {
+global object check_real (object obj) {
  restart:
   if_realp(obj, ; , {
     pushSTACK(NIL); /* no PLACE */

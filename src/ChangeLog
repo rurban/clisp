@@ -1,3 +1,9 @@
+2004-03-08  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d: Use 'extern' instead of 'global'.
+	(check_real): Don't declare as inline.
+	* lisparit.d (check_real): Likewise.
+
 2004-03-06  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (use_default_dir): fixed a GC-safety bug

@@ -8341,7 +8341,7 @@ extern bool asciz_equal (const char * asciz1, const char * asciz2);
 # is used by STREAM
 
 /* allocate memory and check for success */
-global void* my_malloc (size_t size);
+extern void* my_malloc (size_t size);
 /* used by FOREIGN and modules */
 
 #if defined(GNU) && (SAFETY < 2)
@@ -11533,7 +11533,7 @@ extern object shifthash (object ht, object obj, object value);
  > ht: hash-table
  < result: symbol EQ/EQL/EQUAL/EQUALP or cons (TEST . HASH)
  can trigger GC - for user-defined ht_test */
-global object hash_table_test (object ht);
+extern object hash_table_test (object ht);
 /* used by HASHTABL, IO */
 
 # Macro: Runs through a Hash-Tabelle.
@@ -11734,7 +11734,7 @@ extern object listof (uintC len);
 /* used by STREAM, PATHNAME, PACKAGE, ARRAY, EVAL, PREDTYPE, ERROR, SPVW */
 
 # UP: find OBJ in LIS: (MEMBER OBJ LIS :TEST #'EQ)
-global object memq (const object obj, const object lis);
+extern object memq (const object obj, const object lis);
 # used by RECORD,
 
 # ####################### MISCBIBL for MISC.D ############################## #
@@ -11865,7 +11865,7 @@ extern object check_fpointer (object obj, bool restart_p);
 nonreturning_function(extern, fehler_list, (object obj));
 /* ditto - recoverable
  can trigger GC */
-global object check_list (object obj);
+extern object check_list (object obj);
 /* used by LIST, EVAL, PATHNAME, STREAM */
 
 # Error message, if an object isn't a proper list.
@@ -11885,13 +11885,13 @@ extern object check_symbol (object sy);
  > obj: a potential symbol
  > caller: a symbol
  < obj: a non-constant symbol */
-global object check_symbol_non_constant (object obj, object caller);
+extern object check_symbol_non_constant (object obj, object caller);
 /* used by EVAL, CONTROL */
 
 /* UP: signal an error if a non-symbol was declared special
  returns the symbol
  can trigger GC */
-global object check_symbol_special (object obj, object caller);
+extern object check_symbol_special (object obj, object caller);
 /* used by EVAL, CONTROL */
 
 # Error message, if an object isn't a Simple-Vector.
@@ -11910,18 +11910,18 @@ nonreturning_function(extern, fehler_vector, (object obj));
 /* error-message, if an object is not an environment.
  fehler_environment(obj);
  > obj: non-vector */
-nonreturning_function(global, fehler_environment, (object obj));
+nonreturning_function(extern, fehler_environment, (object obj));
 /* used by EVAL, CONTROL */
 
 /* Error message, if an argument isn't a Fixnum >=0:
  > obj: the faulty argument */
 nonreturning_function(extern, fehler_posfixnum, (object obj));
-global object check_posfixnum (object obj);
+extern object check_posfixnum (object obj);
 /* used by STREAM, LISPARIT */
 
 /* make sure the argument is an integer */
-global object check_integer (object obj);
-global object check_pos_integer (object obj);
+extern object check_integer (object obj);
+extern object check_pos_integer (object obj);
 /* used by LISPARIT, LIST */
 
 # Error message, if an argument isn't a Character:
@@ -11992,13 +11992,13 @@ nonreturning_function(extern, fehler_streamtype, (object obj, object type));
  fehler_key_odd(argcount,caller);
  > argcount: the number of arguments on the STACK
  > caller: function */
-nonreturning_function(global, fehler_key_odd, (uintC argcount, object caller));
+nonreturning_function(extern, fehler_key_odd, (uintC argcount, object caller));
 
 /* error-message for flawed keyword
  fehler_key_notkw(kw);
  > key: Non-Symbol
  > caller: function */
-nonreturning_function(global, fehler_key_notkw, (object key, object caller));
+nonreturning_function(extern, fehler_key_notkw, (object key, object caller));
 
 /* error-message for flawed keyword
  fehler_key_badkw(fun,kw,kwlist);
@@ -12006,7 +12006,7 @@ nonreturning_function(global, fehler_key_notkw, (object key, object caller));
  > key: illegal keyword
  > val: its value
  > kwlist: list of legal keywords */
-nonreturning_function(global, fehler_key_badkw,
+nonreturning_function(extern, fehler_key_badkw,
                       (object fun, object key, object val, object kwlist));
 
 /* error-message, if an argument isn't a function:
@@ -12020,7 +12020,7 @@ extern object check_function (object obj);
  > caller: symbol
  < a function object
  can trigger GC */
-global object check_fdefinition (object funname, object caller);
+extern object check_fdefinition (object funname, object caller);
 /* used by CONTROL */
 
 /* Report an error when the argument is not an encoding:
@@ -12029,7 +12029,7 @@ global object check_fdefinition (object funname, object caller);
  > keyword_p: true if the object comes from the :EXTERNAL-FORMAT argument
  < encoding
  can trigger GC */
-global object check_encoding (object obj, const gcv_object_t* e_default,
+extern object check_encoding (object obj, const gcv_object_t* e_default,
                               bool keyword_p);
 /* used by ENCODING, FOREIGN */
 
@@ -12037,7 +12037,7 @@ global object check_encoding (object obj, const gcv_object_t* e_default,
  obj - bad object; caller - the calling function (a symbol)
  errtype - type_error or source_program_error
  can trigger GC */
-global object check_funname (condition_t errtype, object caller, object obj);
+extern object check_funname (condition_t errtype, object caller, object obj);
 
 # Error message, if an argument is a lambda-expression instead of a function:
 # fehler_lambda_expression(caller,obj);
@@ -12052,9 +12052,9 @@ nonreturning_function(extern, fehler_lambda_expression, (object caller, object o
 # > ngiven : the number of arguments given
 # < nmax   : the maximum number of arguments accepted
 # < nmin   : the minimum number of arguments required
-nonreturning_function(global, fehler_too_many_args,
+nonreturning_function(extern, fehler_too_many_args,
                       (object caller, object func, uintL ngiven, uintL nmax));
-nonreturning_function(global, fehler_too_few_args,
+nonreturning_function(extern, fehler_too_few_args,
                       (object caller, object func, uintL ngiven, uintL nmin));
 
 # used by EVAL, FOREIGN
@@ -12165,7 +12165,7 @@ extern object get_current_package (void);
 # is used by IO, EVAL
 
 /* check whether package lock prevents assignment to symbol */
-global void symbol_value_check_lock (object caller, object symbol);
+extern void symbol_value_check_lock (object caller, object symbol);
 /* used by EVAL */
 
 # UP: Initializes the package-management
@@ -12199,7 +12199,7 @@ extern BOOL real_path (LPCSTR namein, LPSTR nameout);
 
 /* Check that the namestring for path will be parsed into a similar object
  used by pr_orecord() in io.d */
-global bool namestring_correctly_parseable_p (gcv_object_t *path_);
+extern bool namestring_correctly_parseable_p (gcv_object_t *path_);
 
 # UP: Gives the directory-namestring in OS-format of a halfway checked
 #     pathname assuming that the directory of the pathname exists.
@@ -12236,7 +12236,7 @@ extern void init_pathnames (void);
 
 /* duplicate the handle (maybe into new_handle)
  must be surrounded with begin_system_call()/end_system_call() */
-global Handle handle_dup (Handle old_handle, Handle new_handle);
+extern Handle handle_dup (Handle old_handle, Handle new_handle);
 #if !defined(WIN32_NATIVE)
 #define INVALID_HANDLE_VALUE ((Handle)(-1))
 #endif
@@ -12772,7 +12772,7 @@ extern bool terminal_stream_p(object stream);
 # check whether the charset is valid
 # signal an error when code is invalid and charset is not nullobj
 # return false otherwise
-global bool check_charset (const char * code, object charset);
+extern bool check_charset (const char * code, object charset);
 # used in encoding.d
 
 # ####################### SYMBIBL for SYMBOL.D ############################# #
@@ -12798,7 +12798,7 @@ extern object get (object symbol, object key);
 /* check_real(obj) checks, if obj is a real number.
  < real number
  can trigger GC */
-global inline object check_real (object obj);
+extern object check_real (object obj);
 /* used by IO */
 
 # UP: Initializes the arithmetics.
