@@ -61,6 +61,7 @@
     (clos:defclass fundamental-stream (stream clos:standard-object)
       (($open :type boolean :initform t) ; whether the stream is open
        ($reval :type boolean :initform nil) ; whether read-eval is allowed
+       ($penl :type boolean :initform nil) ; whether an elastic newline is pending
 ) ) ) )
 
 (clos:defclass fundamental-input-stream (fundamental-stream)
@@ -110,7 +111,8 @@
     (apply #'sys::built-in-stream-close stream args))
   (:method ((stream fundamental-stream) &rest more-args)
     (declare (ignore more-args))
-    (clos:with-slots ($open) stream
+    (clos:with-slots ($open $penl) stream
+      (when $penl (setq $penl nil) (write-char #\Newline stream))
       (prog1 $open (setq $open nil))
   ) )
 )

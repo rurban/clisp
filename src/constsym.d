@@ -414,6 +414,7 @@ LISPSYM(write_string,"WRITE-STRING",lisp)
 LISPSYM(write_line,"WRITE-LINE",lisp)
 LISPSYM(terpri,"TERPRI",lisp)
 LISPSYM(fresh_line,"FRESH-LINE",lisp)
+LISPSYM(elastic_newline,"ELASTIC-NEWLINE",ext)
 LISPSYM(finish_output,"FINISH-OUTPUT",lisp)
 LISPSYM(force_output,"FORCE-OUTPUT",lisp)
 LISPSYM(clear_output,"CLEAR-OUTPUT",lisp)
@@ -1448,6 +1449,7 @@ LISPSYM(continue,"CONTINUE",lisp) /* restart for ERROR */
 LISPSYM(break_on_signals,"*BREAK-ON-SIGNALS*",lisp) /* variable for ERROR */
 LISPSYM(safe_typep,"SAFE-TYPEP",system) /* function for ERROR */
 LISPSYM(done_signaling,"DONE-SIGNALING",system) /* catch-tag for ERROR */
+LISPSYM(penl,"$PENL",system) /* slotname in STREAM */
 LISPSYM(stream_read_byte,"STREAM-READ-BYTE",gray)
 LISPSYM(stream_read_byte_lookahead,"STREAM-READ-BYTE-LOOKAHEAD",gray)
 LISPSYM(stream_read_byte_sequence,"STREAM-READ-BYTE-SEQUENCE",gray)

@@ -1,3 +1,35 @@
+2004-12-24  Bruno Haible  <bruno@clisp.org>
+
+	New function EXT:ELASTIC-NEWLINE.
+	* lispbibl.d (Stream): Add fields strm_wr_ch_npnl,
+	strm_wr_ch_array_npnl.
+	(fresh_line, elastic_newline): New declarations.
+	* stream.d (wr_ch_pending_newline): New function.
+	(write_char): When writing to a Gray stream, output pending newline.
+	(wr_ch_array_pending_newline): New function.
+	(write_char_array): When writing to a Gray stream, output pending
+	newline.
+	(harden_elastic_newline): New functions.
+	(stream_dummy_fill, make_synonym_stream, make_broadcast_stream,
+	make_twoway_stream, make_echo_stream, make_string_output_stream,
+	MAKE-STRING-OUTPUT-STREAM, SYSTEM::MAKE-STRING-PUSH-STREAM,
+	make_pphelp_stream, MAKE-BUFFERED-OUTPUT-STREAM, MAKE-GENERIC-STREAM,
+	fill_pseudofuns_unbuffered, fill_pseudofuns_buffered,
+	make_terminal_stream_, MAKE-WINDOW, make_socket_stream): Fill the
+	strm_wr_ch_npnl, strm_wr_ch_array_npnl fields as well.
+	(get_output_stream_string, builtin_stream_close, finish_output,
+	force_output): Call harden_elastic_newline.
+	(get_line_position): On a Gray stream, look at the $penl slot.
+	(elastic_newline_pending_p, fresh_line, elastic_newline): New
+	functions.
+	* io.d (FRESH-LINE): Use fresh_line.
+	(EXT:ELASTIC-NEWLINE): New function.
+	* debug.d (SYS::READ-EVAL-PRINT): Use fresh_line.
+	* pseudofun.d: Update.
+	* init.lisp: Export ext:elastic-newline.
+	* gray.lisp (fundamental-stream): Add $penl slot.
+	(close@fundamental-stream): Output pending newline.
+
 2005-01-04  Sam Steingold  <sds@gnu.org>
 
 	carry BOA-constructors and copier with the structure metaobject

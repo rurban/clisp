@@ -207,6 +207,7 @@
 <!ENTITY doseq "<link linkend='doseq'><function>EXT:DOSEQ</function></link>">
 <!ENTITY ds-t "<link linkend='dribble'><classname>EXT:DRIBBLE-STREAM</classname></link>">
 <!ENTITY editor "<link linkend='ed'><varname>CUSTOM:*EDITOR*</varname></link>">
+<!ENTITY elastic-newline "<link linkend='elastic-newline'><function>EXT:ELASTIC-NEWLINE</function></link>">
 <!ENTITY eltype "<link linkend='eltype'><constant>:ELEMENT-TYPE</constant></link>">
 <!ENTITY enc-built-in "<link linkend='charset-symbols'>built-in</link>"> <!-- encoding -->
 <!ENTITY enc-charset "<link linkend='enc-charset'><function>EXT:ENCODING-CHARSET</function></link>">
