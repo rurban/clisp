@@ -61,7 +61,7 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
   ;; table     ---a pprint dispatch table, or nil.
   ;; value:
   ;;  new-table---a fresh pprint dispatch table.
-  (unless (pprint-dispatch-p table)
+  (unless (or (null table) (pprint-dispatch-p table))
     (error-of-type 'type-error
       :datum table :expected-type '(satisfies pprint-dispatch-p)
       (TEXT "~S: ~S is not a valid print dispatch table")
