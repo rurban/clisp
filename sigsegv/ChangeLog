@@ -1,3 +1,8 @@
+1999-06-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * sigsegv.h.in (stackoverflow_context_t): More precise definition on
+          Solaris, Irix, OSF/1.
+
 1999-05-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * Makefile.in (install-lib): New target.
