@@ -14,6 +14,21 @@
 #-(or CLISP ALLEGRO LISPWORKS)
 T
 
+#+OpenMCL
+(progn
+  (import 'ccl::funcallable-standard-object "OPENMCL-MOP")
+  (export 'ccl::funcallable-standard-object "OPENMCL-MOP")
+  (import 'ccl::eql-specializer "OPENMCL-MOP")
+  (export 'ccl::eql-specializer "OPENMCL-MOP")
+  (import 'ccl::slot-definition "OPENMCL-MOP")
+  (export 'ccl::slot-definition "OPENMCL-MOP")
+  (import 'ccl::direct-slot-definition "OPENMCL-MOP")
+  (export 'ccl::direct-slot-definition "OPENMCL-MOP")
+  (import 'ccl::effective-slot-definition "OPENMCL-MOP")
+  (export 'ccl::effective-slot-definition "OPENMCL-MOP"))
+#+OpenMCL
+T
+
 #-(or CMU18 OpenMCL LISPWORKS)
 (progn
   (defstruct rectangle1 (x 0.0) (y 0.0))
@@ -181,106 +196,124 @@ AS-STRING
 #+CLISP "#<SPECIALIZER >"
 #+CMU "#<PCL:SPECIALIZER {}>"
 #+SBCL "#<SB-MOP:SPECIALIZER {}>"
-#-(or CLISP CMU SBCL) UNKNOWN
+#+OpenMCL "#<SPECIALIZER >"
+#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
+#-OpenMCL
 (as-string (allocate-instance (find-class 'class)))
 #+CLISP "#<CLASS #<UNBOUND>>"
 #+CMU "#<CLASS \"unbound\" {}>"
 #+SBCL "#<CLASS \"unbound\">"
-#-(or CLISP CMU SBCL) UNKNOWN
+#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
+#-OpenMCL
 (as-string (allocate-instance (find-class 'standard-class)))
 #+CLISP "#<STANDARD-CLASS #<UNBOUND> :UNINITIALIZED>"
 #+CMU "#<STANDARD-CLASS \"unbound\" {}>"
 #+SBCL "#<STANDARD-CLASS \"unbound\">"
-#-(or CLISP CMU SBCL) UNKNOWN
+#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
+#-OpenMCL
 (as-string (allocate-instance (find-class 'structure-class)))
 #+CLISP "#<STRUCTURE-CLASS #<UNBOUND>>"
 #+CMU "#<STRUCTURE-CLASS \"unbound\" {}>"
 #+SBCL "#<STRUCTURE-CLASS \"unbound\">"
-#-(or CLISP CMU SBCL) UNKNOWN
+#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
 (as-string (allocate-instance (find-class 'clos:eql-specializer)))
 #+CLISP "#<EQL-SPECIALIZER #<UNBOUND>>"
 #+CMU "#<PCL:EQL-SPECIALIZER {}>"
 #+SBCL "#<SB-MOP:EQL-SPECIALIZER {}>"
-#-(or CLISP CMU SBCL) UNKNOWN
+#+OpenMCL "#<EQL-SPECIALIZER \"<unbound>\" >"
+#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
+#-OpenMCL
 (as-string (allocate-instance (find-class 'clos:slot-definition)))
 #+CLISP "#<SLOT-DEFINITION #<UNBOUND> >"
 #+CMU "#<SLOT-DEFINITION \"unbound\" {}>"
 #+SBCL "#<SB-MOP:SLOT-DEFINITION \"unbound\">"
-#-(or CLISP CMU SBCL) UNKNOWN
+#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
+#-OpenMCL
 (as-string (allocate-instance (find-class 'clos:direct-slot-definition)))
 #+CLISP "#<DIRECT-SLOT-DEFINITION #<UNBOUND> >"
 #+CMU "#<DIRECT-SLOT-DEFINITION \"unbound\" {}>"
 #+SBCL "#<SB-MOP:DIRECT-SLOT-DEFINITION \"unbound\">"
-#-(or CLISP CMU SBCL) UNKNOWN
+#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
+#-OpenMCL
 (as-string (allocate-instance (find-class 'clos:effective-slot-definition)))
 #+CLISP "#<EFFECTIVE-SLOT-DEFINITION #<UNBOUND> >"
 #+CMU "#<EFFECTIVE-SLOT-DEFINITION \"unbound\" {}>"
 #+SBCL "#<SB-MOP:EFFECTIVE-SLOT-DEFINITION \"unbound\">"
-#-(or CLISP CMU SBCL) UNKNOWN
+#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
+#-OpenMCL
 (as-string (allocate-instance (find-class 'clos:standard-direct-slot-definition)))
 #+CLISP "#<STANDARD-DIRECT-SLOT-DEFINITION #<UNBOUND> >"
 #+CMU "#<STANDARD-DIRECT-SLOT-DEFINITION \"unbound\" {}>"
 #+SBCL "#<SB-MOP:STANDARD-DIRECT-SLOT-DEFINITION \"unbound\">"
-#-(or CLISP CMU SBCL) UNKNOWN
+#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
+#-OpenMCL
 (as-string (allocate-instance (find-class 'clos:standard-effective-slot-definition)))
 #+CLISP "#<STANDARD-EFFECTIVE-SLOT-DEFINITION #<UNBOUND> >"
 #+CMU "#<STANDARD-EFFECTIVE-SLOT-DEFINITION \"unbound\" {}>"
 #+SBCL "#<SB-MOP:STANDARD-EFFECTIVE-SLOT-DEFINITION \"unbound\">"
-#-(or CLISP CMU SBCL) UNKNOWN
+#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
+#-OpenMCL
 (as-string (allocate-instance (find-class 'method-combination)))
 #+CLISP "#<METHOD-COMBINATION #<UNBOUND> >"
 #+(or CMU SBCL) "#<METHOD-COMBINATION {}>"
-#-(or CLISP CMU SBCL) UNKNOWN
+#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
 (as-string (allocate-instance (find-class 'method)))
 #+CLISP "#<METHOD >"
 #+(or CMU SBCL) "#<METHOD {}>"
-#-(or CLISP CMU SBCL) UNKNOWN
+#+OpenMCL "#<METHOD >"
+#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
+#-OpenMCL
 (as-string (allocate-instance (find-class 'standard-method)))
 #+CLISP "#<STANDARD-METHOD :UNINITIALIZED>"
 #+CMU "#<#<STANDARD-METHOD {}> {}>"
 #+SBCL "#<STANDARD-METHOD #<STANDARD-METHOD {}> {}>"
-#-(or CLISP CMU SBCL) UNKNOWN
+#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
+#-OpenMCL
 (as-string (allocate-instance (find-class 'clos:standard-reader-method)))
 #+CLISP "#<STANDARD-READER-METHOD :UNINITIALIZED>"
 #+CMU "#<#<#<PCL:STANDARD-READER-METHOD {}> {}> {}>"
 #+SBCL "#<SB-MOP:STANDARD-READER-METHOD #<SB-MOP:STANDARD-READER-METHOD #<SB-MOP:STANDARD-READER-METHOD {}> {}> {}>"
-#-(or CLISP CMU SBCL) UNKNOWN
+#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
+#-OpenMCL
 (as-string (allocate-instance (find-class 'clos:standard-writer-method)))
 #+CLISP "#<STANDARD-WRITER-METHOD :UNINITIALIZED>"
 #+CMU "#<#<#<PCL:STANDARD-WRITER-METHOD {}> {}> {}>"
 #+SBCL "#<SB-MOP:STANDARD-WRITER-METHOD #<SB-MOP:STANDARD-WRITER-METHOD #<SB-MOP:STANDARD-WRITER-METHOD {}> {}> {}>"
-#-(or CLISP CMU SBCL) UNKNOWN
+#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
 (as-string (allocate-instance (find-class 'clos:funcallable-standard-object)))
 #+CLISP "#<FUNCALLABLE-STANDARD-OBJECT #<UNBOUND>>"
 #+CMU "#<PCL:FUNCALLABLE-STANDARD-OBJECT {}>"
 #+SBCL "#<SB-MOP:FUNCALLABLE-STANDARD-OBJECT {}>"
-#-(or CLISP CMU SBCL) UNKNOWN
+#+OpenMCL "#<CCL::FUNCALLABLE-STANDARD-OBJECT >"
+#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
 (as-string (allocate-instance (find-class 'generic-function)))
 #+CLISP "#<GENERIC-FUNCTION #<UNBOUND>>"
 #+(or CMU SBCL) "#<GENERIC-FUNCTION {}>"
-#-(or CLISP CMU SBCL) UNKNOWN
+#+OpenMCL "#<GENERIC-FUNCTION >"
+#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
 (as-string (allocate-instance (find-class 'standard-generic-function)))
 #+CLISP "#<STANDARD-GENERIC-FUNCTION #<UNBOUND>>"
 #+CMU "#<STANDARD-GENERIC-FUNCTION \"unbound\" \"?\" {}>"
 #+SBCL "#<STANDARD-GENERIC-FUNCTION \"unbound\" \"?\">"
-#-(or CLISP CMU SBCL) UNKNOWN
+#+OpenMCL "#<Anonymous STANDARD-GENERIC-FUNCTION >"
+#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
 
 
 ;; It is possible to redefine a class in a way that makes it non-finalized,
@@ -359,9 +392,9 @@ ERROR
       :function #'(lambda (args next-methods) (first args))))
   #-CLISP (foo133b 7))
 ERROR
-(typep *forwardclass* 'class)
+(not (not (typep *forwardclass* 'class)))
 T ; misdesign!
-(typep *forwardclass* 'clos:specializer)
+(not (not (typep *forwardclass* 'clos:specializer)))
 T ; misdesign!
 (subtypep 'clos:forward-referenced-class 'class)
 T ; misdesign!
@@ -431,10 +464,10 @@ ERROR
       :function #'(lambda (args next-methods) (first args))))
   #-CLISP (foo134b 7))
 ERROR
-(typep *forwardclass* 'class)
+(not (not (typep *forwardclass* 'class)))
 #+CLISP NIL
 #-CLISP T ; misdesign!
-(typep *forwardclass* 'clos:specializer)
+(not (not (typep *forwardclass* 'clos:specializer)))
 #+CLISP NIL
 #-CLISP T ; misdesign!
 (subtypep 'clos:forward-referenced-class 'class)
@@ -490,16 +523,19 @@ ERROR
   t)
 T
 
+#-OpenMCL
 (progn
   (defgeneric foo110 (x))
   (defmethod foo110 ((x integer)) (* x x))
   (defgeneric foo110 (x) (:generic-function-class my-gf-class))
   (defmethod foo110 ((x float)) (* x x x))
   (list (foo110 10) (foo110 3.0) (my-myslot #'foo110)))
+#-OpenMCL
 (100 27.0 17)
 
 ; Also check that the GC cleans up forward pointers.
 
+#-OpenMCL
 (progn
   (defgeneric foo111 (x))
   (defmethod foo111 ((x integer)) (* x x))
@@ -508,8 +544,10 @@ T
   (defmethod foo111 ((x float)) (* x x x))
   (list (foo111 10) (foo111 3.0) (my-myslot #'foo111)
         #+CLISP (eq (sys::%record-ref #'foo111 0) (clos::class-current-version (find-class 'my-gf-class)))))
+#-OpenMCL
 (100 27.0 17 #+CLISP T)
 
+#-OpenMCL
 (progn
   (defgeneric foo112 (x))
   (defmethod foo112 ((x integer)) (* x x))
@@ -518,7 +556,9 @@ T
   (gc)
   (list (foo112 10) (foo112 3.0) (my-myslot #'foo112)
         #+CLISP (eq (sys::%record-ref #'foo112 0) (clos::class-current-version (find-class 'my-gf-class)))))
+#-OpenMCL
 (100 27.0 17 #+CLISP T)
+
 
 ;; Check that ensure-generic-function supports both :DECLARE (ANSI CL)
 ;; and :DECLARATIONS (MOP).
@@ -532,6 +572,7 @@ T
   (ensure-generic-function 'foo114 :declarations '((optimize (speed 3))))
   (clos:generic-function-declarations #'foo114))
 ((OPTIMIZE (SPEED 3)))
+
 
 ;; Check that ensure-generic-function without :lambda-list argument works.
 (progn
@@ -650,6 +691,7 @@ T
 
 
 ;; Check that defgeneric supports user-defined options.
+#-OpenMCL
 (progn
   (defclass option-generic-function (standard-generic-function)
     ((option :accessor gf-option :initarg :my-option))
@@ -671,6 +713,7 @@ T
               (:my-option bar)
               (:other-option baz)
               (:generic-function-class option-generic-function))))))
+#-OpenMCL
 (T (FOO) NIL NIL)
 
 
@@ -1081,6 +1124,7 @@ EXTRA
 ;;;   compute-direct-slot-definition-initargs
 
 ;; Check that it's possible to generate accessors automatically.
+#+CLISP
 (progn
   (defclass auto-accessors-2-class (standard-class)
     ())
@@ -1106,6 +1150,7 @@ EXTRA
     (:metaclass auto-accessors-2-class))
   (let ((inst (make-instance 'testclass15 :x 12)))
     (list (testclass15-x inst) (setf (testclass15-y inst) 13))))
+#+CLISP
 (12 13)
 
 
@@ -1215,6 +1260,7 @@ EXTRA
 
 ;; Check that it's possible to generate initargs automatically and have a
 ;; default initform of 42.
+#-OpenMCL
 (progn
   (defclass auto-initargs-class (standard-class)
     ())
@@ -1239,6 +1285,7 @@ EXTRA
   (defclass testclass17 () ((x) (y)) (:metaclass auto-initargs-class))
   (let ((inst (make-instance 'testclass17 :x 17)))
     (list (slot-value inst 'x) (slot-value inst 'y))))
+#-OpenMCL
 (17 42)
 
 
@@ -1247,6 +1294,7 @@ EXTRA
 
 ;; Check that it's possible to generate initargs automatically and have a
 ;; default initform of 42.
+#+(or CLISP CMU SBCL)
 (progn
   (defclass auto-initargs-2-class (standard-class)
     ())
@@ -1270,6 +1318,7 @@ EXTRA
   (defclass testclass17-2 () ((x) (y)) (:metaclass auto-initargs-2-class))
   (let ((inst (make-instance 'testclass17-2 :x 17)))
     (list (slot-value inst 'x) (slot-value inst 'y))))
+#+(or CLISP CMU SBCL)
 (17 42)
 
 
@@ -2313,6 +2362,7 @@ T
 ;; Check that changing a generic function's class clears its
 ;; effective-methods and discriminating-function cache.
 ; The effective-methods cache:
+#-OpenMCL
 (progn
   (defgeneric testgf35 (x))
   (defmethod testgf35 ((x integer))
@@ -2329,8 +2379,10 @@ T
     (progn
       (change-class #'testgf35 'customized5-generic-function)
       (testgf35 3))))
+#-OpenMCL
 ((INTEGER REAL) (REAL INTEGER))
 ; The discriminating-function cache:
+#-OpenMCL
 (progn
   (defgeneric testgf36 (x))
   (defmethod testgf36 ((x integer))
@@ -2349,6 +2401,7 @@ T
     (progn
       (change-class #'testgf36 'customized6-generic-function)
       (testgf36 3))))
+#-OpenMCL
 ((INTEGER REAL) (REAL INTEGER))
 
 
@@ -2637,6 +2690,7 @@ t
 ;; Here we represent the virtual function table as a per-subclass shared slot.
 ;; TODO: Needs a little more work to deal with non-finalized classes.
 
+#-OpenMCL
 (progn
 
   ;; Every virtual generic function belongs to a particular "base class";
@@ -2883,4 +2937,5 @@ t
           (testgf30g instd 20)
           (testgf30h instc 30)
           (testgf30h instd 40))))
+#-OpenMCL
 ("f on A" "f on A" ("g on A" 10) ("g on D" 20) ("h on C" 30) ("h on D" 40))
