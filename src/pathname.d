@@ -1782,6 +1782,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
   {
     # Stackaufbau: thing, host, defaults, start, end, junk-allowed.
     var boolean junk_allowed;
+    var boolean host_was_null;
     var boolean parse_logical = FALSE;
     # 1. junk-allowed überprüfen:
     {
@@ -1801,11 +1802,12 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
     # 3. host überprüfen:
     #if HAS_HOST || defined(LOGICAL_PATHNAMES)
     {
-      var object host;
+      var object host = STACK_3;
+      host_was_null = (eq(host,unbound) || nullp(host));
       #if HAS_HOST
-      host = test_optional_host(STACK_3,FALSE);
+      host = test_optional_host(host,FALSE);
       #else
-      host = test_optional_host(STACK_3);
+      host = test_optional_host(host);
       #endif
       if (nullp(host)) {
         # host := (PATHNAME-HOST defaults)
@@ -1822,16 +1824,19 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
           host = NIL;
           #endif
         }
+      } else {
+        host_was_null = FALSE;
+        #ifdef LOGICAL_PATHNAMES
+        if (logical_host_p(host)) {
+          parse_logical = TRUE; host = string_upcase(host);
+        }
+        #endif
       }
-      #ifdef LOGICAL_PATHNAMES
-      elif (logical_host_p(host)) {
-        parse_logical = TRUE; host = string_upcase(host);
-      }
-      #endif
       STACK_3 = host;
     }
     #else
     test_optional_host(STACK_3);
+    host_was_null = TRUE;
     #endif
     # 4. thing muss ein String sein:
     var object thing = STACK_4;
@@ -2578,19 +2583,40 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               GETTEXT("~: syntax error in filename ~ at position ~")
              );
       }
-    #ifdef LOGICAL_PATHNAMES
-    if (parse_logical) {
-      if (!nullp(STACK_(3+2)))
-        # Hosts müssen übereinstimmen, vgl. CLtL2 S. 629
-        if (!equal(STACK_(3+2),TheLogpathname(STACK_0)->pathname_host)) {
-          pushSTACK(STACK_0);
-          pushSTACK(TheLogpathname(STACK_(0+1))->pathname_host);
-          pushSTACK(STACK_(3+2+2));
-          pushSTACK(S(parse_namestring));
-          fehler(error,
-                 GETTEXT("~: hosts ~ and ~ of ~ should coincide")
-                );
-        }
+    #if HAS_HOST || defined(LOGICAL_PATHNAMES)
+    # Check that if a :host argument was present and the parsed pathname has
+    # a host component, they agree.
+    if (!host_was_null) {
+      #ifdef LOGICAL_PATHNAMES
+      if (parse_logical) {
+        var object parsed_host = TheLogpathname(STACK_0)->pathname_host;
+        if (!nullp(parsed_host))
+          if (!equal(STACK_(3+2),parsed_host)) {
+            pushSTACK(STACK_0);
+            pushSTACK(parsed_host);
+            pushSTACK(STACK_(3+2+2));
+            pushSTACK(S(parse_namestring));
+            fehler(error,
+                   GETTEXT("~: hosts ~ and ~ of ~ should coincide")
+                  );
+          }
+      } else
+      #endif
+      {
+        #if HAS_HOST
+        var object parsed_host = ThePathname(STACK_0)->pathname_host;
+        if (!nullp(parsed_host))
+          if (!equal(STACK_(3+2),parsed_host)) {
+            pushSTACK(STACK_0);
+            pushSTACK(parsed_host);
+            pushSTACK(STACK_(3+2+2));
+            pushSTACK(S(parse_namestring));
+            fehler(error,
+                   GETTEXT("~: hosts ~ and ~ of ~ should coincide")
+                  );
+          }
+        #endif
+      }
     }
     #endif
     value1 = STACK_0; # Pathname als 1. Wert
