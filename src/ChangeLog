@@ -1,6 +1,13 @@
+2003-05-15  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (MAKE-STREAM): implemented
+	* constsym.d, subr.d, subrkw.d (make_stream): added
+	* init.lisp (MAKE-STREAM): export
+	* lispbibl.d (stream_lend_handle): declared
+
 2003-05-15  Jörg Höhle  <hoehle@users.sourceforge.net>
 
-	* modules/bindings/linuxlibc6/linux.lisp (linux:errno): working
+	* modules/bindings/linuxlibc6/linux.lisp (errno): works now
 
 2003-05-14  Sam Steingold  <sds@gnu.org>
 
@@ -773,7 +780,8 @@
 2003-04-01  Sam Steingold  <sds@gnu.org>
 
 	Export struct slot accessors
-	* linux.lisp (exporting-slots): new local macro, used for def-c-struct
+	* modules/bindings/linuxlibc6/linux.lisp (exporting-slots):
+	new local macro, used for def-c-struct
 	Suggested by Pascal Bourguignon <pjb@informatimago.com>
 	(stdin, stdout, stderr): simple foreign variables (def-c-var)
 	Reported by Jörg Höhle

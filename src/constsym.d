@@ -913,6 +913,7 @@ LISPSYM(socket_options,"SOCKET-OPTIONS",socket)
 #ifdef HAVE_SHUTDOWN
 LISPSYM(socket_stream_shutdown,"SOCKET-STREAM-SHUTDOWN",socket)
 #endif
+LISPSYM(make_stream,"MAKE-STREAM",ext)
 #ifndef WIN32_NATIVE
 LISPSYM(socket_stream_handle,"SOCKET-STREAM-HANDLE",socket)
 #endif

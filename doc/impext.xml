@@ -3984,7 +3984,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
       &optional-amp; <replaceable>link-p</replaceable>)</literal></term>
  <listitem><simpara>Return the stat struct.  &path-r; can be a
    &stream-t;, a &pathname-t;, a &string-t; or a &number-t;
-   (on a &unix; system, meaning file descriptor).
+   (on a &unix; system, meaning &file-des;).
    The first slot of the struct returned is the string or the number on
    which &stat;/&fstat;/&lstat; was called.  The other 13 slots are
    numbers, members of the stat struct: device, inode, protection,

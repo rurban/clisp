@@ -293,7 +293,7 @@
    read-char-will-hang-p
    read-char-sequence write-char-sequence
    read-byte-sequence write-byte-sequence
-   convert-string-from-bytes convert-string-to-bytes
+   convert-string-from-bytes convert-string-to-bytes make-stream
    #+(or UNIX OS/2 WIN32) make-pipe-output-stream
    #+(or UNIX OS/2 WIN32) make-pipe-input-stream
    #+(or UNIX OS/2 WIN32) make-pipe-io-stream

@@ -15361,6 +15361,34 @@ local object handle_to_stream (Handle fd, object direction, object buff_p,
   return make_file_stream(dir,false,dir == DIRECTION_IO);
 }
 
+LISPFUN(make_stream,seclass_default,1,0,norest,key,4,
+        (kw(direction),kw(element_type),kw(external_format),kw(buffered)) )
+{
+  var Handle fd;
+ restart_make_stream:
+  if (posfixnump(STACK_4))
+    fd = (Handle)posfixnum_to_L(STACK_4);
+  else if (eq(STACK_4,S(Kinput)))
+    fd = stdin_handle;
+  else if (eq(STACK_4,S(Koutput)))
+    fd = stdout_handle;
+  else if (eq(STACK_4,S(Kerror)))
+    fd = stderr_handle;
+  else if (streamp(STACK_4)) {
+    var direction_t dir = check_direction(STACK_3);
+    var int junk; /* for handle type */
+    fd = stream_lend_handle(STACK_4,READ_P(dir),&junk);
+  } else {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(STACK_(4+1)); pushSTACK(TheSubr(subr_self)->name);
+    check_value(error,GETTEXT("~: ~ should be a handle, handle stream, or direction"));
+    STACK_4 = value1;
+    goto restart_make_stream;
+  }
+  VALUES1(handle_to_stream(fd,STACK_3,STACK_0,STACK_1,STACK_2));
+  skipSTACK(5);
+}
+
 #undef READ_P
 #undef WRITE_P
 

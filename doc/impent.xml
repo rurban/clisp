@@ -179,6 +179,7 @@
 <!ENTITY load-obs "<link linkend='loadfile'><varname>CUSTOM:*LOAD-OBSOLETE-ACTION*</varname></link>">
 <!ENTITY load-paths "<link linkend='load-paths'><varname>CUSTOM:*LOAD-PATHS*</varname></link>">
 <!ENTITY make-encoding "<link linkend='make-encoding'><function>EXT:MAKE-ENCODING</function></link>">
+<!ENTITY make-stream "<link linkend='make-stream'><function>EXT:MAKE-STREAM</function></link>">
 <!ENTITY mapcap "<link linkend='mapcap'><function>EXT:MAPCAP</function></link>">
 <!ENTITY maplap "<link linkend='mapcap'><function>EXT:MAPLAP</function></link>">
 <!ENTITY match-t "<classname>REGEXP::REGMATCH_T</classname>">
