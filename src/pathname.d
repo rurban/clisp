@@ -8478,8 +8478,6 @@ LISPFUN(open,1,0,norest,key,5,\
   # Methode: Breadth-first-search, damit nur eine Suchoperation gleichzeitig
   # l‰uft.
   #
-  #ifdef PATHNAME_EXT83
-  #
   #ifdef WATCOM
     # Die findfirst/findnext-Routinen sollen gef‰lligst errno setzen:
     local int findfirst (const char * path, struct ffblk * buf, unsigned int attr);
@@ -8505,6 +8503,69 @@ LISPFUN(open,1,0,norest,key,5,\
             return -1; # Error
       }   }
   #endif
+  #
+  #if defined(MSDOS) || defined(WIN32_NATIVE)
+    # Common set of macros for directory search.
+    #ifdef MSDOS
+      #define READDIR_wildnametype_suffix  O(wild_wild_string) # "*.*"
+      #define READDIR_var_declarations  \
+        var struct ffblk DTA_buffer; \
+        set_break_sem_4(); # wegen DTA-Buffer gegen Unterbrechungen sperren
+      #define READDIR_end_declarations  \
+        clr_break_sem_4();
+      #define READDIR_findfirst(pathstring,error_statement,done_statement)  \
+        if (findfirst(pathstring,&DTA_buffer,FA_DIREC|FA_ARCH|FA_RDONLY) <0) \
+          { if (!((errno==ENOENT) || (errno==ENOMORE)))                      \
+              { error_statement }                                            \
+            else                                                             \
+              { done_statement }                                             \
+          }
+      #define READDIR_findnext(error_statement,done_statement)  \
+        if (findnext(&DTA_buffer) <0)                                        \
+          { if (!((errno==ENOENT) || (errno==ENOMORE)))                      \
+              { error_statement }                                            \
+            else                                                             \
+              { done_statement }                                             \
+          }
+      #define READDIR_entry_name()  (&DTA_buffer.ff_name[0])
+      #define READDIR_entry_ISDIR()  (DTA_buffer.ff_attrib & FA_DIREC)
+      #define READDIR_entry_timedate(timepointp)  \
+        convert_timedate((uintW)DTA_buffer.ff_ftime,(uintW)DTA_buffer.ff_fdate,timepointp);
+      #define READDIR_entry_size()  (*(uintL*)(&DTA_buffer.ff_fsize))
+    #endif
+    #ifdef WIN32_NATIVE
+      #define READDIR_wildnametype_suffix  O(wild_string) # "*"
+      #define READDIR_var_declarations  \
+        var WIN32_FIND_DATA filedata; \
+        var HANDLE search_handle;
+      #define READDIR_end_declarations
+      #define READDIR_findfirst(pathstring,error_statement,done_statement)  \
+        if ((search_handle = FindFirstFile(pathstring,&filedata)) == INVALID_HANDLE_VALUE)       \
+          { if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND)) \
+              { error_statement }                                                                \
+            else                                                                                 \
+              { done_statement }                                                                 \
+          }
+      #define READDIR_findnext(error_statement,done_statement)  \
+        if (!FindNextFile(search_handle,&filedata))                                              \
+          { if (!(GetLastError()==ERROR_NO_MORE_FILES) || !FindClose(search_handle))             \
+              { error_statement }                                                                \
+            else                                                                                 \
+              { done_statement }                                                                 \
+          }
+      #define READDIR_entry_name()  (&filedata.cFileName[0])
+      #define READDIR_entry_ISDIR()  (filedata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+      #define READDIR_entry_timedate(timepointp)  \
+        { var FILETIME* pftimepoint = &filedata.ftLastWriteTime;               \
+          if (pftimepoint->dwLowDateTime==0 && pftimepoint->dwHighDateTime==0) \
+            pftimepoint = &filedata.ftCreationTime;                            \
+          convert_time(pftimepoint,timepointp);                                \
+        }
+      #define READDIR_entry_size()  filedata.nFileSizeLow
+    #endif
+  #endif
+  #
+  #ifdef PATHNAME_EXT83
   #
   # UP: Extrahiert Name und Typ aus dem DTA-Buffer.
   # Es wird angenommen, dass Name und Typ aus zul‰ssigen Groﬂbuchstaben
@@ -8552,24 +8613,22 @@ LISPFUN(open,1,0,norest,key,5,\
       {
        #ifdef MSDOS
         # Dateisuche gem‰ﬂ DOS-Konvention:
-        var struct ffblk DTA_buffer;
-        set_break_sem_4(); # wegen DTA-Buffer gegen Unterbrechungen sperren
+        READDIR_var_declarations;
         # Suchanfang, suche nach Ordnern und normalen Dateien:
         begin_system_call();
-        if (findfirst(TheAsciz(pathstring),&DTA_buffer,FA_DIREC|FA_ARCH|FA_RDONLY) <0)
-          { if (!((errno==ENOENT) || (errno==ENOMORE)))
-              { end_system_call(); OS_file_error(STACK_0); }
-          }
-          else # Keine Datei gefunden -> Schleife nicht durchlaufen
+        do {
+          READDIR_findfirst(TheAsciz(pathstring),
+                            { end_system_call(); OS_file_error(STACK_0); },
+                            break; );
           loop
             { # Stackaufbau: new-pathname-list, pathname.
               end_system_call();
               # gefundene Datei untersuchen:
-              if (DTA_buffer.ff_attrib & FA_DIREC) # sollte ein Unterdirectory sein
-                if (!(DTA_buffer.ff_name[0] == '.')) # sollte nicht mit '.' anfangen
+              if (READDIR_entry_ISDIR()) # sollte ein Unterdirectory sein
+                if (!(READDIR_entry_name()[0] == '.')) # sollte nicht mit '.' anfangen
                   # (sonst ist es wohl '.' oder '..', wird ¸bergangen)
                   { # in Name.Typ aufspalten, Default-Typ "" :
-                    extract(&DTA_buffer.ff_name[0],O(leer_string));
+                    extract(READDIR_entry_name(),O(leer_string));
                    {var object new_cons = allocate_cons();
                     Car(new_cons) = popSTACK(); Cdr(new_cons) = popSTACK();
                     # new_cons = (name . type)
@@ -8595,14 +8654,11 @@ LISPFUN(open,1,0,norest,key,5,\
                   }}
               # n‰chstes File:
               begin_system_call();
-              if (findnext(&DTA_buffer) <0)
-                { if (!((errno==ENOENT) || (errno==ENOMORE)))
-                    { end_system_call(); OS_file_error(STACK_0); }
-                  break; # Keine weitere Datei -> Schleifenende
-                }
+              READDIR_findnext({ end_system_call(); OS_file_error(STACK_0); }, break; );
             }
+          } while (FALSE);
         end_system_call();
-        clr_break_sem_4();
+        READDIR_end_declarations;
        #endif
       }
   #
@@ -8750,62 +8806,58 @@ LISPFUN(open,1,0,norest,key,5,\
            {var object pathstring = string_concat(stringcount); # zusammenh‰ngen
             #ifdef MSDOS
              # Dateisuche gem‰ﬂ DOS-Konvention:
-             var struct ffblk DTA_buffer;
-             set_break_sem_4(); # wegen DTA-Buffer gegen Unterbrechungen sperren
+             READDIR_var_declarations;
              # Suchanfang, suche nur nach normalen Dateien:
              begin_system_call();
-             if (findfirst(TheAsciz(pathstring),&DTA_buffer,FA_ARCH|FA_RDONLY) <0)
-               { if (!((errno==ENOENT) || (errno==ENOMORE)))
-                   { end_system_call(); OS_file_error(STACK_0); }
-               }
-               else # Keine Datei gefunden -> Schleife nicht durchlaufen
+             do {
+               READDIR_findfirst(TheAsciz(pathstring),
+                                 { end_system_call(); OS_file_error(STACK_0); },
+                                 break;
+                                );
                loop
                  { # Stackaufbau: ..., next-pathname.
                    end_system_call();
                    # gefundene Datei untersuchen:
-                   { # in Name.Typ aufspalten, Default-Typ NIL :
-                     extract(&DTA_buffer.ff_name[0],NIL);
-                    {# letzten Pathname kopieren und Name und Typ eintragen:
-                     var object new = copy_pathname(STACK_2);
-                     ThePathname(new)->pathname_name = popSTACK();
-                     ThePathname(new)->pathname_type = popSTACK();
-                     # Full-Flag abtesten und evtl. mehr Information besorgen:
-                     if (!nullp(STACK_(0+3+1)))
-                       { pushSTACK(new); # newpathname als 1. Listenelement
-                         pushSTACK(new); # newpathname als 2. Listenelement
-                         { # Uhrzeit und Datum von DOS-Format in Decoded-Time umwandeln:
-                           var decoded_time timepoint;
-                           convert_timedate((uintW)DTA_buffer.ff_ftime,(uintW)DTA_buffer.ff_fdate,
-                                        &timepoint);
-                           pushSTACK(timepoint.Sekunden);
-                           pushSTACK(timepoint.Minuten);
-                           pushSTACK(timepoint.Stunden);
-                           pushSTACK(timepoint.Tag);
-                           pushSTACK(timepoint.Monat);
-                           pushSTACK(timepoint.Jahr);
-                           new = listof(6); # 6-elementige Liste bauen
+                   if (!READDIR_entry_ISDIR())
+                     { # in Name.Typ aufspalten, Default-Typ NIL :
+                       extract(READDIR_entry_name(),NIL);
+                      {# letzten Pathname kopieren und Name und Typ eintragen:
+                       var object new = copy_pathname(STACK_2);
+                       ThePathname(new)->pathname_name = popSTACK();
+                       ThePathname(new)->pathname_type = popSTACK();
+                       # Full-Flag abtesten und evtl. mehr Information besorgen:
+                       if (!nullp(STACK_(0+3+1)))
+                         { pushSTACK(new); # newpathname als 1. Listenelement
+                           pushSTACK(new); # newpathname als 2. Listenelement
+                           { # Uhrzeit und Datum von DOS-Format in Decoded-Time umwandeln:
+                             var decoded_time timepoint;
+                             READDIR_entry_timedate(&timepoint);
+                             pushSTACK(timepoint.Sekunden);
+                             pushSTACK(timepoint.Minuten);
+                             pushSTACK(timepoint.Stunden);
+                             pushSTACK(timepoint.Tag);
+                             pushSTACK(timepoint.Monat);
+                             pushSTACK(timepoint.Jahr);
+                             new = listof(6); # 6-elementige Liste bauen
+                           }
+                           pushSTACK(new); # als 3. Listenelement
+                           pushSTACK(UL_to_I(READDIR_entry_size())); # L‰nge als 4. Listenelement
+                           new = listof(4); # 4-elementige Liste bauen
                          }
-                         pushSTACK(new); # als 3. Listenelement
-                         pushSTACK(UL_to_I(*(uintL*)(&DTA_buffer.ff_fsize))); # L‰nge als 4. Listenelement
-                         new = listof(4); # 4-elementige Liste bauen
-                       }
-                     # new auf die Liste new-pathname-list pushen:
-                      pushSTACK(new);
-                     {var object new_cons = allocate_cons();
-                      Car(new_cons) = popSTACK();
-                      Cdr(new_cons) = STACK_(0+1);
-                      STACK_(0+1) = new_cons;
-                   }}}
+                       # new auf die Liste new-pathname-list pushen:
+                        pushSTACK(new);
+                       {var object new_cons = allocate_cons();
+                        Car(new_cons) = popSTACK();
+                        Cdr(new_cons) = STACK_(0+1);
+                        STACK_(0+1) = new_cons;
+                     }}}
                    # n‰chstes File:
                    begin_system_call();
-                   if (findnext(&DTA_buffer) <0)
-                     { if (!((errno==ENOENT) || (errno==ENOMORE)))
-                         { end_system_call(); OS_file_error(STACK_0); }
-                       break; # Keine weitere Datei -> Schleifenende
-                     }
+                   READDIR_findnext({ end_system_call(); OS_file_error(STACK_0); }, break; );
                  }
+               } while (FALSE);
              end_system_call();
-             clr_break_sem_4();
+             READDIR_end_declarations;
             #endif
           }}
           skipSTACK(1); # next-pathname vergessen
@@ -9542,60 +9594,28 @@ LISPFUN(open,1,0,norest,key,5,\
                #endif
                #if defined(MSDOS) || defined(WIN32_NATIVE)
                 pushSTACK(STACK_0); # Directory-Name
-                #ifdef MSDOS
-                pushSTACK(O(wild_wild_string)); # und "*.*"
-                #endif
-                #ifdef WIN32_NATIVE
-                pushSTACK(O(wild_string)); # und "*"
-                #endif
+                pushSTACK(READDIR_wildnametype_suffix); # und "*.*" bzw. "*"
                 pushSTACK(O(null_string)); # und Nullbyte
                {var object namestring = string_concat(3); # zusammenh‰ngen
                 # Directory absuchen, gem‰ﬂ DOS-Konvention bzw. Win32-Konvention:
-                #ifdef MSDOS
-                var struct ffblk DTA_buffer;
-                set_break_sem_4(); # wegen DTA-Buffer gegen Unterbrechungen sperren
-                #endif
-                #ifdef WIN32_NATIVE
-                var WIN32_FIND_DATA filedata;
-                var HANDLE search_handle;
-                #endif
+                READDIR_var_declarations;
                 # Suchanfang, suche nach Ordnern und normalen Dateien:
                 begin_system_call();
-                #ifdef MSDOS
-                if (findfirst(TheAsciz(namestring),&DTA_buffer,FA_DIREC|FA_ARCH|FA_RDONLY) <0)
-                  { if (!((errno==ENOENT) || (errno==ENOMORE)))
-                      { end_system_call(); OS_file_error(STACK_1); }
-                  }
-                #endif
-                #ifdef WIN32_NATIVE
-                search_handle = FindFirstFile(TheAsciz(namestring),&filedata);
-                if (search_handle==INVALID_HANDLE_VALUE)
-                  { if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND))
-                      { end_system_call(); OS_file_error(STACK_1); }
-                  }
-                #endif
-                  else # Keine Datei gefunden -> Schleife nicht durchlaufen
+                do {
+                  READDIR_findfirst(TheAsciz(namestring),
+                                    { end_system_call(); OS_file_error(STACK_1); },
+                                    break; );
                   loop
                     { end_system_call();
                      {# Directory-Eintrag in String umwandeln:
-                      #ifdef MSDOS
-                      var object direntry = asciz_to_string(&DTA_buffer.ff_name[0]);
-                      #endif
-                      #ifdef WIN32_NATIVE
-                      var object direntry = asciz_to_string(&filedata.cFileName[0]);
-                      #endif
+                      var object direntry = asciz_to_string(READDIR_entry_name());
                       # "." und ".." ¸bergehen:
                       if (!(equal(direntry,O(punkt_string))
                             || equal(direntry,O(punktpunkt_string))
                          ) )
                         { pushSTACK(direntry);
                           # Stackaufbau: ..., pathname, dir_namestring, direntry.
-                          #ifdef MSDOS
-                          if (DTA_buffer.ff_attrib & FA_DIREC) # Ist es ein Directory?
-                          #endif
-                          #ifdef WIN32_NATIVE
-                          if (filedata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) # Ist es ein Directory?
-                          #endif
+                          if (READDIR_entry_ISDIR()) # Ist es ein Directory?
                             # Eintrag ist ein Directory.
                             { if (recursively) # alle rekursiven Subdirectories gew¸nscht?
                                 # ja -> zu einem Pathname machen und auf
@@ -9643,16 +9663,7 @@ LISPFUN(open,1,0,norest,key,5,\
                                           pushSTACK(new); # newpathname als 2. Listenelement
                                           { # Uhrzeit und Datum von DOS-Format in Decoded-Time umwandeln:
                                             var decoded_time timepoint;
-                                            #ifdef MSDOS
-                                            convert_timedate((uintW)DTA_buffer.ff_ftime,(uintW)DTA_buffer.ff_fdate,
-                                                             &timepoint);
-                                            #endif
-                                            #ifdef WIN32_NATIVE
-                                            var FILETIME* pftimepoint = &filedata.ftLastWriteTime;
-                                            if (pftimepoint->dwLowDateTime==0 && pftimepoint->dwHighDateTime==0)
-                                              pftimepoint = &filedata.ftCreationTime;
-                                            convert_time(pftimepoint,&timepoint);
-                                            #endif
+                                            READDIR_entry_timedate(&timepoint);
                                             pushSTACK(timepoint.Sekunden);
                                             pushSTACK(timepoint.Minuten);
                                             pushSTACK(timepoint.Stunden);
@@ -9662,12 +9673,7 @@ LISPFUN(open,1,0,norest,key,5,\
                                             new = listof(6); # 6-elementige Liste bauen
                                           }
                                           pushSTACK(new); # als 3. Listenelement
-                                          #ifdef MSDOS
-                                          pushSTACK(UL_to_I(*(uintL*)(&DTA_buffer.ff_fsize))); # L‰nge als 4. Listenelement
-                                          #endif
-                                          #ifdef WIN32_NATIVE
-                                          pushSTACK(UL_to_I(filedata.nFileSizeLow)); # L‰nge als 4. Listenelement
-                                          #endif
+                                          pushSTACK(UL_to_I(READDIR_entry_size())); # L‰nge als 4. Listenelement
                                           new = listof(4); # 4-elementige Liste bauen
                                         }
                                       pushSTACK(new);
@@ -9681,25 +9687,11 @@ LISPFUN(open,1,0,norest,key,5,\
                         }
                       # n‰chstes File:
                       begin_system_call();
-                      #ifdef MSDOS
-                      if (findnext(&DTA_buffer) <0)
-                        { if (!((errno==ENOENT) || (errno==ENOMORE)))
-                            { end_system_call(); OS_file_error(STACK_1); }
-                          break; # Keine weitere Datei -> Schleifenende
-                        }
-                      #endif
-                      #ifdef WIN32_NATIVE
-                      if (!FindNextFile(search_handle,&filedata))
-                        { if (!(GetLastError()==ERROR_NO_MORE_FILES))
-                            { end_system_call(); OS_file_error(STACK_1); }
-                          if (!FindClose(search_handle))
-                            { end_system_call(); OS_file_error(STACK_1); }
-                          break; # Keine weitere Datei -> Schleifenende
-                        }
-                      #endif
+                      READDIR_findnext({ end_system_call(); OS_file_error(STACK_1); }, break; );
                     }}
+                  } while (FALSE);
                 end_system_call();
-                clr_break_sem_4();
+                READDIR_end_declarations;
                }
                #endif
               }
