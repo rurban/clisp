@@ -3825,12 +3825,14 @@ functions are provided:
 
 </section>
 
+<!-- //Commented out from the source code.
 <section id="print-object"><title>Generic Function &print-object;</title>
 <para>The function &print-object; verifies the &ansi-cl; requirement that its
 return value is the same as its first argument. It issues a warning if one of
 the &print-object; methods yields a wrong return value. To get rid of such a
 warning, you need to fix the source code of the incriminated method.</para>
 </section>
+-->
 
 <section id="print-unreadable-object">
  <title>Macro &print-unreadable-object;</title>
