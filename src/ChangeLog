@@ -4,6 +4,12 @@
 	* io.d (pr_enter_1): use `pprint_first_newline' to determine
 	whether to output a newline before the object.
 	* constsym.d: new symbol LISP:*PPRINT-FIRST-NEWLINE*.
+	* bindings/linuxlibc6/linux.lsp: do not include <stdlib.h>, fixed
+	declaration of `lldiv', removed: `setkey', `crypt', `encrypt',
+	`__pwdopen', `__pwdread', `__pwdalloc', `__pwdscan', `__grpopen',
+	`__grpread', `__grpalloc', `__grpscan'.
+	* foreign1.lsp (to-c-typedecl): more elaborate handling of `c-ptr',
+	`c-ptr-null', `c-array-ptr' and `c-function'.
 
 1998-10-06  Sam Steingold  <sds@goems.com>
 
