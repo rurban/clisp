@@ -422,8 +422,7 @@ local object convert_function_to_foreign (object fun, object resulttype,
         if (equal_fvd(resulttype,Car(acons))
             && equal_argfvds(argtypes,Car(Cdr(acons)))
             && eq(flags,Car(Cdr(Cdr(acons))))) {
-          var object index = Cdr(Cdr(Cdr(acons)));
-          var gcv_object_t* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*posfixnum_to_L(index)-2];
+          var gcv_object_t* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*posfixnum_to_L(Cdr(Cdr(Cdr(acons))))-2];
           triple[2] = fixnum_inc(triple[2],1); /* increment reference count */
           var object ffun = triple[1];
           ASSERT(equal_fvd(resulttype,TheFfunction(ffun)->ff_resulttype));
@@ -441,21 +440,22 @@ local object convert_function_to_foreign (object fun, object resulttype,
   pushSTACK(argtypes);
   pushSTACK(flags);
   { /* First grab an index. */
-    var uintL index = posfixnum_to_L(TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[0]);
-    if (index != 0) { /* remove first index from the free list */
+    var uintL f_index = posfixnum_to_L(TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[0]);
+    if (f_index != 0) { /* remove first index from the free list */
       var object dv = TheIarray(O(foreign_callin_vector))->data;
-      TheSvector(dv)->data[0] = TheSvector(dv)->data[3*index];
+      TheSvector(dv)->data[0] = TheSvector(dv)->data[3*f_index];
     } else { /* free list exhausted */
       var uintC i;
       dotimesC(i,3, {
         pushSTACK(NIL); pushSTACK(O(foreign_callin_vector));
         funcall(L(vector_push_extend),2);
       });
-      index = floor(vector_length(O(foreign_callin_vector)),3);
+      f_index = floor(vector_length(O(foreign_callin_vector)),3);
     }
     { /* Next allocate the trampoline. */
       begin_system_call();
-      var void* trampoline = (void*) alloc_callback(&callback,(void*)(uintP)index);
+      var void* trampoline =
+        (void*)alloc_callback(&callback,(void*)(uintP)f_index);
       end_system_call();
       pushSTACK(make_faddress(O(fp_zero),(uintP)trampoline));
       /* Now allocate the foreign-function. */
@@ -467,7 +467,7 @@ local object convert_function_to_foreign (object fun, object resulttype,
       TheFfunction(obj)->ff_flags = STACK_0;
       STACK_3 = obj;
     }
-    pushSTACK(fixnum(index)); funcall(L(liststern),4); pushSTACK(value1);
+    pushSTACK(fixnum(f_index)); funcall(L(liststern),4); pushSTACK(value1);
     /* Stack layout: fun, obj, acons. */
     { /* Put it into the hash table. */
       var object new_cons = allocate_cons();
@@ -479,7 +479,7 @@ local object convert_function_to_foreign (object fun, object resulttype,
       shifthash(O(foreign_callin_table),STACK_1,new_cons);
     }
     /* Put it into the vector. */
-    var gcv_object_t* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*index-2];
+    var gcv_object_t* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*f_index-2];
     triple[1] = popSTACK(); /* obj */
     triple[0] = popSTACK(); /* fun */
     triple[2] = Fixnum_1; /* refcount := 1 */
@@ -493,19 +493,19 @@ local void free_foreign_callin (void* address)
   begin_system_call();
   if (is_callback(address) /* safety check */
       && (callback_address(address) == &callback)) {
-    var uintL index = (uintL)(uintP)callback_data(address);
+    var uintL cb_data = (uintL)(uintP)callback_data(address);
     end_system_call();
     var object dv = TheIarray(O(foreign_callin_vector))->data;
-    var gcv_object_t* triple = &TheSvector(dv)->data[3*index-2];
+    var gcv_object_t* triple = &TheSvector(dv)->data[3*cb_data-2];
     if (!nullp(triple[1])) { /* safety check */
       triple[2] = fixnum_inc(triple[2],-1); /* decrement reference count */
       if (eq(triple[2],Fixnum_0)) {
         var object fun = triple[0];
         var object ffun = triple[1];
-        /* clear vector entry, put index onto free list: */
+        /* clear vector entry, put index=cb_data onto free list: */
         triple[0] = NIL; triple[1] = NIL;
         triple[2] = TheSvector(dv)->data[0];
-        TheSvector(dv)->data[0] = fixnum(index);
+        TheSvector(dv)->data[0] = fixnum(cb_data);
         { /* remove from hash table entry: */
           var object alist = gethash(fun,O(foreign_callin_table));
           if (!eq(alist,nullobj)) { /* safety check */
@@ -513,7 +513,7 @@ local void free_foreign_callin (void* address)
             var object alist1 = alist;
             var object alist2 = alist;
             while (consp(alist2)) {
-              if (eq(Cdr(Cdr(Cdr(Car(alist2)))),fixnum(index))) {
+              if (eq(Cdr(Cdr(Cdr(Car(alist2)))),fixnum(cb_data))) {
                 if (eq(alist2,alist)) {
                   alist2 = alist1 = Cdr(alist2);
                   shifthash(O(foreign_callin_table),fun,alist2);
@@ -543,9 +543,9 @@ local object convert_function_from_foreign (void* address, object resulttype,
   begin_system_call();
   if (is_callback(address) /* safety check */
       && (callback_address(address) == &callback)) {
-    var uintL index = (uintL)(uintP)callback_data(address);
+    var uintL cb_data = (uintL)(uintP)callback_data(address);
     end_system_call();
-    var gcv_object_t* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*index-2];
+    var gcv_object_t* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*cb_data-2];
     var object ffun = triple[1];
     check_cc_match(ffun,resulttype,argtypes,flags);
     return ffun;
@@ -578,18 +578,6 @@ local object convert_function_from_foreign (void* address, object resulttype,
   #define struct_uint64  uint64
   #define struct_sint64  sint64
 #endif
-
-/* malloc() with error check. */
-local void* xmalloc (uintL size)
-{
-  begin_system_call();
-  var void* ptr = malloc(size);
-  end_system_call();
-  if (ptr)
-    return ptr;
-  fehler(storage_condition,
-         GETTEXT("No more room for foreign language interface"));
-}
 
 /* Compute the size and alignment of foreign data.
  foreign_layout(fvd);
@@ -1857,27 +1845,29 @@ local void convert_to_foreign (object fvd, object obj, void* data)
           cstombs(O(foreign_encoding),ptr1,len,(uintB*)data,len);
         } else if (eq(eltype,S(uint8)) && bit_vector_p(Atype_8Bit,obj)) {
           if (size > 0) {
-            var uintL index = 0;
-            obj = array_displace_check(obj,size,&index);
-            var const uint8* ptr1 = &TheSbvector(obj)->data[index];
+            var uintL offset = 0;
+            obj = array_displace_check(obj,size,&offset);
+            var const uint8* ptr1 = &TheSbvector(obj)->data[offset];
             var uint8* ptr2 = (uint8*)data;
             var uintL count;
             dotimespL(count,size, { *ptr2++ = *ptr1++; } );
           }
         } else if (eq(eltype,S(uint16)) && bit_vector_p(Atype_16Bit,obj)) {
           if (size > 0) {
-            var uintL index = 0;
-            obj = array_displace_check(obj,size,&index);
-            var const uint16* ptr1 = (uint16*)&TheSbvector(obj)->data[2*index];
+            var uintL offset = 0;
+            obj = array_displace_check(obj,size,&offset);
+            var const uint16* ptr1 =
+              (uint16*)&TheSbvector(obj)->data[2*offset];
             var uint16* ptr2 = (uint16*)data;
             var uintL count;
             dotimespL(count,size, { *ptr2++ = *ptr1++; } );
           }
         } else if (eq(eltype,S(uint32)) && bit_vector_p(Atype_32Bit,obj)) {
           if (size > 0) {
-            var uintL index = 0;
-            obj = array_displace_check(obj,size,&index);
-            var const uint32* ptr1 = (uint32*)&TheSbvector(obj)->data[4*index];
+            var uintL offset = 0;
+            obj = array_displace_check(obj,size,&offset);
+            var const uint32* ptr1 =
+              (uint32*)&TheSbvector(obj)->data[4*offset];
             var uint32* ptr2 = (uint32*)data;
             var uintL count;
             dotimespL(count,size, { *ptr2++ = *ptr1++; } );
@@ -1920,9 +1910,9 @@ local void convert_to_foreign (object fvd, object obj, void* data)
         } else if (eq(eltype,S(uint8)) && bit_vector_p(Atype_8Bit,obj)) {
           var uint8* ptr2 = (uint8*)data;
           if (len > 0) {
-            var uintL index = 0;
-            obj = array_displace_check(obj,len,&index);
-            var const uint8* ptr1 = &TheSbvector(obj)->data[index];
+            var uintL offset = 0;
+            obj = array_displace_check(obj,len,&offset);
+            var const uint8* ptr1 = &TheSbvector(obj)->data[offset];
             var uintL count;
             dotimespL(count,len, { *ptr2++ = *ptr1++; } );
           }
@@ -1931,9 +1921,10 @@ local void convert_to_foreign (object fvd, object obj, void* data)
         } else if (eq(eltype,S(uint16)) && bit_vector_p(Atype_16Bit,obj)) {
           var uint16* ptr2 = (uint16*)data;
           if (len > 0) {
-            var uintL index = 0;
-            obj = array_displace_check(obj,len,&index);
-            var const uint16* ptr1 = (uint16*)&TheSbvector(obj)->data[2*index];
+            var uintL offset = 0;
+            obj = array_displace_check(obj,len,&offset);
+            var const uint16* ptr1 =
+              (uint16*)&TheSbvector(obj)->data[2*offset];
             var uintL count;
             dotimespL(count,len, { *ptr2++ = *ptr1++; } );
           }
@@ -1942,9 +1933,10 @@ local void convert_to_foreign (object fvd, object obj, void* data)
         } else if (eq(eltype,S(uint32)) && bit_vector_p(Atype_32Bit,obj)) {
           var uint32* ptr2 = (uint32*)data;
           if (len > 0) {
-            var uintL index = 0;
-            obj = array_displace_check(obj,len,&index);
-            var const uint32* ptr1 = (uint32*)&TheSbvector(obj)->data[4*index];
+            var uintL offset = 0;
+            obj = array_displace_check(obj,len,&offset);
+            var const uint32* ptr1 =
+              (uint32*)&TheSbvector(obj)->data[4*offset];
             var uintL count;
             dotimespL(count,len, { *ptr2++ = *ptr1++; } );
           }
@@ -2053,7 +2045,7 @@ global void convert_to_foreign_allocaing (object fvd, object obj, void* data)
  free_foreign() is called on it.) */
 local void* mallocing (void* old_data, uintL size, uintL alignment)
 {
-  return xmalloc(size);
+  return my_malloc(size);
 }
 global void convert_to_foreign_mallocing (object fvd, object obj, void* data)
 {
@@ -2630,7 +2622,7 @@ LISPFUN(foreign_allocate,seclass_default,1,0,norest,key,3,
   var uintL arg_alignment = data_alignment;
   if (arg_size == 0) { fehler_eltype_zero_size(arg_fvd); }
   /* Perform top-level allocation of sizeof(fvd), sublevel allocations follow */
-  var void* arg_address = xmalloc(arg_size);
+  var void* arg_address = my_malloc(arg_size);
   blockzero(arg_address,arg_size);
   /* Create FOREIGN-VARIABLE now so that it may be used in error message */
   pushSTACK(make_faddress(allocate_fpointer(arg_address),0));
@@ -3527,9 +3519,8 @@ local void do_va_return (uintWL flags, object result_fvd, va_alist alist, void* 
 /* This is the CALL-IN function called by the trampolines. */
 local void callback (void* data, va_alist alist)
 {
-  var uintL index = (uintL)(uintP)data;
   begin_callback();
-  var gcv_object_t* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*index-2];
+  var gcv_object_t* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*((uintL)(uintP)data)-2];
   var object fun = triple[0];
   var object ffun = triple[1];
   var uintWL flags = posfixnum_to_L(TheFfunction(ffun)->ff_flags);

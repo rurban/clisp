@@ -4030,16 +4030,6 @@ static void ensure_valid_put_image_args (int src_x, int src_y, int w, int h,
   }
 }
 
-static void* my_malloc (int size) {
-  void *data;
-  X_CALL(data = malloc (size));
-  if (data == 0) {
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler (error, "~: Could not malloc.");
-  }
-  return data;
-}
-
 static void handle_image_z (int src_x, int src_y, int x, int y, int w, int h,
                             GC gcontext, Drawable drawable,
                             int bitmap_p, Display *dpy)
