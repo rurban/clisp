@@ -1124,6 +1124,7 @@
   (restart-case (error condition)
     (continue () ; for check_fdefinition() only!
       :report (lambda (stream) (format stream (report-no-new-value-string)))
+      :interactive assert-restart-no-prompts
       :test (lambda (c) (declare (ignore c))
                     (and (consp place) (eq 'fdefinition (car place))))
       (return-from check-value (values nil 0)))
