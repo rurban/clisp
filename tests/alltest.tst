@@ -1293,7 +1293,7 @@ T
 
 (let ((s (prin1-to-string DOUBLE-FLOAT-EPSILON )))
   (or #+XCL (equal s "1.387778780781446D-17")
-      #+    CLISP      (equal s "1.1107651257113995d-16") ; linux/i386
+      ;; #+    CLISP      (equal s "1.1107651257113995d-16") ; linux/i386
       #+(or CLISP CMU) (equal s "1.1102230246251568d-16")
       #+ALLEGRO (equal s "2.220446049250313d-16")))
 T
@@ -1321,7 +1321,7 @@ T
 
 (let ((s (prin1-to-string DOUBLE-FLOAT-NEGATIVE-EPSILON )))
   (or #+XCL (equal s "1.387778780781446D-17")
-      #+    CLISP      (equal s "5.553825628556998d-17") ; linux/i386
+      ;; #+    CLISP      (equal s "5.553825628556998d-17") ; linux/i386
       #+(or CLISP CMU) (equal s "5.551115123125784d-17")
       #+ALLEGRO (equal s "2.220446049250313d-16")))
 T
