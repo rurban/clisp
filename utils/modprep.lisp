@@ -334,6 +334,8 @@ The vector is freshly constructed, but the strings are shared"
 (defvar *emulation-count* 0)
 
 (defun parse-signature (fname line &key (start 0) (end (length line)))
+  (unless end
+    (error "~S:~D: unterminated signature ~S" *input-file* *lineno* line))
   (loop :with seen-opt :and seen-key :and seen-rest :and keys
     :and opt = 0 :and req = 0 :and pos2 = start
     :for pos1 = (next-non-blank line pos2)
