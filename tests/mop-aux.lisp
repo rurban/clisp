@@ -885,7 +885,7 @@
 (defun clos::compute-effective-method-as-function (gf methods args)
   (declare (ignore args))
   (when (null methods)
-    (return-from compute-effective-method-as-function
+    (return-from clos::compute-effective-method-as-function
       (no-applicable-method-caller gf)))
   ;; Apply method combination:
   (let ((ef-fun (compute-effective-method-as-function-form gf (clos:generic-function-method-combination gf) methods)))
