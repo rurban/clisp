@@ -93,16 +93,16 @@ set       toc,title
 <xsl:param name="section.label.includes.component.label" select="1"/>
 
 <xsl:template name="user.footer.content">
- <xsl:if test="refentryinfo"><div class="refentryinfo">
-   <hr width="100%"/><table width="100%">
-    <th><td align="left"><xsl:value-of select="refentryinfo/title"/></td>
-     <td align="center"><xsl:value-of select="refentryinfo/subtitle"/></td>
-     <td align="right"><xsl:value-of select="refentryinfo/date"/></td></th>
+ <xsl:if test="//refentryinfo"><div class="refentryinfo">
+   <hr width="100%"/><table width="100%" summary="man page meta info">
+    <th><td align="left"><xsl:value-of select="//refentryinfo/title"/></td>
+     <td align="center"><xsl:value-of select="//refentryinfo/subtitle"/></td>
+     <td align="right"><xsl:value-of select="//refentryinfo/date"/></td></th>
  </table></div></xsl:if>
- <xsl:if test="bookinfo"><div class="bookinfo">
-   <hr width="100%"/><table width="100%">
-    <th><td align="left"><xsl:value-of select="bookinfo/subtitle"/></td>
-     <td align="right"><xsl:value-of select="bookinfo/date"/></td></th>
+ <xsl:if test="//bookinfo"><div class="bookinfo">
+   <hr width="100%"/><table width="100%" summary="impnotes meta info">
+    <th><td align="left"><xsl:value-of select="//bookinfo/subtitle"/></td>
+     <td align="right"><xsl:value-of select="//bookinfo/date"/></td></th>
  </table></div></xsl:if>
  <div class="custom-footer"><hr width="100%"/><table width="100%">
    <tr><td align="left"><a href="http://clisp.cons.org">
@@ -111,9 +111,11 @@ set       toc,title
       <img src="http://www.gnu.org/graphics/gnubanner.jpg" width="468"
            height="60" alt="[Come and see what GNU creates for YOU]"/></a></td>
     <td align="right"><a href="http://sourceforge.net">
-      <img src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&#38;amp;type=2"
-           width="125" height="37" alt="[SourceForge]"/></a></td></tr>
- </table></div>
+      <img width="125" height="37" alt="[SourceForge]">
+       <xsl:attribute name="src">
+        <xsl:text>http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=2&amp;page=</xsl:text>
+        <xsl:value-of select="@id"/>
+ </xsl:attribute></img></a></td></tr></table></div>
 </xsl:template>
 
 </xsl:stylesheet>
