@@ -1,3 +1,9 @@
+2002-07-01  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (main): removed the obsolete -W option for the sake of
+	the CYGWIN port getting "-M c:/gnu/clisp/lispinit.mem"
+	* _clisp.c (main): ditto
+
 2002-07-01  LaMont Jones  <lamont@smallone.fc.hp.com>
 
 	* ffcall/callback/trampoline_r/trampoline.c (alloc_trampoline_r)
