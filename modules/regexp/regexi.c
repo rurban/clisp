@@ -103,7 +103,7 @@ DEFUN(REGEXP::REGEXP-EXEC, pattern string &key START END NOTBOL NOTEOL)
     for (count = 0; count <= re->re_nsub; count++) {
       pushSTACK(posfixnum(start+ret[count].rm_so));
       pushSTACK(posfixnum(start+ret[count].rm_eo));
-      funcall(`REGEXP::MAKE-MATCH`,2); pushSTACK(value1);
+      funcall(`REGEXP::MAKE-MATCH-BOA`,2); pushSTACK(value1);
     }
     funcall(L(values),re->re_nsub+1);
   }
