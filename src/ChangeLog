@@ -1,3 +1,8 @@
+1999-05-03  Sam Steingold  <sds@goems.com>
+
+	* pathname.d (file_stat): use `built_in_stream_open_p' instead of
+	`open_stream_p'.
+
 1999-05-02  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * aclocal.m4 (CL_SIGALTSTACK): New macro.

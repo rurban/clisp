@@ -11061,7 +11061,7 @@ LISPFUN(file_stat,1,1,norest,nokey,0,NIL)
 
   if (builtin_stream_p(file)) {
     pushSTACK(file);
-    funcall(L(open_stream_p),1);
+    funcall(L(built_in_stream_open_p),1);
     if (nullp(value1)) {        # closed stream
       file = as_file_stream(file);
       if (nullp(TheStream(file)->strm_file_truename))
