@@ -1,6 +1,9 @@
 2003-06-19  Sam Steingold  <sds@gnu.org>
 
 	* type.lisp (canonicalize-type): canonicalize (VECTOR NIL) correctly
+	* predtype.d (CLASS-OF): handle (ARRAY NIL) correctly
+	* describe.lisp (describe-object): report (ARRAY NIL)
+	as having no storage
 
 2003-06-19  Sam Steingold  <sds@gnu.org>
 
