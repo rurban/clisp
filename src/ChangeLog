@@ -18,17 +18,17 @@
 	(make_machine): Update.
 	(TheFfloat): Depend on IMMEDIATE_FFLOAT.
 	(cgci_pointable, pgci_pointable, ngci_pointable): New macros.
-	(TheCons, TheRatio, TheComplex, TheSymbol, TheBignum, TheFfloat,
-	TheDfloat, TheLfloat, TheSarray, TheSbvector, TheS8string,
-	TheS16string, TheS32string, TheSstring, TheSvector, TheWeakKVT,
-	TheSiarray, TheIarray, TheRecord, TheSrecord, TheXrecord, ThePackage,
-	TheHashtable, TheReadtable, ThePathname, TheLogpathname,
-	The_Random_state, TheByte, TheFsubr, TheLoadtimeeval, TheSymbolmacro,
-	TheMacro, TheFunctionMacro, TheEncoding, TheFpointer, TheFaddress,
-	TheFvariable, TheFfunction, TheWeakpointer, TheFinalizer,
-	TheSocketServer, TheDirKey, TheYetanother, TheStream, TheStructure,
-	TheClass, TheClosure, TheIclosure, TheCclosure, TheInstance, TheSubr,
-	TheFramepointer, TheMachine, TheVarobject, ThePointer): Use them.
+	(TheCons, TheRatio, TheComplex, TheSymbol, TheBignum, TheFfloat)
+	(TheDfloat, TheLfloat, TheSarray, TheSbvector, TheS8string)
+	(TheS16string, TheS32string, TheSstring, TheSvector, TheWeakKVT)
+	(TheSiarray, TheIarray, TheRecord, TheSrecord, TheXrecord, ThePackage)
+	(TheHashtable, TheReadtable, ThePathname, TheLogpathname)
+	(The_Random_state, TheByte, TheFsubr, TheLoadtimeeval, TheSymbolmacro)
+	(TheMacro, TheFunctionMacro, TheEncoding, TheFpointer, TheFaddress)
+	(TheFvariable, TheFfunction, TheWeakpointer, TheFinalizer)
+	(TheSocketServer, TheDirKey, TheYetanother, TheStream, TheStructure)
+	(TheClass, TheClosure, TheIclosure, TheCclosure, TheInstance, TheSubr)
+	(TheFramepointer, TheMachine, TheVarobject, ThePointer): Use them.
 	(eq): Update.
 	(bias_type_pointer_object): Update.
 	(subr_tab_ptr_as_object, S_help_): Update.
