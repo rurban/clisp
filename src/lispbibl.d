@@ -7367,11 +7367,17 @@ extern void hex_out_ (unsigned long num);
 extern void mem_hex_out (const void* buf, uintL count);
 # used for debugging purposes
 
-# Print an Lisp-object in Lisp notation relatively directly
+# Print a Lisp object in Lisp notation relatively directly
 # through the operating system:
 # object_out(obj);
 # can trigger GC
-extern void object_out (object obj);
+extern object object_out (object obj);
+# can trigger GC
+# print the object with label, file name and line number
+# this can trigger GC, but will save and restore OBJ
+#define OBJECT_OUT(obj,label)                                           \
+  (asciz_out_s("[%s:",__FILE__), asciz_out_1("%d] ",__LINE__),          \
+   asciz_out_ss("%s: %s:\n",STRING(obj),label), obj=object_out(obj))
 # used for debugging purposes
 
 # After allocating memory for an object, add the type infos.
