@@ -4514,8 +4514,11 @@ compiles a file to platform-independent bytecode.</para>
 <para>The variables <emphasis
  role="strong"><varname>CUSTOM:*COMPILE-WARNINGS*</varname></emphasis>,
  &compile-verbose-var;, &compile-print-var; provide defaults for the
- &warnings-k;, &verbose-k;, &print-k; keyword arguments, respectively.
- For each input file (default file type: &lisp-file;)
+ &warnings-k;, &verbose-k;, &print-k; keyword arguments, respectively,
+ and are bound by &compile-file; to the values of the arguments, i.e.,
+ these arguments are recursive.</para>
+
+<para>For each input file (default file type: &lisp-file;)
  the following files are generated:</para>
 
 <table id="compile-file-new-files-table" frame="all"><title/>
@@ -4602,12 +4605,12 @@ effects when being loaded, this is important as well.
 
 <section id="loadfile"><title>Function &load;</title>
 
-<para>&load; has three additional keywords &echo-k;, &compiling-k;, and
- &extra-file-types-k;.</para>
+<para>&load; has four additional keywords &echo-k;, &compiling-k;,
+ &extra-file-types-k;, and &obsolete-action-k;.</para>
 
 <para><literal role="sexp">(&load; &filename-r; &key-amp; &verbose-k;
  &print-k; &echo-k; &if-does-not-exist; &compiling-k;
- &extra-file-types-k;)</literal></para>
+ &extra-file-types-k; &obsolete-action-k;)</literal></para>
 
 <variablelist>
  <varlistentry><term>&verbose-k; &t;</term>
@@ -4645,7 +4648,28 @@ effects when being loaded, this is important as well.
   and <filename>#P&quot;foo.fas&quot;</filename> are found in the
   &load-paths;), then the <emphasis>newest</emphasis> file is loaded.
  </simpara></listitem></varlistentry>
+ <varlistentry><term>&obsolete-action-k; &nil;</term>
+  <listitem><simpara>Specifies the action to take when loading a
+   &fasl-file; with a different <link linkend="bytecode">bytecode</link>
+   version from the one supported by this &clisp; version.
+   The possible actions are <constant>:DELETE</constant> to delete the
+   &fasl-file; and &error-k; to signal and &error;.
+   The default action is to &warn; and look for another matching file.
+   If no file can be loaded and &if-does-not-exist; is non-&nil;,
+   an &error; is signaled.
+   The default is <emphasis
+   role="strong"><varname>CUSTOM:*LOAD-OBSOLETE-ACTION*</varname></emphasis>,
+   which is initially &nil;.</simpara></listitem></varlistentry>
 </variablelist>
+
+<para>The variables &load-verbose-var;, &load-print-var;,
+<varname>CUSTOM:*LOAD-OBSOLETE-ACTION*</varname>,
+<varname>CUSTOM:*LOAD-COMPILING*</varname>, and
+<varname>CUSTOM:*LOAD-ECHO*</varname> are bound by &load; when it
+receives a corresponding keyword argument (&verbose-k;, &print-k;,
+&obsolete-action-k, &compiling-k;, and &echo-k;), i.e., these arguments
+are recursive, just like the arguments &warnings-k;, &verbose-k;, and
+&print-k; for &compile-file;.</para>
 
 <formalpara id="load-paths"><title>Variable &load-paths;</title>
 <para>The variable &load-paths; contains a list of directories where the
