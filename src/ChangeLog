@@ -1,3 +1,9 @@
+2003-02-16  Sam Steingold  <sds@gnu.org>
+
+	* cmacros.lisp (define-compiler-macro): pass non-NIL as the 3rd
+	argument of SYS::CHECK-REDEFINITION only when actually redefining
+	* clos.lisp (analyze-method-description): ditto
+
 2003-02-15  Sam Steingold  <sds@gnu.org>
 
 	* defstruct.lisp (defstruct): permit keywords as structure names
