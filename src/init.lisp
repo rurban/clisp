@@ -439,7 +439,7 @@
 (let ((clos-extra
         '(;; MOP for dependents
           ;; MOP for slot definitions
-          slot-definition
+          slot-definition standard-slot-definition
           direct-slot-definition standard-direct-slot-definition
           effective-slot-definition standard-effective-slot-definition
           slot-definition-name

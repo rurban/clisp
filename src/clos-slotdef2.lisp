@@ -63,6 +63,12 @@
 
 ;;; ---------------------------------------------------------------------------
 
+;; Define the class <standard-slot-definition>.
+(macrolet ((form () *<standard-slot-definition>-defclass*))
+  (form))
+
+;;; ---------------------------------------------------------------------------
+
 ;; Define the class <standard-direct-slot-definition>.
 (defparameter <standard-direct-slot-definition>
   (macrolet ((form () *<standard-direct-slot-definition>-defclass*))
