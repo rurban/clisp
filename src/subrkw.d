@@ -189,7 +189,7 @@ s(foreign_allocate)
 v(1, (kw(full)))
 s(foreign_free)
 #endif
-#if defined(UNIX) || defined(WIN32_NATIVE) || defined(RISCOS)
+#if defined(UNIX) || defined(WIN32_NATIVE)
 v(9, (kw(element_type),kw(external_format),kw(buffered),kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority)))
 s(launch)
 #endif

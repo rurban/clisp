@@ -62,7 +62,7 @@ T = $(TOPDIR)
 SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.spec $T/clisp.lsm $T/configure
 SOURCES2 = $T/src
 SOURCES4 = $T/ffcall $T/libcharset $T/utils
-SOURCES5 = $T/unix $T/os2 $T/win32msvc $T/win32bc $T/amiga $T/acorn $T/nextapp
+SOURCES5 = $T/unix $T/os2 $T/win32msvc $T/win32bc $T/amiga $T/nextapp
 SOURCES6 = $T/modules
 # $T/benchmarks are for developers only
 SOURCES7 = $T/tests $T/emacs $T/doc $T/Makefile.devel
@@ -82,7 +82,7 @@ all : makefiles configures potfiles src/FILES src/VERSION src/version.h     \
 	ffcall/callback/vacall_r/config.h.msvc                              \
 	ffcall/callback/vacall_r/vacall_r.h.msvc                            \
 	ffcall/callback/trampoline_r/config.h.msvc                          \
-	acorn/pathname.txt htmldoc
+	htmldoc
 
 ffcall-i386 : ffcall/avcall/avcall-i386-msvc.c          \
 	ffcall/vacall/vacall-i386-msvc.c                \
@@ -91,7 +91,7 @@ ffcall-i386 : ffcall/avcall/avcall-i386-msvc.c          \
 htmldoc:
 	cd doc && make impnotes.html && make html && cd ..;
 
-makefiles : os2/makefile acorn/makefile.cc acorn/makefile.gcc              \
+makefiles : os2/makefile                                                   \
 	win32bc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc7 \
 	win32msvc/makefile.msvc5 win32msvc/makefile.msvc5d
 
@@ -116,12 +116,6 @@ win32msvc/makefile.msvc7 : makemake
 
 win32bc/makefile : makemake
 	./makemake win32bc bcc32i > win32bc/makefile
-
-acorn/makefile.cc : makemake src/VERSION
-	./makemake acorn cc | $(PERL) acorn/swap-ext.pl > acorn/makefile.cc
-
-acorn/makefile.gcc : makemake src/VERSION
-	./makemake acorn gcc | $(PERL) acorn/swap-ext.pl > acorn/makefile.gcc
 
 makemake : src/makemake.in
 	(echo "#!/bin/sh" ; cat src/makemake.in) > makemake
@@ -271,9 +265,6 @@ ffcall/callback/vacall_r/vacall-i386-msvc.c : ffcall/callback/vacall_r/vacall-i3
 ffcall/callback/trampoline_r/config.h.in :
 ffcall/callback/trampoline_r/config.h.msvc : ffcall/callback/trampoline_r/config.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel callback/trampoline_r/config.h.msvc
-
-acorn/pathname.txt : src/pathname.d
-	cat src/pathname.d | sed -e '1,/Burwood/d' | sed -e '/Components/,$$d' > acorn/pathname.txt
 
 
 distrib : linux-distrib src-distrib

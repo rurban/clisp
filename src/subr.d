@@ -714,7 +714,7 @@ LISPFUN(ensure_directories_exist,seclass_default,1,0,norest,key,1,
         (kw(verbose)))
 LISPFUNNR(file_write_date,1)
 LISPFUNNR(file_author,1)
-#if defined(UNIX) || defined(MSDOS) || defined(RISCOS)
+#if defined(UNIX) || defined(MSDOS)
 LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
 #endif
 #if defined(AMIGAOS)
@@ -726,7 +726,7 @@ LISPFUNN(shell_name,0)
 #endif
 LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL)
 #endif
-#if defined(UNIX) || defined(WIN32_NATIVE) || defined(RISCOS)
+#if defined(UNIX) || defined(WIN32_NATIVE)
 LISPFUN(launch,seclass_default,1,0,norest,key,9,(kw(element_type),kw(external_format),kw(buffered),kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority)))
 #endif
 #ifdef WIN32_NATIVE

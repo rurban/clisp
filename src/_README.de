@@ -96,9 +96,6 @@ oder
 #ifdef OS2
       lisp.exe         Hauptprogramm
 #endif
-#ifdef RISCOS
-      lisp             Hauptprogramm
-#endif
       lispinit.mem     beim Start benötigtes Speicherabbild
 #ifdef GNU_GETTEXT
       locale/*/LC_MESSAGES/clisp.mo  Datenbanken lokalisierter Meldungen
@@ -132,10 +129,6 @@ oder
       emx.dll          EMX als dynamische OS/2-Bibliothek
       emxlibc.dll      die EMX-libc als dynamische OS/2-Bibliothek
       termcap.dat      Datenbank von Terminal-Beschreibungen
-#endif
-#ifdef RISCOS
-      !Run             Startdatei für CLISP
-      !Sprites         Pictogramm für CLISP
 #endif
       README           dies hier
       SUMMARY          Kurzbeschreibung von CLISP
@@ -186,16 +179,6 @@ Speichererweiterungskarten. Die CLISP-00 genannte Version läuft nur auf
 arbeitet mit 64 Bit Integern, läuft daher in beliebigem Speicher, aber nur
 mit 68020 oder besser (z.B. A4000 mit VMM) und ist wegen der 64 Bit
 langsamer als CLISP-HIGH.
-
-#endif
-#ifdef RISCOS
-
-Hardware-Voraussetzungen:
--------------------------
-
-Diese Version von CLISP setzt einen Acorn Archimedes oder Acorn Risc PC mit
-mindestens 4 MB RAM und RISC OS 3.0 voraus. Wie man eine CLISP-Version
-produziert, die in nur 2 MB läuft, siehe unten.
 
 #endif
 #if defined(SINGLEMAP_MEMORY) && (defined(UNIX_LINUX) || !defined(HAVE_MMAP_ANON))
@@ -285,11 +268,6 @@ Starten Sie dann
 #ifdef UNIX
          base/lisp.run -M base/lispinit.mem
 #endif
-#ifdef RISCOS
-         lisp -M mem.lispinit
-
-oder geben Sie einen Doppelklick auf das !Clisp Verzeichnis.
-#endif
 
 Auf den LISP-Prompt
 
@@ -297,13 +275,6 @@ Auf den LISP-Prompt
 
 hin eingeben:
 
-#ifdef RISCOS
-        (cd "<clisp$path>")
-
-(um sicherzustellen, daß das !Clisp Verzeichnis zum aktuellen Verzeichnis
-wird), dann
-
-#endif
 #if defined(UNIX) || defined(WIN32)
       (without-package-lock ()
         (compile-file "src/config.lisp")
@@ -339,10 +310,8 @@ Alles weitere erledigt ein
 Sie können dies stattdessen auch selber, schrittweise tun:
 
 #endif
-#ifndef RISCOS
 Legen Sie ein Verzeichnis an und legen Sie das ausführbare Programm und das
 Speicherabbild dort ab.
-#endif
 #ifdef UNIX
 Ich schlage hierfür /usr/local/lib/lisp vor:
 
@@ -417,25 +386,6 @@ Beispielsweise
 
    WINDOW=CON:0/11/640/200/CLISP-Fenster/CLOSE
    ARGS=-M lispinit.mem
-
-#endif
-#ifdef RISCOS
-
-Wenig Speicher?
----------------
-
-Wenn Sie nur 2 MB RAM haben, können Sie leicht ein abgemagertes CLISP
-produzieren, das weniger Speicher verlangt, aber ohne Teile von CLtL2,
-dpANS-LOOP, CLOS, Conditions und generische Streams daherkommt: Ersetzen
-Sie defs2.fas, loop.fas, clos.fas, conditio.fas, defs3.fas, gstream.fas
-durch leere Dateien und starten Sie
-
-   lisp
-   > (load "init.fas")
-   > (saveinitmem)
-   > (exit)
-
-Dadurch wird lispinit.mem durch ein kleineres überschrieben.
 
 #endif
 
@@ -527,15 +477,6 @@ Portierung für den Amiga:
         Jörg Höhle
 
 Email: Joerg.Hoehle@gmd.de
-#endif
-#ifdef RISCOS
-
-Portierung für den Acorn RISC OS PC:
-------------------------------------
-
-        Peter Burwood
-
-Email: clisp@arcangel.dircon.co.uk
 #endif
 
 Wartung und Pflege:

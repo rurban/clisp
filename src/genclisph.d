@@ -278,12 +278,12 @@ int main(int argc, char* argv[])
   printf("#define var\n");
   printf("#define NOTREACHED  fehler_notreached(__FILE__,__LINE__)\n");
   printf("#define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)\n");
-#if defined(GNU) && !defined(RISCOS) && !defined(CONVEX)
+#if defined(GNU) && !defined(CONVEX)
   printf("#define alloca  __builtin_alloca\n");
 #elif defined(MICROSOFT)
   printf("#include <malloc.h>\n");
   printf("#define alloca _alloca\n");
-#elif defined(HAVE_ALLOCA_H) || defined(RISCOS)
+#elif defined(HAVE_ALLOCA_H)
   printf("#include <alloca.h>\n");
  #ifndef alloca
   #ifdef UNIX_OSF
@@ -369,7 +369,7 @@ int main(int argc, char* argv[])
      printf("#define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  arrayeltype arrayvar[arraysize]\n");
    #endif
    printf("#define FREE_DYNAMIC_ARRAY(arrayvar)\n");
- #elif (defined(UNIX) && (defined(HAVE_ALLOCA_H) || defined(_AIX) || !defined(NO_ALLOCA))) || defined(MICROSOFT) || defined(RISCOS)
+ #elif (defined(UNIX) && (defined(HAVE_ALLOCA_H) || defined(_AIX) || !defined(NO_ALLOCA))) || defined(MICROSOFT)
    printf("#define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  arrayeltype* arrayvar = (arrayeltype*)alloca((arraysize)*sizeof(arrayeltype))\n");
    printf("#define FREE_DYNAMIC_ARRAY(arrayvar)\n");
  #else
@@ -1748,7 +1748,7 @@ int main(int argc, char* argv[])
 #ifdef AMIGAOS
   printf("extern object convert_time_to_universal (const struct DateStamp * datestamp);\n");
 #endif
-#if defined(UNIX) || defined(MSDOS) || defined(RISCOS)
+#if defined(UNIX) || defined(MSDOS)
   printf("#include <time.h>\n");
   printf("extern object convert_time_to_universal (const time_t* time);\n");
 #endif

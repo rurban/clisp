@@ -2586,7 +2586,7 @@ local void gc_unmarkcheck (void) {
     #if !defined(GENERATIONAL_GC)
     gar_col_normal();
     #ifdef SPVW_PAGES
-    #if defined(UNIX) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32)
+    #if defined(UNIX) || defined(AMIGAOS) || defined(WIN32)
     # if the allocated, but unoccupied memory in pages
     # comprises more than 25% of what is occupied, compactification
     # is worthwhile, because a half-empty page costs the

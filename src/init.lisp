@@ -1709,8 +1709,7 @@
   (localized 'date-format))
 
 ;; list a directory
-(defun dir (&optional (pathnames #+(or AMIGA UNIX OS/2 WIN32) '("*/" "*")
-                                 #+ACORN-RISCOS '("*." "*" "*.*")))
+(defun dir (&optional (pathnames #+(or AMIGA UNIX OS/2 WIN32) '("*/" "*")))
   (flet ((onedir (pathname)
            (let ((pathname-list (directory pathname :full t :circle t)))
              (if (every #'atom pathname-list)
@@ -1743,7 +1742,7 @@
     (dolist (dir (cons '#""
                        ;; when filename has "..", ignore *load-paths*
                        ;; (to avoid errors with ".../../foo"):
-                       (if (member #+(or AMIGA ACORN-RISCOS) :PARENT
+                       (if (member #+AMIGA :PARENT
                                    #+(or UNIX OS/2 WIN32) ".."
                                    (pathname-directory filename)
                                    :test #'equal)

@@ -99,9 +99,6 @@ and - to your convenience, if you like reading source -
 #if defined(OS2) || defined(WIN32_NATIVE)
       lisp.exe           main program
 #endif
-#ifdef RISCOS
-      lisp               main program
-#endif
       lispinit.mem       memory image needed for startup
 #ifdef GNU_GETTEXT
       locale/*/LC_MESSAGES/clisp.mo  localized messages databases
@@ -127,10 +124,6 @@ and - to your convenience, if you like reading source -
       emx.dll            OS/2 dynamic link library containing emx
       emxlibc.dll        OS/2 dynamic link library containing the emx libc
       termcap.dat        terminal capabilities database
-#endif
-#ifdef RISCOS
-      !Run               run file for CLISP
-      !Sprites           icon for CLISP
 #endif
       README             this text
       SUMMARY            short description of CLISP
@@ -176,16 +169,6 @@ boards. The version called CLISP-00 runs on 68000/010 CPU only but is faster
 than CLISP-LOW. The version called CLISP-WIDE uses 64 bit integers and runs
 in any memory on 68020 or better CPU: on A4000 using VMM. The overhead for
 64 bit integers cause CLISP-WIDE to be slower than CLISP-HIGH.
-
-#endif
-#ifdef RISCOS
-
-Hardware requirements:
-----------------------
-
-This version of CLISP requires an Acorn Archimedes or Acorn RISC PC with at
-least 4MB RAM and RISC OS 3.0 or higher. See below how to produce a version
-of CLISP that runs in only 2 MB.
 
 #endif
 #if defined(SINGLEMAP_MEMORY) && (defined(UNIX_LINUX) || !defined(HAVE_MMAP_ANON))
@@ -267,11 +250,6 @@ Then start
 #ifdef UNIX
          base/lisp.run -M base/lispinit.mem
 #endif
-#ifdef RISCOS
-         lisp -M mem.lispinit
-
-or double click on the !Clisp directory.
-#endif
 
 When the LISP prompt
 
@@ -279,12 +257,6 @@ When the LISP prompt
 
 appears, type
 
-#ifdef RISCOS
-        (cd "<clisp$path>.")
-
-to make sure the !Clisp directory is the currently selected directory. Then
-
-#endif
 #if defined(UNIX) || defined(WIN32)
       (without-package-lock ()
         (compile-file "src/config.lisp")
@@ -320,10 +292,8 @@ The rest is done by a simple
 Instead, you may do this yourself, step by step:
 
 #endif
-#ifndef RISCOS
 If you want a minimal install, then create a directory, and put the
 executable and the memory image there.
-#endif
 #ifdef UNIX
 I would suggest /usr/local/lib/lisp :
 
@@ -399,24 +369,6 @@ For example,
    ARGS=-M lispinit.mem
 
 #endif
-#ifdef RISCOS
-
-Short on memory?
-----------------
-
-If you have only 2 MB RAM, you can easily produce a stripped-down CLISP
-that will require less memory, but lacks some parts of CLtL2, dpANS-LOOP,
-CLOS, Conditions and generic streams: Replace defs2.fas, loop.fas, clos.fas,
-conditio.fas, defs3.fas, gstream.fas by empty files and run
-
-   lisp
-   > (load "init.fas")
-   > (saveinitmem)
-   > (exit)
-
-This will overwrite lispinit.mem with a smaller one.
-
-#endif
 
 When you encounter problems:
 ----------------------------
@@ -451,9 +403,6 @@ On bigger problems, e.g. "guru"s, please send a description of the error
 #endif
 #ifdef OS2
 On bigger problems, e.g. register dumps, please send a description of the error
-#endif
-#ifdef RISCOS
-On bigger problems, e.g. stack dumps, please send a description of the error
 #endif
 and how to produce it reliably to the authors or the maintainer.
 Please accompany it with the CLISP version, which you get by calling
@@ -510,15 +459,6 @@ Amiga Port by:
         Jörg Höhle
 
 Email: Joerg.Hoehle@gmd.de
-#endif
-#ifdef RISCOS
-
-Acorn RISC OS Port by:
-----------------------
-
-        Peter Burwood
-
-Email: clisp@arcangel.dircon.co.uk
 #endif
 
 Maintainer:

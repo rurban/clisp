@@ -1614,7 +1614,7 @@ local object make_random_state (object r)
    #if defined(AMIGAOS)
     seed_lo = get_real_time(); /* time */
     begin_system_call(); seed_hi = FindTask(NULL); end_system_call(); /* pointer to own task */
-   #elif defined(MSDOS) || defined(RISCOS)
+   #elif defined(MSDOS)
     /* no random numbers, no PID, nothing random there. */
     seed_lo = get_real_time(); /* time, 100 Hz */
     begin_system_call(); seed_hi = time(NULL); end_system_call(); /* time, 1 Hz */

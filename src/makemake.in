@@ -73,7 +73,6 @@ EOP
 #        i486      (any other 486 machine)
 #        mips
 #        amiga     (Amiga 500/1000/2000 microcomputers)
-#        acorn     (Acorn Archimedes running RiscOS)
 #        os2       (PC or compatible running OS/2 2.0)
 #  and COMPILER is one of
 #        gcc       (GNU C under the name gcc)
@@ -87,8 +86,6 @@ EOP
 #   makemake i486 gcc > make.gcc/makefile
 #   makemake sun4 gcc > make.gcc/makefile
 #   makemake amiga gcc > make.amiga/makefile
-#   makemake acorn cc > make.acorn.cc/makefile
-#   makemake acorn gcc > make.acorn.gcc/makefile
 #   makemake os2 gcc > make.os2/makefile
 #   makemake win32gcc gcc > make.win32gcc/makefile
 #   makemake --with-dynamic-ffi win32msvc msvc4 > make.win32msvc/makefile.msvc4
@@ -382,10 +379,10 @@ case $# in
      fi
      TSYS=$1
      COMPILER=$2
-     # TSYS should be (master|sun3|sun4|i[3456]86|mips|vax|amiga|acorn|os2|win32(msvc|bc)).
+     # TSYS should be (master|sun3|sun4|i[3456]86|mips|vax|amiga|os2|win32(msvc|bc)).
      # COMPILER should be gcc or cc
      case ${TSYS} in
-       amiga | acorn | os2 ) TOS=$TSYS ;;
+       amiga | os2 ) TOS=$TSYS ;;
        win32msvc | win32bc ) TOS='win32' ;;
        *)         TOS='unix' ;;
      esac
@@ -537,11 +534,7 @@ fi
 if [ $HOS = unix ] ; then
   HERE='./'
 else
-  if [ $HOS = acorn ] ; then
-    HERE='/@.'
-  else
-    HERE=''
-  fi
+  HERE=''
 fi
 
 # PREFIX = prefix for installation directories
@@ -571,17 +564,9 @@ fi
 if [ $HOS = amiga ] ; then
   PARENT='/'
 else
-  if [ $HOS = acorn ] ; then
-    PARENT='^.'
-  else
-    PARENT='../'
-  fi
+  PARENT='../'
 fi
-if [ $HOS = acorn ] ; then
-  NEXT='.'
-else
-  NEXT='/'
-fi
+NEXT='/'
 if [ $H_DOS = "true" ] ; then
   # Replace '/' with '\':
   PARENT_=`echol $PARENT | sed -e 's,/,\\\\,g'`
@@ -641,49 +626,25 @@ else
   UTILDIR_CC="$UTILDIR"
 fi
 
-# Some operating systems cripple filenames.
-if [ $HOS = acorn ] ; then
-  interpreted=interpre
-  halfcompiled=halfcomp
-  txt=text
-else
-  interpreted=interpreted
-  halfcompiled=halfcompiled
-  txt=txt
-fi
-
 # RM = command for deleting files; RMRF - recursively
 if [ $H_DOS = "true" ] ; then
   RM='del /q'
   RMRF='del /q /s'
 else
-  if [ $HOS = acorn ] ; then
-    RM='remove'
-    RMRF='remove' # FIXME
-  else
-    RM='rm -f'
-    RMRF='rm -rf'
-  fi
+  RM='rm -f'
+  RMRF='rm -rf'
 fi
 
 # CP = command for copying files
 if [ $H_DOS = "true" ] ; then
   CP='copy'
-else
-  if [ $HOS = acorn ] ; then
-    CP='cp ~A~CNF'
 # else see above
-  fi
 fi
 
 # LN_S = command for copying read-only files
 if [ $H_DOS = "true" ] ; then
   LN_S='copy'
-else
-  if [ $HOS = acorn ] ; then
-    LN_S='cp ~A~CNF'
 # else see above
-  fi
 fi
 
 # LN = command for making hard links ($HOS = unix only)
@@ -695,11 +656,7 @@ fi
 if [ $H_DOS = "true" ] ; then
   MV='ren'
 else
-  if [ $HOS = acorn ] ; then
-    MV='cp ~A~CDF' # not 'rename' because rename does not overwrite
-  else
-    MV='mv'
-  fi
+  MV='mv'
 fi
 
 # CAT = command for typing files to stdout
@@ -713,11 +670,7 @@ fi
 TOUCH='touch'
 
 # GREP = command for filtering text according to regular expressions
-if [ $HOS = acorn ] ; then
-  GREP='egrep'
-else
-  GREP='grep'
-fi
+GREP='grep'
 
 # RANLIB = command for finishing libraries
 if [ -z "$RANLIB" ] ; then
@@ -740,9 +693,6 @@ if [ $TSYS = master -o $TOS = unix ] ; then
 fi
 if [ $TSYS = master -o $TOS = amiga ] ; then
   OS_INCLUDES=$OS_INCLUDES' amiga'
-fi
-if [ $TSYS = master -o $TOS = acorn ] ; then
-  OS_INCLUDES=$OS_INCLUDES' acorn'
 fi
 if [ $TSYS = master -o $TOS = os2 ] ; then
   OS_INCLUDES=$OS_INCLUDES' msdos'
@@ -786,9 +736,6 @@ fi
 if [ ${TOS} = os2 -o ${TOS} = win32 -o ${HSYSOS} = cygwin ] ; then
   TEXE='.exe'
   LEXE='.exe'
-elif [ $TOS = acorn ] ; then
-  TEXE=''
-  LEXE=''
 else
   TEXE=''
   LEXE='.run'
@@ -836,9 +783,6 @@ esac
 #   # HP 9000 Series 700, 800
 #   cpu=hppa ;;
 # esac
-if [ "$TSYS" = acorn ] ; then
-  cpu=arm
-fi
 
 if [ "${verbose}" = true -o "${verbose}" = yes ]; then
   cat <<EOF >&2
@@ -871,10 +815,6 @@ if [ $XCC_GCC = true ] ; then
     # register A4 contains the stack.
     # The GCC-Strength-Reduction is not unproblematic on 68000.
     XCFLAGS=$XCFLAGS' -ffixed-a4 -fno-strength-reduce'
-  fi
-  if [ $TSYS = acorn ] ; then
-    # Acorn/RISCOS specific gcc option??
-    XCFLAGS=$XCFLAGS' -mthrowback'
   fi
   if [ $CROSS = false ] ; then
     case "$XCC_GCC_VERSION" in
@@ -948,7 +888,7 @@ if [ $XCC_GCC = true ] ; then
   if [ $TSYS = win32gcc ] ; then
     XCFLAGS=$XCFLAGS' -D_WIN32'
   fi
-  if [ $TSYS = sun4 -o $TSYS = acorn ] ; then
+  if [ $TSYS = sun4 ] ; then
     XCLFLAGS='-static'
   else
     XCLFLAGS=''
@@ -1027,10 +967,9 @@ else
       # SUNWspro cc flags:
       XCFLAGS='-xO3 -xstrconst'
     else
-      if [ "$HSYSOS" = hp-ux -o $TSYS = sun4 -o $TSYS = acorn ] ; then
+      if [ "$HSYSOS" = hp-ux -o $TSYS = sun4 ] ; then
         # HP's HPPA compilers crash when optimizing.
         # SUN's cc is buggy when optimizing spvw.d, even with only -O1.
-        # No -O for Acorn/Norcroft cc.
         XCFLAGS=''
       else
         XCFLAGS='-O'
@@ -1055,9 +994,6 @@ else
   if [ $TSYS = sun4 ] ; then
     XCFLAGS=$XCFLAGS' -dalign -fsingle'
     XCLFLAGS=$XCLFLAGS' -Bstatic'
-  fi
-  if [ $TSYS = acorn ] ; then
-    XCFLAGS=$XCFLAGS' -D__arm -D__riscos -wanp -throwback -JUnix: -IUnix:'
   fi
   XCC_NOOPTFLAGS=''
 
@@ -1167,13 +1103,6 @@ if [ ${HSYSOS} = win32gcc -o ${HSYSOS} = cygwin ]; then
   # this is necessary for g++ to handle w32shell
   # <http://article.gmane.org/gmane.comp.gnu.mingw.user/8213>
   case "$CC" in *"g++"* ) XCFLAGS=$XCFLAGS' -DCINTERFACE'; ;; esac
-fi
-
-if [ $HSYS = acorn ] ; then
-  CLFLAGS=$CLFLAGS' -LUnix:o.Unixlib'
-fi
-if [ $TSYS = acorn ] ; then
-  XCLFLAGS=$XCLFLAGS' -LUnix:o.Unixlib'
 fi
 
 if [ "$cpu" = i386 -a "$TSYSOS" = "sinix-z" ] ; then # SINIX-Z V5.41
@@ -1364,14 +1293,11 @@ fi
 if [ $TSYS = master -o -n "$with_dynamic_ffi" ] ; then
   CPARTS=$CPARTS' foreign'
 fi
-if [ $TSYS = master -o $TOS = unix -o $TSYS = os2 -o $TSYS = acorn ] ; then
+if [ $TSYS = master -o $TOS = unix -o $TSYS = os2 ] ; then
   CPARTS=$CPARTS' unixaux'
 fi
 if [ $TSYS = master -o $TOS = win32 ] ; then
   CPARTS=$CPARTS' win32aux'
-fi
-if [ $TSYS = master -o $TOS = acorn ] ; then
-  CPARTS=$CPARTS' acornaux acornsig'
 fi
 if [ -n "${with_threads}" -a "${with_threads}" != "0" ]; then
   CPARTS=$CPARTS' zthread'
@@ -1445,7 +1371,7 @@ ERROR_INCLUDES=''
 if [ $TSYS = master -o $TSYS = amiga ] ; then
   ERROR_INCLUDES=$ERROR_INCLUDES' erramiga'
 fi
-if [ $TSYS = master -o $TOS = unix -o $TSYS = os2 -o $TOS = acorn ] ; then
+if [ $TSYS = master -o $TOS = unix -o $TSYS = os2 ] ; then
   ERROR_INCLUDES=$ERROR_INCLUDES' errunix'
 fi
 if [ $TSYS = master -o $TOS = win32 ] ; then
@@ -1578,7 +1504,7 @@ fi
 
 # echotabpipe line
 # outputs a line, split along pipe symbols, preceding with tabs.
-if [ $HSYS != acorn -a $HSYS != win32bc ] ; then
+if [ $HSYS != win32bc ] ; then
 echotabpipe() {
 echotab "$1"
 }
@@ -1625,7 +1551,6 @@ echol $line
 
 # echodummyrule target
 # outputs a dummy rule for the given target.
-if [ $HSYS != acorn ] ; then
 case "$host_os" in
   aix*) # GNU make on AIX starts an interactive shell for every empty rule
 echodummyrule () {
@@ -1638,11 +1563,6 @@ echodummyrule () {
 }
   ;;
 esac
-else
-echodummyrule () {
-echotab "\$(TOUCH) $1"
-}
-fi
 
 # echotab_mkdir_maybe dir
 # make the directory if it is not there
@@ -1845,9 +1765,6 @@ echol "LN_S = ${LN_S}"
 echol "MV = ${MV}"
 echol "CAT = ${CAT}"
 echol "GREP = ${GREP}"
-if [ $HOS = acorn ] ; then
-  echol "SED = sed"
-fi
 echol "AR = ar"
 echol "RANLIB = ${RANLIB}"
 echol
@@ -1879,17 +1796,13 @@ if test -n "$GROFF"; then
   ROFF_DVI="$GROFF -Tdvi -mandoc"
   ROFF_PS="$GROFF -Tps -mandoc"
 else
-  if [ $HSYS = acorn ] ; then
-    ROFF_MAN="xfmt -m"
-  else
-    ROFF_MAN="nroff -man"
-    if [ $HSYS = sun4 -a $CROSS = false ] ; then
-      if [ "$UNAME_S" = sunos ] ; then
-        case "$UNAME_R" in 4*)
-          # SunOS 4
-          ROFF_MAN="nroff -a -man" ;;
-        esac
-      fi
+  ROFF_MAN="nroff -man"
+  if [ $HSYS = sun4 -a $CROSS = false ] ; then
+    if [ "$UNAME_S" = sunos ] ; then
+      case "$UNAME_R" in 4*)
+        # SunOS 4
+        ROFF_MAN="nroff -a -man" ;;
+      esac
     fi
   fi
 fi
@@ -2062,11 +1975,7 @@ echol
 
 echol
 
-if [ $HOS = acorn ] ; then
-  echol "# The Acorn Make Utility has problems with $halfcompiled.mem."
-  echol "# If you have this problem, either swap $halfcompiled.mem and lispinit.mem in the next line, or use GNU make."
-fi
-needs="init allc allo lisp${LEXE} $interpreted.mem $halfcompiled.mem lispinit.mem manual"
+needs="init allc allo lisp${LEXE} interpreted.mem halfcompiled.mem lispinit.mem manual"
 if [ \( $HOS = unix -o ${HSYS} = win32gcc \) -a $CROSS = false ] ; then
   needs=".gdbinit "$needs' modular $(MODULES) base clisp full'
 fi
@@ -2293,25 +2202,21 @@ if [ $TSYS != win32msvc ] ; then
     # SUNPRO cc preprocessor does too much checking in ANSI C mode, choose K&R mode
     ASMFLAGS="$ASMFLAGS"' -Xs'
   fi
-  if [ $XCC_GCC = false -a $HOS != acorn ] ; then
+  if [ $XCC_GCC = false ] ; then
     # Remove the line number information etc. and convert "% ecx" back to "%ecx"
     # and ". align" to ".align" and ". Lxxx" to ".Lxxx":
     ASM_FILTER=" | \$(GREP) -v '^#' | \$(GREP) -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\\. ,.,g'"
   else
-    if [ $HOS = acorn ] ; then
-      ASM_FILTER=" | \$(SED) -f ${PARENT}acorn${NEXT}asmfilter.sed"
+    if [ $AS_UNDERSCORE = false ] ; then
+      # These are the less modern assemblers or SYSV assemblers.
+      # Remove the line number information etc.
+      ASM_FILTER=" | \$(GREP) -v '^#'"
     else
-      if [ $AS_UNDERSCORE = false ] ; then
-        # These are the less modern assemblers or SYSV assemblers.
-        # Remove the line number information etc.
-        ASM_FILTER=" | \$(GREP) -v '^#'"
-      else
-        ASM_FILTER=''
-      fi
-      if [ "$cpu" = m68k ] ; then
-        # SunOS 4.0 "as" doesn't understand ! comments.
-        ASM_FILTER="$ASM_FILTER | sed -e 's,!.*\$\$,,'"
-      fi
+      ASM_FILTER=''
+    fi
+    if [ "$cpu" = m68k ] ; then
+      # SunOS 4.0 "as" doesn't understand ! comments.
+      ASM_FILTER="$ASM_FILTER | sed -e 's,!.*\$\$,,'"
     fi
   fi
   for f in $ARI_ASMS $SP_ASMS ; do
@@ -2512,22 +2417,18 @@ for f in $ARI_ASMS $SP_ASMS ; do
   else
     echol "${f}${TOBJ} : ${f}.s"
     # Call the assembler, preferrably through the C compiler:
-    if [ $TSYS = acorn ] ; then
-      echotab "objasm -Stamp -Quit -CloseExec -from ${f}.s -o ${f}${TOBJ}"
+    if [ $f = arihppa ] ; then
+      # Only the native as groks the .SHORTDATA statements in arihppa.d
+      echotab "${XCC} ${XCFLAGS} -c ${f}.s || /usr/ccs/bin/as ${f}.s -o ${f}${TOBJ} || /bin/as ${f}.s -o ${f}${TOBJ}"
     else
-      if [ $f = arihppa ] ; then
-        # Only the native as groks the .SHORTDATA statements in arihppa.d
-        echotab "${XCC} ${XCFLAGS} -c ${f}.s || /usr/ccs/bin/as ${f}.s -o ${f}${TOBJ} || /bin/as ${f}.s -o ${f}${TOBJ}"
+      if [ $f = arimips ] ; then
+        # Avoid problem during incremental linking of lisp.o.
+        echotab "/bin/as -KPIC ${f}.s -o ${f}${TOBJ} || /usr/ccs/bin/as -KPIC ${f}.s -o ${f}${TOBJ}"
       else
-        if [ $f = arimips ] ; then
-          # Avoid problem during incremental linking of lisp.o.
-          echotab "/bin/as -KPIC ${f}.s -o ${f}${TOBJ} || /usr/ccs/bin/as -KPIC ${f}.s -o ${f}${TOBJ}"
+        if [ $XCC_GCC = true ] ; then
+          echotab "${XCC} ${XCFLAGS} -x assembler -c ${f}.s"
         else
-          if [ $XCC_GCC = true ] ; then
-            echotab "${XCC} ${XCFLAGS} -x assembler -c ${f}.s"
-          else
-            echotab "${XCC} ${XCFLAGS} -c ${f}.s"
-          fi
+          echotab "${XCC} ${XCFLAGS} -c ${f}.s"
         fi
       fi
     fi
@@ -2701,9 +2602,6 @@ echol
 if [ $TOS = amiga ] ; then
   CONFIG=cfgamiga
 fi
-if [ $TOS = acorn ] ; then
-  CONFIG=cfgacorn
-fi
 if [ $TOS = os2 ] ; then
   CONFIG=cfgdos
 fi
@@ -2760,9 +2658,9 @@ done
 
 if [ $CROSS = false ] ; then
 
-  echol "$interpreted.mem : lisp${LEXE} \$(LISPFILES)"
+  echol "interpreted.mem : lisp${LEXE} \$(LISPFILES)"
   if [ $HOS != unix ] ; then
-    echotab "-\$(RM) $interpreted.mem"
+    echotab "-\$(RM) interpreted.mem"
   fi
   if [ $HSYSOS = beos ] ; then
     # Workaround BeOS 5 kernel bug which causes subsequent invocations
@@ -2776,7 +2674,7 @@ if [ $CROSS = false ] ; then
   else
     echotab '$(RUN) -m 750KW < interpreted.in'
   fi
-  echotab "\$(MV) lispimag.mem $interpreted.mem"
+  echotab "\$(MV) lispimag.mem interpreted.mem"
   echol
 
 fi
@@ -2785,9 +2683,9 @@ if [ $CROSS = false ] ; then
 
   for f in $LPARTS ; do
     if [ $f = "compiler" ]; then
-      image=${interpreted}.mem
+      image=interpreted.mem
     else
-      image=${halfcompiled}.mem
+      image=halfcompiled.mem
     fi
     echol "${f}.fas : ${f}.lisp lisp${LEXE} $image"
     # The strict minimum needed for compiling compiler.lisp is between 750KW
@@ -2808,9 +2706,9 @@ fi
 
 if [ $CROSS = false ] ; then
 
-  echol "${halfcompiled}.mem : lisp${LEXE} \$(LISPFILES) compiler.fas"
+  echol "halfcompiled.mem : lisp${LEXE} \$(LISPFILES) compiler.fas"
   if [ $HOS != unix ] ; then
-    echotab "-\$(RM) ${halfcompiled}.mem"
+    echotab "-\$(RM) halfcompiled.mem"
   fi
   if [ $HSYSOS = beos ] ; then
     # Workaround BeOS 5 kernel bug, see explanation above.
@@ -2822,7 +2720,7 @@ if [ $CROSS = false ] ; then
   else
     echotab '$(RUN) -m 750KW < interpreted.in'
   fi
-  echotab "\$(MV) lispimag.mem $halfcompiled.mem"
+  echotab "\$(MV) lispimag.mem halfcompiled.mem"
   echol
 
   echol "lispinit.mem : lisp${LEXE} \$(FASFILES)"
@@ -2904,7 +2802,7 @@ if [ $CROSS = false ] ; then
 
   for f in $LPARTS ; do
     echol "${TESTDIR}${NEXT_M}${f}.lisp : ${f}.lisp"
-    if [ $H_DOS != "true" -a $HOS != acorn ] ; then
+    if [ $H_DOS != "true" ] ; then
       echotab "cd ${TESTDIR} && \$(LN_S) ${PARENT_}${f}.lisp ${f}.lisp"
     else
       echotab "\$(LN_S) ${f}.lisp ${TESTDIR}"
@@ -2919,7 +2817,7 @@ if [ $CROSS = false ] ; then
   echol "${TESTIMAGE}: lispinit.mem"
   # this does not help, unfortunately, since the number of GENSYM calls
   # depends on which files went into halfcompiled.mem as FAS files
-  #  echotab "\$(RUN) -M lispinit.mem -x \"(setq *gensym-counter* (- \`\$(RUN) -q -M ${halfcompiled}.mem -x '*gensym-counter*'\` 16)) (sys::%saveinitmem) (exit)\""
+  #  echotab "\$(RUN) -M lispinit.mem -x \"(setq *gensym-counter* (- \`\$(RUN) -q -M halfcompiled.mem -x '*gensym-counter*'\` 16)) (sys::%saveinitmem) (exit)\""
   #  echotab "\$(MV) lispimag.mem ${TESTIMAGE}"
   echotab "\$(CP) lispinit.mem ${TESTIMAGE}"
   echol
@@ -3123,28 +3021,25 @@ for f in $TXT_FILES ; do
   fi
   if [ $f = clisp.html ] ; then depends=$depends" VERSION"; fi
   echol "${f} : ${SRCDIR}_${f}${TXT_INCLUDES}${depends} txt2c${HEXE}"
-  echotab "\$(TXT2C) < ${SRCDIR}_${f} > $txt.c"
+  echotab "\$(TXT2C) < ${SRCDIR}_${f} > txt.c"
   if [ $CROSS = false -a $XCC_UNUSABLE_CPP = true ] ; then
-    echotab "${XCPP} ${XCFLAGS}${flags} $txt.c${XCPP_POSTPROCESS} > $txt.i.c"
-    echotab_to_HEXE "${XCC} ${XCFLAGS} ${XCLFLAGS}${XCC_NOOPTFLAGS}" "$txt.i.c" "$txt"
-    echotab "\$(RM) $txt.i.c"
+    echotab "${XCPP} ${XCFLAGS}${flags} txt.c${XCPP_POSTPROCESS} > txt.i.c"
+    echotab_to_HEXE "${XCC} ${XCFLAGS} ${XCLFLAGS}${XCC_NOOPTFLAGS}" "txt.i.c" "txt"
+    echotab "\$(RM) txt.i.c"
     if [ $HSYS = win32msvc ] ; then
-      echotab "\$(RM) $txt.i${TOBJ}"
+      echotab "\$(RM) txt.i${TOBJ}"
     fi
   else
-    echotab_to_HEXE "\$(CC) \$(CFLAGS)${flags} \$(CLFLAGS)${XCC_NOOPTFLAGS}" "$txt.c" "$txt"
+    echotab_to_HEXE "\$(CC) \$(CFLAGS)${flags} \$(CLFLAGS)${XCC_NOOPTFLAGS}" "txt.c" "txt"
   fi
-  line="${HERE}$txt"
+  line="${HERE}txt"
   if [ $f = clisp.1 ] ; then
-    if [ $HOS != os2 -a $HOS != win32 -a $HOS != acorn ] ; then
+    if [ $HOS != os2 -a $HOS != win32 ] ; then
       line=$line" | \$(GREP) -v '^ *\$\$'"
     else
       if [ $HOS = os2 ] ; then
         # DOS command line args may not contain spaces. grep.in contains "^ *$"
         line=$line" | \$(GREP) -v -f grep.in"
-      fi
-      if [ $HOS = acorn ] ; then
-        line=$line" | \$(GREP) -v -f ${PARENT}acorn${NEXT}grep.in"
       fi
       # On Win32, no grep installed. The blank lines don't hurt.
     fi
@@ -3156,13 +3051,13 @@ for f in $TXT_FILES ; do
     line=$line" | (libs=''; for f in modules.o lisp.a \$(LIBS); do case \$\$f in -*) libs=\"\$\$libs \$\$f\";; *) libs=\"\$\$libs\"' base/'\"\$\$f\";; esac; done; files=''; for f in modules.o ${FILES}; do files=\"\$\$files\"' base/'\"\$\$f\"; done; sed -e \"s,@@LEXE@@,${LEXE},g\" -e \"s,@@BASE_LIBS@@,\$\$libs,g\" -e \"s,@@BASE_FILES@@,\$\$files,g\")"
   fi
   echotabpipe "${line} > ${f}"
-  echotab "\$(RM) $txt.c"
-  echotab "\$(RM) $txt${HEXE}"
+  echotab "\$(RM) txt.c"
+  echotab "\$(RM) txt${HEXE}"
   echol
 done
-OBSOLETE=$OBSOLETE" $txt.c $txt${HEXE}"
+OBSOLETE=$OBSOLETE" txt.c txt${HEXE}"
 if [ $CROSS = false -a $XCC_UNUSABLE_CPP = true ] ; then
-  OBSOLETE=$OBSOLETE" $txt.i.c"
+  OBSOLETE=$OBSOLETE" txt.i.c"
 fi
 
 if test -n "$GROFF"; then
@@ -3552,45 +3447,6 @@ echotab "${HLN} \$(DISTFILE) clisp\$(PACKEXT)"
 echotab "\$(RMRF) \$(TOPDIR)"
 echol
 echol
-elif [ $HSYS = acorn ] ; then
-  echol "distrib : force all manualx"
-  echotab "-cdir ^.!Clisp"
-  echotab "\$(CP) lisp ^.!Clisp.lisp"
-  echotab "squeeze ^.!Clisp.lisp"
-  echotab "-cdir ^.!Clisp.mem"
-  echotab "\$(CP) mem.lispinit ^.!Clisp.mem.lispinit"
-  for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es; do
-    echotab "\$(CP) $f ^.!Clisp.$f"
-  done
-  echotab "-cdir ^.!Clisp.1"
-  echotab "\$(CP) 1.clisp ^.!Clisp.1.clisp"
-  echotab "-cdir ^.!Clisp.man"
-  echotab "\$(CP) man.clisp ^.!Clisp.man.clisp"
-  echotab "-cdir ^.!Clisp.html"
-  echotab "\$(CP) html.clisp ^.!Clisp.html.clisp"
-  echotab "\$(CP) html.impnotes ^.!Clisp.html.impnotes"
-  echotab "\$(CP) css.impnotes ^.!Clisp.css.impnotes"
-  echotab "\$(CP) png.clisp ^.!Clisp.png.clisp"
-  echotab "\$(CP) el.clisp-coding ^.!Clisp.el.clisp-coding"
-  echotab "\$(CP) el.clisp-indent ^.!Clisp.el.clisp-indent"
-  echotab "\$(CP) lisp.clisp-indent ^.!Clisp.lisp.clisp-indent"
-  echotab "\$(CP) txt.clhs ^.!Clisp.txt.clhs"
-  echotab "\$(CP) txt.UnicodeDataFull ^.!Clisp.txt.UnicodeDataFull"
-  echotab "settype ^.!Clisp.html.clisp FAF"
-  echotab "-cdir ^.!Clisp.txt"
-  for f in $DOC; do
-    f=`echol $f | cut -c 1-10`
-    echotab "\$(CP) txt.$f ^.!Clisp.txt.$f"
-  done
-  echotab "-cdir ^.!Clisp.lisp"
-  for f in config timezone; do
-    echotab "\$(CP) lisp.$f ^.!Clisp.lisp.$f"
-  done
-  echotab "\$(CP) ^.acorn.!Run ^.!Clisp.!Run"
-  echotab "settype ^.!Clisp.!Run Obey"
-  echotab "\$(CP) ^.acorn.!Sprites ^.!Clisp.!Sprites"
-  echotab "settype ^.!Clisp.!Sprites Sprite"
-  echol
 elif [ $HOS = win32 ] ; then
   echol "# Distribution, to be executed on a Unix host or using Cygwin."
   echol "distrib : install.lisp install.bat clisp.man clisp.html force"
@@ -3666,7 +3522,7 @@ cat <<!!
 # clean2 removes everything that becomes obsolete once lisp${LEXE}
 # is recompiled without changing the bytecode format.
 clean2 : clean1
-	-\$(RM) $interpreted.mem $halfcompiled.mem lispinit.mem lispinit2.mem
+	-\$(RM) interpreted.mem halfcompiled.mem lispinit.mem lispinit2.mem
 
 # clean3 removes everything that becomes obsolete once lisp${LEXE}
 # is recompiled. It leaves everything generated by "make allc".

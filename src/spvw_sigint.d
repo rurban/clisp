@@ -45,9 +45,6 @@ local void react_on_sigint (int sig) { # sig = SIGINT or SIGALRM
   # on our own and hope that it is called by all library-
   # functions (statically linked or via DLL)??
 
-  #ifdef RISCOS
-  prepare_signal_handler_exit(sig);
-  #endif
   #if (defined(USE_SIGACTION) ? defined(SIGACTION_NEED_UNBLOCK) : defined(SIGNAL_NEED_UNBLOCK)) || (defined(GNU_READLINE) && (defined(SIGNALBLOCK_BSD) || defined(SIGNALBLOCK_POSIX)))
   # either if handlers, installed with [SIGNAL_NEED_UNBLOCK] and signal(),
   # are called with blocked signal anyway - usually on

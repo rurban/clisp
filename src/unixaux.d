@@ -95,7 +95,7 @@ global unsigned int ualarm (unsigned int value, unsigned int interval) {
 
 #ifdef EINTR
 
-#ifdef UNIX # EMUNIX und RISCOS brauchen das nicht
+#ifdef UNIX # EMUNIX braucht das nicht
 
 # Ein Wrapper um die open-Funktion.
 global int nonintr_open (const char* path, int flags, mode_t mode)

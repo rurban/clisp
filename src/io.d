@@ -2394,9 +2394,6 @@ local object read_delimited_list (const gcv_object_t* stream_, object endch,
 local object read_delimited_list_recursive (const gcv_object_t* stream_, object endch,
                                             object ifdotted);
 # first the general function:
-#ifdef RISCOS_CCBUG
-#pragma -z0
-#endif
 local object read_delimited_list(const gcv_object_t* stream_, object endch,
                                  object ifdotted) {
  #if STACKCHECKR
@@ -2427,9 +2424,6 @@ local object read_delimited_list(const gcv_object_t* stream_, object endch,
  #endif
   return ergebnis;
 }
-#ifdef RISCOS_CCBUG
-#pragma -z1
-#endif
 # then the more special Function:
 local object read_delimited_list_recursive (const gcv_object_t* stream_,
                                             object endch, object ifdotted) {

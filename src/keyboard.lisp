@@ -13,7 +13,7 @@
 (defun exec-with-keyboard (fun)
   #+(or OS/2 WIN32) ; *keyboard-input* existiert schon
     (funcall fun)
-  #+(or UNIX ACORN-RISCOS)
+  #+UNIX
     (let ((mode nil))
       (unwind-protect
         (progn

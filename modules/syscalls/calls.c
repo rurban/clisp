@@ -758,7 +758,7 @@ static void copy_attributes_and_close () {
   goto close_success;
 #  endif  /* fstat() */
 # else
-  /*** FIXME: windows? amiga? riscos? ***/
+  /*** FIXME: windows? amiga? ***/
 # endif
  close_success:
   builtin_stream_close(&STACK_0);

@@ -31,7 +31,7 @@
   ) )
   ; Damit TRUENAME keinen Fehler liefert, wenn das File noch nicht existiert,
   ; stellen wir sicher, dass das File existiert:
-  #+(or UNIX AMIGA ACORN-RISCOS)
+  #+(or UNIX AMIGA)
   (unless (probe-file file)
     (close (open file :direction :output))
   )
@@ -43,22 +43,6 @@
     (shell (format nil "~A ~A" (editor-name) (truename file)))
   #+AMIGA
     (shell (format nil "~A \"~A\"" (editor-name) (truename file)))
-  #+ACORN-RISCOS
-    (let ((pathname (truename file)))
-      (shell
-        (format nil "~A ~A"
-                    (editor-name)
-                    (if (pathname-type pathname)
-                      ; swap pathname's name and type
-                      (merge-pathnames
-                        (make-pathname :name (pathname-type pathname)
-                                       :type (pathname-name pathname)
-                        )
-                        pathname
-                      )
-                      pathname
-                    )
-    ) ) )
 )
 
 (defun ed (&optional arg &aux funname sym fun def)
