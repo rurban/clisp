@@ -1,3 +1,7 @@
+1998-08-31  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * spvw_garcol.d (gar_col_compact): Fix update_STACKs call.
+
 1998-08-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * places.lsp: Fix German and French messages, broken by last patch.
