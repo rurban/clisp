@@ -1,3 +1,8 @@
+2004-05-16  Bruno Haible  <bruno@clisp.org>
+
+	* spvw_garcol.d (gc_mark) [TYPECODES]: Fix bug in handling of
+	reallocated simple-string (2004-02-18 patch).
+
 2004-05-15  Sam Steingold  <sds@gnu.org>
 
 	* defs1.lisp (with-no-package-lock-internal): new macro:
