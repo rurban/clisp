@@ -11,6 +11,11 @@ User visible changes
 * Fixed a bug: On Win32, Ctrl-Z sometimes caused two levels of the read-eval-
   print loop to be aborted instead of just one.
 
+* Fixed a bug: READ-CHAR-SEQUENCE, when called on a string input stream,
+  forgot to advance the pointer into the string.
+
+* Fixed a bug: WRITE-CHAR-SEQUENCE on Win32 failed to convert NL to CR/LF.
+
 * Fixed a bug: Calling (GET-DISPATCH-MACRO-CHARACTER disp-char sub-char) would
   crash, instead of returning NIL, if there is no macro-character function
   associated with sub-char after disp-char.
