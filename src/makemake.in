@@ -2978,7 +2978,7 @@ if [ $XCC_GCC = true ] ; then
   echotab "((${XCPP} ${XCFLAGS} -P lispbibl.c | \$(GREP) -v \"^ *\$\$\") ; (${XCPP} ${XCFLAGS} -P -dM lispbibl.c | sort) ) > lispbibl.h"
   echol
   echol "gc : lispbibl.h # show GC-related definitions"
-  echotab "egrep '[^[:alpha:]](MEMORY|SPVW|GC|SIGSEGV)[^[:alpha:]]' lispbibl.h | grep -v 'define _' | egrep '^#define'"
+  echotab "egrep '[^[:alpha:]](MEMORY|SPVW|GC|SIGSEGV|SAFETY|ASM|FAST|DEBUG)[^[:alpha:]]' lispbibl.h | grep -v 'define _' | egrep '^#define'"
   echol
   echol
 fi
