@@ -1270,6 +1270,7 @@ LISPSYM(reval,"$REVAL",system) # als Slotname in STREAM
 LISPSYM(default_pathname_defaults,"*DEFAULT-PATHNAME-DEFAULTS*",lisp) # als Variable in PATHNAME
 LISPSYM(merge_pathnames_ansi,"*MERGE-PATHNAMES-ANSI*",lisp) # als Variable in PATHNAME
 LISPSYM(print_pathnames_ansi,"*PRINT-PATHNAMES-ANSI*",lisp) # als Variable in PATHNAME
+LISPSYM(parse_namestring_ansi,"*PARSE-NAMESTRING-ANSI*",lisp) # als Variable in PATHNAME
 #ifdef LOGICAL_PATHNAMES
 LISPSYM(logpathname_translations,"*LOGICAL-PATHNAME-TRANSLATIONS*",system) # als Variable in PATHNAME
 #endif

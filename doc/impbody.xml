@@ -3706,7 +3706,7 @@ and &end-k;:</para>
 
 <para>This function seems to be buggy at this time.  Sorry.</para>
 
-<section><title>&parse-namestring;</title>
+<section id="parsename"><title>&parse-namestring;</title>
 
 <para><literal role="sexp">(&parse-namestring;
    <replaceable>string</replaceable> &optional-amp;
@@ -3719,6 +3719,15 @@ and &end-k;:</para>
  <replaceable>defaults</replaceable> is a &logical-pathname-class;.
  To construct a logical pathname from a string, the function
  &logical-pathname; can be used.</para>
+
+<para>The ANSI-mandated behavior of recognizing logical pathnames when
+the <replaceable>string</replaceable> begins with some alphanumeric
+characters followed by a colon (<keysym>#\:</keysym>) is very confusing
+(cf. <literal>"c:/autoexec.bat"</literal>,
+<literal>"home:.clisprc"</literal> and
+<literal>"prep:/pub/gnu"</literal>) and therefore disabled by default.
+To enable the ANSI standard behavior, you should set &parsename; to
+non-&nil;.</para>
 
 </section>
 
