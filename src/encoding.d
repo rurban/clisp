@@ -2427,13 +2427,13 @@ global void init_dependent_encodings(void) {
     (argv_encoding_pathname ? encoding_from_name(argv_encoding_pathname)
      : (object)STACK_0);
  #if defined(WIN32_NATIVE)
-  { /* cf libiconv/libcharset/lib/localcharset.c locale_charset() */
-    var const char *enc = argv_encoding_terminal;
+  /* cf libiconv/libcharset/lib/localcharset.c locale_charset() */
+  if (argv_encoding_terminal == NULL) {
     var char buf[2+10+1];
-    if (enc == NULL)
-      sprintf(enc=buf,"CP%u",GetOEMCP());
-    O(terminal_encoding) = encoding_from_name(enc);
-  }
+    sprintf(buf,"CP%u",GetOEMCP());
+    O(terminal_encoding) = encoding_from_name(buf);
+  } else
+    O(terminal_encoding) = encoding_from_name(argv_encoding_terminal);
  #else
   O(terminal_encoding) =
     (argv_encoding_terminal ? encoding_from_name(argv_encoding_terminal)

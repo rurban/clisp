@@ -753,7 +753,7 @@ local void loadmem (const char* filename)
   #endif
     {
       var uintL len = asciz_length(filename);
-      var char* newfilename = alloca(len);
+      var char* newfilename = (char*)alloca(len);
       newfilename[0] = filename[CYGDRIVE_LEN];
       newfilename[1] = ':';
       memcpy(newfilename+2,filename+CYGDRIVE_LEN+1,len-CYGDRIVE_LEN);
