@@ -1,5 +1,10 @@
 2002-11-02  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (directory_search_scandir): when returning from
+	inside with_sstring_0, call FREE_DYNAMIC_ARRAY
+
+2002-11-02  Sam Steingold  <sds@gnu.org>
+
 	* defs1.lisp (set-exclusive-or, nset-exclusive-or): call TEST and
 	TEST-NOT with the arguments in the correct order, i.e., the first
 	arg from the first list and the second arg from the second list
