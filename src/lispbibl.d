@@ -1180,14 +1180,26 @@ typedef signed int  signean;
   #define bit_test(x,n)  ((x) & bit(n))
 #else
   # On SPARC-processors, long constants are slower than shifts.
-  #if !defined(GNU)
-    #define bit_test(x,n)  \
-      ((n)<12 ? ((x) & bit(n)) : ((sint32)((uint32)(x) << (31-(n))) < 0))
-  #else # the GNU-compiler will optimize boolean expressions better this way:
-    #define bit_test(x,n)  \
-      (   ( ((n)<12) && ((x) & bit(n)) )                           \
-       || ( ((n)>=12) && ((sint32)((uint32)(x) << (31-(n))) < 0) ) \
-      )
+  #if defined(SPARC64)
+    #if !defined(GNU)
+      #define bit_test(x,n)  \
+        ((n)<12 ? ((x) & bit(n)) : ((sint64)((uint64)(x) << (63-(n))) < 0))
+    #else # the GNU-compiler will optimize boolean expressions better this way:
+      #define bit_test(x,n)  \
+        (   ( ((n)<12) && ((x) & bit(n)) )                           \
+         || ( ((n)>=12) && ((sint64)((uint64)(x) << (63-(n))) < 0) ) \
+        )
+    #endif
+  #else
+    #if !defined(GNU)
+      #define bit_test(x,n)  \
+        ((n)<12 ? ((x) & bit(n)) : ((sint32)((uint32)(x) << (31-(n))) < 0))
+    #else # the GNU-compiler will optimize boolean expressions better this way:
+      #define bit_test(x,n)  \
+        (   ( ((n)<12) && ((x) & bit(n)) )                           \
+         || ( ((n)>=12) && ((sint32)((uint32)(x) << (31-(n))) < 0) ) \
+        )
+    #endif
   #endif
 #endif
 # Minus bit number n (0<=n<32)

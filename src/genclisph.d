@@ -357,10 +357,18 @@ int main(int argc, char* argv[])
 #if !defined(SPARC)
   printf("#define bit_test(x,n)  ((x) & bit(n))\n");
 #else
- #if !defined(GNU)
-  printf("#define bit_test(x,n)  ((n)<12 ? ((x) & bit(n)) : ((sint32)((uint32)(x) << (31-(n))) < 0))\n");
+ #if defined(SPARC64)
+  #if !defined(GNU)
+  printf("#define bit_test(x,n)  ((n)<12 ? ((x) & bit(n)) : ((sint64)((uint64)(x) << (63-(n))) < 0))\n");
+  #else
+  printf("#define bit_test(x,n)  ((((n)<12) && ((x) & bit(n))) || (((n)>=12) && ((sint64)((uint64)(x) << (63-(n))) < 0)))\n");
+  #endif
  #else
+  #if !defined(GNU)
+  printf("#define bit_test(x,n)  ((n)<12 ? ((x) & bit(n)) : ((sint32)((uint32)(x) << (31-(n))) < 0))\n");
+  #else
   printf("#define bit_test(x,n)  ((((n)<12) && ((x) & bit(n))) || (((n)>=12) && ((sint32)((uint32)(x) << (31-(n))) < 0)))\n");
+  #endif
  #endif
 #endif
   printf("#define minus_bit(n)  (-1%s<<(n))\n",Lsuffix);
