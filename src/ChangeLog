@@ -1,5 +1,9 @@
 2004-05-05  Sam Steingold  <sds@gnu.org>
 
+	* hashtabl.d (hashcode_string): use all string elements
+
+2004-05-05  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (SET-FILE-STAT, CONVERT-MODE, UMASK, MKNOD):
 	implemented
 	* modules/syscalls/posix.lisp: exported them
