@@ -86,6 +86,10 @@
    */
 #undef HAVE_DCGETTEXT
 
+/* Define to 1 if you have the declaration of `environ', and to 0 if you
+   don't. */
+#undef HAVE_DECL_ENVIRON
+
 /* Define to 1 if you have the declaration of `rl_already_prompted', and to 0
    if you don't. */
 #undef HAVE_DECL_RL_ALREADY_PROMPTED
@@ -490,9 +494,6 @@
 
 /* type of `pid' in waitpid() declaration */
 #undef PID_T
-
-/* declaration of putenv() needs const */
-#undef PUTENV_CONST
 
 /* The readline built-in filename completion function, either
    rl_filename_completion_function() or filename_completion_function() */
