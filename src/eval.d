@@ -4,13 +4,13 @@
 #include "lispbibl.c"
 
 
-# Funktionen-Tabelle:
-# Darin stehen nur SUBRs, die der Compiler "inline" machen darf.
-# In FUNTAB1 und FUNTAB2 stehen SUBRs ohne Rest-Parameter (also
-# mit zur Compile-Zeit bekannter fester Argumentezahl).
-# In FUNTABR stehen SUBRs mit Rest-Parameter.
-  #define _(name)  &subr_tab.D_##name  # Adresse von SUBR name, wie L(name)
-  # erst FUNTAB1 und FUNTAB2 :
+# function-table:
+# In this table only SUBRS are listed, which may be inlined by the compiler.
+# In FUNTAB1 and FUNTAB2 SUBRs without Rest-Parameter (i.e. with
+# fixed number of arguments known at compile-time) are listed.
+# In FUNTABR SUBRs with Rest-Parameter are listed.
+  #define _(name)  &subr_tab.D_##name  # address of SUBR name, like L(name)
+  # FUNTAB1 and FUNTAB2, first:
   local const Subr FUNTAB[] = {
     # SPVW : 0 SUBRs
     # EVAL : 2 SUBRs
@@ -160,10 +160,10 @@
     _(ldb), _(ldb_test), _(mask_field), _(dpb), _(deposit_field), _(random),
     _(make_random_state), _(fakultaet), _(exquo), _(long_float_digits),
     _(set_long_float_digits), _(log2), _(log10),
-    # sonstige:
+    # other:
     };
-  # Das waren 526-43 SUBRs.
-  # Nun FUNTABR :
+  # that were 526-43 SUBRs.
+  # Now FUNTABR :
   local const Subr FUNTABR[] = {
     # SPVW : 0 SUBRs
     # EVAL : 0 SUBRs
@@ -202,14 +202,14 @@
     _(grgleich), _(max), _(min), _(plus), _(minus), _(mal), _(durch), _(gcd),
     _(lcm), _(logior), _(logxor), _(logand), _(logeqv),
     };
-  # Das waren 64 SUBRs.
+  # That were 64 SUBRs.
   #undef _
   #define FUNTAB1  (&FUNTAB[0])
   #define FUNTAB2  (&FUNTAB[256])
   #define FUNTAB_length  (sizeof(FUNTAB)/sizeof(Subr))
   #define FUNTABR_length  (sizeof(FUNTABR)/sizeof(Subr))
 
-# Argumenttyp-Kürzel bei compilierten Closures:
+# argument-type-tokens for compiled closures:
   typedef enum {
     cclos_argtype_default,
     cclos_argtype_0_0,
@@ -256,30 +256,30 @@
     cclos_argtype_for_broken_compilers_that_dont_like_trailing_commas
   } cclos_argtype_;
 
-# Aufruf des Bytecode-Interpreters:
-# Interpretiert den Bytecode einer compilierten Closure.
+# Call of the bytecode-interpreter:
+# interpretes the bytecode of a compiled closure.
 # interpret_bytecode(closure,codevec,index);
-# > closure: compilierte Closure
-# > codevec: ihr Codevektor, ein Simple-Bit-Vector
+# > closure: compiled closure
+# > codevec: its codevector, a Simple-Bit-Vector
 # > index: Start-Index
-# < mv_count/mv_space: Werte
+# < mv_count/mv_space: values
 # changes STACK, can trigger GC
   # local Values interpret_bytecode (object closure, object codevec, uintL index);
   local Values interpret_bytecode_ (object closure, Sbvector codeptr, const uintB* byteptr);
   #define interpret_bytecode(closure,codevec,index)  \
     interpret_bytecode_(closure,TheSbvector(codevec),&TheSbvector(codevec)->data[index])
 
-# GCC2 kann direkt zu Labels springen. Das gibt schnelleren Code als switch().
+# GCC2 can jump directly to labels. This results in faster code than switch().
   #ifdef GNU
-    #if (__GNUC__ >= 2) && !defined(UNIX_HPUX) && !defined(NO_FAST_DISPATCH) # HP-UX Linker Bug umgehen
+    #if (__GNUC__ >= 2) && !defined(UNIX_HPUX) && !defined(NO_FAST_DISPATCH) # work around HP-UX Linker Bug 
       #define FAST_DISPATCH
-      #if (__GNUC_MINOR__ >= 7) # gcc-2.6.3 Bug umgehen (-fno-defer-pop ginge auch)
+      #if (__GNUC_MINOR__ >= 7) # work around gcc-2.6.3 Bug (-fno-defer-pop ginge auch)
         #define FAST_DISPATCH_THREADED
       #endif
     #endif
   #endif
 
-# Werte der Bytecodes (256 Stück):
+# Values of the bytecodes (256 totally):
   #ifndef FAST_DISPATCH
     typedef enum {
       #define BYTECODE(code)  code,
@@ -290,166 +290,166 @@
   #endif
 
 
-#        ---------------------- LISP-FUNKTIONEN -----------------------
+#        ---------------------- LISP-FUNCTIONS -----------------------
 
-# (SYS::%FUNTABREF i) liefert den Namen der Funktion Nr. i aus der Funktionen-
-# tabelle (ein Symbol), bzw. NIL falls i nicht im richtigen Bereich liegt.
+# (SYS::%FUNTABREF i) returns the name of function Nr. i from the function-
+# table (a symbol), resp. NIL if i is not in the right range.
 LISPFUNN(funtabref,1)
   {
-    var object arg = popSTACK(); # Argument
+    var object arg = popSTACK(); # argument
     var uintL i;
-    if (posfixnump(arg) # sollte ein Fixnum >=0
+    if (posfixnump(arg) # should be Fixnum >=0
         && (i = posfixnum_to_L(arg),
-            i < FUNTAB_length+FUNTABR_length)) { # und < Tabellenlänge sein
-      # Name des indizierten Elements der Tabelle:
+            i < FUNTAB_length+FUNTABR_length)) { # and < table-length 
+      # Name of the indexed element of the table:
       value1 = (i < FUNTAB_length
-                ? FUNTAB[i]                # aus FUNTAB1/2
-                : FUNTABR[i-FUNTAB_length] # bzw. aus FUNTABR
+                ? FUNTAB[i]                # from FUNTAB1/2
+                : FUNTABR[i-FUNTAB_length] # resp. from FUNTABR
                )->name;
     } else {
-      value1 = NIL; # oder NIL
+      value1 = NIL; # or NIL
     }
-    mv_count=1; # als Wert
+    mv_count=1; # as value
   }
 
-# (SYS::SUBR-INFO obj) liefert, wenn obj ein SUBR (oder ein Symbol mit einem
-# SUBR als globaler Funktionsdefinition) ist, Information zu diesem SUBR,
-# 6 Werte:
+# (SYS::SUBR-INFO obj) returns information for this SUBR, if obj is a SUBR (or a Symbol with a
+# SUBR as global function definition),
+# 6 values:
 #   name              Name,
-#   req-anz           Anzahl der required-Parameter,
-#   opt-anz           Anzahl der optionalen Parameter,
-#   rest-p            Flag, ob &rest angegeben,
-#   keywords          Liste der zulässigen Keywords (leer: kein &key angegeben),
-#   allow-other-keys  Flag, ob zusätzliche Keywords erlaubt sind,
-# und sonst NIL.
+#   req-anz           number of required parameters,
+#   opt-anz           number of optional parameters,
+#   rest-p            flag, if &rest is specified,
+#   keywords          list of admissible keywords (empty: no &key specified),
+#   allow-other-keys  flag, if additional keywords are allowed,
+# otherwise NIL.
 LISPFUNN(subr_info,1)
   {
     var object obj = popSTACK();
     if (!subrp(obj)) {
       if (!(symbolp(obj) && subrp(Symbol_function(obj)))) {
-        value1 = NIL; mv_count=0; return; # kein SUBR -> kein Wert
+        value1 = NIL; mv_count=0; return; # no SUBR -> no value
       }
       obj = Symbol_function(obj);
     }
-    # obj ist ein SUBR
+    # obj is a SUBR
     pushSTACK(TheSubr(obj)->name); # Name
-    pushSTACK(fixnum(TheSubr(obj)->req_anz)); # req-anz
-    pushSTACK(fixnum(TheSubr(obj)->opt_anz)); # opt-anz
+    pushSTACK(fixnum(TheSubr(obj)->req_anz)); # req-anz (req-nr)
+    pushSTACK(fixnum(TheSubr(obj)->opt_anz)); # opt-anz (opt-nr)
     pushSTACK(TheSubr(obj)->rest_flag == subr_norest ? NIL : T); # rest-p
     coerce_sequence(TheSubr(obj)->keywords,S(list));
-    pushSTACK(value1); # Keyword-Vektor als Liste
+    pushSTACK(value1); # keyword-vector as list
     pushSTACK(TheSubr(obj)->key_flag == subr_key_allow ? T : NIL); # allow-other-keys
-    funcall(L(values),6); # 6 Werte
+    funcall(L(values),6); # 6 values
   }
 
 
-#        ----------------------- UNTERPROGRAMME -----------------------
+#        ----------------------- SUBROUTINES -----------------------
 
-# UP: Löst einen Frame auf, auf den STACK zeigt.
+# UP: unwinds a frame, which is pointed at by STACK.
 # unwind();
-# Die Werte mv_count/mv_space bleiben dieselben.
-# Falls es kein Unwind-Protect-Frame ist: kehrt normal zurück.
-# Falls es ein Unwind-Protect-Frame ist:
-#   rettet die Werte, klettert STACK und SP hoch
-#   und springt dann unwind_protect_to_save.fun an.
-# verändert STACK
+# The values mv_count/mv_space remain unmodified.
+# If it is no Unwind-Protect-Frame: return normally.
+# If it is a  Unwind-Protect-Frame:
+#   save the values, climbs(?) up STACK and SP
+#   and then calls unwind_protect_to_save.fun .
+# changes STACK
 # can trigger GC
   global void unwind (void);
   global void unwind()
     {
       var fcint frame_info = framecode(STACK_0);
       #ifdef unwind_bit_t
-      if (frame_info & bit(unwind_bit_t)) # überhaupt etwas zu tun?
+      if (frame_info & bit(unwind_bit_t)) # anything to do?
       #else
-      if (frame_info >= unwind_limit_t) # überhaupt etwas zu tun?
+      if (frame_info >= unwind_limit_t) # anything to do?
       #endif
-        # (Nein bei APPLY, EVAL ungetrapped, CATCH, HANDLER,
-        #  IBLOCK und ITAGBODY ungenestet)
+        # (no at APPLY, EVAL ungetrapped, CATCH, HANDLER,
+        #  IBLOCK and ITAGBODY unnested)
         {
-          if ((frame_info & bit(skip2_bit_t)) == 0) { # ENV-Frame oder DYNBIND-Frame?
+          if ((frame_info & bit(skip2_bit_t)) == 0) { # ENV-Frame or DYNBIND-Frame?
             #ifdef entrypoint_bit_t
             if (frame_info & bit(entrypoint_bit_t)) # BLOCK, TAGBODY, CATCH etc. ?
             #else
             if (frame_info < entrypoint_limit_t) # BLOCK, TAGBODY, CATCH etc. ?
             #endif
-              # Frame mit Exitpoint liegt vor
-              if (frame_info & bit(blockgo_bit_t)) { # BLOCK oder TAGBODY?
-                # BLOCK_FRAME oder TAGBODY_FRAME liegt vor
-                if (frame_info & bit(cframe_bit_t)) { # compilierter?
-                  # CBLOCK_FRAME oder CTAGBODY_FRAME liegt vor
-                  # Im Cons (NAME/Tags . <Framepointer>)
-                  Cdr(STACK_(frame_ctag)) = disabled; # Exit/Tags disablen
+              # Frame with Exitpoint
+              if (frame_info & bit(blockgo_bit_t)) { # BLOCK or TAGBODY?
+                # BLOCK_FRAME or TAGBODY_FRAME
+                if (frame_info & bit(cframe_bit_t)) { # compiled?
+                  # CBLOCK_FRAME or CTAGBODY_FRAME
+                  # In Cons (NAME/Tags . <Framepointer>)
+                  Cdr(STACK_(frame_ctag)) = disabled; # disable Exit/Tags
                 } else {
-                  # IBLOCK_FRAME oder ITAGBODY_FRAME liegt vor, genestet
-                  # Im Cons (NAME/Tags . <Framepointer>)
-                  # (erstes Paar der Aliste next_env)
-                  Cdr(Car(STACK_(frame_next_env))) = disabled; # Exit/Tags disablen
+                  # IBLOCK_FRAME or ITAGBODY_FRAME, nested
+                  # In Cons (NAME/Tags . <Framepointer>)
+                  # (first pair of alist next_env)
+                  Cdr(Car(STACK_(frame_next_env))) = disabled; # disable Exit/Tags
                 }
               } else {
-                # UNWIND_PROTECT_FRAME, DRIVER_FRAME oder getrappter APPLY/EVAL_FRAME liegt vor
+                # UNWIND_PROTECT_FRAME, DRIVER_FRAME or trapped APPLY/EVAL_FRAME
                 if (frame_info & bit(dynjump_bit_t)) {
-                  # UNWIND_PROTECT_FRAME oder DRIVER_FRAME liegt vor
+                  # UNWIND_PROTECT_FRAME or DRIVER_FRAME 
                   if (frame_info & bit(driver_bit_t)) {
-                    # DRIVER_FRAME liegt vor
+                    # DRIVER_FRAME
                   } else {
-                    # UNWIND_PROTECT_FRAME liegt vor
+                    # UNWIND_PROTECT_FRAME
                     enter_frame_at_STACK();
                   }
                 } else {
-                  # getrappter APPLY/EVAL_FRAME liegt vor
-                  # Wie im Tracer:
+                  # trapped APPLY/EVAL_FRAME
+                  # like in the tracer:
                   var object values;
-                  mv_to_list(); values = popSTACK(); # Werte in Liste packen
-                  dynamic_bind(S(trace_values),values); # *TRACE-VALUES* binden
-                  break_driver(T); # Break-Driver aufrufen
-                  list_to_mv(Symbol_value(S(trace_values)), # wieder Werte bilden
+                  mv_to_list(); values = popSTACK(); # pack values into list
+                  dynamic_bind(S(trace_values),values); # bind *TRACE-VALUES*
+                  break_driver(T); # call Break-Driver
+                  list_to_mv(Symbol_value(S(trace_values)), # build values again
                              fehler_mv_zuviel(framecode(STACK_(0+3))==TRAPPED_EVAL_frame_info
                                               ? S(eval)
                                               : S(apply)););
-                  dynamic_unbind(); # Bindung auflösen
+                  dynamic_unbind(); # unbind
                 }
               }
             else {
               #ifdef HAVE_SAVED_REGISTERS
               if ((frame_info & bit(callback_bit_t)) == 0) {
-                # CALLBACK_FRAME liegt vor
-                var object* new_STACK = topofframe(STACK_0); # Pointer übern Frame
-                # callback_saved_registers neu setzen:
+                # CALLBACK_FRAME
+                var object* new_STACK = topofframe(STACK_0); # Pointer to Frame
+                # set callback_saved_registers:
                 callback_saved_registers = (struct registers *)(aint)as_oint(STACK_1);
-                # STACK neu setzen, dadurch Frame auflösen:
+                # set STACK, thus unwind frame:
                 setSTACK(STACK = new_STACK);
                 goto fertig;
               } else
               #endif
               {
-                # VAR_FRAME oder FUN_FRAME liegt vor
-                var object* new_STACK = topofframe(STACK_0); # Pointer übern Frame
+                # VAR_FRAME or FUN_FRAME
+                var object* new_STACK = topofframe(STACK_0); # Pointer to Frame
                 if (frame_info & bit(fun_bit_t)) {
-                  # bei Funktionen nichts weiter zu tun
+                  # for functions: do nothing
                 } else {
-                  # VAR_FRAME liegt vor, bindingptr läuft durch die Bindungen hoch
+                  # VAR_FRAME, bindingptr iterates over the bindungs
                   var object* frame_end = STACKpointable(new_STACK);
-                  var object* bindingptr = &STACK_(frame_bindings); # Beginn der Variablen-/Funktionsbindungen
+                  var object* bindingptr = &STACK_(frame_bindings); # start of the variable-/functionbindings
                   until (bindingptr == frame_end) {
                     if (as_oint(*(bindingptr STACKop 0)) & wbit(dynam_bit_o))
                       if (as_oint(*(bindingptr STACKop 0)) & wbit(active_bit_o)) {
-                        # Bindung statisch oder inaktiv -> nichts zu tun
-                        # Bindung dynamisch und aktiv -> Wert zurückschreiben:
+                        # binding static or inactive -> nothing to do
+                        # binding dynamic and active -> write back value:
                         TheSymbolflagged(*(bindingptr STACKop varframe_binding_sym))->symvalue =
                           *(bindingptr STACKop varframe_binding_value);
                       }
-                    bindingptr skipSTACKop varframe_binding_size; # nächste Bindung
+                    bindingptr skipSTACKop varframe_binding_size; # next binding
                   }
                 }
-                # STACK neu setzen, dadurch Frame auflösen:
+                # set STACK, thus unwind frame:
                 setSTACK(STACK = new_STACK);
                 goto fertig;
               }
             }
           } else {
-            # DYNBIND_FRAME oder CALLBACK_FRAME oder ENV_FRAME liegt vor
+            # DYNBIND_FRAME or CALLBACK_FRAME or ENV_FRAME
             if (frame_info & bit(envbind_bit_t)) {
-              # ENV_FRAME liegt vor
+              # ENV_FRAME
               var object* ptr = &STACK_1;
               switch (frame_info & envbind_case_mask_t) {
                 case (ENV1V_frame_info & envbind_case_mask_t): # 1 VAR_ENV
@@ -462,11 +462,11 @@ LISPFUNN(subr_info,1)
                   aktenv.go_env = *ptr; ptr skipSTACKop 1; break;
                 case (ENV1D_frame_info & envbind_case_mask_t): # 1 DECL_ENV
                   aktenv.decl_env = *ptr; ptr skipSTACKop 1; break;
-                case (ENV2VD_frame_info & envbind_case_mask_t): # 1 VAR_ENV und 1 DECL_ENV
+                case (ENV2VD_frame_info & envbind_case_mask_t): # 1 VAR_ENV and 1 DECL_ENV
                   aktenv.var_env = *ptr; ptr skipSTACKop 1;
                   aktenv.decl_env = *ptr; ptr skipSTACKop 1;
                   break;
-                case (ENV5_frame_info & envbind_case_mask_t): # alle 5 Environments
+                case (ENV5_frame_info & envbind_case_mask_t): # all 5 Environments
                   aktenv.var_env = *ptr; ptr skipSTACKop 1;
                   aktenv.fun_env = *ptr; ptr skipSTACKop 1;
                   aktenv.block_env = *ptr; ptr skipSTACKop 1;
@@ -476,66 +476,66 @@ LISPFUNN(subr_info,1)
                 default: NOTREACHED
               }
             } else {
-              # DYNBIND_FRAME liegt vor
-              var object* new_STACK = topofframe(STACK_0); # Pointer übern Frame
+              # DYNBIND_FRAME
+              var object* new_STACK = topofframe(STACK_0); # Pointer to Frame
               var object* frame_end = STACKpointable(new_STACK);
-              var object* bindingptr = &STACK_1; # Beginn der Bindungen
-              # bindingptr läuft durch die Bindungen hoch
+              var object* bindingptr = &STACK_1; # start of the bindings
+              # bindingptr iterates through the bindings
               until (bindingptr == frame_end) {
                 Symbol_value(*(bindingptr STACKop 0)) = *(bindingptr STACKop 1);
-                bindingptr skipSTACKop 2; # nächste Bindung
+                bindingptr skipSTACKop 2; # next binding
               }
-              # STACK neu setzen, dadurch Frame auflösen:
+              # set STACK, thus unwind frame:
               setSTACK(STACK = new_STACK);
               goto fertig;
             }
           }
         }
-      # STACK neu setzen, dadurch Frame auflösen:
+      # set STACK, thus unwind frame:
       setSTACK(STACK = topofframe(STACK_0));
       fertig: ;
     }
 
-# UP: "unwindet" den STACK bis zum nächsten DRIVER_FRAME und
-# springt in die entsprechende Top-Level-Schleife.
+# UP: "unwinds" the STACK up to the next DRIVER_FRAME and
+# jumps into the corresponding top-level-loop.
 # reset();
 nonreturning_function(global, reset, (void));
 global void reset() {
-  # Beim Auflösen von UNWIND-PROTECT-Frames keine Werte retten:
+  # when unwinding UNWIND-PROTECT-frames, don't save values:
   value1 = NIL; mv_count=0;
   unwind_protect_to_save.fun = (restart)&reset;
   loop {
-    # Hört der STACK hier auf?
+    # does STACK end here?
     if (eq(STACK_0,nullobj) && eq(STACK_1,nullobj)) {
-      driver(); quit(); # STACK völlig weg -> Neustart
+      driver(); quit(); # STACK completely gone -> restart
     }
     if (framecode(STACK_0) & bit(frame_bit_t)) {
-    # Bei STACK_0 beginnt ein Frame
+      # at STACK_0: beginning of a frame
       if (framecode(STACK_0) == DRIVER_frame_info) # DRIVER_FRAME ?
-        break; # ja -> gefunden
-      unwind(); # Frame auflösen
+        break; # yes -> found
+      unwind(); # unwind frame
     } else {
-      # STACK_0 enthält ein normales LISP-Objekt
+      # STACK_0 contains a normal LISP-object
       skipSTACK(1);
     }
   }
-  # Bei STACK_0 beginnt ein Driver-Frame.
+  # At STACK_0 a new Driver-Frame starts.
   enter_frame_at_STACK();
 }
 
-# UP: bindet dynamisch die Symbole der Liste symlist
-# an die Werte aus der Liste vallist.
+# UP: dynamically binds the symbols of list symlist
+# to the the values of list vallist.
 # progv(symlist,vallist);
-# > symlist, vallist: zwei Listen
-# Es wird genau ein Variablenbindungsframe aufgebaut.
-# verändert STACK
+# > symlist, vallist: two lists
+# Exactly one variable binding frame is constructed.
+# changes STACK
 global void progv (object symlist, object vallist) {
-  # Platz auf dem STACK verlangen:
+  # demand room on STACK:
   get_space_on_STACK(llength(symlist)*2*sizeof(object));
-  # Frame aufbauen:
-  var object* top_of_frame = STACK; # Pointer übern Frame
+  # build frame:
+  var object* top_of_frame = STACK; # Pointer to Frame
   var object symlistr = symlist;
-  while (consp(symlistr)) { # Symbolliste durchgehen
+  while (consp(symlistr)) { # loop over symbol list
     var object sym = Car(symlistr);
     if (!symbolp(sym))
       fehler_kein_symbol(S(progv),sym);
@@ -545,160 +545,160 @@ global void progv (object symlist, object vallist) {
       fehler(program_error,
              GETTEXT("~: ~ is a constant, cannot be bound dynamically"));
     }
-    pushSTACK(Symbol_value(sym)); # alter Wert der Variablen
-    pushSTACK(sym); # Variable
+    pushSTACK(Symbol_value(sym)); # old value of the variables
+    pushSTACK(sym); # variable
     symlistr = Cdr(symlistr);
   }
   finish_frame(DYNBIND);
-  # Frame fertig aufgebaut, nun die Werte der Variablen verändern:
+  # building of frame completed, now change the values of the variables:
   while (consp(symlist)) {
     if (atomp(vallist)) {
-    # Wertliste kürzer als Symbolliste
-    # -> alle weiteren "Werte" sind #<UNBOUND>
+      # value list shorter than symbol list
+      # -> all further "values" are #<UNBOUND>
       do {
         Symbol_value(Car(symlist)) = unbound;
         symlist = Cdr(symlist);
       } while (consp(symlist));
       break;
     }
-    # Symbol bekommt neuen Wert:
+    # symbol obtains new value:
     Symbol_value(Car(symlist)) = Car(vallist);
     symlist = Cdr(symlist); vallist = Cdr(vallist);
   }
 }
 
-# UP: Löst die dynamische Schachtelung im STACK auf bis zu dem Frame
-# (ausschließlich), auf den upto zeigt, und springt diesen dann an.
+# UP: unwinds the dynamic nesting in STACK up to the frame
+# (exclusively), which is pointed to by upto, and then jumps to it.
 # unwind_upto(upto);
-# > upto: Pointer auf einen Frame (in den Stack, ohne Typinfo).
-# Rettet die Werte mv_count/mv_space.
-# verändert STACK,SP
+# > upto: pointer to a frame (into the stack, without typinfo).
+# saves the values mv_count/mv_space.
+# changes STACK,SP
 # can trigger GC
-# Springt dann den gefundenen Frame an.
+# then jumps to the frame, which was found.
 nonreturning_function(global, unwind_upto, (object* upto_frame));
 global void unwind_upto(object *upto_frame) {
   unwind_protect_to_save.fun        = &unwind_upto;
   unwind_protect_to_save.upto_frame = upto_frame;
-  until (STACK == upto_frame) { # am Ziel-Frame angelangt?
-    if (framecode(STACK_0) & bit(frame_bit_t)) { # liegt ein Frame vor?
-      unwind(); # ja -> auflösen
-      # (Sollte dies ein Unwind-Protect-Frame sein, so wird danach wieder
-      # unwind_upto(upto_frame) aufgerufen, und wir sind wieder hier.)
+  until (STACK == upto_frame) { # arrived at target-frame?
+    if (framecode(STACK_0) & bit(frame_bit_t)) { # is it a frame?
+      unwind(); # yes -> unwind
+      # (if this is a Unwind-Protect-Frame, then
+      # unwind_upto(upto_frame) is called again, and we are again here.)
     } else {
-      skipSTACK(1); # nein -> einfach weiter
+      skipSTACK(1); # no -> simply go ahead
     }
   }
-  # Nun zeigt STACK auf den gefundenen FRAME.
+  # now STACK points to the FRAME found.
   enter_frame_at_STACK();
 }
 
-# UP: throwt zum Tag tag und übergibt dabei die Werte mv_count/mv_space.
-# Kommt nur dann zurück, wenn es keinen CATCH-Frame dieses Tags gibt.
+# UP: throws to the Tag tag and passes the values mv_count/mv_space.
+# returns only, if there is no CATCH-Frame for this tag.
 # throw_to(tag);
 global void throw_to (object tag) {
-  # Suche nach Catch-Frame mit Tag =tag:
+  # search for Catch-Frame with Tag = tag:
   var object* FRAME = STACK;
-  loop { # Suche im Stack ab FRAME nach einem CATCH-Frame mit demselben Tag:
-    if (eq(FRAME_(0),nullobj)) # Stackende?
-      return; # ja -> kein passendes Catch vorhanden -> Rücksprung
+  loop { # search in the Stack starting at FRAME for a CATCH-Frame with the same Tag:
+    if (eq(FRAME_(0),nullobj)) # end of Stack?
+      return; # yes -> no suitable Catch there -> jump back
     if (framecode(FRAME_(0)) & bit(frame_bit_t)) {
-      # Frame gefunden
+    # found frame
       if ((framecode(FRAME_(0)) == CATCH_frame_info) # Catch-Frame?
-          && eq(FRAME_(frame_tag),tag)) # mit demselben Tag?
-        break; # ja -> Suchschleife fertig
-      # Frame übergehen:
+          && eq(FRAME_(frame_tag),tag)) # with the same tag?
+        break; # yes -> search-loop finished
+        # skip Frame:
       FRAME = topofframe(FRAME_(0));
     } else {
       FRAME skipSTACKop 1;
     }
   }
-  # FRAME zeigt auf den untersten CATCH-Frame mit demselben Tag
-  unwind_upto(FRAME); # bis dorthin auflösen, dann anspringen
+  # FRAME points to the lowest CATCH-Frame with the same Tag
+  unwind_upto(FRAME); # unwind upto there, then jump
 }
 
-# UP: Ruft alle Handler zur Condition cond auf. Kommt nur zurück, wenn keiner
-# dieser Handler sich zuständig fühlt (d.h. wenn jeder Handler zurückkehrt).
+# UP: calls all handlers for Condition cond. returns only, if none
+# of these handlers feels responsible (i.e. if each handler returns).
 # invoke_handlers(cond);
 # can trigger GC
-# Dies deaktiviert den Handler, der gerade aufgerufen wird,
-# und alle neueren Handler.
+# This deactivates the handler, that is called right now,
+# and all newer handlers.
 global void invoke_handlers (object cond) {
-  # Die Handler-Bereiche, die ausgeblendet werden:
+  # the handler-ranges, which are screened off:
   var stack_range* other_ranges = inactive_handlers;
   var stack_range new_range;
-  # Suche nach Handler-Frame, der einen Typ behandelt mit (TYPEP cond type):
+  # Search for Handler-Frame, that handles a Type with (TYPEP cond type):
   var object* FRAME = STACK;
-  loop { # Suche im Stack ab FRAME nach einem passenden HANDLER-Frame:
+  loop { # search in Stack starting at FRAME for a suitable HANDLER-Frame:
     if (!(other_ranges == NULL) && (FRAME == other_ranges->low_limit)) {
       FRAME = other_ranges->high_limit;
       other_ranges = other_ranges->next;
-    } elif (eq(FRAME_(0),nullobj)) { # Stackende?
-      break; # ja -> fertig, Rücksprung
+    } elif (eq(FRAME_(0),nullobj)) { # End of Stack?
+      break; # yes -> finised, jump back
     } elif (framecode(FRAME_(0)) & bit(frame_bit_t)) {
-      # Frame gefunden
+      # found frame
       if (framecode(FRAME_(0)) == HANDLER_frame_info) { # Handler-Frame?
-      # Typen des Vektors #(type1 label1 ... typem labelm) durchlaufen:
+      # loop over types of the vectors #(type1 label1 ... typem labelm):
         var uintL m2 = Svector_length(Car(FRAME_(frame_handlers))); # 2*m
         var uintL i = 0;
         do {
-          pushSTACK(cond); # cond retten
+          pushSTACK(cond); # save cond
           pushSTACK(cond);
           pushSTACK(TheSvector(Car(FRAME_(frame_handlers)))->data[i]); # typei
-          funcall(S(safe_typep),2); # (SYS::SAFE-TYPEP cond typei) ausführen
+          funcall(S(safe_typep),2); # execute (SYS::SAFE-TYPEP cond typei)
           if (!nullp(value1)) { # found a suitable handler
             # CLtL2 S. 873, 884:
             # "A handler is executed in the dynamic context
             # of the signaler, except that the set of available condition
             # handlers will have been rebound to the value that was active
             # at the time the condition handler was made active."
-            # Das Ganze sichern wir durch einen Unwind-Protect-Frame ab:
+            # we make the whole thing bullet-proof by an Unwind-Protect-Frame:
             var stack_range* saved_inactive_handlers = inactive_handlers;
             new_range.low_limit = STACK;
             new_range.high_limit = topofframe(FRAME_(0));
             new_range.next = other_ranges;
             var object* top_of_frame = STACK;
-            var sp_jmp_buf returner; # Rücksprungpunkt
+            var sp_jmp_buf returner; # return point
             finish_entry_frame(UNWIND_PROTECT,&!returner,, {
               var restart fun = unwind_protect_to_save.fun;
               var object* arg = unwind_protect_to_save.upto_frame;
-              skipSTACK(2); # Unwind-Protect-Frame auflösen
-              # Cleanup: Handler reaktivieren:
+              skipSTACK(2); # unwind Unwind-Protect-Frame
+              # Cleanup: reactivate Handler:
               inactive_handlers = saved_inactive_handlers;
-              # und weiterspringen:
+              # and jump ahead:
               fun(arg);
               NOTREACHED
             });
-            # Handler deaktivieren:
+            # deactivate Handler:
             inactive_handlers = &new_range;
             if (!nullp(Cdr(FRAME_(frame_handlers)))) {
-              # Information für den Handler bereitlegen:
+              # make information available for Handler:
               handler_args.condition = STACK_(0+2);
               handler_args.stack = FRAME STACKop 4;
               handler_args.sp = (SPint*)(aint)as_oint(FRAME_(frame_SP));
               handler_args.spdepth = Cdr(FRAME_(frame_handlers));
-              # Handler aufrufen:
+              # call Handler:
               var object closure = FRAME_(frame_closure);
               var object codevec = TheCclosure(closure)->clos_codevec;
               var uintL index = (TheCodevec(codevec)->ccv_flags & bit(7) ? CCV_START_KEY : CCV_START_NONKEY)
                 + posfixnum_to_L(TheSvector(Car(FRAME_(frame_handlers)))->data[i+1]);
               interpret_bytecode(closure,codevec,index);
             } else {
-              # C-Handler aufrufen:
+              # call C-Handler:
               void* handler_fn = TheMachineCode(FRAME_(frame_closure));
               ((void (*) (void*, object*, object, object)) handler_fn)
                 ((void*)(aint)as_oint(FRAME_(frame_SP)),FRAME,
                  TheSvector(Car(FRAME_(frame_handlers)))->data[i+1],
                  STACK_(0+2));
             }
-            skipSTACK(2); # Unwind-Protect-Frame auflösen
-            # Handler reaktivieren:
+            skipSTACK(2); # unwind Unwind-Protect-Frame
+            # reactivate Handler:
             inactive_handlers = saved_inactive_handlers;
           }
           cond = popSTACK(); # cond back
           i += 2;
         } while (i < m2);
       }
-      # Frame übergehen:
+      # skip Frame:
       FRAME = topofframe(FRAME_(0));
     } else {
       FRAME skipSTACKop 1;
@@ -706,11 +706,11 @@ global void invoke_handlers (object cond) {
   }
 }
 
-# UP: Stellt fest, ob ein Objekt ein Funktionsname, d.h. ein Symbol oder
-# eine Liste der Form (SETF symbol), ist.
+# UP: finds out, if an object is a function name, i.e. a Symbol or
+# a list of the form (SETF symbol).
 # funnamep(obj)
-# > obj: Objekt
-# < ergebnis: true falls Funktionsname
+# > obj: Object
+# < result: true if function name
 global bool funnamep (object obj) {
   if (symbolp(obj))
     return true;
@@ -722,124 +722,124 @@ global bool funnamep (object obj) {
   return false;
 }
 
-# UP: Liefert den Wert eines Symbols in einem Environment.
+# UP: returns the value of a symbol in an environment.
 # sym_value(symbol,venv)
 # > symbol: Symbol
-# > venv: ein Variablen- und Symbolmacro-Environment
-# < ergebnis: Wert des Symbols in diesem Environment
+# > venv: a Variable- and Symbolmacro-Environment
+# < result: value of the Symbols in this Environment
   local object sym_value (object sym, object venv);
   local object sym_value(sym,env)
     var object sym;
     var object env;
     {
-      if (constantp(TheSymbol(sym))) # Konstanten haben nur globale Werte
+      if (constantp(TheSymbol(sym))) # constants have only global values
         goto global_value;
-      if (special_var_p(TheSymbol(sym))) # special deklarierte ebenso
+      if (special_var_p(TheSymbol(sym))) # the same for symbols declared special
         goto global_value;
       {
         #ifdef NO_symbolflags
-          #define binds_sym_p(bindptr) # Bindet die Bindung bei bindptr das Symbol sym? \
-            (eq(*(bindptr STACKop 1),sym) # richtiges Symbol?                                  \
-             && eq(*(bindingsptr STACKop 0),fixnum(bit(active_bit))) # und aktiv und statisch? \
+          #define binds_sym_p(bindptr) # Does the binding at bindptr bind the Symbol sym? \
+            (eq(*(bindptr STACKop 1),sym) # right Symbol?                                  \
+             && eq(*(bindingsptr STACKop 0),fixnum(bit(active_bit))) # and active and static? \
             )
         #else
-        var object cmp = as_object(as_oint(sym) | wbit(active_bit_o)); # zum Vergleich: Bindung muss aktiv sein
-          #define binds_sym_p(bindptr) # Bindet die Bindung bei bindptr das Symbol sym? \
-            (eq(*(bindingsptr STACKop 0),cmp)) # richtiges Symbol und aktiv und statisch?
+        var object cmp = as_object(as_oint(sym) | wbit(active_bit_o)); # for comparison: binding must be active
+          #define binds_sym_p(bindptr) # Does the binding at bindptr bind the Symbol sym? \
+            (eq(*(bindingsptr STACKop 0),cmp)) # right Symbol and active and static?
         #endif
        next_env:
         if (framepointerp(env)) {
-          # Environment ist ein Pointer auf einen Variablenbindungs-Frame
+          # Environment is a Pointer to a variable-binding-frame
           var object* FRAME = TheFramepointer(env);
-          var uintL count = as_oint(FRAME_(frame_anz)); # Anzahl der Bindungen
+          var uintL count = as_oint(FRAME_(frame_anz)); # number of bindings
           if (count > 0) {
-            var object* bindingsptr = &FRAME_(frame_bindings); # Pointer auf die erste Bindung
+            var object* bindingsptr = &FRAME_(frame_bindings); # pointer to the first binding
             dotimespL(count,count, {
-              if (binds_sym_p(bindingsptr)) { # richtiges Symbol und aktiv und statisch?
+              if (binds_sym_p(bindingsptr)) { # right Symbol and active and static?
                 var object value = *(bindingsptr STACKop varframe_binding_value);
                 if (eq(value,specdecl))
                   goto global_value;
                 else
                   return value;
               }
-              bindingsptr skipSTACKop varframe_binding_size; # nein: nächste Bindung
+              bindingsptr skipSTACKop varframe_binding_size; # no: next binding
             });
           }
           env = FRAME_(frame_next_env);
           goto next_env;
         } elif (simple_vector_p(env))
-          # Environment ist ein Simple-Vector
+          # Environment is a Simple-Vector
           goto next_vector;
         else
-          # Environment ist NIL
+          # Environment is NIL
           goto global_value;
        next_vector:
-        # Environment ist ein Simple-Vector
+        # Environment is a Simple-Vector
         {
-          var uintL count = floor(Svector_length(env),2); # Anzahl der Bindungen
+          var uintL count = floor(Svector_length(env),2); # number of bindings
           var object* ptr = &TheSvector(env)->data[0];
           dotimesL(count,count, {
-            if (eq(*ptr,sym)) { # richtiges Symbol?
+            if (eq(*ptr,sym)) { # right Symbol?
               var object value = *(ptr+1);
               if (eq(value,specdecl))
                 goto global_value;
               else
                 return value;
             }
-            ptr += 2; # nächste Bindung
+            ptr += 2; # next binding
           });
-          env = *ptr; # nächstes Environment
-          if (simple_vector_p(env)) # ein Simple-Vector?
+          env = *ptr; # next environment
+          if (simple_vector_p(env)) # a Simple-Vector?
             goto next_vector;
-          # sonst: Environment ist NIL
+          # else: Environment is NIL
         }
         #undef binds_sym_p
       }
-     global_value: # Es gilt der globale (dynamische) Wert des Symbols
+     global_value: # the global (dynamic) value of the Symbol
       return Symbol_value(sym);
     }
 
-# UP: Stellt fest, ob ein Symbol im aktuellen Environment einen Macro darstellt.
+# UP: determines, if a Symbol is a Macro in the current environment.
 # sym_macrop(symbol)
 # > symbol: Symbol
-# < ergebnis: true falls sym einen Symbol-Macro darstellt
+# < result: true if sym is a Symbol-Macro
 global bool sym_macrop (object sym) {
   var object val = sym_value(sym,aktenv.var_env);
   return (symbolmacrop(val) ? true : false);
 }
 
-# UP: Setzt den Wert eines Symbols im aktuellen Environment.
+# UP: Sets the value of a Symbol in the current Environment.
 # setq(symbol,value);
-# > symbol: Symbol, keine Konstante
-# > value: gewünschter Wert des Symbols im aktuellen Environment
+# > symbol: Symbol, no constant
+# > value: desired value of the Symbols in the current Environment
   global void setq (object sym, object value);
   global void setq(sym,value)
     var object sym;
     var object value;
     {
-      if (special_var_p(TheSymbol(sym))) # special deklarierte ebenso
+      if (special_var_p(TheSymbol(sym))) # the same for special declared symbols
         goto global_value;
       {
-        var object env = aktenv.var_env; # aktuelles VAR_ENV
+        var object env = aktenv.var_env; # current VAR_ENV
         #ifdef NO_symbolflags
-          #define binds_sym_p(bindptr) # Bindet die Bindung bei bindptr das Symbol sym? \
-            (eq(*(bindptr STACKop 1),sym) # richtiges Symbol?                                  \
-             && eq(*(bindingsptr STACKop 0),fixnum(bit(active_bit))) # und aktiv und statisch? \
+          #define binds_sym_p(bindptr) # Does the binding at bindptr bind the Symbol sym? \
+            (eq(*(bindptr STACKop 1),sym) # right Symbol?                                  \
+             && eq(*(bindingsptr STACKop 0),fixnum(bit(active_bit))) # active and static? \
             )
         #else
-        var object cmp = as_object(as_oint(sym) | wbit(active_bit_o)); # zum Vergleich: Bindung muss aktiv sein
-          #define binds_sym_p(bindptr) # Bindet die Bindung bei bindptr das Symbol sym? \
-            (eq(*(bindingsptr STACKop 0),cmp)) # richtiges Symbol und aktiv und statisch?
+        var object cmp = as_object(as_oint(sym) | wbit(active_bit_o)); # for comparison: binding must be active
+          #define binds_sym_p(bindptr) # Does the binding at bindptr bind the Symbol sym? \
+            (eq(*(bindingsptr STACKop 0),cmp)) # right Symbol and active and static?
         #endif
        next_env:
         if (framepointerp(env)) {
-          # Environment ist ein Pointer auf einen Variablenbindungs-Frame
+          # Environment is a Pointer to a variable-binding-frame
           var object* FRAME = TheFramepointer(env);
-          var uintL count = as_oint(FRAME_(frame_anz)); # Anzahl der Bindungen
+          var uintL count = as_oint(FRAME_(frame_anz)); # number of bindings
           if (count > 0) {
-            var object* bindingsptr = &FRAME_(frame_bindings); # Pointer auf die erste Bindung
+            var object* bindingsptr = &FRAME_(frame_bindings); # pointer to the first binding
             dotimespL(count,count, {
-              if (binds_sym_p(bindingsptr)) { # richtiges Symbol und aktiv und statisch?
+              if (binds_sym_p(bindingsptr)) { # right Symbol and active and static?
                 if (eq(*(bindingsptr STACKop varframe_binding_value),specdecl)) {
                   goto global_value;
                 } else {
@@ -847,24 +847,24 @@ global bool sym_macrop (object sym) {
                   return;
                 }
               }
-              bindingsptr skipSTACKop varframe_binding_size; # nein: nächste Bindung
+              bindingsptr skipSTACKop varframe_binding_size; # no: next binding
             });
           }
           env = FRAME_(frame_next_env);
           goto next_env;
         } elif (simple_vector_p(env))
-          # Environment ist ein Simple-Vector
+          # Environment is a Simple-Vector
           goto next_vector;
         else
-          # Environment ist NIL
+          # Environment is NIL
           goto global_value;
        next_vector:
-        # Environment ist ein Simple-Vector
+        # Environment is a Simple-Vector
         {
-          var uintL count = floor(Svector_length(env),2); # Anzahl der Bindungen
+          var uintL count = floor(Svector_length(env),2); # number of bindings
           var object* ptr = &TheSvector(env)->data[0];
           dotimesL(count,count, {
-            if (eq(*ptr,sym)) { # richtiges Symbol?
+            if (eq(*ptr,sym)) { # right Symbol?
               if (eq(*(ptr+1),specdecl)) {
                 goto global_value;
               } else {
@@ -872,25 +872,25 @@ global bool sym_macrop (object sym) {
                 return;
               }
             }
-            ptr += 2; # nächste Bindung
+            ptr += 2; # next binding
           });
-          env = *ptr; # nächstes Environment
-          if (simple_vector_p(env)) # ein Simple-Vector?
+          env = *ptr; # next Environment
+          if (simple_vector_p(env)) # a Simple-Vector?
             goto next_vector;
-          # sonst: Environment ist NIL
+          # else: Environment is NIL
         }
         #undef binds_sym_p
       }
-     global_value: # Es gilt der globale (dynamische) Wert des Symbols
+     global_value: #  global (dynamic) value of the Symbols
       Symbol_value(sym) = value; return;
     }
 
-# UP: Liefert zu einem Symbol seine Funktionsdefinition in einem Environment
+# UP: returns for a Symbol its function definition in an Environment
 # sym_function(sym,fenv)
-# > sym: Funktionsname (z.B. Symbol)
-# > fenv: ein Funktions- und Macrobindungs-Environment
-# < ergebnis: Funktionsdefinition, entweder unbound (falls undefinierte Funktion)
-#             oder Closure/SUBR/FSUBR/Macro/FunctionMacro.
+# > sym: function name (e.g. Symbol)
+# > fenv: a function- and macro-bindung-environment
+# < result: function definition, either unbound (if undefined function)
+#             or Closure/SUBR/FSUBR/Macro/FunctionMacro.
   global object sym_function (object sym, object fenv);
   global object sym_function(sym,env)
     var object sym;
@@ -900,397 +900,397 @@ global bool sym_macrop (object sym) {
       {
        next_env:
         if (framepointerp(env)) {
-          # Environment ist ein Pointer auf einen Funktionsbindungs-Frame
+          # Environment is a Pointer to a function-binding-frame
           var object* FRAME = TheFramepointer(env);
-          var uintL count = as_oint(FRAME_(frame_anz)); # Anzahl der Bindungen
+          var uintL count = as_oint(FRAME_(frame_anz)); # number of bindings
           if (count > 0) {
-            var object* bindingsptr = &FRAME_(frame_bindings); # Pointer auf die erste Bindung
+            var object* bindingsptr = &FRAME_(frame_bindings); # pointer to the first binding
             dotimespL(count,count, {
-              if (equal(*(bindingsptr STACKop 0),sym)) { # richtiges Symbol?
+              if (equal(*(bindingsptr STACKop 0),sym)) { # right Symbol?
                 value = *(bindingsptr STACKop 1); goto fertig;
               }
-              bindingsptr skipSTACKop 2; # nein: nächste Bindung
+              bindingsptr skipSTACKop 2; # no: next binding
             });
           }
           env = FRAME_(frame_next_env);
           goto next_env;
         } elif (simple_vector_p(env))
-          # Environment ist ein Simple-Vector
+          # Environment is a Simple-Vector
           goto next_vector;
         else
-          # Environment ist NIL
+          # Environment is NIL
           goto global_value;
        next_vector:
-        # Environment ist ein Simple-Vector
+        # Environment is a Simple-Vector
         {
-          var uintL count = floor(Svector_length(env),2); # Anzahl der Bindungen
+          var uintL count = floor(Svector_length(env),2); # number of bindings
           var object* ptr = &TheSvector(env)->data[0];
           dotimesL(count,count, {
-            if (equal(*ptr,sym)) { # richtiges Symbol?
+            if (equal(*ptr,sym)) { # right Symbol?
               value = *(ptr+1); goto fertig;
             }
-            ptr += 2; # nächste Bindung
+            ptr += 2; # next binding
           });
-          env = *ptr; # nächstes Environment
-          if (simple_vector_p(env)) # ein Simple-Vector?
+          env = *ptr; # next Environment
+          if (simple_vector_p(env)) # a Simple-Vector?
             goto next_vector;
-          # sonst: Environment ist NIL
+          # else: Environment is NIL
         }
       }
-     global_value: # Es gilt die globale Funktionsdefinition
+     global_value: # global function-definition
       if (!symbolp(sym)) {
         sym = get(Car(Cdr(sym)),S(setf_function)); # (get ... 'SYS::SETF-FUNCTION)
-        if (!symbolp(sym)) # sollte (uninterniertes) Symbol sein
-          return unbound; # sonst undefiniert
+        if (!symbolp(sym)) # should be (uninterned) Symbol
+          return unbound; # else undefined
       }
       return Symbol_function(sym);
-     fertig: # Symbol aktiv im Environment gefunden, "Wert" value
-      # (eine Closure oder Macro oder FunctionMacro oder NIL)
-      # Falls Definition = NIL (während LABELS), gilt die Funktion als
-      # undefiniert:
+     fertig: # Symbol found active in Environment, "Value" value
+      # (a Closure or Macro or FunctionMacro or NIL)
+      # if Definition = NIL (during LABELS), the function is passed for
+      # as undefined:
       if (nullp(value))
         value = unbound;
       return value;
     }
 
-# UP: Wertet eine Form in einem gegebenen Environment aus.
+# UP: evaluates a Form in a given Environment.
 # eval_5env(form,var,fun,block,go,decl);
-# > var_env: Wert für VAR_ENV
-# > fun_env: Wert für FUN_ENV
-# > block_env: Wert für BLOCK_ENV
-# > go_env: Wert für GO_ENV
-# > decl_env: Wert für DECL_ENV
+# > var_env: value for VAR_ENV
+# > fun_env: value for FUN_ENV
+# > block_env: value for BLOCK_ENV
+# > go_env: value for GO_ENV
+# > decl_env: value for DECL_ENV
 # > form: Form
-# < mv_count/mv_space: Werte
+# < mv_count/mv_space: values
 # can trigger GC
 global Values eval_5env (object form, object var_env, object fun_env,
                          object block_env, object go_env, object decl_env) {
-  # Environments binden:
+  # bind Environments:
   make_ENV5_frame();
-  # aktuelle Environments setzen:
+  # set current Environments:
   aktenv.var_env = var_env;
   aktenv.fun_env = fun_env;
   aktenv.block_env = block_env;
   aktenv.go_env = go_env;
   aktenv.decl_env = decl_env;
-  # Form auswerten:
+  # evaluate Form:
   eval(form);
-  # Environment-Frame auflösen:
+  # unwind Environment-Frame:
   unwind();
-  return; # fertig
+  return; # finished
 }
 
-# UP: Wertet eine Form in einem leeren Environment aus.
+# UP: evaluates a form in an empty environment.
 # eval_noenv(form);
 # > form: Form
-# < mv_count/mv_space: Werte
+# < mv_count/mv_space: values
 # can trigger GC
 global Values eval_noenv (object form) {
   return_Values eval_5env(form,NIL,NIL,NIL,NIL,O(top_decl_env));
 }
 
-# UP: "nestet" ein FUN-Environment, d.h. schreibt alle aktiven Bindungen
-# aus dem Stack in neu allozierte Vektoren.
+# UP: "nests" a FUN-Environment, i.e. writes all active bindings
+# from the Stack into freshly allocated vectors.
 # nest_fun(env)
 # > env: FUN-Env
-# < ergebnis: selbes Environment, kein Pointer in den Stack
+# < result: same environment, no Pointer into the Stack
 # can trigger GC
   global object nest_fun (object env);
   global object nest_fun(env)
     var object env;
     {
-      var uintL depth = 0; # Rekursionszähler:=0
-      # Pseudorekursion mit Input env, Output env.
-     nest_start: # Rekursionsbeginn
+      var uintL depth = 0; # recursion counter := 0
+      # Pseudorecursion with Input env, Output env.
+     nest_start: # start of recursion
       if (framepointerp(env)) {
-        # env ist ein Pointer auf einen STACK-Frame.
+        # env is a pointer to a STACK-Frame.
         check_STACK();
-        pushSTACK(env); # env retten
-        # entrekursiviert nest_fun(NEXT_ENV(env)) durchführen:
+        pushSTACK(env); # save env
+        # execute nest_fun(NEXT_ENV(env)) "disrecursified" :-) :
         {
           var object* FRAME = TheFramepointer(env);
           env = FRAME_(frame_next_env); depth++; goto nest_start;
         }
        nest_reentry: depth--;
-        # NEXT_ENV ist nun genestet.
+        # NEXT_ENV is now nested.
         {
-          var object* FRAME = TheFramepointer(STACK_0); # nächster zu nestender STACK-Frame
+          var object* FRAME = TheFramepointer(STACK_0); # next STACK-Frame to be nested
           STACK_0 = env; # bisher genestetes Environment
-          var uintL anzahl = as_oint(FRAME_(frame_anz)); # Anzahl der noch nicht genesteten Bindungen
+          var uintL anzahl = as_oint(FRAME_(frame_anz)); # number of not yet netsted bindings
           if (anzahl == 0) {
-            # keine Bindungen -> unnötig, einen Vektor zu erzeugen.
+            # no bindings -> unnecessary, to create a vector.
             env = popSTACK();
           } else {
-            # Vektor für anzahl Bindungen erzeugen:
+            # create vector for anzahl bindings:
             env = allocate_vector(2*anzahl+1);
-            # und füllen:
+            # and fill:
             {
               var object* ptr = &TheSvector(env)->data[0];
-              var object* bindingsptr = &FRAME_(frame_bindings); # Pointer auf die erste Bindung
-              # anzahl Bindungen ab bindingsptr in den Vektor ab ptr eintragen:
+              var object* bindingsptr = &FRAME_(frame_bindings); # Pointer to the first binding
+              # put anzahl bindings starting at bindingsptr into the vector at ptr:
               dotimespL(anzahl,anzahl, {
-                *ptr++ = *(bindingsptr STACKop 0); # Bindung in den Vektor kopieren
+                *ptr++ = *(bindingsptr STACKop 0); # copy binding into the vector
                 *ptr++ = *(bindingsptr STACKop 1);
                 bindingsptr skipSTACKop 2;
               });
-              *ptr++ = popSTACK(); # genestetes NEXT_ENV in Vektor eintragen
+              *ptr++ = popSTACK(); # put nested NEXT_ENV into vector
             }
-            FRAME_(frame_next_env) = env; # Vektor als NEXT_ENV in den Frame
-            FRAME_(frame_anz) = as_object(0); # neue Zahl noch nicht genesteter Bindungen
+            FRAME_(frame_next_env) = env; # Vector as NEXT_ENV into the Frame
+            FRAME_(frame_anz) = as_object(0); # new number of not yet nested bindings
           }
         }
       }
-      # mit diesem Nest-Teilschritt fertig.
-      if (depth>0) # Ende der Rekursion
+      # finished with this Nest-substep.
+      if (depth>0) # end of recursion
         goto nest_reentry;
       return env;
     }
 
-# UP: "nestet" ein VAR-Environment, d.h. schreibt alle aktiven Bindungen
-# aus dem Stack in neu allozierte Vektoren.
+# UP: "nests" a VAR-Environment, i.e. writes all active bindings
+# from the Stack in freshly allocated vectors.
 # nest_var(env)
 # > env: VAR-Env
-# < ergebnis: selbes Environment, kein Pointer in den Stack
+# < result: same Environment, no Pointer in the Stack
 # can trigger GC
   local object nest_var (object env);
   local object nest_var(env)
     var object env;
     {
-      var uintL depth = 0; # Rekursionszähler:=0
-      # Pseudorekursion mit Input env, Output env.
-     nest_start: # Rekursionsbeginn
+      var uintL depth = 0; # Recursion counter := 0
+      # Pseudorecursion with Input env, Output env.
+     nest_start: # start of Recursion
       if (framepointerp(env)) {
-        # env ist ein Pointer auf einen STACK-Frame.
+        # env is a Pointer to a STACK-Frame.
         check_STACK();
-        pushSTACK(env); # env retten
-        # entrekursiviert nest_var(NEXT_ENV(env)) durchführen:
+        pushSTACK(env); # save env
+        # execute nest_var(NEXT_ENV(env)) "disrecursified" :-) :
         {
           var object* FRAME = TheFramepointer(env);
           env = FRAME_(frame_next_env); depth++; goto nest_start;
         }
        nest_reentry: depth--;
-        # NEXT_ENV ist nun genestet.
+        # NEXT_ENV is now nested.
         {
-          var object* FRAME = TheFramepointer(STACK_0); # nächster zu nestender STACK-Frame
-          STACK_0 = env; # bisher genestetes Environment
-          # Suche (von unten) die erste aktive unter den noch nicht
-          # genesteten Bindungen:
-          var uintL anzahl = as_oint(FRAME_(frame_anz)); # Anzahl der noch nicht genesteten Bindungen
+          var object* FRAME = TheFramepointer(STACK_0); # next STACK-Frame to be nested
+          STACK_0 = env; # formerly nested Environment
+          # Search (from bottom) the first active among the not yet
+          # nested bindings:
+          var uintL anzahl = as_oint(FRAME_(frame_anz)); # number of not yet nested bindings
           var uintL count = 0;
-          var object* bindingsptr = &FRAME_(frame_bindings); # Pointer auf die erste Bindung
-          until ((count>=anzahl) # alle ungenesteten Bindungen durch?
-                 || (as_oint(*(bindingsptr STACKop 0)) & wbit(active_bit_o))) { # aktive Bindung entdeckt?
-            # nein -> weitersuchen:
+          var object* bindingsptr = &FRAME_(frame_bindings); # Pointer to the first binding
+          until ((count>=anzahl) # all unnested bindings through?
+                 || (as_oint(*(bindingsptr STACKop 0)) & wbit(active_bit_o))) { # discovered active binding?
+            # no -> continue search:
             bindingsptr skipSTACKop varframe_binding_size;
             count++;
           }
-          # Unterhalb von bindingsptr sind count inaktive Bindungen.
-          # Ab bindingsptr kommen anzahl-count aktive, zu nestende Bindungen.
-          anzahl = anzahl-count; # Anzahl zu nestender Bindungen
+          # Below bindingsptr are count inactive bindings.
+          # From bindingsptr on there are anzahl-count active, to be nested bindings.
+          anzahl = anzahl-count; # number of bindings to be nested
           if (anzahl == 0) {
-            # keine Bindungen -> unnötig, einen Vektor zu erzeugen.
+            # no bindings -> creating a vector is unnecessary.
             env = popSTACK();
           } else {
-            # Vektor für anzahl Bindungen erzeugen:
+            # create vector for anzahl bindings:
             env = allocate_vector(2*anzahl+1);
-            # und füllen:
+            # and fill:
             {
               var object* ptr = &TheSvector(env)->data[0];
-              # Bindungen ab bindingsptr in den Vektor ab ptr eintragen:
+              # put bindungs starting at bindingsptr in the vector at ptr:
               dotimespL(anzahl,anzahl, {
-                if (as_oint(*(bindingsptr STACKop varframe_binding_mark)) & wbit(dynam_bit_o)) { # Bindung dynamisch?
-                  # dynamische Bindung, lexikalische Sichtbarkeit
-                  *ptr++ = symbol_without_flags(*(bindingsptr STACKop varframe_binding_sym)); # Symbol ohne Flag-Bits in den Vektor
-                  *ptr++ = specdecl; # als special reference kennzeichnen
-                  # Bindung bleibt im Frame aktiv
+                if (as_oint(*(bindingsptr STACKop varframe_binding_mark)) & wbit(dynam_bit_o)) { # binding dynamic?
+                  # dynamic binding, lexical scope
+                  *ptr++ = symbol_without_flags(*(bindingsptr STACKop varframe_binding_sym)); # put Symbol without Flag-Bits in the Vector
+                  *ptr++ = specdecl; # mark as special reference
+                  # binding stays active in the Frame
                 } else {
-                  # statische Bindung, lexikalische Sichtbarkeit
+                  # static binding, lexical scope
                   *(bindingsptr STACKop varframe_binding_mark) =
-                    as_object(as_oint(*(bindingsptr STACKop varframe_binding_mark)) & ~wbit(active_bit_o)); # Bindung inaktivieren
-                  *ptr++ = *(bindingsptr STACKop varframe_binding_sym); # Bindung in den Vektor kopieren
+                    as_object(as_oint(*(bindingsptr STACKop varframe_binding_mark)) & ~wbit(active_bit_o)); # deactivate binding
+                  *ptr++ = *(bindingsptr STACKop varframe_binding_sym); # copy binding in the vector
                   *ptr++ = *(bindingsptr STACKop varframe_binding_value);
                 }
                 bindingsptr skipSTACKop varframe_binding_size;
               });
-              *ptr++ = popSTACK(); # genestetes NEXT_ENV in Vektor eintragen
+              *ptr++ = popSTACK(); # put nested NEXT_ENV in the vector
             }
-            FRAME_(frame_next_env) = env; # Vektor als NEXT_ENV in den Frame
-            FRAME_(frame_anz) = as_object(count); # neue Zahl noch nicht genesteter Bindungen
+            FRAME_(frame_next_env) = env; # vector as NEXT_ENV in the Frame
+            FRAME_(frame_anz) = as_object(count); # new number of not yet nested bindings
           }
         }
       }
-      # mit diesem Nest-Teilschritt fertig.
-      if (depth>0) # Ende der Rekursion
+      # finished with this Nest-substep.
+      if (depth>0) # end of recursion
         goto nest_reentry;
       return env;
     }
 
-# UP: Nestet die Environments in *env (d.h. schreibt alle Informationen in
-# Stack-unabhängige Strukturen) und schiebt sie auf den STACK.
-# (Die Werte VAR_ENV, FUN_ENV, BLOCK_ENV, GO_ENV, DECL_ENV werden nicht
-# verändert, da evtl. noch inaktive Bindungen in Frames sitzen, die ohne
-# Veränderung von VAR_ENV aktiviert werden können müssen.)
+# UP: Nests the Environments in *env (i.e. writes all information in
+# Stack-independent structures) and pushes them onto the STACK.
+# (The values VAR_ENV, FUN_ENV, BLOCK_ENV, GO_ENV, DECL_ENV will not
+# be changed, because inactive bindings might poss. still sit in the frames.
+# It has to be feasible, to activate these bindings without change of VAR_ENV.)
 # nest_env(env)
-# > environment* env: Pointer auf fünf einzelne Environments
-# < environment* ergebnis: Pointer auf die Environments im STACK
+# > environment* env: Pointer to five Environments
+# < environment* result: Pointer to the Environments in the STACK
 # changes STACK, can trigger GC
   global environment* nest_env (environment* env);
   global environment* nest_env(env5)
     var environment* env5;
     {
-      # Erst alle Environments in den STACK kopieren:
+      # First copy all Environments in the STACK:
       make_STACK_env(env5->var_env,env5->fun_env,env5->block_env,env5->go_env,env5->decl_env,
                      env5 = );
-      # DECL_ENV: Nicht zu verändern.
+      # DECL_ENV: Not to be changed.
       # GO_ENV:
       {
         var object env = env5->go_env;
-        var uintL depth = 0; # Rekursionstiefe := 0
-        # Pseudo-Rekursion: nestet ein GO_ENV.
-        # Input: env, ein GO_ENV. Output: env, die Aliste dazu.
-       nest_go_start: # Rekursionsbeginn
+        var uintL depth = 0; # recursion depth := 0
+        # pseudo-recursion: nests a GO_ENV.
+        # Input: env, a GO_ENV. Output: env, with Alist.
+       nest_go_start: # start of recursion
         if (framepointerp(env)) {
-          # env ist ein Pointer in den STACK auf einen ITAGBODY-Frame.
+          # env is a pointer into the STACK to a ITAGBODY-frame.
           check_STACK();
           var object* FRAME = TheFramepointer(env);
-          if (framecode(FRAME_(0)) & bit(nested_bit_t)) { # Frame schon genestet?
-            env = FRAME_(frame_next_env); # ja -> bisherige Aliste holen
+          if (framecode(FRAME_(0)) & bit(nested_bit_t)) { # frame already nested?
+            env = FRAME_(frame_next_env); # yes -> fetch former Alist
           } else {
-            pushSTACK(env); # env retten
-            # entrekursiviert nest_go(NEXT_ENV(env)) durchführen:
+            pushSTACK(env); # save env
+            # execute nest_go(NEXT_ENV(env)) "disrecursivied":
             env = FRAME_(frame_next_env); depth++; goto nest_go_start;
            nest_go_reentry: depth--;
-            # NEXT_ENV ist nun genestet.
+            # NEXT_ENV is now nested.
             {
-              var object frame = STACK_0; # nächster zu nestender STACK-Frame
+              var object frame = STACK_0; # next to be nested STACK-Frame
               FRAME = uTheFramepointer(frame);
-              STACK_0 = env; # bisher genestetes Environment
-              var object* tagsptr = &FRAME_(frame_bindings); # Pointer aufs unterste Tag
-              var object* frame_end = STACKpointable(topofframe(FRAME_(0))); # Pointer übern Frame
-              var uintL count = # Anzahl der Tags
-                # Dazu die Pointer tagsptr und frame_end (beide ohne Typinfo!) abziehen:
+              STACK_0 = env; # so far nested Environment
+              var object* tagsptr = &FRAME_(frame_bindings); # Pointer to the bottom Tag
+              var object* frame_end = STACKpointable(topofframe(FRAME_(0))); # Pointer to Frame
+              var uintL count = # number of tags
+                # subtract the pointers tagsptr and frame_end (both without Typinfo!):
                 STACK_item_count(tagsptr,frame_end) / 2;
-              # Vektor für count Tags erzeugen:
+              # create vector for count tags:
               {
                 var object tagvec = allocate_vector(count);
-                # und füllen:
+                # and fill:
                 if (count > 0) {
                   var object* ptr = &TheSvector(tagvec)->data[0];
-                  # Tags ab tagsptr in den Vektor ab ptr eintragen:
+                  # put tags starting at tagsptr in the vector at ptr:
                   dotimespL(count,count, {
                     *ptr++ = *(tagsptr STACKop 0);
                     tagsptr skipSTACKop 2;
                   });
                 }
-                pushSTACK(tagvec); # und retten
+                pushSTACK(tagvec); # and save
               }
-              # Nächstes Alistencons (cons Tag-Vektor Frame-Pointer) erzeugen:
+              # create next Alist Cons (cons tag-vector frame-pointer) :
               {
                 var object new_cons = allocate_cons();
                 Car(new_cons) = STACK_0; # tagvec
                 Cdr(new_cons) = frame;
                 STACK_0 = new_cons;
               }
-              # und vor die Aliste hängen:
+              # and prepend to Alist:
               env = allocate_cons();
               Car(env) = popSTACK(); # new_cons
-              Cdr(env) = popSTACK(); # bisherige Aliste
-              FRAME_(frame_next_env) = env; # neues NEXT_ENV eintragen
-              *(oint*)(&FRAME_(0)) |= wbit(nested_bit_o); # Dieser Frame ist nun genestet.
+              Cdr(env) = popSTACK(); # previous Alist
+              FRAME_(frame_next_env) = env; # store new NEXT_ENV
+              *(oint*)(&FRAME_(0)) |= wbit(nested_bit_o); # this frame is now nested.
             }
           }
         }
-        # mit diesem Nest-Teilschritt fertig.
-        if (depth>0) # Ende der Rekursion
+        # finished with this Nest-Substep.
+        if (depth>0) # end of Recursion
           goto nest_go_reentry;
-        env5->go_env = env; # genestetes GO_ENV ablegen
+        env5->go_env = env; # file nested GO_ENV
       }
       # BLOCK_ENV:
       {
         var object env = env5->block_env;
-        var uintL depth = 0; # Rekursionstiefe := 0
-        # Pseudo-Rekursion: nestet ein BLOCK_ENV.
-        # Input: env, ein BLOCK_ENV. Output: env, die Aliste dazu.
-       nest_block_start: # Rekursionsbeginn
+        var uintL depth = 0; # recursion depth := 0
+        # Pseudo-Recursion: nests a BLOCK_ENV.
+        # Input: env, a BLOCK_ENV. Output: env, with Aliste.
+       nest_block_start: # start of recursion
         if (framepointerp(env)) {
-          # env ist ein Pointer in den STACK auf einen IBLOCK-Frame.
+          # env is a pointer into the STACK to a IBLOCK-Frame.
           check_STACK();
           var object* FRAME = TheFramepointer(env);
-          if (framecode(FRAME_(0)) & bit(nested_bit_t)) { # Frame schon genestet?
-            env = FRAME_(frame_next_env); # ja -> bisherige Aliste holen
+          if (framecode(FRAME_(0)) & bit(nested_bit_t)) { # Frame already nested?
+            env = FRAME_(frame_next_env); # yes -> fetch previous Alist
           } else {
-            pushSTACK(env); # env retten
-            # entrekursiviert nest_block(NEXT_ENV(env)) durchführen:
+            pushSTACK(env); # save env
+            # execute nest_block(NEXT_ENV(env)) "disrecursified":
             env = FRAME_(frame_next_env); depth++; goto nest_block_start;
            nest_block_reentry: depth--;
-            # NEXT_ENV ist nun genestet.
+            # NEXT_ENV is now nested.
             {
-              var object frame = STACK_0; # nächster zu nestender STACK-Frame
+              var object frame = STACK_0; # next to be nested STACK-Frame
               FRAME = TheFramepointer(frame);
-              STACK_0 = env; # bisher genestetes Environment
-              # Nächstes Alistencons (cons Block-Name Frame-Pointer) erzeugen:
+              STACK_0 = env; # so far nested Environment
+              # create next Alist Cons (cons Block-Name Frame-Pointer) :
               {
                 var object new_cons = allocate_cons();
                 Car(new_cons) = FRAME_(frame_name);
                 Cdr(new_cons) = frame;
                 pushSTACK(new_cons);
               }
-              # und vor die Aliste hängen:
+              # and prepend to the Aliste:
               env = allocate_cons();
               Car(env) = popSTACK(); # new_cons
-              Cdr(env) = popSTACK(); # bisherige Aliste
-              FRAME_(frame_next_env) = env; # neues NEXT_ENV eintragen
-              *(oint*)(&FRAME_(0)) |= wbit(nested_bit_o); # Dieser Frame ist nun genestet.
+              Cdr(env) = popSTACK(); # previous Alist
+              FRAME_(frame_next_env) = env; # store new NEXT_ENV
+              *(oint*)(&FRAME_(0)) |= wbit(nested_bit_o); # this frame is now nested.
             }
           }
         }
-        # mit diesem Nest-Teilschritt fertig.
-        if (depth>0) # Ende der Rekursion
+        # finished with this Nest-Substep.
+        if (depth>0) # end of recursion
           goto nest_block_reentry;
-        env5->block_env = env; # genestetes BLOCK_ENV ablegen
+        env5->block_env = env; # file nested BLOCK_ENV
       }
       # FUN_ENV:
       env5->fun_env = nest_fun(env5->fun_env);
       # VAR_ENV:
       env5->var_env = nest_var(env5->var_env);
-      # fertig.
+      # finished.
       return env5;
     }
 
-# UP: Nestet die aktuellen Environments (d.h. schreibt alle Informationen in
-# Stack-unabhängige Strukturen) und schiebt sie auf den STACK.
-# (Die Werte VAR_ENV, FUN_ENV, BLOCK_ENV, GO_ENV, DECL_ENV werden nicht
-# verändert, da evtl. noch inaktive Bindungen in Frames sitzen, die ohne
-# Veränderung von VAR_ENV aktiviert werden können müssen.)
+# UP: Nests the current environments (i.e. writes all Information in
+# Stack-independent Structures) and pushes them onto the STACK.
+# (The values VAR_ENV, FUN_ENV, BLOCK_ENV, GO_ENV, DECL_ENV are not
+# modified, because inactive bindings might poss. still sit in the Frames.
+# It has to be feasible, to activate these bindings without change of VAR_ENV.)
 # nest_aktenv()
-# < environment* ergebnis: Pointer auf die Environments im STACK
+# < environment* result: Pointer to the Environments in the STACK
 # changes STACK, can trigger GC
 #define nest_aktenv()  nest_env(&aktenv)
 
-# UP: Ergänzt ein Deklarations-Environment um ein decl-spec.
+# UP: augments a Declaration-Environment with a decl-spec.
 # augment_decl_env(declspec,env)
-# > declspec: Deklarations-Specifier, ein Cons
-# > env: Deklarations-Environment
-# < ergebnis: neues (evtl. augmentiertes) Deklarations-Environment
+# > declspec: Declaration-Specifier, a Cons
+# > env: Declaration-Environment
+# < result: new (poss. augmented) Declaration-Environment
 # can trigger GC
   global object augment_decl_env (object new_declspec, object env);
   global object augment_decl_env(new_declspec,env)
     var object new_declspec;
     var object env;
     {
-      var object decltype = Car(new_declspec); # Deklarations-Typ
-      # Ist dies ein zu beachtender Deklarationstyp?
-      # Gibt es in env ein Decl-Spec der Form (DECLARATION ... decltype ...) ?
-      # NB: Die Liste O(declaration_types) ist das letzte Decl-Spec in env.
+      var object decltype = Car(new_declspec); # Declaration-Type
+      # Is this a declaration type to be payed attention to?
+      # Is there a Decl-Spec of the form (DECLARATION ... decltype ...) in env?
+      # Aside: The List O(declaration_types) is the last Decl-Spec in env.
       if (symbolp(decltype)) {
-        # Alle lokal zu beachtenden Deklarations-Typen durchgehen:
+        # loop over all local to be respected Declaration-Types:
         var object declspecs = env;
-        while (consp(declspecs)) { # Alle declspecs aus env durchgehen
+        while (consp(declspecs)) { # loop over all declspecs from env
           var object declspec = Car(declspecs);
-          if (eq(Car(declspec),S(declaration))) { # Deklaration (DECLARATION ...) ?
-            var object list = Cdr(declspec); # ja -> restliche Liste durchgehen
+          if (eq(Car(declspec),S(declaration))) { # Declaration (DECLARATION ...) ?
+            var object list = Cdr(declspec); # yes -> loop through remaining list
             while (consp(list)) {
-              if (eq(Car(list),decltype)) # Listenelement = decltype ?
+              if (eq(Car(list),decltype)) # list element = decltype ?
                 goto beachten;
               list = Cdr(list);
             }
@@ -1298,25 +1298,25 @@ global Values eval_noenv (object form) {
           declspecs = Cdr(declspecs);
         }
       }
-      # nicht zu beachtende Deklaration.
-      return env; # env unverändert lassen
+      # not to be respected Declaration.
+      return env; # leave env unchanged
      beachten:
-      # eine zu beachtende Deklaration -> env := (cons new_declspec env)
+      # a to be respected Declaration -> env := (cons new_declspec env)
       pushSTACK(env); pushSTACK(new_declspec);
       env = allocate_cons();
       Car(env) = popSTACK(); Cdr(env) = popSTACK();
       return env;
     }
 
-# UP: expandiert eine Form, falls möglich, (nicht jedoch, wenn FSUBR-Aufruf
-# oder Symbol oder FunctionMacro-Aufruf) in einem Environment
+# UP: expands a form, if possible, (however it doesn't, if FSUBR-Call
+# or Symbol or FunctionMacro-Call) in an Environment
 # macroexp(form,venv,fenv);
 # > form: Form
-# > venv: ein Variablen- und Symbolmacro-Environment
-# > fenv: ein Funktions- und Macrobindungs-Environment
-# < value1: die Expansion
-# < value2: NIL, wenn nicht expandiert,
-#           T, wenn expandiert wurde
+# > venv: a Variable- and Symbolmacro-Environment
+# > fenv: a Function- and Macrobinding-Environment
+# < value1: the expansion
+# < value2: NIL, if not expanded,
+#           T, if expansion has taken place
 # can trigger GC
   global void macroexp (object form, object venv, object fenv);
   global void macroexp(form,venv,fenv)
@@ -1324,88 +1324,88 @@ global Values eval_noenv (object form) {
     var object venv;
     var object fenv;
     {
-      if (consp(form)) { # nur Listen können Macro-call sein
-        var object funname = Car(form); # Funktionsname
+      if (consp(form)) { # only lists can be a macro-call
+        var object funname = Car(form); # function name
         if (symbolp(funname)) {
-          var object fdef = sym_function(funname,fenv); # Funktionsdefinition holen
-          # Ist sie #<MACRO expander> ?
+          var object fdef = sym_function(funname,fenv); # fetch function definition
+          # is it a #<MACRO expander> ?
           if (macrop(fdef)) {
-            # ja -> expandieren:
-            # (FUNCALL *MACROEXPAND-HOOK* expander form env) ausführen:
-            pushSTACK(TheMacro(fdef)->macro_expander); # Expander als erstes Argument
-            pushSTACK(form); # Form als zweites Argument
+            # yes -> expand:
+            # execute (FUNCALL *MACROEXPAND-HOOK* expander form env) :
+            pushSTACK(TheMacro(fdef)->macro_expander); # expander as first argument
+            pushSTACK(form); # form as second argument
             pushSTACK(fenv);
-            pushSTACK(nest_var(venv)); # genestetes Variablen- und Symbolmacro-Environment
-            STACK_1 = nest_fun(STACK_1); # genestetes Funktions- und Macrobindungs-Environment
-            var object env = allocate_vector(2); # Environment für beide
-            TheSvector(env)->data[0] = popSTACK(); # venv als 1. Komponente
-            TheSvector(env)->data[1] = STACK_0;    # fenv als 2. Komponente
-            STACK_0 = env; # Environment als drittes Argument
+            pushSTACK(nest_var(venv)); # nested Variable- and Symbolmacro-Environment
+            STACK_1 = nest_fun(STACK_1); # nested Functions- and Macrobinding-Environment
+            var object env = allocate_vector(2); # Environment for both
+            TheSvector(env)->data[0] = popSTACK(); # venv as 1. component
+            TheSvector(env)->data[1] = STACK_0;    # fenv as 2. component
+            STACK_0 = env; # Environment as third Argument
             funcall(Symbol_value(S(macroexpand_hook)),3);
-            value2 = T; # expandierte Form als 1. Wert, T als 2. Wert
+            value2 = T; # expanded Form as 1. value, T as 2. value
             return;
           }
         }
       }
-      # sonst nicht expandieren:
+      # else, don't expand:
       value1 = form; value2 = NIL;
     }
 
-# UP: expandiert eine Form, falls möglich, (auch, wenn FSUBR-Aufruf oder
-# Symbol, nicht jedoch, wenn FunctionMacro-Aufruf) in einem Environment
+# UP: expands a form, if possible, (also, when FSUBR-Call or
+# Symbol, however not, when FunctionMacro-Call) in an Environment
 # macroexp0(form,env);
 # > form: Form
-# > env: ein Macroexpansions-Environment
-# < value1: die Expansion
-# < value2: NIL, wenn nicht expandiert,
-#           T, wenn expandiert wurde
+# > env: a Macroexpansion-Environment
+# < value1: the Expansion
+# < value2: NIL, if not expanded,
+#           T, if expansion has taken place
 # can trigger GC
   global void macroexp0 (object form, object env);
   global void macroexp0(form,env)
     var object form;
     var object env;
     {
-      if (consp(form)) { # nur Listen können Macro-call sein
-        var object funname = Car(form); # Funktionsname
+      if (consp(form)) { # only lists can be a macro-call
+        var object funname = Car(form); # function name
         if (symbolp(funname)) {
-          var object fdef = sym_function(funname,TheSvector(env)->data[1]); # Funktionsdefinition holen
+          var object fdef = sym_function(funname,TheSvector(env)->data[1]); # fetch function definition
           if (fsubrp(fdef)) {
-            # fdef ist ein FSUBR, also war die globale Funktionsdefinition gültig.
-            # Schaue nach, ob die Propertyliste eine Macrodefinition enthält:
-            var object expander = get(funname,S(macro)); # nach Property SYS::MACRO suchen
+            # fdef is a FSUBR, so the global function definition was valid.
+            # loop up, if the property list contains a macro definition:
+            var object expander = get(funname,S(macro)); # search for Property SYS::MACRO
             if (!eq(expander,unbound)) {
-              # gefunden. Mit dem Expander aus der Propertyliste expandieren:
-              # (FUNCALL *MACROEXPAND-HOOK* expander form env) ausführen:
-              pushSTACK(expander); # Expander als erstes Argument
-              pushSTACK(form); # Form als zweites Argument
-              pushSTACK(env); # Environment als drittes Argument
+              # found. Expand with th Expander from the property list:
+              # execute (FUNCALL *MACROEXPAND-HOOK* expander form env) :
+              pushSTACK(expander); # expander as first argument
+              pushSTACK(form); # form as second Argument
+              pushSTACK(env); # environment as third argument
               funcall(Symbol_value(S(macroexpand_hook)),3);
-              value2 = T; # expandierte Form als 1. Wert, T als 2. Wert
+              value2 = T; # expanded form as 1. value, t as 2. value
               return;
             }
           } else {
-            # 4 Möglichkeiten:
-            # #UNBOUND/SUBR/Closure (globale oder lexikalische Funktionsdef.)
-            #   -> nicht expandieren
-            # #<MACRO expander> (lexikalische Macrodefinition)
-            #   -> expandieren (Expander aufrufen)
-            # #<FUNCTION-MACRO function expander> (lexikalische FunctionMacro-
-            #   Definition) -> nicht expandieren, weil
-            #   (MACRO-FUNCTION funname) => NIL liefert
-            # Symbol (lexikalische Funktionsdefinition während SYS::%EXPAND)
-            #   expandieren: (list* 'SYS::%FUNCALL Symbol (cdr form))
+            # 4 possibilities:
+            # #UNBOUND/SUBR/Closure (global or lexical function def.)
+            #   -> don't expand
+            # #<MACRO expander> (lexical macro definition)
+            #   -> expand (call expander)
+            # #<FUNCTION-MACRO function expander> (lexical FunctionMacro-
+            #   Definition) -> don't expand, because
+            #   (MACRO-FUNCTION funname) => NIL
+            # Symbol (lexical function definition during SYS::%EXPAND)
+            # expand: (list* 'SYS::%FUNCALL Symbol (cdr form))
             if (macrop(fdef)) {
-              # #<MACRO expander> -> expandieren:
-              # (FUNCALL *MACROEXPAND-HOOK* expander form env) ausführen:
-              pushSTACK(TheMacro(fdef)->macro_expander); # Expander als erstes Argument
-              pushSTACK(form); # Form als zweites Argument
-              pushSTACK(env); # Environment als drittes Argument
+              # #<MACRO expander> -> expand:
+              # execute (FUNCALL *MACROEXPAND-HOOK* expander form env) :
+              pushSTACK(TheMacro(fdef)->macro_expander); # Expander as first Argument
+              pushSTACK(form); # Form as second Argument
+              pushSTACK(env); # Environment as third Argument
               funcall(Symbol_value(S(macroexpand_hook)),3);
-              value2 = T; # expandierte Form als 1. Wert, T als 2. Wert
+              value2 = T; # expanded Form as 1. value, T as 2. value
               return;
             } elif (symbolp(fdef)) {
-              # fdef ein Symbol
-              # Muss zu (SYS::%FUNCALL fdef ...) expandieren:
+              # fdef a Symbol
+              # Must be expanded to (SYS::%FUNCALL fdef ...) :
               pushSTACK(Cdr(form)); # (cdr form)
               pushSTACK(fdef); # Symbol
               {
@@ -1418,33 +1418,33 @@ global Values eval_noenv (object form) {
                 Car(new_cons) = S(pfuncall); Cdr(new_cons) = popSTACK();
                 value1 = new_cons; # (cons 'SYS::%FUNCALL (cons Symbol (cdr form)))
               }
-              value2 = T; return; # es wurde expandiert.
+              value2 = T; return; # expansion has taken place.
             }
           }
         }
       } elif (symbolp(form)) {
         var object val = sym_value(form,TheSvector(env)->data[0]);
-        if (symbolmacrop(val)) { # Symbol-Macro gefunden?
-          # ja -> expandieren
+        if (symbolmacrop(val)) { # found Symbol-Macro?
+          # yes -> expand
           value1 = TheSymbolmacro(val)->symbolmacro_expansion; value2 = T;
           return;
         }
       }
-      # sonst nicht expandieren:
+      # else, don't expand:
       value1 = form; value2 = NIL;
     }
 
-# UP: Parse-Declarations-Docstring. Trennt von einer Formenliste diejenigen
-# ab, die als Deklarationen bzw. Dokumentationsstring angesehen werden
-# müssen.
+# UP: Parse-Declarations-Docstring. Detaches those from a list of forms,
+# that have to be viewed as declarations resp.
+# documentation string.
 # parse_dd(formlist,venv,fenv)
 # > formlist: ( {decl|doc-string} . body )
-# > venv: ein Variablen- und Symbolmacro-Environment (für die Macroexpansionen)
-# > fenv: Funktions- und Macrobindungs-Environment (für die Macroexpansionen)
+# > venv: a variable- and Symbolmacro-Environment (for the macro expansions)
+# > fenv: function- and macrobinding-environment (for the macro expansions)
 # < value1: body
-# < value2: Liste der decl-specs
-# < value3: Doc-String oder NIL
-# < ergebnis: true falls eine (COMPILE)-Deklaration vorkam, false sonst
+# < value2: List of decl-specs
+# < value3: Doc-String or NIL
+# < result: true if one (COMPILE)-declaration occurred, else false
 # can trigger GC
   global bool parse_dd (object formlist, object venv, object fenv);
   global bool parse_dd(formlist,venv,fenv)
@@ -1452,72 +1452,72 @@ global Values eval_noenv (object form) {
     var object venv;
     var object fenv;
     {
-      pushSTACK(formlist); # formlist aufheben für Fehlermeldung
-      pushSTACK(venv); # Variablen-Environment
-      pushSTACK(fenv); # Macrobindungs-Environment
-      pushSTACK(NIL); # vorläufiger Doc-String
-      pushSTACK(NIL); # Anfang decl-spec-Liste
-      # Stackaufbau: formlist, venv, fenv, docstring, declspecs.
-      var bool compile_decl = false; # Flag, ob eine (COMPILE)-Deklaration vorkam
-      var object body = formlist; # Rest der Formenliste
+      pushSTACK(formlist); # store formlist for error message
+      pushSTACK(venv); # variable-environment
+      pushSTACK(fenv); # Macrobinding-Environment
+      pushSTACK(NIL); # preliminary Doc-String
+      pushSTACK(NIL); # start of decl-spec-Liste
+      # Stack Structure: formlist, venv, fenv, docstring, declspecs.
+      var bool compile_decl = false; # Flag, if a (COMPILE)-declaration occurred
+      var object body = formlist; # rest of the form-list
       while (consp(body)) {
-        pushSTACK(body); # body retten
-        var object form = Car(body); # nächste Form
-        # evtl. macroexpandieren (ohne FSUBRs, Symbole, FunctionMacros zu expandieren):
+        pushSTACK(body); # save body
+        var object form = Car(body); # next form
+        # poss. macroexpand (without expanding FSUBRs, Symbols, FunctionMacros):
         do {
           macroexp(form,STACK_(3+1),STACK_(2+1)); form = value1;
         } until (nullp(value2));
          body = popSTACK();
-        var object body_rest = Cdr(body); # body verkürzen
-        if (stringp(form)) { # Doc-String gefunden?
-          if (atomp(body_rest)) # an letzter Stelle der Formenliste?
-            goto fertig; # ja -> letzte Form kann kein Doc-String sein!
-          if (!nullp(STACK_1)) { # schon ein Doc-String dagewesen?
-            # ja -> mehr als ein Doc-String ist zuviel:
+        var object body_rest = Cdr(body); # shorten body
+        if (stringp(form)) { # found Doc-String?
+          if (atomp(body_rest)) # at the last position of the form list?
+            goto fertig; # yes -> last form can't be a Doc-String!
+          if (!nullp(STACK_1)) { # preceding Doc-String?
+            # yes -> more than one Doc-String is too much:
             pushSTACK(STACK_4); # formlist
             fehler(source_program_error,
                    GETTEXT("Too many documentation strings in ~"));
           }
-          STACK_1 = form; # neuer Doc-String
+          STACK_1 = form; # new Doc-String
           body = body_rest;
-        } elif (consp(form) && eq(Car(form),S(declare))) { # Deklaration (DECLARE ...) ?
-          # neue decl-specs einzeln auf STACK_0 consen:
-          pushSTACK(body_rest); # body_rest retten
-          pushSTACK(Cdr(form)); # Liste der neuen decl-specs
+        } elif (consp(form) && eq(Car(form),S(declare))) { # Declaration (DECLARE ...) ?
+          # cons decl-specs one by one onto STACK_0:
+          pushSTACK(body_rest); # save body_rest
+          pushSTACK(Cdr(form)); # list of the new decl-specs
           while (mconsp(STACK_0)) {
             {
-              var object declspec = Car(STACK_0); # nächstes decl-spec
-              # Teste, ob (EQUAL d '(COMPILE)) =
+              var object declspec = Car(STACK_0); # next decl-spec
+              # Test, if (EQUAL d '(COMPILE)) =
               #   (and (consp d) (eq (car d) 'COMPILE) (null (cdr d)))
               if (consp(declspec)
                   && eq(Car(declspec),S(compile))
                   && nullp(Cdr(declspec)))
                 compile_decl = true;
             }
-            # Diese Deklaration auf STACK_(0+2) consen:
+            # Cons this declaration onto STACK_(0+2) :
             {
               var object new_cons = allocate_cons();
               Car(new_cons) = Car(STACK_0);
               Cdr(new_cons) = STACK_(0+2);
               STACK_(0+2) = new_cons;
             }
-            # zum nächsten decl-spec:
+            # go to next decl-spec:
             STACK_0 = Cdr(STACK_0);
           }
           skipSTACK(1);
-          body = popSTACK(); # body := alter body_rest
+          body = popSTACK(); # body := old body_rest
         } else {
-         fertig: # fertig mit Durchlaufen der Formenliste
+         fertig: # finished with loop over the form list
           #if 0
-          # Das war einmal eine schöne Optimierung, die zweimaliges
-          # Macroexpandieren vermied. Leider ist sie nicht mehr sicher,
-          # denn bei (FUNCTION (LAMBDA ...)), LET, LET*, MULTIPLE-VALUE-BIND
-          # wird das äußere(!) Variablen-Environment übergeben, so dass in
+          # Once, this has been a nice optimization, that avoided twofold
+          # macro-expansion. Unfortunately it is not save anymore,
+          # because in (FUNCTION (LAMBDA ...)), LET, LET*, MULTIPLE-VALUE-BIND
+          # the outer(!) Variable-Environment is passed, so that in
           # (SYMBOL-MACROLET ((X Y)) (LET ((X (FOO))) (SETF X ...) ...))
-          # der SETF-Macro ein verkehrtes venv übergeben bekäme und zu
-          # (SETQ Y ...) expandieren würde.
-          if (!eq(form,Car(body))) { # sofern die Form expandiert wurde,
-            # ersetze body durch (cons form (cdr body)) :
+          # the SETF-Macro would get a wrong venv and would be expanded to
+          # (SETQ Y ...) .
+          if (!eq(form,Car(body))) { # if the Form was expanded,
+            # replace body by (cons form (cdr body)) :
             pushSTACK(body_rest); pushSTACK(form);
             body = allocate_cons();
             Car(body) = popSTACK(); # form
@@ -1534,40 +1534,40 @@ global Values eval_noenv (object form) {
       return compile_decl;
     }
 
-# UP: bindet *EVALHOOK* und *APPLYHOOK* dynamisch an die gegebenen Werte.
+# UP: binds *EVALHOOK* and *APPLYHOOK* dynamically to the specified values.
 # bindhooks(evalhook_value,applyhook_value);
-# > evalhook_value: Wert für *EVALHOOK*
-# > applyhook_value: Wert für *APPLYHOOK*
-# verändert STACK
+# > evalhook_value: value for *EVALHOOK*
+# > applyhook_value: value for *APPLYHOOK*
+# changes STACK
 global void bindhooks (object evalhook_value, object applyhook_value) {
-  # Frame aufbauen:
+  # build frame:
   {
-    var object* top_of_frame = STACK; # Pointer übern Frame
-    pushSTACK(Symbol_value(S(evalhookstern)));  # alter Wert von *EVALHOOK*
+    var object* top_of_frame = STACK; # Pointer to Frame
+    pushSTACK(Symbol_value(S(evalhookstern)));  # old value of *EVALHOOK*
     pushSTACK(S(evalhookstern));                # *EVALHOOK*
-    pushSTACK(Symbol_value(S(applyhookstern))); # alter Wert von *APPLYHOOK*
+    pushSTACK(Symbol_value(S(applyhookstern))); # old value of *APPLYHOOK*
     pushSTACK(S(applyhookstern));               # *APPLYHOOK*
     finish_frame(DYNBIND);
   }
-  # Frame fertig aufgebaut, nun die Werte der Variablen verändern:
+  # Frame got ready, now change the values of the variables:
   Symbol_value(S(evalhookstern)) = evalhook_value; # (SETQ *EVALHOOK* evalhook_value)
   Symbol_value(S(applyhookstern)) = applyhook_value; # (SETQ *APPLYHOOK* applyhook_value)
 }
 
-# UP: bindet *EVALHOOK* und *APPLYHOOK* dynamisch an NIL.
+# UP: binds *EVALHOOK* and *APPLYHOOK* dynamically to NIL.
 # bindhooks_NIL();
-# verändert STACK
+# changes STACK
 #define bindhooks_NIL()  bindhooks(NIL,NIL)
 
-# UP: Bestimmt den Source-Lambdabody eines Lambdabody.
+# UP: Determines the source-lambdabody of a lambda body.
 # lambdabody_source(lambdabody)
-# > lambdabody: Lambdabody (ein Cons)
-# < ergebnis: Source-Lambdabody (unbound falls keine Source angegeben)
+# > lambdabody: Lambdabody (a Cons)
+# < result: Source-Lambdabody (unbound if no is source specified)
 local object lambdabody_source (object lambdabody) {
   var object body = Cdr(lambdabody);
   # body = ((DECLARE (SOURCE ...) ...) ...) ?
   if (consp(body)) {
-    var object form = Car(body); # erste Form
+    var object form = Car(body); # first Form
     # form = (DECLARE (SOURCE ...) ...) ?
     if (consp(form) && eq(Car(form),S(declare))) {
       var object declspecs = Cdr(form);
@@ -1578,7 +1578,7 @@ local object lambdabody_source (object lambdabody) {
         if (consp(declspec) && eq(Car(declspec),S(source))) {
           var object declspecr = Cdr(declspec);
           if (consp(declspecr))
-             # Source gefunden
+            # found Source
             return Car(declspecr);
         }
       }
@@ -1587,26 +1587,26 @@ local object lambdabody_source (object lambdabody) {
   return unbound;
 }
 
-# UP: Fügt einen impliziten BLOCK in einen Lambdabody ein.
+# UP: Inserts an implicit BLOCK in a lambda body.
 # add_implicit_block();
-# > STACK_1: Funktionsname
-# > STACK_0: Lambdabody
+# > STACK_1: function name
+# > STACK_0: lambda body
 # > value1: body
-# > value2: Liste der decl-specs
-# > value3: Doc-String oder NIL
-# < STACK_0: neuer Lambdabody
+# > value2: list of decl-specs
+# > value3: Doc-String or NIL
+# < STACK_0: new lambda body
 # can trigger GC
   local void add_implicit_block (void);
   local void add_implicit_block()
     {
-      # Ersetze lambdabody durch
+      # Replace lambdabody by
       # (cons (car lambdabody) (add-implicit-block name (cdr lambdabody))):
       var object new_body;
       pushSTACK(value2); # declarations
       pushSTACK(value3); # docstring
       pushSTACK(funname_blockname(STACK_(1+2))); # blockname
       pushSTACK(value1); # body-rest
-      # Stackaufbau: name, lambdabody, declarations, docstring, blockname, body-rest.
+      # stack structure: name, lambdabody, declarations, docstring, blockname, body-rest.
       {
         var object tmp = allocate_cons();
         Cdr(tmp) = popSTACK(); Car(tmp) = STACK_0;
@@ -1617,13 +1617,13 @@ local object lambdabody_source (object lambdabody) {
         Car(tmp) = S(block); Cdr(tmp) = STACK_0;
         STACK_0 = tmp;
       }
-      # Stackaufbau: name, lambdabody, declarations, docstring, block-form.
+      # stack structure: name, lambdabody, declarations, docstring, block-form.
       {
         var object tmp = allocate_cons();
         Car(tmp) = popSTACK();
         new_body = tmp;
       }
-      # Stackaufbau: name, lambdabody, declarations, docstring.
+      # stack structure: name, lambdabody, declarations, docstring.
       if (nullp(STACK_0)) {
         skipSTACK(1);
       } else {
@@ -1632,7 +1632,7 @@ local object lambdabody_source (object lambdabody) {
         Cdr(tmp) = popSTACK(); Car(tmp) = popSTACK();
         new_body = tmp;
       }
-      # Stackaufbau: name, lambdabody, declarations.
+      # stack structure: name, lambdabody, declarations.
       if (nullp(STACK_0)) {
         STACK_0 = new_body;
       } else {
@@ -1648,7 +1648,7 @@ local object lambdabody_source (object lambdabody) {
           STACK_0 = tmp;
         }
       }
-      # Stackaufbau: name, lambdabody, new-body.
+      # stack structure: name, lambdabody, new-body.
       {
         var object tmp = allocate_cons();
         Cdr(tmp) = popSTACK(); Car(tmp) = Car(STACK_0);
@@ -1656,17 +1656,17 @@ local object lambdabody_source (object lambdabody) {
       }
     }
 
-# UP: Erzeugt zu einem Lambdabody die entsprechende Closure durch Zerlegen
-# der Lambdaliste und eventuelles Macroexpandieren aller Formen.
+# UP: Creates the corresponding Closure for a Lambdabody by decomposition
+# of the lambda list and poss. macro-expansion of all forms.
 # get_closure(lambdabody,name,blockp,env)
 # > lambdabody: (lambda-list {decl|doc} {form})
-# > name: Name, ein Symbol oder (SETF symbol)
-# > blockp: ob ein impliziter BLOCK einzuschieben ist
-# > env: Pointer auf die fünf einzelnen Environments:
+# > name: Name, a Symbol or (SETF symbol)
+# > blockp: if an implicit BLOCK has to be inserted
+# > env: Pointer to the five distinct environments:
 #        env->var_env = VENV, env->fun_env = FENV,
 #        env->block_env = BENV, env->go_env = GENV,
 #        end->decl_env = DENV.
-# < ergebnis: Closure
+# < result: Closure
 # can trigger GC
   global object get_closure (object lambdabody, object name, bool blockp, environment* env);
   global object get_closure(lambdabody,name,blockp,env)
@@ -1675,13 +1675,13 @@ local object lambdabody_source (object lambdabody) {
     var bool blockp;
     var environment* env;
     {
-      # Lambdabody muss ein Cons sein:
+      # Lambdabody must be a Cons:
       if (atomp(lambdabody)) {
         pushSTACK(name);
         fehler(source_program_error,
                GETTEXT("FUNCTION: lambda-list for ~ is missing"));
       }
-      # und der CAR muss eine Liste sein:
+      # and the CAR must be a List:
       {
         var object lambdalist = Car(lambdabody);
         if (!listp(lambdalist)) {
@@ -1693,11 +1693,11 @@ local object lambdabody_source (object lambdabody) {
       }
       pushSTACK(name);
       pushSTACK(lambdabody);
-      # Stackaufbau: name, lambdabody.
-      if (parse_dd(Cdr(lambdabody),env->var_env,env->fun_env)) { # ({decl|doc} {form}) zerlegen
-        # Es trat eine (COMPILE)-Deklaration auf.
-        # Lambdabody durch seine Source ersetzen (denn manche Macros
-        # können effizienter compiliert werden als ihre Macro-Expansion):
+      # stack structure: name, lambdabody.
+      if (parse_dd(Cdr(lambdabody),env->var_env,env->fun_env)) { # decompose ({decl|doc} {form})
+        # A (COMPILE)-Declaration occurred.
+        # replace Lambdabody by its source (because some Macros
+        # can be compiled more efficiently than their Macro-Expansion):
         {
           var object source = lambdabody_source(STACK_0);
           if (eq(source,unbound)) {
@@ -1707,69 +1707,69 @@ local object lambdabody_source (object lambdabody) {
             STACK_0 = source;
           }
         }
-        # Environments nesten:
+        # nest environments:
         {
-          var environment* stack_env = nest_env(env); # nesten, auf den STACK legen
+          var environment* stack_env = nest_env(env); # nest, push on STACK
           #if !defined(STACK_UP)
           var environment my_env;
-          my_env = *stack_env; # und hierher übertragen
-          skipSTACK(5); # und wieder vom STACK nehmen
+          my_env = *stack_env; # and transfer over here
+          skipSTACK(5); # and pop from STACK again
           pushSTACK(my_env.var_env);
           pushSTACK(my_env.fun_env);
           pushSTACK(my_env.block_env);
           pushSTACK(my_env.go_env);
           pushSTACK(my_env.decl_env);
           #endif
-          # Stackaufbau: name, lambdabody, venv, fenv, benv, genv, denv.
+          # stack structure: name, lambdabody, venv, fenv, benv, genv, denv.
         }
-        # (SYS::COMPILE-LAMBDA name lambdabody venv fenv benv genv denv) ausführen:
+        # execute (SYS::COMPILE-LAMBDA name lambdabody venv fenv benv genv denv) :
         funcall(S(compile_lambda),7);
-        return value1; # compilierte Closure als Wert
+        return value1; # compiled Closure as value
       }
-      # Interpretierte Closure bauen:
+      # build Interpreted Closure:
       {
         var object source = lambdabody_source(STACK_0);
         if (eq(source,unbound)) {
-          # keine Source angegeben -> Lambdabody expandieren:
+          # no source specified -> expand Lambdabody:
           if (blockp)
             add_implicit_block();
-          # (SYS::%EXPAND-LAMBDABODY-MAIN lambdabody venv fenv) aufrufen:
-          pushSTACK(STACK_0); # Lambdabody als 1. Argument
-          pushSTACK(nest_var(env->var_env)); # Variablen-Environment genestet als 2. Argument
-          pushSTACK(nest_fun(env->fun_env)); # Funktions-Environment genestet als 3. Argument
+          # call (SYS::%EXPAND-LAMBDABODY-MAIN lambdabody venv fenv) :
+          pushSTACK(STACK_0); # Lambdabody as 1. Argument
+          pushSTACK(nest_var(env->var_env)); # Variable-Environment nested as 2. Argument
+          pushSTACK(nest_fun(env->fun_env)); # Function-Environment nested as 3. Argument
           funcall(S(expand_lambdabody_main),3);
-          lambdabody = value1; # expandierter Lambdabody
+          lambdabody = value1; # expanded Lambdabody
         } else {
-          # Source angegeben -> sie ersetzt den alten Lambdabody:
+          # Source specified -> it replaces the old Lambdabody:
           lambdabody = STACK_0; # Lambdabody
           STACK_0 = source; # Source-Lambdabody
         }
       }
-      # Nun ist  STACK_0     der Source-Lambdabody,
-      #          lambdabody  der zu verwendende Lambdabody.
-      pushSTACK(Car(lambdabody)); # Lambdaliste
-      parse_dd(Cdr(lambdabody),env->var_env,env->fun_env); # ({decl|doc} {form}) zerlegen
+      # Now  STACK_0      is the Source-Lambdabody,
+      #      lambdabody   is the Lambdabody to be used.
+      pushSTACK(Car(lambdabody)); # Lambdalist
+      parse_dd(Cdr(lambdabody),env->var_env,env->fun_env); # decompose ({decl|doc} {form})
       pushSTACK(value1); # Body
-      pushSTACK(value2); # Deklarationen
-      pushSTACK(value3); # Doc-String oder NIL
-      var object* closure_; # Pointer auf die Closure im STACK
-      # Closure erzeugen (mit NIL gefüllt):
+      pushSTACK(value2); # Declarations
+      pushSTACK(value3); # Doc-String or NIL
+      var object* closure_; # Pointer to the Closure in the STACK
+      # create Closure (filled with NIL):
       {
         var object closure = allocate_closure(iclos_length);
-        # und teilweise füllen:
+        # and fill partially:
         TheIclosure(closure)->clos_docstring = popSTACK(); # Doc-String
-        var object declarations              = popSTACK(); # Deklarationen
+        var object declarations              = popSTACK(); # Declarations
         TheIclosure(closure)->clos_body      = popSTACK(); # Body
-        var object lambdalist                = popSTACK(); # Lambda-Liste
+        var object lambdalist                = popSTACK(); # Lambda-List
         TheIclosure(closure)->clos_form      = popSTACK(); # Source-Lambdabody
         TheIclosure(closure)->clos_name      = STACK_0;    # Name
-        # und retten:
+        # and save:
         STACK_0 = closure;
-        # Stackaufbau: closure.
-        closure_ = &STACK_0; # Pointer auf die Closure im STACK
+        # stack structure: closure.
+        closure_ = &STACK_0; # Pointer to the Closure in the STACK
         pushSTACK(lambdalist); pushSTACK(declarations);
       }
-      # Environments nesten und genestet in die Closure stecken:
+      # nest Environments and put them nested in the closure:
       {
         var environment* stack_env = nest_env(env);
         var object closure = *closure_;
@@ -1779,31 +1779,31 @@ local object lambdabody_source (object lambdabody) {
         TheIclosure(closure)->clos_go_env    = stack_env->go_env   ;
         TheIclosure(closure)->clos_decl_env  = stack_env->decl_env ;
         skipSTACK(5);
-        TheIclosure(closure)->clos_keywords = Fixnum_0; # keywords:=0, solange &KEY fehlt
+        TheIclosure(closure)->clos_keywords = Fixnum_0; # keywords:=0, as long as &KEY is missing
       }
-      # Stackaufbau: closure, lambdalist, declarations.
-      var uintL spec_count = 0; # Anzahl der dynamischen Referenzen
-      var uintL req_count  = 0; # Anzahl der required-Parameter
-      var uintL opt_count  = 0; # Anzahl der optional-Parameter
-      var uintL key_count  = 0; # Anzahl der Keyword-Parameter
-      var uintL aux_count  = 0; # Anzahl der &AUX-Variablen
-      var uintL var_count  = 0; # Gesamtzahl der auf dem STACK liegenden Variablen
+      # stack structure: closure, lambdalist, declarations.
+      var uintL spec_count = 0; # number of dynamic references
+      var uintL req_count  = 0; # number of required-parameters
+      var uintL opt_count  = 0; # number of optional-parameters
+      var uintL key_count  = 0; # number of keyword-parameters
+      var uintL aux_count  = 0; # number of &AUX-variables
+      var uintL var_count  = 0; # total number of the variables lying on the STACK
       {
         var object declarations = popSTACK();
-        # Deklarationen verarbeiten:
-        # Dynamisch referenzierte Variablen aus der decl-spec-Liste declarations
-        # herauslesen und auf dem STACK ablegen. Sonstige zu beachtende
-        # Deklarationen verändern das Deklarations-Environment der Closure.
-        while (consp(declarations)) { # alle decl-specs abgearbeitet?
+        # process deklarations:
+        # read dynamically referenced variables from the decl-spec-list
+        # declarations and push them on STACK. Other to be respected
+        # declarations change the declarations-environment of the Closure.
+        while (consp(declarations)) { # all decl-specs processed?
           var object declspec = Car(declarations);
-          # declspec muss Liste sein:
+          # declspec must be a List:
           if (atomp(declspec)) {
             pushSTACK(declspec);
             fehler(source_program_error,
                    GETTEXT("FUNCTION: illegal declaration ~"));
           }
-          # SPECIAL-Deklaration verarbeiten:
-          if (eq(Car(declspec),S(special))) { # SPECIAL-Deklaration ?
+          # process SPECIAL-declaration:
+          if (eq(Car(declspec),S(special))) { # SPECIAL-declaration ?
             var object declspecrest = Cdr(declspec);
             while (consp(declspecrest)) {
               var object sym = Car(declspecrest);
@@ -1812,13 +1812,13 @@ local object lambdabody_source (object lambdabody) {
                 fehler(source_program_error,
                        GETTEXT("FUNCTION: ~ is not a symbol, cannot be declared SPECIAL"));
               }
-              # Symbol im STACK ablegen:
+              # push Symbol on STACK:
               check_STACK(); pushSTACK(sym); spec_count++; var_count++;
               declspecrest = Cdr(declspecrest);
             }
           }
-          # sonstige Deklaration verarbeiten:
-          pushSTACK(Cdr(declarations)); # declarations verkürzen und retten
+          # process other declaration:
+          pushSTACK(Cdr(declarations)); # shorten and save declarations
           {
             var object denv = TheIclosure(*closure_)->clos_decl_env;
             denv = augment_decl_env(declspec,denv);
@@ -1827,18 +1827,18 @@ local object lambdabody_source (object lambdabody) {
           declarations = popSTACK();
         }
       }
-      var object lambdalist = *(closure_ STACKop -1); # restliche Lambdaliste
-      var object item; # Element der Lambdaliste
+      var object lambdalist = *(closure_ STACKop -1); # remaining lambda list
+      var object item; # element of the lambda list
       # Macro:
       # NEXT_ITEM(&OPTIONAL_label,&REST_label,&KEY_label,
       #           &ALLOW-OTHER-KEYS_label,&AUX_label,Ende_label)
-      # verkürzt den Lambdalistenrest, bringt das nächste Element nach item
-      # und springt im Falle eines der 6 angegebenen Lambdalistenmarker an
-      # die entsprechenden Stellen.
+      # shortens the rest of the lambda list, moves the next Element to "item"
+      # and in case of one of the 6 specified lambda-list-markers, it jumps to
+      # the respective locations.
         #define NEXT_ITEM(opt_label,rest_label,key_label,allow_label,aux_label,end_label)  \
-          { if (atomp(lambdalist)) goto end_label; # Lambda-Liste zu Ende?              \
-            item = Car(lambdalist); # nächstes Element                                  \
-            lambdalist = Cdr(lambdalist); # Liste verkürzen                             \
+          { if (atomp(lambdalist)) goto end_label; # Lambda-List finished?              \
+            item = Car(lambdalist); # next Element                                      \
+            lambdalist = Cdr(lambdalist); # shorten List                                \
             if (eq(item,S(LLoptional)))         goto opt_label;   # &OPTIONAL ?         \
             if (eq(item,S(LLrest)))             goto rest_label;  # &REST ?             \
             if (eq(item,S(LLkey)))              goto key_label;   # &KEY ?              \
@@ -1846,69 +1846,69 @@ local object lambdabody_source (object lambdabody) {
             if (eq(item,S(LLaux)))              goto aux_label;   # &AUX ?              \
             if (eq(item,S(LLbody)))             goto badLLkey;    # &BODY ?             \
           }
-     req: # required-Parameter abarbeiten und auf dem STACK ablegen:
+     req: # process required-parameter push on STACK:
       loop {
         NEXT_ITEM(opt,rest,key,badLLkey,aux,ende);
         if (!symbolp(item))
           goto fehler_symbol;
         if (constantp(TheSymbol(item)))
           goto fehler_constant;
-        # Variable im STACK ablegen:
+        # push Variable on STACK:
         check_STACK();
         pushSTACK(item); pushSTACK(Fixnum_0); req_count++; var_count++;
       }
-     opt: # &OPTIONAL-Parameter abarbeiten, auf dem STACK ablegen und
-          # Init-Formen in die Closure stecken:
+     opt: # process &OPTIONAL-parameter, push on STACK ablegen and
+          # put Init-Forms into the Closure:
       loop {
         NEXT_ITEM(badLLkey,rest,key,badLLkey,aux,ende);
         var object init_form;
-        # Parse Variablenspezifikation in item:
-        #   var  oder  (var [init [svar]])
-        # Lege var und evtl. svar auf den STACK, setze in var evtl.
-        # das svar_bit. Liefert auch init (oder NIL) in init_form.
+        # Parse variable spezification in item:
+        #   var  or  (var [init [svar]])
+        # push var and poss. svar on STACK, set in var poss.
+        # the svar_bit. Returns also init (or NIL) in init_form.
         check_STACK();
         if (atomp(item)) {
           if (!symbolp(item))
             goto fehler_symbol;
           if (constantp(TheSymbol(item)))
             goto fehler_constant;
-          # Variable im STACK ablegen:
+          # push variable on STACK:
           pushSTACK(item); pushSTACK(Fixnum_0); opt_count++; var_count++;
           init_form = NIL; # Default-Init
         } else {
           var object item_rest = Cdr(item);
-          item = Car(item); # erstes Listenelement: var
+          item = Car(item); # first list-element: var
           if (!symbolp(item))
             goto fehler_symbol;
           if (constantp(TheSymbol(item)))
             goto fehler_constant;
-          # Variable im STACK ablegen:
+          # push variable on STACK:
           pushSTACK(item); pushSTACK(Fixnum_0); opt_count++; var_count++;
           if (consp(item_rest)) {
-            init_form = Car(item_rest); # zweites Listenelement: init
+            init_form = Car(item_rest); # second list-element: init
             item_rest = Cdr(item_rest);
             if (consp(item_rest)) {
               if (mconsp(Cdr(item_rest))) {
-                # varspec ist zu lang
-                pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
+                # varspec is too lang
+                pushSTACK(*(closure_ STACKop -1)); # entire Lambda-Liste
                 fehler(source_program_error,
                        GETTEXT("FUNCTION: too long variable specification after &OPTIONAL: ~"));
               }
-              item = Car(item_rest); # drittes Listenelement: svar
+              item = Car(item_rest); # third list-element: svar
               if (!symbolp(item))
                 goto fehler_symbol;
               if (constantp(TheSymbol(item)))
                 goto fehler_constant;
-              # svar-Bit für var setzen:
+              # set svar-bit for var:
               STACK_0 = fixnum_inc(STACK_0,bit(svar_bit));
-              # Variable im STACK ablegen:
+              # push variable on STACK:
               pushSTACK(item); pushSTACK(Fixnum_0); var_count++;
             }
           } else {
             init_form = NIL; # Default-Init
           }
         }
-        # init_form vor (clos_opt_inits closure) pushen:
+        # push init_form in front of (clos_opt_inits closure) :
         pushSTACK(lambdalist); pushSTACK(init_form);
         {
           var object new_cons = allocate_cons();
@@ -1919,45 +1919,45 @@ local object lambdabody_source (object lambdabody) {
         }
         lambdalist = popSTACK();
       }
-     rest: # &REST-Parameter abarbeiten und auf dem Stack ablegen:
+     rest: # process &REST-parameter and push on Stack:
       NEXT_ITEM(badrest,badrest,badrest,badrest,badrest,badrest);
       if (!symbolp(item))
         goto fehler_symbol;
       if (constantp(TheSymbol(item)))
         goto fehler_constant;
-      # Variable im STACK ablegen:
+      # push variable on STACK:
       pushSTACK(item); pushSTACK(Fixnum_0); var_count++;
-      # Rest-Flag auf T setzen:
+      # set Rest-Flag to T:
       TheIclosure(*closure_)->clos_rest_flag = T;
       NEXT_ITEM(badLLkey,badLLkey,key,badLLkey,aux,ende);
-      pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
+      pushSTACK(*(closure_ STACKop -1)); # entire Lambda-List
       fehler(source_program_error,
              GETTEXT("FUNCTION: &REST var must be followed by &KEY or &AUX or end of list: ~"));
      badrest:
-      pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
+      pushSTACK(*(closure_ STACKop -1)); # entire Lambda-List
       fehler(source_program_error,
              GETTEXT("FUNCTION: &REST must be followed by a variable: ~"));
-     key: # &KEY-Parameter abarbeiten, auf dem STACK ablegen
-          # und Init-Formen in die Closure stecken:
+     key: # process &KEY-Parameter, push on STACK
+          # and put Init-Forms in the Closure:
       TheIclosure(*closure_)->clos_keywords = NIL; # keywords:=NIL
       loop {
         NEXT_ITEM(badLLkey,badLLkey,badLLkey,allow,aux,ende);
         var object keyword;
         var object init_form;
-        # Parse Variablenspezifikation in item:
-        #   var  oder  (var [init [svar]])  oder ((key var) [init [svar]])
-        # Lege var und evtl. svar auf den STACK, setze in var evtl.
-        # das svar_bit. Liefert auch das Keyword in keyword und
-        # init (oder NIL) in init_form.
+        # Parse variable-spezification in item:
+        #   var  or  (var [init [svar]])  or ((key var) [init [svar]])
+        # push var and poss. svar on STACK, set in var poss.
+        # the svar_bit. Returns also the Keyword in keyword and
+        # init (or NIL) in init_form.
         check_STACK();
         if (atomp(item)) {
           if (!symbolp(item))
             goto fehler_symbol;
           if (constantp(TheSymbol(item)))
             goto fehler_constant;
-          # Variable im STACK ablegen:
+          # push variable on STACK:
           pushSTACK(item); pushSTACK(Fixnum_0); key_count++; var_count++;
-          # Keyword holen:
+          # fetch Keyword:
           pushSTACK(lambdalist);
           keyword = intern_keyword(Symbol_name(item));
           lambdalist = popSTACK();
@@ -1965,25 +1965,25 @@ local object lambdabody_source (object lambdabody) {
           init_form = NIL;
         } else {
           var object item_rest = Cdr(item); # ([init [svar]])
-          item = Car(item); # erstes Listenelement: var oder (key var)
+          item = Car(item); # first list-element: var or (key var)
           if (atomp(item)) {
             # item = var
             if (!symbolp(item))
               goto fehler_symbol;
             if (constantp(TheSymbol(item)))
               goto fehler_constant;
-            # Variable im STACK ablegen:
+            # push variable on STACK:
             pushSTACK(item); pushSTACK(Fixnum_0); key_count++; var_count++;
-            # Keyword holen:
+            # fetch Keyword:
             pushSTACK(item_rest); pushSTACK(lambdalist);
             keyword = intern_keyword(Symbol_name(item));
             lambdalist = popSTACK(); item_rest = popSTACK();
           } else {
             # item = (key var)
             keyword = Car(item); # key
-            # sollte ein Symbol (früher: Keyword) sein:
+            # should be a Symbol (formerly: Keyword) :
             if (!symbolp(keyword)) {
-              pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
+              pushSTACK(*(closure_ STACKop -1)); # entire Lambda-List
               pushSTACK(keyword);
               fehler(source_program_error,
                      GETTEXT("FUNCTION: ~ in ~ is not a symbol"));
@@ -1996,31 +1996,31 @@ local object lambdabody_source (object lambdabody) {
               goto fehler_symbol;
             if (constantp(TheSymbol(item)))
               goto fehler_constant;
-            # Variable im STACK ablegen:
+            # push variable on STACK:
             pushSTACK(item); pushSTACK(Fixnum_0); key_count++; var_count++;
           }
           if (consp(item_rest)) {
-            init_form = Car(item_rest); # zweites Listenelement: init
+            init_form = Car(item_rest); # second list-element: init
             item_rest = Cdr(item_rest); # ([svar])
             if (consp(item_rest)) {
               if (mconsp(Cdr(item_rest)))
                 goto fehler_keyspec;
-              item = Car(item_rest); # drittes Listenelement: svar
+              item = Car(item_rest); # third list-element: svar
               if (!symbolp(item))
                 goto fehler_symbol;
               if (constantp(TheSymbol(item)))
                 goto fehler_constant;
-              # svar-Bit in var setzen:
+              # set svar-Bit in var:
               STACK_0 = fixnum_inc(STACK_0,bit(svar_bit));
-              # Variable im STACK ablegen:
+              # push variable on STACK:
               pushSTACK(item); pushSTACK(Fixnum_0); var_count++;
             }
           } else {
             init_form = NIL; # Default-Init
           }
         }
-        # keyword vor (clos_keywords closure) pushen und
-        # init_form vor (clos_key_inits closure) pushen:
+        # push keyword in front of (clos_keywords closure) and
+        # push init_form in front of (clos_key_inits closure) :
         pushSTACK(lambdalist); pushSTACK(init_form); pushSTACK(keyword);
         {
           var object new_cons = allocate_cons();
@@ -2039,47 +2039,47 @@ local object lambdabody_source (object lambdabody) {
         lambdalist = popSTACK();
       }
      fehler_keyspec:
-      pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
+      pushSTACK(*(closure_ STACKop -1)); # entire Lambda-List
       fehler(source_program_error,
              GETTEXT("FUNCTION: incorrect variable specification after &KEY: ~"));
-     allow: # &ALLOW-OTHER-KEYS abarbeiten:
-      TheIclosure(*closure_)->clos_allow_flag = T; # Flag auf T setzen
+     allow: # process &ALLOW-OTHER-KEYS:
+      TheIclosure(*closure_)->clos_allow_flag = T; # set Flag to T
       NEXT_ITEM(badLLkey,badLLkey,badLLkey,badLLkey,aux,ende);
-      pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
+      pushSTACK(*(closure_ STACKop -1)); # entire Lambda-List
       fehler(source_program_error,
              GETTEXT("FUNCTION: &ALLOW-OTHER-KEYS must be followed by &AUX or end of list: ~"));
-     aux: # &AUX-Parameter abarbeiten, auf dem STACK ablegen und
-          # Init-Formen in die Closure stecken:
+     aux: # process &AUX-Parameter, push on STACK and
+          # put Init-Forms in the Closure:
       loop {
         NEXT_ITEM(badLLkey,badLLkey,badLLkey,badLLkey,badLLkey,ende);
         var object init_form;
-        # Parse Variablenspezifikation in item:
-        #   var  oder  (var [init])
-        # Lege var auf den STACK.
-        # Liefert auch init (oder NIL) in init_form.
+        # Parse variable-spezification in item:
+        #   var  or  (var [init])
+        # push var on STACK.
+        # Returns also init (or NIL) in init_form.
         check_STACK();
         if (atomp(item)) {
           if (!symbolp(item))
             goto fehler_symbol;
           if (constantp(TheSymbol(item)))
             goto fehler_constant;
-          # Variable im STACK ablegen:
+          # push variable on STACK:
           pushSTACK(item); pushSTACK(Fixnum_0); aux_count++; var_count++;
           init_form = NIL; # Default-Init
         } else {
           var object item_rest = Cdr(item);
-          item = Car(item); # erstes Listenelement: var
+          item = Car(item); # first list-element: var
           if (!symbolp(item))
             goto fehler_symbol;
           if (constantp(TheSymbol(item)))
             goto fehler_constant;
-          # Variable im STACK ablegen:
+          # push variable on STACK:
           pushSTACK(item); pushSTACK(Fixnum_0); aux_count++; var_count++;
           if (consp(item_rest)) {
-            init_form = Car(item_rest); # zweites Listenelement: init
+            init_form = Car(item_rest); # second list-element: init
             if (mconsp(Cdr(item_rest))) {
-              # varspec ist zu lang
-              pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
+              # varspec too long
+              pushSTACK(*(closure_ STACKop -1)); # entire Lambda-List
               fehler(source_program_error,
                      GETTEXT("FUNCTION: too long variable specification after &AUX: ~"));
             }
@@ -2087,7 +2087,7 @@ local object lambdabody_source (object lambdabody) {
             init_form = NIL; # Default-Init
           }
         }
-        # init_form vor (clos_aux_inits closure) pushen:
+        # push init_form in front of (clos_aux_inits closure) :
         pushSTACK(lambdalist); pushSTACK(init_form);
         {
           var object new_cons = allocate_cons();
@@ -2098,9 +2098,9 @@ local object lambdabody_source (object lambdabody) {
         }
         lambdalist = popSTACK();
       }
-      # Gesammelte Fehlermeldungen:
+      # Collected error messages:
      badLLkey:
-      pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
+      pushSTACK(*(closure_ STACKop -1)); # entire Lambda-List
       pushSTACK(item);
       fehler(source_program_error,
              GETTEXT("FUNCTION: badly placed lambda-list keyword ~: ~"));
@@ -2112,25 +2112,25 @@ local object lambdabody_source (object lambdabody) {
       pushSTACK(item);
       fehler(program_error,
              GETTEXT("FUNCTION: ~ is a constant, may not be used as a variable"));
-     ende: # Listenende erreicht
+     ende: # reached list-end
       #undef NEXT_ITEM
-      if (((uintL)~(uintL)0 > lp_limit_1) && (var_count > lp_limit_1)) { # Zu viele Parameter?
-        pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
+      if (((uintL)~(uintL)0 > lp_limit_1) && (var_count > lp_limit_1)) { # too many parameters?
+        pushSTACK(*(closure_ STACKop -1)); # entire Lambda-List
         fehler(source_program_error,
                GETTEXT("FUNCTION: too many parameters in the lambda-list ~"));
       }
-      # Da nun var_count <= lp_limit_1, passen alle counts in ein uintC.
-      if (!nullp(lambdalist)) { # Lambda-Liste eine Dotted List?
-        pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
+      # var_count <= lp_limit_1, therefore all counts fit in an uintC.
+      if (!nullp(lambdalist)) { # is Lambda-List a Dotted List?
+        pushSTACK(*(closure_ STACKop -1)); # entire Lambda-List
         fehler(source_program_error,
                GETTEXT("FUNCTION: a dot in a lambda-list is allowed only for macros, not here: ~"));
       }
-      # Variablen zu einem Vektor zusammenfassen und in die Closure,
-      # Variablenflags zu einem Byte-Vektor zusammenfassen und in die Closure:
-      pushSTACK(allocate_bit_vector(Atype_8Bit,var_count-spec_count)); # Byte-Vektor erzeugen
-      var object vars = allocate_vector(var_count); # Vektor erzeugen
+      # Collect variables into a vector and put it into the Closure,
+      # Collect variable-flags into a Byte-Vector and put it into the Closure:
+      pushSTACK(allocate_bit_vector(Atype_8Bit,var_count-spec_count)); # create Byte-Vector
+      var object vars = allocate_vector(var_count); # create Vector
       var object varflags = popSTACK();
-      # Variablen in den Vektor schreiben (letzte hinten, erste vorne):
+      # write variables in the Vector (last one to the back, leading ones in front):
       {
         var object* ptr = &TheSvector(vars)->data[var_count];
         var uintB* ptrflags = &TheSbvector(varflags)->data[var_count-spec_count];
@@ -2146,30 +2146,30 @@ local object lambdabody_source (object lambdabody) {
       var object closure = *closure_;
       TheIclosure(closure)->clos_vars     = vars;
       TheIclosure(closure)->clos_varflags = varflags;
-      # Anzahlen in die Closure eintragen:
+      # write counts in the Closure:
       TheIclosure(closure)->clos_spec_anz = fixnum(spec_count);
       TheIclosure(closure)->clos_req_anz  = fixnum(req_count);
       TheIclosure(closure)->clos_opt_anz  = fixnum(opt_count);
       TheIclosure(closure)->clos_key_anz  = fixnum(key_count);
       TheIclosure(closure)->clos_aux_anz  = fixnum(aux_count);
-      # Im Variablen-Vektor sind die ersten spec_count Variablen die
-      # SPECIAL-Deklarierten. In jeder übrigen Variablen wird das DYNAM_BIT
-      # gesetzt, falls sie unter den SPECIAL-deklarierten vorkommt.
+      # In the Variable-Vector the first spec_count variables are the
+      # SPECIAL-declared ones. In each remaining variable the DYNAM_BIT is
+      # set, if it occurs among the SPECIAL-declared one.
       if (!(spec_count==0)) {
-        # Schleife über die übrigen Variablen:
+        # loop over the remaining variables:
         if (var_count-spec_count > 0) {
           var object* othervarptr = &TheSvector(vars)->data[spec_count];
           var uintB* othervarflagsptr = &TheSbvector(varflags)->data[0];
           var uintC count1;
           dotimespC(count1,var_count-spec_count, {
-            var object othervar = *othervarptr++; # nächste Variable
-            # Suche sie in den SPECIAL-deklarierten Variablen:
+            var object othervar = *othervarptr++; # next variable
+            # Search it among the SPECIAL-declared variables:
             {
               var object* specvarptr = &TheSvector(vars)->data[0];
               var uintC count2;
               dotimespC(count2,spec_count, {
-                if (eq(*specvarptr++,othervar)) { # gefunden?
-                  # ja -> also ist die Variable othervar dynamisch zu binden.
+                if (eq(*specvarptr++,othervar)) { # found?
+                  # yes -> so the variable othervar is to be bound dynamically.
                   *othervarflagsptr |= bit(dynam_bit); break;
                 }
               });
@@ -2178,21 +2178,21 @@ local object lambdabody_source (object lambdabody) {
           });
         }
       }
-      # Schließlich noch die akkumulierten Listen in der Closure umdrehen:
+      # Finally reverse the accumulated lists in the Closure:
       nreverse(TheIclosure(closure)->clos_opt_inits);
       nreverse(TheIclosure(closure)->clos_keywords);
       nreverse(TheIclosure(closure)->clos_key_inits);
       nreverse(TheIclosure(closure)->clos_aux_inits);
-      # Fertig.
-      # Stackaufbau: closure, lambdalist.
+      # finished.
+      # stack structure: closure, lambdalist.
       skipSTACK(2);
       return closure;
     }
 
-# Fehler, wenn aufzurufendes Symbol eine Spezialform ist.
-# fehler_specialform(caller,funname);
-# > caller: Aufrufer (ein Symbol)
-# > funname: ein Symbol
+# error, if symbol to be called is a special form.
+# fehler_specialform(caller,funname);  (transl.: error_specialfor(...);)
+# > caller: caller (a symbol)
+# > funname: a symbol
 nonreturning_function(local,fehler_specialform,(object caller,object funname));
 local void fehler_specialform(object caller,object funname) {
   pushSTACK(funname); # CELL-ERROR slot NAME
@@ -2202,10 +2202,10 @@ local void fehler_specialform(object caller,object funname) {
          GETTEXT("~: ~ is a special operator, not a function"));
 }
 
-# Fehler, wenn aufzurufendes Symbol ein Macro ist.
+# error, if symbol to be called is a macro.
 # fehler_macro(caller,funname);
-# > caller: Aufrufer (ein Symbol)
-# > funname: ein Symbol
+# > caller: caller (a symbol)
+# > funname: a symbol
 nonreturning_function(local, fehler_macro, (object caller, object funname));
 local void fehler_macro(object caller,object funname) {
   pushSTACK(funname); # CELL-ERROR slot NAME
@@ -2214,10 +2214,10 @@ local void fehler_macro(object caller,object funname) {
   fehler(undefined_function,GETTEXT("~: ~ is a macro, not a function"));
 }
 
-# Fehlermeldung wegen undefinierter Funktion.
+# error-message  because of undefined function.
 # fehler_undefined(caller,funname);
-# > caller: Aufrufer (ein Symbol)
-# > funname: Symbol oder (SETF symbol)
+# > caller: caller (a symbol)
+# > funname: symbol or (SETF symbol)
 nonreturning_function(local,fehler_undefined,(object caller,object funname));
 local void fehler_undefined(object caller,object funname) {
   pushSTACK(funname); # CELL-ERROR slot NAME
@@ -2226,19 +2226,19 @@ local void fehler_undefined(object caller,object funname) {
   fehler(undefined_function,GETTEXT("~: the function ~ is undefined"));
 }
 
-# UP: Wandelt ein Argument in eine Funktion um.
+# UP: Alters argument to a function.
 # coerce_function(obj)
-# > obj: Objekt
-# > subr_self: Aufrufer (ein SUBR)
-# < ergebnis: Objekt als Funktion (SUBR oder Closure)
+# > obj: object
+# > subr_self: caller (a SUBR)
+# < result: object as function (SUBR or Closure)
 # can trigger GC
   global object coerce_function (object obj);
   global object coerce_function(obj)
     var object obj;
     {
-      # obj sollte ein Symbol, ein SUBR oder eine Closure sein.
+      # obj should be a symbol, a SUBR or a Closure.
       if (subrp(obj) || closurep(obj) || ffunctionp(obj)) {
-        return obj; # Funktion ist OK
+        return obj; # function is OK
       } elif (symbolp(obj)) {
         var object fdef = Symbol_function(obj);
         if (subrp(fdef) || closurep(fdef) || ffunctionp(fdef))
@@ -2256,7 +2256,7 @@ local void fehler_undefined(object caller,object funname) {
           fehler_undefined(TheSubr(subr_self)->name,obj);
       } elif (funnamep(obj)) {
         var object symbol = get(Car(Cdr(obj)),S(setf_function)); # (get ... 'SYS::SETF-FUNCTION)
-        if (!symbolp(symbol)) # sollte (uninterniertes) Symbol sein
+        if (!symbolp(symbol)) # should be (uninterned) symbol
           fehler_undefined(TheSubr(subr_self)->name,obj);
         var object fdef = Symbol_function(symbol);
         if (subrp(fdef) || closurep(fdef) || ffunctionp(fdef))
@@ -2320,9 +2320,9 @@ local void fehler_undefined(object caller,object funname) {
 
 #endif
 
-# Fehlermeldung bei unpaarigen Keyword-Argumenten
-# fehler_key_unpaarig(fun);
-# > fun: Funktion
+# error-message for non-paired keyword-arguments
+# fehler_key_unpaarig(fun); (transl.: error_key_non_paired)
+# > fun: function
 nonreturning_function(local, fehler_key_unpaarig, (object fun));
 local void fehler_key_unpaarig(object fun) {
   pushSTACK(fun);
@@ -2330,9 +2330,9 @@ local void fehler_key_unpaarig(object fun) {
          GETTEXT("EVAL/APPLY: keyword arguments for ~ should occur pairwise"));
 }
 
-# Fehlermeldung bei zu vielen Keyword-Argumenten
-# fehler_key_zuviel(fun);
-# > fun: Funktion
+# error-message for too many keyword-arguments
+# fehler_key_zuviel(fun); (error_key_toomany)
+# > fun: function
 nonreturning_function(local, fehler_key_zuviel, (object fun));
 local void fehler_key_zuviel(object fun) {
   pushSTACK(fun);
@@ -2340,9 +2340,9 @@ local void fehler_key_zuviel(object fun) {
          GETTEXT("EVAL/APPLY: too many arguments given to ~"));
 }
 
-# Fehlermeldung bei fehlerhaftem Keyword
+# error-message for flawed keyword
 # fehler_key_notkw(kw);
-# > kw: Nicht-Symbol
+# > kw: Non-Symbol
 nonreturning_function(local, fehler_key_notkw, (object kw));
 local void fehler_key_notkw(object kw) {
   pushSTACK(kw); # KEYWORD-ERROR slot DATUM
@@ -2352,11 +2352,11 @@ local void fehler_key_notkw(object kw) {
          GETTEXT("EVAL/APPLY: ~ is not a symbol"));
 }
 
-# Fehlermeldung bei fehlerhaftem Keyword
+# error-message for flawed keyword
 # fehler_key_badkw(fun,kw,kwlist);
-# > fun: Funktion
-# > kw: unzulässiges Keyword
-# > kwlist: Liste der zugelassenen Keywords
+# > fun: function
+# > kw: illegal keyword
+# > kwlist: list of legal keywords
 nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kwlist));
 local void fehler_key_badkw(object fun,object kw,object kwlist) {
   pushSTACK(kw); # KEYWORD-ERROR slot DATUM
@@ -2373,40 +2373,40 @@ local void fehler_key_badkw(object fun,object kw,object kwlist) {
          GETTEXT("EVAL/APPLY: keyword ~ is illegal for ~. The possible keywords are ~"));
 }
 
-# Test auf unerlaubte Keywords
+# Test for illegal keywords
 # check_for_illegal_keywords(allow_flag,fehler_statement);
-# > uintC argcount: Anzahl der Keyword/Value-Paare
-# > object* rest_args_pointer: Pointer über die 2*argcount restlichen Argumente
-# > bool allow_flag: Flag, ob &ALLOW-OTHER-KEYS angegeben war
-# > for_every_keyword: Macro, der alle Keywords durchläuft und an 'keyword'
-#                      zuweist.
-# > fehler_statement: Statement, das meldet, dass bad_keyword illegal ist.
+# > uintC argcount: Number of Keyword/Value-pairs
+# > object* rest_args_pointer: Pointer to the 2*argcount remaining arguments
+# > bool allow_flag: Flag, if &ALLOW-OTHER-KEYS was specified
+# > for_every_keyword: Macro, which loops over all Keywords and assigns 
+#                      them to 'keyword'.
+# > fehler_statement: Statement, that reports, that bad_keyword is illegal.
   #define check_for_illegal_keywords(allow_flag_expr,fehler_statement)  \
-    { var object* argptr = rest_args_pointer; # Pointer in die Argumente    \
-      var object bad_keyword = nullobj; # erstes unerlaubtes Keyword oder nullobj \
-      var bool allow_flag = # Flag für allow-other-keys (ob                 \
-        # &ALLOW-OTHER-KEYS angegeben war oder ':ALLOW-OTHER-KEY T' vorkam) \
+    { var object* argptr = rest_args_pointer; # Pointer to the arguments    \
+      var object bad_keyword = nullobj; # first illegal keyword or nullobj  \
+      var bool allow_flag = # Flag for allow-other-keys (if                 \
+        # &ALLOW-OTHER-KEYS was specified or ':ALLOW-OTHER-KEY T' occurred) \
         (allow_flag_expr);                                                  \
       var bool check_forced = false; # allow-other-key nil                  \
       var uintC check_count;                                                \
       dotimesC(check_count,argcount, {                                      \
-        var object kw = NEXT(argptr); # nächstes Argument                   \
-        var object val = NEXT(argptr); # und Wert dazu                      \
-        # muss ein Symbol, sollte ein Keyword sein:                         \
+        var object kw = NEXT(argptr); # next Argument                       \
+        var object val = NEXT(argptr); # and value for it                   \
+        # must be a symbol, should be a keyword:                            \
         if (!symbolp(kw))                                                   \
           fehler_key_notkw(kw);                                             \
-        if (!allow_flag) { # andere Keywords erlaubt? ja -> ok              \
+        if (!allow_flag) { # other keywords allowed? yes -> ok              \
           if (!check_forced && eq(kw,S(Kallow_other_keys))) {               \
             if (!nullp(val)) { allow_flag = true; }                         \
             else { check_forced = true; }                                   \
           } else {                                                          \
-            # bis hierher war nicht :ALLOW-OTHER-KEYS da, und NOALLOW       \
-            if (eq(bad_keyword,nullobj)) { # bisher alle Keywords ok?       \
-              # muss testen, ob das Keyword kw erlaubt ist.                 \
+            # up to now :ALLOW-OTHER-KEYS was not there, and NOALLOW        \
+            if (eq(bad_keyword,nullobj)) { # all Keywords ok so far?        \
+              # must test, if the keyword kw is allowed.                    \
               for_every_keyword(                                            \
                 { if (eq(keyword,kw)) goto kw_ok; }                         \
                 );                                                          \
-              # Keyword kw war nicht erlaubt.                               \
+              # keyword kw was not allowed.                                 \
               bad_keyword = kw;                                             \
               kw_ok: ;                                                      \
             }                                                               \
@@ -2415,41 +2415,41 @@ local void fehler_key_badkw(object fun,object kw,object kwlist) {
       });                                                                   \
       if (!allow_flag)                                                      \
         if (!eq(bad_keyword,nullobj))                                       \
-          # falsches Keyword aufgetreten                                    \
+          # wrong keyword occurred                                          \
           { fehler_statement }                                              \
     }
 
-# Zu einem Keyword 'keyword' das Paar Key.Wert suchen:
+# For a Keyword 'keyword' search the pair Key.Value:
 # find_keyword_value( notfound_statement, found_statement );
 # > keyword: Keyword
-# > uintC argcount: Anzahl der Keyword/Value-Paare
-# > object* rest_args_pointer: Pointer über die 2*argcount restlichen Argumente
-# > notfound_statement: Was zu tun ist, wenn nicht gefunden
-# > found_statement: Was zu tun ist, wenn Wert value gefunden
+# > uintC argcount: Number of Keyword/Value-Pairs
+# > object* rest_args_pointer: Pointer to the 2*argcount remaining Arguments
+# > notfound_statement: what is to be done, if not found
+# > found_statement: what is to be done, if value found
   #define find_keyword_value(notfound_statement,found_statement)  \
     { var object* argptr = rest_args_pointer;                             \
       var uintC find_count;                                               \
       dotimesC(find_count,argcount, {                                     \
-        if (eq(NEXT(argptr),keyword)) goto kw_found; # richtiges Keyword? \
+        if (eq(NEXT(argptr),keyword)) goto kw_found; # right keyword?     \
         NEXT(argptr);                                                     \
       });                                                                 \
       if (true)                                                           \
-        # nicht gefunden                                                  \
+        # not found                                                       \
         { notfound_statement }                                            \
         else                                                              \
-        kw_found: # gefunden                                              \
+        kw_found: # found                                                 \
         { var object value = NEXT(argptr);                                \
           found_statement                                                 \
         }                                                                 \
     }
 
-# UP: Wendet eine interpretierte Closure auf Argumente an.
+# UP: Applies an interpreted closure to arguments.
 # funcall_iclosure(closure,args_pointer,argcount);
 # > closure: Closure
-# > args_pointer: Pointer über die Argumente (im Stack)
-# > argcount: Anzahl der Argumente
-# < mv_count/mv_space: Werte
-# < STACK: aufgeräumt, = args_pointer
+# > args_pointer: Pointer to the arguments (in Stack)
+# > argcount: Number of Arguments
+# < mv_count/mv_space: values
+# < STACK: cleaned up, = args_pointer
 # can trigger GC
   local Values funcall_iclosure (object closure, object* args_pointer, uintC argcount);
   local Values funcall_iclosure(closure,args_pointer,argcount)
@@ -2457,7 +2457,7 @@ local void fehler_key_badkw(object fun,object kw,object kwlist) {
     var object* args_pointer;
     var uintC argcount;
     {
-      # 1. Schritt: APPLY-Frame zu Ende aufbauen:
+      # 1. step: finish building ofAPPLY-frame:
       var sp_jmp_buf my_jmp_buf;
       #ifdef DEBUG_EVAL
       if (streamp(Symbol_value(S(funcall_trace_output)))) {
@@ -2465,98 +2465,98 @@ local void fehler_key_badkw(object fun,object kw,object kwlist) {
       }
       #endif
       {
-        var object* top_of_frame = args_pointer; # Pointer übern Frame
+        var object* top_of_frame = args_pointer; # Pointer to frame
         pushSTACK(closure);
         finish_entry_frame(APPLY,&!my_jmp_buf,,{
-            if (mv_count==0) { # nach Wiedereintritt: Form übergeben?
-              closure = STACK_(frame_closure); # selben APPLY nochmals versuchen
+            if (mv_count==0) { # after reentry: pass form?
+              closure = STACK_(frame_closure); # try the same APPLY again
               args_pointer = topofframe(STACK_0);
               argcount = STACK_item_count(STACK STACKop frame_args,args_pointer);
             } else {
-              setSTACK(STACK = topofframe(STACK_0)); # STACK aufräumen # oder unwind() ??
-              eval_noenv(value1); return; # übergebene Form evaluieren
+              setSTACK(STACK = topofframe(STACK_0)); # clean STACK # or unwind() ??
+              eval_noenv(value1); return; # evaluate passed form
             }
           });
       }
-      var object* closure_ = &STACK_(frame_closure); # Pointer auf die Closure
-      var object* frame_pointer; # Pointer in den Frame
-      # 2. Schritt: Variablenbindungsframe aufbauen:
+      var object* closure_ = &STACK_(frame_closure); # Pointer to the closure
+      var object* frame_pointer; # Pointer to Frame
+      # 2. Schritt: build variable-binding-frame:
       {
-        var object* top_of_frame = STACK; # Pointer übern Frame
-        var object vars = TheIclosure(closure)->clos_vars; # Vektor mit Variablennamen
-        var uintL var_count = Svector_length(vars); # Anzahl der Variablen
-        get_space_on_STACK(var_count * 2 * sizeof(object)); # Platz reservieren
+        var object* top_of_frame = STACK; # Pointer to Frame
+        var object vars = TheIclosure(closure)->clos_vars; # Vector of variable-names
+        var uintL var_count = Svector_length(vars); # number of variables
+        get_space_on_STACK(var_count * 2 * sizeof(object)); # reserve space
         {
-          var object* varptr = &TheSvector(vars)->data[0]; # Pointer auf Variablen im Vektor
+          var object* varptr = &TheSvector(vars)->data[0]; # Pointer to variables in vector
           var uintC spec_count = posfixnum_to_L(TheIclosure(closure)->clos_spec_anz);
           var uintC count;
-          # erst die Special-Referenzen:
+          # the special-references first:
           dotimesC(count,spec_count, {
-            # Bindung mit "Wert" specdecl:
+            # binding with "value" specdecl:
             pushSTACK(specdecl);
-            pushSTACK_symbolwithflags(*varptr++,wbit(active_bit_o)); # Bindung schon mal als aktiv vormerken
+            pushSTACK_symbolwithflags(*varptr++,wbit(active_bit_o)); # make a note of binding as being active
           });
           frame_pointer = args_end_pointer;
           if (var_count-spec_count > 0) {
             var uintB* varflagsptr = &TheSbvector(TheIclosure(closure)->clos_varflags)->data[0];
             dotimespC(count,var_count-spec_count, {
-              pushSTACK(NIL); # NIL als vorläufiger Wert
-              var object next_var = *varptr++; # nächste Variable
-              var oint next_varflags = (oint)(*varflagsptr++)<<oint_symbolflags_shift; # mit evtl. dynam_bit, svar_bit
-              if (special_var_p(TheSymbol(next_var))) # SPECIAL-proklamiert?
-                next_varflags |= wbit(dynam_bit_o); # -> dynamisch binden
+              pushSTACK(NIL); # NIL as preliminary value
+              var object next_var = *varptr++; # next variable
+              var oint next_varflags = (oint)(*varflagsptr++)<<oint_symbolflags_shift; # with poss. dynam_bit, svar_bit
+              if (special_var_p(TheSymbol(next_var))) # proclaimed as SPECIAL?
+                next_varflags |= wbit(dynam_bit_o); # -> bind dynamically
               pushSTACK_symbolwithflags(next_var,next_varflags);
             });
           }
         }
-        # VAR_ENV der Closure wird NEXT_ENV im Frame:
+        # VAR_ENV of closure becomes NEXT_ENV in frame:
         pushSTACK(TheIclosure(closure)->clos_var_env);
-        pushSTACK(as_object(var_count)); # var_count Bindungen, alle noch ungenestet
+        pushSTACK(as_object(var_count)); # var_count bindungs, all still un-nested
         finish_frame(VAR);
       }
-      # STACK zeigt nun unter den Variablenbindungs-Frame.
-      # frame_pointer = Pointer in den Variablenbindungsframe, über die erste
-      # noch inaktive Bindung, unter die bereits aktiven SPECIAL-Referenzen.
+      # STACK now points below the variable-binding-frame.
+      # frame_pointer = Pointer in the variable-binding-frame, above the first
+      # still inactive binding, below the already active SPECIAL-references.
       {
         var object new_var_env = make_framepointer(STACK);
-        # Dieser Frame wird nachher zum neuen VAR_ENV.
-      # 3. Schritt: aktuelle Environments binden:
+        # this frame will become the new VAR_ENV later.
+      # third step: bind current environments:
         make_ENV5_frame();
-      # Das Closure-Environment aktivieren:
-        aktenv.var_env   = new_var_env; # Variablenbindungsframe
+      # activate the closure-environment:
+        aktenv.var_env   = new_var_env; # variable-binding-frame
         aktenv.fun_env   = TheIclosure(closure)->clos_fun_env;
         aktenv.block_env = TheIclosure(closure)->clos_block_env;
         aktenv.go_env    = TheIclosure(closure)->clos_go_env;
         aktenv.decl_env  = TheIclosure(closure)->clos_decl_env;
       }
-      # Stackaufbau:
-      #   APPLY-Frame
-      #   Variablenbindungsframe
-      #   ENV-Frame
-      # 4. Schritt: Parameter abarbeiten:
+      # stack layout:
+      #   APPLY-frame
+      #   variable-binding-frame
+      #   ENV-frame
+      # 4. step: process parameters:
       {
         check_SP();
-        # Macro zum Binden von Variablen im Variablenframe:
-        # Bindet die nächste Variable an value, erniedrigt frame_pointer um 2 bzw. 3.
-        # (Benutzt, dass varframe_binding_mark = 0 !)
+        # Macro for binding of variables in variable-frame:
+        # binds the next variable to value, decreases frame_pointer by 2 resp. 3.
+        # (takes advantage of varframe_binding_mark = 0 !)
         #define bind_next_var(value,markptr_zuweisung)  \
           { frame_pointer skipSTACKop -varframe_binding_size;                                  \
            {var object* markptr = markptr_zuweisung &Before(frame_pointer);                    \
             if (as_oint(*markptr) & wbit(dynam_bit_o))                                         \
-              # dynamische Bindung aktivieren:                                                 \
-              { var object sym = *(markptr STACKop varframe_binding_sym); # Variable           \
-                *(markptr STACKop varframe_binding_value) = TheSymbolflagged(sym)->symvalue; # alten Wert in den Frame \
-                *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); # Bindung aktivieren \
-                TheSymbolflagged(sym)->symvalue = (value); # neuen Wert in die Wertzelle       \
+              # activate dynamic Binding:                                                      \
+              { var object sym = *(markptr STACKop varframe_binding_sym); # variable           \
+                *(markptr STACKop varframe_binding_value) = TheSymbolflagged(sym)->symvalue; # old value in frame \
+                *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); # activate binding \
+                TheSymbolflagged(sym)->symvalue = (value); # new value in value-cell           \
               }                                                                                \
               else                                                                             \
-              # statische Bindung aktivieren:                                                  \
-              { *(markptr STACKop varframe_binding_value) = (value); # neuen Wert in den Frame \
-                *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); # Bindung aktivieren \
+              # activate static binding:                                                       \
+              { *(markptr STACKop varframe_binding_value) = (value); # new value in frame      \
+                *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); # activate binding \
               }                                                                                \
           }}
-        # required-Parameter abarbeiten:
-        # Es ist das jeweils nächste Argument zu holen und im Stack zu binden.
+        # process required-parameters:
+        # fetch next argument and bind in stack.
         {
           var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_req_anz);
           if (count>0) {
@@ -2567,90 +2567,90 @@ local void fehler_key_badkw(object fun,object kw,object kwlist) {
             }
             argcount -= count;
             dotimespC(count,count, {
-              var object next_arg = NEXT(args_pointer); # nächstes Argument
-              bind_next_var(next_arg,); # nächste Variable binden
+              var object next_arg = NEXT(args_pointer); # next argument
+              bind_next_var(next_arg,); # bind next variable
             });
           }
         }
-        # optionale Parameter abarbeiten:
-        # Es ist jeweils das nächste Argument zu holen; falls keines vorliegt,
-        # eine Init-Form auszuführen; dann im Stack zu binden.
+        # process optional parameters:
+        # fetch next argument; if there is none,
+        # execute an Init-form; then bind in stack.
         {
           var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_opt_anz);
           if (count==0)
             goto optional_ende;
           {
-            var object inits = TheIclosure(closure)->clos_opt_inits; # Init-Formen
+            var object inits = TheIclosure(closure)->clos_opt_inits; # Init-forms
             do {
               if (argcount==0)
                 goto optional_aus;
               argcount--;
-              var object next_arg = NEXT(args_pointer); # nächstes Argument
+              var object next_arg = NEXT(args_pointer); # next argument
               var object* optmarkptr;
-              bind_next_var(next_arg,optmarkptr=); # nächste Variable binden
-              if (as_oint(*optmarkptr) & wbit(svar_bit_o)) { # supplied-p-Parameter folgt?
+              bind_next_var(next_arg,optmarkptr=); # bind next variable
+              if (as_oint(*optmarkptr) & wbit(svar_bit_o)) { # supplied-p-Parameter follows?
                 *optmarkptr = as_object(as_oint(*optmarkptr) & ~wbit(svar_bit_o));
-                bind_next_var(T,); # ja -> an T binden
+                bind_next_var(T,); # yes -> bind to T
               }
-              inits = Cdr(inits); # Init-Formen-Liste verkürzen
+              inits = Cdr(inits); # shorten Init-Forms-List
               count--;
             } until (count==0);
             goto optional_ende;
-           optional_aus: # Hier sind die optionalen Argumente ausgegangen.
+           optional_aus: # no more optional arguments here.
             pushSTACK(inits);
           }
-          # Ab hier alle Init-Formen der optionalen Parameter ausführen:
+          # execute all Init-forms of the optional parameters here:
           dotimespC(count,count, {
-            var object inits = STACK_0; # restliche Initformen
+            var object inits = STACK_0; # remaining Initforms
             STACK_0 = Cdr(inits);
-            inits = (eval(Car(inits)),value1); # nächste Initform, ausgewertet
+            inits = (eval(Car(inits)),value1); # next Initform, evaluated
             var object* optmarkptr;
-            bind_next_var(inits,optmarkptr=); # nächste Variable binden
-            if (as_oint(*optmarkptr) & wbit(svar_bit_o)) { # supplied-p-Parameter folgt?
+            bind_next_var(inits,optmarkptr=); # bind next variable
+            if (as_oint(*optmarkptr) & wbit(svar_bit_o)) { # supplied-p-Parameter follows?
               *optmarkptr = as_object(as_oint(*optmarkptr) & ~wbit(svar_bit_o));
-              bind_next_var(NIL,); # ja -> an NIL binden
+              bind_next_var(NIL,); # yes -> bind to NIL
             }
           });
           closure = *closure_;
-          # &REST-Parameter ohne Argumente initialisieren:
+          # initialize &REST-parameters without arguments:
           if (!nullp(TheIclosure(closure)->clos_rest_flag)) # Rest-Flag?
-            bind_next_var(NIL,); # ja -> an NIL binden
-          # &KEY-Parameter ohne Argumente initialisieren:
-          count = posfixnum_to_L(TheIclosure(closure)->clos_key_anz); # Anzahl Keyword-Parameter
+            bind_next_var(NIL,); # yes -> bind to NIL
+          # initialize &KEY-parameters without arguments :
+          count = posfixnum_to_L(TheIclosure(closure)->clos_key_anz); # number of Keyword-parameters
           if (count>0) {
-            STACK_0 = TheIclosure(closure)->clos_key_inits; # zugehörige Init-Formen
+            STACK_0 = TheIclosure(closure)->clos_key_inits; # belonging Init-forms
             dotimespC(count,count, {
-              var object inits = STACK_0; # restliche Initformen
+              var object inits = STACK_0; # remaining Initforms
               STACK_0 = Cdr(inits);
-              inits = (eval(Car(inits)),value1); # nächste Initform, ausgewertet
+              inits = (eval(Car(inits)),value1); # next Initform, evaluated
               var object* keymarkptr;
-              bind_next_var(inits,keymarkptr=); # nächste Variable binden
-              if (as_oint(*keymarkptr) & wbit(svar_bit_o)) { # supplied-p-Parameter folgt?
+              bind_next_var(inits,keymarkptr=); # bind next Variable
+              if (as_oint(*keymarkptr) & wbit(svar_bit_o)) { # supplied-p-Parameter follows?
                 *keymarkptr = as_object(as_oint(*keymarkptr) & ~wbit(svar_bit_o));
-                bind_next_var(NIL,); # ja -> an NIL binden
+                bind_next_var(NIL,); # yes -> bind to NIL
               }
             });
             closure = *closure_;
           }
-          skipSTACK(1); # restliche Init-Formen vergessen
-          goto aux; # weiter zu den AUX-Variablen
+          skipSTACK(1); # remaining Init-forms forgotten
+          goto aux; # go to the AUX-variables
         }
        optional_ende:
-        # &KEY-Parameter und &REST-Parameter vorbereiten:
-        if (numberp(TheIclosure(closure)->clos_keywords) # keyword eine Zahl?
-            && nullp(TheIclosure(closure)->clos_rest_flag)) { # und kein Rest-Parameter?
-          # ja -> weder &KEY noch &REST angegeben
-          if (argcount>0) { # noch Argumente da -> Fehler
+        # prepare &KEY-parameters and &REST-parameters:
+        if (numberp(TheIclosure(closure)->clos_keywords) # is keyword a number?
+            && nullp(TheIclosure(closure)->clos_rest_flag)) { # and no Rest-parameter?
+          # yes -> neither &KEY nor &REST specified
+          if (argcount>0) { # still arguments there? -> Error
             pushSTACK(TheIclosure(closure)->clos_name);
             fehler(program_error,
                    GETTEXT("EVAL/APPLY: too many arguments given to ~"));
           }
         } else {
-          # &KEY oder &REST vorhanden.
-          # &REST-Parameter abarbeiten:
-          if (!nullp(TheIclosure(closure)->clos_rest_flag)) { # Rest-Parameter vorhanden?
-            # ja -> übrige Argumente zu einer Liste zusammenfassen:
-            pushSTACK(NIL); # Listenanfang
+          # &KEY or &REST present.
+          # process &REST-parameters:
+          if (!nullp(TheIclosure(closure)->clos_rest_flag)) { # Rest-parameters present?
+            # yes -> collect residual arguments in a list:
+            pushSTACK(NIL); # start of list
             if (argcount>0) {
               var object* ptr = args_pointer STACKop -(uintP)argcount;
               var uintC count;
@@ -2662,20 +2662,20 @@ local void fehler_key_badkw(object fun,object kw,object kwlist) {
               });
               closure = *closure_;
             }
-            var object list = popSTACK(); # Gesamtliste
-            bind_next_var(list,); # &REST-Parameter an diese Liste binden
+            var object list = popSTACK(); # entire list
+            bind_next_var(list,); # bind &REST-parameter to this list
           }
-          # &KEY-Parameter abarbeiten:
+          # process &KEY-parameters:
           if (!numberp(TheIclosure(closure)->clos_keywords)) {
-            # Keyword-Parameter vorhanden
+            # Keyword-parameters present
             var object* rest_args_pointer = args_pointer;
-            # argcount = Anzahl restlicher Argumente
-            # argcount halbieren, gibt die Anzahl der Paare Key.Wert:
+            # argcount = number of remaining arguments
+            # halve argcount --> number of pairs Key.Value:
             if (!((argcount%2)==0))
-              # Anzahl war ungerade -> nicht paarig:
+              # number was odd ->  not paired:
               fehler_key_unpaarig(TheIclosure(closure)->clos_name);
             argcount = argcount/2;
-            # Test auf unerlaubte Keywords:
+            # test for illegal keywords:
             {
               var object keywords = TheIclosure(closure)->clos_keywords;
               #define for_every_keyword(statement)         \
@@ -2692,7 +2692,7 @@ local void fehler_key_badkw(object fun,object kw,object kwlist) {
                                    TheIclosure(closure)->clos_keywords);
                 });
               #undef for_every_keyword
-              # Jetzt die Key-Werte zuordnen und die Key-Inits auswerten:
+              # Now assign the Key-values and evaluate the Key-Inits:
               var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_key_anz);
               if (count > 0) {
                 var object key_inits = TheIclosure(closure)->clos_key_inits;
@@ -2700,27 +2700,27 @@ local void fehler_key_badkw(object fun,object kw,object kwlist) {
                   var object keyword = Car(keywords); # Keyword
                   var object var_value;
                   var object svar_value;
-                  # Zu diesem Keyword das Paar Key.Wert suchen:
+                  # Find the pair Key.Value for Keyword:
                   find_keyword_value(
-                    # nicht gefunden, muss den Init auswerten:
+                    # not found, mus evaluate the Init:
                     {
                       pushSTACK(keywords); pushSTACK(key_inits);
                       var_value = (eval(Car(key_inits)),value1);
                       key_inits = popSTACK(); keywords = popSTACK();
-                      svar_value = NIL; # NIL für evtl. supplied-p-Parameter
+                      svar_value = NIL; # NIL for poss. supplied-p-Parameter
                     },
-                    # gefunden -> Wert nehmen:
+                    # found -> take value:
                     {
                       var_value = value;
-                      svar_value = T; # T für evtl. supplied-p-Parameter
+                      svar_value = T; # T for poss. supplied-p-Parameter
                     }
                     );
                   {
                     var object* keymarkptr;
-                    bind_next_var(var_value,keymarkptr=); # Keyword-Variable binden
-                    if (as_oint(*keymarkptr) & wbit(svar_bit_o)) { # supplied-p-Parameter folgt?
+                    bind_next_var(var_value,keymarkptr=); # bind Keyword-Variable
+                    if (as_oint(*keymarkptr) & wbit(svar_bit_o)) { # supplied-p-Parameter follows?
                       *keymarkptr = as_object(as_oint(*keymarkptr) & ~wbit(svar_bit_o));
-                      bind_next_var(svar_value,); # ja -> an NIL bzw. T binden
+                      bind_next_var(svar_value,); # yes -> bind to NIL resp. T
                     }
                   }
                   keywords = Cdr(keywords);
@@ -2731,40 +2731,40 @@ local void fehler_key_badkw(object fun,object kw,object kwlist) {
             closure = *closure_;
           }
         }
-       aux: # &AUX-Parameter behandeln:
+       aux: # process &AUX-parameter:
         {
           var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_aux_anz);
           if (count>0) {
-            pushSTACK(TheIclosure(closure)->clos_aux_inits); # Init-Formen für &AUX-Variablen
+            pushSTACK(TheIclosure(closure)->clos_aux_inits); # Init-forms for &AUX-variables
             dotimespC(count,count, {
               var object inits = STACK_0;
               STACK_0 = Cdr(inits);
-              inits = (eval(Car(inits)),value1); # nächstes Init auswerten
-              bind_next_var(inits,); # und Variable daran binden
+              inits = (eval(Car(inits)),value1); # evaluate nnext Init
+              bind_next_var(inits,); # and bind next variable to it
             });
-            skipSTACK(1); # restliche Init-Formen vergessen
+            skipSTACK(1); # forget remaining Init-forms
             closure = *closure_;
           }
         }
         #undef bind_next_var
       }
-      # 5. Schritt: Body auswerten:
+      # 5. step: evaluate Body:
       implicit_progn(TheIclosure(closure)->clos_body,NIL);
-      unwind(); # ENV-Frame auflösen
-      unwind(); # Variablenbindungsframe auflösen
-      unwind(); # APPLY-Frame auflösen
-      # fertig
+      unwind(); # unwind ENV-frame
+      unwind(); # unwind variable-binding-frame
+      unwind(); # unwind APPLY-frame
+      # finished
     }
 
-# UP: Besorgt die Zuordnung der Key-Argumente bei SUBRs.
-# Nur aufzurufen, falls key_flag /= subr_nokey.
-# > fun: Funktion, ein SUBR
-# > argcount: Argumentezahl nach den optionalen
-# > STACK_(argcount-1),...,STACK_0: die argcount Argumente nach den optionalen
-# > key_args_pointer: Pointer über die Key-Parameter im STACK
-# > rest_args_pointer: Pointer über die restlichen Argumente im STACK
-# < STACK: korrekt gesetzt
-# verändert STACK
+# UP: provides the assignment of the Key-arguments for SUBRs.
+# call only, if key_flag /= subr_nokey.
+# > fun: function, a SUBR
+# > argcount: number of arguments after optional ones
+# > STACK_(argcount-1),...,STACK_0: the argcount arguments after the optional ones
+# > key_args_pointer: Pointer to the Key-parameters in the STACK
+# > rest_args_pointer: Pointer to the remaining arguments in the STACK
+# < STACK: set correctly
+# changes STACK
   local void match_subr_key (object fun, uintL argcount, object* key_args_pointer, object* rest_args_pointer);
   local void match_subr_key(fun,argcount,key_args_pointer,rest_args_pointer)
     var object fun;
@@ -2772,15 +2772,15 @@ local void fehler_key_badkw(object fun,object kw,object kwlist) {
     var object* key_args_pointer;
     var object* rest_args_pointer;
     {
-      # argcount halbieren, gibt die Anzahl der Paare Key.Wert:
+      # halve argcount --> the number of pairs Key.Value:
       if (!((argcount%2)==0))
-        # Anzahl war ungerade -> nicht paarig:
+        # number was odd -> not paired:
         fehler_key_unpaarig(fun);
       if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
         fehler_key_zuviel(fun);
-      # Da nun argcount <= ca_limit_1, passen alle count's in ein uintC.
+      # Due to argcount <= ca_limit_1, all count's fit in a uintC.
       argcount = argcount/2;
-      # Test auf unerlaubte Keywords:
+      # test for illegal Keywords:
       {
         var object* keywords_pointer = &TheSvector(TheSubr(fun)->keywords)->data[0];
         var uintC key_anz = TheSubr(fun)->key_anz;
@@ -2795,8 +2795,8 @@ local void fehler_key_badkw(object fun,object kw,object kwlist) {
             }
         check_for_illegal_keywords(
           TheSubr(fun)->key_flag == subr_key_allow,
-          { pushSTACK(bad_keyword); # fehlerhaftes Keyword retten
-            # Keyword-Vektor in eine Liste umwandeln:
+          { pushSTACK(bad_keyword); # save bad Keyword
+            # convert Keyword-Vector to a List:
             # (SYS::COERCE-SEQUENCE kwvec 'LIST)
             coerce_sequence(TheSubr(fun)->keywords,S(list));
            {var object kwlist = value1;
@@ -2804,43 +2804,43 @@ local void fehler_key_badkw(object fun,object kw,object kwlist) {
           }}
           );
         #undef for_every_keyword
-      # Jetzt Argumente und Parameter zuordnen:
+      # now assign Arguments and Parameters:
         if (key_anz > 0) {
           var object* keywordptr = keywords_pointer;
           var object* key_args_ptr = key_args_pointer;
           var uintC count;
           dotimespC(count,key_anz, {
             var object keyword = *keywordptr++; # Keyword
-            # Zu diesem Keyword das Paar Key.Wert suchen:
+            # find the pair Key.Value for this Keyword:
             find_keyword_value(
-              # nicht gefunden -> Wert bleibt #<UNBOUND> :
+              # not found -> value remains #<UNBOUND> :
               { NEXT(key_args_ptr); },
-              # gefunden -> Wert eintragen:
+              # found -> save value:
               { NEXT(key_args_ptr) = value; }
               );
           });
         }
       }
-      # evtl. Rest-Parameter versorgen:
+      # poss. process Rest-Parameters:
       if (TheSubr(fun)->rest_flag == subr_norest) {
-        # SUBR ohne &REST-Flag: restliche Argumente vergessen:
+        # SUBR without &REST-Flag: forget remaining Arguments:
         set_args_end_pointer(rest_args_pointer);
       }
-      # SUBR mit &REST-Flag: restliche Argumente im Stack belassen
+      # SUBR with &REST-Flag: leave remaining Arguments in Stack
     }
 
-# UP: Besorgt die Zuordnung zwischen Argumentliste und Keyword-Parametern
-# und eventuellem Rest-Parameter einer compilierten Closure.
-# > closure: compilierte Closure mit &KEY-Parametern
-# > argcount: Argumentezahl nach den optionalen
-# > STACK_(argcount-1),...,STACK_0: die argcount Argumente nach den optionalen
-# > key_args_pointer: Pointer über die Key-Parameter im STACK
-#                     (evtl. auch Pointer unter den Rest-Parameter im STACK,
-#                      der = #<UNBOUND> ist, falls er noch zu versorgen ist)
-# > rest_args_pointer: Pointer über die restlichen Argumente im STACK
-# < STACK: korrekt gesetzt
+# UP: provides the assignment between Argument-list and Keyword-parameters
+# and poss. Rest-parameters of a compiled Closure.
+# > closure: compiled Closure with &KEY-parameters
+# > argcount: number of arguments after optional ones
+# > STACK_(argcount-1),...,STACK_0: the argcount arguments after the optional ones
+# > key_args_pointer: Pointer to the Key-parameters in the STACK
+#                     (poss. also Pointer beneath the Rest-parameters in the STACK,
+#                      which is #<UNBOUND>, if it is still to be supplied with)
+# > rest_args_pointer: Pointer to the remaining Arguments in the STACK
+# < STACK: set correctly
 # < ergebnis: closure
-# verändert STACK
+# changes STACK
 # can trigger GC
   local object match_cclosure_key (object closure, uintL argcount, object* key_args_pointer, object* rest_args_pointer);
   local object match_cclosure_key(closure,argcount,key_args_pointer,rest_args_pointer)
@@ -2849,24 +2849,24 @@ local void fehler_key_badkw(object fun,object kw,object kwlist) {
     var object* key_args_pointer;
     var object* rest_args_pointer;
     {
-      # argcount halbieren, gibt die Anzahl der Paare Key.Wert:
+      # halve argcount --> number of pairs Key.Value:
       if (!((argcount%2)==0))
-        # Anzahl war ungerade -> nicht paarig:
+        # number was ood -> not paired:
         fehler_key_unpaarig(closure);
       if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
         fehler_key_zuviel(closure);
-      # Da nun argcount <= ca_limit_1, passen alle count's in ein uintC.
+      # Due to argcount <= ca_limit_1, all count's fit in a uintC.
       argcount = argcount/2;
-      var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vektor
+      var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vector
       {
-        var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # Anzahl Keywords
-        var uintL keywords_offset = TheCodevec(codevec)->ccv_keyconsts; # Offset der Keywords in FUNC
-        var object* keywords_pointer = # zeigt aufs erste Keyword
-          (TheCodevec(codevec)->ccv_flags & bit(4) # generische Funktion?
+        var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # number of Keywords
+        var uintL keywords_offset = TheCodevec(codevec)->ccv_keyconsts; # Offset of Keywords in FUNC
+        var object* keywords_pointer = # points to the first Keyword
+          (TheCodevec(codevec)->ccv_flags & bit(4) # generic function?
            ? &TheSvector(TheCclosure(closure)->clos_consts[0])->data[keywords_offset]
            : &TheCclosure(closure)->clos_consts[keywords_offset]
           );
-      # Test auf unerlaubte Keywords:
+      # test for illegal Keywords:
         #define for_every_keyword(statement)  \
           if (key_anz > 0)                               \
             { var object* keywordptr = keywords_pointer; \
@@ -2878,40 +2878,40 @@ local void fehler_key_badkw(object fun,object kw,object kwlist) {
             }
         check_for_illegal_keywords(
           !((TheCodevec(codevec)->ccv_flags & bit(6)) == 0),
-          { pushSTACK(bad_keyword); # retten
-            # Liste der erlaubten Keywords bilden:
+          { pushSTACK(bad_keyword); # save
+            # build list of legal Keywords:
             for_every_keyword( { pushSTACK(keyword); } );
             var object kwlist = listof(key_anz);
             bad_keyword = popSTACK();
-            # und Fehler melden:
+            # report errors:
             fehler_key_badkw(closure,bad_keyword,kwlist);
           }
           );
         #undef for_every_keyword
-      # Jetzt Argumente und Parameter zuordnen:
+      # now assign Arguments and Parameters:
         if (key_anz > 0) {
           var object* keywordptr = keywords_pointer;
           var object* key_args_ptr = key_args_pointer;
           var uintC count;
           dotimespC(count,key_anz, {
             var object keyword = *keywordptr++; # Keyword
-            # Zu diesem Keyword das Paar Key.Wert suchen:
+            # find the pair Key.value for this keyword:
             find_keyword_value(
-              # nicht gefunden -> Wert bleibt #<UNBOUND> :
+              # not found -> Wert remains #<UNBOUND> :
               { NEXT(key_args_ptr); },
-              # gefunden -> Wert eintragen:
+              # found -> save value:
               { NEXT(key_args_ptr) = value; }
               );
           });
         }
       }
-      # evtl. Rest-Parameter versorgen:
+      # poss. process Rest-parameters:
       if (TheCodevec(codevec)->ccv_flags & bit(0)) { # Rest-Flag?
-        # Closure mit Keywords und &REST-Flag:
-        var object* rest_arg_ = &BEFORE(key_args_pointer); # Pointer auf den REST-Parameter
+        # Closure with Keywords and &REST-Flag:
+        var object* rest_arg_ = &BEFORE(key_args_pointer); # Pointer to the REST-Parameter
         if (eq(*rest_arg_,unbound)) {
-          # muss noch gefüllt werden: Liste basteln
-          *rest_arg_ = closure; # Closure retten
+          # must still be filed: handicraft list
+          *rest_arg_ = closure; # save Closure
           var object rest_arg = NIL;
           until (args_end_pointer == rest_args_pointer) {
             pushSTACK(rest_arg);
@@ -2919,14 +2919,14 @@ local void fehler_key_badkw(object fun,object kw,object kwlist) {
             Cdr(rest_arg) = popSTACK();
             Car(rest_arg) = popSTACK();
           }
-          closure = *rest_arg_; # Closure zurück
+          closure = *rest_arg_; # return Closure
           *rest_arg_ = rest_arg;
         } else {
-          # restliche Argumente vergessen:
+          # forget remaining arguments:
           set_args_end_pointer(rest_args_pointer);
         }
       } else {
-        # Closure ohne &REST-Flag: restliche Argumente vergessen:
+        # Closure without &REST-Flag: forget remaining arguments:
         set_args_end_pointer(rest_args_pointer);
       }
       return closure;
@@ -2935,7 +2935,7 @@ local void fehler_key_badkw(object fun,object kw,object kwlist) {
 
 #           ----------------------- E V A L -----------------------
 
-# später:
+# later:
 local Values eval1 (object form);
 local Values eval_fsubr (object fun, object args);
 local Values eval_applyhook (object fun);
@@ -2945,145 +2945,145 @@ local Values eval_closure (object fun);
 local Values eval_ffunction (object fun);
 #endif
 
-# UP: Wertet eine Form im aktuellen Environment aus.
+# UP: evaluates a form in the current environment.
 # eval(form);
-# > form: Form
-# < mv_count/mv_space: Werte
+# > form: form
+# < mv_count/mv_space: values
 # can trigger GC
   global Values eval (object form);
   global Values eval(form)
     var object form;
     {
      start:
-      # Test auf Tastatur-Interrupt:
+      # Test for Keyboard-Interrupt:
       interruptp({
-        pushSTACK(form); # form retten
-        pushSTACK(S(eval)); tast_break(); # Break-Schleife aufrufen
+        pushSTACK(form); # save form
+        pushSTACK(S(eval)); tast_break(); # call break-loop
         form = popSTACK();
         goto start;
       });
       var sp_jmp_buf my_jmp_buf;
-      # EVAL-Frame aufbauen:
+      # build EVAL-frame:
       {
-        var object* top_of_frame = STACK; # Pointer übern Frame
+        var object* top_of_frame = STACK; # Pointer to Frame
         pushSTACK(form); # Form
         finish_entry_frame(EVAL,&!my_jmp_buf,,
           {
-            if (mv_count==0) { # nach Wiedereintritt: Form übergeben?
-              form = STACK_(frame_form); # selbe Form nochmal evaluieren
+            if (mv_count==0) { # after reentry: Form passed over?
+              form = STACK_(frame_form); # evaluate the same form again
             } else {
-              form = STACK_(frame_form) = value1; # übergebene Form evaluieren
+              form = STACK_(frame_form) = value1; # evaluate form passed over
             }
           });
       }
-      # Test auf *EVALHOOK*:
+      # Test for *EVALHOOK*:
       {
         var object evalhook_value = Symbol_value(S(evalhookstern)); # *EVALHOOK*
         if (nullp(evalhook_value)) { # *EVALHOOK* = NIL ?
-          # ja -> normal weiter-evaluieren
+          # yes -> continue evaluation normally
           pushSTACK(Symbol_value(S(applyhookstern))); eval1(form);
         } else {
-          # *EVALHOOK*, *APPLYHOOK* an NIL binden:
+          # bind *EVALHOOK*, *APPLYHOOK* to NIL:
           bindhooks_NIL();
-          # (FUNCALL *EVALHOOK* form env) ausführen:
-          pushSTACK(form); # Form als 1. Argument
-          pushSTACK(evalhook_value); # Funktion retten
-          var environment* stack_env = nest_aktenv(); # Environments in den Stack,
-          var object env = allocate_vector(5); # in neu allozierten Vektor
-          *(environment*)(&TheSvector(env)->data[0]) = *stack_env; # hineinschieben
+          # execute (FUNCALL *EVALHOOK* form env) :
+          pushSTACK(form); # Form as 1. Argument
+          pushSTACK(evalhook_value); # save Function
+          var environment* stack_env = nest_aktenv(); # Environments in the Stack,
+          var object env = allocate_vector(5); # in newly allocated Vector
+          *(environment*)(&TheSvector(env)->data[0]) = *stack_env; # push in
           skipSTACK(5);
-          evalhook_value = popSTACK(); # Funktion zurück
-          pushSTACK(env); # gesamtes Environment als 2. Argument
+          evalhook_value = popSTACK(); # return Function
+          pushSTACK(env); # entire Environment as 2. Argument
           funcall(evalhook_value,2);
-          # alte Werte von *EVALHOOK*, *APPLYHOOK* zurück:
+          # restore old values of *EVALHOOK*, *APPLYHOOK* :
           unwind();
-          # EVAL-Frame auflösen:
+          # unwind EVAL-Frame:
           unwind();
         }
       }
     }
 
-# UP: Wertet eine Form im aktuellen Environment aus. Nimmt dabei auf
-# *EVALHOOK* und *APPLYHOOK* keine Rücksicht.
+# UP: evaluates a form in the current Environment. Does not take
+# *EVALHOOK* and *APPLYHOOK* into consideration.
 # eval_no_hooks(form);
 # > form: Form
-# < mv_count/mv_space: Werte
+# < mv_count/mv_space: values
 # can trigger GC
 global Values eval_no_hooks (object form) {
   var sp_jmp_buf my_jmp_buf;
-  # EVAL-Frame aufbauen:
+  # build EVAL-Frame:
   {
-    var object* top_of_frame = STACK; # Pointer übern Frame
+    var object* top_of_frame = STACK; # Pointer to Frame
     pushSTACK(form); # Form
     finish_entry_frame(EVAL,&!my_jmp_buf,,
     {
-      if (mv_count==0) { # nach Wiedereintritt: Form übergeben?
-        form = STACK_(frame_form); # selbe Form nochmal evaluieren
+      if (mv_count==0) { # after reentry: Form passed over?
+        form = STACK_(frame_form); # evaluate the same form again
       } else {
-        form = STACK_(frame_form) = value1; # übergebene Form evaluieren
+        form = STACK_(frame_form) = value1; # evaluate form passed over
       }
     });
   }
-  # weiterevaluieren, *APPLYHOOK* als NIL betrachten:
+  # continue evaluation, consider *APPLYHOOK* as being NIL:
   pushSTACK(NIL); eval1(form);
 }
 
-# UP: Wertet eine Form im aktuellen Environment aus.
-# Nimmt dabei auf *EVALHOOK* keine Rücksicht, und erwartet den Wert von
+# UP: evaluates a form in the current environment.
+# Does not take the value of *EVALHOOK* into consideration and expects the value of
 # *APPLYHOOK*.
-# Der EVAL-Frame muss bereits aufgebaut sein; er wird dann abgebaut.
+# the EVAL-frame must already have been built; it will then be unwound.
 # eval1(form);
-# > form: Form
-# > STACK_3..STACK_1: EVAL-Frame, mit Form in STACK_3
-# > STACK_0: Wert von *APPLYHOOK*
-# < mv_count/mv_space: Werte
-# verändert STACK
+# > form: form
+# > STACK_3..STACK_1: EVAL-Frame, with form in STACK_3
+# > STACK_0: value of *APPLYHOOK*
+# < mv_count/mv_space: values
+# changes STACK
 # can trigger GC
   local Values eval1(form)
     var object form;
     {
       if (atomp(form)) {
         if (symbolp(form)) {
-          # Form ist Symbol
-          value1 = sym_value(form,aktenv.var_env); # Wert im aktuellen Environment
+          # Form is a Symbol
+          value1 = sym_value(form,aktenv.var_env); # value in the current Environment
           if (eq(value1,unbound)) {
             pushSTACK(form); # CELL-ERROR slot NAME
             pushSTACK(form);
             fehler(unbound_variable,GETTEXT("EVAL: variable ~ has no value"));
           } else if (symbolmacrop(value1)) { # Symbol-Macro?
-            # ja -> expandieren und erneut evaluieren:
-            skipSTACK(1); # Wert von *APPLYHOOK* vergessen
+            # yes -> expand and evaluate again:
+            skipSTACK(1); # forget value of *APPLYHOOK*
             check_SP(); check_STACK();
-            eval(TheSymbolmacro(value1)->symbolmacro_expansion); # Expansion evaluieren
-            unwind(); # EVAL-Frame auflösen
+            eval(TheSymbolmacro(value1)->symbolmacro_expansion); # evaluate Expansion 
+            unwind(); # unwind EVAL-Frame
           } else {
-            mv_count=1; # value1 als Wert
+            mv_count=1; # value1 as value
             skipSTACK(1);
-            unwind(); # EVAL-Frame auflösen
+            unwind(); # unwind EVAL-Frame
           }
         } else {
           # self-evaluating form
-          value1 = form; mv_count=1; # form als Wert
+          value1 = form; mv_count=1; # form as value
           skipSTACK(1);
-          unwind(); # EVAL-Frame auflösen
+          unwind(); # unwind EVAL-Frame
         }
       } else {
-        # Form ist ein Cons
-        # Feststellen, ob Macro-call, evtl. expandieren:
+        # Form is a Cons
+        # determine, if Macro-call, poss. expand:
         macroexp(form,aktenv.var_env,aktenv.fun_env); form = value1;
-        if (!nullp(value2)) { # expandiert ?
-          # jetzt erst richtig evaluieren:
-          skipSTACK(1); # Wert von *APPLYHOOK* vergessen
+        if (!nullp(value2)) { # expanded ?
+          # now really evaluate:
+          skipSTACK(1); # forget value of *APPLYHOOK*
           check_SP(); check_STACK();
-          eval(form); # expandierte Form evaluieren
-          unwind(); # EVAL-Frame auflösen
+          eval(form); # evaluate expanded form
+          unwind(); # unwind EVAL-Frame
         } else {
-          var object fun = Car(form); # Funktionsbezeichnung
+          var object fun = Car(form); # function designation
           if (funnamep(fun)) {
-            # Funktionsdefinition im Environment holen:
+            # fetch function-definition in the environment:
             fun = sym_function(fun,aktenv.fun_env);
            fun_dispatch:
-            # je nach Typ der Funktion verzweigen:
+            # branch according to type of function:
             # unbound / SUBR/FSUBR/Closure / FunctionMacro / Macro
             #ifdef TYPECODES
             switch (typecode(fun))
@@ -3097,19 +3097,19 @@ global Values eval_no_hooks (object form) {
             #endif
             {
               case_subr: # SUBR
-                pushSTACK(Cdr(form)); # Argumentliste
+                pushSTACK(Cdr(form)); # argumentlist
                 if (!nullp(STACK_1))
                   goto applyhook;
                 eval_subr(fun);
                 break;
-              case_closure: # Closure
-                pushSTACK(Cdr(form)); # Argumentliste
-               closure: # fun ist eine Closure
+              case_closure: # closure
+                pushSTACK(Cdr(form)); # argumentlist
+               closure: # fun is a closure
                 if (!nullp(STACK_1))
                   goto applyhook;
                 eval_closure(fun);
                 break;
-              applyhook: # Wert von *APPLYHOOK* ist /= NIL.
+              applyhook: # value of *APPLYHOOK* is /= NIL.
                 eval_applyhook(fun);
                 break;
               case_orecord:
@@ -3122,7 +3122,7 @@ global Values eval_no_hooks (object form) {
                   #ifdef DYNAMIC_FFI
                   case Rectype_Ffunction:
                     # Foreign-Function
-                    pushSTACK(Cdr(form)); # Argumentliste
+                    pushSTACK(Cdr(form)); # argumentlist
                     if (!nullp(STACK_1))
                       goto applyhook;
                     eval_ffunction(fun);
@@ -3140,10 +3140,10 @@ global Values eval_no_hooks (object form) {
               undef:
                 fehler_undefined(S(eval),Car(form));
             }
-          } elif (consp(fun) && eq(Car(fun),S(lambda))) { # Lambda-Ausdruck?
-            pushSTACK(Cdr(form)); # Argumentliste
-            fun = get_closure(Cdr(fun),S(Klambda),false,&aktenv); # Closure im aktuellen Environment erzeugen
-            goto closure; # und diese auf die Argumente anwenden, wie oben
+          } elif (consp(fun) && eq(Car(fun),S(lambda))) { # lambda-expression?
+            pushSTACK(Cdr(form)); # Argumentlist
+            fun = get_closure(Cdr(fun),S(Klambda),false,&aktenv); # create closure in current environment
+            goto closure; # und apply it to the arguments, as above
           } else {
             pushSTACK(fun);
             pushSTACK(S(eval));
@@ -3154,100 +3154,100 @@ global Values eval_no_hooks (object form) {
       }
     }
 
-# In EVAL: Wendet ein FSUBR auf eine Argumentliste an, räumt den STACK auf
-# und liefert die Werte.
+# In EVAL: Applies a FSUBR to an argument-list, cleans up STACK
+# and returns the values.
 # eval_fsubr(fun,args);
-# > fun: ein FSUBR
-# > args: Argumentliste
-# > STACK-Aufbau: EVAL-Frame, *APPLYHOOK*.
-# < STACK: aufgeräumt
-# < mv_count/mv_space: Werte
-# verändert STACK
+# > fun: a FSUBR
+# > args: argument-list
+# > STACK-layout: EVAL-Frame, *APPLYHOOK*.
+# < STACK: cleaned up
+# < mv_count/mv_space: values
+# changes STACK
 # can trigger GC
   local Values eval_fsubr(fun,args)
     var object fun;
     var object args;
     {
-      skipSTACK(1); # Wert von *APPLYHOOK* vergessen
+      skipSTACK(1); # forget value of *APPLYHOOK*
       check_SP(); check_STACK();
       #if STACKCHECKS
       var object* STACKbefore = STACK;
       #endif
-      # Argumente in den STACK legen:
+      # put arguments in the STACK:
       switch ((uintW)posfixnum_to_L(TheFsubr(fun)->argtype)) {
-        # Macro für 1 required-Parameter:
+        # Macro for 1 required-Parameter:
         #define REQ_PAR()  \
           { if (atomp(args)) goto fehler_zuwenig;                   \
-            pushSTACK(Car(args)); # nächster Parameter in den STACK \
+            pushSTACK(Car(args)); # next parameter in the STACK \
             args = Cdr(args);                                       \
           }
         case (uintW)fsubr_argtype_2_0_nobody:
-          # FSUBR mit 2 required-Parametern
+          # FSUBR with 2 required-Parameters
           REQ_PAR();
         case (uintW)fsubr_argtype_1_0_nobody:
-          # FSUBR mit 1 required-Parameter
+          # FSUBR with 1 required-Parameter
           REQ_PAR();
           if (!nullp(args)) goto fehler_zuviel;
           break;
         case (uintW)fsubr_argtype_2_1_nobody:
-          # FSUBR mit 2 required-Parametern und 1 optional-Parameter
+          # FSUBR with 2 required-Parameters and 1 optional-Parameter
           REQ_PAR();
         case (uintW)fsubr_argtype_1_1_nobody:
-          # FSUBR mit 1 required-Parameter und 1 optional-Parameter
+          # FSUBR with 1 required-Parameter and 1 optional-Parameter
           REQ_PAR();
           if (consp(args)) {
-            pushSTACK(Car(args)); # optionalen Parameter in den STACK
+            pushSTACK(Car(args)); # optional parameter into STACK
             args = Cdr(args);
             if (!nullp(args)) goto fehler_zuviel;
           } else {
-            pushSTACK(unbound); # unbound stattdessen in den STACK
+            pushSTACK(unbound); # unbound into STACK instead
             if (!nullp(args)) goto fehler_dotted;
           }
           break;
         case (uintW)fsubr_argtype_2_body:
-          # FSUBR mit 2 required-Parametern und Body-Parameter
+          # FSUBR with 2 required-Parameters and Body-Parameter
           REQ_PAR();
         case (uintW)fsubr_argtype_1_body:
-          # FSUBR mit 1 required-Parameter und Body-Parameter
+          # FSUBR with 1 required-Parameter and Body-Parameter
           REQ_PAR();
         case (uintW)fsubr_argtype_0_body:
-          # FSUBR mit 0 required-Parametern und Body-Parameter
-          pushSTACK(args); # restlichen Body in den STACK
+          # FSUBR with 0 required-Parameters and Body-Parameter
+          pushSTACK(args); # remaining body into STACK
           break;
         default: NOTREACHED
-        fehler_zuwenig: # Argumentliste args ist vorzeitig ein Atom
+        fehler_zuwenig: # argument-list args is an atom, prematurely 
           if (!nullp(args)) goto fehler_dotted;
-          # STACK bis zum aufrufenden EVAL-Frame aufräumen:
+          # clean up STACK up to the calling EVAL-Frame:
           until (framecode(STACK_0) & bit(frame_bit_t)) {
             skipSTACK(1);
           }
           {
-            var object form = STACK_(frame_form); # Form aus dem EVAL-Frame
+            var object form = STACK_(frame_form); # Form from EVAL-Frame
             pushSTACK(form);
             pushSTACK(Car(form));
             fehler(source_program_error,
                    GETTEXT("EVAL: too few parameters for special-form ~: ~"));
           }
-        fehler_zuviel: # Argumentliste args ist am Schluss nicht NIL
+        fehler_zuviel: # argument-list args is not NIL at the tail
           if (atomp(args)) goto fehler_dotted;
-          # STACK bis zum aufrufenden EVAL-Frame aufräumen:
+          # clean up STACK up to the calling EVAL-Frame:
           until (framecode(STACK_0) & bit(frame_bit_t)) {
             skipSTACK(1);
           }
           {
-            var object form = STACK_(frame_form); # Form aus dem EVAL-Frame
+            var object form = STACK_(frame_form); # Form from EVAL-Frame
             pushSTACK(form);
             pushSTACK(Car(form));
             fehler(source_program_error,
                    GETTEXT("EVAL: too many parameters for special-form ~: ~"));
           }
-        fehler_dotted: # Argumentliste args endet mit Atom /= NIL
-          # STACK bis zum aufrufenden EVAL-Frame aufräumen:
+        fehler_dotted: # argument-list args ends with Atom /= NIL
+          # clean up STACK up to the calling EVAL-Frame:
           until (framecode(STACK_0) & bit(frame_bit_t)) {
             skipSTACK(1);
           }
           {
-            var object form = STACK_(frame_form); # Form aus dem EVAL-Frame
+            var object form = STACK_(frame_form); # Form from EVAL-Frame
             pushSTACK(form);
             pushSTACK(Car(form));
             fehler(source_program_error,
@@ -3255,58 +3255,58 @@ global Values eval_no_hooks (object form) {
           }
         #undef REQ_PAR
       }
-      # FSUBR selbst aufrufen:
+      # call FSUBR:
       subr_self = fun;
       (*(fsubr_function*)(TheFsubr(fun)->function))();
       #if STACKCHECKS
-       if (!(STACK == STACKbefore)) # STACK so wie vorher?
-         abort(); # nein -> ab in den Debugger
+       if (!(STACK == STACKbefore)) # STACK as before?
+         abort(); # no -> go to Debugger
       #endif
-      unwind(); # EVAL-Frame auflösen
+      unwind(); # unwind EVAL-Frame
     }
 
-# In EVAL: Wendet *APPLYHOOK* auf eine Funktion (SUBR oder Closure) und
-# eine Argumentliste an, räumt den STACK auf und liefert die Werte.
+# In EVAL: Applies *APPLYHOOK* to a function (SUBR or Closure) and
+# an argument-list, cleans up the STACK and returns the values.
 # eval_applyhook(fun);
-# > fun: Funktion, ein SUBR oder eine Closure
-# > STACK-Aufbau: EVAL-Frame, *APPLYHOOK* (/= NIL), Argumentliste.
-# < STACK: aufgeräumt
-# < mv_count/mv_space: Werte
-# verändert STACK
+# > fun: function, a SUBR or a closure
+# > STACK-layout: EVAL-Frame, *APPLYHOOK* (/= NIL), argument-list.
+# < STACK: cleaned up
+# < mv_count/mv_space: values
+# changes STACK
 # can trigger GC
 local Values eval_applyhook(object fun) {
-  var object args = popSTACK(); # Argumentliste
-  var object applyhook_value = popSTACK(); # Wert von *APPLYHOOK*
+  var object args = popSTACK(); # argument-list
+  var object applyhook_value = popSTACK(); # value of *APPLYHOOK*
   check_SP();
-  # *EVALHOOK*, *APPLYHOOK* an NIL binden:
+  # bind *EVALHOOK*, *APPLYHOOK* to NIL:
   bindhooks_NIL();
   #ifndef X3J13_005
-  # (FUNCALL *APPLYHOOK* fun args env) ausführen:
-  pushSTACK(fun); # Funktion als 1. Argument
-  pushSTACK(args); # Argumentliste als 2. Argument
-  pushSTACK(applyhook_value); # Funktion retten
+  # execute (FUNCALL *APPLYHOOK* fun args env) :
+  pushSTACK(fun); # Funktion as 1. Argument
+  pushSTACK(args); # argument-list as 2. Argument
+  pushSTACK(applyhook_value); # save function
   {
-    var environment* stack_env = nest_aktenv(); # Environments in den Stack,
-    var object env = allocate_vector(5); # in neu allozierten Vektor
-    *(environment*)(&TheSvector(env)->data[0]) = *stack_env; # hineinschieben
+    var environment* stack_env = nest_aktenv(); # Environments into Stack,
+    var object env = allocate_vector(5); # in newly allocated Vector
+    *(environment*)(&TheSvector(env)->data[0]) = *stack_env; # push in
     skipSTACK(5);
   }
-  applyhook_value = popSTACK(); # Funktion zurück
-  pushSTACK(env); # gesamtes Environment als 3. Argument
+  applyhook_value = popSTACK(); # function back
+  pushSTACK(env); # entire Environment as 3. Argument
   funcall(applyhook_value,3);
   #else
-  # (FUNCALL *APPLYHOOK* fun args) ausführen:
-  pushSTACK(fun); # Funktion als 1. Argument
-  pushSTACK(args); # Argumentliste als 2. Argument
+  # execute (FUNCALL *APPLYHOOK* fun args) :
+  pushSTACK(fun); # function as 1. Argument
+  pushSTACK(args); # argument-list as 2. Argument
   funcall(applyhook_value,2);
   #endif
-  # alte Werte von *EVALHOOK*, *APPLYHOOK* zurück:
+  # old values of *EVALHOOK*, *APPLYHOOK* back:
   unwind();
-  # EVAL-Frame auflösen:
+  # unwind EVAL-Frame:
   unwind();
 }
 
-# In EVAL: Fehler bei zu wenig Argumenten
+# In EVAL: error, if too few arguments
 nonreturning_function(local, fehler_eval_zuwenig, (object fun));
 local void fehler_eval_zuwenig(object fun) {
   var object form = STACK_(frame_form); # Form
@@ -3316,7 +3316,7 @@ local void fehler_eval_zuwenig(object fun) {
          GETTEXT("EVAL: too few arguments given to ~: ~"));
 }
 
-# In EVAL: Fehler bei zu vielen Argumenten
+# In EVAL: error, if too many arguments
 nonreturning_function(local, fehler_eval_zuviel, (object fun));
 local void fehler_eval_zuviel(object fun) {
   var object form = STACK_(frame_form); # Form
@@ -3326,7 +3326,7 @@ local void fehler_eval_zuviel(object fun) {
          GETTEXT("EVAL: too many arguments given to ~: ~"));
 }
 
-# In EVAL: Fehler bei punktierter Argumentliste
+# In EVAL: error, if dotted argument-list
 nonreturning_function(local, fehler_eval_dotted, (object fun));
 local void fehler_eval_dotted(object fun) {
   var object form = STACK_(frame_form); # Form
@@ -3336,189 +3336,189 @@ local void fehler_eval_dotted(object fun) {
          GETTEXT("EVAL: argument list given to ~ is dotted: ~"));
 }
 
-# In EVAL: Wendet ein SUBR auf eine Argumentliste an, räumt den STACK auf
-# und liefert die Werte.
+# In EVAL: Applies an SUBR to an argument-list, cleans up STACK
+# and returns the values.
 # eval_subr(fun);
-# > fun: Funktion, ein SUBR
-# > STACK-Aufbau: EVAL-Frame, *APPLYHOOK*, Argumentliste.
-# < STACK: aufgeräumt
-# < mv_count/mv_space: Werte
-# verändert STACK
+# > fun: function, a SUBR
+# > STACK-layout: EVAL-Frame, *APPLYHOOK*, argument-list.
+# < STACK: cleaned up
+# < mv_count/mv_space: values
+# changes STACK
 # can trigger GC
   local Values eval_subr(fun)
     var object fun;
     {
-      var object args = popSTACK(); # Argumentliste
-      skipSTACK(1); # Wert von *APPLYHOOK* vergessen
+      var object args = popSTACK(); # argument-list
+      skipSTACK(1); # forget value of *APPLYHOOK*
       check_SP(); check_STACK();
-      var object* args_pointer = args_end_pointer; # Pointer über die Argumente
-      var object* rest_args_pointer; # Pointer über die restlichen Argumente
-      var uintL argcount; # Anzahl der restlichen Argumente
-      # Argumente ausgewertet in den STACK legen:
-      # erst ein Dispatch für die wichtigsten Fälle:
+      var object* args_pointer = args_end_pointer; # Pointer to the arguments
+      var object* rest_args_pointer; # Pointer to the remaining arguments
+      var uintL argcount; # number of remaining arguments
+      # push arguments evaluated in the STACK:
+      # first a Dispatch for most important cases:
       switch (TheSubr(fun)->argtype) {
-        # Macro für ein required-Argument:
+        # Macro for a required-argument:
         #define REQ_ARG()  \
           { if (atomp(args)) goto fehler_zuwenig;                \
-            pushSTACK(Cdr(args)); # restliche Argumente          \
-            eval(Car(args)); # nächstes Argument auswerten       \
-            args = STACK_0; STACK_0 = value1; # und in den STACK \
+            pushSTACK(Cdr(args)); # remaining arguments          \
+            eval(Car(args)); # evaluate next argument            \
+            args = STACK_0; STACK_0 = value1; # and into STACK   \
           }
-        # Macro für das n-letzte optional-Argument:
+        # Macro for the n-th last optional-argument:
         #define OPT_ARG(n)  \
           { if (atomp(args)) goto unbound_optional_##n ;         \
-            pushSTACK(Cdr(args)); # restliche Argumente          \
-            eval(Car(args)); # nächstes Argument auswerten       \
-            args = STACK_0; STACK_0 = value1; # und in den STACK \
+            pushSTACK(Cdr(args)); # remaining arguments          \
+            eval(Car(args)); # evaluate next argument            \
+            args = STACK_0; STACK_0 = value1; # and into STACK   \
           }
         case (uintW)subr_argtype_6_0:
-          # SUBR mit 6 required-Argumenten
+          # SUBR with 6 required-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_5_0:
-          # SUBR mit 5 required-Argumenten
+          # SUBR with 5 required-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_4_0:
-          # SUBR mit 4 required-Argumenten
+          # SUBR with 4 required-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_3_0:
-          # SUBR mit 3 required-Argumenten
+          # SUBR with 3 required-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_2_0:
-          # SUBR mit 2 required-Argumenten
+          # SUBR with 2 required-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_1_0:
-          # SUBR mit 1 required-Argument
+          # SUBR with 1 required-Argument
           REQ_ARG();
         case (uintW)subr_argtype_0_0:
-          # SUBR ohne Argumente
+          # SUBR without Arguments
           if (!nullp(args)) goto fehler_zuviel;
           goto apply_subr_norest;
         case (uintW)subr_argtype_4_1:
-          # SUBR mit 4 required-Argumenten und 1 optional-Argument
+          # SUBR with 4 required-Arguments and 1 optional-Argument
           REQ_ARG();
         case (uintW)subr_argtype_3_1:
-          # SUBR mit 3 required-Argumenten und 1 optional-Argument
+          # SUBR with 3 required-Arguments and 1 optional-Argument
           REQ_ARG();
         case (uintW)subr_argtype_2_1:
-          # SUBR mit 2 required-Argumenten und 1 optional-Argument
+          # SUBR with 2 required-Arguments and 1 optional-Argument
           REQ_ARG();
         case (uintW)subr_argtype_1_1:
-          # SUBR mit 1 required-Argument und 1 optional-Argument
+          # SUBR with 1 required-Argument and 1 optional-Argument
           REQ_ARG();
         case (uintW)subr_argtype_0_1:
-          # SUBR mit 1 optional-Argument
+          # SUBR with 1 optional-Argument
           OPT_ARG(1);
           if (!nullp(args)) goto fehler_zuviel;
           goto apply_subr_norest;
         case (uintW)subr_argtype_3_2:
-          # SUBR mit 3 required-Argumenten und 2 optional-Argumenten
+          # SUBR with 3 required-Arguments and 2 optional-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_2_2:
-          # SUBR mit 2 required-Argumenten und 2 optional-Argumenten
+          # SUBR with 2 required-Arguments and 2 optional-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_1_2:
-          # SUBR mit 1 required-Argument und 2 optional-Argumenten
+          # SUBR with 1 required-Argument and 2 optional-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_0_2:
-          # SUBR mit 2 optional-Argumenten
+          # SUBR with 2 optional-Arguments
           OPT_ARG(2);
           OPT_ARG(1);
           if (!nullp(args)) goto fehler_zuviel;
           goto apply_subr_norest;
         case (uintW)subr_argtype_2_3:
-          # SUBR mit 2 required-Argumenten und 3 optional-Argumenten
+          # SUBR with 2 required-Arguments and 3 optional-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_1_3:
-          # SUBR mit 1 required-Argument und 3 optional-Argumenten
+          # SUBR with 1 required-Argument and 3 optional-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_0_3:
-          # SUBR mit 3 optional-Argumenten
+          # SUBR with 3 optional-Arguments
           OPT_ARG(3);
           OPT_ARG(2);
           OPT_ARG(1);
           if (!nullp(args)) goto fehler_zuviel;
           goto apply_subr_norest;
         case (uintW)subr_argtype_0_5:
-          # SUBR mit 5 optional-Argumenten
+          # SUBR with 5 optional-Arguments
           OPT_ARG(5);
         case (uintW)subr_argtype_0_4:
-          # SUBR mit 4 optional-Argumenten
+          # SUBR with 4 optional-Arguments
           OPT_ARG(4);
           OPT_ARG(3);
           OPT_ARG(2);
           OPT_ARG(1);
           if (!nullp(args)) goto fehler_zuviel;
           goto apply_subr_norest;
-        unbound_optional_5: # Noch 5 optionale Argumente, aber atomp(args)
+        unbound_optional_5: # Still 5 optional Arguments, but atomp(args)
           pushSTACK(unbound);
-        unbound_optional_4: # Noch 4 optionale Argumente, aber atomp(args)
+        unbound_optional_4: # Still 4 optional Arguments, but atomp(args)
           pushSTACK(unbound);
-        unbound_optional_3: # Noch 3 optionale Argumente, aber atomp(args)
+        unbound_optional_3: # Still 3 optional Arguments, but atomp(args)
           pushSTACK(unbound);
-        unbound_optional_2: # Noch 2 optionale Argumente, aber atomp(args)
+        unbound_optional_2: # Still 2 optional Arguments, but atomp(args)
           pushSTACK(unbound);
-        unbound_optional_1: # Noch 1 optionales Argument, aber atomp(args)
+        unbound_optional_1: # Still 1 optional Argument, but atomp(args)
           pushSTACK(unbound);
           if (!nullp(args)) goto fehler_dotted;
           goto apply_subr_norest;
         case (uintW)subr_argtype_3_0_rest:
-          # SUBR mit 3 required-Argumenten und weiteren Argumenten
+          # SUBR with 3 required-Arguments and further Arguments
           REQ_ARG();
         case (uintW)subr_argtype_2_0_rest:
-          # SUBR mit 2 required-Argumenten und weiteren Argumenten
+          # SUBR with 2 required-Arguments and further Arguments
           REQ_ARG();
         case (uintW)subr_argtype_1_0_rest:
-          # SUBR mit 1 required-Argument und weiteren Argumenten
+          # SUBR with 1 required-Argument and further Arguments
           REQ_ARG();
         case (uintW)subr_argtype_0_0_rest:
-          # SUBR mit weiteren Argumenten
-          rest_args_pointer = args_end_pointer; # Pointer über die restlichen Argumente
-          # alle weiteren Argumente auswerten und in den Stack:
-          argcount = 0; # Zähler für die restlichen Argumente
+          # SUBR with further Arguments
+          rest_args_pointer = args_end_pointer; # Pointer to the remaining arguments
+          # evaluate all further arguments and into Stack:
+          argcount = 0; # counter for the remaining arguments
           while (consp(args)) {
             check_STACK();
-            pushSTACK(Cdr(args)); # restliche Argumente
-            eval(Car(args)); # nächstes Argument auswerten
-            args = STACK_0; STACK_0 = value1; # und in den STACK
+            pushSTACK(Cdr(args)); # remaining arguments
+            eval(Car(args)); # evaluate next argument
+            args = STACK_0; STACK_0 = value1; # and into STACK
             argcount++;
           }
           goto apply_subr_rest;
         case (uintW)subr_argtype_4_0_key:
-          # SUBR mit 4 required-Argumenten und Keyword-Argumenten
+          # SUBR with 4 required-Arguments and Keyword-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_3_0_key:
-          # SUBR mit 3 required-Argumenten und Keyword-Argumenten
+          # SUBR with 3 required-Arguments and Keyword-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_2_0_key:
-          # SUBR mit 2 required-Argumenten und Keyword-Argumenten
+          # SUBR with 2 required-Arguments and Keyword-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_1_0_key:
-          # SUBR mit 1 required-Argument und Keyword-Argumenten
+          # SUBR with 1 required-Argument and Keyword-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_0_0_key:
-          # SUBR mit Keyword-Argumenten
+          # SUBR with Keyword-Arguments
           if (atomp(args)) goto unbound_optional_key_0;
           goto apply_subr_key;
         case (uintW)subr_argtype_1_1_key:
-          # SUBR mit 1 required-Argument, 1 optional-Argument und Keyword-Argumenten
+          # SUBR with 1 required-Argument, 1 optional-Argument and Keyword-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_0_1_key:
-          # SUBR mit 1 optional-Argument und Keyword-Argumenten
+          # SUBR with 1 optional-Argument and Keyword-Arguments
           OPT_ARG(key_1);
           if (atomp(args)) goto unbound_optional_key_0;
           goto apply_subr_key;
         case (uintW)subr_argtype_1_2_key:
-          # SUBR mit 1 required-Argument, 2 optional-Argumenten und Keyword-Argumenten
+          # SUBR with 1 required-Argument, 2 optional-Arguments and Keyword-Arguments
           REQ_ARG();
           OPT_ARG(key_2);
           OPT_ARG(key_1);
           if (atomp(args)) goto unbound_optional_key_0;
           goto apply_subr_key;
-        unbound_optional_key_2: # Noch 2 optionale Argumente, aber atomp(args)
+        unbound_optional_key_2: # Silll 2 optional Arguments, but atomp(args)
           pushSTACK(unbound);
-        unbound_optional_key_1: # Noch 1 optionales Argument, aber atomp(args)
+        unbound_optional_key_1: # Still 1 optional Argument, but atomp(args)
           pushSTACK(unbound);
-        unbound_optional_key_0: # Vor den Keywords ist atomp(args)
+        unbound_optional_key_0: # Before the keywords is atomp(args)
           {
             var uintC count;
             dotimesC(count,TheSubr(fun)->key_anz, { pushSTACK(unbound); } );
@@ -3529,198 +3529,198 @@ local void fehler_eval_dotted(object fun) {
         #undef OPT_ARG
         #undef REQ_ARG
       }
-      # Nun die allgemeine Version:
-      # Platz auf dem STACK reservieren:
+      # Now the general Version:
+      # reserve space on the STACK:
       get_space_on_STACK(sizeof(object) *
                          (uintL)(TheSubr(fun)->req_anz +
                                  TheSubr(fun)->opt_anz +
                                  TheSubr(fun)->key_anz));
-      # required Parameter auswerten und in den Stack ablegen:
+      # evaluate required parameters and push into Stack:
       {
         var uintC count;
         dotimesC(count,TheSubr(fun)->req_anz, {
-          if (atomp(args)) goto fehler_zuwenig; # Argumentliste zu Ende?
-          pushSTACK(Cdr(args)); # restliche Argumentliste
-          eval(Car(args)); # nächstes Argument auswerten
-          args = STACK_0; STACK_0 = value1; # und in den Stack
+          if (atomp(args)) goto fehler_zuwenig; # at the end of argument-list?
+          pushSTACK(Cdr(args)); # remaining argument-list
+          eval(Car(args)); # evaluate next argument
+          args = STACK_0; STACK_0 = value1; # and into Stack
         });
       }
-      # optionale Parameter auswerten und in den Stack ablegen:
+      # evaluate optional parameters and push into Stack:
       {
         var uintC count = TheSubr(fun)->opt_anz;
         loop {
-          if (atomp(args)) break; # Argumentliste zu Ende?
-          if (count==0) goto optionals_ok; # alle optionalen Parameter versorgt?
+          if (atomp(args)) break; # at the end of argument-list?
+          if (count==0) goto optionals_ok; # all optional parameters supplied with?
           count--;
-          pushSTACK(Cdr(args)); # restliche Argumentliste
-          eval(Car(args)); # nächstes Argument auswerten
-          args = STACK_0; STACK_0 = value1; # und in den Stack
+          pushSTACK(Cdr(args)); # remaining argument-list
+          eval(Car(args)); # evaluate next argument
+          args = STACK_0; STACK_0 = value1; # and into Stack
         }
-        # Argumentliste beendet.
-        # Alle weiteren count optionalen Parameter bekommen den "Wert"
-        # #<UNBOUND>, auch die Keyword-Parameter:
+        # argument-list finished.
+        # All further count optional parameters get the "value"
+        # #<UNBOUND>, the same for the Keyword-parameters:
         dotimesC(count,count + TheSubr(fun)->key_anz, { pushSTACK(unbound); } );
         if (TheSubr(fun)->rest_flag == subr_rest) { # &REST-Flag?
-          # ja -> 0 zusätzliche Argumente:
+          # yes -> 0 additional arguments:
           argcount = 0; rest_args_pointer = args_end_pointer;
         }
-        # nein -> nichts zu tun
+        # no -> nothing to do
         goto los;
       }
      optionals_ok:
-      # Rest- und Keyword-Parameter behandeln.
-      # args = restliche Argumentliste (noch nicht zu Ende)
+      # process Rest- and Keyword-parameters.
+      # args = remaining argument-list (not yet finished)
       if (TheSubr(fun)->key_flag == subr_nokey) {
-        # SUBR ohne KEY
+        # SUBR without KEY
         if (TheSubr(fun)->rest_flag == subr_norest) {
-          # SUBR ohne REST oder KEY -> Argumentliste müsste zu Ende sein
+          # SUBR without REST or KEY -> argument-list should be finished
           goto fehler_zuviel;
         } else {
-          # SUBR mit nur REST, ohne KEY: Behandlung der restlichen Argumente
+          # SUBR with only REST, without KEY: treatment of remaining arguments
           rest_args_pointer = args_end_pointer;
-          argcount = 0; # Zähler für die restlichen Argumente
+          argcount = 0; # counter for the remaining arguments
           do {
             check_STACK();
-            pushSTACK(Cdr(args)); # restliche Argumentliste
-            eval(Car(args)); # nächstes Argument auswerten
-            args = STACK_0; STACK_0 = value1; # und in den Stack
+            pushSTACK(Cdr(args)); # remaining argument-list
+            eval(Car(args)); # evaluate next argument
+            args = STACK_0; STACK_0 = value1; # and into Stack
             argcount++;
           } while (consp(args));
           if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
             goto fehler_zuviel;
         }
       } else {
-        # SUBR mit Keywords.
+        # SUBR with Keywords.
        apply_subr_key:
-        # args = restliche Argumentliste (noch nicht zu Ende)
-        # Erst die Keyword-Parameter mit #<UNBOUND> vorbesetzen, dann
-        # die restlichen Argumente auswerten und im Stack ablegen, dann
-        # die Keywords zuordnen:
-        var object* key_args_pointer = args_end_pointer; # Pointer über Keyword-Parameter
-        # alle Keyword-Parameter mit #<UNBOUND> vorbesetzen:
+        # args = remaining argument-list (not yet finished)
+        # First initialize the Keyword-parameters with #<UNBOUND> , then
+        # evaluate the remaining arguments and push into Stack, then
+        # assign the Keywords:
+        var object* key_args_pointer = args_end_pointer; # Pointer to Keyword-parameters
+        # initialize all Keyword-parameters with  #<UNBOUND> :
         {
           var uintC count;
           dotimesC(count,TheSubr(fun)->key_anz, { pushSTACK(unbound); } );
         }
-        rest_args_pointer = args_end_pointer; # Pointer über die restlichen Argumente
-        # alle weiteren Argumente auswerten und in den Stack:
-        argcount = 0; # Zähler für die restlichen Argumente
+        rest_args_pointer = args_end_pointer; # Pointer to the remaining arguments
+        # evaluate all further arguments and into Stack:
+        argcount = 0; # counter for the remaining arguments
         do {
           check_STACK();
-          pushSTACK(Cdr(args)); # restliche Argumentliste
-          eval(Car(args)); # nächstes Argument auswerten
-          args = STACK_0; STACK_0 = value1; # und in den Stack
+          pushSTACK(Cdr(args)); # remaining argument-list
+          eval(Car(args)); # evaluate next argument
+          args = STACK_0; STACK_0 = value1; # and into Stack
           argcount++;
         } while (consp(args));
         if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
           goto fehler_zuviel;
-        # Keywords zuordnen und evtl. restliche Argumente wegwerfen:
+        # assign Keywords and poss. discard remaining arguments:
         match_subr_key(fun,argcount,key_args_pointer,rest_args_pointer);
       }
-     los: # Funktion anspringen
-      # restliche Argumentliste muss =NIL sein:
+     los: # call function
+      # remaining argument-list must be NIL :
       if (!nullp(args)) goto fehler_dotted;
       if (TheSubr(fun)->rest_flag == subr_norest) {
-        # SUBR ohne &REST-Flag:
+        # SUBR without &REST-Flag:
        apply_subr_norest:
         subr_self = fun;
         (*(subr_norest_function*)(TheSubr(fun)->function))();
       } else {
-        # SUBR mit &REST-Flag:
+        # SUBR with &REST-Flag:
        apply_subr_rest:
         subr_self = fun;
         (*(subr_rest_function*)(TheSubr(fun)->function)) (argcount,rest_args_pointer);
       }
       #if STACKCHECKS
-      if (!(args_pointer == args_end_pointer)) # Stack aufgeräumt?
-        abort(); # nein -> ab in den Debugger
+      if (!(args_pointer == args_end_pointer)) # Stack cleaned up?
+        abort(); # no -> leave to Debugger
       #endif
-      unwind(); # EVAL-Frame auflösen
-      return; # fertig
-      # Gesammelte Fehlermeldungen:
-     fehler_zuwenig: # Argumentliste args ist vorzeitig ein Atom
+      unwind(); # unwind EVAL-Frame
+      return; # finished
+      # Gathered error-messages:
+     fehler_zuwenig: # Argument-List args is prematurely an Atom
       if (!nullp(args)) goto fehler_dotted;
-      set_args_end_pointer(args_pointer); # STACK aufräumen
+      set_args_end_pointer(args_pointer); # clean up STACK
       fehler_eval_zuwenig(TheSubr(fun)->name);
-     fehler_zuviel: # Argumentliste args ist am Schluss nicht NIL
+     fehler_zuviel: # Argument-List args is not NIL at the end
       if (atomp(args)) goto fehler_dotted;
-      set_args_end_pointer(args_pointer); # STACK aufräumen
+      set_args_end_pointer(args_pointer); # clean up STACK
       fehler_eval_zuviel(TheSubr(fun)->name);
-     fehler_dotted: # Argumentliste args endet mit Atom /= NIL
-      set_args_end_pointer(args_pointer); # STACK aufräumen
+     fehler_dotted: # Argument-List args ends with Atom /= NIL
+      set_args_end_pointer(args_pointer); # clean up STACK
       fehler_eval_dotted(TheSubr(fun)->name);
     }
 
-# In EVAL: Wendet eine Closure auf eine Argumentliste an, räumt den STACK auf
-# und liefert die Werte.
+# In EVAL: Applies a Closure to an argument-list, cleans up the STACK
+# and returns the values.
 # eval_closure(fun);
-# > fun: Funktion, eine Closure
-# > STACK-Aufbau: EVAL-Frame, *APPLYHOOK*, Argumentliste.
-# < STACK: aufgeräumt
-# < mv_count/mv_space: Werte
-# verändert STACK
+# > fun: function, a Closure
+# > STACK-layout: EVAL-Frame, *APPLYHOOK*, argument-list.
+# < STACK: cleaned up
+# < mv_count/mv_space: values
+# changes STACK
 # can trigger GC
   local Values eval_closure(closure)
     var object closure;
     {
-      var object args = popSTACK(); # Argumentliste
-      skipSTACK(1); # Wert von *APPLYHOOK* vergessen
-      # STACK-Aufbau: EVAL-Frame.
+      var object args = popSTACK(); # argument-list
+      skipSTACK(1); # forget value of *APPLYHOOK*
+      # STACK-layout: EVAL-Frame.
       check_SP(); check_STACK();
-      pushSTACK(closure); # Closure retten
-      var object* closure_ = &STACK_0; # und merken, wo sie sitzt
+      pushSTACK(closure); # save Closure
+      var object* closure_ = &STACK_0; # and memorize, where it is
       if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
-        # closure ist eine compilierte Closure
+        # closure is a compiled Closure
         var object* STACKbefore = STACK;
-        var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vektor
-        # Argumente ausgewertet in den STACK legen:
-        # erst ein Dispatch für die wichtigsten Fälle:
+        var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vector
+        # push arguments evaluated into STACK:
+        # first a dispatch for the most important cases:
         switch (TheCodevec(codevec)->ccv_signature) {
-          # Macro für ein required-Argument:
+          # Macro for a required-argument:
           #define REQ_ARG()  \
             { if (atomp(args)) goto fehler_zuwenig;                \
-              pushSTACK(Cdr(args)); # restliche Argumente          \
-              eval(Car(args)); # nächstes Argument auswerten       \
-              args = STACK_0; STACK_0 = value1; # und in den STACK \
+              pushSTACK(Cdr(args)); # remaining arguments          \
+              eval(Car(args)); # evaluate next argument            \
+              args = STACK_0; STACK_0 = value1; # and into STACK   \
             }
-          # Macro für das n-letzte optional-Argument:
+          # Macro for the n-last optional-argument:
           #define OPT_ARG(n)  \
             { if (atomp(args)) goto unbound_optional_##n ;         \
-              pushSTACK(Cdr(args)); # restliche Argumente          \
-              eval(Car(args)); # nächstes Argument auswerten       \
-              args = STACK_0; STACK_0 = value1; # und in den STACK \
+              pushSTACK(Cdr(args)); # remaining arguments          \
+              eval(Car(args)); # evaluate next argument            \
+              args = STACK_0; STACK_0 = value1; # and into STACK   \
             }
           case (uintB)cclos_argtype_5_0:
-            # 5 required-Argumente
+            # 5 required-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_4_0:
-            # 4 required-Argumente
+            # 4 required-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_3_0:
-            # 3 required-Argumente
+            # 3 required-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_2_0:
-            # 2 required-Argumente
+            # 2 required-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_1_0:
             # 1 required-Argument
             REQ_ARG();
           case (uintB)cclos_argtype_0_0:
-            # keine Argumente
+            # no Arguments
           noch_0_opt_args:
             if (!nullp(args)) goto fehler_zuviel;
             goto apply_cclosure_nokey;
           case (uintB)cclos_argtype_4_1:
-            # 4 required-Argumente und 1 optional-Argument
+            # 4 required-Arguments and 1 optional-Argument
             REQ_ARG();
           case (uintB)cclos_argtype_3_1:
-            # 3 required-Argumente und 1 optional-Argument
+            # 3 required-Arguments and 1 optional-Argument
             REQ_ARG();
           case (uintB)cclos_argtype_2_1:
-            # 2 required-Argumente und 1 optional-Argument
+            # 2 required-Arguments and 1 optional-Argument
             REQ_ARG();
           case (uintB)cclos_argtype_1_1:
-            # 1 required-Argument und 1 optional-Argument
+            # 1 required-Argument and 1 optional-Argument
             REQ_ARG();
           case (uintB)cclos_argtype_0_1:
             # 1 optional-Argument
@@ -3728,201 +3728,201 @@ local void fehler_eval_dotted(object fun) {
             OPT_ARG(1);
             goto noch_0_opt_args;
           case (uintB)cclos_argtype_3_2:
-            # 3 required-Argumente und 2 optional-Argumente
+            # 3 required-Arguments and 2 optional-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_2_2:
-            # 2 required-Argumente und 2 optional-Argumente
+            # 2 required-Arguments and 2 optional-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_1_2:
-            # 1 required-Argument und 2 optional-Argumente
+            # 1 required-Argument and 2 optional-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_0_2:
-            # 2 optional-Argumente
+            # 2 optional-Arguments
           noch_2_opt_args:
             OPT_ARG(2);
             goto noch_1_opt_args;
           case (uintB)cclos_argtype_2_3:
-            # 2 required-Argumente und 3 optional-Argumente
+            # 2 required-Arguments and 3 optional-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_1_3:
-            # 1 required-Argument und 3 optional-Argumente
+            # 1 required-Argument and 3 optional-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_0_3:
-            # 3 optional-Argumente
+            # 3 optional-Arguments
           noch_3_opt_args:
             OPT_ARG(3);
             goto noch_2_opt_args;
           case (uintB)cclos_argtype_1_4:
-            # 1 required-Argument und 4 optional-Argumente
+            # 1 required-Argument and 4 optional-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_0_4:
-            # 4 optional-Argumente
+            # 4 optional-Arguments
           noch_4_opt_args:
             OPT_ARG(4);
             goto noch_3_opt_args;
           case (uintB)cclos_argtype_0_5:
-            # 5 optional-Argumente
+            # 5 optional-Arguments
             OPT_ARG(5);
             goto noch_4_opt_args;
-          unbound_optional_5: # Noch 5 optionale Argumente, aber atomp(args)
+          unbound_optional_5: # Still 5 optional Arguments, but atomp(args)
             pushSTACK(unbound);
-          unbound_optional_4: # Noch 4 optionale Argumente, aber atomp(args)
+          unbound_optional_4: # Still 4 optional Arguments, but atomp(args)
             pushSTACK(unbound);
-          unbound_optional_3: # Noch 3 optionale Argumente, aber atomp(args)
+          unbound_optional_3: # Still 3 optional Arguments, but atomp(args)
             pushSTACK(unbound);
-          unbound_optional_2: # Noch 2 optionale Argumente, aber atomp(args)
+          unbound_optional_2: # Still 2 optional Arguments, but atomp(args)
             pushSTACK(unbound);
-          unbound_optional_1: # Noch 1 optionales Argument, aber atomp(args)
+          unbound_optional_1: # Still 1 optional Argument, but atomp(args)
             pushSTACK(unbound);
             if (!nullp(args)) goto fehler_dotted;
             goto apply_cclosure_nokey;
           case (uintB)cclos_argtype_4_0_rest:
-            # 4 required-Argumente, Rest-Parameter
+            # 4 required-Arguments, Rest-Parameter
             REQ_ARG();
           case (uintB)cclos_argtype_3_0_rest:
-            # 3 required-Argumente, Rest-Parameter
+            # 3 required-Arguments, Rest-Parameter
             REQ_ARG();
           case (uintB)cclos_argtype_2_0_rest:
-            # 2 required-Argumente, Rest-Parameter
+            # 2 required-Arguments, Rest-Parameter
             REQ_ARG();
           case (uintB)cclos_argtype_1_0_rest:
             # 1 required-Argument, Rest-Parameter
             REQ_ARG();
           case (uintB)cclos_argtype_0_0_rest:
-            # keine Argumente, Rest-Parameter
+            # no Arguments, Rest-Parameter
             if (consp(args)) goto apply_cclosure_rest_nokey;
             if (!nullp(args)) goto fehler_dotted;
             pushSTACK(NIL); # Rest-Parameter := NIL
             goto apply_cclosure_nokey;
           case (uintB)cclos_argtype_4_0_key:
-            # 4 required-Argumente, Keyword-Argumente
+            # 4 required-Arguments, Keyword-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_3_0_key:
-            # 3 required-Argumente, Keyword-Argumente
+            # 3 required-Arguments, Keyword-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_2_0_key:
-            # 2 required-Argumente, Keyword-Argumente
+            # 2 required-Arguments, Keyword-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_1_0_key:
-            # 1 required-Argument, Keyword-Argumente
+            # 1 required-Argument, Keyword-Arguments
             REQ_ARG();
           noch_0_opt_args_key:
             closure = *closure_; codevec = TheCclosure(closure)->clos_codevec;
           case (uintB)cclos_argtype_0_0_key:
-            # nur Keyword-Argumente
+            # only Keyword-Arguments
             if (atomp(args)) goto unbound_optional_key_0;
             goto apply_cclosure_key;
           case (uintB)cclos_argtype_3_1_key:
-            # 3 required-Argumente und 1 optional-Argument, Keyword-Argumente
+            # 3 required-Arguments and 1 optional-Argument, Keyword-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_2_1_key:
-            # 2 required-Argumente und 1 optional-Argument, Keyword-Argumente
+            # 2 required-Arguments and 1 optional-Argument, Keyword-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_1_1_key:
-            # 1 required-Argument und 1 optional-Argument, Keyword-Argumente
+            # 1 required-Argument and 1 optional-Argument, Keyword-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_0_1_key:
-            # 1 optional-Argument, Keyword-Argumente
+            # 1 optional-Argument, Keyword-Arguments
           noch_1_opt_args_key:
             OPT_ARG(key_1);
             goto noch_0_opt_args_key;
           case (uintB)cclos_argtype_2_2_key:
-            # 2 required-Argumente und 2 optional-Argumente, Keyword-Argumente
+            # 2 required-Arguments and 2 optional-Arguments, Keyword-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_1_2_key:
-            # 1 required-Argument und 2 optional-Argumente, Keyword-Argumente
+            # 1 required-Argument and 2 optional-Arguments, Keyword-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_0_2_key:
-            # 2 optional-Argumente, Keyword-Argumente
+            # 2 optional-Arguments, Keyword-Arguments
           noch_2_opt_args_key:
             OPT_ARG(key_2);
             goto noch_1_opt_args_key;
           case (uintB)cclos_argtype_1_3_key:
-            # 1 required-Argument und 3 optional-Argumente, Keyword-Argumente
+            # 1 required-Argument and 3 optional-Arguments, Keyword-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_0_3_key:
-            # 3 optional-Argumente, Keyword-Argumente
+            # 3 optional-Arguments, Keyword-Arguments
           noch_3_opt_args_key:
             OPT_ARG(key_3);
             goto noch_2_opt_args_key;
           case (uintB)cclos_argtype_0_4_key:
-            # 4 optional-Argumente, Keyword-Argumente
+            # 4 optional-Arguments, Keyword-Arguments
             OPT_ARG(key_4);
             goto noch_3_opt_args_key;
-          unbound_optional_key_4: # Noch 4 optionale Argumente, aber atomp(args)
+          unbound_optional_key_4: # Still 4 optional Arguments, but atomp(args)
             pushSTACK(unbound);
-          unbound_optional_key_3: # Noch 3 optionale Argumente, aber atomp(args)
+          unbound_optional_key_3: # Still 3 optional Arguments, but atomp(args)
             pushSTACK(unbound);
-          unbound_optional_key_2: # Noch 2 optionale Argumente, aber atomp(args)
+          unbound_optional_key_2: # Still 2 optional Arguments, but atomp(args)
             pushSTACK(unbound);
-          unbound_optional_key_1: # Noch 1 optionales Argument, aber atomp(args)
+          unbound_optional_key_1: # Still 1 optional Argument, but atomp(args)
             pushSTACK(unbound);
-          unbound_optional_key_0: # Vor den Keywords ist atomp(args)
+          unbound_optional_key_0: # Before the Keywords is atomp(args)
             if (!nullp(args)) goto fehler_dotted;
             goto apply_cclosure_key_noargs;
           case (uintB)cclos_argtype_default:
-            # Allgemeine Version
+            # General Version
             break;
           default: NOTREACHED
           #undef OPT_ARG
           #undef REQ_ARG
         }
-        # Nun die allgemeine Version:
+        # Now the general Version:
         {
-          var uintL req_anz = TheCodevec(codevec)->ccv_numreq; # Anzahl required Parameter
-          var uintL opt_anz = TheCodevec(codevec)->ccv_numopt; # Anzahl optionale Parameter
+          var uintL req_anz = TheCodevec(codevec)->ccv_numreq; # number of required parameters
+          var uintL opt_anz = TheCodevec(codevec)->ccv_numopt; # number of optional parameters
           var uintB flags = TheCodevec(codevec)->ccv_flags; # Flags
-          # Platz auf dem STACK reservieren:
+          # reserve space on STACK:
           get_space_on_STACK(sizeof(object) * (req_anz+opt_anz));
-          # required Parameter auswerten und in den Stack ablegen:
+          # evaluate required parameters and push into Stack:
           {
             var uintC count;
             dotimesC(count,req_anz, {
-              if (atomp(args)) goto fehler_zuwenig; # Argumentliste zu Ende?
-              pushSTACK(Cdr(args)); # restliche Argumentliste
-              eval(Car(args)); # nächstes Argument auswerten
-              args = STACK_0; STACK_0 = value1; # und in den Stack
+              if (atomp(args)) goto fehler_zuwenig; # argument-list finished?
+              pushSTACK(Cdr(args)); # remaining argument-list
+              eval(Car(args)); # evaluate nnext argument
+              args = STACK_0; STACK_0 = value1; # and into Stack
             });
           }
-          # optionale Parameter auswerten und in den Stack ablegen:
+          # evaluate optional parameters and push into Stack:
           {
             var uintC count = opt_anz;
             loop {
-              if (atomp(args)) break; # Argumentliste zu Ende?
-              if (count==0) goto optionals_ok; # alle optionalen Parameter versorgt?
+              if (atomp(args)) break; # argument-list finished?
+              if (count==0) goto optionals_ok; # all optional parameters supplied with?
               count--;
-              pushSTACK(Cdr(args)); # restliche Argumentliste
-              eval(Car(args)); # nächstes Argument auswerten
-              args = STACK_0; STACK_0 = value1; # und in den Stack
+              pushSTACK(Cdr(args)); # remaining argument-list
+              eval(Car(args)); # evaluate next argument
+              args = STACK_0; STACK_0 = value1; # and into Stack
             }
-            # Argumentliste beendet.
+            # argument-list finished.
             if (!nullp(args)) goto fehler_dotted;
-            # Alle weiteren count optionalen Parameter bekommen den "Wert"
-            # #<UNBOUND>, der &REST-Parameter den Wert NIL,
-            # die Keyword-Parameter den Wert #<UNBOUND> :
+            # All further count optional parameters get the "value"
+            # #<UNBOUND>, the &REST-parameter gets the value NIL,
+            # the Keyword-parameter gets the value #<UNBOUND> :
             dotimesC(count,count, { pushSTACK(unbound); } );
           }
           closure = *closure_; codevec = TheCclosure(closure)->clos_codevec;
           if (flags & bit(0)) # &REST-Flag?
-            pushSTACK(NIL); # ja -> mit NIL initialisieren
+            pushSTACK(NIL); # yes -> initialize with NIL
           if (flags & bit(7)) # &KEY-Flag?
             goto apply_cclosure_key_noargs;
           else
             goto apply_cclosure_nokey_;
          optionals_ok:
-          # Rest- und Keyword-Parameter behandeln.
-          # args = restliche Argumentliste (noch nicht zu Ende)
+          # process Rest- and Keyword-parameters.
+          # args = remaining argument-list (not yet finished)
           closure = *closure_; codevec = TheCclosure(closure)->clos_codevec;
           if (flags == 0)
-            # Closure ohne REST oder KEY -> Argumentliste müsste zu Ende sein
+            # Closure without REST or KEY -> argument-list should be finished
             goto fehler_zuviel;
           elif (flags & bit(7)) { # Key-Flag?
-            # Closure mit Keywords.
-            # args = restliche Argumentliste (noch nicht zu Ende)
-            # Erst die Keyword-Parameter mit #<UNBOUND> vorbesetzen, dann
-            # die restlichen Argumente auswerten und im Stack ablegen, dann
-            # die Keywords zuordnen:
-            # evtl. den Rest-Parameter vorbesetzen:
+            # Closure with Keywords.
+            # args = remaining argument-list (not yet finished)
+            # First initialize the Keyword-parameters with #<UNBOUND> , then
+            # evaluate the remaining arguments and push into Stack, then
+            # assign the Keywords:
+            # poss. initialize the Rest-Parameter:
             if (flags & bit(0))
               pushSTACK(unbound);
             goto apply_cclosure_key;
@@ -3931,129 +3931,129 @@ local void fehler_eval_dotted(object fun) {
         }
        apply_cclosure_key_noargs:
         {
-          var uintC count = TheCodevec(codevec)->ccv_numkey; # Anzahl Keyword-Parameter
-          dotimesC(count,count, { pushSTACK(unbound); } ); # mit #<UNBOUND> initialisieren
-          interpret_bytecode(closure,codevec,CCV_START_KEY); # Bytecode ab Byte 12 abinterpretieren
+          var uintC count = TheCodevec(codevec)->ccv_numkey; # number of Keyword-parameters
+          dotimesC(count,count, { pushSTACK(unbound); } ); # initialize with #<UNBOUND> 
+          interpret_bytecode(closure,codevec,CCV_START_KEY); # interprete bytecode starting at Byte 12
         }
         goto done;
-       apply_cclosure_key: # Closure mit nur &KEY anspringen:
+       apply_cclosure_key: # jump to Closure only with &KEY:
         {
-          var object* key_args_pointer = args_end_pointer; # Pointer über Keyword-Parameter
-          # alle Keyword-Parameter mit #<UNBOUND> vorbesetzen:
+          var object* key_args_pointer = args_end_pointer; # Pointer to Keyword-Parameter
+          # initialize all Keyword-parameters with #<UNBOUND> :
           {
             var uintC count = TheCodevec(codevec)->ccv_numkey;
             dotimesC(count,count, { pushSTACK(unbound); } );
           }
-          var object* rest_args_pointer = args_end_pointer; # Pointer über die restlichen Argumente
-          # alle weiteren Argumente auswerten und in den Stack:
-          var uintL argcount = 0; # Zähler für die restlichen Argumente
+          var object* rest_args_pointer = args_end_pointer; # Pointer to the remaining arguments
+          # evaluate all further arguments and push into Stack:
+          var uintL argcount = 0; # counter for the remaining arguments
           do {
             check_STACK();
-            pushSTACK(Cdr(args)); # restliche Argumentliste
-            eval(Car(args)); # nächstes Argument auswerten
-            args = STACK_0; STACK_0 = value1; # und in den Stack
+            pushSTACK(Cdr(args)); # remaining argument-list
+            eval(Car(args)); # evaluate next argument
+            args = STACK_0; STACK_0 = value1; # and into Stack
             argcount++;
           } while (consp(args));
-          # Argumentliste beendet.
+          # argument-list finished.
           if (!nullp(args)) goto fehler_dotted;
-          # Keywords zuordnen, Rest-Parameter bauen
-          # und evtl. restliche Argumente wegwerfen:
+          # assign Keywords, build Rest-Parameter
+          # and poss. discard remaining arguments:
           closure = match_cclosure_key(*closure_,argcount,key_args_pointer,rest_args_pointer);
           codevec = TheCclosure(closure)->clos_codevec;
-          interpret_bytecode(closure,codevec,CCV_START_KEY); # Bytecode ab Byte 12 abinterpretieren
+          interpret_bytecode(closure,codevec,CCV_START_KEY); # interprete bytecode starting at Byte 12
         }
         goto done;
        apply_cclosure_rest_nokey:
-        # Closure mit nur REST, ohne KEY:
-        # restlichen Argumente einzeln auswerten, zu einer Liste machen
-        # args = restliche Argumentliste (noch nicht zu Ende)
-        pushSTACK(NIL); # bisher ausgewertete restliche Argumente
-        pushSTACK(args); # restliche Argumente, unausgewertet
+        # Closure with only REST, without KEY:
+        # evaluate remaining arguments one by on, put into list
+        # args = remaining argument-list (not yet finished)
+        pushSTACK(NIL); # so far evaluated remaining arguments
+        pushSTACK(args); # remaining arguments, unevaluated
         do {
           args = STACK_0; STACK_0 = Cdr(args);
-          eval(Car(args)); # nächstes Argument auswerten
+          eval(Car(args)); # evaluate next argument
           pushSTACK(value1);
-          # und auf die Liste consen:
+          # and cons onto the list:
           var object new_cons = allocate_cons();
           Car(new_cons) = popSTACK();
           Cdr(new_cons) = STACK_1;
           STACK_1 = new_cons;
         } while (mconsp(STACK_0));
         args = popSTACK();
-        # Liste STACK_0 umdrehen und als REST-Parameter verwenden:
+        # reverse list STACK_0 and use as REST-parameter:
         nreverse(STACK_0);
-        # Argumentliste beendet.
+        # argument-list finished.
         if (!nullp(args)) goto fehler_dotted;
-       apply_cclosure_nokey: # Closure ohne &KEY anspringen:
+       apply_cclosure_nokey: # jump to Closure without &KEY :
         closure = *closure_; codevec = TheCclosure(closure)->clos_codevec;
        apply_cclosure_nokey_:
-        interpret_bytecode(closure,codevec,CCV_START_NONKEY); # Bytecode ab Byte 8 abinterpretieren
+        interpret_bytecode(closure,codevec,CCV_START_NONKEY); # interprete bytecode starting at Byte 8
        done:
         #if STACKCHECKC
-        if (!(STACK == STACKbefore)) # STACK so wie vorher?
-          abort(); # nein -> ab in den Debugger
+        if (!(STACK == STACKbefore)) # STACK as before?
+          abort(); # no -> go to Debugger
         #endif
-        skipSTACK(1); # Closure wegwerfen
-        unwind(); # EVAL-Frame auflösen
-        return; # fertig
-        # Gesammelte Fehlermeldungen:
-       fehler_zuwenig: # Argumentliste args ist vorzeitig ein Atom
+        skipSTACK(1); # discard Closure
+        unwind(); # unwind EVAL-Frame
+        return; # finished
+        # Gathered errormessages:
+       fehler_zuwenig: # Argument-list args is prematurely an Atom
         if (!nullp(args)) goto fehler_dotted;
-        setSTACK(STACK = STACKbefore); # STACK aufräumen
+        setSTACK(STACK = STACKbefore); # clean up STACK
         closure = popSTACK();
         fehler_eval_zuwenig(TheCclosure(closure)->clos_name);
-       fehler_zuviel: # Argumentliste args ist am Schluss nicht NIL
+       fehler_zuviel: # Argument-list args is not NIL at the end
         if (atomp(args)) goto fehler_dotted;
-        setSTACK(STACK = STACKbefore); # STACK aufräumen
+        setSTACK(STACK = STACKbefore); # clean up STACK
         closure = popSTACK();
         fehler_eval_zuviel(TheCclosure(closure)->clos_name);
-       fehler_dotted: # Argumentliste args endet mit Atom /= NIL
-        setSTACK(STACK = STACKbefore); # STACK aufräumen
+       fehler_dotted: # Argument-list args ends with Atom /= NIL
+        setSTACK(STACK = STACKbefore); # clean up STACK
         closure = popSTACK();
         fehler_eval_dotted(TheCclosure(closure)->clos_name);
       } else {
-        # closure ist eine interpretierte Closure
-        var object* args_pointer = args_end_pointer; # Pointer über die Argumente
+        # closure is an interpreted Closure
+        var object* args_pointer = args_end_pointer; # Pointer to the arguments
         var uintC args_on_stack = 0; # Anzahl der Argumente
         while (consp(args)) {
-          pushSTACK(Cdr(args)); # Listenrest retten
-          eval(Car(args)); # nächstes Element auswerten
-          args = STACK_0; STACK_0 = value1; # Auswertungsergebnis in den STACK
+          pushSTACK(Cdr(args)); # save rest of list
+          eval(Car(args)); # evaluate next element
+          args = STACK_0; STACK_0 = value1; # result into STACK
           args_on_stack += 1;
           if (((uintL)~(uintL)0 > ca_limit_1) && (args_on_stack > ca_limit_1))
             goto fehler_zuviel;
         }
         funcall_iclosure(*closure_,args_pointer,args_on_stack);
-        skipSTACK(1); # Closure wegwerfen
-        unwind(); # EVAL-Frame auflösen
-        return; # fertig
+        skipSTACK(1); # discard Closure
+        unwind(); # unwind EVAL-Frame
+        return; # finished
       }
     }
 
 #ifdef DYNAMIC_FFI
-# In EVAL: Wendet eine Foreign-Function auf eine Argumentliste an,
-# räumt den STACK auf und liefert die Werte.
+# In EVAL: Applies a Foreign-Function to an argument-list,
+# cleans up STACK and returns the values.
 # eval_ffunction(fun);
-# > fun: Funktion, eine Foreign-Function
-# > STACK-Aufbau: EVAL-Frame, *APPLYHOOK*, Argumentliste.
-# < STACK: aufgeräumt
-# < mv_count/mv_space: Werte
-# verändert STACK
+# > fun: function, a Foreign-Function
+# > STACK-layout: EVAL-Frame, *APPLYHOOK*, argument-list.
+# < STACK: cleaned up
+# < mv_count/mv_space: values
+# changes STACK
 # can trigger GC
 local Values eval_ffunction(object ffun) {
-  var object args = popSTACK(); # Argumentliste
-  skipSTACK(1); # Wert von *APPLYHOOK* vergessen
-  # STACK-Aufbau: EVAL-Frame.
+  var object args = popSTACK(); # Argument-list
+  skipSTACK(1); # skip value of *APPLYHOOK*
+  # STACK-layout: EVAL-Frame.
   # (ffun arg ...) --> (FFI::FOREIGN-CALL-OUT ffun arg ...)
   check_SP(); check_STACK();
-  pushSTACK(ffun); # Foreign-Funktion als 1. Argument
+  pushSTACK(ffun); # Foreign-Function as 1. Argument
   {
-    var object* args_pointer = args_end_pointer; # Pointer über die Argumente
-    var uintC args_on_stack = 1; # Anzahl der Argumente
+    var object* args_pointer = args_end_pointer; # Pointer to the arguments
+    var uintC args_on_stack = 1; # number of arguments
     while (consp(args)) {
-      pushSTACK(Cdr(args)); # Listenrest retten
-      eval(Car(args)); # nächstes Element auswerten
-      args = STACK_0; STACK_0 = value1; # Auswertungsergebnis in den STACK
+      pushSTACK(Cdr(args)); # save list-rest
+      eval(Car(args)); # evaluate next element
+      args = STACK_0; STACK_0 = value1; # result into STACK
       args_on_stack += 1;
       if (((uintL)~(uintL)0 > ca_limit_1) && (args_on_stack > ca_limit_1)) {
         set_args_end_pointer(args_pointer);
@@ -4062,25 +4062,25 @@ local Values eval_ffunction(object ffun) {
     }
     funcall(L(foreign_call_out),args_on_stack);
   }
-  unwind(); # EVAL-Frame auflösen
-  return; # fertig
+  unwind(); # unwind EVAL-Frame
+  return; # finished
 }
 #endif
 
 
 #          ----------------------- A P P L Y -----------------------
 
-# später:
+# later:
 local Values apply_subr (object fun, uintC args_on_stack, object other_args);
 local Values apply_closure(object fun, uintC args_on_stack, object other_args);
 
-# UP: Wendet eine Funktion auf ihre Argumente an.
+# UP: Applies a function to its arguments.
 # apply(function,args_on_stack,other_args);
-# > function: Funktion
-# > Argumente: args_on_stack Argumente auf dem STACK,
-#              restliche Argumentliste in other_args
-# < STACK: aufgeräumt (d.h. STACK wird um args_on_stack erhöht)
-# < mv_count/mv_space: Werte
+# > function: function
+# > arguments: args_on_stack arguments on the STACK,
+#              remaining argument-list in other_args
+# < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
+# < mv_count/mv_space: values
 # changes STACK, can trigger GC
   global Values apply (object fun, uintC args_on_stack, object other_args);
   global Values apply(fun,args_on_stack,other_args)
@@ -4088,17 +4088,17 @@ local Values apply_closure(object fun, uintC args_on_stack, object other_args);
     var uintC args_on_stack;
     var object other_args;
     {
-      # fun muss ein SUBR oder eine Closure oder ein Cons (LAMBDA ...) sein:
+      # fun must be a SUBR or a Closure or a Cons (LAMBDA ...) :
       if (subrp(fun)) { # SUBR ?
         return_Values apply_subr(fun,args_on_stack,other_args);
       } elif (closurep(fun)) { # Closure ?
         return_Values apply_closure(fun,args_on_stack,other_args);
       } elif (symbolp(fun)) { # Symbol ?
-        # Symbol anwenden: globale Definition Symbol_function(fun) gilt.
+        # apply Symbol: global Definition Symbol_function(fun) applies.
         var object fdef = Symbol_function(fun);
-        if (subrp(fdef)) { # SUBR -> anwenden
+        if (subrp(fdef)) { # SUBR -> apply
           return_Values apply_subr(fdef,args_on_stack,other_args);
-        } elif (closurep(fdef)) { # Closure -> anwenden
+        } elif (closurep(fdef)) { # Closure -> apply
           return_Values apply_closure(fdef,args_on_stack,other_args);
         } elif (orecordp(fdef)) {
           #ifdef DYNAMIC_FFI
@@ -4115,19 +4115,19 @@ local Values apply_closure(object fun, uintC args_on_stack, object other_args);
               NOTREACHED
           }
         } else
-          # wenn kein SUBR, keine Closure, kein FSUBR, kein Macro:
-          # Symbol_function(fun) muss #<UNBOUND> sein.
+          # if no SUBR, no Closure, no FSUBR, no Macro:
+          # Symbol_function(fun) mus be #<UNBOUND> .
           undef:
           fehler_undefined(S(apply),fun);
-      } elif (funnamep(fun)) { # Liste (SETF symbol) ?
-        # globale Definition (symbol-function (get-setf-symbol symbol)) gilt.
+      } elif (funnamep(fun)) { # List (SETF symbol) ?
+        # global Definition (symbol-function (get-setf-symbol symbol)) applies.
         var object symbol = get(Car(Cdr(fun)),S(setf_function)); # (get ... 'SYS::SETF-FUNCTION)
-        if (!symbolp(symbol)) # sollte (uninterniertes) Symbol sein
-          goto undef; # sonst undefiniert
+        if (!symbolp(symbol)) # should be (uninterned) Symbol
+          goto undef; # else undefined
         var object fdef = Symbol_function(symbol);
-        if (closurep(fdef)) { # Closure -> anwenden
+        if (closurep(fdef)) { # Closure -> apply
           return_Values apply_closure(fdef,args_on_stack,other_args);
-        } elif (subrp(fdef)) { # SUBR -> anwenden
+        } elif (subrp(fdef)) { # SUBR -> apply
           return_Values apply_subr(fdef,args_on_stack,other_args);
         }
         #ifdef DYNAMIC_FFI
@@ -4136,15 +4136,15 @@ local Values apply_closure(object fun, uintC args_on_stack, object other_args);
         }
         #endif
         else
-          # Solche Funktionsnamen können keine FSUBRs oder Macros bezeichnen.
-          # fdef wird vermutlich #<UNBOUND> sein.
+          # Such function-names cannot denote FSUBRs or Macros.
+          # fdef is presumably #<UNBOUND> .
           goto undef;
       }
       #ifdef DYNAMIC_FFI
       elif (ffunctionp(fun)) { # Foreign-Function ?
-        # (SYS::FOREIGN-CALL-OUT foreign-function . args) aufrufen
+        # call (SYS::FOREIGN-CALL-OUT foreign-function . args)
        call_ffunction:
-        # Dazu erst die Argumente im Stack um 1 nach unten verschieben.
+        # Therefore first shift down the arguments in Stack by 1.
         var uintC count;
         var object* ptr = &STACK_0;
         dotimesC(count,args_on_stack, {
@@ -4166,48 +4166,48 @@ local Values apply_closure(object fun, uintC args_on_stack, object other_args);
       }
     }
 
-# Fehler wegen punktierter Argumentliste
-# > name: Name der Funktion
+# Error because of dotted argument-list
+# > name: name of function
 nonreturning_function(local, fehler_apply_dotted, (object name));
 local void fehler_apply_dotted(object name) {
   pushSTACK(name);
   fehler(program_error,GETTEXT("APPLY: argument list given to ~ is dotted"));
 }
 
-# Fehler wegen zu vielen Argumenten
-# > name: Name der Funktion
+# Error because of too many arguments
+# > name: name of function
 nonreturning_function(local, fehler_apply_zuviel, (object name));
 local void fehler_apply_zuviel(object name) {
   pushSTACK(name);
   fehler(program_error,GETTEXT("APPLY: too many arguments given to ~"));
 }
 
-# Fehler wegen zu wenig Argumenten
-# > name: Name der Funktion
+# Error because of too few arguments
+# > name: name fo function
 nonreturning_function(local, fehler_apply_zuwenig, (object name));
 local void fehler_apply_zuwenig(object name) {
   pushSTACK(name);
   fehler(program_error,GETTEXT("APPLY: too few arguments given to ~"));
 }
 
-# Fehler wegen zu vielen Argumenten für ein SUBR
-# > fun: Funktion, ein SUBR
+# Error because of too many arguments for a SUBR
+# > fun: function, a SUBR
 nonreturning_function(local, fehler_subr_zuviel, (object fun));
 #define fehler_subr_zuviel(fun)  fehler_apply_zuviel(TheSubr(fun)->name)
 
-# Fehler wegen zu wenig Argumenten für ein SUBR
-# > fun: Funktion, ein SUBR
+# Error because of too few arguments for a SUBR
+# > fun: function, a SUBR
 nonreturning_function(local, fehler_subr_zuwenig, (object fun));
 #define fehler_subr_zuwenig(fun)  fehler_apply_zuwenig(TheSubr(fun)->name)
 
-# In APPLY: Wendet ein SUBR auf eine Argumentliste an, räumt den STACK auf
-# und liefert die Werte.
+# In APPLY: Applies a SUBR to an argument-list, cleans up STACK
+# and returns the values.
 # apply_subr(fun,args_on_stack,other_args);
-# > fun: Funktion, ein SUBR
-# > Argumente: args_on_stack Argumente auf dem STACK,
-#              restliche Argumentliste in other_args
-# < STACK: aufgeräumt (d.h. STACK wird um args_on_stack erhöht)
-# < mv_count/mv_space: Werte
+# > fun: function, a SUBR
+# > Arguments: args_on_stack Arguments on STACK,
+#              remaining argument-list in other_args
+# < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
+# < mv_count/mv_space: values
 # changes STACK, can trigger GC
   local Values apply_subr(fun,args_on_stack,args)
     var object fun;
@@ -4215,171 +4215,171 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
     var object args;
     {
       #if STACKCHECKS
-      var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer über die Argumente
+      var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer to the arguments
       #endif
-      var object* key_args_pointer; # Pointer über die Keyword-Argumente
-      var object* rest_args_pointer; # Pointer über die restlichen Argumente
-      var uintL argcount; # Anzahl der restlichen Argumente
+      var object* key_args_pointer; # Pointer to the Keyword-Arguments
+      var object* rest_args_pointer; # Pointer to the remaining Arguments
+      var uintL argcount; # number of remaining Arguments
       #ifdef DEBUG_EVAL
       if (streamp(Symbol_value(S(funcall_trace_output)))) {
         pushSTACK(fun); trace_call(fun,'A','S'); fun = popSTACK();
       }
       #endif
-      # Argumente in den STACK legen:
-      # erst ein Dispatch für die wichtigsten Fälle:
+      # push Arguments on STACK:
+      # first a Dispatch for the most important cases:
       switch (TheSubr(fun)->argtype) {
-        # Macro für ein required-Argument:
+        # Macro for a required-Argument:
         #define REQ_ARG()  \
           { if (args_on_stack>0) { args_on_stack--; }                      \
             elif (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
             else goto fehler_zuwenig;                                      \
           }
-        # Macro für das n-letzte optional-Argument:
+        # Macro for the n-last optional-Argument:
         #define OPT_ARG(n)  \
           { if (args_on_stack>0) { args_on_stack--; }                      \
             elif (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
             else goto unbound_optional_##n;                                \
           }
         case (uintW)subr_argtype_6_0:
-          # SUBR mit 6 required-Argumenten
+          # SUBR with 6 required-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_5_0:
-          # SUBR mit 5 required-Argumenten
+          # SUBR with 5 required-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_4_0:
-          # SUBR mit 4 required-Argumenten
+          # SUBR with 4 required-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_3_0:
-          # SUBR mit 3 required-Argumenten
+          # SUBR with 3 required-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_2_0:
-          # SUBR mit 2 required-Argumenten
+          # SUBR with 2 required-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_1_0:
-          # SUBR mit 1 required-Argument
+          # SUBR with 1 required-Argument
           REQ_ARG();
         case (uintW)subr_argtype_0_0:
-          # SUBR ohne Argumente
+          # SUBR without Arguments
           if ((args_on_stack>0) || consp(args)) goto fehler_zuviel;
           goto apply_subr_norest;
         case (uintW)subr_argtype_4_1:
-          # SUBR mit 4 required-Argumenten und 1 optional-Argument
+          # SUBR with 4 required-Arguments and 1 optional-Argument
           REQ_ARG();
         case (uintW)subr_argtype_3_1:
-          # SUBR mit 3 required-Argumenten und 1 optional-Argument
+          # SUBR with 3 required-Arguments and 1 optional-Argument
           REQ_ARG();
         case (uintW)subr_argtype_2_1:
-          # SUBR mit 2 required-Argumenten und 1 optional-Argument
+          # SUBR with 2 required-Arguments and 1 optional-Argument
           REQ_ARG();
         case (uintW)subr_argtype_1_1:
-          # SUBR mit 1 required-Argument und 1 optional-Argument
+          # SUBR with 1 required-Argument and 1 optional-Argument
           REQ_ARG();
         case (uintW)subr_argtype_0_1:
-          # SUBR mit 1 optional-Argument
+          # SUBR with 1 optional-Argument
           OPT_ARG(1);
           if ((args_on_stack>0) || consp(args)) goto fehler_zuviel;
           goto apply_subr_norest;
         case (uintW)subr_argtype_3_2:
-          # SUBR mit 3 required-Argumenten und 2 optional-Argumenten
+          # SUBR with 3 required-Arguments and 2 optional-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_2_2:
-          # SUBR mit 2 required-Argumenten und 2 optional-Argumenten
+          # SUBR with 2 required-Arguments and 2 optional-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_1_2:
-          # SUBR mit 1 required-Argument und 2 optional-Argumenten
+          # SUBR with 1 required-Argument and 2 optional-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_0_2:
-          # SUBR mit 2 optional-Argumenten
+          # SUBR with 2 optional-Arguments
           OPT_ARG(2);
           OPT_ARG(1);
           if ((args_on_stack>0) || consp(args)) goto fehler_zuviel;
           goto apply_subr_norest;
         case (uintW)subr_argtype_2_3:
-          # SUBR mit 2 required-Argumenten und 3 optional-Argumenten
+          # SUBR with 2 required-Arguments and 3 optional-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_1_3:
-          # SUBR mit 1 required-Argument und 3 optional-Argumenten
+          # SUBR with 1 required-Argument and 3 optional-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_0_3:
-          # SUBR mit 3 optional-Argumenten
+          # SUBR with 3 optional-Arguments
           OPT_ARG(3);
           OPT_ARG(2);
           OPT_ARG(1);
           if ((args_on_stack>0) || consp(args)) goto fehler_zuviel;
           goto apply_subr_norest;
         case (uintW)subr_argtype_0_5:
-          # SUBR mit 5 optional-Argumenten
+          # SUBR with 5 optional-Arguments
           OPT_ARG(5);
         case (uintW)subr_argtype_0_4:
-          # SUBR mit 4 optional-Argumenten
+          # SUBR with 4 optional-Arguments
           OPT_ARG(4);
           OPT_ARG(3);
           OPT_ARG(2);
           OPT_ARG(1);
           if ((args_on_stack>0) || consp(args)) goto fehler_zuviel;
           goto apply_subr_norest;
-        unbound_optional_5: # Noch 5 optionale Argumente, aber args_on_stack=0 und atomp(args)
+        unbound_optional_5: # Still 5 optional Arguments, but args_on_stack=0 and atomp(args)
           pushSTACK(unbound);
-        unbound_optional_4: # Noch 4 optionale Argumente, aber args_on_stack=0 und atomp(args)
+        unbound_optional_4: # Still 4 optional Arguments, but args_on_stack=0 and atomp(args)
           pushSTACK(unbound);
-        unbound_optional_3: # Noch 3 optionale Argumente, aber args_on_stack=0 und atomp(args)
+        unbound_optional_3: # Still 3 optional Arguments, but args_on_stack=0 and atomp(args)
           pushSTACK(unbound);
-        unbound_optional_2: # Noch 2 optionale Argumente, aber args_on_stack=0 und atomp(args)
+        unbound_optional_2: # Still 2 optional Arguments, but args_on_stack=0 and atomp(args)
           pushSTACK(unbound);
-        unbound_optional_1: # Noch 1 optionales Argument, aber args_on_stack=0 und atomp(args)
+        unbound_optional_1: # Still 1 optionals Argument, but args_on_stack=0 and atomp(args)
           pushSTACK(unbound);
           goto apply_subr_norest;
         case (uintW)subr_argtype_3_0_rest:
-          # SUBR mit 3 required-Argumenten und weiteren Argumenten
+          # SUBR with 3 required-Arguments and further Arguments
           REQ_ARG();
         case (uintW)subr_argtype_2_0_rest:
-          # SUBR mit 2 required-Argumenten und weiteren Argumenten
+          # SUBR with 2 required-Arguments and further Arguments
           REQ_ARG();
         case (uintW)subr_argtype_1_0_rest:
-          # SUBR mit 1 required-Argument und weiteren Argumenten
+          # SUBR with 1 required-Argument and further Arguments
           REQ_ARG();
         case (uintW)subr_argtype_0_0_rest:
-          # SUBR mit weiteren Argumenten
+          # SUBR with further Arguments
           if (args_on_stack==0)
             goto apply_subr_rest_onlylist;
           else
             goto apply_subr_rest_withlist;
         case (uintW)subr_argtype_4_0_key:
-          # SUBR mit 4 required-Argumenten und Keyword-Argumenten
+          # SUBR with 4 required-Arguments and Keyword-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_3_0_key:
-          # SUBR mit 3 required-Argumenten und Keyword-Argumenten
+          # SUBR with 3 required-Arguments and Keyword-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_2_0_key:
-          # SUBR mit 2 required-Argumenten und Keyword-Argumenten
+          # SUBR with 2 required-Arguments and Keyword-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_1_0_key:
-          # SUBR mit 1 required-Argument und Keyword-Argumenten
+          # SUBR with 1 required-Argument and Keyword-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_0_0_key:
-          # SUBR mit Keyword-Argumenten
+          # SUBR with Keyword-Arguments
           if ((args_on_stack==0) && atomp(args)) goto unbound_optional_key_0;
           goto apply_subr_key;
         case (uintW)subr_argtype_1_1_key:
-          # SUBR mit 1 required-Argument, 1 optional-Argument und Keyword-Argumenten
+          # SUBR with 1 required-Argument, 1 optional-Argument and Keyword-Arguments
           REQ_ARG();
         case (uintW)subr_argtype_0_1_key:
-          # SUBR mit 1 optional-Argument und Keyword-Argumenten
+          # SUBR with 1 optional-Argument and Keyword-Arguments
           OPT_ARG(key_1);
           if ((args_on_stack==0) && atomp(args)) goto unbound_optional_key_0;
           goto apply_subr_key;
         case (uintW)subr_argtype_1_2_key:
-          # SUBR mit 1 required-Argument, 2 optional-Argumenten und Keyword-Argumenten
+          # SUBR with 1 required-Argument, 2 optional-Arguments and Keyword-Arguments
           REQ_ARG();
           OPT_ARG(key_2);
           OPT_ARG(key_1);
           if ((args_on_stack==0) && atomp(args)) goto unbound_optional_key_0;
           goto apply_subr_key;
-        unbound_optional_key_2: # Noch 2 optionale Argumente, aber args_on_stack=0 und atomp(args)
+        unbound_optional_key_2: # Still 2 optional Arguments, but args_on_stack=0 and atomp(args)
           pushSTACK(unbound);
-        unbound_optional_key_1: # Noch 1 optionales Argument, aber args_on_stack=0 und atomp(args)
+        unbound_optional_key_1: # Still 1 optional Argument, but args_on_stack=0 and atomp(args)
           pushSTACK(unbound);
-        unbound_optional_key_0: # Vor den Keywords ist args_on_stack=0 und atomp(args)
+        unbound_optional_key_0: # Before the Keywords is args_on_stack=0 and atomp(args)
           {
             var uintC count;
             dotimesC(count,TheSubr(fun)->key_anz, { pushSTACK(unbound); } );
@@ -4389,7 +4389,7 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
         #undef OPT_ARG
         #undef REQ_ARG
       }
-      # Nun die allgemeine Version:
+      # Now the general Version:
       {
         var uintC key_anz;
         {
@@ -4397,65 +4397,65 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
           var uintC opt_anz = TheSubr(fun)->opt_anz;
           key_anz = TheSubr(fun)->key_anz;
           if (args_on_stack < req_anz) {
-            # weniger Argumente da als verlangt
-            req_anz = req_anz - args_on_stack; # soviele müssen noch auf den STACK
-            # Platz auf dem STACK reservieren:
+            # fewer Arguments there than demanded
+            req_anz = req_anz - args_on_stack; # as many as these must go on STACK
+            # reserve space on STACK:
             get_space_on_STACK(sizeof(object) * (uintL)(req_anz + opt_anz + key_anz));
-            # required Parameter in den Stack ablegen:
+            # store required Parameter in Stack:
             {
               var uintC count;
               dotimespC(count,req_anz, {
                 if (atomp(args))
                   goto fehler_zuwenig;
-                pushSTACK(Car(args)); # nächstes Argument ablegen
+                pushSTACK(Car(args)); # store next Argument
                 args = Cdr(args);
               });
             }
             goto optionals_from_list;
           }
-          args_on_stack -= req_anz; # verbleibende Anzahl
+          args_on_stack -= req_anz; # remaining number
           if (args_on_stack < opt_anz) {
-            # Argumente im Stack reichen nicht für die optionalen
-            opt_anz = opt_anz - args_on_stack; # soviele müssen noch auf den STACK
-            # Platz auf dem STACK reservieren:
+            # Arguments in Stack don't last for the optional ones
+            opt_anz = opt_anz - args_on_stack; # as many as these must go on STACK
+            # reserve space on STACK:
             get_space_on_STACK(sizeof(object) * (uintL)(opt_anz + key_anz));
            optionals_from_list:
-            # optionale Parameter in den Stack ablegen:
+            # store optional Parameters on Stack:
             {
               var uintC count = opt_anz;
               loop {
-                if (atomp(args)) # Argumentliste zu Ende?
+                if (atomp(args)) # Argument-list finished?
                   break;
-                if (count==0) # alle optionalen Parameter versorgt?
+                if (count==0) # all optional Parameters supplied with?
                   goto optionals_ok;
                 count--;
-                pushSTACK(Car(args)); # nächstes Argument ablegen
+                pushSTACK(Car(args)); # store next Argument
                 args = Cdr(args);
               }
-              # Argumentliste beendet.
-              # Alle weiteren count optionalen Parameter bekommen den "Wert"
-              # #<UNBOUND>, auch die Keyword-Parameter:
+              # Argument-list finished.
+              # All further count optional Parameters receive the "value"
+              # #<UNBOUND>, including the Keyword-Parameters:
               dotimesC(count,count + key_anz, { pushSTACK(unbound); } );
               if (TheSubr(fun)->rest_flag == subr_rest) { # &REST-Flag?
-                # ja -> 0 zusätzliche Argumente:
+                # yes -> 0 additional Arguments:
                 argcount = 0; rest_args_pointer = args_end_pointer;
                 goto apply_subr_rest;
               } else {
-                # nein -> nichts zu tun
+                # no -> nothing to do
                 goto apply_subr_norest;
               }
             }
-           optionals_ok: # optionale Argumente OK, (nichtleere) Liste weiter abarbeiten
+           optionals_ok: # optional Argument OK, continue processing (non-empty) list
             if (TheSubr(fun)->key_flag == subr_nokey) {
-              # SUBR ohne KEY
+              # SUBR without KEY
               if (TheSubr(fun)->rest_flag == subr_norest)
-                # SUBR ohne REST oder KEY
-                fehler_subr_zuviel(fun); # zuviele Argumente
+                # SUBR without REST or KEY
+                fehler_subr_zuviel(fun); # too many Arguments
               else
-                # SUBR mit nur REST, ohne KEY
+                # SUBR with only REST, without KEY
                 goto apply_subr_rest_onlylist;
             } else {
-              # SUBR mit KEY
+              # SUBR with KEY
               key_args_pointer = args_end_pointer;
               {
                 var uintC count;
@@ -4466,26 +4466,26 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
               goto key_from_list;
             }
           }
-          args_on_stack -= opt_anz; # verbleibende Anzahl
+          args_on_stack -= opt_anz; # remaining number
           if (TheSubr(fun)->key_flag == subr_nokey) {
-            # SUBR ohne KEY
+            # SUBR without KEY
             if (TheSubr(fun)->rest_flag == subr_norest) {
-              # SUBR ohne REST oder KEY
-              if ((args_on_stack>0) || consp(args)) # noch Argumente?
+              # SUBR without REST or KEY
+              if ((args_on_stack>0) || consp(args)) # still Arguments?
                 fehler_subr_zuviel(fun);
               goto apply_subr_norest;
             } else
-              # SUBR mit nur REST, ohne KEY
+              # SUBR with only REST, without KEY
               goto apply_subr_rest_withlist;
           } else
-            # SUBR mit Keywords.
+            # SUBR with Keywords.
             goto apply_subr_key_;
         }
        apply_subr_key:
         key_anz = TheSubr(fun)->key_anz;
        apply_subr_key_:
-        # restliche Argumente im STACK nach unten schieben und dadurch
-        # Platz für die Keyword-Parameter schaffen:
+        # shift down remaining Arguments on STACK and thus
+        # create room for the Keyword-Parameters:
         argcount = args_on_stack;
         get_space_on_STACK(sizeof(object) * (uintL)key_anz);
         {
@@ -4499,19 +4499,19 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
           dotimesC(count,key_anz, { NEXT(ptr1) = unbound; } );
           set_args_end_pointer(new_args_end_pointer);
         }
-       key_from_list: # restliche Argumente für Keywords aus der Liste nehmen
+       key_from_list: # take remaining Arguments for Keywords from list
         while (consp(args)) {
-          check_STACK(); pushSTACK(Car(args)); # nächstes Argument in den Stack
+          check_STACK(); pushSTACK(Car(args)); # push next argument onto Stack
           args = Cdr(args);
           argcount++;
         }
-        # Keywords zuordnen und evtl. restliche Argumente wegwerfen:
+        # assign Keywords and poss. discard remaining arguments:
         match_subr_key(fun,argcount,key_args_pointer,rest_args_pointer);
         if (TheSubr(fun)->rest_flag != subr_norest)
-          # SUBR mit &REST-Flag:
+          # SUBR with &REST-Flag:
           goto apply_subr_rest;
         else
-          # SUBR ohne &REST-Flag:
+          # SUBR without &REST-Flag:
           goto apply_subr_norest;
       }
      apply_subr_rest_onlylist:
@@ -4520,13 +4520,13 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
      apply_subr_rest_withlist:
       argcount = args_on_stack;
       rest_args_pointer = args_end_pointer STACKop argcount;
-     rest_from_list: # restliche Argumente aus der Liste nehmen
+     rest_from_list: # take remaining Arguments from list
       while (consp(args)) {
-        check_STACK(); pushSTACK(Car(args)); # nächstes Argument in den Stack
+        check_STACK(); pushSTACK(Car(args)); # next argument onto Stack
         args = Cdr(args);
         argcount++;
       }
-      if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1)) # zu viele Argumente?
+      if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1)) # too many arguments?
         goto fehler_zuviel;
      apply_subr_rest:
       if (!nullp(args))
@@ -4541,34 +4541,34 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
       (*(subr_norest_function*)(TheSubr(fun)->function))();
      done:
       #if STACKCHECKS
-      if (!(args_pointer == args_end_pointer)) # Stack aufgeräumt?
-        abort(); # nein -> ab in den Debugger
+      if (!(args_pointer == args_end_pointer)) # Stack cleaned up?
+        abort(); # no -> go to Debugger
       #endif
-      return; # fertig
-      # Gesammelte Fehlermeldungen:
+      return; # finished
+      # gathered error messages:
      fehler_zuwenig: fehler_subr_zuwenig(fun);
      fehler_zuviel: fehler_subr_zuviel(fun);
      fehler_dotted: fehler_apply_dotted(TheSubr(fun)->name);
     }
 
-# Fehler wegen zu vielen Argumenten für eine Closure
-# > closure: Funktion, eine Closure
+# Error because of too many arguments for a Closure
+# > closure: function, a Closure
 nonreturning_function(local, fehler_closure_zuviel, (object closure));
 #define fehler_closure_zuviel(closure)  fehler_apply_zuviel(closure)
 
-# Fehler wegen zu wenig Argumenten für eine Closure
-# > closure: Funktion, eine Closure
+# Error because of too few arguments for a Closure
+# > closure: function, a Closure
 nonreturning_function(local, fehler_closure_zuwenig, (object closure));
 #define fehler_closure_zuwenig(closure)  fehler_apply_zuwenig(closure)
 
-# In APPLY: Wendet eine Closure auf eine Argumentliste an, räumt den STACK auf
-# und liefert die Werte.
+# In APPLY: Applies a Closure to an argument-list, cleans up STACK
+# and returns the values.
 # apply_closure(fun,args_on_stack,other_args);
-# > fun: Funktion, eine Closure
-# > Argumente: args_on_stack Argumente auf dem STACK,
-#              restliche Argumentliste in other_args
-# < STACK: aufgeräumt (d.h. STACK wird um args_on_stack erhöht)
-# < mv_count/mv_space: Werte
+# > fun: function, a Closure
+# > Argumente: args_on_stack arguments on STACK,
+#              remaining argument-list in other_args
+# < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
+# < mv_count/mv_space: values
 # changes STACK, can trigger GC
   local Values apply_closure(closure,args_on_stack,args)
     var object closure;
@@ -4581,47 +4581,47 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
       }
       #endif
       if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
-        # closure ist eine compilierte Closure
+        # closure is a compiled Closure
         #if STACKCHECKC
-        var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer über die Argumente
+        var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer to the arguments
         #endif
-        var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vektor
-        var object* key_args_pointer; # Pointer über die Keyword-Argumente
-        var object* rest_args_pointer; # Pointer über die restlichen Argumente
-        var uintL argcount; # Anzahl der restlichen Argumente
+        var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vector
+        var object* key_args_pointer; # Pointer to the Keyword-arguments
+        var object* rest_args_pointer; # Pointer to the remaining arguments
+        var uintL argcount; # number of remaining arguments
         check_SP(); check_STACK();
-        # Argumente in den STACK legen:
-        # erst ein Dispatch für die wichtigsten Fälle:
+        # put argumente in STACK:
+        # first a Dispatch for the most important cases:
         switch (TheCodevec(codevec)->ccv_signature) {
-          # Macro für ein required-Argument:
+          # Macro for a required-argument:
           #define REQ_ARG()  \
             { if (args_on_stack>0) { args_on_stack--; }                      \
               elif (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
               else goto fehler_zuwenig;                                      \
             }
-          # Macro für das n-letzte optional-Argument:
+          # Macro for the n-last optional-argument:
           #define OPT_ARG(n)  \
             { if (args_on_stack>0) { args_on_stack--; }                      \
               elif (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
               else goto unbound_optional_##n;                                \
             }
           case (uintB)cclos_argtype_5_0:
-            # 5 required-Argumente
+            # 5 required-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_4_0:
-            # 4 required-Argumente
+            # 4 required-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_3_0:
-            # 3 required-Argumente
+            # 3 required-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_2_0:
-            # 2 required-Argumente
+            # 2 required-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_1_0:
             # 1 required-Argument
             REQ_ARG();
           case (uintB)cclos_argtype_0_0:
-            # keine Argumente
+            # no Arguments
             noch_0_opt_args:
             if (args_on_stack>0) goto fehler_zuviel;
             if (!nullp(args)) {
@@ -4632,16 +4632,16 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
             }
             goto apply_cclosure_nokey;
           case (uintB)cclos_argtype_4_1:
-            # 4 required-Argumente und 1 optional-Argument
+            # 4 required-Arguments and 1 optional-Argument
             REQ_ARG();
           case (uintB)cclos_argtype_3_1:
-            # 3 required-Argumente und 1 optional-Argument
+            # 3 required-Arguments and 1 optional-Argument
             REQ_ARG();
           case (uintB)cclos_argtype_2_1:
-            # 2 required-Argumente und 1 optional-Argument
+            # 2 required-Arguments and 1 optional-Argument
             REQ_ARG();
           case (uintB)cclos_argtype_1_1:
-            # 1 required-Argument und 1 optional-Argument
+            # 1 required-Argument and 1 optional-Argument
             REQ_ARG();
           case (uintB)cclos_argtype_0_1:
             # 1 optional-Argument
@@ -4649,259 +4649,259 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
             OPT_ARG(1);
             goto noch_0_opt_args;
           case (uintB)cclos_argtype_3_2:
-            # 3 required-Argumente und 2 optional-Argumente
+            # 3 required-Arguments and 2 optional-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_2_2:
-            # 2 required-Argumente und 2 optional-Argumente
+            # 2 required-Arguments and 2 optional-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_1_2:
-            # 1 required-Argument und 2 optional-Argumente
+            # 1 required-Argument and 2 optional-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_0_2:
-            # 2 optional-Argumente
+            # 2 optional-Arguments
             noch_2_opt_args:
             OPT_ARG(2);
             goto noch_1_opt_args;
           case (uintB)cclos_argtype_2_3:
-            # 2 required-Argumente und 3 optional-Argumente
+            # 2 required-Arguments and 3 optional-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_1_3:
-            # 1 required-Argument und 3 optional-Argumente
+            # 1 required-Argument and 3 optional-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_0_3:
-            # 3 optional-Argumente
+            # 3 optional-Arguments
             noch_3_opt_args:
             OPT_ARG(3);
             goto noch_2_opt_args;
           case (uintB)cclos_argtype_1_4:
-            # 1 required-Argument und 4 optional-Argumente
+            # 1 required-Argument and 4 optional-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_0_4:
-            # 4 optional-Argumente
+            # 4 optional-Arguments
             noch_4_opt_args:
             OPT_ARG(4);
             goto noch_3_opt_args;
           case (uintB)cclos_argtype_0_5:
-            # 5 optional-Argumente
+            # 5 optional-Arguments
             OPT_ARG(5);
             goto noch_4_opt_args;
-          unbound_optional_5: # Noch 5 optionale Argumente, aber args_on_stack=0 und atomp(args)
+          unbound_optional_5: # Still 5 optional Arguments, but args_on_stack=0 and atomp(args)
             pushSTACK(unbound);
-          unbound_optional_4: # Noch 4 optionale Argumente, aber args_on_stack=0 und atomp(args)
+          unbound_optional_4: # Still 4 optional Arguments, but args_on_stack=0 and atomp(args)
             pushSTACK(unbound);
-          unbound_optional_3: # Noch 3 optionale Argumente, aber args_on_stack=0 und atomp(args)
+          unbound_optional_3: # Still 3 optional Arguments, but args_on_stack=0 and atomp(args)
             pushSTACK(unbound);
-          unbound_optional_2: # Noch 2 optionale Argumente, aber args_on_stack=0 und atomp(args)
+          unbound_optional_2: # Still 2 optional Arguments, but args_on_stack=0 and atomp(args)
             pushSTACK(unbound);
-          unbound_optional_1: # Noch 1 optionales Argument, aber args_on_stack=0 und atomp(args)
+          unbound_optional_1: # Still 1 optional Argument, but args_on_stack=0 and atomp(args)
             pushSTACK(unbound);
             if (!nullp(args)) goto fehler_dotted;
             goto apply_cclosure_nokey;
           case (uintB)cclos_argtype_4_0_rest:
-            # 4 required-Argumente, Rest-Parameter
+            # 4 required-Arguments, Rest-Parameter
             REQ_ARG();
           case (uintB)cclos_argtype_3_0_rest:
-            # 3 required-Argumente, Rest-Parameter
+            # 3 required-Arguments, Rest-Parameter
             REQ_ARG();
           case (uintB)cclos_argtype_2_0_rest:
-            # 2 required-Argumente, Rest-Parameter
+            # 2 required-Arguments, Rest-Parameter
             REQ_ARG();
           case (uintB)cclos_argtype_1_0_rest:
             # 1 required-Argument, Rest-Parameter
             REQ_ARG();
           case (uintB)cclos_argtype_0_0_rest:
-            # keine Argumente, Rest-Parameter
+            # no Arguments, Rest-Parameter
             goto apply_cclosure_rest_nokey;
           case (uintB)cclos_argtype_4_0_key:
-            # 4 required-Argumente, Keyword-Argumente
+            # 4 required-Arguments, Keyword-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_3_0_key:
-            # 3 required-Argumente, Keyword-Argumente
+            # 3 required-Arguments, Keyword-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_2_0_key:
-            # 2 required-Argumente, Keyword-Argumente
+            # 2 required-Arguments, Keyword-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_1_0_key:
-            # 1 required-Argument, Keyword-Argumente
+            # 1 required-Argument, Keyword-Arguments
             REQ_ARG();
             noch_0_opt_args_key:
           case (uintB)cclos_argtype_0_0_key:
-            # nur Keyword-Argumente
+            # only Keyword-Arguments
             if ((args_on_stack==0) && atomp(args)) goto unbound_optional_key_0;
             goto apply_cclosure_key_withlist;
           case (uintB)cclos_argtype_3_1_key:
-            # 3 required-Argumente und 1 optional-Argument, Keyword-Argumente
+            # 3 required-Arguments and 1 optional-Argument, Keyword-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_2_1_key:
-            # 2 required-Argumente und 1 optional-Argument, Keyword-Argumente
+            # 2 required-Arguments and 1 optional-Argument, Keyword-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_1_1_key:
-            # 1 required-Argument und 1 optional-Argument, Keyword-Argumente
+            # 1 required-Argument and 1 optional-Argument, Keyword-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_0_1_key:
-            # 1 optional-Argument, Keyword-Argumente
+            # 1 optional-Argument, Keyword-Arguments
             noch_1_opt_args_key:
             OPT_ARG(key_1);
             goto noch_0_opt_args_key;
           case (uintB)cclos_argtype_2_2_key:
-            # 2 required-Argumente und 2 optional-Argumente, Keyword-Argumente
+            # 2 required-Arguments and 2 optional-Arguments, Keyword-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_1_2_key:
-            # 1 required-Argument und 2 optional-Argumente, Keyword-Argumente
+            # 1 required-Argument and 2 optional-Arguments, Keyword-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_0_2_key:
-            # 2 optional-Argumente, Keyword-Argumente
+            # 2 optional-Arguments, Keyword-Arguments
             noch_2_opt_args_key:
             OPT_ARG(key_2);
             goto noch_1_opt_args_key;
           case (uintB)cclos_argtype_1_3_key:
-            # 1 required-Argument und 3 optional-Argumente, Keyword-Argumente
+            # 1 required-Argument and 3 optional-Arguments, Keyword-Arguments
             REQ_ARG();
           case (uintB)cclos_argtype_0_3_key:
-            # 3 optional-Argumente, Keyword-Argumente
+            # 3 optional-Arguments, Keyword-Arguments
             noch_3_opt_args_key:
             OPT_ARG(key_3);
             goto noch_2_opt_args_key;
           case (uintB)cclos_argtype_0_4_key:
-            # 4 optional-Argumente, Keyword-Argumente
+            # 4 optional-Arguments, Keyword-Arguments
             OPT_ARG(key_4);
             goto noch_3_opt_args_key;
-          unbound_optional_key_4: # Noch 4 optionale Argumente, aber args_on_stack=0 und atomp(args)
+          unbound_optional_key_4: # Still 4 optional Arguments, but args_on_stack=0 and atomp(args)
             pushSTACK(unbound);
-          unbound_optional_key_3: # Noch 3 optionale Argumente, aber args_on_stack=0 und atomp(args)
+          unbound_optional_key_3: # Still 3 optional Arguments, but args_on_stack=0 and atomp(args)
             pushSTACK(unbound);
-          unbound_optional_key_2: # Noch 2 optionale Argumente, aber args_on_stack=0 und atomp(args)
+          unbound_optional_key_2: # Still 2 optional Arguments, but args_on_stack=0 and atomp(args)
             pushSTACK(unbound);
-          unbound_optional_key_1: # Noch 1 optionales Argument, aber args_on_stack=0 und atomp(args)
+          unbound_optional_key_1: # Still 1 optional Argument, but args_on_stack=0 and atomp(args)
             pushSTACK(unbound);
-          unbound_optional_key_0: # Vor den Keywords ist args_on_stack=0 und atomp(args)
+          unbound_optional_key_0: # Before the Keywords is args_on_stack=0 and atomp(args)
             if (!nullp(args)) goto fehler_dotted;
             goto apply_cclosure_key_noargs;
           case (uintB)cclos_argtype_default:
-            # Allgemeine Version
+            # General Version
             break;
           default: NOTREACHED
           #undef OPT_ARG
           #undef REQ_ARG
         }
-        # Nun die allgemeine Version:
+        # Now the general Version:
         {
           var uintB flags;
           {
-            var uintC req_anz = TheCodevec(codevec)->ccv_numreq; # Anzahl required Parameter
-            var uintC opt_anz = TheCodevec(codevec)->ccv_numopt; # Anzahl optionale Parameter
+            var uintC req_anz = TheCodevec(codevec)->ccv_numreq; # number of required Parameters
+            var uintC opt_anz = TheCodevec(codevec)->ccv_numopt; # number of optional Parameters
             flags = TheCodevec(codevec)->ccv_flags; # Flags
             if (args_on_stack < req_anz) {
-              # weniger Argumente da als verlangt
-              req_anz = req_anz - args_on_stack; # soviele müssen noch auf den STACK
-              # Platz auf dem STACK reservieren:
+              # fewer Arguments than demanded
+              req_anz = req_anz - args_on_stack; # as many as these must on STACK
+              # reserve space on STACK:
               get_space_on_STACK(sizeof(object) * (uintL)(req_anz + opt_anz));
-              # required Parameter in den Stack ablegen:
+              # store required Parameters on Stack:
               {
                 var uintC count;
                 dotimespC(count,req_anz, {
                   if (atomp(args))
                     goto fehler_zuwenig;
-                  pushSTACK(Car(args)); # nächstes Argument ablegen
+                  pushSTACK(Car(args)); # store next argument
                   args = Cdr(args);
                 });
               }
               goto optionals_from_list;
             }
-            args_on_stack -= req_anz; # verbleibende Anzahl
+            args_on_stack -= req_anz; # remaining number
             if (args_on_stack < opt_anz) {
-              # Argumente im Stack reichen nicht für die optionalen
-              opt_anz = opt_anz - args_on_stack; # soviele müssen noch auf den STACK
-              # Platz auf dem STACK reservieren:
+              # Argumente in Stack don't last for the optional ones
+              opt_anz = opt_anz - args_on_stack; # as many as these must go on STACK
+              # reserve space on STACK:
               get_space_on_STACK(sizeof(object) * (uintL)opt_anz);
               optionals_from_list:
-              # optionale Parameter in den Stack ablegen:
+              # store optional parameters on Stack:
               {
                 var uintC count = opt_anz;
                 loop {
-                  if (atomp(args)) # Argumentliste zu Ende?
+                  if (atomp(args)) # argument-list finished?
                     break;
-                  if (count==0) # alle optionalen Parameter versorgt?
+                  if (count==0) # all optional parameters supplied with?
                     goto optionals_ok;
                   count--;
-                  pushSTACK(Car(args)); # nächstes Argument ablegen
+                  pushSTACK(Car(args)); # store next argument
                   args = Cdr(args);
                 }
-                # Argumentliste beendet.
+                # argument-list finished.
                 if (!nullp(args)) goto fehler_dotted;
-                # Alle weiteren count optionalen Parameter bekommen den "Wert"
-                # #<UNBOUND>, der &REST-Parameter den Wert NIL,
-                # die Keyword-Parameter den Wert #<UNBOUND> :
+                # All further count optional parameters receive the "value"
+                # #<UNBOUND>, the &REST-parameter receives NIL,
+                # the Keyword-parameters receive the value #<UNBOUND> :
                 dotimesC(count,count, { pushSTACK(unbound); } );
               }
               if (flags & bit(0)) # &REST-Flag?
-                pushSTACK(NIL); # ja -> mit NIL initialisieren
+                pushSTACK(NIL); # yes -> initialize with NIL
               if (flags & bit(7)) # &KEY-Flag?
                 goto apply_cclosure_key_noargs;
               else
                 goto apply_cclosure_nokey;
              optionals_ok:
-              # Rest- und Keyword-Parameter behandeln.
-              # args = restliche Argumentliste (noch nicht zu Ende)
+              # process Rest- and Keyword-parameters.
+              # args = remaining argument-list (not yet finished)
               if (flags == 0)
-                # Closure ohne REST oder KEY -> Argumentliste müsste zu Ende sein
+                # Closure without REST or KEY -> argument-list should be finished
                 goto fehler_zuviel;
-              # evtl. den Rest-Parameter füllen:
+              # poss. fill the Rest-parameter:
               if (flags & bit(0))
                 pushSTACK(args);
               if (flags & bit(7)) { # Key-Flag?
-                # Closure mit Keywords.
-                # args = restliche Argumentliste (noch nicht zu Ende)
-                # Erst die Keyword-Parameter mit #<UNBOUND> vorbesetzen,
-                # dann die restlichen Argumente im Stack ablegen,
-                # dann die Keywords zuordnen:
-                key_args_pointer = args_end_pointer; # Pointer über Keyword-Parameter
-                # alle Keyword-Parameter mit #<UNBOUND> vorbesetzen:
+                # Closure with Keywords.
+                # args = remaining argument-list (not yet finished)
+                # First initialize the Keyword-parameters with #<UNBOUND> ,
+                # the store the remaining arguments in Stack,
+                # then assign the Keywords:
+                key_args_pointer = args_end_pointer; # Pointer to the Keyword-parameters
+                # initialize all Keyword-parameters with #<UNBOUND> :
                 {
                   var uintC count = TheCodevec(codevec)->ccv_numkey;
                   dotimesC(count,count, { pushSTACK(unbound); } );
                 }
-                rest_args_pointer = args_end_pointer; # Pointer über die restlichen Argumente
-                argcount = 0; # Zähler für die restlichen Argumente
+                rest_args_pointer = args_end_pointer; # Pointer to the remaining arguments
+                argcount = 0; # counter for the remaining arguments
                 goto key_from_list;
               } else
-                # Closure mit nur REST, ohne KEY:
+                # Closure with only REST, without KEY:
                 goto apply_cclosure_nokey;
             }
-            args_on_stack -= opt_anz; # verbleibende Anzahl
+            args_on_stack -= opt_anz; # remaining number
             if (flags & bit(7)) # Key-Flag?
               goto apply_cclosure_key_withlist_;
             elif (flags & bit(0))
               goto apply_cclosure_rest_nokey;
             else {
-              # Closure ohne REST oder KEY
-              if ((args_on_stack>0) || consp(args)) # noch Argumente?
+              # Closure without REST or KEY
+              if ((args_on_stack>0) || consp(args)) # still arguments?
                 goto fehler_zuviel;
               goto apply_cclosure_nokey;
             }
           }
          apply_cclosure_key_noargs:
           {
-            var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # Anzahl Keyword-Parameter
+            var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # number of Keyword-parameters
             if (key_anz > 0) {
               get_space_on_STACK(sizeof(object) * (uintL)key_anz);
               var uintC count;
-              dotimespC(count,key_anz, { pushSTACK(unbound); } ); # mit #<UNBOUND> initialisieren
+              dotimespC(count,key_anz, { pushSTACK(unbound); } ); # initialize with #<UNBOUND> 
             }
             goto apply_cclosure_key;
           }
          apply_cclosure_key_withlist:
-          flags = TheCodevec(codevec)->ccv_flags; # Flags initialisieren!
+          flags = TheCodevec(codevec)->ccv_flags; # initialize flags!
          apply_cclosure_key_withlist_:
-          # Closure mit Keywords
+          # Closure with Keywords
           {
-            var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # Anzahl Keyword-Parameter
-            # restliche Argumente im STACK nach unten schieben und dadurch
-            # Platz für die Keyword-Parameter (und evtl. Rest-Parameter)
-            # schaffen:
+            var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # number of Keyword-parameters
+            # shift down remaining arguments in STACK and thus
+            # create room for the Keyword-parameters 
+            # (and poss. Rest-parameters):
             var uintL shift = key_anz;
             if (flags & bit(0))
-              shift++; # evtl. 1 mehr für Rest-Parameter
+              shift++; # poss. 1 more for Rest-Parameter
             argcount = args_on_stack;
             get_space_on_STACK(sizeof(object) * shift);
             var object* new_args_end_pointer = args_end_pointer STACKop -(uintP)shift;
@@ -4910,17 +4910,17 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
             var uintC count;
             dotimesC(count,args_on_stack, { BEFORE(ptr2) = BEFORE(ptr1); } );
             if (flags & bit(0))
-              NEXT(ptr1) = args; # Rest-Parameter (vorläufig)
+              NEXT(ptr1) = args; # Rest-Parameter (preliminary)
             key_args_pointer = ptr1;
             rest_args_pointer = ptr2;
             dotimesC(count,key_anz, { NEXT(ptr1) = unbound; } );
             set_args_end_pointer(new_args_end_pointer);
             if (flags & bit(0))
-              # Rest-Parameter versorgen, sparsamer als match_cclosure_key das tun würde:
+              # fill Rest-Parameter, less effort than with match_cclosure_key:
               if (args_on_stack > 0) {
                 var object* ptr3 = new_args_end_pointer;
-                pushSTACK(closure); # Closure retten
-                pushSTACK(args); # args retten
+                pushSTACK(closure); # save Closure
+                pushSTACK(args); # save args
                 dotimespC(count,args_on_stack, {
                   var object new_cons = allocate_cons();
                   Car(new_cons) = BEFORE(ptr3);
@@ -4931,56 +4931,56 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
                 closure = popSTACK();
               }
           }
-         key_from_list: # restliche Argumente für Keywords aus der Liste nehmen
+         key_from_list: # remove remaining arguments for Keywords from list
           while (consp(args)) {
-            check_STACK(); pushSTACK(Car(args)); # nächstes Argument in den Stack
+            check_STACK(); pushSTACK(Car(args)); # store next argument in Stack
             args = Cdr(args);
             argcount++;
           }
-          # Argumentliste beendet.
+          # argument-list finished.
           if (!nullp(args)) goto fehler_dotted;
-          # Keywords zuordnen, Rest-Parameter bauen
-          # und evtl. restliche Argumente wegwerfen:
+          # assign Keywords, build Rest-parameter
+          # and poss. discard remaining arguments:
           closure = match_cclosure_key(closure,argcount,key_args_pointer,rest_args_pointer);
           codevec = TheCclosure(closure)->clos_codevec;
          apply_cclosure_key:
-          interpret_bytecode(closure,codevec,CCV_START_KEY); # Bytecode ab Byte 12 abinterpretieren
+          interpret_bytecode(closure,codevec,CCV_START_KEY); # process Bytecode starting at Byte 12
           goto done;
         }
        apply_cclosure_rest_nokey:
-        # Closure mit nur REST, ohne KEY:
-        # muss noch args_on_stack Argumente aus dem Stack auf args consen:
+        # Closure with only REST, without KEY:
+        # still has to cons args_on_stack Arguments from Stack to args:
         pushSTACK(args);
         if (args_on_stack > 0) {
-          pushSTACK(closure); # Closure muss gerettet werden
+          pushSTACK(closure); # Closure must be saved
           dotimespC(args_on_stack,args_on_stack, {
             var object new_cons = allocate_cons();
             Cdr(new_cons) = STACK_1;
-            Car(new_cons) = STACK_2; # nächstes Argument draufconsen
+            Car(new_cons) = STACK_2; # cons next argument to it
             STACK_2 = new_cons;
             STACK_1 = STACK_0; skipSTACK(1);
           });
           closure = popSTACK(); codevec = TheCclosure(closure)->clos_codevec;
         }
         goto apply_cclosure_nokey;
-       apply_cclosure_nokey: # Closure ohne &KEY anspringen:
-        interpret_bytecode(closure,codevec,CCV_START_NONKEY); # Bytecode ab Byte 8 abinterpretieren
+       apply_cclosure_nokey: # jump to Closure without &KEY:
+        interpret_bytecode(closure,codevec,CCV_START_NONKEY); # process Bytecode starting at Byte 8
        done:
         #if STACKCHECKC
-        if (!(args_pointer == args_end_pointer)) # Stack aufgeräumt?
-          abort(); # nein -> ab in den Debugger
+        if (!(args_pointer == args_end_pointer)) # Stack cleaned up?
+          abort(); # no -> go to Debugger
         #endif
-        return; # fertig
-        # Gesammelte Fehlermeldungen:
+        return; # finished
+        # Gathered error-messages:
        fehler_zuwenig: fehler_closure_zuwenig(closure);
        fehler_zuviel: fehler_closure_zuviel(closure);
        fehler_dotted: fehler_apply_dotted(closure);
       } else {
-        # closure ist eine interpretierte Closure
-        # Platz auf dem STACK reservieren:
+        # closure is an interpreted Closure
+        # reserve space on STACK:
         get_space_on_STACK(sizeof(object) * llength(args));
-        while (consp(args)) { # Noch Argumente in der Liste?
-          pushSTACK(Car(args)); # nächstes Element in den STACK
+        while (consp(args)) { # Still Arguments in list?
+          pushSTACK(Car(args)); # push next Element in STACK
           args = Cdr(args);
           args_on_stack += 1;
           if (((uintL)~(uintL)0 > ca_limit_1) && (args_on_stack > ca_limit_1))
@@ -4993,33 +4993,33 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
 
 #        ----------------------- F U N C A L L -----------------------
 
-# später:
+# later:
 local Values funcall_subr (object fun, uintC args_on_stack);
 local Values funcall_closure (object fun, uintC args_on_stack);
 
-# UP: Wendet eine Funktion auf ihre Argumente an.
+# UP: Applies a function to its arguments.
 # funcall(function,argcount);
-# > function: Funktion
-# > Argumente: argcount Argumente auf dem STACK
-# < STACK: aufgeräumt (d.h. STACK wird um argcount erhöht)
-# < mv_count/mv_space: Werte
+# > function: function
+# > Argumente: argcount arguments on STACK
+# < STACK: cleaned up (i.e. STACK is increased by argcount)
+# < mv_count/mv_space: values
 # changes STACK, can trigger GC
   global Values funcall (object fun, uintC argcount);
   global Values funcall(fun,args_on_stack)
     var object fun;
     var uintC args_on_stack;
     {
-      # fun muss ein SUBR oder eine Closure oder ein Cons (LAMBDA ...) sein:
+      # fun must be a SUBR or a Closure or a Cons (LAMBDA ...) :
       if (subrp(fun)) { # SUBR ?
         return_Values funcall_subr(fun,args_on_stack);
       } elif (closurep(fun)) { # Closure ?
         return_Values funcall_closure(fun,args_on_stack);
       } elif (symbolp(fun)) { # Symbol ?
-        # Symbol anwenden: globale Definition Symbol_function(fun) gilt.
+        # apply Symbol: global Definition Symbol_function(fun) applies.
         var object fdef = Symbol_function(fun);
-        if (subrp(fdef)) { # SUBR -> anwenden
+        if (subrp(fdef)) { # SUBR -> apply
           return_Values funcall_subr(fdef,args_on_stack);
-        } elif (closurep(fdef)) { # Closure -> anwenden
+        } elif (closurep(fdef)) { # Closure -> apply
           return_Values funcall_closure(fdef,args_on_stack);
         } elif (orecordp(fdef)) {
           #ifdef DYNAMIC_FFI
@@ -5036,19 +5036,19 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               NOTREACHED
           }
         } else
-          # wenn kein SUBR, keine Closure, kein FSUBR, kein Macro:
-          # Symbol_function(fun) muss #<UNBOUND> sein.
+          # if no SUBR, no Closure, no FSUBR, no Macro:
+          # Symbol_function(fun) must be #<UNBOUND> .
           undef:
           fehler_undefined(S(funcall),fun);
-      } elif (funnamep(fun)) { # Liste (SETF symbol) ?
-        # globale Definition (symbol-function (get-setf-symbol symbol)) gilt.
+      } elif (funnamep(fun)) { # list (SETF symbol) ?
+        # global definition (symbol-function (get-setf-symbol symbol)) applies.
         var object symbol = get(Car(Cdr(fun)),S(setf_function)); # (get ... 'SYS::SETF-FUNCTION)
-        if (!symbolp(symbol)) # sollte (uninterniertes) Symbol sein
-          goto undef; # sonst undefiniert
+        if (!symbolp(symbol)) # should be (uninterned) symbol
+          goto undef; # else undefed
         var object fdef = Symbol_function(symbol);
-        if (closurep(fdef)) { # Closure -> anwenden
+        if (closurep(fdef)) { # Closure -> apply
           return_Values funcall_closure(fdef,args_on_stack);
-        } elif (subrp(fdef)) { # SUBR -> anwenden
+        } elif (subrp(fdef)) { # SUBR -> apply
           return_Values funcall_subr(fdef,args_on_stack);
         }
         #ifdef DYNAMIC_FFI
@@ -5057,15 +5057,15 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         }
         #endif
         else
-          # Solche Funktionsnamen können keine FSUBRs oder Macros bezeichnen.
-          # fdef wird vermutlich #<UNBOUND> sein.
+          # Such function-names cannot denote FSUBRs or Macros.
+          # fdef is presumable #<UNBOUND> .
           goto undef;
       }
       #ifdef DYNAMIC_FFI
       elif (ffunctionp(fun)) { # Foreign-Function ?
-        # (SYS::FOREIGN-CALL-OUT foreign-function . args) aufrufen
+        # call (SYS::FOREIGN-CALL-OUT foreign-function . args)
        call_ffunction:
-        # Dazu erst die Argumente im Stack um 1 nach unten verschieben.
+        # First shift down the arguments in Stack by 1.
         var uintC count;
         var object* ptr = &STACK_0;
         dotimesC(count,args_on_stack, {
@@ -5087,91 +5087,91 @@ local Values funcall_closure (object fun, uintC args_on_stack);
       }
     }
 
-# In FUNCALL: Wendet ein SUBR auf Argumente an, räumt den STACK auf
-# und liefert die Werte.
+# In FUNCALL: Applies a SUBR to arguments, cleans up STACK
+# and returns the values.
 # funcall_subr(fun,args_on_stack);
-# > fun: Funktion, ein SUBR
-# > Argumente: args_on_stack Argumente auf dem STACK
-# < STACK: aufgeräumt (d.h. STACK wird um args_on_stack erhöht)
-# < mv_count/mv_space: Werte
+# > fun: function, a SUBR
+# > Arguments: args_on_stack arguments on STACK
+# < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
+# < mv_count/mv_space: values
 # changes STACK, can trigger GC
   local Values funcall_subr(fun,args_on_stack)
     var object fun;
     var uintC args_on_stack;
     {
       #if STACKCHECKS
-      var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer über die Argumente
+      var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer to the arguments
       #endif
-      var object* key_args_pointer; # Pointer über die Keyword-Argumente
-      var object* rest_args_pointer; # Pointer über die restlichen Argumente
-      var uintL argcount; # Anzahl der restlichen Argumente
+      var object* key_args_pointer; # Pointer to the Keyword-arguments
+      var object* rest_args_pointer; # Pointer to the remaining arguments
+      var uintL argcount; # number of remaining arguments
       #ifdef DEBUG_EVAL
       if (streamp(Symbol_value(S(funcall_trace_output)))) {
         pushSTACK(fun); trace_call(fun,'F','S'); fun = popSTACK();
       }
       #endif
-      # Argumente in den STACK legen:
-      # erst ein Dispatch für die wichtigsten Fälle:
+      # store arguments in STACK:
+      # First a Dispatch for the most important cases:
       switch (TheSubr(fun)->argtype) {
         case (uintW)subr_argtype_0_0:
-          # SUBR ohne Argumente
+          # SUBR without Arguments
           if (!(args_on_stack==0)) goto fehler_zuviel;
           goto apply_subr_norest;
         case (uintW)subr_argtype_1_0:
-          # SUBR mit 1 required-Argument
+          # SUBR with 1 required-Argument
           if (!(args_on_stack==1)) goto fehler_anzahl;
           goto apply_subr_norest;
         case (uintW)subr_argtype_2_0:
-          # SUBR mit 2 required-Argumenten
+          # SUBR with 2 required-Arguments
           if (!(args_on_stack==2)) goto fehler_anzahl;
           goto apply_subr_norest;
         case (uintW)subr_argtype_3_0:
-          # SUBR mit 3 required-Argumenten
+          # SUBR with 3 required-Arguments
           if (!(args_on_stack==3)) goto fehler_anzahl;
           goto apply_subr_norest;
         case (uintW)subr_argtype_4_0:
-          # SUBR mit 4 required-Argumenten
+          # SUBR with 4 required-Arguments
           if (!(args_on_stack==4)) goto fehler_anzahl;
           goto apply_subr_norest;
         case (uintW)subr_argtype_5_0:
-          # SUBR mit 5 required-Argumenten
+          # SUBR with 5 required-Arguments
           if (!(args_on_stack==5)) goto fehler_anzahl;
           goto apply_subr_norest;
         case (uintW)subr_argtype_6_0:
-          # SUBR mit 6 required-Argumenten
+          # SUBR with 6 required-Arguments
           if (!(args_on_stack==6)) goto fehler_anzahl;
           goto apply_subr_norest;
         case (uintW)subr_argtype_0_1:
-          # SUBR mit 1 optional-Argument
+          # SUBR with 1 optional-Argument
           if (args_on_stack==1) goto apply_subr_norest;
           elif (args_on_stack>1) goto fehler_zuviel;
           else { pushSTACK(unbound); goto apply_subr_norest; }
         case (uintW)subr_argtype_1_1:
-          # SUBR mit 1 required-Argument und 1 optional-Argument
+          # SUBR with 1 required-Argument and 1 optional-Argument
           if (args_on_stack==2) goto apply_subr_norest;
           elif (args_on_stack>2) goto fehler_zuviel;
           elif (args_on_stack==0) goto fehler_zuwenig;
           else { pushSTACK(unbound); goto apply_subr_norest; }
         case (uintW)subr_argtype_2_1:
-          # SUBR mit 2 required-Argumenten und 1 optional-Argument
+          # SUBR with 2 required-Arguments and 1 optional-Argument
           if (args_on_stack==3) goto apply_subr_norest;
           elif (args_on_stack>3) goto fehler_zuviel;
           elif (args_on_stack<2) goto fehler_zuwenig;
           else { pushSTACK(unbound); goto apply_subr_norest; }
         case (uintW)subr_argtype_3_1:
-          # SUBR mit 3 required-Argumenten und 1 optional-Argument
+          # SUBR with 3 required-Arguments and 1 optional-Argument
           if (args_on_stack==4) goto apply_subr_norest;
           elif (args_on_stack>4) goto fehler_zuviel;
           elif (args_on_stack<3) goto fehler_zuwenig;
           else { pushSTACK(unbound); goto apply_subr_norest; }
         case (uintW)subr_argtype_4_1:
-          # SUBR mit 4 required-Argumenten und 1 optional-Argument
+          # SUBR with 4 required-Arguments and 1 optional-Argument
           if (args_on_stack==5) goto apply_subr_norest;
           elif (args_on_stack>5) goto fehler_zuviel;
           elif (args_on_stack<4) goto fehler_zuwenig;
           else { pushSTACK(unbound); goto apply_subr_norest; }
         case (uintW)subr_argtype_0_2:
-          # SUBR mit 2 optional-Argumenten
+          # SUBR with 2 optional-Arguments
           switch (args_on_stack) {
             case 0: pushSTACK(unbound);
             case 1: pushSTACK(unbound);
@@ -5179,7 +5179,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             default: goto fehler_zuviel;
           }
         case (uintW)subr_argtype_1_2:
-          # SUBR mit 1 required-Argument und 2 optional-Argumenten
+          # SUBR with 1 required-Argument and 2 optional-Arguments
           switch (args_on_stack) {
             case 0: goto fehler_zuwenig;
             case 1: pushSTACK(unbound);
@@ -5188,7 +5188,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             default: goto fehler_zuviel;
           }
         case (uintW)subr_argtype_2_2:
-          # SUBR mit 2 required-Argumenten und 2 optional-Argumenten
+          # SUBR with 2 required-Arguments and 2 optional-Arguments
           switch (args_on_stack) {
             case 0: goto fehler_zuwenig;
             case 1: goto fehler_zuwenig;
@@ -5198,7 +5198,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             default: goto fehler_zuviel;
           }
         case (uintW)subr_argtype_3_2:
-          # SUBR mit 3 required-Argumenten und 2 optional-Argumenten
+          # SUBR with 3 required-Arguments and 2 optional-Arguments
           switch (args_on_stack) {
             case 0: goto fehler_zuwenig;
             case 1: goto fehler_zuwenig;
@@ -5209,7 +5209,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             default: goto fehler_zuviel;
           }
         case (uintW)subr_argtype_0_3:
-          # SUBR mit 3 optional-Argumenten
+          # SUBR with 3 optional-Arguments
           switch (args_on_stack) {
             case 0: pushSTACK(unbound);
             case 1: pushSTACK(unbound);
@@ -5218,7 +5218,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             default: goto fehler_zuviel;
           }
         case (uintW)subr_argtype_1_3:
-          # SUBR mit 1 required-Argument und 3 optional-Argumenten
+          # SUBR with 1 required-Argument and 3 optional-Arguments
           switch (args_on_stack) {
             case 0: goto fehler_zuwenig;
             case 1: pushSTACK(unbound);
@@ -5228,7 +5228,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             default: goto fehler_zuviel;
           }
         case (uintW)subr_argtype_2_3:
-          # SUBR mit 2 required-Argumenten und 3 optional-Argumenten
+          # SUBR with 2 required-Arguments and 3 optional-Arguments
           switch (args_on_stack) {
             case 0: goto fehler_zuwenig;
             case 1: goto fehler_zuwenig;
@@ -5239,7 +5239,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             default: goto fehler_zuviel;
           }
         case (uintW)subr_argtype_0_4:
-          # SUBR mit 4 optional-Argumenten
+          # SUBR with 4 optional-Arguments
           switch (args_on_stack) {
             case 0: pushSTACK(unbound);
             case 1: pushSTACK(unbound);
@@ -5249,7 +5249,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             default: goto fehler_zuviel;
           }
         case (uintW)subr_argtype_0_5:
-          # SUBR mit 5 optional-Argumenten
+          # SUBR with 5 optional-Arguments
           switch (args_on_stack) {
             case 0: pushSTACK(unbound);
             case 1: pushSTACK(unbound);
@@ -5260,56 +5260,56 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             default: goto fehler_zuviel;
           }
         case (uintW)subr_argtype_0_0_rest:
-          # SUBR mit weiteren Argumenten
+          # SUBR with further Arguments
           goto apply_subr_rest_ok;
         case (uintW)subr_argtype_1_0_rest:
-          # SUBR mit 1 required-Argument und weiteren Argumenten
+          # SUBR with 1 required-Argument and further Arguments
           if (args_on_stack==0) goto fehler_zuwenig;
           args_on_stack -= 1;
           goto apply_subr_rest_ok;
         case (uintW)subr_argtype_2_0_rest:
-          # SUBR mit 2 required-Argumenten und weiteren Argumenten
+          # SUBR with 2 required-Argumenten and further Arguments
           if (args_on_stack<2) goto fehler_zuwenig;
           args_on_stack -= 2;
           goto apply_subr_rest_ok;
         case (uintW)subr_argtype_3_0_rest:
-          # SUBR mit 3 required-Argumenten und weiteren Argumenten
+          # SUBR with 3 required-Argumenten and further Arguments
           if (args_on_stack<3) goto fehler_zuwenig;
           args_on_stack -= 3;
           goto apply_subr_rest_ok;
         case (uintW)subr_argtype_0_0_key:
-          # SUBR mit Keyword-Argumenten
+          # SUBR with Keyword-Arguments
           if (args_on_stack==0) goto unbound_optional_key_0;
           else goto apply_subr_key;
         case (uintW)subr_argtype_1_0_key:
-          # SUBR mit 1 required-Argument und Keyword-Argumenten
+          # SUBR with 1 required-Argument and Keyword-Arguments
           if (args_on_stack==1) goto unbound_optional_key_0;
           elif (args_on_stack<1) goto fehler_zuwenig;
           else { args_on_stack -= 1; goto apply_subr_key; }
         case (uintW)subr_argtype_2_0_key:
-          # SUBR mit 2 required-Argumenten und Keyword-Argumenten
+          # SUBR with 2 required-Arguments and Keyword-Arguments
           if (args_on_stack==2) goto unbound_optional_key_0;
           elif (args_on_stack<2) goto fehler_zuwenig;
           else { args_on_stack -= 2; goto apply_subr_key; }
         case (uintW)subr_argtype_3_0_key:
-          # SUBR mit 3 required-Argumenten und Keyword-Argumenten
+          # SUBR with 3 required-Arguments and Keyword-Arguments
           if (args_on_stack==3) goto unbound_optional_key_0;
           elif (args_on_stack<3) goto fehler_zuwenig;
           else { args_on_stack -= 3; goto apply_subr_key; }
         case (uintW)subr_argtype_4_0_key:
-          # SUBR mit 4 required-Argumenten und Keyword-Argumenten
+          # SUBR with 4 required-Arguments and Keyword-Arguments
           if (args_on_stack==4) goto unbound_optional_key_0;
           elif (args_on_stack<4) goto fehler_zuwenig;
           else { args_on_stack -= 4; goto apply_subr_key; }
         case (uintW)subr_argtype_0_1_key:
-          # SUBR mit 1 optional-Argument und Keyword-Argumenten
+          # SUBR with 1 optional-Argument and Keyword-Arguments
           switch (args_on_stack) {
             case 0: goto unbound_optional_key_1;
             case 1: goto unbound_optional_key_0;
             default: args_on_stack -= 1; goto apply_subr_key;
           }
         case (uintW)subr_argtype_1_1_key:
-          # SUBR mit 1 required-Argument, 1 optional-Argument und Keyword-Argumenten
+          # SUBR with 1 required-Argument, 1 optional-Argument and Keyword-Arguments
           switch (args_on_stack) {
             case 0: goto fehler_zuwenig;
             case 1: goto unbound_optional_key_1;
@@ -5317,7 +5317,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             default: args_on_stack -= 2; goto apply_subr_key;
           }
         case (uintW)subr_argtype_1_2_key:
-          # SUBR mit 1 required-Argument, 2 optional-Argumenten und Keyword-Argumenten
+          # SUBR with 1 required-Argument, 2 optional-Arguments and Keyword-Arguments
           switch (args_on_stack) {
             case 0: goto fehler_zuwenig;
             case 1: goto unbound_optional_key_2;
@@ -5325,11 +5325,11 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             case 3: goto unbound_optional_key_0;
             default: args_on_stack -= 3; goto apply_subr_key;
           }
-        unbound_optional_key_2: # Noch 2 optionale Argumente, aber args_on_stack=0
+        unbound_optional_key_2: # Still 2 optional Arguments, but args_on_stack=0
           pushSTACK(unbound);
-        unbound_optional_key_1: # Noch 1 optionales Argument, aber args_on_stack=0
+        unbound_optional_key_1: # Still 1 optional Argument, but args_on_stack=0
           pushSTACK(unbound);
-        unbound_optional_key_0: # Vor den Keywords ist args_on_stack=0
+        unbound_optional_key_0: # Before the Keywords is args_on_stack=0
           {
             var uintC count;
             dotimesC(count,TheSubr(fun)->key_anz, { pushSTACK(unbound); } );
@@ -5339,7 +5339,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         #undef OPT_ARG
         #undef REQ_ARG
       }
-      # Nun die allgemeine Version:
+      # Now the general Version:
       {
         var uintC key_anz;
         {
@@ -5347,47 +5347,47 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           var uintC opt_anz = TheSubr(fun)->opt_anz;
           key_anz = TheSubr(fun)->key_anz;
           if (args_on_stack < req_anz)
-            # weniger Argumente da als verlangt
+            # fewer Arguments than demanded
             goto fehler_zuwenig;
-          args_on_stack -= req_anz; # verbleibende Anzahl
+          args_on_stack -= req_anz; # remaining number
           if (args_on_stack <= opt_anz) {
-            # Argumente im Stack reichen nicht für die optionalen
-            opt_anz = opt_anz - args_on_stack; # soviele müssen noch auf den STACK
+            # Arguments in Stack don't last for the optional ones
+            opt_anz = opt_anz - args_on_stack; # as many as these must go on STACK
             if (opt_anz + key_anz > 0) {
-              # Platz auf dem STACK reservieren:
+              # reserve space on STACK:
               get_space_on_STACK(sizeof(object) * (uintL)(opt_anz + key_anz));
-              # Alle weiteren count optionalen Parameter bekommen den "Wert"
-              # #<UNBOUND>, auch die Keyword-Parameter:
+              # All further count optional parameters receive the "value"
+              # #<UNBOUND>, including the Keyword-parameters:
               var uintC count;
               dotimespC(count,opt_anz + key_anz, { pushSTACK(unbound); } );
             }
             if (TheSubr(fun)->rest_flag == subr_rest) { # &REST-Flag?
-              # ja -> 0 zusätzliche Argumente:
+              # yes -> 0 additional Arguments:
               argcount = 0; rest_args_pointer = args_end_pointer;
               goto apply_subr_rest;
             } else {
-              # nein -> nichts zu tun
+              # no -> nothing to do
               goto apply_subr_norest;
             }
           }
-          args_on_stack -= opt_anz; # verbleibende Anzahl (> 0)
+          args_on_stack -= opt_anz; # remaining number (> 0)
           if (TheSubr(fun)->key_flag == subr_nokey) {
-            # SUBR ohne KEY
+            # SUBR without KEY
             if (TheSubr(fun)->rest_flag == subr_norest)
-              # SUBR ohne REST oder KEY
-              goto fehler_zuviel; # noch Argumente!
+              # SUBR without REST or KEY
+              goto fehler_zuviel; # still Arguments!
             else
-              # SUBR mit nur REST, ohne KEY
+              # SUBR with only REST, without KEY
               goto apply_subr_rest_ok;
           } else
-            # SUBR mit Keywords.
+            # SUBR with Keywords.
             goto apply_subr_key_;
         }
        apply_subr_key:
         key_anz = TheSubr(fun)->key_anz;
        apply_subr_key_:
-        # restliche Argumente im STACK nach unten schieben und dadurch
-        # Platz für die Keyword-Parameter schaffen:
+        # shift down remaining arguments in STACK and thus
+        # create room for the Keyword-parameters:
         argcount = args_on_stack; # (> 0)
         get_space_on_STACK(sizeof(object) * (uintL)key_anz);
         {
@@ -5401,13 +5401,13 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           dotimesC(count,key_anz, { NEXT(ptr1) = unbound; } );
           set_args_end_pointer(new_args_end_pointer);
         }
-        # Keywords zuordnen und evtl. restliche Argumente wegwerfen:
+        # assign Keywords and poss. discard remaining Arguments:
         match_subr_key(fun,argcount,key_args_pointer,rest_args_pointer);
         if (TheSubr(fun)->rest_flag != subr_norest)
-          # SUBR mit &REST-Flag:
+          # SUBR with &REST-Flag:
           goto apply_subr_rest;
         else
-          # SUBR ohne &REST-Flag:
+          # SUBR without &REST-Flag:
           goto apply_subr_norest;
       }
      apply_subr_rest_ok:
@@ -5422,27 +5422,27 @@ local Values funcall_closure (object fun, uintC args_on_stack);
       (*(subr_norest_function*)(TheSubr(fun)->function))();
      done:
       #if STACKCHECKS
-      if (!(args_pointer == args_end_pointer)) # Stack aufgeräumt?
-        abort(); # nein -> ab in den Debugger
+      if (!(args_pointer == args_end_pointer)) # Stack cleaned up?
+        abort(); # no -> go to Debugger
       #endif
-      return; # fertig
-      # Gesammelte Fehlermeldungen:
+      return; # finished
+      # Gathered error-messages:
      fehler_anzahl:
       if (args_on_stack < TheSubr(fun)->req_anz)
-        goto fehler_zuwenig; # zu wenig Argumente
+        goto fehler_zuwenig; # too few Arguments
       else
-        goto fehler_zuviel; # zu viele Argumente
+        goto fehler_zuviel; # too many Arguments
      fehler_zuwenig: fehler_subr_zuwenig(fun);
      fehler_zuviel: fehler_subr_zuviel(fun);
     }
 
-# In FUNCALL: Wendet eine Closure auf Argumente an, räumt den STACK auf
-# und liefert die Werte.
+# In FUNCALL: Applies a Closure to Arguments, cleans up STACK
+# and returns the values.
 # funcall_closure(fun,args_on_stack);
-# > fun: Funktion, eine Closure
-# > Argumente: args_on_stack Argumente auf dem STACK
-# < STACK: aufgeräumt (d.h. STACK wird um args_on_stack erhöht)
-# < mv_count/mv_space: Werte
+# > fun: function, a Closure
+# > Argumente: args_on_stack Arguments on STACK
+# < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
+# < mv_count/mv_space: values
 # changes STACK, can trigger GC
   local Values funcall_closure(closure,args_on_stack)
     var object closure;
@@ -5454,20 +5454,20 @@ local Values funcall_closure (object fun, uintC args_on_stack);
       }
       #endif
       if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
-        # closure ist eine compilierte Closure
+        # closure is a compiled Closure
         #if STACKCHECKC
-        var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer über die Argumente
+        var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer to the Arguments
         #endif
-        var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vektor
-        var object* key_args_pointer; # Pointer über die Keyword-Argumente
-        var object* rest_args_pointer; # Pointer über die restlichen Argumente
-        var uintL argcount; # Anzahl der restlichen Argumente
+        var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vector
+        var object* key_args_pointer; # Pointer to the Keyword-Arguments
+        var object* rest_args_pointer; # Pointer to the remaining Arguments
+        var uintL argcount; # number of remaining Arguments
         check_SP(); check_STACK();
-        # Argumente in den STACK legen:
-        # erst ein Dispatch für die wichtigsten Fälle:
+        # store arguments in STACK:
+        # First a Dispatch for the most important cases:
         switch (TheCodevec(codevec)->ccv_signature) {
           case (uintB)cclos_argtype_0_0:
-            # keine Argumente
+            # no Arguments
             if (!(args_on_stack==0)) goto fehler_zuviel;
             goto apply_cclosure_nokey;
           case (uintB)cclos_argtype_1_0:
@@ -5475,19 +5475,19 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             if (!(args_on_stack==1)) goto fehler_anzahl;
             goto apply_cclosure_nokey;
           case (uintB)cclos_argtype_2_0:
-            # 2 required-Argumente
+            # 2 required-Arguments
             if (!(args_on_stack==2)) goto fehler_anzahl;
             goto apply_cclosure_nokey;
           case (uintB)cclos_argtype_3_0:
-            # 3 required-Argumente
+            # 3 required-Arguments
             if (!(args_on_stack==3)) goto fehler_anzahl;
             goto apply_cclosure_nokey;
           case (uintB)cclos_argtype_4_0:
-            # 4 required-Argumente
+            # 4 required-Arguments
             if (!(args_on_stack==4)) goto fehler_anzahl;
             goto apply_cclosure_nokey;
           case (uintB)cclos_argtype_5_0:
-            # 5 required-Argumente
+            # 5 required-Arguments
             if (!(args_on_stack==5)) goto fehler_anzahl;
             goto apply_cclosure_nokey;
           case (uintB)cclos_argtype_0_1:
@@ -5496,31 +5496,31 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             elif (args_on_stack>1) goto fehler_zuviel;
             else { pushSTACK(unbound); goto apply_cclosure_nokey; }
           case (uintB)cclos_argtype_1_1:
-            # 1 required-Argument und 1 optional-Argument
+            # 1 required-Argument and 1 optional-Argument
             if (args_on_stack==2) goto apply_cclosure_nokey;
             elif (args_on_stack>2) goto fehler_zuviel;
             elif (args_on_stack==0) goto fehler_zuwenig;
             else { pushSTACK(unbound); goto apply_cclosure_nokey; }
           case (uintB)cclos_argtype_2_1:
-            # 2 required-Argumente und 1 optional-Argument
+            # 2 required-Arguments and 1 optional-Argument
             if (args_on_stack==3) goto apply_cclosure_nokey;
             elif (args_on_stack>3) goto fehler_zuviel;
             elif (args_on_stack<2) goto fehler_zuwenig;
             else { pushSTACK(unbound); goto apply_cclosure_nokey; }
           case (uintB)cclos_argtype_3_1:
-            # 3 required-Argumente und 1 optional-Argument
+            # 3 required-Arguments and 1 optional-Argument
             if (args_on_stack==4) goto apply_cclosure_nokey;
             elif (args_on_stack>4) goto fehler_zuviel;
             elif (args_on_stack<3) goto fehler_zuwenig;
             else { pushSTACK(unbound); goto apply_cclosure_nokey; }
           case (uintB)cclos_argtype_4_1:
-            # 4 required-Argumente und 1 optional-Argument
+            # 4 required-Arguments and 1 optional-Argument
             if (args_on_stack==5) goto apply_cclosure_nokey;
             elif (args_on_stack>5) goto fehler_zuviel;
             elif (args_on_stack<4) goto fehler_zuwenig;
             else { pushSTACK(unbound); goto apply_cclosure_nokey; }
           case (uintB)cclos_argtype_0_2:
-            # 2 optional-Argumente
+            # 2 optional-Arguments
             switch (args_on_stack) {
               case 0: pushSTACK(unbound);
               case 1: pushSTACK(unbound);
@@ -5528,7 +5528,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               default: goto fehler_zuviel;
             }
           case (uintB)cclos_argtype_1_2:
-            # 1 required-Argument und 2 optional-Argumente
+            # 1 required-Argument and 2 optional-Arguments
             switch (args_on_stack) {
               case 0: goto fehler_zuwenig;
               case 1: pushSTACK(unbound);
@@ -5537,7 +5537,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               default: goto fehler_zuviel;
             }
           case (uintB)cclos_argtype_2_2:
-            # 2 required-Argumente und 2 optional-Argumente
+            # 2 required-Arguments and 2 optional-Arguments
             switch (args_on_stack) {
               case 0: case 1: goto fehler_zuwenig;
               case 2: pushSTACK(unbound);
@@ -5546,7 +5546,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               default: goto fehler_zuviel;
             }
           case (uintB)cclos_argtype_3_2:
-            # 3 required-Argumente und 2 optional-Argumente
+            # 3 required-Arguments and 2 optional-Arguments
             switch (args_on_stack) {
               case 0: case 1: case 2: goto fehler_zuwenig;
               case 3: pushSTACK(unbound);
@@ -5555,7 +5555,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               default: goto fehler_zuviel;
             }
           case (uintB)cclos_argtype_0_3:
-            # 3 optional-Argumente
+            # 3 optional-Arguments
             switch (args_on_stack) {
               case 0: pushSTACK(unbound);
               case 1: pushSTACK(unbound);
@@ -5564,7 +5564,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               default: goto fehler_zuviel;
             }
           case (uintB)cclos_argtype_1_3:
-            # 1 required-Argument und 3 optional-Argumente
+            # 1 required-Argument and 3 optional-Arguments
             switch (args_on_stack) {
               case 0: goto fehler_zuwenig;
               case 1: pushSTACK(unbound);
@@ -5574,7 +5574,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               default: goto fehler_zuviel;
             }
           case (uintB)cclos_argtype_2_3:
-            # 2 required-Argumente und 3 optional-Argumente
+            # 2 required-Arguments and 3 optional-Arguments
             switch (args_on_stack) {
               case 0: case 1: goto fehler_zuwenig;
               case 2: pushSTACK(unbound);
@@ -5584,7 +5584,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               default: goto fehler_zuviel;
             }
           case (uintB)cclos_argtype_0_4:
-            # 4 optional-Argumente
+            # 4 optional-Arguments
             switch (args_on_stack) {
               case 0: pushSTACK(unbound);
               case 1: pushSTACK(unbound);
@@ -5594,7 +5594,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               default: goto fehler_zuviel;
             }
           case (uintB)cclos_argtype_1_4:
-            # 1 required-Argument und 4 optional-Argumente
+            # 1 required-Argument and 4 optional-Arguments
             switch (args_on_stack) {
               case 0: goto fehler_zuwenig;
               case 1: pushSTACK(unbound);
@@ -5605,7 +5605,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               default: goto fehler_zuviel;
             }
           case (uintB)cclos_argtype_0_5:
-            # 5 optional-Argumente
+            # 5 optional-Arguments
             switch (args_on_stack) {
               case 0: pushSTACK(unbound);
               case 1: pushSTACK(unbound);
@@ -5616,7 +5616,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               default: goto fehler_zuviel;
             }
           case (uintB)cclos_argtype_0_0_rest:
-            # keine Argumente, Rest-Parameter
+            # no Arguments, Rest-Parameter
             goto apply_cclosure_rest_nokey;
           case (uintB)cclos_argtype_1_0_rest:
             # 1 required-Argument, Rest-Parameter
@@ -5624,53 +5624,53 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             args_on_stack -= 1;
             goto apply_cclosure_rest_nokey;
           case (uintB)cclos_argtype_2_0_rest:
-            # 2 required-Argumente, Rest-Parameter
+            # 2 required-Arguments, Rest-Parameter
             if (args_on_stack<2) goto fehler_zuwenig;
             args_on_stack -= 2;
             goto apply_cclosure_rest_nokey;
           case (uintB)cclos_argtype_3_0_rest:
-            # 3 required-Argumente, Rest-Parameter
+            # 3 required-Arguments, Rest-Parameter
             if (args_on_stack<3) goto fehler_zuwenig;
             args_on_stack -= 3;
             goto apply_cclosure_rest_nokey;
           case (uintB)cclos_argtype_4_0_rest:
-            # 4 required-Argumente, Rest-Parameter
+            # 4 required-Arguments, Rest-Parameter
             if (args_on_stack<4) goto fehler_zuwenig;
             args_on_stack -= 4;
             goto apply_cclosure_rest_nokey;
           case (uintB)cclos_argtype_0_0_key:
-            # nur Keyword-Argumente
+            # only Keyword-Arguments
             if (args_on_stack==0) goto unbound_optional_key_0;
             else goto apply_cclosure_key_withargs;
           case (uintB)cclos_argtype_1_0_key:
-            # 1 required-Argument, Keyword-Argumente
+            # 1 required-Argument, Keyword-Arguments
             if (args_on_stack==1) goto unbound_optional_key_0;
             elif (args_on_stack<1) goto fehler_zuwenig;
             else { args_on_stack -= 1; goto apply_cclosure_key_withargs; }
           case (uintB)cclos_argtype_2_0_key:
-            # 2 required-Argumente, Keyword-Argumente
+            # 2 required-Arguments, Keyword-Arguments
             if (args_on_stack==2) goto unbound_optional_key_0;
             elif (args_on_stack<2) goto fehler_zuwenig;
             else { args_on_stack -= 2; goto apply_cclosure_key_withargs; }
           case (uintB)cclos_argtype_3_0_key:
-            # 3 required-Argumente, Keyword-Argumente
+            # 3 required-Arguments, Keyword-Arguments
             if (args_on_stack==3) goto unbound_optional_key_0;
             elif (args_on_stack<3) goto fehler_zuwenig;
             else { args_on_stack -= 3; goto apply_cclosure_key_withargs; }
           case (uintB)cclos_argtype_4_0_key:
-            # 4 required-Argumente, Keyword-Argumente
+            # 4 required-Arguments, Keyword-Arguments
             if (args_on_stack==4) goto unbound_optional_key_0;
             elif (args_on_stack<4) goto fehler_zuwenig;
             else { args_on_stack -= 4; goto apply_cclosure_key_withargs; }
           case (uintB)cclos_argtype_0_1_key:
-            # 1 optional-Argument, Keyword-Argumente
+            # 1 optional-Argument, Keyword-Arguments
             switch (args_on_stack) {
               case 0: goto unbound_optional_key_1;
               case 1: goto unbound_optional_key_0;
               default: args_on_stack -= 1; goto apply_cclosure_key_withargs;
             }
           case (uintB)cclos_argtype_1_1_key:
-            # 1 required-Argument und 1 optional-Argument, Keyword-Argumente
+            # 1 required-Argument and 1 optional-Argument, Keyword-Arguments
             switch (args_on_stack) {
               case 0: goto fehler_zuwenig;
               case 1: goto unbound_optional_key_1;
@@ -5678,7 +5678,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               default: args_on_stack -= 2; goto apply_cclosure_key_withargs;
             }
           case (uintB)cclos_argtype_2_1_key:
-            # 2 required-Argumente und 1 optional-Argument, Keyword-Argumente
+            # 2 required-Arguments and 1 optional-Argument, Keyword-Arguments
             switch (args_on_stack) {
               case 0: case 1: goto fehler_zuwenig;
               case 2: goto unbound_optional_key_1;
@@ -5686,7 +5686,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               default: args_on_stack -= 3; goto apply_cclosure_key_withargs;
             }
           case (uintB)cclos_argtype_3_1_key:
-            # 3 required-Argumente und 1 optional-Argument, Keyword-Argumente
+            # 3 required-Arguments and 1 optional-Argument, Keyword-Arguments
             switch (args_on_stack) {
               case 0: case 1: case 2: goto fehler_zuwenig;
               case 3: goto unbound_optional_key_1;
@@ -5694,7 +5694,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               default: args_on_stack -= 4; goto apply_cclosure_key_withargs;
             }
           case (uintB)cclos_argtype_0_2_key:
-            # 2 optional-Argumente, Keyword-Argumente
+            # 2 optional-Arguments, Keyword-Arguments
             switch (args_on_stack) {
               case 0: goto unbound_optional_key_2;
               case 1: goto unbound_optional_key_1;
@@ -5702,7 +5702,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               default: args_on_stack -= 2; goto apply_cclosure_key_withargs;
             }
           case (uintB)cclos_argtype_1_2_key:
-            # 1 required-Argument und 2 optional-Argumente, Keyword-Argumente
+            # 1 required-Argument and 2 optional-Arguments, Keyword-Arguments
             switch (args_on_stack) {
               case 0: goto fehler_zuwenig;
               case 1: goto unbound_optional_key_2;
@@ -5711,7 +5711,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               default: args_on_stack -= 3; goto apply_cclosure_key_withargs;
             }
           case (uintB)cclos_argtype_2_2_key:
-            # 2 required-Argumente und 2 optional-Argumente, Keyword-Argumente
+            # 2 required-Arguments and 2 optional-Arguments, Keyword-Arguments
             switch (args_on_stack) {
               case 0: case 1: goto fehler_zuwenig;
               case 2: goto unbound_optional_key_2;
@@ -5720,7 +5720,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               default: args_on_stack -= 4; goto apply_cclosure_key_withargs;
             }
           case (uintB)cclos_argtype_0_3_key:
-            # 3 optional-Argumente, Keyword-Argumente
+            # 3 optional-Arguments, Keyword-Arguments
             switch (args_on_stack) {
               case 0: goto unbound_optional_key_3;
               case 1: goto unbound_optional_key_2;
@@ -5729,7 +5729,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               default: args_on_stack -= 3; goto apply_cclosure_key_withargs;
             }
           case (uintB)cclos_argtype_1_3_key:
-            # 1 required-Argument und 3 optional-Argumente, Keyword-Argumente
+            # 1 required-Argument and 3 optional-Arguments, Keyword-Arguments
             switch (args_on_stack) {
               case 0: goto fehler_zuwenig;
               case 1: goto unbound_optional_key_3;
@@ -5739,7 +5739,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               default: args_on_stack -= 4; goto apply_cclosure_key_withargs;
             }
           case (uintB)cclos_argtype_0_4_key:
-            # 4 optional-Argumente, Keyword-Argumente
+            # 4 optional-Arguments, Keyword-Arguments
             switch (args_on_stack) {
               case 0: goto unbound_optional_key_4;
               case 1: goto unbound_optional_key_3;
@@ -5748,85 +5748,85 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               case 4: goto unbound_optional_key_0;
               default: args_on_stack -= 4; goto apply_cclosure_key_withargs;
             }
-          unbound_optional_key_4: # Noch 4 optionale Argumente, aber args_on_stack=0
+          unbound_optional_key_4: # Still 4 optional Arguments, but args_on_stack=0
             pushSTACK(unbound);
-          unbound_optional_key_3: # Noch 3 optionale Argumente, aber args_on_stack=0
+          unbound_optional_key_3: # Still 3 optional Arguments, but args_on_stack=0
             pushSTACK(unbound);
-          unbound_optional_key_2: # Noch 2 optionale Argumente, aber args_on_stack=0
+          unbound_optional_key_2: # Still 2 optional Arguments, but args_on_stack=0
             pushSTACK(unbound);
-          unbound_optional_key_1: # Noch 1 optionales Argument, aber args_on_stack=0
+          unbound_optional_key_1: # Still 1 optional Argument, but args_on_stack=0
             pushSTACK(unbound);
-          unbound_optional_key_0: # Vor den Keywords ist args_on_stack=0
+          unbound_optional_key_0: # Before the Keywords is args_on_stack=0
             goto apply_cclosure_key_noargs;
           case (uintB)cclos_argtype_default:
-            # Allgemeine Version
+            # General Version
             break;
           default: NOTREACHED
         }
-        # Nun die allgemeine Version:
+        # Now the general version:
         {
           var uintB flags;
           {
-            var uintC req_anz = TheCodevec(codevec)->ccv_numreq; # Anzahl required Parameter
-            var uintC opt_anz = TheCodevec(codevec)->ccv_numopt; # Anzahl optionale Parameter
+            var uintC req_anz = TheCodevec(codevec)->ccv_numreq; # number of required Parameters
+            var uintC opt_anz = TheCodevec(codevec)->ccv_numopt; # number of optional Parameters
             flags = TheCodevec(codevec)->ccv_flags; # Flags
             if (args_on_stack < req_anz)
-              # weniger Argumente da als verlangt
+              # fewer Arguments than demanded
               goto fehler_zuwenig;
-            args_on_stack -= req_anz; # verbleibende Anzahl
+            args_on_stack -= req_anz; # remaining number
             if (args_on_stack <= opt_anz) {
-              # Argumente im Stack reichen nicht für die optionalen
-              opt_anz = opt_anz - args_on_stack; # soviele müssen noch auf den STACK
+              # Arguments in Stack don't last for the optional ones
+              opt_anz = opt_anz - args_on_stack; # as many as these must go on STACK
               if (opt_anz > 0) {
-                # Platz auf dem STACK reservieren:
+                # reserve space on STACK:
                 get_space_on_STACK(sizeof(object) * (uintL)opt_anz);
-                # Alle weiteren count optionalen Parameter bekommen den "Wert"
-                # #<UNBOUND>, der &REST-Parameter den Wert NIL,
-                # die Keyword-Parameter den Wert #<UNBOUND> :
+                # All further count optional parameters receive the "value"
+                # #<UNBOUND>, the &REST-parameter receives NIL,
+                # the Keyword-parameters receive the value #<UNBOUND> :
                 var uintC count;
                 dotimespC(count,opt_anz, { pushSTACK(unbound); } );
               }
               if (flags & bit(0)) # &REST-Flag?
-                pushSTACK(NIL); # ja -> mit NIL initialisieren
+                pushSTACK(NIL); # yes -> initialize with NIL
               if (flags & bit(7)) # &KEY-Flag?
                 goto apply_cclosure_key_noargs;
               else
                 goto apply_cclosure_nokey;
             }
-            args_on_stack -= opt_anz; # verbleibende Anzahl
+            args_on_stack -= opt_anz; # remaining number
             if (flags & bit(7)) # Key-Flag?
               goto apply_cclosure_key_withargs_;
             elif (flags & bit(0))
               goto apply_cclosure_rest_nokey;
             else {
-              # Closure ohne REST oder KEY
-              if (args_on_stack>0) # noch Argumente?
+              # Closure without REST or KEY
+              if (args_on_stack>0) # still arguments?
                 goto fehler_zuviel;
               goto apply_cclosure_nokey;
             }
           }
          apply_cclosure_key_noargs:
           {
-            var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # Anzahl Keyword-Parameter
+            var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # number of Keyword-Parameters
             if (key_anz > 0) {
               get_space_on_STACK(sizeof(object) * (uintL)key_anz);
               var uintC count;
-              dotimespC(count,key_anz, { pushSTACK(unbound); } ); # mit #<UNBOUND> initialisieren
+              dotimespC(count,key_anz, { pushSTACK(unbound); } ); # initialize with #<UNBOUND> 
             }
             goto apply_cclosure_key;
           }
          apply_cclosure_key_withargs:
-          flags = TheCodevec(codevec)->ccv_flags; # Flags initialisieren!
+          flags = TheCodevec(codevec)->ccv_flags; # initialize Flags!
          apply_cclosure_key_withargs_:
-          # Closure mit Keywords
+          # Closure with Keywords
           {
-            var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # Anzahl Keyword-Parameter
-            # restliche Argumente im STACK nach unten schieben und dadurch
-            # Platz für die Keyword-Parameter (und evtl. Rest-Parameter)
-            # schaffen:
+            var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # number of Keyword-Parameters
+            # shift down remaining arguments in STACK and thus
+            # create room for the Keyword-parameters
+            # (and poss. Rest-parameters):
             var uintL shift = key_anz;
             if (flags & bit(0))
-              shift++; # evtl. 1 mehr für Rest-Parameter
+              shift++; # poss. 1 more for Rest-Parameter
             argcount = args_on_stack;
             get_space_on_STACK(sizeof(object) * shift);
             var object* new_args_end_pointer = args_end_pointer STACKop -(uintP)shift;
@@ -5841,47 +5841,47 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             dotimesC(count,key_anz, { NEXT(ptr1) = unbound; } );
             set_args_end_pointer(new_args_end_pointer);
           }
-          # Keywords zuordnen, Rest-Parameter bauen
-          # und evtl. restliche Argumente wegwerfen:
+          # assign Keywords, build Rest-Parameter
+          # and poss. discard remaining arguments:
           closure = match_cclosure_key(closure,argcount,key_args_pointer,rest_args_pointer);
           codevec = TheCclosure(closure)->clos_codevec;
          apply_cclosure_key:
-          interpret_bytecode(closure,codevec,CCV_START_KEY); # Bytecode ab Byte 12 abinterpretieren
+          interpret_bytecode(closure,codevec,CCV_START_KEY); # process Bytecode starting at Byte 12
           goto done;
         }
        apply_cclosure_rest_nokey:
-        # Closure mit nur REST, ohne KEY:
-        # muss noch args_on_stack Argumente aus dem Stack zusammenconsen:
+        # Closure with only REST, without KEY:
+        # still must cons args_on_stack arguments from stack Stack:
         pushSTACK(NIL);
         if (args_on_stack > 0) {
-          pushSTACK(closure); # Closure muss gerettet werden
+          pushSTACK(closure); # Closure must be saved
           dotimesC(args_on_stack,args_on_stack, {
             var object new_cons = allocate_cons();
             Cdr(new_cons) = STACK_1;
-            Car(new_cons) = STACK_2; # nächstes Argument draufconsen
+            Car(new_cons) = STACK_2; # cons next argument to it
             STACK_2 = new_cons;
             STACK_1 = STACK_0; skipSTACK(1);
           });
           closure = popSTACK(); codevec = TheCclosure(closure)->clos_codevec;
         }
-       apply_cclosure_nokey: # Closure ohne &KEY anspringen:
-        interpret_bytecode(closure,codevec,CCV_START_NONKEY); # Bytecode ab Byte 8 abinterpretieren
+       apply_cclosure_nokey: # jump to Closure without &KEY:
+        interpret_bytecode(closure,codevec,CCV_START_NONKEY); # process Bytecode starting at Byte 8
        done:
         #if STACKCHECKC
-        if (!(args_pointer == args_end_pointer)) # Stack aufgeräumt?
-          abort(); # nein -> ab in den Debugger
+        if (!(args_pointer == args_end_pointer)) # Stack cleaned up?
+          abort(); # no -> go to Debugger
         #endif
-        return; # fertig
-        # Gesammelte Fehlermeldungen:
+        return; # finished
+        # Gathered error-messages:
        fehler_anzahl:
         if (args_on_stack < TheCodevec(codevec)->ccv_numreq)
-          goto fehler_zuwenig; # zu wenig Argumente
+          goto fehler_zuwenig; # too few arguments
         else
-          goto fehler_zuviel; # zu viele Argumente
+          goto fehler_zuviel; # too many arguments
        fehler_zuwenig: fehler_closure_zuwenig(closure);
        fehler_zuviel: fehler_closure_zuviel(closure);
       } else {
-        # closure ist eine interpretierte Closure
+        # closure is an interpreted Closure
         funcall_iclosure(closure,args_end_pointer STACKop args_on_stack,args_on_stack);
       }
     }
@@ -5889,19 +5889,19 @@ local Values funcall_closure (object fun, uintC args_on_stack);
 
 #      ---------------------- BYTECODE-INTERPRETER ----------------------
 
-# Interpretiert den Bytecode einer compilierten Closure.
+# Interpretes the bytecode of a compiled Closure.
 # interpret_bytecode_(closure,codeptr,byteptr);
-# > closure: compilierte Closure
-# > codeptr: ihr Codevektor, ein Simple-Bit-Vector, pointable
+# > closure: compiled closure
+# > codeptr: its Codevector, a Simple-Bit-Vector, pointable
 # > byteptr: Start-Bytecodepointer
-# < mv_count/mv_space: Werte
+# < mv_count/mv_space: values
 # changes STACK, can trigger GC
-  # Syntax lokaler Labels in GNU-C Assembler-Anweisungen:
+  # Syntax of local labels in GNU-C assembler-statements:
   #if defined(GNU) && !defined(NO_ASM)
-    # LD(x) definiert Label mit Nummer x
-    # LR(x,f) referenziert Label mit Nummer x vorwärts
-    # LR(x,b) referenziert Label mit Nummer x rückwärts
-    # Der Sichtbarkeitsbereich der Labels ist nur die eine Assembler-Anweisung.
+    # LD(x) defines Label with number x
+    # LR(x,f) references label with number x forwards
+    # LR(x,b) references label with number x backwards
+    # The scope of the labels is only one assembler-statement.
     #if defined(I80386) && !defined(UNIX_NEXTSTEP)
       #ifdef ASM_UNDERSCORE
         #define LD(nr)  CONCAT("LASM%=X",STRING(nr))
@@ -5918,7 +5918,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
       #define LR(nr,fb)  CONCAT(STRING(nr),STRING(fb))
     #endif
   #endif
-  # Den GNU-C dazu überreden, closure und byteptr in Registern zu halten:
+  # Persuade GNU-C, to keep closure and byteptr in registers:
   #ifdef GNU
     #ifdef MC680X0
       #define closure_register  "a2"
@@ -5929,7 +5929,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
       #define byteptr_register  "%l1"
     #endif
     #ifdef I80386
-      #if (__GNUC__ >= 2) # Die Namen der Register haben sich verändert
+      #if (__GNUC__ >= 2) # The register-names have changed
         #define byteptr_register  "%edi"
       #else
         #define byteptr_register  "di"
@@ -5954,7 +5954,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
       #define byteptr_register  "$14"
     #endif
     #ifdef WIDE_SOFT
-      # Ein `object' passt nicht in ein einzelnes Register, GCC ist überfordert.
+      # An `object' does not fit into a single register, GCC is overcharged.
       #undef closure_register
     #endif
   #endif
@@ -5969,12 +5969,12 @@ local Values funcall_closure (object fun, uintC args_on_stack);
     var Sbvector codeptr;
     var const uintB* byteptr_in;
     {
-      # Argument closure im Register unterbringen:
+      # situate argument closure in register:
       #ifdef closure_register
       var object closure __asm__(closure_register);
       closure = closure_in;
       #endif
-      # Argument byteptr im Register unterbringen:
+      # situate argument byteptr in register:
       #ifdef byteptr_register
       var const uintB* byteptr __asm__(byteptr_register);
       byteptr = byteptr_in;
@@ -5984,11 +5984,11 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         pushSTACK(closure); trace_call(closure,'B','C'); closure = popSTACK();
       }
       #endif
-      # Closure im STACK unterbringen, unter die Argumente:
+      # situate closure in STACK, below the arguments:
       var object* closureptr = (pushSTACK(closure), &STACK_0);
       #ifndef FAST_SP
-        # Hat man keinen schnellen SP-Zugriff, muss man einen extra Pointer
-        # einführen:
+        # If there is no fast SP-Access, one has to introduce 
+        # an extra pointer:
         var uintL private_SP_length =
           (uintL)(((Codevec)codeptr)->ccv_spdepth_1)
           + jmpbufsize * (uintL)(((Codevec)codeptr)->ccv_spdepth_jmpbufsize);
@@ -6005,20 +6005,20 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         #define pushSP(item)  (*--private_SP = (item))
         #define popSP(item_zuweisung)  (item_zuweisung *private_SP++)
       #endif
-      # var JMPBUF_on_SP(name);  alloziert einen sp_jmp_buf im SP.
-      # FREE_JMPBUF_on_SP();  dealloziert ihn wieder.
-      # finish_entry_frame_1(frametype,returner,reentry_statement);  ist wie
-      # finish_entry_frame(frametype,returner,,reentry_statement);  nur dass
-      # auch private_SP gerettet wird.
+      # var JMPBUF_on_SP(name);  allocates a sp_jmp_buf in SP.
+      # FREE_JMPBUF_on_SP();  deallocates it.
+      # finish_entry_frame_1(frametype,returner,reentry_statement);  is like
+      # finish_entry_frame(frametype,returner,,reentry_statement);  but
+      # also private_SP is saved.
       #ifndef FAST_SP
         #define JMPBUF_on_SP(name)  \
           sp_jmp_buf* name = (sp_jmp_buf*)(private_SP -= jmpbufsize);
         #define FREE_JMPBUF_on_SP()  \
           private_SP += jmpbufsize;
         #define finish_entry_frame_1(frametype,returner,reentry_statement)  \
-          finish_entry_frame(frametype,&!*returner, # Beim Eintritt: returner = private_SP      \
-            returner = (sp_jmp_buf*) , # returner wird beim Rücksprung wieder gesetzt           \
-            { private_SP = (SPint*)returner; reentry_statement } # und private_SP rekonstruiert \
+          finish_entry_frame(frametype,&!*returner, # On entry: returner = private_SP      \
+            returner = (sp_jmp_buf*) , # returner is set again on return           \
+            { private_SP = (SPint*)returner; reentry_statement } # and private_SP is reconstructed \
             )
       #else
         #ifdef SP_DOWN
@@ -6053,54 +6053,54 @@ local Values funcall_closure (object fun, uintC args_on_stack);
                                           };
       #endif
       #
-      # nächstes Byte abzuinterpretieren
-      # > mv_count/mv_space: aktuelle Werte
-      # > closureptr: Pointer auf die compilierte Closure im Stack
-      # > closure: compilierte Closure
-      # > codeptr: ihr Codevektor, ein Simple-Bit-Vektor, pointable
-      #            (kein LISP-Objekt, aber dennoch GC-gefährdet!)
-      # > byteptr: Pointer auf das nächste Byte im Code
-      #            (kein LISP-Objekt, aber dennoch GC-gefährdet!)
+      # next Byte to be interpreted
+      # > mv_count/mv_space: current values
+      # > closureptr: pointer to the compiled closure on Stack
+      # > closure: compiled closure
+      # > codeptr: its codevector, a Simple-Bit-Vektor, pointable
+      #            (no LISP-object, but nevertheless endangered by GC!)
+      # > byteptr: pointer to the next byte in code
+      #            (no LISP-object, but nevertheless endangered by GC!)
      next_byte:
-      # Fallunterscheidung nach abzuinterpretierendem Byte
+      # definition by cases, according to byte to be interpreted byte
       #ifndef FAST_DISPATCH
        switch (*byteptr++)
        #define CASE  case (uintB)
       #else # FAST_DISPATCH
-       # Das ist etwa 2% schneller, weil die Index-Überprüfung entfällt.
+       # This is faster by about 2%, because the index-check is dropped.
        goto *cod_labels[*byteptr++];
        #define CASE
        #ifdef FAST_DISPATCH_THREADED
-        # Die Sprunganweisung  goto next_byte;  kann man sich auch sparen:
+        # The jump-statement  goto next_byte;  can be omitted:
         #define next_byte  *cod_labels[*byteptr++]
        #endif
       #endif
       {
-        # Holen der Operanden:
-        #   nächstes Byte:
-        #     Bit 7 = 0 --> Bits 6..0 sind der Operand (7 Bits).
-        #     Bit 7 = 1 --> Bits 6..0 und nächstes Byte bilden den
-        #                   Operanden (15 Bits).
-        #                   Bei Sprungdistanzen: Sollte dieser =0 sein, so
-        #                   bilden die nächsten 4 Bytes den Operanden
+        # Operand-Fetch:
+        #   next Byte:
+        #     Bit 7 = 0 --> Bits 6..0 are the Operand (7 Bits).
+        #     Bit 7 = 1 --> Bits 6..0 and next Byte form the
+        #                   Operand (15 Bits).
+        #                   For jump-distances: Should this be =0, the next
+        #                   4 Bytes form the Operand
         #                   (32 Bits).
         #
         # Macro B_operand(where);
-        # bringt den nächsten Operanden (ein Byte als Unsigned Integer)
-        # nach (uintL)where und rückt dabei den Bytecodepointer weiter.
+        # moves the next Operand (a Byte as Unsigned Integer)
+        # to (uintL)where and advances  bytecodepointer.
           #define B_operand(where)  \
             { where = *byteptr++; }
         #
         # Macro U_operand(where);
-        # bringt den nächsten Operanden (ein Unsigned Integer)
-        # nach (uintL)where oder (uintC)where
-        # und rückt dabei den Bytecodepointer weiter.
+        # moves the next Operand (an Unsigned Integer)
+        # to (uintL)where or (uintC)where
+        # and advances the Bytecodepointer.
           #define U_operand(where)  \
-            { where = *byteptr++; # erstes Byte lesen            \
-              if ((uintB)where & bit(7)) # Bit 7 gesetzt?        \
-                { where &= ~bit(7); # ja -> löschen              \
+            { where = *byteptr++; # read first Byte              \
+              if ((uintB)where & bit(7)) # Bit 7 set?            \
+                { where &= ~bit(7); # yes -> delete              \
                   where = where << 8;                            \
-                  where |= *byteptr++; # und nächstes Byte lesen \
+                  where |= *byteptr++; # and read next Byte      \
             }   }
         #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
           #undef U_operand
@@ -6161,9 +6161,9 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               "incl %1"         "\n"   \
               LD(1)":"                 \
               : OUT_EAX (where), "=r" (byteptr) : "1" (byteptr) );
-          # Vorsicht: 1. Der Sun-Assembler kennt diese Syntax für lokale Labels nicht.
-          #              Daher generieren wir unsere lokalen Labels selbst.
-          # Vorsicht: 2. ccr wird verändert. Wie deklariert man das??
+          # Caution: 1. Der Sun-Assembler doesn't know this Syntax for local labels.
+          #              That's why we generate our local labels ourselves.
+          # Caution: 2. ccr is changed. How is this to be declared??
         #endif
         #if defined(GNU) && defined(ARM) && !defined(NO_ASM)
           # Macros written by Peter Burwood.
@@ -6199,18 +6199,18 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         #endif
         #
         # Macro S_operand(where);
-        # bringt den nächsten Operanden (ein Signed Integer)
-        # nach (uintL)where und rückt dabei den Bytecodepointer weiter.
+        # moves the next Operand (a Signed Integer)
+        # to (uintL)where and advances the bytecodepointer.
           #define S_operand(where)  \
-            { where = *byteptr++; # erstes Byte lesen              \
+            { where = *byteptr++; # read first byte                \
               if ((uintB)where & bit(7))                           \
-                # Bit 7 war gesetzt                                \
+                # Bit 7 was set                                    \
                 { where = where << 8;                              \
-                  where |= *byteptr++; # nächstes Byte dazunehmen  \
-                  # Sign-Extend von 15 auf 32 Bits:                \
+                  where |= *byteptr++; # subjoin next Byte         \
+                  # Sign-Extend from 15 to 32 Bits:                \
                   where = (sintL)((sintL)(sintWL)((sintWL)where << (intWLsize-15)) >> (intWLsize-15)); \
                   if (where == 0)                                  \
-                    # Sonderfall: 2-Byte-Operand = 0 -> 6-Byte-Operand \
+                    # special case: 2-Byte-Operand = 0 -> 6-Byte-Operand \
                     { where = (uintL)( ((uintWL)(byteptr[0]) << 8) \
                                       | (uintWL)(byteptr[1])       \
                                      ) << 16                       \
@@ -6220,8 +6220,8 @@ local Values funcall_closure (object fun, uintC args_on_stack);
                       byteptr += 4;                                \
                 }   }                                              \
                 else                                               \
-                # Bit 7 war gelöscht                               \
-                { # Sign-Extend von 7 auf 32 Bits:                 \
+                # Bit 7 was deleted                                \
+                { # Sign-Extend from 7 to 32 Bits:                 \
                   where = (sintL)((sintL)(sintBWL)((sintBWL)where << (intBWLsize-7)) >> (intBWLsize-7)); \
                 }                                                  \
             }
@@ -6344,14 +6344,14 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         #endif
         #
         # Macro S_operand_ignore();
-        # übergeht den nächsten Operanden (ein Signed Integer)
-        # und rückt dabei den Bytecodepointer weiter.
+        # skips the next Operand (a Signed Integer)
+        # and advances the bytecodepointer.
           #define S_operand_ignore()  \
-            { var uintB where = *byteptr++; # erstes Byte lesen        \
+            { var uintB where = *byteptr++; # read first byte          \
               if ((uintB)where & bit(7))                               \
                 # Bit 7 war gesetzt                                    \
-                { if ((uintB)((where<<1) | *byteptr++) == 0) # nächstes Byte dazu \
-                    # Sonderfall: 2-Byte-Operand = 0 -> 6-Byte-Operand \
+                { if ((uintB)((where<<1) | *byteptr++) == 0) # next Byte \
+                    # special case: 2-Byte-Operand = 0 -> 6-Byte-Operand \
                     { byteptr += 4; }                                  \
             }   }
         #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
@@ -6408,47 +6408,47 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         #endif
         #
         # Macro L_operand(where);
-        # bringt den nächsten Operanden (ein Label)
-        # nach (uintB*)where und rückt dabei den Bytecodepointer weiter.
+        # moves the next Operand (a Label)
+        # to (uintB*)where and advances the bytecodepointer.
           #define L_operand(Lwhere)  \
-            { var uintL where; # Variable fürs Displacement \
-              S_operand(where); # Displacement              \
-              Lwhere = byteptr + (sintL)where; # addieren   \
+            { var uintL where; # variable for the displacement \
+              S_operand(where); # Displacement                 \
+              Lwhere = byteptr + (sintL)where; # add           \
             }
         #
         # Macro L_operand_ignore();
-        # übergeht den nächsten Operanden (ein Label)
-        # und rückt dabei den Bytecodepointer weiter.
+        # skips the next Operand (a Label)
+        # and advances the Bytecodepointer.
           #define L_operand_ignore()  S_operand_ignore()
         #
-        # Die einzelnen Bytecodes werden interpretiert:
-        # Dabei ist meist mv_count/mv_space = Werte,
-        # closureptr = Pointer auf die compilierte Closure im Stack,
-        # closure = compilierte Closure,
-        # codeptr = Pointer auf ihren Codevektor,
-        # byteptr = Pointer auf das nächste Byte im Code.
-        # (byteptr ist kein LISP-Objekt, aber dennoch GC-gefährdet! Um es
-        #  GC-invariant zu machen, muss man CODEPTR
-        #  davon subtrahieren. Addiert man dann Fixnum_0 dazu,
-        #  so hat man die Bytenummer als Fixnum.)
+        # Each of the bytecodes is interpreted:
+        # for the most part: mv_count/mv_space = values,
+        # closureptr = pointer to the compiled closure in Stack,
+        # closure = compiled closure,
+        # codeptr = pointer to its codevector,
+        # byteptr = pointer to the next Byte in code.
+        # (byteptr is no LISP-object, but nevertheless endangered by GC! In order to
+        #  make it GC-invariant, CODEPTR must be subtraced from it.
+        #  If one adds to Fixnum_0 to it,
+        #  one receives the bytenumber as Fixnum.)
         #if 0
           #define CODEPTR  (&codeptr->data[0])
-        #else # liefert effizienteren Code
+        #else # returns more efficient Code
           #define CODEPTR  (uintB*)(codeptr)
         #endif
         #
-        # Kontextinformation aufbewahren:
-        # Wird etwas aufgerufen, das eine GC auslösen kann, so muss dies in ein
-        # with_saved_context( ... ) eingebaut werden.
+        # store context-information:
+        # If sth. is called, that can trigger a GC, this must be built into a
+        # with_saved_context( ... ) .
           #define with_saved_context(statement)  \
             { var uintL index = byteptr - CODEPTR;                       \
               statement;                                                 \
-              closure = *closureptr; # Closure aus dem Stack holen       \
+              closure = *closureptr; # fetch Closure from Stack          \
               codeptr = TheSbvector(TheCclosure(closure)->clos_codevec); \
               byteptr = CODEPTR + index;                                 \
             }
         #
-        # ------------------- (1) Konstanten -----------------------
+        # ------------------- (1) Constants -----------------------
         CASE cod_nil:                    # (NIL)
           code_nil:
           value1 = NIL; mv_count = 1;
@@ -6484,7 +6484,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             pushSTACK(TheCclosure(closure)->clos_consts[n]);
           }
           goto next_byte;
-        # ------------------- (2) statische Variablen -----------------------
+        # ------------------- (2) static Variables -----------------------
         CASE cod_load:                   # (LOAD n)
           {
             var uintL n;
@@ -6548,9 +6548,9 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(k);
             U_operand(m);
             var object venv = TheCclosure(closure)->clos_venv; # VenvConst
-            # k mal (svref ... 0) nehmen:
+            # take (svref ... 0) k times:
             dotimesC(k,k, { venv = TheSvector(venv)->data[0]; } );
-            # (svref ... m) holen:
+            # fetch (svref ... m) :
             value1 = TheSvector(venv)->data[m]; mv_count=1;
           }
           goto next_byte;
@@ -6561,9 +6561,9 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(k);
             U_operand(m);
             var object venv = TheCclosure(closure)->clos_venv; # VenvConst
-            # k mal (svref ... 0) nehmen:
+            # take (svref ... 0) k times:
             dotimesC(k,k, { venv = TheSvector(venv)->data[0]; } );
-            # (svref ... m) holen:
+            # fetch (svref ... m) :
             pushSTACK(TheSvector(venv)->data[m]);
           }
           goto next_byte;
@@ -6630,9 +6630,9 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(k);
             U_operand(m);
             var object venv = TheCclosure(closure)->clos_venv; # VenvConst
-            # k mal (svref ... 0) nehmen:
+            # take (svref ... 0) k times:
             dotimesC(k,k, { venv = TheSvector(venv)->data[0]; } );
-            # (svref ... m) abspeichern:
+            # save (svref ... m) :
             TheSvector(venv)->data[m] = value1; mv_count=1;
           }
           goto next_byte;
@@ -6650,13 +6650,13 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             TheSvector(FRAME_(n))->data[1+m] = value1; mv_count=1;
           }
           goto next_byte;
-        # ------------------- (3) dynamische Variablen -----------------------
+        # ------------------- (3) dynamic Variables -----------------------
         CASE cod_getvalue:               # (GETVALUE n)
           {
             var uintL n;
             U_operand(n);
             var object symbol = TheCclosure(closure)->clos_consts[n];
-            # Der Compiler hat schon überprüft, dass es ein Symbol ist.
+            # The Compiler has already checked, that it's a Symbol.
             if (eq(Symbol_value(symbol),unbound)) {
               pushSTACK(symbol); # CELL-ERROR slot NAME
               pushSTACK(symbol);
@@ -6670,7 +6670,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var uintL n;
             U_operand(n);
             var object symbol = TheCclosure(closure)->clos_consts[n];
-            # Der Compiler hat schon überprüft, dass es ein Symbol ist.
+            # The Compiler has already checked, that it's a Symbol.
             if (eq(Symbol_value(symbol),unbound)) {
               pushSTACK(symbol); # CELL-ERROR slot NAME
               pushSTACK(symbol);
@@ -6684,7 +6684,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var uintL n;
             U_operand(n);
             var object symbol = TheCclosure(closure)->clos_consts[n];
-            # Der Compiler hat schon überprüft, dass es ein Symbol ist.
+            # The Compiler has already checked, that it's a Symbol.
             if (constantp(TheSymbol(symbol))) {
               pushSTACK(symbol);
               fehler(error,
@@ -6705,18 +6705,18 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           if (!(framecode(STACK_0) == DYNBIND_frame_info))
             goto fehler_STACK_putt;
           #endif
-          # Variablenbindungsframe auflösen:
+          # unwind variable-binding-frame:
           {
-            var object* new_STACK = topofframe(STACK_0); # Pointer übern Frame
+            var object* new_STACK = topofframe(STACK_0); # pointer above frame
             var object* frame_end = STACKpointable(new_STACK);
-            var object* bindingptr = &STACK_1; # Beginn der Bindungen
-            # bindingptr läuft durch die Bindungen hoch
+            var object* bindingptr = &STACK_1; # begin of bindings
+            # bindingptr loops upwards through the bindings
             until (bindingptr == frame_end) {
-              # alten Wert zurückschreiben:
+              # write back old value:
               Symbol_value(*(bindingptr STACKop 0)) = *(bindingptr STACKop 1);
-              bindingptr skipSTACKop 2; # nächste Bindung
+              bindingptr skipSTACKop 2; # next binding
             }
-            # STACK neu setzen, dadurch Frame auflösen:
+            # set STACK newly, thus unwind frame:
             setSTACK(STACK = new_STACK);
           }
           goto next_byte;
@@ -6730,30 +6730,30 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               if (!(framecode(FRAME_(0)) == DYNBIND_frame_info))
                 goto fehler_STACK_putt;
               #endif
-              # Variablenbindungsframe auflösen:
-              var object* new_FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
+              # unwind variable-binding-frame:
+              var object* new_FRAME = topofframe(FRAME_(0)); # pointer above frame
               var object* frame_end = STACKpointable(new_FRAME);
-              var object* bindingptr = &FRAME_(1); # Beginn der Bindungen
-              # bindingptr läuft durch die Bindungen hoch
+              var object* bindingptr = &FRAME_(1); # begin of the bindings
+              # bindingptr loops upwards through the bindings
               until (bindingptr == frame_end) {
-                # alten Wert zurückschreiben:
+                # write back old value:
                 Symbol_value(*(bindingptr STACKop 0)) = *(bindingptr STACKop 1);
-                bindingptr skipSTACKop 2; # nächste Bindung
+                bindingptr skipSTACKop 2; # next binding
               }
               FRAME = new_FRAME;
             } until (--n == 0);
-            setSTACK(STACK = FRAME); # STACK neu setzen
+            setSTACK(STACK = FRAME); # set STACK newly
           }
           goto next_byte;
         CASE cod_progv:                  # (PROGV)
           {
-            var object vallist = value1; # Wertliste
-            var object symlist = popSTACK(); # Symbolliste
-            pushSP((aint)STACK); # STACK in den SP legen
-            progv(symlist,vallist); # Frame aufbauen
+            var object vallist = value1; # value-list
+            var object symlist = popSTACK(); # symbol-list
+            pushSP((aint)STACK); # push STACK into SP
+            progv(symlist,vallist); # build frame
           }
           goto next_byte;
-        # ------------------- (4) Stackoperationen -----------------------
+        # ------------------- (4) Stackoperations -----------------------
         CASE cod_push:                   # (PUSH)
           pushSTACK(value1);
           goto next_byte;
@@ -6790,27 +6790,27 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             skipSP(k1+jmpbufsize*k2);
           }
           goto next_byte;
-        # ------------------- (5) Programmfluss und Sprünge -----------------------
+        # ------------------- (5) Control Flow and Jumps -----------------------
         CASE cod_skip_ret:               # (SKIP&RET n)
           {
             var uintL n;
             U_operand(n);
             skipSTACK(n);
-            goto finished; # Rücksprung zum Aufrufer
+            goto finished; # return (jump) to caller
           }
         CASE cod_skip_retgf:             # (SKIP&RETGF n)
           {
             var uintL n;
             U_operand(n);
-            if (((Codevec)codeptr)->ccv_flags & bit(3)) { # Aufrufhemmung?
+            if (((Codevec)codeptr)->ccv_flags & bit(3)) { # call inhibition?
               skipSTACK(n);
               mv_count=1;
-              goto finished; # Rücksprung zum Aufrufer
+              goto finished; # return (jump) to caller
             }
-            # Es ist bekannt (siehe clos.lisp), dass diese Funktion
-            # keine optionalen Parameter hat, aber evtl. Rest-Parameter.
-            # Falls kein Rest-Parameter: (FUNCALL value1 arg1 ... argr)
-            # Falls mit Rest-Parameter: (APPLY value1 arg1 ... argr restarg)
+            # It is known (refer to clos.lisp), that this function
+            # has no optional parameters, but poss. Rest-parameters.
+            # If there's no Rest-parameter: (FUNCALL value1 arg1 ... argr)
+            # If there's a  Rest-Parameter: (APPLY value1 arg1 ... argr restarg)
             var uintL r = ((Codevec)codeptr)->ccv_numreq;
             n -= r;
             if (((Codevec)codeptr)->ccv_flags & bit(0)) {
@@ -6818,7 +6818,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             } else {
               skipSTACK(n); funcall(value1,r);
             }
-            goto finished; # Rücksprung zum Aufrufer
+            goto finished; # return (jump) to caller
           }
         #define JMP()  \
           { var const uintB* label_byteptr; \
@@ -6874,11 +6874,11 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           {
             var uintL n;
             U_operand(n);
-            var object hashvalue = # value1 in der Hash-Tabelle suchen
+            var object hashvalue = # search value1 in the Hash-table
               gethash(value1,TheCclosure(closure)->clos_consts[n]);
             if (eq(hashvalue,nullobj))
-              goto jmp; # nicht gefunden -> zu label springen
-            else # gefundenes Fixnum als Label interpretieren:
+              goto jmp; # not found -> jump to label
+            else # interprete found Fixnum as label:
               byteptr += fixnum_to_L(hashvalue);
           }
           goto next_byte;
@@ -6886,15 +6886,15 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           {
             var uintL n;
             U_operand(n);
-            var object hashvalue = # value1 in der Hash-Tabelle suchen
+            var object hashvalue = # search value1 in the Hash-table
               gethash(value1,TheSvector(TheCclosure(closure)->clos_consts[0])->data[n]);
             if (eq(hashvalue,nullobj))
-              goto jmp; # nicht gefunden -> zu label springen
-            else # gefundenes Fixnum als Label interpretieren:
+              goto jmp; # not found -> jump to label
+            else # interprete found Fixnum as label:
               byteptr += fixnum_to_L(hashvalue);
           }
           goto next_byte;
-        # Führt einen (JSR label)-Befehl aus.
+        # executes a (JSR label)-command.
         #define JSR()  \
           check_STACK(); check_SP();                              \
           { var const uintB* label_byteptr;                       \
@@ -6915,19 +6915,19 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var uintL n;
             U_operand(m);
             U_operand(n);
-            # Es gilt n>=m. m Stackeinträge um n-m nach oben kopieren:
+            # It is n>=m. Copy m stack-entries upwards by n-m :
             var object* ptr1 = STACK STACKop m;
             var object* ptr2 = STACK STACKop n;
             var uintC count;
             dotimesC(count,m, { NEXT(ptr2) = NEXT(ptr1); } );
-            # Nun ist ptr1 = STACK und ptr2 = STACK STACKop (n-m).
-            *(closureptr = &NEXT(ptr2)) = closure; # Closure im Stack ablegen
-            setSTACK(STACK = ptr2); # STACK verkürzen
+            # Now ptr1 = STACK and ptr2 = STACK STACKop (n-m).
+            *(closureptr = &NEXT(ptr2)) = closure; # store closure in stack
+            setSTACK(STACK = ptr2); # shorten STACK
           }
-          JMP(); # an label springen
-        # ------------------- (6) Environments und Closures -----------------------
+          JMP(); # jump to label
+        # ------------------- (6) Environments and Closures -----------------------
         CASE cod_venv:                   # (VENV)
-          # VenvConst aus der Closure holen:
+          # fetch VenvConst from the closure:
           value1 = TheCclosure(closure)->clos_venv; mv_count=1;
           goto next_byte;
         CASE cod_make_vector1_push:      # (MAKE-VECTOR1&PUSH n)
@@ -6935,10 +6935,10 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var uintL n;
             U_operand(n);
             pushSTACK(value1);
-            # Vektor erzeugen:
+            # create vector:
             var object vec;
             with_saved_context( { vec = allocate_vector(n+1); } );
-            # Erstes Element eintragen:
+            # fill first element:
             TheSvector(vec)->data[0] = STACK_0;
             STACK_0 = vec;
           }
@@ -6946,22 +6946,22 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         CASE cod_copy_closure:           # (COPY-CLOSURE m n)
           {
             var object oldclos;
-            # zu kopierende Closure holen:
+            # fetch closure to be copied:
             {
               var uintL m;
               U_operand(m);
               oldclos = TheCclosure(closure)->clos_consts[m];
             }
-            # Closure gleicher Länge allozieren:
+            # allocate closure of equal length:
             var object newclos;
             pushSTACK(oldclos);
             with_saved_context(
               newclos = allocate_cclosure_copy(oldclos);
             );
             oldclos = popSTACK();
-            # Inhalt der alten in die neue Closure kopieren:
+            # copy contents of the old closure into the new one:
             do_cclosure_copy(newclos,oldclos);
-            # Stackinhalt in die neue Closure kopieren:
+            # copy stack content into the new closure:
             {
               var uintL n;
               U_operand(n);
@@ -6974,22 +6974,22 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         CASE cod_copy_closure_push:      # (COPY-CLOSURE&PUSH m n)
           {
             var object oldclos;
-            # zu kopierende Closure holen:
+            # fetch closure to be copied:
             {
               var uintL m;
               U_operand(m);
               oldclos = TheCclosure(closure)->clos_consts[m];
             }
-            # Closure gleicher Länge allozieren:
+            # allocate closure of equal length:
             var object newclos;
             pushSTACK(oldclos);
             with_saved_context(
               newclos = allocate_cclosure_copy(oldclos);
             );
             oldclos = popSTACK();
-            # Inhalt der alten in die neue Closure kopieren:
+            # copy contents of the old closure into the new one:
             do_cclosure_copy(newclos,oldclos);
-            # Stackinhalt in die neue Closure kopieren:
+            # copy stack content into the new closure:
             {
               var uintL n;
               U_operand(n);
@@ -6999,10 +6999,10 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             pushSTACK(newclos);
           }
           goto next_byte;
-        # ------------------- (7) Funktionsaufrufe -----------------------
-        # Führt (CALL k n)-Befehl aus.
+        # ------------------- (7) Function Calls -----------------------
+        # executes (CALL k n)-command.
         #define CALL()  \
-          { var uintC k; # Argumentezahl                       \
+          { var uintC k; # number of arguments                 \
             var uintL n;                                       \
             U_operand(k);                                      \
             U_operand(n);                                      \
@@ -7010,7 +7010,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               funcall(TheCclosure(closure)->clos_consts[n],k); \
             );                                                 \
           }
-        # Führt (CALL0 n)-Befehl aus.
+        # executes (CALL0 n)-command.
         #define CALL0()  \
           { var uintL n;                                       \
             U_operand(n);                                      \
@@ -7018,7 +7018,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               funcall(TheCclosure(closure)->clos_consts[n],0); \
             );                                                 \
           }
-        # Führt (CALL1 n)-Befehl aus.
+        # executes (CALL1 n)-command.
         #define CALL1()  \
           { var uintL n;                                       \
             U_operand(n);                                      \
@@ -7026,7 +7026,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               funcall(TheCclosure(closure)->clos_consts[n],1); \
             );                                                 \
           }
-        # Führt (CALL2 n)-Befehl aus.
+        # executes (CALL2 n)-command.
         #define CALL2()  \
           { var uintL n;                                       \
             U_operand(n);                                      \
@@ -7034,35 +7034,35 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               funcall(TheCclosure(closure)->clos_consts[n],2); \
             );                                                 \
           }
-        # Führt (CALLS1 n)-Befehl aus.
+        # executes (CALLS1 n)-command.
         #define CALLS1()  \
           { var uintL n;                                              \
             B_operand(n);                                             \
-            # Der Compiler hat die Argumentüberprüfung schon gemacht. \
+            # The compiler has already done the argument-check. \
            {var Subr fun = FUNTAB1[n];                                \
             subr_self = subr_tab_ptr_as_object(fun);                  \
             with_saved_context(                                       \
               (*(subr_norest_function*)(fun->function))();            \
             );                                                        \
           }}
-        # Führt (CALLS2 n)-Befehl aus.
+        # executes (CALLS2 n)-command.
         #define CALLS2()  \
           { var uintL n;                                              \
             B_operand(n);                                             \
-            # Der Compiler hat die Argumentüberprüfung schon gemacht. \
+            # The compiler has already done the argument-check. \
            {var Subr fun = FUNTAB2[n];                                \
             subr_self = subr_tab_ptr_as_object(fun);                  \
             with_saved_context(                                       \
               (*(subr_norest_function*)(fun->function))();            \
             );                                                        \
           }}
-        # Führt (CALLSR m n)-Befehl aus.
+        # executes (CALLSR m n)-command.
         #define CALLSR()  \
           { var uintL m;                                              \
             var uintL n;                                              \
             U_operand(m);                                             \
             B_operand(n);                                             \
-            # Der Compiler hat die Argumentüberprüfung schon gemacht. \
+            # The compiler has already done the argument-check. \
            {var Subr fun = FUNTABR[n];                                \
             subr_self = subr_tab_ptr_as_object(fun);                  \
             with_saved_context(                                       \
@@ -7108,19 +7108,19 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         CASE cod_callsr_push:            # (CALLSR&PUSH m n)
           CALLSR(); pushSTACK(value1);
           goto next_byte;
-        # Führt einen (CALLC)-Befehl aus.
+        # executes a (CALLC)-command.
         #define CALLC()  \
-          { check_STACK(); check_SP(); # STACK und SP überprüfen \
+          { check_STACK(); check_SP(); # check STACK and SP      \
             with_saved_context(                                  \
-              # compilierte Closure ab Byte 8 interpretieren:    \
+              # interprete compiled closure starting at Byte 8   \
               interpret_bytecode(value1,TheCclosure(value1)->clos_codevec,CCV_START_NONKEY); \
             );                                                   \
           }
-        # Führt einen (CALLCKEY)-Befehl aus.
+        # executes a (CALLCKEY)-command.
         #define CALLCKEY()  \
-          { check_STACK(); check_SP(); # STACK und SP überprüfen \
+          { check_STACK(); check_SP(); # check STACK and SP      \
             with_saved_context(                                  \
-              # compilierte Closure ab Byte 12 interpretieren:   \
+              # interprete compiled closure starting at Byte 12: \
               interpret_bytecode(value1,TheCclosure(value1)->clos_codevec,CCV_START_KEY); \
             );                                                   \
           }
@@ -7140,39 +7140,39 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           {
             var uintL n;
             U_operand(n);
-            var object fun = STACK_(n); # Funktion
-            with_saved_context( funcall(fun,n); ); # Funktion aufrufen
-            skipSTACK(1); # Funktion aus dem Stack streichen
+            var object fun = STACK_(n); # Function
+            with_saved_context( funcall(fun,n); ); # call Function
+            skipSTACK(1); # discard function from Stack
           }
           goto next_byte;
         CASE cod_funcall_push:           # (FUNCALL&PUSH n)
           {
             var uintL n;
             U_operand(n);
-            var object fun = STACK_(n); # Funktion
-            with_saved_context( funcall(fun,n); ); # Funktion aufrufen
-            STACK_0 = value1; # Funktion im Stack durch den Wert ersetzen
+            var object fun = STACK_(n); # Function
+            with_saved_context( funcall(fun,n); ); # call Function
+            STACK_0 = value1; # replace Function in Stack by value
           }
           goto next_byte;
         CASE cod_apply:                  # (APPLY n)
           {
             var uintL n;
             U_operand(n);
-            var object fun = STACK_(n); # Funktion
-            with_saved_context( apply(fun,n,value1); ); # Funktion aufrufen
-            skipSTACK(1); # Funktion aus dem Stack streichen
+            var object fun = STACK_(n); # Function
+            with_saved_context( apply(fun,n,value1); ); # call Function
+            skipSTACK(1); # discard Function from Stack
           }
           goto next_byte;
         CASE cod_apply_push:             # (APPLY&PUSH n)
           {
             var uintL n;
             U_operand(n);
-            var object fun = STACK_(n); # Funktion
-            with_saved_context( apply(fun,n,value1); ); # Funktion aufrufen
-            STACK_0 = value1; # Funktion im Stack durch den Wert ersetzen
+            var object fun = STACK_(n); # Function
+            with_saved_context( apply(fun,n,value1); ); # call Function
+            STACK_0 = value1; # replace Function in Stack by value
           }
           goto next_byte;
-        # ------------------- (8) optionale und Keyword-Argumente -----------------------
+        # ------------------- (8) optional and Keyword-arguments -----------------------
         CASE cod_push_unbound:           # (PUSH-UNBOUND n)
           {
             var uintC n;
@@ -7242,7 +7242,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             if (eq(STACK_(n),unbound)) { STACK_(n) = NIL; }
           }
           goto next_byte;
-        # ------------------- (9) Behandlung mehrerer Werte -----------------------
+        # ------------------- (9) Treatment of multiple values -----------------------
         CASE cod_values0:                # (VALUES0)
           value1 = NIL; mv_count = 0;
           goto next_byte;
@@ -7258,39 +7258,39 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           }
           goto next_byte;
         CASE cod_mv_to_stack:            # (MV-TO-STACK)
-          mv_to_STACK(); # Werte auf den Stack schieben
+          mv_to_STACK(); # push values on Stack
           goto next_byte;
         CASE cod_nv_to_stack:            # (NV-TO-STACK n)
           {
             var uintL n;
             U_operand(n);
-            # Test auf Stacküberlauf:
+            # test for Stack-Overflow:
             get_space_on_STACK(n*sizeof(object));
-            # n Werte in den Stack schieben:
+            # push n values in the Stack:
             var uintC count = mv_count;
-            if (n==0) goto nv_to_stack_end; # kein Wert gewünscht -> fertig
-            # mindestens 1 Wert gewünscht
+            if (n==0) goto nv_to_stack_end; # no value desired -> finished
+            # at least 1 value desired
             pushSTACK(value1);
-            n--; if (n==0) goto nv_to_stack_end; # nur 1 Wert gewünscht -> fertig
-            if (count<=1) goto nv_to_stack_fill; # nur 1 Wert vorhanden -> mit NILs auffüllen
+            n--; if (n==0) goto nv_to_stack_end; # only 1 value desired -> finished
+            if (count<=1) goto nv_to_stack_fill; # only 1 value present -> fill with NILs
             count--;
-            # mindestens 2 Werte gewünscht und vorhanden
+            # at least 2 values desired and present
             {
               var object* mvp = &mv_space[1];
               loop {
                 pushSTACK(*mvp++);
-                n--; if (n==0) goto nv_to_stack_end; # kein Wert mehr gewünscht -> fertig
-                count--; if (count==0) goto nv_to_stack_fill; # kein Wert mehr vorhanden -> mit NILs auffüllen
+                n--; if (n==0) goto nv_to_stack_end; # no further value desired -> finished
+                count--; if (count==0) goto nv_to_stack_fill; # no further value present -> fill with NILs
               }
             }
-            nv_to_stack_fill: # Auffüllen mit n>0 NILs als zusätzlichen Werten:
+            nv_to_stack_fill: # fill up with n>0 NILs as additional values:
             dotimespL(n,n, { pushSTACK(NIL); } );
             nv_to_stack_end: ;
           }
           goto next_byte;
         CASE cod_mv_to_list:             # (MV-TO-LIST)
           with_saved_context(
-            # Werte auf den Stack schieben und daraus Liste basteln:
+            # push values on Stack and handicraft list out of it:
             mv_to_list();
           );
           value1 = popSTACK(); mv_count=1;
@@ -7299,15 +7299,15 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           list_to_mv(value1, { goto fehler_zuviele_werte; } );
           goto next_byte;
         CASE cod_mvcallp:                # (MVCALLP)
-          pushSP((aint)STACK); # STACK retten
-          pushSTACK(value1); # auszuführende Funktion retten
+          pushSP((aint)STACK); # save STACK
+          pushSTACK(value1); # save function to be executed
           goto next_byte;
         CASE cod_mvcall:                 # (MVCALL)
           {
-            var object* FRAME; popSP( FRAME = (object*) ); # Pointer über Argumente und Funktion
-            var object fun = NEXT(FRAME); # Funktion
+            var object* FRAME; popSP( FRAME = (object*) ); # Pointer to Arguments and Function
+            var object fun = NEXT(FRAME); # Function
             with_saved_context({
-              var uintL argcount = # Anzahl der Argumente auf dem Stack
+              var uintL argcount = # number of arguments on stack
                 STACK_item_count(STACK,FRAME);
               if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1)) {
                 pushSTACK(fun);
@@ -7315,68 +7315,68 @@ local Values funcall_closure (object fun, uintC args_on_stack);
                 fehler(program_error,
                        GETTEXT("~: too many arguments given to ~"));
               }
-              # Funktion anwenden, Stack anheben bis unter die Funktion:
+              # apply Function, lift Stack until below the Function:
               funcall(fun,argcount);
-              skipSTACK(1); # Funktion aus dem STACK streichen
+              skipSTACK(1); # discard Function from STACK
             });
           }
           goto next_byte;
         # ------------------- (10) BLOCK -----------------------
         CASE cod_block_open:             # (BLOCK-OPEN n label)
-          # belegt 3 STACK-Einträge und 1 SP-jmp_buf-Eintrag und 2 SP-Einträge
+          # occupies 3 STACK-entries and 1 SP-jmp_buf-entry and 2 SP-entries
           {
             var uintL n;
             var sintL label_dist;
             U_operand(n);
             S_operand(label_dist);
-            # Block_Cons erzeugen:
+            # create Block_Cons:
             var object block_cons;
             with_saved_context(
               block_cons = allocate_cons();
-              label_dist += index; # CODEPTR+label_dist ist das Sprungziel
+              label_dist += index; # CODEPTR+label_dist is the jump destination
             );
-            # Block-Cons füllen: (CONST n) als CAR
+            # fill Block-Cons: (CONST n) as CAR
             Car(block_cons) = TheCclosure(closure)->clos_consts[n];
-            # Sprungziel in den SP:
+            # jump destination into SP:
             pushSP(label_dist); pushSP((aint)closureptr);
-            # CBLOCK-Frame aufbauen:
+            # build up CBLOCK-Frame:
             {
-              var object* top_of_frame = STACK; # Pointer übern Frame
+              var object* top_of_frame = STACK; # Pointer above Frame
               pushSTACK(block_cons); # Cons ( (CONST n) . ...)
-              var JMPBUF_on_SP(returner); # Rücksprungpunkt merken
+              var JMPBUF_on_SP(returner); # memorize return-point
               finish_entry_frame_1(CBLOCK,returner, goto block_return; );
             }
-            # Framepointer im Block-Cons ablegen:
+            # store Framepointer in Block-Cons:
             Cdr(block_cons) = make_framepointer(STACK);
           }
           goto next_byte;
-         block_return: # Hierher wird gesprungen, wenn der oben aufgebaute
-                       # CBLOCK-Frame ein RETURN-FROM gefangen hat.
+         block_return: # jump to this label takes place, if the previously
+                       # built CBLOCK-Frame has catched a RETURN-FROM.
           {
             FREE_JMPBUF_on_SP();
-            skipSTACK(2); # CBLOCK-Frame auflösen, dabei
-            Cdr(popSTACK()) = disabled; # Block-Cons als Disabled markieren
+            skipSTACK(2); # unwind CBLOCK-Frame and mark
+            Cdr(popSTACK()) = disabled; # Block-Cons as Disabled
             var uintL index;
-            # closure zurück, byteptr:=label_byteptr :
+            # get closure back, byteptr:=label_byteptr :
             popSP(closureptr = (object*) ); popSP(index = );
-            closure = *closureptr; # Closure aus dem Stack holen
+            closure = *closureptr; # fetch Closure from Stack
             codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
             byteptr = CODEPTR + index;
           }
-          goto next_byte; # am Label weiterinterpretieren
+          goto next_byte; # continue interpretation at Label
         CASE cod_block_close:            # (BLOCK-CLOSE)
-          # CBLOCK-Frame auflösen:
+          # unwind CBLOCK-Frame:
           #if STACKCHECKC
           if (!(framecode(STACK_0) == CBLOCK_frame_info))
             goto fehler_STACK_putt;
           #endif
           {
             FREE_JMPBUF_on_SP();
-            skipSTACK(2); # CBLOCK-Frame auflösen, dabei
-            Cdr(popSTACK()) = disabled; # Block-Cons als Disabled markieren
-            skipSP(2); # Ziel-Closureptr und Ziel-Label kennen wir
+            skipSTACK(2); # unwind CBLOCK-Frame and mark
+            Cdr(popSTACK()) = disabled; # Block-Cons as Disabled
+            skipSP(2); # we know Destination-Closureptr and Destination-Label
           }
-          goto next_byte; # am Label gleich weiterinterpretieren
+          goto next_byte; # at Label continue interpretation
         CASE cod_return_from:            # (RETURN-FROM n)
           {
             var uintL n;
@@ -7384,7 +7384,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var object block_cons = TheCclosure(closure)->clos_consts[n];
             if (eq(Cdr(block_cons),disabled))
               fehler_block_left(Car(block_cons));
-            # Bis zum Block-Frame unwinden, dann seine Routine zum Auflösen anspringen:
+            # unwind upto Block-Frame, then jump to its routine for freeing:
             #ifndef FAST_SP
             FREE_DYNAMIC_ARRAY(private_SP_space);
             #endif
@@ -7402,7 +7402,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var object block_cons = FRAME_(n);
             if (eq(Cdr(block_cons),disabled))
               fehler_block_left(Car(block_cons));
-            # Bis zum Block-Frame unwinden, dann seine Routine zum Auflösen anspringen:
+            # unwind upto Block-Frame, then jump to its routine for freeing:
             #ifndef FAST_SP
             FREE_DYNAMIC_ARRAY(private_SP_space);
             #endif
@@ -7410,22 +7410,22 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           }
         # ------------------- (11) TAGBODY -----------------------
         CASE cod_tagbody_open:           # (TAGBODY-OPEN n label1 ... labelm)
-          # belegt 3+m STACK-Einträge und 1 SP-jmp_buf-Eintrag und 1 SP-Eintrag
+          # occupies 3+m STACK-Entries and 1 SP-jmp_buf-Entry and 1 SP-Entry
           {
             var uintL n;
             U_operand(n);
-            # Tagbody-Cons erzeugen:
+            # create Tagbody-Cons:
             var object tagbody_cons;
             with_saved_context(
               tagbody_cons = allocate_cons();
             );
-            # Tagbody-Cons füllen: Tag-Vektor (CONST n) als CAR
+            # fill Tagbody-Cons: Tag-Vector (CONST n) as CAR
             {
               var object tag_vector = TheCclosure(closure)->clos_consts[n];
               var uintL m = Svector_length(tag_vector);
               Car(tagbody_cons) = tag_vector;
-              get_space_on_STACK(m*sizeof(object)); # Platz reservieren
-            # alle labeli als Fixnums auf den STACK legen:
+              get_space_on_STACK(m*sizeof(object)); # allocate space
+            # push all labeli as Fixnums on the STACK:
               var uintL count;
               dotimespL(count,m, {
                 var const uintB* label_byteptr;
@@ -7433,37 +7433,37 @@ local Values funcall_closure (object fun, uintC args_on_stack);
                 pushSTACK(fixnum(label_byteptr - CODEPTR));
               });
             }
-            # Sprungziel in den SP:
+            # jump destination in the SP:
             pushSP((aint)closureptr);
-            # CTAGBODY-Frame aufbauen:
+            # build upCTAGBODY-Frame:
             {
-              var object* top_of_frame = STACK; # Pointer übern Frame
+              var object* top_of_frame = STACK; # Pointer above Frame
               pushSTACK(tagbody_cons); # Cons ( (CONST n) . ...)
-              var JMPBUF_on_SP(returner); # Rücksprungpunkt merken
+              var JMPBUF_on_SP(returner); # memorize return-point
               finish_entry_frame_1(CTAGBODY,returner, goto tagbody_go; );
             }
-            # Framepointer im Tagbody-Cons ablegen:
+            # store Framepointer in Tagbody-Cons:
             Cdr(tagbody_cons) = make_framepointer(STACK);
           }
           goto next_byte;
-         tagbody_go: # Hierher wird gesprungen, wenn der oben aufgebaute
-                     # CTAGBODY-Frame ein GO zum Label Nummer i gefangen hat.
+         tagbody_go: # jump to this label takes place, if the previously
+                     # built CTAGBODY-Frame has catched a GO to Label nr. i.
           {
-            var uintL m = Svector_length(Car(STACK_2)); # Anzahl der Labels
-            # (Könnte auch das obige m als 'auto' deklarieren und hier benutzen.)
-            var uintL i = posfixnum_to_L(value1); # Nummer des Labels
+            var uintL m = Svector_length(Car(STACK_2)); # Number of Labels
+            # (I could also declare the m above as 'auto' and use it here.)
+            var uintL i = posfixnum_to_L(value1); # Number of Labels
             var uintL index = posfixnum_to_L(STACK_((m-i)+3)); # labeli
-            # closure zurück, byteptr:=labeli_byteptr :
+            # get closure back, byteptr:=labeli_byteptr :
             closureptr = (object*) SP_(jmpbufsize+0);
-            closure = *closureptr; # Closure aus dem Stack holen
+            closure = *closureptr; # fetch Closure from Stack
             codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
             byteptr = CODEPTR + index;
           }
-          goto next_byte; # am Label i weiterinterpretieren
+          goto next_byte; # continue interpretation at Label i
         CASE cod_tagbody_close_nil:      # (TAGBODY-CLOSE-NIL)
-          value1 = NIL; mv_count=1; # Wert des Tagbody ist NIL
+          value1 = NIL; mv_count=1; # value of Tagbody is NIL
         CASE cod_tagbody_close:          # (TAGBODY-CLOSE)
-          # CTAGBODY-Frame auflösen:
+          # unwind CTAGBODY-Frame:
           #if STACKCHECKC
           if (!(framecode(STACK_0) == CTAGBODY_frame_info))
             goto fehler_STACK_putt;
@@ -7471,7 +7471,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           {
             FREE_JMPBUF_on_SP();
             var object tagbody_cons = STACK_2; # Tagbody-Cons
-            Cdr(tagbody_cons) = disabled; # als Disabled markieren
+            Cdr(tagbody_cons) = disabled; # mark as Disabled
             skipSTACK(3+Svector_length(Car(tagbody_cons)));
             skipSP(1);
           }
@@ -7487,21 +7487,21 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             if (eq(Cdr(tagbody_cons),disabled)) {
               var object tag_vector = Car(tagbody_cons);
               pushSTACK(tag_vector);
-              pushSTACK(TheSvector(tag_vector)->data[l]); # Marke l
+              pushSTACK(TheSvector(tag_vector)->data[l]); # label l
               pushSTACK(S(go));
               fehler(control_error,
                      GETTEXT("(~ ~): the tagbody of the tags ~ has already been left"));
             }
-            # Übergabewert an den Tagbody:
-            # Bei CTAGBODY-Frames 1+l als Fixnum,
-            # bei ITAGBODY-Frames die Formenliste zu Tag Nummer l.
+            # value passed to the Tagbody:
+            # For CTAGBODY-Frames: 1+l as Fixnum,
+            # For ITAGBODY-Frames: the form-list for Tag nr. l.
             var object* FRAME = uTheFramepointer(Cdr(tagbody_cons));
             value1 = (framecode(FRAME_(0)) == CTAGBODY_frame_info
                       ? fixnum(1+l)
                       : FRAME_(frame_bindings+2*l+1));
             mv_count=1;
-            # Bis zum Tagbody-Frame unwinden, dann seine Routine anspringen,
-            # die zum Label l springt:
+            # unwind upto Tagbody-Frame, then jump to its Routine,
+            # which then jumps to Label l:
             #ifndef FAST_SP
             FREE_DYNAMIC_ARRAY(private_SP_space);
             #endif
@@ -7522,64 +7522,64 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             if (eq(Cdr(tagbody_cons),disabled)) {
               var object tag_vector = Car(tagbody_cons);
               pushSTACK(tag_vector);
-              pushSTACK(TheSvector(tag_vector)->data[l]); # Marke l
+              pushSTACK(TheSvector(tag_vector)->data[l]); # label l
               pushSTACK(S(go));
               fehler(control_error,
                      GETTEXT("(~ ~): the tagbody of the tags ~ has already been left"));
             }
-            # Übergabewert an den Tagbody:
-            # Bei CTAGBODY-Frames 1+l als Fixnum.
+            # value passed to Tagbody:
+            # For CTAGBODY-Frames 1+l as Fixnum.
             var object* FRAME = uTheFramepointer(Cdr(tagbody_cons));
             value1 = fixnum(1+l); mv_count=1;
-            # Bis zum Tagbody-Frame unwinden, dann seine Routine anspringen,
-            # die zum Label l springt:
+            # unwind upto Tagbody-Frame, then jump to its Routine,
+            # which then jumps to Label l:
             #ifndef FAST_SP
             FREE_DYNAMIC_ARRAY(private_SP_space);
             #endif
             unwind_upto(FRAME);
           }
-        # ------------------- (12) CATCH und THROW -----------------------
+        # ------------------- (12) CATCH and THROW -----------------------
         CASE cod_catch_open:             # (CATCH-OPEN label)
-          # belegt 3 STACK-Einträge und 1 SP-jmp_buf-Eintrag und 2 SP-Einträge
+          # occupies 3 STACK-Entries and 1 SP-jmp_buf-Entry and 2 SP-Entries
           {
             var const uintB* label_byteptr;
             L_operand(label_byteptr);
-            # closureptr, label_byteptr retten:
+            # save closureptr, label_byteptr:
             pushSP(label_byteptr - CODEPTR); pushSP((aint)closureptr);
           }
-          # Frame aufbauen:
+          # build up Frame:
           {
             var object* top_of_frame = STACK;
             pushSTACK(value1); # Tag
-            var JMPBUF_on_SP(returner); # Rücksprungpunkt merken
+            var JMPBUF_on_SP(returner); # memorize return-point
             finish_entry_frame_1(CATCH,returner, goto catch_return; );
           }
           goto next_byte;
-         catch_return: # Hierher wird gesprungen, wenn der oben aufgebaute
-                       # Catch-Frame einen Throw gefangen hat.
+         catch_return: # jump to this label takes place, if the previoulsy
+                       # built Catch-Frame has catched a Throw.
           {
             FREE_JMPBUF_on_SP();
-            skipSTACK(3); # CATCH-Frame auflösen
+            skipSTACK(3); # unwind CATCH-Frame
             var uintL index;
-            # closure zurück, byteptr:=label_byteptr :
+            # get closure back, byteptr:=label_byteptr :
             popSP(closureptr = (object*) ); popSP(index = );
-            closure = *closureptr; # Closure aus dem Stack holen
+            closure = *closureptr; # fetch Closure from Stack
             codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
             byteptr = CODEPTR + index;
           }
-          goto next_byte; # am Label weiterinterpretieren
+          goto next_byte; # continue interpretation at Label
         CASE cod_catch_close:            # (CATCH-CLOSE)
-          # Es muss ein CATCH-Frame kommen:
+          # a CATCH-Frame has to come:
           #if STACKCHECKC
           if (!(framecode(STACK_0) == CATCH_frame_info))
             goto fehler_STACK_putt;
           #endif
           FREE_JMPBUF_on_SP();
           #if STACKCHECKC
-          if (!(closureptr == (object*)SP_(0))) # dort stehender Closureptr muss der jetzige sein
+          if (!(closureptr == (object*)SP_(0))) # that Closureptr must be the current one
             goto fehler_STACK_putt;
           #endif
-          skipSP(2); skipSTACK(3); # CATCH-Frame auflösen
+          skipSP(2); skipSTACK(3); # unwind CATCH-Frame
           goto next_byte;
         CASE cod_throw:                  # (THROW)
           {
@@ -7592,44 +7592,44 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           }
         # ------------------- (13) UNWIND-PROTECT -----------------------
         CASE cod_uwp_open:               # (UNWIND-PROTECT-OPEN label)
-          # belegt 2 STACK-Einträge und 1 SP-jmp_buf-Eintrag und 2 SP-Einträge
+          # occupies 2 STACK-Entries and 1 SP-jmp_buf-Entry and 2 SP-Entries
           {
             var const uintB* label_byteptr;
             L_operand(label_byteptr);
-            # closureptr, label_byteptr retten:
+            # save closureptr, label_byteptr:
             pushSP(label_byteptr - CODEPTR); pushSP((aint)closureptr);
           }
-          # Frame aufbauen:
+          # build Frame:
           {
             var object* top_of_frame = STACK;
-            var JMPBUF_on_SP(returner); # Rücksprungpunkt merken
+            var JMPBUF_on_SP(returner); # memorize return-point
             finish_entry_frame_1(UNWIND_PROTECT,returner, goto throw_save; );
           }
           goto next_byte;
-         throw_save: # Hierher wird gesprungen, wenn der oben aufgebaute
-                     # Unwind-Protect-Frame einen Throw aufgehalten hat.
-          # unwind_protect_to_save ist zu retten und am Schluss anzuspringen.
+         throw_save: # jump to this label takes place, if the previously
+                     # built Unwind-Protect-Frame has stopped a Throw.
+          # unwind_protect_to_save is to be saved and jumped to at the end.
           #if STACKCHECKC
           if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info)) {
             fehler(serious_condition,GETTEXT("STACK corrupted"));
           }
           #endif
-          # Frame auflösen:
+          # unwind Frame:
           FREE_JMPBUF_on_SP();
           skipSTACK(2);
           {
             var uintL index;
-            # closure zurück, byteptr:=label_byteptr :
+            # get closure back, byteptr:=label_byteptr :
             popSP(closureptr = (object*) );
             popSP(index = );
-            # unwind_protect_to_save retten:
+            # save unwind_protect_to_save:
             pushSP((aint)unwind_protect_to_save.fun);
             pushSP((aint)unwind_protect_to_save.upto_frame);
-            pushSP((aint)STACK); # Pointer übern Frame zusätzlich auf den SP
-            # alle Werte auf den Stack:
+            pushSP((aint)STACK); # push Pointer above Frame additionally on the SP
+            # move all values to the Stack:
             mv_to_STACK();
-            # Cleanup-Formen ausführen:
-            closure = *closureptr; # Closure aus dem Stack holen
+            # execute Cleanup-Forms:
+            closure = *closureptr; # fetch Closure from Stack
             codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
             byteptr = CODEPTR + index;
           }
@@ -7638,87 +7638,87 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           #if STACKCHECKC
           if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info))
             goto fehler_STACK_putt;
-          if (!(closureptr == (object*)SP_(jmpbufsize+0))) # dort stehender Closureptr muss der jetzige sein
+          if (!(closureptr == (object*)SP_(jmpbufsize+0))) # that Closureptr must be the current one
             goto fehler_STACK_putt;
           #endif
-          # Frame auflösen:
-          # Nichts zu tun, da closure und byteptr unverändert bleiben.
+          # unwind Frame:
+          # nothing to do, because closure and byteptr stay unmodified.
           FREE_JMPBUF_on_SP(); skipSP(2);
           skipSTACK(2);
           # Dummy-Werte für 'unwind_protect_to_save':
           pushSP((aint)NULL); pushSP((aint)NULL); # NULL,NULL -> uwp_continue
-          pushSP((aint)STACK); # Pointer übern Frame zusätzlich auf den SP
-          # alle Werte auf den Stack:
+          pushSP((aint)STACK); # push Pointer above Frame additionally on the SP
+          # move all values to the Stack:
           mv_to_STACK();
-          # Cleanup-Formen ausführen:
+          # execute Cleanup-Forms:
           goto next_byte;
         CASE cod_uwp_close:              # (UNWIND-PROTECT-CLOSE)
-          # Hierher wird am Ende der Cleanup-Formen gesprungen.
+          # jump to this labe takes place at the end of the Cleanup-Forms.
           {
-            var object* oldSTACK; # Wert von STACK vor dem Retten der Werte
+            var object* oldSTACK; # value of STACK before saveing the values
             popSP( oldSTACK = (object*) );
-            var uintL mvcount = # Anzahl der geretteten Werte auf dem Stack
+            var uintL mvcount = # number of saved values on Stack
               STACK_item_count(STACK,oldSTACK);
             if (mvcount >= mv_limit) goto fehler_zuviele_werte;
             STACK_to_mv(mvcount);
           }
-          # Rücksprung zum geretteten unwind_protect_to_save.fun :
+          # return to the saved unwind_protect_to_save.fun :
           {
             var restart fun;
             var object* arg;
             popSP( arg = (object*) ); popSP( fun = (restart) );
-            # Rücksprung zu uwp_continue oder uwp_jmpback oder unwind_upto:
+            # return to uwp_continue or uwp_jmpback or unwind_upto:
             if (!(fun == (restart)NULL)) {
-              (*fun)(arg); # Rücksprung zu unwind_upto o.ä.
+              (*fun)(arg); # return to unwind_upto or similar.
               NOTREACHED
             }
             if (arg == (object*)NULL) {
               # uwp_continue:
-              # Hierher wird gesprungen, wenn nach dem Ausführen der
-              # Cleanup-Formen einfach weiterinterpretiert werden soll.
+              # jump to this label takes place, if after the execution of
+              # the Cleanup-Forms simply interpretation shall continue.
               goto next_byte;
             } else {
               # uwp_jmpback:
-              # Hierher wird gesprungen, wenn nach dem Ausführen der
-              # Cleanup-Formen an der alten Stelle in derselben Closure
-              # weiterinterpretiert werden soll.
+              # jump to this label takes place, if after the execution of
+              # the Cleanup-Forms interpretation shall continue at the old
+              # location in the same Closure.
               byteptr = CODEPTR + (uintP)arg;
               goto next_byte;
             }
           }
         CASE cod_uwp_cleanup:            # (UNWIND-PROTECT-CLEANUP)
-          # Dies wird ausgeführt, wenn innerhalb derselben Closure ein
-          # Ausführen des Cleanup-Codes nötig ist.
+          # this is executed, if within the same Closure an execution
+          # of the Cleanup-Code is necessary.
           #if STACKCHECKC
           if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info))
             goto fehler_STACK_putt;
-          if (!(closureptr == (object*)SP_(jmpbufsize+0))) # dort stehender Closureptr muss der jetzige sein
+          if (!(closureptr == (object*)SP_(jmpbufsize+0))) # that Closureptr must be the current one
             goto fehler_STACK_putt;
           #endif
-          # closure bleibt, byteptr:=label_byteptr :
+          # closure remains, byteptr:=label_byteptr :
           {
             var uintL index = SP_(jmpbufsize+1);
-            # Frame auflösen:
+            # unwind Frame:
             FREE_JMPBUF_on_SP(); skipSP(2);
             skipSTACK(2);
-            # Dummy-Werte für 'unwind_protect_to_save':
+            # Dummy-values for 'unwind_protect_to_save':
             pushSP((aint)NULL); # NULL -> uwp_jmpback
             pushSP(byteptr - CODEPTR);
-            pushSP((aint)STACK); # Pointer übern Frame zusätzlich auf den SP
-            # alle Werte auf den Stack:
+            pushSP((aint)STACK); # push Pointer above Frame additionally on the SP
+            # move all values to the Stack:
             mv_to_STACK();
-            # Cleanup-Formen ausführen:
+            # execute Cleanup-Forms:
             byteptr = CODEPTR + index;
           }
           goto next_byte;
         # ------------------- (14) HANDLER-BIND -----------------------
         CASE cod_handler_open:           # (HANDLER-OPEN n)
-          # belegt 4 STACK-Einträge
+          # occupies 4 STACK-Entries
           {
             var uintL n;
             U_operand(n);
-            # Frame aufbauen:
-            var object* top_of_frame = STACK; # Pointer übern Frame
+            # build up Frame:
+            var object* top_of_frame = STACK; # Pointer above Frame
             pushSTACK(TheCclosure(closure)->clos_consts[n]);
             pushSTACK(closure);
             pushSTACK(as_object((aint)(_SP_(0))));
@@ -7726,23 +7726,23 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           }
           goto next_byte;
         CASE cod_handler_begin_push:     # (HANDLER-BEGIN&PUSH)
-          # baut SP neu auf, belegt 1 SP-Eintrag und
-          # beginnt einen neuen STACK-Bereich.
+          # builds up SP newly, occupies 1 SP-Entry and
+          # starts a new STACK-Region.
           {
             var uintL count = posfixnum_to_L(Car(handler_args.spdepth))
                               + jmpbufsize * posfixnum_to_L(Cdr(handler_args.spdepth));
             if (count > 0) {
-              var SPint* oldsp = handler_args.sp; # war früher &SP_(0)
-              # oldsp[0..count-1] auf den jetzigen SP kopieren:
+              var SPint* oldsp = handler_args.sp; # was formerly &SP_(0)
+              # copy oldsp[0..count-1] to the current SP:
               oldsp skipSPop count;
               dotimespL(count,count, { oldsp skipSPop -1; pushSP(*oldsp); } );
             }
           }
-          pushSP((aint)handler_args.stack); # Pointer übern Handler-Frame
+          pushSP((aint)handler_args.stack); # Pointer above Handler-Frame
           value1 = handler_args.condition; mv_count=1;
           pushSTACK(value1);
           goto next_byte;
-        # ------------------- (15) einige Funktionen -----------------------
+        # ------------------- (15) a few Functions -----------------------
         CASE cod_not:                    # (NOT)
           if (nullp(value1)) goto code_t; else goto code_nil;
         CASE cod_eq:                     # (EQ)
@@ -7751,9 +7751,9 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           {
             var object arg = value1;
             if (consp(arg)) {
-              value1 = Car(arg); # CAR eines Cons
+              value1 = Car(arg); # CAR of a Cons
             } elif (nullp(arg)) {
-              # (CAR NIL) = NIL: value1 bleibt NIL
+              # (CAR NIL) = NIL: value1 remains NIL
             } else {
               subr_self = L(car); fehler_list(arg);
             }
@@ -7764,7 +7764,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           {
             var object arg = value1;
             if (consp(arg)) {
-              pushSTACK(Car(arg)); # CAR eines Cons
+              pushSTACK(Car(arg)); # CAR of a Cons
             } elif (nullp(arg)) {
               pushSTACK(arg); # (CAR NIL) = NIL
             } else {
@@ -7778,7 +7778,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(n);
             var object arg = STACK_(n);
             if (consp(arg)) {
-              pushSTACK(Car(arg)); # CAR eines Cons
+              pushSTACK(Car(arg)); # CAR of a Cons
             } elif (nullp(arg)) {
               pushSTACK(arg); # (CAR NIL) = NIL
             } else {
@@ -7794,7 +7794,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(n);
             var object arg = STACK_(m);
             if (consp(arg)) {
-              STACK_(n) = value1 = Car(arg); # CAR eines Cons
+              STACK_(n) = value1 = Car(arg); # CAR of a Cons
             } elif (nullp(arg)) {
               STACK_(n) = value1 = arg; # (CAR NIL) = NIL
             } else {
@@ -7807,9 +7807,9 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           {
             var object arg = value1;
             if (consp(arg)) {
-              value1 = Cdr(arg); # CDR eines Cons
+              value1 = Cdr(arg); # CDR of a Cons
             } elif (nullp(arg)) {
-              # (CDR NIL) = NIL: value1 bleibt NIL
+              # (CDR NIL) = NIL: value1 remains NIL
             } else {
               subr_self = L(cdr); fehler_list(arg);
             }
@@ -7820,7 +7820,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           {
             var object arg = value1;
             if (consp(arg)) {
-              pushSTACK(Cdr(arg)); # CDR eines Cons
+              pushSTACK(Cdr(arg)); # CDR of a Cons
             } elif (nullp(arg)) {
               pushSTACK(arg); # (CDR NIL) = NIL
             } else {
@@ -7834,7 +7834,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(n);
             var object arg = STACK_(n);
             if (consp(arg)) {
-              pushSTACK(Cdr(arg)); # CDR eines Cons
+              pushSTACK(Cdr(arg)); # CDR of a Cons
             } elif (nullp(arg)) {
               pushSTACK(arg); # (CDR NIL) = NIL
             } else {
@@ -7849,7 +7849,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var object* arg_ = &STACK_(n);
             var object arg = *arg_;
             if (consp(arg)) {
-              *arg_ = value1 = Cdr(arg); # CDR eines Cons
+              *arg_ = value1 = Cdr(arg); # CDR of a Cons
             } elif (nullp(arg)) {
               value1 = arg; # (CDR NIL) = NIL
             } else {
@@ -7861,10 +7861,10 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         CASE cod_cons:                   # (CONS)
           {
             pushSTACK(value1);
-            # Cons anfordern:
+            # request Cons:
             var object new_cons;
             with_saved_context( { new_cons = allocate_cons(); } );
-            # Cons füllen:
+            # fill Cons:
             Cdr(new_cons) = popSTACK();
             Car(new_cons) = popSTACK();
             value1 = new_cons; mv_count=1;
@@ -7873,10 +7873,10 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         CASE cod_cons_push:              # (CONS&PUSH)
           {
             pushSTACK(value1);
-            # Cons anfordern:
+            # request Cons:
             var object new_cons;
             with_saved_context( { new_cons = allocate_cons(); } );
-            # Cons füllen:
+            # fill Cons:
             Cdr(new_cons) = popSTACK();
             Car(new_cons) = STACK_0;
             STACK_0 = new_cons;
@@ -7886,10 +7886,10 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           {
             var uintL n;
             U_operand(n);
-            # Cons anfordern:
+            # request Cons:
             var object new_cons;
             with_saved_context( { new_cons = allocate_cons(); } );
-            # Cons füllen:
+            # fill Cons:
             Car(new_cons) = popSTACK();
             var object* arg_ = &STACK_(n);
             Cdr(new_cons) = *arg_;
@@ -7940,45 +7940,45 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         csf_kein_symbol:
           fehler_kein_symbol(S(symbol_function),symbol);
         csf_unbound:
-          # (symbol zwar evtl. nicht der eigentliche Funktionsname, denn
-          # z.B. (FUNCTION FOO) wird in (SYMBOL-FUNCTION '#:|(SETF FOO)|)
-          # umgewandelt, aber für die Fehlermeldung reicht das wohl.)
+          # (symbol poss. not the actual function-name, for
+          # e.g. (FUNCTION FOO) is converted to (SYMBOL-FUNCTION '#:|(SETF FOO)|),
+          # but that should be enough for the error message.)
           fehler_undefined(S(symbol_function),symbol);
         }
         {var object vec; var object index;
         CASE cod_svref:                  # (SVREF)
-          # STACK_0 muss ein Simple-Vector sein:
+          # STACK_0 must be a Simple-Vector:
           if (!simple_vector_p(STACK_0)) goto svref_kein_svector;
           vec = popSTACK(); # Simple-Vector
           index = value1;
-          # und der Index muss ein Fixnum >=0, <Länge(vec) sein:
+          # and the Index must be Fixnum >= 0, < length(vec) :
           {
             var uintL i;
             if (!(posfixnump(index) &&
                   ((i = posfixnum_to_L(index)) < Svector_length(vec))))
               goto svref_kein_index;
-            value1 = TheSvector(vec)->data[i]; # indiziertes Element als Wert
+            value1 = TheSvector(vec)->data[i]; # indexed Element as value
             mv_count = 1;
           }
           goto next_byte;
         CASE cod_svset:                  # (SVSET)
-          # STACK_0 muss ein Simple-Vector sein:
+          # STACK_0 must be a Simple-Vector:
           if (!simple_vector_p(STACK_0)) goto svref_kein_svector;
           vec = popSTACK(); # Simple-Vector
           index = value1;
-          # und der Index muss ein Fixnum >=0, <Länge(vec) sein:
+          # and the Index must be a Fixnum >=0, <Length(vec) :
           {
             var uintL i;
             if (!(posfixnump(index) &&
                   ((i = posfixnum_to_L(index)) < Svector_length(vec))))
               goto svref_kein_index;
-            value1 = TheSvector(vec)->data[i] = popSTACK(); # neues Element hineinstecken
+            value1 = TheSvector(vec)->data[i] = popSTACK(); # put in new element
             mv_count = 1;
           }
           goto next_byte;
-        svref_kein_svector: # Nicht-Simple-Vector in STACK_0
+        svref_kein_svector: # Non-Simple-Vector in STACK_0
           fehler_kein_svector(S(svref),STACK_0);
-        svref_kein_index: # unpassender Index in index, zum Vektor vec
+        svref_kein_index: # unsuitable Index in index, for Vector vec
           pushSTACK(vec);
           pushSTACK(index);
           pushSTACK(index); # TYPE-ERROR slot DATUM
@@ -8038,7 +8038,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             });
           }
           goto next_byte;
-        # ------------------- (16) kombinierte Operationen -----------------------
+        # ------------------- (16) combined Operations -----------------------
         CASE cod_nil_store:              # (NIL&STORE n)
           {
             var uintL n;
@@ -8062,9 +8062,9 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         CASE cod_callsr_store:           # (CALLSR&STORE m n k)
           CALLSR();
           goto store;
-        # Incrementieren. Speziell optimiert für Fixnums >=0.
+        # Increment. Optimized specifically for Fixnums >=0.
         #define INC(arg,statement)  \
-          { if (posfixnump(arg) # Fixnum >= 0 und < most-positive-fixnum ? \
+          { if (posfixnump(arg) # Fixnum >= 0 and < most-positive-fixnum ? \
                 && !eq(arg,fixnum(bitm(oint_data_len)-1)))                 \
               { arg = fixnum_inc(arg,1); statement; }                      \
               else                                                         \
@@ -8073,7 +8073,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
                   );                                                       \
                 arg = value1;                                              \
           }   }
-        # Decrementieren. Speziell optimiert für Fixnums >=0.
+        # Decrement. Optimized specifically for Fixnums >=0.
         #define DEC(arg,statement)  \
           { if (posfixnump(arg) && !eq(arg,Fixnum_0)) # Fixnum > 0 ? \
               { arg = fixnum_inc(arg,-1); statement; }               \
@@ -8088,7 +8088,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var uintL n;
             U_operand(n);
             var object arg = STACK_(n);
-            INC(arg,); # incrementieren
+            INC(arg,); # increment
             pushSTACK(arg);
           }
           goto next_byte;
@@ -8098,7 +8098,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(n);
             var object* arg_ = &STACK_(n);
             var object arg = *arg_;
-            INC(arg,mv_count=1); # incrementieren, 1 Wert
+            INC(arg,mv_count=1); # increment, one value
             value1 = *arg_ = arg;
           }
           goto next_byte;
@@ -8107,7 +8107,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var uintL n;
             U_operand(n);
             var object arg = STACK_(n);
-            DEC(arg,); # decrementieren
+            DEC(arg,); # decrement
             pushSTACK(arg);
           }
           goto next_byte;
@@ -8117,7 +8117,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(n);
             var object* arg_ = &STACK_(n);
             var object arg = *arg_;
-            DEC(arg,mv_count=1); # decrementieren, 1 Wert
+            DEC(arg,mv_count=1); # decrement, one value
             value1 = *arg_ = arg;
           }
           goto next_byte;
@@ -8171,12 +8171,12 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var uintL k;
             U_operand(n);
             U_operand(k);
-            var object fun = STACK_(n); # Funktion
+            var object fun = STACK_(n); # Function
             with_saved_context({
-              apply(fun,n,value1); # Funktion aufrufen
-              skipSTACK(k+1); # Funktion u.a. aus dem Stack streichen
-              goto finished; # Rücksprung zum Aufrufer
-            }); # der Kontext wird nicht restauriert
+              apply(fun,n,value1); # call Function
+              skipSTACK(k+1); # discard Function and others from Stack
+              goto finished; # return (jump) to caller
+            }); # the context is not restored
           }
         CASE cod_funcall_skip_retgf:     # (FUNCALL&SKIP&RETGF n k)
           {
@@ -8184,21 +8184,21 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var uintL k;
             U_operand(n);
             U_operand(k);
-            var object fun = STACK_(n); # Funktion
+            var object fun = STACK_(n); # Function
             var uintL r = ((Codevec)codeptr)->ccv_numreq;
             var uintB flags = ((Codevec)codeptr)->ccv_flags;
             with_saved_context({
-              funcall(fun,n); # Funktion aufrufen
+              funcall(fun,n); # call Function
               k -= r;
               if (flags & bit(0)) {
                 skipSTACK(k); apply(value1,r,popSTACK());
               } else {
                 skipSTACK(k+1); funcall(value1,r);
               }
-              goto finished; # Rücksprung zum Aufrufer
-            }); # der Kontext wird nicht restauriert
+              goto finished; # return (jump) to caller
+            }); # the context is not restored
           }
-        # ------------------- (17) Kurzcodes -----------------------
+        # ------------------- (17) short codes -----------------------
         CASE cod_load0:                  # (LOAD.S 0)
           value1 = STACK_(0); mv_count=1;
           goto next_byte;
@@ -8588,17 +8588,17 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           STACK_(21) = value1; mv_count=1;
           goto next_byte;
         #endif
-        # ------------------- sonstiges -----------------------
+        # ------------------- miscellaneous -----------------------
         #ifndef FAST_DISPATCH
         default:
         #endif
-          # undefinierter Code
+          # undefined Code
           #if defined(GNU) && defined(FAST_SP)
-            # -fomit-frame-pointer zunichte machen, damit
-            # %sp bzw. %esp als private_SP verwendbar ist:
+            # foil -fomit-frame-pointer, herewith allow utilization of
+            # %sp resp. %esp  as private_SP :
             alloca(1);
           #endif
-          pushSTACK(fixnum(byteptr-&codeptr->data[0]-1)); # fehlerhafte Bytenummer
+          pushSTACK(fixnum(byteptr-&codeptr->data[0]-1)); # erroneous byte-number
           pushSTACK(closure); # Closure
           fehler(serious_condition,
                  GETTEXT("undefined bytecode in ~ at byte ~"));
@@ -8626,8 +8626,8 @@ local Values funcall_closure (object fun, uintC args_on_stack);
     }
 
 
-# wo ist check_SP() oder check_STACK() einzufügen??
-# soll nest_env sein Ziel-Environment übergeben bekommen??
-# Register-Allozierung in eval_subr und eval_cclosure usw.??
-# subr_self eliminieren??
+# where is check_SP() or check_STACK() to be inserted??
+# is nest_env supposed to receive its target-environment as parameter??
+# register-allocation in eval_subr and eval_cclosure etc.??
+# eliminate subr_self??
 
