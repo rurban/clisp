@@ -544,10 +544,12 @@ global maygc void progv (object symlist, object vallist) {
     var object sym = check_symbol_non_constant(Car(STACK_0),S(progv));
     if (!eq(sym,Car(STACK_0))) { /* changed symbol ==> must copy symlist */
       if (need_new_symlist) {    /* have not copied symlist yet */
-        STACK_0 = STACK_2 = copy_list(STACK_2); /* copy symlist */
+        pushSTACK(sym);          /* save sym */
+        STACK_1 = STACK_3 = copy_list(STACK_3); /* copy symlist */
         var uintL pos = llen;                 /* skip copy ... */
-        while (pos--) STACK_0 = Cdr(STACK_0); /* ... to the right position */
+        while (pos--) STACK_1 = Cdr(STACK_1); /* ... to the right position */
         need_new_symlist = false; /* do not copy symlist twice */
+        sym = popSTACK();         /* restore sym */
       }
       Car(STACK_0) = sym;
     }
