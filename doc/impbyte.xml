@@ -274,6 +274,77 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
 </section>
 </chapter>
 
+<chapter id="extend"><title>Extending &clisp;.</title>
+
+<epigraph><attribution><ulink url="http://www.franz.com/~jkf/">John
+  Foderaro</ulink></attribution>
+ <simpara>&cl; is a <emphasis>programmable</emphasis>
+  programming language</simpara></epigraph>
+
+<para>&clisp; can be easily extended the same way any other &cl;
+ implementation can: create a lisp file with your variables, functions,
+ macros, etc.; &load; it into a running &clisp;, and save the
+ &mem-image;.</para>
+
+<para>This method does not work when you need to use some functionality
+ not available in &clisp;, e.g., you want to call a &c-lang; function.
+ &clisp; comes with an &ffi-pac; which allows you to access &c-lang;
+ libraries in an easy way.</para>
+
+<section id="add-fun"><title>Adding a built-in function.</title>
+
+<para>In the rare cases when you really need to modify &clisp;
+ internals and add a truly built-in function, you should read the
+ &clisp; sources for inspiration and enlightenment, choose a file where
+ your brand new built-in function should go to, and then ...
+ <itemizedlist><listitem><simpara>add the <function>LISPFUN</function>
+    form and the implementation there;</simpara></listitem>
+  <listitem><simpara>add the <function>LISPFUN</function> header to
+    file <filename>subr.d</filename>;</simpara></listitem>
+  <listitem><simpara>declare the function name in file
+    <filename>constsym.d</filename> in the appropriate package
+    (probably &ext-pac;, if there is no specific package);
+  </simpara></listitem>
+  <listitem><simpara>if your function accepts keyword arguments,
+    then an appropriate pair of forms must be added
+    to <filename>subrkw.d</filename> and you must make sure that the
+    keyword symbols are declared in <filename>constsym.d</filename>;
+  </simpara></listitem>
+  <listitem><simpara>export your function name from the appropriate
+    package in file <filename>init.lisp</filename>;</simpara></listitem>
+  <listitem><simpara>when you are done, you should run <command>make
+     check-sources</command> in your build directory: this will check
+    that the definitions (source files) and the declarations
+    (<filename>subr.d</filename>, <filename>subrkw.d</filename>
+    and <filename>fsubr.d</filename>) are in sync.</simpara></listitem>
+</itemizedlist></para>
+
+<warning><para>Be very careful with the <emphasis>GC-unsafe</emphasis>
+  functions!  Always remember about <link linkend="gc-safety"
+  >GC-safety</link>!</para></warning>
+
+<para>These instructions are intentionally terse - you are encouraged
+ to use &ffi-pac; instead of adding built-ins directly.</para>
+</section>
+
+<section id="add-var"><title>Adding a built-in variable.</title>
+
+<para>If you must be able to access the variable in the &c-lang; code,
+ follow these steps:
+ <itemizedlist><listitem><simpara>declare the variable name
+    in <filename>constsym.d</filename> in the appropriate package
+    (probably &custom-pac;, if there is no specific package);
+  </simpara></listitem>
+  <listitem><simpara>add a <function>define_variable()</function> call
+    in function <function>init_symbol_values()</function>
+    in file <filename>spvw.d</filename>;</simpara></listitem>
+  <listitem><simpara>export your variable name from the appropriate
+    package in file <filename>init.lisp</filename>;
+</simpara></listitem></itemizedlist></para>
+</section>
+
+</chapter>
+
 <chapter id="bytecode"><title>The &clisp; bytecode specification</title>
 <subtitle>Last modified: 19 September 1998.</subtitle>
 
