@@ -1493,6 +1493,7 @@ LISPSYM(parse_namestring_ansi,"*PARSE-NAMESTRING-ANSI*",custom) /* variable in P
 LISPSYM(parse_namestring_dot_file,"*PARSE-NAMESTRING-DOT-FILE*",custom) /* variable in PATHNAME */
 #endif
 #ifdef LOGICAL_PATHNAMES
+LISPSYM(type_error,"TYPE-ERROR",lisp) /* type for PATHNAME */
 LISPSYM(logpathname_translations,"*LOGICAL-PATHNAME-TRANSLATIONS*",system) /* variable in PATHNAME */
 #endif
 LISPSYM(Kwild,"WILD",keyword) /* pathname component in PATHNAME */
