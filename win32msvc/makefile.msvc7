@@ -2060,10 +2060,10 @@ lispinit2.mem : lisp.exe $(TESTFASFILES)
 
 
 testsuite : suite lisp.exe lispinit.mem
-	cd suite && CLISP_LANGUAGE='' $(MAKE) SHELL='$(SHELL)' LEXE=.exe
+	cd suite && $(MAKE) SHELL='$(SHELL)' LEXE=.exe
 
 testsuite-all : suite lisp.exe lispinit.mem
-	cd suite && CLISP_LANGUAGE='' $(MAKE) SHELL='$(SHELL)' LEXE=.exe clean complete compare
+	cd suite && $(MAKE) SHELL='$(SHELL)' LEXE=.exe clean complete compare
 
 suite :
 	-mkdir suite
@@ -2124,7 +2124,7 @@ base : modular lispinit.mem
 
 anymodule $(MODULES) : lisp.exe lispinit.mem force modprep.fas exporting.fas clisp.h
 	test -d $@ || lndir ..\modules/$@ $@
-	if test -f $@/configure -a '!' -f $@/config.status ; then cd $@ ; ./configure --cache-file=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'`config.cache ; fi
+	if test -f $@/configure -a '!' -f $@/config.status ; then cd $@ ; CC="$(CC)" ./configure --cache-file=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'`config.cache ; fi
 	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -Efile UTF-8 -Eterminal UTF-8 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'` ; $(MAKE) clisp-module CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" LISPBIBL_INCLUDES=" $${dots}lispbibl.c $${dots}fsubr.c $${dots}subr.c $${dots}pseudofun.c $${dots}constsym.c $${dots}constobj.c $${dots}win32.c $${dots}xthread.c $${dots}stdbool.h $${dots}stdint.h $${dots}libcharset.h" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
 
 full : modular base $(MODULES)
@@ -2132,7 +2132,7 @@ full : modular base $(MODULES)
 	CLISP_LINKKIT=. clisp-link add-module-sets base full $(MODULES) || ($(RMRF) full ; exit 1)
 
 full-check : full clisp
-	for m in $(MODULES); do $(RM) 1760m/*.erg; done
+	for m in $(MODULES); do $(RM) $$m/*.erg; done
 	z=""; for m in $(MODULES); do z=$$z" \""$$m/\"; done; ./clisp -norc -K full -C -i suite/tests -x "(run-some-tests '($$z))"
 
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
