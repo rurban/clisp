@@ -25,27 +25,27 @@ distribdir =
 all : orafns.o oracle.o oiface.o
 
 oracle.c:       oracle.lisp
-        $(CLISP) -c oracle.lisp
+	$(CLISP) -c oracle.lisp
 
 oracle.o:       oracle.c
-        $(CC) $(CFLAGS) $(INCLUDES) $(ORA_INCLUDES) -c oracle.c
+	$(CC) $(CFLAGS) $(INCLUDES) $(ORA_INCLUDES) -c oracle.c
 
 orafns.o:       orafns.c oiface.h
-        $(CC) $(CFLAGS) $(INCLUDES) $(ORA_INCLUDES) -c orafns.c
+	$(CC) $(CFLAGS) $(INCLUDES) $(ORA_INCLUDES) -c orafns.c
 
 oiface.o:       oiface.c oiface.h
-        $(CC) $(CFLAGS) $(INCLUDES) $(ORA_INCLUDES) -c oiface.c
+	$(CC) $(CFLAGS) $(INCLUDES) $(ORA_INCLUDES) -c oiface.c
 
 # Make a module
 clisp-module : all
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
-        $(LN) $(DISTRIBFILES) $(distribdir)
+	$(LN) $(DISTRIBFILES) $(distribdir)
 
 clean : force
-        rm -f core *.o *.a
-        rm -f *.aux *.cp *.fn *.ky *.log *.pg *.toc *.tp *.vr
+	rm -f core *.o *.a
+	rm -f *.aux *.cp *.fn *.ky *.log *.pg *.toc *.tp *.vr
 
 distclean : clean
 
