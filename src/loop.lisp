@@ -42,8 +42,9 @@
 
 ;; (loop-syntax-error loop-keyword) reports a syntax error.
 (defun loop-syntax-error (loop-keyword)
-  (error (TEXT "~S: syntax error after ~A in ~S")
-         'loop (symbol-name loop-keyword) *whole*))
+  (error-of-type 'source-program-error
+    (TEXT "~S: syntax error after ~A in ~S")
+    'loop (symbol-name loop-keyword) *whole*))
 
 ;; destructuring:
 
@@ -257,8 +258,8 @@
        (parse-var-typespec () ;; parse var [typespec]
          ;; return the variable pattern and the list of declspecs
          (unless (consp body-rest)
-           (error (TEXT "~S: missing variable.")
-                  'loop))
+           (error-of-type 'source-program-error
+             (TEXT "~S: missing variable.") 'loop))
          (let ((pattern (pop body-rest))
                (typedecl nil))
            (block nil
@@ -835,8 +836,9 @@
                                    (let ((step-direction
                                            (if (or (eq step-start-p 'down) (eq step-end-p 'down))
                                              (if (or (eq step-start-p 'up) (eq step-end-p 'up))
-                                               (error (TEXT "~S: questionable iteration direction after ~A")
-                                                      'loop (symbol-name kw))
+                                               (error-of-type 'source-program-error
+                                                 (TEXT "~S: questionable iteration direction after ~A")
+                                                 'loop (symbol-name kw))
                                                'down)
                                              'up)))
                                      ;; Determine start, unless given:
@@ -844,8 +846,9 @@
                                        (when (eq step-direction 'down)
                                          ; Abwärtsiteration ohne Startwert ist nicht erlaubt.
                                          ; Die zweite optionale Klausel (d.h. preposition) muss abwärts zeigen.
-                                         (error (TEXT "~S: specifying ~A requires FROM or DOWNFROM")
-                                                'loop (symbol-name preposition)))
+                                         (error-of-type 'source-program-error
+                                           (TEXT "~S: specifying ~A requires FROM or DOWNFROM")
+                                           'loop (symbol-name preposition)))
                                        ; Aufwärtsiteration -> Startwert 0
                                        (setq step-start-form '0)
                                        (push `(,pattern ,step-start-form) bindings))
@@ -902,13 +905,14 @@
                       (push `(SETQ ,var (1- ,var)) stepafter-code)
                       (note-initialization
                        (make-endtest `(UNLESS (PLUSP ,var) (LOOP-FINISH))))))))
-                (t (error (TEXT "~S: illegal syntax near ~S in ~S")
-                          'loop (first body-rest) *whole*)))))))
+                (t (error-of-type 'source-program-error
+                     (TEXT "~S: illegal syntax near ~S in ~S")
+                     'loop (first body-rest) *whole*)))))))
       ; Noch einige semantische Tests:
       (setq results (delete-duplicates results :test #'equal))
       (when (> (length results) 1)
-        (error (TEXT "~S: ambiguous result of loop ~S")
-               'loop *whole*))
+        (error-of-type 'source-program-error
+          (TEXT "~S: ambiguous result of loop ~S") 'loop *whole*))
       (unless (null results)
         (push `(RETURN-FROM ,block-name ,@results) finally-code))
       ; Initialisierungen abarbeiten und optimieren:
