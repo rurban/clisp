@@ -18,6 +18,7 @@
 	(gid_to_vector): new function
 	(BDB:TXN-RECOVER): use it
 	(BDB:TXN-STAT): new function
+	(BDB:DB-STAT): fixed memory management
 
 2004-06-23  Sam Steingold  <sds@gnu.org>
 
